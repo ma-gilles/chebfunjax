@@ -7,7 +7,6 @@ This is the vertical-slice test: if Chebtech2 works, the whole architecture
 is validated.
 """
 
-import functools
 
 import equinox as eqx
 import jax
@@ -18,7 +17,7 @@ import pytest
 
 from chebfunjax.tech.chebtech import Chebtech2, _clenshaw
 from chebfunjax.utils.quadrature import chebpts
-from chebfunjax.utils.transforms import coeffs2vals, vals2coeffs
+from chebfunjax.utils.transforms import coeffs2vals
 
 # Tolerances from project.conf
 RTOL = 1e-12
