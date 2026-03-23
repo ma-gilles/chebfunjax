@@ -691,3 +691,218 @@ class TestJITCompatibility:
         def f():
             return chebweights(10, kind=2)
         npt.assert_allclose(np.array(f()), np.array(chebweights(10, kind=2)), rtol=1e-15)
+
+
+# ===========================================================================
+# Edge-case tests for coverage
+# ===========================================================================
+
+
+class TestChebptsEdgeCases:
+    """Cover ValueError raise branches and edge cases in chebpts."""
+
+    def test_invalid_kind_raises(self):
+        """chebpts with kind != 1 or 2 should raise ValueError."""
+        with pytest.raises(ValueError, match="kind must be 1 or 2"):
+            chebpts(5, kind=3)
+
+    def test_invalid_kind_zero(self):
+        with pytest.raises(ValueError, match="kind must be 1 or 2"):
+            chebpts(5, kind=0)
+
+
+class TestChebweightsEdgeCases:
+    """Cover n=0, n=1, and invalid kind branches in chebweights."""
+
+    def test_n0(self):
+        """chebweights(0) should return empty array."""
+        w = chebweights(0)
+        assert len(w) == 0
+
+    def test_n1(self):
+        """chebweights(1) should return [2.0]."""
+        w = chebweights(1)
+        npt.assert_allclose(np.array(w), [2.0], rtol=1e-14)
+
+    def test_n0_kind1(self):
+        """chebweights(0, kind=1) returns empty array."""
+        w = chebweights(0, kind=1)
+        assert len(w) == 0
+
+    def test_n1_kind1(self):
+        """chebweights(1, kind=1) returns [2.0] (same for both kinds)."""
+        w = chebweights(1, kind=1)
+        npt.assert_allclose(np.array(w), [2.0], rtol=1e-14)
+
+    def test_invalid_kind_raises(self):
+        """chebweights with kind != 1 or 2 should raise ValueError."""
+        with pytest.raises(ValueError, match="kind must be 1 or 2"):
+            chebweights(5, kind=3)
+
+
+class TestLegptsEdgeCases:
+    """Cover interval mapping branches in legpts."""
+
+    def test_n0_with_interval(self):
+        """legpts(0, interval=...) should return empty arrays."""
+        x, w = legpts(0, interval=(0.0, 2.0))
+        assert len(x) == 0
+        assert len(w) == 0
+
+    def test_n1_with_interval(self):
+        """legpts(1, interval=[0, 2]) should map the single point to midpoint."""
+        x, w = legpts(1, interval=(0.0, 2.0))
+        # Single Gauss-Legendre node at 0 maps to midpoint of [0, 2] = 1.0
+        npt.assert_allclose(float(x[0]), 1.0, atol=1e-14)
+        # Weight = (b-a)/2 * 2.0 = 2.0
+        npt.assert_allclose(float(w[0]), 2.0, rtol=1e-13)
+
+    def test_interval_list(self):
+        """legpts with interval as list."""
+        n = 5
+        x, w = legpts(n, interval=[0, 2])
+        # All points in [0, 2]
+        assert float(jnp.min(x)) >= 0.0
+        assert float(jnp.max(x)) <= 2.0
+        # Weights sum to interval length
+        npt.assert_allclose(float(jnp.sum(w)), 2.0, rtol=1e-13)
+        # Integrate x^2 on [0, 2] = 8/3
+        npt.assert_allclose(float(jnp.dot(w, x**2)), 8.0 / 3.0, rtol=1e-12)
+
+
+class TestJacptsEdgeCases:
+    """Cover interval mapping branches in jacpts."""
+
+    def test_n1_with_interval(self):
+        """jacpts(1, ..., interval=...) covers lines 327-330."""
+        x, w = jacpts(1, 0.5, 1.5, interval=(0.0, 2.0))
+        assert x.shape == (1,)
+        assert w.shape == (1,)
+        # Point should be in [0, 2]
+        assert 0.0 <= float(x[0]) <= 2.0
+
+    def test_general_n_with_interval(self):
+        """jacpts(n, ..., interval=...) covers lines 340-343."""
+        n = 5
+        a_jac, b_jac = 0.5, 1.5
+        x, w = jacpts(n, a_jac, b_jac, interval=(0.0, 2.0))
+        assert x.shape == (n,)
+        assert w.shape == (n,)
+        # All points in [0, 2]
+        assert float(jnp.min(x)) >= 0.0
+        assert float(jnp.max(x)) <= 2.0
+
+
+class TestHermptsEdgeCases:
+    """Cover n=1 probabilist's Hermite branch."""
+
+    def test_n1_prob(self):
+        """hermpts(1, kind='prob') covers lines 446-447."""
+        x, w = hermpts(1, kind="prob")
+        npt.assert_allclose(float(x[0]), 0.0, atol=1e-15)
+        # For prob: weight = sqrt(pi) * sqrt(2) = sqrt(2*pi)
+        npt.assert_allclose(float(w[0]), np.sqrt(2.0 * np.pi), rtol=1e-13)
+
+
+class TestLagptsEdgeCases:
+    """Cover interval mapping branches in lagpts."""
+
+    def test_interval_right_inf(self):
+        """lagpts(n, interval=[a, inf]) covers lines 553-556."""
+        n = 5
+        x, w = lagpts(n, interval=(2.0, np.inf))
+        # Nodes should be shifted: all > 2
+        assert float(jnp.min(x)) > 2.0
+
+    def test_interval_left_inf(self):
+        """lagpts(n, interval=[-inf, b]) covers lines 557-559."""
+        n = 5
+        x, w = lagpts(n, interval=(-np.inf, 3.0))
+        # Nodes should be flipped: all < 3
+        assert float(jnp.max(x)) < 3.0
+
+
+class TestUltraptsEdgeCases:
+    """Cover interval mapping branches in ultrapts."""
+
+    def test_n1_with_interval(self):
+        """ultrapts(1, lam, interval=...) covers line 649."""
+        x, w = ultrapts(1, 0.75, interval=(0.0, 2.0))
+        assert x.shape == (1,)
+        # Point maps to midpoint of [0, 2]
+        npt.assert_allclose(float(x[0]), 1.0, atol=1e-14)
+
+    def test_general_n_with_interval(self):
+        """ultrapts(n, lam, interval=...) covers line 659."""
+        n = 5
+        x, w = ultrapts(n, 0.75, interval=(0.0, 2.0))
+        assert x.shape == (n,)
+        # All points in [0, 2]
+        assert float(jnp.min(x)) >= 0.0
+        assert float(jnp.max(x)) <= 2.0
+
+    def test_rescale_identity(self):
+        """_rescale_ultra with [-1,1] returns unchanged values (line 667-668)."""
+        n = 5
+        x1, w1 = ultrapts(n, 0.75)
+        x2, w2 = ultrapts(n, 0.75, interval=(-1.0, 1.0))
+        npt.assert_allclose(np.array(x1), np.array(x2), rtol=1e-14)
+        npt.assert_allclose(np.array(w1), np.array(w2), rtol=1e-14)
+
+    def test_rescale_nontrivial(self):
+        """_rescale_ultra with [0, 4] covers lines 669-673."""
+        n = 10
+        lam = 1.5
+        x, w = ultrapts(n, lam, interval=(0.0, 4.0))
+        # All points in [0, 4]
+        assert float(jnp.min(x)) >= 0.0
+        assert float(jnp.max(x)) <= 4.0
+
+
+class TestRadauptsEdgeCases:
+    """Cover non-Legendre (alp/bet != 0) Radau branch."""
+
+    def test_jacobi_radau(self):
+        """radaupts(n, alp, bet) with nonzero params covers lines 763-764."""
+        n = 5
+        x, w = radaupts(n, alp=0.5, bet=0.5)
+        # First node is -1
+        npt.assert_allclose(float(x[0]), -1.0, atol=1e-15)
+        # All weights positive
+        assert float(jnp.min(w)) > 0.0
+        # n nodes, n weights
+        assert x.shape == (n,)
+        assert w.shape == (n,)
+
+
+class TestLobptsEdgeCases:
+    """Cover lobpts n=2 special case and non-Legendre endpoint weights."""
+
+    def test_n2_legendre(self):
+        """lobpts(2) with default params covers the n=2 special case."""
+        x, w = lobpts(2)
+        npt.assert_allclose(np.array(x), [-1.0, 1.0], atol=1e-15)
+        # For Legendre: each endpoint weight = 1.0
+        npt.assert_allclose(np.array(w), [1.0, 1.0], rtol=1e-14)
+
+    def test_n2_jacobi(self):
+        """lobpts(2, alp, bet) with Jacobi params covers the n=2 Jacobi path."""
+        x, w = lobpts(2, alp=0.5, bet=1.0)
+        npt.assert_allclose(np.array(x), [-1.0, 1.0], atol=1e-15)
+        # Both weights positive
+        assert float(w[0]) > 0.0
+        assert float(w[1]) > 0.0
+        # Sum of weights should be positive
+        assert float(jnp.sum(w)) > 0.0
+
+    def test_n5_jacobi(self):
+        """lobpts(n, alp, bet) with Jacobi params covers lines 854-874."""
+        n = 5
+        x, w = lobpts(n, alp=0.5, bet=1.0)
+        npt.assert_allclose(float(x[0]), -1.0, atol=1e-15)
+        npt.assert_allclose(float(x[-1]), 1.0, atol=1e-15)
+        # All weights positive
+        assert float(jnp.min(w)) > 0.0
+        # Correct shape
+        assert x.shape == (n,)
+        assert w.shape == (n,)
