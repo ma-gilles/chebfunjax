@@ -17,6 +17,7 @@ pixi run smoke   # verify: "chebfunjax imported OK"
 ## Quick Start
 
 ```python
+import jax.numpy as jnp
 import chebfunjax as cj
 
 f = cj.chebfun(jnp.sin)          # adaptive on [-1, 1]

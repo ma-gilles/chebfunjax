@@ -26,12 +26,15 @@ WORKDIR="/scratch/gpfs/GILLES/mg6942/${AGENT_ID}"
 git clone git@github.com:ma-gilles/chebfunjax.git "$WORKDIR"
 cd "$WORKDIR"
 
+# ── Source project constants ──
+source "$WORKDIR/project.conf"
+
 # ── Isolate Python environment ──
 unset PYTHONPATH PYTHONHOME CONDA_PREFIX VIRTUAL_ENV
 export PYTHONNOUSERSITE=1
-export TMPDIR="/scratch/gpfs/GILLES/mg6942/tmp/${AGENT_ID}"
-export PIXI_HOME="/scratch/gpfs/GILLES/mg6942/pixi_home/${AGENT_ID}"
-export RATTLER_CACHE_DIR="/scratch/gpfs/GILLES/mg6942/rattler_cache/${AGENT_ID}"
+export TMPDIR="${SCRATCH}/tmp/${AGENT_ID}"
+export PIXI_HOME="${SCRATCH}/pixi_home/${AGENT_ID}"
+export RATTLER_CACHE_DIR="${SCRATCH}/rattler_cache/${AGENT_ID}"
 mkdir -p "$TMPDIR" "$PIXI_HOME" "$RATTLER_CACHE_DIR"
 
 # ── Install ──
@@ -81,7 +84,7 @@ Update `STATUS.md` in YOUR clone:
 
 For every function listed in the unit's row in `PLAN.md`:
 
-1. Read the MATLAB file in `/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/`.
+1. Read the MATLAB file in `$CHEBFUN_REF/` (from `project.conf`).
    This is a SHARED read-only directory — all agents read from it, never write to it.
 2. Extract and record:
    - **Purpose**: the `%FUNCNAME   Description` line.
@@ -90,7 +93,7 @@ For every function listed in the unit's row in `PLAN.md`:
    - **Algorithm references**: paper citations from `DEVELOPER NOTES` section.
    - **"See also"**: related functions.
    - **Core algorithm**: understand the mathematical approach, not just the code.
-3. If a chebpy equivalent exists, read it in `/scratch/gpfs/GILLES/mg6942/chebpy_ref/src/chebpy/`.
+3. If a chebpy equivalent exists, read it in `$CHEBPY_REF/src/chebpy/` (from `project.conf`).
    This is also shared and read-only.
 
 ---
@@ -108,9 +111,10 @@ Generate diverse inputs covering:
 
 Run the generator:
 ```bash
-module load matlab/R2025b
+source "$WORKDIR/project.conf"
+module load $MATLAB_MODULE
 cd "$WORKDIR"
-matlab -batch "addpath('/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref'); run('matlab_harness/generate_refs.m')"
+matlab -batch "addpath('$CHEBFUN_REF'); run('matlab_harness/generate_refs.m')"
 ```
 
 Verify the `.mat` file was created in `$WORKDIR/tests/references/`.
@@ -310,29 +314,31 @@ For GPU benchmarks or integration tests, submit to Slurm.
 **Critical:** hardcode `$WORKDIR` at script-generation time (unquoted EOF).
 
 ```bash
-SCRIPT="/scratch/gpfs/GILLES/mg6942/slurmo/job_${AGENT_ID}.sh"
+source "$WORKDIR/project.conf"
+SCRIPT="${SLURM_LOG_DIR}/job_${AGENT_ID}.sh"
 
 cat > "$SCRIPT" << EOF
 #!/usr/bin/env bash
 #SBATCH --job-name=chebfunjax-test
-#SBATCH --account=amits
-#SBATCH --partition=cryoem
+#SBATCH --account=${SLURM_ACCOUNT}
+#SBATCH --partition=${SLURM_PARTITION}
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=64G
 #SBATCH --time=01:00:00
-#SBATCH --output=/scratch/gpfs/GILLES/mg6942/slurmo/chebfunjax-test-%j.out
+#SBATCH --output=${SLURM_LOG_DIR}/chebfunjax-test-%j.out
 
 set -euo pipefail
 WORKDIR="${WORKDIR}"
 cd "\$WORKDIR"
+source "\$WORKDIR/project.conf"
 
 export PYTHONNOUSERSITE=1
 export XLA_PYTHON_CLIENT_PREALLOCATE=false
-export TMPDIR="/scratch/gpfs/GILLES/mg6942/tmp/slurm_\${SLURM_JOB_ID}"
-export PIXI_HOME="/scratch/gpfs/GILLES/mg6942/pixi_home/slurm_\${SLURM_JOB_ID}"
-export RATTLER_CACHE_DIR="/scratch/gpfs/GILLES/mg6942/rattler_cache/slurm_\${SLURM_JOB_ID}"
+export TMPDIR="\${SCRATCH}/tmp/slurm_\${SLURM_JOB_ID}"
+export PIXI_HOME="\${SCRATCH}/pixi_home/slurm_\${SLURM_JOB_ID}"
+export RATTLER_CACHE_DIR="\${SCRATCH}/rattler_cache/slurm_\${SLURM_JOB_ID}"
 mkdir -p "\$TMPDIR" "\$PIXI_HOME" "\$RATTLER_CACHE_DIR"
 
 unset PYTHONPATH PYTHONHOME CONDA_PREFIX VIRTUAL_ENV
@@ -349,14 +355,13 @@ EOF
 chmod +x "$SCRIPT"
 JOB_ID=$(sbatch --parsable "$SCRIPT")
 echo "Submitted job $JOB_ID for workdir $WORKDIR"
-echo "Monitor: tail -f /scratch/gpfs/GILLES/mg6942/slurmo/chebfunjax-test-${JOB_ID}.out"
+echo "Monitor: tail -f ${SLURM_LOG_DIR}/chebfunjax-test-${JOB_ID}.out"
 ```
 
 Wait for completion:
 ```bash
-squeue -u mg6942 | grep $JOB_ID
-# When done, check output:
-cat /scratch/gpfs/GILLES/mg6942/slurmo/chebfunjax-test-${JOB_ID}.out
+squeue -u $USER | grep $JOB_ID
+cat ${SLURM_LOG_DIR}/chebfunjax-test-${JOB_ID}.out
 ```
 
 ---
@@ -407,133 +412,67 @@ All {N} tests pass including MATLAB cross-validation (rtol=1e-12).
 
 Original: Copyright 2017 by The University of Oxford and The Chebfun Developers.
 
-Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>
+Co-Authored-By: Claude <noreply@anthropic.com>
 COMMITEOF
 )"
 ```
 
 ---
 
-## §12. Auto-Merge to Main (if all tests pass)
+## §12. Push Branch and Open PR
 
-**This is the critical step.** Agents auto-merge to main when all tests pass.
-No manual PR review is needed. The test suite IS the review gate.
-
-### The merge loop
-
-This handles the race condition where another agent merges to main while you're testing:
+**Every code change goes through a PR with CI.** No auto-merge to main.
 
 ```bash
 cd "$WORKDIR"
+source project.conf
 BRANCH="translate/U${XX}-${SHORT_NAME}"
-MAX_ATTEMPTS=5
 
-for ATTEMPT in $(seq 1 $MAX_ATTEMPTS); do
-    echo "=== Merge attempt $ATTEMPT of $MAX_ATTEMPTS ==="
+# Rebase on latest main before pushing
+git fetch origin main
+git rebase origin/main
+# If rebase conflicts: resolve them, then `git rebase --continue`
 
-    # Step 1: Fetch latest main
-    git fetch origin main
-
-    # Step 2: Rebase your branch onto latest main
-    git rebase origin/main
-    if [ $? -ne 0 ]; then
-        echo "REBASE CONFLICT — cannot auto-merge. Aborting rebase."
-        git rebase --abort
-        echo "Push branch for manual resolution:"
-        git push -u origin "$BRANCH"
-        echo "FAILED: Rebase conflict. Branch pushed to origin/$BRANCH for manual review."
-        exit 1
-    fi
-
-    # Step 3: Regenerate MATLAB refs (in case main added new ref sections)
-    module load matlab/R2025b
-    matlab -batch "addpath('/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref'); run('matlab_harness/generate_refs.m')" 2>&1 | tail -5
-
-    # Step 4: Run FULL test suite (all tests, not just yours)
-    echo "Running full test suite..."
-    pixi run test-full 2>&1 | tee /tmp/test_output_${AGENT_ID}.log
-    TEST_EXIT=$?
-
-    pixi run lint 2>&1
-    LINT_EXIT=$?
-
-    if [ $TEST_EXIT -ne 0 ] || [ $LINT_EXIT -ne 0 ]; then
-        echo "TESTS OR LINT FAILED — not merging."
-        echo "Test exit: $TEST_EXIT, Lint exit: $LINT_EXIT"
-        echo "Push branch for debugging:"
-        git push -u origin "$BRANCH"
-        echo "FAILED: Tests did not pass. Branch pushed to origin/$BRANCH."
-        exit 1
-    fi
-
-    echo "All tests passed. Merging to main..."
-
-    # Step 5: Fast-forward merge to main
-    git checkout main
-    git merge --ff-only "$BRANCH"
-    if [ $? -ne 0 ]; then
-        echo "Fast-forward merge failed (main diverged). Retrying..."
-        git checkout "$BRANCH"
-        continue
-    fi
-
-    # Step 6: Push main
-    git push origin main 2>&1
-    if [ $? -ne 0 ]; then
-        echo "Push failed (another agent pushed first). Retrying..."
-        git reset --hard origin/main
-        git checkout "$BRANCH"
-        continue
-    fi
-
-    # Step 7: Success — push the branch ref too (for record-keeping)
-    git push origin "$BRANCH" 2>/dev/null
-
-    echo ""
-    echo "========================================="
-    echo "SUCCESS: U${XX} merged to main"
-    echo "Branch: $BRANCH"
-    echo "Agent: $AGENT_ID"
-    echo "Workdir: $WORKDIR"
-    echo "========================================="
-    exit 0
-done
-
-echo "FAILED: Could not merge after $MAX_ATTEMPTS attempts."
-echo "Pushing branch for manual resolution:"
-git checkout "$BRANCH"
+# Push branch
 git push -u origin "$BRANCH"
-exit 1
+
+# Create PR (if gh CLI is available)
+# Otherwise create the PR on GitHub web UI.
+gh pr create \
+  --title "[U${XX}] Translate ${MODULE}: ${SHORT_DESCRIPTION}" \
+  --body "$(cat <<'PRBODY'
+## Summary
+- Translates MATLAB Chebfun functions to Python/JAX
+- Functions: {list}
+- Tests: {N} total ({K} unit, {L} MATLAB golden-ref validated)
+
+## Functions translated
+
+| Python function | MATLAB source | Original author | Accuracy vs MATLAB |
+|----------------|--------------|-----------------|-------------------|
+| `func_name` | `source.m` | Author Name | rtol < 1e-14 |
+
+## Test plan
+- [ ] CI passes (lint + tests + coverage ≥ 90%)
+- [ ] MATLAB golden-ref tests pass
+- [ ] No tolerance relaxations (or documented in code)
+PRBODY
+)"
 ```
 
-### What happens in each scenario
+### CI enforces these gates automatically
 
-| Scenario | Behavior |
-|----------|----------|
-| Tests pass, no conflicts | Merges to main automatically |
-| Tests fail | Pushes branch, stops. Agent reports failure. |
-| Rebase conflict | Pushes branch, stops. Needs manual resolution. |
-| Another agent pushed to main during our test run | Rebases again, re-runs tests, retries (up to 5x) |
-| Lint fails | Same as test failure — pushes branch, stops. |
+| Gate | What CI checks |
+|------|---------------|
+| Lint | `ruff check` passes |
+| Unit tests | All non-MATLAB, non-GPU tests pass |
+| Coverage | ≥ 90% on new code |
+| Golden refs | Committed `.mat` files load and validate |
+| MATLAB parity | `@pytest.mark.matlab` tests pass against committed refs |
 
-### Why no PR?
+### After CI passes
 
-- The full test suite (including MATLAB cross-validation) IS the quality gate.
-- PRs add latency and bottleneck parallel agents.
-- The branch is still pushed to origin for audit trail.
-- If an agent breaks something, `git log` + `git revert` is trivial.
-
-### When to use a PR instead
-
-If the unit involves **architectural changes** (new base classes, changes to existing
-public API, modifications to shared infrastructure like conftest.py or PLAN.md),
-push the branch and create a PR for human review instead of auto-merging:
-
-```bash
-git push -u origin "$BRANCH"
-echo "Architectural change — PR required for human review."
-echo "Branch: origin/$BRANCH"
-```
+The PR can be merged (fast-forward or squash). The branch stays on origin for audit.
 
 ---
 
@@ -570,10 +509,11 @@ STATUS.md updated: U{XX} = done
 **Do NOT delete the workdir immediately** — keep it for a day in case of issues.
 After verification, clean up:
 ```bash
+source project.conf
 rm -rf "$WORKDIR"
-rm -rf "/scratch/gpfs/GILLES/mg6942/tmp/${AGENT_ID}"
-rm -rf "/scratch/gpfs/GILLES/mg6942/pixi_home/${AGENT_ID}"
-rm -rf "/scratch/gpfs/GILLES/mg6942/rattler_cache/${AGENT_ID}"
+rm -rf "${SCRATCH}/tmp/${AGENT_ID}"
+rm -rf "${SCRATCH}/pixi_home/${AGENT_ID}"
+rm -rf "${SCRATCH}/rattler_cache/${AGENT_ID}"
 ```
 
 ---
@@ -624,21 +564,22 @@ global state, etc.). In these cases:
 
 ---
 
-## Quick Reference: Shared Paths (read-only)
+## Quick Reference: Shared Paths (read-only, from project.conf)
 
-| What | Where |
-|------|-------|
-| MATLAB Chebfun source | `/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/` |
-| Python chebpy reference | `/scratch/gpfs/GILLES/mg6942/chebpy_ref/` |
-| MATLAB binary | `module load matlab/R2025b` |
-| Slurm logs | `/scratch/gpfs/GILLES/mg6942/slurmo/` |
+| What | Variable | Value |
+|------|----------|-------|
+| MATLAB Chebfun source | `$CHEBFUN_REF` | see `project.conf` |
+| Python chebpy reference | `$CHEBPY_REF` | see `project.conf` |
+| MATLAB binary | `module load $MATLAB_MODULE` | see `project.conf` |
+| Slurm logs | `$SLURM_LOG_DIR` | see `project.conf` |
+| Scratch root | `$SCRATCH` | see `project.conf` |
 
 ## Quick Reference: Per-Agent Paths
 
 | What | Where |
 |------|-------|
-| Agent workdir | `$WORKDIR` = `/scratch/gpfs/GILLES/mg6942/${AGENT_ID}/` |
+| Agent workdir | `$WORKDIR` = `$SCRATCH/${AGENT_ID}/` |
 | Agent pixi env | `$WORKDIR/.pixi/envs/default/bin/python` |
-| Agent TMPDIR | `/scratch/gpfs/GILLES/mg6942/tmp/${AGENT_ID}/` |
-| Agent pixi cache | `/scratch/gpfs/GILLES/mg6942/pixi_home/${AGENT_ID}/` |
-| Agent rattler cache | `/scratch/gpfs/GILLES/mg6942/rattler_cache/${AGENT_ID}/` |
+| Agent TMPDIR | `$SCRATCH/tmp/${AGENT_ID}/` |
+| Agent pixi cache | `$SCRATCH/pixi_home/${AGENT_ID}/` |
+| Agent rattler cache | `$SCRATCH/rattler_cache/${AGENT_ID}/` |

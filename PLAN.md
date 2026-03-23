@@ -740,13 +740,15 @@ This gives: construction, evaluation, arithmetic, differentiation, integration, 
 ## 7. Translation Units
 
 Each unit = one branch = one PR = one agent assignment.
+Every PR requires CI to pass before merge. See `.github/workflows/ci.yml`.
 Units within the same phase have no mutual dependencies and can run in parallel.
 
 ### Phase 0: Infrastructure [DONE]
-- [x] U00: Repo skeleton, pyproject.toml, pixi.toml, CI
+- [x] U00: Repo skeleton, pyproject.toml, pixi.toml
 - [x] U01: MATLAB reference harness
 - [x] U02: Test infrastructure (conftest.py)
 - [x] U03: quadrature.py (template module)
+- [x] U04: GitHub Actions CI (`ci.yml`)
 
 ### Phase 1: Utilities (all independent — max parallelism)
 
@@ -818,23 +820,33 @@ Units within the same phase have no mutual dependencies and can run in parallel.
 
 | Unit | Module | MATLAB sources | Key classes | Est. size |
 |------|--------|---------------|------------|-----------|
-| U70 | `chebfun2d/separable_approx.py` | `@separableApprox/` (108) | Abstract low-rank 2D representation | ~1500 LOC |
-| U71 | `chebfun2d/chebfun2.py` + `chebfun2v.py` | `@chebfun2/` (139), `@chebfun2v/` (54) | 2D on rectangles + vector fields | ~2000 LOC |
-| U72 | `diskfun/diskfun.py` + `diskfunv.py` | `@diskfun/` (130), `@diskfunv/` (46) | 2D on disk | ~1500 LOC |
-| U73 | `spherefun/spherefun.py` + `spherefunv.py` | `@spherefun/` (132), `@spherefunv/` (48) | 2D on sphere | ~1500 LOC |
+| U70a | `chebfun2d/separable_approx.py` (core) | `@separableApprox/` subset | Construction, evaluation, low-rank SVD | ~500 LOC |
+| U70b | `chebfun2d/separable_approx.py` (ops) | `@separableApprox/` subset | Arithmetic, calculus, roots, plotting data | ~500 LOC |
+| U70c | `chebfun2d/separable_approx.py` (misc) | `@separableApprox/` subset | Remaining methods (108 total) | ~500 LOC |
+| U71a | `chebfun2d/chebfun2.py` | `@chebfun2/` (139) | 2D scalar on rectangles | ~800 LOC |
+| U71b | `chebfun2d/chebfun2v.py` | `@chebfun2v/` (54) | 2D vector fields | ~400 LOC |
+| U72a | `diskfun/diskfun.py` | `@diskfun/` (130) | 2D scalar on disk | ~800 LOC |
+| U72b | `diskfun/diskfunv.py` | `@diskfunv/` (46) | Disk vector fields | ~400 LOC |
+| U73a | `spherefun/spherefun.py` | `@spherefun/` (132) | 2D scalar on sphere | ~800 LOC |
+| U73b | `spherefun/spherefunv.py` | `@spherefunv/` (48) | Sphere vector fields | ~400 LOC |
 
 ### Phase 8: 3D functions (depends on Phase 7)
 
 | Unit | Module | MATLAB sources | Key classes | Est. size |
 |------|--------|---------------|------------|-----------|
-| U80 | `chebfun3d/chebfun3.py` + `chebfun3v.py` + `chebfun3t.py` | `@chebfun3/` (113), `@chebfun3v/` (50), `@chebfun3t/` (37) | 3D on cuboids | ~2000 LOC |
-| U81 | `ballfun/ballfun.py` + `ballfunv.py` | `@ballfun/` (66), `@ballfunv/` (34) | 3D on ball | ~1000 LOC |
+| U80a | `chebfun3d/chebfun3.py` | `@chebfun3/` (113) | 3D scalar on cuboids | ~700 LOC |
+| U80b | `chebfun3d/chebfun3v.py` | `@chebfun3v/` (50) | 3D vector fields | ~400 LOC |
+| U80c | `chebfun3d/chebfun3t.py` | `@chebfun3t/` (37) | Tucker tensor representation | ~300 LOC |
+| U81a | `ballfun/ballfun.py` | `@ballfun/` (66) | 3D scalar on ball | ~500 LOC |
+| U81b | `ballfun/ballfunv.py` | `@ballfunv/` (34) | Ball vector fields | ~300 LOC |
 
 ### Phase 9: Time integration (depends on Phase 4 + Phase 5)
 
 | Unit | Module | MATLAB sources | Key classes | Est. size |
 |------|--------|---------------|------------|-----------|
-| U90 | `spin/spinop.py` | `@spinop/` (14), `@spinop2/` (14), `@spinop3/` (14), `@spinopsphere/` (14), `@spinoperator/` (5), `@expinteg/` (9), `@imex/` (4) | PDE time-stepping (may leverage diffrax) | ~1200 LOC |
+| U90a | `spin/spinop.py` | `@spinoperator/` (5), `@spinop/` (14), `@spinop2/` (14) | Base operator + 1D/2D PDE stepping | ~500 LOC |
+| U90b | `spin/spinop3_sphere.py` | `@spinop3/` (14), `@spinopsphere/` (14) | 3D + sphere PDE stepping | ~400 LOC |
+| U90c | `spin/schemes.py` | `@expinteg/` (9), `@imex/` (4), `@spinscheme/` | Time-stepping schemes (may leverage diffrax) | ~300 LOC |
 
 ### Phase 10: Autodiff + integration tests
 
@@ -869,11 +881,24 @@ Every PR MUST pass these gates before merge:
 - [ ] No accuracy regression vs previous version
 
 ### Gate 4: Performance
-- [ ] Benchmark results recorded in PR description
-- [ ] No catastrophic performance regressions (>10x slower than MATLAB)
-- [ ] GPU timing recorded where applicable
+- [ ] Benchmark results recorded in PR description with this table:
 
-### Gate 5: Integration
+| Function | n | JIT compile (ms) | Steady-state CPU (ms) | Steady-state GPU (ms) | MATLAB (ms) | Peak mem (MB) |
+|----------|---|------------------|----------------------|----------------------|-------------|---------------|
+
+- [ ] Steady-state (post-JIT) should be within 3x of MATLAB for n ≥ 64
+- [ ] If > 3x slower, document why (e.g., JAX dispatch overhead for small n)
+- [ ] Report both first-call (JIT compile) and steady-state (warm) timings
+- [ ] For core functions (chebpts, eval, diff, sum, roots): include scaling curves (n vs time)
+
+### Gate 5: JAX Semantics
+- [ ] JIT: functions work under `jax.jit` (with appropriate static args)
+- [ ] vmap: batch-friendly functions work under `jax.vmap` where applicable
+- [ ] grad: differentiable functions return correct gradients via `jax.grad`
+- [ ] CPU/GPU parity: if GPU is available, results match CPU at `rtol=1e-12`
+- [ ] Not every function needs all four — mark which apply in the PR description
+
+### Gate 6: Integration
 - [ ] Existing tests still pass (no regressions)
 - [ ] Module imports work: `python -c "from chebfunjax.utils.quadrature import chebpts"`
 - [ ] If this is a class: operator overloads tested with scalar and chebfun inputs

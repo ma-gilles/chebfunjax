@@ -7,6 +7,7 @@ Before doing ANY work, read these documents in order:
 2. **`PLAN.md`** — locked design decisions, code templates, module dependency graph, all translation units
 3. **`STATUS.md`** — what's done, what's in progress, what's available
 4. **`.claude/skills/translate-module.md`** — step-by-step procedure for translating a module
+5. **`project.conf`** — all paths, accounts, and thresholds (source it, don't hardcode)
 
 ## Project Goal
 
@@ -19,12 +20,23 @@ using JAX as the primary array backend. Every translated function must be:
 
 ## Key References
 
-- MATLAB Chebfun source (commit 7574c77): `/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/`
-- Python chebpy reference: `/scratch/gpfs/GILLES/mg6942/chebpy_ref/`
-- MATLAB: `module load matlab/R2025b`
-- Chebfun Guide: https://www.chebfun.org/docs/guide/
-- Package name: `chebfunjax` (import as `import chebfunjax as cj`)
-- Repo: `git@github.com:ma-gilles/chebfunjax.git`
+All paths and constants are in `project.conf`. Source it:
+```bash
+source project.conf
+```
+
+| What | Variable | Default |
+|------|----------|---------|
+| Package name | `$PACKAGE_NAME` | `chebfunjax` |
+| Repo SSH | `$REPO_URL` | `git@github.com:ma-gilles/chebfunjax.git` |
+| MATLAB Chebfun | `$CHEBFUN_REF` | `/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref` |
+| Chebfun commit | `$CHEBFUN_COMMIT` | `7574c77` |
+| chebpy ref | `$CHEBPY_REF` | `/scratch/gpfs/GILLES/mg6942/chebpy_ref` |
+| MATLAB module | `$MATLAB_MODULE` | `matlab/R2025b` |
+| Slurm account | `$SLURM_ACCOUNT` | `amits` |
+| Slurm partition | `$SLURM_PARTITION` | `cryoem` |
+| Slurm logs | `$SLURM_LOG_DIR` | `/scratch/gpfs/GILLES/mg6942/slurmo` |
+| Default rtol | `$DEFAULT_RTOL` | `1e-12` |
 
 ## Architecture (Summary — see PLAN.md for details)
 
@@ -35,35 +47,47 @@ using JAX as the primary array backend. Every translated function must be:
 - **Python outer loops**: adaptive construction, convergence checks → plain Python
 - **GPU transparent**: library never manages devices; users control via `jax.default_device`
 
+## Workflow
+
+1. Agent clones repo into isolated workdir (see skill §1)
+2. Agent works on a branch: `translate/U{XX}-{short-name}`
+3. Agent pushes branch and opens PR
+4. **CI must pass** (`.github/workflows/ci.yml`: lint, unit tests, coverage ≥ 90%, golden-ref validation)
+5. PR is merged after CI passes
+
+No auto-merge to main. Every code change goes through a PR with CI.
+
 ## Rules
 
 1. **Never import numpy in library code** — only `jax.numpy`. Tests may use numpy for comparison.
 2. **Always `dtype=jnp.float64`** for array creation.
-3. **Every public function has a Provenance section** in its docstring (MATLAB source, commit, authors, algorithm references). See PLAN.md Section 3.
+3. **Every public function has a Provenance section** in its docstring. See PLAN.md §3.
 4. **Never widen test tolerances** without documenting why.
 5. **One agent per translation unit**. Never two agents on the same file.
 6. **Branch naming**: `translate/U{XX}-{short-name}`.
 7. **Check STATUS.md** before starting work to avoid conflicts.
-8. **Run all tests** before pushing: `pixi run test-fast && pixi run test-matlab`.
+8. **All PRs require CI green** before merge.
 
 ## Quick Commands
 
 ```bash
-cd /scratch/gpfs/GILLES/mg6942/jaxchebfun
+source project.conf
 
 # Environment
 pixi install
-pixi run smoke                    # verify import works
+pixi run smoke
 
 # Tests
 pixi run test-fast                # unit tests (no MATLAB, no GPU)
-pixi run test-matlab              # MATLAB cross-validation
-pixi run test-full                # everything
-pixi run lint                     # ruff check
+pixi run test-matlab              # MATLAB cross-validation (uses committed golden refs)
+pixi run test-full                # everything with coverage
 
-# MATLAB references
-module load matlab/R2025b
-matlab -batch "addpath('/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref'); run('matlab_harness/generate_refs.m')"
+# Regenerate MATLAB refs (maintainer task, requires MATLAB)
+module load $MATLAB_MODULE
+matlab -batch "addpath('$CHEBFUN_REF'); run('matlab_harness/generate_refs.m')"
+
+# Lint
+pixi run lint
 
 # JAX device check
 pixi run check-jax
@@ -72,19 +96,23 @@ pixi run check-jax
 ## Slurm (for GPU tests)
 
 ```bash
+source project.conf
+cat > "$SLURM_LOG_DIR/job_gpu_test.sh" << 'EOF'
 #!/bin/bash
-#SBATCH --partition=cryoem --account=amits
+#SBATCH --partition=$SLURM_PARTITION --account=$SLURM_ACCOUNT
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks=1 --cpus-per-task=4
 #SBATCH --mem=64G
 #SBATCH --time=01:00:00
-#SBATCH --output=/scratch/gpfs/GILLES/mg6942/slurmo/%j-%x.out
+#SBATCH --output=$SLURM_LOG_DIR/%j-%x.out
 
 export PYTHONNOUSERSITE=1
 export XLA_PYTHON_CLIENT_PREALLOCATE=false
-export TMPDIR=/scratch/gpfs/GILLES/mg6942/tmp
+export TMPDIR=$SCRATCH/tmp
 mkdir -p "$TMPDIR"
 
-cd /scratch/gpfs/GILLES/mg6942/jaxchebfun
+cd "$WORKDIR"
 pixi run test-full
+EOF
+sbatch "$SLURM_LOG_DIR/job_gpu_test.sh"
 ```

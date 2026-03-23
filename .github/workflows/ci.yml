@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/ruff-action@v3
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          pip install -e ".[test]"
+      - name: Run unit tests with coverage
+        run: |
+          python -m pytest tests/ -m "not matlab and not gpu and not slow" \
+            -v --tb=short \
+            --cov=chebfunjax --cov-report=term-missing --cov-fail-under=90
+      - name: Run MATLAB-validated tests (golden refs)
+        run: |
+          python -m pytest tests/ -m matlab -v --tb=short
+
+  test-matlab-refs:
+    # Verify committed golden refs are loadable and well-formed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install scipy for .mat loading
+        run: pip install scipy numpy
+      - name: Validate golden refs
+        run: |
+          python -c "
+          from pathlib import Path
+          import scipy.io
+          refs = list(Path('tests/references').glob('*.mat'))
+          assert len(refs) > 0, 'No golden refs found'
+          for f in refs:
+              d = scipy.io.loadmat(str(f), squeeze_me=True)
+              keys = [k for k in d if not k.startswith('__')]
+              print(f'{f.name}: {len(keys)} fields')
+          print(f'OK: {len(refs)} golden ref files validated')
+          "

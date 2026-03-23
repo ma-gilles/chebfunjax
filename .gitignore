@@ -23,9 +23,9 @@ Thumbs.db
 htmlcov/
 .coverage
 
-# MATLAB generated references (large, regenerate from harness)
-# Keep a small set committed; large ones go in .gitignore
-tests/references/*.mat
+# MATLAB generated references — golden refs ARE committed.
+# Only ignore very large (>1MB) refs that should be regenerated locally.
+# tests/references/large_*.mat
 
 # Benchmarks output
 benchmarks/results/
