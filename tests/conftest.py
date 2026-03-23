@@ -58,6 +58,11 @@ def matlab_quadrature():
     return load_matlab_ref("quadrature.mat")
 
 
+@pytest.fixture
+def matlab_interpolation():
+    return load_matlab_ref("interpolation.mat")
+
+
 @pytest.fixture(scope="session", autouse=True)
 def enable_jax_float64():
     """Ensure JAX uses float64 for all tests."""
