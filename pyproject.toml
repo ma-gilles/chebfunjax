@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "jaxchebfun"
+name = "chebfunjax"
 version = "0.1.0"
 description = "Chebfun in Python, powered by JAX"
 readme = "README.md"
@@ -15,6 +15,7 @@ authors = [
 dependencies = [
     "jax>=0.4.20",
     "jaxlib>=0.4.20",
+    "equinox>=0.11",
     "numpy>=1.24",
     "scipy>=1.11",
 ]
@@ -25,7 +26,7 @@ test = [
     "pytest-xdist",    # parallel test execution
 ]
 dev = [
-    "jaxchebfun[test]",
+    "chebfunjax[test]",
     "ruff",
 ]
 gpu = [
@@ -33,7 +34,7 @@ gpu = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/jaxchebfun"]
+packages = ["src/chebfunjax"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

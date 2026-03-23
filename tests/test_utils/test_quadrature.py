@@ -1,11 +1,11 @@
-"""Tests for jaxchebfun.utils.quadrature — Chebyshev and Legendre points/weights."""
+"""Tests for chebfunjax.utils.quadrature — Chebyshev and Legendre points/weights."""
 
 import jax.numpy as jnp
 import numpy as np
 import numpy.testing as npt
 import pytest
 
-from jaxchebfun.utils.quadrature import chebpts, chebpts_ab, chebweights
+from chebfunjax.utils.quadrature import chebpts, chebpts_ab, chebweights
 
 
 class TestChebpts:

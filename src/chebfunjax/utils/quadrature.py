@@ -1,7 +1,8 @@
 """Quadrature points and weights.
 
-Translated from MATLAB Chebfun: chebpts.m, legpts.m, and related functions.
-Reference: /scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/chebpts.m
+Translated from MATLAB Chebfun (commit 7574c77): chebpts.m and related functions.
+Original: Copyright 2017 by The University of Oxford and The Chebfun Developers.
+See https://www.chebfun.org/ for Chebfun information.
 """
 
 from __future__ import annotations

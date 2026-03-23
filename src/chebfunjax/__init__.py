@@ -1,4 +1,4 @@
-"""jaxchebfun — Chebfun in Python, powered by JAX."""
+"""chebfunjax — Chebfun in Python, powered by JAX."""
 
 __version__ = "0.1.0"
 

@@ -1,5 +1,5 @@
 [project]
-name = "jaxchebfun"
+name = "chebfunjax"
 channels = ["conda-forge", "nvidia"]
 platforms = ["linux-64"]
 
@@ -15,7 +15,8 @@ ruff = "*"
 # JAX with CUDA support
 [pypi-dependencies]
 jax = { version = ">=0.4.20", extras = ["cuda12"] }
-jaxchebfun = { path = ".", editable = true }
+equinox = ">=0.11"
+chebfunjax = { path = ".", editable = true }
 
 [tasks]
 test-fast = "python -m pytest tests/ -m 'not slow and not gpu and not matlab' -v --tb=short"
@@ -25,4 +26,4 @@ test-matlab = "python -m pytest tests/ -m matlab -v --tb=short"
 check-jax = "python -c \"import jax; print('JAX devices:', jax.devices())\""
 lint = "ruff check src/ tests/"
 format = "ruff format src/ tests/"
-smoke = "python -c \"import jaxchebfun; print('jaxchebfun imported OK')\""
+smoke = "python -c \"import chebfunjax; print('chebfunjax imported OK')\""
