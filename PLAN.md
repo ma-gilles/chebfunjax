@@ -763,8 +763,8 @@ This gives: construction, evaluation, arithmetic, differentiation, integration, 
 
 ## 7. Translation Units
 
-Each unit = one branch = one PR = one agent assignment.
-Every PR requires CI to pass before merge. See `.github/workflows/ci.yml`.
+Each unit = one branch = one PR (auto-merged after CI green) = one agent assignment.
+CI is the sole reviewer — no human approval required. See `.github/workflows/ci.yml`.
 Units within the same phase have no mutual dependencies and can run in parallel.
 
 ### Phase 0: Infrastructure [DONE]

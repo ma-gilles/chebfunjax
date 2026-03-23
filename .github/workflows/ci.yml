@@ -6,14 +6,93 @@ on:
   pull_request:
     branches: [main]
 
+# CI is the sole reviewer. If all jobs pass, the PR is safe to merge.
+# Configure GitHub branch protection to require all these jobs.
+
 jobs:
   lint:
+    name: Lint (ruff)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/ruff-action@v3
 
+  code-quality:
+    name: Code quality checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: No numpy imports in library code
+        run: |
+          # Fail if any library file imports numpy directly (jax.numpy is OK)
+          if grep -rn "^import numpy" src/ --include="*.py" | grep -v "jax.numpy"; then
+            echo "FAIL: Found 'import numpy' in library code. Use jax.numpy."
+            exit 1
+          fi
+          if grep -rn "^from numpy" src/ --include="*.py"; then
+            echo "FAIL: Found 'from numpy' in library code. Use jax.numpy."
+            exit 1
+          fi
+          echo "OK: No numpy imports in library code."
+
+      - name: Provenance docstrings present
+        run: |
+          # Every public .py file in src/ (not __init__.py) must contain "Provenance"
+          # This catches files that forgot the provenance section.
+          MISSING=""
+          for f in $(find src/chebfunjax -name "*.py" ! -name "__init__.py" ! -name "_*" -size +100c); do
+            if ! grep -q "Provenance" "$f"; then
+              MISSING="$MISSING\n  $f"
+            fi
+          done
+          if [ -n "$MISSING" ]; then
+            echo "FAIL: Missing Provenance section in:$MISSING"
+            exit 1
+          fi
+          echo "OK: All source files have Provenance docstrings."
+
+      - name: Golden refs committed for all MATLAB test modules
+        run: |
+          # For every test file that uses @pytest.mark.matlab, verify
+          # the corresponding .mat file exists in tests/references/
+          pip install -q scipy numpy
+          python -c "
+          from pathlib import Path
+          import re, sys
+
+          test_dir = Path('tests')
+          ref_dir = test_dir / 'references'
+          refs = {f.stem for f in ref_dir.glob('*.mat')}
+
+          # Find all .mat filenames referenced in test code
+          needed = set()
+          for tf in test_dir.rglob('test_*.py'):
+              text = tf.read_text()
+              if 'pytest.mark.matlab' in text:
+                  # Find load_matlab_ref('X.mat') or matlab_ref param 'X'
+                  for m in re.finditer(r'load_matlab_ref\([\"\\'](\w+)\.mat', text):
+                      needed.add(m.group(1))
+                  for m in re.finditer(r'\"matlab_ref\",\s*\[\"(\w+)\"\]', text):
+                      needed.add(m.group(1))
+                  # Legacy fixtures: matlab_<name>
+                  for m in re.finditer(r'def matlab_(\w+)\(', text):
+                      needed.add(m.group(1))
+
+          missing = needed - refs
+          if missing:
+              print(f'FAIL: MATLAB tests reference these refs but they are not committed:')
+              for m in sorted(missing):
+                  print(f'  tests/references/{m}.mat')
+              sys.exit(1)
+          print(f'OK: {len(needed)} golden refs verified ({len(refs)} committed).')
+          "
+
   test:
+    name: Tests + Coverage
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,35 +100,29 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install dependencies
+        run: pip install -e ".[test]"
+      - name: Run all tests with coverage
         run: |
-          pip install -e ".[test]"
-      - name: Run unit tests with coverage
-        run: |
-          python -m pytest tests/ -m "not matlab and not gpu and not slow" \
-            -v --tb=short \
+          python -m pytest tests/ -v --tb=short \
             --cov=chebfunjax --cov-report=term-missing --cov-fail-under=90
-      - name: Run MATLAB-validated tests (golden refs)
-        run: |
-          python -m pytest tests/ -m matlab -v --tb=short
 
-  test-matlab-refs:
-    # Verify committed golden refs are loadable and well-formed
+  golden-refs:
+    name: Validate golden refs
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install scipy for .mat loading
-        run: pip install scipy numpy
-      - name: Validate golden refs
+      - name: Validate .mat files are well-formed
         run: |
+          pip install -q scipy numpy
           python -c "
           from pathlib import Path
           import scipy.io
           refs = list(Path('tests/references').glob('*.mat'))
           assert len(refs) > 0, 'No golden refs found'
-          for f in refs:
+          for f in sorted(refs):
               d = scipy.io.loadmat(str(f), squeeze_me=True)
               keys = [k for k in d if not k.startswith('__')]
               print(f'{f.name}: {len(keys)} fields')

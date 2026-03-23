@@ -419,60 +419,78 @@ COMMITEOF
 
 ---
 
-## §12. Push Branch and Open PR
+## §12. Push Branch, Open PR, Auto-Merge
 
-**Every code change goes through a PR with CI.** No auto-merge to main.
+**Fully autonomous.** The agent pushes, opens a PR, and enables auto-merge.
+CI is the sole reviewer. If all checks pass, the PR merges automatically.
+No human approval required.
 
 ```bash
 cd "$WORKDIR"
 source project.conf
 BRANCH="translate/U${XX}-${SHORT_NAME}"
 
-# Rebase on latest main before pushing
+# ── Rebase on latest main ──
 git fetch origin main
 git rebase origin/main
-# If rebase conflicts: resolve them, then `git rebase --continue`
+# If rebase conflicts: resolve, `git rebase --continue`, re-run tests
 
-# Push branch
+# ── Push branch ──
 git push -u origin "$BRANCH"
 
-# Create PR (if gh CLI is available)
-# Otherwise create the PR on GitHub web UI.
+# ── Create PR with auto-merge enabled ──
 gh pr create \
   --title "[U${XX}] Translate ${MODULE}: ${SHORT_DESCRIPTION}" \
-  --body "$(cat <<'PRBODY'
+  --body "$(cat <<PRBODY
 ## Summary
 - Translates MATLAB Chebfun functions to Python/JAX
-- Functions: {list}
-- Tests: {N} total ({K} unit, {L} MATLAB golden-ref validated)
+- Functions: ${FUNC_LIST}
+- Tests: ${N_TESTS} total (${N_UNIT} unit, ${N_MATLAB} MATLAB golden-ref)
 
 ## Functions translated
 
 | Python function | MATLAB source | Original author | Accuracy vs MATLAB |
 |----------------|--------------|-----------------|-------------------|
-| `func_name` | `source.m` | Author Name | rtol < 1e-14 |
+${FUNC_TABLE}
 
-## Test plan
-- [ ] CI passes (lint + tests + coverage ≥ 90%)
-- [ ] MATLAB golden-ref tests pass
-- [ ] No tolerance relaxations (or documented in code)
+## CI gates (all enforced automatically)
+- Lint (ruff)
+- Unit tests + coverage ≥ 90%
+- No numpy imports in library code
+- Provenance docstrings present in all source files
+- Golden .mat refs committed and valid
+- MATLAB parity tests pass
 PRBODY
 )"
+
+# ── Enable auto-merge (merges when all required checks pass) ──
+gh pr merge "$BRANCH" --auto --squash
 ```
 
-### CI enforces these gates automatically
+### What CI checks (the sole reviewer)
 
-| Gate | What CI checks |
-|------|---------------|
-| Lint | `ruff check` passes |
-| Unit tests | All non-MATLAB, non-GPU tests pass |
-| Coverage | ≥ 90% on new code |
-| Golden refs | Committed `.mat` files load and validate |
-| MATLAB parity | `@pytest.mark.matlab` tests pass against committed refs |
+| Gate | Job | What it enforces |
+|------|-----|-----------------|
+| Lint | `lint` | `ruff check` passes, zero warnings |
+| No numpy | `code-quality` | No `import numpy` in `src/` (only `jax.numpy`) |
+| Provenance | `code-quality` | Every source file has a Provenance docstring section |
+| Golden refs | `code-quality` | Every `@pytest.mark.matlab` test has a committed `.mat` file |
+| Tests | `test` | All tests pass (unit + MATLAB golden-ref) |
+| Coverage | `test` | ≥ 90% on new code |
+| Ref integrity | `golden-refs` | All `.mat` files load without error |
 
-### After CI passes
+### What happens
 
-The PR can be merged (fast-forward or squash). The branch stays on origin for audit.
+| Scenario | Result |
+|----------|--------|
+| All CI green | PR auto-merges to main. Done. |
+| CI fails | PR stays open. Agent reads failure, fixes, pushes again. CI re-runs. |
+| Rebase conflict | Agent resolves locally, force-pushes branch. CI re-runs. |
+
+### If `gh` CLI is not available
+
+Push the branch manually and create the PR on https://github.com/ma-gilles/chebfunjax/pulls.
+Enable "auto-merge" in the GitHub UI after CI starts.
 
 ---
 

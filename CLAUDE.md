@@ -47,15 +47,16 @@ source project.conf
 - **Python outer loops**: adaptive construction, convergence checks → plain Python
 - **GPU transparent**: library never manages devices; users control via `jax.default_device`
 
-## Workflow
+## Workflow (fully autonomous)
 
 1. Agent clones repo into isolated workdir (see skill §1)
 2. Agent works on a branch: `translate/U{XX}-{short-name}`
-3. Agent pushes branch and opens PR
-4. **CI must pass** (`.github/workflows/ci.yml`: lint, unit tests, coverage ≥ 90%, golden-ref validation)
-5. PR is merged after CI passes
+3. Agent pushes branch and opens PR with `--auto-merge` enabled
+4. **CI is the sole reviewer** — no human approval required
+5. CI passes → PR auto-merges to main. CI fails → agent fixes and re-pushes.
 
-No auto-merge to main. Every code change goes through a PR with CI.
+CI gates: lint, no-numpy-import, provenance docstrings, tests, coverage ≥ 90%, golden-ref validation.
+See `.github/workflows/ci.yml` for details.
 
 ## Rules
 
@@ -66,7 +67,7 @@ No auto-merge to main. Every code change goes through a PR with CI.
 5. **One agent per translation unit**. Never two agents on the same file.
 6. **Branch naming**: `translate/U{XX}-{short-name}`.
 7. **Check STATUS.md** before starting work to avoid conflicts.
-8. **All PRs require CI green** before merge.
+8. **All PRs auto-merge after CI green** — CI is the sole reviewer.
 
 ## Quick Commands
 
