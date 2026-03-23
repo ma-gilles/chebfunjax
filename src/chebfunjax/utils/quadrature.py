@@ -823,23 +823,15 @@ def lobpts(n: int, alp: float = 0.0, bet: float = 0.0,
     if n == 2:
         x = jnp.array([-1.0, 1.0], dtype=jnp.float64)
         import jax.scipy.special as jsp
-        w_total = 2.0 ** (1.0 + alp + bet)
-        w1 = w_total * jnp.exp(jsp.gammaln(bet + 1.0)
-                                + jsp.gammaln(alp + 2.0)
-                                - jsp.gammaln(alp + bet + 3.0)) * (alp + bet + 2.0)
-        w2 = w_total * jnp.exp(jsp.gammaln(alp + 1.0)
-                                + jsp.gammaln(bet + 2.0)
-                                - jsp.gammaln(alp + bet + 3.0)) * (alp + bet + 2.0)
-        # For Legendre (alp=bet=0), w = [1, 1], total interval = 2, so w1=w2=1.
         # MATLAB uses beta function: 2^(1+a+b)*[beta(b+1,a+2), beta(a+1,b+2)]
         # beta(p,q) = gamma(p)*gamma(q)/gamma(p+q)
-        w1_val = 2.0 ** (1.0 + alp + bet) * jnp.exp(
+        w1 = 2.0 ** (1.0 + alp + bet) * jnp.exp(
             jsp.gammaln(bet + 1.0) + jsp.gammaln(alp + 2.0)
             - jsp.gammaln(alp + bet + 3.0))
-        w2_val = 2.0 ** (1.0 + alp + bet) * jnp.exp(
+        w2 = 2.0 ** (1.0 + alp + bet) * jnp.exp(
             jsp.gammaln(alp + 1.0) + jsp.gammaln(bet + 2.0)
             - jsp.gammaln(alp + bet + 3.0))
-        w = jnp.array([w1_val, w2_val], dtype=jnp.float64)
+        w = jnp.array([w1, w2], dtype=jnp.float64)
         return x, w
 
     # Interior points from Jacobi (alp+1, bet+1)
