@@ -70,9 +70,12 @@ jobs:
                       needed.add(m.group(1))
                   for m in re.finditer(r'\"matlab_ref\",\s*\[\"(\w+)\"\]', text):
                       needed.add(m.group(1))
-                  for m in re.finditer(r'matlab_(\w+)\(', text):
-                      if m.group(1) not in ('ref',):
-                          needed.add(m.group(1))
+                  # Match fixture parameters like (self, matlab_quadrature) but not
+                  # method names like def test_vs_matlab_cheb(self, ...)
+                  for m in re.finditer(r'(?:,\s*|def\s+)matlab_(\w+)\s*[,\)]', text):
+                      name = m.group(1)
+                      if name not in ('ref',) and not name.startswith('test'):
+                          needed.add(name)
 
           missing = needed - refs
           if missing:
