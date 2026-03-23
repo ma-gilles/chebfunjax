@@ -14,6 +14,9 @@ import jax.numpy as jnp
 def chebpts(n: int, kind: int = 2) -> jnp.ndarray:
     """Chebyshev points of the first or second kind on [-1, 1].
 
+    CHEBPTS(N) returns N Chebyshev points of the 2nd kind in [-1, 1].
+    CHEBPTS(N, 1) returns N Chebyshev points of the 1st kind.
+
     Parameters
     ----------
     n : int
@@ -26,6 +29,20 @@ def chebpts(n: int, kind: int = 2) -> jnp.ndarray:
     -------
     x : jnp.ndarray, shape (n,)
         Chebyshev points, ordered from -1 to 1.
+
+    Provenance
+    ----------
+    MATLAB source : chebpts.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    Algorithm:
+        [1] Waldvogel, "Fast construction of the Fejér and Clenshaw-Curtis
+            quadrature rules", BIT Numerical Mathematics, 46, 2006.
+
+    See Also
+    --------
+    chebweights, chebpts_ab
     """
     if n == 0:
         return jnp.array([], dtype=jnp.float64)
@@ -65,6 +82,20 @@ def chebweights(n: int, kind: int = 2) -> jnp.ndarray:
     Returns
     -------
     w : jnp.ndarray, shape (n,)
+
+    Provenance
+    ----------
+    MATLAB source : chebpts.m (weights computed alongside points)
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    Algorithm:
+        [1] Waldvogel, "Fast construction of the Fejér and Clenshaw-Curtis
+            quadrature rules", BIT Numerical Mathematics, 46, 2006.
+
+    See Also
+    --------
+    chebpts
     """
     if n == 0:
         return jnp.array([], dtype=jnp.float64)

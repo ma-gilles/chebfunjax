@@ -757,7 +757,9 @@ Units within the same phase have no mutual dependencies and can run in parallel.
 | U12 | `utils/interpolation.py` | `bary.m`, `trigBary.m`, `baryWeights.m`, `trigBaryWeights.m`, `barymat.m` | `bary`, `trig_bary`, `bary_weights`, `trig_bary_weights`, `barymat` | ~300 LOC |
 | U13 | `utils/diffmat.py` | `diffmat.m`, `intmat.m`, `cumsummat.m`, `introw.m`, `diffrow.m` | `diffmat`, `intmat`, `cumsummat`, `introw`, `diffrow` | ~400 LOC |
 | U14 | `utils/polynomials.py` | `chebpoly.m`, `legpoly.m`, `jacpoly.m`, `hermpoly.m`, `lagpoly.m`, `ultrapoly.m` | `chebpoly`, `legpoly`, `jacpoly`, `hermpoly`, `lagpoly`, `ultrapoly` | ~300 LOC |
-| U15 | `utils/approximation.py` | `aaa.m`, `aaatrig.m`, `minimax.m`, `ratinterp.m`, `padeapprox.m`, `trigratinterp.m`, `cf.m` | `aaa`, `aaatrig`, `minimax`, `ratinterp`, `padeapprox`, `trigratinterp` | ~1500 LOC |
+| U15a | `utils/aaa.py` | `aaa.m`, `aaatrig.m` | `aaa`, `aaatrig` | ~500 LOC |
+| U15b | `utils/minimax.py` | `minimax.m` | `minimax` (Remez exchange) | ~500 LOC |
+| U15c | `utils/ratapprox.py` | `ratinterp.m`, `padeapprox.m`, `trigratinterp.m`, `cf.m` | `ratinterp`, `padeapprox`, `trigratinterp`, `cf` | ~500 LOC |
 | U16 | `utils/misc.py` | `standardChop.m`, `gridsample.m`, `abstractQR.m`, `outerProd.m` | `standard_chop`, `gridsample`, `abstract_qr`, `outer_prod` | ~300 LOC |
 | U17 | `domain.py` | `@domain/` (17 methods) | `Domain` class | ~200 LOC |
 | U18 | `pref.py` | `@chebpref/`, `@chebfunpref/`, `@cheboppref/` | `Preferences` singleton | ~150 LOC |
@@ -766,8 +768,12 @@ Units within the same phase have no mutual dependencies and can run in parallel.
 
 | Unit | Module | MATLAB sources | Key classes/functions | Est. size |
 |------|--------|---------------|----------------------|-----------|
-| U20 | `tech/chebtech.py` | `@chebtech/` (95 methods), `@chebtech1/` (14), `@chebtech2/` (14) | `Chebtech2`, `Chebtech1`, values↔coeffs transforms, Clenshaw eval, adaptive construction, `happinessCheck`, `simplify`, `prolong` | ~2000 LOC |
-| U21 | `tech/trigtech.py` | `@trigtech/` (92 methods) | `Trigtech`, periodic function representation, trig coefficients | ~1500 LOC |
+| U20a | `tech/chebtech_core.py` | `@chebtech/` subset | `Chebtech2` class, `coeffs2vals`, `vals2coeffs`, Clenshaw evaluation, `prolong` | ~500 LOC |
+| U20b | `tech/chebtech_construct.py` | `@chebtech/` subset | Adaptive constructor, `happinessCheck`, `standard_chop`, `refine` | ~500 LOC |
+| U20c | `tech/chebtech_ops.py` | `@chebtech/` subset | Arithmetic, `simplify`, `diff`, `cumsum`, `sum`, `roots`, `innerProduct` | ~500 LOC |
+| U20d | `tech/chebtech_misc.py` | `@chebtech/` subset + `@chebtech1/` | Remaining methods, `Chebtech1` variant | ~400 LOC |
+| U21a | `tech/trigtech_core.py` | `@trigtech/` subset | `Trigtech` class, trig coefficients, evaluation | ~500 LOC |
+| U21b | `tech/trigtech_ops.py` | `@trigtech/` subset | Arithmetic, calculus, roots for periodic functions | ~500 LOC |
 
 ### Phase 3: Fun (depends on Phase 2)
 

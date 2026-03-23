@@ -97,7 +97,8 @@ For every function listed in the unit's row in `PLAN.md`:
 
 ## §5. Write MATLAB Reference Generator
 
-Add test cases to `$WORKDIR/matlab_harness/generate_refs.m` for this module.
+Create a NEW per-module script: `$WORKDIR/matlab_harness/refs/{module}.m`.
+**Do NOT edit the shared `generate_refs.m`** — it auto-discovers per-module scripts.
 
 Generate diverse inputs covering:
 - Small n (5, 10), medium n (32, 64), large n (128, 256, 1024)
@@ -122,7 +123,7 @@ so any agent can reproduce.
 
 ## §6. Write the Python Implementation
 
-Follow the templates in `PLAN.md` Section 4 exactly.
+Follow the conventions in `PLAN.md` Section 4.
 
 **File header:**
 ```python
@@ -184,14 +185,17 @@ def function_name(...):
 2. Use `dtype=jnp.float64` explicitly for all array creation.
 3. Functions that can be JIT-compiled should be decorated with `@jax.jit` or
    use `@eqx.filter_jit` if they take Module arguments.
-4. Use `jax.lax.scan` for recurrences, not Python loops over array elements.
+4. Prefer `jax.lax.scan` for recurrences when it helps performance or JIT compatibility.
+   Use Python loops when they're clearer and performance isn't critical.
 5. Python naming: `snake_case` for functions, `PascalCase` for classes.
    MATLAB's `camelCase` → Python's `snake_case` (e.g., `baryWeights` → `bary_weights`).
 6. MATLAB 1-indexing → Python 0-indexing. Double-check all index arithmetic.
 7. MATLAB column vectors → Python 1D arrays (shape `(n,)`, not `(n, 1)`).
 8. MATLAB `end` → Python `-1` or `len(x)-1`.
-9. Preserve algorithm structure. Don't "improve" the algorithm unless there's a
-   demonstrable bug or JAX incompatibility. If you must diverge, document why.
+9. **The invariant is semantic and numerical equivalence, not mechanical fidelity
+   to MATLAB structure.** You MAY restructure code for better JAX idioms, performance,
+   or clarity. Justified deviations are encouraged when they improve the JAX version.
+   Document deviations and verify identical numerical output.
 
 **For classes (eqx.Module):**
 
@@ -376,7 +380,7 @@ Include timing table in PR description.
 
 ---
 
-## §11. Update conftest and Commit
+## §11. Commit on Branch
 
 1. Add any new MATLAB fixtures to `tests/conftest.py`:
    ```python
@@ -387,10 +391,10 @@ Include timing table in PR description.
 
 2. Update `STATUS.md` in your clone.
 
-3. Commit and push:
+3. Commit on your branch:
 ```bash
 cd "$WORKDIR"
-git add src/chebfunjax/ tests/ matlab_harness/generate_refs.m tests/conftest.py STATUS.md
+git add src/chebfunjax/ tests/ matlab_harness/generate_refs.m tests/conftest.py STATUS.md benchmarks/ 2>/dev/null
 
 git commit -m "$(cat <<'COMMITEOF'
 [U{XX}] Translate {module}: {list of functions}
@@ -406,59 +410,165 @@ Original: Copyright 2017 by The University of Oxford and The Chebfun Developers.
 Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>
 COMMITEOF
 )"
-
-git push -u origin translate/U${XX}-${SHORT_NAME}
 ```
 
 ---
 
-## §12. Create PR
+## §12. Auto-Merge to Main (if all tests pass)
 
-Title: `[U{XX}] Translate {module}: {short description}`
+**This is the critical step.** Agents auto-merge to main when all tests pass.
+No manual PR review is needed. The test suite IS the review gate.
 
-Body:
-```markdown
-## Summary
-- Translates MATLAB Chebfun {files} to Python/JAX
-- {N} functions translated: {list}
-- {M} tests: {K} pure Python, {L} MATLAB cross-validated
-- Agent workdir: `{WORKDIR}`
+### The merge loop
 
-## Functions translated
+This handles the race condition where another agent merges to main while you're testing:
 
-| Python function | MATLAB source | Original author | Tests | Accuracy vs MATLAB |
-|----------------|--------------|-----------------|-------|-------------------|
-| `cheb2leg(c)` | `cheb2leg.m` | Alex Townsend | 8 | rtol < 1e-14 |
-| `leg2cheb(c)` | `leg2cheb.m` | Alex Townsend & Nick Hale | 8 | rtol < 1e-14 |
-
-## Performance (if benchmarked)
-
-| Function | n | CPU (ms) | GPU (ms) | MATLAB (ms) |
-|----------|---|---------|---------|------------|
-| cheb2leg | 1024 | 0.5 | 0.1 | 0.8 |
-
-## Test plan
-- [ ] `pixi run test-fast` passes
-- [ ] `pixi run test-matlab` passes
-- [ ] `pixi run lint` passes
-- [ ] No tolerance relaxations (or documented)
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-```
-
----
-
-## §13. After Merge
-
-Update `STATUS.md` on main:
 ```bash
-git checkout main && git pull
-# Edit STATUS.md: mark unit as done
-git add STATUS.md && git commit -m "Mark U{XX} as done" && git push
+cd "$WORKDIR"
+BRANCH="translate/U${XX}-${SHORT_NAME}"
+MAX_ATTEMPTS=5
+
+for ATTEMPT in $(seq 1 $MAX_ATTEMPTS); do
+    echo "=== Merge attempt $ATTEMPT of $MAX_ATTEMPTS ==="
+
+    # Step 1: Fetch latest main
+    git fetch origin main
+
+    # Step 2: Rebase your branch onto latest main
+    git rebase origin/main
+    if [ $? -ne 0 ]; then
+        echo "REBASE CONFLICT — cannot auto-merge. Aborting rebase."
+        git rebase --abort
+        echo "Push branch for manual resolution:"
+        git push -u origin "$BRANCH"
+        echo "FAILED: Rebase conflict. Branch pushed to origin/$BRANCH for manual review."
+        exit 1
+    fi
+
+    # Step 3: Regenerate MATLAB refs (in case main added new ref sections)
+    module load matlab/R2025b
+    matlab -batch "addpath('/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref'); run('matlab_harness/generate_refs.m')" 2>&1 | tail -5
+
+    # Step 4: Run FULL test suite (all tests, not just yours)
+    echo "Running full test suite..."
+    pixi run test-full 2>&1 | tee /tmp/test_output_${AGENT_ID}.log
+    TEST_EXIT=$?
+
+    pixi run lint 2>&1
+    LINT_EXIT=$?
+
+    if [ $TEST_EXIT -ne 0 ] || [ $LINT_EXIT -ne 0 ]; then
+        echo "TESTS OR LINT FAILED — not merging."
+        echo "Test exit: $TEST_EXIT, Lint exit: $LINT_EXIT"
+        echo "Push branch for debugging:"
+        git push -u origin "$BRANCH"
+        echo "FAILED: Tests did not pass. Branch pushed to origin/$BRANCH."
+        exit 1
+    fi
+
+    echo "All tests passed. Merging to main..."
+
+    # Step 5: Fast-forward merge to main
+    git checkout main
+    git merge --ff-only "$BRANCH"
+    if [ $? -ne 0 ]; then
+        echo "Fast-forward merge failed (main diverged). Retrying..."
+        git checkout "$BRANCH"
+        continue
+    fi
+
+    # Step 6: Push main
+    git push origin main 2>&1
+    if [ $? -ne 0 ]; then
+        echo "Push failed (another agent pushed first). Retrying..."
+        git reset --hard origin/main
+        git checkout "$BRANCH"
+        continue
+    fi
+
+    # Step 7: Success — push the branch ref too (for record-keeping)
+    git push origin "$BRANCH" 2>/dev/null
+
+    echo ""
+    echo "========================================="
+    echo "SUCCESS: U${XX} merged to main"
+    echo "Branch: $BRANCH"
+    echo "Agent: $AGENT_ID"
+    echo "Workdir: $WORKDIR"
+    echo "========================================="
+    exit 0
+done
+
+echo "FAILED: Could not merge after $MAX_ATTEMPTS attempts."
+echo "Pushing branch for manual resolution:"
+git checkout "$BRANCH"
+git push -u origin "$BRANCH"
+exit 1
 ```
 
-**Do NOT delete the workdir** until the PR is merged and verified.
-After merge, the workdir can be cleaned up:
+### What happens in each scenario
+
+| Scenario | Behavior |
+|----------|----------|
+| Tests pass, no conflicts | Merges to main automatically |
+| Tests fail | Pushes branch, stops. Agent reports failure. |
+| Rebase conflict | Pushes branch, stops. Needs manual resolution. |
+| Another agent pushed to main during our test run | Rebases again, re-runs tests, retries (up to 5x) |
+| Lint fails | Same as test failure — pushes branch, stops. |
+
+### Why no PR?
+
+- The full test suite (including MATLAB cross-validation) IS the quality gate.
+- PRs add latency and bottleneck parallel agents.
+- The branch is still pushed to origin for audit trail.
+- If an agent breaks something, `git log` + `git revert` is trivial.
+
+### When to use a PR instead
+
+If the unit involves **architectural changes** (new base classes, changes to existing
+public API, modifications to shared infrastructure like conftest.py or PLAN.md),
+push the branch and create a PR for human review instead of auto-merging:
+
+```bash
+git push -u origin "$BRANCH"
+echo "Architectural change — PR required for human review."
+echo "Branch: origin/$BRANCH"
+```
+
+---
+
+## §13. Post-Merge Summary
+
+After successful merge, print a summary:
+
+```
+========================================
+TRANSLATION COMPLETE: U{XX} {module}
+========================================
+Agent:     ${AGENT_ID}
+Workdir:   ${WORKDIR}
+Branch:    translate/U{XX}-{short-name}
+Commit:    $(git log -1 --format='%h %s')
+
+Functions translated:
+  - function1 (from file1.m, by Author1)
+  - function2 (from file2.m, by Author2)
+
+Tests: {N} total, {K} unit, {L} MATLAB cross-validated
+Accuracy: rtol < {best_rtol} vs MATLAB
+Tolerance relaxations: {none | list with reasons}
+
+Performance (if benchmarked):
+  function1: CPU {X}ms, GPU {Y}ms, MATLAB {Z}ms
+
+STATUS.md updated: U{XX} = done
+========================================
+```
+
+### Cleanup
+
+**Do NOT delete the workdir immediately** — keep it for a day in case of issues.
+After verification, clean up:
 ```bash
 rm -rf "$WORKDIR"
 rm -rf "/scratch/gpfs/GILLES/mg6942/tmp/${AGENT_ID}"

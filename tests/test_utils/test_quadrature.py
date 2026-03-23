@@ -1,5 +1,6 @@
 """Tests for chebfunjax.utils.quadrature — Chebyshev and Legendre points/weights."""
 
+import jax
 import jax.numpy as jnp
 import numpy as np
 import numpy.testing as npt
@@ -97,8 +98,23 @@ class TestChebweights:
 
     def test_gc_integrates_1(self):
         """Gauss-Chebyshev weights: sum should = pi (integral of 1/sqrt(1-x^2))."""
-        # Actually GC weights * f approximate integral of f (not weighted)
-        # sum of GC weights = pi, but for unweighted quadrature we need different weights
         for n in [5, 10, 50]:
             w = chebweights(n, kind=1)
             npt.assert_allclose(float(jnp.sum(w)), jnp.pi, rtol=1e-14)
+
+
+class TestJITCompatibility:
+    """Verify functions work under jax.jit."""
+
+    def test_chebpts_jit(self):
+        """chebpts is not fully JIT-able (n and kind control branching),
+        but the core array ops work under JIT when called with static args."""
+        import functools
+        jitted = jax.jit(functools.partial(chebpts, 10, kind=2))
+        npt.assert_allclose(np.array(jitted()), np.array(chebpts(10, kind=2)), rtol=1e-15)
+
+    def test_chebweights_jit(self):
+        @jax.jit
+        def f():
+            return chebweights(10, kind=2)
+        npt.assert_allclose(np.array(f()), np.array(chebweights(10, kind=2)), rtol=1e-15)

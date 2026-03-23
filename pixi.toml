@@ -10,6 +10,7 @@ numpy = ">=1.24"
 scipy = ">=1.11"
 pytest = ">=7.0"
 pytest-xdist = "*"
+pytest-cov = "*"
 ruff = "*"
 
 # JAX with CUDA support
@@ -20,7 +21,7 @@ chebfunjax = { path = ".", editable = true }
 
 [tasks]
 test-fast = "python -m pytest tests/ -m 'not slow and not gpu and not matlab' -v --tb=short"
-test-full = "python -m pytest tests/ -v --tb=short"
+test-full = "python -m pytest tests/ -v --tb=short --cov=chebfunjax --cov-report=term-missing"
 test-gpu = "python -m pytest tests/ -m gpu -v --tb=short"
 test-matlab = "python -m pytest tests/ -m matlab -v --tb=short"
 check-jax = "python -c \"import jax; print('JAX devices:', jax.devices())\""

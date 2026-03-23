@@ -23,7 +23,8 @@ dependencies = [
 [project.optional-dependencies]
 test = [
     "pytest>=7.0",
-    "pytest-xdist",    # parallel test execution
+    "pytest-xdist",
+    "pytest-cov",
 ]
 dev = [
     "chebfunjax[test]",
@@ -43,7 +44,16 @@ markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "gpu: marks tests requiring GPU",
     "matlab: marks tests that compare against MATLAB reference outputs",
+    "benchmark: performance benchmarks (informational)",
 ]
+
+[tool.coverage.run]
+source = ["chebfunjax"]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]
 
 [tool.ruff]
 line-length = 100

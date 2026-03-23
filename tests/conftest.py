@@ -1,6 +1,5 @@
 """Shared test fixtures and MATLAB reference loading utilities."""
 
-import os
 from pathlib import Path
 
 import numpy as np
@@ -12,17 +11,25 @@ REFS_DIR = Path(__file__).parent / "references"
 def load_matlab_ref(filename: str) -> dict:
     """Load a MATLAB .mat reference file as a dict of numpy arrays.
 
-    Uses scipy.io.loadmat, squeezing out MATLAB's extra dimensions.
+    FAILS (not skips) if the file is missing — silent skips hide broken validation.
+    Run `matlab_harness/generate_refs.m` to regenerate.
     """
     import scipy.io
 
     path = REFS_DIR / filename
     if not path.exists():
-        pytest.skip(f"MATLAB reference {filename} not found — run generate_refs.m first")
+        pytest.fail(
+            f"MATLAB reference {filename} not found at {path}.\n"
+            f"Run: module load matlab/R2025b && matlab -batch "
+            f"\"addpath('$CHEBFUN_REF'); run('matlab_harness/generate_refs.m')\""
+        )
     data = scipy.io.loadmat(str(path), squeeze_me=True)
-    # Remove MATLAB metadata keys
     return {k: v for k, v in data.items() if not k.startswith("__")}
 
+
+# --- Generic fixture: loads tests/references/<module>.mat automatically ---
+# Tests request `matlab_<module>` fixtures, e.g. `matlab_quadrature`.
+# Each module has its OWN .mat file — no shared bottleneck.
 
 @pytest.fixture
 def matlab_quadrature():
@@ -47,6 +54,21 @@ def matlab_diffmat():
 @pytest.fixture
 def matlab_aaa():
     return load_matlab_ref("aaa.mat")
+
+
+@pytest.fixture
+def matlab_interpolation():
+    return load_matlab_ref("interpolation.mat")
+
+
+@pytest.fixture
+def matlab_polynomials():
+    return load_matlab_ref("polynomials.mat")
+
+
+@pytest.fixture
+def matlab_misc():
+    return load_matlab_ref("misc.mat")
 
 
 @pytest.fixture(scope="session", autouse=True)
