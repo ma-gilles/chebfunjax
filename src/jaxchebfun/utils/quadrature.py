@@ -81,44 +81,40 @@ def chebweights(n: int, kind: int = 2) -> jnp.ndarray:
 
 
 def _clenshaw_curtis_weights(n: int) -> jnp.ndarray:
-    """Clenshaw-Curtis quadrature weights for n points (second kind).
+    """Clenshaw-Curtis quadrature weights for n second-kind Chebyshev points.
 
-    Uses the FFT-based algorithm. Reference: Waldvogel (2006).
+    Uses Waldvogel's FFT-based algorithm (BIT 2006).
+    Points: x_k = cos(k*pi/(n-1)), k = 0..n-1 (descending order).
+    Weights satisfy: sum(w) = 2, and integrate polynomials of degree <= n-1 exactly.
+    Returns weights in ascending x order (matching chebpts output).
     """
     if n == 2:
         return jnp.array([1.0, 1.0], dtype=jnp.float64)
 
     N = n - 1
-    # theta_k = k*pi/N for k = 0..N
-    c = jnp.zeros(n, dtype=jnp.float64)
-    # Build the weight-generating function in Chebyshev coefficient space
-    # w_k = (2/N) * sum_{j=0}^{N/2} b_j * cos(2*j*k*pi/N)
-    # where b_j = 2/(1 - 4j^2) for j >= 1, b_0 = 1
-    m = N // 2
-    j = jnp.arange(1, m + 1, dtype=jnp.float64)
-    bj = 2.0 / (1.0 - 4.0 * j**2)
 
-    # Use the DCT relationship
-    # Place coefficients for the cosine series
-    c = c.at[0].set(1.0)
-    c = c.at[1:m + 1].set(bj)
-    if N % 2 == 0:
-        c = c.at[m].set(bj[-1] / 2)  # Nyquist correction
+    # Chebyshev moments: integral of T_k(x) over [-1,1]
+    # = 2/(1-k^2) for even k, 0 for odd k
+    # Build the first N+1 moments
+    c = jnp.zeros(N + 1, dtype=jnp.float64)
+    k_even = jnp.arange(0, N + 1, 2, dtype=jnp.float64)
+    c = c.at[0::2].set(2.0 / (1.0 - k_even**2))
 
-    # Mirror for DCT-I
-    if N % 2 == 0:
-        v = jnp.concatenate([c[:m + 1], c[m - 1:0:-1]])
-    else:
-        v = jnp.concatenate([c[:m + 1], c[m:0:-1]])
+    # Mirror to get a vector of length 2N for IFFT
+    # v = [c[0], c[1], ..., c[N], c[N-1], ..., c[1]]
+    v = jnp.concatenate([c, c[N - 1:0:-1]])
 
-    w = jnp.real(jnp.fft.ifft(v))
-    weights = jnp.zeros(n, dtype=jnp.float64)
-    weights = weights.at[0].set(w[0] / 2)
-    weights = weights.at[1:n - 1].set(w[1:n - 1])
-    weights = weights.at[n - 1].set(w[0] / 2)  # symmetry: w[N] = w[0]
+    # IFFT gives weights / N. We want the true CC weights which sum to 2.
+    # The IFFT divides by 2N (length of v), but the DCT-I normalization
+    # needs division by N only, so multiply by 2.
+    w = 2.0 * jnp.real(jnp.fft.ifft(v))
 
-    # Normalize
-    weights = weights * (2.0 / N)
+    # Extract the first N+1 values (theta = 0..pi)
+    w = w[:N + 1]
 
-    # Reverse to match point ordering (ascending)
-    return weights[::-1]
+    # Halve the endpoints (trapezoidal rule correction)
+    w = w.at[0].set(w[0] / 2.0)
+    w = w.at[N].set(w[N] / 2.0)
+
+    # Reverse: MATLAB chebpts returns ascending order (-1 to 1)
+    return w[::-1]

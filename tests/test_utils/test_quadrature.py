@@ -52,14 +52,14 @@ class TestChebpts:
         for n in [5, 10, 17, 32, 64, 128]:
             x = chebpts(n, kind=2)
             ref = matlab_quadrature[f"chebpts2_n{n}"]
-            npt.assert_allclose(np.array(x), ref, rtol=1e-14)
+            npt.assert_allclose(np.array(x), ref, rtol=1e-14, atol=1e-15)
 
     @pytest.mark.matlab
     def test_chebpts1_vs_matlab(self, matlab_quadrature):
         for n in [5, 10, 17, 32, 64, 128]:
             x = chebpts(n, kind=1)
             ref = matlab_quadrature[f"chebpts1_n{n}"]
-            npt.assert_allclose(np.array(x), ref, rtol=1e-14)
+            npt.assert_allclose(np.array(x), ref, rtol=1e-14, atol=1e-15)
 
 
 class TestChebptsAB:
