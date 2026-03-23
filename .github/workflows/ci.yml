@@ -6,8 +6,8 @@ on:
   pull_request:
     branches: [main]
 
-# CI is the sole reviewer. If all jobs pass, the PR is safe to merge.
-# Configure GitHub branch protection to require all these jobs.
+# CI is the sole reviewer. If all jobs pass, the PR is safe to auto-merge.
+# Configure branch protection to require all these jobs (scripts/setup-branch-protection.sh).
 
 jobs:
   lint:
@@ -22,27 +22,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
 
       - name: No numpy imports in library code
         run: |
-          # Fail if any library file imports numpy directly (jax.numpy is OK)
+          FAIL=0
           if grep -rn "^import numpy" src/ --include="*.py" | grep -v "jax.numpy"; then
             echo "FAIL: Found 'import numpy' in library code. Use jax.numpy."
-            exit 1
+            FAIL=1
           fi
           if grep -rn "^from numpy" src/ --include="*.py"; then
             echo "FAIL: Found 'from numpy' in library code. Use jax.numpy."
-            exit 1
+            FAIL=1
           fi
-          echo "OK: No numpy imports in library code."
+          [ $FAIL -eq 0 ] && echo "OK: No numpy imports in library code."
+          exit $FAIL
 
       - name: Provenance docstrings present
         run: |
-          # Every public .py file in src/ (not __init__.py) must contain "Provenance"
-          # This catches files that forgot the provenance section.
           MISSING=""
           for f in $(find src/chebfunjax -name "*.py" ! -name "__init__.py" ! -name "_*" -size +100c); do
             if ! grep -q "Provenance" "$f"; then
@@ -50,15 +46,13 @@ jobs:
             fi
           done
           if [ -n "$MISSING" ]; then
-            echo "FAIL: Missing Provenance section in:$MISSING"
+            echo -e "FAIL: Missing Provenance section in:$MISSING"
             exit 1
           fi
           echo "OK: All source files have Provenance docstrings."
 
-      - name: Golden refs committed for all MATLAB test modules
+      - name: Golden refs committed for MATLAB tests
         run: |
-          # For every test file that uses @pytest.mark.matlab, verify
-          # the corresponding .mat file exists in tests/references/
           pip install -q scipy numpy
           python -c "
           from pathlib import Path
@@ -68,23 +62,21 @@ jobs:
           ref_dir = test_dir / 'references'
           refs = {f.stem for f in ref_dir.glob('*.mat')}
 
-          # Find all .mat filenames referenced in test code
           needed = set()
           for tf in test_dir.rglob('test_*.py'):
               text = tf.read_text()
               if 'pytest.mark.matlab' in text:
-                  # Find load_matlab_ref('X.mat') or matlab_ref param 'X'
                   for m in re.finditer(r'load_matlab_ref\([\"\\'](\w+)\.mat', text):
                       needed.add(m.group(1))
                   for m in re.finditer(r'\"matlab_ref\",\s*\[\"(\w+)\"\]', text):
                       needed.add(m.group(1))
-                  # Legacy fixtures: matlab_<name>
-                  for m in re.finditer(r'def matlab_(\w+)\(', text):
-                      needed.add(m.group(1))
+                  for m in re.finditer(r'matlab_(\w+)\(', text):
+                      if m.group(1) not in ('ref',):
+                          needed.add(m.group(1))
 
           missing = needed - refs
           if missing:
-              print(f'FAIL: MATLAB tests reference these refs but they are not committed:')
+              print('FAIL: MATLAB tests need these uncommitted refs:')
               for m in sorted(missing):
                   print(f'  tests/references/{m}.mat')
               sys.exit(1)
@@ -96,15 +88,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: prefix-dev/setup-pixi@v0.8.1
         with:
-          python-version: "3.12"
-      - name: Install dependencies
-        run: pip install -e ".[test]"
+          pixi-version: latest
       - name: Run all tests with coverage
-        run: |
-          python -m pytest tests/ -v --tb=short \
-            --cov=chebfunjax --cov-report=term-missing --cov-fail-under=90
+        run: pixi run test-full
 
   golden-refs:
     name: Validate golden refs
@@ -114,7 +102,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Validate .mat files are well-formed
+      - name: Validate .mat files
         run: |
           pip install -q scipy numpy
           python -c "

@@ -35,7 +35,8 @@ y = f(0.5)                          # scalar → scalar
 y = f(jnp.linspace(-1, 1, 100))    # array → array (vectorized)
 ```
 
-Evaluation must be JIT-compiled and vmap-friendly.
+Evaluation is JIT-compiled, vmap-friendly, and differentiable.
+See `docs/jax-contract.md` for what is and isn't JIT/grad/vmap-safe.
 
 ## Arithmetic
 
@@ -133,10 +134,12 @@ Never:
 
 ## JAX Interop
 
-Users should be able to use JAX transforms naturally:
+Evaluation, differentiation, integration, and arithmetic are JIT/grad/vmap-safe.
+Adaptive construction, rootfinding, and extrema are NOT (they use Python control flow).
+See `docs/jax-contract.md` for the full contract.
 
 ```python
-# JIT evaluation
+# JIT evaluation (fast, compiled)
 fast_eval = jax.jit(f)
 y = fast_eval(x)
 
@@ -146,10 +149,14 @@ df_dx = jax.grad(lambda x: f(x))(0.5)  # should match f.diff()(0.5)
 # Batched evaluation
 ys = jax.vmap(f)(xs)  # evaluate at many points efficiently
 
-# Custom loss function
+# Custom loss function over coefficient space
 def loss(coeffs):
-    g = cj.chebfun.from_coeffs(coeffs)
+    g = cj.Chebtech2.from_coeffs(coeffs)
     return g.norm()**2
 
 jax.grad(loss)(f.coeffs)  # gradient of a functional w.r.t. coefficients
+
+# NOT JIT-safe (call outside JIT, pass result in):
+f = cj.chebfun(jnp.sin)  # adaptive construction — Python loop
+r = f.roots()             # eigenvalue problem — variable output size
 ```

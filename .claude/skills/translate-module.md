@@ -119,9 +119,9 @@ matlab -batch "addpath('$CHEBFUN_REF'); run('matlab_harness/generate_refs.m')"
 
 Verify the `.mat` file was created in `$WORKDIR/tests/references/`.
 
-**Note:** MATLAB reference `.mat` files are .gitignored (too large to commit).
-Each agent regenerates them locally. The `generate_refs.m` script IS committed
-so any agent can reproduce.
+**Golden refs are committed.** After generating, `git add tests/references/<module>.mat`
+and include it in your commit. Contributors without MATLAB rely on these committed files.
+See `docs/testing.md` for the full policy.
 
 ---
 
@@ -387,19 +387,14 @@ Include timing table in PR description.
 
 ## §11. Commit on Branch
 
-1. Add any new MATLAB fixtures to `tests/conftest.py`:
-   ```python
-   @pytest.fixture
-   def matlab_transforms():
-       return load_matlab_ref("transforms.mat")
-   ```
+**Do NOT edit `tests/conftest.py` for new fixtures.** Use the generic `matlab_ref`
+fixture with `@pytest.mark.parametrize("matlab_ref", ["your_module"], indirect=True)`.
+See `docs/testing.md` for the pattern.
 
-2. Update `STATUS.md` in your clone.
-
-3. Commit on your branch:
+Commit on your branch:
 ```bash
 cd "$WORKDIR"
-git add src/chebfunjax/ tests/ matlab_harness/generate_refs.m tests/conftest.py STATUS.md benchmarks/ 2>/dev/null
+git add src/chebfunjax/ tests/ matlab_harness/refs/ tests/references/ STATUS.md benchmarks/ 2>/dev/null
 
 git commit -m "$(cat <<'COMMITEOF'
 [U{XX}] Translate {module}: {list of functions}

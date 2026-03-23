@@ -896,8 +896,8 @@ Every PR MUST pass these gates before merge:
 ### Gate 2: Tests
 - [ ] Unit tests for every public function (Tier 1)
 - [ ] MATLAB cross-validation tests (Tier 2) — `@pytest.mark.matlab`
-- [ ] All tests pass: `pixi run test-fast` + `pixi run test-matlab`
-- [ ] Coverage ≥ 90% for new code (measured per-file)
+- [ ] All tests pass: `pixi run test-full`
+- [ ] Global coverage ≥ 90% (enforced by CI via `--cov-fail-under=90`)
 
 ### Gate 3: Accuracy
 - [ ] Agreement with MATLAB Chebfun at `rtol=1e-12, atol=1e-14`

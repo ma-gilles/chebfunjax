@@ -96,24 +96,28 @@ pixi run check-jax
 
 ## Slurm (for GPU tests)
 
+Agents use the Slurm template in the skill (§9). For quick manual use:
+
 ```bash
-source project.conf
-cat > "$SLURM_LOG_DIR/job_gpu_test.sh" << 'EOF'
+source project.conf  # sets SCRATCH, SLURM_ACCOUNT, SLURM_PARTITION, SLURM_LOG_DIR
+WORKDIR="$(pwd)"     # must be set to your chebfunjax checkout
+
+cat > "${SLURM_LOG_DIR}/job_gpu_test.sh" << EOF
 #!/bin/bash
-#SBATCH --partition=$SLURM_PARTITION --account=$SLURM_ACCOUNT
+#SBATCH --partition=${SLURM_PARTITION} --account=${SLURM_ACCOUNT}
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks=1 --cpus-per-task=4
 #SBATCH --mem=64G
 #SBATCH --time=01:00:00
-#SBATCH --output=$SLURM_LOG_DIR/%j-%x.out
+#SBATCH --output=${SLURM_LOG_DIR}/%j-%x.out
 
 export PYTHONNOUSERSITE=1
 export XLA_PYTHON_CLIENT_PREALLOCATE=false
-export TMPDIR=$SCRATCH/tmp
-mkdir -p "$TMPDIR"
+export TMPDIR=${SCRATCH}/tmp/slurm_\${SLURM_JOB_ID}
+mkdir -p "\${TMPDIR}"
 
-cd "$WORKDIR"
+cd ${WORKDIR}
 pixi run test-full
 EOF
-sbatch "$SLURM_LOG_DIR/job_gpu_test.sh"
+sbatch "${SLURM_LOG_DIR}/job_gpu_test.sh"
 ```
