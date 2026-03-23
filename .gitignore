@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Pixi
+.pixi/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+htmlcov/
+.coverage
+
+# MATLAB generated references (large, regenerate from harness)
+# Keep a small set committed; large ones go in .gitignore
+tests/references/*.mat
+
+# Benchmarks output
+benchmarks/results/
+
+# Scratch
+*.bak
+tmp/
