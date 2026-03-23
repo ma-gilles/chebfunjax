@@ -33,3 +33,4 @@ benchmarks/results/
 # Scratch
 *.bak
 tmp/
+.claude/worktrees/
