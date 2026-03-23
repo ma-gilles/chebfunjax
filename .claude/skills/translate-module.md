@@ -10,45 +10,95 @@ Translate a MATLAB Chebfun module to Python/JAX for the chebfunjax project.
 
 Example: `/translate-module U11 utils/transforms`
 
-## Prerequisites
+---
 
-Before starting, verify:
-1. You have read `PLAN.md` in the repo root (design decisions, templates, quality gates).
-2. The unit's dependencies are marked `done` in `STATUS.md`.
-3. No other agent is working on this unit (check `STATUS.md`).
+## §1. Isolated Clone Setup
 
-## Step-by-Step Procedure
+**Every agent gets its own fresh clone.** Never reuse an existing checkout.
+This allows multiple agents to work in parallel without conflicts.
 
-### Step 1: Claim the Unit
-
-Update `STATUS.md`:
-```
-| U{XX} | {module} | in_progress | | {your-id} | started YYYY-MM-DD |
-```
-
-Create branch:
 ```bash
-cd /scratch/gpfs/GILLES/mg6942/jaxchebfun
-git checkout main && git pull
-git checkout -b translate/U{XX}-{short-name}
+# ── Generate unique agent ID ──
+AGENT_ID="chebfunjax_$(date +%Y%m%d_%H%M%S)_$$"
+WORKDIR="/scratch/gpfs/GILLES/mg6942/${AGENT_ID}"
+
+# ── Clone ──
+git clone git@github.com:ma-gilles/chebfunjax.git "$WORKDIR"
+cd "$WORKDIR"
+
+# ── Isolate Python environment ──
+unset PYTHONPATH PYTHONHOME CONDA_PREFIX VIRTUAL_ENV
+export PYTHONNOUSERSITE=1
+export TMPDIR="/scratch/gpfs/GILLES/mg6942/tmp/${AGENT_ID}"
+export PIXI_HOME="/scratch/gpfs/GILLES/mg6942/pixi_home/${AGENT_ID}"
+export RATTLER_CACHE_DIR="/scratch/gpfs/GILLES/mg6942/rattler_cache/${AGENT_ID}"
+mkdir -p "$TMPDIR" "$PIXI_HOME" "$RATTLER_CACHE_DIR"
+
+# ── Install ──
+pixi install
+
+# ── Provenance gate: verify correct environment ──
+PIXI_PY="$WORKDIR/.pixi/envs/default/bin/python"
+"$PIXI_PY" -c "
+import chebfunjax, jax, pathlib, sys
+pkg = pathlib.Path(chebfunjax.__file__).resolve()
+assert '${AGENT_ID}' in str(pkg), f'Wrong chebfunjax: {pkg}'
+print(f'chebfunjax: {pkg}')
+print(f'JAX devices: {jax.devices()}')
+print(f'Python: {sys.executable}')
+print('Provenance gate PASSED')
+"
 ```
 
-### Step 2: Read the MATLAB Source
+**All subsequent commands in this skill use `$WORKDIR` as the working directory.**
+Store `WORKDIR` and `AGENT_ID` — you will need them for Slurm scripts.
+
+---
+
+## §2. Prerequisites
+
+Before starting, read these files in the clone:
+1. **`PLAN.md`** — locked design decisions, code templates, quality gates
+2. **`STATUS.md`** — check the unit's dependencies are `done` and nobody else has claimed it
+
+---
+
+## §3. Claim the Unit and Create Branch
+
+```bash
+cd "$WORKDIR"
+git checkout -b translate/U${XX}-${SHORT_NAME}
+```
+
+Update `STATUS.md` in YOUR clone:
+```
+| U{XX} | {module} | in_progress | | ${AGENT_ID} | started YYYY-MM-DD |
+```
+
+---
+
+## §4. Read the MATLAB Source
 
 For every function listed in the unit's row in `PLAN.md`:
 
-1. Open the MATLAB file in `/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/`.
+1. Read the MATLAB file in `/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/`.
+   This is a SHARED read-only directory — all agents read from it, never write to it.
 2. Extract and record:
    - **Purpose**: the `%FUNCNAME   Description` line.
-   - **Authors**: names from comments (e.g., "by Nick Hale, July 2011") or the generic copyright.
+   - **Authors**: names from comments (e.g., "by Nick Hale, July 2011") or the generic
+     "Copyright 2017 by The University of Oxford and The Chebfun Developers."
    - **Algorithm references**: paper citations from `DEVELOPER NOTES` section.
    - **"See also"**: related functions.
    - **Core algorithm**: understand the mathematical approach, not just the code.
 3. If a chebpy equivalent exists, read it in `/scratch/gpfs/GILLES/mg6942/chebpy_ref/src/chebpy/`.
+   This is also shared and read-only.
 
-### Step 3: Write MATLAB Reference Generator
+---
 
-Add test cases to `matlab_harness/generate_refs.m` for this module.
+## §5. Write MATLAB Reference Generator
+
+Add test cases to `$WORKDIR/matlab_harness/generate_refs.m` for this module.
+
 Generate diverse inputs covering:
 - Small n (5, 10), medium n (32, 64), large n (128, 256, 1024)
 - Edge cases: n=0, n=1, n=2
@@ -58,13 +108,19 @@ Generate diverse inputs covering:
 Run the generator:
 ```bash
 module load matlab/R2025b
-cd /scratch/gpfs/GILLES/mg6942/jaxchebfun
+cd "$WORKDIR"
 matlab -batch "addpath('/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref'); run('matlab_harness/generate_refs.m')"
 ```
 
-Verify the `.mat` file was created in `tests/references/`.
+Verify the `.mat` file was created in `$WORKDIR/tests/references/`.
 
-### Step 4: Write the Python Implementation
+**Note:** MATLAB reference `.mat` files are .gitignored (too large to commit).
+Each agent regenerates them locally. The `generate_refs.m` script IS committed
+so any agent can reproduce.
+
+---
+
+## §6. Write the Python Implementation
 
 Follow the templates in `PLAN.md` Section 4 exactly.
 
@@ -83,7 +139,7 @@ import jax
 import jax.numpy as jnp
 ```
 
-**For each function, the docstring MUST include:**
+**For each function, the docstring MUST include a Provenance section:**
 
 ```python
 def function_name(...):
@@ -124,7 +180,7 @@ def function_name(...):
 
 **Implementation rules:**
 
-1. Use `jax.numpy` everywhere. Never `import numpy`.
+1. Use `jax.numpy` everywhere. Never `import numpy` in library code.
 2. Use `dtype=jnp.float64` explicitly for all array creation.
 3. Functions that can be JIT-compiled should be decorated with `@jax.jit` or
    use `@eqx.filter_jit` if they take Module arguments.
@@ -145,13 +201,16 @@ def function_name(...):
 3. Implement operator overloads as dunder methods (see PLAN.md Section 4.3).
 4. Return new objects from every operation — never mutate.
 
-### Step 5: Write Tests
+---
 
-Create test file: `tests/test_{subpackage}/test_{module}.py`
+## §7. Write Tests
+
+Create test file: `$WORKDIR/tests/test_{subpackage}/test_{module}.py`
 
 **Required test categories:**
 
 ```python
+import jax
 import jax.numpy as jnp
 import numpy as np
 import numpy.testing as npt
@@ -217,12 +276,14 @@ class TestFunctionName:
 - `cos(pi/2)` type issues (exact zero vs 6e-17): use `atol=1e-15`
 - Never use `rtol > 1e-8` without flagging it in the PR description
 
-### Step 6: Run Tests and Fix
+---
+
+## §8. Run Tests Locally and Fix
 
 ```bash
-cd /scratch/gpfs/GILLES/mg6942/jaxchebfun
+cd "$WORKDIR"
 
-# Fast tests (no MATLAB, no GPU)
+# Fast tests (no MATLAB refs, no GPU)
 pixi run test-fast
 
 # MATLAB comparison tests
@@ -235,9 +296,68 @@ pixi run test-full
 pixi run lint
 ```
 
-Iterate until ALL tests pass. Do not merge with failing tests.
+Iterate until ALL tests pass. Do not proceed with failing tests.
 
-### Step 7: Write Benchmark (if applicable)
+---
+
+## §9. Slurm Submission (for GPU tests or heavy work)
+
+For GPU benchmarks or integration tests, submit to Slurm.
+**Critical:** hardcode `$WORKDIR` at script-generation time (unquoted EOF).
+
+```bash
+SCRIPT="/scratch/gpfs/GILLES/mg6942/slurmo/job_${AGENT_ID}.sh"
+
+cat > "$SCRIPT" << EOF
+#!/usr/bin/env bash
+#SBATCH --job-name=chebfunjax-test
+#SBATCH --account=amits
+#SBATCH --partition=cryoem
+#SBATCH --gres=gpu:1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=64G
+#SBATCH --time=01:00:00
+#SBATCH --output=/scratch/gpfs/GILLES/mg6942/slurmo/chebfunjax-test-%j.out
+
+set -euo pipefail
+WORKDIR="${WORKDIR}"
+cd "\$WORKDIR"
+
+export PYTHONNOUSERSITE=1
+export XLA_PYTHON_CLIENT_PREALLOCATE=false
+export TMPDIR="/scratch/gpfs/GILLES/mg6942/tmp/slurm_\${SLURM_JOB_ID}"
+export PIXI_HOME="/scratch/gpfs/GILLES/mg6942/pixi_home/slurm_\${SLURM_JOB_ID}"
+export RATTLER_CACHE_DIR="/scratch/gpfs/GILLES/mg6942/rattler_cache/slurm_\${SLURM_JOB_ID}"
+mkdir -p "\$TMPDIR" "\$PIXI_HOME" "\$RATTLER_CACHE_DIR"
+
+unset PYTHONPATH PYTHONHOME CONDA_PREFIX VIRTUAL_ENV
+PIXI_PY="\$(pixi run which python)"
+export PATH="\$(dirname "\$PIXI_PY"):\$PATH"
+
+# Provenance gate
+"\$PIXI_PY" -c "import chebfunjax; print('OK:', chebfunjax.__file__)"
+
+# Run tests
+pixi run test-full
+EOF
+
+chmod +x "$SCRIPT"
+JOB_ID=$(sbatch --parsable "$SCRIPT")
+echo "Submitted job $JOB_ID for workdir $WORKDIR"
+echo "Monitor: tail -f /scratch/gpfs/GILLES/mg6942/slurmo/chebfunjax-test-${JOB_ID}.out"
+```
+
+Wait for completion:
+```bash
+squeue -u mg6942 | grep $JOB_ID
+# When done, check output:
+cat /scratch/gpfs/GILLES/mg6942/slurmo/chebfunjax-test-${JOB_ID}.out
+```
+
+---
+
+## §10. Write Benchmark (if applicable)
 
 For compute-intensive functions (quadrature for large n, FFT-based transforms, etc.):
 
@@ -248,12 +368,15 @@ For compute-intensive functions (quadrature for large n, FFT-based transforms, e
 
 Run benchmark and record results:
 ```bash
+cd "$WORKDIR"
 pixi run -- python benchmarks/bench_{module}.py
 ```
 
 Include timing table in PR description.
 
-### Step 8: Update Status and Add to conftest
+---
+
+## §11. Update conftest and Commit
 
 1. Add any new MATLAB fixtures to `tests/conftest.py`:
    ```python
@@ -262,34 +385,34 @@ Include timing table in PR description.
        return load_matlab_ref("transforms.mat")
    ```
 
-2. Update `STATUS.md`:
-   ```
-   | U{XX} | {module} | in_review | #{pr} | {your-id} | N tests pass |
-   ```
+2. Update `STATUS.md` in your clone.
 
-### Step 9: Commit and Push
-
+3. Commit and push:
 ```bash
-cd /scratch/gpfs/GILLES/mg6942/jaxchebfun
-git add src/chebfunjax/{path} tests/test_{path} matlab_harness/generate_refs.m tests/conftest.py STATUS.md
+cd "$WORKDIR"
+git add src/chebfunjax/ tests/ matlab_harness/generate_refs.m tests/conftest.py STATUS.md
 
-git commit -m "[U{XX}] Translate {module}: {list of functions}
+git commit -m "$(cat <<'COMMITEOF'
+[U{XX}] Translate {module}: {list of functions}
 
 Translated from MATLAB Chebfun (commit 7574c77):
 - {function1}: description
 - {function2}: description
-...
 
 All {N} tests pass including MATLAB cross-validation (rtol=1e-12).
 
 Original: Copyright 2017 by The University of Oxford and The Chebfun Developers.
 
-Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
+Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>
+COMMITEOF
+)"
 
-git push -u origin translate/U{XX}-{short-name}
+git push -u origin translate/U${XX}-${SHORT_NAME}
 ```
 
-### Step 10: Create PR
+---
+
+## §12. Create PR
 
 Title: `[U{XX}] Translate {module}: {short description}`
 
@@ -299,6 +422,7 @@ Body:
 - Translates MATLAB Chebfun {files} to Python/JAX
 - {N} functions translated: {list}
 - {M} tests: {K} pure Python, {L} MATLAB cross-validated
+- Agent workdir: `{WORKDIR}`
 
 ## Functions translated
 
@@ -318,12 +442,28 @@ Body:
 - [ ] `pixi run test-matlab` passes
 - [ ] `pixi run lint` passes
 - [ ] No tolerance relaxations (or documented)
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
 ```
 
-### Step 11: Update STATUS.md After Merge
+---
 
+## §13. After Merge
+
+Update `STATUS.md` on main:
+```bash
+git checkout main && git pull
+# Edit STATUS.md: mark unit as done
+git add STATUS.md && git commit -m "Mark U{XX} as done" && git push
 ```
-| U{XX} | {module} | done | #{pr} | {your-id} | {N} tests, merged YYYY-MM-DD |
+
+**Do NOT delete the workdir** until the PR is merged and verified.
+After merge, the workdir can be cleaned up:
+```bash
+rm -rf "$WORKDIR"
+rm -rf "/scratch/gpfs/GILLES/mg6942/tmp/${AGENT_ID}"
+rm -rf "/scratch/gpfs/GILLES/mg6942/pixi_home/${AGENT_ID}"
+rm -rf "/scratch/gpfs/GILLES/mg6942/rattler_cache/${AGENT_ID}"
 ```
 
 ---
@@ -374,16 +514,21 @@ global state, etc.). In these cases:
 
 ---
 
-## Quick Reference: File Paths
+## Quick Reference: Shared Paths (read-only)
 
 | What | Where |
 |------|-------|
-| Our repo | `/scratch/gpfs/GILLES/mg6942/jaxchebfun/` |
-| MATLAB Chebfun | `/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/` |
-| Python chebpy | `/scratch/gpfs/GILLES/mg6942/chebpy_ref/` |
-| MATLAB refs | `tests/references/*.mat` |
-| MATLAB harness | `matlab_harness/generate_refs.m` |
-| Design plan | `PLAN.md` |
-| Status tracker | `STATUS.md` |
+| MATLAB Chebfun source | `/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/` |
+| Python chebpy reference | `/scratch/gpfs/GILLES/mg6942/chebpy_ref/` |
 | MATLAB binary | `module load matlab/R2025b` |
-| pixi env | `.pixi/envs/default/bin/python` |
+| Slurm logs | `/scratch/gpfs/GILLES/mg6942/slurmo/` |
+
+## Quick Reference: Per-Agent Paths
+
+| What | Where |
+|------|-------|
+| Agent workdir | `$WORKDIR` = `/scratch/gpfs/GILLES/mg6942/${AGENT_ID}/` |
+| Agent pixi env | `$WORKDIR/.pixi/envs/default/bin/python` |
+| Agent TMPDIR | `/scratch/gpfs/GILLES/mg6942/tmp/${AGENT_ID}/` |
+| Agent pixi cache | `/scratch/gpfs/GILLES/mg6942/pixi_home/${AGENT_ID}/` |
+| Agent rattler cache | `/scratch/gpfs/GILLES/mg6942/rattler_cache/${AGENT_ID}/` |
