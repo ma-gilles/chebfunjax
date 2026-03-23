@@ -278,11 +278,21 @@ class TestFunctionName:
         )
 ```
 
-**Test tolerance rules:**
+**Test tolerance rules — ABSOLUTE RULE:**
 - Default: `rtol=1e-12, atol=1e-14`
-- If you need to relax, add a comment explaining WHY
+- **Accuracy must match or beat MATLAB.** If our result is less accurate than
+  MATLAB Chebfun on the same input, that is a BUG — investigate and fix,
+  do not relax the tolerance.
+- To relax a tolerance, you MUST:
+  1. Run the same computation in MATLAB and measure its error
+  2. Prove our error is ≤ MATLAB's error
+  3. Document the MATLAB error in a comment next to the relaxed tolerance
+  4. The relaxed tolerance must still be tighter than MATLAB
+- Small constant-factor differences from platform BLAS/LAPACK are OK
+  (e.g., 1.3e-13 vs 1.0e-13). Order-of-magnitude differences are not.
 - `cos(pi/2)` type issues (exact zero vs 6e-17): use `atol=1e-15`
-- Never use `rtol > 1e-8` without flagging it in the PR description
+- Never relax without measuring MATLAB first. "It's hard numerically" is
+  not a reason — MATLAB does it, so can we.
 
 ---
 

@@ -901,7 +901,11 @@ Every PR MUST pass these gates before merge:
 
 ### Gate 3: Accuracy
 - [ ] Agreement with MATLAB Chebfun at `rtol=1e-12, atol=1e-14`
-- [ ] Any relaxed tolerances documented with reason
+- [ ] **Accuracy must match or beat MATLAB.** If MATLAB gets 1e-10, we must get ≤ 1e-10.
+      Small constant-factor differences (1.3e-13 vs 1.0e-13) from platform-dependent
+      BLAS/LAPACK are acceptable. Anything worse than MATLAB is a bug, not a tolerance issue.
+- [ ] To relax a tolerance, you MUST first measure MATLAB's precision on the same input
+      and document it in the test. The relaxed tolerance must still be tighter than MATLAB.
 - [ ] No accuracy regression vs previous version
 
 ### Gate 4: Performance

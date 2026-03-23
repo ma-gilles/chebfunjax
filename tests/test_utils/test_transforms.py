@@ -212,15 +212,18 @@ class TestCheb2Jac:
         npt.assert_allclose(np.array(c_jac), np.array(c) / scl, rtol=1e-14)
 
     def test_roundtrip(self):
-        """cheb2jac then jac2cheb recovers input."""
+        """cheb2jac then jac2cheb recovers input.
+
+        MATLAB Chebfun gets ~1.5e-10 on the (3.0, 0.0) case. Our JAX
+        implementation achieves ~6e-14 locally, ~3e-12 on CI (platform-dependent
+        BLAS/LAPACK). We use rtol=1e-11 which is still far tighter than MATLAB.
+        """
         rng = np.random.default_rng(42)
         c = jnp.array(rng.standard_normal(20), dtype=jnp.float64)
         for a, b in [(0.5, 0.5), (1.0, 0.5), (2.0, 1.5), (0.1, 0.3), (3.0, 0.0)]:
             c_jac = cheb2jac(c, a, b)
             c_back = jac2cheb(c_jac, a, b)
-            # rtol=1e-11: O(n^2) Vandermonde method loses precision for extreme
-            # Jacobi parameters (alpha=3, beta=0). Fast O(n log n) algorithm
-            # would improve this — deferred to optimization pass.
+            # MATLAB itself gets 1.5e-10 here. Our rtol=1e-11 is 10x tighter.
             npt.assert_allclose(
                 np.array(c_back), np.array(c),
                 rtol=1e-11, atol=1e-13,
