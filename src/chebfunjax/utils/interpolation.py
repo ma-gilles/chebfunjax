@@ -11,7 +11,6 @@ from __future__ import annotations
 import jax
 import jax.numpy as jnp
 
-
 # ---------------------------------------------------------------------------
 # Barycentric weights for Chebyshev points of the 2nd kind
 # ---------------------------------------------------------------------------
@@ -477,9 +476,6 @@ def _barymat_core(y: jnp.ndarray,
                   x: jnp.ndarray,
                   w: jnp.ndarray) -> jnp.ndarray:
     """JIT-compiled core of barymat."""
-    M = y.shape[0]
-    N = x.shape[0]
-
     # Difference matrix: D[j, k] = y[j] - x[k], shape (M, N)
     D = y[:, None] - x[None, :]
 

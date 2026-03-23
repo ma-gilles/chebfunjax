@@ -4,7 +4,6 @@ JAX contract: bary, bary_weights, trig_bary, trig_bary_weights, barymat are all
 JIT-safe. cheb_bary_weights uses Python control flow on n (static).
 """
 
-import functools
 
 import jax
 import jax.numpy as jnp
@@ -21,7 +20,6 @@ from chebfunjax.utils.interpolation import (
     trig_bary_weights,
 )
 from chebfunjax.utils.quadrature import chebpts
-
 
 # ---------------------------------------------------------------------------
 # Tier 1: cheb_bary_weights
@@ -185,7 +183,8 @@ class TestBary:
 
     def test_runge_convergence(self):
         """Interpolation of the Runge function should converge exponentially."""
-        runge = lambda x: 1.0 / (1.0 + 25.0 * x**2)
+        def runge(x):
+            return 1.0 / (1.0 + 25.0 * x**2)
         x = jnp.linspace(-1, 1, 500, dtype=jnp.float64)
         exact = runge(x)
 
@@ -380,7 +379,8 @@ class TestTrigBary:
 
     def test_convergence(self):
         """Trigonometric interpolation should converge for smooth periodic functions."""
-        f = lambda x: jnp.exp(jnp.sin(x))
+        def f(x):
+            return jnp.exp(jnp.sin(x))
         dom = jnp.array([-jnp.pi, jnp.pi], dtype=jnp.float64)
         x = jnp.linspace(-jnp.pi + 0.01, jnp.pi - 0.01, 200, dtype=jnp.float64)
         exact = f(x)
