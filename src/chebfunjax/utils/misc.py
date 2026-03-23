@@ -10,9 +10,7 @@ from __future__ import annotations
 
 from typing import Callable
 
-import jax
 import jax.numpy as jnp
-
 
 # ---------------------------------------------------------------------------
 # Machine epsilon for float64 — used as the default tolerance in standard_chop.

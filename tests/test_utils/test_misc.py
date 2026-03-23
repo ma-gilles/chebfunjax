@@ -1,6 +1,5 @@
 """Tests for chebfunjax.utils.misc — standard_chop, gridsample, abstract_qr."""
 
-import functools
 
 import jax
 import jax.numpy as jnp
@@ -10,7 +9,6 @@ import pytest
 
 from chebfunjax.utils.misc import abstract_qr, gridsample, standard_chop
 from chebfunjax.utils.quadrature import chebpts
-
 
 # ============================================================================
 # Tier 1: Mathematical property tests (no MATLAB data needed)
@@ -345,7 +343,6 @@ class TestAbstractQRMATLAB:
         Q, R = abstract_qr(A, E, lambda u, v: jnp.dot(u, v))
         # Q and R should match MATLAB up to sign ambiguity in columns.
         # Check |Q^T Q_matlab| ≈ I (diagonal should be ±1).
-        Q_ref = self.ref["aqr_Q1"]
         # Instead of comparing Q directly (signs may flip), verify QR ≈ A.
         npt.assert_allclose(np.array(Q @ R), np.array(A), rtol=1e-12, atol=1e-13)
 

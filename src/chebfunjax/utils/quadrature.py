@@ -7,7 +7,6 @@ See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
-import jax
 import jax.numpy as jnp
 
 
