@@ -1,5 +1,17 @@
-"""Utility functions — quadrature, transforms, interpolation, etc."""
+"""Utility functions — quadrature, transforms, interpolation, polynomials, etc."""
 
+from chebfunjax.utils.polynomials import (
+    chebeval,
+    chebpoly,
+    hermeval,
+    jaceval,
+    jacpoly,
+    lageval,
+    legeval,
+    legpoly,
+    ultraeval,
+    ultrapoly,
+)
 from chebfunjax.utils.quadrature import chebpts, chebpts_ab, chebweights
 from chebfunjax.utils.transforms import (
     cheb2jac,
@@ -26,4 +38,14 @@ __all__ = [
     "chebvals2legcoeffs",
     "coeffs2vals",
     "vals2coeffs",
+    "chebpoly",
+    "chebeval",
+    "legpoly",
+    "legeval",
+    "jacpoly",
+    "jaceval",
+    "ultrapoly",
+    "ultraeval",
+    "hermeval",
+    "lageval",
 ]
