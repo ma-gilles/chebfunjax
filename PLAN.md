@@ -184,6 +184,30 @@ Internal classes (Chebtech2, Bndfun, etc.) are accessible but not the main API.
 The package is `chebfunjax` (matching the GitHub repo `ma-gilles/chebfunjax`).
 Import as `import chebfunjax as cj`.
 
+### 1.8 User Experience (MUST READ: `docs/api-design.md`)
+
+The API design document (`docs/api-design.md`) defines:
+- Construction patterns (`cj.chebfun(jnp.sin)`)
+- Method names (`f.diff()`, `f.sum()`, `f.roots()`)
+- Display format (`repr(f)` mimics MATLAB Chebfun output)
+- Error message style (specific, actionable, consistent)
+- JAX interop expectations (JIT, grad, vmap on evaluation)
+
+**Agents MUST follow this spec.** If the spec doesn't cover your case, ask before inventing.
+
+### 1.9 Error Messages
+
+```python
+# GOOD: specific and actionable
+raise ValueError(
+    f"Cannot add Chebfun on {self.domain} to Chebfun on {other.domain}: "
+    f"domains do not match. Use f.restrict({other.domain}) first."
+)
+
+# BAD: vague
+raise ValueError("Invalid input")
+```
+
 ---
 
 ## 2. Provenance & Credit
