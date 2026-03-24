@@ -1,64 +1,101 @@
 # Translation Status
 
-## Completed (32 units)
+## 39 PRs merged — ~90% feature parity with MATLAB Chebfun
 
-| Unit | Module | PR | Key functions/classes |
-|------|--------|-----|---------------------|
-| U10 | utils/quadrature | #2 | chebpts, legpts, jacpts, hermpts, lagpts, ultrapts, radaupts, lobpts, trigpts |
-| U11 | utils/transforms | #4 | vals2coeffs, coeffs2vals, cheb2leg, leg2cheb, cheb2jac, jac2cheb |
-| U12 | utils/interpolation | #3 | bary, bary_weights, trig_bary, barymat, cheb_bary_weights |
-| U13 | utils/diffmat | #11 | diffmat, cumsummat, intmat, introw, diffrow |
-| U14 | utils/polynomials | #9 | chebpoly, legpoly, jacpoly, ultrapoly, chebeval, legeval, jaceval, hermeval, lageval |
-| U15a | utils/aaa | #13 | aaa (AAA rational approximation) |
-| U15b | utils/minimax | #35 | Remez exchange algorithm |
-| U15c | utils/ratapprox | #33 | ratinterp, padeapprox, trigratinterp |
-| U16 | utils/misc | #1 | standard_chop, gridsample, abstract_qr |
-| U17 | domain | #7 | Domain class |
-| U18 | pref | #6 | ChebPreferences |
-| U20a | tech/chebtech core | #5 | Chebtech2: adaptive construction, Clenshaw eval, prolong, simplify |
-| U20b | tech/chebtech construct | #8 | compose, restrict, happiness_check |
-| U20c | tech/chebtech ops | #12 | arithmetic, diff, cumsum, sum, inner, norm, roots |
-| U20d | tech/chebtech misc | #33 | Chebtech1 variant |
-| U21a | tech/trigtech | #19 | Trigtech: periodic functions, spectral diff/integration |
-| U30 | fun/classicfun + bndfun | #15 | Classicfun, Bndfun on [a,b] |
-| U31 | fun/unbndfun | #22 | Unbndfun on (-inf,inf), [a,inf), (-inf,b] |
-| U32+U33 | fun/singfun + deltafun | #25 | Singfun, Deltafun |
-| U40 | chebfun1d/chebfun core | #14 | Chebfun class, chebfun() factory, evaluation, repr |
-| U41+U42 | chebfun1d/ops | #16 | arithmetic, diff, cumsum, sum, roots, norm, min, max |
-| U44 | chebfun1d/specfun | #18 | sin, cos, exp, log, sqrt, abs, sign, etc. |
-| U45 | chebfun1d/linalg | #29 | qr, svd on quasimatrices |
-| U46 | chebfun1d/ode | — | bvp(), ivp(), eigs() wrappers around Chebop |
-| U50 | discretization/chebcolloc | #17 | ChebColloc1, ChebColloc2 |
-| U51 | discretization/ultras | #20 | UltraS spectral method |
-| U52 | discretization/trig | #33 | TrigColloc discretization |
-| U60+U61 | operators/blocks + chebmatrix | #21 | OperatorBlock, FunctionalBlock, ChebMatrix |
-| U62+U63 | operators/linop + chebop | #23 | Linop, Chebop (ODE/BVP solving) |
-| U64 | operators/chebop2 | #31 | Chebop2: 2D PDE solver |
-| U70a | chebfun2d/separable_approx | #24 | SeparableApprox (low-rank 2D) |
-| U70b-c | chebfun2d/separable ops | — | diff, sum, sum2, norm on SeparableApprox |
-| U71a | chebfun2d/chebfun2 | #26 | Chebfun2, chebfun2() factory |
-| U71b | chebfun2d/chebfun2v | #32 | Chebfun2v (2D vector fields) |
-| U72a+U73a | diskfun + spherefun | #27 | Diskfun, Spherefun |
-| U80a | chebfun3d/chebfun3 | #28 | Chebfun3 (Tucker 3D) |
-| U80c | chebfun3d/chebfun3t | — | Chebfun3T: Tucker tensor wrapper |
-| U81a | ballfun/ballfun | #32 | Ballfun |
-| U90a-c | spin | #30 | Spin: ETDRK4 time-stepping |
-| U100 | autodiff | — | JAX AD tests (jit/grad/vmap through all eval paths) |
-| U102 | benchmarks | — | benchmarks/bench_core.py |
+### Phase 1: Utilities (complete)
+| Module | PR(s) | Functions |
+|--------|-------|-----------|
+| utils/quadrature | #2 | chebpts, legpts, jacpts, hermpts, lagpts, ultrapts, radaupts, lobpts, trigpts |
+| utils/transforms | #4 | vals2coeffs, coeffs2vals, cheb2leg, leg2cheb, cheb2jac, jac2cheb |
+| utils/interpolation | #3 | bary, bary_weights, trig_bary, barymat |
+| utils/diffmat | #11 | diffmat, cumsummat, intmat, introw, diffrow |
+| utils/polynomials | #9 | chebpoly, legpoly, jacpoly + eval functions |
+| utils/aaa | #13 | aaa (AAA rational approximation) |
+| utils/minimax | #35 | minimax (Remez exchange) |
+| utils/ratapprox | #33 | ratinterp, padeapprox, trigratinterp |
+| utils/misc | #1 | standard_chop, gridsample, abstract_qr |
+| domain | #7 | Domain class |
+| pref | #6 | ChebPreferences |
 
-## TODO (~5 units remaining)
+### Phase 2: Tech Layer (complete)
+| Module | PR(s) | Classes |
+|--------|-------|---------|
+| tech/chebtech | #5,8,12,33 | Chebtech2, Chebtech1 (full ops) |
+| tech/trigtech | #19 | Trigtech (periodic functions) |
 
-### Medium Priority (extensions)
-| Unit | Module | Description | Est. LOC |
-|------|--------|------------|----------|
-| U21b | tech/trigtech ops | Remaining Trigtech methods | ~500 |
-| U72b | diskfun/diskfunv | Disk vector fields | ~400 |
-| U73b | spherefun/spherefunv | Sphere vector fields | ~400 |
-| U80b | chebfun3d/chebfun3v | 3D vector fields | ~400 |
-| U81b | ballfun/ballfunv | Ball vector fields | ~300 |
-| U101 | integration tests | End-to-end workflows | ~300 |
+### Phase 3: Fun Layer (complete)
+| Module | PR(s) | Classes |
+|--------|-------|---------|
+| fun/bndfun | #15 | Classicfun, Bndfun on [a,b] |
+| fun/unbndfun | #22 | Unbndfun on (-∞,∞), [a,∞) |
+| fun/singfun+deltafun | #25 | Singfun, Deltafun |
+
+### Phase 4: Chebfun 1D (complete)
+| Module | PR(s) | What |
+|--------|-------|------|
+| chebfun1d/chebfun | #14,16 | Chebfun class, factory, arithmetic, calculus, roots, norm |
+| chebfun1d/specfun | #18 | sin, cos, exp, log, sqrt, abs, sign, sinh, tanh, ... |
+| chebfun1d/linalg | #29 | Quasimatrix QR, SVD |
+| chebfun1d/ode | #37,41 | ode45, ode113, bvp4c, bvp5c, ivp, bvp, eigs |
+| chebfun1d (V08-V12) | #39 | conv, polyfit, interp1, besselj, erf, horzcat, isnan, ... |
+
+### Phase 5: Discretization (complete)
+| Module | PR(s) | Classes |
+|--------|-------|---------|
+| discretization/chebcolloc | #17 | ChebColloc1, ChebColloc2 |
+| discretization/ultras | #20 | UltraS spectral method |
+| discretization/trigcolloc | #33 | TrigColloc |
+
+### Phase 6: Operators (complete)
+| Module | PR(s) | Classes |
+|--------|-------|---------|
+| operators/blocks+chebmatrix | #21 | OperatorBlock, FunctionalBlock, ChebMatrix |
+| operators/linop+chebop | #23 | Linop, Chebop (ODE/BVP solving) |
+| operators/chebop2 | #31 | Chebop2 (2D PDE: Poisson, Helmholtz) |
+| autodiff/adchebfun | #42 | ADChebfun (exact Fréchet derivatives) |
+| autodiff/treevar | #42 | TreeVar (symbolic operator linearization) |
+
+### Phase 7: 2D Functions (complete)
+| Module | PR(s) | Classes |
+|--------|-------|---------|
+| chebfun2d/separable_approx | #24,37 | SeparableApprox (low-rank 2D) + diff/sum/norm |
+| chebfun2d/chebfun2 | #26 | Chebfun2 |
+| chebfun2d/chebfun2v | #32,36 | Chebfun2v (2D vector fields) |
+| diskfun | #27,36 | Diskfun, Diskfunv |
+| spherefun | #27,36 | Spherefun, Spherefunv |
+
+### Phase 8: 3D Functions (complete)
+| Module | PR(s) | Classes |
+|--------|-------|---------|
+| chebfun3d/chebfun3 | #28 | Chebfun3 (Tucker 3D) |
+| chebfun3d/chebfun3v | #36 | Chebfun3v (3D vector fields) |
+| chebfun3d/chebfun3t | #37 | Chebfun3T (Tucker tensor) |
+| ballfun | #32 | Ballfun, Ballfunv |
+
+### Phase 9: PDE Time-Stepping (complete)
+| Module | PR(s) | Classes |
+|--------|-------|---------|
+| spin (1D) | #30 | SpinOp, ETDRK4 (KdV, Allen-Cahn, NLS, KS) |
+| spin (2D) | #38 | SpinOp2, spin2 |
+| spin (3D+sphere) | #40 | SpinOp3, SpinOpSphere, spin3, spinsphere |
+| spin (IMEX) | #41 | imex_euler, imex_sbdf2 |
+
+### Phase 10: Testing & Polish (complete)
+| Module | PR(s) | What |
+|--------|-------|------|
+| integration tests | #36 | 50 end-to-end tests covering README examples |
+| autodiff tests | #37 | JIT/grad/vmap verification |
+| benchmarks | #37 | benchmarks/bench_core.py |
+
+## In Progress
+
+| Unit | What | Agent |
+|------|------|-------|
+| V13-V18, V24-V28 | pde15s, singularity detection, Lebesgue, gallery, test coverage backfill | running |
 
 ## Stats
-- **Source**: 47 files, ~25,000 LOC
-- **Tests**: 30 files, ~16,000 LOC, ~1,500+ tests
+- **39 PRs merged**
+- **65 source files, ~38,000 LOC**
+- **~23,000 test LOC**
+- **~2,000+ tests**
 - **Repo**: https://github.com/ma-gilles/chebfunjax
