@@ -3097,14 +3097,6 @@ def _ode_solve(
             f"ODE solver ({method}) failed: {sol.message}"
         )
 
-    # Choose evaluation grid for Chebfun construction
-    nsteps = len(sol.t)
-    n_pts = dense_n if dense_n is not None else max(32, 4 * nsteps)
-    t_eval = _np.linspace(t0, tf, n_pts)
-
-    # Evaluate dense output: shape (d, n_pts) — used only to verify success
-    sol.sol(t_eval)  # type: ignore[union-attr]
-
     if scalar_out:
         # Scalar ODE — build a single-component Chebfun by fitting the
         # dense output via the adaptive chebfun factory.
