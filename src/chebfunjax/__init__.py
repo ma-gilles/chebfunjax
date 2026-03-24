@@ -9,6 +9,7 @@ jax.config.update("jax_enable_x64", True)
 
 # Public API
 from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun  # noqa: E402
+from chebfunjax.chebfun2d.chebfun2 import Chebfun2, chebfun2  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Top-level special functions: cj.sin(f) is equivalent to f.sin()
@@ -82,6 +83,8 @@ def atan(f: Chebfun) -> Chebfun:
 __all__ = [
     "Chebfun",
     "chebfun",
+    "Chebfun2",
+    "chebfun2",
     # Special functions
     "sin",
     "cos",
