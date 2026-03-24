@@ -33,7 +33,7 @@
 | U44 | chebfun1d/specfun | todo | | sin, cos, exp, log, abs via compose |
 | U45 | chebfun1d/linalg | todo | | qr, svd, eig on quasimatrices |
 | U46 | chebfun1d/ode | todo | | ode45, bvp4c, pde15s |
-| U50 | discretization/chebcolloc | todo | | Chebyshev collocation |
+| U50 | discretization/chebcolloc | in_progress | | ChebColloc2, ChebColloc1: diffmat, cumsummat, points, weights, eval_matrix, BVP |
 | U51 | discretization/ultras | todo | | Ultraspherical spectral |
 | U52 | discretization/trig | todo | | Trig collocation + spectral |
 | U60 | operators/chebmatrix | todo | | Block matrix of chebfuns |
