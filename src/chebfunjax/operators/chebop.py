@@ -323,21 +323,31 @@ class Chebop:
     # ------------------------------------------------------------------
 
     def _is_linear(self) -> bool:
-        """Heuristic linearity check: try evaluating op on a linear probe.
+        """Linearity detection using ADChebfun symbolic AD.
 
-        We test whether the operator is affine by evaluating it on two
-        different inputs and checking linearity.  For operators that are
-        truly linear the Chebfun result will be a linear combination of the
-        inputs.  For safety, we also check if ``self.op`` returns an
-        ``OperatorBlock``.
+        First tries the exact ``detect_linearity`` approach using ADChebfun
+        (which checks whether the Fréchet derivative is constant).  Falls back
+        to the numerical probe if symbolic detection fails or raises.
 
         This is conservative: if in doubt, returns ``False``.
         """
         # If op is already an OperatorBlock, definitely linear
         if isinstance(self.op, OperatorBlock):
             return True
-        # Try probing: apply op to a Chebfun and see if the result is a Chebfun
-        # (not a Chebfun whose coefficients grow nonlinearly with input scale)
+        # Try exact symbolic linearity detection via ADChebfun
+        try:
+            from chebfunjax.autodiff.adchebfun import detect_linearity
+            from chebfunjax.chebfun1d.chebfun import chebfun as _chebfun
+            a, b = self.domain
+            u_probe = _chebfun(
+                lambda x: jnp.sin(jnp.pi * (x - a) / (b - a)),
+                domain=self.domain,
+                n=8,
+            )
+            return detect_linearity(self.op, u_probe, domain=self.domain)
+        except Exception:
+            pass
+        # Fall back to numerical probe
         try:
             return self._probe_linearity()
         except Exception:
@@ -613,6 +623,26 @@ class Chebop:
         return Chebfun.from_values(u_vals, dom)
 
     def _jacobian_matrix(self, disc, x_fun, u_fun, Nu_vals):
+        """Compute the Jacobian of self.op at u.
+
+        Tries to use ADChebfun symbolic linearization first (exact, faster).
+        Falls back to finite differences if symbolic linearization fails.
+        """
+        # Try symbolic linearization via ADChebfun
+        try:
+            return self._jacobian_matrix_ad(disc, u_fun)
+        except Exception:
+            pass
+        # Fall back to finite differences
+        return self._jacobian_matrix_fd(disc, x_fun, u_fun, Nu_vals)
+
+    def _jacobian_matrix_ad(self, disc, u_fun):
+        """Compute Jacobian using ADChebfun symbolic differentiation (exact)."""
+        from chebfunjax.autodiff.adchebfun import linearize_op
+        J_op = linearize_op(self.op, u_fun, domain=disc.domain)
+        return J_op.matrix(disc)
+
+    def _jacobian_matrix_fd(self, disc, x_fun, u_fun, Nu_vals):
         """Compute the Jacobian of self.op at u by forward finite differences."""
         from chebfunjax.chebfun1d.chebfun import Chebfun
 
