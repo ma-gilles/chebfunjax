@@ -1,6 +1,7 @@
 """Utility functions — quadrature, transforms, interpolation, polynomials, etc."""
 
 from chebfunjax.utils.aaa import aaa
+from chebfunjax.utils.minimax import MinimaxResult, minimax
 from chebfunjax.utils.polynomials import (
     chebeval,
     chebpoly,
@@ -14,6 +15,7 @@ from chebfunjax.utils.polynomials import (
     ultrapoly,
 )
 from chebfunjax.utils.quadrature import chebpts, chebpts_ab, chebweights
+from chebfunjax.utils.ratapprox import padeapprox, ratinterp, trigratinterp
 from chebfunjax.utils.transforms import (
     cheb2jac,
     cheb2leg,
@@ -28,6 +30,11 @@ from chebfunjax.utils.transforms import (
 
 __all__ = [
     "aaa",
+    "minimax",
+    "MinimaxResult",
+    "padeapprox",
+    "ratinterp",
+    "trigratinterp",
     "chebpts",
     "chebpts_ab",
     "chebweights",

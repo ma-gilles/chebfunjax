@@ -61,4 +61,4 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I"]
-ignore = ["E741", "E501"]  # allow l, I, O as variable names (common in math code)
+ignore = ["E741", "E501", "E402"]  # allow l, I, O as variable names (common in math code)
