@@ -39,7 +39,6 @@ packages = ["src/chebfunjax"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src"]
 addopts = "-v --tb=short"
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
@@ -62,3 +61,4 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I"]
+ignore = ["E741"]  # allow l, I, O as variable names (common in math code)
