@@ -1635,6 +1635,105 @@ class Chebfun(eqx.Module):
             )
         return Chebfun(funs=new_funs, domain=new_domain)
 
+    # ------------------------------------------------------------------
+    # Quasimatrix linear algebra: qr, svd
+    # ------------------------------------------------------------------
+
+    def qr(self, other_cols: list | None = None):
+        """QR factorization of this Chebfun as a single column, or a quasimatrix.
+
+        For a single Chebfun (one column) this simply normalises:
+        ``Q = f / ||f||_2``, ``R = [[||f||_2]]``.
+
+        For a quasimatrix (by passing a list of additional Chebfun columns as
+        ``other_cols``), the columns ``[self] + other_cols`` are jointly
+        factorised using the continuous Householder algorithm [1].
+
+        Parameters
+        ----------
+        other_cols : list[Chebfun] or None
+            Additional columns.  If ``None`` (default), ``self`` is treated as
+            a single column.
+
+        Returns
+        -------
+        Q : Quasimatrix
+            Quasimatrix with L2-orthonormal columns on the same domain.
+        R : jnp.ndarray, shape (n, n)
+            Upper-triangular factor.  If all n columns are ``[self]``, R is
+            1 x 1.
+
+        Notes
+        -----
+        NOT JIT-safe (continuous Householder QR uses Python loops).
+
+        References
+        ----------
+        [1] L.N. Trefethen, "Householder triangularization of a quasimatrix",
+            IMA J Numer Anal (2010) 30(4): 887–897.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/qr.m, abstractQR.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.svd, chebfun1d.linalg.qr_quasimatrix
+        """
+        from chebfunjax.chebfun1d.linalg import chebfun_qr
+        if other_cols is None:
+            cols = [self]
+        else:
+            cols = [self] + list(other_cols)
+        return chebfun_qr(cols)
+
+    def svd(self, other_cols: list | None = None):
+        """SVD of this Chebfun as a single column, or a quasimatrix.
+
+        Computes the singular value decomposition A = U * diag(S) * V^T via:
+        (1) QR factorisation of the quasimatrix, and
+        (2) discrete SVD of the upper-triangular R factor.
+
+        Parameters
+        ----------
+        other_cols : list[Chebfun] or None
+            Additional columns.  If ``None`` (default), ``self`` is treated as
+            a single column.
+
+        Returns
+        -------
+        U : Quasimatrix
+            Left singular functions (L2-orthonormal columns).
+        S : jnp.ndarray, shape (n,)
+            Singular values in non-increasing order.
+        V : jnp.ndarray, shape (n, n)
+            Right singular vectors (columns of V are orthonormal).
+
+        Notes
+        -----
+        NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/svd.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.qr, chebfun1d.linalg.svd_quasimatrix
+        """
+        from chebfunjax.chebfun1d.linalg import chebfun_svd
+        if other_cols is None:
+            cols = [self]
+        else:
+            cols = [self] + list(other_cols)
+        return chebfun_svd(cols)
+
 
 # ============================================================================
 # Factory function — the main user-facing entry point
