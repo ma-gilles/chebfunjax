@@ -4,10 +4,9 @@ This is the main class users interact with. A Chebfun on a domain [a, b] is
 represented as a list of *pieces* (Chebtech2 objects), each defined on a
 sub-interval, together with a Domain recording the breakpoints.
 
-For U40 (construction + evaluation only), single-piece Chebfuns on
-arbitrary intervals [a, b] are supported directly via Chebtech2 with an
-affine change of variables. Multi-piece (piecewise) Chebfuns are structured
-but only single-piece construction is exposed through the main factory.
+Arithmetic, calculus (diff, cumsum, sum, inner, norm, mean), and rootfinding /
+extrema (roots, max, min) are delegated to the underlying Chebtech2 pieces
+with appropriate affine rescaling for the physical interval.
 
 Translated from MATLAB Chebfun class @chebfun (commit 7574c77) and informed
 by chebpy's Chebfun class.
@@ -181,6 +180,142 @@ class _Piece(eqx.Module):
         t_b = (2.0 * b - (pa + pb)) / (pb - pa)
         new_tech = self.tech.restrict(t_a, t_b)
         return _Piece(tech=new_tech, interval=(float(a), float(b)))
+
+    # ------------------------------------------------------------------
+    # Arithmetic helpers (used by Chebfun arithmetic operators)
+    # ------------------------------------------------------------------
+
+    def _apply_unary(self, tech_result: Chebtech2) -> _Piece:
+        """Wrap a Chebtech2 result in a _Piece with the same interval."""
+        return _Piece(tech=tech_result, interval=self.interval)
+
+    # ------------------------------------------------------------------
+    # Calculus
+    # ------------------------------------------------------------------
+
+    def diff(self, k: int = 1) -> _Piece:
+        """Differentiate *k* times with respect to the physical variable x.
+
+        The reference Chebtech2 is on [-1, 1] with the map x = (b-a)/2 * t + c.
+        By the chain rule, d/dx = (2/(b-a)) * d/dt, so the k-th derivative
+        gains a factor of (2/(b-a))^k.
+
+        Parameters
+        ----------
+        k : int, default 1
+            Order of differentiation.
+
+        Returns
+        -------
+        _Piece
+        """
+        a, b = self.interval
+        scale = (2.0 / (b - a)) ** k
+        tech_der = self.tech.diff(k)
+        # Scale the coefficients
+        scaled_coeffs = tech_der.coeffs * jnp.float64(scale)
+        new_tech = Chebtech2.from_coeffs(scaled_coeffs)
+        return _Piece(tech=new_tech, interval=(a, b))
+
+    def cumsum(self) -> _Piece:
+        """Antiderivative with respect to x satisfying F(a) = 0.
+
+        The antiderivative in the reference variable t is scaled by (b-a)/2
+        to get the physical antiderivative.  The constant of integration is
+        then adjusted so F(a) = 0 (the left endpoint maps to t = -1 where
+        Chebtech2.cumsum already satisfies F(-1) = 0, so the value at t=-1
+        is zero by construction of Chebtech2.cumsum — we just need to scale).
+
+        Returns
+        -------
+        _Piece
+        """
+        a, b = self.interval
+        scale = (b - a) / 2.0
+        tech_cs = self.tech.cumsum()
+        # Scale coefficients by (b-a)/2
+        scaled_coeffs = tech_cs.coeffs * jnp.float64(scale)
+        new_tech = Chebtech2.from_coeffs(scaled_coeffs)
+        return _Piece(tech=new_tech, interval=(a, b))
+
+    def sum(self) -> jax.Array:
+        """Definite integral over [a, b].
+
+        Returns
+        -------
+        jax.Array (scalar)
+        """
+        a, b = self.interval
+        scale = (b - a) / 2.0
+        return self.tech.sum() * jnp.float64(scale)
+
+    def inner(self, other: _Piece) -> jax.Array:
+        r"""L2 inner product <self, other> = \int_a^b f(x) g(x) dx.
+
+        Requires both pieces to share the same interval.
+
+        Parameters
+        ----------
+        other : _Piece
+
+        Returns
+        -------
+        jax.Array (scalar)
+        """
+        if self.interval != other.interval:
+            raise ValueError(
+                f"Cannot compute inner product of pieces on different intervals: "
+                f"{self.interval} vs {other.interval}."
+            )
+        a, b = self.interval
+        scale = (b - a) / 2.0
+        return self.tech.inner(other.tech) * jnp.float64(scale)
+
+    def roots(self) -> jax.Array:
+        """Real roots in [a, b] via Chebtech2.roots (colleague matrix).
+
+        Maps roots from the reference interval [-1, 1] back to [a, b].
+
+        Returns
+        -------
+        jax.Array, shape (n_roots,)
+            Sorted roots in [a, b].
+        """
+        a, b = self.interval
+        t_roots = self.tech.roots()
+        # Map t in [-1, 1] to x in [a, b]: x = (b-a)/2 * t + (a+b)/2
+        x_roots = 0.5 * (b - a) * t_roots + 0.5 * (a + b)
+        return x_roots
+
+    def minandmax(self) -> tuple[tuple[float, float], tuple[float, float]]:
+        """Global min and max of this piece.
+
+        Returns extrema by evaluating at the roots of the derivative plus
+        the endpoints.
+
+        Returns
+        -------
+        (x_min, f_min), (x_max, f_max)
+        """
+        a, b = self.interval
+        # Roots of derivative give critical points
+        dp = self.diff(1)
+        crit_t = dp.tech.roots()  # roots in [-1, 1]
+        # Map to physical
+        crit_x = 0.5 * (b - a) * crit_t + 0.5 * (a + b)
+        # Include endpoints
+        endpoints = jnp.array([float(a), float(b)], dtype=jnp.float64)
+        if crit_x.shape[0] > 0:
+            candidates = jnp.concatenate([endpoints, crit_x])
+        else:
+            candidates = endpoints
+        vals = self(candidates)
+        i_min = int(jnp.argmin(vals))
+        i_max = int(jnp.argmax(vals))
+        return (
+            (float(candidates[i_min]), float(vals[i_min])),
+            (float(candidates[i_max]), float(vals[i_max])),
+        )
 
 
 # ============================================================================
@@ -570,6 +705,449 @@ class Chebfun(eqx.Module):
         """One-line summary."""
         a, b = self.domain.a, self.domain.b
         return f"<Chebfun [{a}, {b}], length {len(self)}>"
+
+    # ------------------------------------------------------------------
+    # Arithmetic operators
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _check_domains(f: Chebfun, g: Chebfun) -> None:
+        """Raise ValueError if two Chebfuns have incompatible domains."""
+        if f.domain != g.domain:
+            raise ValueError(
+                f"Cannot combine Chebfun on {f.domain} with Chebfun on "
+                f"{g.domain}: domains do not match.  "
+                f"Use f.restrict(...) to make the domains compatible first."
+            )
+
+    @staticmethod
+    def _binary_op(f: Chebfun, g: Chebfun, op) -> Chebfun:
+        """Apply a piecewise binary op between two same-domain Chebfuns.
+
+        ``op`` must be a method name (str) on ``Chebtech2`` accepting one
+        Chebtech2 argument, or a callable ``op(tech_a, tech_b) -> Chebtech2``.
+        """
+        Chebfun._check_domains(f, g)
+        new_funs = [
+            _Piece(tech=op(pf.tech, pg.tech), interval=pf.interval)
+            for pf, pg in zip(f.funs, g.funs)
+        ]
+        return Chebfun(funs=new_funs, domain=f.domain)
+
+    def __add__(self, other) -> Chebfun:
+        """Add two Chebfuns or a Chebfun and a scalar.
+
+        Returns a new Chebfun with each piece added independently.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/plus.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(other, Chebfun):
+            return Chebfun._binary_op(self, other, lambda a, b: a + b)
+        # scalar: delegate to each piece
+        new_funs = [
+            piece._apply_unary(piece.tech + other)
+            for piece in self.funs
+        ]
+        return Chebfun(funs=new_funs, domain=self.domain)
+
+    def __radd__(self, other) -> Chebfun:
+        return self.__add__(other)
+
+    def __sub__(self, other) -> Chebfun:
+        """Subtract two Chebfuns or a scalar from a Chebfun.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/minus.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(other, Chebfun):
+            return Chebfun._binary_op(self, other, lambda a, b: a - b)
+        new_funs = [
+            piece._apply_unary(piece.tech - other)
+            for piece in self.funs
+        ]
+        return Chebfun(funs=new_funs, domain=self.domain)
+
+    def __rsub__(self, other) -> Chebfun:
+        return -(self - other)
+
+    def __neg__(self) -> Chebfun:
+        """Unary negation.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/uminus.m
+        Chebfun commit: 7574c77
+        """
+        new_funs = [piece._apply_unary(-piece.tech) for piece in self.funs]
+        return Chebfun(funs=new_funs, domain=self.domain)
+
+    def __pos__(self) -> Chebfun:
+        """Unary plus (identity)."""
+        return self
+
+    def __mul__(self, other) -> Chebfun:
+        """Pointwise multiplication of two Chebfuns or Chebfun by scalar.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/times.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(other, Chebfun):
+            return Chebfun._binary_op(self, other, lambda a, b: a * b)
+        new_funs = [
+            piece._apply_unary(piece.tech * other)
+            for piece in self.funs
+        ]
+        return Chebfun(funs=new_funs, domain=self.domain)
+
+    def __rmul__(self, other) -> Chebfun:
+        return self.__mul__(other)
+
+    def __truediv__(self, other) -> Chebfun:
+        """Pointwise division: Chebfun / scalar or Chebfun / Chebfun.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/rdivide.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(other, Chebfun):
+            return Chebfun._binary_op(self, other, lambda a, b: a / b)
+        new_funs = [
+            piece._apply_unary(piece.tech / other)
+            for piece in self.funs
+        ]
+        return Chebfun(funs=new_funs, domain=self.domain)
+
+    def __rtruediv__(self, other) -> Chebfun:
+        """scalar / Chebfun."""
+        new_funs = [
+            piece._apply_unary(other / piece.tech)
+            for piece in self.funs
+        ]
+        return Chebfun(funs=new_funs, domain=self.domain)
+
+    def __pow__(self, exponent) -> Chebfun:
+        """Raise each piece to a power.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/power.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(exponent, Chebfun):
+            return Chebfun._binary_op(self, exponent, lambda a, b: a ** b)
+        new_funs = [
+            piece._apply_unary(piece.tech ** exponent)
+            for piece in self.funs
+        ]
+        return Chebfun(funs=new_funs, domain=self.domain)
+
+    def __abs__(self) -> Chebfun:
+        """Absolute value (piecewise; may introduce kinks at zeros).
+
+        NOT JIT-safe (uses compose which calls adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/abs.m
+        Chebfun commit: 7574c77
+        """
+        new_funs = [
+            piece._apply_unary(abs(piece.tech))
+            for piece in self.funs
+        ]
+        return Chebfun(funs=new_funs, domain=self.domain)
+
+    # ------------------------------------------------------------------
+    # Calculus
+    # ------------------------------------------------------------------
+
+    def diff(self, k: int = 1) -> Chebfun:
+        """Differentiate *k* times with respect to x.
+
+        Each piece is differentiated independently using the affine chain rule.
+
+        JIT-safe: yes (k must be a static Python int).
+
+        Parameters
+        ----------
+        k : int, default 1
+            Order of differentiation.
+
+        Returns
+        -------
+        Chebfun
+            The k-th derivative, represented piecewise.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/diff.m
+        Chebfun commit: 7574c77
+        """
+        if k == 0:
+            return self
+        new_funs = [piece.diff(k) for piece in self.funs]
+        return Chebfun(funs=new_funs, domain=self.domain)
+
+    def cumsum(self) -> Chebfun:
+        """Antiderivative satisfying F(a) = 0 at the left endpoint.
+
+        For a piecewise Chebfun, the antiderivative is computed on each piece
+        and then shifted to ensure continuity across breakpoints.
+
+        JIT-safe: yes for the per-piece computation.
+
+        Returns
+        -------
+        Chebfun
+            The antiderivative.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/cumsum.m
+        Chebfun commit: 7574c77
+        """
+        if len(self.funs) == 1:
+            return Chebfun(funs=[self.funs[0].cumsum()], domain=self.domain)
+
+        # Multi-piece: compute antiderivative on each piece, then shift to
+        # ensure continuity: F_i(b_i) = F_{i+1}(a_{i+1})
+        new_pieces = []
+        offset = jnp.float64(0.0)
+        for piece in self.funs:
+            piece_cs = piece.cumsum()
+            # piece_cs has F_piece(a_piece) = 0 by construction
+            # Shift by offset to achieve continuity
+            if float(offset) != 0.0:
+                # Add offset as a constant to the antiderivative piece
+                new_tech = piece_cs.tech + float(offset)
+                piece_cs = _Piece(tech=new_tech, interval=piece_cs.interval)
+            new_pieces.append(piece_cs)
+            # Update offset: new cumulative value at the right endpoint
+            _, rval = piece_cs.endpoint_values
+            offset = jnp.float64(rval)
+
+        return Chebfun(funs=new_pieces, domain=self.domain)
+
+    def sum(self) -> jax.Array:
+        r"""Definite integral over the full domain.
+
+        Sums the definite integrals of all pieces.
+
+        JIT-safe: yes.
+
+        Returns
+        -------
+        jax.Array (scalar)
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/sum.m
+        Chebfun commit: 7574c77
+        """
+        total = jnp.float64(0.0)
+        for piece in self.funs:
+            total = total + piece.sum()
+        return total
+
+    def inner(self, other: Chebfun) -> jax.Array:
+        r"""L2 inner product <self, other> = \int_a^b f(x) g(x) dx.
+
+        Requires both Chebfuns to have the same domain.
+
+        JIT-safe: yes.
+
+        Parameters
+        ----------
+        other : Chebfun
+
+        Returns
+        -------
+        jax.Array (scalar)
+
+        Raises
+        ------
+        ValueError
+            If domains do not match.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/innerProduct.m
+        Chebfun commit: 7574c77
+        """
+        Chebfun._check_domains(self, other)
+        total = jnp.float64(0.0)
+        for pf, pg in zip(self.funs, other.funs):
+            total = total + pf.inner(pg)
+        return total
+
+    def norm(self, p: float = 2) -> jax.Array:
+        """Lp norm over the domain.
+
+        Parameters
+        ----------
+        p : float, default 2
+            The exponent.
+            - ``p=2``: L2 norm = sqrt(<f, f>).
+            - ``p=jnp.inf``: L-infinity norm (max over all pieces).
+            - Other p: computed via ``|f|^p`` integration.
+
+        Returns
+        -------
+        jax.Array (scalar)
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/norm.m
+        Chebfun commit: 7574c77
+        """
+        if p == 2:
+            return jnp.sqrt(jnp.abs(self.inner(self)))
+        elif p == float("inf") or p == jnp.inf:
+            # Max over pieces
+            maxvals = [float(jnp.max(jnp.abs(piece.tech.values)))
+                       for piece in self.funs]
+            return jnp.array(max(maxvals), dtype=jnp.float64)
+        else:
+            # Integrate |f|^p
+            fp = abs(self) ** p
+            return fp.sum() ** (1.0 / p)
+
+    def mean(self) -> jax.Array:
+        """Mean value of the function over the domain.
+
+        mean(f) = (1 / (b - a)) * int_a^b f(x) dx
+
+        Returns
+        -------
+        jax.Array (scalar)
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/mean.m
+        Chebfun commit: 7574c77
+        """
+        a, b = self.domain.a, self.domain.b
+        domain_len = jnp.float64(b - a)
+        return self.sum() / domain_len
+
+    # ------------------------------------------------------------------
+    # Rootfinding and extrema
+    # ------------------------------------------------------------------
+
+    def roots(self) -> jax.Array:
+        """All roots of the Chebfun in its domain.
+
+        Collects roots from each piece, sorts them, and deduplicates roots
+        that are very close to each other (e.g. a root at a breakpoint may
+        be found independently by two adjacent pieces).
+
+        NOT JIT-safe (variable output size, eigenvalue computation).
+
+        Returns
+        -------
+        jax.Array, shape (n_roots,)
+            Sorted, deduplicated roots in [a, b].
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/roots.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        all_roots = []
+        for piece in self.funs:
+            r = piece.roots()
+            if r.shape[0] > 0:
+                all_roots.append(r)
+        if not all_roots:
+            return jnp.array([], dtype=jnp.float64)
+        combined = _np.sort(_np.concatenate([_np.asarray(r) for r in all_roots]))
+
+        # Deduplicate: remove consecutive roots that are within a tight tolerance
+        # (handles the case where a breakpoint root is found by two pieces).
+        if combined.shape[0] <= 1:
+            return jnp.asarray(combined, dtype=jnp.float64)
+        domain_len = float(self.domain.b - self.domain.a)
+        dedup_tol = 1e6 * _np.finfo(_np.float64).eps * max(domain_len, 1.0)
+        mask = _np.concatenate([[True], _np.diff(combined) > dedup_tol])
+        unique_roots = combined[mask]
+        return jnp.asarray(unique_roots, dtype=jnp.float64)
+
+    def minandmax(self) -> tuple[tuple[float, float], tuple[float, float]]:
+        """Global minimum and maximum of the Chebfun.
+
+        Searches each piece for its local extrema (critical points of the
+        derivative plus piece endpoints), then returns the global min/max.
+
+        NOT JIT-safe (uses roots of derivative — eigenvalue computation).
+
+        Returns
+        -------
+        (x_min, f_min), (x_max, f_max) : pair of (location, value) tuples.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/minandmax.m
+        Chebfun commit: 7574c77
+        """
+        global_min_x = None
+        global_min_val = float("inf")
+        global_max_x = None
+        global_max_val = float("-inf")
+
+        for piece in self.funs:
+            (x_min, f_min), (x_max, f_max) = piece.minandmax()
+            if f_min < global_min_val:
+                global_min_val = f_min
+                global_min_x = x_min
+            if f_max > global_max_val:
+                global_max_val = f_max
+                global_max_x = x_max
+
+        return (global_min_x, global_min_val), (global_max_x, global_max_val)
+
+    def min(self) -> tuple[float, float]:
+        """Global minimum: returns (x_min, f_min).
+
+        NOT JIT-safe.
+
+        Returns
+        -------
+        (x_min, f_min) : tuple of floats
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/min.m
+        Chebfun commit: 7574c77
+        """
+        (x_min, f_min), _ = self.minandmax()
+        return x_min, f_min
+
+    def max(self) -> tuple[float, float]:
+        """Global maximum: returns (x_max, f_max).
+
+        NOT JIT-safe.
+
+        Returns
+        -------
+        (x_max, f_max) : tuple of floats
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/max.m
+        Chebfun commit: 7574c77
+        """
+        _, (x_max, f_max) = self.minandmax()
+        return x_max, f_max
 
     # ------------------------------------------------------------------
     # Restriction
