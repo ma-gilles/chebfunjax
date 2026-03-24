@@ -12,8 +12,6 @@ matlab_harness/generate_refs.m once MATLAB is available).
 
 from __future__ import annotations
 
-import functools
-
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -21,7 +19,7 @@ import numpy.testing as npt
 import pytest
 
 import chebfunjax as cj
-from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece, chebfun
+from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
 from chebfunjax.domain import Domain
 
 # Tolerances from project.conf
@@ -471,6 +469,7 @@ class TestMATLABGolden:
     def load_refs(self, request):
         """Load MATLAB references, skip if not available."""
         from pathlib import Path
+
         import scipy.io
 
         ref_path = Path(__file__).parent.parent / "references" / "chebfun.mat"

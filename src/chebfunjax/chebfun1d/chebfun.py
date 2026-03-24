@@ -17,7 +17,6 @@ See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
-import warnings
 from typing import Callable
 
 import equinox as eqx
