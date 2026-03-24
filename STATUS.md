@@ -1,79 +1,32 @@
 # Translation Status
 
-## Completed (33 units)
+## Completed (38+ units merged across 36 PRs)
 
-| Unit | Module | PR | Key functions/classes |
-|------|--------|-----|---------------------|
-| U10 | utils/quadrature | #2 | chebpts, legpts, jacpts, hermpts, lagpts, ultrapts, radaupts, lobpts, trigpts |
-| U11 | utils/transforms | #4 | vals2coeffs, coeffs2vals, cheb2leg, leg2cheb, cheb2jac, jac2cheb |
-| U12 | utils/interpolation | #3 | bary, bary_weights, trig_bary, barymat, cheb_bary_weights |
-| U13 | utils/diffmat | #11 | diffmat, cumsummat, intmat, introw, diffrow |
-| U14 | utils/polynomials | #9 | chebpoly, legpoly, jacpoly, ultrapoly, chebeval, legeval, jaceval, hermeval, lageval |
-| U15a | utils/aaa | #13 | aaa (AAA rational approximation) |
-| U16 | utils/misc | #1 | standard_chop, gridsample, abstract_qr |
-| U17 | domain | #7 | Domain class |
-| U18 | pref | #6 | ChebPreferences |
-| U20a | tech/chebtech core | #5 | Chebtech2: adaptive construction, Clenshaw eval, prolong, simplify |
-| U20b | tech/chebtech construct | #8 | compose, restrict, happiness_check |
-| U20c | tech/chebtech ops | #12 | arithmetic, diff, cumsum, sum, inner, norm, roots |
-| U21a | tech/trigtech | #19 | Trigtech: periodic functions, spectral diff/integration |
-| U30 | fun/classicfun + bndfun | #15 | Classicfun, Bndfun on [a,b] |
-| U31 | fun/unbndfun | #22 | Unbndfun on (-inf,inf), [a,inf), (-inf,b] |
-| U32+U33 | fun/singfun + deltafun | #25 | Singfun, Deltafun |
-| U40 | chebfun1d/chebfun core | #14 | Chebfun class, chebfun() factory, evaluation, repr |
-| U41+U42 | chebfun1d/ops | #16 | arithmetic, diff, cumsum, sum, roots, norm, min, max |
-| U44 | chebfun1d/specfun | #18 | sin, cos, exp, log, sqrt, abs, sign, etc. |
-| U50 | discretization/chebcolloc | #17 | ChebColloc1, ChebColloc2 |
-| U51 | discretization/ultras | #20 | UltraS spectral method |
-| U60+U61 | operators/blocks + chebmatrix | #21 | OperatorBlock, FunctionalBlock, ChebMatrix |
-| U62+U63 | operators/linop + chebop | #23 | Linop, Chebop (ODE/BVP solving) |
-| U70a | chebfun2d/separable_approx | #24 | SeparableApprox (low-rank 2D) |
-| U71a | chebfun2d/chebfun2 | #26 | Chebfun2, chebfun2() factory |
-| U72a+U73a | diskfun + spherefun | #27 | Diskfun, Spherefun |
-| U80a | chebfun3d/chebfun3 | #28 | Chebfun3 (Tucker 3D) |
-| U72b | diskfun/diskfunv | PR pending | Diskfunv (2D disk vector field): dot, norm, add, mul |
-| U73b | spherefun/spherefunv | PR pending | Spherefunv (2D sphere vector field): dot, norm, add, mul |
-| U80b | chebfun3d/chebfun3v | PR pending | Chebfun3v (3D vector field): dot, cross, norm, add, mul |
-| U81a | ballfun/ballfun | PR pending | Ballfun (3D ball domain): from_function, eval, sum |
-| U81b | ballfun/ballfunv | PR pending | Ballfunv (3D ball vector field): dot, cross, norm, add, mul |
-| U101 | integration tests | PR pending | 50 end-to-end tests covering all README examples |
+| Phase | Units | PRs | What's included |
+|-------|-------|-----|----------------|
+| 1. Utilities | U10-U18, U15a-c | #1-4,6-7,9,11,13,33,35 | quadrature, transforms, interpolation, diffmat, polynomials, aaa, minimax, ratapprox, misc, domain, pref |
+| 2. Tech | U20a-d, U21a | #5,8,12,19,33 | Chebtech2, Chebtech1, Trigtech |
+| 3. Fun | U30-U33 | #15,22,25 | Bndfun, Unbndfun, Singfun, Deltafun |
+| 4. Chebfun 1D | U40-U45 | #14,16,18,29 | Chebfun core, ops, specfun, QR/SVD |
+| 5. Discretization | U50-U52 | #17,20,33 | ChebColloc, UltraS, TrigColloc |
+| 6. Operators | U60-U64 | #21,23,31 | blocks, ChebMatrix, Linop, Chebop, Chebop2 |
+| 7. 2D | U70a, U71a-b, U72a-b, U73a-b | #24,26,27,36 | SeparableApprox, Chebfun2, Chebfun2v, Diskfun, Diskfunv, Spherefun, Spherefunv |
+| 8. 3D | U80a-b, U81a-b | #28,32,36 | Chebfun3, Chebfun3v, Ballfun, Ballfunv |
+| 9. PDE | U90a-c | #30 | SpinOp, ETDRK4 (KdV, Allen-Cahn, NLS, KS) |
+| 10. Tests | U101 | #36 | 50 integration tests covering all README examples |
 
-## TODO (~19 units remaining)
+## TODO (~5 remaining)
 
-### High Priority (core functionality gaps)
-| Unit | Module | Description | Est. LOC |
-|------|--------|------------|----------|
-| U15b | utils/minimax | Remez exchange algorithm | ~500 |
-| U15c | utils/ratapprox | ratinterp, padeapprox, trigratinterp | ~500 |
-| U45 | chebfun1d/linalg | qr, svd, eig on quasimatrices | ~600 |
-| U64 | operators/chebop2 | 2D operators (Helmholtz, Poisson) | ~600 |
-
-### Medium Priority (extensions)
-| Unit | Module | Description | Est. LOC |
-|------|--------|------------|----------|
-| U20d | tech/chebtech misc | Chebtech1 variant | ~400 |
-| U21b | tech/trigtech ops | Remaining Trigtech methods | ~500 |
-| U46 | chebfun1d/ode | ode45, ode113 wrappers (or diffrax) | ~800 |
-| U52 | discretization/trig | Trig collocation + trigspec | ~400 |
-| U71b | chebfun2d/chebfun2v | 2D vector fields | ~400 |
-
-### Lower Priority (advanced features)
-| Unit | Module | Description | Est. LOC |
-|------|--------|------------|----------|
-| U43 | chebfun1d/rootfinding | Edge cases (mostly done in U41) | ~200 |
-| U70b-c | chebfun2d/separable ops | Remaining 2D methods | ~500 |
-| U80c | chebfun3d/chebfun3t | Tucker tensor class | ~300 |
-| U90a | spin/spinop | 1D/2D PDE time-stepping | ~500 |
-| U90b | spin/spinop3_sphere | 3D + sphere PDE | ~400 |
-| U90c | spin/schemes | expinteg, imex schemes | ~300 |
-
-### Polish
-| Unit | Module | Description |
-|------|--------|------------|
-| U100 | autodiff | AD for chebfun operations |
-| U102 | benchmarks | CPU/GPU performance suite |
+| Unit | Module | Priority | Description |
+|------|--------|----------|------------|
+| U46 | chebfun1d/ode | medium | ODE integrator wrappers (ode45, bvp4c) |
+| U80c | chebfun3d/chebfun3t | low | Tucker tensor class |
+| U70b-c | chebfun2d/separable ops | low | Remaining SeparableApprox methods |
+| U100 | autodiff | low | AD for chebfun operations |
+| U102 | benchmarks | low | CPU/GPU performance suite |
 
 ## Stats
-- **Source**: 48 files, ~24,000 LOC
-- **Tests**: 31 files, ~16,500 LOC, ~1,550+ tests
+- **36 PRs merged**
+- **Source**: ~27,000+ LOC
+- **Tests**: ~1,800+
 - **Repo**: https://github.com/ma-gilles/chebfunjax
