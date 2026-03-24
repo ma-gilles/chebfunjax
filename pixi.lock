@@ -121,7 +121,7 @@ packages:
 - pypi: ./
   name: chebfunjax
   version: 0.1.0
-  sha256: 3fd9af88c7aadb11b5a9ca4bebf2192a31ef7a9b7ecaf59d5e4b1f0ccba61c72
+  sha256: b8e6af1d723364d3db956c1863fc899911ffaf864708a32128e9085e6f5d5576
   requires_dist:
   - jax>=0.4.20
   - jaxlib>=0.4.20
