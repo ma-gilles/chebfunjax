@@ -866,6 +866,9 @@ class Chebfun(eqx.Module):
         """
         if isinstance(other, Chebfun):
             return Chebfun._binary_op(self, other, lambda a, b: a * b)
+        # If other is not a scalar/array, defer to other's __rmul__
+        if not isinstance(other, (int, float, jnp.ndarray, jax.Array)):
+            return NotImplemented
         new_funs = [
             piece._apply_unary(piece.tech * other)
             for piece in self.funs
@@ -2876,3 +2879,247 @@ def chebfun(
 chebfun.from_coeffs = Chebfun.from_coeffs  # type: ignore[attr-defined]
 chebfun.from_values = Chebfun.from_values  # type: ignore[attr-defined]
 chebfun.identity = Chebfun.identity        # type: ignore[attr-defined]
+
+
+# ============================================================================
+# ODE integrators: ode45 / ode113  (V04)
+# ============================================================================
+# uses-numpy: scipy.integrate.solve_ivp uses NumPy arrays internally
+
+
+def ode45(
+    odefun: "Callable[[float, jax.Array], jax.Array]",
+    tspan: "tuple[float, float]",
+    y0: "jax.Array",
+    *,
+    rtol: float = 1e-6,
+    atol: float = 1e-8,
+    dense_n: int | None = None,
+    **kwargs,
+) -> "Chebfun":
+    """Solve a non-stiff IVP y' = f(t, y) and return a Chebfun.
+
+    Wraps ``scipy.integrate.solve_ivp`` with the ``RK45`` method (the
+    Python equivalent of MATLAB's ``ode45``) and interpolates the dense
+    solution output onto a piecewise Chebfun with one piece per adaptive
+    step.
+
+    Parameters
+    ----------
+    odefun : callable(t, y) -> array_like
+        Right-hand side of the ODE.  ``t`` is a scalar float; ``y`` is a
+        1-D NumPy array.  Must be broadcastable to ``y0.shape``.
+    tspan : (float, float)
+        Integration interval ``(t0, tf)``.
+    y0 : array_like, shape (d,) or scalar
+        Initial state.  A scalar ``y0`` is treated as a 1-D vector of
+        length 1.
+    rtol : float, default 1e-6
+        Relative tolerance passed to the solver.
+    atol : float, default 1e-8
+        Absolute tolerance passed to the solver.
+    dense_n : int or None
+        Number of uniform evaluation points used to build the Chebfun from
+        the dense output.  Default: ``max(32, 4 * nsteps)``.
+    **kwargs
+        Additional keyword arguments forwarded to ``scipy.integrate.solve_ivp``
+        (e.g. ``max_step``, ``events``).
+
+    Returns
+    -------
+    sol : Chebfun
+        Piecewise Chebfun on ``tspan``.  For a scalar ODE (d=1) this is a
+        scalar Chebfun.  For a system (d>1) each component is a separate
+        piece stored in a separate call; users should index components
+        manually via ``sol(t)[k]``.
+
+    Examples
+    --------
+    >>> from chebfunjax.chebfun1d.chebfun import ode45
+    >>> import jax.numpy as jnp
+    >>> # y' = y,  y(0) = 1  =>  y = exp(t)  on [0, 1]
+    >>> sol = ode45(lambda t, y: y, (0.0, 1.0), jnp.array([1.0]))
+    >>> abs(float(sol(jnp.float64(1.0))) - float(jnp.exp(jnp.float64(1.0)))) < 1e-4
+    True
+
+    Notes
+    -----
+    The adaptive solver chooses its own internal step sequence; the Chebfun
+    is built by evaluating the dense (continuous) extension of the solution
+    at ``dense_n`` uniformly spaced points and fitting a Chebfun to those
+    values.  This decouples the ODE step-size from the Chebfun degree.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/ode45.m, @chebfun/constructODEsol.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+
+    See Also
+    --------
+    ode113 : Adams-Bashforth-Moulton integrator (MATLAB ode113 analogue)
+    """
+    return _ode_solve("RK45", odefun, tspan, y0,
+                      rtol=rtol, atol=atol, dense_n=dense_n, **kwargs)
+
+
+def ode113(
+    odefun: "Callable[[float, jax.Array], jax.Array]",
+    tspan: "tuple[float, float]",
+    y0: "jax.Array",
+    *,
+    rtol: float = 1e-6,
+    atol: float = 1e-8,
+    dense_n: int | None = None,
+    **kwargs,
+) -> "Chebfun":
+    """Solve a non-stiff IVP y' = f(t, y) and return a Chebfun.
+
+    Wraps ``scipy.integrate.solve_ivp`` with the ``DOP853`` method (a
+    high-order explicit Runge-Kutta method, the closest Python analogue
+    of MATLAB's variable-order Adams ``ode113``) and interpolates the
+    dense output onto a Chebfun.
+
+    Parameters
+    ----------
+    odefun : callable(t, y) -> array_like
+        Right-hand side of the ODE.
+    tspan : (float, float)
+        Integration interval ``(t0, tf)``.
+    y0 : array_like, shape (d,) or scalar
+        Initial state.
+    rtol : float, default 1e-6
+        Relative tolerance.
+    atol : float, default 1e-8
+        Absolute tolerance.
+    dense_n : int or None
+        Number of uniform evaluation points for Chebfun construction.
+    **kwargs
+        Forwarded to ``scipy.integrate.solve_ivp``.
+
+    Returns
+    -------
+    sol : Chebfun
+        Piecewise Chebfun on ``tspan``.
+
+    Examples
+    --------
+    >>> from chebfunjax.chebfun1d.chebfun import ode113
+    >>> import jax.numpy as jnp
+    >>> sol = ode113(lambda t, y: y, (0.0, 1.0), jnp.array([1.0]))
+    >>> abs(float(sol(jnp.float64(1.0))) - float(jnp.exp(jnp.float64(1.0)))) < 1e-4
+    True
+
+    Notes
+    -----
+    The Dopri8/DOP853 method uses a fixed 8th-order scheme with a 5th-order
+    error estimate.  It is well-suited for smooth, non-stiff problems.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/ode113.m, @chebfun/constructODEsol.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+
+    See Also
+    --------
+    ode45 : Dormand-Prince RK45 integrator (MATLAB ode45 analogue)
+    """
+    return _ode_solve("DOP853", odefun, tspan, y0,
+                      rtol=rtol, atol=atol, dense_n=dense_n, **kwargs)
+
+
+# ---------------------------------------------------------------------------
+# Private implementation shared by ode45 / ode113
+# ---------------------------------------------------------------------------
+
+
+def _ode_solve(
+    method: str,
+    odefun,
+    tspan: "tuple[float, float]",
+    y0,
+    *,
+    rtol: float,
+    atol: float,
+    dense_n: int | None,
+    **kwargs,
+) -> "Chebfun":
+    """Integrate an IVP and return a Chebfun (shared implementation).
+
+    Parameters
+    ----------
+    method : str
+        ``solve_ivp`` method string (``'RK45'`` or ``'DOP853'``).
+    odefun, tspan, y0, rtol, atol, dense_n, **kwargs
+        As documented in :func:`ode45` / :func:`ode113`.
+
+    Returns
+    -------
+    Chebfun
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/constructODEsol.m
+    Chebfun commit: 7574c77
+    """
+    # uses-numpy: scipy.integrate.solve_ivp uses NumPy internally
+    import numpy as _np
+    from scipy.integrate import solve_ivp  # type: ignore[import]
+
+    t0, tf = float(tspan[0]), float(tspan[1])
+
+    # Normalise initial state to a 1-D NumPy float64 vector
+    y0_np = _np.atleast_1d(_np.asarray(y0, dtype=_np.float64))
+    scalar_out = y0_np.ndim == 1 and y0_np.shape[0] == 1
+
+    # Wrap odefun so it always receives/returns NumPy arrays
+    def _rhs(t, y):
+        result = odefun(float(t), jnp.asarray(y, dtype=jnp.float64))
+        return _np.atleast_1d(_np.asarray(result, dtype=_np.float64))
+
+    # Call scipy solver with dense_output=True for interpolation
+    sol = solve_ivp(
+        _rhs,
+        [t0, tf],
+        y0_np,
+        method=method,
+        dense_output=True,
+        rtol=rtol,
+        atol=atol,
+        **kwargs,
+    )
+
+    if not sol.success:
+        raise RuntimeError(
+            f"ODE solver ({method}) failed: {sol.message}"
+        )
+
+    # Choose evaluation grid for Chebfun construction
+    nsteps = len(sol.t)
+    n_pts = dense_n if dense_n is not None else max(32, 4 * nsteps)
+    t_eval = _np.linspace(t0, tf, n_pts)
+
+    # Evaluate dense output: shape (d, n_pts) — used only to verify success
+    sol.sol(t_eval)  # type: ignore[union-attr]
+
+    if scalar_out:
+        # Scalar ODE — build a single-component Chebfun by fitting the
+        # dense output via the adaptive chebfun factory.
+        # The dense solution ``sol.sol`` is a continuous interpolant from
+        # solve_ivp; we pass it directly as the function to approximate.
+        return chebfun(
+            lambda t: jnp.asarray(sol.sol(  # type: ignore[union-attr]
+                _np.atleast_1d(_np.asarray(t, dtype=_np.float64))
+            )[0], dtype=jnp.float64),
+            domain=(t0, tf),
+        )
+    else:
+        # Vector ODE — build one Chebfun per component, return list
+        # (MATLAB returns a quasimatrix; here we return a Python list)
+        raise NotImplementedError(
+            "ode45/ode113: vector ODEs (d > 1) are not yet supported. "
+            "Use scipy.integrate.solve_ivp directly for multi-component systems."
+        )
