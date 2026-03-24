@@ -1,6 +1,9 @@
 """Utility functions — quadrature, transforms, interpolation, polynomials, etc."""
 
 from chebfunjax.utils.aaa import aaa
+from chebfunjax.utils.gallery import gallery, list_gallery
+from chebfunjax.utils.lebesgue import lebesgue_constant, lebesgue_function
+from chebfunjax.utils.sing import find_pole_order, find_sing_exponents, find_sing_order
 from chebfunjax.utils.polynomials import (
     chebeval,
     chebpoly,
@@ -29,6 +32,13 @@ from chebfunjax.utils.transforms import (
 
 __all__ = [
     "aaa",
+    "gallery",
+    "list_gallery",
+    "lebesgue_function",
+    "lebesgue_constant",
+    "find_pole_order",
+    "find_sing_order",
+    "find_sing_exponents",
     "padeapprox",
     "ratinterp",
     "trigratinterp",
