@@ -189,6 +189,72 @@ class _Piece(eqx.Module):
         """Wrap a Chebtech2 result in a _Piece with the same interval."""
         return _Piece(tech=tech_result, interval=self.interval)
 
+    def _apply_fun(self, op) -> _Piece:
+        """Compose this piece with a scalar function op.
+
+        Builds a new _Piece by adaptively approximating ``op(self(x))``
+        on the same physical interval [a, b].
+
+        Parameters
+        ----------
+        op : callable
+            A vectorized JAX function applied pointwise.
+
+        Returns
+        -------
+        _Piece
+        """
+        a, b = self.interval
+        return _Piece.from_function(lambda x: op(self(x)), a, b)
+
+    # ------------------------------------------------------------------
+    # Special functions (thin wrappers around _apply_fun)
+    # ------------------------------------------------------------------
+
+    def sin(self) -> _Piece:
+        """Sine of the piece."""
+        return self._apply_fun(jnp.sin)
+
+    def cos(self) -> _Piece:
+        """Cosine of the piece."""
+        return self._apply_fun(jnp.cos)
+
+    def exp(self) -> _Piece:
+        """Exponential of the piece."""
+        return self._apply_fun(jnp.exp)
+
+    def log(self) -> _Piece:
+        """Natural logarithm of the piece."""
+        return self._apply_fun(jnp.log)
+
+    def sqrt(self) -> _Piece:
+        """Square root of the piece."""
+        return self._apply_fun(jnp.sqrt)
+
+    def sinh(self) -> _Piece:
+        """Hyperbolic sine of the piece."""
+        return self._apply_fun(jnp.sinh)
+
+    def cosh(self) -> _Piece:
+        """Hyperbolic cosine of the piece."""
+        return self._apply_fun(jnp.cosh)
+
+    def tanh(self) -> _Piece:
+        """Hyperbolic tangent of the piece."""
+        return self._apply_fun(jnp.tanh)
+
+    def asin(self) -> _Piece:
+        """Inverse sine (arcsin) of the piece."""
+        return self._apply_fun(jnp.arcsin)
+
+    def acos(self) -> _Piece:
+        """Inverse cosine (arccos) of the piece."""
+        return self._apply_fun(jnp.arccos)
+
+    def atan(self) -> _Piece:
+        """Inverse tangent (arctan) of the piece."""
+        return self._apply_fun(jnp.arctan)
+
     # ------------------------------------------------------------------
     # Calculus
     # ------------------------------------------------------------------
@@ -864,6 +930,369 @@ class Chebfun(eqx.Module):
             for piece in self.funs
         ]
         return Chebfun(funs=new_funs, domain=self.domain)
+
+    # ------------------------------------------------------------------
+    # Composition with scalar functions
+    # ------------------------------------------------------------------
+
+    def _apply_fun(self, op) -> Chebfun:
+        """Compose self with a scalar function op, piece by piece.
+
+        Constructs a new Chebfun by adaptively approximating ``op(self(x))``
+        on each sub-interval.  This mirrors MATLAB's ``compose(f, @op)``
+        pattern used internally by all special-function methods.
+
+        NOT JIT-safe (calls adaptive construction).
+
+        Parameters
+        ----------
+        op : callable
+            A vectorized JAX function applied pointwise, e.g. ``jnp.sin``.
+
+        Returns
+        -------
+        Chebfun
+            New Chebfun approximating op(self(x)) on the same domain.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/compose.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        new_funs = [piece._apply_fun(op) for piece in self.funs]
+        return Chebfun(funs=new_funs, domain=self.domain)
+
+    # ------------------------------------------------------------------
+    # Special functions (thin wrappers around _apply_fun)
+    # ------------------------------------------------------------------
+
+    def sin(self) -> Chebfun:
+        """Sine of the Chebfun.
+
+        Returns a new Chebfun approximating sin(f(x)) on the same domain.
+
+        NOT JIT-safe (adaptive construction).
+
+        Examples
+        --------
+        >>> x = Chebfun.identity()
+        >>> f = x.sin()
+        >>> import numpy.testing as npt
+        >>> import numpy as np
+        >>> xs = jnp.linspace(-1.0, 1.0, 20, dtype=jnp.float64)
+        >>> npt.assert_allclose(np.array(f(xs)), np.array(jnp.sin(xs)), atol=1e-13)
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/sin.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.cos, Chebfun.asin
+        """
+        return self._apply_fun(jnp.sin)
+
+    def cos(self) -> Chebfun:
+        """Cosine of the Chebfun.
+
+        Returns a new Chebfun approximating cos(f(x)) on the same domain.
+
+        NOT JIT-safe (adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/cos.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.sin, Chebfun.acos
+        """
+        return self._apply_fun(jnp.cos)
+
+    def exp(self) -> Chebfun:
+        """Exponential of the Chebfun.
+
+        Returns a new Chebfun approximating exp(f(x)) on the same domain.
+
+        NOT JIT-safe (adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/exp.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.log
+        """
+        return self._apply_fun(jnp.exp)
+
+    def log(self) -> Chebfun:
+        """Natural logarithm of the Chebfun.
+
+        Returns a new Chebfun approximating log(f(x)) on the same domain.
+        If f has roots in its domain, the representation may be inaccurate
+        (log diverges at zeros).
+
+        NOT JIT-safe (adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/log.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.exp, Chebfun.sqrt
+        """
+        return self._apply_fun(jnp.log)
+
+    def sqrt(self) -> Chebfun:
+        """Square root of the Chebfun.
+
+        Returns a new Chebfun approximating sqrt(f(x)) on the same domain.
+
+        NOT JIT-safe (adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/sqrt.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.log, Chebfun.exp
+        """
+        return self._apply_fun(jnp.sqrt)
+
+    def abs(self) -> Chebfun:
+        """Absolute value of the Chebfun.
+
+        For a smooth function with no sign changes on the domain, this is
+        equivalent to ``__abs__`` (using the piece-level abs).  If sign
+        changes are present, breakpoints are introduced at the roots so that
+        each piece remains smooth.
+
+        NOT JIT-safe (root-finding and adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/abs.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.sign, Chebfun.__abs__
+        """
+        # Find roots where the function changes sign and add them as
+        # breakpoints, then apply |·| piecewise for smoothness.
+        roots = self.roots()
+        if roots.shape[0] == 0:
+            # No sign changes — simple abs on each piece
+            return self._apply_fun(jnp.abs)
+
+        # Build new breakpoints: existing domain breakpoints + roots
+        import numpy as _np
+        existing = _np.array(list(self.domain.breakpoints))
+        new_bps = _np.sort(_np.unique(
+            _np.concatenate([existing, _np.asarray(roots)])
+        ))
+        # Remove duplicates within tolerance
+        domain_len = float(self.domain.b - self.domain.a)
+        tol = 1e6 * _np.finfo(_np.float64).eps * max(domain_len, 1.0)
+        mask = _np.concatenate([[True], _np.diff(new_bps) > tol])
+        new_bps = new_bps[mask]
+
+        if len(new_bps) < 2:
+            return self._apply_fun(jnp.abs)
+
+        new_dom = Domain(tuple(float(b) for b in new_bps))
+        f = self  # capture for closure
+        new_funs = [
+            _Piece.from_function(lambda x, _f=f: jnp.abs(_f(x)), sub.a, sub.b)
+            for sub in new_dom.intervals
+        ]
+        return Chebfun(funs=new_funs, domain=new_dom)
+
+    def sign(self) -> Chebfun:
+        """Sign function of the Chebfun.
+
+        Returns a piecewise-constant Chebfun: +1 where self > 0, -1 where
+        self < 0, 0 at zeros.  Breakpoints are introduced at the roots of
+        self so that each piece is smooth (constant).
+
+        NOT JIT-safe (root-finding and adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/sign.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.abs, Chebfun.roots
+        """
+        roots = self.roots()
+        import numpy as _np
+        existing = _np.array(list(self.domain.breakpoints))
+        new_bps = _np.sort(_np.unique(
+            _np.concatenate([existing, _np.asarray(roots)])
+        ))
+        domain_len = float(self.domain.b - self.domain.a)
+        tol = 1e6 * _np.finfo(_np.float64).eps * max(domain_len, 1.0)
+        mask = _np.concatenate([[True], _np.diff(new_bps) > tol])
+        new_bps = new_bps[mask]
+
+        if len(new_bps) < 2:
+            return self._apply_fun(jnp.sign)
+
+        new_dom = Domain(tuple(float(b) for b in new_bps))
+        f = self  # capture for closure
+        new_funs = [
+            _Piece.from_function(lambda x, _f=f: jnp.sign(_f(x)), sub.a, sub.b)
+            for sub in new_dom.intervals
+        ]
+        return Chebfun(funs=new_funs, domain=new_dom)
+
+    def sinh(self) -> Chebfun:
+        """Hyperbolic sine of the Chebfun.
+
+        Returns a new Chebfun approximating sinh(f(x)) on the same domain.
+
+        NOT JIT-safe (adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/sinh.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.cosh, Chebfun.tanh
+        """
+        return self._apply_fun(jnp.sinh)
+
+    def cosh(self) -> Chebfun:
+        """Hyperbolic cosine of the Chebfun.
+
+        Returns a new Chebfun approximating cosh(f(x)) on the same domain.
+
+        NOT JIT-safe (adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/cosh.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.sinh, Chebfun.tanh
+        """
+        return self._apply_fun(jnp.cosh)
+
+    def tanh(self) -> Chebfun:
+        """Hyperbolic tangent of the Chebfun.
+
+        Returns a new Chebfun approximating tanh(f(x)) on the same domain.
+
+        NOT JIT-safe (adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/tanh.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.sinh, Chebfun.cosh
+        """
+        return self._apply_fun(jnp.tanh)
+
+    def asin(self) -> Chebfun:
+        """Inverse sine (arcsin) of the Chebfun.
+
+        Returns a new Chebfun approximating arcsin(f(x)).  The values of
+        f must lie in [-1, 1] for this to be well-defined.
+
+        NOT JIT-safe (adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/asin.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.sin, Chebfun.acos, Chebfun.atan
+        """
+        return self._apply_fun(jnp.arcsin)
+
+    def acos(self) -> Chebfun:
+        """Inverse cosine (arccos) of the Chebfun.
+
+        Returns a new Chebfun approximating arccos(f(x)).  The values of
+        f must lie in [-1, 1] for this to be well-defined.
+
+        NOT JIT-safe (adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/acos.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.cos, Chebfun.asin, Chebfun.atan
+        """
+        return self._apply_fun(jnp.arccos)
+
+    def atan(self) -> Chebfun:
+        """Inverse tangent (arctan) of the Chebfun.
+
+        Returns a new Chebfun approximating arctan(f(x)).
+
+        NOT JIT-safe (adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/atan.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.asin, Chebfun.acos, Chebfun.tan
+        """
+        return self._apply_fun(jnp.arctan)
 
     # ------------------------------------------------------------------
     # Calculus
