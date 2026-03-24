@@ -1,12 +1,16 @@
 # uses-numpy: greedy AAA algorithm is not JIT-safe (iterative point selection, SVD)
-"""AAA rational approximation.
+"""AAA rational approximation and trigonometric AAA.
 
-Translated from MATLAB Chebfun (commit 7574c77): aaa.m.
+Translated from MATLAB Chebfun (commit 7574c77): aaa.m, aaatrig.m.
 
 Original algorithm:
     Y. Nakatsukasa, O. Sete, and L. N. Trefethen,
     "The AAA algorithm for rational approximation",
     SIAM J. Sci. Comp. 40 (2018), A1494–A1522.
+
+Trigonometric extension:
+    P. J. Baddoo, "The AAAtrig algorithm for rational approximation
+    of periodic functions", SIAM J. Sci. Comp. (2021).
 
 Original authors: Copyright 2023 by The University of Oxford and The Chebfun
 Developers.  See https://www.chebfun.org/ for Chebfun information.
@@ -16,7 +20,8 @@ Design notes
 - The greedy support-point selection loop is NOT JIT-safe: it uses
   Python-level data-dependent control flow with dynamic array sizes.
 - The returned callable ``r(zz)`` IS JIT-safe: it is a thin wrapper
-  around ``_reval``, which has static shapes given the support points.
+  around ``_reval`` / ``_revaltrig``, which have static shapes given the
+  support points.
 - dtype is always complex128 internally (generalises to complex input) but
   for real inputs the imaginary part will be negligible and the caller
   should cast to float64 if needed.
@@ -609,5 +614,508 @@ def _cleanup(
 
     _, _, V = np.linalg.svd(A_mat, full_matrices=False)
     wj_np = V[m - 1, :]  # last row of V^T = last right singular vector
+
+    return jnp.array(zj_np), jnp.array(fj_np), jnp.array(wj_np)
+
+
+# ---------------------------------------------------------------------------
+# Trigonometric AAA  (aaatrig)
+# ---------------------------------------------------------------------------
+
+
+def aaatrig(
+    F: jnp.ndarray | Callable,
+    Z: jnp.ndarray,
+    *,
+    tol: float = 1e-13,
+    mmax: int = 100,
+    form: str = "odd",
+    cleanup: bool = True,
+    cleanup_tol: float | None = None,
+) -> tuple[Callable, jnp.ndarray, jnp.ndarray, jnp.ndarray,
+           jnp.ndarray, jnp.ndarray, jnp.ndarray, list]:
+    """Trigonometric AAA rational approximation.
+
+    Computes a near-best trigonometric rational approximant to ``F`` on the
+    sample set ``Z`` using the AAAtrig algorithm.  The approximant is
+    periodic with period 2*pi and represented in trigonometric barycentric
+    form:
+
+    .. math::
+
+        r(z) = \\frac{\\sum_j w_j f_j \\, \\text{cst}((z-z_j)/2)}
+                     {\\sum_j w_j \\, \\text{cst}((z-z_j)/2)}
+
+    where cst = csc for ``form='odd'`` (default) and cst = cot for
+    ``form='even'``.
+
+    .. note::
+        The construction loop is **not JIT-safe** (greedy point selection).
+        The returned callable ``r`` **is JIT-safe**.
+
+    Parameters
+    ----------
+    F : array_like or callable
+        Function values at ``Z``, or a callable.
+    Z : array_like, shape (M,)
+        Sample points (real, typically in [0, 2*pi]).
+    tol : float, optional
+        Relative tolerance (default 1e-13).
+    mmax : int, optional
+        Maximum number of support points (default 100).
+    form : {'odd', 'even'}, optional
+        Trigonometric basis type.  'odd' uses csc; 'even' uses cot.
+    cleanup : bool, optional
+        Remove Froissart doublets (default True).
+    cleanup_tol : float or None, optional
+        Cleanup threshold (defaults to ``tol``).
+
+    Returns
+    -------
+    r : callable
+        Trigonometric rational approximant (JIT-safe).
+    pol : jnp.ndarray, complex
+        Poles.
+    res : jnp.ndarray, complex
+        Residues.
+    zer : jnp.ndarray, complex
+        Zeros.
+    zj : jnp.ndarray, complex
+        Support points.
+    fj : jnp.ndarray, complex
+        Function values at support points.
+    wj : jnp.ndarray, complex
+        Barycentric weights.
+    errvec : list of float
+        Error at each greedy step.
+
+    References
+    ----------
+    .. [1] P. J. Baddoo, "The AAAtrig algorithm for rational approximation
+       of periodic functions", SIAM J. Sci. Comp. (2021).
+    .. [2] Y. Nakatsukasa, O. Sete, and L. N. Trefethen,
+       "The AAA algorithm for rational approximation",
+       SIAM J. Sci. Comp. 40 (2018), A1494–A1522.
+
+    Provenance
+    ----------
+    MATLAB source : aaatrig.m
+    Chebfun commit: 7574c77
+    Original authors: Peter Baddoo, Yuji Nakatsukasa, Lloyd N. Trefethen.
+        Copyright 2017-2021 by The University of Oxford and The Chebfun
+        Developers.
+
+    See Also
+    --------
+    aaa
+    """
+    Z_in = jnp.asarray(Z, dtype=jnp.complex128).ravel()
+    M = Z_in.shape[0]
+
+    if callable(F):
+        F_vals = jnp.asarray(F(Z_in), dtype=jnp.complex128).ravel()
+    else:
+        F_vals = jnp.asarray(F, dtype=jnp.complex128).ravel()
+        if F_vals.shape[0] != M:
+            raise ValueError(
+                f"F and Z must have the same length, got {F_vals.shape[0]} and {M}."
+            )
+
+    # Remove Inf/NaN
+    keep = jnp.isfinite(F_vals)
+    F_vals = F_vals[keep]
+    Z_in = Z_in[keep]
+
+    Z_np = np.array(Z_in, dtype=complex)
+    F_np = np.array(F_vals, dtype=complex)
+
+    # Project to [0, 2*pi)
+    Z_np = Z_np - 2 * np.pi * np.floor(np.real(Z_np / (2 * np.pi)))
+
+    # Remove duplicates
+    _, uni = np.unique(Z_np, return_index=True)
+    uni = np.sort(uni)
+    Z_np = Z_np[uni]
+    F_np = F_np[uni]
+    M = len(Z_np)
+
+    if cleanup_tol is None:
+        cleanup_tol = tol if tol > 0 else 1e-13
+
+    reltol = tol * np.linalg.norm(F_np, np.inf)
+
+    # Basis function
+    if form == "even":
+        def cst(z):
+            return 1.0 / np.tan(z)
+    else:
+        def cst(z):
+            return 1.0 / np.sin(z)
+
+    # AAA greedy iteration
+    J = list(range(M))
+    zj = np.zeros(0, dtype=complex)
+    fj = np.zeros(0, dtype=complex)
+    C = np.zeros((M, 0), dtype=complex)
+    errvec = []
+    R = np.full(M, np.mean(F_np), dtype=complex)
+    wj = np.array([], dtype=complex)
+
+    for m in range(1, mmax + 1):
+        J_arr = np.array(J)
+        resids = np.abs(F_np[J_arr] - R[J_arr])
+        jj = int(np.argmax(resids))
+        idx = J_arr[jj]
+
+        zj = np.append(zj, Z_np[idx])
+        fj = np.append(fj, F_np[idx])
+
+        with np.errstate(divide="ignore", invalid="ignore"):
+            new_col = cst((Z_np - Z_np[idx]) / 2.0)
+        C = np.column_stack([C, new_col]) if C.shape[1] > 0 else new_col[:, None]
+        J.pop(jj)
+
+        # Loewner matrix and SVD
+        J_arr = np.array(J)
+        if len(J_arr) > 0:
+            SF = np.diag(F_np[J_arr])
+            Sf = np.diag(fj)
+            A_sub = SF @ C[J_arr, :] - C[J_arr, :] @ Sf
+            _, _, V = np.linalg.svd(A_sub, full_matrices=False)
+            wj = V[m - 1, :] if V.shape[0] >= m else V[-1, :]
+        else:
+            wj = np.ones(m, dtype=complex) / np.sqrt(m)
+
+        # Evaluate approximant
+        with np.errstate(invalid="ignore"):
+            N_vec = C @ (wj * fj)
+            D_vec = C @ wj
+            R = F_np.copy()
+            J_cur = np.array(J)
+            if len(J_cur) > 0:
+                R[J_cur] = N_vec[J_cur] / D_vec[J_cur]
+
+        maxerr = np.linalg.norm(F_np - R, np.inf)
+        errvec.append(maxerr)
+        if maxerr <= reltol:
+            break
+
+    # Remove zero-weight support points
+    nonzero = wj != 0
+    zj = zj[nonzero]
+    fj = fj[nonzero]
+    wj = wj[nonzero]
+
+    zj_jnp = jnp.array(zj)
+    fj_jnp = jnp.array(fj)
+    wj_jnp = jnp.array(wj)
+
+    # Poles and zeros
+    pol, res, zer = _prztrig_np(zj, fj, wj, form)
+
+    # Cleanup
+    if cleanup:
+        zj_jnp, fj_jnp, wj_jnp = _cleanup_trig(
+            zj_jnp, fj_jnp, wj_jnp,
+            jnp.array(Z_np), jnp.array(F_np),
+            cleanup_tol, form,
+        )
+        pol, res, zer = _prztrig_np(
+            np.array(zj_jnp), np.array(fj_jnp), np.array(wj_jnp), form
+        )
+
+    pol_jnp = jnp.array(pol)
+    res_jnp = jnp.array(res)
+    zer_jnp = jnp.array(zer)
+
+    r = _make_trig_callable(zj_jnp, fj_jnp, wj_jnp, form)
+
+    return r, pol_jnp, res_jnp, zer_jnp, zj_jnp, fj_jnp, wj_jnp, errvec
+
+
+def _make_trig_callable(
+    zj: jnp.ndarray,
+    fj: jnp.ndarray,
+    wj: jnp.ndarray,
+    form: str,
+) -> Callable:
+    """Return a JIT-safe callable for the trigonometric rational approximant."""
+    import jax
+
+    @jax.jit
+    def r(zz: jnp.ndarray) -> jnp.ndarray:
+        return _revaltrig(zz, zj, fj, wj, form)
+
+    return r
+
+
+@jax.jit
+def _revaltrig_csc(
+    zz: jnp.ndarray,
+    zj: jnp.ndarray,
+    fj: jnp.ndarray,
+    wj: jnp.ndarray,
+) -> jnp.ndarray:
+    """Evaluate odd trigonometric barycentric rational function (csc basis)."""
+    orig_shape = zz.shape
+    zv = zz.ravel()
+
+    diff_half = (zv[:, None] - zj[None, :]) / 2.0
+    CC = 1.0 / jnp.sin(diff_half)
+
+    N = CC @ (wj * fj)
+    D = CC @ wj
+    r = N / D
+
+    # Fix NaNs at support points
+    diff = zv[:, None] - zj[None, :]
+    exact = diff == 0.0
+    has_match = jnp.any(exact, axis=1)
+    match_idx = jnp.argmax(exact, axis=1)
+    r = jnp.where(has_match, fj[match_idx], r)
+
+    return r.reshape(orig_shape)
+
+
+@jax.jit
+def _revaltrig_cot(
+    zz: jnp.ndarray,
+    zj: jnp.ndarray,
+    fj: jnp.ndarray,
+    wj: jnp.ndarray,
+) -> jnp.ndarray:
+    """Evaluate even trigonometric barycentric rational function (cot basis)."""
+    orig_shape = zz.shape
+    zv = zz.ravel()
+
+    diff_half = (zv[:, None] - zj[None, :]) / 2.0
+    CC = 1.0 / jnp.tan(diff_half)
+
+    N = CC @ (wj * fj)
+    D = CC @ wj
+    r = N / D
+
+    diff = zv[:, None] - zj[None, :]
+    exact = diff == 0.0
+    has_match = jnp.any(exact, axis=1)
+    match_idx = jnp.argmax(exact, axis=1)
+    r = jnp.where(has_match, fj[match_idx], r)
+
+    return r.reshape(orig_shape)
+
+
+def _revaltrig(
+    zz: jnp.ndarray,
+    zj: jnp.ndarray,
+    fj: jnp.ndarray,
+    wj: jnp.ndarray,
+    form: str,
+) -> jnp.ndarray:
+    """Dispatch to csc or cot evaluator."""
+    if form == "even":
+        return _revaltrig_cot(zz, zj, fj, wj)
+    else:
+        return _revaltrig_csc(zz, zj, fj, wj)
+
+
+def _prztrig_np(
+    zj: np.ndarray,
+    fj: np.ndarray,
+    wj: np.ndarray,
+    form: str,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Compute poles, residues, zeros of a trigonometric barycentric rational."""
+    m = len(wj)
+
+    if form == "odd":
+        # Coordinate transformation: z -> exp(i*z)
+        zjp = np.exp(1j * zj)
+        wjp = wj * np.exp(1j * zj / 2)
+
+        B = np.eye(m + 1, dtype=complex)
+        B[0, 0] = 0.0
+
+        # Poles
+        Ep = np.zeros((m + 1, m + 1), dtype=complex)
+        Ep[0, 1:] = wjp
+        Ep[1:, 0] = 1.0
+        Ep[1:, 1:] = np.diag(zjp)
+
+        with np.errstate(divide="ignore", invalid="ignore"):
+            polp_eig = spla.eig(Ep, B, right=False)
+        polp = polp_eig[np.isfinite(polp_eig)]
+        pol = -1j * np.log(polp + 0j)
+
+        # Zeros
+        Ep[0, 1:] = fj * wjp
+        with np.errstate(divide="ignore", invalid="ignore"):
+            zerp_eig = spla.eig(Ep, B, right=False)
+        zerp = zerp_eig[np.isfinite(zerp_eig)]
+        zer = -1j * np.log(zerp + 0j)
+
+        # Handle poles/zeros at +/-i*Inf
+        zer[np.abs(zerp) < 1e-10] = 1j * np.inf
+        zer[np.abs(zerp) > 1e10] = -1j * np.inf
+        pol[np.abs(polp) < 1e-10] = 1j * np.inf
+        pol[np.abs(polp) > 1e10] = -1j * np.inf
+
+    else:
+        # form == "even": cot basis
+        d_mask = zj != np.pi
+        zjp = np.tan(zj[d_mask] / 2)
+        wjp = wj[d_mask] * (1 + zjp ** 2)
+        cd = np.sum(zjp * wj[d_mask])
+        m_d = np.sum(d_mask)
+
+        B = np.eye(m + 1, dtype=complex)
+        B[0, 0] = 0.0
+
+        if np.all(d_mask):
+            Ep = np.zeros((m + 1, m + 1), dtype=complex)
+            Ep[0, 0] = cd
+            Ep[0, 1:] = wjp
+            Ep[1:, 0] = 1.0
+            Ep[1:, 1:] = np.diag(zjp)
+        else:
+            Ep = np.zeros((m + 1, m + 1), dtype=complex)
+            Ep[0, 0] = -wj[~d_mask][0]
+            Ep[0, 1] = cd
+            Ep[0, 2:] = wjp
+            Ep[1, 0] = 1.0
+            Ep[2:, 1] = 1.0
+            Ep[2:, 2:] = np.diag(zjp)
+            Ep[1, 1] = 0.0
+
+        with np.errstate(divide="ignore", invalid="ignore"):
+            polp_eig = spla.eig(Ep, B, right=False)
+        polp = polp_eig[np.isfinite(polp_eig)]
+        pol = 2 * np.arctan(polp)
+
+        cn = np.sum(fj[d_mask] * zjp * wj[d_mask])
+        if np.all(d_mask):
+            Ez = Ep.copy()
+            Ez[0, 0] = cn
+            Ez[0, 1:] = fj[d_mask] * wjp
+        else:
+            Ez = Ep.copy()
+            Ez[0, 0] = -fj[~d_mask][0] * wj[~d_mask][0]
+            Ez[0, 1] = cn
+            Ez[0, 2:] = fj[d_mask] * wjp
+
+        with np.errstate(divide="ignore", invalid="ignore"):
+            zerp_eig = spla.eig(Ez, B, right=False)
+        zerp = zerp_eig[np.isfinite(zerp_eig)]
+        zer = 2 * np.arctan(zerp)
+
+    # Project to [0, 2*pi) and compute residues
+    pol = pol - 2 * np.pi * np.floor(np.real(pol / (2 * np.pi)))
+    zer = zer - 2 * np.pi * np.floor(np.real(zer / (2 * np.pi)))
+
+    if len(pol) > 0:
+        if form == "odd":
+            def N_fn(t):
+                return (1.0 / np.sin((t[:, None] - zj[None, :]) / 2)) @ (fj * wj)
+
+            def Ddiff_fn(t):
+                d = (t[:, None] - zj[None, :]) / 2
+                return -0.5 * (1.0 / np.sin(d)) * (1.0 / np.tan(d)) @ wj
+        else:
+            def N_fn(t):
+                return (1.0 / np.tan((t[:, None] - zj[None, :]) / 2)) @ (fj * wj)
+
+            def Ddiff_fn(t):
+                d = (t[:, None] - zj[None, :]) / 2
+                return -0.5 / np.sin(d) ** 2 @ wj
+
+        pol_real = np.real(pol)
+        try:
+            with np.errstate(divide="ignore", invalid="ignore"):
+                res = N_fn(pol_real[:, None].T.ravel()) / Ddiff_fn(pol_real[:, None].T.ravel())
+        except Exception:
+            res = np.zeros_like(pol)
+    else:
+        res = np.array([], dtype=complex)
+
+    return pol, res, zer
+
+
+def _cleanup_trig(
+    zj: jnp.ndarray,
+    fj: jnp.ndarray,
+    wj: jnp.ndarray,
+    Z: jnp.ndarray,
+    F: jnp.ndarray,
+    cleanup_tol: float,
+    form: str,
+) -> tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray]:
+    """Remove Froissart doublets from a trigonometric AAA approximant."""
+    pol, res, zer = _prztrig_np(
+        np.array(zj), np.array(fj), np.array(wj), form
+    )
+    pol_np = np.array(pol, dtype=complex)
+    res_np = np.array(res, dtype=complex)
+    Z_np = np.array(Z, dtype=complex)
+    F_np = np.array(F, dtype=complex)
+    zj_np = np.array(zj, dtype=complex)
+    fj_np = np.array(fj, dtype=complex)
+    wj_np = np.array(wj, dtype=complex)
+
+    if len(pol_np) == 0:
+        return zj, fj, wj
+
+    # Geometric mean of |F|
+    absF = np.abs(F_np[F_np != 0])
+    geom_mean = np.exp(np.mean(np.log(absF))) if len(absF) > 0 else 0.0
+
+    Zdist = np.array([np.min(np.abs(p - Z_np)) for p in pol_np])
+    spurious = np.abs(res_np) / (Zdist + 1e-300) < cleanup_tol * geom_mean
+    ii = np.where(spurious)[0]
+
+    if len(ii) == 0:
+        return zj, fj, wj
+
+    import warnings
+    warnings.warn(f"AAAtrig cleanup: {len(ii)} Froissart doublets removed.", stacklevel=4)
+
+    remove_idx = set()
+    for j in ii:
+        # Find closest support point modulo 2*pi
+        np_diff = np.floor(np.real((zj_np - pol_np[j]) / np.pi)).astype(int)
+        azp = np.abs(zj_np - (pol_np[j] + np_diff * 2 * np.pi))
+        remove_idx.add(int(np.argmin(azp)))
+
+    keep = [k for k in range(len(zj_np)) if k not in remove_idx]
+    if len(keep) == 0:
+        return (
+            jnp.array([], dtype=jnp.complex128),
+            jnp.array([], dtype=jnp.complex128),
+            jnp.array([], dtype=jnp.complex128),
+        )
+
+    zj_np = zj_np[keep]
+    fj_np = fj_np[keep]
+    m = len(zj_np)
+
+    # Remove support points from Z
+    mask = np.ones(len(Z_np), dtype=bool)
+    for z in zj_np:
+        mask &= (Z_np != z)
+    Z_sub = Z_np[mask]
+    F_sub = F_np[mask]
+
+    if form == "even":
+        def cst_np(z):
+            return 1.0 / np.tan(z)
+    else:
+        def cst_np(z):
+            return 1.0 / np.sin(z)
+
+    C = cst_np((Z_sub[:, None] - zj_np[None, :]) / 2.0)
+    SF = np.diag(F_sub)
+    Sf = np.diag(fj_np)
+    A_mat = SF @ C - C @ Sf
+
+    _, _, V = np.linalg.svd(A_mat, full_matrices=False)
+    wj_np = V[m - 1, :]
 
     return jnp.array(zj_np), jnp.array(fj_np), jnp.array(wj_np)

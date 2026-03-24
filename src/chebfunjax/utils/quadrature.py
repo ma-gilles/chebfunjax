@@ -935,3 +935,235 @@ def trigpts(n: int, interval: tuple[float, float] | None = None,
         w = w * dab / 2.0
 
     return x, w
+
+
+# ---------------------------------------------------------------------------
+# 2D Chebyshev tensor grid
+# ---------------------------------------------------------------------------
+
+
+def chebpts2(
+    nx: int,
+    ny: int | None = None,
+    domain: tuple[float, float, float, float] | None = None,
+    kind: int = 2,
+) -> tuple[jnp.ndarray, jnp.ndarray]:
+    """2D Chebyshev tensor product grid.
+
+    [XX, YY] = CHEBPTS2(N) constructs an N by N grid of Chebyshev tensor
+    points on [-1, 1]^2.
+
+    [XX, YY] = CHEBPTS2(NX, NY) constructs an NX by NY grid.
+
+    [XX, YY] = CHEBPTS2(NX, NY, [a, b, c, d]) uses the rectangle [a,b] x [c,d].
+
+    Parameters
+    ----------
+    nx : int
+        Number of points in x direction.
+    ny : int or None
+        Number of points in y direction.  Defaults to nx.
+    domain : (a, b, c, d) or None
+        Bounding rectangle.  Defaults to [-1, 1, -1, 1].
+    kind : {1, 2}, default 2
+        Kind of Chebyshev points.
+
+    Returns
+    -------
+    XX : jnp.ndarray, shape (ny, nx)
+        x-coordinates on the tensor grid.
+    YY : jnp.ndarray, shape (ny, nx)
+        y-coordinates on the tensor grid.
+
+    Provenance
+    ----------
+    MATLAB source : chebpts2.m (wrapper for chebfun2.chebpts2)
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+
+    See Also
+    --------
+    chebpts, chebpts3, paduapts
+    """
+    if ny is None:
+        ny = nx
+    if domain is None:
+        ax, bx, ay, by = -1.0, 1.0, -1.0, 1.0
+    else:
+        ax, bx, ay, by = float(domain[0]), float(domain[1]), float(domain[2]), float(domain[3])
+
+    x = chebpts_ab(nx, ax, bx, kind=kind)
+    y = chebpts_ab(ny, ay, by, kind=kind)
+
+    XX, YY = jnp.meshgrid(x, y)
+    return XX, YY
+
+
+# ---------------------------------------------------------------------------
+# 3D Chebyshev tensor grid
+# ---------------------------------------------------------------------------
+
+
+def chebpts3(
+    nx: int,
+    ny: int | None = None,
+    nz: int | None = None,
+    domain: tuple[float, ...] | None = None,
+    kind: int = 2,
+) -> tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray]:
+    """3D Chebyshev tensor product grid.
+
+    [XX, YY, ZZ] = CHEBPTS3(N) constructs an N by N by N grid of Chebyshev
+    tensor points on [-1, 1]^3.
+
+    [XX, YY, ZZ] = CHEBPTS3(NX, NY, NZ) constructs an NX by NY by NZ grid.
+
+    [XX, YY, ZZ] = CHEBPTS3(NX, NY, NZ, DOM) uses the cube [a,b]x[c,d]x[e,g]
+    where DOM = [a, b, c, d, e, g].
+
+    Parameters
+    ----------
+    nx : int
+        Number of points in x.
+    ny : int or None
+        Number of points in y.  Defaults to nx.
+    nz : int or None
+        Number of points in z.  Defaults to nx.
+    domain : sequence of 6 floats or None
+        [a, b, c, d, e, g].  Defaults to [-1,1,-1,1,-1,1].
+    kind : {1, 2}, default 2
+        Kind of Chebyshev points.
+
+    Returns
+    -------
+    XX, YY, ZZ : jnp.ndarray, shape (ny, nx, nz)
+        Coordinates on the tensor grid (ndgrid ordering).
+
+    Provenance
+    ----------
+    MATLAB source : chebpts3.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+
+    See Also
+    --------
+    chebpts, chebpts2
+    """
+    if ny is None:
+        ny = nx
+    if nz is None:
+        nz = nx
+    if domain is None:
+        dom = (-1.0, 1.0, -1.0, 1.0, -1.0, 1.0)
+    else:
+        dom = tuple(float(d) for d in domain)
+        if len(dom) != 6:
+            raise ValueError(f"domain must have 6 elements, got {len(dom)}")
+
+    x = chebpts_ab(nx, dom[0], dom[1], kind=kind)
+    y = chebpts_ab(ny, dom[2], dom[3], kind=kind)
+    z = chebpts_ab(nz, dom[4], dom[5], kind=kind)
+
+    # Use indexing='ij' to match MATLAB ndgrid(x, y, z)
+    XX, YY, ZZ = jnp.meshgrid(x, y, z, indexing='ij')
+    return XX, YY, ZZ
+
+
+# ---------------------------------------------------------------------------
+# Padua points
+# ---------------------------------------------------------------------------
+
+
+def paduapts(
+    n: int,
+    domain: tuple[float, float, float, float] | None = None,
+) -> tuple[jnp.ndarray, jnp.ndarray]:
+    """Padua points for 2D polynomial interpolation.
+
+    XY, IDX = PADUAPTS(N) returns the degree-N first-kind Padua points on
+    [-1, 1]^2.  There are (N+1)*(N+2)/2 Padua points.
+
+    The Padua points form a unisolvent set for total-degree polynomial
+    interpolation on the square and admit an explicit interpolation formula.
+
+    Parameters
+    ----------
+    n : int
+        Polynomial degree.  Non-negative integer.
+    domain : (a, b, c, d) or None
+        Rectangle [a,b] x [c,d].  Defaults to [-1,1,-1,1].
+
+    Returns
+    -------
+    xy : jnp.ndarray, shape ((n+1)*(n+2)//2, 2)
+        Padua points as (x, y) pairs.
+    idx : jnp.ndarray, dtype bool, shape depends on parity of n
+        Logical index matrix identifying which entries of the
+        (n+1) x (n+2) Chebyshev tensor grid form the Padua points.
+
+    Notes
+    -----
+    The ordering is consistent with Padua2DM [1].
+
+    References
+    ----------
+    .. [1] M. Caliari, S. De Marchi, A. Sommariva, M. Vianello,
+       "Padua2DM: fast interpolation and cubature at the Padua points in
+       Matlab/Octave", ACM TOMS 37(3), 2011.
+
+    Provenance
+    ----------
+    MATLAB source : paduapts.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+
+    See Also
+    --------
+    chebpts, chebpts2
+    """
+    import numpy as np
+
+    if domain is None:
+        dom = (-1.0, 1.0, -1.0, 1.0)
+    else:
+        dom = tuple(float(d) for d in domain)
+
+    if n == 0:
+        xy = jnp.array([[dom[0], dom[2]]], dtype=jnp.float64)
+        idx = jnp.ones((1, 1), dtype=bool)
+        return xy, idx
+
+    # 1D Chebyshev grids (2nd-kind, descending as in MATLAB Chebfun)
+    xn1_asc = chebpts_ab(n + 1, dom[0], dom[1], kind=2)
+    xn2_asc = chebpts_ab(n + 2, dom[2], dom[3], kind=2)
+
+    # Reverse for consistency with Padua2DM (MATLAB flips: xn1 = xn1(end:-1:1))
+    xn1 = xn1_asc[::-1]
+    xn2 = xn2_asc[::-1]
+
+    # Full tensor grid via meshgrid (x varies along columns, y along rows)
+    x1, x2 = jnp.meshgrid(xn1, xn2)  # x1: (n+2, n+1), x2: (n+2, n+1)
+
+    # Extract every other term (alternating checkerboard)
+    total = (n + 1) * (n + 2)
+    idx_flat = np.ones(total, dtype=bool)
+    idx_flat[::2] = False  # set even-indexed entries to False
+
+    if n % 2 == 1:
+        idx_mat = idx_flat.reshape(n + 2, n + 1)
+    else:
+        idx_mat = idx_flat.reshape(n + 1, n + 2).T
+
+    idx_jnp = jnp.array(idx_mat)
+
+    # Extract Padua points
+    x1_np = np.array(x1)
+    x2_np = np.array(x2)
+    xy_x = x1_np[idx_mat]
+    xy_y = x2_np[idx_mat]
+    xy = jnp.array(np.column_stack([xy_x, xy_y]), dtype=jnp.float64)
+
+    return xy, idx_jnp
