@@ -25,16 +25,16 @@ jobs:
 
       - name: No numpy imports in library code
         run: |
+          # Files may opt out with a "# uses-numpy:" comment (for non-JIT algorithms
+          # like rootfinding and AAA that legitimately need numpy/scipy).
           FAIL=0
-          if grep -rn "^import numpy" src/ --include="*.py" | grep -v "jax.numpy"; then
-            echo "FAIL: Found 'import numpy' in library code. Use jax.numpy."
-            FAIL=1
-          fi
-          if grep -rn "^from numpy" src/ --include="*.py"; then
-            echo "FAIL: Found 'from numpy' in library code. Use jax.numpy."
-            FAIL=1
-          fi
-          [ $FAIL -eq 0 ] && echo "OK: No numpy imports in library code."
+          for f in $(grep -rln "^import numpy\|^from numpy" src/ --include="*.py" | grep -v "jax.numpy"); do
+            if ! grep -q "# uses-numpy:" "$f"; then
+              echo "FAIL: $f imports numpy without '# uses-numpy: <reason>' comment"
+              FAIL=1
+            fi
+          done
+          [ $FAIL -eq 0 ] && echo "OK: All numpy imports are justified or absent."
           exit $FAIL
 
       - name: Provenance docstrings present
