@@ -1,5 +1,6 @@
 """Utility functions — quadrature, transforms, interpolation, polynomials, etc."""
 
+from chebfunjax.utils.aaa import aaa
 from chebfunjax.utils.polynomials import (
     chebeval,
     chebpoly,
@@ -26,6 +27,7 @@ from chebfunjax.utils.transforms import (
 )
 
 __all__ = [
+    "aaa",
     "chebpts",
     "chebpts_ab",
     "chebweights",
