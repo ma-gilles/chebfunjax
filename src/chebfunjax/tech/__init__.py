@@ -1,6 +1,6 @@
 """Tech layer — smooth function representations on [-1, 1]."""
 
-from chebfunjax.tech.chebtech import Chebtech2
+from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 from chebfunjax.tech.trigtech import (
     Trigtech,
     trig_coeffs2vals,
@@ -9,6 +9,7 @@ from chebfunjax.tech.trigtech import (
 )
 
 __all__ = [
+    "Chebtech1",
     "Chebtech2",
     "Trigtech",
     "trigpts",

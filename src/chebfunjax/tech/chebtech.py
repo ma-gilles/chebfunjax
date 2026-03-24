@@ -1631,3 +1631,716 @@ class Chebtech2(eqx.Module):
         """
         _, (max_val, max_pos) = self.minandmax()
         return max_val, max_pos
+
+
+# ============================================================================
+# Chebtech1 vals <-> coeffs (DCT-II / DCT-III based)
+# ============================================================================
+
+
+def _chebtech1_vals2coeffs(values: jax.Array) -> jax.Array:
+    r"""Convert values at 1st-kind Chebyshev points to Chebyshev coefficients.
+
+    Given values v[k] = f(x_k) at Chebyshev points of the 1st kind
+    x_k = cos((2*(N-k) - 1)*pi / (2*N)), k = 0,...,N-1  (ascending order),
+    returns the Chebyshev coefficients c such that
+        f(x) = c[0]*T_0(x) + c[1]*T_1(x) + ... + c[N-1]*T_{N-1}(x).
+
+    Equivalent to the inverse Discrete Cosine Transform of Type II (IDCT-II),
+    which is also called DCT-III.
+
+    Parameters
+    ----------
+    values : jax.Array, shape (n,)
+        Function values at n Chebyshev points of the 1st kind (ascending).
+
+    Returns
+    -------
+    coeffs : jax.Array, shape (n,)
+        Chebyshev series coefficients c[0], ..., c[n-1].
+
+    Notes
+    -----
+    JIT-safe: yes.
+
+    The transform mirrors MATLAB's ``@chebtech1/vals2coeffs.m`` (commit 7574c77)
+    which uses the weight vector ``w = 2*exp(i*k*pi/(2*n))`` applied after a
+    mirrored IFFT.
+
+    The input values are expected in ascending order (as returned by
+    ``chebpts(n, kind=1)``).  The MATLAB implementation works with descending
+    order; we flip internally and flip back.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech1/vals2coeffs.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    Algorithm: DCT-II via FFT, Section 4.7, Mason & Handscomb,
+        "Chebyshev Polynomials", Chapman & Hall/CRC, 2003.
+
+    See Also
+    --------
+    _chebtech1_coeffs2vals, vals2coeffs
+    """
+    n = values.shape[0]
+    if n <= 1:
+        return values.astype(jnp.float64)
+
+    # Weight vector: w = 2 * exp(i * k * pi / (2*n)), k = 0..n-1
+    k = jnp.arange(n, dtype=jnp.float64)
+    w = 2.0 * jnp.exp(1j * k * jnp.pi / (2.0 * n))
+
+    # MATLAB vals2coeffs: tmp = [values(n:-1:1); values]
+    # values is ascending (left-to-right); values(n:-1:1) is descending.
+    # In Python (values ascending): tmp = [values[::-1], values]
+    # = [descending, ascending]
+    tmp = jnp.concatenate([values[::-1], values])
+    tmp = tmp.astype(jnp.complex128)
+    coeffs_complex = jnp.fft.ifft(tmp)[:n] * w
+
+    # Scale the constant term (c_0 halved)
+    coeffs_complex = coeffs_complex.at[0].multiply(0.5)
+
+    coeffs = jnp.real(coeffs_complex)
+    return coeffs
+
+
+def _chebtech1_coeffs2vals(coeffs: jax.Array) -> jax.Array:
+    r"""Convert Chebyshev coefficients to values at 1st-kind Chebyshev points.
+
+    Given Chebyshev coefficients c, returns the values
+    v[k] = c[0]*T_0(x_k) + ... + c[n-1]*T_{n-1}(x_k)
+    at Chebyshev points of the 1st kind.
+
+    Equivalent to the Discrete Cosine Transform of Type III (DCT-III).
+
+    Parameters
+    ----------
+    coeffs : jax.Array, shape (n,)
+        Chebyshev series coefficients c[0], ..., c[n-1].
+
+    Returns
+    -------
+    values : jax.Array, shape (n,)
+        Function values at n 1st-kind Chebyshev points (ascending x order).
+
+    Notes
+    -----
+    JIT-safe: yes.
+
+    The transform mirrors MATLAB's ``@chebtech1/coeffs2vals.m`` (commit 7574c77)
+    which uses weight vector ``w = (exp(-i*k*pi/(2*n))/2)``.
+    The output is in ascending order to match ``chebpts(n, kind=1)``.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech1/coeffs2vals.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    Algorithm: DCT-III via FFT, Section 4.7, Mason & Handscomb,
+        "Chebyshev Polynomials", Chapman & Hall/CRC, 2003.
+
+    See Also
+    --------
+    _chebtech1_vals2coeffs, coeffs2vals
+    """
+    n = coeffs.shape[0]
+    if n <= 1:
+        return coeffs.astype(jnp.float64)
+
+    # Weight vector (length 2n): w_k = exp(-i*k*pi/(2*n))/2
+    k = jnp.arange(2 * n, dtype=jnp.float64)
+    w = jnp.exp(-1j * k * jnp.pi / (2.0 * n)) / 2.0
+    # Special entries: w[0] = 2*w[0] = 1, w[n] = 0, w[n+1:] flipped sign
+    w = w.at[0].set(1.0)
+    w = w.at[n].set(0.0)
+    w = w.at[n + 1:].multiply(-1.0)
+
+    # Mirror: [c; 1; c_{n-1}, ..., c_1]   (MATLAB convention, descending coeffs)
+    c_mirror = jnp.concatenate([
+        coeffs,
+        jnp.ones(1, dtype=jnp.float64),
+        coeffs[-1:0:-1],
+    ]).astype(jnp.complex128)
+
+    c_weighted = c_mirror * w
+    values_complex = jnp.fft.fft(c_weighted)
+
+    # Truncate to n entries; MATLAB returns in descending order (flip to ascending)
+    values = jnp.real(values_complex[n - 1::-1])
+    return values
+
+
+# ============================================================================
+# Chebtech1 — Chebyshev interpolant on 1st-kind points
+# ============================================================================
+
+
+class Chebtech1(eqx.Module):
+    """Chebyshev interpolant on 1st-kind points (Gauss-Chebyshev nodes).
+
+    Represents a smooth function on [-1, 1] via coefficients of the
+    corresponding 1st-kind Chebyshev series expansion.  The coefficient
+    basis is *identical* to that of ``Chebtech2`` (the series
+    ``c[0]*T_0 + c[1]*T_1 + ...``); only the grid used for sampling and
+    the associated transforms differ.
+
+    ``Chebtech1`` uses the **interior** Gauss-Chebyshev nodes
+    ``x_k = cos((2k-1)*pi/(2n))``, k = 1,...,n (no endpoints).
+    This makes it suitable for functions that are smooth up to the boundary
+    but where endpoint evaluation should be avoided.
+
+    The Chebyshev coefficient stored is the same first-kind Chebyshev
+    expansion, so all calculus operations (``diff``, ``cumsum``, ``sum``,
+    ``roots``) and evaluation via Clenshaw's algorithm are inherited from
+    the shared private helpers.
+
+    Attributes
+    ----------
+    coeffs : jax.Array, shape (n,)
+        Chebyshev series coefficients (T_0, T_1, ..., T_{n-1}).
+    ishappy : bool
+        True if the representation is resolved to the requested tolerance.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech1/chebtech1.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+
+    See Also
+    --------
+    Chebtech2, Trigtech
+    """
+
+    coeffs: jax.Array
+    ishappy: bool = eqx.field(static=True, default=True)
+
+    # ------------------------------------------------------------------
+    # Construction (class methods)
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def from_coeffs(cls, coeffs: jax.Array) -> "Chebtech1":
+        """Construct a Chebtech1 from Chebyshev coefficients.
+
+        Parameters
+        ----------
+        coeffs : array_like, shape (n,)
+            Chebyshev series coefficients c[0], ..., c[n-1].
+
+        Returns
+        -------
+        Chebtech1
+        """
+        coeffs = jnp.atleast_1d(jnp.asarray(coeffs, dtype=jnp.float64))
+        return cls(coeffs=coeffs)
+
+    @classmethod
+    def from_values(cls, values: jax.Array) -> "Chebtech1":
+        """Construct a Chebtech1 from values at 1st-kind Chebyshev points.
+
+        Parameters
+        ----------
+        values : array_like, shape (n,)
+            Function values at n Chebyshev points of the 1st kind on [-1, 1],
+            ordered from x = -1 to x = 1 (ascending, matching
+            ``chebpts(n, kind=1)``).
+
+        Returns
+        -------
+        Chebtech1
+        """
+        values = jnp.atleast_1d(jnp.asarray(values, dtype=jnp.float64))
+        c = _chebtech1_vals2coeffs(values)
+        return cls(coeffs=c)
+
+    @classmethod
+    def from_function(
+        cls,
+        f: Callable[[jax.Array], jax.Array],
+        *,
+        n: int | None = None,
+        maxpow2: int = 16,
+    ) -> "Chebtech1":
+        """Construct a Chebtech1 from a callable.
+
+        Samples the function on 1st-kind Chebyshev grids.  Adaptive if
+        ``n`` is ``None``; fixed-length otherwise.
+
+        Parameters
+        ----------
+        f : callable
+            Vectorised function.
+        n : int or None, optional
+            Fixed number of points.  If ``None``, adaptive.
+        maxpow2 : int, default 16
+            Maximum power of 2 for adaptive grid.
+
+        Returns
+        -------
+        Chebtech1
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech1/chebtech1.m, @chebtech/populate.m,
+            @chebtech1/refine.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        if n is not None:
+            return cls._fixed_construct(f, n)
+        return cls._adaptive_construct(f, maxpow2)
+
+    @classmethod
+    def _fixed_construct(
+        cls, f: Callable[[jax.Array], jax.Array], n: int
+    ) -> "Chebtech1":
+        """Fixed-length construction on an n-point Chebyshev-1 grid."""
+        if n <= 0:
+            return cls(coeffs=jnp.array([], dtype=jnp.float64))
+        x = chebpts(n, kind=1)
+        values = jnp.asarray(f(x), dtype=jnp.float64)
+        c = _chebtech1_vals2coeffs(values)
+        return cls(coeffs=c)
+
+    @classmethod
+    def _adaptive_construct(
+        cls,
+        f: Callable[[jax.Array], jax.Array],
+        maxpow2: int = 16,
+        start_pow2: int = 4,
+    ) -> "Chebtech1":
+        """Adaptive construction — Python-level loop, NOT JIT-safe.
+
+        Evaluates f on grids of size 2^k for k = start_pow2, ..., maxpow2
+        (note: 1st-kind grids have exactly 2^k points, not 2^k+1).
+        """
+        vscale = 0.0
+        c = None
+        for k in range(start_pow2, maxpow2 + 1):
+            n = 2**k
+            x = chebpts(n, kind=1)
+            values = jnp.asarray(f(x), dtype=jnp.float64)
+            c = _chebtech1_vals2coeffs(values)
+            vscale = max(vscale, float(jnp.max(jnp.abs(values))))
+            ishappy, cutoff = cls.happiness_check(
+                c,
+                values,
+                op=f,
+                vscale=vscale,
+            )
+            if ishappy:
+                return cls(coeffs=c[:cutoff], ishappy=True)
+
+        warnings.warn(
+            f"Chebtech1.from_function: function did not converge with "
+            f"{2**maxpow2} points. Returning unhappy representation.",
+            stacklevel=2,
+        )
+        return cls(coeffs=c, ishappy=False)
+
+    # ------------------------------------------------------------------
+    # Evaluation
+    # ------------------------------------------------------------------
+
+    @eqx.filter_jit
+    def __call__(self, x: jax.Array) -> jax.Array:
+        """Evaluate the Chebyshev interpolant at point(s) x in [-1, 1].
+
+        Uses Clenshaw's algorithm — same as Chebtech2 because both store
+        the same Chebyshev coefficient basis.
+
+        Parameters
+        ----------
+        x : jax.Array, scalar or shape (m,)
+            Evaluation point(s).
+
+        Returns
+        -------
+        y : jax.Array, same shape as x
+
+        Notes
+        -----
+        JIT-safe, grad-safe, vmap-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/clenshaw.m, @chebtech/feval.m
+        Chebfun commit: 7574c77
+        """
+        x = jnp.asarray(x, dtype=jnp.float64)
+        return _clenshaw(self.coeffs, x)
+
+    # ------------------------------------------------------------------
+    # Static methods: vals2coeffs / coeffs2vals (1st-kind specific)
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def vals2coeffs(values: jax.Array) -> jax.Array:
+        """Convert values at 1st-kind Chebyshev points to Chebyshev coefficients.
+
+        Parameters
+        ----------
+        values : jax.Array, shape (n,)
+
+        Returns
+        -------
+        coeffs : jax.Array, shape (n,)
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech1/vals2coeffs.m
+        Chebfun commit: 7574c77
+        """
+        return _chebtech1_vals2coeffs(values)
+
+    @staticmethod
+    def coeffs2vals(coeffs: jax.Array) -> jax.Array:
+        """Convert Chebyshev coefficients to values at 1st-kind Chebyshev points.
+
+        Parameters
+        ----------
+        coeffs : jax.Array, shape (n,)
+
+        Returns
+        -------
+        values : jax.Array, shape (n,)
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech1/coeffs2vals.m
+        Chebfun commit: 7574c77
+        """
+        return _chebtech1_coeffs2vals(coeffs)
+
+    # ------------------------------------------------------------------
+    # Properties
+    # ------------------------------------------------------------------
+
+    @property
+    def n(self) -> int:
+        """Number of Chebyshev coefficients (= polynomial degree + 1)."""
+        return self.coeffs.shape[0]
+
+    @property
+    def values(self) -> jax.Array:
+        """Function values at 1st-kind Chebyshev points (ascending order)."""
+        return _chebtech1_coeffs2vals(self.coeffs)
+
+    @property
+    def vscale(self) -> float:
+        """Vertical scale: max absolute function value."""
+        return float(jnp.max(jnp.abs(self.values)))
+
+    def __len__(self) -> int:
+        return self.n
+
+    def __repr__(self) -> str:
+        vs = self.vscale
+        return f"Chebtech1(n={self.n}, vscale={vs:.4g})"
+
+    # ------------------------------------------------------------------
+    # Core operations (delegate to the shared helpers)
+    # ------------------------------------------------------------------
+
+    def prolong(self, n: int) -> "Chebtech1":
+        """Return a new Chebtech1 with n coefficients (zero-pad or truncate).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/prolong.m
+        Chebfun commit: 7574c77
+        """
+        m = self.n
+        if n == m:
+            return self
+        if n > m:
+            padded = jnp.concatenate(
+                [self.coeffs, jnp.zeros(n - m, dtype=jnp.float64)]
+            )
+            return Chebtech1(coeffs=padded, ishappy=self.ishappy)
+        return Chebtech1(coeffs=self.coeffs[:max(n, 0)], ishappy=self.ishappy)
+
+    def simplify(self, tol: float | None = None) -> "Chebtech1":
+        """Return a new Chebtech1 with trailing coefficients chopped.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/simplify.m
+        Chebfun commit: 7574c77
+        """
+        if not self.ishappy:
+            return self
+        nold = self.n
+        N = max(17, round(nold * 1.25 + 5))
+        prolonged_c = jnp.concatenate(
+            [self.coeffs, jnp.zeros(N - nold, dtype=jnp.float64)]
+        )
+        # Round-trip through values to create a plateau
+        c = _chebtech1_vals2coeffs(_chebtech1_coeffs2vals(prolonged_c))
+        cutoff = standard_chop(c, tol)
+        cutoff = min(cutoff, nold)
+        return Chebtech1(coeffs=self.coeffs[:cutoff], ishappy=self.ishappy)
+
+    # ------------------------------------------------------------------
+    # Arithmetic (returns Chebtech1)
+    # ------------------------------------------------------------------
+
+    def __add__(self, other) -> "Chebtech1":
+        """Add a Chebtech1 or scalar.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/plus.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(other, Chebtech1):
+            n = max(self.n, other.n)
+            fc = _prolong_coeffs(self.coeffs, n)
+            gc = _prolong_coeffs(other.coeffs, n)
+            return Chebtech1.from_coeffs(fc + gc)
+        else:
+            c = self.coeffs.at[0].add(jnp.float64(other))
+            return Chebtech1.from_coeffs(c)
+
+    def __radd__(self, other) -> "Chebtech1":
+        return self.__add__(other)
+
+    def __sub__(self, other) -> "Chebtech1":
+        """Subtract a Chebtech1 or scalar.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/minus.m
+        Chebfun commit: 7574c77
+        """
+        return self + (-other)
+
+    def __rsub__(self, other) -> "Chebtech1":
+        return -(self - other)
+
+    def __neg__(self) -> "Chebtech1":
+        """Unary minus.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/uminus.m
+        Chebfun commit: 7574c77
+        """
+        return Chebtech1.from_coeffs(-self.coeffs)
+
+    def __pos__(self) -> "Chebtech1":
+        return self
+
+    def __mul__(self, other) -> "Chebtech1":
+        """Pointwise multiplication.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/times.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(other, Chebtech1):
+            hc = _coeff_multiply(self.coeffs, other.coeffs)
+            return Chebtech1.from_coeffs(hc)
+        else:
+            return Chebtech1.from_coeffs(self.coeffs * jnp.float64(other))
+
+    def __rmul__(self, other) -> "Chebtech1":
+        return self.__mul__(other)
+
+    def __truediv__(self, other) -> "Chebtech1":
+        """Division.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/rdivide.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(other, Chebtech1):
+            n = self.n + other.n
+            x = chebpts(n, kind=1)
+            fv = _clenshaw(self.coeffs, x)
+            gv = _clenshaw(other.coeffs, x)
+            return Chebtech1.from_values(fv / gv)
+        else:
+            return Chebtech1.from_coeffs(self.coeffs / jnp.float64(other))
+
+    def __rtruediv__(self, other) -> "Chebtech1":
+        n = max(self.n, 17)
+        x = chebpts(n, kind=1)
+        fv = jnp.float64(other) / _clenshaw(self.coeffs, x)
+        return Chebtech1.from_values(fv)
+
+    def __pow__(self, exponent) -> "Chebtech1":
+        """Raise to a power.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/power.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(exponent, int) and exponent >= 0:
+            if exponent == 0:
+                return Chebtech1.from_coeffs(jnp.array([1.0], dtype=jnp.float64))
+            result = self
+            for _ in range(exponent - 1):
+                result = result * self
+            return result
+        else:
+            n = max(2 * self.n, 17)
+            x = chebpts(n, kind=1)
+            fv = _clenshaw(self.coeffs, x) ** jnp.float64(exponent)
+            return Chebtech1.from_values(fv)
+
+    def __abs__(self) -> "Chebtech1":
+        n = max(2 * self.n, 17)
+        x = chebpts(n, kind=1)
+        fv = jnp.abs(_clenshaw(self.coeffs, x))
+        return Chebtech1.from_values(fv)
+
+    # ------------------------------------------------------------------
+    # Calculus (same coefficient-level helpers as Chebtech2)
+    # ------------------------------------------------------------------
+
+    def diff(self, k: int = 1) -> "Chebtech1":
+        """Differentiate *k* times.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/diff.m
+        Chebfun commit: 7574c77
+        Algorithm: Page 34 of Mason & Handscomb, "Chebyshev Polynomials", 2003.
+        """
+        if k == 0:
+            return self
+        new_coeffs = _diff_coeffs(self.coeffs, k)
+        return Chebtech1.from_coeffs(new_coeffs)
+
+    def cumsum(self) -> "Chebtech1":
+        """Indefinite integral with F(-1) = 0.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/cumsum.m
+        Chebfun commit: 7574c77
+        Algorithm: Pages 32-33 of Mason & Handscomb, "Chebyshev Polynomials".
+        """
+        new_coeffs = _cumsum_coeffs(self.coeffs)
+        return Chebtech1.from_coeffs(new_coeffs)
+
+    def sum(self) -> jax.Array:
+        r"""Definite integral over [-1, 1].
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/sum.m
+        Chebfun commit: 7574c77
+        Algorithm: Trefethen, ATAP, Thm 19.2.
+        """
+        return _definite_integral(self.coeffs)
+
+    def inner(self, other: "Chebtech1") -> jax.Array:
+        r"""L^2 inner product <self, other> = \int_{-1}^{1} f(x) g(x) dx.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/innerProduct.m
+        Chebfun commit: 7574c77
+        """
+        return _inner_product(self.coeffs, other.coeffs)
+
+    def norm(self, p: float = 2.0) -> jax.Array:
+        """Lp norm on [-1, 1].
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/normest.m
+        Chebfun commit: 7574c77
+        """
+        if p == 2:
+            return jnp.sqrt(jnp.abs(self.inner(self)))
+        elif p == jnp.inf or p == float("inf"):
+            n = max(2 * self.n + 1, 65)
+            x = jnp.linspace(-1.0, 1.0, n, dtype=jnp.float64)
+            return jnp.max(jnp.abs(_clenshaw(self.coeffs, x)))
+        else:
+            fp = self.__abs__().__pow__(p)
+            return fp.sum() ** (1.0 / p)
+
+    # ------------------------------------------------------------------
+    # Rootfinding
+    # ------------------------------------------------------------------
+
+    def roots(self) -> jax.Array:
+        """Real roots in [-1, 1] via colleague matrix eigenvalues.
+
+        NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/roots.m
+        Chebfun commit: 7574c77
+        """
+        return _roots_colleague(self.coeffs)
+
+    # ------------------------------------------------------------------
+    # Happiness check (mirrors Chebtech2 but uses 1st-kind sampling)
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def happiness_check(
+        coeffs: jax.Array,
+        values: jax.Array,
+        op: Callable | None = None,
+        tol: float | None = None,
+        vscale: float = 0.0,
+        hscale: float = 1.0,
+    ) -> tuple[bool, int]:
+        """Standard happiness check for adaptive construction.
+
+        Same logic as Chebtech2.happiness_check but sample-tests at
+        1st-kind off-grid points.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/happinessCheck.m, @chebtech/standardCheck.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        if tol is None:
+            tol = _EPS
+
+        n = coeffs.shape[0]
+        vscale_local = float(jnp.max(jnp.abs(values)))
+        vscale = max(vscale, vscale_local)
+
+        if vscale_local > 0:
+            scaled_tol = tol * max(hscale, vscale / vscale_local)
+        else:
+            scaled_tol = tol * hscale
+
+        cutoff = standard_chop(coeffs, scaled_tol)
+        ishappy = cutoff < n
+
+        if ishappy and op is not None:
+            xeval = jnp.array(
+                [-0.357998918959666, 0.036785641195074], dtype=jnp.float64
+            )
+            f_test = Chebtech1(coeffs=coeffs[:cutoff])
+            v_fun = f_test(xeval)
+            v_op = jnp.asarray(op(xeval), dtype=jnp.float64)
+            err = float(jnp.max(jnp.abs(v_op - v_fun)))
+            sample_tol = _np.sqrt(max(_EPS, tol)) * max(hscale * vscale_local, vscale)
+            if err > sample_tol:
+                ishappy = False
+                cutoff = n
+
+        return ishappy, cutoff
