@@ -395,7 +395,10 @@ Include timing table in PR description.
 
 ---
 
-## §11. Commit on Branch
+## §11. Update STATUS.md and Commit
+
+**MANDATORY: Update `STATUS.md`** — change your unit's row from `todo` to `done`
+with PR number and notes. This is how we track progress. Do NOT skip this.
 
 **Do NOT edit `tests/conftest.py` for new fixtures.** Use the generic `matlab_ref`
 fixture with `@pytest.mark.parametrize("matlab_ref", ["your_module"], indirect=True)`.
