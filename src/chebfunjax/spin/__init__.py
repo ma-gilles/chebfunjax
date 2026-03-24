@@ -6,6 +6,7 @@ Original: Copyright 2017 by The University of Oxford and The Chebfun Developers.
 See https://www.chebfun.org/ for Chebfun information.
 """
 
+from chebfunjax.spin.imex import imex_euler, imex_sbdf2
 from chebfunjax.spin.solver import spin
 from chebfunjax.spin.solver2d import spin2
 from chebfunjax.spin.solver3 import spin3, spinsphere
@@ -19,4 +20,5 @@ __all__ = [
     "SpinOp2", "spin2",
     "SpinOp3", "spin3",
     "SpinOpSphere", "spinsphere",
+    "imex_euler", "imex_sbdf2",
 ]
