@@ -13,7 +13,6 @@ from typing import Callable
 import equinox as eqx
 import jax
 import jax.numpy as jnp
-import numpy as np
 
 from chebfunjax.utils.misc import standard_chop
 from chebfunjax.utils.quadrature import chebpts
@@ -378,6 +377,7 @@ def _coeff_multiply(fc: jax.Array, gc: jax.Array) -> jax.Array:
 
 
 def _roots_colleague(coeffs: jax.Array) -> jax.Array:
+    import numpy as np
     """Find all real roots of a Chebyshev expansion in [-1, 1].
 
     Uses recursive subdivision for degree > 50 and colleague matrix
@@ -412,7 +412,8 @@ def _roots_colleague(coeffs: jax.Array) -> jax.Array:
     return jnp.asarray(r, dtype=jnp.float64)
 
 
-def _roots_main(c: np.ndarray, htol: float) -> np.ndarray:
+def _roots_main(c, htol: float):
+    import numpy as np
     """Recursive root-finding engine (numpy, NOT JIT-safe).
 
     Follows MATLAB Chebfun's roots.m strategy:
