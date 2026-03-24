@@ -259,21 +259,37 @@ class Chebtech2(eqx.Module):
         cls,
         f: Callable[[jax.Array], jax.Array],
         maxpow2: int = 16,
+        start_pow2: int = 4,
     ) -> Chebtech2:
         """Adaptive construction — Python-level loop, NOT JIT-safe.
 
-        Evaluates f on grids of size 2^k + 1 for k = 4, 5, ..., maxpow2
-        and uses standard_chop to detect convergence. Returns a happy
-        Chebtech2 if convergence is detected, or an unhappy one at the
-        maximum grid size otherwise.
+        Evaluates f on grids of size 2^k + 1 for k = start_pow2, ..., maxpow2
+        and uses ``happiness_check`` (standard_chop + sample test) to detect
+        convergence. Returns a happy Chebtech2 if convergence is detected, or
+        an unhappy one at the maximum grid size otherwise.
+
+        Parameters
+        ----------
+        f : callable
+            Function mapping an array of points to an array of values.
+        maxpow2 : int, default 16
+            Maximum power of 2 for adaptive grid size.
+        start_pow2 : int, default 4
+            Starting power of 2 (minimum grid size is ``2**start_pow2 + 1``).
+            Used by ``compose`` to start from a larger grid.
         """
-        for k in range(4, maxpow2 + 1):
+        vscale = 0.0
+        c = None
+        for k in range(start_pow2, maxpow2 + 1):
             n = 2**k + 1
             x = chebpts(n, kind=2)
             values = jnp.asarray(f(x), dtype=jnp.float64)
             c = vals2coeffs(values)
-            cutoff = standard_chop(c)
-            if cutoff < n:
+            vscale = max(vscale, float(jnp.max(jnp.abs(values))))
+            ishappy, cutoff = cls.happiness_check(
+                c, values, op=f, vscale=vscale,
+            )
+            if ishappy:
                 return cls(coeffs=c[:cutoff], ishappy=True)
 
         # Did not converge — return unhappy at max length
@@ -494,3 +510,276 @@ class Chebtech2(eqx.Module):
         cutoff = min(cutoff, nold)
 
         return Chebtech2(coeffs=self.coeffs[:cutoff], ishappy=self.ishappy)
+
+    # ------------------------------------------------------------------
+    # Composition
+    # ------------------------------------------------------------------
+
+    def compose(
+        self,
+        op: Callable,
+        g: Chebtech2 | None = None,
+        *,
+        maxpow2: int = 16,
+    ) -> Chebtech2:
+        """Compose an operator with this Chebtech2.
+
+        ``self.compose(op)`` returns a new ``Chebtech2`` representing
+        ``op(self(x))``.  When a second Chebtech2 ``g`` is supplied,
+        returns ``op(self(x), g(x))``.
+
+        ``self.compose(g)`` where ``g`` is a ``Chebtech2`` returns
+        ``g(self(x))`` (function composition). The range of ``self``
+        must lie inside ``[-1, 1]``.
+
+        Parameters
+        ----------
+        op : callable or Chebtech2
+            If callable: a function handle ``op(y)`` or ``op(y, z)``.
+            If Chebtech2: computes ``op(self(x))``.
+        g : Chebtech2 or None, optional
+            Second argument for binary operators ``op(self(x), g(x))``.
+        maxpow2 : int, default 16
+            Maximum power of 2 for the adaptive grid.
+
+        Returns
+        -------
+        Chebtech2
+            The composed function.
+
+        Notes
+        -----
+        This is NOT JIT-safe because it uses adaptive construction internally.
+
+        The method mirrors MATLAB's ``@chebtech/compose.m`` and
+        ``@chebtech2/compose.m``. The adaptive construction starts from
+        ``max(self.n, g.n if g else 0)`` points (matching MATLAB's
+        ``pref.minSamples``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/compose.m, @chebtech2/compose.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        Examples
+        --------
+        >>> sin_cheb = Chebtech2.from_function(jnp.sin)
+        >>> exp_sin = sin_cheb.compose(jnp.exp)
+        >>> float(exp_sin(jnp.float64(0.5)))  # ~ exp(sin(0.5))
+        1.632...
+
+        See Also
+        --------
+        from_function, restrict
+        """
+        if isinstance(op, Chebtech2):
+            # Compose two Chebtech2 objects: op(self(x))
+            op_cheb = op
+            composed_func = lambda x: op_cheb(self(x))  # noqa: E731
+            min_n = max(self.n, op_cheb.n)
+        elif g is not None:
+            # Binary operator: op(self(x), g(x))
+            composed_func = lambda x: op(self(x), g(x))  # noqa: E731
+            min_n = max(self.n, g.n)
+        else:
+            # Unary operator: op(self(x))
+            composed_func = lambda x: op(self(x))  # noqa: E731
+            min_n = self.n
+
+        # Match MATLAB: minSamples = max(pref.minSamples, length(f))
+        # Start from a power of 2 grid large enough to hold min_n points.
+        import math
+
+        start_pow2 = max(4, math.ceil(math.log2(max(min_n - 1, 1))))
+        return Chebtech2._adaptive_construct(
+            composed_func, maxpow2=maxpow2, start_pow2=start_pow2,
+        )
+
+    # ------------------------------------------------------------------
+    # Restriction
+    # ------------------------------------------------------------------
+
+    def restrict(self, a: float, b: float) -> Chebtech2:
+        """Restrict this Chebtech2 to a sub-interval [a, b] of [-1, 1].
+
+        Returns a new ``Chebtech2`` representing the same function on [a, b],
+        re-parameterized so the new object still lives on the standard
+        interval [-1, 1].
+
+        Parameters
+        ----------
+        a : float
+            Left endpoint of the sub-interval (must satisfy ``-1 <= a < b``).
+        b : float
+            Right endpoint of the sub-interval (must satisfy ``a < b <= 1``).
+
+        Returns
+        -------
+        Chebtech2
+            A new Chebtech2 on [-1, 1] representing ``self`` restricted to
+            ``[a, b]``.
+
+        Raises
+        ------
+        ValueError
+            If ``[a, b]`` is not a valid sub-interval of ``[-1, 1]``.
+
+        Notes
+        -----
+        The restriction is computed by evaluating ``self`` at the n
+        Chebyshev-2 points mapped from [-1, 1] into [a, b] via the affine
+        map ``y = (b - a)/2 * x + (b + a)/2``, then converting the resulting
+        values to Chebyshev coefficients.  This matches the MATLAB
+        ``@chebtech/restrict.m`` implementation.
+
+        The result is NOT simplified (following MATLAB convention). Call
+        ``.simplify()`` explicitly if desired.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/restrict.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        Examples
+        --------
+        >>> f = Chebtech2.from_function(jnp.sin)
+        >>> g = f.restrict(0.0, 0.5)
+        >>> # g(x) on [-1, 1] now represents sin on [0, 0.5]
+        >>> float(g(jnp.float64(0.0)))  # maps to midpoint (0+0.5)/2=0.25
+        0.247...
+
+        See Also
+        --------
+        compose, prolong
+        """
+        a = float(a)
+        b = float(b)
+        if a < -1.0 - 10 * _EPS or b > 1.0 + 10 * _EPS or a >= b:
+            raise ValueError(
+                f"[a, b] = [{a}, {b}] is not a valid sub-interval of [-1, 1]. "
+                f"Require -1 <= a < b <= 1."
+            )
+        # Trivial case: full interval
+        if abs(a - (-1.0)) < 10 * _EPS and abs(b - 1.0) < 10 * _EPS:
+            return Chebtech2(coeffs=self.coeffs.copy(), ishappy=self.ishappy)
+
+        n = self.n
+        # Chebyshev points of the 2nd kind on [-1, 1]
+        x = chebpts(n, kind=2)
+        # Map x from [-1, 1] into [a, b]:  y = (b-a)/2 * x + (a+b)/2
+        y = 0.5 * (b - a) * x + 0.5 * (a + b)
+        # Evaluate self at the mapped points
+        new_values = self(y)
+        # Convert to coefficients
+        new_coeffs = vals2coeffs(new_values)
+        return Chebtech2(coeffs=new_coeffs, ishappy=self.ishappy)
+
+    # ------------------------------------------------------------------
+    # Happiness check
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def happiness_check(
+        coeffs: jax.Array,
+        values: jax.Array,
+        op: Callable | None = None,
+        tol: float | None = None,
+        vscale: float = 0.0,
+        hscale: float = 1.0,
+    ) -> tuple[bool, int]:
+        """Standard happiness check for adaptive construction.
+
+        Tests whether a Chebyshev coefficient sequence has converged by
+        calling ``standard_chop``, with the tolerance scaled by
+        ``max(hscale, vscale / vscale_local)`` (matching MATLAB's
+        ``@chebtech/standardCheck.m``).
+
+        Optionally performs a sample test: evaluates the operator ``op``
+        and the Chebyshev interpolant at two off-grid points and checks
+        that they agree to within ``sqrt(tol) * vscale``.
+
+        Parameters
+        ----------
+        coeffs : jax.Array, shape (n,)
+            Chebyshev coefficients.
+        values : jax.Array, shape (n,)
+            Function values at 2nd-kind Chebyshev points.
+        op : callable or None, optional
+            Original function handle for sample testing.
+        tol : float or None, optional
+            Target relative tolerance. Default: machine epsilon.
+        vscale : float, default 0.0
+            Global vertical scale (possibly from a larger approximation
+            interval). Updated to ``max(vscale, max(|values|))``.
+        hscale : float, default 1.0
+            Horizontal scale factor.
+
+        Returns
+        -------
+        ishappy : bool
+            True if the representation has converged.
+        cutoff : int
+            Number of coefficients to retain (1-based length).
+
+        Notes
+        -----
+        The tolerance scaling ``max(hscale, vscale / vscale_local)``
+        matches MATLAB's ``standardCheck.m``. For single-domain
+        approximation with hscale = 1, the scaling has no effect.
+
+        When the sample test fails, ``cutoff`` is set to ``len(coeffs)``
+        and ``ishappy`` is False.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/happinessCheck.m, @chebtech/standardCheck.m,
+            @chebtech/sampleTest.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        standard_chop
+        """
+        import numpy as _np
+
+        if tol is None:
+            tol = _EPS
+
+        n = coeffs.shape[0]
+        vscale_local = float(jnp.max(jnp.abs(values)))
+        vscale = max(vscale, vscale_local)
+
+        # Scale tolerance by max(hscale, vscale / vscale_local)
+        # (see MATLAB standardCheck.m lines 60-62)
+        if vscale_local > 0:
+            scaled_tol = tol * max(hscale, vscale / vscale_local)
+        else:
+            scaled_tol = tol * hscale
+
+        cutoff = standard_chop(coeffs, scaled_tol)
+        ishappy = cutoff < n
+
+        # Sample test: verify the interpolant matches the operator at
+        # two off-grid points (MATLAB sampleTest.m)
+        if ishappy and op is not None:
+            # Fixed test points from MATLAB (not on any Chebyshev grid)
+            xeval = jnp.array(
+                [-0.357998918959666, 0.036785641195074], dtype=jnp.float64
+            )
+            # Build a temporary Chebtech2 with the truncated coefficients
+            f_test = Chebtech2(coeffs=coeffs[:cutoff])
+            v_fun = f_test(xeval)
+            v_op = jnp.asarray(op(xeval), dtype=jnp.float64)
+            err = float(jnp.max(jnp.abs(v_op - v_fun)))
+            sample_tol = _np.sqrt(max(_EPS, tol)) * max(hscale * vscale_local, vscale)
+            if err > sample_tol:
+                ishappy = False
+                cutoff = n
+
+        return ishappy, cutoff
