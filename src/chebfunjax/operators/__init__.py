@@ -19,13 +19,17 @@ from chebfunjax.operators.blocks import (
     sum_functional,
 )
 from chebfunjax.operators.chebmatrix import ChebMatrix
+from chebfunjax.operators.chebop import Chebop
+from chebfunjax.operators.linop import Linop
 
 __all__ = [
     "ChebColloc2Disc",
     "ChebMatrix",
+    "Chebop",
     "D",
     "FunctionalBlock",
     "I",
+    "Linop",
     "OperatorBlock",
     "diag",
     "eval_at",
