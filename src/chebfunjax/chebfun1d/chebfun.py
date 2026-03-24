@@ -1734,6 +1734,1020 @@ class Chebfun(eqx.Module):
             cols = [self] + list(other_cols)
         return chebfun_svd(cols)
 
+    # ------------------------------------------------------------------
+    # V08 — Quasimatrix ops: horzcat, vertcat, size, __getitem__
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def horzcat(chebfuns: list[Chebfun]) -> list[Chebfun]:
+        """Horizontal concatenation: return a list (quasimatrix column list).
+
+        All Chebfuns must share the same domain endpoints. Returns the input
+        list, validating domain compatibility. In Python there is no native
+        quasimatrix type; the list-of-Chebfun convention is used here and
+        throughout the linalg module.
+
+        Parameters
+        ----------
+        chebfuns : list[Chebfun]
+            Column Chebfuns to concatenate.
+
+        Returns
+        -------
+        list[Chebfun]
+            The same list (quasimatrix representation).
+
+        Raises
+        ------
+        ValueError
+            If domain endpoints differ between any two inputs.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/horzcat.m
+        Chebfun commit: 7574c77
+        """
+        if not chebfuns:
+            return []
+        a0, b0 = chebfuns[0].domain.a, chebfuns[0].domain.b
+        for i, f in enumerate(chebfuns[1:], start=1):
+            if abs(f.domain.a - a0) > 100 * _EPS or abs(f.domain.b - b0) > 100 * _EPS:
+                raise ValueError(
+                    f"horzcat: column {i} has domain [{f.domain.a}, {f.domain.b}] "
+                    f"which is inconsistent with [{a0}, {b0}]."
+                )
+        return list(chebfuns)
+
+    @staticmethod
+    def vertcat(chebfuns: list[Chebfun]) -> list[Chebfun]:
+        """Vertical concatenation: concatenate Chebfuns by stacking domains.
+
+        Each successive Chebfun is appended after the previous one in the
+        x-direction.  The domains must be compatible:
+        ``chebfuns[k].domain.b == chebfuns[k+1].domain.a``.
+
+        Parameters
+        ----------
+        chebfuns : list[Chebfun]
+            Row Chebfuns (in domain order) to concatenate.
+
+        Returns
+        -------
+        Chebfun
+            A single piecewise Chebfun on the union domain.
+
+        Raises
+        ------
+        ValueError
+            If successive domains are not contiguous.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/vertcat.m
+        Chebfun commit: 7574c77
+        """
+        if not chebfuns:
+            raise ValueError("vertcat: input list is empty.")
+        if len(chebfuns) == 1:
+            return chebfuns[0]
+        # Validate contiguity and collect all pieces
+        all_funs: list[_Piece] = []
+        all_bps: list[float] = [chebfuns[0].domain.a]
+        for k, f in enumerate(chebfuns):
+            if k > 0:
+                prev_b = all_bps[-1]
+                if abs(f.domain.a - prev_b) > 100 * _EPS:
+                    raise ValueError(
+                        f"vertcat: chebfuns[{k}].domain.a = {f.domain.a} does not "
+                        f"match chebfuns[{k-1}].domain.b = {prev_b}."
+                    )
+            for piece in f.funs:
+                all_funs.append(piece)
+            # Append internal breakpoints except the first one (already added)
+            bps = list(f.domain.breakpoints)
+            all_bps.extend(bps[1:])
+        new_domain = Domain(tuple(float(x) for x in all_bps))
+        return Chebfun(funs=all_funs, domain=new_domain)
+
+    def size(self, dim: int | None = None):
+        """Size of the Chebfun (quasimatrix notion).
+
+        A scalar Chebfun is treated as a single column: size = (inf, 1).
+
+        Parameters
+        ----------
+        dim : int or None
+            If 1, return infinity (continuous dimension).
+            If 2, return 1 (number of columns for a scalar Chebfun).
+            If None (default), return (inf, 1).
+
+        Returns
+        -------
+        tuple[float, int] or float or int
+            The size in the requested sense.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/size.m
+        Chebfun commit: 7574c77
+        """
+        inf_dim = float("inf")
+        n_cols = 1  # scalar Chebfun has one column
+        if dim is None:
+            return (inf_dim, n_cols)
+        elif dim == 1:
+            return inf_dim
+        elif dim == 2:
+            return n_cols
+        else:
+            # Higher dimensions are 1 (no tensor Chebfuns)
+            return 1
+
+    def __getitem__(self, idx):
+        """Column indexing for quasimatrix-style access.
+
+        For a scalar Chebfun (single column), ``f[0]`` or ``f[:]`` returns
+        ``self``.  Slices and integer indices follow standard Python
+        conventions: only index 0 is valid for a single-column Chebfun.
+
+        Parameters
+        ----------
+        idx : int or slice
+            Column index.
+
+        Returns
+        -------
+        Chebfun
+
+        Raises
+        ------
+        IndexError
+            If the index is out of range.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/subsref.m
+        Chebfun commit: 7574c77
+        """
+        n_cols = 1  # scalar Chebfun
+        if isinstance(idx, slice):
+            start, stop, step = idx.indices(n_cols)
+            cols = list(range(start, stop, step))
+            if not cols:
+                raise IndexError("slice results in empty selection.")
+            return self  # single column — return self
+        else:
+            idx = int(idx)
+            if idx < 0:
+                idx = n_cols + idx
+            if idx != 0:
+                raise IndexError(
+                    f"index {idx} is out of bounds for a scalar Chebfun (1 column)."
+                )
+            return self
+
+    # ------------------------------------------------------------------
+    # V09 — Interpolation / fitting
+    # ------------------------------------------------------------------
+
+    def polyfit(self, n: int) -> Chebfun:
+        """Polynomial fit of degree n (least-squares projection).
+
+        Computes the degree-n polynomial that best approximates self in the
+        L2 sense on the Chebfun's domain, by truncating the Chebyshev series
+        to the first n+1 coefficients.
+
+        For a single-piece Chebfun whose polynomial degree is already <= n,
+        the input is returned unchanged.
+
+        Parameters
+        ----------
+        n : int
+            Degree of the approximating polynomial (>= 0).
+
+        Returns
+        -------
+        Chebfun
+            The degree-n least-squares polynomial fit, on the same domain.
+
+        Raises
+        ------
+        ValueError
+            If n is not a non-negative integer.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/polyfit.m
+        Chebfun commit: 7574c77
+        """
+        if not isinstance(n, (int,)) or n < 0:
+            raise ValueError(f"polyfit: n must be a non-negative integer, got {n!r}.")
+        if len(self.funs) == 1:
+            piece = self.funs[0]
+            coeffs = piece.coeffs  # Chebyshev coefficients, length = piece.n
+            if piece.n <= n + 1:
+                # Already degree <= n, nothing to truncate
+                return self
+            # Truncate to first n+1 coefficients
+            truncated = coeffs[:n + 1]
+            new_piece = _Piece.from_coeffs(truncated, piece.interval[0], piece.interval[1])
+            return Chebfun(funs=[new_piece], domain=self.domain)
+        # Multi-piece: fit each piece independently
+        new_funs = []
+        for piece in self.funs:
+            coeffs = piece.coeffs
+            if piece.n <= n + 1:
+                new_funs.append(piece)
+            else:
+                truncated = coeffs[:n + 1]
+                new_funs.append(
+                    _Piece.from_coeffs(truncated, piece.interval[0], piece.interval[1])
+                )
+        return Chebfun(funs=new_funs, domain=self.domain)
+
+    @staticmethod
+    def interp1(
+        x: jax.Array,
+        y: jax.Array,
+        domain: tuple[float, float] | None = None,
+    ) -> Chebfun:
+        """Polynomial interpolant through data (x, y).
+
+        Builds a Chebfun by constructing the polynomial interpolant through
+        the data points ``(x[j], y[j])``.  The interpolation is performed
+        using barycentric weights, matching MATLAB Chebfun's ``interp1``
+        default ``'poly'`` method.
+
+        Parameters
+        ----------
+        x : array_like, shape (n,)
+            Distinct, sorted interpolation sites.
+        y : array_like, shape (n,)
+            Function values at the sites.
+        domain : (float, float) or None
+            Domain for the resulting Chebfun.  Defaults to
+            ``(x[0], x[-1])``.
+
+        Returns
+        -------
+        Chebfun
+            The polynomial interpolant on ``domain``.
+
+        Notes
+        -----
+        Uses barycentric Lagrange interpolation with second-kind barycentric
+        weights, which is numerically stable for any node distribution.
+        NOT JIT-safe (adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/interp1.m (interp1Poly subfunction)
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        x = jnp.asarray(x, dtype=jnp.float64)
+        y = jnp.asarray(y, dtype=jnp.float64)
+        # Sort nodes
+        order = jnp.argsort(x)
+        x = x[order]
+        y = y[order]
+        xa, xb = float(x[0]), float(x[-1])
+        if domain is None:
+            domain = (xa, xb)
+        dom = Domain(domain)
+
+        # Compute second-kind barycentric weights (Chebyshev-like, safe for
+        # arbitrary nodes via the standard alternating-sign formula)
+        n = x.shape[0]
+        x_np = _np.asarray(x)
+        w = _np.ones(n)
+        for j in range(n):
+            for k in range(n):
+                if k != j:
+                    w[j] /= (x_np[j] - x_np[k])
+
+        x_ref = jnp.asarray(x_np)
+        y_ref = y
+        w_ref = jnp.asarray(w)
+
+        def interpolant(z: jax.Array) -> jax.Array:
+            """Evaluate barycentric interpolant at points z."""
+            z = jnp.atleast_1d(z)
+            # Compute w_j / (z - x_j) for each z, then sum
+            diffs = z[:, None] - x_ref[None, :]   # shape (nz, n)
+            # Handle exact hits (z == x_j)
+            hit = jnp.abs(diffs) < 1e-14
+            safe_diffs = jnp.where(hit, jnp.ones_like(diffs), diffs)
+            terms = w_ref[None, :] / safe_diffs    # shape (nz, n)
+            numer = jnp.sum(jnp.where(hit, y_ref[None, :] * w_ref[None, :] / (w_ref[None, :] + 1e-300), terms * y_ref[None, :]), axis=1)
+            denom = jnp.sum(jnp.where(hit, w_ref[None, :] / (w_ref[None, :] + 1e-300), terms), axis=1)
+            # If hit, return y at the matching node
+            any_hit = jnp.any(hit, axis=1)
+            hit_val = jnp.sum(jnp.where(hit, y_ref[None, :], jnp.zeros_like(terms)), axis=1)
+            return jnp.where(any_hit, hit_val, numer / denom)
+
+        return Chebfun.from_function(interpolant, dom)
+
+    @staticmethod
+    def spline(
+        x: jax.Array,
+        y: jax.Array,
+        domain: tuple[float, float] | None = None,
+    ) -> Chebfun:
+        """Piecewise cubic spline interpolant (not-a-knot conditions).
+
+        Wraps ``scipy.interpolate.CubicSpline`` to construct a piecewise
+        cubic Chebfun through the data ``(x, y)``.  The domain is
+        partitioned at the knot sites ``x``.
+
+        Parameters
+        ----------
+        x : array_like, shape (n,)
+            Sorted interpolation sites (knots).
+        y : array_like, shape (n,)
+            Function values at the knots.
+        domain : (float, float) or None
+            Domain for the result; defaults to ``(x[0], x[-1])``.
+
+        Returns
+        -------
+        Chebfun
+            Piecewise cubic Chebfun interpolant.
+
+        Notes
+        -----
+        NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/spline.m
+        Chebfun commit: 7574c77
+        """
+        from scipy.interpolate import CubicSpline
+        import numpy as _np
+        x_np = _np.asarray(x, dtype=_np.float64)
+        y_np = _np.asarray(y, dtype=_np.float64)
+        order = _np.argsort(x_np)
+        x_np = x_np[order]
+        y_np = y_np[order]
+        if domain is None:
+            domain = (float(x_np[0]), float(x_np[-1]))
+        cs = CubicSpline(x_np, y_np, bc_type="not-a-knot")
+        # Use x nodes as breakpoints (unique, sorted)
+        breakpoints = _np.unique(_np.concatenate([[domain[0]], x_np, [domain[1]]]))
+        dom = Domain(tuple(float(b) for b in breakpoints))
+        return Chebfun.from_function(lambda z: jnp.asarray(cs(jnp.asarray(z)), dtype=jnp.float64), dom)
+
+    @staticmethod
+    def pchip(
+        x: jax.Array,
+        y: jax.Array,
+        domain: tuple[float, float] | None = None,
+    ) -> Chebfun:
+        """Piecewise cubic Hermite interpolant (shape-preserving).
+
+        Wraps ``scipy.interpolate.PchipInterpolator`` to build a
+        shape-preserving piecewise cubic Chebfun.
+
+        Parameters
+        ----------
+        x : array_like, shape (n,)
+            Sorted knot sites.
+        y : array_like, shape (n,)
+            Function values at knots.
+        domain : (float, float) or None
+            Domain for the result; defaults to ``(x[0], x[-1])``.
+
+        Returns
+        -------
+        Chebfun
+            Shape-preserving piecewise cubic interpolant.
+
+        Notes
+        -----
+        NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/pchip.m
+        Chebfun commit: 7574c77
+        """
+        from scipy.interpolate import PchipInterpolator
+        import numpy as _np
+        x_np = _np.asarray(x, dtype=_np.float64)
+        y_np = _np.asarray(y, dtype=_np.float64)
+        order = _np.argsort(x_np)
+        x_np = x_np[order]
+        y_np = y_np[order]
+        if domain is None:
+            domain = (float(x_np[0]), float(x_np[-1]))
+        ph = PchipInterpolator(x_np, y_np)
+        breakpoints = _np.unique(_np.concatenate([[domain[0]], x_np, [domain[1]]]))
+        dom = Domain(tuple(float(b) for b in breakpoints))
+        return Chebfun.from_function(lambda z: jnp.asarray(ph(jnp.asarray(z)), dtype=jnp.float64), dom)
+
+    # ------------------------------------------------------------------
+    # V10 — Convolution, flip
+    # ------------------------------------------------------------------
+
+    def conv(self, g: Chebfun) -> Chebfun:
+        r"""Convolution of two Chebfuns.
+
+        Computes
+
+        .. math::
+            h(x) = \int f(t)\, g(x - t)\, dt,
+            \quad x \in [a+c,\, b+d],
+
+        where ``self`` is on ``[a, b]`` and ``g`` is on ``[c, d]``.
+
+        The convolution is computed by numerical quadrature on each pair of
+        sub-intervals, then summed up.  This is the "brute force" / ``'old'``
+        algorithm from MATLAB Chebfun, which works for all piecewise-smooth
+        functions (not only single-piece Chebyshev expansions).
+
+        Parameters
+        ----------
+        g : Chebfun
+            The second operand.  Must be on a bounded domain.
+
+        Returns
+        -------
+        Chebfun
+            Convolution h = f * g on [a+c, b+d].
+
+        Raises
+        ------
+        ValueError
+            If either domain is unbounded.
+
+        Notes
+        -----
+        NOT JIT-safe (uses adaptive quadrature and Chebfun construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/conv.m (oldConv subfunction)
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        f = self
+        a, b = float(f.domain.a), float(f.domain.b)
+        c, d = float(g.domain.a), float(g.domain.b)
+        if not all(_np.isfinite([a, b, c, d])):
+            raise ValueError("conv: only bounded domains are supported.")
+
+        # All pairwise sums of breakpoints give the convolution breakpoints
+        f_bps = _np.array(list(f.domain.breakpoints))
+        g_bps = _np.array(list(g.domain.breakpoints))
+        A, B = _np.meshgrid(f_bps, g_bps)
+        dom_pts = _np.unique(A.ravel() + B.ravel())
+        # Remove near-duplicate breakpoints
+        tol = 10.0 * _np.finfo(_np.float64).eps * max(abs(dom_pts[[0, -1]]))
+        if tol == 0:
+            tol = 1e-14
+        keep = _np.concatenate([[True], _np.diff(dom_pts) > tol])
+        dom_pts = dom_pts[keep]
+
+        def _conv_at(x_val: float) -> float:
+            """Evaluate convolution integral at a single point x."""
+            from scipy import integrate as _scint
+            A_lim = max(a, x_val - d)
+            B_lim = min(b, x_val - c)
+            if A_lim >= B_lim:
+                return 0.0
+            # Build integration sub-intervals from breakpoints of f and g
+            ends_g = x_val - g_bps  # maps g breakpoints to t-space
+            int_bps = _np.union1d(f_bps, ends_g)
+            int_bps = int_bps[(int_bps >= A_lim) & (int_bps <= B_lim)]
+            sub_dom = _np.unique(_np.concatenate([[A_lim], int_bps, [B_lim]]))
+            result = 0.0
+            x_jax = jnp.float64(x_val)
+            for j in range(len(sub_dom) - 1):
+                def integrand(t):
+                    t_arr = jnp.atleast_1d(jnp.asarray(t, dtype=jnp.float64))
+                    ft = f(t_arr)
+                    gt = g(x_jax - t_arr)
+                    return float((ft * gt)[0])
+                val, _ = _scint.quad(integrand, sub_dom[j], sub_dom[j + 1],
+                                     epsabs=1e-13, epsrel=1e-13, limit=100)
+                result += val
+            return result
+
+        conv_dom = Domain((float(dom_pts[0]), float(dom_pts[-1])))
+        if len(dom_pts) > 2:
+            conv_dom = Domain(tuple(float(p) for p in dom_pts))
+
+        h = Chebfun.from_function(
+            lambda x: jnp.array(
+                [_conv_at(float(xi)) for xi in jnp.atleast_1d(x)],
+                dtype=jnp.float64,
+            ),
+            conv_dom,
+        )
+        return h
+
+    def circconv(self, g: Chebfun) -> Chebfun:
+        """Circular convolution of two Chebfuns on a shared domain.
+
+        Computes the circular convolution using the DFT trick:
+        evaluating both functions on an equi-spaced grid, multiplying their
+        DFTs, then building a new Chebfun from the result.
+
+        Parameters
+        ----------
+        g : Chebfun
+            Must be on the same domain as ``self``.
+
+        Returns
+        -------
+        Chebfun
+            Circular convolution on the shared domain.
+
+        Raises
+        ------
+        ValueError
+            If domains do not match.
+
+        Notes
+        -----
+        NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/circconv.m
+        Chebfun commit: 7574c77
+        """
+        Chebfun._check_domains(self, g)
+        a, b = self.domain.a, self.domain.b
+        # Use a fine equi-spaced grid for the DFT-based circular convolution
+        n = max(len(self), len(g)) * 2 + 1
+        # Next power of 2 for efficiency
+        import math
+        n = 2 ** math.ceil(math.log2(n + 1))
+        x = jnp.linspace(jnp.float64(a), jnp.float64(b), n, endpoint=False)
+        dx = float(b - a) / n
+        fv = self(x)
+        gv = g(x)
+        h_vals = jnp.real(jnp.fft.ifft(jnp.fft.fft(fv) * jnp.fft.fft(gv))) * dx
+        # Build a Chebfun from the result values by interpolation
+        h_fun = Chebfun.interp1(x, h_vals, domain=(float(a), float(b)))
+        return h_fun
+
+    def flipud(self) -> Chebfun:
+        """Reverse the Chebfun: ``g(x) = f(a + b - x)``.
+
+        Returns a new Chebfun on the same domain ``[a, b]`` satisfying
+        ``g(x) = f(a + b - x)``, i.e., the function reflected about the
+        mid-point of the domain.
+
+        Returns
+        -------
+        Chebfun
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/flipud.m
+        Chebfun commit: 7574c77
+        """
+        a, b = float(self.domain.a), float(self.domain.b)
+        mid = a + b  # a + b - x maps [a,b] -> [a,b]
+        # Reverse the order of pieces and flip each piece's interval
+        f = self  # capture for closure
+        new_funs = []
+        # Reversed piece intervals
+        for piece in reversed(self.funs):
+            pa, pb = piece.interval
+            new_a = mid - pb
+            new_b = mid - pa
+            new_funs.append(
+                _Piece.from_function(
+                    lambda x, _f=f, _m=mid: _f(_m - x),
+                    new_a,
+                    new_b,
+                )
+            )
+        # Rebuild domain from reversed pieces
+        bps = tuple(new_funs[0].interval[0:1])
+        for p in new_funs:
+            bps = bps + (p.interval[1],)
+        new_domain = Domain(bps)
+        return Chebfun(funs=new_funs, domain=new_domain)
+
+    def fliplr(self) -> Chebfun:
+        """Alias for :meth:`flipud` for column Chebfuns.
+
+        For a scalar (single-column) Chebfun, ``fliplr`` reverses the
+        function in the same way as ``flipud``.
+
+        Returns
+        -------
+        Chebfun
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/fliplr.m
+        Chebfun commit: 7574c77
+        """
+        return self.flipud()
+
+    # ------------------------------------------------------------------
+    # V11 — Special functions: Bessel, Airy, elliptic, erf family
+    # ------------------------------------------------------------------
+
+    def besselj(self, nu: float) -> Chebfun:
+        r"""Bessel function of the first kind :math:`J_\nu(f(x))`.
+
+        Parameters
+        ----------
+        nu : float
+            Order (real).
+
+        Returns
+        -------
+        Chebfun
+            Approximation to :math:`J_\nu(f(x))` on the same domain.
+
+        Notes
+        -----
+        Uses ``jax.scipy.special.bessel_jn`` when ``nu`` is a non-negative
+        integer, and falls back to ``scipy.special.jv`` otherwise.
+        NOT JIT-safe (adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/besselj.m
+        Chebfun commit: 7574c77
+        """
+        try:
+            # jax.scipy.special.bessel_jn requires non-negative integer order
+            n_int = int(round(nu))
+            if abs(nu - n_int) < 1e-12 and n_int >= 0:
+                return self._apply_fun(
+                    lambda x: jax.scipy.special.bessel_jn(x, n=n_int, maxiter=100)[-1]
+                    if hasattr(jax.scipy.special, "bessel_jn")
+                    else jnp.asarray(
+                        __import__("scipy").special.jv(nu, jnp.asarray(x)),
+                        dtype=jnp.float64,
+                    )
+                )
+        except Exception:
+            pass
+        import scipy.special as _ss
+        return self._apply_fun(
+            lambda x: jnp.asarray(_ss.jv(nu, jnp.asarray(x)), dtype=jnp.float64)
+        )
+
+    def bessely(self, nu: float) -> Chebfun:
+        r"""Bessel function of the second kind :math:`Y_\nu(f(x))`.
+
+        Parameters
+        ----------
+        nu : float
+            Order (real).
+
+        Returns
+        -------
+        Chebfun
+
+        Notes
+        -----
+        Uses ``scipy.special.yv``.  NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/bessely.m
+        Chebfun commit: 7574c77
+        """
+        import scipy.special as _ss
+        return self._apply_fun(
+            lambda x: jnp.asarray(_ss.yv(nu, jnp.asarray(x)), dtype=jnp.float64)
+        )
+
+    def airy(self, k: int = 0) -> Chebfun:
+        """Airy function :math:`\\mathrm{Ai}` or :math:`\\mathrm{Bi}` of the Chebfun.
+
+        Parameters
+        ----------
+        k : int
+            Which Airy function:
+            - 0 : :math:`\\mathrm{Ai}(f(x))`
+            - 1 : :math:`\\mathrm{Ai}'(f(x))`
+            - 2 : :math:`\\mathrm{Bi}(f(x))`
+            - 3 : :math:`\\mathrm{Bi}'(f(x))`
+
+        Returns
+        -------
+        Chebfun
+
+        Notes
+        -----
+        NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/airy.m
+        Chebfun commit: 7574c77
+        """
+        import scipy.special as _ss
+        return self._apply_fun(
+            lambda x: jnp.asarray(_ss.airy(jnp.asarray(x))[k], dtype=jnp.float64)
+        )
+
+    def ellipj(self, m: float) -> tuple[Chebfun, Chebfun, Chebfun]:
+        """Jacobi elliptic functions sn, cn, dn of the Chebfun.
+
+        Parameters
+        ----------
+        m : float
+            Parameter (0 <= m <= 1).
+
+        Returns
+        -------
+        (sn, cn, dn) : tuple of three Chebfuns
+            The three Jacobi elliptic functions of ``self`` with parameter m.
+
+        Notes
+        -----
+        NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/ellipj.m
+        Chebfun commit: 7574c77
+        """
+        import scipy.special as _ss
+        sn = self._apply_fun(
+            lambda x: jnp.asarray(_ss.ellipj(jnp.asarray(x), m)[0], dtype=jnp.float64)
+        )
+        cn = self._apply_fun(
+            lambda x: jnp.asarray(_ss.ellipj(jnp.asarray(x), m)[1], dtype=jnp.float64)
+        )
+        dn = self._apply_fun(
+            lambda x: jnp.asarray(_ss.ellipj(jnp.asarray(x), m)[2], dtype=jnp.float64)
+        )
+        return sn, cn, dn
+
+    def erf(self) -> Chebfun:
+        """Error function :math:`\\mathrm{erf}(f(x))`.
+
+        Returns
+        -------
+        Chebfun
+
+        Notes
+        -----
+        Uses ``jax.scipy.special.erf``.  NOT JIT-safe (adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/erf.m
+        Chebfun commit: 7574c77
+        """
+        return self._apply_fun(jax.scipy.special.erf)
+
+    def erfc(self) -> Chebfun:
+        """Complementary error function :math:`\\mathrm{erfc}(f(x))`.
+
+        Returns
+        -------
+        Chebfun
+
+        Notes
+        -----
+        Uses ``jax.scipy.special.erfc``.  NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/erfc.m
+        Chebfun commit: 7574c77
+        """
+        return self._apply_fun(jax.scipy.special.erfc)
+
+    def erfinv(self) -> Chebfun:
+        r"""Inverse error function :math:`\\mathrm{erf}^{-1}(f(x))`.
+
+        Parameters
+        ----------
+        (none)
+
+        Returns
+        -------
+        Chebfun
+
+        Notes
+        -----
+        Uses ``jax.scipy.special.erfinv``.  Values of ``f`` must lie in
+        (-1, 1). NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/erfinv.m
+        Chebfun commit: 7574c77
+        """
+        return self._apply_fun(jax.scipy.special.erfinv)
+
+    # ------------------------------------------------------------------
+    # V12 — Type / logical ops
+    # ------------------------------------------------------------------
+
+    def isnan(self) -> bool:
+        """True if any coefficient of any piece is NaN.
+
+        Returns
+        -------
+        bool
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/isnan.m
+        Chebfun commit: 7574c77
+        """
+        for piece in self.funs:
+            if bool(jnp.any(jnp.isnan(piece.coeffs))):
+                return True
+        return False
+
+    def isinf(self) -> bool:
+        """True if any coefficient of any piece is infinite.
+
+        Returns
+        -------
+        bool
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/isinf.m
+        Chebfun commit: 7574c77
+        """
+        for piece in self.funs:
+            if bool(jnp.any(jnp.isinf(piece.coeffs))):
+                return True
+        return False
+
+    def isreal(self) -> bool:
+        """True if all coefficients are real-valued (no imaginary part).
+
+        In jaxchebfun all Chebfuns use float64 storage, so this always
+        returns True for the standard scalar Chebfun.
+
+        Returns
+        -------
+        bool
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/isreal.m
+        Chebfun commit: 7574c77
+        """
+        for piece in self.funs:
+            if jnp.iscomplexobj(piece.coeffs):
+                return False
+        return True
+
+    def logical(self) -> Chebfun:
+        """Convert to a logical (0/1) Chebfun.
+
+        Returns a piecewise Chebfun that is 1 wherever ``self`` is non-zero
+        and 0 at the zeros of ``self`` (breakpoints are added at the roots).
+
+        Returns
+        -------
+        Chebfun
+
+        Notes
+        -----
+        NOT JIT-safe (root-finding).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/logical.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        roots = self.roots()
+        existing = _np.array(list(self.domain.breakpoints))
+        if roots.shape[0] > 0:
+            new_bps = _np.sort(_np.unique(
+                _np.concatenate([existing, _np.asarray(roots)])
+            ))
+        else:
+            new_bps = existing
+        domain_len = float(self.domain.b - self.domain.a)
+        tol = 1e6 * _np.finfo(_np.float64).eps * max(domain_len, 1.0)
+        mask = _np.concatenate([[True], _np.diff(new_bps) > tol])
+        new_bps = new_bps[mask]
+        if len(new_bps) < 2:
+            return self._apply_fun(lambda x: jnp.where(x != 0.0, jnp.ones_like(x), jnp.zeros_like(x)))
+        new_dom = Domain(tuple(float(bp) for bp in new_bps))
+        f = self
+        eps = float(self.vscale) * _EPS if self.vscale > 0 else _EPS
+        new_funs = [
+            _Piece.from_function(
+                lambda x, _f=f, _e=eps: jnp.where(jnp.abs(_f(x)) > _e, jnp.ones_like(x), jnp.zeros_like(x)),
+                sub.a, sub.b,
+            )
+            for sub in new_dom.intervals
+        ]
+        return Chebfun(funs=new_funs, domain=new_dom)
+
+    def any(self) -> bool:
+        """True if the Chebfun is non-zero anywhere on its domain.
+
+        Returns
+        -------
+        bool
+            True if the maximum absolute value of the Chebfun exceeds
+            ``vscale * eps``, i.e., the function is not identically zero.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/any.m
+        Chebfun commit: 7574c77
+        """
+        return self.vscale > _EPS
+
+    def all(self) -> bool:
+        """True if the Chebfun is non-zero *everywhere* on its domain.
+
+        Returns True if the Chebfun has no roots (i.e., its minimum absolute
+        value exceeds machine epsilon times the vertical scale).
+
+        Returns
+        -------
+        bool
+
+        Notes
+        -----
+        NOT JIT-safe (root-finding via eigenvalue computation).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/all.m
+        Chebfun commit: 7574c77
+        """
+        roots = self.roots()
+        return roots.shape[0] == 0
+
+    def isempty(self) -> bool:
+        """True if the Chebfun has no pieces.
+
+        In practice, the standard constructor always creates at least one
+        piece, so this is always False for valid Chebfuns.  It is kept for
+        API compatibility.
+
+        Returns
+        -------
+        bool
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/isempty.m
+        Chebfun commit: 7574c77
+        """
+        return len(self.funs) == 0
+
+    def isequal(self, other: Chebfun) -> bool:
+        """Equality test: True if self and other have identical coefficients.
+
+        Checks domain equality, the number of pieces, and then compares
+        Chebyshev coefficients of each corresponding piece.
+
+        Parameters
+        ----------
+        other : Chebfun
+
+        Returns
+        -------
+        bool
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/isequal.m
+        Chebfun commit: 7574c77
+        """
+        if self.domain != other.domain:
+            return False
+        if len(self.funs) != len(other.funs):
+            return False
+        tol = 10.0 * _EPS
+        for pf, pg in zip(self.funs, other.funs):
+            cf = pf.coeffs
+            cg = pg.coeffs
+            # Pad shorter coefficient array with zeros for comparison
+            n = max(cf.shape[0], cg.shape[0])
+            cf_pad = jnp.pad(cf, (0, n - cf.shape[0]))
+            cg_pad = jnp.pad(cg, (0, n - cg.shape[0]))
+            if float(jnp.max(jnp.abs(cf_pad - cg_pad))) > tol:
+                return False
+        return True
+
+    def __eq__(self, other) -> bool:
+        """Equality shortcut: delegates to :meth:`isequal`."""
+        if isinstance(other, Chebfun):
+            return self.isequal(other)
+        return NotImplemented
+
 
 # ============================================================================
 # Factory function — the main user-facing entry point
