@@ -1,0 +1,44 @@
+site_name: chebfunjax
+site_url: https://ma-gilles.github.io/chebfunjax
+repo_url: https://github.com/ma-gilles/chebfunjax
+repo_name: ma-gilles/chebfunjax
+
+theme:
+  name: material
+  features:
+    - content.code.copy
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - search.highlight
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+  - tables
+  - attr_list
+  - md_in_html
+
+nav:
+  - Home: index.md
+  - Installation: install.md
+  - Quick Start: quickstart.md
+  - Examples:
+    - Approximation: examples/approx.md
+    - Calculus: examples/calc.md
+    - Rootfinding: examples/roots.md
+    - ODE/BVP: examples/ode.md
+    - PDE: examples/pde.md
+    - 2D Functions: examples/chebfun2.md
+    - 3D Functions: examples/chebfun3.md
+  - API Reference: api.md
+  - JAX Contract: jax-contract.md

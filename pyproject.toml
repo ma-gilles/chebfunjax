@@ -29,6 +29,8 @@ test = [
 dev = [
     "chebfunjax[test]",
     "ruff",
+    "mkdocs>=1.5",
+    "mkdocs-material>=9.0",
 ]
 gpu = [
     "jax[cuda12]>=0.4.20",
