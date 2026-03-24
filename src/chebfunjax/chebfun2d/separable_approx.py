@@ -735,6 +735,185 @@ class SeparableApprox(eqx.Module):
         return len(self.cols)
 
     # ------------------------------------------------------------------
+    # Calculus
+    # ------------------------------------------------------------------
+
+    def diff(self, dim: int = 1, k: int = 1) -> "SeparableApprox":
+        """Partial derivative of the approximation.
+
+        Parameters
+        ----------
+        dim : int, default 1
+            Dimension: 1 = y-direction, 2 = x-direction.
+        k : int, default 1
+            Differentiation order.
+
+        Returns
+        -------
+        SeparableApprox
+
+        Notes
+        -----
+        Differentiates each col or row slice independently with the
+        chain-rule factor (2/(b-a))^k for the affine map.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/diff.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        if dim not in (1, 2):
+            raise ValueError(
+                f"SeparableApprox.diff: dim must be 1 (y) or 2 (x), got dim={dim}."
+            )
+        if k < 0:
+            raise ValueError(
+                f"SeparableApprox.diff: k must be >= 0, got k={k}."
+            )
+        if k == 0:
+            return self
+
+        xa, xb, ya, yb = self.domain
+
+        def _diff_physical(tech: Chebtech2, a: float, b: float, order: int) -> Chebtech2:
+            scale = jnp.float64((2.0 / (b - a)) ** order)
+            diff_tech = tech.diff(order)
+            return Chebtech2.from_coeffs(diff_tech.coeffs * scale)
+
+        if dim == 1:
+            new_cols = [_diff_physical(c, ya, yb, k) for c in self.cols]
+            new_rows = list(self.rows)
+        else:
+            new_cols = list(self.cols)
+            new_rows = [_diff_physical(r, xa, xb, k) for r in self.rows]
+
+        return SeparableApprox(
+            cols=new_cols,
+            rows=new_rows,
+            pivots=self.pivots,
+            domain=self.domain,
+        )
+
+    def sum(self, dim: int | None = None):
+        """Integrate the approximation over one or both dimensions.
+
+        Parameters
+        ----------
+        dim : int or None, optional
+            - None: double integral (scalar).
+            - 1: integrate over y, return SeparableApprox (function of x).
+            - 2: integrate over x, return SeparableApprox (function of y).
+
+        Returns
+        -------
+        SeparableApprox or jax.Array (scalar)
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/sum.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        if dim is None:
+            return self.sum2()
+        if dim not in (1, 2):
+            raise ValueError(
+                f"SeparableApprox.sum: dim must be None, 1, or 2, got dim={dim}."
+            )
+
+        xa, xb, ya, yb = self.domain
+        r = self.rank
+
+        if dim == 1:
+            col_integrals = jnp.array(
+                [float(c.sum() * jnp.float64((yb - ya) / 2.0)) for c in self.cols],
+                dtype=jnp.float64,
+            )
+            new_pivots = self.pivots * col_integrals
+            one_coeffs = jnp.ones(1, dtype=jnp.float64)
+            new_cols = [Chebtech2.from_coeffs(one_coeffs) for _ in range(r)]
+            new_rows = list(self.rows)
+        else:
+            row_integrals = jnp.array(
+                [float(rw.sum() * jnp.float64((xb - xa) / 2.0)) for rw in self.rows],
+                dtype=jnp.float64,
+            )
+            new_pivots = self.pivots * row_integrals
+            one_coeffs = jnp.ones(1, dtype=jnp.float64)
+            new_cols = list(self.cols)
+            new_rows = [Chebtech2.from_coeffs(one_coeffs) for _ in range(r)]
+
+        return SeparableApprox(
+            cols=new_cols,
+            rows=new_rows,
+            pivots=new_pivots,
+            domain=self.domain,
+        )
+
+    def sum2(self) -> jax.Array:
+        """Double integral over the domain.
+
+        Returns
+        -------
+        jax.Array, scalar
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/sum2.m, @separableApprox/integral2.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        xa, xb, ya, yb = self.domain
+        r = self.rank
+        total = jnp.float64(0.0)
+        for j in range(r):
+            col_int = self.cols[j].sum() * jnp.float64((yb - ya) / 2.0)
+            row_int = self.rows[j].sum() * jnp.float64((xb - xa) / 2.0)
+            total = total + self.pivots[j] * col_int * row_int
+        return total
+
+    def norm(self, p=2) -> jax.Array:
+        """Frobenius (L2) norm of the approximation.
+
+        Parameters
+        ----------
+        p : int or str, default 2
+            Only ``2`` and ``'fro'`` are supported.
+
+        Returns
+        -------
+        jax.Array, scalar
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/norm.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        if p not in (2, "fro", 2.0):
+            raise NotImplementedError(
+                f"SeparableApprox.norm: only p=2/'fro' is implemented, got p={p!r}."
+            )
+        xa, xb, ya, yb = self.domain
+        r = self.rank
+        col_scale = jnp.float64((yb - ya) / 2.0)
+        row_scale = jnp.float64((xb - xa) / 2.0)
+
+        norm_sq = jnp.float64(0.0)
+        for j in range(r):
+            for k in range(r):
+                col_ip = self.cols[j].inner(self.cols[k]) * col_scale
+                row_ip = self.rows[j].inner(self.rows[k]) * row_scale
+                norm_sq = norm_sq + self.pivots[j] * self.pivots[k] * col_ip * row_ip
+
+        return jnp.sqrt(jnp.abs(norm_sq))
+
+    # ------------------------------------------------------------------
     # Representation
     # ------------------------------------------------------------------
 

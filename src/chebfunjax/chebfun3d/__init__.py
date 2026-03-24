@@ -1,6 +1,11 @@
-"""Chebfun3d — 3D function approximation on cuboids."""
+"""chebfunjax.chebfun3d — 3D function approximation via Tucker decomposition."""
 
 from chebfunjax.chebfun3d.chebfun3 import Chebfun3, chebfun3
-from chebfunjax.chebfun3d.chebfun3v import Chebfun3v
+from chebfunjax.chebfun3d.chebfun3t import Chebfun3T, chebfun3t
 
-__all__ = ["Chebfun3", "chebfun3", "Chebfun3v"]
+__all__ = [
+    "Chebfun3",
+    "chebfun3",
+    "Chebfun3T",
+    "chebfun3t",
+]
