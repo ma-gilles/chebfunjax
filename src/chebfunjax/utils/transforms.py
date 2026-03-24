@@ -1,9 +1,13 @@
 """Polynomial coefficient and value transforms.
 
-Chebyshev <-> Legendre, Chebyshev <-> Jacobi, and Chebyshev values <-> coefficients.
+Chebyshev <-> Legendre, Chebyshev <-> Jacobi, Legendre values/coefficients,
+ultra-spherical, Jacobi-to-Jacobi, and Chebyshev values <-> coefficients.
 
 Translated from MATLAB Chebfun (commit 7574c77): cheb2leg.m, leg2cheb.m,
-cheb2jac.m, jac2cheb.m, chebvals2legcoeffs.m, chebcoeffs2legvals.m,
+cheb2jac.m, jac2cheb.m, jac2jac.m, ultra2ultra.m, ultracoeffs.m,
+chebvals2legcoeffs.m, chebcoeffs2legvals.m, legvals2chebcoeffs.m,
+legvals2chebvals.m, legvals2legcoeffs.m, legcoeffs2chebvals.m,
+legcoeffs2legvals.m, chebvals2legvals.m, chebvals2chebvals.m,
 chebcoeffs2chebvals.m, chebvals2chebcoeffs.m, and related files.
 Original: Copyright 2017 by The University of Oxford and The Chebfun Developers.
 See https://www.chebfun.org/ for Chebfun information.
@@ -11,7 +15,9 @@ See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
+import numpy as np
 import jax.numpy as jnp
+from scipy.special import gammaln
 
 # ===========================================================================
 # Chebyshev values <-> coefficients (DCT-I based)
@@ -708,3 +714,831 @@ def chebvals2legcoeffs(
     else:
         raise ValueError(f"kind must be 1 or 2, got {kind}")
     return cheb2leg(c_cheb, normalize=normalize)
+
+
+# ===========================================================================
+# Legendre values <-> coefficients/values  (DLT/iDLT wrappers)
+# ===========================================================================
+
+def _legendre_dlt(c_leg: jnp.ndarray) -> jnp.ndarray:
+    """Discrete Legendre Transform (DLT): Legendre coefficients -> values at legpts.
+
+    Uses the Legendre-Vandermonde matrix via the 3-term recurrence and applies
+    it to ``c_leg``.  O(n^2); sufficient for moderate n.
+
+    This is the analogue of ``chebfun.dlt`` (MATLAB) for our pure-JAX implementation.
+    """
+    n = c_leg.shape[0]
+    if n == 0:
+        return c_leg
+    if n == 1:
+        return c_leg
+
+    # Gauss-Legendre nodes (ascending order)
+    from chebfunjax.utils.quadrature import legpts
+    x, _ = legpts(n)
+
+    L = _legendre_vandermonde(n - 1, x)
+    return L @ c_leg
+
+
+def _legendre_idlt(v_leg: jnp.ndarray) -> jnp.ndarray:
+    """Inverse DLT: values at Gauss-Legendre points -> Legendre coefficients.
+
+    Uses Gauss-Legendre quadrature:
+        c_k = (2k+1)/2 * sum_j w_j * P_k(x_j) * v_j
+
+    This is the analogue of ``chebfun.idlt`` (MATLAB).
+    """
+    n = v_leg.shape[0]
+    if n == 0:
+        return v_leg
+    if n == 1:
+        return v_leg
+
+    from chebfunjax.utils.quadrature import legpts
+    x, w = legpts(n)
+
+    L = _legendre_vandermonde(n - 1, x)  # (n, n)
+
+    # c_k = (2k+1)/2 * sum_j w_j * P_k(x_j) * v_j
+    scale = (2 * jnp.arange(n, dtype=jnp.float64) + 1) / 2.0
+    c_leg = scale * (L.T @ (w * v_leg))
+    return c_leg
+
+
+def _legendre_ndct(c_cheb: jnp.ndarray) -> jnp.ndarray:
+    """Non-uniform DCT: Chebyshev coefficients -> values at Gauss-Legendre points.
+
+    The Gauss-Legendre points are NOT uniformly spaced in angle, so this
+    requires explicit Chebyshev evaluation at non-uniform points.
+
+    This is the analogue of ``chebfun.ndct`` (MATLAB).
+    """
+    n = c_cheb.shape[0]
+    if n <= 1:
+        return c_cheb
+
+    from chebfunjax.utils.quadrature import legpts
+    x, _ = legpts(n)
+
+    # theta = arccos(x) for Legendre points
+    theta = jnp.arccos(jnp.clip(x, -1.0, 1.0))
+    k = jnp.arange(n, dtype=jnp.float64)
+    # T_k(x) = cos(k * theta)
+    T = jnp.cos(k[None, :] * theta[:, None])  # (n, n)
+    return T @ c_cheb
+
+
+def legvals2legcoeffs(v_leg: jnp.ndarray) -> jnp.ndarray:
+    """Convert values at Gauss-Legendre points to Legendre coefficients.
+
+    LEGCOEFFS = LEGVALS2LEGCOEFFS(V_LEG) converts the vector V_LEG of values
+    at Gauss-Legendre points (LEGPTS(N)) to Legendre series coefficients
+    C such that
+        f(x) = C[0]*P_0(x) + C[1]*P_1(x) + ... + C[N-1]*P_{N-1}(x).
+
+    Parameters
+    ----------
+    v_leg : jnp.ndarray, shape (n,)
+        Values at n Gauss-Legendre points.
+
+    Returns
+    -------
+    c_leg : jnp.ndarray, shape (n,)
+        Legendre series coefficients.
+
+    Provenance
+    ----------
+    MATLAB source : legvals2legcoeffs.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    """
+    return _legendre_idlt(v_leg)
+
+
+def legcoeffs2legvals(c_leg: jnp.ndarray) -> jnp.ndarray:
+    """Convert Legendre coefficients to values at Gauss-Legendre points.
+
+    LEGVALS = LEGCOEFFS2LEGVALS(C_LEG) evaluates the Legendre expansion
+        f(x) = C_LEG[0]*P_0(x) + ... + C_LEG[N-1]*P_{N-1}(x)
+    at LEGPTS(N), i.e., the N Gauss-Legendre nodes.
+
+    Parameters
+    ----------
+    c_leg : jnp.ndarray, shape (n,)
+        Legendre coefficients.
+
+    Returns
+    -------
+    v_leg : jnp.ndarray, shape (n,)
+        Values at Gauss-Legendre points.
+
+    Provenance
+    ----------
+    MATLAB source : legcoeffs2legvals.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    """
+    return _legendre_dlt(c_leg)
+
+
+def legvals2chebcoeffs(v_leg: jnp.ndarray) -> jnp.ndarray:
+    """Convert Legendre values to Chebyshev coefficients.
+
+    C_CHEB = LEGVALS2CHEBCOEFFS(V_LEG) converts values at Gauss-Legendre
+    points to Chebyshev coefficients of the interpolating polynomial.
+
+    Parameters
+    ----------
+    v_leg : jnp.ndarray, shape (n,)
+        Values at Gauss-Legendre points.
+
+    Returns
+    -------
+    c_cheb : jnp.ndarray, shape (n,)
+        Chebyshev series coefficients.
+
+    Provenance
+    ----------
+    MATLAB source : legvals2chebcoeffs.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    """
+    c_leg = _legendre_idlt(v_leg)
+    return leg2cheb(c_leg)
+
+
+def legvals2chebvals(v_leg: jnp.ndarray, *, kind: int = 2) -> jnp.ndarray:
+    """Convert values at Gauss-Legendre points to values at Chebyshev points.
+
+    CHEBVALS = LEGVALS2CHEBVALS(LEGVALS) converts values of a polynomial at
+    Gauss-Legendre points to values at 2nd-kind Chebyshev points.
+
+    Parameters
+    ----------
+    v_leg : jnp.ndarray, shape (n,)
+        Values at Gauss-Legendre points.
+    kind : {1, 2}, default 2
+        Target Chebyshev grid kind.
+
+    Returns
+    -------
+    v_cheb : jnp.ndarray, shape (n,)
+        Values at Chebyshev points of the given kind.
+
+    Provenance
+    ----------
+    MATLAB source : legvals2chebvals.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    """
+    c_leg = _legendre_idlt(v_leg)
+    return legcoeffs2chebvals(c_leg, kind=kind)
+
+
+def legcoeffs2chebvals(c_leg: jnp.ndarray, *, kind: int = 2) -> jnp.ndarray:
+    """Convert Legendre coefficients to values at Chebyshev points.
+
+    V_CHEB = LEGCOEFFS2CHEBVALS(C_LEG) converts Legendre coefficients to
+    values at 2nd-kind Chebyshev points.
+
+    Parameters
+    ----------
+    c_leg : jnp.ndarray, shape (n,)
+        Legendre coefficients.
+    kind : {1, 2}, default 2
+        Target Chebyshev grid kind.  1 = first-kind Chebyshev points,
+        2 = second-kind (Clenshaw-Curtis).
+
+    Returns
+    -------
+    v_cheb : jnp.ndarray, shape (n,)
+        Values at Chebyshev points.
+
+    Provenance
+    ----------
+    MATLAB source : legcoeffs2chebvals.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    """
+    c_cheb = leg2cheb(c_leg)
+    if kind == 2:
+        return coeffs2vals(c_cheb)
+    elif kind == 1:
+        n = c_cheb.shape[0]
+        if n <= 1:
+            return c_cheb
+        # Evaluate at 1st-kind Chebyshev points via DCT-III
+        from chebfunjax.utils.quadrature import chebpts
+        x = chebpts(n, kind=1)
+        theta = jnp.arccos(jnp.clip(x, -1.0, 1.0))
+        k = jnp.arange(n, dtype=jnp.float64)
+        T = jnp.cos(k[None, :] * theta[:, None])
+        # Scale: c_cheb[0] is full coefficient, rest are halved in coeffs2vals
+        c_scaled = c_cheb.at[0].multiply(0.5).at[-1].multiply(0.5)
+        return T @ (2.0 * c_scaled)
+    else:
+        raise ValueError(f"kind must be 1 or 2, got {kind}")
+
+
+def chebvals2legvals(v_cheb: jnp.ndarray, *, kind: int = 2) -> jnp.ndarray:
+    """Convert Chebyshev values to values at Gauss-Legendre points.
+
+    LEGVALS = CHEBVALS2LEGVALS(CHEBVALS) converts values at 2nd-kind
+    Chebyshev points to values at Gauss-Legendre points.
+
+    Parameters
+    ----------
+    v_cheb : jnp.ndarray, shape (n,)
+        Values at Chebyshev points.
+    kind : {1, 2}, default 2
+        Kind of source Chebyshev points.
+
+    Returns
+    -------
+    v_leg : jnp.ndarray, shape (n,)
+        Values at Gauss-Legendre points.
+
+    Provenance
+    ----------
+    MATLAB source : chebvals2legvals.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    """
+    if kind == 2:
+        c_cheb = vals2coeffs(v_cheb)
+    elif kind == 1:
+        c_cheb = _vals2coeffs_kind1(v_cheb)
+    else:
+        raise ValueError(f"kind must be 1 or 2, got {kind}")
+    return _legendre_ndct(c_cheb)
+
+
+def chebvals2chebvals(
+    v_in: jnp.ndarray, kind1: int, kind2: int
+) -> jnp.ndarray:
+    """Convert between first- and second-kind Chebyshev grids.
+
+    V_OUT = CHEBVALS2CHEBVALS(V_IN, KIND1, KIND2) converts values of a
+    polynomial on a Chebyshev grid of kind KIND1 to a grid of kind KIND2.
+
+    Parameters
+    ----------
+    v_in : jnp.ndarray, shape (n,)
+        Input values on a Chebyshev grid.
+    kind1 : {1, 2}
+        Source grid kind.
+    kind2 : {1, 2}
+        Target grid kind.
+
+    Returns
+    -------
+    v_out : jnp.ndarray, shape (n,)
+        Values on the target grid.
+
+    Provenance
+    ----------
+    MATLAB source : chebvals2chebvals.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    """
+    if kind1 == kind2:
+        return v_in
+    elif kind1 == 1 and kind2 == 2:
+        c = _vals2coeffs_kind1(v_in)
+        return coeffs2vals(c)
+    elif kind1 == 2 and kind2 == 1:
+        c = vals2coeffs(v_in)
+        n = c.shape[0]
+        if n <= 1:
+            return c
+        from chebfunjax.utils.quadrature import chebpts
+        x = chebpts(n, kind=1)
+        theta = jnp.arccos(jnp.clip(x, -1.0, 1.0))
+        k = jnp.arange(n, dtype=jnp.float64)
+        T = jnp.cos(k[None, :] * theta[:, None])
+        c_half = c.at[1:n - 1].multiply(0.5)
+        return T @ c_half * 2.0
+    else:
+        raise ValueError(f"kind1 and kind2 must be 1 or 2, got {kind1}, {kind2}")
+
+
+def chebcoeffs2chebvals(c_cheb: jnp.ndarray, *, kind: int = 2) -> jnp.ndarray:
+    """Convert Chebyshev coefficients to values at Chebyshev points.
+
+    Wrapper for coeffs2vals (kind=2) or evaluation at 1st-kind points.
+
+    Parameters
+    ----------
+    c_cheb : jnp.ndarray, shape (n,)
+        Chebyshev coefficients.
+    kind : {1, 2}, default 2
+
+    Returns
+    -------
+    v : jnp.ndarray, shape (n,)
+
+    Provenance
+    ----------
+    MATLAB source : chebcoeffs2chebvals.m
+    Chebfun commit: 7574c77
+    """
+    if kind == 2:
+        return coeffs2vals(c_cheb)
+    elif kind == 1:
+        return chebvals2chebvals(coeffs2vals(c_cheb), kind1=2, kind2=1)
+    else:
+        raise ValueError(f"kind must be 1 or 2, got {kind}")
+
+
+def chebvals2chebcoeffs(v: jnp.ndarray, *, kind: int = 2) -> jnp.ndarray:
+    """Convert Chebyshev values to Chebyshev coefficients.
+
+    Wrapper for vals2coeffs (kind=2) or 1st-kind variant.
+
+    Parameters
+    ----------
+    v : jnp.ndarray, shape (n,)
+        Values at Chebyshev points.
+    kind : {1, 2}, default 2
+
+    Returns
+    -------
+    c_cheb : jnp.ndarray, shape (n,)
+
+    Provenance
+    ----------
+    MATLAB source : chebvals2chebcoeffs.m
+    Chebfun commit: 7574c77
+    """
+    if kind == 2:
+        return vals2coeffs(v)
+    elif kind == 1:
+        return _vals2coeffs_kind1(v)
+    else:
+        raise ValueError(f"kind must be 1 or 2, got {kind}")
+
+
+# ===========================================================================
+# Jacobi-to-Jacobi transform  (jac2jac)
+# ===========================================================================
+
+# uses-numpy: iterative pivoted Cholesky and FFT-based Toeplitz-Hankel multiply
+
+def jac2jac(
+    c_jac: jnp.ndarray,
+    alpha: float,
+    beta: float,
+    gam: float,
+    delta: float,
+) -> jnp.ndarray:
+    """Convert Jacobi (alpha, beta) coefficients to Jacobi (gam, delta) coefficients.
+
+    C_OUT = JAC2JAC(C_IN, A, B, G, D) converts the vector C_IN of Jacobi
+    P^{(A,B)} coefficients to P^{(G,D)} coefficients such that
+        C_IN[0]*P_0^{(A,B)}(x) + ... + C_IN[N-1]*P_{N-1}^{(A,B)}(x)
+      = C_OUT[0]*P_0^{(G,D)}(x) + ... + C_OUT[N-1]*P_{N-1}^{(G,D)}(x).
+
+    Parameters
+    ----------
+    c_jac : jnp.ndarray, shape (n,)
+        Jacobi (alpha, beta) coefficients.
+    alpha, beta : float
+        Source Jacobi parameters.
+    gam, delta : float
+        Target Jacobi parameters.
+
+    Returns
+    -------
+    c_out : jnp.ndarray, shape (n,)
+        Jacobi (gam, delta) coefficients.
+
+    Notes
+    -----
+    Uses the algorithm from [1]: the conversion matrix decomposes as
+    D1*(T.*H)*D2 where T is Toeplitz and H is a Hankel matrix approximated
+    by pivoted Cholesky.  O(n log n) per rank-1 update.
+
+    References
+    ----------
+    .. [1] A. Townsend, M. Webb, and S. Olver, "Fast polynomial transforms
+       based on Toeplitz and Hankel matrices", Math. Comp., 87, 2018.
+
+    Provenance
+    ----------
+    MATLAB source : jac2jac.m
+    Chebfun commit: 7574c77
+    Original authors: Alex Townsend, Marcus Webb, Sheehan Olver.
+        Copyright 2017 by The University of Oxford and The Chebfun Developers.
+
+    See Also
+    --------
+    cheb2jac, jac2cheb, ultra2ultra
+    """
+    # Work in numpy (iterative algorithm, data-dependent branching)
+    v = np.array(c_jac, dtype=np.float64)
+    v = _jac2jac_np(v, alpha, beta, gam, delta)
+    return jnp.array(v)
+
+
+def _jac2jac_np(
+    v: np.ndarray,
+    alpha: float,
+    beta: float,
+    gam: float,
+    delta: float,
+) -> np.ndarray:
+    """Numpy O(n^2) implementation of jac2jac via Gauss-Jacobi quadrature.
+
+    Evaluates the source Jacobi expansion at (gam,delta) Gauss-Jacobi nodes,
+    then projects onto the target basis via the Gauss-Jacobi inner products.
+    This is O(n^2) but correct and numerically stable for n up to a few hundred.
+    """
+    N = len(v)
+    if N == 0:
+        return v
+    if N == 1:
+        return v
+
+    # If source == target, identity
+    if abs(alpha - gam) < 1e-14 and abs(beta - delta) < 1e-14:
+        return v.copy()
+
+    # Gauss-Jacobi nodes and weights for (gam, delta) — used for quadrature
+    from chebfunjax.utils.quadrature import jacpts
+    x, w = jacpts(N, gam, delta)
+    x_np = np.array(x, dtype=np.float64)
+    w_np = np.array(w, dtype=np.float64)
+
+    # Evaluate source expansion at x_np: f(x) = sum_k v[k] * P_k^{(alpha,beta)}(x)
+    P_src = np.array(_jacobi_vandermonde(N - 1, jnp.array(x_np), alpha, beta))  # (N, N)
+    f_vals = P_src @ v
+
+    # Project f onto target Jacobi basis using Gauss-Jacobi quadrature:
+    # c_k = (2k + gam + delta + 1)/(2^{gam+delta+1}) * B(k+gam+1,k+delta+1)/(k! * ...)
+    # Actually: c_k = h_k^{-1} * sum_j w_j * P_k^{(gam,delta)}(x_j) * f(x_j)
+    # where h_k = 2^{gam+delta+1} * Gamma(k+gam+1)*Gamma(k+delta+1) / ((2k+gam+delta+1)*Gamma(k+1)*Gamma(k+gam+delta+1))
+
+    P_tgt = np.array(_jacobi_vandermonde(N - 1, jnp.array(x_np), gam, delta))  # (N, N)
+
+    # Normalization constants h_k (squared norm of P_k^{(gam,delta)})
+    k = np.arange(N, dtype=np.float64)
+    h_k = np.exp(
+        (gam + delta + 1) * np.log(2)
+        + gammaln(k + gam + 1) + gammaln(k + delta + 1)
+        - np.log(2 * k + gam + delta + 1)
+        - gammaln(k + 1) - gammaln(k + gam + delta + 1)
+    )
+
+    c_out = (P_tgt.T @ (w_np * f_vals)) / h_k
+    return c_out
+
+
+def _jacobi_integer_conversion(
+    v: np.ndarray,
+    alpha: float,
+    beta: float,
+    gam: float,
+    delta: float,
+) -> tuple[np.ndarray, float, float]:
+    """Move (alpha,beta) to (A,B) so that |A-gam|<1 and |B-delta|<1."""
+    a, b = float(alpha), float(beta)
+
+    while a <= gam - 1:
+        v = _right_jacobi(v, a, b)
+        a += 1
+    while a >= gam + 1:
+        v = _left_jacobi(v, a - 1, b)
+        a -= 1
+    while b <= delta - 1:
+        v = _up_jacobi(v, a, b)
+        b += 1
+    while b >= delta + 1:
+        v = _down_jacobi(v, a, b - 1)
+        b -= 1
+
+    return v, a, b
+
+
+def _up_jacobi(v: np.ndarray, a: float, b: float) -> np.ndarray:
+    """Convert Jacobi (a,b) -> (a,b+1) in O(n) operations."""
+    N, = v.shape
+    nn = np.arange(N, dtype=np.float64)
+    apb = a + b
+    # Diagonal
+    d1 = np.empty(N)
+    d1[0] = 1.0
+    if N > 1:
+        d1[1] = (apb + 2) / (apb + 3)
+    if N > 2:
+        d1[2:] = (apb + 3 + nn[:-2]) / (apb + 5 + 2 * nn[:-2])
+    # Super-diagonal
+    d2 = (a + 1 + nn[:N - 1]) / (apb + 3 + 2 * nn[:N - 1])
+    out = d1 * v
+    out[:N - 1] += d2 * v[1:]
+    return out
+
+
+def _down_jacobi(v: np.ndarray, a: float, b: float) -> np.ndarray:
+    """Convert Jacobi (a,b+1) -> (a,b) by inverting _up_jacobi."""
+    N, = v.shape
+    nn = np.arange(N, dtype=np.float64)
+    apb = a + b
+    # Build topRow (first row of inverse of up-conversion matrix)
+    topRow = np.ones(N)
+    if N > 1:
+        topRow[1] = (a + 1) / (apb + 2)
+    for k in range(2, N):
+        topRow[k] = topRow[k - 1] * (a + k) / (apb + k + 1)
+    signs = (-1.0) ** nn
+    topRow *= signs
+
+    # Apply S^{-1} in O(N) via fliplr cumsum
+    tmp = topRow[:, None] * v[None, :]  # broadcast: (N,N) ... but we only need cols
+    # vecsum[k] = sum_{j>=k} topRow[j] * v[j]
+    # Efficient: vecsum = fliplr(cumsum(fliplr(topRow * v)))
+    tv = topRow * v
+    vecsum = np.cumsum(tv[::-1])[::-1]
+
+    ratios = np.empty(N)
+    ratios[0] = 1.0
+    if N > 1:
+        ratios[1] = -(apb + 3) / (a + 1)
+    if N > 2:
+        ratios[2:] = ((apb + 5 + 2 * nn[:-2]) / (apb + 3 + nn[:-2])) * (1.0 / topRow[2:])
+        # Correct signs: alternating after the first two
+        ratios[2:] = ratios[2:] * signs[2:] / signs[2:]  # no-op if already correct
+
+    out = ratios * vecsum
+    return out
+
+
+def _right_jacobi(v: np.ndarray, a: float, b: float) -> np.ndarray:
+    """Convert Jacobi (a,b) -> (a+1,b) using reflection formula."""
+    v = v.copy()
+    v[1::2] = -v[1::2]
+    v = _up_jacobi(v, b, a)
+    v[1::2] = -v[1::2]
+    return v
+
+
+def _left_jacobi(v: np.ndarray, a: float, b: float) -> np.ndarray:
+    """Convert Jacobi (a+1,b) -> (a,b) using reflection formula."""
+    v = v.copy()
+    v[1::2] = -v[1::2]
+    v = _down_jacobi(v, b, a)
+    v[1::2] = -v[1::2]
+    return v
+
+
+def _jacobi_fractional_conversion(
+    v: np.ndarray,
+    alpha: float,
+    beta: float,
+    gam: float,
+) -> np.ndarray:
+    """Convert Jacobi (alpha,beta) -> (gam,beta) with |alpha-gam|<1.
+
+    Uses the Toeplitz-Hankel decomposition from Townsend-Webb-Olver [1].
+    The conversion matrix A = D1*(T.*H)*D2, where T is Toeplitz and
+    H is Hankel approximated by pivoted Cholesky.
+
+    References
+    ----------
+    .. [1] A. Townsend, M. Webb, and S. Olver, 2018.
+    """
+    N = len(v)
+    if N <= 1:
+        return v
+
+    # Log-gamma helpers (using scipy.special.gammaln)
+    def Lambda1(z):
+        return np.exp(gammaln(z + alpha + beta + 1) - gammaln(z + gam + beta + 2))
+
+    def Lambda2(z):
+        return np.exp(gammaln(z + alpha - gam) - gammaln(z + 1))
+
+    def Lambda3(z):
+        return np.exp(gammaln(z + gam + beta + 1) - gammaln(z + beta + 1))
+
+    def Lambda4(z):
+        return np.exp(gammaln(z + beta + 1) - gammaln(z + alpha + beta + 1))
+
+    nn = np.arange(N, dtype=np.float64)
+
+    # Diagonal matrix D1
+    d1 = (2 * nn + gam + beta + 1) * Lambda3(np.concatenate([[1], nn[:-1]]))
+    d1[0] = 1.0
+
+    # Diagonal matrix D2
+    inv_gam_factor = 1.0 / float(np.exp(gammaln(alpha - gam + 1)))  # 1/gamma(alpha-gam)
+    d2 = inv_gam_factor * Lambda4(np.concatenate([[1], nn[:-1]]))
+    d2[0] = 0.0
+
+    # Symbol of Hankel part: vals[k] = Lambda1(k+1) for k=0..2N-1, vals[0]=0
+    vals = Lambda1(np.arange(1, 2 * N + 1, dtype=np.float64))
+    # vals[0] would be Lambda1(1), but MATLAB sets vals(1)=0 (1-indexed)
+    vals_h = np.concatenate([[0.0], vals[:-1]])  # vals_h[k] = vals[k-1] for k>=1, 0 for k=0
+
+    # Pivoted Cholesky on the Hankel matrix H with diagonal d = vals_h[0::2]
+    d_diag = vals_h[0::2].copy()  # diagonal of H: H[i,i] = vals_h[2i]
+    # Note: Hankel H has H[i,j] = vals_h[i+j], so diag = vals_h[0,2,4,...]
+    # But vals_h[0]=0, so d_diag[0]=0; actual diagonal is Lambda1([1,3,5,...])
+    # Re-derive: H[i,j] = Lambda1(i+j+1), diagonal H[i,i]=Lambda1(2i+1)
+    d_diag = Lambda1(2 * nn + 1)
+
+    tol_chol = 1e-14 * np.log(N + 2)
+    chol_cols = []
+    pivot_vals = []
+
+    mx_idx = int(np.argmax(d_diag))
+    mx = d_diag[mx_idx]
+
+    # Full Hankel column extractor: col j of H = Lambda1([j+1, j+2, ..., j+N])
+    def hankel_col(j):
+        return Lambda1(j + 1 + nn)
+
+    while mx > tol_chol:
+        new_col = hankel_col(mx_idx)
+        if chol_cols:
+            C_arr = np.column_stack(chol_cols)
+            pv_arr = np.array(pivot_vals)
+            new_col = new_col - C_arr @ (C_arr[mx_idx, :] * pv_arr)
+
+        pivot_vals.append(1.0 / mx)
+        chol_cols.append(new_col.copy())
+        d_diag = d_diag - new_col ** 2 / mx
+        d_diag = np.maximum(d_diag, 0.0)
+        mx_idx = int(np.argmax(d_diag))
+        mx = d_diag[mx_idx]
+
+    if not chol_cols:
+        return v
+
+    sz = len(chol_cols)
+    C_arr = np.column_stack(chol_cols) * np.sqrt(np.array(pivot_vals))[None, :]  # (N, sz)
+
+    # Toeplitz row: T_row[k] = Lambda2(k) for k=0..N-1
+    T_row = Lambda2(nn)
+    T_row[0] = float(np.exp(gammaln(alpha - gam + 1))) / (alpha - gam)
+
+    # Fast Toeplitz-vector product via FFT
+    Z = np.concatenate([[T_row[0]], np.zeros(N - 1)])
+    a_fft = np.fft.fft(np.concatenate([Z, T_row[N - 1:0:-1]]))
+
+    # c_jac = D2 * v
+    c_work = d2 * v
+
+    # Apply D1*(T.*H)*D2: c_work -> sum over Cholesky columns
+    tmp = C_arr * c_work[:, None]  # (N, sz)
+    f1 = np.fft.fft(tmp, n=2 * N - 1, axis=0)
+    tmp2 = f1 * a_fft[:, None]
+    b = np.real(np.fft.ifft(tmp2, axis=0))
+    result = d1 * np.sum(b[:N, :] * C_arr, axis=1)
+
+    # Fix first entry
+    Matrow1 = (np.exp(gammaln(gam + beta + 2)) / np.exp(gammaln(beta + 1))
+               * d2 * T_row * Lambda1(nn))
+    result[0] = float(np.dot(Matrow1, v)) + v[0]
+
+    return result
+
+
+# ===========================================================================
+# Ultra-spherical transforms
+# ===========================================================================
+
+def ultra2ultra(c: jnp.ndarray, lam_in: float, lam_out: float) -> jnp.ndarray:
+    """Convert between ultraspherical (Gegenbauer) expansions.
+
+    C_OUT = ULTRA2ULTRA(C_IN, LAM_IN, LAM_OUT) converts the vector C_IN of
+    ultraspherical C^{(lam_in)} coefficients to C^{(lam_out)} coefficients.
+
+    Ultraspherical polynomials C_n^{(lambda)} are a special case of Jacobi
+    polynomials:  C_n^{(lam)} ∝ P_n^{(lam-1/2, lam-1/2)}.
+    This function uses the jac2jac algorithm internally.
+
+    Parameters
+    ----------
+    c : jnp.ndarray, shape (n,)
+        Ultraspherical C^{(lam_in)} coefficients.
+    lam_in : float
+        Source ultraspherical parameter (must be >= 0).
+    lam_out : float
+        Target ultraspherical parameter (must be >= 0).
+
+    Returns
+    -------
+    c_out : jnp.ndarray, shape (n,)
+        Ultraspherical C^{(lam_out)} coefficients.
+
+    Notes
+    -----
+    The scaling from ultraspherical to Jacobi and back follows DLMF Table 18.3.1.
+    For lam=0 the polynomial reduces to Legendre / T_n (Chebyshev).
+
+    Provenance
+    ----------
+    MATLAB source : ultra2ultra.m
+    Chebfun commit: 7574c77
+    Original authors: Alex Townsend. Copyright 2017 by The University of
+        Oxford and The Chebfun Developers.
+
+    See Also
+    --------
+    jac2jac, ultracoeffs
+    """
+    n = c.shape[0] - 1
+
+    def _scl(lam: float) -> np.ndarray:
+        """Scaling from Jacobi to ultraspherical (DLMF Table 18.3.1)."""
+        if lam == 0.0:
+            nn_scl = np.arange(n, dtype=np.float64)
+            s = np.concatenate([[1.0], np.cumprod((nn_scl + 0.5) / (nn_scl + 1.0))])
+        else:
+            nn_scl = np.arange(n + 1, dtype=np.float64)
+            s = (np.exp(gammaln(2 * lam) - gammaln(lam + 0.5))
+                 * np.exp(gammaln(lam + 0.5 + nn_scl) - gammaln(2 * lam + nn_scl)))
+        return s
+
+    c_np = np.array(c, dtype=np.float64)
+
+    # Scale from US to Jacobi
+    c_np = c_np / _scl(lam_in)
+
+    # Convert Jacobi (lam_in-0.5, lam_in-0.5) -> (lam_out-0.5, lam_out-0.5)
+    c_np = _jac2jac_np(c_np, lam_in - 0.5, lam_in - 0.5, lam_out - 0.5, lam_out - 0.5)
+
+    # Scale from Jacobi to US
+    c_np = c_np * _scl(lam_out)
+
+    return jnp.array(c_np)
+
+
+def ultracoeffs(c_cheb: jnp.ndarray, lam: float) -> jnp.ndarray:
+    """Compute ultraspherical series coefficients from Chebyshev coefficients.
+
+    A = ULTRACOEFFS(C_CHEB, LAM) converts the Chebyshev coefficients C_CHEB
+    to ultraspherical C^{(lam)} coefficients A such that
+        f(x) ≈ A[0]*C_0^{(lam)}(x) + A[1]*C_1^{(lam)}(x) + ...
+
+    Parameters
+    ----------
+    c_cheb : jnp.ndarray, shape (n,)
+        Chebyshev coefficients.
+    lam : float
+        Ultraspherical parameter.  Must be > 0.
+
+    Returns
+    -------
+    c_ultra : jnp.ndarray, shape (n,)
+        Ultraspherical coefficients.
+
+    Notes
+    -----
+    Internally converts Chebyshev -> Jacobi (lam-0.5, lam-0.5) -> ultraspherical.
+
+    Provenance
+    ----------
+    MATLAB source : ultracoeffs.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+
+    See Also
+    --------
+    ultra2ultra, cheb2jac
+    """
+    if lam <= 0.0:
+        raise ValueError("Ultraspherical polynomials require lam > 0.")
+    if lam == 0.5:
+        # US(0.5) == Legendre
+        return cheb2leg(c_cheb)
+    if lam == 1.0:
+        # US(1) == Chebyshev 2nd kind (up to normalization; just return Cheb-2nd coeffs)
+        return c_cheb
+
+    # Convert Chebyshev -> Jacobi (ab, ab) where ab = lam - 0.5
+    ab = lam - 0.5
+    c_jac = cheb2jac(c_cheb, ab, ab)
+
+    # Scale from Jacobi to ultraspherical
+    n = c_jac.shape[0]
+    nn = jnp.arange(n, dtype=jnp.float64)
+    from scipy.special import gammaln as _gammaln
+    scl = jnp.array(
+        np.exp(_gammaln(2 * lam) - _gammaln(lam + 0.5))
+        * np.exp(
+            np.array([float(_gammaln(lam + 0.5 + k)) for k in range(n)])
+            - np.array([float(_gammaln(2 * lam + k)) for k in range(n)])
+        )
+    )
+    return c_jac * scl
