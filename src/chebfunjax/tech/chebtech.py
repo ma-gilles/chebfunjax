@@ -1539,3 +1539,95 @@ class Chebtech2(eqx.Module):
         diff, sum
         """
         return _roots_colleague(self.coeffs)
+
+    def minandmax(self) -> tuple[tuple[jax.Array, jax.Array], tuple[jax.Array, jax.Array]]:
+        """Global minimum and maximum of the function on [-1, 1].
+
+        Returns the global minimum and maximum values together with the
+        positions at which they are achieved.  Computed by finding the roots
+        of the derivative and evaluating at those interior critical points as
+        well as at the endpoints.
+
+        NOT JIT-safe (depends on rootfinding which has variable output size).
+
+        Returns
+        -------
+        (min_val, min_pos) : tuple[jax.Array, jax.Array]
+            Global minimum value and the x-position where it is achieved.
+        (max_val, max_pos) : tuple[jax.Array, jax.Array]
+            Global maximum value and the x-position where it is achieved.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/minandmax.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        roots, diff
+        """
+        import numpy as _np
+
+        # Compute turning points (roots of derivative)
+        fp = self.diff()
+        r = fp.roots()
+
+        # Include endpoints
+        endpoints = jnp.array([-1.0, 1.0], dtype=jnp.float64)
+        if r.shape[0] > 0:
+            candidates = jnp.concatenate([endpoints, r])
+        else:
+            candidates = endpoints
+
+        # Evaluate at all candidate points
+        v = self(candidates)
+        v_np = _np.array(v)
+        cand_np = _np.array(candidates)
+
+        min_idx = int(_np.argmin(v_np))
+        max_idx = int(_np.argmax(v_np))
+
+        min_val = jnp.array(v_np[min_idx], dtype=jnp.float64)
+        max_val = jnp.array(v_np[max_idx], dtype=jnp.float64)
+        min_pos = jnp.array(cand_np[min_idx], dtype=jnp.float64)
+        max_pos = jnp.array(cand_np[max_idx], dtype=jnp.float64)
+
+        return (min_val, min_pos), (max_val, max_pos)
+
+    def min(self) -> tuple[jax.Array, jax.Array]:
+        """Global minimum of the function on [-1, 1].
+
+        Returns
+        -------
+        (val, pos) : tuple[jax.Array, jax.Array]
+            Global minimum value and the x-position where it is achieved.
+
+        NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/min.m
+        Chebfun commit: 7574c77
+        """
+        (min_val, min_pos), _ = self.minandmax()
+        return min_val, min_pos
+
+    def max(self) -> tuple[jax.Array, jax.Array]:
+        """Global maximum of the function on [-1, 1].
+
+        Returns
+        -------
+        (val, pos) : tuple[jax.Array, jax.Array]
+            Global maximum value and the x-position where it is achieved.
+
+        NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/max.m
+        Chebfun commit: 7574c77
+        """
+        _, (max_val, max_pos) = self.minandmax()
+        return max_val, max_pos
