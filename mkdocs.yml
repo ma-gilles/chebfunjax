@@ -133,6 +133,20 @@ nav:
       - Complex Functions: examples/complex/complex_functions.md
       - Argument Principle: examples/complex/argument_principle.md
       - Contour Integrals: examples/complex/contour_integrals.md
+    - 3D Approximation (Chebfun3):
+      - Overview: examples/approx3/index.md
+      - Change of Variables 3D: examples/approx3/ChangeVar3D.md
+      - Chebfun3 Speedup: examples/approx3/Chebfun3Speedup.md
+      - Complexity: examples/approx3/Complexity.md
+      - Finding Rank One: examples/approx3/FindingRankOne.md
+      - Flux Integral 3D: examples/approx3/FluxIntegral3D.md
+      - Gauss-Green-Stokes: examples/approx3/GaussGreenStokes.md
+      - Hello Chebfun3: examples/approx3/Hello3.md
+      - Line Integral 3D: examples/approx3/LineIntegral3D.md
+      - Surface Integral 3D: examples/approx3/SurfaceIntegral3D.md
+      - Tolerance: examples/approx3/Tolerance.md
+      - Wagon Problem: examples/approx3/Wagon.md
+    - 3D Functions: examples/chebfun3.md
     - Statistics:
       - Overview: examples/stats/index.md
       - Random Polynomials: examples/stats/random_polynomials.md
