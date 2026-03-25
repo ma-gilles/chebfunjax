@@ -5,17 +5,15 @@ series in spherical coordinates `(λ, θ)` (longitude, colatitude).
 
 | Example | Description |
 |---------|-------------|
-| [Spherical Harmonics](spherical_harmonics.md) | Eigenfunctions of the spherical Laplacian Y_l^m |
-| [Sphere Operations](sphere_operations.md) | Basic Spherefun operations: integral, norm, rank |
-| [Advection-Diffusion](advection_diffusion.md) | Advection-diffusion on the unit ball; eigenfunction decay |
-| [Atmospheric Temperature](atmospheric_temperature.md) | Global temperature field: SH power spectrum, zonal mean |
-| [Gravity](gravity.md) | Gravitational potential of a sphere: multipole expansion |
-| [Helmholtz Decomposition](helmholtz_decomposition.md) | Helmholtz-Hodge: divergence-free + curl-free decomposition on S² |
-| [Helmholtz Decomposition Ball](helmholtz_decomposition_ball.md) | Helmholtz-Hodge decomposition inside the unit ball |
-| [Laplace Ball](laplace_ball.md) | Laplace equation in the unit ball via SH expansion |
-| [PT Decomposition](pt_decomposition.md) | Poloidal-toroidal decomposition of divergence-free vector fields |
-| [Rayleigh Quotient](rayleigh_quotient.md) | Rayleigh quotient and eigenvalues of the Laplace-Beltrami operator |
-| [Solid Harmonics](solid_harmonics.md) | Regular and irregular solid harmonics: solutions of Laplace in 3D |
-| [Spherefun Partition](spherefun_partition.md) | Parity partitioning: even and odd parts of a spherefun |
-| [Spherefun Rotate](spherefun_rotate.md) | Rotating functions on the sphere using Euler angle rotations |
-| [Sphere Heat Conduction](sphere_heat_conduction.md) | Heat equation u_t = κ·Δ_S u solved by eigenfunction expansion |
+| [Advection-Diffusion on the Sphere](advection_diffusion.md) | Original: sphere/AdvectionDiffusion Author(s): Nicolas Boulle, July 2019 |
+| [Atmospheric Temperature](atmospheric_temperature.md) | Original: sphere/AtmosphericTemperature Author(s): Alex Townsend and Grady Wright, May 2016 |
+| [Gravitational Attraction to a Sphere](gravity.md) | Original: sphere/Gravity Author(s): Nick Trefethen, May 2016 |
+| [Helmholtz-Hodge Decomposition](helmholtz_decomposition.md) | Original: sphere/HelmholtzDecomposition Author(s): Alex Townsend and Grady Wright, May 2016 |
+| [Helmholtz-Hodge in the Ball](helmholtz_decomposition_ball.md) | Original: sphere/HelmholtzDecompositionBall Author(s): Nicolas Boulle and Alex Townsend, May 2019 |
+| [Laplace Equation on the Unit Ball](laplace_ball.md) | Original: sphere/LaplaceBall Author(s): Nick Trefethen, June 2019 |
+| [Poloidal-Toroidal Decomposition](pt_decomposition.md) | Original: sphere/PTDecomposition Author(s): Nicolas Boulle and Alex Townsend, May 2019 |
+| [Rayleigh Quotient on the Sphere](rayleigh_quotient.md) | Original: sphere/RayleighQuotientExample Author(s): Grady Wright, February 2017 |
+| [Solid Harmonics](solid_harmonics.md) | Original: sphere/SolidHarmonics Author(s): Nicolas Boulle and Alex Townsend, May 2019 |
+| [Sphere Heat Conduction](sphere_heat_conduction.md) | Original: sphere/SphereHeatConduction Author(s): Alex Townsend and Grady Wright, May 2016 |
+| [Parity Partitioning a Spherefun](spherefun_partition.md) | Original: sphere/SpherefunPartition Author(s): Behnam Hashemi, November 2016 |
+| [Rotating Functions on the Sphere](spherefun_rotate.md) | Original: sphere/SpherefunRotate Author(s): Alex Townsend and Grady Wright, May 2017 |

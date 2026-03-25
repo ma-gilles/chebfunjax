@@ -10,6 +10,8 @@ f(x, y) ≈ Σ_k  c_k · u_k(x) · v_k(y)
 where each `u_k`, `v_k` is a 1D Chebfun.  This is the Chebfun2 *skeleton
 approximation* (Townsend & Trefethen 2013).
 
+*See also: [Chebfun approx2 examples](https://www.chebfun.org/examples/approx2/)*
+
 ---
 
 ## 1. Approximating cos(x + y)

@@ -3,6 +3,8 @@
 chebfunjax performs differentiation, integration, and antiderivative computation
 algebraically on Chebyshev coefficients, giving spectral accuracy.
 
+*See also: [Chebfun calc examples](https://www.chebfun.org/examples/calc/)*
+
 ---
 
 ## 1. Differentiation of exp(x)

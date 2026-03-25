@@ -2,6 +2,8 @@
 
 **Nick Hale, October 2010**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/quad/SpikeIntegral.html)
+
 ---
 
 The *spike function* (also known as F21F in the Kahaner benchmark) consists

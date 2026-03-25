@@ -2,6 +2,8 @@
 
 **Anthony Austin, November 2012 (revised October 2020)**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/complex/RoucheTheorem.html)
+
 ---
 
 *Rouché's Theorem* states: if $f$ and $g$ are holomorphic in a region bounded

@@ -2,6 +2,8 @@
 
 **Nick Trefethen, May 2011**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/complex/Arguments.html)
+
 ---
 
 A complex number $z$ has a modulus $|z| \in [0, \infty)$ and an argument

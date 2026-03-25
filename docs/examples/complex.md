@@ -4,6 +4,8 @@ chebfunjax works naturally with complex-valued functions of a real variable.
 This makes contour integrals, phase portraits, and conformal maps straightforward
 to compute and visualise.
 
+*See also: [Chebfun complex examples](https://www.chebfun.org/examples/complex/)*
+
 ---
 
 ## 1. Contour integral via parameterisation

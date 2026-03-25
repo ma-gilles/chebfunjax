@@ -6,6 +6,8 @@ For linear problems, a direct spectral solve is used.
 For nonlinear problems, Newton iteration is applied with each linearized step
 solved spectrally.
 
+*See also: [Chebfun ode-linear examples](https://www.chebfun.org/examples/ode-linear/)*
+
 ---
 
 ## 1. u'' = -1 with Dirichlet Boundary Conditions

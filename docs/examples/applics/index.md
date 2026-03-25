@@ -151,3 +151,9 @@ from its frequency response Bode magnitude, using AAA rational
 approximation on real-valued data.
 
 ![Step2tf](../../../docs/images/applics/step2tf.png)
+
+| Example | Description |
+|---------|-------------|
+| [AAA Algorithm for System Identification from Bode Data](bode2tf.md) | Source: ... — Stefano Costa, August 2021 Python: ... |
+| [Exponential, Logistic, and Gompertz Growth](gompertz.md) | Source: ... — Toby Driscoll, June 2015 Python: ... |
+| [AAA Algorithm for System Identification from Step Response](step2tf.md) | Source: ... — Stefano Costa, December 2021 Python: ... |

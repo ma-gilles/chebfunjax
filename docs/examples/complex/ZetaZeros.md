@@ -2,6 +2,8 @@
 
 **Nick Trefethen and Mohsin Javed, July 2015**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/complex/ZetaZeros.html)
+
 ---
 
 The Riemann Hypothesis asserts that all non-trivial zeros of the Riemann zeta

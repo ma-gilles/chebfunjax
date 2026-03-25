@@ -2,6 +2,8 @@
 
 **Nick Trefethen, December 2016**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/complex/ConformalVis.html)
+
 ---
 
 A *conformal map* is an angle-preserving map of the complex plane. The

@@ -104,3 +104,9 @@ The numerical abscissa (maximum eigenvalue of `B = (A + A^T)/2`)
 as a function of `a` exhibits a non-smooth transition near `a ≈ 0.46`.
 
 ![Vlasov-Poisson](../../../docs/images/integro/vlasov_poisson.png)
+
+| Example | Description |
+|---------|-------------|
+| [Fractional Calculus](fractional_calculus.md) | Source: ... — Nick Hale, October 2010 Python: ... |
+| [Vlasov-Poisson Operator Numerical Abscissa](vlasov_poisson.md) | Source: ... — Toby Driscoll, October 2010 Python: ... |
+| [Wikipedia Integro-Differential Equation](wiki_integro_diff.md) | Source: ... — Mark Richardson, September 2010 Python: ... |

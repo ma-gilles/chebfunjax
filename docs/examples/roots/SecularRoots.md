@@ -2,6 +2,8 @@
 
 **Nick Trefethen, November 2010**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/roots/SecularRoots.html)
+
 ---
 
 A *secular equation* is a rational function of the form

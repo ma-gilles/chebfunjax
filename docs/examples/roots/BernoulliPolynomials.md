@@ -2,6 +2,8 @@
 
 **Stefan Guettel, February 2012**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/roots/BernoulliPolynomials.html)
+
 ---
 
 Bernoulli polynomials are a family of polynomials defined by the recurrence

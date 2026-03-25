@@ -2,6 +2,8 @@
 
 **Kuan Xu, October 2012**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/roots/NewtonRaphson.html)
+
 ---
 
 Newton's method is the most fundamental root-finding algorithm. Starting from

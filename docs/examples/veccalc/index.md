@@ -38,19 +38,8 @@ print(float((lap_computed - lap_exact).norm()))   # < 1e-6
 
 ## Key identities verified
 
-| Identity | Formula |
-|---|---|
-| Curl of gradient | `curl(grad f) = 0` |
-| Divergence of curl | `div(curl F) = 0` |
-| Laplacian via grad | `div(grad f) = Δf` |
-| Green's identities | `∫∫ u Δv dA = -∫∫ ∇u·∇v dA + ∮ u ∂v/∂n ds` |
+*No examples yet.*
 
----
+*No examples yet.*
 
-## Other vector calculus examples
-
-| MATLAB example | Description |
-|---|---|
-| `veccalc/AutonomousSystems.m` | Autonomous dynamical systems |
-| `veccalc/EventHandling.m` | Event handling in ODEs |
-| `veccalc/UndergraduateCalculus.m` | Undergraduate calculus review |
+*No examples yet.*

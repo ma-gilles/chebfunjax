@@ -2,6 +2,8 @@
 
 **Nick Trefethen, August 2014**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/roots/Tiger.html)
+
 ---
 
 A high-degree chebfun with geometrically decaying Chebyshev coefficients

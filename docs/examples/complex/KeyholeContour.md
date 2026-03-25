@@ -2,6 +2,8 @@
 
 **Nick Trefethen and Nick Hale, October 2010 (revised June 2019)**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/complex/KeyholeContour.html)
+
 ---
 
 Chebfun can represent complex-valued functions of a real variable, making

@@ -2,6 +2,8 @@
 
 **Kuan Xu, November 2012**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/complex/ComplexArcLength.html)
+
 ---
 
 If $z(t)$ is a smooth curve in $\mathbb C$ parametrised by $t \in [a, b]$,

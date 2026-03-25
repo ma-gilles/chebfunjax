@@ -168,3 +168,17 @@ print(float(div_g.sum3()))   # 24.0
 ```
 
 ![Flux integrals](../../../examples/approx3/flux_integral_3d.png)
+
+| Example | Description |
+|---------|-------------|
+| [Triple Integrals via Coordinate Transformations](ChangeVar3D.md) | This example uses mappings to compute integrals over non-rectangular three-dimensional volumes. We apply the change o... |
+| [Chebfun3 Construction Speedup](Chebfun3Speedup.md) | Chebfun3 was introduced by Behnam Hashemi in 2016 [2] and represents trivariate functions ... in Tucker format. Chris... |
+| [Chebfun3 Complexity and Tucker Rank](Complexity.md) | This example explores how the Tucker rank — and hence the cost — of a ... approximation grows with the difficulty of ... |
+| [Finding a Trivariate Basis of Rank-One Functions](FindingRankOne.md) | A function ... is called rank one in Tucker format. When a Chebfun3 is constructed from such a function, |
+| [Flux Integrals over Parametric Surfaces](FluxIntegral3D.md) | Given a vector field ... and a surface ... parametrized over ..., the flux integral is |
+| [The Theorems of Gauss, Green, and Stokes](GaussGreenStokes.md) | Gauss's theorem asserts that the integral of the sources of a vector field in a domain ... equals the flux through it... |
+| [Hello 3D World](Hello3.md) | A ... can be constructed not only from a function handle but also from discrete tensor data. In the original MATLAB C... |
+| [Integration over 3D Curves](LineIntegral3D.md) | Given a scalar field ... represented as a ... and a parametric curve ... for ..., |
+| [Integration over 2D Surfaces in 3D](SurfaceIntegral3D.md) | For a scalar field ... represented as a ... and a parametric surface ..., the surface integral is |
+| [Loosening the Chebfun3 Tolerance](Tolerance.md) | Chebfun3's default tolerance is machine precision (~2.2e-16). In 3D, however, the Tucker construction can be slow for... |
+| [Low-Rank Representation of Wagon's Function](Wagon.md) | Stan Wagon [1] suggested the problem of finding the global minimum of the three-dimensional function |

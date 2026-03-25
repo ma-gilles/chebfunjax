@@ -3,6 +3,8 @@
 Chebfunjax adaptively approximates smooth functions as Chebyshev series.
 All examples run on CPU or GPU without code changes.
 
+*See also: [Chebfun approx examples](https://www.chebfun.org/examples/approx/)*
+
 ---
 
 ## 1. Approximating sin(x)

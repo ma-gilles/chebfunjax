@@ -2,6 +2,8 @@
 
 **Toby Driscoll, November 2012**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/calc/ForTheBirds.html)
+
 ---
 
 Birds expend energy both flying over water (high cost) and flying over land

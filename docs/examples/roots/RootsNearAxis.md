@@ -2,6 +2,8 @@
 
 **Nick Trefethen, October 2011**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/roots/RootsNearAxis.html)
+
 ---
 
 A chebfun may have no real roots while having complex roots very close to the

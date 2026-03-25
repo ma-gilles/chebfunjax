@@ -2,6 +2,8 @@
 
 **Stefan Guettel, November 2011**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/roots/WhiteCurves.html)
+
 ---
 
 In their 1983 article "Another look at the Chebyshev polynomials", Ortiz and

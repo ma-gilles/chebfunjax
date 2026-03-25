@@ -5,6 +5,8 @@ chebfunjax includes two PDE solvers:
 - **`SpinOp`** — 1D periodic PDEs (Allen-Cahn, KdV, NLS, KS) via ETDRK4 time-stepping.
 - **`Chebop2`** — 2D elliptic PDEs on rectangles (Poisson, Helmholtz) via spectral collocation.
 
+*See also: [Chebfun pde examples](https://www.chebfun.org/examples/pde/)*
+
 ---
 
 ## 1. Allen-Cahn Equation (SpinOp)
