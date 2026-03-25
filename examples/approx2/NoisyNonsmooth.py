@@ -6,6 +6,7 @@ noisy AND has discontinuities.
 Credit: Nick Trefethen, July 2014.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/NoisyNonsmooth.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

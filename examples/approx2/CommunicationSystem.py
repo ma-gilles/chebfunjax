@@ -6,6 +6,7 @@ Chebfun arithmetic operations.
 Credit: Mohsin Javed, August 2012.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/CommunicationSystem.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

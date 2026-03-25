@@ -6,6 +6,7 @@ Mark Richardson (October 2011).
 
 Original: https://www.chebfun.org/examples/approx/Entire.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

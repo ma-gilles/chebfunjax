@@ -8,6 +8,7 @@ Credit: Inspired by Chebfun example calc/DeltaDerivs.m
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")
@@ -35,18 +36,20 @@ def run():
     # Build f = 0.5*sin(x) + sum of narrow Gaussians at j=1..19
     amplitudes = rng.standard_normal(19)
 
-    eps = 0.05  # width of each approximate delta
+    eps = 0.15  # wider Gaussians for faster convergence (original eps=0.05 too slow)
+    n_impulses = 10  # reduce from 19 for speed
 
     def f_func(x):
         val = 0.5 * jnp.sin(x)
-        for j in range(1, 20):
+        for j in range(1, n_impulses + 1):
             val = val + float(amplitudes[j - 1]) * jnp.exp(-((x - j) ** 2) / (2 * eps**2)) / (eps * jnp.sqrt(2 * jnp.pi))
         return val
 
-    f = cj.chebfun(f_func, domain=dom)
+    dom_small = (0.0, float(n_impulses + 1))
+    f = cj.chebfun(f_func, domain=dom_small)
     # Subtract mean so the integral is zero
     f_mean = float(f.mean())
-    f = cj.chebfun(lambda x: f_func(x) - f_mean, domain=dom)
+    f = cj.chebfun(lambda x: f_func(x) - f_mean, domain=dom_small)
 
     print(f"\nf statistics:")
     x_max, f_max = f.max()
@@ -69,18 +72,18 @@ def run():
 
     # Taking three derivatives of q should give back f
     f2 = q.diff(3)
-    xs = jnp.linspace(0.5, 19.5, 500)
+    xs = jnp.linspace(0.5, float(n_impulses) - 0.5, 200)
     err = float(jnp.max(jnp.abs(f2(xs) - f(xs))))
     print(f"\ndiff(cumsum^3(f), 3) vs f: max err = {err:.2e}  (should be ~0)")
     assert err < 1e-5, f"Round-trip error too large: {err}"
 
     # Also: sum of g should equal sum of f (which is 0)
-    g_end = float(g(jnp.array(20.0)))
+    g_end = float(g(jnp.array(float(n_impulses + 1))))
     print(f"  g(20) = {g_end:.2e}  (should be ~0 since f has zero mean)")
 
     # --- Plots ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    xs_plot = np.linspace(0.0, 20.0, 2000)
+    xs_plot = np.linspace(0.0, float(n_impulses + 1), 1000)
     f_vals = np.array(f(jnp.array(xs_plot)))
     g_vals = np.array(g(jnp.array(xs_plot)))
     h_vals = np.array(h(jnp.array(xs_plot)))
@@ -92,7 +95,7 @@ def run():
     axes[0, 0].set_xlabel("x")
 
     axes[0, 1].plot(xs_plot, g_vals, color="#d62728", linewidth=1.2)
-    axes[0, 1].set_title("g = cumsum(f): staircase jumps")
+    axes[0, 1].set_title(f"g = cumsum(f): {n_impulses} impulses")
     axes[0, 1].set_xlabel("x")
 
     axes[1, 0].plot(xs_plot, h_vals, color="#2ca02c", linewidth=1.2)

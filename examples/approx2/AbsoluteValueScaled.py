@@ -6,6 +6,7 @@ demonstrating rational approximation methods for the sign/absolute value functio
 Credit: Yuji Nakatsukasa, July 2012.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/AbsoluteValueScaled.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

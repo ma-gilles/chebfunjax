@@ -6,6 +6,7 @@ by Nick Trefethen (October 2010).
 
 Original: https://www.chebfun.org/examples/opt/Rosenbrock.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

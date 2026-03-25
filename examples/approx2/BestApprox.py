@@ -7,6 +7,7 @@ equioscillation property of best approximants.
 Credit: Nick Trefethen, September 2010.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/BestApprox.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")
@@ -25,16 +26,17 @@ _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
 
-    f = cj.chebfun(lambda x: jnp.abs(x - 0.5))
+    # Use explicit breakpoint at 0.5 so |x-0.5| converges quickly
+    f = cj.chebfun(lambda x: jnp.abs(x - 0.5), domain=[-1.0, 0.5, 1.0])
 
     # Best L2 approximation of degree 16 (proxy for Linfty minimax)
     p16 = f.polyfit(16)
     err_func = f - p16
 
-    xx = np.linspace(-1.0, 1.0, 600)
-    f_vals = np.array([float(f(jnp.array(x))) for x in xx])
-    err_vals = np.array([float(err_func(jnp.array(x))) for x in xx])
-    p16_vals = np.array([float(p16(jnp.array(x))) for x in xx])
+    xx = jnp.linspace(-1.0, 1.0, 600)
+    f_vals = np.array(f(xx))
+    err_vals = np.array(err_func(xx))
+    p16_vals = np.array(p16(xx))
 
     err_max = float(jnp.max(jnp.abs(jnp.array(err_vals))))
 

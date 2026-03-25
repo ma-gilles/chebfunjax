@@ -6,6 +6,7 @@ using Chebyshev polynomial interpolation.
 Credit: Ricardo Pachon and Nick Trefethen, November 2010.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/WigglyApprox.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

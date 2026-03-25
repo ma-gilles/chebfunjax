@@ -6,6 +6,7 @@ point values and Chebyshev expansion coefficients.
 Credit: Mark Richardson, May 2011.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/ChebfunFFT.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

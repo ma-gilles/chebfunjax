@@ -6,6 +6,7 @@ convergence rates for |x| (the algebraic O(n^{-3/2}) case).
 Credit: Alex Townsend, October 2013.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/BestL2Approximation.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

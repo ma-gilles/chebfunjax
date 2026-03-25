@@ -6,6 +6,7 @@ Nick Trefethen (September 2010).
 
 Original: https://www.chebfun.org/examples/roots/BesselRoots.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

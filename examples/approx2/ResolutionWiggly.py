@@ -6,6 +6,7 @@ tests the resolution of approximation methods.
 Credit: Nick Hale and Nick Trefethen, October 2013.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/ResolutionWiggly.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

@@ -6,6 +6,7 @@ Best polynomial approximants exhibit equioscillation.
 Credit: Nick Trefethen, January 2022.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/Checkmark.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

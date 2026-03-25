@@ -6,6 +6,7 @@ the matrix SVD (polar decomposition), analogous to the nearest orthogonal matrix
 Credit: Behnam Hashemi, December 2014.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/NearestOrthFun.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

@@ -9,6 +9,7 @@ Credit: Chebfun example ode-eig/ContinuousWilkinson.m (Nick Trefethen, Mar 2017)
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")
@@ -31,7 +32,8 @@ def run():
     dom = (-N, N)
 
     print(f"\nDomain: [{-N}, {N}]")
-    L = Chebop(lambda x, u: -u.diff(2) + jnp.abs(x) * u, domain=dom)
+    # Use abs(x) not jnp.abs(x): x is a Chebfun in the operator context
+    L = Chebop(lambda x, u: -u.diff(2) + abs(x) * u, domain=dom)
     L.lbc = 0.0
     L.rbc = 0.0
 

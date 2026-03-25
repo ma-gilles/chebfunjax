@@ -6,6 +6,7 @@ uses Hankel SVD to produce near-best rational approximants extremely quickly.
 Credit: Nick Trefethen and Mohsin Javed, July 2014.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/CF30.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

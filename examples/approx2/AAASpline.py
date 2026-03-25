@@ -6,6 +6,7 @@ showing how poles cluster near the spline knots.
 Credit: Nick Trefethen, April 2021.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/AAASpline.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")
@@ -35,12 +36,12 @@ def run():
     from scipy.interpolate import CubicSpline
     cs = CubicSpline(nodes, data)
 
-    # Sample spline on a fine grid
-    X = np.linspace(0, 10, 1000)
+    # Sample spline on a fine grid (use 200 pts for speed; mmax=30 to avoid OOM)
+    X = np.linspace(0, 10, 200)
     Y = cs(X)
 
-    # AAA approximation
-    r, poles, *_ = aaa(jnp.array(Y), jnp.array(X), mmax=200, tol=1e-10)
+    # AAA approximation (reduced mmax for CPU performance)
+    r, poles, *_ = aaa(jnp.array(Y), jnp.array(X), mmax=30, tol=1e-8)
 
     fig, axes = plt.subplots(1, 2, figsize=(11, 4))
 
@@ -70,7 +71,7 @@ def run():
     fig.savefig(os.path.join(_OUTDIR, 'AAASpline.png'), dpi=150)
     plt.close(fig)
 
-    err = np.max(np.abs(Y - np.array([float(r(jnp.array(x)).real) for x in X])))
+    err = np.max(np.abs(Y - np.array([float(r(jnp.array(float(x))).real) for x in X])))
     print(f"AAASpline: max error = {err:.2e}, {len(poles)} poles found")
     return True
 

@@ -6,6 +6,7 @@ Based on Chebfun example approx/LebesgueConst.m by Nick Trefethen (November 2010
 
 Original: https://www.chebfun.org/examples/approx/LebesgueConst.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

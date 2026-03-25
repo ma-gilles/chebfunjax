@@ -6,6 +6,7 @@ polynomials with respect to a given weight function.
 Credit: Pedro Gonnet, November 2011.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/OrthPolysLanczos.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

@@ -6,6 +6,7 @@ together with rational approximation to compute matrix exponentials efficiently.
 Credit: Yuji Nakatsukasa and Stefan Guettel, July 2012.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/ScalingAndSquaring.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

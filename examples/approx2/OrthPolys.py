@@ -6,6 +6,7 @@ w(x) = exp(pi*x) on [-1,1] using the Gram-Schmidt (Stieltjes) process.
 Credit: Nick Hale, June 2011.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/OrthPolys.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

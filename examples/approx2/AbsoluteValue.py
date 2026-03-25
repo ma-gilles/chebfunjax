@@ -6,6 +6,7 @@ of rational functions of type (2^k, 2^k) converging to |x|.
 Credit: Nick Trefethen, May 2011.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/AbsoluteValue.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

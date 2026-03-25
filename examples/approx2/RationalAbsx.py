@@ -6,6 +6,7 @@ O(exp(-C*sqrt(n))), far better than polynomial O(1/n).
 Credit: Silviu Filip, Yuji Nakatsukasa, and Nick Trefethen, May 2017.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/RationalAbsx.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

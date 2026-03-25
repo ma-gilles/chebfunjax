@@ -6,6 +6,7 @@ illustrating the superior rate of rational approximation near singularities.
 Credit: Yuji Nakatsukasa, May 2019.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/MinimaxSqrt.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")
