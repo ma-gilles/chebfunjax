@@ -190,7 +190,7 @@ class Linop:
         f,
         n: int | None = None,
         n_min: int = 8,
-        n_max: int = 2048,
+        n_max: int = 4096,
         tol: float = 1e-10,
     ):
         """Solve the BVP ``L*u = f`` with the attached boundary conditions.

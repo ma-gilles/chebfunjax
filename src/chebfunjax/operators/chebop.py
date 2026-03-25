@@ -215,7 +215,7 @@ class Chebop:
         n_max: int = 2048,
         tol: float = 1e-10,
         max_iter: int = 15,
-        newton_tol: float = 1e-10,
+        newton_tol: float = 5e-13,
     ):
         """Solve the BVP ``N[u] = f`` with the attached boundary conditions.
 

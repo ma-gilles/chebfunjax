@@ -387,7 +387,7 @@ class SeparableApprox(eqx.Module):
         f: Callable[[jax.Array, jax.Array], jax.Array],
         domain: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
         tol: float = _EPS,
-        max_rank: int = 512,
+        max_rank: int = 513,
         min_samples: int = 9,
         max_samples: int = 2**14 + 1,
     ) -> "SeparableApprox":
