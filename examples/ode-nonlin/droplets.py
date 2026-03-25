@@ -8,6 +8,7 @@ Credit: Chebfun example ode-nonlin/Droplets.m (Ray Treinen & Nick Trefethen, Oct
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")
@@ -79,7 +80,17 @@ def run():
                         rtol=1e-8, atol=1e-10, dense_output=True)
         return sol.y[2, -1]  # y(L) = 0 (drop sits on surface)
 
-    lam_opt = brentq(residual, -2.0, 2.0)
+    # Scan for sign change to find valid bracket
+    lam_scan = np.linspace(-2.0, 2.0, 40)
+    res_scan = [residual(l) for l in lam_scan]
+    bracket = None
+    for i in range(len(res_scan) - 1):
+        if res_scan[i] * res_scan[i+1] < 0:
+            bracket = (lam_scan[i], lam_scan[i+1])
+            break
+    if bracket is None:
+        bracket = (-1.9, -1.6)  # fallback using known sign change
+    lam_opt = brentq(residual, bracket[0], bracket[1])
     sol = solve_ivp(drop_rhs, [0, L], [psi0, 0.0, 0.0], args=(lam_opt,),
                     t_eval=np.linspace(0, L, 300), rtol=1e-8)
 
@@ -89,12 +100,22 @@ def run():
     print(f"  Base width: {sol.y[1, -1] - sol.y[1, 0]:.4f}")
     assert np.max(sol.y[2]) > 0
 
-    # Also solve a chebop BVP: u'' = -u*kappa for circular membrane
-    print("\nReference Chebop BVP: u'' + kappa u = 0, u(0)=u(pi)=0")
-    N = Chebop(lambda x, u: u.diff(2) + kappa * u, domain=(0.0, np.pi))
+    # Also solve a chebop BVP: u'' - u = -1 (non-resonant), u(0)=u(pi)=0
+    # Exact: u = 1 - cosh(x-pi/2)/cosh(pi/2)  (verify: u''=u, u(-pi/2+pi/2)=0 ✓)
+    # Actually exact: 1 - (e^x + e^(pi-x))/(1+e^pi) ... use Chebop numerical result
+    print("\nReference Chebop BVP: u'' - u = -1, u(0)=u(pi)=0")
+    N = Chebop(lambda x, u: u.diff(2) - u, domain=(0.0, float(np.pi)))
     N.lbc = 0.0; N.rbc = 0.0
-    u_ref = N.solve(cj.chebfun(lambda x: jnp.ones_like(x), domain=(0.0, np.pi)))
+    rhs_ref = cj.chebfun(lambda x: -jnp.ones_like(x), domain=(0.0, float(np.pi)))
+    u_ref = N.solve(rhs_ref)
+    # Verify BCs
     print(f"  Solution length: {len(u_ref)}")
+    # Verify ODE residual
+    x_test_r = jnp.linspace(0.1, float(np.pi) - 0.1, 100)
+    res_r = u_ref.diff(2)(x_test_r) - u_ref(x_test_r) + 1.0
+    max_res_r = float(jnp.max(jnp.abs(res_r)))
+    print(f"  Max ODE residual: {max_res_r:.2e}")
+    assert max_res_r < 1e-8
     assert abs(float(u_ref(jnp.array(0.0)))) < 1e-8
 
     # --- Plot -------------------------------------------------------
@@ -112,7 +133,7 @@ def run():
     x_plot = jnp.linspace(0.0, np.pi, 300)
     axes[1].plot(x_plot, u_ref(x_plot), 'g', linewidth=1.8)
     axes[1].set_xlabel("x"); axes[1].set_ylabel("u(x)")
-    axes[1].set_title("Reference BVP: u″+u=1, u(0)=u(π)=0", fontsize=9)
+    axes[1].set_title("Reference BVP: u″−u=−1, u(0)=u(π)=0", fontsize=9)
     axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Droplet shape and capillary equations", fontsize=11)

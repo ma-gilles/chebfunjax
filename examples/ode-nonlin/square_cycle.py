@@ -9,6 +9,7 @@ Credit: Chebfun example ode-nonlin/SquareCycle.m (Nick Trefethen, May 2019).
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")
@@ -27,7 +28,7 @@ def run():
     print("Square limit cycle (heteroclinic cycle)")
     print("=" * 60)
 
-    delta = 0.01
+    delta = -0.01  # negative delta gives limit cycle approaching (±1, ±1) saddles
 
     def rhs(t, state):
         x, y = state
@@ -35,23 +36,23 @@ def run():
         dy = (delta*y - x) * (y**2 - 1)
         return [dx, dy]
 
-    # Start near (1, 0) saddle
+    # Start near interior (limit cycle attracts for delta < 0)
     ics = [
-        [0.9, 0.1],
-        [0.5, 0.5],
-        [-0.9, 0.1],
+        [0.5, 0.1],
+        [0.3, 0.5],
+        [-0.5, 0.3],
     ]
-    T = 500.0
+    T = 200.0
 
     print(f"\nIntegrating with delta={delta}...")
     solutions = []
     for ic in ics:
-        sol = solve_ivp(rhs, [0, T], ic, max_step=0.1,
+        sol = solve_ivp(rhs, [0, T], ic, max_step=0.05,
                         rtol=1e-9, atol=1e-11,
-                        t_eval=np.linspace(0, T, 50000))
+                        t_eval=np.linspace(0, T, 20000))
         solutions.append(sol)
-        x_final = sol.y[0, -1000:]
-        y_final = sol.y[1, -1000:]
+        x_final = sol.y[0, -2000:]
+        y_final = sol.y[1, -2000:]
         print(f"  ic={ic}: late-time x in [{np.min(x_final):.3f}, {np.max(x_final):.3f}]")
         # Should be cycling around the square corners (±1, ±1)
         assert np.max(np.abs(x_final)) > 0.8
@@ -99,7 +100,7 @@ def run():
     axes[1].set_title("Time series along limit cycle", fontsize=10)
     axes[1].legend(fontsize=8); axes[1].grid(True, alpha=0.3)
 
-    fig.suptitle(f"Johnson-Tucker square limit cycle (δ={delta})", fontsize=11)
+    fig.suptitle(f"Johnson-Tucker square limit cycle (δ={delta}, limit cycle at corners ±1)", fontsize=9)
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "square_cycle.png"), dpi=150, bbox_inches="tight")
     plt.close(fig)

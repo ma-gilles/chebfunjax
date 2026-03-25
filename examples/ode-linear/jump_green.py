@@ -8,6 +8,7 @@ Credit: Chebfun example ode-linear/JumpGreen.m (Nick Hale & Nick Trefethen, Jun 
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")
@@ -79,15 +80,16 @@ def run():
     # We solve with chebop: eta u'' + u' = 0 on each side
     def solve_left_right(xi_val):
         """Solve BVP with jump at xi_val."""
+        # Green function is continuous at xi; set the shared boundary value exactly
         G_xi = float(green_func(xi_val, xi_val, eta))
 
         ul = Chebop(lambda x, u: eta * u.diff(2) + u.diff(), domain=(0.0, xi_val))
         ul.lbc = 0.0
-        ul.rbc = float(green_func(xi_val * 0.9999, xi_val, eta))
+        ul.rbc = G_xi
         u_l = ul.solve(0.0)
 
         ur = Chebop(lambda x, u: eta * u.diff(2) + u.diff(), domain=(xi_val, 1.0))
-        ur.lbc = float(green_func(xi_val * 1.0001, xi_val, eta))
+        ur.lbc = G_xi
         ur.rbc = 0.0
         u_r = ur.solve(0.0)
         return u_l, u_r
