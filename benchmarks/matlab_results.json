@@ -1,0 +1,18 @@
+{
+  "construct_sin_ms": 17.048380,
+  "eval_single_ms": 0.16752560,
+  "eval_1000pts_ms": 0.084248,
+  "diff_ms": 1.062981,
+  "sum_ms": 0.07984700,
+  "roots_ms": 3.216750,
+  "construct_n10_ms": 13.787400,
+  "construct_n100_ms": 4.435000,
+  "construct_n1000_ms": 10.053900,
+  "chebfun2_construct_ms": 135.514500,
+  "chebfun2_eval_ms": 0.851800,
+  "chebfun2_diff_ms": 0.671090,
+  "chebfun2_sum2_ms": 0.29775500,
+  "chebfun2_norm_ms": 1.949626,
+  "chebfun3_construct_ms": 337.309800,
+  "chebfun3_eval_ms": 38.083300
+}
