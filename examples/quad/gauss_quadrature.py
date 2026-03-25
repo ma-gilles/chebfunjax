@@ -9,12 +9,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 
 
 def golub_welsch(n):
@@ -80,6 +84,28 @@ def run():
     print(f"  Exact:    {exact:.15f}")
     print(f"  Error:    {abs(computed - exact):.2e}")
     assert abs(computed - exact) < 1e-7  # 5-pt GL exact for poly up to degree 9
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    import matplotlib.pyplot as _plt
+    import numpy as _np
+    fig, ax = _plt.subplots(figsize=(6, 3.5))
+    for _n, _col in [(5, "#4169E1"), (10, "#E04040"), (20, "#228B22")]:
+        _nodes, _weights = golub_welsch(_n)
+        ax.plot(_nodes, _np.zeros_like(_nodes), "o", color=_col,
+                markersize=5, label=f"n={_n}")
+    ax.set_title("Gauss-Legendre nodes on [-1, 1]", fontsize=11)
+    ax.set_xlabel("x", fontsize=10)
+    ax.set_yticks([])
+    ax.legend(fontsize=9)
+    ax.grid(True, alpha=0.3, linestyle="--", axis="x")
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    fig.set_facecolor("white")
+    fig.tight_layout()
+    fig.savefig(os.path.join(_here, "gauss_quadrature.png"),
+                dpi=150, bbox_inches="tight")
+    _plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

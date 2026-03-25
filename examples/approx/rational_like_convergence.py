@@ -9,12 +9,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot, plotcoeffs
 
 
 def run():
@@ -63,6 +67,22 @@ def run():
     for freq in [10, 50, 100]:
         f = cj.chebfun(lambda x, k=freq: jnp.cos(k * x))
         print(f"  cos({freq}*x): n = {len(f)}")
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    _f1 = cj.chebfun(lambda x: 1.0 / (1.0 + x**2))
+    _f25 = cj.chebfun(lambda x: 1.0 / (1.0 + 25.0 * x**2))
+    fig, ax = plot(_f1, title="Convergence: functions near poles", label="1/(1+x²)")
+    plot(_f25, ax=ax, color="#E04040", label="1/(1+25x²)")
+    ax.legend(fontsize=9)
+    fig.savefig(os.path.join(_here, "rational_like_convergence.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+    fig2, ax2 = plotcoeffs(_f25, title="|Chebyshev coeffs| of 1/(1+25x²)")
+    fig2.savefig(os.path.join(_here, "rational_like_convergence_coeffs.png"),
+                 dpi=150, bbox_inches="tight")
+    plt.close(fig2)
 
     print("\nAll assertions passed.")
     return True

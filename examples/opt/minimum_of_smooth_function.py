@@ -8,12 +8,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 
 
 def run():
@@ -65,6 +69,20 @@ def run():
     print(f"  min value = {min_y_val:.2e}  (exact: 0)")
     assert abs(min_y_pt - 1.0) < 1e-10
     assert abs(min_y_val) < 1e-14
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = plot(f, title="x² + sin(x): global minimum on [−π, π]")
+    ax.plot(float(x_min), float(y_min), "r*", markersize=12, label="min")
+    ax.legend(fontsize=9)
+    fig.savefig(os.path.join(_here, "minimum_of_smooth_function.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+    fig2, ax2 = plot(g, title="sin(8x)+sin(5x)+0.3x on [0, 2π]")
+    fig2.savefig(os.path.join(_here, "minimum_of_smooth_function2.png"),
+                 dpi=150, bbox_inches="tight")
+    plt.close(fig2)
 
     print("\nAll assertions passed.")
     return True

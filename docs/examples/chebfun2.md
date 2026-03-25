@@ -190,3 +190,39 @@ exp(x)*cos(y): rank = 1
 cos(x+y):      rank = 2
 exp(-x^2-y^2): rank = 12
 ```
+
+---
+
+## Gallery
+
+Figures generated automatically from `examples/approx2/` and `examples/opt/`.
+
+### exp(x+y) surface
+
+![exp(x+y) surface](../../examples/approx2/smooth_functions_2d_exp.png)
+
+### cos(x+y²) contour
+
+![cos(x+y²) contour](../../examples/approx2/smooth_functions_2d_cos.png)
+
+### Franke's function
+
+![Franke's function](../../examples/approx2/smooth_functions_2d_franke.png)
+
+### Rank-1 and rank-2 functions
+
+![Rank of functions](../../examples/approx2/rank_of_functions.png)
+
+![Rank contour](../../examples/approx2/rank_of_functions_contour.png)
+
+### 2-D integration
+
+![Integration 2D](../../examples/approx2/integration_2d.png)
+
+### 2-D differentiation
+
+![Differentiation 2D](../../examples/approx2/differentiation_2d.png)
+
+### Global minimum in 2D
+
+![Global minimum 2D](../../examples/opt/global_minimum_2d.png)

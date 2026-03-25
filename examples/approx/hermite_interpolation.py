@@ -8,12 +8,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 
 
 def run():
@@ -65,6 +69,16 @@ def run():
     err_poly = float((f_poly - p3).norm())
     print(f"\nx^3 - 2x + 1, polyfit(3) error: {err_poly:.2e}")
     assert err_poly < 1e-14, f"Polynomial not reproduced exactly: {err_poly}"
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = plot(f_smooth, title="Polyfit of exp(sin(3x))", label="full chebfun")
+    plot(p5, ax=ax, color="#E04040", linestyle="--", label="deg-5 polyfit")
+    plot(p10, ax=ax, color="#228B22", linestyle=":", label="deg-10 polyfit")
+    ax.legend(fontsize=9)
+    fig.savefig(os.path.join(_here, "hermite_interpolation.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

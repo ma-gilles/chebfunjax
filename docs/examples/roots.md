@@ -163,3 +163,29 @@ print("double root:", r2)
 roots (should be empty or nearly-real): []
 double root: [0.5]
 ```
+
+---
+
+## Gallery
+
+Figures generated automatically from `examples/roots/`.
+
+### Bessel roots
+
+![Bessel roots](../../examples/roots/bessel_roots.png)
+
+### Extrema and roots
+
+![Extrema and roots](../../examples/roots/extrema_and_roots.png)
+
+### Newton-Raphson root-finding
+
+![Newton-Raphson](../../examples/roots/newton_raphson.png)
+
+### Chebyshev polynomial roots
+
+![Polynomial roots](../../examples/roots/polynomial_roots.png)
+
+### Random polynomial roots
+
+![Random polynomials](../../examples/roots/random_polynomials.png)

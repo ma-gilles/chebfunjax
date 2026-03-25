@@ -206,3 +206,48 @@ print("exact       =", 1.0 / (1.0 + 0.5**2))
 rational r(0.5) = 0.8000000000000...
 exact       = 0.8
 ```
+
+---
+
+## Gallery
+
+The figures below are generated automatically by running the example scripts
+(`examples/approx/`).
+
+### Polynomial approximation
+
+![Polynomial approximation](../../examples/approx/polynomial_approximation.png)
+
+### Chebyshev coefficient decay
+
+![Chebyshev coefficients](../../examples/approx/chebyshev_coefficients.png)
+
+![Coefficient decay comparison](../../examples/approx/chebyshev_coefficients_decay.png)
+
+### Spectral convergence rates
+
+![Rational-like convergence](../../examples/approx/rational_like_convergence.png)
+
+![Coefficient decay of 1/(1+25x²)](../../examples/approx/rational_like_convergence_coeffs.png)
+
+### Piecewise smooth functions
+
+![Piecewise smooth](../../examples/approx/piecewise_smooth.png)
+
+### Bessel function approximation
+
+![Bessel approximation](../../examples/approx/bessel_approximation.png)
+
+### Polynomial interpolation (polyfit)
+
+![Hermite interpolation / polyfit](../../examples/approx/hermite_interpolation.png)
+
+### Special functions
+
+![Special functions: erf and erfc](../../examples/approx/special_functions.png)
+
+![Airy function](../../examples/approx/special_functions_airy.png)
+
+### Newton iteration for |x|
+
+![Newton iteration](../../examples/approx/absolute_value_newton.png)

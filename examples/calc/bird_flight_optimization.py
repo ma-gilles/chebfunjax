@@ -9,12 +9,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 
 
 def run():
@@ -69,6 +73,16 @@ def run():
     dT_at_min = float(dT(jnp.array(x_min)))
     print(f"T'(x*) = {dT_at_min:.2e}  (should be ~0)")
     assert abs(dT_at_min) < 1e-8
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = plot(T, title="Bird-flight travel time T(x)", ylabel="T")
+    ax.axvline(float(x_min), color="#E04040", linewidth=1.2,
+               linestyle="--", label=f"x* = {float(x_min):.4f}")
+    ax.legend(fontsize=9)
+    fig.savefig(os.path.join(_here, "bird_flight_optimization.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

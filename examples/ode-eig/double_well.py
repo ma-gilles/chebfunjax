@@ -11,12 +11,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 from chebfunjax.operators.chebop import Chebop
 
 
@@ -53,6 +57,25 @@ def run():
     assert np.all(np.diff(lam_real) > 0), "Eigenvalues should be increasing"
     # First eigenvalue is the ground state energy
     print(f"\n  Ground state energy: lam_1 = {lam_real[0]:.6f}")
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    import matplotlib.pyplot as _plt
+    import numpy as _np
+    fig, ax = _plt.subplots(figsize=(6, 3.5))
+    _lam_real = _np.sort(_np.real(_np.array(lam[:n_eigs])))
+    ax.bar(_np.arange(n_eigs), _lam_real, color="#4169E1", alpha=0.8)
+    ax.set_xlabel("eigenvalue index", fontsize=10)
+    ax.set_ylabel("λ", fontsize=10)
+    ax.set_title("Double-well Schrödinger eigenvalues", fontsize=11)
+    ax.grid(True, alpha=0.3, linestyle="--", axis="y")
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    fig.set_facecolor("white")
+    fig.tight_layout()
+    fig.savefig(os.path.join(_here, "double_well.png"),
+                dpi=150, bbox_inches="tight")
+    _plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

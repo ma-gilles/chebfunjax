@@ -8,12 +8,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 
 
 def run():
@@ -68,6 +72,15 @@ def run():
     err_d3 = float(jnp.max(jnp.abs(d3(x_test4) - 6.0)))
     print(f"\nd^3/dx^3 (x^3) error vs 6: {err_d3:.2e}")
     assert err_d3 < 1e-13
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = plot(f, title="sin(x) and its derivative", label="sin(x)")
+    plot(df, ax=ax, color="#E04040", label="cos(x)")
+    ax.legend(fontsize=9)
+    fig.savefig(os.path.join(_here, "differentiation.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

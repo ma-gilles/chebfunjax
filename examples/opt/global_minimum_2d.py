@@ -9,12 +9,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import surf, contour
 
 
 def run():
@@ -81,6 +85,15 @@ def run():
     val_at_11 = float(f_rb(jnp.array(1.0), jnp.array(1.0)))
     print(f"  f(1,1) = {val_at_11:.2e}  (exact: 0)")
     assert val_at_11 < 1e-12
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = contour(f1, title="(x−0.3)² + (y+0.5)² — global minimum")
+    ax.plot(0.3, -0.5, "r*", markersize=12, label="min (0.3, −0.5)")
+    ax.legend(fontsize=9)
+    fig.savefig(os.path.join(_here, "global_minimum_2d.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

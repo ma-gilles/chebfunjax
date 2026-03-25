@@ -8,12 +8,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot, plotcoeffs
 
 
 def run():
@@ -73,6 +77,39 @@ def run():
     print(f"\nConstant f=1: coeffs = {c_const[:5]}")
     # The sum (integral) of f=1 over [-1,1] = 2
     assert abs(float(f_const.sum()) - 2.0) < 1e-15
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+
+    # Function plot
+    fig, ax = plot(fc, title="f(x) = exp(x)·sin(πx) + x")
+    fig.savefig(os.path.join(_here, "chebyshev_coefficients.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+    # Coefficient decay comparison
+    fig2, ax2 = plt.subplots(figsize=(6, 3.5))
+    for fn_name, fn_lambda, col in [
+        ("exp(x)",    lambda x: jnp.exp(x),           "#4169E1"),
+        ("cos(10x)",  lambda x: jnp.cos(10.0 * x),    "#E04040"),
+        ("1/(1+x²)",  lambda x: 1.0 / (1.0 + x**2),  "#228B22"),
+    ]:
+        _f = cj.chebfun(fn_lambda)
+        _c = np.abs(np.array(_f.coeffs))
+        ax2.semilogy(np.arange(len(_c)), _c, ".", color=col,
+                     markersize=4, label=fn_name)
+    ax2.set_xlabel("degree $n$", fontsize=10)
+    ax2.set_ylabel("$|a_n|$", fontsize=10)
+    ax2.set_title("Chebyshev coefficient decay", fontsize=11)
+    ax2.legend(fontsize=9)
+    ax2.grid(True, alpha=0.3, linestyle="--", linewidth=0.6)
+    ax2.spines["top"].set_visible(False)
+    ax2.spines["right"].set_visible(False)
+    fig2.set_facecolor("white")
+    fig2.tight_layout()
+    fig2.savefig(os.path.join(_here, "chebyshev_coefficients_decay.png"),
+                 dpi=150, bbox_inches="tight")
+    plt.close(fig2)
 
     print("\nAll assertions passed.")
     return True

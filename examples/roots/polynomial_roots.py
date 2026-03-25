@@ -8,12 +8,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 
 
 def run():
@@ -70,6 +74,16 @@ def run():
         assert abs(lhs - rhs) < 1e-13, f"|cos(r) - r^2| = {abs(lhs-rhs)}"
     # Symmetry check
     assert abs(roots_mixed[0] + roots_mixed[1]) < 1e-10
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = plot(f_T2, title="Chebyshev polynomial roots", label="T₂(x)")
+    plot(f_T4, ax=ax, color="#E04040", label="T₄(x)")
+    ax.axhline(0, color="k", linewidth=0.5)
+    ax.legend(fontsize=9)
+    fig.savefig(os.path.join(_here, "polynomial_roots.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

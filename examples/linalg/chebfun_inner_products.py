@@ -8,12 +8,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 
 
 def run():
@@ -99,6 +103,16 @@ def run():
     print(f"\n||x^2 - 1/3||_2 = {norm_p:.12f}")
     print(f"Exact sqrt(8/45) = {exact_norm:.12f}")
     assert abs(norm_p - exact_norm) < 1e-12
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = plot(f, title="Inner products: sin(πx) and cos(πx)",
+                   label="sin(πx)")
+    plot(g, ax=ax, color="#E04040", label="cos(πx)")
+    ax.legend(fontsize=9)
+    fig.savefig(os.path.join(_here, "chebfun_inner_products.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

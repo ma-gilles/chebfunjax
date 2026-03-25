@@ -8,6 +8,9 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import scipy.special as sp
@@ -15,6 +18,7 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 from chebfunjax.operators.chebop import Chebop
 
 
@@ -63,6 +67,19 @@ def run():
     res_err = float(jnp.max(jnp.abs(residual(x_check))))
     print(f"  ||u'' - x*u||_inf = {res_err:.2e}")
     assert res_err < 1e-9
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = plot(u, title="Airy equation: Ai(x) on [-10, 2]",
+                   label="Chebfun solution")
+    import numpy as _np; import scipy.special as _sp
+    _xs = _np.linspace(a, b, 400)
+    ax.plot(_xs, _sp.airy(_xs)[0], "--", color="#E04040",
+            linewidth=1.2, label="scipy Ai(x)")
+    ax.legend(fontsize=9)
+    fig.savefig(os.path.join(_here, "airy_equation.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

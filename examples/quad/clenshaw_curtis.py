@@ -8,12 +8,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 
 
 def run():
@@ -86,6 +90,34 @@ def run():
     print(f"  Computed: {spike_int:.12f}")
     print(f"  Exact:    {exact_spike:.12f}")
     assert abs(spike_int - exact_spike) < 1e-11
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    import matplotlib.pyplot as _plt
+    import numpy as _np
+    fig, ax = _plt.subplots(figsize=(6, 3.5))
+    _funcs = [
+        ("exp(x)",   lambda x: jnp.exp(x),       (-1.0, 1.0)),
+        ("sin(x)",   lambda x: jnp.sin(x),        (0.0, float(jnp.pi))),
+        ("exp(-x²)", lambda x: jnp.exp(-x**2),   (-5.0, 5.0)),
+    ]
+    _colors = ["#4169E1", "#E04040", "#228B22"]
+    for (_name, _fn, _dom), _col in zip(_funcs, _colors):
+        _f = cj.chebfun(_fn, domain=_dom)
+        _xs = _np.linspace(float(_dom[0]), float(_dom[1]), 400)
+        ax.plot(_xs, _np.array(_f(jnp.array(_xs))), color=_col,
+                linewidth=1.5, label=_name)
+    ax.set_title("Clenshaw-Curtis integrands", fontsize=11)
+    ax.set_xlabel("x", fontsize=10)
+    ax.legend(fontsize=9)
+    ax.grid(True, alpha=0.3, linestyle="--")
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    fig.set_facecolor("white")
+    fig.tight_layout()
+    fig.savefig(os.path.join(_here, "clenshaw_curtis.png"),
+                dpi=150, bbox_inches="tight")
+    _plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

@@ -9,12 +9,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 
 
 def run():
@@ -131,6 +135,16 @@ def run():
                          domain=(0.001, 1.0))
     val_sub = float(f_sub2.sum())
     print(f"  int_0.001^1 2t*log(t) dt ~ {val_sub:.6f}  (approaches -1)")
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = plot(f_re, title="Cauchy integral: Re and Im parts of integrand",
+                   label="Re part")
+    plot(f_im, ax=ax, color="#E04040", label="Im part")
+    ax.legend(fontsize=9)
+    fig.savefig(os.path.join(_here, "contour_integrals.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

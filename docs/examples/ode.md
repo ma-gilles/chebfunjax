@@ -189,3 +189,66 @@ print(f"exact  = {float(exact):.10f}")
 u(1.5) = 0.5849625008
 exact  = 0.5849625008
 ```
+
+---
+
+## Gallery
+
+Figures generated automatically from `examples/ode-linear/`, `examples/ode-nonlin/`,
+and `examples/ode-eig/`.
+
+### Linear ODEs
+
+![Wiki ODEs](../../examples/ode-linear/wiki_odes.png)
+
+### Linear IVP (cosine)
+
+![Linear IVP cosine](../../examples/ode-linear/linear_ivp_cosine.png)
+
+### Poisson equation
+
+![Poisson equation](../../examples/ode-linear/poisson_equation.png)
+
+### Airy equation
+
+![Airy equation](../../examples/ode-linear/airy_equation.png)
+
+### Boundary layer
+
+![Boundary layer](../../examples/ode-linear/boundary_layer.png)
+
+### Bessel BVP
+
+![Bessel BVP](../../examples/ode-linear/bessel_bvp.png)
+
+### Logistic equation
+
+![Logistic equation](../../examples/ode-nonlin/logistic_equation.png)
+
+### Carrier equation
+
+![Carrier equation](../../examples/ode-nonlin/carrier_equation.png)
+
+### Pendulum equation
+
+![Pendulum](../../examples/ode-nonlin/pendulum_equation.png)
+
+### Nonlinear BVP (Bender & Orszag)
+
+![Bender-Orszag](../../examples/ode-nonlin/exact_solutions_bender_orszag.png)
+
+### Laplacian eigenvalues
+
+![Laplacian eigenvalues](../../examples/ode-eig/laplacian_eigenvalues.png)
+
+### Quantum harmonic oscillator
+
+![Harmonic oscillator](../../examples/ode-eig/harmonic_oscillator.png)
+
+### Sturm-Liouville
+
+![Sturm-Liouville](../../examples/ode-eig/sturm_liouville.png)
+
+### Double-well Schrödinger
+
+![Double well](../../examples/ode-eig/double_well.png)

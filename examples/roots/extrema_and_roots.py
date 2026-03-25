@@ -8,12 +8,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 
 
 def run():
@@ -83,6 +87,19 @@ def run():
     print(f"\n||sin(x)||_2 on [0,pi] = {norm2:.15f}")
     print(f"  exact = sqrt(pi/2) = {exact_norm2:.15f}")
     assert abs(norm2 - exact_norm2) < 1e-12
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = plot(f, title="sin(x): roots and extrema on [0, 2π]")
+    ax.axhline(0, color="k", linewidth=0.5)
+    ax.plot(float(x_min), float(y_min), "v", color="#E04040",
+            markersize=8, label="min")
+    ax.plot(float(x_max), float(y_max), "^", color="#228B22",
+            markersize=8, label="max")
+    ax.legend(fontsize=9)
+    fig.savefig(os.path.join(_here, "extrema_and_roots.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

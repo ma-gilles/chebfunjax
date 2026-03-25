@@ -8,12 +8,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 from chebfunjax.operators.chebop import Chebop
 
 
@@ -65,6 +69,16 @@ def run():
     print(f"\nLogistic (r=2, K=2) on [0, 3]:")
     print(f"  Max error vs exact: {err2:.2e}")
     assert err2 < 1e-5, f"Logistic (r=2,K=2) error too large: {err2}"
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = plot(u, title="Logistic equation: u′ = u(1−u)",
+                   label="u (standard)")
+    plot(u2, ax=ax, color="#E04040", label="u₂ (modified)")
+    ax.legend(fontsize=9)
+    fig.savefig(os.path.join(_here, "logistic_equation.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

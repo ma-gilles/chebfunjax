@@ -8,12 +8,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 from chebfunjax.operators.chebop import Chebop
 
 
@@ -81,6 +85,16 @@ def run():
     mid_val = float(u4(jnp.array(0.0)))
     print(f"  u(0) = {mid_val:.15f}  (exact: 0.5)")
     assert abs(mid_val - 0.5) < 1e-12
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = plot(u1, title="Poisson equation: −u″ = f on [0,1]",
+                   label="u₁ (f=1)")
+    plot(u2, ax=ax, color="#E04040", label="u₂ (f=π²sin(πx))")
+    ax.legend(fontsize=9)
+    fig.savefig(os.path.join(_here, "poisson_equation.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

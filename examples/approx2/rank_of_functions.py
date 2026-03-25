@@ -9,12 +9,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import surf, contour
 
 
 def run():
@@ -54,6 +58,17 @@ def run():
     exact3 = float(x_test**2 + y_test**2)
     print(f"x^2+y^2 at (0.7,-0.3): error = {abs(val3 - exact3):.2e}")
     assert abs(val3 - exact3) < 1e-12
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = surf(f1, title="cos(x)·exp(y) on [-1,1]²")
+    fig.savefig(os.path.join(_here, "rank_of_functions.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    fig2, ax2 = contour(f2, title="sin(x)·sin(y) on [-1,1]²")
+    fig2.savefig(os.path.join(_here, "rank_of_functions_contour.png"),
+                 dpi=150, bbox_inches="tight")
+    plt.close(fig2)
 
     print("\nAll assertions passed.")
     return True

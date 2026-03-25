@@ -10,12 +10,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot, plotcoeffs
 
 
 def run():
@@ -104,6 +108,14 @@ def run():
     print(f"\n||exp(x)||_inf on [-1,1] = {norm_inf:.10f}")
     print(f"Exact exp(1) = {float(jnp.exp(jnp.array(1.0))):.10f}")
     assert abs(norm_inf - float(jnp.exp(jnp.array(1.0)))) < 1e-12
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = plotcoeffs(f_exp,
+                         title="|Chebyshev coeffs| of exp(x)")
+    fig.savefig(os.path.join(_here, "matrix_functions.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

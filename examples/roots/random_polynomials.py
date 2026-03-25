@@ -8,12 +8,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 from chebfunjax.tech.chebtech import Chebtech2
 from chebfunjax.chebfun1d.chebfun import _Piece, Chebfun
 from chebfunjax.domain import Domain
@@ -83,6 +87,30 @@ def run():
     assert len(r2) == 2
     assert abs(r2[0] - exact2[0]) < 1e-12
     assert abs(r2[1] - exact2[1]) < 1e-12
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    import matplotlib.pyplot as _plt
+    import numpy as _np
+    fig, ax = _plt.subplots(figsize=(6, 3.5))
+    _f_plot = Chebfun(funs=[piece], domain=Domain((-1.0, 1.0)))
+    _xs = _np.linspace(-1.0, 1.0, 600)
+    ax.plot(_xs, _np.array(_f_plot(jnp.array(_xs))), color="#4169E1",
+            linewidth=1.5, label="random poly (n=15)")
+    _r2 = _np.array(_f_plot.roots())
+    ax.plot(_r2, _np.zeros_like(_r2), "ro", markersize=5, label="roots")
+    ax.axhline(0, color="k", linewidth=0.5)
+    ax.set_title("Random Chebyshev polynomial roots", fontsize=11)
+    ax.set_xlabel("x", fontsize=10)
+    ax.legend(fontsize=9)
+    ax.grid(True, alpha=0.3, linestyle="--")
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    fig.set_facecolor("white")
+    fig.tight_layout()
+    fig.savefig(os.path.join(_here, "random_polynomials.png"),
+                dpi=150, bbox_inches="tight")
+    _plt.close(fig)
 
     print("\nAll assertions passed.")
     return True
