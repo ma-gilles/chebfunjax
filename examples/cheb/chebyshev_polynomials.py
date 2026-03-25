@@ -5,6 +5,7 @@ three-term recurrence, extrema, and orthogonality.
 
 Original: https://www.chebfun.org/examples/cheb/
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

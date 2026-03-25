@@ -6,6 +6,7 @@ by Mark Richardson (May 2011).
 
 Original: https://www.chebfun.org/examples/cheb/ChebfunFFT.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

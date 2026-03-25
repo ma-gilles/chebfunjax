@@ -1,6 +1,6 @@
 # Clenshaw–Curtis Quadrature
 
-*Original: [chebfun.org/examples/quad/](https://www.chebfun.org/examples/quad/)*
+*Original: [chebfun.org/examples/quad/ClenshawCurtis](https://www.chebfun.org/examples/quad/ClenshawCurtis.html)*
 
 ---
 

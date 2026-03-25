@@ -1,6 +1,6 @@
 # Logistic Equation
 
-*Original: [chebfun.org/examples/ode-nonlin/](https://www.chebfun.org/examples/ode-nonlin/)*
+*Original: [chebfun.org/examples/ode-nonlin/Logistic](https://www.chebfun.org/examples/ode-nonlin/Logistic.html)*
 
 ---
 

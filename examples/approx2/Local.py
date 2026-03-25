@@ -6,6 +6,7 @@ the local complexity (oscillation) of the function.
 Credit: Nick Trefethen, June 2011.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/Local.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

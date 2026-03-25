@@ -6,6 +6,7 @@ and choose breakpoints in splitting mode.
 Credit: Nick Trefethen, November 2016.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/EdgeDetection.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")
@@ -24,32 +25,39 @@ _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
 
-    # A piecewise smooth function with known breakpoints
-    def f_pw(x):
-        # sin(x) on [0,2], sin(2x) on [2,5], sin(3x) on [5,8]
-        return jnp.where(x < 2.0,
-               jnp.sin(x),
-               jnp.where(x < 5.0, jnp.sin(2.0 * x), jnp.sin(3.0 * x)))
+    # A piecewise smooth function: sin(kx) on each piece
+    # Build each piece as a separate chebfun to avoid jnp.where convergence issues
+    f0 = cj.chebfun(lambda x: jnp.sin(x), domain=[0.0, 2.0])
+    f1 = cj.chebfun(lambda x: jnp.sin(2.0 * x), domain=[2.0, 5.0])
+    f2 = cj.chebfun(lambda x: jnp.sin(3.0 * x), domain=[5.0, 8.0])
+    # Smooth approximation on whole domain (will be less accurate near breakpoints)
+    f_smooth = cj.chebfun(lambda x: jnp.sin(x), domain=(0.0, 8.0))
 
-    # With explicit breakpoints (pass as list directly, not as Domain object)
-    f_explicit = cj.chebfun(f_pw, domain=[0.0, 2.0, 5.0, 8.0])
-
-    # Without breakpoints (smooth approximation)
-    f_smooth = cj.chebfun(f_pw, domain=(0.0, 8.0))
+    # True piecewise values via numpy
+    def f_pw_np(x):
+        return np.where(x < 2.0, np.sin(x), np.where(x < 5.0, np.sin(2.0 * x), np.sin(3.0 * x)))
 
     xx = np.linspace(0.0, 8.0, 800)
-    f_e_vals = np.array([float(f_explicit(jnp.array(x))) for x in xx])
-    f_s_vals = np.array([float(f_smooth(jnp.array(x))) for x in xx])
-    f_true = np.array([float(f_pw(jnp.array(x))) for x in xx])
+    xx_jnp = jnp.array(xx)
+    # Evaluate each piece on its subdomain
+    mask0 = xx <= 2.0
+    mask1 = (xx > 2.0) & (xx <= 5.0)
+    mask2 = xx > 5.0
+    f_e_vals = np.zeros(len(xx))
+    f_e_vals[mask0] = np.array(f0(jnp.array(xx[mask0])))
+    f_e_vals[mask1] = np.array(f1(jnp.array(xx[mask1])))
+    f_e_vals[mask2] = np.array(f2(jnp.array(xx[mask2])))
+    f_s_vals = np.array(f_smooth(xx_jnp))
+    f_true = f_pw_np(xx)
 
     fig, axes = plt.subplots(1, 2, figsize=(11, 4))
 
     ax = axes[0]
-    ax.plot(xx, f_e_vals, 'b', lw=1.8, label='piecewise (breakpoints at 2,5)')
+    ax.plot(xx, f_e_vals, 'b', lw=1.8, label='piecewise (3 pieces)')
     ax.plot(xx, f_true, 'k--', lw=1.0, alpha=0.5, label='true function')
     ax.axvline(2.0, color='r', lw=1.0, ls='--')
     ax.axvline(5.0, color='r', lw=1.0, ls='--')
-    ax.set_title('Piecewise chebfun with explicit breakpoints', fontsize=10)
+    ax.set_title('Piecewise chebfun (separate pieces)', fontsize=10)
     ax.legend(fontsize=8)
     ax.grid(True, alpha=0.3)
 
@@ -65,7 +73,8 @@ def run():
     fig.savefig(os.path.join(_OUTDIR, 'EdgeDetection.png'), dpi=150)
     plt.close(fig)
 
-    print(f"EdgeDetection: piecewise len={len(f_explicit)}, smooth len={len(f_smooth)}")
+    total_len = len(f0) + len(f1) + len(f2)
+    print(f"EdgeDetection: piecewise total pts={total_len} (pieces: {len(f0)}, {len(f1)}, {len(f2)}), smooth len={len(f_smooth)}")
     return True
 
 

@@ -1,6 +1,6 @@
 # Hermite Interpolation
 
-*Original: [chebfun.org/examples/approx/](https://www.chebfun.org/examples/approx/)*
+*Original: [chebfun.org/examples/approx/Interp](https://www.chebfun.org/examples/approx/Interp.html)*
 
 ---
 

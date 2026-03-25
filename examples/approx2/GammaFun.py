@@ -6,6 +6,7 @@ the gamma function Γ(x) on [-4, 4].
 Credit: Nick Hale, December 2009 (revised June 2019 by Nick Trefethen).
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/GammaFun.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

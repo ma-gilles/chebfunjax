@@ -6,6 +6,7 @@ near x=0 that makes it ideal for rational approximation.
 Credit: Nick Trefethen, July 2019.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/FermiDirac.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

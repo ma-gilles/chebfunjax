@@ -1,6 +1,6 @@
 # Airy Equation
 
-*Original: [chebfun.org/examples/ode-linear/](https://www.chebfun.org/examples/ode-linear/)*
+*Original: [chebfun.org/examples/ode-linear/Airy](https://www.chebfun.org/examples/ode-linear/Airy.html)*
 
 ---
 

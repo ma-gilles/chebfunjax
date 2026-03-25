@@ -6,6 +6,7 @@ the divergent asymptotic series for the Stieltjes integral f(x) = int_0^inf e^{-
 Credit: Nick Trefethen and Stefan Guettel, April 2012.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/DivergentSeries.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

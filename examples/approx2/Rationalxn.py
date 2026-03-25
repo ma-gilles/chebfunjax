@@ -6,6 +6,7 @@ approximated by rational functions of low type.
 Credit: Yuji Nakatsukasa and Nick Trefethen, May 2019.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/Rationalxn.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

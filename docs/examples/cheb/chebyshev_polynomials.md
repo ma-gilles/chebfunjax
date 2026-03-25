@@ -1,6 +1,6 @@
 # Chebyshev Polynomials $T_n$
 
-*Original: [chebfun.org/examples/cheb/](https://www.chebfun.org/examples/cheb/)*
+*Original: [chebfun.org/examples/cheb/ChebPolysHigham](https://www.chebfun.org/examples/cheb/ChebPolysHigham.html)*
 
 ---
 

@@ -5,6 +5,7 @@ chebfunjax. Based on Chebfun example stats and roots/RandomPolynomials.m.
 
 Original: https://www.chebfun.org/examples/roots/RandomPolynomials.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

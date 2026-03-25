@@ -6,6 +6,7 @@ roots of analytic and trigonometric functions.
 Credit: Stefano Costa, June 2022.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/AAAZeros.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

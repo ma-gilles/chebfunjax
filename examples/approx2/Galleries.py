@@ -6,6 +6,7 @@ test functions, analogous to MATLAB's gallery command.
 Credit: Hrothgar and Nick Trefethen, December 2014.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/Galleries.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

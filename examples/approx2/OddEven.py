@@ -6,6 +6,7 @@ is an odd polynomial, and to an even function an even polynomial.
 Credit: Mohsin Javed and Nick Trefethen, March 2015.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/OddEven.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

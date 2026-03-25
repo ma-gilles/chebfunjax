@@ -1,6 +1,6 @@
 # Chebyshev Coefficient Decay
 
-*Original: [chebfun.org/examples/approx/](https://www.chebfun.org/examples/approx/)*
+*Original: [chebfun.org/examples/approx/ChebCoeffs](https://www.chebfun.org/examples/approx/ChebCoeffs.html)*
 
 ---
 

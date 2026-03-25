@@ -6,6 +6,7 @@ continuous function, showing how errors oscillate differently.
 Credit: Mohsin Javed, October 2013.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/OscError.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

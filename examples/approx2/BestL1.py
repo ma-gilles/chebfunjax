@@ -6,6 +6,7 @@ approximants, showing the localized error of L1 approximation.
 Credit: Yuji Nakatsukasa and Alex Townsend, July 2019.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/BestL1.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")
@@ -33,10 +34,10 @@ def run():
     p2 = f.polyfit(deg)
     err2 = f - p2
 
-    xx = np.linspace(0.0, 14.0, 600)
-    f_vals = np.array([float(f(jnp.array(x))) for x in xx])
-    err2_vals = np.array([float(err2(jnp.array(x))) for x in xx])
-    p2_vals = np.array([float(p2(jnp.array(x))) for x in xx])
+    xx = jnp.linspace(0.0, 14.0, 600)
+    f_vals = np.array(f(xx))
+    err2_vals = np.array(err2(xx))
+    p2_vals = np.array(p2(xx))
 
     fig, axes = plt.subplots(2, 2, figsize=(11, 8))
 
@@ -53,13 +54,14 @@ def run():
     axes[0, 1].set_ylim(-3, 3)
 
     # Second example: |x - 1/4| on [-1,1]
-    f2 = cj.chebfun(lambda x: jnp.abs(x - 0.25))
+    # Use breakpoint at 0.25 for fast convergence
+    f2 = cj.chebfun(lambda x: jnp.abs(x - 0.25), domain=[-1.0, 0.25, 1.0])
     deg2 = 20
     p2b = f2.polyfit(deg2)
     err2b = f2 - p2b
 
-    xx2 = np.linspace(-1.0, 1.0, 400)
-    err2b_vals = np.array([float(err2b(jnp.array(x))) for x in xx2])
+    xx2 = jnp.linspace(-1.0, 1.0, 400)
+    err2b_vals = np.array(err2b(xx2))
 
     axes[1, 0].plot(xx2, err2b_vals, 'k', lw=1.5)
     axes[1, 0].set_title(f'L2 error for |x−1/4| (deg {deg2})', fontsize=11)

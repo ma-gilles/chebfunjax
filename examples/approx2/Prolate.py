@@ -6,6 +6,7 @@ concentrate maximal energy in [-1,1]. They arise naturally from the FFT.
 Credit: Nick Trefethen, April 2021.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/Prolate.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

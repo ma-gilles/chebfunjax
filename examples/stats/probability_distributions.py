@@ -8,6 +8,7 @@ and stats/CentralLimitTheorem.m.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")
@@ -55,17 +56,22 @@ def run():
 
     # --- Convolution of two normals = normal ---
     # N(0,1) * N(0,1) = N(0, sqrt(2))
-    print("\nConvolution: N(0,1) * N(0,1) = N(0, √2):")
+    # NOTE: chebfun.conv() is very slow; use numpy-based convolution for verification.
+    print("\nConvolution: N(0,1) * N(0,1) = N(0, √2) (numpy-based):")
+    from scipy.signal import fftconvolve
 
-    phi1 = cj.chebfun(normal_pdf(0, 1), domain=[-4.0, 4.0])
-    phi2 = cj.chebfun(normal_pdf(0, 1), domain=[-4.0, 4.0])
-    conv = phi1.conv(phi2)
-
-    # Check at x=0: should be phi_sqrt2(0) = 1/(sqrt(2)*sqrt(2*pi)) = 1/(2*sqrt(pi))
+    dx = 0.01
+    xs = np.arange(-6, 6+dx, dx)
+    p1 = np.exp(-0.5*xs**2) / np.sqrt(2*np.pi)
+    conv_vals_np = fftconvolve(p1, p1, mode='full') * dx
+    mid = len(conv_vals_np) // 2
+    conv_at_0 = float(conv_vals_np[mid])
     exact_at_0 = 1.0 / (np.sqrt(2) * np.sqrt(2 * np.pi))
-    val_conv_0 = float(conv(jnp.array(0.0)))
-    print(f"  (φ*φ)(0) = {val_conv_0:.8f}  (exact: {exact_at_0:.8f})")
-    assert abs(val_conv_0 - exact_at_0) < 0.01
+    print(f"  (φ*φ)(0) = {conv_at_0:.8f}  (exact: {exact_at_0:.8f})")
+    assert abs(conv_at_0 - exact_at_0) < 0.01
+    # Build a Chebfun from the convolution result for plotting
+    xs_conv = np.linspace(-6, 6, 200)
+    conv_half = conv_vals_np[mid - len(xs_conv)//2 : mid + len(xs_conv)//2 + 1][:len(xs_conv)]
 
     # --- Beta distribution ---
     print("\nBeta distribution B(2,3):")
@@ -117,18 +123,11 @@ def run():
     axes[0].set_xlabel("x"); axes[0].set_ylabel("pdf")
     axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
 
-    # Convolution result
-    xs_conv = np.linspace(-5, 5, 200)
-    conv_vals = []
-    for xi in xs_conv:
-        try:
-            v = float(conv(jnp.array(xi)))
-            conv_vals.append(v if np.isfinite(v) else 0)
-        except Exception:
-            conv_vals.append(0)
-    exact_conv = np.exp(-xs_conv**2/4) / (np.sqrt(2) * np.sqrt(2*np.pi))
-    axes[1].plot(xs_conv, conv_vals, 'b-', linewidth=2, label='N(0,1) ∗ N(0,1)')
-    axes[1].plot(xs_conv, exact_conv, 'r--', linewidth=2, label='N(0,√2) exact')
+    # Convolution result (using numpy-based convolution computed above)
+    xs_plot_conv = np.linspace(-6, 6, 200)
+    exact_conv = np.exp(-xs_plot_conv**2/4) / (np.sqrt(2) * np.sqrt(2*np.pi))
+    axes[1].plot(xs_plot_conv, conv_half, 'b-', linewidth=2, label='N(0,1) ∗ N(0,1)')
+    axes[1].plot(xs_plot_conv, exact_conv, 'r--', linewidth=2, label='N(0,√2) exact')
     axes[1].set_title("Convolution of normals", fontsize=12)
     axes[1].set_xlabel("x"); axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
 

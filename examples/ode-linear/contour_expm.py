@@ -8,6 +8,7 @@ Credit: Chebfun example ode-linear/ContourExpm.m (Anthony Austin, May 2013).
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")
@@ -52,10 +53,9 @@ def run():
     N_eig.lbc = 0.0
     N_eig.rbc = 0.0
     lam = N_eig.eigs(k=6)
-    lam_real = np.sort(np.real(np.array(lam)))[::-1]  # most negative first? no...
-    lam_sorted = np.sort(np.real(np.array(lam)))
+    lam_sorted = np.sort(np.real(np.array(lam)))  # ascending: most negative first
     print(f"  Computed: {lam_sorted[:6]}")
-    exact_eigs = np.array([-k**2 for k in range(1, 7)])
+    exact_eigs = np.array([-k**2 for k in range(6, 0, -1)])  # [-36, -25, ..., -1]
     print(f"  Exact:    {exact_eigs}")
     err = np.max(np.abs(lam_sorted[:6] - exact_eigs))
     print(f"  Max error: {err:.2e}")

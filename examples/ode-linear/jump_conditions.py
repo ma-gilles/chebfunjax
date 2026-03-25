@@ -7,6 +7,7 @@ Credit: Chebfun example ode-linear/JumpConditions.m (Nick Hale, Nov 2011).
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")
@@ -30,7 +31,8 @@ def run():
 
     # Case 1: no jump — standard BVP
     print("\nCase 1: 0.01 u'' + sin(x) u = 0, u(±1)=1 (no jump)")
-    N1 = Chebop(lambda x, u: eps * u.diff(2) + jnp.sin(x) * u, domain=dom)
+    # In Chebop lambda, x is a Chebfun; use cj.sin (not jnp.sin)
+    N1 = Chebop(lambda x, u: eps * u.diff(2) + cj.sin(x) * u, domain=dom)
     N1.lbc = 1.0
     N1.rbc = 1.0
     u1 = N1.solve(0.0)
@@ -57,7 +59,7 @@ def run():
 
     def solve_piece(a, b, ua, ub):
         """Solve eps u'' + sin(x) u = 0 on [a,b] with u(a)=ua, u(b)=ub."""
-        N = Chebop(lambda x, u: eps * u.diff(2) + jnp.sin(x) * u, domain=(a, b))
+        N = Chebop(lambda x, u: eps * u.diff(2) + cj.sin(x) * u, domain=(a, b))
         N.lbc = ua
         N.rbc = ub
         return N.solve(0.0)

@@ -6,6 +6,7 @@ Based on Chebfun complex examples.
 
 Original: https://www.chebfun.org/examples/complex/
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

@@ -7,6 +7,7 @@ Credit: Chebfun example ode-linear/SpectralDisc.m (Nick Trefethen, Aug 2016).
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")
@@ -38,13 +39,15 @@ def run():
     assert D1_mat.shape == (n, n)
 
     # Build second-order differentiation matrix D2 = D1 @ D1
-    D2_block = D(2)
-    D2_mat = D2_block.matrix(disc)
-    print(f"Differentiation matrix D2: shape {D2_mat.shape}")
+    D2_mat = D1_mat @ D1_mat
+    print(f"Differentiation matrix D2 (=D1@D1): shape {D2_mat.shape}")
 
     # Verify: D1 applied to sin(x) gives cos(x)
     from chebfunjax.utils.quadrature import chebpts
-    x_pts = chebpts(n, domain=dom)
+    # chebpts returns points on [-1,1]; scale to domain
+    a, b = dom
+    x_ref = chebpts(n)
+    x_pts = 0.5 * (b - a) * x_ref + 0.5 * (a + b)
     f_vals = np.sin(x_pts)
     df_computed = D1_mat @ f_vals
     df_exact = np.cos(x_pts)

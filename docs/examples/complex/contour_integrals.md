@@ -1,6 +1,6 @@
 # Contour Integrals
 
-*Original: [chebfun.org/examples/complex/](https://www.chebfun.org/examples/complex/)*
+*Original: [chebfun.org/examples/complex/ClosedContours](https://www.chebfun.org/examples/complex/ClosedContours.html)*
 
 ---
 

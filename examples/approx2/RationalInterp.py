@@ -6,6 +6,7 @@ least-squares rational interpolation and AAA approximation.
 Credit: Nick Trefethen, August 2011.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/RationalInterp.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

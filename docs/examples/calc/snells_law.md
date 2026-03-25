@@ -1,6 +1,6 @@
 # Snell's Law and Refraction
 
-*Original: [chebfun.org/examples/calc/](https://www.chebfun.org/examples/calc/)*
+*Original: [chebfun.org/examples/calc/SnellsLaw](https://www.chebfun.org/examples/calc/SnellsLaw.html)*
 
 ---
 

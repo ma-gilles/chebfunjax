@@ -6,6 +6,7 @@ an L1 penalty; this 1D version uses polyfit to reconstruct missing segments.
 Credit: Yuji Nakatsukasa and Nick Trefethen, July 2019.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/Inpainting1D.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

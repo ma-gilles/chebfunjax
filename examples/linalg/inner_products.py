@@ -5,6 +5,7 @@ of trigonometric and polynomial functions.
 
 Original: https://www.chebfun.org/examples/linalg/
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

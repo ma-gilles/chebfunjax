@@ -6,6 +6,7 @@ rate of decay of best rational approximation errors to exp(x) on (-inf,0].
 Credit: Nick Trefethen, May 2011.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/Halphen.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

@@ -1,6 +1,6 @@
 # Integration in 2D
 
-*Original: [chebfun.org/examples/approx2/](https://www.chebfun.org/examples/approx2/)*
+*Original: [chebfun.org/examples/approx2/Integration](https://www.chebfun.org/examples/approx2/Integration.html)*
 
 ---
 

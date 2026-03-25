@@ -6,6 +6,7 @@ The L1 approximant has error concentrated near singularities.
 Credit: Yuji Nakatsukasa and Alex Townsend, July 2019.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/polyfitL1.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

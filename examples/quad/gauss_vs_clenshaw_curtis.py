@@ -5,6 +5,7 @@ Based on Chebfun example quad/GaussClenCurt.m by Nick Trefethen (September 2010)
 
 Original: https://www.chebfun.org/examples/quad/GaussClenCurt.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

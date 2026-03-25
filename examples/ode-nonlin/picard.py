@@ -7,6 +7,7 @@ Credit: Chebfun example ode-nonlin/Picard.m (Nick Trefethen, Jan 2016).
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")
@@ -44,22 +45,22 @@ def run():
         print(f"  {k:12d}  {err:14.6e}")
 
         # Picard step: u_{k+1}(x) = 1 + integral_0^x u_k(t) dt
-        # integral from 0 to x: cumulative integral minus value at 0
-        antideriv = u.antideriv()
-        u_new = cj.chebfun(lambda x: 1.0 + antideriv(x) - float(antideriv(jnp.array(0.0))),
+        # cumsum gives integral from left endpoint (a=0 here)
+        antideriv = u.cumsum()
+        u_new = cj.chebfun(lambda x, ad=antideriv: 1.0 + ad(x),
                            domain=dom)
         u = u_new
 
-    # Verify convergence
+    # Verify convergence (Picard converges ~1 order of magnitude per iteration)
     assert errors[0] > errors[-1], "Picard should converge"
-    assert errors[-1] < 1e-12, f"After 8 iterations: {errors[-1]}"
+    assert errors[-1] < 1e-4, f"After 8 iterations: {errors[-1]:.2e}"
     print(f"\nConverged: {errors[-1]:.2e} after 7 iterations")
 
     # Also verify the final approximation
     x_test = jnp.linspace(0.0, 1.0, 200)
     final_err = float(jnp.max(jnp.abs(u(x_test) - jnp.exp(x_test))))
     print(f"Final max error vs exp(x): {final_err:.2e}")
-    assert final_err < 1e-12
+    assert final_err < 1e-4
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
@@ -73,9 +74,9 @@ def run():
     for k in range(6):
         axes[0].plot(x_plot, u_iter(x_plot), color=colors[k], linewidth=1.4,
                      label=f"u_{k}" if k < 4 else None, alpha=0.7)
-        antideriv = u_iter.antideriv()
+        antideriv = u_iter.cumsum()
         u_iter = cj.chebfun(
-            lambda x: 1.0 + antideriv(x) - float(antideriv(jnp.array(0.0))),
+            lambda x, ad=antideriv: 1.0 + ad(x),
             domain=dom
         )
     axes[0].plot(x_plot, jnp.exp(x_plot), 'k--', linewidth=1.4, label="exp(x)")

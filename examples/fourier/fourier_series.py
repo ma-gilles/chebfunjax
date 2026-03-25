@@ -5,6 +5,7 @@ including the Gibbs phenomenon for discontinuous functions.
 
 Original: https://www.chebfun.org/examples/fourier/
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

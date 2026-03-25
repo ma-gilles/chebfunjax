@@ -6,6 +6,7 @@ but do so very slowly, independent of the smoothness of f.
 Credit: Nick Trefethen, May 2012.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/BernsteinPolys.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

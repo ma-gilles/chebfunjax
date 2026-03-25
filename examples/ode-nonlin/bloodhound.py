@@ -8,6 +8,7 @@ Credit: Chebfun example ode-nonlin/Bloodhound.m (Tanya Morton, Jan 2013).
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")
@@ -57,8 +58,9 @@ def run():
 
     # Solve with Chebop as BVP
     v_end = float(sol.y[0, -1])
+    # In the Chebop lambda, t is a Chebfun; use cj.tanh (not jnp.tanh)
     N = Chebop(
-        lambda t, v: m * v.diff() + b * v**2 - F0 * jnp.tanh(t / tau),
+        lambda t, v: m * v.diff() + b * v**2 - F0 * cj.tanh(t / tau),
         domain=dom
     )
     N.lbc = 0.0

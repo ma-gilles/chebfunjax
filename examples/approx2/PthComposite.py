@@ -6,6 +6,7 @@ super-geometrically fast on [0,1].
 Credit: Evan S. Gawlik and Yuji Nakatsukasa, October 2019.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/PthComposite.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

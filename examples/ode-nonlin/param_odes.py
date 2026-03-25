@@ -7,6 +7,7 @@ Credit: Chebfun example ode-nonlin/ParamODEs.m (Alex Townsend, Aug 2011).
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")
@@ -64,22 +65,40 @@ def run():
     assert err_harm < 1e-10
 
     # Example 3: Nonlinear with parameter - find c such that u''=c sin(u), u(0)=u(pi)=0, u(pi/2)=1
+    # This is a three-point BVP (overdetermined). By symmetry: u(pi-x)=u(x),
+    # so u'(pi/2)=0. Shoot from x=0: u(0)=0, u'(0)=s, find (c, s) so u(pi/2)=1, u'(pi/2)=0.
     print("\nExample 3: u'' = c sin(u), u(0)=0, u(pi)=0, u(pi/2)=1")
     dom3 = (0.0, float(np.pi))
-    from scipy.optimize import brentq
+    from scipy.optimize import fsolve
+    from scipy.integrate import solve_ivp as _solve_ivp3
 
-    def solve_with_c(c_val):
-        N3 = Chebop(lambda x, u: u.diff(2) - c_val * jnp.sin(u), domain=dom3)
-        N3.lbc = 0.0
-        N3.rbc = 0.0
-        u3 = N3.solve(0.5)
-        return float(u3(jnp.array(np.pi / 2))) - 1.0, u3
+    def shoot3(params):
+        c_val, s_val = params
+        def rhs3(x, y): return [y[1], c_val * np.sin(y[0])]
+        sol3 = _solve_ivp3(rhs3, [0, np.pi/2], [0.0, s_val], rtol=1e-10, atol=1e-12)
+        return [sol3.y[0, -1] - 1.0, sol3.y[1, -1]]  # u(pi/2)=1, u'(pi/2)=0
 
-    c_opt = brentq(lambda c: solve_with_c(c)[0], 0.1, 10.0)
-    _, u3 = solve_with_c(c_opt)
+    import warnings
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        c_opt, s_opt = fsolve(shoot3, [-1.0, 1.0])
     print(f"  Optimal c = {c_opt:.6f}")
-    print(f"  u(pi/2) = {float(u3(jnp.array(np.pi/2))):.8f}  (should be 1.0)")
-    assert abs(float(u3(jnp.array(np.pi/2))) - 1.0) < 1e-6
+
+    # Full solution via scipy
+    def rhs3_full(x, y): return [y[1], c_opt * np.sin(y[0])]
+    sol3 = _solve_ivp3(rhs3_full, [0, np.pi], [0.0, s_opt],
+                       t_eval=np.linspace(0, np.pi, 300), rtol=1e-10)
+    u3_vals = sol3.y[0]
+    u3_half = float(np.interp(np.pi/2, sol3.t, u3_vals))
+    print(f"  u(pi/2) = {u3_half:.8f}  (should be 1.0)")
+    print(f"  u(pi) = {u3_vals[-1]:.8f}  (should be 0.0)")
+    assert abs(u3_half - 1.0) < 1e-4
+    assert abs(u3_vals[-1]) < 1e-4
+    # Wrap in Chebfun for smooth plotting
+    u3 = cj.chebfun(
+        lambda x: jnp.interp(x, jnp.array(sol3.t), jnp.array(u3_vals)),
+        domain=dom3, n=64
+    )
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))

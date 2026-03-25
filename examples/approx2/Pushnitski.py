@@ -6,6 +6,7 @@ singularity at 0 that requires many terms for polynomial approximation.
 Credit: Nick Trefethen, November 2016.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/Pushnitski.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

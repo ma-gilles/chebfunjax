@@ -6,6 +6,7 @@ the box function B0 = 1 on [-1/2, 1/2].
 Credit: Nick Trefethen, July 2012.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/BSplineConv.html
 """
+import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 matplotlib.use("Agg")

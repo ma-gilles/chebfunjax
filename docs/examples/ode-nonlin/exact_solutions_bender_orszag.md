@@ -1,6 +1,6 @@
 # Exact Solutions from Bender & Orszag
 
-*Original: [chebfun.org/examples/ode-nonlin/](https://www.chebfun.org/examples/ode-nonlin/)*
+*Original: [chebfun.org/examples/ode-nonlin/ExactSolns](https://www.chebfun.org/examples/ode-nonlin/ExactSolns.html)*
 
 ---
 
