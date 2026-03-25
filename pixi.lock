@@ -285,13 +285,14 @@ packages:
 - pypi: ./
   name: chebfunjax
   version: 0.1.0
-  sha256: 906b9adf1e9bc3892d90a234fb8ca45a4c4e9c99d8378e297773694c31e1dfb5
+  sha256: 1abb5a277c01ea9b2936a6d4182eff74e48e121096080c919792d133c8e34a67
   requires_dist:
   - jax>=0.4.20
   - jaxlib>=0.4.20
   - equinox>=0.11
   - numpy>=1.24
   - scipy>=1.11
+  - matplotlib>=3.5
   - pytest>=7.0 ; extra == 'test'
   - pytest-xdist ; extra == 'test'
   - pytest-cov ; extra == 'test'

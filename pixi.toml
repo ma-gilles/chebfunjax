@@ -12,7 +12,6 @@ matplotlib = ">=3.7"
 pytest = ">=7.0"
 pytest-xdist = "*"
 pytest-cov = "*"
-matplotlib = ">=3.5"
 ruff = "*"
 
 # JAX with CUDA support
