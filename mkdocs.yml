@@ -27,33 +27,114 @@ markdown_extensions:
   - tables
   - attr_list
   - md_in_html
+  - pymdownx.arithmatex:
+      generic: true
+
+extra_javascript:
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 nav:
   - Home: index.md
   - Installation: install.md
   - Quick Start: quickstart.md
   - Examples:
-    - Approximation: examples/approx.md
-    - Calculus: examples/calc.md
-    - Rootfinding: examples/roots.md
-    - ODE/BVP: examples/ode.md
-    - PDE: examples/pde.md
-    - 2D Functions: examples/chebfun2.md
-    - 3D Functions: examples/chebfun3.md
-    - Approximation (1D advanced): examples/approx2/index.md
-    - Approximation (3D): examples/approx3/index.md
-    - Chebyshev topics: examples/cheb/index.md
-    - Disk functions: examples/disk/index.md
-    - Fourier: examples/fourier/index.md
-    - Fun examples: examples/fun/index.md
-    - Geometry: examples/geom/index.md
-    - Integro-differential: examples/integro/index.md
-    - Linear algebra: examples/linalg/index.md
-    - Optimization: examples/opt/index.md
-    - PDE gallery: examples/pde/index.md
-    - Sphere: examples/sphere/index.md
-    - Statistics: examples/stats/index.md
-    - Vector calculus: examples/veccalc/index.md
-    - Applications: examples/applics/index.md
+    - Approximation:
+      - Overview: examples/approx/index.md
+      - Polynomial Convergence: examples/approx/polynomial_convergence.md
+      - Polynomial Approximation: examples/approx/polynomial_approximation.md
+      - Chebyshev Coefficient Decay: examples/approx/chebyshev_coefficients.md
+      - Absolute Value and Newton: examples/approx/absolute_value_newton.md
+      - Weierstrass Function: examples/approx/weierstrass.md
+      - Gamma Function: examples/approx/gamma_function.md
+      - Bessel Approximation: examples/approx/bessel_approximation.md
+      - Lebesgue Constants: examples/approx/lebesgue_constants.md
+      - Orthogonal Polynomials: examples/approx/orthogonal_polynomials.md
+      - Hermite Interpolation: examples/approx/hermite_interpolation.md
+      - Piecewise Smooth: examples/approx/piecewise_smooth.md
+      - Rational-Like Convergence: examples/approx/rational_like_convergence.md
+      - Special Functions: examples/approx/special_functions.md
+    - Calculus:
+      - Overview: examples/calc/index.md
+      - Integrals: examples/calc/integrals.md
+      - Differentiation: examples/calc/differentiation.md
+      - Definite and Indefinite: examples/calc/definite_indefinite_integrals.md
+      - Mean Value Theorem: examples/calc/mean_value_theorem.md
+      - Snell's Law: examples/calc/snells_law.md
+      - Bird Flight Optimization: examples/calc/bird_flight_optimization.md
+    - Rootfinding:
+      - Overview: examples/roots/index.md
+      - Bessel Function Roots: examples/roots/bessel_function_roots.md
+      - Bessel Roots (basic): examples/roots/bessel_roots.md
+      - Roots Near Axis: examples/roots/roots_near_axis.md
+      - Polynomial Roots: examples/roots/polynomial_roots.md
+      - Extrema and Roots: examples/roots/extrema_and_roots.md
+      - Newton-Raphson: examples/roots/newton_raphson.md
+      - Random Polynomials: examples/roots/roots_near_axis.md
+    - Optimization:
+      - Overview: examples/opt/index.md
+      - Rosenbrock Function: examples/opt/rosenbrock.md
+      - Constrained Extrema: examples/opt/constrained_extrema.md
+      - Minimum of Smooth Function: examples/opt/minimum_of_smooth_function.md
+      - Global Minimum 2D: examples/opt/global_minimum_2d.md
+      - Catenary: examples/opt/catenary.md
+    - Quadrature:
+      - Overview: examples/quad/index.md
+      - Gauss vs Clenshaw-Curtis: examples/quad/gauss_vs_clenshaw_curtis.md
+      - Clenshaw-Curtis: examples/quad/clenshaw_curtis.md
+      - Gauss Quadrature: examples/quad/gauss_quadrature.md
+      - Convergence Rates: examples/quad/convergence_rates.md
+      - Tricky Integrals: examples/quad/tricky_integrals.md
+    - Linear Algebra:
+      - Overview: examples/linalg/index.md
+      - Inner Products and Norms: examples/linalg/inner_products.md
+      - Chebfun Inner Products: examples/linalg/chebfun_inner_products.md
+      - Condition Numbers: examples/linalg/condition_numbers.md
+      - Matrix Functions: examples/linalg/matrix_functions.md
+      - Resolvent Norms: examples/linalg/resolvent_norm.md
+    - Chebyshev:
+      - Overview: examples/cheb/index.md
+      - Chebyshev Polynomials: examples/cheb/chebyshev_polynomials.md
+      - FFT Algorithm: examples/cheb/chebfun_fft.md
+    - Linear ODEs:
+      - Overview: examples/ode-linear/index.md
+      - Boundary Layer: examples/ode-linear/boundary_layer.md
+      - Airy Equation: examples/ode-linear/airy_equation.md
+      - Bessel BVP: examples/ode-linear/bessel_bvp.md
+      - Linear IVP: examples/ode-linear/linear_ivp_cosine.md
+      - Poisson Equation: examples/ode-linear/poisson_equation.md
+      - Classical Linear ODEs: examples/ode-linear/wiki_odes.md
+    - Nonlinear ODEs:
+      - Overview: examples/ode-nonlin/index.md
+      - Carrier Equation: examples/ode-nonlin/carrier_equation.md
+      - Exact Solutions: examples/ode-nonlin/exact_solutions_bender_orszag.md
+      - Logistic Equation: examples/ode-nonlin/logistic_equation.md
+      - Nonlinear Pendulum: examples/ode-nonlin/pendulum_equation.md
+    - ODE Eigenvalues:
+      - Overview: examples/ode-eig/index.md
+      - Harmonic Oscillator: examples/ode-eig/harmonic_oscillator.md
+      - Double Well: examples/ode-eig/double_well.md
+      - Laplacian Eigenvalues: examples/ode-eig/laplacian_eigenvalues.md
+      - Sturm-Liouville: examples/ode-eig/sturm_liouville.md
+    - 2D Approximation (Chebfun2):
+      - Overview: examples/approx2/index.md
+      - Chebfun2 Basics: examples/approx2/chebfun2_basics.md
+      - Smooth 2D Functions: examples/approx2/smooth_functions_2d.md
+      - Integration in 2D: examples/approx2/integration_2d.md
+      - Differentiation in 2D: examples/approx2/differentiation_2d.md
+      - Rank of Functions: examples/approx2/rank_of_functions.md
+    - Fourier Series:
+      - Overview: examples/fourier/index.md
+      - Fourier Series and Gibbs: examples/fourier/fourier_series.md
+      - Fourier Coefficients: examples/fourier/fourier_coefficients.md
+      - Gibbs Phenomenon: examples/fourier/gibbs_phenomenon.md
+    - Complex Analysis:
+      - Overview: examples/complex/index.md
+      - Complex Functions: examples/complex/complex_functions.md
+      - Argument Principle: examples/complex/argument_principle.md
+      - Contour Integrals: examples/complex/contour_integrals.md
+    - Statistics:
+      - Overview: examples/stats/index.md
+      - Random Polynomials: examples/stats/random_polynomials.md
   - API Reference: api.md
   - JAX Contract: jax-contract.md
