@@ -9,8 +9,9 @@ theme:
     - content.code.copy
     - navigation.tabs
     - navigation.sections
-    - navigation.expand
+    - navigation.indexes
     - search.highlight
+    - toc.integrate
   palette:
     - scheme: default
       primary: indigo
@@ -36,387 +37,43 @@ extra_javascript:
 
 nav:
   - Home: index.md
-  - Installation: install.md
-  - Quick Start: quickstart.md
+  - Getting Started:
+    - Installation: install.md
+    - Quick Start: quickstart.md
   - Examples:
-    - Approximation Theory:
+    - 1D Approximation:
       - Overview: examples/approx/index.md
-      - AAA Rational Approximation: examples/approx/AAAApprox.md
-      - AAA Approximation of a Spline: examples/approx/AAASpline.md
-      - Rootfinding with the AAA Algorithm: examples/approx/AAAZeros.md
-      - Absolute Value Approximations by Rationals: examples/approx/AbsoluteValue.md
-      - Absolute Value Approximations by Rationals II: examples/approx/AbsoluteValueScaled.md
-      - Accuracy of Chebyshev Coefficients via Aliasing: examples/approx/AliasingCoefficients.md
-      - Accuracy of Legendre Coefficients via Aliasing: examples/approx/AliasingCoefficientsLeg.md
-      - B-splines and Convolution: examples/approx/BSplineConv.md
-      - Bernstein Polynomials: examples/approx/BernsteinPolys.md
-      - Best Approximation with the REMEZ Command: examples/approx/BestApprox.md
-      - Best Polynomial Approximation in the L1 Norm: examples/approx/BestL1.md
-      - Least-Squares Approximation in Chebfun: examples/approx/BestL2Approximation.md
-      - CF Approximation 30 Years Ago: examples/approx/CF30.md
-      - The FFT in Chebfun: examples/approx/ChebfunFFT.md
-      - Approximation of the Checkmark Function: examples/approx/Checkmark.md
-      - Illustrating the Mathematics of Signal Processing: examples/approx/CommunicationSystem.md
-      - Summing a Divergent Series: examples/approx/DivergentSeries.md
-      - Edge Detection in Chebfun: examples/approx/EdgeDetection.md
-      - Eight Shades of Rational Approximation: examples/approx/EightShades.md
-      - Chebyshev Interpolation of Oscillatory Entire Functions: examples/approx/Entire.md
-      - Convergence Bounds for Entire Functions: examples/approx/EntireBound.md
-      - Chebfuns from Equispaced Data: examples/approx/EquispacedData.md
-      - Rational Approximation of the Fermi-Dirac Function: examples/approx/FermiDirac.md
-      - Digital Filters via CF Approximation: examples/approx/FiltersCF.md
-      - Gallery and Gallerytrig: examples/approx/Galleries.md
-      - The Gamma Function and Its Poles: examples/approx/GammaFun.md
-      - A Greedy Algorithm for Choosing Interpolation Points: examples/approx/GreedyInterp.md
-      - "Halphen's Constant for Approximation of exp(x)": examples/approx/Halphen.md
-      - Polynomial Basis for Hermite Interpolation: examples/approx/HermiteBasis.md
-      - L1 Inpainting in One Dimension: examples/approx/Inpainting1D.md
-      - Interactive Interpolation: examples/approx/InteractiveInterp.md
-      - Lebesgue Functions and Lebesgue Constants: examples/approx/LebesgueConst.md
-      - Local Complexity of a Function: examples/approx/Local.md
-      - Approximating the Square Root by Polynomials and Rational Functions: examples/approx/MinimaxSqrt.md
-      - Nearest Orthonormal Functions: examples/approx/NearestOrthFun.md
-      - Noisy Functions in Chebfun: examples/approx/Noisy.md
-      - Chebfuns of Noisy Functions with Discontinuities: examples/approx/NoisyNonsmooth.md
-      - Odd and Even Best Approximations: examples/approx/OddEven.md
-      - Orthogonal Polynomials via the Gram-Schmidt Process: examples/approx/OrthPolys.md
-      - Orthogonal Polynomials via the Lanczos Process: examples/approx/OrthPolysLanczos.md
-      - Approximations and Oscillation of Error: examples/approx/OscError.md
-      - Prolate Spheroidal Wave Functions: examples/approx/Prolate.md
-      - Approximating the pth Root by Composite Rational Functions: examples/approx/PthComposite.md
-      - "Approximating Pushnitski's Reciprocal Log Function": examples/approx/Pushnitski.md
-      - Rational Approximation of abs(x) with Minimax: examples/approx/RationalAbsx.md
-      - Rational Interpolation, Robust and Non-robust: examples/approx/RationalInterp.md
-      - Rational Approximation of Monomials: examples/approx/Rationalxn.md
-      - Resolution of Wiggly Functions: examples/approx/ResolutionWiggly.md
-      - Restricted-Denominator Approximations: examples/approx/RestrictedDenominatorApproximations.md
-      - Rational Approximation to the Exponential in a Complex Region: examples/approx/ScalingAndSquaring.md
-      - Smooth Functions of Compact Support: examples/approx/SmoothCompact.md
-      - Splines: examples/approx/Splines.md
-      - A Pathological Function of Weierstrass: examples/approx/WeierstrassFunction.md
-      - A Wiggly Function and Its Best Approximations: examples/approx/WigglyApprox.md
-      - Absolute Value Approximations by Rationals: examples/approx/absolute_value_newton.md
-      - Approximating Bessel Functions: examples/approx/bessel_approximation.md
-      - Chebyshev Coefficient Decay: examples/approx/chebyshev_coefficients.md
-      - The Gamma Function and Its Poles: examples/approx/gamma_function.md
-      - Hermite Interpolation: examples/approx/hermite_interpolation.md
-      - Lebesgue Functions and Lebesgue Constants: examples/approx/lebesgue_constants.md
-      - Orthogonal Polynomials via Gram-Schmidt: examples/approx/orthogonal_polynomials.md
-      - Piecewise Smooth Functions: examples/approx/piecewise_smooth.md
-      - Best Polynomial Approximation in the L1 Norm: examples/approx/polyfitL1.md
-      - Polynomial Approximation: examples/approx/polynomial_approximation.md
-      - Chebyshev Interpolation of Oscillatory Entire Functions: examples/approx/polynomial_convergence.md
-      - Rational-Like Convergence: examples/approx/rational_like_convergence.md
-      - Special Functions: examples/approx/special_functions.md
-      - A Pathological Function of Weierstrass: examples/approx/weierstrass.md
-    - 2D Approximation (Chebfun2):
-      - Overview: examples/approx2/index.md
-      - "Chebfun2: Smooth 2D Function Approximation": examples/approx2/chebfun2_basics.md
-      - Differentiation in 2D: examples/approx2/differentiation_2d.md
-      - Integration in 2D: examples/approx2/integration_2d.md
-      - Rank of Functions: examples/approx2/rank_of_functions.md
-      - Smooth 2D Functions: examples/approx2/smooth_functions_2d.md
-    - 3D Approximation (Chebfun3):
-      - Overview: examples/approx3/index.md
-      - Triple Integrals via Coordinate Transformations: examples/approx3/ChangeVar3D.md
-      - Chebfun3 Construction Speedup: examples/approx3/Chebfun3Speedup.md
-      - Chebfun3 Complexity and Tucker Rank: examples/approx3/Complexity.md
-      - Finding a Trivariate Basis of Rank-One Functions: examples/approx3/FindingRankOne.md
-      - Flux Integrals over Parametric Surfaces: examples/approx3/FluxIntegral3D.md
-      - The Theorems of Gauss, Green, and Stokes: examples/approx3/GaussGreenStokes.md
-      - Hello 3D World: examples/approx3/Hello3.md
-      - Integration over 3D Curves: examples/approx3/LineIntegral3D.md
-      - Integration over 2D Surfaces in 3D: examples/approx3/SurfaceIntegral3D.md
-      - Loosening the Chebfun3 Tolerance: examples/approx3/Tolerance.md
-      - "Low-Rank Representation of Wagon's Function": examples/approx3/Wagon.md
-    - Calculus:
-      - Overview: examples/calc/index.md
-      - Delta functions and derivatives: examples/calc/DeltaDerivs.md
-      - "Optimizing a bird's flight path": examples/calc/ForTheBirds.md
-      - Definite and indefinite integrals: examples/calc/Integrals.md
-      - Mean Value Theorem: examples/calc/MeanValueTheorem.md
-      - "A drowning man and Snell's Law": examples/calc/SnellsLaw.md
-      - Surfaces of revolution: examples/calc/SurfaceRevolution.md
-      - Bird Flight Optimization: examples/calc/bird_flight_optimization.md
-      - Definite and Indefinite Integrals: examples/calc/definite_indefinite_integrals.md
-      - Differentiation: examples/calc/differentiation.md
-      - Definite and Indefinite Integrals: examples/calc/integrals.md
-      - The Mean Value Theorem: examples/calc/mean_value_theorem.md
-      - "Snell's Law and Refraction": examples/calc/snells_law.md
-    - Chebyshev Series:
-      - Overview: examples/cheb/index.md
-      - Chebyshev Polynomials as Plotted by Fornberg and Higham: examples/cheb/cheb_polys_higham.md
-      - The FFT in Chebfun: examples/cheb/chebfun_fft.md
-      - Chebyshev Polynomials $T_n$: examples/cheb/chebyshev_polynomials.md
-      - Convergence Rates for Functions of Fractional Smoothness: examples/cheb/convergence.md
-      - The Doublelength Flag: examples/cheb/doublelength_flag.md
-      - Exact Chebyshev Expansion Coefficients: examples/cheb/exact_cheb_coeffs.md
-      - "What's the Noise Level of a Chebyshev Series?": examples/cheb/noise_level.md
-      - "High-Accuracy Chebyshev Coefficients and 'Turbo'": examples/cheb/turbo.md
-    - Complex Analysis:
-      - Overview: examples/complex/index.md
-      - Analytic continuation via rational approximation: examples/complex/AnalyticContinuation.md
-      - angle, unwrap, and branches of complex chebfuns: examples/complex/Arguments.md
-      - Integrals over closed contours using periodic chebfuns: examples/complex/ClosedContours.md
-      - Arc length in the complex plane: examples/complex/ComplexArcLength.md
-      - Visualizing conformal maps: examples/complex/ConformalVis.md
-      - Fourier transforms using contour integrals: examples/complex/FourierContour.md
-      - A keyhole contour integral: examples/complex/KeyholeContour.md
-      - Phase portraits: examples/complex/PhasePortraits.md
-      - "Rouché's Theorem": examples/complex/RoucheTheorem.md
-      - Zeros of zeta(s) by analytic continuation: examples/complex/ZetaZeros.md
-      - Argument Principle: examples/complex/argument_principle.md
-      - Complex Functions via Parameterization: examples/complex/complex_functions.md
-      - Contour Integrals: examples/complex/contour_integrals.md
-    - Disk:
-      - Overview: examples/disk/index.md
-    - Fourier Analysis:
-      - Overview: examples/fourier/index.md
-      - Fourier Coefficients: examples/fourier/fourier_coefficients.md
-      - Fourier Series and the Gibbs Phenomenon: examples/fourier/fourier_series.md
-      - The Gibbs Phenomenon: examples/fourier/gibbs_phenomenon.md
-    - Fun:
-      - Overview: examples/fun/index.md
-      - "Can One Hear the Shape of a Chebfun?": examples/fun/audible_chebfuns.md
-      - Birthday Cards and Analytic Functions: examples/fun/birthday.md
-      - Implicit Functions and Fun with Contours: examples/fun/contour_fun.md
-      - Encryption of a Message: examples/fun/encryption.md
-      - Hello World: examples/fun/hello_world.md
-      - Hilbert Curve and Chebsnake: examples/fun/hilbert_surface_chebsnake.md
-      - MathJax Introduction: examples/fun/mathjax.md
-      - A Scribble for Chebfun2: examples/fun/scribble2.md
-      - Chebfun Soccerball: examples/fun/soccer_ball.md
-      - "Happy Valentine's Day! (again)": examples/fun/valentines_day2.md
-      - Writing a Message in 3D: examples/fun/writing_3d.md
-      - "Merry Christmas!": examples/fun/xmas_card.md
-    - Geometry:
-      - Overview: examples/geom/index.md
-      - Area and Centroid: examples/geom/area_centroid.md
-      - Constant Width Curves: examples/geom/constant_width.md
-      - Distance between Curves: examples/geom/curves_distance.md
-      - Dual Curves: examples/geom/dual_curves.md
-      - Ellipse Perimeter: examples/geom/ellipse.md
-      - Ellipses Rolling: examples/geom/ellipses_rolling.md
-      - Lissajous Figures: examples/geom/lissajous.md
-      - Procrustes Shape Analysis: examples/geom/procrustes.md
-      - Rose Curves: examples/geom/rose_curves.md
-      - Rounding Corners: examples/geom/rounding_corners.md
-      - Sinai Billiards: examples/geom/sinai_billiards.md
-      - Two Circles: examples/geom/two_circles.md
-    - Integro-Differential Equations:
-      - Overview: examples/integro/index.md
-      - Fractional Calculus: examples/integro/fractional_calculus.md
-      - Vlasov-Poisson Operator Numerical Abscissa: examples/integro/vlasov_poisson.md
-      - Wikipedia Integro-Differential Equation: examples/integro/wiki_integro_diff.md
-    - Linear Algebra:
-      - Overview: examples/linalg/index.md
-      - Chebfun Inner Products: examples/linalg/chebfun_inner_products.md
-      - Condition Numbers of Vandermonde Matrices: examples/linalg/condition_numbers.md
-      - Inner Products and Norms: examples/linalg/inner_products.md
-      - Matrix Functions: examples/linalg/matrix_functions.md
-      - Resolvent Norms and Pseudospectra: examples/linalg/resolvent_norm.md
-    - ODE Eigenvalue Problems:
-      - Overview: examples/ode-eig/index.md
-      - Continuous analogue of the Wilkinson matrix: examples/ode-eig/continuous_wilkinson.md
-      - Eigenvalues of differential operators by contour integral projection: examples/ode-eig/contour_proj_eig.md
-      - Double Well Potential: examples/ode-eig/double_well.md
-      - Frequencies of a circular drum: examples/ode-eig/drum.md
-      - Eigenstates of the Schrodinger equation: examples/ode-eig/eigenstates.md
-      - Periodic ODE eigenvalue problems: examples/ode-eig/fourier_eigs.md
-      - Quantum Harmonic Oscillator: examples/ode-eig/harmonic_oscillator.md
-      - Landscape function and localization of eigenfunctions: examples/ode-eig/landscape.md
-      - Laplacian Eigenvalues: examples/ode-eig/laplacian_eigenvalues.md
-      - Avoided crossings for ODE eigenvalues: examples/ode-eig/level_repulsion.md
-      - The nullspace of a linear differential operator: examples/ode-eig/null_space.md
-      - The nonlinear optical response of a simple molecule: examples/ode-eig/optical_response.md
-      - Orr-Sommerfeld eigenvalues: examples/ode-eig/orr_sommerfeld.md
-      - Polynomial eigenproblems with differential operators: examples/ode-eig/poly_eig_diff.md
-      - Eigenvalues of random operators: examples/ode-eig/randfun_eig.md
-      - Rayleigh quotient iteration for an operator: examples/ode-eig/rayleigh_quotient.md
-      - Model of a quantum dot array for solar energy: examples/ode-eig/solar_qda.md
-      - Sturm–Liouville Theory: examples/ode-eig/sturm_liouville.md
-      - Stability of a thermoelastic rod: examples/ode-eig/thermoelastic_rod.md
-      - Wave equation with decay band: examples/ode-eig/wave_decay.md
-    - Linear ODEs:
-      - Overview: examples/ode-linear/index.md
-      - Adjoint of a linear operator: examples/ode-linear/adjoints.md
-      - Advection-diffusion equation with a jump: examples/ode-linear/adv_diff_jump.md
-      - Airy Equation: examples/ode-linear/airy_equation.md
-      - Bessel Equation BVP: examples/ode-linear/bessel_bvp.md
-      - Time independent Black-Scholes with jumps: examples/ode-linear/black_scholes.md
-      - A bouncing ball: examples/ode-linear/bouncing_ball.md
-      - Boundary Layer for the Advection-Diffusion Equation: examples/ode-linear/boundary_layer.md
-      - Inserting breakpoints to resolve layers: examples/ode-linear/breakpoints.md
-      - Exponentials of linear operators via contour integration: examples/ode-linear/contour_expm.md
-      - "Dawson's integral": examples/ode-linear/dawson_integral.md
-      - Delta functions and ODEs: examples/ode-linear/delta_odes.md
-      - Classification of linear dynamical systems: examples/ode-linear/dynamical_systems.md
-      - Floquet theory of periodic linear systems: examples/ode-linear/floquet.md
-      - Fourier spectral collocation: examples/ode-linear/fourier_collocation.md
-      - Frozen coefficients do not determine stability: examples/ode-linear/frozen_coeffs.md
-      - Jump conditions in BVPs: examples/ode-linear/jump_conditions.md
-      - Jump conditions and Green functions: examples/ode-linear/jump_green.md
-      - A continuous analogue of Krylov subspace methods for ODEs: examples/ode-linear/krylov.md
-      - Lane-Emden equation from astrophysics: examples/ode-linear/lane_emden_linear.md
-      - Lee and Greengard ODE examples: examples/ode-linear/lee_greengard.md
-      - Linear exp initial-value problem: examples/ode-linear/lin_exp_ivp.md
-      - Linear IVP with Cosine Forcing: examples/ode-linear/linear_ivp_cosine.md
-      - Matched asymptotics and boundary layers: examples/ode-linear/matched_asymp.md
-      - Near-nonuniqueness and near-nonexistence: examples/ode-linear/near_nonuniqueness.md
-      - Nonstandard boundary conditions: examples/ode-linear/nonstandard_bcs.md
-      - Order stars: examples/ode-linear/order_stars.md
-      - A parameter-dependent ODE with breakpoints: examples/ode-linear/parameter_ode.md
-      - A periodic ODE system: examples/ode-linear/periodic_system.md
-      - Piecewise operators demo: examples/ode-linear/piecewise_demo.md
-      - Poisson Equation: examples/ode-linear/poisson_equation.md
-      - Stability regions of ODE formulas: examples/ode-linear/regions.md
-      - "Resonance exploited by Carrier and Pearson's vandal": examples/ode-linear/resonant_vandal.md
-      - Diffmat, diffrow, intmat, introw, gridsample: examples/ode-linear/spectral_disc.md
-      - Multiple BVP solutions by solving an IVP: examples/ode-linear/two_sol_bvp.md
-      - Linear ODEs from Wikipedia: examples/ode-linear/wiki_odes.md
-    - Nonlinear ODEs:
-      - Overview: examples/ode-nonlin/index.md
-      - An Allen-Cahn equation with continuation: examples/ode-nonlin/allen_cahn.md
-      - Blasius function: examples/ode-nonlin/blasius.md
-      - Bloodhound supersonic car: examples/ode-nonlin/bloodhound.md
-      - Blowup equation (Frank-Kamenetskii): examples/ode-nonlin/blowup_fk.md
-      - System of two nonlinear BVPs: examples/ode-nonlin/bvp_system.md
-      - The Carrier Equation: examples/ode-nonlin/carrier_equation.md
-      - Phase portraits with chebop/quiver: examples/ode-nonlin/chebop_quiver.md
-      - Delay differential equations in Chebfun: examples/ode-nonlin/delay_odes.md
-      - A droplet sitting on a surface: examples/ode-nonlin/droplets.md
-      - "Exact Solutions from Bender & Orszag": examples/ode-nonlin/exact_solutions_bender_orszag.md
-      - Four bugs on a rectangle: examples/ode-nonlin/four_bugs.md
-      - Nonlinear periodic ODE: examples/ode-nonlin/fourier_nonlin.md
-      - A nonlinear system of Guckenheimer and Holmes: examples/ode-nonlin/guckenheimer_holmes.md
-      - A third-order nonlinear BVP on the half-line: examples/ode-nonlin/gulf_stream.md
-      - IVP capabilities: examples/ode-nonlin/ivp_capabilities.md
-      - Lane-Emden equation from astrophysics (nonlinear): examples/ode-nonlin/lane_emden_nonlin.md
-      - Logistic map and chaos: examples/ode-nonlin/logistic.md
-      - The logistic map, again: examples/ode-nonlin/logistic2.md
-      - Logistic Equation: examples/ode-nonlin/logistic_equation.md
-      - Lorenz attractor: examples/ode-nonlin/lorenz_attractor.md
-      - Lyapunov exponents of the Lorenz system: examples/ode-nonlin/lyapunov_exponents.md
-      - Modelling infectious disease outbreaks: examples/ode-nonlin/modelling_diseases.md
-      - Orbiting around fixed stars: examples/ode-nonlin/orbits.md
-      - "Parameter-dependent ODEs: three examples": examples/ode-nonlin/param_odes.md
-      - Nonlinear Pendulum: examples/ode-nonlin/pendulum_equation.md
-      - Picard iteration for ODE existence proof: examples/ode-nonlin/picard.md
-      - Half-wave rectifier: examples/ode-nonlin/rectifier.md
-      - Nonlinear ODE modeling solar magnetic fields: examples/ode-nonlin/solar_fields.md
-      - A square limit cycle: examples/ode-nonlin/square_cycle.md
-      - Three-body problem: examples/ode-nonlin/three_body.md
-      - Pythagorean planets: examples/ode-nonlin/three_planets.md
-      - Two electrons orbiting symmetrically about a nucleus: examples/ode-nonlin/two_electrons.md
-    - Random ODEs:
-      - Overview: examples/ode-random/index.md
-      - Collective Dynamics and Consensus: examples/ode-random/consensus.md
-      - Geometric Brownian Motion: examples/ode-random/gbm.md
-      - Random Level Hopping: examples/ode-random/level_hopping.md
-      - Phase-Locking in a Duffing-Type Equation: examples/ode-random/phase_locking.md
-      - Pitchfork Bifurcation Triggered by Noise: examples/ode-random/pitchfork.md
-      - From Random Functions to SDEs: examples/ode-random/random2sde.md
-      - Random Trajectory on a Sphere: examples/ode-random/random_on_sphere.md
-      - Linear ODEs with Random Switching: examples/ode-random/random_switching.md
-      - Tunnelling Between Metastable States: examples/ode-random/tunnelling.md
-      - The White Noise Paradox: examples/ode-random/white_noise_paradox.md
-    - Optimization:
-      - Overview: examples/opt/index.md
-      - The Catenary: examples/opt/catenary.md
-      - Constrained Extrema: examples/opt/constrained_extrema.md
-      - Global Minimum in 2D: examples/opt/global_minimum_2d.md
-      - Minimum of a Smooth Function: examples/opt/minimum_of_smooth_function.md
-      - "Global Minimum: the Rosenbrock Function": examples/opt/rosenbrock.md
-    - Partial Differential Equations:
-      - Overview: examples/pde/index.md
-      - Coupled Reaction-Diffusion System: examples/pde/react_diff_sys.md
-      - SVD of Frequency Response Operator: examples/pde/svd_frequency_response.md
-    - Quadrature:
-      - Overview: examples/quad/index.md
-      - Battery test of Chebfun as a general-purpose integrator: examples/quad/BatteryTest.md
-      - Hermite quadrature: examples/quad/HermiteQuad.md
-      - Spike integral: examples/quad/SpikeIntegral.md
-      - Symbolic and numerical integration: examples/quad/SymbolicNumeric.md
-      - Clenshaw–Curtis Quadrature: examples/quad/clenshaw_curtis.md
-      - Convergence Rates for Quadrature: examples/quad/convergence_rates.md
-      - Gauss Quadrature: examples/quad/gauss_quadrature.md
-      - Gauss and Clenshaw-Curtis Quadrature: examples/quad/gauss_vs_clenshaw_curtis.md
-      - Tricky Integrals: examples/quad/tricky_integrals.md
-    - Rootfinding:
-      - Overview: examples/roots/index.md
-      - The mystery of Bernoulli polynomials: examples/roots/BernoulliPolynomials.md
-      - Roots of a Bessel function: examples/roots/BesselRoots.md
-      - "Does a Chebfun of degree n have n roots?": examples/roots/FundamentalTheoremAlgebra.md
-      - "Newton's method": examples/roots/NewtonRaphson.md
-      - Roots of random polynomials: examples/roots/RandomPolynomials.md
-      - Complex roots near the real axis: examples/roots/RootsNearAxis.md
-      - Speed and accuracy of Chebfun roots: examples/roots/RootsSpeed.md
-      - Roots of a secular equation with poles: examples/roots/SecularRoots.md
-      - "The tiger's tail": examples/roots/Tiger.md
-      - The white curves of Ortiz and Rivlin: examples/roots/WhiteCurves.md
-      - Roots of Bessel Functions: examples/roots/bessel_function_roots.md
-      - Bessel Function Roots: examples/roots/bessel_roots.md
-      - Extrema and Roots: examples/roots/extrema_and_roots.md
-      - Newton–Raphson Method: examples/roots/newton_raphson.md
-      - Polynomial Roots: examples/roots/polynomial_roots.md
-      - Complex Roots Near the Real Axis: examples/roots/roots_near_axis.md
-    - Sphere and Ball:
-      - Overview: examples/sphere/index.md
-      - Advection-Diffusion on the Sphere: examples/sphere/advection_diffusion.md
-      - Atmospheric Temperature: examples/sphere/atmospheric_temperature.md
-      - Gravitational Attraction to a Sphere: examples/sphere/gravity.md
-      - Helmholtz-Hodge Decomposition: examples/sphere/helmholtz_decomposition.md
-      - Helmholtz-Hodge in the Ball: examples/sphere/helmholtz_decomposition_ball.md
-      - Laplace Equation on the Unit Ball: examples/sphere/laplace_ball.md
-      - Poloidal-Toroidal Decomposition: examples/sphere/pt_decomposition.md
-      - Rayleigh Quotient on the Sphere: examples/sphere/rayleigh_quotient.md
-      - Solid Harmonics: examples/sphere/solid_harmonics.md
-      - Sphere Heat Conduction: examples/sphere/sphere_heat_conduction.md
-      - Parity Partitioning a Spherefun: examples/sphere/spherefun_partition.md
-      - Rotating Functions on the Sphere: examples/sphere/spherefun_rotate.md
-    - Statistics and Probability:
-      - Overview: examples/stats/index.md
-      - Bayesian Gradebook: examples/stats/bayesian_gradebook.md
-      - Beta Distribution Exercise: examples/stats/beta_exercise.md
-      - Bivariate Normal Distribution: examples/stats/bivariate_normal.md
-      - Central Limit Theorem: examples/stats/central_limit_theorem.md
-      - Expectations of Distributions: examples/stats/expectations.md
-      - Exponential Distribution Exercises: examples/stats/exponential_exercises.md
-      - Generalized Polynomial Chaos: examples/stats/generalized_polynomial_chaos.md
-      - Histogram: examples/stats/histogram.md
-      - Kelly Criterion: examples/stats/kelly_criterion.md
-      - Least Squares Fitting: examples/stats/least_squares.md
-      - Maxwell Distribution Exercises: examples/stats/maxwell_exercises.md
-      - Mercer-Karhunen-Loeve Expansion: examples/stats/mercer_karhunen_loeve.md
-      - Normal Distribution Exercises: examples/stats/normal_exercises.md
-      - Probability Convolution: examples/stats/probability_convolution.md
-      - Probability Distributions: examples/stats/probability_distributions.md
-      - Random Maxima: examples/stats/random_maxima.md
-      - Random Polynomials: examples/stats/random_polynomials.md
-      - Random Surfaces: examples/stats/random_surf.md
-      - Resampling Random Variables: examples/stats/resampling_random_variables.md
-      - Smooth Random Walk: examples/stats/smooth_random_walk.md
-      - Smoothies: examples/stats/smoothies.md
-      - Uniform Distribution Exercises: examples/stats/uniform_exercises.md
-    - Applications:
-      - Overview: examples/applics/index.md
-      - AAA Algorithm for System Identification from Bode Data: examples/applics/bode2tf.md
-      - Exponential, Logistic, and Gompertz Growth: examples/applics/gompertz.md
-      - AAA Algorithm for System Identification from Step Response: examples/applics/step2tf.md
-    - Miscellaneous:
-      - Overview: examples/temp/index.md
-      - Problems from Binous, Shaikh and Bellagi: examples/temp/binous_shaikh_bellagi.md
-      - Composition with Multivariate Chebfuns: examples/temp/chebfun_composition.md
-      - Compacting Colloids in a Centrifuge: examples/temp/compacting_colloids.md
-      - Fractional Calculus: examples/temp/frac_calc.md
-      - Fractional Calculus (cont.): examples/temp/frac_calc2.md
-      - Time-Dependent Integro-Differential Equation: examples/temp/integro_diff_t.md
-      - Optimal Performance of a Car: examples/temp/optim_car.md
-      - Demo of Piecewise Operators: examples/temp/piecewise_linop_demo.md
-      - "Taylor's Theorem Analogue for Chebyshev Series": examples/temp/taylors_theorem.md
-      - An ODE on an Unbounded Interval: examples/temp/unbounded_ode.md
-      - Van der Pol Periodic Orbits: examples/temp/vdp_orbit.md
-    - Vector Calculus:
-      - Overview: examples/veccalc/index.md
-  - API Reference: api.md
-  - JAX Contract: jax-contract.md
+      - Chebyshev Technology: examples/cheb/index.md
+      - Fourier Series: examples/fourier/index.md
+    - 2D & 3D Approximation:
+      - Chebfun2 (2D): examples/approx2/index.md
+      - Chebfun3 (3D): examples/approx3/index.md
+      - Disk Functions: examples/disk/index.md
+      - Sphere Functions: examples/sphere/index.md
+    - Calculus & Rootfinding:
+      - Calculus: examples/calc/index.md
+      - Rootfinding: examples/roots/index.md
+      - Quadrature: examples/quad/index.md
+      - Optimization: examples/opt/index.md
+    - Differential Equations:
+      - Linear ODEs: examples/ode-linear/index.md
+      - Nonlinear ODEs: examples/ode-nonlin/index.md
+      - ODE Eigenvalues: examples/ode-eig/index.md
+      - Random ODEs: examples/ode-random/index.md
+      - PDEs: examples/pde/index.md
+      - Integro-Differential: examples/integro/index.md
+    - Linear Algebra & Complex Analysis:
+      - Linear Algebra: examples/linalg/index.md
+      - Complex Analysis: examples/complex/index.md
+      - Vector Calculus: examples/veccalc/index.md
+    - Other Topics:
+      - Fun & Games: examples/fun/index.md
+      - Geometry: examples/geom/index.md
+      - Statistics: examples/stats/index.md
+      - Applications: examples/applics/index.md
+      - Miscellaneous: examples/temp/index.md
+  - Reference:
+    - API: api.md
+    - JAX Contract: jax-contract.md
+    - Architecture: architecture.md
+    - Testing: testing.md
