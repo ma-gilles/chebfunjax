@@ -11,6 +11,18 @@ jax.config.update("jax_enable_x64", True)
 from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun  # noqa: E402
 from chebfunjax.chebfun2d.chebfun2 import Chebfun2, chebfun2  # noqa: E402
 
+# Plotting — importable as cj.plot(f), cj.surf(g), etc.
+from chebfunjax.plotting import (  # noqa: E402
+    plot,
+    plotcoeffs,
+    contour,
+    surf,
+    phaseplot,
+    plot_disk,
+    plot_sphere,
+    plot_slices,
+)
+
 # ---------------------------------------------------------------------------
 # Top-level special functions: cj.sin(f) is equivalent to f.sin()
 # ---------------------------------------------------------------------------
@@ -99,4 +111,13 @@ __all__ = [
     "asin",
     "acos",
     "atan",
+    # Plotting
+    "plot",
+    "plotcoeffs",
+    "contour",
+    "surf",
+    "phaseplot",
+    "plot_disk",
+    "plot_sphere",
+    "plot_slices",
 ]
