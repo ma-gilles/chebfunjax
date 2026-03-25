@@ -281,3 +281,21 @@ Figures generated automatically from `examples/calc/`, `examples/quad/`,
 ### Argument principle
 
 ![Argument principle](../../examples/complex/argument_principle.png)
+
+---
+
+## Translated Chebfun Examples
+
+The following Chebfun examples from MATLAB have been translated to chebfunjax.
+Each page contains a narrative exposition, mathematical background, and Python code.
+
+### Calculus
+
+| Example | Description |
+|---------|-------------|
+| [ForTheBirds](calc/ForTheBirds.md) | Optimizing a bird's flight path over water and land |
+| [Integrals](calc/Integrals.md) | Definite and indefinite integrals with `sum` and `cumsum` |
+| [MeanValueTheorem](calc/MeanValueTheorem.md) | Finding MVT points via rootfinding on $f' - \text{slope}$ |
+| [SnellsLaw](calc/SnellsLaw.md) | Snell's Law of refraction as a continuous optimisation |
+| [DeltaDerivs](calc/DeltaDerivs.md) | Generalised functions and iterated differentiation |
+| [SurfaceRevolution](calc/SurfaceRevolution.md) | Volume, surface area, centroid, and moment of inertia |

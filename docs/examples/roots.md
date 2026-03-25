@@ -189,3 +189,20 @@ Figures generated automatically from `examples/roots/`.
 ### Random polynomial roots
 
 ![Random polynomials](../../examples/roots/random_polynomials.png)
+
+---
+
+## Translated Chebfun Examples
+
+| Example | Description |
+|---------|-------------|
+| [BesselRoots](roots/BesselRoots.md) | All roots of $J_0$ on $[0,100]$ compared with scipy |
+| [NewtonRaphson](roots/NewtonRaphson.md) | Newton's method vs Chebfun colleague-matrix approach |
+| [BernoulliPolynomials](roots/BernoulliPolynomials.md) | Recursive construction via integration and zero-mean condition |
+| [SecularRoots](roots/SecularRoots.md) | Roots of a secular equation with near-poles |
+| [FundamentalTheoremAlgebra](roots/FundamentalTheoremAlgebra.md) | Chebyshev and monomial polynomial roots |
+| [RandomPolynomials](roots/RandomPolynomials.md) | Random polynomial roots clustering near the unit circle |
+| [RootsNearAxis](roots/RootsNearAxis.md) | Complex roots near the real axis visualised via $\log|f(z)|$ |
+| [Tiger](roots/Tiger.md) | High-degree random Chebyshev polynomial — the tiger's tail |
+| [WhiteCurves](roots/WhiteCurves.md) | White curve intersections of Chebyshev polynomials $T_1\ldots T_{30}$ |
+| [RootsSpeed](roots/RootsSpeed.md) | Speed and accuracy of the colleague-matrix rootfinder |
