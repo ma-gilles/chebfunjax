@@ -40,5 +40,20 @@ nav:
     - PDE: examples/pde.md
     - 2D Functions: examples/chebfun2.md
     - 3D Functions: examples/chebfun3.md
+    - Approximation (1D advanced): examples/approx2/index.md
+    - Approximation (3D): examples/approx3/index.md
+    - Chebyshev topics: examples/cheb/index.md
+    - Disk functions: examples/disk/index.md
+    - Fourier: examples/fourier/index.md
+    - Fun examples: examples/fun/index.md
+    - Geometry: examples/geom/index.md
+    - Integro-differential: examples/integro/index.md
+    - Linear algebra: examples/linalg/index.md
+    - Optimization: examples/opt/index.md
+    - PDE gallery: examples/pde/index.md
+    - Sphere: examples/sphere/index.md
+    - Statistics: examples/stats/index.md
+    - Vector calculus: examples/veccalc/index.md
+    - Applications: examples/applics/index.md
   - API Reference: api.md
   - JAX Contract: jax-contract.md
