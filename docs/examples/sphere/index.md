@@ -3,59 +3,19 @@
 Spherefun represents functions on the unit sphere `S²` using a double Fourier
 series in spherical coordinates `(λ, θ)` (longitude, colatitude).
 
----
-
-## Spherical harmonics
-
-**Source:** `sphere/SphericalHarmonics.m`
-
-The spherical harmonics `Y_l^m(λ, θ)` are eigenfunctions of the spherical
-Laplacian.  Spherefun can represent them exactly in low rank.
-
-```python
-import jax.numpy as jnp
-import chebfunjax as cj
-
-# Y_1^1 ~ cos(λ)sin(θ)
-f = cj.spherefun(lambda lam, th: jnp.cos(lam) * jnp.sin(th))
-print(f.rank)           # 1
-
-# Integral of Y_1^1 over S^2 = 0 (orthogonality)
-print(abs(f.sum2()))    # < 0.1
-```
-
-![Spherical harmonics](../../../examples/sphere/spherical_harmonics.png)
-
----
-
-## Operations on the sphere
-
-**Source:** `sphere/Gravity.m`, `sphere/HelmholtzDecomposition.m`
-
-```python
-# Integral of 1 over S^2 = 4π
-f_const = cj.spherefun(lambda lam, th: jnp.ones_like(lam + th))
-print(float(f_const.sum2()))   # ≈ 4π = 12.566
-
-# Integral of cos²(θ) = 4π/3
-f_cos2 = cj.spherefun(lambda lam, th: jnp.cos(th)**2)
-print(float(f_cos2.sum2()))    # ≈ 4.189
-```
-
-![Sphere operations](../../../examples/sphere/sphere_operations.png)
-
----
-
-## Other sphere examples
-
-| MATLAB example | Description |
-|---|---|
-| `sphere/AtmosphericTemperature.m` | Real atmospheric temperature data |
-| `sphere/HelmholtzDecompositionBall.m` | Helmholtz decomposition on the ball |
-| `sphere/LaplaceBall.m` | Laplace equation on the unit ball |
-| `sphere/PTDecomposition.m` | Poloidal-toroidal decomposition |
-| `sphere/RayleighQuotientExample.m` | Rayleigh quotient iterations |
-| `sphere/SolidHarmonics.m` | Solid harmonics |
-| `sphere/SpherefunPartition.m` | Spherefun partition-of-unity |
-| `sphere/SpherefunRotate.m` | Rotation of spherefun objects |
-| `sphere/SphereHeatConduction.m` | Heat conduction on the sphere |
+| Example | Description |
+|---------|-------------|
+| [Spherical Harmonics](spherical_harmonics.md) | Eigenfunctions of the spherical Laplacian Y_l^m |
+| [Sphere Operations](sphere_operations.md) | Basic Spherefun operations: integral, norm, rank |
+| [Advection-Diffusion](advection_diffusion.md) | Advection-diffusion on the unit ball; eigenfunction decay |
+| [Atmospheric Temperature](atmospheric_temperature.md) | Global temperature field: SH power spectrum, zonal mean |
+| [Gravity](gravity.md) | Gravitational potential of a sphere: multipole expansion |
+| [Helmholtz Decomposition](helmholtz_decomposition.md) | Helmholtz-Hodge: divergence-free + curl-free decomposition on S² |
+| [Helmholtz Decomposition Ball](helmholtz_decomposition_ball.md) | Helmholtz-Hodge decomposition inside the unit ball |
+| [Laplace Ball](laplace_ball.md) | Laplace equation in the unit ball via SH expansion |
+| [PT Decomposition](pt_decomposition.md) | Poloidal-toroidal decomposition of divergence-free vector fields |
+| [Rayleigh Quotient](rayleigh_quotient.md) | Rayleigh quotient and eigenvalues of the Laplace-Beltrami operator |
+| [Solid Harmonics](solid_harmonics.md) | Regular and irregular solid harmonics: solutions of Laplace in 3D |
+| [Spherefun Partition](spherefun_partition.md) | Parity partitioning: even and odd parts of a spherefun |
+| [Spherefun Rotate](spherefun_rotate.md) | Rotating functions on the sphere using Euler angle rotations |
+| [Sphere Heat Conduction](sphere_heat_conduction.md) | Heat equation u_t = κ·Δ_S u solved by eigenfunction expansion |
