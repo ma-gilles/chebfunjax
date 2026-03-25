@@ -2,7 +2,12 @@
 
 from chebfunjax.utils.aaa import aaa, aaatrig
 from chebfunjax.utils.conformal import conformal
+from chebfunjax.utils.conformal2 import conformal2
+from chebfunjax.utils.fov import fov
 from chebfunjax.utils.gallery import gallery, list_gallery
+from chebfunjax.utils.gpr import gpr
+from chebfunjax.utils.phaseplot import phaseplot
+from chebfunjax.utils.pswf import pswf, pswfpts
 from chebfunjax.utils.lebesgue import lebesgue_constant, lebesgue_function
 from chebfunjax.utils.polynomials import (
     chebeval,
@@ -59,6 +64,16 @@ __all__ = [
     "aaatrig",
     # conformal
     "conformal",
+    "conformal2",
+    # fov
+    "fov",
+    # gpr
+    "gpr",
+    # phaseplot
+    "phaseplot",
+    # pswf
+    "pswf",
+    "pswfpts",
     # gallery
     "gallery",
     "list_gallery",
