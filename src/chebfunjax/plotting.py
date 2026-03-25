@@ -257,3 +257,190 @@ def phaseplot(f, n=_N_PLOT_2D, title=None, ax=None, **kwargs):
 
     fig.tight_layout()
     return fig, ax
+
+
+# ============================================================================
+# Diskfun — polar plot
+# ============================================================================
+
+
+def plot_disk(f_disk, n=_N_PLOT_2D, title=None, ax=None, **kwargs):
+    """Plot a Diskfun on the unit disk.
+
+    Provenance
+    ----------
+    MATLAB source : @diskfun/plot.m
+    Chebfun commit: 7574c77
+    """
+    import matplotlib.pyplot as plt
+
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(7, 7), subplot_kw={"projection": "polar"})
+    else:
+        fig = ax.figure
+
+    theta = np.linspace(-np.pi, np.pi, n)
+    r = np.linspace(0, 1, n // 2)
+    TH, R = np.meshgrid(theta, r)
+
+    Z = np.zeros_like(TH)
+    for i in range(Z.shape[0]):
+        for j in range(Z.shape[1]):
+            Z[i, j] = float(f_disk(float(TH[i, j]), float(R[i, j])))
+
+    pcolor_kwargs = {"cmap": "viridis", "shading": "auto"}
+    pcolor_kwargs.update(kwargs)
+    ax.pcolormesh(TH, R, Z, **pcolor_kwargs)
+    ax.set_rticks([0.25, 0.5, 0.75, 1.0])
+
+    if title:
+        ax.set_title(title, fontsize=_TITLE_SIZE, pad=20)
+
+    fig.tight_layout()
+    return fig, ax
+
+
+# ============================================================================
+# Spherefun — sphere plot
+# ============================================================================
+
+
+def plot_sphere(f_sphere, n=_N_PLOT_2D, title=None, ax=None, **kwargs):
+    """Plot a Spherefun on the unit sphere.
+
+    Provenance
+    ----------
+    MATLAB source : @spherefun/plot.m
+    Chebfun commit: 7574c77
+    """
+    import matplotlib.pyplot as plt
+    from matplotlib import cm
+
+    if ax is None:
+        fig = plt.figure(figsize=(8, 8))
+        ax = fig.add_subplot(111, projection="3d")
+    else:
+        fig = ax.figure
+
+    lam = np.linspace(-np.pi, np.pi, n)
+    th = np.linspace(0, np.pi, n // 2)
+    LAM, TH = np.meshgrid(lam, th)
+
+    X = np.sin(TH) * np.cos(LAM)
+    Y = np.sin(TH) * np.sin(LAM)
+    Z_coord = np.cos(TH)
+
+    F = np.zeros_like(LAM)
+    for i in range(F.shape[0]):
+        for j in range(F.shape[1]):
+            F[i, j] = float(f_sphere(float(LAM[i, j]), float(TH[i, j])))
+
+    norm = plt.Normalize(F.min(), F.max())
+    colors = cm.viridis(norm(F))
+
+    ax.plot_surface(X, Y, Z_coord, facecolors=colors, alpha=0.9, edgecolor="none")
+    ax.set_box_aspect([1, 1, 1])
+
+    if title:
+        ax.set_title(title, fontsize=_TITLE_SIZE)
+
+    fig.tight_layout()
+    return fig, ax
+
+
+# ============================================================================
+# Chebfun3 — slice plots
+# ============================================================================
+
+
+def plot_slices(f3, slices=(0.0, 0.0, 0.0), n=100, title=None, **kwargs):
+    """Plot 2D slices of a Chebfun3 at x=x0, y=y0, z=z0.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun3/slice.m
+    Chebfun commit: 7574c77
+    """
+    import matplotlib.pyplot as plt
+
+    x0, y0, z0 = slices
+    dom = f3.domain
+    xa, xb = dom[0]
+    ya, yb = dom[1]
+    za, zb = dom[2]
+
+    fig, axes = plt.subplots(1, 3, figsize=(16, 5))
+
+    for idx, (fixed_val, label, a1, b1, a2, b2, lab1, lab2) in enumerate([
+        (z0, f"z = {z0}", xa, xb, ya, yb, "x", "y"),
+        (y0, f"y = {y0}", xa, xb, za, zb, "x", "z"),
+        (x0, f"x = {x0}", ya, yb, za, zb, "y", "z"),
+    ]):
+        ax = axes[idx]
+        _apply_chebfun_style(ax)
+        u = np.linspace(a1, b1, n)
+        v = np.linspace(a2, b2, n)
+        U, V = np.meshgrid(u, v)
+        W = np.zeros_like(U)
+        for i in range(n):
+            for j in range(n):
+                if idx == 0:
+                    W[i, j] = float(f3(U[i, j], V[i, j], fixed_val))
+                elif idx == 1:
+                    W[i, j] = float(f3(U[i, j], fixed_val, V[i, j]))
+                else:
+                    W[i, j] = float(f3(fixed_val, U[i, j], V[i, j]))
+        ax.pcolormesh(U, V, W, cmap="viridis", shading="auto")
+        ax.set_xlabel(lab1, fontsize=_FONT_SIZE)
+        ax.set_ylabel(lab2, fontsize=_FONT_SIZE)
+        ax.set_title(label, fontsize=_TITLE_SIZE)
+        ax.set_aspect("equal")
+
+    if title:
+        fig.suptitle(title, fontsize=_TITLE_SIZE + 2)
+
+    fig.tight_layout()
+    return fig, axes
+
+
+# ============================================================================
+# Coefficient plot (chebpolyplot / plotcoeffs)
+# ============================================================================
+
+
+def plotcoeffs(f, ax=None, title=None, **kwargs):
+    """Plot Chebyshev coefficients on a semilogy scale.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/plotcoeffs.m
+    Chebfun commit: 7574c77
+    """
+    import matplotlib.pyplot as plt
+
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(8, 5))
+    else:
+        fig = ax.figure
+
+    _apply_chebfun_style(ax)
+
+    coeffs = np.array(f.coeffs)
+    n = len(coeffs)
+
+    plot_kwargs = {"marker": ".", "markersize": 6, "linestyle": "none",
+                   "color": _CHEBFUN_BLUE}
+    plot_kwargs.update(kwargs)
+    ax.semilogy(range(n), np.abs(coeffs), **plot_kwargs)
+
+    ax.set_xlabel("Coefficient index", fontsize=_FONT_SIZE)
+    ax.set_ylabel("|a_k|", fontsize=_FONT_SIZE)
+    ax.set_xlim(-0.5, n - 0.5)
+
+    if title:
+        ax.set_title(title, fontsize=_TITLE_SIZE)
+    else:
+        ax.set_title("Chebyshev coefficients", fontsize=_TITLE_SIZE)
+
+    fig.tight_layout()
+    return fig, ax
