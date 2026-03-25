@@ -1,6 +1,6 @@
 # Sturm–Liouville Theory
 
-*Original: [chebfun.org/examples/ode-eig/](https://www.chebfun.org/examples/ode-eig/)*
+*Original: [chebfun.org/examples/ode-eig/SturmLiouville](https://www.chebfun.org/examples/ode-eig/SturmLiouville.html)*
 
 ---
 

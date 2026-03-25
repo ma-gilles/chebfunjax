@@ -1,6 +1,6 @@
 # Constrained Extrema
 
-*Original: [chebfun.org/examples/opt/](https://www.chebfun.org/examples/opt/)*
+*Original: [chebfun.org/examples/opt/ConstrainedExtrema](https://www.chebfun.org/examples/opt/ConstrainedExtrema.html)*
 
 ---
 

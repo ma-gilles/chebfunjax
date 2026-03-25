@@ -1,6 +1,6 @@
 # Argument Principle
 
-*Original: [chebfun.org/examples/complex/](https://www.chebfun.org/examples/complex/)*
+*Original: [chebfun.org/examples/complex/Arguments](https://www.chebfun.org/examples/complex/Arguments.html)*
 
 ---
 

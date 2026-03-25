@@ -1,6 +1,6 @@
 # Polynomial Approximation
 
-*Original: [chebfun.org/examples/approx/](https://www.chebfun.org/examples/approx/)*
+*Original: [chebfun.org/examples/approx/Entire](https://www.chebfun.org/examples/approx/Entire.html)*
 
 ---
 

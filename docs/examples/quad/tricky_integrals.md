@@ -1,6 +1,6 @@
 # Tricky Integrals
 
-*Original: [chebfun.org/examples/quad/](https://www.chebfun.org/examples/quad/)*
+*Original: [chebfun.org/examples/quad/TrickyIntegrands](https://www.chebfun.org/examples/quad/TrickyIntegrands.html)*
 
 ---
 

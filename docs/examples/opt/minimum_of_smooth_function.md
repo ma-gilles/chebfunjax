@@ -1,6 +1,6 @@
 # Minimum of a Smooth Function
 
-*Original: [chebfun.org/examples/opt/](https://www.chebfun.org/examples/opt/)*
+*Original: [chebfun.org/examples/opt/GlobalMinimum](https://www.chebfun.org/examples/opt/GlobalMinimum.html)*
 
 ---
 

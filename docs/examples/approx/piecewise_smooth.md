@@ -1,6 +1,6 @@
 # Piecewise Smooth Functions
 
-*Original: [chebfun.org/examples/approx/](https://www.chebfun.org/examples/approx/)*
+*Original: [chebfun.org/examples/approx/PiecewiseSmooth](https://www.chebfun.org/examples/approx/PiecewiseSmooth.html)*
 
 ---
 

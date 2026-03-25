@@ -1,6 +1,6 @@
 # The Catenary
 
-*Original: [chebfun.org/examples/opt/](https://www.chebfun.org/examples/opt/)*
+*Original: [chebfun.org/examples/opt/Catenary](https://www.chebfun.org/examples/opt/Catenary.html)*
 
 ---
 

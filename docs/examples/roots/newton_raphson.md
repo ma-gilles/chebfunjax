@@ -1,6 +1,6 @@
 # Newton–Raphson Method
 
-*Original: [chebfun.org/examples/roots/](https://www.chebfun.org/examples/roots/)*
+*Original: [chebfun.org/examples/roots/NewtonRaphson](https://www.chebfun.org/examples/roots/NewtonRaphson.html)*
 
 ---
 

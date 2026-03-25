@@ -1,6 +1,6 @@
 # Linear ODEs from Wikipedia
 
-*Original: [chebfun.org/examples/ode-linear/](https://www.chebfun.org/examples/ode-linear/)*
+*Original: [chebfun.org/examples/ode-linear/WikiODE](https://www.chebfun.org/examples/ode-linear/WikiODE.html)*
 
 ---
 

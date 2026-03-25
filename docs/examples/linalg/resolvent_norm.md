@@ -1,6 +1,6 @@
 # Resolvent Norms and Pseudospectra
 
-*Original: [chebfun.org/examples/linalg/](https://www.chebfun.org/examples/linalg/)*
+*Original: [chebfun.org/examples/linalg/ResolventNorm](https://www.chebfun.org/examples/linalg/ResolventNorm.html)*
 
 ---
 

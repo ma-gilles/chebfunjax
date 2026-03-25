@@ -1,6 +1,6 @@
 # Rational-Like Convergence
 
-*Original: [chebfun.org/examples/approx/](https://www.chebfun.org/examples/approx/)*
+*Original: [chebfun.org/examples/approx/SpectralDecay](https://www.chebfun.org/examples/approx/SpectralDecay.html)*
 
 ---
 
