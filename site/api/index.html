@@ -1,0 +1,2308 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ma-gilles.github.io/chebfunjax/api/">
+      
+      
+        <link rel="prev" href="../examples/chebfun3/">
+      
+      
+        <link rel="next" href="../jax-contract/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>API Reference - chebfunjax</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#api-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="chebfunjax" class="md-header__button md-logo" aria-label="chebfunjax" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            chebfunjax
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              API Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ma-gilles/chebfunjax" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ma-gilles/chebfunjax
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../install/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Installation
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../quickstart/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Quick Start
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../examples/approx/" class="md-tabs__link">
+          
+  
+  
+  Examples
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  API Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../jax-contract/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  JAX Contract
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="chebfunjax" class="md-nav__button md-logo" aria-label="chebfunjax" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    chebfunjax
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ma-gilles/chebfunjax" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ma-gilles/chebfunjax
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Examples
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/approx/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Approximation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/calc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Calculus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/roots/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rootfinding
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/ode/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ODE/BVP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/pde/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PDE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/chebfun2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2D Functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/chebfun3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3D Functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#top-level-chebfunjax-cj" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top-Level (chebfunjax / cj)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Top-Level (chebfunjax / cj)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#factory-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Factory functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#special-functions-top-level-aliases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Special functions (top-level aliases)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1d-chebfun-chebfunjaxchebfun1d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1D Chebfun (chebfunjax.chebfun1d)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1D Chebfun (chebfunjax.chebfun1d)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chebfun" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chebfun
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tech-layer-chebfunjaxtech" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tech Layer (chebfunjax.tech)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tech Layer (chebfunjax.tech)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chebtech2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chebtech2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trigtech" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trigtech
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#utilities-chebfunjaxutils" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Utilities (chebfunjax.utils)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Utilities (chebfunjax.utils)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quadrature" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quadrature
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transforms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transforms
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interpolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interpolation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#differentiation-integration-matrices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Differentiation / Integration Matrices
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#polynomials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Polynomials
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rational-approximation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rational Approximation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operators-chebfunjaxoperators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operators (chebfunjax.operators)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Operators (chebfunjax.operators)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#linop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linop
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chebop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chebop
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chebop2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chebop2
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2d-functions-chebfunjaxchebfun2d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2D Functions (chebfunjax.chebfun2d)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2D Functions (chebfunjax.chebfun2d)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chebfun2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chebfun2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#separableapprox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SeparableApprox
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chebfun2v" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chebfun2v
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3d-functions-chebfunjaxchebfun3d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3D Functions (chebfunjax.chebfun3d)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3D Functions (chebfunjax.chebfun3d)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chebfun3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chebfun3
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pde-time-stepping-chebfunjaxspin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PDE Time-Stepping (chebfunjax.spin)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PDE Time-Stepping (chebfunjax.spin)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spinop-1d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SpinOp (1D)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spinop2-spinop3-spinopsphere-2d3dsphere" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SpinOp2, SpinOp3, SpinOpSphere (2D/3D/sphere)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#disk-and-sphere-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disk and Sphere Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Disk and Sphere Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diskfun-diskfunv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diskfun, Diskfunv
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spherefun-spherefunv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spherefun, Spherefunv
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#discretization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Discretization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#automatic-differentiation-frechet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Automatic Differentiation (Fréchet)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../jax-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JAX Contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#top-level-chebfunjax-cj" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top-Level (chebfunjax / cj)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Top-Level (chebfunjax / cj)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#factory-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Factory functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#special-functions-top-level-aliases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Special functions (top-level aliases)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1d-chebfun-chebfunjaxchebfun1d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1D Chebfun (chebfunjax.chebfun1d)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1D Chebfun (chebfunjax.chebfun1d)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chebfun" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chebfun
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tech-layer-chebfunjaxtech" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tech Layer (chebfunjax.tech)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tech Layer (chebfunjax.tech)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chebtech2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chebtech2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trigtech" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trigtech
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#utilities-chebfunjaxutils" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Utilities (chebfunjax.utils)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Utilities (chebfunjax.utils)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quadrature" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quadrature
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transforms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transforms
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interpolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interpolation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#differentiation-integration-matrices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Differentiation / Integration Matrices
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#polynomials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Polynomials
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rational-approximation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rational Approximation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operators-chebfunjaxoperators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operators (chebfunjax.operators)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Operators (chebfunjax.operators)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#linop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linop
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chebop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chebop
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chebop2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chebop2
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2d-functions-chebfunjaxchebfun2d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2D Functions (chebfunjax.chebfun2d)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2D Functions (chebfunjax.chebfun2d)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chebfun2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chebfun2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#separableapprox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SeparableApprox
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chebfun2v" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chebfun2v
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3d-functions-chebfunjaxchebfun3d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3D Functions (chebfunjax.chebfun3d)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3D Functions (chebfunjax.chebfun3d)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chebfun3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chebfun3
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pde-time-stepping-chebfunjaxspin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PDE Time-Stepping (chebfunjax.spin)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PDE Time-Stepping (chebfunjax.spin)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spinop-1d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SpinOp (1D)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spinop2-spinop3-spinopsphere-2d3dsphere" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SpinOp2, SpinOp3, SpinOpSphere (2D/3D/sphere)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#disk-and-sphere-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disk and Sphere Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Disk and Sphere Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diskfun-diskfunv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diskfun, Diskfunv
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spherefun-spherefunv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spherefun, Spherefunv
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#discretization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Discretization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#automatic-differentiation-frechet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Automatic Differentiation (Fréchet)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="api-reference">API Reference</h1>
+<p>This page summarises the main public classes and functions in chebfunjax.
+See the source files in <code>src/chebfunjax/</code> for full docstrings.</p>
+<hr />
+<h2 id="top-level-chebfunjax-cj">Top-Level (<code>chebfunjax</code> / <code>cj</code>)</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">chebfunjax</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cj</span>
+</code></pre></div>
+<h3 id="factory-functions">Factory functions</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Signature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>chebfun</code></td>
+<td><code>chebfun(f, domain=None, n=None)</code></td>
+<td>Construct a 1D Chebfun from a callable. Adaptive by default; pass <code>n</code> for fixed degree.</td>
+</tr>
+<tr>
+<td><code>chebfun2</code></td>
+<td><code>chebfun2(f, domain=None)</code></td>
+<td>Construct a 2D Chebfun2 from a bivariate callable.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="special-functions-top-level-aliases">Special functions (top-level aliases)</h3>
+<p>Each <code>cj.func(f)</code> is equivalent to <code>f.func()</code>.</p>
+<table>
+<thead>
+<tr>
+<th><code>cj.sin</code></th>
+<th><code>cj.cos</code></th>
+<th><code>cj.exp</code></th>
+<th><code>cj.log</code></th>
+<th><code>cj.sqrt</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cj.abs</code></td>
+<td><code>cj.sign</code></td>
+<td><code>cj.sinh</code></td>
+<td><code>cj.cosh</code></td>
+<td><code>cj.tanh</code></td>
+</tr>
+<tr>
+<td><code>cj.asin</code></td>
+<td><code>cj.acos</code></td>
+<td><code>cj.atan</code></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1d-chebfun-chebfunjaxchebfun1d">1D Chebfun (<code>chebfunjax.chebfun1d</code>)</h2>
+<h3 id="chebfun"><code>Chebfun</code></h3>
+<p>Piecewise smooth function approximation on a domain.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.chebfun1d.chebfun</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chebfun</span><span class="p">,</span> <span class="n">chebfun</span>
+</code></pre></div>
+<p><strong>Construction</strong></p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>chebfun(f, domain, n)</code></td>
+<td>Adaptive or fixed-degree approximation of a callable</td>
+</tr>
+<tr>
+<td><code>Chebfun.from_values(values, domain)</code></td>
+<td>Interpolate from values at Chebyshev-2 points</td>
+</tr>
+<tr>
+<td><code>Chebfun.from_coeffs(coeffs, domain)</code></td>
+<td>Build from Chebyshev coefficients</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Evaluation</strong></p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>f(x)</code></td>
+<td>Evaluate at scalar or array <code>x</code>. JIT/vmap/grad-safe.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Calculus</strong></p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Signature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.diff</code></td>
+<td><code>f.diff(k=1)</code></td>
+<td>k-th derivative</td>
+</tr>
+<tr>
+<td><code>.cumsum</code></td>
+<td><code>f.cumsum()</code></td>
+<td>Antiderivative with F(a) = 0</td>
+</tr>
+<tr>
+<td><code>.sum</code></td>
+<td><code>f.sum()</code></td>
+<td>Definite integral over domain</td>
+</tr>
+<tr>
+<td><code>.mean</code></td>
+<td><code>f.mean()</code></td>
+<td>Mean value over domain</td>
+</tr>
+<tr>
+<td><code>.norm</code></td>
+<td><code>f.norm(p=2)</code></td>
+<td>Lp norm</td>
+</tr>
+<tr>
+<td><code>.inner</code></td>
+<td><code>f.inner(g)</code></td>
+<td>L2 inner product</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Roots and extrema</strong></p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.roots()</code></td>
+<td>All real roots on the domain, sorted</td>
+</tr>
+<tr>
+<td><code>.max()</code></td>
+<td>Returns <code>(x_max, f_max)</code></td>
+</tr>
+<tr>
+<td><code>.min()</code></td>
+<td>Returns <code>(x_min, f_min)</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Arithmetic</strong></p>
+<p>All standard Python operators are supported:
+<code>f + g</code>, <code>f - g</code>, <code>f * g</code>, <code>f / g</code>, <code>f ** k</code>, and their scalar variants.</p>
+<p><strong>Special functions (methods)</strong></p>
+<p><code>.sin()</code>, <code>.cos()</code>, <code>.exp()</code>, <code>.log()</code>, <code>.sqrt()</code>, <code>.abs()</code>, <code>.sign()</code>,
+<code>.sinh()</code>, <code>.cosh()</code>, <code>.tanh()</code>, <code>.asin()</code>, <code>.acos()</code>, <code>.atan()</code></p>
+<hr />
+<h2 id="tech-layer-chebfunjaxtech">Tech Layer (<code>chebfunjax.tech</code>)</h2>
+<p>Low-level Chebyshev representations.  Most users interact with <code>Chebfun</code> instead.</p>
+<h3 id="chebtech2"><code>Chebtech2</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.tech.chebtech</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chebtech2</span>
+</code></pre></div>
+<p>Chebyshev expansion on the reference interval [-1, 1] using Chebyshev points
+of the second kind.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Chebtech2.from_function(f, n)</code></td>
+<td>Build from callable (adaptive or fixed n)</td>
+</tr>
+<tr>
+<td><code>Chebtech2.from_coeffs(c)</code></td>
+<td>Build from coefficient array</td>
+</tr>
+<tr>
+<td><code>Chebtech2.from_values(v)</code></td>
+<td>Build from values at Chebyshev-2 points</td>
+</tr>
+<tr>
+<td><code>.coeffs</code></td>
+<td>Chebyshev coefficients (array)</td>
+</tr>
+<tr>
+<td><code>.values</code></td>
+<td>Values at Chebyshev-2 points (array)</td>
+</tr>
+<tr>
+<td><code>.diff(k)</code></td>
+<td>Derivative</td>
+</tr>
+<tr>
+<td><code>.sum()</code></td>
+<td>Definite integral on [-1, 1]</td>
+</tr>
+<tr>
+<td><code>.roots()</code></td>
+<td>All real roots on [-1, 1]</td>
+</tr>
+</tbody>
+</table>
+<h3 id="trigtech"><code>Trigtech</code></h3>
+<p>Trigonometric (Fourier) expansion for periodic functions.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.tech.trigtech</span><span class="w"> </span><span class="kn">import</span> <span class="n">Trigtech</span>
+</code></pre></div>
+<hr />
+<h2 id="utilities-chebfunjaxutils">Utilities (<code>chebfunjax.utils</code>)</h2>
+<h3 id="quadrature">Quadrature</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.utils.quadrature</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">chebpts</span><span class="p">,</span> <span class="n">legpts</span><span class="p">,</span> <span class="n">jacpts</span><span class="p">,</span> <span class="n">hermpts</span><span class="p">,</span> <span class="n">lagpts</span><span class="p">,</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">ultrapts</span><span class="p">,</span> <span class="n">radaupts</span><span class="p">,</span> <span class="n">lobpts</span><span class="p">,</span> <span class="n">trigpts</span><span class="p">,</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>chebpts(n)</code></td>
+<td>Chebyshev-2 points on [-1,1]. JIT-safe with static <code>n</code>.</td>
+</tr>
+<tr>
+<td><code>legpts(n)</code></td>
+<td>Gauss-Legendre points and weights</td>
+</tr>
+<tr>
+<td><code>jacpts(n, a, b)</code></td>
+<td>Gauss-Jacobi points and weights</td>
+</tr>
+<tr>
+<td><code>hermpts(n)</code></td>
+<td>Gauss-Hermite points and weights</td>
+</tr>
+<tr>
+<td><code>lagpts(n)</code></td>
+<td>Gauss-Laguerre points and weights</td>
+</tr>
+</tbody>
+</table>
+<h3 id="transforms">Transforms</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.utils.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">vals2coeffs</span><span class="p">,</span> <span class="n">coeffs2vals</span><span class="p">,</span> <span class="n">cheb2leg</span><span class="p">,</span> <span class="n">leg2cheb</span><span class="p">,</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">cheb2jac</span><span class="p">,</span> <span class="n">jac2cheb</span><span class="p">,</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>vals2coeffs(v)</code></td>
+<td>DCT-based values → coefficients</td>
+</tr>
+<tr>
+<td><code>coeffs2vals(c)</code></td>
+<td>DCT-based coefficients → values</td>
+</tr>
+<tr>
+<td><code>cheb2leg(c)</code></td>
+<td>Chebyshev to Legendre coefficients</td>
+</tr>
+<tr>
+<td><code>leg2cheb(c)</code></td>
+<td>Legendre to Chebyshev coefficients</td>
+</tr>
+</tbody>
+</table>
+<h3 id="interpolation">Interpolation</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.utils.interpolation</span><span class="w"> </span><span class="kn">import</span> <span class="n">bary</span><span class="p">,</span> <span class="n">bary_weights</span><span class="p">,</span> <span class="n">barymat</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bary(x, values, points, w)</code></td>
+<td>Barycentric interpolation</td>
+</tr>
+<tr>
+<td><code>bary_weights(n)</code></td>
+<td>Barycentric weights for Chebyshev-2 points</td>
+</tr>
+</tbody>
+</table>
+<h3 id="differentiation-integration-matrices">Differentiation / Integration Matrices</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.utils.diffmat</span><span class="w"> </span><span class="kn">import</span> <span class="n">diffmat</span><span class="p">,</span> <span class="n">cumsummat</span><span class="p">,</span> <span class="n">intmat</span>
+</code></pre></div>
+<h3 id="polynomials">Polynomials</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.utils.polynomials</span><span class="w"> </span><span class="kn">import</span> <span class="n">chebpoly</span><span class="p">,</span> <span class="n">legpoly</span><span class="p">,</span> <span class="n">jacpoly</span>
+</code></pre></div>
+<h3 id="rational-approximation">Rational Approximation</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.utils.aaa</span><span class="w"> </span><span class="kn">import</span> <span class="n">aaa</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.utils.minimax</span><span class="w"> </span><span class="kn">import</span> <span class="n">minimax</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.utils.ratapprox</span><span class="w"> </span><span class="kn">import</span> <span class="n">ratinterp</span><span class="p">,</span> <span class="n">padeapprox</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>aaa(f, z)</code></td>
+<td>AAA rational approximation (Adaptive Antoulas-Anderson)</td>
+</tr>
+<tr>
+<td><code>minimax(f, n, m)</code></td>
+<td>Best polynomial/rational approximation (Remez exchange)</td>
+</tr>
+<tr>
+<td><code>ratinterp(f, m, n)</code></td>
+<td>Rational interpolation</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="operators-chebfunjaxoperators">Operators (<code>chebfunjax.operators</code>)</h2>
+<h3 id="linop"><code>Linop</code></h3>
+<p>Linear differential operator for BVPs.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.operators.linop</span><span class="w"> </span><span class="kn">import</span> <span class="n">Linop</span>
+</code></pre></div>
+<h3 id="chebop"><code>Chebop</code></h3>
+<p>User-friendly nonlinear BVP solver.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.operators</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chebop</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.lbc</code></td>
+<td>float, callable, or str</td>
+<td>Left boundary condition</td>
+</tr>
+<tr>
+<td><code>.rbc</code></td>
+<td>float, callable, or str</td>
+<td>Right boundary condition</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.solve(rhs)</code></td>
+<td>Solve <code>N[u] = rhs</code></td>
+</tr>
+<tr>
+<td><code>N \ rhs</code></td>
+<td>Alias for <code>.solve(rhs)</code></td>
+</tr>
+<tr>
+<td><code>.eigs(k)</code></td>
+<td>Compute first <code>k</code> eigenvalues and eigenfunctions</td>
+</tr>
+</tbody>
+</table>
+<h3 id="chebop2"><code>Chebop2</code></h3>
+<p>2D PDE solver on rectangles.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.operators.chebop2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chebop2</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.solve(rhs)</code></td>
+<td>Solve <code>L[u] = rhs</code> with boundary conditions</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2d-functions-chebfunjaxchebfun2d">2D Functions (<code>chebfunjax.chebfun2d</code>)</h2>
+<h3 id="chebfun2"><code>Chebfun2</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.chebfun2d.chebfun2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chebfun2</span><span class="p">,</span> <span class="n">chebfun2</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Chebfun2.from_function(f, domain)</code></td>
+<td>Build from bivariate callable</td>
+</tr>
+<tr>
+<td><code>g(x, y)</code></td>
+<td>Evaluate at scalar or array points</td>
+</tr>
+<tr>
+<td><code>.diff(nx, ny)</code></td>
+<td>Partial derivative ∂^(nx+ny) / ∂x^nx ∂y^ny</td>
+</tr>
+<tr>
+<td><code>.sum2()</code></td>
+<td>Double integral over domain</td>
+</tr>
+<tr>
+<td><code>.sum(dim)</code></td>
+<td>Integrate over one variable</td>
+</tr>
+<tr>
+<td><code>.max2()</code></td>
+<td>Global maximum <code>(x, y, val)</code></td>
+</tr>
+<tr>
+<td><code>.min2()</code></td>
+<td>Global minimum <code>(x, y, val)</code></td>
+</tr>
+<tr>
+<td><code>.rank</code></td>
+<td>Low-rank approximation rank</td>
+</tr>
+</tbody>
+</table>
+<h3 id="separableapprox"><code>SeparableApprox</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.chebfun2d.separable_approx</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeparableApprox</span>
+</code></pre></div>
+<h3 id="chebfun2v"><code>Chebfun2v</code></h3>
+<p>2D vector field.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.chebfun2d.chebfun2v</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chebfun2v</span>
+</code></pre></div>
+<hr />
+<h2 id="3d-functions-chebfunjaxchebfun3d">3D Functions (<code>chebfunjax.chebfun3d</code>)</h2>
+<h3 id="chebfun3"><code>Chebfun3</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.chebfun3d.chebfun3</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chebfun3</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Chebfun3.from_function(f, domain)</code></td>
+<td>Build from trivariate callable</td>
+</tr>
+<tr>
+<td><code>g(x, y, z)</code></td>
+<td>Evaluate at scalar or array points</td>
+</tr>
+<tr>
+<td><code>.diff(nx, ny, nz)</code></td>
+<td>Partial derivative</td>
+</tr>
+<tr>
+<td><code>.sum3()</code></td>
+<td>Triple integral over domain</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="pde-time-stepping-chebfunjaxspin">PDE Time-Stepping (<code>chebfunjax.spin</code>)</h2>
+<h3 id="spinop-1d"><code>SpinOp</code> (1D)</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.spin.spinop</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpinOp</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.spin.solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">spin</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Built-in key</th>
+<th>PDE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>'ac'</code></td>
+<td>Allen-Cahn: u_t = ε·u_xx + u - u³</td>
+</tr>
+<tr>
+<td><code>'kdv'</code></td>
+<td>KdV: u_t + u·u_x + u_xxx = 0</td>
+</tr>
+<tr>
+<td><code>'nls'</code></td>
+<td>Nonlinear Schrödinger</td>
+</tr>
+<tr>
+<td><code>'ks'</code></td>
+<td>Kuramoto-Sivashinsky</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">u</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">spin</span><span class="p">(</span><span class="s1">&#39;ac&#39;</span><span class="p">,</span> <span class="n">tspan</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">))</span>
+</code></pre></div>
+<h3 id="spinop2-spinop3-spinopsphere-2d3dsphere"><code>SpinOp2</code>, <code>SpinOp3</code>, <code>SpinOpSphere</code> (2D/3D/sphere)</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.spin.spinop2</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpinOp2</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.spin.spinop3</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpinOp3</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.spin.spinopsphere</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpinOpSphere</span>
+</code></pre></div>
+<hr />
+<h2 id="disk-and-sphere-functions">Disk and Sphere Functions</h2>
+<h3 id="diskfun-diskfunv"><code>Diskfun</code>, <code>Diskfunv</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.diskfun</span><span class="w"> </span><span class="kn">import</span> <span class="n">Diskfun</span><span class="p">,</span> <span class="n">Diskfunv</span>
+</code></pre></div>
+<h3 id="spherefun-spherefunv"><code>Spherefun</code>, <code>Spherefunv</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.spherefun</span><span class="w"> </span><span class="kn">import</span> <span class="n">Spherefun</span><span class="p">,</span> <span class="n">Spherefunv</span>
+</code></pre></div>
+<hr />
+<h2 id="discretization">Discretization</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.discretization.chebcolloc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChebColloc1</span><span class="p">,</span> <span class="n">ChebColloc2</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.discretization.ultras</span><span class="w"> </span><span class="kn">import</span> <span class="n">UltraS</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.discretization.trigcolloc</span><span class="w"> </span><span class="kn">import</span> <span class="n">TrigColloc</span>
+</code></pre></div>
+<hr />
+<h2 id="automatic-differentiation-frechet">Automatic Differentiation (Fréchet)</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.autodiff.adchebfun</span><span class="w"> </span><span class="kn">import</span> <span class="n">ADChebfun</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">chebfunjax.autodiff.treevar</span><span class="w"> </span><span class="kn">import</span> <span class="n">TreeVar</span>
+</code></pre></div>
+<p><code>ADChebfun</code> provides exact Fréchet derivatives of Chebfun operators for use
+in Newton iterations; <code>TreeVar</code> is the symbolic linearization backend.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.code.copy", "navigation.tabs", "navigation.sections", "navigation.expand", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

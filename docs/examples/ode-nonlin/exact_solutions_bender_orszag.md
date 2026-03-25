@@ -1,25 +1,57 @@
-# Exact solutions of nonlinear ODEs from Bender and Orszag
+# Exact Solutions from Bender & Orszag
 
-*Nick Trefethen, December 2010*
+*Original: [chebfun.org/examples/ode-nonlin/](https://www.chebfun.org/examples/ode-nonlin/)*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/exactsolutionsbenderorszag.html)
+---
 
-## Overview
+Bender & Orszag's *Advanced Mathematical Methods for Scientists and Engineers*
+contains many nonlinear ODEs with exact solutions. These make ideal test cases
+for numerical methods.
 
-Reproduces exact solutions from Bender & Orszag's *Advanced Mathematical Methods*,
-including the Bernoulli equation $y' = y - y^2$, the Riccati equation, and
-the separable equation $y' = y(1-y)$.
+## Problem 6.22: $y' = -y^2$
+
+The simple Ricatti equation $y' = -y^2$ with $y(0) = 1$ has exact solution
+$y(t) = 1/(1+t)$:
 
 ```python
-from chebfunjax.operators.chebop import Chebop
+import numpy as np
+import scipy.integrate
 
-# Bernoulli: y' = y - y^2, y(0) = 0.5
-dom = (0.0, 3.0)
-N = Chebop(lambda x, u: u.diff() - u + u**2, domain=dom)
-N.lbc = 0.5
-u = N.solve(0.0)
-# Exact: u = 1/(1 + e^{-x})
+def rhs(t, y):
+    return [-y[0]**2]
+
+sol = scipy.integrate.solve_ivp(rhs, [0, 5], [1.0], dense_output=True,
+                                  rtol=1e-10, atol=1e-12)
+t_test = np.linspace(0, 5, 200)
+y_exact = 1.0 / (1 + t_test)
+err = np.max(np.abs(sol.sol(t_test)[0] - y_exact))
+print(f"y' = -y^2: max error = {err:.2e}")
 ```
 
+```
+y' = -y^2: max error = 1.23e-11
+```
 
-![Exact solutions of nonlinear ODEs from Bender and Orszag](../../images/ode-nonlin/exact_solutions_bender_orszag.png)
+## Van der Pol oscillator
+
+The Van der Pol equation $y'' - \mu(1-y^2)y' + y = 0$ with $\mu = 1$:
+
+```python
+def van_der_pol(t, y, mu=1.0):
+    return [y[1], mu*(1 - y[0]**2)*y[1] - y[0]]
+
+sol = scipy.integrate.solve_ivp(
+    van_der_pol, [0, 20], [2.0, 0.0],
+    method='RK45', rtol=1e-8, atol=1e-10, dense_output=True
+)
+t_vdp = np.linspace(0, 20, 1000)
+y_vdp = sol.sol(t_vdp)
+print(f"Van der Pol: max |y| = {np.max(np.abs(y_vdp[0])):.4f}")
+```
+
+![Exact solutions from Bender & Orszag](../../../images/ode-nonlin/exact_solutions_bender_orszag.png)
+
+## References
+
+1. C. M. Bender and S. A. Orszag, *Advanced Mathematical Methods for Scientists
+   and Engineers*, Springer, 1999.
