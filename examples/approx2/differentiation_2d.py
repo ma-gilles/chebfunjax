@@ -8,12 +8,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import surf, contour
 
 
 def run():
@@ -73,6 +77,17 @@ def run():
     print(f"\nd^2/dxdy (x*y) at (0.3, 0.7):")
     print(f"  Computed: {val3:.15f}  (exact: 1.0)")
     assert abs(val3 - 1.0) < 1e-12
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = surf(f1, title="exp(x+y): 2-D differentiation")
+    fig.savefig(os.path.join(_here, "differentiation_2d.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    fig2, ax2 = contour(f2, title="x²y + sin(x)")
+    fig2.savefig(os.path.join(_here, "differentiation_2d_f2.png"),
+                 dpi=150, bbox_inches="tight")
+    plt.close(fig2)
 
     print("\nAll assertions passed.")
     return True

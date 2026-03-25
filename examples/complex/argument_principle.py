@@ -12,12 +12,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 
 
 def run():
@@ -95,6 +99,19 @@ def run():
     print(f"  f' has {len(interior_f3p)} interior zeros")
     # Between each pair of consecutive zeros of f, there's at least one zero of f'
     assert len(interior_f3p) >= len(interior_f3) - 1
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = plot(p1, title="(x−1)(x−2)(x−3): roots on [0,4]",
+                   label="p(x)")
+    ax.axhline(0, color="k", linewidth=0.5)
+    import numpy as _np
+    ax.plot(roots1_arr, _np.zeros_like(roots1_arr), "r^",
+            markersize=8, label="roots")
+    ax.legend(fontsize=9)
+    fig.savefig(os.path.join(_here, "argument_principle.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

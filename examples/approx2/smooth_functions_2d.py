@@ -8,12 +8,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import surf, contour
 
 
 def run():
@@ -80,6 +84,23 @@ def run():
     val3_exact = float(franke(jnp.array(0.0), jnp.array(0.0)))
     print(f"  f(0,0) error: {abs(val3_computed - val3_exact):.2e}")
     assert abs(val3_computed - val3_exact) < 1e-10
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = surf(f1, title="exp(x+y) on [-1,1]²")
+    fig.savefig(os.path.join(_here, "smooth_functions_2d_exp.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+    fig2, ax2 = contour(f2, title="cos(x + y²) on [-1,1]²")
+    fig2.savefig(os.path.join(_here, "smooth_functions_2d_cos.png"),
+                 dpi=150, bbox_inches="tight")
+    plt.close(fig2)
+
+    fig3, ax3 = surf(f3, title="Franke's function on [-1,1]²")
+    fig3.savefig(os.path.join(_here, "smooth_functions_2d_franke.png"),
+                 dpi=150, bbox_inches="tight")
+    plt.close(fig3)
 
     print("\nAll assertions passed.")
     return True

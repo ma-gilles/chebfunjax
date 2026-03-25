@@ -8,12 +8,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 
 
 def run():
@@ -83,6 +87,16 @@ def run():
     integral_piecewise = float(f_piecewise.sum())
     print(f"  Integral = {integral_piecewise:.15f}  (exact: {exact_piecewise:.15f})")
     assert abs(integral_piecewise - exact_piecewise) < 1e-13
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = plot(f_abs, title="Piecewise smooth functions", label="|x|")
+    plot(f_hat, ax=ax, color="#E04040", label="1-|x|")
+    plot(f_piecewise, ax=ax, color="#228B22", label="x² / sin(x)")
+    ax.legend(fontsize=9)
+    fig.savefig(os.path.join(_here, "piecewise_smooth.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

@@ -9,12 +9,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 
 
 def run():
@@ -61,6 +65,13 @@ def run():
     # Without breakpoint: may not fully converge (|x| has a kink at 0)
     assert abs(int_smooth - exact_abs) < 1e-6   # |x| without breakpoint is approximate
     assert abs(int_piece - exact_abs) < 1e-14
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = plot(f, title="exp(cos(x)) — smooth integrand")
+    fig.savefig(os.path.join(_here, "convergence_rates.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

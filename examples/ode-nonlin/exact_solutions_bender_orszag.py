@@ -9,12 +9,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 from chebfunjax.operators.chebop import Chebop
 
 
@@ -70,6 +74,16 @@ def run():
     err2 = float(jnp.max(jnp.abs(u2(x_test2) - exact2(x_test2))))
     print(f"  ||u - 1/(2-x)||_inf = {err2:.2e}")
     assert err2 < 1e-8
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = plot(u1, title="Nonlinear BVP (Bender & Orszag)",
+                   label="u₁")
+    plot(u2, ax=ax, color="#E04040", label="u₂")
+    ax.legend(fontsize=9)
+    fig.savefig(os.path.join(_here, "exact_solutions_bender_orszag.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

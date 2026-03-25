@@ -9,6 +9,9 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import scipy.special as sp
@@ -16,6 +19,7 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 
 
 def run():
@@ -70,6 +74,16 @@ def run():
     print(f"  J_1(1) =  {exact_int:.14f}")
     print(f"  Error:    {abs(integral - exact_int):.2e}")
     assert abs(integral - exact_int) < 1e-12
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = plot(J0, title="Bessel functions on [0, 20]", label="J₀(x)")
+    plot(J1, ax=ax, color="#E04040", label="J₁(x)")
+    ax.axhline(0, color="k", linewidth=0.6)
+    ax.legend(fontsize=9)
+    fig.savefig(os.path.join(_here, "bessel_approximation.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

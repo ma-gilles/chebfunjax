@@ -8,6 +8,9 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import scipy.special as sp
@@ -15,6 +18,7 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 
 
 def run():
@@ -58,6 +62,19 @@ def run():
     ]))))
     print(f"  Max |J_0(root)| = {max_val_at_roots:.2e}  (should be ~0)")
     assert max_val_at_roots < 1e-10
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = plot(J0, title="J₀(x) and its zeros on [0, 100]")
+    ax.axhline(0, color="k", linewidth=0.5)
+    _r_arr = r_arr[:30]  # first 30 roots
+    import numpy as _np
+    ax.plot(_r_arr, _np.zeros_like(_r_arr), "o", color="#E04040",
+            markersize=3, label="roots")
+    ax.legend(fontsize=9)
+    fig.savefig(os.path.join(_here, "bessel_roots.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

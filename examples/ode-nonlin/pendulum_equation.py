@@ -8,12 +8,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 from chebfunjax.operators.chebop import Chebop
 
 
@@ -67,6 +71,14 @@ def run():
     # For theta0=0.3 radians, nonlinear correction is ~O(theta0^3) = O(0.027)
     # Expect difference ~ 0.027, so err_small < 0.05
     assert err_small < 0.05, f"Too different from linear: {err_small}"
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = plot(theta, title="Pendulum equation: θ″ + sin θ = 0",
+                   ylabel="θ (rad)")
+    fig.savefig(os.path.join(_here, "pendulum_equation.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

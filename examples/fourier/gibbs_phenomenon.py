@@ -11,12 +11,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 
 
 def partial_fourier_sum(N, x_eval):
@@ -120,6 +124,29 @@ def run():
         val = float(fn.sum())
         print(f"\n  int_0^{{2pi}} sin({n}x)^2 dx = {val:.10f}  (exact: pi={pi:.10f})")
         assert abs(val - pi) < 1e-12
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    import matplotlib.pyplot as _plt
+    import numpy as _np
+    _x = _np.linspace(0.0, 2.0 * _np.pi, 1000)
+    fig, ax = _plt.subplots(figsize=(6, 3.5))
+    ax.step(_x, _np.where(_x < _np.pi, -1.0, 1.0), color="k",
+            linewidth=0.8, label="sign(x−π)")
+    for _N, _col in [(5, "#4169E1"), (20, "#E04040"), (50, "#228B22")]:
+        ax.plot(_x, partial_fourier_sum(_N, _x), color=_col,
+                linewidth=1.2, label=f"N={_N}")
+    ax.legend(fontsize=9)
+    ax.set_xlabel("x", fontsize=10)
+    ax.set_title("Gibbs phenomenon", fontsize=11)
+    ax.grid(True, alpha=0.3, linestyle="--")
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    fig.set_facecolor("white")
+    fig.tight_layout()
+    fig.savefig(os.path.join(_here, "gibbs_phenomenon.png"),
+                dpi=150, bbox_inches="tight")
+    _plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

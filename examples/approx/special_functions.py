@@ -8,6 +8,9 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 from scipy.special import erf as scipy_erf, erfc as scipy_erfc, airy as scipy_airy
@@ -15,6 +18,7 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 
 
 def run():
@@ -79,6 +83,22 @@ def run():
     max_res = float(jnp.max(jnp.abs(residual_vals)))
     print(f"  ||Ai'' - x*Ai||_inf = {max_res:.2e}  (should be ~0)")
     assert max_res < 1e-8
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    fig, ax = plot(f_erf, title="Special functions: erf and erfc", label="erf(x)")
+    plot(f_erfc, ax=ax, color="#E04040", label="erfc(x)")
+    ax.axhline(0, color="k", linewidth=0.5)
+    ax.legend(fontsize=9)
+    fig.savefig(os.path.join(_here, "special_functions.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+    fig2, ax2 = plot(f_airy, title="Airy function Ai(x)")
+    ax2.axhline(0, color="k", linewidth=0.5)
+    fig2.savefig(os.path.join(_here, "special_functions_airy.png"),
+                 dpi=150, bbox_inches="tight")
+    plt.close(fig2)
 
     print("\nAll assertions passed.")
     return True

@@ -9,12 +9,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 
 
 def compute_fourier_coeff(f_func, n, dom=(0.0, 2.0 * float(jnp.pi))):
@@ -92,6 +96,33 @@ def run():
         print(f"  a_{n} = {a_n:.10f}  (exact 2*I_{n}(1) = {exact_a:.10f}), b_{n} = {b_n:.2e}")
         assert abs(a_n - exact_a) < 1e-10
         assert abs(b_n) < 1e-10  # exp(cos(x)) is even, so all b_n = 0
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    import matplotlib.pyplot as _plt
+    import numpy as _np
+    # Plot |Fourier coefficients| of cos(3x) and sawtooth
+    fig, axes = _plt.subplots(1, 2, figsize=(9, 3.5))
+    _ns = _np.arange(0, 10)
+    _cos3x_an = _np.array([abs(compute_fourier_coeff(lambda x: jnp.cos(3.0*x), n, dom)[0])
+                            for n in _ns])
+    axes[0].bar(_ns, _cos3x_an, color="#4169E1", alpha=0.8)
+    axes[0].set_title("|a_n| of cos(3x)", fontsize=11)
+    axes[0].set_xlabel("n", fontsize=10)
+    _saw_bn = _np.array([abs(compute_fourier_coeff(lambda x: x, n, dom)[1])
+                          for n in range(1, 11)])
+    axes[1].bar(_np.arange(1, 11), _saw_bn, color="#E04040", alpha=0.8)
+    axes[1].set_title("|b_n| of sawtooth f(x)=x", fontsize=11)
+    axes[1].set_xlabel("n", fontsize=10)
+    for _ax in axes:
+        _ax.grid(True, alpha=0.3, linestyle="--")
+        _ax.spines["top"].set_visible(False)
+        _ax.spines["right"].set_visible(False)
+    fig.set_facecolor("white")
+    fig.tight_layout()
+    fig.savefig(os.path.join(_here, "fourier_coefficients.png"),
+                dpi=150, bbox_inches="tight")
+    _plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

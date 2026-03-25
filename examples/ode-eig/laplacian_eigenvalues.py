@@ -8,12 +8,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 from chebfunjax.operators.chebop import Chebop
 
 
@@ -58,6 +62,29 @@ def run():
         print(f"  {i:>4}  {lam2_real[i]:>16.10f}  {exact2[i]:>8.1f}  {err2:.2e}")
     max_err2 = np.max(np.abs(lam2_real - exact2))
     assert max_err2 < 1e-6, f"Neumann eigenvalue error: {max_err2}"
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    import matplotlib.pyplot as plt
+    import numpy as _np
+    fig, ax = plt.subplots(figsize=(6, 3.5))
+    _n = _np.arange(1, k + 1)
+    ax.plot(_n, _np.array(lam[:k]), "o", color="#4169E1",
+            markersize=7, label="computed (Dirichlet)")
+    ax.plot(_n, _n**2, "--", color="#E04040", linewidth=1.4,
+            label="exact n²")
+    ax.set_xlabel("n", fontsize=10)
+    ax.set_ylabel("λ", fontsize=10)
+    ax.set_title("Laplacian eigenvalues on [0, π]", fontsize=11)
+    ax.legend(fontsize=9)
+    ax.grid(True, alpha=0.3, linestyle="--")
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    fig.set_facecolor("white")
+    fig.tight_layout()
+    fig.savefig(os.path.join(_here, "laplacian_eigenvalues.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

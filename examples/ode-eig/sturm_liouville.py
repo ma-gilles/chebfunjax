@@ -8,12 +8,16 @@ Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import jax.numpy as jnp
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import plot
 from chebfunjax.operators.chebop import Chebop
 
 
@@ -69,6 +73,27 @@ def run():
         print(f"  n={i}: computed={lam3_real[i]:.6f}, exact={exact3[i]:.1f}, err={err:.2e}")
     max_err3 = np.max(np.abs(lam3_real - exact3))
     assert max_err3 < 1e-5, f"QHO error: {max_err3}"
+
+    # --- Plots -------------------------------------------------------
+    _here = os.path.dirname(os.path.abspath(__file__))
+    import matplotlib.pyplot as _plt
+    import numpy as _np
+    fig, ax = _plt.subplots(figsize=(6, 3.5))
+    _lam1_arr = _np.sort(_np.real(_np.array(lam1[:5])))
+    ax.plot(_np.arange(1, 6), _lam1_arr, "o-", color="#4169E1",
+            linewidth=1.5, markersize=6, label="−u″ on [0,π]")
+    ax.set_xlabel("n", fontsize=10)
+    ax.set_ylabel("λ", fontsize=10)
+    ax.set_title("Sturm-Liouville eigenvalues", fontsize=11)
+    ax.legend(fontsize=9)
+    ax.grid(True, alpha=0.3, linestyle="--")
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    fig.set_facecolor("white")
+    fig.tight_layout()
+    fig.savefig(os.path.join(_here, "sturm_liouville.png"),
+                dpi=150, bbox_inches="tight")
+    _plt.close(fig)
 
     print("\nAll assertions passed.")
     return True

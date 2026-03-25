@@ -205,3 +205,79 @@ ef'(0.3) = 1.13389...
 exact    = 1.13389...
 error    = 2.2...e-16
 ```
+
+---
+
+## Gallery
+
+Figures generated automatically from `examples/calc/`, `examples/quad/`,
+`examples/opt/`, `examples/fourier/`, `examples/linalg/`, and
+`examples/complex/`.
+
+### Differentiation
+
+![Differentiation: sin and cos](../../examples/calc/differentiation.png)
+
+### Definite and indefinite integrals
+
+![Integrals](../../examples/calc/definite_indefinite_integrals.png)
+
+### Mean Value Theorem
+
+![Mean Value Theorem](../../examples/calc/mean_value_theorem.png)
+
+### Travel-time optimisation (Snell's law)
+
+![Snell's law](../../examples/calc/snells_law.png)
+
+### Bird-flight optimisation
+
+![Bird flight](../../examples/calc/bird_flight_optimization.png)
+
+### Clenshaw-Curtis quadrature
+
+![Clenshaw-Curtis](../../examples/quad/clenshaw_curtis.png)
+
+### Gauss-Legendre nodes
+
+![Gauss quadrature](../../examples/quad/gauss_quadrature.png)
+
+### Convergence rates
+
+![Convergence rates](../../examples/quad/convergence_rates.png)
+
+### Highly oscillatory integral
+
+![Tricky integrals](../../examples/quad/tricky_integrals.png)
+
+### Catenary
+
+![Catenary](../../examples/opt/catenary.png)
+
+### Global minimum of smooth function
+
+![Global minimum](../../examples/opt/minimum_of_smooth_function.png)
+
+### Gibbs phenomenon
+
+![Gibbs phenomenon](../../examples/fourier/gibbs_phenomenon.png)
+
+### Fourier coefficients
+
+![Fourier coefficients](../../examples/fourier/fourier_coefficients.png)
+
+### Inner products
+
+![Inner products](../../examples/linalg/chebfun_inner_products.png)
+
+### Resolvent norm / eigenfunctions
+
+![Resolvent norm](../../examples/linalg/resolvent_norm.png)
+
+### Contour integrals
+
+![Contour integrals](../../examples/complex/contour_integrals.png)
+
+### Argument principle
+
+![Argument principle](../../examples/complex/argument_principle.png)
