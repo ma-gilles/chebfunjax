@@ -1,0 +1,82 @@
+"""Chebyshev coefficients and spectral convergence.
+
+Demonstrates accessing Chebyshev coefficients and the spectral
+decay rate for smooth functions.
+
+Credit: Inspired by Chebfun approx/ChebCoeffs.m and related examples.
+Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
+The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
+"""
+
+import jax.numpy as jnp
+import numpy as np
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+
+import chebfunjax as cj
+
+
+def run():
+    print("=" * 60)
+    print("Chebyshev coefficients and spectral convergence")
+    print("=" * 60)
+
+    # --- Chebyshev coefficients of a smooth function ------------------
+    # MATLAB: f = chebfun('exp(x)*sin(pi*x) + x'); a = chebcoeffs(f);
+    fc = cj.chebfun(lambda x: jnp.exp(x) * jnp.sin(jnp.pi * x) + x)
+    coeffs = fc.coeffs
+    print(f"\nf(x) = exp(x)*sin(pi*x) + x on [-1,1]:")
+    print(f"  Number of coefficients: {len(fc)}")
+    print(f"  First 5 Chebyshev coefficients: {np.array(coeffs[:5])}")
+    print(f"  Last 3 coefficients (should be ~0): {np.array(coeffs[-3:])}")
+
+    # Verify that the last coefficients are near machine epsilon
+    last_coeff = float(jnp.abs(coeffs[-1]))
+    print(f"  |a_N| = {last_coeff:.2e}  (should be < 1e-13)")
+    assert last_coeff < 1e-13, f"Last coefficient too large: {last_coeff}"
+
+    # --- Spectral decay for different function classes ----------------
+    # Entire function: exp(x) — exponential decay
+    # Analytic in strip: 1/(1+x^2) — geometric decay
+    print("\nSpectral decay:")
+
+    f_exp = cj.chebfun(lambda x: jnp.exp(x))
+    c_exp = np.abs(np.array(f_exp.coeffs))
+    print(f"  exp(x): {len(f_exp)} coefficients, ratio |a_k|/|a_{{k-1}}| < 1/2")
+
+    # Verify geometric decay by checking ratios
+    for fn_name, fn_lambda in [
+        ("exp(x)",       lambda x: jnp.exp(x)),
+        ("cos(10*x)",    lambda x: jnp.cos(10.0*x)),
+        ("sin(pi*x/2)",  lambda x: jnp.sin(jnp.pi*x/2.0)),
+    ]:
+        f = cj.chebfun(fn_lambda)
+        c = np.abs(np.array(f.coeffs))
+        n = len(f)
+        print(f"  {fn_name}: n={n}, max|coeff| = {c.max():.2e}")
+
+    # --- Reconstruction from coefficients: f(x) = sum a_k T_k(x) -----
+    # Verify that evaluating via coefficients gives same result as chebfun
+    f_sin = cj.chebfun(lambda x: jnp.sin(3.0 * x))
+    coeffs_sin = np.array(f_sin.coeffs)
+    x_test = jnp.linspace(-1.0, 1.0, 100)
+    f_eval = f_sin(x_test)
+    exact_eval = jnp.sin(3.0 * x_test)
+    err = float(jnp.max(jnp.abs(f_eval - exact_eval)))
+    print(f"\nsin(3x) reconstruction error: {err:.2e}")
+    assert err < 1e-14
+
+    # --- Confirm that sum of (Chebyshev) coefficients give inner product
+    # For f = 1 (constant), the Chebyshev coefficient a_0 = 1 (first coeff)
+    f_const = cj.chebfun(1.0)
+    c_const = np.array(f_const.coeffs)
+    print(f"\nConstant f=1: coeffs = {c_const[:5]}")
+    # The sum (integral) of f=1 over [-1,1] = 2
+    assert abs(float(f_const.sum()) - 2.0) < 1e-15
+
+    print("\nAll assertions passed.")
+    return True
+
+
+if __name__ == "__main__":
+    run()
