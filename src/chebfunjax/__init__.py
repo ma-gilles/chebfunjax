@@ -11,6 +11,9 @@ jax.config.update("jax_enable_x64", True)
 from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun  # noqa: E402
 from chebfunjax.chebfun2d.chebfun2 import Chebfun2, chebfun2  # noqa: E402
 
+# Random functions
+from chebfunjax.utils.random import randnfun  # noqa: E402
+
 # Plotting — importable as cj.plot(f), cj.surf(g), etc.
 from chebfunjax.plotting import (  # noqa: E402
     plot,
@@ -111,6 +114,8 @@ __all__ = [
     "asin",
     "acos",
     "atan",
+    # Random functions
+    "randnfun",
     # Plotting
     "plot",
     "plotcoeffs",

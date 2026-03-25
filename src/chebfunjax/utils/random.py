@@ -2,7 +2,7 @@
 """Random smooth functions on intervals, the disk, and the sphere.
 
 Translated from MATLAB Chebfun (commit 7574c77): smoothie.m, randnfundisk.m,
-randnfunsphere.m.
+randnfunsphere.m, randnfun.m.
 Original: Copyright 2017-2020 by The University of Oxford and The Chebfun
 Developers.  See https://www.chebfun.org/ for Chebfun information.
 """
@@ -12,6 +12,108 @@ from __future__ import annotations
 import numpy as np
 import jax
 import jax.numpy as jnp
+
+
+# ===========================================================================
+# randnfun — band-limited random function on an interval
+# ===========================================================================
+
+
+def randnfun(
+    lam: float,
+    domain: tuple[float, float] = (0.0, 1.0),
+    *,
+    seed: int | None = None,
+    big: bool = False,
+) -> object:
+    """Band-limited random function on an interval.
+
+    Returns a callable ``f(t)`` that evaluates a smooth random function with
+    minimal wavelength ``lam`` on the given ``domain``.  The function is a
+    trigonometric polynomial with random Gaussian coefficients for wavenumbers
+    ``|k| <= round(L/lam)``, where ``L = domain[1] - domain[0]``.
+
+    Parameters
+    ----------
+    lam : float
+        Minimum wavelength of the random function.  Smaller ``lam`` gives
+        higher-frequency randomness.
+    domain : (a, b), default (0, 1)
+        Interval on which the function is defined.
+    seed : int or None, default None
+        Seed for the numpy RNG to give reproducible results.
+    big : bool, default False
+        If True, use the "big" normalization: multiply the result by
+        ``sqrt(L/lam)`` so that the variance of ``f`` is approximately 1
+        regardless of ``lam``.  This is the normalization that makes the
+        integral (Brownian motion) have variance proportional to time.
+
+    Returns
+    -------
+    f : callable
+        A function ``f(t)`` where ``t`` can be a float or numpy array.
+
+    Notes
+    -----
+    Implements the MATLAB Chebfun ``randnfun(lambda, domain, 'big')`` function.
+    The random function is the real part of a trigonometric polynomial:
+
+        f(t) = sum_{k=-N}^{N} c_k * exp(2*pi*i*k*t / L)
+
+    where ``c_k`` are i.i.d. standard Gaussian and ``N = round(L/lam)``.
+    With ``big=True``, the result is multiplied by ``sqrt(2*N)`` to give
+    unit variance.
+
+    Provenance
+    ----------
+    MATLAB source : randnfun.m
+    Original authors: Nick Trefethen, Kevin Burrage (May 2017)
+    Chebfun commit: 7574c77
+    """
+    a, b = float(domain[0]), float(domain[1])
+    L = b - a
+    if L <= 0:
+        raise ValueError(f"domain must have positive length, got {domain}")
+
+    # Number of wavenumbers
+    N = max(1, int(round(L / lam)))
+
+    rng = np.random.default_rng(seed)
+
+    # Random Fourier coefficients for wavenumbers -N..N (except k=0)
+    # Use complex Gaussian for k=1..N, then impose Hermitian symmetry for real result
+    c_real = rng.standard_normal(N + 1)
+    c_imag = rng.standard_normal(N + 1)
+    c_imag[0] = 0.0  # k=0 must be real
+
+    # Normalization:
+    # Without 'big': each path has std ~ 1 (divide by sqrt(2*N+1))
+    # With 'big': std ~ sqrt(N) ~ 1/sqrt(lambda) (the 'big' normalization of MATLAB Chebfun)
+    #   This ensures the integral (Brownian path) has var proportional to time
+    if big:
+        norm = 1.0  # no division: each mode has unit std, total std ~ sqrt(2N+1)
+    else:
+        norm = 1.0 / np.sqrt(2 * N + 1)  # normalize to unit std
+
+    c_complex = (c_real + 1j * c_imag) * norm
+
+    def f(t: float | np.ndarray) -> float | np.ndarray:
+        """Evaluate the random function at point(s) t."""
+        t_arr = np.asarray(t, dtype=float)
+        scalar = t_arr.ndim == 0
+        t_arr = np.atleast_1d(t_arr)
+
+        # f(t) = Re[ sum_{k=-N}^{N} c_k * exp(2*pi*i*k*(t-a)/L) ]
+        result = np.full_like(t_arr, c_complex[0].real, dtype=float)
+        phase = 2.0 * np.pi * (t_arr - a) / L
+        for k in range(1, N + 1):
+            result += 2.0 * (c_complex[k].real * np.cos(k * phase)
+                             - c_complex[k].imag * np.sin(k * phase))
+        if scalar:
+            return float(result[0])
+        return result
+
+    return f
 
 
 # ===========================================================================

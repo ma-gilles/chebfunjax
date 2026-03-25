@@ -29,7 +29,7 @@ from chebfunjax.utils.quadrature import (
     chebweights,
     paduapts,
 )
-from chebfunjax.utils.random import randnfundisk, randnfunsphere, smoothie
+from chebfunjax.utils.random import randnfun, randnfundisk, randnfunsphere, smoothie
 from chebfunjax.utils.ratapprox import padeapprox, ratinterp, trigratinterp
 from chebfunjax.utils.sing import find_pole_order, find_sing_exponents, find_sing_order
 from chebfunjax.utils.specfun import besselroots, gammaratio
@@ -135,6 +135,7 @@ __all__ = [
     "besselroots",
     "gammaratio",
     # random
+    "randnfun",
     "smoothie",
     "randnfundisk",
     "randnfunsphere",

@@ -91,8 +91,8 @@ def run():
         """Compute R[u] = int(-u'' u) / int(u^2) numerically."""
         dx = x_arr[1] - x_arr[0]
         u_pp = np.gradient(np.gradient(u_arr, dx), dx)
-        numerator = -np.trapz(u_pp * u_arr, x_arr)
-        denominator = np.trapz(u_arr**2, x_arr)
+        numerator = -np.trapezoid(u_pp * u_arr, x_arr)
+        denominator = np.trapezoid(u_arr**2, x_arr)
         return numerator / denominator
 
     rq_0 = rayleigh_quotient_ode(u_v, x_vals)
