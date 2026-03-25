@@ -2,6 +2,8 @@
 
 **Alex Townsend, March 2013**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/complex/PhasePortraits.html)
+
 ---
 
 A *phase portrait* of a complex function $f(z)$ encodes the argument

@@ -2,6 +2,8 @@
 
 **Nick Trefethen, July 2014**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/quad/SymbolicNumeric.html)
+
 ---
 
 Computer algebra systems can compute remarkable symbolic integrals.

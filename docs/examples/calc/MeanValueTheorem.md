@@ -2,6 +2,8 @@
 
 **Kuan Xu, October 2012**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/calc/MeanValueTheorem.html)
+
 ---
 
 The Mean Value Theorem states that for a differentiable function $f$ on

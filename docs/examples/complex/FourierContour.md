@@ -2,6 +2,8 @@
 
 **Mohsin Javed, July 2013**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/complex/FourierContour.html)
+
 ---
 
 The Fourier transform of a function with poles can be evaluated exactly using

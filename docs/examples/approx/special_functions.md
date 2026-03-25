@@ -1,6 +1,6 @@
 # Special Functions
 
-*Original: [chebfun.org/examples/approx/](https://www.chebfun.org/examples/approx/)*
+*Original: [chebfun.org/examples/approx/SpecialFunctions](https://www.chebfun.org/examples/approx/SpecialFunctions.html)*
 
 ---
 

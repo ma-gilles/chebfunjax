@@ -9,6 +9,8 @@ f(x, y, z) ≈ Σ_{i,j,k}  G[i,j,k] · u_i(x) · v_j(y) · w_k(z)
 
 where `G` is a 3D core tensor and `u_i`, `v_j`, `w_k` are orthonormal 1D Chebfuns.
 
+*See also: [Chebfun approx3 examples](https://www.chebfun.org/examples/approx3/)*
+
 ---
 
 ## 1. Approximating cos(x + y + z)

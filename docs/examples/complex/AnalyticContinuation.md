@@ -2,6 +2,8 @@
 
 **Nick Trefethen, March 2013**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/complex/AnalyticContinuation.html)
+
 ---
 
 A function analytic on $[-1, 1]$ can in principle be continued to a larger

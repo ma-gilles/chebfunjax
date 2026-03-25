@@ -2,6 +2,8 @@
 
 **Pedro Gonnet, September 2010**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/quad/BatteryTest.html)
+
 ---
 
 This example applies chebfunjax to a selection of the *Kahaner battery* of

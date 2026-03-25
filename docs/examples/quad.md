@@ -5,6 +5,8 @@ $\int_{-1}^{1} f(x)\, dx = 2 c_0 - 2 c_2/3 + 2 c_4/15 - \cdots$,
 where $f(x) = \sum_k c_k T_k(x)$. This gives spectral accuracy for smooth
 functions and handles integrable singularities at the endpoints gracefully.
 
+*See also: [Chebfun quad examples](https://www.chebfun.org/examples/quad/)*
+
 ---
 
 ## 1. Clenshaw-Curtis quadrature

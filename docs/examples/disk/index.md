@@ -36,3 +36,9 @@ print(g.sum2())         # pi/2 ≈ 1.5708
 - `∫∫_D x dA = 0`, `∫∫_D y dA = 0` (odd functions)
 - Eigenfunctions of the Laplacian on the disk are `J_m(ρ_{mn} r) e^{imθ}`
   where `ρ_{mn}` are zeros of Bessel functions.
+
+*No examples yet.*
+
+*No examples yet.*
+
+*No examples yet.*

@@ -5,6 +5,8 @@ eigenvalues of the *colleague matrix* — a Chebyshev analogue of the companion
 matrix for polynomials.  All roots are returned, sorted, with no user-supplied
 initial guess required.
 
+*See also: [Chebfun roots examples](https://www.chebfun.org/examples/roots/)*
+
 ---
 
 ## 1. Roots of a Polynomial

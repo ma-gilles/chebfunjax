@@ -1,6 +1,6 @@
 # Chebfun Inner Products
 
-*Original: [chebfun.org/examples/linalg/](https://www.chebfun.org/examples/linalg/)*
+*Original: [chebfun.org/examples/linalg/ChebfunInnerProducts](https://www.chebfun.org/examples/linalg/ChebfunInnerProducts.html)*
 
 ---
 

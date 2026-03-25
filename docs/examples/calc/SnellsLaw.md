@@ -2,6 +2,8 @@
 
 **Mohsin Javed, October 2013**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/calc/SnellsLaw.html)
+
 ---
 
 A lifeguard on the beach needs to reach a drowning swimmer as quickly as

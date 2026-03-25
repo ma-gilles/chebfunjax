@@ -1,6 +1,6 @@
 # Bessel Equation BVP
 
-*Original: [chebfun.org/examples/ode-linear/](https://www.chebfun.org/examples/ode-linear/)*
+*Original: [chebfun.org/examples/ode-linear/BesselBvp](https://www.chebfun.org/examples/ode-linear/BesselBvp.html)*
 
 ---
 

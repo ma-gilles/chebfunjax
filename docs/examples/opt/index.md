@@ -5,8 +5,8 @@ on the derivative — no gradient descent needed.
 
 | Example | Description |
 |---------|-------------|
-| [Rosenbrock function](rosenbrock.md) | 2D global minimum via slicing |
-| [Constrained extrema](constrained_extrema.md) | Critical points via `roots` on derivative |
-| [Catenary](catenary.md) | Shape of a hanging chain |
-| [Global minimum](global_minimum_2d.md) | Finding global minima |
-| [Minimum of smooth function](minimum_of_smooth_function.md) | Basic extrema |
+| [The Catenary](catenary.md) | A hanging chain or cable under gravity takes the shape of a catenary: |
+| [Constrained Extrema](constrained_extrema.md) | Finding the maximum or minimum of a function subject to equality constraints can be approached via Lagrange multiplie... |
+| [Global Minimum in 2D](global_minimum_2d.md) | For a 2D function ..., the global minimum can be found by slice minimization: for each fixed ..., minimize over ... t... |
+| [Minimum of a Smooth Function](minimum_of_smooth_function.md) | Finding the minimum of a smooth function with Chebfun is both simple and highly accurate. The ... method returns the ... |
+| [Global Minimum: the Rosenbrock Function](rosenbrock.md) | The Rosenbrock function, |

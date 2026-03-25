@@ -5,13 +5,13 @@ functions (`randnfun`), and their connections to stochastic differential equatio
 
 | Example | Description |
 |---------|-------------|
-| [From random functions to SDEs](random2sde.md) | Band-limited random walks approach Brownian motion |
-| [Geometric Brownian motion](gbm.md) | Multiplicative noise: $y' = \mu y + \sigma f y$ |
-| [Level hopping](level_hopping.md) | Bistable ODE with integer fixed points |
-| [Phase locking](phase_locking.md) | Duffing-type ODE locks to stable branches |
-| [Pitchfork bifurcation](pitchfork.md) | Noise triggers symmetry-breaking at bifurcation |
-| [Random walk on sphere](random_on_sphere.md) | Skew-symmetric matrices preserve unit norm |
-| [Random switching](random_switching.md) | Switching rates and the Lawley-Mattingly-Reed effect |
-| [Tunnelling](tunnelling.md) | Noise-driven jumps between metastable states |
-| [White noise paradox](white_noise_paradox.md) | Amplitude diverges as $\lambda \to 0$ |
-| [Consensus dynamics](consensus.md) | Two particles attracted together by random walks |
+| [Collective Dynamics and Consensus](consensus.md) | Original MATLAB: ode-random/Consensus Author: Nick Trefethen (May 2017) |
+| [Geometric Brownian Motion](gbm.md) | Original MATLAB: ode-random/GBM Author: Nick Trefethen (May 2017) |
+| [Random Level Hopping](level_hopping.md) | Original MATLAB: ode-random/LevelHopping Author: Nick Trefethen (May 2017) |
+| [Phase-Locking in a Duffing-Type Equation](phase_locking.md) | Original MATLAB: ode-random/PhaseLocking Author: Kevin Burrage and Nick Trefethen (May 2017) |
+| [Pitchfork Bifurcation Triggered by Noise](pitchfork.md) | Original MATLAB: ode-random/Pitchfork Author: Nick Trefethen (May 2017) |
+| [From Random Functions to SDEs](random2sde.md) | Original MATLAB: ode-random/Random2SDE Author: Nick Trefethen and Abdul-Lateef Haji-Ali (May 2017) |
+| [Random Trajectory on a Sphere](random_on_sphere.md) | Original MATLAB: ode-random/RandomOnASphere Author: Kevin Burrage and Nick Trefethen (May 2017) |
+| [Linear ODEs with Random Switching](random_switching.md) | Original MATLAB: ode-random/RandomSwitching Author: Nick Trefethen (May 2017) |
+| [Tunnelling Between Metastable States](tunnelling.md) | Original MATLAB: ode-random/Tunnelling Author: Nick Trefethen (May 2017) |
+| [The White Noise Paradox](white_noise_paradox.md) | Original MATLAB: ode-random/WhiteNoiseParadox Author: Nick Trefethen (May 2017) |

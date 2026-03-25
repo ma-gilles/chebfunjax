@@ -2,6 +2,8 @@
 
 **Jared Aurentz and Nick Trefethen, May 2014**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/roots/RootsSpeed.html)
+
 ---
 
 Chebfun's `roots` command uses the *colleague matrix* — the Chebyshev analogue

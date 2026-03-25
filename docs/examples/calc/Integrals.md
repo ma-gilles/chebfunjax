@@ -2,6 +2,8 @@
 
 **Nick Trefethen, October 2012**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/calc/Integrals.html)
+
 ---
 
 Chebfun computes both definite integrals (via `sum`) and indefinite integrals

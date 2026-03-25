@@ -1,6 +1,6 @@
 # Inner Products and Norms
 
-*Original: [chebfun.org/examples/linalg/](https://www.chebfun.org/examples/linalg/)*
+*Original: [chebfun.org/examples/linalg/InnerProducts](https://www.chebfun.org/examples/linalg/InnerProducts.html)*
 
 ---
 

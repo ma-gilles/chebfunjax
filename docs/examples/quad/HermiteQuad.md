@@ -2,6 +2,8 @@
 
 **Nick Trefethen and Andre Weideman, February 2017**
 
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/quad/HermiteQuad.html)
+
 ---
 
 *Gauss–Hermite quadrature* integrates functions of the form $e^{-x^2} f(x)$
