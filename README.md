@@ -124,7 +124,11 @@ See [docs/architecture.md](docs/architecture.md) for design decisions and
 
 ## Credits
 
-This project is a derivative work of [Chebfun](https://www.chebfun.org/).
+This project was translated from [MATLAB Chebfun](https://www.chebfun.org/) to Python/JAX
+by [Claude](https://claude.ai) (Anthropic), working autonomously with parallel agents
+to translate ~2,200 functions, write ~25,000 lines of tests, port 350+ examples,
+and build the documentation — all in a single session.
+
 Each function tracks provenance back to the original MATLAB source
 (commit `7574c77`), preserving author credits and algorithm references.
 
