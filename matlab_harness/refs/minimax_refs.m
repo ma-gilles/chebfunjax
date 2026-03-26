@@ -4,20 +4,21 @@ if ~exist(outdir, 'dir'), mkdir(outdir); end
 
 ref = struct();
 
-% Best polynomial approximation of |x| on [-1,1]
-for n = [2, 4, 6, 10, 20]
-    f = chebfun(@abs);
-    p = minimax(f, n);
-    ref.(sprintf('minimax_abs_n%d_err', n)) = norm(f - p, inf);
-    ref.(sprintf('minimax_abs_n%d_coeffs', n)) = chebcoeffs(p, n+1);
-end
+% |x| degree 10
+f = chebfun(@abs);
+p = minimax(f, 10);
+ref.abs_deg10_err = norm(f - p, inf);
+ref.abs_deg10_coeffs = chebcoeffs(p, 11);
+% Equioscillation points: roots of (f - p) ± err
+err_fn = f - p;
+xk = roots(err_fn - ref.abs_deg10_err);
+xk = [xk; roots(err_fn + ref.abs_deg10_err)];
+ref.abs_deg10_xk = sort(xk);
 
-% Best approximation of exp(x)
-for n = [3, 5, 10]
-    f = chebfun(@exp);
-    p = minimax(f, n);
-    ref.(sprintf('minimax_exp_n%d_err', n)) = norm(f - p, inf);
-end
+% sin(x) degree 6
+f = chebfun(@sin);
+p = minimax(f, 6);
+ref.sin_deg6_err = norm(f - p, inf);
 
 save(fullfile(outdir, 'minimax.mat'), '-struct', 'ref');
 fprintf('minimax.mat: %d fields\n', numel(fieldnames(ref)));
