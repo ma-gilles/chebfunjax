@@ -8,7 +8,6 @@ theme:
   features:
     - content.code.copy
     - navigation.tabs
-    - navigation.sections
     - navigation.indexes
     - search.highlight
     - toc.integrate
@@ -41,37 +40,30 @@ nav:
     - Installation: install.md
     - Quick Start: quickstart.md
   - Examples:
-    - 1D Approximation:
-      - Overview: examples/approx/index.md
-      - Chebyshev Technology: examples/cheb/index.md
-      - Fourier Series: examples/fourier/index.md
-    - 2D & 3D Approximation:
-      - Chebfun2 (2D): examples/approx2/index.md
-      - Chebfun3 (3D): examples/approx3/index.md
-      - Disk Functions: examples/disk/index.md
-      - Sphere Functions: examples/sphere/index.md
-    - Calculus & Rootfinding:
-      - Calculus: examples/calc/index.md
-      - Rootfinding: examples/roots/index.md
-      - Quadrature: examples/quad/index.md
-      - Optimization: examples/opt/index.md
-    - Differential Equations:
-      - Linear ODEs: examples/ode-linear/index.md
-      - Nonlinear ODEs: examples/ode-nonlin/index.md
-      - ODE Eigenvalues: examples/ode-eig/index.md
-      - Random ODEs: examples/ode-random/index.md
-      - PDEs: examples/pde/index.md
-      - Integro-Differential: examples/integro/index.md
-    - Linear Algebra & Complex Analysis:
-      - Linear Algebra: examples/linalg/index.md
-      - Complex Analysis: examples/complex/index.md
-      - Vector Calculus: examples/veccalc/index.md
-    - Other Topics:
-      - Fun & Games: examples/fun/index.md
-      - Geometry: examples/geom/index.md
-      - Statistics: examples/stats/index.md
-      - Applications: examples/applics/index.md
-      - Miscellaneous: examples/temp/index.md
+    - Applications: examples/applics/index.md
+    - Approximation (1D): examples/approx/index.md
+    - Approximation (2D): examples/approx2/index.md
+    - Approximation (3D): examples/approx3/index.md
+    - Calculus: examples/calc/index.md
+    - Chebyshev expansions: examples/cheb/index.md
+    - Complex variables: examples/complex/index.md
+    - Disk: examples/disk/index.md
+    - Fourier analysis: examples/fourier/index.md
+    - Fun stuff: examples/fun/index.md
+    - Geometry: examples/geom/index.md
+    - Integral equations: examples/integro/index.md
+    - Linear algebra: examples/linalg/index.md
+    - ODE eigenvalue problems: examples/ode-eig/index.md
+    - ODEs (linear): examples/ode-linear/index.md
+    - ODEs (nonlinear): examples/ode-nonlin/index.md
+    - Optimization: examples/opt/index.md
+    - Partial differential equations: examples/pde/index.md
+    - Quadrature: examples/quad/index.md
+    - Random ODEs: examples/ode-random/index.md
+    - Rootfinding: examples/roots/index.md
+    - Sphere and ball: examples/sphere/index.md
+    - Statistics and probability: examples/stats/index.md
+    - Vector calculus: examples/veccalc/index.md
   - Reference:
     - API: api.md
     - JAX Contract: jax-contract.md
