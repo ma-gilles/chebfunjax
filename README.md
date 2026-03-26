@@ -2,10 +2,16 @@
 
 Chebfun in Python, powered by JAX.
 
-A translation of the [MATLAB Chebfun](https://github.com/chebfun/chebfun) library
+A **complete translation** of the [MATLAB Chebfun](https://github.com/chebfun/chebfun) library
 to Python using [JAX](https://github.com/jax-ml/jax) as the numerical backend,
 enabling GPU acceleration, JIT compilation, automatic differentiation, and
 vectorized operations (`vmap`) for spectral methods and function approximation.
+
+This includes all major Chebfun features: 1D/2D/3D function approximation (Chebfun, Chebfun2, Chebfun3),
+ODE/BVP/eigenvalue solvers (Chebop, Linop), PDE time-stepping (SpinOp with ETDRK4 and IMEX schemes),
+functions on disks, spheres, and balls (Diskfun, Spherefun, Ballfun), rational approximation (AAA, minimax),
+operator automatic differentiation, and more.
+See the [full examples gallery](https://ma-gilles.github.io/chebfunjax/) with 350+ translated examples.
 
 ## Installation
 
