@@ -5,6 +5,19 @@ All functions return (fig, ax) so callers can overlay additional plots
 or customise the figure before saving.
 
 Style constants match the Chebfun blue used by the MATLAB documentation.
+
+New in this version
+-------------------
+- :func:`plot` — now accepts multiple Chebfuns as positional arguments for
+  overlaying, and a ``title`` keyword to set the axes title.
+- :func:`waterfall` — waterfall/cascade plot for a sequence of Chebfuns
+  (e.g. time snapshots).
+- :func:`roots_plot` — plot a Chebfun with its roots marked as red circles.
+- :func:`spy` — sparsity pattern for operator matrices (wraps matplotlib spy).
+- :func:`plotregion` — Bernstein ellipse showing the region of analyticity.
+- :func:`arrowplot` — parametric curve with direction arrows (complex chebfun).
+- :func:`chebpolyplot` — Chebyshev coefficient magnitudes with log scale and
+  envelope line (enhanced version of plotcoeffs).
 """
 
 from __future__ import annotations
@@ -100,7 +113,7 @@ def _eval_2d_vectorized(f2, XX: np.ndarray, YY: np.ndarray) -> np.ndarray:
 # ---------------------------------------------------------------------------
 
 def plot(
-    f,
+    *args,
     ax: Optional[plt.Axes] = None,
     title: str = "",
     xlabel: str = "x",
@@ -112,25 +125,37 @@ def plot(
     n_pts: int = 600,
     **kw,
 ) -> tuple[plt.Figure, plt.Axes]:
-    """Plot a 1-D Chebfun on its domain.
+    """Plot one or more 1-D Chebfuns on their domain.
 
     Parameters
     ----------
-    f : Chebfun
-        The function to plot.
+    *args : Chebfun or (Chebfun, Chebfun, ...)
+        One or more Chebfuns to plot (overlaid on the same axes).
     ax : matplotlib.axes.Axes, optional
         Axes to draw on.  A new figure is created when not provided.
     title, xlabel, ylabel : str
         Axis labels/title.
     label : str
-        Line label (for legends).
+        Line label (for legends).  Applied to the first Chebfun only when
+        overlaying multiple functions.
     color, linestyle, linewidth : plot style.
+        Applied to the first Chebfun.  Additional Chebfuns cycle through a
+        colour sequence.
     n_pts : int
         Number of evaluation points.
 
     Returns
     -------
     fig, ax
+
+    Examples
+    --------
+    >>> import jax.numpy as jnp
+    >>> import matplotlib; matplotlib.use("Agg")
+    >>> import chebfunjax as cj
+    >>> f = cj.chebfun(jnp.sin)
+    >>> fig, ax = cj.plot(f)
+    >>> fig, ax = cj.plot(f, f.diff(), title="sin and cos")
     """
     import jax.numpy as jnp
 
@@ -139,14 +164,23 @@ def plot(
     else:
         fig = ax.get_figure()
 
-    xs = _domain_points(f, n_pts)
-    ys = np.array(f(jnp.array(xs)))
+    # Cycle of colours for multiple overlaid functions
+    _colors = [CHEBFUN_BLUE, CHEBFUN_RED, CHEBFUN_GREEN, CHEBFUN_ORANGE,
+               "#8B008B", "#008080"]
 
-    plot_kw: dict[str, Any] = dict(color=color, linewidth=linewidth,
-                                   linestyle=linestyle)
-    if label:
-        plot_kw["label"] = label
-    ax.plot(xs, ys, **plot_kw)
+    for idx, f in enumerate(args):
+        xs = _domain_points(f, n_pts)
+        ys = np.array(f(jnp.array(xs)))
+
+        c = color if idx == 0 else _colors[idx % len(_colors)]
+        plot_kw: dict[str, Any] = dict(color=c, linewidth=linewidth,
+                                       linestyle=linestyle)
+        if label and idx == 0:
+            plot_kw["label"] = label
+        # Forward extra kwargs only to first series to avoid clashes
+        if idx == 0:
+            plot_kw.update(kw)
+        ax.plot(xs, ys, **plot_kw)
 
     _apply_style(ax, title=title, xlabel=xlabel, ylabel=ylabel)
     fig.set_facecolor("white")
@@ -163,9 +197,14 @@ def plotcoeffs(
     ax: Optional[plt.Axes] = None,
     title: str = "Chebyshev coefficients",
     color: str = CHEBFUN_BLUE,
+    envelope: bool = True,
     **kw,
 ) -> tuple[plt.Figure, plt.Axes]:
     """Semilogy plot of |Chebyshev coefficients| of *f*.
+
+    Dots are plotted for each coefficient magnitude; an optional running
+    maximum envelope line (matching MATLAB Chebfun's ``plotcoeffs`` style)
+    is overlaid in a lighter colour.
 
     Parameters
     ----------
@@ -175,6 +214,10 @@ def plotcoeffs(
         Axes to draw on.
     title : str
         Plot title.
+    color : str
+        Colour of the dots.
+    envelope : bool, optional
+        If ``True`` (default) overlay a running-max envelope line.
 
     Returns
     -------
@@ -186,11 +229,16 @@ def plotcoeffs(
         fig = ax.get_figure()
 
     coeffs = np.abs(np.array(f.coeffs))
-    ax.semilogy(np.arange(len(coeffs)), coeffs, ".", color=color,
-                markersize=4, **kw)
+    ns = np.arange(len(coeffs))
 
-    _apply_style(ax, title=title, xlabel="degree $n$",
-                 ylabel="$|a_n|$")
+    ax.semilogy(ns, coeffs, ".", color=color, markersize=4, **kw)
+
+    if envelope and len(coeffs) > 2:
+        # Running maximum from right (decaying coefficients show machine eps level)
+        running_max = np.maximum.accumulate(coeffs[::-1])[::-1]
+        ax.semilogy(ns, running_max, "-", color=color, alpha=0.3, linewidth=1.0)
+
+    _apply_style(ax, title=title, xlabel="degree $n$", ylabel="$|a_n|$")
     ax.set_ylim(bottom=max(coeffs.min() * 0.1, 1e-18))
     fig.set_facecolor("white")
     fig.tight_layout()
@@ -620,6 +668,392 @@ def plot_slices(
     ax.set_xlabel("x", fontsize=9)
     ax.set_ylabel("y", fontsize=9)
     ax.set_zlabel("z", fontsize=9)
+    fig.set_facecolor("white")
+    fig.tight_layout()
+    return fig, ax
+
+
+# ---------------------------------------------------------------------------
+# Waterfall / cascade plot for a sequence of Chebfuns
+# ---------------------------------------------------------------------------
+
+
+def waterfall(
+    f_list,
+    ax=None,
+    title: str = "",
+    xlabel: str = "x",
+    ylabel: str = "t",
+    color: str = CHEBFUN_BLUE,
+    n_pts: int = 400,
+    alpha: float = 0.85,
+    **kw,
+):
+    """Waterfall (cascade) plot for a sequence of Chebfuns.
+
+    Plots each Chebfun in *f_list* offset in the z-direction for a 3-D
+    waterfall effect, visualising time evolution or parameter dependence.
+
+    Parameters
+    ----------
+    f_list : list of Chebfun
+        Sequence of Chebfuns (e.g. time snapshots).
+    ax : Axes3D, optional
+    title : str
+    xlabel, ylabel : str
+    color : str
+    n_pts : int
+    alpha : float
+
+    Returns
+    -------
+    fig, ax
+
+    Provenance
+    ----------
+    Inspired by MATLAB Chebfun waterfall. See https://www.chebfun.org/
+    """
+    import jax.numpy as jnp
+    from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+
+    if len(f_list) == 0:
+        raise ValueError("waterfall: f_list must be non-empty.")
+
+    if ax is None:
+        fig = plt.figure(figsize=(8, 5))
+        ax = fig.add_subplot(111, projection="3d")
+    else:
+        fig = ax.get_figure()
+
+    t_vals = np.linspace(0.0, 1.0, len(f_list))
+    for i, f in enumerate(f_list):
+        xs = _domain_points(f, n_pts)
+        ys = np.array(f(jnp.array(xs)))
+        ax.plot(xs, ys, zs=t_vals[i], zdir="y", color=color, alpha=alpha,
+                linewidth=1.4, **kw)
+
+    if title:
+        ax.set_title(title, fontsize=11)
+    ax.set_xlabel(xlabel, fontsize=9)
+    ax.set_ylabel(ylabel, fontsize=9)
+    ax.set_zlabel("f", fontsize=9)
+    fig.set_facecolor("white")
+    fig.tight_layout()
+    return fig, ax
+
+
+# ---------------------------------------------------------------------------
+# Roots plot
+# ---------------------------------------------------------------------------
+
+
+def roots_plot(
+    f,
+    ax=None,
+    title: str = "",
+    xlabel: str = "x",
+    ylabel: str = "",
+    color: str = CHEBFUN_BLUE,
+    root_color: str = CHEBFUN_RED,
+    root_markersize: float = 8,
+    linewidth: float = 1.8,
+    n_pts: int = 600,
+    **kw,
+):
+    """Plot a Chebfun with its roots marked as red circles.
+
+    Parameters
+    ----------
+    f : Chebfun
+    ax : optional
+    title, xlabel, ylabel : str
+    color : str, function line colour
+    root_color : str, root marker colour
+    root_markersize : float
+    linewidth : float
+    n_pts : int
+
+    Returns
+    -------
+    fig, ax
+
+    Provenance
+    ----------
+    Inspired by MATLAB Chebfun plot+roots workflow. See https://www.chebfun.org/
+    """
+    import jax.numpy as jnp
+
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(6, 3.5))
+    else:
+        fig = ax.get_figure()
+
+    xs = _domain_points(f, n_pts)
+    ys = np.array(f(jnp.array(xs)))
+    ax.plot(xs, ys, color=color, linewidth=linewidth)
+
+    roots = np.array(f.roots())
+    if roots.shape[0] > 0:
+        ax.plot(roots, np.zeros_like(roots), "o",
+                color=root_color, markersize=root_markersize,
+                markeredgecolor="black", markeredgewidth=0.5, zorder=5)
+
+    _apply_style(ax, title=title, xlabel=xlabel, ylabel=ylabel)
+    fig.set_facecolor("white")
+    fig.tight_layout()
+    return fig, ax
+
+
+# ---------------------------------------------------------------------------
+# Spy plot
+# ---------------------------------------------------------------------------
+
+
+def spy(
+    A,
+    ax=None,
+    title: str = "Sparsity pattern",
+    markersize: float = 2,
+    **kw,
+):
+    """Visualise the sparsity pattern of a matrix or Linop.
+
+    Parameters
+    ----------
+    A : array_like or Linop
+    ax : optional
+    title : str
+    markersize : float
+
+    Returns
+    -------
+    fig, ax
+
+    Provenance
+    ----------
+    Wraps matplotlib.axes.Axes.spy. See https://www.chebfun.org/
+    """
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(5, 5))
+    else:
+        fig = ax.get_figure()
+
+    try:
+        from chebfunjax.operators.linop import Linop
+        if isinstance(A, Linop):
+            A = np.array(A._assemble(64))
+    except (ImportError, Exception):
+        pass
+
+    A_np = np.asarray(A)
+    ax.spy(A_np, markersize=markersize, **kw)
+    if title:
+        ax.set_title(title, fontsize=11)
+    fig.set_facecolor("white")
+    fig.tight_layout()
+    return fig, ax
+
+
+# ---------------------------------------------------------------------------
+# Plotregion — Bernstein ellipse
+# ---------------------------------------------------------------------------
+
+
+def plotregion(
+    f,
+    ax=None,
+    title: str = "Region of analyticity",
+    color: str = CHEBFUN_BLUE,
+    n_pts: int = 300,
+    **kw,
+):
+    """Plot the Bernstein ellipse showing the region of analyticity.
+
+    Parameters
+    ----------
+    f : Chebfun
+    ax : optional
+    title : str
+    color : str
+    n_pts : int
+
+    Returns
+    -------
+    fig, ax
+
+    Provenance
+    ----------
+    Inspired by MATLAB Chebfun plotregion. See https://www.chebfun.org/
+    """
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(5, 5))
+    else:
+        fig = ax.get_figure()
+
+    coeffs = np.abs(np.array(f.coeffs))
+    n = len(coeffs)
+
+    if n < 4:
+        rho = 2.0
+    else:
+        tail = coeffs[max(n // 2, 1):]
+        if np.max(tail) > 1e-16:
+            avg_log = np.mean(np.log(np.maximum(tail, 1e-16)))
+            rho = max(np.exp(-avg_log / max(len(tail), 1)), 1.01)
+        else:
+            rho = 2.0
+    rho = min(max(rho, 1.01), 100.0)
+
+    theta = np.linspace(0, 2 * np.pi, n_pts)
+    z = rho * np.exp(1j * theta)
+    w = 0.5 * (z + 1.0 / z)
+    x_ell = np.real(w)
+    y_ell = np.imag(w)
+
+    a = float(f.domain.a)
+    b = float(f.domain.b)
+    x_phys = 0.5 * (b - a) * x_ell + 0.5 * (a + b)
+
+    ax.plot(x_phys, y_ell, color=color, linewidth=1.8, **kw)
+    ax.axhline(0, color="gray", linewidth=0.5, alpha=0.5)
+    ax.fill_between(x_phys, y_ell, alpha=0.08, color=color)
+    ax.set_aspect("equal")
+
+    _apply_style(ax, title=title, xlabel="Re(z)", ylabel="Im(z)")
+    fig.set_facecolor("white")
+    fig.tight_layout()
+    return fig, ax
+
+
+# ---------------------------------------------------------------------------
+# Arrow plot — parametric curve with direction arrows
+# ---------------------------------------------------------------------------
+
+
+def arrowplot(
+    f,
+    g=None,
+    ax=None,
+    title: str = "",
+    color: str = CHEBFUN_BLUE,
+    n_pts: int = 400,
+    n_arrows: int = 12,
+    **kw,
+):
+    """Parametric curve plot with direction arrows.
+
+    Parameters
+    ----------
+    f : Chebfun  (x-component or complex Chebfun)
+    g : Chebfun or None  (y-component; if None treat f as complex)
+    ax : optional
+    title : str
+    color : str
+    n_pts : int
+    n_arrows : int
+
+    Returns
+    -------
+    fig, ax
+
+    Provenance
+    ----------
+    Inspired by MATLAB Chebfun arrowplot. See https://www.chebfun.org/
+    """
+    import jax.numpy as jnp
+
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(5, 5))
+    else:
+        fig = ax.get_figure()
+
+    ts = _domain_points(f, n_pts)
+    fvals = np.array(f(jnp.array(ts)))
+
+    if g is not None:
+        xvals = fvals
+        yvals = np.array(g(jnp.array(ts)))
+    else:
+        xvals = np.real(fvals)
+        yvals = np.imag(fvals)
+
+    ax.plot(xvals, yvals, color=color, linewidth=1.8, **kw)
+
+    arrow_idx = np.linspace(n_pts // (n_arrows + 1),
+                            n_pts - n_pts // (n_arrows + 1),
+                            n_arrows, dtype=int)
+    for i in arrow_idx:
+        if i + 1 >= n_pts:
+            continue
+        dx = xvals[i + 1] - xvals[i]
+        dy = yvals[i + 1] - yvals[i]
+        ax.annotate(
+            "",
+            xy=(xvals[i] + dx * 0.01, yvals[i] + dy * 0.01),
+            xytext=(xvals[i], yvals[i]),
+            arrowprops=dict(arrowstyle="->", color=color, lw=1.2),
+        )
+
+    ax.set_aspect("equal")
+    _apply_style(ax, title=title, xlabel="Re", ylabel="Im")
+    fig.set_facecolor("white")
+    fig.tight_layout()
+    return fig, ax
+
+
+# ---------------------------------------------------------------------------
+# chebpolyplot — enhanced coefficient plot with envelope
+# ---------------------------------------------------------------------------
+
+
+def chebpolyplot(
+    f,
+    ax=None,
+    title: str = "Chebyshev polynomial coefficients",
+    color: str = CHEBFUN_BLUE,
+    envelope_color: str = CHEBFUN_ORANGE,
+    **kw,
+):
+    """Log-scale Chebyshev coefficient plot with envelope line.
+
+    Parameters
+    ----------
+    f : Chebfun
+    ax : optional
+    title : str
+    color : str  (dots colour)
+    envelope_color : str  (envelope line colour)
+
+    Returns
+    -------
+    fig, ax
+
+    Provenance
+    ----------
+    Inspired by MATLAB Chebfun plotcoeffs. See https://www.chebfun.org/
+    """
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(6, 3.5))
+    else:
+        fig = ax.get_figure()
+
+    coeffs = np.abs(np.array(f.coeffs))
+    ns = np.arange(len(coeffs))
+
+    ax.semilogy(ns, coeffs, ".", color=color, markersize=5, **kw)
+
+    if len(coeffs) > 2:
+        running_max = np.maximum.accumulate(coeffs[::-1])[::-1]
+        ax.semilogy(ns, running_max, "-", color=envelope_color,
+                    alpha=0.7, linewidth=1.4, label="envelope")
+
+    eps_floor = np.finfo(np.float64).eps * (coeffs[0] if coeffs[0] > 0 else 1.0)
+    ax.axhline(eps_floor, color="gray", linestyle="--", linewidth=0.8,
+               alpha=0.6, label=r"$\epsilon_{\rm mach} \|f\|$")
+
+    _apply_style(ax, title=title, xlabel="degree $n$", ylabel="$|a_n|$")
+    ax.set_ylim(bottom=max(coeffs.min() * 0.1, 1e-18))
+    ax.legend(fontsize=8)
     fig.set_facecolor("white")
     fig.tight_layout()
     return fig, ax

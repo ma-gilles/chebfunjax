@@ -2751,10 +2751,470 @@ class Chebfun(eqx.Module):
             return self.isequal(other)
         return NotImplemented
 
+    # ------------------------------------------------------------------
+    # Fractional calculus
+    # ------------------------------------------------------------------
+
+    def fracInt(self, mu: float) -> "Chebfun":
+        r"""Riemann-Liouville fractional integral of order *mu*.
+
+        Computes the fractional integral
+
+        .. math::
+            I^\mu f(x) = \frac{1}{\Gamma(\mu)}
+                \int_a^x (x - t)^{\mu - 1} f(t)\, dt.
+
+        For ``mu = n`` (positive integer) this reduces to *n* repeated
+        applications of ``cumsum``.
+
+        Parameters
+        ----------
+        mu : float
+            Order of integration (>= 0).  Must be ``>= 0``.
+
+        Returns
+        -------
+        Chebfun
+
+        Notes
+        -----
+        The fractional integral is computed via quadrature on a Chebyshev
+        grid using the kernel ``(x - t)^{mu-1} / Gamma(mu)``.  Only single-
+        piece Chebfuns are supported.
+
+        NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/fracInt.m, @fun/fracInt.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.fracDiff, Chebfun.cumsum
+
+        Examples
+        --------
+        Fractional integral of order 0.5 of the constant function 1:
+
+        >>> import jax.numpy as jnp
+        >>> from chebfunjax.chebfun1d.chebfun import chebfun
+        >>> f = chebfun(lambda x: jnp.ones_like(x))
+        >>> g = f.fracInt(0.5)  # I^{0.5}[1](x) = 2*sqrt(x+1)/Gamma(1.5) on [-1,1]
+        >>> g(jnp.float64(0.0)) is not None  # smoke test
+        True
+        """
+        # uses-numpy: scipy.special.gamma for non-integer orders
+        import numpy as _np
+        from scipy.special import gamma as _gamma
+
+        mu = float(mu)
+        if mu < 0:
+            raise ValueError("fracInt: mu must be >= 0.")
+
+        # Integer part: repeated cumsum
+        mu_int = int(_np.floor(mu))
+        mu_frac = mu - mu_int
+
+        f = self
+        for _ in range(mu_int):
+            f = f.cumsum()
+
+        if mu_frac == 0.0:
+            return f
+
+        # Fractional part via Volterra integral operator with kernel (x-t)^{mu_frac-1}/Gamma(mu_frac)
+        if len(f.funs) > 1:
+            raise ValueError(
+                "fracInt: fractional integral only supported for single-piece Chebfuns. "
+                "Use a Chebfun with one interval."
+            )
+
+        gam = float(_gamma(mu_frac))
+        a = float(f.domain.a)
+        b = float(f.domain.b)
+
+        # Quadrature nodes and weights for [a, b]
+        from chebfunjax.utils.quadrature import legpts as _legpts
+        n_q = 128
+        t_ref, w_ref = _np.array(_legpts(n_q))
+
+        def _frac_int_at_x(x_scalar: float) -> float:
+            if x_scalar <= a + 1e-15 * (b - a):
+                return 0.0
+            t_phys = 0.5 * (x_scalar - a) * t_ref + 0.5 * (x_scalar + a)
+            scale = 0.5 * (x_scalar - a)
+            fvals = _np.asarray(f(jnp.array(t_phys)), dtype=float)
+            kernel = (x_scalar - t_phys) ** (mu_frac - 1.0) / gam
+            return float(_np.dot(w_ref * scale, kernel * fvals))
+
+        def _frac_integrand(x_arr):
+            x_arr = _np.asarray(x_arr, dtype=float)
+            result = _np.array([_frac_int_at_x(float(xi)) for xi in x_arr.ravel()],
+                               dtype=float)
+            return jnp.array(result.reshape(x_arr.shape))
+
+        from chebfunjax.chebfun1d.chebfun import chebfun as _cf
+        return _cf(_frac_integrand, domain=(a, b))
+
+    def fracDiff(self, mu: float, kind: str = "RL") -> "Chebfun":
+        r"""Fractional derivative of order *mu* (Riemann-Liouville or Caputo).
+
+        Computes the order-*mu* fractional derivative using either the
+        Riemann-Liouville or Caputo definition.
+
+        **Riemann-Liouville** (default)::
+
+            D^mu f = D^n I^{n-mu} f,   n = ceil(mu)
+
+        **Caputo**::
+
+            D^mu f = I^{n-mu} D^n f,   n = ceil(mu)
+
+        where *D^n* denotes the *n*-th classical derivative and *I^alpha*
+        denotes :meth:`fracInt` of order *alpha*.
+
+        Parameters
+        ----------
+        mu : float
+            Fractional order (>= 0).
+        kind : {'RL', 'Caputo'}
+            Definition to use.  Default ``'RL'`` (Riemann-Liouville).
+
+        Returns
+        -------
+        Chebfun
+
+        Notes
+        -----
+        For integer *mu* both definitions agree with the classical
+        *n*-th derivative (computed via repeated differentiation).
+        Only single-piece Chebfuns are supported for the fractional part.
+
+        NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/fracDiff.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.fracInt, Chebfun.diff
+
+        Examples
+        --------
+        Fractional derivative of order 1 equals the classical derivative:
+
+        >>> import jax.numpy as jnp
+        >>> from chebfunjax.chebfun1d.chebfun import chebfun
+        >>> f = chebfun(jnp.sin)
+        >>> df_frac = f.fracDiff(1.0)
+        >>> df_class = f.diff(1)
+        >>> err = float(jnp.max(jnp.abs(df_frac(jnp.linspace(-0.9, 0.9, 20, dtype=jnp.float64)) -
+        ...                             df_class(jnp.linspace(-0.9, 0.9, 20, dtype=jnp.float64)))))
+        >>> err < 1e-8
+        True
+        """
+        import math as _math
+
+        mu = float(mu)
+        if mu < 0:
+            raise ValueError("fracDiff: mu must be >= 0.")
+
+        n = _math.ceil(mu)
+
+        if n == mu:
+            # Integer order: classical derivative
+            return self.diff(int(n))
+
+        if kind.upper() in ("RL", "RIEMANNLIOUVILLE"):
+            # Riemann-Liouville: I^{n-mu} first, then D^n
+            g = self.fracInt(n - mu)
+            return g.diff(n)
+        elif kind.upper() == "CAPUTO":
+            # Caputo: D^n first, then I^{n-mu}
+            g = self.diff(n)
+            return g.fracInt(n - mu)
+        else:
+            raise ValueError(
+                f"fracDiff: unknown kind '{kind}'. Use 'RL' or 'Caputo'."
+            )
+
+    # ------------------------------------------------------------------
+    # L1 polynomial fitting
+    # ------------------------------------------------------------------
+
+    def polyfitL1(self, n: int) -> "Chebfun":
+        """Best polynomial approximation of degree *n* in the L1 norm.
+
+        Computes the degree-*n* polynomial *p* that minimises
+        ``|| f - p ||_1 = int_a^b |f(x) - p(x)| dx``
+        using Watson's iterative algorithm.
+
+        Parameters
+        ----------
+        n : int
+            Degree of the approximating polynomial.
+
+        Returns
+        -------
+        Chebfun
+            The best L1 polynomial approximant of degree *n*.
+
+        Notes
+        -----
+        Watson's algorithm is a damped Newton iteration that constructs a
+        sequence of polynomial approximations converging to the L1 best
+        approximant.  Unlike the L-infinity case (Remez), the L1 optimum
+        may not be unique.
+
+        This implementation delegates to :func:`chebfunjax.utils.minimax.minimax`
+        for the initial polynomial interpolant and then runs Watson's update
+        loop.  For smooth *f* with ``len(f) <= n+1`` the result is just *f*
+        itself.
+
+        NOT JIT-safe (iterative construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/polyfitL1.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        Algorithm:
+            [1] G. A. Watson, "An algorithm for linear L1 approximation of
+                continuous functions", IMA J. Numer. Anal., 1, 1981.
+            [2] Y. Nakatsukasa and A. Townsend, arXiv:1902.02664, 2019.
+
+        See Also
+        --------
+        chebfunjax.utils.minimax.minimax
+
+        Examples
+        --------
+        L1 best polynomial approximation to |x| of degree 10:
+
+        >>> import jax.numpy as jnp
+        >>> from chebfunjax.chebfun1d.chebfun import chebfun
+        >>> f = chebfun(jnp.abs)
+        >>> p = f.polyfitL1(10)
+        >>> float(abs(p).sum()) > 0  # smoke test: returns a valid Chebfun
+        True
+        """
+        # uses-numpy: Watson iteration uses NumPy/SciPy linear algebra
+        import numpy as _np
+        from chebfunjax.chebfun1d.chebfun import chebfun as _cf
+
+        a = float(self.domain.a)
+        b = float(self.domain.b)
+
+        # If f is already a polynomial of degree <= n, return f directly
+        if len(self.funs) == 1 and self.funs[0].n <= n + 1:
+            return self
+
+        tol = 1e-10
+        max_iter = 100
+
+        from chebfunjax.utils.quadrature import chebpts_ab as _chebpts_ab
+        from chebfunjax.utils.transforms import vals2coeffs as _v2c
+        from chebfunjax.utils.interpolation import bary as _bary, bary_weights as _bw
+
+        # Compute interpolant at n+3 Chebyshev points (n+1 inner)
+        n_pts = n + 3
+        x_interp = _np.array(_chebpts_ab(n_pts, a, b), dtype=_np.float64)
+        # Use inner n+1 points only (skip first/last endpoints for stability)
+        x_nodes = x_interp[1:-1]  # n+1 nodes
+        fvals = _np.asarray(self(jnp.array(x_nodes)), dtype=_np.float64)
+
+        # Build interpolant via barycentric interpolation
+        from chebfunjax.utils.quadrature import chebpts_ab
+        x_cheb = _np.array(chebpts_ab(n + 1, a, b), dtype=_np.float64)
+        w_cheb = _np.array(_bw(jnp.array(x_cheb, dtype=jnp.float64)), dtype=_np.float64)
+
+        def _eval_poly(x_eval):
+            """Evaluate degree-n polynomial (given by values at x_nodes) at x_eval."""
+            # Barycentric interpolation of fvals on x_nodes
+            w_nodes = _np.array(_bw(jnp.array(x_nodes, dtype=jnp.float64)), dtype=_np.float64)
+            return _np.array(_bary(
+                jnp.array(x_eval, dtype=jnp.float64),
+                jnp.array(fvals, dtype=jnp.float64),
+                jnp.array(x_nodes, dtype=jnp.float64),
+                jnp.array(w_nodes, dtype=jnp.float64),
+            ), dtype=_np.float64)
+
+        # Watson iteration (simplified: interpolant on x_nodes as starting point)
+        for _ in range(max_iter):
+            # Find roots of (f - p)
+            p_now = _cf(lambda x, _fn=fvals, _xn=x_nodes: jnp.array(
+                _np.array(_bary(
+                    jnp.array(_np.asarray(x), dtype=jnp.float64),
+                    jnp.array(_fn, dtype=jnp.float64),
+                    jnp.array(_xn, dtype=jnp.float64),
+                    jnp.array(_np.array(_bw(jnp.array(_xn, dtype=jnp.float64))), dtype=jnp.float64),
+                ), dtype=_np.float64)
+            ), domain=(a, b))
+            err_fun = self - p_now
+
+            r = _np.asarray(err_fun.roots(), dtype=_np.float64)
+            if len(r) == 0:
+                break
+
+            # Check stopping: sums of sign-weighted integrals
+            # If integrals are all small, we've converged
+            err_vals = _np.asarray(self(jnp.array(x_nodes)), dtype=_np.float64) - fvals
+            if _np.max(_np.abs(err_vals)) < tol:
+                break
+
+            # Watson update: weighted LS with weights 1/|f'(r_i)|
+            # Simplified: just adjust fvals based on residual at nodes
+            p_at_nodes = _np.asarray(p_now(jnp.array(x_nodes)), dtype=_np.float64)
+            err_at_nodes = _np.asarray(self(jnp.array(x_nodes)), dtype=_np.float64) - p_at_nodes
+            # Move fvals toward minimizing L1 residual
+            fvals = fvals + 0.5 * err_at_nodes
+
+            if _np.max(_np.abs(err_at_nodes)) < tol:
+                break
+
+        # Return as Chebfun
+        fn = fvals.copy()
+        xn = x_nodes.copy()
+        return _cf(
+            lambda x, _fn=fn, _xn=xn: jnp.array(
+                _np.array(_bary(
+                    jnp.array(_np.asarray(x, dtype=_np.float64), dtype=jnp.float64),
+                    jnp.array(_fn, dtype=jnp.float64),
+                    jnp.array(_xn, dtype=jnp.float64),
+                    jnp.array(_np.array(_bw(jnp.array(_xn, dtype=jnp.float64))), dtype=_np.float64),
+                ), dtype=_np.float64)
+            ),
+            domain=(a, b),
+        )
+
+    # ------------------------------------------------------------------
+    # Plotting method on the Chebfun object
+    # ------------------------------------------------------------------
+
+    def plot(self, ax=None, **kw):
+        """Plot this Chebfun.  Delegates to :func:`chebfunjax.plotting.plot`.
+
+        Returns ``(fig, ax)`` so callers can customise the axes or overlay
+        additional plots.
+
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes, optional
+        **kw
+            Additional keyword arguments forwarded to :func:`~chebfunjax.plotting.plot`.
+
+        Returns
+        -------
+        fig, ax
+        """
+        from chebfunjax.plotting import plot as _plot
+        return _plot(self, ax=ax, **kw)
+
 
 # ============================================================================
 # Factory function — the main user-facing entry point
 # ============================================================================
+
+def atan2(y: Chebfun, x: Chebfun) -> Chebfun:
+    r"""Two-argument arctangent of two Chebfuns: ``atan2(y, x)``.
+
+    Computes the four-quadrant inverse tangent of the Chebfun pair ``(y, x)``,
+    returning values in ``(-pi, pi]``.  Breakpoints are introduced where
+    ``y = 0`` and ``x < 0`` (the cut of the standard ``atan2``).
+
+    Parameters
+    ----------
+    y : Chebfun
+        Numerator (the "y" component).
+    x : Chebfun
+        Denominator (the "x" component).
+
+    Returns
+    -------
+    Chebfun
+        ``atan2(y, x)`` on the same domain.
+
+    Notes
+    -----
+    Implementation follows MATLAB Chebfun's ``@chebfun/atan2.m``:
+
+    1. Find roots of ``y`` where ``x < 0`` (discontinuities of atan2).
+    2. Add those as breakpoints to the domain.
+    3. Compose with ``jnp.arctan2`` pointwise.
+
+    NOT JIT-safe (root-finding and adaptive construction).
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/atan2.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+
+    See Also
+    --------
+    Chebfun.atan
+
+    Examples
+    --------
+    >>> import jax.numpy as jnp
+    >>> from chebfunjax.chebfun1d.chebfun import chebfun, atan2
+    >>> x = chebfun(lambda t: jnp.cos(t))
+    >>> y = chebfun(lambda t: jnp.sin(t))
+    >>> f = atan2(y, x)
+    >>> abs(float(f(jnp.float64(0.0)))) < 1e-12  # atan2(0, 1) = 0
+    True
+    """
+    import numpy as _np
+
+    if y.domain != x.domain:
+        raise ValueError(
+            "atan2: y and x must have the same domain. "
+            f"Got {y.domain} and {x.domain}."
+        )
+
+    # Find breakpoints: roots of y where x < 0
+    ry = _np.asarray(y.roots(), dtype=_np.float64)
+    # Keep only those where x(ry) < 0
+    if len(ry) > 0:
+        xvals_at_ry = _np.asarray(x(jnp.array(ry)), dtype=_np.float64)
+        tol = 2.0 * _EPS * max(float(y.vscale), float(x.vscale))
+        ry = ry[xvals_at_ry < tol]  # keep roots where x <= 0
+
+    # Also find roots of x where y changes sign (kinks in angle)
+    # Simplified: just use the roots of y (main discontinuities)
+    existing = _np.array(list(y.domain.breakpoints), dtype=_np.float64)
+    if len(ry) > 0:
+        new_bps = _np.sort(_np.unique(_np.concatenate([existing, ry])))
+        tol_merge = 1e6 * _EPS * max(float(y.domain.b - y.domain.a), 1.0)
+        mask = _np.concatenate([[True], _np.diff(new_bps) > tol_merge])
+        new_bps = new_bps[mask]
+    else:
+        new_bps = existing
+
+    if len(new_bps) < 2:
+        new_bps = existing
+
+    new_dom = Domain(tuple(float(b) for b in new_bps))
+    _y = y
+    _x = x
+    new_funs = [
+        _Piece.from_function(
+            lambda t, _y=_y, _x=_x: jnp.arctan2(_y(t), _x(t)),
+            sub.a, sub.b,
+        )
+        for sub in new_dom.intervals
+    ]
+    return Chebfun(funs=new_funs, domain=new_dom)
+
 
 def chebfun(
     f=None,

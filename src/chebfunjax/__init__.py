@@ -24,6 +24,13 @@ from chebfunjax.plotting import (  # noqa: E402
     plot_disk,
     plot_sphere,
     plot_slices,
+    # New rich plotting API
+    waterfall,
+    roots_plot,
+    spy,
+    plotregion,
+    arrowplot,
+    chebpolyplot,
 )
 
 # ---------------------------------------------------------------------------
@@ -95,6 +102,12 @@ def atan(f: Chebfun) -> Chebfun:
     return f.atan()
 
 
+def atan2(y: Chebfun, x: Chebfun) -> Chebfun:
+    """Four-quadrant arctangent.  See :func:`chebfunjax.chebfun1d.chebfun.atan2`."""
+    from chebfunjax.chebfun1d.chebfun import atan2 as _atan2
+    return _atan2(y, x)
+
+
 __all__ = [
     "Chebfun",
     "chebfun",
@@ -114,6 +127,7 @@ __all__ = [
     "asin",
     "acos",
     "atan",
+    "atan2",
     # Random functions
     "randnfun",
     # Plotting
@@ -125,4 +139,10 @@ __all__ = [
     "plot_disk",
     "plot_sphere",
     "plot_slices",
+    "waterfall",
+    "roots_plot",
+    "spy",
+    "plotregion",
+    "arrowplot",
+    "chebpolyplot",
 ]
