@@ -457,3 +457,128 @@ class Linop:
             f"Linop(order={self.L.order}, domain={self.domain}, "
             f"n_bcs={len(self.bcs)})"
         )
+
+
+# ===========================================================================
+# GMRES for operator equations
+# ===========================================================================
+
+
+def gmres(
+    L: Linop,
+    f,
+    n: int = 64,
+    restart: int = 50,
+    max_iter: int | None = None,
+    tol: float = 1e-10,
+) -> "Chebfun":
+    r"""Solve the linear operator equation ``L*u = f`` using GMRES.
+
+    Discretizes the Linop ``L`` at ``n`` Chebyshev collocation points and
+    applies GMRES (``scipy.sparse.linalg.gmres``) to the resulting linear
+    system.  The solution is returned as a Chebfun on ``L.domain``.
+
+    This is an alternative to :meth:`~chebfunjax.operators.linop.Linop.solve`
+    that avoids the LU factorisation and is better suited for large or
+    ill-conditioned systems.
+
+    Parameters
+    ----------
+    L : Linop
+        Linear operator with boundary conditions.
+    f : callable or scalar
+        Right-hand side.
+    n : int, optional
+        Collocation size.  Default 64.
+    restart : int, optional
+        GMRES restart parameter (number of Krylov vectors per cycle).
+        Default 50.
+    max_iter : int or None, optional
+        Maximum number of GMRES iterations.  ``None`` defaults to
+        ``max(n, 500)``.
+    tol : float, optional
+        Relative residual tolerance.  Default ``1e-10``.
+
+    Returns
+    -------
+    u : Chebfun
+        Approximate solution on ``L.domain``.
+
+    Notes
+    -----
+    The boundary conditions are imposed as in :meth:`Linop._assemble`:
+    the last ``n_bc`` rows of the operator matrix are replaced by the BC
+    rows, and the corresponding entries of the RHS are set to the BC values.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/gmres.m (wrapper around MATLAB's built-in gmres)
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+
+    See Also
+    --------
+    Linop.solve, Linop.eigs
+
+    Examples
+    --------
+    Solve u'' = -1, u(-1) = u(1) = 0 via GMRES:
+
+    >>> import jax.numpy as jnp
+    >>> from chebfunjax.operators.blocks import D, eval_at
+    >>> from chebfunjax.operators.linop import Linop, gmres
+    >>> L = Linop(D(order=2), [eval_at(-1.0), eval_at(1.0)],
+    ...           domain=(-1.0, 1.0), bc_values=[0.0, 0.0])
+    >>> u = gmres(L, lambda x: -jnp.ones_like(x), n=32)
+    >>> abs(float(u(jnp.float64(0.0))) - 0.5) < 1e-8
+    True
+    """
+    # uses-numpy: scipy.sparse.linalg.gmres for iterative linear solve
+    import numpy as np
+    from scipy.sparse.linalg import gmres as _scipy_gmres
+
+    if max_iter is None:
+        max_iter = max(n, 500)
+
+    # Assemble the operator matrix
+    A_jax = L._assemble(n)
+    A_np = np.array(A_jax, dtype=np.float64)
+
+    # Build RHS
+    a, b = L.domain
+    t_ref = np.array(chebpts(n, kind=2), dtype=np.float64)
+    x_pts = 0.5 * (b - a) * t_ref + 0.5 * (a + b)
+
+    if callable(f):
+        rhs = np.array(f(jnp.array(x_pts, dtype=jnp.float64)), dtype=np.float64)
+    else:
+        rhs = np.full(n, float(f), dtype=np.float64)
+
+    # Impose BC values on RHS
+    n_bc = len(L.bcs)
+    for i, val in enumerate(L.bc_values):
+        rhs[n - n_bc + i] = float(val)
+
+    # Run GMRES
+    sol, info = _scipy_gmres(
+        A_np, rhs,
+        restart=restart,
+        maxiter=max_iter,
+        rtol=tol,
+    )
+
+    if info > 0:
+        warnings.warn(
+            f"gmres: did not converge after {info} iterations "
+            f"(tol={tol:.2e}).",
+            stacklevel=2,
+        )
+    elif info < 0:
+        warnings.warn(
+            f"gmres: illegal input or breakdown (info={info}).",
+            stacklevel=2,
+        )
+
+    u_vals = jnp.array(sol, dtype=jnp.float64)
+    return _chebfun_from_values(u_vals, L.domain)

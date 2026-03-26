@@ -43,6 +43,8 @@ from chebfunjax.utils.interpolation import bary, bary_weights
 from chebfunjax.utils.quadrature import chebpts_ab
 from chebfunjax.utils.transforms import coeffs2vals, vals2coeffs
 
+__all__ = ["minimax", "trigremez", "MinimaxResult", "TrigremezResult"]
+
 # ---------------------------------------------------------------------------
 # Public result type
 # ---------------------------------------------------------------------------
@@ -811,3 +813,259 @@ def _exchange(
         flag = 0
 
     return xk_new, norme, flag
+
+
+# ===========================================================================
+# Trigonometric minimax — trigremez
+# ===========================================================================
+
+
+@dataclass
+class TrigremezResult:
+    """Result of a trigonometric best-approximation computation.
+
+    Attributes
+    ----------
+    coeffs : np.ndarray, shape (2*m+1,)
+        Fourier (trigonometric) coefficients of the best trigonometric
+        polynomial approximant of degree *m*.  Stored in ascending-frequency
+        order: ``[c_{-m}, ..., c_0, ..., c_m]``.
+    xk : np.ndarray
+        Equioscillation reference points on the period.
+    err : float
+        Supremum norm of the error ``f - p`` on the domain.
+    delta : float
+        Normalised equioscillation deviation; near zero when converged.
+    iter : int
+        Number of Remez iterations performed.
+    domain : tuple[float, float]
+        Approximation period ``(a, b)``.
+    """
+
+    coeffs: np.ndarray
+    xk: np.ndarray
+    err: float
+    delta: float
+    iter: int
+    domain: tuple[float, float]
+
+
+def trigremez(
+    f: Callable,
+    m: int,
+    *,
+    domain: tuple[float, float] = (-1.0, 1.0),
+    tol: float | None = None,
+    max_iter: int = 40,
+) -> TrigremezResult:
+    r"""Best trigonometric polynomial approximation via the trig Remez algorithm.
+
+    Computes the best degree-*m* trigonometric polynomial approximant to the
+    real-valued periodic function *f* on *domain* in the infinity norm.  The
+    approximant equioscillates at ``2m + 2`` or more points.
+
+    Parameters
+    ----------
+    f : callable
+        Real-valued periodic function.  Must accept a 1-D ``np.ndarray`` and
+        return a 1-D array-like of the same shape.  The function is assumed to
+        be *2*(b-a)*-periodic and continuous on ``[a, b]``.
+    m : int
+        Degree of the best trigonometric polynomial (number of Fourier modes
+        is ``2*m + 1``).
+    domain : (float, float), optional
+        One full period ``[a, b]``.  Default ``(-1.0, 1.0)``.
+    tol : float or None, optional
+        Relative equioscillation tolerance.  Default ``1e-13``.
+    max_iter : int, optional
+        Maximum Remez iterations.  Default 40.
+
+    Returns
+    -------
+    result : TrigremezResult
+
+    Notes
+    -----
+    The algorithm mirrors the polynomial Remez exchange loop in
+    :func:`minimax`, but uses a trigonometric rather than Chebyshev basis.
+    The initial reference is the ``2m+2`` equispaced points on ``[a, b)``.
+    The trial polynomial is computed via barycentric trigonometric
+    interpolation; extrema are found by sampling on a dense grid.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/trigremez.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    Algorithm:
+        M. Javed, DPhil thesis, Oxford, 2017.
+
+    See Also
+    --------
+    minimax
+
+    Examples
+    --------
+    Best degree-5 trig polynomial for ``|sin(pi*x)|`` on ``[-1, 1]``:
+
+    >>> import numpy as np
+    >>> from chebfunjax.utils.minimax import trigremez
+    >>> result = trigremez(lambda x: np.abs(np.sin(np.pi * x)), 5)
+    >>> result.err < 0.04
+    True
+    """
+    if tol is None:
+        tol = 1e-13
+
+    a, b = float(domain[0]), float(domain[1])
+    period = b - a
+    n_ref = 2 * m + 2  # number of equioscillation points for trig poly of degree m
+
+    # ---- Dense grid for norms & extrema ----
+    n_dense = max(8 * n_ref, 2048)
+    x_dense = np.linspace(a, b, n_dense, endpoint=False)
+    fvals_dense = np.asarray(f(x_dense), dtype=np.float64).ravel()
+    normf = float(np.max(np.abs(fvals_dense)))
+    if normf == 0.0:
+        normf = float(np.finfo(np.float64).eps)
+
+    # ---- Initial reference: equispaced ----
+    xk = np.linspace(a, b, n_ref, endpoint=False)
+
+    def _eval_trig_interp(xk_pts, fk, x_eval):
+        """Barycentric trigonometric interpolation at xk_pts with values fk,
+        evaluated at x_eval. Uses the standard trig barycentric formula."""
+        N = len(xk_pts)
+        # Trig barycentric weights: w_j = (-1)^j / 2
+        w = np.ones(N) * 0.5
+        w[1::2] = -0.5
+
+        x_eval = np.asarray(x_eval, dtype=float)
+        num = np.zeros_like(x_eval)
+        den = np.zeros_like(x_eval)
+        for j in range(N):
+            # Kernel: cot(pi*(x - xk_j)/T) * w_j  (or the trig barycentric kernel)
+            diff = np.pi * (x_eval - xk_pts[j]) / period
+            # Avoid singularity at the nodes
+            cot_val = np.cos(diff) / np.where(np.abs(np.sin(diff)) < 1e-14,
+                                               1e-14 * np.sign(np.sin(diff) + 1e-300),
+                                               np.sin(diff))
+            num += w[j] * fk[j] * cot_val
+            den += w[j] * cot_val
+
+        # Handle exact nodes
+        result = np.where(np.abs(den) < 1e-12 * normf, 0.0, num / den)
+        for j in range(N):
+            mask = np.abs(x_eval - xk_pts[j]) < 1e-14 * period
+            result = np.where(mask, fk[j], result)
+        return result
+
+    err = normf
+    h = 2.0 * err + 1.0
+    iter_count = 0
+    delta_min = np.inf
+    best_xk = xk.copy()
+    best_fk = None
+    best_err = np.inf
+
+    while (
+        abs(abs(h) - abs(err)) > tol * abs(err)
+        and iter_count < max_iter
+    ):
+        fk = np.asarray(f(xk), dtype=np.float64).ravel()
+
+        # Levelled error h (alternating signs)
+        sigma = np.ones(n_ref)
+        sigma[1::2] = -1.0
+        w_bary = np.ones(n_ref) * 0.5
+        w_bary[1::2] = -0.5
+        h = float(np.dot(w_bary, fk) / np.dot(w_bary, sigma))
+
+        # Trig interpolant of fk - h*sigma at xk
+        gk = fk - h * sigma
+
+        # Evaluate error on dense grid
+        p_dense = _eval_trig_interp(xk, gk, x_dense)
+        err_dense = fvals_dense - p_dense
+        err = float(np.max(np.abs(err_dense)))
+        delta = err - abs(h)
+
+        if delta < delta_min:
+            delta_min = delta
+            best_xk = xk.copy()
+            best_fk = gk.copy()
+            best_err = err
+
+        # Find extrema of error on dense grid
+        # (sign changes in derivative → local extrema)
+        d_err = np.diff(err_dense)
+        sign_changes = np.where(np.diff(np.sign(d_err)) != 0)[0] + 1
+        extrema = np.sort(np.unique(
+            np.concatenate([[0, n_dense - 1], sign_changes])
+        ))
+        extrema_x = x_dense[extrema]
+        extrema_e = err_dense[extrema]
+
+        # Select n_ref alternating extrema with highest error
+        # Build alternating sequence
+        s = [extrema_x[0]]
+        es = [extrema_e[0]]
+        for i in range(1, len(extrema_x)):
+            if np.sign(extrema_e[i]) == np.sign(es[-1]):
+                if abs(extrema_e[i]) > abs(es[-1]):
+                    s[-1] = extrema_x[i]
+                    es[-1] = extrema_e[i]
+            else:
+                s.append(extrema_x[i])
+                es.append(extrema_e[i])
+
+        s = np.array(s)
+        es = np.array(es)
+
+        if len(s) >= n_ref:
+            idx_max = int(np.argmax(np.abs(es)))
+            d_idx = max(idx_max - n_ref + 1, 0)
+            d_idx = min(d_idx, max(0, len(s) - n_ref))
+            xk = s[d_idx : d_idx + n_ref]
+        else:
+            # Not enough alternations; keep best from dense
+            top_idx = np.argsort(np.abs(err_dense))[-n_ref:]
+            xk = np.sort(x_dense[top_idx])
+
+        iter_count += 1
+
+    # ---- Extract Fourier coefficients of best approximant ----
+    if best_fk is None:
+        best_fk = np.asarray(f(best_xk), dtype=np.float64).ravel()
+
+    # Re-interpolate on a uniform grid and FFT
+    n_out = max(4 * m + 10, 64)
+    x_out = np.linspace(a, b, n_out, endpoint=False)
+    p_vals = _eval_trig_interp(best_xk, best_fk, x_out)
+    C_fft = np.fft.fft(p_vals) / n_out
+    # Centred Fourier coefficients for frequencies -m, ..., m
+    coeffs = np.array(
+        [C_fft[-k if k > 0 else 0] if k != 0 else C_fft[0] for k in range(-m, m + 1)],
+        dtype=complex,
+    )
+    # Adjust for negative frequencies
+    for i, k in enumerate(range(-m, m + 1)):
+        if k < 0:
+            coeffs[i] = C_fft[n_out + k] if n_out + k < n_out else 0.0
+        elif k == 0:
+            coeffs[i] = C_fft[0]
+        else:
+            coeffs[i] = C_fft[k]
+
+    if np.allclose(np.imag(coeffs), 0, atol=1e-12):
+        coeffs = np.real(coeffs)
+
+    return TrigremezResult(
+        coeffs=coeffs,
+        xk=best_xk,
+        err=float(best_err),
+        delta=float(delta_min) / normf,
+        iter=iter_count,
+        domain=(a, b),
+    )

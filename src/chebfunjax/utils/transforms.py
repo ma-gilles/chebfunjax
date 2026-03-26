@@ -1542,3 +1542,103 @@ def ultracoeffs(c_cheb: jnp.ndarray, lam: float) -> jnp.ndarray:
         )
     )
     return c_jac * scl
+
+
+# ===========================================================================
+# Discrete Sine Transform (DST) and inverse (IDST)
+# ===========================================================================
+
+
+# uses-numpy: DST/IDST use scipy.fft which is not JAX-JIT-safe
+def dst(u: jnp.ndarray, kind: int = 1) -> jnp.ndarray:
+    r"""Discrete Sine Transform (DST) of type *kind* on a vector or matrix.
+
+    Implements the Wikipedia / MATLAB Chebfun convention.  Types 1–4 are
+    supported.  If *u* is a 2-D array the transform is applied column-wise.
+
+    The implementation delegates to ``scipy.fft.dst`` for numerical accuracy
+    and is therefore NOT JIT-safe.
+
+    Parameters
+    ----------
+    u : jnp.ndarray, shape (n,) or (n, m)
+        Input values (real).
+    kind : {1, 2, 3, 4}
+        DST type.  Default 1 (consistent with MATLAB PDE toolbox / Chebfun).
+
+    Returns
+    -------
+    y : jnp.ndarray, same shape as *u*
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/dst.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+
+    See Also
+    --------
+    idst
+
+    Examples
+    --------
+    Round-trip test (DST-1 is its own inverse up to a scale):
+
+    >>> import jax.numpy as jnp
+    >>> from chebfunjax.utils.transforms import dst, idst
+    >>> u = jnp.array([1.0, 2.0, 3.0])
+    >>> v = dst(u, 1)
+    >>> u2 = idst(v, 1)
+    >>> float(jnp.max(jnp.abs(u - u2))) < 1e-12
+    True
+    """
+    import scipy.fft as _sfft
+    u_np = np.array(u, dtype=np.float64)
+    y_np = _sfft.dst(u_np, type=kind, axis=0, norm="backward")
+    return jnp.array(y_np, dtype=jnp.float64)
+
+
+def idst(c: jnp.ndarray, kind: int = 1) -> jnp.ndarray:
+    r"""Inverse Discrete Sine Transform of type *kind*.
+
+    Computes the exact inverse of :func:`dst` under the same
+    Wikipedia / MATLAB Chebfun scaling convention.  Delegates to
+    ``scipy.fft.idst`` — not JIT-safe.
+
+    Parameters
+    ----------
+    c : jnp.ndarray, shape (n,) or (n, m)
+        DST coefficients produced by :func:`dst`.
+    kind : {1, 2, 3, 4}
+        DST type.
+
+    Returns
+    -------
+    u : jnp.ndarray, same shape as *c*
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/idst.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+
+    See Also
+    --------
+    dst
+
+    Examples
+    --------
+    >>> import jax.numpy as jnp
+    >>> from chebfunjax.utils.transforms import dst, idst
+    >>> u = jnp.array([1.0, 2.0, 3.0, 4.0])
+    >>> v = dst(u, 2)
+    >>> u2 = idst(v, 2)
+    >>> float(jnp.max(jnp.abs(u - u2))) < 1e-12
+    True
+    """
+    import scipy.fft as _sfft
+    c_np = np.array(c, dtype=np.float64)
+    u_np = _sfft.idst(c_np, type=kind, axis=0, norm="backward")
+    return jnp.array(u_np, dtype=jnp.float64)
