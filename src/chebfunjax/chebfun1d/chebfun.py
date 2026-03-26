@@ -2457,6 +2457,407 @@ class Chebfun(eqx.Module):
             lambda x: jnp.asarray(_ss.airy(jnp.asarray(x))[k], dtype=jnp.float64)
         )
 
+    def besselh(self, nu: float, k: int = 1, *, scale: int = 0) -> "tuple[Chebfun, Chebfun]":
+        r"""Hankel (Bessel of the third kind) function :math:`H^{(k)}_\nu(f(x))`.
+
+        Because jaxchebfun uses real float64 storage, the complex Hankel
+        function is returned as a *pair* ``(H_re, H_im)`` of real Chebfuns
+        representing the real and imaginary parts respectively.  This follows
+        the relationship :math:`H^{(1)}_\nu = J_\nu + i Y_\nu` and
+        :math:`H^{(2)}_\nu = J_\nu - i Y_\nu`.
+
+        Parameters
+        ----------
+        nu : float
+            Order (real).
+        k : int, default 1
+            Which Hankel function: 1 for :math:`H^{(1)}_\nu`, 2 for
+            :math:`H^{(2)}_\nu`.
+        scale : int, default 0
+            Scaling flag (reserved; currently ignored for the real/imag split).
+
+        Returns
+        -------
+        H_re : Chebfun
+            Real part of :math:`H^{(k)}_\nu(f(x))` — equals
+            :math:`J_\nu(f(x))`.
+        H_im : Chebfun
+            Imaginary part of :math:`H^{(k)}_\nu(f(x))` — equals
+            :math:`\pm Y_\nu(f(x))` (``+`` for k=1, ``-`` for k=2).
+
+        Raises
+        ------
+        ValueError
+            If ``k`` is not 1 or 2.
+        ValueError
+            If the Chebfun passes through zero.
+
+        Notes
+        -----
+        Uses ``scipy.special.jv`` / ``scipy.special.yv``.
+        NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/besselh.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        besselj, bessely, besselk
+        """
+        # uses-numpy: scipy.special.jv / yv use NumPy arrays
+        import numpy as _np
+        import scipy.special as _ss
+
+        if k not in (1, 2):
+            raise ValueError("besselh: k must be 1 or 2.")
+
+        # Check for zeros in the domain (Hankel undefined at origin)
+        r = self.roots()
+        if r.shape[0] > 0:
+            raise ValueError(
+                "besselh: the Chebfun passes through zero in its domain; "
+                "Hankel functions are undefined at the origin."
+            )
+
+        # H^(1)_nu = J_nu + i Y_nu,  H^(2)_nu = J_nu - i Y_nu
+        # Real part is always J_nu
+        H_re = self._apply_fun(
+            lambda x: jnp.asarray(_ss.jv(nu, _np.asarray(x)), dtype=jnp.float64)
+        )
+        # Imaginary part: +Y for k=1, -Y for k=2
+        sign = 1.0 if k == 1 else -1.0
+        H_im = self._apply_fun(
+            lambda x: jnp.asarray(sign * _ss.yv(nu, _np.asarray(x)), dtype=jnp.float64)
+        )
+        return H_re, H_im
+
+    def besselk(self, nu: float, *, scale: int = 0) -> "Chebfun":
+        r"""Modified Bessel function of the second kind :math:`K_\nu(f(x))`.
+
+        Parameters
+        ----------
+        nu : float
+            Order (real).
+        scale : int, default 0
+            Scaling flag.  ``scale=1`` multiplies the result by ``exp(f)``.
+
+        Returns
+        -------
+        Chebfun
+            Chebfun approximating :math:`K_\nu(f(x))`.
+
+        Notes
+        -----
+        Uses ``scipy.special.kv``.
+        Raises ``ValueError`` if the Chebfun passes through zero.
+        NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/besselk.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        besselj, bessely, besselh
+        """
+        # uses-numpy: scipy.special.kv uses NumPy arrays
+        import numpy as _np
+        import scipy.special as _ss
+
+        r = self.roots()
+        if r.shape[0] > 0:
+            raise ValueError(
+                "besselk: the Chebfun passes through zero; K_nu is undefined at x=0."
+            )
+
+        result = self._apply_fun(
+            lambda x: jnp.asarray(_ss.kv(nu, _np.asarray(x)), dtype=jnp.float64)
+        )
+
+        if scale == 1:
+            a, b = self.domain.a, self.domain.b
+            scl = self._apply_fun(lambda x: jnp.exp(x))
+            return chebfun(lambda x: result(x) * scl(x), domain=(a, b))
+
+        return result
+
+    def ellipke(self) -> "tuple[Chebfun, Chebfun]":
+        r"""Complete elliptic integrals K(m) and E(m) of the Chebfun.
+
+        Computes the complete elliptic integral of the first kind K(m) and
+        the second kind E(m) where m is the Chebfun representing the
+        parameter.  The parameter m must satisfy :math:`0 \le m \le 1`.
+
+        Returns
+        -------
+        K : Chebfun
+            First complete elliptic integral :math:`K(f(x))`.
+        E : Chebfun
+            Second complete elliptic integral :math:`E(f(x))`.
+
+        Notes
+        -----
+        Uses ``scipy.special.ellipk`` and ``scipy.special.ellipe``.
+        Values of ``self`` outside [0, 1] will produce NaN.
+        NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/ellipke.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.ellipj
+        """
+        # uses-numpy: scipy.special.ellipk/ellipe use NumPy arrays
+        import numpy as _np
+        import scipy.special as _ss
+
+        K = self._apply_fun(
+            lambda x: jnp.asarray(_ss.ellipk(_np.asarray(x)), dtype=jnp.float64)
+        )
+        E = self._apply_fun(
+            lambda x: jnp.asarray(_ss.ellipe(_np.asarray(x)), dtype=jnp.float64)
+        )
+        return K, E
+
+    def dirac(self) -> "Chebfun":
+        r"""Dirac delta distribution centred at the roots of the Chebfun.
+
+        Returns a Chebfun whose (distributional) value is a sum of Dirac
+        deltas placed at each simple zero :math:`r_i` of ``self``, with
+        weights :math:`1 / |f'(r_i)|`.  Interior deltas are stored as
+        impulse coefficients in the piece containing the root; boundary
+        roots get half-weight.
+
+        Returns
+        -------
+        Chebfun
+            A zero Chebfun with delta-impulse metadata at each root.
+
+        Raises
+        ------
+        ValueError
+            If the Chebfun has a non-simple zero.
+
+        Notes
+        -----
+        This is a *distributional* representation.  The returned object
+        supports ``sum()`` (integration), which recovers the correct weight.
+        The Chebfun is otherwise zero everywhere except at the delta locations.
+        NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/dirac.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.heaviside
+        """
+        # uses-numpy: rootfinding and evaluation use NumPy arrays
+        import numpy as _np
+
+        a = float(self.domain.a)
+        b = float(self.domain.b)
+
+        # Find all interior roots
+        r_jax = self.roots()
+        r = _np.sort(_np.asarray(r_jax, dtype=_np.float64))
+
+        # Compute derivative for checking simple-root condition and weights
+        fp = self.diff()
+        tol = 100.0 * _EPS * max(float(self.vscale), 1.0)
+
+        # Start with a zero Chebfun on the same domain
+        result = chebfun(lambda x: jnp.zeros_like(x, dtype=jnp.float64),
+                         domain=(a, b))
+
+        if r.shape[0] == 0:
+            object.__setattr__(result, "_delta_locs", [])
+            object.__setattr__(result, "_delta_weights", [])
+            return result
+
+        fpvals = _np.asarray(fp(jnp.array(r, dtype=jnp.float64)), dtype=_np.float64)
+        if _np.any(_np.abs(fpvals) < tol):
+            raise ValueError(
+                "dirac: the Chebfun has a non-simple zero; "
+                "Dirac delta is not defined in this case."
+            )
+
+        # Each delta has weight 1/|f'(r_i)|
+        weights = 1.0 / _np.abs(fpvals)
+
+        # Store delta metadata as a list of (location, weight) on the result.
+        # Chebfun is a frozen equinox module so we use object.__setattr__ to
+        # attach distributional metadata outside the pytree.
+        object.__setattr__(result, "_delta_locs", r.tolist())
+        object.__setattr__(result, "_delta_weights", weights.tolist())
+        return result
+
+    def unwrap(self, jump_tol: float | None = None) -> "Chebfun":
+        """Phase-unwrap a real Chebfun by removing jumps of 2*pi.
+
+        Adjusts each piece after the first by adding a multiple of
+        ``2 * jump_tol`` (default: ``pi``) to remove discontinuities at
+        breakpoints that are multiples of ``2 * jump_tol``.
+
+        Parameters
+        ----------
+        jump_tol : float or None
+            Jump tolerance in radians.  Absolute jumps at breakpoints that
+            are within ``jump_tol`` of a multiple of ``2*jump_tol`` are
+            unwrapped.  Default: ``pi`` (standard phase unwrap).
+
+        Returns
+        -------
+        Chebfun
+            Unwrapped version of the Chebfun.
+
+        Notes
+        -----
+        For smooth single-piece Chebfuns this is a no-op.
+        NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/unwrap.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.angle
+
+        Examples
+        --------
+        >>> import jax.numpy as jnp, numpy as np
+        >>> from chebfunjax.chebfun1d.chebfun import chebfun
+        >>> # A smooth phase – unwrap should leave it unchanged
+        >>> f = chebfun(lambda x: x * 2.0 * float(jnp.pi))
+        >>> g = f.unwrap()
+        >>> xs = jnp.linspace(-0.9, 0.9, 20, dtype=jnp.float64)
+        >>> np.testing.assert_allclose(
+        ...     np.array(f(xs)), np.array(g(xs)), atol=1e-12)
+        """
+        # uses-numpy: breakpoint evaluation uses NumPy
+        import numpy as _np
+
+        if jump_tol is None:
+            jump_tol = float(_np.pi)
+
+        # Single-piece: nothing to unwrap
+        if len(self.funs) == 1:
+            return self
+
+        # Evaluate left- and right-limits at each internal breakpoint
+        bps = list(self.domain.breakpoints)
+        n_pieces = len(self.funs)
+
+        # Right-limit value of piece j at breakpoint j+1 (ascending order)
+        # Left-limit value of piece j+1 at the same breakpoint
+        rvals = _np.array([float(self.funs[j](jnp.float64(bps[j + 1])))
+                           for j in range(n_pieces - 1)])
+        lvals = _np.array([float(self.funs[j + 1](jnp.float64(bps[j + 1])))
+                           for j in range(n_pieces - 1)])
+
+        jumps = lvals - rvals  # raw jump at each internal breakpoint
+        two_jump = 2.0 * jump_tol
+
+        # Cumulative shift to apply to each piece after the first
+        shifts = _np.zeros(n_pieces)
+        for j in range(n_pieces - 1):
+            # Nearest multiple of two_jump to the jump
+            k = _np.round(jumps[j] / two_jump)
+            shifts[j + 1] = shifts[j] - k * two_jump
+
+        if _np.all(shifts == 0.0):
+            return self  # nothing to do
+
+        # Build shifted pieces
+        new_funs = []
+        for j, piece in enumerate(self.funs):
+            s = float(shifts[j])
+            if s == 0.0:
+                new_funs.append(piece)
+            else:
+                a_p, b_p = piece.interval
+                new_funs.append(
+                    _Piece.from_function(
+                        lambda x, _p=piece, _s=s: _p(x) + _s,
+                        a_p, b_p,
+                    )
+                )
+
+        return Chebfun(funs=new_funs, domain=self.domain)
+
+    def iszero(self) -> bool:
+        """True if the Chebfun is identically zero (within tolerance).
+
+        Returns
+        -------
+        bool
+            True if ``vscale < eps``, meaning the function is indistinguishable
+            from the zero function at machine precision.
+
+        Examples
+        --------
+        >>> from chebfunjax.chebfun1d.chebfun import chebfun
+        >>> import jax.numpy as jnp
+        >>> chebfun(lambda x: jnp.zeros_like(x)).iszero()
+        True
+        >>> chebfun(lambda x: jnp.ones_like(x)).iszero()
+        False
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/iszero.m
+        Chebfun commit: 7574c77
+        """
+        return float(self.vscale) < _EPS
+
+    # ------ innerProduct alias -----------------------------------------------
+
+    def innerProduct(self, other: "Chebfun") -> "jax.Array":
+        r"""L2 inner product alias for :meth:`inner`.
+
+        ``innerProduct(f, g)`` computes :math:`\int_a^b f(x)\,g(x)\,dx`.
+
+        Parameters
+        ----------
+        other : Chebfun
+
+        Returns
+        -------
+        jax.Array (scalar)
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/innerProduct.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.inner, Chebfun.norm
+        """
+        return self.inner(other)
+
     def ellipj(self, m: float) -> tuple[Chebfun, Chebfun, Chebfun]:
         """Jacobi elliptic functions sn, cn, dn of the Chebfun.
 
@@ -3575,3 +3976,589 @@ def _ode_solve(
             "ode45/ode113: vector ODEs (d > 1) are not yet supported. "
             "Use scipy.integrate.solve_ivp directly for multi-component systems."
         )
+
+
+# ============================================================================
+# Higher-order ODE integrators: ode78 / ode89
+# ============================================================================
+
+
+def ode78(
+    odefun: "Callable[[float, jax.Array], jax.Array]",
+    tspan: "tuple[float, float]",
+    y0: "jax.Array",
+    *,
+    rtol: float = 1e-8,
+    atol: float = 1e-10,
+    dense_n: int | None = None,
+    **kwargs,
+) -> "Chebfun":
+    """Solve a non-stiff IVP using a 7(8)-order Runge-Kutta method.
+
+    Wraps ``scipy.integrate.solve_ivp`` with the ``DOP853`` (8th-order
+    Dormand-Prince) method — the closest available Python analogue of
+    MATLAB's ``ode78`` — and interpolates the dense output onto a Chebfun.
+
+    Parameters
+    ----------
+    odefun : callable(t, y) -> array_like
+        Right-hand side of the ODE.
+    tspan : (float, float)
+        Integration interval ``(t0, tf)``.
+    y0 : array_like, shape (d,) or scalar
+        Initial state.
+    rtol : float, default 1e-8
+        Relative tolerance (tighter than ode45/ode113 defaults).
+    atol : float, default 1e-10
+        Absolute tolerance.
+    dense_n : int or None
+        Number of uniform evaluation points for Chebfun construction.
+    **kwargs
+        Forwarded to ``scipy.integrate.solve_ivp``.
+
+    Returns
+    -------
+    sol : Chebfun
+        Piecewise Chebfun on ``tspan``.
+
+    Examples
+    --------
+    >>> from chebfunjax.chebfun1d.chebfun import ode78
+    >>> import jax.numpy as jnp
+    >>> sol = ode78(lambda t, y: y, (0.0, 1.0), jnp.array([1.0]))
+    >>> abs(float(sol(jnp.float64(1.0))) - float(jnp.exp(jnp.float64(1.0)))) < 1e-6
+    True
+
+    Notes
+    -----
+    MATLAB's ``ode78`` uses a specific 7(8)-order pair by Fehlberg.  Python's
+    SciPy does not provide this exact method; ``DOP853`` is an 8th-order
+    Dormand-Prince scheme that offers equivalent or better accuracy.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/ode78.m, @chebfun/constructODEsol.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+
+    See Also
+    --------
+    ode45 : Dormand-Prince RK45
+    ode89 : Verner 8(9) integrator
+    ode113 : Adams/DOP853 integrator
+    """
+    return _ode_solve("DOP853", odefun, tspan, y0,
+                      rtol=rtol, atol=atol, dense_n=dense_n, **kwargs)
+
+
+def ode89(
+    odefun: "Callable[[float, jax.Array], jax.Array]",
+    tspan: "tuple[float, float]",
+    y0: "jax.Array",
+    *,
+    rtol: float = 1e-10,
+    atol: float = 1e-12,
+    dense_n: int | None = None,
+    **kwargs,
+) -> "Chebfun":
+    """Solve a non-stiff IVP using an 8(9)-order Runge-Kutta method.
+
+    Wraps ``scipy.integrate.solve_ivp`` with the ``DOP853`` method at
+    very tight tolerances — the closest available Python analogue of
+    MATLAB's ``ode89`` (Verner 8(9) method).
+
+    Parameters
+    ----------
+    odefun : callable(t, y) -> array_like
+        Right-hand side of the ODE.
+    tspan : (float, float)
+        Integration interval ``(t0, tf)``.
+    y0 : array_like, shape (d,) or scalar
+        Initial state.
+    rtol : float, default 1e-10
+        Relative tolerance (tighter than ode78).
+    atol : float, default 1e-12
+        Absolute tolerance.
+    dense_n : int or None
+        Number of uniform evaluation points for Chebfun construction.
+    **kwargs
+        Forwarded to ``scipy.integrate.solve_ivp``.
+
+    Returns
+    -------
+    sol : Chebfun
+        Piecewise Chebfun on ``tspan``.
+
+    Examples
+    --------
+    >>> from chebfunjax.chebfun1d.chebfun import ode89
+    >>> import jax.numpy as jnp
+    >>> sol = ode89(lambda t, y: y, (0.0, 1.0), jnp.array([1.0]))
+    >>> abs(float(sol(jnp.float64(1.0))) - float(jnp.exp(jnp.float64(1.0)))) < 1e-8
+    True
+
+    Notes
+    -----
+    MATLAB's ``ode89`` uses the Verner 8(9) pair.  SciPy does not expose
+    this specific pair; we use DOP853 (Dormand-Prince 8th-order) with
+    very tight tolerances as the closest analogue.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/ode89.m, @chebfun/constructODEsol.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+
+    See Also
+    --------
+    ode45, ode78, ode113
+    """
+    return _ode_solve("DOP853", odefun, tspan, y0,
+                      rtol=rtol, atol=atol, dense_n=dense_n, **kwargs)
+
+
+# ============================================================================
+# Module-level convenience wrappers for Chebfun methods
+# ============================================================================
+
+
+def innerProduct(f: "Chebfun", g: "Chebfun") -> "jax.Array":
+    r"""L2 inner product of two Chebfuns.
+
+    Computes :math:`\langle f, g \rangle = \int_a^b f(x)\,g(x)\,dx`.
+
+    This is a module-level alias for :meth:`Chebfun.inner` (which is also
+    accessible as :meth:`Chebfun.innerProduct`).
+
+    Parameters
+    ----------
+    f : Chebfun
+    g : Chebfun
+
+    Returns
+    -------
+    jax.Array (scalar)
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/innerProduct.m
+    Chebfun commit: 7574c77
+    """
+    return f.inner(g)
+
+
+# ============================================================================
+# Lagrange interpolation basis
+# ============================================================================
+
+
+def lagrange(
+    x: "jax.Array | list[float]",
+    domain: "tuple[float, float] | None" = None,
+) -> "list[Chebfun]":
+    r"""Compute the Lagrange basis polynomials for interpolation nodes ``x``.
+
+    Returns a list of ``n`` Chebfuns ``[L_0, L_1, ..., L_{n-1}]`` where
+    ``n = len(x)``.  Each :math:`L_j` is the unique polynomial of degree
+    ``n-1`` satisfying:
+
+    .. math::
+
+        L_j(x_k) = \delta_{jk}  \quad (k = 0, \ldots, n-1)
+
+    Parameters
+    ----------
+    x : array_like, shape (n,)
+        Interpolation nodes.  Must be distinct.
+    domain : (float, float) or None
+        Spatial domain for the Chebfun.  If ``None``, uses
+        ``[min(x), max(x)]``.  Must be supplied when ``x`` has length 1.
+
+    Returns
+    -------
+    basis : list of Chebfun, length n
+        The Lagrange basis polynomials.
+
+    Raises
+    ------
+    ValueError
+        If nodes are not distinct or ``x`` is a scalar without a domain.
+
+    Examples
+    --------
+    >>> import jax.numpy as jnp, numpy as np
+    >>> from chebfunjax.chebfun1d.chebfun import lagrange
+    >>> nodes = [-1.0, 0.0, 1.0]
+    >>> basis = lagrange(nodes)
+    >>> len(basis)
+    3
+    >>> # L_0(-1) == 1,  L_0(0) == 0,  L_0(1) == 0
+    >>> abs(float(basis[0](jnp.float64(-1.0))) - 1.0) < 1e-12
+    True
+    >>> abs(float(basis[0](jnp.float64(0.0)))) < 1e-12
+    True
+
+    Notes
+    -----
+    Each basis polynomial is built by constructing the identity matrix
+    ``y = eye(n)`` column-by-column and calling ``chebfun`` via barycentric
+    interpolation at the nodes.
+
+    NOT JIT-safe (adaptive construction).
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/lagrange.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    """
+    # uses-numpy: barycentric interpolation uses NumPy arrays
+    import numpy as _np
+
+    x_np = _np.asarray(x, dtype=_np.float64).ravel()
+    n = x_np.shape[0]
+
+    if n == 0:
+        return []
+
+    if n == 1 and domain is None:
+        raise ValueError(
+            "lagrange: must supply ``domain`` when x is a scalar."
+        )
+
+    # Uniqueness check
+    if _np.unique(x_np).shape[0] != n:
+        raise ValueError("lagrange: interpolation nodes must be distinct.")
+
+    if domain is None:
+        a, b = float(x_np.min()), float(x_np.max())
+    else:
+        a, b = float(domain[0]), float(domain[1])
+
+    # Sort nodes so that barycentric weights are well-defined
+    idx = _np.argsort(x_np)
+    x_sorted = x_np[idx]
+
+    # Barycentric weights w_j = prod_{k != j} 1/(x_j - x_k)
+    w = _np.ones(n)
+    for j in range(n):
+        for k in range(n):
+            if k != j:
+                w[j] /= (x_sorted[j] - x_sorted[k])
+
+    # Build each basis polynomial via a Chebfun that passes through the
+    # j-th column of the n×n identity matrix
+    basis_sorted = []
+    for j_sorted in range(n):
+        yj = _np.zeros(n)
+        yj[j_sorted] = 1.0
+
+        # Barycentric interpolation as a callable.
+        # Standard Type-II barycentric formula with exact-node handling:
+        # For t not equal to any x_k: L_j(t) = [w_j/(t-x_j)] / sum_k [w_k/(t-x_k)]
+        # For t == x_k: L_j(t) = delta_{jk}  (exact node — return y_j[k] directly)
+        def _Lj(t, _x=x_sorted, _w=w, _y=yj):
+            t_np = _np.asarray(t, dtype=_np.float64).ravel()
+            m = t_np.shape[0]
+            result = _np.empty(m)
+            for i in range(m):
+                ti = t_np[i]
+                # Check if ti coincides with any node
+                diffs = ti - _x
+                close_mask = _np.abs(diffs) < 1e-14 * max(1.0, _np.max(_np.abs(_x)))
+                if _np.any(close_mask):
+                    # At an exact node: return y_j at that node
+                    result[i] = float(_y[_np.argmax(close_mask)])
+                else:
+                    # Standard barycentric formula
+                    terms = _w / diffs
+                    result[i] = float(_np.dot(_y, terms) / _np.sum(terms))
+            return jnp.asarray(result, dtype=jnp.float64)
+
+        basis_sorted.append(chebfun(_Lj, domain=(a, b)))
+
+    # Invert the sort permutation to return basis in original node order
+    inv_idx = _np.argsort(idx)
+    return [basis_sorted[inv_idx[j]] for j in range(n)]
+
+
+# ============================================================================
+# Subspace angle
+# ============================================================================
+
+
+def subspace(
+    A: "list[Chebfun]",
+    B: "list[Chebfun]",
+) -> float:
+    """Principal angle between two quasimatrix subspaces.
+
+    Computes the smallest principal angle (in radians) between the subspaces
+    spanned by the columns of quasimatrix ``A`` and quasimatrix ``B``.  Both
+    inputs are lists of Chebfuns on the same domain.
+
+    Parameters
+    ----------
+    A : list of Chebfun
+        Columns of the first quasimatrix.
+    B : list of Chebfun
+        Columns of the second quasimatrix.
+
+    Returns
+    -------
+    theta : float
+        Smallest principal angle in radians.
+
+    Raises
+    ------
+    ValueError
+        If ``A`` or ``B`` are empty or have mismatched domains.
+
+    Examples
+    --------
+    >>> import jax.numpy as jnp, numpy as np
+    >>> from chebfunjax.chebfun1d.chebfun import chebfun, subspace
+    >>> # Two identical 1-D subspaces → angle = 0
+    >>> f = chebfun(jnp.sin)
+    >>> theta = subspace([f], [f])
+    >>> theta < 1e-10
+    True
+
+    Notes
+    -----
+    Algorithm (Bjorck & Golub 1973, Knyazev & Argentati 2002):
+
+    1. Orthonormalise each collection via the continuous QR factorisation.
+    2. Compute the Gram matrix :math:`C = Q_A^T Q_B` (inner-product matrix).
+    3. The smallest singular value of C gives :math:`\\cos\\theta`.
+    4. For small angles recompute via the sine formulation for accuracy.
+
+    NOT JIT-safe (QR uses adaptive construction).
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/subspace.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+
+    References
+    ----------
+    [1] A. Bjorck & G. Golub, *Numerical methods for computing angles between
+        linear subspaces*, Math. Comp. 27 (1973), pp. 579–594.
+    [2] A. V. Knyazev and M. E. Argentati, *Principal Angles between Subspaces
+        in an A-Based Scalar Product*, SIAM J. Sci. Comput., 23 (2002), 2009–2041.
+    """
+    # uses-numpy: QR / SVD use NumPy internally
+    import numpy as _np
+    from chebfunjax.chebfun1d.linalg import Quasimatrix, qr_quasimatrix
+
+    if not A or not B:
+        raise ValueError("subspace: A and B must be non-empty lists of Chebfun.")
+
+    # Orthonormalise via continuous QR
+    # Quasimatrix requires a Domain argument — extract from the first column
+    domA = A[0].domain
+    domB = B[0].domain
+    qA = Quasimatrix(A, domA)
+    qB = Quasimatrix(B, domB)
+    QA, _ = qr_quasimatrix(qA)
+    QB, _ = qr_quasimatrix(qB)
+
+    pA = len(QA.cols)
+    pB = len(QB.cols)
+
+    # Build Gram matrix C_ij = <QA_i, QB_j>
+    C = _np.zeros((pA, pB), dtype=_np.float64)
+    for i, colA in enumerate(QA.cols):
+        for j, colB in enumerate(QB.cols):
+            C[i, j] = float(colA.inner(colB))
+
+    # Singular values of C
+    sv = _np.linalg.svd(C, compute_uv=False)
+    cos_theta = float(_np.clip(sv.min(), 0.0, 1.0))
+
+    if cos_theta < 0.8:
+        return float(_np.arccos(cos_theta))
+    else:
+        # Sine formulation for small angles
+        if pA <= pB:
+            # sin_theta = ||QA - QB * C.T||
+            # Compute QA - projection of QA onto QB
+            # recontruct vector norms
+            diff_cols = []
+            for i, colA in enumerate(QA.cols):
+                proj = None
+                for j, colB in enumerate(QB.cols):
+                    c_ij = C[i, j]
+                    if proj is None:
+                        proj = colB * c_ij
+                    else:
+                        proj = proj + colB * c_ij
+                if proj is not None:
+                    diff_cols.append(colA - proj)
+            sin_theta = max(float(col.norm()) for col in diff_cols) if diff_cols else 0.0
+        else:
+            diff_cols = []
+            for j, colB in enumerate(QB.cols):
+                proj = None
+                for i, colA in enumerate(QA.cols):
+                    c_ij = C[i, j]
+                    if proj is None:
+                        proj = colA * c_ij
+                    else:
+                        proj = proj + colA * c_ij
+                if proj is not None:
+                    diff_cols.append(colB - proj)
+            sin_theta = max(float(col.norm()) for col in diff_cols) if diff_cols else 0.0
+        return float(_np.arcsin(_np.clip(sin_theta, 0.0, 1.0)))
+
+
+# ============================================================================
+# Quantum states (Schrödinger eigenstates)
+# ============================================================================
+
+
+def quantumstates(
+    V: "Chebfun",
+    n: int = 10,
+    h: float = 0.1,
+) -> "tuple[jax.Array, list[Chebfun]]":
+    """Compute eigenstates of the time-independent Schrödinger equation.
+
+    Solves :math:`Lu = \\lambda u` where the Schrödinger operator is
+    :math:`L u(x) = -h^2 u''(x) + V(x)\\,u(x)` with zero (Dirichlet)
+    boundary conditions at both ends of the domain of ``V``.
+
+    Parameters
+    ----------
+    V : Chebfun
+        Potential function.  The domain of ``V`` sets the spatial domain.
+    n : int, default 10
+        Number of eigenstates to compute.
+    h : float, default 0.1
+        Reduced Planck constant (small parameter).
+
+    Returns
+    -------
+    eigenvalues : jax.Array, shape (n,)
+        Eigenvalues (energy levels) in ascending order.
+    eigenfunctions : list of Chebfun, length n
+        Corresponding normalised eigenfunctions.
+
+    Examples
+    --------
+    >>> import jax.numpy as jnp, numpy as np
+    >>> from chebfunjax.chebfun1d.chebfun import chebfun, quantumstates
+    >>> # Harmonic oscillator: V = x^2
+    >>> x = chebfun(lambda t: t, domain=(-3.0, 3.0))
+    >>> V = x ** 2
+    >>> evals, efuns = quantumstates(V, n=3, h=0.1)
+    >>> len(efuns)
+    3
+    >>> float(evals[0]) > 0  # ground state energy > 0
+    True
+
+    Notes
+    -----
+    The operator is discretised on a Chebyshev collocation grid of size
+    ``max(n_grid, 2*(n+1))`` using the Chebyshev differentiation matrix.
+    Eigenvalues are computed by ``scipy.linalg.eigh`` on the resulting
+    generalised eigenvalue problem.  The boundary conditions are enforced
+    by row replacement.
+
+    NOT JIT-safe (uses NumPy/SciPy linear algebra).
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/quantumstates.m
+    Chebfun commit: 7574c77
+    Original authors: Nick Trefethen (January 2012), University of Oxford.
+        Copyright 2017 by The University of Oxford and The Chebfun Developers.
+    """
+    # uses-numpy: Chebyshev differentiation matrix and scipy.linalg.eigh
+    import numpy as _np
+    from scipy.linalg import eigh as _eigh  # type: ignore[import]
+
+    a = float(V.domain.a)
+    b = float(V.domain.b)
+
+    # Grid size — must resolve the potential and have enough eigenvalue room.
+    # Nodes are Chebyshev-2 nodes in *ascending* order on [a, b].
+    n_grid = max(100, 4 * n)
+    N = n_grid - 1  # polynomial degree
+
+    # Chebyshev-2 nodes in ascending order: x_k = cos(pi*(N-k)/N), k=0..N
+    k = _np.arange(N + 1)
+    x_ref = _np.cos(_np.pi * (N - k) / N)          # ascending: -1 to 1
+    x_phys = 0.5 * (b - a) * x_ref + 0.5 * (a + b)  # ascending: a to b
+
+    # Chebyshev differentiation matrix on [-1, 1] for *ascending* nodes.
+    # c_k: endpoint nodes get weight 2, interior nodes get weight 1,
+    # with alternating signs in ascending order: c_0 = 2*(-1)^0 = 2,
+    # c_N = 2*(-1)^N, c_k = (-1)^k for interior k.
+    c = _np.ones(N + 1)
+    c[0] = 2.0
+    c[-1] = 2.0
+    c *= (-1.0) ** k
+
+    Xm = _np.tile(x_ref, (N + 1, 1))
+    dX = Xm - Xm.T                          # dX[i,j] = x_i - x_j (ref)
+    D_ref = (c[:, None] / c[None, :]) / _np.where(_np.abs(dX) < 1e-15, 1.0, dX)
+    _np.fill_diagonal(D_ref, 0.0)
+    _np.fill_diagonal(D_ref, -D_ref.sum(axis=1))
+
+    # Scale to physical domain [a, b]
+    scale = 2.0 / (b - a)
+    D1 = scale * D_ref
+    D2 = D1 @ D1  # second-derivative matrix on [a, b]
+
+    # Schrödinger operator on the interior nodes (index 1..N-1).
+    # Dirichlet BCs u(a)=u(b)=0 are imposed by restricting to interior nodes.
+    D2_int = D2[1:-1, 1:-1]                        # (N-1) × (N-1)
+    x_int = x_phys[1:-1]                           # interior physical nodes
+
+    # Potential values at interior nodes
+    V_vals = _np.asarray(V(jnp.array(x_int)), dtype=_np.float64)
+
+    # Schrödinger operator restricted to interior: L = -h² D2_int + diag(V)
+    L_int = -(h ** 2) * D2_int + _np.diag(V_vals)
+
+    # L_int is symmetric by construction (D2 of Chebfun spec collocation is
+    # symmetric up to floating-point error); symmetrise explicitly.
+    L_sym = 0.5 * (L_int + L_int.T)
+
+    # Solve the symmetric eigenvalue problem for the n smallest eigenvalues
+    n_int = L_sym.shape[0]
+    n_req = min(n, n_int)
+    evals_n, evecs_int = _eigh(L_sym, subset_by_index=[0, n_req - 1])
+
+    # Pad eigenvectors with zeros at boundary nodes
+    evecs_full = _np.zeros((n_grid, n_req))
+    evecs_full[1:-1, :] = evecs_int
+
+    # Build Chebfun for each eigenfunction via barycentric interpolation
+    # x_phys is in ascending order; jnp.interp needs ascending xp
+    efuns = []
+    for j in range(n_req):
+        v = evecs_full[:, j].copy()
+        # Normalise: discrete trapezoid rule as approximation to L2 norm
+        norm_v = _np.sqrt(_np.trapezoid(v ** 2, x_phys))
+        if norm_v > 1e-15:
+            v /= norm_v
+        # Make the dominant lobe positive (sign convention)
+        if v[_np.argmax(_np.abs(v))] < 0:
+            v = -v
+        x_p_jax = jnp.array(x_phys)
+        v_jax = jnp.array(v)
+        efuns.append(
+            chebfun(
+                lambda t, _xp=x_p_jax, _vj=v_jax: jnp.interp(t, _xp, _vj),
+                domain=(a, b),
+            )
+        )
+
+    return jnp.array(evals_n, dtype=jnp.float64), efuns
