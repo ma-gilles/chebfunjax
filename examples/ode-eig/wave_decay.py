@@ -19,9 +19,6 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
-chebfun_style()
-
 from chebfunjax.operators.chebop import Chebop
 
 
@@ -67,10 +64,13 @@ def run():
     print("\nPart 2: Eigenmodes with dissipation in middle band")
     gamma = 2.0
 
-    def sigma(x):
-        return jnp.where(jnp.abs(x) < float(np.pi) / 6.0, gamma, 0.0)
+    # Build sigma as a chebfun to avoid passing jnp.abs to a Chebfun object
+    sigma_cf = cj.chebfun(
+        lambda x: jnp.where(jnp.abs(x) < float(np.pi) / 6.0, gamma, 0.0),
+        domain=dom
+    )
 
-    L_damp = Chebop(lambda x, u: u.diff(2) + sigma(x) * u.diff(), domain=dom)
+    L_damp = Chebop(lambda x, u: u.diff(2) + sigma_cf * u.diff(), domain=dom)
     L_damp.lbc = 0.0
     L_damp.rbc = 0.0
 
@@ -79,22 +79,18 @@ def run():
         lams_damp = L_damp.eigs(k=k_damp)
         lams_damp_arr = np.array(lams_damp)
         lams_damp_sorted = lams_damp_arr[np.argsort(np.real(lams_damp_arr))][::-1]
+
         print(f"  First {k_damp} eigenvalues (sorted by Re):")
         for i in range(k_damp):
             print(f"    λ_{i+1} = {lams_damp_sorted[i].real:+.4f} {lams_damp_sorted[i].imag:+.4f}i")
-    except Exception as e:
-        import warnings
-        warnings.warn(f"Damped wave eigs failed ({e}); using analytic fallback.")
-        # Approximate damped eigenvalues: -k^2 - gamma*k*i
-        lams_damp_arr = np.array([-k_m**2 - 1j*gamma*k_m for k_m in range(1, k_damp+1)])
-        lams_damp_sorted = lams_damp_arr
 
-    # All eigenvalues should have non-positive real parts (stability)
-    max_real_damp = np.max(np.real(lams_damp_arr))
-    print(f"  Max Re(lambda): {max_real_damp:.4f} (should be <= 0 for stable damping)")
-    # Note: operator convention may differ; check that we have nontrivial imaginary parts
-    has_complex = np.any(np.abs(np.imag(lams_damp_arr)) > 0.1)
-    print(f"  Complex eigenvalues present: {has_complex}")
+        max_real_damp = np.max(np.real(lams_damp_arr))
+        print(f"  Max Re(lambda): {max_real_damp:.4f} (should be <= 0 for stable damping)")
+        has_complex = np.any(np.abs(np.imag(lams_damp_arr)) > 0.1)
+        print(f"  Complex eigenvalues present: {has_complex}")
+    except Exception as e:
+        print(f"  (damped eigs skipped: {e})")
+        lams_damp_arr = np.array([])
 
     # ------------------------------------------------------------------
     # Part 3: Plot specific wave modes for the undamped problem

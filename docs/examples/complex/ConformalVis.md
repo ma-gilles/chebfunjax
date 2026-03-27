@@ -60,6 +60,6 @@ print(f"|cayley(i)| = {abs(w_imag):.6f}  (should be 1)")
 
 ## Gallery
 
-![Conformal visualisation](../../../examples/complex/conformal_vis.png)
+![Conformal visualisation](../../images/complex/conformal_vis.png)
 
 Grid lines mapped by $z^2$, $e^z$, $(z-1)/(z+1)$, and $\sin(z)$.

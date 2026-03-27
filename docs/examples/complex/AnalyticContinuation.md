@@ -49,7 +49,7 @@ plt.semilogy(n_vals, np.abs(c),       label=r'$\tanh(x)$')
 
 ## Gallery
 
-![Analytic continuation](../../../examples/complex/analytic_continuation.png)
+![Analytic continuation](../../images/complex/analytic_continuation.png)
 
 Chebyshev coefficient magnitudes for $\tanh(x)$ (fast decay) and $1/(1+25x^2)$
 (slow decay due to nearby poles at $\pm i/5$).

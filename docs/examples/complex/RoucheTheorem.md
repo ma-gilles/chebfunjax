@@ -47,7 +47,7 @@ assert winding == 5
 
 ## Gallery
 
-![Rouché's theorem](../../../examples/complex/rouche_theorem.png)
+![Rouché's theorem](../../images/complex/rouche_theorem.png)
 
 *Left*: $p(z)$ on $|z|=2$ mapped into the complex plane — it winds 5 times
 around the origin. *Right*: Roots of $p$ in the complex plane.

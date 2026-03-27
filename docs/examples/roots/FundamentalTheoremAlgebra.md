@@ -51,7 +51,7 @@ n=8: roots = [-1.  1.]
 
 ## Gallery
 
-![Fundamental theorem of algebra](../../../examples/roots/fundamental_theorem_algebra.png)
+![Fundamental theorem of algebra](../../images/roots/fundamental_theorem_algebra.png)
 
 *Left*: $T_{10}$ with all 10 real roots marked.
 *Right*: $x^3 - 1$ with its single real root $x = 1$.

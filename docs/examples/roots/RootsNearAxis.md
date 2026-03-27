@@ -50,7 +50,7 @@ The dark regions (small $|f(z)|$) reveal the positions of the complex roots.
 
 ## Gallery
 
-![Roots near axis](../../../examples/roots/roots_near_axis.png)
+![Roots near axis](../../images/roots/roots_near_axis.png)
 
 $\log_{10}|f(z)|$ over a complex strip, showing the near-axis complex roots as
 dark spots. The real axis ($\text{Im}(z)=0$) has no zeros.

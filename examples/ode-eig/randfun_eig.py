@@ -67,11 +67,13 @@ def run():
     dom = (-1.0, 1.0)
     rng2 = np.random.default_rng(7)
     coeffs = rng2.standard_normal(4)  # random polynomial potential
+    # Convert to Python floats to avoid numpy scalar issues in JAX traced lambdas
+    c0, c1, c2, c3 = [float(c) for c in coeffs]
 
     def V_random(x):
         # Random polynomial: V(x) = sum c_k T_k(x) + const to ensure positivity
-        val = (coeffs[0] + coeffs[1] * x + coeffs[2] * (2*x**2 - 1)
-               + coeffs[3] * (4*x**3 - 3*x))
+        val = (c0 + c1 * x + c2 * (2*x**2 - 1)
+               + c3 * (4*x**3 - 3*x))
         return val + 3.0  # shift to ensure mostly positive
 
     L_rand = Chebop(lambda x, u: -u.diff(2) + V_random(x) * u, domain=dom)
@@ -101,7 +103,7 @@ def run():
     n_trials = 20
     ground_states = np.zeros(n_trials)
     for i in range(n_trials):
-        c = rng2.standard_normal(3)
+        c = [float(v) for v in rng2.standard_normal(3)]
         def V_i(x, _c=c):
             return _c[0] + _c[1] * x + _c[2] * (2*x**2 - 1) + 4.0
         try:

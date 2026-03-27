@@ -19,9 +19,6 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
-chebfun_style()
-
 from chebfunjax.operators.chebop import Chebop
 
 
@@ -74,15 +71,27 @@ def run():
     dom_nm = (0.0, total_width)
     print(f"  Domain: [{dom_nm[0]:.1f}, {dom_nm[1]:.1f}] nm")
 
-    # Build Schrodinger operator: -hbar^2/(2m(x)) * psi'' + U(x)*psi = E*psi
-    # Using constant effective mass approximation (m = m_barrier) for simplicity
-    # (full position-dependent mass would require different discretization)
-    def U_func(x):
-        return jnp.array(np.interp(np.array(x), x_fine, U_fine))
+    # Build Schrodinger operator using smooth Gaussian-well approximation.
+    # Piecewise-constant wells are replaced by smooth Gaussians (width sigma=width/2)
+    # so Chebfun can represent the potential without convergence issues.
+    hbar2_m = float(hbar2_over_2m)
+    sigma_well = float(width) / 2.0
+    well_centers = [float(ws + width / 2.0) for ws in well_starts]
+
+    def U_smooth(x):
+        return -depth * sum(jnp.exp(-0.5 * ((x - wc) / sigma_well)**2)
+                            for wc in well_centers)
+
+    U_cf = cj.chebfun(U_smooth, domain=dom_nm)
+    # Rebuild U_fine using smooth approximation for plotting
+    U_fine_smooth = sum(
+        -depth * np.exp(-0.5 * ((x_fine - wc) / sigma_well)**2)
+        for wc in well_centers
+    )
 
     # Scale: use hbar^2/(2m_barrier) factor; lengths in nm, energies in eV
     L_qda = Chebop(
-        lambda x, u: -hbar2_over_2m * u.diff(2) + U_func(x) * u,
+        lambda x, u: -hbar2_m * u.diff(2) + U_cf * u,
         domain=dom_nm,
     )
     L_qda.lbc = 0.0
@@ -90,55 +99,48 @@ def run():
 
     k = numwell
     print(f"\nComputing {k} lowest energy levels ...")
-    try:
-        lams = L_qda.eigs(k=k)
-        energies = np.sort(np.real(np.array(lams)))
-        print(f"\nEnergy levels (eV):")
-        for i, E in enumerate(energies):
-            print(f"  E_{i+1} = {E:.6f} eV")
-    except Exception as e:
-        import warnings
-        warnings.warn(f"QDA eigenvalue computation failed ({e}); using fallback energies.")
-        # Approximate bound-state energies for rectangular quantum wells
-        energies = np.array([-0.72, -0.55, -0.32, -0.10])[:k]
+    lams = L_qda.eigs(k=k)
+    energies = np.sort(np.real(np.array(lams)))
+    print(f"\nEnergy levels (eV):")
+    for i, E in enumerate(energies):
+        print(f"  E_{i+1} = {E:.6f} eV")
+    assert len(energies) == k, f"Expected {k} eigenvalues"
 
     # --- Perturbed wells (2% variance in depth) ---
     print("\nPerturbed wells (2% depth fluctuation):")
     rng = np.random.default_rng(1138)
-    U_perturb = U_fine.copy()
-    for i, ws in enumerate(well_starts):
-        mask = (x_fine >= ws) & (x_fine < ws + width)
-        delta_depth = 0.017 * rng.standard_normal()
-        U_perturb[mask] += delta_depth * depth
+    deltas = [float(0.017 * rng.standard_normal()) for _ in range(numwell)]
+    depths_p = [-depth * (1.0 + d) for d in deltas]
+    U_perturb_fine = sum(
+        dp * np.exp(-0.5 * ((x_fine - wc) / sigma_well)**2)
+        for dp, wc in zip(depths_p, well_centers)
+    )
 
-    def U_perturb_func(x):
-        return jnp.array(np.interp(np.array(x), x_fine, U_perturb))
+    def U_perturb_smooth(x):
+        return sum(float(dp) * jnp.exp(-0.5 * ((x - float(wc)) / sigma_well)**2)
+                   for dp, wc in zip(depths_p, well_centers))
 
-    try:
-        L_qda_p = Chebop(
-            lambda x, u: -hbar2_over_2m * u.diff(2) + U_perturb_func(x) * u,
-            domain=dom_nm,
-        )
-        L_qda_p.lbc = 0.0; L_qda_p.rbc = 0.0
-        lams_p = L_qda_p.eigs(k=k)
-        energies_p = np.sort(np.real(np.array(lams_p)))
-        print(f"  Perturbed energies: {energies_p}")
-        energy_shift = np.max(np.abs(energies_p - energies))
-        print(f"  Max energy shift from perturbation: {energy_shift:.4f} eV")
-    except Exception as e:
-        import warnings
-        warnings.warn(f"Perturbed QDA failed ({e}); using small random shifts.")
-        energies_p = energies + np.random.default_rng(999).uniform(-0.01, 0.01, len(energies))
-        energy_shift = np.max(np.abs(energies_p - energies))
-        print(f"  Max energy shift from perturbation: {energy_shift:.4f} eV")
+    U_perturb_cf = cj.chebfun(U_perturb_smooth, domain=dom_nm)
+
+    L_qda_p = Chebop(
+        lambda x, u: -hbar2_m * u.diff(2) + U_perturb_cf * u,
+        domain=dom_nm,
+    )
+    L_qda_p.lbc = 0.0; L_qda_p.rbc = 0.0
+    lams_p = L_qda_p.eigs(k=k)
+    energies_p = np.sort(np.real(np.array(lams_p)))
+    print(f"  Perturbed energies: {energies_p}")
+
+    energy_shift = np.max(np.abs(energies_p - energies))
+    print(f"  Max energy shift from perturbation: {energy_shift:.4f} eV")
 
     # --- Plot -----------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
     fig, axes = plt.subplots(1, 2, figsize=(12, 4.5))
 
     # Potential and energy levels
-    axes[0].plot(x_fine, U_fine, 'b', linewidth=1.5, label="U(x) [ideal]")
-    axes[0].plot(x_fine, U_perturb, 'g--', linewidth=1.0, alpha=0.7, label="U(x) [perturbed]")
+    axes[0].plot(x_fine, U_fine_smooth, 'b', linewidth=1.5, label="U(x) [ideal]")
+    axes[0].plot(x_fine, U_perturb_fine, 'g--', linewidth=1.0, alpha=0.7, label="U(x) [perturbed]")
     colors = plt.cm.tab10(np.linspace(0, 0.5, k))
     for i in range(k):
         axes[0].axhline(energies[i], color=colors[i], linewidth=1.2, linestyle=':',

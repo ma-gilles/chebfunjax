@@ -19,9 +19,6 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
-chebfun_style()
-
 from chebfunjax.operators.chebop import Chebop
 
 
@@ -51,10 +48,8 @@ def run():
         # Exclude endpoints (FD accuracy is lower there)
         max_res = np.max(np.abs(res[10:-10]))
         print(f"  {alpha:>6}  {max_res:>14.4e}")
-        # FD residual can be ~1e-4 due to second derivatives; just check it's small
-        if max_res >= 1.0:
-            import warnings
-            warnings.warn(f"Bessel order {alpha} FD residual {max_res:.2e} (FD accuracy limited).")
+        # FD residual at large x can be significant due to oscillatory nature; just print
+        print(f"  (FD residual check only - large x values may amplify errors)")
 
     # ------------------------------------------------------------------
     # Part 2: Find zeros of Bessel function J_5 on [0, 100]
@@ -83,9 +78,7 @@ def run():
     err_zeros = np.abs(approx_zeros[:n_zeros] - exact_zeros[:len(approx_zeros[:n_zeros])])
     max_zero_err = np.max(err_zeros)
     print(f"  Max error: {max_zero_err:.4e}")
-    if max_zero_err >= 0.05:
-        import warnings
-        warnings.warn(f"Zero location error {max_zero_err:.4e}; continuing.")
+    assert max_zero_err < 0.05, f"Zero location error too large: {max_zero_err}"
 
     # ------------------------------------------------------------------
     # Part 3: Solve Bessel-type ODE as eigenvalue problem using Chebop
@@ -104,11 +97,7 @@ def run():
     for i in range(k):
         err = abs(mus[i] - exact_mus[i])
         print(f"  {mus[i]:18.8f}  {exact_mus[i]:14.4f}  {err:10.2e}")
-    err_mus = np.max(np.abs(mus - exact_mus))
-    if err_mus >= 1e-8:
-        import warnings
-        warnings.warn(f"Eigenvalue error {err_mus:.2e}; using exact for plot.")
-        mus = exact_mus
+    assert np.max(np.abs(mus - exact_mus)) < 1e-8
 
     # --- Plot -----------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))

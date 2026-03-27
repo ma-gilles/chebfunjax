@@ -19,9 +19,6 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
-chebfun_style()
-
 from chebfunjax.operators.chebop import Chebop
 
 
@@ -45,38 +42,28 @@ def run():
     all_lams = np.zeros((n_t, n_eigs))
 
     print(f"\nSweeping t in [0, 5], computing {n_eigs} eigenvalues ...")
-    all_lams_ok = True
     for i, t in enumerate(ts):
-        try:
-            L_t = Chebop(
-                lambda x, u, _t=t: -u.diff(2) + _t * x * (np.pi - x) * u,
-                domain=dom,
-            )
-            L_t.lbc = 0.0
-            L_t.rbc = 0.0
-            lams_t = L_t.eigs(k=n_eigs)
-            all_lams[i] = np.sort(np.real(np.array(lams_t)))
-        except Exception as e:
-            import warnings
-            warnings.warn(f"t={t:.2f} failed ({e}); using fallback.")
-            # Fill with analytic approximation: k^2 for t=0
-            all_lams[i] = np.array([(k+1)**2 + t * 0.5 for k in range(n_eigs)])
-            all_lams_ok = False
+        tf = float(t)
+        L_t = Chebop(
+            lambda x, u, _t=tf: -u.diff(2) + _t * x * (np.pi - x) * u,
+            domain=dom,
+        )
+        L_t.lbc = 0.0
+        L_t.rbc = 0.0
+        lams_t = L_t.eigs(k=n_eigs)
+        all_lams[i] = np.sort(np.real(np.array(lams_t)))
 
     print("Done.")
 
-    # Relax assertions if computation failed
-    if all_lams_ok:
-        for j in range(n_eigs):
-            if not np.all(np.diff(all_lams[:, j]) >= -0.5):
-                import warnings
-                warnings.warn(f"Eigenvalue {j} not monotone; skipping check.")
+    # Verify eigenvalues are increasing with t (potential gets larger -> eigenvalues grow)
+    for j in range(n_eigs):
+        assert np.all(np.diff(all_lams[:, j]) >= -0.5), \
+            f"Eigenvalue {j} should be non-decreasing with t"
 
-        for i in range(n_t):
-            gaps = np.diff(all_lams[i])
-            if not np.all(gaps > 0):
-                import warnings
-                warnings.warn(f"Eigenvalues crossed at t={ts[i]:.2f}; skipping.")
+    # Check: eigenvalue gaps should remain positive (no crossings)
+    for i in range(n_t):
+        gaps = np.diff(all_lams[i])
+        assert np.all(gaps > 0), f"Eigenvalues crossed at t={ts[i]:.2f}"
 
     print("\nEigenvalue gaps at t=0 (free: k^2) and t=5 (full potential):")
     print(f"  t=0: {all_lams[0]}")
@@ -92,8 +79,9 @@ def run():
     all_lams4 = np.zeros((n_t4, n_eigs4))
     for i, t in enumerate(ts4):
         try:
+            tf4 = float(t)
             L4 = Chebop(
-                lambda x, u, _t=t: u.diff(4) - _t * u.diff(2),
+                lambda x, u, _t=tf4: u.diff(4) - _t * u.diff(2),
                 domain=dom,
             )
             L4.lbc = [0.0, 0.0]   # u(0)=0, u'(0)=0

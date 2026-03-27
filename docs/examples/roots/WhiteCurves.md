@@ -57,7 +57,7 @@ print(f"T_{n}({x_wc:.4f}) = {float(Tn(x_wc)):.6f}")
 
 ## Gallery
 
-![White curves](../../../examples/roots/white_curves.png)
+![White curves](../../images/roots/white_curves.png)
 
 *Top*: Chebyshev polynomials $T_1$ through $T_{30}$ overlaid. The white curves
 are visible as bright bands. *Bottom*: Intersection density histogram.

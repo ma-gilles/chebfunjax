@@ -46,7 +46,7 @@ print(f"Real roots of random degree-{n} Chebyshev polynomial: {len(r_real)}")
 
 ## Gallery
 
-![Random polynomials](../../../examples/roots/random_polynomials.png)
+![Random polynomials](../../images/roots/random_polynomials.png)
 
 Roots of random monomial polynomials (degrees 50 and 200) in the complex plane,
 clustering near the unit circle.

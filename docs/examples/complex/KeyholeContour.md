@@ -54,7 +54,7 @@ After summing all four contributions, chebfunjax achieves an error of $\sim 10^{
 
 ## Gallery
 
-![Keyhole contour](../../../examples/complex/keyhole_contour.png)
+![Keyhole contour](../../images/complex/keyhole_contour.png)
 
 *Left*: The keyhole contour (coloured by segment).
 *Right*: Phase portrait of $\log(z)\tanh(z)$ with the contour overlaid.

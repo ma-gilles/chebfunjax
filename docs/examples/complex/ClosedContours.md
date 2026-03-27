@@ -66,6 +66,6 @@ print(f"2πi·sin(z0)  : {2j*np.pi*np.sin(z0):.6f}")
 
 ## Gallery
 
-![Closed contours](../../../examples/complex/closed_contours.png)
+![Closed contours](../../images/complex/closed_contours.png)
 
 Four closed-contour integrals with their contours and exact values.

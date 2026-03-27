@@ -56,7 +56,7 @@ print(f"Exact FT at ω=1: {exact_val}")   # = 1j
 
 ## Gallery
 
-![Fourier contour](../../../examples/complex/fourier_contour.png)
+![Fourier contour](../../images/complex/fourier_contour.png)
 
 *Left*: Fourier transform $e^{-a|\omega|}$ vs numerical estimate.
 *Right*: Contour in the complex plane with pole marked.

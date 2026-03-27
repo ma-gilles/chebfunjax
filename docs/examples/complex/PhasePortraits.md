@@ -61,7 +61,7 @@ the zero (positive) or pole (negative):
 
 ## Gallery
 
-![Phase portraits](../../../examples/complex/phase_portraits.png)
+![Phase portraits](../../images/complex/phase_portraits.png)
 
 Phase portraits for $z^2$, $(z-1)/(z+1)$, $\sin z$, $e^z$, $\tan z$, and
 $z(z-1)(z+i)$.
