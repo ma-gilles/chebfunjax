@@ -67,13 +67,12 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, ax = plt.subplots(figsize=(7, 4))
+    fig, ax = plt.subplots()
     ax.plot(s_test, V_vals, 'b', linewidth=1.8)
     ax.axhline(0, color='k', linewidth=0.8)
     ax.set_xlabel("Stock price s (£)", fontsize=11)
     ax.set_ylabel("Option value V(s) (£)", fontsize=11)
     ax.set_title("Time-independent Black-Scholes option value", fontsize=11)
-    ax.grid(True, alpha=0.3)
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "black_scholes.png"), dpi=150, bbox_inches="tight")
     plt.close(fig)

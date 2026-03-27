@@ -53,7 +53,7 @@ def run():
     coeffs = np.polyfit(x_good, y_good, deg)
     reconstructed = np.polyval(coeffs, xx)
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     ax.plot(xx, f_vals, 'b', lw=1.8, label='true f(x)')
@@ -61,16 +61,12 @@ def run():
     ax.plot(xx[good], f_corrupted[good], 'g.', ms=3, alpha=0.5, label='good data')
     ax.set_title('Original and corrupted signal', fontsize=10)
     ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
-
     ax2 = axes[1]
     ax2.plot(xx, f_vals, 'b', lw=1.8, label='true')
     ax2.plot(xx, reconstructed, 'r--', lw=1.5, label=f'reconstructed (deg {deg})')
     err = np.max(np.abs(reconstructed - f_vals))
     ax2.set_title(f'Reconstruction (max err = {err:.3f})', fontsize=10)
     ax2.legend(fontsize=9)
-    ax2.grid(True, alpha=0.3)
-
     fig.suptitle('1D Inpainting: reconstruct from partial data', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'Inpainting1D.png'), dpi=150)

@@ -46,15 +46,13 @@ def run():
     # AAA approximation (reduced mmax for CPU performance)
     r, poles, *_ = aaa(jnp.array(Y), jnp.array(X), mmax=30, tol=1e-8)
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # Left: the spline function
     ax = axes[0]
     ax.plot(X, Y, 'b', lw=1.8, label='spline s(x)')
     ax.plot(nodes, data, '.k', ms=10, label='nodes')
     ax.set_title('Spline being approximated', fontsize=11)
-    ax.set_xlabel('x')
-    ax.grid(True, alpha=0.3)
     ax.legend(fontsize=9)
 
     # Right: poles in complex plane
@@ -65,7 +63,6 @@ def run():
     ax2.set_xlim(1.5, 8.5)
     ax2.set_ylim(-2, 2)
     ax2.set_aspect('equal')
-    ax2.grid(True, alpha=0.3)
     ax2.set_title(f'Poles of AAA approximant ({len(poles)} total)', fontsize=11)
     ax2.set_xlabel('Re(z)')
     ax2.set_ylabel('Im(z)')

@@ -76,7 +76,7 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4.5))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(sol1.t, u1, 'b', linewidth=1.2, label="u(t)", alpha=0.8)
     axes[0].plot(sol1.t, v1, 'r', linewidth=1.2, label="v(t)", alpha=0.8)

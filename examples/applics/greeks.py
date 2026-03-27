@@ -123,7 +123,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(2, 2, figsize=(11, 7))
+    fig, axes = plt.subplots(2, 2)
 
     S_range = np.linspace(40, 180, 100)
 

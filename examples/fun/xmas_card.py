@@ -93,7 +93,7 @@ def run():
                           '../../docs/images/fun')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 7))
+    fig, axes = plt.subplots(1, 3)
 
     # --- Panel 1: Christmas tree ---
     christmas_tree(axes[0])
@@ -116,7 +116,6 @@ def run():
              linewidth=2, where='post')
     ax2.set_title('"Kling Gloeckchen"\nmelody (voice 1)', fontsize=10)
     ax2.set_xlabel('Note index'); ax2.set_ylabel('Frequency (Hz)')
-    ax2.grid(True, alpha=0.3)
     ax2.set_facecolor('#001133')
     ax2.tick_params(colors='white')
     ax2.title.set_color('white')
@@ -151,7 +150,6 @@ def run():
     ax3.set_title('Three-voice harmony\n"Kling Gloeckchen"', fontsize=10)
     ax3.set_xlabel('Note index'); ax3.set_ylabel('Frequency (Hz)')
     ax3.legend(fontsize=8)
-    ax3.grid(True, alpha=0.3)
     ax3.set_facecolor('#001133')
     ax3.tick_params(colors='white')
     ax3.title.set_color('white')

@@ -117,7 +117,7 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     outdir = os.path.join(_here, '../../docs/images/stats')
     os.makedirs(outdir, exist_ok=True)
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4))
+    fig, axes = plt.subplots(1, 3)
 
     # Normal PDFs
     xs_n = np.linspace(-4, 4, 200)

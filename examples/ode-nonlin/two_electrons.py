@@ -94,7 +94,7 @@ def run():
     x_e2 = -x_e1  # opposite electron
     y_e2 = -y_e1
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(x_e1, y_e1, 'b', linewidth=0.8, alpha=0.7, label="electron 1")
     axes[0].plot(x_e2, y_e2, 'r', linewidth=0.8, alpha=0.7, label="electron 2")

@@ -46,7 +46,7 @@ def run():
                           '../../docs/images/geom')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    fig, axes = plt.subplots(1, 2)
 
     # --- 1. Epicycloid: m=7 ---
     n_pts = 5000

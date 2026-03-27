@@ -92,7 +92,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 3, figsize=(14, 4))
+    fig, axes = plt.subplots(1, 3)
 
     S_plot_max = 300.0
     S_plot = S_grid[S_grid <= S_plot_max]

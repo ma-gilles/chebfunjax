@@ -116,7 +116,7 @@ def run():
     # ------------------------------------------------------------------
     # Plot: Tucker factor fibers and coefficient decay
     # ------------------------------------------------------------------
-    fig, axes = plt.subplots(2, 2, figsize=(12, 9))
+    fig, axes = plt.subplots(2, 2)
 
     # Plot columns
     ax1 = axes[0, 0]
@@ -126,7 +126,6 @@ def run():
     ax1.set_ylabel("value", fontsize=11)
     ax1.set_title(f"Columns ({rx} Tucker x-fibers)", fontsize=11)
     ax1.legend(fontsize=9)
-    ax1.grid(True, alpha=0.4)
     ax1.set_xlim([-1, 1])
 
     # Plot rows
@@ -137,7 +136,6 @@ def run():
     ax2.set_ylabel("value", fontsize=11)
     ax2.set_title(f"Rows ({ry} Tucker y-fibers)", fontsize=11)
     ax2.legend(fontsize=9)
-    ax2.grid(True, alpha=0.4)
     ax2.set_xlim([-1, 1])
 
     # Plot tubes
@@ -148,7 +146,6 @@ def run():
     ax3.set_ylabel("value", fontsize=11)
     ax3.set_title(f"Tubes ({rz} Tucker z-fibers)", fontsize=11)
     ax3.legend(fontsize=9)
-    ax3.grid(True, alpha=0.4)
     ax3.set_xlim([-1, 1])
 
     # Chebyshev coefficients of first tube
@@ -157,8 +154,6 @@ def run():
     ax4.set_xlabel("Chebyshev degree", fontsize=11)
     ax4.set_ylabel("|coefficient|", fontsize=11)
     ax4.set_title("Chebyshev coefficients of tube[0]", fontsize=11)
-    ax4.grid(True, which="both", alpha=0.4)
-
     fig.suptitle(
         f"Wagon's function: Tucker rank ({rx},{ry},{rz})\n"
         f"low rank despite high oscillation",

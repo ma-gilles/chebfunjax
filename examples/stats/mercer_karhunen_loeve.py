@@ -35,7 +35,7 @@ def run():
                           '../../docs/images/stats')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+    fig, axes = plt.subplots(1, 3)
 
     # Exponential covariance kernel: K(s,t) = exp(-|s-t|)
     K1 = lambda s, t: np.exp(-np.abs(s - t))

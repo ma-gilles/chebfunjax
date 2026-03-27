@@ -45,7 +45,7 @@ def run():
     print(f"||f(0) + cumsum(diff(f)) - f|| = {err2:.2e}")
 
     # --- Plot -------------------------------------------------------------
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     xx = np.linspace(0.0, 10.0, 600)
     f_vals = np.array(f(jnp.array(xx)))

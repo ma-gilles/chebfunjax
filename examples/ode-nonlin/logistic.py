@@ -85,7 +85,7 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(bifurcation_r, bifurcation_x, ',k', markersize=0.5, alpha=0.3)
     axes[0].set_xlabel("r"); axes[0].set_ylabel("x")

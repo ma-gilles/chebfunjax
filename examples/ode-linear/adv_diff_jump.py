@@ -69,7 +69,7 @@ def run():
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
     x_plot = jnp.linspace(-5.0, 5.0, 600)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.5))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(x_plot, u1(x_plot), 'b', linewidth=1.8)
     axes[0].set_title("0.2 u″ + u′ = −1", fontsize=10)

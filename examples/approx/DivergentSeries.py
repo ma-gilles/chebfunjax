@@ -47,7 +47,7 @@ def run():
         result += (-1)**k * float(math.factorial(k)) * x_arr**k
         return result
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     ax.plot(xs, exact, 'k', lw=2, label='exact f(x)')
@@ -56,10 +56,7 @@ def run():
         ax.plot(xs, partial, '--', color=col, lw=1.2, label=f'Taylor N={N}')
     ax.set_ylim(-1, 2)
     ax.set_title('Stieltjes function and diverging Taylor series', fontsize=10)
-    ax.set_xlabel('x')
     ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
-
     # Padé approximant via Chebfun polyfit then rational reconstruction
     # Simple diagonal Padé [2/2] approximant
     # For e^{-x} on [0,1] as a simpler demo
@@ -74,10 +71,7 @@ def run():
     ax2 = axes[1]
     ax2.semilogy(xx_plot, err_p2 + 1e-18, 'b', lw=1.5, label='degree-4 L2 error')
     ax2.set_title('L2 polynomial approximation of e^{-x}', fontsize=10)
-    ax2.set_xlabel('x')
     ax2.legend(fontsize=9)
-    ax2.grid(True, alpha=0.3)
-
     fig.suptitle('Divergent series and Padé-style approximation', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'DivergentSeries.png'), dpi=150)

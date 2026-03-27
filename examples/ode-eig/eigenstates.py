@@ -64,7 +64,7 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     x_plot = jnp.linspace(-6.0, 6.0, 400)
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4.5))
+    fig, axes = plt.subplots(1, 2)
 
     # Harmonic oscillator modes
     V_harm = x_plot**2 / 2.0

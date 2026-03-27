@@ -35,7 +35,7 @@ def run():
                           '../../docs/images/fun')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    fig, axes = plt.subplots(1, 3)
 
     # Sampling points
     N = 512

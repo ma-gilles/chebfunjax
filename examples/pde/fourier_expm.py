@@ -102,7 +102,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # Heat equation: waterfall plot
     colors_h = plt.cm.cool(np.linspace(0, 1, len(t_vals_heat)))

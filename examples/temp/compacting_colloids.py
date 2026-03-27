@@ -57,7 +57,7 @@ def run():
                           '../../docs/images/temp')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    fig, axes = plt.subplots(1, 3)
 
     pe = 200
     phi_m = 0.64

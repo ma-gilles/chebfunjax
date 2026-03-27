@@ -65,7 +65,7 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     import matplotlib.pyplot as plt
     import numpy as _np
-    fig, ax = plt.subplots(figsize=(6, 3.5))
+    fig, ax = plt.subplots()
     ax.bar(_np.arange(n_eigs), _np.array(lam[:n_eigs]), color="#4169E1",
            alpha=0.8, label="computed")
     ax.plot(_np.arange(n_eigs), exact, "ro", markersize=6, label="exact")
@@ -73,9 +73,6 @@ def run():
     ax.set_ylabel("λ", fontsize=10)
     ax.set_title("Quantum harmonic oscillator eigenvalues", fontsize=11)
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3, linestyle="--")
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
     fig.set_facecolor("white")
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "harmonic_oscillator.png"),

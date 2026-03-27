@@ -41,7 +41,7 @@ def run():
                           '../../docs/images/stats')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+    fig, axes = plt.subplots(1, 3)
 
     # --- 1. Hermite polynomial basis ---
     z = np.linspace(-4, 4, 500)

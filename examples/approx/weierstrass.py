@@ -44,7 +44,7 @@ def run():
     print(f"Integral of F_8 = {approx_integral:.10f}  (exact: {exact_integral:.10f})")
     print(f"Error: {abs(approx_integral - exact_integral):.2e}")
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # Full function on [-1, 1]
     xx = np.linspace(-1.0, 1.0, 2000)

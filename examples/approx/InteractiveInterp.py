@@ -52,7 +52,7 @@ def run():
     err_cheb = np.abs(p_cheb - f_true)
     err_eq = np.abs(p_eq - f_true)
 
-    fig, axes = plt.subplots(2, 2, figsize=(11, 8))
+    fig, axes = plt.subplots(2, 2)
 
     ax = axes[0, 0]
     ax.plot(xx, f_true, 'b', lw=1.8, label='f(x)')
@@ -60,31 +60,21 @@ def run():
     ax.plot(cheb_nodes, np.sin(2 * np.pi * cheb_nodes), '.r', ms=8)
     ax.set_title(f'Chebyshev nodes (n={n_nodes})', fontsize=10)
     ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
-
     ax2 = axes[0, 1]
     ax2.plot(xx, f_true, 'b', lw=1.8, label='f(x)')
     ax2.plot(xx, p_eq, 'r--', lw=1.5, label='equispaced interp')
     ax2.plot(eq_nodes, np.sin(2 * np.pi * eq_nodes), '.r', ms=8)
     ax2.set_title(f'Equispaced nodes (n={n_nodes})', fontsize=10)
     ax2.legend(fontsize=8)
-    ax2.grid(True, alpha=0.3)
-
     ax3 = axes[1, 0]
     ax3.semilogy(xx, err_cheb + 1e-18, 'r', lw=1.5, label='Chebyshev')
     ax3.set_title('Error: Chebyshev', fontsize=10)
     ax3.legend(fontsize=8)
-    ax3.grid(True, alpha=0.3)
-
     ax4 = axes[1, 1]
     ax4.semilogy(xx, err_eq + 1e-18, 'g', lw=1.5, label='equispaced')
     ax4.set_title('Error: equispaced (Runge phenomenon)', fontsize=10)
     ax4.legend(fontsize=8)
-    ax4.grid(True, alpha=0.3)
-
     for ax in axes.flat:
-        ax.set_xlabel('x')
-
     fig.suptitle('Polynomial interpolation: Chebyshev vs. equispaced', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'InteractiveInterp.png'), dpi=150)

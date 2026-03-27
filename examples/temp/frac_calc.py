@@ -56,7 +56,7 @@ def run():
                           '../../docs/images/temp')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    fig, axes = plt.subplots(1, 3)
 
     # --- Panel 1: f(x) = x with half-derivative ---
     x = np.linspace(0, 4, 400)

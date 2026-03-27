@@ -132,7 +132,7 @@ def run():
 
     # --- Plot -----------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4.5))
+    fig, axes = plt.subplots(1, 2)
 
     # RQI convergence
     axes[0].semilogy(range(len(residuals)), residuals, 'bo-', markersize=7, linewidth=1.5)

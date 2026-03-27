@@ -52,7 +52,7 @@ def run():
                           '../../docs/images/stats')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(2, 2, figsize=(12, 9))
+    fig, axes = plt.subplots(2, 2)
 
     rng = np.random.default_rng(1)
     dx_values = [0.1, 0.025, 0.00625, 0.0015625]
@@ -74,8 +74,6 @@ def run():
                 '.r', markersize=10)
         ax.set_title(title, fontsize=11)
         ax.set_aspect('equal')
-        ax.grid(True, alpha=0.3)
-
     fig.suptitle('Smooth Random Walk (approaching Brownian motion)', fontsize=13)
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'smooth_random_walk.png'),

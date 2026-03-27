@@ -34,15 +34,12 @@ def run():
     xx = np.linspace(0.0, 1.0, 500)
     f_vals = np.array([float(f(jnp.array(x))) for x in xx])
 
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4))
+    fig, axes = plt.subplots(1, 3)
 
     # Plot the function
     ax = axes[0]
     ax.plot(xx, f_vals, 'b', lw=1.8)
     ax.set_title('The checkmark function', fontsize=11)
-    ax.set_xlabel('x')
-    ax.grid(True, alpha=0.3)
-
     # Best L2 polynomial approximants of various degrees
     colors = ['r', 'g', 'm']
     for i, deg in enumerate([5, 10, 20]):

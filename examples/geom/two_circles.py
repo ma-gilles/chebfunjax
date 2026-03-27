@@ -75,7 +75,7 @@ def run():
     assert abs(area_numerical - exact) < 1e-4
 
     # --- Plot ---
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    fig, axes = plt.subplots(1, 2)
 
     theta = np.linspace(0, 2 * np.pi, 400)
 

@@ -82,7 +82,7 @@ def run():
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
     x_plot = jnp.linspace(-1.0, 1.0, 400)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(x_plot, u1(x_plot), 'b', linewidth=1.8)
     axes[0].axhline(0, color='k', linewidth=0.5)

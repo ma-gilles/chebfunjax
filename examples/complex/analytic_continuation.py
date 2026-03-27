@@ -102,7 +102,7 @@ def run():
 
     # --- Plots ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4))
+    fig, axes = plt.subplots(1, 3)
 
     # Left: tanh and its Chebfun approximation
     xs = np.linspace(-1, 1, 200)

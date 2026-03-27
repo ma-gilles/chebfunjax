@@ -136,7 +136,7 @@ def run():
     # ------------------------------------------------------------------
     # Plot: isosurface (shown as dense scatter plot)
     # ------------------------------------------------------------------
-    fig = plt.figure(figsize=(14, 5))
+    fig = plt.figure()
 
     # Plot 1: The HELLO tensor slice
     ax1 = fig.add_subplot(131)

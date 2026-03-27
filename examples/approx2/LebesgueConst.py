@@ -61,7 +61,7 @@ def run():
         L_vals = lebesgue_function(pts, xx)
         return L_vals, np.max(L_vals)
 
-    fig, axes = plt.subplots(2, 2, figsize=(11, 8))
+    fig, axes = plt.subplots(2, 2)
 
     # 10 Chebyshev points
     pts_cheb_10 = np.cos(np.pi * np.arange(10) / 9)
@@ -96,8 +96,6 @@ def run():
 
     fig.suptitle('Lebesgue functions: Chebyshev vs. equispaced', fontsize=12)
     for ax in axes.flat:
-        ax.set_xlabel('x')
-
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'LebesgueConst.png'), dpi=150)
     plt.close(fig)

@@ -56,7 +56,7 @@ def run():
     arc_cheb = np.trapezoid(speed, theta_vals)
     print(f"  Via trapz  = {arc_cheb:.14f}")
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # Plot the ellipse
     theta_plot = np.linspace(0, 2 * np.pi, 500)

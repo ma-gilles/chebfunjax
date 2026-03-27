@@ -169,7 +169,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(2, 2, figsize=(11, 7))
+    fig, axes = plt.subplots(2, 2)
 
     n_plot = np.arange(len(c_trunc))
     n_ext = np.arange(len(c_ext1))

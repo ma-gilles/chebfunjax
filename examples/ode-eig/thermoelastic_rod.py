@@ -173,7 +173,7 @@ def run():
 
     # --- Plot -----------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4.5))
+    fig, axes = plt.subplots(1, 2)
 
     # Sweep result
     axes[0].plot(deltas, max_lams, 'b-o', markersize=5, linewidth=1.5)

@@ -51,7 +51,7 @@ def run():
         np.array([0.0, 1.0]), np.array([0.0, -1.0]),
     ]
 
-    fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+    fig, axes = plt.subplots(2, 2)
     axes = axes.ravel()
 
     for idx, (title, A, T) in enumerate(cases):
@@ -74,8 +74,6 @@ def run():
         ax.set_xlabel("x₁"); ax.set_ylabel("x₂")
         ax.axhline(0, color='k', linewidth=0.5)
         ax.axvline(0, color='k', linewidth=0.5)
-        ax.grid(True, alpha=0.2)
-
     fig.suptitle("Phase portraits of 2D linear systems x′ = Ax", fontsize=11)
     fig.tight_layout()
     _here = os.path.dirname(os.path.abspath(__file__))

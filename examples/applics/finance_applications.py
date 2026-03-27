@@ -113,7 +113,7 @@ def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/applics')
     os.makedirs(outdir, exist_ok=True)
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4))
+    fig, axes = plt.subplots(1, 3)
 
     S_plot = np.linspace(50, 200, 200)
     C_plot = black_scholes_call(S_plot, K, T, r, sigma)

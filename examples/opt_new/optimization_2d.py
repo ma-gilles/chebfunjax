@@ -74,7 +74,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     xs_p = np.linspace(-2, 2, 80)
     ys_p = np.linspace(-2, 2, 80)

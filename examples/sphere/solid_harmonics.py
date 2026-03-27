@@ -53,7 +53,7 @@ def run():
                           '../../docs/images/sphere')
     os.makedirs(outdir, exist_ok=True)
 
-    fig = plt.figure(figsize=(15, 5))
+    fig = plt.figure()
 
     theta_1d = np.linspace(0.01, np.pi - 0.01, 60)
     phi_1d = np.linspace(0, 2*np.pi, 120)

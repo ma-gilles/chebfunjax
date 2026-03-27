@@ -41,25 +41,19 @@ def run():
 
     err_max = float(jnp.max(jnp.abs(jnp.array(err_vals))))
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     ax.plot(xx, f_vals, 'b', lw=1.8, label='f = |x−0.5|')
     ax.plot(xx, p16_vals, 'r', lw=1.5, label='degree-16 approx')
     ax.set_title('|x−0.5| and degree-16 approximant', fontsize=11)
-    ax.set_xlabel('x')
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3)
-
     ax2 = axes[1]
     ax2.plot(xx, err_vals, 'b', lw=1.8)
     ax2.axhline(err_max, color='k', ls='--', lw=1.2)
     ax2.axhline(-err_max, color='k', ls='--', lw=1.2)
     ax2.set_ylim(-0.03, 0.03)
     ax2.set_title(f'Degree-16 polynomial error curve (max ≈ {err_max:.4f})', fontsize=11)
-    ax2.set_xlabel('x')
-    ax2.grid(True, alpha=0.3)
-
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'BestApprox.png'), dpi=150)
     plt.close(fig)

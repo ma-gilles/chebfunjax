@@ -103,7 +103,7 @@ def run():
 
     # Plot
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     colors = plt.cm.plasma(np.linspace(0, 1, len(history_u)))
     for i, (u_h, t_h) in enumerate(zip(history_u, history_t)):

@@ -71,7 +71,7 @@ def run():
 
         return beliefs, trad_avgs, means, modes, stds
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    fig, axes = plt.subplots(1, 3)
 
     # --- 1. Poor student ---
     scores_poor = [0.55, 0.67, 0.62, 0.66]

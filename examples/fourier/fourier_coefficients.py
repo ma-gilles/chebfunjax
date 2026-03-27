@@ -106,7 +106,7 @@ def run():
     import matplotlib.pyplot as _plt
     import numpy as _np
     # Plot |Fourier coefficients| of cos(3x) and sawtooth
-    fig, axes = _plt.subplots(1, 2, figsize=(9, 3.5))
+    fig, axes = _plt.subplots(1, 2)
     _ns = _np.arange(0, 10)
     _cos3x_an = _np.array([abs(compute_fourier_coeff(lambda x: jnp.cos(3.0*x), n, dom)[0])
                             for n in _ns])

@@ -107,7 +107,7 @@ def run():
 
     # --- Plot -----------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(2, 2, figsize=(10, 7))
+    fig, axes = plt.subplots(2, 2)
     axes = axes.ravel()
 
     for idx, k_m in enumerate(nn):

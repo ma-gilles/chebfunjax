@@ -26,7 +26,7 @@ def run():
                           '../../docs/images/stats')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(1, 3, figsize=(14, 4))
+    fig, axes = plt.subplots(1, 3)
 
     # --- 1. Expectation of exponential random variable ---
     # f(x) = 2*exp(-2*x) on [0, 40]

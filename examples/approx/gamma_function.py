@@ -31,7 +31,7 @@ def run():
     # The gamma function on subintervals avoiding poles
     # Poles at 0, -1, -2, -3, -4
     xx = np.linspace(0.1, 4.0, 800)
-    fig, ax = plt.subplots(figsize=(9, 5))
+    fig, ax = plt.subplots()
 
     # Plot on (0,4] — analytic piece
     f_pos = cj.chebfun(lambda x: jnp.array(scipy_gamma(np.array(x))),
@@ -55,7 +55,6 @@ def run():
     ax.set_xlim(-4.2, 4.2)
     ax.set_xlabel('$x$', fontsize=12)
     ax.set_title(r'The Gamma function $\Gamma(x)$ on $[-4, 4]$', fontsize=13)
-    ax.grid(True, alpha=0.3)
     ax.legend(fontsize=11)
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'gamma_function.png'),

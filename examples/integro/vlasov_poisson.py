@@ -88,7 +88,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(a_vals, omega_vals, 'b-', linewidth=2)
     axes[0].axvline(a_star, color='r', linestyle='--', alpha=0.7,

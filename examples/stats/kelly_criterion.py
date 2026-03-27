@@ -39,7 +39,7 @@ def run():
                           '../../docs/images/stats')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # --- 1. Simple Kelly problem: a=2, p=0.5 ---
     p_simple, a_simple = 0.5, 2.0

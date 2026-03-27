@@ -85,7 +85,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 3, figsize=(14, 4))
+    fig, axes = plt.subplots(1, 3)
 
     for i, (lam, f_vals) in enumerate(zip(lambdas, paths)):
         axes[i].plot(t_eval, f_vals, linewidth=max(0.5, 1.2 - 0.3*i),

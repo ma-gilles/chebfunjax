@@ -86,7 +86,7 @@ def run():
 
     # --- Plots ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     xs = np.linspace(0.0, 1.0, 2000)
     ys = np.array(spike_func(jnp.array(xs)))

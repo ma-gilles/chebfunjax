@@ -44,23 +44,18 @@ def run():
     piece_midpoints = [0.5 * (bp[0] + bp[1])
                        for bp in zip(breakpoints[:-1], breakpoints[1:])]
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     ax.plot(xx, f_vals, 'b', lw=1.5)
     for bp in breakpoints[1:-1]:
         ax.axvline(bp, color='r', lw=0.8, ls='--')
     ax.set_title('f(x) = sin(x(20−15x)) with breakpoints', fontsize=10)
-    ax.set_xlabel('x')
-    ax.grid(True, alpha=0.3)
-
     ax2 = axes[1]
     ax2.bar(piece_midpoints, piece_lengths, width=0.4, color='b', alpha=0.7)
     ax2.set_title('Chebyshev coefficients per piece (local complexity)', fontsize=10)
     ax2.set_xlabel('piece midpoint')
     ax2.set_ylabel('number of coefficients')
-    ax2.grid(True, alpha=0.3)
-
     fig.suptitle('Local complexity of a function', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'Local.png'), dpi=150)

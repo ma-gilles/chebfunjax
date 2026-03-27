@@ -105,7 +105,7 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     x_plot = jnp.linspace(-1.0, 1.0, 300)
     axes[0].bar(range(1, 5), lams_real[:4], color='steelblue', alpha=0.7, label="computed")

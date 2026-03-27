@@ -85,7 +85,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig = plt.figure(figsize=(13, 5))
+    fig = plt.figure()
 
     # Chebyshev polynomials
     ax1 = fig.add_subplot(121, projection='3d')

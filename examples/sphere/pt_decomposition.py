@@ -70,7 +70,7 @@ def run():
     Vt = Vt_T + Vt_P
     Vp = Vp_T + Vp_P
 
-    fig = plt.figure(figsize=(15, 5))
+    fig = plt.figure()
 
     # --- Panel 1: Toroidal component ---
     ax1 = fig.add_subplot(131, projection='3d')

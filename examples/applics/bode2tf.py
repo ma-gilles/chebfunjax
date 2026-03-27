@@ -83,7 +83,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(2, 1, figsize=(10, 7))
+    fig, axes = plt.subplots(2, 1)
 
     # Magnitude
     axes[0].semilogx(omega_vals, H_mag_db, 'b-', linewidth=2, label='Exact H(jω)')

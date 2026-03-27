@@ -69,7 +69,7 @@ def run():
 
     # --- Plot: coefficient magnitudes in Cheb vs Leg basis ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     n_plot = 32
     xs_p = chebpts(n_plot)

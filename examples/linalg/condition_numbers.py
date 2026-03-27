@@ -69,7 +69,7 @@ def run():
         cond_vander_cheb.append(np.linalg.cond(V_cheb))
         cond_chebv_cheb.append(np.linalg.cond(CV_cheb))
 
-    fig, ax = plt.subplots(figsize=(8, 5))
+    fig, ax = plt.subplots()
     ax.semilogy(nn, cond_vander_equi, 'r.-', markersize=8, linewidth=1.5,
                 label='Vandermonde (equispaced)')
     ax.semilogy(nn, cond_vander_cheb, 'b.-', markersize=8, linewidth=1.5,
@@ -80,7 +80,6 @@ def run():
     ax.set_ylabel('Condition number', fontsize=12)
     ax.set_title('Condition numbers of Vandermonde matrices', fontsize=12)
     ax.legend(fontsize=10)
-    ax.grid(True, which='both', alpha=0.3)
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'condition_numbers.png'),
                 dpi=150, bbox_inches='tight')

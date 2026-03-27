@@ -66,7 +66,7 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].bar(range(1, len(lams_sorted)+1), lams_sorted, color='steelblue', alpha=0.7)
     axes[0].set_xlabel("k"); axes[0].set_ylabel("λ_k")

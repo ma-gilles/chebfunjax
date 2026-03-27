@@ -94,7 +94,7 @@ def run():
     t_ref = np.linspace(0, T, 500)
     y_ref = np.exp(-t_ref)
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(t_arr, y, 'b', linewidth=1.6, label="pantograph y'=−y(t/2)")
     axes[0].plot(t_ref, y_ref, 'r--', linewidth=1.2, label="reference exp(−t)")

@@ -88,7 +88,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     t_show = sorted(history.keys())
     colors = plt.cm.cool(np.linspace(0, 1, len(t_show)))

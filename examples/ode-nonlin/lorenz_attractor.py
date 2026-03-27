@@ -62,7 +62,7 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig = plt.figure(figsize=(12, 4))
+    fig = plt.figure()
 
     ax1 = fig.add_subplot(1, 3, 1, projection='3d')
     ax1.plot(x[::5], y[::5], z[::5], 'b', linewidth=0.4, alpha=0.5)
@@ -81,8 +81,6 @@ def run():
     ax3.semilogy(sol.t, diff + 1e-10, 'g', linewidth=1.2)
     ax3.set_xlabel("t"); ax3.set_ylabel("|difference|")
     ax3.set_title("Divergence of nearby trajectories", fontsize=9)
-    ax3.grid(True, alpha=0.3)
-
     fig.suptitle("Lorenz attractor and chaos", fontsize=11)
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "lorenz_attractor.png"), dpi=150, bbox_inches="tight")

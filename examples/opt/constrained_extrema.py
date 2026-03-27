@@ -58,7 +58,7 @@ def run():
     assert abs(gmin + 1.0) < 1e-10
 
     # Plot
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+    fig, axes = plt.subplots(1, 2)
 
     xx = np.linspace(0, 4, 400)
     fv = np.array(f(jnp.array(xx)))

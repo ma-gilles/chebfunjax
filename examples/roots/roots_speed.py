@@ -78,7 +78,7 @@ def run():
 
     # --- Plots ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # Left: accuracy vs n
     finite_errs = [(n, e) for n, e in zip(ns, errs) if np.isfinite(e)]

@@ -149,14 +149,13 @@ def run():
     # ------------------------------------------------------------------
     # Plot: convergence of alternating projections
     # ------------------------------------------------------------------
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    fig, axes = plt.subplots(1, 2)
 
     ax1 = axes[0]
     ax1.semilogy(range(len(errors)), errors, "o-b", lw=2, ms=8)
     ax1.set_xlabel("Iteration", fontsize=12)
     ax1.set_ylabel("Relative error", fontsize=12)
     ax1.set_title("Alternating projections:\nrecovering rank-one f from fhat", fontsize=11)
-    ax1.grid(True, which="both")
     ax1.axhline(1e-2, ls="--", color="gray", alpha=0.5, label="1% threshold")
     ax1.legend()
 
@@ -171,8 +170,6 @@ def run():
     ax2.set_ylabel("value (y=0.5, z=0.3)", fontsize=12)
     ax2.set_title("f vs fhat along x-axis", fontsize=11)
     ax2.legend()
-    ax2.grid(True)
-
     fig.suptitle("Finding rank-one functions in a subspace", fontsize=13)
     fig.tight_layout()
     fig.savefig(

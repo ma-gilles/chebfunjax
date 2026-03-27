@@ -103,7 +103,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(3, 2, figsize=(11, 10))
+    fig, axes = plt.subplots(3, 2)
 
     # Row 1: scalar switching
     axes[0, 0].plot(t_eval, y_scalar, 'b-', linewidth=1.5)

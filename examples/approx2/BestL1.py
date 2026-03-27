@@ -42,7 +42,7 @@ def run():
     err2_vals = np.array(err2(xx))
     p2_vals = np.array(p2(xx))
 
-    fig, axes = plt.subplots(2, 2, figsize=(11, 8))
+    fig, axes = plt.subplots(2, 2)
 
     axes[0, 0].plot(xx, f_vals, 'b', lw=1.5, label='f')
     axes[0, 0].plot(xx, p2_vals, 'r--', lw=1.5, label=f'p_L2 (deg {deg})')

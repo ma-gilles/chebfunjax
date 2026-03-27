@@ -88,7 +88,7 @@ def run():
 
     # --- Plots ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     xs = np.linspace(0.0, 2.0 * pi, 400)
     f_vals = np.array(f(jnp.array(xs)))
@@ -112,7 +112,6 @@ def run():
     ZZ_plot = RR * np.sin(TT)
     ax3 = fig.add_subplot(122, projection='3d', position=[0.55, 0.05, 0.42, 0.9])
     ax3.plot_surface(XX_plot, YY_plot, ZZ_plot, alpha=0.6, cmap='viridis', linewidth=0)
-    ax3.set_xlabel("x")
     ax3.set_title("Surface of revolution")
     ax3.tick_params(labelsize=7)
     axes[1].set_visible(False)

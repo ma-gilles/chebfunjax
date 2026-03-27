@@ -88,7 +88,7 @@ def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/integro')
     os.makedirs(outdir, exist_ok=True)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     x1 = np.linspace(0, 2, 200)
     u1_vals = [float(u(jnp.array(xi))) for xi in x1]

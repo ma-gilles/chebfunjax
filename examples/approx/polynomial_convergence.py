@@ -30,7 +30,7 @@ def run():
     # --- Geometric convergence for sin(N*pi*x) ----------------------------
     # As N grows, more Chebyshev coefficients are needed.
     # The theoretical estimate gives n ~ N*pi/log(r) for the optimal r.
-    fig, ax = plt.subplots(figsize=(7, 4))
+    fig, ax = plt.subplots()
     NN = [1, 2, 4, 8, 16, 32]
     degrees = []
     for N in NN:
@@ -45,14 +45,13 @@ def run():
     ax.set_ylabel('Polynomial degree', fontsize=12)
     ax.set_title(r'Degree of $\sin(N\pi x)$ Chebfun vs. $N$', fontsize=13)
     ax.legend(fontsize=11)
-    ax.grid(True, which='both', alpha=0.4)
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'polynomial_convergence.png'),
                 dpi=150, bbox_inches='tight')
     plt.close(fig)
 
     # --- Coefficient decay: analytic vs non-analytic ----------------------
-    fig2, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig2, axes = plt.subplots(1, 2)
 
     # Analytic: exp(x) — geometric decay
     f_exp = cj.chebfun(lambda x: jnp.exp(x))

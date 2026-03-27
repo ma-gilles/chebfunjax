@@ -49,7 +49,7 @@ def run():
     print(f"J_1: found {len(r1)} roots in (0, 50]")
 
     # Plot
-    fig, ax = plt.subplots(figsize=(10, 4))
+    fig, ax = plt.subplots()
     xx = np.linspace(0, 40, 1000)
     J0_vals = jv(0, xx)
     J1_vals = jv(1, xx)
@@ -64,7 +64,6 @@ def run():
     ax.set_xlabel('$x$', fontsize=12)
     ax.set_title('Roots of Bessel functions $J_0$ and $J_1$', fontsize=12)
     ax.legend(fontsize=11)
-    ax.grid(True, alpha=0.3)
     ax.set_ylim(-0.5, 1.05)
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'bessel_function_roots.png'),

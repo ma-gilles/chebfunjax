@@ -49,7 +49,7 @@ def run():
     smooth_vals = np.array([float(p_smooth(jnp.array(x))) for x in xx_plot])
     clean_vals = np.sin(np.pi * xx_plot)
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     ax.plot(xx, f_noisy, '.', color='gray', ms=3, alpha=0.8, label='noisy data')
@@ -57,8 +57,6 @@ def run():
     ax.plot(xx_plot, smooth_vals, 'r', lw=1.5, label='degree-20 smooth')
     ax.set_title(f'Noisy function: noise={noise_level:.0e}', fontsize=10)
     ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
-
     # Effect of polynomial degree on reconstruction
     degrees = [5, 10, 20, 50, 100]
     max_errs = []
@@ -72,8 +70,6 @@ def run():
     ax2.set_title('Approximation error of sin(πx) vs. degree', fontsize=10)
     ax2.set_xlabel('degree')
     ax2.set_ylabel('max error')
-    ax2.grid(True, alpha=0.3)
-
     fig.suptitle('Noisy functions in Chebfun', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'Noisy.png'), dpi=150)

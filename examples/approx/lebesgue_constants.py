@@ -83,7 +83,7 @@ def run():
     x_c, L_c, Lambda_c = lebesgue_constant_and_function(cheb_nodes)
     x_e, L_e, Lambda_e = lebesgue_constant_and_function(equi_nodes)
 
-    fig, axes = plt.subplots(2, 2, figsize=(11, 8))
+    fig, axes = plt.subplots(2, 2)
 
     axes[0, 0].plot(x_c, L_c, 'b-', linewidth=1.5)
     axes[0, 0].set_title(f'10 Chebyshev nodes,  $\\Lambda$ = {Lambda_c:.2f}', fontsize=11)

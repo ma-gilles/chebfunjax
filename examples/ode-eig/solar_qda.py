@@ -136,7 +136,7 @@ def run():
 
     # --- Plot -----------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4.5))
+    fig, axes = plt.subplots(1, 2)
 
     # Potential and energy levels
     axes[0].plot(x_fine, U_fine_smooth, 'b', linewidth=1.5, label="U(x) [ideal]")

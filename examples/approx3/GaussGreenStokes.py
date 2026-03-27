@@ -191,7 +191,7 @@ def run():
     # ------------------------------------------------------------------
     # Plot
     # ------------------------------------------------------------------
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    fig, axes = plt.subplots(1, 3)
 
     # Gauss theorem: div v on a slice
     ax1 = axes[0]

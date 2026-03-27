@@ -65,7 +65,7 @@ def run():
     print(f"  Max reconstruction error: {err:.2e}")
     assert err < 1e-12, f"Partition error too large: {err}"
 
-    fig = plt.figure(figsize=(15, 5))
+    fig = plt.figure()
 
     # --- Panel 1: Original function ---
     ax1 = fig.add_subplot(131, projection='3d')

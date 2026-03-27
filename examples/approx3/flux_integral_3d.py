@@ -62,7 +62,7 @@ def run():
 
     # Plot: isosurface visualization as slice plots
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 3, figsize=(12, 4))
+    fig, axes = plt.subplots(1, 3)
 
     xs = np.linspace(-1, 1, 60)
     X, Y = np.meshgrid(xs, xs)

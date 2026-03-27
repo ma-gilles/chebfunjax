@@ -47,7 +47,7 @@ def run():
                           '../../docs/images/stats')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # --- 1. Histogram of a smooth function ---
     # f(x) = x/3 + cos(2x) + 0.5*sin(x^2) + 0.2*sin(27x) on [0, 10]

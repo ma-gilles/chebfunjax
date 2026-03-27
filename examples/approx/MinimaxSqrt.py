@@ -51,7 +51,7 @@ def run():
     r_vals = np.array([float(r_aaa(jnp.array(x)).real) for x in xx])
     rational_err = np.max(np.abs(r_vals - f_true))
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     ax.semilogy(degrees, poly_errs, 'b.-', lw=1.5, ms=10, label='poly L2')
@@ -61,8 +61,6 @@ def run():
     ax.set_xlabel('polynomial degree n')
     ax.set_ylabel('max error')
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3)
-
     ax2 = axes[1]
     p20 = f.polyfit(20)
     p20_vals = np.array([float(p20(jnp.array(x))) for x in xx])
@@ -73,10 +71,7 @@ def run():
     ax2.semilogy(xx, err_rat + 1e-18, 'r', lw=1.5,
                  label=f'AAA rational')
     ax2.set_title('Error curves near singularity at 0', fontsize=10)
-    ax2.set_xlabel('x')
     ax2.legend(fontsize=9)
-    ax2.grid(True, alpha=0.3)
-
     fig.suptitle('Polynomial vs. rational approximation of √x', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'MinimaxSqrt.png'), dpi=150)

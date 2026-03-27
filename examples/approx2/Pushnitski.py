@@ -50,21 +50,16 @@ def run():
         pn_safe = np.array([float(pn(jnp.array(x))) for x in xx_safe])
         poly_errs.append(np.max(np.abs(pn_safe - f_vals)))
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     ax.plot(xx_safe, f_vals, 'b', lw=1.8)
     ax.set_title('Pushnitski function 1/|log|x||', fontsize=11)
-    ax.set_xlabel('x')
-    ax.grid(True, alpha=0.3)
-
     ax2 = axes[1]
     ax2.semilogy(degrees, poly_errs, 'b.-', lw=1.5, ms=10)
     ax2.set_title('Polynomial approx errors for 1/|log|x||', fontsize=10)
     ax2.set_xlabel('degree')
     ax2.set_ylabel('max error')
-    ax2.grid(True, alpha=0.3)
-
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'Pushnitski.png'), dpi=150)
     plt.close(fig)

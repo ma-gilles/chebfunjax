@@ -69,7 +69,7 @@ def run():
 
     xx = np.linspace(-1.0, 1.0, 400)
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     colors = ['b', 'r', 'g', 'm', 'orange']
@@ -79,8 +79,6 @@ def run():
     ax.plot(nodes, np.ones_like(nodes), '.k', ms=10)
     ax.set_title('Hermite value basis polynomials H_k(x)', fontsize=10)
     ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
-
     ax2 = axes[1]
     for k in range(n):
         hdk_vals = Hd_k(k, xx)
@@ -88,8 +86,6 @@ def run():
     ax2.plot(nodes, np.zeros_like(nodes), '.k', ms=10)
     ax2.set_title('Hermite derivative basis polynomials Hd_k(x)', fontsize=10)
     ax2.legend(fontsize=8)
-    ax2.grid(True, alpha=0.3)
-
     # Verify: interpolate sin(x) with Hermite interpolation
     f_vals = np.sin(nodes)
     fp_vals = np.cos(nodes)
@@ -97,14 +93,13 @@ def run():
                          for k in range(n))
     exact = np.sin(xx)
 
-    fig2, ax3 = plt.subplots(figsize=(7, 4))
+    fig2, ax3 = plt.subplots()
     ax3.plot(xx, exact, 'k--', lw=1.5, label='sin(x)')
     ax3.plot(xx, hermite_approx, 'r', lw=1.5, label='Hermite interp')
     ax3.plot(nodes, f_vals, '.b', ms=10)
     err = np.max(np.abs(hermite_approx - exact))
     ax3.set_title(f'Hermite interpolation of sin(x), max err={err:.2e}', fontsize=10)
     ax3.legend(fontsize=9)
-    ax3.grid(True, alpha=0.3)
     fig2.tight_layout()
     fig2.savefig(os.path.join(_OUTDIR, 'HermiteBasis_interp.png'), dpi=150)
     plt.close(fig2)

@@ -44,27 +44,20 @@ def run():
     r_vals = np.array([float(r(jnp.array(x)).real) for x in xx])
     err_vals = np.abs(r_vals - f_vals)
 
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4))
+    fig, axes = plt.subplots(1, 3)
 
     ax = axes[0]
     ax.plot(xx, f_vals, 'b', lw=1.8)
     ax.set_title('Fermi-Dirac function 1/(1+exp(x))', fontsize=10)
-    ax.set_xlabel('x')
-    ax.grid(True, alpha=0.3)
-
     ax2 = axes[1]
     ax2.semilogy(xx, err_vals + 1e-18, 'b', lw=1.5)
     ax2.set_title(f'AAA approximation error ({len(pol)} poles)', fontsize=10)
-    ax2.set_xlabel('x')
-    ax2.grid(True, alpha=0.3)
-
     ax3 = axes[2]
     pol_arr = np.array([complex(p) for p in pol])
     ax3.plot(pol_arr.real, pol_arr.imag, '.r', ms=10)
     ax3.set_title('Poles of AAA approximant', fontsize=10)
     ax3.set_xlabel('Re(z)')
     ax3.set_ylabel('Im(z)')
-    ax3.grid(True, alpha=0.3)
     ax3.axhline(0, color='k', lw=0.5)
 
     fig.tight_layout()

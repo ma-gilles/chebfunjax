@@ -88,7 +88,7 @@ def run():
     theta = np.linspace(0, 2*np.pi, 400)
     z_circle = np.exp(1j * theta)
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    fig, axes = plt.subplots(1, 2)
 
     # Unit circle and f(z) = z^3-1 image
     axes[0].plot(np.cos(theta), np.sin(theta), 'b-', linewidth=1.5,

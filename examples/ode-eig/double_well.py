@@ -66,15 +66,12 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     import matplotlib.pyplot as _plt
     import numpy as _np
-    fig, ax = _plt.subplots(figsize=(6, 3.5))
+    fig, ax = _plt.subplots()
     _lam_real = _np.sort(_np.real(_np.array(lam[:n_eigs])))
     ax.bar(_np.arange(n_eigs), _lam_real, color="#4169E1", alpha=0.8)
     ax.set_xlabel("eigenvalue index", fontsize=10)
     ax.set_ylabel("λ", fontsize=10)
     ax.set_title("Double-well Schrödinger eigenvalues", fontsize=11)
-    ax.grid(True, alpha=0.3, linestyle="--", axis="y")
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
     fig.set_facecolor("white")
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "double_well.png"),

@@ -93,7 +93,7 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     import matplotlib.pyplot as _plt
     import numpy as _np
-    fig, ax = _plt.subplots(figsize=(6, 3.5))
+    fig, ax = _plt.subplots()
     for _n, _col in [(5, "#4169E1"), (10, "#E04040"), (20, "#228B22")]:
         _nodes, _weights = golub_welsch(_n)
         ax.plot(_nodes, _np.zeros_like(_nodes), "o", color=_col,
@@ -102,9 +102,6 @@ def run():
     ax.set_xlabel("x", fontsize=10)
     ax.set_yticks([])
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3, linestyle="--", axis="x")
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
     fig.set_facecolor("white")
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "gauss_quadrature.png"),

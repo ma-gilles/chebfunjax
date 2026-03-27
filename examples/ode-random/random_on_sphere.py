@@ -89,7 +89,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig = plt.figure(figsize=(12, 5))
+    fig = plt.figure()
 
     # 3D trajectory for lambda=0.5
     ax1 = fig.add_subplot(121, projection='3d')

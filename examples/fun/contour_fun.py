@@ -48,7 +48,7 @@ def run():
                           '../../docs/images/fun')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    fig, axes = plt.subplots(1, 3)
 
     # --- 1. Circle from implicit equation x^2 + y^2 - r^2 = 0 ---
     r = 0.8

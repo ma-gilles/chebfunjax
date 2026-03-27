@@ -40,7 +40,7 @@ def run():
     err1 = np.array([float((f - p1)(jnp.array(x))) for x in xx])
     err3 = np.array([float((f - p3)(jnp.array(x))) for x in xx])
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     p1_vals = np.array([float(p1(jnp.array(x))) for x in xx])
@@ -48,15 +48,11 @@ def run():
     ax.plot(xx, p1_vals, 'r--', lw=1.5, label='degree-1 approx')
     ax.set_title('sqrt(1.2−x) and degree-1 approximant', fontsize=11)
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3)
-
     ax2 = axes[1]
     ax2.plot(xx, err1, 'b', lw=1.8, label='degree-1 error')
     ax2.plot(xx, err3, 'r', lw=1.5, label='degree-3 error')
     ax2.set_title('Approximation errors (CF-style)', fontsize=11)
     ax2.legend(fontsize=9)
-    ax2.grid(True, alpha=0.3)
-
     fig.suptitle('Caratheodory-Fejer-style approximation of sqrt(1.2-x)', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'CF30.png'), dpi=150)

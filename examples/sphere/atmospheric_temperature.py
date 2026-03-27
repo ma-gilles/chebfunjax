@@ -72,7 +72,7 @@ def run():
     Y_cart = np.sin(THETA) * np.sin(PHI)
     Z_cart = np.cos(THETA)
 
-    fig = plt.figure(figsize=(15, 5))
+    fig = plt.figure()
 
     # --- Panel 1: Temperature on sphere ---
     ax1 = fig.add_subplot(131, projection='3d')
@@ -119,8 +119,6 @@ def run():
                   linewidth=2)
     ax3.set_title('Spherical harmonic\npower spectrum', fontsize=10)
     ax3.set_xlabel('Degree l'); ax3.set_ylabel('Power')
-    ax3.grid(True, alpha=0.3)
-
     fig.suptitle('Atmospheric Temperature on the Sphere', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'atmospheric_temperature.png'),

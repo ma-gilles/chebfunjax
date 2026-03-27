@@ -36,7 +36,7 @@ def run():
                           '../../docs/images/fun')
     os.makedirs(outdir, exist_ok=True)
 
-    fig = plt.figure(figsize=(15, 5))
+    fig = plt.figure()
 
     # --- Panel 1: 3D heart surface ---
     ax1 = fig.add_subplot(131, projection='3d')

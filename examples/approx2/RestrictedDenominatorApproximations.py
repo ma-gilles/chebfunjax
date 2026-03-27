@@ -46,7 +46,7 @@ def run():
     xs_plot = np.linspace(-1.0, 1.0, 400)
     true_exp = np.exp(xs_plot)
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     ax.plot(xs_plot, true_exp, 'k', lw=1.8, label='exp(x)')
@@ -57,8 +57,6 @@ def run():
         ax.plot(xs_plot, r_vals, '--', color=col, lw=1.2, label=f'p={n}')
     ax.set_title('Restricted-denominator approximants to exp(x)', fontsize=10)
     ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
-
     ax2 = axes[1]
     for n, col in zip([3, 5, 8], colors):
         r = restricted_approx(n)
@@ -66,8 +64,6 @@ def run():
         ax2.semilogy(xs_plot, err + 1e-18, '-', color=col, lw=1.3, label=f'p={n}')
     ax2.set_title('Error curves', fontsize=10)
     ax2.legend(fontsize=8)
-    ax2.grid(True, alpha=0.3)
-
     # Compare with AAA
     xs_aaa = jnp.linspace(-1.0, 1.0, 300)
     r_aaa, pol, *_ = aaa(jnp.exp(xs_aaa), xs_aaa)
@@ -77,8 +73,6 @@ def run():
     ax2.legend(fontsize=8)
 
     for ax in axes:
-        ax.set_xlabel('x')
-
     fig.suptitle('Restricted-denominator rational approximations', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'RestrictedDenominatorApproximations.png'), dpi=150)

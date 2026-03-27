@@ -103,7 +103,7 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     x_plot = np.linspace(-L, L, 300)
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4.5))
+    fig, axes = plt.subplots(1, 2)
 
     # Plot energy levels and potential
     V_harm = 2.0 * x_plot**2

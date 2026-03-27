@@ -88,7 +88,7 @@ def run():
     print(f"Exact width should be 18 = 10 - (-8)")
 
     # Plot
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    fig, axes = plt.subplots(1, 2)
 
     # Contour fill
     im = axes[0].contourf(X, Y, Z, levels=[-1e10, 0], colors=['#b87333'], alpha=0.9)

@@ -98,7 +98,7 @@ def run():
 
     # --- Plot -----------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4.5))
+    fig, axes = plt.subplots(1, 2)
 
     # 2nd order: no crossings
     colors = plt.cm.tab10(np.linspace(0, 0.5, n_eigs))

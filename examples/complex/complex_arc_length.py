@@ -118,7 +118,7 @@ def run():
 
     # --- Plots ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # Left: various curves
     ts_circle = np.linspace(0, 2*pi, 200)

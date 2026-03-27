@@ -77,7 +77,7 @@ def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/geom')
     os.makedirs(outdir, exist_ok=True)
-    fig = plt.figure(figsize=(12, 4))
+    fig = plt.figure()
 
     # Torus
     ax1 = fig.add_subplot(131, projection='3d')
@@ -109,8 +109,6 @@ def run():
     ax3.set_title("Torus SA vs. major radius R", fontsize=10)
     ax3.set_xlabel("R (major radius)")
     ax3.set_ylabel("Surface area")
-    ax3.grid(True, alpha=0.3)
-
     fig.suptitle("Parametric surfaces: torus and sphere", fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, "parametric_surfaces.png"), dpi=150, bbox_inches="tight")

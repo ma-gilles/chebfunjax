@@ -72,7 +72,7 @@ def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/sphere')
     os.makedirs(outdir, exist_ok=True)
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4))
+    fig, axes = plt.subplots(1, 3)
 
     lam_p = np.linspace(0, 2*np.pi, 200)
     th_p = np.linspace(0, np.pi, 100)

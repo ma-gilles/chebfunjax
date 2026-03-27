@@ -54,7 +54,7 @@ def run():
     integral = np.sum(p) * dx * dy
     print(f"Integral of bivariate normal PDF ≈ {integral:.10f}  (exact: 1.0)")
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+    fig, axes = plt.subplots(1, 3)
 
     # --- 1. Contour plot of joint PDF ---
     levels = np.linspace(0.001, np.max(p), 15)

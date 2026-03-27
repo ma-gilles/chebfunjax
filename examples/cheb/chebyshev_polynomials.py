@@ -32,7 +32,7 @@ def run():
     os.makedirs(outdir, exist_ok=True)
 
     # --- Plot T_0 through T_8 -------------------------------------------
-    fig, axes = plt.subplots(3, 3, figsize=(12, 9))
+    fig, axes = plt.subplots(3, 3)
     xx = np.linspace(-1, 1, 500)
 
     for n in range(9):
@@ -48,8 +48,6 @@ def run():
         ax.set_title(f'$T_{n}(x)$', fontsize=11)
         ax.set_ylim(-1.3, 1.3)
         ax.set_xlim(-1.05, 1.05)
-        ax.grid(True, alpha=0.3)
-
     fig.suptitle('Chebyshev polynomials $T_0$ through $T_8$', fontsize=13)
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'chebyshev_polynomials.png'),

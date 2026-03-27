@@ -98,7 +98,7 @@ def run():
 
     # --- Plot -----------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4.5))
+    fig, axes = plt.subplots(1, 2)
 
     # Plot potential and eigenvalue levels
     axes[0].fill_between(x_land, V_land, alpha=0.3, color='steelblue', label="V(x)")

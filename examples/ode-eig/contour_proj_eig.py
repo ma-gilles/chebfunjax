@@ -63,7 +63,7 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(range(1, k_total+1), lams_sorted, 'bo', markersize=6, label="computed λ_k")
     axes[0].plot(range(1, k_total+1), exact, 'r^', markersize=5, label="exact k²", alpha=0.7)

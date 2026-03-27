@@ -100,7 +100,7 @@ def run():
     # ------------------------------------------------------------------
     # Plot: ranks vs k parameter
     # ------------------------------------------------------------------
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    fig, axes = plt.subplots(1, 2)
 
     # Hard function ranks
     ax1 = axes[0]
@@ -110,8 +110,6 @@ def run():
     ax1.set_ylabel("Tucker rank", fontsize=12)
     ax1.set_title("tanh(k(x+y+z)): Tucker rank vs k", fontsize=11)
     ax1.legend()
-    ax1.grid(True)
-
     # Easy function ranks
     ax2 = axes[1]
     rx_easy = [r[0] for r in ranks_easy]
@@ -120,8 +118,6 @@ def run():
     ax2.set_ylabel("Tucker rank", fontsize=12)
     ax2.set_title("1/(1+k*r²): Tucker rank vs k", fontsize=11)
     ax2.legend()
-    ax2.grid(True)
-
     fig.suptitle("Chebfun3 Tucker ranks for hard vs easy functions", fontsize=13)
     fig.tight_layout()
     fig.savefig(

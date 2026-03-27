@@ -45,7 +45,7 @@ def run():
     f_s_vals = np.array([float(f_smooth(jnp.array(x))) for x in xx])
     f_true = np.array([float(f_pw(jnp.array(x))) for x in xx])
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     ax.plot(xx, f_e_vals, 'b', lw=1.8, label='piecewise (breakpoints at 2,5)')
@@ -54,15 +54,10 @@ def run():
     ax.axvline(5.0, color='r', lw=1.0, ls='--')
     ax.set_title('Piecewise chebfun with explicit breakpoints', fontsize=10)
     ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
-
     ax2 = axes[1]
     err_vals = np.abs(f_s_vals - f_true)
     ax2.semilogy(xx, err_vals + 1e-18, 'b', lw=1.5)
     ax2.set_title('Error of smooth (no-breakpoint) approximation', fontsize=10)
-    ax2.set_xlabel('x')
-    ax2.grid(True, alpha=0.3)
-
     fig.suptitle('Edge detection: piecewise vs. smooth chebfun', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'EdgeDetection.png'), dpi=150)

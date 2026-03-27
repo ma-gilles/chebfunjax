@@ -90,7 +90,7 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     xs = np.linspace(0.0, 1.0, 400)
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # Left: first 6 Bernoulli polynomials
     colors = plt.cm.tab10(np.linspace(0, 1, 7))

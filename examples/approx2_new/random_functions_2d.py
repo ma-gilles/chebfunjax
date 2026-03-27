@@ -63,7 +63,7 @@ def run():
 
     # Plot
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+    fig, axes = plt.subplots(2, 2)
     axes = axes.ravel()
     xs = np.linspace(-1, 1, 50)
     X, Y = np.meshgrid(xs, xs)

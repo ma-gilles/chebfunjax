@@ -114,7 +114,7 @@ def run():
 
     # Plot
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     colors = plt.cm.viridis(np.linspace(0, 1, len(history)))
     for i, (u_h, t_h) in enumerate(zip(history, t_vals)):

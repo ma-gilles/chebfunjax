@@ -53,7 +53,7 @@ def run():
                           '../../docs/images/stats')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # Plot random function on [0, 20] with local maxima marked
     dx = 1.0

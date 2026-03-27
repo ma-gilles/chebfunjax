@@ -92,7 +92,7 @@ def run():
     h_vals = np.array(h(jnp.array(xs_plot)))
     q_vals = np.array(q(jnp.array(xs_plot)))
 
-    fig, axes = plt.subplots(2, 2, figsize=(10, 7))
+    fig, axes = plt.subplots(2, 2)
     axes[0, 0].plot(xs_plot, f_vals, color="#1e77b4", linewidth=1.2)
     axes[0, 0].set_title("f: sine + approximate delta impulses")
     axes[0, 0].set_xlabel("x")

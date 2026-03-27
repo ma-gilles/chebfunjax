@@ -84,7 +84,7 @@ def run():
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
     t_plot = jnp.linspace(0.0, T_end, 400)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(sol.t, sol.y[0] * 3.6, 'b', linewidth=1.8, label="scipy")
     axes[0].plot(t_plot, v_cheb(t_plot) * 3.6, 'r--', linewidth=1.4, label="chebfunjax")

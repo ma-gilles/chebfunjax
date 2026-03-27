@@ -100,7 +100,7 @@ def run():
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
     x_plot = jnp.linspace(0.0, L, 400)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(sol.t, sol.y[0], 'b', linewidth=1.8, label="scipy shooting")
     axes[0].plot(x_plot, u_lin(x_plot), 'r--', linewidth=1.4, label="linear (lam=0)")

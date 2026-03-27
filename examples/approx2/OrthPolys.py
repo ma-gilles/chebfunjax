@@ -59,7 +59,7 @@ def run():
     xx = np.linspace(-1.0, 1.0, 400)
     colors = ['b', 'r', 'g', 'm', 'orange']
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     for k, p in enumerate(polys):
@@ -68,9 +68,6 @@ def run():
                 label=f'P_{k}')
     ax.set_title('Orthogonal polynomials wrt w=exp(πx)', fontsize=11)
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3)
-    ax.set_xlabel('x')
-
     # Verify orthonormality: inner product matrix should be I
     w = cj.chebfun(w_func)
     I_matrix = np.zeros((N + 1, N + 1))

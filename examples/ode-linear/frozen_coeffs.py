@@ -91,7 +91,7 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].semilogy(sol.t, norm_x, 'b', linewidth=1.4, label="switched (A1/A2)")
     axes[0].semilogy(sol2.t, norm_x2, 'r', linewidth=1.4, label="stable (A3/A4)")

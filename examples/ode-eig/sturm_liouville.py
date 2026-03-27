@@ -82,7 +82,7 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     import matplotlib.pyplot as _plt
     import numpy as _np
-    fig, ax = _plt.subplots(figsize=(6, 3.5))
+    fig, ax = _plt.subplots()
     _lam1_arr = _np.sort(_np.real(_np.array(lam1[:5])))
     ax.plot(_np.arange(1, 6), _lam1_arr, "o-", color="#4169E1",
             linewidth=1.5, markersize=6, label="−u″ on [0,π]")
@@ -90,9 +90,6 @@ def run():
     ax.set_ylabel("λ", fontsize=10)
     ax.set_title("Sturm-Liouville eigenvalues", fontsize=11)
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3, linestyle="--")
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
     fig.set_facecolor("white")
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "sturm_liouville.png"),

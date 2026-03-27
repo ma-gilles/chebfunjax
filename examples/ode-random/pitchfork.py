@@ -95,7 +95,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # Panel 1: no damping
     axes[0].plot(t_eval, y0, 'k--', linewidth=2, alpha=0.7, label='no noise')

@@ -96,7 +96,7 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     import matplotlib.pyplot as _plt
     import numpy as _np
-    fig, ax = _plt.subplots(figsize=(6, 3.5))
+    fig, ax = _plt.subplots()
     _f_plot = Chebfun(funs=[piece], domain=Domain((-1.0, 1.0)))
     _xs = _np.linspace(-1.0, 1.0, 600)
     ax.plot(_xs, _np.array(_f_plot(jnp.array(_xs))), color="#4169E1",
@@ -107,9 +107,6 @@ def run():
     ax.set_title("Random Chebyshev polynomial roots", fontsize=11)
     ax.set_xlabel("x", fontsize=10)
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3, linestyle="--")
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
     fig.set_facecolor("white")
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "random_polynomials.png"),

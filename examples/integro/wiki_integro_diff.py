@@ -90,7 +90,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(x_eval, exact_vals, 'r-', linewidth=2, label='Exact')
     axes[0].plot(x_eval[::20], u_vals[::20], 'b.', markersize=8, label='solve_ivp')

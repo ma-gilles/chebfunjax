@@ -135,7 +135,7 @@ def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/fun')
     os.makedirs(outdir, exist_ok=True)
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4))
+    fig, axes = plt.subplots(1, 3)
 
     # Koch snowflake
     axes[0].plot(snowflake[:, 0], snowflake[:, 1], 'b-', linewidth=0.5)

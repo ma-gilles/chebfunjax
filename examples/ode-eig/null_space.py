@@ -106,7 +106,7 @@ def run():
 
     # --- Plot -----------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # Example 1 plots
     axes[0].plot(x_plot, vals1, 'b', linewidth=1.8, label="const nullfn (=1)")

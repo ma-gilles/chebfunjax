@@ -110,7 +110,7 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+    fig, axes = plt.subplots(1, 2)
 
     colors = ['b', 'r', 'g']
     for (xi, yi), c, lab in zip([(x1,y1),(x2,y2),(x3,y3)], colors, ['m1','m2','m3']):

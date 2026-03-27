@@ -31,7 +31,7 @@ def run():
     # --- Random polynomials in the Chebyshev basis -----------------------
     # A "random Chebfun" with Gaussian coefficients decaying as exp(-k/10)
     n = 50
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+    fig, axes = plt.subplots(1, 2)
 
     all_roots = []
     n_trials = 30

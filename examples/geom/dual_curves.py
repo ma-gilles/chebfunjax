@@ -50,7 +50,7 @@ def run():
                           '../../docs/images/geom')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    fig, axes = plt.subplots(1, 3)
 
     # --- 1. Point and its dual line ---
     a, b = 1.0, np.pi / 3

@@ -82,7 +82,7 @@ def run():
     print("  All trig inner products correct.")
 
     # Plot
-    fig, ax = plt.subplots(figsize=(8, 4))
+    fig, ax = plt.subplots()
     xx = np.linspace(-1, 1, 400)
     fv = np.array(f(jnp.array(xx)))
     ax.plot(xx, fv, 'b-', linewidth=1.6, label='$f(x) = e^{\\sin x}$')
@@ -91,7 +91,6 @@ def run():
     ax.set_title(f'$e^{{\\sin x}}$: L1={norms["L1"]:.4f}, L2={norms["L2"]:.4f}, L∞={norms["Linf"]:.4f}',
                  fontsize=11)
     ax.legend(fontsize=10)
-    ax.grid(True, alpha=0.3)
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'inner_products.png'), dpi=150, bbox_inches='tight')
     plt.close(fig)

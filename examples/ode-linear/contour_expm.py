@@ -77,7 +77,7 @@ def run():
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
     colors = ['b', 'r', 'g', 'm']
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     for t, c in zip(t_vals, colors):
         axes[0].plot(x_plot, heat_exact(x_plot, t), color=c,
