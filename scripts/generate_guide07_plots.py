@@ -120,7 +120,10 @@ except Exception as e:
 # Plot 6: u'' - sign(x)*u = 0, u(-60)=1, u(60)=0 -- Section 7.4
 # ==========================================================================
 try:
-    N5 = Chebop(lambda x, u: u.diff(2) - cj.sign(x)*u, domain=(-60.0, 60.0))
+    # sign(x) must be built on the same domain
+    x60 = cj.chebfun(lambda t: t, domain=(-60.0, 60.0))
+    sign_x60 = cj.sign(x60)
+    N5 = Chebop(lambda x, u: u.diff(2) - sign_x60*u, domain=(-60.0, 60.0))
     N5.lbc = 1.0; N5.rbc = 0.0
     u5 = N5.solve(0.0)
     fig, ax = plt.subplots(figsize=(6, 4))
@@ -276,8 +279,14 @@ try:
     D2_np = np.array(D2_mat)
     bc_left = np.array(eval_at(-1.0).matrix(disc)).ravel()
     bc_right = np.array(eval_at(1.0).matrix(disc)).ravel()
-    full_mat = np.zeros((6, 6))
-    full_mat[0, :] = bc_left; full_mat[1, :] = bc_right; full_mat[2:, :] = D2_np
+
+    # D2 matrix may be rectangular (n-2) x n; build the full constrained matrix
+    n_op = D2_np.shape[0]
+    n_tot = D2_np.shape[1]
+    full_mat = np.zeros((n_tot, n_tot))
+    full_mat[0, :] = bc_left
+    full_mat[1, :] = bc_right
+    full_mat[2:2+n_op, :] = D2_np
 
     fig, ax = plt.subplots(figsize=(5, 5))
     ax.spy(full_mat, markersize=10, color=CHEBFUN_BLUE)

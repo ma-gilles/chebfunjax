@@ -119,7 +119,7 @@ u = L.solve(lambda x: -jnp.ones_like(x))
 print(f"u(0) = {float(u(jnp.float64(0.0))):.15f}")   # 0.5
 ```
 
-![Solution of u'' = -1 with Dirichlet BCs](../images/guide/guide07_01.png)
+![cumsum(x) on [0,1]](../images/guide/guide07_01.png)
 
 ### Adaptive Discretization
 
@@ -155,6 +155,8 @@ u = L.solve(lambda t: jnp.ones_like(t))
 
 ![Variable-coefficient BVP: u'' + x^3 u = 1](../images/guide/guide07_02.png)
 
+![Same problem with Neumann BC on the right, overlaid](../images/guide/guide07_03.png)
+
 ### Verifying the Solution
 
 You can verify the residual by evaluating the operator on the solution:
@@ -178,7 +180,7 @@ u = N.solve(-1.0)
 print(f"u(0) = {float(u(jnp.float64(0.0))):.15f}")
 ```
 
-![Chebop solution of u'' = -1](../images/guide/guide07_03.png)
+![Chebop solution of u'' = -1 with Dirichlet BCs](../images/guide/guide07_04.png)
 
 ### Boundary Condition Types
 
@@ -237,6 +239,8 @@ print("Eigenvalues:", lam)
 # Should be approximately 1, 4, 9, 16, 25, 36
 ```
 
+![Eigenmodes of the second derivative on [0, pi]](../images/guide/guide07_08.png)
+
 ### Using Chebop for Eigenvalues
 
 ```python
@@ -285,6 +289,8 @@ print(f"D2 matrix shape: {D2_mat.shape}")
 print(D2_mat)
 ```
 
+![Cosine solution on [-10, 10]](../images/guide/guide07_14.png)
+
 ### Conditioning
 
 Chebyshev spectral differentiation matrices are notoriously ill-conditioned. For a second-order problem, one typically loses 2-3 digits of accuracy relative to machine precision, and 5-6 digits for fourth-order problems. This is a well-known feature of spectral methods (Trefethen 2000).
@@ -309,7 +315,7 @@ print(f"u({mid:.4f}) = {float(u(jnp.float64(mid))):.10f}")
 print(f"cos({mid:.4f}) = {float(jnp.cos(jnp.float64(mid))):.10f}")
 ```
 
-![Harmonic oscillator: u'' + u = 0](../images/guide/guide07_04.png)
+![Harmonic oscillator system: u and u'](../images/guide/guide07_15.png)
 
 ## 7.9 Quantum States
 
@@ -328,8 +334,6 @@ V = x**2
 eigenvalues, eigenfunctions = cj.quantumstates(V, n=5, h=0.1)
 print("Energy levels:", eigenvalues)
 ```
-
-![Quantum harmonic oscillator eigenstates](../images/guide/guide07_05.png)
 
 ## 7.10 GMRES for Operator Equations
 

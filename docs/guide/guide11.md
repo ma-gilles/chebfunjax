@@ -73,7 +73,7 @@ print(f"Number of points: {f.n}")
 print(f"Number of Fourier modes: {f.n // 2}")
 ```
 
-![](../images/guide/guide11_01.png)
+![Trigtech: tanh(3*sin(pi*t)) - sin(pi*(t+0.5))](../images/guide/guide11_01.png)
 
 
 ### Construction from Values and Coefficients
@@ -93,7 +93,7 @@ coeffs = trig_vals2coeffs(vals)
 f2 = Trigtech.from_coeffs(coeffs)
 ```
 
-![](../images/guide/guide11_02.png)
+![Fourier projection vs interpolation error](../images/guide/guide11_02.png)
 
 
 ## 11.4 Fourier Coefficient Transforms
@@ -113,7 +113,7 @@ coeffs = trig_vals2coeffs(vals)
 print("Fourier coefficients:", coeffs)
 ```
 
-![](../images/guide/guide11_03.png)
+![Trigfun with roots and extrema marked](../images/guide/guide11_03.png)
 
 
 The coefficients are stored in ascending wavenumber order: for odd $N = 2M+1$, the array contains $c_{-M}, c_{-M+1}, \ldots, c_0, \ldots, c_M$.
@@ -127,7 +127,7 @@ vals_reconstructed = trig_coeffs2vals(coeffs)
 print("Max error:", float(jnp.max(jnp.abs(vals_reconstructed - vals))))
 ```
 
-![](../images/guide/guide11_04.png)
+![Absolute value of a trigfun](../images/guide/guide11_04.png)
 
 
 ## 11.5 Basic Operations on Trigtech
@@ -142,7 +142,7 @@ x = jnp.array([0.0, 0.25, 0.5])
 print(f(x))
 ```
 
-![](../images/guide/guide11_05.png)
+![Noisy function smoothed by circular convolution](../images/guide/guide11_05.png)
 
 
 ### Differentiation
@@ -159,7 +159,7 @@ print(f"df(0) = {float(df(jnp.float64(0.0))):.15f}")
 print(f"pi    = {float(jnp.pi):.15f}")
 ```
 
-![](../images/guide/guide11_06.png)
+![Fourier coefficients of exp(sin(pi*t))](../images/guide/guide11_06.png)
 
 
 This exactness is a key advantage over Chebyshev representations for periodic functions, where repeated differentiation gradually degrades accuracy near the endpoints.
@@ -226,6 +226,8 @@ print(f"Number of modes: {f.n}")
 # Use cj.plotcoeffs to visualize the coefficient decay
 ```
 
+![Fourier coefficients of exp(sin(pi*t)) -- entire function](../images/guide/guide11_06.png)
+
 ### Analytic Functions (Geometric Decay)
 
 For functions analytic in a strip of width $d$ around the real axis, coefficients decay as $|c_k| \sim e^{-d|k|}$ (geometric/exponential rate):
@@ -235,6 +237,8 @@ For functions analytic in a strip of width $d$ around the real axis, coefficient
 f = Trigtech.from_function(lambda t: 1.0 / (2.0 - jnp.cos(jnp.pi * t)))
 print(f"Number of modes: {f.n}")
 ```
+
+![Fourier coefficients of 1/(2-cos(pi*t)) -- geometric decay](../images/guide/guide11_07.png)
 
 ### Functions with Finite Smoothness (Algebraic Decay)
 
@@ -246,6 +250,10 @@ f = Trigtech.from_function(lambda t: jnp.abs(jnp.sin(jnp.pi * t))**5)
 print(f"Number of modes: {f.n}")
 # Coefficients decay as |k|^{-6}
 ```
+
+![Fourier coefficients of |sin(pi*t)|^5 -- algebraic decay](../images/guide/guide11_08.png)
+
+![Log-log plot of |sin(pi*t)|^5 coefficients with k^{-6} reference](../images/guide/guide11_09.png)
 
 ## 11.8 Non-Periodic Functions: A Warning
 
@@ -331,6 +339,8 @@ for k in range(-degree, degree + 1):
 # in the L^2 sense
 vals_trunc = trig_coeffs2vals(trunc_coeffs)
 ```
+
+![Gibbs phenomenon: truncated Fourier series of a square wave](../images/guide/guide11_10.png)
 
 The $L^2$-optimal truncated Fourier series minimizes the integrated squared error, but does not minimize the pointwise (maximum) error. Near discontinuities, the overshoot converges to approximately 8.95% of the jump (the Gibbs constant).
 

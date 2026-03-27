@@ -28,7 +28,7 @@ N.rbc = -1.0
 u = N.solve(0.0)
 ```
 
-![](../images/guide/guide10_01.png)
+![Boundary layer problem: eps*u'' + x*u = exp(x)](../images/guide/guide10_01.png)
 
 
 ### How Newton Iteration Works
@@ -60,8 +60,10 @@ u = N.solve(
 )
 ```
 
-![](../images/guide/guide10_02.png)
+![Nonlinear BVP: 0.001*u'' - u^3 = 0](../images/guide/guide10_02.png)
 
+
+![Newton convergence: quadratic decay of correction norms](../images/guide/guide10_05.png)
 
 ### Linearity Detection
 
@@ -90,7 +92,7 @@ N.rbc = 1.0
 u = N.solve(lambda x: jnp.exp(x))
 ```
 
-![](../images/guide/guide10_03.png)
+![Carrier problem solution](../images/guide/guide10_03.png)
 
 
 ### Carrier's Problem
@@ -114,9 +116,6 @@ N.rbc = 0.0
 u1 = N.solve(1.0)
 ```
 
-![](../images/guide/guide10_04.png)
-
-
 ### The Bratu Equation
 
 $$u'' + \lambda e^u = 0, \quad u(0) = u(1) = 0$$
@@ -131,9 +130,6 @@ N.lbc = 0.0
 N.rbc = 0.0
 u = N.solve(0.0)
 ```
-
-![](../images/guide/guide10_05.png)
-
 
 ## 10.4 Initial-Value Problems with `ivp`
 
@@ -154,8 +150,7 @@ print(f"u(0.5) = {float(u(jnp.float64(0.5))):.10f}")
 print(f"exact  = {exact(0.5):.10f}")
 ```
 
-![](../images/guide/guide10_06.png)
-
+![IVP: u' = u^2 solution](../images/guide/guide10_06.png)
 
 ### Multiple Initial Conditions
 
@@ -172,8 +167,7 @@ print(f"u(pi) = {float(u(jnp.float64(jnp.pi))):.10f}")
 print(f"cos(pi) = {float(jnp.cos(jnp.pi)):.10f}")
 ```
 
-![](../images/guide/guide10_07.png)
-
+![Harmonic oscillator IVP: u'' + u = 0](../images/guide/guide10_07.png)
 
 ### Chebop for IVPs
 
@@ -240,6 +234,8 @@ N = Chebop(
 N.lbc = [3.0, 0.0]
 u = N.solve(0.0, n=256)
 ```
+
+![Van der Pol oscillator](../images/guide/guide10_08.png)
 
 ## 10.7 BVP Convenience Functions: `bvp4c` and `bvp5c`
 
