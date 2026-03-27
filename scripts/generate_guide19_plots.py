@@ -28,7 +28,8 @@ def save(fig, desc):
 # ---- Plot 1: KdV equation solution ----
 try:
     from chebfunjax.spin import spin
-    x, t, u = spin('KdV', N=512, dt=3e-6)
+    # Use built-in defaults (N=512, dt=3e-6, tspan 0..0.03015)
+    x, t, u = spin('KdV')
     fig, ax = plt.subplots(figsize=(6, 3.5))
     ax.plot(x, np.real(u), color=CHEBFUN_BLUE, linewidth=1.8)
     ax.set_title(f"KdV equation at $t = {t:.4g}$", fontsize=11)
@@ -45,7 +46,7 @@ except Exception:
 # ---- Plot 2: Allen-Cahn equation solution ----
 try:
     from chebfunjax.spin import spin
-    x, t, u = spin('AC', N=256, dt=0.1)
+    x, t, u = spin('AC')
     fig, ax = plt.subplots(figsize=(6, 3.5))
     ax.plot(x, np.real(u), color=CHEBFUN_BLUE, linewidth=1.8)
     ax.set_title(f"Allen-Cahn at $t = {t:.4g}$", fontsize=11)
@@ -62,7 +63,7 @@ except Exception:
 # ---- Plot 3: Kuramoto-Sivashinsky equation solution ----
 try:
     from chebfunjax.spin import spin
-    x, t, u = spin('KS', N=256, dt=1e-2)
+    x, t, u = spin('KS')
     fig, ax = plt.subplots(figsize=(6, 3.5))
     ax.plot(x, np.real(u), color=CHEBFUN_BLUE, linewidth=1.0)
     ax.set_title(f"Kuramoto-Sivashinsky at $t = {t:.4g}$", fontsize=11)
@@ -79,7 +80,7 @@ except Exception:
 # ---- Plot 4: NLS equation solution (|u|^2) ----
 try:
     from chebfunjax.spin import spin
-    x, t, u = spin('NLS', N=256, dt=1e-4)
+    x, t, u = spin('NLS')
     fig, ax = plt.subplots(figsize=(6, 3.5))
     ax.plot(x, np.abs(u)**2, color=CHEBFUN_BLUE, linewidth=1.8)
     ax.set_title(f"NLS $|u|^2$ at $t = {t:.4g}$", fontsize=11)
@@ -96,11 +97,11 @@ except Exception:
 # ---- Plot 5: 2D Ginzburg-Landau ----
 try:
     from chebfunjax.spin import spin2
-    xx, yy, t, u = spin2('GL', N=64, dt=5e-3)
-    u_real = np.abs(np.asarray(u)) if not isinstance(u, list) else np.abs(np.asarray(u[0]))
+    xx, yy, t, u = spin2('GL')
+    u_plot = np.abs(np.asarray(u)) if not isinstance(u, list) else np.abs(np.asarray(u[0]))
 
     fig, ax = plt.subplots(figsize=(5, 5))
-    cs = ax.pcolormesh(xx, yy, u_real, cmap='inferno', shading='auto')
+    cs = ax.pcolormesh(xx, yy, u_plot, cmap='inferno', shading='auto')
     plt.colorbar(cs, ax=ax, fraction=0.046, pad=0.04)
     ax.set_title(f"2D Ginzburg-Landau $|u|$ at $t={t:.1f}$", fontsize=11)
     ax.set_xlabel("x")
@@ -116,11 +117,11 @@ except Exception:
 # ---- Plot 6: 2D Swift-Hohenberg ----
 try:
     from chebfunjax.spin import spin2
-    xx, yy, t, u = spin2('SH', N=64, dt=1e-1)
-    u_real = np.real(np.asarray(u)) if not isinstance(u, list) else np.real(np.asarray(u[0]))
+    xx, yy, t, u = spin2('SH')
+    u_plot = np.real(np.asarray(u)) if not isinstance(u, list) else np.real(np.asarray(u[0]))
 
     fig, ax = plt.subplots(figsize=(5, 5))
-    cs = ax.pcolormesh(xx, yy, u_real, cmap='RdBu_r', shading='auto')
+    cs = ax.pcolormesh(xx, yy, u_plot, cmap='RdBu_r', shading='auto')
     plt.colorbar(cs, ax=ax, fraction=0.046, pad=0.04)
     ax.set_title(f"2D Swift-Hohenberg at $t={t:.1f}$", fontsize=11)
     ax.set_xlabel("x")
@@ -136,11 +137,11 @@ except Exception:
 # ---- Plot 7: 2D Allen-Cahn ----
 try:
     from chebfunjax.spin import spin2
-    xx, yy, t, u = spin2('AC2', N=64, dt=0.1)
-    u_real = np.real(np.asarray(u)) if not isinstance(u, list) else np.real(np.asarray(u[0]))
+    xx, yy, t, u = spin2('AC2')
+    u_plot = np.real(np.asarray(u)) if not isinstance(u, list) else np.real(np.asarray(u[0]))
 
     fig, ax = plt.subplots(figsize=(5, 5))
-    cs = ax.pcolormesh(xx, yy, u_real, cmap='RdBu_r', shading='auto')
+    cs = ax.pcolormesh(xx, yy, u_plot, cmap='RdBu_r', shading='auto')
     plt.colorbar(cs, ax=ax, fraction=0.046, pad=0.04)
     ax.set_title(f"2D Allen-Cahn at $t={t:.1f}$", fontsize=11)
     ax.set_xlabel("x")
