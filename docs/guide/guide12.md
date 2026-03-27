@@ -23,9 +23,15 @@ f = chebfun2(lambda x, y: jnp.cos(x + y**2))
 print(f)
 ```
 
+![](../images/guide/guide12_01.png)
+
+
 ```
 Chebfun2(rank=5, domain=(-1.0, 1.0, -1.0, 1.0))
 ```
+
+![](../images/guide/guide12_02.png)
+
 
 The default domain is $[-1, 1]^2$. To specify a different rectangle, pass a 4-tuple `(xa, xb, ya, yb)`:
 
@@ -34,6 +40,9 @@ g = chebfun2(lambda x, y: jnp.exp(-(x**2 + y**2)),
              domain=(-2.0, 2.0, -2.0, 2.0))
 print(g)
 ```
+
+![](../images/guide/guide12_03.png)
+
 
 ## 12.2 Evaluation
 
@@ -51,6 +60,9 @@ ys = jnp.linspace(-1, 1, 5)
 vals = f(xs, ys)  # evaluates at paired points (xs[i], ys[i])
 ```
 
+![](../images/guide/guide12_04.png)
+
+
 Evaluation is JIT-compiled, vmap-safe, and grad-safe. This means you can differentiate through `Chebfun2` evaluation using JAX's automatic differentiation:
 
 ```python
@@ -58,6 +70,9 @@ import jax
 grad_f = jax.grad(lambda x: f(x, 0.5))
 print(grad_f(0.0))  # df/dx at (0, 0.5)
 ```
+
+![](../images/guide/guide12_05.png)
+
 
 ## 12.3 Basic Operations
 
@@ -71,6 +86,9 @@ integral = f.sum2()
 print(integral)  # integral of exp(-(x^2+y^2)) over [-1,1]^2
 ```
 
+![](../images/guide/guide12_06.png)
+
+
 ### Partial integration
 
 The method `sum(dim=...)` integrates over a single variable:
@@ -82,6 +100,9 @@ g = f.sum(dim=1)  # returns a Chebfun2 representing g(x)
 # Integrate over x (dim=2), leaving a function of y
 h = f.sum(dim=2)
 ```
+
+![](../images/guide/guide12_07.png)
+
 
 ### Partial differentiation
 
@@ -104,6 +125,9 @@ print(fx(0.5, 0.3))
 print(0.3 * jnp.cos(0.15))
 ```
 
+![](../images/guide/guide12_08.png)
+
+
 ### Norms
 
 The Frobenius (L2) norm is computed by `norm()`:
@@ -112,6 +136,9 @@ The Frobenius (L2) norm is computed by `norm()`:
 f = chebfun2(lambda x, y: jnp.sin(x) * jnp.cos(y))
 print(f.norm())  # sqrt(integral |f|^2 dx dy)
 ```
+
+![](../images/guide/guide12_09.png)
+
 
 ## 12.4 Low-Rank Approximations
 

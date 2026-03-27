@@ -59,6 +59,8 @@ print(f"Length at eps=1e-8: {len(f)}")
 pref.reset("eps")  # restore default
 ```
 
+![Effect of eps on Chebyshev representation length](../images/guide/guide08_01.png)
+
 ### Context Manager for Temporary Overrides
 
 The preferred way to temporarily change preferences is with the `context` manager, which is thread-safe and automatically restores the previous values:
@@ -113,6 +115,8 @@ You can bypass the adaptive process entirely by specifying a fixed number of poi
 f_fixed = cj.chebfun(lambda x: jnp.sign(x), n=65)
 print(f"Length: {len(f_fixed)}")
 ```
+
+![Fixed-length approximation of sign(x) at different resolutions](../images/guide/guide08_02.png)
 
 ## 8.4 `domain`: The Default Domain
 

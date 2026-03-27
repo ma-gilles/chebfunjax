@@ -57,6 +57,8 @@ f = cj.chebfun(jnp.exp)
 cj.plotcoeffs(f)
 ```
 
+![Chebyshev coefficients of exp(x)](../images/guide/guide04_01.png)
+
 For an *analytic* function (one that can be continued analytically to a region
 in the complex plane), the coefficients decay geometrically -- the semilog
 plot is approximately a straight line.  For functions with limited smoothness,
@@ -236,6 +238,10 @@ cj.plotcoeffs(f1)
 f2 = cj.chebfun(lambda x: jnp.abs(x))
 cj.plotcoeffs(f2)
 ```
+
+![Coefficients of exp(x) showing geometric decay](../images/guide/guide04_02.png)
+
+![Coefficients of |x| showing algebraic decay](../images/guide/guide04_03.png)
 
 ## 4.7 The Runge Phenomenon
 

@@ -37,6 +37,10 @@ f = cj.chebfun(lambda x: jnp.cos(20 * x))
 print(f)
 ```
 
+![cos(20x) on [-1, 1]](../images/guide/guide01_01.png)
+
+![cos(20x) with Chebyshev interpolation points](../images/guide/guide01_02.png)
+
 This creates a chebfun representing $\cos(20x)$ on the default interval
 $[-1, 1]$.  The `len(f)` tells you how many Chebyshev coefficients were
 needed -- typically around 51 for this function, meaning it is represented by
@@ -95,6 +99,8 @@ r = g.roots()
 print(r[:5])    # first 5 zeros
 ```
 
+![Bessel function J_0 on [0, 100]](../images/guide/guide01_03.png)
+
 ### The Runge function
 
 The identity function $x$ on $[-1, 1]$ is obtained with `Chebfun.identity()`:
@@ -104,6 +110,8 @@ x = cj.chebfun(lambda x: x)
 f = 1 / (1 + 25 * x**2)
 print(len(f))   # about 187 coefficients
 ```
+
+![Runge function 1/(1+25x^2)](../images/guide/guide01_04.png)
 
 This is the famous Runge function $f(x) = 1/(1 + 25x^2)$, which cannot be
 accurately approximated by equispaced polynomial interpolation but is handled
@@ -184,6 +192,8 @@ f = cj.chebfun(f_pw, domain=[-1, 1, 2, 4])
 print(f)
 ```
 
+![Piecewise function on [-1, 4]](../images/guide/guide01_05.png)
+
 This creates a 3-piece chebfun.  Each piece is represented independently by
 its own Chebyshev polynomial; the global chebfun knows the breakpoints and
 routes evaluation queries to the appropriate piece.
@@ -202,6 +212,8 @@ print(g)        # 2 smooth pieces
 h = x.sign()    # sign(x) -- piecewise constant +/-1
 print(h)
 ```
+
+![abs(exp(x)*sin(8x))](../images/guide/guide01_07.png)
 
 The `abs()` method finds the roots of the original function and inserts them
 as breakpoints, so that each piece of the result is smooth.

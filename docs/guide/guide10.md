@@ -28,6 +28,9 @@ N.rbc = -1.0
 u = N.solve(0.0)
 ```
 
+![](../images/guide/guide10_01.png)
+
+
 ### How Newton Iteration Works
 
 For a nonlinear operator $\mathcal{N}[u] = f$, chebfunjax applies Newton's method in function space:
@@ -57,6 +60,9 @@ u = N.solve(
 )
 ```
 
+![](../images/guide/guide10_02.png)
+
+
 ### Linearity Detection
 
 Before starting Newton iteration, `Chebop` automatically checks whether the operator is linear:
@@ -84,6 +90,9 @@ N.rbc = 1.0
 u = N.solve(lambda x: jnp.exp(x))
 ```
 
+![](../images/guide/guide10_03.png)
+
+
 ### Carrier's Problem
 
 $$\varepsilon u'' + 2(1-x^2)u + u^2 = 1, \quad u(-1) = u(1) = 0$$
@@ -105,6 +114,9 @@ N.rbc = 0.0
 u1 = N.solve(1.0)
 ```
 
+![](../images/guide/guide10_04.png)
+
+
 ### The Bratu Equation
 
 $$u'' + \lambda e^u = 0, \quad u(0) = u(1) = 0$$
@@ -119,6 +131,9 @@ N.lbc = 0.0
 N.rbc = 0.0
 u = N.solve(0.0)
 ```
+
+![](../images/guide/guide10_05.png)
+
 
 ## 10.4 Initial-Value Problems with `ivp`
 
@@ -139,6 +154,9 @@ print(f"u(0.5) = {float(u(jnp.float64(0.5))):.10f}")
 print(f"exact  = {exact(0.5):.10f}")
 ```
 
+![](../images/guide/guide10_06.png)
+
+
 ### Multiple Initial Conditions
 
 For higher-order equations, provide a list of initial values $[u(a), u'(a), u''(a), \ldots]$:
@@ -153,6 +171,9 @@ u = ivp(
 print(f"u(pi) = {float(u(jnp.float64(jnp.pi))):.10f}")
 print(f"cos(pi) = {float(jnp.cos(jnp.pi)):.10f}")
 ```
+
+![](../images/guide/guide10_07.png)
+
 
 ### Chebop for IVPs
 

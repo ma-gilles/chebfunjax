@@ -20,6 +20,9 @@ F = Chebfun2v.from_functions(
 print(F)  # Chebfun2v(n_components=2, ...)
 ```
 
+![](../images/guide/guide15_01.png)
+
+
 You can also create a 3-component field for surfaces and 3D vector calculus:
 
 ```python
@@ -30,6 +33,9 @@ F3 = Chebfun2v.from_functions(
 )
 print(F3)  # Chebfun2v(n_components=3, ...)
 ```
+
+![](../images/guide/guide15_02.png)
+
 
 ## 15.2 Evaluation
 
@@ -45,6 +51,9 @@ ys = jnp.zeros(10)
 vals = F(xs, ys)  # shape (10, 2)
 ```
 
+![](../images/guide/guide15_03.png)
+
+
 ## 15.3 Algebraic Operations
 
 `Chebfun2v` supports the standard algebraic operations for vector fields.
@@ -54,6 +63,9 @@ vals = F(xs, ys)  # shape (10, 2)
 ```python
 G = 2.0 * F  # or F * 2.0
 ```
+
+![](../images/guide/guide15_04.png)
+
 
 ### Vector addition and subtraction
 
@@ -66,6 +78,9 @@ sum_FH = F + H
 diff_FH = F - H
 ```
 
+![](../images/guide/guide15_05.png)
+
+
 ### Dot product
 
 The dot product $\mathbf{F} \cdot \mathbf{G} = f_1 g_1 + f_2 g_2$ returns a scalar `SeparableApprox`:
@@ -74,6 +89,9 @@ The dot product $\mathbf{F} \cdot \mathbf{G} = f_1 g_1 + f_2 g_2$ returns a scal
 dot = F.dot(H)  # returns SeparableApprox
 print(dot(0.5, 0.3))  # -y*x + x*y = 0
 ```
+
+![](../images/guide/guide15_06.png)
+
 
 ### Cross product
 
