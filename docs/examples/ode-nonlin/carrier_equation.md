@@ -36,7 +36,7 @@ print(f"Solution length: {len(u)}")
 print(f"Residual: {float((eps*u.diff(2) + 2*(1-cj.chebfun(lambda x:x)**2)*u + u*u - 1).norm()):.2e}")
 ```
 
-![Carrier equation solutions from two different initial guesses](../../../images/ode-nonlin/carrier_equation.png)
+![Carrier equation solutions from two different initial guesses](../../images/ode-nonlin/carrier_equation.png)
 
 ## Multiple solutions
 

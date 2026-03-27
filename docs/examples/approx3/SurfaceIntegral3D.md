@@ -80,7 +80,7 @@ I4 = surface_integral(f4, Sx_spring, Sy_spring, Sz_spring,
 # Exact: 1878.4483...
 ```
 
-![Surface integrals of 3D scalar fields](../../../images/approx3/SurfaceIntegral3D.png)
+![Surface integrals of 3D scalar fields](../../images/approx3/SurfaceIntegral3D.png)
 
 ## References
 

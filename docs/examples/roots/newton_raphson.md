@@ -50,7 +50,7 @@ for _ in range(8):
     x = x_new
 ```
 
-![Newton-Raphson convergence to the Dottie number](../../../images/roots/newton_raphson.png)
+![Newton-Raphson convergence to the Dottie number](../../images/roots/newton_raphson.png)
 
 The error plot shows quadratic convergence: the log-error approximately doubles
 at each iteration (the curve bends sharply down).

@@ -38,7 +38,7 @@ res = (1 - x_test**2) * T4pp(x_test) - x_test * T4p(x_test) + 16 * T4(x_test)
 print(f"Chebyshev eq. residual: max {np.max(np.abs(res)):.2e}")
 ```
 
-![Linear ODEs from Wikipedia: Legendre and Chebyshev](../../../images/ode-linear/wiki_odes.png)
+![Linear ODEs from Wikipedia: Legendre and Chebyshev](../../images/ode-linear/wiki_odes.png)
 
 ## Hermite's equation
 

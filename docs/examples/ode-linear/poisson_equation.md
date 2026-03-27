@@ -47,7 +47,7 @@ print(f"Poisson equation spectral error (n={n}): {err:.2e}")
 Poisson equation spectral error (n=50): 1.19e-14
 ```
 
-![Poisson equation spectral solution](../../../images/ode-linear/poisson_equation.png)
+![Poisson equation spectral solution](../../images/ode-linear/poisson_equation.png)
 
 ## References
 

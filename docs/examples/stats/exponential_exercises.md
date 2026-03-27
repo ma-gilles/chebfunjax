@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Exponential Distribution Exercises](../../../docs/images/stats/exponential_exercises.png)
+![Exponential Distribution Exercises](../../images/stats/exponential_exercises.png)

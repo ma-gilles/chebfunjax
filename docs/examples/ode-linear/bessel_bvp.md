@@ -43,4 +43,4 @@ err = np.max(np.abs(y - scipy.special.j0(x)))
 print(f"Bessel BVP error: {err:.2e}")
 ```
 
-![Bessel equation BVP solution](../../../images/ode-linear/bessel_bvp.png)
+![Bessel equation BVP solution](../../images/ode-linear/bessel_bvp.png)

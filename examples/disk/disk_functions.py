@@ -14,6 +14,9 @@ import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from chebfunjax.plotting import chebfun_style
+chebfun_style()
+
 import jax.numpy as jnp
 import numpy as np
 import sys, os

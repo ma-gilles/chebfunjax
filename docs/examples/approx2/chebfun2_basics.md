@@ -46,7 +46,7 @@ print(f"∬ f dA = {integral:.10f}  (exact: {exact_int:.10f})")
 ∬ f dA = 2.2309851414  (exact: 2.2309851414)
 ```
 
-![Gaussian on [-1,1]^2: contour and 3D surface](../../../images/approx2/chebfun2_basics.png)
+![Gaussian on [-1,1]^2: contour and 3D surface](../../images/approx2/chebfun2_basics.png)
 
 ## Symmetry
 

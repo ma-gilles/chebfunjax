@@ -33,7 +33,7 @@ exp(-(x^2+y^2))                 rank = 13
 1/(1 + x^2 + y^2)               rank = 18
 ```
 
-![Rank-1 vs high-rank functions](../../../images/approx2/rank_of_functions.png)
+![Rank-1 vs high-rank functions](../../images/approx2/rank_of_functions.png)
 
 ## Why low rank matters
 
@@ -43,7 +43,7 @@ constructs the low-rank decomposition. The total storage is $O(r \cdot n)$
 where $r$ is the rank and $n$ is the number of points per dimension — much
 less than $O(n^2)$ for the full grid.
 
-![Contour plots showing rank structure](../../../images/approx2/rank_of_functions_contour.png)
+![Contour plots showing rank structure](../../images/approx2/rank_of_functions_contour.png)
 
 ## References
 

@@ -18,6 +18,9 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import chebfun_style
+chebfun_style()
+
 from chebfunjax.spherefun.spherefun import Spherefun
 
 
@@ -66,7 +69,9 @@ def run():
     print(f"\nexp(-3θ²) on sphere, rank {f3.rank}")
 
     # Plot
-    _here = os.path.dirname(os.path.abspath(__file__))
+    outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          '../../docs/images/sphere')
+    os.makedirs(outdir, exist_ok=True)
     fig, axes = plt.subplots(1, 3, figsize=(13, 4))
 
     lam_p = np.linspace(0, 2*np.pi, 200)
@@ -88,7 +93,7 @@ def run():
 
     fig.suptitle("Functions on the sphere", fontsize=13)
     fig.tight_layout()
-    fig.savefig(os.path.join(_here, "sphere_operations.png"), dpi=150, bbox_inches="tight")
+    fig.savefig(os.path.join(outdir, "sphere_operations.png"), dpi=150, bbox_inches="tight")
     plt.close(fig)
 
     print("\nAll assertions passed.")

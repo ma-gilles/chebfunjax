@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Constant Width Curves](../../../docs/images/geom/constant_width.png)
+![Constant Width Curves](../../images/geom/constant_width.png)

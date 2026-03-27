@@ -50,7 +50,7 @@ print(f"x* ≈ {x_opt:.4f}  (exact: 1.0)")
 x* ≈ 1.0152  (exact: 1.0)
 ```
 
-![Rosenbrock contours and min-over-y curve](../../../images/opt/rosenbrock.png)
+![Rosenbrock contours and min-over-y curve](../../images/opt/rosenbrock.png)
 
 ## Refining to machine precision
 

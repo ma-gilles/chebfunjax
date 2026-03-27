@@ -10,6 +10,9 @@ Original MATLAB: https://www.chebfun.org/examples/applics/EuropeanOptions.html
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from chebfunjax.plotting import chebfun_style
+chebfun_style()
+
 import numpy as np
 from scipy.stats import norm
 import os

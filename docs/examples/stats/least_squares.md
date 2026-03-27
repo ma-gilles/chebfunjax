@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Least Squares Fitting](../../../docs/images/stats/least_squares.png)
+![Least Squares Fitting](../../images/stats/least_squares.png)

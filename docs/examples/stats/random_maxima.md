@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Random Maxima](../../../docs/images/stats/random_maxima.png)
+![Random Maxima](../../images/stats/random_maxima.png)

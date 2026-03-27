@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Uniform Distribution Exercises](../../../docs/images/stats/uniform_exercises.png)
+![Uniform Distribution Exercises](../../images/stats/uniform_exercises.png)

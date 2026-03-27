@@ -35,7 +35,7 @@ print(f"Amplitude at resonance: {A:.4f}")
 print(f"Phase shift: {np.degrees(phi):.2f} degrees")
 ```
 
-![Linear IVP cosine forcing solution](../../../images/ode-linear/linear_ivp_cosine.png)
+![Linear IVP cosine forcing solution](../../images/ode-linear/linear_ivp_cosine.png)
 
 ## Chebfun integration
 

@@ -36,7 +36,7 @@ n=30: cond(V_equi)=2.93e+27, cond(V_cheb)=5.62e+08
 
 The equispaced Vandermonde matrix is **exponentially ill-conditioned**.
 
-![Condition number growth](../../../images/linalg/condition_numbers.png)
+![Condition number growth](../../images/linalg/condition_numbers.png)
 
 ## The Chebyshev-Vandermonde matrix
 

@@ -49,7 +49,7 @@ y_vdp = sol.sol(t_vdp)
 print(f"Van der Pol: max |y| = {np.max(np.abs(y_vdp[0])):.4f}")
 ```
 
-![Exact solutions from Bender & Orszag](../../../images/ode-nonlin/exact_solutions_bender_orszag.png)
+![Exact solutions from Bender & Orszag](../../images/ode-nonlin/exact_solutions_bender_orszag.png)
 
 ## References
 

@@ -20,6 +20,9 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import chebfun_style
+chebfun_style()
+
 
 
 def count_zeros_inside(f_complex, r, n_pts=4000):

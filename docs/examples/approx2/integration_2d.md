@@ -41,7 +41,7 @@ outer = float(fy.sum())
 print(f"Iterated integral: {outer:.8f}")
 ```
 
-![Integration contour and surface plots](../../../images/approx2/integration_2d.png)
+![Integration contour and surface plots](../../images/approx2/integration_2d.png)
 
 ## Volumes under surfaces
 
@@ -52,7 +52,7 @@ vol = float(bump.sum())
 print(f"∬ exp(-10(x²+y²)) dA = {vol:.8f}")
 ```
 
-![Contour plots of integrated functions](../../../images/approx2/integration_2d_contour.png)
+![Contour plots of integrated functions](../../images/approx2/integration_2d_contour.png)
 
 The chebfun2 `sum` method integrates the Chebyshev expansion term by term,
 requiring no quadrature rule and achieving spectral accuracy automatically.

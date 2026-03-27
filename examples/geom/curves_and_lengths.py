@@ -19,6 +19,9 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import chebfun_style
+chebfun_style()
+
 
 
 def ellipse_perimeter(a, b, n=100000):
@@ -85,7 +88,9 @@ def run():
     assert abs(area_rose - np.pi/2) < 1e-10
 
     # --- Plot ---
-    _here = os.path.dirname(os.path.abspath(__file__))
+    outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          '../../docs/images/geom')
+    os.makedirs(outdir, exist_ok=True)
     fig, axes = plt.subplots(1, 3, figsize=(13, 4))
 
     t = np.linspace(0, 2*np.pi, 500)
@@ -118,7 +123,7 @@ def run():
 
     fig.suptitle("Geometric curves with chebfunjax", fontsize=13)
     fig.tight_layout()
-    fig.savefig(os.path.join(_here, "curves_and_lengths.png"), dpi=150, bbox_inches="tight")
+    fig.savefig(os.path.join(outdir, "curves_and_lengths.png"), dpi=150, bbox_inches="tight")
     plt.close(fig)
 
     print("\nAll assertions passed.")

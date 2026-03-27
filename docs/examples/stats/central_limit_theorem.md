@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Central Limit Theorem](../../../docs/images/stats/central_limit_theorem.png)
+![Central Limit Theorem](../../images/stats/central_limit_theorem.png)

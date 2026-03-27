@@ -77,7 +77,7 @@ for it in range(8):
     Fcur = s[0] * np.outer(U[:,0], Vt[0,:]).reshape(-1)  # rank-1 approx
 ```
 
-![Alternating projections to find rank-one functions](../../../images/approx3/FindingRankOne.png)
+![Alternating projections to find rank-one functions](../../images/approx3/FindingRankOne.png)
 
 ## References
 

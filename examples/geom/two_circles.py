@@ -17,6 +17,9 @@ import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
+from chebfunjax.plotting import chebfun_style
+chebfun_style()
+
 
 
 def run():
@@ -24,83 +27,86 @@ def run():
                           '../../docs/images/geom')
     os.makedirs(outdir, exist_ok=True)
 
-    # Circle 1: quarter-circle of radius 1 about (-1, 1)
-    # Upper arc: y = 1 + sqrt(1 - (x+1)^2) restricted to visible region
-    # Circle 2: quarter-circle of radius 2 about (1, -1)
-    # Upper arc: y = -1 + sqrt(4 - (x-1)^2)
+    # Two unit circles: C1 centred at (0,0), C2 centred at (1,0).
+    # They intersect at x = 0.5 (by symmetry).
+    # Upper arcs:  y =  sqrt(1 - x^2)  and  y = sqrt(1 - (x-1)^2)
+    # Lower arcs:  y = -sqrt(1 - x^2)  and  y = -sqrt(1 - (x-1)^2)
 
-    def big_circle(x):
-        """y = -1 + sqrt(4 - (x-1)^2), radius=2, center=(1,-1)."""
-        val = 4 - (x - 1)**2
-        if np.isscalar(val):
-            return -1 + np.sqrt(max(val, 0))
-        return -1 + np.sqrt(np.maximum(val, 0))
+    def c1_upper(x):
+        return np.sqrt(np.maximum(1.0 - x**2, 0.0))
 
-    def little_circle(x):
-        """y = 2 - sqrt(1 - (x+1)^2), radius=1, center=(-1,1)."""
-        val = 1 - (x + 1)**2
-        if np.isscalar(val):
-            return 2 - np.sqrt(max(val, 0))
-        return 2 - np.sqrt(np.maximum(val, 0))
+    def c1_lower(x):
+        return -c1_upper(x)
 
-    # Find intersection points on x in [-1, 0]
-    diff_fn = lambda x: big_circle(x) - little_circle(x)
-    x1 = brentq(diff_fn, -1.0, -0.5)
-    x2 = brentq(diff_fn, -0.5, 0.0)
-    y1 = big_circle(x1)
-    y2 = big_circle(x2)
-    print(f"Intersection points: ({x1:.6f}, {y1:.6f}) and ({x2:.6f}, {y2:.6f})")
+    def c2_upper(x):
+        return np.sqrt(np.maximum(1.0 - (x - 1.0)**2, 0.0))
 
-    # Area of overlap = integral_{x1}^{x2} [big_circle(x) - little_circle(x)] dx
-    xs_int = np.linspace(x1, x2, 10000)
-    big_vals = np.array([big_circle(xi) for xi in xs_int])
-    little_vals = np.array([little_circle(xi) for xi in xs_int])
-    area_numerical = np.trapezoid(big_vals - little_vals, xs_int)
+    def c2_lower(x):
+        return -c2_upper(x)
 
-    # Exact answer from Professor Povey
-    exact = np.arccos(5 * np.sqrt(2) / 8) + 4 * np.arccos(11 * np.sqrt(2) / 16) - np.sqrt(7) / 2
-    print(f"Area of overlap:")
-    print(f"  Numerical = {area_numerical:.10f}")
-    print(f"  Exact     = {exact:.10f}")
-    print(f"  Error     = {abs(area_numerical - exact):.2e}")
+    # Intersection x-coordinates: x^2 = (x-1)^2  =>  x = 0.5
+    x_int = 0.5
+    y_int = c1_upper(x_int)
+    print(f"Intersection points: ({x_int:.4f}, ±{y_int:.4f})")
+
+    # Overlap region bounded by x in [-0.5, 0.5] for C1 and [0.5, 1.5] for C2
+    # but symmetrically we integrate from 0 to 0.5 with C1 above C2 lower, etc.
+    # More cleanly: integrate width of overlap for each x in [0, 1]:
+    #   left half  [0, 0.5]: min(c1_upper, c2_upper) - max(c1_lower, c2_lower)
+    #   right half [0.5, 1]: same
+
+    # Exact area of overlap for two unit circles with centre distance d=1:
+    # A = 2 * arccos(d/2) - (d/2)*sqrt(4 - d^2)
+    d = 1.0
+    exact = 2.0 * np.arccos(d / 2.0) - (d / 2.0) * np.sqrt(4.0 - d**2)
+    print(f"Exact overlap area: {exact:.10f}")
+
+    # Numerical check via trapezoid
+    xs_ov = np.linspace(0.0, 1.0, 50000)
+    overlap_height = np.minimum(c1_upper(xs_ov), c2_upper(xs_ov)) \
+                   - np.maximum(c1_lower(xs_ov), c2_lower(xs_ov))
+    # Only valid where both circles are present
+    in_c1 = xs_ov**2 <= 1.0
+    in_c2 = (xs_ov - 1.0)**2 <= 1.0
+    mask = in_c1 & in_c2
+    area_numerical = np.trapezoid(np.where(mask, overlap_height, 0.0), xs_ov)
+    print(f"Numerical overlap area: {area_numerical:.10f}")
+    print(f"Error: {abs(area_numerical - exact):.2e}")
     assert abs(area_numerical - exact) < 1e-4
 
-    # Plot
+    # --- Plot ---
     fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
-    # Draw the region
-    xs_big = np.linspace(-1, 1, 500)
-    ys_big = np.array([big_circle(xi) for xi in xs_big])
-    xs_little = np.linspace(-1, 0, 500)
-    ys_little = np.array([little_circle(xi) for xi in xs_little])
+    theta = np.linspace(0, 2 * np.pi, 400)
 
-    # Bounding box
-    axes[0].plot([-1, 1, 1, -1, -1], [0, 0, 2, 2, 0], 'k-', linewidth=1.5)
+    # Left panel: the two circles and their overlap region
+    xs_fill = np.linspace(0.0, 1.0, 600)
+    ys_top = np.minimum(c1_upper(xs_fill), c2_upper(xs_fill))
+    ys_bot = np.maximum(c1_lower(xs_fill), c2_lower(xs_fill))
+    in_both = (xs_fill**2 <= 1.0) & ((xs_fill - 1.0)**2 <= 1.0)
 
-    # Fill overlap region
-    xs_fill = np.linspace(x1, x2, 300)
-    axes[0].fill_between(xs_fill,
-                         [little_circle(xi) for xi in xs_fill],
-                         [big_circle(xi) for xi in xs_fill],
-                         color='red', alpha=0.5, label=f'Overlap area={area_numerical:.4f}')
-    axes[0].plot(xs_big, ys_big, 'k-', linewidth=2, label='Big circle (r=2)')
-    axes[0].plot(xs_little, ys_little, 'k--', linewidth=2, label='Little circle (r=1)')
-    axes[0].plot([x1, x2], [y1, y2], '.b', markersize=10, label='Intersections')
-    axes[0].set_xlim(-1, 1); axes[0].set_ylim(0, 2)
-    axes[0].set_aspect('equal')
-    axes[0].set_title('Two overlapping circles', fontsize=11)
-    axes[0].legend(fontsize=8); axes[0].grid(True, alpha=0.3)
+    axes[0].fill_between(xs_fill, np.where(in_both, ys_bot, np.nan),
+                         np.where(in_both, ys_top, np.nan),
+                         color='red', alpha=0.4, label=f'Overlap ≈ {area_numerical:.4f}')
+    axes[0].plot(np.cos(theta), np.sin(theta), 'b-', lw=2, label='Circle 1')
+    axes[0].plot(1 + np.cos(theta), np.sin(theta), 'k-', lw=2, label='Circle 2')
+    axes[0].plot([x_int, x_int], [-y_int, y_int], 'ro', ms=7)
+    axes[0].set_aspect('equal'); axes[0].grid(True, alpha=0.3)
+    axes[0].set_xlim(-1.3, 2.3); axes[0].set_ylim(-1.3, 1.3)
+    axes[0].set_title('Two unit circles, d = 1', fontsize=11)
+    axes[0].legend(fontsize=9)
 
-    # Plot area integrand
-    axes[1].plot(xs_int, big_vals - little_vals, 'r-', linewidth=2)
-    axes[1].fill_between(xs_int, big_vals - little_vals, alpha=0.3, color='red')
-    axes[1].axvline(x1, color='b', linestyle='--', alpha=0.7)
-    axes[1].axvline(x2, color='b', linestyle='--', alpha=0.7)
-    axes[1].set_title(f'big_circle - little_circle\n'
-                      f'Integral = {area_numerical:.6f} (exact = {exact:.6f})', fontsize=10)
-    axes[1].set_xlabel('x'); axes[1].grid(True, alpha=0.3)
+    # Right panel: overlap area vs centre distance d
+    ds = np.linspace(0, 2, 300)
+    areas = 2 * np.arccos(ds / 2) - (ds / 2) * np.sqrt(np.maximum(4 - ds**2, 0))
+    axes[1].plot(ds, areas, 'b-', lw=2)
+    axes[1].axvline(d, color='r', linestyle='--', label=f'd = {d}')
+    axes[1].axhline(exact, color='r', linestyle=':', alpha=0.7)
+    axes[1].set_xlabel('Centre distance d'); axes[1].set_ylabel('Overlap area')
+    axes[1].set_title('Overlap area vs. separation', fontsize=11)
+    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
 
-    fig.suptitle('Area of Overlap of Two Circles', fontsize=13)
+    fig.suptitle('Area of Overlap of Two Unit Circles', fontsize=13)
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'two_circles.png'),
                 dpi=150, bbox_inches='tight')

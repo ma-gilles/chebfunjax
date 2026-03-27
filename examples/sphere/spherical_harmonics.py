@@ -18,6 +18,9 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import chebfun_style
+chebfun_style()
+
 from chebfunjax.spherefun.spherefun import Spherefun
 
 
@@ -56,7 +59,9 @@ def run():
     assert err_eq < 1e-8
 
     # --- Plot ---
-    _here = os.path.dirname(os.path.abspath(__file__))
+    outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          '../../docs/images/sphere')
+    os.makedirs(outdir, exist_ok=True)
     fig = plt.figure(figsize=(12, 4))
 
     # Mollweide-like projection of cos(lambda)*sin(theta)
@@ -94,7 +99,7 @@ def run():
 
     fig.suptitle("Spherical harmonics and Spherefun", fontsize=13)
     fig.tight_layout()
-    fig.savefig(os.path.join(_here, "spherical_harmonics.png"), dpi=150, bbox_inches="tight")
+    fig.savefig(os.path.join(outdir, "spherical_harmonics.png"), dpi=150, bbox_inches="tight")
     plt.close(fig)
 
     print("\nAll assertions passed.")

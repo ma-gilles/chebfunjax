@@ -19,6 +19,9 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import chebfun_style
+chebfun_style()
+
 
 
 def run():
@@ -71,7 +74,9 @@ def run():
     assert abs(vol - 4*np.pi/3) < 1e-10
 
     # --- Plot torus ---
-    _here = os.path.dirname(os.path.abspath(__file__))
+    outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          '../../docs/images/geom')
+    os.makedirs(outdir, exist_ok=True)
     fig = plt.figure(figsize=(12, 4))
 
     # Torus
@@ -108,7 +113,7 @@ def run():
 
     fig.suptitle("Parametric surfaces: torus and sphere", fontsize=12)
     fig.tight_layout()
-    fig.savefig(os.path.join(_here, "parametric_surfaces.png"), dpi=150, bbox_inches="tight")
+    fig.savefig(os.path.join(outdir, "parametric_surfaces.png"), dpi=150, bbox_inches="tight")
     plt.close(fig)
 
     print("\nAll assertions passed.")

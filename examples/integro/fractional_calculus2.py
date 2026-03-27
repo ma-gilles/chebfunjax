@@ -12,6 +12,9 @@ Original MATLAB: https://www.chebfun.org/examples/integro/FracCalc2.html
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from chebfunjax.plotting import chebfun_style
+chebfun_style()
+
 import numpy as np
 from scipy.special import gamma, legendre as sp_legendre
 from numpy.polynomial import chebyshev as C

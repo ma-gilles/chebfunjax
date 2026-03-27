@@ -44,7 +44,7 @@ For large $n$, the eigenvalue density follows **Weyl's law**:
 $\lambda_n \sim n^2 \pi^2 / L^2$ for a domain of length $L$. The asymptotic
 density of eigenvalues below $\Lambda$ is $\sim L\sqrt{\Lambda}/\pi$.
 
-![Laplacian eigenvalues and eigenfunctions](../../../images/ode-eig/laplacian_eigenvalues.png)
+![Laplacian eigenvalues and eigenfunctions](../../images/ode-eig/laplacian_eigenvalues.png)
 
 ## 2D Laplacian
 

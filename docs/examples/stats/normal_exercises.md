@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Normal Distribution Exercises](../../../docs/images/stats/normal_exercises.png)
+![Normal Distribution Exercises](../../images/stats/normal_exercises.png)

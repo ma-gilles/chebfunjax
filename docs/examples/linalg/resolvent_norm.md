@@ -39,7 +39,7 @@ $$\Lambda_\varepsilon(A) = \{z \in \mathbb{C} : \|(zI - A)^{-1}\| \geq 1/\vareps
 For normal matrices, this is just an $\varepsilon$-neighborhood of the spectrum.
 For non-normal matrices, it can be much larger.
 
-![Resolvent norm and pseudospectrum](../../../images/linalg/resolvent_norm.png)
+![Resolvent norm and pseudospectrum](../../images/linalg/resolvent_norm.png)
 
 ## References
 

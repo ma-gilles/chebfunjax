@@ -49,4 +49,4 @@ local_mins = [(xc, float(g(jnp.array(xc))))
 print(f"Number of local minima: {len(local_mins)}")
 ```
 
-![Minimum of smooth function](../../../images/opt/minimum_of_smooth_function.png)
+![Minimum of smooth function](../../images/opt/minimum_of_smooth_function.png)

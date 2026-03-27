@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Resampling Random Variables](../../../docs/images/stats/resampling_random_variables.png)
+![Resampling Random Variables](../../images/stats/resampling_random_variables.png)

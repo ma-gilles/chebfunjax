@@ -46,7 +46,7 @@ Eigenvalues (first 8):
   E_3 = 3.500000  (exact: 3.500000)
 ```
 
-![Harmonic oscillator eigenstates](../../../images/ode-eig/harmonic_oscillator.png)
+![Harmonic oscillator eigenstates](../../images/ode-eig/harmonic_oscillator.png)
 
 ## Hermite polynomial eigenfunctions
 

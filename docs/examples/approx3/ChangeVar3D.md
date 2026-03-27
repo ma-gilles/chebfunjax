@@ -89,7 +89,7 @@ Torus volume: 78.956835
 Exact 8π²:    78.956835
 ```
 
-![Coordinate transformations for 3D integration](../../../images/approx3/ChangeVar3D.png)
+![Coordinate transformations for 3D integration](../../images/approx3/ChangeVar3D.png)
 
 ## References
 

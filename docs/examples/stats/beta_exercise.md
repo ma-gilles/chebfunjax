@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Beta Distribution Exercise](../../../docs/images/stats/beta_exercise.png)
+![Beta Distribution Exercise](../../images/stats/beta_exercise.png)

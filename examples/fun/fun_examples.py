@@ -22,6 +22,9 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import chebfun_style
+chebfun_style()
+
 
 
 def run():
@@ -129,7 +132,9 @@ def run():
     assert len(walk_fine) == 500
 
     # --- Plot ---
-    _here = os.path.dirname(os.path.abspath(__file__))
+    outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          '../../docs/images/fun')
+    os.makedirs(outdir, exist_ok=True)
     fig, axes = plt.subplots(1, 3, figsize=(13, 4))
 
     # Koch snowflake
@@ -154,7 +159,7 @@ def run():
 
     fig.suptitle("Fun examples", fontsize=13)
     fig.tight_layout()
-    fig.savefig(os.path.join(_here, "fun_examples.png"), dpi=150, bbox_inches="tight")
+    fig.savefig(os.path.join(outdir, "fun_examples.png"), dpi=150, bbox_inches="tight")
     plt.close(fig)
 
     print("\nAll assertions passed.")

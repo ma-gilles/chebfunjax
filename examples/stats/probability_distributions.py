@@ -19,6 +19,9 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import chebfun_style
+chebfun_style()
+
 
 
 def normal_pdf(mu=0.0, sigma=1.0):
@@ -112,6 +115,8 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
+    outdir = os.path.join(_here, '../../docs/images/stats')
+    os.makedirs(outdir, exist_ok=True)
     fig, axes = plt.subplots(1, 3, figsize=(13, 4))
 
     # Normal PDFs
@@ -143,7 +148,7 @@ def run():
 
     fig.suptitle("Probability distributions", fontsize=13)
     fig.tight_layout()
-    fig.savefig(os.path.join(_here, "probability_distributions.png"), dpi=150, bbox_inches="tight")
+    fig.savefig(os.path.join(outdir, "probability_distributions.png"), dpi=150, bbox_inches="tight")
     plt.close(fig)
 
     print("\nAll assertions passed.")

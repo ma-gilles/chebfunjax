@@ -22,6 +22,9 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import chebfun_style
+chebfun_style()
+
 from chebfunjax.operators.linop import Linop
 from chebfunjax.operators.chebop import Chebop
 
@@ -82,7 +85,9 @@ def run():
         assert err < 1e-6
 
     # --- Plot ---
-    _here = os.path.dirname(os.path.abspath(__file__))
+    outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          '../../docs/images/integro')
+    os.makedirs(outdir, exist_ok=True)
     fig, axes = plt.subplots(1, 2, figsize=(10, 4))
 
     x1 = np.linspace(0, 2, 200)
@@ -109,7 +114,7 @@ def run():
 
     fig.suptitle("Integro-differential equations", fontsize=13)
     fig.tight_layout()
-    fig.savefig(os.path.join(_here, "integro_diff.png"), dpi=150, bbox_inches="tight")
+    fig.savefig(os.path.join(outdir, "integro_diff.png"), dpi=150, bbox_inches="tight")
     plt.close(fig)
 
     print("\nAll assertions passed.")

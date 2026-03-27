@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Random Surfaces](../../../docs/images/stats/random_surf.png)
+![Random Surfaces](../../images/stats/random_surf.png)

@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Procrustes Shape Analysis](../../../docs/images/geom/procrustes.png)
+![Procrustes Shape Analysis](../../images/geom/procrustes.png)

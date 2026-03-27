@@ -46,7 +46,7 @@ in the complex plane. For a function of degree 85, the ellipse extends roughly
 $1/85$ of the interval length into the complex plane — enough to capture
 roots that are close to the real axis.
 
-![Bernstein ellipses for f on [0,30]](../../../images/roots/roots_near_axis.png)
+![Bernstein ellipses for f on [0,30]](../../images/roots/roots_near_axis.png)
 
 The ellipses shown have semi-minor axes $\approx$ Im(f singularities).
 The function $\sin(x)$ has singularities at $\pm i$, $\sin(\pi x)$ at

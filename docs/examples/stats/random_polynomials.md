@@ -52,7 +52,7 @@ fraction = np.mean((np.array(all_roots) > -0.5) & (np.array(all_roots) < 0.5))
 print(f"Fraction in (-0.5, 0.5): {fraction:.4f}  (expected: 0.3333)")
 ```
 
-![Random polynomials and arcsine root distribution](../../../images/stats/random_polynomials.png)
+![Random polynomials and arcsine root distribution](../../images/stats/random_polynomials.png)
 
 The histogram of root locations (right panel) closely follows the arcsine
 density (red curve), confirming the theoretical prediction.

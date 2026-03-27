@@ -51,7 +51,7 @@ print(f"Wilkinson polynomial: {len(roots)} roots found")
 print(f"Max error: {np.max(np.abs(roots - exact)):.2e}")
 ```
 
-![Polynomial roots: Chebyshev and Wilkinson](../../../images/roots/polynomial_roots.png)
+![Polynomial roots: Chebyshev and Wilkinson](../../images/roots/polynomial_roots.png)
 
 ## Notes
 

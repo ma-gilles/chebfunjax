@@ -20,6 +20,9 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.plotting import chebfun_style
+chebfun_style()
+
 
 
 def black_scholes_call(S, K, T, r, sigma):
@@ -107,7 +110,9 @@ def run():
     print(f"\n2D Black-Scholes (S in [50,200], σ in [0.1,0.5]): rank {f_2d.rank}")
 
     # --- Plot ---
-    _here = os.path.dirname(os.path.abspath(__file__))
+    outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          '../../docs/images/applics')
+    os.makedirs(outdir, exist_ok=True)
     fig, axes = plt.subplots(1, 3, figsize=(13, 4))
 
     S_plot = np.linspace(50, 200, 200)
@@ -140,7 +145,7 @@ def run():
 
     fig.suptitle("Black-Scholes option pricing", fontsize=13)
     fig.tight_layout()
-    fig.savefig(os.path.join(_here, "finance_applications.png"), dpi=150, bbox_inches="tight")
+    fig.savefig(os.path.join(outdir, "finance_applications.png"), dpi=150, bbox_inches="tight")
     plt.close(fig)
 
     print("\nAll assertions passed.")

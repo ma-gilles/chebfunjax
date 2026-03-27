@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Two Circles](../../../docs/images/geom/two_circles.png)
+![Two Circles](../../images/geom/two_circles.png)

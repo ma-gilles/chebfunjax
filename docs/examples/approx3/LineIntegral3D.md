@@ -78,7 +78,7 @@ I = np.trapezoid(f_const(np.cos(t), np.sin(t), np.zeros_like(t)), t)
 print(f"∫_circle 1 ds = {float(I):.6f}")  # 2*pi = 6.283185
 ```
 
-![Line integrals over 3D curves](../../../images/approx3/LineIntegral3D.png)
+![Line integrals over 3D curves](../../images/approx3/LineIntegral3D.png)
 
 ## References
 

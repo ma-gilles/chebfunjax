@@ -81,7 +81,7 @@ This highlights an important distinction: the **rank** of a function
 can be small (4, 3, 5 here) while its **1D complexity** is high
 (each fiber needs ~705 Chebyshev terms).
 
-![Wagon's function Tucker factor fibers and coefficient decay](../../../images/approx3/Wagon.png)
+![Wagon's function Tucker factor fibers and coefficient decay](../../images/approx3/Wagon.png)
 
 ## References
 

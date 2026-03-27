@@ -49,7 +49,7 @@ PE_total = float(PE.sum())
 print(f"Catenary potential energy: {PE_total:.6f}")
 ```
 
-![Catenary shape and energy comparison](../../../images/opt/catenary.png)
+![Catenary shape and energy comparison](../../images/opt/catenary.png)
 
 ## References
 

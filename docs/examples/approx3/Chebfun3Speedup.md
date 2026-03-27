@@ -71,7 +71,7 @@ f_mixed = chebfun3(lambda x, y, z: jnp.tanh(10*(x+y)) * jnp.cos(z))
 print(f"tanh(10(x+y))*cos(z): rank = {f_mixed.rank}")
 ```
 
-![Tucker ranks for hard vs easy functions](../../../images/approx3/Chebfun3Speedup.png)
+![Tucker ranks for hard vs easy functions](../../images/approx3/Chebfun3Speedup.png)
 
 ## References
 
