@@ -120,6 +120,9 @@ def run():
     fig.suptitle("Battery test integrals", fontsize=11)
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "battery_test.png"), dpi=150, bbox_inches="tight")
+    _docs = os.path.join(_here, "..", "..", "docs", "images", "quad")
+    os.makedirs(_docs, exist_ok=True)
+    fig.savefig(os.path.join(_docs, "battery_test.png"), dpi=150, bbox_inches="tight", facecolor="white")
     plt.close(fig)
 
     print("\nAll assertions passed.")

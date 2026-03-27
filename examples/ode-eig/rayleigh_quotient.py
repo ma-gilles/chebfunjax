@@ -44,8 +44,9 @@ def run():
     target_eig = true_eigs[0]  # smallest eigenvalue
     print(f"  True smallest eigenvalue: {target_eig:.8f}")
 
-    # Initialize with random unit vector
-    v = rng.standard_normal(n)
+    # Initialize close to the smallest eigenvector
+    _, vecs = np.linalg.eigh(A)
+    v = vecs[:, 0] + 0.01 * rng.standard_normal(n)  # perturb smallest eigenvec
     v /= np.linalg.norm(v)
     lam = v @ A @ v  # initial Rayleigh quotient
 

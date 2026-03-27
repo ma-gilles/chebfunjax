@@ -53,8 +53,11 @@ run()
 ## Output
 
 ![Can One Hear the Shape of a Chebfun?](../../images/fun/audible_chebfuns.png)
+<<<<<<< HEAD
 
 ## References
 
 1. `chebtune.m` source: <http://github.com/chebfun/chebfun/blob/master/%40chebfun/chebtune.m>
 2. Audio output files: <http://www2.maths.ox.ac.uk/chebfun/examples/fun/audio/>
+=======
+>>>>>>> origin/main
