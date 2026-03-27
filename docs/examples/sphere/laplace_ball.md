@@ -59,13 +59,12 @@ $$
 \frac{1}{4\pi}\int_{|x|=0.5} u\,dS = \overline{h}.
 $$
 
+
+![Laplace Equation on the Unit Ball](../../images/sphere/laplace_ball.png)
+
 ## Code
 
 ```python
 from examples.sphere.laplace_ball import run
 run()
 ```
-
-## Output
-
-![Laplace Equation on the Unit Ball](../../images/sphere/laplace_ball.png)

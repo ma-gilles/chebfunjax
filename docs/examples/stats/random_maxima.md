@@ -40,6 +40,4 @@ from examples.stats.random_maxima import run
 run()
 ```
 
-## Output
-
 ![Random Maxima](../../images/stats/random_maxima.png)

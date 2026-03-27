@@ -35,8 +35,6 @@ from examples.fun.scribble2 import run
 run()
 ```
 
-## Output
-
 ![A Scribble for Chebfun2](../../images/fun/scribble2.png)
 
 ## References

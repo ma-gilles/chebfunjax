@@ -53,8 +53,6 @@ from examples.fun.soccer_ball import run
 run()
 ```
 
-## Output
-
 ![Chebfun Soccerball](../../images/fun/soccer_ball.png)
 
 ## References

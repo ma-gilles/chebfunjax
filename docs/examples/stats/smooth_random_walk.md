@@ -42,6 +42,4 @@ from examples.stats.smooth_random_walk import run
 run()
 ```
 
-## Output
-
 ![Smooth Random Walk](../../images/stats/smooth_random_walk.png)

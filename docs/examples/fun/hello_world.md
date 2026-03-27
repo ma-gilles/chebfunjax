@@ -31,6 +31,11 @@ resulting object has rank exactly $k$. Contour plots of the rank-$k$
 approximations for $k = 1, 3, 5, 7, 10$ show the word "HELLO" emerging
 from blurry blobs into sharp lettering as the rank increases.
 
+
+![Hello World](../../images/fun/hello_world.png)
+
+1. L. N. Trefethen and D. Bau III, *Numerical Linear Algebra*, SIAM, 1997.
+
 ## Code
 
 ```python
@@ -38,10 +43,5 @@ from examples.fun.hello_world import run
 run()
 ```
 
-## Output
-
-![Hello World](../../images/fun/hello_world.png)
 
 ## References
-
-1. L. N. Trefethen and D. Bau III, *Numerical Linear Algebra*, SIAM, 1997.

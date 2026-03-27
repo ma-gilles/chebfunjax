@@ -43,13 +43,12 @@ retains the letter shapes with a gentle spiral offset $0.05\,r$. The
 `camorbit` command then rotates the camera 360 degrees so the viewer can read
 the message as it circles around.
 
+
+![Writing a Message in 3D](../../images/fun/writing_3d.png)
+
 ## Code
 
 ```python
 from examples.fun.writing_3d import run
 run()
 ```
-
-## Output
-
-![Writing a Message in 3D](../../images/fun/writing_3d.png)

@@ -33,13 +33,12 @@ a modified equation with an additional $-1.5\,\mathbf{1}_{x<2}$ term
 agrees with the original, confirming that Chebfun correctly enforces
 continuity conditions across breakpoints on unbounded domains.
 
+
+![An ODE on an Unbounded Interval](../../images/temp/unbounded_ode.png)
+
 ## Code
 
 ```python
 from examples.temp.unbounded_ode import run
 run()
 ```
-
-## Output
-
-![An ODE on an Unbounded Interval](../../images/temp/unbounded_ode.png)

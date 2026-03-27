@@ -73,13 +73,12 @@ that are robust over multiple scales.
    surface morphometry via weighted spherical harmonic representation,
    _IEEE Trans. On Medical Imag._, 27, 1143--1151, 2008.
 
+
+![Atmospheric Temperature](../../images/sphere/atmospheric_temperature.png)
+
 ## Code
 
 ```python
 from examples.sphere.atmospheric_temperature import run
 run()
 ```
-
-## Output
-
-![Atmospheric Temperature](../../images/sphere/atmospheric_temperature.png)

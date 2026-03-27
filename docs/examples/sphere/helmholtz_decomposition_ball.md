@@ -88,13 +88,12 @@ $$
    vector field decomposition, _ACM Trans. Graphics_, 22 (2003),
    pp. 445--452.
 
+
+![Helmholtz-Hodge in the Ball](../../images/sphere/helmholtz_decomposition_ball.png)
+
 ## Code
 
 ```python
 from examples.sphere.helmholtz_decomposition_ball import run
 run()
 ```
-
-## Output
-
-![Helmholtz-Hodge in the Ball](../../images/sphere/helmholtz_decomposition_ball.png)

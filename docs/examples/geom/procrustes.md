@@ -53,13 +53,12 @@ is actually closer in shape to a frisbee than to its own reflection!
 
 1. [Wikipedia: Procrustes](http://en.wikipedia.org/wiki/Procrustes)
 
+
+![Procrustes Shape Analysis](../../images/geom/procrustes.png)
+
 ## Code
 
 ```python
 from examples.geom.procrustes import run
 run()
 ```
-
-## Output
-
-![Procrustes Shape Analysis](../../images/geom/procrustes.png)

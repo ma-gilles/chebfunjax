@@ -48,13 +48,12 @@ operates on both the $x$ and $y$ components simultaneously, shifting
 the entire curve horizontally at the endpoints rather than just pulling
 the values toward zero.
 
+
+![Rounding Corners](../../images/geom/rounding_corners.png)
+
 ## Code
 
 ```python
 from examples.geom.rounding_corners import run
 run()
 ```
-
-## Output
-
-![Rounding Corners](../../images/geom/rounding_corners.png)

@@ -65,8 +65,6 @@ from examples.temp.frac_calc2 import run
 run()
 ```
 
-## Output
-
 ![Fractional Calculus (cont.)](../../images/temp/frac_calc2.png)
 
 ## References

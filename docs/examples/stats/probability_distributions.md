@@ -55,6 +55,4 @@ from examples.stats.probability_distributions import run
 run()
 ```
 
-## Output
-
 ![Probability Distributions](../../images/stats/probability_distributions.png)

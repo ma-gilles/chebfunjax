@@ -39,6 +39,27 @@ nav:
   - Getting Started:
     - Installation: install.md
     - Quick Start: quickstart.md
+  - Guide:
+    - "1. Getting Started": guide/guide01.md
+    - "2. Integration and Differentiation": guide/guide02.md
+    - "3. Rootfinding and Minima and Maxima": guide/guide03.md
+    - "4. Approximation Theory": guide/guide04.md
+    - "5. Complex Chebfuns": guide/guide05.md
+    - "6. Quasimatrices and Least-Squares": guide/guide06.md
+    - "7. Linear Differential Operators": guide/guide07.md
+    - "8. Preferences": guide/guide08.md
+    - "9. Infinite Intervals and Singularities": guide/guide09.md
+    - "10. Nonlinear ODEs and IVPs": guide/guide10.md
+    - "11. Periodic Chebfuns": guide/guide11.md
+    - "12. Chebfun2: Getting Started": guide/guide12.md
+    - "13. Chebfun2: Calculus": guide/guide13.md
+    - "14. Chebfun2: Rootfinding": guide/guide14.md
+    - "15. Chebfun2: Vector Calculus": guide/guide15.md
+    - "16. Diskfun": guide/guide16.md
+    - "17. Spherefun": guide/guide17.md
+    - "18. Chebfun3": guide/guide18.md
+    - "19. SPIN for Stiff PDEs": guide/guide19.md
+    - "20. Ballfun": guide/guide20.md
   - Examples:
     - Applications: examples/applics/index.md
     - Approximation (1D): examples/approx/index.md

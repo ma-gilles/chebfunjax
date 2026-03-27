@@ -40,8 +40,6 @@ from examples.fun.xmas_card import run
 run()
 ```
 
-## Output
-
 ![Merry Christmas!](../../images/fun/xmas_card.png)
 
 ## References

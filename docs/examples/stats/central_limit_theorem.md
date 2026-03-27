@@ -61,6 +61,4 @@ from examples.stats.central_limit_theorem import run
 run()
 ```
 
-## Output
-
 ![Central Limit Theorem](../../images/stats/central_limit_theorem.png)

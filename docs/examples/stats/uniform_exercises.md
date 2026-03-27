@@ -66,6 +66,4 @@ from examples.stats.uniform_exercises import run
 run()
 ```
 
-## Output
-
 ![Uniform Distribution Exercises](../../images/stats/uniform_exercises.png)

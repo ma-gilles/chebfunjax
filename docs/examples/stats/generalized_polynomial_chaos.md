@@ -63,6 +63,4 @@ from examples.stats.generalized_polynomial_chaos import run
 run()
 ```
 
-## Output
-
 ![Generalized Polynomial Chaos](../../images/stats/generalized_polynomial_chaos.png)

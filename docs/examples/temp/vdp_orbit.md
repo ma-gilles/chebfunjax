@@ -69,8 +69,6 @@ from examples.temp.vdp_orbit import run
 run()
 ```
 
-## Output
-
 ![Van der Pol Periodic Orbits](../../images/temp/vdp_orbit.png)
 
 ## References

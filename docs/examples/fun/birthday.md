@@ -37,6 +37,13 @@ greeting cards. For example:
 Playing around with different functions is a good way to learn about complex
 variables, and a good way to make greeting cards.
 
+
+![Birthday](../../images/fun/birthday.png)
+
+The left panel shows a heart-shaped card with "PAFNUTY" (Chebyshev's first name)
+written in an arc. The right panel shows "CHEBY" encoded as piecewise-linear
+strokes in the complex plane.
+
 ## Code
 
 ```python
@@ -44,10 +51,3 @@ from examples.fun.birthday import run
 run()
 ```
 
-## Output
-
-![Birthday](../../images/fun/birthday.png)
-
-The left panel shows a heart-shaped card with "PAFNUTY" (Chebyshev's first name)
-written in an arc. The right panel shows "CHEBY" encoded as piecewise-linear
-strokes in the complex plane.

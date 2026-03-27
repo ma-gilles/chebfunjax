@@ -49,13 +49,12 @@ $$
 \int_{S^2} F\,dS = \frac{1}{|\mathbf{X}|^2} = \frac{1}{1.5^2} \approx 0.4444.
 $$
 
+
+![Gravitational Attraction to a Sphere](../../images/sphere/gravity.png)
+
 ## Code
 
 ```python
 from examples.sphere.gravity import run
 run()
 ```
-
-## Output
-
-![Gravitational Attraction to a Sphere](../../images/sphere/gravity.png)

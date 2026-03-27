@@ -82,8 +82,6 @@ from examples.temp.binous_shaikh_bellagi import run
 run()
 ```
 
-## Output
-
 ![Problems from Binous, Shaikh and Bellagi](../../images/temp/binous_shaikh_bellagi.png)
 
 ## References

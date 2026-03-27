@@ -42,6 +42,4 @@ from examples.stats.histogram import run
 run()
 ```
 
-## Output
-
 ![Histogram](../../images/stats/histogram.png)

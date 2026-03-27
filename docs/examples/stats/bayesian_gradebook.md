@@ -98,6 +98,4 @@ from examples.stats.bayesian_gradebook import run
 run()
 ```
 
-## Output
-
 ![Bayesian Gradebook](../../images/stats/bayesian_gradebook.png)

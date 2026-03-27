@@ -39,13 +39,12 @@ The full system of four ODEs (state + co-state) is solved simultaneously as
 a `chebop` boundary value problem, and the solution confirms the bang-bang
 structure.
 
+
+![Optimal Performance of a Car](../../images/temp/optim_car.png)
+
 ## Code
 
 ```python
 from examples.temp.optim_car import run
 run()
 ```
-
-## Output
-
-![Optimal Performance of a Car](../../images/temp/optim_car.png)

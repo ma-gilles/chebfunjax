@@ -62,6 +62,4 @@ from examples.stats.kelly_criterion import run
 run()
 ```
 
-## Output
-
 ![Kelly Criterion](../../images/stats/kelly_criterion.png)

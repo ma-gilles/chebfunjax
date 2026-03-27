@@ -63,6 +63,4 @@ from examples.stats.probability_convolution import run
 run()
 ```
 
-## Output
-
 ![Probability Convolution](../../images/stats/probability_convolution.png)

@@ -40,6 +40,4 @@ from examples.stats.least_squares import run
 run()
 ```
 
-## Output
-
 ![Least Squares Fitting](../../images/stats/least_squares.png)

@@ -57,13 +57,12 @@ as a function of the parameter $t$.
 
 The restriction of a chebfun3 to a surface is equally straightforward.
 
+
+![Composition with Multivariate Chebfuns](../../images/temp/chebfun_composition.png)
+
 ## Code
 
 ```python
 from examples.temp.chebfun_composition import run
 run()
 ```
-
-## Output
-
-![Composition with Multivariate Chebfuns](../../images/temp/chebfun_composition.png)

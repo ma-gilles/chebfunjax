@@ -70,6 +70,4 @@ from examples.stats.exponential_exercises import run
 run()
 ```
 
-## Output
-
 ![Exponential Distribution Exercises](../../images/stats/exponential_exercises.png)

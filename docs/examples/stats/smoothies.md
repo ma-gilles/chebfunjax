@@ -67,6 +67,4 @@ from examples.stats.smoothies import run
 run()
 ```
 
-## Output
-
 ![Smoothies](../../images/stats/smoothies.png)

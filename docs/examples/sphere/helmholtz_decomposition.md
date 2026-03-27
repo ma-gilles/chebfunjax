@@ -70,13 +70,12 @@ decomposition directly: `[phi, psi] = helmholtzdecomp(f)`.
    in spherical and polar geometries I. The sphere, _SIAM J. Sci. Comp._,
    2016.
 
+
+![Helmholtz-Hodge Decomposition](../../images/sphere/helmholtz_decomposition.png)
+
 ## Code
 
 ```python
 from examples.sphere.helmholtz_decomposition import run
 run()
 ```
-
-## Output
-
-![Helmholtz-Hodge Decomposition](../../images/sphere/helmholtz_decomposition.png)

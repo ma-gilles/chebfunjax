@@ -63,13 +63,12 @@ $$
 If you cut a piece of paper in this shape, it should remain balanced when
 placed on a vertical needle centered at the centroid.
 
+
+![Area and Centroid](../../images/geom/area_centroid.png)
+
 ## Code
 
 ```python
 from examples.geom.area_centroid import run
 run()
 ```
-
-## Output
-
-![Area and Centroid](../../images/geom/area_centroid.png)

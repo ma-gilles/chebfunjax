@@ -35,13 +35,12 @@ hold.
 This example can also be found as the "Integro-differential equation" demo
 among the PDE-Scalar demos of Chebfun's CHEBGUI.
 
+
+![Time-Dependent Integro-Differential Equation](../../images/temp/integro_diff_t.png)
+
 ## Code
 
 ```python
 from examples.temp.integro_diff_t import run
 run()
 ```
-
-## Output
-
-![Time-Dependent Integro-Differential Equation](../../images/temp/integro_diff_t.png)

@@ -62,13 +62,12 @@ The solution is computed to time $t = 15$. The diffusion slowly smooths
 the initial profile while the advection rotates and distorts the pattern,
 producing a visually rich evolution.
 
+
+![Advection-Diffusion on the Sphere](../../images/sphere/advection_diffusion.png)
+
 ## Code
 
 ```python
 from examples.sphere.advection_diffusion import run
 run()
 ```
-
-## Output
-
-![Advection-Diffusion on the Sphere](../../images/sphere/advection_diffusion.png)

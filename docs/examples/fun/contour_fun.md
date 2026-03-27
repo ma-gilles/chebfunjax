@@ -52,6 +52,11 @@ Finally, the image of a person is decomposed into contour quasimatrices at
 three brightness levels (0.2, 0.4, 0.8), producing a stylised
 chebfun-portrait rendered in shades of grey.
 
+
+![Implicit Functions and Fun with Contours](../../images/fun/contour_fun.png)
+
+1. Chebfun Example [geom/Area](../geom/area_centroid.md)
+
 ## Code
 
 ```python
@@ -59,10 +64,5 @@ from examples.fun.contour_fun import run
 run()
 ```
 
-## Output
-
-![Implicit Functions and Fun with Contours](../../images/fun/contour_fun.png)
 
 ## References
-
-1. Chebfun Example [geom/Area](../geom/area_centroid.md)

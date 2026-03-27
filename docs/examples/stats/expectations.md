@@ -57,6 +57,4 @@ from examples.stats.expectations import run
 run()
 ```
 
-## Output
-
 ![Expectations of Distributions](../../images/stats/expectations.png)

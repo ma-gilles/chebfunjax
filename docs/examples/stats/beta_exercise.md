@@ -70,6 +70,4 @@ from examples.stats.beta_exercise import run
 run()
 ```
 
-## Output
-
 ![Beta Distribution Exercise](../../images/stats/beta_exercise.png)

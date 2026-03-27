@@ -47,6 +47,4 @@ from examples.stats.maxwell_exercises import run
 run()
 ```
 
-## Output
-
 ![Maxwell Distribution Exercises](../../images/stats/maxwell_exercises.png)

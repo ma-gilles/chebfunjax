@@ -40,13 +40,12 @@ This turns the already-garbled strokes into a tightly wound pattern in the
 complex plane -- one that no human eye could decipher, but that Chebfun
 reverses effortlessly.
 
+
+![Encryption of a Message](../../images/fun/encryption.png)
+
 ## Code
 
 ```python
 from examples.fun.encryption import run
 run()
 ```
-
-## Output
-
-![Encryption of a Message](../../images/fun/encryption.png)

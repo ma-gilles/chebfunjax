@@ -50,8 +50,6 @@ from examples.fun.hilbert_surface_chebsnake import run
 run()
 ```
 
-## Output
-
 ![Hilbert Curve and Chebsnake](../../images/fun/hilbert_surface_chebsnake.png)
 
 ## References

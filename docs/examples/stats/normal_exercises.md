@@ -46,6 +46,4 @@ from examples.stats.normal_exercises import run
 run()
 ```
 
-## Output
-
 ![Normal Distribution Exercises](../../images/stats/normal_exercises.png)

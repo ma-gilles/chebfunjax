@@ -50,8 +50,6 @@ from examples.fun.audible_chebfuns import run
 run()
 ```
 
-## Output
-
 ![Can One Hear the Shape of a Chebfun?](../../images/fun/audible_chebfuns.png)
 <<<<<<< HEAD
 
