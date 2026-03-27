@@ -2,7 +2,7 @@
 
 *Nick Hale and Stefan Guettel, December 2011*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-eig/nullspace.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-eig/NullSpace.html)
 
 ## Overview
 

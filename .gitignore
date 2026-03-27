@@ -34,3 +34,6 @@ benchmarks/results/
 *.bak
 tmp/
 .claude/worktrees/
+
+# Built documentation
+site/

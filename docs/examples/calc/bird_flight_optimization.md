@@ -1,6 +1,7 @@
 # Bird Flight Optimization
 
-*Original: [chebfun.org/examples/calc/BirdFlight](https://www.chebfun.org/examples/calc/BirdFlight.html)*
+**Inspired by [Chebfun](https://www.chebfun.org/) examples (calc/BirdFlight)**
+**Author(s):** Toby Driscoll, November 2012
 
 ---
 

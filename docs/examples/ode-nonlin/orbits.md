@@ -2,7 +2,7 @@
 
 *Nick Trefethen, November 2011*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/orbits.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/Orbits.html)
 
 ## Overview
 

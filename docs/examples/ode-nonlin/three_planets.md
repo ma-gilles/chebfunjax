@@ -2,7 +2,7 @@
 
 *Behnam Hashemi and Nick Trefethen, December 2014*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/threeplanets.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/ThreePlanets.html)
 
 ## Overview
 

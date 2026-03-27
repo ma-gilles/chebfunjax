@@ -1,6 +1,7 @@
 # Resolvent Norms and Pseudospectra
 
 *Original: [chebfun.org/examples/linalg/ResolventNorm](https://www.chebfun.org/examples/linalg/ResolventNorm.html)*
+**Author(s):** Nick Trefethen, May 2011
 
 ---
 

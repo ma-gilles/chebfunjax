@@ -2,7 +2,7 @@
 
 **Pedro Gonnet, September 2010**
 
-[Original MATLAB Chebfun example](https://www.chebfun.org/examples/quad/BatteryTest.html)
+[Original MATLAB source](https://github.com/chebfun/examples/blob/master/quad/BatteryTest.m)
 
 ---
 

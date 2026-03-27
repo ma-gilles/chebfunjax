@@ -2,7 +2,7 @@
 
 *Nick Trefethen, February 2015*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/guckenheimerholmes.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/GuckenheimerHolmes.html)
 
 ## Overview
 

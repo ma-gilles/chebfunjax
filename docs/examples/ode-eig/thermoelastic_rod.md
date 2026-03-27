@@ -2,7 +2,7 @@
 
 *Toby Driscoll, November 2011*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-eig/thermoelasticrod.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-eig/ThermoelasticRod.html)
 
 ## Overview
 

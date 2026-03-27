@@ -2,7 +2,7 @@
 
 *Abi Gopal and Nick Trefethen, March 2017*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-eig/levelrepulsion.html)
+[Chebfun example](https://github.com/chebfun/examples/blob/master/linalg/LevelRepulsion.m)
 
 ## Overview
 

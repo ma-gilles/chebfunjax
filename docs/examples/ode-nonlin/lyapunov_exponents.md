@@ -2,7 +2,7 @@
 
 *Hrothgar, January 2015*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/lyapunovexponents.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/LyapunovExponents.html)
 
 ## Overview
 

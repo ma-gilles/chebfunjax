@@ -2,7 +2,7 @@
 
 *Pedro Gonnet, November 2011*
 
-[Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/OrthPolysLanczos.html)
+[Original MATLAB source](https://github.com/chebfun/examples/blob/master/approx/OrthPolysLanczos.m)
 
 ## The Lanczos (Stieltjes) three-term recurrence
 

@@ -2,7 +2,7 @@
 
 **Mohsin Javed, July 2013**
 
-[Original MATLAB Chebfun example](https://www.chebfun.org/examples/complex/FourierContour.html)
+[Original MATLAB source](https://github.com/chebfun/examples/blob/master/complex/FourierContour.m)
 
 ---
 

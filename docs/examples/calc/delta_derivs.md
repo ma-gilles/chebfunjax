@@ -1,5 +1,8 @@
 # Delta functions and derivatives
 
+[Original MATLAB source](https://github.com/chebfun/examples/blob/master/calc/DeltaDerivs.m)
+
+
 **Nick Trefethen, August 2012**
 
 ---

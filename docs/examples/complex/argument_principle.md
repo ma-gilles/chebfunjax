@@ -1,6 +1,7 @@
 # Argument Principle
 
 *Original: [chebfun.org/examples/complex/Arguments](https://www.chebfun.org/examples/complex/Arguments.html)*
+**Author(s):** Nick Trefethen, May 2011
 
 ---
 

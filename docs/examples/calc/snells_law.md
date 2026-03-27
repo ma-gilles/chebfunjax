@@ -1,6 +1,7 @@
 # Snell's Law and Refraction
 
 *Original: [chebfun.org/examples/calc/SnellsLaw](https://www.chebfun.org/examples/calc/SnellsLaw.html)*
+**Author(s):** Mohsin Javed, October 2013
 
 ---
 
@@ -48,4 +49,8 @@ n2*sin(θ2) = 0.359257
 
 The numerical minimization confirms Snell's law to high accuracy.
 
+<<<<<<< HEAD
 ![Snell's law: light path and travel time](../../images/calc/snells_law.png)
+=======
+![Snell's law: light path and travel time](../../images/calc/snells_law.png)
+>>>>>>> origin/main

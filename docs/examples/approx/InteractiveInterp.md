@@ -2,7 +2,7 @@
 
 *Nick Hale, November 2012*
 
-[Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/InteractiveInterp.html)
+[Original MATLAB source](https://github.com/chebfun/examples/blob/master/approx/InteractiveInterp.m)
 
 ## Choosing interpolation nodes
 

@@ -2,7 +2,7 @@
 
 *Mohsin Javed, August 2012*
 
-[Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/CommunicationSystem.html)
+[Original MATLAB source](https://github.com/chebfun/examples/blob/master/approx/CommunicationSystem.m)
 
 ## Amplitude modulation
 

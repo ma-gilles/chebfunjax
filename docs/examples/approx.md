@@ -218,38 +218,38 @@ The figures below are generated automatically by running the example scripts
 
 ### Polynomial approximation
 
-![Polynomial approximation](../../examples/approx/polynomial_approximation.png)
+![Polynomial approximation](../../images/approx/polynomial_approximation.png)
 
 ### Chebyshev coefficient decay
 
-![Chebyshev coefficients](../../examples/approx/chebyshev_coefficients.png)
+![Chebyshev coefficients](../../images/approx/chebyshev_coefficients.png)
 
-![Coefficient decay comparison](../../examples/approx/chebyshev_coefficients_decay.png)
+![Coefficient decay comparison](../../images/approx/chebyshev_coefficients_decay.png)
 
 ### Spectral convergence rates
 
-![Rational-like convergence](../../examples/approx/rational_like_convergence.png)
+![Rational-like convergence](../../images/approx/rational_like_convergence.png)
 
-![Coefficient decay of 1/(1+25x²)](../../examples/approx/rational_like_convergence_coeffs.png)
+![Coefficient decay of 1/(1+25x²)](../../images/approx/rational_like_convergence_coeffs.png)
 
 ### Piecewise smooth functions
 
-![Piecewise smooth](../../examples/approx/piecewise_smooth.png)
+![Piecewise smooth](../../images/approx/piecewise_smooth.png)
 
 ### Bessel function approximation
 
-![Bessel approximation](../../examples/approx/bessel_approximation.png)
+![Bessel approximation](../../images/approx/bessel_approximation.png)
 
 ### Polynomial interpolation (polyfit)
 
-![Hermite interpolation / polyfit](../../examples/approx/hermite_interpolation.png)
+![Hermite interpolation / polyfit](../../images/approx/hermite_interpolation.png)
 
 ### Special functions
 
-![Special functions: erf and erfc](../../examples/approx/special_functions.png)
+![Special functions: erf and erfc](../../images/approx/special_functions.png)
 
-![Airy function](../../examples/approx/special_functions_airy.png)
+![Airy function](../../images/approx/special_functions_airy.png)
 
 ### Newton iteration for |x|
 
-![Newton iteration](../../examples/approx/absolute_value_newton.png)
+![Newton iteration](../../images/approx/absolute_value_newton.png)

@@ -22,7 +22,7 @@ Exact solution: `u(x) = (1/2) e^{-x} sin(2x)`.
 Solved via the equivalent second-order ODE obtained by differentiation:
 `u'' + 2u' + 5u = 0`, with `u(0) = 0`, `u'(0) = 1`.
 
-![WikiIntegroDiff](../../../docs/images/integro/wiki_integro_diff.png)
+![WikiIntegroDiff](../../images/integro/wiki_integro_diff.png)
 
 ---
 
@@ -48,7 +48,7 @@ The fractional integral `I^α f` via Riemann-Liouville:
 
 For `f(x) = x^k`, the exact result is `Γ(k+1)/Γ(k+1+α) * x^{k+α}`.
 
-![Fractional calculus](../../../docs/images/integro/fractional_calculus.png)
+![Fractional calculus](../../images/integro/fractional_calculus.png)
 
 ---
 
@@ -64,7 +64,7 @@ the Riemann-Liouville or Caputo definition. For `f = exp(x)`:
 - At `x = 0`: both forms give approximately 1 (between `f(0) = 1` and `f'(0) = 1`)
 - Illustrates interpolation between `f` and `f'`
 
-![Fractional calculus 2](../../../docs/images/integro/fractional_calculus2.png)
+![Fractional calculus 2](../../images/integro/fractional_calculus2.png)
 
 ---
 
@@ -83,7 +83,7 @@ The Fox-Li operator arises in laser cavity theory:
 Its spectrum has a fractal structure. Uses `chebfunjax`'s eigenvalue
 solver for compact integral operators.
 
-![Fox-Li](../../../docs/images/integro/fox_li.png)
+![Fox-Li](../../images/integro/fox_li.png)
 
 ---
 
@@ -103,7 +103,7 @@ K(s,t) = (1 - a²(t-s)²) exp(-a²(t-s)²/2)
 The numerical abscissa (maximum eigenvalue of `B = (A + A^T)/2`)
 as a function of `a` exhibits a non-smooth transition near `a ≈ 0.46`.
 
-![Vlasov-Poisson](../../../docs/images/integro/vlasov_poisson.png)
+![Vlasov-Poisson](../../images/integro/vlasov_poisson.png)
 
 | Example | Description |
 |---------|-------------|

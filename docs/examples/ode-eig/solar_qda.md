@@ -2,7 +2,7 @@
 
 *Toby Driscoll, May 2011*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-eig/solarqda.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-eig/SolarQDA.html)
 
 ## Overview
 

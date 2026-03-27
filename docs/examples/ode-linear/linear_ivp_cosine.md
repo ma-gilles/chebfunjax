@@ -1,6 +1,7 @@
 # Linear IVP with Cosine Forcing
 
 *Original: [chebfun.org/examples/ode-linear/LinearIVP](https://www.chebfun.org/examples/ode-linear/LinearIVP.html)*
+**Author(s):** Nick Trefethen and Tom Maerz, September 2010
 
 ---
 

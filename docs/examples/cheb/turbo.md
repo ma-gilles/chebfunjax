@@ -1,7 +1,7 @@
 # High-Accuracy Chebyshev Coefficients and 'Turbo'
 
 **Original MATLAB:** [cheb/Turbo](https://www.chebfun.org/examples/cheb/Turbo.html)
-**Author:** Anthony Austin and Nick Trefethen (July 2015)
+**Author(s):** Anthony Austin and Nick Trefethen, July 2015
 
 ## Overview
 

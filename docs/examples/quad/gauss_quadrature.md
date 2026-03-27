@@ -1,6 +1,6 @@
 # Gauss Quadrature
 
-*Original: [chebfun.org/examples/quad/Gauss](https://www.chebfun.org/examples/quad/Gauss.html)*
+*Original: [chebfun.org/examples/quad/Gauss](https://github.com/chebfun/examples/blob/master/quad/GaussQuad.m)*
 
 ---
 

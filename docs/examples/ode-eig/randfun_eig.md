@@ -2,7 +2,7 @@
 
 *Yuji Nakatsukasa, April 2017*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-eig/randfuneig.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-eig/Randfuneig.html)
 
 ## Overview
 

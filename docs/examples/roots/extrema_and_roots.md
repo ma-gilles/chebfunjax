@@ -1,6 +1,6 @@
 # Extrema and Roots
 
-*Original: [chebfun.org/examples/roots/Extrema](https://www.chebfun.org/examples/roots/Extrema.html)*
+**Inspired by [Chebfun](https://www.chebfun.org/) examples (roots/Extrema)**
 
 ---
 

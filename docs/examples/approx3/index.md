@@ -151,7 +151,7 @@ exact = float((jnp.exp(1.0) - jnp.exp(-1.0))**3)
 print(abs(integral - exact))   # < 1e-8
 ```
 
-![3D smooth functions](../../../examples/approx3/smooth_functions_3d.png)
+![3D smooth functions](../../images/approx3/smooth_functions_3d.png)
 
 ---
 
@@ -167,7 +167,7 @@ div_g = chebfun3(lambda x, y, z: 3 * jnp.ones_like(x + y + z))
 print(float(div_g.sum3()))   # 24.0
 ```
 
-![Flux integrals](../../../examples/approx3/flux_integral_3d.png)
+![Flux integrals](../../images/approx3/flux_integral_3d.png)
 
 | Example | Description |
 |---------|-------------|

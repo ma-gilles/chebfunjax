@@ -1,6 +1,6 @@
 # Definite and Indefinite Integrals
 
-*Original: [chebfun.org/examples/calc/Intro](https://www.chebfun.org/examples/calc/Intro.html)*
+**Inspired by [Chebfun](https://www.chebfun.org/) examples (calc/Intro)**
 
 ---
 

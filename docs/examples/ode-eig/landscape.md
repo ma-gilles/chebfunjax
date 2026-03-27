@@ -2,7 +2,7 @@
 
 *Nick Trefethen, August 2021*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-eig/landscape.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-eig/Landscape.html)
 
 ## Overview
 

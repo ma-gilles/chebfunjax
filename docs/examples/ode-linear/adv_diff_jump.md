@@ -2,7 +2,7 @@
 
 *Nick Trefethen, November 2010*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/advdiffjump.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-linear/AdvDiffJump.html)
 
 ## Overview
 

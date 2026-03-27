@@ -2,7 +2,7 @@
 
 *Tom Maerz, October 2010*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/linexpivp.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-linear/LinExpIVP.html)
 
 ## Overview
 

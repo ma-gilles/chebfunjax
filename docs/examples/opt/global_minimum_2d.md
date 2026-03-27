@@ -1,6 +1,7 @@
 # Global Minimum in 2D
 
 *Original: [chebfun.org/examples/opt/GlobalMinimum](https://www.chebfun.org/examples/opt/GlobalMinimum.html)*
+**Author(s):** Alex Townsend, March 2013
 
 ---
 

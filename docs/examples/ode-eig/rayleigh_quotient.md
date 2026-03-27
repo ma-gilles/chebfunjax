@@ -2,7 +2,7 @@
 
 *Nick Hale and Yuji Nakatsukasa, March 2017*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-eig/rayleighquotient.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-eig/RayleighQuotient.html)
 
 ## Overview
 

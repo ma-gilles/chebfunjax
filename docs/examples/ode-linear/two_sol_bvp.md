@@ -2,7 +2,7 @@
 
 *Asgeir Birkisson, May 2011*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/twosolbvp.html)
+[Chebfun example](https://github.com/chebfun/examples/blob/master/ode-linear/TwoSolBVPfromIVP.m)
 
 ## Overview
 

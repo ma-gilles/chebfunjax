@@ -1,7 +1,7 @@
 # The White Noise Paradox
 
 **Original MATLAB:** [ode-random/WhiteNoiseParadox](https://www.chebfun.org/examples/ode-random/WhiteNoiseParadox.html)
-**Author:** Nick Trefethen (May 2017)
+**Author(s):** Nick Trefethen, May 2017
 
 ## Overview
 

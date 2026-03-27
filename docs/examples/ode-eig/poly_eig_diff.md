@@ -2,7 +2,7 @@
 
 *Stefan Guettel, August 2011*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-eig/polyeigdiff.html)
+[Chebfun example](https://github.com/chebfun/examples/blob/master/ode-eig/PolyEigDiff.m)
 
 ## Overview
 

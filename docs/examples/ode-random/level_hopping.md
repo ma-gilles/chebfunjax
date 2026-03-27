@@ -1,7 +1,7 @@
 # Random Level Hopping
 
 **Original MATLAB:** [ode-random/LevelHopping](https://www.chebfun.org/examples/ode-random/LevelHopping.html)
-**Author:** Nick Trefethen (May 2017)
+**Author(s):** Nick Trefethen, May 2017
 
 ## Overview
 

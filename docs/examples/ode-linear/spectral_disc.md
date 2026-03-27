@@ -2,7 +2,7 @@
 
 *Nick Trefethen, August 2016*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/spectraldisc.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-linear/SpectralDisc.html)
 
 ## Overview
 

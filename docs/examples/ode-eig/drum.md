@@ -2,7 +2,7 @@
 
 *Toby Driscoll, November 2010*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-eig/drum.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-eig/Drum.html)
 
 ## Overview
 

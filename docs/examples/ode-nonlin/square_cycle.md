@@ -2,7 +2,7 @@
 
 *Nick Trefethen, May 2019*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/squarecycle.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/SquareCycle.html)
 
 ## Overview
 

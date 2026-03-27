@@ -2,7 +2,7 @@
 
 *Nick Trefethen, January 2012*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-eig/eigenstates.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-eig/Eigenstates.html)
 
 ## Overview
 

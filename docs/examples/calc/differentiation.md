@@ -1,6 +1,6 @@
 # Differentiation
 
-*Original: [chebfun.org/examples/calc/Differentiation](https://www.chebfun.org/examples/calc/Differentiation.html)*
+**Inspired by [Chebfun](https://www.chebfun.org/) examples (calc/Differentiation)**
 
 ---
 

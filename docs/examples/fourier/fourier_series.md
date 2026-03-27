@@ -1,6 +1,7 @@
 # Fourier Series and the Gibbs Phenomenon
 
 *Original: [chebfun.org/examples/fourier/FourierBasedChebfuns](https://www.chebfun.org/examples/fourier/FourierBasedChebfuns.html)*
+**Author(s):** Nick Trefethen, July 2015
 
 ---
 

@@ -2,7 +2,7 @@
 
 *Nick Trefethen, October 2016*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/nearnonuniqueness.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-linear/NearNonuniqueness.html)
 
 ## Overview
 

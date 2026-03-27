@@ -25,7 +25,7 @@ g = cj.diskfun(lambda x, y: x**2 + y**2)
 print(g.sum2())         # pi/2 ≈ 1.5708
 ```
 
-![Disk functions](../../../examples/disk/disk_functions.png)
+![Disk functions](../../images/disk/disk_functions.png)
 
 ---
 

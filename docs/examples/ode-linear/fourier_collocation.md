@@ -2,7 +2,7 @@
 
 *Hadrien Montanelli, December 2014*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/fouriercollocation.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-linear/FourierCollocation.html)
 
 ## Overview
 

@@ -1,5 +1,8 @@
 # Surfaces of revolution
 
+[Original MATLAB source](https://github.com/chebfun/examples/blob/master/calc/SurfaceRevolution.m)
+
+
 **Georges Klein, March 2013**
 
 ---

@@ -1,6 +1,6 @@
 # Complex Functions via Parameterization
 
-*Original: [chebfun.org/examples/complex/ComplexFunctions](https://www.chebfun.org/examples/complex/ComplexFunctions.html)*
+**Inspired by [Chebfun](https://www.chebfun.org/) examples (complex/ComplexFunctions)**
 
 ---
 

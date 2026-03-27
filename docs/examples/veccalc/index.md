@@ -32,7 +32,7 @@ lap_exact = cj.chebfun2(
 print(float((lap_computed - lap_exact).norm()))   # < 1e-6
 ```
 
-![Vector calculus](../../../examples/veccalc/vector_calculus.png)
+![Vector calculus](../../images/veccalc/vector_calculus.png)
 
 ---
 

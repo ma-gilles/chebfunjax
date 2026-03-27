@@ -1,6 +1,7 @@
 # Constrained Extrema
 
 *Original: [chebfun.org/examples/opt/ConstrainedExtrema](https://www.chebfun.org/examples/opt/ConstrainedExtrema.html)*
+**Author(s):** Olivier Sete, November 2016
 
 ---
 

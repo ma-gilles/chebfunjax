@@ -2,7 +2,7 @@
 
 *Nick Trefethen, July 2013*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/logistic.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/Logistic.html)
 
 ## Overview
 

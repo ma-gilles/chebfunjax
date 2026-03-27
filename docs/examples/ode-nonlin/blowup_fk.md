@@ -2,7 +2,7 @@
 
 *Nick Trefethen, September 2010*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/blowupfk.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/BlowupFK.html)
 
 ## Overview
 

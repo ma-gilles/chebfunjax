@@ -1,7 +1,7 @@
 # The Doublelength Flag
 
 **Original MATLAB:** [cheb/DoublelengthFlag](https://www.chebfun.org/examples/cheb/DoublelengthFlag.html)
-**Author:** Nick Trefethen (February 2015)
+**Author(s):** Nick Trefethen, February 2015
 
 ## Overview
 

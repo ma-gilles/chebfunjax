@@ -2,7 +2,7 @@
 
 *Hadrien Montanelli, December 2014*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/fouriernonlin.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/FourierCollocationNonLin.html)
 
 ## Overview
 

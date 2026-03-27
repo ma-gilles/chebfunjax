@@ -2,7 +2,7 @@
 
 **Source:** `pde/SVDFrequencyResponse.m` — Lieu & Jovanovic, January 2012
 **Python:** `examples/pde/svd_frequency_response.py`
-**Original MATLAB:** https://www.chebfun.org/examples/pde/SVDFrequencyResponse.html
+**Original MATLAB:** https://github.com/chebfun/examples/blob/master/pde/SVDFrequencyResponse.m
 
 ## Problem
 
@@ -69,7 +69,7 @@ First singular function matches `sin(π(y+1)/2)` to within 2%.
 
 ## Plots
 
-![SVD frequency response](../../../docs/images/pde/svd_frequency_response.png)
+![SVD frequency response](../../images/pde/svd_frequency_response.png)
 
 Left: numerical vs analytical singular values.
 Right: first singular function vs analytical `sin(π(y+1)/2)`.

@@ -1,7 +1,7 @@
 # Exact Chebyshev Expansion Coefficients
 
 **Original MATLAB:** [cheb/ExactChebCoeffs](https://www.chebfun.org/examples/cheb/ExactChebCoeffs.html)
-**Author:** Mark Richardson (June 2012)
+**Author(s):** Mark Richardson, June 2012
 
 ## Overview
 

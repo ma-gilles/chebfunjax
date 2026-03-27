@@ -1,6 +1,7 @@
 # Double Well Potential
 
 *Original: [chebfun.org/examples/ode-eig/DoubleWell](https://www.chebfun.org/examples/ode-eig/DoubleWell.html)*
+**Author(s):** Nick Trefethen, November 2010
 
 ---
 

@@ -14,7 +14,7 @@ Chebfunjax solves PDEs using two approaches:
 The Allen-Cahn equation `u_t = ε²u_xx + u - u³` models phase-field dynamics.
 With ε = 0.05 and `tanh` initial condition, a sharp interface develops.
 
-![Allen-Cahn](../../../docs/images/pde/allen_cahn2.png)
+![Allen-Cahn](../../images/pde/allen_cahn2.png)
 
 ---
 
@@ -33,7 +33,7 @@ V_t + (1/2)σ² V_xx + (r - σ²/2) V_x - r V = 0
 
 Final condition: `V(x, T) = max(e^x - K, 0)`.
 
-![Black-Scholes PDE](../../../docs/images/pde/black_scholes_pde.png)
+![Black-Scholes PDE](../../images/pde/black_scholes_pde.png)
 
 ---
 
@@ -46,7 +46,7 @@ Final condition: `V(x, T) = max(e^x - K, 0)`.
 Computes `exp(t L)` where `L` is the 1D heat operator, using
 the Fourier spectral method.
 
-![Fourier expm](../../../docs/images/pde/fourier_expm.png)
+![Fourier expm](../../images/pde/fourier_expm.png)
 
 ---
 

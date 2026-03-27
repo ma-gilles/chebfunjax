@@ -2,7 +2,7 @@
 
 *Kuan Xu, October 2012*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/dawsonintegral.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-linear/DawsonIntegral.html)
 
 ## Overview
 

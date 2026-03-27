@@ -2,7 +2,7 @@
 
 *Yuji Nakatsukasa and Alex Townsend, July 2019*
 
-[Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/polyfitL1.html)
+[Original MATLAB source](https://github.com/chebfun/examples/blob/master/approx/polyfitL1.m)
 
 ## Error localization in L1 approximation
 

@@ -2,7 +2,7 @@
 
 **Source:** `integro/VlasovPoisson.m` — Toby Driscoll, October 2010
 **Python:** `examples/integro/vlasov_poisson.py`
-**Original MATLAB:** https://www.chebfun.org/examples/integro/VlasovPoisson.html
+**Original MATLAB:** https://github.com/chebfun/examples/blob/master/integro/VlasovPoisson.m
 
 ## Overview
 
@@ -40,7 +40,7 @@ The numerical abscissa `ω(a)` as a function of `a`:
 
 ## Plots
 
-![Vlasov-Poisson](../../../docs/images/integro/vlasov_poisson.png)
+![Vlasov-Poisson](../../images/integro/vlasov_poisson.png)
 
 Left: numerical abscissa `ω(a)` for `a ∈ [0, 0.75]`.
 Right: kernel contour plot at `a = 0.3`.

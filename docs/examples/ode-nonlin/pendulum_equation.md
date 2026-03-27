@@ -1,6 +1,6 @@
 # Nonlinear Pendulum
 
-*Original: [chebfun.org/examples/ode-nonlin/PendulumEquation](https://www.chebfun.org/examples/ode-nonlin/PendulumEquation.html)*
+**Inspired by [Chebfun](https://www.chebfun.org/) examples (ode-nonlin/PendulumEquation)**
 
 ---
 

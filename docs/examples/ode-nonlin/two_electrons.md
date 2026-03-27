@@ -2,7 +2,7 @@
 
 *Jeremy Fleury and Nick Trefethen, June 2016*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/twoelectrons.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/TwoElectrons.html)
 
 ## Overview
 

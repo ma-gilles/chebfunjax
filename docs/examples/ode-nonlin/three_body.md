@@ -2,7 +2,7 @@
 
 *Marcus Webb, August 2011*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/threebody.html)
+[Chebfun example](https://github.com/chebfun/examples/blob/master/ode-nonlin/ThreeBodyProblem.m)
 
 ## Overview
 

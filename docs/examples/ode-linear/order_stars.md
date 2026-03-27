@@ -2,7 +2,7 @@
 
 *Nick Trefethen, July 2014*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/orderstars.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-linear/OrderStars.html)
 
 ## Overview
 

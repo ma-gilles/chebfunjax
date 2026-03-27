@@ -1,6 +1,6 @@
 # Poisson Equation
 
-*Original: [chebfun.org/examples/ode-linear/PoissonEquation](https://www.chebfun.org/examples/ode-linear/PoissonEquation.html)*
+**Inspired by [Chebfun](https://www.chebfun.org/) examples (ode-linear/PoissonEquation)**
 
 ---
 

@@ -2,7 +2,7 @@
 
 *Nick Trefethen, November 2010*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/allencahn.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/AllenCahn.html)
 
 ## Overview
 

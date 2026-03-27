@@ -2,7 +2,7 @@
 
 *Hrothgar, October 2014*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/modellingdiseases.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/ModellingDiseases.html)
 
 ## Overview
 

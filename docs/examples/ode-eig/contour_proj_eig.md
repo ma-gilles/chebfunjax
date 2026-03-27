@@ -2,7 +2,7 @@
 
 *Anthony Austin, May 2013*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-eig/contourprojeig.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-eig/ContourProjEig.html)
 
 ## Overview
 

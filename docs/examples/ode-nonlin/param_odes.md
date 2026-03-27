@@ -2,7 +2,7 @@
 
 *Alex Townsend, August 2011*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/paramodes.html)
+[Chebfun example](https://github.com/chebfun/examples/blob/master/ode-nonlin/ParamODEs.m)
 
 ## Overview
 

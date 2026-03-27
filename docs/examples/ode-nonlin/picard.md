@@ -2,7 +2,7 @@
 
 *Nick Trefethen, January 2016*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/picard.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/Picard.html)
 
 ## Overview
 

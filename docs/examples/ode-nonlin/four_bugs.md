@@ -2,7 +2,7 @@
 
 *Hrothgar, November 2013*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/fourbugs.html)
+[Chebfun example](https://github.com/chebfun/examples/blob/master/ode-nonlin/FourBugs.m)
 
 ## Overview
 

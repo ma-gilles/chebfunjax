@@ -2,7 +2,7 @@
 
 *Nick Hale, December 2014*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/periodicsystem.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-linear/PeriodicSystem.html)
 
 ## Overview
 

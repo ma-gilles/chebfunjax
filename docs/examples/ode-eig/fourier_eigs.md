@@ -2,7 +2,7 @@
 
 *Hadrien Montanelli, December 2014*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-eig/fouriereigs.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-eig/FourierEigs.html)
 
 ## Overview
 

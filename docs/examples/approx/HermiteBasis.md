@@ -2,7 +2,7 @@
 
 *Pedro Gonnet, September 2010*
 
-[Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/HermiteBasis.html)
+[Original MATLAB source](https://github.com/chebfun/examples/blob/master/approx/HermiteBasis.m)
 
 ## Hermite interpolation
 

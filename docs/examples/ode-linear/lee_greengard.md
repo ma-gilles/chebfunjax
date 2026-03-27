@@ -2,7 +2,7 @@
 
 *Nick Trefethen, June 2012*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/leegreengard.html)
+[Chebfun example](https://github.com/chebfun/examples/blob/master/ode-linear/LeeGreengardODEs.m)
 
 ## Overview
 

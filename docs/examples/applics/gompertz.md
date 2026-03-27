@@ -53,7 +53,7 @@ sol_gom = solve_ivp(
 
 ## Plots
 
-![Gompertz growth](../../../docs/images/applics/gompertz.png)
+![Gompertz growth](../../images/applics/gompertz.png)
 
 Left: population trajectories for all three models.
 Right: per-capita growth rates `P'/P` as a function of `P`.

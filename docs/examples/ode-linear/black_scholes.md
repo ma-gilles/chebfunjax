@@ -2,7 +2,7 @@
 
 *Alex Townsend, October 2011*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/blackscholes.html)
+[Chebfun example](https://github.com/chebfun/examples/blob/master/ode-linear/BlackScholes.m)
 
 ## Overview
 
