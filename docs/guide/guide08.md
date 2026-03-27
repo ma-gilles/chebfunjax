@@ -59,7 +59,7 @@ print(f"Length at eps=1e-8: {len(f)}")
 pref.reset("eps")  # restore default
 ```
 
-![Effect of eps on Chebyshev representation length](../images/guide/guide08_01.png)
+![Effect of eps on Chebyshev representation length](../images/guide/guide08_11.png)
 
 ### Context Manager for Temporary Overrides
 
@@ -97,6 +97,8 @@ with warnings.catch_warnings(record=True) as w:
         print(f"Warning: {w[0].message}")
 ```
 
+![Fixed-length sign(x) interpolant, n=65](../images/guide/guide08_06.png)
+
 ### Increasing the Limit
 
 For functions that are smooth but require very high degree, you can increase the limit:
@@ -116,7 +118,9 @@ f_fixed = cj.chebfun(lambda x: jnp.sign(x), n=65)
 print(f"Length: {len(f_fixed)}")
 ```
 
-![Fixed-length approximation of sign(x) at different resolutions](../images/guide/guide08_02.png)
+![Fixed-length approximation of sign(x) at different resolutions](../images/guide/guide08_12.png)
+
+![Narrow spike: 1/(1+10^8 x^2)](../images/guide/guide08_07.png)
 
 ## 8.4 `domain`: The Default Domain
 
@@ -151,6 +155,8 @@ In practice, it is usually clearer to specify the domain explicitly in each cons
 ```python
 f = cj.chebfun(lambda t: jnp.sin(19 * t), domain=(0.0, 2 * math.pi))
 ```
+
+![Lissajous figure from sin(19t) and cos(20t) on [0, 2pi]](../images/guide/guide08_01.png)
 
 ## 8.5 `tech`: Representation Technology
 

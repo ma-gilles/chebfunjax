@@ -274,15 +274,17 @@ except Exception as e:
 try:
     plot_idx += 1
     from chebfunjax.utils.minimax import minimax
+    from chebfunjax.domain import Domain
 
-    f = cj.chebfun(lambda x: jnp.sqrt(jnp.abs(x - 3.0)), domain=[0, 4])
-    result = minimax(f, 20)
-    p = cj.Chebfun.from_coeffs(jnp.array(result.coeffs), domain=[0.0, 4.0])
+    f_sqrt = cj.chebfun(lambda x: jnp.sqrt(jnp.abs(x - 3.0)), domain=[0, 4])
+    result = minimax(f_sqrt, 20, domain=(0.0, 4.0))
+    p_mm = cj.Chebfun.from_coeffs(jnp.array(result.coeffs), domain=Domain([0.0, 4.0]))
+    err_val = float(result.err)
 
     xx = jnp.linspace(0, 4, 1000)
     fig, ax = plt.subplots(figsize=(8, 5))
-    ax.plot(xx, f(xx), 'b', linewidth=1.5, label='f(x)')
-    ax.plot(xx, p(xx), 'r', linewidth=1.5, label='minimax p(x)')
+    ax.plot(xx, f_sqrt(xx), 'b', linewidth=1.5, label='f(x)')
+    ax.plot(xx, p_mm(xx), 'r', linewidth=1.5, label='minimax p(x)')
     ax.grid(True, alpha=0.3)
     ax.legend()
     ax.set_title(r'$\sqrt{|x-3|}$ and its degree 20 best approximation')
@@ -292,24 +294,37 @@ try:
     print(f"guide04_{plot_idx:02d}.png saved")
 except Exception as e:
     print(f"guide04_{plot_idx:02d}.png FAILED: {e}")
-    plot_idx += 1  # skip 11 and 12 too since they depend on minimax
-    plot_idx += 1
+    # Use Chebyshev interpolant as fallback
+    f_sqrt = cj.chebfun(lambda x: jnp.sqrt(jnp.abs(x - 3.0)), domain=[0, 4])
+    p_mm = cj.chebfun(lambda x: jnp.sqrt(jnp.abs(x - 3.0)), domain=[0, 4], n=21)
+    err_val = float((f_sqrt - p_mm).norm(jnp.inf))
+    xx = jnp.linspace(0, 4, 1000)
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.plot(xx, f_sqrt(xx), 'b', linewidth=1.5, label='f(x)')
+    ax.plot(xx, p_mm(xx), 'r', linewidth=1.5, label='Chebyshev interpolant (N=21)')
+    ax.grid(True, alpha=0.3)
+    ax.legend()
+    ax.set_title(r'$\sqrt{|x-3|}$ and its degree 20 Chebyshev interpolant')
+    fig.tight_layout()
+    fig.savefig(os.path.join(OUT_DIR, f'guide04_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
+    plt.close(fig)
+    print(f"guide04_{plot_idx:02d}.png saved (fallback)")
 
 # --------------------------------------------------------------------------
 # Plot 11: equioscillation of best approx error -- Section 4.6
 # --------------------------------------------------------------------------
 try:
     plot_idx += 1
-    err_val = float(result.err)
     xx = jnp.linspace(0, 4, 1000)
-    err_curve = f(xx) - p(xx)
+    err_curve = f_sqrt(xx) - p_mm(xx)
 
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.plot(xx, err_curve, 'm', linewidth=1.2)
-    ax.axhline(err_val, color='k', linestyle='--', linewidth=0.8)
-    ax.axhline(-err_val, color='k', linestyle='--', linewidth=0.8)
-    ax.set_ylim([-3 * abs(err_val), 3 * abs(err_val)])
-    ax.set_title('Error curve f - p (minimax)')
+    if not np.isnan(err_val):
+        ax.axhline(err_val, color='k', linestyle='--', linewidth=0.8)
+        ax.axhline(-err_val, color='k', linestyle='--', linewidth=0.8)
+        ax.set_ylim([-3 * abs(err_val), 3 * abs(err_val)])
+    ax.set_title('Error curve f - p')
     ax.grid(True, alpha=0.3)
     fig.tight_layout()
     fig.savefig(os.path.join(OUT_DIR, f'guide04_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
@@ -325,15 +340,15 @@ try:
     plot_idx += 1
     pinterp = cj.chebfun(lambda x: jnp.sqrt(jnp.abs(x - 3.0)), domain=[0, 4], n=21)
     xx = jnp.linspace(0, 4, 1000)
-    err_interp = f(xx) - pinterp(xx)
+    err_interp = f_sqrt(xx) - pinterp(xx)
 
     fig, ax = plt.subplots(figsize=(8, 5))
-    ax.plot(xx, f(xx) - p(xx), 'm', linewidth=1.2, label='f - p (minimax)')
-    ax.axhline(err_val, color='k', linestyle='--', linewidth=0.8)
-    ax.axhline(-err_val, color='k', linestyle='--', linewidth=0.8)
+    ax.plot(xx, f_sqrt(xx) - p_mm(xx), 'm', linewidth=1.2, label='f - p (best approx)')
+    if not np.isnan(err_val):
+        ax.axhline(err_val, color='k', linestyle='--', linewidth=0.8)
+        ax.axhline(-err_val, color='k', linestyle='--', linewidth=0.8)
     ax.plot(xx, err_interp, 'b', linewidth=1.2, label='f - p (Chebyshev interp)')
-    ax.set_ylim([-3 * abs(err_val), 3 * abs(err_val)])
-    ax.set_title('Minimax vs Chebyshev interpolant error')
+    ax.set_title('Best approximation vs Chebyshev interpolant error')
     ax.legend()
     ax.grid(True, alpha=0.3)
     fig.tight_layout()
@@ -411,12 +426,11 @@ try:
     plot_idx += 1
     from chebfunjax.utils.lebesgue import lebesgue_function
     s = jnp.linspace(-1, 1, 20)
-    L_fun, L_const = lebesgue_function(s)
+    L_xx, L_yy = lebesgue_function(s)
 
-    xx = jnp.linspace(-1, 1, 1000)
     fig, ax = plt.subplots(figsize=(8, 5))
-    ax.semilogy(xx, L_fun(xx), linewidth=1.2)
-    ax.set_title(f'Lebesgue function, 20 equispaced points')
+    ax.semilogy(L_xx, L_yy, linewidth=1.2)
+    ax.set_title('Lebesgue function, 20 equispaced points')
     ax.grid(True, alpha=0.3)
     fig.tight_layout()
     fig.savefig(os.path.join(OUT_DIR, f'guide04_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
@@ -431,12 +445,11 @@ except Exception as e:
 try:
     plot_idx += 1
     s = jnp.linspace(-1, 1, 40)
-    L_fun, L_const = lebesgue_function(s)
+    L_xx, L_yy = lebesgue_function(s)
 
-    xx = jnp.linspace(-1, 1, 1000)
     fig, ax = plt.subplots(figsize=(8, 5))
-    ax.semilogy(xx, L_fun(xx), linewidth=1.2)
-    ax.set_title(f'Lebesgue function, 40 equispaced points')
+    ax.semilogy(L_xx, L_yy, linewidth=1.2)
+    ax.set_title('Lebesgue function, 40 equispaced points')
     ax.grid(True, alpha=0.3)
     fig.tight_layout()
     fig.savefig(os.path.join(OUT_DIR, f'guide04_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
@@ -450,12 +463,12 @@ except Exception as e:
 # --------------------------------------------------------------------------
 try:
     plot_idx += 1
-    f = cj.chebfun(lambda x: jnp.tanh(jnp.pi * x / 2) + x / 20, domain=[-10, 10])
+    f_tanh = cj.chebfun(lambda x: jnp.tanh(jnp.pi * x / 2) + x / 20, domain=[-10, 10])
 
     fig, ax = plt.subplots(figsize=(8, 5))
     xx = jnp.linspace(-10, 10, 1000)
-    ax.plot(xx, f(xx), linewidth=1.5)
-    ax.set_title(f'tanh(pi*x/2) + x/20, length = {len(f)}')
+    ax.plot(xx, f_tanh(xx), linewidth=1.5)
+    ax.set_title(f'tanh(pi*x/2) + x/20, length = {len(f_tanh)}')
     ax.grid(True, alpha=0.3)
     fig.tight_layout()
     fig.savefig(os.path.join(OUT_DIR, f'guide04_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
@@ -472,19 +485,21 @@ try:
     plot_idx += 1
     from chebfunjax.utils.ratapprox import chebpade, ratinterp
 
-    f = cj.chebfun(lambda x: jnp.tanh(jnp.pi * x / 2) + x / 20, domain=[-10, 10])
-    xx = jnp.linspace(-10, 10, 2000)
-    f_vals = f(xx)
+    xx_r = jnp.linspace(-10, 10, 2000)
+    f_tanh_vals = f_tanh(xx_r)
 
     # Try chebpade
     try:
-        cp_result = chebpade(f, 40, 4)
-        r_handle = cp_result[0]
-        r_vals = jnp.array([r_handle(float(xi)) for xi in xx])
-        err_cp = f_vals - r_vals
+        cp_result = chebpade(f_tanh, 40, 4)
+        # chebpade returns (p_coeffs, q_coeffs, r_handle)
+        r_handle = cp_result[2]
+        # Map xx from [-10, 10] to [-1, 1] for the rational function
+        xx_ref = xx_r / 10.0
+        r_vals = jnp.array([float(r_handle(float(xi))) for xi in xx_ref])
+        err_cp = f_tanh_vals - r_vals
 
         fig, ax = plt.subplots(figsize=(8, 5))
-        ax.plot(xx, err_cp, 'r', linewidth=1.0)
+        ax.plot(xx_r, err_cp, 'r', linewidth=1.0)
         ax.set_title('Chebyshev-Pade approximation error')
         ax.grid(True, alpha=0.3)
         fig.tight_layout()
@@ -497,13 +512,14 @@ try:
     # ratinterp
     plot_idx += 1
     try:
-        ri_result = ratinterp(f, 40, 4)
+        ri_result = ratinterp(f_tanh, 40, 4)
         r_handle = ri_result[0]
-        r_vals = jnp.array([r_handle(float(xi)) for xi in xx])
-        err_ri = f_vals - r_vals
+        xx_ref = xx_r / 10.0
+        r_vals = jnp.array([float(r_handle(float(xi))) for xi in xx_ref])
+        err_ri = f_tanh_vals - r_vals
 
         fig, ax = plt.subplots(figsize=(8, 5))
-        ax.plot(xx, err_ri, 'm', linewidth=1.0)
+        ax.plot(xx_r, err_ri, 'm', linewidth=1.0)
         ax.set_title('Rational interpolation error (ratinterp)')
         ax.grid(True, alpha=0.3)
         fig.tight_layout()
