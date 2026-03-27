@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/geom')
@@ -91,7 +89,7 @@ def run():
     axes[0].plot(np.cos(theta), np.sin(theta), 'b-', lw=2, label='Circle 1')
     axes[0].plot(1 + np.cos(theta), np.sin(theta), 'k-', lw=2, label='Circle 2')
     axes[0].plot([x_int, x_int], [-y_int, y_int], 'ro', ms=7)
-    axes[0].set_aspect('equal'); axes[0].grid(True, alpha=0.3)
+    axes[0].set_aspect('equal')
     axes[0].set_xlim(-1.3, 2.3); axes[0].set_ylim(-1.3, 1.3)
     axes[0].set_title('Two unit circles, d = 1', fontsize=11)
     axes[0].legend(fontsize=9)
@@ -102,9 +100,8 @@ def run():
     axes[1].plot(ds, areas, 'b-', lw=2)
     axes[1].axvline(d, color='r', linestyle='--', label=f'd = {d}')
     axes[1].axhline(exact, color='r', linestyle=':', alpha=0.7)
-    axes[1].set_xlabel('Centre distance d'); axes[1].set_ylabel('Overlap area')
     axes[1].set_title('Overlap area vs. separation', fontsize=11)
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     fig.suptitle('Area of Overlap of Two Unit Circles', fontsize=13)
     fig.tight_layout()
@@ -114,7 +111,6 @@ def run():
 
     print("two_circles: done")
     return True
-
 
 if __name__ == "__main__":
     run()

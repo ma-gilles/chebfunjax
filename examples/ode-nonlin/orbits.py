@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Orbital mechanics: planet around a fixed star")
@@ -86,17 +84,14 @@ def run():
         x, y = sol.y[0], sol.y[1]
         axes[0].plot(x, y, color=c, linewidth=1.2, label=f"v={v} ({otype})")
         axes[0].plot(x[0], y[0], 'o', color=c, markersize=5)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("y")
     axes[0].set_title("Orbital trajectories", fontsize=10)
     axes[0].legend(fontsize=7); axes[0].set_aspect('equal')
-    axes[0].grid(True, alpha=0.3)
 
     for (v, sol, otype), c in zip(solutions, colors):
         r = np.sqrt(sol.y[0]**2 + sol.y[1]**2)
         axes[1].plot(sol.t, r, color=c, linewidth=1.2, label=f"v={v}")
-    axes[1].set_xlabel("t"); axes[1].set_ylabel("r(t)")
     axes[1].set_title("Distance from star vs time", fontsize=10)
-    axes[1].legend(fontsize=7); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=7)
 
     fig.suptitle("Orbital mechanics (G=M=1)", fontsize=11)
     fig.tight_layout()
@@ -105,7 +100,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

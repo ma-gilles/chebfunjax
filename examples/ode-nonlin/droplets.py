@@ -25,7 +25,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Sessile droplet shape")
@@ -128,16 +127,12 @@ def run():
     axes[0].plot(sol.y[1], sol.y[2], 'b', linewidth=1.8, label="with gravity")
     axes[0].plot(x_circle - x_circle[0], y_circle, 'r--', linewidth=1.2,
                  label="circular (no gravity)")
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("y")
     axes[0].set_title(f"Sessile drop profile (contact angle {np.degrees(theta_c):.0f}°)", fontsize=9)
     axes[0].legend(fontsize=8); axes[0].set_aspect('equal')
-    axes[0].grid(True, alpha=0.3)
 
     x_plot = jnp.linspace(0.0, np.pi, 300)
     axes[1].plot(x_plot, u_ref(x_plot), 'g', linewidth=1.8)
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("u(x)")
     axes[1].set_title("Reference BVP: u″−u=−1, u(0)=u(π)=0", fontsize=9)
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Droplet shape and capillary equations", fontsize=11)
     fig.tight_layout()
@@ -146,7 +141,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def gravitational_potential(X, n_theta=100, n_phi=200):
     """Compute gravitational potential at X due to unit sphere (uniform density)."""
     # phi_grav(X) = G * integral over sphere of 1/|X - r| dS
@@ -49,7 +47,6 @@ def gravitational_potential(X, n_theta=100, n_phi=200):
 
     return np.sum(integrand) * dtheta * dphi
 
-
 def multipole_expansion(X, l_max=10):
     """Multipole expansion of potential at X (exterior)."""
     r_X = np.linalg.norm(X)
@@ -71,7 +68,6 @@ def multipole_expansion(X, l_max=10):
     phi_approx_pert = phi0 + phi1
 
     return phi0, phi_approx_pert
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -97,8 +93,7 @@ def run():
     axes[0].plot(r_X, 4*np.pi/r_X, 'ro', markersize=10,
                  label=f'φ(X)={4*np.pi/r_X:.4f}')
     axes[0].set_title('Gravitational potential\nof unit sphere along r', fontsize=10)
-    axes[0].set_xlabel('r = |X|'); axes[0].set_ylabel('φ(X)')
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
     print(f"  φ(X) = 4π/|X| = {4*np.pi/r_X:.6f}")
 
     # --- Panel 2: Potential on sphere (2D map) ---
@@ -120,7 +115,6 @@ def run():
     im = axes[1].contourf(np.degrees(phi_1d), np.degrees(theta_1d) - 90,
                             phi_map, levels=20, cmap='Blues')
     axes[1].set_title(f'Potential map at r={r_field}\nvs (lon, lat)', fontsize=10)
-    axes[1].set_xlabel('Longitude (°)'); axes[1].set_ylabel('Latitude (°)')
     plt.colorbar(im, ax=axes[1])
 
     # --- Panel 3: Multipole convergence ---
@@ -149,8 +143,7 @@ def run():
                   'b.-', markersize=10, linewidth=2, label='Uniform sphere')
     axes[2].set_yscale('log')
     axes[2].set_title('Multipole expansion\nconvergence', fontsize=10)
-    axes[2].set_xlabel('Truncation order l'); axes[2].set_ylabel('|φ_l - φ_exact|')
-    axes[2].legend(fontsize=9); axes[2].grid(True, alpha=0.3)
+    axes[2].legend(fontsize=9)
 
     fig.suptitle('Gravitational Attraction to a Sphere', fontsize=12)
     fig.tight_layout()
@@ -160,7 +153,6 @@ def run():
 
     print("gravity: done")
     return True
-
 
 if __name__ == "__main__":
     run()

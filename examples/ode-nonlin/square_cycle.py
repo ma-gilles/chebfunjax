@@ -24,8 +24,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Square limit cycle (heteroclinic cycle)")
@@ -89,9 +87,8 @@ def run():
     for sx, sy in [(1,1),(1,-1),(-1,1),(-1,-1)]:
         axes[0].plot(sx, sy, 'k*', markersize=8)
     axes[0].set_aspect('equal')
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("y")
     axes[0].set_title(f"Square limit cycle (δ={delta})", fontsize=10)
-    axes[0].legend(fontsize=7); axes[0].grid(True, alpha=0.2)
+    axes[0].legend(fontsize=7)
 
     # Time series
     sol0 = solutions[0]
@@ -99,9 +96,8 @@ def run():
     t_ts = sol0.t[-n_ts:]
     axes[1].plot(t_ts, sol0.y[0, -n_ts:], 'b', linewidth=0.8, label="x(t)")
     axes[1].plot(t_ts, sol0.y[1, -n_ts:], 'r', linewidth=0.8, label="y(t)")
-    axes[1].set_xlabel("t"); axes[1].set_ylabel("state")
     axes[1].set_title("Time series along limit cycle", fontsize=10)
-    axes[1].legend(fontsize=8); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=8)
 
     fig.suptitle(f"Johnson-Tucker square limit cycle (δ={delta}, limit cycle at corners ±1)", fontsize=9)
     fig.tight_layout()
@@ -110,7 +106,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

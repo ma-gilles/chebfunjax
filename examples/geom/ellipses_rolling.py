@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/geom')
@@ -121,7 +119,6 @@ def run():
     axes[0].set_aspect('equal')
     axes[0].set_xlim(-3, 3); axes[0].set_ylim(-3, 3)
     axes[0].set_title('Ellipse rolling around ellipse', fontsize=11)
-    axes[0].grid(True, alpha=0.3)
 
     # Contact point trajectories
     axes[1].plot(np.real(z1_traj), np.imag(z1_traj), 'b-', linewidth=2, label='Contact on big')
@@ -130,7 +127,7 @@ def run():
     axes[1].set_aspect('equal')
     axes[1].set_title(f'Contact points and midpoint trajectory\nArc length ≈ {arc_length:.3f}',
                       fontsize=10)
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     fig.suptitle('Ellipse Rolling around Ellipse', fontsize=13)
     fig.tight_layout()
@@ -140,7 +137,6 @@ def run():
 
     print("ellipses_rolling: done")
     return True
-
 
 if __name__ == "__main__":
     run()

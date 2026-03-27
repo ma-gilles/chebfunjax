@@ -20,15 +20,12 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def cheb_coeffs(f_vals, n):
     """Compute Chebyshev coefficients via DCT."""
     # f_vals sampled at Chebyshev nodes
     c = np.fft.rfft(f_vals) / n
     c[1:-1] *= 2  # double interior coefficients
     return np.abs(c[:n//2+1])
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -49,8 +46,6 @@ def run():
 
     axes[0].plot(x, f1, 'b-', linewidth=1.5)
     axes[0].set_title('f(x) = sin(10πx)\n"audible" waveform', fontsize=10)
-    axes[0].set_xlabel('x'); axes[0].set_ylabel('f(x)')
-    axes[0].grid(True, alpha=0.3)
 
     # --- Function 2: Runge function 1/(1+25x^2) ---
     f2 = 1 / (1 + 25 * x**2)
@@ -59,8 +54,6 @@ def run():
 
     axes[1].semilogy(freqs2[:50], c2[:50] + 1e-16, 'r-', linewidth=2)
     axes[1].set_title('Runge function 1/(1+25x²)\nChebyshev spectrum', fontsize=10)
-    axes[1].set_xlabel('Coefficient index'); axes[1].set_ylabel('|a_k|')
-    axes[1].grid(True, alpha=0.3)
 
     # --- Function 3: exp(sin(pi*x)) ---
     f3 = np.exp(np.sin(np.pi * x))
@@ -69,8 +62,6 @@ def run():
 
     axes[2].semilogy(freqs3[:60], c3[:60] + 1e-16, 'g-', linewidth=2)
     axes[2].set_title('exp(sin(πx))\nChebyshev spectrum', fontsize=10)
-    axes[2].set_xlabel('Coefficient index'); axes[2].set_ylabel('|a_k|')
-    axes[2].grid(True, alpha=0.3)
 
     print("Chebfun spectra as 'audio':")
     print(f"  sin(10πx): {N} samples, fundamental freq index ~10")
@@ -85,7 +76,6 @@ def run():
 
     print("audible_chebfuns: done")
     return True
-
 
 if __name__ == "__main__":
     run()

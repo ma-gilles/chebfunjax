@@ -23,8 +23,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def phase_plot(ax, f_complex, xlim, ylim, n=400, title=""):
     """Draw the phase portrait of f on a grid."""
     xs = np.linspace(xlim[0], xlim[1], n)
@@ -41,9 +39,6 @@ def phase_plot(ax, f_complex, xlim, ylim, n=400, title=""):
     ax.set_aspect('equal')
     if title:
         ax.set_title(title, fontsize=9)
-    ax.set_xlabel("Re(z)", fontsize=8)
-    ax.set_ylabel("Im(z)", fontsize=8)
-
 
 def run():
     print("=" * 60)
@@ -132,7 +127,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

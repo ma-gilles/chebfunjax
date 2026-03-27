@@ -27,7 +27,6 @@ chebfun_style()
 from chebfunjax.plotting import plot
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Double-well Schrodinger equation eigenstates")
@@ -69,8 +68,6 @@ def run():
     fig, ax = _plt.subplots()
     _lam_real = _np.sort(_np.real(_np.array(lam[:n_eigs])))
     ax.bar(_np.arange(n_eigs), _lam_real, color="#4169E1", alpha=0.8)
-    ax.set_xlabel("eigenvalue index", fontsize=10)
-    ax.set_ylabel("λ", fontsize=10)
     ax.set_title("Double-well Schrödinger eigenvalues", fontsize=11)
     fig.set_facecolor("white")
     fig.tight_layout()
@@ -80,7 +77,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

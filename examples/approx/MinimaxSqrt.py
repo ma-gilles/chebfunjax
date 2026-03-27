@@ -24,7 +24,6 @@ from chebfunjax.utils.aaa import aaa
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
 
-
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
 
@@ -58,8 +57,6 @@ def run():
     ax.axhline(rational_err, color='r', lw=1.5, ls='--',
                label=f'AAA rational ({len(pol_aaa)} poles)')
     ax.set_title('Approximation errors for √x on [10⁻⁴, 1]', fontsize=10)
-    ax.set_xlabel('polynomial degree n')
-    ax.set_ylabel('max error')
     ax.legend(fontsize=9)
     ax2 = axes[1]
     p20 = f.polyfit(20)
@@ -80,7 +77,6 @@ def run():
     print(f"MinimaxSqrt: poly deg-20 err={poly_errs[2]:.2e}, "
           f"AAA err={rational_err:.2e}")
     return True
-
 
 if __name__ == '__main__':
     run()

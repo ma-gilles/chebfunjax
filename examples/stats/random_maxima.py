@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def make_random_bandlimited(L, dx=1.0, seed=0):
     """Generate a random bandlimited function on [0, L] with scale dx."""
     rng = np.random.default_rng(seed)
@@ -36,7 +34,6 @@ def make_random_bandlimited(L, dx=1.0, seed=0):
         f_vals += (c * np.cos(freq * xs) + s * np.sin(freq * xs)) / np.sqrt(n_modes)
     return xs, f_vals
 
-
 def count_local_maxima(f_vals):
     """Count strict local maxima (interior only)."""
     count = 0
@@ -46,7 +43,6 @@ def count_local_maxima(f_vals):
             count += 1
             maxima_idx.append(i)
     return count, maxima_idx
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -63,7 +59,6 @@ def run():
     axes[0].plot(xs20, f20, 'k-', linewidth=2)
     axes[0].plot(xs20[max_idx20], f20[max_idx20], '.r', markersize=12)
     axes[0].set_title(f'{n_max20} local maxima on [0,20]', fontsize=12)
-    axes[0].set_xlabel('x'); axes[0].grid(True, alpha=0.3)
 
     # Scaling experiment: how many maxima vs L?
     L_values = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
@@ -75,10 +70,8 @@ def run():
 
     axes[1].loglog(L_values, L_values, '-r', linewidth=2, label='O(L)')
     axes[1].loglog(L_values, nmax_values, '.b', markersize=12, label='# maxima')
-    axes[1].set_xlabel('Length of interval', fontsize=11)
-    axes[1].set_ylabel('Number of maxima', fontsize=11)
     axes[1].set_title('Maxima count scales linearly with L', fontsize=11)
-    axes[1].legend(fontsize=10); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=10)
 
     print(f"L=20: {n_max20} maxima")
     print("L vs #maxima (log scale):")
@@ -93,7 +86,6 @@ def run():
 
     print("random_maxima: done")
     return True
-
 
 if __name__ == "__main__":
     run()

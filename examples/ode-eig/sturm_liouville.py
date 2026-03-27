@@ -24,7 +24,6 @@ chebfun_style()
 from chebfunjax.plotting import plot
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Sturm-Liouville eigenvalue problems")
@@ -86,8 +85,6 @@ def run():
     _lam1_arr = _np.sort(_np.real(_np.array(lam1[:5])))
     ax.plot(_np.arange(1, 6), _lam1_arr, "o-", color="#4169E1",
             linewidth=1.5, markersize=6, label="−u″ on [0,π]")
-    ax.set_xlabel("n", fontsize=10)
-    ax.set_ylabel("λ", fontsize=10)
     ax.set_title("Sturm-Liouville eigenvalues", fontsize=11)
     ax.legend(fontsize=9)
     fig.set_facecolor("white")
@@ -98,7 +95,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

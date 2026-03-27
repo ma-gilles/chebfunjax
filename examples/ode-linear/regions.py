@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def stability_boundary(method, n_theta=2000):
     """
     Compute the stability boundary of a linear multistep method.
@@ -41,7 +39,6 @@ def stability_boundary(method, n_theta=2000):
     with np.errstate(divide='ignore', invalid='ignore'):
         hlam = np.where(np.abs(sigma) > 1e-15, rho / sigma, np.nan)
     return hlam.real, hlam.imag
-
 
 def run():
     print("=" * 60)
@@ -101,11 +98,9 @@ def run():
     axes[0].axvline(0, color='k', linewidth=0.5)
     axes[0].set_xlim(-3, 0.5)
     axes[0].set_ylim(-2, 2)
-    axes[0].set_xlabel("Re(h λ)"); axes[0].set_ylabel("Im(h λ)")
     axes[0].set_title("Adams-Bashforth stability regions", fontsize=10)
     axes[0].legend(fontsize=8)
     axes[0].set_aspect('equal')
-    axes[0].grid(True, alpha=0.3)
 
     colors_bdf = ['b', 'r', 'g']
     for (name, meth), c in zip(bdf_methods, colors_bdf):
@@ -115,11 +110,9 @@ def run():
     axes[1].axvline(0, color='k', linewidth=0.5)
     axes[1].set_xlim(-5, 5)
     axes[1].set_ylim(-5, 5)
-    axes[1].set_xlabel("Re(h λ)"); axes[1].set_ylabel("Im(h λ)")
     axes[1].set_title("BDF stability region boundaries", fontsize=10)
     axes[1].legend(fontsize=8)
     axes[1].set_aspect('equal')
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Stability regions of ODE methods", fontsize=11)
     fig.tight_layout()
@@ -128,7 +121,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

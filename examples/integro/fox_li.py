@@ -21,7 +21,6 @@ import numpy as np
 from scipy.linalg import eig
 import os
 
-
 def run():
     print("=" * 60)
     print("Eigenvalues of the Fox-Li integral operator")
@@ -94,14 +93,11 @@ def run():
     axes[0].set_aspect('equal')
     axes[0].set_xlim([-1.1, 1.1]); axes[0].set_ylim([-1.1, 1.1])
     axes[0].set_title(f"Fox-Li eigenvalues (F=64π)", fontsize=11)
-    axes[0].set_xlabel("Re(λ)"); axes[0].set_ylabel("Im(λ)")
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
 
     # Magnitude plot
     axes[1].plot(range(1, len(lam) + 1), np.abs(lam), 'b.-', markersize=6)
     axes[1].set_title("Eigenvalue magnitudes (sorted)", fontsize=11)
-    axes[1].set_xlabel("Index"); axes[1].set_ylabel("|λ|")
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Fox-Li integral operator eigenvalues", fontsize=13)
     fig.tight_layout()
@@ -110,7 +106,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -25,7 +25,6 @@ chebfun_style()
 
 from chebfunjax.plotting import plot
 
-
 def run():
     print("=" * 60)
     print("Roots of a secular equation with poles")
@@ -86,7 +85,6 @@ def run():
     ax.plot(all_roots, [0.0] * len(all_roots), "or", markersize=8, label="roots")
     ax.set_ylim(-8, 8)
     ax.set_xlim(-5, 10)
-    ax.set_ylabel("r(x)")
     ax.set_title("Secular equation: poles (grey dashed) and roots (red dots)")
     ax.legend(fontsize=9)
     fig.tight_layout()
@@ -95,7 +93,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

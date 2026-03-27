@@ -20,12 +20,9 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def maxwell_pdf(x, b):
     """Maxwell distribution PDF: f(x; b) = sqrt(2/pi) * x^2 * exp(-x^2/(2b^2)) / b^3."""
     return np.sqrt(2 / np.pi) * x**2 * np.exp(-x**2 / (2 * b**2)) / b**3
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -67,8 +64,7 @@ def run():
     axes[0].axvline(mode_exact, color='b', linewidth=2, linestyle=':',
                     label=f'mode={mode_exact:.2f}')
     axes[0].set_title(f'Maxwell(b={b})', fontsize=11)
-    axes[0].set_xlabel('x'); axes[0].legend(fontsize=9)
-    axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
 
     # --- 2. Maxwell distributions for different b values ---
     for b_val, color in [(1.0, 'b'), (2.0, 'r'), (3.0, 'g'), (4.0, 'm')]:
@@ -76,8 +72,8 @@ def run():
         axes[1].plot(xs, pdf_b, '-', color=color, linewidth=2,
                      label=f'b={b_val}')
     axes[1].set_title('Maxwell for various b values', fontsize=11)
-    axes[1].set_xlabel('x'); axes[1].legend(fontsize=9)
-    axes[1].set_xlim(0, 15); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
+    axes[1].set_xlim(0, 15)
 
     # --- 3. CDF and quantiles ---
     cdf_vals = np.cumsum(pdf_vals) * (xs[1] - xs[0])
@@ -97,8 +93,7 @@ def run():
         axes[2].axvline(val, color=color, linestyle='--', alpha=0.5,
                         label=f'Q{int(pct*100)}={val:.2f}')
     axes[2].set_title(f'Maxwell(b={b}): CDF and quantiles', fontsize=10)
-    axes[2].set_xlabel('x'); axes[2].set_ylabel('CDF')
-    axes[2].legend(fontsize=9); axes[2].grid(True, alpha=0.3)
+    axes[2].legend(fontsize=9)
 
     fig.suptitle('Maxwell Distribution Exercises', fontsize=13)
     fig.tight_layout()
@@ -108,7 +103,6 @@ def run():
 
     print("maxwell_exercises: done")
     return True
-
 
 if __name__ == "__main__":
     run()

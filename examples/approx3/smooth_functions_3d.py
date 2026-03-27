@@ -22,7 +22,6 @@ chebfun_style()
 
 from chebfunjax.chebfun3d import chebfun3
 
-
 def run():
     print("=" * 60)
     print("Smooth function approximation in 3D (Chebfun3)")
@@ -73,12 +72,10 @@ def run():
 
     im1 = axes[0].contourf(X, Y, F_slice, levels=20, cmap="viridis")
     axes[0].set_title("exp(x+y+z)|_{z=0}", fontsize=12)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("y")
     fig.colorbar(im1, ax=axes[0])
 
     im2 = axes[1].contourf(X, Y, G_slice, levels=20, cmap="RdBu_r")
     axes[1].set_title("sin(x)cos(y)exp(-z²)|_{z=0}", fontsize=12)
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("y")
     fig.colorbar(im2, ax=axes[1])
 
     fig.suptitle("3D functions: z=0 slices", fontsize=13)
@@ -88,7 +85,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

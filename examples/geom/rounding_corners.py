@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/geom')
@@ -50,21 +48,20 @@ def run():
     # Plot W function and kernel
     axes[0, 0].plot(t, f, 'b-', linewidth=2)
     axes[0, 0].set_title('W-shaped function f(t)', fontsize=11)
-    axes[0, 0].set_xlabel('t'); axes[0, 0].set_xlim(-1.2, 1.2)
-    axes[0, 0].set_ylim(0, 2.4); axes[0, 0].grid(True, alpha=0.3)
+    axes[0, 0].set_xlim(-1.2, 1.2)
+    axes[0, 0].set_ylim(0, 2.4)
     axes[0, 0].set_aspect('equal')
 
     axes[0, 1].plot(t, g_kernel, 'k-', linewidth=2)
     axes[0, 1].set_title(f'Smoothing kernel g(t) (h={h})', fontsize=11)
-    axes[0, 1].set_xlabel('t'); axes[0, 1].set_xlim(-1, 1)
-    axes[0, 1].grid(True, alpha=0.3)
+    axes[0, 1].set_xlim(-1, 1)
     print(f"Kernel integral: {np.trapezoid(g_kernel, t):.6f}  (should be 1.0)")
 
     # Rounded W
     axes[1, 0].plot(t, f2, 'b-', linewidth=2)
     axes[1, 0].set_title('Rounded W: f * g', fontsize=11)
-    axes[1, 0].set_xlabel('t'); axes[1, 0].set_xlim(-1.2, 1.2)
-    axes[1, 0].set_ylim(0, 2.4); axes[1, 0].grid(True, alpha=0.3)
+    axes[1, 0].set_xlim(-1.2, 1.2)
+    axes[1, 0].set_ylim(0, 2.4)
     axes[1, 0].set_aspect('equal')
 
     # Complex W curve: W(t) = t + i*f(t), convolved with g
@@ -76,8 +73,7 @@ def run():
     axes[1, 1].plot(np.real(W), np.imag(W), 'b-', linewidth=2, label='Original W curve')
     axes[1, 1].plot(np.real(W2), np.imag(W2), 'r-', linewidth=2, label='Rounded W curve')
     axes[1, 1].set_title('Complex W curve before/after rounding', fontsize=10)
-    axes[1, 1].set_xlabel('Re(W)'); axes[1, 1].set_ylabel('Im(W)')
-    axes[1, 1].legend(fontsize=9); axes[1, 1].grid(True, alpha=0.3)
+    axes[1, 1].legend(fontsize=9)
     axes[1, 1].set_xlim(-1.2, 1.2); axes[1, 1].set_ylim(0, 2.4)
     axes[1, 1].set_aspect('equal')
 
@@ -89,7 +85,6 @@ def run():
 
     print("rounding_corners: done")
     return True
-
 
 if __name__ == "__main__":
     run()

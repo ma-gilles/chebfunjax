@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Maximal Lyapunov exponent of the Lorenz system")
@@ -90,17 +88,14 @@ def run():
     axes[0].plot(t_run, lam_run, 'b', linewidth=1.4)
     axes[0].axhline(lambda_max, color='r', linestyle='--', linewidth=1.0,
                     label=f"λ₁ ≈ {lambda_max:.4f}")
-    axes[0].set_xlabel("t"); axes[0].set_ylabel("λ₁(t)")
     axes[0].set_title("Running Lyapunov exponent estimate", fontsize=10)
-    axes[0].legend(fontsize=8); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=8)
 
     # Also show attractor x-z projection
     sol_viz = solve_ivp(lorenz, [0, 30], [1,1,1],
                         t_eval=np.linspace(0, 30, 5000), rtol=1e-10)
     axes[1].plot(sol_viz.y[0, ::2], sol_viz.y[2, ::2], 'b', linewidth=0.5, alpha=0.5)
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("z")
     axes[1].set_title("Lorenz attractor (x-z plane)", fontsize=10)
-    axes[1].grid(True, alpha=0.2)
 
     fig.suptitle(f"Lorenz Lyapunov exponent λ₁ ≈ {lambda_max:.3f}", fontsize=11)
     fig.tight_layout()
@@ -109,7 +104,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

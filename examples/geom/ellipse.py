@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def ellipse_perimeter_numerical(a, b, n_pts=10000):
     """Compute perimeter of ellipse with semiaxes a and b by arc-length integration."""
     theta = np.linspace(0, 2 * np.pi, n_pts + 1)
@@ -29,7 +27,6 @@ def ellipse_perimeter_numerical(a, b, n_pts=10000):
     y = b * np.sin(theta)
     dx = np.diff(x); dy = np.diff(y)
     return np.sum(np.sqrt(dx**2 + dy**2))
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -65,8 +62,6 @@ def run():
     axes[0].plot(x_e, y_e, 'b-', linewidth=2)
     axes[0].set_aspect('equal')
     axes[0].set_title(f"Poisson's ellipse\na={a:.4f}, b={b:.4f}", fontsize=11)
-    axes[0].set_xlabel('x'); axes[0].set_ylabel('y')
-    axes[0].grid(True, alpha=0.3)
     axes[0].text(0, -b*1.3, f'Perimeter ≈ {arc_cheb:.8f}\nExact: {exact:.8f}',
                  ha='center', fontsize=9)
 
@@ -75,8 +70,6 @@ def run():
                                      (b * np.cos(theta_plot))**2),
                  'r-', linewidth=2)
     axes[1].set_title('Arc-length element |dz/dθ|', fontsize=11)
-    axes[1].set_xlabel('θ'); axes[1].set_ylabel('speed')
-    axes[1].grid(True, alpha=0.3)
 
     # Also show a family of ellipses
     for ratio in [0.2, 0.4, 0.6, 0.8, 1.0]:
@@ -98,7 +91,6 @@ def run():
 
     print("ellipse: done")
     return True
-
 
 if __name__ == "__main__":
     run()

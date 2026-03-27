@@ -24,8 +24,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def compute_cheb_coefficients(f, n):
     """Compute n Chebyshev coefficients of function f on [-1, 1] via DCT."""
     # Chebyshev nodes of 2nd kind
@@ -50,7 +48,6 @@ def compute_cheb_coefficients(f, n):
     c[-1] /= 2.0
     return c
 
-
 def compute_cheb_coeffs_fft(f, n):
     """Compute Chebyshev coefficients via FFT (more efficient)."""
     # Use n+1 Chebyshev nodes (2nd kind)
@@ -66,7 +63,6 @@ def compute_cheb_coeffs_fft(f, n):
     c[0] /= 2.0
     c[-1] /= 2.0
     return c
-
 
 def run():
     print("=" * 60)
@@ -136,16 +132,14 @@ def run():
     axes[0].semilogy(np.abs(c1_double), '.b', markersize=4, label='double length')
     axes[0].semilogy(np.abs(c1_normal), 'or', markersize=6, alpha=0.8, label='normal')
     axes[0].set_title("Chebyshev coefficients of exp(x)", fontsize=11)
-    axes[0].set_xlabel("n"); axes[0].set_ylabel("|a_n|")
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
     axes[0].set_ylim([1e-18, 10])
 
     # sin(x) + sin(x^2)
     axes[1].semilogy(np.abs(c2_double), '.b', markersize=4, label='double length')
     axes[1].semilogy(np.abs(c2_normal), 'r-', linewidth=1.5, alpha=0.8, label='normal')
     axes[1].set_title("Cheb coefficients of sin(x)+sin(x²) on [0,10]", fontsize=11)
-    axes[1].set_xlabel("n"); axes[1].set_ylabel("|a_n|")
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     fig.suptitle("Double-length Chebyshev coefficients: revealing noise plateau",
                  fontsize=12)
@@ -156,7 +150,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

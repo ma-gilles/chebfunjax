@@ -23,8 +23,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Exponential, logistic, and Gompertz growth")
@@ -110,8 +108,7 @@ def run():
     axes[0].plot(t_eval, P_gom, 'g-', linewidth=2, label='Gompertz')
     axes[0].axhline(K, color='k', linestyle='--', alpha=0.5, label=f'K={K}')
     axes[0].set_title("Population growth models", fontsize=11)
-    axes[0].set_xlabel("t"); axes[0].set_ylabel("P(t)")
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
     axes[0].set_ylim([0, 10])
 
     # Per-capita growth rates
@@ -124,8 +121,7 @@ def run():
     axes[1].plot(P_range, log_rate, 'r-', linewidth=2, label='Logistic: r(K-P)/K')
     axes[1].plot(P_range, gom_rate, 'g-', linewidth=2, label='Gompertz: r·log(K/P)/log(K/P₀)')
     axes[1].set_title("Per-capita growth rates", fontsize=11)
-    axes[1].set_xlabel("P"); axes[1].set_ylabel("P'/P")
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     fig.suptitle("Growth models: exponential, logistic, Gompertz", fontsize=13)
     fig.tight_layout()
@@ -134,7 +130,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

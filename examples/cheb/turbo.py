@@ -27,8 +27,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def compute_cheb_coeffs_standard(f, n):
     """Standard Chebyshev coefficients via n+1 Chebyshev nodes."""
     j = np.arange(n + 1)
@@ -41,7 +39,6 @@ def compute_cheb_coeffs_standard(f, n):
     c[0] /= 2.0
     c[-1] /= 2.0
     return c
-
 
 def compute_cheb_coeffs_turbo(f, n, rho_factor=None):
     """Turbo Chebyshev coefficients via contour integral on Bernstein ellipse.
@@ -101,7 +98,6 @@ def compute_cheb_coeffs_turbo(f, n, rho_factor=None):
     c_turbo[0] /= 2.0
 
     return c_turbo[:n + 1], c_std, rho
-
 
 def run():
     print("=" * 60)
@@ -187,8 +183,7 @@ def run():
     axes[0].semilogy(k_vals, np.abs(c_turbo), 'or', markersize=6, alpha=0.7, label='Turbo')
     axes[0].semilogy(k_vals, np.abs(c_exact), '-g', linewidth=1, alpha=0.5, label='Exact')
     axes[0].set_title("Chebyshev coefficients of exp(x)", fontsize=11)
-    axes[0].set_xlabel("k"); axes[0].set_ylabel("|a_k|")
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
 
     # Error comparison
     axes[1].semilogy(k_vals, err_std + 1e-18, '.-k', linewidth=1, markersize=5,
@@ -198,8 +193,7 @@ def run():
     axes[1].axhline(np.finfo(float).eps, color='gray', linestyle='--',
                     linewidth=1, label='Machine epsilon')
     axes[1].set_title("Coefficient errors vs exact", fontsize=11)
-    axes[1].set_xlabel("k"); axes[1].set_ylabel("|error|")
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     fig.suptitle("Turbo Chebyshev: contour integral for higher accuracy", fontsize=12)
     fig.tight_layout()
@@ -208,7 +202,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

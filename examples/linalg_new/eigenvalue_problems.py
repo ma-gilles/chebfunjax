@@ -23,7 +23,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Eigenvalue problems and spectral analysis")
@@ -81,16 +80,14 @@ def run():
     axes[0].plot(range(1, n_compare+1), lam_finite[:n_compare], 'r.', markersize=12, label='Computed')
     axes[0].plot(n_exact, lam_exact, 'b-', alpha=0.5, label='Exact -(nπ/2)²')
     axes[0].set_title("Laplacian eigenvalues on [-1,1]", fontsize=12)
-    axes[0].set_xlabel("n"); axes[0].set_ylabel("λ")
-    axes[0].legend(); axes[0].grid(True, alpha=0.3)
+    axes[0].legend()
 
     # Harmonic oscillator spectrum
     axes[1].barh(range(n_compare2), lam2_finite[:n_compare2], color='steelblue', alpha=0.7, label='Computed')
     axes[1].barh(range(n_compare2), exact2[:n_compare2], color='none', edgecolor='red',
                  linewidth=2, label='Exact 2n+1')
     axes[1].set_title("Harmonic oscillator eigenvalues", fontsize=12)
-    axes[1].set_xlabel("λ"); axes[1].set_ylabel("n")
-    axes[1].legend(); axes[1].grid(True, alpha=0.3)
+    axes[1].legend()
 
     fig.suptitle("Spectral eigenvalue problems", fontsize=13)
     fig.tight_layout()
@@ -99,7 +96,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

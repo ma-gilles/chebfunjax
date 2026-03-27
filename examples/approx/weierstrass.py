@@ -19,8 +19,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/approx')
@@ -52,16 +50,12 @@ def run():
     axes[0].plot(xx, F_vals, 'k-', linewidth=0.8)
     axes[0].set_title(r'Weierstrass function $\sum_{k=0}^{8} 2^{-k}\cos(\frac{\pi}{2}4^k x)$',
                       fontsize=10)
-    axes[0].set_xlabel('$x$')
-    axes[0].grid(True, alpha=0.3)
 
     # Zoomed in to show the fractal-like structure
     xx_zoom = np.linspace(0.0, 0.005, 1000)
     F_zoom = np.array(partial[-1](jnp.array(xx_zoom)))
     axes[1].plot(xx_zoom, F_zoom, 'b-', linewidth=0.9)
     axes[1].set_title('Close-up: $x \in [0, 0.005]$ — fractal structure', fontsize=10)
-    axes[1].set_xlabel('$x$')
-    axes[1].grid(True, alpha=0.3)
 
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'weierstrass.png'), dpi=150, bbox_inches='tight')
@@ -69,7 +63,6 @@ def run():
 
     print("weierstrass: done")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -21,7 +21,6 @@ chebfun_style()
 import numpy as np
 import os
 
-
 def run():
     print("=" * 60)
     print("Maxwell's equations in 1D")
@@ -136,15 +135,11 @@ def run():
         axes[0].plot(x, E_h + 0.1 * t_h, color=colors[i*4],
                      linewidth=1.5, alpha=0.8)
     axes[0].set_title("Maxwell: electric field E(x,t)", fontsize=11)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("E (offset by 0.1t)")
     axes[0].text(0.5, 0.92, "t: 0 → 5", transform=axes[0].transAxes, fontsize=10)
-    axes[0].grid(True, alpha=0.3)
 
     # Energy conservation
     axes[1].plot(t_arr, energy_arr - energy_arr[0], 'b.-', markersize=6)
     axes[1].set_title("Energy deviation ∫(E²+B²)dx − initial", fontsize=11)
-    axes[1].set_xlabel("t"); axes[1].set_ylabel("ΔEnergy")
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Maxwell's equations: electromagnetic wave", fontsize=13)
     fig.tight_layout()
@@ -153,7 +148,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

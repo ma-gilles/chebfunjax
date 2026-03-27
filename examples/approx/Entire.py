@@ -19,10 +19,8 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -52,8 +50,6 @@ def run():
     ax2.scatter(NN, lengths, color='b', s=50, label='Chebfun length')
     ax2.scatter(NN, estimates, color='r', marker='+', s=80, label='Estimate ≈ 2N')
     ax2.set_title('Degree vs. oscillation parameter N', fontsize=11)
-    ax2.set_xlabel('N')
-    ax2.set_ylabel('polynomial degree')
     ax2.legend(fontsize=9)
     print("Entire:")
     print(f"{'N':>8}  {'estimate':>10}  {'chebfun len':>12}")
@@ -65,7 +61,6 @@ def run():
     plt.close(fig)
 
     return True
-
 
 if __name__ == '__main__':
     run()

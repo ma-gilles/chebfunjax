@@ -19,8 +19,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/calc')
@@ -55,9 +53,7 @@ def run():
     axes[0].plot(xx, f_vals, 'b-', linewidth=1.6, label='$f(x) = \\mathrm{round}(2\\cos x)$')
     axes[0].plot(xx, g_vals, 'm-', linewidth=1.6, label='$g = \\mathrm{cumsum}(f)$')
     axes[0].set_title('Function and its indefinite integral', fontsize=11)
-    axes[0].set_xlabel('$x$')
     axes[0].legend(fontsize=9)
-    axes[0].grid(True, alpha=0.4)
     axes[0].set_ylim(-3, 5)
 
     # Verify: f(0) + cumsum(diff(f)) should equal f
@@ -68,9 +64,7 @@ def run():
     axes[1].plot(xx, cdv + f0, 'r--', linewidth=1.6,
                  label='$f(0) + \\mathrm{cumsum}(f\')$')
     axes[1].set_title('$f(0) + \\mathrm{cumsum}(\\mathrm{diff}(f))$', fontsize=11)
-    axes[1].set_xlabel('$x$')
     axes[1].legend(fontsize=9)
-    axes[1].grid(True, alpha=0.4)
 
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'integrals.png'), dpi=150, bbox_inches='tight')
@@ -92,7 +86,6 @@ def run():
 
     print("integrals: done")
     return True
-
 
 if __name__ == "__main__":
     run()

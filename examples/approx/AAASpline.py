@@ -24,7 +24,6 @@ from chebfunjax.utils.aaa import aaa
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
 
-
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
 
@@ -63,8 +62,6 @@ def run():
     ax2.set_ylim(-2, 2)
     ax2.set_aspect('equal')
     ax2.set_title(f'Poles of AAA approximant ({len(poles)} total)', fontsize=11)
-    ax2.set_xlabel('Re(z)')
-    ax2.set_ylabel('Im(z)')
 
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'AAASpline.png'), dpi=150)
@@ -73,7 +70,6 @@ def run():
     err = np.max(np.abs(Y - np.array([float(r(jnp.array(x)).real) for x in X])))
     print(f"AAASpline: max error = {err:.2e}, {len(poles)} poles found")
     return True
-
 
 if __name__ == '__main__':
     run()

@@ -19,8 +19,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def dual_of_curve(f_re, f_im):
     """Compute the dual of a parametric curve (x(t), y(t)).
 
@@ -44,7 +42,6 @@ def dual_of_curve(f_re, f_im):
 
     return p + 1j * q
 
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/geom')
@@ -63,7 +60,7 @@ def run():
     axes[0].plot(xs_line[mask_y], ys_dual_line[mask_y], 'r-', linewidth=2, label='Dual line')
     axes[0].set_xlim(-10, 10); axes[0].set_ylim(-10, 10)
     axes[0].set_title('Point and its dual line', fontsize=11)
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
 
     # --- 2. Heart curve and its dual ---
     t = np.linspace(0, 2 * np.pi, 2000)
@@ -81,7 +78,7 @@ def run():
                  'r-', linewidth=1.5, label='Dual curve')
     axes[1].set_aspect('equal')
     axes[1].set_title('Heart curve and its dual', fontsize=11)
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
     axes[1].set_xlim(-5, 5); axes[1].set_ylim(-5, 5)
 
     # --- 3. Ellipse and its dual ---
@@ -102,7 +99,7 @@ def run():
     axes[2].plot(x_dual_exact, y_dual_exact, 'g--', linewidth=2, label='Dual (exact)')
     axes[2].set_aspect('equal')
     axes[2].set_title('Ellipse and its dual', fontsize=11)
-    axes[2].legend(fontsize=9); axes[2].grid(True, alpha=0.3)
+    axes[2].legend(fontsize=9)
     axes[2].set_xlim(-3, 3); axes[2].set_ylim(-2, 2)
 
     fig.suptitle('Duality in Projective Geometry', fontsize=13)
@@ -113,7 +110,6 @@ def run():
 
     print("dual_curves: done")
     return True
-
 
 if __name__ == "__main__":
     run()

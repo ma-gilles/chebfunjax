@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def toroidal_field(T_func, r, theta, phi):
     """Compute toroidal field: T_field = curl(r * T_hat)."""
     # For T = T(theta, phi) (independent of r):
@@ -38,7 +36,6 @@ def toroidal_field(T_func, r, theta, phi):
     Vp = -dT_dtheta
     Vr = np.zeros_like(Vt)
     return Vr, Vt, Vp
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -113,7 +110,6 @@ def run():
 
     print("pt_decomposition: done")
     return True
-
 
 if __name__ == "__main__":
     run()

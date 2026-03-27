@@ -24,7 +24,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Advection-diffusion with jump in advection")
@@ -73,12 +72,10 @@ def run():
 
     axes[0].plot(x_plot, u1(x_plot), 'b', linewidth=1.8)
     axes[0].set_title("0.2 u″ + u′ = −1", fontsize=10)
-    axes[0].set_xlabel("x"); axes[0].grid(True, alpha=0.3)
     axes[0].set_xlim(-5, 5)
 
     axes[1].plot(x_plot, u2(x_plot), 'r', linewidth=1.8)
     axes[1].set_title("0.2 u″ + (1+0.5sin(x))·u′ = −1", fontsize=10)
-    axes[1].set_xlabel("x"); axes[1].grid(True, alpha=0.3)
     axes[1].set_xlim(-5, 5)
 
     fig.suptitle("Advection-diffusion with jump in advection", fontsize=11)
@@ -88,7 +85,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

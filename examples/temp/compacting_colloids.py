@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def make_rhs(pe, phi_m, n_pts=80):
     """Build PDE right-hand side using finite differences."""
     x = np.linspace(0, 1, n_pts)
@@ -51,7 +49,6 @@ def make_rhs(pe, phi_m, n_pts=80):
 
     return x, rhs
 
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/temp')
@@ -79,7 +76,6 @@ def run():
     im = axes[0].pcolormesh(T, X, sol.y, cmap='YlOrRd',
                               vmin=0, vmax=phi_m, shading='auto')
     axes[0].set_title(f'Concentration u(t,x)\nPe={pe}, φ_m={phi_m:.2f}', fontsize=10)
-    axes[0].set_xlabel('Time t'); axes[0].set_ylabel('Position x')
     plt.colorbar(im, ax=axes[0], label='u (concentration)')
 
     # --- Panel 2: Snapshots at several times ---
@@ -92,8 +88,7 @@ def run():
     axes[1].axhline(phi_m, color='r', linestyle='--', linewidth=1.5,
                      label=f'φ_m={phi_m}')
     axes[1].set_title('Concentration profiles\nat various times', fontsize=10)
-    axes[1].set_xlabel('x'); axes[1].set_ylabel('u(t,x)')
-    axes[1].legend(fontsize=8); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=8)
 
     # --- Panel 3: Different Pe values (steady-state profiles) ---
     pe_vals = [10, 50, 200, 500]
@@ -110,8 +105,7 @@ def run():
     axes[2].axhline(phi_m, color='r', linestyle='--', linewidth=1.5,
                      label=f'φ_m={phi_m}')
     axes[2].set_title('Steady-state profiles\nfor various Pe', fontsize=10)
-    axes[2].set_xlabel('x'); axes[2].set_ylabel('u(∞,x)')
-    axes[2].legend(fontsize=8); axes[2].grid(True, alpha=0.3)
+    axes[2].legend(fontsize=8)
 
     fig.suptitle('Compacting Colloids in a Centrifuge', fontsize=12)
     fig.tight_layout()
@@ -121,7 +115,6 @@ def run():
 
     print("compacting_colloids: done")
     return True
-
 
 if __name__ == "__main__":
     run()

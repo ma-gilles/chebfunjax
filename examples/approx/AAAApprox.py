@@ -22,10 +22,8 @@ chebfun_style()
 from chebfunjax.utils.aaa import aaa
 from scipy.special import gamma as scipy_gamma
 
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -59,14 +57,12 @@ def run():
     err2 = np.array([float((jnp.exp(jnp.array(x)) - r2(jnp.array(x))).real) for x in xx2])
     ax2.semilogy(xx2, np.abs(err2) + 1e-18, 'b', lw=1.8)
     ax2.set_title('AAA approximation error for exp(x)', fontsize=11)
-    ax2.set_ylabel('|error|')
     fig2.tight_layout()
     fig2.savefig(os.path.join(_OUTDIR, 'AAAApprox_err.png'), dpi=150)
     plt.close(fig2)
 
     print("AAAApprox: done. Poles found:", len(pol))
     return True
-
 
 if __name__ == '__main__':
     run()

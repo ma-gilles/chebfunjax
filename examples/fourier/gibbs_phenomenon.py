@@ -26,7 +26,6 @@ chebfun_style()
 
 from chebfunjax.plotting import plot
 
-
 def partial_fourier_sum(N, x_eval):
     """Compute partial Fourier sum of sign(x-pi) on [0, 2*pi] at x_eval.
 
@@ -38,7 +37,6 @@ def partial_fourier_sum(N, x_eval):
         n = 2 * k + 1
         result += (4.0 / pi) * np.sin(n * x_eval) / n
     return result
-
 
 def run():
     print("=" * 60)
@@ -141,7 +139,6 @@ def run():
         ax.plot(_x, partial_fourier_sum(_N, _x), color=_col,
                 linewidth=1.2, label=f"N={_N}")
     ax.legend(fontsize=9)
-    ax.set_xlabel("x", fontsize=10)
     ax.set_title("Gibbs phenomenon", fontsize=11)
     fig.set_facecolor("white")
     fig.tight_layout()
@@ -151,7 +148,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

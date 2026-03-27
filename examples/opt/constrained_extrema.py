@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/opt')
@@ -71,9 +69,7 @@ def run():
     axes[0].plot(x_max, max_val, 'r*', markersize=12, label=f'max={max_val:.4f}')
     axes[0].plot(x_min, min_val, 'g*', markersize=12, label=f'min={min_val:.4f}')
     axes[0].set_title(r'$f(x) = \sin(x)\cos(2x)$ on $[0,4]$', fontsize=11)
-    axes[0].set_xlabel('$x$')
     axes[0].legend(fontsize=9)
-    axes[0].grid(True, alpha=0.3)
 
     xx2 = np.linspace(0, 2 * np.pi, 400)
     gv = np.array(g(jnp.array(xx2)))
@@ -82,9 +78,7 @@ def run():
     axes[1].plot(x_gmin, gmin, 'g*', markersize=12, label=f'min={gmin:.6f}')
     axes[1].axhline(0, color='k', linewidth=0.7)
     axes[1].set_title(r'$g(x) = \sin(3x)$ on $[0, 2\pi]$', fontsize=11)
-    axes[1].set_xlabel('$x$')
     axes[1].legend(fontsize=9)
-    axes[1].grid(True, alpha=0.3)
 
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'constrained_extrema.png'),
@@ -93,7 +87,6 @@ def run():
 
     print("constrained_extrema: done")
     return True
-
 
 if __name__ == "__main__":
     run()

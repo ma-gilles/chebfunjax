@@ -19,7 +19,6 @@ import numpy as np
 from scipy.linalg import expm
 import os
 
-
 def run():
     print("=" * 60)
     print("Heat equation via operator exponential (Erosion)")
@@ -102,8 +101,7 @@ def run():
                      np.concatenate([[u_t[0]], u_t, [u_t[-1]]]),
                      color=col, linewidth=1.5, label=f't={t}')
     axes[0].set_title("Heat equation (expm) — solution snapshots", fontsize=11)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("u")
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
     axes[0].set_ylim([-1.3, 1.3])
 
     # Panel 2: coefficient-like decay (max amplitude vs time)
@@ -111,8 +109,6 @@ def run():
     max_arr = np.array([np.max(np.abs(u)) for _, u in results])
     axes[1].plot(t_arr, max_arr, 'b.-', markersize=10)
     axes[1].set_title("Max amplitude decay over time", fontsize=11)
-    axes[1].set_xlabel("t"); axes[1].set_ylabel("max|u|")
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Heat equation via expm (Erosion example)", fontsize=13)
     fig.tight_layout()
@@ -121,7 +117,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

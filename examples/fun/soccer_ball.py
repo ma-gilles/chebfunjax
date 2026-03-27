@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def get_truncated_icosahedron():
     """Return vertices and faces of a truncated icosahedron (soccerball)."""
     phi = (1 + np.sqrt(5)) / 2  # golden ratio
@@ -64,7 +62,6 @@ def get_truncated_icosahedron():
     verts = np.array(sorted(verts_raw))
     return verts
 
-
 def draw_great_arc(ax, P, Q, r, color='k', lw=1.5):
     """Draw great circle arc from P to Q on sphere of radius r."""
     # Slerp from P to Q
@@ -79,7 +76,6 @@ def draw_great_arc(ax, P, Q, r, color='k', lw=1.5):
     arc = np.outer(np.sin((1-ts)*omega)/np.sin(omega), P_n) + \
           np.outer(np.sin(ts*omega)/np.sin(omega), Q_n)
     ax.plot(arc[:,0], arc[:,1], arc[:,2], '-', color=color, linewidth=lw)
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -220,7 +216,6 @@ def run():
 
     print("soccer_ball: done")
     return True
-
 
 if __name__ == "__main__":
     run()

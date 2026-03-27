@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Spike integral")
@@ -92,9 +90,7 @@ def run():
     ys = np.array(spike_func(jnp.array(xs)))
     axes[0].plot(xs, ys, color="#1e77b4", linewidth=1.5)
     axes[0].fill_between(xs, 0, ys, alpha=0.2)
-    axes[0].set_xlabel("x")
     axes[0].set_title(f"Spike function  (Chebfun length = {len(f)})")
-    axes[0].grid(True, alpha=0.4)
     axes[0].annotate(f"I = {I:.6f}", xy=(0.5, 0.5), xycoords="axes fraction",
                      fontsize=11, ha="center")
 
@@ -103,9 +99,7 @@ def run():
     ys_zoom = np.array(spike_func(jnp.array(xs_zoom)))
     axes[1].plot(xs_zoom, ys_zoom, color="#d62728", linewidth=1.5)
     axes[1].fill_between(xs_zoom, 0, ys_zoom, alpha=0.2, color="#d62728")
-    axes[1].set_xlabel("x")
     axes[1].set_title("Narrowest spike: sech(1000*(x-0.6))^6")
-    axes[1].grid(True, alpha=0.4)
 
     fig.suptitle("Spike integral: adaptive Chebfun quadrature", fontsize=11)
     fig.tight_layout()
@@ -117,7 +111,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

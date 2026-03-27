@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def cheb_matrix(n):
     """Chebyshev differentiation matrix on [-1,1] with n+1 points."""
     if n == 0:
@@ -37,7 +35,6 @@ def cheb_matrix(n):
     D = np.outer(c, 1/c) / (dX + np.eye(n+1))
     D -= np.diag(D.sum(axis=1))
     return D, x
-
 
 def solve_nonlinear_bvp(n=40):
     """Solve u*u' - u'' = 1, u(-1)=0, u(1)=2 via Newton iteration."""
@@ -69,7 +66,6 @@ def solve_nonlinear_bvp(n=40):
 
     return x, u
 
-
 def heat_equation_solution(t_final=0.0126):
     """Solve u_t = u_yy, u(0)=u(1)=0, u(0,x)=1 using mode expansion."""
     # u(t,x) = sum_n a_n * sin(n*pi*x) * exp(-n^2*pi^2*t)
@@ -80,7 +76,6 @@ def heat_equation_solution(t_final=0.0126):
         an = 4 / (n * np.pi)
         u += an * np.sin(n * np.pi * y) * np.exp(-n**2 * np.pi**2 * t_final)
     return y, u
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -95,8 +90,6 @@ def run():
     axes[0].plot(x, u, 'b-', linewidth=2.5)
     axes[0].axhline(u[len(u)//2], color='g', linestyle='--', linewidth=1, alpha=0.7)
     axes[0].set_title("Nonlinear BVP: u·u' - u'' = 1\nu(-1)=0, u(1)=2", fontsize=10)
-    axes[0].set_xlabel('x'); axes[0].set_ylabel('u(x)')
-    axes[0].grid(True, alpha=0.3)
 
     # Values at x=0 and x=1/sqrt(2)
     # Interpolate
@@ -120,8 +113,7 @@ def run():
     axes[1].axhline(1, color='k', linestyle='--', linewidth=1.5,
                     label='t=0 (IC)')
     axes[1].set_title('Heat equation: u_t = u_yy\nu(t,0)=u(t,1)=0', fontsize=10)
-    axes[1].set_xlabel('y'); axes[1].set_ylabel('u(t,y)')
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     val_half = np.interp(0.5, y, u_heat)
     print(f"\nProblem 2 (heat equation, t=0.0126):")
@@ -154,8 +146,7 @@ def run():
 
     axes[2].plot(z, c_steady, 'k--', linewidth=2, label='Steady state')
     axes[2].set_title('Convection-diffusion\nc_t = 0.49·c_xx - 2.5·c_x', fontsize=10)
-    axes[2].set_xlabel('z'); axes[2].set_ylabel('c(t,z)')
-    axes[2].legend(fontsize=9); axes[2].grid(True, alpha=0.3)
+    axes[2].legend(fontsize=9)
 
     fig.suptitle('Problems from Binous, Shaikh and Bellagi', fontsize=12)
     fig.tight_layout()
@@ -165,7 +156,6 @@ def run():
 
     print("binous_shaikh_bellagi: done")
     return True
-
 
 if __name__ == "__main__":
     run()

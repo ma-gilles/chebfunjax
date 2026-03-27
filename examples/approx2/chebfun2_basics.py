@@ -19,8 +19,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/approx2')
@@ -56,8 +54,6 @@ def run():
     cs = axes[0].contourf(XX, YY, ZZ, levels=20, cmap='Blues')
     plt.colorbar(cs, ax=axes[0])
     axes[0].set_title(r'$f(x,y) = e^{-(x^2+y^2)}$', fontsize=11)
-    axes[0].set_xlabel('$x$')
-    axes[0].set_ylabel('$y$')
     axes[0].set_aspect('equal')
 
     # 3D surface
@@ -65,9 +61,6 @@ def run():
     axes[1].remove()
     ax3d.plot_surface(XX, YY, ZZ, cmap='Blues', alpha=0.8)
     ax3d.set_title(r'$e^{-(x^2+y^2)}$', fontsize=11)
-    ax3d.set_xlabel('$x$')
-    ax3d.set_ylabel('$y$')
-    ax3d.set_zlabel('$f$')
 
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'chebfun2_basics.png'),
@@ -83,7 +76,6 @@ def run():
 
     print("chebfun2_basics: done")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def bivariate_normal_pdf(X, Y, mu1, mu2, sigma1, sigma2, rho):
     """Bivariate normal PDF."""
     z = ((X - mu1)**2 / sigma1**2
@@ -29,7 +27,6 @@ def bivariate_normal_pdf(X, Y, mu1, mu2, sigma1, sigma2, rho):
          + (Y - mu2)**2 / sigma2**2)
     norm = 2 * np.pi * sigma1 * sigma2 * np.sqrt(1 - rho**2)
     return np.exp(-z / (2 * (1 - rho**2))) / norm
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -60,8 +57,7 @@ def run():
     levels = np.linspace(0.001, np.max(p), 15)
     axes[0].contour(X, Y, p, levels=levels)
     axes[0].set_title('Bivariate normal distribution\n(ρ=0.5)', fontsize=11)
-    axes[0].set_xlabel('x'); axes[0].set_ylabel('y')
-    axes[0].set_aspect('equal'); axes[0].grid(True, alpha=0.3)
+    axes[0].set_aspect('equal')
 
     # --- 2. Marginal distributions ---
     # Marginal of X: integrate over y
@@ -76,8 +72,7 @@ def run():
     axes[1].plot(xs, exact_marginal_x, 'r--', linewidth=2, label='N(0,1) exact')
     axes[1].plot(ys, marginal_y, 'g-', linewidth=2, label='Marginal Y (numerical)')
     axes[1].set_title('Marginal distributions', fontsize=11)
-    axes[1].set_xlabel('x'); axes[1].legend(fontsize=9)
-    axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     err_x = np.max(np.abs(marginal_x - exact_marginal_x))
     print(f"Max error in marginal X: {err_x:.2e}")
@@ -99,8 +94,7 @@ def run():
     axes[2].plot(ys, exact_cond, 'r--', linewidth=2,
                  label=f'N({mu_Y_given_X:.2f}, {sigma_Y_given_X:.2f})')
     axes[2].set_title(f'Conditional P(Y|X={x0})', fontsize=11)
-    axes[2].set_xlabel('y'); axes[2].legend(fontsize=9)
-    axes[2].grid(True, alpha=0.3)
+    axes[2].legend(fontsize=9)
 
     print(f"\nConditional Y|X={x0}: mu={mu_Y_given_X:.4f}, sigma={sigma_Y_given_X:.4f}")
 
@@ -112,7 +106,6 @@ def run():
 
     print("bivariate_normal: done")
     return True
-
 
 if __name__ == "__main__":
     run()

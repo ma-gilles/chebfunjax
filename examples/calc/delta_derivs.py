@@ -24,7 +24,6 @@ chebfun_style()
 
 from chebfunjax.plotting import plot
 
-
 def run():
     print("=" * 60)
     print("Delta functions and derivatives")
@@ -95,19 +94,15 @@ def run():
     fig, axes = plt.subplots(2, 2)
     axes[0, 0].plot(xs_plot, f_vals, color="#1e77b4", linewidth=1.2)
     axes[0, 0].set_title("f: sine + approximate delta impulses")
-    axes[0, 0].set_xlabel("x")
 
     axes[0, 1].plot(xs_plot, g_vals, color="#d62728", linewidth=1.2)
     axes[0, 1].set_title(f"g = cumsum(f): {n_impulses} impulses")
-    axes[0, 1].set_xlabel("x")
 
     axes[1, 0].plot(xs_plot, h_vals, color="#2ca02c", linewidth=1.2)
     axes[1, 0].set_title("h = cumsum(g): continuous, $C^0$")
-    axes[1, 0].set_xlabel("x")
 
     axes[1, 1].plot(xs_plot, q_vals, color="#ff7f0e", linewidth=1.2)
     axes[1, 1].set_title("q = cumsum(h): $C^1$ function")
-    axes[1, 1].set_xlabel("x")
 
     fig.suptitle("Repeated integration smooths distributional impulses", fontsize=12)
     fig.tight_layout()
@@ -119,7 +114,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

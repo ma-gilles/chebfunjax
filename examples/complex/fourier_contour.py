@@ -23,8 +23,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Fourier transforms via contour integrals")
@@ -122,25 +120,19 @@ def run():
     xs = np.linspace(-8, 8, 400)
     axes[0].plot(xs, 1.0/(xs**2 + a**2), color="#1e77b4", linewidth=2)
     axes[0].fill_between(xs, 0, 1.0/(xs**2+a**2), alpha=0.15)
-    axes[0].set_xlabel("x")
     axes[0].set_title(f"$f(x) = 1/(x^2+{a}^2)$")
-    axes[0].grid(True, alpha=0.4)
 
     # Middle: Fourier transform
     omegas_plot = np.linspace(-4, 4, 300)
     ft_vals = np.array([exact_FT(w) for w in omegas_plot])
     axes[1].plot(omegas_plot, ft_vals, color="#d62728", linewidth=2)
     axes[1].fill_between(omegas_plot, 0, ft_vals, alpha=0.15, color="#d62728")
-    axes[1].set_xlabel("$\\omega$")
     axes[1].set_title(f"$F(\\omega) = (\\pi/{a})e^{{-{a}|\\omega|}}$")
-    axes[1].grid(True, alpha=0.4)
 
     # Right: |F(omega)| on log scale
     axes[2].semilogy(omegas_plot[omegas_plot >= 0],
                      ft_vals[omegas_plot >= 0], color="#2ca02c", linewidth=2)
-    axes[2].set_xlabel("$\\omega$")
     axes[2].set_title("$|F(\\omega)|$ on log scale")
-    axes[2].grid(True, alpha=0.4)
 
     fig.suptitle("Fourier transform via residue theorem: Lorentzian lineshape", fontsize=11)
     fig.tight_layout()
@@ -149,7 +141,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

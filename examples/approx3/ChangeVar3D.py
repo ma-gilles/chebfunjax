@@ -28,7 +28,6 @@ _IMG_DIR = os.path.join(
 )
 os.makedirs(_IMG_DIR, exist_ok=True)
 
-
 def jacobian_det(x: Chebfun3, y: Chebfun3, z: Chebfun3) -> Chebfun3:
     """Compute the absolute value of the Jacobian determinant.
 
@@ -65,7 +64,6 @@ def jacobian_det(x: Chebfun3, y: Chebfun3, z: Chebfun3) -> Chebfun3:
         return jnp.abs(det)
 
     return chebfun3(_jac_func, domain=x.domain)
-
 
 def run():
     print("=" * 60)
@@ -162,7 +160,6 @@ def run():
     Z_c = np.sin(Phi)
     ax1.plot_surface(X_c, Y_c, Z_c, alpha=0.7, cmap="viridis")
     ax1.set_title("Ice-cream cone\n(r=1 surface)", fontsize=9)
-    ax1.set_xlabel("x"); ax1.set_ylabel("y"); ax1.set_zlabel("z")
 
     # Plot 2: cylinder sector
     ax2 = fig.add_subplot(132, projection="3d")
@@ -181,7 +178,6 @@ def run():
     T2, Z2 = np.meshgrid(t2, z2)
     ax2.plot_surface(np.cos(T2), np.sin(T2), Z2, alpha=0.4, color="orange")
     ax2.set_title("Cylinder sector\n(r=1, 0≤θ≤π)", fontsize=9)
-    ax2.set_xlabel("x"); ax2.set_ylabel("y"); ax2.set_zlabel("z")
 
     # Plot 3: torus
     ax3 = fig.add_subplot(133, projection="3d")
@@ -195,7 +191,6 @@ def run():
     Ztor = r0 * np.sin(T3)
     ax3.plot_surface(Xtor, Ytor, Ztor, alpha=0.7, cmap="plasma")
     ax3.set_title("Torus (R=4, r=1)", fontsize=9)
-    ax3.set_xlabel("x"); ax3.set_ylabel("y"); ax3.set_zlabel("z")
 
     fig.suptitle("Coordinate transformations for 3D integration", fontsize=12)
     fig.tight_layout()
@@ -204,7 +199,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

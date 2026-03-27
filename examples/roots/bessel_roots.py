@@ -24,7 +24,6 @@ chebfun_style()
 
 from chebfunjax.plotting import plot
 
-
 def run():
     print("=" * 60)
     print("Roots of Bessel function J_0 on [0, 100]")
@@ -32,7 +31,7 @@ def run():
 
     from scipy.special import j0 as besselj0, jn_zeros
 
-    # MATLAB: J0 = chebfun(@(x) besselj(0,x), [0 100]);
+    # MATLAB: J0 = chebfun(@(x) besselj(0,x), [0 100])
     J0 = cj.chebfun(
         lambda x: jnp.array(besselj0(np.array(x))),
         domain=(0.0, 100.0),
@@ -40,7 +39,7 @@ def run():
     print(f"\nJ_0(x) on [0, 100]:")
     print(f"  Chebfun length: {len(J0)}")
 
-    # MATLAB: r = roots(J0);
+    # MATLAB: r = roots(J0)
     r = J0.roots()
     r_arr = np.sort(np.array(r))
     print(f"  Number of roots found: {len(r_arr)}")
@@ -82,7 +81,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

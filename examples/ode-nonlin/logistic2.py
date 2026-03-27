@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Logistic map: x_n as a function of x_0 (fixed r)")
@@ -78,9 +76,7 @@ def run():
     # Plot g = f^{(N)}(x_0) as function of x_0
     x_plot = jnp.linspace(0.0, 1.0, 1000)
     axes[0].plot(x_plot, g(x_plot), 'b', linewidth=0.8, alpha=0.8)
-    axes[0].set_xlabel("x₀"); axes[0].set_ylabel(f"f^{{({N_iter})}}(x₀)")
     axes[0].set_title(f"Logistic iterate x_{N_iter}(x_0), r={r}", fontsize=10)
-    axes[0].grid(True, alpha=0.3)
 
     # Cobweb diagram for one trajectory
     x0_cob = 0.2
@@ -97,9 +93,8 @@ def run():
     for k in range(n_cob - 1):
         axes[1].plot([x_cob[k], x_cob[k]], [x_cob[k], x_cob[k+1]], 'r', linewidth=0.8, alpha=0.5)
         axes[1].plot([x_cob[k], x_cob[k+1]], [x_cob[k+1], x_cob[k+1]], 'r', linewidth=0.8, alpha=0.5)
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("f(x)")
     axes[1].set_title(f"Cobweb diagram (r={r}, x0={x0_cob})", fontsize=10)
-    axes[1].legend(fontsize=8); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=8)
 
     fig.suptitle("Logistic map: chaos and sensitivity", fontsize=11)
     fig.tight_layout()
@@ -108,7 +103,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Linear ODEs with random switching")
@@ -108,35 +106,28 @@ def run():
     # Row 1: scalar switching
     axes[0, 0].plot(t_eval, y_scalar, 'b-', linewidth=1.5)
     axes[0, 0].set_title("Scalar switching y'=±y (linear scale)", fontsize=10)
-    axes[0, 0].set_xlabel("t"); axes[0, 0].set_ylabel("y")
-    axes[0, 0].grid(True, alpha=0.3)
 
     axes[0, 1].semilogy(t_eval, np.abs(y_scalar), 'b-', linewidth=1.5)
     axes[0, 1].set_title("Scalar switching (log scale)", fontsize=10)
-    axes[0, 1].set_xlabel("t"); axes[0, 1].set_ylabel("|y|")
-    axes[0, 1].grid(True, alpha=0.3)
 
     # Row 2: lambda=3 (slow)
     axes[1, 0].plot(t_eval, u3, linewidth=1.5, label='u')
     axes[1, 0].plot(t_eval, v3, linewidth=1.5, label='v')
     axes[1, 0].set_title("Matrix switching λ=3 (slow)", fontsize=10)
-    axes[1, 0].set_xlabel("t"); axes[1, 0].legend(fontsize=8)
-    axes[1, 0].grid(True, alpha=0.3); axes[1, 0].set_ylim([-3, 3])
+    axes[1, 0].legend(fontsize=8)
+    axes[1, 0].set_ylim([-3, 3])
 
     axes[1, 1].semilogy(t_eval, np.maximum(n3, 1e-15), 'k-', linewidth=1.5)
     axes[1, 1].set_title("||y||² log scale (slow switching, decay)", fontsize=10)
-    axes[1, 1].set_xlabel("t"); axes[1, 1].grid(True, alpha=0.3)
 
     # Row 3: lambda=1 (intermediate)
     axes[2, 0].plot(t_eval, u1, linewidth=1.5, label='u')
     axes[2, 0].plot(t_eval, v1, linewidth=1.5, label='v')
     axes[2, 0].set_title("Matrix switching λ=1 (intermediate)", fontsize=10)
-    axes[2, 0].set_xlabel("t"); axes[2, 0].legend(fontsize=8)
-    axes[2, 0].grid(True, alpha=0.3)
+    axes[2, 0].legend(fontsize=8)
 
     axes[2, 1].semilogy(t_eval, np.maximum(n1, 1e-15), 'k-', linewidth=1.5)
     axes[2, 1].set_title("||y||² log scale (intermediate switching)", fontsize=10)
-    axes[2, 1].set_xlabel("t"); axes[2, 1].grid(True, alpha=0.3)
 
     fig.suptitle("Random switching ODEs", fontsize=13)
     fig.tight_layout()
@@ -145,7 +136,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

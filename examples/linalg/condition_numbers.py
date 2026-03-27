@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def vandermonde_matrix(nodes):
     """Vandermonde matrix for the given nodes."""
     nodes = np.asarray(nodes)
@@ -30,7 +28,6 @@ def vandermonde_matrix(nodes):
     for j in range(1, n):
         V[:, j] = V[:, j - 1] * nodes
     return V
-
 
 def chebyshev_vandermonde(nodes):
     """Chebyshev-Vandermonde matrix: V_{kj} = T_j(x_k)."""
@@ -42,7 +39,6 @@ def chebyshev_vandermonde(nodes):
     for j in range(2, n):
         V[:, j] = 2 * nodes * V[:, j - 1] - V[:, j - 2]
     return V
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -76,8 +72,6 @@ def run():
                 label='Vandermonde (Chebyshev nodes)')
     ax.semilogy(nn, cond_chebv_cheb, 'g.-', markersize=8, linewidth=1.5,
                 label='Chebyshev-Vandermonde (Cheb nodes)')
-    ax.set_xlabel('$n$ (number of nodes)', fontsize=12)
-    ax.set_ylabel('Condition number', fontsize=12)
     ax.set_title('Condition numbers of Vandermonde matrices', fontsize=12)
     ax.legend(fontsize=10)
     fig.tight_layout()
@@ -98,7 +92,6 @@ def run():
 
     print("condition_numbers: done")
     return True
-
 
 if __name__ == "__main__":
     run()

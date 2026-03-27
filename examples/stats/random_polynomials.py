@@ -19,8 +19,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/stats')
@@ -49,9 +47,7 @@ def run():
 
     axes[0].axhline(0, color='k', linewidth=0.8)
     axes[0].set_title(f'5 random Chebfuns (degree ~{n})', fontsize=11)
-    axes[0].set_xlabel('$x$')
     axes[0].set_ylim(-2, 2)
-    axes[0].grid(True, alpha=0.3)
 
     # Histogram of root locations
     axes[1].hist(all_roots, bins=30, density=True, color='steelblue',
@@ -61,11 +57,8 @@ def run():
     axes[1].plot(xx_arc, 1.0 / (np.pi * np.sqrt(1 - xx_arc**2)), 'r-',
                  linewidth=2, label='Arcsine density')
     axes[1].set_title(f'Root distribution over {n_trials} trials', fontsize=11)
-    axes[1].set_xlabel('Root location')
-    axes[1].set_ylabel('Density')
     axes[1].legend(fontsize=10)
     axes[1].set_xlim(-1.05, 1.05)
-    axes[1].grid(True, alpha=0.3)
 
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'random_polynomials.png'),
@@ -82,7 +75,6 @@ def run():
 
     print("random_polynomials: done")
     return True
-
 
 if __name__ == "__main__":
     run()

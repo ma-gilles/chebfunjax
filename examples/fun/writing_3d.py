@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def letter_3d(ch, x_off=0.0, y_off=0.0, z_func=None):
     """Return 3D curve for a capital letter."""
     # Simple stroke definitions: list of 2D arrays, then map to 3D
@@ -55,7 +53,6 @@ def letter_3d(ch, x_off=0.0, y_off=0.0, z_func=None):
         result.append((xs, ys_2d, zs))
     return result
 
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/fun')
@@ -74,7 +71,7 @@ def run():
             z = xs + 1j * ys
             ax1.plot(np.real(z), np.imag(z), 'b-', linewidth=2.5)
 
-    ax1.set_aspect('equal'); ax1.grid(True, alpha=0.3)
+    ax1.set_aspect('equal')
     ax1.set_title('"CHEBY" as piecewise-linear\ncomplex path', fontsize=10)
 
     # --- Panel 2: On a wavy surface z = sin(pi*x)*sin(pi*y)/4 ---
@@ -143,7 +140,6 @@ def run():
 
     print("writing_3d: done")
     return True
-
 
 if __name__ == "__main__":
     run()

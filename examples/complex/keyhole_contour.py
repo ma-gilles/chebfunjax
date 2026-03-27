@@ -23,8 +23,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Keyhole contour integral")
@@ -265,11 +263,8 @@ def run():
         axes[0].plot(np.real(z_seg), np.imag(z_seg), color=col, linewidth=2, label=lbl)
     axes[0].plot([-R-0.3, 0], [0, 0], 'r--', linewidth=1.2, label="branch cut")
     axes[0].set_aspect('equal')
-    axes[0].set_xlabel("Re(z)")
-    axes[0].set_ylabel("Im(z)")
     axes[0].set_title("Keyhole contour")
     axes[0].legend(fontsize=7, loc='upper right')
-    axes[0].grid(True, alpha=0.4)
 
     # Right: phase plot of log(z)*tanh(z)
     xs_g = np.linspace(-2.5, 2.5, 300)
@@ -284,7 +279,6 @@ def run():
     for z_seg, col in [(z_top, "w"), (z_inner, "w"), (z_bot, "w"), (z_outer, "w")]:
         axes[1].plot(np.real(z_seg), np.imag(z_seg), color=col, linewidth=1.5)
     axes[1].set_aspect('equal')
-    axes[1].set_xlabel("Re(z)")
     axes[1].set_title("Phase of $\\log(z)\\tanh(z)$ with contour")
     axes[1].set_xlim(-2.5, 2.5)
     axes[1].set_ylim(-2.5, 2.5)
@@ -297,7 +291,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

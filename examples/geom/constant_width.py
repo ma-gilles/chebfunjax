@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def constant_width_poly(x, y):
     """The Rabinowitz polynomial whose zero set has constant width."""
     r2 = x**2 + y**2
@@ -33,7 +31,6 @@ def constant_width_poly(x, y):
             + x * xy_term * (16 * r2**2 - 5544 * r2 + 266382)
             - 373248000)
 
-
 def extract_contour_points(X, Y, Z, level=0):
     """Extract contour points at given level."""
     import matplotlib.pyplot as plt
@@ -44,7 +41,6 @@ def extract_contour_points(X, Y, Z, level=0):
         points.append(path)
     plt.close(fig_tmp)
     return points
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -96,7 +92,6 @@ def run():
     axes[0].set_aspect('equal')
     axes[0].set_xlim(-12, 12); axes[0].set_ylim(-12, 12)
     axes[0].set_title('Polynomial curve of constant width\n(Rabinowitz, 1997)', fontsize=10)
-    axes[0].grid(True, alpha=0.3)
 
     # X-axis cross section
     xs_1d = np.linspace(-12, 12, 500)
@@ -106,8 +101,8 @@ def run():
     axes[1].axvline(-8, color='r', linestyle='--', linewidth=1.5, label='x=-8')
     axes[1].axvline(10, color='g', linestyle='--', linewidth=1.5, label='x=10')
     axes[1].set_title('p(x,0) on x-axis\nZeros at x=-8 and x=10 (width=18)', fontsize=10)
-    axes[1].set_xlabel('x'); axes[1].set_ylim(-1e9, 1e9)
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].set_ylim(-1e9, 1e9)
+    axes[1].legend(fontsize=9)
 
     fig.suptitle('Polynomial Curve of Constant Width', fontsize=13)
     fig.tight_layout()
@@ -117,7 +112,6 @@ def run():
 
     print("constant_width: done")
     return True
-
 
 if __name__ == "__main__":
     run()

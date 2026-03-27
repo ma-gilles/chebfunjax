@@ -24,7 +24,6 @@ from chebfunjax.utils.aaa import aaa
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
 
-
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
 
@@ -61,12 +60,10 @@ def run():
     ax.axhline(rat_err_full, color='r', ls='--', lw=1.5,
                label=f'AAA ({len(pol)} poles, err={rat_err_full:.2e})')
     ax.set_title('Approximation errors for |x|', fontsize=10)
-    ax.set_xlabel('degree/poles n')
     ax.legend(fontsize=8)
     ax2 = axes[1]
     ax2.semilogy(ns_cont, newman_bound, 'r', lw=1.5, label='exp(-C√n) bound')
     ax2.set_title('Root-exponential convergence rate', fontsize=10)
-    ax2.set_xlabel('n')
     ax2.legend(fontsize=9)
     fig.suptitle('Polynomial O(1/n) vs. rational O(exp(-C√n)) for |x|', fontsize=11)
     fig.tight_layout()
@@ -76,7 +73,6 @@ def run():
     print(f"RationalAbsx: poly deg-80 err={poly_errs[-2]:.3e}, "
           f"AAA err={rat_err_full:.3e}")
     return True
-
 
 if __name__ == '__main__':
     run()

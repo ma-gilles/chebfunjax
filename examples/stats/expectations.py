@@ -19,8 +19,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/stats')
@@ -53,9 +51,7 @@ def run():
     xs = np.linspace(0, 5, 300)
     axes[0].plot(xs, 2 * np.exp(-2 * xs), 'b-', linewidth=2)
     axes[0].set_title('f(x) = 2e^{-2x}', fontsize=11)
-    axes[0].set_xlabel('x'); axes[0].set_ylabel('f(x)')
     axes[0].set_ylim(-0.1, 2.1)
-    axes[0].grid(True, alpha=0.3)
 
     # --- 2. Mean, median, mode of g(x) = 4x(9-x^2)/81 on [0,3] ---
     g_fn = lambda x: 4 * x * (9 - x**2) / 81
@@ -93,9 +89,8 @@ def run():
     axes[1].axvline(median_val, color='m', linewidth=2, label=f'median={median_val:.2f}')
     axes[1].axvline(mode_val, color='k', linewidth=2, linestyle='--', label=f'mode={mode_val:.2f}')
     axes[1].set_title('g(x) = 4x(9-x²)/81', fontsize=11)
-    axes[1].set_xlabel('x'); axes[1].legend(fontsize=9)
+    axes[1].legend(fontsize=9)
     axes[1].set_ylim(-0.01, 0.65)
-    axes[1].grid(True, alpha=0.3)
 
     # --- 3. CDF of normal distribution ---
     from scipy.special import erf
@@ -105,8 +100,7 @@ def run():
     axes[2].plot(xs_n, pdf_n, 'b-', linewidth=2, label='PDF N(0,1)')
     axes[2].plot(xs_n, cdf_n, 'r-', linewidth=2, label='CDF N(0,1)')
     axes[2].set_title('Normal PDF and CDF', fontsize=11)
-    axes[2].set_xlabel('x'); axes[2].legend(fontsize=9)
-    axes[2].grid(True, alpha=0.3)
+    axes[2].legend(fontsize=9)
 
     fig.suptitle('Expectations and Probability Distributions', fontsize=13)
     fig.tight_layout()
@@ -116,7 +110,6 @@ def run():
 
     print("expectations: done")
     return True
-
 
 if __name__ == "__main__":
     run()

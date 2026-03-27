@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def compute_cdf_and_inverse(xs, pdf_vals):
     """Compute CDF and its inverse from a PDF sampled on xs."""
     dx = xs[1] - xs[0]
@@ -32,7 +30,6 @@ def compute_cdf_and_inverse(xs, pdf_vals):
     inv_cdf = interp1d(cdf, xs, bounds_error=False,
                        fill_value=(xs[0], xs[-1]))
     return cdf, inv_cdf
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -60,8 +57,7 @@ def run():
                  edgecolor='white', alpha=0.7, label='Samples')
     axes[0].plot(xs_vm, density_vm, 'r-', linewidth=2, label='von Mises density')
     axes[0].set_title('von Mises distribution (κ=1.5)', fontsize=11)
-    axes[0].set_xlabel('x'); axes[0].legend(fontsize=9)
-    axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
 
     print("von Mises:")
     print(f"  Sample mean: {np.mean(samples_vm):.4f}  (expected: 0)")
@@ -91,8 +87,7 @@ def run():
                  edgecolor='white', alpha=0.7, label='Samples')
     axes[1].plot(xs_ln, density_ln, 'r-', linewidth=2, label='Logit-normal density')
     axes[1].set_title('Logit-normal distribution (σ=1.11)', fontsize=11)
-    axes[1].set_xlabel('x'); axes[1].legend(fontsize=9)
-    axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
     axes[1].set_xlim(0, 1)
 
     print("\nLogit-normal:")
@@ -107,7 +102,6 @@ def run():
 
     print("resampling_random_variables: done")
     return True
-
 
 if __name__ == "__main__":
     run()

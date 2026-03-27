@@ -23,7 +23,6 @@ chebfun_style()
 
 from chebfunjax.spherefun.spherefun import Spherefun
 
-
 def run():
     print("=" * 60)
     print("Operations on the sphere")
@@ -88,7 +87,6 @@ def run():
         im = ax.contourf(np.degrees(LAM) - 180, np.degrees(TH) - 90, Z,
                           levels=20, cmap="viridis")
         ax.set_title(title, fontsize=10)
-        ax.set_xlabel("Lon (°)"); ax.set_ylabel("Colat (°)")
         fig.colorbar(im, ax=ax, shrink=0.8)
 
     fig.suptitle("Functions on the sphere", fontsize=13)
@@ -98,7 +96,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

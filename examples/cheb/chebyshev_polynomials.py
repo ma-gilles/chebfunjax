@@ -19,12 +19,9 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def chebyshev_T(n, x):
     """Chebyshev polynomial T_n via cosine formula."""
     return np.cos(n * np.arccos(np.clip(x, -1, 1)))
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -93,7 +90,6 @@ def run():
 
     print("chebyshev_polynomials: done")
     return True
-
 
 if __name__ == "__main__":
     run()

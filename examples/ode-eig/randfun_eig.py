@@ -23,7 +23,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Eigenvalues of random operators")
@@ -127,9 +126,8 @@ def run():
     axes[0].plot(np.real(eigs_mat), np.imag(eigs_mat), 'k.', markersize=1.5, alpha=0.5)
     axes[0].plot(np.cos(theta), np.sin(theta), 'r-', linewidth=1.5, label="|z|=1")
     axes[0].set_aspect('equal')
-    axes[0].set_xlabel("Re"); axes[0].set_ylabel("Im")
     axes[0].set_title(f"Circular law: n={n} Gaussian matrix", fontsize=9)
-    axes[0].legend(fontsize=8); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=8)
 
     # Semicircle law
     bins = np.linspace(-1.1, 1.1, 40)
@@ -139,15 +137,12 @@ def run():
     x_sc = np.linspace(-1, 1, 200)
     axes[1].plot(x_sc, 2/np.pi * np.sqrt(1 - x_sc**2), 'r-', linewidth=2,
                  label="semicircle")
-    axes[1].set_xlabel("λ (scaled)"); axes[1].set_ylabel("density")
     axes[1].set_title("Semicircle law: symmetric matrix", fontsize=9)
-    axes[1].legend(fontsize=8); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=8)
 
     # Random ODE eigenvalues
     axes[2].bar(range(1, k+1), lams_rand_sorted, color='coral', alpha=0.7)
-    axes[2].set_xlabel("k"); axes[2].set_ylabel("λ_k")
     axes[2].set_title("Random-coefficient ODE eigenvalues\n-u″+V_rand(x)u=λu", fontsize=9)
-    axes[2].grid(True, alpha=0.3, axis='y')
 
     fig.suptitle("Eigenvalues of random operators", fontsize=11)
     fig.tight_layout()
@@ -156,7 +151,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

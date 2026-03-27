@@ -24,7 +24,6 @@ chebfun_style()
 from chebfunjax.plotting import plot
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Carrier equation: eps*u'' + 2(1-x^2)u + u^2 = 1")
@@ -75,7 +74,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

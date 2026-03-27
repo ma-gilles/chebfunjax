@@ -23,7 +23,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Linear exp IVP: u' - lambda u = 0, u(0)=1")
@@ -60,15 +59,11 @@ def run():
     fig, axes = plt.subplots(1, 2)
     axes[0].plot(x_plot, u(x_plot), 'b', linewidth=1.8, label="chebfunjax")
     axes[0].plot(x_plot, exact(x_plot), 'r--', linewidth=1.2, label="exp(λx)")
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("u(x)")
     axes[0].set_title(f"u′ − λu = 0,  λ={lam}", fontsize=10)
     axes[0].legend(fontsize=9)
-    axes[0].grid(True, alpha=0.3)
 
     axes[1].semilogy(x_plot, jnp.abs(u(x_plot) - exact(x_plot)) + 1e-20, 'g', linewidth=1.6)
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("|error|")
     axes[1].set_title("Pointwise error", fontsize=10)
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle(f"Linear exp IVP: solution = exp({lam}x)", fontsize=11)
     fig.tight_layout()
@@ -77,7 +72,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

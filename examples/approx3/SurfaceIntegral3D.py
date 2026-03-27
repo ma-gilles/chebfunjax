@@ -27,7 +27,6 @@ _IMG_DIR = os.path.join(
 )
 os.makedirs(_IMG_DIR, exist_ok=True)
 
-
 def surface_integral(f, Sx, Sy, Sz, u_range, v_range, n=300):
     """Compute int_S f dS for surface S parametrized by (Sx, Sy, Sz).
 
@@ -81,7 +80,6 @@ def surface_integral(f, Sx, Sy, Sz, u_range, v_range, n=300):
     f_vals = np.array(f(jnp.array(X), jnp.array(Y), jnp.array(Z)))
 
     return float(np.trapezoid(np.trapezoid(f_vals * dS, v, axis=0), u))
-
 
 def run():
     print("=" * 60)
@@ -191,7 +189,6 @@ def run():
     ax1.plot_surface(Sx_sph(U_s, V_s), Sy_sph(U_s, V_s), Sz_sph(U_s, V_s),
                      facecolors=plt.cm.viridis(col), alpha=0.9)
     ax1.set_title(f"Unit sphere\n∫x²dS={I1:.4f}", fontsize=9)
-    ax1.set_xlabel("x"); ax1.set_ylabel("y"); ax1.set_zlabel("z")
 
     # Seashell
     ax2 = fig.add_subplot(142, projection="3d")
@@ -201,7 +198,6 @@ def run():
     ax2.plot_surface(Sx_shell(U_sh, V_sh), Sy_shell(U_sh, V_sh),
                      Sz_shell(U_sh, V_sh), alpha=0.8, cmap="plasma")
     ax2.set_title("Seashell", fontsize=9)
-    ax2.set_xlabel("x"); ax2.set_ylabel("y"); ax2.set_zlabel("z")
 
     # Second seashell
     def Sx_shell2(u, v):
@@ -220,7 +216,6 @@ def run():
     ax3.plot_surface(Sx_shell2(U_sh2, V_sh2), Sy_shell2(U_sh2, V_sh2),
                      Sz_shell2(U_sh2, V_sh2), alpha=0.8, cmap="viridis")
     ax3.set_title("Another seashell", fontsize=9)
-    ax3.set_xlabel("x"); ax3.set_ylabel("y"); ax3.set_zlabel("z")
 
     # Spring
     ax4 = fig.add_subplot(144, projection="3d")
@@ -230,7 +225,6 @@ def run():
     ax4.plot_surface(Sx_spring(U_sp, V_sp), Sy_spring(U_sp, V_sp),
                      Sz_spring(U_sp, V_sp), alpha=0.8, cmap="coolwarm")
     ax4.set_title("Spring", fontsize=9)
-    ax4.set_xlabel("x"); ax4.set_ylabel("y"); ax4.set_zlabel("z")
 
     fig.suptitle("Surface integrals of 3D scalar fields", fontsize=12)
     fig.tight_layout()
@@ -241,7 +235,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

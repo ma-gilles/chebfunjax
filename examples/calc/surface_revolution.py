@@ -24,7 +24,6 @@ chebfun_style()
 
 from chebfunjax.plotting import plot
 
-
 def run():
     print("=" * 60)
     print("Surfaces of revolution")
@@ -96,10 +95,7 @@ def run():
     # Left: generator curve
     axes[0].plot(xs, f_vals, color="#1e77b4", linewidth=2)
     axes[0].axhline(0, color="k", linewidth=0.5)
-    axes[0].set_xlabel("x")
-    axes[0].set_ylabel("f(x)")
     axes[0].set_title(r"Generator curve $f(x)=\sqrt{4+2\sin 2x}$")
-    axes[0].grid(True, alpha=0.4)
 
     # Right: 3D surface of revolution (top-down cross-section)
     theta = np.linspace(0, 2 * pi, 80)
@@ -125,7 +121,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

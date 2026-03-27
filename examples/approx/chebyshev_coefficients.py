@@ -23,14 +23,13 @@ chebfun_style()
 
 from chebfunjax.plotting import plot, plotcoeffs
 
-
 def run():
     print("=" * 60)
     print("Chebyshev coefficients and spectral convergence")
     print("=" * 60)
 
     # --- Chebyshev coefficients of a smooth function ------------------
-    # MATLAB: f = chebfun('exp(x)*sin(pi*x) + x'); a = chebcoeffs(f);
+    # MATLAB: f = chebfun('exp(x)*sin(pi*x) + x'); a = chebcoeffs(f)
     fc = cj.chebfun(lambda x: jnp.exp(x) * jnp.sin(jnp.pi * x) + x)
     coeffs = fc.coeffs
     print(f"\nf(x) = exp(x)*sin(pi*x) + x on [-1,1]:")
@@ -102,8 +101,6 @@ def run():
         _c = np.abs(np.array(_f.coeffs))
         ax2.semilogy(np.arange(len(_c)), _c, ".", color=col,
                      markersize=4, label=fn_name)
-    ax2.set_xlabel("degree $n$", fontsize=10)
-    ax2.set_ylabel("$|a_n|$", fontsize=10)
     ax2.set_title("Chebyshev coefficient decay", fontsize=11)
     ax2.legend(fontsize=9)
     fig2.set_facecolor("white")
@@ -114,7 +111,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -23,8 +23,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def arc_length(z_func, dom):
     """Compute arc length of curve z(t) on domain dom using Chebfun."""
     # |dz/dt| = sqrt((dx/dt)^2 + (dy/dt)^2)
@@ -39,7 +37,6 @@ def arc_length(z_func, dom):
         domain=dom
     )
     return float(speed.sum())
-
 
 def run():
     print("=" * 60)
@@ -134,21 +131,15 @@ def run():
     axes[0].plot(np.real(z_e), np.imag(z_e), color="#d62728", linewidth=2,
                  label=f"Ellipse L={L3:.3f}")
     axes[0].set_aspect('equal')
-    axes[0].set_xlabel("Re(z)")
-    axes[0].set_ylabel("Im(z)")
     axes[0].set_title("Curves and their arc lengths")
     axes[0].legend(fontsize=8)
-    axes[0].grid(True, alpha=0.4)
 
     # Right: spiral
     axes[1].plot(np.real(z_s), np.imag(z_s), color="#2ca02c", linewidth=2,
                  label=f"Spiral L={L4:.3f}")
     axes[1].set_aspect('equal')
-    axes[1].set_xlabel("Re(z)")
-    axes[1].set_ylabel("Im(z)")
     axes[1].set_title("Spiral $z(t) = te^{it}$, $t\\in[0,10]$")
     axes[1].legend(fontsize=9)
-    axes[1].grid(True, alpha=0.4)
 
     fig.suptitle("Arc length in the complex plane", fontsize=11)
     fig.tight_layout()
@@ -157,7 +148,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

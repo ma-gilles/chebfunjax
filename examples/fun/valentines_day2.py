@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def heart_surface(u, v):
     """Parametric 3D heart surface."""
     # 3D heart parametrization
@@ -29,7 +27,6 @@ def heart_surface(u, v):
     y = np.cos(u)**3 * np.cos(v)
     z = np.sin(v)
     return x, y, z
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -105,7 +102,6 @@ def run():
 
     print("valentines_day2: done")
     return True
-
 
 if __name__ == "__main__":
     run()

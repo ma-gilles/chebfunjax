@@ -26,8 +26,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Collective dynamics and consensus")
@@ -99,8 +97,7 @@ def run():
         ax.plot(t, u, 'b-', linewidth=2, alpha=0.8, label='u')
         ax.plot(t, v, 'r-', linewidth=2, alpha=0.8, label='v')
         ax.set_title(title, fontsize=10)
-        ax.set_xlabel("t"); ax.set_ylabel("u, v")
-        ax.legend(fontsize=8); ax.grid(True, alpha=0.3)
+        ax.legend(fontsize=8)
 
     plot_pair(axes[0], t_eval, u0, v0, "Independent random walks (F=0)")
     plot_pair(axes[1], t_eval, u3, v3, "Strong attraction (F=3)")
@@ -113,7 +110,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

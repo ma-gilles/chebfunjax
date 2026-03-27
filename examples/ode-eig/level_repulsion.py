@@ -21,7 +21,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Avoided crossings (level repulsion) for ODE eigenvalues")
@@ -105,9 +104,8 @@ def run():
     for j in range(n_eigs):
         axes[0].plot(ts, all_lams[:, j], color=colors[j], linewidth=1.8,
                      label=f"λ_{j+1}")
-    axes[0].set_xlabel("t"); axes[0].set_ylabel("λ_k")
     axes[0].set_title("2nd-order: eigenvalues can't cross\n-u″ + t·x(π−x)u = λu", fontsize=9)
-    axes[0].legend(fontsize=8); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=8)
 
     # 4th order: level repulsion visible
     if np.sum(valid) >= 2:
@@ -117,9 +115,8 @@ def run():
         for j in range(n_eigs4):
             axes[1].plot(ts4_valid, lams4_valid[:, j], color=colors4[j],
                          linewidth=1.8, label=f"λ_{j+1}")
-    axes[1].set_xlabel("t"); axes[1].set_ylabel("λ_k")
     axes[1].set_title("4th-order beam: avoided crossings\nu″″ − t·u″ = λu", fontsize=9)
-    axes[1].legend(fontsize=8); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=8)
 
     fig.suptitle("Level repulsion / avoided crossings in ODE eigenvalues", fontsize=11)
     fig.tight_layout()
@@ -128,7 +125,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

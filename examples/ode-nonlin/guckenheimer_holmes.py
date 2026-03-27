@@ -24,8 +24,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Guckenheimer-Holmes system")
@@ -81,14 +79,12 @@ def run():
     axes[0].plot(sol1.t, u1, 'b', linewidth=1.2, label="u(t)", alpha=0.8)
     axes[0].plot(sol1.t, v1, 'r', linewidth=1.2, label="v(t)", alpha=0.8)
     axes[0].plot(sol1.t, w1, 'g', linewidth=1.2, label="w(t)", alpha=0.8)
-    axes[0].set_xlabel("t"); axes[0].set_ylabel("component")
     axes[0].set_title(f"Guckenheimer-Holmes (b={b}, c={c})", fontsize=10)
-    axes[0].legend(fontsize=8); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=8)
 
     # 3D trajectory
     ax3d = fig.add_subplot(1, 2, 2, projection='3d')
     ax3d.plot(u1, v1, w1, 'b', linewidth=0.8, alpha=0.6)
-    ax3d.set_xlabel("u"); ax3d.set_ylabel("v"); ax3d.set_zlabel("w")
     ax3d.set_title("3D trajectory", fontsize=10)
     # Remove axes[1] and replace with 3D
     axes[1].remove()
@@ -100,7 +96,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

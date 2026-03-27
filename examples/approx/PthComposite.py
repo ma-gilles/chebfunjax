@@ -24,7 +24,6 @@ from chebfunjax.utils.aaa import aaa
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
 
-
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
 
@@ -67,7 +66,6 @@ def run():
     ax2.axhline(np.max(err_full), color='r', ls='--', lw=1.5,
                 label=f'AAA ({len(pol_full)} poles)')
     ax2.set_title(f'Approximation errors for x^{{1/{p}}}', fontsize=10)
-    ax2.set_xlabel('polynomial degree')
     ax2.legend(fontsize=9)
     fig.suptitle(f'Polynomial vs. rational approximation of x^{{1/{p}}}', fontsize=12)
     fig.tight_layout()
@@ -76,7 +74,6 @@ def run():
 
     print(f"PthComposite: p={p}, AAA err={np.max(err_full):.2e}")
     return True
-
 
 if __name__ == '__main__':
     run()

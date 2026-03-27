@@ -26,7 +26,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def exact_solution(x, eps):
     """Exact solution for -eps u'' - u' = 1, u(0)=u(1)=0.
 
@@ -43,7 +42,6 @@ def exact_solution(x, eps):
     x = np.asarray(x, dtype=float)
     e = np.exp(-1.0 / eps)
     return -x + (np.exp(-x / eps) - 1.0) / (e - 1.0)
-
 
 def run():
     print("=" * 60)
@@ -106,7 +104,6 @@ def run():
         ax.plot(x_plot, exact_solution(x_plot, eps), color=c, linewidth=1.6,
                 label=f"ε = {eps:.0e}")
     ax.legend(fontsize=9)
-    ax.set_xlabel("x"); ax.set_ylabel("u(x)")
     ax.set_title("Boundary layers: −ε u″ − u′ = 1, u(0)=u(1)=0", fontsize=10)
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "breakpoints.png"), dpi=150, bbox_inches="tight")
@@ -114,7 +111,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

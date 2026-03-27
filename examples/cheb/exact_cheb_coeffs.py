@@ -23,8 +23,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def compute_cheb_coeffs_fft(f, n):
     """Compute n+1 Chebyshev coefficients of f on [-1,1] via FFT."""
     j = np.arange(n + 1)
@@ -38,7 +36,6 @@ def compute_cheb_coeffs_fft(f, n):
     c[0] /= 2.0
     c[-1] /= 2.0
     return c
-
 
 def run():
     print("=" * 60)
@@ -123,8 +120,7 @@ def run():
     axes[0].semilogy(n_plot[1:], np.abs(c_exact[1:]), 'or', markersize=5,
                      alpha=0.7, label='Exact (Elliott)')
     axes[0].set_title("Chebyshev coefficients of 1/(5+x)", fontsize=11)
-    axes[0].set_xlabel("n"); axes[0].set_ylabel("log|a_n|")
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
 
     # Error
     err = np.abs(c_exact[1:] - c_num[1:])
@@ -132,8 +128,7 @@ def run():
     axes[1].axhline(1e-15, color='r', linestyle='--', linewidth=1,
                     label='Machine epsilon ~1e-15')
     axes[1].set_title("Difference: |exact - numerical|", fontsize=11)
-    axes[1].set_xlabel("n"); axes[1].set_ylabel("|exact - numerical|")
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     fig.suptitle("Exact Chebyshev coefficients via Elliott's residue method",
                  fontsize=12)
@@ -144,7 +139,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

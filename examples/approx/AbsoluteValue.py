@@ -19,10 +19,8 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -66,14 +64,12 @@ def run():
     ax2.semilogy(xx, err_vals, 'b', lw=1.8)
     ax2.set_xlim(-1, 1)
     ax2.set_title('Error after 6 Newton steps', fontsize=11)
-    ax2.set_ylabel('|r(x) − |x||')
     fig2.tight_layout()
     fig2.savefig(os.path.join(_OUTDIR, 'AbsoluteValue_err.png'), dpi=150)
     plt.close(fig2)
 
     print("AbsoluteValue: done.")
     return True
-
 
 if __name__ == '__main__':
     run()

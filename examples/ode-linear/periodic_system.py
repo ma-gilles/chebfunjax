@@ -23,7 +23,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Periodic ODE system: u - v' = 0, u'' + v = cos(x)")
@@ -103,21 +102,17 @@ def run():
 
     axes[0].plot(x_plot, u_s(x_plot), 'b', linewidth=1.8, label="chebfunjax")
     axes[0].plot(x_plot, exact_u(x_plot), 'r--', linewidth=1.2, label="exact")
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("u(x)")
     axes[0].set_title("u′ + u = 1+sin(x)", fontsize=10)
     axes[0].set_xticks([-np.pi, 0, np.pi])
     axes[0].set_xticklabels(["-π", "0", "π"])
     axes[0].legend(fontsize=8)
-    axes[0].grid(True, alpha=0.3)
 
     axes[1].plot(x_plot, v_s(x_plot), 'r', linewidth=1.8, label="chebfunjax")
     axes[1].plot(x_plot, exact_v(x_plot), 'k--', linewidth=1.2, label="-cos(x)/2")
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("v(x)")
     axes[1].set_title("v″ − v = cos(x)", fontsize=10)
     axes[1].set_xticks([-np.pi, 0, np.pi])
     axes[1].set_xticklabels(["-π", "0", "π"])
     axes[1].legend(fontsize=8)
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Periodic ODE system on [−π, π]", fontsize=11)
     fig.tight_layout()
@@ -126,7 +121,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

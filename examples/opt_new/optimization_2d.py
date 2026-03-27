@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Global optimization in 2D")
@@ -84,7 +82,6 @@ def run():
     im1 = axes[0].contourf(XP, YP, ZR, levels=30, cmap="YlOrRd")
     axes[0].plot(1, 1, 'r*', markersize=15, label='min (1,1)')
     axes[0].set_title("Rosenbrock: log(1+f)", fontsize=12)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("y")
     axes[0].legend(); fig.colorbar(im1, ax=axes[0])
 
     xs_q = np.linspace(-3, 3, 80)
@@ -93,7 +90,6 @@ def run():
     ZP = np.array(peaks(jnp.array(XQ), jnp.array(YQ)))
     im2 = axes[1].contourf(XQ, YQ, ZP, levels=30, cmap="RdBu_r")
     axes[1].set_title("Peaks function", fontsize=12)
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("y")
     fig.colorbar(im2, ax=axes[1])
 
     fig.suptitle("2D optimization test functions", fontsize=13)
@@ -103,7 +99,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

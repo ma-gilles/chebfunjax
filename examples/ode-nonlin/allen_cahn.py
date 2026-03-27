@@ -24,7 +24,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Allen-Cahn equation: eps u'' + u - u^3 = 0")
@@ -65,7 +64,6 @@ def run():
     fig, ax = plt.subplots()
     for (eps, u), c in zip(solutions, colors):
         ax.plot(x_plot, u(x_plot), color=c, linewidth=1.6, label=f"ε={eps}")
-    ax.set_xlabel("x"); ax.set_ylabel("u(x)")
     ax.set_title("Allen-Cahn: ε u″ + u − u³ = 0, u(±1)=∓1", fontsize=10)
     ax.legend(fontsize=9)
     fig.tight_layout()
@@ -74,7 +72,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

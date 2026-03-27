@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def regular_solid_harmonic(l, m, r, theta, phi):
     """Regular solid harmonic: R_l^m(r, theta, phi) = r^l * Y_l^m(theta, phi)."""
     Ylm_raw = sph_harm_y(l, abs(m), theta, phi)
@@ -35,7 +33,6 @@ def regular_solid_harmonic(l, m, r, theta, phi):
         Ylm = np.real(Ylm_raw)
     return r**l * Ylm
 
-
 def irregular_solid_harmonic(l, m, r, theta, phi):
     """Irregular solid harmonic: S_l^m = r^{-(l+1)} * Y_l^m(theta, phi)."""
     Ylm_raw = sph_harm_y(l, abs(m), theta, phi)
@@ -46,7 +43,6 @@ def irregular_solid_harmonic(l, m, r, theta, phi):
     else:
         Ylm = np.real(Ylm_raw)
     return r**(-(l+1)) * Ylm
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -92,8 +88,7 @@ def run():
                  label=f'R_{l_h}^{{{m_h}}}')
 
     ax2.set_title('Regular solid harmonics\nvs r at fixed (θ,φ)', fontsize=10)
-    ax2.set_xlabel('r'); ax2.set_ylabel('R_l^m(r, θ₀, φ₀)')
-    ax2.legend(fontsize=7); ax2.grid(True, alpha=0.3)
+    ax2.legend(fontsize=7)
     ax2.set_xlim(0, 3); ax2.set_ylim(-5, 5)
 
     # --- Panel 3: Irregular solid harmonic S_2^1 ---
@@ -123,7 +118,6 @@ def run():
 
     print("solid_harmonics: done")
     return True
-
 
 if __name__ == "__main__":
     run()

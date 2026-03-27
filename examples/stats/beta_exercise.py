@@ -20,15 +20,12 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def beta_pdf(xs, a, b):
     """Beta distribution PDF."""
     result = np.zeros_like(xs, dtype=float)
     mask = (xs > 0) & (xs < 1)
     result[mask] = xs[mask]**(a-1) * (1 - xs[mask])**(b-1) / beta_func(a, b)
     return result
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -52,8 +49,7 @@ def run():
     axes[0].axvline(mode_val, color='r', linewidth=2, linestyle='--',
                     label=f'mode = {mode_val:.3f}')
     axes[0].set_title(f'Beta({a},{b}): mode', fontsize=11)
-    axes[0].set_xlabel('x'); axes[0].legend(fontsize=9)
-    axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
 
     # --- 2. Modified distribution: mode and median ---
     xs2 = np.linspace(1e-6, 2 - 1e-6, 2000)
@@ -78,8 +74,7 @@ def run():
     axes[1].axvline(median_g, color='k', linewidth=2, linestyle='--',
                     label=f'median = {median_g:.3f}')
     axes[1].set_title('Modified distribution', fontsize=11)
-    axes[1].set_xlabel('x'); axes[1].legend(fontsize=9)
-    axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     # --- 3. Bayesian inference: Beta priors, update with data ---
     theta = np.linspace(0, 1, 1000)
@@ -105,8 +100,7 @@ def run():
         axes[2].plot(theta, posterior, '-', color=color, linewidth=2, label=label)
 
     axes[2].set_title(f'Prior (dashed) and Posterior (solid)\n(x={y}, n={n})', fontsize=10)
-    axes[2].set_xlabel('θ'); axes[2].legend(fontsize=8, loc='upper left')
-    axes[2].grid(True, alpha=0.3)
+    axes[2].legend(fontsize=8, loc='upper left')
 
     # Prior and posterior odds
     print("\nBayesian inference (H0: theta >= 0.6 vs H1: theta < 0.6):")
@@ -132,7 +126,6 @@ def run():
 
     print("beta_exercise: done")
     return True
-
 
 if __name__ == "__main__":
     run()

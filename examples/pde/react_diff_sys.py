@@ -22,7 +22,6 @@ from scipy.integrate import solve_ivp
 from scipy.special import erf
 import os
 
-
 def run():
     print("=" * 60)
     print("Coupled reaction-diffusion system")
@@ -112,16 +111,14 @@ def run():
     axes[0].plot(x, u0, 'b-', label='u₀', linewidth=2)
     axes[0].plot(x, v0, 'r-', label='v₀', linewidth=2)
     axes[0].set_title("Initial conditions", fontsize=11)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("Concentration")
-    axes[0].legend(); axes[0].grid(True, alpha=0.3)
+    axes[0].legend()
 
     u_f = uvw[:N]; v_f = uvw[N:2*N]; w_f = uvw[2*N:]
     axes[1].plot(x, u_f, 'b-', label='u', linewidth=2)
     axes[1].plot(x, v_f, 'r-', label='v', linewidth=2)
     axes[1].plot(x, w_f, 'g-', label='w', linewidth=2)
     axes[1].set_title(f"Solution at t = {T}", fontsize=11)
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("Concentration")
-    axes[1].legend(); axes[1].grid(True, alpha=0.3)
+    axes[1].legend()
 
     fig.suptitle("Reaction-diffusion system: u, v react to form w", fontsize=13)
     fig.tight_layout()
@@ -130,7 +127,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

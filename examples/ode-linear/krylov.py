@@ -24,7 +24,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Continuous Krylov methods for ODEs")
@@ -85,15 +84,11 @@ def run():
 
     axes[0].plot(x_test, u(x_test), 'b', linewidth=1.8, label="chebfunjax")
     axes[0].plot(x_test, exact(x_test), 'r--', linewidth=1.2, label="exact cos(πx/2)")
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("u(x)")
     axes[0].set_title("−u″ = (π/2)² cos(πx/2), u(±1)=0", fontsize=10)
     axes[0].legend(fontsize=9)
-    axes[0].grid(True, alpha=0.3)
 
     axes[1].plot(x_test, u2(x_test), 'g', linewidth=1.8)
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("u(x)")
     axes[1].set_title("−u″ = exp(sin(πx)), u(±1)=0", fontsize=10)
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Krylov/spectral methods for BVPs", fontsize=11)
     fig.tight_layout()
@@ -102,7 +97,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

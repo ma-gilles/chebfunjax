@@ -23,8 +23,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Hermite quadrature")
@@ -107,10 +105,7 @@ def run():
 
     # Left: convergence for Test 3
     axes[0].semilogy(ns, [max(e, 1e-16) for e in errs_cos], 'b.-', markersize=8, linewidth=1.5)
-    axes[0].set_xlabel("n (number of quadrature nodes)")
-    axes[0].set_ylabel("absolute error")
     axes[0].set_title("Hermite quadrature convergence\n$\\int e^{-x^2} \\cos x\\, dx$")
-    axes[0].grid(True, alpha=0.4)
 
     # Right: the integrand exp(-x^2) * cos(x)
     xs_plot = np.linspace(-5, 5, 500)
@@ -121,10 +116,8 @@ def run():
     axes[1].stem(xq, wq * np.cos(xq), linefmt="r-", markerfmt="ro",
                  basefmt="k-", label=f"$w_j \\cos(x_j)$, n={n_plot}")
     axes[1].axhline(0, color="k", linewidth=0.5)
-    axes[1].set_xlabel("x")
     axes[1].set_title("Hermite quadrature nodes and weights")
     axes[1].legend(fontsize=9)
-    axes[1].grid(True, alpha=0.4)
 
     fig.suptitle("Gauss-Hermite quadrature", fontsize=11)
     fig.tight_layout()
@@ -136,7 +129,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -19,8 +19,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def hilbert_curve(order):
     """Generate Hilbert curve of given order. Returns (x, y) arrays."""
     # Use L-system approach
@@ -49,7 +47,6 @@ def hilbert_curve(order):
 
     return x / (n - 1), y / (n - 1)
 
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/fun')
@@ -63,7 +60,7 @@ def run():
         hx, hy = hilbert_curve(order)
         axes[0].plot(hx, hy, '-', color=col, linewidth=max(0.5, 2-0.5*order),
                      label=f'Order {order}', alpha=0.8)
-    axes[0].set_aspect('equal'); axes[0].grid(True, alpha=0.3)
+    axes[0].set_aspect('equal')
     axes[0].set_title('Hilbert space-filling curve\norders 1, 2, 3', fontsize=10)
     axes[0].legend(fontsize=9)
 
@@ -86,7 +83,6 @@ def run():
                           s=2, zorder=3)
     axes[1].set_aspect('equal')
     axes[1].set_title('Hilbert curve on\nsin(πx)cos(πy) surface', fontsize=10)
-    axes[1].grid(True, alpha=0.3)
     plt.colorbar(sc, ax=axes[1])
 
     # --- Panel 3: "Chebsnake" — path that visits Chebyshev nodes ---
@@ -110,7 +106,7 @@ def run():
                  label='Chebsnake path')
     axes[2].plot(snake_x[::N+1], snake_y[::N+1], 'rs', markersize=6,
                  label='Row starts')
-    axes[2].set_aspect('equal'); axes[2].grid(True, alpha=0.3)
+    axes[2].set_aspect('equal')
     axes[2].set_title(f'Chebsnake: {N}×{N} Chebyshev grid\nsnake traversal', fontsize=10)
     axes[2].legend(fontsize=9)
 
@@ -125,7 +121,6 @@ def run():
 
     print("hilbert_surface_chebsnake: done")
     return True
-
 
 if __name__ == "__main__":
     run()

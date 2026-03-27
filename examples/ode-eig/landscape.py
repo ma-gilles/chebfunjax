@@ -24,7 +24,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Landscape function and eigenfunction localization")
@@ -106,15 +105,12 @@ def run():
     for i, lam in enumerate(lams_sorted):
         axes[0].axhline(lam, color=f'C{i}', linewidth=1.0, linestyle='--',
                         label=f"λ_{i+1}={lam:.2f}")
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("V(x) / λ")
     axes[0].set_title("Smooth random potential and eigenvalue levels", fontsize=10)
-    axes[0].legend(fontsize=7, loc='upper right'); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=7, loc='upper right')
 
     # Show eigenvalue spacing (related to localization)
     axes[1].bar(range(1, k+1), lams_sorted, color='coral', alpha=0.7)
-    axes[1].set_xlabel("k"); axes[1].set_ylabel("λ_k")
     axes[1].set_title("Eigenvalues of Schrödinger op\n−u″ + V(x)u = λu", fontsize=10)
-    axes[1].grid(True, alpha=0.3, axis='y')
 
     fig.suptitle("Eigenfunction localization: random potential", fontsize=11)
     fig.tight_layout()
@@ -123,7 +119,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

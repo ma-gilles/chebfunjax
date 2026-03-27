@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/opt')
@@ -77,8 +75,6 @@ def run():
                      cmap='Blues_r', alpha=0.6)
     axes[0].plot(x_opt, y_opt, 'r*', markersize=12, label=f'min at ({x_opt:.3f},{y_opt:.3f})')
     axes[0].plot(1.0, 1.0, 'k+', markersize=12, linewidth=2, label='True min (1,1)')
-    axes[0].set_xlabel('$x$')
-    axes[0].set_ylabel('$y$')
     axes[0].set_title('Rosenbrock function $f(x,y)$', fontsize=11)
     axes[0].legend(fontsize=9)
     axes[0].set_aspect('equal')
@@ -88,10 +84,8 @@ def run():
                  label='$\\min_y f(x,y)$')
     axes[1].axvline(x_opt, color='r', linestyle='--', linewidth=1.2,
                     label=f'$x^* \\approx {x_opt:.3f}$')
-    axes[1].set_xlabel('$x$')
     axes[1].set_title('$\\min_y f(x,y)$ — finding the global minimum', fontsize=11)
     axes[1].legend(fontsize=9)
-    axes[1].grid(True, alpha=0.4)
     axes[1].set_yscale('symlog', linthresh=1e-2)
 
     fig.tight_layout()
@@ -104,7 +98,6 @@ def run():
 
     print("rosenbrock: done")
     return True
-
 
 if __name__ == "__main__":
     run()

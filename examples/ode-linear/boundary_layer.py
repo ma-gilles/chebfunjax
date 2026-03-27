@@ -24,7 +24,6 @@ chebfun_style()
 from chebfunjax.plotting import plot
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Boundary layer: eps*u'' + u' = 0")
@@ -71,7 +70,6 @@ def run():
         ax.plot(_xs, _exact(_xs), color=_col, linewidth=1.5,
                 label=f"ε = {_eps}")
     ax.set_title("Boundary layer: ε u″ + u′ = 0", fontsize=11)
-    ax.set_xlabel("x", fontsize=10)
     ax.legend(fontsize=9)
     fig.set_facecolor("white")
     fig.tight_layout()
@@ -81,7 +79,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

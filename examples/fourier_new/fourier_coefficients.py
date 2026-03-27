@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Fourier-based chebfuns and coefficients")
@@ -91,8 +89,8 @@ def run():
     axes[0].plot(xs_plot, np.cos(xs_plot), 'r-', label='cos(x)')
     axes[0].plot(xs_plot, np.abs(np.cos(xs_plot)), 'g-', label='|cos(x)|')
     axes[0].set_title("Periodic functions on [0, 2π]", fontsize=12)
-    axes[0].set_xlabel("x"); axes[0].legend()
-    axes[0].set_xlim(0, 2*np.pi); axes[0].grid(True, alpha=0.3)
+    axes[0].legend()
+    axes[0].set_xlim(0, 2*np.pi)
     axes[0].set_xticks([0, np.pi/2, np.pi, 3*np.pi/2, 2*np.pi])
     axes[0].set_xticklabels(['0', 'π/2', 'π', '3π/2', '2π'])
 
@@ -103,8 +101,8 @@ def run():
         axes[1].plot(xs_fj, S, linewidth=1.5, label=f'n={n_fj_plot}')
     axes[1].axhline(0, color='k', linestyle='-', linewidth=0.5)
     axes[1].set_title("Fejer-Jackson partial sums Σsin(kx)/k", fontsize=11)
-    axes[1].set_xlabel("x"); axes[1].legend(fontsize=9)
-    axes[1].set_xlim(0, np.pi); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
+    axes[1].set_xlim(0, np.pi)
     axes[1].set_xticks([0, np.pi/4, np.pi/2, 3*np.pi/4, np.pi])
     axes[1].set_xticklabels(['0', 'π/4', 'π/2', '3π/4', 'π'])
 
@@ -115,7 +113,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

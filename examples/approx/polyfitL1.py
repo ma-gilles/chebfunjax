@@ -19,10 +19,8 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -88,7 +86,6 @@ def run():
     print(f"polyfitL1: L2 max err={np.max(np.abs(err_L2)):.3e}, "
           f"L1 max err={np.max(np.abs(err_L1)):.3e}")
     return True
-
 
 if __name__ == '__main__':
     run()

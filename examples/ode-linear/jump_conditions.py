@@ -23,7 +23,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Jump conditions in ODE BVPs")
@@ -99,7 +98,6 @@ def run():
     ax.plot(x_right, ur(jnp.array(x_right, dtype=jnp.float64)), 'r', linewidth=1.8,
             label="jump u′(0)")
     ax.axvline(0, color='k', linestyle='--', linewidth=0.8)
-    ax.set_xlabel("x"); ax.set_ylabel("u(x)")
     ax.set_title("0.01 u″ + sin(x) u = 0 with/without jump", fontsize=10)
     ax.legend(fontsize=9)
     fig.tight_layout()
@@ -108,7 +106,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

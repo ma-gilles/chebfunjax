@@ -23,7 +23,6 @@ from scipy.linalg import expm
 from scipy.stats import norm
 import os
 
-
 def run():
     print("=" * 60)
     print("Black-Scholes PDE via operator exponential")
@@ -151,8 +150,7 @@ def run():
         axes[0].plot(s_plot, v[s_range], color=col, linewidth=1.5,
                      label=f't={t:.1f}')
     axes[0].set_title("Black-Scholes option values (K=50)", fontsize=11)
-    axes[0].set_xlabel("Stock price s"); axes[0].set_ylabel("Option value v")
-    axes[0].legend(fontsize=8); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=8)
     axes[0].set_ylim([-0.5, 15])
 
     # Final solution vs BS formula
@@ -166,8 +164,7 @@ def run():
     axes[1].plot(s_plot, v_last[s_range], 'b.', markersize=5, label='Numerical (t=0.5)')
     axes[1].axvline(55, color='g', linestyle=':', label=f's=55: {v_at_55:.3f}')
     axes[1].set_title("Comparison with Black-Scholes at t=0.5", fontsize=11)
-    axes[1].set_xlabel("s"); axes[1].legend(fontsize=9)
-    axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     fig.suptitle("Black-Scholes PDE via matrix exponential", fontsize=13)
     fig.tight_layout()
@@ -176,7 +173,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

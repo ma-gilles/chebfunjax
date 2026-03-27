@@ -24,7 +24,6 @@ from chebfunjax.utils.aaa import aaa
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
 
-
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
 
@@ -56,8 +55,6 @@ def run():
     pol_arr = np.array([complex(p) for p in pol])
     ax3.plot(pol_arr.real, pol_arr.imag, '.r', ms=10)
     ax3.set_title('Poles of AAA approximant', fontsize=10)
-    ax3.set_xlabel('Re(z)')
-    ax3.set_ylabel('Im(z)')
     ax3.axhline(0, color='k', lw=0.5)
 
     fig.tight_layout()
@@ -66,7 +63,6 @@ def run():
 
     print(f"FermiDirac: {len(pol)} AAA poles, max err = {np.max(err_vals):.2e}")
     return True
-
 
 if __name__ == '__main__':
     run()

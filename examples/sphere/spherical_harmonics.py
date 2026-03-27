@@ -23,7 +23,6 @@ chebfun_style()
 
 from chebfunjax.spherefun.spherefun import Spherefun
 
-
 def run():
     print("=" * 60)
     print("Spherical harmonics and Spherefun")
@@ -73,7 +72,6 @@ def run():
     im1 = ax1.contourf(np.degrees(LAM) - 180, np.degrees(TH) - 90, Z,
                         levels=20, cmap="RdBu_r")
     ax1.set_title("cos(λ)sin(θ)", fontsize=11)
-    ax1.set_xlabel("Longitude (°)"); ax1.set_ylabel("Colatitude (°)")
     fig.colorbar(im1, ax=ax1, shrink=0.8)
 
     # sin(theta)^2 * cos(2*lambda)
@@ -82,7 +80,6 @@ def run():
     im2 = ax2.contourf(np.degrees(LAM) - 180, np.degrees(TH) - 90, Z2,
                         levels=20, cmap="RdBu_r")
     ax2.set_title("sin²(θ)cos(2λ)", fontsize=11)
-    ax2.set_xlabel("Longitude (°)")
     fig.colorbar(im2, ax=ax2, shrink=0.8)
 
     # 3D sphere plot
@@ -95,7 +92,6 @@ def run():
     ax3.plot_surface(X, Y, Zs, facecolors=plt.cm.RdBu_r((colors + 1) / 2),
                       alpha=0.9, linewidth=0)
     ax3.set_title("Sphere: cos(λ)sin(θ)", fontsize=11)
-    ax3.set_xlabel("x"); ax3.set_ylabel("y"); ax3.set_zlabel("z")
 
     fig.suptitle("Spherical harmonics and Spherefun", fontsize=13)
     fig.tight_layout()
@@ -104,7 +100,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

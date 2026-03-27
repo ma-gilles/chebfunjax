@@ -24,7 +24,6 @@ chebfun_style()
 from chebfunjax.plotting import plot
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Adjoint of a linear operator")
@@ -79,15 +78,11 @@ def run():
     axes[0].plot(x_plot, Lu(x_plot), '--', label="Lu = u'(x)")
     axes[0].legend(fontsize=8)
     axes[0].set_title("Functions and L u", fontsize=10)
-    axes[0].set_xlabel("x")
-    axes[0].grid(True, alpha=0.3)
 
     axes[1].plot(x_plot, Lstv(x_plot), label="L*v = −v'(x)")
     axes[1].plot(x_plot, u_fn(x_plot), '--', label="u(x)")
     axes[1].legend(fontsize=8)
     axes[1].set_title("Adjoint: L*v = −v'", fontsize=10)
-    axes[1].set_xlabel("x")
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Operator adjoint: (v, Lu) = (L*v, u)", fontsize=11)
     fig.tight_layout()
@@ -96,7 +91,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

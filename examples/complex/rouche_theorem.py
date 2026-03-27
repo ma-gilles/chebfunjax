@@ -23,8 +23,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def count_zeros_inside(f_complex, r, n_pts=4000):
     """Count zeros of f inside |z| = r using the argument principle.
 
@@ -40,7 +38,6 @@ def count_zeros_inside(f_complex, r, n_pts=4000):
     # Winding number
     n_zeros = round(delta_arg / (2 * np.pi))
     return n_zeros
-
 
 def run():
     print("=" * 60)
@@ -133,7 +130,6 @@ def run():
     axes[0].axvline(0, color='k', linewidth=0.3)
     axes[0].set_title("$z^5 + 3z^2 + 1$: 5 zeros inside $|z|=2$")
     axes[0].legend(fontsize=8)
-    axes[0].grid(True, alpha=0.3)
 
     # Right: argument of p1 on |z|=2 (winding number = 5)
     ts_plot = np.linspace(0, 2*pi, 500)
@@ -141,10 +137,7 @@ def run():
     fs = p1(zs)
     unwrapped_arg = np.unwrap(np.angle(fs))
     axes[1].plot(ts_plot / pi, unwrapped_arg / pi, color="#1e77b4", linewidth=1.8)
-    axes[1].set_xlabel("$t/\\pi$")
-    axes[1].set_ylabel("arg $p(z(t))$ / $\\pi$")
     axes[1].set_title(f"Argument winding: total change = {int(round((unwrapped_arg[-1] - unwrapped_arg[0])/(2*pi)))} × 2π")
-    axes[1].grid(True, alpha=0.4)
 
     fig.suptitle("Rouche's theorem: counting zeros via the argument principle", fontsize=11)
     fig.tight_layout()
@@ -153,7 +146,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

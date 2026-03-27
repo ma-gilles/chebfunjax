@@ -24,7 +24,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def phase_portrait(ax, f, x_range, y_range, title, trajectories=None):
     """Draw quiver plot and optional trajectories for system x'=f1(x,y), y'=f2(x,y)."""
     xs = np.linspace(*x_range, 15)
@@ -44,8 +43,7 @@ def phase_portrait(ax, f, x_range, y_range, title, trajectories=None):
             ax.plot(*x0, 'o', color=col, markersize=4)
 
     ax.set_xlim(*x_range); ax.set_ylim(*y_range)
-    ax.set_title(title, fontsize=9); ax.grid(True, alpha=0.2)
-
+    ax.set_title(title, fontsize=9)
 
 def run():
     print("=" * 60)
@@ -82,9 +80,6 @@ def run():
     phase_portrait(axes[1,1], saddle_node, (-2, 2), (-2, 2), "Saddle node",
                    [([0.0, 0.5], 'b'), ([0.5, -1.0], 'r'), ([-0.5, 1.0], 'g')])
 
-    for ax in axes.ravel():
-        ax.set_xlabel("x₁"); ax.set_ylabel("x₂")
-
     fig.suptitle("Phase portraits with direction fields", fontsize=11)
     fig.tight_layout()
     _here = os.path.dirname(os.path.abspath(__file__))
@@ -103,7 +98,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

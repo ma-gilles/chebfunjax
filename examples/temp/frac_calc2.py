@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def half_integral_legendre(n, x):
     """Half-integral of P_n(x) via the explicit formula.
 
@@ -32,7 +30,6 @@ def half_integral_legendre(n, x):
     denom = gamma(0.5) * (n + 0.5) * np.sqrt(np.abs(1 + x) + 1e-15)
     return (Tn + Tn1) / denom
 
-
 def half_integral_numerical(f, x):
     """Numerical half-integral via quadrature: J^{1/2}f(x) = int_{-1}^x f(t)/sqrt(x-t) dt."""
     result = np.zeros_like(x)
@@ -41,7 +38,6 @@ def half_integral_numerical(f, x):
         kernel = 1.0 / np.sqrt(x[i] - ts + 1e-14)
         result[i] = np.trapezoid(f[:i] * kernel, ts)
     return result
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -64,8 +60,8 @@ def run():
     axes[0].set_title(f'Half-integral of $P_{n}(x)$\n'
                        f'$(T_n + T_{{n+1}}) / (\\Gamma(1/2)(n+1/2)\\sqrt{{1+x}})$',
                        fontsize=9)
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
-    axes[0].set_xlabel('x'); axes[0].set_xlim(-1, 1)
+    axes[0].legend(fontsize=9)
+    axes[0].set_xlim(-1, 1)
 
     err = np.max(np.abs(J_exact[20:] - J_num[20:]))
     print(f"Half-integral P_4: max error explicit vs numerical = {err:.4f}")
@@ -92,8 +88,7 @@ def run():
                      label=f'J^{{{alpha:.2f}}}')
 
     axes[1].set_title('Fractional integrals of exp(x)\nfor α=0.25, 0.5, 0.75, 1', fontsize=10)
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
-    axes[1].set_xlabel('x'); axes[1].set_ylabel('J^α exp(x)')
+    axes[1].legend(fontsize=9)
 
     # --- Panel 3: Beta function and Jacobi polynomial connection ---
     # B(z,w) = Gamma(z)*Gamma(w)/Gamma(z+w)
@@ -106,8 +101,7 @@ def run():
 
     # Show Gamma function ratio
     axes[2].set_title('Beta function B(z, 1/2)\nΓ(z)Γ(1/2)/Γ(z+1/2)', fontsize=10)
-    axes[2].set_xlabel('z'); axes[2].set_ylabel('B(z, 1/2)')
-    axes[2].legend(fontsize=9); axes[2].grid(True, alpha=0.3)
+    axes[2].legend(fontsize=9)
     axes[2].set_ylim(0, 10)
 
     print("Fractional calculus implementation via Legendre/Jacobi polynomials")
@@ -121,7 +115,6 @@ def run():
 
     print("frac_calc2: done")
     return True
-
 
 if __name__ == "__main__":
     run()

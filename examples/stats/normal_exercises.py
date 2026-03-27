@@ -19,8 +19,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/stats')
@@ -81,8 +79,7 @@ def run():
     axes[0].fill_between(xs_plot[mask], pdf_plot[mask], alpha=0.4, color='green',
                          label=f'P[|X-2|<1] = {exact_prob:.4f}')
     axes[0].set_title('N(2,1): P[|X-2|<1]', fontsize=11)
-    axes[0].set_xlabel('x'); axes[0].set_ylabel('f(x)')
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
 
     # Modified distribution
     xs_m = np.linspace(-1, 6, 400)
@@ -93,7 +90,7 @@ def run():
     axes[1].fill_between(xs_m[mask2], f2_m_norm[mask2], alpha=0.4, color='red',
                          label=f'P[|X-2|<1] = {prob_mod:.4f}')
     axes[1].set_title('Modified: exp(-|x-2|^{5/4})', fontsize=11)
-    axes[1].set_xlabel('x'); axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     fig.suptitle('Normal Distribution Exercises', fontsize=13)
     fig.tight_layout()
@@ -103,7 +100,6 @@ def run():
 
     print("normal_exercises: done")
     return True
-
 
 if __name__ == "__main__":
     run()

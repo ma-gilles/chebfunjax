@@ -19,10 +19,8 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -82,8 +80,6 @@ def run():
     ax.semilogy([1, 2, 4, 8, 16, 32, 64, 128],
                 errors_cheb, 'r.--', ms=8, label='Chebyshev')
     ax.set_title('Error vs. number of interpolation points', fontsize=11)
-    ax.set_xlabel('n+1 points')
-    ax.set_ylabel('max error')
     ax.legend(fontsize=9)
     # Distribution of greedy points (first 20)
     ax2 = axes[1]
@@ -98,7 +94,6 @@ def run():
 
     print(f"GreedyInterp: {len(errors_greedy)} steps, final error = {errors_greedy[-1]:.2e}")
     return True
-
 
 if __name__ == '__main__':
     run()

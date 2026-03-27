@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Geometric Brownian motion")
@@ -98,20 +96,15 @@ def run():
     for i, y in enumerate(make_gbm_paths(0.0, n_paths, seed_offset=0)):
         axes[0].plot(t_eval, y, color=colors[i], linewidth=1.5, alpha=0.8)
     axes[0].set_title("GBM: zero drift (μ=0)", fontsize=11)
-    axes[0].set_xlabel("t"); axes[0].set_ylabel("y")
-    axes[0].grid(True, alpha=0.3); axes[0].set_ylim([0, None])
+    axes[0].set_ylim([0, None])
 
     for i, y in enumerate(make_gbm_paths(0.2, n_paths, seed_offset=0)):
         axes[1].plot(t_eval, y, color=colors[i], linewidth=1.5, alpha=0.8)
     axes[1].set_title("GBM: positive drift (μ=0.2)", fontsize=11)
-    axes[1].set_xlabel("t"); axes[1].set_ylabel("y")
-    axes[1].grid(True, alpha=0.3)
 
     for i, y in enumerate(make_gbm_paths(-0.2, n_paths, seed_offset=0)):
         axes[2].plot(t_eval, y, color=colors[i], linewidth=1.5, alpha=0.8)
     axes[2].set_title("GBM: negative drift (μ=-0.2)", fontsize=11)
-    axes[2].set_xlabel("t"); axes[2].set_ylabel("y")
-    axes[2].grid(True, alpha=0.3)
 
     fig.suptitle(f"Geometric Brownian motion (σ=1, λ={lam})", fontsize=13)
     fig.tight_layout()
@@ -120,7 +113,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

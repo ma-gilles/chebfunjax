@@ -20,11 +20,8 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def normal_pdf(xs, mu, sigma):
     return np.exp(-0.5 * ((xs - mu) / sigma)**2) / (sigma * np.sqrt(2 * np.pi))
-
 
 def gamma_pdf(xs, k, theta):
     from scipy.special import gamma
@@ -33,7 +30,6 @@ def gamma_pdf(xs, k, theta):
     result[mask] = (xs[mask]**(k - 1) * np.exp(-xs[mask] / theta)
                     / (theta**k * gamma(k)))
     return result
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -67,8 +63,8 @@ def run():
     axes[0].plot(xs_conv[mask_c], N3_conv[mask_c], 'k-', linewidth=2, label='Convolution')
     axes[0].plot(xs_n, N4, 'g--', linewidth=2, label='Exact sum')
     axes[0].set_title('Normal distribution convolution', fontsize=10)
-    axes[0].set_xlabel('x'); axes[0].legend(fontsize=8)
-    axes[0].set_xlim(-1.5, 1.5); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=8)
+    axes[0].set_xlim(-1.5, 1.5)
 
     # Verify: max error
     idx_match = np.argmin(np.abs(xs_conv - 0))
@@ -93,8 +89,8 @@ def run():
     axes[1].plot(xs_g3[mask_g], G3[mask_g], 'k-', linewidth=2, label='Convolution')
     axes[1].plot(xs_g, G4, 'g--', linewidth=2, label=f'Γ({k1+k2},{theta})')
     axes[1].set_title('Gamma distribution convolution', fontsize=10)
-    axes[1].set_xlabel('x'); axes[1].legend(fontsize=8)
-    axes[1].set_xlim(0, 5); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=8)
+    axes[1].set_xlim(0, 5)
 
     print(f"Gamma: G({k1},{theta}) * G({k2},{theta}) ≈ G({k1+k2},{theta})")
 
@@ -121,8 +117,8 @@ def run():
     axes[2].plot(xs_e2[mask_e], E2[mask_e], 'k-', linewidth=2, label='Exp*Exp')
     axes[2].plot(xs_e, E_exact, 'r--', linewidth=2, label=f'Γ(2, {1/lam:.0f})')
     axes[2].set_title('Exponential distribution convolution', fontsize=10)
-    axes[2].set_xlabel('x'); axes[2].legend(fontsize=8)
-    axes[2].set_xlim(0, 40); axes[2].grid(True, alpha=0.3)
+    axes[2].legend(fontsize=8)
+    axes[2].set_xlim(0, 40)
 
     print(f"Exponential: Exp({lam}) * Exp({lam}) ≈ Γ(2, {1/lam:.1f})")
 
@@ -134,7 +130,6 @@ def run():
 
     print("probability_convolution: done")
     return True
-
 
 if __name__ == "__main__":
     run()

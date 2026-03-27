@@ -23,8 +23,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Zeros of the Riemann zeta function")
@@ -134,22 +132,16 @@ def run():
     axes[0].axvline(sigma, color='k', linewidth=1.5, linestyle='--', label="critical line Re(s)=1/2")
     axes[0].plot([sigma]*len(ts_zeros), ts_zeros, 'rx', markersize=8,
                  markeredgewidth=2, label="known zeros")
-    axes[0].set_xlabel("Re(s)")
-    axes[0].set_ylabel("Im(s)")
     axes[0].set_title("First 20 zeros of $\\zeta(s)$ on critical line")
     axes[0].set_xlim(-0.5, 1.5)
     axes[0].legend(fontsize=8)
-    axes[0].grid(True, alpha=0.4)
 
     # Right: zero spacings
     axes[1].bar(range(1, len(gaps)+1), gaps, color="#1e77b4", alpha=0.7)
     axes[1].axhline(avg_spacing_theory, color='r', linewidth=1.5,
                     label=f"Theory avg = {avg_spacing_theory:.2f}")
-    axes[1].set_xlabel("Gap index")
-    axes[1].set_ylabel("Gap size")
     axes[1].set_title("Gaps between consecutive zeros")
     axes[1].legend(fontsize=9)
-    axes[1].grid(True, alpha=0.4)
 
     fig.suptitle("Riemann zeta zeros: location and spacing", fontsize=11)
     fig.tight_layout()
@@ -157,7 +149,6 @@ def run():
     plt.close(fig)
 
     return True
-
 
 if __name__ == "__main__":
     run()

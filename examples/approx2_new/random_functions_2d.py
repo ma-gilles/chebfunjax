@@ -23,7 +23,6 @@ chebfun_style()
 
 from chebfunjax.plotting import surf
 
-
 def random_chebfun2(key, n=8):
     """Build a random smooth 2D function from random Chebyshev coefficients."""
     k1, k2 = jax.random.split(key)
@@ -38,7 +37,6 @@ def random_chebfun2(key, n=8):
         return val
 
     return f
-
 
 def run():
     print("=" * 60)
@@ -74,7 +72,6 @@ def run():
         Z = np.array(fn(jnp.array(X), jnp.array(Y)))
         im = ax.contourf(X, Y, Z, levels=20, cmap="viridis")
         ax.set_title(f"Random 2D function {i+1}", fontsize=11)
-        ax.set_xlabel("x"); ax.set_ylabel("y")
         fig.colorbar(im, ax=ax, shrink=0.8)
 
     fig.suptitle("Random smooth 2D functions", fontsize=13)
@@ -84,7 +81,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

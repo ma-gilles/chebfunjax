@@ -24,7 +24,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Time-independent Black-Scholes ODE")
@@ -70,8 +69,6 @@ def run():
     fig, ax = plt.subplots()
     ax.plot(s_test, V_vals, 'b', linewidth=1.8)
     ax.axhline(0, color='k', linewidth=0.8)
-    ax.set_xlabel("Stock price s (£)", fontsize=11)
-    ax.set_ylabel("Option value V(s) (£)", fontsize=11)
     ax.set_title("Time-independent Black-Scholes option value", fontsize=11)
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "black_scholes.png"), dpi=150, bbox_inches="tight")
@@ -79,7 +76,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

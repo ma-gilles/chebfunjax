@@ -24,7 +24,6 @@ chebfun_style()
 from chebfunjax.operators.chebop import Chebop
 from chebfunjax.operators.blocks import D, I, diag, eval_at, ChebColloc2Disc
 
-
 def run():
     print("=" * 60)
     print("Spectral discretization: diff and integral matrices")
@@ -96,16 +95,13 @@ def run():
     # Plot D1 matrix sparsity pattern
     im = axes[0].imshow(np.abs(D1_mat), aspect='auto', cmap='Blues')
     axes[0].set_title(f"Chebyshev D1 matrix (n={n})", fontsize=10)
-    axes[0].set_xlabel("column"); axes[0].set_ylabel("row")
     plt.colorbar(im, ax=axes[0])
 
     # Plot solution
     axes[1].plot(x_test, u(x_test), 'b', linewidth=1.8, label="chebfunjax")
     axes[1].plot(x_test, exact, 'r--', linewidth=1.2, label="cos(πx/2)")
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("u(x)")
     axes[1].set_title("−u″ = (π/2)² cos(πx/2)", fontsize=10)
     axes[1].legend(fontsize=8)
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Spectral discretization with differentiation matrices", fontsize=10)
     fig.tight_layout()
@@ -114,7 +110,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -24,7 +24,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Frank-Kamenetskii: u'' + A exp(u) = 0, u(±1) = 0")
@@ -79,15 +78,13 @@ def run():
 
     for (A, u_l, u_h), c in zip(solutions, colors):
         axes[0].plot(x_plot, u_l(x_plot), color=c, linewidth=1.6, label=f"A={A}")
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("u(x)")
     axes[0].set_title("FK: lower branch", fontsize=10)
-    axes[0].legend(fontsize=8); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=8)
 
     for (A, u_l, u_h), c in zip(solutions, colors):
         axes[1].plot(x_plot, u_h(x_plot), color=c, linewidth=1.6, label=f"A={A}")
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("u(x)")
     axes[1].set_title("FK: upper branch", fontsize=10)
-    axes[1].legend(fontsize=8); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=8)
 
     fig.suptitle("Frank-Kamenetskii: u″ + A exp(u) = 0, u(±1)=0", fontsize=10)
     fig.tight_layout()
@@ -96,7 +93,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

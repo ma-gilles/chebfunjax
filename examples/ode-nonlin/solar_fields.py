@@ -29,7 +29,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Solar force-free magnetic field model")
@@ -150,14 +149,11 @@ def run():
 
     axes[0].plot(x_plot, P_linear(x_plot), 'b', linewidth=1.8, label="chebfunjax")
     axes[0].plot(x_plot, x_plot, 'r--', linewidth=1.2, label="exact P₁(x)=x")
-    axes[0].set_xlabel("μ"); axes[0].set_ylabel("P(μ)")
     axes[0].set_title(f"Linear Legendre n={n}", fontsize=10)
-    axes[0].legend(fontsize=8); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=8)
 
     axes[1].plot(x_plot, P_nl(x_plot), 'b', linewidth=1.8)
-    axes[1].set_xlabel("μ"); axes[1].set_ylabel("P(μ)")
     axes[1].set_title(f"Nonlinear solar field (a={a}, n={n_nl})", fontsize=10)
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Solar force-free magnetic field model", fontsize=11)
     fig.tight_layout()
@@ -166,7 +162,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

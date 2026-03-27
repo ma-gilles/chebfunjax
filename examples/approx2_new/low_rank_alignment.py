@@ -22,7 +22,6 @@ chebfun_style()
 
 from chebfunjax.plotting import surf, contour
 
-
 def run():
     print("=" * 60)
     print("Low-rank approximation and alignment with axes")
@@ -54,11 +53,9 @@ def run():
 
     axes[0].contourf(X, Y, Z1, levels=20, cmap="RdBu_r")
     axes[0].set_title(f"tanh(3x): rank {f.rank}", fontsize=12)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("y")
 
     axes[1].contourf(X, Y, Z2, levels=20, cmap="RdBu_r")
     axes[1].set_title(f"tanh(3(x+y)): rank {g.rank}", fontsize=12)
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("y")
 
     fig.suptitle("Rank vs. axis alignment", fontsize=13)
     fig.tight_layout()
@@ -67,7 +64,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

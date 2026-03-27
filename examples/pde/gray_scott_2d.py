@@ -22,7 +22,6 @@ chebfun_style()
 import numpy as np
 import os
 
-
 def run():
     print("=" * 60)
     print("Gray-Scott reaction-diffusion (2D stub + 1D demo)")
@@ -127,15 +126,13 @@ def run():
     axes[0].plot(x, u, 'b-', linewidth=1.5, label='u (rolls param)')
     axes[0].plot(x, v, 'r-', linewidth=1.5, label='v (rolls param)')
     axes[0].set_title(f"1D Gray-Scott 'rolls': b={b}, d={d}", fontsize=11)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("Concentration")
-    axes[0].legend(); axes[0].grid(True, alpha=0.3)
+    axes[0].legend()
     axes[0].set_ylim([-0.1, 1.2])
 
     axes[1].plot(x, u_s, 'b-', linewidth=1.5, label='u (spots param)')
     axes[1].plot(x, v_s, 'r-', linewidth=1.5, label='v (spots param)')
     axes[1].set_title(f"1D Gray-Scott 'spots': b={b2}, d={d2}", fontsize=11)
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("Concentration")
-    axes[1].legend(); axes[1].grid(True, alpha=0.3)
+    axes[1].legend()
     axes[1].set_ylim([-0.1, 1.2])
 
     fig.suptitle("Gray-Scott reaction-diffusion (1D)", fontsize=13)
@@ -145,7 +142,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

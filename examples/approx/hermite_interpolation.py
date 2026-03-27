@@ -23,14 +23,13 @@ chebfun_style()
 
 from chebfunjax.plotting import plot
 
-
 def run():
     print("=" * 60)
     print("Polynomial interpolation and polyfit")
     print("=" * 60)
 
     # --- Runge function: 1/(1 + 25*x^2) ----------------------------
-    # MATLAB: f = chebfun(@(x) 1./(1+25*x.^2));
+    # MATLAB: f = chebfun(@(x) 1./(1+25*x.^2))
     runge = lambda x: 1.0 / (1.0 + 25.0 * x**2)
     f = cj.chebfun(lambda x: runge(x))
     print(f"\nRunge function 1/(1+25x^2) on [-1,1]:")
@@ -45,7 +44,7 @@ def run():
     assert err < 1e-13
 
     # --- polyfit: fit a polynomial to Chebyshev node data -----------
-    # MATLAB: p = polyfit(chebpts(10), chebfun(@(x) exp(x)), 9);
+    # MATLAB: p = polyfit(chebpts(10), chebfun(@(x) exp(x)), 9)
     # chebfunjax's polyfit method
     f_smooth = cj.chebfun(lambda x: jnp.exp(jnp.sin(3.0 * x)))
     print(f"\nPolyfit: exp(sin(3x)) on [-1,1]:")
@@ -86,7 +85,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

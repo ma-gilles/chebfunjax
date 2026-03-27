@@ -19,8 +19,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def extract_contours_at_zero(X, Y, Z):
     """Extract zero contour lines."""
     fig_tmp, ax_tmp = plt.subplots()
@@ -39,7 +37,6 @@ def extract_contours_at_zero(X, Y, Z):
                     paths.append(pts[:, 0] + 1j * pts[:, 1])
     plt.close(fig_tmp)
     return paths
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -60,7 +57,7 @@ def run():
 
     for c in contours1:
         axes[0].plot(np.real(c), np.imag(c), 'b-', linewidth=2)
-    axes[0].set_aspect('equal'); axes[0].grid(True, alpha=0.3)
+    axes[0].set_aspect('equal')
     axes[0].set_title('Zeros of (x²+y²-0.3)(x²+y²-0.7)\ntwo circles', fontsize=10)
     axes[0].set_xlim(-1.1, 1.1); axes[0].set_ylim(-1.1, 1.1)
 
@@ -86,7 +83,7 @@ def run():
             axes[1].plot(np.real(c), np.imag(c), 'r-', linewidth=2)
     axes[1].plot(x_del, y_del, 'b--', linewidth=1.5, alpha=0.6,
                  label='Parametric deltoid')
-    axes[1].set_aspect('equal'); axes[1].grid(True, alpha=0.3)
+    axes[1].set_aspect('equal')
     axes[1].set_title('Deltoid: zero set of\nalgebraic equation', fontsize=10)
     axes[1].legend(fontsize=9)
     axes[1].set_xlim(-1.1, 1.1); axes[1].set_ylim(-1.1, 1.1)
@@ -117,7 +114,6 @@ def run():
 
     print("scribble2: done")
     return True
-
 
 if __name__ == "__main__":
     run()

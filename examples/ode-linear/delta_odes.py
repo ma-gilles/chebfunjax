@@ -23,7 +23,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("ODEs with delta functions (modelled via jump conditions)")
@@ -93,16 +92,12 @@ def run():
     axes[0].plot(x_left, u_left, 'b', linewidth=2)
     axes[0].plot(x_right, u_right, 'b', linewidth=2)
     axes[0].axvline(0, color='k', linestyle='--', linewidth=0.8)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("u(x)")
     axes[0].set_title("u′ = δ(x), u(−1)=0  ⟹  u = H(x)", fontsize=10)
-    axes[0].grid(True, alpha=0.3)
 
     axes[1].plot(x_all, u_green, 'r', linewidth=2)
     axes[1].axvline(xi, color='k', linestyle='--', linewidth=0.8, label=f"x={xi}")
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("u(x)")
     axes[1].set_title(f"u″ = δ(x−{xi}), u(±1)=0  (Green's function)", fontsize=10)
     axes[1].legend(fontsize=8)
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("ODEs with delta function forcing", fontsize=11)
     fig.tight_layout()
@@ -111,7 +106,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

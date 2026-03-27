@@ -24,7 +24,6 @@ from chebfunjax.utils.aaa import aaa
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
 
-
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
 
@@ -57,15 +56,12 @@ def run():
     ax2 = axes[1]
     ax2.semilogy(degrees, poly_errs, 'b.-', lw=1.5, ms=10)
     ax2.set_title('Polynomial approx errors for 1/|log|x||', fontsize=10)
-    ax2.set_xlabel('degree')
-    ax2.set_ylabel('max error')
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'Pushnitski.png'), dpi=150)
     plt.close(fig)
 
     print(f"Pushnitski: len(f)={len(f)}")
     return True
-
 
 if __name__ == '__main__':
     run()

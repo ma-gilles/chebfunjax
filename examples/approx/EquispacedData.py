@@ -19,10 +19,8 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -62,7 +60,6 @@ def run():
     ax2 = axes[1]
     ax2.semilogy(xx, err_pchip + 1e-18, 'r', lw=1.5, label='pchip error')
     ax2.set_title('Reconstruction error from 40 equispaced points', fontsize=10)
-    ax2.set_ylabel('|error|')
     ax2.legend(fontsize=9)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'EquispacedData.png'), dpi=150)
@@ -70,7 +67,6 @@ def run():
 
     print(f"EquispacedData: pchip max error = {np.max(err_pchip):.3e}")
     return True
-
 
 if __name__ == '__main__':
     run()

@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Pythagorean three-planet problem")
@@ -97,16 +95,14 @@ def run():
         axes[0].plot(xi, yi, color=c, linewidth=0.5, alpha=0.6, label=lab)
         axes[0].plot(xi[0], yi[0], 'o', color=c, markersize=6)
     axes[0].set_aspect('equal')
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("y")
     axes[0].set_title("Pythagorean three-body trajectories", fontsize=10)
-    axes[0].legend(fontsize=8); axes[0].grid(True, alpha=0.2)
+    axes[0].legend(fontsize=8)
 
     t_short = sol.t[:2000]
     for (xi, yi), c, lab in zip([(x1,y1),(x2,y2),(x3,y3)], colors, labels):
         axes[1].plot(t_short, xi[:2000], color=c, linewidth=1.0, label=lab)
-    axes[1].set_xlabel("t"); axes[1].set_ylabel("x(t)")
     axes[1].set_title("x-coordinates vs time", fontsize=10)
-    axes[1].legend(fontsize=8); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=8)
 
     fig.suptitle("Pythagorean three-planet problem", fontsize=11)
     fig.tight_layout()
@@ -115,7 +111,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -24,7 +24,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def monodromy(a, q):
     """Compute the 2x2 monodromy matrix for the Mathieu equation
     u'' + (a - 2q cos(2t)) u = 0 over one period T=pi."""
@@ -47,7 +46,6 @@ def monodromy(a, q):
         [sol1.y[1, -1], sol2.y[1, -1]],
     ])
     return M
-
 
 def run():
     print("=" * 60)
@@ -92,9 +90,7 @@ def run():
     axes[0].contourf(a_vals, q_vals, stable.astype(float), levels=[0.5, 1.5],
                      colors=['lightblue'], alpha=0.8)
     axes[0].contour(a_vals, q_vals, stable.astype(float), levels=[0.5], colors='k')
-    axes[0].set_xlabel("a"); axes[0].set_ylabel("q")
     axes[0].set_title("Mathieu stability diagram (blue = stable)", fontsize=10)
-    axes[0].grid(True, alpha=0.3)
 
     # Trajectory at a stable and unstable point
     t_arr = np.linspace(0, 5 * np.pi, 500)
@@ -113,10 +109,8 @@ def run():
 
     axes[1].plot(t1 / np.pi, u1, 'b', linewidth=1.4, label="stable (a=1,q=0.5)")
     axes[1].plot(t2 / np.pi, u2, 'r', linewidth=1.4, label="unstable (a=0.5,q=1.5)")
-    axes[1].set_xlabel("t / π"); axes[1].set_ylabel("u(t)")
     axes[1].set_title("Mathieu equation trajectories", fontsize=10)
     axes[1].legend(fontsize=8)
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Floquet theory: Mathieu equation", fontsize=11)
     fig.tight_layout()
@@ -125,7 +119,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

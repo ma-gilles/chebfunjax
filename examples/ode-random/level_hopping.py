@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Random level hopping")
@@ -77,15 +75,11 @@ def run():
     for n in range(int(y1.min()) - 1, int(y1.max()) + 2):
         axes[0].axhline(n, color='gray', linestyle='--', alpha=0.3, linewidth=0.8)
     axes[0].set_title("Level hopping (λ=0.4)", fontsize=11)
-    axes[0].set_xlabel("t"); axes[0].set_ylabel("y")
-    axes[0].grid(True, alpha=0.3)
 
     axes[1].plot(t2, y2, 'r-', linewidth=1.2)
     for n in range(int(y2.min()) - 1, int(y2.max()) + 2):
         axes[1].axhline(n, color='gray', linestyle='--', alpha=0.3, linewidth=0.8)
     axes[1].set_title("Level hopping (λ=0.2, finer noise)", fontsize=11)
-    axes[1].set_xlabel("t"); axes[1].set_ylabel("y")
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Random level hopping: y' = -2sin(2πy) + f", fontsize=13)
     fig.tight_layout()
@@ -94,7 +88,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

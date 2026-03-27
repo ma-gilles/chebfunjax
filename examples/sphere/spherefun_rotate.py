@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def rotate_sphere_function(f_func, R_matrix, theta, phi):
     """Evaluate f(R^{-1} * x) on the sphere."""
     X = np.sin(theta) * np.cos(phi)
@@ -38,7 +36,6 @@ def rotate_sphere_function(f_func, R_matrix, theta, phi):
     phi_new = np.arctan2(pts_rot[:, 1], pts_rot[:, 0])
 
     return f_func(theta_new, phi_new).reshape(theta.shape)
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -112,7 +109,6 @@ def run():
 
     print("spherefun_rotate: done")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def synthetic_temperature(theta, phi):
     """Generate a synthetic global temperature field resembling atmospheric data."""
     # Combination of low-frequency spherical harmonics mimicking temperature
@@ -40,7 +38,6 @@ def synthetic_temperature(theta, phi):
     T += -3 * np.exp(-5 * ((theta - np.pi/2)**2 + (phi - np.pi)**2))  # "cold Atlantic"
     return T
 
-
 def spherical_harmonic_coeff(f, theta, phi, l, m):
     """Compute spherical harmonic coefficient <f, Y_l^m>."""
     Ylm = sph_harm_y(l, abs(m), theta, phi)
@@ -54,7 +51,6 @@ def spherical_harmonic_coeff(f, theta, phi, l, m):
     dtheta = theta[1, 0] - theta[0, 0] if theta.ndim > 1 else theta[1] - theta[0]
     dphi = phi[0, 1] - phi[0, 0] if phi.ndim > 1 else phi[1] - phi[0]
     return np.sum(f * Y * np.sin(theta)) * dtheta * dphi
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -100,10 +96,8 @@ def run():
     lat_deg = 90 - np.degrees(theta_1d)
     ax2_twin = ax2.twiny()
     ax2_twin.plot(T_zonal, lat_deg, 'b-', linewidth=2, label='Zonal mean T')
-    ax2_twin.set_xlabel('Zonal mean T (°C)', color='b')
-    ax2.set_xlabel('Longitude (°)'); ax2.set_ylabel('Temperature (°C)')
     ax2.set_title('Equatorial T and\nzonal mean', fontsize=10)
-    ax2.legend(fontsize=9); ax2.grid(True, alpha=0.3)
+    ax2.legend(fontsize=9)
 
     # --- Panel 3: Spherical harmonic power spectrum ---
     ax3 = fig.add_subplot(133)
@@ -118,7 +112,6 @@ def run():
     ax3.semilogy(range(l_max + 1), power + 1e-14, 'b.-', markersize=10,
                   linewidth=2)
     ax3.set_title('Spherical harmonic\npower spectrum', fontsize=10)
-    ax3.set_xlabel('Degree l'); ax3.set_ylabel('Power')
     fig.suptitle('Atmospheric Temperature on the Sphere', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'atmospheric_temperature.png'),
@@ -127,7 +120,6 @@ def run():
 
     print("atmospheric_temperature: done")
     return True
-
 
 if __name__ == "__main__":
     run()

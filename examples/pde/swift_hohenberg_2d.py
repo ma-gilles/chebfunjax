@@ -21,7 +21,6 @@ chebfun_style()
 import numpy as np
 import os
 
-
 def run():
     print("=" * 60)
     print("Swift-Hohenberg equation (1D demo)")
@@ -112,8 +111,7 @@ def run():
         axes[0].plot(x, u_h, color=colors[i], linewidth=lw,
                      label=f't={t:.0f}', alpha=0.8)
     axes[0].set_title(f"Swift-Hohenberg 1D (r={r})", fontsize=11)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("u")
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
     axes[0].set_xlim([-60, 60])
 
     # Power spectrum
@@ -122,8 +120,7 @@ def run():
     axes[1].semilogy(k_pos, power, 'b-', linewidth=1.5)
     axes[1].axvline(1.0, color='r', linestyle='--', label='k=1 (λ=2π)')
     axes[1].set_title("Power spectrum at T=200", fontsize=11)
-    axes[1].set_xlabel("Wavenumber k"); axes[1].set_ylabel("Power")
-    axes[1].legend(); axes[1].grid(True, alpha=0.3)
+    axes[1].legend()
     axes[1].set_xlim([0, 5])
 
     fig.suptitle("Swift-Hohenberg pattern formation (1D)", fontsize=13)
@@ -133,7 +130,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

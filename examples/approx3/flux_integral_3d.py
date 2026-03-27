@@ -23,7 +23,6 @@ chebfun_style()
 
 from chebfunjax.chebfun3d import chebfun3
 
-
 def run():
     print("=" * 60)
     print("Flux integrals and vector calculus in 3D")
@@ -73,7 +72,6 @@ def run():
         Z_slice = X**2 + Y**2 + zv**2
         im = ax.contourf(X, Y, Z_slice, levels=20, cmap="plasma")
         ax.set_title(f"x²+y²+z², z={zv}", fontsize=11)
-        ax.set_xlabel("x"); ax.set_ylabel("y")
         fig.colorbar(im, ax=ax, shrink=0.8)
 
     fig.suptitle("3D scalar field: z-slices of x²+y²+z²", fontsize=13)
@@ -83,7 +81,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

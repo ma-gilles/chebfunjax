@@ -25,7 +25,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Continuous Wilkinson: -u'' + |x| u = λu, u(±N) = 0")
@@ -69,17 +68,13 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     axes[0].bar(range(1, len(lams_sorted)+1), lams_sorted, color='steelblue', alpha=0.7)
-    axes[0].set_xlabel("k"); axes[0].set_ylabel("λ_k")
     axes[0].set_title(f"Eigenvalues of −u″ + |x|u on [−{N:.0f},{N:.0f}]", fontsize=10)
-    axes[0].grid(True, alpha=0.3, axis='y')
 
     # Plot eigenvalue gaps
     if len(lams_sorted) >= 2:
         gaps = np.diff(lams_sorted)
         axes[1].bar(range(1, len(gaps)+1), gaps, color='coral', alpha=0.7)
-        axes[1].set_xlabel("k"); axes[1].set_ylabel("λ_{k+1} − λ_k")
         axes[1].set_title("Eigenvalue gaps (Wilkinson effect)", fontsize=10)
-        axes[1].grid(True, alpha=0.3, axis='y')
 
     fig.suptitle("Continuous Wilkinson eigenvalue problem", fontsize=11)
     fig.tight_layout()
@@ -88,7 +83,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

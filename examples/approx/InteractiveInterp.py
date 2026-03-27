@@ -19,10 +19,8 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -84,7 +82,6 @@ def run():
     print(f"InteractiveInterp: cheb max err={np.max(err_cheb):.2e}, "
           f"eq max err={np.max(err_eq):.2e}")
     return True
-
 
 if __name__ == '__main__':
     run()

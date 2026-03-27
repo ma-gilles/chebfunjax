@@ -19,10 +19,8 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -51,7 +49,6 @@ def run():
         ax.semilogy(xx, err, color=col, lw=1.5, label=f'k={k}')
     ax.set_xlim(-1, 1)
     ax.set_title('Newton iteration error for |x|', fontsize=11)
-    ax.set_ylabel('|r_k(x) - |x||')
     ax.legend(fontsize=9)
     # Chebfun-based: show Newton approximation converges
     # Only 3 iterations to avoid excessive length
@@ -70,7 +67,6 @@ def run():
                  'r--', lw=1.5, label='direct Newton (k=3)')
     ax2.set_xlim(-1, 1)
     ax2.set_title('Chebfun Newton vs. direct (k=3)', fontsize=11)
-    ax2.set_ylabel('|error|')
     ax2.legend(fontsize=9)
     fig.suptitle('Newton iteration for absolute value approximation', fontsize=12)
     fig.tight_layout()
@@ -79,7 +75,6 @@ def run():
 
     print("AbsoluteValueScaled: done.")
     return True
-
 
 if __name__ == '__main__':
     run()

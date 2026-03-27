@@ -24,7 +24,6 @@ from chebfunjax.domain import Domain
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
 
-
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
 
@@ -73,7 +72,6 @@ def run():
 
     print("NoisyNonsmooth: done.")
     return True
-
 
 if __name__ == '__main__':
     run()

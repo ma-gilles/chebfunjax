@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def pade_approx(m, n, x):
     """Evaluate (m,n) Pade approximant to e^z at complex z values."""
     # Numerator and denominator via Pade formula
@@ -44,7 +42,6 @@ def pade_approx(m, n, x):
     with np.errstate(divide='ignore', invalid='ignore'):
         result = np.where(np.abs(Qz) > 1e-15, Pz / Qz, np.nan)
     return result
-
 
 def run():
     print("=" * 60)
@@ -91,7 +88,6 @@ def run():
         ax.axhline(0, color='gray', linewidth=0.5)
         ax.axvline(0, color='gray', linewidth=0.5)
         ax.set_title(f"Order star R_({m},{n})", fontsize=10)
-        ax.set_xlabel("Re(z)"); ax.set_ylabel("Im(z)")
         ax.set_aspect('equal')
 
     fig.suptitle("Order stars |e⁻ᶻ R(z)| = 1 (blue = |e⁻ᶻ R| < 1)", fontsize=11)
@@ -101,7 +97,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

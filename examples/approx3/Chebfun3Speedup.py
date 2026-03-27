@@ -30,7 +30,6 @@ _IMG_DIR = os.path.join(
 )
 os.makedirs(_IMG_DIR, exist_ok=True)
 
-
 def run():
     print("=" * 60)
     print("Chebfun3 construction timing and Tucker ranks")
@@ -106,16 +105,12 @@ def run():
     ax1 = axes[0]
     rx_hard = [r[0] for r in ranks_hard]
     ax1.plot(k_vals_hard, rx_hard, "o-b", lw=2, ms=8, label="rank (x)")
-    ax1.set_xlabel("k", fontsize=12)
-    ax1.set_ylabel("Tucker rank", fontsize=12)
     ax1.set_title("tanh(k(x+y+z)): Tucker rank vs k", fontsize=11)
     ax1.legend()
     # Easy function ranks
     ax2 = axes[1]
     rx_easy = [r[0] for r in ranks_easy]
     ax2.plot(k_vals_easy, rx_easy, "o-r", lw=2, ms=8, label="rank (x)")
-    ax2.set_xlabel("k", fontsize=12)
-    ax2.set_ylabel("Tucker rank", fontsize=12)
     ax2.set_title("1/(1+k*r²): Tucker rank vs k", fontsize=11)
     ax2.legend()
     fig.suptitle("Chebfun3 Tucker ranks for hard vs easy functions", fontsize=13)
@@ -127,7 +122,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

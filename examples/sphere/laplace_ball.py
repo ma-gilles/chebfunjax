@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def spherical_harmonic_real(l, m, theta, phi):
     Ylm = sph_harm_y(l, abs(m), theta, phi)
     if m > 0:
@@ -31,7 +29,6 @@ def spherical_harmonic_real(l, m, theta, phi):
         return np.sqrt(2) * (-1)**m * np.imag(Ylm)
     else:
         return np.real(Ylm)
-
 
 def sh_coeff(f, theta, phi):
     """Compute SH coefficients up to l_max=6."""
@@ -44,7 +41,6 @@ def sh_coeff(f, theta, phi):
             Y = spherical_harmonic_real(l, m, theta, phi)
             coeffs[(l, m)] = np.sum(f * Y * np.sin(theta)) * dtheta * dphi
     return coeffs
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -127,8 +123,7 @@ def run():
     ax3.axhline(mean_h, color='r', linestyle=':', linewidth=2, label=f'Mean(h)={mean_h:.4f}')
 
     ax3.set_title('Radial profile u(r, θ₀, φ₀)\nmean value at r=0', fontsize=10)
-    ax3.set_xlabel('r'); ax3.set_ylabel('u')
-    ax3.legend(fontsize=9); ax3.grid(True, alpha=0.3)
+    ax3.legend(fontsize=9)
 
     u0 = laplace_solution(0, np.array([[theta_pt]]), np.array([[phi_pt]]))[0,0]
     print(f"Laplace equation in ball:")
@@ -144,7 +139,6 @@ def run():
 
     print("laplace_ball: done")
     return True
-
 
 if __name__ == "__main__":
     run()

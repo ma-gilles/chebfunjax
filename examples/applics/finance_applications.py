@@ -23,8 +23,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def black_scholes_call(S, K, T, r, sigma):
     """Black-Scholes European call option price."""
     S, K, T, r, sigma = [np.asarray(x, dtype=float) for x in [S, K, T, r, sigma]]
@@ -32,13 +30,11 @@ def black_scholes_call(S, K, T, r, sigma):
     d2 = d1 - sigma * np.sqrt(T)
     return S * norm.cdf(d1) - K * np.exp(-r*T) * norm.cdf(d2)
 
-
 def black_scholes_delta(S, K, T, r, sigma):
     """Delta: dC/dS"""
     S, K, T, r, sigma = [np.asarray(x, dtype=float) for x in [S, K, T, r, sigma]]
     d1 = (np.log(S/K) + (r + 0.5*sigma**2)*T) / (sigma*np.sqrt(T))
     return norm.cdf(d1)
-
 
 def run():
     print("=" * 60)
@@ -124,14 +120,12 @@ def run():
     axes[0].plot(S_plot, intrinsic, 'r--', linewidth=1.5, label='Intrinsic value')
     axes[0].axvline(K, color='k', linestyle=':', alpha=0.5, label=f'Strike K={K}')
     axes[0].set_title("Black-Scholes call option", fontsize=12)
-    axes[0].set_xlabel("Stock price S"); axes[0].set_ylabel("Option value")
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
 
     axes[1].plot(S_plot, D_plot, 'g-', linewidth=2)
     axes[1].axhline(0.5, color='k', linestyle='--', alpha=0.5, label='Δ=0.5 (ATM)')
     axes[1].set_title("Delta: dC/dS", fontsize=12)
-    axes[1].set_xlabel("Stock price S"); axes[1].set_ylabel("Delta")
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     # Volatility surface
     S_grid = np.linspace(60, 160, 40)
@@ -140,7 +134,6 @@ def run():
     C_vol = black_scholes_call(SG, K, T, r, SIG)
     im = axes[2].contourf(SG, SIG, C_vol, levels=20, cmap="viridis")
     axes[2].set_title("Volatility surface", fontsize=12)
-    axes[2].set_xlabel("Stock price S"); axes[2].set_ylabel("σ")
     fig.colorbar(im, ax=axes[2], label='Call price')
 
     fig.suptitle("Black-Scholes option pricing", fontsize=13)
@@ -150,7 +143,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

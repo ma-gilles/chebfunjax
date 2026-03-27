@@ -28,7 +28,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Resonance: radiator problem from Carrier & Pearson")
@@ -99,16 +98,12 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(sol_res.t, sol_res.y[0], 'b', linewidth=1.2, label="resonant (scipy)")
-    axes[0].set_xlabel("t"); axes[0].set_ylabel("u(t)")
     axes[0].set_title(f"Resonance: ω = ω₀ = {omega_0}", fontsize=10)
     axes[0].legend(fontsize=8)
-    axes[0].grid(True, alpha=0.3)
 
     axes[1].plot(sol_nr.t, sol_nr.y[0], 'g', linewidth=1.2, label=f"non-resonant (ω={omega_nr})")
-    axes[1].set_xlabel("t"); axes[1].set_ylabel("u(t)")
     axes[1].set_title(f"Off-resonance: ω = {omega_nr}", fontsize=10)
     axes[1].legend(fontsize=8)
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Resonance in driven harmonic oscillator", fontsize=11)
     fig.tight_layout()
@@ -117,7 +112,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

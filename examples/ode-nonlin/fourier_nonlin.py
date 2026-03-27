@@ -4,7 +4,7 @@ Demonstrates solving  u' - u*cos(u) = cos(4x) using scipy for the
 nonlinear ODE, then wrapping the solution in a Chebfun to demonstrate
 Chebfun arithmetic on the ODE residual.
 
-The original Chebfun example used a built-in nonlinear solver;
+The original Chebfun example used a built-in nonlinear solver
 chebfunjax's Chebop Newton iteration struggles with first-order
 nonlinear ODEs, so we use scipy as the ODE solver and Chebfun for
 post-processing.
@@ -29,7 +29,6 @@ from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
-
 
 def run():
     print("=" * 60)
@@ -102,21 +101,17 @@ def run():
 
     axes[0].plot(x_plot, u(x_plot), 'b', linewidth=1.8, label="scipy+Chebfun")
     axes[0].plot(sol_ref.t, sol_ref.y[0], 'r--', linewidth=1.2, label="scipy", alpha=0.7)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("u(x)")
     axes[0].set_title("u′ − u cos(u) = cos(4x)", fontsize=10)
     axes[0].set_xticks([0, np.pi/2, np.pi])
     axes[0].set_xticklabels(["0", "π/2", "π"])
     axes[0].legend(fontsize=8)
-    axes[0].grid(True, alpha=0.3)
 
     axes[1].plot(x_plot, u2(x_plot), 'b', linewidth=1.8, label="Chebop")
     axes[1].plot(x_plot, u_lin(x_plot), 'r--', linewidth=1.2, label="exact", alpha=0.7)
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("u(x)")
     axes[1].set_title("u′ + u = cos(4x)  (linear, Chebop)", fontsize=10)
     axes[1].set_xticks([0, np.pi/2, np.pi])
     axes[1].set_xticklabels(["0", "π/2", "π"])
     axes[1].legend(fontsize=8)
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Nonlinear and linear first-order ODEs", fontsize=11)
     fig.tight_layout()
@@ -125,7 +120,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

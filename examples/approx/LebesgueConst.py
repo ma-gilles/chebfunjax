@@ -19,10 +19,8 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
-
 
 def lebesgue_function(nodes, x_eval):
     """Compute Lebesgue function L(x) = sum |l_k(x)| for interpolation nodes."""
@@ -36,7 +34,6 @@ def lebesgue_function(nodes, x_eval):
                 lk *= (x_eval - nodes[j]) / (nodes[k] - nodes[j] + 1e-300)
         L += np.abs(lk)
     return L
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -67,21 +64,18 @@ def run():
     L10c, lam10c = compute_lebesgue(pts_cheb_10)
     axes[0, 0].plot(xx, L10c, 'b', lw=1.5)
     axes[0, 0].set_title(f'10 Chebyshev pts  Λ={lam10c:.2f}', fontsize=10)
-    axes[0, 0].grid(True, alpha=0.3)
 
     # 10 equispaced points
     pts_eq_10 = np.linspace(-1, 1, 10)
     L10e, lam10e = compute_lebesgue(pts_eq_10)
     axes[0, 1].semilogy(xx, L10e + 1e-1, 'r', lw=1.5)
     axes[0, 1].set_title(f'10 equispaced pts  Λ={lam10e:.2f}', fontsize=10)
-    axes[0, 1].grid(True, alpha=0.3)
 
     # 40 Chebyshev points
     pts_cheb_40 = np.cos(np.pi * np.arange(40) / 39)
     L40c, lam40c = compute_lebesgue(pts_cheb_40)
     axes[1, 0].semilogy(xx, L40c + 1e-1, 'b', lw=1.5)
     axes[1, 0].set_title(f'40 Chebyshev pts  Λ={lam40c:.2f}', fontsize=10)
-    axes[1, 0].grid(True, alpha=0.3)
 
     # 40 equispaced points (large Lebesgue constant!)
     pts_eq_40 = np.linspace(-1, 1, 40)
@@ -91,7 +85,6 @@ def run():
     lam40e = np.max(L40e)
     axes[1, 1].semilogy(xx_safe, L40e + 1, 'r', lw=1.5)
     axes[1, 1].set_title(f'40 equispaced pts  Λ≈{lam40e:.2e}', fontsize=10)
-    axes[1, 1].grid(True, alpha=0.3)
 
     fig.suptitle('Lebesgue functions: Chebyshev vs. equispaced', fontsize=12)
     for ax in axes.flat:
@@ -102,7 +95,6 @@ def run():
 
     print(f"LebesgueConst: n=10 cheb Λ={lam10c:.2f}, eq Λ={lam10e:.2f}")
     return True
-
 
 if __name__ == '__main__':
     run()

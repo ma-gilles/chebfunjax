@@ -19,8 +19,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def shape_analysis(f, g, n_pts=500):
     """Perform Procrustes shape analysis on two parametric curves.
 
@@ -47,7 +45,6 @@ def shape_analysis(f, g, n_pts=500):
     dist = np.sqrt(np.mean(np.abs(f_scaled - g_aligned)**2))
     return f, g, f_scaled, g_scaled, g_aligned, dist
 
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/geom')
@@ -72,26 +69,24 @@ def run():
     axes[0, 0].plot(np.real(g), np.imag(g), 'k-', linewidth=2, label='Pebble')
     axes[0, 0].set_title('Original', fontsize=12)
     axes[0, 0].set_aspect('equal'); axes[0, 0].legend(fontsize=9)
-    axes[0, 0].grid(True, alpha=0.3)
 
     # After translation (mean = 0)
     axes[0, 1].plot(np.real(f_orig), np.imag(f_orig), 'r-', linewidth=2)
     axes[0, 1].plot(np.real(g_orig), np.imag(g_orig), 'k-', linewidth=2)
     axes[0, 1].set_title('After translation (mean=0)', fontsize=12)
-    axes[0, 1].set_aspect('equal'); axes[0, 1].grid(True, alpha=0.3)
+    axes[0, 1].set_aspect('equal')
 
     # After scaling (RMSD=1)
     axes[1, 0].plot(np.real(f_scaled), np.imag(f_scaled), 'r-', linewidth=2)
     axes[1, 0].plot(np.real(g_scaled), np.imag(g_scaled), 'k-', linewidth=2)
     axes[1, 0].set_title('After scaling (RMSD=1)', fontsize=12)
-    axes[1, 0].set_aspect('equal'); axes[1, 0].grid(True, alpha=0.3)
+    axes[1, 0].set_aspect('equal')
 
     # After rotation alignment
     axes[1, 1].plot(np.real(f_scaled), np.imag(f_scaled), 'r-', linewidth=2, label='Frisbee')
     axes[1, 1].plot(np.real(g_aligned), np.imag(g_aligned), 'k-', linewidth=2, label='Pebble')
     axes[1, 1].set_title(f'After alignment\nProcrustes dist = {dist:.4f}', fontsize=12)
     axes[1, 1].set_aspect('equal'); axes[1, 1].legend(fontsize=9)
-    axes[1, 1].grid(True, alpha=0.3)
 
     # Compare to a more similar shape
     g2 = 1.1 * np.exp(1j * 0.3) * (1.5 * np.cos(t) + 1j * np.sin(t)) + 0.2
@@ -106,7 +101,6 @@ def run():
 
     print("procrustes: done")
     return True
-
 
 if __name__ == "__main__":
     run()

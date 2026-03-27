@@ -27,7 +27,6 @@ chebfun_style()
 from chebfunjax.chebfun2d.chebfun2 import chebfun2
 from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
 
-
 def run():
     print("=" * 60)
     print("Vector calculus identities with Chebfun2v")
@@ -102,13 +101,11 @@ def run():
     axes[0].contourf(X, Y, np.sin(np.pi * X) * np.cos(np.pi * Y),
                       levels=20, alpha=0.3, cmap='RdBu_r')
     axes[0].set_title("grad(sin(πx)cos(πy))", fontsize=12)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("y")
 
     # curl_G plot
     curl_exact = -np.sin(X) * Y - X * np.cos(Y)
     im = axes[1].contourf(X, Y, curl_exact, levels=20, cmap="RdBu_r")
     axes[1].set_title("curl(x·sin(y), cos(x)·y)", fontsize=12)
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("y")
     fig.colorbar(im, ax=axes[1])
 
     fig.suptitle("Vector calculus: grad, curl, div", fontsize=13)
@@ -118,7 +115,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

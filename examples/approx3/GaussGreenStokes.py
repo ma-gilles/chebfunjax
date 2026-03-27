@@ -27,7 +27,6 @@ _IMG_DIR = os.path.join(
 )
 os.makedirs(_IMG_DIR, exist_ok=True)
 
-
 def face_integral_2d(g_func, u_range, v_range, n=200):
     """Compute double integral of g over a rectangular face."""
     u = np.linspace(u_range[0], u_range[1], n)
@@ -35,7 +34,6 @@ def face_integral_2d(g_func, u_range, v_range, n=200):
     U, V = np.meshgrid(u, v)
     vals = g_func(U, V)
     return float(np.trapezoid(np.trapezoid(vals, v, axis=0), u))
-
 
 def run():
     print("=" * 60)
@@ -201,7 +199,6 @@ def run():
     div_slice = 2 * X2 + 2 * Y2 + 1  # div v at z=0
     im1 = ax1.contourf(X2, Y2, div_slice, levels=20, cmap="RdBu_r")
     ax1.set_title("div(v) = 2x+2y+1 at z=0\nGauss: ∫div = 8", fontsize=10)
-    ax1.set_xlabel("x"); ax1.set_ylabel("y")
     fig.colorbar(im1, ax=ax1)
 
     # Green identity: f(x,y,z) at z=0
@@ -209,7 +206,6 @@ def run():
     f_slice = 1 + X2 * np.exp(Y2 + 0)
     im2 = ax2.contourf(X2, Y2, f_slice, levels=20, cmap="viridis")
     ax2.set_title("f = 1 + x·exp(y+z) at z=0\nGreen: ∫(f·Δg+∇f·∇g)=48", fontsize=10)
-    ax2.set_xlabel("x"); ax2.set_ylabel("y")
     fig.colorbar(im2, ax=ax2)
 
     # Stokes: unit disk with boundary circle
@@ -225,7 +221,6 @@ def run():
     im3 = ax3.contourf(Xd, Yd, v1_disk, levels=20, cmap="plasma")
     ax3.plot(np.cos(t_c), np.sin(t_c), "w-", lw=2, label="boundary")
     ax3.set_title(f"Stokes: unit disk (z=0)\nLine integral ≈ {I8:.4f} ≈ π", fontsize=10)
-    ax3.set_xlabel("x"); ax3.set_ylabel("y")
     ax3.legend(loc="upper right")
     fig.colorbar(im3, ax=ax3)
 
@@ -238,7 +233,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

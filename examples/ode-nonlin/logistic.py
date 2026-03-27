@@ -23,7 +23,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Logistic map and chaos")
@@ -88,9 +87,7 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(bifurcation_r, bifurcation_x, ',k', markersize=0.5, alpha=0.3)
-    axes[0].set_xlabel("r"); axes[0].set_ylabel("x")
     axes[0].set_title("Logistic map bifurcation diagram", fontsize=10)
-    axes[0].grid(True, alpha=0.2)
 
     # Single trajectory
     r_traj = 3.7
@@ -101,9 +98,7 @@ def run():
         x = r_traj * x * (1 - x)
         traj.append(x)
     axes[1].plot(range(n_traj + 1), traj, 'b.-', markersize=4, linewidth=0.8)
-    axes[1].set_xlabel("n"); axes[1].set_ylabel("x_n")
     axes[1].set_title(f"Chaotic trajectory (r={r_traj})", fontsize=10)
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Logistic map: x_{n+1} = r x_n (1−x_n)", fontsize=11)
     fig.tight_layout()
@@ -112,7 +107,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

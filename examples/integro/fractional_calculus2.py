@@ -20,7 +20,6 @@ from scipy.special import gamma, legendre as sp_legendre
 from numpy.polynomial import chebyshev as C
 import os
 
-
 def run():
     print("=" * 60)
     print("Fractional calculus algorithms")
@@ -103,8 +102,8 @@ def run():
     axes[0].plot(x_num[::5], J_half_num[::5], 'b.', markersize=6, label='Numerical J^(1/2)')
     axes[0].plot(x, P_n, 'k--', linewidth=1.5, label=f'P_{n}(x)')
     axes[0].set_title(f"J^(1/2) P_{n}(x): analytical vs numerical", fontsize=11)
-    axes[0].set_xlabel("x"); axes[0].legend(fontsize=9)
-    axes[0].grid(True, alpha=0.3); axes[0].set_ylim([-1.5, 1.5])
+    axes[0].legend(fontsize=9)
+    axes[0].set_ylim([-1.5, 1.5])
 
     # Panel 2: Chebyshev coefficients for half-integral
     n_vals = np.arange(1, 9)
@@ -112,8 +111,6 @@ def run():
     b_coeffs = 1.0 / ((n_vals + 0.5) * gamma(0.5))
     axes[1].semilogy(n_vals, np.abs(b_coeffs), 'b.-', markersize=10)
     axes[1].set_title("Coefficient magnitudes in J^(1/2) formula", fontsize=11)
-    axes[1].set_xlabel("n"); axes[1].set_ylabel("|coeff|")
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Fractional calculus algorithms (Legendre/Jacobi)", fontsize=13)
     fig.tight_layout()
@@ -122,7 +119,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

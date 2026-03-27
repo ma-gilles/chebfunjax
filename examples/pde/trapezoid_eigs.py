@@ -23,7 +23,6 @@ import numpy as np
 from scipy.special import jv
 import os
 
-
 def run():
     print("=" * 60)
     print("Eigenvalues of a trapezoidal drum")
@@ -110,8 +109,6 @@ def run():
     for lam_c in eigenvalue_candidates[:3]:
         axes[0].axvline(lam_c, color='r', linestyle='--', alpha=0.7)
     axes[0].set_title(f"Min singular value vs λ (n={n_terms})", fontsize=11)
-    axes[0].set_xlabel("λ"); axes[0].set_ylabel("σ_min(A(λ))")
-    axes[0].grid(True, alpha=0.3)
     axes[0].set_yscale('log')
 
     # Trapezoid shape
@@ -121,8 +118,6 @@ def run():
     axes[1].text(0.0, 0.5, "?", fontsize=30, ha='center', va='center')
     axes[1].set_aspect('equal')
     axes[1].set_title("Trapezoidal drum: find eigenvalues", fontsize=11)
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("y")
-    axes[1].grid(True, alpha=0.3)
     axes[1].set_xlim([-1.5, 1.5])
 
     fig.suptitle("Method of particular solutions: trapezoidal drum", fontsize=13)
@@ -132,7 +127,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

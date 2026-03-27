@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def cheb_interp(f, n, a=-1.0, b=1.0):
     """Chebyshev interpolant of f on [a,b] at n+1 points."""
     k = np.arange(n + 1)
@@ -50,7 +48,6 @@ def cheb_interp(f, n, a=-1.0, b=1.0):
 
     return interp, f_vals
 
-
 def bernstein_ellipse(rho, n=200):
     """Points on the Bernstein ellipse with parameter rho in the complex plane."""
     theta = np.linspace(0, 2 * np.pi, n)
@@ -58,7 +55,6 @@ def bernstein_ellipse(rho, n=200):
     # Joukowski map
     w = (z + 1.0 / z) / 2.0
     return w
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -86,8 +82,7 @@ def run():
     axes[0].set_xlim(-7, 7); axes[0].set_ylim(-3, 3)
     axes[0].set_aspect('equal')
     axes[0].set_title('sin(x): entire function\nGlobal convergence', fontsize=10)
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
-    axes[0].set_xlabel('x')
+    axes[0].legend(fontsize=9)
     print("Panel 1: sin(x) Chebyshev approximants converge globally")
 
     # --- Panel 2: Non-entire function log|x-i| ---
@@ -117,8 +112,7 @@ def run():
     axes[1].set_ylim(-0.5, 2.5); axes[1].set_xlim(-5, 5)
     axes[1].set_title('log|x-i|: singularity at i\nConvergence limited to Bernstein ellipse',
                        fontsize=9)
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
-    axes[1].set_xlabel('x')
+    axes[1].legend(fontsize=9)
     print(f"Panel 2: log|x-i| with singularity at z=i")
 
     # --- Panel 3: Bernstein ellipses in complex plane ---
@@ -144,8 +138,7 @@ def run():
 
     ax3.set_xlim(-4, 4); ax3.set_ylim(-3, 3)
     ax3.set_title('Bernstein ellipses\n(light=small ρ, dark=large ρ)', fontsize=10)
-    ax3.legend(fontsize=9); ax3.grid(True, alpha=0.3)
-    ax3.set_xlabel('Re(z)'); ax3.set_ylabel('Im(z)')
+    ax3.legend(fontsize=9)
 
     print("Panel 3: Bernstein ellipses for various ρ values")
     print(f"  Joukowski map: z -> (z + 1/z)/2")
@@ -158,7 +151,6 @@ def run():
 
     print("taylors_theorem: done")
     return True
-
 
 if __name__ == "__main__":
     run()

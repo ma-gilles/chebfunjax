@@ -24,7 +24,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Heat equation via operator exponential (contour method)")
@@ -83,16 +82,12 @@ def run():
         axes[0].plot(x_plot, heat_exact(x_plot, t), color=c,
                      linewidth=1.6, label=f"t={t}")
     axes[0].legend(fontsize=8)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("u(x, t)")
     axes[0].set_title("Heat equation u_t = u_xx (Fourier series)", fontsize=10)
-    axes[0].grid(True, alpha=0.3)
 
     axes[1].bar(range(1, 7), lam_sorted[:6], color='steelblue', alpha=0.8)
     axes[1].plot(range(1, 7), exact_eigs, 'ro', markersize=6, label="exact −k²")
-    axes[1].set_xlabel("k"); axes[1].set_ylabel("λ_k")
     axes[1].set_title("Eigenvalues of d²/dx² on [0,π]", fontsize=10)
     axes[1].legend(fontsize=8)
-    axes[1].grid(True, alpha=0.3, axis='y')
 
     fig.suptitle("Operator exponential: heat equation", fontsize=11)
     fig.tight_layout()
@@ -101,7 +96,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

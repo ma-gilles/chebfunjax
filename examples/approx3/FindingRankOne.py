@@ -28,7 +28,6 @@ _IMG_DIR = os.path.join(
 )
 os.makedirs(_IMG_DIR, exist_ok=True)
 
-
 def sample_on_grid(f, n):
     """Sample a Chebfun3 on an n x n x n Chebyshev grid, return flat array."""
     xa, xb, ya, yb, za, zb = f.domain
@@ -41,7 +40,6 @@ def sample_on_grid(f, n):
     XX, YY, ZZ = np.meshgrid(xp, yp, zp, indexing="ij")
     vals = np.array(f(jnp.array(XX), jnp.array(YY), jnp.array(ZZ)))
     return vals.reshape(-1)
-
 
 def run():
     print("=" * 60)
@@ -153,8 +151,6 @@ def run():
 
     ax1 = axes[0]
     ax1.semilogy(range(len(errors)), errors, "o-b", lw=2, ms=8)
-    ax1.set_xlabel("Iteration", fontsize=12)
-    ax1.set_ylabel("Relative error", fontsize=12)
     ax1.set_title("Alternating projections:\nrecovering rank-one f from fhat", fontsize=11)
     ax1.axhline(1e-2, ls="--", color="gray", alpha=0.5, label="1% threshold")
     ax1.legend()
@@ -166,8 +162,6 @@ def run():
     fhat_x = np.array([float(fhat(jnp.array(xi), jnp.array(0.5), jnp.array(0.3))) for xi in x_line])
     ax2.plot(x_line, f_x, "b-", lw=2, label="f = sin(x)cos(y)exp(z)")
     ax2.plot(x_line, fhat_x, "r--", lw=2, label="fhat = f+(g+h)/10")
-    ax2.set_xlabel("x", fontsize=12)
-    ax2.set_ylabel("value (y=0.5, z=0.3)", fontsize=12)
     ax2.set_title("f vs fhat along x-axis", fontsize=11)
     ax2.legend()
     fig.suptitle("Finding rank-one functions in a subspace", fontsize=13)
@@ -179,7 +173,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

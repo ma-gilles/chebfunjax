@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Optimization of 1D chebfuns")
@@ -94,20 +92,18 @@ def run():
     axes[0].plot(float(x_max), float(f_max_val), 'rv', markersize=10, zorder=5, label='max')
     axes[0].plot(float(x_min), float(f_min_val), 'g^', markersize=10, zorder=5, label='min')
     axes[0].set_title("Extreme extrema", fontsize=11)
-    axes[0].set_xlabel("x"); axes[0].legend(); axes[0].grid(True, alpha=0.3)
+    axes[0].legend()
 
     x2 = np.linspace(-2, 2, 200)
     y2 = (1 - x2)**2
     axes[1].plot(x2, y2, 'b-', linewidth=2)
     axes[1].plot(float(rosen_x_min), float(rosen_min_val), 'r*', markersize=15, label='min')
     axes[1].set_title("(1-x)² on [-2,2]", fontsize=11)
-    axes[1].set_xlabel("x"); axes[1].legend(); axes[1].grid(True, alpha=0.3)
+    axes[1].legend()
     axes[1].set_ylim(-0.1, 5)
 
     axes[2].plot(a_vals, integrals, 'b-', linewidth=2)
     axes[2].set_title("∫₀¹ exp(-ax²) dx vs. a", fontsize=11)
-    axes[2].set_xlabel("a"); axes[2].set_ylabel("Integral")
-    axes[2].grid(True, alpha=0.3)
 
     fig.suptitle("1D optimization with chebfunjax", fontsize=13)
     fig.tight_layout()
@@ -116,7 +112,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

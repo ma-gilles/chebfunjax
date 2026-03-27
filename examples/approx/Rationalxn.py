@@ -24,7 +24,6 @@ from chebfunjax.utils.aaa import aaa
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
 
-
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
 
@@ -62,7 +61,6 @@ def run():
     ax2.axhline(np.max(err_aaa), color='r', ls='--', lw=1.5,
                 label=f'AAA ({len(pol)} poles)')
     ax2.set_title(f'Errors for x^{{{exp_val}}} approximation', fontsize=10)
-    ax2.set_xlabel('polynomial degree')
     ax2.legend(fontsize=9)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'Rationalxn.png'), dpi=150)
@@ -71,7 +69,6 @@ def run():
     print(f"Rationalxn: x^{exp_val}: poly-100 err={poly_errs[-1]:.3e}, "
           f"AAA err={np.max(err_aaa):.3e}")
     return True
-
 
 if __name__ == '__main__':
     run()

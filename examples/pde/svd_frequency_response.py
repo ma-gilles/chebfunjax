@@ -20,7 +20,6 @@ import numpy as np
 from scipy.linalg import svd
 import os
 
-
 def run():
     print("=" * 60)
     print("SVD of frequency response operator")
@@ -120,8 +119,7 @@ def run():
     axes[0].plot(n_array, sv_analytical, 'ro', markersize=7,
                  markerfacecolor='none', linewidth=1.5, label='Analytical: 4/(nπ)²')
     axes[0].set_title("Singular values of frequency response (w=0)", fontsize=11)
-    axes[0].set_xlabel("n"); axes[0].set_ylabel("σ_n")
-    axes[0].legend(); axes[0].grid(True, alpha=0.3)
+    axes[0].legend()
 
     # First singular function
     axes[1].plot(y_int, sf1_n / sf1_n.max(), 'bx-', markersize=5,
@@ -129,8 +127,7 @@ def run():
     axes[1].plot(y_int, sf1_a / sf1_a.max(), 'r-', linewidth=2,
                  label='sin(π(y+1)/2)')
     axes[1].set_title("First singular function", fontsize=11)
-    axes[1].set_xlabel("y"); axes[1].set_ylabel("φ₁(y)")
-    axes[1].legend(); axes[1].grid(True, alpha=0.3)
+    axes[1].legend()
 
     fig.suptitle("SVD of frequency response: diffusion equation", fontsize=13)
     fig.tight_layout()
@@ -139,7 +136,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -19,8 +19,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def make_random_surface_disk(dx=0.1, seed=1, n_grid=100):
     """Random bandlimited function on unit disk via 2D Fourier series."""
     rng = np.random.default_rng(seed)
@@ -44,7 +42,6 @@ def make_random_surface_disk(dx=0.1, seed=1, n_grid=100):
     # Normalize
     f /= (np.std(f[~mask]) + 1e-10)
     return xs, ys, X, Y, f
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -94,7 +91,6 @@ def run():
                       rstride=3, cstride=3)
     ax3d.set_zlim(-10, 10)
     ax3d.set_title('Surface plot', fontsize=11)
-    ax3d.set_xlabel('x'); ax3d.set_ylabel('y')
 
     print("random_surf: done")
     fig.suptitle('Random Surfaces on the Disk', fontsize=13)
@@ -104,7 +100,6 @@ def run():
     plt.close(fig)
 
     return True
-
 
 if __name__ == "__main__":
     run()

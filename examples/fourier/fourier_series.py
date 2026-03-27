@@ -19,15 +19,12 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def fourier_partial_sum(f_coeffs, x, N):
     """Compute N-term Fourier partial sum at points x in [0, 2*pi]."""
     result = f_coeffs[0] * np.ones_like(x)
     for k in range(1, N + 1):
         result += f_coeffs[2*k-1] * np.cos(k * x) + f_coeffs[2*k] * np.sin(k * x)
     return result
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -63,10 +60,8 @@ def run():
     fv = np.array(f(jnp.array(xx)))
     axes[0].plot(xx, fv, 'b-', linewidth=1.8, label='$f(x) = \\sin^3(x) + \\cos^2(2x)$')
     axes[0].set_title('A smooth periodic function on $[0, 2\\pi]$', fontsize=11)
-    axes[0].set_xlabel('$x$')
     axes[0].set_xlim(0, T)
     axes[0].legend(fontsize=9)
-    axes[0].grid(True, alpha=0.3)
     axes[0].axhline(0, color='k', linewidth=0.5)
 
     # Gibbs phenomenon
@@ -77,10 +72,8 @@ def run():
         axes[1].plot(xx, Fs, '-', color=color, linewidth=1.2,
                      label=f'$N={N}$ terms')
     axes[1].set_title('Gibbs phenomenon: square wave Fourier series', fontsize=11)
-    axes[1].set_xlabel('$x$')
     axes[1].set_xlim(0, T)
     axes[1].legend(fontsize=9)
-    axes[1].grid(True, alpha=0.3)
     axes[1].set_ylim(-1.5, 1.5)
 
     fig.tight_layout()
@@ -99,7 +92,6 @@ def run():
 
     print("fourier_series: done")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -19,8 +19,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def letter_path(letter, x_offset=0.0, scale=0.06):
     """Generate approximate piecewise-linear complex path for a letter."""
     # Simple 5x7 pixel font encoded as line segments in normalized [-1,1]x[-1,1]
@@ -60,7 +58,6 @@ def letter_path(letter, x_offset=0.0, scale=0.06):
             pts.append(complex((x1 + t*(x2-x1))*scale + x_offset,
                                (y1 + t*(y2-y1))*scale - 0.2))
     return np.array(pts)
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -145,9 +142,8 @@ def run():
         axes[1].plot(np.real(pts), np.imag(pts), '-', color=colors[i],
                      linewidth=2.5, label=letter)
 
-    axes[1].set_aspect('equal'); axes[1].grid(True, alpha=0.3)
+    axes[1].set_aspect('equal')
     axes[1].set_title('Piecewise-linear complex\npath for "CHEBY"', fontsize=11)
-    axes[1].set_xlabel('Re'); axes[1].set_ylabel('Im')
     axes[1].legend(fontsize=9)
 
     fig.suptitle("Birthday Cards and Analytic Functions", fontsize=13)
@@ -158,7 +154,6 @@ def run():
 
     print("birthday: done")
     return True
-
 
 if __name__ == "__main__":
     run()

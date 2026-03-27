@@ -25,7 +25,6 @@ chebfun_style()
 
 from chebfunjax.plotting import plot
 
-
 def run():
     print("=" * 60)
     print("Bessel function approximation")
@@ -35,7 +34,7 @@ def run():
     from scipy.special import j0 as besselj0, j1 as besselj1
 
     # --- J_0 on [0, 20] ----------------------------------------------
-    # MATLAB: J0 = chebfun(@(x) besselj(0, x), [0, 20]);
+    # MATLAB: J0 = chebfun(@(x) besselj(0, x), [0, 20])
     dom_20 = (0.0, 20.0)
     J0 = cj.chebfun(lambda x: jnp.array(besselj0(np.array(x))), domain=dom_20)
     print(f"\nJ_0(x) on [0, 20]:")
@@ -91,7 +90,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

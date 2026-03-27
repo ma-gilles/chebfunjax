@@ -24,7 +24,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from chebfunjax.diskfun.diskfun import Diskfun
 
-
 def run():
     print("=" * 60)
     print("Functions on the disk (Diskfun)")
@@ -93,7 +92,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

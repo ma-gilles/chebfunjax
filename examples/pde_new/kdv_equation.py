@@ -25,8 +25,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("KdV equation (soliton)")
@@ -111,15 +109,13 @@ def run():
                      label=f't={t_h:.2f}' if i in [0, len(history_u)-1] else '')
     axes[0].set_xlim(-15, 20)
     axes[0].set_title(f"KdV soliton (c={c})", fontsize=12)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("u")
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
 
     H = np.array(history_u)
     im = axes[1].imshow(H.T, aspect='auto', origin='lower',
                          extent=[0, history_t[-1], -L, L],
                          cmap='plasma', vmin=0, vmax=c/2 * 1.1)
     axes[1].set_title("Space-time: soliton propagation", fontsize=12)
-    axes[1].set_xlabel("t"); axes[1].set_ylabel("x")
     fig.colorbar(im, ax=axes[1])
 
     fig.suptitle("KdV equation — soliton solution", fontsize=13)
@@ -129,7 +125,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()
