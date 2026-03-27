@@ -43,7 +43,7 @@ def run():
                           '../../docs/images/geom')
     os.makedirs(outdir, exist_ok=True)
 
-    fig = plt.figure(figsize=(10, 10))
+    fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.set_aspect('equal')
     ax.axis('off')

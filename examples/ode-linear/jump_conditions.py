@@ -87,7 +87,7 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, ax = plt.subplots(figsize=(7, 4))
+    fig, ax = plt.subplots()
 
     x_left = np.linspace(-1.0, 0.0, 200)
     x_right = np.linspace(0.0, 1.0, 200)
@@ -102,7 +102,6 @@ def run():
     ax.set_xlabel("x"); ax.set_ylabel("u(x)")
     ax.set_title("0.01 u″ + sin(x) u = 0 with/without jump", fontsize=10)
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3)
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "jump_conditions.png"), dpi=150, bbox_inches="tight")
     plt.close(fig)

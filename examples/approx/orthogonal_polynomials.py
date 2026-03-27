@@ -69,7 +69,7 @@ def run():
             print(f"  <P_{i}, P_{i}> = {float((w*P[i]*P[i]).sum()):.6f}")
 
     # Plot
-    fig, ax = plt.subplots(figsize=(8, 5))
+    fig, ax = plt.subplots()
     xx = np.linspace(-1.0, 1.0, 500)
     colors = plt.cm.tab10(np.linspace(0, 0.6, N + 1))
     for k, pk in enumerate(P):
@@ -80,7 +80,6 @@ def run():
                  fontsize=12)
     ax.set_xlabel('$x$', fontsize=12)
     ax.legend(fontsize=10, ncol=3)
-    ax.grid(True, alpha=0.3)
     ax.set_ylim(-4, 4)
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'orthogonal_polynomials.png'),

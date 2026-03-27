@@ -44,7 +44,7 @@ def run():
     smooth_vals = np.array([float(f_smooth(jnp.array(x))) for x in xx])
 
     # Polynomial approximations of increasing degree
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     ax.plot(xx, step_vals, 'k--', lw=1.5, label='ideal step')
@@ -54,8 +54,6 @@ def run():
         ax.plot(xx, pn_vals, '-', color=col, lw=1.3, label=f'deg {n}')
     ax.set_title('Low-pass filter approximation by polynomials', fontsize=10)
     ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
-
     # Gibbs phenomenon: best polynomial approx of step function
     ax2 = axes[1]
     ax2.plot(xx, step_vals, 'k--', lw=1.5, label='ideal')
@@ -65,8 +63,6 @@ def run():
         ax2.plot(xx, pn_vals, '-', color=col, lw=1.2, alpha=0.8, label=f'deg {n}')
     ax2.set_title('Gibbs phenomenon: step function approx', fontsize=10)
     ax2.legend(fontsize=8)
-    ax2.grid(True, alpha=0.3)
-
     fig.suptitle('Digital filter design via polynomial approximation', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'FiltersCF.png'), dpi=150)

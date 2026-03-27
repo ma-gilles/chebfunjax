@@ -33,7 +33,7 @@ def run():
     xx = np.linspace(-1.0, 1.0, 400)
     f_true = np.exp(xx)
 
-    fig, axes = plt.subplots(2, 3, figsize=(13, 8))
+    fig, axes = plt.subplots(2, 3)
     axes = axes.flatten()
 
     # 1. Polynomial degree 4 (Taylor truncation)
@@ -90,8 +90,6 @@ def run():
     axes[5].grid(True, alpha=0.3)
 
     for ax in axes:
-        ax.set_xlabel('x')
-
     fig.suptitle('Eight Shades of Rational Approximation (for exp(x))', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'EightShades.png'), dpi=150)

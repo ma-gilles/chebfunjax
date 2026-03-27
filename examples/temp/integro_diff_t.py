@@ -67,7 +67,7 @@ def run():
                     method='RK45', rtol=1e-4, atol=1e-6)
     print(f"  Status: {sol.message}")
 
-    fig = plt.figure(figsize=(15, 5))
+    fig = plt.figure()
 
     # --- Panel 1: 3D waterfall / surface ---
     ax1 = fig.add_subplot(131, projection='3d')
@@ -94,7 +94,6 @@ def run():
     ax3.plot(t_eval, masses, 'b-', linewidth=2.5)
     ax3.set_title('Total mass ∫u dx vs time', fontsize=10)
     ax3.set_xlabel('t'); ax3.set_ylabel('∫u dx')
-    ax3.grid(True, alpha=0.3)
     print(f"  Initial mass: {masses[0]:.4f}")
     print(f"  Final mass: {masses[-1]:.4f}")
 

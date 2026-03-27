@@ -43,7 +43,7 @@ def run():
             r = (r**2 + x_arr**2) / (2.0 * r)
         return r
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     for k, col in [(1, 'b'), (3, 'r'), (5, 'g'), (7, 'm')]:
@@ -52,11 +52,8 @@ def run():
         ax.semilogy(xx, err, color=col, lw=1.5, label=f'k={k}')
     ax.set_xlim(-1, 1)
     ax.set_title('Newton iteration error for |x|', fontsize=11)
-    ax.set_xlabel('x')
     ax.set_ylabel('|r_k(x) - |x||')
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3)
-
     # Chebfun-based: show Newton approximation converges
     # Only 3 iterations to avoid excessive length
     dom = (-1.0, 0.0, 1.0)
@@ -74,11 +71,8 @@ def run():
                  'r--', lw=1.5, label='direct Newton (k=3)')
     ax2.set_xlim(-1, 1)
     ax2.set_title('Chebfun Newton vs. direct (k=3)', fontsize=11)
-    ax2.set_xlabel('x')
     ax2.set_ylabel('|error|')
     ax2.legend(fontsize=9)
-    ax2.grid(True, alpha=0.3)
-
     fig.suptitle('Newton iteration for absolute value approximation', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'AbsoluteValueScaled.png'), dpi=150)

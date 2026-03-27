@@ -47,15 +47,13 @@ def run():
     xx = np.linspace(-1.0, 1.0, 600)
     f_exact_vals = np.array([float(f_exact(jnp.array(x))) for x in xx])
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     ax.plot(xx, f_exact_vals, 'b', lw=1.8, label='exact')
     ax.plot(grid, data, '.k', ms=8, label='equispaced data (40 pts)')
     ax.set_title('f(x) = exp(x)·cos(10x)·tanh(4x) with 40 equispaced samples', fontsize=9)
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3)
-
     # Compare error: pchip from scipy as equispaced interpolant
     from scipy.interpolate import PchipInterpolator
     pchip = PchipInterpolator(grid, data)
@@ -65,11 +63,8 @@ def run():
     ax2 = axes[1]
     ax2.semilogy(xx, err_pchip + 1e-18, 'r', lw=1.5, label='pchip error')
     ax2.set_title('Reconstruction error from 40 equispaced points', fontsize=10)
-    ax2.set_xlabel('x')
     ax2.set_ylabel('|error|')
     ax2.legend(fontsize=9)
-    ax2.grid(True, alpha=0.3)
-
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'EquispacedData.png'), dpi=150)
     plt.close(fig)

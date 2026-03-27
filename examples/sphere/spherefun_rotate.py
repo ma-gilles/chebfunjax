@@ -67,7 +67,7 @@ def run():
 
     F_rot = rotate_sphere_function(f_func, R, THETA, PHI)
 
-    fig = plt.figure(figsize=(15, 5))
+    fig = plt.figure()
 
     # --- Panel 1: Original function ---
     ax1 = fig.add_subplot(131, projection='3d')

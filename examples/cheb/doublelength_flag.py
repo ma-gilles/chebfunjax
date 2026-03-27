@@ -130,7 +130,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # exp(x)
     axes[0].semilogy(np.abs(c1_double), '.b', markersize=4, label='double length')

@@ -94,7 +94,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     colors = ['black', 'royalblue', 'steelblue', 'cornflowerblue']
     for (t, u_t), col in zip(results, colors):

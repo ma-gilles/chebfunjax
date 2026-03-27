@@ -65,7 +65,7 @@ def run():
     err = np.max(np.abs(manual_coeffs - chebfun_coeffs[:len(manual_coeffs)]))
     print(f"ChebfunFFT: max difference in coefficients = {err:.2e}")
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     xx_plot = np.linspace(-1.0, 1.0, 400)
@@ -74,8 +74,6 @@ def run():
     ax.plot(pts, fvals, '.r', ms=8, label='Chebyshev nodes')
     ax.set_title('f(x) with Chebyshev nodes', fontsize=11)
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3)
-
     ax2 = axes[1]
     k_cheb = np.arange(len(chebfun_coeffs))
     ax2.semilogy(k_cheb, np.abs(chebfun_coeffs) + 1e-18, 'b.', ms=5,
@@ -86,8 +84,6 @@ def run():
     ax2.set_title('Chebyshev coefficients (FFT method)', fontsize=11)
     ax2.legend(fontsize=9)
     ax2.set_xlabel('degree k')
-    ax2.grid(True, alpha=0.3)
-
     fig.suptitle('The FFT in Chebfun: values ↔ coefficients', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'ChebfunFFT.png'), dpi=150)

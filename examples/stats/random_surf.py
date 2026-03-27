@@ -51,7 +51,7 @@ def run():
                           '../../docs/images/stats')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+    fig, axes = plt.subplots(1, 3)
 
     xs, ys, X, Y, f = make_random_surface_disk(dx=0.2, seed=1, n_grid=150)
     mask = X**2 + Y**2 > 1

@@ -76,7 +76,7 @@ def run():
     xx = np.linspace(-1.0, 1.0, 300)
     colors = ['b', 'r', 'g', 'm', 'orange', 'c']
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     for k, p in enumerate(polys[:min(6, N+1)]):
@@ -84,8 +84,6 @@ def run():
         ax.plot(xx, vals, color=colors[k % len(colors)], lw=1.5, label=f'P_{k}')
     ax.set_title('Lanczos orthogonal polynomials wrt exp(πx)', fontsize=10)
     ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
-
     ax2 = axes[1]
     im = ax2.imshow(I_mat, cmap='RdBu', vmin=-1, vmax=1)
     plt.colorbar(im, ax=ax2)

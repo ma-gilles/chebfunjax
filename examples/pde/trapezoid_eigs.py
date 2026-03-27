@@ -103,7 +103,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # Min singular value scan
     axes[0].plot(lam_scan, sigmin_vals, 'b-', linewidth=1.5)

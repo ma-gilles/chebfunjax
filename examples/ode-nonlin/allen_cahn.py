@@ -62,13 +62,12 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     colors = ['b', 'r', 'g']
     x_plot = jnp.linspace(-1.0, 1.0, 400)
-    fig, ax = plt.subplots(figsize=(7, 4))
+    fig, ax = plt.subplots()
     for (eps, u), c in zip(solutions, colors):
         ax.plot(x_plot, u(x_plot), color=c, linewidth=1.6, label=f"ε={eps}")
     ax.set_xlabel("x"); ax.set_ylabel("u(x)")
     ax.set_title("Allen-Cahn: ε u″ + u − u³ = 0, u(±1)=∓1", fontsize=10)
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3)
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "allen_cahn.png"), dpi=150, bbox_inches="tight")
     plt.close(fig)

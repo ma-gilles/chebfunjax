@@ -38,7 +38,7 @@ def run():
         # Theoretical estimate: roughly 2N + a few
         estimates.append(2 * N + 2)
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     # Show some of the functions
@@ -49,8 +49,6 @@ def run():
         ax.plot(xx, vals, lw=1.2, label=f'N={N}')
     ax.set_title('sin(Nπx) for various N', fontsize=11)
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3)
-
     ax2 = axes[1]
     ax2.scatter(NN, lengths, color='b', s=50, label='Chebfun length')
     ax2.scatter(NN, estimates, color='r', marker='+', s=80, label='Estimate ≈ 2N')
@@ -58,8 +56,6 @@ def run():
     ax2.set_xlabel('N')
     ax2.set_ylabel('polynomial degree')
     ax2.legend(fontsize=9)
-    ax2.grid(True, alpha=0.3)
-
     print("Entire:")
     print(f"{'N':>8}  {'estimate':>10}  {'chebfun len':>12}")
     for N, est, lv in zip(NN, estimates, lengths):

@@ -67,7 +67,7 @@ def run():
     p_L1_vals = V_eval @ coeffs_L1
     err_L1 = p_L1_vals - f_vals
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     ax.plot(xx, f_vals, 'k', lw=1.5, label='f = |x−1/4|')
@@ -75,16 +75,12 @@ def run():
     ax.plot(xx, p_L1_vals, 'r--', lw=1.3, label=f'L1 deg {deg}')
     ax.set_title(f'|x−1/4| and polynomial approximants (deg {deg})', fontsize=10)
     ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
-
     ax2 = axes[1]
     ax2.plot(xx, err_L2, 'b', lw=1.5, label='L2 error')
     ax2.plot(xx, err_L1, 'r', lw=1.5, label='L1 error')
     ax2.axhline(0, color='k', lw=0.5)
     ax2.set_title('Error curves: L2 vs. L1 approximation', fontsize=10)
     ax2.legend(fontsize=9)
-    ax2.grid(True, alpha=0.3)
-
     fig.suptitle('L1 vs. L2 polynomial approximation', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'polyfitL1.png'), dpi=150)

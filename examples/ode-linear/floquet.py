@@ -87,7 +87,7 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].contourf(a_vals, q_vals, stable.astype(float), levels=[0.5, 1.5],
                      colors=['lightblue'], alpha=0.8)

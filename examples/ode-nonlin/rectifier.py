@@ -75,7 +75,7 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     n_periods = 5
     t_5 = np.linspace(0, n_periods * 2 * np.pi, 2500)

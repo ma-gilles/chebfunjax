@@ -72,7 +72,7 @@ def run():
         except Exception:
             err_cc.append(np.nan)
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # Left: function plot
     xx = np.linspace(-1, 1, 600)

@@ -66,7 +66,7 @@ def run():
 
     # --- Plot: coefficient magnitudes ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # Chebyshev coefficients of sin(x), exp(x), abs(x)
     f_abs = cj.chebfun(jnp.abs, n=256)

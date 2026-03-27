@@ -36,15 +36,13 @@ def run():
     f_vals = np.abs(xx)
     p5_vals = np.array([float(p5(jnp.array(xi))) for xi in xx])
 
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4))
+    fig, axes = plt.subplots(1, 3)
 
     ax = axes[0]
     ax.plot(xx, f_vals, 'b', lw=1.8, label='|x|')
     ax.plot(xx, p5_vals, 'r', lw=1.5, label='p5 L2')
     ax.set_title('Best L2 approximation of |x|, degree 5', fontsize=10)
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3)
-
     # 2. L2 of degree 10 for Runge function
     f_runge = cj.chebfun(lambda x: 1.0 / (1.0 + 25.0 * x**2))
     p10 = f_runge.polyfit(10)
@@ -56,8 +54,6 @@ def run():
     ax2.plot(xx, p10_vals, 'r', lw=1.5, label='p10 L2')
     ax2.set_title('Best L2 of Runge, degree 10', fontsize=10)
     ax2.legend(fontsize=9)
-    ax2.grid(True, alpha=0.3)
-
     # 3. Convergence of ||f - p_n||_2 for |x|: expect O(n^{-3/2})
     f_abs = cj.chebfun(jnp.abs)
     ns = [1, 2, 5, 10, 20, 50, 100]
@@ -76,8 +72,6 @@ def run():
     ax3.set_xlabel('n')
     ax3.set_ylabel('‖|x| − p_n‖₂')
     ax3.legend(fontsize=9)
-    ax3.grid(True, alpha=0.3, which='both')
-
     fig.suptitle('Least-squares (L2) approximation in Chebfun', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'BestL2Approximation.png'), dpi=150)

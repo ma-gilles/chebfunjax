@@ -89,7 +89,7 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+    fig, axes = plt.subplots(1, 2)
 
     colors = ['b', 'r', 'g']
     labels = [f'm₁={m1:.0f}', f'm₂={m2:.0f}', f'm₃={m3:.0f}']

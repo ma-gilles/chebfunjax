@@ -40,22 +40,16 @@ def run():
     xx_np = np.array(xx)
     F_vals = np.array(F(xx))
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     ax.plot(xx_np, F_vals, 'k', lw=1.0)
     ax.set_title('Weierstrass-type function F(x), 8 terms', fontsize=11)
-    ax.set_xlabel('x')
-    ax.grid(True, alpha=0.3)
-
     # Zoom in
     ax2 = axes[1]
     mask = (xx_np >= 0) & (xx_np <= 0.005)
     ax2.plot(xx_np[mask], F_vals[mask], 'k', lw=1.5)
     ax2.set_title('Close-up near x=0 (zoomed 200×)', fontsize=11)
-    ax2.set_xlabel('x')
-    ax2.grid(True, alpha=0.3)
-
     fig.suptitle('Weierstrass nowhere-differentiable function', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'WeierstrassFunction.png'), dpi=150)

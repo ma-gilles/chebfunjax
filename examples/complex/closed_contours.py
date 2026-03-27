@@ -145,7 +145,7 @@ def run():
 
     # --- Plots ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4))
+    fig, axes = plt.subplots(1, 3)
 
     # Left: the contour and poles for Example 1
     theta = np.linspace(0, 2*pi, 200)

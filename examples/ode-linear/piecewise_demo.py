@@ -105,7 +105,7 @@ def run():
     x_plot_l = np.linspace(-1.0, 0.0, 200)
     x_plot_r = np.linspace(0.0, 1.0, 200)
     x_plot = jnp.linspace(-1.0, 1.0, 400)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(x_plot_l, np.array(ul(jnp.array(x_plot_l))), 'b', linewidth=1.8)
     axes[0].plot(x_plot_r, np.array(ur(jnp.array(x_plot_r))), 'b', linewidth=1.8,

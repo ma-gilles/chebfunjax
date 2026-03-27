@@ -53,7 +53,7 @@ def run():
     left_vals = np.array([float(f_pw_left(jnp.array(x))) for x in xx_left])
     right_vals = np.array([float(f_pw_right(jnp.array(x))) for x in xx_right])
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     ax.plot(xx, noisy_vals, '.', color='gray', ms=3, alpha=0.7, label='noisy data')
@@ -61,16 +61,12 @@ def run():
     ax.axvline(0, color='r', lw=1.0, ls='--', label='discontinuity')
     ax.set_title('Noisy function with discontinuity', fontsize=10)
     ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
-
     ax2 = axes[1]
     ax2.plot(xx_left, left_vals, 'b', lw=1.8)
     ax2.plot(xx_right, right_vals, 'b', lw=1.8, label='piecewise smooth')
     ax2.plot(xx, true_vals, 'k--', lw=1.0, alpha=0.5, label='true')
     ax2.set_title('Piecewise chebfun (known breakpoint)', fontsize=10)
     ax2.legend(fontsize=8)
-    ax2.grid(True, alpha=0.3)
-
     fig.suptitle('Noisy functions with discontinuities', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'NoisyNonsmooth.png'), dpi=150)

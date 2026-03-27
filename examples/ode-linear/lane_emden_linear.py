@@ -98,7 +98,7 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     x_plot0 = jnp.linspace(float(dom0[0]), R0, 300)
     axes[0].plot(x_plot0, u0(x_plot0), 'b', linewidth=1.8, label="chebfunjax")

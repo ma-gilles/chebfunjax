@@ -119,7 +119,7 @@ def run():
 
     # --- Plots ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(2, 3, figsize=(12, 8))
+    fig, axes = plt.subplots(2, 3)
     axes = axes.flatten()
 
     for i, (name, f_np, xlim, ylim) in enumerate(functions):

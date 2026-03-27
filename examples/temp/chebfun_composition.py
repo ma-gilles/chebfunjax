@@ -26,7 +26,7 @@ def run():
                           '../../docs/images/temp')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    fig, axes = plt.subplots(1, 3)
 
     x_1d = np.linspace(-np.pi, np.pi, 500)
     x2 = np.linspace(-1, 1, 100)

@@ -101,14 +101,13 @@ def run():
     colors = ['b', 'r', 'g', 'm']
     x_plot = np.linspace(0.0, 1.0, 1000)
 
-    fig, ax = plt.subplots(figsize=(7, 4))
+    fig, ax = plt.subplots()
     for (eps, u), c in zip(solutions, colors):
         ax.plot(x_plot, exact_solution(x_plot, eps), color=c, linewidth=1.6,
                 label=f"ε = {eps:.0e}")
     ax.legend(fontsize=9)
     ax.set_xlabel("x"); ax.set_ylabel("u(x)")
     ax.set_title("Boundary layers: −ε u″ − u′ = 1, u(0)=u(1)=0", fontsize=10)
-    ax.grid(True, alpha=0.3)
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "breakpoints.png"), dpi=150, bbox_inches="tight")
     plt.close(fig)

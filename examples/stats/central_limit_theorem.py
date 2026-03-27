@@ -28,7 +28,7 @@ def run():
                           '../../docs/images/stats')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(1, 3, figsize=(14, 4))
+    fig, axes = plt.subplots(1, 3)
 
     # Triangular distribution: support [-4/3, 2/3], zero outside [-3,3]
     # PDF: (4/3 + x)/2 on [-4/3, 2/3]

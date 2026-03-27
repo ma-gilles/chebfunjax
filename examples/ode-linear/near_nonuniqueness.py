@@ -66,13 +66,12 @@ def run():
     x_plot = jnp.linspace(-1.0, 1.0, 500)
     colors = ['b', 'r', 'g']
 
-    fig, ax = plt.subplots(figsize=(7, 4))
+    fig, ax = plt.subplots()
     for (eps, u), c in zip(solutions, colors):
         ax.plot(x_plot, u(x_plot), color=c, linewidth=1.6, label=f"ε={eps}")
     ax.set_xlabel("x"); ax.set_ylabel("u(x)")
     ax.set_title("Near-nonuniqueness: ε u″ − x u′ + u = 1, u(±1)=0", fontsize=9)
     ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "near_nonuniqueness.png"), dpi=150, bbox_inches="tight")
     plt.close(fig)

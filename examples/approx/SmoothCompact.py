@@ -39,7 +39,7 @@ def run():
     ax_range = [-3, 3, -0.1, 1.2]
     xx = np.linspace(ax_range[0], ax_range[1], 600)
 
-    fig, axes = plt.subplots(2, 2, figsize=(11, 8))
+    fig, axes = plt.subplots(2, 2)
     axes_flat = axes.flatten()
     splines = [(B0, 'B0 (box)', 0), (B1, 'B1 (hat)', 1),
                (B2, 'B2 (C¹)', 2), (B3, 'B3 (C²)', 3)]
@@ -53,10 +53,7 @@ def run():
         ax.plot(xx, vals, 'b', lw=1.8)
         ax.set_xlim(ax_range[0], ax_range[1])
         ax.set_ylim(ax_range[2], ax_range[3])
-        ax.grid(True, alpha=0.3)
         ax.set_title(f'{title} (C^{k-1} smooth)', fontsize=10)
-        ax.set_xlabel('x')
-
     fig.suptitle('Smooth compactly supported functions via convolution', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'SmoothCompact.png'), dpi=150)

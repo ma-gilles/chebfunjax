@@ -49,7 +49,7 @@ def run():
         pn_vals = np.array([float(pn(jnp.array(x))) for x in xs])
         poly_errs.append(np.max(np.abs(pn_vals - true_vals)))
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     ax.plot(xs, true_vals, 'b', lw=1.8, label=f'x^{exp_val}')
@@ -57,9 +57,6 @@ def run():
             label=f'AAA ({len(pol)} poles, err={np.max(err_aaa):.2e})')
     ax.set_title(f'x^{{{exp_val}}} on [0, 1]', fontsize=11)
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3)
-    ax.set_xlabel('x')
-
     ax2 = axes[1]
     ax2.semilogy(poly_ns, poly_errs, 'b.-', lw=1.5, ms=10, label='poly')
     ax2.axhline(np.max(err_aaa), color='r', ls='--', lw=1.5,
@@ -67,8 +64,6 @@ def run():
     ax2.set_title(f'Errors for x^{{{exp_val}}} approximation', fontsize=10)
     ax2.set_xlabel('polynomial degree')
     ax2.legend(fontsize=9)
-    ax2.grid(True, alpha=0.3)
-
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'Rationalxn.png'), dpi=150)
     plt.close(fig)

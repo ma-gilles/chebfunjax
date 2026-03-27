@@ -50,7 +50,6 @@ def plot_conformal(ax_in, ax_out, f_map, xlim=(-2, 2), ylim=(-2, 2),
     for ax, title in [(ax_in, title_in), (ax_out, title_out)]:
         ax.set_aspect('equal')
         ax.set_title(title, fontsize=9)
-        ax.grid(True, alpha=0.2)
         ax.tick_params(labelsize=7)
 
 
@@ -121,7 +120,7 @@ def run():
 
     # --- Plots ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(4, 2, figsize=(9, 14))
+    fig, axes = plt.subplots(4, 2)
 
     maps = [
         (map_sq, (-1.5, 1.5), (-1.5, 1.5), "z", "z²"),

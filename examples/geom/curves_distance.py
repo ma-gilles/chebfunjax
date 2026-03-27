@@ -62,7 +62,7 @@ def run():
     print(f"Minimum distance between curves: {min_dist:.6f}")
     print(f"Closest points: f = {f_closest:.4f}, g = {g_closest:.4f}")
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    fig, axes = plt.subplots(1, 2)
 
     # Plot curves and closest points
     axes[0].plot(np.real(f), np.imag(f), 'b-', linewidth=2, label='Curve f')

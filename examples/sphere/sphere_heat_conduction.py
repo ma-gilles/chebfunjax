@@ -88,7 +88,7 @@ def run():
             u += c * decay * Y
         return u
 
-    fig = plt.figure(figsize=(15, 5))
+    fig = plt.figure()
 
     times = [0, 0.5, 2.0]
     ax_list = [fig.add_subplot(1, 3, i+1, projection='3d') for i in range(3)]

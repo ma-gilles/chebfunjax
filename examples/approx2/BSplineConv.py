@@ -35,7 +35,7 @@ def run():
     for _ in range(4):
         splines.append(splines[-1].conv(B0))
 
-    fig, axes = plt.subplots(1, 5, figsize=(15, 4))
+    fig, axes = plt.subplots(1, 5)
     ax_range = [-3, 3, -0.2, 1.2]
 
     for i, Bi in enumerate(splines):
@@ -47,10 +47,7 @@ def run():
         ax.plot(xx, vals, 'b', lw=1.8)
         ax.set_xlim(ax_range[0], ax_range[1])
         ax.set_ylim(ax_range[2], ax_range[3])
-        ax.grid(True, alpha=0.3)
         ax.set_title(f'B-spline order {i}', fontsize=10)
-        ax.set_xlabel('x')
-
     fig.suptitle('B-splines via successive convolution with B0', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'BSplineConv.png'), dpi=150)

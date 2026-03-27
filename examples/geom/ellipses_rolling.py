@@ -88,7 +88,7 @@ def run():
     print(f"Trajectory length ≈ {arc_length:.4f}")
 
     # Plot
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    fig, axes = plt.subplots(1, 2)
 
     # Plot big ellipse
     theta_e = np.linspace(0, 2 * np.pi, 500)

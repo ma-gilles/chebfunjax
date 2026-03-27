@@ -103,7 +103,7 @@ def run():
 
     # --- Plots ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(2, 4, figsize=(13, 6))
+    fig, axes = plt.subplots(2, 4)
     axes = axes.flatten()
     for i, (name, func, dom, exact) in enumerate(tests):
         ax = axes[i]
@@ -116,7 +116,6 @@ def run():
         ax.axhline(0, color="k", linewidth=0.4)
         ax.set_title(f"#{i+1}: I={val:.4f}", fontsize=8)
         ax.tick_params(labelsize=6)
-        ax.grid(True, alpha=0.3)
     fig.suptitle("Battery test integrals", fontsize=11)
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "battery_test.png"), dpi=150, bbox_inches="tight")

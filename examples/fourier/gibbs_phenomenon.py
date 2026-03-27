@@ -134,7 +134,7 @@ def run():
     import matplotlib.pyplot as _plt
     import numpy as _np
     _x = _np.linspace(0.0, 2.0 * _np.pi, 1000)
-    fig, ax = _plt.subplots(figsize=(6, 3.5))
+    fig, ax = _plt.subplots()
     ax.step(_x, _np.where(_x < _np.pi, -1.0, 1.0), color="k",
             linewidth=0.8, label="sign(x−π)")
     for _N, _col in [(5, "#4169E1"), (20, "#E04040"), (50, "#228B22")]:
@@ -143,9 +143,6 @@ def run():
     ax.legend(fontsize=9)
     ax.set_xlabel("x", fontsize=10)
     ax.set_title("Gibbs phenomenon", fontsize=11)
-    ax.grid(True, alpha=0.3, linestyle="--")
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
     fig.set_facecolor("white")
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "gibbs_phenomenon.png"),

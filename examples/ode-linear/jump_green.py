@@ -110,7 +110,7 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     xi_vals = [0.25, 0.5, 0.75]
     colors = ['b', 'r', 'g']

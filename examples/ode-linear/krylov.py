@@ -81,7 +81,7 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(x_test, u(x_test), 'b', linewidth=1.8, label="chebfunjax")
     axes[0].plot(x_test, exact(x_test), 'r--', linewidth=1.2, label="exact cos(πx/2)")

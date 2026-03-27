@@ -171,7 +171,7 @@ def run():
 
     # --- Plot -----------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+    fig, axes = plt.subplots(1, 2)
 
     # Re=2000 spectrum
     axes[0].plot(np.real(in_region), np.imag(in_region), 'r.', markersize=5)

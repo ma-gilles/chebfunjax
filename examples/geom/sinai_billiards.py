@@ -106,7 +106,7 @@ def run():
     print(f"  Distance from origin at t=10: {final_dist:.6f}")
     print(f"  Number of bounces: {len(times) - 2}")
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    fig, axes = plt.subplots(1, 2)
 
     # Draw geometry
     theta_c = np.linspace(0, 2 * np.pi, 50)

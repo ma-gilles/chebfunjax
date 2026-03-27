@@ -47,7 +47,7 @@ def run():
     xx = np.linspace(0.0, 1.0, 300)
     f_vals = f_func(xx)
 
-    fig, axes = plt.subplots(1, 3, figsize=(12, 4))
+    fig, axes = plt.subplots(1, 3)
     for i, n in enumerate([25, 50, 100]):
         ax = axes[i]
         Bn_vals = bernstein(f_func, n, xx)
@@ -56,7 +56,6 @@ def run():
         err = np.max(np.abs(Bn_vals - f_vals))
         ax.set_title(f'n = {n}, max err = {err:.3f}', fontsize=10)
         ax.set_xlim(0, 1)
-        ax.grid(True, alpha=0.3)
         ax.legend(fontsize=8)
 
     fig.suptitle('Bernstein polynomial approximations (slow convergence)', fontsize=11)
@@ -70,7 +69,7 @@ def run():
         return s + np.exp(-50 * (s - 0.3)**2) + np.exp(-200 * (s - 0.7)**2)
 
     f_smooth_vals = f_smooth(xx)
-    fig2, axes2 = plt.subplots(1, 3, figsize=(12, 4))
+    fig2, axes2 = plt.subplots(1, 3)
     for i, n in enumerate([25, 50, 100]):
         ax = axes2[i]
         Bn_vals = bernstein(f_smooth, n, xx)
@@ -79,7 +78,6 @@ def run():
         err = np.max(np.abs(Bn_vals - f_smooth_vals))
         ax.set_title(f'n = {n}, max err = {err:.3f}', fontsize=10)
         ax.set_xlim(0, 1)
-        ax.grid(True, alpha=0.3)
         ax.legend(fontsize=8)
 
     fig2.suptitle('Bernstein approx of smooth function (no improvement!)', fontsize=11)

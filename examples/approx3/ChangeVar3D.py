@@ -150,7 +150,7 @@ def run():
     # ------------------------------------------------------------------
     # Plot: surface of ice-cream cone and cylinder sector
     # ------------------------------------------------------------------
-    fig = plt.figure(figsize=(14, 5))
+    fig = plt.figure()
 
     # Plot 1: ice-cream cone surface
     ax1 = fig.add_subplot(131, projection="3d")

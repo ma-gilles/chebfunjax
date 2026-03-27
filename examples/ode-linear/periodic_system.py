@@ -99,7 +99,7 @@ def run():
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
     x_plot = jnp.linspace(-float(np.pi), float(np.pi), 400)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(x_plot, u_s(x_plot), 'b', linewidth=1.8, label="chebfunjax")
     axes[0].plot(x_plot, exact_u(x_plot), 'r--', linewidth=1.2, label="exact")

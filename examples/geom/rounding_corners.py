@@ -27,7 +27,7 @@ def run():
                           '../../docs/images/geom')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(2, 2, figsize=(11, 9))
+    fig, axes = plt.subplots(2, 2)
 
     n_pts = 5000
     t = np.linspace(-1, 1, n_pts)

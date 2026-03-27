@@ -62,7 +62,7 @@ def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/sphere')
     os.makedirs(outdir, exist_ok=True)
-    fig = plt.figure(figsize=(12, 4))
+    fig = plt.figure()
 
     # Mollweide-like projection of cos(lambda)*sin(theta)
     ax1 = fig.add_subplot(131)

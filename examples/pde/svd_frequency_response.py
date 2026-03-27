@@ -112,7 +112,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # Singular values
     axes[0].plot(n_array, sv_numerical, 'bx', markersize=10,

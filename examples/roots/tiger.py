@@ -71,7 +71,7 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
 
     rng2 = np.random.default_rng(42)
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     for col, n in enumerate([50, 200]):
         coeffs = rng2.standard_normal(n + 1) * 0.95**np.arange(n + 1)

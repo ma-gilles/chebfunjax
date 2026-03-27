@@ -93,7 +93,7 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4))
+    fig, axes = plt.subplots(1, 3)
 
     axes[0].plot(sol_ref.t, sol_ref.y[0], 'b', linewidth=1.4)
     axes[0].set_title("van der Pol oscillator", fontsize=9)

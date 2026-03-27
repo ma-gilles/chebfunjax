@@ -77,7 +77,7 @@ def run():
 
     # --- Plots ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, ax = plt.subplots(figsize=(9, 4))
+    fig, ax = plt.subplots()
     for xs_seg, ys_seg in zip(xs_plot, ys_plot):
         ax.plot(xs_seg, ys_seg, color="#1e77b4", linewidth=1.5)
     ax.axhline(0, color="k", linewidth=0.5)
@@ -86,11 +86,9 @@ def run():
     ax.plot(all_roots, [0.0] * len(all_roots), "or", markersize=8, label="roots")
     ax.set_ylim(-8, 8)
     ax.set_xlim(-5, 10)
-    ax.set_xlabel("x")
     ax.set_ylabel("r(x)")
     ax.set_title("Secular equation: poles (grey dashed) and roots (red dots)")
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.4)
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "secular_roots.png"), dpi=150, bbox_inches="tight")
     plt.close(fig)

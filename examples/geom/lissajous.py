@@ -34,7 +34,7 @@ def run():
                           '../../docs/images/geom')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(2, 4, figsize=(16, 8))
+    fig, axes = plt.subplots(2, 4)
 
     # Row 1: m=5, n=6 with d=0 and d=1/2
     m, n = 5, 6

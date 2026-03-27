@@ -34,7 +34,7 @@ def run():
     n_max = len(coeffs) - 1
     nvec = np.arange(len(coeffs))
 
-    fig, ax = plt.subplots(figsize=(7, 5))
+    fig, ax = plt.subplots()
     ax.semilogy(nvec, coeffs, 'b.', ms=7, label='Chebfun coefficients')
 
     # Bernstein bounds for rho = 2, 4, 8, 16, 32
@@ -49,7 +49,6 @@ def run():
     ax.set_xlabel('degree k')
     ax.set_ylabel('|aₖ|')
     ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
     ax.set_ylim(1e-18, 10)
 
     fig.tight_layout()
@@ -61,7 +60,7 @@ def run():
     coeffs2 = np.abs(np.array(f2.coeffs)) + 1e-18
     rho_exact = 1.0 + np.sqrt(2)  # geometric rate for 1/(1+x^2)
 
-    fig2, ax2 = plt.subplots(figsize=(7, 5))
+    fig2, ax2 = plt.subplots()
     nvec2 = np.arange(len(coeffs2))
     ax2.semilogy(nvec2, coeffs2, 'b.', ms=7, label='Chebfun coefficients')
     M2 = 1.0 / abs(1 + (rho_exact**2 + rho_exact**(-2)) / 4 - 1.0)
@@ -71,7 +70,6 @@ def run():
     ax2.set_xlabel('degree k')
     ax2.set_ylabel('|aₖ|')
     ax2.legend(fontsize=9)
-    ax2.grid(True, alpha=0.3)
     fig2.tight_layout()
     fig2.savefig(os.path.join(_OUTDIR, 'EntireBound_runge.png'), dpi=150)
     plt.close(fig2)

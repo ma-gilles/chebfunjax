@@ -41,7 +41,7 @@ def run():
     print(f"Polynomial degree: {degree}")
 
     # --- Plot function and illustrate the concept -----------------------
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+    fig, axes = plt.subplots(1, 2)
 
     xx = np.linspace(0, 30, 600)
     fv = np.array(f(jnp.array(xx)))

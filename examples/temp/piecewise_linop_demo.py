@@ -134,7 +134,7 @@ def run():
                           '../../docs/images/temp')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    fig, axes = plt.subplots(1, 3)
 
     # --- Panel 1: Piecewise ODE solution ---
     x_l, u_l, x_r, u_r = solve_piecewise_ode(n=40)

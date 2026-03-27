@@ -59,7 +59,7 @@ def run():
     n = len(to_plot)
     cols = 3
     rows = (n + cols - 1) // cols
-    fig, axes = plt.subplots(rows, cols, figsize=(13, 4 * rows))
+    fig, axes = plt.subplots(rows, cols)
     axes_flat = axes.flatten() if rows > 1 else [axes] if cols == 1 else axes.flatten()
 
     for i, (name, f) in enumerate(to_plot):
@@ -69,9 +69,6 @@ def run():
         vals = np.array([float(f(jnp.array(x))) for x in xx])
         ax.plot(xx, vals, 'b', lw=1.5)
         ax.set_title(name, fontsize=10)
-        ax.grid(True, alpha=0.3)
-        ax.set_xlabel('x')
-
     for i in range(len(to_plot), len(axes_flat)):
         axes_flat[i].axis('off')
 

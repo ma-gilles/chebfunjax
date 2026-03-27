@@ -50,17 +50,14 @@ def run():
     abs_yy = np.abs(yy_all)
     sqrt_yy = np.sqrt(abs_yy)
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     for xx, yy in zip(pieces_xx, pieces_yy):
         ax.plot(xx, yy, 'b', lw=1.8)
     ax.set_ylim(-8, 8)
     ax.set_title('Gamma function Γ(x) on [−4, 4]', fontsize=11)
-    ax.set_xlabel('x')
     ax.axhline(0, color='k', lw=0.5)
-    ax.grid(True, alpha=0.3)
-
     ax2 = axes[1]
     for xx, yy in zip(pieces_xx, pieces_yy):
         abs_y = np.abs(yy)
@@ -71,10 +68,7 @@ def run():
                  label='1/Γ(x)' if xx is pieces_xx[0] else '')
     ax2.set_ylim(0, 8)
     ax2.set_title('Related functions', fontsize=11)
-    ax2.set_xlabel('x')
     ax2.legend(fontsize=9)
-    ax2.grid(True, alpha=0.3)
-
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'GammaFun.png'), dpi=150)
     plt.close(fig)

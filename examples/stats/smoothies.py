@@ -52,7 +52,7 @@ def run():
                           '../../docs/images/stats')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(2, 2, figsize=(12, 9))
+    fig, axes = plt.subplots(2, 2)
 
     # Smoothie function
     xs, f_vals, ks, amplitudes = make_smoothie(n_terms=200, seed=1)

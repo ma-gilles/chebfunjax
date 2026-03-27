@@ -156,7 +156,7 @@ def run():
     # ------------------------------------------------------------------
     # Plot: surfaces
     # ------------------------------------------------------------------
-    fig = plt.figure(figsize=(14, 5))
+    fig = plt.figure()
 
     # Rippled disk
     ax1 = fig.add_subplot(131, projection="3d")

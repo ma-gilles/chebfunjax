@@ -138,7 +138,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # Symmetric case
     axes[0].plot(x, u0_sym, 'b-', linewidth=1.5, label='t=0', alpha=0.7)

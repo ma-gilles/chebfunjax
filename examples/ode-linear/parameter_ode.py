@@ -65,7 +65,7 @@ def run():
     x_plot = jnp.linspace(0.0, 1.0, 400)
     colors = ['b', 'r', 'g']
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
     for (s, u), c in zip(solutions, colors):
         axes[0].plot(x_plot, u(x_plot), color=c, linewidth=1.6, label=f"s={s}")
         axes[0].plot(x_plot, exact_u(x_plot, s), '--', color=c, linewidth=1.0, alpha=0.5)

@@ -39,7 +39,7 @@ def run():
     f_cheb = cj.chebfun(f_func)
     roots_cheb = f_cheb.roots()
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     xx = np.linspace(-1.0, 1.0, 600)
@@ -48,8 +48,6 @@ def run():
     ax.plot(np.array(roots_cheb), np.zeros(len(roots_cheb)), '.r', ms=8,
             label=f'{len(roots_cheb)} roots')
     ax.set_title('sin(10x) + x² − 0.5 and its roots', fontsize=11)
-    ax.set_xlabel('x')
-    ax.grid(True, alpha=0.3)
     ax.legend(fontsize=9)
 
     # --- AAA on complex domain: locate zeros in a strip ---------------------
@@ -73,8 +71,6 @@ def run():
     ax2.plot(np.array(roots_sin), np.zeros(len(roots_sin)), '.r', ms=10,
              label='roots on ℝ')
     ax2.set_title('sin(x) on [−π, π]: roots via Chebfun', fontsize=11)
-    ax2.set_xlabel('x')
-    ax2.grid(True, alpha=0.3)
     ax2.legend(fontsize=9)
 
     fig.tight_layout()

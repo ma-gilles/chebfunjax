@@ -95,22 +95,18 @@ def run():
     # ------------------------------------------------------------------
     # Plot: rank vs k for both functions
     # ------------------------------------------------------------------
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    fig, axes = plt.subplots(1, 2)
 
     ax1 = axes[0]
     ax1.semilogy(kk_hard, ranks_hard, "ob-", lw=2, ms=8)
     ax1.set_xlabel("k", fontsize=12)
     ax1.set_ylabel("Tucker rank (x-mode)", fontsize=12)
     ax1.set_title("Hard: tanh(k(x+y+z)/√3)\nTucker rank grows with k", fontsize=11)
-    ax1.grid(True, which="both")
-
     ax2 = axes[1]
     ax2.semilogy(kk_easy, ranks_easy, "or-", lw=2, ms=8)
     ax2.set_xlabel("k", fontsize=12)
     ax2.set_ylabel("Tucker rank (x-mode)", fontsize=12)
     ax2.set_title("Easy: 1/(1+k·r²) (Runge)\nLow Tucker rank for all k", fontsize=11)
-    ax2.grid(True, which="both")
-
     fig.suptitle("Chebfun3 Tucker rank complexity", fontsize=13)
     fig.tight_layout()
     fig.savefig(

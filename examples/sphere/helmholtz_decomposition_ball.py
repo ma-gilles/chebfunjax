@@ -63,7 +63,7 @@ def run():
 
     # Curl: curl(v) = curl(grad f) + curl(curl psi) = 0 + (0,0, -2*y - 2*(-1)) = computed below
     # curl(vx, vy, vz) at equatorial slice
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    fig, axes = plt.subplots(1, 3)
 
     # --- Panel 1: Vector field cross-section (z=0 slice) ---
     z0_idx = n_r // 2

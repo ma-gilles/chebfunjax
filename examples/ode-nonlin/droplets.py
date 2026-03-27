@@ -123,7 +123,7 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(sol.y[1], sol.y[2], 'b', linewidth=1.8, label="with gravity")
     axes[0].plot(x_circle - x_circle[0], y_circle, 'r--', linewidth=1.2,

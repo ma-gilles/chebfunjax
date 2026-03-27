@@ -120,7 +120,7 @@ def run():
 
     # --- Plot -----------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 3, figsize=(14, 4.5))
+    fig, axes = plt.subplots(1, 3)
 
     # Circular law
     theta = np.linspace(0, 2*np.pi, 300)

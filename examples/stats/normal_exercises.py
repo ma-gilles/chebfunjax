@@ -70,7 +70,7 @@ def run():
     print(f"Modified distribution P[1<X<3] = {prob_mod:.6f}")
 
     # Plotting
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     xs_plot = np.linspace(-1, 6, 400)
     pdf_plot = np.exp(-0.5 * ((xs_plot - mu) / sigma)**2) / (sigma * np.sqrt(2 * np.pi))

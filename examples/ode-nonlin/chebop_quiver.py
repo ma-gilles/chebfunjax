@@ -73,7 +73,7 @@ def run():
         ([0.0, 1.0], 'g'), ([-1.5, 0.5], 'm'),
     ]
 
-    fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+    fig, axes = plt.subplots(2, 2)
     phase_portrait(axes[0,0], vdp, (-3, 3), (-3, 3), f"van der Pol (μ={mu})", ics)
     phase_portrait(axes[0,1], lotka_volterra, (0, 4), (0, 4), "Lotka-Volterra",
                    [([0.5, 1.0], 'b'), ([1.5, 0.5], 'r'), ([2.0, 1.5], 'g')])

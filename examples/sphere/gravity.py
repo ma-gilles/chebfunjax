@@ -78,7 +78,7 @@ def run():
                           '../../docs/images/sphere')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    fig, axes = plt.subplots(1, 3)
 
     # --- Panel 1: Potential along a line outside sphere ---
     X_base = np.array([-1.0, -1.1, -0.2])

@@ -50,7 +50,7 @@ def run():
     XX, YY = np.meshgrid(xx, yy)
     ZZ = np.exp(-(XX**2 + YY**2))
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # Contour
     cs = axes[0].contourf(XX, YY, ZZ, levels=20, cmap='Blues')

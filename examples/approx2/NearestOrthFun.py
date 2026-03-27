@@ -71,7 +71,7 @@ def run():
     xx = np.linspace(-1.0, 1.0, 300)
     colors = ['b', 'r', 'g', 'm']
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     for k, f in enumerate(funcs):
@@ -79,16 +79,12 @@ def run():
         ax.plot(xx, vals, color=colors[k], lw=1.5, label=f'f_{k}=x^{k}')
     ax.set_title('Original (non-orthogonal) functions', fontsize=10)
     ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
-
     ax2 = axes[1]
     for k, f in enumerate(orth_funcs):
         vals = np.array([float(f(jnp.array(x))) for x in xx])
         ax2.plot(xx, vals, color=colors[k], lw=1.5, label=f'P_{k}')
     ax2.set_title(f'Gram-Schmidt orthonormal functions (err={err:.1e})', fontsize=10)
     ax2.legend(fontsize=8)
-    ax2.grid(True, alpha=0.3)
-
     fig.suptitle('Nearest orthonormal functions', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'NearestOrthFun.png'), dpi=150)

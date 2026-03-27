@@ -96,7 +96,7 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(sol_res.t, sol_res.y[0], 'b', linewidth=1.2, label="resonant (scipy)")
     axes[0].set_xlabel("t"); axes[0].set_ylabel("u(t)")

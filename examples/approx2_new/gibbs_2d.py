@@ -46,7 +46,7 @@ def run():
 
     # Plot cross-section showing Gibbs-like overshoot
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+    fig, axes = plt.subplots(1, 2)
 
     xs = np.linspace(-1, 1, 200)
     X, Y = np.meshgrid(xs, xs)

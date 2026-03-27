@@ -159,7 +159,7 @@ def run():
     # ------------------------------------------------------------------
     # Plot: both curves and fields
     # ------------------------------------------------------------------
-    fig = plt.figure(figsize=(14, 5))
+    fig = plt.figure()
 
     # Plot 1: sine-wave curve on sphere
     ax1 = fig.add_subplot(131, projection="3d")

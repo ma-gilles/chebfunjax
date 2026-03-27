@@ -41,7 +41,7 @@ def run():
     ns_fine = np.linspace(0, 8, 200)
     halphen_bound = 2.0 * HALPHEN**(-ns_fine - 0.5)
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     ax.semilogy(ns, errors_known, 'b.', ms=12, label='known errors')
@@ -51,8 +51,6 @@ def run():
     ax.set_xlabel('n')
     ax.set_ylabel('error')
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3)
-
     # Demonstration: L2 polyfit errors for exp(x) on [-1,1]
     f = cj.chebfun(jnp.exp)
     ns_poly = [1, 2, 4, 6, 8, 10, 14]
@@ -69,8 +67,6 @@ def run():
     ax2.set_title('Polynomial approx errors for exp(x) on [-1,1]', fontsize=10)
     ax2.set_xlabel('degree n')
     ax2.legend(fontsize=9)
-    ax2.grid(True, alpha=0.3)
-
     fig.suptitle("Halphen's constant and rational approximation of exp(x)", fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'Halphen.png'), dpi=150)

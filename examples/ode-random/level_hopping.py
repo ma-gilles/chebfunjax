@@ -71,7 +71,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(t1, y1, 'b-', linewidth=1.5)
     for n in range(int(y1.min()) - 1, int(y1.max()) + 2):

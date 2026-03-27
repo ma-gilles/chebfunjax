@@ -53,31 +53,23 @@ def run():
     err_interp = f_interp_vals - f_true
     err_L2 = f_L2_vals - f_true
 
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4))
+    fig, axes = plt.subplots(1, 3)
 
     ax = axes[0]
     ax.plot(xx, f_true, 'b', lw=1.8, label='f(x)')
     ax.plot(xx, f_interp_vals, 'r--', lw=1.3, label=f'Cheb interp n={n}')
     ax.set_title(f'Function and degree-{n} interpolant', fontsize=10)
     ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
-
     ax2 = axes[1]
     ax2.plot(xx, err_interp, 'r', lw=1.5, label='interp error')
     ax2.axhline(0, color='k', lw=0.5)
     ax2.set_title('Interpolation error (equioscillates)', fontsize=10)
-    ax2.grid(True, alpha=0.3)
-
     ax3 = axes[2]
     ax3.plot(xx, err_L2, 'b', lw=1.5, label='L2 error')
     ax3.axhline(0, color='k', lw=0.5)
     ax3.set_title('L2 error (smaller near ends)', fontsize=10)
-    ax3.grid(True, alpha=0.3)
-
     fig.suptitle(f'Error oscillation: interpolation vs. L2 (n={n})', fontsize=12)
     for ax in axes:
-        ax.set_xlabel('x')
-
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'OscError.png'), dpi=150)
     plt.close(fig)

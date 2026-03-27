@@ -38,7 +38,7 @@ def run():
     pc = np.array(p.coeffs)
     n_p = len(pc)
 
-    fig, ax = plt.subplots(figsize=(7, 5))
+    fig, ax = plt.subplots()
     ax.semilogy(np.arange(len(fc)), np.abs(fc) + 1e-18, '.g', ms=7,
                 label='f coeffs')
     ax.semilogy(np.arange(n_p), np.abs(pc) + 1e-18, '.b', ms=7,
@@ -50,7 +50,6 @@ def run():
     ax.set_xlabel('degree')
     ax.set_ylabel('|coefficient|')
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'AliasingCoefficients.png'), dpi=150)
     plt.close(fig)

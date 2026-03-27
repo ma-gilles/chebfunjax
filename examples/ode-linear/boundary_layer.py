@@ -63,7 +63,7 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     import matplotlib.pyplot as _plt
     import numpy as _np
-    fig, ax = _plt.subplots(figsize=(6, 3.5))
+    fig, ax = _plt.subplots()
     _colors = ["#4169E1", "#E04040"]
     for _eps, _col in zip([0.1, 0.01], _colors):
         _exact = lambda x, e=_eps: (1.0 - _np.exp(-x / e)) / (1.0 - _np.exp(-1.0 / e))
@@ -73,9 +73,6 @@ def run():
     ax.set_title("Boundary layer: ε u″ + u′ = 0", fontsize=11)
     ax.set_xlabel("x", fontsize=10)
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3, linestyle="--")
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
     fig.set_facecolor("white")
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "boundary_layer.png"),

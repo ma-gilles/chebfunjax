@@ -52,7 +52,7 @@ def run():
     os.makedirs(outdir, exist_ok=True)
 
     rng = np.random.default_rng(42)
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # --- 1. Discrete least-squares fit to Runge-like function with noise ---
     npts = 100

@@ -84,7 +84,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4))
+    fig, axes = plt.subplots(1, 3)
 
     x1 = np.linspace(0, 10, 500)
     y1 = np.sin(x1) * np.sin(2*x1) * np.sin(3*x1)

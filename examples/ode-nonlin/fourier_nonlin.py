@@ -98,7 +98,7 @@ def run():
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
     x_plot = jnp.linspace(0.0, float(jnp.pi), 300)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(x_plot, u(x_plot), 'b', linewidth=1.8, label="scipy+Chebfun")
     axes[0].plot(sol_ref.t, sol_ref.y[0], 'r--', linewidth=1.2, label="scipy", alpha=0.7)

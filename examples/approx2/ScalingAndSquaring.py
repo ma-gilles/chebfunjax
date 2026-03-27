@@ -71,16 +71,13 @@ def run():
     err22 = np.abs(pade2(xs_real) - true_exp)
     err44 = np.abs(pade4(xs_real) - true_exp)
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     ax.semilogy(xs_real, err22 + 1e-18, 'b', lw=1.5, label='[2/2] Padé')
     ax.semilogy(xs_real, err44 + 1e-18, 'r', lw=1.5, label='[4/4] Padé')
     ax.set_title('Padé approximation errors for exp(x) on [-6, 6]', fontsize=10)
-    ax.set_xlabel('x')
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3)
-
     # Scaling and squaring: scale x by 1/2^s, apply Padé, then square
     s = 3  # scale by 2^3 = 8
     def scaled_pade2(x, s=3):
@@ -96,10 +93,7 @@ def run():
     ax2.semilogy(xs_real, err_ss + 1e-18, 'r', lw=1.5,
                  label=f'[2/2] Padé + scaling s={s}')
     ax2.set_title('Scaling and squaring improvement', fontsize=10)
-    ax2.set_xlabel('x')
     ax2.legend(fontsize=9)
-    ax2.grid(True, alpha=0.3)
-
     fig.suptitle('Scaling-and-squaring for matrix exponential approximation',
                  fontsize=11)
     fig.tight_layout()

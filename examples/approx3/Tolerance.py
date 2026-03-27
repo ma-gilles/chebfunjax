@@ -113,7 +113,7 @@ def run():
     # ------------------------------------------------------------------
     # Plot: tolerance vs rank and error
     # ------------------------------------------------------------------
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    fig, axes = plt.subplots(1, 3)
 
     # Tucker rank vs tolerance
     ax1 = axes[0]
@@ -124,8 +124,6 @@ def run():
     ax1.set_xlabel("Tolerance", fontsize=12)
     ax1.set_ylabel("Tucker rank (x-mode)", fontsize=12)
     ax1.set_title("Rank decreases with\nloose tolerance", fontsize=11)
-    ax1.grid(True, which="both")
-
     # Error vs tolerance
     ax2 = axes[1]
     errs = [r["err"] for r in results]
@@ -136,16 +134,12 @@ def run():
     ax2.set_ylabel("Error in integral", fontsize=12)
     ax2.set_title("Error scales with tolerance", fontsize=11)
     ax2.legend()
-    ax2.grid(True, which="both")
-
     # Chebyshev coefficients of first fiber
     ax3 = axes[2]
     ax3.semilogy(range(len(coeffs0)), coeffs0, "o-b", ms=4, lw=1.5)
     ax3.set_xlabel("Chebyshev degree", fontsize=12)
     ax3.set_ylabel("|coefficient|", fontsize=12)
     ax3.set_title("Coefficient decay of\nfirst column fiber", fontsize=11)
-    ax3.grid(True, which="both")
-
     fig.suptitle("Effect of tolerance on Chebfun3 construction", fontsize=13)
     fig.tight_layout()
     fig.savefig(

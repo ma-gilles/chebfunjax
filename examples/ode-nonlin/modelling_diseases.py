@@ -88,7 +88,7 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(sol.t, S, 'b', linewidth=1.6, label="S (susceptible)")
     axes[0].plot(sol.t, I, 'r', linewidth=1.6, label="I (infected)")

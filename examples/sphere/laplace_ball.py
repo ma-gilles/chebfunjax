@@ -82,7 +82,7 @@ def run():
     Y_sph = np.sin(THETA) * np.sin(PHI)
     Z_sph = np.cos(THETA)
 
-    fig = plt.figure(figsize=(15, 5))
+    fig = plt.figure()
 
     # --- Panel 1: Boundary data ---
     ax1 = fig.add_subplot(131, projection='3d')

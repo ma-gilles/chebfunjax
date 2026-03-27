@@ -67,7 +67,7 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # Rebuild individual iterations for plotting
     u_iter = cj.chebfun(lambda x: jnp.ones_like(x), domain=dom)

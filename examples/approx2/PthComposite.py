@@ -55,17 +55,14 @@ def run():
         pn_vals = np.array([float(pn(jnp.array(x))) for x in xs_dense])
         poly_errs.append(np.max(np.abs(pn_vals - true_vals)))
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     ax.plot(xs_dense, true_vals, 'b', lw=1.8, label='x^{1/3}')
     ax.plot(xs_dense, r_vals, 'r--', lw=1.5,
             label=f'AAA ({len(pol_full)} poles)')
     ax.set_title(f'x^{{1/{p}}} on [{delta}, 1] and AAA approx', fontsize=10)
-    ax.set_xlabel('x')
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3)
-
     ax2 = axes[1]
     ax2.semilogy(degrees_poly, poly_errs, 'b.-', lw=1.5, ms=10, label='poly')
     ax2.axhline(np.max(err_full), color='r', ls='--', lw=1.5,
@@ -73,8 +70,6 @@ def run():
     ax2.set_title(f'Approximation errors for x^{{1/{p}}}', fontsize=10)
     ax2.set_xlabel('polynomial degree')
     ax2.legend(fontsize=9)
-    ax2.grid(True, alpha=0.3)
-
     fig.suptitle(f'Polynomial vs. rational approximation of x^{{1/{p}}}', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'PthComposite.png'), dpi=150)

@@ -64,7 +64,7 @@ def run():
     print(f"y* = {y_opt:.10f}  (exact: 1.0)")
 
     # Plot
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # Contour plot
     x = np.linspace(-1.5, 1.5, 200)

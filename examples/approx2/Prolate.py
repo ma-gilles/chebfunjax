@@ -35,11 +35,10 @@ def run():
         results = [pswf(k, c) for k in range(4)]
         # pswf returns (x, psi, lambda) — x array and values on a grid
         xx_pswf = results[0][0]  # shared x grid
-        fig, axes = plt.subplots(2, 2, figsize=(11, 8))
+        fig, axes = plt.subplots(2, 2)
         for k, (ax, (x_pswf, psi_vals, lam)) in enumerate(zip(axes.flat, results)):
             ax.plot(x_pswf, psi_vals, 'b', lw=1.5)
             ax.set_title(f'PSWF ψ_{k}(x), c={c}, λ={lam:.4f}', fontsize=10)
-            ax.grid(True, alpha=0.3)
         fig.suptitle('Prolate Spheroidal Wave Functions', fontsize=12)
         fig.tight_layout()
         fig.savefig(os.path.join(_OUTDIR, 'Prolate.png'), dpi=150)
@@ -61,7 +60,7 @@ def run():
             return result
 
         xx = np.linspace(-1.0, 1.0, 400)
-        fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+        fig, axes = plt.subplots(1, 2)
 
         # Show concentration: sin(c*x)/x on whole line vs. [-1,1]
         c_vals = [5.0, 10.0, 20.0]

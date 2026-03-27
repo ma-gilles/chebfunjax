@@ -91,7 +91,7 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(11, 5))
+    fig, axes = plt.subplots(1, 2)
 
     colors_ab = ['b', 'r', 'g']
     for (name, meth), c in zip(ab_methods, colors_ab):

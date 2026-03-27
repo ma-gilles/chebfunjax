@@ -75,7 +75,7 @@ def run():
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
     colors = ['b', 'r', 'g']
-    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+    fig, axes = plt.subplots(1, 2)
 
     for sol, ic, c in zip(solutions, ics, colors):
         # Plot last part to show the limit cycle

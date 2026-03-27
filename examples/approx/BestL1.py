@@ -41,7 +41,7 @@ def run():
     err2_vals = np.array([float(err2(jnp.array(x))) for x in xx])
     p2_vals = np.array([float(p2(jnp.array(x))) for x in xx])
 
-    fig, axes = plt.subplots(2, 2, figsize=(11, 8))
+    fig, axes = plt.subplots(2, 2)
 
     axes[0, 0].plot(xx, f_vals, 'b', lw=1.5, label='f')
     axes[0, 0].plot(xx, p2_vals, 'r--', lw=1.5, label=f'p_L2 (deg {deg})')

@@ -48,22 +48,18 @@ def run():
     p30_vals = np.array([float(p30(jnp.array(x))) for x in xx])
     err_poly = np.abs(p30_vals - f_true)
 
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4))
+    fig, axes = plt.subplots(1, 3)
 
     ax = axes[0]
     ax.plot(xx, f_true, 'b', lw=1.8, label='f(x) = 1/(1+25x²)')
     ax.plot(xx, r_vals, 'r--', lw=1.5, label=f'AAA ({len(pol)} poles)')
     ax.set_title('Runge function and AAA approximant', fontsize=10)
     ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
-
     ax2 = axes[1]
     ax2.semilogy(xx, err_aaa + 1e-18, 'r', lw=1.5, label='AAA error')
     ax2.semilogy(xx, err_poly + 1e-18, 'b', lw=1.5, label='poly deg-30')
     ax2.set_title('Approximation errors', fontsize=10)
     ax2.legend(fontsize=8)
-    ax2.grid(True, alpha=0.3)
-
     # Poles of AAA approximant
     ax3 = axes[2]
     pol_arr = np.array([complex(p) for p in pol])
@@ -74,13 +70,10 @@ def run():
     ax3.set_xlabel('Re(z)')
     ax3.set_ylabel('Im(z)')
     ax3.legend(fontsize=8)
-    ax3.grid(True, alpha=0.3)
     ax3.axhline(0, color='k', lw=0.5)
     ax3.axvline(0, color='k', lw=0.5)
 
     for ax in axes:
-        ax.set_xlabel('x')
-
     fig.suptitle('Rational interpolation of the Runge function', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'RationalInterp.png'), dpi=150)

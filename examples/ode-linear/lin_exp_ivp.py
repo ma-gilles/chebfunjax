@@ -57,7 +57,7 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     x_plot = jnp.linspace(0.0, 0.005, 400)
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
     axes[0].plot(x_plot, u(x_plot), 'b', linewidth=1.8, label="chebfunjax")
     axes[0].plot(x_plot, exact(x_plot), 'r--', linewidth=1.2, label="exp(λx)")
     axes[0].set_xlabel("x"); axes[0].set_ylabel("u(x)")

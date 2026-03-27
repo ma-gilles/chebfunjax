@@ -75,7 +75,7 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     colors = ['b', 'r', 'g']
     x_plot = jnp.linspace(-1.0, 1.0, 400)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     for (A, u_l, u_h), c in zip(solutions, colors):
         axes[0].plot(x_plot, u_l(x_plot), color=c, linewidth=1.6, label=f"A={A}")

@@ -92,7 +92,7 @@ def run():
     plt.close(fig)
 
     # Coefficient decay comparison
-    fig2, ax2 = plt.subplots(figsize=(6, 3.5))
+    fig2, ax2 = plt.subplots()
     for fn_name, fn_lambda, col in [
         ("exp(x)",    lambda x: jnp.exp(x),           "#4169E1"),
         ("cos(10x)",  lambda x: jnp.cos(10.0 * x),    "#E04040"),
@@ -106,9 +106,6 @@ def run():
     ax2.set_ylabel("$|a_n|$", fontsize=10)
     ax2.set_title("Chebyshev coefficient decay", fontsize=11)
     ax2.legend(fontsize=9)
-    ax2.grid(True, alpha=0.3, linestyle="--", linewidth=0.6)
-    ax2.spines["top"].set_visible(False)
-    ax2.spines["right"].set_visible(False)
     fig2.set_facecolor("white")
     fig2.tight_layout()
     fig2.savefig(os.path.join(_here, "chebyshev_coefficients_decay.png"),

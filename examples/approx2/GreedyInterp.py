@@ -86,7 +86,7 @@ def run():
             err_cheb = np.nan
         errors_cheb.append(err_cheb)
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     ax.semilogy(np.arange(1, len(errors_greedy) + 1), errors_greedy, 'b.-',
@@ -96,18 +96,13 @@ def run():
     ax.set_xlabel('n+1 points')
     ax.set_ylabel('max error')
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3)
-
     # Distribution of greedy points (first 30)
     ax2 = axes[1]
     pts_arr = np.array(pts[:min(30, len(pts))])
     ax2.scatter(pts_arr, np.zeros_like(pts_arr), c=np.arange(len(pts_arr)),
                 cmap='viridis', s=50)
     ax2.set_title(f'First {len(pts_arr)} greedy interpolation points', fontsize=11)
-    ax2.set_xlabel('x')
     ax2.set_yticks([])
-    ax2.grid(True, alpha=0.3)
-
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'GreedyInterp.png'), dpi=150)
     plt.close(fig)

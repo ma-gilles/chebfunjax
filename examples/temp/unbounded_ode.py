@@ -61,7 +61,7 @@ def run():
     x_exact = np.linspace(0, 30, 500)
     u_exact = np.exp(r2 * x_exact)
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    fig, axes = plt.subplots(1, 3)
 
     # --- Panel 1: Numerical vs exact ---
     x_num, u_num = solve_unbounded_ode(L=30, n=300)

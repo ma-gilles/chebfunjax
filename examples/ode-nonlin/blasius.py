@@ -87,7 +87,7 @@ def run():
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
     x_plot = jnp.linspace(0.0, L, 400)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(np.array(x_plot), np.array(u(x_plot)), 'b', linewidth=1.8, label="u(x)")
     axes[0].plot(np.array(x_plot), np.array(u_prime(x_plot)), 'r', linewidth=1.4, label="u'(x)")

@@ -45,17 +45,14 @@ def run():
     s_d2 = cs(xx, 2)
     s_d3 = cs(xx, 3)
 
-    fig, axes = plt.subplots(2, 2, figsize=(11, 8))
+    fig, axes = plt.subplots(2, 2)
 
     ax = axes[0, 0]
     ax.plot(xx, f_vals, 'b', lw=1.8, label='f(x)')
     ax.plot(xx, s_vals, 'r', lw=1.5, label='spline s(x)')
     ax.plot(nodes, values, '.r', ms=10)
     ax.set_title('Function and cubic spline interpolant', fontsize=11)
-    ax.set_xlabel('x')
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3)
-
     for i, (d, d_vals, title) in enumerate([
         (1, s_d1, 'First derivative'),
         (2, s_d2, 'Second derivative'),
@@ -65,9 +62,6 @@ def run():
         ax_i = axes[row, col]
         ax_i.plot(xx, d_vals, 'b', lw=1.5)
         ax_i.set_title(title, fontsize=10)
-        ax_i.set_xlabel('x')
-        ax_i.grid(True, alpha=0.3)
-
     fig.suptitle('Cubic spline and its derivatives', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'Splines.png'), dpi=150)

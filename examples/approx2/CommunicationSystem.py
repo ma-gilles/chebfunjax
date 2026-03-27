@@ -47,7 +47,7 @@ def run():
     mod_vals = np.array([float(modulated(jnp.array(x))) for x in xx])
     env_vals = np.array([float(envelope(jnp.array(x))) for x in xx])
 
-    fig, axes = plt.subplots(3, 1, figsize=(9, 9))
+    fig, axes = plt.subplots(3, 1)
 
     axes[0].plot(xx, msg_vals, 'b', lw=1.8)
     axes[0].set_title('Message signal: sin(6πt)', fontsize=11)

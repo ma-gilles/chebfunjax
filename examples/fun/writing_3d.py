@@ -61,7 +61,7 @@ def run():
                           '../../docs/images/fun')
     os.makedirs(outdir, exist_ok=True)
 
-    fig = plt.figure(figsize=(15, 5))
+    fig = plt.figure()
 
     # --- Panel 1: 2D piecewise-linear complex path (flat) ---
     ax1 = fig.add_subplot(131)

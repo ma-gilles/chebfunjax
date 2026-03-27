@@ -57,7 +57,7 @@ def run():
             result += (4 / (np.pi * k)) * np.sin(k * x)
         return result
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # Smooth function
     fv = np.array(f(jnp.array(xx)))

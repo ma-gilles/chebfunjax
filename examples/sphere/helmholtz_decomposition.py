@@ -81,7 +81,7 @@ def run():
     Vt = Vt_div + Vt_curl
     Vp = Vp_div + Vp_curl
 
-    fig = plt.figure(figsize=(15, 5))
+    fig = plt.figure()
 
     # --- Panel 1: Divergence-free component (quiver on sphere cross-section) ---
     ax1 = fig.add_subplot(131)
@@ -91,16 +91,12 @@ def run():
                   Vt_div, levels=20, cmap='RdBu_r')
     ax1.set_title('Divergence-free part\ncurl(ψ) theta-component', fontsize=10)
     ax1.set_xlabel('φ (°)'); ax1.set_ylabel('θ (°)')
-    ax1.grid(True, alpha=0.3)
-
     # --- Panel 2: Curl-free component ---
     ax2 = fig.add_subplot(132)
     ax2.contourf(np.degrees(phi_1d), np.degrees(theta_1d),
                   Vp_curl, levels=20, cmap='PiYG')
     ax2.set_title('Curl-free part\ngrad(φ) phi-component', fontsize=10)
     ax2.set_xlabel('φ (°)'); ax2.set_ylabel('θ (°)')
-    ax2.grid(True, alpha=0.3)
-
     # --- Panel 3: Total field on sphere ---
     ax3 = fig.add_subplot(133, projection='3d')
     field_magnitude = np.sqrt(Vt**2 + Vp**2)

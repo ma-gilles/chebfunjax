@@ -71,7 +71,7 @@ def run():
 
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.5))
+    fig, axes = plt.subplots(1, 2)
 
     x_plot = jnp.linspace(-1.0, 1.0, 300)
     axes[0].plot(x_plot, u_fn(x_plot), label="u(x) = sin(πx)")

@@ -54,7 +54,7 @@ def run():
     odd_coeff_norm = np.sum(np.abs(c_even[1::2]))  # should be ~0
     even_coeff_norm = np.sum(np.abs(c_odd[::2]))   # should be ~0
 
-    fig, axes = plt.subplots(2, 2, figsize=(11, 8))
+    fig, axes = plt.subplots(2, 2)
 
     axes[0, 0].plot(xx, even_vals, 'b', lw=1.8, label='|x|')
     axes[0, 0].plot(xx, p_e10_vals, 'r--', lw=1.5, label='poly deg 10')

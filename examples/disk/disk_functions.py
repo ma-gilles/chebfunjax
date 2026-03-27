@@ -64,7 +64,7 @@ def run():
 
     # Plot
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4))
+    fig, axes = plt.subplots(1, 3)
 
     theta_p = np.linspace(-np.pi, np.pi, 100)
     r_p = np.linspace(0, 1, 50)

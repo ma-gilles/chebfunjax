@@ -71,7 +71,7 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     import matplotlib.pyplot as plt
     import numpy as _np
-    fig, ax = plt.subplots(figsize=(6, 3.5))
+    fig, ax = plt.subplots()
     _n = _np.arange(1, k + 1)
     ax.plot(_n, _np.array(lam[:k]), "o", color="#4169E1",
             markersize=7, label="computed (Dirichlet)")
@@ -81,9 +81,6 @@ def run():
     ax.set_ylabel("λ", fontsize=10)
     ax.set_title("Laplacian eigenvalues on [0, π]", fontsize=11)
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3, linestyle="--")
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
     fig.set_facecolor("white")
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "laplacian_eigenvalues.png"),

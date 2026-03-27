@@ -86,7 +86,7 @@ def run():
     t_run = [x[0] for x in lyapunov_running]
     lam_run = [x[1] for x in lyapunov_running]
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 2)
     axes[0].plot(t_run, lam_run, 'b', linewidth=1.4)
     axes[0].axhline(lambda_max, color='r', linestyle='--', linewidth=1.0,
                     label=f"λ₁ ≈ {lambda_max:.4f}")

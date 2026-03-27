@@ -66,7 +66,7 @@ def run():
     print(f"Max difference: {np.max(np.abs(coeffs_fft[:n] - coeffs_cj[:n])):.2e}")
 
     # --- Plot: values at Chebyshev points and the reconstructed function -
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+    fig, axes = plt.subplots(1, 2)
 
     xx = np.linspace(-1, 1, 600)
     fv = np.array(fc(jnp.array(xx)))

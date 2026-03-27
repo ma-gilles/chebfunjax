@@ -67,7 +67,7 @@ def run():
                           '../../docs/images/fun')
     os.makedirs(outdir, exist_ok=True)
 
-    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+    fig, axes = plt.subplots(1, 2)
 
     # --- Panel 1: "HAPPY BIRTHDAY" text as parametric curve ---
     message = "HAPPY BIRTHDAY"

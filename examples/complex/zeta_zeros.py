@@ -126,7 +126,7 @@ def run():
 
     # --- Plots ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(11, 5))
+    fig, axes = plt.subplots(1, 2)
 
     # Left: zeros on the critical line
     ts_zeros = np.array(known_zeros_imag)

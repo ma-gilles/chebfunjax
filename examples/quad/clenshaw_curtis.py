@@ -99,7 +99,7 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     import matplotlib.pyplot as _plt
     import numpy as _np
-    fig, ax = _plt.subplots(figsize=(6, 3.5))
+    fig, ax = _plt.subplots()
     _funcs = [
         ("exp(x)",   lambda x: jnp.exp(x),       (-1.0, 1.0)),
         ("sin(x)",   lambda x: jnp.sin(x),        (0.0, float(jnp.pi))),
@@ -114,9 +114,6 @@ def run():
     ax.set_title("Clenshaw-Curtis integrands", fontsize=11)
     ax.set_xlabel("x", fontsize=10)
     ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3, linestyle="--")
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
     fig.set_facecolor("white")
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "clenshaw_curtis.png"),

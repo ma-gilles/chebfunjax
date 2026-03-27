@@ -91,7 +91,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 3, figsize=(14, 4))
+    fig, axes = plt.subplots(1, 3)
 
     colors = plt.cm.Set1(np.linspace(0, 1, n_paths))
 

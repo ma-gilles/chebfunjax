@@ -65,7 +65,7 @@ def run():
 
     print(f"Procrustes distance (frisbee vs pebble): {dist:.6f}")
 
-    fig, axes = plt.subplots(2, 2, figsize=(11, 9))
+    fig, axes = plt.subplots(2, 2)
 
     # Original
     axes[0, 0].plot(np.real(f), np.imag(f), 'r-', linewidth=2, label='Frisbee')

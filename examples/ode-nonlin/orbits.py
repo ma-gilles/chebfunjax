@@ -79,7 +79,7 @@ def run():
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
     colors = ['b', 'r', 'g']
-    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(0, 0, 'y*', markersize=12, label="star")
     for (v, sol, otype), c in zip(solutions, colors):

@@ -66,7 +66,7 @@ def run():
     Y = np.sin(THETA) * np.sin(PHI)
     Z = np.cos(THETA)
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    fig, axes = plt.subplots(1, 3)
 
     # --- Panel 1: Eigenvalues vs l ---
     l_vals = np.arange(0, 15)

@@ -93,7 +93,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 3, figsize=(14, 4))
+    fig, axes = plt.subplots(1, 3)
 
     def plot_pair(ax, t, u, v, title):
         ax.plot(t, u, 'b-', linewidth=2, alpha=0.8, label='u')

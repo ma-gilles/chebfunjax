@@ -53,7 +53,7 @@ def run():
     ns_cont = np.linspace(1, 200, 200)
     newman_bound = 2.0 * np.exp(-C * np.sqrt(ns_cont / 2.0))
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
     ax.semilogy(poly_ns, poly_errs, 'b.-', lw=1.5, ms=10, label='poly errors')
@@ -64,15 +64,11 @@ def run():
     ax.set_title('Approximation errors for |x|', fontsize=10)
     ax.set_xlabel('degree/poles n')
     ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
-
     ax2 = axes[1]
     ax2.semilogy(ns_cont, newman_bound, 'r', lw=1.5, label='exp(-C√n) bound')
     ax2.set_title('Root-exponential convergence rate', fontsize=10)
     ax2.set_xlabel('n')
     ax2.legend(fontsize=9)
-    ax2.grid(True, alpha=0.3)
-
     fig.suptitle('Polynomial O(1/n) vs. rational O(exp(-C√n)) for |x|', fontsize=11)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'RationalAbsx.png'), dpi=150)

@@ -95,7 +95,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(2, 2, figsize=(11, 7))
+    fig, axes = plt.subplots(2, 2)
 
     # Panel 1: Call prices for different maturities
     colors = plt.cm.Blues(np.linspace(0.4, 0.95, len(T_vals)))

@@ -107,7 +107,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(x, u0, 'b-', label='u₀', linewidth=2)
     axes[0].plot(x, v0, 'r-', label='v₀', linewidth=2)

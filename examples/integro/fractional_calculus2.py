@@ -96,7 +96,7 @@ def run():
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    fig, axes = plt.subplots(1, 2)
 
     # Panel 1: half-integral of P_4 vs analytical
     axes[0].plot(x, J_half_analytical, 'r-', linewidth=2, label='Analytical formula')

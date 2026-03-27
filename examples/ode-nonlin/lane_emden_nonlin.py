@@ -93,7 +93,7 @@ def run():
     # --- Plot -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
     myColors = ['k', 'r', 'y', 'g', 'b']
-    fig, ax = plt.subplots(figsize=(8, 5))
+    fig, ax = plt.subplots()
 
     for idx, (n, (t, u)) in enumerate(solutions.items()):
         mask = u >= -0.05
