@@ -24,6 +24,9 @@ f = Ballfun.from_function(lambda x, y, z: x**2 + y**2 + z**2)
 print(f)  # Ballfun(shape=(m, n, p), ...)
 ```
 
+![](../images/guide/guide20_01.png)
+
+
 ### Spherical coordinate input
 
 Set `spherical=True` to pass a function of $(r, \lambda, \theta)$:
@@ -35,6 +38,9 @@ g = Ballfun.from_function(
 )
 print(g)
 ```
+
+![](../images/guide/guide20_02.png)
+
 
 ## 20.2 The CFF Representation
 
@@ -51,6 +57,9 @@ The coefficient tensor `coeffs` has shape $(m, n, p)$:
 print(f"Coefficient shape: {f.shape}")
 print(f"Is real-valued: {f.is_real}")
 ```
+
+![](../images/guide/guide20_03.png)
+
 
 ### BMC-III structure
 

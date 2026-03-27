@@ -1407,6 +1407,117 @@ class Ballfun(eqx.Module):
     # Representation
     # ------------------------------------------------------------------
 
+    def plot(self, n_pts: int = 50, ax=None, **kwargs):
+        """Plot the Ballfun on a spherical slice (r=1 surface).
+
+        Shows the function values on the unit sphere boundary as a
+        pseudocolor plot in Mollweide projection.
+
+        Parameters
+        ----------
+        n_pts : int
+            Number of grid points per angular direction.
+        ax : matplotlib axes, optional
+            Axes to plot on. If None, a new figure is created.
+        **kwargs
+            Extra keyword arguments passed to ``pcolormesh``.
+
+        Returns
+        -------
+        ax : matplotlib axes
+        """
+        import matplotlib.pyplot as plt
+
+        lam = np.linspace(-np.pi, np.pi, 2 * n_pts)
+        theta = np.linspace(0, np.pi, n_pts)
+        LAM, THETA = np.meshgrid(lam, theta, indexing="ij")
+        R = np.ones_like(LAM)
+
+        eval_fn = jax.vmap(lambda ri, li, ti: self(ri, li, ti))
+        vals = np.asarray(eval_fn(
+            jnp.array(R.ravel()),
+            jnp.array(LAM.ravel()),
+            jnp.array(THETA.ravel()),
+        )).reshape(LAM.shape)
+
+        # Convert to Cartesian for 3D surface plot
+        X = np.sin(THETA) * np.cos(LAM)
+        Y = np.sin(THETA) * np.sin(LAM)
+        Z = np.cos(THETA)
+
+        if ax is None:
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection="3d")
+
+        ax.plot_surface(X, Y, Z, facecolors=plt.cm.viridis(
+            (vals - vals.min()) / (vals.max() - vals.min() + 1e-16)
+        ), rstride=1, cstride=1, shade=False)
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+        ax.set_zlabel("z")
+        return ax
+
+    def plot_slice(self, axis: str = "z", level: float = 0.0,
+                   n_pts: int = 80, ax=None, **kwargs):
+        """Plot a cross-sectional slice through the ball.
+
+        Parameters
+        ----------
+        axis : str
+            Which axis to slice: 'x', 'y', or 'z'.
+        level : float
+            The value at which to slice (default 0 = midplane).
+        n_pts : int
+            Grid resolution.
+        ax : matplotlib axes, optional
+        **kwargs
+            Passed to ``pcolormesh``.
+
+        Returns
+        -------
+        ax : matplotlib axes
+        """
+        import matplotlib.pyplot as plt
+
+        t1 = np.linspace(-1, 1, n_pts)
+        t2 = np.linspace(-1, 1, n_pts)
+        T1, T2 = np.meshgrid(t1, t2, indexing="ij")
+
+        if axis == "z":
+            X, Y, Z = T1, T2, np.full_like(T1, level)
+        elif axis == "y":
+            X, Z, Y = T1, T2, np.full_like(T1, level)
+        else:
+            Y, Z, X = T1, T2, np.full_like(T1, level)
+
+        R = np.sqrt(X**2 + Y**2 + Z**2)
+        mask = R <= 1.0
+        LAM = np.arctan2(Y, X)
+        THETA = np.where(R > 0, np.arccos(np.clip(Z / np.maximum(R, 1e-16), -1, 1)), 0.0)
+
+        vals = np.full(R.shape, np.nan)
+        idx = mask.ravel()
+        if idx.any():
+            r_pts = jnp.array(R.ravel()[idx])
+            l_pts = jnp.array(LAM.ravel()[idx])
+            t_pts = jnp.array(THETA.ravel()[idx])
+            # Use vmap for pointwise evaluation (not tensor-product)
+            eval_fn = jax.vmap(lambda ri, li, ti: self(ri, li, ti))
+            vals_valid = np.asarray(eval_fn(r_pts, l_pts, t_pts)).ravel()
+            flat_vals = vals.ravel()
+            flat_vals[idx] = vals_valid
+            vals = flat_vals.reshape(R.shape)
+
+        if ax is None:
+            fig, ax = plt.subplots()
+
+        pcm = ax.pcolormesh(T1, T2, vals.T, shading="auto", **kwargs)
+        ax.set_aspect("equal")
+        circle = plt.Circle((0, 0), 1, fill=False, color="k", lw=1)
+        ax.add_patch(circle)
+        plt.colorbar(pcm, ax=ax)
+        return ax
+
     def __repr__(self) -> str:
         """Compact display like MATLAB Chebfun.
 
