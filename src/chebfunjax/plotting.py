@@ -41,27 +41,40 @@ import numpy as np
 # ---------------------------------------------------------------------------
 
 CHEBFUN_RC = {
-    'figure.figsize': (5.5, 4.0),
+    # Match MATLAB Chebfun default plot style exactly
+    'figure.figsize': (6.1, 2.58),       # MATLAB default aspect ratio ~2.4:1
     'figure.dpi': 150,
     'figure.facecolor': 'white',
     'axes.facecolor': 'white',
-    'axes.linewidth': 0.6,
-    'axes.labelsize': 10,
-    'axes.titlesize': 11,
-    'axes.grid': True,
-    'axes.spines.top': False,
-    'axes.spines.right': False,
+    'axes.linewidth': 0.5,               # thin box
+    'axes.labelsize': 9,
+    'axes.titlesize': 10,
+    'axes.grid': False,                   # MATLAB Chebfun: NO grid
+    'axes.spines.top': True,              # MATLAB: full box
+    'axes.spines.right': True,            # MATLAB: full box
+    'axes.xmargin': 0.0,                  # tight x-limits like MATLAB
+    'axes.ymargin': 0.05,
     'xtick.labelsize': 9,
     'ytick.labelsize': 9,
-    'xtick.major.width': 0.6,
-    'ytick.major.width': 0.6,
-    'lines.linewidth': 1.5,
-    'grid.alpha': 0.25,
-    'grid.linewidth': 0.4,
-    'grid.linestyle': '--',
+    'xtick.major.width': 0.5,
+    'ytick.major.width': 0.5,
+    'xtick.major.size': 3,
+    'ytick.major.size': 3,
+    'xtick.direction': 'in',             # MATLAB default: inward ticks
+    'ytick.direction': 'in',
+    'lines.linewidth': 1.2,              # MATLAB default ~1.0-1.5
     'savefig.bbox': 'tight',
     'savefig.facecolor': 'white',
     'savefig.dpi': 150,
+    'axes.prop_cycle': mpl.cycler(color=[
+        '#0072BD',  # MATLAB blue (default)
+        '#D95319',  # MATLAB orange
+        '#EDB120',  # MATLAB yellow
+        '#7E2F8E',  # MATLAB purple
+        '#77AC30',  # MATLAB green
+        '#4DBEEE',  # MATLAB cyan
+        '#A2142F',  # MATLAB dark red
+    ]),
 }
 
 
@@ -74,29 +87,30 @@ def chebfun_style():
 # Style constants
 # ---------------------------------------------------------------------------
 
-CHEBFUN_BLUE = "#4169E1"   # royal blue — matches MATLAB Chebfun docs
-CHEBFUN_RED  = "#E04040"
-CHEBFUN_GREEN = "#228B22"
-CHEBFUN_ORANGE = "#E08030"
+CHEBFUN_BLUE = "#0072BD"   # MATLAB default blue
+CHEBFUN_RED  = "#D95319"   # MATLAB default orange/red
+CHEBFUN_GREEN = "#77AC30"  # MATLAB default green
+CHEBFUN_ORANGE = "#EDB120" # MATLAB default yellow/orange
 
-_DEFAULT_LINE_KW: dict[str, Any] = dict(color=CHEBFUN_BLUE, linewidth=1.8)
+_DEFAULT_LINE_KW: dict[str, Any] = dict(color=CHEBFUN_BLUE, linewidth=1.2)
 _DEFAULT_GRID_KW: dict[str, Any] = dict(alpha=0.3, linestyle="--", linewidth=0.6)
 
 
-def _apply_style(ax: plt.Axes, title: str = "", xlabel: str = "x",
-                 ylabel: str = "", grid: bool = True) -> None:
-    """Apply clean white-background Chebfun style to an Axes."""
+def _apply_style(ax: plt.Axes, title: str = "", xlabel: str = "",
+                 ylabel: str = "", grid: bool = False) -> None:
+    """Apply MATLAB-Chebfun style to an Axes: no grid, full box, no labels."""
     if title:
-        ax.set_title(title, fontsize=11)
+        ax.set_title(title, fontsize=10)
     if xlabel:
-        ax.set_xlabel(xlabel, fontsize=10)
+        ax.set_xlabel(xlabel, fontsize=9)
     if ylabel:
-        ax.set_ylabel(ylabel, fontsize=10)
+        ax.set_ylabel(ylabel, fontsize=9)
     if grid:
         ax.grid(True, **_DEFAULT_GRID_KW)
     ax.set_facecolor("white")
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
+    for spine in ax.spines.values():
+        spine.set_visible(True)
+        spine.set_linewidth(0.5)
 
 
 def _domain_points(f, n: int = 600) -> np.ndarray:
@@ -151,12 +165,12 @@ def plot(
     *args,
     ax: Optional[plt.Axes] = None,
     title: str = "",
-    xlabel: str = "x",
+    xlabel: str = "",
     ylabel: str = "",
     label: str = "",
     color: str = CHEBFUN_BLUE,
     linestyle: str = "-",
-    linewidth: float = 1.8,
+    linewidth: float = 1.2,
     n_pts: int = 600,
     **kw,
 ) -> tuple[plt.Figure, plt.Axes]:
