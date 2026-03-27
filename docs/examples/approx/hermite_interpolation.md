@@ -30,7 +30,7 @@ err = np.max(np.abs(h(x_fine) - np.sin(x_fine)))
 print(f"Max Hermite interpolation error (n={n}): {err:.2e}")
 ```
 
-![Hermite interpolation accuracy](../../../images/approx/hermite_interpolation.png)
+![Hermite interpolation accuracy](../../images/approx/hermite_interpolation.png)
 
 ## Comparison with Chebyshev approximation
 

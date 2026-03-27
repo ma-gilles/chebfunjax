@@ -37,7 +37,7 @@ For $n=10$ Chebyshev nodes, $\Lambda_{10} \approx 1.85$ — essentially
 harmless. For $n=10$ equispaced nodes, $\Lambda_{10} \approx 29$ — much
 worse and growing exponentially with $n$.
 
-![Lebesgue functions: 10 and 30 nodes](../../../images/approx/lebesgue_constants.png)
+![Lebesgue functions: 10 and 30 nodes](../../images/approx/lebesgue_constants.png)
 
 ## The Runge phenomenon explained
 

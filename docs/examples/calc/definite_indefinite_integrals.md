@@ -56,4 +56,4 @@ f = cj.chebfun(lambda x: 1.0 / jnp.sqrt(1.0 - x**2 + 1e-14))
 print(f"∫ 1/sqrt(1-x²) dx ≈ {float(f.sum()):.6f}  (π ≈ {float(jnp.pi):.6f})")
 ```
 
-![Definite and indefinite integrals comparison](../../../images/calc/definite_indefinite_integrals.png)
+![Definite and indefinite integrals comparison](../../images/calc/definite_indefinite_integrals.png)

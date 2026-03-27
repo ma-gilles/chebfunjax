@@ -86,7 +86,7 @@ This confirms that differentiation and integration are exact inverses at the lev
 
 ## Gallery
 
-![Delta functions and repeated integration](../../../examples/calc/delta_derivs.png)
+![Delta functions and repeated integration](../../images/calc/delta_derivs.png)
 
 *Top-left*: $f$ — a sine wave plus approximate delta impulses (sharp spikes).
 *Top-right*: $g = \int f$ — jumps at each impulse location.

@@ -47,7 +47,7 @@ print("spike integral =", h.sum())
 
 ## Gallery
 
-![Battery test](../../../examples/quad/battery_test.png)
+![Battery test](../../images/quad/battery_test.png)
 
 All 8 test integrands plotted with their computed integral values.
 

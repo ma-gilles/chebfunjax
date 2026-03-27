@@ -55,4 +55,4 @@ H = h.cumsum()  # H(x) = ∫₀ˣ exp(t²) dt
 dawson_approx = cj.chebfun(lambda x: jnp.exp(-x**2) * H(x), domain=(0.0, 2.0))
 ```
 
-![Tricky integral convergence and examples](../../../images/quad/tricky_integrals.png)
+![Tricky integral convergence and examples](../../images/quad/tricky_integrals.png)

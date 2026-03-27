@@ -109,6 +109,9 @@ def run():
     fig.suptitle("Repeated integration smooths distributional impulses", fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "delta_derivs.png"), dpi=150, bbox_inches="tight")
+    _docs = os.path.join(_here, "..", "..", "docs", "images", "calc")
+    os.makedirs(_docs, exist_ok=True)
+    fig.savefig(os.path.join(_docs, "delta_derivs.png"), dpi=150, bbox_inches="tight", facecolor="white")
     plt.close(fig)
 
     print("\nAll assertions passed.")

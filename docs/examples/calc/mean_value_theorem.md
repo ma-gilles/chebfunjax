@@ -45,7 +45,7 @@ MVT points c: [-2.309401  2.309401]
 Two roots are found (both inside $(a,b)$) because this cubic has a
 double-well structure.
 
-![MVT visualization: tangent parallel to secant](../../../images/calc/mean_value_theorem.png)
+![MVT visualization: tangent parallel to secant](../../images/calc/mean_value_theorem.png)
 
 ## Verifying the result
 

@@ -49,6 +49,6 @@ $\theta^* = \arccos(c_l/c_w)$.
 
 ## Gallery
 
-![Bird flight optimisation](../../../examples/calc/bird_flight_optimization.png)
+![Bird flight optimisation](../../images/calc/bird_flight_optimization.png)
 
 Energy as a function of crossing angle, with the minimum marked.

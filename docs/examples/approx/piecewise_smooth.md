@@ -47,7 +47,7 @@ err = np.max(np.abs(f_fine - np.abs(x_fine)))
 print(f"Max error near kink: {err:.4e}")
 ```
 
-![Piecewise smooth function approximation](../../../images/approx/piecewise_smooth.png)
+![Piecewise smooth function approximation](../../images/approx/piecewise_smooth.png)
 
 ## Notes
 

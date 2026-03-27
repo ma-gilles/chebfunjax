@@ -52,7 +52,7 @@ N= 32: degree =  95
 
 The degree grows roughly as $N\pi / \log\rho$ for the optimal $\rho$.
 
-![Degree vs N and coefficient decay](../../../images/approx/polynomial_convergence.png)
+![Degree vs N and coefficient decay](../../images/approx/polynomial_convergence.png)
 
 ## Coefficient decay: analytic vs non-analytic
 

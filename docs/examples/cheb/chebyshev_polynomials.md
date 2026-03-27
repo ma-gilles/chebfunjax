@@ -29,7 +29,7 @@ for n in range(2, 8):
 print("Three-term recurrence verified.")
 ```
 
-![Chebyshev polynomials T_0 through T_8](../../../images/cheb/chebyshev_polynomials.png)
+![Chebyshev polynomials T_0 through T_8](../../images/cheb/chebyshev_polynomials.png)
 
 The red dots mark the **Chebyshev nodes** (zeros of $T_n$):
 

@@ -46,7 +46,7 @@ for k in range(1, 6):
     print(f"d^{k}/dx^{k} e^x at x=0.5: error = {err:.2e}")
 ```
 
-![Chebyshev differentiation accuracy](../../../images/calc/differentiation.png)
+![Chebyshev differentiation accuracy](../../images/calc/differentiation.png)
 
 ## Fundamental theorem of calculus
 

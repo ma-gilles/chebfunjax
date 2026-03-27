@@ -35,7 +35,7 @@ The key result is that for $f(x) = e^x$ (entire function), the error decays as
 $O(e^{-cn})$ for some $c > 0$. For $f(x) = |x|^{1/2}$ (only $C^{1/2}$), the
 error decays only like $O(n^{-1})$.
 
-![Convergence rates for smooth and non-smooth integrands](../../../images/quad/convergence_rates.png)
+![Convergence rates for smooth and non-smooth integrands](../../images/quad/convergence_rates.png)
 
 ## Theoretical rates
 

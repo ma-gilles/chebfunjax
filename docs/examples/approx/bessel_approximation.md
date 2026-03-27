@@ -63,4 +63,4 @@ exact = float(jnp.pi) * scipy.special.j0(1.0)**2
 print(f"Integral = {val:.8f}  (π·J_0²(1) = {exact:.8f})")
 ```
 
-![Bessel function J_0 approximation](../../../images/approx/bessel_approximation.png)
+![Bessel function J_0 approximation](../../images/approx/bessel_approximation.png)
