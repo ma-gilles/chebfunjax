@@ -126,6 +126,9 @@ def run():
     fig.suptitle("Gauss-Hermite quadrature", fontsize=11)
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "hermite_quad.png"), dpi=150, bbox_inches="tight")
+    _docs = os.path.join(_here, "..", "..", "docs", "images", "quad")
+    os.makedirs(_docs, exist_ok=True)
+    fig.savefig(os.path.join(_docs, "hermite_quad.png"), dpi=150, bbox_inches="tight", facecolor="white")
     plt.close(fig)
 
     print("\nAll assertions passed.")

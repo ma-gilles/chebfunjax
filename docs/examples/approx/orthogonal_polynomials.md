@@ -51,7 +51,7 @@ For the weight $w(x) = e^{\pi x}$ on $[-1,1]$:
 P = gram_schmidt_ortho(lambda x: jnp.exp(jnp.pi * x), N=5)
 ```
 
-![Orthogonal polynomials for exp(pi*x) weight](../../../images/approx/orthogonal_polynomials.png)
+![Orthogonal polynomials for exp(pi*x) weight](../../images/approx/orthogonal_polynomials.png)
 
 ## Orthonormality check
 

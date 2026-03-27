@@ -45,7 +45,7 @@ Reference integral = -0.231857749048...
 Chebfun degree = 220
 ```
 
-![Convergence of Gauss and Clenshaw-Curtis](../../../images/quad/gauss_vs_clenshaw_curtis.png)
+![Convergence of Gauss and Clenshaw-Curtis](../../images/quad/gauss_vs_clenshaw_curtis.png)
 
 ## The Trefethen–Bornemann result
 

@@ -116,6 +116,9 @@ def run():
 
     fig.suptitle("Surface of revolution: volumes and areas via Chebfun", fontsize=11)
     fig.savefig(os.path.join(_here, "surface_revolution.png"), dpi=150, bbox_inches="tight")
+    _docs = os.path.join(_here, "..", "..", "docs", "images", "calc")
+    os.makedirs(_docs, exist_ok=True)
+    fig.savefig(os.path.join(_docs, "surface_revolution.png"), dpi=150, bbox_inches="tight", facecolor="white")
     plt.close(fig)
 
     print("\nAll assertions passed.")

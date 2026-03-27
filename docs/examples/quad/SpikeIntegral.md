@@ -57,7 +57,7 @@ print("I1 =", f1.sum(), "  exact ≈ 2/10 =", 2/10)
 
 ## Gallery
 
-![Spike integral](../../../examples/quad/spike_integral.png)
+![Spike integral](../../images/quad/spike_integral.png)
 
 *Left*: The full spike function (polynomial degree ≈ 13000).
 *Right*: Zoom on the narrowest spike at $x=0.6$.

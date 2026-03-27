@@ -50,7 +50,7 @@ val_cc = np.dot(w, np.exp(np.sin(x)))
 print(f"Manual CC ({n} pts): {val_cc:.12f}")
 ```
 
-![Clenshaw-Curtis nodes and weights](../../../images/quad/clenshaw_curtis.png)
+![Clenshaw-Curtis nodes and weights](../../images/quad/clenshaw_curtis.png)
 
 ## References
 

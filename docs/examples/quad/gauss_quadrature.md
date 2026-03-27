@@ -50,7 +50,7 @@ val = np.dot(w_h, x_h**2)
 print(f"∫ x² e^(-x²) dx = {val:.8f}  (√π/2 = {np.sqrt(np.pi)/2:.8f})")
 ```
 
-![Gauss quadrature nodes and convergence](../../../images/quad/gauss_quadrature.png)
+![Gauss quadrature nodes and convergence](../../images/quad/gauss_quadrature.png)
 
 ## References
 

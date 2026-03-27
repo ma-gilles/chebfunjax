@@ -40,7 +40,7 @@ x_snell = L - d * sin_theta / np.sqrt(1 - sin_theta**2)
 print(f"Snell's law prediction: x = {x_snell:.6f}")
 ```
 
-![Bird flight optimal path and energy landscape](../../../images/calc/bird_flight_optimization.png)
+![Bird flight optimal path and energy landscape](../../images/calc/bird_flight_optimization.png)
 
 ## Connection to Snell's law
 

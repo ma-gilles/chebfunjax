@@ -49,7 +49,7 @@ f = cj.chebfun(lambda x: jnp.round(2 * jnp.cos(x)), domain=(0.0, 10.0))
 g = f.cumsum()  # indefinite integral
 ```
 
-![Function and its indefinite integral](../../../images/calc/integrals.png)
+![Function and its indefinite integral](../../images/calc/integrals.png)
 
 ## The fundamental theorem of calculus
 

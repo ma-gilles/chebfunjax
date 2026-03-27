@@ -67,7 +67,7 @@ Max difference: 4.44e-16
 Machine precision. The FFT route and the internal chebfunjax representation
 agree to rounding error.
 
-![Values at Chebyshev nodes and coefficient decay](../../../images/cheb/chebfun_fft.png)
+![Values at Chebyshev nodes and coefficient decay](../../images/cheb/chebfun_fft.png)
 
 ## O(n log n) complexity
 

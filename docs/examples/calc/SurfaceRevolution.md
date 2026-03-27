@@ -78,7 +78,7 @@ print("Moment of inertia J =", J)
 
 ## Gallery
 
-![Surface of revolution](../../../examples/calc/surface_revolution.png)
+![Surface of revolution](../../images/calc/surface_revolution.png)
 
 *Left*: Generator curve $f(x) = \sqrt{4 + 2\sin 2x}$.
 *Right*: Resulting surface of revolution coloured by height.

@@ -48,4 +48,4 @@ n2*sin(θ2) = 0.359257
 
 The numerical minimization confirms Snell's law to high accuracy.
 
-![Snell's law: light path and travel time](../../../images/calc/snells_law.png)
+![Snell's law: light path and travel time](../../images/calc/snells_law.png)

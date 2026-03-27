@@ -48,7 +48,7 @@ assert all(-2 < ci < 2 for ci in c2), "MVT violated!"
 
 ## Gallery
 
-![Mean Value Theorem](../../../examples/calc/mean_value_theorem.png)
+![Mean Value Theorem](../../images/calc/mean_value_theorem.png)
 
 The function (blue), the chord (dashed), and the tangent lines at the MVT
 points (red dots).

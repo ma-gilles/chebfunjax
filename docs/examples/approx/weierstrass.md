@@ -36,7 +36,7 @@ for k in range(1, 8):
     F = F + terms[k]
 ```
 
-![Weierstrass function and close-up](../../../images/approx/weierstrass.png)
+![Weierstrass function and close-up](../../images/approx/weierstrass.png)
 
 The left panel shows the full function on $[-1,1]$; the right panel zooms
 in to $[0, 0.005]$ and reveals the fractal structure — the function wiggles

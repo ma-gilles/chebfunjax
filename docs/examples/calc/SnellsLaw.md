@@ -54,7 +54,7 @@ print(f"sin(θ2)/v2 = {np.sin(theta2)/v2:.8f}")
 
 ## Gallery
 
-![Snell's Law](../../../examples/calc/snells_law.png)
+![Snell's Law](../../images/calc/snells_law.png)
 
 *Left*: Total travel time vs entry position, with minimum marked.
 *Right*: Geometric diagram showing the refracted path.
