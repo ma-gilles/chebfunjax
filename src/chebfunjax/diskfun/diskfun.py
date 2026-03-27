@@ -999,6 +999,15 @@ class Diskfun(eqx.Module):
     # Representation
     # ------------------------------------------------------------------
 
+    # ------------------------------------------------------------------
+    # Plotting
+    # ------------------------------------------------------------------
+
+    def plot(self, **kwargs):
+        """Plot this Diskfun on the unit disk (calls :func:`chebfunjax.plotting.plot_disk`)."""
+        from chebfunjax.plotting import plot_disk
+        return plot_disk(self, **kwargs)
+
     def __repr__(self) -> str:
         """Compact display.
 

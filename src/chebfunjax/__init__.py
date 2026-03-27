@@ -16,7 +16,8 @@ from chebfunjax.utils.random import randnfun  # noqa: E402
 
 # Plotting — importable as cj.plot(f), cj.surf(g), etc.
 from chebfunjax.plotting import (  # noqa: E402
-    plot,
+    plot_1d,
+    plot_dispatch,
     plotcoeffs,
     contour,
     surf,
@@ -24,6 +25,8 @@ from chebfunjax.plotting import (  # noqa: E402
     plot_disk,
     plot_sphere,
     plot_slices,
+    quiver_sphere,
+    isosurface_ball,
     # New rich plotting API
     waterfall,
     roots_plot,
@@ -34,7 +37,11 @@ from chebfunjax.plotting import (  # noqa: E402
     # Style
     chebfun_style,
     CHEBFUN_RC,
+    PARULA,
 )
+
+# The top-level `plot` is the universal dispatcher (like MATLAB's plot(f))
+plot = plot_dispatch
 
 # ---------------------------------------------------------------------------
 # Top-level special functions: cj.sin(f) is equivalent to f.sin()
@@ -227,6 +234,8 @@ __all__ = [
     "randnfun",
     # Plotting
     "plot",
+    "plot_1d",
+    "plot_dispatch",
     "plotcoeffs",
     "contour",
     "surf",
@@ -234,10 +243,13 @@ __all__ = [
     "plot_disk",
     "plot_sphere",
     "plot_slices",
+    "quiver_sphere",
+    "isosurface_ball",
     "waterfall",
     "roots_plot",
     "spy",
     "plotregion",
     "arrowplot",
     "chebpolyplot",
+    "PARULA",
 ]

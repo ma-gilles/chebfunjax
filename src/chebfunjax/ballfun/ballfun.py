@@ -1408,27 +1408,28 @@ class Ballfun(eqx.Module):
     # ------------------------------------------------------------------
 
     def plot(self, n_pts: int = 50, ax=None, **kwargs):
-        """Plot the Ballfun on a spherical slice (r=1 surface).
+        """Plot the Ballfun on the r=1 sphere boundary (MATLAB Chebfun style).
 
-        Shows the function values on the unit sphere boundary as a
-        pseudocolor plot in Mollweide projection.
+        Renders a smooth sphere coloured by the function values on the
+        boundary using the parula colormap and MATLAB's default view angle.
 
         Parameters
         ----------
         n_pts : int
             Number of grid points per angular direction.
         ax : matplotlib axes, optional
-            Axes to plot on. If None, a new figure is created.
+            Axes to plot on.  If None, a new figure is created.
         **kwargs
-            Extra keyword arguments passed to ``pcolormesh``.
+            Extra keyword arguments passed to ``plot_surface``.
 
         Returns
         -------
-        ax : matplotlib axes
+        fig, ax
         """
         import matplotlib.pyplot as plt
+        from chebfunjax.plotting import _setup_3d_axes, _set_unit_ticks, PARULA
 
-        lam = np.linspace(-np.pi, np.pi, 2 * n_pts)
+        lam = np.linspace(-np.pi, np.pi, 2 * n_pts, endpoint=True)
         theta = np.linspace(0, np.pi, n_pts)
         LAM, THETA = np.meshgrid(lam, theta, indexing="ij")
         R = np.ones_like(LAM)
@@ -1440,22 +1441,37 @@ class Ballfun(eqx.Module):
             jnp.array(THETA.ravel()),
         )).reshape(LAM.shape)
 
-        # Convert to Cartesian for 3D surface plot
         X = np.sin(THETA) * np.cos(LAM)
         Y = np.sin(THETA) * np.sin(LAM)
         Z = np.cos(THETA)
 
-        if ax is None:
-            fig = plt.figure()
-            ax = fig.add_subplot(111, projection="3d")
+        fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36,
+                                 figsize=(6.1, 2.58))
 
-        ax.plot_surface(X, Y, Z, facecolors=plt.cm.viridis(
-            (vals - vals.min()) / (vals.max() - vals.min() + 1e-16)
-        ), rstride=1, cstride=1, shade=False)
-        ax.set_xlabel("x")
-        ax.set_ylabel("y")
-        ax.set_zlabel("z")
-        return ax
+        vmin, vmax = float(vals.min()), float(vals.max())
+        if vmax > vmin:
+            norm_vals = (vals - vmin) / (vmax - vmin)
+        else:
+            norm_vals = np.full_like(vals, 0.5)
+
+        fcolors = PARULA(norm_vals)
+        ax.plot_surface(X, Y, Z, facecolors=fcolors,
+                        rstride=1, cstride=1,
+                        linewidth=0, antialiased=True,
+                        shade=False, **kwargs)
+
+        ax.set_xlim(-1.05, 1.05)
+        ax.set_ylim(-1.05, 1.05)
+        ax.set_zlim(-1.05, 1.05)
+        _set_unit_ticks(ax, domain=(-1, 1, -1, 1))
+
+        fig.tight_layout(pad=0.5)
+        return fig, ax
+
+    def isosurface(self, levels=None, **kwargs):
+        """Isosurface plot of this Ballfun (calls :func:`chebfunjax.plotting.isosurface_ball`)."""
+        from chebfunjax.plotting import isosurface_ball
+        return isosurface_ball(self, levels=levels, **kwargs)
 
     def plot_slice(self, axis: str = "z", level: float = 0.0,
                    n_pts: int = 80, ax=None, **kwargs):
