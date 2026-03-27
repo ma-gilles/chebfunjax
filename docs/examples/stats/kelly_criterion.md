@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Kelly Criterion](../../../docs/images/stats/kelly_criterion.png)
+![Kelly Criterion](../../images/stats/kelly_criterion.png)

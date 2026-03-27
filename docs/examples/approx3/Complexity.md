@@ -81,7 +81,7 @@ print(f"∫∫∫ 1/(1+r²) dV = {I:.8f}")  # 4.28685406...
 ∫∫∫ 1/(1+r²) dV = 4.28685406
 ```
 
-![Tucker rank complexity for hard vs easy functions](../../../images/approx3/Complexity.png)
+![Tucker rank complexity for hard vs easy functions](../../images/approx3/Complexity.png)
 
 ## References
 

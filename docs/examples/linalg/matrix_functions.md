@@ -38,7 +38,7 @@ $$f(A) = \frac{1}{2\pi i} \oint_\Gamma f(z)(zI - A)^{-1}\,dz,$$
 
 where $\Gamma$ encloses all eigenvalues of $A$.
 
-![Matrix function via Chebyshev and Cauchy](../../../images/linalg/matrix_functions.png)
+![Matrix function via Chebyshev and Cauchy](../../images/linalg/matrix_functions.png)
 
 ## References
 

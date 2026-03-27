@@ -59,7 +59,7 @@ L2 norm  = 1.5694066...
 L∞ norm  = 2.7182818...  (= e = max of exp(sin(x)))
 ```
 
-![exp(sin(x)) with L1 area shaded](../../../images/linalg/inner_products.png)
+![exp(sin(x)) with L1 area shaded](../../images/linalg/inner_products.png)
 
 ## Trigonometric orthogonality
 

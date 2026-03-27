@@ -47,4 +47,4 @@ x_max, y_max = y_cheb.max()
 print(f"Carrying capacity reached asymptotically: max ≈ {float(y_max):.4f}")
 ```
 
-![Logistic equation solution](../../../images/ode-nonlin/logistic_equation.png)
+![Logistic equation solution](../../images/ode-nonlin/logistic_equation.png)

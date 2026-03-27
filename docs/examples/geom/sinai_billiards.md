@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Sinai Billiards](../../../docs/images/geom/sinai_billiards.png)
+![Sinai Billiards](../../images/geom/sinai_billiards.png)

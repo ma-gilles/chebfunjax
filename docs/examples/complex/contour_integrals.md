@@ -55,7 +55,7 @@ exp(0)^(2) = 1.000000  (exact: 1)
 exp(0)^(3) = 1.000000  (exact: 1)
 ```
 
-![Contour integrals and residue theorem verification](../../../images/complex/contour_integrals.png)
+![Contour integrals and residue theorem verification](../../images/complex/contour_integrals.png)
 
 ## Residue theorem
 

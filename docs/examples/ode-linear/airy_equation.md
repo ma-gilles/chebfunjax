@@ -39,7 +39,7 @@ err = np.max(np.abs(y - Ai_exact))
 print(f"Airy BVP error: {err:.2e}")
 ```
 
-![Airy equation solution](../../../images/ode-linear/airy_equation.png)
+![Airy equation solution](../../images/ode-linear/airy_equation.png)
 
 ## Turning point behavior
 

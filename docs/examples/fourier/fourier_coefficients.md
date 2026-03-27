@@ -39,7 +39,7 @@ When a function is sampled at $n$ points, all modes $k = m \cdot n \pm j$
 contribute to the $j$-th alias. For smooth functions this is negligible;
 for non-smooth functions it can cause visible error.
 
-![Fourier coefficient decay and aliasing](../../../images/fourier/fourier_coefficients.png)
+![Fourier coefficient decay and aliasing](../../images/fourier/fourier_coefficients.png)
 
 ## Parseval's theorem
 

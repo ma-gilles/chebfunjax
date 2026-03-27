@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Probability Convolution](../../../docs/images/stats/probability_convolution.png)
+![Probability Convolution](../../images/stats/probability_convolution.png)

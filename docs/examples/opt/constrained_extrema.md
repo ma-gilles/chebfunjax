@@ -43,7 +43,7 @@ print(f"Critical points of g: t = {critical}")
 # Evaluates at pi/4 (max) and 5*pi/4 (min)
 ```
 
-![Constrained extrema on unit circle](../../../images/opt/constrained_extrema.png)
+![Constrained extrema on unit circle](../../images/opt/constrained_extrema.png)
 
 ## Maximize on a parabola
 

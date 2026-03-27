@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Histogram](../../../docs/images/stats/histogram.png)
+![Histogram](../../images/stats/histogram.png)

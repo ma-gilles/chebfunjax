@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Dual Curves](../../../docs/images/geom/dual_curves.png)
+![Dual Curves](../../images/geom/dual_curves.png)

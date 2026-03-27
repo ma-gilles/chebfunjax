@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Probability Distributions](../../../docs/images/stats/probability_distributions.png)
+![Probability Distributions](../../images/stats/probability_distributions.png)

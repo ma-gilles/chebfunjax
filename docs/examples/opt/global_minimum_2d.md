@@ -41,7 +41,7 @@ minima but a single global minimum at the origin:
 
 $$A(x,y) = -20 e^{-0.2\sqrt{\frac{x^2+y^2}{2}}} - e^{\frac{\cos 2\pi x + \cos 2\pi y}{2}} + e + 20.$$
 
-![Global minimum of 2D test functions](../../../images/opt/global_minimum_2d.png)
+![Global minimum of 2D test functions](../../images/opt/global_minimum_2d.png)
 
 ## References
 

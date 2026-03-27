@@ -43,7 +43,7 @@ N= 50: max overshoot = 0.0895 (theory: 0.5708)
 The limiting overshoot converges to $\pi/2 - 1 \approx 0.0895$ of the jump height
 (about 9%), regardless of $N$.
 
-![Gibbs phenomenon for square wave](../../../images/fourier/gibbs_phenomenon.png)
+![Gibbs phenomenon for square wave](../../images/fourier/gibbs_phenomenon.png)
 
 ## Why does Gibbs happen?
 

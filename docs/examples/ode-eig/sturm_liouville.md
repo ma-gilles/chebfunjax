@@ -43,7 +43,7 @@ for k, (ev, ex) in enumerate(zip(eigvals, exact)):
     print(f"  n={k}: λ = {ev:.4f}  (exact: {ex})")
 ```
 
-![Sturm-Liouville eigenfunctions](../../../images/ode-eig/sturm_liouville.png)
+![Sturm-Liouville eigenfunctions](../../images/ode-eig/sturm_liouville.png)
 
 ## Orthogonality
 

@@ -16,6 +16,9 @@ import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
+from chebfunjax.plotting import chebfun_style
+chebfun_style()
+
 
 
 def run():
@@ -43,7 +46,8 @@ def run():
     idx1 = np.searchsorted(xs, 1.0)
     idx3 = np.searchsorted(xs, 3.0)
     prob = cdf[idx3] - cdf[idx1]
-    print(f"P[|X-2| < 1] = {prob:.6f}  (exact via erf: {float(np.erf(1/np.sqrt(2))):.6f})")
+    from scipy.special import erf as scipy_erf
+    print(f"P[|X-2| < 1] = {prob:.6f}  (exact via erf: {float(scipy_erf(1/np.sqrt(2))):.6f})")
 
     from scipy.special import erf
     exact_prob = float(erf(1.0 / np.sqrt(2)))

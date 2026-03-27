@@ -76,7 +76,7 @@ val_outside = float(f(jnp.array(-0.9), jnp.array(-0.9), jnp.array(0.9)))
 # ≈ 0.0 (outside the slab)
 ```
 
-![Hello 3D World — Chebfun3 from discrete data](../../../images/approx3/Hello3.png)
+![Hello 3D World — Chebfun3 from discrete data](../../images/approx3/Hello3.png)
 
 ## Remarks
 

@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Expectations of Distributions](../../../docs/images/stats/expectations.png)
+![Expectations of Distributions](../../images/stats/expectations.png)

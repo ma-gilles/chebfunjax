@@ -75,7 +75,7 @@ print(float(div_F_ball.sum3()))  # 12.566371 = 4*pi
 12.566371
 ```
 
-![Flux integrals over parametric surfaces](../../../images/approx3/FluxIntegral3D.png)
+![Flux integrals over parametric surfaces](../../images/approx3/FluxIntegral3D.png)
 
 ## See Also
 

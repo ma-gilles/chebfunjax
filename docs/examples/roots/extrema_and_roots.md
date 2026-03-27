@@ -38,7 +38,7 @@ print(f"Global max: f({float(x_max):.4f}) = {float(f_max):.6f}")
 print(f"Global min: f({float(x_min):.4f}) = {float(f_min):.6f}")
 ```
 
-![Extrema and roots of sin(pi*x^2)](../../../images/roots/extrema_and_roots.png)
+![Extrema and roots of sin(pi*x^2)](../../images/roots/extrema_and_roots.png)
 
 ## Simultaneous zeros
 

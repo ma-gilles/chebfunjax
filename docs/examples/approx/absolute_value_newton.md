@@ -43,7 +43,7 @@ Step 5: error = 8.88e-16,  len(r) = 243
 The convergence is quadratic in terms of the error, while the length of
 the chebfun grows by a factor of 3 at each step.
 
-![Newton iterations converging to |x|](../../../images/approx/absolute_value_newton.png)
+![Newton iterations converging to |x|](../../images/approx/absolute_value_newton.png)
 
 ## Why this works
 

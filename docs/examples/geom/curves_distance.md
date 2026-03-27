@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Distance between Curves](../../../docs/images/geom/curves_distance.png)
+![Distance between Curves](../../images/geom/curves_distance.png)

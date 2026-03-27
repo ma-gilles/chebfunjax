@@ -33,7 +33,7 @@ J_0 has 31 roots in (0, 100]
 First 5 roots: [ 2.40482556  5.52007811  8.65372791 11.79153444 14.93091771]
 ```
 
-![Roots of J_0 and J_1 on [0,40]](../../../images/roots/bessel_function_roots.png)
+![Roots of J_0 and J_1 on [0,40]](../../images/roots/bessel_function_roots.png)
 
 ## Comparison with reference values
 

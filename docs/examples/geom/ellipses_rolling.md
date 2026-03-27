@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Ellipses Rolling](../../../docs/images/geom/ellipses_rolling.png)
+![Ellipses Rolling](../../images/geom/ellipses_rolling.png)

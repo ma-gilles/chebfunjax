@@ -83,4 +83,4 @@ col0_coeffs = abs(f.cols[0].coeffs)
 # Coefficients decrease from O(1) to machine precision
 ```
 
-![Effect of tolerance on Chebfun3 construction](../../../images/approx3/Tolerance.png)
+![Effect of tolerance on Chebfun3 construction](../../images/approx3/Tolerance.png)

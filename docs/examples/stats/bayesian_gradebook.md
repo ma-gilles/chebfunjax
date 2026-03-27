@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Bayesian Gradebook](../../../docs/images/stats/bayesian_gradebook.png)
+![Bayesian Gradebook](../../images/stats/bayesian_gradebook.png)

@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Generalized Polynomial Chaos](../../../docs/images/stats/generalized_polynomial_chaos.png)
+![Generalized Polynomial Chaos](../../images/stats/generalized_polynomial_chaos.png)

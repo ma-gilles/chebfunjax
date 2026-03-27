@@ -12,6 +12,9 @@ Original MATLAB: https://www.chebfun.org/examples/pde/Erosion.html
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from chebfunjax.plotting import chebfun_style
+chebfun_style()
+
 import numpy as np
 from scipy.linalg import expm
 import os

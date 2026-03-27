@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Area and Centroid](../../../docs/images/geom/area_centroid.png)
+![Area and Centroid](../../images/geom/area_centroid.png)

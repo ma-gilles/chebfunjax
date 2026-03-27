@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Ellipse Perimeter](../../../docs/images/geom/ellipse.png)
+![Ellipse Perimeter](../../images/geom/ellipse.png)

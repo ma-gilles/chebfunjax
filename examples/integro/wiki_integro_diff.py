@@ -16,6 +16,9 @@ Original MATLAB: https://www.chebfun.org/examples/integro/WikiIntegroDiff.html
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from chebfunjax.plotting import chebfun_style
+chebfun_style()
+
 import numpy as np
 from scipy.integrate import solve_ivp
 import os

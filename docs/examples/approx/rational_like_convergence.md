@@ -38,9 +38,9 @@ ellipse $E_\rho$ where $f$ is analytic. For a pole at $\pm i\epsilon$, the
 ellipse parameter is approximately $\rho \approx \epsilon + \sqrt{\epsilon^2 + 1}$,
 giving decay $|c_n| \sim M\rho^{-n}$.
 
-![Rational-like convergence and coefficient decay](../../../images/approx/rational_like_convergence.png)
+![Rational-like convergence and coefficient decay](../../images/approx/rational_like_convergence.png)
 
-![Coefficient decay for different pole distances](../../../images/approx/rational_like_convergence_coeffs.png)
+![Coefficient decay for different pole distances](../../images/approx/rational_like_convergence_coeffs.png)
 
 ## References
 

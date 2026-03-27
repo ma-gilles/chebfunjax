@@ -53,7 +53,7 @@ where it overshoots by about 9% of the jump height:
 
 $$f_N(x) = \sum_{k=1,3,5,\ldots}^{2N-1} \frac{4}{\pi k} \sin(kx).$$
 
-![Smooth function and Gibbs phenomenon](../../../images/fourier/fourier_series.png)
+![Smooth function and Gibbs phenomenon](../../images/fourier/fourier_series.png)
 
 The overshoot near the discontinuity (visible in the right panel) does not
 shrink as $N \to \infty$ — it just becomes narrower. This is the **Gibbs

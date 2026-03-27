@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Lissajous Figures](../../../docs/images/geom/lissajous.png)
+![Lissajous Figures](../../images/geom/lissajous.png)

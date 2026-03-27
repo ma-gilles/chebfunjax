@@ -51,7 +51,7 @@ theta = sol.sol(t_plot)[0]
 print(f"Max angle: {np.max(np.abs(theta)):.6f}  (should ≈ {theta0})")
 ```
 
-![Nonlinear pendulum solution and period](../../../images/ode-nonlin/pendulum_equation.png)
+![Nonlinear pendulum solution and period](../../images/ode-nonlin/pendulum_equation.png)
 
 ## References
 

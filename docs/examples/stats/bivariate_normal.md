@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Bivariate Normal Distribution](../../../docs/images/stats/bivariate_normal.png)
+![Bivariate Normal Distribution](../../images/stats/bivariate_normal.png)

@@ -32,7 +32,7 @@ print(f"Numerical rank: {f.rank}")
 print(f"∬ Franke dA = {float(f.sum()):.8f}")
 ```
 
-![Franke's function and Gaussian on [-1,1]^2](../../../images/approx2/smooth_functions_2d_franke.png)
+![Franke's function and Gaussian on [-1,1]^2](../../images/approx2/smooth_functions_2d_franke.png)
 
 ## Trigonometric function
 
@@ -41,7 +41,7 @@ g = cj.chebfun2(lambda x, y: jnp.cos(3*x) * jnp.sin(5*y))
 print(f"cos(3x)sin(5y): rank = {g.rank}")  # rank 1 — perfectly separable!
 ```
 
-![cos(3x)*sin(5y) and exp(-x^2-y^2)](../../../images/approx2/smooth_functions_2d_cos.png)
+![cos(3x)*sin(5y) and exp(-x^2-y^2)](../../images/approx2/smooth_functions_2d_cos.png)
 
 ## Notes
 

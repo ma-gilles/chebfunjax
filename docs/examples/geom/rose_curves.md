@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Rose Curves](../../../docs/images/geom/rose_curves.png)
+![Rose Curves](../../images/geom/rose_curves.png)

@@ -44,7 +44,7 @@ $$c_n = \frac{2}{\pi} \langle f, T_n \rangle_w = \frac{2}{\pi}
 
 where $\langle \cdot, \cdot \rangle_w$ is the weighted inner product.
 
-![Chebfun inner products and orthogonality](../../../images/linalg/chebfun_inner_products.png)
+![Chebfun inner products and orthogonality](../../images/linalg/chebfun_inner_products.png)
 
 ## References
 

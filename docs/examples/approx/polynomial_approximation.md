@@ -53,9 +53,9 @@ print(f"|x|: degree {len(g)-1}")
 |x|: degree 112
 ```
 
-![Polynomial approximation error and coefficients](../../../images/approx/polynomial_approximation.png)
+![Polynomial approximation error and coefficients](../../images/approx/polynomial_approximation.png)
 
-![Chebyshev coefficient comparison](../../../images/approx/polynomial_approximation_coeffs.png)
+![Chebyshev coefficient comparison](../../images/approx/polynomial_approximation_coeffs.png)
 
 ## References
 

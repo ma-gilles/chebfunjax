@@ -28,7 +28,7 @@ Degree: 36
 Ratio c_10/c_5: 0.0623
 ```
 
-![Chebyshev coefficient decay for various functions](../../../images/approx/chebyshev_coefficients.png)
+![Chebyshev coefficient decay for various functions](../../images/approx/chebyshev_coefficients.png)
 
 ## The Bernstein ellipse
 
@@ -51,4 +51,4 @@ print(f"Last coeff: {g_coeffs[-1]:.2e}")
 The coefficients plateau at the level of floating-point rounding errors
 ($\sim 10^{-16}$) — this is when Chebfun truncates the expansion.
 
-![Coefficient decay showing plateau](../../../images/approx/chebyshev_coefficients_decay.png)
+![Coefficient decay showing plateau](../../images/approx/chebyshev_coefficients_decay.png)

@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Smooth Random Walk](../../../docs/images/stats/smooth_random_walk.png)
+![Smooth Random Walk](../../images/stats/smooth_random_walk.png)

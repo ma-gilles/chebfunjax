@@ -30,7 +30,7 @@ print(f"∂f/∂y(0.3, 0.5) = {float(fy(x0, y0)):.8f}")
 print(f"  exact: {float(jnp.sin(jnp.pi * 0.3) * jnp.exp(0.5)):.8f}")
 ```
 
-![Partial derivatives of sin(πx)exp(y)](../../../images/approx2/differentiation_2d.png)
+![Partial derivatives of sin(πx)exp(y)](../../images/approx2/differentiation_2d.png)
 
 ## Gradient and Laplacian
 
@@ -43,4 +43,4 @@ gxx = gx.diff(0) # ∂²g/∂x² = (4x²-2) * exp(-(x^2+y^2))
 gyy = gy.diff(1) # ∂²g/∂y² = (4y²-2) * exp(-(x^2+y^2))
 ```
 
-![Second derivatives and Laplacian](../../../images/approx2/differentiation_2d_f2.png)
+![Second derivatives and Laplacian](../../images/approx2/differentiation_2d_f2.png)

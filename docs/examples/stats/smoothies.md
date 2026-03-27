@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Smoothies](../../../docs/images/stats/smoothies.png)
+![Smoothies](../../images/stats/smoothies.png)

@@ -52,7 +52,7 @@ r = f.roots()
 print(f"Real zeros: {np.array(r)}")  # [-1.  1.]
 ```
 
-![Argument principle: zeros and winding](../../../images/complex/argument_principle.png)
+![Argument principle: zeros and winding](../../images/complex/argument_principle.png)
 
 ## References
 

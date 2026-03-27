@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Maxwell Distribution Exercises](../../../docs/images/stats/maxwell_exercises.png)
+![Maxwell Distribution Exercises](../../images/stats/maxwell_exercises.png)

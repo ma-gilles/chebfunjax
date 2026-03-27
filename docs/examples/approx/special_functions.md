@@ -31,7 +31,7 @@ roots = np.sort(np.array(Ai.roots()))
 print(f"First 5 roots: {roots[:5]}")
 ```
 
-![Airy function Ai(x) and its roots](../../../images/approx/special_functions_airy.png)
+![Airy function Ai(x) and its roots](../../images/approx/special_functions_airy.png)
 
 ## Error function
 
@@ -50,4 +50,4 @@ print(f"∫₋₃³ exp(-x²) dx * 2/√π = {integral:.8f}")
 print(f"erf(3) - erf(-3) = {float(erf_cheb(jnp.array(3.0))) - float(erf_cheb(jnp.array(-3.0))):.8f}")
 ```
 
-![Special functions: erf and Bessel](../../../images/approx/special_functions.png)
+![Special functions: erf and Bessel](../../images/approx/special_functions.png)

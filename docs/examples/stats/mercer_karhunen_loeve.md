@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Mercer-Karhunen-Loeve Expansion](../../../docs/images/stats/mercer_karhunen_loeve.png)
+![Mercer-Karhunen-Loeve Expansion](../../images/stats/mercer_karhunen_loeve.png)

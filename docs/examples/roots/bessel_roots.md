@@ -52,4 +52,4 @@ spacings = np.diff(roots)
 print(f"Mean spacing: {np.mean(spacings):.6f}  (π ≈ {np.pi:.6f})")
 ```
 
-![Bessel function roots on [0,30]](../../../images/roots/bessel_roots.png)
+![Bessel function roots on [0,30]](../../images/roots/bessel_roots.png)

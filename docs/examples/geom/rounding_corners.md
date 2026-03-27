@@ -16,4 +16,4 @@ run()
 
 ## Output
 
-![Rounding Corners](../../../docs/images/geom/rounding_corners.png)
+![Rounding Corners](../../images/geom/rounding_corners.png)

@@ -86,4 +86,4 @@ print(f"Line integral = {I8:.8f}")  # pi = 3.14159265
 Line integral = 3.14159265
 ```
 
-![Gauss, Green, and Stokes theorems](../../../images/approx3/GaussGreenStokes.png)
+![Gauss, Green, and Stokes theorems](../../images/approx3/GaussGreenStokes.png)

@@ -31,6 +31,9 @@ from chebfunjax.plotting import (  # noqa: E402
     plotregion,
     arrowplot,
     chebpolyplot,
+    # Style
+    chebfun_style,
+    CHEBFUN_RC,
 )
 
 # ---------------------------------------------------------------------------

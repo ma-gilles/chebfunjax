@@ -52,7 +52,7 @@ Winding number = 3.0012  (expected: 3)
 Three roots of $z^3 - 1$ lie inside the circle $|z|=1.5$ — as expected,
 since all three roots have $|z|=1$.
 
-![Unit circle image and |z^3-1| on real axis](../../../images/complex/complex_functions.png)
+![Unit circle image and |z^3-1| on real axis](../../images/complex/complex_functions.png)
 
 ## Real functions with complex-plane flavor
 

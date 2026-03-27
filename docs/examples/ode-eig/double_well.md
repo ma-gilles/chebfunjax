@@ -32,7 +32,7 @@ print(f"E_1 = {eigvals[1]:.8f}")
 print(f"Tunnel splitting: ΔE = {splitting:.2e}")
 ```
 
-![Double well eigenstates and tunnel splitting](../../../images/ode-eig/double_well.png)
+![Double well eigenstates and tunnel splitting](../../images/ode-eig/double_well.png)
 
 ## Symmetric/antisymmetric states
 

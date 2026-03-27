@@ -25,6 +25,7 @@ from __future__ import annotations
 import os
 from typing import Any, Optional, Sequence, Union
 
+import matplotlib as mpl
 import matplotlib
 # Do NOT call matplotlib.use("Agg") unconditionally — that breaks Jupyter
 # inline plotting.  Only switch if we are already headless or truly have no
@@ -33,6 +34,40 @@ if matplotlib.get_backend().lower() == "agg" and not os.environ.get("DISPLAY"):
     pass  # already headless — keep whatever backend is active
 import matplotlib.pyplot as plt
 import numpy as np
+
+
+# ---------------------------------------------------------------------------
+# Chebfun RC style (Chebfun-quality plots)
+# ---------------------------------------------------------------------------
+
+CHEBFUN_RC = {
+    'figure.figsize': (5.5, 4.0),
+    'figure.dpi': 150,
+    'figure.facecolor': 'white',
+    'axes.facecolor': 'white',
+    'axes.linewidth': 0.6,
+    'axes.labelsize': 10,
+    'axes.titlesize': 11,
+    'axes.grid': True,
+    'axes.spines.top': False,
+    'axes.spines.right': False,
+    'xtick.labelsize': 9,
+    'ytick.labelsize': 9,
+    'xtick.major.width': 0.6,
+    'ytick.major.width': 0.6,
+    'lines.linewidth': 1.5,
+    'grid.alpha': 0.25,
+    'grid.linewidth': 0.4,
+    'grid.linestyle': '--',
+    'savefig.bbox': 'tight',
+    'savefig.facecolor': 'white',
+    'savefig.dpi': 150,
+}
+
+
+def chebfun_style():
+    """Apply Chebfun plot style globally."""
+    mpl.rcParams.update(CHEBFUN_RC)
 
 
 # ---------------------------------------------------------------------------

@@ -47,7 +47,7 @@ ax.legend(fontsize=11)
 ax.set_title('Boundary layers for three values of ε', fontsize=12)
 ```
 
-![Boundary layers for eps = 0.1, 0.01, 0.001](../../../images/ode-linear/boundary_layer.png)
+![Boundary layers for eps = 0.1, 0.01, 0.001](../../images/ode-linear/boundary_layer.png)
 
 ## Exact solution and verification
 

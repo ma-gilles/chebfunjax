@@ -26,7 +26,7 @@ f = cj.chebfun(lambda x: jnp.array(scipy_gamma(np.array(x))),
                domain=(0.1, 4.0))
 ```
 
-![The Gamma function with poles](../../../images/approx/gamma_function.png)
+![The Gamma function with poles](../../images/approx/gamma_function.png)
 
 ## Verifying special values
 
