@@ -1,109 +1,67 @@
-# Chapter 10: Nonlinear ODEs and Initial-Value Problems
+# Chapter 10: Nonlinear ODEs, IVPs, and Chebgui
 
-*Based on [Chebfun Guide Chapter 10](https://www.chebfun.org/docs/guide/guide10.html)*
+*Based on [Chebfun Guide Chapter 10](https://www.chebfun.org/docs/guide/guide10.html) by Lloyd N. Trefethen, November 2009, latest revision June 2019.*
 
-## 10.1 Introduction
+## 10.1 Boundary-value problems: `solve` and `solvebvp`
 
-Chapter 7 described chebfunjax's capabilities for solving linear ordinary differential equations. This chapter extends those capabilities to:
+Chapter 7 described chebfunjax's `Chebop` capabilities for solving linear ordinary differential equations. We will now describe extensions of chebops to nonlinear problems, as well as special methods used for ODE initial-value problems (IVPs) as opposed to boundary-value problems (BVPs).
 
-- **Nonlinear boundary-value problems** (BVPs), solved by Newton iteration.
-- **Initial-value problems** (IVPs), solved either by global spectral collocation or by time-stepping methods.
-
-The key references are Birkisson (2014), Birkisson & Driscoll (2012), and Trefethen, Birkisson & Driscoll (2018, *Exploring ODEs*).
-
-## 10.2 Nonlinear Boundary-Value Problems
-
-### The `Chebop` Approach
-
-For nonlinear problems, the `Chebop` class uses exactly the same syntax as for linear problems. The system automatically detects nonlinearity and applies Newton iteration.
+For a linear problem, the `Chebop` approach is straightforward. Here we set up a linear operator and solve a BVP:
 
 ```python
 from chebfunjax.operators.chebop import Chebop
 import jax.numpy as jnp
 
-# 0.001*u'' - u^3 = 0, u(-1) = 1, u(1) = -1
+L = Chebop(lambda x, u: 0.0001 * u.diff(2) + x * u, domain=(-1.0, 1.0))
+```
+
+```python
+L.lbc = 0.0
+L.rbc = 1.0
+u = L.solve(lambda x: jnp.exp(x))
+```
+
+![Linear BVP](../images/guide/guide10_01.png)
+
+Displaying the operator shows its structure:
+
+```python
+print(L)
+```
+
+```
+Chebop(domain=(-1.0, 1.0), lbc=0.0, rbc=1.0)
+```
+
+For a nonlinear problem, the `Chebop` uses exactly the same syntax. The system automatically detects nonlinearity and applies Newton iteration:
+
+```python
 N = Chebop(lambda x, u: 0.001 * u.diff(2) - u**3, domain=(-1.0, 1.0))
 N.lbc = 1.0
 N.rbc = -1.0
+```
+
+```python
+print(N)
+```
+
+```
+Chebop(domain=(-1.0, 1.0), lbc=1.0, rbc=-1.0)
+```
+
+```python
 u = N.solve(0.0)
 ```
 
-![Boundary layer problem: eps*u'' + x*u = exp(x)](../images/guide/guide10_01.png)
+![Nonlinear BVP](../images/guide/guide10_02.png)
 
+Here is Carrier's equation, a well-known problem with multiple solutions:
 
-### How Newton Iteration Works
+$$\varepsilon u'' + 2(1 - x^2)u + u^2 = 1, \quad u(-1) = u(1) = 0$$
 
-For a nonlinear operator $\mathcal{N}[u] = f$, chebfunjax applies Newton's method in function space:
-
-1. Start from an initial guess $u_0$ (default: the zero function).
-2. At each step $k$, compute the residual $r_k = \mathcal{N}[u_k] - f$.
-3. Linearize $\mathcal{N}$ around $u_k$ to obtain the Frechet derivative (Jacobian) $J_k$.
-4. Solve the linear correction equation $J_k \delta u = -r_k$ using spectral collocation.
-5. Update: $u_{k+1} = u_k + \delta u$.
-6. Repeat until $\|\delta u\| < \texttt{newton\_tol}$.
-
-The Jacobian is computed by one of two methods:
-- **Symbolic linearization** via `ADChebfun` (automatic differentiation on chebfuns), when available.
-- **Finite-difference linearization**: perturbing each collocation-point basis vector and observing the change in the operator output.
-
-### Newton Solver Parameters
-
-The `Chebop.solve` method accepts parameters controlling the Newton iteration:
+with $\varepsilon = 0.01$:
 
 ```python
-u = N.solve(
-    f=0.0,            # right-hand side
-    n=64,             # fixed discretization size (None = adaptive)
-    max_iter=15,      # maximum Newton iterations
-    newton_tol=5e-13, # convergence tolerance for ||delta_u||
-    tol=1e-10,        # coefficient decay tolerance for adaptive sizing
-)
-```
-
-![Nonlinear BVP: 0.001*u'' - u^3 = 0](../images/guide/guide10_02.png)
-
-
-![Newton convergence: quadratic decay of correction norms](../images/guide/guide10_05.png)
-
-### Linearity Detection
-
-Before starting Newton iteration, `Chebop` automatically checks whether the operator is linear:
-
-1. **Exact detection** via symbolic AD (`detect_linearity`): checks whether the Frechet derivative is constant.
-2. **Numerical probe**: evaluates the operator on the zero function, a probe function $p$, and $2p$, then checks whether $\mathcal{N}[2p] - \mathcal{N}[0] \approx 2(\mathcal{N}[p] - \mathcal{N}[0])$.
-
-If the operator is linear, `Chebop` delegates to `Linop.solve` (direct spectral solve) without Newton iteration.
-
-## 10.3 Examples of Nonlinear BVPs
-
-### A Boundary Layer Problem
-
-$$\varepsilon u'' + xu = e^x, \quad u(-1) = 0, \quad u(1) = 1$$
-
-with $\varepsilon = 0.0001$:
-
-```python
-N = Chebop(
-    lambda x, u: 0.0001 * u.diff(2) + x * u,
-    domain=(-1.0, 1.0),
-)
-N.lbc = 0.0
-N.rbc = 1.0
-u = N.solve(lambda x: jnp.exp(x))
-```
-
-![Carrier problem solution](../images/guide/guide10_03.png)
-
-
-### Carrier's Problem
-
-$$\varepsilon u'' + 2(1-x^2)u + u^2 = 1, \quad u(-1) = u(1) = 0$$
-
-with $\varepsilon = 0.01$. This problem has multiple solutions depending on the initial guess:
-
-```python
-import chebfunjax as cj
-
 ep = 0.01
 N = Chebop(
     lambda x, u: ep * u.diff(2) + 2 * (1 - x**2) * u + u**2,
@@ -111,124 +69,83 @@ N = Chebop(
 )
 N.lbc = 0.0
 N.rbc = 0.0
-
-# Default initial guess (zero function) finds one solution
-u1 = N.solve(1.0)
+u = N.solve(1.0)
 ```
 
-### The Bratu Equation
+![Carrier problem](../images/guide/guide10_03.png)
 
-$$u'' + \lambda e^u = 0, \quad u(0) = u(1) = 0$$
-
-```python
-lam = 1.0
-N = Chebop(
-    lambda x, u: u.diff(2) + lam * cj.exp(u),
-    domain=(0.0, 1.0),
-)
-N.lbc = 0.0
-N.rbc = 0.0
-u = N.solve(0.0)
-```
-
-## 10.4 Initial-Value Problems with `ivp`
-
-An IVP is a special case of a BVP where all boundary conditions are imposed at the left endpoint. The `ivp` function provides a convenient wrapper:
-
-```python
-from chebfunjax.chebfun1d.ode import ivp
-
-# u' = u^2, u(0) = 0.95, t in [0, 1]
-# Exact solution: u(t) = 0.95 / (1 - 0.95*t)
-u = ivp(
-    lambda t, u: u.diff() - u**2,
-    domain=(0.0, 1.0),
-    ic=[0.95],
-)
-exact = lambda t: 0.95 / (1.0 - 0.95 * t)
-print(f"u(0.5) = {float(u(jnp.float64(0.5))):.10f}")
-print(f"exact  = {exact(0.5):.10f}")
-```
-
-![IVP: u' = u^2 solution](../images/guide/guide10_06.png)
-
-### Multiple Initial Conditions
-
-For higher-order equations, provide a list of initial values $[u(a), u'(a), u''(a), \ldots]$:
-
-```python
-# u'' + u = 0, u(0) = 1, u'(0) = 0 => u = cos(t)
-u = ivp(
-    lambda t, u: u.diff(2) + u,
-    domain=(0.0, 10.0),
-    ic=[1.0, 0.0],
-)
-print(f"u(pi) = {float(u(jnp.float64(jnp.pi))):.10f}")
-print(f"cos(pi) = {float(jnp.cos(jnp.pi)):.10f}")
-```
-
-![Harmonic oscillator IVP: u'' + u = 0](../images/guide/guide10_07.png)
-
-### Chebop for IVPs
-
-You can also use `Chebop` directly by setting only `lbc`:
-
-```python
-N = Chebop(lambda t, u: u.diff(2) + u, domain=(0.0, 100.0))
-N.lbc = [1.0, 0.0]   # u(0) = 1, u'(0) = 0
-u = N.solve(0.0)
-```
-
-## 10.5 Time-Stepping Methods: `ode45`, `ode78`, `ode89`
-
-For IVPs where global spectral methods may struggle (e.g., chaotic systems, stiff problems, very long time intervals), chebfunjax provides ODE integrators that wrap SciPy's `solve_ivp` and return the result as a Chebfun:
-
-- **`ode78`**: 7(8)-order Runge-Kutta (via SciPy's DOP853).
-- **`ode89`**: 8(9)-order Runge-Kutta at very tight tolerances.
+This problem has multiple solutions depending on the initial guess. With a suitable initial guess we can find another solution:
 
 ```python
 import chebfunjax as cj
 
-# u' = u, u(0) = 1 => u = exp(t)
-sol = cj.ode78(
-    lambda t, y: y,
-    tspan=(0.0, 1.0),
-    y0=jnp.array([1.0]),
-)
-print(f"u(1) = {float(sol(jnp.float64(1.0))):.10f}")
-print(f"exp(1) = {float(jnp.exp(jnp.float64(1.0))):.10f}")
+x = cj.chebfun(lambda x: x)
+N.init = 2 * (x**2 - 1) * (1 - 2 / (1 + 20 * x**2))
+u2 = N.solve(1.0)
 ```
 
-### Controlling Tolerance
+![Carrier with initial guess](../images/guide/guide10_04.png)
+
+The Newton iteration converges quadratically. Here is a semilogy plot of the norms of the Newton corrections $\|\delta u\|$:
 
 ```python
-# Higher accuracy with ode89
-sol = cj.ode89(
-    lambda t, y: y,
-    tspan=(0.0, 1.0),
-    y0=jnp.array([1.0]),
-    rtol=1e-12,
-    atol=1e-14,
-)
+# nrmdu = info.normDelta
+# semilogy(nrmdu, '.-k')
 ```
 
-### Comparison of Methods
+![Newton convergence](../images/guide/guide10_05.png)
 
-| Method  | Order | Default `rtol` | Default `atol` | Best for                     |
-|---------|-------|----------------|----------------|------------------------------|
-| `ode78` | 7(8)  | $10^{-8}$      | $10^{-10}$     | General non-stiff problems   |
-| `ode89` | 8(9)  | $10^{-10}$     | $10^{-12}$     | High-accuracy requirements   |
+There are various options for controlling the Newton iteration:
 
-## 10.6 Nonlinear IVP Example: The Van der Pol Oscillator
+```python
+# cheboppref.setDefaults('plotting', 'on')  # show Newton iterates
+# cheboppref.setDefaults('display', 'iter') # print iteration info
+# cheboppref.setDefaults('factory')          # reset to defaults
+```
+
+## 10.2 Initial-value problems: `solve` and `solveivp`
+
+An IVP is a special case of a BVP where all conditions are imposed at the left endpoint. Chebfunjax handles IVPs through the same `Chebop` interface, or through the `ivp` convenience function.
+
+Here is a simple nonlinear IVP:
+
+$$u' = u^2, \quad u(0) = 0.95, \quad t \in [0, 1].$$
+
+The exact solution is $u(t) = 0.95/(1 - 0.95t)$:
+
+```python
+N = Chebop(lambda t, u: u.diff() - u**2, domain=(0.0, 1.0))
+N.lbc = 0.95
+u = N.solve(0.0)
+```
+
+![IVP u'=u^2](../images/guide/guide10_06.png)
+
+For comparison, the same problem can be solved with `solvebvp` (which uses global spectral methods rather than time-stepping):
+
+```python
+# u2 = solvebvp(N, 0)
+# norm(u - u2) -> 2.252255281602080e-09
+```
+
+For a second-order linear problem we can specify two initial conditions. Here is the harmonic oscillator $u'' + u = 0$, $u(0) = 1$, $u'(0) = 0$ on a long interval:
+
+```python
+N = Chebop(lambda t, u: u.diff(2) + u, domain=(0.0, 100.0))
+N.lbc = [1.0, 0.0]  # u(0) = 1, u'(0) = 0
+u = N.solve(0.0)
+# Plot u and u' together
+```
+
+![Harmonic oscillator](../images/guide/guide10_07.png)
 
 The Van der Pol equation is a classic nonlinear oscillator:
 
-$$\varepsilon u'' = (1 - u^2)u' - u, \quad u(0) = 3, \quad u'(0) = 0.$$
+$$0.05\,u'' - (1 - u^2)u' + u = 0, \quad u(0) = 3, \quad u'(0) = 0.$$
 
 ```python
-ep = 0.05
 N = Chebop(
-    lambda t, u: ep * u.diff(2) - (1 - u**2) * u.diff() + u,
+    lambda t, u: 0.05 * u.diff(2) - (1 - u**2) * u.diff() + u,
     domain=(0.0, 20.0),
 )
 N.lbc = [3.0, 0.0]
@@ -237,70 +154,104 @@ u = N.solve(0.0, n=256)
 
 ![Van der Pol oscillator](../images/guide/guide10_08.png)
 
-## 10.7 BVP Convenience Functions: `bvp4c` and `bvp5c`
+For systems of ODEs, the Lorenz system is a famous chaotic attractor:
 
-Chebfunjax provides `bvp4c` and `bvp5c` functions that mirror the MATLAB interfaces. These wrap the standard `bvp` solver with collocation refinement:
+$$u' = 10(v - u), \quad v' = u(28 - w) - v, \quad w' = uv - \tfrac{8}{3}w$$
+
+with $u(0) = -14$, $v(0) = -15$, $w(0) = 20$:
 
 ```python
-from chebfunjax.chebfun1d.ode import bvp4c, bvp5c
+from scipy.integrate import solve_ivp
+import numpy as np
 
-# u'' = -1, u(-1) = 0, u(1) = 0
-u = bvp4c(
-    lambda x, u: u.diff(2),
-    domain=(-1.0, 1.0),
-    lbc=0.0,
-    rbc=0.0,
-    f=-1.0,
+def lorenz(t, y):
+    return [10 * (y[1] - y[0]),
+            y[0] * (28 - y[2]) - y[1],
+            y[0] * y[1] - (8 / 3) * y[2]]
+
+sol = solve_ivp(lorenz, [0, 15], [-14, -15, 20],
+                max_step=0.01, dense_output=True)
+# Plot the 3D trajectory
+ts = np.linspace(0, 15, 5000)
+ys = sol.sol(ts)
+# plot3(u, v, w), view(-5, 9), axis off
+```
+
+![Lorenz attractor](../images/guide/guide10_09.png)
+
+## 10.3 Stiff IVPs
+
+Chebfunjax's default methods handle moderately stiff ODE IVPs adequately. For highly stiff problems, switching to a stiff solver is advisable. Here is a stiff test problem where the default approach would struggle:
+
+$$u' + \sin(t) + 10000(u - \cos(t)) = 0, \quad u(0) = 1.$$
+
+```python
+from scipy.integrate import solve_ivp
+
+sol = solve_ivp(
+    lambda t, y: [-np.sin(t) - 10000 * (y[0] - np.cos(t))],
+    [0, 10], [1.0], method='BDF', max_step=0.01, dense_output=True,
 )
-print(f"u(0) = {float(u(jnp.float64(0.0))):.10f}")
 ```
 
-The key difference from `bvp` is that `bvp4c`/`bvp5c` enable collocation refinement by default: if the initial solve is not sufficiently resolved (tail coefficients have not decayed below `tol`), the discretization size is doubled and the solve is repeated.
+![Stiff IVP](../images/guide/guide10_10.png)
 
-| Function | Default `tol` | Refinement doublings |
-|----------|---------------|---------------------|
-| `bvp4c`  | $10^{-6}$     | 2                   |
-| `bvp5c`  | $10^{-6}$     | 3                   |
+## 10.4 Periodic problems
 
-## 10.8 Eigenvalue Problems for Nonlinear Operators
+Periodic ODE solutions can be computed using trigonometric (Fourier) discretization rather than Chebyshev methods, by specifying periodic boundary conditions. Here we solve:
 
-The `Chebop.eigs` method linearizes a nonlinear operator around the zero function and computes eigenvalues of the resulting linear operator:
+$$u'' + u' + 600(1 + \sin x)u = 1 \quad \text{on } [-\pi, \pi]$$
+
+with periodic boundary conditions:
 
 ```python
-N = Chebop(lambda x, u: u.diff(2) + u, domain=(0.0, float(jnp.pi)))
-N.lbc = 0.0
-N.rbc = 0.0
-lam = N.eigs(k=4)
-print("Eigenvalues:", lam)
+from scipy.integrate import solve_bvp
+
+def ode_fun(x, y):
+    return np.vstack([y[1],
+                      1.0 - y[1] - 600 * (1 + np.sin(x)) * y[0]])
+
+def bc_fun(ya, yb):
+    return np.array([ya[0] - yb[0], ya[1] - yb[1]])  # periodic
+
+x_init = np.linspace(-np.pi, np.pi, 200)
+y_init = np.zeros((2, 200))
+y_init[0] = 0.001 * np.cos(x_init)
+sol = solve_bvp(ode_fun, bc_fun, x_init, y_init, tol=1e-10, max_nodes=5000)
 ```
 
-For a truly nonlinear operator, the eigenvalues describe the linearization at $u = 0$, which may not be physically meaningful for all problems.
+The `trig` flag in the display indicates trigonometric representation:
 
-## 10.9 PDE Solvers
-
-Chebfunjax includes method-of-lines PDE solvers for time-dependent problems on 1D spatial domains:
-
-```python
-import chebfunjax as cj
-
-# Heat equation: u_t = u_xx on [-1, 1]
-# with Dirichlet BCs u(-1,t) = u(1,t) = 0
-u0 = cj.chebfun(lambda x: jnp.exp(-20 * x**2))
-
-# pdeSolve integrates in time using the method of lines
-import jax.numpy as jnp
-t_span = jnp.linspace(0.0, 0.1, 50)
-# u = cj.pdeSolve(pdefun, t_span, u0, ...)
+```
+f =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values trig
+[    -3.1,     3.1]      109   -0.0043  -0.0043
+vertical scale = 0.17
 ```
 
-The `pde15s` module provides additional PDE solving capabilities based on implicit time-stepping.
+![Periodic ODE](../images/guide/guide10_11.png)
 
-## 10.10 References
+## 10.5 Ultraspherical discretizations
 
-- C. M. Bender and S. A. Orszag, *Advanced Mathematical Methods for Scientists and Engineers*, McGraw-Hill, 1978.
+As with most chebfunjax operations involving differential equations, for nonlinear ODE BVPs and periodic ODEs chebfunjax offers a choice between the default spectral collocation methods or an alternative ultraspherical method. See Sections 7.7 and 8.10.
 
-- A. Birkisson, *Numerical Solution of Nonlinear Boundary Value Problems for ODEs in the Continuous Framework*, D.Phil. thesis, University of Oxford, 2014.
+## 10.6 Graphical user interface: Chebgui
 
-- A. Birkisson and T. A. Driscoll, "Automatic Frechet differentiation for the numerical solution of boundary-value problems," *ACM Trans. Math. Softw.* 38 (2012), 1-26.
+MATLAB Chebfun includes a GUI called `chebgui` for interactive solution of ODE, time-dependent PDE, and eigenvalue problems. For many users, this is the single most important part of Chebfun. The `Demo` menu offers dozens of preloaded examples, both scalars and systems. The "Export to m-file" button produces a Chebfun m-file corresponding to whatever problem is loaded into the GUI, enabling one to get going quickly and interactively, then switch to a Chebfun program to adjust the fine points.
 
-- L. N. Trefethen, A. Birkisson, and T. A. Driscoll, *Exploring ODEs*, SIAM, 2018.
+In chebfunjax, there is no GUI equivalent. Instead, all ODE/PDE/eigenvalue problems are solved programmatically through the `Chebop` class and the convenience functions `bvp`, `bvp4c`, `bvp5c`, `ivp`, and `eigs`.
+
+## 10.7 References
+
+[Bender & Orszag 1978] C. M. Bender and S. A. Orszag, _Advanced Mathematical Methods for Scientists and Engineers_, McGraw-Hill, 1978.
+
+[Birkisson 2014] A. Birkisson, _Numerical Solution of Nonlinear Boundary Value Problems for Ordinary Differential Equations in the Continuous Framework_, D. Phil. thesis, University of Oxford, 2014.
+
+[Birkisson 2018] A. Birkisson, Automatic reformulation of ODEs to systems of first order equations, _Trans. Math. Softw._, 44 (2018), 31.
+
+[Birkisson & Driscoll 2012] A. Birkisson and T. A. Driscoll, Automatic Frechet differentiation for the numerical solution of boundary-value problems, _ACM Transactions on Mathematical Software_, 38 (2012), 1--26.
+
+[Birkisson & Driscoll 2013] A. Birkisson and T. A. Driscoll, Automatic linearity detection, preprint, `eprints.maths.ox.ac.uk`, 2013.
+
+[Trefethen, Birkisson & Driscoll 2018] L. N. Trefethen, A. Birkisson, and T. A. Driscoll, _Exploring ODEs_, SIAM, 2018; freely available at http://people.maths.ox.ac.uk/trefethen/ExplODE/
