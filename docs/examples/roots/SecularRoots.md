@@ -62,7 +62,7 @@ Roots: [1.2961, 2.3923, 3.5077, 6.8039]
 
 ## Gallery
 
-![Secular equation roots](../../../examples/roots/secular_roots.png)
+![Secular equation roots](../../images/roots/secular_roots.png)
 
 The secular function on each interval between poles, with the 4 roots
 marked as red dots and the poles as grey dashed vertical lines.

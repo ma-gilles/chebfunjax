@@ -53,6 +53,6 @@ print(f"Spiral arc length: {L_spiral:.10f}  (exact: {exact_spiral:.10f})")
 
 ## Gallery
 
-![Complex arc length](../../../examples/complex/complex_arc_length.png)
+![Complex arc length](../../images/complex/complex_arc_length.png)
 
 Four curves (circle, line, ellipse, spiral) with their computed arc lengths.

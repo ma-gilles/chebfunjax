@@ -75,7 +75,7 @@ $$
 
 ## Gallery
 
-![Bernoulli polynomials](../../../examples/roots/bernoulli_polynomials.png)
+![Bernoulli polynomials](../../images/roots/bernoulli_polynomials.png)
 
 *Left*: First 6 Bernoulli polynomials on $[0,1]$.
 *Right*: Convergence of rescaled $B_{2j}$ to $\sin(2\pi x)$ (geometric rate ½).

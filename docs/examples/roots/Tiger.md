@@ -49,7 +49,7 @@ if len(r) > 0:
 
 ## Gallery
 
-![Tiger's tail](../../../examples/roots/tiger.png)
+![Tiger's tail](../../images/roots/tiger.png)
 
 A random high-degree Chebyshev polynomial with geometrically decaying
 coefficients (factor 0.95). The roots (red dots) form a tiger-tail pattern.

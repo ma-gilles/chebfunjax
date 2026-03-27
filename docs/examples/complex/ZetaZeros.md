@@ -51,7 +51,7 @@ print(f"Riemann-von Mangoldt ≈ {N_approx(T):.1f}")
 
 ## Gallery
 
-![Zeta zeros](../../../examples/complex/zeta_zeros.png)
+![Zeta zeros](../../images/complex/zeta_zeros.png)
 
 *Left*: First 20 zeros on the critical line $\text{Re}(s)=1/2$.
 *Right*: Spacings between consecutive imaginary parts vs asymptotic prediction.

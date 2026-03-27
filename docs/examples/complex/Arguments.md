@@ -54,7 +54,7 @@ print(f"Winding number: {winding:.4f}  (should be 1)")
 
 ## Gallery
 
-![Argument principle](../../../examples/complex/argument_principle.png)
+![Argument principle](../../images/complex/argument_principle.png)
 
 *Top*: Wrapped and unwrapped argument of a spiral.
 *Bottom*: Winding number computation for a closed curve around a pole.

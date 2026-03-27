@@ -46,6 +46,6 @@ print(f"Mean spacing: {sum(spacings)/len(spacings):.6f}  (≈ π = {float(jnp.pi
 
 ## Gallery
 
-![Bessel roots](../../../examples/roots/bessel_roots.png)
+![Bessel roots](../../images/roots/bessel_roots.png)
 
 $J_0(x)$ on $[0, 100]$ with all roots marked as red dots.

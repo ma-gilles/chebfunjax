@@ -48,7 +48,7 @@ more robust for high-degree polynomials.
 
 ## Gallery
 
-![Newton's method](../../../examples/roots/newton_raphson.png)
+![Newton's method](../../images/roots/newton_raphson.png)
 
 *Left*: $f(x)$ with all roots marked.
 *Right*: Newton iterates converging to the largest root from $x_0 = 2.5$.
