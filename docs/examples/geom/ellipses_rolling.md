@@ -48,13 +48,12 @@ The trajectory length is the 1-norm of $w'(t)$ integrated up to the
 time at which $\mathrm{Im}(w(t)) = 0$ (when the small ellipse completes
 a full revolution).
 
+
+![Ellipses Rolling](../../images/geom/ellipses_rolling.png)
+
 ## Code
 
 ```python
 from examples.geom.ellipses_rolling import run
 run()
 ```
-
-## Output
-
-![Ellipses Rolling](../../images/geom/ellipses_rolling.png)

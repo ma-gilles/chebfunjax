@@ -27,13 +27,12 @@ command, then applies the complex exponential $\exp(3i \cdot s)$ to wrap
 the letters into a circular pattern -- a playful demonstration that Chebfun
 and MathJax are both tools for making mathematics beautiful.
 
+
+![MathJax Introduction](../../images/fun/mathjax.png)
+
 ## Code
 
 ```python
 from examples.fun.mathjax import run
 run()
 ```
-
-## Output
-
-![MathJax Introduction](../../images/fun/mathjax.png)

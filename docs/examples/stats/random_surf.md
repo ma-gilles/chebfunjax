@@ -57,6 +57,4 @@ from examples.stats.random_surf import run
 run()
 ```
 
-## Output
-
 ![Random Surfaces](../../images/stats/random_surf.png)

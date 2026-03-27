@@ -63,13 +63,12 @@ digits is reported in Appendix B of [1].
 
 2. S. H. Strogatz, _Nonlinear Dynamics and Chaos_, Addison Wesley, 1994.
 
+
+![Sinai Billiards](../../images/geom/sinai_billiards.png)
+
 ## Code
 
 ```python
 from examples.geom.sinai_billiards import run
 run()
 ```
-
-## Output
-
-![Sinai Billiards](../../images/geom/sinai_billiards.png)

@@ -51,13 +51,12 @@ numerical integration.
 2. A. Stevens, review of above book, _Mathematics Today_, June 2016,
    p. 152.
 
+
+![Two Circles](../../images/geom/two_circles.png)
+
 ## Code
 
 ```python
 from examples.geom.two_circles import run
 run()
 ```
-
-## Output
-
-![Two Circles](../../images/geom/two_circles.png)

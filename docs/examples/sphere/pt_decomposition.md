@@ -80,13 +80,12 @@ $$
    vector field decomposition, _ACM Trans. Graphics_, 22 (2003),
    pp. 445--452.
 
+
+![Poloidal-Toroidal Decomposition](../../images/sphere/pt_decomposition.png)
+
 ## Code
 
 ```python
 from examples.sphere.pt_decomposition import run
 run()
 ```
-
-## Output
-
-![Poloidal-Toroidal Decomposition](../../images/sphere/pt_decomposition.png)

@@ -46,13 +46,12 @@ This can be computed to full machine precision in a fraction of a second.
    _Memoires de L'Academie Royale des Sciences de L'Institut de France_
    4 (1827), pp. 571--602 (written in 1823).
 
+
+![Ellipse Perimeter](../../images/geom/ellipse.png)
+
 ## Code
 
 ```python
 from examples.geom.ellipse import run
 run()
 ```
-
-## Output
-
-![Ellipse Perimeter](../../images/geom/ellipse.png)

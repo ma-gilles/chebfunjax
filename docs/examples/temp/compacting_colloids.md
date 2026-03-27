@@ -51,8 +51,6 @@ from examples.temp.compacting_colloids import run
 run()
 ```
 
-## Output
-
 ![Compacting Colloids in a Centrifuge](../../images/temp/compacting_colloids.png)
 
 ## References

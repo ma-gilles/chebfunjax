@@ -83,13 +83,12 @@ property to machine precision.
    differential equations in spherical and polar geometries, manuscript
    in preparation, 2016.
 
+
+![Solving the Heat Equation on the Unit Sphere](../../images/sphere/sphere_heat_conduction.png)
+
 ## Code
 
 ```python
 from examples.sphere.sphere_heat_conduction import run
 run()
 ```
-
-## Output
-
-![Solving the Heat Equation on the Unit Sphere](../../images/sphere/sphere_heat_conduction.png)

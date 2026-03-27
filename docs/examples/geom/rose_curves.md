@@ -49,13 +49,12 @@ polynomial chebfuns.
 
 2. [Wikipedia: Rose curve](https://en.wikipedia.org/wiki/Rose_curve)
 
+
+![Rose Curves](../../images/geom/rose_curves.png)
+
 ## Code
 
 ```python
 from examples.geom.rose_curves import run
 run()
 ```
-
-## Output
-
-![Rose Curves](../../images/geom/rose_curves.png)

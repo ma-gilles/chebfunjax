@@ -36,6 +36,11 @@ while keeping the elevation fixed at $6^\circ$, producing a smooth rotation
 that reveals the heart from all sides. The animation can optionally be saved
 as a GIF.
 
+
+![Happy Valentine's Day! (again)](../../images/fun/valentines_day2.png)
+
+1. Anonymous, "Happy Valentine's Day!," Chebfun Example [fun/ValentinesDay](https://www.chebfun.org/examples/fun/ValentinesDay.html), February 2013.
+
 ## Code
 
 ```python
@@ -43,10 +48,5 @@ from examples.fun.valentines_day2 import run
 run()
 ```
 
-## Output
-
-![Happy Valentine's Day! (again)](../../images/fun/valentines_day2.png)
 
 ## References
-
-1. Anonymous, "Happy Valentine's Day!," Chebfun Example [fun/ValentinesDay](https://www.chebfun.org/examples/fun/ValentinesDay.html), February 2013.

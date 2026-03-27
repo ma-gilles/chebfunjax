@@ -61,6 +61,4 @@ from examples.stats.mercer_karhunen_loeve import run
 run()
 ```
 
-## Output
-
 ![Mercer-Karhunen-Loeve Expansion](../../images/stats/mercer_karhunen_loeve.png)

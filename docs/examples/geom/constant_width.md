@@ -50,13 +50,12 @@ accurate to about 5 digits.
 
 4. Wikipedia, "Curve of constant width".
 
+
+![Constant Width Curves](../../images/geom/constant_width.png)
+
 ## Code
 
 ```python
 from examples.geom.constant_width import run
 run()
 ```
-
-## Output
-
-![Constant Width Curves](../../images/geom/constant_width.png)

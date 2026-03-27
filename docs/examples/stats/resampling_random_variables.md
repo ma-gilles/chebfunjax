@@ -57,6 +57,4 @@ from examples.stats.resampling_random_variables import run
 run()
 ```
 
-## Output
-
 ![Resampling Random Variables](../../images/stats/resampling_random_variables.png)

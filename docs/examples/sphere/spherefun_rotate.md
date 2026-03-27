@@ -80,13 +80,12 @@ the poles (where the function becomes nearly zonal).
 5. L. N. Trefethen, Cubature, approximation, and isotropy in the
    hypercube, _SIAM Review_, to appear.
 
+
+![Rotating Functions on the Sphere](../../images/sphere/spherefun_rotate.png)
+
 ## Code
 
 ```python
 from examples.sphere.spherefun_rotate import run
 run()
 ```
-
-## Output
-
-![Rotating Functions on the Sphere](../../images/sphere/spherefun_rotate.png)

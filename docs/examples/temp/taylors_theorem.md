@@ -52,6 +52,11 @@ intervals centred at $x_0 = 2$ confirms the phenomenon: darker ellipses
 rescaling $x \mapsto (x - x_0)/r$ moves the singularity at $z = i$ to
 $(i - x_0)/r$, which approaches the real axis as $r \to \infty$.
 
+
+![Taylor's Theorem Analogue for Chebyshev Series](../../images/temp/taylors_theorem.png)
+
+1. L. N. Trefethen, *Approximation Theory and Approximation Practice*, SIAM, 2013.
+
 ## Code
 
 ```python
@@ -59,10 +64,5 @@ from examples.temp.taylors_theorem import run
 run()
 ```
 
-## Output
-
-![Taylor's Theorem Analogue for Chebyshev Series](../../images/temp/taylors_theorem.png)
 
 ## References
-
-1. L. N. Trefethen, *Approximation Theory and Approximation Practice*, SIAM, 2013.

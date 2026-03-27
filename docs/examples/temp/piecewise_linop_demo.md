@@ -42,13 +42,12 @@ The systems constructor, invoked internally by backslash, handles the
 piecewise domain $[-1, 0, 1]$ as a coupled system rather than two
 independent subproblems.
 
+
+![Demo of Piecewise Operators](../../images/temp/piecewise_linop_demo.png)
+
 ## Code
 
 ```python
 from examples.temp.piecewise_linop_demo import run
 run()
 ```
-
-## Output
-
-![Demo of Piecewise Operators](../../images/temp/piecewise_linop_demo.png)

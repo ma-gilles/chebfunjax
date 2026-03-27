@@ -56,6 +56,4 @@ from examples.stats.bivariate_normal import run
 run()
 ```
 
-## Output
-
 ![Bivariate Normal Distribution](../../images/stats/bivariate_normal.png)

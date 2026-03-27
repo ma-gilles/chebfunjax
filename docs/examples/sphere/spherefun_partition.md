@@ -51,13 +51,12 @@ An equivalent partitioning is available for diskfuns [2].
 2. A. Townsend, H. Wilber, and G. Wright, Computing with functions in
    spherical and polar geometries II. The disk, submitted, 2016.
 
+
+![Parity Partitioning a Spherefun](../../images/sphere/spherefun_partition.png)
+
 ## Code
 
 ```python
 from examples.sphere.spherefun_partition import run
 run()
 ```
-
-## Output
-
-![Parity Partitioning a Spherefun](../../images/sphere/spherefun_partition.png)

@@ -40,13 +40,12 @@ The visual appearance depends strongly on the phase shift $d$: for
 $d = 0$ the curve typically passes through the corners of the bounding
 box, while $d = 1/2$ shifts the vertical oscillation by a quarter-period.
 
+
+![Lissajous Figures](../../images/geom/lissajous.png)
+
 ## Code
 
 ```python
 from examples.geom.lissajous import run
 run()
 ```
-
-## Output
-
-![Lissajous Figures](../../images/geom/lissajous.png)

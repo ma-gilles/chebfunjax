@@ -76,13 +76,12 @@ eigenvector locations.
 2. L. N. Trefethen and D. Bau, III, _Numerical Linear Algebra_, SIAM,
    1997.
 
+
+![Rayleigh Quotient on the Sphere](../../images/sphere/rayleigh_quotient.png)
+
 ## Code
 
 ```python
 from examples.sphere.rayleigh_quotient import run
 run()
 ```
-
-## Output
-
-![Rayleigh Quotient on the Sphere](../../images/sphere/rayleigh_quotient.png)

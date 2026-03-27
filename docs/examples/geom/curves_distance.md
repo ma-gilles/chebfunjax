@@ -38,13 +38,12 @@ The global minimum of $d$ gives the closest distance and the parameter
 values at which it occurs. These can be used to identify the closest
 points on each curve and draw a line segment between them.
 
+
+![Distance between Curves](../../images/geom/curves_distance.png)
+
 ## Code
 
 ```python
 from examples.geom.curves_distance import run
 run()
 ```
-
-## Output
-
-![Distance between Curves](../../images/geom/curves_distance.png)

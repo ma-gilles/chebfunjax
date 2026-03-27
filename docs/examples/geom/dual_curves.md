@@ -59,13 +59,12 @@ for $t \in [0, 2\pi]$. Its dual reveals the envelope of tangent lines.
 
 2. [Wikipedia: Dual polygon](http://en.wikipedia.org/wiki/Dual_polygon)
 
+
+![Dual Curves](../../images/geom/dual_curves.png)
+
 ## Code
 
 ```python
 from examples.geom.dual_curves import run
 run()
 ```
-
-## Output
-
-![Dual Curves](../../images/geom/dual_curves.png)

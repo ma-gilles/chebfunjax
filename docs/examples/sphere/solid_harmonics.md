@@ -91,13 +91,12 @@ Forward Column recursion for large degrees $l > 1900$ [2].
    and order normalised associated Legendre functions, _Journal of
    Geodesy_, 76 (2002), pp. 279--299.
 
+
+![Solid Harmonics](../../images/sphere/solid_harmonics.png)
+
 ## Code
 
 ```python
 from examples.sphere.solid_harmonics import run
 run()
 ```
-
-## Output
-
-![Solid Harmonics](../../images/sphere/solid_harmonics.png)
