@@ -90,6 +90,7 @@ def run():
     axes[5].grid(True, alpha=0.3)
 
     for ax in axes:
+        pass
     fig.suptitle('Eight Shades of Rational Approximation (for exp(x))', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'EightShades.png'), dpi=150)

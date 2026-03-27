@@ -75,6 +75,7 @@ def run():
     ax4.set_title('Error: equispaced (Runge phenomenon)', fontsize=10)
     ax4.legend(fontsize=8)
     for ax in axes.flat:
+        pass
     fig.suptitle('Polynomial interpolation: Chebyshev vs. equispaced', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'InteractiveInterp.png'), dpi=150)
