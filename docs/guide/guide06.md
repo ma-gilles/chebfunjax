@@ -22,6 +22,10 @@ print(A.shape)    # ('inf', 6)
 print(A.n_cols)   # 6
 ```
 
+![Columns of the monomial quasimatrix 1, x, ..., x^5](../images/guide/guide06_01.png)
+
+![Spy plot of the quasimatrix A and its transpose](../images/guide/guide06_02.png)
+
 You can access individual columns and evaluate them:
 
 ```python
@@ -108,6 +112,8 @@ error = float(f.norm() if (f - ffit).norm() == 0 else (f - ffit).norm())
 print(f"L2 error: {error:.6f}")
 ```
 
+![Least-squares polynomial fit of exp(x)*sin(6x)](../images/guide/guide06_03.png)
+
 A general principle of polynomial least-squares approximation is that the best degree-$n$ polynomial approximation to a continuous function on $[a, b]$ must intersect the function at least $n+1$ times.
 
 ### Least-Squares with Other Basis Functions
@@ -127,6 +133,10 @@ for j in range(11):
     )
 A2 = Quasimatrix(hat_cols, domain=Domain((-1.0, 1.0)))
 ```
+
+![Piecewise linear hat functions](../images/guide/guide06_04.png)
+
+![Hat-function least-squares fit](../images/guide/guide06_05.png)
 
 ## 6.3 QR Factorization
 
@@ -151,6 +161,10 @@ print(f"R shape: {R.shape}")
 print(R)
 ```
 
+![QR orthonormal columns (L2-normalized Legendre polynomials)](../images/guide/guide06_06.png)
+
+![Spy plots of A, Q, and R](../images/guide/guide06_07.png)
+
 The columns of $Q$ are the Legendre polynomials $P_0, P_1, \ldots, P_5$ on $[-1, 1]$ (with $L^2$-normalization, so $\langle Q_i, Q_j \rangle = \delta_{ij}$).
 
 ### Verifying Orthonormality
@@ -163,6 +177,10 @@ for i in range(Q.n_cols):
         expected = 1.0 if i == j else 0.0
         print(f"  <Q[{i}], Q[{j}]> = {ip:.2e}  (expected {expected})")
 ```
+
+![Renormalized Legendre polynomials P(1)=1](../images/guide/guide06_08.png)
+
+![Orthonormalized hat functions](../images/guide/guide06_09.png)
 
 You can also compute QR directly from a Chebfun:
 
@@ -186,6 +204,8 @@ from chebfunjax.chebfun1d.linalg import svd_quasimatrix
 U, S, V = svd_quasimatrix(A)
 print("Singular values:", S)
 ```
+
+![Spy plots of A, U, S, and V](../images/guide/guide06_10.png)
 
 ### 2-Norm
 
@@ -225,6 +245,8 @@ print(f"||A*v1||_2 = {float(f_max.norm()):.15f}")
 print(f"||A*vn||_2 = {float(f_min.norm()):.15f}")
 ```
 
+![SVD extremal functions: maximally and minimally amplified directions](../images/guide/guide06_11.png)
+
 ## 6.5 Other Norms
 
 Chebfunjax supports multiple norms on chebfuns:
@@ -260,6 +282,8 @@ g = cj.chebfun(lambda t: jnp.cos(t))
 theta2 = subspace([f], [g])
 print(f"Angle between sin and cos: {theta2:.6f}")
 ```
+
+![Spy plots for null, orth, and pinv](../images/guide/guide06_12.png)
 
 ## 6.7 Lagrange Interpolation
 

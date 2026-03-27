@@ -1,296 +1,452 @@
-# Chapter 3: Rootfinding and Minima and Maxima
+# 3. Rootfinding and Minima and Maxima
 
-*Based on [Chebfun Guide Chapter 3](https://www.chebfun.org/docs/guide/guide03.html) by Lloyd N. Trefethen*
+*Lloyd N. Trefethen, October 2009, latest revision May 2019*
 
-## 3.1 The `roots` Method
+*Adapted for chebfunjax by the chebfunjax developers*
 
-Chebfunjax can find all the real zeros of a function on its domain.  The
-`roots` method returns a sorted JAX array of all roots:
+[previous (guide02)](guide02.md) | [index](index.md) | [next (guide04)](guide04.md)
+
+## 3.1 `roots`
+
+Chebfunjax comes with a global rootfinding capability -- the ability to find all the zeros of a function in its region of definition.  For example, here is a polynomial with two roots in $[-1,1]$:
 
 ```python
 import jax.numpy as jnp
 import chebfunjax as cj
 
 x = cj.chebfun(lambda x: x)
-f = x**3 + x**2 - x
-r = f.roots()
+p = x**3 + x**2 - x
+r = p.roots()
 print(r)
-# [0.         0.61803399]   (plus root at x = -1.618... outside domain?)
 ```
 
-### Algorithm
+```
+[ 0.          0.61803399]
+```
 
-The rootfinding algorithm is based on the Boyd-Battles method.  For each smooth
-piece of the chebfun, the zeros of the underlying Chebyshev polynomial are
-computed as eigenvalues of the *colleague matrix* -- the Chebyshev analogue of
-the companion matrix for monomials.
-
-For high-degree polynomials (above about 50), the algorithm recursively
-subdivides the interval and finds roots on smaller pieces, then combines them.
-This keeps the eigenvalue problems small and numerically stable.
-
-### Example: zeros of sin(kx)
+We can plot $p$ and its roots like this:
 
 ```python
-# Zeros of sin(10*x) on [0, 10]
-f = cj.chebfun(lambda x: jnp.sin(10 * x), domain=[0, 10])
+fig, ax = cj.plot(p)
+ax.plot(r, [float(p(ri)) for ri in r], '.r', markersize=12)
+ax.grid(True)
+```
+
+![](../images/guide/guide03_01.png)
+
+Of course, one does not need chebfunjax to find roots of a polynomial. NumPy's `numpy.roots` command works from a polynomial's coefficients and computes estimates of all the roots, not just those in a particular interval.
+
+```python
+import numpy as np
+print(np.roots([1, 1, -1, 0]))
+```
+
+```
+[ 0.          -1.61803399   0.61803399]
+```
+
+A more substantial example of rootfinding involving a Bessel function was considered in Sections 1.2 and 2.4.  Here is a similar calculation for the Airy functions Ai and Bi, modeled after the page on Airy functions at WolframMathWorld.
+
+```python
+import scipy.special as sp
+
+def airy_ai(x):
+    x_np = np.asarray(x)
+    return jnp.array(sp.airy(x_np)[0])
+
+def airy_bi(x):
+    x_np = np.asarray(x)
+    return jnp.array(sp.airy(x_np)[2])
+
+Ai = cj.chebfun(airy_ai, domain=[-10, 3])
+Bi = cj.chebfun(airy_bi, domain=[-10, 3])
+
+fig, ax = plt.subplots(figsize=(6, 3.5))
+xs = np.linspace(-10, 3, 600)
+ax.plot(xs, [float(Ai(xi)) for xi in xs], 'r', linewidth=1.8)
+ax.plot(xs, [float(Bi(xi)) for xi in xs], 'b', linewidth=1.8)
+rA = Ai.roots()
+rB = Bi.roots()
+ax.plot(np.asarray(rA), [float(Ai(ri)) for ri in rA], '.r', markersize=10)
+ax.plot(np.asarray(rB), [float(Bi(ri)) for ri in rB], '.b', markersize=10)
+ax.set_xlim(-10, 3)
+ax.set_ylim(-0.6, 1.5)
+ax.grid(True)
+```
+
+![](../images/guide/guide03_02.png)
+
+Here for example are the three roots of Ai and Bi closest to 0:
+
+```python
+print(rA[-3:])
+print(rB[-3:])
+```
+
+```
+[-5.52055983 -4.08794944 -2.33810741]
+[-4.83073784 -3.2710933  -1.17371322]
+```
+
+Chebfunjax finds roots by a method due to Boyd and Battles [Boyd 2002, Boyd 2014, Battles 2006].  If the chebfun is of degree greater than about $50$, it is broken into smaller pieces recursively.  On each small piece zeros are then found as eigenvalues of a "colleague matrix", the analogue for Chebyshev polynomials of a companion matrix for monomials [Specht 1960, Good 1961]. This method can be startlingly fast and accurate.  For example, here is a sine function with $11$ zeros:
+
+```python
+import time
+
+f = cj.chebfun(lambda x: jnp.sin(jnp.pi * x), domain=[0, 10])
+lengthf = len(f)
+print(f"lengthf = {lengthf}")
+
+t0 = time.time()
 r = f.roots()
-print(f"Number of roots: {len(r)}")
-print(r[:5])  # first five roots: approximately 0, pi/10, 2*pi/10, ...
+elapsed = time.time() - t0
+print(f"Elapsed time is {elapsed:.6f} seconds.")
+print(r)
 ```
 
-Since $\sin(10x) = 0$ when $10x = k\pi$, i.e., $x = k\pi/10$, there should
-be about $10 \cdot 10/\pi \approx 32$ roots in $[0, 10]$.
+```
+lengthf = 44
+Elapsed time is 0.004055 seconds.
+[ 0.  1.  2.  3.  4.  5.  6.  7.  8.  9. 10.]
+```
 
-### Solving nonlinear equations
-
-The `roots` method naturally solves nonlinear equations.  To find all solutions
-of $\cos(x) = x$ on $[-5, 5]$:
+A similar computation with 101 zeros comes out equally well:
 
 ```python
-g = cj.chebfun(lambda x: jnp.cos(x) - x, domain=[-5, 5])
-solutions = g.roots()
-print(solutions)
-# Should find the single solution near x = 0.739...
+f = cj.chebfun(lambda x: jnp.sin(jnp.pi * x), domain=[0, 100])
+lengthf = len(f)
+print(f"lengthf = {lengthf}")
+
+t0 = time.time()
+r = f.roots()
+elapsed = time.time() - t0
+print(f"Elapsed time is {elapsed:.6f} seconds.")
+for ri in r[-5:]:
+    print(f"     {float(ri):22.14f}")
 ```
 
-In general, to solve $f(x) = g(x)$, construct the chebfun $h = f - g$ and
-call `h.roots()`.
+```
+lengthf = 212
+Elapsed time is 0.038469 seconds.
+      96.00000000000001
+      97.00000000000000
+      98.00000000000001
+      99.00000000000000
+     100.00000000000000
+```
 
-## 3.2 Operations That Introduce Breakpoints
+And here is the same on an interval with 1001 zeros.
 
-Several operations take smooth chebfuns as input and produce piecewise-smooth
-chebfuns as output.  They do this by using `roots` internally to locate the
-points where smoothness breaks down, then inserting those points as breakpoints.
+```python
+f = cj.chebfun(lambda x: jnp.sin(jnp.pi * x), domain=[0, 1000])
+lengthf = len(f)
+print(f"lengthf = {lengthf}")
 
-### abs
+t0 = time.time()
+r = f.roots()
+elapsed = time.time() - t0
+print(f"Elapsed time is {elapsed:.6f} seconds.")
+for ri in r[-5:]:
+    print(f"     {float(ri):22.13f}")
+```
 
-The absolute value $|f(x)|$ has a kink wherever $f(x) = 0$:
+```
+lengthf = 1684
+Elapsed time is 0.096928 seconds.
+      996.0000000000000
+      997.0000000000000
+      998.0000000000000
+      999.0000000000000
+     1000.0000000000000
+```
+
+Here is an oscillatory function with many roots, analogous to the "fish fillet" example in the Chebfun gallery:
+
+```python
+f = cj.chebfun(lambda x: jnp.sin(66 * jnp.pi * x) * jnp.exp(jnp.sin(x)),
+                domain=[-1, 1])
+t0 = time.time()
+r = f.roots()
+elapsed = time.time() - t0
+print(f"Elapsed time is {elapsed:.6f} seconds.")
+
+fig, ax = cj.plot(f)
+ax.plot(np.asarray(r), [float(f(ri)) for ri in r], '.r', markersize=4)
+```
+
+![](../images/guide/guide03_03.png)
+
+With the ability to find zeros, we can solve a variety of nonlinear problems.  For example, where do the curves $x$ and $\cos(x)$ intersect?  Here is the answer.
+
+```python
+x = cj.chebfun(lambda x: x, domain=[-2, 2])
+f = cj.cos(x)
+r = (f - x).roots()
+print(r)
+
+fig, ax = plt.subplots(figsize=(6, 3.5))
+xs = np.linspace(-2, 2, 600)
+ax.plot(xs, [float(x(xi)) for xi in xs], linewidth=1.8)
+ax.plot(xs, [float(f(xi)) for xi in xs], 'k', linewidth=1.8)
+ax.plot(np.asarray(r), [float(f(ri)) for ri in r], 'or', markersize=8)
+```
+
+```
+[0.73908513]
+```
+
+![](../images/guide/guide03_04.png)
+
+All of the examples above concern chebfuns consisting of a single fun. If there are several funs, then roots are included at jumps as necessary.
+
+> **Note (chebfunjax):** The MATLAB Chebfun `roots` command supports a `'nojump'` flag to omit roots at discontinuities, and piecewise functions can be constructed from `sign(sin(20*x))`.  These piecewise-construction features are not yet fully supported in chebfunjax.  The `abs` and `sign` methods do introduce breakpoints at roots (see Section 3.2), and `roots` correctly finds zeros across all pieces.
+
+## 3.2 `min`, `max`, `abs`, `sign`, `round`, `floor`, `ceil`
+
+Rootfinding is more central to chebfunjax than one might at first imagine, because a number of commands, when applied to smooth chebfuns, must produce non-smooth results, and it is rootfinding that tells us where to put the discontinuities. For example, the `abs` method introduces breakpoints wherever the argument goes through zero.  Here we see that `x` consists of a single piece, whereas `abs(x)` consists of two pieces.
 
 ```python
 x = cj.chebfun(lambda x: x)
-g = x.abs()
-print(g)
-# Chebfun column (2 smooth pieces)
-#        interval       length     endpoint values
-# [      -1,       0]        2       1.00     0.00
-# [       0,       1]        2       0.00     1.00
+absx = cj.abs(x)
+print(repr(x))
+print()
+print(repr(absx))
 ```
 
-The single-piece chebfun representing $x$ has become a 2-piece chebfun
-representing $|x|$, with a breakpoint at $x = 0$.
+```
+Chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[      -1,       1]        2      -1.00      1.00
+vscale = 1.00e+00
 
-### sign
+Chebfun column (2 smooth pieces)
+       interval       length     endpoint values
+[      -1,       0]        2       1.00      0.00
+[       0,       1]        2       0.00      1.00
+vscale = 1.00e+00    total length = 4
+```
 
-The sign function creates discontinuities:
+```python
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 3.5))
+xs = np.linspace(-1, 1, 300)
+ax1.plot(xs, [float(x(xi)) for xi in xs], linewidth=1.8)
+ax1.set_title('x')
+ax2.plot(xs, [float(absx(xi)) for xi in xs], linewidth=1.8)
+ax2.set_title('abs(x)')
+```
+
+![](../images/guide/guide03_05.png)
+
+We saw this effect already in Section 1.4. Another similar effect shown in that section occurs with the pointwise minimum or maximum of two functions.  In MATLAB Chebfun, breakpoints are introduced at points where `f-g` is zero.
+
+> **Note (chebfunjax):** The two-argument pointwise `min(f, g)` and `max(f, g)` operations, as well as `round`, `floor`, and `ceil`, are not yet implemented in chebfunjax. The `abs` and `sign` methods are fully supported and correctly introduce breakpoints at roots.  These additional operations will be added in a future release.
+
+## 3.3 Local extrema
+
+Local extrema of smooth functions can be located by finding zeros of the derivative.  For example, here is a variant of the Airy function again, with all its extrema in its range of definition located and plotted.
+
+```python
+def exp_airy(x):
+    x_np = np.asarray(x)
+    return jnp.array(np.exp(np.real(sp.airy(x_np)[0])))
+
+f = cj.chebfun(exp_airy, domain=[-15, 0])
+fig, ax = cj.plot(f)
+r = f.diff().roots()
+ax.plot(np.asarray(r), [float(f(ri)) for ri in r], '.r', markersize=8)
+ax.grid(True)
+```
+
+![](../images/guide/guide03_06.png)
+
+Chebfunjax users don't have to compute the derivative explicitly to find extrema, however.  The `minandmax` method returns the global minimum and maximum:
+
+```python
+(x_min, f_min), (x_max, f_max) = f.minandmax()
+print(f"Global min at x = {x_min:.6f}, f(x) = {f_min:.6f}")
+print(f"Global max at x = {x_max:.6f}, f(x) = {f_max:.6f}")
+```
+
+> **Note (chebfunjax):** MATLAB Chebfun's `minandmax(f, 'local')` returns all local extrema including endpoints, and `min(f, 'local')` and `max(f, 'local')` return local minima and maxima respectively.  In chebfunjax, local extrema can be found by computing `f.diff().roots()` and evaluating `f` at those critical points plus the endpoints.
+
+These methods will find smooth extrema.  For non-smooth extrema (at breakpoints of piecewise functions), one can check the function values at breakpoints directly.  Here is an example showing how to find all critical points:
 
 ```python
 x = cj.chebfun(lambda x: x)
-s = x.sign()
-print(float(s(-0.5)))   # -1
-print(float(s(0.5)))    #  1
-```
-
-### Combining abs with more complex functions
-
-```python
-x = cj.chebfun(lambda x: x, domain=[0, 2 * jnp.pi])
-f = cj.sin(8 * x)
-g = f.abs()
-print(g)   # multiple pieces
-```
-
-## 3.3 Local Extrema
-
-Local extrema of a function occur at the roots of its derivative (and
-possibly at breakpoints or domain endpoints).  There are two ways to find them:
-
-### Method 1: Roots of the derivative
-
-```python
-f = cj.chebfun(lambda x: jnp.sin(x) + jnp.sin(x**2), domain=[0, 10])
+f = cj.exp(x) * cj.sin(30 * x)
 fp = f.diff()
-critical_points = fp.roots()
-print(f"Number of critical points: {len(critical_points)}")
+critical_pts = fp.roots()
+print(f"Number of critical points: {len(critical_pts)}")
 ```
 
-To classify each critical point as a minimum or maximum, check the sign of
-the second derivative:
+Suppose we want to pick out the local extrema that are actually local minima.  We can do that by checking for the second derivative to be positive:
 
 ```python
 fpp = f.diff(2)
-for cp in critical_points[:5]:
-    cp_val = float(f(cp))
-    fpp_val = float(fpp(cp))
-    label = "min" if fpp_val > 0 else "max" if fpp_val < 0 else "inflection"
-    print(f"  x = {float(cp):.6f},  f(x) = {cp_val:.6f},  type = {label}")
+for cp in critical_pts:
+    if float(fpp(cp)) > 0:
+        print(f"  local min at x = {float(cp):.6f}, f(x) = {float(f(cp)):.6f}")
 ```
 
-### Method 2: The minandmax method
+## 3.4 Global extrema: max and min
 
-The `minandmax` method finds the global minimum and maximum simultaneously:
+If `min` or `max` is applied to a single chebfun, it returns its global minimum or maximum.  For example:
+
+```python
+f = cj.chebfun(lambda x: 1 - x**2 / 2)
+x_min, f_min = f.min()
+x_max, f_max = f.max()
+print(f"min = {f_min:.15f}   max = {f_max:.15f}")
+```
+
+```
+min = 0.500000000000000   max = 1.000000000000000
+```
+
+Chebfunjax computes such a result by checking the values of `f` at endpoints and at zeros of the derivative.
+
+The `min` and `max` methods return both the location and the value of the extreme point:
+
+```python
+x_min, f_min = f.min()
+print(f"minval = {f_min:.15f}")
+print(f"minpos = {x_min}")
+```
+
+```
+minval = 0.500000000000000
+minpos = -1.0
+```
+
+Note that just one position is returned even though the minimum is attained at two points.  This is consistent with the behavior of standard MATLAB and NumPy.
+
+This ability to do global 1D optimization in chebfunjax is rather remarkable.  Here is a nontrivial example.
 
 ```python
 f = cj.chebfun(lambda x: jnp.sin(x) + jnp.sin(x**2), domain=[0, 15])
+fig, ax = cj.plot(f, color='k')
+```
+
+![](../images/guide/guide03_07.png)
+
+The length of this chebfun is not as great as one might imagine:
+
+```python
+print(len(f))
+```
+
+```
+216
+```
+
+Here are its global minimum and maximum:
+
+```python
+minpos, minval = f.min()
+maxpos, maxval = f.max()
+print(f"minval = {minval:.15f}")
+print(f"minpos = {minpos:.15f}")
+print(f"maxval = {maxval:.15f}")
+print(f"maxpos = {maxpos:.15f}")
+
+fig, ax = cj.plot(f, color='k')
+ax.plot(minpos, minval, '.b', markersize=15)
+ax.plot(maxpos, maxval, '.r', markersize=15)
+```
+
+```
+minval = -1.990085468159407
+minpos =  4.852581429906174
+maxval =  1.995232599437866
+maxpos = 14.234791972306912
+```
+
+![](../images/guide/guide03_08.png)
+
+For larger chebfuns, it is inefficient to compute the global minimum and maximum separately like this -- each one must compute the derivative and find all its zeros. The alternative `minandmax` method mentioned above provides a faster alternative:
+
+```python
 (x_min, f_min), (x_max, f_max) = f.minandmax()
-print(f"Global min: f({x_min:.6f}) = {f_min:.6f}")
-print(f"Global max: f({x_max:.6f}) = {f_max:.6f}")
+print(f"extreme values: [{f_min:.15f}, {f_max:.15f}]")
+print(f"extreme positions: [{x_min:.15f}, {x_max:.15f}]")
 ```
 
-The algorithm finds all roots of the derivative, evaluates the function there
-and at the endpoints of each piece, and returns the overall min and max.
+```
+extreme values: [-1.990085468159407, 1.995232599437866]
+extreme positions: [4.852581429906174, 14.234791972306912]
+```
 
-## 3.4 Global Extrema: min and max
+## 3.5 `norm(f, 1)` and `norm(f, jnp.inf)`
 
-The `min` and `max` methods are convenience wrappers around `minandmax`:
+The default, $2$-norm form of the `norm` method was considered in Section 2.2. In standard Python one can also compute $1$- and $\infty$-norms with `f.norm(1)` and `f.norm(jnp.inf)`.  These have been implemented in chebfunjax, and in both cases, rootfinding is part of the implementation.  The $1$-norm `f.norm(1)` is the integral of the absolute value, and chebfunjax computes this by adding up segments between zeros, at which $|f(x)|$ will typically have a discontinuous slope. The $\infty$-norm is computed from the formula $\|f\|_\infty = \max(\max(f),-\min(f))$.
+
+For example:
 
 ```python
-f = cj.chebfun(lambda x: jnp.sin(x) + jnp.sin(x**2), domain=[0, 15])
-
-x_min, f_min = f.min()
-x_max, f_max = f.max()
-
-print(f"min: f({x_min:.6f}) = {f_min:.6f}")
-print(f"max: f({x_max:.6f}) = {f_max:.6f}")
+f = cj.chebfun(lambda x: jnp.sin(x), domain=[103, 103 + 4 * jnp.pi])
+print(float(f.norm(jnp.inf)))
+print(float(f.norm(1)))
 ```
 
-Both methods return a tuple `(x_opt, f_opt)` giving the location and value
-of the extremum.
+```
+1.000000000000002
+7.999999999999992
+```
 
-### Example: finding the minimum of a Runge-type function
+## 3.6 Roots in the complex plane
+
+Chebfuns live on real intervals, and the funs from which they are made live on real subintervals.  But a polynomial representing a fun may have roots outside the interval of definition, which may be complex. Sometimes we may want to get our hands on these roots, and in MATLAB Chebfun the `roots` command makes this possible in various ways through the flags `'all'`, `'complex'`, and `'norecursion'`.
+
+The simplest example is a chebfun that is truly intended to correspond to a polynomial.  For example, the chebfun
 
 ```python
-f = cj.chebfun(lambda x: 1.0 / (1 + 25 * x**2))
-x_max, f_max = f.max()
-print(f"Maximum of Runge function: f({x_max:.6f}) = {f_max:.6f}")
-# Maximum is at x = 0, f(0) = 1
+x = cj.chebfun(lambda x: x)
+f = 1 + 16 * x**2
 ```
 
-## 3.5 Norm Computations
-
-The `norm` method leverages rootfinding internally for certain norm types:
-
-### The 1-norm (L1 norm)
-
-$$\|f\|_1 = \int_a^b |f(x)|\,dx$$
-
-This is computed by first calling `abs()` (which uses `roots` to find sign
-changes), then integrating:
+has no roots in $[-1,1]$:
 
 ```python
-f = cj.chebfun(jnp.sin, domain=[0, 4 * jnp.pi])
-print(f"||sin||_1 on [0, 4*pi] = {float(f.norm(1)):.6f}")
-# Should be 8.0  (4 half-periods, each contributing 2)
+print(f.roots())
 ```
 
-### The infinity norm
+```
+[]
+```
 
-$$\|f\|_\infty = \max_{x \in [a,b]} |f(x)|$$
+> **Note (chebfunjax):** The `'all'`, `'complex'`, and `'norecursion'` flags for roots are not yet implemented in chebfunjax.  The `roots` method currently finds only real roots within the chebfun's domain of definition.  Complex rootfinding capabilities may be added in a future release.
 
-This uses the extrema-finding machinery:
+In MATLAB Chebfun, one can extract the complex roots with `roots(f, 'all')`, which for $1 + 16x^2$ gives the pure imaginary roots $\pm i/4$.  The `'complex'` flag filters to return only those complex roots lying inside a "Chebfun ellipse" associated with the function, which tends to select genuine roots near the interval of definition while discarding spurious roots of the polynomial approximation.
+
+One must expect complex roots of chebfuns to lose accuracy as one moves away from the interval of definition.
+
+Here is a more complicated example from MATLAB Chebfun that illustrates the structure of complex roots:
 
 ```python
-f = cj.chebfun(jnp.sin, domain=[0, 4 * jnp.pi])
-print(f"||sin||_inf on [0, 4*pi] = {float(f.norm(jnp.inf)):.6f}")
-# Should be 1.0
+def F(x):
+    return 4 + jnp.sin(x) + jnp.sin(jnp.sqrt(2) * x) + jnp.sin(jnp.pi * x)
+
+f = cj.chebfun(F, domain=[-100, 100])
 ```
 
-### The 2-norm
+This function has a lot of complex roots lying in strips on either side of the real axis.  In MATLAB Chebfun, `roots(f, 'complex')` reveals this beautiful structure.
 
-$$\|f\|_2 = \sqrt{\int_a^b |f(x)|^2\,dx} = \sqrt{\langle f, f \rangle}$$
+To find poles in the complex plane as opposed to zeros, see Section 4.8 and also [Austin, Kravanja & Trefethen 2015]. More advanced methods of rootfinding and polefinding are based on rational approximations rather than polynomials, an area where Chebfun has significant capabilities; see the next chapter of this guide, Chapter 28 of [Trefethen 2013], and [Webb 2013].
 
-The 2-norm is computed via the inner product, which uses Clenshaw-Curtis
-quadrature -- no rootfinding needed:
+## 3.7 References
 
-```python
-f = cj.chebfun(jnp.sin, domain=[0, jnp.pi])
-print(f"||sin||_2 on [0, pi] = {float(f.norm(2)):.6f}")
-# sqrt(pi/2) = 1.2533...
-```
+[Austin, Kravanja & Trefethen 2015] A. P. Austin, P. Kravanja, and L. N. Trefethen, "Numerical algorithms based on analytic function values at roots of unity", *SIAM Journal on Numerical Analysis*, to appear.
 
-## 3.6 Rootfinding for Piecewise Chebfuns
+[Battles 2006] Z. Battles, *Numerical Linear Algebra for Continuous Functions*, DPhil thesis, Oxford University Computing Laboratory, 2006.
 
-When a chebfun has multiple pieces, `roots()` finds the zeros of each piece
-independently and combines the results.  Duplicate roots at breakpoints (which
-might be found by two adjacent pieces) are automatically deduplicated:
+[Boyd 2002] J. A. Boyd, "Computing zeros on a real interval through Chebyshev expansion and polynomial rootfinding", *SIAM Journal on Numerical Analysis*, 40 (2002), 1666-1682.
 
-```python
-# A piecewise function with known roots
-f = cj.chebfun(lambda x: jnp.sin(x), domain=[0, jnp.pi, 2 * jnp.pi])
-r = f.roots()
-print(r)
-# Should find roots at 0, pi, and 2*pi
-```
+[Boyd 2014] J. A. Boyd, *Solving Transcendental Equations: The Chebyshev Polynomial Proxy and Other Numerical Rootfinders, Perturbation Series, and Oracles*, SIAM, 2014.
 
-## 3.7 Finding Intersections
+[Good 1961] I. J. Good, "The colleague matrix, a Chebyshev analogue of the companion matrix", *Quarterly Journal of Mathematics*, 12 (1961), 61-68.
 
-To find where two functions intersect, take their difference and find its
-roots:
+[Specht 1960] W. Specht, "Die Lage der Nullstellen eines Polynoms. IV", *Mathematische Nachrichten*, 21 (1960), 201-222.
 
-```python
-f = cj.chebfun(jnp.sin, domain=[0, 10])
-g = cj.chebfun(jnp.cos, domain=[0, 10])
-h = f - g   # sin(x) - cos(x)
-crossings = h.roots()
-print(f"sin(x) = cos(x) at {len(crossings)} points in [0, 10]:")
-for xc in crossings:
-    print(f"  x = {float(xc):.6f},  f(x) = {float(f(xc)):.6f}")
-```
+[Trefethen 2013] L. N. Trefethen, *Approximation Theory and Approximation Practice*, SIAM, 2013.
 
-The intersections of $\sin(x)$ and $\cos(x)$ occur at $x = \pi/4 + k\pi$.
-
-## 3.8 Example: Optimization of a Multimodal Function
-
-Here is a more substantial example -- finding the global minimum of a function
-with many local minima:
-
-```python
-f = cj.chebfun(
-    lambda x: jnp.sin(x) + jnp.sin(3 * x) / 3 + jnp.cos(7 * x) / 5,
-    domain=[0, 20]
-)
-
-# All critical points
-fp = f.diff()
-crit = fp.roots()
-print(f"Number of critical points: {len(crit)}")
-
-# Global min and max
-x_min, f_min = f.min()
-x_max, f_max = f.max()
-print(f"Global min: f({x_min:.6f}) = {f_min:.6f}")
-print(f"Global max: f({x_max:.6f}) = {f_max:.6f}")
-```
-
-## 3.9 Summary
-
-| Method | Description | Returns |
-|---|---|---|
-| `f.roots()` | All zeros in $[a, b]$ | `jax.Array` of root locations |
-| `f.min()` | Global minimum | `(x_min, f_min)` |
-| `f.max()` | Global maximum | `(x_max, f_max)` |
-| `f.minandmax()` | Both min and max | `((x_min, f_min), (x_max, f_max))` |
-| `f.abs()` | Absolute value (with breakpoints) | Piecewise `Chebfun` |
-| `f.sign()` | Sign function (with breakpoints) | Piecewise `Chebfun` |
-| `f.norm(p)` | $L^p$ norm | scalar |
-
-### Key algorithmic ideas
-
-1. **Colleague matrix eigenvalues**: Roots of Chebyshev polynomials are found
-   via the eigenvalues of a companion-like matrix.
-2. **Recursive subdivision**: High-degree polynomials are split into smaller
-   intervals for stable rootfinding.
-3. **Derivative-based optimization**: Extrema are found by rootfinding on the
-   derivative, combined with endpoint evaluation.
-4. **Automatic breakpoint insertion**: Operations like `abs` and `sign` use
-   `roots` to locate sign changes and insert breakpoints for a smooth
-   piecewise representation.
-
-## 3.10 References
-
-- J. P. Boyd, *Computing zeros on a real interval through Chebyshev expansion
-  and polynomial rootfinding*, SIAM J. Numer. Anal. 40 (2002), 1666-1682.
-- Z. Battles, *Numerical Linear Algebra for Continuous Functions*, D.Phil.
-  thesis, Oxford, 2006.
-- L. N. Trefethen, *Approximation Theory and Approximation Practice*,
-  SIAM, 2013.
+[Webb 2013] M. Webb, "Computing complex singularities of differential equations with Chebfun", *SIAM Undergraduate Research Online*, 6 (2013), [http://dx.doi.org/10.1137/12S011520](http://dx.doi.org/10.1137/12S011520).

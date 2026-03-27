@@ -19,6 +19,9 @@ print(f"Number of components: {len(curves)}")
 print(f"Number of points: {curves[0].shape[0]}")
 ```
 
+![](../images/guide/guide14_01.png)
+
+
 The result is a list of point clouds, one per connected component. Each element is an array of shape `(n_pts, 2)` with $(x, y)$ coordinates along the zero contour.
 
 The implementation uses a marching-squares algorithm on a fine grid (500 x 500 by default), with linear interpolation to locate sign changes. This provides good initial approximations but is not refined to machine precision via Newton iteration (unlike the MATLAB version).
@@ -30,6 +33,9 @@ f = chebfun2(lambda x, y: (x**2 + y**2)**2 - (x**2 - y**2))
 curves = f.roots()
 # The lemniscate is a figure-eight curve
 ```
+
+![](../images/guide/guide14_02.png)
+
 
 ## 14.2 Solving Systems of Two Equations
 
@@ -46,6 +52,9 @@ curves_g = g.roots()
 # The intersections are where the circle x^2+y^2=0.49 meets y=x
 # Analytically: x = y = +/- sqrt(0.245)
 ```
+
+![](../images/guide/guide14_03.png)
+
 
 For more sophisticated bivariate rootfinding (common zeros of two `Chebfun2` objects), the MATLAB Chebfun uses Bezoutian resultant methods. In chebfunjax, you can combine the marching-squares approach with numerical refinement.
 
@@ -65,6 +74,9 @@ fy = f.diff(dim=1)  # df/dy
 print(f"fx(1,1) = {fx(1.0, 1.0):.2e}")
 print(f"fy(1,1) = {fy(1.0, 1.0):.2e}")
 ```
+
+![](../images/guide/guide14_04.png)
+
 
 ## 14.4 Global Optimisation
 
@@ -92,6 +104,9 @@ print(f"Max value: {vals[i_max, j_max]:.10f} at ({xs[j_max]:.4f}, {ys[i_max]:.4f
 print(f"Min value: {vals[i_min, j_min]:.10f} at ({xs[j_min]:.4f}, {ys[i_min]:.4f})")
 ```
 
+![](../images/guide/guide14_05.png)
+
+
 Alternatively, use JAX's automatic differentiation for gradient-based optimization:
 
 ```python
@@ -114,6 +129,9 @@ print(f"Local maximum at ({xy[0]:.6f}, {xy[1]:.6f})")
 print(f"Value: {f(xy[0], xy[1]):.10f}")
 ```
 
+![](../images/guide/guide14_06.png)
+
+
 ## 14.5 The Infinity Norm
 
 The infinity norm $\|f\|_\infty = \max_{(x,y) \in \Omega} |f(x,y)|$ can be approximated by evaluation on a fine grid:
@@ -129,6 +147,9 @@ vals = f(xx.ravel(), yy.ravel()).reshape(n, n)
 inf_norm = float(jnp.max(jnp.abs(vals)))
 print(f"||f||_inf ~ {inf_norm:.10f}")
 ```
+
+![](../images/guide/guide14_07.png)
+
 
 ## 14.6 Gradient Fields
 

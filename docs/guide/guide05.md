@@ -40,6 +40,8 @@ plt.title('Unit circle')
 plt.show()
 ```
 
+![Unit circle](../images/guide/guide05_01.png)
+
 ### Semicircle example
 
 Points on the upper semicircle from $-1$ to $1$:
@@ -78,6 +80,8 @@ plt.axis('equal')
 plt.title('Archimedean spiral')
 plt.show()
 ```
+
+![Archimedean spiral](../images/guide/guide05_02.png)
 
 ### Arc length of curves
 
@@ -156,6 +160,8 @@ plt.tight_layout()
 plt.show()
 ```
 
+![Conformal map z to z^2](../images/guide/guide05_03.png)
+
 ### Mobius transformations
 
 A Mobius transformation $w = (az + b)/(cz + d)$ maps circles and lines to
@@ -192,6 +198,8 @@ plt.axis('equal')
 plt.tight_layout()
 plt.show()
 ```
+
+![Mobius transformation](../images/guide/guide05_04.png)
 
 ## 5.3 Contour Integrals
 
@@ -438,6 +446,10 @@ print(f"Max curvature: {k_max_val:.6f} at t = {k_max_loc:.6f}")
 # kappa_min = b/a^2 = 1/4 = 0.25 (at ends of major axis)
 # kappa_max = a/b^2 = 2 (at ends of minor axis)
 ```
+
+![Ellipse with semi-axes a=2, b=1](../images/guide/guide05_05.png)
+
+![Curvature of the ellipse](../images/guide/guide05_06.png)
 
 ### Enclosed area
 

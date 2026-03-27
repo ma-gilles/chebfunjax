@@ -18,6 +18,9 @@ f = chebfun2(lambda x, y: jnp.sin(10 * x * y))
 print(f.sum2())
 ```
 
+![](../images/guide/guide13_01.png)
+
+
 The computation exploits the low-rank structure. If $f \approx \sum_j d_j\, c_j(y)\, r_j(x)$, then
 
 $$\int\!\!\int f\, dy\, dx = \sum_j d_j \left(\int c_j(y)\, dy\right) \left(\int r_j(x)\, dx\right)$$
@@ -43,6 +46,9 @@ xs = jnp.array([0.0, 0.5, 1.0])
 print(g(xs, jnp.zeros_like(xs)))  # y-argument is ignored
 ```
 
+![](../images/guide/guide13_02.png)
+
+
 Computing `f.sum(dim=1).sum(dim=2)` is equivalent to `f.sum2()`:
 
 ```python
@@ -50,6 +56,9 @@ s1 = f.sum2()
 s2 = f.sum(dim=1).sum2()
 print(jnp.abs(s1 - s2))  # should be near machine epsilon
 ```
+
+![](../images/guide/guide13_03.png)
+
 
 Calling `f.sum()` with no arguments is equivalent to `f.sum2()`.
 
@@ -65,6 +74,9 @@ $$\|f\|_2 = \sqrt{\int_{x_a}^{x_b} \int_{y_a}^{y_b} |f(x,y)|^2\, dy\, dx}$$
 f = chebfun2(lambda x, y: jnp.cos(jnp.pi * x) * jnp.sin(jnp.pi * y))
 print(f.norm())  # L2 norm
 ```
+
+![](../images/guide/guide13_04.png)
+
 
 The computation uses the low-rank structure directly:
 
@@ -82,6 +94,9 @@ area = 1.0  # (1-0) * (1-0)
 mean_val = f.sum2() / area
 print(mean_val)  # mean of exp(x+y) on [0,1]^2
 ```
+
+![](../images/guide/guide13_05.png)
+
 
 ## 13.4 Partial Differentiation
 
@@ -104,6 +119,9 @@ print(f"fx({x0},{y0}) = {fx(x0, y0):.15f}")
 print(f"exact       = {jnp.cos(x0) * jnp.cos(y0):.15f}")
 ```
 
+![](../images/guide/guide13_06.png)
+
+
 ### Laplacian
 
 The Laplacian $\nabla^2 f = f_{xx} + f_{yy}$ can be computed by summing the two second derivatives:
@@ -120,6 +138,9 @@ exact = -2.0 * jnp.sin(x0) * jnp.cos(y0)
 print(f"Laplacian = {lap_val:.15f}")
 print(f"exact     = {exact:.15f}")
 ```
+
+![](../images/guide/guide13_07.png)
+
 
 ### Cauchy-Riemann verification
 

@@ -48,6 +48,8 @@ print(f"f(0) = {float(f(jnp.float64(0.0))):.6f}")
 print(f"f(10) = {float(f(jnp.float64(10.0))):.6f}")
 ```
 
+![Function on the semi-infinite interval [0, infinity)](../images/guide/guide09_01.png)
+
 ### Example: Gaussian on $(-\infty, \infty)$
 
 The error function can be computed by integrating the Gaussian:
@@ -64,6 +66,8 @@ integral = float(g.sum())
 print(f"integral of (2/sqrt(pi))*exp(-x^2) from 0 to inf = {integral:.15f}")
 # Should be 1.0 (the complete error function)
 ```
+
+![Gaussian integrand on [0, infinity)](../images/guide/guide09_02.png)
 
 ### Caveats for Infinite Intervals
 
@@ -96,6 +100,8 @@ w = Singfun.from_function(
 integral = float(w.sum())
 print(f"integral of w(x) = {integral:.15f}")
 ```
+
+![Chebyshev weight function with inverse-square-root singularities](../images/guide/guide09_03.png)
 
 ### Specifying Exponents
 

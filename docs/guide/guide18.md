@@ -17,6 +17,9 @@ f = chebfun3(lambda x, y, z: 1.0 / (1.0 + x**2 + y**2 + z**2))
 print(f)  # Chebfun3(rank=(rx, ry, rz), domain=...)
 ```
 
+![](../images/guide/guide18_01.png)
+
+
 ### Evaluation
 
 A `Chebfun3` is callable at point(s) $(x, y, z)$:
@@ -33,6 +36,9 @@ zs = jnp.array([0.0, 0.5, 1.0])
 print(f(xs, ys, zs))
 ```
 
+![](../images/guide/guide18_02.png)
+
+
 Evaluation is JIT-compiled, vmap-safe, and grad-safe. You can differentiate through a `Chebfun3` using JAX's automatic differentiation.
 
 ### Triple integral
@@ -45,6 +51,9 @@ $$\texttt{f.sum3()} = \int_{x_a}^{x_b} \int_{y_a}^{y_b} \int_{z_a}^{z_b} f(x, y,
 # Integral of 1/(1+x^2+y^2+z^2) over [-1,1]^3
 print(f.sum3())
 ```
+
+![](../images/guide/guide18_03.png)
+
 
 ## 18.2 Tucker Decomposition
 
@@ -64,6 +73,9 @@ The Tucker rank is a 3-tuple $(r_x, r_y, r_z)$:
 print(f.rank)  # e.g. (5, 5, 5)
 ```
 
+![](../images/guide/guide18_04.png)
+
+
 The internal components are accessible:
 
 ```python
@@ -72,6 +84,9 @@ print(f"Number of row functions: {len(f.rows)}")
 print(f"Number of tube functions: {len(f.tubes)}")
 print(f"Core tensor shape: {f.core.shape}")
 ```
+
+![](../images/guide/guide18_05.png)
+
 
 ## 18.3 Construction Algorithm
 

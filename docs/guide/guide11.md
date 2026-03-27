@@ -73,6 +73,9 @@ print(f"Number of points: {f.n}")
 print(f"Number of Fourier modes: {f.n // 2}")
 ```
 
+![](../images/guide/guide11_01.png)
+
+
 ### Construction from Values and Coefficients
 
 ```python
@@ -89,6 +92,9 @@ from chebfunjax.tech.trigtech import trig_vals2coeffs, trig_coeffs2vals
 coeffs = trig_vals2coeffs(vals)
 f2 = Trigtech.from_coeffs(coeffs)
 ```
+
+![](../images/guide/guide11_02.png)
+
 
 ## 11.4 Fourier Coefficient Transforms
 
@@ -107,6 +113,9 @@ coeffs = trig_vals2coeffs(vals)
 print("Fourier coefficients:", coeffs)
 ```
 
+![](../images/guide/guide11_03.png)
+
+
 The coefficients are stored in ascending wavenumber order: for odd $N = 2M+1$, the array contains $c_{-M}, c_{-M+1}, \ldots, c_0, \ldots, c_M$.
 
 ### `trig_coeffs2vals`: Coefficients to Values
@@ -117,6 +126,9 @@ from chebfunjax.tech.trigtech import trig_coeffs2vals
 vals_reconstructed = trig_coeffs2vals(coeffs)
 print("Max error:", float(jnp.max(jnp.abs(vals_reconstructed - vals))))
 ```
+
+![](../images/guide/guide11_04.png)
+
 
 ## 11.5 Basic Operations on Trigtech
 
@@ -129,6 +141,9 @@ The `Trigtech` class supports many of the same operations as `Chebtech2`:
 x = jnp.array([0.0, 0.25, 0.5])
 print(f(x))
 ```
+
+![](../images/guide/guide11_05.png)
+
 
 ### Differentiation
 
@@ -143,6 +158,9 @@ df = f.diff()
 print(f"df(0) = {float(df(jnp.float64(0.0))):.15f}")
 print(f"pi    = {float(jnp.pi):.15f}")
 ```
+
+![](../images/guide/guide11_06.png)
+
 
 This exactness is a key advantage over Chebyshev representations for periodic functions, where repeated differentiation gradually degrades accuracy near the endpoints.
 

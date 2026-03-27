@@ -45,6 +45,9 @@ print(f"Final time: {t}")
 print(f"Grid size: {len(x)}")
 ```
 
+![](../images/guide/guide19_01.png)
+
+
 Available built-in 1D PDEs:
 
 | Name | PDE | Domain |
@@ -70,6 +73,9 @@ plt.plot(x, u)
 plt.title(f'Allen-Cahn at t = {t}')
 plt.show()
 ```
+
+![](../images/guide/guide19_02.png)
+
 
 ### Custom SpinOp
 

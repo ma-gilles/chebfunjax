@@ -119,6 +119,8 @@ u = L.solve(lambda x: -jnp.ones_like(x))
 print(f"u(0) = {float(u(jnp.float64(0.0))):.15f}")   # 0.5
 ```
 
+![Solution of u'' = -1 with Dirichlet BCs](../images/guide/guide07_01.png)
+
 ### Adaptive Discretization
 
 When no fixed size `n` is provided, `Linop.solve` uses an adaptive loop: it tries discretization sizes $n = 8, 16, 32, \ldots$ until the Chebyshev coefficients of the solution decay below the tolerance.
@@ -151,6 +153,8 @@ L = Linop(
 u = L.solve(lambda t: jnp.ones_like(t))
 ```
 
+![Variable-coefficient BVP: u'' + x^3 u = 1](../images/guide/guide07_02.png)
+
 ### Verifying the Solution
 
 You can verify the residual by evaluating the operator on the solution:
@@ -173,6 +177,8 @@ N.rbc = 0.0   # u(1) = 0
 u = N.solve(-1.0)
 print(f"u(0) = {float(u(jnp.float64(0.0))):.15f}")
 ```
+
+![Chebop solution of u'' = -1](../images/guide/guide07_03.png)
 
 ### Boundary Condition Types
 
@@ -303,6 +309,8 @@ print(f"u({mid:.4f}) = {float(u(jnp.float64(mid))):.10f}")
 print(f"cos({mid:.4f}) = {float(jnp.cos(jnp.float64(mid))):.10f}")
 ```
 
+![Harmonic oscillator: u'' + u = 0](../images/guide/guide07_04.png)
+
 ## 7.9 Quantum States
 
 The `quantumstates` function solves the time-independent Schrodinger equation
@@ -320,6 +328,8 @@ V = x**2
 eigenvalues, eigenfunctions = cj.quantumstates(V, n=5, h=0.1)
 print("Energy levels:", eigenvalues)
 ```
+
+![Quantum harmonic oscillator eigenstates](../images/guide/guide07_05.png)
 
 ## 7.10 GMRES for Operator Equations
 

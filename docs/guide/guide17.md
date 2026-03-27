@@ -20,6 +20,9 @@ f = Spherefun.from_function(lambda lam, theta: jnp.cos(theta))
 print(f)  # Spherefun(rank=..., n_plus=..., n_minus=...)
 ```
 
+![](../images/guide/guide17_01.png)
+
+
 ### Cartesian functions on the sphere
 
 To approximate a function given in Cartesian form, convert coordinates inside the lambda:
@@ -29,6 +32,9 @@ To approximate a function given in Cartesian form, convert coordinates inside th
 g = Spherefun.from_function(
     lambda lam, theta: jnp.cos(lam) * jnp.sin(theta) * jnp.sin(lam) * jnp.sin(theta))
 ```
+
+![](../images/guide/guide17_02.png)
+
 
 ## 17.2 Evaluation
 
@@ -48,6 +54,9 @@ thetas = jnp.full(50, jnp.pi / 2)
 vals = f(lams, thetas)
 ```
 
+![](../images/guide/guide17_03.png)
+
+
 Evaluation is JIT-compiled, vmap-safe, and grad-safe.
 
 ## 17.3 Integration
@@ -65,6 +74,9 @@ print(one.sum())  # ~ 12.566370614... = 4*pi
 f = Spherefun.from_function(lambda lam, theta: jnp.cos(theta))
 print(f.sum())  # ~ 0
 ```
+
+![](../images/guide/guide17_04.png)
+
 
 Only the "plus" terms (in the BMC-I decomposition) contribute to the integral. For each plus term:
 
@@ -104,6 +116,9 @@ g = Spherefun.from_function(
     lambda lam, theta: jnp.exp(-10 * (jnp.cos(lam) * jnp.sin(theta))**2))
 print(g.rank)
 ```
+
+![](../images/guide/guide17_05.png)
+
 
 ## 17.6 Spherical Harmonics
 
