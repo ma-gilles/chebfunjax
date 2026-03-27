@@ -2,7 +2,7 @@
 
 *Nick Hale, June 2022*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/delayodes.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/DelayDifferentialEquations.html)
 
 ## Overview
 

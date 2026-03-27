@@ -2,7 +2,7 @@
 
 *Anthony Austin, May 2013*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/contourexpm.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-linear/ContourExpm.html)
 
 ## Overview
 

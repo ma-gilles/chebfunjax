@@ -2,7 +2,7 @@
 
 *Asgeir Birkisson, February 2015*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/ivpcapabilities.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/IVPCapabilities.html)
 
 ## Overview
 

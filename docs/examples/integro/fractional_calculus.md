@@ -48,7 +48,7 @@ def frac_integral(f_vals, x_vals, alpha):
 
 ## Plots
 
-![Fractional calculus](../../../docs/images/integro/fractional_calculus.png)
+![Fractional calculus](../../images/integro/fractional_calculus.png)
 
 Fractional integrals of `x^k` for `k = 1, 2, 3, 4, 5` with `α = 0.5`,
 compared to analytical results.

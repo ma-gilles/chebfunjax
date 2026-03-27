@@ -2,7 +2,7 @@
 
 *Nick Hale and Nick Trefethen, June 2019*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/jumpgreen.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-linear/JumpGreen.html)
 
 ## Overview
 

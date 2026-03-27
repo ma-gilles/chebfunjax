@@ -2,7 +2,7 @@
 
 *Richard Mikael Slevinsky, October 2014*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/floquet.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-linear/Floquet.html)
 
 ## Overview
 

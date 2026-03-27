@@ -2,7 +2,7 @@
 
 *Nick Trefethen, August 2012*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/resonantvandal.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-linear/ResonantVandal.html)
 
 ## Overview
 

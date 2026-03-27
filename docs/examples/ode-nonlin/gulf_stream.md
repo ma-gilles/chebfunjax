@@ -2,7 +2,7 @@
 
 *C. I. Gheorghiu, January 2020*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/gulfstream.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/GulfStream.html)
 
 ## Overview
 

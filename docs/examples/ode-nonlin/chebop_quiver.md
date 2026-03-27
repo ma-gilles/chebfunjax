@@ -2,7 +2,7 @@
 
 *Asgeir Birkisson, November 2015*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/chebopquiver.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/ChebopQuiver.html)
 
 ## Overview
 

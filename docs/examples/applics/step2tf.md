@@ -50,7 +50,7 @@ f_aaa, pol, res, zer, z_sup, f_sup, w = aaa(
 
 ## Plots
 
-![Step2tf](../../../docs/images/applics/step2tf.png)
+![Step2tf](../../images/applics/step2tf.png)
 
 Left: step response `h(t)` on `[0, 8]`, with final value `H(0) = 1.875`.
 Right: Bode magnitude of exact `H(jω)` vs AAA fit.

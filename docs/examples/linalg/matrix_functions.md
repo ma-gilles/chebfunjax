@@ -1,6 +1,6 @@
 # Matrix Functions
 
-*Original: [chebfun.org/examples/linalg/MatrixFunctions](https://www.chebfun.org/examples/linalg/MatrixFunctions.html)*
+**Inspired by [Chebfun](https://www.chebfun.org/) examples (linalg/MatrixFunctions)**
 
 ---
 

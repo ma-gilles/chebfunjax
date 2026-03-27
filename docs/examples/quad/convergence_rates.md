@@ -1,6 +1,7 @@
 # Convergence Rates for Quadrature
 
 *Original: [chebfun.org/examples/quad/QuadratureConvergence](https://www.chebfun.org/examples/quad/QuadratureConvergence.html)*
+**Author(s):** Nick Trefethen, November 2013
 
 ---
 

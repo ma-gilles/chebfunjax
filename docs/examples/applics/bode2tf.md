@@ -51,7 +51,7 @@ f_aaa_mag, pol, res, zer, z_sup, f_sup, w = aaa(
 
 ## Plots
 
-![Bode2tf](../../../docs/images/applics/bode2tf.png)
+![Bode2tf](../../images/applics/bode2tf.png)
 
 Top: Bode magnitude plot (exact vs AAA fit).
 Bottom: Bode phase plot (exact vs AAA fit).

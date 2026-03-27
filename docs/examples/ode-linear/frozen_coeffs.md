@@ -2,7 +2,7 @@
 
 *Nick Trefethen, March 2017*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/frozencoeffs.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-linear/FrozenCoeffs.html)
 
 ## Overview
 

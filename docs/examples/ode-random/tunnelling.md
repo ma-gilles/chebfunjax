@@ -1,7 +1,7 @@
 # Tunnelling Between Metastable States
 
 **Original MATLAB:** [ode-random/Tunnelling](https://www.chebfun.org/examples/ode-random/Tunnelling.html)
-**Author:** Nick Trefethen (May 2017)
+**Author(s):** Nick Trefethen, May 2017
 
 ## Overview
 

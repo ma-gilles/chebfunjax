@@ -2,7 +2,7 @@
 
 *Filomena Di Tommaso, February 2013*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/bouncingball.html)
+[Chebfun example](https://github.com/chebfun/examples/blob/master/ode-linear/BouncingBall.m)
 
 ## Overview
 

@@ -1,7 +1,7 @@
 # Phase-Locking in a Duffing-Type Equation
 
 **Original MATLAB:** [ode-random/PhaseLocking](https://www.chebfun.org/examples/ode-random/PhaseLocking.html)
-**Author:** Kevin Burrage and Nick Trefethen (May 2017)
+**Author(s):** Kevin Burrage and Nick Trefethen, May 2017
 
 ## Overview
 

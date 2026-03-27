@@ -2,7 +2,7 @@
 
 *Asgeir Birkisson and Toby Driscoll, September 2010*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/bvpsystem.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/BVPSystem.html)
 
 ## Overview
 

@@ -2,7 +2,7 @@
 
 *Yuji Nakatsukasa, July 2012*
 
-[Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/AbsoluteValueScaled.html)
+[Original MATLAB source](https://github.com/chebfun/examples/blob/master/approx/AbsoluteValueScaled.m)
 
 ## Scaled Newton iteration
 

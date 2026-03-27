@@ -2,7 +2,7 @@
 
 *Nick Hale and Toby Driscoll, November 2011*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/piecewisedemo.html)
+[Chebfun example](https://github.com/chebfun/examples/blob/master/ode-linear/PiecewiseDemo.m)
 
 ## Overview
 

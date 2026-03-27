@@ -2,7 +2,7 @@
 
 *Mark Richardson, May 2011*
 
-[Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/ChebfunFFT.html)
+[Original MATLAB source](https://github.com/chebfun/examples/blob/master/approx/ChebfunFFT.m)
 
 ## Chebyshev points and the unit circle
 

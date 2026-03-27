@@ -1,6 +1,7 @@
 # Fourier Coefficients
 
 *Original: [chebfun.org/examples/fourier/FourierCoefficients](https://www.chebfun.org/examples/fourier/FourierCoefficients.html)*
+**Author(s):** Grady Wright, June 2014
 
 ---
 

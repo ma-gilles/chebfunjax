@@ -2,7 +2,7 @@
 
 *Jared L. Aurentz and John S. Minor, September 2014*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-eig/opticalresponse.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-eig/OpticalResponse.html)
 
 ## Overview
 

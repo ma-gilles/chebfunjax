@@ -1,6 +1,6 @@
 # Approximating Bessel Functions
 
-*Original: [chebfun.org/examples/approx/BesselApprox](https://www.chebfun.org/examples/approx/BesselApprox.html)*
+**Inspired by [Chebfun](https://www.chebfun.org/) examples (approx/BesselApprox)**
 
 ---
 

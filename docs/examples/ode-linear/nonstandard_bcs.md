@@ -2,7 +2,7 @@
 
 *Asgeir Birkisson, October 2011*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/nonstandardbcs.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-linear/NonstandardBCs.html)
 
 ## Overview
 

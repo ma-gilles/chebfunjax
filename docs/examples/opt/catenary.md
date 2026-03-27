@@ -1,6 +1,7 @@
 # The Catenary
 
 *Original: [chebfun.org/examples/opt/Catenary](https://www.chebfun.org/examples/opt/Catenary.html)*
+**Author(s):** Hrothgar and Toby Driscoll, April 2014
 
 ---
 

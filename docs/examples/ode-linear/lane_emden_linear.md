@@ -2,7 +2,7 @@
 
 *Alex Townsend, May 2011*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/laneemdenlinear.html)
+[Chebfun example](https://github.com/chebfun/examples/blob/master/ode-nonlin/LaneEmden.m)
 
 ## Overview
 

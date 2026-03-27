@@ -1,6 +1,6 @@
 # Polynomial Roots
 
-*Original: [chebfun.org/examples/roots/ChebPts](https://www.chebfun.org/examples/roots/ChebPts.html)*
+**Inspired by [Chebfun](https://www.chebfun.org/) examples (roots/ChebPts)**
 
 ---
 

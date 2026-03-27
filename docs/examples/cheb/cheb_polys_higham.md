@@ -1,7 +1,7 @@
 # Chebyshev Polynomials as Plotted by Fornberg and Higham
 
 **Original MATLAB:** [cheb/ChebPolysHigham](https://www.chebfun.org/examples/cheb/ChebPolysHigham.html)
-**Author:** Nick Trefethen (December 2011)
+**Author(s):** Nick Trefethen, December 2011
 
 ## Overview
 

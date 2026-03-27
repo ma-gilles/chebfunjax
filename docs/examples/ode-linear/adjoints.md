@@ -2,7 +2,7 @@
 
 *Yuji Nakatsukasa, February 2017*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/adjoints.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-linear/Adjoints.html)
 
 ## Overview
 

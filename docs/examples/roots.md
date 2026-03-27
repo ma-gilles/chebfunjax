@@ -174,23 +174,23 @@ Figures generated automatically from `examples/roots/`.
 
 ### Bessel roots
 
-![Bessel roots](../../examples/roots/bessel_roots.png)
+![Bessel roots](../../images/roots/bessel_roots.png)
 
 ### Extrema and roots
 
-![Extrema and roots](../../examples/roots/extrema_and_roots.png)
+![Extrema and roots](../../images/roots/extrema_and_roots.png)
 
 ### Newton-Raphson root-finding
 
-![Newton-Raphson](../../examples/roots/newton_raphson.png)
+![Newton-Raphson](../../images/roots/newton_raphson.png)
 
 ### Chebyshev polynomial roots
 
-![Polynomial roots](../../examples/roots/polynomial_roots.png)
+![Polynomial roots](../../images/roots/polynomial_roots.png)
 
 ### Random polynomial roots
 
-![Random polynomials](../../examples/roots/random_polynomials.png)
+![Random polynomials](../../images/roots/random_polynomials.png)
 
 ---
 
@@ -198,13 +198,13 @@ Figures generated automatically from `examples/roots/`.
 
 | Example | Description |
 |---------|-------------|
-| [BesselRoots](roots/BesselRoots.md) | All roots of $J_0$ on $[0,100]$ compared with scipy |
-| [NewtonRaphson](roots/NewtonRaphson.md) | Newton's method vs Chebfun colleague-matrix approach |
-| [BernoulliPolynomials](roots/BernoulliPolynomials.md) | Recursive construction via integration and zero-mean condition |
-| [SecularRoots](roots/SecularRoots.md) | Roots of a secular equation with near-poles |
-| [FundamentalTheoremAlgebra](roots/FundamentalTheoremAlgebra.md) | Chebyshev and monomial polynomial roots |
-| [RandomPolynomials](roots/RandomPolynomials.md) | Random polynomial roots clustering near the unit circle |
-| [RootsNearAxis](roots/RootsNearAxis.md) | Complex roots near the real axis visualised via $\log|f(z)|$ |
-| [Tiger](roots/Tiger.md) | High-degree random Chebyshev polynomial — the tiger's tail |
-| [WhiteCurves](roots/WhiteCurves.md) | White curve intersections of Chebyshev polynomials $T_1\ldots T_{30}$ |
-| [RootsSpeed](roots/RootsSpeed.md) | Speed and accuracy of the colleague-matrix rootfinder |
+| [BesselRoots](roots/bessel_roots.md) | All roots of $J_0$ on $[0,100]$ compared with scipy |
+| [NewtonRaphson](roots/newton_raphson.md) | Newton's method vs Chebfun colleague-matrix approach |
+| [BernoulliPolynomials](roots/bernoulli_polynomials.md) | Recursive construction via integration and zero-mean condition |
+| [SecularRoots](roots/secular_roots.md) | Roots of a secular equation with near-poles |
+| [FundamentalTheoremAlgebra](roots/fundamental_theorem_algebra.md) | Chebyshev and monomial polynomial roots |
+| [RandomPolynomials](roots/random_polynomials.md) | Random polynomial roots clustering near the unit circle |
+| [RootsNearAxis](roots/roots_near_axis.md) | Complex roots near the real axis visualised via $\log|f(z)|$ |
+| [Tiger](roots/tiger.md) | High-degree random Chebyshev polynomial — the tiger's tail |
+| [WhiteCurves](roots/white_curves.md) | White curve intersections of Chebyshev polynomials $T_1\ldots T_{30}$ |
+| [RootsSpeed](roots/roots_speed.md) | Speed and accuracy of the colleague-matrix rootfinder |

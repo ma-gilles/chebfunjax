@@ -2,7 +2,7 @@
 
 *Nick Trefethen, November 2010*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-eig/wavedecay.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-eig/WaveDecay.html)
 
 ## Overview
 

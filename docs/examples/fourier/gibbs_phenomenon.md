@@ -1,6 +1,7 @@
 # The Gibbs Phenomenon
 
 *Original: [chebfun.org/examples/fourier/FejerJackson](https://www.chebfun.org/examples/fourier/FejerJackson.html)*
+**Author(s):** Grady Wright, June 2014
 
 ---
 

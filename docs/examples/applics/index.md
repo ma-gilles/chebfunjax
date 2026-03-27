@@ -43,7 +43,7 @@ gamma = delta.diff()
 print(f"Gamma(S=100) = {float(gamma(jnp.array(100.0))):.6f}")
 ```
 
-![Finance applications](../../../examples/applics/finance_applications.png)
+![Finance applications](../../images/applics/finance_applications.png)
 
 ---
 
@@ -56,7 +56,7 @@ Computes European call option price by integrating the log-normal
 payoff distribution. Demonstrates how chebfunjax can integrate
 smooth and piecewise-smooth functions efficiently.
 
-![European call](../../../docs/images/applics/european_call.png)
+![European call](../../images/applics/european_call.png)
 
 ---
 
@@ -68,7 +68,7 @@ smooth and piecewise-smooth functions efficiently.
 Verifies put-call parity `C - P = S₀ - K e^{-rT}` using chebfun
 integration of the option payoff distributions.
 
-![European options](../../../docs/images/applics/european_options.png)
+![European options](../../images/applics/european_options.png)
 
 ---
 
@@ -80,7 +80,7 @@ integration of the option payoff distributions.
 Computes delta, gamma, vega, and theta analytically by differentiating
 the Black-Scholes formula via chebfun.
 
-![Greeks](../../../docs/images/applics/greeks.png)
+![Greeks](../../images/applics/greeks.png)
 
 ---
 
@@ -92,7 +92,7 @@ the Black-Scholes formula via chebfun.
 Prices European call and put options using the Black-Scholes formula
 and verifies put-call parity.
 
-![Vanilla options](../../../docs/images/applics/vanilla_options.png)
+![Vanilla options](../../images/applics/vanilla_options.png)
 
 ---
 
@@ -111,7 +111,7 @@ Compares three population growth models on `[0, 25]`:
 Gompertz grows slower than logistic near the carrying capacity,
 making it useful for modeling tumor growth and technology adoption.
 
-![Gompertz growth](../../../docs/images/applics/gompertz.png)
+![Gompertz growth](../../images/applics/gompertz.png)
 
 ---
 
@@ -131,7 +131,7 @@ H(s) = ω_n² / (s² + 2ζω_n s + ω_n²)
 AAA fits the real-valued Bode data (magnitude in dB, phase in degrees)
 using `chebfunjax.utils.aaa.aaa()`.
 
-![Bode2tf](../../../docs/images/applics/bode2tf.png)
+![Bode2tf](../../images/applics/bode2tf.png)
 
 ---
 
@@ -150,7 +150,7 @@ H(s) = 5(s+3) / ((s+1)(s+2)(s+4))
 from its frequency response Bode magnitude, using AAA rational
 approximation on real-valued data.
 
-![Step2tf](../../../docs/images/applics/step2tf.png)
+![Step2tf](../../images/applics/step2tf.png)
 
 | Example | Description |
 |---------|-------------|

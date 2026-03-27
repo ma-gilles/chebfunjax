@@ -2,7 +2,7 @@
 
 *Stefan Guettel, April 2012*
 
-[Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/RestrictedDenominatorApproximations.html)
+[Original MATLAB source](https://github.com/chebfun/examples/blob/master/approx/RestrictedDenominatorApproximations.m)
 
 ## Restricted denominators
 

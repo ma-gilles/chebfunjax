@@ -2,7 +2,7 @@
 
 *Hrothgar, June 2014*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/blasius.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/Blasius.html)
 
 ## Overview
 

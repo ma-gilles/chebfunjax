@@ -2,7 +2,7 @@
 
 *Georges Klein, March 2013*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/dynamicalsystems.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-linear/DynamicalSystems.html)
 
 ## Overview
 

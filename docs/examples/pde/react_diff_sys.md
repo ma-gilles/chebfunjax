@@ -2,7 +2,7 @@
 
 **Source:** `pde/ReactDiffSys.m` — Nick Hale, October 2010
 **Python:** `examples/pde/react_diff_sys.py`
-**Original MATLAB:** https://www.chebfun.org/examples/pde/ReactDiffSys.html
+**Original MATLAB:** https://github.com/chebfun/examples/blob/master/pde/ReactDiffSys.m
 
 ## Problem
 
@@ -43,7 +43,7 @@ By `T = 2.0`:
 
 ## Plots
 
-![React-diff sys](../../../docs/images/pde/react_diff_sys.png)
+![React-diff sys](../../images/pde/react_diff_sys.png)
 
 Left: initial conditions. Right: final state at T=2 showing depletion
 of reactants and formation of product.

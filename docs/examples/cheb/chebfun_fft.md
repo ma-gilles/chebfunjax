@@ -2,7 +2,7 @@
 
 *Mark Richardson, May 2011*
 
-*Original: [chebfun.org/examples/cheb/ChebfunFFT](https://www.chebfun.org/examples/cheb/ChebfunFFT.html)*
+*Original: [chebfun.org/examples/cheb/ChebfunFFT](https://github.com/chebfun/examples/blob/master/approx/ChebfunFFT.m)*
 
 ---
 

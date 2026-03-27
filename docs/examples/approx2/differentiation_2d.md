@@ -1,6 +1,6 @@
 # Differentiation in 2D
 
-*Original: [chebfun.org/examples/approx2/Differentiation](https://www.chebfun.org/examples/approx2/Differentiation.html)*
+**Inspired by [Chebfun](https://www.chebfun.org/) examples (approx2/Differentiation)**
 
 ---
 

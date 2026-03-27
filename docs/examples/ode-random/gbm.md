@@ -1,7 +1,7 @@
 # Geometric Brownian Motion
 
 **Original MATLAB:** [ode-random/GBM](https://www.chebfun.org/examples/ode-random/GBM.html)
-**Author:** Nick Trefethen (May 2017)
+**Author(s):** Nick Trefethen, May 2017
 
 ## Overview
 

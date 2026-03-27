@@ -1,6 +1,6 @@
 # What's the Noise Level of a Chebyshev Series?
 
-**Original MATLAB:** [cheb/NoiseLevel](https://www.chebfun.org/examples/cheb/NoiseLevel.html)
+**Original MATLAB:** [cheb/NoiseLevel](https://github.com/chebfun/examples/blob/master/cheb/NoiseLevel.m)
 **Author:** Nick Trefethen (6 July 2016)
 
 ## Overview

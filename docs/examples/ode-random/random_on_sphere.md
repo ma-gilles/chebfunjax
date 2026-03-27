@@ -1,7 +1,7 @@
 # Random Trajectory on a Sphere
 
 **Original MATLAB:** [ode-random/RandomOnASphere](https://www.chebfun.org/examples/ode-random/RandomOnASphere.html)
-**Author:** Kevin Burrage and Nick Trefethen (May 2017)
+**Author(s):** Kevin Burrage and Nick Trefethen, May 2017
 
 ## Overview
 

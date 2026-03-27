@@ -2,7 +2,7 @@
 
 *Tanya Morton, January 2013*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/bloodhound.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/Bloodhound.html)
 
 ## Overview
 

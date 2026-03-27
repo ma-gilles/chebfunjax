@@ -1,6 +1,6 @@
 # Rank of Functions
 
-*Original: [chebfun.org/examples/approx2/Rank](https://www.chebfun.org/examples/approx2/Rank.html)*
+**Inspired by [Chebfun](https://www.chebfun.org/) examples (approx2/Rank)**
 
 ---
 

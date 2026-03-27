@@ -1,7 +1,7 @@
 # From Random Functions to SDEs
 
 **Original MATLAB:** [ode-random/Random2SDE](https://www.chebfun.org/examples/ode-random/Random2SDE.html)
-**Author:** Nick Trefethen and Abdul-Lateef Haji-Ali (May 2017)
+**Author(s):** Nick Trefethen and Abdul-Lateef Haji-Ali, May 2017
 
 ## Overview
 

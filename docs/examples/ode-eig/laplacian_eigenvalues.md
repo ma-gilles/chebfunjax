@@ -1,6 +1,6 @@
 # Laplacian Eigenvalues
 
-*Original: [chebfun.org/examples/ode-eig/DirLap](https://www.chebfun.org/examples/ode-eig/DirLap.html)*
+**Inspired by [Chebfun](https://www.chebfun.org/) examples (ode-eig/DirLap)**
 
 ---
 

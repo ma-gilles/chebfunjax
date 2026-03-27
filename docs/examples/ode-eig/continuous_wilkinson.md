@@ -2,7 +2,7 @@
 
 *Nick Trefethen, March 2017*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-eig/continuouswilkinson.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-eig/ContinuousWilkinson.html)
 
 ## Overview
 

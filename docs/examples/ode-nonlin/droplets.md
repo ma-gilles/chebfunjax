@@ -2,7 +2,7 @@
 
 *Ray Treinen and Nick Trefethen, October 2022*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/droplets.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/Droplets.html)
 
 ## Overview
 

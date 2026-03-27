@@ -46,7 +46,7 @@ integral numerically.
 
 ## Plots
 
-![WikiIntegroDiff](../../../docs/images/integro/wiki_integro_diff.png)
+![WikiIntegroDiff](../../images/integro/wiki_integro_diff.png)
 
 Left: exact solution vs numerical.
 Right: pointwise error (machine precision).

@@ -2,7 +2,7 @@
 
 *Mohsin Javed, July 2012*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/deltaodes.html)
+[Chebfun example](https://github.com/chebfun/examples/blob/master/ode-linear/DeltaODEs.m)
 
 ## Overview
 

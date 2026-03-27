@@ -1,7 +1,7 @@
 # Collective Dynamics and Consensus
 
 **Original MATLAB:** [ode-random/Consensus](https://www.chebfun.org/examples/ode-random/Consensus.html)
-**Author:** Nick Trefethen (May 2017)
+**Author(s):** Nick Trefethen, May 2017
 
 ## Overview
 

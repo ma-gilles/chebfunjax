@@ -56,16 +56,16 @@ def phase_portrait(f, xlim=(-3,3), ylim=(-3,3), n=400):
 
 | Example | Description |
 |---------|-------------|
-| [KeyholeContour](complex/KeyholeContour.md) | Keyhole contour for $\log(z)\tanh(z)$; error $\sim 10^{-14}$ |
-| [ClosedContours](complex/ClosedContours.md) | Periodic trapezoidal rule for residues |
-| [ComplexArcLength](complex/ComplexArcLength.md) | Arc length via $\int|z'(t)|\,dt$ |
-| [RoucheTheorem](complex/RoucheTheorem.md) | Counting zeros via winding number |
-| [PhasePortraits](complex/PhasePortraits.md) | Phase portraits for six functions |
-| [AnalyticContinuation](complex/AnalyticContinuation.md) | Bernstein ellipse and coefficient decay |
+| [KeyholeContour](complex/keyhole_contour.md) | Keyhole contour for $\log(z)\tanh(z)$; error $\sim 10^{-14}$ |
+| [ClosedContours](complex/closed_contours.md) | Periodic trapezoidal rule for residues |
+| [ComplexArcLength](complex/complex_arc_length.md) | Arc length via $\int|z'(t)|\,dt$ |
+| [RoucheTheorem](complex/rouche_theorem.md) | Counting zeros via winding number |
+| [PhasePortraits](complex/phase_portraits.md) | Phase portraits for six functions |
+| [AnalyticContinuation](complex/analytic_continuation.md) | Bernstein ellipse and coefficient decay |
 | [Arguments](complex/Arguments.md) | `angle`, `unwrap`, and winding numbers |
-| [ConformalVis](complex/ConformalVis.md) | Conformal maps via grid transformation |
-| [FourierContour](complex/FourierContour.md) | Fourier transforms via contour integrals |
-| [ZetaZeros](complex/ZetaZeros.md) | Riemann zeta zeros on the critical line |
+| [ConformalVis](complex/conformal_vis.md) | Conformal maps via grid transformation |
+| [FourierContour](complex/fourier_contour.md) | Fourier transforms via contour integrals |
+| [ZetaZeros](complex/zeta_zeros.md) | Riemann zeta zeros on the critical line |
 
 ---
 
@@ -73,44 +73,44 @@ def phase_portrait(f, xlim=(-3,3), ylim=(-3,3), n=400):
 
 ### Contour integrals
 
-![Contour integrals](../../examples/complex/contour_integrals.png)
+![Contour integrals](../../images/complex/contour_integrals.png)
 
 ### Argument principle
 
-![Argument principle](../../examples/complex/argument_principle.png)
+![Argument principle](../../images/complex/argument_principle.png)
 
 ### Analytic continuation
 
-![Analytic continuation](../../examples/complex/analytic_continuation.png)
+![Analytic continuation](../../images/complex/analytic_continuation.png)
 
 ### Phase portraits
 
-![Phase portraits](../../examples/complex/phase_portraits.png)
+![Phase portraits](../../images/complex/phase_portraits.png)
 
 ### Conformal visualisation
 
-![Conformal vis](../../examples/complex/conformal_vis.png)
+![Conformal vis](../../images/complex/conformal_vis.png)
 
 ### Keyhole contour
 
-![Keyhole contour](../../examples/complex/keyhole_contour.png)
+![Keyhole contour](../../images/complex/keyhole_contour.png)
 
 ### Closed contours
 
-![Closed contours](../../examples/complex/closed_contours.png)
+![Closed contours](../../images/complex/closed_contours.png)
 
 ### Complex arc length
 
-![Complex arc length](../../examples/complex/complex_arc_length.png)
+![Complex arc length](../../images/complex/complex_arc_length.png)
 
 ### Rouché's theorem
 
-![Rouché](../../examples/complex/rouche_theorem.png)
+![Rouché](../../images/complex/rouche_theorem.png)
 
 ### Zeta zeros
 
-![Zeta zeros](../../examples/complex/zeta_zeros.png)
+![Zeta zeros](../../images/complex/zeta_zeros.png)
 
 ### Fourier contour
 
-![Fourier contour](../../examples/complex/fourier_contour.png)
+![Fourier contour](../../images/complex/fourier_contour.png)

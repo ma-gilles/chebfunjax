@@ -2,7 +2,7 @@
 
 *Asgeir Birkisson, January 2012*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/parameterode.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-linear/ParameterODE.html)
 
 ## Overview
 

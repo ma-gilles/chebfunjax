@@ -2,7 +2,7 @@
 
 *Nick Hale, November 2011*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/jumpconditions.html)
+[Chebfun example](https://github.com/chebfun/examples/blob/master/ode-linear/JumpConditions.m)
 
 ## Overview
 

@@ -2,7 +2,7 @@
 
 *Toby Driscoll and Nick Trefethen, October 2010*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-eig/orrsommerfeld.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-eig/OrrSommerfeld.html)
 
 ## Overview
 

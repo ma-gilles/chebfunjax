@@ -1,6 +1,6 @@
 # Quantum Harmonic Oscillator
 
-*Original: [chebfun.org/examples/ode-eig/QHO](https://www.chebfun.org/examples/ode-eig/QHO.html)*
+**Inspired by [Chebfun](https://www.chebfun.org/) examples (ode-eig/QHO)**
 
 ---
 

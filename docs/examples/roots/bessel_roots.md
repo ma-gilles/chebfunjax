@@ -1,6 +1,7 @@
 # Bessel Function Roots
 
 *Original: [chebfun.org/examples/roots/BesselRoots](https://www.chebfun.org/examples/roots/BesselRoots.html)*
+**Author(s):** Nick Trefethen, September 2010
 
 ---
 

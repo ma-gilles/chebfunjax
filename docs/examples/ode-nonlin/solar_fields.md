@@ -2,7 +2,7 @@
 
 *Nick Hale and Natasha Flyer, September 2010*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/solarfields.html)
+[Chebfun example](https://github.com/chebfun/examples/blob/master/ode-nonlin/SolarFields.m)
 
 ## Overview
 

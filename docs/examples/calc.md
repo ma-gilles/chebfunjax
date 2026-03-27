@@ -218,71 +218,71 @@ Figures generated automatically from `examples/calc/`, `examples/quad/`,
 
 ### Differentiation
 
-![Differentiation: sin and cos](../../examples/calc/differentiation.png)
+![Differentiation: sin and cos](../../images/calc/differentiation.png)
 
 ### Definite and indefinite integrals
 
-![Integrals](../../examples/calc/definite_indefinite_integrals.png)
+![Integrals](../../images/calc/definite_indefinite_integrals.png)
 
 ### Mean Value Theorem
 
-![Mean Value Theorem](../../examples/calc/mean_value_theorem.png)
+![Mean Value Theorem](../../images/calc/mean_value_theorem.png)
 
 ### Travel-time optimisation (Snell's law)
 
-![Snell's law](../../examples/calc/snells_law.png)
+![Snell's law](../../images/calc/snells_law.png)
 
 ### Bird-flight optimisation
 
-![Bird flight](../../examples/calc/bird_flight_optimization.png)
+![Bird flight](../../images/calc/bird_flight_optimization.png)
 
 ### Clenshaw-Curtis quadrature
 
-![Clenshaw-Curtis](../../examples/quad/clenshaw_curtis.png)
+![Clenshaw-Curtis](../../images/quad/clenshaw_curtis.png)
 
 ### Gauss-Legendre nodes
 
-![Gauss quadrature](../../examples/quad/gauss_quadrature.png)
+![Gauss quadrature](../../images/quad/gauss_quadrature.png)
 
 ### Convergence rates
 
-![Convergence rates](../../examples/quad/convergence_rates.png)
+![Convergence rates](../../images/quad/convergence_rates.png)
 
 ### Highly oscillatory integral
 
-![Tricky integrals](../../examples/quad/tricky_integrals.png)
+![Tricky integrals](../../images/quad/tricky_integrals.png)
 
 ### Catenary
 
-![Catenary](../../examples/opt/catenary.png)
+![Catenary](../../images/opt/catenary.png)
 
 ### Global minimum of smooth function
 
-![Global minimum](../../examples/opt/minimum_of_smooth_function.png)
+![Global minimum](../../images/opt/minimum_of_smooth_function.png)
 
 ### Gibbs phenomenon
 
-![Gibbs phenomenon](../../examples/fourier/gibbs_phenomenon.png)
+![Gibbs phenomenon](../../images/fourier/gibbs_phenomenon.png)
 
 ### Fourier coefficients
 
-![Fourier coefficients](../../examples/fourier/fourier_coefficients.png)
+![Fourier coefficients](../../images/fourier/fourier_coefficients.png)
 
 ### Inner products
 
-![Inner products](../../examples/linalg/chebfun_inner_products.png)
+![Inner products](../../images/linalg/chebfun_inner_products.png)
 
 ### Resolvent norm / eigenfunctions
 
-![Resolvent norm](../../examples/linalg/resolvent_norm.png)
+![Resolvent norm](../../images/linalg/resolvent_norm.png)
 
 ### Contour integrals
 
-![Contour integrals](../../examples/complex/contour_integrals.png)
+![Contour integrals](../../images/complex/contour_integrals.png)
 
 ### Argument principle
 
-![Argument principle](../../examples/complex/argument_principle.png)
+![Argument principle](../../images/complex/argument_principle.png)
 
 ---
 
@@ -296,8 +296,8 @@ Each page contains a narrative exposition, mathematical background, and Python c
 | Example | Description |
 |---------|-------------|
 | [ForTheBirds](calc/ForTheBirds.md) | Optimizing a bird's flight path over water and land |
-| [Integrals](calc/Integrals.md) | Definite and indefinite integrals with `sum` and `cumsum` |
-| [MeanValueTheorem](calc/MeanValueTheorem.md) | Finding MVT points via rootfinding on $f' - \text{slope}$ |
-| [SnellsLaw](calc/SnellsLaw.md) | Snell's Law of refraction as a continuous optimisation |
-| [DeltaDerivs](calc/DeltaDerivs.md) | Generalised functions and iterated differentiation |
-| [SurfaceRevolution](calc/SurfaceRevolution.md) | Volume, surface area, centroid, and moment of inertia |
+| [Integrals](calc/integrals.md) | Definite and indefinite integrals with `sum` and `cumsum` |
+| [MeanValueTheorem](calc/mean_value_theorem.md) | Finding MVT points via rootfinding on $f' - \text{slope}$ |
+| [SnellsLaw](calc/snells_law.md) | Snell's Law of refraction as a continuous optimisation |
+| [DeltaDerivs](calc/delta_derivs.md) | Generalised functions and iterated differentiation |
+| [SurfaceRevolution](calc/surface_revolution.md) | Volume, surface area, centroid, and moment of inertia |

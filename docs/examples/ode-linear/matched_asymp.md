@@ -2,7 +2,7 @@
 
 *Nick Trefethen, December 2010*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/matchedasymp.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-linear/MatchedAsymp.html)
 
 ## Overview
 

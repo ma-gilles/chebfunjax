@@ -1,7 +1,7 @@
 # Linear ODEs with Random Switching
 
 **Original MATLAB:** [ode-random/RandomSwitching](https://www.chebfun.org/examples/ode-random/RandomSwitching.html)
-**Author:** Nick Trefethen (May 2017)
+**Author(s):** Nick Trefethen, May 2017
 
 ## Overview
 

@@ -1,7 +1,7 @@
 # Pitchfork Bifurcation Triggered by Noise
 
 **Original MATLAB:** [ode-random/Pitchfork](https://www.chebfun.org/examples/ode-random/Pitchfork.html)
-**Author:** Nick Trefethen (May 2017)
+**Author(s):** Nick Trefethen, May 2017
 
 ## Overview
 

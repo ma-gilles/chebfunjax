@@ -2,7 +2,7 @@
 
 *Nick Trefethen, February 2011*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/regions.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-linear/Regions.html)
 
 ## Overview
 

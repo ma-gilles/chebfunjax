@@ -2,7 +2,7 @@
 
 *Marc Aurele Gilles and Alex Townsend, June 2018*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-linear/krylov.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-linear/Krylov.html)
 
 ## Overview
 

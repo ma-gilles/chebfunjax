@@ -2,7 +2,7 @@
 
 *Marcus Webb, March 2013*
 
-[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/lorenzattractor.html)
+[Chebfun example](https://www.chebfun.org/examples/ode-nonlin/LorenzAttractor.html)
 
 ## Overview
 
