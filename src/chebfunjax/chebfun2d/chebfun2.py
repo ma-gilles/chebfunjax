@@ -573,6 +573,20 @@ class Chebfun2(eqx.Module):
         return [pts]
 
     # ------------------------------------------------------------------
+    # Plotting
+    # ------------------------------------------------------------------
+
+    def plot(self, **kwargs):
+        """Surface plot of this Chebfun2 (calls :func:`chebfunjax.plotting.surf`)."""
+        from chebfunjax.plotting import surf
+        return surf(self, **kwargs)
+
+    def contour(self, **kwargs):
+        """Contour plot of this Chebfun2 (calls :func:`chebfunjax.plotting.contour`)."""
+        from chebfunjax.plotting import contour
+        return contour(self, **kwargs)
+
+    # ------------------------------------------------------------------
     # Representation
     # ------------------------------------------------------------------
 

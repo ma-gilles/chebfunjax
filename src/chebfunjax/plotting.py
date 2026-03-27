@@ -158,10 +158,108 @@ def _eval_2d_vectorized(f2, XX: np.ndarray, YY: np.ndarray) -> np.ndarray:
 
 
 # ---------------------------------------------------------------------------
+# Custom parula colormap (MATLAB default)
+# ---------------------------------------------------------------------------
+
+def _make_parula_cmap():
+    """Build a close approximation of MATLAB's parula colormap.
+
+    Parula goes from dark blue -> teal -> yellow.  This 9-anchor
+    linear-segment approximation is visually indistinguishable from the
+    real thing at typical monitor resolutions.
+    """
+    from matplotlib.colors import LinearSegmentedColormap
+
+    _parula_data = [
+        (0.2422, 0.1504, 0.6603),
+        (0.2810, 0.3228, 0.9579),
+        (0.1786, 0.5289, 0.9682),
+        (0.0689, 0.6948, 0.8394),
+        (0.1280, 0.7890, 0.5920),
+        (0.4676, 0.7804, 0.3723),
+        (0.7914, 0.7314, 0.1725),
+        (0.9763, 0.8312, 0.0538),
+        (0.9769, 0.9839, 0.0805),
+    ]
+    return LinearSegmentedColormap.from_list("parula", _parula_data, N=256)
+
+
+PARULA = _make_parula_cmap()
+
+
+def _setup_3d_axes(ax, fig, elev=25, azim=-37, figsize=(6.1, 2.58)):
+    """Create or configure 3D axes with MATLAB-Chebfun styling.
+
+    Parameters
+    ----------
+    ax : Axes3D or None
+        Existing axes, or None to create a new figure.
+    fig : Figure or None
+    elev, azim : float
+        Camera view angles.
+    figsize : tuple
+        Figure size if creating a new figure.
+
+    Returns
+    -------
+    fig, ax
+    """
+    from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+
+    if ax is None:
+        fig = plt.figure(figsize=figsize)
+        ax = fig.add_subplot(111, projection="3d")
+    else:
+        if fig is None:
+            fig = ax.get_figure()
+
+    ax.view_init(elev=elev, azim=azim)
+    fig.set_facecolor("white")
+    ax.set_facecolor("white")
+
+    # Light gray grid lines (MATLAB style)
+    ax.xaxis.pane.fill = False
+    ax.yaxis.pane.fill = False
+    ax.zaxis.pane.fill = False
+    ax.xaxis.pane.set_edgecolor((0.8, 0.8, 0.8, 0.15))
+    ax.yaxis.pane.set_edgecolor((0.8, 0.8, 0.8, 0.15))
+    ax.zaxis.pane.set_edgecolor((0.8, 0.8, 0.8, 0.15))
+    ax.xaxis._axinfo["grid"]["color"] = (0.7, 0.7, 0.7, 0.15)
+    ax.yaxis._axinfo["grid"]["color"] = (0.7, 0.7, 0.7, 0.15)
+    ax.zaxis._axinfo["grid"]["color"] = (0.7, 0.7, 0.7, 0.15)
+
+    # Thin box edges
+    for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
+        axis.line.set_linewidth(0.4)
+
+    # No axis labels (MATLAB default for 3D Chebfun plots)
+    ax.set_xlabel("")
+    ax.set_ylabel("")
+    ax.set_zlabel("")
+
+    return fig, ax
+
+
+def _set_unit_ticks(ax, domain=None):
+    """Set tick marks to -1, -0.5, 0, 0.5, 1 for unit domain axes."""
+    unit_ticks = [-1, -0.5, 0, 0.5, 1]
+    if domain is None:
+        ax.set_xticks(unit_ticks)
+        ax.set_yticks(unit_ticks)
+    else:
+        x0, x1, y0, y1 = domain
+        if abs(x0 - (-1)) < 0.01 and abs(x1 - 1) < 0.01:
+            ax.set_xticks(unit_ticks)
+        if abs(y0 - (-1)) < 0.01 and abs(y1 - 1) < 0.01:
+            ax.set_yticks(unit_ticks)
+    ax.tick_params(labelsize=7)
+
+
+# ---------------------------------------------------------------------------
 # 1-D plot
 # ---------------------------------------------------------------------------
 
-def plot(
+def plot_1d(
     *args,
     ax: Optional[plt.Axes] = None,
     title: str = "",
@@ -237,6 +335,11 @@ def plot(
     return fig, ax
 
 
+# Backward-compatibility alias: direct imports of ``plot`` from this module
+# still resolve to the 1-D function, matching the original API.
+plot = plot_1d
+
+
 # ---------------------------------------------------------------------------
 # Coefficient magnitude (semilogy)
 # ---------------------------------------------------------------------------
@@ -302,14 +405,14 @@ def surf(
     f2,
     ax=None,
     title: str = "",
-    xlabel: str = "x",
-    ylabel: str = "y",
-    zlabel: str = "f(x,y)",
-    n_pts: int = 80,
-    cmap: str = "RdBu_r",
+    n_pts: int = 100,
+    cmap=None,
     **kw,
 ) -> tuple[plt.Figure, Any]:
-    """Surface plot of a Chebfun2.
+    """Surface plot of a Chebfun2 (MATLAB Chebfun style).
+
+    Renders a smooth surface with the parula colormap, no axis labels,
+    light gray grid, and thin box edges -- matching MATLAB's surf(f) output.
 
     Parameters
     ----------
@@ -317,18 +420,19 @@ def surf(
         The 2-D function to plot.
     ax : Axes3D, optional
         3-D axes.  A new figure is created when not provided.
-    title, xlabel, ylabel, zlabel : str
-        Axis labels.
+    title : str
+        Plot title.
     n_pts : int
-        Grid resolution.
-    cmap : str
-        Colormap name.
+        Grid resolution per axis.
+    cmap : colormap, optional
+        Defaults to parula.
 
     Returns
     -------
     fig, ax
     """
-    from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+    if cmap is None:
+        cmap = PARULA
 
     # Determine domain
     try:
@@ -341,22 +445,19 @@ def surf(
     XX, YY = np.meshgrid(xs, ys, indexing="xy")
     ZZ = _eval_2d_vectorized(f2, XX, YY)
 
-    if ax is None:
-        fig = plt.figure(figsize=(6, 4.5))
-        ax = fig.add_subplot(111, projection="3d")
-    else:
-        fig = ax.get_figure()
+    fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37,
+                             figsize=(6.1, 2.58))
 
-    ax.plot_surface(XX, YY, ZZ, cmap=cmap, linewidth=0, antialiased=True,
-                    alpha=0.9, **kw)
+    ax.plot_surface(XX, YY, ZZ, cmap=cmap,
+                    rstride=1, cstride=1,
+                    linewidth=0, antialiased=True,
+                    shade=True, **kw)
+
+    _set_unit_ticks(ax, domain=(x0, x1, y0, y1))
 
     if title:
-        ax.set_title(title, fontsize=11)
-    ax.set_xlabel(xlabel, fontsize=9)
-    ax.set_ylabel(ylabel, fontsize=9)
-    ax.set_zlabel(zlabel, fontsize=9)
-    fig.set_facecolor("white")
-    fig.tight_layout()
+        ax.set_title(title, fontsize=10, pad=0)
+    fig.tight_layout(pad=0.5)
     return fig, ax
 
 
@@ -368,19 +469,36 @@ def contour(
     f2,
     ax: Optional[plt.Axes] = None,
     title: str = "",
-    xlabel: str = "x",
-    ylabel: str = "y",
-    n_pts: int = 100,
+    n_pts: int = 150,
     levels: int = 12,
-    cmap: str = "RdBu_r",
+    cmap=None,
+    filled: bool = True,
     **kw,
 ) -> tuple[plt.Figure, plt.Axes]:
-    """Filled contour plot of a Chebfun2.
+    """Contour plot of a Chebfun2 (MATLAB Chebfun style).
+
+    By default draws filled contours with black contour lines overlaid,
+    using the parula colormap and unit-domain ticks.
+
+    Parameters
+    ----------
+    f2 : Chebfun2
+    ax : Axes, optional
+    title : str
+    n_pts : int
+    levels : int
+    cmap : colormap, optional  (default: parula)
+    filled : bool
+        If True (default), use contourf + contour overlay.  If False,
+        contour lines only.
 
     Returns
     -------
     fig, ax
     """
+    if cmap is None:
+        cmap = PARULA
+
     try:
         x0, x1, y0, y1 = f2.domain
     except Exception:
@@ -392,18 +510,21 @@ def contour(
     ZZ = _eval_2d_vectorized(f2, XX, YY)
 
     if ax is None:
-        fig, ax = plt.subplots(figsize=(5, 4.5))
+        fig, ax = plt.subplots(figsize=(6.1, 2.58))
     else:
         fig = ax.get_figure()
 
-    cs = ax.contourf(XX, YY, ZZ, levels=levels, cmap=cmap, **kw)
-    plt.colorbar(cs, ax=ax, fraction=0.046, pad=0.04)
+    if filled:
+        cs = ax.contourf(XX, YY, ZZ, levels=levels, cmap=cmap, **kw)
+        plt.colorbar(cs, ax=ax, fraction=0.046, pad=0.04)
     ax.contour(XX, YY, ZZ, levels=levels, colors="k", linewidths=0.4,
                alpha=0.5)
 
-    _apply_style(ax, title=title, xlabel=xlabel, ylabel=ylabel, grid=False)
+    ax.set_aspect("equal")
+    _set_unit_ticks(ax, domain=(x0, x1, y0, y1))
+    _apply_style(ax, title=title, grid=False)
     fig.set_facecolor("white")
-    fig.tight_layout()
+    fig.tight_layout(pad=0.5)
     return fig, ax
 
 
@@ -469,29 +590,29 @@ def phaseplot(
 
 def plot_disk(
     fd,
-    ax: Optional[plt.Axes] = None,
+    ax=None,
     title: str = "",
     n_theta: int = 200,
     n_r: int = 100,
-    cmap: str = "RdBu_r",
+    cmap=None,
+    mode: str = "3d",
     **kw,
-) -> tuple[plt.Figure, plt.Axes]:
-    """Pseudocolor plot of a Diskfun in Cartesian coordinates.
+) -> tuple[plt.Figure, Any]:
+    """Plot a Diskfun on the unit disk (MATLAB Chebfun style).
+
+    In '3d' mode (default, matching MATLAB), renders the function values
+    as a 3-D surface height over the disk with parula colormap.
+    In '2d' mode, renders a flat pseudocolor plot.
 
     Parameters
     ----------
     fd : Diskfun
-        The disk function to plot.
-    ax : matplotlib.axes.Axes, optional
-        Axes to draw on.  A new figure is created when not provided.
+    ax : Axes, optional
     title : str
-        Plot title.
-    n_theta : int
-        Number of angular grid points.
-    n_r : int
-        Number of radial grid points.
-    cmap : str
-        Colormap name.
+    n_theta, n_r : int
+    cmap : colormap, optional (default: parula)
+    mode : str
+        '3d' (default) for surface plot, '2d' for flat pcolormesh.
 
     Returns
     -------
@@ -499,33 +620,49 @@ def plot_disk(
     """
     import jax.numpy as jnp
 
-    theta = np.linspace(-np.pi, np.pi, n_theta, endpoint=False)
+    if cmap is None:
+        cmap = PARULA
+
+    theta = np.linspace(-np.pi, np.pi, n_theta, endpoint=True)
     r = np.linspace(0.0, 1.0, n_r)
     TT, RR = np.meshgrid(theta, r, indexing="ij")  # (n_theta, n_r)
 
-    # Diskfun.__call__ accepts arrays; evaluate on ravelled grid.
     ZZ = np.array(
         fd(jnp.array(TT.ravel()), jnp.array(RR.ravel()))
     ).reshape(TT.shape)
 
-    # Convert to Cartesian for display.
+    # Cartesian coordinates for display
     XX = RR * np.cos(TT)
     YY = RR * np.sin(TT)
 
-    if ax is None:
-        fig, ax = plt.subplots(figsize=(5, 5))
+    if mode == "3d":
+        fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37,
+                                 figsize=(6.1, 2.58))
+        ax.plot_surface(XX, YY, ZZ, cmap=cmap,
+                        rstride=1, cstride=1,
+                        linewidth=0, antialiased=True,
+                        shade=True, **kw)
+        # Draw boundary circle at the base
+        theta_bdy = np.linspace(0, 2 * np.pi, 300)
+        zmin = float(ZZ.min())
+        ax.plot(np.cos(theta_bdy), np.sin(theta_bdy),
+                zs=zmin, zdir="z", color="k", linewidth=0.6, alpha=0.5)
     else:
-        fig = ax.get_figure()
+        # 2D flat mode
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(6.1, 2.58))
+        else:
+            fig = ax.get_figure()
 
-    ax.pcolormesh(XX, YY, ZZ, cmap=cmap, shading="auto", **kw)
-    # Draw unit-circle boundary.
-    theta_bdy = np.linspace(0, 2 * np.pi, 300)
-    ax.plot(np.cos(theta_bdy), np.sin(theta_bdy), "k-", linewidth=0.8)
+        ax.pcolormesh(XX, YY, ZZ, cmap=cmap, shading="auto", **kw)
+        theta_bdy = np.linspace(0, 2 * np.pi, 300)
+        ax.plot(np.cos(theta_bdy), np.sin(theta_bdy), "k-", linewidth=0.8)
+        ax.set_aspect("equal")
+        _set_unit_ticks(ax, domain=(-1, 1, -1, 1))
 
-    ax.set_aspect("equal")
-    _apply_style(ax, title=title, xlabel="x", ylabel="y", grid=False)
+    _apply_style(ax, title=title, grid=False)
     fig.set_facecolor("white")
-    fig.tight_layout()
+    fig.tight_layout(pad=0.5)
     return fig, ax
 
 
@@ -539,34 +676,33 @@ def plot_sphere(
     title: str = "",
     n_lam: int = 200,
     n_theta: int = 100,
-    cmap: str = "RdBu_r",
+    cmap=None,
     **kw,
 ) -> tuple[plt.Figure, Any]:
-    """Pseudocolor surface plot of a Spherefun on the unit sphere.
+    """Plot a Spherefun on the unit sphere (MATLAB Chebfun style).
+
+    Renders the sphere surface coloured by function values, with lighting-
+    like smooth shading, parula colormap, and MATLAB's default view angle
+    (elev=8, azim=-36).
 
     Parameters
     ----------
     fs : Spherefun
-        The sphere function to plot.
     ax : Axes3D, optional
-        3-D axes.  A new figure is created when not provided.
     title : str
-        Plot title.
-    n_lam : int
-        Number of longitude grid points.
-    n_theta : int
-        Number of colatitude grid points.
-    cmap : str
-        Colormap name.
+    n_lam, n_theta : int
+    cmap : colormap, optional (default: parula)
 
     Returns
     -------
     fig, ax
     """
     import jax.numpy as jnp
-    from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 
-    lam = np.linspace(-np.pi, np.pi, n_lam, endpoint=False)
+    if cmap is None:
+        cmap = PARULA
+
+    lam = np.linspace(-np.pi, np.pi, n_lam, endpoint=True)
     theta = np.linspace(0.0, np.pi, n_theta)
     LAM, THETA = np.meshgrid(lam, theta, indexing="ij")  # (n_lam, n_theta)
 
@@ -574,37 +710,42 @@ def plot_sphere(
         fs(jnp.array(LAM.ravel()), jnp.array(THETA.ravel()))
     ).reshape(LAM.shape)
 
-    # Spherical -> Cartesian.
+    # Spherical -> Cartesian
     XX = np.sin(THETA) * np.cos(LAM)
     YY = np.sin(THETA) * np.sin(LAM)
     ZZ_cart = np.cos(THETA)
 
-    if ax is None:
-        fig = plt.figure(figsize=(6, 5))
-        ax = fig.add_subplot(111, projection="3d")
-    else:
-        fig = ax.get_figure()
+    # MATLAB default sphere view: view([-36, 8])
+    fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36,
+                             figsize=(6.1, 2.58))
 
-    # Normalise function values for face colours.
-    fmin, fmax = ZZ.min(), ZZ.max()
+    # Normalise function values for face colours
+    fmin, fmax = float(ZZ.min()), float(ZZ.max())
     if fmax > fmin:
         norm_vals = (ZZ - fmin) / (fmax - fmin)
     else:
-        norm_vals = np.zeros_like(ZZ)
+        norm_vals = np.full_like(ZZ, 0.5)
 
-    cmap_obj = plt.get_cmap(cmap)
+    if isinstance(cmap, str):
+        cmap_obj = plt.get_cmap(cmap)
+    else:
+        cmap_obj = cmap
     fcolors = cmap_obj(norm_vals)
 
     ax.plot_surface(XX, YY, ZZ_cart, facecolors=fcolors,
-                    linewidth=0, antialiased=True, alpha=0.95, **kw)
+                    rstride=1, cstride=1,
+                    linewidth=0, antialiased=True,
+                    shade=False, **kw)
+
+    # Tight axis limits
+    ax.set_xlim(-1.05, 1.05)
+    ax.set_ylim(-1.05, 1.05)
+    ax.set_zlim(-1.05, 1.05)
+    _set_unit_ticks(ax, domain=(-1, 1, -1, 1))
 
     if title:
-        ax.set_title(title, fontsize=11)
-    ax.set_xlabel("x", fontsize=9)
-    ax.set_ylabel("y", fontsize=9)
-    ax.set_zlabel("z", fontsize=9)
-    fig.set_facecolor("white")
-    fig.tight_layout()
+        ax.set_title(title, fontsize=10, pad=0)
+    fig.tight_layout(pad=0.5)
     return fig, ax
 
 
@@ -617,33 +758,34 @@ def plot_slices(
     ax=None,
     title: str = "",
     n_pts: int = 80,
-    cmap: str = "RdBu_r",
+    cmap=None,
+    alpha: float = 0.85,
     **kw,
 ) -> tuple[plt.Figure, Any]:
-    """Three orthogonal mid-plane slices of a Chebfun3.
+    """Three orthogonal mid-plane slices of a Chebfun3 (MATLAB Chebfun style).
 
-    Plots the z=0, y=0, and x=0 slices (or domain midpoints if the domain
-    is not centred on zero) as filled colour images on 3-D axes.
+    Plots the z=mid, y=mid, and x=mid slices as filled colour images on
+    3-D axes with parula colormap and consistent colour limits.
 
     Parameters
     ----------
     f3 : Chebfun3
-        The 3-D function to plot.
     ax : Axes3D, optional
-        3-D axes.  A new figure is created when not provided.
     title : str
-        Plot title.
     n_pts : int
-        Grid resolution for each slice.
-    cmap : str
-        Colormap name.
+    cmap : colormap, optional (default: parula)
+    alpha : float
+        Surface transparency.
 
     Returns
     -------
     fig, ax
     """
     import jax.numpy as jnp
-    from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+    import matplotlib.colors as mcolors
+
+    if cmap is None:
+        cmap = PARULA
 
     try:
         xa, xb, ya, yb, za, zb = f3.domain
@@ -686,40 +828,343 @@ def plot_slices(
            jnp.array(ZZ_yz.ravel()))
     ).reshape(YY_yz.shape)
 
-    # Determine global colour limits.
+    # Global colour limits
     all_vals = np.concatenate([F_xy.ravel(), F_xz.ravel(), F_yz.ravel()])
     vmin, vmax = float(all_vals.min()), float(all_vals.max())
 
-    import matplotlib.colors as mcolors
-    cmap_obj = plt.get_cmap(cmap)
+    if isinstance(cmap, str):
+        cmap_obj = plt.get_cmap(cmap)
+    else:
+        cmap_obj = cmap
     norm = mcolors.Normalize(vmin=vmin, vmax=vmax)
 
-    if ax is None:
-        fig = plt.figure(figsize=(6, 5))
-        ax = fig.add_subplot(111, projection="3d")
-    else:
-        fig = ax.get_figure()
+    fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37,
+                             figsize=(6.1, 2.58))
 
     def _surf_slice(XX, YY, ZZ, F):
         fc = cmap_obj(norm(F))
-        ax.plot_surface(XX, YY, ZZ, facecolors=fc, linewidth=0,
-                        antialiased=True, alpha=0.85, shade=False)
+        ax.plot_surface(XX, YY, ZZ, facecolors=fc,
+                        rstride=1, cstride=1,
+                        linewidth=0, antialiased=True,
+                        alpha=alpha, shade=False)
 
-    # XY slice at z = zm
     _surf_slice(XX_xy, YY_xy, ZM_xy, F_xy)
-    # XZ slice at y = ym
     _surf_slice(XX_xz, YM_xz, ZZ_xz, F_xz)
-    # YZ slice at x = xm
     _surf_slice(XM_yz, YY_yz, ZZ_yz, F_yz)
 
     if title:
-        ax.set_title(title, fontsize=11)
-    ax.set_xlabel("x", fontsize=9)
-    ax.set_ylabel("y", fontsize=9)
-    ax.set_zlabel("z", fontsize=9)
-    fig.set_facecolor("white")
-    fig.tight_layout()
+        ax.set_title(title, fontsize=10, pad=0)
+    fig.tight_layout(pad=0.5)
     return fig, ax
+
+
+# ---------------------------------------------------------------------------
+# Spherefunv quiver plot (vector field on sphere)
+# ---------------------------------------------------------------------------
+
+
+def quiver_sphere(
+    fv,
+    ax=None,
+    title: str = "",
+    n_lam: int = 20,
+    n_theta: int = 10,
+    sphere_color: str = "#FFFFCC",
+    arrow_color: str = "k",
+    arrow_scale: float = 0.15,
+    cmap=None,
+    **kw,
+) -> tuple[plt.Figure, Any]:
+    """Quiver plot of a Spherefunv on the unit sphere (MATLAB Chebfun style).
+
+    Draws a light-coloured sphere with black arrows representing the
+    tangent vector field.  Arrow length is proportional to the field
+    magnitude at each sample point.
+
+    The two Spherefun components are interpreted as:
+      - f (component 0): longitudinal (east-west) component
+      - g (component 1): latitudinal (north-south) component
+
+    Parameters
+    ----------
+    fv : Spherefunv
+        Vector field on the sphere.
+    ax : Axes3D, optional
+    title : str
+    n_lam, n_theta : int
+        Sampling density for the quiver arrows.
+    sphere_color : str
+        Background sphere surface colour.
+    arrow_color : str
+        Arrow colour.
+    arrow_scale : float
+        Scale factor for arrow length.
+    cmap : colormap, optional
+        If provided, arrows are coloured by magnitude using this colormap
+        instead of a single colour.
+
+    Returns
+    -------
+    fig, ax
+    """
+    import jax.numpy as jnp
+
+    # Sample points (avoid poles for cleaner arrows)
+    lam = np.linspace(-np.pi, np.pi, n_lam, endpoint=False)
+    theta = np.linspace(0.15, np.pi - 0.15, n_theta)
+    LAM, THETA = np.meshgrid(lam, theta, indexing="ij")
+
+    lam_flat = jnp.array(LAM.ravel())
+    theta_flat = jnp.array(THETA.ravel())
+
+    # Evaluate vector field components
+    f_comp, g_comp = fv.components
+    f_vals = np.array(f_comp(lam_flat, theta_flat)).reshape(LAM.shape)
+    g_vals = np.array(g_comp(lam_flat, theta_flat)).reshape(LAM.shape)
+
+    # Sphere surface points (Cartesian)
+    X = np.sin(THETA) * np.cos(LAM)
+    Y = np.sin(THETA) * np.sin(LAM)
+    Z = np.cos(THETA)
+
+    # Convert tangent vectors (lam, theta) to Cartesian (dx, dy, dz)
+    # e_lam = (-sin(lam), cos(lam), 0) / sin(theta)
+    # e_theta = (cos(theta)*cos(lam), cos(theta)*sin(lam), -sin(theta))
+    sin_th = np.sin(THETA)
+    cos_th = np.cos(THETA)
+    sin_lam = np.sin(LAM)
+    cos_lam = np.cos(LAM)
+
+    # Scale: f_vals is longitudinal, g_vals is latitudinal
+    U = f_vals * (-sin_lam) + g_vals * cos_th * cos_lam
+    V = f_vals * cos_lam + g_vals * cos_th * sin_lam
+    W = -g_vals * sin_th
+
+    # Scale arrows
+    mag = np.sqrt(U ** 2 + V ** 2 + W ** 2)
+    max_mag = float(mag.max()) if mag.max() > 0 else 1.0
+    U = U * arrow_scale / max_mag
+    V = V * arrow_scale / max_mag
+    W = W * arrow_scale / max_mag
+
+    # Draw background sphere
+    fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36,
+                             figsize=(6.1, 2.58))
+
+    # Light sphere surface
+    n_bg = 60
+    lam_bg = np.linspace(-np.pi, np.pi, n_bg)
+    theta_bg = np.linspace(0, np.pi, n_bg // 2)
+    LAM_bg, THETA_bg = np.meshgrid(lam_bg, theta_bg, indexing="ij")
+    X_bg = np.sin(THETA_bg) * np.cos(LAM_bg)
+    Y_bg = np.sin(THETA_bg) * np.sin(LAM_bg)
+    Z_bg = np.cos(THETA_bg)
+
+    ax.plot_surface(X_bg, Y_bg, Z_bg, color=sphere_color,
+                    rstride=1, cstride=1,
+                    linewidth=0, antialiased=True, alpha=0.3)
+
+    # Quiver arrows
+    ax.quiver(X.ravel(), Y.ravel(), Z.ravel(),
+              U.ravel(), V.ravel(), W.ravel(),
+              color=arrow_color, arrow_length_ratio=0.25,
+              linewidth=0.8, **kw)
+
+    ax.set_xlim(-1.3, 1.3)
+    ax.set_ylim(-1.3, 1.3)
+    ax.set_zlim(-1.3, 1.3)
+
+    if title:
+        ax.set_title(title, fontsize=10, pad=0)
+    fig.tight_layout(pad=0.5)
+    return fig, ax
+
+
+# ---------------------------------------------------------------------------
+# Ballfun isosurface plot
+# ---------------------------------------------------------------------------
+
+
+def isosurface_ball(
+    bf,
+    levels=None,
+    ax=None,
+    title: str = "",
+    n_pts: int = 50,
+    cmap=None,
+    alpha: float = 0.6,
+    **kw,
+) -> tuple[plt.Figure, Any]:
+    """Isosurface plot of a Ballfun (level sets inside the unit ball).
+
+    Uses the marching cubes algorithm to extract isosurfaces and renders
+    them as 3D polygon collections.
+
+    Parameters
+    ----------
+    bf : Ballfun
+        The 3-D function on the ball.
+    levels : list of float, optional
+        Isosurface level values.  Defaults to 3 levels spanning the range.
+    ax : Axes3D, optional
+    title : str
+    n_pts : int
+        Grid resolution for marching cubes.
+    cmap : colormap, optional (default: parula)
+    alpha : float
+        Surface transparency.
+
+    Returns
+    -------
+    fig, ax
+    """
+    import jax
+    import jax.numpy as jnp
+
+    if cmap is None:
+        cmap = PARULA
+
+    if isinstance(cmap, str):
+        cmap_obj = plt.get_cmap(cmap)
+    else:
+        cmap_obj = cmap
+
+    # Build a Cartesian grid inside the ball
+    t = np.linspace(-1.0, 1.0, n_pts)
+    X, Y, Z = np.meshgrid(t, t, t, indexing="ij")
+    R = np.sqrt(X ** 2 + Y ** 2 + Z ** 2)
+
+    # Convert to spherical
+    LAM = np.arctan2(Y, X)
+    THETA = np.where(R > 0,
+                     np.arccos(np.clip(Z / np.maximum(R, 1e-16), -1, 1)),
+                     0.0)
+
+    # Evaluate Ballfun on the grid (only inside the ball)
+    mask = R <= 1.0
+    vals = np.full(R.shape, np.nan)
+    idx = mask.ravel()
+    if idx.any():
+        r_pts = jnp.array(R.ravel()[idx])
+        l_pts = jnp.array(LAM.ravel()[idx])
+        t_pts = jnp.array(THETA.ravel()[idx])
+        eval_fn = jax.vmap(lambda ri, li, ti: bf(ri, li, ti))
+        v = np.asarray(eval_fn(r_pts, l_pts, t_pts))
+        vals.ravel()[idx] = v
+
+    # Replace NaN outside ball with boundary value for marching cubes
+    vmin_real = float(np.nanmin(vals))
+    vmax_real = float(np.nanmax(vals))
+    vals = np.where(np.isnan(vals), vmin_real - 1.0, vals)
+
+    # Determine isosurface levels
+    if levels is None:
+        levels = np.linspace(vmin_real + 0.1 * (vmax_real - vmin_real),
+                             vmax_real - 0.1 * (vmax_real - vmin_real), 3)
+
+    fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37,
+                             figsize=(6.1, 2.58))
+
+    try:
+        from skimage.measure import marching_cubes
+        _have_skimage = True
+    except ImportError:
+        _have_skimage = False
+
+    if _have_skimage:
+        from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+        import matplotlib.colors as mcolors
+
+        norm = mcolors.Normalize(vmin=min(levels), vmax=max(levels))
+
+        for i, lev in enumerate(levels):
+            try:
+                verts, faces, _, _ = marching_cubes(vals, level=lev,
+                                                     spacing=(2.0 / (n_pts - 1),) * 3)
+                # Shift from grid indices to physical coords [-1, 1]
+                verts = verts - 1.0  # marching_cubes returns in spacing units
+
+                mesh = Poly3DCollection(verts[faces], alpha=alpha,
+                                        linewidth=0)
+                color = cmap_obj(norm(lev))
+                mesh.set_facecolor(color)
+                mesh.set_edgecolor((*color[:3], 0.1))
+                ax.add_collection3d(mesh)
+            except Exception:
+                pass  # skip levels with no surface
+    else:
+        # Fallback: plot a single contour slice through z=0
+        import warnings
+        warnings.warn("scikit-image not found; falling back to mid-plane slice")
+        mid = n_pts // 2
+        ax.contourf(X[:, :, mid], Y[:, :, mid], vals[:, :, mid],
+                     levels=20, cmap=cmap_obj, alpha=0.8)
+
+    # Draw unit sphere wireframe
+    u = np.linspace(0, 2 * np.pi, 40)
+    v = np.linspace(0, np.pi, 20)
+    xs = np.outer(np.cos(u), np.sin(v))
+    ys = np.outer(np.sin(u), np.sin(v))
+    zs = np.outer(np.ones_like(u), np.cos(v))
+    ax.plot_wireframe(xs, ys, zs, color="gray", alpha=0.08, linewidth=0.3)
+
+    ax.set_xlim(-1.1, 1.1)
+    ax.set_ylim(-1.1, 1.1)
+    ax.set_zlim(-1.1, 1.1)
+
+    if title:
+        ax.set_title(title, fontsize=10, pad=0)
+    fig.tight_layout(pad=0.5)
+    return fig, ax
+
+
+# ---------------------------------------------------------------------------
+# Universal plot dispatcher
+# ---------------------------------------------------------------------------
+
+
+def plot_dispatch(obj, *args, **kwargs):
+    """Universal plot dispatcher -- works like MATLAB's plot(f).
+
+    Inspects the type of *obj* and calls the appropriate plotting function.
+
+    Parameters
+    ----------
+    obj : Chebfun, Chebfun2, Spherefun, Spherefunv, Diskfun, or Ballfun
+        The object to plot.
+    *args, **kwargs
+        Forwarded to the appropriate plotting function.
+
+    Returns
+    -------
+    fig, ax
+
+    Raises
+    ------
+    TypeError
+        If the object type is not recognized.
+    """
+    from chebfunjax.chebfun1d.chebfun import Chebfun
+    from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+    from chebfunjax.spherefun.spherefun import Spherefun
+    from chebfunjax.spherefun.spherefunv import Spherefunv
+    from chebfunjax.diskfun.diskfun import Diskfun
+    from chebfunjax.ballfun.ballfun import Ballfun
+
+    if isinstance(obj, Chebfun):
+        return plot_1d(obj, *args, **kwargs)
+    elif isinstance(obj, Chebfun2):
+        return surf(obj, *args, **kwargs)
+    elif isinstance(obj, Spherefun):
+        return plot_sphere(obj, *args, **kwargs)
+    elif isinstance(obj, Spherefunv):
+        return quiver_sphere(obj, *args, **kwargs)
+    elif isinstance(obj, Diskfun):
+        return plot_disk(obj, *args, **kwargs)
+    elif isinstance(obj, Ballfun):
+        return obj.plot(*args, **kwargs)
+    else:
+        raise TypeError(f"Don't know how to plot {type(obj)}")
 
 
 # ---------------------------------------------------------------------------

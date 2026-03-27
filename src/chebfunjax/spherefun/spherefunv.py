@@ -179,6 +179,15 @@ class Spherefunv(eqx.Module):
         return self.__add__(other.__neg__())
 
     # ------------------------------------------------------------------
+    # Plotting
+    # ------------------------------------------------------------------
+
+    def plot(self, **kwargs):
+        """Quiver plot of this vector field on the sphere (calls :func:`chebfunjax.plotting.quiver_sphere`)."""
+        from chebfunjax.plotting import quiver_sphere
+        return quiver_sphere(self, **kwargs)
+
+    # ------------------------------------------------------------------
     # Repr
     # ------------------------------------------------------------------
 

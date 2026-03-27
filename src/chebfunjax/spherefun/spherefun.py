@@ -973,6 +973,15 @@ class Spherefun(eqx.Module):
     # Representation
     # ------------------------------------------------------------------
 
+    # ------------------------------------------------------------------
+    # Plotting
+    # ------------------------------------------------------------------
+
+    def plot(self, **kwargs):
+        """Plot this Spherefun on the sphere (calls :func:`chebfunjax.plotting.plot_sphere`)."""
+        from chebfunjax.plotting import plot_sphere
+        return plot_sphere(self, **kwargs)
+
     def __repr__(self) -> str:
         """Compact display.
 
