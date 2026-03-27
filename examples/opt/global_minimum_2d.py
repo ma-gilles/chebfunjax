@@ -24,7 +24,6 @@ chebfun_style()
 
 from chebfunjax.plotting import surf, contour
 
-
 def run():
     print("=" * 60)
     print("Global minimum of bivariate functions")
@@ -101,7 +100,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

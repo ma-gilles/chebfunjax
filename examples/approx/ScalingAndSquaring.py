@@ -24,7 +24,6 @@ from chebfunjax.utils.aaa import aaa
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
 
-
 def pade_coeffs(m):
     """Compute [m/m] Padé numerator and denominator coefficients for exp(x).
 
@@ -51,7 +50,6 @@ def pade_coeffs(m):
         if deg % 2 == 1:
             q_coeffs[i] = -coef
     return p_coeffs, q_coeffs
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -101,7 +99,6 @@ def run():
 
     print(f"ScalingAndSquaring: [4/4] Padé max err on [-6,6] = {np.max(err44):.2e}")
     return True
-
 
 if __name__ == '__main__':
     run()

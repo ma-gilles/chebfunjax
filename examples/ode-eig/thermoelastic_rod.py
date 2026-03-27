@@ -24,7 +24,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
 from chebfunjax.operators.chebop import Chebop
 
-
 def thermoelastic_eigs(delta, N=64):
     """Compute eigenvalues of thermoelastic rod problem via matrix discretization.
 
@@ -112,7 +111,6 @@ def thermoelastic_eigs(delta, N=64):
                    & (np.abs(lams_all) > 1e-6))
     return lams_all[finite_mask]
 
-
 def run():
     print("=" * 60)
     print("Stability of a thermoelastic rod (integral BC)")
@@ -179,9 +177,8 @@ def run():
     axes[0].plot(deltas, max_lams, 'b-o', markersize=5, linewidth=1.5)
     axes[0].axhline(0, color='r', linewidth=1.2, linestyle='--', label="λ=0")
     axes[0].axvline(1.0, color='k', linewidth=0.8, linestyle=':', alpha=0.7, label="δ=1")
-    axes[0].set_xlabel("δ (thermal parameter)"); axes[0].set_ylabel("max Re(λ)")
     axes[0].set_title("Max eigenvalue vs δ\n(stability transition at δ=1)", fontsize=10)
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
 
     # Show eigenvalues for stable and unstable
     axes[1].axvline(0, color='k', linewidth=1.0, linestyle='--', alpha=0.7)
@@ -191,9 +188,8 @@ def run():
     axes[1].scatter(np.real(lams_unstable[idx_near_zero2[:6]]),
                     np.arange(6) + 0.2, color='coral', s=50,
                     label=f"δ={delta_unstable} (unstable)", zorder=3)
-    axes[1].set_xlabel("Re(λ)"); axes[1].set_ylabel("mode index")
     axes[1].set_title("Eigenvalues: stable vs unstable", fontsize=10)
-    axes[1].legend(fontsize=8); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=8)
 
     fig.suptitle("Thermoelastic rod: stability via integral BC eigenvalue problem", fontsize=10)
     fig.tight_layout()
@@ -202,7 +198,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -24,7 +24,6 @@ chebfun_style()
 
 from chebfunjax.plotting import plot
 
-
 def compute_fourier_coeff(f_func, n, dom=(0.0, 2.0 * float(jnp.pi))):
     """Compute n-th Fourier coefficient a_n = (1/pi) int f(x)*cos(n*x) dx
     and b_n = (1/pi) int f(x)*sin(n*x) dx using Chebfun quadrature."""
@@ -38,7 +37,6 @@ def compute_fourier_coeff(f_func, n, dom=(0.0, 2.0 * float(jnp.pi))):
     a_n = float(fa_n.sum()) / pi
     b_n = float(fb_n.sum()) / pi
     return a_n, b_n
-
 
 def run():
     print("=" * 60)
@@ -112,16 +110,10 @@ def run():
                             for n in _ns])
     axes[0].bar(_ns, _cos3x_an, color="#4169E1", alpha=0.8)
     axes[0].set_title("|a_n| of cos(3x)", fontsize=11)
-    axes[0].set_xlabel("n", fontsize=10)
     _saw_bn = _np.array([abs(compute_fourier_coeff(lambda x: x, n, dom)[1])
                           for n in range(1, 11)])
     axes[1].bar(_np.arange(1, 11), _saw_bn, color="#E04040", alpha=0.8)
     axes[1].set_title("|b_n| of sawtooth f(x)=x", fontsize=11)
-    axes[1].set_xlabel("n", fontsize=10)
-    for _ax in axes:
-        _ax.grid(True, alpha=0.3, linestyle="--")
-        _ax.spines["top"].set_visible(False)
-        _ax.spines["right"].set_visible(False)
     fig.set_facecolor("white")
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "fourier_coefficients.png"),
@@ -130,7 +122,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

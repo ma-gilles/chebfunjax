@@ -19,15 +19,12 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def lissajous(m, n, d, n_pts=2000):
     """Generate Lissajous curve: x=sin(mt), y=sin(nt + d*pi)."""
     t = np.linspace(0, 2 * np.pi, n_pts)
     x = np.sin(m * t)
     y = np.sin(n * t + d * np.pi)
     return x + 1j * y
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -90,7 +87,6 @@ def run():
 
     print("lissajous: done")
     return True
-
 
 if __name__ == "__main__":
     run()

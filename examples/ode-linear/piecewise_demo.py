@@ -27,7 +27,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Piecewise-coefficient ODE: -u'' + sign(x) exp(x) u = 1")
@@ -111,15 +110,11 @@ def run():
     axes[0].plot(x_plot_r, np.array(ur(jnp.array(x_plot_r))), 'b', linewidth=1.8,
                  label="piecewise solution")
     axes[0].axvline(0, color='k', linestyle='--', linewidth=0.8, label="x=0")
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("u(x)")
     axes[0].set_title("−u″ + sign(x) eˣ u = 1, u(±1)=0", fontsize=10)
     axes[0].legend(fontsize=8)
-    axes[0].grid(True, alpha=0.3)
 
     axes[1].plot(x_plot, u2(x_plot), 'r', linewidth=1.8)
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("u(x)")
     axes[1].set_title("u″ − u = x, u(±1)=0  (smooth reference)", fontsize=10)
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Piecewise-coefficient ODE", fontsize=11)
     fig.tight_layout()
@@ -128,7 +123,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

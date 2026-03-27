@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/approx')
@@ -53,7 +51,6 @@ def run():
         ax.axvline(pole, color='gray', linewidth=0.5, linestyle='--', alpha=0.6)
     ax.set_ylim(-8, 8)
     ax.set_xlim(-4.2, 4.2)
-    ax.set_xlabel('$x$', fontsize=12)
     ax.set_title(r'The Gamma function $\Gamma(x)$ on $[-4, 4]$', fontsize=13)
     ax.legend(fontsize=11)
     fig.tight_layout()
@@ -79,7 +76,6 @@ def run():
 
     print("gamma_function: done")
     return True
-
 
 if __name__ == "__main__":
     run()

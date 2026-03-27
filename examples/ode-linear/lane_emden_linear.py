@@ -26,7 +26,6 @@ chebfun_style()
 from chebfunjax.domain import Domain
 from chebfunjax.utils.quadrature import chebpts
 
-
 def run():
     print("=" * 60)
     print("Lane-Emden equation: x u'' + 2 u' + x u^n = 0")
@@ -105,20 +104,16 @@ def run():
     axes[0].plot(np.linspace(dom0[0], R0, 300),
                  exact_n0(np.linspace(dom0[0], R0, 300)),
                  'r--', linewidth=1.2, label="exact 1−x²/6")
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("u(x)")
     axes[0].set_title("Lane-Emden n=0: x u″+2u′+x = 0", fontsize=10)
     axes[0].legend(fontsize=8)
-    axes[0].grid(True, alpha=0.3)
 
     x_plot1 = jnp.linspace(float(dom1[0]), R1, 300)
     axes[1].plot(x_plot1, u1(x_plot1), 'b', linewidth=1.8, label="chebfunjax")
     axes[1].plot(np.linspace(dom1[0], R1, 300),
                  exact_n1(np.linspace(dom1[0], R1, 300)),
                  'r--', linewidth=1.2, label="exact sin(x)/x")
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("u(x)")
     axes[1].set_title("Lane-Emden n=1: x u″+2u′+xu = 0", fontsize=10)
     axes[1].legend(fontsize=8)
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Lane-Emden equation (linear cases n=0,1)", fontsize=11)
     fig.tight_layout()
@@ -127,7 +122,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

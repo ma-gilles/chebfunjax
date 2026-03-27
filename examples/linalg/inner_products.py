@@ -19,8 +19,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/linalg')
@@ -87,7 +85,6 @@ def run():
     fv = np.array(f(jnp.array(xx)))
     ax.plot(xx, fv, 'b-', linewidth=1.6, label='$f(x) = e^{\\sin x}$')
     ax.fill_between(xx, 0, fv, alpha=0.15, color='blue', label='area = L1 norm/2')
-    ax.set_xlabel('$x$', fontsize=12)
     ax.set_title(f'$e^{{\\sin x}}$: L1={norms["L1"]:.4f}, L2={norms["L2"]:.4f}, L∞={norms["Linf"]:.4f}',
                  fontsize=11)
     ax.legend(fontsize=10)
@@ -97,7 +94,6 @@ def run():
 
     print("inner_products: done")
     return True
-
 
 if __name__ == "__main__":
     run()

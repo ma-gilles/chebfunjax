@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Analytic continuation via rational approximation")
@@ -110,14 +108,10 @@ def run():
     axes[0].plot(xs, np.array(f(jnp.array(xs))), 'r--', linewidth=1.5, label="Chebfun")
     axes[0].set_title("tanh$(x)$ on $[-1,1]$")
     axes[0].legend(fontsize=9)
-    axes[0].grid(True, alpha=0.4)
 
     # Middle: coefficient decay
     axes[1].semilogy(range(n), coeffs + 1e-17, color="#1e77b4", linewidth=1.2)
-    axes[1].set_xlabel("k")
-    axes[1].set_ylabel("|c_k|")
     axes[1].set_title("Chebyshev coeff decay of tanh")
-    axes[1].grid(True, alpha=0.4)
 
     # Right: Runge function and its coefficients
     axes[2].semilogy(range(n_r), coeffs_runge + 1e-17, color="#d62728", linewidth=1.2,
@@ -125,11 +119,8 @@ def run():
     # Geometric reference
     k_arr = np.arange(n_r)
     axes[2].semilogy(k_arr, rho_exact**(-k_arr), 'k--', linewidth=1, label=f"$\\rho^{{-k}}$, ρ={rho_exact:.2f}")
-    axes[2].set_xlabel("k")
-    axes[2].set_ylabel("|c_k|")
     axes[2].set_title("Chebyshev coeff decay of 1/(1+25x²)")
     axes[2].legend(fontsize=8)
-    axes[2].grid(True, alpha=0.4)
 
     fig.suptitle("Analytic continuation: pole detection from coefficient decay", fontsize=11)
     fig.tight_layout()
@@ -138,7 +129,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

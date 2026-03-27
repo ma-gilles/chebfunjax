@@ -21,7 +21,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Quantum dot array: Schrodinger eigenvalue problem")
@@ -145,17 +144,15 @@ def run():
     for i in range(k):
         axes[0].axhline(energies[i], color=colors[i], linewidth=1.2, linestyle=':',
                         label=f"E_{i+1}={energies[i]:.3f} eV")
-    axes[0].set_xlabel("x (nm)"); axes[0].set_ylabel("Energy (eV)")
     axes[0].set_title(f"QDA: {numwell}-well potential and energy levels", fontsize=10)
-    axes[0].legend(fontsize=7, loc='lower right'); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=7, loc='lower right')
 
     # Energy comparison: ideal vs perturbed
     x_pos = np.arange(1, k+1)
     axes[1].bar(x_pos - 0.2, energies, width=0.35, color='steelblue', alpha=0.8, label="ideal")
     axes[1].bar(x_pos + 0.2, energies_p, width=0.35, color='coral', alpha=0.8, label="perturbed")
-    axes[1].set_xlabel("mode k"); axes[1].set_ylabel("Energy (eV)")
     axes[1].set_title("Energy levels: ideal vs perturbed wells", fontsize=10)
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3, axis='y')
+    axes[1].legend(fontsize=9)
     axes[1].set_xticks(x_pos)
 
     fig.suptitle("Quantum dot array: 1D Schrodinger eigenvalue problem", fontsize=11)
@@ -165,7 +162,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

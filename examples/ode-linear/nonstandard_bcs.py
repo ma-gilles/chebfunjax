@@ -25,7 +25,6 @@ chebfun_style()
 from chebfunjax.operators.chebop import Chebop
 from chebfunjax.operators.linop import Linop
 
-
 def run():
     print("=" * 60)
     print("Nonstandard boundary conditions")
@@ -87,12 +86,10 @@ def run():
     axes[0].plot(x_plot, u1(x_plot), 'b', linewidth=1.8)
     axes[0].axhline(0, color='k', linewidth=0.5)
     axes[0].set_title("u″+x²u=1, u(−1)=1, mean(u)=0", fontsize=10)
-    axes[0].set_xlabel("x"); axes[0].grid(True, alpha=0.3)
 
     axes[1].plot(x_plot, u2(x_plot), 'r', linewidth=1.8)
     axes[1].axvline(0, color='k', linestyle='--', linewidth=0.8)
     axes[1].set_title("u″+x²u=1, u(−1)=0, u′(0)=1", fontsize=10)
-    axes[1].set_xlabel("x"); axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Nonstandard boundary conditions", fontsize=11)
     fig.tight_layout()
@@ -101,7 +98,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

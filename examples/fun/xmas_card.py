@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def str2tune(s):
     """Convert string of hex digits to piecewise-constant melody array."""
     notes = []
@@ -31,7 +29,6 @@ def str2tune(s):
         else:
             notes.append(int(ch, 16))
     return notes
-
 
 def tune_to_freq(notes, base_midi=60):
     """Convert note indices to frequencies (Hz)."""
@@ -43,7 +40,6 @@ def tune_to_freq(notes, base_midi=60):
             # MIDI note: base + n semitones
             freqs.append(440.0 * 2**((base_midi + n - 69) / 12.0))
     return freqs
-
 
 def christmas_tree(ax, n_rows=10):
     """Draw a Christmas tree using triangles."""
@@ -87,7 +83,6 @@ def christmas_tree(ax, n_rows=10):
     ax.set_facecolor('#001133')
     ax.axis('off')
 
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/fun')
@@ -115,7 +110,6 @@ def run():
     ax2.step(t, [f if f > 0 else np.nan for f in freqs1], 'r-',
              linewidth=2, where='post')
     ax2.set_title('"Kling Gloeckchen"\nmelody (voice 1)', fontsize=10)
-    ax2.set_xlabel('Note index'); ax2.set_ylabel('Frequency (Hz)')
     ax2.set_facecolor('#001133')
     ax2.tick_params(colors='white')
     ax2.title.set_color('white')
@@ -148,7 +142,6 @@ def run():
     ax3.step(t3, [f if f > 0 else np.nan for f in freqs3], 'b-',
              linewidth=1.5, where='post', label='Voice 3 (bass)', alpha=0.9)
     ax3.set_title('Three-voice harmony\n"Kling Gloeckchen"', fontsize=10)
-    ax3.set_xlabel('Note index'); ax3.set_ylabel('Frequency (Hz)')
     ax3.legend(fontsize=8)
     ax3.set_facecolor('#001133')
     ax3.tick_params(colors='white')
@@ -173,7 +166,6 @@ def run():
 
     print("xmas_card: done")
     return True
-
 
 if __name__ == "__main__":
     run()

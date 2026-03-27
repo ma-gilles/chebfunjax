@@ -20,9 +20,7 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 RADIUS = 1.0 / 3.0
-
 
 def find_next_intersection(p, d, step=0.15, max_steps=1000):
     """Find next intersection of ray (p, d) with a circular mirror.
@@ -62,7 +60,6 @@ def find_next_intersection(p, d, step=0.15, max_steps=1000):
         p = p_test
     return step * max_steps, p + step * max_steps * d, d
 
-
 def trajectory(p0, d0, t_final):
     """Compute trajectory up to t_final."""
     p = p0
@@ -86,7 +83,6 @@ def trajectory(p0, d0, t_final):
         times.append(t)
 
     return np.array(times), np.array(points)
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -131,8 +127,7 @@ def run():
     axes[1].axhline(final_dist, color='r', linestyle='--',
                     label=f'Final dist = {final_dist:.4f}')
     axes[1].set_title('Distance |z(t)| from origin', fontsize=11)
-    axes[1].set_xlabel('t'); axes[1].set_ylabel('|z|')
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     fig.suptitle('Sinai Billiards: Bouncing Photon', fontsize=13)
     fig.tight_layout()
@@ -142,7 +137,6 @@ def run():
 
     print("sinai_billiards: done")
     return True
-
 
 if __name__ == "__main__":
     run()

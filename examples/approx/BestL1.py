@@ -19,10 +19,8 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -47,12 +45,10 @@ def run():
     axes[0, 0].plot(xx, p2_vals, 'r--', lw=1.5, label=f'p_L2 (deg {deg})')
     axes[0, 0].set_title('f and L2 approximant', fontsize=11)
     axes[0, 0].legend(fontsize=9)
-    axes[0, 0].grid(True, alpha=0.3)
     axes[0, 0].set_ylim(-3, 3)
 
     axes[0, 1].plot(xx, err2_vals, 'k', lw=1.5)
     axes[0, 1].set_title('L2 error curve', fontsize=11)
-    axes[0, 1].grid(True, alpha=0.3)
     axes[0, 1].set_ylim(-3, 3)
 
     # Second example: |x - 1/4| on [-1,1]
@@ -66,7 +62,6 @@ def run():
 
     axes[1, 0].plot(xx2, err2b_vals, 'k', lw=1.5)
     axes[1, 0].set_title(f'L2 error for |x−1/4| (deg {deg2})', fontsize=11)
-    axes[1, 0].grid(True, alpha=0.3)
 
     axes[1, 1].axis('off')
     axes[1, 1].text(0.1, 0.5,
@@ -81,7 +76,6 @@ def run():
 
     print("BestL1: done (L1 polyfitL1 not available; L2 shown).")
     return True
-
 
 if __name__ == '__main__':
     run()

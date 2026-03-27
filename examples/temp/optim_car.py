@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/temp')
@@ -57,8 +55,7 @@ def run():
     axes[0].plot(t, u_opt, 'g-', linewidth=1.5, label='u(t) control', alpha=0.7)
     axes[0].axvline(1, color='k', linestyle='--', linewidth=1, alpha=0.5)
     axes[0].set_title('Optimal car: position, speed,\ncontrol vs time', fontsize=10)
-    axes[0].set_xlabel('t'); axes[0].legend(fontsize=9)
-    axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
     print(f"Optimal car:")
     print(f"  x(2) = {x[-1]:.6f} (target: 1)")
     print(f"  v(2) = {v[-1]:.6f} (target: 0)")
@@ -70,8 +67,7 @@ def run():
     axes[1].axvline(1, color='k', linestyle='--', linewidth=1, alpha=0.5)
     axes[1].set_title('Co-state (adjoint) variables\nPontryagin minimum principle',
                        fontsize=10)
-    axes[1].set_xlabel('t'); axes[1].legend(fontsize=9)
-    axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     # --- Panel 3: Phase portrait and comparison with suboptimal ---
     # Optimal
@@ -89,8 +85,7 @@ def run():
     axes[2].plot(0, 0, 'go', markersize=10, zorder=5, label='Start')
     axes[2].plot(x[-1], v[-1], 'bs', markersize=10, zorder=5, label='End')
     axes[2].set_title('Phase portrait: position vs speed', fontsize=10)
-    axes[2].set_xlabel('x (position)'); axes[2].set_ylabel('v (speed)')
-    axes[2].legend(fontsize=9); axes[2].grid(True, alpha=0.3)
+    axes[2].legend(fontsize=9)
 
     fig.suptitle('Optimal Performance of a Car: Bang-Bang Control', fontsize=12)
     fig.tight_layout()
@@ -100,7 +95,6 @@ def run():
 
     print("optim_car: done")
     return True
-
 
 if __name__ == "__main__":
     run()

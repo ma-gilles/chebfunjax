@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def trajectory(A, x0, T=3.0):
     """Solve x' = Ax from x0 to time T."""
     def rhs(t, x):
@@ -31,7 +29,6 @@ def trajectory(A, x0, T=3.0):
     sol = solve_ivp(rhs, [0, T], x0, dense_output=True, max_step=0.05)
     t = np.linspace(0, T, 300)
     return sol.sol(t)
-
 
 def run():
     print("=" * 60)
@@ -71,7 +68,6 @@ def run():
 
         ax.set_xlim(-2, 2); ax.set_ylim(-2, 2)
         ax.set_title(f"{title}\nλ = {eigs[0]:.2f}, {eigs[1]:.2f}", fontsize=9)
-        ax.set_xlabel("x₁"); ax.set_ylabel("x₂")
         ax.axhline(0, color='k', linewidth=0.5)
         ax.axvline(0, color='k', linewidth=0.5)
     fig.suptitle("Phase portraits of 2D linear systems x′ = Ax", fontsize=11)
@@ -86,7 +82,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

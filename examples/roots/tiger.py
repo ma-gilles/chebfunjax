@@ -23,8 +23,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("The tiger's tail: roots of high-degree polynomials")
@@ -86,8 +84,6 @@ def run():
             axes[col].plot(r, np.zeros_like(r), "ro", markersize=3, label=f"{len(r)} roots")
         axes[col].set_title(f"Random Chebyshev, $n={n}$")
         axes[col].legend(fontsize=9)
-        axes[col].set_xlabel("x")
-        axes[col].grid(True, alpha=0.3)
 
     fig.suptitle("Tiger's tail: roots of high-degree Chebyshev polynomials", fontsize=11)
     fig.tight_layout()
@@ -96,7 +92,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

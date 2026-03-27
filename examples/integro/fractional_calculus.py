@@ -22,7 +22,6 @@ import numpy as np
 from scipy.special import gamma
 import os
 
-
 def run():
     print("=" * 60)
     print("Fractional calculus")
@@ -108,8 +107,7 @@ def run():
         axes[0].plot(x_arr, deriv_results[alpha], color=col,
                      linewidth=1.8, label=f'α={alpha:.1f}')
     axes[0].set_title("Fractional derivatives D^α x", fontsize=11)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("D^α x")
-    axes[0].legend(fontsize=8, loc='upper left'); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=8, loc='upper left')
     axes[0].set_ylim([0, 5])
 
     # Panel 2: half-derivative of x vs exact
@@ -118,8 +116,8 @@ def run():
     axes[1].plot(x4, exact_half, 'b-', linewidth=2, label='D^(1/2) x = 2√(x/π) exact')
     axes[1].plot(x4[::10], d_half[::10], 'r.', markersize=8, label='Numerical D^(1/2) x')
     axes[1].set_title("Half-derivative of x", fontsize=11)
-    axes[1].set_xlabel("x"); axes[1].legend(fontsize=9)
-    axes[1].grid(True, alpha=0.3); axes[1].set_ylim([0, 4])
+    axes[1].legend(fontsize=9)
+    axes[1].set_ylim([0, 4])
 
     fig.suptitle("Fractional calculus: Riemann-Liouville operators", fontsize=13)
     fig.tight_layout()
@@ -128,7 +126,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

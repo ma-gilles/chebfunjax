@@ -28,7 +28,6 @@ _IMG_DIR = os.path.join(
 )
 os.makedirs(_IMG_DIR, exist_ok=True)
 
-
 def flux_integral_numeric(F1_func, F2_func, F3_func,
                           Sx_func, Sy_func, Sz_func,
                           u_range, v_range, n=100):
@@ -84,7 +83,6 @@ def flux_integral_numeric(F1_func, F2_func, F3_func,
 
     integrand = F1 * Nx + F2 * Ny + F3 * Nz
     return float(np.trapezoid(np.trapezoid(integrand, v_pts, axis=0), u_pts))
-
 
 def run():
     print("=" * 60)
@@ -166,7 +164,6 @@ def run():
     ax1.plot_surface(R * np.cos(T), R * np.sin(T), np.cos(5 * R),
                      alpha=0.8, cmap="viridis")
     ax1.set_title("Rippled disk\nS = (r·cos t, r·sin t, cos 5r)", fontsize=9)
-    ax1.set_xlabel("x"); ax1.set_ylabel("y"); ax1.set_zlabel("z")
 
     # Lower hemisphere
     ax2 = fig.add_subplot(132, projection="3d")
@@ -180,7 +177,6 @@ def run():
         alpha=0.8, cmap="plasma"
     )
     ax2.set_title(f"Lower hemisphere\nFlux ≈ {flux2:.4f}, exact = -2π", fontsize=9)
-    ax2.set_xlabel("x"); ax2.set_ylabel("y"); ax2.set_zlabel("z")
 
     # Unit sphere
     ax3 = fig.add_subplot(133, projection="3d")
@@ -194,7 +190,6 @@ def run():
         alpha=0.5, cmap="coolwarm"
     )
     ax3.set_title(f"Unit sphere\ndiv thm: ∫div(F)dV={total_flux:.4f}≈4π", fontsize=9)
-    ax3.set_xlabel("x"); ax3.set_ylabel("y"); ax3.set_zlabel("z")
 
     fig.suptitle("Flux integrals over parametric surfaces", fontsize=12)
     fig.tight_layout()
@@ -205,7 +200,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

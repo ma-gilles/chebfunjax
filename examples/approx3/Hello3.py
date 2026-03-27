@@ -28,7 +28,6 @@ _IMG_DIR = os.path.join(
 )
 os.makedirs(_IMG_DIR, exist_ok=True)
 
-
 def build_hello_tensor():
     """Build the 40x40x40 HELLO binary tensor (from MATLAB example)."""
     A = np.zeros((15, 40))
@@ -64,7 +63,6 @@ def build_hello_tensor():
         B[k, :, :] = A_padded
 
     return B
-
 
 def run():
     print("=" * 60)
@@ -143,7 +141,6 @@ def run():
     ax1.imshow(B[18, :, :].T, cmap="Blues", origin="lower",
                extent=[-1, 1, -1, 1], aspect="equal")
     ax1.set_title("HELLO tensor slice (k=18)\nbinary pixel data", fontsize=10)
-    ax1.set_xlabel("x"); ax1.set_ylabel("y")
 
     # Plot 2: 3D scatter of nonzero entries
     ax2 = fig.add_subplot(132, projection="3d")
@@ -153,7 +150,6 @@ def run():
     ax2.scatter(xyz_nz[:, 0], xyz_nz[:, 1], xyz_nz[:, 2],
                 c="steelblue", alpha=0.3, s=2)
     ax2.set_title("HELLO tensor\n3D binary voxels", fontsize=10)
-    ax2.set_xlabel("x"); ax2.set_ylabel("y"); ax2.set_zlabel("z")
     ax2.view_init(elev=20, azim=-100)
 
     # Plot 3: Chebfun3 reconstruction slice
@@ -166,7 +162,6 @@ def run():
     vals = np.array(f(jnp.array(X_p), jnp.array(Y_p), jnp.array(Z_p)))
     ax3.contourf(X_p, Y_p, vals, levels=20, cmap="Blues")
     ax3.set_title(f"Chebfun3 reconstruction\nslice at z={z_val}", fontsize=10)
-    ax3.set_xlabel("x"); ax3.set_ylabel("y")
 
     fig.suptitle("Hello 3D World — Chebfun3 from discrete data", fontsize=12)
     fig.tight_layout()
@@ -177,7 +172,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

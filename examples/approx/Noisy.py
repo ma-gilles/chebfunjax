@@ -19,10 +19,8 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -67,8 +65,6 @@ def run():
     ax2 = axes[1]
     ax2.semilogy(degrees, max_errs, 'b.-', lw=1.5, ms=10)
     ax2.set_title('Approximation error of sin(πx) vs. degree', fontsize=10)
-    ax2.set_xlabel('degree')
-    ax2.set_ylabel('max error')
     fig.suptitle('Noisy functions in Chebfun', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'Noisy.png'), dpi=150)
@@ -76,7 +72,6 @@ def run():
 
     print("Noisy: done.")
     return True
-
 
 if __name__ == '__main__':
     run()

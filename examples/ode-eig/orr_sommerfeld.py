@@ -27,7 +27,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Orr-Sommerfeld eigenvalues for plane Poiseuille flow")
@@ -176,18 +175,14 @@ def run():
     # Re=2000 spectrum
     axes[0].plot(np.real(in_region), np.imag(in_region), 'r.', markersize=5)
     axes[0].axvline(0, color='k', linewidth=0.8, linestyle='--')
-    axes[0].set_xlabel("Re(λ)"); axes[0].set_ylabel("Im(λ)")
     axes[0].set_title(f"Orr-Sommerfeld spectrum\nRe={Re}, α={alph}", fontsize=10)
-    axes[0].grid(True, alpha=0.3)
     axes[0].set_xlim(-0.9, 0.15); axes[0].set_ylim(-1.1, 0.1)
     axes[0].text(0.02, -0.1, f"max Re(λ)={max_real:.4f}", transform=axes[0].transAxes, fontsize=8)
 
     # Re_crit spectrum
     axes[1].plot(np.real(in2), np.imag(in2), 'r.', markersize=5)
     axes[1].axvline(0, color='k', linewidth=0.8, linestyle='--')
-    axes[1].set_xlabel("Re(λ)"); axes[1].set_ylabel("Im(λ)")
     axes[1].set_title(f"Orr-Sommerfeld spectrum\nRe={Re_crit:.0f}, α={alph_crit}", fontsize=10)
-    axes[1].grid(True, alpha=0.3)
     axes[1].set_xlim(-0.9, 0.15); axes[1].set_ylim(-1.1, 0.1)
     axes[1].text(0.02, -0.1, f"max Re(λ)={max_real2:.5f}", transform=axes[1].transAxes, fontsize=8)
 
@@ -198,7 +193,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

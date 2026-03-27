@@ -29,7 +29,6 @@ _IMG_DIR = os.path.join(
 )
 os.makedirs(_IMG_DIR, exist_ok=True)
 
-
 def run():
     print("=" * 60)
     print("Loosening Chebfun3 tolerance for speed (Tolerance)")
@@ -121,8 +120,6 @@ def run():
     ranks_x = [r["rank"][0] for r in results]
     ax1.loglog(tols, ranks_x, "o-b", lw=2, ms=10)
     ax1.invert_xaxis()
-    ax1.set_xlabel("Tolerance", fontsize=12)
-    ax1.set_ylabel("Tucker rank (x-mode)", fontsize=12)
     ax1.set_title("Rank decreases with\nloose tolerance", fontsize=11)
     # Error vs tolerance
     ax2 = axes[1]
@@ -130,15 +127,11 @@ def run():
     ax2.loglog(tols, errs, "o-r", lw=2, ms=10)
     ax2.plot([1e-4, 1e-8], [1e-4, 1e-8], "--k", alpha=0.5, label="error=tol")
     ax2.invert_xaxis()
-    ax2.set_xlabel("Tolerance", fontsize=12)
-    ax2.set_ylabel("Error in integral", fontsize=12)
     ax2.set_title("Error scales with tolerance", fontsize=11)
     ax2.legend()
     # Chebyshev coefficients of first fiber
     ax3 = axes[2]
     ax3.semilogy(range(len(coeffs0)), coeffs0, "o-b", ms=4, lw=1.5)
-    ax3.set_xlabel("Chebyshev degree", fontsize=12)
-    ax3.set_ylabel("|coefficient|", fontsize=12)
     ax3.set_title("Coefficient decay of\nfirst column fiber", fontsize=11)
     fig.suptitle("Effect of tolerance on Chebfun3 construction", fontsize=13)
     fig.tight_layout()
@@ -149,7 +142,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

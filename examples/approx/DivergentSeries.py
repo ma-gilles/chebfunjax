@@ -20,16 +20,13 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
-
 
 def stieltjes(x):
     """Stieltjes integral f(x) = int_0^inf e^{-t}/(1+xt) dt."""
     result, _ = quad(lambda t: np.exp(-t) / (1 + x * t), 0, 50)
     return result
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -79,7 +76,6 @@ def run():
 
     print(f"DivergentSeries: f(1) = {stieltjes(1.0):.6f}")
     return True
-
 
 if __name__ == '__main__':
     run()

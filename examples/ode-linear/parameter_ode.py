@@ -23,7 +23,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Parameter ODE: (a(x,s) u')' = 1, u(0)=u(1)=0")
@@ -70,10 +69,8 @@ def run():
         axes[0].plot(x_plot, u(x_plot), color=c, linewidth=1.6, label=f"s={s}")
         axes[0].plot(x_plot, exact_u(x_plot, s), '--', color=c, linewidth=1.0, alpha=0.5)
 
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("u(x)")
     axes[0].set_title("(a(x,s) u′)′ = 1, u(0)=u(1)=0", fontsize=10)
     axes[0].legend(fontsize=8)
-    axes[0].grid(True, alpha=0.3)
 
     # Show a(x,s) profiles
     x_plot_np = np.linspace(0.0, 1.0, 400)
@@ -81,10 +78,8 @@ def run():
         a_vals = 1.0 + 4.0 * s * (x_plot_np**2 - x_plot_np)
         axes[1].plot(x_plot_np, a_vals, color=c, linewidth=1.6, label=f"s={s}")
     axes[1].axhline(0, color='k', linewidth=0.5, linestyle='--')
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("a(x, s)")
     axes[1].set_title("Coefficient a(x,s) = 1 + 4s(x²−x)", fontsize=10)
     axes[1].legend(fontsize=8)
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Parameter-dependent BVP", fontsize=11)
     fig.tight_layout()
@@ -93,7 +88,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

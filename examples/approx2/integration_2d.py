@@ -23,7 +23,6 @@ chebfun_style()
 
 from chebfunjax.plotting import surf, contour
 
-
 def run():
     print("=" * 60)
     print("2D integration with Chebfun2")
@@ -77,7 +76,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

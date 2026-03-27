@@ -24,7 +24,6 @@ chebfun_style()
 from chebfunjax.plotting import plot
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Laplacian eigenvalues")
@@ -77,8 +76,6 @@ def run():
             markersize=7, label="computed (Dirichlet)")
     ax.plot(_n, _n**2, "--", color="#E04040", linewidth=1.4,
             label="exact n²")
-    ax.set_xlabel("n", fontsize=10)
-    ax.set_ylabel("λ", fontsize=10)
     ax.set_title("Laplacian eigenvalues on [0, π]", fontsize=11)
     ax.legend(fontsize=9)
     fig.set_facecolor("white")
@@ -89,7 +86,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

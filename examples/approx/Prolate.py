@@ -19,10 +19,8 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -70,7 +68,6 @@ def run():
         axes[0].set_xlim(-10, 10)
         axes[0].set_title('Sinc functions: bandwidth c/π', fontsize=10)
         axes[0].legend(fontsize=8)
-        axes[0].grid(True, alpha=0.3)
 
         # Show chebfun approximation lengths for sin(cx)
         cs_test = [5, 10, 20, 40, 80]
@@ -80,9 +77,6 @@ def run():
             lens.append(len(ff))
         axes[1].plot(cs_test, lens, 'b.-', lw=1.5, ms=10)
         axes[1].set_title('Length of chebfun for sin(cx)', fontsize=10)
-        axes[1].set_xlabel('bandwidth c')
-        axes[1].set_ylabel('polynomial degree')
-        axes[1].grid(True, alpha=0.3)
 
         fig.suptitle('Prolate functions and bandlimited approximation', fontsize=12)
         fig.tight_layout()
@@ -91,7 +85,6 @@ def run():
         print("Prolate: pswf not available, showed sinc/bandlimited demo.")
 
     return True
-
 
 if __name__ == '__main__':
     run()

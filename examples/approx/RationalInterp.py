@@ -24,7 +24,6 @@ from chebfunjax.utils.aaa import aaa
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
 
-
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
 
@@ -66,8 +65,6 @@ def run():
     ax3.plot([0], [0.2], 'kx', ms=12, label='true poles ±0.2i')
     ax3.plot([0], [-0.2], 'kx', ms=12)
     ax3.set_title('Poles of AAA approximant', fontsize=10)
-    ax3.set_xlabel('Re(z)')
-    ax3.set_ylabel('Im(z)')
     ax3.legend(fontsize=8)
     ax3.axhline(0, color='k', lw=0.5)
     ax3.axvline(0, color='k', lw=0.5)
@@ -82,7 +79,6 @@ def run():
     print(f"RationalInterp: AAA err={np.max(err_aaa):.3e}, "
           f"{len(pol)} poles found")
     return True
-
 
 if __name__ == '__main__':
     run()

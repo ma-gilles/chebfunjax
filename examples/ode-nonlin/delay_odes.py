@@ -23,8 +23,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Delay differential equations (DDEs)")
@@ -98,16 +96,14 @@ def run():
 
     axes[0].plot(t_arr, y, 'b', linewidth=1.6, label="pantograph y'=−y(t/2)")
     axes[0].plot(t_ref, y_ref, 'r--', linewidth=1.2, label="reference exp(−t)")
-    axes[0].set_xlabel("t"); axes[0].set_ylabel("y(t)")
     axes[0].set_title("Pantograph vs reference DDE", fontsize=10)
-    axes[0].legend(fontsize=8); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=8)
 
     axes[1].semilogy(t_arr, np.clip(np.abs(y), 1e-15, None), 'b',
                      linewidth=1.6, label="pantograph")
     axes[1].semilogy(t_ref, y_ref, 'r--', linewidth=1.2, label="exp(−t)")
-    axes[1].set_xlabel("t"); axes[1].set_ylabel("|y(t)| [log scale]")
     axes[1].set_title("Log-scale comparison", fontsize=10)
-    axes[1].legend(fontsize=8); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=8)
 
     fig.suptitle("Delay differential equations", fontsize=11)
     fig.tight_layout()
@@ -116,7 +112,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -24,7 +24,6 @@ chebfun_style()
 
 from chebfunjax.plotting import plot
 
-
 def run():
     print("=" * 60)
     print("Difficult integrals via Chebfun")
@@ -105,7 +104,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

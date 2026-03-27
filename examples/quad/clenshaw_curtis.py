@@ -23,7 +23,6 @@ chebfun_style()
 
 from chebfunjax.plotting import plot
 
-
 def run():
     print("=" * 60)
     print("Clenshaw-Curtis quadrature via Chebfun sum")
@@ -112,7 +111,6 @@ def run():
         ax.plot(_xs, _np.array(_f(jnp.array(_xs))), color=_col,
                 linewidth=1.5, label=_name)
     ax.set_title("Clenshaw-Curtis integrands", fontsize=11)
-    ax.set_xlabel("x", fontsize=10)
     ax.legend(fontsize=9)
     fig.set_facecolor("white")
     fig.tight_layout()
@@ -122,7 +120,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

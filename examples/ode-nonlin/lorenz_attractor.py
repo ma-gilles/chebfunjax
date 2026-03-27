@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Lorenz attractor")
@@ -66,20 +64,17 @@ def run():
 
     ax1 = fig.add_subplot(1, 3, 1, projection='3d')
     ax1.plot(x[::5], y[::5], z[::5], 'b', linewidth=0.4, alpha=0.5)
-    ax1.set_xlabel("x"); ax1.set_ylabel("y"); ax1.set_zlabel("z")
     ax1.set_title("Lorenz attractor", fontsize=9)
     ax1.tick_params(labelsize=7)
 
     ax2 = fig.add_subplot(1, 3, 2)
     ax2.plot(sol.t, x, 'b', linewidth=0.6, alpha=0.8, label="traj 1")
     ax2.plot(sol2.t, sol2.y[0], 'r', linewidth=0.6, alpha=0.5, label="traj 2")
-    ax2.set_xlabel("t"); ax2.set_ylabel("x(t)")
     ax2.set_title("x(t): two trajectories", fontsize=9)
-    ax2.legend(fontsize=7); ax2.grid(True, alpha=0.3)
+    ax2.legend(fontsize=7)
 
     ax3 = fig.add_subplot(1, 3, 3)
     ax3.semilogy(sol.t, diff + 1e-10, 'g', linewidth=1.2)
-    ax3.set_xlabel("t"); ax3.set_ylabel("|difference|")
     ax3.set_title("Divergence of nearby trajectories", fontsize=9)
     fig.suptitle("Lorenz attractor and chaos", fontsize=11)
     fig.tight_layout()
@@ -88,7 +83,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -25,7 +25,6 @@ chebfun_style()
 from chebfunjax.plotting import plot
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Exact solutions of nonlinear ODEs (Bender & Orszag)")
@@ -91,7 +90,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

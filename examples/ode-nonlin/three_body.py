@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Three-body gravitational problem")
@@ -117,16 +115,13 @@ def run():
         axes[0].plot(xi, yi, color=c, linewidth=0.8, alpha=0.7, label=lab)
         axes[0].plot(xi[0], yi[0], 'o', color=c, markersize=5)
     axes[0].set_aspect('equal')
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("y")
     axes[0].set_title("Figure-8 three-body orbit", fontsize=10)
-    axes[0].legend(fontsize=8); axes[0].grid(True, alpha=0.2)
+    axes[0].legend(fontsize=8)
 
     # Energy conservation
     E_all = [energy(sol.y[:, i]) for i in range(len(t_eval))]
     axes[1].plot(t_eval, (np.array(E_all) - E0) / abs(E0), 'b', linewidth=1.2)
-    axes[1].set_xlabel("t"); axes[1].set_ylabel("(E-E₀)/|E₀|")
     axes[1].set_title("Relative energy error", fontsize=10)
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Gravitational three-body problem (figure-8)", fontsize=11)
     fig.tight_layout()
@@ -135,7 +130,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

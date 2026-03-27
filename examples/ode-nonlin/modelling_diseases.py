@@ -27,7 +27,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("SIR epidemic model")
@@ -94,16 +93,14 @@ def run():
     axes[0].plot(sol.t, I, 'r', linewidth=1.6, label="I (infected)")
     axes[0].plot(sol.t, R, 'g', linewidth=1.6, label="R (recovered)")
     axes[0].axvline(t_peak, color='k', linestyle='--', linewidth=0.8)
-    axes[0].set_xlabel("t (days)"); axes[0].set_ylabel("people")
     axes[0].set_title(f"SIR model (R₀={R0:.1f})", fontsize=10)
-    axes[0].legend(fontsize=8); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=8)
 
     axes[1].plot(S, I, 'purple', linewidth=1.6)
     axes[1].plot(S[0], I[0], 'go', markersize=6, label="start")
     axes[1].plot(S[-1], I[-1], 'rs', markersize=6, label="end")
-    axes[1].set_xlabel("S (susceptible)"); axes[1].set_ylabel("I (infected)")
     axes[1].set_title("S-I phase portrait", fontsize=10)
-    axes[1].legend(fontsize=8); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=8)
 
     fig.suptitle(f"Epidemic modelling: SIR model (β={beta}, γ={gamma})", fontsize=11)
     fig.tight_layout()
@@ -112,7 +109,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

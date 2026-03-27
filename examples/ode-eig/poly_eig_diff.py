@@ -21,7 +21,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Polynomial ODE eigenproblems: Bessel functions")
@@ -108,9 +107,8 @@ def run():
     for alpha_p in [0, 1, 2, 3]:
         axes[0].plot(x_plot, jv(alpha_p, x_plot), linewidth=1.2, label=f"J_{alpha_p}(x)")
     axes[0].axhline(0, color='k', linewidth=0.5)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("J_α(x)")
     axes[0].set_title("Bessel functions of first kind", fontsize=10)
-    axes[0].legend(fontsize=8); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=8)
     axes[0].set_ylim(-0.5, 1.1)
 
     # J_5 and its zeros
@@ -119,9 +117,8 @@ def run():
     for z in exact_zeros[exact_zeros <= 40]:
         axes[1].axvline(z, color='r', linewidth=0.7, alpha=0.5)
     axes[1].axhline(0, color='k', linewidth=0.5)
-    axes[1].set_xlabel("x"); axes[1].set_ylabel(f"J_{alpha_test}(x)")
     axes[1].set_title(f"Zeros of J_{alpha_test}(x) (vertical lines)", fontsize=10)
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     fig.suptitle("Polynomial ODE eigenproblems: Bessel functions", fontsize=11)
     fig.tight_layout()
@@ -130,7 +127,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

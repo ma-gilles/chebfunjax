@@ -23,8 +23,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Frozen coefficients do not determine stability")
@@ -95,17 +93,13 @@ def run():
 
     axes[0].semilogy(sol.t, norm_x, 'b', linewidth=1.4, label="switched (A1/A2)")
     axes[0].semilogy(sol2.t, norm_x2, 'r', linewidth=1.4, label="stable (A3/A4)")
-    axes[0].set_xlabel("t"); axes[0].set_ylabel("‖x(t)‖")
     axes[0].set_title("Switched systems: norm of solution", fontsize=10)
     axes[0].legend(fontsize=8)
-    axes[0].grid(True, alpha=0.3)
 
     axes[1].plot(sol.y[0], sol.y[1], 'b', linewidth=0.8, alpha=0.8)
     axes[1].plot(sol.y[0, 0], sol.y[1, 0], 'go', markersize=6, label="start")
-    axes[1].set_xlabel("x₁"); axes[1].set_ylabel("x₂")
     axes[1].set_title("Phase portrait (unstable switched)", fontsize=10)
     axes[1].legend(fontsize=8)
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Frozen coefficients ≠ stability", fontsize=11)
     fig.tight_layout()
@@ -114,7 +108,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

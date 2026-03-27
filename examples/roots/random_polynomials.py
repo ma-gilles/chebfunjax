@@ -26,7 +26,6 @@ from chebfunjax.tech.chebtech import Chebtech2
 from chebfunjax.chebfun1d.chebfun import _Piece, Chebfun
 from chebfunjax.domain import Domain
 
-
 def run():
     print("=" * 60)
     print("Roots of random Chebyshev polynomials")
@@ -105,7 +104,6 @@ def run():
     ax.plot(_r2, _np.zeros_like(_r2), "ro", markersize=5, label="roots")
     ax.axhline(0, color="k", linewidth=0.5)
     ax.set_title("Random Chebyshev polynomial roots", fontsize=11)
-    ax.set_xlabel("x", fontsize=10)
     ax.legend(fontsize=9)
     fig.set_facecolor("white")
     fig.tight_layout()
@@ -115,7 +113,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

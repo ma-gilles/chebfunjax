@@ -23,14 +23,13 @@ chebfun_style()
 
 from chebfunjax.plotting import plot
 
-
 def run():
     print("=" * 60)
     print("Piecewise smooth functions")
     print("=" * 60)
 
     # --- |x| with breakpoint at 0 ------------------------------------
-    # MATLAB: f = chebfun('abs(x)', [-1, 0, 1]);
+    # MATLAB: f = chebfun('abs(x)', [-1, 0, 1])
     dom_split = (-1.0, 0.0, 1.0)  # breakpoint at 0
     f_abs = cj.chebfun(lambda x: jnp.abs(x), domain=dom_split)
     print(f"\n|x| on [-1,1] with breakpoint at 0:")
@@ -46,7 +45,7 @@ def run():
         assert abs(val - abs(x_val)) < 1e-14
 
     # --- Step function -----------------------------------------------
-    # MATLAB: f = chebfun(@(x) sign(x), [-1, 0, 1]);
+    # MATLAB: f = chebfun(@(x) sign(x), [-1, 0, 1])
     f_step = cj.chebfun(
         lambda x: jnp.where(x < 0, -jnp.ones_like(x), jnp.ones_like(x)),
         domain=(-1.0, 0.0, 1.0)
@@ -104,7 +103,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

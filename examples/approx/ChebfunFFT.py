@@ -19,16 +19,13 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
-
 
 def chebpts(n):
     """n Chebyshev points of second kind on [-1,1], ordered from x=1 down to x=-1."""
     k = np.arange(n)
     return np.cos(np.pi * k / (n - 1))
-
 
 def vals_to_coeffs(fvals):
     """Convert function values at Chebyshev points (from x=1 to x=-1) to coefficients.
@@ -43,7 +40,6 @@ def vals_to_coeffs(fvals):
     coeffs[0] /= 2
     coeffs[-1] /= 2
     return coeffs
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -83,7 +79,6 @@ def run():
                  label='FFT coeffs')
     ax2.set_title('Chebyshev coefficients (FFT method)', fontsize=11)
     ax2.legend(fontsize=9)
-    ax2.set_xlabel('degree k')
     fig.suptitle('The FFT in Chebfun: values ↔ coefficients', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'ChebfunFFT.png'), dpi=150)
@@ -92,7 +87,6 @@ def run():
     assert err < 1e-12, f"FFT coefficient mismatch: {err}"
     print("ChebfunFFT: all assertions passed.")
     return True
-
 
 if __name__ == '__main__':
     run()

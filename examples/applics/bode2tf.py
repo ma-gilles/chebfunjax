@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("AAA algorithm for system identification (Bode data)")
@@ -90,14 +88,12 @@ def run():
     axes[0].semilogx(omega_vals, 20*np.log10(np.maximum(H_aaa_mag, 1e-15)),
                      'r--', linewidth=1.5, label='AAA fit')
     axes[0].set_title(f"Bode plot — 2nd order system (ω_n={omega_n}, ζ={zeta})", fontsize=11)
-    axes[0].set_ylabel("Magnitude (dB)")
-    axes[0].legend(); axes[0].grid(True, which='both', alpha=0.3)
+    axes[0].legend()
 
     # Phase
     axes[1].semilogx(omega_vals, H_phase, 'b-', linewidth=2, label='Exact H(jω)')
     axes[1].semilogx(omega_vals, H_aaa_phase, 'r--', linewidth=1.5, label='AAA fit')
-    axes[1].set_xlabel("ω (rad/s)"); axes[1].set_ylabel("Phase (degrees)")
-    axes[1].legend(); axes[1].grid(True, which='both', alpha=0.3)
+    axes[1].legend()
 
     fig.suptitle("System identification via AAA rational approximation", fontsize=13)
     fig.tight_layout()
@@ -106,7 +102,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def spherical_harmonic(l, m, theta, phi):
     """Real spherical harmonic Y_l^m(theta, phi)."""
     from scipy.special import sph_harm_y
@@ -34,7 +32,6 @@ def spherical_harmonic(l, m, theta, phi):
         return np.sqrt(2) * (-1)**m * np.imag(Ylm)
     else:
         return np.real(Ylm)
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -105,7 +102,6 @@ def run():
 
     print("advection_diffusion: done")
     return True
-
 
 if __name__ == "__main__":
     run()

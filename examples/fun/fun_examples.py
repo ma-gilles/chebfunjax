@@ -25,8 +25,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Fun and miscellaneous examples")
@@ -147,15 +145,12 @@ def run():
     # Lissajous
     axes[1].plot(x_liss, y_liss, 'r-', linewidth=1)
     axes[1].set_title(f"Lissajous (3,2)\nArc length={arc_length:.2f}", fontsize=11)
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("y")
-    axes[1].set_aspect('equal'); axes[1].grid(True, alpha=0.3)
+    axes[1].set_aspect('equal')
 
     # Random walk
     axes[2].plot(t_fine, walk_fine, 'g-', linewidth=1)
     axes[2].scatter(xs_walk, walk_vals, color='red', zorder=5, s=20)
     axes[2].set_title("Polynomial interpolation of\nrandom walk", fontsize=11)
-    axes[2].set_xlabel("t"); axes[2].set_ylabel("u(t)")
-    axes[2].grid(True, alpha=0.3)
 
     fig.suptitle("Fun examples", fontsize=13)
     fig.tight_layout()
@@ -164,7 +159,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

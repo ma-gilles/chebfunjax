@@ -21,7 +21,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Wave equation with decay band: eigenmodes")
@@ -118,9 +117,6 @@ def run():
         axes[idx].set_xlim(-np.pi/2, np.pi/2)
         axes[idx].set_ylim(-1.6, 2.2)
         axes[idx].set_title(f"mode {k_m},  λ = {lam_k:.3f}", fontsize=10)
-        axes[idx].grid(True, alpha=0.3)
-        if idx >= 2:
-            axes[idx].set_xlabel("x")
 
     fig.suptitle("Wave equation eigenmodes: −u″ = λu on [−π/2, π/2]", fontsize=11)
     fig.tight_layout()
@@ -129,7 +125,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -23,8 +23,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Speed and accuracy of Chebfun rootfinding")
@@ -85,10 +83,7 @@ def run():
     if finite_errs:
         ns_plot, errs_plot = zip(*finite_errs)
         axes[0].semilogy(ns_plot, errs_plot, 'b.-', markersize=8, linewidth=1.5)
-        axes[0].set_xlabel("n")
-        axes[0].set_ylabel("max root error")
         axes[0].set_title("Rootfinding accuracy: $\\sin(n\\pi x)$")
-        axes[0].grid(True, alpha=0.4)
 
     # Right: example sin(20*pi*x) with roots
     n_ex = 20
@@ -101,7 +96,6 @@ def run():
     axes[1].axhline(0, color="k", linewidth=0.5)
     axes[1].set_title(f"$\\sin({n_ex}\\pi x)$ with {len(r_ex)} roots")
     axes[1].legend(fontsize=9)
-    axes[1].grid(True, alpha=0.4)
 
     fig.suptitle("Chebfun rootfinding: speed and accuracy", fontsize=11)
     fig.tight_layout()
@@ -110,7 +104,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

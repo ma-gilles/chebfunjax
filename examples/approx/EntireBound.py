@@ -19,10 +19,8 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -45,8 +43,6 @@ def run():
                     label=f'ρ={rho}')
 
     ax.set_title('Chebyshev coefficients of exp(x) and Bernstein bounds', fontsize=11)
-    ax.set_xlabel('degree k')
-    ax.set_ylabel('|aₖ|')
     ax.legend(fontsize=8)
     ax.set_ylim(1e-18, 10)
 
@@ -66,8 +62,6 @@ def run():
     ax2.semilogy(nvec2, 2 * M2 * rho_exact**(-nvec2), 'r--', lw=1.5,
                  label=f'ρ={rho_exact:.3f} bound')
     ax2.set_title('Chebyshev coefficients of 1/(1+x²)', fontsize=11)
-    ax2.set_xlabel('degree k')
-    ax2.set_ylabel('|aₖ|')
     ax2.legend(fontsize=9)
     fig2.tight_layout()
     fig2.savefig(os.path.join(_OUTDIR, 'EntireBound_runge.png'), dpi=150)
@@ -75,7 +69,6 @@ def run():
 
     print(f"EntireBound: len(exp chebfun) = {len(f)}")
     return True
-
 
 if __name__ == '__main__':
     run()

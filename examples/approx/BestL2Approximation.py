@@ -19,10 +19,8 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -69,8 +67,6 @@ def run():
     ax3.loglog(ns_arr, errs_arr, 'k.-', lw=1.8, ms=10)
     ax3.loglog(ns_arr, ns_arr**(-1.5), 'k--', lw=1.2, label='n^{-3/2}')
     ax3.set_title('Convergence for |x|', fontsize=10)
-    ax3.set_xlabel('n')
-    ax3.set_ylabel('‖|x| − p_n‖₂')
     ax3.legend(fontsize=9)
     fig.suptitle('Least-squares (L2) approximation in Chebfun', fontsize=12)
     fig.tight_layout()
@@ -80,7 +76,6 @@ def run():
     print(f"BestL2Approximation: done. deg-10 Runge max err = "
           f"{np.max(np.abs(p10_vals - runge_vals)):.3e}")
     return True
-
 
 if __name__ == '__main__':
     run()

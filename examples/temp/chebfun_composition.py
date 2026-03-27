@@ -19,8 +19,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/temp')
@@ -47,8 +45,7 @@ def run():
     print(f"Expected: [{np.exp(-1):.4f}, {np.exp(1):.4f}]")
 
     axes[0].set_title('1D composition h=g(f)\nf=cos, g=exp', fontsize=10)
-    axes[0].legend(fontsize=10); axes[0].grid(True, alpha=0.3)
-    axes[0].set_xlabel('t')
+    axes[0].legend(fontsize=10)
 
     # --- Panel 2: 2D composition — restrict g(x,y) to a curve f(t) ---
     # g(x,y) = x^2 + y^2 (unit circle level set = 1)
@@ -64,7 +61,7 @@ def run():
     axes[1].plot(f_circ_x, f_circ_y, 'r-', linewidth=3, label='Unit circle')
     axes[1].set_aspect('equal')
     axes[1].set_title('g(x,y)=x²+y² restricted to\ncircle → constant 1', fontsize=10)
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
     print(f"g(cos(t),sin(t)) range: [{np.min(h_on_circ):.8f}, {np.max(h_on_circ):.8f}]")
     axes[1].text(0, 0, f'g=1 on circle', ha='center', color='white',
                  fontsize=12, fontweight='bold')
@@ -105,7 +102,6 @@ def run():
 
     print("chebfun_composition: done")
     return True
-
 
 if __name__ == "__main__":
     run()

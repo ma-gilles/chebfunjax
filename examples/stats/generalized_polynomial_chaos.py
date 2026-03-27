@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def hermite_polynomials(z, N):
     """Compute probabilist's Hermite polynomials H_0 ... H_N on grid z.
 
@@ -34,7 +32,6 @@ def hermite_polynomials(z, N):
     for n in range(1, N):
         H[:, n+1] = z * H[:, n] - n * H[:, n-1]
     return H
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -55,8 +52,8 @@ def run():
     for j in range(min(4, N+1)):
         axes[0].plot(z, H[:, j], linewidth=2, label=f'H_{j}')
     axes[0].set_title('Hermite polynomials', fontsize=11)
-    axes[0].set_xlabel('z'); axes[0].legend(fontsize=9)
-    axes[0].set_ylim(-15, 15); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
+    axes[0].set_ylim(-15, 15)
 
     # Verify orthogonality
     print("Gram matrix of Hermite polynomials (should be diagonal):")
@@ -93,8 +90,7 @@ def run():
                      np.abs(y_approx[(z_trunc >= -3) & (z_trunc <= 3)]),
                      'r--', linewidth=2, label=f'gPC degree {N}')
     axes[1].set_title('gPC approximation of lognormal Y', fontsize=11)
-    axes[1].set_xlabel('z'); axes[1].legend(fontsize=9)
-    axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     # Statistics from gPC
     mean_gpc = c[0]  # H_0 = 1
@@ -121,8 +117,6 @@ def run():
 
     axes[2].semilogy(degrees, errors, 'b.-', markersize=12, linewidth=2)
     axes[2].set_title('gPC convergence: lognormal Y', fontsize=11)
-    axes[2].set_xlabel('Polynomial degree'); axes[2].set_ylabel('L2 error (w/ Gaussian weight)')
-    axes[2].grid(True, alpha=0.3)
 
     fig.suptitle('Generalized Polynomial Chaos', fontsize=13)
     fig.tight_layout()
@@ -132,7 +126,6 @@ def run():
 
     print("generalized_polynomial_chaos: done")
     return True
-
 
 if __name__ == "__main__":
     run()

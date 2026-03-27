@@ -23,8 +23,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("White curves of Ortiz and Rivlin")
@@ -82,12 +80,9 @@ def run():
     axes[0].set_xlim(-1, 1)
     axes[0].set_ylim(-1.1, 1.1)
     axes[0].set_title(f"$T_1$ through $T_{{{N}}}$ overlaid")
-    axes[0].set_xlabel("x")
 
     # Right: root density (histogram)
     axes[1].hist(all_roots_x, bins=80, color="#1e77b4", alpha=0.7, edgecolor="none")
-    axes[1].set_xlabel("x")
-    axes[1].set_ylabel("Root count")
     xs_arcos = np.linspace(-1 + 0.01, 1 - 0.01, 200)
     # The arcsine density ~ 1/sqrt(1-x^2)
     density_norm = (N * (N + 1) / 2) / 80
@@ -103,7 +98,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

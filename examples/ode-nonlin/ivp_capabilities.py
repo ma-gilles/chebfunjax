@@ -24,7 +24,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("IVP capabilities: nonlinear problems")
@@ -97,17 +96,15 @@ def run():
 
     axes[0].plot(sol_ref.t, sol_ref.y[0], 'b', linewidth=1.4)
     axes[0].set_title("van der Pol oscillator", fontsize=9)
-    axes[0].set_xlabel("t"); axes[0].grid(True, alpha=0.3)
 
     axes[1].plot(sol_duff.t, sol_duff.y[0], 'g', linewidth=1.4)
     axes[1].set_title("Duffing oscillator", fontsize=9)
-    axes[1].set_xlabel("t"); axes[1].grid(True, alpha=0.3)
 
     t_plot_p = jnp.linspace(*dom_pend, 300)
     axes[2].plot(t_plot_p, u_pend(t_plot_p), 'b', linewidth=1.4, label="chebfunjax")
     axes[2].plot(sol_pend.t, sol_pend.y[0], 'r--', linewidth=1.0, label="scipy", alpha=0.6)
     axes[2].set_title("Simple pendulum BVP", fontsize=9)
-    axes[2].set_xlabel("t"); axes[2].legend(fontsize=7); axes[2].grid(True, alpha=0.3)
+    axes[2].legend(fontsize=7)
 
     fig.suptitle("Nonlinear IVP/BVP capabilities", fontsize=11)
     fig.tight_layout()
@@ -116,7 +113,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

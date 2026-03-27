@@ -20,7 +20,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Schrodinger eigenstates: -u'' + V(x) u = E u")
@@ -77,9 +76,8 @@ def run():
         E = lams_sorted[i]
         axes[0].axhline(E, color=colors[i], linewidth=0.8, linestyle='--', alpha=0.6)
     axes[0].set_ylim(-0.5, 6)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("E")
     axes[0].set_title("Harmonic oscillator energy levels", fontsize=10)
-    axes[0].legend(fontsize=8); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=8)
 
     # Double well
     V_dw = x_plot**4 - 2 * x_plot**2
@@ -88,9 +86,8 @@ def run():
         axes[1].axhline(lams_dw_sorted[i], color=colors[i], linewidth=0.8,
                         linestyle='--', alpha=0.7, label=f"E_{i}={lams_dw_sorted[i]:.2f}")
     axes[1].set_ylim(-2, 8)
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("E")
     axes[1].set_title("Double-well energy levels", fontsize=10)
-    axes[1].legend(fontsize=7); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=7)
 
     fig.suptitle("Schrodinger eigenstates: −u″ + V(x)u = Eu", fontsize=11)
     fig.tight_layout()
@@ -99,7 +96,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

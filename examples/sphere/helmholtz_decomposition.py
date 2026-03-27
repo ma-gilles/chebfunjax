@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def surface_curl(psi, theta, phi):
     """Compute surface curl of scalar potential psi on sphere.
     curl_S(psi) = (1/sin(theta)) * dpsi/dphi * e_theta - dpsi/dtheta * e_phi
@@ -38,7 +36,6 @@ def surface_curl(psi, theta, phi):
     V_phi = -dpsi_dtheta
     return V_theta, V_phi
 
-
 def surface_grad(phi_pot, theta, phi):
     """Compute surface gradient of scalar potential phi on sphere."""
     dphi_val = phi[0, 1] - phi[0, 0] if phi.ndim > 1 else phi[1] - phi[0]
@@ -51,7 +48,6 @@ def surface_grad(phi_pot, theta, phi):
     G_theta = dpot_dtheta
     G_phi = dpot_dphi / sin_theta
     return G_theta, G_phi
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -90,13 +86,11 @@ def run():
     ax1.contourf(np.degrees(phi_1d), np.degrees(theta_1d),
                   Vt_div, levels=20, cmap='RdBu_r')
     ax1.set_title('Divergence-free part\ncurl(ψ) theta-component', fontsize=10)
-    ax1.set_xlabel('φ (°)'); ax1.set_ylabel('θ (°)')
     # --- Panel 2: Curl-free component ---
     ax2 = fig.add_subplot(132)
     ax2.contourf(np.degrees(phi_1d), np.degrees(theta_1d),
                   Vp_curl, levels=20, cmap='PiYG')
     ax2.set_title('Curl-free part\ngrad(φ) phi-component', fontsize=10)
-    ax2.set_xlabel('φ (°)'); ax2.set_ylabel('θ (°)')
     # --- Panel 3: Total field on sphere ---
     ax3 = fig.add_subplot(133, projection='3d')
     field_magnitude = np.sqrt(Vt**2 + Vp**2)
@@ -119,7 +113,6 @@ def run():
 
     print("helmholtz_decomposition: done")
     return True
-
 
 if __name__ == "__main__":
     run()

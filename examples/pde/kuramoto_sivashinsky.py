@@ -18,7 +18,6 @@ chebfun_style()
 import numpy as np
 import os
 
-
 def run():
     print("=" * 60)
     print("Kuramoto-Sivashinsky equation and chaos")
@@ -144,17 +143,13 @@ def run():
     axes[0].plot(x, u0_sym, 'b-', linewidth=1.5, label='t=0', alpha=0.7)
     axes[0].plot(x, u_t100, 'r-', linewidth=1.5, label='t=100')
     axes[0].set_title("KS: symmetric IC (chaotic at t=100)", fontsize=11)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("u")
     axes[0].set_ylim([-4, 4]); axes[0].legend()
-    axes[0].grid(True, alpha=0.3)
 
     # Asymmetric case
     axes[1].plot(x, u0_asym, 'b-', linewidth=1.5, label='t=0 (asym)', alpha=0.7)
     axes[1].plot(x, u_asym_t100, 'r-', linewidth=1.5, label='t=100')
     axes[1].set_title("KS: symmetry broken at t=100", fontsize=11)
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("u")
     axes[1].set_ylim([-4, 4]); axes[1].legend()
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Kuramoto-Sivashinsky chaos", fontsize=13)
     fig.tight_layout()
@@ -163,7 +158,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

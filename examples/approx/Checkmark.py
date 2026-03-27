@@ -19,10 +19,8 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -56,14 +54,11 @@ def run():
     axes[1].axhline(0, color='k', lw=0.5)
     axes[1].set_title('Errors of polynomial approximants', fontsize=11)
     axes[1].legend(fontsize=8)
-    axes[1].grid(True, alpha=0.3)
 
     # Chebyshev coefficient decay
     coeffs = np.abs(np.array(f.coeffs)) + 1e-18
     axes[2].semilogy(np.arange(len(coeffs)), coeffs, 'b.', ms=4)
     axes[2].set_title('Chebyshev coefficients of checkmark', fontsize=11)
-    axes[2].set_xlabel('degree')
-    axes[2].grid(True, alpha=0.3)
 
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'Checkmark.png'), dpi=150)
@@ -71,7 +66,6 @@ def run():
 
     print("Checkmark: done.")
     return True
-
 
 if __name__ == '__main__':
     run()

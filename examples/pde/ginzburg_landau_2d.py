@@ -22,7 +22,6 @@ chebfun_style()
 import numpy as np
 import os
 
-
 def run():
     print("=" * 60)
     print("Complex Ginzburg-Landau equation (1D demo)")
@@ -109,8 +108,7 @@ def run():
             axes[0].plot(x, np.abs(u_h), color=colors[i], linewidth=1.5,
                          label=f't={t:.0f}', alpha=0.8)
     axes[0].set_title(f"1D CGL: |u(x,t)| (α={alpha}, β={beta})", fontsize=11)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("|u|")
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
 
     # Phase plot
     u_final = history[-1][1]
@@ -120,8 +118,7 @@ def run():
                  label='|u|=1')
     axes[1].set_aspect('equal')
     axes[1].set_title("Phase portrait Re(u) vs Im(u) at T=50", fontsize=11)
-    axes[1].set_xlabel("Re(u)"); axes[1].set_ylabel("Im(u)")
-    axes[1].legend(); axes[1].grid(True, alpha=0.3)
+    axes[1].legend()
 
     fig.suptitle("Complex Ginzburg-Landau (1D)", fontsize=13)
     fig.tight_layout()
@@ -130,7 +127,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

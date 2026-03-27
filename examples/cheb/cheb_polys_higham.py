@@ -21,12 +21,9 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def cheb_poly(k, x):
     """Evaluate Chebyshev polynomial T_k(x) at x."""
     return np.cos(k * np.arccos(np.clip(x, -1, 1)))
-
 
 def legendre_poly(k, x):
     """Evaluate Legendre polynomial P_k(x) at x using recurrence."""
@@ -41,7 +38,6 @@ def legendre_poly(k, x):
         p_prev = p_curr
         p_curr = p_next
     return p_curr
-
 
 def run():
     print("=" * 60)
@@ -94,7 +90,6 @@ def run():
         y_vals = cheb_poly(k, x)
         ones = np.ones_like(x) * (j + 1)
         ax1.plot(ones, x, y_vals, color=color, linewidth=1.6)
-    ax1.set_xlabel("k"); ax1.set_ylabel("x"); ax1.set_zlabel("T_k(x)")
     ax1.set_title("Chebyshev polynomials T_k(x)", fontsize=11)
     ax1.set_xticks(range(1, len(degrees) + 1))
     ax1.set_xticklabels(degrees)
@@ -106,7 +101,6 @@ def run():
         y_vals = legendre_poly(k, x)
         ones = np.ones_like(x) * (j + 1)
         ax2.plot(ones, x, y_vals, color=color, linewidth=1.6)
-    ax2.set_xlabel("k"); ax2.set_ylabel("x"); ax2.set_zlabel("P_k(x)")
     ax2.set_title("Legendre polynomials P_k(x)", fontsize=11)
     ax2.set_xticks(range(1, len(degrees) + 1))
     ax2.set_xticklabels(degrees)
@@ -121,7 +115,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

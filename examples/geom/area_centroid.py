@@ -19,8 +19,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def area_from_curve(z):
     """Compute area enclosed by parametric complex curve z(t) using Green's theorem.
 
@@ -31,7 +29,6 @@ def area_from_curve(z):
     z_mid = 0.5 * (z[:-1] + z[1:])
     return np.abs(np.sum(np.real(z_mid) * np.imag(dz)))
 
-
 def centroid_from_curve(z, area):
     """Compute centroid of region enclosed by curve."""
     dz = np.diff(z)
@@ -39,7 +36,6 @@ def centroid_from_curve(z, area):
     # c = (1/(2i*A)) * integral z * conj(z) dz
     c = np.sum(z_mid * np.conj(z_mid) * dz) / (2j * area)
     return c
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -68,7 +64,6 @@ def run():
     axes[0].set_aspect('equal')
     axes[0].set_title(f'Epicycloid (m={m})\nArea = {A_epi:.4f} (exact: {A_exact:.4f})',
                       fontsize=10)
-    axes[0].grid(True, alpha=0.3)
 
     # --- 2. Perturbed unit circle: z(t) = e^{it} + (1+i)*sin(6t)^2 ---
     z_perturb = np.exp(1j * t) + (1 + 1j) * np.sin(6 * t)**2
@@ -87,7 +82,7 @@ def run():
     axes[1].set_aspect('equal')
     axes[1].set_title(f'Perturbed circle\nArea = {A_perturb:.4f} (≈ π = {np.pi:.4f})',
                       fontsize=10)
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     fig.suptitle('Area and Centroid of 2D Regions via Green\'s Theorem', fontsize=12)
     fig.tight_layout()
@@ -97,7 +92,6 @@ def run():
 
     print("area_centroid: done")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -23,8 +23,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def plot_conformal(ax_in, ax_out, f_map, xlim=(-2, 2), ylim=(-2, 2),
                    n_lines=10, n_pts=200, title_in="z-plane", title_out="w-plane"):
     """Draw a conformal map by transforming horizontal/vertical lines."""
@@ -51,7 +49,6 @@ def plot_conformal(ax_in, ax_out, f_map, xlim=(-2, 2), ylim=(-2, 2),
         ax.set_aspect('equal')
         ax.set_title(title, fontsize=9)
         ax.tick_params(labelsize=7)
-
 
 def run():
     print("=" * 60)
@@ -148,7 +145,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

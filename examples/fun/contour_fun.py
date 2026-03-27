@@ -19,8 +19,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def extract_contours(X, Y, Z, level=0.0):
     """Extract contour lines at given level from a grid using matplotlib."""
     fig_tmp, ax_tmp = plt.subplots()
@@ -41,7 +39,6 @@ def extract_contours(X, Y, Z, level=0.0):
                     paths.append(pts[:, 0] + 1j * pts[:, 1])
     plt.close(fig_tmp)
     return paths
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -67,7 +64,7 @@ def run():
     for c in contours:
         axes[0].plot(np.real(c), np.imag(c), 'r-o', markersize=4,
                      linewidth=1.5, label='Contour approx')
-    axes[0].set_aspect('equal'); axes[0].grid(True, alpha=0.3)
+    axes[0].set_aspect('equal')
     axes[0].set_title(f'Circle x²+y²={r}²\nfrom 40×40 grid contours', fontsize=10)
     axes[0].legend(fontsize=8)
     axes[0].set_xlim(-1.1, 1.1); axes[0].set_ylim(-1.1, 1.1)
@@ -87,7 +84,7 @@ def run():
 
     for c in contours2:
         axes[1].plot(np.real(c), np.imag(c), 'b-', linewidth=2)
-    axes[1].set_aspect('equal'); axes[1].grid(True, alpha=0.3)
+    axes[1].set_aspect('equal')
     axes[1].set_title('Lemniscate of Bernoulli\n(x²+y²)² = x²−y²', fontsize=10)
     axes[1].set_xlim(-1.3, 1.3); axes[1].set_ylim(-0.8, 0.8)
 
@@ -116,7 +113,7 @@ def run():
         if l not in seen:
             seen[l] = h
     axes[2].legend(seen.values(), seen.keys(), fontsize=8)
-    axes[2].set_aspect('equal'); axes[2].grid(True, alpha=0.3)
+    axes[2].set_aspect('equal')
     axes[2].set_title('Cassini ovals (foci at ±1)\nfor various b values', fontsize=10)
     axes[2].set_xlim(-2.5, 2.5); axes[2].set_ylim(-2.0, 2.0)
 
@@ -128,7 +125,6 @@ def run():
 
     print("contour_fun: done")
     return True
-
 
 if __name__ == "__main__":
     run()

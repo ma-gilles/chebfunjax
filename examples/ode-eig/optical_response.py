@@ -22,7 +22,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Nonlinear optical response: Schrodinger H*psi = lambda*psi")
@@ -113,15 +112,13 @@ def run():
         axes[0].axhline(lams0_sorted[i], color=colors[i], linewidth=1.0,
                         linestyle='--', label=f"E_{i}={lams0_sorted[i]:.2f}")
     axes[0].set_ylim(-0.5, 12)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("E")
     axes[0].set_title("Quantum harmonic oscillator\nV(x)=2x², H=-½∂²/∂x² + V", fontsize=9)
-    axes[0].legend(fontsize=8); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=8)
 
     # Polarization P(E)
     axes[1].plot(E_vals, E0_vals, 'bo-', markersize=6, linewidth=1.5, label="E₀(E)")
-    axes[1].set_xlabel("E (field strength)"); axes[1].set_ylabel("Ground state energy E₀")
     axes[1].set_title(f"Polarization: E₀(E)\nα ≈ {alpha_numerical:.6f}", fontsize=9)
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     fig.suptitle("Nonlinear optical response: Schrodinger eigenvalue problem", fontsize=10)
     fig.tight_layout()
@@ -130,7 +127,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

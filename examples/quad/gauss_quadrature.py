@@ -24,7 +24,6 @@ chebfun_style()
 
 from chebfunjax.plotting import plot
 
-
 def golub_welsch(n):
     """Compute n-point Gauss-Legendre nodes and weights via Golub-Welsch."""
     k = np.arange(1, n)
@@ -35,7 +34,6 @@ def golub_welsch(n):
     x = eigvals[idx]
     w = 2.0 * eigvecs[0, idx]**2
     return x, w
-
 
 def run():
     print("=" * 60)
@@ -99,7 +97,6 @@ def run():
         ax.plot(_nodes, _np.zeros_like(_nodes), "o", color=_col,
                 markersize=5, label=f"n={_n}")
     ax.set_title("Gauss-Legendre nodes on [-1, 1]", fontsize=11)
-    ax.set_xlabel("x", fontsize=10)
     ax.set_yticks([])
     ax.legend(fontsize=9)
     fig.set_facecolor("white")
@@ -110,7 +107,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

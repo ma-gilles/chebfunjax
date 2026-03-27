@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Phase-locking in a Duffing-type equation")
@@ -92,8 +90,7 @@ def run():
     axes[0].plot(t_stab, branch_pos, 'k--', linewidth=2, label='±√t')
     axes[0].plot(t_stab, branch_neg, 'k--', linewidth=2)
     axes[0].set_title("Phase-locking (λ=0.2, 6 paths)", fontsize=11)
-    axes[0].set_xlabel("t"); axes[0].set_ylabel("y")
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
     axes[0].set_ylim([-3, 3])
 
     for i, p in enumerate(paths_005):
@@ -101,8 +98,7 @@ def run():
     axes[1].plot(t_stab, branch_pos, 'k--', linewidth=2, label='±√t')
     axes[1].plot(t_stab, branch_neg, 'k--', linewidth=2)
     axes[1].set_title("Phase-locking (λ=0.05, finer noise)", fontsize=11)
-    axes[1].set_xlabel("t"); axes[1].set_ylabel("y")
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
     axes[1].set_ylim([-3, 3])
 
     fig.suptitle("Phase-locking: y' = ty - y³ + f", fontsize=13)
@@ -112,7 +108,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

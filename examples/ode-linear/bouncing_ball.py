@@ -23,8 +23,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Bouncing ball trajectory")
@@ -84,18 +82,14 @@ def run():
     # x-y trajectory
     for i, (xs, ys) in enumerate(zip(x_segs, y_segs)):
         axes[0].plot(xs, ys, color=colors[i], linewidth=1.6)
-    axes[0].set_xlabel("x (m)"); axes[0].set_ylabel("y (m)")
     axes[0].set_title("Bouncing ball: x-y trajectory")
     axes[0].set_ylim(bottom=0)
-    axes[0].grid(True, alpha=0.3)
 
     # y vs t
     for i, (ts, ys) in enumerate(zip(times, y_segs)):
         axes[1].plot(ts, ys, color=colors[i], linewidth=1.6)
-    axes[1].set_xlabel("t (s)"); axes[1].set_ylabel("y (m)")
     axes[1].set_title("Bouncing ball: height vs time")
     axes[1].set_ylim(bottom=0)
-    axes[1].grid(True, alpha=0.3)
 
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "bouncing_ball.png"), dpi=150, bbox_inches="tight")
@@ -103,7 +97,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

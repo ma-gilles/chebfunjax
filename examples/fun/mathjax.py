@@ -19,10 +19,8 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 # Enable LaTeX rendering if available
 plt.rcParams['text.usetex'] = False  # Use mathtext instead
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -43,8 +41,6 @@ def run():
     axes[0].set_title('Chebyshev polynomials\n$T_n(x) = \\cos(n\\arccos x)$',
                        fontsize=10)
     axes[0].legend(fontsize=10, loc='upper right')
-    axes[0].grid(True, alpha=0.3)
-    axes[0].set_xlabel('$x$'); axes[0].set_ylabel('$T_n(x)$')
 
     # --- Panel 2: Orthogonality integral ---
     ns = np.arange(0, 8)
@@ -61,7 +57,6 @@ def run():
     im = axes[1].imshow(np.abs(gram), cmap='Blues', aspect='auto')
     axes[1].set_title('Orthogonality matrix\n$\\int_{-1}^{1} T_m T_n w\\, dx$',
                        fontsize=10)
-    axes[1].set_xlabel('$m$'); axes[1].set_ylabel('$n$')
     plt.colorbar(im, ax=axes[1])
 
     print("MathJax/Chebyshev example:")
@@ -101,7 +96,6 @@ def run():
 
     print("mathjax: done")
     return True
-
 
 if __name__ == "__main__":
     run()

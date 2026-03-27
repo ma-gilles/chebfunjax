@@ -25,7 +25,6 @@ chebfun_style()
 from chebfunjax.operators.chebop import Chebop
 from chebfunjax.utils.quadrature import chebpts
 
-
 def run():
     print("=" * 60)
     print("Heat equation and reaction-diffusion")
@@ -91,15 +90,14 @@ def run():
         axes[0].plot(xs_np, u_h, color=colors[i],
                      label=f't={t_h:.2f}' if i in [0, len(history)-1] else '')
     axes[0].set_title(f"Heat equation D={D}", fontsize=12)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("u")
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
 
     xs_plot = np.linspace(-1, 1, 200)
     u_ss_vals = np.array([float(u_ss(jnp.array(xi))) for xi in xs_plot])
     axes[1].plot(xs_plot, u_ss_vals, 'b-', linewidth=2, label='chebfunjax')
     axes[1].plot(xs_plot, np.sin(np.pi * xs_plot), 'r--', linewidth=2, label='Exact sin(πx)')
     axes[1].set_title("Steady heat: -u'' = π²sin(πx)", fontsize=12)
-    axes[1].set_xlabel("x"); axes[1].legend(); axes[1].grid(True, alpha=0.3)
+    axes[1].legend()
 
     fig.suptitle("Heat equation", fontsize=13)
     fig.tight_layout()
@@ -108,7 +106,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def clenshaw_curtis_nodes_weights(n):
     """Clenshaw-Curtis nodes (Chebyshev-2 points) and weights on [-1,1]."""
     if n == 1:
@@ -36,7 +34,6 @@ def clenshaw_curtis_nodes_weights(n):
     w[0] /= 2
     w[-1] /= 2
     return x, w
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -78,19 +75,14 @@ def run():
     xx = np.linspace(-1, 1, 600)
     axes[0].plot(xx, f_fn(xx), 'b-', linewidth=1.5)
     axes[0].set_title(r'$f(x) = x\sin(2e^{2\sin(2e^{2x})})$', fontsize=11)
-    axes[0].set_xlabel('$x$')
-    axes[0].grid(True, alpha=0.3)
 
     # Right: convergence
     axes[1].semilogy(NN, err_gauss, 'b.-', markersize=8, linewidth=1.4,
                      label='Gauss-Legendre')
     axes[1].semilogy(NN, err_cc, 'r.-', markersize=8, linewidth=1.4,
                      label='Clenshaw-Curtis')
-    axes[1].set_xlabel('Number of quadrature points')
-    axes[1].set_ylabel('Error')
     axes[1].set_title('Convergence of quadrature rules', fontsize=11)
     axes[1].legend(fontsize=10)
-    axes[1].grid(True, which='both', alpha=0.3)
     axes[1].set_ylim(bottom=1e-17)
 
     fig.tight_layout()
@@ -102,7 +94,6 @@ def run():
     print(f"CC    100-pt error: {err_cc[9]:.2e}")
     print("gauss_vs_clenshaw_curtis: done")
     return True
-
 
 if __name__ == "__main__":
     run()

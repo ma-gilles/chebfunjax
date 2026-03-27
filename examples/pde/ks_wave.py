@@ -19,7 +19,6 @@ chebfun_style()
 import numpy as np
 import os
 
-
 def run():
     print("=" * 60)
     print("Kuramoto-Sivashinsky traveling waves")
@@ -123,22 +122,18 @@ def run():
 
     axes[0, 0].plot(x0, u0, 'k-', linewidth=2)
     axes[0, 0].set_title(f"KS initial condition (X={X})", fontsize=11)
-    axes[0, 0].set_xlabel("x"); axes[0, 0].grid(True, alpha=0.3)
     axes[0, 0].set_ylim([-3, 9])
 
     axes[0, 1].plot(x1, u100, 'b-', linewidth=2)
     axes[0, 1].set_title("After T=100 (traveling wave)", fontsize=11)
-    axes[0, 1].set_xlabel("x"); axes[0, 1].grid(True, alpha=0.3)
     axes[0, 1].set_ylim([-3, 9])
 
     axes[1, 0].plot(x0_2, u0_2, 'k-', linewidth=2)
     axes[1, 0].set_title(f"Generalized KS IC (δ={delta2}, ε={eps2})", fontsize=11)
-    axes[1, 0].set_xlabel("x"); axes[1, 0].grid(True, alpha=0.3)
     axes[1, 0].set_ylim([-3, 9])
 
     axes[1, 1].plot(x2, u100_gen, 'r-', linewidth=2)
     axes[1, 1].set_title("Gen. KS after T=100", fontsize=11)
-    axes[1, 1].set_xlabel("x"); axes[1, 1].grid(True, alpha=0.3)
     axes[1, 1].set_ylim([-3, 9])
 
     fig.suptitle("Kuramoto-Sivashinsky traveling waves", fontsize=13)
@@ -148,7 +143,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

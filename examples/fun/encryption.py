@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def letter_strokes(ch, x_off=0.0, y_off=0.0, scale=0.12):
     """Return list of (x,y) arrays for strokes of a letter."""
     # Simplified stroke descriptions for capital letters
@@ -60,7 +58,6 @@ def letter_strokes(ch, x_off=0.0, y_off=0.0, scale=0.12):
                 result.append(stroke * scale)
     return result
 
-
 def apply_transform(strokes, angle, scale_f, translation):
     """Apply complex rotation and translation to strokes."""
     c = scale_f * np.exp(1j * angle)
@@ -70,7 +67,6 @@ def apply_transform(strokes, angle, scale_f, translation):
         z_new = c * z + translation
         result.append(np.column_stack([np.real(z_new), np.imag(z_new)]))
     return result
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -92,7 +88,7 @@ def run():
     for stroke in all_strokes:
         axes[0].plot(stroke[:, 0], stroke[:, 1], 'b-', linewidth=2)
     axes[0].set_title('Original message', fontsize=11)
-    axes[0].set_aspect('equal'); axes[0].grid(True, alpha=0.3)
+    axes[0].set_aspect('equal')
     axes[0].set_xlim(-0.1, 3.6)
 
     # --- Panel 2: "Encrypted" (random rotation+scaling) ---
@@ -104,14 +100,14 @@ def run():
     for stroke in encrypted:
         axes[1].plot(stroke[:, 0], stroke[:, 1], 'r-', linewidth=2)
     axes[1].set_title(f'Encrypted\n(rotate by π/3.7, scale×1.8)', fontsize=10)
-    axes[1].set_aspect('equal'); axes[1].grid(True, alpha=0.3)
+    axes[1].set_aspect('equal')
 
     # --- Panel 3: "Decrypted" (inverse transform) ---
     decrypted = apply_transform(encrypted, -angle_key, 1/scale_key, -trans_key/scale_key/np.exp(1j*angle_key))
     for stroke in decrypted:
         axes[2].plot(stroke[:, 0], stroke[:, 1], 'g-', linewidth=2)
     axes[2].set_title('Decrypted\n(inverse transform)', fontsize=10)
-    axes[2].set_aspect('equal'); axes[2].grid(True, alpha=0.3)
+    axes[2].set_aspect('equal')
     axes[2].set_xlim(-0.1, 3.6)
 
     print("Encryption via complex rotation and scaling:")
@@ -127,7 +123,6 @@ def run():
 
     print("encryption: done")
     return True
-
 
 if __name__ == "__main__":
     run()

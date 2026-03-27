@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("From random functions to SDEs")
@@ -75,15 +73,13 @@ def run():
                      label=f'Path {i+1}')
     axes[0].axhline(0, color='k', linestyle='-', linewidth=0.5)
     axes[0].set_title(f"Smooth random walks (λ={lam})", fontsize=11)
-    axes[0].set_xlabel("t"); axes[0].set_ylabel("u(t)")
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
     axes[0].set_ylim([-2, 2])
 
     # Show the random function itself (first path)
     axes[1].plot(t_vals, f_paths[0], 'b-', linewidth=1.0, label=f"f(t), λ={lam}")
     axes[1].set_title("Random function f(t) = u'(t)", fontsize=11)
-    axes[1].set_xlabel("t"); axes[1].set_ylabel("f(t)")
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     fig.suptitle("Random functions → smooth random walks → SDEs", fontsize=13)
     fig.tight_layout()
@@ -92,7 +88,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

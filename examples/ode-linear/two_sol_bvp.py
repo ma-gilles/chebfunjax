@@ -24,7 +24,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Multiple BVP solutions via IVP initialization")
@@ -96,7 +95,6 @@ def run():
     ax.plot(x_plot, u1(x_plot), 'b', linewidth=1.8, label="solution 1")
     ax.plot(x_plot, u2(x_plot), 'r', linewidth=1.8, label="solution 2")
     ax.axvline(5.0, color='k', linestyle='--', linewidth=0.8)
-    ax.set_xlabel("x"); ax.set_ylabel("u(x)")
     ax.set_title("u″ + 2u sin(u) = 0,  u′(0)=0,  u(5)=1", fontsize=10)
     ax.legend(fontsize=9)
     fig.tight_layout()
@@ -105,7 +103,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

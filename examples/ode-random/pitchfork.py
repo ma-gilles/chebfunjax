@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Pitchfork bifurcation triggered by noise")
@@ -105,9 +103,8 @@ def run():
     axes[0].plot(t_stab, branch_neg, 'k-', linewidth=1, alpha=0.4)
     axes[0].axvline(300, color='gray', linestyle=':', linewidth=1, alpha=0.5)
     axes[0].set_title("Pitchfork (undamped)", fontsize=11)
-    axes[0].set_xlabel("t"); axes[0].set_ylabel("y")
     axes[0].set_ylim([-0.8, 0.8])
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
 
     # Panel 2: with damping
     axes[1].plot(t_eval, y0, 'k--', linewidth=2, alpha=0.7, label='no noise')
@@ -117,9 +114,8 @@ def run():
     axes[1].plot(t_stab, branch_neg, 'k-', linewidth=1, alpha=0.4)
     axes[1].axvline(300, color='gray', linestyle=':', linewidth=1, alpha=0.5)
     axes[1].set_title("Pitchfork with damping (0.2*y')", fontsize=11)
-    axes[1].set_xlabel("t"); axes[1].set_ylabel("y")
     axes[1].set_ylim([-0.8, 0.8])
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     fig.suptitle("Pitchfork bifurcation: y'' = 2c(t)y - 4y³ + 0.003f", fontsize=13)
     fig.tight_layout()
@@ -128,7 +124,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -23,7 +23,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Parameter-dependent ODEs")
@@ -110,17 +109,15 @@ def run():
     x_plot = jnp.linspace(-1.0, 1.0, 300)
     axes[0].bar(range(1, 5), lams_real[:4], color='steelblue', alpha=0.7, label="computed")
     axes[0].plot(range(1, 5), exact_lams, 'ro', markersize=6, label="exact (kπ/2)²")
-    axes[0].set_xlabel("k"); axes[0].set_ylabel("λ_k")
     axes[0].set_title("Eigenvalues of −d²/dx²", fontsize=10)
-    axes[0].legend(fontsize=8); axes[0].grid(True, alpha=0.3, axis='y')
+    axes[0].legend(fontsize=8)
 
     x_plot3 = jnp.linspace(0.0, float(np.pi), 300)
     axes[1].plot(x_plot3, u3(x_plot3), 'b', linewidth=1.8)
     axes[1].axvline(np.pi/2, color='k', linestyle='--', linewidth=0.8)
     axes[1].plot(np.pi/2, 1.0, 'ro', markersize=6, label=f"u(π/2)=1 (c={c_opt:.3f})")
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("u(x)")
     axes[1].set_title(f"u\" = c sin(u) with fixed interior value", fontsize=9)
-    axes[1].legend(fontsize=8); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=8)
 
     fig.suptitle("Parameter-dependent ODEs", fontsize=11)
     fig.tight_layout()
@@ -129,7 +126,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

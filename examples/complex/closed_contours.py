@@ -23,8 +23,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def contour_integral(f_complex, r, n_pts=2000):
     """Compute int_|z|=r f(z) dz using trapezoidal rule (spectral accuracy for periodic)."""
     ts = np.linspace(0, 2 * np.pi, n_pts, endpoint=False)
@@ -32,7 +30,6 @@ def contour_integral(f_complex, r, n_pts=2000):
     dzs = 1j * r * np.exp(1j * ts) * (2 * np.pi / n_pts)
     fs = f_complex(zs)
     return np.sum(fs * dzs)
-
 
 def run():
     print("=" * 60)
@@ -163,7 +160,6 @@ def run():
     axes[0].axvline(0, color='k', linewidth=0.5)
     axes[0].set_title("Example 1: poles inside/outside")
     axes[0].legend(fontsize=7)
-    axes[0].grid(True, alpha=0.3)
 
     # Middle: |f3(z)| on unit circle
     ts = np.linspace(0, 2*pi, 500)
@@ -171,10 +167,8 @@ def run():
     f3_vals = f3(zs)
     axes[1].plot(ts, np.real(f3_vals), label="Re")
     axes[1].plot(ts, np.imag(f3_vals), label="Im")
-    axes[1].set_xlabel("t")
     axes[1].set_title("$e^{1/z}\\sin(1/z)$ on $|z|=1$")
     axes[1].legend(fontsize=8)
-    axes[1].grid(True, alpha=0.3)
 
     # Right: winding number illustration
     z0s = np.array([0.5 + 0.3j, 2.0 + 0.5j])
@@ -188,7 +182,6 @@ def run():
     axes[2].set_ylim(-1.5, 1.5)
     axes[2].legend(fontsize=8)
     axes[2].set_title("Cauchy's theorem: winding number")
-    axes[2].grid(True, alpha=0.3)
 
     fig.suptitle("Closed contour integrals and the residue theorem", fontsize=11)
     fig.tight_layout()
@@ -197,7 +190,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

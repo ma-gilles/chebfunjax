@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Four bugs on a rectangle")
@@ -96,9 +94,8 @@ def run():
         axes[0].plot(x_all[i, 0], y_all[i, 0], 'o', color=colors[i], markersize=6)
         axes[0].plot(x_all[i, -1], y_all[i, -1], 's', color=colors[i], markersize=6)
     axes[0].set_aspect('equal')
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("y")
     axes[0].set_title(f"Bug trajectories (t_coll ≈ {t_coll:.3f})", fontsize=10)
-    axes[0].legend(fontsize=7); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=7)
 
     # Distance between successive bugs vs time
     for i in range(4):
@@ -106,9 +103,8 @@ def run():
         dist = np.sqrt((x_all[j] - x_all[i])**2 + (y_all[j] - y_all[i])**2)
         axes[1].plot(t_all, dist, color=colors[i], linewidth=1.4, label=f"|{i}→{j}|")
     axes[1].axvline(t_coll, color='k', linestyle='--', linewidth=0.8, label=f"t_coll")
-    axes[1].set_xlabel("t"); axes[1].set_ylabel("distance")
     axes[1].set_title("Distance between successive bugs", fontsize=10)
-    axes[1].legend(fontsize=7); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=7)
 
     fig.suptitle("Four bugs on a 2×1 rectangle", fontsize=11)
     fig.tight_layout()
@@ -117,7 +113,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

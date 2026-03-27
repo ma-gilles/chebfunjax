@@ -28,7 +28,6 @@ _IMG_DIR = os.path.join(
 )
 os.makedirs(_IMG_DIR, exist_ok=True)
 
-
 def line_integral_3d(f, curve_x, curve_y, curve_z, t_range, n=5000):
     """Compute int_C f ds where C is a 3D parametric curve.
 
@@ -65,7 +64,6 @@ def line_integral_3d(f, curve_x, curve_y, curve_z, t_range, n=5000):
     f_vals = np.array(f(jnp.array(x), jnp.array(y), jnp.array(z)))
 
     return float(np.trapezoid(f_vals * ds_dt, t))
-
 
 def run():
     print("=" * 60)
@@ -177,7 +175,6 @@ def run():
                      np.cos(Phi_s), alpha=0.1, color="gray")
     fig.colorbar(sc, ax=ax1, shrink=0.6, label="cos(x+yz)")
     ax1.set_title(f"Sine-wave on sphere\nI={I1:.4f}", fontsize=10)
-    ax1.set_xlabel("x"); ax1.set_ylabel("y"); ax1.set_zlabel("z")
 
     # Plot 2: spherical helix
     ax2 = fig.add_subplot(132, projection="3d")
@@ -190,7 +187,6 @@ def run():
                      np.cos(Phi_s), alpha=0.1, color="gray")
     fig.colorbar(sc2, ax=ax2, shrink=0.6, label="x+yz")
     ax2.set_title(f"Spherical helix\nI={I2:.4f}", fontsize=10)
-    ax2.set_xlabel("x"); ax2.set_ylabel("y"); ax2.set_zlabel("z")
 
     # Plot 3: f = cos(x+yz) as slice at z=0
     ax3 = fig.add_subplot(133)
@@ -200,7 +196,6 @@ def run():
     f_slice = np.cos(Xp + Yp * 0)  # z=0
     im = ax3.contourf(Xp, Yp, f_slice, levels=20, cmap="coolwarm")
     ax3.set_title("f = cos(x+y·z) at z=0", fontsize=10)
-    ax3.set_xlabel("x"); ax3.set_ylabel("y")
     fig.colorbar(im, ax=ax3)
 
     fig.suptitle("Line integrals of 3D scalar fields over curves", fontsize=12)
@@ -212,7 +207,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

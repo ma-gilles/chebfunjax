@@ -21,12 +21,9 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def vdp_rhs(t, y, mu):
     """Van der Pol ODE: [u, u'] -> [u', mu*(1-u^2)*u' - u]."""
     return [y[1], mu * (1 - y[0]**2) * y[1] - y[0]]
-
 
 def find_period(mu, t_end=100, n_cycles_skip=10):
     """Find the period of the Van der Pol limit cycle by Poincare section."""
@@ -56,7 +53,6 @@ def find_period(mu, t_end=100, n_cycles_skip=10):
         return np.mean(periods[-3:])  # average last few
     return None
 
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/temp')
@@ -78,9 +74,8 @@ def run():
                      alpha=0.7)
         axes[0].plot(u0, v0, 'o', color=col, markersize=6)
 
-    axes[0].set_xlabel('u'); axes[0].set_ylabel("u'")
     axes[0].set_title(f'Van der Pol μ=1\nattraction to limit cycle', fontsize=10)
-    axes[0].grid(True, alpha=0.3); axes[0].set_aspect('equal')
+    axes[0].set_aspect('equal')
     axes[0].set_xlim(-4, 4); axes[0].set_ylim(-5, 5)
 
     # --- Panel 2: Limit cycles for different mu ---
@@ -106,9 +101,8 @@ def run():
         else:
             print(f"  μ={mu_v:.1f}: period not found")
 
-    axes[1].set_xlabel('u'); axes[1].set_ylabel("u'")
     axes[1].set_title('Limit cycles for\nvarious μ', fontsize=10)
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     # --- Panel 3: Period vs mu ---
     mu_range = [0.1, 0.5, 1, 2, 5, 10]
@@ -132,9 +126,8 @@ def run():
     axes[2].semilogx([m for m in mu_range if m >= 1],
                       [(3-2*np.log(2))*m for m in mu_range if m >= 1],
                       'g--', linewidth=1.5, alpha=0.6, label='(3-2ln2)μ')
-    axes[2].set_xlabel('μ'); axes[2].set_ylabel('Period T')
     axes[2].set_title('Period of Van der Pol\nlimit cycle vs μ', fontsize=10)
-    axes[2].legend(fontsize=9); axes[2].grid(True, alpha=0.3)
+    axes[2].legend(fontsize=9)
 
     # Assert mu=1 is close to known period (~6.6...)
     if found_periods[2] and not np.isnan(found_periods[2]):
@@ -150,7 +143,6 @@ def run():
 
     print("vdp_orbit: done")
     return True
-
 
 if __name__ == "__main__":
     run()

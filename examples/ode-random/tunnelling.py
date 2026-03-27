@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Tunnelling between metastable states")
@@ -123,22 +121,19 @@ def run():
     axes[0].axhline(-1, color='k', linestyle='--', linewidth=1, alpha=0.4)
     axes[0].axhline(0, color='k', linestyle=':', linewidth=0.8, alpha=0.3)
     axes[0].set_title("Bistability (6 paths, t=[0,30])", fontsize=10)
-    axes[0].set_xlabel("t"); axes[0].set_ylabel("y")
-    axes[0].set_ylim([-1.7, 1.7]); axes[0].grid(True, alpha=0.3)
+    axes[0].set_ylim([-1.7, 1.7])
 
     axes[1].plot(t_eval_long, y_long, 'b-', linewidth=0.6, alpha=0.9)
     axes[1].axhline(1, color='k', linestyle='--', linewidth=1, alpha=0.4)
     axes[1].axhline(-1, color='k', linestyle='--', linewidth=1, alpha=0.4)
     axes[1].set_title(f"Tunnelling (eps=0.45, {n_tunnels} events)", fontsize=10)
-    axes[1].set_xlabel("t"); axes[1].set_ylabel("y")
-    axes[1].set_ylim([-1.7, 1.7]); axes[1].grid(True, alpha=0.3)
+    axes[1].set_ylim([-1.7, 1.7])
 
     axes[2].plot(t_eval_long, y_long2, 'r-', linewidth=0.6, alpha=0.9)
     axes[2].axhline(1, color='k', linestyle='--', linewidth=1, alpha=0.4)
     axes[2].axhline(-1, color='k', linestyle='--', linewidth=1, alpha=0.4)
     axes[2].set_title(f"Faster tunnelling (eps=0.60, {n_tunnels2} events)", fontsize=10)
-    axes[2].set_xlabel("t"); axes[2].set_ylabel("y")
-    axes[2].set_ylim([-1.7, 1.7]); axes[2].grid(True, alpha=0.3)
+    axes[2].set_ylim([-1.7, 1.7])
 
     fig.suptitle("Tunnelling: y' = y - y³ + f", fontsize=13)
     fig.tight_layout()
@@ -147,7 +142,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

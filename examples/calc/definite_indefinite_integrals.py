@@ -23,13 +23,12 @@ chebfun_style()
 
 from chebfunjax.plotting import plot
 
-
 def run():
     print("=" * 60)
     print("Definite and indefinite integrals")
     print("=" * 60)
 
-    # MATLAB: f = chebfun('2*cos(x)', [0 10]);
+    # MATLAB: f = chebfun('2*cos(x)', [0 10])
     dom = (0.0, 10.0)
     f = cj.chebfun(lambda x: 2.0 * jnp.cos(x), domain=dom)
 
@@ -86,7 +85,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

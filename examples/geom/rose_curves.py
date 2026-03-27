@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def rose_curve(m, n, n_pts=5000):
     """Generate rose curve for k = m/n.
 
@@ -36,7 +34,6 @@ def rose_curve(m, n, n_pts=5000):
     x = r * np.cos(t)
     y = r * np.sin(t)
     return x + 1j * y
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -80,7 +77,6 @@ def run():
 
     print("rose_curves: done")
     return True
-
 
 if __name__ == "__main__":
     run()

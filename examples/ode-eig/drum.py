@@ -22,7 +22,6 @@ import chebfunjax as cj
 from chebfunjax.operators.chebop import Chebop
 from scipy.special import j0, jn_zeros
 
-
 def run():
     print("=" * 60)
     print("Drum frequencies: u'' + u'/r = -omega^2 u")
@@ -65,18 +64,16 @@ def run():
 
     axes[0].bar(range(1, k+1), omegas, color='steelblue', alpha=0.7, label="computed ω_k")
     axes[0].plot(range(1, k+1), j0_zeros, 'ro', markersize=6, label="exact J₀ zeros")
-    axes[0].set_xlabel("k"); axes[0].set_ylabel("ω_k")
     axes[0].set_title("Drum frequencies (J₀ zeros)", fontsize=10)
-    axes[0].legend(fontsize=8); axes[0].grid(True, alpha=0.3, axis='y')
+    axes[0].legend(fontsize=8)
 
     for i, (omega, col) in enumerate(zip(j0_zeros[:4],
                                           ['b', 'r', 'g', 'm'])):
         axes[1].plot(r_plot, j0(omega * r_plot), color=col, linewidth=1.4,
                      label=f"mode {i+1}: ω={omega:.3f}")
     axes[1].axhline(0, color='k', linewidth=0.5)
-    axes[1].set_xlabel("r"); axes[1].set_ylabel("u(r)")
     axes[1].set_title("Radial drum modes J₀(ω_k r)", fontsize=10)
-    axes[1].legend(fontsize=7); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=7)
 
     fig.suptitle("Circular drum: eigenfrequencies = zeros of J₀", fontsize=11)
     fig.tight_layout()
@@ -85,7 +82,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

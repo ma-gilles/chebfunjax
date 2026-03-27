@@ -24,7 +24,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Rayleigh quotient iteration for differential operators")
@@ -136,18 +135,15 @@ def run():
 
     # RQI convergence
     axes[0].semilogy(range(len(residuals)), residuals, 'bo-', markersize=7, linewidth=1.5)
-    axes[0].set_xlabel("Iteration"); axes[0].set_ylabel("|λ - λ_true|")
     axes[0].set_title("Rayleigh quotient iteration (matrix)\nCubic convergence", fontsize=9)
-    axes[0].grid(True, which='both', alpha=0.3)
 
     # Eigenfunctions and Rayleigh quotients
     x_plot = np.linspace(0, np.pi, 200)
     for k_p in [1, 2, 3]:
         axes[1].plot(x_plot, np.sin(k_p * x_plot) / np.max(np.abs(np.sin(k_p * x_plot))),
                      linewidth=1.5, label=f"sin({k_p}x), R={k_p**2}")
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("sin(kx)")
     axes[1].set_title("Eigenfunctions of −d²/dx²\n(Rayleigh quotients = k²)", fontsize=9)
-    axes[1].legend(fontsize=8); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=8)
 
     fig.suptitle("Rayleigh quotient iteration for operators", fontsize=11)
     fig.tight_layout()
@@ -156,7 +152,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

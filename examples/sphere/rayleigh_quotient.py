@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def spherical_harmonic_real(l, m, theta, phi):
     Ylm = sph_harm_y(l, abs(m), theta, phi)
     if m > 0:
@@ -33,11 +31,9 @@ def spherical_harmonic_real(l, m, theta, phi):
     else:
         return np.real(Ylm)
 
-
 def laplace_beltrami_sh_coefficient(f_coeffs, l, m):
     """Laplace-Beltrami acting on SH: Delta_S Y_l^m = -l(l+1) Y_l^m."""
     return -l * (l + 1) * f_coeffs.get((l, m), 0.0)
-
 
 def rayleigh_quotient(f_coeffs):
     """Compute Rayleigh quotient r(f) = <f, L f> / <f, f> from SH coefficients."""
@@ -49,7 +45,6 @@ def rayleigh_quotient(f_coeffs):
     if norm2 < 1e-14:
         return 0.0
     return Lf_dot_f / norm2
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -79,9 +74,7 @@ def run():
     ax_twin.bar(l_vals, multiplicities, alpha=0.3, color='orange',
                 label='Multiplicity 2l+1')
     axes[0].set_title('Eigenvalues of Laplace-Beltrami\non unit sphere', fontsize=10)
-    axes[0].set_xlabel('Degree l'); axes[0].set_ylabel('Eigenvalue λ_l = -l(l+1)', color='b')
-    ax_twin.set_ylabel('Multiplicity', color='orange')
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
     print(f"Eigenvalues: {eigenvals[:6]}")
 
     # --- Panel 2: Rayleigh quotient for various functions ---
@@ -119,7 +112,6 @@ def run():
     axes[1].set_xticks(range(len(names)))
     axes[1].set_xticklabels(names, fontsize=9)
     axes[1].set_title('Rayleigh quotients\nfor various test functions', fontsize=10)
-    axes[1].set_ylabel('R(f) = <f, Lf>/<f,f>'); axes[1].grid(True, alpha=0.3, axis='y')
     for name, rq in zip(names, rqs):
         print(f"  {name}: R = {rq:.4f}")
 
@@ -146,8 +138,7 @@ def run():
     axes[2].axvline(0, color='g', linestyle='--', linewidth=1.5,
                      label='λ_0 = 0')
     axes[2].set_title('Rayleigh quotient for\nrandom l≤2 functions', fontsize=10)
-    axes[2].set_xlabel('R(f)'); axes[2].set_ylabel('Count')
-    axes[2].legend(fontsize=9); axes[2].grid(True, alpha=0.3, axis='y')
+    axes[2].legend(fontsize=9)
 
     fig.suptitle('Rayleigh Quotient and Eigenvalues on the Sphere', fontsize=12)
     fig.tight_layout()
@@ -162,7 +153,6 @@ def run():
 
     print("rayleigh_quotient: done")
     return True
-
 
 if __name__ == "__main__":
     run()

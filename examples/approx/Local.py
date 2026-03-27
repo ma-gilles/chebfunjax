@@ -19,10 +19,8 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -54,8 +52,6 @@ def run():
     ax2 = axes[1]
     ax2.bar(piece_midpoints, piece_lengths, width=0.4, color='b', alpha=0.7)
     ax2.set_title('Chebyshev coefficients per piece (local complexity)', fontsize=10)
-    ax2.set_xlabel('piece midpoint')
-    ax2.set_ylabel('number of coefficients')
     fig.suptitle('Local complexity of a function', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'Local.png'), dpi=150)
@@ -63,7 +59,6 @@ def run():
 
     print(f"Local: piece lengths = {piece_lengths}")
     return True
-
 
 if __name__ == '__main__':
     run()

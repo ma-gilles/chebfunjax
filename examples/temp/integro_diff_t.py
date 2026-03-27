@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/temp')
@@ -73,7 +71,6 @@ def run():
     ax1 = fig.add_subplot(131, projection='3d')
     T_grid, X_grid = np.meshgrid(t_eval, x)
     ax1.plot_surface(X_grid, T_grid, sol.y, cmap='viridis', alpha=0.8)
-    ax1.set_xlabel('x'); ax1.set_ylabel('t'); ax1.set_zlabel('u')
     ax1.set_title('u_t = 0.02·u\'\' + (∫u)(∫u)\nSurface plot', fontsize=9)
 
     # --- Panel 2: Snapshots ---
@@ -85,15 +82,13 @@ def run():
         ax2.plot(x, sol.y[:, idx], '-', color=col, linewidth=2,
                  label=f't={t_eval[idx]:.1f}')
     ax2.set_title('Snapshots at various times\nPulse diffusion + nonlocal', fontsize=10)
-    ax2.set_xlabel('x'); ax2.set_ylabel('u(t,x)')
-    ax2.legend(fontsize=9); ax2.grid(True, alpha=0.3)
+    ax2.legend(fontsize=9)
 
     # --- Panel 3: Total mass vs time ---
     ax3 = fig.add_subplot(133)
     masses = [np.trapezoid(sol.y[:, i], x) for i in range(len(t_eval))]
     ax3.plot(t_eval, masses, 'b-', linewidth=2.5)
     ax3.set_title('Total mass ∫u dx vs time', fontsize=10)
-    ax3.set_xlabel('t'); ax3.set_ylabel('∫u dx')
     print(f"  Initial mass: {masses[0]:.4f}")
     print(f"  Final mass: {masses[-1]:.4f}")
 
@@ -105,7 +100,6 @@ def run():
 
     print("integro_diff_t: done")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/stats')
@@ -51,8 +49,8 @@ def run():
                          alpha=0.5, color='purple',
                          label=f'P[X>z+μ]=1/4, z={z_val:.2f}')
     axes[0].set_title('Uniform(1,2): find z', fontsize=11)
-    axes[0].set_xlabel('x'); axes[0].legend(fontsize=9)
-    axes[0].set_ylim(0, 2); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
+    axes[0].set_ylim(0, 2)
 
     # --- 2. Uniform with mean=1, variance=4/3 -> find a, b ---
     # mean = (a+b)/2 = 1, variance = (b-a)^2/12 = 4/3
@@ -80,8 +78,8 @@ def run():
                          alpha=0.5, color='darkorange',
                          label=f'P[X<0] = {p_lt_0:.3f}')
     axes[1].set_title('Uniform(-1,3): P[X<0]', fontsize=11)
-    axes[1].set_xlabel('x'); axes[1].legend(fontsize=9)
-    axes[1].set_ylim(0, 0.4); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
+    axes[1].set_ylim(0, 0.4)
 
     # --- 3. Lottery wheel ---
     # Sectors (degrees): red=5, cyan=15, yellow=35, green=50, white=65, blue=80, black=110
@@ -121,7 +119,6 @@ def run():
 
     print("uniform_exercises: done")
     return True
-
 
 if __name__ == "__main__":
     run()

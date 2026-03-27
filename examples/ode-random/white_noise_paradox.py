@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("The white noise paradox")
@@ -91,8 +89,6 @@ def run():
         axes[i].plot(t_eval, f_vals, linewidth=max(0.5, 1.2 - 0.3*i),
                      color='steelblue', alpha=0.8)
         axes[i].set_title(f"lambda = {lambda_names[i]}", fontsize=11)
-        axes[i].set_xlabel("t"); axes[i].set_ylabel("f(t)")
-        axes[i].grid(True, alpha=0.3)
         axes[i].set_ylim([-30, 30])
         axes[i].text(0.05, 0.92, f"std = {stats[i][0]:.1f}",
                      transform=axes[i].transAxes, fontsize=9,
@@ -105,7 +101,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

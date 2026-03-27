@@ -16,7 +16,6 @@ chebfun_style()
 import numpy as np
 import os
 
-
 def run():
     print("=" * 60)
     print("Time-dependent PDEs on periodic interval (expm)")
@@ -110,9 +109,7 @@ def run():
         if i % 3 == 0:
             axes[0].plot(x, u_t, color=colors_h[i], linewidth=1.5)
     axes[0].set_title(r"Heat eq. $u_t = u_{xx}$, $u_0 = \sin(3x)$", fontsize=11)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("u")
     axes[0].text(0.5, 0.9, "t: 0 → 1", transform=axes[0].transAxes, fontsize=10)
-    axes[0].grid(True, alpha=0.3)
 
     # Convection: snapshots
     colors_c = plt.cm.plasma(np.linspace(0, 1, len(history_conv)))
@@ -120,8 +117,6 @@ def run():
         axes[1].plot(x, u_t, color=colors_c[i], linewidth=1.5,
                      label=f't={t:.0f}' if t in [0, T_conv] else '')
     axes[1].set_title(r"Convection $u_t = c(x)u_x$", fontsize=11)
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("u")
-    axes[1].grid(True, alpha=0.3)
     axes[1].text(0.5, 0.9, f"t: 0 → {T_conv}", transform=axes[1].transAxes, fontsize=10)
 
     fig.suptitle("Periodic PDEs via Fourier spectral methods", fontsize=13)
@@ -131,7 +126,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

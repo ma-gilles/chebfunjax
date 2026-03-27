@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def make_smoothie(n_terms=200, seed=1, domain=(-1.0, 1.0)):
     """Construct a smoothie: C-inf but nowhere analytic function.
 
@@ -46,7 +44,6 @@ def make_smoothie(n_terms=200, seed=1, domain=(-1.0, 1.0)):
 
     return xs, f_vals, ks, amplitudes
 
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/stats')
@@ -59,14 +56,12 @@ def run():
 
     axes[0, 0].plot(xs, f_vals, 'b-', linewidth=1.5)
     axes[0, 0].set_title('A smoothie on [-1,1]', fontsize=11)
-    axes[0, 0].set_xlabel('x'); axes[0, 0].set_ylim(-4, 4)
-    axes[0, 0].grid(True, alpha=0.3)
+    axes[0, 0].set_ylim(-4, 4)
 
     # Coefficient magnitudes
     axes[0, 1].semilogy(ks, amplitudes, 'k-', linewidth=1.5, label='C^{-√k}')
     axes[0, 1].set_title('Fourier coefficient amplitudes', fontsize=11)
-    axes[0, 1].set_xlabel('mode k'); axes[0, 1].set_ylabel('amplitude')
-    axes[0, 1].legend(fontsize=9); axes[0, 1].grid(True, alpha=0.3)
+    axes[0, 1].legend(fontsize=9)
 
     # Compare: smoothie vs analytic (exponential decay)
     ks_exp = np.arange(1, 201)
@@ -76,8 +71,8 @@ def run():
     axes[1, 0].plot(xs, f_vals, 'b-', linewidth=1.5, label='Smoothie (seed=1)')
     axes[1, 0].plot(xs2, f2_vals, 'r-', linewidth=1.5, alpha=0.7, label='Smoothie (seed=2)')
     axes[1, 0].set_title('Two smoothies', fontsize=11)
-    axes[1, 0].set_xlabel('x'); axes[1, 0].legend(fontsize=9)
-    axes[1, 0].set_ylim(-4, 4); axes[1, 0].grid(True, alpha=0.3)
+    axes[1, 0].legend(fontsize=9)
+    axes[1, 0].set_ylim(-4, 4)
 
     # First and second derivative (approximate numerically)
     dx = xs[1] - xs[0]
@@ -87,8 +82,7 @@ def run():
     axes[1, 1].plot(xs, df, 'b-', linewidth=1.5, label='f′')
     axes[1, 1].plot(xs, d2f / 50, 'r-', linewidth=1.5, label='f″/50')
     axes[1, 1].set_title('Derivatives grow rapidly in amplitude', fontsize=11)
-    axes[1, 1].set_xlabel('x'); axes[1, 1].legend(fontsize=9)
-    axes[1, 1].grid(True, alpha=0.3)
+    axes[1, 1].legend(fontsize=9)
     axes[1, 1].set_ylim(-80, 80)
 
     print(f"Smoothie: max |f| = {np.max(np.abs(f_vals)):.4f}")
@@ -103,7 +97,6 @@ def run():
 
     print("smoothies: done")
     return True
-
 
 if __name__ == "__main__":
     run()

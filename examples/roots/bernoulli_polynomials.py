@@ -24,8 +24,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Bernoulli polynomials")
@@ -100,20 +98,15 @@ def run():
     axes[0].axhline(0, color="k", linewidth=0.5)
     axes[0].set_xlim(0, 1)
     axes[0].set_ylim(-0.3, 0.3)
-    axes[0].set_xlabel("x")
     axes[0].set_title("First 6 Bernoulli polynomials on [0,1]")
     axes[0].legend(fontsize=8, ncol=2)
-    axes[0].grid(True, alpha=0.4)
 
     # Right: convergence to sin
     if errs:
         axes[1].semilogy(list(js), errs, 'b.-', markersize=8, linewidth=1.5, label="error")
         axes[1].semilogy(list(js), [0.5**j for j in js], 'r--', linewidth=1.2, label="$0.5^j$ (rate)")
-        axes[1].set_xlabel("j")
-        axes[1].set_ylabel("$\\|B_{2j}^* - \\sin(2\\pi x)\\|_\\infty$")
         axes[1].set_title("Geometric convergence to sin")
         axes[1].legend(fontsize=9)
-        axes[1].grid(True, alpha=0.4)
 
     fig.suptitle("Bernoulli polynomials: roots and convergence", fontsize=11)
     fig.tight_layout()
@@ -122,7 +115,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

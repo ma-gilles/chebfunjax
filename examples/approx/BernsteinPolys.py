@@ -20,10 +20,8 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
-
 
 def bernstein(f_vals_fn, n, x_pts):
     """Evaluate degree-n Bernstein polynomial at x_pts."""
@@ -32,7 +30,6 @@ def bernstein(f_vals_fn, n, x_pts):
         coeff = comb(n, k)
         result += f_vals_fn(k / n) * coeff * x_pts**k * (1 - x_pts)**(n - k)
     return result
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -86,7 +83,6 @@ def run():
 
     print("BernsteinPolys: done.")
     return True
-
 
 if __name__ == '__main__':
     run()

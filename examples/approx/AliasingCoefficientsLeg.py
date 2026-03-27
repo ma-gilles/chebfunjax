@@ -19,10 +19,8 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -51,8 +49,6 @@ def run():
         ax.semilogy(np.arange(n_p), err_leg, '.r', ms=7,
                     label='|f−p| (aliasing error)')
         ax.set_title('Aliasing of Legendre coefficients', fontsize=11)
-        ax.set_xlabel('degree')
-        ax.set_ylabel('|coefficient|')
         ax.legend(fontsize=9)
         fig.tight_layout()
         fig.savefig(os.path.join(_OUTDIR, 'AliasingCoefficientsLeg.png'), dpi=150)
@@ -71,7 +67,6 @@ def run():
         ax.semilogy(np.arange(n_p), np.abs(pc - fc[:n_p]) + 1e-18, '.r',
                     ms=7, label='aliasing error')
         ax.set_title('Aliasing of coefficients (Chebyshev basis)', fontsize=11)
-        ax.set_xlabel('degree')
         ax.legend(fontsize=9)
         fig.tight_layout()
         fig.savefig(os.path.join(_OUTDIR, 'AliasingCoefficientsLeg.png'), dpi=150)
@@ -79,7 +74,6 @@ def run():
         print("AliasingCoefficientsLeg: cheb2leg not available, used Chebyshev basis.")
 
     return True
-
 
 if __name__ == '__main__':
     run()

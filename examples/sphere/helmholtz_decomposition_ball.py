@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/sphere')
@@ -89,27 +87,24 @@ def run():
                     vx_tot[::skip, ::skip], vy_tot[::skip, ::skip],
                     np.sqrt(vx_tot[::skip,::skip]**2 + vy_tot[::skip,::skip]**2),
                     cmap='viridis', alpha=0.8)
-    axes[0].set_aspect('equal'); axes[0].grid(True, alpha=0.3)
+    axes[0].set_aspect('equal')
     axes[0].set_title('Total field v\nat z=0 cross-section', fontsize=10)
-    axes[0].set_xlabel('x'); axes[0].set_ylabel('y')
 
     # --- Panel 2: Curl-free (gradient) part ---
     axes[1].quiver(X_s[::skip, ::skip], Y_s[::skip, ::skip],
                     vx_s[::skip, ::skip], vy_s[::skip, ::skip],
                     np.sqrt(vx_s[::skip,::skip]**2 + vy_s[::skip,::skip]**2),
                     cmap='Blues', alpha=0.8)
-    axes[1].set_aspect('equal'); axes[1].grid(True, alpha=0.3)
+    axes[1].set_aspect('equal')
     axes[1].set_title('Curl-free part: grad(xy+z²)\nat z=0', fontsize=10)
-    axes[1].set_xlabel('x'); axes[1].set_ylabel('y')
 
     # --- Panel 3: Divergence-free (curl) part ---
     axes[2].quiver(X_s[::skip, ::skip], Y_s[::skip, ::skip],
                     vx_s_df[::skip, ::skip], vy_s_df[::skip, ::skip],
                     np.sqrt(vx_s_df[::skip,::skip]**2 + vy_s_df[::skip,::skip]**2),
                     cmap='Reds', alpha=0.8)
-    axes[2].set_aspect('equal'); axes[2].grid(True, alpha=0.3)
+    axes[2].set_aspect('equal')
     axes[2].set_title('Divergence-free part: curl(ψ)\nat z=0', fontsize=10)
-    axes[2].set_xlabel('x'); axes[2].set_ylabel('y')
 
     print("Helmholtz-Hodge decomposition in the ball:")
     print(f"  v = grad(xy+z²) + curl(0,0,xy)")
@@ -125,7 +120,6 @@ def run():
 
     print("helmholtz_decomposition_ball: done")
     return True
-
 
 if __name__ == "__main__":
     run()

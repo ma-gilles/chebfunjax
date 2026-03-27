@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def cheb2coeffs_via_fft(fvals):
     """Convert Chebyshev point values to coefficients via FFT.
     fvals should be values at Chebyshev-2 points in ascending order.
@@ -36,7 +34,6 @@ def cheb2coeffs_via_fft(fvals):
     c[0] /= 2
     c[-1] /= 2
     return c
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -73,9 +70,7 @@ def run():
     axes[0].plot(xx, fv, 'b-', linewidth=1.5, label='$f$')
     axes[0].plot(cheb_pts, fvals_desc, '.r', markersize=7, label='Cheb-2 nodes')
     axes[0].set_title(r'$f(x) = e^x \sin(\pi x) + x$', fontsize=11)
-    axes[0].set_xlabel('$x$')
     axes[0].legend(fontsize=10)
-    axes[0].grid(True, alpha=0.3)
 
     # Coefficient decay
     axes[1].semilogy(np.abs(coeffs_cj), 'b.-', markersize=6, linewidth=1.2,
@@ -83,10 +78,7 @@ def run():
     axes[1].semilogy(np.abs(coeffs_fft), 'r--', linewidth=1.0,
                      label='Via FFT', alpha=0.7)
     axes[1].set_title('Chebyshev coefficient decay', fontsize=11)
-    axes[1].set_xlabel('Index $k$')
-    axes[1].set_ylabel('$|a_k|$')
     axes[1].legend(fontsize=10)
-    axes[1].grid(True, which='both', alpha=0.3)
     axes[1].set_ylim(bottom=1e-18)
 
     fig.tight_layout()
@@ -99,7 +91,6 @@ def run():
 
     print("chebfun_fft: done")
     return True
-
 
 if __name__ == "__main__":
     run()

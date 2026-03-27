@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Random trajectory on a sphere")
@@ -103,14 +101,12 @@ def run():
     zs = np.outer(np.ones(30), np.cos(v_sph))
     ax1.plot_wireframe(xs, ys, zs, color='lightgray', alpha=0.2, linewidth=0.5)
     ax1.set_title("Random walk on sphere (λ=0.5)", fontsize=11)
-    ax1.set_xlabel("x"); ax1.set_ylabel("y"); ax1.set_zlabel("z")
 
     # 3D trajectory for lambda=0.125
     ax2 = fig.add_subplot(122, projection='3d')
     ax2.plot(traj2[0], traj2[1], traj2[2], color='steelblue', linewidth=0.8, alpha=0.8)
     ax2.plot_wireframe(xs, ys, zs, color='lightgray', alpha=0.2, linewidth=0.5)
     ax2.set_title("Random walk on sphere (λ=0.125)", fontsize=11)
-    ax2.set_xlabel("x"); ax2.set_ylabel("y"); ax2.set_zlabel("z")
 
     fig.suptitle("Random trajectories on unit sphere", fontsize=13)
     fig.tight_layout()
@@ -119,7 +115,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

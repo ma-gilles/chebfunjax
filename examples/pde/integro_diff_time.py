@@ -21,7 +21,6 @@ import numpy as np
 from scipy.special import erf
 import os
 
-
 def run():
     print("=" * 60)
     print("Time-dependent integro-differential equation")
@@ -98,15 +97,12 @@ def run():
         axes[0].plot(x_full, u_full, color=col, linewidth=1.5,
                      label=f't={t:.1f}' if t in [0, 1, 2, 3, 4] else '')
     axes[0].set_title("Integro-diff. equation: u(x,t)", fontsize=11)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("u")
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
 
     # Integral over time
     total_integrals = [np.trapezoid(history[t], x) for t in t_show]
     axes[1].plot(t_show, total_integrals, 'b.-', markersize=8)
     axes[1].set_title("Total integral ∫u dx vs time", fontsize=11)
-    axes[1].set_xlabel("t"); axes[1].set_ylabel("∫u dx")
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Time-dependent integro-differential equation", fontsize=13)
     fig.tight_layout()
@@ -115,7 +111,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

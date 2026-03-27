@@ -29,7 +29,6 @@ from chebfunjax.utils.quadrature import chebpts
 from chebfunjax.domain import Domain
 from scipy.linalg import solve as scipy_solve
 
-
 def run():
     print("=" * 60)
     print("Allen-Cahn equation (IMEX time-stepping)")
@@ -124,9 +123,7 @@ def run():
     axes[0].axhline(1, color='k', linestyle='--', linewidth=0.8, alpha=0.5)
     axes[0].axhline(-1, color='k', linestyle='--', linewidth=0.8, alpha=0.5)
     axes[0].set_title(f"Allen-Cahn: ε={eps}", fontsize=12)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("u")
     axes[0].set_xlim(-1, 1); axes[0].legend(fontsize=9)
-    axes[0].grid(True, alpha=0.3)
 
     sm = plt.cm.ScalarMappable(cmap='viridis',
                                 norm=plt.Normalize(vmin=0, vmax=t_vals[-1]))
@@ -139,7 +136,6 @@ def run():
                          extent=[0, t_vals[-1], -1, 1],
                          cmap='RdBu_r', vmin=-1, vmax=1)
     axes[1].set_title("Space-time diagram", fontsize=12)
-    axes[1].set_xlabel("t"); axes[1].set_ylabel("x")
     fig.colorbar(im, ax=axes[1])
 
     fig.suptitle("Allen-Cahn equation", fontsize=13)
@@ -149,7 +145,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

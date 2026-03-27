@@ -19,8 +19,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def cheb_vandermonde(xs, deg):
     """Build Chebyshev Vandermonde matrix for least-squares fitting."""
     n = deg + 1
@@ -31,20 +29,17 @@ def cheb_vandermonde(xs, deg):
         V[:, k] = 2 * xs * V[:, k-1] - V[:, k-2]
     return V
 
-
 def polyfit_cheb(xs, ys, deg):
     """Fit degree-deg polynomial in Chebyshev basis to data by least squares."""
     V = cheb_vandermonde(xs, deg)
     coeffs, _, _, _ = np.linalg.lstsq(V, ys, rcond=None)
     return coeffs
 
-
 def eval_cheb(xs, coeffs):
     """Evaluate Chebyshev polynomial given coefficients."""
     deg = len(coeffs) - 1
     V = cheb_vandermonde(xs, deg)
     return V @ coeffs
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -70,7 +65,7 @@ def run():
     axes[0].plot(xs_fine, ys_true, 'g--', linewidth=2, label='True f(x)')
     axes[0].plot(xs_fine, ys_fit, 'r-', linewidth=2, label=f'Degree-{deg} fit')
     axes[0].set_title('Discrete polynomial least-squares fit', fontsize=11)
-    axes[0].set_xlabel('x'); axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
 
     print(f"Discrete LS: L2 error vs truth = {np.sqrt(np.mean((ys_fit - ys_true)**2)):.4f}")
 
@@ -92,7 +87,7 @@ def run():
     axes[1].plot(xs_c, ys_c, 'k-', linewidth=1.5, label='f(x) = |x+0.2| - 0.5·sgn(x-0.5)')
     axes[1].plot(xs_c, ys_fit_c, 'r-', linewidth=2, label=f'Degree-{deg_c} LS fit')
     axes[1].set_title('Continuous polynomial least-squares fit', fontsize=11)
-    axes[1].set_xlabel('x'); axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     l2_err = np.sqrt(np.mean((ys_fit_c - ys_c)**2))
     print(f"Continuous LS: L2 error = {l2_err:.4f}")
@@ -105,7 +100,6 @@ def run():
 
     print("least_squares: done")
     return True
-
 
 if __name__ == "__main__":
     run()

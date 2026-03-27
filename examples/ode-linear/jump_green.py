@@ -25,7 +25,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Jump conditions and Green functions")
@@ -118,19 +117,15 @@ def run():
         G_v = green_func(x_plot, xi_v, eta)
         axes[0].plot(x_plot, G_v, color=col, linewidth=1.6, label=f"ξ={xi_v}")
     axes[0].axhline(0, color='k', linewidth=0.5)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("G(x, ξ)")
     axes[0].set_title(f"Green's functions (eta={eta})", fontsize=10)
     axes[0].legend(fontsize=8)
-    axes[0].grid(True, alpha=0.3)
 
     axes[1].plot(x_l, u_l_vals, 'b', linewidth=1.8)
     axes[1].plot(x_r, u_r_vals, 'b', linewidth=1.8, label="chebfunjax")
     axes[1].plot(x_plot, green_func(x_plot, xi, eta), 'r--', linewidth=1.2, label="exact")
     axes[1].axvline(xi, color='k', linestyle='--', linewidth=0.8)
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("G(x, 0.5)")
     axes[1].set_title("Green's function at ξ=0.5: chebfunjax vs exact", fontsize=9)
     axes[1].legend(fontsize=8)
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Jump conditions and Green's functions", fontsize=11)
     fig.tight_layout()
@@ -139,7 +134,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

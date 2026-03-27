@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def growth_rate(f, p, a):
     """Log capital growth rate: G(f) = p*log(1+a*f) + (1-p)*log(1-f)."""
     if f <= 0 or f >= 1:
@@ -32,7 +30,6 @@ def growth_rate(f, p, a):
     if v1 <= 0 or v2 <= 0:
         return -np.inf
     return p * np.log(v1) + (1 - p) * np.log(v2)
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -62,10 +59,8 @@ def run():
     axes[0].plot(f_kelly, np.exp(G_max), '.r', markersize=15, label=f'f*={f_kelly:.2f}')
     axes[0].axhline(1.0, color='k', linestyle='--', alpha=0.5, label='Breakeven')
     axes[0].set_title('Capital growth: simple bet (a=2, p=0.5)', fontsize=10)
-    axes[0].set_xlabel('Fraction bet f')
-    axes[0].set_ylabel('exp(G(f))')
     axes[0].set_ylim(0, 1.2)
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
 
     # Find breakeven (where G(f) = 0)
     from scipy.optimize import brentq
@@ -107,10 +102,8 @@ def run():
     axes[1].plot(f_opt, np.exp(G_opt), '.r', markersize=15, label=f'f*={f_opt:.3f}')
     axes[1].axhline(1.0, color='k', linestyle='--', alpha=0.5)
     axes[1].set_title('Capital growth: multi-outcome bet', fontsize=10)
-    axes[1].set_xlabel('Fraction bet f')
-    axes[1].set_ylabel('exp(G(f))')
     axes[1].set_ylim(0, 1.2)
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     fig.suptitle('Kelly Criterion: Optimal Bet Sizing', fontsize=13)
     fig.tight_layout()
@@ -120,7 +113,6 @@ def run():
 
     print("kelly_criterion: done")
     return True
-
 
 if __name__ == "__main__":
     run()

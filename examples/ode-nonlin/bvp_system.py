@@ -23,7 +23,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Coupled nonlinear BVP system")
@@ -82,7 +81,6 @@ def run():
     fig, ax = plt.subplots()
     ax.plot(x_plot, u(x_plot), 'b', linewidth=1.8, label="u(x)")
     ax.plot(x_plot, v(x_plot), 'r', linewidth=1.8, label="v(x)")
-    ax.set_xlabel("x"); ax.set_ylabel("solution")
     ax.set_title("u″ = sin(v), v″ = −cos(u), u(±1)=v(±1)=0", fontsize=10)
     ax.legend(fontsize=9)
     fig.tight_layout()
@@ -91,7 +89,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

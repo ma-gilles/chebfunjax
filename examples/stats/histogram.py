@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def hist_chebfun(f_vals, xs, edges):
     """Compute histogram of continuous function by integrating over bins.
 
@@ -40,7 +38,6 @@ def hist_chebfun(f_vals, xs, edges):
         a, b = edges[k], edges[k + 1]
         data[k] = cdf_interp(b) - cdf_interp(a)
     return data
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -64,8 +61,7 @@ def run():
         ybar = [hist_data[k], hist_data[k]]
         axes[0].plot(xbar, ybar, 'r-', linewidth=2.5)
     axes[0].set_title('Function and integral-histogram', fontsize=11)
-    axes[0].set_xlabel('x'); axes[0].legend(fontsize=9)
-    axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
 
     total_integral = np.sum(hist_data)
     direct_integral = np.trapezoid(f_vals, xs)
@@ -89,8 +85,7 @@ def run():
                 color='steelblue', edgecolor='white', alpha=0.8, label='Data histogram')
     axes[1].plot(xpts, np.zeros_like(xpts), '.k', markersize=8, label='Data points')
     axes[1].set_title('Histogram of data points', fontsize=11)
-    axes[1].set_xlabel('x'); axes[1].legend(fontsize=9)
-    axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     print(f"Data points: {len(xpts)} points, histogram over [0,10]")
 
@@ -102,7 +97,6 @@ def run():
 
     print("histogram: done")
     return True
-
 
 if __name__ == "__main__":
     run()

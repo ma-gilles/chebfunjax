@@ -24,8 +24,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def compute_cheb_coeffs_fft(f, n):
     """Compute n+1 Chebyshev coefficients of f on [-1,1] via FFT."""
     j = np.arange(n + 1)
@@ -38,7 +36,6 @@ def compute_cheb_coeffs_fft(f, n):
     c[0] /= 2.0
     c[-1] /= 2.0
     return c
-
 
 def extend1(c):
     """Estimate noise by padding with zeros, forward + inverse transform."""
@@ -68,7 +65,6 @@ def extend1(c):
     c_out[0] /= 2.0
     c_out[-1] /= 2.0
     return c_out
-
 
 def extend2(c):
     """Estimate noise accounting for x-perturbations (horizontal errors)."""
@@ -109,7 +105,6 @@ def extend2(c):
     c_out[0] /= 2.0
     c_out[-1] /= 2.0
     return c_out
-
 
 def run():
     print("=" * 60)
@@ -177,24 +172,21 @@ def run():
     # Top left: original truncated series
     axes[0, 0].semilogy(n_plot, np.abs(c_trunc), '.b', markersize=4)
     axes[0, 0].set_title("cos(100exp(x)): truncated Chebyshev series", fontsize=10)
-    axes[0, 0].set_xlabel("n"); axes[0, 0].set_ylabel("|a_n|")
-    axes[0, 0].set_ylim([1e-18, 10]); axes[0, 0].grid(True, alpha=0.3)
+    axes[0, 0].set_ylim([1e-18, 10])
 
     # Top right: extend1 vs original
     axes[0, 1].semilogy(n_ext, np.abs(c_ext1), '.r', markersize=2, label='extend1')
     axes[0, 1].semilogy(n_plot, np.abs(c_trunc), '.b', markersize=4, label='original')
     axes[0, 1].set_title("extend1: noise estimate (red)", fontsize=10)
-    axes[0, 1].set_xlabel("n"); axes[0, 1].set_ylabel("|a_n|")
     axes[0, 1].set_ylim([1e-18, 10])
-    axes[0, 1].legend(fontsize=8); axes[0, 1].grid(True, alpha=0.3)
+    axes[0, 1].legend(fontsize=8)
 
     # Bottom left: extend2 vs original
     axes[1, 0].semilogy(n_ext, np.abs(c_ext2), '.g', markersize=2, label='extend2')
     axes[1, 0].semilogy(n_plot, np.abs(c_trunc), '.b', markersize=4, label='original')
     axes[1, 0].set_title("extend2: improved noise estimate (green)", fontsize=10)
-    axes[1, 0].set_xlabel("n"); axes[1, 0].set_ylabel("|a_n|")
     axes[1, 0].set_ylim([1e-18, 10])
-    axes[1, 0].legend(fontsize=8); axes[1, 0].grid(True, alpha=0.3)
+    axes[1, 0].legend(fontsize=8)
 
     # Bottom right: Runge function
     n2_ext = np.arange(len(c2_ext1))
@@ -205,8 +197,7 @@ def run():
     axes[1, 1].semilogy(n2_ext, np.abs(c2_ext2), '.g', markersize=2,
                         label='extend2', alpha=0.7)
     axes[1, 1].set_title("Runge 1/(1+25x²): noise estimates", fontsize=10)
-    axes[1, 1].set_xlabel("n"); axes[1, 1].set_ylabel("|a_n|")
-    axes[1, 1].legend(fontsize=8); axes[1, 1].grid(True, alpha=0.3)
+    axes[1, 1].legend(fontsize=8)
 
     fig.suptitle("Noise level estimation in Chebyshev series", fontsize=13)
     fig.tight_layout()
@@ -215,7 +206,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

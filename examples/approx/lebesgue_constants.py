@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def lebesgue_function(nodes, n_eval=1000):
     """Compute the Lebesgue function for a set of interpolation nodes."""
     nodes = np.asarray(nodes)
@@ -43,7 +41,6 @@ def lebesgue_function(nodes, n_eval=1000):
                     lj[m] *= (x[j] - nodes[k]) / (nodes[m] - nodes[k])
         L[j] = np.sum(np.abs(lj))
     return x, L
-
 
 def lebesgue_constant_and_function(nodes):
     """Compute Lebesgue function and constant for interpolation nodes."""
@@ -68,7 +65,6 @@ def lebesgue_constant_and_function(nodes):
         L[j] = np.sum(np.abs(lj))
     return x, L, np.max(L)
 
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/approx')
@@ -87,13 +83,10 @@ def run():
 
     axes[0, 0].plot(x_c, L_c, 'b-', linewidth=1.5)
     axes[0, 0].set_title(f'10 Chebyshev nodes,  $\\Lambda$ = {Lambda_c:.2f}', fontsize=11)
-    axes[0, 0].set_ylabel('Lebesgue function')
-    axes[0, 0].grid(True, alpha=0.4)
     axes[0, 0].set_ylim(bottom=0)
 
     axes[0, 1].plot(x_e, L_e, 'r-', linewidth=1.5)
     axes[0, 1].set_title(f'10 equispaced nodes,  $\\Lambda$ = {Lambda_e:.2f}', fontsize=11)
-    axes[0, 1].grid(True, alpha=0.4)
     axes[0, 1].set_ylim(bottom=0)
 
     # n=30 on semilogy
@@ -105,14 +98,9 @@ def run():
 
     axes[1, 0].semilogy(x_c2, np.maximum(L_c2, 1e-14), 'b-', linewidth=1.5)
     axes[1, 0].set_title(f'30 Chebyshev nodes,  $\\Lambda$ = {Lambda_c2:.2f}', fontsize=11)
-    axes[1, 0].set_xlabel('$x$')
-    axes[1, 0].set_ylabel('Lebesgue function (log scale)')
-    axes[1, 0].grid(True, which='both', alpha=0.4)
 
     axes[1, 1].semilogy(x_e2, np.maximum(L_e2, 1e-14), 'r-', linewidth=1.5)
     axes[1, 1].set_title(f'30 equispaced nodes,  $\\Lambda$ ≈ {Lambda_e2:.2e}', fontsize=11)
-    axes[1, 1].set_xlabel('$x$')
-    axes[1, 1].grid(True, which='both', alpha=0.4)
 
     fig.suptitle('Lebesgue functions: Chebyshev vs. equispaced nodes', fontsize=12)
     fig.tight_layout()
@@ -140,7 +128,6 @@ def run():
 
     print("lebesgue_constants: done")
     return True
-
 
 if __name__ == "__main__":
     run()

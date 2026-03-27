@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def make_random_curve(rng, x_offset, n_pts=500):
     """Random smooth curve: x = x_offset + noise, y = t."""
     t = np.linspace(-1, 1, n_pts)
@@ -35,7 +33,6 @@ def make_random_curve(rng, x_offset, n_pts=500):
     x = x_offset + noise
     y = t
     return x + 1j * y
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -75,7 +72,6 @@ def run():
                  '.k', markersize=10)
     axes[0].set_title(f'Minimum distance = {min_dist:.4f}', fontsize=11)
     axes[0].set_aspect('equal'); axes[0].legend(fontsize=9)
-    axes[0].grid(True, alpha=0.3)
 
     # Contour plot of distance function
     t_vals = np.linspace(-1, 1, n_pts)
@@ -83,8 +79,6 @@ def run():
     plt.colorbar(im, ax=axes[1])
     axes[1].plot(t_vals[min_idx[0]], t_vals[min_idx[1]], '.w', markersize=12)
     axes[1].set_title('Distance d(x,y) = |f(x) - g(y)|', fontsize=11)
-    axes[1].set_xlabel('x (parameter of f)')
-    axes[1].set_ylabel('y (parameter of g)')
 
     fig.suptitle('Minimum Distance Between Two Curves', fontsize=13)
     fig.tight_layout()
@@ -94,7 +88,6 @@ def run():
 
     print("curves_distance: done")
     return True
-
 
 if __name__ == "__main__":
     run()

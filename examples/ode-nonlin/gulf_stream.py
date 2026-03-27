@@ -26,7 +26,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Gulf Stream: u''' - lambda((u')^2 - u u'') - u + 1 = 0")
@@ -71,7 +70,7 @@ def run():
     )
     print(f"  Chebfun length: {len(u)}")
 
-    # Note: u.diff(3) on a piecewise-linear interpolant has poor accuracy;
+    # Note: u.diff(3) on a piecewise-linear interpolant has poor accuracy
     # instead verify the underlying scipy solution satisfies the ODE
     x_test_np = np.linspace(0.5, L - 0.5, 200)
     u_np = np.interp(x_test_np, t_dense, u_dense)
@@ -104,14 +103,11 @@ def run():
 
     axes[0].plot(sol.t, sol.y[0], 'b', linewidth=1.8, label="scipy shooting")
     axes[0].plot(x_plot, u_lin(x_plot), 'r--', linewidth=1.4, label="linear (lam=0)")
-    axes[0].set_xlabel("x"); axes[0].legend(fontsize=9)
+    axes[0].legend(fontsize=9)
     axes[0].set_title(f"Gulf Stream BVP (λ={lam})", fontsize=10)
-    axes[0].grid(True, alpha=0.3)
 
     axes[1].plot(x_test_np, np.abs(res_np) + 1e-20, 'g', linewidth=1.6)
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("|residual|")
     axes[1].set_title("ODE residual (nonlinear)", fontsize=10)
-    axes[1].grid(True, alpha=0.3)
     axes[1].set_yscale('log')
 
     fig.suptitle("Gulf Stream ODE on half-line", fontsize=11)
@@ -121,7 +117,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

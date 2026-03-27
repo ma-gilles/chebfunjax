@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/roots')
@@ -61,7 +59,6 @@ def run():
     ax.plot(r0_plot, np.zeros_like(r0_plot), '.b', markersize=8)
     ax.plot(r1_plot, np.zeros_like(r1_plot), '.r', markersize=8)
     ax.axhline(0, color='k', linewidth=0.8)
-    ax.set_xlabel('$x$', fontsize=12)
     ax.set_title('Roots of Bessel functions $J_0$ and $J_1$', fontsize=12)
     ax.legend(fontsize=11)
     ax.set_ylim(-0.5, 1.05)
@@ -82,7 +79,6 @@ def run():
 
     print("bessel_function_roots: done")
     return True
-
 
 if __name__ == "__main__":
     run()

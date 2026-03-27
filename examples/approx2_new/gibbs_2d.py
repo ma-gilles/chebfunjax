@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("The Gibbs phenomenon in 2D")
@@ -56,11 +54,9 @@ def run():
 
     axes[0].contourf(X, Y, Z1, levels=30, cmap="RdBu_r")
     axes[0].set_title(f"tanh((x+y)/{eps}): rank {f.rank}", fontsize=12)
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("y")
 
     axes[1].contourf(X, Y, Z2, levels=30, cmap="RdBu_r")
     axes[1].set_title(f"tanh((x+y)/{eps2}): rank {g.rank}", fontsize=12)
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("y")
 
     fig.suptitle("2D step function: rank grows as ε → 0", fontsize=13)
     fig.tight_layout()
@@ -69,7 +65,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

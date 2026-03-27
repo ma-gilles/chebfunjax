@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def riemann_liouville(f, x, alpha, a=0.0):
     """Compute Riemann-Liouville fractional integral of order alpha.
 
@@ -34,7 +32,6 @@ def riemann_liouville(f, x, alpha, a=0.0):
         kernel = (x[i] - ts)**(alpha - 1)
         result[i] = np.trapezoid(kernel * f[:i], ts)
     return result / gamma(alpha)
-
 
 def fractional_derivative(f, x, alpha, a=0.0):
     """Riemann-Liouville fractional derivative D^alpha = D^1 * I^(1-alpha).
@@ -49,7 +46,6 @@ def fractional_derivative(f, x, alpha, a=0.0):
     integral = riemann_liouville(f, x, 1 - alpha, a)
     # d/dx
     return np.gradient(integral, x)
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -78,8 +74,7 @@ def run():
     print(f"Half-derivative of x: max error = {err:.4f}")
     axes[0].set_xlim(0, 4); axes[0].set_ylim(0, 4)
     axes[0].set_title("f(x)=x and its half-derivative\nD^{1/2}x = 2√(x/π)", fontsize=10)
-    axes[0].legend(fontsize=8); axes[0].grid(True, alpha=0.3)
-    axes[0].set_xlabel('x')
+    axes[0].legend(fontsize=8)
 
     # --- Panel 2: Fractional derivatives of x for alpha=0.1,...,1.0 ---
     alphas = np.arange(0.1, 1.01, 0.1)
@@ -92,8 +87,7 @@ def run():
 
     axes[1].set_xlim(0, 4); axes[1].set_ylim(0, 4)
     axes[1].set_title('Fractional derivatives of x\nα from 0.1 to 1.0', fontsize=10)
-    axes[1].legend(fontsize=8); axes[1].grid(True, alpha=0.3)
-    axes[1].set_xlabel('x'); axes[1].set_ylabel('D^α x')
+    axes[1].legend(fontsize=8)
     sm = plt.cm.ScalarMappable(cmap='viridis',
                                  norm=plt.Normalize(0.1, 1.0))
     plt.colorbar(sm, ax=axes[1], label='α')
@@ -117,8 +111,7 @@ def run():
 
     axes[2].set_xlim(0, 20); axes[2].set_ylim(-1.5, 1.5)
     axes[2].set_title('Fractional derivatives of sin(x)\nfor α=0,0.25,0.5,0.75,1', fontsize=10)
-    axes[2].legend(fontsize=8); axes[2].grid(True, alpha=0.3)
-    axes[2].set_xlabel('x')
+    axes[2].legend(fontsize=8)
 
     fig.suptitle('Fractional Calculus: Riemann-Liouville Derivatives', fontsize=12)
     fig.tight_layout()
@@ -128,7 +121,6 @@ def run():
 
     print("frac_calc: done")
     return True
-
 
 if __name__ == "__main__":
     run()

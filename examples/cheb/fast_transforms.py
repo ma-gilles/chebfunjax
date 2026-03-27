@@ -24,7 +24,6 @@ chebfun_style()
 from chebfunjax.utils.transforms import cheb2leg, leg2cheb, vals2coeffs, coeffs2vals
 from chebfunjax.utils.quadrature import chebpts
 
-
 def run():
     print("=" * 60)
     print("Fast Chebyshev-Legendre transforms")
@@ -80,8 +79,7 @@ def run():
     axes[0].semilogy(c_ch + 1e-17, 'b.-', label='Chebyshev')
     axes[0].semilogy(c_lg + 1e-17, 'r.-', label='Legendre')
     axes[0].set_title("Cheb vs Legendre coefficients of exp(x)", fontsize=11)
-    axes[0].set_xlabel("Index n"); axes[0].set_ylabel("Magnitude")
-    axes[0].legend(); axes[0].grid(True, alpha=0.3)
+    axes[0].legend()
 
     # Convergence of round-trip error vs n
     sizes = [8, 16, 32, 64, 128, 256]
@@ -97,8 +95,7 @@ def run():
     axes[1].loglog(sizes, errors, 'ko-')
     axes[1].axhline(1e-14, color='r', linestyle='--', alpha=0.5, label='machine ε')
     axes[1].set_title("Round-trip error vs. n", fontsize=11)
-    axes[1].set_xlabel("n"); axes[1].set_ylabel("‖c - leg2cheb(cheb2leg(c))‖∞")
-    axes[1].legend(); axes[1].grid(True, alpha=0.3)
+    axes[1].legend()
 
     fig.suptitle("Fast Chebyshev-Legendre transforms", fontsize=13)
     fig.tight_layout()
@@ -107,7 +104,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

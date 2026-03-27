@@ -19,8 +19,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def letter_mask(letter, nx=100, ny=60):
     """Create a 2D binary mask for a capital letter."""
     mask = np.zeros((ny, nx), dtype=float)
@@ -47,7 +45,6 @@ def letter_mask(letter, nx=100, ny=60):
 
     return mask
 
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/fun')
@@ -69,7 +66,7 @@ def run():
     axes[0].contourf(X, Y, f, levels=20, cmap='RdBu_r')
     axes[0].contour(X, Y, f, levels=[0], colors='black', linewidths=2)
     axes[0].set_title('f(x,y) = cos(πx)cos(πy) +...\nzero set (black line)', fontsize=10)
-    axes[0].set_aspect('equal'); axes[0].grid(True, alpha=0.3)
+    axes[0].set_aspect('equal')
 
     # --- Panel 2: Low-rank approximation ---
     # Rank-1: f(x,y) = g(x)*h(y)
@@ -79,7 +76,7 @@ def run():
 
     axes[1].pcolormesh(X, Y, F_rank1, cmap='viridis', shading='auto')
     axes[1].set_title('Rank-1 function\ng(x)×h(y) = cos(πx)·cos(πy)', fontsize=10)
-    axes[1].set_aspect('equal'); axes[1].grid(True, alpha=0.3)
+    axes[1].set_aspect('equal')
 
     # Print rank info
     # SVD to find numerical rank
@@ -118,7 +115,6 @@ def run():
 
     print("hello_world: done")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -24,7 +24,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Two electrons orbiting a proton")
@@ -100,15 +99,13 @@ def run():
     axes[0].plot(x_e2, y_e2, 'r', linewidth=0.8, alpha=0.7, label="electron 2")
     axes[0].plot(0, 0, 'g*', markersize=10, label="nucleus")
     axes[0].set_aspect('equal')
-    axes[0].set_xlabel("x (a.u.)"); axes[0].set_ylabel("y (a.u.)")
     axes[0].set_title("Electron orbits (perturbed circular)", fontsize=10)
-    axes[0].legend(fontsize=8); axes[0].grid(True, alpha=0.2)
+    axes[0].legend(fontsize=8)
 
     axes[1].plot(sol.t, r_arr, 'b', linewidth=1.2, label="r(t)")
     axes[1].axhline(r0, color='k', linestyle='--', linewidth=0.8, label=f"r₀={r0}")
-    axes[1].set_xlabel("t (a.u.)"); axes[1].set_ylabel("r(t)")
     axes[1].set_title("Radial oscillation about equilibrium", fontsize=10)
-    axes[1].legend(fontsize=8); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=8)
 
     fig.suptitle("Two electrons in symmetric orbit", fontsize=11)
     fig.tight_layout()
@@ -117,7 +114,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

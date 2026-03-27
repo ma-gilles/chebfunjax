@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/sphere')
@@ -99,7 +97,6 @@ def run():
 
     print("spherefun_partition: done")
     return True
-
 
 if __name__ == "__main__":
     run()

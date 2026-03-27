@@ -20,15 +20,12 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def discretize_kernel(K, xs):
     """Discretize integral kernel K(s,t) on grid xs."""
     dx = xs[1] - xs[0]
     S, T = np.meshgrid(xs, xs, indexing='ij')
     K_mat = K(S, T) * dx
     return K_mat
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -72,8 +69,7 @@ def run():
             axes[0].plot(xs, eigenvectors[:, j], color=color,
                          linewidth=lw, label=f'ψ_{j+1}')
     axes[0].set_title('First 4 Mercer eigenfunctions', fontsize=11)
-    axes[0].set_xlabel('x'); axes[0].legend(fontsize=9)
-    axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
 
     # Eigenvalue decay
     n_eig = min(20, len(eigenvalues))
@@ -81,8 +77,7 @@ def run():
     axes[1].loglog(np.arange(1, n_eig+1), 2.0 / (np.arange(1, n_eig+1))**2,
                    '-r', linewidth=2, label='O(n^{-2})')
     axes[1].set_title('Eigenvalue decay: O(n^{-2})', fontsize=11)
-    axes[1].set_xlabel('n'); axes[1].set_ylabel('|λ_n|')
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     # KL expansion: generate random realizations
     n_modes = min(10, len(eigenvalues))
@@ -105,8 +100,7 @@ def run():
     axes[2].plot(xs, mean_realization, 'k-', linewidth=2, label='Mean')
     axes[2].set_title(f'KL realizations ({captured:.0f}% var in {n_modes} modes)',
                       fontsize=10)
-    axes[2].set_xlabel('x'); axes[2].legend(fontsize=9)
-    axes[2].grid(True, alpha=0.3)
+    axes[2].legend(fontsize=9)
 
     fig.suptitle("Mercer's Theorem and Karhunen-Loeve Expansion", fontsize=13)
     fig.tight_layout()
@@ -116,7 +110,6 @@ def run():
 
     print("mercer_karhunen_loeve: done")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def gram_schmidt_ortho(weight_fn, N, domain=(-1.0, 1.0)):
     """Compute N+1 orthonormal polynomials via Gram-Schmidt with given weight."""
     w = cj.chebfun(weight_fn, domain=domain)
@@ -45,7 +43,6 @@ def gram_schmidt_ortho(weight_fn, N, domain=(-1.0, 1.0)):
         P.append(pk_new)
 
     return P
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -78,7 +75,6 @@ def run():
 
     ax.set_title(r'Orthonormal polynomials for $w(x) = e^{\pi x}$ on $[-1,1]$',
                  fontsize=12)
-    ax.set_xlabel('$x$', fontsize=12)
     ax.legend(fontsize=10, ncol=3)
     ax.set_ylim(-4, 4)
     fig.tight_layout()
@@ -96,7 +92,6 @@ def run():
 
     print("orthogonal_polynomials: done")
     return True
-
 
 if __name__ == "__main__":
     run()

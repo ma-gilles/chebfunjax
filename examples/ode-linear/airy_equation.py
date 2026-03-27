@@ -25,7 +25,6 @@ chebfun_style()
 from chebfunjax.plotting import plot
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Airy equation BVP: u'' - x*u = 0")
@@ -38,8 +37,8 @@ def run():
     print(f"\nAi({a}) = {Ai_a:.12f}")
     print(f"Ai({b}) = {Ai_b:.12f}")
 
-    # MATLAB: N = chebop(-10, 2); N.op = @(x,u) diff(u,2) - x.*u;
-    #         N.lbc = airy(a); N.rbc = airy(b);
+    # MATLAB: N = chebop(-10, 2); N.op = @(x,u) diff(u,2) - x.*u
+    #         N.lbc = airy(a); N.rbc = airy(b)
     N = Chebop(lambda x, u: u.diff(2) - x * u, domain=(a, b))
     N.lbc = Ai_a
     N.rbc = Ai_b
@@ -87,7 +86,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

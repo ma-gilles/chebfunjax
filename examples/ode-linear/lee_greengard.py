@@ -28,7 +28,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Lee and Greengard stiff ODE examples")
@@ -106,17 +105,16 @@ def run():
     axes[0].plot(x_plot, exact_shock(np.array(x_plot), eps), 'r--',
                  linewidth=1.2, label="exact erf")
     axes[0].set_title(f"Viscous shock (ε={eps})", fontsize=10)
-    axes[0].set_xlabel("x"); axes[0].legend(fontsize=7); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=7)
 
     axes[1].plot(x_plot, u2(x_plot), 'b', linewidth=1.8)
     axes[1].set_title(f"Interior layer at x=0.3 (ε={eps2})", fontsize=10)
     axes[1].axvline(0.3, color='k', linestyle='--', linewidth=0.8)
-    axes[1].set_xlabel("x"); axes[1].grid(True, alpha=0.3)
 
     axes[2].plot(x_plot, u3(x_plot), 'b', linewidth=1.8, label="chebfunjax")
     axes[2].plot(x_test3, exact3(x_test3), 'r--', linewidth=1.2, label="Airy")
     axes[2].set_title(f"Airy equation (ε={eps3})", fontsize=10)
-    axes[2].set_xlabel("x"); axes[2].legend(fontsize=7); axes[2].grid(True, alpha=0.3)
+    axes[2].legend(fontsize=7)
 
     fig.suptitle("Lee & Greengard stiff ODE examples", fontsize=11)
     fig.tight_layout()
@@ -125,7 +123,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

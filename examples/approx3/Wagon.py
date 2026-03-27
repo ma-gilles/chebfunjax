@@ -29,7 +29,6 @@ _IMG_DIR = os.path.join(
 )
 os.makedirs(_IMG_DIR, exist_ok=True)
 
-
 def wagon_func(x, y, z):
     """Stan Wagon's 3D function from the SIAM 100-Digit Challenge."""
     return (
@@ -40,7 +39,6 @@ def wagon_func(x, y, z):
         - jnp.sin(10 * (x + z))
         + (x**2 + y**2 + z**2) / 4
     )
-
 
 def run():
     print("=" * 60)
@@ -122,8 +120,6 @@ def run():
     ax1 = axes[0, 0]
     for i, col_v in enumerate(cols_vals):
         ax1.plot(t_ref, col_v, lw=1.8, label=f"col {i+1}")
-    ax1.set_xlabel("x", fontsize=11)
-    ax1.set_ylabel("value", fontsize=11)
     ax1.set_title(f"Columns ({rx} Tucker x-fibers)", fontsize=11)
     ax1.legend(fontsize=9)
     ax1.set_xlim([-1, 1])
@@ -132,8 +128,6 @@ def run():
     ax2 = axes[0, 1]
     for j, row_v in enumerate(rows_vals):
         ax2.plot(t_ref, row_v, lw=1.8, label=f"row {j+1}")
-    ax2.set_xlabel("y", fontsize=11)
-    ax2.set_ylabel("value", fontsize=11)
     ax2.set_title(f"Rows ({ry} Tucker y-fibers)", fontsize=11)
     ax2.legend(fontsize=9)
     ax2.set_xlim([-1, 1])
@@ -142,8 +136,6 @@ def run():
     ax3 = axes[1, 0]
     for k, tube_v in enumerate(tubes_vals):
         ax3.plot(t_ref, tube_v, lw=1.8, label=f"tube {k+1}")
-    ax3.set_xlabel("z", fontsize=11)
-    ax3.set_ylabel("value", fontsize=11)
     ax3.set_title(f"Tubes ({rz} Tucker z-fibers)", fontsize=11)
     ax3.legend(fontsize=9)
     ax3.set_xlim([-1, 1])
@@ -151,8 +143,6 @@ def run():
     # Chebyshev coefficients of first tube
     ax4 = axes[1, 1]
     ax4.semilogy(range(len(tube0_coeffs)), tube0_coeffs, "o-b", ms=4, lw=1.5)
-    ax4.set_xlabel("Chebyshev degree", fontsize=11)
-    ax4.set_ylabel("|coefficient|", fontsize=11)
     ax4.set_title("Chebyshev coefficients of tube[0]", fontsize=11)
     fig.suptitle(
         f"Wagon's function: Tucker rank ({rx},{ry},{rz})\n"
@@ -167,7 +157,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/roots')
@@ -48,9 +46,6 @@ def run():
     axes[0].plot(xx, fv, 'b-', linewidth=1.5)
     axes[0].axhline(0, color='k', linewidth=0.8, linestyle='--')
     axes[0].set_title('$f(x) = 3 + \sin(x) + \sin(\pi x)$', fontsize=11)
-    axes[0].set_xlabel('$x$')
-    axes[0].set_ylabel('$f(x)$')
-    axes[0].grid(True, alpha=0.3)
     axes[0].set_ylim(-1.5, 5.5)
 
     # Bernstein ellipse for f
@@ -74,10 +69,7 @@ def run():
     axes[1].plot(xx, np.zeros_like(xx), 'k-', linewidth=1.5, label='real axis')
     axes[1].set_aspect('equal')
     axes[1].set_title("Bernstein ellipses for $f$ on $[0, 30]$", fontsize=11)
-    axes[1].set_xlabel('Re($z$)')
-    axes[1].set_ylabel('Im($z$)')
     axes[1].legend(fontsize=9)
-    axes[1].grid(True, alpha=0.3)
     axes[1].set_ylim(-5, 5)
 
     fig.tight_layout()
@@ -92,7 +84,6 @@ def run():
 
     print("roots_near_axis: done")
     return True
-
 
 if __name__ == "__main__":
     run()

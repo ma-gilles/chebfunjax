@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Picard iteration: u' = u, u(0) = 1  =>  u = exp(x)")
@@ -83,14 +81,11 @@ def run():
             domain=dom
         )
     axes[0].plot(x_plot, jnp.exp(x_plot), 'k--', linewidth=1.4, label="exp(x)")
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("u(x)")
     axes[0].set_title("Picard iterations converging to exp(x)", fontsize=9)
-    axes[0].legend(fontsize=7); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=7)
 
     axes[1].semilogy(range(len(errors)), errors, 'b.-', markersize=8, linewidth=1.4)
-    axes[1].set_xlabel("iteration"); axes[1].set_ylabel("max error")
     axes[1].set_title("Convergence of Picard iteration", fontsize=10)
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Picard-Lindelöf iteration: u' = u, u(0)=1", fontsize=11)
     fig.tight_layout()
@@ -99,7 +94,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

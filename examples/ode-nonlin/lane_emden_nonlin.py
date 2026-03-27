@@ -1,7 +1,7 @@
 """Lane-Emden equation (nonlinear cases n=2,3,4,5).
 
 The Lane-Emden equation  x u'' + 2 u' + x u^n = 0,  u'(0)=0, u(0)=1
-models polytropic stellar structure. For integer n=0,1 there are closed forms;
+models polytropic stellar structure. For integer n=0,1 there are closed forms
 for n=2,3,4,5 solutions are computed numerically.
 
 Credit: Chebfun example ode-nonlin/LaneEmden.m (Alex Townsend, May 2011).
@@ -25,7 +25,6 @@ from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
-
 
 def run():
     print("=" * 60)
@@ -103,9 +102,8 @@ def run():
     ax.plot(r5_plot, exact_n5(r5_plot), color=myColors[3], linewidth=1.6,
             linestyle='--', label="n=5 (exact)")
     ax.axhline(0, color='k', linewidth=0.5)
-    ax.set_xlabel("x (radial distance)"); ax.set_ylabel("u(x) (density)")
     ax.set_title("Lane-Emden polytropes: x u″ + 2u′ + x u^n = 0", fontsize=10)
-    ax.legend(fontsize=9); ax.grid(True, alpha=0.3)
+    ax.legend(fontsize=9)
     ax.set_ylim(-0.1, 1.05)
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "lane_emden_nonlin.png"), dpi=150, bbox_inches="tight")
@@ -113,7 +111,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

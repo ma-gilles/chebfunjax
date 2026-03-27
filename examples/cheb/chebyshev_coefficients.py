@@ -24,7 +24,6 @@ chebfun_style()
 from chebfunjax.utils.transforms import vals2coeffs
 from chebfunjax.utils.quadrature import chebpts
 
-
 def run():
     print("=" * 60)
     print("Chebyshev coefficients and convergence")
@@ -77,15 +76,13 @@ def run():
     axes[0].semilogy(c_sin[:20] + 1e-17, 'b.-', label='sin(x)')
     axes[0].semilogy(c_exp[:20] + 1e-17, 'r.-', label='exp(x)')
     axes[0].set_title("Chebyshev coefficient magnitudes", fontsize=12)
-    axes[0].set_xlabel("Index n"); axes[0].set_ylabel("|aₙ|")
-    axes[0].legend(); axes[0].grid(True, alpha=0.3)
+    axes[0].legend()
 
     axes[1].semilogy(c_abs[:256] + 1e-17, 'g-', label='|x|')
     nn = np.arange(1, 257)
     axes[1].loglog(nn, 1.0/nn**2, 'k--', alpha=0.5, label='O(1/n²)')
     axes[1].set_title("Coefficient decay: |x| (algebraic)", fontsize=12)
-    axes[1].set_xlabel("Index n"); axes[1].set_ylabel("|aₙ|")
-    axes[1].legend(); axes[1].grid(True, alpha=0.3)
+    axes[1].legend()
 
     fig.suptitle("Chebyshev coefficient decay rates", fontsize=13)
     fig.tight_layout()
@@ -94,7 +91,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

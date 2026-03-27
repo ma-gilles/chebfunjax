@@ -25,7 +25,6 @@ chebfun_style()
 
 from chebfunjax.plotting import plot, plotcoeffs
 
-
 def run():
     print("=" * 60)
     print("Matrix functions and spectral calculus")
@@ -123,7 +122,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

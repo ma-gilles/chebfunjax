@@ -23,8 +23,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Fundamental theorem of algebra for Chebfuns")
@@ -87,7 +85,6 @@ def run():
     axes[0].plot(r_plot, np.zeros(len(r_plot)), "ro", markersize=5, label=f"{n_plot} roots")
     axes[0].set_title(f"$T_{{10}}(x)$: exactly {n_plot} real roots")
     axes[0].legend(fontsize=9)
-    axes[0].grid(True, alpha=0.4)
 
     # Right: x^3 - 1 and root
     f_cubic = cj.chebfun(lambda x: x**3 - 1.0)
@@ -99,7 +96,6 @@ def run():
     axes[1].plot(r_cubic, np.zeros(len(r_cubic)), "ro", markersize=7, label="root x=1")
     axes[1].set_title("$x^3 - 1$: 1 real root on $[-1,1]$")
     axes[1].legend(fontsize=9)
-    axes[1].grid(True, alpha=0.4)
 
     fig.suptitle("Fundamental theorem of algebra for Chebfuns", fontsize=11)
     fig.tight_layout()
@@ -109,7 +105,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

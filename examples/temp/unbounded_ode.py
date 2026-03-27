@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def solve_unbounded_ode(L=30, n=200):
     """Solve 0.1*u'' + u' + u = 0 on [0,L], u(0)=1, u(L)~0."""
     x = np.linspace(0, L, n)
@@ -39,7 +37,6 @@ def solve_unbounded_ode(L=30, n=200):
 
     u = solve(A, b)
     return x, u
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -69,8 +66,7 @@ def run():
     axes[0].plot(x_exact, u_exact, 'k-', linewidth=2, label='Exact exp(r₂x)')
     axes[0].plot(x_num, u_num, 'r--', linewidth=2, label='Numerical')
     axes[0].set_title('0.1u\'\'+u\'+u=0 on [0,∞)\nTruncated to [0,30]', fontsize=10)
-    axes[0].set_xlabel('x'); axes[0].set_ylabel('u(x)')
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
 
     err = np.max(np.abs(u_exact - np.interp(x_exact, x_num, u_num)))
     print(f"  Max error (numerical vs exact): {err:.4e}")
@@ -83,8 +79,7 @@ def run():
 
     axes[1].plot(x_exact, u_exact, 'k-', linewidth=2.5, label='Exact')
     axes[1].set_title('Effect of domain truncation', fontsize=10)
-    axes[1].set_xlabel('x'); axes[1].set_ylabel('u(x)')
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
     axes[1].set_xlim(0, 20)
 
     # --- Panel 3: Piecewise variant with jump in coefficient ---
@@ -111,8 +106,7 @@ def run():
     axes[2].axvline(2, color='g', linestyle='--', linewidth=1.5,
                      label='Breakpoint x=2')
     axes[2].set_title('Piecewise variant:\n1.5 subtracted for x<2', fontsize=10)
-    axes[2].set_xlabel('x'); axes[2].set_ylabel('u(x)')
-    axes[2].legend(fontsize=9); axes[2].grid(True, alpha=0.3)
+    axes[2].legend(fontsize=9)
     axes[2].set_xlim(0, 20)
 
     fig.suptitle('ODE on Unbounded Interval [0, ∞)', fontsize=12)
@@ -123,7 +117,6 @@ def run():
 
     print("unbounded_ode: done")
     return True
-
 
 if __name__ == "__main__":
     run()

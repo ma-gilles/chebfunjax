@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/stats')
@@ -51,8 +49,7 @@ def run():
     axes[0].fill_between(xs[mask2], pdf[mask2], alpha=0.3, color='cyan',
                          label='X in [1,2]')
     axes[0].set_title('Exponential(λ=0.5): P[X<1|X<2]', fontsize=10)
-    axes[0].set_xlabel('x'); axes[0].legend(fontsize=8)
-    axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=8)
 
     # Memorylessness: P[X>8|X>5] = P[X>3]
     p_memoryless = (1 - F(8)) / (1 - F(5))
@@ -80,9 +77,7 @@ def run():
     axes[1].axhline(0.1, color='r', linestyle='--', label='10% reliability')
     axes[1].axvline(d_10pct, color='r', linestyle='--')
     axes[1].set_title('Light bulb reliability Rel(t) = P[T>t]', fontsize=10)
-    axes[1].set_xlabel('t (hundreds of hours)')
-    axes[1].set_ylabel('Reliability')
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     # --- 3. Find lambda such that median = 1 (P[X<=1] = 0.5) ---
     # For exponential: CDF = 1 - exp(-lam*x), so P[X<=1] = 1 - exp(-lam)
@@ -107,8 +102,7 @@ def run():
     axes[2].axvline(1/lam_median1, color='b', linewidth=2, linestyle=':',
                     label=f'mean = {1/lam_median1:.3f}')
     axes[2].set_title('Exp with median=1 (λ=ln2)', fontsize=10)
-    axes[2].set_xlabel('x'); axes[2].legend(fontsize=9)
-    axes[2].grid(True, alpha=0.3)
+    axes[2].legend(fontsize=9)
 
     fig.suptitle('Exponential Distribution Exercises', fontsize=13)
     fig.tight_layout()
@@ -118,7 +112,6 @@ def run():
 
     print("exponential_exercises: done")
     return True
-
 
 if __name__ == "__main__":
     run()

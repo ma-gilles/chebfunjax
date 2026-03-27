@@ -28,7 +28,6 @@ chebfun_style()
 from scipy.integrate import solve_ivp
 from scipy.optimize import brentq
 
-
 def run():
     print("=" * 60)
     print("Blasius function: 2u''' + u u'' = 0, u(0)=u'(0)=0, u'(L)=1")
@@ -91,16 +90,14 @@ def run():
 
     axes[0].plot(np.array(x_plot), np.array(u(x_plot)), 'b', linewidth=1.8, label="u(x)")
     axes[0].plot(np.array(x_plot), np.array(u_prime(x_plot)), 'r', linewidth=1.4, label="u'(x)")
-    axes[0].set_xlabel("x"); axes[0].legend(fontsize=9)
+    axes[0].legend(fontsize=9)
     axes[0].set_title("Blasius function and its derivative", fontsize=10)
-    axes[0].grid(True, alpha=0.3)
 
     u_d2 = u.diff(2)
     axes[1].plot(np.array(x_plot), np.array(u_d2(x_plot)), 'g', linewidth=1.8, label="u''(x)")
     axes[1].axhline(0, color='k', linewidth=0.5)
-    axes[1].set_xlabel("x"); axes[1].legend(fontsize=9)
+    axes[1].legend(fontsize=9)
     axes[1].set_title(f"Second derivative (u''(0)≈{alpha_ref:.5f})", fontsize=10)
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Blasius equation: 2u‴ + u u″ = 0", fontsize=11)
     fig.tight_layout()
@@ -109,7 +106,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

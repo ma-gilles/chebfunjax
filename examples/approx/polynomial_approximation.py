@@ -23,14 +23,13 @@ chebfun_style()
 
 from chebfunjax.plotting import plot, plotcoeffs
 
-
 def run():
     print("=" * 60)
     print("Polynomial approximation basics")
     print("=" * 60)
 
     # --- Construct a Chebfun for exp(x) on [-1, 1] --------------------
-    # MATLAB: f = chebfun('exp(x)');
+    # MATLAB: f = chebfun('exp(x)')
     f = cj.chebfun(lambda x: jnp.exp(x))
     print(f"\nexp(x) on [-1,1]:")
     print(f"  Number of coefficients (length): {len(f)}")
@@ -47,7 +46,7 @@ def run():
     print(f"  Error at 0.5: {abs(val_at_half - exact):.2e}")
 
     # --- Chebfun for cos(pi*x) on [-1, 1] ----------------------------
-    # MATLAB: g = chebfun('cos(pi*x)');
+    # MATLAB: g = chebfun('cos(pi*x)')
     g = cj.chebfun(lambda x: jnp.cos(jnp.pi * x))
     print(f"\ncos(pi*x) on [-1,1]:")
     print(f"  Number of coefficients: {len(g)}")
@@ -108,7 +107,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

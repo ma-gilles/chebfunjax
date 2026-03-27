@@ -23,7 +23,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Matched asymptotics: -eps y'' + (2-x^2)y = 1, y(±1)=0")
@@ -71,7 +70,6 @@ def run():
     for (eps, u), c in zip(solutions, colors):
         ax.plot(x_plot, u(x_plot), color=c, linewidth=1.6, label=f"ε={eps}")
     ax.plot(x_plot, y_outer(x_plot), 'k--', linewidth=1.2, label="outer 1/(2-x²)")
-    ax.set_xlabel("x"); ax.set_ylabel("y(x)")
     ax.set_title("Matched asymptotics: −ε y″ + (2−x²)y = 1, y(±1)=0", fontsize=9)
     ax.legend(fontsize=8)
     ax.set_ylim(-0.1, 0.8)
@@ -81,7 +79,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

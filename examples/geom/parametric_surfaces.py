@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("Parametric surfaces and volumes")
@@ -107,8 +105,6 @@ def run():
     areas = [4 * np.pi**2 * Rv * r for Rv in R_vals]
     ax3.plot(R_vals, areas, 'b-o', markersize=4)
     ax3.set_title("Torus SA vs. major radius R", fontsize=10)
-    ax3.set_xlabel("R (major radius)")
-    ax3.set_ylabel("Surface area")
     fig.suptitle("Parametric surfaces: torus and sphere", fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, "parametric_surfaces.png"), dpi=150, bbox_inches="tight")
@@ -116,7 +112,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

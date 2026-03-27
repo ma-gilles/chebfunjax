@@ -24,7 +24,6 @@ chebfun_style()
 from chebfunjax.plotting import plot
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Quantum harmonic oscillator eigenvalues")
@@ -69,8 +68,6 @@ def run():
     ax.bar(_np.arange(n_eigs), _np.array(lam[:n_eigs]), color="#4169E1",
            alpha=0.8, label="computed")
     ax.plot(_np.arange(n_eigs), exact, "ro", markersize=6, label="exact")
-    ax.set_xlabel("eigenvalue index", fontsize=10)
-    ax.set_ylabel("λ", fontsize=10)
     ax.set_title("Quantum harmonic oscillator eigenvalues", fontsize=11)
     ax.legend(fontsize=9)
     fig.set_facecolor("white")
@@ -81,7 +78,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -17,7 +17,6 @@ import numpy as np
 from scipy.stats import norm
 import os
 
-
 def run():
     print("=" * 60)
     print("Exploring Vanilla Options")
@@ -105,8 +104,7 @@ def run():
     axes[0, 0].plot(S_range, payoff(S_range, K, 1), 'k--', linewidth=1.5, label='Payoff (T=0)')
     axes[0, 0].axvline(K, color='gray', linestyle=':', alpha=0.5)
     axes[0, 0].set_title("Call price vs S (varying T)", fontsize=11)
-    axes[0, 0].set_xlabel("S"); axes[0, 0].set_ylabel("C(S)")
-    axes[0, 0].legend(fontsize=8); axes[0, 0].grid(True, alpha=0.3)
+    axes[0, 0].legend(fontsize=8)
     axes[0, 0].set_ylim([-2, 80])
 
     # Panel 2: Put prices for different maturities
@@ -116,8 +114,7 @@ def run():
     axes[0, 1].plot(S_range, payoff(S_range, K, -1), 'k--', linewidth=1.5, label='Payoff')
     axes[0, 1].axvline(K, color='gray', linestyle=':', alpha=0.5)
     axes[0, 1].set_title("Put price vs S (varying T)", fontsize=11)
-    axes[0, 1].set_xlabel("S"); axes[0, 1].set_ylabel("P(S)")
-    axes[0, 1].legend(fontsize=8); axes[0, 1].grid(True, alpha=0.3)
+    axes[0, 1].legend(fontsize=8)
     axes[0, 1].set_ylim([-2, 80])
 
     # Panel 3: Sensitivity to volatility
@@ -126,8 +123,8 @@ def run():
         C_arr = vanilla(S_range, K, T_base, v, r, 1)
         axes[1, 0].plot(S_range, C_arr, color=col, linewidth=1.8, label=f'σ={v:.1f}')
     axes[1, 0].set_title(f"Call price vs S (varying σ, T={T_base})", fontsize=11)
-    axes[1, 0].set_xlabel("S"); axes[1, 0].legend(fontsize=8)
-    axes[1, 0].grid(True, alpha=0.3); axes[1, 0].set_ylim([-2, 80])
+    axes[1, 0].legend(fontsize=8)
+    axes[1, 0].set_ylim([-2, 80])
 
     # Panel 4: Call vs Put comparison ATM
     S_atm = np.linspace(0.5, 3.0, 100) * K
@@ -139,8 +136,8 @@ def run():
     axes[1, 1].plot(S_atm, payoff(S_atm, K, -1), 'r--', linewidth=1, alpha=0.5)
     axes[1, 1].axvline(K, color='gray', linestyle=':', alpha=0.5)
     axes[1, 1].set_title("Call & Put vs payoff", fontsize=11)
-    axes[1, 1].set_xlabel("S"); axes[1, 1].legend(fontsize=9)
-    axes[1, 1].grid(True, alpha=0.3); axes[1, 1].set_ylim([-5, 80])
+    axes[1, 1].legend(fontsize=9)
+    axes[1, 1].set_ylim([-5, 80])
 
     fig.suptitle(f"Vanilla options: K={K}, base σ={vol_base}", fontsize=13)
     fig.tight_layout()
@@ -149,7 +146,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

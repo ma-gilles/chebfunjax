@@ -4,7 +4,7 @@ Computes eigenvalues of the periodic Sturm-Liouville problem
   -(p(x) u')' + q(x) u = lambda w(x) u,  u(0) = u(2*pi)
 using Fourier collocation.
 
-Note: chebfunjax Chebop.eigs() with 'periodic' BCs has limited accuracy;
+Note: chebfunjax Chebop.eigs() with 'periodic' BCs has limited accuracy
 this demo uses Dirichlet BCs for the main tests and shows the periodic setup.
 
 Credit: Chebfun example ode-eig/FourierEigs.m (Hadrien Montanelli, Dec 2014).
@@ -26,7 +26,6 @@ from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
-
 
 def run():
     print("=" * 60)
@@ -98,16 +97,14 @@ def run():
     axes[0].bar(range(1, len(lams1_sorted)+1), lams1_sorted, color='steelblue', alpha=0.7,
                 label="computed")
     axes[0].plot(range(1, len(exact1)+1), exact1, 'ro', markersize=6, label="exact k²")
-    axes[0].set_xlabel("k"); axes[0].set_ylabel("λ_k")
     axes[0].set_title("−u″ = λu on [0,π], Dirichlet", fontsize=10)
-    axes[0].legend(fontsize=8); axes[0].grid(True, alpha=0.3, axis='y')
+    axes[0].legend(fontsize=8)
 
     axes[1].bar(range(1, len(lams3_sorted)+1), lams3_sorted, color='coral', alpha=0.7,
                 label="computed")
     axes[1].plot(range(1, len(exact3)+1), exact3, 'ro', markersize=6, label="exact 2k+1")
-    axes[1].set_xlabel("k"); axes[1].set_ylabel("λ_k")
     axes[1].set_title("−u″ + x²u = λu on [−5,5]", fontsize=10)
-    axes[1].legend(fontsize=8); axes[1].grid(True, alpha=0.3, axis='y')
+    axes[1].legend(fontsize=8)
 
     fig.suptitle("Fourier/Chebyshev eigenvalue problems", fontsize=11)
     fig.tight_layout()
@@ -116,7 +113,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

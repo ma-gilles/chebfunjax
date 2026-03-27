@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/complex')
@@ -102,7 +100,6 @@ def run():
     axes[0].set_aspect('equal')
     axes[0].set_title('Unit circle and image under $z^2$', fontsize=11)
     axes[0].legend(fontsize=9)
-    axes[0].grid(True, alpha=0.3)
 
     # |z^3 - 1| on the real axis using chebfun
     f_real = cj.chebfun(lambda x: jnp.abs(x**3 - 1), domain=(-2.0, 2.0))
@@ -113,9 +110,7 @@ def run():
     axes[1].plot(1.0, 0.0, 'r*', markersize=12, label='Root x=1')
     axes[1].axhline(0, color='k', linewidth=0.8)
     axes[1].set_title('$|z^3 - 1|$ on the real axis', fontsize=11)
-    axes[1].set_xlabel('$x$')
     axes[1].legend(fontsize=10)
-    axes[1].grid(True, alpha=0.3)
 
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'complex_functions.png'),
@@ -124,7 +119,6 @@ def run():
 
     print("complex_functions: done")
     return True
-
 
 if __name__ == "__main__":
     run()

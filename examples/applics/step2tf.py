@@ -25,8 +25,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     print("=" * 60)
     print("AAA algorithm for system identification (step response)")
@@ -102,16 +100,14 @@ def run():
     axes[0].plot(t_sim, y_sim, 'b-', linewidth=2)
     axes[0].axhline(h_inf, color='r', linestyle='--', label=f'H(0) = {h_inf:.3f}')
     axes[0].set_title("Step response h(t)", fontsize=11)
-    axes[0].set_xlabel("t"); axes[0].set_ylabel("h(t)")
-    axes[0].legend(); axes[0].grid(True, alpha=0.3)
+    axes[0].legend()
 
     # Bode magnitude with AAA fit
     axes[1].semilogx(omega_vals, 20*np.log10(H_mag), 'b-', linewidth=2, label='Exact')
     axes[1].semilogx(omega_vals, 20*np.log10(np.maximum(H_aaa_mag, 1e-15)),
                      'r--', linewidth=1.5, label='AAA fit')
     axes[1].set_title("Bode magnitude: AAA system ID", fontsize=11)
-    axes[1].set_xlabel("ω (rad/s)"); axes[1].set_ylabel("dB")
-    axes[1].legend(); axes[1].grid(True, which='both', alpha=0.3)
+    axes[1].legend()
 
     fig.suptitle("Step response → transfer function (system identification)", fontsize=12)
     fig.tight_layout()
@@ -120,7 +116,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -23,13 +23,12 @@ chebfun_style()
 
 from chebfunjax.plotting import plot
 
-
 def run():
     print("=" * 60)
     print("Newton's method and root-finding")
     print("=" * 60)
 
-    # MATLAB: dom = [-3 3]; f = chebfun('x.^3 - 3*x.^2 + 2', dom);
+    # MATLAB: dom = [-3 3]; f = chebfun('x.^3 - 3*x.^2 + 2', dom)
     dom = (-3.0, 3.0)
     f = cj.chebfun(lambda x: x**3 - 3.0 * x**2 + 2.0, domain=dom)
 
@@ -83,7 +82,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

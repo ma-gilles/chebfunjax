@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def cheb_interpolant_error(f, nn, x_test):
     """Compute max-error of degree-n Chebyshev interpolant for function f."""
     errors = []
@@ -54,7 +52,6 @@ def cheb_interpolant_error(f, nn, x_test):
         err = np.max(np.abs(f_interp - f_true))
         errors.append(err)
     return np.array(errors)
-
 
 def run():
     print("=" * 60)
@@ -116,9 +113,7 @@ def run():
     axes[0].loglog(ref_n, ref_n**(-np.pi) * errors1[0] / ref_n[0]**(-np.pi),
                    'r-', linewidth=2, label=f'n^{{-π}}')
     axes[0].set_title("|x|^π: convergence rate n^{-π}", fontsize=11)
-    axes[0].set_xlabel("n (interpolation points)")
-    axes[0].set_ylabel("max error")
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
     axes[0].text(0.5, 0.92, f"n^{{-π}}",
                  transform=axes[0].transAxes, ha='center', fontsize=10,
                  color='red')
@@ -128,9 +123,7 @@ def run():
     axes[1].loglog(ref_n, ref_n**(-5.5) * errors2[0] / ref_n[0]**(-5.5),
                    'r-', linewidth=2, label='n^{-5.5}')
     axes[1].set_title("sin(|x|^{x+5.5}): convergence rate n^{-5.5}", fontsize=11)
-    axes[1].set_xlabel("n (interpolation points)")
-    axes[1].set_ylabel("max error")
-    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     fig.suptitle("Convergence rates for fractionally smooth functions", fontsize=13)
     fig.tight_layout()
@@ -139,7 +132,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -25,7 +25,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Bloodhound supersonic car equation of motion")
@@ -88,15 +87,11 @@ def run():
 
     axes[0].plot(sol.t, sol.y[0] * 3.6, 'b', linewidth=1.8, label="scipy")
     axes[0].plot(t_plot, v_cheb(t_plot) * 3.6, 'r--', linewidth=1.4, label="chebfunjax")
-    axes[0].set_xlabel("t (s)"); axes[0].set_ylabel("v (km/h)")
     axes[0].set_title("Bloodhound car speed", fontsize=10)
     axes[0].legend(fontsize=8)
-    axes[0].grid(True, alpha=0.3)
 
     axes[1].plot(sol.t, F0 * np.tanh(sol.t / tau) / 1000.0, 'g', linewidth=1.8)
-    axes[1].set_xlabel("t (s)"); axes[1].set_ylabel("Thrust (kN)")
     axes[1].set_title("Engine thrust profile", fontsize=10)
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Bloodhound supersonic car (simplified model)", fontsize=11)
     fig.tight_layout()
@@ -105,7 +100,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/approx')
@@ -41,8 +39,6 @@ def run():
                 label='Chebfun degree')
     theory = [int(np.ceil(N * np.pi / np.log(1.1))) for N in NN]
     ax.semilogy(NN, theory, 'r--', linewidth=1.5, label=r'$\approx N\pi/\log r$')
-    ax.set_xlabel('Oscillation parameter $N$', fontsize=12)
-    ax.set_ylabel('Polynomial degree', fontsize=12)
     ax.set_title(r'Degree of $\sin(N\pi x)$ Chebfun vs. $N$', fontsize=13)
     ax.legend(fontsize=11)
     fig.tight_layout()
@@ -59,9 +55,6 @@ def run():
     axes[0].semilogy(coeffs_exp, 'b.-', markersize=6, linewidth=1.2)
     axes[0].set_title('Chebyshev coefficients of $e^x$ (geometric decay)',
                       fontsize=11)
-    axes[0].set_xlabel('Coefficient index $k$')
-    axes[0].set_ylabel('$|a_k|$')
-    axes[0].grid(True, which='both', alpha=0.4)
     axes[0].set_ylim(bottom=1e-17)
 
     # Non-analytic: |x| — algebraic decay ~ 1/k^2
@@ -74,10 +67,7 @@ def run():
                      label=r'$2/k^2$ envelope')
     axes[1].set_title(r'Chebyshev coefficients of $|x|$ (algebraic decay)',
                       fontsize=11)
-    axes[1].set_xlabel('Coefficient index $k$')
-    axes[1].set_ylabel('$|a_k|$')
     axes[1].legend(fontsize=9)
-    axes[1].grid(True, which='both', alpha=0.4)
     axes[1].set_ylim(bottom=1e-6)
 
     fig2.tight_layout()
@@ -87,7 +77,6 @@ def run():
 
     print("polynomial_convergence: done")
     return True
-
 
 if __name__ == "__main__":
     run()

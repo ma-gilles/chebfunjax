@@ -19,8 +19,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def solve_piecewise_ode(n=60):
     """Solve -u'' + sign(x)*u = 0, u(-1)=u(1)=0 via Chebyshev collocation.
 
@@ -128,7 +126,6 @@ def solve_piecewise_ode(n=60):
 
     return x_l[::-1], u_l_full[::-1], x_r[::-1], u_r_full[::-1]
 
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/temp')
@@ -143,8 +140,7 @@ def run():
     axes[0].plot(x_r, u_r, 'r-', linewidth=2.5, label='Right piece (-u"+u=0)')
     axes[0].axvline(0, color='k', linestyle='--', linewidth=1.5, alpha=0.7)
     axes[0].set_title("Piecewise ODE: -u''+sign(x)·u=0\nJump at x=0", fontsize=10)
-    axes[0].set_xlabel('x'); axes[0].set_ylabel('u(x)')
-    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=9)
 
     # --- Panel 2: Piecewise forcing ---
     x_full = np.linspace(-1, 1, 500)
@@ -168,7 +164,7 @@ def run():
     axes[1].plot(x_fd, rhs_fd, 'r--', linewidth=1.5, label='f(x)=sin(πx)')
     axes[1].axvline(0, color='k', linestyle='--', linewidth=1, alpha=0.5)
     axes[1].set_title("-u''+sign(x)·u = sin(πx)", fontsize=10)
-    axes[1].set_xlabel('x'); axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=9)
 
     # --- Panel 3: Sign function visualization ---
     axes[2].plot(x_full, np.abs(sign_x), 'g-', linewidth=2, label='|sign(x)|')
@@ -176,7 +172,7 @@ def run():
     axes[2].fill_between(x_full, sign_x, alpha=0.15)
     axes[2].axvline(0, color='k', linestyle='--', linewidth=1.5)
     axes[2].set_title('Piecewise coefficient\nsign(x) causes jump at x=0', fontsize=10)
-    axes[2].set_xlabel('x'); axes[2].legend(fontsize=9); axes[2].grid(True, alpha=0.3)
+    axes[2].legend(fontsize=9)
 
     print("Piecewise linop demo:")
     print(f"  Solved -u''+sign(x)*u=0 on [-1,1] with continuity at x=0")
@@ -190,7 +186,6 @@ def run():
 
     print("piecewise_linop_demo: done")
     return True
-
 
 if __name__ == "__main__":
     run()

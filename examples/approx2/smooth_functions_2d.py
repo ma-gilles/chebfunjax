@@ -23,14 +23,13 @@ chebfun_style()
 
 from chebfunjax.plotting import surf, contour
 
-
 def run():
     print("=" * 60)
     print("2D smooth function approximation (Chebfun2)")
     print("=" * 60)
 
     # --- exp(x + y) is separable: rank 1 ----------------------------
-    # MATLAB: f = chebfun2(@(x,y) exp(x+y));
+    # MATLAB: f = chebfun2(@(x,y) exp(x+y))
     f1 = cj.chebfun2(lambda x, y: jnp.exp(x + y))
     print(f"\nexp(x+y) on [-1,1]^2:")
     print(f"  Rank: {f1.rank}")
@@ -108,7 +107,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

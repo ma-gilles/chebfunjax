@@ -19,10 +19,8 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -59,26 +57,19 @@ def run():
     axes[0, 0].plot(xx, p_e10_vals, 'r--', lw=1.5, label='poly deg 10')
     axes[0, 0].set_title('Even function |x| and even approx', fontsize=10)
     axes[0, 0].legend(fontsize=8)
-    axes[0, 0].grid(True, alpha=0.3)
 
     axes[0, 1].plot(xx, odd_vals, 'b', lw=1.8, label='sign(x)')
     axes[0, 1].plot(xx, p_o9_vals, 'r--', lw=1.5, label='poly deg 9')
     axes[0, 1].set_title('Odd function sign(x) and odd approx', fontsize=10)
     axes[0, 1].legend(fontsize=8)
-    axes[0, 1].grid(True, alpha=0.3)
 
     axes[1, 0].semilogy(np.arange(len(c_even)), np.abs(c_even) + 1e-18,
                         'b.', ms=7)
     axes[1, 0].set_title(f'Even polynomial coefficients (odd-norm={odd_coeff_norm:.1e})', fontsize=9)
-    axes[1, 0].grid(True, alpha=0.3)
 
     axes[1, 1].semilogy(np.arange(len(c_odd)), np.abs(c_odd) + 1e-18,
                         'r.', ms=7)
     axes[1, 1].set_title(f'Odd polynomial coefficients (even-norm={even_coeff_norm:.1e})', fontsize=9)
-    axes[1, 1].grid(True, alpha=0.3)
-
-    for ax in axes.flat:
-        ax.set_xlabel('x' if ax in axes[:1, :].flat else 'degree')
 
     fig.suptitle('Odd and even best polynomial approximations', fontsize=12)
     fig.tight_layout()
@@ -88,7 +79,6 @@ def run():
     print(f"OddEven: even poly odd-coeff norm={odd_coeff_norm:.2e}, "
           f"odd poly even-coeff norm={even_coeff_norm:.2e}")
     return True
-
 
 if __name__ == '__main__':
     run()

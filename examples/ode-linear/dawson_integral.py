@@ -25,11 +25,9 @@ chebfun_style()
 
 from chebfunjax.domain import Domain
 
-
 def dawson_exact(x):
     """Dawson integral via scipy for reference."""
     return dawsn(np.asarray(x, dtype=float))
-
 
 def run():
     print("=" * 60)
@@ -104,7 +102,6 @@ def run():
     ax.plot(x_test, f_exact, 'r--', linewidth=1.2, label="Dawson (exact)")
     ax.axhline(0, color='k', linewidth=0.5)
     ax.axvline(0, color='k', linewidth=0.5)
-    ax.set_xlabel("x"); ax.set_ylabel("F(x)")
     ax.set_title("Dawson's integral: F′ + 2xF = 1, F(0) = 0", fontsize=10)
     ax.legend(fontsize=9)
     fig.tight_layout()
@@ -113,7 +110,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

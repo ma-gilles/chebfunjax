@@ -19,10 +19,8 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
-
 
 def orth_poly_gram_schmidt(w_func, N):
     """Build N+1 orthonormal polynomials wrt weight w via Gram-Schmidt."""
@@ -46,7 +44,6 @@ def orth_poly_gram_schmidt(w_func, N):
         polys.append(candidate * (1.0 / float(jnp.sqrt(jnp.array(norm_sq)))))
 
     return polys
-
 
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
@@ -80,15 +77,12 @@ def run():
     im = ax2.imshow(I_matrix, cmap='RdBu', vmin=-1, vmax=1)
     plt.colorbar(im, ax=ax2)
     ax2.set_title(f'Inner product matrix (should be I, err={err:.1e})', fontsize=10)
-    ax2.set_xlabel('j')
-    ax2.set_ylabel('i')
 
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'OrthPolys.png'), dpi=150)
     plt.close(fig)
 
     return True
-
 
 if __name__ == '__main__':
     run()

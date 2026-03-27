@@ -22,8 +22,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def spherical_harmonic_real(l, m, theta, phi):
     """Real spherical harmonic."""
     Ylm = sph_harm_y(l, abs(m), theta, phi)
@@ -34,14 +32,12 @@ def spherical_harmonic_real(l, m, theta, phi):
     else:
         return np.real(Ylm)
 
-
 def sh_coefficient(f, theta, phi, l, m):
     """Compute spherical harmonic coefficient of f."""
     Y = spherical_harmonic_real(l, m, theta, phi)
     dtheta = theta[1, 0] - theta[0, 0]
     dphi = phi[0, 1] - phi[0, 0]
     return np.sum(f * Y * np.sin(theta)) * dtheta * dphi
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -114,7 +110,6 @@ def run():
 
     print("sphere_heat_conduction: done")
     return True
-
 
 if __name__ == "__main__":
     run()

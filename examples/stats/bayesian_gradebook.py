@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/stats')
@@ -90,8 +88,6 @@ def run():
     for i, bel in enumerate(beliefs_poor):
         axes[0].plot(theta, bel, color=colors[i], linewidth=1.5 + i * 0.3)
     axes[0].set_title('Poor student (posterior evolution)', fontsize=10)
-    axes[0].set_xlabel('θ'); axes[0].set_ylabel('P(θ|x)')
-    axes[0].grid(True, alpha=0.3)
 
     # --- 2. Good student ---
     scores_good = [s + 0.3 for s in scores_poor]
@@ -105,8 +101,6 @@ def run():
     for i, bel in enumerate(beliefs_good):
         axes[1].plot(theta, bel, color=colors2[i], linewidth=1.5 + i * 0.3)
     axes[1].set_title('Good student (boundary effect)', fontsize=10)
-    axes[1].set_xlabel('θ'); axes[1].set_ylabel('P(θ|x)')
-    axes[1].grid(True, alpha=0.3)
 
     # --- 3. Many assessments, wide sigma ---
     sigma = 0.15
@@ -140,8 +134,7 @@ def run():
                          np.array(means_m) + np.array(stds_m),
                          alpha=0.2, color='red', label='±1 std')
     axes[2].set_title('Inconsistent student (σ=0.15)', fontsize=10)
-    axes[2].set_xlabel('Assessment #'); axes[2].set_ylabel('Ability estimate')
-    axes[2].legend(fontsize=9); axes[2].grid(True, alpha=0.3)
+    axes[2].legend(fontsize=9)
     axes[2].set_ylim(0, 1)
 
     print("\nInconsistent student:")
@@ -157,7 +150,6 @@ def run():
 
     print("bayesian_gradebook: done")
     return True
-
 
 if __name__ == "__main__":
     run()

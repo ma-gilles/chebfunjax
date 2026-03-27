@@ -22,7 +22,6 @@ import numpy as np
 from scipy.linalg import eigh
 import os
 
-
 def run():
     print("=" * 60)
     print("Numerical abscissa of Vlasov-Poisson operator")
@@ -94,8 +93,7 @@ def run():
     axes[0].axvline(a_star, color='r', linestyle='--', alpha=0.7,
                     label=f'a* ≈ {a_star:.2f}')
     axes[0].set_title("Numerical abscissa ω(a) for Vlasov-Poisson", fontsize=11)
-    axes[0].set_xlabel("a"); axes[0].set_ylabel("ω (max eigenvalue of B)")
-    axes[0].legend(); axes[0].grid(True, alpha=0.3)
+    axes[0].legend()
 
     # Kernel visualization at a=0.3
     a_plot = 0.3
@@ -108,7 +106,6 @@ def run():
     im = axes[1].contourf(t_gl, t_gl, K_plot, levels=20, cmap='RdBu_r')
     plt.colorbar(im, ax=axes[1])
     axes[1].set_title(f"Kernel K(s,t) for a={a_plot}", fontsize=11)
-    axes[1].set_xlabel("s"); axes[1].set_ylabel("t")
 
     fig.suptitle("Vlasov-Poisson operator numerical abscissa", fontsize=13)
     fig.tight_layout()
@@ -117,7 +114,6 @@ def run():
 
     print("\nAll checks passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

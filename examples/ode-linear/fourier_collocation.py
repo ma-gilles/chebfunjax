@@ -29,7 +29,6 @@ chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
 
-
 def run():
     print("=" * 60)
     print("Variable-coefficient ODE: u' + a(x)u = f(x)")
@@ -107,20 +106,16 @@ def run():
 
     axes[0].plot(x_plot, u_lin(x_plot), 'b', linewidth=1.6, label="chebfunjax")
     axes[0].plot(x_plot, exact1(x_plot), 'r--', linewidth=1.2, label="exact")
-    axes[0].set_xlabel("x"); axes[0].set_ylabel("u(x)")
     axes[0].set_title("u′ + u = sin(x)", fontsize=10)
     axes[0].set_xticks([0, np.pi, 2*np.pi])
     axes[0].set_xticklabels(["0", "π", "2π"])
     axes[0].legend(fontsize=8)
-    axes[0].grid(True, alpha=0.3)
 
     axes[1].plot(x_plot, u2(x_plot), 'r', linewidth=1.6, label="scipy+Chebfun")
-    axes[1].set_xlabel("x"); axes[1].set_ylabel("u(x)")
     axes[1].set_title("u′ + (1+0.5sin(x))u = sin(x)", fontsize=10)
     axes[1].set_xticks([0, np.pi, 2*np.pi])
     axes[1].set_xticklabels(["0", "π", "2π"])
     axes[1].legend(fontsize=8)
-    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Variable-coefficient first-order ODEs", fontsize=11)
     fig.tight_layout()
@@ -129,7 +124,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()

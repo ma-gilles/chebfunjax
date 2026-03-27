@@ -21,8 +21,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/stats')
@@ -57,9 +55,8 @@ def run():
     axes[0].plot(xs, X_pdf, 'b-', linewidth=2, label='Triangular X')
     axes[0].plot(xs, gauss, 'r--', linewidth=2, label='Normal fit')
     axes[0].set_title('Distribution of X', fontsize=11)
-    axes[0].set_xlabel('x'); axes[0].legend(fontsize=9)
+    axes[0].legend(fontsize=9)
     axes[0].set_xlim(-3, 3); axes[0].set_ylim(-0.2, 1.2)
-    axes[0].grid(True, alpha=0.3)
 
     # Convolve X with itself and renormalize
     X2 = fftconvolve(X_pdf, X_pdf, mode='full') * dx
@@ -77,9 +74,8 @@ def run():
     axes[1].plot(xs2_rescaled, S2, 'b-', linewidth=2, label='(X+X)/√2')
     axes[1].plot(xs, gauss, 'r--', linewidth=2, label='Normal fit')
     axes[1].set_title('Renorm. sum of 2', fontsize=11)
-    axes[1].set_xlabel('x'); axes[1].legend(fontsize=9)
+    axes[1].legend(fontsize=9)
     axes[1].set_xlim(-3, 3); axes[1].set_ylim(-0.2, 1.2)
-    axes[1].grid(True, alpha=0.3)
 
     # Convolve again for sum of 3
     X3 = fftconvolve(X2, X_pdf, mode='full') * dx
@@ -91,9 +87,8 @@ def run():
     axes[2].plot(xs2_rescaled, S3, 'b-', linewidth=2, label='(X+X+X)/√3')
     axes[2].plot(xs, gauss, 'r--', linewidth=2, label='Normal fit')
     axes[2].set_title('Renorm. sum of 3', fontsize=11)
-    axes[2].set_xlabel('x'); axes[2].legend(fontsize=9)
+    axes[2].legend(fontsize=9)
     axes[2].set_xlim(-3, 3); axes[2].set_ylim(-0.2, 1.2)
-    axes[2].grid(True, alpha=0.3)
 
     fig.suptitle('Central Limit Theorem', fontsize=13)
     fig.tight_layout()
@@ -103,7 +98,6 @@ def run():
 
     print("central_limit_theorem: done")
     return True
-
 
 if __name__ == "__main__":
     run()

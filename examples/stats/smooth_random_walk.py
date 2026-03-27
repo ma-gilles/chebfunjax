@@ -20,8 +20,6 @@ import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 chebfun_style()
 
-
-
 def make_random_chebfun(dx, n_pts=1000, rng=None, domain=(-1.0, 1.0)):
     """Create a smooth random function with characteristic scale dx.
 
@@ -45,7 +43,6 @@ def make_random_chebfun(dx, n_pts=1000, rng=None, domain=(-1.0, 1.0)):
         f_vals += cc * np.cos(freq * (xs - a)) + cs * np.sin(freq * (xs - a))
 
     return xs, f_vals
-
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -82,7 +79,6 @@ def run():
 
     print("smooth_random_walk: done")
     return True
-
 
 if __name__ == "__main__":
     run()

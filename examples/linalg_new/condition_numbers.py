@@ -24,20 +24,17 @@ chebfun_style()
 from chebfunjax.utils.quadrature import chebpts, chebweights
 from chebfunjax.utils.polynomials import chebpoly, legpoly
 
-
 def eval_Tj(j, xs_np):
     """Evaluate Chebyshev polynomial T_j at numpy array xs_np."""
     coeffs = chebpoly(j)
     f = cj.chebfun.from_coeffs(coeffs)
     return np.array([float(f(jnp.array(float(x)))) for x in xs_np])
 
-
 def eval_Pj(j, xs_np):
     """Evaluate Legendre polynomial P_j at numpy array xs_np."""
     from scipy.special import legendre
     P = legendre(j)
     return P(xs_np)
-
 
 def run():
     print("=" * 60)
@@ -96,13 +93,11 @@ def run():
     axes[0].semilogy(ns_plot, cond_vand, 'b-o', markersize=4, label='Monomial (Vandermonde)')
     axes[0].semilogy(ns_plot, cond_cheb, 'r-s', markersize=4, label='Chebyshev')
     axes[0].set_title("Condition numbers vs. n", fontsize=12)
-    axes[0].set_xlabel("n"); axes[0].set_ylabel("Condition number")
-    axes[0].legend(); axes[0].grid(True, alpha=0.3)
+    axes[0].legend()
 
     # Gram matrix heatmap
     im = axes[1].imshow(np.abs(G), cmap='Blues', aspect='auto')
     axes[1].set_title("Gram matrix |G| (Legendre, n=6)", fontsize=12)
-    axes[1].set_xlabel("j"); axes[1].set_ylabel("i")
     fig.colorbar(im, ax=axes[1])
 
     fig.suptitle("Condition numbers and orthogonality", fontsize=13)
@@ -112,7 +107,6 @@ def run():
 
     print("\nAll assertions passed.")
     return True
-
 
 if __name__ == "__main__":
     run()
