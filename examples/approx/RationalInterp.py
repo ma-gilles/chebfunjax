@@ -73,6 +73,7 @@ def run():
     ax3.axvline(0, color='k', lw=0.5)
 
     for ax in axes:
+        pass
     fig.suptitle('Rational interpolation of the Runge function', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'RationalInterp.png'), dpi=150)

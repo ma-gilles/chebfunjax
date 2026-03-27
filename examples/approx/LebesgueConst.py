@@ -95,6 +95,7 @@ def run():
 
     fig.suptitle('Lebesgue functions: Chebyshev vs. equispaced', fontsize=12)
     for ax in axes.flat:
+        pass
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'LebesgueConst.png'), dpi=150)
     plt.close(fig)

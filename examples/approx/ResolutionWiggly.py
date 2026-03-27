@@ -52,6 +52,7 @@ def run():
         ax_i.plot(xx, pn_vals - true_vals, 'r', lw=1.0)
         ax_i.set_title(f'L2 deg {n} error (max={err:.3f})', fontsize=10)
     for ax in axes:
+        pass
     fig.suptitle('Resolution of wiggly function sin²(x)+sin(x²)', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'ResolutionWiggly.png'), dpi=150)

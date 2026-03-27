@@ -69,6 +69,7 @@ def run():
     ax3.set_title('L2 error (smaller near ends)', fontsize=10)
     fig.suptitle(f'Error oscillation: interpolation vs. L2 (n={n})', fontsize=12)
     for ax in axes:
+        pass
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'OscError.png'), dpi=150)
     plt.close(fig)

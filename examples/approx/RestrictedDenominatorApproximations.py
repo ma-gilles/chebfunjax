@@ -72,6 +72,7 @@ def run():
     ax2.legend(fontsize=8)
 
     for ax in axes:
+        pass
     fig.suptitle('Restricted-denominator rational approximations', fontsize=12)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'RestrictedDenominatorApproximations.png'), dpi=150)
