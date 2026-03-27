@@ -107,6 +107,9 @@ print(f"Coarse rank: {f_coarse.rank}")
 print(f"Fine rank:   {f_fine.rank}")
 ```
 
+![](../images/guide/guide18_06.png)
+
+
 ## 18.4 Custom Domains
 
 Specify a 6-tuple `(xa, xb, ya, yb, za, zb)` to use a non-default domain:

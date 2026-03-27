@@ -21,6 +21,9 @@ pts = chebpts(10)
 print(pts)
 ```
 
+![](../images/guide/guide04_04.png)
+
+
 A chebfun of length $n$ is the unique polynomial of degree $\leq n-1$ that
 interpolates the function values at these $n$ Chebyshev points.  Equivalently,
 it is a truncated Chebyshev series:
@@ -42,6 +45,9 @@ print(f"Number of coefficients: {len(c)}")
 for k in range(min(8, len(c))):
     print(f"  c[{k}] = {float(c[k]):.15e}")
 ```
+
+![](../images/guide/guide04_05.png)
+
 
 For the exponential function on $[-1, 1]$, the Chebyshev coefficients are
 related to modified Bessel functions: $c_k = 2 I_k(1)$ for $k \geq 1$ (and
@@ -81,6 +87,9 @@ T5 = cj.Chebfun.from_coeffs(T5_coeffs)
 print(float(T5(0.5)))  # T_5(0.5) = cos(5 * arccos(0.5))
 ```
 
+![](../images/guide/guide04_06.png)
+
+
 The Chebyshev polynomials satisfy the three-term recurrence
 
 $$T_0(x) = 1, \quad T_1(x) = x, \quad T_{k+1}(x) = 2x\,T_k(x) - T_{k-1}(x),$$
@@ -115,6 +124,9 @@ for n in [10, 20, 40, 80]:
     print(f"  degree {n:3d}: ||f - p_n||_inf = {float(err):.6e}")
 ```
 
+![](../images/guide/guide04_07.png)
+
+
 ### Theorem 2: Algebraic convergence for smooth functions
 
 *If $f$ has $k$ continuous derivatives with the $k$-th derivative of bounded
@@ -131,6 +143,9 @@ for n in [10, 20, 40, 80, 160]:
     # Approximate the error by looking at the tail of the Chebyshev series
     print(f"  n = {n:4d}: last |coeff| = {float(jnp.abs(fn.coeffs[-1])):.6e}")
 ```
+
+![](../images/guide/guide04_08.png)
+
 
 ### Theorem 3: Geometric convergence for analytic functions
 
@@ -153,6 +168,9 @@ for k in range(len(c)):
 # Note: the coefficients decay faster than any geometric rate
 ```
 
+![](../images/guide/guide04_09.png)
+
+
 The Runge function $1/(1 + 25x^2)$ has poles at $x = \pm i/5$ in the complex
 plane.  The Bernstein ellipse that avoids these poles has
 $\rho = 1/5 + \sqrt{1 + 1/25} \approx 1.2099$, so the Chebyshev interpolant
@@ -164,6 +182,9 @@ c = f.coeffs
 print(f"Length of Runge chebfun: {len(c)}")
 # The coefficients decay at rate ~1.21^{-k}
 ```
+
+![](../images/guide/guide04_10.png)
+
 
 ### Theorem 4: Barycentric interpolation formula
 
@@ -205,6 +226,9 @@ for n in [21, 51, 101]:
     # The overshoot converges to 2/pi * integral of sin(t)/t from 0 to pi
     # = 1.17898... (about 18% above 1, or 9% of the jump)
 ```
+
+![](../images/guide/guide04_11.png)
+
 
 The remedy for the Gibbs phenomenon is to use *piecewise* polynomial
 representations, which is exactly what chebfunjax does with breakpoints.  The
@@ -273,6 +297,9 @@ for n in [5, 10, 20, 40]:
     print(f"  n = {n:3d}: Chebyshev Lambda = {L_cheb:.4f}")
 ```
 
+![](../images/guide/guide04_12.png)
+
+
 ## 4.8 Polynomial Fitting: polyfit
 
 The `polyfit` method computes the best $L^2$ polynomial approximation of a
@@ -290,6 +317,9 @@ print(f"Degree-5 fit length: {len(f5)}")
 err = (f - f5).norm(jnp.inf)
 print(f"Max error of degree-5 fit: {float(err):.6e}")
 ```
+
+![](../images/guide/guide04_15.png)
+
 
 Because the Chebyshev polynomials are orthogonal on $[-1, 1]$ (with respect
 to the weight $1/\sqrt{1-x^2}$), truncation of the Chebyshev series gives an
@@ -312,17 +342,26 @@ y_data = jnp.sin(5 * x_data)
 f = cj.Chebfun.interp1(x_data, y_data)
 ```
 
+![](../images/guide/guide04_16.png)
+
+
 Or for cubic spline interpolation:
 
 ```python
 f_spline = cj.Chebfun.spline(x_data, y_data)
 ```
 
+![](../images/guide/guide04_17.png)
+
+
 And for shape-preserving piecewise cubic Hermite interpolation:
 
 ```python
 f_pchip = cj.Chebfun.pchip(x_data, y_data)
 ```
+
+![](../images/guide/guide04_18.png)
+
 
 ## 4.10 From Chebyshev to Legendre and Back
 
@@ -341,6 +380,9 @@ print("Chebyshev points:", cheb_pts)
 print("Legendre points: ", leg_pts)
 print("Legendre weights:", leg_wts)
 ```
+
+![](../images/guide/guide04_19.png)
+
 
 ## 4.11 Historical Notes
 

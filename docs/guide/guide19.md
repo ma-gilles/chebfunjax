@@ -99,6 +99,9 @@ op = SpinOp(
 x, t, u = spin(op, N=512, dt=5e-3)
 ```
 
+![](../images/guide/guide19_03.png)
+
+
 The key parameters of `SpinOp`:
 
 - **`lin_coeff`**: A function of the wavenumber array `k` that returns the diagonal of the linear operator in Fourier space. For example, $\nu \partial^2/\partial x^2$ has eigenvalues $\nu (ik)^2 = -\nu k^2$.
@@ -117,6 +120,9 @@ By default, the 2/3-rule dealiasing is applied at each step (zeroing the top thi
 x, t, u = spin('KdV', N=512, dt=3e-6, dealias=False)
 ```
 
+![](../images/guide/guide19_04.png)
+
+
 ### Verbose output
 
 Set `verbose=True` to print progress every 10% of the integration:
@@ -124,6 +130,9 @@ Set `verbose=True` to print progress every 10% of the integration:
 ```python
 x, t, u = spin('KS', N=256, dt=1e-2, verbose=True)
 ```
+
+![](../images/guide/guide19_05.png)
+
 
 ## 19.3 The ETDRK4 Scheme
 
@@ -157,6 +166,9 @@ xx, yy, t, u = spin2('GL', N=64, dt=5e-3)
 print(f"Grid shape: {xx.shape}")
 print(f"Final time: {t}")
 ```
+
+![](../images/guide/guide19_06.png)
+
 
 Available built-in 2D PDEs:
 

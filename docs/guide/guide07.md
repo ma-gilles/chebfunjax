@@ -29,6 +29,9 @@ The building blocks for operators live in `chebfunjax.operators.blocks`:
 from chebfunjax.operators.blocks import D, I, diag, eval_at, sum_functional
 ```
 
+![](../images/guide/guide07_05.png)
+
+
 ### The Differentiation Operator `D`
 
 The function `D(domain, order)` returns an `OperatorBlock` for differentiation:
@@ -45,6 +48,9 @@ import jax.numpy as jnp
 D_pi = D(domain=(0.0, float(jnp.pi)))
 ```
 
+![](../images/guide/guide07_07.png)
+
+
 ### The Identity Operator `I`
 
 `I(domain)` returns the identity operator (its matrix is the identity):
@@ -52,6 +58,9 @@ D_pi = D(domain=(0.0, float(jnp.pi)))
 ```python
 Id = I()
 ```
+
+![](../images/guide/guide07_09.png)
+
 
 ### Multiplication Operator `diag`
 
@@ -63,6 +72,9 @@ import chebfunjax as cj
 x = cj.chebfun(lambda t: t)
 M = diag(x)   # multiplication by x
 ```
+
+![](../images/guide/guide07_10.png)
+
 
 ### Operator Algebra
 
@@ -76,6 +88,9 @@ L_op = D(order=2) + diag(x)
 L_op2 = 0.001 * D(order=2) - I()
 ```
 
+![](../images/guide/guide07_11.png)
+
+
 ### Evaluation Functionals
 
 `eval_at(x, domain)` returns a `FunctionalBlock` for point evaluation $u(x)$:
@@ -88,6 +103,9 @@ E_left = eval_at(-1.0)
 E_right = eval_at(1.0)
 ```
 
+![](../images/guide/guide07_12.png)
+
+
 ### Integral Functional
 
 `sum_functional(domain)` returns the definite integral functional $\int_a^b u(x)\,dx$:
@@ -95,6 +113,9 @@ E_right = eval_at(1.0)
 ```python
 S = sum_functional()
 ```
+
+![](../images/guide/guide07_16.png)
+
 
 ## 7.4 Solving BVPs with `Linop`
 
@@ -133,6 +154,9 @@ u_fixed = L.solve(lambda x: -jnp.ones_like(x), n=32)
 u_adaptive = L.solve(lambda x: -jnp.ones_like(x), tol=1e-12)
 ```
 
+![](../images/guide/guide07_17.png)
+
+
 ### Variable Coefficients
 
 Operators with variable coefficients are built by combining `D`, `I`, and `diag`:
@@ -166,6 +190,9 @@ residual = u.diff(2) + x**3 * u - 1.0
 print(f"Residual norm: {float(residual.norm()):.2e}")
 ```
 
+![](../images/guide/guide07_18.png)
+
+
 ## 7.5 Solving BVPs with `Chebop`
 
 The `Chebop` class provides a higher-level interface. The operator is specified as a Python callable taking `(x, u)` arguments, where `x` is the identity chebfun and `u` is the unknown:
@@ -197,6 +224,9 @@ N2.lbc = 0.0
 N2.rbc = lambda u: u.diff()
 u2 = N2.solve(-1.0)
 ```
+
+![](../images/guide/guide07_19.png)
+
 
 ### The Convenience Function `bvp`
 
