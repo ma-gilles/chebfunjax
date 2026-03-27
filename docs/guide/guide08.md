@@ -14,6 +14,9 @@ from chebfunjax.pref import pref
 print(pref)
 ```
 
+![](../images/guide/guide08_02.png)
+
+
 This displays all current settings:
 
 ```
@@ -26,11 +29,17 @@ ChebPreferences(
 )
 ```
 
+![](../images/guide/guide08_03.png)
+
+
 To reset all preferences to their factory defaults:
 
 ```python
 pref.reset()
 ```
+
+![](../images/guide/guide08_04.png)
+
 
 ## 8.2 `eps`: Construction Tolerance
 
@@ -40,6 +49,9 @@ The `eps` preference controls the tolerance used during adaptive chebfun constru
 print(f"eps = {pref.eps}")
 # eps = 2.220446049250313e-16
 ```
+
+![](../images/guide/guide08_05.png)
+
 
 The adaptive constructor builds Chebyshev interpolants of increasing degree (17, 33, 65, 129, ...) until the tail of the Chebyshev coefficient series decays below `eps` relative to the function's vertical scale (`vscale`). The "standardChop" algorithm (Aurentz & Trefethen 2017) determines the cutoff.
 
@@ -74,6 +86,9 @@ with pref.context(eps=1e-6):
 print(f"eps after context: {pref.eps}")  # back to machine epsilon
 ```
 
+![](../images/guide/guide08_08.png)
+
+
 ## 8.3 `max_length`: Maximum Representation Length
 
 The `max_length` preference sets the upper limit on the number of Chebyshev points used in the adaptive construction. The factory default is $2^{16} + 1 = 65537$:
@@ -81,6 +96,9 @@ The `max_length` preference sets the upper limit on the number of Chebyshev poin
 ```python
 print(f"max_length = {pref.max_length}")
 ```
+
+![](../images/guide/guide08_09.png)
+
 
 If a function cannot be resolved to the requested tolerance within `max_length` points, the constructor issues a warning and returns the best approximation it found.
 
@@ -108,6 +126,9 @@ with pref.context(max_length=200000):
     f = cj.chebfun(lambda x: 1.0 / (1.0 + 1e8 * x**2))
     print(f"Length: {len(f)}")
 ```
+
+![](../images/guide/guide08_10.png)
+
 
 ### Fixed-Length Construction
 

@@ -28,6 +28,9 @@ x_part = cj.cos(t)   # real part
 y_part = cj.sin(t)   # imaginary part
 ```
 
+![](../images/guide/guide05_07.png)
+
+
 To plot such a curve, evaluate both parts and use matplotlib:
 
 ```python
@@ -62,6 +65,9 @@ arc_length = float(speed.sum())
 print(f"Arc length of semicircle: {arc_length:.15f}")
 print(f"Expected (pi):            {float(jnp.pi):.15f}")
 ```
+
+![](../images/guide/guide05_08.png)
+
 
 ### Spirals and other curves
 
@@ -105,6 +111,9 @@ L = float(speed.sum())
 print(f"Arc length of sin(x) over [0, 2*pi]: {L:.10f}")
 # This is a complete elliptic integral -- approximately 7.6404...
 ```
+
+![](../images/guide/guide05_09.png)
+
 
 ## 5.2 Analytic Functions and Conformal Maps
 
@@ -243,6 +252,9 @@ print(f"Integral of z^2 around unit circle: {I_re:.2e} + {I_im:.2e}i")
 # Should be 0 + 0i (Cauchy's theorem)
 ```
 
+![](../images/guide/guide05_10.png)
+
+
 ### The residue theorem
 
 For a function with a pole inside the contour, the integral equals $2\pi i$
@@ -265,6 +277,9 @@ print(f"Integral of 1/z around unit circle: {I_re:.6f} + {I_im:.6f}i")
 print(f"Expected: 0 + {2 * float(jnp.pi):.6f}i")
 # Should be 2*pi*i (residue = 1)
 ```
+
+![](../images/guide/guide05_11.png)
+
 
 ### Higher-order poles and the Cauchy integral formula
 
@@ -298,6 +313,9 @@ print(f"Expected:             0.000000 + {2*float(jnp.pi):.6f}i")
 result = I_im / (2 * float(jnp.pi))
 print(f"exp(0) via Cauchy formula: {result:.15f}")
 ```
+
+![](../images/guide/guide05_12.png)
+
 
 ## 5.4 Winding Numbers and the Argument Principle
 
@@ -365,6 +383,9 @@ print(f"Number of zeros of sin(z)^3 + cos(z)^3 in |z| < 2: {float(N):.1f}")
 # Should be 3
 ```
 
+![](../images/guide/guide05_13.png)
+
+
 ## 5.5 Contour Integrals for Computing Special Quantities
 
 ### Bernoulli numbers via contour integration
@@ -409,6 +430,9 @@ B10 = bernoulli_via_contour(10, R=1.0)
 print(f"B_10 via contour integration: {B10:.15f}")
 print(f"B_10 exact (5/66):            {5/66:.15f}")
 ```
+
+![](../images/guide/guide05_14.png)
+
 
 ## 5.6 Parametric Curves and Their Properties
 
@@ -465,6 +489,9 @@ area = float(area_integrand.sum()) / 2
 print(f"Area of ellipse (a=2, b=1): {abs(area):.15f}")
 print(f"Expected (pi*a*b = 2*pi):   {2*float(jnp.pi):.15f}")
 ```
+
+![](../images/guide/guide05_15.png)
+
 
 ## 5.7 Complex Arithmetic with Chebfun Pairs
 
