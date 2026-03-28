@@ -528,6 +528,29 @@ class Chebfun2v(eqx.Module):
         return float(total**0.5)
 
     # ------------------------------------------------------------------
+    # Plotting
+    # ------------------------------------------------------------------
+
+    def plot(self, **kwargs):
+        """Plot this Chebfun2v: quiver for 2-component, surface for 3-component."""
+        if len(self.components) == 3:
+            from chebfunjax.plotting import surf_chebfun2v
+            return surf_chebfun2v(self, **kwargs)
+        else:
+            from chebfunjax.plotting import quiver_2d
+            return quiver_2d(self, **kwargs)
+
+    def surf(self, **kwargs):
+        """Parametric surface plot (3-component Chebfun2v only)."""
+        from chebfunjax.plotting import surf_chebfun2v
+        return surf_chebfun2v(self, **kwargs)
+
+    def quiver(self, **kwargs):
+        """2D quiver plot of the vector field."""
+        from chebfunjax.plotting import quiver_2d
+        return quiver_2d(self, **kwargs)
+
+    # ------------------------------------------------------------------
     # Representation
     # ------------------------------------------------------------------
 

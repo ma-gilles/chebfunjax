@@ -581,10 +581,20 @@ class Chebfun2(eqx.Module):
         from chebfunjax.plotting import surf
         return surf(self, **kwargs)
 
+    def surf(self, **kwargs):
+        """Surface plot of this Chebfun2 (calls :func:`chebfunjax.plotting.surf`)."""
+        from chebfunjax.plotting import surf
+        return surf(self, **kwargs)
+
     def contour(self, **kwargs):
         """Contour plot of this Chebfun2 (calls :func:`chebfunjax.plotting.contour`)."""
         from chebfunjax.plotting import contour
         return contour(self, **kwargs)
+
+    def quiver(self, g2=None, **kwargs):
+        """Quiver plot of gradient field (calls :func:`chebfunjax.plotting.quiver_2d`)."""
+        from chebfunjax.plotting import quiver_2d
+        return quiver_2d(self, g2, **kwargs)
 
     # ------------------------------------------------------------------
     # Representation

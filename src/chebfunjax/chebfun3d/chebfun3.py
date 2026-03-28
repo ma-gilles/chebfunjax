@@ -1066,6 +1066,20 @@ class Chebfun3(eqx.Module):
         return (len(self.cols), len(self.rows), len(self.tubes))
 
     # ------------------------------------------------------------------
+    # Plotting
+    # ------------------------------------------------------------------
+
+    def plot(self, **kwargs):
+        """Plot boundary face slices of this Chebfun3 (calls :func:`chebfunjax.plotting.plot_chebfun3`)."""
+        from chebfunjax.plotting import plot_chebfun3
+        return plot_chebfun3(self, **kwargs)
+
+    def surf(self, **kwargs):
+        """Cross-section surfaces of this Chebfun3 (calls :func:`chebfunjax.plotting.surf_chebfun3`)."""
+        from chebfunjax.plotting import surf_chebfun3
+        return surf_chebfun3(self, **kwargs)
+
+    # ------------------------------------------------------------------
     # Representation
     # ------------------------------------------------------------------
 

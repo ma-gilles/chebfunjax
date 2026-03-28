@@ -1008,6 +1008,16 @@ class Diskfun(eqx.Module):
         from chebfunjax.plotting import plot_disk
         return plot_disk(self, **kwargs)
 
+    def surf(self, **kwargs):
+        """3D surface plot on the disk (calls :func:`chebfunjax.plotting.surf_disk`)."""
+        from chebfunjax.plotting import surf_disk
+        return surf_disk(self, **kwargs)
+
+    def contour(self, **kwargs):
+        """Contour plot on the disk (calls :func:`chebfunjax.plotting.contour_disk`)."""
+        from chebfunjax.plotting import contour_disk
+        return contour_disk(self, **kwargs)
+
     def __repr__(self) -> str:
         """Compact display.
 

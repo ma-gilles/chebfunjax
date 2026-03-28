@@ -178,6 +178,20 @@ class Diskfunv(eqx.Module):
         return self.__add__(other.__neg__())
 
     # ------------------------------------------------------------------
+    # Plotting
+    # ------------------------------------------------------------------
+
+    def plot(self, **kwargs):
+        """Quiver plot on the disk (calls :func:`chebfunjax.plotting.quiver_disk`)."""
+        from chebfunjax.plotting import quiver_disk
+        return quiver_disk(self, **kwargs)
+
+    def quiver(self, **kwargs):
+        """Quiver plot on the disk (calls :func:`chebfunjax.plotting.quiver_disk`)."""
+        from chebfunjax.plotting import quiver_disk
+        return quiver_disk(self, **kwargs)
+
+    # ------------------------------------------------------------------
     # Repr
     # ------------------------------------------------------------------
 

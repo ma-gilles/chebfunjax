@@ -237,6 +237,20 @@ class Ballfunv(eqx.Module):
         return self.__add__(other.__neg__())
 
     # ------------------------------------------------------------------
+    # Plotting
+    # ------------------------------------------------------------------
+
+    def plot(self, **kwargs):
+        """Quiver plot inside the ball (calls :func:`chebfunjax.plotting.quiver_ball`)."""
+        from chebfunjax.plotting import quiver_ball
+        return quiver_ball(self, **kwargs)
+
+    def quiver(self, **kwargs):
+        """Quiver plot inside the ball (calls :func:`chebfunjax.plotting.quiver_ball`)."""
+        from chebfunjax.plotting import quiver_ball
+        return quiver_ball(self, **kwargs)
+
+    # ------------------------------------------------------------------
     # Repr
     # ------------------------------------------------------------------
 
