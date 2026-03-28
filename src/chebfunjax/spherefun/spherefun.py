@@ -982,6 +982,16 @@ class Spherefun(eqx.Module):
         from chebfunjax.plotting import plot_sphere
         return plot_sphere(self, **kwargs)
 
+    def surf(self, **kwargs):
+        """Surface plot on the sphere (calls :func:`chebfunjax.plotting.plot_sphere`)."""
+        from chebfunjax.plotting import plot_sphere
+        return plot_sphere(self, **kwargs)
+
+    def contour(self, **kwargs):
+        """Contour plot on the sphere (calls :func:`chebfunjax.plotting.contour_sphere`)."""
+        from chebfunjax.plotting import contour_sphere
+        return contour_sphere(self, **kwargs)
+
     def __repr__(self) -> str:
         """Compact display.
 

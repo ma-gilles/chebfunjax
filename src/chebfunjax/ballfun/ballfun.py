@@ -1468,6 +1468,11 @@ class Ballfun(eqx.Module):
         fig.tight_layout(pad=0.5)
         return fig, ax
 
+    def surf(self, **kwargs):
+        """Surface/slice plot of this Ballfun (calls :func:`chebfunjax.plotting.plot_ball_slices`)."""
+        from chebfunjax.plotting import plot_ball_slices
+        return plot_ball_slices(self, **kwargs)
+
     def isosurface(self, levels=None, **kwargs):
         """Isosurface plot of this Ballfun (calls :func:`chebfunjax.plotting.isosurface_ball`)."""
         from chebfunjax.plotting import isosurface_ball
