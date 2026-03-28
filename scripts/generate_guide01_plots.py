@@ -54,20 +54,13 @@ try:
     plot_idx += 1
     print(f"Plot {plot_idx}: cos(20x) with Chebyshev points")
     f = cj.chebfun(lambda x: jnp.cos(20 * x))
-    fig, ax = plt.subplots(figsize=(6, 3.5))
-    # Plot the smooth curve
-    xs = np.linspace(-1, 1, 600)
-    ys = np.array(f(jnp.array(xs)))
-    ax.plot(xs, ys, '-', color='#2855A0', linewidth=1.8)
-    # Plot Chebyshev points
+    fig, ax = f.plot()
+    # Overlay Chebyshev points
     n = len(f)
     cheb_pts = -np.cos(np.pi * np.arange(n) / (n - 1))
     cheb_vals = np.array(f(jnp.array(cheb_pts)))
-    ax.plot(cheb_pts, cheb_vals, '.', color='#2855A0', markersize=6)
+    ax.plot(cheb_pts, cheb_vals, '.', color='#0072BD', markersize=6)
     ax.set_ylim(-1.2, 1.2)
-    ax.set_xlabel('x')
-    fig.set_facecolor('white')
-    fig.tight_layout()
     save(fig, plot_idx)
 except Exception as e:
     print(f"  guide01_{plot_idx:02d}.png FAILED: {e}")

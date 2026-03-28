@@ -123,20 +123,8 @@ except Exception:
 try:
     ff = lambda x, y: jnp.exp(-40*(x**2 - x*y + 2*y**2 - 0.5)**2)
     f = chebfun2(ff)
-    levels = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-    fig, ax = plt.subplots(figsize=(5.5, 5))
-    xs = np.linspace(-1, 1, 200)
-    ys = np.linspace(-1, 1, 200)
-    XX, YY = np.meshgrid(xs, ys)
-    xflat = jnp.array(XX.ravel())
-    yflat = jnp.array(YY.ravel())
-    ZZ = np.array(f(xflat, yflat)).reshape(200, 200)
-    cs = ax.contour(XX, YY, ZZ, levels=levels, colors='k', linewidths=1.0)
-    ax.set_xlim(-1, 1)
-    ax.set_ylim(-1, 1)
-    ax.set_aspect('equal')
-    ax.set_title(f'rank {f.rank}', fontsize=12)
-    fig.tight_layout()
+    fig, ax = contour(f, title=f'rank {f.rank}', filled=False,
+                      levels=[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])
     save(fig, "Smoke ring contour")
 except Exception:
     traceback.print_exc()

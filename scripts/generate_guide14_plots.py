@@ -193,18 +193,12 @@ try:
                 + jnp.sin(70*jnp.sin(x)) + jnp.sin(jnp.sin(80*y))
                 - jnp.sin(10*(x+y)) + (x**2 + y**2)/4)
     f_ch = chebfun2(challenge_fn)
+    fig, ax = contour(f_ch, title='SIAM 100-Digit Challenge function', levels=30)
+    # Find and mark min on grid
     XX, YY, ZZ = eval_on_grid(f_ch, -1, 1, -1, 1, n=400)
     idx_min = np.unravel_index(np.argmin(ZZ), ZZ.shape)
     minpos = (XX[0, idx_min[1]], YY[idx_min[0], 0])
-
-    fig, ax = plt.subplots(figsize=(5.5, 5))
-    cs = ax.contourf(XX, YY, ZZ, levels=30, cmap='viridis')
-    ax.contour(XX, YY, ZZ, levels=30, colors='k', linewidths=0.3, alpha=0.5)
-    plt.colorbar(cs, ax=ax, fraction=0.046, pad=0.04)
     ax.plot(minpos[0], minpos[1], 'ok', markersize=12)
-    ax.set_aspect('equal')
-    ax.set_title('SIAM 100-Digit Challenge function', fontsize=10)
-    fig.tight_layout()
     save(fig, "Challenge function contour")
 except Exception:
     traceback.print_exc()
