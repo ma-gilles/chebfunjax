@@ -14,7 +14,9 @@ import traceback
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 import jax.numpy as jnp
-from chebfunjax.plotting import chebfun_style, surf, contour, CHEBFUN_BLUE
+from chebfunjax.plotting import (
+    chebfun_style, surf, contour, CHEBFUN_BLUE, PARULA, _setup_3d_axes,
+)
 from chebfunjax.chebfun2d import chebfun2
 from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
 
@@ -53,11 +55,12 @@ try:
     XX, YY = np.meshgrid(xs, ys)
     ZZ = np.array(dot_fg(jnp.array(XX.ravel()), jnp.array(YY.ravel()))).reshape(n, n)
     fig, ax = plt.subplots(figsize=(5, 5))
-    ax.contour(XX, YY, ZZ, levels=[0.0], colors='b', linewidths=1.5)
+    ax.contour(XX, YY, ZZ, levels=[0.0], colors=CHEBFUN_BLUE, linewidths=1.5)
     ax.set_xlim(d[0], d[1])
     ax.set_ylim(d[2], d[3])
     ax.set_aspect('equal')
     ax.set_title(r'$\mathbf{F}\cdot\mathbf{G} = 0$: orthogonality curve', fontsize=10)
+    fig.set_facecolor('white')
     fig.tight_layout()
     save(fig, "dot(F,G)=0 orthogonality curve")
 except Exception:
@@ -66,26 +69,24 @@ except Exception:
 
 # ---- Plot 2: 15.3 - Gradient critical points (sum of Gaussian bumps) ----
 try:
-    # Reproducible random bumps
-    rng = np.random.RandomState(0)  # MATLAB rng('default') -> seed 0
+    rng = np.random.RandomState(0)
     bump_centers = []
-    f_bump = chebfun2(lambda x, y: jnp.zeros_like(x))
     for k in range(10):
         x0 = 2*rng.rand() - 1
         y0 = 2*rng.rand() - 1
         bump_centers.append((x0, y0))
-    # Build the sum as a single lambda
+
     def bump_sum(x, y):
         result = jnp.zeros_like(x)
         for x0, y0 in bump_centers:
             result = result + jnp.exp(-10*((x - x0)**2 + (y - y0)**2))
         return result
-    f_bump = chebfun2(bump_sum)
 
-    # Find critical points: where gradient = 0
+    f_bump = chebfun2(bump_sum)
     fx = f_bump.diff(dim=2)
     fy = f_bump.diff(dim=1)
-    n = 400
+
+    n = 200
     xs = np.linspace(-1, 1, n)
     ys = np.linspace(-1, 1, n)
     XX, YY = np.meshgrid(xs, ys)
@@ -99,9 +100,9 @@ try:
     crit_x = XX[mask]
     crit_y = YY[mask]
 
-    fig = plt.figure(figsize=(6, 5))
-    ax = fig.add_subplot(111, projection='3d')
-    ax.plot_surface(XX, YY, ZZ, cmap='RdPu', linewidth=0, antialiased=True, alpha=0.85)
+    fig, ax = _setup_3d_axes(None, None, elev=30, azim=-50, figsize=(6.1, 5.0))
+    ax.plot_surface(XX, YY, ZZ, cmap=PARULA, linewidth=0,
+                    antialiased=True, alpha=0.85, shade=True)
 
     if len(crit_x) > 0:
         from scipy.cluster.hierarchy import fclusterdata
@@ -116,9 +117,7 @@ try:
                 ax.scatter([cx], [cy], [cz], c='k', s=60, zorder=5)
 
     ax.set_zlim(0, 4)
-    ax.set_title('Sum of Gaussian bumps with critical points', fontsize=10)
-    fig.set_facecolor("white")
-    fig.tight_layout()
+    ax.set_title('Sum of Gaussian bumps with critical points', fontsize=10, pad=0)
     save(fig, "Gradient critical points")
 except Exception:
     traceback.print_exc()
@@ -127,29 +126,22 @@ except Exception:
 # ---- Plot 3: 15.4 - Line integral (gradient theorem) ----
 try:
     f = chebfun2(lambda x, y: jnp.cos(10*x*y**2) + jnp.exp(-x**2))
-    # Gradient field
-    fx = f.diff(dim=2)
-    fy = f.diff(dim=1)
     # Curve C = t*exp(10it), t in [0,1]
     t = np.linspace(0, 1, 500)
     cx = t * np.cos(10*t)
     cy = t * np.sin(10*t)
-    # Evaluate f on curve
     cz = np.array([float(f(jnp.float64(xi), jnp.float64(yi))) for xi, yi in zip(cx, cy)])
 
-    fig = plt.figure(figsize=(6, 5))
-    ax = fig.add_subplot(111, projection='3d')
-    # Surface
+    fig, ax = _setup_3d_axes(None, None, elev=25, azim=-50, figsize=(6.1, 5.0))
     n = 80
     xs = np.linspace(-1, 1, n)
     ys = np.linspace(-1, 1, n)
     XX, YY = np.meshgrid(xs, ys)
     ZZ = np.array(f(jnp.array(XX.ravel()), jnp.array(YY.ravel()))).reshape(n, n)
-    ax.plot_surface(XX, YY, ZZ, cmap='RdBu_r', linewidth=0, antialiased=True, alpha=0.6)
+    ax.plot_surface(XX, YY, ZZ, cmap=PARULA, linewidth=0,
+                    antialiased=True, alpha=0.6, shade=True)
     ax.plot3D(cx, cy, cz, 'k-', linewidth=2)
-    ax.set_title(r'$f$ and $F=\nabla f$ along $C$', fontsize=10)
-    fig.set_facecolor("white")
-    fig.tight_layout()
+    ax.set_title(r'$f$ and $F=\nabla f$ along $C$', fontsize=10, pad=0)
     save(fig, "Line integral / gradient theorem")
 except Exception:
     traceback.print_exc()
@@ -160,7 +152,6 @@ try:
     delta = 0.04
     a = 1
     b = -0.75
-    # Vector field: dx/dt = y, dy/dt = -d*y - b*x - a*x^3
     n_quiv = 20
     xs = np.linspace(-2, 2, n_quiv)
     ys = np.linspace(-2, 2, n_quiv)
@@ -169,9 +160,9 @@ try:
     VV = -delta*YY - b*XX - a*XX**3
 
     fig, ax = plt.subplots(figsize=(6, 5))
-    ax.quiver(XX, YY, UU, VV, color='b', alpha=0.6, scale=40)
+    ax.quiver(XX, YY, UU, VV, color=CHEBFUN_BLUE, alpha=0.6, scale=40)
 
-    # Solve ODE trajectory: use simple Euler method
+    # Solve ODE trajectory with simple Euler method
     dt = 0.01
     n_steps = 4000
     trajectory_x = [0.0]
@@ -187,6 +178,7 @@ try:
     ax.set_ylim(-2, 2)
     ax.set_aspect('equal')
     ax.set_title('The Duffing oscillator', fontsize=11)
+    fig.set_facecolor('white')
     fig.tight_layout()
     save(fig, "Duffing oscillator")
 except Exception:
@@ -202,14 +194,18 @@ try:
     XX = np.sin(TH) * np.cos(PHI)
     YY = np.sin(TH) * np.sin(PHI)
     ZZ = np.cos(TH)
+    # Colour by z-coordinate (like MATLAB default)
+    from matplotlib.colors import Normalize
+    norm = Normalize(vmin=-1, vmax=1)
+    fcolors = PARULA(norm(ZZ))
 
-    fig = plt.figure(figsize=(6, 5))
-    ax = fig.add_subplot(111, projection='3d')
-    ax.plot_surface(XX, YY, ZZ, cmap='viridis', linewidth=0, antialiased=True, alpha=0.9)
-    ax.set_title('Unit sphere', fontsize=11)
-    ax.set_aspect('equal')
-    fig.set_facecolor("white")
-    fig.tight_layout()
+    fig, ax = _setup_3d_axes(None, None, elev=20, azim=-30, figsize=(6.1, 5.0))
+    ax.plot_surface(XX, YY, ZZ, facecolors=fcolors, linewidth=0,
+                    antialiased=True, alpha=0.9, shade=False)
+    ax.set_title('Unit sphere', fontsize=11, pad=0)
+    ax.set_xlim(-1.05, 1.05)
+    ax.set_ylim(-1.05, 1.05)
+    ax.set_zlim(-1.05, 1.05)
     save(fig, "Unit sphere")
 except Exception:
     traceback.print_exc()
@@ -224,13 +220,14 @@ try:
     TH, ZZ = np.meshgrid(th, z)
     XX = np.cos(TH)
     YY = np.sin(TH)
+    # Colour by height
+    norm = Normalize(vmin=0, vmax=h)
+    fcolors = PARULA(norm(ZZ))
 
-    fig = plt.figure(figsize=(5, 6))
-    ax = fig.add_subplot(111, projection='3d')
-    ax.plot_surface(XX, YY, ZZ, cmap='plasma', linewidth=0, antialiased=True, alpha=0.9)
-    ax.set_title('Cylinder', fontsize=11)
-    fig.set_facecolor("white")
-    fig.tight_layout()
+    fig, ax = _setup_3d_axes(None, None, elev=20, azim=-30, figsize=(5.5, 5.5))
+    ax.plot_surface(XX, YY, ZZ, facecolors=fcolors, linewidth=0,
+                    antialiased=True, alpha=0.9, shade=False)
+    ax.set_title('Cylinder', fontsize=11, pad=0)
     save(fig, "Cylinder")
 except Exception:
     traceback.print_exc()
@@ -247,16 +244,17 @@ try:
     XX = R * np.cos(TH)
     YY = R * np.sin(TH)
     ZZ = T
+    # Colour by height
+    norm = Normalize(vmin=float(ZZ.min()), vmax=float(ZZ.max()))
+    fcolors = PARULA(norm(ZZ))
 
-    fig = plt.figure(figsize=(6, 5))
-    ax = fig.add_subplot(111, projection='3d')
-    ax.plot_surface(XX, YY, ZZ, cmap='viridis', linewidth=0, antialiased=True, alpha=0.9)
+    fig, ax = _setup_3d_axes(None, None, elev=20, azim=-30, figsize=(6.1, 5.0))
+    ax.plot_surface(XX, YY, ZZ, facecolors=fcolors, linewidth=0,
+                    antialiased=True, alpha=0.9, shade=False)
     ax.set_xlim(-70, 70)
     ax.set_ylim(-70, 70)
     ax.set_zlim(-2, 6)
-    ax.set_title('Surface of revolution', fontsize=11)
-    fig.set_facecolor("white")
-    fig.tight_layout()
+    ax.set_title('Surface of revolution', fontsize=11, pad=0)
     save(fig, "Surface of revolution")
 except Exception:
     traceback.print_exc()
@@ -273,14 +271,14 @@ try:
     XX = -(1 + 0.3*np.cos(phi)) * np.sin(theta)
     YY = (1 + 0.3*np.cos(phi)) * np.cos(theta)
     ZZ = 0.3 * np.sin(phi)
+    # Colour by phi (tube angle)
+    norm = Normalize(vmin=float(phi.min()), vmax=float(phi.max()))
+    fcolors = PARULA(norm(phi))
 
-    fig = plt.figure(figsize=(6, 5))
-    ax = fig.add_subplot(111, projection='3d')
-    ax.plot_surface(XX, YY, ZZ, cmap='viridis', linewidth=0, antialiased=True, alpha=0.9)
-    ax.set_aspect('equal')
-    ax.set_title('Torus with gap', fontsize=11)
-    fig.set_facecolor("white")
-    fig.tight_layout()
+    fig, ax = _setup_3d_axes(None, None, elev=20, azim=-40, figsize=(6.1, 5.0))
+    ax.plot_surface(XX, YY, ZZ, facecolors=fcolors, linewidth=0,
+                    antialiased=True, alpha=0.9, shade=False)
+    ax.set_title('Torus with gap', fontsize=11, pad=0)
     save(fig, "Torus with gap")
 except Exception:
     traceback.print_exc()
@@ -298,36 +296,32 @@ try:
     YY = (r1 + r2*np.cos(VV)) * np.cos(UU)
     ZZ = r2 * np.sin(VV)
 
-    # Compute normal vectors via cross product of partial derivatives
-    # dF/du
+    # Compute normal vectors
     dXdu = -(r1 + r2*np.cos(VV)) * np.cos(UU)
     dYdu = -(r1 + r2*np.cos(VV)) * np.sin(UU)
     dZdu = np.zeros_like(UU)
-    # dF/dv
     dXdv = r2*np.sin(VV) * np.sin(UU)
     dYdv = -r2*np.sin(VV) * np.cos(UU)
     dZdv = r2*np.cos(VV)
-    # Normal = dF/du x dF/dv
     Nx = dYdu*dZdv - dZdu*dYdv
     Ny = dZdu*dXdv - dXdu*dZdv
     Nz = dXdu*dYdv - dYdu*dXdv
-    # Normalize
     Nmag = np.sqrt(Nx**2 + Ny**2 + Nz**2)
     Nmag[Nmag == 0] = 1
     Nx /= Nmag; Ny /= Nmag; Nz /= Nmag
 
-    fig = plt.figure(figsize=(7, 5))
-    ax = fig.add_subplot(111, projection='3d')
-    ax.plot_surface(XX, YY, ZZ, cmap='viridis', linewidth=0, antialiased=True, alpha=0.7)
-    # Subsample normals for quiver
+    # Colour by tube angle
+    norm = Normalize(vmin=0, vmax=2*np.pi)
+    fcolors = PARULA(norm(VV))
+
+    fig, ax = _setup_3d_axes(None, None, elev=20, azim=-40, figsize=(7, 5.5))
+    ax.plot_surface(XX, YY, ZZ, facecolors=fcolors, linewidth=0,
+                    antialiased=True, alpha=0.7, shade=False)
     step = 4
     ax.quiver(XX[::step, ::step], YY[::step, ::step], ZZ[::step, ::step],
               Nx[::step, ::step], Ny[::step, ::step], Nz[::step, ::step],
               length=0.15, color='k', linewidth=0.8)
-    ax.set_aspect('equal')
-    ax.set_title('Torus with surface normals', fontsize=11)
-    fig.set_facecolor("white")
-    fig.tight_layout()
+    ax.set_title('Torus with surface normals', fontsize=11, pad=0)
     save(fig, "Torus with normals")
 except Exception:
     traceback.print_exc()
@@ -342,16 +336,15 @@ try:
     XX = (3 + np.cos(UU/2)*np.sin(VV) - np.sin(UU/2)*np.sin(2*VV)) * np.cos(UU)
     YY = (3 + np.cos(UU/2)*np.sin(VV) - np.sin(UU/2)*np.sin(2*VV)) * np.sin(UU)
     ZZ = np.sin(UU/2)*np.sin(VV) + np.cos(UU/2)*np.sin(2*VV)
+    # Colour by u-parameter
+    norm = Normalize(vmin=0, vmax=2*np.pi)
+    fcolors = PARULA(norm(UU))
 
-    fig = plt.figure(figsize=(7, 5))
-    ax = fig.add_subplot(111, projection='3d')
-    ax.plot_surface(XX, YY, ZZ, cmap='hot', linewidth=0.3, edgecolors='k',
-                    antialiased=True, alpha=0.6)
-    ax.set_aspect('equal')
+    fig, ax = _setup_3d_axes(None, None, elev=20, azim=-40, figsize=(7, 5.5))
+    ax.plot_surface(XX, YY, ZZ, facecolors=fcolors, linewidth=0,
+                    antialiased=True, alpha=0.8, shade=False)
     ax.axis('off')
-    ax.set_title('Klein Bagel', fontsize=11)
-    fig.set_facecolor("white")
-    fig.tight_layout()
+    ax.set_title('Klein Bagel', fontsize=11, pad=0)
     save(fig, "Klein Bagel")
 except Exception:
     traceback.print_exc()

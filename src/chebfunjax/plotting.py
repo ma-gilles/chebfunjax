@@ -674,23 +674,31 @@ def plot_sphere(
     fs,
     ax=None,
     title: str = "",
-    n_lam: int = 200,
-    n_theta: int = 100,
+    n_pts: int = 200,
     cmap=None,
     **kw,
 ) -> tuple[plt.Figure, Any]:
     """Plot a Spherefun on the unit sphere (MATLAB Chebfun style).
 
-    Renders the sphere surface coloured by function values, with lighting-
-    like smooth shading, parula colormap, and MATLAB's default view angle
-    (elev=8, azim=-36).
+    Faithful translation of @spherefun/surf.m from MATLAB Chebfun.
+
+    The MATLAB code does::
+
+        l = linspace(-pi, pi, 200);
+        t = linspace(0, pi, 200);
+        C = fevalm(f, l, t);  % 200x200 grid
+        [ll, tt] = meshgrid(l, t);
+        [xx,yy,zz] = sph2cart(ll, pi/2 - tt, ones(size(ll)));
+        surf(xx, yy, zz, C, 'facecolor','interp', ...);
+        daspect([1 1 1]);
 
     Parameters
     ----------
     fs : Spherefun
     ax : Axes3D, optional
     title : str
-    n_lam, n_theta : int
+    n_pts : int
+        Grid resolution (default 200, matching MATLAB ``minPlotNum``).
     cmap : colormap, optional (default: parula)
 
     Returns
@@ -698,50 +706,72 @@ def plot_sphere(
     fig, ax
     """
     import jax.numpy as jnp
+    from matplotlib.colors import LightSource, Normalize
 
     if cmap is None:
         cmap = PARULA
 
-    lam = np.linspace(-np.pi, np.pi, n_lam, endpoint=True)
-    theta = np.linspace(0.0, np.pi, n_theta)
-    LAM, THETA = np.meshgrid(lam, theta, indexing="ij")  # (n_lam, n_theta)
+    # --- MATLAB: l = linspace(-pi, pi, 200); t = linspace(0, pi, 200) ---
+    l = np.linspace(-np.pi, np.pi, n_pts)
+    t = np.linspace(0.0, np.pi, n_pts)
 
-    ZZ = np.array(
-        fs(jnp.array(LAM.ravel()), jnp.array(THETA.ravel()))
-    ).reshape(LAM.shape)
+    # --- MATLAB: C = fevalm(f, l, t) ---
+    # fevalm evaluates on the tensor-product grid.
+    # We use pointwise evaluation on the meshgrid.
+    ll, tt = np.meshgrid(l, t)  # both (n_pts, n_pts), MATLAB ordering
+    C = np.array(
+        fs(jnp.array(ll.ravel()), jnp.array(tt.ravel()))
+    ).reshape(ll.shape)
 
-    # Spherical -> Cartesian
-    XX = np.sin(THETA) * np.cos(LAM)
-    YY = np.sin(THETA) * np.sin(LAM)
-    ZZ_cart = np.cos(THETA)
+    # --- MATLAB: correction for near-constant functions ---
+    if np.linalg.norm(C - C[0, 0], ord=np.inf) < 1e-10:
+        C = np.full_like(C, C[0, 0])
 
-    # MATLAB default sphere view: view([-36, 8])
+    # --- MATLAB: [xx,yy,zz] = sph2cart(ll, pi/2 - tt, ones(size(ll))) ---
+    # sph2cart(azimuth, elevation, r):
+    #   x = r * cos(elevation) * cos(azimuth)
+    #   y = r * cos(elevation) * sin(azimuth)
+    #   z = r * sin(elevation)
+    elev = np.pi / 2 - tt
+    xx = np.cos(elev) * np.cos(ll)
+    yy = np.cos(elev) * np.sin(ll)
+    zz = np.sin(elev)
+
+    # --- MATLAB: surf(xx, yy, zz, C, 'facecolor','interp', ...) ---
     fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36,
-                             figsize=(6.1, 2.58))
+                             figsize=(6.1, 5.0))
 
-    # Normalise function values for face colours
-    fmin, fmax = float(ZZ.min()), float(ZZ.max())
-    if fmax > fmin:
-        norm_vals = (ZZ - fmin) / (fmax - fmin)
-    else:
-        norm_vals = np.full_like(ZZ, 0.5)
-
+    # Normalise C for face colours (simulating 'facecolor','interp')
     if isinstance(cmap, str):
         cmap_obj = plt.get_cmap(cmap)
     else:
         cmap_obj = cmap
-    fcolors = cmap_obj(norm_vals)
 
-    ax.plot_surface(XX, YY, ZZ_cart, facecolors=fcolors,
+    fmin, fmax = float(C.min()), float(C.max())
+    if fmax > fmin:
+        norm_vals = (C - fmin) / (fmax - fmin)
+    else:
+        norm_vals = np.full_like(C, 0.5)
+
+    # Apply LightSource shading (simulating MATLAB camlight + lighting phong)
+    ls = LightSource(azdeg=315, altdeg=45)
+    rgb = cmap_obj(norm_vals)[:, :, :3]  # drop alpha
+    shaded = ls.shade_rgb(rgb, zz)
+
+    # Build RGBA facecolors from shaded RGB
+    fcolors = np.ones((*shaded.shape[:2], 4))
+    fcolors[:, :, :3] = shaded
+
+    ax.plot_surface(xx, yy, zz, facecolors=fcolors,
                     rstride=1, cstride=1,
                     linewidth=0, antialiased=True,
                     shade=False, **kw)
 
-    # Tight axis limits
-    ax.set_xlim(-1.05, 1.05)
-    ax.set_ylim(-1.05, 1.05)
-    ax.set_zlim(-1.05, 1.05)
-    _set_unit_ticks(ax, domain=(-1, 1, -1, 1))
+    # --- MATLAB: daspect([1 1 1]) ---
+    ax.set_xlim(-1.0, 1.0)
+    ax.set_ylim(-1.0, 1.0)
+    ax.set_zlim(-1.0, 1.0)
+    ax.set_box_aspect([1, 1, 1])
 
     if title:
         ax.set_title(title, fontsize=10, pad=0)
@@ -1111,6 +1141,216 @@ def isosurface_ball(
     ax.set_xlim(-1.1, 1.1)
     ax.set_ylim(-1.1, 1.1)
     ax.set_zlim(-1.1, 1.1)
+
+    if title:
+        ax.set_title(title, fontsize=10, pad=0)
+    fig.tight_layout(pad=0.5)
+    return fig, ax
+
+
+# ---------------------------------------------------------------------------
+# Ballfun 3-orthogonal-slice plot (MATLAB Chebfun style)
+# ---------------------------------------------------------------------------
+
+
+def plot_ball_slices(
+    bf,
+    ax=None,
+    title: str = "",
+    n_pts: int = 100,
+    cmap=None,
+    alpha: float = 0.95,
+    elev: float = 25,
+    azim: float = -37,
+    **kw,
+) -> tuple[plt.Figure, Any]:
+    """Slice plot of a Ballfun inside the unit ball (MATLAB Chebfun style).
+
+    Faithful translation of ``plotBall`` from @ballfun/plot.m.
+
+    The MATLAB code does::
+
+        % Evaluate on grid in spherical coords
+        [tt, rr, ll] = meshgrid(th, r, lam);
+        % Use slice() to cut at specific r, theta, lambda values
+        hslicer = slice(tt, rr, ll, ff, tslice, rslice, lslice);
+        % Convert each slice surface from spherical to Cartesian
+        for j = 1:numel(hslicer)
+            h = hslicer(j);
+            [xs,ys,zs] = sph2cart(h.ZData, h.XData, h.YData);
+            h = surf(xs, ys, zs, h.CData, 'facecolor','interp', ...);
+        end
+        camlight('headlight'); lighting phong; material dull;
+        axis([-1 1 -1 1 -1 1]); daspect([1 1 1]);
+
+    In MATLAB ``sph2cart(lambda, elevation, r)``, and the slice axes are
+    (theta, r, lambda).  The XData/YData/ZData from the slicer carry the
+    theta/r/lambda coordinates of each surface patch.
+
+    Since Python has no direct ``slice()`` equivalent, we construct the
+    same constant-r, constant-theta, and constant-lambda surfaces
+    analytically and convert from spherical to Cartesian.
+
+    Parameters
+    ----------
+    bf : Ballfun
+        The 3-D function on the unit ball.
+    ax : Axes3D, optional
+    title : str
+    n_pts : int
+        Grid resolution for each slice surface.
+    cmap : colormap, optional (default: parula)
+    alpha : float
+        Surface transparency.
+    elev, azim : float
+        Camera view angles.
+
+    Returns
+    -------
+    fig, ax
+    """
+    import jax
+    import jax.numpy as jnp
+    import matplotlib.colors as mcolors
+    from matplotlib.colors import LightSource
+
+    if cmap is None:
+        cmap = PARULA
+    if isinstance(cmap, str):
+        cmap_obj = plt.get_cmap(cmap)
+    else:
+        cmap_obj = cmap
+
+    # --- Determine grid sizes (matching MATLAB's size-padding logic) ---
+    # MATLAB uses m >= 25, n,p >= 28 and adjusts for divisibility.
+    # We simplify to using n_pts for angular resolution and n_pts//2 for radial.
+    n_r = max(n_pts // 2, 25)
+    n_lam = max(n_pts, 28)
+    n_th = max(n_pts, 28)
+
+    # --- Build 1D spherical coordinate arrays ---
+    # MATLAB: r = chebpts(m), r = r(floor(m/2)+1:end) -> positive half [0, 1]
+    r_full = np.linspace(-1, 1, 2 * n_r)  # simplified; MATLAB uses Chebyshev pts
+    r = r_full[n_r:]  # positive half [0+eps, 1]
+    r[0] = 0.0  # ensure exact zero
+
+    # MATLAB: lam = [pi*trigpts(n); pi], range around [-pi, pi]
+    lam = np.linspace(-np.pi, np.pi, n_lam, endpoint=True)
+
+    # MATLAB: th = th(floor(p/2)+1:end) -> [0, pi]  (colatitude)
+    th = np.linspace(0, np.pi, n_th, endpoint=True)
+
+    # --- Slice positions (matching MATLAB logic) ---
+    # MATLAB: rslice = r closest to 0.5
+    idx_r = np.argmin(np.abs(r - 0.5))
+    rslice = [r[idx_r]]
+    # MATLAB: tslice = th([1, floor(p/4)+1]) -> theta=0, theta~pi/4
+    idx_t2 = max(1, n_th // 4)
+    tslice = [th[0], th[idx_t2]]
+    # MATLAB: lslice = lam([1, floor(n/4)+1]) -> lam~-pi, lam~-pi/2
+    idx_l2 = max(1, n_lam // 4)
+    lslice = [lam[0], lam[idx_l2]]
+
+    # --- Helper: evaluate ballfun on a 2D grid of (r, lam, th) ---
+    def _eval_grid(bf, r_arr, lam_arr, th_arr):
+        """Evaluate bf.fevalm(r_1d, lam_1d, th_1d) and return real values."""
+        r_1d = jnp.array(r_arr)
+        lam_1d = jnp.array(lam_arr)
+        th_1d = jnp.array(th_arr)
+        vals = np.asarray(bf.fevalm(r_1d, lam_1d, th_1d))  # (Nr, Nlam, Nth)
+        if bf.is_real:
+            vals = np.real(vals)
+        return vals
+
+    # --- Evaluate on full 3D grid ---
+    # MATLAB: ff = real(ballfun.coeffs2vals(F)), permuted to (Nr, Nth, Nlam)
+    # fevalm returns (Nr, Nlam, Nth)
+    ff_3d = _eval_grid(bf, r, lam, th)  # shape (Nr, Nlam, Nth)
+
+    # --- Build slice surfaces ---
+    # Each slice is a 2D surface in spherical coordinates, then converted to Cartesian.
+    # MATLAB does sph2cart(lambda, elevation, r) where elevation = pi/2 - theta (colatitude to elevation)
+
+    def _sph2cart(lam_grid, th_grid, r_grid):
+        """Convert spherical (lam, theta_colat, r) to Cartesian, matching MATLAB's sph2cart.
+
+        MATLAB sph2cart(az, el, r): x = r*cos(el)*cos(az), y = r*cos(el)*sin(az), z = r*sin(el)
+        We have colatitude theta, so elevation = pi/2 - theta.
+        """
+        el = np.pi / 2 - th_grid
+        xs = r_grid * np.cos(el) * np.cos(lam_grid)
+        ys = r_grid * np.cos(el) * np.sin(lam_grid)
+        zs = r_grid * np.sin(el)
+        return xs, ys, zs
+
+    slices = []  # list of (xs, ys, zs, cdata) for each slice surface
+
+    # --- Constant-theta slices (tslice) ---
+    # MATLAB: slice along theta dimension -> surface parameterised by (r, lam)
+    for th_val in tslice:
+        th_idx = np.argmin(np.abs(th - th_val))
+        # ff_3d[:, :, th_idx] has shape (Nr, Nlam)
+        cdata = ff_3d[:, :, th_idx]  # (Nr, Nlam)
+        # Build 2D meshgrid for this slice: axes are r and lam
+        R_2d, LAM_2d = np.meshgrid(r, lam, indexing='ij')  # (Nr, Nlam)
+        TH_2d = np.full_like(R_2d, th[th_idx])
+        xs, ys, zs = _sph2cart(LAM_2d, TH_2d, R_2d)
+        slices.append((xs, ys, zs, cdata))
+
+    # --- Constant-r slices (rslice) ---
+    # Surface parameterised by (th, lam)
+    for r_val in rslice:
+        r_idx = np.argmin(np.abs(r - r_val))
+        # ff_3d[r_idx, :, :] has shape (Nlam, Nth)
+        cdata = ff_3d[r_idx, :, :]  # (Nlam, Nth)
+        # Build 2D meshgrid: axes are lam and th
+        LAM_2d, TH_2d = np.meshgrid(lam, th, indexing='ij')  # (Nlam, Nth)
+        R_2d = np.full_like(LAM_2d, r[r_idx])
+        xs, ys, zs = _sph2cart(LAM_2d, TH_2d, R_2d)
+        slices.append((xs, ys, zs, cdata))
+
+    # --- Constant-lambda slices (lslice) ---
+    # Surface parameterised by (r, th)
+    for lam_val in lslice:
+        lam_idx = np.argmin(np.abs(lam - lam_val))
+        # ff_3d[:, lam_idx, :] has shape (Nr, Nth)
+        cdata = ff_3d[:, lam_idx, :]  # (Nr, Nth)
+        # Build 2D meshgrid: axes are r and th
+        R_2d, TH_2d = np.meshgrid(r, th, indexing='ij')  # (Nr, Nth)
+        LAM_2d = np.full_like(R_2d, lam[lam_idx])
+        xs, ys, zs = _sph2cart(LAM_2d, TH_2d, R_2d)
+        slices.append((xs, ys, zs, cdata))
+
+    # --- Global colour limits across all slices ---
+    all_cdata = np.concatenate([s[3].ravel() for s in slices])
+    vmin, vmax = float(all_cdata.min()), float(all_cdata.max())
+    if vmax <= vmin:
+        vmax = vmin + 1.0
+    norm = mcolors.Normalize(vmin=vmin, vmax=vmax)
+
+    # --- MATLAB: camlight('headlight'); lighting phong; material dull ---
+    ls = LightSource(azdeg=315, altdeg=45)
+
+    fig, ax = _setup_3d_axes(ax, None, elev=elev, azim=azim,
+                             figsize=(6.1, 5.0))
+
+    # --- MATLAB: for j = 1:numel(hslicer); surf(xs,ys,zs,CData,...); end ---
+    for xs, ys, zs, cdata in slices:
+        rgb = cmap_obj(norm(cdata))[:, :, :3]
+        # Use zs as elevation for LightSource shading
+        shaded = ls.shade_rgb(rgb, zs)
+        fcolors = np.ones((*shaded.shape[:2], 4))
+        fcolors[:, :, :3] = shaded
+        ax.plot_surface(xs, ys, zs, facecolors=fcolors,
+                        rstride=1, cstride=1,
+                        linewidth=0, antialiased=True,
+                        alpha=alpha, shade=False)
+
+    # --- MATLAB: axis([-1 1 -1 1 -1 1]); daspect([1 1 1]) ---
+    ax.set_xlim(-1.0, 1.0)
+    ax.set_ylim(-1.0, 1.0)
+    ax.set_zlim(-1.0, 1.0)
+    ax.set_box_aspect([1, 1, 1])
 
     if title:
         ax.set_title(title, fontsize=10, pad=0)

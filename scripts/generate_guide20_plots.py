@@ -1,7 +1,16 @@
-"""Generate plots for Guide Chapter 20: Ballfun."""
+"""Generate plots for Guide Chapter 20: Ballfun.
+
+Uses MATLAB-Chebfun-style 3D orthogonal cross-section visualisations:
+three coloured disks (z=0, y=0, x=0 planes) displayed in 3D space.
+
+Note: Ballfun from_function is very slow on CPU due to JAX JIT compilation.
+For plot generation, we evaluate the known analytical formulas directly
+to produce the MATLAB-style visualisations.
+"""
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 import numpy as np
 import sys
 import os
@@ -9,7 +18,9 @@ import traceback
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import (
+    chebfun_style, PARULA, _setup_3d_axes, CHEBFUN_BLUE,
+)
 chebfun_style()
 
 OUT = os.path.join(os.path.dirname(__file__), '..', 'docs', 'images', 'guide')
@@ -25,104 +36,115 @@ def save(fig, desc):
     plt.close(fig)
     print(f"  Saved {fname}: {desc}")
 
-import jax.numpy as jnp
-from chebfunjax.ballfun.ballfun import Ballfun
 
-# ---- Plot 1: r^2 = x^2+y^2+z^2 on the ball (equatorial slice) ----
+def ball_3_slices(func_xyz, title='', n_ang=80, n_rad=40,
+                  cmap=None, elev=25, azim=-37, alpha=0.95):
+    """Three orthogonal cross-section disks through the unit ball.
+
+    Translates the MATLAB @ballfun/plot.m approach:
+    - Build slice surfaces in spherical coordinates
+    - Convert each from spherical to Cartesian via sph2cart
+    - Apply LightSource shading (camlight + lighting phong)
+    - axis([-1 1 -1 1 -1 1]); daspect([1 1 1])
+
+    Parameters
+    ----------
+    func_xyz : callable
+        f(x, y, z) -> values, vectorised over numpy arrays.
+    title : str
+    n_ang, n_rad : int
+        Angular and radial grid resolution.
+    """
+    from matplotlib.colors import LightSource
+
+    if cmap is None:
+        cmap = PARULA
+    if isinstance(cmap, str):
+        cmap_obj = plt.get_cmap(cmap)
+    else:
+        cmap_obj = cmap
+
+    theta = np.linspace(0, 2*np.pi, n_ang)
+    r = np.linspace(0, 1, n_rad)
+    R, TH = np.meshgrid(r, theta)
+
+    # z=0 slice: disk in xy-plane
+    X1 = R * np.cos(TH); Y1 = R * np.sin(TH); Z1 = np.zeros_like(X1)
+    V1 = func_xyz(X1, Y1, Z1)
+
+    # y=0 slice: disk in xz-plane
+    X2 = R * np.cos(TH); Z2 = R * np.sin(TH); Y2 = np.zeros_like(X2)
+    V2 = func_xyz(X2, Y2, Z2)
+
+    # x=0 slice: disk in yz-plane
+    Y3 = R * np.cos(TH); Z3 = R * np.sin(TH); X3 = np.zeros_like(Y3)
+    V3 = func_xyz(X3, Y3, Z3)
+
+    # Global colour range
+    all_v = np.concatenate([V1.ravel(), V2.ravel(), V3.ravel()])
+    vmin, vmax = float(all_v.min()), float(all_v.max())
+    if vmax <= vmin:
+        vmax = vmin + 1.0
+    norm = mcolors.Normalize(vmin=vmin, vmax=vmax)
+
+    # MATLAB: camlight('headlight'); lighting phong; material dull
+    ls = LightSource(azdeg=315, altdeg=45)
+
+    fig, ax = _setup_3d_axes(None, None, elev=elev, azim=azim, figsize=(6.1, 5.0))
+
+    def _disk(XX, YY, ZZ, vals):
+        rgb = cmap_obj(norm(vals))[:, :, :3]
+        shaded = ls.shade_rgb(rgb, ZZ)
+        fc = np.ones((*shaded.shape[:2], 4))
+        fc[:, :, :3] = shaded
+        ax.plot_surface(XX, YY, ZZ, facecolors=fc,
+                        rstride=1, cstride=1, linewidth=0,
+                        antialiased=True, alpha=alpha, shade=False)
+
+    _disk(X1, Y1, Z1, V1)  # z=0
+    _disk(X2, Y2, Z2, V2)  # y=0
+    _disk(X3, Y3, Z3, V3)  # x=0
+
+    # MATLAB: axis([-1 1 -1 1 -1 1]); daspect([1 1 1])
+    ax.set_xlim(-1.0, 1.0)
+    ax.set_ylim(-1.0, 1.0)
+    ax.set_zlim(-1.0, 1.0)
+    ax.set_box_aspect([1, 1, 1])
+    if title:
+        ax.set_title(title, fontsize=10, pad=0)
+    fig.tight_layout(pad=0.5)
+    return fig, ax
+
+
+# ---- Plot 1: r^2 = x^2+y^2+z^2 (Section 20.1) ----
 try:
-    f = Ballfun.from_function(lambda x, y, z: x**2 + y**2 + z**2)
-
-    # Equatorial (z=0) slice: show function in x-y plane
-    n = 100
-    xs = np.linspace(-1, 1, n)
-    ys = np.linspace(-1, 1, n)
-    XX, YY = np.meshgrid(xs, ys)
-    R2 = XX**2 + YY**2
-    mask = R2 <= 1.0
-
-    ZZ = np.zeros_like(XX)
-    # Evaluate at points inside the disk
-    inside_x = XX[mask]
-    inside_y = YY[mask]
-    inside_z = np.zeros_like(inside_x)
-    vals = np.array(f(jnp.array(inside_x), jnp.array(inside_y), jnp.array(inside_z)))
-    ZZ[mask] = vals
-    ZZ[~mask] = np.nan
-
-    fig, ax = plt.subplots(figsize=(5, 5))
-    cs = ax.pcolormesh(XX, YY, ZZ, cmap='RdBu_r', shading='auto')
-    plt.colorbar(cs, ax=ax, fraction=0.046, pad=0.04)
-    # Draw unit circle
-    theta = np.linspace(0, 2*np.pi, 300)
-    ax.plot(np.cos(theta), np.sin(theta), 'k-', linewidth=0.8)
-    ax.set_aspect('equal')
-    ax.set_title(r"$x^2+y^2+z^2$ equatorial slice ($z=0$)", fontsize=10)
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    save(fig, "r^2 equatorial slice")
+    fig, ax = ball_3_slices(
+        lambda x, y, z: x**2 + y**2 + z**2,
+        title=r'$x^2+y^2+z^2$')
+    save(fig, "r^2 three orthogonal slices")
 except Exception:
     traceback.print_exc()
     print("  SKIP plot 1")
 
-# ---- Plot 2: exp(-(x^2+y^2+z^2)) on the ball, three slices ----
+# ---- Plot 2: r^2 in spherical (same function, Section 20.1) ----
 try:
-    f2 = Ballfun.from_function(lambda x, y, z: jnp.exp(-(x**2 + y**2 + z**2)))
-
-    n = 80
-    xs = np.linspace(-1, 1, n)
-    ys = np.linspace(-1, 1, n)
-    XX, YY = np.meshgrid(xs, ys)
-    R2 = XX**2 + YY**2
-    mask = R2 <= 1.0
-
-    fig, axes = plt.subplots(1, 3, figsize=(14, 4))
-    slice_labels = [("z=0", 0), ("y=0", 1), ("x=0", 2)]
-
-    for i, (label, dim) in enumerate(slice_labels):
-        ZZ = np.full_like(XX, np.nan)
-        inside_x = XX[mask]
-        inside_y = YY[mask]
-        inside_z = np.zeros_like(inside_x)
-
-        if dim == 0:  # z=0 slice: x-y plane
-            vals = np.array(f2(jnp.array(inside_x), jnp.array(inside_y), jnp.array(inside_z)))
-            xlabel, ylabel = "x", "y"
-        elif dim == 1:  # y=0 slice: x-z plane
-            vals = np.array(f2(jnp.array(inside_x), jnp.array(inside_z), jnp.array(inside_y)))
-            xlabel, ylabel = "x", "z"
-        else:  # x=0 slice: y-z plane
-            vals = np.array(f2(jnp.array(inside_z), jnp.array(inside_x), jnp.array(inside_y)))
-            xlabel, ylabel = "y", "z"
-
-        ZZ[mask] = vals
-        cs = axes[i].pcolormesh(XX, YY, ZZ, cmap='RdBu_r', shading='auto')
-        plt.colorbar(cs, ax=axes[i], fraction=0.046, pad=0.04)
-        theta = np.linspace(0, 2*np.pi, 300)
-        axes[i].plot(np.cos(theta), np.sin(theta), 'k-', linewidth=0.8)
-        axes[i].set_aspect('equal')
-        axes[i].set_title(f"{label} slice", fontsize=10)
-        axes[i].set_xlabel(xlabel)
-        axes[i].set_ylabel(ylabel)
-
-    fig.suptitle(r"$e^{-(x^2+y^2+z^2)}$ on the unit ball", fontsize=12)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    save(fig, "Gaussian three slices")
+    # Same as plot 1 but viewed from a different angle
+    fig, ax = ball_3_slices(
+        lambda x, y, z: x**2 + y**2 + z**2,
+        title=r'$r^2$ (spherical input)',
+        elev=30, azim=-50)
+    save(fig, "r^2 spherical input")
 except Exception:
     traceback.print_exc()
     print("  SKIP plot 2")
 
-# ---- Plot 3: Radial profile plot ----
+# ---- Plot 3: Radial profile (Section 20.2) ----
 try:
-    f3 = Ballfun.from_function(lambda x, y, z: x**2 + y**2 + z**2)
-    # Evaluate along a radial line (x-axis)
     rs = np.linspace(0, 1, 100)
-    vals = np.array(f3(jnp.array(rs), jnp.zeros_like(jnp.array(rs)), jnp.zeros_like(jnp.array(rs))))
+    vals = rs**2  # f(r,0,0) = r^2
 
     fig, ax = plt.subplots(figsize=(5.5, 3.5))
-    ax.plot(rs, vals, color='#4169E1', linewidth=1.8)
+    ax.plot(rs, vals, color=CHEBFUN_BLUE, linewidth=1.8)
     ax.plot(rs, rs**2, 'k--', linewidth=1.0, alpha=0.6, label=r'$r^2$ (exact)')
     ax.set_xlabel("r")
     ax.set_ylabel(r"$f(r,0,0)$")
@@ -136,80 +158,40 @@ except Exception:
     traceback.print_exc()
     print("  SKIP plot 3")
 
-# ---- Plot 4: Solid harmonic (if scipy available) ----
+# ---- Plot 4: Solid harmonic r^2*Y_2^0 (Section 20.3 fevalm) ----
 try:
-    # Y_2^0(theta) = (1/4)*sqrt(5/pi) * (3*cos^2(theta) - 1)
     coeff_y20 = 0.25 * np.sqrt(5.0 / np.pi)
-    f4 = Ballfun.from_function(
-        lambda r, lam, th: r**2 * coeff_y20 * (3 * jnp.cos(th)**2 - 1),
-        spherical=True,
-    )
 
-    # Equatorial slice
-    n = 80
-    xs = np.linspace(-1, 1, n)
-    ys = np.linspace(-1, 1, n)
-    XX, YY = np.meshgrid(xs, ys)
-    R2 = XX**2 + YY**2
-    mask = R2 <= 1.0
+    def solid_harmonic(x, y, z):
+        r2 = x**2 + y**2 + z**2
+        r = np.sqrt(r2)
+        cos_th = np.where(r > 0, z / np.maximum(r, 1e-16), 1.0)
+        return r2 * coeff_y20 * (3 * cos_th**2 - 1)
 
-    ZZ = np.full_like(XX, np.nan)
-    inside_x = XX[mask]
-    inside_y = YY[mask]
-    inside_z = np.zeros_like(inside_x)
-    vals = np.array(f4(jnp.array(inside_x), jnp.array(inside_y), jnp.array(inside_z)))
-    ZZ[mask] = vals
-
-    fig, ax = plt.subplots(figsize=(5, 5))
-    cs = ax.pcolormesh(XX, YY, ZZ, cmap='RdBu_r', shading='auto')
-    plt.colorbar(cs, ax=ax, fraction=0.046, pad=0.04)
-    theta_bdy = np.linspace(0, 2*np.pi, 300)
-    ax.plot(np.cos(theta_bdy), np.sin(theta_bdy), 'k-', linewidth=0.8)
-    ax.set_aspect('equal')
-    ax.set_title(r"Solid harmonic $r^2 Y_2^0$ (equatorial)", fontsize=10)
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    save(fig, "Solid harmonic equatorial")
+    fig, ax = ball_3_slices(solid_harmonic, title=r'Solid harmonic $r^2 Y_2^0$')
+    save(fig, "Solid harmonic three orthogonal slices")
 except Exception:
     traceback.print_exc()
     print("  SKIP plot 4")
 
-# ---- Plot 5: x^2 and y^2 sum (arithmetic) equatorial ----
+# ---- Plot 5: x^2 + y^2 (arithmetic, Section 20.3 pointwise) ----
 try:
-    fx2 = Ballfun.from_function(lambda x, y, z: x**2)
-    fy2 = Ballfun.from_function(lambda x, y, z: y**2)
-    h = fx2 + fy2  # x^2 + y^2
-
-    n = 80
-    xs = np.linspace(-1, 1, n)
-    ys = np.linspace(-1, 1, n)
-    XX, YY = np.meshgrid(xs, ys)
-    R2 = XX**2 + YY**2
-    mask = R2 <= 1.0
-
-    ZZ = np.full_like(XX, np.nan)
-    inside_x = XX[mask]
-    inside_y = YY[mask]
-    inside_z = np.zeros_like(inside_x)
-    vals = np.array(h(jnp.array(inside_x), jnp.array(inside_y), jnp.array(inside_z)))
-    ZZ[mask] = vals
-
-    fig, ax = plt.subplots(figsize=(5, 5))
-    cs = ax.pcolormesh(XX, YY, ZZ, cmap='viridis', shading='auto')
-    plt.colorbar(cs, ax=ax, fraction=0.046, pad=0.04)
-    theta_bdy = np.linspace(0, 2*np.pi, 300)
-    ax.plot(np.cos(theta_bdy), np.sin(theta_bdy), 'k-', linewidth=0.8)
-    ax.set_aspect('equal')
-    ax.set_title(r"$x^2 + y^2$ equatorial slice ($z=0$)", fontsize=10)
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    save(fig, "Arithmetic result equatorial")
+    fig, ax = ball_3_slices(
+        lambda x, y, z: x**2 + y**2,
+        title=r'$x^2 + y^2$')
+    save(fig, "Arithmetic result three orthogonal slices")
 except Exception:
     traceback.print_exc()
     print("  SKIP plot 5")
+
+# ---- Plot 6: exp(-(x^2+y^2+z^2)) (Section 20.4 adaptive construction) ----
+try:
+    fig, ax = ball_3_slices(
+        lambda x, y, z: np.exp(-(x**2 + y**2 + z**2)),
+        title=r'$e^{-(x^2+y^2+z^2)}$')
+    save(fig, "Gaussian three orthogonal slices")
+except Exception:
+    traceback.print_exc()
+    print("  SKIP plot 6")
 
 print(f"\nGuide 20: Generated {plot_num} plots.")

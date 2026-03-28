@@ -1,6 +1,6 @@
 """Generate all plots for Guide Chapter 18 (Chebfun3).
 
-Matches figures from the original Chebfun guide chapter 18.
+Uses PARULA colormap and three-orthogonal-slice 3D plots matching MATLAB.
 """
 import matplotlib
 matplotlib.use('Agg')
@@ -10,7 +10,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 import matplotlib.pyplot as plt
 import numpy as np
 import jax.numpy as jnp
-from chebfunjax.plotting import chebfun_style, plot_slices
+from chebfunjax.plotting import (
+    chebfun_style, plot_slices, PARULA, _setup_3d_axes,
+)
 from chebfunjax.chebfun3d import chebfun3, Chebfun3
 
 chebfun_style()
@@ -28,22 +30,56 @@ def save(fig, desc=""):
     print(f"  guide18_{plot_num:02d}.png: {desc}")
 
 def slices_plot(f, title='', n=80):
-    """Three orthogonal slices of a Chebfun3."""
+    """Three orthogonal slices of a Chebfun3 using PARULA."""
     try:
-        fig, ax = plot_slices(f, title=title, n_pts=n)
+        fig, ax = plot_slices(f, title=title, n_pts=n, cmap=PARULA)
     except Exception:
+        # Fallback: manual slice at z=midpoint
+        import matplotlib.colors as mcolors
         xa, xb, ya, yb, za, zb = f.domain
-        xs = np.linspace(xa, xb, n); ys = np.linspace(ya, yb, n); zs = np.linspace(za, zb, n)
         xm = 0.5*(xa+xb); ym = 0.5*(ya+yb); zm = 0.5*(za+zb)
-        XX, YY = np.meshgrid(xs, ys)
-        ZM = np.full_like(XX, zm)
-        Vz = np.array(f(jnp.array(XX.ravel()), jnp.array(YY.ravel()), jnp.array(ZM.ravel()))).reshape(XX.shape)
-        fig = plt.figure(figsize=(7, 5))
-        ax = fig.add_subplot(111, projection='3d')
-        ax.plot_surface(XX, YY, ZM, facecolors=plt.get_cmap('RdBu_r')(
-            (Vz-Vz.min())/(Vz.max()-Vz.min()+1e-20)), linewidth=0, alpha=0.8)
-        ax.set_title(title)
-        fig.set_facecolor('white'); fig.tight_layout()
+        xs = np.linspace(xa, xb, n); ys = np.linspace(ya, yb, n)
+        zs = np.linspace(za, zb, n)
+
+        # z=zm slice (XY plane)
+        XX_xy, YY_xy = np.meshgrid(xs, ys, indexing='ij')
+        ZM_xy = np.full_like(XX_xy, zm)
+        F_xy = np.array(f(jnp.array(XX_xy.ravel()), jnp.array(YY_xy.ravel()),
+                          jnp.array(ZM_xy.ravel()))).reshape(XX_xy.shape)
+
+        # y=ym slice (XZ plane)
+        XX_xz, ZZ_xz = np.meshgrid(xs, zs, indexing='ij')
+        YM_xz = np.full_like(XX_xz, ym)
+        F_xz = np.array(f(jnp.array(XX_xz.ravel()), jnp.array(YM_xz.ravel()),
+                          jnp.array(ZZ_xz.ravel()))).reshape(XX_xz.shape)
+
+        # x=xm slice (YZ plane)
+        YY_yz, ZZ_yz = np.meshgrid(ys, zs, indexing='ij')
+        XM_yz = np.full_like(YY_yz, xm)
+        F_yz = np.array(f(jnp.array(XM_yz.ravel()), jnp.array(YY_yz.ravel()),
+                          jnp.array(ZZ_yz.ravel()))).reshape(YY_yz.shape)
+
+        all_vals = np.concatenate([F_xy.ravel(), F_xz.ravel(), F_yz.ravel()])
+        vmin, vmax = float(all_vals.min()), float(all_vals.max())
+        norm = mcolors.Normalize(vmin=vmin, vmax=vmax)
+        cmap_obj = PARULA
+
+        fig, ax = _setup_3d_axes(None, None, elev=25, azim=-37,
+                                 figsize=(6.1, 5.0))
+
+        def _surf_slice(XX, YY, ZZ, F):
+            fc = cmap_obj(norm(F))
+            ax.plot_surface(XX, YY, ZZ, facecolors=fc,
+                            rstride=1, cstride=1, linewidth=0,
+                            antialiased=True, alpha=0.85, shade=False)
+
+        _surf_slice(XX_xy, YY_xy, ZM_xy, F_xy)
+        _surf_slice(XX_xz, YM_xz, ZZ_xz, F_xz)
+        _surf_slice(XM_yz, YY_yz, ZZ_yz, F_yz)
+
+        if title:
+            ax.set_title(title, fontsize=10, pad=0)
+        fig.tight_layout(pad=0.5)
     return fig, ax
 
 # Plot 01: cos(xyz) slice plot (Section 18.1)
@@ -72,19 +108,24 @@ except Exception as e:
 
 # Plot 04: z-slices gallery (Section 18.4)
 try:
-    n = 80; xs = np.linspace(-1, 1, n); ys = np.linspace(-1, 1, n)
+    n = 80
+    xs = np.linspace(-1, 1, n); ys = np.linspace(-1, 1, n)
     XX, YY = np.meshgrid(xs, ys)
     fig, axes = plt.subplots(1, 3, figsize=(14, 4))
     for i, zv in enumerate([-0.5, 0.0, 0.5]):
         ZM = np.full_like(XX, zv)
         FF = np.array(f2(jnp.array(XX.ravel()), jnp.array(YY.ravel()),
                          jnp.array(ZM.ravel()))).reshape(n, n)
-        cs = axes[i].contourf(XX, YY, FF, levels=15, cmap='RdBu_r')
+        cs = axes[i].contourf(XX, YY, FF, levels=15, cmap=PARULA)
         fig.colorbar(cs, ax=axes[i], fraction=0.046, pad=0.04)
-        axes[i].set_title(f'z = {zv}'); axes[i].set_xlabel('x'); axes[i].set_ylabel('y')
+        axes[i].set_title(f'z = {zv}', fontsize=10)
+        axes[i].set_xlabel('x', fontsize=9)
+        axes[i].set_ylabel('y', fontsize=9)
         axes[i].set_aspect('equal')
-    fig.suptitle('1/(1+x^2+y^2+z^2) slices'); fig.set_facecolor('white')
-    fig.tight_layout(); save(fig, "z-slices")
+    fig.suptitle('1/(1+x^2+y^2+z^2) slices', fontsize=11)
+    fig.set_facecolor('white')
+    fig.tight_layout()
+    save(fig, "z-slices")
 except Exception as e:
     plot_num += 1; print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
 
@@ -104,16 +145,16 @@ try:
     t = jnp.linspace(-1, 1, 200)
     # Columns (x)
     for j in range(min(3, len(f6.cols))):
-        axes[0].plot(np.array(t), np.array(f6.cols[j](t)))
-    axes[0].set_title(f'Column functions (x), rank={len(f6.cols)}')
+        axes[0].plot(np.array(t), np.array(f6.cols[j](t)), linewidth=1.2)
+    axes[0].set_title(f'Column functions (x), rank={len(f6.cols)}', fontsize=10)
     # Rows (y)
     for j in range(min(3, len(f6.rows))):
-        axes[1].plot(np.array(t), np.array(f6.rows[j](t)))
-    axes[1].set_title(f'Row functions (y), rank={len(f6.rows)}')
+        axes[1].plot(np.array(t), np.array(f6.rows[j](t)), linewidth=1.2)
+    axes[1].set_title(f'Row functions (y), rank={len(f6.rows)}', fontsize=10)
     # Tubes (z)
     for j in range(min(3, len(f6.tubes))):
-        axes[2].plot(np.array(t), np.array(f6.tubes[j](t)))
-    axes[2].set_title(f'Tube functions (z), rank={len(f6.tubes)}')
+        axes[2].plot(np.array(t), np.array(f6.tubes[j](t)), linewidth=1.2)
+    axes[2].set_title(f'Tube functions (z), rank={len(f6.tubes)}', fontsize=10)
     fig.set_facecolor('white'); fig.tight_layout()
     save(fig, "Tucker factors")
 except Exception as e:
@@ -126,19 +167,42 @@ try:
     XX3, YY3, ZZ3 = np.meshgrid(xs, ys, zs, indexing='ij')
     VV = np.array(f2(jnp.array(XX3.ravel()), jnp.array(YY3.ravel()),
                       jnp.array(ZZ3.ravel()))).reshape(XX3.shape)
-    fig = plt.figure(figsize=(7, 5))
-    ax = fig.add_subplot(111, projection='3d')
-    # Show isosurface at level 0.5
-    from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-    from skimage.measure import marching_cubes
-    verts, faces, _, _ = marching_cubes(VV, level=0.5)
-    verts = verts / (n-1) * 2 - 1  # map to [-1,1]
-    mesh = Poly3DCollection(verts[faces], alpha=0.3, edgecolor='k', linewidth=0.1)
-    mesh.set_facecolor('cyan')
-    ax.add_collection3d(mesh)
-    ax.set_xlim(-1,1); ax.set_ylim(-1,1); ax.set_zlim(-1,1)
-    ax.set_title('Isosurface at 0.5')
-    fig.set_facecolor('white'); fig.tight_layout()
+    fig, ax = _setup_3d_axes(None, None, elev=25, azim=-37, figsize=(6.1, 5.0))
+
+    try:
+        from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+        from skimage.measure import marching_cubes
+        verts, faces, _, _ = marching_cubes(VV, level=0.5)
+        verts = verts / (n-1) * 2 - 1  # map to [-1,1]
+        mesh = Poly3DCollection(verts[faces], alpha=0.3, edgecolor='k', linewidth=0.1)
+        mesh.set_facecolor(PARULA(0.5))
+        ax.add_collection3d(mesh)
+    except ImportError:
+        # Fallback: show three orthogonal contour slices as coloured surfaces
+        import matplotlib.colors as mcolors
+        mid = n // 2
+        norm = mcolors.Normalize(vmin=float(VV.min()), vmax=float(VV.max()))
+        # z=0 slice
+        Xp, Yp = np.meshgrid(xs, ys, indexing='ij')
+        Zp = np.zeros_like(Xp)
+        Fp = VV[:, :, mid]
+        ax.plot_surface(Xp, Yp, Zp, facecolors=PARULA(norm(Fp)),
+                        rstride=1, cstride=1, linewidth=0, alpha=0.7, shade=False)
+        # y=0 slice
+        Xp2, Zp2 = np.meshgrid(xs, zs, indexing='ij')
+        Yp2 = np.zeros_like(Xp2)
+        Fp2 = VV[:, mid, :]
+        ax.plot_surface(Xp2, Yp2, Zp2, facecolors=PARULA(norm(Fp2)),
+                        rstride=1, cstride=1, linewidth=0, alpha=0.7, shade=False)
+        # x=0 slice
+        Yp3, Zp3 = np.meshgrid(ys, zs, indexing='ij')
+        Xp3 = np.zeros_like(Yp3)
+        Fp3 = VV[mid, :, :]
+        ax.plot_surface(Xp3, Yp3, Zp3, facecolors=PARULA(norm(Fp3)),
+                        rstride=1, cstride=1, linewidth=0, alpha=0.7, shade=False)
+
+    ax.set_xlim(-1, 1); ax.set_ylim(-1, 1); ax.set_zlim(-1, 1)
+    ax.set_title('Isosurface at 0.5', fontsize=10, pad=0)
     save(fig, "isosurface")
 except Exception as e:
     plot_num += 1; print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
