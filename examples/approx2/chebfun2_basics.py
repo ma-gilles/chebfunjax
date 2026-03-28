@@ -43,29 +43,17 @@ def run():
     assert abs(integral - exact_int) < 1e-8
 
     # --- Plot: contour and surface plots --------------------------------
-    xx = np.linspace(-1, 1, 100)
-    yy = np.linspace(-1, 1, 100)
-    XX, YY = np.meshgrid(xx, yy)
-    ZZ = np.exp(-(XX**2 + YY**2))
+    from chebfunjax.plotting import surf, contour
 
-    fig, axes = plt.subplots(1, 2)
+    fig_s, ax_s = surf(f, title=r"$e^{-(x^2+y^2)}$")
+    fig_s.savefig(os.path.join(outdir, 'chebfun2_basics_surf.png'),
+                  dpi=150, bbox_inches='tight')
+    plt.close(fig_s)
 
-    # Contour
-    cs = axes[0].contourf(XX, YY, ZZ, levels=20, cmap='Blues')
-    plt.colorbar(cs, ax=axes[0])
-    axes[0].set_title(r'$f(x,y) = e^{-(x^2+y^2)}$', fontsize=11)
-    axes[0].set_aspect('equal')
-
-    # 3D surface
-    ax3d = fig.add_subplot(122, projection='3d')  # This replaces axes[1]
-    axes[1].remove()
-    ax3d.plot_surface(XX, YY, ZZ, cmap='Blues', alpha=0.8)
-    ax3d.set_title(r'$e^{-(x^2+y^2)}$', fontsize=11)
-
-    fig.tight_layout()
-    fig.savefig(os.path.join(outdir, 'chebfun2_basics.png'),
-                dpi=150, bbox_inches='tight')
-    plt.close(fig)
+    fig_c, ax_c = contour(f, title=r"$f(x,y) = e^{-(x^2+y^2)}$")
+    fig_c.savefig(os.path.join(outdir, 'chebfun2_basics_contour.png'),
+                  dpi=150, bbox_inches='tight')
+    plt.close(fig_c)
 
     # --- Second function: f = sin(pi*x)*cos(pi*y) ----------------------
     g = cj.chebfun2(lambda x, y: jnp.sin(jnp.pi * x) * jnp.cos(jnp.pi * y))

@@ -157,51 +157,60 @@ def run():
     # ------------------------------------------------------------------
     # Plot: both curves and fields
     # ------------------------------------------------------------------
-    fig = plt.figure()
+    from chebfunjax.plotting import PARULA, _setup_3d_axes
+
+    fig = plt.figure(figsize=(14, 4))
 
     # Plot 1: sine-wave curve on sphere
     ax1 = fig.add_subplot(131, projection="3d")
+    _setup_3d_axes(ax1, fig)
     t_plot = np.linspace(0, 2 * np.pi, 1000)
     xc = Cx1(t_plot); yc = Cy1(t_plot); zc = Cz1(t_plot)
-    # Color by f value
     f_along = np.cos(xc + yc * zc)
-    sc = ax1.scatter(xc, yc, zc, c=f_along, cmap="coolwarm", s=3)
+    sc = ax1.scatter(xc, yc, zc, c=f_along, cmap=PARULA, s=4)
     # Draw unit sphere (transparent)
-    phi_s = np.linspace(0, np.pi, 30)
-    theta_s = np.linspace(0, 2 * np.pi, 60)
+    phi_s = np.linspace(0, np.pi, 40)
+    theta_s = np.linspace(0, 2 * np.pi, 80)
     Phi_s, Th_s = np.meshgrid(phi_s, theta_s)
     ax1.plot_surface(np.sin(Phi_s) * np.cos(Th_s),
                      np.sin(Phi_s) * np.sin(Th_s),
-                     np.cos(Phi_s), alpha=0.1, color="gray")
-    fig.colorbar(sc, ax=ax1, shrink=0.6, label="cos(x+yz)")
-    ax1.set_title(f"Sine-wave on sphere\nI={I1:.4f}", fontsize=10)
+                     np.cos(Phi_s), alpha=0.08, color="lightgray",
+                     rstride=1, cstride=1, linewidth=0)
+    fig.colorbar(sc, ax=ax1, shrink=0.55, pad=0.08)
+    ax1.set_title(f"Sine-wave on sphere\nI={I1:.4f}", fontsize=10, pad=0)
 
     # Plot 2: spherical helix
     ax2 = fig.add_subplot(132, projection="3d")
+    _setup_3d_axes(ax2, fig)
     t_plot2 = np.linspace(0, 10 * np.pi, 3000)
     xh = Cx2(t_plot2); yh = Cy2(t_plot2); zh = Cz2(t_plot2)
     f_helix = xh + yh * zh
-    sc2 = ax2.scatter(xh, yh, zh, c=f_helix, cmap="plasma", s=2)
+    sc2 = ax2.scatter(xh, yh, zh, c=f_helix, cmap=PARULA, s=2)
     ax2.plot_surface(np.sin(Phi_s) * np.cos(Th_s),
                      np.sin(Phi_s) * np.sin(Th_s),
-                     np.cos(Phi_s), alpha=0.1, color="gray")
-    fig.colorbar(sc2, ax=ax2, shrink=0.6, label="x+yz")
-    ax2.set_title(f"Spherical helix\nI={I2:.4f}", fontsize=10)
+                     np.cos(Phi_s), alpha=0.08, color="lightgray",
+                     rstride=1, cstride=1, linewidth=0)
+    fig.colorbar(sc2, ax=ax2, shrink=0.55, pad=0.08)
+    ax2.set_title(f"Spherical helix\nI={I2:.4f}", fontsize=10, pad=0)
 
     # Plot 3: f = cos(x+yz) as slice at z=0
     ax3 = fig.add_subplot(133)
-    x_p = np.linspace(-1, 1, 80)
-    y_p = np.linspace(-1, 1, 80)
+    x_p = np.linspace(-1, 1, 100)
+    y_p = np.linspace(-1, 1, 100)
     Xp, Yp = np.meshgrid(x_p, y_p)
     f_slice = np.cos(Xp + Yp * 0)  # z=0
-    im = ax3.contourf(Xp, Yp, f_slice, levels=20, cmap="coolwarm")
-    ax3.set_title("f = cos(x+y·z) at z=0", fontsize=10)
-    fig.colorbar(im, ax=ax3)
+    im = ax3.contourf(Xp, Yp, f_slice, levels=20, cmap=PARULA)
+    ax3.contour(Xp, Yp, f_slice, levels=20, colors="k", linewidths=0.3,
+                alpha=0.4)
+    ax3.set_title("f = cos(x+yz) at z=0", fontsize=10)
+    ax3.set_aspect("equal")
+    fig.colorbar(im, ax=ax3, fraction=0.046, pad=0.04)
 
-    fig.suptitle("Line integrals of 3D scalar fields over curves", fontsize=12)
+    fig.set_facecolor("white")
     fig.tight_layout()
     fig.savefig(
-        os.path.join(_IMG_DIR, "LineIntegral3D.png"), dpi=150, bbox_inches="tight"
+        os.path.join(_IMG_DIR, "LineIntegral3D.png"), dpi=150,
+        bbox_inches="tight"
     )
     plt.close(fig)
 

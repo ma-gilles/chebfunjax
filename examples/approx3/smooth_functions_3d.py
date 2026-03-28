@@ -59,29 +59,20 @@ def run():
     print(f"g(0.3,0.4,0.5) error: {abs(val3 - exact3):.2e}")
     assert abs(val3 - exact3) < 1e-10
 
-    # Plot a 2D slice at z=0
+    # Plot cross-section slices using the library's plot_slices
+    from chebfunjax.plotting import plot_slices
+
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2)
 
-    xs = np.linspace(-1, 1, 60)
-    X, Y = np.meshgrid(xs, xs)
-    Z0 = np.zeros_like(X)
+    fig1, ax1 = plot_slices(f, title="exp(x+y+z)")
+    fig1.savefig(os.path.join(_here, "smooth_functions_3d_exp.png"),
+                 dpi=150, bbox_inches="tight")
+    plt.close(fig1)
 
-    F_slice = np.array(jnp.exp(jnp.array(X) + jnp.array(Y) + 0.0))
-    G_slice = np.array(jnp.sin(jnp.array(X)) * jnp.cos(jnp.array(Y)) * 1.0)
-
-    im1 = axes[0].contourf(X, Y, F_slice, levels=20, cmap="viridis")
-    axes[0].set_title("exp(x+y+z)|_{z=0}", fontsize=12)
-    fig.colorbar(im1, ax=axes[0])
-
-    im2 = axes[1].contourf(X, Y, G_slice, levels=20, cmap="RdBu_r")
-    axes[1].set_title("sin(x)cos(y)exp(-z²)|_{z=0}", fontsize=12)
-    fig.colorbar(im2, ax=axes[1])
-
-    fig.suptitle("3D functions: z=0 slices", fontsize=13)
-    fig.tight_layout()
-    fig.savefig(os.path.join(_here, "smooth_functions_3d.png"), dpi=150, bbox_inches="tight")
-    plt.close(fig)
+    fig2, ax2 = plot_slices(g, title="sin(x)cos(y)exp(-z²)")
+    fig2.savefig(os.path.join(_here, "smooth_functions_3d.png"),
+                 dpi=150, bbox_inches="tight")
+    plt.close(fig2)
 
     print("\nAll assertions passed.")
     return True

@@ -189,45 +189,57 @@ def run():
     # ------------------------------------------------------------------
     # Plot
     # ------------------------------------------------------------------
-    fig, axes = plt.subplots(1, 3)
+    from chebfunjax.plotting import PARULA
+
+    fig, axes = plt.subplots(1, 3, figsize=(14, 3.8))
 
     # Gauss theorem: div v on a slice
     ax1 = axes[0]
-    xs = np.linspace(-1, 1, 80)
-    ys = np.linspace(-1, 1, 80)
+    xs = np.linspace(-1, 1, 100)
+    ys = np.linspace(-1, 1, 100)
     X2, Y2 = np.meshgrid(xs, ys)
     div_slice = 2 * X2 + 2 * Y2 + 1  # div v at z=0
-    im1 = ax1.contourf(X2, Y2, div_slice, levels=20, cmap="RdBu_r")
-    ax1.set_title("div(v) = 2x+2y+1 at z=0\nGauss: ∫div = 8", fontsize=10)
-    fig.colorbar(im1, ax=ax1)
+    im1 = ax1.contourf(X2, Y2, div_slice, levels=20, cmap=PARULA)
+    ax1.contour(X2, Y2, div_slice, levels=20, colors="k", linewidths=0.3,
+                alpha=0.4)
+    ax1.set_title("div(v) = 2x+2y+1 at z=0\nGauss: integral(div) = 8",
+                  fontsize=10)
+    ax1.set_aspect("equal")
+    fig.colorbar(im1, ax=ax1, fraction=0.046, pad=0.04)
 
     # Green identity: f(x,y,z) at z=0
     ax2 = axes[1]
     f_slice = 1 + X2 * np.exp(Y2 + 0)
-    im2 = ax2.contourf(X2, Y2, f_slice, levels=20, cmap="viridis")
-    ax2.set_title("f = 1 + x·exp(y+z) at z=0\nGreen: ∫(f·Δg+∇f·∇g)=48", fontsize=10)
-    fig.colorbar(im2, ax=ax2)
+    im2 = ax2.contourf(X2, Y2, f_slice, levels=20, cmap=PARULA)
+    ax2.contour(X2, Y2, f_slice, levels=20, colors="k", linewidths=0.3,
+                alpha=0.4)
+    ax2.set_title("f = 1 + x exp(y+z) at z=0", fontsize=10)
+    ax2.set_aspect("equal")
+    fig.colorbar(im2, ax=ax2, fraction=0.046, pad=0.04)
 
     # Stokes: unit disk with boundary circle
     ax3 = axes[2]
     t_c = np.linspace(0, 2 * np.pi, 200)
-    r_disk = np.linspace(0, 1, 50)
+    r_disk = np.linspace(0, 1, 80)
     theta_disk = np.linspace(0, 2 * np.pi, 200)
     R_disk, T_disk = np.meshgrid(r_disk, theta_disk)
-    # Color by v1 = x^2 - y
     Xd = R_disk * np.cos(T_disk)
     Yd = R_disk * np.sin(T_disk)
     v1_disk = Xd**2 - Yd
-    im3 = ax3.contourf(Xd, Yd, v1_disk, levels=20, cmap="plasma")
-    ax3.plot(np.cos(t_c), np.sin(t_c), "w-", lw=2, label="boundary")
-    ax3.set_title(f"Stokes: unit disk (z=0)\nLine integral ≈ {I8:.4f} ≈ π", fontsize=10)
-    ax3.legend(loc="upper right")
-    fig.colorbar(im3, ax=ax3)
+    im3 = ax3.contourf(Xd, Yd, v1_disk, levels=20, cmap=PARULA)
+    ax3.contour(Xd, Yd, v1_disk, levels=20, colors="k", linewidths=0.3,
+                alpha=0.4)
+    ax3.plot(np.cos(t_c), np.sin(t_c), "k-", lw=1.2)
+    ax3.set_title(f"Stokes: unit disk (z=0)\nLine integral = {I8:.4f}",
+                  fontsize=10)
+    ax3.set_aspect("equal")
+    fig.colorbar(im3, ax=ax3, fraction=0.046, pad=0.04)
 
-    fig.suptitle("Gauss, Green, and Stokes Theorems", fontsize=13)
+    fig.set_facecolor("white")
     fig.tight_layout()
     fig.savefig(
-        os.path.join(_IMG_DIR, "GaussGreenStokes.png"), dpi=150, bbox_inches="tight"
+        os.path.join(_IMG_DIR, "GaussGreenStokes.png"), dpi=150,
+        bbox_inches="tight"
     )
     plt.close(fig)
 

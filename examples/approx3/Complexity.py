@@ -94,15 +94,25 @@ def run():
     # ------------------------------------------------------------------
     # Plot: rank vs k for both functions
     # ------------------------------------------------------------------
-    fig, axes = plt.subplots(1, 2)
+    from chebfunjax.plotting import CHEBFUN_BLUE, CHEBFUN_RED
+
+    fig, axes = plt.subplots(1, 2, figsize=(10, 3.5))
 
     ax1 = axes[0]
-    ax1.semilogy(kk_hard, ranks_hard, "ob-", lw=2, ms=8)
-    ax1.set_title("Hard: tanh(k(x+y+z)/√3)\nTucker rank grows with k", fontsize=11)
+    ax1.semilogy(kk_hard, ranks_hard, "o-", color=CHEBFUN_BLUE, lw=1.5, ms=7)
+    ax1.set_title("Hard: tanh(k(x+y+z)/sqrt(3))\nRank grows with k",
+                  fontsize=10)
+    ax1.set_xlabel("k", fontsize=9)
+    ax1.set_ylabel("Tucker rank", fontsize=9)
+
     ax2 = axes[1]
-    ax2.semilogy(kk_easy, ranks_easy, "or-", lw=2, ms=8)
-    ax2.set_title("Easy: 1/(1+k·r²) (Runge)\nLow Tucker rank for all k", fontsize=11)
-    fig.suptitle("Chebfun3 Tucker rank complexity", fontsize=13)
+    ax2.semilogy(kk_easy, ranks_easy, "o-", color=CHEBFUN_RED, lw=1.5, ms=7)
+    ax2.set_title("Easy: 1/(1+k r^2) (Runge)\nLow rank for all k",
+                  fontsize=10)
+    ax2.set_xlabel("k", fontsize=9)
+    ax2.set_ylabel("Tucker rank", fontsize=9)
+
+    fig.set_facecolor("white")
     fig.tight_layout()
     fig.savefig(
         os.path.join(_IMG_DIR, "Complexity.png"), dpi=150, bbox_inches="tight"

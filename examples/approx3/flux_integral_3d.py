@@ -59,24 +59,14 @@ def run():
     print(f"\nr²(1,1,1) = {val_corner:.10f}  (exact: 3.0)")
     assert abs(val_corner - 3.0) < 1e-10
 
-    # Plot: isosurface visualization as slice plots
+    # Plot cross-section slices using the library's plot_slices
+    from chebfunjax.plotting import plot_slices
+
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 3)
 
-    xs = np.linspace(-1, 1, 60)
-    X, Y = np.meshgrid(xs, xs)
-
-    # Slices at z = 0, 0.5, -0.5
-    zvals = [0.0, 0.5, -0.5]
-    for i, (ax, zv) in enumerate(zip(axes, zvals)):
-        Z_slice = X**2 + Y**2 + zv**2
-        im = ax.contourf(X, Y, Z_slice, levels=20, cmap="plasma")
-        ax.set_title(f"x²+y²+z², z={zv}", fontsize=11)
-        fig.colorbar(im, ax=ax, shrink=0.8)
-
-    fig.suptitle("3D scalar field: z-slices of x²+y²+z²", fontsize=13)
-    fig.tight_layout()
-    fig.savefig(os.path.join(_here, "flux_integral_3d.png"), dpi=150, bbox_inches="tight")
+    fig, ax = plot_slices(r2, title="x² + y² + z²")
+    fig.savefig(os.path.join(_here, "flux_integral_3d.png"),
+                dpi=150, bbox_inches="tight")
     plt.close(fig)
 
     print("\nAll assertions passed.")

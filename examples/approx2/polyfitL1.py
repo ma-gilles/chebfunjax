@@ -65,23 +65,33 @@ def run():
     p_L1_vals = V_eval @ coeffs_L1
     err_L1 = p_L1_vals - f_vals
 
-    fig, axes = plt.subplots(1, 2)
+    from chebfunjax.plotting import CHEBFUN_BLUE, CHEBFUN_RED
+
+    fig, axes = plt.subplots(1, 2, figsize=(10, 3.5))
 
     ax = axes[0]
-    ax.plot(xx, f_vals, 'k', lw=1.5, label='f = |x−1/4|')
-    ax.plot(xx, p_L2_vals, 'b--', lw=1.3, label=f'L2 deg {deg}')
-    ax.plot(xx, p_L1_vals, 'r--', lw=1.3, label=f'L1 deg {deg}')
-    ax.set_title(f'|x−1/4| and polynomial approximants (deg {deg})', fontsize=10)
-    ax.legend(fontsize=8)
+    ax.plot(xx, f_vals, 'k', lw=1.5, label='f = |x - 1/4|')
+    ax.plot(xx, p_L2_vals, '--', color=CHEBFUN_BLUE, lw=1.3,
+            label=f'L2 deg {deg}')
+    ax.plot(xx, p_L1_vals, '--', color=CHEBFUN_RED, lw=1.3,
+            label=f'L1 deg {deg}')
+    ax.set_title(f'|x - 1/4| and polynomial approximants (deg {deg})',
+                 fontsize=10)
+    ax.legend(fontsize=8, framealpha=0.9)
+    ax.set_xlim(-1, 1)
+
     ax2 = axes[1]
-    ax2.plot(xx, err_L2, 'b', lw=1.5, label='L2 error')
-    ax2.plot(xx, err_L1, 'r', lw=1.5, label='L1 error')
+    ax2.plot(xx, err_L2, color=CHEBFUN_BLUE, lw=1.5, label='L2 error')
+    ax2.plot(xx, err_L1, color=CHEBFUN_RED, lw=1.5, label='L1 error')
     ax2.axhline(0, color='k', lw=0.5)
-    ax2.set_title('Error curves: L2 vs. L1 approximation', fontsize=10)
-    ax2.legend(fontsize=9)
-    fig.suptitle('L1 vs. L2 polynomial approximation', fontsize=12)
+    ax2.set_title('Error curves', fontsize=10)
+    ax2.legend(fontsize=9, framealpha=0.9)
+    ax2.set_xlim(-1, 1)
+
+    fig.set_facecolor('white')
     fig.tight_layout()
-    fig.savefig(os.path.join(_OUTDIR, 'polyfitL1.png'), dpi=150)
+    fig.savefig(os.path.join(_OUTDIR, 'polyfitL1.png'), dpi=150,
+                bbox_inches='tight')
     plt.close(fig)
 
     print(f"polyfitL1: L2 max err={np.max(np.abs(err_L2)):.3e}, "

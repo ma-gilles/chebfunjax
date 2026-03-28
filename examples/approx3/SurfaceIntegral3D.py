@@ -178,26 +178,33 @@ def run():
     # ------------------------------------------------------------------
     # Plot: the surfaces
     # ------------------------------------------------------------------
-    fig = plt.figure()
+    from chebfunjax.plotting import PARULA, _setup_3d_axes
+
+    fig = plt.figure(figsize=(16, 3.5))
 
     # Unit sphere
     ax1 = fig.add_subplot(141, projection="3d")
-    u_s = np.linspace(0, np.pi, 30)
-    v_s = np.linspace(0, 2 * np.pi, 60)
+    _setup_3d_axes(ax1, fig)
+    u_s = np.linspace(0, np.pi, 50)
+    v_s = np.linspace(0, 2 * np.pi, 80)
     U_s, V_s = np.meshgrid(u_s, v_s)
-    col = Sx_sph(U_s, V_s)**2  # color by x^2
+    col = Sx_sph(U_s, V_s)**2
+    col_norm = (col - col.min()) / (col.max() - col.min() + 1e-15)
     ax1.plot_surface(Sx_sph(U_s, V_s), Sy_sph(U_s, V_s), Sz_sph(U_s, V_s),
-                     facecolors=plt.cm.viridis(col), alpha=0.9)
-    ax1.set_title(f"Unit sphere\n∫x²dS={I1:.4f}", fontsize=9)
+                     facecolors=PARULA(col_norm), rstride=1, cstride=1,
+                     linewidth=0, antialiased=True, shade=False)
+    ax1.set_title(f"Unit sphere\nint x^2 dS={I1:.4f}", fontsize=9, pad=0)
 
     # Seashell
     ax2 = fig.add_subplot(142, projection="3d")
-    u_sh = np.linspace(0, 2 * np.pi, 40)
-    v_sh = np.linspace(-2 * np.pi, 2 * np.pi, 60)
+    _setup_3d_axes(ax2, fig)
+    u_sh = np.linspace(0, 2 * np.pi, 60)
+    v_sh = np.linspace(-2 * np.pi, 2 * np.pi, 80)
     U_sh, V_sh = np.meshgrid(u_sh, v_sh)
     ax2.plot_surface(Sx_shell(U_sh, V_sh), Sy_shell(U_sh, V_sh),
-                     Sz_shell(U_sh, V_sh), alpha=0.8, cmap="plasma")
-    ax2.set_title("Seashell", fontsize=9)
+                     Sz_shell(U_sh, V_sh), cmap=PARULA, rstride=1,
+                     cstride=1, linewidth=0, antialiased=True)
+    ax2.set_title("Seashell", fontsize=9, pad=0)
 
     # Second seashell
     def Sx_shell2(u, v):
@@ -210,26 +217,31 @@ def run():
         return u * np.sin(v) - ((u + 3) / (8 * np.pi))**2 - 20
 
     ax3 = fig.add_subplot(143, projection="3d")
-    u_sh2 = np.linspace(0, 13 * np.pi, 60)
-    v_sh2 = np.linspace(-np.pi, np.pi, 40)
+    _setup_3d_axes(ax3, fig)
+    u_sh2 = np.linspace(0, 13 * np.pi, 80)
+    v_sh2 = np.linspace(-np.pi, np.pi, 60)
     U_sh2, V_sh2 = np.meshgrid(u_sh2, v_sh2)
     ax3.plot_surface(Sx_shell2(U_sh2, V_sh2), Sy_shell2(U_sh2, V_sh2),
-                     Sz_shell2(U_sh2, V_sh2), alpha=0.8, cmap="viridis")
-    ax3.set_title("Another seashell", fontsize=9)
+                     Sz_shell2(U_sh2, V_sh2), cmap=PARULA, rstride=1,
+                     cstride=1, linewidth=0, antialiased=True)
+    ax3.set_title("Another seashell", fontsize=9, pad=0)
 
     # Spring
     ax4 = fig.add_subplot(144, projection="3d")
-    u_sp = np.linspace(0, 10 * np.pi, 80)
-    v_sp = np.linspace(0, 10 * np.pi, 40)
+    _setup_3d_axes(ax4, fig)
+    u_sp = np.linspace(0, 10 * np.pi, 100)
+    v_sp = np.linspace(0, 10 * np.pi, 60)
     U_sp, V_sp = np.meshgrid(u_sp, v_sp)
     ax4.plot_surface(Sx_spring(U_sp, V_sp), Sy_spring(U_sp, V_sp),
-                     Sz_spring(U_sp, V_sp), alpha=0.8, cmap="coolwarm")
-    ax4.set_title("Spring", fontsize=9)
+                     Sz_spring(U_sp, V_sp), cmap=PARULA, rstride=1,
+                     cstride=1, linewidth=0, antialiased=True)
+    ax4.set_title("Spring", fontsize=9, pad=0)
 
-    fig.suptitle("Surface integrals of 3D scalar fields", fontsize=12)
+    fig.set_facecolor("white")
     fig.tight_layout()
     fig.savefig(
-        os.path.join(_IMG_DIR, "SurfaceIntegral3D.png"), dpi=150, bbox_inches="tight"
+        os.path.join(_IMG_DIR, "SurfaceIntegral3D.png"), dpi=150,
+        bbox_inches="tight"
     )
     plt.close(fig)
 

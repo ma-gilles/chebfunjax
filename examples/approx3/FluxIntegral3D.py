@@ -154,47 +154,56 @@ def run():
     # ------------------------------------------------------------------
     # Plot: surfaces
     # ------------------------------------------------------------------
-    fig = plt.figure()
+    from chebfunjax.plotting import PARULA, _setup_3d_axes
+
+    fig = plt.figure(figsize=(14, 4))
 
     # Rippled disk
     ax1 = fig.add_subplot(131, projection="3d")
-    r_vals = np.linspace(0, 5, 50)
-    t_vals = np.linspace(0, 2 * np.pi, 80)
+    _setup_3d_axes(ax1, fig)
+    r_vals = np.linspace(0, 5, 80)
+    t_vals = np.linspace(0, 2 * np.pi, 100)
     R, T = np.meshgrid(r_vals, t_vals)
     ax1.plot_surface(R * np.cos(T), R * np.sin(T), np.cos(5 * R),
-                     alpha=0.8, cmap="viridis")
-    ax1.set_title("Rippled disk\nS = (r·cos t, r·sin t, cos 5r)", fontsize=9)
+                     cmap=PARULA, rstride=1, cstride=1, linewidth=0,
+                     antialiased=True)
+    ax1.set_title("Rippled disk", fontsize=9, pad=0)
 
     # Lower hemisphere
     ax2 = fig.add_subplot(132, projection="3d")
-    phi_v = np.linspace(0, 2 * np.pi, 60)
-    theta_v = np.linspace(np.pi / 2, np.pi, 30)
+    _setup_3d_axes(ax2, fig)
+    phi_v = np.linspace(0, 2 * np.pi, 80)
+    theta_v = np.linspace(np.pi / 2, np.pi, 50)
     Phi, Theta = np.meshgrid(phi_v, theta_v)
     ax2.plot_surface(
         np.sin(Theta) * np.cos(Phi),
         np.sin(Theta) * np.sin(Phi),
         np.cos(Theta),
-        alpha=0.8, cmap="plasma"
+        cmap=PARULA, rstride=1, cstride=1, linewidth=0,
+        antialiased=True
     )
-    ax2.set_title(f"Lower hemisphere\nFlux ≈ {flux2:.4f}, exact = -2π", fontsize=9)
+    ax2.set_title(f"Lower hemisphere\nFlux = {flux2:.4f}", fontsize=9, pad=0)
 
     # Unit sphere
     ax3 = fig.add_subplot(133, projection="3d")
-    phi_s = np.linspace(0, 2 * np.pi, 60)
-    theta_s = np.linspace(0, np.pi, 40)
+    _setup_3d_axes(ax3, fig)
+    phi_s = np.linspace(0, 2 * np.pi, 80)
+    theta_s = np.linspace(0, np.pi, 60)
     Phi_s, Theta_s = np.meshgrid(phi_s, theta_s)
     ax3.plot_surface(
         np.sin(Theta_s) * np.cos(Phi_s),
         np.sin(Theta_s) * np.sin(Phi_s),
         np.cos(Theta_s),
-        alpha=0.5, cmap="coolwarm"
+        cmap=PARULA, rstride=1, cstride=1, linewidth=0,
+        antialiased=True, alpha=0.85
     )
-    ax3.set_title(f"Unit sphere\ndiv thm: ∫div(F)dV={total_flux:.4f}≈4π", fontsize=9)
+    ax3.set_title(f"Unit sphere\ndiv thm: {total_flux:.4f}", fontsize=9, pad=0)
 
-    fig.suptitle("Flux integrals over parametric surfaces", fontsize=12)
+    fig.set_facecolor("white")
     fig.tight_layout()
     fig.savefig(
-        os.path.join(_IMG_DIR, "FluxIntegral3D.png"), dpi=150, bbox_inches="tight"
+        os.path.join(_IMG_DIR, "FluxIntegral3D.png"), dpi=150,
+        bbox_inches="tight"
     )
     plt.close(fig)
 
