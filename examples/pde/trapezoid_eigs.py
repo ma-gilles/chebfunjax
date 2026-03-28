@@ -105,9 +105,9 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     # Min singular value scan
-    axes[0].plot(lam_scan, sigmin_vals, 'b-', linewidth=1.5)
+    axes[0].plot(lam_scan, sigmin_vals, color='#0072BD', linestyle='-', linewidth=1.5)
     for lam_c in eigenvalue_candidates[:3]:
-        axes[0].axvline(lam_c, color='r', linestyle='--', alpha=0.7)
+        axes[0].axvline(lam_c, color='#D95319', linestyle='--', alpha=0.7)
     axes[0].set_title(f"Min singular value vs λ (n={n_terms})", fontsize=11)
     axes[0].set_yscale('log')
 

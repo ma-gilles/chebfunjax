@@ -77,7 +77,7 @@ def run():
 
     axes[1].fill(np.real(z_perturb), np.imag(z_perturb),
                  color=[0.6, 1, 0.6], alpha=0.7)
-    axes[1].plot(np.real(c_perturb), np.imag(c_perturb), 'r+',
+    axes[1].plot(np.real(c_perturb), np.imag(c_perturb), color='#D95319', marker='+', linestyle='none',
                  markersize=15, markeredgewidth=2, label='Centroid')
     axes[1].set_aspect('equal')
     axes[1].set_title(f'Perturbed circle\nArea = {A_perturb:.4f} (≈ π = {np.pi:.4f})',

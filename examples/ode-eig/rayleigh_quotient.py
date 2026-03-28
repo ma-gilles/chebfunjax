@@ -134,7 +134,7 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     # RQI convergence
-    axes[0].semilogy(range(len(residuals)), residuals, 'bo-', markersize=7, linewidth=1.5)
+    axes[0].semilogy(range(len(residuals)), residuals, color='#0072BD', marker='o', linestyle='-', markersize=7, linewidth=1.5)
     axes[0].set_title("Rayleigh quotient iteration (matrix)\nCubic convergence", fontsize=9)
 
     # Eigenfunctions and Rayleigh quotients

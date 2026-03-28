@@ -58,7 +58,7 @@ def run():
 
     fig, axes = plt.subplots(1, 2)
     axes[0].plot(x_plot, u(x_plot), 'b', linewidth=1.8, label="chebfunjax")
-    axes[0].plot(x_plot, exact(x_plot), 'r--', linewidth=1.2, label="exp(λx)")
+    axes[0].plot(x_plot, exact(x_plot), color='#D95319', linestyle='--', linewidth=1.2, label="exp(λx)")
     axes[0].set_title(f"u′ − λu = 0,  λ={lam}", fontsize=10)
     axes[0].legend(fontsize=9)
 

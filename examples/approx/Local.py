@@ -47,10 +47,10 @@ def run():
     ax = axes[0]
     ax.plot(xx, f_vals, 'b', lw=1.5)
     for bp in breakpoints[1:-1]:
-        ax.axvline(bp, color='r', lw=0.8, ls='--')
+        ax.axvline(bp, color='#D95319', lw=0.8, ls='--')
     ax.set_title('f(x) = sin(x(20−15x)) with breakpoints', fontsize=10)
     ax2 = axes[1]
-    ax2.bar(piece_midpoints, piece_lengths, width=0.4, color='b', alpha=0.7)
+    ax2.bar(piece_midpoints, piece_lengths, width=0.4, color='#0072BD', alpha=0.7)
     ax2.set_title('Chebyshev coefficients per piece (local complexity)', fontsize=10)
     fig.suptitle('Local complexity of a function', fontsize=12)
     fig.tight_layout()

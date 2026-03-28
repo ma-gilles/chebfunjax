@@ -73,12 +73,12 @@ def run():
     c_exp = np.abs(np.array(coeffs_exp))
     c_abs = np.abs(np.array(f_abs.funs[0].tech.coeffs[:256]))
 
-    axes[0].semilogy(c_sin[:20] + 1e-17, 'b.-', label='sin(x)')
-    axes[0].semilogy(c_exp[:20] + 1e-17, 'r.-', label='exp(x)')
+    axes[0].semilogy(c_sin[:20] + 1e-17, color='#0072BD', linestyle='.-', label='sin(x)')
+    axes[0].semilogy(c_exp[:20] + 1e-17, color='#D95319', linestyle='.-', label='exp(x)')
     axes[0].set_title("Chebyshev coefficient magnitudes", fontsize=12)
     axes[0].legend()
 
-    axes[1].semilogy(c_abs[:256] + 1e-17, 'g-', label='|x|')
+    axes[1].semilogy(c_abs[:256] + 1e-17, color='#77AC30', linestyle='-', label='|x|')
     nn = np.arange(1, 257)
     axes[1].loglog(nn, 1.0/nn**2, 'k--', alpha=0.5, label='O(1/n²)')
     axes[1].set_title("Coefficient decay: |x| (algebraic)", fontsize=12)

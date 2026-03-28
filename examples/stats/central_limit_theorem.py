@@ -52,8 +52,8 @@ def run():
     # Normal with same mean and variance
     gauss = np.exp(-0.5 * ((xs - mean_X) / sigma_X)**2) / (sigma_X * np.sqrt(2 * np.pi))
 
-    axes[0].plot(xs, X_pdf, 'b-', linewidth=2, label='Triangular X')
-    axes[0].plot(xs, gauss, 'r--', linewidth=2, label='Normal fit')
+    axes[0].plot(xs, X_pdf, color='#0072BD', linestyle='-', linewidth=2, label='Triangular X')
+    axes[0].plot(xs, gauss, color='#D95319', linestyle='--', linewidth=2, label='Normal fit')
     axes[0].set_title('Distribution of X', fontsize=11)
     axes[0].legend(fontsize=9)
     axes[0].set_xlim(-3, 3); axes[0].set_ylim(-0.2, 1.2)
@@ -71,8 +71,8 @@ def run():
     X2_interp = interp1d(xs2, X2, bounds_error=False, fill_value=0)
     S2 = np.sqrt(2) * X2_interp(np.sqrt(2) * xs2_rescaled)
 
-    axes[1].plot(xs2_rescaled, S2, 'b-', linewidth=2, label='(X+X)/√2')
-    axes[1].plot(xs, gauss, 'r--', linewidth=2, label='Normal fit')
+    axes[1].plot(xs2_rescaled, S2, color='#0072BD', linestyle='-', linewidth=2, label='(X+X)/√2')
+    axes[1].plot(xs, gauss, color='#D95319', linestyle='--', linewidth=2, label='Normal fit')
     axes[1].set_title('Renorm. sum of 2', fontsize=11)
     axes[1].legend(fontsize=9)
     axes[1].set_xlim(-3, 3); axes[1].set_ylim(-0.2, 1.2)
@@ -84,8 +84,8 @@ def run():
     X3_interp = interp1d(xs3, X3, bounds_error=False, fill_value=0)
     S3 = np.sqrt(3) * X3_interp(np.sqrt(3) * xs2_rescaled)
 
-    axes[2].plot(xs2_rescaled, S3, 'b-', linewidth=2, label='(X+X+X)/√3')
-    axes[2].plot(xs, gauss, 'r--', linewidth=2, label='Normal fit')
+    axes[2].plot(xs2_rescaled, S3, color='#0072BD', linestyle='-', linewidth=2, label='(X+X+X)/√3')
+    axes[2].plot(xs, gauss, color='#D95319', linestyle='--', linewidth=2, label='Normal fit')
     axes[2].set_title('Renorm. sum of 3', fontsize=11)
     axes[2].legend(fontsize=9)
     axes[2].set_xlim(-3, 3); axes[2].set_ylim(-0.2, 1.2)

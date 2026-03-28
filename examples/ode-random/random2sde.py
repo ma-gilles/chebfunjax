@@ -77,7 +77,7 @@ def run():
     axes[0].set_ylim([-2, 2])
 
     # Show the random function itself (first path)
-    axes[1].plot(t_vals, f_paths[0], 'b-', linewidth=1.0, label=f"f(t), λ={lam}")
+    axes[1].plot(t_vals, f_paths[0], color='#0072BD', linestyle='-', linewidth=1.0, label=f"f(t), λ={lam}")
     axes[1].set_title("Random function f(t) = u'(t)", fontsize=11)
     axes[1].legend(fontsize=9)
 

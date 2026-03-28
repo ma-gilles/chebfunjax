@@ -42,7 +42,7 @@ def run():
     ax = axes[0]
     p1_vals = np.array([float(p1(jnp.array(x))) for x in xx])
     ax.plot(xx, f_vals, 'b', lw=1.8, label='sqrt(1.2−x)')
-    ax.plot(xx, p1_vals, 'r--', lw=1.5, label='degree-1 approx')
+    ax.plot(xx, p1_vals, color='#D95319', linestyle='--', lw=1.5, label='degree-1 approx')
     ax.set_title('sqrt(1.2−x) and degree-1 approximant', fontsize=11)
     ax.legend(fontsize=9)
     ax2 = axes[1]

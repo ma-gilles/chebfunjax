@@ -124,7 +124,7 @@ def run():
     axes[0, 0].set_title(f"KS initial condition (X={X})", fontsize=11)
     axes[0, 0].set_ylim([-3, 9])
 
-    axes[0, 1].plot(x1, u100, 'b-', linewidth=2)
+    axes[0, 1].plot(x1, u100, color='#0072BD', linestyle='-', linewidth=2)
     axes[0, 1].set_title("After T=100 (traveling wave)", fontsize=11)
     axes[0, 1].set_ylim([-3, 9])
 
@@ -132,7 +132,7 @@ def run():
     axes[1, 0].set_title(f"Generalized KS IC (δ={delta2}, ε={eps2})", fontsize=11)
     axes[1, 0].set_ylim([-3, 9])
 
-    axes[1, 1].plot(x2, u100_gen, 'r-', linewidth=2)
+    axes[1, 1].plot(x2, u100_gen, color='#D95319', linestyle='-', linewidth=2)
     axes[1, 1].set_title("Gen. KS after T=100", fontsize=11)
     axes[1, 1].set_ylim([-3, 9])
 

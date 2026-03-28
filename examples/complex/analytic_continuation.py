@@ -105,7 +105,7 @@ def run():
     # Left: tanh and its Chebfun approximation
     xs = np.linspace(-1, 1, 200)
     axes[0].plot(xs, np.tanh(xs), 'k-', linewidth=2, label="tanh(x)")
-    axes[0].plot(xs, np.array(f(jnp.array(xs))), 'r--', linewidth=1.5, label="Chebfun")
+    axes[0].plot(xs, np.array(f(jnp.array(xs))), color='#D95319', linestyle='--', linewidth=1.5, label="Chebfun")
     axes[0].set_title("tanh$(x)$ on $[-1,1]$")
     axes[0].legend(fontsize=9)
 

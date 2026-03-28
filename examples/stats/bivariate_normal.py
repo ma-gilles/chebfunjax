@@ -68,9 +68,9 @@ def run():
     exact_marginal_x = np.exp(-0.5 * (xs - mu1)**2 / sigma1**2) / (sigma1 * np.sqrt(2 * np.pi))
     exact_marginal_y = np.exp(-0.5 * (ys - mu2)**2 / sigma2**2) / (sigma2 * np.sqrt(2 * np.pi))
 
-    axes[1].plot(xs, marginal_x, 'b-', linewidth=2, label='Marginal X (numerical)')
-    axes[1].plot(xs, exact_marginal_x, 'r--', linewidth=2, label='N(0,1) exact')
-    axes[1].plot(ys, marginal_y, 'g-', linewidth=2, label='Marginal Y (numerical)')
+    axes[1].plot(xs, marginal_x, color='#0072BD', linestyle='-', linewidth=2, label='Marginal X (numerical)')
+    axes[1].plot(xs, exact_marginal_x, color='#D95319', linestyle='--', linewidth=2, label='N(0,1) exact')
+    axes[1].plot(ys, marginal_y, color='#77AC30', linestyle='-', linewidth=2, label='Marginal Y (numerical)')
     axes[1].set_title('Marginal distributions', fontsize=11)
     axes[1].legend(fontsize=9)
 
@@ -89,9 +89,9 @@ def run():
     exact_cond = (np.exp(-0.5 * (ys - mu_Y_given_X)**2 / sigma_Y_given_X**2)
                   / (sigma_Y_given_X * np.sqrt(2 * np.pi)))
 
-    axes[2].plot(ys, cond_pdf, 'b-', linewidth=2,
+    axes[2].plot(ys, cond_pdf, color='#0072BD', linestyle='-', linewidth=2,
                  label=f'P(Y|X={x0}) numerical')
-    axes[2].plot(ys, exact_cond, 'r--', linewidth=2,
+    axes[2].plot(ys, exact_cond, color='#D95319', linestyle='--', linewidth=2,
                  label=f'N({mu_Y_given_X:.2f}, {sigma_Y_given_X:.2f})')
     axes[2].set_title(f'Conditional P(Y|X={x0})', fontsize=11)
     axes[2].legend(fontsize=9)

@@ -119,9 +119,9 @@ def run():
     T_theory_small = 2 * np.pi * np.ones_like(mu_theory)
     T_large = (3 - 2*np.log(2)) * mu_theory
 
-    axes[2].semilogx(mu_range, found_periods, 'b.-', markersize=10,
+    axes[2].semilogx(mu_range, found_periods, color='#0072BD', linestyle='.-', markersize=10,
                       linewidth=2, label='Numerical period')
-    axes[2].semilogx(mu_range, T_theory_small, 'r--', linewidth=1.5,
+    axes[2].semilogx(mu_range, T_theory_small, color='#D95319', linestyle='--', linewidth=1.5,
                       alpha=0.6, label='2π (μ→0 limit)')
     axes[2].semilogx([m for m in mu_range if m >= 1],
                       [(3-2*np.log(2))*m for m in mu_range if m >= 1],

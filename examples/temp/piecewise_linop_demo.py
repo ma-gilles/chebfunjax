@@ -136,8 +136,8 @@ def run():
     # --- Panel 1: Piecewise ODE solution ---
     x_l, u_l, x_r, u_r = solve_piecewise_ode(n=40)
 
-    axes[0].plot(x_l, u_l, 'b-', linewidth=2.5, label='Left piece (-u"-u=0)')
-    axes[0].plot(x_r, u_r, 'r-', linewidth=2.5, label='Right piece (-u"+u=0)')
+    axes[0].plot(x_l, u_l, color='#0072BD', linestyle='-', linewidth=2.5, label='Left piece (-u"-u=0)')
+    axes[0].plot(x_r, u_r, color='#D95319', linestyle='-', linewidth=2.5, label='Right piece (-u"+u=0)')
     axes[0].axvline(0, color='k', linestyle='--', linewidth=1.5, alpha=0.7)
     axes[0].set_title("Piecewise ODE: -u''+sign(x)·u=0\nJump at x=0", fontsize=10)
     axes[0].legend(fontsize=9)
@@ -160,15 +160,15 @@ def run():
     rhs_fd[0] = 0; rhs_fd[-1] = 0
 
     u_fd = solve(A_fd, rhs_fd)
-    axes[1].plot(x_fd, u_fd, 'b-', linewidth=2.5, label='u(x)')
-    axes[1].plot(x_fd, rhs_fd, 'r--', linewidth=1.5, label='f(x)=sin(πx)')
+    axes[1].plot(x_fd, u_fd, color='#0072BD', linestyle='-', linewidth=2.5, label='u(x)')
+    axes[1].plot(x_fd, rhs_fd, color='#D95319', linestyle='--', linewidth=1.5, label='f(x)=sin(πx)')
     axes[1].axvline(0, color='k', linestyle='--', linewidth=1, alpha=0.5)
     axes[1].set_title("-u''+sign(x)·u = sin(πx)", fontsize=10)
     axes[1].legend(fontsize=9)
 
     # --- Panel 3: Sign function visualization ---
-    axes[2].plot(x_full, np.abs(sign_x), 'g-', linewidth=2, label='|sign(x)|')
-    axes[2].plot(x_full, sign_x, 'b-', linewidth=2, label='sign(x)')
+    axes[2].plot(x_full, np.abs(sign_x), color='#77AC30', linestyle='-', linewidth=2, label='|sign(x)|')
+    axes[2].plot(x_full, sign_x, color='#0072BD', linestyle='-', linewidth=2, label='sign(x)')
     axes[2].fill_between(x_full, sign_x, alpha=0.15)
     axes[2].axvline(0, color='k', linestyle='--', linewidth=1.5)
     axes[2].set_title('Piecewise coefficient\nsign(x) causes jump at x=0', fontsize=10)

@@ -128,11 +128,11 @@ def run():
     means_m, stds_m, trad_m = bayes_update2(scores_many, prior)
     k_vals = np.arange(1, len(scores_many) + 1)
     axes[2].plot(k_vals, trad_m, 'k.-', markersize=10, linewidth=2, label='Traditional avg')
-    axes[2].plot(k_vals, means_m, 'r.-', markersize=10, linewidth=2, label='Bayes mean')
+    axes[2].plot(k_vals, means_m, color='#D95319', linestyle='.-', markersize=10, linewidth=2, label='Bayes mean')
     axes[2].fill_between(k_vals,
                          np.array(means_m) - np.array(stds_m),
                          np.array(means_m) + np.array(stds_m),
-                         alpha=0.2, color='red', label='±1 std')
+                         alpha=0.2, color='#D95319', label='±1 std')
     axes[2].set_title('Inconsistent student (σ=0.15)', fontsize=10)
     axes[2].legend(fontsize=9)
     axes[2].set_ylim(0, 1)

@@ -62,8 +62,8 @@ def run():
     ys_true = 1.0 / (1 + 25 * xs_fine**2)
 
     axes[0].plot(xs_data, ys_data, 'xk', markersize=6, alpha=0.6, label='Noisy data')
-    axes[0].plot(xs_fine, ys_true, 'g--', linewidth=2, label='True f(x)')
-    axes[0].plot(xs_fine, ys_fit, 'r-', linewidth=2, label=f'Degree-{deg} fit')
+    axes[0].plot(xs_fine, ys_true, color='#77AC30', linestyle='--', linewidth=2, label='True f(x)')
+    axes[0].plot(xs_fine, ys_fit, color='#D95319', linestyle='-', linewidth=2, label=f'Degree-{deg} fit')
     axes[0].set_title('Discrete polynomial least-squares fit', fontsize=11)
     axes[0].legend(fontsize=9)
 
@@ -85,7 +85,7 @@ def run():
     ys_fit_c = eval_cheb(xs_c, coeffs_c)
 
     axes[1].plot(xs_c, ys_c, 'k-', linewidth=1.5, label='f(x) = |x+0.2| - 0.5·sgn(x-0.5)')
-    axes[1].plot(xs_c, ys_fit_c, 'r-', linewidth=2, label=f'Degree-{deg_c} LS fit')
+    axes[1].plot(xs_c, ys_fit_c, color='#D95319', linestyle='-', linewidth=2, label=f'Degree-{deg_c} LS fit')
     axes[1].set_title('Continuous polynomial least-squares fit', fontsize=11)
     axes[1].legend(fontsize=9)
 

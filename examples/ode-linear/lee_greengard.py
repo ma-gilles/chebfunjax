@@ -102,7 +102,7 @@ def run():
     x_plot = jnp.linspace(-1.0, 1.0, 400)
 
     axes[0].plot(x_plot, u1(x_plot), 'b', linewidth=1.8, label="chebfunjax")
-    axes[0].plot(x_plot, exact_shock(np.array(x_plot), eps), 'r--',
+    axes[0].plot(x_plot, exact_shock(np.array(x_plot), eps), color='#D95319', linestyle='--',
                  linewidth=1.2, label="exact erf")
     axes[0].set_title(f"Viscous shock (ε={eps})", fontsize=10)
     axes[0].legend(fontsize=7)
@@ -112,7 +112,7 @@ def run():
     axes[1].axvline(0.3, color='k', linestyle='--', linewidth=0.8)
 
     axes[2].plot(x_plot, u3(x_plot), 'b', linewidth=1.8, label="chebfunjax")
-    axes[2].plot(x_test3, exact3(x_test3), 'r--', linewidth=1.2, label="Airy")
+    axes[2].plot(x_test3, exact3(x_test3), color='#D95319', linestyle='--', linewidth=1.2, label="Airy")
     axes[2].set_title(f"Airy equation (ε={eps3})", fontsize=10)
     axes[2].legend(fontsize=7)
 

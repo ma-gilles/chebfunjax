@@ -56,7 +56,7 @@ def run():
     ax = axes[0]
     ax.plot(xx, noisy_vals, '.', color='gray', ms=3, alpha=0.7, label='noisy data')
     ax.plot(xx, true_vals, 'k--', lw=1.5, label='true signal')
-    ax.axvline(0, color='r', lw=1.0, ls='--', label='discontinuity')
+    ax.axvline(0, color='#D95319', lw=1.0, ls='--', label='discontinuity')
     ax.set_title('Noisy function with discontinuity', fontsize=10)
     ax.legend(fontsize=8)
     ax2 = axes[1]

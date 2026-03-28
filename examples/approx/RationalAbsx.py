@@ -54,10 +54,10 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
-    ax.semilogy(poly_ns, poly_errs, 'b.-', lw=1.5, ms=10, label='poly errors')
-    ax.semilogy(poly_ns, 1.0 / np.array(poly_ns), 'b--', lw=1.2,
+    ax.semilogy(poly_ns, poly_errs, color='#0072BD', linestyle='.-', lw=1.5, ms=10, label='poly errors')
+    ax.semilogy(poly_ns, 1.0 / np.array(poly_ns), color='#0072BD', linestyle='--', lw=1.2,
                 label='O(1/n) reference')
-    ax.axhline(rat_err_full, color='r', ls='--', lw=1.5,
+    ax.axhline(rat_err_full, color='#D95319', ls='--', lw=1.5,
                label=f'AAA ({len(pol)} poles, err={rat_err_full:.2e})')
     ax.set_title('Approximation errors for |x|', fontsize=10)
     ax.legend(fontsize=8)

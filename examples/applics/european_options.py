@@ -123,21 +123,21 @@ def run():
 
     axes[0].plot(S_p, put_payoff(S_p), 'k-', linewidth=2, label=f'Put payoff K={K_put}')
     axes[0].fill_between(S_p, pdf_p / pdf_p.max() * 50, 0, alpha=0.3, label='PDF (scaled)')
-    axes[0].axvline(K_put, color='r', linestyle='--', label=f'K={K_put}')
+    axes[0].axvline(K_put, color='#D95319', linestyle='--', label=f'K={K_put}')
     axes[0].set_title("European Put option", fontsize=11)
     axes[0].legend(fontsize=9)
 
     axes[1].plot(S_p, digital_call_payoff(S_p), 'k-', linewidth=2,
                  label=f'Digital call K={K_dig}')
     axes[1].fill_between(S_p, pdf_p / pdf_p.max(), 0, alpha=0.3, label='PDF (scaled)')
-    axes[1].axvline(K_dig, color='r', linestyle='--')
+    axes[1].axvline(K_dig, color='#D95319', linestyle='--')
     axes[1].set_title("Digital (binary) option", fontsize=11)
     axes[1].legend(fontsize=9)
 
     axes[2].plot(S_p, np.where(S_p > K_pow, (S_p - K_pow)**2, 0), 'k-', linewidth=2,
                  label=f'Power call (p=2)')
     axes[2].fill_between(S_p, pdf_p / pdf_p.max() * 200, 0, alpha=0.3, label='PDF (scaled)')
-    axes[2].axvline(K_pow, color='r', linestyle='--')
+    axes[2].axvline(K_pow, color='#D95319', linestyle='--')
     axes[2].set_title(f"Power call (p={p:.0f})", fontsize=11)
     axes[2].legend(fontsize=9)
 

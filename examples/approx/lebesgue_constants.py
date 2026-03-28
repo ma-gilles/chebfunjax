@@ -81,11 +81,11 @@ def run():
 
     fig, axes = plt.subplots(2, 2)
 
-    axes[0, 0].plot(x_c, L_c, 'b-', linewidth=1.5)
+    axes[0, 0].plot(x_c, L_c, color='#0072BD', linestyle='-', linewidth=1.5)
     axes[0, 0].set_title(f'10 Chebyshev nodes,  $\\Lambda$ = {Lambda_c:.2f}', fontsize=11)
     axes[0, 0].set_ylim(bottom=0)
 
-    axes[0, 1].plot(x_e, L_e, 'r-', linewidth=1.5)
+    axes[0, 1].plot(x_e, L_e, color='#D95319', linestyle='-', linewidth=1.5)
     axes[0, 1].set_title(f'10 equispaced nodes,  $\\Lambda$ = {Lambda_e:.2f}', fontsize=11)
     axes[0, 1].set_ylim(bottom=0)
 
@@ -96,10 +96,10 @@ def run():
     x_c2, L_c2, Lambda_c2 = lebesgue_constant_and_function(cheb_nodes2)
     x_e2, L_e2, Lambda_e2 = lebesgue_constant_and_function(equi_nodes2)
 
-    axes[1, 0].semilogy(x_c2, np.maximum(L_c2, 1e-14), 'b-', linewidth=1.5)
+    axes[1, 0].semilogy(x_c2, np.maximum(L_c2, 1e-14), color='#0072BD', linestyle='-', linewidth=1.5)
     axes[1, 0].set_title(f'30 Chebyshev nodes,  $\\Lambda$ = {Lambda_c2:.2f}', fontsize=11)
 
-    axes[1, 1].semilogy(x_e2, np.maximum(L_e2, 1e-14), 'r-', linewidth=1.5)
+    axes[1, 1].semilogy(x_e2, np.maximum(L_e2, 1e-14), color='#D95319', linestyle='-', linewidth=1.5)
     axes[1, 1].set_title(f'30 equispaced nodes,  $\\Lambda$ ≈ {Lambda_e2:.2e}', fontsize=11)
 
     fig.suptitle('Lebesgue functions: Chebyshev vs. equispaced nodes', fontsize=12)

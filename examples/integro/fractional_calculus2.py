@@ -98,8 +98,8 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     # Panel 1: half-integral of P_4 vs analytical
-    axes[0].plot(x, J_half_analytical, 'r-', linewidth=2, label='Analytical formula')
-    axes[0].plot(x_num[::5], J_half_num[::5], 'b.', markersize=6, label='Numerical J^(1/2)')
+    axes[0].plot(x, J_half_analytical, color='#D95319', linestyle='-', linewidth=2, label='Analytical formula')
+    axes[0].plot(x_num[::5], J_half_num[::5], color='#0072BD', marker='.', linestyle='none', markersize=6, label='Numerical J^(1/2)')
     axes[0].plot(x, P_n, 'k--', linewidth=1.5, label=f'P_{n}(x)')
     axes[0].set_title(f"J^(1/2) P_{n}(x): analytical vs numerical", fontsize=11)
     axes[0].legend(fontsize=9)
@@ -109,7 +109,7 @@ def run():
     n_vals = np.arange(1, 9)
     # Coefficients c_n of P_n in J^(1/2) expansion: c_n = 1/((n+1/2)*Gamma(1/2))
     b_coeffs = 1.0 / ((n_vals + 0.5) * gamma(0.5))
-    axes[1].semilogy(n_vals, np.abs(b_coeffs), 'b.-', markersize=10)
+    axes[1].semilogy(n_vals, np.abs(b_coeffs), color='#0072BD', linestyle='.-', markersize=10)
     axes[1].set_title("Coefficient magnitudes in J^(1/2) formula", fontsize=11)
 
     fig.suptitle("Fractional calculus algorithms (Legendre/Jacobi)", fontsize=13)

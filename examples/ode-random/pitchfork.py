@@ -97,8 +97,8 @@ def run():
 
     # Panel 1: no damping
     axes[0].plot(t_eval, y0, 'k--', linewidth=2, alpha=0.7, label='no noise')
-    axes[0].plot(t_eval, y1, 'b-', linewidth=1.5, alpha=0.8, label='path 1')
-    axes[0].plot(t_eval, y2, 'r-', linewidth=1.5, alpha=0.8, label='path 2')
+    axes[0].plot(t_eval, y1, color='#0072BD', linestyle='-', linewidth=1.5, alpha=0.8, label='path 1')
+    axes[0].plot(t_eval, y2, color='#D95319', linestyle='-', linewidth=1.5, alpha=0.8, label='path 2')
     axes[0].plot(t_stab, branch_pos, 'k-', linewidth=1, alpha=0.4)
     axes[0].plot(t_stab, branch_neg, 'k-', linewidth=1, alpha=0.4)
     axes[0].axvline(300, color='gray', linestyle=':', linewidth=1, alpha=0.5)
@@ -108,8 +108,8 @@ def run():
 
     # Panel 2: with damping
     axes[1].plot(t_eval, y0, 'k--', linewidth=2, alpha=0.7, label='no noise')
-    axes[1].plot(t_eval, y1d, 'b-', linewidth=1.5, alpha=0.8, label='path 1')
-    axes[1].plot(t_eval, y2d, 'r-', linewidth=1.5, alpha=0.8, label='path 2')
+    axes[1].plot(t_eval, y1d, color='#0072BD', linestyle='-', linewidth=1.5, alpha=0.8, label='path 1')
+    axes[1].plot(t_eval, y2d, color='#D95319', linestyle='-', linewidth=1.5, alpha=0.8, label='path 2')
     axes[1].plot(t_stab, branch_pos, 'k-', linewidth=1, alpha=0.4)
     axes[1].plot(t_stab, branch_neg, 'k-', linewidth=1, alpha=0.4)
     axes[1].axvline(300, color='gray', linestyle=':', linewidth=1, alpha=0.5)

@@ -55,8 +55,8 @@ def run():
     J_num = half_integral_numerical(Pn, x)
 
     axes[0].plot(x, Pn, 'k-', linewidth=2, label=f'$P_{n}(x)$')
-    axes[0].plot(x, J_exact, 'b--', linewidth=2, label='Explicit formula')
-    axes[0].plot(x[5:], J_num[5:], 'r:', linewidth=2.5, label='Numerical')
+    axes[0].plot(x, J_exact, color='#0072BD', linestyle='--', linewidth=2, label='Explicit formula')
+    axes[0].plot(x[5:], J_num[5:], color='#D95319', linestyle=':', linewidth=2.5, label='Numerical')
     axes[0].set_title(f'Half-integral of $P_{n}(x)$\n'
                        f'$(T_n + T_{{n+1}}) / (\\Gamma(1/2)(n+1/2)\\sqrt{{1+x}})$',
                        fontsize=9)
@@ -95,8 +95,8 @@ def run():
     z_vals = np.linspace(0.1, 3, 100)
     B_half = gamma(z_vals) * gamma(0.5) / gamma(z_vals + 0.5)
 
-    axes[2].plot(z_vals, B_half, 'b-', linewidth=2, label='B(z, 1/2)')
-    axes[2].plot(z_vals, np.pi / (2*np.sqrt(z_vals)), 'r--', linewidth=2,
+    axes[2].plot(z_vals, B_half, color='#0072BD', linestyle='-', linewidth=2, label='B(z, 1/2)')
+    axes[2].plot(z_vals, np.pi / (2*np.sqrt(z_vals)), color='#D95319', linestyle='--', linewidth=2,
                  alpha=0.7, label='π/(2√z) (large z)')
 
     # Show Gamma function ratio

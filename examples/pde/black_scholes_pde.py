@@ -159,10 +159,10 @@ def run():
     d2_bs = d1_bs - sigma * np.sqrt(0.5)
     v_bs = s_bs * norm.cdf(d1_bs) - K * np.exp(-r * 0.5) * norm.cdf(d2_bs)
 
-    axes[1].plot(s_bs, v_bs, 'r-', linewidth=2, label='Black-Scholes formula')
+    axes[1].plot(s_bs, v_bs, color='#D95319', linestyle='-', linewidth=2, label='Black-Scholes formula')
     t_last, v_last = results[-1]
-    axes[1].plot(s_plot, v_last[s_range], 'b.', markersize=5, label='Numerical (t=0.5)')
-    axes[1].axvline(55, color='g', linestyle=':', label=f's=55: {v_at_55:.3f}')
+    axes[1].plot(s_plot, v_last[s_range], color='#0072BD', marker='.', linestyle='none', markersize=5, label='Numerical (t=0.5)')
+    axes[1].axvline(55, color='#77AC30', linestyle=':', label=f's=55: {v_at_55:.3f}')
     axes[1].set_title("Comparison with Black-Scholes at t=0.5", fontsize=11)
     axes[1].legend(fontsize=9)
 

@@ -82,7 +82,7 @@ def run():
     finite_errs = [(n, e) for n, e in zip(ns, errs) if np.isfinite(e)]
     if finite_errs:
         ns_plot, errs_plot = zip(*finite_errs)
-        axes[0].semilogy(ns_plot, errs_plot, 'b.-', markersize=8, linewidth=1.5)
+        axes[0].semilogy(ns_plot, errs_plot, color='#0072BD', linestyle='.-', markersize=8, linewidth=1.5)
         axes[0].set_title("Rootfinding accuracy: $\\sin(n\\pi x)$")
 
     # Right: example sin(20*pi*x) with roots

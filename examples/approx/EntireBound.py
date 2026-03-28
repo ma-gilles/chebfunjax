@@ -32,7 +32,7 @@ def run():
     nvec = np.arange(len(coeffs))
 
     fig, ax = plt.subplots()
-    ax.semilogy(nvec, coeffs, 'b.', ms=7, label='Chebfun coefficients')
+    ax.semilogy(nvec, coeffs, color='#0072BD', marker='.', linestyle='none', ms=7, label='Chebfun coefficients')
 
     # Bernstein bounds for rho = 2, 4, 8, 16, 32
     colors = ['r', 'g', 'm', 'c', 'orange']
@@ -57,9 +57,9 @@ def run():
 
     fig2, ax2 = plt.subplots()
     nvec2 = np.arange(len(coeffs2))
-    ax2.semilogy(nvec2, coeffs2, 'b.', ms=7, label='Chebfun coefficients')
+    ax2.semilogy(nvec2, coeffs2, color='#0072BD', marker='.', linestyle='none', ms=7, label='Chebfun coefficients')
     M2 = 1.0 / abs(1 + (rho_exact**2 + rho_exact**(-2)) / 4 - 1.0)
-    ax2.semilogy(nvec2, 2 * M2 * rho_exact**(-nvec2), 'r--', lw=1.5,
+    ax2.semilogy(nvec2, 2 * M2 * rho_exact**(-nvec2), color='#D95319', linestyle='--', lw=1.5,
                  label=f'ρ={rho_exact:.3f} bound')
     ax2.set_title('Chebyshev coefficients of 1/(1+x²)', fontsize=11)
     ax2.legend(fontsize=9)

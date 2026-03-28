@@ -95,13 +95,13 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(t_arr, y, 'b', linewidth=1.6, label="pantograph y'=−y(t/2)")
-    axes[0].plot(t_ref, y_ref, 'r--', linewidth=1.2, label="reference exp(−t)")
+    axes[0].plot(t_ref, y_ref, color='#D95319', linestyle='--', linewidth=1.2, label="reference exp(−t)")
     axes[0].set_title("Pantograph vs reference DDE", fontsize=10)
     axes[0].legend(fontsize=8)
 
     axes[1].semilogy(t_arr, np.clip(np.abs(y), 1e-15, None), 'b',
                      linewidth=1.6, label="pantograph")
-    axes[1].semilogy(t_ref, y_ref, 'r--', linewidth=1.2, label="exp(−t)")
+    axes[1].semilogy(t_ref, y_ref, color='#D95319', linestyle='--', linewidth=1.2, label="exp(−t)")
     axes[1].set_title("Log-scale comparison", fontsize=10)
     axes[1].legend(fontsize=8)
 

@@ -99,7 +99,7 @@ def run():
 
     # Plot solution
     axes[1].plot(x_test, u(x_test), 'b', linewidth=1.8, label="chebfunjax")
-    axes[1].plot(x_test, exact, 'r--', linewidth=1.2, label="cos(πx/2)")
+    axes[1].plot(x_test, exact, color='#D95319', linestyle='--', linewidth=1.2, label="cos(πx/2)")
     axes[1].set_title("−u″ = (π/2)² cos(πx/2)", fontsize=10)
     axes[1].legend(fontsize=8)
 

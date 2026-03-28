@@ -86,7 +86,7 @@ def run():
 
     # Complex plane plot
     theta = np.linspace(0, 2 * np.pi, 200)
-    axes[0].plot(np.cos(theta), np.sin(theta), 'r--', linewidth=1, alpha=0.5,
+    axes[0].plot(np.cos(theta), np.sin(theta), color='#D95319', linestyle='--', linewidth=1, alpha=0.5,
                  label='Unit circle')
     axes[0].plot(np.real(lam), np.imag(lam), 'k.', markersize=10,
                  label=f'80 eigenvalues')
@@ -96,7 +96,7 @@ def run():
     axes[0].legend(fontsize=9)
 
     # Magnitude plot
-    axes[1].plot(range(1, len(lam) + 1), np.abs(lam), 'b.-', markersize=6)
+    axes[1].plot(range(1, len(lam) + 1), np.abs(lam), color='#0072BD', linestyle='.-', markersize=6)
     axes[1].set_title("Eigenvalue magnitudes (sorted)", fontsize=11)
 
     fig.suptitle("Fox-Li integral operator eigenvalues", fontsize=13)

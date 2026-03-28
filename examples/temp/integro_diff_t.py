@@ -87,7 +87,7 @@ def run():
     # --- Panel 3: Total mass vs time ---
     ax3 = fig.add_subplot(133)
     masses = [np.trapezoid(sol.y[:, i], x) for i in range(len(t_eval))]
-    ax3.plot(t_eval, masses, 'b-', linewidth=2.5)
+    ax3.plot(t_eval, masses, color='#0072BD', linestyle='-', linewidth=2.5)
     ax3.set_title('Total mass ∫u dx vs time', fontsize=10)
     print(f"  Initial mass: {masses[0]:.4f}")
     print(f"  Final mass: {masses[-1]:.4f}")

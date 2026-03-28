@@ -76,8 +76,8 @@ def run():
     c_ch = np.abs(np.array(vals2coeffs(ys_p)))
     c_lg = np.abs(np.array(cheb2leg(jnp.array(c_ch))))
 
-    axes[0].semilogy(c_ch + 1e-17, 'b.-', label='Chebyshev')
-    axes[0].semilogy(c_lg + 1e-17, 'r.-', label='Legendre')
+    axes[0].semilogy(c_ch + 1e-17, color='#0072BD', linestyle='.-', label='Chebyshev')
+    axes[0].semilogy(c_lg + 1e-17, color='#D95319', linestyle='.-', label='Legendre')
     axes[0].set_title("Cheb vs Legendre coefficients of exp(x)", fontsize=11)
     axes[0].legend()
 
@@ -93,7 +93,7 @@ def run():
         errors.append(float(jnp.max(jnp.abs(c_s - c2_s))))
 
     axes[1].loglog(sizes, errors, 'ko-')
-    axes[1].axhline(1e-14, color='r', linestyle='--', alpha=0.5, label='machine ε')
+    axes[1].axhline(1e-14, color='#D95319', linestyle='--', alpha=0.5, label='machine ε')
     axes[1].set_title("Round-trip error vs. n", fontsize=11)
     axes[1].legend()
 

@@ -107,7 +107,7 @@ def run():
 
     # Plot melody as step function
     ax2 = axes[1]
-    ax2.step(t, [f if f > 0 else np.nan for f in freqs1], 'r-',
+    ax2.step(t, [f if f > 0 else np.nan for f in freqs1], color='#D95319', linestyle='-',
              linewidth=2, where='post')
     ax2.set_title('"Kling Gloeckchen"\nmelody (voice 1)', fontsize=10)
     ax2.set_facecolor('#001133')
@@ -135,11 +135,11 @@ def run():
     t2 = np.linspace(0, len(notes2), len(notes2))
     t3 = np.linspace(0, len(notes3), len(notes3))
 
-    ax3.step(t, [f if f > 0 else np.nan for f in freqs1], 'r-',
+    ax3.step(t, [f if f > 0 else np.nan for f in freqs1], color='#D95319', linestyle='-',
              linewidth=1.5, where='post', label='Voice 1 (soprano)', alpha=0.9)
-    ax3.step(t2, [f if f > 0 else np.nan for f in freqs2], 'g-',
+    ax3.step(t2, [f if f > 0 else np.nan for f in freqs2], color='#77AC30', linestyle='-',
              linewidth=1.5, where='post', label='Voice 2 (alto)', alpha=0.9)
-    ax3.step(t3, [f if f > 0 else np.nan for f in freqs3], 'b-',
+    ax3.step(t3, [f if f > 0 else np.nan for f in freqs3], color='#0072BD', linestyle='-',
              linewidth=1.5, where='post', label='Voice 3 (bass)', alpha=0.9)
     ax3.set_title('Three-voice harmony\n"Kling Gloeckchen"', fontsize=10)
     ax3.legend(fontsize=8)

@@ -67,15 +67,15 @@ def run():
 
     xx = np.linspace(-1, 1, 600)
     fv = np.array(fc(jnp.array(xx)))
-    axes[0].plot(xx, fv, 'b-', linewidth=1.5, label='$f$')
+    axes[0].plot(xx, fv, color='#0072BD', linestyle='-', linewidth=1.5, label='$f$')
     axes[0].plot(cheb_pts, fvals_desc, '.r', markersize=7, label='Cheb-2 nodes')
     axes[0].set_title(r'$f(x) = e^x \sin(\pi x) + x$', fontsize=11)
     axes[0].legend(fontsize=10)
 
     # Coefficient decay
-    axes[1].semilogy(np.abs(coeffs_cj), 'b.-', markersize=6, linewidth=1.2,
+    axes[1].semilogy(np.abs(coeffs_cj), color='#0072BD', linestyle='.-', markersize=6, linewidth=1.2,
                      label='Chebyshev coefficients')
-    axes[1].semilogy(np.abs(coeffs_fft), 'r--', linewidth=1.0,
+    axes[1].semilogy(np.abs(coeffs_fft), color='#D95319', linestyle='--', linewidth=1.0,
                      label='Via FFT', alpha=0.7)
     axes[1].set_title('Chebyshev coefficient decay', fontsize=11)
     axes[1].legend(fontsize=10)

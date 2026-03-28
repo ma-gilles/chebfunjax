@@ -112,9 +112,9 @@ def run():
 
     # Panel 2: half-derivative of x vs exact
     axes[1].plot(x4, f_x, 'k-', linewidth=2, label='f(x) = x')
-    axes[1].plot(x4, np.gradient(x4, x4), 'g--', linewidth=2, label="f'(x) = 1")
-    axes[1].plot(x4, exact_half, 'b-', linewidth=2, label='D^(1/2) x = 2√(x/π) exact')
-    axes[1].plot(x4[::10], d_half[::10], 'r.', markersize=8, label='Numerical D^(1/2) x')
+    axes[1].plot(x4, np.gradient(x4, x4), color='#77AC30', linestyle='--', linewidth=2, label="f'(x) = 1")
+    axes[1].plot(x4, exact_half, color='#0072BD', linestyle='-', linewidth=2, label='D^(1/2) x = 2√(x/π) exact')
+    axes[1].plot(x4[::10], d_half[::10], color='#D95319', marker='.', linestyle='none', markersize=8, label='Numerical D^(1/2) x')
     axes[1].set_title("Half-derivative of x", fontsize=11)
     axes[1].legend(fontsize=9)
     axes[1].set_ylim([0, 4])

@@ -53,8 +53,8 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
-    ax.semilogy(degrees, poly_errs, 'b.-', lw=1.5, ms=10, label='poly L2')
-    ax.axhline(rational_err, color='r', lw=1.5, ls='--',
+    ax.semilogy(degrees, poly_errs, color='#0072BD', linestyle='.-', lw=1.5, ms=10, label='poly L2')
+    ax.axhline(rational_err, color='#D95319', lw=1.5, ls='--',
                label=f'AAA rational ({len(pol_aaa)} poles)')
     ax.set_title('Approximation errors for √x on [10⁻⁴, 1]', fontsize=10)
     ax.legend(fontsize=9)

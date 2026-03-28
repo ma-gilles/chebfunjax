@@ -119,9 +119,9 @@ def run():
     # Left: roots of p1 with Rouche circle
     theta = np.linspace(0, 2*pi, 200)
     roots1_all = np.roots([1, 0, 0, 3, 0, 1])
-    axes[0].plot(2*np.cos(theta), 2*np.sin(theta), 'b-', linewidth=1.5, label="|z|=2")
-    axes[0].plot(np.cos(theta), np.sin(theta), 'g--', linewidth=1, alpha=0.5, label="|z|=1")
-    axes[0].plot(roots1_all.real, roots1_all.imag, 'rx', markersize=8,
+    axes[0].plot(2*np.cos(theta), 2*np.sin(theta), color='#0072BD', linestyle='-', linewidth=1.5, label="|z|=2")
+    axes[0].plot(np.cos(theta), np.sin(theta), color='#77AC30', linestyle='--', linewidth=1, alpha=0.5, label="|z|=1")
+    axes[0].plot(roots1_all.real, roots1_all.imag, color='#D95319', marker='x', linestyle='none', markersize=8,
                  markeredgewidth=2, label="roots of $p$")
     axes[0].set_aspect('equal')
     axes[0].set_xlim(-2.5, 2.5)

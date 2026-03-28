@@ -116,13 +116,13 @@ def run():
     D_plot = black_scholes_delta(S_plot, K, T, r, sigma)
     intrinsic = np.maximum(S_plot - K, 0)
 
-    axes[0].plot(S_plot, C_plot, 'b-', linewidth=2, label='Call price')
-    axes[0].plot(S_plot, intrinsic, 'r--', linewidth=1.5, label='Intrinsic value')
+    axes[0].plot(S_plot, C_plot, color='#0072BD', linestyle='-', linewidth=2, label='Call price')
+    axes[0].plot(S_plot, intrinsic, color='#D95319', linestyle='--', linewidth=1.5, label='Intrinsic value')
     axes[0].axvline(K, color='k', linestyle=':', alpha=0.5, label=f'Strike K={K}')
     axes[0].set_title("Black-Scholes call option", fontsize=12)
     axes[0].legend(fontsize=9)
 
-    axes[1].plot(S_plot, D_plot, 'g-', linewidth=2)
+    axes[1].plot(S_plot, D_plot, color='#77AC30', linestyle='-', linewidth=2)
     axes[1].axhline(0.5, color='k', linestyle='--', alpha=0.5, label='Δ=0.5 (ATM)')
     axes[1].set_title("Delta: dC/dS", fontsize=12)
     axes[1].legend(fontsize=9)

@@ -55,7 +55,7 @@ def run():
     # Plot
     axes[0].hist(samples_vm, bins=50, density=True, color='steelblue',
                  edgecolor='white', alpha=0.7, label='Samples')
-    axes[0].plot(xs_vm, density_vm, 'r-', linewidth=2, label='von Mises density')
+    axes[0].plot(xs_vm, density_vm, color='#D95319', linestyle='-', linewidth=2, label='von Mises density')
     axes[0].set_title('von Mises distribution (κ=1.5)', fontsize=11)
     axes[0].legend(fontsize=9)
 
@@ -85,7 +85,7 @@ def run():
 
     axes[1].hist(samples_ln, bins=50, density=True, color='steelblue',
                  edgecolor='white', alpha=0.7, label='Samples')
-    axes[1].plot(xs_ln, density_ln, 'r-', linewidth=2, label='Logit-normal density')
+    axes[1].plot(xs_ln, density_ln, color='#D95319', linestyle='-', linewidth=2, label='Logit-normal density')
     axes[1].set_title('Logit-normal distribution (σ=1.11)', fontsize=11)
     axes[1].legend(fontsize=9)
     axes[1].set_xlim(0, 1)

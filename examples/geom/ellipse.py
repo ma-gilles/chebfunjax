@@ -59,7 +59,7 @@ def run():
     theta_plot = np.linspace(0, 2 * np.pi, 500)
     x_e = a * np.cos(theta_plot)
     y_e = b * np.sin(theta_plot)
-    axes[0].plot(x_e, y_e, 'b-', linewidth=2)
+    axes[0].plot(x_e, y_e, color='#0072BD', linestyle='-', linewidth=2)
     axes[0].set_aspect('equal')
     axes[0].set_title(f"Poisson's ellipse\na={a:.4f}, b={b:.4f}", fontsize=11)
     axes[0].text(0, -b*1.3, f'Perimeter ≈ {arc_cheb:.8f}\nExact: {exact:.8f}',

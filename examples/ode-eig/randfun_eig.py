@@ -124,7 +124,7 @@ def run():
     # Circular law
     theta = np.linspace(0, 2*np.pi, 300)
     axes[0].plot(np.real(eigs_mat), np.imag(eigs_mat), 'k.', markersize=1.5, alpha=0.5)
-    axes[0].plot(np.cos(theta), np.sin(theta), 'r-', linewidth=1.5, label="|z|=1")
+    axes[0].plot(np.cos(theta), np.sin(theta), color='#D95319', linestyle='-', linewidth=1.5, label="|z|=1")
     axes[0].set_aspect('equal')
     axes[0].set_title(f"Circular law: n={n} Gaussian matrix", fontsize=9)
     axes[0].legend(fontsize=8)
@@ -135,7 +135,7 @@ def run():
                  alpha=0.7, label="eigenvalues")
     # Semicircle density: 2/pi * sqrt(1-x^2) for |x|<=1
     x_sc = np.linspace(-1, 1, 200)
-    axes[1].plot(x_sc, 2/np.pi * np.sqrt(1 - x_sc**2), 'r-', linewidth=2,
+    axes[1].plot(x_sc, 2/np.pi * np.sqrt(1 - x_sc**2), color='#D95319', linestyle='-', linewidth=2,
                  label="semicircle")
     axes[1].set_title("Semicircle law: symmetric matrix", fontsize=9)
     axes[1].legend(fontsize=8)

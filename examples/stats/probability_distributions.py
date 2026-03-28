@@ -127,8 +127,8 @@ def run():
     # Convolution result (using numpy-based convolution computed above)
     xs_plot_conv = np.linspace(-6, 6, 200)
     exact_conv = np.exp(-xs_plot_conv**2/4) / (np.sqrt(2) * np.sqrt(2*np.pi))
-    axes[1].plot(xs_plot_conv, conv_half, 'b-', linewidth=2, label='N(0,1) ∗ N(0,1)')
-    axes[1].plot(xs_plot_conv, exact_conv, 'r--', linewidth=2, label='N(0,√2) exact')
+    axes[1].plot(xs_plot_conv, conv_half, color='#0072BD', linestyle='-', linewidth=2, label='N(0,1) ∗ N(0,1)')
+    axes[1].plot(xs_plot_conv, exact_conv, color='#D95319', linestyle='--', linewidth=2, label='N(0,√2) exact')
     axes[1].set_title("Convolution of normals", fontsize=12)
     axes[1].legend(fontsize=9)
 

@@ -146,13 +146,13 @@ def run():
 
     # Left: the contour and poles for Example 1
     theta = np.linspace(0, 2*pi, 200)
-    axes[0].plot(2*np.cos(theta), 2*np.sin(theta), 'b-', linewidth=2, label="|z|=2")
+    axes[0].plot(2*np.cos(theta), 2*np.sin(theta), color='#0072BD', linestyle='-', linewidth=2, label="|z|=2")
     poles_in = [0, 1]
     poles_out = [3]
     for p in poles_in:
-        axes[0].plot(p, 0, 'rx', markersize=10, markeredgewidth=2, label="pole (inside)")
+        axes[0].plot(p, 0, color='#D95319', marker='x', linestyle='none', markersize=10, markeredgewidth=2, label="pole (inside)")
     for p in poles_out:
-        axes[0].plot(p, 0, 'bs', markersize=8, markerfacecolor='none', label="pole (outside)")
+        axes[0].plot(p, 0, color='#0072BD', marker='s', linestyle='none', markersize=8, markerfacecolor='none', label="pole (outside)")
     axes[0].set_aspect('equal')
     axes[0].set_xlim(-3, 4)
     axes[0].set_ylim(-3, 3)

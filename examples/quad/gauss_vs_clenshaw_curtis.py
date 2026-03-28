@@ -73,13 +73,13 @@ def run():
 
     # Left: function plot
     xx = np.linspace(-1, 1, 600)
-    axes[0].plot(xx, f_fn(xx), 'b-', linewidth=1.5)
+    axes[0].plot(xx, f_fn(xx), color='#0072BD', linestyle='-', linewidth=1.5)
     axes[0].set_title(r'$f(x) = x\sin(2e^{2\sin(2e^{2x})})$', fontsize=11)
 
     # Right: convergence
-    axes[1].semilogy(NN, err_gauss, 'b.-', markersize=8, linewidth=1.4,
+    axes[1].semilogy(NN, err_gauss, color='#0072BD', linestyle='.-', markersize=8, linewidth=1.4,
                      label='Gauss-Legendre')
-    axes[1].semilogy(NN, err_cc, 'r.-', markersize=8, linewidth=1.4,
+    axes[1].semilogy(NN, err_cc, color='#D95319', linestyle='.-', markersize=8, linewidth=1.4,
                      label='Clenshaw-Curtis')
     axes[1].set_title('Convergence of quadrature rules', fontsize=11)
     axes[1].legend(fontsize=10)

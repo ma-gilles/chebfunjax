@@ -93,14 +93,14 @@ def run():
     t = np.linspace(0, 2*np.pi, 500)
 
     # Ellipse
-    axes[0].plot(a * np.cos(t), b * np.sin(t), 'b-', linewidth=2)
+    axes[0].plot(a * np.cos(t), b * np.sin(t), color='#0072BD', linestyle='-', linewidth=2)
     axes[0].set_aspect('equal')
     axes[0].set_title(f"Ellipse a={a}, b={b}\nPerimeter ≈ {perimeter:.4f}", fontsize=11)
 
     # Lissajous
     x_l = np.sin(a_l * t + delta)
     y_l = np.sin(b_l * t)
-    axes[1].plot(x_l, y_l, 'r-', linewidth=1.5)
+    axes[1].plot(x_l, y_l, color='#D95319', linestyle='-', linewidth=1.5)
     axes[1].set_aspect('equal')
     axes[1].set_title(f"Lissajous a={a_l}, b={b_l}\nLength ≈ {length_l:.4f}", fontsize=11)
 
@@ -108,7 +108,7 @@ def run():
     r_rose = np.cos(2 * t)
     x_rose = r_rose * np.cos(t)
     y_rose = r_rose * np.sin(t)
-    axes[2].plot(x_rose, y_rose, 'g-', linewidth=2)
+    axes[2].plot(x_rose, y_rose, color='#77AC30', linestyle='-', linewidth=2)
     axes[2].set_aspect('equal')
     axes[2].set_title(f"Rose r=cos(2θ)\nArea ≈ {area_rose:.4f}", fontsize=11)
 

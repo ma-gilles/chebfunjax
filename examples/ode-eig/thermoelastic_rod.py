@@ -174,8 +174,8 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     # Sweep result
-    axes[0].plot(deltas, max_lams, 'b-o', markersize=5, linewidth=1.5)
-    axes[0].axhline(0, color='r', linewidth=1.2, linestyle='--', label="λ=0")
+    axes[0].plot(deltas, max_lams, color='#0072BD', marker='o', linestyle='-', markersize=5, linewidth=1.5)
+    axes[0].axhline(0, color='#D95319', linewidth=1.2, linestyle='--', label="λ=0")
     axes[0].axvline(1.0, color='k', linewidth=0.8, linestyle=':', alpha=0.7, label="δ=1")
     axes[0].set_title("Max eigenvalue vs δ\n(stability transition at δ=1)", fontsize=10)
     axes[0].legend(fontsize=9)

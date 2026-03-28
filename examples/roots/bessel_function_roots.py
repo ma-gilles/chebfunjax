@@ -51,8 +51,8 @@ def run():
     xx = np.linspace(0, 40, 1000)
     J0_vals = jv(0, xx)
     J1_vals = jv(1, xx)
-    ax.plot(xx, J0_vals, 'b-', linewidth=1.5, label='$J_0(x)$')
-    ax.plot(xx, J1_vals, 'r-', linewidth=1.5, label='$J_1(x)$')
+    ax.plot(xx, J0_vals, color='#0072BD', linestyle='-', linewidth=1.5, label='$J_0(x)$')
+    ax.plot(xx, J1_vals, color='#D95319', linestyle='-', linewidth=1.5, label='$J_1(x)$')
     # Mark the roots
     r0_plot = r0[r0 <= 40]
     r1_plot = r1[r1 <= 40]

@@ -261,7 +261,7 @@ def run():
     for z_seg, col, lbl in [(z_top, "#1e77b4", "top"), (z_inner, "#d62728", "inner arc"),
                              (z_bot, "#2ca02c", "bottom"), (z_outer, "#ff7f0e", "outer arc")]:
         axes[0].plot(np.real(z_seg), np.imag(z_seg), color=col, linewidth=2, label=lbl)
-    axes[0].plot([-R-0.3, 0], [0, 0], 'r--', linewidth=1.2, label="branch cut")
+    axes[0].plot([-R-0.3, 0], [0, 0], color='#D95319', linestyle='--', linewidth=1.2, label="branch cut")
     axes[0].set_aspect('equal')
     axes[0].set_title("Keyhole contour")
     axes[0].legend(fontsize=7, loc='upper right')

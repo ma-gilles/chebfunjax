@@ -41,12 +41,12 @@ def run():
 
     ax = axes[0]
     ax.plot(xx, f_vals, 'b', lw=1.5, label=f'adaptive (len={len(f)})')
-    ax.plot(xx, p50_vals, 'r--', lw=1.3, label='deg-50 approx')
+    ax.plot(xx, p50_vals, color='#D95319', linestyle='--', lw=1.3, label='deg-50 approx')
     ax.set_title('Wiggly function: sin²(x) + sin(x²)', fontsize=11)
     ax.legend(fontsize=9)
     ax2 = axes[1]
     coeffs = np.abs(np.array(f.coeffs)) + 1e-18
-    ax2.semilogy(np.arange(len(coeffs)), coeffs, 'b.', ms=4)
+    ax2.semilogy(np.arange(len(coeffs)), coeffs, color='#0072BD', marker='.', linestyle='none', ms=4)
     ax2.set_title('Chebyshev coefficients', fontsize=11)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'WigglyApprox.png'), dpi=150)

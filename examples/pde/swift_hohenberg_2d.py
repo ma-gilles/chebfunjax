@@ -117,8 +117,8 @@ def run():
     # Power spectrum
     k_pos = k[1:N//2]
     power = u_hat_final[1:N//2]**2
-    axes[1].semilogy(k_pos, power, 'b-', linewidth=1.5)
-    axes[1].axvline(1.0, color='r', linestyle='--', label='k=1 (λ=2π)')
+    axes[1].semilogy(k_pos, power, color='#0072BD', linestyle='-', linewidth=1.5)
+    axes[1].axvline(1.0, color='#D95319', linestyle='--', label='k=1 (λ=2π)')
     axes[1].set_title("Power spectrum at T=200", fontsize=11)
     axes[1].legend()
     axes[1].set_xlim([0, 5])

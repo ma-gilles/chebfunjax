@@ -54,12 +54,12 @@ def run():
     fig, axes = plt.subplots(2, 2)
 
     axes[0, 0].plot(xx, even_vals, 'b', lw=1.8, label='|x|')
-    axes[0, 0].plot(xx, p_e10_vals, 'r--', lw=1.5, label='poly deg 10')
+    axes[0, 0].plot(xx, p_e10_vals, color='#D95319', linestyle='--', lw=1.5, label='poly deg 10')
     axes[0, 0].set_title('Even function |x| and even approx', fontsize=10)
     axes[0, 0].legend(fontsize=8)
 
     axes[0, 1].plot(xx, odd_vals, 'b', lw=1.8, label='sign(x)')
-    axes[0, 1].plot(xx, p_o9_vals, 'r--', lw=1.5, label='poly deg 9')
+    axes[0, 1].plot(xx, p_o9_vals, color='#D95319', linestyle='--', lw=1.5, label='poly deg 9')
     axes[0, 1].set_title('Odd function sign(x) and odd approx', fontsize=10)
     axes[0, 1].legend(fontsize=8)
 

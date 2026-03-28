@@ -103,8 +103,8 @@ def run():
 
     # Right: convergence to sin
     if errs:
-        axes[1].semilogy(list(js), errs, 'b.-', markersize=8, linewidth=1.5, label="error")
-        axes[1].semilogy(list(js), [0.5**j for j in js], 'r--', linewidth=1.2, label="$0.5^j$ (rate)")
+        axes[1].semilogy(list(js), errs, color='#0072BD', linestyle='.-', markersize=8, linewidth=1.5, label="error")
+        axes[1].semilogy(list(js), [0.5**j for j in js], color='#D95319', linestyle='--', linewidth=1.2, label="$0.5^j$ (rate)")
         axes[1].set_title("Geometric convergence to sin")
         axes[1].legend(fontsize=9)
 

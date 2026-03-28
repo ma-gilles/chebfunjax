@@ -57,7 +57,7 @@ def run():
 
     # Chebyshev coefficient decay
     coeffs = np.abs(np.array(f.coeffs)) + 1e-18
-    axes[2].semilogy(np.arange(len(coeffs)), coeffs, 'b.', ms=4)
+    axes[2].semilogy(np.arange(len(coeffs)), coeffs, color='#0072BD', marker='.', linestyle='none', ms=4)
     axes[2].set_title('Chebyshev coefficients of checkmark', fontsize=11)
 
     fig.tight_layout()

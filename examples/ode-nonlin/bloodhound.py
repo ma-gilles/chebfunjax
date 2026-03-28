@@ -86,7 +86,7 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(sol.t, sol.y[0] * 3.6, 'b', linewidth=1.8, label="scipy")
-    axes[0].plot(t_plot, v_cheb(t_plot) * 3.6, 'r--', linewidth=1.4, label="chebfunjax")
+    axes[0].plot(t_plot, v_cheb(t_plot) * 3.6, color='#D95319', linestyle='--', linewidth=1.4, label="chebfunjax")
     axes[0].set_title("Bloodhound car speed", fontsize=10)
     axes[0].legend(fontsize=8)
 

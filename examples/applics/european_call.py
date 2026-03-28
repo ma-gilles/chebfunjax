@@ -100,20 +100,20 @@ def run():
     # Panel 1: payoff and PDF
     axes[0].plot(S_plot, call_payoff[S_grid <= S_plot_max], 'k-', linewidth=2,
                  label='Payoff max(S-K,0)')
-    axes[0].axvline(K, color='g', linestyle='--', label=f'Strike K={K}')
+    axes[0].axvline(K, color='#77AC30', linestyle='--', label=f'Strike K={K}')
     axes[0].set_title("Call payoff", fontsize=11)
     axes[0].legend(fontsize=9)
     axes[0].set_ylim([-10, 150])
 
     # Panel 2: PDF and CDF
     ax2b = axes[1].twinx()
-    axes[1].plot(S_plot, pdf_plot * 1e-3, 'b-', linewidth=2, label='PDF × 1e-3')
+    axes[1].plot(S_plot, pdf_plot * 1e-3, color='#0072BD', linestyle='-', linewidth=2, label='PDF × 1e-3')
     cdf_vals = np.cumsum(pdf_vals * dS)
     axes[1].fill_between(S_plot, 0, pdf_plot * 1e-3, alpha=0.3)
-    ax2b.plot(S_plot, cdf_vals[S_grid <= S_plot_max], 'r-', linewidth=1.5,
+    ax2b.plot(S_plot, cdf_vals[S_grid <= S_plot_max], color='#D95319', linestyle='-', linewidth=1.5,
               label='CDF', alpha=0.7)
     axes[1].set_title("Lognormal PDF/CDF", fontsize=11)
-    axes[1].axvline(K, color='g', linestyle='--')
+    axes[1].axvline(K, color='#77AC30', linestyle='--')
 
     # Panel 3: price comparison
     strikes = np.linspace(40, 120, 50)
@@ -128,8 +128,8 @@ def run():
             pdf_vals[idx_ki:] * (S_grid[idx_ki:] - k_i), S_grid[idx_ki:])
         prices_num.append(p_num)
 
-    axes[2].plot(strikes, prices_bs, 'r-', linewidth=2, label='Black-Scholes')
-    axes[2].plot(strikes, prices_num, 'b.', markersize=6, label='Numerical')
+    axes[2].plot(strikes, prices_bs, color='#D95319', linestyle='-', linewidth=2, label='Black-Scholes')
+    axes[2].plot(strikes, prices_num, color='#0072BD', marker='.', linestyle='none', markersize=6, label='Numerical')
     axes[2].set_title("Call prices vs strike", fontsize=11)
     axes[2].legend(fontsize=9)
 

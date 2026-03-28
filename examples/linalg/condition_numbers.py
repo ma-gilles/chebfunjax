@@ -66,11 +66,11 @@ def run():
         cond_chebv_cheb.append(np.linalg.cond(CV_cheb))
 
     fig, ax = plt.subplots()
-    ax.semilogy(nn, cond_vander_equi, 'r.-', markersize=8, linewidth=1.5,
+    ax.semilogy(nn, cond_vander_equi, color='#D95319', linestyle='.-', markersize=8, linewidth=1.5,
                 label='Vandermonde (equispaced)')
-    ax.semilogy(nn, cond_vander_cheb, 'b.-', markersize=8, linewidth=1.5,
+    ax.semilogy(nn, cond_vander_cheb, color='#0072BD', linestyle='.-', markersize=8, linewidth=1.5,
                 label='Vandermonde (Chebyshev nodes)')
-    ax.semilogy(nn, cond_chebv_cheb, 'g.-', markersize=8, linewidth=1.5,
+    ax.semilogy(nn, cond_chebv_cheb, color='#77AC30', linestyle='.-', markersize=8, linewidth=1.5,
                 label='Chebyshev-Vandermonde (Cheb nodes)')
     ax.set_title('Condition numbers of Vandermonde matrices', fontsize=12)
     ax.legend(fontsize=10)

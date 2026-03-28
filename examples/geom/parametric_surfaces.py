@@ -103,7 +103,7 @@ def run():
     ax3 = fig.add_subplot(133)
     R_vals = np.linspace(1, 4, 20)
     areas = [4 * np.pi**2 * Rv * r for Rv in R_vals]
-    ax3.plot(R_vals, areas, 'b-o', markersize=4)
+    ax3.plot(R_vals, areas, color='#0072BD', marker='o', linestyle='-', markersize=4)
     ax3.set_title("Torus SA vs. major radius R", fontsize=10)
     fig.suptitle("Parametric surfaces: torus and sphere", fontsize=12)
     fig.tight_layout()

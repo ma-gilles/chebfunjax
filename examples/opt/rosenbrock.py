@@ -73,16 +73,16 @@ def run():
                     linewidths=0.6)
     axes[0].contourf(x, y, ZZ, levels=np.arange(0, 301, 30),
                      cmap='Blues_r', alpha=0.6)
-    axes[0].plot(x_opt, y_opt, 'r*', markersize=12, label=f'min at ({x_opt:.3f},{y_opt:.3f})')
+    axes[0].plot(x_opt, y_opt, color='#D95319', marker='*', linestyle='none', markersize=12, label=f'min at ({x_opt:.3f},{y_opt:.3f})')
     axes[0].plot(1.0, 1.0, 'k+', markersize=12, linewidth=2, label='True min (1,1)')
     axes[0].set_title('Rosenbrock function $f(x,y)$', fontsize=11)
     axes[0].legend(fontsize=9)
     axes[0].set_aspect('equal')
 
     # Min over y slices
-    axes[1].plot(x_fine, fmin_fine, 'b.-', markersize=4, linewidth=1.2,
+    axes[1].plot(x_fine, fmin_fine, color='#0072BD', linestyle='.-', markersize=4, linewidth=1.2,
                  label='$\\min_y f(x,y)$')
-    axes[1].axvline(x_opt, color='r', linestyle='--', linewidth=1.2,
+    axes[1].axvline(x_opt, color='#D95319', linestyle='--', linewidth=1.2,
                     label=f'$x^* \\approx {x_opt:.3f}$')
     axes[1].set_title('$\\min_y f(x,y)$ — finding the global minimum', fontsize=11)
     axes[1].legend(fontsize=9)

@@ -49,7 +49,7 @@ def run():
 
     # Plot
     xs = np.linspace(0, 5, 300)
-    axes[0].plot(xs, 2 * np.exp(-2 * xs), 'b-', linewidth=2)
+    axes[0].plot(xs, 2 * np.exp(-2 * xs), color='#0072BD', linestyle='-', linewidth=2)
     axes[0].set_title('f(x) = 2e^{-2x}', fontsize=11)
     axes[0].set_ylim(-0.1, 2.1)
 
@@ -85,8 +85,8 @@ def run():
     xs_g_plot = np.linspace(0, 3, 300)
     g_plot = 4 * xs_g_plot * (9 - xs_g_plot**2) / 81
     axes[1].plot(xs_g_plot, g_plot, 'k-', linewidth=2)
-    axes[1].axvline(mean_val, color='r', linewidth=2, label=f'mean={mean_val:.2f}')
-    axes[1].axvline(median_val, color='m', linewidth=2, label=f'median={median_val:.2f}')
+    axes[1].axvline(mean_val, color='#D95319', linewidth=2, label=f'mean={mean_val:.2f}')
+    axes[1].axvline(median_val, color='#7E2F8E', linewidth=2, label=f'median={median_val:.2f}')
     axes[1].axvline(mode_val, color='k', linewidth=2, linestyle='--', label=f'mode={mode_val:.2f}')
     axes[1].set_title('g(x) = 4x(9-x²)/81', fontsize=11)
     axes[1].legend(fontsize=9)
@@ -97,8 +97,8 @@ def run():
     xs_n = np.linspace(-4, 4, 300)
     pdf_n = np.exp(-xs_n**2 / 2) / np.sqrt(2 * np.pi)
     cdf_n = 0.5 * (1 + erf(xs_n / np.sqrt(2)))
-    axes[2].plot(xs_n, pdf_n, 'b-', linewidth=2, label='PDF N(0,1)')
-    axes[2].plot(xs_n, cdf_n, 'r-', linewidth=2, label='CDF N(0,1)')
+    axes[2].plot(xs_n, pdf_n, color='#0072BD', linestyle='-', linewidth=2, label='PDF N(0,1)')
+    axes[2].plot(xs_n, cdf_n, color='#D95319', linestyle='-', linewidth=2, label='CDF N(0,1)')
     axes[2].set_title('Normal PDF and CDF', fontsize=11)
     axes[2].legend(fontsize=9)
 

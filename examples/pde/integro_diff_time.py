@@ -101,7 +101,7 @@ def run():
 
     # Integral over time
     total_integrals = [np.trapezoid(history[t], x) for t in t_show]
-    axes[1].plot(t_show, total_integrals, 'b.-', markersize=8)
+    axes[1].plot(t_show, total_integrals, color='#0072BD', linestyle='.-', markersize=8)
     axes[1].set_title("Total integral ∫u dx vs time", fontsize=11)
 
     fig.suptitle("Time-dependent integro-differential equation", fontsize=13)

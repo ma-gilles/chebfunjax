@@ -75,7 +75,7 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
-    ax.semilogy(np.arange(1, len(errors_greedy) + 1), errors_greedy, 'b.-',
+    ax.semilogy(np.arange(1, len(errors_greedy) + 1), errors_greedy, color='#0072BD', linestyle='.-',
                 lw=1.5, ms=4, label='greedy')
     ax.semilogy([1, 2, 4, 8, 16, 32, 64, 128],
                 errors_cheb, 'r.--', ms=8, label='Chebyshev')

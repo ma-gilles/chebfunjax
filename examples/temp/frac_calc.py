@@ -67,7 +67,7 @@ def run():
     half_deriv_num = fractional_derivative(f, x, 0.5)
 
     axes[0].plot(x, half_deriv_exact, 'k--', linewidth=2, label='2√(x/π)')
-    axes[0].plot(x[1:], half_deriv_num[1:], 'r:', linewidth=2.5,
+    axes[0].plot(x[1:], half_deriv_num[1:], color='#D95319', linestyle=':', linewidth=2.5,
                  label='D^{1/2}x (numerical)')
 
     err = np.max(np.abs(half_deriv_exact[10:] - half_deriv_num[10:]))

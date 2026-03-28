@@ -91,13 +91,13 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     fig, axes = plt.subplots(1, 2)
 
-    axes[0].plot(x_eval, exact_vals, 'r-', linewidth=2, label='Exact')
-    axes[0].plot(x_eval[::20], u_vals[::20], 'b.', markersize=8, label='solve_ivp')
+    axes[0].plot(x_eval, exact_vals, color='#D95319', linestyle='-', linewidth=2, label='Exact')
+    axes[0].plot(x_eval[::20], u_vals[::20], color='#0072BD', marker='.', linestyle='none', markersize=8, label='solve_ivp')
     axes[0].set_title("u'(x)+2u+5∫u dt = 1, u(0)=0", fontsize=11)
     axes[0].legend()
 
     err_plot = np.abs(u_vals - exact_vals) + 1e-18
-    axes[1].semilogy(x_eval, err_plot, 'b-', linewidth=2)
+    axes[1].semilogy(x_eval, err_plot, color='#0072BD', linestyle='-', linewidth=2)
     axes[1].set_title("Error vs exact solution", fontsize=11)
 
     fig.suptitle("Wikipedia integro-differential equation", fontsize=13)

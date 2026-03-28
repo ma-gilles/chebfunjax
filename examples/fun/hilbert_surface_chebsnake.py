@@ -102,9 +102,9 @@ def run():
     snake_x = np.array(snake_x)
     snake_y = np.array(snake_y)
 
-    axes[2].plot(snake_x, snake_y, 'b-', linewidth=0.8, alpha=0.6,
+    axes[2].plot(snake_x, snake_y, color='#0072BD', linestyle='-', linewidth=0.8, alpha=0.6,
                  label='Chebsnake path')
-    axes[2].plot(snake_x[::N+1], snake_y[::N+1], 'rs', markersize=6,
+    axes[2].plot(snake_x[::N+1], snake_y[::N+1], color='#D95319', marker='s', linestyle='none', markersize=6,
                  label='Row starts')
     axes[2].set_aspect('equal')
     axes[2].set_title(f'Chebsnake: {N}×{N} Chebyshev grid\nsnake traversal', fontsize=10)

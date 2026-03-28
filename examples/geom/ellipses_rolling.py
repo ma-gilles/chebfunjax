@@ -94,7 +94,7 @@ def run():
     big_ell_y = 0.5 * np.sin(theta_e)
 
     axes[0].fill(big_ell_x, big_ell_y, color='lightblue', alpha=0.5)
-    axes[0].plot(big_ell_x, big_ell_y, 'b-', linewidth=1.5)
+    axes[0].plot(big_ell_x, big_ell_y, color='#0072BD', linestyle='-', linewidth=1.5)
 
     # Plot trajectory of midpoint w
     axes[0].plot(np.real(w_traj), np.imag(w_traj), 'k-', linewidth=2)
@@ -121,8 +121,8 @@ def run():
     axes[0].set_title('Ellipse rolling around ellipse', fontsize=11)
 
     # Contact point trajectories
-    axes[1].plot(np.real(z1_traj), np.imag(z1_traj), 'b-', linewidth=2, label='Contact on big')
-    axes[1].plot(np.real(z2_traj), np.imag(z2_traj), 'r-', linewidth=2, label='Contact on small')
+    axes[1].plot(np.real(z1_traj), np.imag(z1_traj), color='#0072BD', linestyle='-', linewidth=2, label='Contact on big')
+    axes[1].plot(np.real(z2_traj), np.imag(z2_traj), color='#D95319', linestyle='-', linewidth=2, label='Contact on small')
     axes[1].plot(np.real(w_traj), np.imag(w_traj), 'k-', linewidth=2, label='Midpoint w(t)')
     axes[1].set_aspect('equal')
     axes[1].set_title(f'Contact points and midpoint trajectory\nArc length ≈ {arc_length:.3f}',

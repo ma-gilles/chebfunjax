@@ -35,7 +35,7 @@ def run():
     for n in range(9):
         ax = axes[n // 3, n % 3]
         Tn = chebyshev_T(n, xx)
-        ax.plot(xx, Tn, 'b-', linewidth=1.6)
+        ax.plot(xx, Tn, color='#0072BD', linestyle='-', linewidth=1.6)
         ax.axhline(0, color='k', linewidth=0.5)
         # Chebyshev roots: cos((2k-1)*pi/(2n)) for k=1..n
         if n > 0:

@@ -116,7 +116,7 @@ def run():
     axes[0].legend(fontsize=8)
 
     # Polarization P(E)
-    axes[1].plot(E_vals, E0_vals, 'bo-', markersize=6, linewidth=1.5, label="E₀(E)")
+    axes[1].plot(E_vals, E0_vals, color='#0072BD', marker='o', linestyle='-', markersize=6, linewidth=1.5, label="E₀(E)")
     axes[1].set_title(f"Polarization: E₀(E)\nα ≈ {alpha_numerical:.6f}", fontsize=9)
     axes[1].legend(fontsize=9)
 

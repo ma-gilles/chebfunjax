@@ -85,7 +85,7 @@ def run():
     axes[0].set_title("Heat equation u_t = u_xx (Fourier series)", fontsize=10)
 
     axes[1].bar(range(1, 7), lam_sorted[:6], color='steelblue', alpha=0.8)
-    axes[1].plot(range(1, 7), exact_eigs, 'ro', markersize=6, label="exact −k²")
+    axes[1].plot(range(1, 7), exact_eigs, color='#D95319', marker='o', linestyle='none', markersize=6, label="exact −k²")
     axes[1].set_title("Eigenvalues of d²/dx² on [0,π]", fontsize=10)
     axes[1].legend(fontsize=8)
 

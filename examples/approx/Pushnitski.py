@@ -54,7 +54,7 @@ def run():
     ax.plot(xx_safe, f_vals, 'b', lw=1.8)
     ax.set_title('Pushnitski function 1/|log|x||', fontsize=11)
     ax2 = axes[1]
-    ax2.semilogy(degrees, poly_errs, 'b.-', lw=1.5, ms=10)
+    ax2.semilogy(degrees, poly_errs, color='#0072BD', linestyle='.-', lw=1.5, ms=10)
     ax2.set_title('Polynomial approx errors for 1/|log|x||', fontsize=10)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'Pushnitski.png'), dpi=150)

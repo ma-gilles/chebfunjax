@@ -68,8 +68,8 @@ def run():
 
     ax = axes[0]
     ax.plot(xx, f_vals, 'k', lw=1.5, label='f = |x−1/4|')
-    ax.plot(xx, p_L2_vals, 'b--', lw=1.3, label=f'L2 deg {deg}')
-    ax.plot(xx, p_L1_vals, 'r--', lw=1.3, label=f'L1 deg {deg}')
+    ax.plot(xx, p_L2_vals, color='#0072BD', linestyle='--', lw=1.3, label=f'L2 deg {deg}')
+    ax.plot(xx, p_L1_vals, color='#D95319', linestyle='--', lw=1.3, label=f'L1 deg {deg}')
     ax.set_title(f'|x−1/4| and polynomial approximants (deg {deg})', fontsize=10)
     ax.legend(fontsize=8)
     ax2 = axes[1]

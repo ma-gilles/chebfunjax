@@ -102,7 +102,7 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(sol.t, sol.y[0], 'b', linewidth=1.8, label="scipy shooting")
-    axes[0].plot(x_plot, u_lin(x_plot), 'r--', linewidth=1.4, label="linear (lam=0)")
+    axes[0].plot(x_plot, u_lin(x_plot), color='#D95319', linestyle='--', linewidth=1.4, label="linear (lam=0)")
     axes[0].legend(fontsize=9)
     axes[0].set_title(f"Gulf Stream BVP (λ={lam})", fontsize=10)
 

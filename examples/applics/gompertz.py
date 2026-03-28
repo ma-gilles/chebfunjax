@@ -103,9 +103,9 @@ def run():
     # Cap exponential for display
     P_exp_display = np.minimum(P_exp, 12.0)
 
-    axes[0].plot(t_eval, P_exp_display, 'b-', linewidth=2, label='Exponential')
-    axes[0].plot(t_eval, P_log, 'r-', linewidth=2, label='Logistic')
-    axes[0].plot(t_eval, P_gom, 'g-', linewidth=2, label='Gompertz')
+    axes[0].plot(t_eval, P_exp_display, color='#0072BD', linestyle='-', linewidth=2, label='Exponential')
+    axes[0].plot(t_eval, P_log, color='#D95319', linestyle='-', linewidth=2, label='Logistic')
+    axes[0].plot(t_eval, P_gom, color='#77AC30', linestyle='-', linewidth=2, label='Gompertz')
     axes[0].axhline(K, color='k', linestyle='--', alpha=0.5, label=f'K={K}')
     axes[0].set_title("Population growth models", fontsize=11)
     axes[0].legend(fontsize=9)
@@ -117,9 +117,9 @@ def run():
     log_rate = r * (K - P_range) / K
     gom_rate = r * np.log(K / P_range) / log_factor
 
-    axes[1].plot(P_range, exp_rate, 'b-', linewidth=2, label='Exponential: r')
-    axes[1].plot(P_range, log_rate, 'r-', linewidth=2, label='Logistic: r(K-P)/K')
-    axes[1].plot(P_range, gom_rate, 'g-', linewidth=2, label='Gompertz: r·log(K/P)/log(K/P₀)')
+    axes[1].plot(P_range, exp_rate, color='#0072BD', linestyle='-', linewidth=2, label='Exponential: r')
+    axes[1].plot(P_range, log_rate, color='#D95319', linestyle='-', linewidth=2, label='Logistic: r(K-P)/K')
+    axes[1].plot(P_range, gom_rate, color='#77AC30', linestyle='-', linewidth=2, label='Gompertz: r·log(K/P)/log(K/P₀)')
     axes[1].set_title("Per-capita growth rates", fontsize=11)
     axes[1].legend(fontsize=9)
 

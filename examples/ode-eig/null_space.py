@@ -115,7 +115,7 @@ def run():
 
     # Example 3 plot
     axes[1].plot(x3_plot, vals4, 'b', linewidth=2, label="u(x) = e^{-x}")
-    axes[1].plot(x3_plot, exact4, 'r--', linewidth=1.5, label="exact e^{-x}", alpha=0.7)
+    axes[1].plot(x3_plot, exact4, color='#D95319', linestyle='--', linewidth=1.5, label="exact e^{-x}", alpha=0.7)
     axes[1].set_title("Nullspace of d/dx + 1: {e^{-x}}", fontsize=10)
     axes[1].legend(fontsize=9)
 

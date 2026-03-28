@@ -138,7 +138,7 @@ def run():
     axes[0].text(0.5, 0.92, "t: 0 → 5", transform=axes[0].transAxes, fontsize=10)
 
     # Energy conservation
-    axes[1].plot(t_arr, energy_arr - energy_arr[0], 'b.-', markersize=6)
+    axes[1].plot(t_arr, energy_arr - energy_arr[0], color='#0072BD', linestyle='.-', markersize=6)
     axes[1].set_title("Energy deviation ∫(E²+B²)dx − initial", fontsize=11)
 
     fig.suptitle("Maxwell's equations: electromagnetic wave", fontsize=13)

@@ -42,7 +42,7 @@ def run():
     fig, axes = plt.subplots(2, 2)
 
     axes[0, 0].plot(xx, f_vals, 'b', lw=1.5, label='f')
-    axes[0, 0].plot(xx, p2_vals, 'r--', lw=1.5, label=f'p_L2 (deg {deg})')
+    axes[0, 0].plot(xx, p2_vals, color='#D95319', linestyle='--', lw=1.5, label=f'p_L2 (deg {deg})')
     axes[0, 0].set_title('f and L2 approximant', fontsize=11)
     axes[0, 0].legend(fontsize=9)
     axes[0, 0].set_ylim(-3, 3)

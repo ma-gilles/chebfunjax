@@ -43,7 +43,7 @@ def run():
 
     xx = np.linspace(0, 30, 600)
     fv = np.array(f(jnp.array(xx)))
-    axes[0].plot(xx, fv, 'b-', linewidth=1.5)
+    axes[0].plot(xx, fv, color='#0072BD', linestyle='-', linewidth=1.5)
     axes[0].axhline(0, color='k', linewidth=0.8, linestyle='--')
     axes[0].set_title('$f(x) = 3 + \sin(x) + \sin(\pi x)$', fontsize=11)
     axes[0].set_ylim(-1.5, 5.5)

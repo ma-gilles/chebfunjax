@@ -125,7 +125,7 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(sol.y[1], sol.y[2], 'b', linewidth=1.8, label="with gravity")
-    axes[0].plot(x_circle - x_circle[0], y_circle, 'r--', linewidth=1.2,
+    axes[0].plot(x_circle - x_circle[0], y_circle, color='#D95319', linestyle='--', linewidth=1.2,
                  label="circular (no gravity)")
     axes[0].set_title(f"Sessile drop profile (contact angle {np.degrees(theta_c):.0f}°)", fontsize=9)
     axes[0].legend(fontsize=8); axes[0].set_aspect('equal')

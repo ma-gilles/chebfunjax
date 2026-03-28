@@ -55,7 +55,7 @@ def run():
     valid = np.isfinite(G_vals)
     expG = np.where(valid, np.exp(G_vals), np.nan)
 
-    axes[0].plot(fs[valid], expG[valid], 'b-', linewidth=2)
+    axes[0].plot(fs[valid], expG[valid], color='#0072BD', linestyle='-', linewidth=2)
     axes[0].plot(f_kelly, np.exp(G_max), '.r', markersize=15, label=f'f*={f_kelly:.2f}')
     axes[0].axhline(1.0, color='k', linestyle='--', alpha=0.5, label='Breakeven')
     axes[0].set_title('Capital growth: simple bet (a=2, p=0.5)', fontsize=10)
@@ -98,7 +98,7 @@ def run():
     print(f"\nMulti-outcome Kelly: f* = {f_opt:.6f}")
     print(f"exp(G(f*)) = {np.exp(G_opt):.6f}")
 
-    axes[1].plot(fs2[valid2], expG2[valid2], 'b-', linewidth=2)
+    axes[1].plot(fs2[valid2], expG2[valid2], color='#0072BD', linestyle='-', linewidth=2)
     axes[1].plot(f_opt, np.exp(G_opt), '.r', markersize=15, label=f'f*={f_opt:.3f}')
     axes[1].axhline(1.0, color='k', linestyle='--', alpha=0.5)
     axes[1].set_title('Capital growth: multi-outcome bet', fontsize=10)

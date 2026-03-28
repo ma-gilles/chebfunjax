@@ -95,7 +95,7 @@ def run():
     realizations = eigenvectors[:, :n_modes] @ (np.diag(sqrt_lambda) @ Z)
 
     for i in range(min(15, n_samples)):
-        axes[2].plot(xs, realizations[:, i], 'b-', linewidth=0.5, alpha=0.4)
+        axes[2].plot(xs, realizations[:, i], color='#0072BD', linestyle='-', linewidth=0.5, alpha=0.4)
     mean_realization = np.mean(realizations, axis=1)
     axes[2].plot(xs, mean_realization, 'k-', linewidth=2, label='Mean')
     axes[2].set_title(f'KL realizations ({captured:.0f}% var in {n_modes} modes)',

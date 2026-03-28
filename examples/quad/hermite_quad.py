@@ -104,7 +104,7 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     # Left: convergence for Test 3
-    axes[0].semilogy(ns, [max(e, 1e-16) for e in errs_cos], 'b.-', markersize=8, linewidth=1.5)
+    axes[0].semilogy(ns, [max(e, 1e-16) for e in errs_cos], color='#0072BD', linestyle='.-', markersize=8, linewidth=1.5)
     axes[0].set_title("Hermite quadrature convergence\n$\\int e^{-x^2} \\cos x\\, dx$")
 
     # Right: the integrand exp(-x^2) * cos(x)

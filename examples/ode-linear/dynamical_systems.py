@@ -64,7 +64,7 @@ def run():
         for ic in ic_grid:
             traj = trajectory(A, ic, T)
             ax.plot(traj[0], traj[1], 'b', linewidth=0.8, alpha=0.6)
-            ax.plot(traj[0, 0], traj[1, 0], 'go', markersize=3)
+            ax.plot(traj[0, 0], traj[1, 0], color='#77AC30', marker='o', linestyle='none', markersize=3)
 
         ax.set_xlim(-2, 2); ax.set_ylim(-2, 2)
         ax.set_title(f"{title}\nλ = {eigs[0]:.2f}, {eigs[1]:.2f}", fontsize=9)

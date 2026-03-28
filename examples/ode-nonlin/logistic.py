@@ -97,7 +97,7 @@ def run():
     for _ in range(n_traj):
         x = r_traj * x * (1 - x)
         traj.append(x)
-    axes[1].plot(range(n_traj + 1), traj, 'b.-', markersize=4, linewidth=0.8)
+    axes[1].plot(range(n_traj + 1), traj, color='#0072BD', linestyle='.-', markersize=4, linewidth=0.8)
     axes[1].set_title(f"Chaotic trajectory (r={r_traj})", fontsize=10)
 
     fig.suptitle("Logistic map: x_{n+1} = r x_n (1−x_n)", fontsize=11)

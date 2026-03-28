@@ -100,14 +100,14 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(x_plot, u(x_plot), 'b', linewidth=1.8, label="scipy+Chebfun")
-    axes[0].plot(sol_ref.t, sol_ref.y[0], 'r--', linewidth=1.2, label="scipy", alpha=0.7)
+    axes[0].plot(sol_ref.t, sol_ref.y[0], color='#D95319', linestyle='--', linewidth=1.2, label="scipy", alpha=0.7)
     axes[0].set_title("u′ − u cos(u) = cos(4x)", fontsize=10)
     axes[0].set_xticks([0, np.pi/2, np.pi])
     axes[0].set_xticklabels(["0", "π/2", "π"])
     axes[0].legend(fontsize=8)
 
     axes[1].plot(x_plot, u2(x_plot), 'b', linewidth=1.8, label="Chebop")
-    axes[1].plot(x_plot, u_lin(x_plot), 'r--', linewidth=1.2, label="exact", alpha=0.7)
+    axes[1].plot(x_plot, u_lin(x_plot), color='#D95319', linestyle='--', linewidth=1.2, label="exact", alpha=0.7)
     axes[1].set_title("u′ + u = cos(4x)  (linear, Chebop)", fontsize=10)
     axes[1].set_xticks([0, np.pi/2, np.pi])
     axes[1].set_xticklabels(["0", "π/2", "π"])

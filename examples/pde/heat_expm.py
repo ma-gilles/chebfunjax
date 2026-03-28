@@ -107,7 +107,7 @@ def run():
     # Panel 2: coefficient-like decay (max amplitude vs time)
     t_arr = np.array([t for t, _ in results])
     max_arr = np.array([np.max(np.abs(u)) for _, u in results])
-    axes[1].plot(t_arr, max_arr, 'b.-', markersize=10)
+    axes[1].plot(t_arr, max_arr, color='#0072BD', linestyle='.-', markersize=10)
     axes[1].set_title("Max amplitude decay over time", fontsize=11)
 
     fig.suptitle("Heat equation via expm (Erosion example)", fontsize=13)

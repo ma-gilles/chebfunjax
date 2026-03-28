@@ -37,7 +37,7 @@ def run():
     fig, ax = plt.subplots()
     xx = np.linspace(-1.0, 1.0, 600)
     ax.plot(xx, [float(scipy_gamma(x)) for x in xx], 'b', lw=1.8, label='Γ(x)')
-    ax.plot(xx, [float(r(jnp.array(x)).real) for x in xx], 'r--', lw=1.5,
+    ax.plot(xx, [float(r(jnp.array(x)).real) for x in xx], color='#D95319', linestyle='--', lw=1.5,
             label='AAA approx')
     ax.set_ylim(-8, 8)
     ax.set_xlim(-1, 1)

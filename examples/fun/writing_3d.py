@@ -69,7 +69,7 @@ def run():
         strokes = letter_3d(ch, x_off=ox)
         for xs, ys, zs in strokes:
             z = xs + 1j * ys
-            ax1.plot(np.real(z), np.imag(z), 'b-', linewidth=2.5)
+            ax1.plot(np.real(z), np.imag(z), color='#0072BD', linestyle='-', linewidth=2.5)
 
     ax1.set_aspect('equal')
     ax1.set_title('"CHEBY" as piecewise-linear\ncomplex path', fontsize=10)
@@ -90,7 +90,7 @@ def run():
     for i, (ch, ox) in enumerate(zip(chars, offsets_2d)):
         strokes = letter_3d(ch, x_off=ox, z_func=z_wavy)
         for xs, ys, zs in strokes:
-            ax2.plot(xs, ys, zs + 0.05, 'r-', linewidth=2.5)
+            ax2.plot(xs, ys, zs + 0.05, color='#D95319', linestyle='-', linewidth=2.5)
 
     ax2.set_title('"CHEBY" on wavy\nsurface', fontsize=10)
     ax2.set_box_aspect([1,0.5,0.3])
@@ -121,7 +121,7 @@ def run():
         strokes = letter_3d(ch, x_off=ox)
         for xs_2d, ys_2d, _ in strokes:
             xs3, ys3, zs3 = to_sphere(xs_2d, ys_2d)
-            ax3.plot(xs3, ys3, zs3, 'b-', linewidth=2.5)
+            ax3.plot(xs3, ys3, zs3, color='#0072BD', linestyle='-', linewidth=2.5)
 
     ax3.set_title('"CHEBY" written\non a sphere', fontsize=10)
     ax3.set_box_aspect([1,1,1])

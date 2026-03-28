@@ -96,10 +96,10 @@ def run():
     # X-axis cross section
     xs_1d = np.linspace(-12, 12, 500)
     p_vals = poly_x_axis(xs_1d)
-    axes[1].plot(xs_1d, p_vals, 'b-', linewidth=2)
+    axes[1].plot(xs_1d, p_vals, color='#0072BD', linestyle='-', linewidth=2)
     axes[1].axhline(0, color='k', linestyle='--', linewidth=1)
-    axes[1].axvline(-8, color='r', linestyle='--', linewidth=1.5, label='x=-8')
-    axes[1].axvline(10, color='g', linestyle='--', linewidth=1.5, label='x=10')
+    axes[1].axvline(-8, color='#D95319', linestyle='--', linewidth=1.5, label='x=-8')
+    axes[1].axvline(10, color='#77AC30', linestyle='--', linewidth=1.5, label='x=10')
     axes[1].set_title('p(x,0) on x-axis\nZeros at x=-8 and x=10 (width=18)', fontsize=10)
     axes[1].set_ylim(-1e9, 1e9)
     axes[1].legend(fontsize=9)

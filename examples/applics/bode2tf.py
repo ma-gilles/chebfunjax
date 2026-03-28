@@ -84,15 +84,15 @@ def run():
     fig, axes = plt.subplots(2, 1)
 
     # Magnitude
-    axes[0].semilogx(omega_vals, H_mag_db, 'b-', linewidth=2, label='Exact H(jω)')
+    axes[0].semilogx(omega_vals, H_mag_db, color='#0072BD', linestyle='-', linewidth=2, label='Exact H(jω)')
     axes[0].semilogx(omega_vals, 20*np.log10(np.maximum(H_aaa_mag, 1e-15)),
                      'r--', linewidth=1.5, label='AAA fit')
     axes[0].set_title(f"Bode plot — 2nd order system (ω_n={omega_n}, ζ={zeta})", fontsize=11)
     axes[0].legend()
 
     # Phase
-    axes[1].semilogx(omega_vals, H_phase, 'b-', linewidth=2, label='Exact H(jω)')
-    axes[1].semilogx(omega_vals, H_aaa_phase, 'r--', linewidth=1.5, label='AAA fit')
+    axes[1].semilogx(omega_vals, H_phase, color='#0072BD', linestyle='-', linewidth=2, label='Exact H(jω)')
+    axes[1].semilogx(omega_vals, H_aaa_phase, color='#D95319', linestyle='--', linewidth=1.5, label='AAA fit')
     axes[1].legend()
 
     fig.suptitle("System identification via AAA rational approximation", fontsize=13)

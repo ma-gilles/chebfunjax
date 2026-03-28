@@ -86,7 +86,7 @@ def run():
 
     fig, axes = plt.subplots(1, 2)
     axes[0].plot(t_run, lam_run, 'b', linewidth=1.4)
-    axes[0].axhline(lambda_max, color='r', linestyle='--', linewidth=1.0,
+    axes[0].axhline(lambda_max, color='#D95319', linestyle='--', linewidth=1.0,
                     label=f"λ₁ ≈ {lambda_max:.4f}")
     axes[0].set_title("Running Lyapunov exponent estimate", fontsize=10)
     axes[0].legend(fontsize=8)

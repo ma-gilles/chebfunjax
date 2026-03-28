@@ -59,10 +59,10 @@ def run():
     t_true = np.linspace(0, 2*np.pi, 200)
     axes[0].plot(r*np.cos(t_true), r*np.sin(t_true), 'k-', linewidth=2,
                  label='Exact circle')
-    axes[0].plot(X.ravel(), Y.ravel(), 'b+', markersize=4, alpha=0.4,
+    axes[0].plot(X.ravel(), Y.ravel(), color='#0072BD', marker='+', linestyle='none', markersize=4, alpha=0.4,
                  label='Grid points')
     for c in contours:
-        axes[0].plot(np.real(c), np.imag(c), 'r-o', markersize=4,
+        axes[0].plot(np.real(c), np.imag(c), color='#D95319', marker='o', linestyle='-', markersize=4,
                      linewidth=1.5, label='Contour approx')
     axes[0].set_aspect('equal')
     axes[0].set_title(f'Circle x²+y²={r}²\nfrom 40×40 grid contours', fontsize=10)
@@ -83,7 +83,7 @@ def run():
     contours2 = extract_contours(X2, Y2, Z2, level=0.0)
 
     for c in contours2:
-        axes[1].plot(np.real(c), np.imag(c), 'b-', linewidth=2)
+        axes[1].plot(np.real(c), np.imag(c), color='#0072BD', linestyle='-', linewidth=2)
     axes[1].set_aspect('equal')
     axes[1].set_title('Lemniscate of Bernoulli\n(x²+y²)² = x²−y²', fontsize=10)
     axes[1].set_xlim(-1.3, 1.3); axes[1].set_ylim(-0.8, 0.8)

@@ -63,7 +63,7 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     axes[0].bar(range(1, k+1), omegas, color='steelblue', alpha=0.7, label="computed ω_k")
-    axes[0].plot(range(1, k+1), j0_zeros, 'ro', markersize=6, label="exact J₀ zeros")
+    axes[0].plot(range(1, k+1), j0_zeros, color='#D95319', marker='o', linestyle='none', markersize=6, label="exact J₀ zeros")
     axes[0].set_title("Drum frequencies (J₀ zeros)", fontsize=10)
     axes[0].legend(fontsize=8)
 

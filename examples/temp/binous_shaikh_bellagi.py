@@ -87,8 +87,8 @@ def run():
     # --- Panel 1: Nonlinear BVP u*u' - u'' = 1 ---
     x, u = solve_nonlinear_bvp(n=40)
 
-    axes[0].plot(x, u, 'b-', linewidth=2.5)
-    axes[0].axhline(u[len(u)//2], color='g', linestyle='--', linewidth=1, alpha=0.7)
+    axes[0].plot(x, u, color='#0072BD', linestyle='-', linewidth=2.5)
+    axes[0].axhline(u[len(u)//2], color='#77AC30', linestyle='--', linewidth=1, alpha=0.7)
     axes[0].set_title("Nonlinear BVP: u·u' - u'' = 1\nu(-1)=0, u(1)=2", fontsize=10)
 
     # Values at x=0 and x=1/sqrt(2)
@@ -100,15 +100,15 @@ def run():
     print(f"Problem 1 (u*u' - u'' = 1):")
     print(f"  u(0) = {val_0:.6f}")
     print(f"  u(1/√2) = {val_sqrt2:.6f}")
-    axes[0].plot(0, val_0, 'ro', markersize=8, label=f'u(0)={val_0:.3f}')
-    axes[0].plot(1/np.sqrt(2), val_sqrt2, 'gs', markersize=8,
+    axes[0].plot(0, val_0, color='#D95319', marker='o', linestyle='none', markersize=8, label=f'u(0)={val_0:.3f}')
+    axes[0].plot(1/np.sqrt(2), val_sqrt2, color='#77AC30', marker='s', linestyle='none', markersize=8,
                  label=f'u(1/√2)={val_sqrt2:.3f}')
     axes[0].legend(fontsize=9)
 
     # --- Panel 2: Diffusion equation ---
     y, u_heat = heat_equation_solution(t_final=0.0126)
 
-    axes[1].plot(y, u_heat, 'r-', linewidth=2.5, label='t=0.0126')
+    axes[1].plot(y, u_heat, color='#D95319', linestyle='-', linewidth=2.5, label='t=0.0126')
     # Initial condition
     axes[1].axhline(1, color='k', linestyle='--', linewidth=1.5,
                     label='t=0 (IC)')
@@ -118,7 +118,7 @@ def run():
     val_half = np.interp(0.5, y, u_heat)
     print(f"\nProblem 2 (heat equation, t=0.0126):")
     print(f"  u(0.5) = {val_half:.6f}")
-    axes[1].plot(0.5, val_half, 'b*', markersize=12,
+    axes[1].plot(0.5, val_half, color='#0072BD', marker='*', linestyle='none', markersize=12,
                  label=f'u(0.5)={val_half:.4f}')
     axes[1].legend(fontsize=9)
 

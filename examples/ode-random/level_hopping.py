@@ -71,12 +71,12 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     fig, axes = plt.subplots(1, 2)
 
-    axes[0].plot(t1, y1, 'b-', linewidth=1.5)
+    axes[0].plot(t1, y1, color='#0072BD', linestyle='-', linewidth=1.5)
     for n in range(int(y1.min()) - 1, int(y1.max()) + 2):
         axes[0].axhline(n, color='gray', linestyle='--', alpha=0.3, linewidth=0.8)
     axes[0].set_title("Level hopping (λ=0.4)", fontsize=11)
 
-    axes[1].plot(t2, y2, 'r-', linewidth=1.2)
+    axes[1].plot(t2, y2, color='#D95319', linestyle='-', linewidth=1.2)
     for n in range(int(y2.min()) - 1, int(y2.max()) + 2):
         axes[1].axhline(n, color='gray', linestyle='--', alpha=0.3, linewidth=0.8)
     axes[1].set_title("Level hopping (λ=0.2, finer noise)", fontsize=11)

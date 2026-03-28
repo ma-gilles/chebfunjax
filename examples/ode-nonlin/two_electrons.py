@@ -97,7 +97,7 @@ def run():
 
     axes[0].plot(x_e1, y_e1, 'b', linewidth=0.8, alpha=0.7, label="electron 1")
     axes[0].plot(x_e2, y_e2, 'r', linewidth=0.8, alpha=0.7, label="electron 2")
-    axes[0].plot(0, 0, 'g*', markersize=10, label="nucleus")
+    axes[0].plot(0, 0, color='#77AC30', marker='*', linestyle='none', markersize=10, label="nucleus")
     axes[0].set_aspect('equal')
     axes[0].set_title("Electron orbits (perturbed circular)", fontsize=10)
     axes[0].legend(fontsize=8)

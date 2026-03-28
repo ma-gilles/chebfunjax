@@ -125,7 +125,7 @@ def run():
     # Error
     err = np.abs(c_exact[1:] - c_num[1:])
     axes[1].semilogy(n_plot[1:], err, '.-k', markersize=6)
-    axes[1].axhline(1e-15, color='r', linestyle='--', linewidth=1,
+    axes[1].axhline(1e-15, color='#D95319', linestyle='--', linewidth=1,
                     label='Machine epsilon ~1e-15')
     axes[1].set_title("Difference: |exact - numerical|", fontsize=11)
     axes[1].legend(fontsize=9)
