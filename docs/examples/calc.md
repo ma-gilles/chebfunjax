@@ -218,71 +218,71 @@ Figures generated automatically from `examples/calc/`, `examples/quad/`,
 
 ### Differentiation
 
-![Differentiation: sin and cos](../../images/calc/differentiation.png)
+![Differentiation: sin and cos](../images/calc/differentiation.png)
 
 ### Definite and indefinite integrals
 
-![Integrals](../../images/calc/definite_indefinite_integrals.png)
+![Integrals](../images/calc/definite_indefinite_integrals.png)
 
 ### Mean Value Theorem
 
-![Mean Value Theorem](../../images/calc/mean_value_theorem.png)
+![Mean Value Theorem](../images/calc/mean_value_theorem.png)
 
 ### Travel-time optimisation (Snell's law)
 
-![Snell's law](../../images/calc/snells_law.png)
+![Snell's law](../images/calc/snells_law.png)
 
 ### Bird-flight optimisation
 
-![Bird flight](../../images/calc/bird_flight_optimization.png)
+![Bird flight](../images/calc/bird_flight_optimization.png)
 
 ### Clenshaw-Curtis quadrature
 
-![Clenshaw-Curtis](../../images/quad/clenshaw_curtis.png)
+![Clenshaw-Curtis](../images/quad/clenshaw_curtis.png)
 
 ### Gauss-Legendre nodes
 
-![Gauss quadrature](../../images/quad/gauss_quadrature.png)
+![Gauss quadrature](../images/quad/gauss_quadrature.png)
 
 ### Convergence rates
 
-![Convergence rates](../../images/quad/convergence_rates.png)
+![Convergence rates](../images/quad/convergence_rates.png)
 
 ### Highly oscillatory integral
 
-![Tricky integrals](../../images/quad/tricky_integrals.png)
+![Tricky integrals](../images/quad/tricky_integrals.png)
 
 ### Catenary
 
-![Catenary](../../images/opt/catenary.png)
+![Catenary](../images/opt/catenary.png)
 
 ### Global minimum of smooth function
 
-![Global minimum](../../images/opt/minimum_of_smooth_function.png)
+![Global minimum](../images/opt/minimum_of_smooth_function.png)
 
 ### Gibbs phenomenon
 
-![Gibbs phenomenon](../../images/fourier/gibbs_phenomenon.png)
+![Gibbs phenomenon](../images/fourier/gibbs_phenomenon.png)
 
 ### Fourier coefficients
 
-![Fourier coefficients](../../images/fourier/fourier_coefficients.png)
+![Fourier coefficients](../images/fourier/fourier_coefficients.png)
 
 ### Inner products
 
-![Inner products](../../images/linalg/chebfun_inner_products.png)
+![Inner products](../images/linalg/chebfun_inner_products.png)
 
 ### Resolvent norm / eigenfunctions
 
-![Resolvent norm](../../images/linalg/resolvent_norm.png)
+![Resolvent norm](../images/linalg/resolvent_norm.png)
 
 ### Contour integrals
 
-![Contour integrals](../../images/complex/contour_integrals.png)
+![Contour integrals](../images/complex/contour_integrals.png)
 
 ### Argument principle
 
-![Argument principle](../../images/complex/argument_principle.png)
+![Argument principle](../images/complex/argument_principle.png)
 
 ---
 

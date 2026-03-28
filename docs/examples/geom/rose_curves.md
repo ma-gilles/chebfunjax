@@ -45,7 +45,7 @@ polynomial chebfuns.
 
 ## References
 
-1. Chebfun Example [geom/Lissajous](Lissajous.html)
+1. Chebfun Example [geom/Lissajous](lissajous.md)
 
 2. [Wikipedia: Rose curve](https://en.wikipedia.org/wiki/Rose_curve)
 

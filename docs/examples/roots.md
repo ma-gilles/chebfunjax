@@ -174,23 +174,23 @@ Figures generated automatically from `examples/roots/`.
 
 ### Bessel roots
 
-![Bessel roots](../../images/roots/bessel_roots.png)
+![Bessel roots](../images/roots/bessel_roots.png)
 
 ### Extrema and roots
 
-![Extrema and roots](../../images/roots/extrema_and_roots.png)
+![Extrema and roots](../images/roots/extrema_and_roots.png)
 
 ### Newton-Raphson root-finding
 
-![Newton-Raphson](../../images/roots/newton_raphson.png)
+![Newton-Raphson](../images/roots/newton_raphson.png)
 
 ### Chebyshev polynomial roots
 
-![Polynomial roots](../../images/roots/polynomial_roots.png)
+![Polynomial roots](../images/roots/polynomial_roots.png)
 
 ### Random polynomial roots
 
-![Random polynomials](../../images/roots/random_polynomials.png)
+![Random polynomials](../images/roots/random_polynomials.png)
 
 ---
 
