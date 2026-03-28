@@ -88,6 +88,9 @@ ths = jnp.linspace(0, jnp.pi, 15)
 vals = f.fevalm(rs, lams, ths)  # shape (10, 20, 15)
 ```
 
+![](../images/guide/guide20_04.png)
+
+
 ### Pointwise evaluation
 
 The `__call__` method evaluates at individual Cartesian coordinate points:
@@ -97,6 +100,9 @@ The `__call__` method evaluates at individual Cartesian coordinate points:
 val = f(0.5, 0.3, 0.1)
 print(val)  # x^2 + y^2 + z^2 = 0.25 + 0.09 + 0.01 = 0.35
 ```
+
+![](../images/guide/guide20_05.png)
+
 
 Both evaluation modes are JIT-compiled and compatible with `jax.vmap` and `jax.grad`.
 
@@ -111,6 +117,9 @@ By default, `Ballfun.from_function` adaptively refines the grid until the spectr
 f = Ballfun.from_function(lambda x, y, z: jnp.exp(-(x**2 + y**2 + z**2)))
 print(f"Shape: {f.shape}")
 ```
+
+![](../images/guide/guide20_06.png)
+
 
 ### Fixed-size construction
 
