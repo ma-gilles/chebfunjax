@@ -90,7 +90,6 @@ try:
     xs = np.linspace(-1, 1, n)
     ys = np.linspace(-1, 1, n)
     XX, YY = np.meshgrid(xs, ys)
-    ZZ = np.array(f_bump(jnp.array(XX.ravel()), jnp.array(YY.ravel()))).reshape(n, n)
     ZZ_fx = np.array(fx(jnp.array(XX.ravel()), jnp.array(YY.ravel()))).reshape(n, n)
     ZZ_fy = np.array(fy(jnp.array(XX.ravel()), jnp.array(YY.ravel()))).reshape(n, n)
 
@@ -100,9 +99,7 @@ try:
     crit_x = XX[mask]
     crit_y = YY[mask]
 
-    fig, ax = _setup_3d_axes(None, None, elev=30, azim=-50, figsize=(6.1, 5.0))
-    ax.plot_surface(XX, YY, ZZ, cmap=PARULA, linewidth=0,
-                    antialiased=True, alpha=0.85, shade=True)
+    fig, ax = surf(f_bump)
 
     if len(crit_x) > 0:
         from scipy.cluster.hierarchy import fclusterdata

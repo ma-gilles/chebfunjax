@@ -39,10 +39,7 @@ try:
     L.lbc = 0.0
     L.rbc = 1.0
     u = L.solve(lambda x: jnp.exp(x))
-    xs = np.linspace(-1, 1, 1000)
-    ys = np.array(u(jnp.array(xs)))
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
-    ax.plot(xs, ys, color=CHEBFUN_BLUE, linewidth=1.8)
+    fig, ax = u.plot()
     ax.set_ylim(-50, 50)
     ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
     save(fig, "eps*u''+x*u=exp(x)")
@@ -58,10 +55,7 @@ try:
     N.lbc = 1.0
     N.rbc = -1.0
     u = N.solve(0.0)
-    xs = np.linspace(-1, 1, 500)
-    ys = np.array(u(jnp.array(xs)))
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
-    ax.plot(xs, ys, color=CHEBFUN_BLUE, linewidth=1.8)
+    fig, ax = u.plot()
     ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
     save(fig, "0.001*u''-u^3=0")
 except Exception as e:
@@ -80,10 +74,7 @@ try:
     N.lbc = 0.0
     N.rbc = 0.0
     u = N.solve(1.0)
-    xs = np.linspace(-1, 1, 500)
-    ys = np.array(u(jnp.array(xs)))
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
-    ax.plot(xs, ys, color=CHEBFUN_BLUE, linewidth=1.8)
+    fig, ax = u.plot()
     ax.set_ylim(-2, 2)
     ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
     save(fig, "Carrier problem")
@@ -98,10 +89,7 @@ try:
     x_cf = cj.chebfun(lambda x: x)
     N.init = 2 * (x_cf**2 - 1) * (1 - 2 / (1 + 20 * x_cf**2))
     u2 = N.solve(1.0)
-    xs = np.linspace(-1, 1, 500)
-    ys2 = np.array(u2(jnp.array(xs)))
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
-    ax.plot(xs, ys2, color=CHEBFUN_BLUE, linewidth=1.8)
+    fig, ax = u2.plot()
     ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
     save(fig, "Carrier with init guess")
 except Exception as e:
@@ -133,10 +121,7 @@ try:
     N = Chebop(lambda t, u: u.diff() - u**2, domain=(0.0, 1.0))
     N.lbc = 0.95
     u = N.solve(0.0)
-    xs = np.linspace(0, 1, 500)
-    ys = np.array(u(jnp.array(xs)))
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
-    ax.plot(xs, ys, color=CHEBFUN_BLUE, linewidth=1.8)
+    fig, ax = u.plot()
     ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
     save(fig, "u'=u^2 IVP")
 except Exception as e:
@@ -150,13 +135,10 @@ try:
     N = Chebop(lambda t, u: u.diff(2) + u, domain=(0.0, 100.0))
     N.lbc = [1.0, 0.0]
     u = N.solve(0.0)
-    xs = np.linspace(0, 100, 2000)
-    ys_u = np.array(u(jnp.array(xs)))
     du = u.diff()
-    ys_du = np.array(du(jnp.array(xs)))
     fig, ax = plt.subplots(figsize=(7, 4.0))
-    ax.plot(xs, ys_u, color=CHEBFUN_BLUE, linewidth=1.5, label='$u$')
-    ax.plot(xs, ys_du, color=CHEBFUN_RED, linewidth=1.5, label="$u'$")
+    cj.plot_1d(u, ax=ax, color=CHEBFUN_BLUE, label='$u$')
+    cj.plot_1d(du, ax=ax, color=CHEBFUN_RED, label="$u'$")
     ax.set_ylim(-1.5, 1.5)
     ax.legend()
     ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
@@ -175,10 +157,7 @@ try:
     )
     N.lbc = [3.0, 0.0]
     u = N.solve(0.0, n=256)
-    xs = np.linspace(0, 20, 1000)
-    ys = np.array(u(jnp.array(xs)))
-    fig, ax = plt.subplots(figsize=(7, 4.0))
-    ax.plot(xs, ys, color=CHEBFUN_BLUE, linewidth=1.5)
+    fig, ax = u.plot()
     ax.set_ylim(-4, 4)
     ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
     save(fig, "Van der Pol")

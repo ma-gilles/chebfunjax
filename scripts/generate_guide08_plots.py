@@ -61,7 +61,7 @@ try:
     f_min = cj.chebfun(lambda t: jnp.minimum(jnp.abs(t), jnp.exp(t)/6.0))
 
     fig, ax = plt.subplots(figsize=(6, 4))
-    ax.plot(tt, np.array(f_min(tt)), color=CHEBFUN_BLUE, linewidth=1.8)
+    cj.plot_1d(f_min, ax=ax, color=CHEBFUN_BLUE)
     ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.4)
     ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
     fig.set_facecolor('white'); fig.tight_layout()
@@ -99,7 +99,7 @@ try:
     print(f"  Complicated function length: {len(f_comp)}")
 
     fig, ax = plt.subplots(figsize=(6, 4))
-    ax.plot(tt, np.array(f_comp(tt)), color=CHEBFUN_BLUE, linewidth=1.0)
+    cj.plot_1d(f_comp, ax=ax, color=CHEBFUN_BLUE)
     ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.4)
     ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
     fig.set_facecolor('white'); fig.tight_layout()
@@ -117,7 +117,7 @@ try:
 
     fig, ax = plt.subplots(figsize=(6, 4))
     tt3 = jnp.linspace(-3, 3, 1200)
-    ax.plot(tt3, np.array(f3_comp(tt3)), color=CHEBFUN_BLUE, linewidth=0.8)
+    cj.plot_1d(f3_comp, ax=ax, color=CHEBFUN_BLUE)
     ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.4)
     ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
     fig.set_facecolor('white'); fig.tight_layout()
@@ -133,7 +133,7 @@ try:
     print(f"  sign(x), n=65: length = {len(f_sign65)}")
 
     fig, ax = plt.subplots(figsize=(6, 4))
-    ax.plot(tt, np.array(f_sign65(tt)), color=CHEBFUN_BLUE, linewidth=1.5)
+    cj.plot_1d(f_sign65, ax=ax, color=CHEBFUN_BLUE)
     ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.4)
     ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
     fig.set_facecolor('white'); fig.tight_layout()
@@ -152,7 +152,7 @@ try:
     fig, ax = plt.subplots(figsize=(6, 4))
     # Zoom near origin to show the spike
     tt_zoom = jnp.linspace(-0.001, 0.001, 600)
-    ax.plot(tt_zoom, np.array(f_spike(tt_zoom)), color=CHEBFUN_BLUE, linewidth=1.8)
+    cj.plot_1d(f_spike, ax=ax, color=CHEBFUN_BLUE)
     ax.set_title(f'$1/(1+10^8 x^2)$, length = {len(f_spike)}')
     ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.4)
     ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
@@ -169,7 +169,7 @@ try:
     print(f"  Bump (exp 2) length: {len(f_bump2)}")
 
     fig, ax = plt.subplots(figsize=(6, 4))
-    ax.plot(tt, np.array(f_bump2(tt)), color=CHEBFUN_BLUE, linewidth=1.5)
+    cj.plot_1d(f_bump2, ax=ax, color=CHEBFUN_BLUE)
     ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.4)
     ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
     fig.set_facecolor('white'); fig.tight_layout()
@@ -185,7 +185,7 @@ try:
     print(f"  Bump (exp 4) length: {len(f_bump4)}")
 
     fig, ax = plt.subplots(figsize=(6, 4))
-    ax.plot(tt, np.array(f_bump4(tt)), color=CHEBFUN_BLUE, linewidth=1.5)
+    cj.plot_1d(f_bump4, ax=ax, color=CHEBFUN_BLUE)
     ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.4)
     ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
     fig.set_facecolor('white'); fig.tight_layout()
@@ -203,7 +203,7 @@ try:
 
     fig, ax = plt.subplots(figsize=(6, 4))
     tt010 = jnp.linspace(0, 10, 1200)
-    ax.plot(tt010, np.array(f_spikes(tt010)), color=CHEBFUN_BLUE, linewidth=1.0)
+    cj.plot_1d(f_spikes, ax=ax, color=CHEBFUN_BLUE)
     ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.4)
     ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
     fig.set_facecolor('white'); fig.tight_layout()

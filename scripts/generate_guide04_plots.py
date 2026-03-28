@@ -35,8 +35,7 @@ try:
     for ax, N in zip(axes.flat, [2, 3, 15, 50]):
         c = chebpoly(N)
         T_N = cj.Chebfun.from_coeffs(jnp.array(c))
-        xx = jnp.linspace(-1, 1, 500)
-        ax.plot(xx, T_N(xx), linewidth=1.5)
+        cj.plot_1d(T_N, ax=ax)
         ax.set_ylim([-1.5, 1.5])
         ax.set_title(f'$T_{{{N}}}$', fontsize=12)
         ax.grid(True, alpha=0.3)
@@ -57,10 +56,7 @@ try:
 
     for ax, N in zip(axes, [10, 20]):
         f = cj.chebfun(lambda x: jnp.sign(x), n=N)
-        pts = chebpts(N)
-        vals = jnp.sign(pts)
-        xx = jnp.linspace(-1, 1, 1000)
-        ax.plot(xx, f(xx), '.-', markersize=4, linewidth=1.2)
+        cj.plot_1d(f, ax=ax)
         ax.grid(True, alpha=0.3)
         ax.set_title(f'sign(x), N={N}')
 
@@ -80,8 +76,7 @@ try:
 
     for ax, N, xlim_right in zip(axes, [10, 20], [0.8, 0.4]):
         f = cj.chebfun(lambda x: jnp.sign(x), n=N)
-        xx = jnp.linspace(0, xlim_right, 500)
-        ax.plot(xx, f(xx), '.-', markersize=4, linewidth=1.2)
+        cj.plot_1d(f, ax=ax)
         ax.set_xlim([0, xlim_right])
         ax.set_ylim([0.5, 1.5])
         ax.grid(True, alpha=0.3)
@@ -103,8 +98,7 @@ try:
 
     for ax, N, xlim_right in zip(axes, [100, 1000], [0.08, 0.008]):
         f = cj.chebfun(lambda x: jnp.sign(x), n=N)
-        xx = jnp.linspace(0, xlim_right, 500)
-        ax.plot(xx, f(xx), '.-', markersize=4, linewidth=1.2)
+        cj.plot_1d(f, ax=ax)
         ax.set_xlim([0, xlim_right])
         ax.set_ylim([0.5, 1.5])
         ax.grid(True, alpha=0.3)
@@ -126,9 +120,7 @@ try:
 
     for ax, N in zip(axes, [10, 20]):
         f = cj.chebfun(lambda x: jnp.abs(x), n=N)
-        pts = chebpts(N)
-        xx = jnp.linspace(-1, 1, 1000)
-        ax.plot(xx, f(xx), '.-', markersize=4, linewidth=1.2)
+        cj.plot_1d(f, ax=ax)
         ax.set_ylim([0, 1])
         ax.grid(True, alpha=0.3)
         ax.set_title(f'|x|, N={N}')
@@ -149,8 +141,7 @@ try:
 
     for ax, N in zip(axes, [100, 1000]):
         f = cj.chebfun(lambda x: jnp.abs(x), n=N)
-        xx = jnp.linspace(-1, 1, 1000)
-        ax.plot(xx, f(xx), linewidth=1.2)
+        cj.plot_1d(f, ax=ax)
         ax.set_ylim([0, 1])
         ax.grid(True, alpha=0.3)
         ax.set_title(f'|x|, N={N}')
@@ -248,15 +239,14 @@ try:
 
     # sinefun1: sin(6*pi*sin(2*pi*x))
     f1 = cj.chebfun(lambda x: jnp.sin(6 * jnp.pi * jnp.sin(2 * jnp.pi * x)))
-    xx = jnp.linspace(-1, 1, 1000)
-    axes[0].plot(xx, f1(xx), linewidth=1.2)
+    cj.plot_1d(f1, ax=axes[0])
     axes[0].set_ylim([0, 3.5])
     axes[0].set_title(f'sinefun1, length = {len(f1)}')
     axes[0].grid(True, alpha=0.3)
 
     # sinefun2: sin(6*pi*sin(2*pi*sin(2*pi*x)))
     f2 = cj.chebfun(lambda x: jnp.sin(6 * jnp.pi * jnp.sin(2 * jnp.pi * jnp.sin(2 * jnp.pi * x))))
-    axes[1].plot(xx, f2(xx), linewidth=1.2)
+    cj.plot_1d(f2, ax=axes[1])
     axes[1].set_ylim([0, 3.5])
     axes[1].set_title(f'sinefun2, length = {len(f2)}')
     axes[1].grid(True, alpha=0.3)
@@ -465,12 +455,9 @@ try:
     plot_idx += 1
     f_tanh = cj.chebfun(lambda x: jnp.tanh(jnp.pi * x / 2) + x / 20, domain=[-10, 10])
 
-    fig, ax = plt.subplots(figsize=(8, 5))
-    xx = jnp.linspace(-10, 10, 1000)
-    ax.plot(xx, f_tanh(xx), linewidth=1.5)
+    fig, ax = f_tanh.plot()
     ax.set_title(f'tanh(pi*x/2) + x/20, length = {len(f_tanh)}')
     ax.grid(True, alpha=0.3)
-    fig.tight_layout()
     fig.savefig(os.path.join(OUT_DIR, f'guide04_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
     plt.close(fig)
     print(f"guide04_{plot_idx:02d}.png saved")

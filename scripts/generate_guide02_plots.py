@@ -18,7 +18,7 @@ import numpy as np
 import jax.numpy as jnp
 import scipy.special as sp
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, contour as contour_2d
 
 chebfun_style()
 
@@ -227,8 +227,8 @@ try:
     f = cj.chebfun(lambda x: jnp.cos(jnp.pi * x), domain=[0, 20])
     fprime = f.diff()
     fig, ax = plt.subplots(figsize=(8, 4))
-    cj.plot(f, ax=ax)
-    cj.plot(fprime, ax=ax)
+    cj.plot_1d(f, ax=ax)
+    cj.plot_1d(fprime, ax=ax, color=cj.plotting.CHEBFUN_RED)
     fig.savefig(os.path.join(OUT_DIR, f'guide02_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
     plt.close(fig)
     print(f"guide02_{plot_idx:02d}.png saved")
@@ -298,18 +298,8 @@ try:
     theta_fn = lambda x, y: jnp.arctan2(y, x)
     f2d = lambda x, y: jnp.sin(5.0 * (theta_fn(x, y) - r_fn(x, y))) * jnp.sin(x)
 
-    # Use matplotlib's contour with meshgrid
-    xv = np.linspace(-2, 2, 201)
-    yv = np.linspace(0.5, 2.5, 201)
-    xx, yy = np.meshgrid(xv, yv)
-    zz = np.array(f2d(jnp.array(xx), jnp.array(yy)))
-
-    fig, ax = plt.subplots(figsize=(8, 5))
-    cs = ax.contour(xv, yv, zz, levels=np.arange(-1, 1.01, 0.2))
-    ax.set_xlim([-2, 2])
-    ax.set_ylim([0.5, 2.5])
-    fig.colorbar(cs, ax=ax)
-    ax.grid(True)
+    f2_obj = cj.chebfun2(f2d, domain=(-2, 2, 0.5, 2.5))
+    fig, ax = contour_2d(f2_obj, title='', filled=False)
     fig.savefig(os.path.join(OUT_DIR, f'guide02_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
     plt.close(fig)
     print(f"guide02_{plot_idx:02d}.png saved")
@@ -323,15 +313,7 @@ except Exception as e:
 try:
     plot_idx += 1
     f2 = cj.chebfun2(f2d, domain=(-2, 2, 0.5, 2.5))
-    fig, ax = plt.subplots(figsize=(8, 5))
-    # Evaluate on a grid and contour
-    xv = np.linspace(-2, 2, 201)
-    yv = np.linspace(0.5, 2.5, 201)
-    xx, yy = np.meshgrid(xv, yv)
-    zz = np.array(f2(jnp.array(xx), jnp.array(yy)))
-    cs = ax.contour(xv, yv, zz, levels=np.arange(-1, 1.01, 0.2))
-    fig.colorbar(cs, ax=ax)
-    ax.grid(True)
+    fig, ax = contour_2d(f2, title='Chebfun2 contour')
     fig.savefig(os.path.join(OUT_DIR, f'guide02_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
     plt.close(fig)
     print(f"guide02_{plot_idx:02d}.png saved")

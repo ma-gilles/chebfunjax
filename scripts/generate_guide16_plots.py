@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import jax.numpy as jnp
 from chebfunjax.plotting import (
-    chebfun_style, plot_disk, PARULA, _setup_3d_axes, CHEBFUN_BLUE,
+    chebfun_style, plot_disk, surf_disk, contour_disk, PARULA, _setup_3d_axes, CHEBFUN_BLUE,
 )
 from chebfunjax.diskfun import Diskfun, Diskfunv
 
@@ -89,8 +89,7 @@ def numerical_gradient_disk(f, n_q_th=20, n_q_r=10, eps=1e-5):
 try:
     g = Diskfun.from_function(
         lambda theta, r: jnp.exp(-10*((r*jnp.cos(theta)-0.3)**2 + (r*jnp.sin(theta))**2)))
-    fig, ax = disk_3d(g, 'Gaussian on disk')
-    ax.view_init(elev=30, azim=-60)
+    fig, ax = plot_disk(g, title='Gaussian on disk')
     save(fig, "Gaussian 3D")
 except Exception as e:
     plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
@@ -136,8 +135,8 @@ try:
     f2 = Diskfun.from_function(
         lambda th, r: jnp.cos(15*((r*jnp.cos(th)-0.2)**2+(r*jnp.sin(th)-0.2)**2))
             * jnp.exp(-(r*jnp.cos(th)-0.2)**2-(r*jnp.sin(th)-0.2)**2))
-    fig, ax, _ = disk_2d(g, 'g'); save(fig, "g")
-    fig, ax, _ = disk_2d(f2, 'f'); save(fig, "f")
+    fig, ax = plot_disk(g, title='g', mode='2d'); save(fig, "g")
+    fig, ax = plot_disk(f2, title='f', mode='2d'); save(fig, "f")
     theta = np.linspace(-np.pi, np.pi, 200, endpoint=False)
     r = np.linspace(0., 1., 100)
     TT, RR = np.meshgrid(theta, r, indexing='ij')
@@ -158,7 +157,7 @@ except Exception as e:
 
 # Plot 09: f with max point
 try:
-    fig, ax, pcm = disk_2d(f2, colorbar=True)
+    fig, ax = plot_disk(f2, title='', mode='2d')
     ax.plot(0.2, 0.2, 'k.', markersize=15)
     save(fig, "f with max")
 except Exception as e:
@@ -166,21 +165,14 @@ except Exception as e:
 
 # Plot 10: Contour plot of g with zero contours
 try:
-    XX, YY, ZZ, _, _ = eval_on_disk(g)
-    fig, ax = plt.subplots(figsize=(5, 5))
-    ax.contour(XX, YY, ZZ, levels=20, linewidths=1.2, cmap=PARULA)
-    ax.contour(XX, YY, ZZ, levels=[0], colors='k', linewidths=2)
-    bdy = np.linspace(0, 2*np.pi, 300)
-    ax.plot(np.cos(bdy), np.sin(bdy), 'k-', lw=0.8)
-    ax.set_aspect('equal'); ax.axis('off')
-    fig.set_facecolor('white'); fig.tight_layout()
+    fig, ax = contour_disk(g, levels=20)
     save(fig, "contour zeros")
 except Exception as e:
     plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
 
 # Plot 11: Roots of g
 try:
-    fig, ax, pcm = disk_2d(g, colorbar=True)
+    fig, ax = plot_disk(g, mode='2d')
     XX, YY, ZZ, _, _ = eval_on_disk(g)
     ax.contour(XX, YY, ZZ, levels=[0], colors='k', linewidths=2)
     save(fig, "roots of g")
@@ -210,7 +202,7 @@ try:
     from scipy.special import jn_zeros, jv
     w41 = jn_zeros(4, 1)[0]
     u_harm = Diskfun.from_function(lambda th, r: jv(4, w41*r) * jnp.cos(4*th))
-    fig, ax, _ = disk_2d(u_harm, title='u')
+    fig, ax = plot_disk(u_harm, title='u', mode='2d')
     save(fig, "harmonic u")
 except Exception as e:
     plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
@@ -237,7 +229,7 @@ except Exception as e:
 try:
     lam = w41**2
     lap_u = Diskfun.from_function(lambda th, r: -lam * jv(4, w41*r) * jnp.cos(4*th))
-    fig, ax, _ = disk_2d(lap_u, title='Laplacian of u')
+    fig, ax = plot_disk(lap_u, title='Laplacian of u', mode='2d')
     save(fig, "Laplacian u")
 except Exception as e:
     plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
@@ -246,8 +238,8 @@ except Exception as e:
 try:
     rhs = Diskfun.from_function(
         lambda th, r: jnp.sin(21*jnp.pi*(1+jnp.cos(jnp.pi*r))*(r**2-2*r**5*jnp.cos(5*(th-0.11)))))
-    fig, ax, _ = disk_2d(rhs, title='f'); save(fig, "Poisson rhs")
-    fig, ax, _ = disk_2d(rhs, title='v'); save(fig, "Poisson solution")
+    fig, ax = plot_disk(rhs, title='f', mode='2d'); save(fig, "Poisson rhs")
+    fig, ax = plot_disk(rhs, title='v', mode='2d'); save(fig, "Poisson solution")
 except Exception as e:
     for _ in range(2): plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
 
@@ -257,7 +249,7 @@ try:
         lambda th, r: 5*jnp.exp(-10*(r*jnp.cos(th)+0.2)**2-10*(r*jnp.sin(th)+0.4)**2)
         - 5*jnp.exp(-10*(r*jnp.cos(th)-0.2)**2-10*(r*jnp.sin(th)-0.2)**2)
         + 5*(1-r**2) - 20)
-    fig, ax, _ = disk_2d(psi)
+    fig, ax = plot_disk(psi, mode='2d')
     XQ, YQ, UX, UY = numerical_gradient_disk(psi)
     ax.quiver(XQ, YQ, UX, UY, color='k', scale=300)
     save(fig, "gradient quiver")
@@ -289,7 +281,7 @@ except Exception as e:
 try:
     g_sc = Diskfun.from_function(
         lambda th, r: jnp.cosh(0.25*(jnp.cos(5*r*jnp.cos(th))+jnp.sin(4*(r*jnp.sin(th))**2)))-2)
-    fig, ax, _ = disk_2d(g_sc, title='The numerical surface curl of g')
+    fig, ax = plot_disk(g_sc, title='The numerical surface curl of g', mode='2d')
     XQ, YQ, UX, UY = numerical_gradient_disk(g_sc)
     ax.quiver(XQ, YQ, UY, -UX, color='w', scale=50)
     save(fig, "surface curl")
@@ -301,7 +293,7 @@ try:
     f_bmc = Diskfun.from_function(
         lambda th, r: jnp.cos(2*(3*jnp.sin(2*r*jnp.cos(th))+5*jnp.sin(r*jnp.sin(th))))
             - 0.5*jnp.sin(r*jnp.cos(th)-r*jnp.sin(th)))
-    fig, ax, _ = disk_2d(f_bmc, title='f')
+    fig, ax = plot_disk(f_bmc, title='f', mode='2d')
     save(fig, "f BMC")
 except Exception as e:
     plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
@@ -324,7 +316,7 @@ except Exception as e:
 
 # Plot 24: Skeleton
 try:
-    fig, ax, _ = disk_2d(f_bmc, title='Low rank function samples')
+    fig, ax = plot_disk(f_bmc, title='Low rank function samples', mode='2d')
     ax.set_title('Low rank function samples', fontsize=10)
     save(fig, "skeleton")
 except Exception as e:

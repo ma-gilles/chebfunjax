@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import jax.numpy as jnp
 from chebfunjax.plotting import (
-    chebfun_style, plot_slices, PARULA, _setup_3d_axes,
+    chebfun_style, plot_slices, plot_chebfun3, PARULA, _setup_3d_axes,
 )
 from chebfunjax.chebfun3d import chebfun3, Chebfun3
 
@@ -30,56 +30,8 @@ def save(fig, desc=""):
     print(f"  guide18_{plot_num:02d}.png: {desc}")
 
 def slices_plot(f, title='', n=80):
-    """Three orthogonal slices of a Chebfun3 using PARULA."""
-    try:
-        fig, ax = plot_slices(f, title=title, n_pts=n, cmap=PARULA)
-    except Exception:
-        # Fallback: manual slice at z=midpoint
-        import matplotlib.colors as mcolors
-        xa, xb, ya, yb, za, zb = f.domain
-        xm = 0.5*(xa+xb); ym = 0.5*(ya+yb); zm = 0.5*(za+zb)
-        xs = np.linspace(xa, xb, n); ys = np.linspace(ya, yb, n)
-        zs = np.linspace(za, zb, n)
-
-        # z=zm slice (XY plane)
-        XX_xy, YY_xy = np.meshgrid(xs, ys, indexing='ij')
-        ZM_xy = np.full_like(XX_xy, zm)
-        F_xy = np.array(f(jnp.array(XX_xy.ravel()), jnp.array(YY_xy.ravel()),
-                          jnp.array(ZM_xy.ravel()))).reshape(XX_xy.shape)
-
-        # y=ym slice (XZ plane)
-        XX_xz, ZZ_xz = np.meshgrid(xs, zs, indexing='ij')
-        YM_xz = np.full_like(XX_xz, ym)
-        F_xz = np.array(f(jnp.array(XX_xz.ravel()), jnp.array(YM_xz.ravel()),
-                          jnp.array(ZZ_xz.ravel()))).reshape(XX_xz.shape)
-
-        # x=xm slice (YZ plane)
-        YY_yz, ZZ_yz = np.meshgrid(ys, zs, indexing='ij')
-        XM_yz = np.full_like(YY_yz, xm)
-        F_yz = np.array(f(jnp.array(XM_yz.ravel()), jnp.array(YY_yz.ravel()),
-                          jnp.array(ZZ_yz.ravel()))).reshape(YY_yz.shape)
-
-        all_vals = np.concatenate([F_xy.ravel(), F_xz.ravel(), F_yz.ravel()])
-        vmin, vmax = float(all_vals.min()), float(all_vals.max())
-        norm = mcolors.Normalize(vmin=vmin, vmax=vmax)
-        cmap_obj = PARULA
-
-        fig, ax = _setup_3d_axes(None, None, elev=25, azim=-37,
-                                 figsize=(6.1, 5.0))
-
-        def _surf_slice(XX, YY, ZZ, F):
-            fc = cmap_obj(norm(F))
-            ax.plot_surface(XX, YY, ZZ, facecolors=fc,
-                            rstride=1, cstride=1, linewidth=0,
-                            antialiased=True, alpha=0.85, shade=False)
-
-        _surf_slice(XX_xy, YY_xy, ZM_xy, F_xy)
-        _surf_slice(XX_xz, YM_xz, ZZ_xz, F_xz)
-        _surf_slice(XM_yz, YY_yz, ZZ_yz, F_yz)
-
-        if title:
-            ax.set_title(title, fontsize=10, pad=0)
-        fig.tight_layout(pad=0.5)
+    """Three orthogonal slices of a Chebfun3 using plot_chebfun3."""
+    fig, ax = plot_chebfun3(f, title=title, n_pts=n)
     return fig, ax
 
 # Plot 01: cos(xyz) slice plot (Section 18.1)

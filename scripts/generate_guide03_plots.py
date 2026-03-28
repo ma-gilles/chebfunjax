@@ -64,13 +64,8 @@ try:
     Bi = cj.chebfun(airy_bi, domain=[-10, 3])
 
     fig, ax = plt.subplots(figsize=(6, 3.5))
-
-    # Plot Ai in red
-    xs = np.linspace(-10, 3, 600)
-    ys_ai = np.array([float(Ai(xi)) for xi in xs])
-    ys_bi = np.array([float(Bi(xi)) for xi in xs])
-    ax.plot(xs, ys_ai, 'r', linewidth=1.8)
-    ax.plot(xs, ys_bi, 'b', linewidth=1.8)
+    cj.plot_1d(Ai, ax=ax, color='r')
+    cj.plot_1d(Bi, ax=ax, color='b')
 
     rA = Ai.roots()
     rB = Bi.roots()
@@ -115,9 +110,8 @@ try:
     f = cj.cos(x)
     r = (f - x).roots()
     fig, ax = plt.subplots(figsize=(6, 3.5))
-    xs = np.linspace(-2, 2, 600)
-    ax.plot(xs, np.array([float(x(xi)) for xi in xs]), linewidth=1.8)
-    ax.plot(xs, np.array([float(f(xi)) for xi in xs]), 'k', linewidth=1.8)
+    cj.plot_1d(x, ax=ax)
+    cj.plot_1d(f, ax=ax, color='k')
     ax.plot(np.asarray(r), [float(f(ri)) for ri in r], 'or', markersize=8)
     ax.grid(True)
     fig.savefig(os.path.join(OUT_DIR, f'guide03_{plot_idx:02d}.png'),
@@ -136,10 +130,9 @@ try:
     x = cj.chebfun(lambda x: x)
     absx = cj.abs(x)
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 3.5))
-    xs = np.linspace(-1, 1, 300)
-    ax1.plot(xs, np.array([float(x(xi)) for xi in xs]), linewidth=1.8)
+    cj.plot_1d(x, ax=ax1)
     ax1.set_title('x')
-    ax2.plot(xs, np.array([float(absx(xi)) for xi in xs]), linewidth=1.8)
+    cj.plot_1d(absx, ax=ax2)
     ax2.set_title('abs(x)')
     fig.tight_layout()
     fig.savefig(os.path.join(OUT_DIR, f'guide03_{plot_idx:02d}.png'),
