@@ -61,33 +61,38 @@ def run():
     print(f"  Integral = {integral_h:.2e}  (expected: ~0)")
     assert abs(integral_h) < 0.1
 
-    # Plot
+    # Plot each disk function using the library's plot_disk
+    from chebfunjax.plotting import plot_disk
+
     _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 3)
 
-    theta_p = np.linspace(-np.pi, np.pi, 100)
-    r_p = np.linspace(0, 1, 50)
-    T, R = np.meshgrid(theta_p, r_p)
-    X = R * np.cos(T)
-    Y = R * np.sin(T)
-
-    funcs = [
-        (R * np.cos(T), "r·cos(θ) = x"),
-        (R**2, "r² = x²+y²"),
-        (np.exp(-2*R**2) * np.cos(3*T), "exp(-2r²)cos(3θ)"),
+    disk_funcs = [
+        (f, "r cos(theta) = x", "disk_f1"),
+        (g, "r^2 = x^2 + y^2", "disk_f2"),
+        (h, "exp(-2r^2) cos(3 theta)", "disk_f3"),
     ]
+    for df, title, tag in disk_funcs:
+        fig_3d, ax_3d = plot_disk(df, title=title, mode="3d")
+        fig_3d.savefig(os.path.join(_here, f"{tag}_3d.png"),
+                       dpi=150, bbox_inches="tight")
+        plt.close(fig_3d)
 
-    for ax, (Z, title) in zip(axes, funcs):
-        im = ax.contourf(X, Y, Z, levels=20, cmap="RdBu_r")
-        circle = plt.Circle((0, 0), 1, fill=False, color='k', linewidth=1.5)
-        ax.add_patch(circle)
-        ax.set_title(title, fontsize=10); ax.set_aspect('equal')
-        ax.set_xlim(-1.05, 1.05); ax.set_ylim(-1.05, 1.05)
-        fig.colorbar(im, ax=ax, shrink=0.8)
+        fig_2d, ax_2d = plot_disk(df, title=title, mode="2d")
+        fig_2d.savefig(os.path.join(_here, f"{tag}_2d.png"),
+                       dpi=150, bbox_inches="tight")
+        plt.close(fig_2d)
 
-    fig.suptitle("Functions on the unit disk", fontsize=13)
+    # Combined overview figure (2D flat mode, matching MATLAB style)
+    from chebfunjax.plotting import PARULA
+    fig, axes = plt.subplots(1, 3, figsize=(12, 3.5))
+    titles = ["r cos(theta) = x", "r^2 = x^2 + y^2",
+              "exp(-2r^2) cos(3 theta)"]
+    for ax, df, title in zip(axes, [f, g, h], titles):
+        plot_disk(df, ax=ax, title=title, mode="2d")
+    fig.set_facecolor("white")
     fig.tight_layout()
-    fig.savefig(os.path.join(_here, "disk_functions.png"), dpi=150, bbox_inches="tight")
+    fig.savefig(os.path.join(_here, "disk_functions.png"),
+                dpi=150, bbox_inches="tight")
     plt.close(fig)
 
     print("\nAll assertions passed.")

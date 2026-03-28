@@ -112,28 +112,41 @@ def run():
     # ------------------------------------------------------------------
     # Plot: tolerance vs rank and error
     # ------------------------------------------------------------------
-    fig, axes = plt.subplots(1, 3)
+    from chebfunjax.plotting import CHEBFUN_BLUE, CHEBFUN_RED
+
+    fig, axes = plt.subplots(1, 3, figsize=(13, 3.5))
 
     # Tucker rank vs tolerance
     ax1 = axes[0]
     tols = [r["tol"] for r in results]
     ranks_x = [r["rank"][0] for r in results]
-    ax1.loglog(tols, ranks_x, "o-b", lw=2, ms=10)
+    ax1.loglog(tols, ranks_x, "o-", color=CHEBFUN_BLUE, lw=1.5, ms=7)
     ax1.invert_xaxis()
-    ax1.set_title("Rank decreases with\nloose tolerance", fontsize=11)
+    ax1.set_title("Rank vs tolerance", fontsize=10)
+    ax1.set_xlabel("tolerance", fontsize=9)
+    ax1.set_ylabel("Tucker rank", fontsize=9)
+
     # Error vs tolerance
     ax2 = axes[1]
     errs = [r["err"] for r in results]
-    ax2.loglog(tols, errs, "o-r", lw=2, ms=10)
-    ax2.plot([1e-4, 1e-8], [1e-4, 1e-8], "--k", alpha=0.5, label="error=tol")
+    ax2.loglog(tols, errs, "o-", color=CHEBFUN_RED, lw=1.5, ms=7)
+    ax2.plot([1e-4, 1e-8], [1e-4, 1e-8], "--k", alpha=0.4,
+             label="error = tol")
     ax2.invert_xaxis()
-    ax2.set_title("Error scales with tolerance", fontsize=11)
-    ax2.legend()
+    ax2.set_title("Error vs tolerance", fontsize=10)
+    ax2.set_xlabel("tolerance", fontsize=9)
+    ax2.set_ylabel("relative error", fontsize=9)
+    ax2.legend(fontsize=8, framealpha=0.9)
+
     # Chebyshev coefficients of first fiber
     ax3 = axes[2]
-    ax3.semilogy(range(len(coeffs0)), coeffs0, "o-b", ms=4, lw=1.5)
-    ax3.set_title("Coefficient decay of\nfirst column fiber", fontsize=11)
-    fig.suptitle("Effect of tolerance on Chebfun3 construction", fontsize=13)
+    ax3.semilogy(range(len(coeffs0)), coeffs0, "o-", color=CHEBFUN_BLUE,
+                 ms=3, lw=1.2)
+    ax3.set_title("Coefficient decay (col[0])", fontsize=10)
+    ax3.set_xlabel("degree n", fontsize=9)
+    ax3.set_ylabel("|a_n|", fontsize=9)
+
+    fig.set_facecolor("white")
     fig.tight_layout()
     fig.savefig(
         os.path.join(_IMG_DIR, "Tolerance.png"), dpi=150, bbox_inches="tight"

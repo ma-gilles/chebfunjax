@@ -147,27 +147,38 @@ def run():
     # ------------------------------------------------------------------
     # Plot: convergence of alternating projections
     # ------------------------------------------------------------------
-    fig, axes = plt.subplots(1, 2)
+    from chebfunjax.plotting import CHEBFUN_BLUE, CHEBFUN_RED
+
+    fig, axes = plt.subplots(1, 2, figsize=(10, 3.5))
 
     ax1 = axes[0]
-    ax1.semilogy(range(len(errors)), errors, "o-b", lw=2, ms=8)
-    ax1.set_title("Alternating projections:\nrecovering rank-one f from fhat", fontsize=11)
-    ax1.axhline(1e-2, ls="--", color="gray", alpha=0.5, label="1% threshold")
-    ax1.legend()
+    ax1.semilogy(range(len(errors)), errors, "o-", color=CHEBFUN_BLUE,
+                 lw=1.5, ms=6)
+    ax1.axhline(1e-2, ls="--", color="gray", alpha=0.4,
+                label="1% threshold")
+    ax1.set_title("Alternating projections", fontsize=10)
+    ax1.set_xlabel("iteration", fontsize=9)
+    ax1.set_ylabel("relative error", fontsize=9)
+    ax1.legend(fontsize=8, framealpha=0.9)
 
     # Slice of f and fhat for comparison
     ax2 = axes[1]
     x_line = np.linspace(-1, 1, 100)
     f_x = np.array([float(f(jnp.array(xi), jnp.array(0.5), jnp.array(0.3))) for xi in x_line])
     fhat_x = np.array([float(fhat(jnp.array(xi), jnp.array(0.5), jnp.array(0.3))) for xi in x_line])
-    ax2.plot(x_line, f_x, "b-", lw=2, label="f = sin(x)cos(y)exp(z)")
-    ax2.plot(x_line, fhat_x, "r--", lw=2, label="fhat = f+(g+h)/10")
-    ax2.set_title("f vs fhat along x-axis", fontsize=11)
-    ax2.legend()
-    fig.suptitle("Finding rank-one functions in a subspace", fontsize=13)
+    ax2.plot(x_line, f_x, "-", color=CHEBFUN_BLUE, lw=1.5,
+             label="f = sin(x)cos(y)exp(z)")
+    ax2.plot(x_line, fhat_x, "--", color=CHEBFUN_RED, lw=1.5,
+             label="fhat = f+(g+h)/10")
+    ax2.set_title("f vs fhat along x-axis", fontsize=10)
+    ax2.set_xlim(-1, 1)
+    ax2.legend(fontsize=8, framealpha=0.9)
+
+    fig.set_facecolor("white")
     fig.tight_layout()
     fig.savefig(
-        os.path.join(_IMG_DIR, "FindingRankOne.png"), dpi=150, bbox_inches="tight"
+        os.path.join(_IMG_DIR, "FindingRankOne.png"), dpi=150,
+        bbox_inches="tight"
     )
     plt.close(fig)
 

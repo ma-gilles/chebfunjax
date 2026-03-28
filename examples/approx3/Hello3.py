@@ -134,36 +134,42 @@ def run():
     # ------------------------------------------------------------------
     # Plot: isosurface (shown as dense scatter plot)
     # ------------------------------------------------------------------
-    fig = plt.figure()
+    from chebfunjax.plotting import PARULA, _setup_3d_axes
+
+    fig = plt.figure(figsize=(14, 4))
 
     # Plot 1: The HELLO tensor slice
     ax1 = fig.add_subplot(131)
-    ax1.imshow(B[18, :, :].T, cmap="Blues", origin="lower",
+    ax1.imshow(B[18, :, :].T, cmap=PARULA, origin="lower",
                extent=[-1, 1, -1, 1], aspect="equal")
-    ax1.set_title("HELLO tensor slice (k=18)\nbinary pixel data", fontsize=10)
+    ax1.set_title("HELLO tensor slice (k=18)", fontsize=10)
 
     # Plot 2: 3D scatter of nonzero entries
     ax2 = fig.add_subplot(132, projection="3d")
+    _setup_3d_axes(ax2, fig, elev=20, azim=-100)
     nz = np.argwhere(B > 0.5)
-    # Map indices to [-1,1]
     xyz_nz = (nz / (n - 1)) * 2 - 1
     ax2.scatter(xyz_nz[:, 0], xyz_nz[:, 1], xyz_nz[:, 2],
-                c="steelblue", alpha=0.3, s=2)
-    ax2.set_title("HELLO tensor\n3D binary voxels", fontsize=10)
-    ax2.view_init(elev=20, azim=-100)
+                c=PARULA(np.linspace(0.3, 0.7, len(xyz_nz))),
+                alpha=0.3, s=2)
+    ax2.set_title("HELLO tensor\n3D binary voxels", fontsize=10, pad=0)
 
     # Plot 3: Chebfun3 reconstruction slice
     ax3 = fig.add_subplot(133)
     x_plot = np.linspace(-1, 1, 100)
     y_plot = np.linspace(-1, 1, 100)
     X_p, Y_p = np.meshgrid(x_plot, y_plot)
-    z_val = 0.05  # middle of the letter slab
+    z_val = 0.05
     Z_p = np.full_like(X_p, z_val)
     vals = np.array(f(jnp.array(X_p), jnp.array(Y_p), jnp.array(Z_p)))
-    ax3.contourf(X_p, Y_p, vals, levels=20, cmap="Blues")
-    ax3.set_title(f"Chebfun3 reconstruction\nslice at z={z_val}", fontsize=10)
+    cs = ax3.contourf(X_p, Y_p, vals, levels=20, cmap=PARULA)
+    ax3.contour(X_p, Y_p, vals, levels=20, colors="k", linewidths=0.3,
+                alpha=0.4)
+    ax3.set_title(f"Chebfun3 reconstruction at z={z_val}", fontsize=10)
+    ax3.set_aspect("equal")
+    fig.colorbar(cs, ax=ax3, fraction=0.046, pad=0.04)
 
-    fig.suptitle("Hello 3D World — Chebfun3 from discrete data", fontsize=12)
+    fig.set_facecolor("white")
     fig.tight_layout()
     fig.savefig(
         os.path.join(_IMG_DIR, "Hello3.png"), dpi=150, bbox_inches="tight"

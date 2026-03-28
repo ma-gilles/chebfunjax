@@ -148,53 +148,63 @@ def run():
     # ------------------------------------------------------------------
     # Plot: surface of ice-cream cone and cylinder sector
     # ------------------------------------------------------------------
-    fig = plt.figure()
+    from chebfunjax.plotting import PARULA, _setup_3d_axes
+
+    fig = plt.figure(figsize=(14, 4))
 
     # Plot 1: ice-cream cone surface
     ax1 = fig.add_subplot(131, projection="3d")
-    phi_vals = np.linspace(np.pi / 4, np.pi / 2, 30)
-    theta_vals = np.linspace(0, 2 * np.pi, 60)
+    _setup_3d_axes(ax1, fig)
+    phi_vals = np.linspace(np.pi / 4, np.pi / 2, 50)
+    theta_vals = np.linspace(0, 2 * np.pi, 80)
     Phi, Theta = np.meshgrid(phi_vals, theta_vals)
     X_c = np.cos(Theta) * np.cos(Phi)
     Y_c = np.sin(Theta) * np.cos(Phi)
     Z_c = np.sin(Phi)
-    ax1.plot_surface(X_c, Y_c, Z_c, alpha=0.7, cmap="viridis")
-    ax1.set_title("Ice-cream cone\n(r=1 surface)", fontsize=9)
+    ax1.plot_surface(X_c, Y_c, Z_c, cmap=PARULA, rstride=1, cstride=1,
+                     linewidth=0, antialiased=True)
+    ax1.set_title("Ice-cream cone (r=1)", fontsize=9, pad=0)
 
     # Plot 2: cylinder sector
     ax2 = fig.add_subplot(132, projection="3d")
-    r_vals = np.linspace(0, 1, 20)
-    t_vals = np.linspace(0, np.pi, 40)
+    _setup_3d_axes(ax2, fig)
+    r_vals = np.linspace(0, 1, 30)
+    t_vals = np.linspace(0, np.pi, 60)
     R, T = np.meshgrid(r_vals, t_vals)
     Xcyl = R * np.cos(T)
     Ycyl = R * np.sin(T)
     Zcyl_bot = np.zeros_like(R)
     Zcyl_top = np.ones_like(R)
-    ax2.plot_surface(Xcyl, Ycyl, Zcyl_bot, alpha=0.4, color="steelblue")
-    ax2.plot_surface(Xcyl, Ycyl, Zcyl_top, alpha=0.4, color="steelblue")
-    # Curved surface
-    t2 = np.linspace(0, np.pi, 40)
-    z2 = np.linspace(0, 1, 20)
+    ax2.plot_surface(Xcyl, Ycyl, Zcyl_bot, cmap=PARULA, alpha=0.6,
+                     rstride=1, cstride=1, linewidth=0, antialiased=True)
+    ax2.plot_surface(Xcyl, Ycyl, Zcyl_top, cmap=PARULA, alpha=0.6,
+                     rstride=1, cstride=1, linewidth=0, antialiased=True)
+    t2 = np.linspace(0, np.pi, 60)
+    z2 = np.linspace(0, 1, 30)
     T2, Z2 = np.meshgrid(t2, z2)
-    ax2.plot_surface(np.cos(T2), np.sin(T2), Z2, alpha=0.4, color="orange")
-    ax2.set_title("Cylinder sector\n(r=1, 0≤θ≤π)", fontsize=9)
+    ax2.plot_surface(np.cos(T2), np.sin(T2), Z2, cmap=PARULA, alpha=0.6,
+                     rstride=1, cstride=1, linewidth=0, antialiased=True)
+    ax2.set_title("Cylinder sector", fontsize=9, pad=0)
 
     # Plot 3: torus
     ax3 = fig.add_subplot(133, projection="3d")
-    p_vals = np.linspace(0, 2 * np.pi, 60)
-    t_vals2 = np.linspace(0, 2 * np.pi, 30)
+    _setup_3d_axes(ax3, fig)
+    p_vals = np.linspace(0, 2 * np.pi, 80)
+    t_vals2 = np.linspace(0, 2 * np.pi, 50)
     P, T3 = np.meshgrid(p_vals, t_vals2)
     R0 = 4
     r0 = 1
     Xtor = (R0 + r0 * np.cos(T3)) * np.cos(P)
     Ytor = (R0 + r0 * np.cos(T3)) * np.sin(P)
     Ztor = r0 * np.sin(T3)
-    ax3.plot_surface(Xtor, Ytor, Ztor, alpha=0.7, cmap="plasma")
-    ax3.set_title("Torus (R=4, r=1)", fontsize=9)
+    ax3.plot_surface(Xtor, Ytor, Ztor, cmap=PARULA, rstride=1, cstride=1,
+                     linewidth=0, antialiased=True)
+    ax3.set_title("Torus (R=4, r=1)", fontsize=9, pad=0)
 
-    fig.suptitle("Coordinate transformations for 3D integration", fontsize=12)
+    fig.set_facecolor("white")
     fig.tight_layout()
-    fig.savefig(os.path.join(_IMG_DIR, "ChangeVar3D.png"), dpi=150, bbox_inches="tight")
+    fig.savefig(os.path.join(_IMG_DIR, "ChangeVar3D.png"), dpi=150,
+                bbox_inches="tight")
     plt.close(fig)
 
     print("\nAll assertions passed.")
