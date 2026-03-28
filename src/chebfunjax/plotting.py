@@ -770,7 +770,7 @@ def plot_sphere(
         zz = vv * np.sin(elev)
 
         fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36,
-                                 figsize=(6.1, 5.0))
+                                 figsize=(6.1, 2.75))
 
         # Facecolors with LightSource shading
         fmin, fmax = float(C.min()), float(C.max())
@@ -979,7 +979,7 @@ def contour_sphere(
     plt.close(fig_tmp)
 
     # Setup 3D axes
-    fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36, figsize=(6.1, 5.0))
+    fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36, figsize=(6.1, 2.75))
 
     # Draw background sphere
     u = np.linspace(0, 2 * np.pi, 102)
@@ -1074,7 +1074,7 @@ def quiver_sphere_cartesian(
     fyv = np.array(fy(lam_j, theta_j))
     fzv = np.array(fz(lam_j, theta_j))
 
-    fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36, figsize=(6.1, 5.0))
+    fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36, figsize=(6.1, 2.75))
 
     # Background sphere
     u = np.linspace(0, 2 * np.pi, 102)
@@ -1221,7 +1221,7 @@ def quiver_2d(
     VV = _eval_2d_vectorized(F2, XX, YY)
 
     if ax is None:
-        fig, ax = plt.subplots(figsize=(6.1, 5.0))
+        fig, ax = plt.subplots(figsize=(6.1, 2.75))
     else:
         fig = ax.get_figure()
 
@@ -1292,7 +1292,7 @@ def surf_chebfun2v(
     Ys = _eval_2d_vectorized(F2, XX, YY)
     Zs = _eval_2d_vectorized(F3, XX, YY)
 
-    fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37, figsize=(6.1, 5.0))
+    fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37, figsize=(6.1, 2.75))
 
     ax.plot_surface(Xs, Ys, Zs, cmap=cmap,
                     rstride=1, cstride=1,
@@ -1384,7 +1384,7 @@ def contour_disk(
     YY = RR * np.sin(TT)
 
     if ax is None:
-        fig, ax = plt.subplots(figsize=(6.1, 5.0))
+        fig, ax = plt.subplots(figsize=(6.1, 2.75))
     else:
         fig = ax.get_figure()
 
@@ -1453,7 +1453,7 @@ def surf_disk(
     xx = RR * np.cos(TT)
     yy = RR * np.sin(TT)
 
-    fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37, figsize=(6.1, 5.0))
+    fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37, figsize=(6.1, 2.75))
 
     ax.plot_surface(xx, yy, C, cmap=cmap,
                     rstride=1, cstride=1,
@@ -1511,7 +1511,7 @@ def quiver_disk(
     vals2 = np.array(F2(jnp.array(theta), jnp.array(rr)))
 
     if ax is None:
-        fig, ax = plt.subplots(figsize=(6.1, 5.0))
+        fig, ax = plt.subplots(figsize=(6.1, 2.75))
     else:
         fig = ax.get_figure()
 
@@ -1759,7 +1759,7 @@ def quiver_sphere(
             fyv = f_vals * cos_lam + g_vals * cos_th * sin_lam
             fzv = -g_vals * sin_th
 
-        fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36, figsize=(6.1, 5.0))
+        fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36, figsize=(6.1, 2.75))
 
         # Background sphere
         u = np.linspace(0, 2 * np.pi, 102)
@@ -1812,7 +1812,7 @@ def quiver_sphere(
         V = V * arrow_scale / max_mag
         W = W * arrow_scale / max_mag
 
-        fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36, figsize=(6.1, 5.0))
+        fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36, figsize=(6.1, 2.75))
 
         # Background sphere
         n_bg = 60
@@ -2163,8 +2163,9 @@ def plot_ball_slices(
     # --- MATLAB: camlight('headlight'); lighting phong; material dull ---
     ls = LightSource(azdeg=315, altdeg=45)
 
+    # MATLAB default: wide figure matching guide output (~600x270)
     fig, ax = _setup_3d_axes(ax, None, elev=elev, azim=azim,
-                             figsize=(6.1, 5.0))
+                             figsize=(6.1, 2.75))
 
     # --- MATLAB: for j = 1:numel(hslicer); surf(xs,ys,zs,CData,...); end ---
     for xs, ys, zs, cdata in slices:
@@ -2183,10 +2184,15 @@ def plot_ball_slices(
     ax.set_ylim(-1.0, 1.0)
     ax.set_zlim(-1.0, 1.0)
     ax.set_box_aspect([1, 1, 1])
+    # Clean MATLAB-style ticks
+    ax.set_xticks([-1, 0, 1])
+    ax.set_yticks([-1, 0, 1])
+    ax.set_zticks([-1, 0, 1])
+    ax.tick_params(labelsize=8)
 
     if title:
         ax.set_title(title, fontsize=10, pad=0)
-    fig.tight_layout(pad=0.5)
+    fig.tight_layout(pad=0.2)
     return fig, ax
 
 
@@ -2325,7 +2331,7 @@ def quiver_ball(
     Vyy = np.real(np.concatenate(Vyy_list))
     Vzz = np.real(np.concatenate(Vzz_list))
 
-    fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37, figsize=(6.1, 5.0))
+    fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37, figsize=(6.1, 2.75))
 
     q = ax.quiver(xx, yy, zz, Vxx, Vyy, Vzz, length=0.05 * arrow_scale,
                   arrow_length_ratio=0.3, linewidth=0.6)
@@ -2460,7 +2466,7 @@ def plot_chebfun3(
         vmax = vmin + 1.0
     norm = mcolors.Normalize(vmin=vmin, vmax=vmax)
 
-    fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37, figsize=(6.1, 5.0))
+    fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37, figsize=(6.1, 2.75))
 
     for XX_s, YY_s, ZZ_s, F_s in slices:
         fc = cmap_obj(norm(F_s))
