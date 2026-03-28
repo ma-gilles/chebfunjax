@@ -1,6 +1,6 @@
 """Generate all plots for Guide Chapter 17 (Spherefun).
 
-Matches figures from the original Chebfun guide chapter 17.
+Uses PARULA colormap on coloured spheres matching MATLAB Chebfun style.
 """
 import matplotlib
 matplotlib.use('Agg')
@@ -10,7 +10,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 import matplotlib.pyplot as plt
 import numpy as np
 import jax.numpy as jnp
-from chebfunjax.plotting import chebfun_style, plot_sphere
+from chebfunjax.plotting import (
+    chebfun_style, plot_sphere, PARULA, _setup_3d_axes,
+)
 from chebfunjax.spherefun import Spherefun
 
 chebfun_style()
@@ -27,43 +29,68 @@ def save(fig, desc=""):
     plt.close(fig)
     print(f"  guide17_{plot_num:02d}.png: {desc}")
 
-def eval_on_sphere(f, n_lam=200, n_theta=100):
-    """Evaluate Spherefun on a lat-lon grid."""
-    lam = np.linspace(-np.pi, np.pi, n_lam, endpoint=False)
-    theta = np.linspace(0.0, np.pi, n_theta)
-    LAM, THETA = np.meshgrid(lam, theta, indexing='ij')
-    ZZ = np.array(f(jnp.array(LAM.ravel()), jnp.array(THETA.ravel()))).reshape(LAM.shape)
-    return LAM, THETA, ZZ
+def eval_on_sphere(f, n_pts=200):
+    """Evaluate Spherefun on a lat-lon grid (matching MATLAB's 200x200)."""
+    l = np.linspace(-np.pi, np.pi, n_pts)
+    t = np.linspace(0.0, np.pi, n_pts)
+    ll, tt = np.meshgrid(l, t)  # MATLAB ordering: (n_pts, n_pts)
+    ZZ = np.array(f(jnp.array(ll.ravel()), jnp.array(tt.ravel()))).reshape(ll.shape)
+    # Return sph2cart-style coordinates
+    elev = np.pi / 2 - tt
+    XX = np.cos(elev) * np.cos(ll)
+    YY = np.cos(elev) * np.sin(ll)
+    ZZ_c = np.sin(elev)
+    return ll, tt, XX, YY, ZZ_c, ZZ
 
-def sphere_3d(f, title='', cmap='RdBu_r'):
-    """3D coloured sphere surface plot."""
-    LAM, THETA, ZZ = eval_on_sphere(f)
-    XX = np.sin(THETA) * np.cos(LAM)
-    YY = np.sin(THETA) * np.sin(LAM)
-    ZZ_c = np.cos(THETA)
-    fig = plt.figure(figsize=(6, 5))
-    ax = fig.add_subplot(111, projection='3d')
-    fmin, fmax = ZZ.min(), ZZ.max()
-    if fmax > fmin:
-        norm_vals = (ZZ - fmin) / (fmax - fmin)
+def sphere_3d(f, title='', cmap=None):
+    """3D coloured sphere surface plot using plot_sphere (MATLAB-faithful)."""
+    return plot_sphere(f, title=title, cmap=cmap)
+
+def sphere_3d_from_values(XX, YY, ZZ_c, vals, title='', cmap=None):
+    """3D coloured sphere from pre-computed Cartesian coordinates and values.
+
+    Uses LightSource shading to match MATLAB camlight + lighting phong.
+    """
+    from matplotlib.colors import LightSource
+    if cmap is None:
+        cmap = PARULA
+    if isinstance(cmap, str):
+        cmap_obj = plt.get_cmap(cmap)
     else:
-        norm_vals = np.zeros_like(ZZ)
-    cmap_obj = plt.get_cmap(cmap)
-    fcolors = cmap_obj(norm_vals)
-    ax.plot_surface(XX, YY, ZZ_c, facecolors=fcolors, linewidth=0, antialiased=True, alpha=0.95)
-    if title: ax.set_title(title, fontsize=11)
-    ax.set_xlabel('x'); ax.set_ylabel('y'); ax.set_zlabel('z')
-    fig.set_facecolor('white'); fig.tight_layout()
+        cmap_obj = cmap
+    fmin, fmax = vals.min(), vals.max()
+    norm_v = (vals - fmin) / (fmax - fmin) if fmax > fmin else np.zeros_like(vals)
+
+    ls = LightSource(azdeg=315, altdeg=45)
+    rgb = cmap_obj(norm_v)[:, :, :3]
+    shaded = ls.shade_rgb(rgb, ZZ_c)
+    fcolors = np.ones((*shaded.shape[:2], 4))
+    fcolors[:, :, :3] = shaded
+
+    fig, ax = _setup_3d_axes(None, None, elev=8, azim=-36, figsize=(6.1, 5.0))
+    ax.plot_surface(XX, YY, ZZ_c, facecolors=fcolors, linewidth=0,
+                    antialiased=True, shade=False,
+                    rstride=1, cstride=1)
+    ax.set_xlim(-1.0, 1.0)
+    ax.set_ylim(-1.0, 1.0)
+    ax.set_zlim(-1.0, 1.0)
+    ax.set_box_aspect([1, 1, 1])
+    if title:
+        ax.set_title(title, fontsize=10, pad=0)
     return fig, ax
 
-def sphere_flat(f, title='', cmap='RdBu_r'):
+def sphere_flat(f, title='', cmap=None):
     """Flat (lambda, theta) projection of a Spherefun."""
-    LAM, THETA, ZZ = eval_on_sphere(f)
+    if cmap is None:
+        cmap = PARULA
+    ll, tt, XX, YY, ZZ_c, ZZ = eval_on_sphere(f)
     fig, ax = plt.subplots(figsize=(8, 4))
-    pcm = ax.pcolormesh(LAM, THETA, ZZ, cmap=cmap, shading='auto')
+    pcm = ax.pcolormesh(ll, tt, ZZ, cmap=cmap, shading='auto')
     fig.colorbar(pcm, ax=ax, fraction=0.02, pad=0.04)
-    ax.set_xlabel('lambda'); ax.set_ylabel('theta')
-    ax.set_title(title); ax.invert_yaxis()
+    ax.set_xlabel('lambda', fontsize=9)
+    ax.set_ylabel('theta', fontsize=9)
+    ax.set_title(title, fontsize=10)
+    ax.invert_yaxis()
     fig.set_facecolor('white'); fig.tight_layout()
     return fig, ax
 
@@ -72,7 +99,8 @@ try:
     f = Spherefun.from_function(
         lambda lam, th: jnp.cos(jnp.cos(lam)*jnp.sin(th)
             + jnp.sin(lam)*jnp.sin(th) + jnp.cos(th)))
-    fig, ax = sphere_3d(f); save(fig, "cos(x+y+z)")
+    fig, ax = sphere_3d(f, title='cos(x+y+z)')
+    save(fig, "cos(x+y+z)")
 except Exception as e:
     plot_num += 1; print(f"  guide17_{plot_num:02d}.png FAILED: {e}")
 
@@ -95,18 +123,10 @@ except Exception as e:
 
 # Plot 04: f + g (Section 17.2)
 try:
-    # Evaluate both on the same grid
-    LAM, THETA, Zf = eval_on_sphere(f)
-    _, _, Zg = eval_on_sphere(g)
-    XX = np.sin(THETA)*np.cos(LAM); YY = np.sin(THETA)*np.sin(LAM); ZC = np.cos(THETA)
+    ll_f, tt_f, XX_f, YY_f, ZZc_f, Zf = eval_on_sphere(f)
+    _, _, _, _, _, Zg = eval_on_sphere(g)
     Zsum = Zf + Zg
-    fig = plt.figure(figsize=(6, 5))
-    ax = fig.add_subplot(111, projection='3d')
-    fmin, fmax = Zsum.min(), Zsum.max()
-    norm_v = (Zsum-fmin)/(fmax-fmin) if fmax>fmin else np.zeros_like(Zsum)
-    ax.plot_surface(XX, YY, ZC, facecolors=plt.get_cmap('RdBu_r')(norm_v),
-                    linewidth=0, antialiased=True, alpha=0.95)
-    ax.set_title('f + g'); fig.set_facecolor('white'); fig.tight_layout()
+    fig, ax = sphere_3d_from_values(XX_f, YY_f, ZZc_f, Zsum, title='f + g')
     save(fig, "f + g")
 except Exception as e:
     plot_num += 1; print(f"  guide17_{plot_num:02d}.png FAILED: {e}")
@@ -114,24 +134,20 @@ except Exception as e:
 # Plot 05: f .* g (Section 17.2)
 try:
     Zprod = Zf * Zg
-    fig = plt.figure(figsize=(6, 5))
-    ax = fig.add_subplot(111, projection='3d')
-    fmin, fmax = Zprod.min(), Zprod.max()
-    norm_v = (Zprod-fmin)/(fmax-fmin) if fmax>fmin else np.zeros_like(Zprod)
-    ax.plot_surface(XX, YY, ZC, facecolors=plt.get_cmap('RdBu_r')(norm_v),
-                    linewidth=0, antialiased=True, alpha=0.95)
-    ax.set_title('f .* g'); fig.set_facecolor('white'); fig.tight_layout()
+    fig, ax = sphere_3d_from_values(XX_f, YY_f, ZZc_f, Zprod, title='f .* g')
     save(fig, "f .* g")
 except Exception as e:
     plot_num += 1; print(f"  guide17_{plot_num:02d}.png FAILED: {e}")
 
 # Plot 06: Contour plot on sphere (Section 17.3)
 try:
-    LAM, THETA, ZZf = eval_on_sphere(f)
+    ll_c, tt_c, _, _, _, ZZf = eval_on_sphere(f)
     fig, ax = plt.subplots(figsize=(8, 4))
-    ax.contour(LAM, THETA, ZZf, levels=20, linewidths=0.8)
-    ax.set_xlabel('lambda'); ax.set_ylabel('theta')
-    ax.set_title('Contour plot of f'); ax.invert_yaxis()
+    ax.contour(ll_c, tt_c, ZZf, levels=20, linewidths=0.8, cmap=PARULA)
+    ax.set_xlabel('lambda', fontsize=9)
+    ax.set_ylabel('theta', fontsize=9)
+    ax.set_title('Contour plot of f', fontsize=10)
+    ax.invert_yaxis()
     fig.set_facecolor('white'); fig.tight_layout()
     save(fig, "contour")
 except Exception as e:
@@ -139,11 +155,9 @@ except Exception as e:
 
 # Plot 07: Spherical harmonic Y_6^0 (Section 17.4)
 try:
-    from scipy.special import lpmv
-    # Y_6^0 = normalization * P_6(cos(theta))
     def P6(x): return (231*x**6 - 315*x**4 + 105*x**2 - 5)/16
     Y60 = Spherefun.from_function(lambda lam, th: P6(jnp.cos(th)))
-    fig, ax = sphere_3d(Y60, title='Y_6^0')
+    fig, ax = sphere_3d(Y60, title=r'$Y_6^0$')
     save(fig, "Y_6^0")
 except Exception as e:
     plot_num += 1; print(f"  guide17_{plot_num:02d}.png FAILED: {e}")
@@ -163,8 +177,8 @@ try:
     th_eval = jnp.linspace(-1, 1, 200)
     nc = min(5, len(f.cols))
     for j in range(nc):
-        ax.plot(np.array(th_eval), np.array(f.cols[j](th_eval)))
-    ax.set_title(f'{nc} column slices of f')
+        ax.plot(np.array(th_eval), np.array(f.cols[j](th_eval)), linewidth=1.2)
+    ax.set_title(f'{nc} column slices of f', fontsize=10)
     fig.set_facecolor('white'); fig.tight_layout()
     save(fig, "column slices")
 except Exception as e:
@@ -176,8 +190,8 @@ try:
     lam_eval = jnp.linspace(-1, 1, 200)
     nr = min(5, len(f.rows))
     for j in range(nr):
-        ax.plot(np.array(lam_eval), np.array(f.rows[j](lam_eval)))
-    ax.set_title(f'{nr} row slices of f')
+        ax.plot(np.array(lam_eval), np.array(f.rows[j](lam_eval)), linewidth=1.2)
+    ax.set_title(f'{nr} row slices of f', fontsize=10)
     fig.set_facecolor('white'); fig.tight_layout()
     save(fig, "row slices")
 except Exception as e:
@@ -189,11 +203,13 @@ try:
     for c in f.cols:
         cf = np.array(jnp.abs(c.coeffs))
         ax1.semilogy(range(len(cf)), cf+1e-17, 'o-', ms=3, alpha=0.5)
-    ax1.set_title('Fourier coefficients (columns)'); ax1.set_xlabel('Index')
+    ax1.set_title('Fourier coefficients (columns)', fontsize=10)
+    ax1.set_xlabel('Index', fontsize=9)
     for r in f.rows:
         cf = np.array(jnp.abs(r.coeffs))
         ax2.semilogy(range(len(cf)), cf+1e-17, 'o-', ms=3, alpha=0.5)
-    ax2.set_title('Fourier coefficients (rows)'); ax2.set_xlabel('Index')
+    ax2.set_title('Fourier coefficients (rows)', fontsize=10)
+    ax2.set_xlabel('Index', fontsize=9)
     fig.set_facecolor('white'); fig.tight_layout()
     save(fig, "plotcoeffs")
 except Exception as e:

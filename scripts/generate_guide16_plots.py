@@ -1,4 +1,7 @@
-"""Generate all plots for Guide Chapter 16 (Diskfun)."""
+"""Generate all plots for Guide Chapter 16 (Diskfun).
+
+Uses PARULA colormap and proper disk plots matching MATLAB Chebfun style.
+"""
 import matplotlib
 matplotlib.use('Agg')
 import sys, os, traceback
@@ -7,7 +10,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 import matplotlib.pyplot as plt
 import numpy as np
 import jax.numpy as jnp
-from chebfunjax.plotting import chebfun_style, plot_disk
+from chebfunjax.plotting import (
+    chebfun_style, plot_disk, PARULA, _setup_3d_axes, CHEBFUN_BLUE,
+)
 from chebfunjax.diskfun import Diskfun, Diskfunv
 
 chebfun_style()
@@ -32,25 +37,39 @@ def eval_on_disk(f, n_theta=200, n_r=100):
     XX = RR * np.cos(TT); YY = RR * np.sin(TT)
     return XX, YY, ZZ, TT, RR
 
-def disk_2d(f, title='', cmap='RdBu_r', colorbar=False, ax=None):
+def disk_2d(f, title='', cmap=None, colorbar=False, ax=None):
+    """Flat pseudocolor plot on the disk with PARULA colormap."""
+    if cmap is None:
+        cmap = PARULA
     XX, YY, ZZ, _, _ = eval_on_disk(f)
-    if ax is None: fig, ax = plt.subplots(figsize=(5, 5))
-    else: fig = ax.get_figure()
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(5, 5))
+    else:
+        fig = ax.get_figure()
     pcm = ax.pcolormesh(XX, YY, ZZ, cmap=cmap, shading='auto')
     bdy = np.linspace(0, 2*np.pi, 300)
     ax.plot(np.cos(bdy), np.sin(bdy), 'k-', lw=0.8)
-    ax.set_aspect('equal'); ax.axis('off'); ax.set_title(title)
-    if colorbar: fig.colorbar(pcm, ax=ax, shrink=0.7)
+    ax.set_aspect('equal'); ax.axis('off'); ax.set_title(title, fontsize=10)
+    if colorbar:
+        fig.colorbar(pcm, ax=ax, shrink=0.7)
     fig.set_facecolor('white'); fig.tight_layout()
     return fig, ax, pcm
 
-def disk_3d(f, title='', cmap='RdBu_r'):
+def disk_3d(f, title='', cmap=None):
+    """3D surface plot on the disk with PARULA colormap."""
+    if cmap is None:
+        cmap = PARULA
     XX, YY, ZZ, _, _ = eval_on_disk(f)
-    fig = plt.figure(figsize=(7, 5))
-    ax = fig.add_subplot(111, projection='3d')
-    ax.plot_surface(XX, YY, ZZ, cmap=cmap, linewidth=0, antialiased=True, alpha=0.9)
-    ax.set_xlabel('x'); ax.set_ylabel('y'); ax.set_title(title)
-    fig.set_facecolor('white'); fig.tight_layout()
+    fig, ax = _setup_3d_axes(None, None, elev=30, azim=-60, figsize=(6.1, 5.0))
+    ax.plot_surface(XX, YY, ZZ, cmap=cmap, linewidth=0, antialiased=True,
+                    alpha=0.9, shade=True)
+    # Draw boundary circle at the base
+    theta_bdy = np.linspace(0, 2*np.pi, 300)
+    zmin = float(np.nanmin(ZZ))
+    ax.plot(np.cos(theta_bdy), np.sin(theta_bdy), zs=zmin, zdir='z',
+            color='k', linewidth=0.6, alpha=0.5)
+    if title:
+        ax.set_title(title, fontsize=10, pad=0)
     return fig, ax
 
 def numerical_gradient_disk(f, n_q_th=20, n_q_r=10, eps=1e-5):
@@ -70,7 +89,9 @@ def numerical_gradient_disk(f, n_q_th=20, n_q_r=10, eps=1e-5):
 try:
     g = Diskfun.from_function(
         lambda theta, r: jnp.exp(-10*((r*jnp.cos(theta)-0.3)**2 + (r*jnp.sin(theta))**2)))
-    fig, ax = disk_3d(g); ax.view_init(elev=30, azim=-60); save(fig, "Gaussian 3D")
+    fig, ax = disk_3d(g, 'Gaussian on disk')
+    ax.view_init(elev=30, azim=-60)
+    save(fig, "Gaussian 3D")
 except Exception as e:
     plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
 
@@ -80,11 +101,15 @@ try:
         lambda theta, r: jnp.exp(-10*((r*jnp.cos(theta)-0.3)**2 + (r*jnp.sin(theta))**2)))
     fig, ax = plt.subplots(figsize=(6, 4))
     theta_vals = jnp.linspace(-jnp.pi, jnp.pi, 200)
-    for rho, color in [(0.25, 'r'), (1./3., 'k'), (0.5, 'b')]:
+    colors = [CHEBFUN_BLUE, '#D95319', '#77AC30']
+    for (rho, color) in zip([0.25, 1./3., 0.5], colors):
         vals = f(theta_vals, jnp.full_like(theta_vals, rho))
-        ax.plot(np.array(theta_vals), np.array(vals), color=color, label=f'rho = {rho:.3g}')
-    ax.set_title('Three angular slices of a diskfun'); ax.legend()
-    fig.set_facecolor('white'); fig.tight_layout(); save(fig, "angular slices")
+        ax.plot(np.array(theta_vals), np.array(vals), color=color,
+                linewidth=1.2, label=f'rho = {rho:.3g}')
+    ax.set_title('Three angular slices of a diskfun', fontsize=10)
+    ax.legend()
+    fig.set_facecolor('white'); fig.tight_layout()
+    save(fig, "angular slices")
 except Exception as e:
     plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
 
@@ -96,9 +121,10 @@ try:
     mask = r_vals <= 1.0
     diag = jnp.where(mask, f(theta_vals, jnp.clip(r_vals,0,1)), jnp.nan)
     fig, ax = plt.subplots(figsize=(6, 4))
-    ax.plot(np.array(x_vals), np.array(diag))
-    ax.set_title('The diagonal slice of f')
-    fig.set_facecolor('white'); fig.tight_layout(); save(fig, "diagonal slice")
+    ax.plot(np.array(x_vals), np.array(diag), color=CHEBFUN_BLUE, linewidth=1.2)
+    ax.set_title('The diagonal slice of f', fontsize=10)
+    fig.set_facecolor('white'); fig.tight_layout()
+    save(fig, "diagonal slice")
 except Exception as e:
     plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
 
@@ -120,11 +146,11 @@ try:
     gv = np.array(g(th_f, r_f)).reshape(TT.shape)
     fv = np.array(f2(th_f, r_f)).reshape(TT.shape)
     for title, vals in [('g + f', gv+fv), ('g - f', gv-fv), ('g x f', gv*fv)]:
-        fig, ax = plt.subplots(figsize=(5,5))
-        ax.pcolormesh(XX, YY, vals, cmap='RdBu_r', shading='auto')
-        bdy = np.linspace(0,2*np.pi,300)
+        fig, ax = plt.subplots(figsize=(5, 5))
+        ax.pcolormesh(XX, YY, vals, cmap=PARULA, shading='auto')
+        bdy = np.linspace(0, 2*np.pi, 300)
         ax.plot(np.cos(bdy), np.sin(bdy), 'k-', lw=0.8)
-        ax.set_aspect('equal'); ax.axis('off'); ax.set_title(title)
+        ax.set_aspect('equal'); ax.axis('off'); ax.set_title(title, fontsize=10)
         fig.set_facecolor('white'); fig.tight_layout(); save(fig, title)
 except Exception as e:
     for _ in range(max(0, 8-plot_num)):
@@ -142,12 +168,13 @@ except Exception as e:
 try:
     XX, YY, ZZ, _, _ = eval_on_disk(g)
     fig, ax = plt.subplots(figsize=(5, 5))
-    ax.contour(XX, YY, ZZ, levels=20, linewidths=1.2)
+    ax.contour(XX, YY, ZZ, levels=20, linewidths=1.2, cmap=PARULA)
     ax.contour(XX, YY, ZZ, levels=[0], colors='k', linewidths=2)
-    bdy = np.linspace(0,2*np.pi,300)
+    bdy = np.linspace(0, 2*np.pi, 300)
     ax.plot(np.cos(bdy), np.sin(bdy), 'k-', lw=0.8)
     ax.set_aspect('equal'); ax.axis('off')
-    fig.set_facecolor('white'); fig.tight_layout(); save(fig, "contour zeros")
+    fig.set_facecolor('white'); fig.tight_layout()
+    save(fig, "contour zeros")
 except Exception as e:
     plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
 
@@ -167,13 +194,14 @@ try:
     XXu, YYu, ZZu, _, _ = eval_on_disk(u)
     XXv, YYv, ZZv, _, _ = eval_on_disk(v)
     fig, ax = plt.subplots(figsize=(5, 5))
-    ax.contour(XXu, YYu, ZZu, levels=20, colors='b', linewidths=0.8)
-    ax.contour(XXv, YYv, ZZv, levels=20, colors='m', linewidths=0.8)
-    bdy = np.linspace(0,2*np.pi,300)
+    ax.contour(XXu, YYu, ZZu, levels=20, colors=CHEBFUN_BLUE, linewidths=0.8)
+    ax.contour(XXv, YYv, ZZv, levels=20, colors='#7E2F8E', linewidths=0.8)
+    bdy = np.linspace(0, 2*np.pi, 300)
     ax.plot(np.cos(bdy), np.sin(bdy), 'k-', lw=0.8)
     ax.set_aspect('equal'); ax.axis('off')
-    ax.set_title('Contour lines for u and v')
-    fig.set_facecolor('white'); fig.tight_layout(); save(fig, "Cauchy-Riemann")
+    ax.set_title('Contour lines for u and v', fontsize=10)
+    fig.set_facecolor('white'); fig.tight_layout()
+    save(fig, "Cauchy-Riemann")
 except Exception as e:
     plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
 
@@ -182,7 +210,8 @@ try:
     from scipy.special import jn_zeros, jv
     w41 = jn_zeros(4, 1)[0]
     u_harm = Diskfun.from_function(lambda th, r: jv(4, w41*r) * jnp.cos(4*th))
-    fig, ax, _ = disk_2d(u_harm, title='u'); save(fig, "harmonic u")
+    fig, ax, _ = disk_2d(u_harm, title='u')
+    save(fig, "harmonic u")
 except Exception as e:
     plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
 
@@ -194,12 +223,13 @@ try:
     UU = np.where(mask, jv(4, w41*RR)*np.cos(4*TH), np.nan)
     h = xx[1]-xx[0]; dudx = np.gradient(UU,h,axis=1); dudy = np.gradient(UU,h,axis=0)
     for vals, title in [(dudx, 'du/dx'), (dudy, 'du/dy')]:
-        fig, ax = plt.subplots(figsize=(5,5))
-        ax.pcolormesh(XX, YY, np.where(mask,vals,np.nan), cmap='RdBu_r', shading='auto')
-        bdy = np.linspace(0,2*np.pi,300)
+        fig, ax = plt.subplots(figsize=(5, 5))
+        ax.pcolormesh(XX, YY, np.where(mask, vals, np.nan), cmap=PARULA, shading='auto')
+        bdy = np.linspace(0, 2*np.pi, 300)
         ax.plot(np.cos(bdy), np.sin(bdy), 'k-', lw=0.8)
-        ax.set_aspect('equal'); ax.axis('off'); ax.set_title(title)
-        fig.set_facecolor('white'); fig.tight_layout(); save(fig, title)
+        ax.set_aspect('equal'); ax.axis('off'); ax.set_title(title, fontsize=10)
+        fig.set_facecolor('white'); fig.tight_layout()
+        save(fig, title)
 except Exception as e:
     for _ in range(2): plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
 
@@ -207,7 +237,8 @@ except Exception as e:
 try:
     lam = w41**2
     lap_u = Diskfun.from_function(lambda th, r: -lam * jv(4, w41*r) * jnp.cos(4*th))
-    fig, ax, _ = disk_2d(lap_u, title='Laplacian of u'); save(fig, "Laplacian u")
+    fig, ax, _ = disk_2d(lap_u, title='Laplacian of u')
+    save(fig, "Laplacian u")
 except Exception as e:
     plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
 
@@ -242,14 +273,15 @@ try:
     FF = np.where(mask, psi_cart(XX,YY), np.nan); h = xx[1]-xx[0]
     lap = np.gradient(np.gradient(FF,h,axis=1),h,axis=1) + np.gradient(np.gradient(FF,h,axis=0),h,axis=0)
     dfdx = np.gradient(FF,h,axis=1); dfdy = np.gradient(FF,h,axis=0)
-    fig, ax = plt.subplots(figsize=(5,5))
-    ax.contour(XX, YY, np.where(mask,lap,np.nan), levels=10, linewidths=1.0)
+    fig, ax = plt.subplots(figsize=(5, 5))
+    ax.contour(XX, YY, np.where(mask,lap,np.nan), levels=10, linewidths=1.0, cmap=PARULA)
     s = n//20
     ax.quiver(XX[::s,::s], YY[::s,::s], dfdx[::s,::s], dfdy[::s,::s], color='k', scale=300)
-    bdy = np.linspace(0,2*np.pi,300)
+    bdy = np.linspace(0, 2*np.pi, 300)
     ax.plot(np.cos(bdy), np.sin(bdy), 'k-', lw=0.8)
     ax.set_aspect('equal'); ax.axis('off')
-    fig.set_facecolor('white'); fig.tight_layout(); save(fig, "div+quiver")
+    fig.set_facecolor('white'); fig.tight_layout()
+    save(fig, "div+quiver")
 except Exception as e:
     plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
 
@@ -269,7 +301,8 @@ try:
     f_bmc = Diskfun.from_function(
         lambda th, r: jnp.cos(2*(3*jnp.sin(2*r*jnp.cos(th))+5*jnp.sin(r*jnp.sin(th))))
             - 0.5*jnp.sin(r*jnp.cos(th)-r*jnp.sin(th)))
-    fig, ax, _ = disk_2d(f_bmc, title='f'); save(fig, "f BMC")
+    fig, ax, _ = disk_2d(f_bmc, title='f')
+    save(fig, "f BMC")
 except Exception as e:
     plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
 
@@ -280,18 +313,19 @@ try:
     TT, RR = np.meshgrid(thv, rv, indexing='ij')
     TT_eff = np.where(RR >= 0, TT, TT+np.pi); RR_eff = np.abs(RR)
     ZZ = np.array(f_func(jnp.array(TT_eff.ravel()), jnp.array(RR_eff.ravel()))).reshape(TT.shape)
-    fig, ax = plt.subplots(figsize=(6,4))
-    ax.pcolormesh(TT, RR, ZZ, cmap='RdBu_r', shading='auto')
-    ax.set_xlabel('theta'); ax.set_ylabel('rho')
-    ax.set_title('The BMC function associated with f')
-    fig.set_facecolor('white'); fig.tight_layout(); save(fig, "BMC function")
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.pcolormesh(TT, RR, ZZ, cmap=PARULA, shading='auto')
+    ax.set_xlabel('theta', fontsize=9); ax.set_ylabel('rho', fontsize=9)
+    ax.set_title('The BMC function associated with f', fontsize=10)
+    fig.set_facecolor('white'); fig.tight_layout()
+    save(fig, "BMC function")
 except Exception as e:
     plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
 
 # Plot 24: Skeleton
 try:
     fig, ax, _ = disk_2d(f_bmc, title='Low rank function samples')
-    ax.set_title('Low rank function samples', fontsize=16)
+    ax.set_title('Low rank function samples', fontsize=10)
     save(fig, "skeleton")
 except Exception as e:
     plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
@@ -304,30 +338,34 @@ try:
     th_pts = np.linspace(-np.pi, np.pi, n, endpoint=False)
     TTP, RRP = np.meshgrid(th_pts, r_pts)
     XXP = RRP*np.cos(TTP); YYP = RRP*np.sin(TTP)
-    fig, ax = plt.subplots(figsize=(5,5))
+    fig, ax = plt.subplots(figsize=(5, 5))
     ax.plot(XXP, YYP, 'k', lw=0.1); ax.plot(XXP.T, YYP.T, 'k', lw=0.1)
     ax.set_aspect('equal'); ax.axis('off')
-    ax.set_title('Tensor product function samples', fontsize=16)
-    fig.set_facecolor('white'); fig.tight_layout(); save(fig, "tensor grid")
+    ax.set_title('Tensor product function samples', fontsize=10)
+    fig.set_facecolor('white'); fig.tight_layout()
+    save(fig, "tensor grid")
 except Exception as e:
     plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
 
 # Plots 26-27: Column and row slices
 try:
-    fig, ax = plt.subplots(figsize=(6,4))
+    fig, ax = plt.subplots(figsize=(6, 4))
     r_eval = jnp.linspace(-1, 1, 200)
     nc = min(5, len(f_bmc.cols)-2)
     for j in range(2, 2+nc):
-        ax.plot(np.array(r_eval), np.array(f_bmc.cols[j](r_eval)))
-    ax.set_title(f'5 of the {len(f_bmc.cols)} column slices of f')
-    fig.set_facecolor('white'); fig.tight_layout(); save(fig, "column slices")
+        ax.plot(np.array(r_eval), np.array(f_bmc.cols[j](r_eval)), linewidth=1.2)
+    ax.set_title(f'5 of the {len(f_bmc.cols)} column slices of f', fontsize=10)
+    fig.set_facecolor('white'); fig.tight_layout()
+    save(fig, "column slices")
 
-    fig, ax = plt.subplots(figsize=(6,4))
+    fig, ax = plt.subplots(figsize=(6, 4))
     th_eval = jnp.linspace(-1, 1, 200)
     for j in range(2, 2+nc):
-        if j < len(f_bmc.rows): ax.plot(np.array(th_eval), np.array(f_bmc.rows[j](th_eval)))
-    ax.set_title(f'5 of the {len(f_bmc.rows)} row slices of f')
-    fig.set_facecolor('white'); fig.tight_layout(); save(fig, "row slices")
+        if j < len(f_bmc.rows):
+            ax.plot(np.array(th_eval), np.array(f_bmc.rows[j](th_eval)), linewidth=1.2)
+    ax.set_title(f'5 of the {len(f_bmc.rows)} row slices of f', fontsize=10)
+    fig.set_facecolor('white'); fig.tight_layout()
+    save(fig, "row slices")
 except Exception as e:
     for _ in range(2): plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
 
@@ -337,12 +375,15 @@ try:
     for c in f_bmc.cols:
         cf = np.array(jnp.abs(c.coeffs))
         ax1.semilogy(range(len(cf)), cf+1e-17, 'o-', ms=3, alpha=0.5)
-    ax1.set_title('Chebyshev coefficients (columns)'); ax1.set_xlabel('Index')
+    ax1.set_title('Chebyshev coefficients (columns)', fontsize=10)
+    ax1.set_xlabel('Index', fontsize=9)
     for r in f_bmc.rows:
         cf = np.array(jnp.abs(r.coeffs))
         ax2.semilogy(range(len(cf)), cf+1e-17, 'o-', ms=3, alpha=0.5)
-    ax2.set_title('Fourier coefficients (rows)'); ax2.set_xlabel('Index')
-    fig.set_facecolor('white'); fig.tight_layout(); save(fig, "plotcoeffs")
+    ax2.set_title('Fourier coefficients (rows)', fontsize=10)
+    ax2.set_xlabel('Index', fontsize=9)
+    fig.set_facecolor('white'); fig.tight_layout()
+    save(fig, "plotcoeffs")
 except Exception as e:
     plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
 
