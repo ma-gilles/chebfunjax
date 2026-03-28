@@ -56,7 +56,7 @@ def run():
     contours1 = extract_contours_at_zero(X, Y, f1)
 
     for c in contours1:
-        axes[0].plot(np.real(c), np.imag(c), 'b-', linewidth=2)
+        axes[0].plot(np.real(c), np.imag(c), color='#0072BD', linestyle='-', linewidth=2)
     axes[0].set_aspect('equal')
     axes[0].set_title('Zeros of (x²+y²-0.3)(x²+y²-0.7)\ntwo circles', fontsize=10)
     axes[0].set_xlim(-1.1, 1.1); axes[0].set_ylim(-1.1, 1.1)
@@ -80,8 +80,8 @@ def run():
     contours2 = extract_contours_at_zero(X, Y, f2)
     for c in contours2:
         if len(c) > 10:
-            axes[1].plot(np.real(c), np.imag(c), 'r-', linewidth=2)
-    axes[1].plot(x_del, y_del, 'b--', linewidth=1.5, alpha=0.6,
+            axes[1].plot(np.real(c), np.imag(c), color='#D95319', linestyle='-', linewidth=2)
+    axes[1].plot(x_del, y_del, color='#0072BD', linestyle='--', linewidth=1.5, alpha=0.6,
                  label='Parametric deltoid')
     axes[1].set_aspect('equal')
     axes[1].set_title('Deltoid: zero set of\nalgebraic equation', fontsize=10)

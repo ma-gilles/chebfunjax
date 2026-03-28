@@ -34,16 +34,16 @@ def plot_conformal(ax_in, ax_out, f_map, xlim=(-2, 2), ylim=(-2, 2),
     # Horizontal lines (y = const)
     for y in ys[1:-1]:  # skip boundary
         z_line = ts_x + 1j * y
-        ax_in.plot(z_line.real, z_line.imag, 'b-', linewidth=0.7, alpha=0.7)
+        ax_in.plot(z_line.real, z_line.imag, color='#0072BD', linestyle='-', linewidth=0.7, alpha=0.7)
         w_line = f_map(z_line)
-        ax_out.plot(w_line.real, w_line.imag, 'b-', linewidth=0.7, alpha=0.7)
+        ax_out.plot(w_line.real, w_line.imag, color='#0072BD', linestyle='-', linewidth=0.7, alpha=0.7)
 
     # Vertical lines (x = const)
     for x in xs[1:-1]:
         z_line = x + 1j * ts
-        ax_in.plot(z_line.real, z_line.imag, 'r-', linewidth=0.7, alpha=0.7)
+        ax_in.plot(z_line.real, z_line.imag, color='#D95319', linestyle='-', linewidth=0.7, alpha=0.7)
         w_line = f_map(z_line)
-        ax_out.plot(w_line.real, w_line.imag, 'r-', linewidth=0.7, alpha=0.7)
+        ax_out.plot(w_line.real, w_line.imag, color='#D95319', linestyle='-', linewidth=0.7, alpha=0.7)
 
     for ax, title in [(ax_in, title_in), (ax_out, title_out)]:
         ax.set_aspect('equal')

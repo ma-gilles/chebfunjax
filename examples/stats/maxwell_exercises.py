@@ -59,9 +59,9 @@ def run():
     print(f"  Mode (exact)     = {mode_exact:.4f}")
 
     axes[0].plot(xs, pdf_vals, 'k-', linewidth=2)
-    axes[0].axvline(mean_numerical, color='r', linewidth=2, linestyle='--',
+    axes[0].axvline(mean_numerical, color='#D95319', linewidth=2, linestyle='--',
                     label=f'mean={mean_numerical:.2f}')
-    axes[0].axvline(mode_exact, color='b', linewidth=2, linestyle=':',
+    axes[0].axvline(mode_exact, color='#0072BD', linewidth=2, linestyle=':',
                     label=f'mode={mode_exact:.2f}')
     axes[0].set_title(f'Maxwell(b={b})', fontsize=11)
     axes[0].legend(fontsize=9)

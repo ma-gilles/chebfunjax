@@ -86,7 +86,7 @@ def run():
 
     # --- Panel 1: Original "message" ---
     for stroke in all_strokes:
-        axes[0].plot(stroke[:, 0], stroke[:, 1], 'b-', linewidth=2)
+        axes[0].plot(stroke[:, 0], stroke[:, 1], color='#0072BD', linestyle='-', linewidth=2)
     axes[0].set_title('Original message', fontsize=11)
     axes[0].set_aspect('equal')
     axes[0].set_xlim(-0.1, 3.6)
@@ -98,14 +98,14 @@ def run():
 
     encrypted = apply_transform(all_strokes, angle_key, scale_key, trans_key)
     for stroke in encrypted:
-        axes[1].plot(stroke[:, 0], stroke[:, 1], 'r-', linewidth=2)
+        axes[1].plot(stroke[:, 0], stroke[:, 1], color='#D95319', linestyle='-', linewidth=2)
     axes[1].set_title(f'Encrypted\n(rotate by π/3.7, scale×1.8)', fontsize=10)
     axes[1].set_aspect('equal')
 
     # --- Panel 3: "Decrypted" (inverse transform) ---
     decrypted = apply_transform(encrypted, -angle_key, 1/scale_key, -trans_key/scale_key/np.exp(1j*angle_key))
     for stroke in decrypted:
-        axes[2].plot(stroke[:, 0], stroke[:, 1], 'g-', linewidth=2)
+        axes[2].plot(stroke[:, 0], stroke[:, 1], color='#77AC30', linestyle='-', linewidth=2)
     axes[2].set_title('Decrypted\n(inverse transform)', fontsize=10)
     axes[2].set_aspect('equal')
     axes[2].set_xlim(-0.1, 3.6)

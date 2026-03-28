@@ -104,10 +104,10 @@ def run():
     fig, axes = plt.subplots(3, 2)
 
     # Row 1: scalar switching
-    axes[0, 0].plot(t_eval, y_scalar, 'b-', linewidth=1.5)
+    axes[0, 0].plot(t_eval, y_scalar, color='#0072BD', linestyle='-', linewidth=1.5)
     axes[0, 0].set_title("Scalar switching y'=±y (linear scale)", fontsize=10)
 
-    axes[0, 1].semilogy(t_eval, np.abs(y_scalar), 'b-', linewidth=1.5)
+    axes[0, 1].semilogy(t_eval, np.abs(y_scalar), color='#0072BD', linestyle='-', linewidth=1.5)
     axes[0, 1].set_title("Scalar switching (log scale)", fontsize=10)
 
     # Row 2: lambda=3 (slow)

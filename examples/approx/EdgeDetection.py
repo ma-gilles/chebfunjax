@@ -48,8 +48,8 @@ def run():
     ax = axes[0]
     ax.plot(xx, f_e_vals, 'b', lw=1.8, label='piecewise (breakpoints at 2,5)')
     ax.plot(xx, f_true, 'k--', lw=1.0, alpha=0.5, label='true function')
-    ax.axvline(2.0, color='r', lw=1.0, ls='--')
-    ax.axvline(5.0, color='r', lw=1.0, ls='--')
+    ax.axvline(2.0, color='#D95319', lw=1.0, ls='--')
+    ax.axvline(5.0, color='#D95319', lw=1.0, ls='--')
     ax.set_title('Piecewise chebfun with explicit breakpoints', fontsize=10)
     ax.legend(fontsize=8)
     ax2 = axes[1]

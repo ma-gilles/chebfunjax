@@ -41,8 +41,8 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
-    ax.semilogy(ns, errors_known, 'b.', ms=12, label='known errors')
-    ax.semilogy(ns_fine, halphen_bound, 'r--', lw=1.5,
+    ax.semilogy(ns, errors_known, color='#0072BD', marker='.', linestyle='none', ms=12, label='known errors')
+    ax.semilogy(ns_fine, halphen_bound, color='#D95319', linestyle='--', lw=1.5,
                 label=f'2·C^(−n−1/2), C={HALPHEN:.3f}')
     ax.set_title("Best type-(n,n) rational approx error for e^x on (-∞,0]", fontsize=10)
     ax.legend(fontsize=9)
@@ -57,7 +57,7 @@ def run():
         poly_errs.append(err)
 
     ax2 = axes[1]
-    ax2.semilogy(ns_poly, poly_errs, 'b.-', lw=1.5, ms=8,
+    ax2.semilogy(ns_poly, poly_errs, color='#0072BD', linestyle='.-', lw=1.5, ms=8,
                  label='L2 poly approx error')
     ax2.set_title('Polynomial approx errors for exp(x) on [-1,1]', fontsize=10)
     ax2.legend(fontsize=9)

@@ -101,7 +101,7 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(x_plot, u_s(x_plot), 'b', linewidth=1.8, label="chebfunjax")
-    axes[0].plot(x_plot, exact_u(x_plot), 'r--', linewidth=1.2, label="exact")
+    axes[0].plot(x_plot, exact_u(x_plot), color='#D95319', linestyle='--', linewidth=1.2, label="exact")
     axes[0].set_title("u′ + u = 1+sin(x)", fontsize=10)
     axes[0].set_xticks([-np.pi, 0, np.pi])
     axes[0].set_xticklabels(["-π", "0", "π"])

@@ -54,7 +54,7 @@ def run():
 
     ax = axes[0]
     ax.plot(xx, f_true, 'b', lw=1.8, label='f(x)')
-    ax.plot(xx, f_interp_vals, 'r--', lw=1.3, label=f'Cheb interp n={n}')
+    ax.plot(xx, f_interp_vals, color='#D95319', linestyle='--', lw=1.3, label=f'Cheb interp n={n}')
     ax.set_title(f'Function and degree-{n} interpolant', fontsize=10)
     ax.legend(fontsize=8)
     ax2 = axes[1]

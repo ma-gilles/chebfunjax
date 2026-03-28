@@ -84,7 +84,7 @@ def run():
     axes[0].set_title("Picard iterations converging to exp(x)", fontsize=9)
     axes[0].legend(fontsize=7)
 
-    axes[1].semilogy(range(len(errors)), errors, 'b.-', markersize=8, linewidth=1.4)
+    axes[1].semilogy(range(len(errors)), errors, color='#0072BD', linestyle='.-', markersize=8, linewidth=1.4)
     axes[1].set_title("Convergence of Picard iteration", fontsize=10)
 
     fig.suptitle("Picard-Lindelöf iteration: u' = u, u(0)=1", fontsize=11)

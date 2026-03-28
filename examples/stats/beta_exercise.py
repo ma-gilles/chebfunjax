@@ -46,7 +46,7 @@ def run():
     assert abs(mode_val - mode_exact) < 0.005
 
     axes[0].plot(xs, f, 'k-', linewidth=2)
-    axes[0].axvline(mode_val, color='r', linewidth=2, linestyle='--',
+    axes[0].axvline(mode_val, color='#D95319', linewidth=2, linestyle='--',
                     label=f'mode = {mode_val:.3f}')
     axes[0].set_title(f'Beta({a},{b}): mode', fontsize=11)
     axes[0].legend(fontsize=9)
@@ -68,8 +68,8 @@ def run():
 
     print(f"Modified dist: mode = {gmode:.4f}, median = {median_g:.4f}")
 
-    axes[1].plot(xs2, g, 'b-', linewidth=2)
-    axes[1].axvline(gmode, color='g', linewidth=2, linestyle='--',
+    axes[1].plot(xs2, g, color='#0072BD', linestyle='-', linewidth=2)
+    axes[1].axvline(gmode, color='#77AC30', linewidth=2, linestyle='--',
                     label=f'mode = {gmode:.3f}')
     axes[1].axvline(median_g, color='k', linewidth=2, linestyle='--',
                     label=f'median = {median_g:.3f}')

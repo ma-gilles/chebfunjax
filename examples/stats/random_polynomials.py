@@ -43,7 +43,7 @@ def run():
         if trial < 5:
             xx = np.linspace(-1, 1, 400)
             fv = np.array(f(jnp.array(xx)))
-            axes[0].plot(xx, fv, 'b-', linewidth=0.5, alpha=0.4)
+            axes[0].plot(xx, fv, color='#0072BD', linestyle='-', linewidth=0.5, alpha=0.4)
 
     axes[0].axhline(0, color='k', linewidth=0.8)
     axes[0].set_title(f'5 random Chebfuns (degree ~{n})', fontsize=11)
@@ -54,7 +54,7 @@ def run():
                  edgecolor='white', alpha=0.8)
     # Arcsine distribution (Chebyshev equidistribution): rho(x) = 1/(pi*sqrt(1-x^2))
     xx_arc = np.linspace(-0.999, 0.999, 400)
-    axes[1].plot(xx_arc, 1.0 / (np.pi * np.sqrt(1 - xx_arc**2)), 'r-',
+    axes[1].plot(xx_arc, 1.0 / (np.pi * np.sqrt(1 - xx_arc**2)), color='#D95319', linestyle='-',
                  linewidth=2, label='Arcsine density')
     axes[1].set_title(f'Root distribution over {n_trials} trials', fontsize=11)
     axes[1].legend(fontsize=10)

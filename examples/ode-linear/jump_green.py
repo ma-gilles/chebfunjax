@@ -122,7 +122,7 @@ def run():
 
     axes[1].plot(x_l, u_l_vals, 'b', linewidth=1.8)
     axes[1].plot(x_r, u_r_vals, 'b', linewidth=1.8, label="chebfunjax")
-    axes[1].plot(x_plot, green_func(x_plot, xi, eta), 'r--', linewidth=1.2, label="exact")
+    axes[1].plot(x_plot, green_func(x_plot, xi, eta), color='#D95319', linestyle='--', linewidth=1.2, label="exact")
     axes[1].axvline(xi, color='k', linestyle='--', linewidth=0.8)
     axes[1].set_title("Green's function at ξ=0.5: chebfunjax vs exact", fontsize=9)
     axes[1].legend(fontsize=8)

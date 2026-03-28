@@ -52,13 +52,13 @@ def run():
 
     ax = axes[0]
     ax.plot(xs, true_vals, 'b', lw=1.8, label=f'x^{exp_val}')
-    ax.plot(xs, r_vals, 'r--', lw=1.5,
+    ax.plot(xs, r_vals, color='#D95319', linestyle='--', lw=1.5,
             label=f'AAA ({len(pol)} poles, err={np.max(err_aaa):.2e})')
     ax.set_title(f'x^{{{exp_val}}} on [0, 1]', fontsize=11)
     ax.legend(fontsize=9)
     ax2 = axes[1]
-    ax2.semilogy(poly_ns, poly_errs, 'b.-', lw=1.5, ms=10, label='poly')
-    ax2.axhline(np.max(err_aaa), color='r', ls='--', lw=1.5,
+    ax2.semilogy(poly_ns, poly_errs, color='#0072BD', linestyle='.-', lw=1.5, ms=10, label='poly')
+    ax2.axhline(np.max(err_aaa), color='#D95319', ls='--', lw=1.5,
                 label=f'AAA ({len(pol)} poles)')
     ax2.set_title(f'Errors for x^{{{exp_val}}} approximation', fontsize=10)
     ax2.legend(fontsize=9)

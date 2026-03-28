@@ -114,9 +114,9 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     # Singular values
-    axes[0].plot(n_array, sv_numerical, 'bx', markersize=10,
+    axes[0].plot(n_array, sv_numerical, color='#0072BD', marker='x', linestyle='none', markersize=10,
                  linewidth=1.5, label='Numerical')
-    axes[0].plot(n_array, sv_analytical, 'ro', markersize=7,
+    axes[0].plot(n_array, sv_analytical, color='#D95319', marker='o', linestyle='none', markersize=7,
                  markerfacecolor='none', linewidth=1.5, label='Analytical: 4/(nπ)²')
     axes[0].set_title("Singular values of frequency response (w=0)", fontsize=11)
     axes[0].legend()
@@ -124,7 +124,7 @@ def run():
     # First singular function
     axes[1].plot(y_int, sf1_n / sf1_n.max(), 'bx-', markersize=5,
                  label='Numerical', alpha=0.7)
-    axes[1].plot(y_int, sf1_a / sf1_a.max(), 'r-', linewidth=2,
+    axes[1].plot(y_int, sf1_a / sf1_a.max(), color='#D95319', linestyle='-', linewidth=2,
                  label='sin(π(y+1)/2)')
     axes[1].set_title("First singular function", fontsize=11)
     axes[1].legend()

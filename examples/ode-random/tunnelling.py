@@ -123,13 +123,13 @@ def run():
     axes[0].set_title("Bistability (6 paths, t=[0,30])", fontsize=10)
     axes[0].set_ylim([-1.7, 1.7])
 
-    axes[1].plot(t_eval_long, y_long, 'b-', linewidth=0.6, alpha=0.9)
+    axes[1].plot(t_eval_long, y_long, color='#0072BD', linestyle='-', linewidth=0.6, alpha=0.9)
     axes[1].axhline(1, color='k', linestyle='--', linewidth=1, alpha=0.4)
     axes[1].axhline(-1, color='k', linestyle='--', linewidth=1, alpha=0.4)
     axes[1].set_title(f"Tunnelling (eps=0.45, {n_tunnels} events)", fontsize=10)
     axes[1].set_ylim([-1.7, 1.7])
 
-    axes[2].plot(t_eval_long, y_long2, 'r-', linewidth=0.6, alpha=0.9)
+    axes[2].plot(t_eval_long, y_long2, color='#D95319', linestyle='-', linewidth=0.6, alpha=0.9)
     axes[2].axhline(1, color='k', linestyle='--', linewidth=1, alpha=0.4)
     axes[2].axhline(-1, color='k', linestyle='--', linewidth=1, alpha=0.4)
     axes[2].set_title(f"Faster tunnelling (eps=0.60, {n_tunnels2} events)", fontsize=10)

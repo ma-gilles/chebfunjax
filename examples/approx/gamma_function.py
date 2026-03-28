@@ -35,7 +35,7 @@ def run():
     f_pos = cj.chebfun(lambda x: jnp.array(scipy_gamma(np.array(x))),
                        domain=(0.1, 4.0))
     xx_pos = np.linspace(0.15, 4.0, 600)
-    ax.plot(xx_pos, np.array(f_pos(jnp.array(xx_pos))), 'b-', linewidth=1.8,
+    ax.plot(xx_pos, np.array(f_pos(jnp.array(xx_pos))), color='#0072BD', linestyle='-', linewidth=1.8,
             label=r'$\Gamma(x)$')
 
     # On (-1, 0) and (-2, -1) and (-3, -2)
@@ -44,7 +44,7 @@ def run():
                              domain=(a, b))
         xp = np.linspace(a + 0.01, b - 0.01, 200)
         vals = np.array(f_piece(jnp.array(xp)))
-        ax.plot(xp, np.clip(vals, -10, 10), 'b-', linewidth=1.8)
+        ax.plot(xp, np.clip(vals, -10, 10), color='#0072BD', linestyle='-', linewidth=1.8)
 
     ax.axhline(0, color='k', linewidth=0.7)
     for pole in [0, -1, -2, -3, -4]:

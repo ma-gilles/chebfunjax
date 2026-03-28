@@ -130,7 +130,7 @@ def run():
     ts_zeros = np.array(known_zeros_imag)
     sigma = 0.5
     axes[0].axvline(sigma, color='k', linewidth=1.5, linestyle='--', label="critical line Re(s)=1/2")
-    axes[0].plot([sigma]*len(ts_zeros), ts_zeros, 'rx', markersize=8,
+    axes[0].plot([sigma]*len(ts_zeros), ts_zeros, color='#D95319', marker='x', linestyle='none', markersize=8,
                  markeredgewidth=2, label="known zeros")
     axes[0].set_title("First 20 zeros of $\\zeta(s)$ on critical line")
     axes[0].set_xlim(-0.5, 1.5)
@@ -138,7 +138,7 @@ def run():
 
     # Right: zero spacings
     axes[1].bar(range(1, len(gaps)+1), gaps, color="#1e77b4", alpha=0.7)
-    axes[1].axhline(avg_spacing_theory, color='r', linewidth=1.5,
+    axes[1].axhline(avg_spacing_theory, color='#D95319', linewidth=1.5,
                     label=f"Theory avg = {avg_spacing_theory:.2f}")
     axes[1].set_title("Gaps between consecutive zeros")
     axes[1].legend(fontsize=9)

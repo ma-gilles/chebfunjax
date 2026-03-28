@@ -62,8 +62,8 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     # Plot curves and closest points
-    axes[0].plot(np.real(f), np.imag(f), 'b-', linewidth=2, label='Curve f')
-    axes[0].plot(np.real(g), np.imag(g), 'r-', linewidth=2, label='Curve g')
+    axes[0].plot(np.real(f), np.imag(f), color='#0072BD', linestyle='-', linewidth=2, label='Curve f')
+    axes[0].plot(np.real(g), np.imag(g), color='#D95319', linestyle='-', linewidth=2, label='Curve g')
     axes[0].plot([np.real(f_closest), np.real(g_closest)],
                  [np.imag(f_closest), np.imag(g_closest)],
                  '--k', linewidth=1.5)

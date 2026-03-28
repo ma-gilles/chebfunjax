@@ -75,7 +75,7 @@ def run():
         for cv in cs_test:
             ff = cj.chebfun(lambda x, cv=cv: jnp.sin(cv * x))
             lens.append(len(ff))
-        axes[1].plot(cs_test, lens, 'b.-', lw=1.5, ms=10)
+        axes[1].plot(cs_test, lens, color='#0072BD', linestyle='.-', lw=1.5, ms=10)
         axes[1].set_title('Length of chebfun for sin(cx)', fontsize=10)
 
         fig.suptitle('Prolate functions and bandlimited approximation', fontsize=12)

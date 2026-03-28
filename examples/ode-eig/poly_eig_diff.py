@@ -115,7 +115,7 @@ def run():
     x5 = np.linspace(0, 40, 1000)
     axes[1].plot(x5, jv(alpha_test, x5), 'b', linewidth=1.5, label=f"J_{alpha_test}(x)")
     for z in exact_zeros[exact_zeros <= 40]:
-        axes[1].axvline(z, color='r', linewidth=0.7, alpha=0.5)
+        axes[1].axvline(z, color='#D95319', linewidth=0.7, alpha=0.5)
     axes[1].axhline(0, color='k', linewidth=0.5)
     axes[1].set_title(f"Zeros of J_{alpha_test}(x) (vertical lines)", fontsize=10)
     axes[1].legend(fontsize=9)

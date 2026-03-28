@@ -108,15 +108,15 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     fig, axes = plt.subplots(1, 2)
 
-    axes[0].plot(x, u0, 'b-', label='u₀', linewidth=2)
-    axes[0].plot(x, v0, 'r-', label='v₀', linewidth=2)
+    axes[0].plot(x, u0, color='#0072BD', linestyle='-', label='u₀', linewidth=2)
+    axes[0].plot(x, v0, color='#D95319', linestyle='-', label='v₀', linewidth=2)
     axes[0].set_title("Initial conditions", fontsize=11)
     axes[0].legend()
 
     u_f = uvw[:N]; v_f = uvw[N:2*N]; w_f = uvw[2*N:]
-    axes[1].plot(x, u_f, 'b-', label='u', linewidth=2)
-    axes[1].plot(x, v_f, 'r-', label='v', linewidth=2)
-    axes[1].plot(x, w_f, 'g-', label='w', linewidth=2)
+    axes[1].plot(x, u_f, color='#0072BD', linestyle='-', label='u', linewidth=2)
+    axes[1].plot(x, v_f, color='#D95319', linestyle='-', label='v', linewidth=2)
+    axes[1].plot(x, w_f, color='#77AC30', linestyle='-', label='w', linewidth=2)
     axes[1].set_title(f"Solution at t = {T}", fontsize=11)
     axes[1].legend()
 

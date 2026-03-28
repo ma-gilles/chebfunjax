@@ -57,7 +57,7 @@ def run():
 
     axes[0].plot(a, b, 'xk', markersize=16, markeredgewidth=3, label=f'Point ({a:.2f},{b:.2f})')
     mask_y = np.abs(ys_dual_line) < 10
-    axes[0].plot(xs_line[mask_y], ys_dual_line[mask_y], 'r-', linewidth=2, label='Dual line')
+    axes[0].plot(xs_line[mask_y], ys_dual_line[mask_y], color='#D95319', linestyle='-', linewidth=2, label='Dual line')
     axes[0].set_xlim(-10, 10); axes[0].set_ylim(-10, 10)
     axes[0].set_title('Point and its dual line', fontsize=11)
     axes[0].legend(fontsize=9)
@@ -73,7 +73,7 @@ def run():
     max_r = 5
     mask_dual = np.abs(dual) < max_r
 
-    axes[1].plot(x_heart, y_heart, 'b-', linewidth=2, label='Heart curve')
+    axes[1].plot(x_heart, y_heart, color='#0072BD', linestyle='-', linewidth=2, label='Heart curve')
     axes[1].plot(np.real(dual[mask_dual]), np.imag(dual[mask_dual]),
                  'r-', linewidth=1.5, label='Dual curve')
     axes[1].set_aspect('equal')
@@ -93,10 +93,10 @@ def run():
     x_dual_exact = (1 / a_e**2) * np.cos(t)
     y_dual_exact = (1 / b_e**2) * np.sin(t)
 
-    axes[2].plot(x_ell, y_ell, 'b-', linewidth=2, label=f'Ellipse (a={a_e},b={b_e})')
+    axes[2].plot(x_ell, y_ell, color='#0072BD', linestyle='-', linewidth=2, label=f'Ellipse (a={a_e},b={b_e})')
     axes[2].plot(np.real(dual_ell[mask_ell]), np.imag(dual_ell[mask_ell]),
                  'r-', linewidth=1.5, label='Dual (numerical)')
-    axes[2].plot(x_dual_exact, y_dual_exact, 'g--', linewidth=2, label='Dual (exact)')
+    axes[2].plot(x_dual_exact, y_dual_exact, color='#77AC30', linestyle='--', linewidth=2, label='Dual (exact)')
     axes[2].set_aspect('equal')
     axes[2].set_title('Ellipse and its dual', fontsize=11)
     axes[2].legend(fontsize=9)

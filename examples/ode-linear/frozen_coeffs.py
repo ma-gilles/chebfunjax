@@ -97,7 +97,7 @@ def run():
     axes[0].legend(fontsize=8)
 
     axes[1].plot(sol.y[0], sol.y[1], 'b', linewidth=0.8, alpha=0.8)
-    axes[1].plot(sol.y[0, 0], sol.y[1, 0], 'go', markersize=6, label="start")
+    axes[1].plot(sol.y[0, 0], sol.y[1, 0], color='#77AC30', marker='o', linestyle='none', markersize=6, label="start")
     axes[1].set_title("Phase portrait (unstable switched)", fontsize=10)
     axes[1].legend(fontsize=8)
 

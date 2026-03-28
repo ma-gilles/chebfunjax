@@ -60,7 +60,7 @@ def run():
     # Overlay final heart
     x1 = 16 * np.sin(t)**3
     y1 = 13*np.cos(t) - 5*np.cos(2*t) - 2*np.cos(3*t) - np.cos(4*t)
-    ax2.fill(x1, y1, color='red', alpha=0.8, zorder=2)
+    ax2.fill(x1, y1, color='#D95319', alpha=0.8, zorder=2)
     ax2.plot(x1, y1, 'darkred', linewidth=1.5, zorder=3)
     ax2.set_aspect('equal'); ax2.axis('off')
     ax2.set_title('Beating heart (overlaid\nscaled versions)', fontsize=10)
@@ -82,7 +82,7 @@ def run():
     # Center heart
     xh0 = 16 * np.sin(t)**3
     yh0 = 13*np.cos(t) - 5*np.cos(2*t) - 2*np.cos(3*t) - np.cos(4*t)
-    ax3.fill(xh0, yh0, color='red', alpha=0.9, zorder=4)
+    ax3.fill(xh0, yh0, color='#D95319', alpha=0.9, zorder=4)
 
     ax3.set_aspect('equal'); ax3.axis('off')
     ax3.set_title('Rose of hearts', fontsize=10)

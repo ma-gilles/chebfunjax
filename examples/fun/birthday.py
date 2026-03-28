@@ -75,7 +75,7 @@ def run():
     y_heart = (13 * np.cos(t) - 5*np.cos(2*t) - 2*np.cos(3*t) - np.cos(4*t)) / 16
 
     axes[0].fill(x_heart, y_heart, color='lightcoral', alpha=0.5, zorder=1)
-    axes[0].plot(x_heart, y_heart, 'r-', linewidth=2, zorder=2)
+    axes[0].plot(x_heart, y_heart, color='#D95319', linestyle='-', linewidth=2, zorder=2)
 
     # Write "PAFNUTY" in the heart using arc text
     angles = np.linspace(np.pi*0.15, np.pi*0.85, len("PAFNUTY"))

@@ -44,7 +44,7 @@ def run():
     # Map to "audio": amplitude modulation
     freq_hz = 440 * (1 + f1)  # map to frequencies near A4
 
-    axes[0].plot(x, f1, 'b-', linewidth=1.5)
+    axes[0].plot(x, f1, color='#0072BD', linestyle='-', linewidth=1.5)
     axes[0].set_title('f(x) = sin(10πx)\n"audible" waveform', fontsize=10)
 
     # --- Function 2: Runge function 1/(1+25x^2) ---
@@ -52,7 +52,7 @@ def run():
     c2 = cheb_coeffs(f2, N)
     freqs2 = np.linspace(0, N/2, len(c2))
 
-    axes[1].semilogy(freqs2[:50], c2[:50] + 1e-16, 'r-', linewidth=2)
+    axes[1].semilogy(freqs2[:50], c2[:50] + 1e-16, color='#D95319', linestyle='-', linewidth=2)
     axes[1].set_title('Runge function 1/(1+25x²)\nChebyshev spectrum', fontsize=10)
 
     # --- Function 3: exp(sin(pi*x)) ---
@@ -60,7 +60,7 @@ def run():
     c3 = cheb_coeffs(f3, N)
     freqs3 = np.arange(len(c3))
 
-    axes[2].semilogy(freqs3[:60], c3[:60] + 1e-16, 'g-', linewidth=2)
+    axes[2].semilogy(freqs3[:60], c3[:60] + 1e-16, color='#77AC30', linestyle='-', linewidth=2)
     axes[2].set_title('exp(sin(πx))\nChebyshev spectrum', fontsize=10)
 
     print("Chebfun spectra as 'audio':")

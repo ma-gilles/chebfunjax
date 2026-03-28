@@ -54,7 +54,7 @@ def run():
     # Zoomed in to show the fractal-like structure
     xx_zoom = np.linspace(0.0, 0.005, 1000)
     F_zoom = np.array(partial[-1](jnp.array(xx_zoom)))
-    axes[1].plot(xx_zoom, F_zoom, 'b-', linewidth=0.9)
+    axes[1].plot(xx_zoom, F_zoom, color='#0072BD', linestyle='-', linewidth=0.9)
     axes[1].set_title('Close-up: $x \in [0, 0.005]$ — fractal structure', fontsize=10)
 
     fig.tight_layout()

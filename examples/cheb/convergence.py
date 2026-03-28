@@ -116,7 +116,7 @@ def run():
     axes[0].legend(fontsize=9)
     axes[0].text(0.5, 0.92, f"n^{{-π}}",
                  transform=axes[0].transAxes, ha='center', fontsize=10,
-                 color='red')
+                 color='#D95319')
 
     # Panel 2
     axes[1].loglog(nn, errors2, '.b', markersize=10, label='error')

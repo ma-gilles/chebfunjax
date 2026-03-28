@@ -38,11 +38,11 @@ def run():
     z0 = lissajous(m, n, 0)
     z1 = lissajous(m, n, 0.5)
 
-    axes[0, 0].plot(np.real(z0), np.imag(z0), 'b-', linewidth=1.5)
+    axes[0, 0].plot(np.real(z0), np.imag(z0), color='#0072BD', linestyle='-', linewidth=1.5)
     axes[0, 0].set_title(f'm={m} n={n} d=0.0', fontsize=10)
     axes[0, 0].set_aspect('equal'); axes[0, 0].axis('off')
 
-    axes[0, 1].plot(np.real(z1), np.imag(z1), 'r-', linewidth=1.5)
+    axes[0, 1].plot(np.real(z1), np.imag(z1), color='#D95319', linestyle='-', linewidth=1.5)
     axes[0, 1].set_title(f'm={m} n={n} d=0.5', fontsize=10)
     axes[0, 1].set_aspect('equal'); axes[0, 1].axis('off')
 

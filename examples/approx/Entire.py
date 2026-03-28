@@ -47,8 +47,8 @@ def run():
     ax.set_title('sin(Nπx) for various N', fontsize=11)
     ax.legend(fontsize=9)
     ax2 = axes[1]
-    ax2.scatter(NN, lengths, color='b', s=50, label='Chebfun length')
-    ax2.scatter(NN, estimates, color='r', marker='+', s=80, label='Estimate ≈ 2N')
+    ax2.scatter(NN, lengths, color='#0072BD', s=50, label='Chebfun length')
+    ax2.scatter(NN, estimates, color='#D95319', marker='+', s=80, label='Estimate ≈ 2N')
     ax2.set_title('Degree vs. oscillation parameter N', fontsize=11)
     ax2.legend(fontsize=9)
     print("Entire:")

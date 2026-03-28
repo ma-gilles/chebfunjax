@@ -83,8 +83,8 @@ def run():
     fig, ax = plt.subplots()
     xx = np.linspace(-1, 1, 400)
     fv = np.array(f(jnp.array(xx)))
-    ax.plot(xx, fv, 'b-', linewidth=1.6, label='$f(x) = e^{\\sin x}$')
-    ax.fill_between(xx, 0, fv, alpha=0.15, color='blue', label='area = L1 norm/2')
+    ax.plot(xx, fv, color='#0072BD', linestyle='-', linewidth=1.6, label='$f(x) = e^{\\sin x}$')
+    ax.fill_between(xx, 0, fv, alpha=0.15, color='#0072BD', label='area = L1 norm/2')
     ax.set_title(f'$e^{{\\sin x}}$: L1={norms["L1"]:.4f}, L2={norms["L2"]:.4f}, L∞={norms["Linf"]:.4f}',
                  fontsize=11)
     ax.legend(fontsize=10)

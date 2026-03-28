@@ -55,13 +55,13 @@ def run():
 
     ax = axes[0]
     ax.plot(xx, f_vals, 'b', lw=1.8, label='true f(x)')
-    ax.plot(xx[corrupted], f_corrupted[corrupted], 'r.', ms=4, label='corrupted')
-    ax.plot(xx[good], f_corrupted[good], 'g.', ms=3, alpha=0.5, label='good data')
+    ax.plot(xx[corrupted], f_corrupted[corrupted], color='#D95319', marker='.', linestyle='none', ms=4, label='corrupted')
+    ax.plot(xx[good], f_corrupted[good], color='#77AC30', marker='.', linestyle='none', ms=3, alpha=0.5, label='good data')
     ax.set_title('Original and corrupted signal', fontsize=10)
     ax.legend(fontsize=8)
     ax2 = axes[1]
     ax2.plot(xx, f_vals, 'b', lw=1.8, label='true')
-    ax2.plot(xx, reconstructed, 'r--', lw=1.5, label=f'reconstructed (deg {deg})')
+    ax2.plot(xx, reconstructed, color='#D95319', linestyle='--', lw=1.5, label=f'reconstructed (deg {deg})')
     err = np.max(np.abs(reconstructed - f_vals))
     ax2.set_title(f'Reconstruction (max err = {err:.3f})', fontsize=10)
     ax2.legend(fontsize=9)

@@ -76,7 +76,7 @@ def run():
 
     # Shade region [1, 3]
     mask = (xs_plot >= 1) & (xs_plot <= 3)
-    axes[0].fill_between(xs_plot[mask], pdf_plot[mask], alpha=0.4, color='green',
+    axes[0].fill_between(xs_plot[mask], pdf_plot[mask], alpha=0.4, color='#77AC30',
                          label=f'P[|X-2|<1] = {exact_prob:.4f}')
     axes[0].set_title('N(2,1): P[|X-2|<1]', fontsize=11)
     axes[0].legend(fontsize=9)
@@ -87,7 +87,7 @@ def run():
     f2_m_norm = f2_m / np.trapezoid(f2_m, xs_m)
     axes[1].plot(xs_m, f2_m_norm, 'k-', linewidth=2)
     mask2 = (xs_m >= 1) & (xs_m <= 3)
-    axes[1].fill_between(xs_m[mask2], f2_m_norm[mask2], alpha=0.4, color='red',
+    axes[1].fill_between(xs_m[mask2], f2_m_norm[mask2], alpha=0.4, color='#D95319',
                          label=f'P[|X-2|<1] = {prob_mod:.4f}')
     axes[1].set_title('Modified: exp(-|x-2|^{5/4})', fontsize=11)
     axes[1].legend(fontsize=9)

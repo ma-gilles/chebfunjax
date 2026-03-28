@@ -102,7 +102,7 @@ def run():
 
     t_plot_p = jnp.linspace(*dom_pend, 300)
     axes[2].plot(t_plot_p, u_pend(t_plot_p), 'b', linewidth=1.4, label="chebfunjax")
-    axes[2].plot(sol_pend.t, sol_pend.y[0], 'r--', linewidth=1.0, label="scipy", alpha=0.6)
+    axes[2].plot(sol_pend.t, sol_pend.y[0], color='#D95319', linestyle='--', linewidth=1.0, label="scipy", alpha=0.6)
     axes[2].set_title("Simple pendulum BVP", fontsize=9)
     axes[2].legend(fontsize=7)
 

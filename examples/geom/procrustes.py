@@ -65,25 +65,25 @@ def run():
     fig, axes = plt.subplots(2, 2)
 
     # Original
-    axes[0, 0].plot(np.real(f), np.imag(f), 'r-', linewidth=2, label='Frisbee')
+    axes[0, 0].plot(np.real(f), np.imag(f), color='#D95319', linestyle='-', linewidth=2, label='Frisbee')
     axes[0, 0].plot(np.real(g), np.imag(g), 'k-', linewidth=2, label='Pebble')
     axes[0, 0].set_title('Original', fontsize=12)
     axes[0, 0].set_aspect('equal'); axes[0, 0].legend(fontsize=9)
 
     # After translation (mean = 0)
-    axes[0, 1].plot(np.real(f_orig), np.imag(f_orig), 'r-', linewidth=2)
+    axes[0, 1].plot(np.real(f_orig), np.imag(f_orig), color='#D95319', linestyle='-', linewidth=2)
     axes[0, 1].plot(np.real(g_orig), np.imag(g_orig), 'k-', linewidth=2)
     axes[0, 1].set_title('After translation (mean=0)', fontsize=12)
     axes[0, 1].set_aspect('equal')
 
     # After scaling (RMSD=1)
-    axes[1, 0].plot(np.real(f_scaled), np.imag(f_scaled), 'r-', linewidth=2)
+    axes[1, 0].plot(np.real(f_scaled), np.imag(f_scaled), color='#D95319', linestyle='-', linewidth=2)
     axes[1, 0].plot(np.real(g_scaled), np.imag(g_scaled), 'k-', linewidth=2)
     axes[1, 0].set_title('After scaling (RMSD=1)', fontsize=12)
     axes[1, 0].set_aspect('equal')
 
     # After rotation alignment
-    axes[1, 1].plot(np.real(f_scaled), np.imag(f_scaled), 'r-', linewidth=2, label='Frisbee')
+    axes[1, 1].plot(np.real(f_scaled), np.imag(f_scaled), color='#D95319', linestyle='-', linewidth=2, label='Frisbee')
     axes[1, 1].plot(np.real(g_aligned), np.imag(g_aligned), 'k-', linewidth=2, label='Pebble')
     axes[1, 1].set_title(f'After alignment\nProcrustes dist = {dist:.4f}', fontsize=12)
     axes[1, 1].set_aspect('equal'); axes[1, 1].legend(fontsize=9)

@@ -139,7 +139,7 @@ def run():
 
     # Potential and energy levels
     axes[0].plot(x_fine, U_fine_smooth, 'b', linewidth=1.5, label="U(x) [ideal]")
-    axes[0].plot(x_fine, U_perturb_fine, 'g--', linewidth=1.0, alpha=0.7, label="U(x) [perturbed]")
+    axes[0].plot(x_fine, U_perturb_fine, color='#77AC30', linestyle='--', linewidth=1.0, alpha=0.7, label="U(x) [perturbed]")
     colors = plt.cm.tab10(np.linspace(0, 0.5, k))
     for i in range(k):
         axes[0].axhline(energies[i], color=colors[i], linewidth=1.2, linestyle=':',

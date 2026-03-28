@@ -50,7 +50,7 @@ def run():
 
     ax = axes[0]
     ax.plot(xx, f_true, 'b', lw=1.8, label='f(x) = 1/(1+25x²)')
-    ax.plot(xx, r_vals, 'r--', lw=1.5, label=f'AAA ({len(pol)} poles)')
+    ax.plot(xx, r_vals, color='#D95319', linestyle='--', lw=1.5, label=f'AAA ({len(pol)} poles)')
     ax.set_title('Runge function and AAA approximant', fontsize=10)
     ax.legend(fontsize=8)
     ax2 = axes[1]

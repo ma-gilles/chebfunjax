@@ -85,7 +85,7 @@ def run():
 
     t_single = jnp.linspace(float(T - 2*np.pi), float(T), 200)
     axes[1].plot(t_single - float(T - 2*np.pi), v_cheb(t_single), 'b', linewidth=1.6, label="Chebfun")
-    axes[1].plot(t_last - t_last[0], v_last, 'r--', linewidth=1.0, label="scipy", alpha=0.7)
+    axes[1].plot(t_last - t_last[0], v_last, color='#D95319', linestyle='--', linewidth=1.0, label="scipy", alpha=0.7)
     axes[1].set_title("Last period: scipy vs Chebfun", fontsize=10)
     axes[1].legend(fontsize=8)
 

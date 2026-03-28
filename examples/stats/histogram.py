@@ -54,12 +54,12 @@ def run():
     edges = np.arange(0, 11, 1.0)  # bins of width 1
     hist_data = hist_chebfun(f_vals, xs, edges)
 
-    axes[0].plot(xs, f_vals, 'b-', linewidth=1.5, label='f(x)')
+    axes[0].plot(xs, f_vals, color='#0072BD', linestyle='-', linewidth=1.5, label='f(x)')
     # Plot histogram as piecewise constant
     for k in range(len(edges) - 1):
         xbar = [edges[k], edges[k+1]]
         ybar = [hist_data[k], hist_data[k]]
-        axes[0].plot(xbar, ybar, 'r-', linewidth=2.5)
+        axes[0].plot(xbar, ybar, color='#D95319', linestyle='-', linewidth=2.5)
     axes[0].set_title('Function and integral-histogram', fontsize=11)
     axes[0].legend(fontsize=9)
 

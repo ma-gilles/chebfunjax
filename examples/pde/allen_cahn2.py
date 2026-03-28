@@ -117,8 +117,8 @@ def run():
     axes[0].set_ylim([-1.5, 2.5])
 
     # Panel 2: max decay over time
-    axes[1].plot(t_vals, umax, 'b.-', markersize=8)
-    axes[1].axhline(0, color='r', linestyle='--', linewidth=1)
+    axes[1].plot(t_vals, umax, color='#0072BD', linestyle='.-', markersize=8)
+    axes[1].axhline(0, color='#D95319', linestyle='--', linewidth=1)
     axes[1].set_title("Max(u) decay — medium pulse", fontsize=11)
 
     fig.suptitle("Allen-Cahn metastability", fontsize=13)

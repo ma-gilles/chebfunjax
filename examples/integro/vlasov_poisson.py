@@ -89,8 +89,8 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     fig, axes = plt.subplots(1, 2)
 
-    axes[0].plot(a_vals, omega_vals, 'b-', linewidth=2)
-    axes[0].axvline(a_star, color='r', linestyle='--', alpha=0.7,
+    axes[0].plot(a_vals, omega_vals, color='#0072BD', linestyle='-', linewidth=2)
+    axes[0].axvline(a_star, color='#D95319', linestyle='--', alpha=0.7,
                     label=f'a* ≈ {a_star:.2f}')
     axes[0].set_title("Numerical abscissa ω(a) for Vlasov-Poisson", fontsize=11)
     axes[0].legend()

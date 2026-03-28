@@ -56,12 +56,12 @@ def run():
     # Exact result
     N4 = normal_pdf(xs_n, m1 + m2, np.sqrt(s1**2 + s2**2))
 
-    axes[0].plot(xs_n, N1, 'b-', linewidth=2, label=f'N({m1},{s1})')
-    axes[0].plot(xs_n, N2, 'r-', linewidth=2, label=f'N({m2},{s2})')
+    axes[0].plot(xs_n, N1, color='#0072BD', linestyle='-', linewidth=2, label=f'N({m1},{s1})')
+    axes[0].plot(xs_n, N2, color='#D95319', linestyle='-', linewidth=2, label=f'N({m2},{s2})')
     # Only show convolution within reasonable range
     mask_c = (xs_conv >= -1.5) & (xs_conv <= 1.5)
     axes[0].plot(xs_conv[mask_c], N3_conv[mask_c], 'k-', linewidth=2, label='Convolution')
-    axes[0].plot(xs_n, N4, 'g--', linewidth=2, label='Exact sum')
+    axes[0].plot(xs_n, N4, color='#77AC30', linestyle='--', linewidth=2, label='Exact sum')
     axes[0].set_title('Normal distribution convolution', fontsize=10)
     axes[0].legend(fontsize=8)
     axes[0].set_xlim(-1.5, 1.5)
@@ -83,11 +83,11 @@ def run():
     xs_g3 = np.linspace(0, xs_g[-1] * 2, len(G3))
     G4 = gamma_pdf(xs_g, k1 + k2, theta)
 
-    axes[1].plot(xs_g, G1, 'b-', linewidth=2, label=f'Γ({k1},{theta})')
-    axes[1].plot(xs_g, G2, 'r-', linewidth=2, label=f'Γ({k2},{theta})')
+    axes[1].plot(xs_g, G1, color='#0072BD', linestyle='-', linewidth=2, label=f'Γ({k1},{theta})')
+    axes[1].plot(xs_g, G2, color='#D95319', linestyle='-', linewidth=2, label=f'Γ({k2},{theta})')
     mask_g = (xs_g3 >= 0) & (xs_g3 <= 5)
     axes[1].plot(xs_g3[mask_g], G3[mask_g], 'k-', linewidth=2, label='Convolution')
-    axes[1].plot(xs_g, G4, 'g--', linewidth=2, label=f'Γ({k1+k2},{theta})')
+    axes[1].plot(xs_g, G4, color='#77AC30', linestyle='--', linewidth=2, label=f'Γ({k1+k2},{theta})')
     axes[1].set_title('Gamma distribution convolution', fontsize=10)
     axes[1].legend(fontsize=8)
     axes[1].set_xlim(0, 5)
@@ -112,10 +112,10 @@ def run():
     # Exact: gamma(k=2, theta=1/lam)
     E_exact = gamma_pdf(xs_e, 2, 1.0 / lam)
 
-    axes[2].plot(xs_e, E1, 'b-', linewidth=2, label=f'Exp({lam})')
+    axes[2].plot(xs_e, E1, color='#0072BD', linestyle='-', linewidth=2, label=f'Exp({lam})')
     mask_e = (xs_e2 >= 0) & (xs_e2 <= 40)
     axes[2].plot(xs_e2[mask_e], E2[mask_e], 'k-', linewidth=2, label='Exp*Exp')
-    axes[2].plot(xs_e, E_exact, 'r--', linewidth=2, label=f'Γ(2, {1/lam:.0f})')
+    axes[2].plot(xs_e, E_exact, color='#D95319', linestyle='--', linewidth=2, label=f'Γ(2, {1/lam:.0f})')
     axes[2].set_title('Exponential distribution convolution', fontsize=10)
     axes[2].legend(fontsize=8)
     axes[2].set_xlim(0, 40)

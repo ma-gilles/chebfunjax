@@ -89,11 +89,11 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     # Unit circle and f(z) = z^3-1 image
-    axes[0].plot(np.cos(theta), np.sin(theta), 'b-', linewidth=1.5,
+    axes[0].plot(np.cos(theta), np.sin(theta), color='#0072BD', linestyle='-', linewidth=1.5,
                  label='Unit circle')
     # Map z^2
     z2 = z_circle**2
-    axes[0].plot(z2.real, z2.imag, 'r-', linewidth=1.5, label='$z^2$ image')
+    axes[0].plot(z2.real, z2.imag, color='#D95319', linestyle='-', linewidth=1.5, label='$z^2$ image')
     # Mark roots of z^3 - 1
     roots = np.array([1.0, np.exp(2j*np.pi/3), np.exp(4j*np.pi/3)])
     axes[0].plot(roots.real, roots.imag, 'k*', markersize=12, label='Roots of $z^3=1$')
@@ -105,9 +105,9 @@ def run():
     f_real = cj.chebfun(lambda x: jnp.abs(x**3 - 1), domain=(-2.0, 2.0))
     xx = np.linspace(-2, 2, 400)
     fv = np.array(f_real(jnp.array(xx)))
-    axes[1].plot(xx, fv, 'b-', linewidth=1.8, label='$|x^3 - 1|$')
+    axes[1].plot(xx, fv, color='#0072BD', linestyle='-', linewidth=1.8, label='$|x^3 - 1|$')
     # Roots of z^3 = 1 that are real: x = 1
-    axes[1].plot(1.0, 0.0, 'r*', markersize=12, label='Root x=1')
+    axes[1].plot(1.0, 0.0, color='#D95319', marker='*', linestyle='none', markersize=12, label='Root x=1')
     axes[1].axhline(0, color='k', linewidth=0.8)
     axes[1].set_title('$|z^3 - 1|$ on the real axis', fontsize=11)
     axes[1].legend(fontsize=10)

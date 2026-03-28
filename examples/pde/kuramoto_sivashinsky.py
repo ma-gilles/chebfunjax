@@ -140,14 +140,14 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     # Symmetric case
-    axes[0].plot(x, u0_sym, 'b-', linewidth=1.5, label='t=0', alpha=0.7)
-    axes[0].plot(x, u_t100, 'r-', linewidth=1.5, label='t=100')
+    axes[0].plot(x, u0_sym, color='#0072BD', linestyle='-', linewidth=1.5, label='t=0', alpha=0.7)
+    axes[0].plot(x, u_t100, color='#D95319', linestyle='-', linewidth=1.5, label='t=100')
     axes[0].set_title("KS: symmetric IC (chaotic at t=100)", fontsize=11)
     axes[0].set_ylim([-4, 4]); axes[0].legend()
 
     # Asymmetric case
-    axes[1].plot(x, u0_asym, 'b-', linewidth=1.5, label='t=0 (asym)', alpha=0.7)
-    axes[1].plot(x, u_asym_t100, 'r-', linewidth=1.5, label='t=100')
+    axes[1].plot(x, u0_asym, color='#0072BD', linestyle='-', linewidth=1.5, label='t=0 (asym)', alpha=0.7)
+    axes[1].plot(x, u_asym_t100, color='#D95319', linestyle='-', linewidth=1.5, label='t=100')
     axes[1].set_title("KS: symmetry broken at t=100", fontsize=11)
     axes[1].set_ylim([-4, 4]); axes[1].legend()
 

@@ -94,8 +94,8 @@ def run():
     fig, axes = plt.subplots(1, 3)
 
     def plot_pair(ax, t, u, v, title):
-        ax.plot(t, u, 'b-', linewidth=2, alpha=0.8, label='u')
-        ax.plot(t, v, 'r-', linewidth=2, alpha=0.8, label='v')
+        ax.plot(t, u, color='#0072BD', linestyle='-', linewidth=2, alpha=0.8, label='u')
+        ax.plot(t, v, color='#D95319', linestyle='-', linewidth=2, alpha=0.8, label='v')
         ax.set_title(title, fontsize=10)
         ax.legend(fontsize=8)
 

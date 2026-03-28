@@ -148,7 +148,7 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(x_plot, P_linear(x_plot), 'b', linewidth=1.8, label="chebfunjax")
-    axes[0].plot(x_plot, x_plot, 'r--', linewidth=1.2, label="exact P₁(x)=x")
+    axes[0].plot(x_plot, x_plot, color='#D95319', linestyle='--', linewidth=1.2, label="exact P₁(x)=x")
     axes[0].set_title(f"Linear Legendre n={n}", fontsize=10)
     axes[0].legend(fontsize=8)
 

@@ -99,7 +99,7 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     fig, ax = plt.subplots()
     ax.plot(x_test, f_computed, 'b', linewidth=1.8, label="chebfunjax")
-    ax.plot(x_test, f_exact, 'r--', linewidth=1.2, label="Dawson (exact)")
+    ax.plot(x_test, f_exact, color='#D95319', linestyle='--', linewidth=1.2, label="Dawson (exact)")
     ax.axhline(0, color='k', linewidth=0.5)
     ax.axvline(0, color='k', linewidth=0.5)
     ax.set_title("Dawson's integral: F′ + 2xF = 1, F(0) = 0", fontsize=10)

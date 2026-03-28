@@ -83,7 +83,7 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     axes[0].plot(x_test, u(x_test), 'b', linewidth=1.8, label="chebfunjax")
-    axes[0].plot(x_test, exact(x_test), 'r--', linewidth=1.2, label="exact cos(πx/2)")
+    axes[0].plot(x_test, exact(x_test), color='#D95319', linestyle='--', linewidth=1.2, label="exact cos(πx/2)")
     axes[0].set_title("−u″ = (π/2)² cos(πx/2), u(±1)=0", fontsize=10)
     axes[0].legend(fontsize=9)
 

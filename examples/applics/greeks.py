@@ -139,20 +139,20 @@ def run():
 
     greeks = compute_greeks_array(S_range)
 
-    axes[0, 0].plot(S_range, greeks['delta'], 'b-', linewidth=2)
-    axes[0, 0].axvline(K, color='r', linestyle='--', alpha=0.5)
+    axes[0, 0].plot(S_range, greeks['delta'], color='#0072BD', linestyle='-', linewidth=2)
+    axes[0, 0].axvline(K, color='#D95319', linestyle='--', alpha=0.5)
     axes[0, 0].set_title("Delta Δ = ∂V/∂S", fontsize=11)
 
-    axes[0, 1].plot(S_range, greeks['vega'], 'b-', linewidth=2)
-    axes[0, 1].axvline(K, color='r', linestyle='--', alpha=0.5)
+    axes[0, 1].plot(S_range, greeks['vega'], color='#0072BD', linestyle='-', linewidth=2)
+    axes[0, 1].axvline(K, color='#D95319', linestyle='--', alpha=0.5)
     axes[0, 1].set_title("Vega ν = ∂V/∂σ", fontsize=11)
 
-    axes[1, 0].plot(S_range, greeks['theta'], 'b-', linewidth=2)
-    axes[1, 0].axvline(K, color='r', linestyle='--', alpha=0.5)
+    axes[1, 0].plot(S_range, greeks['theta'], color='#0072BD', linestyle='-', linewidth=2)
+    axes[1, 0].axvline(K, color='#D95319', linestyle='--', alpha=0.5)
     axes[1, 0].set_title("Theta Θ = -∂V/∂τ", fontsize=11)
 
-    axes[1, 1].plot(S_range, greeks['rho'], 'b-', linewidth=2)
-    axes[1, 1].axvline(K, color='r', linestyle='--', alpha=0.5)
+    axes[1, 1].plot(S_range, greeks['rho'], color='#0072BD', linestyle='-', linewidth=2)
+    axes[1, 1].axvline(K, color='#D95319', linestyle='--', alpha=0.5)
     axes[1, 1].set_title("Rho ρ = ∂V/∂r", fontsize=11)
 
     fig.suptitle(f"Black-Scholes Greeks (K={K}, σ={vol}, τ={tau})", fontsize=13)

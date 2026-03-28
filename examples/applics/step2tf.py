@@ -97,13 +97,13 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     # Step response
-    axes[0].plot(t_sim, y_sim, 'b-', linewidth=2)
-    axes[0].axhline(h_inf, color='r', linestyle='--', label=f'H(0) = {h_inf:.3f}')
+    axes[0].plot(t_sim, y_sim, color='#0072BD', linestyle='-', linewidth=2)
+    axes[0].axhline(h_inf, color='#D95319', linestyle='--', label=f'H(0) = {h_inf:.3f}')
     axes[0].set_title("Step response h(t)", fontsize=11)
     axes[0].legend()
 
     # Bode magnitude with AAA fit
-    axes[1].semilogx(omega_vals, 20*np.log10(H_mag), 'b-', linewidth=2, label='Exact')
+    axes[1].semilogx(omega_vals, 20*np.log10(H_mag), color='#0072BD', linestyle='-', linewidth=2, label='Exact')
     axes[1].semilogx(omega_vals, 20*np.log10(np.maximum(H_aaa_mag, 1e-15)),
                      'r--', linewidth=1.5, label='AAA fit')
     axes[1].set_title("Bode magnitude: AAA system ID", fontsize=11)

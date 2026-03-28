@@ -43,7 +43,7 @@ def run():
     pdf = lam * np.exp(-lam * xs)
     axes[0].plot(xs, pdf, 'k-', linewidth=2)
     mask = xs <= 1
-    axes[0].fill_between(xs[mask], pdf[mask], alpha=0.5, color='blue',
+    axes[0].fill_between(xs[mask], pdf[mask], alpha=0.5, color='#0072BD',
                          label=f'P[X<1|X<2] = {prob_cond:.4f}')
     mask2 = (xs > 1) & (xs <= 2)
     axes[0].fill_between(xs[mask2], pdf[mask2], alpha=0.3, color='cyan',
@@ -74,8 +74,8 @@ def run():
     print(f"10% reliability at t = {d_10pct:.2f} (hundreds of hours)")
 
     axes[1].plot(xs2, Rel, 'k-', linewidth=2)
-    axes[1].axhline(0.1, color='r', linestyle='--', label='10% reliability')
-    axes[1].axvline(d_10pct, color='r', linestyle='--')
+    axes[1].axhline(0.1, color='#D95319', linestyle='--', label='10% reliability')
+    axes[1].axvline(d_10pct, color='#D95319', linestyle='--')
     axes[1].set_title('Light bulb reliability Rel(t) = P[T>t]', fontsize=10)
     axes[1].legend(fontsize=9)
 
@@ -97,9 +97,9 @@ def run():
     xs3 = np.linspace(0, 8, 400)
     pdf3 = lam_median1 * np.exp(-lam_median1 * xs3)
     axes[2].plot(xs3, pdf3, 'k-', linewidth=2)
-    axes[2].axvline(std_val, color='r', linewidth=2, linestyle='--',
+    axes[2].axvline(std_val, color='#D95319', linewidth=2, linestyle='--',
                     label=f'std = {std_val:.3f}')
-    axes[2].axvline(1/lam_median1, color='b', linewidth=2, linestyle=':',
+    axes[2].axvline(1/lam_median1, color='#0072BD', linewidth=2, linestyle=':',
                     label=f'mean = {1/lam_median1:.3f}')
     axes[2].set_title('Exp with median=1 (λ=ln2)', fontsize=10)
     axes[2].legend(fontsize=9)

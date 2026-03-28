@@ -96,13 +96,13 @@ def run():
 
     axes[0].bar(range(1, len(lams1_sorted)+1), lams1_sorted, color='steelblue', alpha=0.7,
                 label="computed")
-    axes[0].plot(range(1, len(exact1)+1), exact1, 'ro', markersize=6, label="exact k²")
+    axes[0].plot(range(1, len(exact1)+1), exact1, color='#D95319', marker='o', linestyle='none', markersize=6, label="exact k²")
     axes[0].set_title("−u″ = λu on [0,π], Dirichlet", fontsize=10)
     axes[0].legend(fontsize=8)
 
     axes[1].bar(range(1, len(lams3_sorted)+1), lams3_sorted, color='coral', alpha=0.7,
                 label="computed")
-    axes[1].plot(range(1, len(exact3)+1), exact3, 'ro', markersize=6, label="exact 2k+1")
+    axes[1].plot(range(1, len(exact3)+1), exact3, color='#D95319', marker='o', linestyle='none', markersize=6, label="exact 2k+1")
     axes[1].set_title("−u″ + x²u = λu on [−5,5]", fontsize=10)
     axes[1].legend(fontsize=8)
 

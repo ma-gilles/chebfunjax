@@ -113,7 +113,7 @@ def run():
             axes[0].fill(cx, cy, color=[0.6, 0.6, 0.6], alpha=0.8)
 
     # Plot trajectory
-    axes[0].plot(np.real(points), np.imag(points), 'r-', linewidth=1.5)
+    axes[0].plot(np.real(points), np.imag(points), color='#D95319', linestyle='-', linewidth=1.5)
     axes[0].plot(np.real(p0), np.imag(p0), '.b', markersize=10, label='Start')
     axes[0].plot(np.real(final_pos), np.imag(final_pos), '.g', markersize=10, label='End')
     axes[0].set_xlim(-3, 3); axes[0].set_ylim(-3, 3)
@@ -123,8 +123,8 @@ def run():
 
     # Distance from origin over time
     dists = np.abs(points)
-    axes[1].plot(times, dists, 'b-', linewidth=1.5)
-    axes[1].axhline(final_dist, color='r', linestyle='--',
+    axes[1].plot(times, dists, color='#0072BD', linestyle='-', linewidth=1.5)
+    axes[1].axhline(final_dist, color='#D95319', linestyle='--',
                     label=f'Final dist = {final_dist:.4f}')
     axes[1].set_title('Distance |z(t)| from origin', fontsize=11)
     axes[1].legend(fontsize=9)

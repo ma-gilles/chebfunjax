@@ -93,7 +93,7 @@ def run():
     u1_vals = [float(u(jnp.array(xi))) for xi in x1]
     exact1 = 1 - np.exp(-x1)
 
-    axes[0].plot(x1, exact1, 'b-', linewidth=2, label='Exact: 1-exp(-x)')
+    axes[0].plot(x1, exact1, color='#0072BD', linestyle='-', linewidth=2, label='Exact: 1-exp(-x)')
     axes[0].plot(x1[::10], [u1_vals[i] for i in range(0, len(x1), 10)],
                  'r.', markersize=8, label='chebfunjax')
     axes[0].set_title("u' + u = 1, u(0) = 0", fontsize=12)
@@ -103,7 +103,7 @@ def run():
     u2_vals = [float(u2(jnp.array(xi))) for xi in x2]
     exact2 = np.sin(x2)
 
-    axes[1].plot(x2, exact2, 'b-', linewidth=2, label='Exact: sin(x)')
+    axes[1].plot(x2, exact2, color='#0072BD', linestyle='-', linewidth=2, label='Exact: sin(x)')
     axes[1].plot(x2[::10], [u2_vals[i] for i in range(0, len(x2), 10)],
                  'r.', markersize=8, label='chebfunjax')
     axes[1].set_title("u'' + u = 0 on [0,π]", fontsize=12)

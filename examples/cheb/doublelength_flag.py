@@ -137,7 +137,7 @@ def run():
 
     # sin(x) + sin(x^2)
     axes[1].semilogy(np.abs(c2_double), '.b', markersize=4, label='double length')
-    axes[1].semilogy(np.abs(c2_normal), 'r-', linewidth=1.5, alpha=0.8, label='normal')
+    axes[1].semilogy(np.abs(c2_normal), color='#D95319', linestyle='-', linewidth=1.5, alpha=0.8, label='normal')
     axes[1].set_title("Cheb coefficients of sin(x)+sin(x²) on [0,10]", fontsize=11)
     axes[1].legend(fontsize=9)
 

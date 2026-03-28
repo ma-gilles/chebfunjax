@@ -85,7 +85,7 @@ def run():
         idx = np.argmin(np.abs(t_eval - t_snap))
         axes[1].plot(x, sol.y[:, idx], '-', color=col, linewidth=2,
                      label=f't={t_eval[idx]:.1f}')
-    axes[1].axhline(phi_m, color='r', linestyle='--', linewidth=1.5,
+    axes[1].axhline(phi_m, color='#D95319', linestyle='--', linewidth=1.5,
                      label=f'φ_m={phi_m}')
     axes[1].set_title('Concentration profiles\nat various times', fontsize=10)
     axes[1].legend(fontsize=8)
@@ -102,7 +102,7 @@ def run():
         axes[2].plot(x_v, sol_v.y[:, -1], '-', color=col,
                      linewidth=2, label=f'Pe={pe_v}')
 
-    axes[2].axhline(phi_m, color='r', linestyle='--', linewidth=1.5,
+    axes[2].axhline(phi_m, color='#D95319', linestyle='--', linewidth=1.5,
                      label=f'φ_m={phi_m}')
     axes[2].set_title('Steady-state profiles\nfor various Pe', fontsize=10)
     axes[2].legend(fontsize=8)

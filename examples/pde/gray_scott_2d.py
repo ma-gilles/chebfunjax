@@ -123,14 +123,14 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     fig, axes = plt.subplots(1, 2)
 
-    axes[0].plot(x, u, 'b-', linewidth=1.5, label='u (rolls param)')
-    axes[0].plot(x, v, 'r-', linewidth=1.5, label='v (rolls param)')
+    axes[0].plot(x, u, color='#0072BD', linestyle='-', linewidth=1.5, label='u (rolls param)')
+    axes[0].plot(x, v, color='#D95319', linestyle='-', linewidth=1.5, label='v (rolls param)')
     axes[0].set_title(f"1D Gray-Scott 'rolls': b={b}, d={d}", fontsize=11)
     axes[0].legend()
     axes[0].set_ylim([-0.1, 1.2])
 
-    axes[1].plot(x, u_s, 'b-', linewidth=1.5, label='u (spots param)')
-    axes[1].plot(x, v_s, 'r-', linewidth=1.5, label='v (spots param)')
+    axes[1].plot(x, u_s, color='#0072BD', linestyle='-', linewidth=1.5, label='u (spots param)')
+    axes[1].plot(x, v_s, color='#D95319', linestyle='-', linewidth=1.5, label='v (spots param)')
     axes[1].set_title(f"1D Gray-Scott 'spots': b={b2}, d={d2}", fontsize=11)
     axes[1].legend()
     axes[1].set_ylim([-0.1, 1.2])

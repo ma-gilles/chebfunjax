@@ -64,12 +64,12 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     fig, axes = plt.subplots(1, 2)
 
-    axes[0].plot(range(1, k_total+1), lams_sorted, 'bo', markersize=6, label="computed λ_k")
-    axes[0].plot(range(1, k_total+1), exact, 'r^', markersize=5, label="exact k²", alpha=0.7)
+    axes[0].plot(range(1, k_total+1), lams_sorted, color='#0072BD', marker='o', linestyle='none', markersize=6, label="computed λ_k")
+    axes[0].plot(range(1, k_total+1), exact, color='#D95319', marker='^', linestyle='none', markersize=5, label="exact k²", alpha=0.7)
     axes[0].set_title("Eigenvalues of −d²/dx² on [0,π]", fontsize=10)
     axes[0].legend(fontsize=8)
 
-    axes[1].semilogy(range(1, k_total+1), np.abs(lams_sorted - exact) + 1e-20, 'g.-', markersize=8)
+    axes[1].semilogy(range(1, k_total+1), np.abs(lams_sorted - exact) + 1e-20, color='#77AC30', linestyle='.-', markersize=8)
     axes[1].set_title("Eigenvalue errors", fontsize=10)
 
     fig.suptitle("Differential operator eigenvalues by contour projection", fontsize=10)

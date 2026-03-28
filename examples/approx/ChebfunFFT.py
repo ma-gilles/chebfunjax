@@ -72,10 +72,10 @@ def run():
     ax.legend(fontsize=9)
     ax2 = axes[1]
     k_cheb = np.arange(len(chebfun_coeffs))
-    ax2.semilogy(k_cheb, np.abs(chebfun_coeffs) + 1e-18, 'b.', ms=5,
+    ax2.semilogy(k_cheb, np.abs(chebfun_coeffs) + 1e-18, color='#0072BD', marker='.', linestyle='none', ms=5,
                  label='Chebfun coeffs')
     ax2.semilogy(np.arange(len(manual_coeffs)),
-                 np.abs(manual_coeffs) + 1e-18, 'r+', ms=8,
+                 np.abs(manual_coeffs) + 1e-18, color='#D95319', marker='+', linestyle='none', ms=8,
                  label='FFT coeffs')
     ax2.set_title('Chebyshev coefficients (FFT method)', fontsize=11)
     ax2.legend(fontsize=9)

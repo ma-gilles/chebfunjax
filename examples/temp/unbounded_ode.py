@@ -64,7 +64,7 @@ def run():
     x_num, u_num = solve_unbounded_ode(L=30, n=300)
 
     axes[0].plot(x_exact, u_exact, 'k-', linewidth=2, label='Exact exp(r₂x)')
-    axes[0].plot(x_num, u_num, 'r--', linewidth=2, label='Numerical')
+    axes[0].plot(x_num, u_num, color='#D95319', linestyle='--', linewidth=2, label='Numerical')
     axes[0].set_title('0.1u\'\'+u\'+u=0 on [0,∞)\nTruncated to [0,30]', fontsize=10)
     axes[0].legend(fontsize=9)
 
@@ -102,8 +102,8 @@ def run():
     u_pw2 = solve(A2, b2)
 
     axes[2].plot(x_exact, u_exact, 'k-', linewidth=2, label='Original')
-    axes[2].plot(x_pw2, u_pw2, 'r-', linewidth=2, label='Piecewise (x<2)')
-    axes[2].axvline(2, color='g', linestyle='--', linewidth=1.5,
+    axes[2].plot(x_pw2, u_pw2, color='#D95319', linestyle='-', linewidth=2, label='Piecewise (x<2)')
+    axes[2].axvline(2, color='#77AC30', linestyle='--', linewidth=1.5,
                      label='Breakpoint x=2')
     axes[2].set_title('Piecewise variant:\n1.5 subtracted for x<2', fontsize=10)
     axes[2].legend(fontsize=9)

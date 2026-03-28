@@ -97,8 +97,8 @@ def run():
     axes[0].legend(fontsize=8)
 
     axes[1].plot(S, I, 'purple', linewidth=1.6)
-    axes[1].plot(S[0], I[0], 'go', markersize=6, label="start")
-    axes[1].plot(S[-1], I[-1], 'rs', markersize=6, label="end")
+    axes[1].plot(S[0], I[0], color='#77AC30', marker='o', linestyle='none', markersize=6, label="start")
+    axes[1].plot(S[-1], I[-1], color='#D95319', marker='s', linestyle='none', markersize=6, label="end")
     axes[1].set_title("S-I phase portrait", fontsize=10)
     axes[1].legend(fontsize=8)
 

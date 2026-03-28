@@ -57,13 +57,13 @@ def run():
 
     ax = axes[0]
     ax.plot(xs_dense, true_vals, 'b', lw=1.8, label='x^{1/3}')
-    ax.plot(xs_dense, r_vals, 'r--', lw=1.5,
+    ax.plot(xs_dense, r_vals, color='#D95319', linestyle='--', lw=1.5,
             label=f'AAA ({len(pol_full)} poles)')
     ax.set_title(f'x^{{1/{p}}} on [{delta}, 1] and AAA approx', fontsize=10)
     ax.legend(fontsize=9)
     ax2 = axes[1]
-    ax2.semilogy(degrees_poly, poly_errs, 'b.-', lw=1.5, ms=10, label='poly')
-    ax2.axhline(np.max(err_full), color='r', ls='--', lw=1.5,
+    ax2.semilogy(degrees_poly, poly_errs, color='#0072BD', linestyle='.-', lw=1.5, ms=10, label='poly')
+    ax2.axhline(np.max(err_full), color='#D95319', ls='--', lw=1.5,
                 label=f'AAA ({len(pol_full)} poles)')
     ax2.set_title(f'Approximation errors for x^{{1/{p}}}', fontsize=10)
     ax2.legend(fontsize=9)

@@ -54,13 +54,13 @@ def run():
 
     ax = axes[0, 0]
     ax.plot(xx, f_true, 'b', lw=1.8, label='f(x)')
-    ax.plot(xx, p_cheb, 'r--', lw=1.5, label='Chebyshev interp')
+    ax.plot(xx, p_cheb, color='#D95319', linestyle='--', lw=1.5, label='Chebyshev interp')
     ax.plot(cheb_nodes, np.sin(2 * np.pi * cheb_nodes), '.r', ms=8)
     ax.set_title(f'Chebyshev nodes (n={n_nodes})', fontsize=10)
     ax.legend(fontsize=8)
     ax2 = axes[0, 1]
     ax2.plot(xx, f_true, 'b', lw=1.8, label='f(x)')
-    ax2.plot(xx, p_eq, 'r--', lw=1.5, label='equispaced interp')
+    ax2.plot(xx, p_eq, color='#D95319', linestyle='--', lw=1.5, label='equispaced interp')
     ax2.plot(eq_nodes, np.sin(2 * np.pi * eq_nodes), '.r', ms=8)
     ax2.set_title(f'Equispaced nodes (n={n_nodes})', fontsize=10)
     ax2.legend(fontsize=8)

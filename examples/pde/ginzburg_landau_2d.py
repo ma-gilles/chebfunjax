@@ -112,9 +112,9 @@ def run():
 
     # Phase plot
     u_final = history[-1][1]
-    axes[1].plot(np.real(u_final), np.imag(u_final), 'b.', markersize=2, alpha=0.5)
+    axes[1].plot(np.real(u_final), np.imag(u_final), color='#0072BD', marker='.', linestyle='none', markersize=2, alpha=0.5)
     theta = np.linspace(0, 2 * np.pi, 200)
-    axes[1].plot(np.cos(theta), np.sin(theta), 'r--', linewidth=1, alpha=0.5,
+    axes[1].plot(np.cos(theta), np.sin(theta), color='#D95319', linestyle='--', linewidth=1, alpha=0.5,
                  label='|u|=1')
     axes[1].set_aspect('equal')
     axes[1].set_title("Phase portrait Re(u) vs Im(u) at T=50", fontsize=11)

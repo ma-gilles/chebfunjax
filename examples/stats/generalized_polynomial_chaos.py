@@ -115,7 +115,7 @@ def run():
                                z_trunc[mask]))
         errors.append(err)
 
-    axes[2].semilogy(degrees, errors, 'b.-', markersize=12, linewidth=2)
+    axes[2].semilogy(degrees, errors, color='#0072BD', linestyle='.-', markersize=12, linewidth=2)
     axes[2].set_title('gPC convergence: lognormal Y', fontsize=11)
 
     fig.suptitle('Generalized Polynomial Chaos', fontsize=13)

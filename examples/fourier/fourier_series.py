@@ -58,7 +58,7 @@ def run():
 
     # Smooth function
     fv = np.array(f(jnp.array(xx)))
-    axes[0].plot(xx, fv, 'b-', linewidth=1.8, label='$f(x) = \\sin^3(x) + \\cos^2(2x)$')
+    axes[0].plot(xx, fv, color='#0072BD', linestyle='-', linewidth=1.8, label='$f(x) = \\sin^3(x) + \\cos^2(2x)$')
     axes[0].set_title('A smooth periodic function on $[0, 2\\pi]$', fontsize=11)
     axes[0].set_xlim(0, T)
     axes[0].legend(fontsize=9)

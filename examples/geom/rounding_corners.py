@@ -46,7 +46,7 @@ def run():
     f2 = f2_raw  # already on same domain
 
     # Plot W function and kernel
-    axes[0, 0].plot(t, f, 'b-', linewidth=2)
+    axes[0, 0].plot(t, f, color='#0072BD', linestyle='-', linewidth=2)
     axes[0, 0].set_title('W-shaped function f(t)', fontsize=11)
     axes[0, 0].set_xlim(-1.2, 1.2)
     axes[0, 0].set_ylim(0, 2.4)
@@ -58,7 +58,7 @@ def run():
     print(f"Kernel integral: {np.trapezoid(g_kernel, t):.6f}  (should be 1.0)")
 
     # Rounded W
-    axes[1, 0].plot(t, f2, 'b-', linewidth=2)
+    axes[1, 0].plot(t, f2, color='#0072BD', linestyle='-', linewidth=2)
     axes[1, 0].set_title('Rounded W: f * g', fontsize=11)
     axes[1, 0].set_xlim(-1.2, 1.2)
     axes[1, 0].set_ylim(0, 2.4)
@@ -70,8 +70,8 @@ def run():
     W_imag_conv = fftconvolve(np.imag(W), g_kernel, mode='same') * dt
     W2 = W_real_conv + 1j * W_imag_conv
 
-    axes[1, 1].plot(np.real(W), np.imag(W), 'b-', linewidth=2, label='Original W curve')
-    axes[1, 1].plot(np.real(W2), np.imag(W2), 'r-', linewidth=2, label='Rounded W curve')
+    axes[1, 1].plot(np.real(W), np.imag(W), color='#0072BD', linestyle='-', linewidth=2, label='Original W curve')
+    axes[1, 1].plot(np.real(W2), np.imag(W2), color='#D95319', linestyle='-', linewidth=2, label='Rounded W curve')
     axes[1, 1].set_title('Complex W curve before/after rounding', fontsize=10)
     axes[1, 1].legend(fontsize=9)
     axes[1, 1].set_xlim(-1.2, 1.2); axes[1, 1].set_ylim(0, 2.4)

@@ -50,9 +50,9 @@ def run():
     lv = np.where(t <= 1, t - 1, -(2-t))
 
     # --- Panel 1: State trajectories ---
-    axes[0].plot(t, x, 'b-', linewidth=2.5, label='x(t) position')
-    axes[0].plot(t, v, 'r-', linewidth=2.5, label="v(t) speed")
-    axes[0].plot(t, u_opt, 'g-', linewidth=1.5, label='u(t) control', alpha=0.7)
+    axes[0].plot(t, x, color='#0072BD', linestyle='-', linewidth=2.5, label='x(t) position')
+    axes[0].plot(t, v, color='#D95319', linestyle='-', linewidth=2.5, label="v(t) speed")
+    axes[0].plot(t, u_opt, color='#77AC30', linestyle='-', linewidth=1.5, label='u(t) control', alpha=0.7)
     axes[0].axvline(1, color='k', linestyle='--', linewidth=1, alpha=0.5)
     axes[0].set_title('Optimal car: position, speed,\ncontrol vs time', fontsize=10)
     axes[0].legend(fontsize=9)
@@ -61,8 +61,8 @@ def run():
     print(f"  v(2) = {v[-1]:.6f} (target: 0)")
 
     # --- Panel 2: Co-state variables ---
-    axes[1].plot(t, lx, 'b-', linewidth=2.5, label='λ_x(t)')
-    axes[1].plot(t, lv, 'r-', linewidth=2.5, label='λ_v(t)')
+    axes[1].plot(t, lx, color='#0072BD', linestyle='-', linewidth=2.5, label='λ_x(t)')
+    axes[1].plot(t, lv, color='#D95319', linestyle='-', linewidth=2.5, label='λ_v(t)')
     axes[1].axhline(0, color='k', linewidth=0.5)
     axes[1].axvline(1, color='k', linestyle='--', linewidth=1, alpha=0.5)
     axes[1].set_title('Co-state (adjoint) variables\nPontryagin minimum principle',
@@ -71,7 +71,7 @@ def run():
 
     # --- Panel 3: Phase portrait and comparison with suboptimal ---
     # Optimal
-    axes[2].plot(x, v, 'b-', linewidth=2.5, label='Optimal (bang-bang)')
+    axes[2].plot(x, v, color='#0072BD', linestyle='-', linewidth=2.5, label='Optimal (bang-bang)')
 
     # Suboptimal: constant control u=1 for 0.7, then u=-1
     # x'=v, v'=0.5 (constant partial braking)
@@ -80,10 +80,10 @@ def run():
                       0.5*1.2**2 + 1.2*(t_sub-1.2) - 0.5*(t_sub-1.2)**2)
     v_sub = np.where(t_sub <= 1.2, 1.2*t_sub/1.2,
                       1.2 - (t_sub-1.2))
-    axes[2].plot(x_sub, v_sub, 'r--', linewidth=2, label='Suboptimal', alpha=0.8)
+    axes[2].plot(x_sub, v_sub, color='#D95319', linestyle='--', linewidth=2, label='Suboptimal', alpha=0.8)
 
-    axes[2].plot(0, 0, 'go', markersize=10, zorder=5, label='Start')
-    axes[2].plot(x[-1], v[-1], 'bs', markersize=10, zorder=5, label='End')
+    axes[2].plot(0, 0, color='#77AC30', marker='o', linestyle='none', markersize=10, zorder=5, label='Start')
+    axes[2].plot(x[-1], v[-1], color='#0072BD', marker='s', linestyle='none', markersize=10, zorder=5, label='End')
     axes[2].set_title('Phase portrait: position vs speed', fontsize=10)
     axes[2].legend(fontsize=9)
 

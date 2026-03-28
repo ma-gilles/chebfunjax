@@ -85,10 +85,10 @@ def run():
 
     axes[0].fill_between(xs_fill, np.where(in_both, ys_bot, np.nan),
                          np.where(in_both, ys_top, np.nan),
-                         color='red', alpha=0.4, label=f'Overlap ≈ {area_numerical:.4f}')
-    axes[0].plot(np.cos(theta), np.sin(theta), 'b-', lw=2, label='Circle 1')
+                         color='#D95319', alpha=0.4, label=f'Overlap ≈ {area_numerical:.4f}')
+    axes[0].plot(np.cos(theta), np.sin(theta), color='#0072BD', linestyle='-', lw=2, label='Circle 1')
     axes[0].plot(1 + np.cos(theta), np.sin(theta), 'k-', lw=2, label='Circle 2')
-    axes[0].plot([x_int, x_int], [-y_int, y_int], 'ro', ms=7)
+    axes[0].plot([x_int, x_int], [-y_int, y_int], color='#D95319', marker='o', linestyle='none', ms=7)
     axes[0].set_aspect('equal')
     axes[0].set_xlim(-1.3, 2.3); axes[0].set_ylim(-1.3, 1.3)
     axes[0].set_title('Two unit circles, d = 1', fontsize=11)
@@ -97,9 +97,9 @@ def run():
     # Right panel: overlap area vs centre distance d
     ds = np.linspace(0, 2, 300)
     areas = 2 * np.arccos(ds / 2) - (ds / 2) * np.sqrt(np.maximum(4 - ds**2, 0))
-    axes[1].plot(ds, areas, 'b-', lw=2)
-    axes[1].axvline(d, color='r', linestyle='--', label=f'd = {d}')
-    axes[1].axhline(exact, color='r', linestyle=':', alpha=0.7)
+    axes[1].plot(ds, areas, color='#0072BD', linestyle='-', lw=2)
+    axes[1].axvline(d, color='#D95319', linestyle='--', label=f'd = {d}')
+    axes[1].axhline(exact, color='#D95319', linestyle=':', alpha=0.7)
     axes[1].set_title('Overlap area vs. separation', fontsize=11)
     axes[1].legend(fontsize=9)
 

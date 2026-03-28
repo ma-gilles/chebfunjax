@@ -50,8 +50,8 @@ def run():
     g_vals = np.array(g(jnp.array(xx)))
     df_vals = np.array(f.diff()(jnp.array(xx[1:-1])))
 
-    axes[0].plot(xx, f_vals, 'b-', linewidth=1.6, label='$f(x) = \\mathrm{round}(2\\cos x)$')
-    axes[0].plot(xx, g_vals, 'm-', linewidth=1.6, label='$g = \\mathrm{cumsum}(f)$')
+    axes[0].plot(xx, f_vals, color='#0072BD', linestyle='-', linewidth=1.6, label='$f(x) = \\mathrm{round}(2\\cos x)$')
+    axes[0].plot(xx, g_vals, color='#7E2F8E', linestyle='-', linewidth=1.6, label='$g = \\mathrm{cumsum}(f)$')
     axes[0].set_title('Function and its indefinite integral', fontsize=11)
     axes[0].legend(fontsize=9)
     axes[0].set_ylim(-3, 5)
@@ -60,8 +60,8 @@ def run():
     cumsum_diff_f = f.diff().cumsum()
     cdv = np.array(cumsum_diff_f(jnp.array(xx)))
     f0 = float(f(jnp.array(0.0)))
-    axes[1].plot(xx, f_vals, 'b-', linewidth=1.6, label='$f$')
-    axes[1].plot(xx, cdv + f0, 'r--', linewidth=1.6,
+    axes[1].plot(xx, f_vals, color='#0072BD', linestyle='-', linewidth=1.6, label='$f$')
+    axes[1].plot(xx, cdv + f0, color='#D95319', linestyle='--', linewidth=1.6,
                  label='$f(0) + \\mathrm{cumsum}(f\')$')
     axes[1].set_title('$f(0) + \\mathrm{cumsum}(\\mathrm{diff}(f))$', fontsize=11)
     axes[1].legend(fontsize=9)

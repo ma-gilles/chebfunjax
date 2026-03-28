@@ -36,8 +36,8 @@ def run():
     g1 = np.exp  # g maps (-inf, inf) to (0, inf)
     h1 = g1(f1)  # exp(cos(t))
 
-    axes[0].plot(x_1d, f1, 'b-', linewidth=2, label='f(t)=cos(t)')
-    axes[0].plot(x_1d, h1, 'r-', linewidth=2, label='h(t)=exp(cos(t))')
+    axes[0].plot(x_1d, f1, color='#0072BD', linestyle='-', linewidth=2, label='f(t)=cos(t)')
+    axes[0].plot(x_1d, h1, color='#D95319', linestyle='-', linewidth=2, label='h(t)=exp(cos(t))')
     # Verify: h = exp(cos(t)) has range [exp(-1), exp(1)]
     assert abs(np.min(h1) - np.exp(-1)) < 0.01
     assert abs(np.max(h1) - np.exp(1)) < 0.01
@@ -58,7 +58,7 @@ def run():
     h_on_circ = f_circ_x**2 + f_circ_y**2  # should be ~1
 
     axes[1].contourf(X2, Y2, g2d, levels=20, cmap='viridis')
-    axes[1].plot(f_circ_x, f_circ_y, 'r-', linewidth=3, label='Unit circle')
+    axes[1].plot(f_circ_x, f_circ_y, color='#D95319', linestyle='-', linewidth=3, label='Unit circle')
     axes[1].set_aspect('equal')
     axes[1].set_title('g(x,y)=x²+y² restricted to\ncircle → constant 1', fontsize=10)
     axes[1].legend(fontsize=9)
