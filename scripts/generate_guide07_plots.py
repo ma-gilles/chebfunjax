@@ -234,8 +234,8 @@ except Exception as e:
 try:
     f_heat = cj.chebfun(lambda x: jnp.exp(-1000*(x + 0.3)**6))
     fig, ax = plt.subplots(figsize=(6, 4))
+    cj.plot_1d(f_heat, ax=ax, color='red', label='t=0')
     tt = jnp.linspace(-1, 1, 600)
-    ax.plot(tt, np.array(f_heat(tt)), color='red', linewidth=1.5, label='t=0')
     for t_val, shade in [(0.01, (0.8, 0, 0)), (0.1, (0.4, 0, 0)), (0.5, (0.2, 0, 0))]:
         sigma = np.sqrt(2 * t_val)
         xs_np = np.array(tt); x0 = -0.3
