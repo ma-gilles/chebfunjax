@@ -75,4 +75,4 @@ Spinop family
 Utilities → Tech → Fun → Chebfun → {Operators, 2D/3D, Spin}
 ```
 
-See [../PLAN.md](../PLAN.md) for the full module dependency graph and translation units.
+See [#](#) for the full module dependency graph and translation units.

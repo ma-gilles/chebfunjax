@@ -57,32 +57,32 @@ print(f"int P_{n}^2 = {I:.10f}  exact: {2/(2*n+1):.10f}")
 
 ### Clenshaw-Curtis quadrature
 
-![Clenshaw-Curtis](../../images/quad/clenshaw_curtis.png)
+![Clenshaw-Curtis](../images/quad/clenshaw_curtis.png)
 
 ### Gauss-Legendre nodes
 
-![Gauss quadrature](../../images/quad/gauss_quadrature.png)
+![Gauss quadrature](../images/quad/gauss_quadrature.png)
 
 ### Convergence rates
 
-![Convergence rates](../../images/quad/convergence_rates.png)
+![Convergence rates](../images/quad/convergence_rates.png)
 
 ### Tricky integrals
 
-![Tricky integrals](../../images/quad/tricky_integrals.png)
+![Tricky integrals](../images/quad/tricky_integrals.png)
 
 ### Kahaner battery test
 
-![Battery test](../../images/quad/battery_test.png)
+![Battery test](../images/quad/battery_test.png)
 
 ### Spike integral
 
-![Spike integral](../../images/quad/spike_integral.png)
+![Spike integral](../images/quad/spike_integral.png)
 
 ### Hermite quadrature
 
-![Hermite quadrature](../../images/quad/hermite_quad.png)
+![Hermite quadrature](../images/quad/hermite_quad.png)
 
 ### Symbolic-numeric comparison
 
-![Symbolic numeric](../../images/quad/symbolic_numeric.png)
+![Symbolic numeric](../images/quad/symbolic_numeric.png)

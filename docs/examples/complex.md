@@ -73,44 +73,44 @@ def phase_portrait(f, xlim=(-3,3), ylim=(-3,3), n=400):
 
 ### Contour integrals
 
-![Contour integrals](../../images/complex/contour_integrals.png)
+![Contour integrals](../images/complex/contour_integrals.png)
 
 ### Argument principle
 
-![Argument principle](../../images/complex/argument_principle.png)
+![Argument principle](../images/complex/argument_principle.png)
 
 ### Analytic continuation
 
-![Analytic continuation](../../images/complex/analytic_continuation.png)
+![Analytic continuation](../images/complex/analytic_continuation.png)
 
 ### Phase portraits
 
-![Phase portraits](../../images/complex/phase_portraits.png)
+![Phase portraits](../images/complex/phase_portraits.png)
 
 ### Conformal visualisation
 
-![Conformal vis](../../images/complex/conformal_vis.png)
+![Conformal vis](../images/complex/conformal_vis.png)
 
 ### Keyhole contour
 
-![Keyhole contour](../../images/complex/keyhole_contour.png)
+![Keyhole contour](../images/complex/keyhole_contour.png)
 
 ### Closed contours
 
-![Closed contours](../../images/complex/closed_contours.png)
+![Closed contours](../images/complex/closed_contours.png)
 
 ### Complex arc length
 
-![Complex arc length](../../images/complex/complex_arc_length.png)
+![Complex arc length](../images/complex/complex_arc_length.png)
 
 ### Rouché's theorem
 
-![Rouché](../../images/complex/rouche_theorem.png)
+![Rouché](../images/complex/rouche_theorem.png)
 
 ### Zeta zeros
 
-![Zeta zeros](../../images/complex/zeta_zeros.png)
+![Zeta zeros](../images/complex/zeta_zeros.png)
 
 ### Fourier contour
 
-![Fourier contour](../../images/complex/fourier_contour.png)
+![Fourier contour](../images/complex/fourier_contour.png)
