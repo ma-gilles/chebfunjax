@@ -18,38 +18,10 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style, PARULA, _setup_3d_axes
+from chebfunjax.plotting import chebfun_style, PARULA, _setup_3d_axes, plot_sphere
 chebfun_style()
 
 from chebfunjax.spherefun.spherefun import Spherefun
-
-def _sphere_panel(ax, fig, X, Y, Z, F, title, cmap=PARULA, elev=20, azim=-60):
-    """Render a single MATLAB-quality sphere panel."""
-    ax.view_init(elev=elev, azim=azim)
-    fig.set_facecolor("white")
-    ax.set_facecolor("white")
-
-    fmin, fmax = float(F.min()), float(F.max())
-    if fmax > fmin:
-        norm_vals = (F - fmin) / (fmax - fmin)
-    else:
-        norm_vals = np.full_like(F, 0.5)
-
-    fcolors = cmap(norm_vals)
-    ax.plot_surface(X, Y, Z, facecolors=fcolors,
-                    rstride=1, cstride=1,
-                    linewidth=0, antialiased=True, shade=False)
-    ax.set_xlim(-1.05, 1.05)
-    ax.set_ylim(-1.05, 1.05)
-    ax.set_zlim(-1.05, 1.05)
-    ax.set_axis_off()
-    ax.set_title(title, fontsize=10, pad=2)
-
-    ax.xaxis.pane.fill = False
-    ax.yaxis.pane.fill = False
-    ax.zaxis.pane.fill = False
-    for pane in (ax.xaxis.pane, ax.yaxis.pane, ax.zaxis.pane):
-        pane.set_edgecolor((0.8, 0.8, 0.8, 0.15))
 
 def run():
     print("=" * 60)
@@ -89,39 +61,24 @@ def run():
                           '../../docs/images/sphere')
     os.makedirs(outdir, exist_ok=True)
 
-    # Fine grid for smooth rendering
-    n_theta, n_phi = 100, 200
-    theta_1d = np.linspace(0, np.pi, n_theta)
-    phi_1d = np.linspace(0, 2*np.pi, n_phi)
-    THETA, PHI = np.meshgrid(theta_1d, phi_1d, indexing='ij')
+    # Create Spherefun objects for each harmonic and use plot_sphere
+    Y11 = Spherefun.from_function(lambda lam, th: jnp.cos(lam) * jnp.sin(th))
+    Y20 = Spherefun.from_function(lambda lam, th: (3 * jnp.cos(th)**2 - 1) / 2)
+    Y22 = Spherefun.from_function(lambda lam, th: jnp.sin(th)**2 * jnp.cos(2 * lam))
 
-    X = np.sin(THETA) * np.cos(PHI)
-    Y = np.sin(THETA) * np.sin(PHI)
-    Z = np.cos(THETA)
+    fig, ax = plot_sphere(Y11, title='$Y_1^1$')
+    fig.savefig(os.path.join(outdir, "spherical_harmonics_Y11.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
-    fig = plt.figure(figsize=(14, 4.5), facecolor='white')
+    fig, ax = plot_sphere(Y20, title='$Y_2^0$')
+    fig.savefig(os.path.join(outdir, "spherical_harmonics_Y20.png"),
+                dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
-    # Y_1^1 ~ cos(lam)*sin(th)
-    F1 = np.cos(PHI) * np.sin(THETA)
-    ax1 = fig.add_subplot(131, projection='3d')
-    _sphere_panel(ax1, fig, X, Y, Z, F1,
-                  '$Y_1^1 \\approx \\cos(\\lambda)\\sin(\\theta)$', cmap=PARULA)
-
-    # Y_2^0 ~ (3*cos^2(th) - 1)/2
-    F2 = (3 * np.cos(THETA)**2 - 1) / 2
-    ax2 = fig.add_subplot(132, projection='3d')
-    _sphere_panel(ax2, fig, X, Y, Z, F2,
-                  '$Y_2^0 = (3\\cos^2\\theta - 1)/2$', cmap=PARULA)
-
-    # Y_2^2 ~ sin^2(th)*cos(2*lam)
-    F3 = np.sin(THETA)**2 * np.cos(2 * PHI)
-    ax3 = fig.add_subplot(133, projection='3d')
-    _sphere_panel(ax3, fig, X, Y, Z, F3,
-                  '$Y_2^2 \\approx \\sin^2(\\theta)\\cos(2\\lambda)$', cmap=PARULA)
-
-    fig.tight_layout(pad=1.0)
-    fig.savefig(os.path.join(outdir, "spherical_harmonics.png"),
-                dpi=150, bbox_inches="tight", facecolor='white')
+    fig, ax = plot_sphere(Y22, title='$Y_2^2$')
+    fig.savefig(os.path.join(outdir, "spherical_harmonics_Y22.png"),
+                dpi=150, bbox_inches="tight")
     plt.close(fig)
 
     print("\nAll assertions passed.")

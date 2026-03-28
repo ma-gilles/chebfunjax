@@ -18,38 +18,10 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style, PARULA, _setup_3d_axes
+from chebfunjax.plotting import chebfun_style, PARULA, _setup_3d_axes, plot_sphere
 chebfun_style()
 
 from chebfunjax.spherefun.spherefun import Spherefun
-
-def _sphere_panel(ax, fig, X, Y, Z, F, title, cmap=PARULA, elev=20, azim=-60):
-    """Render a single MATLAB-quality sphere panel."""
-    ax.view_init(elev=elev, azim=azim)
-    fig.set_facecolor("white")
-    ax.set_facecolor("white")
-
-    fmin, fmax = float(F.min()), float(F.max())
-    if fmax > fmin:
-        norm_vals = (F - fmin) / (fmax - fmin)
-    else:
-        norm_vals = np.full_like(F, 0.5)
-
-    fcolors = cmap(norm_vals)
-    ax.plot_surface(X, Y, Z, facecolors=fcolors,
-                    rstride=1, cstride=1,
-                    linewidth=0, antialiased=True, shade=False)
-    ax.set_xlim(-1.05, 1.05)
-    ax.set_ylim(-1.05, 1.05)
-    ax.set_zlim(-1.05, 1.05)
-    ax.set_axis_off()
-    ax.set_title(title, fontsize=10, pad=2)
-
-    ax.xaxis.pane.fill = False
-    ax.yaxis.pane.fill = False
-    ax.zaxis.pane.fill = False
-    for pane in (ax.xaxis.pane, ax.yaxis.pane, ax.zaxis.pane):
-        pane.set_edgecolor((0.8, 0.8, 0.8, 0.15))
 
 def run():
     print("=" * 60)
@@ -88,37 +60,23 @@ def run():
     f3 = Spherefun.from_function(lambda lam, th: jnp.exp(-3 * th**2))
     print(f"\nexp(-3*th^2) on sphere, rank {f3.rank}")
 
-    # --- Plot: 3D sphere rendering ---
+    # --- Plot: 3D sphere rendering using plot_sphere ---
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/sphere')
     os.makedirs(outdir, exist_ok=True)
 
-    # Fine grid
-    n_theta, n_phi = 100, 200
-    theta_1d = np.linspace(0, np.pi, n_theta)
-    phi_1d = np.linspace(0, 2*np.pi, n_phi)
-    LAM, TH = np.meshgrid(phi_1d, theta_1d)
-
-    X = np.sin(TH) * np.cos(LAM)
-    Y = np.sin(TH) * np.sin(LAM)
-    Z = np.cos(TH)
-
-    funcs = [
-        (np.cos(TH)**2, "$\\cos^2(\\theta)$: integral $= 4\\pi/3$"),
-        (1.0 / (1.5 - 0.5 * np.cos(LAM) * np.sin(TH)), "Gravity potential"),
-        (np.exp(-3 * TH**2), "$\\exp(-3\\theta^2)$"),
+    spherefuns = [
+        (f2, "$\\cos^2(\\theta)$: integral $= 4\\pi/3$"),
+        (f_grav, "Gravity potential"),
+        (f3, "$\\exp(-3\\theta^2)$"),
     ]
 
-    fig = plt.figure(figsize=(14, 4.5), facecolor='white')
-
-    for i, (F, title) in enumerate(funcs):
-        ax = fig.add_subplot(1, 3, i+1, projection='3d')
-        _sphere_panel(ax, fig, X, Y, Z, F, title, cmap=PARULA)
-
-    fig.tight_layout(pad=1.0)
-    fig.savefig(os.path.join(outdir, "sphere_operations.png"),
-                dpi=150, bbox_inches="tight", facecolor='white')
-    plt.close(fig)
+    for sf, title in spherefuns:
+        fig, ax = plot_sphere(sf, title=title)
+        safe_name = title.replace('$', '').replace('\\', '').replace(' ', '_')[:20]
+        fig.savefig(os.path.join(outdir, f"sphere_operations_{safe_name}.png"),
+                    dpi=150, bbox_inches="tight")
+        plt.close(fig)
 
     print("\nAll assertions passed.")
     return True
