@@ -19,7 +19,7 @@ import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, PARULA, _setup_3d_axes
 chebfun_style()
 
 def spherical_harmonic_real(l, m, theta, phi):
@@ -39,13 +39,45 @@ def sh_coefficient(f, theta, phi, l, m):
     dphi = phi[0, 1] - phi[0, 0]
     return np.sum(f * Y * np.sin(theta)) * dtheta * dphi
 
+def _sphere_panel(ax, fig, X, Y, Z, F, title, cmap=PARULA, elev=20, azim=-60,
+                  vmin=None, vmax=None):
+    """Render a single MATLAB-quality sphere panel with optional global colour limits."""
+    ax.view_init(elev=elev, azim=azim)
+    fig.set_facecolor("white")
+    ax.set_facecolor("white")
+
+    if vmin is None:
+        vmin = float(F.min())
+    if vmax is None:
+        vmax = float(F.max())
+    if vmax > vmin:
+        norm_vals = np.clip((F - vmin) / (vmax - vmin), 0, 1)
+    else:
+        norm_vals = np.full_like(F, 0.5)
+
+    fcolors = cmap(norm_vals)
+    ax.plot_surface(X, Y, Z, facecolors=fcolors,
+                    rstride=1, cstride=1,
+                    linewidth=0, antialiased=True, shade=False)
+    ax.set_xlim(-1.05, 1.05)
+    ax.set_ylim(-1.05, 1.05)
+    ax.set_zlim(-1.05, 1.05)
+    ax.set_axis_off()
+    ax.set_title(title, fontsize=10, pad=2)
+
+    ax.xaxis.pane.fill = False
+    ax.yaxis.pane.fill = False
+    ax.zaxis.pane.fill = False
+    for pane in (ax.xaxis.pane, ax.yaxis.pane, ax.zaxis.pane):
+        pane.set_edgecolor((0.8, 0.8, 0.8, 0.15))
+
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/sphere')
     os.makedirs(outdir, exist_ok=True)
 
-    # Grid
-    n_theta, n_phi = 80, 160
+    # Fine grid
+    n_theta, n_phi = 100, 200
     theta_1d = np.linspace(0.02, np.pi - 0.02, n_theta)
     phi_1d = np.linspace(0, 2*np.pi, n_phi)
     THETA, PHI = np.meshgrid(theta_1d, phi_1d, indexing='ij')
@@ -78,34 +110,30 @@ def run():
         """Compute heat equation solution at time t via eigenfunction expansion."""
         u = np.zeros_like(u0)
         for (l, m), c in coeffs.items():
-            # Eigenvalue of Laplace-Beltrami: -l*(l+1)
             decay = np.exp(-kappa * l * (l+1) * t)
-            Y = spherical_harmonic_real(l, m, THETA, PHI)
-            u += c * decay * Y
+            Y_sh = spherical_harmonic_real(l, m, THETA, PHI)
+            u += c * decay * Y_sh
         return u
 
-    fig = plt.figure()
-
+    # Use consistent colour limits across all panels
     times = [0, 0.5, 2.0]
-    ax_list = [fig.add_subplot(1, 3, i+1, projection='3d') for i in range(3)]
+    solutions = [heat_solution(t) for t in times]
+    vmin = min(s.min() for s in solutions)
+    vmax = max(s.max() for s in solutions)
 
-    vmin, vmax = -0.2, u0.max()
+    fig = plt.figure(figsize=(14, 4.5), facecolor='white')
 
-    for ax, t in zip(ax_list, times):
-        u_t = heat_solution(t)
-        u_norm = (u_t - vmin) / (vmax - vmin + 1e-14)
-        u_norm = np.clip(u_norm, 0, 1)
-        ax.plot_surface(X, Y, Z, facecolors=plt.cm.hot(u_norm),
-                         alpha=0.9, linewidth=0)
-        ax.set_title(f't = {t}', fontsize=11)
-        ax.set_axis_off()
-
+    for i, (t, u_t) in enumerate(zip(times, solutions)):
+        ax = fig.add_subplot(1, 3, i+1, projection='3d')
+        _sphere_panel(ax, fig, X, Y, Z, u_t, f'$t = {t}$', cmap=PARULA,
+                      vmin=vmin, vmax=vmax)
         print(f"  t={t}: max u = {u_t.max():.4f}, total = {np.sum(u_t*np.sin(THETA)):.4f}")
 
-    fig.suptitle('Heat Equation on the Unit Sphere\nu_t = κ·Δ_S u, κ=0.1', fontsize=12)
-    fig.tight_layout()
+    fig.suptitle('Heat Equation on the Unit Sphere: $u_t = \\kappa \\cdot \\Delta_S u$',
+                 fontsize=12, y=1.02)
+    fig.tight_layout(pad=1.0)
     fig.savefig(os.path.join(outdir, 'sphere_heat_conduction.png'),
-                dpi=150, bbox_inches='tight')
+                dpi=150, bbox_inches='tight', facecolor='white')
     plt.close(fig)
 
     print("sphere_heat_conduction: done")

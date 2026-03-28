@@ -19,16 +19,46 @@ import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, PARULA, _setup_3d_axes
 chebfun_style()
+
+def _sphere_panel(ax, fig, X, Y, Z, F, title, cmap=PARULA, elev=20, azim=-60):
+    """Render a single MATLAB-quality sphere panel."""
+    ax.view_init(elev=elev, azim=azim)
+    fig.set_facecolor("white")
+    ax.set_facecolor("white")
+
+    fmin, fmax = float(F.min()), float(F.max())
+    if fmax > fmin:
+        norm_vals = (F - fmin) / (fmax - fmin)
+    else:
+        norm_vals = np.full_like(F, 0.5)
+
+    fcolors = cmap(norm_vals)
+    ax.plot_surface(X, Y, Z, facecolors=fcolors,
+                    rstride=1, cstride=1,
+                    linewidth=0, antialiased=True, shade=False)
+    ax.set_xlim(-1.05, 1.05)
+    ax.set_ylim(-1.05, 1.05)
+    ax.set_zlim(-1.05, 1.05)
+    ax.set_axis_off()
+    ax.set_title(title, fontsize=10, pad=2)
+
+    ax.xaxis.pane.fill = False
+    ax.yaxis.pane.fill = False
+    ax.zaxis.pane.fill = False
+    for pane in (ax.xaxis.pane, ax.yaxis.pane, ax.zaxis.pane):
+        pane.set_edgecolor((0.8, 0.8, 0.8, 0.15))
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/sphere')
     os.makedirs(outdir, exist_ok=True)
 
-    theta_1d = np.linspace(0, np.pi, 60)
-    phi_1d = np.linspace(0, 2*np.pi, 120)
+    # Fine grid
+    n_theta, n_phi = 100, 200
+    theta_1d = np.linspace(0, np.pi, n_theta)
+    phi_1d = np.linspace(0, 2*np.pi, n_phi)
     THETA, PHI = np.meshgrid(theta_1d, phi_1d, indexing='ij')
 
     X = np.sin(THETA) * np.cos(PHI)
@@ -39,7 +69,6 @@ def run():
     f = 0.5 + np.sinh(5 * X * Y * Z) * np.cos(X - Y + 2*Z)
 
     # Antipodal map: (theta, phi) -> (pi-theta, phi+pi)
-    # f(-x,-y,-z) corresponds to THETA -> pi - THETA, PHI -> PHI + pi
     THETA_anti = np.pi - THETA
     PHI_anti = PHI + np.pi
 
@@ -63,36 +92,21 @@ def run():
     print(f"  Max reconstruction error: {err:.2e}")
     assert err < 1e-12, f"Partition error too large: {err}"
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=(14, 4.5), facecolor='white')
 
-    # --- Panel 1: Original function ---
-    ax1 = fig.add_subplot(131, projection='3d')
-    f_norm = (f - f.min()) / (f.max() - f.min() + 1e-14)
-    ax1.plot_surface(X, Y, Z, facecolors=plt.cm.viridis(f_norm),
-                      alpha=0.9, linewidth=0)
-    ax1.set_title('f(x,y,z) = 0.5 + sinh(5xyz)·cos(x-y+2z)', fontsize=9)
-    ax1.set_axis_off()
+    panels = [
+        (f, '$f = 0.5 + \\sinh(5xyz)\\cos(x-y+2z)$'),
+        (f_even, 'Even: $(f + f \\circ A)/2$'),
+        (f_odd, 'Odd: $(f - f \\circ A)/2$'),
+    ]
 
-    # --- Panel 2: Even part ---
-    ax2 = fig.add_subplot(132, projection='3d')
-    fe_norm = (f_even - f_even.min()) / (f_even.max() - f_even.min() + 1e-14)
-    ax2.plot_surface(X, Y, Z, facecolors=plt.cm.RdBu_r(fe_norm),
-                      alpha=0.9, linewidth=0)
-    ax2.set_title('Even part f_even\n(f(x,y,z) + f(-x,-y,-z))/2', fontsize=9)
-    ax2.set_axis_off()
+    for i, (F, title) in enumerate(panels):
+        ax = fig.add_subplot(1, 3, i+1, projection='3d')
+        _sphere_panel(ax, fig, X, Y, Z, F, title, cmap=PARULA)
 
-    # --- Panel 3: Odd part ---
-    ax3 = fig.add_subplot(133, projection='3d')
-    fo_norm = (f_odd - f_odd.min()) / (f_odd.max() - f_odd.min() + 1e-14)
-    ax3.plot_surface(X, Y, Z, facecolors=plt.cm.PiYG(fo_norm),
-                      alpha=0.9, linewidth=0)
-    ax3.set_title('Odd part f_odd\n(f(x,y,z) - f(-x,-y,-z))/2', fontsize=9)
-    ax3.set_axis_off()
-
-    fig.suptitle('Parity Partitioning of a Spherefun', fontsize=12)
-    fig.tight_layout()
+    fig.tight_layout(pad=1.0)
     fig.savefig(os.path.join(outdir, 'spherefun_partition.png'),
-                dpi=150, bbox_inches='tight')
+                dpi=150, bbox_inches='tight', facecolor='white')
     plt.close(fig)
 
     print("spherefun_partition: done")

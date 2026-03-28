@@ -18,13 +18,11 @@ import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, PARULA, _setup_3d_axes
 chebfun_style()
 
 def toroidal_field(T_func, r, theta, phi):
     """Compute toroidal field: T_field = curl(r * T_hat)."""
-    # For T = T(theta, phi) (independent of r):
-    # T_field = 1/r * [1/sin(theta)*dT/dphi * e_theta - dT/dtheta * e_phi]
     T = T_func(theta, phi)
     dt = 0.001
 
@@ -37,12 +35,41 @@ def toroidal_field(T_func, r, theta, phi):
     Vr = np.zeros_like(Vt)
     return Vr, Vt, Vp
 
+def _sphere_panel(ax, fig, X, Y, Z, F, title, cmap=PARULA, elev=20, azim=-60):
+    """Render a single MATLAB-quality sphere panel."""
+    ax.view_init(elev=elev, azim=azim)
+    fig.set_facecolor("white")
+    ax.set_facecolor("white")
+
+    fmin, fmax = float(F.min()), float(F.max())
+    if fmax > fmin:
+        norm_vals = (F - fmin) / (fmax - fmin)
+    else:
+        norm_vals = np.full_like(F, 0.5)
+
+    fcolors = cmap(norm_vals)
+    ax.plot_surface(X, Y, Z, facecolors=fcolors,
+                    rstride=1, cstride=1,
+                    linewidth=0, antialiased=True, shade=False)
+    ax.set_xlim(-1.05, 1.05)
+    ax.set_ylim(-1.05, 1.05)
+    ax.set_zlim(-1.05, 1.05)
+    ax.set_axis_off()
+    ax.set_title(title, fontsize=10, pad=2)
+
+    ax.xaxis.pane.fill = False
+    ax.yaxis.pane.fill = False
+    ax.zaxis.pane.fill = False
+    for pane in (ax.xaxis.pane, ax.yaxis.pane, ax.zaxis.pane):
+        pane.set_edgecolor((0.8, 0.8, 0.8, 0.15))
+
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/sphere')
     os.makedirs(outdir, exist_ok=True)
 
-    n_theta, n_phi = 50, 100
+    # Fine grid
+    n_theta, n_phi = 100, 200
     theta_1d = np.linspace(0.05, np.pi - 0.05, n_theta)
     phi_1d = np.linspace(0, 2*np.pi, n_phi)
     THETA, PHI = np.meshgrid(theta_1d, phi_1d, indexing='ij')
@@ -67,45 +94,31 @@ def run():
     Vt = Vt_T + Vt_P
     Vp = Vp_T + Vp_P
 
-    fig = plt.figure()
-
-    # --- Panel 1: Toroidal component ---
-    ax1 = fig.add_subplot(131, projection='3d')
     mag_T = np.sqrt(Vt_T**2 + Vp_T**2)
-    mag_T_norm = mag_T / (mag_T.max() + 1e-14)
-    ax1.plot_surface(X, Y, Z, facecolors=plt.cm.Blues(mag_T_norm),
-                      alpha=0.9, linewidth=0)
-    ax1.set_title('|Toroidal field|\n|curl(r·T)|', fontsize=10)
-    ax1.set_axis_off()
-
-    # --- Panel 2: Poloidal component ---
-    ax2 = fig.add_subplot(132, projection='3d')
     mag_P = np.sqrt(Vt_P**2 + Vp_P**2)
-    mag_P_norm = mag_P / (mag_P.max() + 1e-14)
-    ax2.plot_surface(X, Y, Z, facecolors=plt.cm.Reds(mag_P_norm),
-                      alpha=0.9, linewidth=0)
-    ax2.set_title('|Poloidal field|\n|curl(curl(r·P))|', fontsize=10)
-    ax2.set_axis_off()
-
-    # --- Panel 3: Total field magnitude ---
-    ax3 = fig.add_subplot(133, projection='3d')
     mag = np.sqrt(Vt**2 + Vp**2)
-    mag_norm = mag / (mag.max() + 1e-14)
-    ax3.plot_surface(X, Y, Z, facecolors=plt.cm.viridis(mag_norm),
-                      alpha=0.9, linewidth=0)
-    ax3.set_title('|Total field|\nToroidal + Poloidal', fontsize=10)
-    ax3.set_axis_off()
+
+    fig = plt.figure(figsize=(14, 4.5), facecolor='white')
+
+    panels = [
+        (mag_T, '$|$Toroidal$|$: $|\\mathrm{curl}(\\hat{r} T)|$'),
+        (mag_P, '$|$Poloidal$|$: $|\\mathrm{curl}(\\hat{r} P)|$'),
+        (mag, '$|$Total field$|$: Toroidal + Poloidal'),
+    ]
+
+    for i, (F, title) in enumerate(panels):
+        ax = fig.add_subplot(1, 3, i+1, projection='3d')
+        _sphere_panel(ax, fig, X, Y, Z, F, title, cmap=PARULA)
 
     print("Poloidal-Toroidal decomposition:")
-    print(f"  T = cos(θ)sin(φ): toroidal potential")
-    print(f"  P = sin(θ)cos(φ): poloidal potential")
+    print(f"  T = cos(th)sin(phi): toroidal potential")
+    print(f"  P = sin(th)cos(phi): poloidal potential")
     print(f"  Max toroidal: {mag_T.max():.4f}")
     print(f"  Max poloidal: {mag_P.max():.4f}")
 
-    fig.suptitle('Poloidal-Toroidal Decomposition of a Vector Field', fontsize=12)
-    fig.tight_layout()
+    fig.tight_layout(pad=1.0)
     fig.savefig(os.path.join(outdir, 'pt_decomposition.png'),
-                dpi=150, bbox_inches='tight')
+                dpi=150, bbox_inches='tight', facecolor='white')
     plt.close(fig)
 
     print("pt_decomposition: done")

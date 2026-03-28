@@ -19,7 +19,7 @@ import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, PARULA, _setup_3d_axes
 chebfun_style()
 
 def spherical_harmonic_real(l, m, theta, phi):
@@ -31,28 +31,52 @@ def spherical_harmonic_real(l, m, theta, phi):
     else:
         return np.real(Ylm)
 
-def laplace_beltrami_sh_coefficient(f_coeffs, l, m):
-    """Laplace-Beltrami acting on SH: Delta_S Y_l^m = -l(l+1) Y_l^m."""
-    return -l * (l + 1) * f_coeffs.get((l, m), 0.0)
-
 def rayleigh_quotient(f_coeffs):
     """Compute Rayleigh quotient r(f) = <f, L f> / <f, f> from SH coefficients."""
     norm2 = 0.0
     Lf_dot_f = 0.0
     for (l, m), c in f_coeffs.items():
         norm2 += c**2
-        Lf_dot_f += c * (-l*(l+1)) * c  # = -l(l+1)|c|^2
+        Lf_dot_f += c * (-l*(l+1)) * c
     if norm2 < 1e-14:
         return 0.0
     return Lf_dot_f / norm2
+
+def _sphere_panel(ax, fig, X, Y, Z, F, title, cmap=PARULA, elev=20, azim=-60):
+    """Render a single MATLAB-quality sphere panel."""
+    ax.view_init(elev=elev, azim=azim)
+    fig.set_facecolor("white")
+    ax.set_facecolor("white")
+
+    fmin, fmax = float(F.min()), float(F.max())
+    if fmax > fmin:
+        norm_vals = (F - fmin) / (fmax - fmin)
+    else:
+        norm_vals = np.full_like(F, 0.5)
+
+    fcolors = cmap(norm_vals)
+    ax.plot_surface(X, Y, Z, facecolors=fcolors,
+                    rstride=1, cstride=1,
+                    linewidth=0, antialiased=True, shade=False)
+    ax.set_xlim(-1.05, 1.05)
+    ax.set_ylim(-1.05, 1.05)
+    ax.set_zlim(-1.05, 1.05)
+    ax.set_axis_off()
+    ax.set_title(title, fontsize=10, pad=2)
+
+    ax.xaxis.pane.fill = False
+    ax.yaxis.pane.fill = False
+    ax.zaxis.pane.fill = False
+    for pane in (ax.xaxis.pane, ax.yaxis.pane, ax.zaxis.pane):
+        pane.set_edgecolor((0.8, 0.8, 0.8, 0.15))
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/sphere')
     os.makedirs(outdir, exist_ok=True)
 
-    # Grid
-    n_theta, n_phi = 60, 120
+    # Fine grid
+    n_theta, n_phi = 100, 200
     theta_1d = np.linspace(0.01, np.pi - 0.01, n_theta)
     phi_1d = np.linspace(0, 2*np.pi, n_phi)
     THETA, PHI = np.meshgrid(theta_1d, phi_1d, indexing='ij')
@@ -60,27 +84,6 @@ def run():
     X = np.sin(THETA) * np.cos(PHI)
     Y = np.sin(THETA) * np.sin(PHI)
     Z = np.cos(THETA)
-
-    fig, axes = plt.subplots(1, 3)
-
-    # --- Panel 1: Eigenvalues vs l ---
-    l_vals = np.arange(0, 15)
-    eigenvals = [-l*(l+1) for l in l_vals]
-    multiplicities = [2*l+1 for l in l_vals]
-
-    ax_twin = axes[0].twinx()
-    axes[0].plot(l_vals, eigenvals, 'b.-', markersize=10, linewidth=2,
-                 label='λ_l = -l(l+1)')
-    ax_twin.bar(l_vals, multiplicities, alpha=0.3, color='orange',
-                label='Multiplicity 2l+1')
-    axes[0].set_title('Eigenvalues of Laplace-Beltrami\non unit sphere', fontsize=10)
-    axes[0].legend(fontsize=9)
-    print(f"Eigenvalues: {eigenvals[:6]}")
-
-    # --- Panel 2: Rayleigh quotient for various functions ---
-    np.random.seed(42)
-    # Test functions as combinations of SH
-    test_cases = []
 
     # Pure Y_1^0 (should give R = -2)
     c_Y10 = {(1, 0): 1.0}
@@ -90,7 +93,6 @@ def run():
     c_Y21 = {(2, 1): 1.0}
     rq_Y21 = rayleigh_quotient(c_Y21)
 
-    # Mix of modes
     test_functions = [
         (r'$Y_1^0$', c_Y10, rq_Y10, -1*2),
         (r'$Y_2^1$', c_Y21, rq_Y21, -2*3),
@@ -101,55 +103,40 @@ def run():
          rayleigh_quotient({(1,0): 1/np.sqrt(2), (3,0): 1/np.sqrt(2)}), None),
     ]
 
-    names = [t[0] for t in test_functions]
-    rqs = [t[2] for t in test_functions]
-    exact = [t[3] for t in test_functions]
-
-    axes[1].bar(range(len(rqs)), rqs, color=['b','g','r','m','c'], alpha=0.7)
-    for i, (ex, rq) in enumerate(zip(exact, rqs)):
-        if ex is not None:
-            axes[1].axhline(ex, color='k', linestyle='--', linewidth=0.5, alpha=0.5)
-    axes[1].set_xticks(range(len(names)))
-    axes[1].set_xticklabels(names, fontsize=9)
-    axes[1].set_title('Rayleigh quotients\nfor various test functions', fontsize=10)
-    for name, rq in zip(names, rqs):
+    for name, _, rq, _ in test_functions:
         print(f"  {name}: R = {rq:.4f}")
 
-    # --- Panel 3: Rayleigh quotient minimization ---
-    # Show that minimum over random functions with l_max=1 is -2
-    np.random.seed(123)
-    n_random = 200
-    rq_random = []
-    for _ in range(n_random):
-        # Random function with l=0 and l=1 components
-        c = {}
-        for l in range(3):
-            for m in range(-l, l+1):
-                c[(l, m)] = np.random.randn()
-        # Normalize
-        norm2 = sum(v**2 for v in c.values())
-        c = {k: v/np.sqrt(norm2) for k, v in c.items()}
-        rq_random.append(rayleigh_quotient(c))
+    fig = plt.figure(figsize=(14, 4.5), facecolor='white')
 
-    axes[2].hist(rq_random, bins=20, color='steelblue', alpha=0.7,
-                 edgecolor='black', linewidth=0.5)
-    axes[2].axvline(-2, color='r', linestyle='--', linewidth=2,
-                     label='λ_1 = -2')
-    axes[2].axvline(0, color='g', linestyle='--', linewidth=1.5,
-                     label='λ_0 = 0')
-    axes[2].set_title('Rayleigh quotient for\nrandom l≤2 functions', fontsize=10)
-    axes[2].legend(fontsize=9)
+    # --- Panel 1: Y_1^0 (eigenfunction with lambda = -2) ---
+    F_Y10 = spherical_harmonic_real(1, 0, THETA, PHI)
+    ax1 = fig.add_subplot(131, projection='3d')
+    _sphere_panel(ax1, fig, X, Y, Z, F_Y10,
+                  '$Y_1^0$: $R = -2$', cmap=PARULA)
 
-    fig.suptitle('Rayleigh Quotient and Eigenvalues on the Sphere', fontsize=12)
-    fig.tight_layout()
-    fig.savefig(os.path.join(outdir, 'rayleigh_quotient.png'),
-                dpi=150, bbox_inches='tight')
-    plt.close(fig)
+    # --- Panel 2: Y_2^1 (eigenfunction with lambda = -6) ---
+    F_Y21 = spherical_harmonic_real(2, 1, THETA, PHI)
+    ax2 = fig.add_subplot(132, projection='3d')
+    _sphere_panel(ax2, fig, X, Y, Z, F_Y21,
+                  '$Y_2^1$: $R = -6$', cmap=PARULA)
+
+    # --- Panel 3: Mixed mode Y_1^0 + Y_3^0 ---
+    F_mix = (spherical_harmonic_real(1, 0, THETA, PHI) +
+             spherical_harmonic_real(3, 0, THETA, PHI)) / np.sqrt(2)
+    rq_mix = rayleigh_quotient({(1,0): 1/np.sqrt(2), (3,0): 1/np.sqrt(2)})
+    ax3 = fig.add_subplot(133, projection='3d')
+    _sphere_panel(ax3, fig, X, Y, Z, F_mix,
+                  f'$Y_1^0 + Y_3^0$: $R = {rq_mix:.1f}$', cmap=PARULA)
 
     # Assertions
     assert abs(rq_Y10 - (-2)) < 0.01, f"Y_1^0 Rayleigh = {rq_Y10}, expected -2"
     assert abs(rq_Y21 - (-6)) < 0.01, f"Y_2^1 Rayleigh = {rq_Y21}, expected -6"
-    print(f"Assertions passed: R(Y_1^0)={rq_Y10:.4f}≈-2, R(Y_2^1)={rq_Y21:.4f}≈-6")
+    print(f"Assertions passed: R(Y_1^0)={rq_Y10:.4f}~=-2, R(Y_2^1)={rq_Y21:.4f}~=-6")
+
+    fig.tight_layout(pad=1.0)
+    fig.savefig(os.path.join(outdir, 'rayleigh_quotient.png'),
+                dpi=150, bbox_inches='tight', facecolor='white')
+    plt.close(fig)
 
     print("rayleigh_quotient: done")
     return True

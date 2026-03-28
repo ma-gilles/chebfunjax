@@ -18,45 +18,76 @@ import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, PARULA, _setup_3d_axes
 chebfun_style()
 
-def surface_curl(psi, theta, phi):
+def surface_curl(psi, theta, phi, theta_1d, phi_1d):
     """Compute surface curl of scalar potential psi on sphere.
     curl_S(psi) = (1/sin(theta)) * dpsi/dphi * e_theta - dpsi/dtheta * e_phi
+    Grid uses indexing='ij': axis 0 = theta, axis 1 = phi.
     """
-    dtheta = theta[0, 1] - theta[0, 0] if theta.ndim > 1 else theta[1] - theta[0]
-    dphi = phi[1, 0] - phi[0, 0] if phi.ndim > 1 else phi[1] - phi[0]
+    dtheta = theta_1d[1] - theta_1d[0]
+    dphi = phi_1d[1] - phi_1d[0]
 
-    dpsi_dtheta = np.gradient(psi, axis=0) / dtheta if theta.ndim > 1 else np.gradient(psi, theta)
-    dpsi_dphi = np.gradient(psi, axis=1) / dphi if phi.ndim > 1 else np.gradient(psi, phi)
+    dpsi_dtheta = np.gradient(psi, dtheta, axis=0)
+    dpsi_dphi = np.gradient(psi, dphi, axis=1)
 
     sin_theta = np.sin(theta) + 1e-14
     V_theta = dpsi_dphi / sin_theta
     V_phi = -dpsi_dtheta
     return V_theta, V_phi
 
-def surface_grad(phi_pot, theta, phi):
-    """Compute surface gradient of scalar potential phi on sphere."""
-    dphi_val = phi[0, 1] - phi[0, 0] if phi.ndim > 1 else phi[1] - phi[0]
-    dtheta_val = theta[0, 1] - theta[0, 0] if theta.ndim > 1 else theta[1] - theta[0]
+def surface_grad(phi_pot, theta, phi, theta_1d, phi_1d):
+    """Compute surface gradient of scalar potential phi on sphere.
+    Grid uses indexing='ij': axis 0 = theta, axis 1 = phi.
+    """
+    dtheta = theta_1d[1] - theta_1d[0]
+    dphi = phi_1d[1] - phi_1d[0]
 
-    dpot_dtheta = np.gradient(phi_pot, axis=0) / dtheta_val
-    dpot_dphi = np.gradient(phi_pot, axis=1) / dphi_val
+    dpot_dtheta = np.gradient(phi_pot, dtheta, axis=0)
+    dpot_dphi = np.gradient(phi_pot, dphi, axis=1)
 
     sin_theta = np.sin(theta) + 1e-14
     G_theta = dpot_dtheta
     G_phi = dpot_dphi / sin_theta
     return G_theta, G_phi
 
+def _sphere_panel(ax, fig, X, Y, Z, F, title, cmap=PARULA, elev=20, azim=-60):
+    """Render a single MATLAB-quality sphere panel."""
+    ax.view_init(elev=elev, azim=azim)
+    fig.set_facecolor("white")
+    ax.set_facecolor("white")
+
+    fmin, fmax = float(F.min()), float(F.max())
+    if fmax > fmin:
+        norm_vals = (F - fmin) / (fmax - fmin)
+    else:
+        norm_vals = np.full_like(F, 0.5)
+
+    fcolors = cmap(norm_vals)
+    ax.plot_surface(X, Y, Z, facecolors=fcolors,
+                    rstride=1, cstride=1,
+                    linewidth=0, antialiased=True, shade=False)
+    ax.set_xlim(-1.05, 1.05)
+    ax.set_ylim(-1.05, 1.05)
+    ax.set_zlim(-1.05, 1.05)
+    ax.set_axis_off()
+    ax.set_title(title, fontsize=10, pad=2)
+
+    ax.xaxis.pane.fill = False
+    ax.yaxis.pane.fill = False
+    ax.zaxis.pane.fill = False
+    for pane in (ax.xaxis.pane, ax.yaxis.pane, ax.zaxis.pane):
+        pane.set_edgecolor((0.8, 0.8, 0.8, 0.15))
+
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/sphere')
     os.makedirs(outdir, exist_ok=True)
 
-    # Grid
-    n_theta, n_phi = 60, 120
-    theta_1d = np.linspace(0.05, np.pi - 0.05, n_theta)
+    # Fine grid for smooth 3D rendering
+    n_theta, n_phi = 100, 200
+    theta_1d = np.linspace(0.02, np.pi - 0.02, n_theta)
     phi_1d = np.linspace(0, 2*np.pi, n_phi)
     THETA, PHI = np.meshgrid(theta_1d, phi_1d, indexing='ij')
 
@@ -70,45 +101,44 @@ def run():
     phi_pot = np.cos(THETA) * np.sin(PHI)
 
     # Compute components
-    Vt_div, Vp_div = surface_curl(psi, THETA, PHI)
-    Vt_curl, Vp_curl = surface_grad(phi_pot, THETA, PHI)
+    Vt_div, Vp_div = surface_curl(psi, THETA, PHI, theta_1d, phi_1d)
+    Vt_curl, Vp_curl = surface_grad(phi_pot, THETA, PHI, theta_1d, phi_1d)
 
     # Total field
     Vt = Vt_div + Vt_curl
     Vp = Vp_div + Vp_curl
 
-    fig = plt.figure()
+    # Compute magnitudes for sphere colouring
+    mag_div = np.sqrt(Vt_div**2 + Vp_div**2)
+    mag_curl = np.sqrt(Vt_curl**2 + Vp_curl**2)
+    mag_total = np.sqrt(Vt**2 + Vp**2)
 
-    # --- Panel 1: Divergence-free component (quiver on sphere cross-section) ---
-    ax1 = fig.add_subplot(131)
-    # Show theta-component at equatorial cross-section
-    eq_idx = n_theta // 2
-    ax1.contourf(np.degrees(phi_1d), np.degrees(theta_1d),
-                  Vt_div, levels=20, cmap='RdBu_r')
-    ax1.set_title('Divergence-free part\ncurl(ψ) theta-component', fontsize=10)
-    # --- Panel 2: Curl-free component ---
-    ax2 = fig.add_subplot(132)
-    ax2.contourf(np.degrees(phi_1d), np.degrees(theta_1d),
-                  Vp_curl, levels=20, cmap='PiYG')
-    ax2.set_title('Curl-free part\ngrad(φ) phi-component', fontsize=10)
+    fig = plt.figure(figsize=(14, 4.5), facecolor='white')
+
+    # --- Panel 1: Divergence-free part (stream function) on sphere ---
+    ax1 = fig.add_subplot(131, projection='3d')
+    _sphere_panel(ax1, fig, X, Y, Z, mag_div,
+                  'Divergence-free $|\\mathrm{curl}(\\psi)|$', cmap=PARULA)
+
+    # --- Panel 2: Curl-free part (gradient) on sphere ---
+    ax2 = fig.add_subplot(132, projection='3d')
+    _sphere_panel(ax2, fig, X, Y, Z, mag_curl,
+                  'Curl-free $|\\nabla\\phi|$', cmap=PARULA)
+
     # --- Panel 3: Total field on sphere ---
     ax3 = fig.add_subplot(133, projection='3d')
-    field_magnitude = np.sqrt(Vt**2 + Vp**2)
-    colors3 = plt.cm.viridis(field_magnitude / (field_magnitude.max() + 1e-14))
-    ax3.plot_surface(X, Y, Z, facecolors=colors3, alpha=0.85, linewidth=0)
-    ax3.set_axis_off()
-    ax3.set_title('|V| on sphere\n(combined field)', fontsize=10)
+    _sphere_panel(ax3, fig, X, Y, Z, mag_total,
+                  'Total $|\\mathbf{V}|$ on sphere', cmap=PARULA)
 
     print("Helmholtz-Hodge decomposition on sphere:")
-    print(f"  Divergence-free (stream function): psi = sin²θ·cos(2φ)")
-    print(f"  Curl-free (potential): φ = cosθ·sinφ")
-    print(f"  Max |V_div|: {np.max(np.abs(Vt_div)):.4f}")
-    print(f"  Max |V_curl|: {np.max(np.abs(Vp_curl)):.4f}")
+    print(f"  Divergence-free (stream function): psi = sin^2(th)*cos(2*phi)")
+    print(f"  Curl-free (potential): phi = cos(th)*sin(phi)")
+    print(f"  Max |V_div|: {np.max(mag_div):.4f}")
+    print(f"  Max |V_curl|: {np.max(mag_curl):.4f}")
 
-    fig.suptitle('Helmholtz-Hodge Decomposition on the Sphere', fontsize=12)
-    fig.tight_layout()
+    fig.tight_layout(pad=1.0)
     fig.savefig(os.path.join(outdir, 'helmholtz_decomposition.png'),
-                dpi=150, bbox_inches='tight')
+                dpi=150, bbox_inches='tight', facecolor='white')
     plt.close(fig)
 
     print("helmholtz_decomposition: done")

@@ -19,23 +19,17 @@ import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, PARULA, _setup_3d_axes
 chebfun_style()
 
 def synthetic_temperature(theta, phi):
     """Generate a synthetic global temperature field resembling atmospheric data."""
-    # Combination of low-frequency spherical harmonics mimicking temperature
-    # Equatorial warming, polar cooling (basic climate structure)
-    T = 15 * (0.5 - 0.7 * np.cos(theta))  # basic polar/equatorial gradient
-
-    # Add some longitudinal variation
+    T = 15 * (0.5 - 0.7 * np.cos(theta))
     T += 3 * np.sin(2*theta) * np.cos(phi)
     T += 2 * np.sin(theta)**2 * np.cos(2*phi)
     T += 1.5 * np.sin(theta) * np.sin(phi)
-
-    # Add regional features
-    T += 4 * np.exp(-5 * ((theta - np.pi/2)**2 + (phi - 0)**2))  # "warm Pacific"
-    T += -3 * np.exp(-5 * ((theta - np.pi/2)**2 + (phi - np.pi)**2))  # "cold Atlantic"
+    T += 4 * np.exp(-5 * ((theta - np.pi/2)**2 + (phi - 0)**2))
+    T += -3 * np.exp(-5 * ((theta - np.pi/2)**2 + (phi - np.pi)**2))
     return T
 
 def spherical_harmonic_coeff(f, theta, phi, l, m):
@@ -47,19 +41,47 @@ def spherical_harmonic_coeff(f, theta, phi, l, m):
         Y = np.sqrt(2) * (-1)**m * np.imag(Ylm)
     else:
         Y = np.real(Ylm)
-    # Integrate with sin(theta) weight
     dtheta = theta[1, 0] - theta[0, 0] if theta.ndim > 1 else theta[1] - theta[0]
     dphi = phi[0, 1] - phi[0, 0] if phi.ndim > 1 else phi[1] - phi[0]
     return np.sum(f * Y * np.sin(theta)) * dtheta * dphi
+
+def _sphere_panel(ax, fig, X, Y, Z, F, title, cmap=PARULA, elev=20, azim=-60):
+    """Render a single MATLAB-quality sphere panel."""
+    ax.view_init(elev=elev, azim=azim)
+    fig.set_facecolor("white")
+    ax.set_facecolor("white")
+
+    fmin, fmax = float(F.min()), float(F.max())
+    if fmax > fmin:
+        norm_vals = (F - fmin) / (fmax - fmin)
+    else:
+        norm_vals = np.full_like(F, 0.5)
+
+    fcolors = cmap(norm_vals)
+    ax.plot_surface(X, Y, Z, facecolors=fcolors,
+                    rstride=1, cstride=1,
+                    linewidth=0, antialiased=True, shade=False)
+    ax.set_xlim(-1.05, 1.05)
+    ax.set_ylim(-1.05, 1.05)
+    ax.set_zlim(-1.05, 1.05)
+    ax.set_axis_off()
+    ax.set_title(title, fontsize=10, pad=2)
+
+    ax.xaxis.pane.fill = False
+    ax.yaxis.pane.fill = False
+    ax.zaxis.pane.fill = False
+    for pane in (ax.xaxis.pane, ax.yaxis.pane, ax.zaxis.pane):
+        pane.set_edgecolor((0.8, 0.8, 0.8, 0.15))
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/sphere')
     os.makedirs(outdir, exist_ok=True)
 
-    # Grid
-    theta_1d = np.linspace(0, np.pi, 90)   # colatitude
-    phi_1d = np.linspace(0, 2*np.pi, 180)  # longitude
+    # Fine grid
+    n_theta, n_phi = 100, 200
+    theta_1d = np.linspace(0, np.pi, n_theta)
+    phi_1d = np.linspace(0, 2*np.pi, n_phi)
     PHI, THETA = np.meshgrid(phi_1d, theta_1d)
 
     T = synthetic_temperature(THETA, PHI)
@@ -68,39 +90,44 @@ def run():
     Y_cart = np.sin(THETA) * np.sin(PHI)
     Z_cart = np.cos(THETA)
 
-    fig = plt.figure()
+    # --- Low-rank SH approximation (l_max=3) ---
+    l_max_approx = 3
+    T_approx = np.zeros_like(T)
+    for l in range(l_max_approx + 1):
+        for m in range(-l, l+1):
+            c_lm = spherical_harmonic_coeff(T, THETA, PHI, l, m)
+            Ylm = sph_harm_y(l, abs(m), THETA, PHI)
+            if m > 0:
+                Y_sh = np.sqrt(2) * (-1)**m * np.real(Ylm)
+            elif m < 0:
+                Y_sh = np.sqrt(2) * (-1)**m * np.imag(Ylm)
+            else:
+                Y_sh = np.real(Ylm)
+            T_approx += c_lm * Y_sh
 
-    # --- Panel 1: Temperature on sphere ---
+    T_diff = T - T_approx
+
+    fig = plt.figure(figsize=(14, 4.5), facecolor='white')
+
+    # --- Panel 1: Full temperature on sphere ---
     ax1 = fig.add_subplot(131, projection='3d')
-    T_norm = (T - T.min()) / (T.max() - T.min())
-    colors1 = plt.cm.RdYlBu_r(T_norm)
-    ax1.plot_surface(X, Y_cart, Z_cart, facecolors=colors1, alpha=0.9, linewidth=0)
-    ax1.set_axis_off()
-    ax1.set_title('Synthetic atmospheric\ntemperature field', fontsize=10)
+    _sphere_panel(ax1, fig, X, Y_cart, Z_cart, T,
+                  'Temperature field $T(\\theta, \\phi)$', cmap=PARULA)
 
-    # Colorbar annotation
+    # --- Panel 2: Low-rank SH approximation ---
+    ax2 = fig.add_subplot(132, projection='3d')
+    _sphere_panel(ax2, fig, X, Y_cart, Z_cart, T_approx,
+                  f'SH approximation ($l \\leq {l_max_approx}$)', cmap=PARULA)
+
+    # --- Panel 3: Residual ---
+    ax3 = fig.add_subplot(133, projection='3d')
+    _sphere_panel(ax3, fig, X, Y_cart, Z_cart, T_diff,
+                  'Residual (full $-$ approx)', cmap=PARULA)
+
     T_min, T_max = T.min(), T.max()
-    print(f"Atmospheric temperature: range [{T_min:.1f}, {T_max:.1f}] °C")
+    print(f"Atmospheric temperature: range [{T_min:.1f}, {T_max:.1f}] C")
 
-    # --- Panel 2: Equatorial cross-section and zonal mean ---
-    ax2 = fig.add_subplot(132)
-    # Equatorial band: theta ~= pi/2
-    eq_idx = np.argmin(np.abs(theta_1d - np.pi/2))
-    T_equator = T[eq_idx, :]
-    phi_deg = np.degrees(phi_1d)
-
-    ax2.plot(phi_deg, T_equator, 'r-', linewidth=2, label='Equatorial T')
-    # Zonal mean
-    T_zonal = T.mean(axis=1)
-    # Plot vs latitude
-    lat_deg = 90 - np.degrees(theta_1d)
-    ax2_twin = ax2.twiny()
-    ax2_twin.plot(T_zonal, lat_deg, 'b-', linewidth=2, label='Zonal mean T')
-    ax2.set_title('Equatorial T and\nzonal mean', fontsize=10)
-    ax2.legend(fontsize=9)
-
-    # --- Panel 3: Spherical harmonic power spectrum ---
-    ax3 = fig.add_subplot(133)
+    # Spherical harmonic power spectrum
     l_max = 10
     power = np.zeros(l_max + 1)
     for l in range(l_max + 1):
@@ -109,13 +136,9 @@ def run():
             power[l] += c_lm**2
         print(f"  l={l}: power={power[l]:.4f}")
 
-    ax3.semilogy(range(l_max + 1), power + 1e-14, 'b.-', markersize=10,
-                  linewidth=2)
-    ax3.set_title('Spherical harmonic\npower spectrum', fontsize=10)
-    fig.suptitle('Atmospheric Temperature on the Sphere', fontsize=12)
-    fig.tight_layout()
+    fig.tight_layout(pad=1.0)
     fig.savefig(os.path.join(outdir, 'atmospheric_temperature.png'),
-                dpi=150, bbox_inches='tight')
+                dpi=150, bbox_inches='tight', facecolor='white')
     plt.close(fig)
 
     print("atmospheric_temperature: done")
