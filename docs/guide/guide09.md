@@ -1,364 +1,334 @@
-# Chapter 9: Infinite Intervals, Infinite Function Values, and Singularities
-
-*Based on [Chebfun Guide Chapter 9](https://www.chebfun.org/docs/guide/guide09.html) by Lloyd N. Trefethen, November 2009, latest revision June 2019.*
-
-## 9.1 Infinite intervals
-
-This chapter presents some features of chebfunjax that are less robust than what is described in the first eight chapters. With classic bounded chebfuns on a bounded interval $[a,b]$, you can do amazingly complicated things often without encountering any difficulties. Now we are going to let the intervals and the functions diverge to infinity -- but please lower your expectations! These features are not always as accurate or reliable.
-
-In chebfunjax, functions on infinite or semi-infinite intervals are handled by the `Unbndfun` class, which uses a change of variables (Mobius-type mapping) to map unbounded domains to the reference interval $[-1,1]$, where standard Chebyshev approximation is applied.
-
-Here is a function on $[0, \infty)$. We can compute its maximum and plot it:
-
-```python
-from chebfunjax.fun.unbndfun import Unbndfun
-from chebfunjax.domain import Domain
-import jax.numpy as jnp
-import numpy as np
-
-f = Unbndfun.from_function(
-    lambda x: 0.75 + jnp.sin(10 * x) * jnp.exp(-x),
-    Domain((0.0, float('inf'))),
-)
-# Approximate the maximum
-xs = jnp.linspace(0.0, 10.0, 10000)
-ys = jnp.array([float(f(jnp.float64(xi))) for xi in xs])
-maxf = float(jnp.max(ys))
-print(f"maxf = {maxf}")
-```
-
-```
-maxf = 1.608912750768336
-```
-
-![0.75 + sin(10x)/exp(x) on [0,inf)](../images/guide/guide09_01.png)
-
-Here is the reciprocal of the gamma function on $[0, \infty)$. Its integral can be computed with `sum`:
-
-```python
-from scipy.special import gamma as scipy_gamma
-
-g = Unbndfun.from_function(
-    lambda x: 1.0 / jnp.array(scipy_gamma(float(x) + 1.0)),
-    Domain((0.0, float('inf'))),
-)
-sumg = float(g.sum())
-print(f"sumg = {sumg}")
-```
-
-```
-sumg = 2.266534507699849
-```
-
-![1/gamma(x+1) on [0,inf)](../images/guide/guide09_02.png)
-
-We can plot both functions together and mark their intersection points:
-
-```python
-# Find roots of f - g by sign changes
-xs = np.linspace(0.01, 5.0, 10000)
-ys_f = np.array([float(f(jnp.float64(xi))) for xi in xs])
-ys_g = np.array([float(g(jnp.float64(xi))) for xi in xs])
-diff_vals = ys_f - ys_g
-roots = []
-for i in range(len(diff_vals) - 1):
-    if diff_vals[i] * diff_vals[i + 1] < 0:
-        t = diff_vals[i] / (diff_vals[i] - diff_vals[i + 1])
-        roots.append(xs[i] + t * (xs[i + 1] - xs[i]))
-for r in roots:
-    print(f"  {r:.15f}")
-```
-
-![f and g with intersections](../images/guide/guide09_03.png)
-
-Chebfunjax also supports functions on doubly-infinite intervals $(-\infty, \infty)$. Here we compute the minimum of $|\tanh(x-1) - 1/3|$:
-
-```python
-g = Unbndfun.from_function(
-    lambda x: jnp.abs(jnp.tanh(x - 1.0) - 1.0 / 3.0),
-    Domain((float('-inf'), float('inf'))),
-)
-# Find minimum by sampling
-xs = np.linspace(-10, 10, 10000)
-ys = np.array([float(g(jnp.float64(xi))) for xi in xs])
-imin = np.argmin(ys)
-minval, minpos = ys[imin], xs[imin]
-print(f"minval = {minval}")
-print(f"minpos = {minpos}")
-```
-
-```
-minval = 0
-minpos = 1.346573590279973
-```
-
-![|tanh(x-1)-1/3| on (-inf,inf)](../images/guide/guide09_04.png)
-
-Notice that a function on an infinite domain is by default plotted on an interval like $[0, 10]$ or $[-10, 10]$. You can specify a different interval for plotting. Here we plot on $[0, 100]$:
-
-```python
-hh = lambda x: jnp.cos(x) / (1e5 + (x - 30.0)**6)
-h = Unbndfun.from_function(hh, Domain((0.0, float('inf'))))
-# Plot on 'interval' [0, 100]
-```
-
-![cos(x)/(1e5+(x-30)^6) on [0,100]](../images/guide/guide09_05.png)
-
-One should be cautious in evaluating integrals over infinite intervals, for the accuracy is sometimes disappointing, especially for functions that do not decay very quickly.
-
-The integral of $(2/\sqrt{\pi})\exp(-x^2)$ from $0$ to $\infty$ should be $1$ (the complete error function):
-
-```python
-g = Unbndfun.from_function(
-    lambda x: (2.0 / jnp.sqrt(jnp.pi)) * jnp.exp(-x**2),
-    Domain((0.0, float('inf'))),
-)
-sumg = float(g.sum())
-print(f"sumg = {sumg}")
-```
-
-```
-sumg = 0.999999999999999
-```
-
-The `cumsum` operator creates the error function from this integrand:
-
-```python
-from scipy.special import erf
-
-errorfun = g.cumsum()
-print("          erf               errorfun")
-for n in range(1, 7):
-    print(f"   {erf(n):.15f}   {float(errorfun(jnp.float64(n))):.15f}")
-```
-
-The integral of $(1/\pi)/(1 + s^2)$ over $(-\infty, \infty)$ should be $1$:
-
-```python
-f = Unbndfun.from_function(
-    lambda s: (1.0 / jnp.pi) / (1.0 + s**2),
-    Domain((float('-inf'), float('inf'))),
-)
-print(float(f.sum()))
-```
-
-```
-0.999999999997213
-```
-
-Here is the sinc function $\sin(\pi x)/(\pi x)$ plotted on $[-10, 10]$. Functions whose wiggles decay slowly at infinity may not be fully resolved:
-
-```python
-# sinc = sin(pi*x)/(pi*x) on (-inf, inf)
-# Warning: Function not resolved using 65537 pts.
-xs = np.linspace(-10, 10, 800)
-ys = np.sinc(xs)  # numpy sinc(x) = sin(pi*x)/(pi*x)
-```
-
-![sinc on [-10,10]](../images/guide/guide09_06.png)
-
-Chebfunjax's capability of handling infinite intervals was introduced originally by Rodrigo Platte in 2008--09. The details of the implementation then changed considerably with the introduction of version 5 in 2014.
-
-The use of mappings to transform an unbounded domain to a bounded one is an idea that has been employed many times over the years. For $[a, \infty)$, the forward map is:
-
-$$x = \frac{15(s + 1)}{1 - s} + a, \quad s \in [-1, 1),$$
-
-with inverse:
-
-$$s = \frac{x - a - 15}{x - a + 15}.$$
-
-For $(-\infty, \infty)$, the map is:
-
-$$x = \frac{5s}{1 - s^2}, \quad s \in (-1, 1).$$
-
-## 9.2 Poles
-
-Chebfunjax can handle certain functions with vertical infinities, or poles, through the `Singfun` class. If you know the nature of the blowup, you can specify it using the `exponents` parameter. For example, here is a function with a simple pole at $x = 0$:
-
-```python
-from chebfunjax.fun.singfun import Singfun
-
-# sin(50x) + 1/x on [0, 4] with 'exps' [-1, 0]
-# Map [0,4] -> [-1,1]: x = 2*(1+t), so pole at t=-1
-sf = Singfun.from_function(
-    lambda t: jnp.sin(50 * (2.0 * (1.0 + t))) + 1.0 / (2.0 * (1.0 + t)),
-    exponents=(-1, 0),
-)
-```
-
-![sin(50x)+1/x on [0,4]](../images/guide/guide09_07.png)
-
-When the singularity is in the interior of the domain, one introduces breakpoints. Here is the same function on $[-2, 4]$ with the pole at $x = 0$ in the middle:
-
-```python
-# f = chebfun('sin(50*x) + 1/x', [-2 0 4], 'exps', [0,-1,0])
-# Two-piece construction with breakpoint at x=0
-```
-
-![sin(50x)+1/x on [-2,4]](../images/guide/guide09_08.png)
-
-Multiple poles can be handled by specifying breakpoints at each pole location. Here is $\tan(x)$ represented on an interval containing five poles:
-
-```python
-# f = chebfun('tan(x)', pi*((-5/2):(5/2)), 'exps', -ones(1,6))
-# Breakpoints at odd multiples of pi/2
-import numpy as np
-```
-
-![tan(x) with poles](../images/guide/guide09_09.png)
-
-We can overlay the line $x/2$ and find where it intersects $\tan(x)$. The `'nojump'` flag in roots causes jumps between pieces to be ignored:
-
-```python
-from scipy.optimize import brentq
-
-# x2 = chebfun('x/2', pi*(5/2)*[-1 1])
-# r = roots(f-x2, 'nojump')
-```
-
-![tan(x) vs x/2](../images/guide/guide09_10.png)
-
-Here is a more complicated function:
-
-```python
-# g = sin(2*x2) + min(abs(f+2), 6)
-```
-
-![sin(2*x2)+min(|f+2|,6)](../images/guide/guide09_11.png)
-
-If you don't know what singularities your function may have, chebfunjax has some ability to find them if the flags `'blowup'` and `'splitting'` are on. Here is the gamma function plotted on $[-4, 4]$ with automatic breakpoint detection:
-
-```python
-from scipy.special import gamma as scipy_gamma
-
-# gam = chebfun('gamma(x)', [-4 4], 'splitting', 'on', 'blowup', 1)
-```
-
-![gamma function on [-4,4]](../images/guide/guide09_12.png)
-
-The gamma function can also be constructed explicitly with specified exponents at each pole:
-
-```python
-# gam = chebfun('gamma(x)', [-4:0 4], 'exps', [-1 -1 -1 -1 -1 0])
-```
-
-Can you explain the following three results?
-
-```python
-# sum(gam) -> NaN
-# sum(abs(gam)) -> Inf
-# sum(abs(gam)^0.9) -> 58.509500897758713
-```
-
-The first integral is `NaN` because the gamma function changes sign at the poles, and the resulting cancellation leads to an undefined value. The second is `Inf` because $|\Gamma(x)|$ has $|x|^{-1}$ singularities at the poles, which are not integrable. The third converges because $|x|^{-0.9}$ is integrable.
-
-A function can have poles of different strengths on the two sides of a singularity:
-
-```python
-# f = chebfun(@(x) cos(100*x)+sin(x)^(-2+sign(x)), [-1 0 1],
-#             'exps', [0 -3 -1 0])
-```
-
-![asymmetric poles](../images/guide/guide09_13.png)
-
-The treatment of blowups in Chebfun was initiated by Mark Richardson in an MSc thesis at Oxford [Richardson 2009], then further developed by Richardson in collaboration with Rodrigo Platte and Nick Hale, then developed again by Kuan Xu and others in the creation of Chebfun version 5.
-
-## 9.3 Singularities other than poles
-
-The `Singfun` class handles algebraic endpoint singularities of the general form
-
-$$f(x) = s(x)\,(1 + x)^{\alpha}\,(1 - x)^{\beta},$$
-
-where $s(x)$ is smooth and $(\alpha, \beta)$ are real exponents. This includes singularities that are not poles.
-
-A beautiful example is the Chebyshev weight function $w(x) = (2/\pi)/\sqrt{1 - x^2}$. This has inverse-square-root singularities at both endpoints:
-
-```python
-w = Singfun.from_function(
-    lambda x: (2.0 / jnp.pi) / jnp.sqrt(1.0 - x**2),
-    exponents=(-0.5, -0.5),
-)
-print(float(w.sum()))
-```
-
-```
-2.000000000000000
-```
-
-![Chebyshev weight](../images/guide/guide09_14.png)
-
-We pick this example because Chebyshev polynomials are the orthogonal polynomials with respect to this weight function, and Chebyshev coefficients are defined by inner products against Chebyshev polynomials with respect to this weight. (The integrals in these inner products are calculated by Gauss--Jacobi quadrature using methods due to Hale and Townsend; for more on this subject see the command `jacpts`.)
-
-To illustrate the computation of Chebyshev coefficients via inner products:
-
-```python
-import chebfunjax as cj
-
-x = cj.chebfun(lambda x: x)
-f = x**4 + x**5
-# chebcoeffs via inner products with weight:
-# chebcoeffs1 = T * (w .* f)
-# Direct:
-# chebcoeffs2 = chebcoeffs(f)
-```
-
-Notice the excellent agreement except for coefficient $a_0$. As mentioned in Section 4.1, in this special case the result from the inner product must be multiplied by $1/2$.
-
-Another example: $\sqrt{x \cdot \exp(x)}$ on $[0, 2]$. A first try without singularity specification fails:
-
-```python
-ff = lambda x: jnp.sqrt(x * jnp.exp(x))
-d = (0.0, 2.0)
-f = cj.chebfun(ff, domain=d)
-print(f"Length without exponents: {len(f)}")
-```
-
-With splitting on, chebfunjax manages to represent the function with many pieces:
-
-```python
-# f = chebfun(ff, d, 'splitting', 'on')
-# 9 smooth pieces, total length = 583
-```
-
-A better representation, however, is constructed if we tell chebfunjax about the singularity at $x = 0$:
-
-```python
-# f = chebfun(ff, d, 'exps', [.5 0])
-# 1 smooth piece, length = 13, exponents [0.5, 0]
-```
-
-![sqrt(x*exp(x))](../images/guide/guide09_15.png)
-
-Under certain circumstances chebfunjax will introduce singularities of its own accord. For example, just as `abs(f)` introduces breakpoints at roots of `f`, `sqrt(abs(f))` introduces breakpoints and also singularities at such roots:
-
-```python
-theta = cj.chebfun(lambda t: t, domain=(0.0, 4 * float(jnp.pi)))
-f = cj.sqrt(cj.abs(cj.sin(theta)))
-sumf = float(f.sum())
-print(f"sumf = {sumf}")
-```
-
-```
-sumf = 9.585121877884731
-```
-
-![sqrt(|sin(theta)|)](../images/guide/guide09_16.png)
-
-If you have a function that blows up but you don't know the nature of the singularities, even whether they are poles or not, chebfunjax will try to figure them out automatically if you run in `'blowup 2'` mode:
-
-```python
-# f = chebfun('x*(1+x)^(-exp(1))*(1-x)^(-pi)', 'blowup', 2)
-# Detected exponents: [-2.718281828460000, -3.141592653590000]
-```
-
-Notice that the `'exps'` field shows values close to $-e$ and $-\pi$, as is confirmed by looking at the numbers to higher precision.
-
-## 9.4 Another approach to singularities
-
-Chebfun version 4 offered an alternative `singmap` approach to singularities based on mappings of the $x$ variable. This is no longer available in version 5.
-
-## 9.5 References
-
-[Boyd 2001] J. P. Boyd, _Chebyshev and Fourier Spectral Methods_, 2nd ed., Dover, 2001.
-
-[Richardson 2009] M. Richardson, _Approximating Divergent Functions in the Chebfun System_, thesis, MSc in Mathematical Modelling and Scientific Computing, Oxford University, 2009.
+<!-- Generated by scripts/sync_chebfun_guides.py. -->
+<!-- Source: https://www.chebfun.org/docs/guide/guide09.html -->
+
+<div class="chebfun-import">
+<div class='page-header'>
+<span class='chapter_number'>9</span>
+<h1>Infinite Intervals, Infinite Function Values, and Singularities</h1>
+<h2>Lloyd N. Trefethen, November 2009, latest revision June 2019<span>
+    
+        <a href='../guide08/'
+>previous</a><span class='sep-sm
+'>·</span><a href='../'>index</a><span class='sep-sm
+'>·</span><a href='../guide10/'
+>next</a></span></h2>
+</div>
+
+<div id='content' class="col-sm-12" role="main">
+<p>This chapter presents some features of Chebfun that are less robust than what is described in the first eight chapters.  With classic bounded chebfuns on a bounded interval $[a,b]$, you can do amazingly complicated things often without encountering any difficulties. Now we are going to let the intervals and the functions diverge to infinity --- but please lower your expectations!  These features are not always as accurate or reliable.</p>
+<h3 id="91-infinite-intervals">9.1 Infinite intervals</h3>
+<p>If a function converges reasonably rapidly to a constant at $\infty$, you can define a corresponding chebfun.  Here are a couple of examples on $[0,\infty)$.  First we plot a function and find its maximum:</p>
+<pre class="mcode-input">f = chebfun('0.75 + sin(10*x)/exp(x)',[0 inf]);
+MS = 'markersize';
+plot(f)
+maxf = max(f)</pre>
+
+<pre class="mcode-output">maxf =
+   1.608912750768336
+</pre>
+
+<p><img src="../images/guide/guide09_01.png" class="figure chebfun-figure" alt=""></p>
+<p>Next we plot another function and integrate it from $0$ to $\infty$:</p>
+<pre class="mcode-input">g = chebfun('1/(gamma(x+1))',[0 inf]);
+sumg = sum(g)
+plot(g)</pre>
+
+<pre class="mcode-output">sumg =
+   2.266534507699849
+</pre>
+
+<p><img src="../images/guide/guide09_02.png" class="figure chebfun-figure" alt=""></p>
+<p>Where do $f$ and $g$ intersect?  We can find out using <code>roots</code>:</p>
+<pre class="mcode-input">plot([f g])
+r = roots(f-g)
+hold on, plot(r,f(r),'.k',MS,12), hold off</pre>
+
+<pre class="mcode-output">r =
+   0.027639744894514
+   0.265714132607451
+   0.706922132176979
+   0.862331877000826
+   1.297442594652156
+   1.594466987072374
+   1.781855556974647
+</pre>
+
+<p><img src="../images/guide/guide09_03.png" class="figure chebfun-figure" alt=""></p>
+<p>Here's an example on $(-\infty,\infty)$ with a calculation of the location and value of the minimum:</p>
+<pre class="mcode-input">g = chebfun(@(x) tanh(x-1),[-inf inf]);
+g = abs(g-1/3);
+plot(g)
+[minval,minpos] = min(g)</pre>
+
+<pre class="mcode-output">minval =
+     0
+minpos =
+   1.346573590279973
+</pre>
+
+<p><img src="../images/guide/guide09_04.png" class="figure chebfun-figure" alt=""></p>
+<p>Notice that a function on an infinite domain is by default plotted on an interval like $[0,10]$ or $[-10,10]$.  You can use an extra <code>'interval'</code> flag to plot on other intervals, as shown by this example of a function of small norm whose largest values are near $x=30$:</p>
+<pre class="mcode-input">hh = @(x) cos(x)/(1e5+(x-30)^6);
+h = chebfun(hh,[0 inf]);
+plot(h,'interval',[0 100])
+normh = norm(h)</pre>
+
+<pre class="mcode-output">Warning: Result may not be accurate as the function decays slowly at
+infinity. 
+normh =
+     2.441961783728736e-05
+</pre>
+
+<p><img src="../images/guide/guide09_05.png" class="figure chebfun-figure" alt=""></p>
+<p>Chebfun provides a convenient tool for the numerical evaluation of integrals over infinite domains:</p>
+<pre class="mcode-input">g = chebfun('(2/sqrt(pi))*exp(-x^2)',[0 inf]);
+sumg = sum(g)</pre>
+
+<pre class="mcode-output">sumg =
+   0.999999999999999
+</pre>
+
+<p>The <code>cumsum</code> operator applied to this integrand gives us the error function, which matches the MATLAB <code>erf</code> function reasonably well:</p>
+<pre class="mcode-input">errorfun = cumsum(g)
+disp('          erf               errorfun')
+for n = 1:6, disp([erf(n) errorfun(n)]), end</pre>
+
+<pre class="mcode-output">errorfun =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values  
+[       0,     Inf]      102   4.3e-17        1 
+vertical scale =   1 
+          erf               errorfun
+   0.842700792949715   0.842700792949513
+   0.995322265018953   0.995322265018560
+   0.999977909503001   0.999977909502430
+   0.999999984582742   0.999999984582001
+   0.999999999998463   0.999999999997561
+   1.000000000000000   0.999999999998945
+</pre>
+
+<p>One should be cautious in evaluating integrals over infinite intervals, however, for as mentioned in Section 1.5, the accuracy is sometimes disappointing, especially for functions that do not decay very quickly:</p>
+<pre class="mcode-input">sum(chebfun('(1/pi)/(1+s^2)',[-inf inf]))</pre>
+
+<pre class="mcode-output">ans =
+   0.999999999997213
+</pre>
+
+<p>Here's an example of a function whose wiggles decay too slowly to be fully resolved:</p>
+<pre class="mcode-input">sinc = chebfun('sin(pi*x)/(pi*x)',[-inf inf]);
+plot(sinc,'m','interval',[-10 10])</pre>
+
+<pre class="mcode-output">Warning: Function not resolved using 65537 pts. Have you tried 'splitting
+on'? 
+</pre>
+
+<p><img src="../images/guide/guide09_06.png" class="figure chebfun-figure" alt=""></p>
+<p>Chebfun's capability of handling infinite intervals was introduced originally by Rodrigo Platte in 2008-09.  The details of the implementation then changed considerably with the introduction of version 5 in 2014.</p>
+<p>The use of mappings to transform an unbounded domain to a bounded one is an idea that has been employed many times over the years.  One of the references we have benefited especially from, which also contains pointers to other works in this area, is the book [Boyd 2001].</p>
+<h3 id="92-poles">9.2 Poles</h3>
+<p>Chebfun can handle certain "vertical" as well as "horizontal" infinities --- especially, functions that blow up according to an integer power, i.e., with a pole.  If you know the nature of the blowup, it is a good idea to specify it using the <code>'exps'</code> flag. For example, here's a function with a simple pole at $0$.  We use <code>'exps'</code> to tell the constructor that the function looks like $x^{-1}$ at the left endpoint and $x^0$ (i.e., smooth) at the right endpoint.</p>
+<pre class="mcode-input">f = chebfun('sin(50*x) + 1/x',[0 4],'exps',[-1,0]);
+plot(f), ylim([-5 30])</pre>
+
+<p><img src="../images/guide/guide09_07.png" class="figure chebfun-figure" alt=""></p>
+<p>Here's the same function but over a domain that contains the singularity in the middle.  We tell the constructor where the pole is and what the singularity looks like:</p>
+<pre class="mcode-input">f = chebfun('sin(50*x) + 1/x',[-2 0 4],'exps',[0,-1,0]);
+plot(f), ylim([-30 30])</pre>
+
+<p><img src="../images/guide/guide09_08.png" class="figure chebfun-figure" alt=""></p>
+<p>Here's the tangent function:</p>
+<pre class="mcode-input">f = chebfun('tan(x)', pi*((-5/2):(5/2)), 'exps', -ones(1,6));
+plot(f), ylim([-5 5])</pre>
+
+<p><img src="../images/guide/guide09_09.png" class="figure chebfun-figure" alt=""></p>
+<p>Rootfinding works as expected:</p>
+<pre class="mcode-input">x2 = chebfun('x/2',pi*(5/2)*[-1 1]);
+hold on, plot(x2,'k')
+r = roots(f-x2,'nojump');
+plot(r,x2(r),'or',MS,8), hold off</pre>
+
+<p><img src="../images/guide/guide09_10.png" class="figure chebfun-figure" alt=""></p>
+<p>And we can manipulate the function in various other familiar ways:</p>
+<pre class="mcode-input">g = sin(2*x2)+min(abs(f+2),6);
+plot(g)</pre>
+
+<p><img src="../images/guide/guide09_11.png" class="figure chebfun-figure" alt=""></p>
+<p>If you don't know what singularities your function may have, Chebfun has some ability to find them if the flags <code>'blowup</code>' and <code>'splitting</code>' are on:</p>
+<pre class="mcode-input">gam = chebfun('gamma(x)',[-4 4],'splitting','on','blowup',1);
+plot(gam), ylim([-10 10])</pre>
+
+<p><img src="../images/guide/guide09_12.png" class="figure chebfun-figure" alt=""></p>
+<p>But it's always better to specify the breakpoints and powers if you know them:</p>
+<pre class="mcode-input">gam = chebfun('gamma(x)',[-4:0 4],'exps',[-1 -1 -1 -1 -1 0]);</pre>
+
+<p>This is essentially the same result you will get if you execute <code>plot(cheb.gallery('gamma'))</code>.</p>
+<p>Can you explain the following three results?</p>
+<pre class="mcode-input">sum(gam)</pre>
+
+<pre class="mcode-output">ans =
+   NaN
+</pre>
+
+<pre class="mcode-input">sum(abs(gam))</pre>
+
+<pre class="mcode-output">ans =
+   Inf
+</pre>
+
+<pre class="mcode-input">sum(abs(gam)^.9)</pre>
+
+<pre class="mcode-output">ans =
+  58.509500897758713
+</pre>
+
+<p>It's also possible to have poles of different strengths on two sides of a singularity.  In this case, you specify two exponents at each internal breakpoint rather than one:</p>
+<pre class="mcode-input">f = chebfun(@(x) cos(100*x)+sin(x)^(-2+sign(x)),[-1 0 1],'exps',[0 -3 -1 0]);
+plot(f), ylim([-30 30])</pre>
+
+<p><img src="../images/guide/guide09_13.png" class="figure chebfun-figure" alt=""></p>
+<h3 id="93-singularities-other-than-poles">9.3  Singularities other than poles</h3>
+<p>Less reliable but also sometimes useful is the possibility of working with functions with algebraic singularities that are not poles. Here's a function with inverse square root singularities at each end:</p>
+<pre class="mcode-input">w = chebfun('(2/pi)/(sqrt(1-x^2))','exps',[-.5 -.5]);
+plot(w,'m'), ylim([0 10])</pre>
+
+<p><img src="../images/guide/guide09_14.png" class="figure chebfun-figure" alt=""></p>
+<p>The integral is $2$:</p>
+<pre class="mcode-input">sum(w)</pre>
+
+<pre class="mcode-output">ans =
+   2.000000000000000
+</pre>
+
+<p>We pick this example because Chebyshev polynomials are the orthogonal polynomials with respect to this weight function, and Chebyshev coefficients are defined by inner products against Chebyshev polynomials with respect to this weight.  For example, here we compute inner products of $x^4 + x^5$ against the Chebyshev polynomials $T_0,\dots,T_5$.  (The integrals in these inner products are calculated by Gauss-Jacobi quadrature using methods due to Hale and Townsend; for more on this subject see the command <code>jacpts</code>.)</p>
+<pre class="mcode-input">x = chebfun('x');
+T = chebpoly(0:5)';
+f = x^4 + x^5;
+chebcoeffs1 = T*(w.*f)</pre>
+
+<pre class="mcode-output">chebcoeffs1 =
+   0.750000000000000
+   0.625000000000000
+   0.500000000000000
+   0.312500000000000
+   0.125000000000000
+   0.062500000000000
+</pre>
+
+<p>Here for comparison are the Chebyshev coefficients as obtained from <code>chebcoeffs</code>:</p>
+<pre class="mcode-input">chebcoeffs2 = chebcoeffs(f)</pre>
+
+<pre class="mcode-output">chebcoeffs2 =
+   0.375000000000000
+   0.625000000000000
+   0.500000000000000
+   0.312500000000000
+   0.125000000000000
+   0.062500000000000
+</pre>
+
+<p>Notice the excellent agreement except for coefficient $a_0$. As mentioned in Section 4.1, in this special case the result from the inner product must be multiplied by $1/2$.</p>
+<p>You can specify singularities for functions that don't blow up, too. For example, suppose we want to work with $(x\exp(x))^{1/2}$ on the interval $[0,2]$.  A first try fails completely:</p>
+<pre class="mcode-input">ff = @(x) sqrt(x*exp(x));
+d = [0,2];
+f = chebfun(ff,d)</pre>
+
+<pre class="mcode-output">Warning: Function not resolved using 65537 pts. Have you tried 'splitting
+on'? 
+f =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values  
+[       0,       2]    65537  -1.9e-16      3.8 
+vertical scale = 3.8 
+</pre>
+
+<p>We could turn splitting on and resolve the function by many pieces, as illustrated in Section 8.3:</p>
+<pre class="mcode-input">f = chebfun(ff,d,'splitting','on')</pre>
+
+<pre class="mcode-output">f =
+   chebfun column (9 smooth pieces)
+       interval       length     endpoint values  
+[       0,   2e-12]       39   1.8e-08  1.4e-06 
+[   2e-12,   2e-10]       42   1.4e-06  1.4e-05 
+[   2e-10,   2e-08]       65   1.4e-05  0.00014 
+[   2e-08,   2e-06]       89   0.00014   0.0014 
+[   2e-06,  0.0002]      114    0.0014    0.014 
+[  0.0002,    0.01]       99     0.014      0.1 
+[    0.01,    0.02]       18       0.1     0.14 
+[    0.02,       1]       99      0.14      1.7 
+[       1,       2]       18       1.7      3.8 
+vertical scale = 3.8    Total length = 583
+</pre>
+
+<p>A better representation, however, is constructed if we tell Chebfun about the singularity at $x=0$:</p>
+<pre class="mcode-input">f = chebfun(ff,d,'exps',[.5 0])
+plot(f)</pre>
+
+<pre class="mcode-output">f =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values   endpoint exponents
+[       0,       2]       13         0      3.8         [0.5      0]  
+vertical scale = 3.8 
+</pre>
+
+<p><img src="../images/guide/guide09_15.png" class="figure chebfun-figure" alt=""></p>
+<p>Under certain circumstances Chebfun will introduce singularities like this of its own accord.  For example, just as <code>abs(f)</code> introduces breakpoints at roots of <code>f</code>, <code>sqrt(abs(f))</code> introduces breakpoints and also singularities at such roots:</p>
+<pre class="mcode-input">theta = chebfun('t',[0,4*pi]);
+f = sqrt(abs(sin(theta)))
+plot(f)
+sumf = sum(f)</pre>
+
+<pre class="mcode-output">f =
+   chebfun column (4 smooth pieces)
+       interval       length     endpoint values   endpoint exponents
+[       0,     3.1]       19         0        0         [0.5      0.5]  
+[     3.1,     6.3]       19         0        0         [0.5      0.5]  
+[     6.3,     9.4]       19         0        0         [0.5      0.5]  
+[     9.4,      13]       19         0        0         [0.5      0.5]  
+vertical scale =   1    Total length = 76
+sumf =
+   9.585121877884731
+</pre>
+
+<p><img src="../images/guide/guide09_16.png" class="figure chebfun-figure" alt=""></p>
+<p>If you have a function that blows up but you don't know the nature of the singularities, even whether they are poles or not, Chebfun will try to figure them out automatically if you run in <code>'blowup 2'</code> mode.  Here's an example</p>
+<pre class="mcode-input">f = chebfun('x*(1+x)^(-exp(1))*(1-x)^(-pi)','blowup',2)</pre>
+
+<pre class="mcode-output">f =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values   endpoint exponents
+[      -1,       1]        2      -Inf      Inf         [-2.7      -3.1]  
+vertical scale = Inf 
+</pre>
+
+<p>Notice that the <code>'exps'</code> field shows values close to $-e$ and $-\pi$, as is confirmed by looking at the numbers to higher precision:</p>
+<pre class="mcode-input">get(f, 'exps')</pre>
+
+<pre class="mcode-output">ans =
+  -2.718281828460000  -3.141592653590000
+</pre>
+
+<p>The treatment of blowups in Chebfun was initiated by Mark Richardson in an MSc thesis at Oxford [Richardson 2009], then further developed by Richardson in collaboration with Rodrigo Platte and Nick Hale, then developed again by Kuan Xu and others in the creation of Chebfun version 5.</p>
+<h3 id="94-another-approach-to-singularities">9.4 Another approach to singularities</h3>
+<p>Chebfun version 4 offered an alternative <code>singmap</code> approach to singularities based on mappings of the $x$ variable.   This is no longer available in version 5.</p>
+<h3 id="95-references">9.5 References</h3>
+<p>[Boyd 2001] J. P. Boyd, <em>Chebyshev and Fourier Spectral Methods</em>, 2nd ed., Dover, 2001.</p>
+<p>[Richardson 2009] M. Richardson, <em>Approximating Divergent Functions in the Chebfun System</em>, thesis, MSc in Mathematical Modelling and Scientific Computing, Oxford University, 2009.</p></div>
+        </div>
+    </div>
+</div>
+    <div class="footer">
+        <p>© Copyright 2025 the University of Oxford and the Chebfun Developers.</p>
+        <!-- TESTING -->
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.7.2.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?lang=matlab" type="text/javascript"></script>
+    <script type="text/javascript" src="/js/config.js"></script>
+    <script type="text/javascript" src="/js/jquery.flexslider-min.js"></script>
+  </body>
+</html>
+</div>

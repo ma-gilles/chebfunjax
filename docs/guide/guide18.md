@@ -1,238 +1,595 @@
-# Chapter 18: Chebfun3
-
-*Based on [Chebfun Guide Chapter 18](https://www.chebfun.org/docs/guide/guide18.html)*
-
-Chebfun3 extends chebfunjax to functions of three variables on cuboids. It uses a Tucker decomposition to represent $f(x, y, z)$ as a compressed tensor product of univariate Chebyshev functions.
-
-## 18.1 Introduction
-
-A `Chebfun3` represents a smooth trivariate function $f(x, y, z)$ on a cuboid $[x_a, x_b] \times [y_a, y_b] \times [z_a, z_b]$. The default domain is $[-1, 1]^3$.
-
-```python
-import jax.numpy as jnp
-from chebfunjax.chebfun3d import Chebfun3, chebfun3
-
-# The 3D Runge function
-f = chebfun3(lambda x, y, z: 1.0 / (1.0 + x**2 + y**2 + z**2))
-print(f)  # Chebfun3(rank=(rx, ry, rz), domain=...)
-```
-
-![](../images/guide/guide18_01.png)
-
-
-### Evaluation
-
-A `Chebfun3` is callable at point(s) $(x, y, z)$:
-
-```python
-# Scalar evaluation
-val = f(0.0, 0.0, 0.0)
-print(val)  # 1.0
-
-# Array evaluation
-xs = jnp.array([0.0, 0.5, 1.0])
-ys = jnp.array([0.0, 0.5, 1.0])
-zs = jnp.array([0.0, 0.5, 1.0])
-print(f(xs, ys, zs))
-```
-
-![](../images/guide/guide18_02.png)
-
-
-Evaluation is JIT-compiled, vmap-safe, and grad-safe. You can differentiate through a `Chebfun3` using JAX's automatic differentiation.
-
-### Triple integral
-
-The `sum3()` method computes the triple integral over the domain:
-
-$$\texttt{f.sum3()} = \int_{x_a}^{x_b} \int_{y_a}^{y_b} \int_{z_a}^{z_b} f(x, y, z)\, dz\, dy\, dx$$
-
-```python
-# Integral of 1/(1+x^2+y^2+z^2) over [-1,1]^3
-print(f.sum3())
-```
-
-![](../images/guide/guide18_03.png)
-
-
-## 18.2 Tucker Decomposition
-
-The `Chebfun3` representation uses the Tucker format:
-
-$$f(x, y, z) \approx \sum_{i,j,k} \text{core}[i,j,k]\, X_i(x)\, Y_j(y)\, Z_k(z)$$
-
-where:
-- $X_i(x)$ are column functions (Chebtech2 on $[-1, 1]$, mapped to $[x_a, x_b]$)
-- $Y_j(y)$ are row functions (Chebtech2 on $[-1, 1]$, mapped to $[y_a, y_b]$)
-- $Z_k(z)$ are tube functions (Chebtech2 on $[-1, 1]$, mapped to $[z_a, z_b]$)
-- `core` is a 3D tensor of shape $(r_x, r_y, r_z)$
-
-The Tucker rank is a 3-tuple $(r_x, r_y, r_z)$:
-
-```python
-print(f.rank)  # e.g. (5, 5, 5)
-```
-
-![](../images/guide/guide18_04.png)
-
-
-The internal components are accessible:
-
-```python
-print(f"Number of column functions: {len(f.cols)}")
-print(f"Number of row functions: {len(f.rows)}")
-print(f"Number of tube functions: {len(f.tubes)}")
-print(f"Core tensor shape: {f.core.shape}")
-```
-
-![](../images/guide/guide18_05.png)
-
-
-## 18.3 Construction Algorithm
-
-The `Chebfun3` constructor uses the Chebfun3f algorithm, a three-phase Tucker construction:
-
-**Phase 1 -- Fiber index selection**: On a coarse Chebyshev tensor grid, alternating Adaptive Cross Approximation (ACA) is applied to the mode-1, mode-2, and mode-3 unfoldings of the evaluation tensor. This identifies the important fiber indices (skeleton rows, columns, tubes).
-
-**Phase 2 -- Adaptive resolution**: The fiber samples are refined by increasing the 1D grid size until the Chebyshev coefficients decay below tolerance. Each mode is resolved independently.
-
-**Phase 3 -- Factor construction**: QR factorizations of the fiber matrices are computed, DEIM (Discrete Empirical Interpolation Method) selects interpolation points, and the Tucker core is assembled.
-
-```python
-# Control the tolerance
-f_coarse = chebfun3(lambda x, y, z: jnp.cos(x + y + z), tol=1e-8)
-f_fine = chebfun3(lambda x, y, z: jnp.cos(x + y + z))
-
-print(f"Coarse rank: {f_coarse.rank}")
-print(f"Fine rank:   {f_fine.rank}")
-```
-
-![](../images/guide/guide18_06.png)
-
-
-## 18.4 Custom Domains
-
-Specify a 6-tuple `(xa, xb, ya, yb, za, zb)` to use a non-default domain:
-
-```python
-g = chebfun3(lambda x, y, z: jnp.exp(-(x**2 + y**2 + z**2)),
-             domain=(0.0, 2.0, 0.0, 2.0, 0.0, 2.0))
-print(g)
-```
-
-## 18.5 Triple Integration Details
-
-The triple integral uses the Tucker structure efficiently:
-
-$$\int\!\!\!\int\!\!\!\int f\, dx\, dy\, dz = \sum_{i,j,k} \text{core}[i,j,k] \left(\int X_i\, dx\right) \left(\int Y_j\, dy\right) \left(\int Z_k\, dz\right)$$
-
-This is computed via an `einsum` contraction:
-
-$$I = \texttt{einsum}(\text{'ijk,i,j,k->'}, \text{core}, \text{ix}, \text{iy}, \text{iz}) \cdot s_x s_y s_z$$
-
-where $s_x = (x_b - x_a)/2$ etc. are the physical-to-reference scale factors and $\text{ix}[i] = \int_{-1}^{1} X_i(t)\, dt$.
-
-## 18.6 Chebfun3T: Tensor Product Variant
-
-The `Chebfun3T` class provides an alternative representation without Tucker compression. It directly wraps the raw factor matrices and core tensor:
-
-```python
-from chebfunjax.chebfun3d import Chebfun3T, chebfun3t
-
-# Construct from a Chebfun3
-f = chebfun3(lambda x, y, z: jnp.cos(x + y + z))
-ft = Chebfun3T.from_chebfun3(f)
-print(ft)
-
-# Or construct directly
-ft2 = chebfun3t(lambda x, y, z: jnp.cos(x + y + z))
-```
-
-`Chebfun3T` supports evaluation and `sum3()` with the same interface as `Chebfun3`, plus convenience methods for inspecting the coefficient arrays:
-
-```python
-print(ft.rank)          # Tucker rank (rx, ry, rz)
-print(ft.col_coeffs())  # list of Chebyshev coefficient arrays for X_i
-print(ft.row_coeffs())  # for Y_j
-print(ft.tube_coeffs()) # for Z_k
-```
-
-## 18.7 Vector-Valued Functions: Chebfun3v
-
-The `Chebfun3v` class represents 3-component vector fields $\mathbf{F}(x,y,z) = (f, g, h)$:
-
-```python
-from chebfunjax.chebfun3d.chebfun3v import Chebfun3v
-
-F = Chebfun3v.from_functions(
-    lambda x, y, z: jnp.sin(x),
-    lambda x, y, z: jnp.cos(y),
-    lambda x, y, z: jnp.exp(z),
-)
-print(F)
-
-# Evaluate
-vals = F(0.5, 0.3, 0.1)  # shape (3,) array
-```
-
-`Chebfun3v` supports:
-- **Dot product**: `F.dot(G)` returns a `Chebfun3` (scalar field)
-- **Cross product**: `F.cross(G)` returns a `Chebfun3v`
-- **Norm**: `F.norm()` returns a `Chebfun3` (pointwise magnitude)
-- **Arithmetic**: `F + G`, `F - G`, `c * F`, `-F`
-
-### Gradient theorem in 3D
-
-For a gradient field $\mathbf{F} = \nabla \phi$, the line integral depends only on the endpoints. We can build gradient fields using `Chebfun3v`:
-
-```python
-# phi(x, y, z) = x^2 + y^2 + z^2
-# grad(phi) = (2x, 2y, 2z)
-grad_phi = Chebfun3v.from_functions(
-    lambda x, y, z: 2 * x,
-    lambda x, y, z: 2 * y,
-    lambda x, y, z: 2 * z,
-)
-```
-
-## 18.8 Accuracy Control
-
-The tolerance can be adjusted at construction time:
-
-```python
-# Full machine precision (default)
-f1 = chebfun3(lambda x, y, z: jnp.exp(x * y * z))
-print(f"Rank at eps: {f1.rank}")
-
-# Relaxed tolerance
-f2 = chebfun3(lambda x, y, z: jnp.exp(x * y * z), tol=1e-8)
-print(f"Rank at 1e-8: {f2.rank}")
-```
-
-Lower tolerance typically yields smaller Tucker ranks and faster construction.
-
-## 18.9 JIT and GPU Acceleration
-
-Like `Chebfun2`, construction is NOT JIT-safe (Python adaptive loops), but evaluation IS JIT-safe:
-
-```python
-import jax
-
-f = chebfun3(lambda x, y, z: jnp.cos(x + y + z))
-
-# JIT-compiled evaluation
-f_jit = jax.jit(f)
-print(f_jit(0.5, 0.3, 0.1))
-
-# Gradient via AD
-grad_f = jax.grad(lambda x: f(x, 0.5, 0.3))
-print(grad_f(0.0))  # -sin(0.8)
-```
-
-## 18.10 References
-
-1. B. Hashemi and L. N. Trefethen, "Chebfun in three dimensions", *SIAM J. Sci. Comput.*, 39(5), C341--C363, 2017.
-
-2. S. Dolgov, D. Kressner, and C. Stroessner, "Functional Tucker approximation using Chebyshev interpolation", *SIAM J. Sci. Comput.*, 43(3), A2190--A2210, 2021.
-
-3. L. De Lathauwer, B. De Moor, and J. Vandewalle, "A multilinear singular value decomposition", *SIAM J. Matrix Anal. Appl.*, 21(4), 1253--1278, 2000.
+<!-- Generated by scripts/sync_chebfun_guides.py. -->
+<!-- Source: https://www.chebfun.org/docs/guide/guide18.html -->
+
+<div class="chebfun-import">
+<div class='page-header'>
+<span class='chapter_number'>18</span>
+<h1>Chebfun3</h1>
+<h2>Behnam Hashemi and Nick Trefethen, June 2016, latest revision March 2023<span>
+    
+        <a href='../guide17/'
+>previous</a><span class='sep-sm
+'>·</span><a href='../'>index</a><span class='sep-sm
+'>·</span><a href='../guide19/'
+>next</a></span></h2>
+</div>
+
+<div id='content' class="col-sm-12" role="main">
+<h3 id="181-introduction">18.1.  Introduction</h3>
+<p>The Chebfun project began in 2003, and Chebfun2, for 2D functions, was released in 2013 [Townsend & Trefethen 2013b]. Chebfun3, for 3D functions, was created by Behnam Hashemi three years later [Hashemi & Trefethen 2017].</p>
+<p>Chebfun3 aims to compute with functions in a 3D box $[a,b]\times[c,d]\times [e,g]$, which by default is the cube $[-1,1]^3$. Our aim in creating it has been to make it analogous to Chebfun2 wherever possible, but of course, there are some differences in capabilities and in underlying algorithms and representations.  Like Chebfun2, Chebfun3 can carry out a wide range of computations on functions and in particular is good at integration, differentiation, and computation of minima and maxima.</p>
+<p>For a simple starting example, here is a 3D Runge function.</p>
+<pre class="mcode-input">f = chebfun3(@(x,y,z) 1./(1+x.^2+y.^2+z.^2));</pre>
+
+<p>(Another way to construct $f$ would be to execute <code>cheb.xyz</code> to make chebfun3 objects for $x$, $y$, and $z$, and then set <code>f = 1./(1+x.^2+y.^2+z.^2)</code>. Another would be to type <code>f = chebfun3('1./(1+x.^2+y.^2+z.^2)')</code>. Yet another would be to type <code>f = cheb.gallery3('runge')</code>.) At $(0, 0.5, 0.5)$, $f$ takes the value $2/3$:</p>
+<pre class="mcode-input">format long, f(0, 0.5, 0.5)</pre>
+
+<pre class="mcode-output">ans =
+   0.666666666666666
+</pre>
+
+<p>The triple integral over the whole cube is computed by <code>sum3</code>,</p>
+<pre class="mcode-input">sum3(f)</pre>
+
+<pre class="mcode-output">ans =
+   4.286854062301838
+</pre>
+
+<p>The exact result is $4.28685406230184188268\dots.$</p>
+<p>Since the volume of the cube is $8$, the mean value is $1/8$ of this result:</p>
+<pre class="mcode-input">mean3(f)</pre>
+
+<pre class="mcode-output">ans =
+   0.535856757787730
+</pre>
+
+<p>The maximum value is $1$:</p>
+<pre class="mcode-input">max3(f)</pre>
+
+<pre class="mcode-output">ans =
+   1.000000000000000
+</pre>
+
+<p>One of the main Chebfun3 plotting commands is <code>slice</code>, which by default shows the function on various slices in the three directions. Note the sliders enabling users to adjust slice positions interactively.</p>
+<pre class="mcode-input">slice(f)</pre>
+
+<pre class="mcode-output">Couldn't create JOGL canvas--using painters
+Couldn't create JOGL canvas--using painters
+</pre>
+
+<p><img src="../images/guide/guide18_01.png" class="figure chebfun-figure" alt=""></p>
+<p>Another plotting capability is <code>isosurface</code> which, by default, plots an isosurfaces with a slider.</p>
+<pre class="mcode-input">clf, isosurface(f), axis equal</pre>
+
+<pre class="mcode-output">Couldn't create JOGL canvas--using painters
+Couldn't create JOGL canvas--using painters
+Couldn't create JOGL canvas--using painters
+</pre>
+
+<p><img src="../images/guide/guide18_02.png" class="figure chebfun-figure" alt=""></p>
+<p>The full set of Chebfun3 plotting commands is <code>slice</code>, <code>isosurface</code>, <code>plot</code>, <code>scan</code> and <code>surf</code>.</p>
+<p>So far, there are about 100 methods that can be applied to chebfun3 objects. For a complete list type <code>methods chebfun3</code>. (By the way, notice that in print we use the plural form "chebfun3 objects", because the expression "chebfun3s" could be confusing, though informally in conversation we may speak of "chebfun3's".)</p>
+<h3 id="182-anatomy-of-a-chebfun3">18.2. Anatomy of a chebfun3</h3>
+<p>First, a quick reminder. In 1D, Chebfun represents functions by polynomials and piecewise polynomials, all derived via interpolation in Chebyshev points.  In 2D, Chebfun2 does not have piecewise representations, only global ones. These are constructed in a low-rank fashion: a function $f(x,y)$ is approximated by functions of rank $1,2,3,\dots$ until approximately 16-digit precision is achieved [Townsend & Trefethen 2013b]. Each rank 1 piece in this representation is an outer product $d c(y) r(x)$, where $d$ is a scalar, and the univariate functions $c$ and $r$ are represented as chebfuns.  At each step of the increasing-rank process, the "pivot location" in the domain rectangle that determines the choice of $c$ and $r$ is determined by an approximation to the largest remaining function value in the rectangle. This is analogous to an approximate form of complete pivoting in Gaussian elimination for the representation of a matrix via ranks $1,2,3,\dots$ [Townsend & Trefethen 2013a].</p>
+<p>There is no unique generalization of this 2D idea to 3D or higher dimensions.  On the contrary, there are at least half a dozen ideas in the literature. (This "literature" is mostly about discrete tensors rather than multivariate functions [Bebendorf 2011], but one paper about functions worthy of note is [Gorodetsky, Karaman and Marzouk 2019].)  Thus we faced some fundamental decisions in the design of Chebfun3, and along the way we explored a number of different possibilities, ranging from a straightforward 3D tensor product to various compressed-rank representations.</p>
+<p>Chebfun3 represents functions in the <em>Tucker format</em>, which means that $f(x,y,z)$ is written as a 3D product involving an $\infty\times r_1$ quasimatrix $c$ ("columns") in the $x$ direction, an $\infty\times r_2$ quasimatrix $r$ ("rows") in the $y$ direction, and an $\infty\times r_3$ quasimatrix $t$ ("tubes") in the $z$ direction.  Here $r_1, r_2, r_3$ are positive integers whose size might typically be 10 or 50 for the functions that Chebfun3 can efficiently represent.  These three quasimatrices are combined in a product with coefficients specified by an $r_1\times r_2\times r_3$ <em>core tensor</em> called <code>core</code>. In short, we write: $$ f(x,y,z) \approx core \times_1 c(x) \times_2 r(y) \times_3 t(z), $$ or more fully: $$ f(x,y,z) \approx \sum_{i=1}^{r_1} \sum_{j=1}^{r_2} \sum_{k=1}^{r_3} core(i,j,k) c_i(x) r_j(y) t_k(z). $$</p>
+<p>We can get some information about the Tucker representation of our 3D Runge function $f$ by typing <code>f</code> without a semicolon:</p>
+<pre class="mcode-input">f</pre>
+
+<pre class="mcode-output">f =
+   chebfun3 object 
+   cols: Inf x 10 chebfun
+   rows: Inf x 10 chebfun
+  tubes: Inf x 10 chebfun
+   core: 10 x 10 x 10
+ length: 43, 43, 43
+ domain: [-1, 1] x [-1, 1] x [-1, 1]
+ vertical scale = 1
+</pre>
+
+<p>Let's look at a few even simpler examples.  Suppose that $f$ happens to depend only on $x$, like this:</p>
+<pre class="mcode-input">f = chebfun3(@(x,y,z) exp(x))</pre>
+
+<pre class="mcode-output">f =
+   chebfun3 object 
+   cols: Inf x 1 chebfun
+   rows: Inf x 1 chebfun
+  tubes: Inf x 1 chebfun
+   core: 1 x 1 x 1
+ length: 15, 1, 1
+ domain: [-1, 1] x [-1, 1] x [-1, 1]
+ vertical scale = 2.7
+</pre>
+
+<p>From this output we see that $f$ has rank 1 in some sense. The word "rank" has no unique definition for 3D representations; in Chebfun3, it is the largest dimension of the core tensor. In this case the core tensor only needs to be a $1\times 1\times 1$ scalar, and the same would apply for any function that depends on just one of $x$, $y$, and $z$. The "length" field of the output tells us what degree polynomial is used to capture the dependencies in the three directions; this information can also be obtained by calling the <code>length</code> method:</p>
+<pre class="mcode-input">[m, n, p] = length(f)</pre>
+
+<pre class="mcode-output">m =
+    15
+n =
+     1
+p =
+     1
+</pre>
+
+<p>Here is what it looks like if the function is $\exp(y)$ instead of $\exp(x)$:</p>
+<pre class="mcode-input">[m, n, p] = length(chebfun3(@(x,y,z) exp(y)))</pre>
+
+<pre class="mcode-output">m =
+     1
+n =
+    15
+p =
+     1
+</pre>
+
+<p>These results compare in the expected way with the 1D standard chebfun of $\exp(x)$.</p>
+<pre class="mcode-input">length(chebfun(@(x) exp(x)))</pre>
+
+<pre class="mcode-output">ans =
+    15
+</pre>
+
+<p>To see a little more of the structure of a chebfun3, let us cook up an example with 2 columns, 2 rows, and 2 tubes. Here is such a function:</p>
+<pre class="mcode-input">f = chebfun3(@(x,y,z) exp(x).*(log(2+y).*exp(z))+sin(y)/1e6)</pre>
+
+<pre class="mcode-output">f =
+   chebfun3 object 
+   cols: Inf x 2 chebfun
+   rows: Inf x 2 chebfun
+  tubes: Inf x 2 chebfun
+   core: 2 x 2 x 2
+ length: 15, 27, 15
+ domain: [-1, 1] x [-1, 1] x [-1, 1]
+ vertical scale = 8.1
+</pre>
+
+<p>The representation of $f$ involves an $2\times 2\times 2$ core tensor, an $\infty\times 2$ quasimatrix for the $x$ direction, and also $\infty\times 2$ quasimatrices for the $y$ and $z$ directions. Here is the core tensor:</p>
+<pre class="mcode-input">format short, f.core</pre>
+
+<pre class="mcode-output">ans(:,:,1) =
+    0.0000    0.0000
+   -0.0000   33.7924
+ans(:,:,2) =
+   1.0e+08 *
+   -0.0000    0.0000
+    0.0000    1.5384
+</pre>
+
+<p>Here are plots of the coefficients of the three quasimatrices:</p>
+<pre class="mcode-input">clf, plotcoeffs(f, '.-')</pre>
+
+<p><img src="../images/guide/guide18_03.png" class="figure chebfun-figure" alt=""></p>
+<p>These explorations give an idea of what a chebfun3 looks like. However, they don't explain how the system constructs such an object.  We will not give details here; see [Dolgov, Kressner, and Strössner 2021] for the current algorithm and [Hashemi & Trefethen 2017] for the original one, which can be invoked by calling the <code>chebfun3</code> constructor with the flag <code>'classic'</code>.</p>
+<h3 id="183-computing-with-chebfun3-objects">18.3.  Computing with chebfun3 objects</h3>
+<p>Of course, Chebfun is all about computing with functions, not just representing them.  For example, here are two 3D functions:</p>
+<pre class="mcode-input">f = chebfun3(@(x,y,z) sin(x+y.*z));
+g = chebfun3(@(x,y,z) cos(15*exp(z))./(5+x.^3+2*y.^2+z));</pre>
+
+<p>Here are the maxima of $f$, $g$, and $fg$:</p>
+<pre class="mcode-input">format long
+max3(f)
+max3(g)
+max3(f.*g)</pre>
+
+<pre class="mcode-output">ans =
+     1
+ans =
+   0.319924161452828
+ans =
+   0.245859621598817
+</pre>
+
+<p>Of course, one can find the location as well as the value of an extremum:</p>
+<pre class="mcode-input">[maxval, maxpos] = max3(f+g)</pre>
+
+<pre class="mcode-output">maxval =
+   1.170942561020256
+maxpos =
+   0.954987700670008  -0.603362934924681  -0.882108101984976
+</pre>
+
+<p>Here is the integral over the cube of $f\exp(g)$:</p>
+<pre class="mcode-input">sum3(f.*exp(g))</pre>
+
+<pre class="mcode-output">ans =
+  -0.009190066018142
+</pre>
+
+<p>If we execute just <code>sum</code>, it integrates over just one dimension, by default $x$, so the output is a 2D function, i.e., a chebfun2:</p>
+<pre class="mcode-input">close all, contourf(sum(f),20), colorbar</pre>
+
+<p><img src="../images/guide/guide18_04.png" class="figure chebfun-figure" alt=""></p>
+<p>There is also a <code>sum2</code> command for integration over two dimensions, by default $x$ and $y$, giving as output a 1D function, i.e., a chebfun:</p>
+<pre class="mcode-input">plot(sum2(exp(g+2*f)))</pre>
+
+<p><img src="../images/guide/guide18_05.png" class="figure chebfun-figure" alt=""></p>
+<p>Here is a line integral over a 3D spiral.</p>
+<pre class="mcode-input">curve = chebfun(@(t) [cos(t) sin(t) t/(8*pi)], [0, 8*pi]);
+close all, plot3(curve(:,1), curve(:,2), curve(:,3) ), title('Helix')
+f = chebfun3(@(x,y,z) x+y.*z);
+I = integral(f, curve)
+exact = -sqrt(1+(8*pi)^2)/(8*pi)</pre>
+
+<pre class="mcode-output">I =
+  -1.000791258702030
+exact =
+  -1.000791258702039
+</pre>
+
+<p><img src="../images/guide/guide18_06.png" class="figure chebfun-figure" alt=""></p>
+<h3 id="184-getting-inside-a-chebfun3">18.4. Getting inside a chebfun3</h3>
+<p>Suppose $f$ is a chebfun3. We can examine its columns, rows, and tubes by executing <code>f.cols</code>, <code>f.rows</code>, and <code>f.tubes</code>.  For example, let us look at the columns associated with the chebfun3 $g$ just considered. This is a quasimatrix with 8 columns:</p>
+<pre class="mcode-input">size(g.cols)</pre>
+
+<pre class="mcode-output">ans =
+   Inf     8
+</pre>
+
+<p>Here is a plot of the columns:</p>
+<pre class="mcode-input">plot(g.cols)</pre>
+
+<p><img src="../images/guide/guide18_07.png" class="figure chebfun-figure" alt=""></p>
+<p>The tubes are more interesting (also the rows):</p>
+<pre class="mcode-input">plot(g.tubes)</pre>
+
+<p><img src="../images/guide/guide18_08.png" class="figure chebfun-figure" alt=""></p>
+<p>A plot of the coefficients of $g$ (all three sets, with respect to $x$, $y$, and $z$) looks like this.</p>
+<pre class="mcode-input">plotcoeffs(g,'.-')</pre>
+
+<p><img src="../images/guide/guide18_09.png" class="figure chebfun-figure" alt=""></p>
+<p>We can look at the coefficients of just, say, the columns like this:</p>
+<pre class="mcode-input">clf, plotcoeffs(g.cols,'.-')</pre>
+
+<p><img src="../images/guide/guide18_10.png" class="figure chebfun-figure" alt=""></p>
+<h3 id="185-periodic-chebfun3-objects">18.5.  Periodic chebfun3 objects</h3>
+<p>Chebfun3 can use trigonometric functions instead of polynomials for representing smooth functions which are triply periodic. (So far, we have no capabilities for functions that are periodic in just one or two dimensions.) To create a trig-based chebfun3 object, we can use the 'trig' (or 'periodic') flag in the Chebfun3 constructor. For example, the function $f(x,y,z) = \tanh(3\sin x) - \sin(y+1/2) + \cos(6z)$ on $[-\pi, \pi]^3$ can be constructed as follows:</p>
+<pre class="mcode-input">ff = @(x,y,z) tanh(3*sin(x))-(sin(y+1/2)).^2+cos(6*z);
+dom = [-pi pi -pi pi -pi pi];
+f = chebfun3(ff, dom, 'trig')</pre>
+
+<pre class="mcode-output">f =
+   chebfun3 object  (trig)
+   cols: Inf x 2 chebfun
+   rows: Inf x 2 chebfun
+  tubes: Inf x 2 chebfun
+   core: 2 x 2 x 2
+ length: 143, 5, 13
+ domain: [-3.14, 3.14] x [-3.14, 3.14] x [-3.14, 3.14]
+ vertical scale = 3
+</pre>
+
+<p>Note the text 'trig' in the display. Here is the length of $f$ and a plot of its coefficients:</p>
+<pre class="mcode-input">[m, n, p] = length(f)
+plotcoeffs(f, '.-')</pre>
+
+<pre class="mcode-output">m =
+   143
+n =
+     5
+p =
+    13
+</pre>
+
+<p><img src="../images/guide/guide18_11.png" class="figure chebfun-figure" alt=""></p>
+<p>As we see, $f$ is resolved to machine precision using trigonometric interpolants through very different numbers of points in the three directions.  The corresponding degrees of the trigonometric polynomials needed to resolve this function are accordingly these:</p>
+<pre class="mcode-input">xdeg = (m-1)/2
+ydeg = (n-1)/2
+zdeg = (p-1)/2</pre>
+
+<pre class="mcode-output">xdeg =
+    71
+ydeg =
+     2
+zdeg =
+     6
+</pre>
+
+<p>Let's compare with the length of $f$ if we ignore its periodicity:</p>
+<pre class="mcode-input">fCheb = chebfun3(ff, dom);
+[m_fCheb, n_fCheb, p_fCheb] = length(fCheb)</pre>
+
+<pre class="mcode-output">m_fCheb =
+   226
+n_fCheb =
+    28
+p_fCheb =
+    49
+</pre>
+
+<p>As expected, a smooth periodic function can be represented with trigfun factor quasimatrices using fewer samples than standard chebfun factor quasimatrices.</p>
+<h3 id="186-derivative-and-laplacian">18.6. Derivative and Laplacian</h3>
+<p>Like Chebfun and Chebfun2, Chebfun3 is good at calculus, having commands <code>diffx</code>, <code>diffy</code>, <code>diffz</code>, and <code>lap</code> (or <code>laplacian</code>).  There is also a general command <code>diff</code> that can take appropriate arguments to specify dimensions.</p>
+<p>For example, the following is a harmonic function:</p>
+<pre class="mcode-input">f = chebfun3(@(x,y,z) 1./sqrt(x.^2 + y.^2 + (2-z).^2));</pre>
+
+<p>So its Laplacian will be zero:</p>
+<pre class="mcode-input">Lf = lap(f);
+rng(1)
+Lf(rand(3,1), rand(3,1), rand(3,1))</pre>
+
+<pre class="mcode-output">ans =
+     0
+     0
+     0
+</pre>
+
+<p>Let's compare the Laplacian of $f$ with the divergence of its gradient, which will be discussed in the next subsection.</p>
+<pre class="mcode-input">norm(Lf - div(grad(f)))</pre>
+
+<pre class="mcode-output">ans =
+     0
+</pre>
+
+<h3 id="187-3d-vector-fields">18.7. 3D vector fields</h3>
+<p>Consider a vector-valued function of three variables like $$ F(x,y,z) = (f(x,y,z); g(x,y,z); h(x,y,z)). $$ We can represent such functions using <code>chebfun3v</code>. Similarly to <code>chebfun2v</code>, we can construct a chebfun3v object either by explicitly calling the constructor or by vertical concatenation of chebfun3 objects. We already hinted at this by using <code>grad(f)</code> in the last subsection. Let's check its size:</p>
+<pre class="mcode-input">size(grad(f))</pre>
+
+<pre class="mcode-output">ans =
+     3   Inf   Inf   Inf
+</pre>
+
+<p>Chebfun can plot 3D vector fields using the <code>quiver3</code> command, which draws a field of arrows.  For example, here is a quiver3 plot of the vector field $F(x,y,z) = -yi + xj + zk$.</p>
+<pre class="mcode-input">cheb.xyz
+F = [-y; x; z];
+close all, quiver3(F, 0)
+view([2 2 40])</pre>
+
+<p><img src="../images/guide/guide18_12.png" class="figure chebfun-figure" alt=""></p>
+<p>The <code>0</code> in the quiver3 command tells MATLAB not to rescale the vectors.</p>
+<p>According to the fundamental theorem of calculus for line integrals, also known as the gradient theorem, the line integral of a gradient vector field along a smooth curve depends only on the endpoints.</p>
+<pre class="mcode-input">f = chebfun3(@(x,y,z) sin(x+20*y+z.^2).*exp(-(3+y.^2)), ...
+    [-5*pi, 5*pi, -5*pi, 5*pi, -5*pi, 5*pi]);
+F = grad(f);
+curve = chebfun(@(t) [t.*cos(t) t.*sin(t) t], [0, 5*pi]);
+plot3(curve(:,1), curve(:,2), curve(:,3),'b'),
+title('Conical spiral'), shg
+I_spiral = integral(F, curve)
+ends = f(5*pi*cos(5*pi), 5*pi*sin(5*pi), 5*pi) - f(0, 0, 0)</pre>
+
+<pre class="mcode-output">I_spiral =
+  -0.049398074616857
+ends =
+  -0.049398074616858
+</pre>
+
+<p><img src="../images/guide/guide18_13.png" class="figure chebfun-figure" alt=""></p>
+<p>We can determine if a given vector field is conservative using <code>curl</code>:</p>
+<pre class="mcode-input">norm(curl(F))</pre>
+
+<pre class="mcode-output">ans =
+     0
+</pre>
+
+<p>It is also well-known that the line integral of a conservative vector field is independent of path. Let's compare the numerical values of the line integrals of our vector field over two paths with the same endpoints:</p>
+<pre class="mcode-input">curve2 = chebfun(@(t) [t*cos(5*pi) t*sin(5*pi) t], [0, 5*pi]);
+hold on, plot3(curve2(:,1), curve2(:,2), curve2(:,3),'r'), hold off, shg
+I_line = integral(F,curve2), error = I_line - I_spiral</pre>
+
+<pre class="mcode-output">I_line =
+  -0.049398074616895
+error =
+    -3.749778265671466e-14
+</pre>
+
+<p><img src="../images/guide/guide18_14.png" class="figure chebfun-figure" alt=""></p>
+<h3 id="188-higher-order-svd">18.8. Higher-order SVD</h3>
+<p>The higher-order SVD (HOSVD) of a discrete tensor was introduced in [De Lathauwer, De Moor & Vandewalle 2000]. For an order-3 tensor, this notion uses SVDs of the three modal unfolding matrices to compute a factorization involving a core tensor with the three matrices of left singular vectors of the unfolded tensor. Chebfun3 contains a continuous analogue of the HOSVD. Here is an example:</p>
+<pre class="mcode-input">f = chebfun3(@(x,y,z) sin(x+2*y+3*z));
+[sv, S_core, S_cols, S_rows, S_tubes] = hosvd(f);</pre>
+
+<p><code>sv</code> is a cell array containing modal singular values of $f$:</p>
+<pre class="mcode-input">sv1 = sv{1}
+sv2 = sv{2}
+sv3 = sv{3}</pre>
+
+<pre class="mcode-output">sv1 =
+   1.698135391441130
+   1.048957901152853
+sv2 =
+   1.525792971461290
+   1.286830328479728
+sv3 =
+   1.439058506117110
+   1.383143919492079
+</pre>
+
+<p>We see the decay in each set of modal singular values analogous to the decay of singular values of bivariate functions. Also, the columns of the three factor quasimatrices <code>S_cols</code>, <code>S_rows</code>, and <code>S_tubes</code> are orthonormal. For example, the departure from orthogonality in the columns of the quasimatrix <code>S_cols</code> is:</p>
+<pre class="mcode-input">norm(eye(size(S_cols,2)) - S_cols'*S_cols)</pre>
+
+<pre class="mcode-output">ans =
+     6.904446434084077e-16
+</pre>
+
+<p>Moreover, the core tensor S is <em>all orthogonal</em>, i.e., its horizontal slices are orthogonal:</p>
+<pre class="mcode-input">norm(squeeze(S_core(1,:,:) .* S_core(2,:,:)))</pre>
+
+<pre class="mcode-output">ans =
+     9.196292782337944e-15
+</pre>
+
+<p>Its lateral slices are orthogonal:</p>
+<pre class="mcode-input">norm(squeeze(S_core(:,1,:) .* S_core(:,2,:)))</pre>
+
+<pre class="mcode-output">ans =
+     1.095842372777122e-14
+</pre>
+
+<p>And also its frontal slices are orthogonal:</p>
+<pre class="mcode-input">norm(S_core(:,:,1) .* S_core(:,:,2))</pre>
+
+<pre class="mcode-output">ans =
+     1.121596307397203e-14
+</pre>
+
+<h3 id="189-rootfinding">18.9. Rootfinding</h3>
+<p>Rootfinding in Chebfun3 is still under development.  What follows describes the code <code>root</code>, which attempts to find just one single root of a chebfun3v or equivalently of three chebfun3 objects.</p>
+<p>One usually expects three 3D functions to have a finite number of common roots, though it is possible that such a system of equations would have an infinite number of roots. Given $f$, $g$, and $h$, rootfinding in Chebfun3 is done by the following two steps. In step 1, an initial guess is computed from the tensor of values of the chebfun3 object $objFun:= f^2 + g^2 + h^2$. This gives us a root with roughly 3 accurate digits. Step2 then attempts to improve the accuracy to machine precision using a few Newton iterations. (More research is needed here!) Here is an example:</p>
+<pre class="mcode-input">f = chebfun3(@(x,y,z) y-x.^2);
+g = chebfun3(@(x,y,z) z-x.^3);
+h = chebfun3(@(x,y,z) cos(exp(x.*sin(-2+y+z))));</pre>
+
+<p>The intersection of the zero level surfaces of the first two functions $f$ and $g$ is a <em>twisted cubic</em>, which is an interesting curve described in many textbooks on algebraic geometry. See e.g., [Cox, Little & O'Shea 2015].</p>
+<pre class="mcode-input">close all, isosurface(f, 0, 'g')
+hold on, isosurface(g, 0, 'b')
+view([-2,5,5])</pre>
+
+<p><img src="../images/guide/guide18_15.png" class="figure chebfun-figure" alt=""></p>
+<p>Let us compute the only common root of $f$, $g$ and $h$ in the default cube:</p>
+<pre class="mcode-input">r = root(f, g, h)</pre>
+
+<pre class="mcode-output">r =
+  -0.474327609954061   0.224986681564732  -0.106717394938095
+</pre>
+
+<p>The root is accurate to machine epsilon:</p>
+<pre class="mcode-input">format short
+res1 = f(r(1), r(2), r(3))
+res2 = g(r(1), r(2), r(3))
+res3 = h(r(1), r(2), r(3))</pre>
+
+<pre class="mcode-output">res1 =
+   2.1273e-16
+res2 =
+     0
+res3 =
+   1.5706e-16
+</pre>
+
+<p>Here is a plot of all the three zero level surfaces together with the common root we just found:</p>
+<pre class="mcode-input">isosurface(h, 0, 'r')
+plot3(r(1), r(2), r(3), 'yh', 'markersize', 30)
+view([-8,8,5]), alpha(0.9)</pre>
+
+<p><img src="../images/guide/guide18_16.png" class="figure chebfun-figure" alt=""></p>
+<h3 id="1810-changing-the-accuracy-with-chebfun3eps">18.10. Changing the accuracy with chebfun3eps</h3>
+<p>Chebfun has always had a parameter that describes its target relative accuracy which since 2015 has been called <code>chebfuneps</code>. For 1D computations, we do not recommend that users normally change this parameter from its factory value of machine precision (unless dealing with noisy functions), because the speedups to be obtained are usually not very large. See section 8.8 of this Guide and also the FAQ collection at www.chebfun.org.</p>
+<p>In two dimensions, and even more in three dimensions, the potential gains from loosening the tolerance become much greater.  Many users of Chebfun3 may find, for example, that they want to work with 10 digits of accuracy rather than 16 -- the speedup in many cases is on the order of a factor of 10. For this reason, Chebfun allows users to set different tolerances <code>chebfuneps</code>, <code>chebfun2eps</code>, and <code>chebfun3eps</code> for computations in 1D, 2D and 3D. The factory values of these parameters are all machine epsilon.</p>
+<p>To illustrate the speedups, here we compute chebfun3 objects for a Runge function at four different accuracies.  We caution users that the actual accuracy achieved may be a digit or two less than requested.</p>
+<pre class="mcode-input">disp('   eps     time      rank m-length n-length p-length')
+ff = @(x,y,z)1./(0.01+x.^2+y.^2+z.^2);
+for ep = 10.^(-16:4:-4)
+  f = chebfun3(ff,'eps', ep);
+  tic, f = chebfun3(ff,'eps', ep); t = toc;
+  r = rank(f);
+  [m,n,p] = length(f);
+  fprintf('%8.1e  %6.4f %7d %7d %7d %7d\n', ep,t,r,m,n,p)
+end</pre>
+
+<pre class="mcode-output">   eps     time      rank m-length n-length p-length
+ 1.0e-16  0.3242      19     383     383     383
+ 1.0e-12  0.2167      14     281     281     281
+ 1.0e-08  0.0584       8     177     177     177
+ 1.0e-04  0.0222       2      65      65      65
+</pre>
+
+<p>As the above example indicates, one way to control the accuracy of a chebfun3 construction is by explicitly specifying <code>eps</code> in a call to the constructor.  Alternatively -- and necessarily, if you are doing follow-on operations on previously constructed chebfun3 objects -- you can change the parameter globally as described in Chapter 8.  For example, let us check the speed and accuracy of a certain computation using the factory value of <code>chebfun3eps</code>, i.e., machine precision. It runs slowly, and gives high accuracy:</p>
+<pre class="mcode-input">ff = @(x,y,z) tanh(2*(x+y+z));
+
+tic
+f = chebfun3(ff);
+g = cos(f+1).^2;
+error = abs(g(.5,.6,.7) - cos(ff(.5,.6,.7)+1)^2)
+toc</pre>
+
+<pre class="mcode-output">error =
+   9.9920e-16
+Elapsed time is 1.260131 seconds.
+</pre>
+
+<p>Now let us set <code>chebfun3eps</code> to 1e-10 and run the same computation. Faster and less accurate!</p>
+<pre class="mcode-input">chebfun3eps 1e-10
+
+tic
+f = chebfun3(ff);
+g = cos(f+1).^2;
+error = abs(g(.5, .6, .7) - cos(ff(.5, .6, .7)+1)^2)
+toc</pre>
+
+<pre class="mcode-output">error =
+   5.9746e-09
+Elapsed time is 0.458695 seconds.
+</pre>
+
+<p>The following command reverts <code>chebfun3eps</code> to the factory value:</p>
+<pre class="mcode-input">chebfun3eps factory</pre>
+
+<h3 id="1811-chebfun3t-for-pure-tensor-product-comparisons">18.11. Chebfun3t for pure tensor product comparisons</h3>
+<p>Chebfun3, like Chebfun2 before it, exploits low-rank compression of functions where possible.  The question of how much one gains from this on average is controversial and certainly unresolved [Trefethen 2017]. One can construct examples where the gain is as large as you like, and other examples where there is no gain at all (and indeed where the low-rank algorithms take longer).</p>
+<p>To enable interested users to explore these tradeoffs, Chebfun offers a certain fraction of the Chebfun3 functionality implemented in a completely different, more straightforward but not rank-compressed fashion.  The command <code>chebfun3t</code> will construct a chebfun3t object that is represented as a multivariate Chebyshev polynomial defined by a tensor of Chebyshev coefficients. Here is an example where Chebfun3 is much faster than Chebfun3t:</p>
+<pre class="mcode-input">ff = @(x,y,z) sin(120*(x+y+z));
+tic, chebfun3(ff), toc
+tic, chebfun3t(ff), toc</pre>
+
+<pre class="mcode-output">ans =
+   chebfun3 object 
+   cols: Inf x 2 chebfun
+   rows: Inf x 2 chebfun
+  tubes: Inf x 2 chebfun
+   core: 2 x 2 x 2
+ length: 172, 171, 172
+ domain: [-1, 1] x [-1, 1] x [-1, 1]
+ vertical scale = 1
+Elapsed time is 0.040723 seconds.
+ans =
+   chebfun3t object 
+   coeffs: 172 x 172 x 172 
+   domain: [-1, 1] x [-1, 1] x [-1, 1]
+   vertical scale = 1
+Elapsed time is 7.215231 seconds.
+</pre>
+
+<p>On the other hand here is an example where Chebfun3 is slower.</p>
+<pre class="mcode-input">ff = @(x,y,z) tanh(6*(x+y+z));
+tic, chebfun3(ff), toc
+tic, chebfun3t(ff), toc</pre>
+
+<pre class="mcode-output">ans =
+   chebfun3 object 
+   cols: Inf x 89 chebfun
+   rows: Inf x 89 chebfun
+  tubes: Inf x 89 chebfun
+   core: 89 x 89 x 89
+ length: 136, 136, 136
+ domain: [-1, 1] x [-1, 1] x [-1, 1]
+ vertical scale = 1
+Elapsed time is 7.474846 seconds.
+ans =
+   chebfun3t object 
+   coeffs: 141 x 143 x 143 
+   domain: [-1, 1] x [-1, 1] x [-1, 1]
+   vertical scale = 1
+Elapsed time is 2.552381 seconds.
+</pre>
+
+<p>Let us emphasize that the main tool we are offering for computation with functions in 3D is Chebfun3, not Chebfun3t. The latter, only partially implemented, is only provided to facilitate certain comparisons.</p>
+<h3 id="1812-references">18.12. References</h3>
+<p>[Bebendorf 2011] M. Bebendorf, "Adaptive cross approximation of multivariate functions", <em>Constructive Approximation</em>, 34 (2011), 149-179.</p>
+<p>[Cox, Little & O'Shea 2015] D. Cox, J. Little, and D. O'Shea, <em>Ideals, Varieties, and Algorithms</em>, 4th Edition, Springer, 2015.</p>
+<p>[De Lathauwer, De Moor & Vandewalle 2000] L. De Lathauwer, B. De Moor and J. Vandewalle, "A multilinear Singular Value Decomposition", <em>SIAM Journal on Matrix Analysis and Applications</em>, 21 (2000), 1253-1278.</p>
+<p>[Dolgov, Kressner, and Strössner 2021] S. Dolgov, D. Kressner, and C Strössner, "Functional Tucker approximation using Chebyshev interpolation", <em>SIAM J. Sci. Comput.</em>, 43 (2021), A2190--A2210.</p>
+<p>[Golub & Van Loan 2013] G. H. Golub, and C. F. Van Loan, <em>Matrix Computations</em>, 4th Edition, Johns Hopkins University Press, 2013.</p>
+<p>[Gorodetsky, Karaman & Marzouk 2019] A. Gorodetsky, S. Karaman, and Y. Marzouk, "A continuous analogue of the tensor-train decomposition", <em>Computer Meth. Appl. Mech. Engr.</em>, 347 (2019), 59-84.</p>
+<p>[Hashemi & Trefethen 2017] B. Hashemi and L. N. Trefethen, "Chebfun in three dimensions", <em>SIAM J. Sci. Comput.</em>, 39 (2017), C341-C363.</p>
+<p>[Townsend & Trefethen 2013a] A. Townsend and L. N. Trefethen, "Gaussian elimination as an iterative algorithm", <em>SIAM News</em>, 46, March 2013.</p>
+<p>[Townsend & Trefethen 2013b] A. Townsend and L. N. Trefethen, "An extension of Chebfun to two dimensions", <em>SIAM Journal on Scientific Computing</em>, 35 (2013), C495-C518.</p>
+<p>[Trefethen 2017] L. N. Trefethen, "Cubature, approximation, and isotropy in the hypercube", <em>SIAM Review</em>, 59 (2017), 469-491.</p></div>
+        </div>
+    </div>
+</div>
+    <div class="footer">
+        <p>© Copyright 2025 the University of Oxford and the Chebfun Developers.</p>
+        <!-- TESTING -->
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.7.2.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?lang=matlab" type="text/javascript"></script>
+    <script type="text/javascript" src="/js/config.js"></script>
+    <script type="text/javascript" src="/js/jquery.flexslider-min.js"></script>
+  </body>
+</html>
+</div>

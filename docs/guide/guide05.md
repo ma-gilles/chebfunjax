@@ -1,592 +1,370 @@
-# Chapter 5: Complex Chebfuns
-
-*Based on [Chebfun Guide Chapter 5](https://www.chebfun.org/docs/guide/guide05.html) by Lloyd N. Trefethen*
-
-## 5.1 Complex Functions of a Real Variable
-
-A "complex chebfun" is a chebfun whose values are complex numbers -- that is,
-a complex-valued function of a real variable.  Such functions arise naturally
-when parametrizing curves in the complex plane.
-
-In chebfunjax, a complex function $z(t) = x(t) + i\,y(t)$ is typically
-represented as a pair of real chebfuns -- one for the real part and one for the
-imaginary part.  This is because JAX's core dtype for spectral methods is
-`float64`, and the Chebyshev machinery in chebfunjax is built around real
-coefficients.
-
-### Parametric curves
-
-The standard approach is to construct the real and imaginary parts separately:
-
-```python
-import jax.numpy as jnp
-import chebfunjax as cj
-
-# The unit circle: z(t) = exp(it) = cos(t) + i*sin(t),  t in [0, 2*pi]
-t = cj.chebfun(lambda t: t, domain=[0, 2 * jnp.pi])
-x_part = cj.cos(t)   # real part
-y_part = cj.sin(t)   # imaginary part
-```
-
-![](../images/guide/guide05_07.png)
-
-
-To plot such a curve, evaluate both parts and use matplotlib:
-
-```python
-import matplotlib.pyplot as plt
-
-s = jnp.linspace(0, 2 * jnp.pi, 200)
-plt.plot(x_part(s), y_part(s))
-plt.axis('equal')
-plt.title('Unit circle')
-plt.show()
-```
-
-![Unit circle](../images/guide/guide05_01.png)
-
-### Semicircle example
-
-Points on the upper semicircle from $-1$ to $1$:
-
-```python
-# Upper semicircle: z(s) = exp(i*s),  s in [0, pi]
-s = cj.chebfun(lambda s: s, domain=[0, jnp.pi])
-x_semi = cj.cos(s)
-y_semi = cj.sin(s)
-
-# Length of curve: integral of |z'(s)| ds
-# z'(s) = -sin(s) + i*cos(s), so |z'(s)| = 1
-# Arc length = pi
-dxds = x_semi.diff()
-dyds = y_semi.diff()
-speed = (dxds**2 + dyds**2).sqrt()
-arc_length = float(speed.sum())
-print(f"Arc length of semicircle: {arc_length:.15f}")
-print(f"Expected (pi):            {float(jnp.pi):.15f}")
-```
-
-![](../images/guide/guide05_08.png)
-
-
-### Spirals and other curves
-
-More elaborate curves can be built by combining trig and polynomial chebfuns:
-
-```python
-# A spiral: z(t) = t * exp(i*t),  t in [0, 4*pi]
-t = cj.chebfun(lambda t: t, domain=[0, 4 * jnp.pi])
-x_spiral = t * cj.cos(t)
-y_spiral = t * cj.sin(t)
-
-# Evaluate and plot
-tt = jnp.linspace(0, 4 * jnp.pi, 500)
-plt.plot(x_spiral(tt), y_spiral(tt))
-plt.axis('equal')
-plt.title('Archimedean spiral')
-plt.show()
-```
-
-![Archimedean spiral](../images/guide/guide05_02.png)
-
-### Arc length of curves
-
-The arc length of a parametric curve $(x(t), y(t))$ for $t \in [a, b]$ is
-
-$$L = \int_a^b \sqrt{x'(t)^2 + y'(t)^2}\,dt.$$
-
-In chebfunjax:
-
-```python
-# Arc length of one period of a sine wave: y = sin(x), x in [0, 2*pi]
-# Parametrize as x(t) = t, y(t) = sin(t)
-t = cj.chebfun(lambda t: t, domain=[0, 2 * jnp.pi])
-x_curve = t
-y_curve = cj.sin(t)
-
-dx = x_curve.diff()   # = 1
-dy = y_curve.diff()   # = cos(t)
-speed = (dx**2 + dy**2).sqrt()   # sqrt(1 + cos^2(t))
-L = float(speed.sum())
-print(f"Arc length of sin(x) over [0, 2*pi]: {L:.10f}")
-# This is a complete elliptic integral -- approximately 7.6404...
-```
-
-![](../images/guide/guide05_09.png)
-
-
-## 5.2 Analytic Functions and Conformal Maps
-
-An analytic function $w = f(z)$ maps curves and regions in the $z$-plane to
-curves and regions in the $w$-plane.  Away from critical points (where
-$f'(z) = 0$), the mapping is *conformal* -- it preserves angles.
-
-### Visualizing conformal maps
-
-A standard technique is to map a grid of lines and see how they are
-transformed:
-
-```python
-import jax.numpy as jnp
-import chebfunjax as cj
-import matplotlib.pyplot as plt
-
-# Grid lines in the z-plane: horizontal and vertical
-t = cj.chebfun(lambda t: t, domain=[-1, 1])
-
-fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-
-# Map z -> z^2
-# Horizontal lines: z = t + i*c  for various c
-for c in jnp.linspace(-1, 1, 11):
-    x_in = t
-    y_in = cj.chebfun(float(c))
-
-    # w = z^2 = (x + iy)^2 = x^2 - y^2 + 2ixy
-    u = x_in**2 - float(c)**2
-    v = 2 * float(c) * x_in
-
-    tt = jnp.linspace(-1, 1, 200)
-    axes[0].plot(x_in(tt), jnp.full_like(tt, c), 'b-', alpha=0.5)
-    axes[1].plot(u(tt), v(tt), 'b-', alpha=0.5)
-
-# Vertical lines: z = c + i*t  for various c
-for c in jnp.linspace(-1, 1, 11):
-    y_in = t
-
-    u = float(c)**2 - t**2
-    v = 2 * float(c) * t
-
-    tt = jnp.linspace(-1, 1, 200)
-    axes[0].plot(jnp.full_like(tt, c), y_in(tt), 'r-', alpha=0.5)
-    axes[1].plot(u(tt), v(tt), 'r-', alpha=0.5)
-
-axes[0].set_title('z-plane')
-axes[0].set_aspect('equal')
-axes[1].set_title('w = z^2')
-axes[1].set_aspect('equal')
-plt.tight_layout()
-plt.show()
-```
-
-![Conformal map z to z^2](../images/guide/guide05_03.png)
-
-### Mobius transformations
-
-A Mobius transformation $w = (az + b)/(cz + d)$ maps circles and lines to
-circles and lines.  These are fundamental in complex analysis:
-
-```python
-# Mobius transformation: w = (z - 1) / (z + 1)
-# Maps the right half-plane to the unit disk
-t = cj.chebfun(lambda t: t, domain=[0, 2 * jnp.pi])
-# A circle of radius r centered at c
-r, c = 2.0, 3.0
-x_circle = c + r * cj.cos(t)
-y_circle = r * cj.sin(t)
-
-# Apply Mobius: w = (z-1)/(z+1) where z = x + iy
-# Real and imaginary parts of w:
-# w = ((x-1) + iy) / ((x+1) + iy)
-# Multiply by conjugate of denominator:
-denom = (x_circle + 1)**2 + y_circle**2
-u = ((x_circle - 1) * (x_circle + 1) + y_circle**2) / denom
-v = (y_circle * (x_circle + 1) - (x_circle - 1) * y_circle) / denom
-# Simplify: u = (x^2 + y^2 - 1) / denom, v = 2y / denom
-
-tt = jnp.linspace(0, 2 * jnp.pi, 300)
-plt.figure(figsize=(10, 4))
-plt.subplot(1, 2, 1)
-plt.plot(x_circle(tt), y_circle(tt))
-plt.title('z-plane')
-plt.axis('equal')
-plt.subplot(1, 2, 2)
-plt.plot(u(tt), v(tt))
-plt.title('w = (z-1)/(z+1)')
-plt.axis('equal')
-plt.tight_layout()
-plt.show()
-```
-
-![Mobius transformation](../images/guide/guide05_04.png)
-
-## 5.3 Contour Integrals
-
-Contour integrals in complex analysis take the form
-
-$$\oint_\gamma f(z)\,dz = \int_a^b f(z(t))\,z'(t)\,dt,$$
-
-where $z(t)$ parametrizes the contour $\gamma$.  With chebfunjax, we split
-this into real and imaginary parts.
-
-### Cauchy's theorem
-
-If $f(z)$ is analytic inside and on a closed contour $\gamma$, then
-$\oint_\gamma f(z)\,dz = 0$.
-
-```python
-import jax.numpy as jnp
-import chebfunjax as cj
-
-# Integrate z^2 around the unit circle
-# z(t) = cos(t) + i*sin(t),  z'(t) = -sin(t) + i*cos(t)
-t = cj.chebfun(lambda t: t, domain=[0, 2 * jnp.pi])
-x = cj.cos(t)
-y = cj.sin(t)
-dx = -cj.sin(t)
-dy = cj.cos(t)
-
-# f(z) = z^2 = (x + iy)^2 = (x^2 - y^2) + 2ixy
-f_re = x**2 - y**2
-f_im = 2 * x * y
-
-# f(z) * z'(t) = (f_re + i*f_im) * (dx + i*dy)
-# Real part: f_re*dx - f_im*dy
-# Imag part: f_re*dy + f_im*dx
-integrand_re = f_re * dx - f_im * dy
-integrand_im = f_re * dy + f_im * dx
-
-I_re = float(integrand_re.sum())
-I_im = float(integrand_im.sum())
-print(f"Integral of z^2 around unit circle: {I_re:.2e} + {I_im:.2e}i")
-# Should be 0 + 0i (Cauchy's theorem)
-```
-
-![](../images/guide/guide05_10.png)
-
-
-### The residue theorem
-
-For a function with a pole inside the contour, the integral equals $2\pi i$
-times the residue.  For example, $f(z) = 1/z$ has a simple pole at $z = 0$
-with residue 1:
-
-```python
-# Integrate 1/z around the unit circle
-# 1/z = 1/(x + iy) = (x - iy)/(x^2 + y^2)
-r_sq = x**2 + y**2
-f_re = x / r_sq
-f_im = -y / r_sq
-
-integrand_re = f_re * dx - f_im * dy
-integrand_im = f_re * dy + f_im * dx
-
-I_re = float(integrand_re.sum())
-I_im = float(integrand_im.sum())
-print(f"Integral of 1/z around unit circle: {I_re:.6f} + {I_im:.6f}i")
-print(f"Expected: 0 + {2 * float(jnp.pi):.6f}i")
-# Should be 2*pi*i (residue = 1)
-```
-
-![](../images/guide/guide05_11.png)
-
-
-### Higher-order poles and the Cauchy integral formula
-
-The Cauchy integral formula states that for $f$ analytic inside $\gamma$ and
-$a$ inside $\gamma$:
-
-$$f^{(n)}(a) = \frac{n!}{2\pi i} \oint_\gamma \frac{f(z)}{(z-a)^{n+1}}\,dz.$$
-
-For example, to compute $e^0 = 1$ via the Cauchy integral formula with
-$f(z) = e^z$, $a = 0$, $n = 0$:
-
-```python
-# f(z) = exp(z) / z  around the unit circle
-# exp(z) = exp(x) * (cos(y) + i*sin(y))
-exp_re = cj.exp(x) * cj.cos(y)
-exp_im = cj.exp(x) * cj.sin(y)
-
-# exp(z)/z = exp(z) * conj(z) / |z|^2
-g_re = (exp_re * x + exp_im * y) / r_sq
-g_im = (exp_im * x - exp_re * y) / r_sq
-
-integrand_re = g_re * dx - g_im * dy
-integrand_im = g_re * dy + g_im * dx
-
-I_re = float(integrand_re.sum())
-I_im = float(integrand_im.sum())
-# Result should be 2*pi*i * exp(0) = 2*pi*i
-print(f"Integral of exp(z)/z: {I_re:.6f} + {I_im:.6f}i")
-print(f"Expected:             0.000000 + {2*float(jnp.pi):.6f}i")
-# Dividing by 2*pi*i gives exp(0) = 1
-result = I_im / (2 * float(jnp.pi))
-print(f"exp(0) via Cauchy formula: {result:.15f}")
-```
-
-![](../images/guide/guide05_12.png)
-
-
-## 5.4 Winding Numbers and the Argument Principle
-
-The *winding number* of a closed curve $\gamma$ around a point $a$ is
-
-$$n(\gamma, a) = \frac{1}{2\pi i} \oint_\gamma \frac{dz}{z - a}.$$
-
-The *argument principle* states that for a meromorphic function $f$ inside
-$\gamma$:
-
-$$\frac{1}{2\pi i} \oint_\gamma \frac{f'(z)}{f(z)}\,dz = N - P,$$
-
-where $N$ is the number of zeros and $P$ the number of poles (counted with
-multiplicity).
-
-```python
-import jax.numpy as jnp
-import chebfunjax as cj
-
-# Count zeros of sin(z)^3 + cos(z)^3 in the disk |z| < 2
-# This function has no poles, so N - P = N
-
-t = cj.chebfun(lambda t: t, domain=[0, 2 * jnp.pi])
-R = 2.0
-x = R * cj.cos(t)
-y = R * cj.sin(t)
-dx = -R * cj.sin(t)
-dy = R * cj.cos(t)
-
-# f(z) = sin(z)^3 + cos(z)^3
-# sin(z) = sin(x)*cosh(y) + i*cos(x)*sinh(y)
-# cos(z) = cos(x)*cosh(y) - i*sin(x)*sinh(y)
-sin_re = cj.sin(x) * cj.cosh(y)
-sin_im = cj.cos(x) * cj.sinh(y)
-cos_re = cj.cos(x) * cj.cosh(y)
-cos_im = -cj.sin(x) * cj.sinh(y)
-
-# For the argument principle, we need f'/f integrated around the contour
-# This is equivalent to computing the winding number of the image curve f(gamma)
-# around the origin: N = (1/2*pi) * change in argument of f along gamma
-
-# We can compute this numerically by evaluating f on a fine grid
-tt = jnp.linspace(0, 2 * jnp.pi, 1000, endpoint=False)
-x_vals = R * jnp.cos(tt)
-y_vals = R * jnp.sin(tt)
-sin_z_re = jnp.sin(x_vals) * jnp.cosh(y_vals)
-sin_z_im = jnp.cos(x_vals) * jnp.sinh(y_vals)
-cos_z_re = jnp.cos(x_vals) * jnp.cosh(y_vals)
-cos_z_im = -jnp.sin(x_vals) * jnp.sinh(y_vals)
-
-# f = sin^3 + cos^3 (complex cube)
-# sin^3: use binomial expansion or repeated multiplication
-# For simplicity, compute numerically:
-z_vals = x_vals + 1j * y_vals
-f_vals = jnp.sin(z_vals)**3 + jnp.cos(z_vals)**3
-
-# Winding number = total change in argument / (2*pi)
-angles = jnp.angle(f_vals)
-dangle = jnp.diff(angles)
-# Unwrap jumps
-dangle = jnp.where(dangle > jnp.pi, dangle - 2*jnp.pi, dangle)
-dangle = jnp.where(dangle < -jnp.pi, dangle + 2*jnp.pi, dangle)
-N = jnp.sum(dangle) / (2 * jnp.pi)
-print(f"Number of zeros of sin(z)^3 + cos(z)^3 in |z| < 2: {float(N):.1f}")
-# Should be 3
-```
-
-![](../images/guide/guide05_13.png)
-
-
-## 5.5 Contour Integrals for Computing Special Quantities
-
-### Bernoulli numbers via contour integration
-
-The Bernoulli numbers can be computed via
-
-$$B_n = \frac{n!}{2\pi i} \oint \frac{z}{e^z - 1} \cdot \frac{dz}{z^{n+1}},$$
-
-where the contour encloses the origin but no other singularities of
-$z/(e^z - 1)$ (which has poles at $z = 2\pi i k$ for nonzero integers $k$).
-
-```python
-import jax.numpy as jnp
-import chebfunjax as cj
-
-def bernoulli_via_contour(n, R=1.0):
-    """Compute B_n via contour integration on a circle of radius R."""
-    t = cj.chebfun(lambda t: t, domain=[0, 2 * jnp.pi])
-    x = R * cj.cos(t)
-    y = R * cj.sin(t)
-    dx = -R * cj.sin(t)
-    dy = R * cj.cos(t)
-
-    # f(z) = z / (exp(z) - 1) / z^{n+1} = 1 / ((exp(z) - 1) * z^n)
-    # But we need to be careful with complex arithmetic
-    # Work with fine evaluation grid instead
-    tt = jnp.linspace(0, 2 * jnp.pi, 2000, endpoint=False)
-    z = R * jnp.exp(1j * tt)
-    dz = 1j * z  # dz/dt = i*z for z = R*exp(it)
-
-    integrand = z / (jnp.exp(z) - 1) / z**(n + 1) * dz
-    dt = 2 * jnp.pi / 2000
-    I = jnp.sum(integrand) * dt
-
-    # B_n = n! / (2*pi*i) * I
-    from scipy.special import factorial
-    Bn = factorial(n, exact=True) / (2 * jnp.pi * 1j) * I
-    return float(jnp.real(Bn))
-
-# Compute B_10 = 5/66
-B10 = bernoulli_via_contour(10, R=1.0)
-print(f"B_10 via contour integration: {B10:.15f}")
-print(f"B_10 exact (5/66):            {5/66:.15f}")
-```
-
-![](../images/guide/guide05_14.png)
-
-
-## 5.6 Parametric Curves and Their Properties
-
-Chebfunjax provides natural tools for analyzing parametric curves through
-chebfun calculus.
-
-### Curvature
-
-The curvature of a plane curve $(x(t), y(t))$ is
-
-$$\kappa = \frac{|x'y'' - y'x''|}{(x'^2 + y'^2)^{3/2}}.$$
-
-```python
-import jax.numpy as jnp
-import chebfunjax as cj
-
-# Curvature of an ellipse: x = 2*cos(t), y = sin(t)
-t = cj.chebfun(lambda t: t, domain=[0, 2 * jnp.pi])
-x = 2 * cj.cos(t)
-y = cj.sin(t)
-
-xp = x.diff()
-yp = y.diff()
-xpp = x.diff(2)
-ypp = y.diff(2)
-
-kappa = (xp * ypp - yp * xpp).abs() / (xp**2 + yp**2).sqrt()**3
-
-# Maximum and minimum curvature
-k_min_loc, k_min_val = kappa.min()
-k_max_loc, k_max_val = kappa.max()
-print(f"Min curvature: {k_min_val:.6f} at t = {k_min_loc:.6f}")
-print(f"Max curvature: {k_max_val:.6f} at t = {k_max_loc:.6f}")
-# For ellipse with semi-axes a=2, b=1:
-# kappa_min = b/a^2 = 1/4 = 0.25 (at ends of major axis)
-# kappa_max = a/b^2 = 2 (at ends of minor axis)
-```
-
-![Ellipse with semi-axes a=2, b=1](../images/guide/guide05_05.png)
-
-![Curvature of the ellipse](../images/guide/guide05_06.png)
-
-### Enclosed area
-
-The area enclosed by a closed curve $(x(t), y(t))$ is given by the shoelace
-formula:
-
-$$A = \frac{1}{2} \left|\oint (x\,dy - y\,dx)\right| = \frac{1}{2}\left|\int_a^b (x y' - y x')\,dt\right|.$$
-
-```python
-# Area of the ellipse x = 2*cos(t), y = sin(t)
-area_integrand = x * yp - y * xp
-area = float(area_integrand.sum()) / 2
-print(f"Area of ellipse (a=2, b=1): {abs(area):.15f}")
-print(f"Expected (pi*a*b = 2*pi):   {2*float(jnp.pi):.15f}")
-```
-
-![](../images/guide/guide05_15.png)
-
-
-## 5.7 Complex Arithmetic with Chebfun Pairs
-
-Since chebfunjax stores real and imaginary parts as separate chebfuns, complex
-arithmetic must be done manually.  Here is a helper pattern:
-
-```python
-import jax.numpy as jnp
-import chebfunjax as cj
-
-def complex_mul(a_re, a_im, b_re, b_im):
-    """Multiply two complex chebfuns: (a_re + i*a_im) * (b_re + i*b_im)."""
-    re = a_re * b_re - a_im * b_im
-    im = a_re * b_im + a_im * b_re
-    return re, im
-
-def complex_div(a_re, a_im, b_re, b_im):
-    """Divide two complex chebfuns: (a_re + i*a_im) / (b_re + i*b_im)."""
-    denom = b_re**2 + b_im**2
-    re = (a_re * b_re + a_im * b_im) / denom
-    im = (a_im * b_re - a_re * b_im) / denom
-    return re, im
-
-def complex_abs(a_re, a_im):
-    """Modulus |a_re + i*a_im|."""
-    return (a_re**2 + a_im**2).sqrt()
-
-# Example: compute |exp(z)| on the unit circle
-t = cj.chebfun(lambda t: t, domain=[0, 2 * jnp.pi])
-z_re = cj.cos(t)
-z_im = cj.sin(t)
-
-# exp(z) = exp(x)*(cos(y) + i*sin(y))
-exp_re = cj.exp(z_re) * cj.cos(z_im)
-exp_im = cj.exp(z_re) * cj.sin(z_im)
-
-modulus = complex_abs(exp_re, exp_im)
-# |exp(z)| = exp(Re(z)) = exp(cos(t))
-expected = cj.exp(cj.cos(t))
-
-# Check agreement
-tt = jnp.linspace(0, 2 * jnp.pi, 100)
-err = float(jnp.max(jnp.abs(modulus(tt) - expected(tt))))
-print(f"Max error in |exp(z)| on unit circle: {err:.2e}")
-```
-
-## 5.8 The Phase Portrait
-
-For visualizing complex functions, *phase portraits* color each point in the
-domain according to the phase (argument) of $f(z)$.  Chebfunjax provides:
-
-```python
-import chebfunjax as cj
-
-# Phase plot of a complex function (uses the phaseplot utility)
-# cj.phaseplot(f, domain=[-2, 2, -2, 2])
-```
-
-The `phaseplot` function evaluates a complex function on a grid and colors
-each point using a standard HSV color wheel based on $\arg f(z)$.
-
-## 5.9 Summary
-
-| Task | Approach in chebfunjax |
-|---|---|
-| Complex curve $z(t)$ | Two real chebfuns: `x = cj.cos(t)`, `y = cj.sin(t)` |
-| Arc length | `speed = (dx**2 + dy**2).sqrt(); L = speed.sum()` |
-| Contour integral | Split into real/imag parts, integrate each |
-| Complex multiplication | `(a*c - b*d, a*d + b*c)` for `(a+ib)(c+id)` |
-| Winding number | Numerically track argument change |
-| Curvature | $(x'y'' - y'x'')/(x'^2 + y'^2)^{3/2}$ |
-| Enclosed area | $(1/2)\int (x y' - y x')\,dt$ |
-
-### Key differences from MATLAB Chebfun
-
-In MATLAB Chebfun, a single chebfun object can hold complex values natively
-(the coefficients are complex).  In chebfunjax, the standard storage is
-`float64`, so complex functions are represented as pairs of real chebfuns.
-This is a deliberate design choice that keeps the core Chebyshev machinery
-simple and GPU-friendly, at the cost of requiring manual real/imaginary
-bookkeeping for complex-valued problems.
-
-For contour integrals in particular, it is often simpler to evaluate on a fine
-grid using JAX's native complex arithmetic (via `jnp.complex128`) and perform
-the integration numerically, rather than building separate chebfuns for every
-real and imaginary part.
-
-## 5.10 References
-
-- L. N. Trefethen, "Numerical computation of the Schwarz-Christoffel
-  transformation," *SIAM J. Sci. Stat. Comp.* 1 (1980), 82-102.
-- J. A. C. Weideman, "Computing the Hilbert transform on the real line,"
-  *Math. Comp.* 64 (1995), 745-762.
-- F. Bornemann, "Accuracy and stability of computing high-order derivatives
-  of analytic functions by Cauchy integrals," *Found. Comp. Math.* 11 (2011),
-  1-63.
-- E. Wegert, *Visual Complex Functions: An Introduction with Phase Portraits*,
-  Birkhauser, 2012.
+<!-- Generated by scripts/sync_chebfun_guides.py. -->
+<!-- Source: https://www.chebfun.org/docs/guide/guide05.html -->
+
+<div class="chebfun-import">
+<div class='page-header'>
+<span class='chapter_number'>5</span>
+<h1>Complex Chebfuns</h1>
+<h2>Lloyd N. Trefethen, November 2009, latest revision May 2019<span>
+    
+        <a href='../guide04/'
+>previous</a><span class='sep-sm
+'>·</span><a href='../'>index</a><span class='sep-sm
+'>·</span><a href='../guide06/'
+>next</a></span></h2>
+</div>
+
+<div id='content' class="col-sm-12" role="main">
+<h3 id="51-complex-functions-of-a-real-variable">5.1  Complex functions of a real variable</h3>
+<p>(See also Section 12.7 -- phase portraits in Chebfun2.)</p>
+<p>One of the attractive features of MATLAB is that it handles complex arithmetic well. For example, here are $20$ points on the upper half of the unit circle in the complex plane:</p>
+<pre class="mcode-input">MS = 'markersize';
+s = linspace(0,pi,20);
+f = exp(1i*s);
+plot(f,'.',MS,10)
+axis equal</pre>
+
+<p><img src="../images/guide/guide05_01.png" class="figure chebfun-figure" alt=""></p>
+<p>In MATLAB, both the variables <code>i</code> and <code>j</code> are initialized as $i$, the square root of $-1$, but this code uses <code>1i</code> instead (just as one might write, for example, <code>3+2i</code> or <code>2.2-1.1i</code>).  Writing the imaginary unit in this fashion is a common trick among MATLAB programmers, for it avoids the risk of surprises caused by <code>i</code> or <code>j</code> having been overwritten by other values. The <code>axis equal</code> command ensures that the real and imaginary axes are scaled equally.</p>
+<p>Here is a Chebfun analogue.</p>
+<pre class="mcode-input">s = chebfun(@(s) s,[0 pi]);
+f = exp(1i*s);
+plot(f)
+axis equal</pre>
+
+<p><img src="../images/guide/guide05_02.png" class="figure chebfun-figure" alt=""></p>
+<p>The Chebfun semicircle is represented by a polynomial of low degree:</p>
+<pre class="mcode-input">length(f)
+plot(f,'.-',MS,10)
+axis equal</pre>
+
+<pre class="mcode-output">ans =
+    17
+</pre>
+
+<p><img src="../images/guide/guide05_03.png" class="figure chebfun-figure" alt=""></p>
+<p>We can have fun with variations on the theme:</p>
+<pre class="mcode-input">subplot(1,2,1), g = s*exp(10i*s); plot(g), axis equal
+subplot(1,2,2), h = exp(2i*s)+.3*exp(20i*s); plot(h), axis equal</pre>
+
+<p><img src="../images/guide/guide05_04.png" class="figure chebfun-figure" alt=""></p>
+<pre class="mcode-input">subplot(1,2,1), plot(g^2), axis equal
+subplot(1,2,2), plot(exp(h)), axis equal</pre>
+
+<p><img src="../images/guide/guide05_05.png" class="figure chebfun-figure" alt=""></p>
+<p>Such plots make pretty pictures, but as always with Chebfun, the underlying operations involve precise mathematics carried out to many digits of accuracy.  For example, the integral of <code>g</code> is $-\pi i/10$,</p>
+<pre class="mcode-input">sum(g)</pre>
+
+<pre class="mcode-output">ans =
+ -0.000000000000001 - 0.314159265358979i
+</pre>
+
+<p>and the integral of <code>h</code> is zero:</p>
+<pre class="mcode-input">sum(h)</pre>
+
+<pre class="mcode-output">ans =
+      3.487868498008632e-16 - 1.386525845166203e-16i
+</pre>
+
+<p>Piecewise smooth complex chebfuns are also possible. For example, the following starts from a chebfun <code>z</code> defined as $(1+0.5i)s$ for $s$ on the interval $[0,1]$ and $1+0.5i-2(s-1)$ for $s$ on the interval $[1,2]$.</p>
+<pre class="mcode-input">z = chebfun({@(s) (1+.5i)*s, @(s) 1+.5i-2*(s-1)},[0 1 2]);
+subplot(1,2,1), plot(z), axis equal, grid on
+subplot(1,2,2), plot(z^2), axis equal, grid on</pre>
+
+<p><img src="../images/guide/guide05_06.png" class="figure chebfun-figure" alt=""></p>
+<p>Actually, this way of constructing a piecewise chebfun is rather clumsy. An easier method is to use the <code>join</code> command, in which a construction like <code>join(f,g,h)</code> constructs a single chebfun with the same values as <code>f</code>, <code>g</code>, and <code>h</code>, but on a domain concatenated together.  Thus if the domains of <code>f</code>, <code>g</code>, <code>h</code> are $[a,b]$, $[c,d]$, and $[e,f]$, then <code>join(f,g,h)</code> has three pieces with domains $[a,b]$, $[b,b+(d-c)]$, $[b+(d-c),b+(d-c)+(f-e)]$. Using this trick, we can construct the chebfun <code>z</code> above in the following alternative manner:</p>
+<pre class="mcode-input">  s = chebfun(@(s) s,[0 1]);
+  zz = join((1+.5i)*s, 1+.5i-2*s);
+  norm(z-zz)</pre>
+
+<pre class="mcode-output">ans =
+     0
+</pre>
+
+<h3 id="52-analytic-functions-and-conformal-maps">5.2 Analytic functions and conformal maps</h3>
+<p>A function is <em>analytic</em> if it is differentiable in the complex sense, or equivalently, if it has a convergent Taylor series near each point in its domain of definition. Analytic functions do interesting things in the complex plane. In particular, away from points where the derivative is zero, they are <em>conformal maps</em>, which means that although they may scale and rotate an infinitesimal region, they preserve angles between intersecting curves.</p>
+<p>For example, suppose we define <code>R</code> to be a chebfun corresponding to the four sides of a rectangle and we define <code>X</code> to be another chebfun corresponding to a cross inside <code>R</code>.</p>
+<pre class="mcode-input">s = chebfun('s',[0 1]);
+R = join(1+s, 2+2i*s, 2+2i-s, 1+2i-2i*s);
+LW = 'linewidth'; lw1 = 1.5; lw2 = 2.2;
+clf, subplot(1,2,1), plot(R,LW,lw2), grid on, axis equal
+X = join(1.3+1.5i+.4*s, 1.5+1.3i+.4i*s);
+hold on, plot(X,'r',LW,lw2)</pre>
+
+<p><img src="../images/guide/guide05_07.png" class="figure chebfun-figure" alt=""></p>
+<p>Here we see what happens to <code>R</code> and <code>X</code> under the maps $z^2$ and $\exp(z)$:</p>
+<pre class="mcode-input">clf
+subplot(1,2,1), plot(R^2,LW,lw1), grid on, axis equal
+hold on, plot(X^2,'r',LW,lw2)
+subplot(1,2,2), plot(exp(R),LW,lw1), grid on, axis equal
+hold on, plot(exp(X),'r',LW,lw2)</pre>
+
+<p><img src="../images/guide/guide05_08.png" class="figure chebfun-figure" alt=""></p>
+<p>We can take the same idea further and construct a grid in the complex plane, each segment of which is a piece of a chebfun that happens to be linear.  In this case we accumulate the various pieces as successive columns of a quasimatrix, i.e., a "matrix" whose columns are chebfuns (see Chapter 6).</p>
+<pre class="mcode-input">  x = chebfun(@(x) x);
+  S = chebfun;                  % make an empty chebfun
+  for d = -1:.2:1
+    S = [S d+1i*x 1i*d+x];      % add 2 more lines to the collection
+  end
+  clf,
+  subplot(1,2,1), plot(S), axis equal</pre>
+
+<p><img src="../images/guide/guide05_09.png" class="figure chebfun-figure" alt=""></p>
+<p>Here are the exponential and tangent of the grid:</p>
+<pre class="mcode-input">  subplot(1,2,1), plot(exp(S)), axis equal
+  subplot(1,2,2), plot(tan(S)), axis equal</pre>
+
+<p><img src="../images/guide/guide05_10.png" class="figure chebfun-figure" alt=""></p>
+<p>Here is a sequence that puts all three images together on a single scale:</p>
+<pre class="mcode-input">  clf
+  plot(S), hold on
+  plot(1.6+exp(S))
+  plot(6.6+tan(S))
+  axis equal, axis off</pre>
+
+<p><img src="../images/guide/guide05_11.png" class="figure chebfun-figure" alt=""></p>
+<p>A particularly interesting set of conformal maps are the <em>Moebius transformations</em>, the rational functions of the form $(az+b)/(cz+d)$ for constants $a,b,c,d$.  For example, here is a square and its image under the map $w = 1/(1+z)$, and the image of the image under the same map, and the image of the image of the image.  We also plot the limit point given by the equation $z = 1/(1+z)$, i.e., $z = (\sqrt{5}-1)/2$.</p>
+<pre class="mcode-input">moebius = @(z) 1/(1+z);
+s = chebfun(@(s) s,[0 1]);
+S = join(-.5i+s, 1-.5i+1i*s, 1+.5i-s, .5i-1i*s);
+clf
+for j = 1:3
+  S = [S moebius(S(:,j))];
+end
+plot(S)
+hold on, axis equal
+plot((sqrt(5)-1)/2,0,'.k',MS,6)</pre>
+
+<p><img src="../images/guide/guide05_12.png" class="figure chebfun-figure" alt=""></p>
+<p>Here's a prettier version of the same image using the Chebfun <code>fill</code> command.</p>
+<pre class="mcode-input">S = join(-.5i+s, 1-.5i+1i*s, 1+.5i-s, .5i-1i*s);
+clf
+fill(real(S),imag(S),[.5 .5 1]), axis equal, hold on
+S = moebius(S); fill(real(S),imag(S),[.5 1 .5])
+S = moebius(S); fill(real(S),imag(S),[1 .5 .5])
+S = moebius(S); fill(real(S),imag(S),[.5 1 1 ])
+plot((sqrt(5)-1)/2,0,'.k',MS,6)
+axis off</pre>
+
+<p><img src="../images/guide/guide05_13.png" class="figure chebfun-figure" alt=""></p>
+<h3 id="53-contour-integrals">5.3 Contour integrals</h3>
+<p>If $s$ is a real parameter and $z(s)$ is a complex function of $s$, then we can define a contour integral in the complex plane like this: $$ \int f(z(s)) z'(s) ds . $$ The contour in question is the curve described by $z(s)$ as $s$ varies over its range.</p>
+<p>For example, in the example at the end of Section 5.1 the contour consists of two straight segments that begin at $0$ and end at $-1+.5i$.  We can compute the integral of $\exp(-z^2)$ over the contour like this:</p>
+<pre class="mcode-input">  f = exp(-z^2);
+  I = sum(f*diff(z))</pre>
+
+<pre class="mcode-output">I =
+ -0.842544559526136 + 0.166587147924074i
+</pre>
+
+<p>Notice how easily the contour integral is realized in Chebfun, even over a contour consisting of several pieces. This particular integral is related to the complex error function [Weideman 1994].</p>
+<p>According to <em>Cauchy's theorem</em>, the integral of an analytic function around a closed curve is zero, or equivalently, the integral between two points $z_1$ and $z_2$ is path-independent. To verify this property, we can compute the same integral over the straight segment going directly from $0$ to $-1+0.5i$:</p>
+<pre class="mcode-input">  w = chebfun('(-1+.5i)*s',[0 1]);
+  f = exp(-w^2);
+  I2 = sum(f*diff(w))</pre>
+
+<pre class="mcode-output">I2 =
+ -0.842544559526136 + 0.166587147924074i
+</pre>
+
+<p>A <em>meromorphic function</em> is a function that is analytic in a region of interest in the complex plane apart from possible poles. According to the <em>Cauchy integral formula</em>, $1/2\pi i$ times the integral of a meromorphic function $f$ around a closed contour is equal to the sum of the residues of $f$ associated with any poles it may have in the enclosed region.   The <em>residue</em> of $f$ at a point $z_0$ is the coefficient of the degree $-1$ term in its Laurent expansion at $z_0$.  For example, the function $\exp(z)/z^3$ has Laurent series $z^{-3} + z^{-2} + (1/2)z^{-1} + (1/6)z^0 +\dots$ at the origin, and so its residue there is $1/2$.  We can confirm this by computing the contour integral around a circle:</p>
+<pre class="mcode-input">z = chebfun('exp(1i*s)',[0 2*pi]);
+f = exp(z)/z^3;
+I = sum(f*diff(z))/(2i*pi)</pre>
+
+<pre class="mcode-output">I =
+  0.499999999999999 + 0.000000000000000i
+</pre>
+
+<p>Notice that we have just computed the degree $2$ Taylor coefficient of $\exp(z)$.</p>
+<p>When Chebfun integrates around a circular contour like this, it does not automatically take advantage of the fact that the integrand is periodic. That would be Fourier analysis as opposed to Chebyshev analysis, and beginning with Version 5, a "trigfun" approach to such problems has been available, at least when the arguments are smooth (compare [Davis 1959]). For example, we could repeat the above calculation in Fourier mode like this:</p>
+<pre class="mcode-input">z = chebfun('exp(1i*s)',[0 2*pi],'trig');
+f = exp(z)/z^3;
+I = sum(f*diff(z))/(2i*pi)</pre>
+
+<pre class="mcode-output">I =
+  0.500000000000000 - 0.000000000000000i
+</pre>
+
+<p>Chebyshev methods are more flexible, as a rule, but Fourier methods have advantages sometimes of efficiency (up to a factor of $\pi/2$ per dimension) and accuracy.  For techniques that recover some of that factor of $\pi/2$ even for nonperiodic problems, see [Hale & Trefethen 2008].</p>
+<p>The contour does not have to have radius $1$, or be centered at the origin:</p>
+<pre class="mcode-input">z = chebfun('1+2*exp(1i*s)',[0 2*pi],'trig');
+f = exp(z)/z^3;
+I2 = sum(f*diff(z))/(2i*pi)</pre>
+
+<pre class="mcode-output">I2 =
+  0.500000000000001 + 0.000000000000000i
+</pre>
+
+<p>Nor does the contour have to be smooth. Here let us compute the same result by integration over a square (reverting to Chebyshev rather than Fourier technology).</p>
+<pre class="mcode-input">s = chebfun('s',[-1 1]);
+z = join(1+1i*s, 1i-s, -1-1i*s, -1i+s);
+f = exp(z)/z^3;
+I3 = sum(f*diff(z))/(2i*pi)</pre>
+
+<pre class="mcode-output">I3 =
+  0.500000000000000 + 0.000000000000000i
+</pre>
+
+<p>In Chebfun one can also construct more interesting contours of the kind that appear in complex variables texts.  Here is an example involving a "keyhole" contour:</p>
+<pre class="mcode-input">  c = [-2+.05i, -.2+.05i, -.2-.05i, -2-.05i];    % 4 corners
+  s = chebfun('s',[0 1]);
+  z = join(c(1)+s*(c(2)-c(1)), c(2)*c(3).^s./c(2).^s, ...
+       c(3)+s*(c(4)-c(3)), c(4)*c(1).^s./c(4).^s);
+  clf, plot(z), axis equal, axis off</pre>
+
+<p><img src="../images/guide/guide05_14.png" class="figure chebfun-figure" alt=""></p>
+<p>The integral of $f(z) = \log(z)\tanh(z)$ around this contour will be equal to $2\pi i$ times the sum of the residues at the poles of $f$ at $\pm \pi i/2$.</p>
+<pre class="mcode-input">f = log(z)*tanh(z);
+I = sum(f*diff(z))
+Iexact = 4i*pi*log(pi/2)</pre>
+
+<pre class="mcode-output">I =
+  0.000000000000003 + 5.674755637702233i
+Iexact =
+  0.000000000000000 + 5.674755637702224i
+</pre>
+
+<h3 id="54-cauchy-integrals-and-locating-zeros-and-poles">5.4 Cauchy integrals and locating zeros and poles</h3>
+<p>Here are some further examples of computations with Cauchy integrals. The Bernoulli number $B_k$ is $k!$ times the kth Taylor coefficient of $z/(\exp(z)-1)$. Here is $B_{10}$ compared with its exact value $5/66$.</p>
+<pre class="mcode-input">k = 10;
+z = chebfun('4*exp(1i*s)',[0 2*pi],'trig');
+f = z/((exp(z)-1));
+B10 = factorial(k)*sum((f/z^(k+1))*diff(z))/(2i*pi)
+exact = 5/66</pre>
+
+<pre class="mcode-output">B10 =
+  0.075757575757575 + 0.000000000000001i
+exact =
+   0.075757575757576
+</pre>
+
+<p>Notice that we have taken <code>z</code> to be a circle of radius $4$. If the radius is $1$, the accuracy is a good deal lower:</p>
+<pre class="mcode-input">z = chebfun('exp(1i*s)',[0 2*pi],'trig');
+f = z/((exp(z)-1));
+B10 = factorial(k)*sum((f/z^(k+1))*diff(z))/(2i*pi)</pre>
+
+<pre class="mcode-output">B10 =
+  0.075757574894396 + 0.000000000563654i
+</pre>
+
+<p>This problem of numerical instability would arise no matter how one calculated the integral over the unit circle; it is not the fault of Chebfun.  For a study of how to pick the optimal radius, see [Bornemann 2009].</p>
+<p>Another use of Cauchy integrals is to count zeros or poles of functions in specified regions.  According to the <em>principle of the argument</em>, the number of zeros minus the number of poles of $f$ in a region is $$ N = {1\over 2\pi i} \int { f'(z) \over f(z)} dz, $$ where the integral is taken over the boundary.  Since $f' = df/dz = (df/ds)(ds/dz)$, we can rewrite this as $$ N = {1\over 2\pi i} \int {1\over f} {df\over ds} ds. $$ For example, the function $f(z) = \sin(z)^3 + \cos(z)^3$ clearly has no poles; how many zeros does it have in the disk about $0$ of radius $2$? The following calculation shows that the answer is $3$:</p>
+<pre class="mcode-input">z = chebfun('2*exp(1i*s)',[0 2*pi]);
+f = sin(z)^3 + cos(z)^3;
+N = sum((diff(f)./f))/(2i*pi)</pre>
+
+<pre class="mcode-output">N =
+  2.999999999999999 + 0.000000000000001i
+</pre>
+
+<p>What is really going on here is a calculation of the change of the argument of $f$ as the boundary is traversed.  Another way to find that number is with the Chebfun overloads of the MATLAB commands <code>angle</code> and <code>unwrap</code>:</p>
+<pre class="mcode-input">anglef = unwrap(angle(f));
+N = (anglef(end)-anglef(0))/(2*pi)</pre>
+
+<pre class="mcode-output">N =
+   2.999999999999996
+</pre>
+
+<p>Variations on this idea enable one to locate zeros and poles as well as count them.  For example, we can locate a single zero with the formula $$ r = {1\over 2\pi i} \int  z (df/ds)/f ds $$ [McCune 1966].  Here is the zero of the function above in the unit disk:</p>
+<pre class="mcode-input">z = chebfun('exp(1i*s)',[0 2*pi],'trig');
+f = sin(z)^3 + cos(z)^3;
+r = sum(z*(diff(f)/f))/(2i*pi)</pre>
+
+<pre class="mcode-output">r =
+ -0.785398163397447 - 0.000000000000000i
+</pre>
+
+<p>We can check the result by a more ordinary Chebfun calculation:</p>
+<pre class="mcode-input">x = chebfun('x');
+f = sin(x)^3 + cos(x)^3;
+r = roots(f)</pre>
+
+<pre class="mcode-output">r =
+  -0.785398163397448
+</pre>
+
+<p>To find multiple zeros via Cauchy integrals, and for many other generalizations of the ideas in this chapter, see [Austin, Kravanja & Trefethen 2013].</p>
+<h3 id="55-alphabet-soup">5.5 Alphabet soup</h3>
+<p>The Chebfun command <code>scribble</code> returns a piecewise linear complex chebfun corresponding to a word spelled out in capital letters.  For example:</p>
+<pre class="mcode-input">f = scribble('Oxford University');
+LW = 'linewidth'; lw = 2;
+plot(f,LW,lw), xlim(1.1*[-1 1]), axis equal</pre>
+
+<p><img src="../images/guide/guide05_15.png" class="figure chebfun-figure" alt=""></p>
+<p>This chebfun happens to have 67 pieces:</p>
+<pre class="mcode-input">length(domain(f))-1</pre>
+
+<pre class="mcode-output">ans =
+    67
+</pre>
+
+<p>Though its applications are unlikely to be mathematical, $f$ is a precisely defined mathematical object just like any other chebfun.  If we wish, we can compute with it:</p>
+<pre class="mcode-input">f(0), norm(f)</pre>
+
+<pre class="mcode-output">ans =
+   0.129411764705882
+ans =
+   0.847576500999202
+</pre>
+
+<p>Perhaps more interesting is that we can apply functions to it and learn something in the process:</p>
+<pre class="mcode-input">plot(exp(3i*f),'m',LW,lw), ylim(1.2*[-1 1]), axis equal</pre>
+
+<p><img src="../images/guide/guide05_16.png" class="figure chebfun-figure" alt=""></p>
+<p>Does putting a box around enhance the image? (We do this by adding a second column of a Chebfun quasimatrix -- see Chapter 6.)</p>
+<pre class="mcode-input">L = f.ends(end);
+s = chebfun(@(x) 2*x+2,[-1 -0.5]);
+box = join(-1.1-.05i+2.2*s,1.1-.05i+.22i*s,1.1+.17i-2.2*s,-1.1+.17i-.22i*s);
+f = [f box];
+plot(f,LW,lw), xlim(1.2*[-1 1]), axis equal</pre>
+
+<p><img src="../images/guide/guide05_17.png" class="figure chebfun-figure" alt=""></p>
+<pre class="mcode-input">clf, plot(exp((1+.2i)*f),LW,lw), axis equal, axis off</pre>
+
+<p><img src="../images/guide/guide05_18.png" class="figure chebfun-figure" alt=""></p>
+<pre class="mcode-input">plot(tan(f),LW,lw), axis equal, axis off</pre>
+
+<p><img src="../images/guide/guide05_19.png" class="figure chebfun-figure" alt=""></p>
+<p>Next May 16, you might wish to write a greeting card for Pafnuty Lvovich Chebyshev, accurate as always to 15 digits:</p>
+<pre class="mcode-input">f = scribble('Happy Birthday Pafnuty!');
+L = f.ends(end);
+g = @(z) exp(-2.2i+(2.5i+.4)*z);
+clf, plot(g(f),'r',LW,lw)
+circle = 1.12*chebfun(@(x) exp(2i*pi*x/L),[0 L]);
+ellipse = 1.2*(circle + 1/circle)/2 + 1i*mean(imag(f));
+hold on, plot(g(ellipse),'b',LW,lw)
+axis auto equal off</pre>
+
+<p><img src="../images/guide/guide05_20.png" class="figure chebfun-figure" alt=""></p>
+<p>You can find an example "Birthday cards and analytic functions" in the Fun Stuff section of the Chebfun Examples collection, and further related explorations in the Geometry section.  And here's another complex scribble penned by Gil Strang:</p>
+<pre class="mcode-input">clf
+cheb.gallery('motto')</pre>
+
+<p><img src="../images/guide/guide05_21.png" class="figure chebfun-figure" alt=""></p>
+<h3 id="56-references">5.6  References</h3>
+<p>[Austin, Kravanja & Trefethen 2014] A. P. Austin, P. Kravanja, and L. N. Trefethen, "Numerical algorithms based on analytic function values at roots of unity", <em>SIAM Journal on Numerical Analysis</em> 52 (2014), 1795--1821.</p>
+<p>[Bornemann 2009] F. Bornemann, "Accuracy and stability of computing high-order derivatives of analytic functions by Cauchy integrals", <em>Foundations of Computational Mathematics</em>, 11 (2011), 1-63.</p>
+<p>[Davis 1959] P. J. Davis, "On the numerical integration of periodic analytic functions", in R. E. Langer, ed., <em>On Numerical Integration</em>, Math. Res. Ctr., U. of Wisconsin, 1959, pp. 45-59.</p>
+<p>[Hale & Trefethen 2008] N. Hale and L. N. Trefethen, "New quadrature formulas from conformal maps", <em>SIAM Journal on Numerical Analysis</em>, 46 (2008), 930-948.</p>
+<p>[McCune 1966] J. E. McCune, "Exact inversion of dispersion relations", <em>Physics of Fluids</em>, 9 (1966), 2082-2084.</p>
+<p>[Weideman 1994] J. A. C. Weideman, "Computation of the complex error function", <em>SIAM Journal on Numerical Analysis</em>, 31 (1994), 1497-1518.</p></div>
+        </div>
+    </div>
+</div>
+    <div class="footer">
+        <p>© Copyright 2025 the University of Oxford and the Chebfun Developers.</p>
+        <!-- TESTING -->
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.7.2.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?lang=matlab" type="text/javascript"></script>
+    <script type="text/javascript" src="/js/config.js"></script>
+    <script type="text/javascript" src="/js/jquery.flexslider-min.js"></script>
+  </body>
+</html>
+</div>
