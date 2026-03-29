@@ -52,6 +52,36 @@ def _make_chebfun2d():
     return Chebfun2.from_function(lambda x, y: jnp.cos(x + y))
 
 
+def _make_ballfun():
+    from chebfunjax.ballfun.ballfun import Ballfun
+
+    return Ballfun.from_function(
+        lambda x, y, z: x + 2.0 * y - z,
+        fixed_size=(15, 16, 16),
+    )
+
+
+def _make_spherefunv():
+    from chebfunjax.spherefun.spherefun import Spherefun
+    from chebfunjax.spherefun.spherefunv import Spherefunv
+
+    f = Spherefun.from_function(lambda lam, th: jnp.cos(lam) * jnp.sin(th))
+    g = Spherefun.from_function(lambda lam, th: jnp.sin(lam) * jnp.sin(th))
+    return Spherefunv(f, g)
+
+
+def _make_spherefun():
+    from chebfunjax.spherefun.spherefun import Spherefun
+
+    return Spherefun.from_function(lambda lam, th: jnp.cos(lam) * jnp.sin(th))
+
+
+def _make_chebfun3():
+    from chebfunjax.chebfun3d.chebfun3 import Chebfun3
+
+    return Chebfun3.from_function(lambda x, y, z: x + y + z)
+
+
 class TestTopLevelExports:
     """All plotting names must be importable from chebfunjax."""
 
@@ -153,4 +183,66 @@ class TestReturnTypes:
         assert isinstance(result, tuple) and len(result) == 2
         fig, ax = result
         assert isinstance(fig, plt.Figure)
+        plt.close(fig)
+
+
+class TestMatlabStyleRegression:
+    """Regression checks for MATLAB-faithful plotting defaults."""
+
+    def test_contour_default_has_no_colorbar_axis(self):
+        g = _make_chebfun2d()
+        fig, ax = cj.contour(g)
+        assert isinstance(fig, plt.Figure)
+        assert isinstance(ax, plt.Axes)
+        assert len(fig.axes) == 1
+        plt.close(fig)
+
+    def test_ballfun_dispatch_uses_five_slice_surfaces(self):
+        bf = _make_ballfun()
+        fig, ax = cj.plot(bf)
+        assert isinstance(fig, plt.Figure)
+        assert getattr(ax, "name", None) == "3d"
+        assert len(fig.axes) == 1
+        assert len(ax.collections) == 5
+        plt.close(fig)
+
+    @pytest.mark.parametrize(
+        ("style", "expected_collections"),
+        [("WedgeAz", 3), ("WedgePol", 5)],
+    )
+    def test_ballfun_plot_accepts_matlab_wedge_styles(
+        self, style, expected_collections
+    ):
+        bf = _make_ballfun()
+        fig, ax = bf.plot(style)
+        assert isinstance(fig, plt.Figure)
+        assert getattr(ax, "name", None) == "3d"
+        assert len(ax.collections) == expected_collections
+        plt.close(fig)
+
+    def test_spherefunv_plot_dispatch_returns_3d_quiver_axes(self):
+        sfv = _make_spherefunv()
+        fig, ax = cj.plot(sfv)
+        assert isinstance(fig, plt.Figure)
+        assert getattr(ax, "name", None) == "3d"
+        assert len(fig.axes) == 1
+        assert len(ax.collections) >= 1
+        plt.close(fig)
+
+    def test_contour_sphere_returns_3d_axes(self):
+        sf = _make_spherefun()
+        fig, ax = cj.contour_sphere(sf, levels=12)
+        assert isinstance(fig, plt.Figure)
+        assert getattr(ax, "name", None) == "3d"
+        assert len(fig.axes) == 1
+        assert len(ax.lines) >= 1
+        plt.close(fig)
+
+    def test_chebfun3_plot_renders_boundary_faces_and_colorbar(self):
+        f3 = _make_chebfun3()
+        fig, ax = cj.plot(f3, n_pts=20)
+        assert isinstance(fig, plt.Figure)
+        assert getattr(ax, "name", None) == "3d"
+        assert len(ax.collections) == 6
+        assert len(fig.axes) == 2
         plt.close(fig)

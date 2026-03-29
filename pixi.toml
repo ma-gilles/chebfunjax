@@ -13,6 +13,8 @@ pytest = ">=7.0"
 pytest-xdist = "*"
 pytest-cov = "*"
 ruff = "*"
+mkdocs = "*"
+mkdocs-material = "*"
 
 # JAX with CUDA support
 [pypi-dependencies]

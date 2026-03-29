@@ -1407,71 +1407,25 @@ class Ballfun(eqx.Module):
     # Representation
     # ------------------------------------------------------------------
 
-    def plot(self, n_pts: int = 50, ax=None, **kwargs):
-        """Plot the Ballfun on the r=1 sphere boundary (MATLAB Chebfun style).
+    def plot(self, *args, **kwargs):
+        """Plot this Ballfun using the shared MATLAB-faithful renderer."""
+        from chebfunjax.plotting import plot_ball_slices
 
-        Renders a smooth sphere coloured by the function values on the
-        boundary using the parula colormap and MATLAB's default view angle.
-
-        Parameters
-        ----------
-        n_pts : int
-            Number of grid points per angular direction.
-        ax : matplotlib axes, optional
-            Axes to plot on.  If None, a new figure is created.
-        **kwargs
-            Extra keyword arguments passed to ``plot_surface``.
-
-        Returns
-        -------
-        fig, ax
-        """
-        import matplotlib.pyplot as plt
-        from chebfunjax.plotting import _setup_3d_axes, _set_unit_ticks, PARULA
-
-        lam = np.linspace(-np.pi, np.pi, 2 * n_pts, endpoint=True)
-        theta = np.linspace(0, np.pi, n_pts)
-        LAM, THETA = np.meshgrid(lam, theta, indexing="ij")
-        R = np.ones_like(LAM)
-
-        eval_fn = jax.vmap(lambda ri, li, ti: self(ri, li, ti))
-        vals = np.asarray(eval_fn(
-            jnp.array(R.ravel()),
-            jnp.array(LAM.ravel()),
-            jnp.array(THETA.ravel()),
-        )).reshape(LAM.shape)
-
-        X = np.sin(THETA) * np.cos(LAM)
-        Y = np.sin(THETA) * np.sin(LAM)
-        Z = np.cos(THETA)
-
-        fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36,
-                                 figsize=(6.1, 2.58))
-
-        vmin, vmax = float(vals.min()), float(vals.max())
-        if vmax > vmin:
-            norm_vals = (vals - vmin) / (vmax - vmin)
-        else:
-            norm_vals = np.full_like(vals, 0.5)
-
-        fcolors = PARULA(norm_vals)
-        ax.plot_surface(X, Y, Z, facecolors=fcolors,
-                        rstride=1, cstride=1,
-                        linewidth=0, antialiased=True,
-                        shade=False, **kwargs)
-
-        ax.set_xlim(-1.05, 1.05)
-        ax.set_ylim(-1.05, 1.05)
-        ax.set_zlim(-1.05, 1.05)
-        _set_unit_ticks(ax, domain=(-1, 1, -1, 1))
-
-        fig.tight_layout(pad=0.5)
-        return fig, ax
+        style = "ball"
+        if args:
+            if len(args) > 1 or not isinstance(args[0], str):
+                raise ValueError(
+                    "Ballfun.plot accepts at most one positional argument: "
+                    "'WedgeAz' or 'WedgePol'."
+                )
+            style = args[0]
+        return plot_ball_slices(self, style=style, **kwargs)
 
     def surf(self, **kwargs):
-        """Surface/slice plot of this Ballfun (calls :func:`chebfunjax.plotting.plot_ball_slices`)."""
-        from chebfunjax.plotting import plot_ball_slices
-        return plot_ball_slices(self, **kwargs)
+        """Surface/slice plot of this Ballfun."""
+        from chebfunjax.plotting import surf_ball
+
+        return surf_ball(self, **kwargs)
 
     def isosurface(self, levels=None, **kwargs):
         """Isosurface plot of this Ballfun (calls :func:`chebfunjax.plotting.isosurface_ball`)."""
