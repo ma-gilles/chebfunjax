@@ -1,0 +1,193 @@
+#!/usr/bin/env python3
+"""Sync guide pages from the Chebfun originals.
+
+This imports the page header + main content from chebfun.org guide pages,
+rewrites image/link URLs for the chebfunjax docs layout, and downloads all
+referenced guide images into docs/images/guide.
+"""
+
+from __future__ import annotations
+
+import argparse
+import html
+import re
+import urllib.parse
+import urllib.request
+from html.parser import HTMLParser
+from pathlib import Path
+
+
+PROJECT = Path(__file__).resolve().parent.parent
+DOCS_GUIDE = PROJECT / "docs" / "guide"
+DOCS_GUIDE_IMAGES = PROJECT / "docs" / "images" / "guide"
+GUIDE_BASE = "https://www.chebfun.org/docs/guide"
+
+
+class FragmentExtractor(HTMLParser):
+    """Extract raw HTML fragments that match a tag predicate."""
+
+    def __init__(self, predicate):
+        super().__init__(convert_charrefs=False)
+        self.predicate = predicate
+        self.depth = 0
+        self.capturing = False
+        self.fragments: list[str] = []
+
+    def _attrs_dict(self, attrs):
+        return {key: value for key, value in attrs}
+
+    def handle_starttag(self, tag, attrs):
+        if not self.capturing and self.predicate(tag, self._attrs_dict(attrs)):
+            self.capturing = True
+            self.depth = 1
+            self.fragments.append(self.get_starttag_text())
+            return
+        if self.capturing:
+            self.depth += 1
+            self.fragments.append(self.get_starttag_text())
+
+    def handle_endtag(self, tag):
+        if self.capturing:
+            self.fragments.append(f"</{tag}>")
+            self.depth -= 1
+            if self.depth == 0:
+                self.capturing = False
+                self.fragments.append("\n")
+
+    def handle_startendtag(self, tag, attrs):
+        if self.capturing or self.predicate(tag, self._attrs_dict(attrs)):
+            self.fragments.append(self.get_starttag_text())
+
+    def handle_data(self, data):
+        if self.capturing:
+            self.fragments.append(data)
+
+    def handle_entityref(self, name):
+        if self.capturing:
+            self.fragments.append(f"&{name};")
+
+    def handle_charref(self, name):
+        if self.capturing:
+            self.fragments.append(f"&#{name};")
+
+    def handle_comment(self, data):
+        if self.capturing:
+            self.fragments.append(f"<!--{data}-->")
+
+    def handle_decl(self, decl):
+        if self.capturing:
+            self.fragments.append(f"<!{decl}>")
+
+    def get_html(self) -> str:
+        return "".join(self.fragments).strip()
+
+
+def fetch_text(url: str) -> str:
+    req = urllib.request.Request(url, headers={"User-Agent": "chebfunjax-guide-sync/1.0"})
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        charset = resp.headers.get_content_charset() or "utf-8"
+        return resp.read().decode(charset, "replace")
+
+
+def fetch_bytes(url: str) -> bytes:
+    req = urllib.request.Request(url, headers={"User-Agent": "chebfunjax-guide-sync/1.0"})
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        return resp.read()
+
+
+def extract_header_and_content(html_text: str) -> tuple[str, str]:
+    header = FragmentExtractor(
+        lambda tag, attrs: tag == "div" and attrs.get("class") == "page-header"
+    )
+    content = FragmentExtractor(
+        lambda tag, attrs: tag == "div" and attrs.get("id") == "content"
+    )
+    header.feed(html_text)
+    content.feed(html_text)
+    return header.get_html(), content.get_html()
+
+
+def rewrite_fragment(fragment: str, guide_slug: str) -> str:
+    fragment = html.unescape(fragment)
+    fragment = fragment.replace(f'src="img/{guide_slug}_', 'src="../images/guide/' + guide_slug + '_')
+    fragment = fragment.replace(f"src='img/{guide_slug}_", "src='../images/guide/" + guide_slug + "_")
+    fragment = re.sub(
+        r'href="/docs/guide/guide(\d+)\.html"',
+        lambda m: f'href="../guide{int(m.group(1)):02d}/"',
+        fragment,
+    )
+    fragment = re.sub(
+        r"href='/docs/guide/guide(\d+)\.html'",
+        lambda m: f"href='../guide{int(m.group(1)):02d}/'",
+        fragment,
+    )
+    fragment = fragment.replace('href="../guide"', 'href="../"')
+    fragment = fragment.replace("href='../guide'", "href='../'")
+    fragment = fragment.replace("href='None'", 'href="#"')
+    fragment = fragment.replace('href="None"', 'href="#"')
+    fragment = fragment.replace('class="figure"', 'class="figure chebfun-figure"')
+    fragment = fragment.replace("class='figure'", "class='figure chebfun-figure'")
+    return fragment
+
+
+def extract_image_urls(page_url: str, html_text: str) -> list[str]:
+    return [
+        urllib.parse.urljoin(page_url, src)
+        for src in re.findall(r'<img[^>]+src="([^"]+\.png)"', html_text, re.IGNORECASE)
+    ]
+
+
+def write_markdown(path: Path, header_html: str, content_html: str, source_url: str) -> None:
+    body = "\n\n".join(
+        part for part in [header_html, content_html] if part
+    )
+    text = (
+        "<!-- Generated by scripts/sync_chebfun_guides.py. -->\n"
+        f"<!-- Source: {source_url} -->\n\n"
+        '<div class="chebfun-import">\n'
+        f"{body}\n"
+        "</div>\n"
+    )
+    path.write_text(text, encoding="utf-8")
+
+
+def download_images(image_urls: list[str]) -> None:
+    DOCS_GUIDE_IMAGES.mkdir(parents=True, exist_ok=True)
+    for url in image_urls:
+        dest = DOCS_GUIDE_IMAGES / Path(urllib.parse.urlparse(url).path).name
+        dest.write_bytes(fetch_bytes(url))
+
+
+def sync_guide(number: int) -> None:
+    guide_slug = f"guide{number:02d}"
+    source_url = f"{GUIDE_BASE}/{guide_slug}.html"
+    html_text = fetch_text(source_url)
+    header_html, content_html = extract_header_and_content(html_text)
+    header_html = rewrite_fragment(header_html, guide_slug)
+    content_html = rewrite_fragment(content_html, guide_slug)
+    write_markdown(DOCS_GUIDE / f"{guide_slug}.md", header_html, content_html, source_url)
+    download_images(extract_image_urls(source_url, html_text))
+    print(f"synced {guide_slug}")
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "guides",
+        nargs="*",
+        type=int,
+        help="Guide chapter numbers to sync. Defaults to all 1..20.",
+    )
+    return parser
+
+
+def main() -> int:
+    args = build_parser().parse_args()
+    guides = args.guides or list(range(1, 21))
+    for number in guides:
+        sync_guide(number)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

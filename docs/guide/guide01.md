@@ -1,652 +1,741 @@
-# 1. Getting Started with chebfunjax
-
-*Lloyd N. Trefethen, October 2009, latest revision May 2019*
-*Python/chebfunjax translation, 2026*
-
-## 1.1  What is a chebfun?
-
-A chebfun is a function of one variable defined on an interval $[a,b]$. The syntax for chebfuns is almost exactly the same as the usual Python syntax for arrays, with familiar operations overloaded in natural ways. Thus, for example, whereas `sum(f)` returns the sum of the entries when `f` is an array, `f.sum()` returns a definite integral when `f` is a chebfun.
-
-Chebfunjax with a capital C is the name of the software system.
-
-The aim of chebfunjax is to "feel symbolic but run at the speed of numerics". More precisely, our vision is to achieve for functions what floating-point arithmetic achieves for numbers: rapid computation in which each successive operation is carried out exactly apart from a rounding error that is very small in relative terms [Trefethen 2007].
-
-The implementation of chebfunjax is based on the mathematical fact that smooth functions can be represented very efficiently by polynomial interpolation in Chebyshev points, or equivalently, thanks to the Fast Fourier Transform, by expansions in Chebyshev polynomials.  For a simple function, 20 or 30 points often suffice, but the process is stable and effective even for functions complicated enough to require 1000 or 1,000,000 points. Chebfunjax makes use of adaptive procedures that aim to find the right number of points automatically so as to represent each function to roughly machine precision, that is, about 15 or 16 digits of relative accuracy.  (Chebfunjax stores Chebyshev expansion coefficients.)
-
-The mathematical foundations of chebfunjax are for the most part well established by results scattered throughout the 20th century.  A key early figure, for example, was Bernstein in the 1910s. Much of the relevant material can be found collected in the Chebfun-based book *Approximation Theory and Approximation Practice* [Trefethen 2013].
-
-Chebfun was originally created by Zachary Battles and Nick Trefethen at Oxford during 2002-2005 [Battles & Trefethen 2004].  Battles left the project in 2005, and soon four new members were added to the team: Ricardo Pachon (from 2006), Rodrigo Platte (from 2007), and Toby Driscoll and Nick Hale (from 2008). In 2009, Asgeir Birkisson and Mark Richardson also became involved, and other contributors included Pedro Gonnet, Joris Van Deun, and Georges Klein.  Nick Hale served as Director of the project during 2010-2014.  The Chebfun Version 5 rewrite was directed by Nick Hale during 2013-2014, and the team included Anthony Austin, Asgeir Birkisson, Toby Driscoll, Hrothgar, Mohsin Javed, Hadrien Montanelli, Alex Townsend, Nick Trefethen, Grady Wright, and Kuan Xu. October 2014 brought new arrivals Jared Aurentz, and Behnam Hashemi.  In 2019 the team includes also Nicolas Boulle, Abi Gopal, Yuji Nakatsukasa, and Ryan Sherbo. Further information about Chebfun history is available at the Chebfun web site, [http://www.chebfun.org](http://www.chebfun.org), where one can also find a discussion of other software projects related to Chebfun. This Guide is based on the chebfunjax Python translation of MATLAB Chebfun Version 5.7.0.
-
-## 1.2  Constructing simple chebfuns
-
-The `cj.chebfun` constructor builds a chebfun from a callable. If you don't specify an interval, then the default interval $[-1,1]$ is used. For example, the following command makes a chebfun corresponding to $\cos(20x)$ on $[-1,1]$ and plots it.
-
-```python
-import jax.numpy as jnp
-import chebfunjax as cj
-
-f = cj.chebfun(lambda x: jnp.cos(20 * x))
-f.plot()
-```
-
-![](../images/guide/guide01_01.png)
-
-From this little experiment, you cannot see that `f` is represented by a polynomial.  One way to see this is to find the length of `f`:
-
-```python
-len(f)
-```
-```
-51
-```
-
-Another is to print the representation:
-
-```python
-print(repr(f))
-```
-```
-Chebfun column (1 smooth piece)
-       interval       length     endpoint values
-[      -1,       1]       51       0.41      0.41
-vscale = 1.00e+00
-```
-
-These results tell us that `f` is represented by a polynomial interpolant through 51 Chebyshev points, i.e., a polynomial of degree 50.  These numbers have been determined by an adaptive process.  We can see the data points by plotting `f` with markers at the Chebyshev points:
-
-```python
-import numpy as np
-import matplotlib.pyplot as plt
-
-fig, ax = plt.subplots()
-xs = np.linspace(-1, 1, 600)
-ax.plot(xs, np.array(f(jnp.array(xs))), '-')
-n = len(f)
-cheb_pts = -np.cos(np.pi * np.arange(n) / (n - 1))
-ax.plot(cheb_pts, np.array(f(jnp.array(cheb_pts))), '.')
-ax.set_ylim(-1.2, 1.2)
-```
-
-![](../images/guide/guide01_02.png)
-
-The formula for $N+1$ Chebyshev points in $[-1,1]$ is $$ x_j = -\cos(j \pi/N), \quad  j = 0, 1, \ldots, N, $$ and in the figure we can see that the points are clustered accordingly near $1$ and $-1$. Note that in the middle of the grid, there are about 5 points per wavelength, which is evidently what it takes to represent this cosine to 15 digits of accuracy.  For intervals other than $[-1,1]$, appropriate Chebyshev points are obtained by a linear scaling.
-
-The curve between the data points is the polynomial interpolant, which can be evaluated by the Clenshaw algorithm for Chebyshev series. This method of evaluating polynomial interpolants is stable and efficient even if the degree is in the millions [Higham 2004].
-
-What is the integral of $f$ from $-1$ to $1$?  Here it is:
-
-```python
-f.sum()
-```
-```
-0.09129452507276264
-```
-
-This number was computed by integrating the polynomial (Clenshaw-Curtis quadrature -- see Section 2.1), and it is interesting to compare it to the exact answer from calculus:
-
-```python
-import math
-exact = math.sin(20) / 10
-print(exact)
-```
-```
-0.09129452507276277
-```
-
-Here is another example, now with the chebfun defined by an anonymous function instead of a string. In this case the interval is specified as $[0,100]$.
-
-```python
-import scipy.special as sp
-
-g = cj.chebfun(lambda t: jnp.array(sp.j0(np.asarray(t))), domain=[0, 100])
-g.plot()
-plt.ylim(-0.5, 1)
-```
-
-![](../images/guide/guide01_03.png)
-
-The function looks complicated, but it is actually a polynomial of surprisingly small degree:
-
-```python
-len(g)
-```
-```
-90
-```
-
-Is it accurate?  Well, here are three points in $[0,100]$:
-
-```python
-x = jnp.array([81.4724, 90.5792, 12.6987])
-```
-
-Let's compare the chebfun to the true Bessel function at these points:
-
-```python
-exact = sp.j0(np.asarray(x))
-error = np.asarray(g(x)) - exact
-```
-```
-     g(x)                exact              error
-  0.048061855778786   0.048061855778785   6.94e-17
- -0.021311596385450  -0.021311596385450  -4.16e-16
-  0.176417869795543   0.176417869795542   3.33e-16
-```
-
-If you want to know the first 5 zeros of the Bessel function, here they are:
-
-```python
-r = g.roots()
-r[:5]
-```
-```
-array([ 2.40482556,  5.52007811,  8.65372791, 11.79153444, 14.93091771])
-```
-
-Notice that we have just done something nontrivial and potentially useful.  How else would you find zeros of the Bessel function so readily? As always with numerical computation, we cannot expect the answers to be exactly correct, but they will usually be very close. In fact, these computed zeros are accurate to close to machine precision:
-
-```python
-sp.j0(np.asarray(r[:5]))
-```
-```
-array([-3.83e-15,  3.31e-15,  2.81e-15,  2.21e-15,  2.23e-15])
-```
-
-Most often we get a chebfun by operating on other chebfuns. For example, here is a sequence that uses plus, times, divide, and power operations on an initial chebfun `x` to produce a famous function of Runge:
-
-```python
-f = cj.chebfun(lambda x: 1 / (1 + 25 * x**2))
-print(len(f))
-f.plot()
-```
-```
-185
-```
-
-![](../images/guide/guide01_04.png)
-
-## 1.3  Operations on chebfuns
-
-There are many methods that can be applied to a chebfun.  The key categories are:
-
-| Category | Methods / Functions |
-|---|---|
-| **Arithmetic** | `+`, `-`, `*`, `/`, `**`, unary `-` |
-| **Calculus** | `diff`, `cumsum`, `sum`, `inner`, `norm`, `mean` |
-| **Rootfinding** | `roots`, `min`, `max`, `minandmax` |
-| **Composition** | `sin`, `cos`, `exp`, `log`, `sqrt`, `abs`, `sign`, ... |
-| **Special functions** | `besselj`, `bessely`, `airy`, `erf`, `erfc`, ... |
-| **Linear algebra** | `qr`, `svd`, `inner` |
-| **Inspection** | `len`, `coeffs`, `values`, `vscale`, `ishappy` |
-
-To find out what a method does, you can use Python's `help`:
-
-```python
-help(cj.Chebfun.sum)
-```
-```
- sum(self) -> jax.Array
-    Definite integral of the Chebfun over its domain.
-
-    Returns the integral of the Chebfun f over its domain [a, b]:
-
-                      b
-                      /
-            sum(f) =  | f(t) dt.
-                      /
-                     a
-```
-
-We have already seen `len` and `sum` in action.  We have also already seen evaluation, since calling a chebfun `f(0.5)` evaluates at the given point.  Here is another example of its use:
-
-```python
-f = cj.chebfun(lambda x: 1 / (1 + 25 * x**2))
-f(0.5)
-```
-```
-0.13793103448275867
-```
-
-Here for comparison is the true result:
-
-```python
-1 / (1 + 25/4)
-```
-```
-0.13793103448275862
-```
-
-In this Runge function example, we have also implicitly seen `__mul__`, `__add__`, `__pow__`, and `__truediv__`, all of which have been overloaded from their usual Python uses to apply to chebfuns.
-
-In the next part of this tour we shall explore many of these operations systematically.  First, however, we should see that chebfuns are not restricted to smooth functions.
-
-## 1.4  Piecewise smooth chebfuns
-
-Many functions of interest are not smooth but piecewise smooth.  In this case a chebfun may consist of a concatenation of smooth pieces, each with its own polynomial representation.  Each of the smooth pieces is called a "fun".  This enhancement of Chebfun was developed initially by Ricardo Pachon during 2006-2007, then also by Rodrigo Platte starting in 2007 [Pachon, Platte and Trefethen 2010]. Essentially funs are the "classic chebfuns" for smooth functions on $[-1,1]$ originally implemented by Zachary Battles in Chebfun Version 1.
-
-Later we shall describe the options in greater detail, but for the moment let us see some examples.  One way to get a piecewise smooth function is directly from the chebfunjax constructor, providing explicit breakpoints. For example, $|x - 0.3|$ has a kink at $x = 0.3$:
-
-```python
-f = cj.chebfun(lambda x: jnp.abs(x - 0.3), domain=[-1, 0.3, 1])
-```
-
-The `len` function reveals that `f` is defined by four data points, two for each linear interval:
-
-```python
-len(f)
-```
-```
-4
-```
-
-We can see the structure of `f` in more detail by printing it:
-
-```python
-print(repr(f))
-```
-```
-Chebfun column (2 smooth pieces)
-       interval       length     endpoint values
-[      -1,     0.3]        2       1.30      0.00
-[     0.3,       1]        2       0.00      0.70
-vscale = 1.30e+00    total length = 4
-```
-
-This output confirms that f consists of two funs, each defined by two points and two corresponding function values. The functions live on intervals defined by breakpoints at $-1$, $0.3$, and $1$.
-
-Another way to make a piecewise smooth chebfun is to construct it explicitly from various pieces.  For example, the following command specifies three functions $x^2$, $1$, and $4-x$, together with breakpoints indicating that the first function applies on $[-1,1]$, the second on $[1,2]$, and the third on $[2,4]$:
-
-```python
-from chebfunjax.chebfun1d.chebfun import Chebfun
-from chebfunjax.domain import Domain
-
-f1 = cj.chebfun(lambda x: x**2, domain=[-1, 1])
-f2 = cj.chebfun(lambda x: jnp.ones_like(x), domain=[1, 2])
-f3 = cj.chebfun(lambda x: 4.0 - x, domain=[2, 4])
-f = Chebfun(funs=f1.funs + f2.funs + f3.funs,
-            domain=Domain((-1.0, 1.0, 2.0, 4.0)))
-f.plot()
-```
-
-![](../images/guide/guide01_05.png)
-
-We expect `f` to consist of three pieces of lengths 3, 1, and 2, and this is indeed the case:
-
-```python
-print(repr(f))
-```
-```
-Chebfun column (3 smooth pieces)
-       interval       length     endpoint values
-[      -1,       1]        3       1.00      1.00
-[       1,       2]        1       1.00      1.00
-[       2,       4]        2       2.00      0.00
-vscale = 2.00e+00    total length = 6
-```
-
-Our eyes see pieces, but to chebfunjax, `f` is just another function.  For example, here is its integral.
-
-```python
-f.sum()
-```
-```
-3.666666666666667
-```
-
-Here is an algebraic transformation of `f`, which we plot in another color for variety.
-
-```python
-g = 1 / (1 + f)
-g.plot(color='r')
-```
-
-![](../images/guide/guide01_06.png)
-
-Some chebfunjax operations naturally introduce breakpoints in a chebfun. For example, the `abs` method first finds zeros of a function and introduces breakpoints there.  Here is a chebfun consisting of 6 funs:
-
-```python
-x = cj.chebfun(lambda x: x)
-f = (x.exp() * (8 * x).sin()).abs()
-f.plot()
-```
-
-![](../images/guide/guide01_07.png)
-
-And here is an example where breakpoints are introduced by computing the pointwise maximum of two functions, leading to a chebfun with 13 pieces:
-
-```python
-f = (20 * x).sin()
-g = (x - 1).exp()
-# max(f, g): find crossover points, then build piecewise
-diff = f - g
-r = diff.roots()
-bps = sorted([-1.0] + list(r) + [1.0])
-h = cj.chebfun(
-    lambda t: jnp.maximum(jnp.sin(20 * t), jnp.exp(t - 1)),
-    domain=bps
-)
-h.plot()
-plt.ylim(0, 1.2)
-```
-
-![](../images/guide/guide01_08.png)
-
-As always, `h` may look complicated to a human, but to chebfunjax it is just a function.  Here are its mean, standard deviation, minimum, and maximum:
-
-```python
-h.mean()
-```
-```
-0.578242020778010
-```
-
-```python
-# std(h) = sqrt(mean(h^2) - mean(h)^2), computed via inner products
-import math
-mean_h = float(h.mean())
-hmc = h - mean_h
-std_h = math.sqrt(float(hmc.inner(hmc)) / 2.0)  # domain length = 2
-print(std_h)
-```
-```
-0.280937455806246
-```
-
-```python
-_, min_val = h.min()    # returns (x_min, f_min)
-print(min_val)
-```
-```
-0.135335283236613
-```
-
-```python
-_, max_val = h.max()    # returns (x_max, f_max)
-print(max_val)
-```
-```
-1.000000000000000
-```
-
-A final note about piecewise smooth chebfuns is that the automatic edge detection or "splitting" feature of MATLAB Chebfun, when it is turned on, may subdivide functions even though they do not have clean point singularities, and this may be desirable or undesirable depending on the application.  In chebfunjax, splitting is handled by specifying breakpoints explicitly. For example, considering $\sin(x)$ over $[0,1000\pi]$, we can construct one global chebfun:
-
-```python
-import time
-t0 = time.time()
-f2 = cj.chebfun(jnp.sin, domain=[0, 1000 * jnp.pi])
-print(f"len = {len(f2)}, time = {time.time() - t0:.3f}s")
-print(repr(f2))
-```
-```
-Chebfun column (1 smooth piece)
-       interval       length     endpoint values
-[       0, 3141.59]     1684      -0.00     -0.00
-vscale = 1.00e+00
-```
-
-## 1.5  Infinite intervals and infinite function values
-
-A major feature of MATLAB Chebfun is the generalization of chebfuns to allow certain functions on infinite intervals or which diverge to infinity. **Chebfunjax does not yet support infinite intervals or endpoint singularities (`'exps'`).** For now, we can approximate such functions on large finite intervals.
-
-For example, here is a function on a large interval approximating the whole real axis:
-
-```python
-f = cj.chebfun(
-    lambda x: jnp.exp(-x**2 / 16) * (1 + 0.2 * jnp.cos(10 * x)),
-    domain=[-20, 20]
-)
-f.plot()
-```
-
-![](../images/guide/guide01_09.png)
-
-and here is its integral:
-
-```python
-f.sum()
-```
-```
-7.08981540361064
-```
-
-Here's the integral of a function on $[1,\infty)$, approximated on $[1, 100]$:
-
-```python
-cj.chebfun(lambda x: 1 / x**4, domain=[1, 100]).sum()
-```
-```
-0.3333329999999998
-```
-
-Notice that several digits of accuracy have been lost here.  Be careful! -- operations involving large domains in chebfunjax may not always be as accurate as their counterparts on moderate intervals.
-
-Here is an example of a function that diverges to infinity, the arcsine distribution $(1/\pi)/\sqrt{1-x^2}$, which we approximate by staying slightly away from the endpoints:
-
-```python
-eps = 1e-6
-h = cj.chebfun(
-    lambda x: (1 / jnp.pi) / jnp.sqrt(1 - x**2 + eps),
-    domain=[-1 + eps, 1 - eps]
-)
-h.plot()
-```
-
-![](../images/guide/guide01_10.png)
-
-In the MATLAB version with endpoint singularity support, the integral comes out just right as $1$:
-
-```python
-h.sum()
-```
-```
-0.999999...  (approximately 1)
-```
-
-For more on the treatment of infinities, see the MATLAB Chebfun Guide Chapter 9.
-
-## 1.6  Periodic functions
-
-MATLAB Chebfun Version 5 introduced a capability for representing sufficiently smooth periodic functions by trigonometric polynomials instead of Chebyshev polynomials, invoked with the string `'trig'`. **Chebfunjax does not yet support periodic (trigonometric) representations directly.** However, periodic functions can still be represented using the standard Chebyshev basis. This section shows the Chebyshev approach; a trigonometric mode is planned for a future release.
-
-For example, here is a periodic function on $[-\pi,\pi]$ represented by a Chebyshev series.
-
-```python
-ff = lambda t: jnp.sin(t) + jnp.cos(2*t) - jnp.cos(t)/3 + jnp.cos(100*t)/6
-f = cj.chebfun(ff, domain=[-jnp.pi, jnp.pi])
-_, max_val = f.max()
-print(max_val)
-f.plot()
-```
-```
-1.614526099978745
-```
-
-![](../images/guide/guide01_11.png)
-
-Its length, very roughly, is $100 \pi$,
-
-```python
-len(f)
-```
-```
-383
-```
-
-In MATLAB Chebfun, the same function represented by a Fourier series (`'trig'` mode) would need only about 201 coefficients -- an improvement by a factor of about $\pi/2$. When chebfunjax adds trigonometric support, the same savings will apply.
-
-For illustration, here is the same function plotted in magenta:
-
-```python
-f2 = cj.chebfun(ff, domain=[-jnp.pi, jnp.pi])
-f2.plot(color='m')
-```
-
-![](../images/guide/guide01_12.png)
-
-Sampling at a few arbitrary points confirms that the two representations agree closely:
-
-```python
-xx = jnp.array([1/3, jnp.sqrt(2.0), jnp.e])
-f(xx) - f2(xx)
-```
-```
-array([0., 0., 0.])   # identical representations
-```
-
-## 1.7  Rows, columns, and quasimatrices
-
-MATLAB Chebfun supports row vectors, column vectors, and quasimatrices (matrices whose columns or rows are chebfuns). **Chebfunjax has partial support for quasimatrices** through list-based operations. Here is the inner product of the identity function with itself:
-
-```python
-x = cj.chebfun(lambda x: x)
-print(repr(x))
-```
-```
-Chebfun column (1 smooth piece)
-       interval       length     endpoint values
-[      -1,       1]        2      -1.00      1.00
-vscale = 1.00e+00
-```
-
-```python
-# Inner product x'*x = integral of x^2 from -1 to 1 = 2/3
-x.inner(x)
-```
-```
-0.666666666666667
-```
-
-One can also form lists of chebfuns and compute Gram matrices:
-
-```python
-one = cj.chebfun(1.0)
-A = [one, x, x**2]  # list of 3 chebfuns
-
-# Gram matrix A'*A: G[i,j] = inner(A[i], A[j])
-G = jnp.array([[float(a.inner(b)) for b in A] for a in A])
-print(G)
-```
-```
-[[ 2.000  0.000  0.667]
- [ 0.000  0.667  0.000]
- [ 0.667  0.000  0.400]]
-```
-
-These are discussed further in Chapter 6.
-
-## 1.8  Chebfunjax features not in this Guide
-
-Some of chebfunjax's most interesting features haven't made it into this edition of the Guide.  Here are some of our favorites:
-
-- `conv` for convolution,
-
-- `polyfit` for least-squares fitting in the continuous context,
-
-- `besselj`, `bessely`, `airy` for Bessel and Airy function composition,
-
-- `ode45` and `ode113` for ODE solving.
-
-To learn about any of these options, try Python's `help` function on the relevant method.
-
-## 1.9  Chebfunjax example galleries
-
-MATLAB has long had a `gallery` command to generate interesting matrices, and chebfunjax has an analogous `gallery` function to generate interesting functions.
-
-Here is what is currently available:
-
-```python
-from chebfunjax.utils.gallery import list_gallery
-for name, desc in list_gallery().items():
-    print(f"  {name:15s}  {desc}")
-```
-```
-  bessel           Bessel J_0 on [-50, 50]
-  bump             C-infinity bump exp(-1/(1-x^2)) on [-2, 2]
-  chirp            Chirp sin(x * exp(x)) on [0, 5]
-  erf              Error function erf(x) on [-10, 10]
-  fishfillet       Wild oscillations cos(x)*sin(exp(x)) on [0, 6]
-  gaussian         Standard Gaussian exp(-x^2/2)/sqrt(2*pi) on [-6, 6]
-  kahaner          Four-spike integrand on [0, 1] (Kahaner benchmark)
-  runge            Runge function 1/(1 + 25x^2) on [-1, 1]
-  seismograph      tanh(20*sin(12x)) + 0.02*exp(3x)*sin(300x) on [-1, 1]
-  sinefun1         1.75 + sin(50x) on [-1, 1] -- smooth as it looks
-  sinefun2         (1.75 + sin(50x))^1.0001 -- not as smooth as it looks
-  spikycomb        exp(x)*sech(4*sin(40x))^exp(x) on [-1, 1] -- 25 peaks
-  wiggly           exp(x)*sin(10*pi*x) on [-1, 1]
-  wild             cos(x)^2 * sin(x^3) on [-1, 1]
-  zigzag           Degree-high polynomial that looks piecewise linear on [-1, 1]
-```
-
-For example, here is a chebfun representing the Airy function:
-
-```python
-f = cj.chebfun(lambda x: jnp.array(sp.airy(np.asarray(x))[0]),
-               domain=[-40, 40])
-f.plot()
-plt.ylim(-0.8, 0.8)
-plt.title('Airy function')
-```
-
-![](../images/guide/guide01_13.png)
-
-In this instance the underlying code fits in a line:
-
-```python
-import scipy.special as sp
-f = cj.chebfun(lambda x: jnp.array(sp.airy(np.asarray(x))[0]),
-               domain=[-40, 40])
-```
-
-Some examples make use of more complicated code, like this approximation to a Daubechies wavelet scaling function (accurate to about 3 digits of accuracy; the underlying function is a fractal):
-
-```python
-# Daubechies D4 scaling function via cascade algorithm
-# (see scripts/generate_guide01_plots.py for full code)
-f.plot()
-plt.ylim(-0.5, 1.5)
-plt.title('Daubechies scaling function')
-```
-
-![](../images/guide/guide01_14.png)
-
-To find out how a gallery example was generated, look at the source code in `chebfunjax/utils/gallery.py`.
-
-Like the MATLAB `gallery` command, `gallery` can be used directly. To illustrate, let us finish with an example the Chebfun team enjoys from the appendix to [Trefethen 2013], "Six myths of polynomial interpolation and quadrature":
-
-```python
-from chebfunjax.utils.gallery import gallery
-f = gallery('zigzag')
-f.plot()
-```
-
-![](../images/guide/guide01_15.png)
-
-This function looks piecewise linear, but in fact, it is a polynomial of degree 5000.  This serves no purpose from an approximation point of view -- one would never represent this function in this manner -- but it illustrates the robustness of high-degree polynomial approximation.
-
-If you call `gallery` without any input arguments, it selects a gallery function at random.
-
-## 1.10  How this Guide is produced
-
-This guide is produced as a Markdown document with embedded Python code blocks. The plots are generated by running the script `scripts/generate_guide01_plots.py`, which executes each code block that produces a figure and saves the output as PNG images. The text is adapted from the original MATLAB Chebfun Guide by Lloyd N. Trefethen.
-
-## 1.11  References
-
-[Battles & Trefethen 2004] Z. Battles and L. N. Trefethen, "An extension of MATLAB to continuous functions and operators", *SIAM Journal on Scientific Computing*, 25 (2004), 1743-1770.
-
-[Berrut & Trefethen 2005] J.-P. Berrut and L. N. Trefethen, "Barycentric Lagrange interpolation", *SIAM Review 46*, (2004), 501-517.
-
-[Hale & Townsend 2013]  N. Hale and A. Townsend, A fast, simple, and stable Chebyshev--Legendre transform using an asymptotic formula, *SIAM Journal on Scientific Computing*, 36 (2014), A148-A167.
-
-[Higham 2004] N. J. Higham, "The numerical stability of barycentric Lagrange interpolation", *IMA Journal of Numerical Analysis*, 24 (2004), 547-556.
-
-[McLeod 2014] K. N. McLeod, "Fourfun: A new system for automatic computations using Fourier expansions," *SIAM Undergraduate Research Online*, 7 (2014), `http://dx.doi.org/10.1137/14S013238`.
-
-[Pachon, Platte & Trefethen 2010] R. Pachon, R. B. Platte and L. N. Trefethen, "Piecewise-smooth chebfuns", *IMA J. Numer. Anal.*, 30 (2010), 898-916.
-
-[Salzer 1972] H. E. Salzer, "Lagrangian interpolation at the Chebyshev points cos(nu pi/n), nu = 0(1)n; some unnoted advantages", *Computer Journal* 15 (1972), 156-159.
-
-[Trefethen 2007] L. N. Trefethen, "Computing numerically with functions instead of numbers", *Mathematics in Computer Science* 1 (2007), 9-19. Revised and reprinted in *Communications of the ACM* 58 (2014), 91-97.
-
-[Trefethen 2013] L. N. Trefethen, *Approximation Theory and Approximation Practice*, SIAM, 2013.
-
-[Wright et al. 2015] G. B. Wright, M. Javed, H. Montanelli, and L. N. Trefethen, Extension of Chebfun to periodic functions, *SIAM J. Sci. Comp.* 37 (2015), C554-C573.
+<!-- Generated by scripts/sync_chebfun_guides.py. -->
+<!-- Source: https://www.chebfun.org/docs/guide/guide01.html -->
+
+<div class="chebfun-import">
+<div class='page-header'>
+<span class='chapter_number'>1</span>
+<h1>Getting Started with Chebfun</h1>
+<h2>Lloyd N. Trefethen, October 2009, latest revision May 2019<span>
+    
+        <a href="#"
+class='invisible'>previous</a><span class='sep-sm
+ invisible'>·</span><a href='../'>index</a><span class='sep-sm
+'>·</span><a href='../guide02/'
+>next</a></span></h2>
+</div>
+
+<div id='content' class="col-sm-12" role="main">
+<h3 id="11-what-is-a-chebfun">1.1  What is a chebfun?</h3>
+<p>A chebfun is a function of one variable defined on an interval $[a,b]$. The syntax for chebfuns is almost exactly the same as the usual MATLAB syntax for vectors, with the familiar MATLAB commands for vectors overloaded in natural ways. Thus, for example, whereas <code>sum(f)</code> returns the sum of the entries when <code>f</code> is a vector, it returns a definite integral when <code>f</code> is a chebfun.</p>
+<p>Chebfun with a capital C is the name of the software system.</p>
+<p>The aim of Chebfun is to "feel symbolic but run at the speed of numerics". More precisely, our vision is to achieve for functions what floating-point arithmetic achieves for numbers: rapid computation in which each successive operation is carried out exactly apart from a rounding error that is very small in relative terms [Trefethen 2007].</p>
+<p>The implementation of Chebfun is based on the mathematical fact that smooth functions can be represented very efficiently by polynomial interpolation in Chebyshev points, or equivalently, thanks to the Fast Fourier Transform, by expansions in Chebyshev polynomials.  For a simple function, 20 or 30 points often suffice, but the process is stable and effective even for functions complicated enough to require 1000 or 1,000,000 points. Chebfun makes use of adaptive procedures that aim to find the right number of points automatically so as to represent each function to roughly machine precision, that is, about 15 or 16 digits of relative accuracy.  (Originally Chebfun stored function values at Chebyshev points; in Version 5 it switched to storing Chebyshev expansion coefficients.)</p>
+<p>The mathematical foundations of Chebfun are for the most part well established by results scattered throughout the 20th century.  A key early figure, for example, was Bernstein in the 1910s. Much of the relevant material can be found collected in the Chebfun-based book <em>Approximation Theory and Approximation Practice</em> [Trefethen 2013].</p>
+<p>Chebfun was originally created by Zachary Battles and Nick Trefethen at Oxford during 2002-2005 [Battles & Trefethen 2004].  Battles left the project in 2005, and soon four new members were added to the team: Ricardo Pachon (from 2006), Rodrigo Platte (from 2007), and Toby Driscoll and Nick Hale (from 2008). In 2009, Asgeir Birkisson and Mark Richardson also became involved, and other contributors included Pedro Gonnet, Joris Van Deun, and Georges Klein.  Nick Hale served as Director of the project during 2010-2014.  The Chebfun Version 5 rewrite was directed by Nick Hale during 2013-2014, and the team included Anthony Austin, Asgeir Birkisson, Toby Driscoll, Hrothgar, Mohsin Javed, Hadrien Montanelli, Alex Townsend, Nick Trefethen, Grady Wright, and Kuan Xu. October 2014 brough new arrivals Jared Aurentz,  and Behnam Hashemi.  In 2019 the team includes also Nicolas Boulle, Abi Gopal, Yuji Nakatsukasa, and Ryan Sherbo. Further information about Chebfun history is available at the Chebfun web site, <a href="http://www.chebfun.org">http://www.chebfun.org</a>, where one can also find a discussion of other software projects related to Chebfun. This Guide is based on Chebfun Version 5.7.0, released in June 2017.</p>
+<h3 id="12-constructing-simple-chebfuns">1.2  Constructing simple chebfuns</h3>
+<p>The <code>chebfun</code> command constructs a chebfun from a specification such as a string or an anonymous function.  If you don't specify an interval, then the default interval $[-1,1]$ is used. For example, the following command makes a chebfun corresponding to $\cos(20x)$ on $[-1,1]$ and plots it.</p>
+<pre class="mcode-input">  f = chebfun('cos(20*x)');
+  plot(f), ylim([-1.2,1.2])</pre>
+
+<p><img src="../images/guide/guide01_01.png" class="figure chebfun-figure" alt=""></p>
+<p>From this little experiment, you cannot see that <code>f</code> is represented by a polynomial.  One way to see this is to find the length of <code>f</code>:</p>
+<pre class="mcode-input">  length(f)</pre>
+
+<pre class="mcode-output">ans =
+    51
+</pre>
+
+<p>Another is to remove the semicolon that suppresses output:</p>
+<pre class="mcode-input">  f</pre>
+
+<pre class="mcode-output">f =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values  
+[      -1,       1]       51      0.41     0.41 
+vertical scale =   1 
+</pre>
+
+<p>These results tell us that <code>f</code> is represented by a polynomial interpolant through 51 Chebyshev points, i.e., a polynomial of degree 50.  These numbers have been determined by an adaptive process.  We can see the data points by plotting <code>f</code> with the <code>'.-'</code> option:</p>
+<pre class="mcode-input">  plot(f,'.-'), ylim([-1.2 1.2])</pre>
+
+<p><img src="../images/guide/guide01_02.png" class="figure chebfun-figure" alt=""></p>
+<p>The formula for $N+1$ Chebyshev points in $[-1,1]$ is $$ x(j) = -\cos(j \pi/N), \quad  j = 0:N, $$ and in the figure we can see that the points are clustered accordingly near $1$ and $-1$. Note that in the middle of the grid, there are about 5 points per wavelength, which is evidently what it takes to represent this cosine to 15 digits of accuracy.  For intervals other than $[-1,1]$, appropriate Chebyshev points are obtained by a linear scaling.</p>
+<p>The curve between the data points is the polynomial interpolant, which can be evaluated by the barycentric formula introduced by Salzer [Berrut & Trefethen 2004, Salzer 1972].  This method of evaluating polynomial interpolants is stable and efficient even if the degree is in the millions [Higham 2004].  Chebfun actually evaluates polynomials from their Chebyshev series rather than by barycentric interpolation; the difference in the two methods is little.</p>
+<p>What is the integral of $f$ from $-1$ to $1$?  Here it is:</p>
+<pre class="mcode-input">  sum(f)</pre>
+
+<pre class="mcode-output">ans =
+   0.091294525072763
+</pre>
+
+<p>This number was computed by integrating the polynomial (Clenshaw-Curtis quadrature -- see Section 2.1), and it is interesting to compare it to the exact answer from calculus:</p>
+<pre class="mcode-input">  exact = sin(20)/10</pre>
+
+<pre class="mcode-output">exact =
+   0.091294525072763
+</pre>
+
+<p>Here is another example, now with the chebfun defined by an anonymous function instead of a string. In this case the interval is specified as $[0,100]$.</p>
+<pre class="mcode-input">  g = chebfun(@(t) besselj(0,t),[0,100]);
+  plot(g), ylim([-.5 1])</pre>
+
+<p><img src="../images/guide/guide01_03.png" class="figure chebfun-figure" alt=""></p>
+<p>The function looks complicated, but it is actually a polynomial of surprisingly small degree:</p>
+<pre class="mcode-input">  length(g)</pre>
+
+<pre class="mcode-output">ans =
+    89
+</pre>
+
+<p>Is it accurate?  Well, here are three random points in $[0,100]$:</p>
+<pre class="mcode-input">  format long
+  x = 100*rand(3,1)</pre>
+
+<pre class="mcode-output">x =
+  81.472368639317892
+  90.579193707561927
+  12.698681629350606
+</pre>
+
+<p>Let's compare the chebfun to the true Bessel function at these points:</p>
+<pre class="mcode-input">  exact = besselj(0,x);
+  error = g(x) - exact;
+  [g(x) exact error]</pre>
+
+<pre class="mcode-output">ans =
+   0.048059538377880   0.048059538377880   0.000000000000000
+  -0.021311086924089  -0.021311086924090   0.000000000000000
+   0.176415464952875   0.176415464952875  -0.000000000000000
+</pre>
+
+<p>If you want to know the first 5 zeros of the Bessel function, here they are:</p>
+<pre class="mcode-input">  r = roots(g); r = r(1:5)</pre>
+
+<pre class="mcode-output">r =
+   2.404825557695756
+   5.520078110286287
+   8.653727912911013
+  11.791534439014278
+  14.930917708487790
+</pre>
+
+<p>Notice that we have just done something nontrivial and potentially useful.  How else would you find zeros of the Bessel function so readily? As always with numerical computation, we cannot expect the answers to be exactly correct, but they will usually be very close. In fact, these computed zeros are accurate to close to machine precision:</p>
+<pre class="mcode-input">  besselj(0,r)</pre>
+
+<pre class="mcode-output">ans =
+   1.0e-14 *
+   0.891222737425086
+  -0.809539285445395
+   0.010653221425832
+  -0.058908346770306
+  -0.092296985262750
+</pre>
+
+<p>Most often we get a chebfun by operating on other chebfuns. For example, here is a sequence that uses plus, times, divide, and power operations on an initial chebfun <code>x</code> to produce a famous function of Runge:</p>
+<pre class="mcode-input">  x = chebfun('x');
+  f = 1/(1+25*x^2);
+  length(f)
+  clf, plot(f)</pre>
+
+<pre class="mcode-output">ans =
+   187
+</pre>
+
+<p><img src="../images/guide/guide01_04.png" class="figure chebfun-figure" alt=""></p>
+<h3 id="13-operations-on-chebfuns">1.3  Operations on chebfuns</h3>
+<p>There are more than 300 commands that can be applied to a chebfun.  For a list of many of them you can type <code>methods</code>:</p>
+<pre class="mcode-input">  methods chebfun</pre>
+
+<pre class="mcode-output">
+Methods for class chebfun:
+
+abs              csc              jaccoeffs        range            
+acos             cscd             join             rank             
+acosd            csch             jump             rdivide          
+acosh            ctranspose       kron             real             
+acot             cummax           ldivide          reallog          
+acotd            cummin           le               realpow          
+acoth            cumprod          legcoeffs        realsqrt         
+acsc             cumsum           length           rem              
+acscd            cylinder         log              remez            
+acsch            deriv            log10            removeDeltas     
+airy             diff             log1p            repmat           
+all              dirac            log2             residue          
+and              disp             logical          restrict         
+angle            display          loglog           roots            
+any              domain           lt               round            
+arcLength        eigs             lu               sec              
+area             ellipj           mat2cell         secd             
+arrowplot        ellipke          max              sech             
+asec             end              mean             semilogx         
+asecd            eq               measure          semilogy         
+asech            erf              merge            sign             
+asin             erfc             mesh             simplify         
+asind            erfcinv          min              sin              
+asinh            erfcx            minandmax        sinc             
+atan             erfinv           minus            sind             
+atan2            exp              mldivide         sinh             
+atan2d           expm             mod              size             
+atand            expm1            movie            sound            
+atanh            feval            mpower           spy              
+besselh          fill             mrdivide         sqrt             
+besseli          find             mtimes           std              
+besselj          fix              nchoosek         subsasgn         
+besselk          fliplr           ne               subspace         
+bessely          flipud           newDomain        subsref          
+bvp4c            floor            nextpow2         sum              
+bvp5c            fracDiff         norm             surf             
+cat              fracInt          normal           surface          
+ceil             fred             normest          surfc            
+cf               gamma            not              svd              
+cheb2cell        ge               null             tan              
+cheb2quasi       get              num2cell         tand             
+chebcoeffs       gmres            or               tanh             
+chebellipseplot  gt               orth             times            
+chebfun          heaviside        overlap          transpose        
+chebpade         horzcat          pde15s           trigcoeffs       
+chebpoly         hscale           pde23t           trigpade         
+chebtune         hypot            permute          trigremez        
+circconv         imag             pinv             truncate         
+comet            innerProduct     plot             uminus           
+comet3           integral         plot3            unwrap           
+complex          inv              plotcoeffs       uplus            
+compose          isPeriodicTech   plotregion       vander           
+cond             isdelta          plus             var              
+conj             isempty          poly             vertcat          
+conv             isequal          polyfit          volt             
+cos              isfinite         polyval          vscale           
+cosd             ishappy          pow2             waterfall        
+cosh             isinf            power            why              
+cot              isnan            prod             xor              
+cotd             isreal           qr               
+coth             issing           quantumstates    
+cov              iszero           quasi2cheb       
+
+Static methods:
+
+dct              idst             nufft            pchip            
+dlt              interp1          nufft2           spline           
+dst              inufft           ode113           update           
+idct             lagrange         ode15s           
+idlt             ndct             ode45            
+
+</pre>
+
+<p>To find out what a command does, you can use <code>help</code>.</p>
+<pre class="mcode-input">  help chebfun/sum</pre>
+
+<pre class="mcode-output"> SUM   Definite integral of a CHEBFUN.
+    SUM(F) is the integral of a column CHEBFUN F over its domain of definition.
+
+    SUM(F, A, B), where A and B are scalars, integrates a column CHEBFUN F over
+    [A, B], which must be a subdomain of F.domain:
+
+                          B
+                          /
+                SUM(F) =  | F(t) dt.
+                          /
+                         A
+
+    SUM(F, A, B), where A and B are CHEBFUN objects, returns a CHEBFUN S which
+    satisfies
+
+                        B(s)
+                        /
+                S(s) =  | F(t) dt.
+                        /
+                      A(s)
+
+    SUM(F, DIM), where DIM is one of 1, 2, sums F over the dimension DIM. If F
+    is a column CHEBFUN and DIM = 1 or if F is a row CHEBFUN and DIM = 2 then
+    this integrates in the continuous dimension of F, as described above.
+    Otherwise, SUM(F, DIM) sums across the columns (rows) of the column (row)
+    CHEBFUN F.
+
+  See also CUMSUM, DIFF.
+
+</pre>
+
+<p>Most of the commands in the list above exist in ordinary MATLAB; some exceptions are <code>domain</code>, <code>restrict</code>, and <code>chebcoeffs</code>. We have already seen <code>length</code> and <code>sum</code> in action.  In fact we have already seen <code>subsref</code> too, since that is the MATLAB command for (among other things) evaluating arguments in parentheses.  Here is another example of its use:</p>
+<pre class="mcode-input">  f(0.5)</pre>
+
+<pre class="mcode-output">ans =
+   0.137931034482759
+</pre>
+
+<p>Here for comparison is the true result:</p>
+<pre class="mcode-input">  1/(1+25/4)</pre>
+
+<pre class="mcode-output">ans =
+   0.137931034482759
+</pre>
+
+<p>In this Runge function example, we have also implicitly seen <code>times</code>, <code>plus</code>, <code>power</code>, and <code>rdivide</code>, all of which have been overloaded from their usual MATLAB uses to apply to chebfuns.</p>
+<p>In the next part of this tour we shall explore many of these commands systematically.  First, however, we should see that chebfuns are not restricted to smooth functions.</p>
+<h3 id="14-piecewise-smooth-chebfuns">1.4  Piecewise smooth chebfuns</h3>
+<p>Many functions of interest are not smooth but piecewise smooth.  In this case a chebfun may consist of a concatenation of smooth pieces, each with its own polynomial representation.  Each of the smooth pieces is called a "fun".  This enhancement of Chebfun was developed initially by Ricardo Pachon during 2006-2007, then also by Rodrigo Platte starting in 2007 [Pachon, Platte and Trefethen 2010]. Essentially funs are the "classic chebfuns" for smooth functions on $[-1,1]$ originally implemented by Zachary Battles in Chebfun Version 1.</p>
+<p>Later we shall describe the options in greater detail, but for the moment let us see some examples.  One way to get a piecewise smooth function is directly from the Chebfun constructor, taking advantage of its capability of automatic edge detection.  For example, in the default "splitting off" mode a function with a jump in its derivative produces a warning message,</p>
+<pre class="mcode-input">  f = chebfun('abs(x-.3)');</pre>
+
+<pre class="mcode-output">Warning: Function not resolved using 65537 pts. Have you tried 'splitting on'? 
+</pre>
+
+<p>The same function can be successfully captured with splitting on:</p>
+<pre class="mcode-input">  f = chebfun('abs(x-.3)','splitting','on');</pre>
+
+<p>The <code>length</code> command reveals that <code>f</code> is defined by four data points, two for each linear interval:</p>
+<pre class="mcode-input">  length(f)</pre>
+
+<pre class="mcode-output">ans =
+     4
+</pre>
+
+<p>We can see the structure of <code>f</code> in more detail by typing <code>f</code> without a semicolon:</p>
+<pre class="mcode-input">  f</pre>
+
+<pre class="mcode-output">f =
+   chebfun column (2 smooth pieces)
+       interval       length     endpoint values  
+[      -1,     0.3]        2       1.3        0 
+[     0.3,       1]        2   5.6e-17      0.7 
+vertical scale = 1.3    Total length = 4
+</pre>
+
+<p>This output confirms that f consists of two funs, each defined by two points and two corresponding function values. The functions live on intervals defined by breakpoints at $-1$, $1$, and a number very close to $0.3$.</p>
+<p>Another way to make a piecewise smooth chebfun is to construct it explicitly from various pieces.  For example, the following command specifies three functions $x^2$, $1$, and $4-x$, together with a vector of endpoints indicating that the first function applies on $[-1,1]$, the second on $[1,2]$, and the third on $[2,4]$:</p>
+<pre class="mcode-input">  f = chebfun({@(x) x^2, 1, @(x) 4-x},[-1 1 2 4]);
+  plot(f)</pre>
+
+<p><img src="../images/guide/guide01_05.png" class="figure chebfun-figure" alt=""></p>
+<p>We expect <code>f</code> to consist of three pieces of lengths 3, 1, and 2, and this is indeed the case:</p>
+<pre class="mcode-input">  f</pre>
+
+<pre class="mcode-output">f =
+   chebfun column (3 smooth pieces)
+       interval       length     endpoint values  
+[      -1,       1]        3         1        1 
+[       1,       2]        1         1        1 
+[       2,       4]        2         2        0 
+vertical scale =   2    Total length = 6
+</pre>
+
+<p>Our eyes see pieces, but to Chebfun, <code>f</code> is just another function.  For example, here is its integral.</p>
+<pre class="mcode-input">  sum(f)</pre>
+
+<pre class="mcode-output">ans =
+   3.666666666666667
+</pre>
+
+<p>Here is an algebraic transformation of <code>f</code>, which we plot in another color for variety.</p>
+<pre class="mcode-input">  plot(1/(1+f),'r')</pre>
+
+<p><img src="../images/guide/guide01_06.png" class="figure chebfun-figure" alt=""></p>
+<p>Some Chebfun commands naturally introduce breakpoints in a chebfun. For example, the <code>abs</code> command first finds zeros of a function and introduces breakpoints there.  Here is a chebfun consisting of 6 funs:</p>
+<pre class="mcode-input">  f = abs(exp(x).*sin(8*x));
+  plot(f)</pre>
+
+<p><img src="../images/guide/guide01_07.png" class="figure chebfun-figure" alt=""></p>
+<p>And here is an example where breakpoints are introduced by the <code>max</code> command, leading to a chebfun with 13 pieces:</p>
+<pre class="mcode-input">  f = sin(20*x);
+  g = exp(x-1);
+  h = max(f,g);
+  plot(h), ylim([0 1.2])</pre>
+
+<p><img src="../images/guide/guide01_08.png" class="figure chebfun-figure" alt=""></p>
+<p>As always, <code>h</code> may look complicated to a human, but to Chebfun it is just a function.  Here are its mean, standard deviation, minimum, and maximum:</p>
+<pre class="mcode-input">  mean(h)</pre>
+
+<pre class="mcode-output">ans =
+   0.578242020778010
+</pre>
+
+<pre class="mcode-input">  std(h)</pre>
+
+<pre class="mcode-output">ans =
+   0.280937455806246
+</pre>
+
+<pre class="mcode-input">  min(h)</pre>
+
+<pre class="mcode-output">ans =
+   0.135335283236613
+</pre>
+
+<pre class="mcode-input">  max(h)</pre>
+
+<pre class="mcode-output">ans =
+   1.000000000000000
+</pre>
+
+<p>A final note about piecewise smooth chebfuns is that the automatic edge detection or "splitting" feature, when it is turned on, may subdivide functions even though they do not have clean point singularities, and this may be desirable or undesirable depending on the application.  For example, considering $\sin(x)$ over $[0,1000\pi]$ with splitting on, we end up with a chebfun with many pieces:</p>
+<pre class="mcode-input">  tic, f = chebfun('sin(x)',[0 1000*pi],'splitting','on'), toc</pre>
+
+<pre class="mcode-output">f =
+   chebfun column (32 smooth pieces)
+       interval       length     endpoint values  
+[       0,      98]       91   2.3e-14    -0.71 
+[      98,   2e+02]       88     -0.71        1 
+[   2e+02, 2.9e+02]       88         1    -0.71 
+[ 2.9e+02, 3.9e+02]       87     -0.71  1.5e-13 
+[ 3.9e+02, 4.9e+02]       87   2.5e-13     0.71 
+[ 4.9e+02, 5.9e+02]       87      0.71       -1 
+[ 5.9e+02, 6.9e+02]       86        -1     0.71 
+[ 6.9e+02, 7.9e+02]       85      0.71   -6e-13 
+[ 7.9e+02, 8.8e+02]       86  -9.8e-13    -0.71 
+[ 8.8e+02, 9.8e+02]       86     -0.71        1 
+[ 9.8e+02, 1.1e+03]       86         1    -0.71 
+[ 1.1e+03, 1.2e+03]       86     -0.71 -8.4e-14 
+[ 1.2e+03, 1.3e+03]       85  -4.3e-13     0.71 
+[ 1.3e+03, 1.4e+03]       86      0.71       -1 
+[ 1.4e+03, 1.5e+03]       86        -1     0.71 
+[ 1.5e+03, 1.6e+03]       85      0.71 -1.3e-12 
+[ 1.6e+03, 1.7e+03]       86  -9.9e-13    -0.71 
+[ 1.7e+03, 1.8e+03]       86     -0.71        1 
+[ 1.8e+03, 1.9e+03]       86         1    -0.71 
+[ 1.9e+03,   2e+03]       85     -0.71  6.7e-13 
+[   2e+03, 2.1e+03]       85   1.7e-12     0.71 
+[ 2.1e+03, 2.2e+03]       86      0.71       -1 
+[ 2.2e+03, 2.3e+03]       86        -1     0.71 
+[ 2.3e+03, 2.4e+03]       87      0.71 -1.5e-12 
+[ 2.4e+03, 2.5e+03]       85     1e-12    -0.71 
+[ 2.5e+03, 2.6e+03]       86     -0.71        1 
+[ 2.6e+03, 2.7e+03]       84         1    -0.71 
+[ 2.7e+03, 2.7e+03]       85     -0.71   -2e-12 
+[ 2.7e+03, 2.8e+03]       85  -1.2e-14     0.71 
+[ 2.8e+03, 2.9e+03]       84      0.71       -1 
+[ 2.9e+03,   3e+03]       86        -1     0.71 
+[   3e+03, 3.1e+03]       85      0.71 -2.8e-12 
+vertical scale =   1    Total length = 2752
+Elapsed time is 0.265972 seconds.
+</pre>
+
+<p>In this case it is more efficient -- and more interesting mathematically -- to omit the splitting and construct one global chebfun:</p>
+<pre class="mcode-input">  tic, f2 = chebfun('sin(x)',[0 1000*pi]), toc</pre>
+
+<pre class="mcode-output">f2 =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values  
+[       0, 3.1e+03]     1684   1.1e-14 -2.8e-13 
+vertical scale =   1 
+Elapsed time is 0.035212 seconds.
+</pre>
+
+<p>Splitting on and off are discussed further in Section 8.3.</p>
+<h3 id="15-infinite-intervals-and-infinite-function-values">1.5  Infinite intervals and infinite function values</h3>
+<p>A major change from Chebfun Version 2 to Version 3 was the generalization of chebfuns to allow certain functions on infinite intervals or which diverge to infinity; the initial credit for these innovations belongs to Nick Hale, Rodrigo Platte, and Mark Richardson, and many later developments are due to Kuan Xu. For example, here is a function on the whole real axis,</p>
+<pre class="mcode-input">  f = chebfun('exp(-x^2/16).*(1+.2*cos(10*x))',[-inf,inf]);
+  plot(f)</pre>
+
+<p><img src="../images/guide/guide01_09.png" class="figure chebfun-figure" alt=""></p>
+<p>and here is its integral:</p>
+<pre class="mcode-input">  sum(f)</pre>
+
+<pre class="mcode-output">Warning: Result may not be accurate as the function decays slowly at infinity. 
+ans =
+   7.089815403622063
+</pre>
+
+<p>Here's the integral of a function on $[1,\infty)$:</p>
+<pre class="mcode-input">  sum(chebfun('1/x^4',[1 inf]))</pre>
+
+<pre class="mcode-output">ans =
+   0.333333333328451
+</pre>
+
+<p>Notice that several digits of accuracy have been lost here.  Be careful! -- operations involving infinities in Chebfun are not always as accurate and robust as their finite counterparts.</p>
+<p>Here is an example of a function that diverges to infinity, which we can capture with the <code>'exps'</code> flag; see Chapter 7 for details:</p>
+<pre class="mcode-input">  h = chebfun('(1/pi)/sqrt(1-x^2)','exps',[-.5 -.5]);
+  plot(h)</pre>
+
+<p><img src="../images/guide/guide01_10.png" class="figure chebfun-figure" alt=""></p>
+<p>In this case the integral comes out just right:</p>
+<pre class="mcode-input">  sum(h)</pre>
+
+<pre class="mcode-output">ans =
+   1.000000000000000
+</pre>
+
+<p>For more on the treatment of infinities in Chebfun, see Chapter 9.</p>
+<h3 id="16-periodic-functions">1.6  Periodic functions</h3>
+<p>Until 2014, Chebfun used only nonperiodic representations, based on Chebyshev polynomials.  Beginning with Version 5, a new capability was introduced for representing sufficiently smooth periodic functions by trigonometric polynomials instead, that is, Fourier series.  Such an object is still called a chebfun, but it is a periodic one, and the signal to invoke such capabilities is the string <code>trig</code>. For abbreviation, we call a periodic chebfun a "trigfun". This section gives a quick introduction, and more details can be found in Chapter 11.</p>
+<p>Trigfuns were initiated by Grady Wright in the first half of 2014 [Wright et al. 2015]. Another project along the same lines was carried out independently by Kristyn McLeod and Rodrigo Platte at Arizona State University [McLeod 2014].</p>
+<p>For example, here is a periodic function on $[-\pi,\pi]$ represented in the usual way by a Chebyshev series.</p>
+<pre class="mcode-input">ff = @(t) sin(t) + cos(2*t) - cos(t)/3 + cos(100*t)/6;
+f = chebfun(ff,[-pi,pi]);
+max(f)
+plot(f)</pre>
+
+<pre class="mcode-output">ans =
+   1.614526099978750
+</pre>
+
+<p><img src="../images/guide/guide01_11.png" class="figure chebfun-figure" alt=""></p>
+<p>Its length, very roughly, is $100 \pi$,</p>
+<pre class="mcode-input">length(f)</pre>
+
+<pre class="mcode-output">ans =
+   383
+</pre>
+
+<p>Here is the same function represented by a Fourier series:</p>
+<pre class="mcode-input">f2 = chebfun(ff,[-pi,pi],'trig');
+max(f2)
+plot(f2,'m')</pre>
+
+<pre class="mcode-output">ans =
+   1.614526099978745
+</pre>
+
+<p><img src="../images/guide/guide01_12.png" class="figure chebfun-figure" alt=""></p>
+<p>Its length is now only about $200$ (exactly 201). This improvement by a factor of about $\pi/2$ is typical.</p>
+<pre class="mcode-input">length(f2)</pre>
+
+<pre class="mcode-output">ans =
+   201
+</pre>
+
+<p>Sampling at a few arbitrary points confirms that the two functions agree closely:</p>
+<pre class="mcode-input">xx = [1/3 sqrt(2) exp(1)];
+f(xx) - f2(xx)</pre>
+
+<pre class="mcode-output">ans =
+   1.0e-14 *
+   0.355271367880050   0.222044604925031   0.111022302462516
+</pre>
+
+<p>Readers may be interested to compare <code>plotcoeffs</code> applied to the first and second versions of $f$.  Rather than display that here we shall turn to a simpler example involving a shorter Fourier series.  Consider the function</p>
+<pre class="mcode-input">f = chebfun('7 + sin(t) + exp(1)*cos(2*t)',[-pi,pi],'trig')</pre>
+
+<pre class="mcode-output">f =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values trig
+[    -3.1,     3.1]        5       9.7      9.7 
+vertical scale = 9.7 
+</pre>
+
+<p>Here are the coefficients of $f$ as an expansion in sines and cosines:</p>
+<pre class="mcode-input">[a,b] = trigcoeffs(f)</pre>
+
+<pre class="mcode-output">a =
+   7.000000000000000
+   0.000000000000001
+   2.718281828459045
+b =
+   1.000000000000000
+                   0
+</pre>
+
+<p>Here they are as an expansion in complex exponentials:</p>
+<pre class="mcode-input">c = trigcoeffs(f)</pre>
+
+<pre class="mcode-output">c =
+  1.359140914229522 + 0.000000000000000i
+  0.000000000000000 + 0.500000000000000i
+  7.000000000000000 + 0.000000000000000i
+  0.000000000000000 - 0.500000000000000i
+  1.359140914229522 + 0.000000000000000i
+</pre>
+
+<p>Bookkeeping of Fourier coefficients can often be a headache. If these examples don't make the patterns clear, details can be found with <code>help trigcoeffs</code>.</p>
+<p>For a mathematically less trivial example, here is the cosine expansion of a function whose Fourier series coefficients are known to be values of a Bessel function:</p>
+<pre class="mcode-input">f = chebfun('exp(cos(t))',[-pi pi],'trig');
+[a,b] = trigcoeffs(f);
+n = floor(length(f)/2);
+exact = 2*besseli(0:n,1); exact(1) = exact(1)/2;
+disp('        computed             exact')
+disp([a exact'])</pre>
+
+<pre class="mcode-output">        computed             exact
+   1.266065877752008   1.266065877752008
+   1.130318207984970   1.130318207984970
+   0.271495339534077   0.271495339534077
+   0.044336849848664   0.044336849848664
+   0.005474240442094   0.005474240442094
+   0.000542926311914   0.000542926311914
+   0.000044977322954   0.000044977322954
+   0.000003198436462   0.000003198436462
+   0.000000199212481   0.000000199212481
+   0.000000011036772   0.000000011036772
+   0.000000000550590   0.000000000550590
+   0.000000000024980   0.000000000024980
+   0.000000000001039   0.000000000001039
+   0.000000000000040   0.000000000000040
+   0.000000000000001   0.000000000000001
+</pre>
+
+<h3 id="17-rows-columns-and-quasimatrices">1.7  Rows, columns, and quasimatrices</h3>
+<p>MATLAB doesn't only deal with column vectors: there are also row vectors and matrices.  The same is true of Chebfun. The chebfuns shown so far have all been in column orientation, which is the default, but one can also take the transpose, compute inner products, and so on:</p>
+<pre class="mcode-input">  x = chebfun(@(x) x)</pre>
+
+<pre class="mcode-output">x =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values  
+[      -1,       1]        2        -1        1 
+vertical scale =   1 
+</pre>
+
+<pre class="mcode-input">  x'</pre>
+
+<pre class="mcode-output">ans =
+   chebfun row (1 smooth piece)
+       interval       length     endpoint values  
+[      -1,       1]        2        -1        1 
+vertical scale =   1 
+</pre>
+
+<pre class="mcode-input">  x'*x</pre>
+
+<pre class="mcode-output">ans =
+   0.666666666666667
+</pre>
+
+<p>One can also make matrices whose columns are chebfuns or whose rows are chebfuns, like this:</p>
+<pre class="mcode-input">  A = [1 x x.^2]</pre>
+
+<pre class="mcode-output">A =
+   chebfun column1 (1 smooth piece)
+       interval       length     endpoint values  
+[      -1,       1]        3         1        1 
+vertical scale =   1 
+   chebfun column2 (1 smooth piece)
+       interval       length     endpoint values  
+[      -1,       1]        3        -1        1 
+vertical scale =   1 
+   chebfun column3 (1 smooth piece)
+       interval       length     endpoint values  
+[      -1,       1]        3         1        1 
+vertical scale =   1 
+</pre>
+
+<pre class="mcode-input">  A'*A</pre>
+
+<pre class="mcode-output">ans =
+   2.000000000000000  -0.000000000000000   0.666666666666667
+                   0   0.666666666666667   0.000000000000000
+   0.666666666666667                   0   0.400000000000000
+</pre>
+
+<p>These are called <em>quasimatrices</em>, and they are discussed in Chapter 6.</p>
+<h3 id="18-chebfun-features-not-in-this-guide">1.8  Chebfun features not in this Guide</h3>
+<p>Some of Chebfun's most remarkable features haven't made it into this edition of the Guide.  Here are some of our favorites:</p>
+<p>o <code>leg2cheb</code> and <code>cheb2leg</code> for fast Legendre-Chebyshev conversions (also <code>legvals2chebcoeffs</code>, <code>chebcoeffs2legpts</code>, and ten more)</p>
+<p>o <code>conv</code> for convolution,</p>
+<p>o The <code>'equi'</code> flag to the Chebfun constructor for equispaced data,</p>
+<p>o <code>polyfit</code> for least-squares fitting in the continuous context,</p>
+<p>o <code>inv</code> for computing the inverse of a chebfun,</p>
+<p>o <code>pde15s</code> for PDEs in one space and one time variable.</p>
+<p>To learn about any of these options, try the appropriate <code>help</code> command.  Just as a taster, here's a hint of how fast Chebfun can convert a ten-thousand coefficient Chebyshev expansion to Legendre coefficients and back again using an algorithm from [Hale & Townsend 2013]:</p>
+<pre class="mcode-input">tic
+ccheb = randn(10000,1);
+cleg = cheb2leg(ccheb);
+ccheb2 = leg2cheb(cleg);
+norm(ccheb-ccheb2,inf)
+toc</pre>
+
+<pre class="mcode-output">ans =
+     1.905142710256769e-13
+Elapsed time is 0.131316 seconds.
+</pre>
+
+<h3 id="19-chebfun-example-galleries">1.9  Chebfun example galleries</h3>
+<p>MATLAB has long had a <code>gallery</code> command to generate interesting matrices, and Chebfun has an analogous <code>gallery</code> command to generate interesting functions.</p>
+<p>Here is what is currently available:</p>
+<pre class="mcode-input">help cheb.gallery</pre>
+
+<pre class="mcode-output"> CHEB.GALLERY   Chebfun example functions.
+    F = CHEB.GALLERY(NAME) returns a chebfun or a quasimatrix corresponding to
+    NAME.  See the listing below for available names.
+
+    For example,  plot(cheb.gallery('zigzag'))  plots a degree 10000 polynomial
+    that doesn't look like a polynomial, and  plot(cheb.gallery('gamma'))  shows
+    a chebfun with poles. For details of how each function is constructed, try
+    type +cheb/gallery  or  edit cheb.gallery.
+
+    [F,FA] = CHEB.GALLERY(NAME) also returns the anonymous function FA used to
+    define the function. Some gallery functions are generated by operations
+    beyond the usual Chebfun constructor (e.g. by solving ODEs), so FA in those
+    cases simply evaluates the chebfun.
+
+    CHEB.GALLERY with no input argument returns a random function from the
+    gallery.
+
+    CHEB.GALLERY with no output argument creates a plot of the selected
+    function.
+
+    airy         Airy Ai function on [-40,40]
+    bessel       Bessel function J_0 on [-100,100]
+    bump         C-infinity function with compact support
+    blasius      Blasius function on [0,10]
+    chirp        Sine with exponentially increasing frequency
+    daubechies   Approximation to Daubechies phi_2 wavelet scaling function
+    erf          Error function on [-10,10]
+    fishfillet   Wild oscillations from Extreme Extrema example
+    gamma        Gamma function on [-4,4]
+    gaussian     Gaussian function on [-Inf,Inf]
+    jitter       A piecewise constant function generated by ROUND
+    kahaner      Challenging integrand with four spikes
+    motto        Chebfun motto (Gilbert Strang)
+    random       Polynomial interpolant through random data in Chebyshev points
+    rose         A complex-valued sinusoid
+    runge        Runge function
+    seismograph  Tanh plus growing oscillation
+    Si           Sine integral on [-50,50]
+    sinefun1     As smooth as it looks
+    sinefun2     Not as smooth as it looks
+    spikycomb    25 peaks, each sharper than the last
+    stegosaurus  max(wiggly, x/10)
+    vandercheb   Chebyshev-Vandermonde quasimatrix
+    vandermonde  Vandermonde quasimatrix
+    wiggly       One of the Chebfun team's favorites
+    wild         An iteratively defined function on [-1 1]
+    zigzag       Degree 10000 polynomial that looks piecewise linear
+
+    Gallery functions are subject to change in future releases of Chebfun.
+
+  See also CHEB.GALLERYTRIG, CHEB.GALLERY2, CHEB.GALLERY3, CHEB.GALLERYDISK, CHEB.GALLERYSPHERE.
+
+</pre>
+
+<p>For example, here is a chebfun representing the Airy function,</p>
+<pre class="mcode-input">plot(cheb.gallery('airy')), ylim([-.8 .8])
+title('Airy function')</pre>
+
+<p><img src="../images/guide/guide01_13.png" class="figure chebfun-figure" alt=""></p>
+<p>In this instance the underlying code fits in a line,</p>
+<pre class="mcode-input">fa = @airy; p = chebfun(fa, [-40,40]);</pre>
+
+<p>Some examples make use of more complicated code, like this approximation to a Daubechies wavelet scaling function (accurate to about 3 digits of accuracy; the underlying function is a fractal):</p>
+<pre class="mcode-input">plot(cheb.gallery('daubechies')), ylim([-0.5 1.5])
+title('Daubechies scaling function')</pre>
+
+<p><img src="../images/guide/guide01_14.png" class="figure chebfun-figure" alt=""></p>
+<p>To find out how a gallery example was generated, take a look at the code with <code>type +cheb/gallery</code> or <code>edit +cheb/gallery</code>.</p>
+<p>Like the MATLAB <code>gallery</code> command, <code>cheb.gallery</code> produces a plot if you call it without specifying output variables. To illustrate, let us finish with an example the Chebfun team enjoys from the appendix to [Trefethen 2013], "Six myths of polynomial interpolation and quadrature":</p>
+<pre class="mcode-input">cheb.gallery('zigzag')</pre>
+
+<p><img src="../images/guide/guide01_15.png" class="figure chebfun-figure" alt=""></p>
+<p>This function looks piecewise linear, but in fact, it is a polynomial of degree 10000.  This serves no purpose from an approximation point of view -- one would never represent this function in this manner -- but it illustrates the robustness of high-degree polynomial approximation.</p>
+<p>If you call <code>cheb.gallery</code> without any input arguments, it selects a gallery function at random.</p>
+<p>Other collections worth exploring include <code>cheb.gallerytrig</code> for periodic functions and <code>cheb.gallery2</code> for 2D functions.</p>
+<h3 id="110-how-this-guide-is-produced">1.10  How this Guide is produced</h3>
+<p>This guide is produced in MATLAB using the <code>publish</code> command with a style sheet somewhat different from the usual; the output of <code>publish</code> is then processed by Markdown. To publish a chapter for yourself, make sure the chebfun guide directory is in your path and then type, for example, <code>open(publish('guide1'))</code>.  The formatting may not be exactly right but it should certainly be intelligible.</p>
+<h3 id="111-references">1.11  References</h3>
+<p>[Battles & Trefethen 2004] Z. Battles and L. N. Trefethen, "An extension of MATLAB to continuous functions and operators", <em>SIAM Journal on Scientific Computing</em>, 25 (2004), 1743-1770.</p>
+<p>[Berrut & Trefethen 2005] J.-P. Berrut and L. N. Trefethen, "Barycentric Lagrange interpolation", <em>SIAM Review 46</em>, (2004), 501-517.</p>
+<p>[Hale & Townsend 2013]  N. Hale and A. Townsend, A fast, simple, and stable Chebyshev--Legendre transform using an asymptotic formula, <em>SIAM Journal on Scientific Computing</em>, 36 (2014), A148-A167.</p>
+<p>[Higham 2004] N. J. Higham, "The numerical stability of barycentric Lagrange interpolation", <em>IMA Journal of Numerical Analysis</em>, 24 (2004), 547-556.</p>
+<p>[McLeod 2014] K. N. McLeod, "Fourfun: A new system for automatic computations using Fourier expansions," <em>SIAM Undergraduate Research Online</em>, 7 (2014), <code>http://dx.doi.org/10.1137/14S013238</code>.</p>
+<p>[Pachon, Platte & Trefethen 2010] R. Pachon, R. B. Platte and L. N. Trefethen, "Piecewise-smooth chebfuns", <em>IMA J. Numer. Anal.</em>, 30 (2010), 898-916.</p>
+<p>[Salzer 1972] H. E. Salzer, "Lagrangian interpolation at the Chebyshev points cos(nu pi/n), nu = 0(1)n; some unnoted advantages", <em>Computer Journal</em> 15 (1972), 156-159.</p>
+<p>[Trefethen 2007] L. N. Trefethen, "Computing numerically with functions instead of numbers", <em>Mathematics in Computer Science</em> 1 (2007), 9-19. Revised and reprinted in <em>Communications of the ACM</em> 58 (2014), 91-97.</p>
+<p>[Trefethen 2013] L. N. Trefethen, <em>Approximation Theory and Approximation Practice</em>, SIAM, 2013.</p>
+<p>[Wright et al. 2015] G. B. Wright, M. Javed, H. Montanelli, and L. N. Trefethen, Extension of Chebfun to periodic functions, <em>SIAM J. Sci. Comp.</em> 37 (2015), C554-C573.</p></div>
+        </div>
+    </div>
+</div>
+    <div class="footer">
+        <p>© Copyright 2025 the University of Oxford and the Chebfun Developers.</p>
+        <!-- TESTING -->
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.7.2.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?lang=matlab" type="text/javascript"></script>
+    <script type="text/javascript" src="/js/config.js"></script>
+    <script type="text/javascript" src="/js/jquery.flexslider-min.js"></script>
+  </body>
+</html>
+</div>

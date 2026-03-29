@@ -1,185 +1,550 @@
-# Chapter 17: Spherefun
-
-*Based on [Chebfun Guide Chapter 17](https://www.chebfun.org/docs/guide/guide17.html)*
-
-Spherefun is the chebfunjax module for computing with functions on the surface of the unit sphere $S^2 = \{(x,y,z) : x^2 + y^2 + z^2 = 1\}$. It uses a low-rank Fourier-Fourier representation with the BMC-I (block mirror-centrosymmetric) structure to maintain spectral accuracy while handling the coordinate singularities at the poles.
-
-## 17.1 Introduction
-
-A `Spherefun` approximates a function $f(\lambda, \theta)$ on the unit sphere, where $\lambda \in [-\pi, \pi]$ is the longitude (azimuth) and $\theta \in [0, \pi]$ is the colatitude (polar angle, measured from the north pole). The Cartesian coordinates are:
-
-$$x = \cos\lambda\, \sin\theta, \quad y = \sin\lambda\, \sin\theta, \quad z = \cos\theta$$
-
-```python
-import jax.numpy as jnp
-import numpy as np
-from chebfunjax.spherefun import Spherefun
-
-# A spherical harmonic Y_1^0 = cos(theta)
-f = Spherefun.from_function(lambda lam, theta: jnp.cos(theta))
-print(f)  # Spherefun(rank=..., n_plus=..., n_minus=...)
-```
-
-![](../images/guide/guide17_01.png)
-
-
-### Cartesian functions on the sphere
-
-To approximate a function given in Cartesian form, convert coordinates inside the lambda:
-
-```python
-# f(x, y, z) = x*y on the sphere
-g = Spherefun.from_function(
-    lambda lam, theta: jnp.cos(lam) * jnp.sin(theta) * jnp.sin(lam) * jnp.sin(theta))
-```
-
-![](../images/guide/guide17_02.png)
-
-
-## 17.2 Evaluation
-
-A `Spherefun` is callable with arguments $(\lambda, \theta)$:
-
-```python
-# Evaluate at the equator (theta = pi/2) at longitude lambda = 0
-val = f(0.0, jnp.pi / 2)
-print(val)  # cos(pi/2) ~ 0
-
-# Evaluate at the north pole
-print(f(0.0, 0.0))  # cos(0) = 1
-
-# Vectorized evaluation
-lams = jnp.linspace(-jnp.pi, jnp.pi, 50)
-thetas = jnp.full(50, jnp.pi / 2)
-vals = f(lams, thetas)
-```
-
-![](../images/guide/guide17_03.png)
-
-
-Evaluation is JIT-compiled, vmap-safe, and grad-safe.
-
-## 17.3 Integration
-
-The `sum()` method computes the surface integral with the standard area element $\sin\theta\, d\theta\, d\lambda$:
-
-$$\texttt{f.sum()} = \int_{-\pi}^{\pi} \int_0^{\pi} f(\lambda, \theta)\, \sin\theta\, d\theta\, d\lambda$$
-
-```python
-# Integral of 1 over the sphere = 4*pi
-one = Spherefun.from_function(lambda lam, theta: jnp.ones_like(theta))
-print(one.sum())  # ~ 12.566370614... = 4*pi
-
-# Integral of cos(theta) over the sphere = 0 (odd symmetry)
-f = Spherefun.from_function(lambda lam, theta: jnp.cos(theta))
-print(f.sum())  # ~ 0
-```
-
-![](../images/guide/guide17_04.png)
-
-
-Only the "plus" terms (in the BMC-I decomposition) contribute to the integral. For each plus term:
-
-$$\int\!\!\int f\, \sin\theta\, d\theta\, d\lambda = \sum_{j \in \text{plus}} \frac{1}{d_j} \left(\int_0^{\pi} c_j(\theta)\, \sin\theta\, d\theta\right) \left(\int_{-\pi}^{\pi} \text{row}_j(\lambda)\, d\lambda\right)$$
-
-## 17.4 The BMC-I Structure
-
-The key idea behind `Spherefun` is the *doubled Fourier sphere* (DFS) method. A function $f(\lambda, \theta)$ on the sphere is extended to a periodic function on $[-\pi, \pi]^2$ by exploiting the identity:
-
-$$f(\lambda + \pi, \pi - \theta) = f(\lambda, \theta)$$
-
-This doubled function has BMC-I structure, which splits into plus and minus components under the $\pi$-shift in longitude:
-
-$$F_+(\lambda, \theta) = \tfrac{1}{2}[f(\lambda + \pi, \theta) + f(\lambda, \theta)]$$
-$$F_-(\lambda, \theta) = \tfrac{1}{2}[f(\lambda + \pi, \theta) - f(\lambda, \theta)]$$
-
-The construction uses GE with 2x2 block pivoting on these components, with automatic pole removal at $\theta = 0$ and $\theta = \pi$.
-
-## 17.5 Low-Rank Representation
-
-The internal representation is:
-
-$$f(\lambda, \theta) \approx \sum_j \frac{1}{d_j}\, c_j(\theta)\, \text{row}_j(\lambda)$$
-
-where:
-- $c_j(\theta)$ are `Trigtech` objects (trigonometric polynomials on the doubled domain $[-\pi, \pi]$)
-- $\text{row}_j(\lambda)$ are `Trigtech` objects (trigonometric polynomials on $[-\pi, \pi]$)
-- $d_j$ are scalar pivot values
-
-```python
-# Low-rank function
-f = Spherefun.from_function(lambda lam, theta: jnp.cos(theta))
-print(f.rank)  # very small rank
-
-# Higher-rank function
-g = Spherefun.from_function(
-    lambda lam, theta: jnp.exp(-10 * (jnp.cos(lam) * jnp.sin(theta))**2))
-print(g.rank)
-```
-
-![](../images/guide/guide17_05.png)
-
-
-## 17.6 Spherical Harmonics
-
-The spherical harmonics $Y_l^m(\lambda, \theta)$ are the eigenfunctions of the Laplace-Beltrami operator on the sphere. They can be constructed as `Spherefun` objects:
-
-```python
-from scipy.special import sph_harm
-
-# Y_2^1 spherical harmonic
-# Note: scipy uses (m, l, phi, theta) with phi=longitude, theta=colatitude
-l, m = 2, 1
-Y21 = Spherefun.from_function(
-    lambda lam, theta: jnp.real(
-        sph_harm(m, l, lam, theta)))
-print(Y21.rank)
-```
-
-These satisfy $\Delta_S Y_l^m = -l(l+1) Y_l^m$ where $\Delta_S$ is the Laplace-Beltrami operator.
-
-## 17.7 Vector-Valued Functions: Spherefunv
-
-The `Spherefunv` class represents 2-component vector fields on the sphere:
-
-```python
-from chebfunjax.spherefun import Spherefunv
-
-# Two components
-f_comp = Spherefun.from_function(lambda lam, theta: jnp.cos(theta))
-g_comp = Spherefun.from_function(lambda lam, theta: jnp.sin(lam))
-F = Spherefunv(f_comp, g_comp)
-print(F)
-```
-
-`Spherefunv` supports:
-- Evaluation: `F(lam, theta)` returns a tuple `(f_val, g_val)`
-- Dot product: `F.dot(G)` returns a `Spherefun`
-- Norm: `F.norm()` returns a `Spherefun`
-- Arithmetic: `F + G`, `F - G`, `c * F`
-
-## 17.8 Construction Details
-
-The `Spherefun.from_function` constructor follows the same two-phase algorithm as `Diskfun`, adapted for spherical geometry:
-
-1. **Phase 1**: Sample on a doubled-up colatitude-longitude grid, split into BMC-I plus/minus blocks, and perform GE with block pivoting. The pole rows ($\theta = 0$ and $\theta = \pi$) are removed before rank determination and handled via a separate pole-removal step.
-
-2. **Phase 2**: Evaluate skeleton slices at increasing resolution until Fourier coefficients decay below tolerance.
-
-The algorithm avoids the artificial oversampling near the poles that plagues naive tensor-product methods on the sphere.
-
-## 17.9 Coordinate Conventions
-
-The chebfunjax `Spherefun` follows the MATLAB Chebfun convention:
-- $\lambda$ (first argument) is the longitude in $[-\pi, \pi]$
-- $\theta$ (second argument) is the colatitude in $[0, \pi]$, measured from the north pole
-
-This matches the standard physics convention. Note that some references use $\phi$ for longitude and $\theta$ for colatitude, while others reverse them.
-
-## 17.10 References
-
-1. A. Townsend, H. Wilber, and G. Wright, "Computing with functions on spherical and polar geometries I: The sphere", *SIAM J. Sci. Comput.*, 38(4), C403--C425, 2016.
-
-2. H. Wilber, "Computing numerically with functions on the sphere and disk", PhD thesis, Boise State University, 2016.
-
-3. A. Townsend and L. N. Trefethen, "An extension of Chebfun to two dimensions", *SIAM J. Sci. Comput.*, 35(6), C495--C518, 2013.
+<!-- Generated by scripts/sync_chebfun_guides.py. -->
+<!-- Source: https://www.chebfun.org/docs/guide/guide17.html -->
+
+<div class="chebfun-import">
+<div class='page-header'>
+<span class='chapter_number'>17</span>
+<h1>Spherefun</h1>
+<h2>Alex Townsend, Heather Wilber, and Grady B. Wright, May 2016, latest revision November 2019<span>
+    
+        <a href='../guide16/'
+>previous</a><span class='sep-sm
+'>·</span><a href='../'>index</a><span class='sep-sm
+'>·</span><a href='../guide18/'
+>next</a></span></h2>
+</div>
+
+<div id='content' class="col-sm-12" role="main">
+<pre class="mcode-input">MS = 'MarkerSize';</pre>
+
+<h3 id="171-introduction">17.1 Introduction</h3>
+<p>Spherefun is the part of Chebfun for computing with functions defined on the surface of the unit sphere. It was created by Alex Townsend, Heather Wilber, and Grady Wright.</p>
+<p>In what follows "the sphere" is more precisely the surface of the unit
+2-sphere in 3 dimensions, $\mathbb{S}^2$.</p>
+<p>A function on the sphere can be expressed in terms of Cartesian coordinates
+$(x,y,z)$ or spherical coordinates $(\lambda,\theta)$, where
+$\lambda$ is the azimuth (longitude) angle and $\theta$ is the polar (or
+zenith) angle. The transformation between these two
+coordinate systems in Spherefun is given by
+\begin{equation}
+x = \cos\lambda\sin\theta, \quad y = \sin\lambda\sin\theta, \quad z =
+\cos\theta,\qquad (\lambda,\theta)\in[-\pi,\pi]\times[0,\pi].
+\label{eq:sphCoords}
+\end{equation}</p>
+<p>Spherefun allows functions to be constructed using either coordinate system.  For example, the function $f(x,y,z) = 1/(1 + (x+1/\sqrt{2})^2 + z^2)$ on the sphere can be constructed as follows:</p>
+<pre class="mcode-input">f = spherefun( @(x,y,z) 1./(1 + (x+1/sqrt(2)).^2 + z.^2) );
+plot( f )</pre>
+
+<p><img src="../images/guide/guide17_01.png" class="figure chebfun-figure" alt=""></p>
+<p>Or, equivalently, the function can be constructed in spherical coordinates as</p>
+<pre class="mcode-input">g = spherefun( @(lam,theta) 1./(1 + (cos(lam).*sin(theta)+1/sqrt(2)).^2 +...
+                cos(theta).^2) );</pre>
+
+<p>The result is the same up to machine precision:</p>
+<pre class="mcode-input">norm( f - g, inf )</pre>
+
+<pre class="mcode-output">ans =
+     0
+</pre>
+
+<p>The constructed objects are called spherefuns:</p>
+<pre class="mcode-input">f</pre>
+
+<pre class="mcode-output">f =
+   spherefun object
+       domain        rank    vertical scale
+     unit sphere      21            1
+</pre>
+
+<p>The output shows that $f$ is numerically of rank 21 (see the discussion below for what this means) and its vertical scale (an approximation to its maximum absolute value) is 1.</p>
+<p>Many of the methods available as part of Spherefun can work in Cartesian or spherical coordinates.  After construction, this is perhaps most useful for evaluation.  For example, $(-1/\sqrt{2},1/\sqrt{2},0)$ in spherical coordinates defined above is $(3\pi/4,\pi/2)$. <code>f</code> or <code>g</code> can be evaluated at this point using either representation to get the exact value of $1$:</p>
+<pre class="mcode-input">[  f(-1/sqrt(2), 1/sqrt(2), 0)    f(3*pi/4, pi/2) ]</pre>
+
+<pre class="mcode-output">ans =
+     1     1
+</pre>
+
+<p>If the evaluation point is specified in Cartesian coordinates and does not lie on the sphere (to within a small tolerance), then an error is reported.  If the evaluation point is numerically close to the sphere (up to rounding errors), then the evaluation point is projected onto the unit sphere.</p>
+<p>Slices of the function along the coordinate planes intersecting the sphere can also be obtained, with the result being chebfuns.  For example, <code>f</code> along the equator is obtained using spherical coordinates as</p>
+<pre class="mcode-input">fequator = f(:,pi/2)
+plot(fequator)</pre>
+
+<pre class="mcode-output">fequator =
+   chebfun row (1 smooth piece)
+       interval       length     endpoint values trig
+[    -3.1,     3.1]       77      0.92     0.92 
+vertical scale =   1 
+</pre>
+
+<p><img src="../images/guide/guide17_02.png" class="figure chebfun-figure" alt=""></p>
+<p>Cartesian coordinates can also be used to obtain slices of functions. For example, <code>f</code> along the plane $x=1/4$ intersecting the sphere is</p>
+<pre class="mcode-input">fslice = f(0.25,:,:)
+plot(fslice)</pre>
+
+<pre class="mcode-output">fslice =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values trig
+[    -3.1,     3.1]       57      0.52     0.52 
+vertical scale = 0.52 
+</pre>
+
+<p><img src="../images/guide/guide17_03.png" class="figure chebfun-figure" alt=""></p>
+<p>In the spirit of Chebfun, one can compute with spherefuns without worrying about the underlying discretization or how a particular algorithm is implemented. At every step we aim to achieve close to machine precision results, while compressing representations wherever possible.</p>
+<p>Using object-oriented programming in MATLAB there are about one hundred commands that one can now perform on spherefuns.</p>
+<h3 id="172-basic-operations">17.2 Basic operations</h3>
+<p>Once we have a spherefun, we can execute a whole collection of commands.
+For example, the surface integral of
+$$ f(x,y,z) = 1 + x + y^2 + x^2 y + x^4 + y^5 + (xyz)^2 $$
+is</p>
+<pre class="mcode-input">f = spherefun( @(x,y,z) 1+x+y.^2+x.^2.*y+x.^4+y.^5+(x.*y.*z).^2 );
+sum2( f )</pre>
+
+<pre class="mcode-output">ans =
+  19.388114662154155
+</pre>
+
+<p>This matches the exact value of $216\pi/35$ to 15 digits</p>
+<pre class="mcode-input">abs( sum2( f ) - 216*pi/35 )</pre>
+
+<pre class="mcode-output">ans =
+     3.552713678800501e-15
+</pre>
+
+<p>The mean of $f$ is</p>
+<pre class="mcode-input">mean2( f )</pre>
+
+<pre class="mcode-output">ans =
+   1.542857142857143
+</pre>
+
+<p>Since the surface area of the sphere is $4\pi$, the exact value of the
+mean of $f$ is</p>
+<pre class="mcode-input">54/35</pre>
+
+<pre class="mcode-output">ans =
+   1.542857142857143
+</pre>
+
+<p>The global maximum of a function on the sphere can be computed with <code>max2</code>.  For example, the maximum of $f(x,y,z) = 2\sinh(5xyz)$ is</p>
+<pre class="mcode-input">f = spherefun( @(x,y,z) 2*sinh(5*x.*y.*z) );
+maxf = max2( f )</pre>
+
+<pre class="mcode-output">maxf =
+   2.235548406627322
+</pre>
+
+<p>This matches the exact value $2\sinh(5/3^{3/2})$ to nearly machine precision:</p>
+<pre class="mcode-input">abs( maxf- 2*sinh(5*3^(-3/2)) )</pre>
+
+<pre class="mcode-output">ans =
+     4.440892098500626e-16
+</pre>
+
+<p>The method <code>min2</code> similarly gives the global minimum.  For the function above the global minimum is just the negative of the global maximum:</p>
+<pre class="mcode-input">min2(f)</pre>
+
+<pre class="mcode-output">ans =
+  -2.235548406627322
+</pre>
+
+<p>The zero contours of <code>f-0.5</code> can be computed using <code>roots</code></p>
+<pre class="mcode-input">r = roots( f-0.5 );</pre>
+
+<p>Here is a plot of these contours on the surface
+of the sphere together with the function $f$.  From now
+one we usually turn off the axes, since it is clear where
+the sphere lies.</p>
+<pre class="mcode-input">plot( f ), colorbar, hold on
+for k = 1 : size(r, 1)
+     plot3( r{k}(:,1), r{k}(:,2), r{k}(:,3), 'k-' , 'linewidth', 2 )
+end
+hold off, axis off</pre>
+
+<p><img src="../images/guide/guide17_04.png" class="figure chebfun-figure" alt=""></p>
+<p>Contours of a function can also be visualized on the sphere using the
+<code>contour</code> function.  Here are the contours of $f$ from $-2$ to $2$ in
+increments of $0.25$</p>
+<pre class="mcode-input">contour(f,-2:0.25:2), axis off</pre>
+
+<p><img src="../images/guide/guide17_05.png" class="figure chebfun-figure" alt=""></p>
+<p>The landmasses of earth can be added to this, or any other plot of a
+spherefun, as follows:</p>
+<pre class="mcode-input">hold on, spherefun.plotEarth('k-'), hold off, view([45 20]), axis off</pre>
+
+<p><img src="../images/guide/guide17_06.png" class="figure chebfun-figure" alt=""></p>
+<p>Differentiation of a function on the sphere with respect to spherical
+coordinates $(\lambda,\theta)$ can lead to singularities at the poles,
+even for smooth functions.  For example, the function
+$f(\lambda,\theta) = \cos\theta$ (or $f(x,y,z) = z$) is smooth on the
+sphere, but the $\theta$-derivative, $\sin\theta$, is not smooth at
+either pole. This issue arises because the unit vector in the polar
+direction of the spherical coordinate system has a discontinuity at the
+north and south poles. To bypass this problem, we have chosen in
+Spherefun to define derivatives on the sphere in terms of the components
+that make up the surface gradient with respect to the Cartesian
+coordinate system.  By defining derivatives in this fashion, we are
+guaranteed that any derivative of a smooth function will be smooth over
+the entire sphere.</p>
+<p>The <code>diff</code> method is used to compute these derivatives.  For example, the $x$ and $z$ components of the surface gradient of <code>f</code> are</p>
+<pre class="mcode-input">dfdx = diff( f, 1 );
+plot( dfdx ), title( 'x-component of the surface gradient'), axis off
+snapnow
+
+dfdz = diff( f, 3 );
+plot(dfdz), title( 'z-component of the surface gradient'), axis off</pre>
+
+<p><img src="../images/guide/guide17_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../images/guide/guide17_08.png" class="figure chebfun-figure" alt=""></p>
+<p>The surface Laplacian of <code>f</code> is</p>
+<pre class="mcode-input">lapf = laplacian( f );
+plot( lapf ), axis off</pre>
+
+<p><img src="../images/guide/guide17_09.png" class="figure chebfun-figure" alt=""></p>
+<p>Finally, as with chebfun and chebfun2 objects, we can add, subtract, and multiply simple spherefuns together.</p>
+<pre class="mcode-input">g = spherefun( @(l,t) 2*cos(10*cos(l-0.25).*cos(l).*(sin(t).*cos(t)).^2) );
+plot( g ), title('g'), axis off, snapnow
+h = f + g;
+plot( h ), title('f + g'), axis off, snapnow
+h = f - g;
+plot( h ), title('f - g'), axis off, snapnow
+h = f.*g;
+plot( h ), title('f x g'), axis off</pre>
+
+<p><img src="../images/guide/guide17_10.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../images/guide/guide17_11.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../images/guide/guide17_12.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../images/guide/guide17_13.png" class="figure chebfun-figure" alt=""></p>
+<p>For a complete list of methods available for spherefuns, type <code>methods spherefun</code>.  Many of these are inherited from the abstract <code>separableApprox</code> class that was introduced in Chebfun version 5.3. It is fascinating to go through these commands and ask: "What is the analogous operation for functions on the sphere?" We certainly do not have all the answers yet.</p>
+<h3 id="173-low-rank-function-approximation">17.3 Low rank function approximation</h3>
+<p>The initial plan for Spherefun was to apply the iterative Gaussian
+elimination algorithm  for constructing low rank function approximations
+that forms the foundation of Chebfun2 [Townsend & Trefethen 2013] to
+functions on the sphere. However, a direct application of this algorithm
+results in difficulties with some operations (e.g., differentiation) as
+important symmetries and regularity conditions at the north and south
+poles are not preserved. This led to the development of a new algorithm
+for representing functions on the sphere that combines the double Fourier
+sphere method and a symmetry preserving variant of iterative Gaussian
+elimination. We give a brief overview of algorithms here. For a full
+description of the mathematics behind Spherefun see [Townsend, Wilber, &
+Wright 2016].</p>
+<p>The sphere has no boundary, and
+functions defined on the sphere are periodic.  When transforming
+functions on the sphere to spherical coordinates $(\lambda,\theta)$
+(see \eqref{eq:sphCoords}), they become $2\pi$-periodic in $\lambda$, but
+not periodic in $\theta$. The transformation introduces an artificial
+boundary at the north ($\theta=0$) and south ($\theta=\pi$) poles.  The
+double Fourier sphere (DFS) method, first introduced by Merilees
+[Merilees 1973], uses symmetries inherent to spherical coordinates to
+recover the double-periodicity of functions on the sphere.  The idea is
+to extend a function $f$ on $[-\pi,\pi]\times[0,\pi]$ in spherical
+coordinates to a related function $\tilde{f}$ on
+$[-\pi,\pi]\times[-\pi,\pi]$ as follows:
+\begin{equation}
+ \tilde{f}(\lambda,\theta) =
+ \begin{cases}
+  g(\lambda+\pi,\theta), & (\lambda,\theta)\in[-\pi,0]\times[0,\pi],\cr
+  h(\lambda,\theta), & (\lambda,\theta)\in[0,\pi]\times[0,\pi],\cr
+  g(\lambda,-\theta), & (\lambda,\theta)\in[0,\pi]\times[-\pi,0],\cr
+  h(\lambda+\pi,-\theta), & (\lambda,\theta)\in[-\pi,0]\times[-\pi,0],
+ \end{cases}
+\label{eq:BMCsphere}
+\end{equation}
+where $g(\lambda,\theta)=f(\lambda-\pi,\theta)$ and
+$h(\lambda,\theta)=f(\lambda,\theta)$ for
+$(\lambda,\theta)\in[0,\pi]\times[0,\pi]$. The new function $\tilde{f}$
+is $2\pi$-periodic in $\lambda$ and $\theta$, and is constant along the
+lines $\theta=0$ and $\theta=\pm \pi$, corresponding to the poles.
+Assuming $f$ is smooth, the extended function $\tilde{f}$
+can be represented in a double Fourier (or trigonometric) series,
+\begin{equation}
+ \tilde{f}(\lambda,\theta) = \sum_{j=-\infty}^{\infty}\sum_{k=-\infty}^{\infty} \widehat{X}_{jk} e^{ij\theta} e^{ik\lambda}, \label{eq:2DFourierExpansion}
+\end{equation}
+which gives the DFS method its name.
+Note that the Fourier coefficients will satisfy certain properties based
+on the symmetries of the extension \eqref{eq:BMCsphere} [Yee 1980].</p>
+<p>Spherefun uses a symmetry preserving variant of iterative Gaussian
+elimination to construct low rank approximations to $\tilde{f}$
+[Townsend, Wilber, & Wright 2015]. The result of this algorithm is a
+rank $K$ approximation to $\tilde{f}$ of the form
+\begin{align}
+ \tilde{f}(\lambda,\theta) \approx \sum_{j=1}^K d_j
+ c_j(\theta)r_j(\lambda),
+\end{align}
+where each rank 1 function $c_j(\theta)r_j(\lambda)$ satisfies the
+symmetry of the DFS extension \eqref{eq:BMCsphere} to infinite
+precision. This is fundamental for making operations such as
+differentiation well-posed and numerically stable. The functions
+$r_j(\lambda)$ and $c_j(\theta)$ are constructed from samples of
+$\tilde{f}$ along horizontal and vertical "slices", respectively, of
+the rectangular domain $[-\pi,\pi]\times[-\pi,\pi]$.  Since $\tilde{f}$
+is periodic along these slices, $r_j(\lambda)$ and $c_j(\theta)$ are
+represented by trigonometric interpolants
+(or <code>trigfuns</code>; see Chapter 11).</p>
+<p>To illustrate the representation, consider the function
+$f(x,y,z) = \cos(\cosh(5x z) - 10y)$:</p>
+<pre class="mcode-input">f = spherefun( @(x,y,z) cos(cosh(5*x.*z)-10*y) )</pre>
+
+<pre class="mcode-output">f =
+   spherefun object
+       domain        rank    vertical scale
+     unit sphere      39            1
+</pre>
+
+<p>Internally, the DFS method is applied to $f$ to obtain $\tilde{f}$ and
+this function is then approximated to nearly machine precision using a
+rank $K=37$ approximant. The slices (also called the "skeleton") where
+the function is sampled during the construction process can be visualized
+using</p>
+<pre class="mcode-input">plot( f ), title('f'), view([-105 10]), axis off, snapnow
+plot( f, '.-', MS, 20 ), view([-105 10])
+title('Skeleton used for constructing f'), axis off</pre>
+
+<p><img src="../images/guide/guide17_14.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../images/guide/guide17_15.png" class="figure chebfun-figure" alt=""></p>
+<p>Here are the trigonometric coefficients for the  rows $r_j(\lambda)$
+and columns $c_j(\theta)$ quasimatrices making up the approximation of
+$\tilde{f}$</p>
+<pre class="mcode-input">plotcoeffs( f )
+ylim([1e-20 1e2])</pre>
+
+<p><img src="../images/guide/guide17_16.png" class="figure chebfun-figure" alt=""></p>
+<p>An approximation to the bivariate Fourier coefficients in the double
+trigonometric expansion \eqref{eq:2DFourierExpansion} can also be
+computed rapidly from <code>f</code>:</p>
+<pre class="mcode-input">X = coeffs2( f );
+[ m, n ] = length( f );
+[mm, nn] = meshgrid( -floor(m/2):ceil(m/2)-1, -floor(n/2):ceil(n/2)-1);
+clf, surf( mm, nn, log10( abs( X ) ) ), axis tight
+title('Bivariate Fourier coefficients')
+xlabel('k'), ylabel('j')</pre>
+
+<p><img src="../images/guide/guide17_17.png" class="figure chebfun-figure" alt=""></p>
+<p>There is an important byproduct of the low rank approximation algorithm
+that can be spied in the skeleton plot above showing the pivots.  If one were
+to use a tensor product method to reconstruct $f$, then any sampling grid
+conducive to fast periodic approximations would be artificially clustered
+near the north and south poles, resulting in an oversampling of $f$ in
+these regions.  The data-driven, highly adaptive nature of the low rank
+function approximation method diminishes these oversampling issues. The plot
+below illustrates this by comparing the samples of $f$ required by the
+low rank algorithm to the samples required by a full tensor product
+method to achieve the same accuracy. The plots are viewed from the south
+pole to illustrate the full clustering of the tensor product method (a
+similar picture results for the north pole).</p>
+<pre class="mcode-input">clf, plot( f, '-' ), view( [0 -90] )
+title('Low rank function samples'), snapnow
+
+[ m, n ] = length( f );
+[ LL, TT ] = meshgrid( linspace(-pi, pi, n+1), linspace(0, pi, m/2+1) );
+XX = cos(LL).*sin(TT);
+YY = sin(LL).*sin(TT);
+ZZ = cos(TT);
+clf, surf(XX, YY, ZZ, 1+0*XX, 'FaceColor', [1 1 0.8], 'EdgeColor', [0 0 1])
+view([0 -90]), axis([-1 1 -1 1 -1 1]), axis equal
+title('Tensor product function samples')</pre>
+
+<p><img src="../images/guide/guide17_18.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../images/guide/guide17_19.png" class="figure chebfun-figure" alt=""></p>
+<p>The Spherefun constructor accepts a few optional inputs that allow one
+to experiment with low rank approximants.  The rank of the
+approximant that results from the Gaussian elimination algorithm can be
+fixed at a specifed value.  For example, we can construct a rank 18
+approximant of $f(x,y,z) = \cos(\cosh(5x z) - 10y)$, instead of a rank 37
+approximant,</p>
+<pre class="mcode-input">f18 = spherefun( @(x,y,z) cos(cosh(5*x.*z)-10*y), 18 )
+plot(f18), axis off</pre>
+
+<pre class="mcode-output">f18 =
+   spherefun object
+       domain        rank    vertical scale
+     unit sphere      18            1
+</pre>
+
+<p><img src="../images/guide/guide17_20.png" class="figure chebfun-figure" alt=""></p>
+<p>Visually, this representation is identical to $f$, but this approximant is only accurate to about 3 digits.</p>
+<pre class="mcode-input">norm(f-f18)</pre>
+
+<pre class="mcode-output">ans =
+     6.617500040999325e-04
+</pre>
+
+<p>Additionally, the tolerances used during the construction process can
+loosened from machine epsilon to achieve achieve a more compressed
+representation of the function, albeit at the cost of a less accurate
+approximation.  For example, we can loosen the tolerances in the
+construction of $f$ defined above to $10^{-8}$ as follows:</p>
+<pre class="mcode-input">g = spherefun( @(x,y,z) cos(cosh(5*x.*z)-10*y), 'eps', 1e-8 )</pre>
+
+<pre class="mcode-output">g =
+   spherefun object
+       domain        rank    vertical scale
+     unit sphere      23            1
+</pre>
+
+<p>This gives a rank 22 approximant.  The lengths of the rows and columns of this approximant (i.e. the number of trigonometric coefficients used in the approximation) compared to the original are</p>
+<pre class="mcode-input">[mf,nf] = length(f);
+[mg,ng] = length(g);
+[mf mg]
+[nf ng]</pre>
+
+<pre class="mcode-output">ans =
+   105    53
+ans =
+   181    93
+</pre>
+
+<p>These modifications to the rank of the approximant and tolerances used seem to have more dramatic effects on the compression achieved when the functions are smooth.</p>
+<h3 id="174-spherical-harmonics">17.4 Spherical harmonics</h3>
+<p>A natural question that may come to mind is, "Why not use spherical
+harmonic expansions?" One may think that
+spherical harmonic expansions are the right mathematical tool as
+they are the spherical analog of Fourier series. Yet, Spherefun does not
+use them at all. This is because of the difficulty of computing a
+spherical harmonic expansion of a function, despite three decades of
+research on fast algorithms. The current state-of-the-art algorithms have
+a large precomputation cost that makes highly adaptive discretizations
+computationally infeasible.</p>
+<p>Because of the prevalence of spherical harmonics in many areas of
+science and engineering, we provide a method for constructing them in
+Spherefun.  For example, the spherical harmonic $Y_{\ell}^m$ of degree
+$\ell=6$ and order $m=-3$ is constructed as</p>
+<pre class="mcode-input">Y = spherefun.sphharm(6, -3);</pre>
+
+<p>Here $Y$ is represented to machine precision as a rank 1 function using
+the DFS method described above.  It can now be used in any subsequent
+computations.  For example, we can verify that it is indeed an eigenfunction
+of the surface Laplacian (in this case with eigenvalue $-6\times 7 =
+-42$)</p>
+<pre class="mcode-input">plot( -42*Y ), title('-30Y_{6}^{-3}'), axis off, snapnow
+plot( laplacian( Y ) ), title('\Delta Y_{6}^{-3}'), axis off
+norm( Y - (-1/42)*laplacian( Y ), inf)</pre>
+
+<pre class="mcode-output">ans =
+     0
+</pre>
+
+<p><img src="../images/guide/guide17_21.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../images/guide/guide17_22.png" class="figure chebfun-figure" alt=""></p>
+<p>The $\ell=6$, $m=-3$ coefficient in the spherical harmonic expansion of $f(x) = \cos(10x)\sin(10yz)$ is</p>
+<pre class="mcode-input">sum2( spherefun( @(x,y,z) cos(10*x).*sin(10*y.*z) ).*Y )</pre>
+
+<pre class="mcode-output">ans =
+  -0.383990343819504
+</pre>
+
+<p>Spherical harmonics of other degrees and orders can similarly be constructed and manipulated.</p>
+<h3 id="175-poisson-equation">17.5 Poisson equation</h3>
+<p>Spherefun also has a command for solving the Poisson equation on the
+sphere. For example, to solve
+$$
+  \nabla^2 u = f, \qquad \int_{\mathbb{S}^2} u\,d\Omega  = 0,
+$$
+where $f = Y_{6}^{3}$, one can use these Spherefun commands:</p>
+<pre class="mcode-input">f = spherefun.sphharm(6, 3);              % forcing term
+u = spherefun.poisson(f, 0, 100, 100);    % fast Poisson solver</pre>
+
+<p>Here the Poisson equation was solved with a discretization size of $100\times 100$. The exact solution is $-(1/42)Y_6^3$ and has been recovered to machine precision:</p>
+<pre class="mcode-input">norm( u - -(1/42)*f, inf )</pre>
+
+<pre class="mcode-output">ans =
+     0
+</pre>
+
+<p>Provided that the right-hand side $f$ satisfies the compatibility condition
+$\int_{\mathbb{S}^2} f\, d\Omega  = 0$, the solution to the above Poisson
+problem is unique up to a constant. One specifies the value of this
+constant as the second input argument to <code>poisson</code>. Here is a second
+example using a discretization size of $1000\times 1000$ and a value of
+1 for this constant.</p>
+<pre class="mcode-input">f = spherefun( @(x,y,z) sin(100*x.*y.*z) );  % forcing term
+u = spherefun.poisson(f, 1, 1000, 1000);     % fast Poisson solver
+plot( u ), axis off</pre>
+
+<p><img src="../images/guide/guide17_23.png" class="figure chebfun-figure" alt=""></p>
+<p>See [Townsend, Wilber, & Wright 2015] for a description of the fast algorithm used for solving Poisson's equation.</p>
+<h3 id="176-filtering">17.6 Filtering</h3>
+<p>Low-pass isotropic filtering for functions on the sphere can be performed using the command <code>gaussfilt</code>. For example, here is a smooth random spherefun, which we plot in zebra mode, which positive values white and negative values black:</p>
+<pre class="mcode-input">rng(1), f = randnfunsphere(.1);
+plot(f,'zebra'), axis off, colorbar</pre>
+
+<p><img src="../images/guide/guide17_24.png" class="figure chebfun-figure" alt=""></p>
+<p>We can smooth <code>f</code> a little with a spatial scale of 0.05 like this:</p>
+<pre class="mcode-input">ff = gaussfilt(f, 0.05);
+plot(ff,'zebra'), axis off, colorbar</pre>
+
+<p><img src="../images/guide/guide17_25.png" class="figure chebfun-figure" alt=""></p>
+<p>Mathematically, the <code>gaussfilt</code> command amounts to convolving <code>f</code> with a Gaussian kernel.  This is implemented by numerically solving the diffusion equation on the sphere with <code>f</code> as the initial condition. The second input argument of <code>gaussfilt</code> is an optional parameter $\sigma$ that determines the length scale (as measured in radians at the equator of the unit sphere) at which the smoothing occurs.  In the above example, this is set to $10\pi/180$, which corresponds to smoothing at a scale of 10 degrees.</p>
+<h3 id="177-vector-valued-functions-spherefunv">17.7 Vector-valued functions: Spherefunv</h3>
+<p>Vector valued functions on the sphere and <em>surface</em> vector calculus operations are supported through Spherefunv.  For example, the surface gradient of a spherefun returns a spherefunv object:</p>
+<pre class="mcode-input">f = spherefun.sphharm(6,0) + sqrt(14/11)*spherefun.sphharm(6,5);
+g = grad( f );
+plot( f ), axis off, hold on
+quiver( g ), hold off</pre>
+
+<p><img src="../images/guide/guide17_26.png" class="figure chebfun-figure" alt=""></p>
+<p>Spherefunv objects consist of three spherefuns, which represent the vector-valued function in the <em>Cartesian</em> coordinate system</p>
+<pre class="mcode-input">g</pre>
+
+<pre class="mcode-output">g =
+   spherefunv object (Column vector) containing
+   spherefun object
+       domain        rank    vertical scale
+     unit sphere       3          3.5
+   spherefun object
+       domain        rank    vertical scale
+     unit sphere       3          3.4
+   spherefun object
+       domain        rank    vertical scale
+     unit sphere       2          3.7
+</pre>
+
+<p>The components are ordered as $x$, $y$, then $z$.  This choice of coordinate system is common in applications since then the components of the vector field will be smooth on the sphere. Using spherical coordinates would be problematic for the reasons discussed above: the unit vector in the polar direction of the spherical coordinate system has a discontinuity at the north and south poles.</p>
+<p>Many of the operations for vector valued functions are supported.  For example, suppose $\psi$ is the following stream function for flow field (known as the Rosby-Haurwitz "wave number 4" stream function)</p>
+<pre class="mcode-input">psi = spherefun( @(lam,th) -cos(th) + cos(th).*sin(th).^4.*cos(4*lam) );</pre>
+
+<p>The surface curl of $\psi$ gives a field that is tangent to the level curves of $\psi$.</p>
+<pre class="mcode-input">u = curl( psi );
+plot( psi ), hold on, quiver( u ), axis off, hold off</pre>
+
+<p><img src="../images/guide/guide17_27.png" class="figure chebfun-figure" alt=""></p>
+<p>The vorticity represents the local spinning motion of the field.</p>
+<pre class="mcode-input">omega = vorticity( u );
+plot( omega ), hold on, quiver( u ), axis off, hold off</pre>
+
+<p><img src="../images/guide/guide17_28.png" class="figure chebfun-figure" alt=""></p>
+<p>The divergence of the field is</p>
+<pre class="mcode-input">delta = div( u );</pre>
+
+<p>Since $\mathbf{u} = \nabla \times \psi$, the field has zero divergence</p>
+<pre class="mcode-input">norm( delta, inf )</pre>
+
+<pre class="mcode-output">ans =
+     0
+</pre>
+
+<p>For a complete list of methods available in Spherefunv type <code>methods spherefunv</code>.</p>
+<h3 id="references">References</h3>
+<p>[Merilees 1973] P. E. Merilees, The pseudospectral approximation applied to the shallow water equations on a sphere, <em>Atmosphere</em>, 11 (1973), pp. 13-20.</p>
+<p>[Townsend & Trefethen 2013] A. Townsend and L. N. Trefethen, An extension of Chebfun to two dimensions, <em>SIAM J. Sci. Comp</em>, 35 (2013), pp. C495-C518.</p>
+<p>[Townsend, Wilber, & Wright 2016] A. Townsend, H. Wilber, and G. Wright, Computing with functions in spherical and polar geometries I. The sphere. <em>SIAM J. Sci. Comp</em>,  38-4 (2016), pp. C403-C425.</p>
+<p>[Yee 1980] S. Y. K. Yee, Studies on Fourier series on spheres, <em>Mon. Wea. Rev.</em>, 108 (1980), pp. 676-678.</p></div>
+        </div>
+    </div>
+</div>
+    <div class="footer">
+        <p>© Copyright 2025 the University of Oxford and the Chebfun Developers.</p>
+        <!-- TESTING -->
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.7.2.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?lang=matlab" type="text/javascript"></script>
+    <script type="text/javascript" src="/js/config.js"></script>
+    <script type="text/javascript" src="/js/jquery.flexslider-min.js"></script>
+  </body>
+</html>
+</div>

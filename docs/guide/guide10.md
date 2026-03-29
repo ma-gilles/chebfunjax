@@ -1,257 +1,228 @@
-# Chapter 10: Nonlinear ODEs, IVPs, and Chebgui
-
-*Based on [Chebfun Guide Chapter 10](https://www.chebfun.org/docs/guide/guide10.html) by Lloyd N. Trefethen, November 2009, latest revision June 2019.*
-
-## 10.1 Boundary-value problems: `solve` and `solvebvp`
-
-Chapter 7 described chebfunjax's `Chebop` capabilities for solving linear ordinary differential equations. We will now describe extensions of chebops to nonlinear problems, as well as special methods used for ODE initial-value problems (IVPs) as opposed to boundary-value problems (BVPs).
-
-For a linear problem, the `Chebop` approach is straightforward. Here we set up a linear operator and solve a BVP:
-
-```python
-from chebfunjax.operators.chebop import Chebop
-import jax.numpy as jnp
-
-L = Chebop(lambda x, u: 0.0001 * u.diff(2) + x * u, domain=(-1.0, 1.0))
-```
-
-```python
-L.lbc = 0.0
-L.rbc = 1.0
-u = L.solve(lambda x: jnp.exp(x))
-```
-
-![Linear BVP](../images/guide/guide10_01.png)
-
-Displaying the operator shows its structure:
-
-```python
-print(L)
-```
-
-```
-Chebop(domain=(-1.0, 1.0), lbc=0.0, rbc=1.0)
-```
-
-For a nonlinear problem, the `Chebop` uses exactly the same syntax. The system automatically detects nonlinearity and applies Newton iteration:
-
-```python
-N = Chebop(lambda x, u: 0.001 * u.diff(2) - u**3, domain=(-1.0, 1.0))
-N.lbc = 1.0
-N.rbc = -1.0
-```
-
-```python
-print(N)
-```
-
-```
-Chebop(domain=(-1.0, 1.0), lbc=1.0, rbc=-1.0)
-```
-
-```python
-u = N.solve(0.0)
-```
-
-![Nonlinear BVP](../images/guide/guide10_02.png)
-
-Here is Carrier's equation, a well-known problem with multiple solutions:
-
-$$\varepsilon u'' + 2(1 - x^2)u + u^2 = 1, \quad u(-1) = u(1) = 0$$
-
-with $\varepsilon = 0.01$:
-
-```python
-ep = 0.01
-N = Chebop(
-    lambda x, u: ep * u.diff(2) + 2 * (1 - x**2) * u + u**2,
-    domain=(-1.0, 1.0),
-)
-N.lbc = 0.0
-N.rbc = 0.0
-u = N.solve(1.0)
-```
-
-![Carrier problem](../images/guide/guide10_03.png)
-
-This problem has multiple solutions depending on the initial guess. With a suitable initial guess we can find another solution:
-
-```python
-import chebfunjax as cj
-
-x = cj.chebfun(lambda x: x)
-N.init = 2 * (x**2 - 1) * (1 - 2 / (1 + 20 * x**2))
-u2 = N.solve(1.0)
-```
-
-![Carrier with initial guess](../images/guide/guide10_04.png)
-
-The Newton iteration converges quadratically. Here is a semilogy plot of the norms of the Newton corrections $\|\delta u\|$:
-
-```python
-# nrmdu = info.normDelta
-# semilogy(nrmdu, '.-k')
-```
-
-![Newton convergence](../images/guide/guide10_05.png)
-
-There are various options for controlling the Newton iteration:
-
-```python
-# cheboppref.setDefaults('plotting', 'on')  # show Newton iterates
-# cheboppref.setDefaults('display', 'iter') # print iteration info
-# cheboppref.setDefaults('factory')          # reset to defaults
-```
-
-## 10.2 Initial-value problems: `solve` and `solveivp`
-
-An IVP is a special case of a BVP where all conditions are imposed at the left endpoint. Chebfunjax handles IVPs through the same `Chebop` interface, or through the `ivp` convenience function.
-
-Here is a simple nonlinear IVP:
-
-$$u' = u^2, \quad u(0) = 0.95, \quad t \in [0, 1].$$
-
-The exact solution is $u(t) = 0.95/(1 - 0.95t)$:
-
-```python
-N = Chebop(lambda t, u: u.diff() - u**2, domain=(0.0, 1.0))
-N.lbc = 0.95
-u = N.solve(0.0)
-```
-
-![IVP u'=u^2](../images/guide/guide10_06.png)
-
-For comparison, the same problem can be solved with `solvebvp` (which uses global spectral methods rather than time-stepping):
-
-```python
-# u2 = solvebvp(N, 0)
-# norm(u - u2) -> 2.252255281602080e-09
-```
-
-For a second-order linear problem we can specify two initial conditions. Here is the harmonic oscillator $u'' + u = 0$, $u(0) = 1$, $u'(0) = 0$ on a long interval:
-
-```python
-N = Chebop(lambda t, u: u.diff(2) + u, domain=(0.0, 100.0))
-N.lbc = [1.0, 0.0]  # u(0) = 1, u'(0) = 0
-u = N.solve(0.0)
-# Plot u and u' together
-```
-
-![Harmonic oscillator](../images/guide/guide10_07.png)
-
-The Van der Pol equation is a classic nonlinear oscillator:
-
-$$0.05\,u'' - (1 - u^2)u' + u = 0, \quad u(0) = 3, \quad u'(0) = 0.$$
-
-```python
-N = Chebop(
-    lambda t, u: 0.05 * u.diff(2) - (1 - u**2) * u.diff() + u,
-    domain=(0.0, 20.0),
-)
-N.lbc = [3.0, 0.0]
-u = N.solve(0.0, n=256)
-```
-
-![Van der Pol oscillator](../images/guide/guide10_08.png)
-
-For systems of ODEs, the Lorenz system is a famous chaotic attractor:
-
-$$u' = 10(v - u), \quad v' = u(28 - w) - v, \quad w' = uv - \tfrac{8}{3}w$$
-
-with $u(0) = -14$, $v(0) = -15$, $w(0) = 20$:
-
-```python
-from scipy.integrate import solve_ivp
-import numpy as np
-
-def lorenz(t, y):
-    return [10 * (y[1] - y[0]),
-            y[0] * (28 - y[2]) - y[1],
-            y[0] * y[1] - (8 / 3) * y[2]]
-
-sol = solve_ivp(lorenz, [0, 15], [-14, -15, 20],
-                max_step=0.01, dense_output=True)
-# Plot the 3D trajectory
-ts = np.linspace(0, 15, 5000)
-ys = sol.sol(ts)
-# plot3(u, v, w), view(-5, 9), axis off
-```
-
-![Lorenz attractor](../images/guide/guide10_09.png)
-
-## 10.3 Stiff IVPs
-
-Chebfunjax's default methods handle moderately stiff ODE IVPs adequately. For highly stiff problems, switching to a stiff solver is advisable. Here is a stiff test problem where the default approach would struggle:
-
-$$u' + \sin(t) + 10000(u - \cos(t)) = 0, \quad u(0) = 1.$$
-
-```python
-from scipy.integrate import solve_ivp
-
-sol = solve_ivp(
-    lambda t, y: [-np.sin(t) - 10000 * (y[0] - np.cos(t))],
-    [0, 10], [1.0], method='BDF', max_step=0.01, dense_output=True,
-)
-```
-
-![Stiff IVP](../images/guide/guide10_10.png)
-
-## 10.4 Periodic problems
-
-Periodic ODE solutions can be computed using trigonometric (Fourier) discretization rather than Chebyshev methods, by specifying periodic boundary conditions. Here we solve:
-
-$$u'' + u' + 600(1 + \sin x)u = 1 \quad \text{on } [-\pi, \pi]$$
-
-with periodic boundary conditions:
-
-```python
-from scipy.integrate import solve_bvp
-
-def ode_fun(x, y):
-    return np.vstack([y[1],
-                      1.0 - y[1] - 600 * (1 + np.sin(x)) * y[0]])
-
-def bc_fun(ya, yb):
-    return np.array([ya[0] - yb[0], ya[1] - yb[1]])  # periodic
-
-x_init = np.linspace(-np.pi, np.pi, 200)
-y_init = np.zeros((2, 200))
-y_init[0] = 0.001 * np.cos(x_init)
-sol = solve_bvp(ode_fun, bc_fun, x_init, y_init, tol=1e-10, max_nodes=5000)
-```
-
-The `trig` flag in the display indicates trigonometric representation:
-
-```
-f =
+<!-- Generated by scripts/sync_chebfun_guides.py. -->
+<!-- Source: https://www.chebfun.org/docs/guide/guide10.html -->
+
+<div class="chebfun-import">
+<div class='page-header'>
+<span class='chapter_number'>10</span>
+<h1>Nonlinear ODEs, IVPs, and Chebgui</h1>
+<h2>Lloyd N. Trefethen, November 2009, latest revision June 2019<span>
+    
+        <a href='../guide09/'
+>previous</a><span class='sep-sm
+'>·</span><a href='../'>index</a><span class='sep-sm
+'>·</span><a href='../guide11/'
+>next</a></span></h2>
+</div>
+
+<div id='content' class="col-sm-12" role="main">
+<p>Chapter 7 described Chebfun's <code>chebop</code> capabilities for solving linear ordinary differential equations by the backslash command.  We will now describe extensions of chebops to nonlinear problems, as well as special methods used for ODE initial-value problems (IVPs) as opposed to boundary-value problems (BVPs).  Most of the design and implementation of these features was done by Asgeir Birkisson in collaboration with Toby Driscoll. For many examples and a variety of further information, see the Chebfun-based ODE textbook [Trefethen, Birkisson & Driscoll 2018], which is freely available at <a href="http://people.maths.ox.ac.uk/trefethen/ExplODE/">http://people.maths.ox.ac.uk/trefethen/ExplODE/</a>.</p>
+<h3 id="101-boundary-value-problems-and-solvebvp">10.1  Boundary-value problems: \ and <code>solvebvp</code></h3>
+<p>Chebfun contains overloads <code>bvp4c</code> and <code>bvp5c</code> of MATLAB codes of the same names.  However, these are not our recommended methods for solving BVPs, and we will not discuss them here. Instead, we present methods based on \ and its equivalent command <code>solvebvp</code>.</p>
+<p>Recall that in Chapter 7, we realized linear operators as chebops constructed by commands like these:</p>
+<pre class="mcode-input">L = chebop(-1, 1);
+L.op = @(x,u) 0.0001*diff(u,2) + x*u;</pre>
+
+<p>Using such an object we can solve the BVP $$ 0.0001 u'' + xu = e^x, \qquad u(-1) = 0, ~~ u(1) = 1 $$ as follows:</p>
+<pre class="mcode-input">L.lbc = 0; L.rbc = 1;
+x = chebfun('x');
+u = L\exp(x);
+plot(u), grid on, ylim([-50 50])</pre>
+
+<p><img src="../images/guide/guide10_01.png" class="figure chebfun-figure" alt=""></p>
+<p>What's going on in such a calculation is that <code>L</code> is a prescription for constructing matrices of arbitrary dimensions which are Chebyshev spectral approximations to the differential operator. When backslash is executed, the problem is solved on successively finer grids until convergence is achieved.</p>
+<p>The object <code>L</code> is a chebop:</p>
+<pre class="mcode-input">L</pre>
+
+<pre class="mcode-output">L =
+   Linear operator:
+      u |--> 0.0001.*diff(u,2)+x.*u
+   operating on chebfun objects defined on:
+      [-1,1]
+   with
+    left boundary condition(s):
+      u = 0
+    right boundary condition(s):
+      u = 1
+</pre>
+
+<p>Notice that Chebfun has detected that the chebop is linear. Doing this automatically is not a triviality! --- see [Birkisson & Driscoll 2013].</p>
+<p>The same approach also works for nonlinear problems. For example, in Section 7.9 we hand-coded a Newton iteration to solve the nonlinear BVP $$ 0.001u''-u^3 = 0,\qquad  u(-1) = 1,~~ u(1) = -1. $$ Chebfun solves such problems automatically in response to the same syntax as above. Switching from <code>L</code> to <code>N</code> to suggest nonlinearity, let us write</p>
+<pre class="mcode-input">N = chebop(@(x,u) 0.001*diff(u,2) - u^3);
+N.lbc = 1; N.rbc = -1;</pre>
+
+<p>This gives us a chebop which Chebfun recognizes as nonlinear,</p>
+<pre class="mcode-input">N</pre>
+
+<pre class="mcode-output">N =
+   Nonlinear operator:
+      u |--> 0.001.*diff(u,2)-u.^3
+   operating on chebfun objects defined on:
+      [-1,1]
+   with
+    left boundary condition(s):
+      u = 1
+    right boundary condition(s):
+      u = -1
+</pre>
+
+<p>To solve the BVP, we can write</p>
+<pre class="mcode-input">u = N\0;
+plot(u), grid on</pre>
+
+<p><img src="../images/guide/guide10_02.png" class="figure chebfun-figure" alt=""></p>
+<p>Note that this is the same result as in Section 7.9. How does Chebfun solve such problems?  That is a long story, which we shall not tell properly here.  In brief, a Newton iteration (sometimes a damped Newton iteration) is carried out in "continuous mode", that is, in a space of functions rather than vectors.  Recall that to find a zero of a scalar function, Newton's method requires a derivative at each iterative step, and to find a zero vector of a system of equations, it requires a Jacobian matrix.  Here, we seek a zero function of a nonlinear differential operator equation.  For this, Newton's method requires at each step the continuous analogue of a Jacobian matrix, which is a Frechet derivative linear operator.  This Frechet derivative is realized in Chebfun by a continuous analogue of Automatic Differentiation using methods described in [Birkisson & Driscoll 2012].</p>
+<p>Here is an example with a variable coefficient, a nonlinear BVP due to George Carrier analyzed in Sec. 9.7 of the book [Bender & Orzsag 1978].  We seek a function $u$ satisfying $$ \varepsilon u'' + 2(1-x^2) u + u^2 = 1, \qquad u(-1)=u(1) = 0 $$ with $\varepsilon = 0.01$.  Here is a Chebfun formulation and solution.</p>
+<pre class="mcode-input">ep = 0.01;
+N = chebop(-1, 1);
+N.op = @(x,u) ep*diff(u,2) + 2*(1 - x^2)*u + u^2;
+N.bc = 'dirichlet';
+u = N\1; plot(u), ylim([-2 2]), grid on</pre>
+
+<p><img src="../images/guide/guide10_03.png" class="figure chebfun-figure" alt=""></p>
+<p>This is one of several valid solutions to this problem. To find another, we can specify a initial guess for the Newton iteration that differs from Chebfun's default (a polynomial function constructed to satisfy the boundary conditions --- the zero function in this case). For example, here we specify the initial guess $u(x) = 2(x^2 - 1)(1 - 2/(1 + 20x^2))$ and get a solution with two peaks instead of four.</p>
+<pre class="mcode-input">x = chebfun('x');
+N.init = 2*(x^2 - 1)*(1 - 2/(1 + 20*x^2));
+[u, info] = solvebvp(N, 1);
+plot(u), grid on</pre>
+
+<p><img src="../images/guide/guide10_04.png" class="figure chebfun-figure" alt=""></p>
+<p>This time, instead of using <code>\</code>, we called the underlying method <code>solvebvp</code>, and we specified two output arguments.  The second output is a MATLAB struct containing data showing the norms of the updates during the Newton iteration, revealing a slow initial phase followed by eventual rapid convergence.</p>
+<pre class="mcode-input">nrmdu = info.normDelta;
+semilogy(nrmdu,'.-k'), grid on, ylim([1e-14,1e2])</pre>
+
+<p><img src="../images/guide/guide10_05.png" class="figure chebfun-figure" alt=""></p>
+<p>Another way to get information about the Newton iteration with nonlinear backlash is by setting</p>
+<pre class="mcode-input">cheboppref.setDefaults('plotting','on')</pre>
+
+<p>or</p>
+<pre class="mcode-input">cheboppref.setDefaults('display','iter')</pre>
+
+<p>Type <code>help cheboppref</code> for details.  Here we shall not pursue this option and thus return the system to its factory state:</p>
+<pre class="mcode-input">cheboppref.setDefaults('factory')</pre>
+
+<p>When you apply backslash to a nonlinear chebop, it invokes the overloaded MATLAB command <code>mldivide</code>; this in turn calls <code>solvebvp</code> to do the actual work. By calling <code>solvebvp</code> directly, you can control the computation in ways not accessible through backslash, a situation just like the relationship between <code>\</code> and <code>linsolve</code> for solving a linear system in MATLAB. See the help documentation for details.</p>
+<h3 id="102-initial-value-problems-and-solveivp">10.2  Initial-value problems: \ and <code>solveivp</code></h3>
+<p>For IVPs, Chebfun contains overloads <code>ode113</code>, <code>ode45</code>, and <code>ode15s</code> of familiar MATLAB codes.  Again, however, these are not our recommended methods. Instead, we recommend \ and its equivalent <code>solveivp</code>.</p>
+<p>For example, suppose we want to solve the nonlinear IVP $$ u' = u^2, \qquad t\in [0,1], \quad u(0)=0.95.  $$ We can set up the problem like this:</p>
+<pre class="mcode-input">N = chebop(0, 1);
+N.op = @(t,u) diff(u) - u^2;
+N.lbc = 0.95</pre>
+
+<pre class="mcode-output">N =
+   Nonlinear operator:
+      u |--> diff(u)-u.^2
+   operating on chebfun objects defined on:
+      [0,1]
+   with
+    left boundary condition(s):
+      u = 0.95
+</pre>
+
+<p>Since boundary conditions have been specified at only one end of the domain, Chebfun knows that this is an initial value problem.  We solve it and plot the solution:</p>
+<pre class="mcode-input">u = N\0;
+plot(u), grid on</pre>
+
+<p><img src="../images/guide/guide10_06.png" class="figure chebfun-figure" alt=""></p>
+<p>A major change was introduced in Version 5.1 in how initial-value (and final-value) problems are solved. Before, Chebfun used the same global spectral representations as for BVPs.  This usually works fine for linear problems, but for nonlinear ones, it is inferior to the method of time-stepping by Runge-Kutta or Adams formulas. In Chebfun Version 5.1, we accordingly switched to solving IVPs numerically by <code>ode113</code> (by default), converting the resulting output to a Chebfun representation.  (This work, a substantial job since higher-order equations must be reformulated as first-order systems, was carried out by Asgeir Birkisson [Brikisson 2018].) If you wish to invoke the global spectral method instead of time-stepping, you can write</p>
+<pre class="mcode-input">u2 = solvebvp(N,0);</pre>
+
+<p>(With <code>cheboppref.setDefaults('ivpSolver','collocation')</code> you could make this switch globally.) For this problem the method converges, giving a solution that is close but not the same:</p>
+<pre class="mcode-input">norm(u-u2)</pre>
+
+<pre class="mcode-output">ans =
+     2.252255281602080e-09
+</pre>
+
+<p>For many nonlinear IVPs, however, the <code>solvebvp</code> approach would not converge.</p>
+<p>Here is an example of an IVP with two components; the equation happens to be linear.</p>
+<pre class="mcode-input">N = chebop(0, 100);
+N.op = @(t,u) diff(u,2) + u;
+N.lbc = [1; 0];
+u = N\0;
+plot([u diff(u)]), grid on, ylim([-1.5 1.5])</pre>
+
+<p><img src="../images/guide/guide10_07.png" class="figure chebfun-figure" alt=""></p>
+<p>As a third example, let us solve a van der Pol equation for a nonlinear oscillator, $$ \varepsilon u'' = (1-u^2)u' - u , \qquad t\in [0,20], ~~ u(0) = 3, ~~u'(0) = 0. $$ Here is a solution with $\varepsilon = 0.05$:</p>
+<pre class="mcode-input">N = chebop(0,20);
+N.op = @(t,u) 0.05*diff(u,2) - (1-u^2)*diff(u) + u;
+N.lbc = [3; 0];
+u = N\0;
+plot(u), ylim([-4 4]), grid on</pre>
+
+<p><img src="../images/guide/guide10_08.png" class="figure chebfun-figure" alt=""></p>
+<p>As a final example let us consider the famous Lorenz equations, whose solution trajectories are chaotic: We can set up the problem and solve it like this:</p>
+<pre class="mcode-input">N = chebop(0,15);
+N.op = @(t,u,v,w) [diff(u)-10*(v-u);
+                   diff(v)-u*(28-w)+v;
+                   diff(w)-u*v+(8/3)*w];
+N.lbc = @(u,v,w) [u+14; v+15; w-20];
+[u,v,w] = N\0;
+plot3(u,v,w), view(-5,9), axis off</pre>
+
+<p><img src="../images/guide/guide10_09.png" class="figure chebfun-figure" alt=""></p>
+<h3 id="103-stiff-ivps">10.3 Stiff IVPs</h3>
+<p>Chebfun's default solution methods work well for moderately stiff ODE IVPs.  For highly stiff problems, however, it is desirable to switch the underlying engine from the default <code>ode113</code> to the stiff solver <code>ode15s</code>.  For example, the problem $$ u' = -u - 10000(u(t)-\cos(t)), \qquad u(0) = 1 $$ has the solution $u(t) = \cos(t)$.  However, it is highly stiff, and to solve it we can proceed as follows:</p>
+<pre class="mcode-input">N = chebop(0, 10);
+N.op = @(t,u) diff(u) + sin(t) + 10000*(u-cos(t));
+N.lbc = 1;
+pref = cheboppref; pref.ivpSolver = 'ode15s';
+tic, u = solveivp(N,0,pref); toc
+plot(u), grid on, ylim([-1.5 1.5])</pre>
+
+<pre class="mcode-output">Elapsed time is 0.329978 seconds.
+</pre>
+
+<p><img src="../images/guide/guide10_10.png" class="figure chebfun-figure" alt=""></p>
+<p>If we don't specify <code>ode15s</code>, the solution takes minutes instead of seconds.</p>
+<h3 id="104-periodic-problems">10.4 Periodic problems</h3>
+<p>A relatively new feature in Chebfun is the solution of periodic ODEs; see chapter 19 of [Trefethen, Birkisson & Driscoll 2018]. For example, here is a function encoded in the <code>gallerytrig</code> command:</p>
+<pre class="mcode-input">plot(cheb.gallerytrig('tsunami'), 'color', [.6 .4 0]), grid on
+ylim([-.2 .2])</pre>
+
+<p><img src="../images/guide/guide10_11.png" class="figure chebfun-figure" alt=""></p>
+<p>If you look in <code>gallerytrig</code>, you will find that this curve has been generated by the following sequence:</p>
+<pre class="mcode-input">op = @(x,u) diff(u,2) + diff(u) + 600*(1+sin(x))*u;
+L = chebop(op, [-pi,pi], 'periodic');
+f = L\1;</pre>
+
+<p>which corresponds to the problem $$ u'' + u' + 600(1+\sin(x)) = 0, \quad x\in [-\pi,\pi], ~~ u(-\pi)=u(\pi), ~~ u'(-\pi)=u'(\pi) . $$ The <code>periodic</code> flag instructs Chebfun to impose periodic boundary conditions and solve the problem with a trigonometric discretization, that is, a Fourier spectral method. The result is a trigfun:</p>
+<pre class="mcode-input">f</pre>
+
+<pre class="mcode-output">f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values trig
-[    -3.1,     3.1]      109   -0.0043  -0.0043
-vertical scale = 0.17
-```
+[    -3.1,     3.1]      109   -0.0043  -0.0043 
+vertical scale = 0.17 
+</pre>
 
-![Periodic ODE](../images/guide/guide10_11.png)
+<h3 id="105-ultraspherical-discretizations">10.5 Ultraspherical discretizations</h3>
+<p>As with most Chebfun operations involving differential equations, for nonlinear ODE BVPs and periodic ODEs Chebfun offers a choice between the default spectral collocation methods or an alternative ultraspherical method.  See Sections 7.7 and 8.10.</p>
+<h3 id="106-graphical-user-interface-chebgui">10.6 Graphical user interface: Chebgui</h3>
+<p>Chebfun includes a GUI (Graphical User Interface) called <code>chebgui</code> for interactive solution of ODE, time-dependent PDE, and eigenvalue problems.  For many users, this is the single most important part of Chebfun. We will not describe <code>chebgui</code> here, but we encourage readers to give it a try. Be sure to note the <code>Demo</code> menu, which offers dozens of preloaded examples, both scalars and systems. Perhaps most important of all is the "Export to m-file" button, which produces a Chebfun m-file corresponding to whatever problem is loaded into the GUI.  This feature enables one to get going quickly and interactively, then switch to a Chebfun program to adjust the fine points. To start exploring, just type <code>chebgui</code>.</p>
+<h3 id="107-references">10.7 References</h3>
+<p>[Bender & Orszag 1978] C. M. Bender and S. A. Orszag, <em>Advanced Mathematical Methods for Scientists and Engineers</em>, McGraw-Hill, 1978.</p>
+<p>[Birkisson 2014] A. Birkisson, <em>Numerical Solution of Nonlinear Boundary Value Problems for Ordinary Differential Equations in the Continuous Framework</em>, D. Phil. thesis, University of Oxford, 2014.</p>
+<p>[Birkisson 2018] A. Birkisson, Automatic reformulation of ODEs to systems of first order equations, <em>Trans. Math. Softw.</em>, 44 (2018), 31.</p>
+<p>[Birkisson & Driscoll 2012] A. Birkisson and T. A. Driscoll, Automatic Fréchet differentiation for the numerical solution of boundary-value problems, <em>ACM Transactions on Mathematical Software</em>, 38 (2012), 1-26.</p>
+<p>[Birkisson & Driscoll 2013] A. Birkisson and T. A. Driscoll, Automatic linearity dection, preprint, <code>eprints.maths.ox.ac.uk</code>, 2013.</p>
+<p>[Trefethen, Birkisson & Driscoll 2013] L. N. Trefethen, A. Birkisson, and T. A. Driscoll, <em>Exploring ODEs</em>, SIAM, 2018; freely available at <a href="http://people.maths.ox.ac.uk/trefethen/ExplODE/">http://people.maths.ox.ac.uk/trefethen/ExplODE/</a>.</p>
+<pre class="mcode-input">% SIAM, 2018.</pre></div>
+        </div>
+    </div>
+</div>
+    <div class="footer">
+        <p>© Copyright 2025 the University of Oxford and the Chebfun Developers.</p>
+        <!-- TESTING -->
+    </div>
 
-## 10.5 Ultraspherical discretizations
-
-As with most chebfunjax operations involving differential equations, for nonlinear ODE BVPs and periodic ODEs chebfunjax offers a choice between the default spectral collocation methods or an alternative ultraspherical method. See Sections 7.7 and 8.10.
-
-## 10.6 Graphical user interface: Chebgui
-
-MATLAB Chebfun includes a GUI called `chebgui` for interactive solution of ODE, time-dependent PDE, and eigenvalue problems. For many users, this is the single most important part of Chebfun. The `Demo` menu offers dozens of preloaded examples, both scalars and systems. The "Export to m-file" button produces a Chebfun m-file corresponding to whatever problem is loaded into the GUI, enabling one to get going quickly and interactively, then switch to a Chebfun program to adjust the fine points.
-
-In chebfunjax, there is no GUI equivalent. Instead, all ODE/PDE/eigenvalue problems are solved programmatically through the `Chebop` class and the convenience functions `bvp`, `bvp4c`, `bvp5c`, `ivp`, and `eigs`.
-
-## 10.7 References
-
-[Bender & Orszag 1978] C. M. Bender and S. A. Orszag, _Advanced Mathematical Methods for Scientists and Engineers_, McGraw-Hill, 1978.
-
-[Birkisson 2014] A. Birkisson, _Numerical Solution of Nonlinear Boundary Value Problems for Ordinary Differential Equations in the Continuous Framework_, D. Phil. thesis, University of Oxford, 2014.
-
-[Birkisson 2018] A. Birkisson, Automatic reformulation of ODEs to systems of first order equations, _Trans. Math. Softw._, 44 (2018), 31.
-
-[Birkisson & Driscoll 2012] A. Birkisson and T. A. Driscoll, Automatic Frechet differentiation for the numerical solution of boundary-value problems, _ACM Transactions on Mathematical Software_, 38 (2012), 1--26.
-
-[Birkisson & Driscoll 2013] A. Birkisson and T. A. Driscoll, Automatic linearity detection, preprint, `eprints.maths.ox.ac.uk`, 2013.
-
-[Trefethen, Birkisson & Driscoll 2018] L. N. Trefethen, A. Birkisson, and T. A. Driscoll, _Exploring ODEs_, SIAM, 2018; freely available at http://people.maths.ox.ac.uk/trefethen/ExplODE/
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.7.2.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?lang=matlab" type="text/javascript"></script>
+    <script type="text/javascript" src="/js/config.js"></script>
+    <script type="text/javascript" src="/js/jquery.flexslider-min.js"></script>
+  </body>
+</html>
+</div>

@@ -1,0 +1,57 @@
+.chebfun-import .page-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+}
+
+.chebfun-import .chapter_number {
+  color: var(--md-default-fg-color--light);
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.chebfun-import h1 {
+  margin: 0.15rem 0 0;
+}
+
+.chebfun-import h2 {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0.4rem 0 0;
+}
+
+.chebfun-import .sep-sm {
+  margin: 0 0.4rem;
+}
+
+.chebfun-import .invisible {
+  visibility: hidden;
+}
+
+.chebfun-import pre.mcode-input,
+.chebfun-import pre.mcode-output {
+  border-radius: 0.2rem;
+  overflow-x: auto;
+  padding: 0.9rem 1rem;
+  white-space: pre-wrap;
+}
+
+.chebfun-import pre.mcode-input {
+  background: rgba(32, 99, 155, 0.08);
+  border-left: 3px solid rgba(32, 99, 155, 0.65);
+}
+
+.chebfun-import pre.mcode-output {
+  background: rgba(0, 0, 0, 0.04);
+  border-left: 3px solid rgba(0, 0, 0, 0.18);
+}
+
+.chebfun-import img.chebfun-figure {
+  display: block;
+  height: auto;
+  margin: 1rem auto 1.5rem;
+  max-width: min(100%, 960px);
+}

@@ -1,400 +1,483 @@
-# Chapter 7: Linear Differential Operators and Equations
-
-*Based on [Chebfun Guide Chapter 7](https://www.chebfun.org/docs/guide/guide07.html)*
-
-## 7.1 Introduction
-
-Chebfunjax provides tools for solving ordinary differential equations through spectral collocation methods. The central abstractions are:
-
-- **`OperatorBlock`** -- a linear map from functions to functions (e.g., differentiation).
-- **`FunctionalBlock`** -- a linear map from functions to scalars (e.g., point evaluation).
-- **`Linop`** -- a linear differential operator with attached boundary conditions.
-- **`Chebop`** -- a user-friendly nonlinear operator constructor.
-
-This chapter focuses on linear two-point boundary value problems. Nonlinear problems are treated in Chapter 10.
-
-The key references are Driscoll, Bornemann & Trefethen (2008), Driscoll & Hale (2014), and Trefethen, Birkisson & Driscoll (2018, *Exploring ODEs*).
-
-## 7.2 About Linear Operators
-
-A linear differential operator acts on chebfuns and can be discretized as a matrix on a Chebyshev collocation grid. Chebfunjax uses Chebyshev-2 (Clenshaw-Curtis) collocation: the operator is represented as an $n \times n$ matrix mapping function values at $n$ Chebyshev points to values of the result at the same points.
-
-Boundary conditions are imposed by replacing the last rows of the operator matrix with the corresponding functional rows (e.g., evaluation at endpoints). The resulting square system is then solved by `jnp.linalg.solve`.
-
-## 7.3 Building Operators with Blocks
-
-The building blocks for operators live in `chebfunjax.operators.blocks`:
-
-```python
-from chebfunjax.operators.blocks import D, I, diag, eval_at, sum_functional
-```
-
-![](../images/guide/guide07_05.png)
-
-
-### The Differentiation Operator `D`
-
-The function `D(domain, order)` returns an `OperatorBlock` for differentiation:
-
-```python
-# First derivative on [-1, 1]
-D1 = D()
-
-# Second derivative on [-1, 1]
-D2 = D(order=2)
-
-# First derivative on [0, pi]
-import jax.numpy as jnp
-D_pi = D(domain=(0.0, float(jnp.pi)))
-```
-
-![](../images/guide/guide07_07.png)
-
-
-### The Identity Operator `I`
-
-`I(domain)` returns the identity operator (its matrix is the identity):
-
-```python
-Id = I()
-```
-
-![](../images/guide/guide07_09.png)
-
-
-### Multiplication Operator `diag`
-
-`diag(f)` returns the operator that multiplies by the chebfun `f`:
-
-```python
-import chebfunjax as cj
-
-x = cj.chebfun(lambda t: t)
-M = diag(x)   # multiplication by x
-```
-
-![](../images/guide/guide07_10.png)
-
-
-### Operator Algebra
-
-Operators support addition, subtraction, scalar multiplication, and composition:
-
-```python
-# L = d^2/dx^2 + x*I  (Airy-type operator)
-L_op = D(order=2) + diag(x)
-
-# L = 0.001 * d^2/dx^2 - I
-L_op2 = 0.001 * D(order=2) - I()
-```
-
-![](../images/guide/guide07_11.png)
-
-
-### Evaluation Functionals
-
-`eval_at(x, domain)` returns a `FunctionalBlock` for point evaluation $u(x)$:
-
-```python
-# Evaluate at x = -1
-E_left = eval_at(-1.0)
-
-# Evaluate at x = 1
-E_right = eval_at(1.0)
-```
-
-![](../images/guide/guide07_12.png)
-
-
-### Integral Functional
-
-`sum_functional(domain)` returns the definite integral functional $\int_a^b u(x)\,dx$:
-
-```python
-S = sum_functional()
-```
-
-![](../images/guide/guide07_16.png)
-
-
-## 7.4 Solving BVPs with `Linop`
-
-The `Linop` class packages a linear operator with boundary conditions and provides a `solve` method.
-
-### Example: $u'' = -1$, $u(-1) = u(1) = 0$
-
-The exact solution is $u(x) = (1 - x^2)/2$.
-
-```python
-from chebfunjax.operators.linop import Linop
-from chebfunjax.operators.blocks import D, eval_at
-import jax.numpy as jnp
-
-L = Linop(
-    D(order=2),
-    bcs=[eval_at(-1.0), eval_at(1.0)],
-    domain=(-1.0, 1.0),
-    bc_values=[0.0, 0.0],
-)
-u = L.solve(lambda x: -jnp.ones_like(x))
-print(f"u(0) = {float(u(jnp.float64(0.0))):.15f}")   # 0.5
-```
-
-![cumsum(x) on [0,1]](../images/guide/guide07_01.png)
-
-### Adaptive Discretization
-
-When no fixed size `n` is provided, `Linop.solve` uses an adaptive loop: it tries discretization sizes $n = 8, 16, 32, \ldots$ until the Chebyshev coefficients of the solution decay below the tolerance.
-
-```python
-# Fixed size
-u_fixed = L.solve(lambda x: -jnp.ones_like(x), n=32)
-
-# Adaptive (default)
-u_adaptive = L.solve(lambda x: -jnp.ones_like(x), tol=1e-12)
-```
-
-![](../images/guide/guide07_17.png)
-
-
-### Variable Coefficients
-
-Operators with variable coefficients are built by combining `D`, `I`, and `diag`:
-
-```python
-import chebfunjax as cj
-
-x = cj.chebfun(lambda t: t, domain=(-3.0, 3.0))
-
-# u'' + x^3 * u = 1, u(-3) = u(3) = 0
-L = Linop(
-    D(domain=(-3.0, 3.0), order=2) + diag(x**3),
-    bcs=[eval_at(-3.0, domain=(-3.0, 3.0)),
-         eval_at(3.0, domain=(-3.0, 3.0))],
-    domain=(-3.0, 3.0),
-    bc_values=[0.0, 0.0],
-)
-u = L.solve(lambda t: jnp.ones_like(t))
-```
-
-![Variable-coefficient BVP: u'' + x^3 u = 1](../images/guide/guide07_02.png)
-
-![Same problem with Neumann BC on the right, overlaid](../images/guide/guide07_03.png)
-
-### Verifying the Solution
-
-You can verify the residual by evaluating the operator on the solution:
-
-```python
-residual = u.diff(2) + x**3 * u - 1.0
-print(f"Residual norm: {float(residual.norm()):.2e}")
-```
-
-![](../images/guide/guide07_18.png)
-
-
-## 7.5 Solving BVPs with `Chebop`
-
-The `Chebop` class provides a higher-level interface. The operator is specified as a Python callable taking `(x, u)` arguments, where `x` is the identity chebfun and `u` is the unknown:
-
-```python
-from chebfunjax.operators.chebop import Chebop
-
-N = Chebop(lambda x, u: u.diff(2), domain=(-1.0, 1.0))
-N.lbc = 0.0   # u(-1) = 0
-N.rbc = 0.0   # u(1) = 0
-u = N.solve(-1.0)
-print(f"u(0) = {float(u(jnp.float64(0.0))):.15f}")
-```
-
-![Chebop solution of u'' = -1 with Dirichlet BCs](../images/guide/guide07_04.png)
-
-### Boundary Condition Types
-
-Chebop supports several BC forms:
-
-- **Scalar**: `N.lbc = c` sets $u(a) = c$ (Dirichlet).
-- **List**: `N.lbc = [c0, c1]` sets $u(a) = c_0$ and $u'(a) = c_1$.
-- **Callable**: `N.lbc = lambda u: u.diff() - 1` sets a general condition $g(u) = 0$ at the left endpoint.
-
-```python
-# Neumann BC on the right: u'(1) = 0
-N2 = Chebop(lambda x, u: u.diff(2), domain=(-1.0, 1.0))
-N2.lbc = 0.0
-N2.rbc = lambda u: u.diff()
-u2 = N2.solve(-1.0)
-```
-
-![](../images/guide/guide07_19.png)
-
-
-### The Convenience Function `bvp`
-
-For quick one-off solves, use the `bvp` function:
-
-```python
-from chebfunjax.chebfun1d.ode import bvp
-
-u = bvp(
-    lambda x, u: u.diff(2),
-    domain=(-1.0, 1.0),
-    lbc=0.0,
-    rbc=0.0,
-    f=-1.0,
-)
-```
-
-## 7.6 Eigenvalue Problems with `eigs`
-
-The `eigs` method computes eigenvalues of the constrained differential operator. For the operator $L$ with boundary conditions, the eigenvalue problem is
-
-$$Lu = \lambda u.$$
-
-### Example: Eigenvalues of $-u''$ with Dirichlet BCs on $[0, \pi]$
-
-The exact eigenvalues are $\lambda_k = k^2$ for $k = 1, 2, 3, \ldots$
-
-```python
-from chebfunjax.chebfun1d.ode import eigs
-import jax.numpy as jnp
-
-lam = eigs(
-    lambda x, u: -u.diff(2),
-    domain=(0.0, float(jnp.pi)),
-    lbc=0.0,
-    rbc=0.0,
-    k=6,
-)
-print("Eigenvalues:", lam)
-# Should be approximately 1, 4, 9, 16, 25, 36
-```
-
-![Eigenmodes of the second derivative on [0, pi]](../images/guide/guide07_08.png)
-
-### Using Chebop for Eigenvalues
-
-```python
-N = Chebop(lambda x, u: -u.diff(2), domain=(0.0, float(jnp.pi)))
-N.lbc = 0.0
-N.rbc = 0.0
-lam = N.eigs(k=6)
-print("Eigenvalues:", lam)
-```
-
-### Generalized Eigenproblems and Target Selection
-
-The `sigma` parameter controls which eigenvalues are returned:
-
-- `sigma=None` or `sigma='SM'`: smallest magnitude.
-- `sigma='LM'`: largest magnitude.
-- `sigma='SR'`: smallest real part.
-- `sigma='LR'`: largest real part.
-- `sigma=c` (a number): nearest to the target $c$.
-
-```python
-# Find eigenvalues nearest to 50
-lam_near_50 = N.eigs(k=4, sigma=50.0)
-```
-
-## 7.7 Algorithms: Chebyshev Spectral Collocation
-
-Chebfunjax uses Chebyshev-2 (Gauss-Lobatto) spectral collocation for discretizing differential operators. The algorithm proceeds as follows:
-
-1. **Discretize** the operator $L$ at $n$ Chebyshev-2 collocation points on $[a, b]$ to obtain an $n \times n$ matrix $A$.
-2. **Replace** the last $n_{\mathrm{bc}}$ rows of $A$ with the boundary condition rows (e.g., evaluation functionals at endpoints).
-3. **Build** the right-hand side vector $\mathbf{f}$, replacing the last $n_{\mathrm{bc}}$ entries with boundary values.
-4. **Solve** $A \mathbf{u} = \mathbf{f}$ via `jnp.linalg.solve`.
-5. **Interpret** the solution vector as function values at the collocation points and wrap in a Chebfun.
-
-For adaptive solves, the process repeats at sizes $n = 8, 16, 32, \ldots$ until the Chebyshev coefficients of the solution decay below the requested tolerance.
-
-### Accessing the Discretization Matrix
-
-```python
-from chebfunjax.operators.blocks import D, ChebColloc2Disc
-
-disc = ChebColloc2Disc(8, (-1.0, 1.0))
-D2_mat = D(order=2).matrix(disc)
-print(f"D2 matrix shape: {D2_mat.shape}")
-print(D2_mat)
-```
-
-![Cosine solution on [-10, 10]](../images/guide/guide07_14.png)
-
-### Conditioning
-
-Chebyshev spectral differentiation matrices are notoriously ill-conditioned. For a second-order problem, one typically loses 2-3 digits of accuracy relative to machine precision, and 5-6 digits for fourth-order problems. This is a well-known feature of spectral methods (Trefethen 2000).
-
-## 7.8 Systems of Equations
-
-Systems of ODEs can be solved using Chebop with multi-variable operator signatures.
-
-### Example: $u' = v$, $v' = -u$ on $[0, 10\pi]$
-
-This is the harmonic oscillator $u'' + u = 0$, written as a first-order system:
-
-```python
-# Second-order formulation
-N = Chebop(lambda x, u: u.diff(2) + u, domain=(0.0, 10 * float(jnp.pi)))
-N.lbc = [1.0, 0.0]   # u(0) = 1, u'(0) = 0
-u = N.solve(0.0)
-
-# Verify: u should be cos(x)
-mid = 5.0 * float(jnp.pi)
-print(f"u({mid:.4f}) = {float(u(jnp.float64(mid))):.10f}")
-print(f"cos({mid:.4f}) = {float(jnp.cos(jnp.float64(mid))):.10f}")
-```
-
-![Harmonic oscillator system: u and u'](../images/guide/guide07_15.png)
-
-## 7.9 Quantum States
-
-The `quantumstates` function solves the time-independent Schrodinger equation
-
-$$-h^2 u''(x) + V(x)\,u(x) = \lambda\,u(x)$$
-
-with Dirichlet boundary conditions, returning the $n$ smallest eigenvalues (energy levels) and corresponding eigenfunctions.
-
-```python
-import chebfunjax as cj
-
-# Harmonic oscillator: V(x) = x^2
-x = cj.chebfun(lambda t: t, domain=(-5.0, 5.0))
-V = x**2
-eigenvalues, eigenfunctions = cj.quantumstates(V, n=5, h=0.1)
-print("Energy levels:", eigenvalues)
-```
-
-## 7.10 GMRES for Operator Equations
-
-For large or ill-conditioned systems, chebfunjax provides a `gmres` function that applies iterative GMRES (via SciPy) to the discretized operator system:
-
-```python
-from chebfunjax.operators.linop import Linop, gmres
-from chebfunjax.operators.blocks import D, eval_at
-
-L = Linop(
-    D(order=2),
-    bcs=[eval_at(-1.0), eval_at(1.0)],
-    domain=(-1.0, 1.0),
-    bc_values=[0.0, 0.0],
-)
-u = gmres(L, lambda x: -jnp.ones_like(x), n=64)
-print(f"u(0) = {float(u(jnp.float64(0.0))):.10f}")
-```
-
-## 7.11 References
-
-- J. L. Aurentz and L. N. Trefethen, "Block operators and spectral discretizations," *SIAM Review* 59 (2017), 423-446.
-
-- A. Birkisson, *Numerical Solution of Nonlinear Boundary Value Problems for ODEs in the Continuous Framework*, D.Phil. thesis, University of Oxford, 2014.
-
-- T. A. Driscoll, F. Bornemann, and L. N. Trefethen, "The chebop system for automatic solution of differential equations," *BIT Numer. Math.* 46 (2008), 701-723.
-
-- T. A. Driscoll and N. Hale, "Rectangular spectral collocation," *IMA J. Numer. Anal.* 36 (2016), 108-132.
-
-- S. Olver and A. Townsend, "A fast and well-conditioned spectral method," *SIAM Review* 55 (2013), 462-489.
-
-- L. N. Trefethen, *Spectral Methods in MATLAB*, SIAM, 2000.
-
-- L. N. Trefethen, A. Birkisson, and T. A. Driscoll, *Exploring ODEs*, SIAM, 2018.
+<!-- Generated by scripts/sync_chebfun_guides.py. -->
+<!-- Source: https://www.chebfun.org/docs/guide/guide07.html -->
+
+<div class="chebfun-import">
+<div class='page-header'>
+<span class='chapter_number'>7</span>
+<h1>Linear Differential Operators and Equations</h1>
+<h2>Tobin A. Driscoll, November 2009, latest revision June 2019<span>
+    
+        <a href='../guide06/'
+>previous</a><span class='sep-sm
+'>·</span><a href='../'>index</a><span class='sep-sm
+'>·</span><a href='../guide08/'
+>next</a></span></h2>
+</div>
+
+<div id='content' class="col-sm-12" role="main">
+<h3 id="71-introduction">7.1  Introduction</h3>
+<p>Chebfun has powerful capabilities for solving ordinary differential equations as well as certain partial differential equations. The present chapter is devoted to chebops, the fundamental Chebfun tools for solving ordinary differential (or integral) equations. In particular we focus here on the linear case.  We shall see that one can solve a linear two-point boundary value problem to high accuracy by a single backslash command.  Nonlinear extensions are described in Section 7.9 and in Chapter 10, and for PDEs in one space dimension, try <code>help pde15s</code>.</p>
+<p>Chebfun can also solve certain integral equations, though this topic is not covered much in the <em>Chebfun Guide</em>. See the commands <code>fred</code> and <code>volt</code> and the <code>integro</code> section of the Chebfun Examples collection.</p>
+<p>The book <em>Exploring ODEs</em> about ODEs in Chebfun appeared in 2018, and is freely available online as a PDF file [Trefethen, Birkisson & Driscoll 2018].  Appendix B of the book gives 100 short examples of how to solve various ODE problems in Chebfun.</p>
+<p>Although one or two examples of initial-value problems for ODEs are presented in this chapter, the emphasis is on boundary-value problems. Beginning with Version 5.1 in December 2014, Chebfun switched to time-stepping methods as the default for initial value problems, a big improvement in speed and robustness in the nonlinear case. See Chapter 10.</p>
+<h3 id="72-about-linear-chebops">7.2  About linear chebops</h3>
+<p>A chebop represents a differential or integral operator that acts on chebfuns. This chapter focusses on the linear case, though from a user's point of view, linear and nonlinear problems are quite similar. One thing that makes linear operators special is that <code>eigs</code> and <code>expm</code> can be applied to them, as we shall describe in Sections 7.5 and 7.6.</p>
+<p>Like chebfuns, chebops start from premise of approximation by piecewise polynomial interpolants; in the context of differential equations, such techniques are called spectral collocation methods. As with chebfuns, the discretizations are chosen automatically to achieve high accuracy. In fact, beginning with version 5, Chebfun actually offers two different methods for solving these problems, which go by the names of rectangular collocation (or Driscoll-Hale) spectral methods and ultraspherical (or Olver-Townsend) spectral methods. See Sections 7.7 and 8.10.</p>
+<p>The linear part of the chebop package was conceived at Oxford by Bornemann, Driscoll, and Trefethen [Driscoll, Bornemann & Trefethen 2008], and the original implementation was due to Driscoll, Hale, and Birkisson [Birkisson & Driscoll 2011, Driscoll & Hale 2014]. Much of the functionality of linear chebops is actually implemented in various classes built around the idea of what we call a "linop", but users generally do not deal with linops and related structures directly.</p>
+<h3 id="73-chebop-syntax">7.3 Chebop syntax</h3>
+<p>A chebop has a domain, an operator, and sometimes boundary conditions. For example, here is the chebop corresponding to the second-derivative operator on $[-1,1]$:</p>
+<pre class="mcode-input">L = chebop(-1, 1);
+L.op = @(x,u) diff(u,2);</pre>
+
+<p>(For scalar operators like this, one may dispense with the <code>x</code> and just write <code>L.op = @(u) diff(u,2)</code>.) This operator can now be applied to chebfuns defined on $[-1,1]$. For example, taking two derivatives of $\sin(3x)$ multiplies its amplitude by 9:</p>
+<pre class="mcode-input">u = chebfun('sin(3*x)');
+norm(L(u), inf)</pre>
+
+<pre class="mcode-output">ans =
+   9.000000000000064
+</pre>
+
+<p>Both the notations <code>L*u</code> and <code>L(u)</code> are allowed, with the same meaning.</p>
+<pre class="mcode-input">min(L*u)</pre>
+
+<pre class="mcode-output">ans =
+  -9.000000000000064
+</pre>
+
+<p>Mathematicians generally prefer to write $Lu$ if $L$ is linear and $L(u)$ if it is nonlinear.</p>
+<p>A chebop can also have left and/or right boundary conditions.  For a Dirichlet boundary condition it's enough to specify a number:</p>
+<pre class="mcode-input">L.lbc = 0;
+L.rbc = 1;</pre>
+
+<p>More complicated boundary conditions can be specified with anonymous functions, which are then forced to take zero values at the boundary. For example, the following sequence imposes the conditions $u=0$ at the left boundary and $u'=1$ at the right:</p>
+<pre class="mcode-input">L.lbc = @(u) u;
+L.rbc = @(u) diff(u) - 1;</pre>
+
+<p>We can see a summary of <code>L</code> by typing the name without a semicolon:</p>
+<pre class="mcode-input">L</pre>
+
+<pre class="mcode-output">L =
+   Linear operator:
+      u |--> diff(u,2)
+   operating on chebfun objects defined on:
+      [-1,1]
+   with
+    left boundary condition(s):
+      u = 0
+    right boundary condition(s):
+      diff(u)-1 = 0
+</pre>
+
+<p>Boundary conditions are needed for solving differential equations, but they have no effect when a chebop is simply applied to a chebfun. Thus, despite the boundary conditions just specified, <code>L*u</code> gives the same answer as before:</p>
+<pre class="mcode-input">norm(L*u, inf)</pre>
+
+<pre class="mcode-output">ans =
+   9.000000000000064
+</pre>
+
+<p>When values and derivatives are both to be specified at a single boundary for a scalar ODE, a simpler syntax is also available: instead of writing, say,</p>
+<pre class="mcode-input">L.lbc = @(u) [u-2, diff(u)-3];</pre>
+
+<p>one can write</p>
+<pre class="mcode-input">L.lbc = [2; 3];</pre>
+
+<p>Here is an example of an integral operator, the operator that maps $u$ defined on $[0,1]$ to its indefinite integral:</p>
+<pre class="mcode-input">L = chebop(0, 1);
+L.op = @(x,u) cumsum(u);</pre>
+
+<p>For example, the indefinite integral of $x$ is $x^2/2$:</p>
+<pre class="mcode-input">x = chebfun('x', [0, 1]);
+plot(L*x), grid on</pre>
+
+<p><img src="../images/guide/guide07_01.png" class="figure chebfun-figure" alt=""></p>
+<p>Chebops can be specified in various ways, including all in a single line.  For example we could write</p>
+<pre class="mcode-input">L = chebop(@(x,u) diff(u) + diff(u,2), [-1, 1])</pre>
+
+<pre class="mcode-output">L =
+   Linear operator:
+      u |--> diff(u)+diff(u,2)
+   operating on chebfun objects defined on:
+      [-1,1]
+</pre>
+
+<p>Or we could include boundary conditions:</p>
+<pre class="mcode-input">L = chebop(@(x,u) diff(u) + diff(u,2), [-1, 1], 0, @(u) diff(u))</pre>
+
+<pre class="mcode-output">L =
+   Linear operator:
+      u |--> diff(u)+diff(u,2)
+   operating on chebfun objects defined on:
+      [-1,1]
+   with
+    left boundary condition(s):
+      u = 0
+    right boundary condition(s):
+      diff(u) = 0
+</pre>
+
+<p>For operators applying to more than one variable (needed for solving systems of differential equations), see Section 7.8.</p>
+<h3 id="74-solving-differential-and-integral-equations">7.4 Solving differential and integral equations</h3>
+<p>In MATLAB, if <code>A</code> is a square matrix and <code>b</code> is a vector, then the command <code>x=A\b</code> solves the linear system of equations $Ax=b$.  Similarly in Chebfun, if <code>L</code> is a differential operator with appropriate boundary conditions and <code>f</code> is a Chebfun, then <code>u=L\f</code> solves the differential equation $L(u)=f$.  More generally <code>L</code> might be an integral or integro-differential operator.  (Of course, just as you can solve $Ax=b$ only if $A$ is nonsingular, you can solve $L(u)=f$ only if the problem is well-posed.)</p>
+<p>For example, suppose we want to solve the differential equation $u''+x^3u = 1$ on the interval $[-3,3]$ with Dirichlet boundary conditions.  Here is a Chebfun solution:</p>
+<pre class="mcode-input">L = chebop(-3, 3);
+L.op = @(x,u) diff(u,2) + x^3*u;
+L.lbc = 0; L.rbc = 0;
+u = L\1; plot(u), grid on</pre>
+
+<p><img src="../images/guide/guide07_02.png" class="figure chebfun-figure" alt=""></p>
+<p>We confirm that the computed $u$ satisfies the differential equation to high accuracy:</p>
+<pre class="mcode-input">norm(L(u) - 1)</pre>
+
+<pre class="mcode-output">ans =
+     1.702191777101623e-11
+</pre>
+
+<p>Let's change the right-hand boundary condition to $u'=0$ and see how this changes the solution:</p>
+<pre class="mcode-input">L.rbc = @(u) diff(u);
+u = L\1;
+hold on, plot(u), hold off</pre>
+
+<p><img src="../images/guide/guide07_03.png" class="figure chebfun-figure" alt=""></p>
+<p>An equivalent to backslash is the <code>solvebvp</code> command.</p>
+<pre class="mcode-input">v = solvebvp(L, 1);
+norm(u - v)</pre>
+
+<pre class="mcode-output">ans =
+     0
+</pre>
+
+<p>A command like <code>L.bc=100</code> imposes the corresponding numerical Dirichlet condition at both ends of the domain:</p>
+<pre class="mcode-input">L.bc = 100;
+plot(L\1), grid on</pre>
+
+<p><img src="../images/guide/guide07_04.png" class="figure chebfun-figure" alt=""></p>
+<p>Boundary conditions can also be specified in a single line, as noted above:</p>
+<pre class="mcode-input">L = chebop( @(x,u) diff(u,2)+10000*u, [-1,1], 0, @(u) diff(u) );</pre>
+
+<p>Thus it is possible to set up and solve a differential equation and plot the solution with a single line of Chebfun:</p>
+<pre class="mcode-input">plot( chebop(@(x,u) diff(u,2)+50*(1+sin(x))*u,[-20,20],0,0)\1 )
+grid on</pre>
+
+<p><img src="../images/guide/guide07_05.png" class="figure chebfun-figure" alt=""></p>
+<p>When Chebfun solves differential or integral equations, the coefficients may be piecewise smooth rather than globally smooth. For example, here is a 2nd order problem involving a coefficient that jumps from $+1$ (oscillation) for $x<0$ to $-1$ (growth/decay) for $x>0$:</p>
+<pre class="mcode-input">L = chebop(-60, 60);
+L.op = @(x,u) diff(u,2) - sign(x)*u;
+L.lbc = 1; L.rbc = 0;
+u = L\0;
+plot(u), grid on</pre>
+
+<p><img src="../images/guide/guide07_06.png" class="figure chebfun-figure" alt=""></p>
+<p>Further examples of Chebfun solutions of differential equations with discontinuous coefficients can be found in the Demos menu of <code>chebgui</code>.</p>
+<p>Finally, what about periodic boundary conditions? If the boundary condition <code>L.bc='periodic'</code> is specified, Chebfun will discretize the problem by Fourier methods, seeking to find a periodic solution, provided that the right-side function is also periodic. Here is an example:</p>
+<pre class="mcode-input">L = chebop(-pi,pi);
+L.op = @(x,u) diff(u,2) + diff(u) + 600*(1+sin(x))*u;
+L.bc = 'periodic';
+u = L\1;
+plot(u), grid on</pre>
+
+<p><img src="../images/guide/guide07_07.png" class="figure chebfun-figure" alt=""></p>
+<h3 id="75-eigenvalue-problems-eigs">7.5 Eigenvalue problems: <code>eigs</code></h3>
+<p>In MATLAB, <code>eig</code> finds all the eigenvalues of a matrix whereas <code>eigs</code> finds some of them.  A differential or integral operator normally has infinitely many eigenvalues, so one could not expect an analog of <code>eig</code> for chebops. <code>eigs</code>, however, has been overloaded.  Just like MATLAB <code>eigs</code>, Chebfun <code>eigs</code> finds six eigenvalues by default, together with eigenfunctions if requested. (For details see [Driscoll, Bornemann & Trefethen 2008].) Here is an example involving sine waves.</p>
+<pre class="mcode-input">L = chebop( @(x,u) diff(u,2), [0, pi] );
+L.bc = 0;
+[V, D] = eigs(L);
+diag(D)
+clf, plot(V(:,1:4)), ylim([-1 1]), grid on</pre>
+
+<pre class="mcode-output">ans =
+ -35.999999999996703
+ -25.000000000001538
+ -16.000000000003045
+  -8.999999999998460
+  -4.000000000000856
+  -0.999999999999610
+</pre>
+
+<p><img src="../images/guide/guide07_08.png" class="figure chebfun-figure" alt=""></p>
+<p>By default, <code>eigs</code> tries to find the six eigenvalues whose eigenmodes are "most readily converged to", which approximately means the smoothest ones. You can change the number sought and tell <code>eigs</code> where to look for them. Note, however, that you can easily confuse <code>eigs</code> if you ask for something unreasonable, like the largest eigenvalues of a differential operator.</p>
+<p>Here we compute 10 eigenvalues of the Mathieu equation and plot the 9th and 10th corresponding eigenfunctions, known as an elliptic cosine and sine. Note the imposition of periodic boundary conditions.</p>
+<pre class="mcode-input">q = 10;
+A = chebop(-pi, pi);
+A.op = @(x,u) diff(u,2) - 2*q*cos(2*x)*u;
+A.bc = 'periodic';
+[V, D] = eigs(A, 16, 'LR');    % eigenvalues with largest real part
+d = diag(D); [d, ii] = sort(d, 'descend'); V = V(:, ii');
+subplot(1,2,1), plot(V(:, 9)), grid on
+ylim([-.8 .8]), title('elliptic cosine')
+subplot(1,2,2), plot(V(:,10)), grid on
+ylim([-.8 .8]), title('elliptic sine')</pre>
+
+<p><img src="../images/guide/guide07_09.png" class="figure chebfun-figure" alt=""></p>
+<p><code>eigs</code> can also solve generalized eigenproblems, that is, problems of the form $Au = \lambda Bu$.  For these one must specify two linear chebops <code>A</code> and <code>B</code>, with the boundary conditions all attached to <code>A</code>.  Here is an example of eigenvalues of the Orr-Sommerfeld equation of hydrodynamic linear stability theory at a Reynolds number close to the critical value for eigenvalue instability [Schmid & Henningson 2001]. This is a fourth-order generalized eigenvalue problem, requiring two conditions at each boundary.</p>
+<pre class="mcode-input">Re = 5772;
+B = chebop(-1, 1);
+B.op = @(x,u) diff(u,2) - u;
+A = chebop(-1, 1);
+A.op = @(x,u) (diff(u,4) - 2*diff(u, 2) + u)/Re - ...
+    1i*(2*u + (1 - x^2)*(diff(u, 2) - u));
+A.lbc = [0; 0];
+A.rbc = [0; 0];
+lam = eigs(A, B, 50);
+clf, plot(lam, 'r.', 'markersize', 16), grid on, axis equal
+spectral_abscissa = max(real(lam))</pre>
+
+<pre class="mcode-output">spectral_abscissa =
+    -7.806283147737962e-05
+</pre>
+
+<p><img src="../images/guide/guide07_10.png" class="figure chebfun-figure" alt=""></p>
+<p>For eigenvalue problems of the 1D Schrodinger equation, try <code>help quantumstates</code>.</p>
+<h3 id="76-exponential-of-a-linear-operator-expm">7.6 Exponential of a linear operator: <code>expm</code></h3>
+<p>In MATLAB, <code>expm</code> computes the exponential of a matrix, and this command has been overloaded in Chebfun to compute the exponential of a linear operator. If $L$ is a linear operator and $E(t) = \exp(tL)$, then the partial differential equation $u_t = Lu$ has solution $u(t) = E(t)u(0)$. Thus by taking $L$ to be the 2nd derivative operator, for example, we can use <code>expm</code> to solve the heat equation $u_t = u_{xx}$:</p>
+<pre class="mcode-input">A = chebop(@(x,u) diff(u,2), [-1, 1], 0);
+f = chebfun('exp(-1000*(x+0.3)^6)');
+clf, plot(f, 'r'), hold on, c = [0.8 0 0];
+ylim([-.1 1.1]), grid on
+for t = [0.01 0.1 0.5]
+  u = expm(A, t, f);
+  plot(u,'color', c), c = 0.5*c;
+end
+hold off</pre>
+
+<p><img src="../images/guide/guide07_11.png" class="figure chebfun-figure" alt=""></p>
+<p>Here is a more fanciful analogous computation with a complex initial function obtained from the <code>scribble</code> command introduced in Chapter 5.</p>
+<pre class="mcode-input">f = exp(.02i)*scribble('BLUR'); clf
+D = chebop(@(x,u) diff(u,2), [-1 1]);
+D.bc = 'neumann';
+k = 0;
+for t = [0 .0001 .001]
+  k = k + 1; subplot(3,1,k)
+  if t==0, u = f; else u = expm(D, t, f); end
+  plot(u, 'linewidth', 3, 'color', [.6 0 1])
+  xlim(1.05*[-1 1]), axis equal
+  text(0.01, .46, sprintf('t = %6.4f', t), 'fontsize', 10), axis off
+end</pre>
+
+<p><img src="../images/guide/guide07_12.png" class="figure chebfun-figure" alt=""></p>
+<h3 id="77-algorithms-rectangular-collocation-and-ultraspherical">7.7 Algorithms: rectangular collocation and ultraspherical</h3>
+<p>Let us say a word about how Chebfun carries out these computations.  Until version 5, Chebfun used classical Chebyshev spectral collocation methods as described in [Trefethen 2000], [Driscoll, Bornemann & Trefethen 2008], and [Driscoll 2010]. With version 5, however, the default changed to a new kind of Chebyshev discretization described in [Aurentz & Trefethen 2017], [Driscoll & Hale 2014] and [Xu & Hale 2014]. These <em>rectangular collocation</em> or <em>Driscoll-Hale</em> spectral discretizations start from the idea that a differential operator is discretized as a rectangular matrix that maps from one grid to another with fewer points.  The matrix is then made square again by the incorporation of boundary conditions. When a differential equation is solved in Chebfun, the problem is solved on a sequence of grids of size $33, 65, \dots$ until convergence is achieved in the usual Chebfun sense defined by decay of Chebyshev expansion coefficients.</p>
+<p>If you want to learn the details of rectangular discretizations, you can find a sequence of 12 explicit Chebfun examples presented in [Aurentz & Trefethen 2017].  As described there, you can get your hands on Chebfun's discretization matrices with the command <code>matrix</code>.  For example, here is the $6\times 6$ discretization matrix for the second derivative operator on $[-1,1]$ with zero boundary conditions:</p>
+<pre class="mcode-input">L = chebop(@(u) diff(u,2));
+L.bc = 0;
+format short
+matrix(L,4)
+format long</pre>
+
+<pre class="mcode-output">ans =
+    1.0000         0         0         0         0         0
+         0         0         0         0         0    1.0000
+   32.5709  -51.8814   27.9770  -14.2643   10.1922   -4.5944
+   -0.5502    5.5850  -10.1042    7.0354   -3.3398    1.3737
+    1.3737   -3.3398    7.0354  -10.1042    5.5850   -0.5502
+   -4.5944   10.1922  -14.2643   27.9770  -51.8814   32.5709
+</pre>
+
+<p>The first two rows correspond to the boundary conditions, and the remaining $4\times 6$ block is the rectangular discretization matrix that takes input from the 6-point Chebyshev grid, interpolates it by a degree-5 polynomial, differentiates the interpolant twice, and samples the result on the 4-point Chebyshev grid.</p>
+<p>One matter you might not guess was challenging is the determination of whether or not an operator is linear!  This is important since if an operator is linear, special actions are possible possible such as application of <code>eigs</code> and <code>expm</code> and solution of differential equations in a single step without iteration.  Chebfun includes special devices to determine whether a chebop is linear so that these effects can be realized [Birkisson 2014].</p>
+<p>As mentioned, the discretization length of a Chebfun solution is chosen automatically according to the intrinsic resolution requirements. However, the matrices that arise in Chebyshev spectral methods are notoriously ill-conditioned.  Thus the final accuracy in solving differential equations in Chebfun's default mode is rarely close to machine precision. Typically one loses two or three digits for second-order differential equations and five or six for fourth-order problems.</p>
+<p>This problem of ill-conditioning was one of the motivations for the development of the other discretization method used by Chebfun, known as <em>ultraspherical</em> or <em>Olver-Townsend</em> spectral discretizations [Olver & Townsend 2013].  Here, rather than a single Chebyshev basis, several different bases of ultraspherical polynomials are used, depending on the order of the differential operator. This leads to better conditioned matrices that are also sparser, especially for linear problems with constant or smooth coefficients. By default, Chebfun uses rectangular collocation discretizations, but most problems can equally be solved in ultraspherical mode, and the results will sometimes be more accurate. For example, here we solve a problem whose exact solution is $\cos(x)$ in the rectangular fashion and check the error at $x=5$:</p>
+<pre class="mcode-input">tic
+u = chebop(@(x, u) diff(u, 2) + u, [-10,10], cos(10), cos(10))\0;
+toc
+error = u(5) - cos(5)</pre>
+
+<pre class="mcode-output">Elapsed time is 0.068711 seconds.
+error =
+    -2.570166302007237e-14
+</pre>
+
+<p>We can switch to ultraspherical mode and run the same experiment again like this:</p>
+<pre class="mcode-input">cheboppref.setDefaults('discretization', @ultraS)
+tic
+u = chebop(@(x,u) diff(u,2) + u, [-10,10], cos(10), cos(10))\0;
+toc
+error = u(5) - cos(5)
+cheboppref.setDefaults('factory')   % reset to standard mode</pre>
+
+<pre class="mcode-output">Elapsed time is 0.281529 seconds.
+error =
+    -1.387778780781446e-15
+</pre>
+
+<h3 id="78-block-operators-and-systems-of-equations">7.8 Block operators and systems of equations</h3>
+<p>Some problems involve several variables coupled together. In Chebfun, these are treated with the use of quasimatrices, that is, chebfuns with several columns, as described in Chapter 6.</p>
+<p>For example, suppose we want to solve the coupled system $u'=v$, $v'=-u$ with initial data $u=1$ and $v=0$ on the interval $[0,10\pi]$. (This comes from writing the equation $u''=-u$ in first-order form, with $v=u'$.) We can solve the problem like this:</p>
+<pre class="mcode-input">L = chebop(0, 10*pi);
+L.op = @(x, u, v) [diff(u) - v; diff(v) + u];
+L.lbc = @(u, v) [u-1; v];
+rhs = [0; 0];
+U = L\rhs;</pre>
+
+<p>The solution <code>U</code> is an $\infty\times 2$ Chebfun quasimatrix with columns <code>u=U(:,1)</code> and <code>v=U(:,2)</code>.  Here is a plot:</p>
+<pre class="mcode-input">clf, plot(U), grid on</pre>
+
+<p><img src="../images/guide/guide07_13.png" class="figure chebfun-figure" alt=""></p>
+<p>The overloaded <code>spy</code> command helps clarify the structure of the operator we just made use of:</p>
+<pre class="mcode-input">spy(L)</pre>
+
+<p><img src="../images/guide/guide07_14.png" class="figure chebfun-figure" alt=""></p>
+<p>This image shows that $L$ maps a pair of functions $[u;v]$ to a pair of functions $[w;y]$, where the dependences of $w$ on $u$ and $y$ on $v$ are global (because of the derivative) whereas the dependences of $w$ on $v$ and $y$ on $u$ are local (diagonal).</p>
+<p>To illustrate the solution of an eigenvalue problem involving a block operator, we can take much the same idea. The eigenvalue problem $u''=c^2u$ with $u=0$ at the boundaries can be written in first order form as $u'=cv$, $v'=cu$.</p>
+<pre class="mcode-input">L = chebop(0, 10*pi);
+L.op = @(x, u, v) [diff(v); diff(u)];
+L.lbc = @(u,v) u;
+L.rbc = @(u,v) u;</pre>
+
+<p>The operator in this eigenvalue problem has a simpler structure than before:</p>
+<pre class="mcode-input">clf, spy(L)</pre>
+
+<p><img src="../images/guide/guide07_15.png" class="figure chebfun-figure" alt=""></p>
+<p>Here are the first 7 eigenvalues:</p>
+<pre class="mcode-input">[eigenfunctions,D] = eigs(L, 7);
+eigenvalues = diag(D)</pre>
+
+<pre class="mcode-output">eigenvalues =
+ -0.000000000000001 + 0.000000000000000i
+ -0.000000000000000 - 0.100000000000000i
+ -0.000000000000000 + 0.100000000000000i
+  0.000000000000001 - 0.200000000000001i
+  0.000000000000001 + 0.200000000000001i
+ -0.000000000000000 - 0.300000000000002i
+ -0.000000000000000 + 0.300000000000002i
+</pre>
+
+<p>The <code>eigenfunctions</code> result has the first seven eigenfunctions for each of the two variables, u and v. We could extract this chebmatrix result to a chebfun like this:</p>
+<pre class="mcode-input">U = chebfun( eigenfunctions(1,:) );
+V = chebfun( eigenfunctions(2,:) );
+size(V)</pre>
+
+<pre class="mcode-output">ans =
+   Inf     7
+</pre>
+
+<p>Both <code>U</code> and <code>V</code> are complex, but only because of roundoff:</p>
+<pre class="mcode-input">normRealU = norm(real(U))
+normImagV = norm(imag(V))</pre>
+
+<pre class="mcode-output">normRealU =
+     7.203750542739416e-12
+normImagV =
+     7.210253604889195e-12
+</pre>
+
+<p>This fact makes it easy to plot them.</p>
+<pre class="mcode-input">subplot(2,1,1)
+plot(imag(U)), ylabel('imag(U)')
+subplot(2,1,2)
+plot(real(V)), ylabel('real(V)')</pre>
+
+<p><img src="../images/guide/guide07_16.png" class="figure chebfun-figure" alt=""></p>
+<h3 id="79-nonlinear-equations-by-newton-iteration">7.9 Nonlinear equations by Newton iteration</h3>
+<p>As mentioned at the beginning of this chapter, nonlinear differential equations are discussed in Chapter 10.  As an indication of some of the possibilities, however, we now illustrate how a sequence of linear problems may be useful in solving nonlinear problems. For example, the nonlinear BVP $$ 0.001u'' - u^3 = 0,\qquad   u(-1)=1,~~ u(1)=-1 $$ could be solved by Newton iteration as follows.</p>
+<pre class="mcode-input">L = chebop(-1, 1);
+L.op = @(x,u) 0.001*diff(u, 2);
+J = chebop(-1, 1);
+x = chebfun('x');
+u = -x;  nrmdu = Inf;
+while nrmdu > 1e-10
+  r = L*u - u.^3;
+  J.op = @(du) .001*diff(du, 2) - 3*u^2*du;
+  J.bc = 0;
+  du = -(J\r);
+  u = u + du;  nrmdu = norm(du)
+end
+clf, plot(u), grid on</pre>
+
+<pre class="mcode-output">nrmdu =
+   0.260668532007020
+nrmdu =
+   0.164126069559937
+nrmdu =
+   0.098900892365439
+nrmdu =
+   0.053787171683933
+nrmdu =
+   0.021518152858429
+nrmdu =
+   0.003586696693249
+nrmdu =
+     8.951602489054714e-05
+nrmdu =
+     5.357404836265776e-08
+nrmdu =
+     1.709262919444643e-14
+</pre>
+
+<p><img src="../images/guide/guide07_17.png" class="figure chebfun-figure" alt=""></p>
+<p>Note the beautifully fast convergence, as one expects with Newton's method. The chebop <code>J</code> defined in the <em>while</em> loop is a Jacobian operator (=Frechet derivative), which we have constructed explicitly by differentiating the nonlinear operator defining the ODE.  In Section 10.4 we shall see that this whole Newton iteration can be automated by use of Chebfun's "nonlinear backslash" capability, which utilizes automatic differentiation to construct the Frechet derivative automatically. In fact, all you need to type is</p>
+<pre class="mcode-input">N = chebop(-1, 1);
+N.op = @(x,u) 0.001*diff(u, 2) - u^3;
+N.lbc = 1; N.rbc = -1;
+v = N\0;</pre>
+
+<p>The result is the same as before to many digits of accuracy:</p>
+<pre class="mcode-input">norm(u - v)</pre>
+
+<pre class="mcode-output">ans =
+     1.201029224139150e-12
+</pre>
+
+<h3 id="710-bvp-systems-with-unknown-parameters">7.10 BVP systems with unknown parameters</h3>
+<p>Sometimes ODEs or systems of ODEs contain unknown parameter values that must be computed as part of the solution. An example of this is MATLAB's built-in <code>mat4bvp</code> example. These parameters can always be included in a system as unknowns with zero derivatives, but this can be computationally inefficient. Chebfun allows the option of explicit treatment of the parameters. Often the dependence of the solution on these parameters is nonlinear (as in the case below), and this discussion might better have been left to Chapter 10, but since, from the user perspective, there is little difference in this case, we include it here.</p>
+<p>Below is an example of such a parameterised problem, which represents a linear pendulum with a forcing sine-wave term of an unknown frequency $T$. The task is to compute the solution for which $$ u(-\pi) = u(\pi) = u'(\pi) = 1. $$</p>
+<pre class="mcode-input">N = chebop(@(x, u , T) diff(u,2) - u - sin(T*x/pi), [-pi pi]);
+N.lbc = @(u,T) u - 1;
+N.rbc = @(u,T) [u - 1; diff(u) - 1];
+uT = N\0;</pre>
+
+<p>Here, the output <code>uT</code> is a chebmatrix -- an object that is amongst other features able to vertically concatenate chebfuns and scalar. The first entry corresponds to the variable $u$ while the second is the scalar $T$. We could access the elements of <code>uT</code> via curly-brackets syntax,</p>
+<pre class="mcode-input">u = uT{1}; T = uT{2};</pre>
+
+<p>but one can access the same results more simply like this:</p>
+<pre class="mcode-input">[u,T] = N\0;
+T
+plot(u), grid on</pre>
+
+<pre class="mcode-output">T =
+   0.005438812795290
+</pre>
+
+<p><img src="../images/guide/guide07_18.png" class="figure chebfun-figure" alt=""></p>
+<p>As the system is nonlinear in $T$, we can expect that there will be more than one solution. Indeed, if we choose a different initial guess for $T$, we can converge to one of these.</p>
+<pre class="mcode-input">N.init = [chebfun(1, [-pi pi]); 4];
+[u,T] = N\0;
+T = T(1)
+plot(u), grid on</pre>
+
+<pre class="mcode-output">T =
+   4.044049959218974
+</pre>
+
+<p><img src="../images/guide/guide07_19.png" class="figure chebfun-figure" alt=""></p>
+<h3 id="711-references">7.11 References</h3>
+<p>[Aurentz & Trefethen 2017] J. L. Aurentz and L. N. Trefethen, Block opearators and spectral discretizations, <em>SIAM Review</em> 59 (2017), 423--446.</p>
+<p>[Birkisson 2014] A. Birkisson, <em>Numerical Solution of Nonlinear Boundary Value Problems for Ordinary Differential Equations in the Continuous Framework</em>, D. Phil. thesis, University of Oxford, 2014.</p>
+<p>[Birkisson & Driscoll 2011] A. Birkisson and T. A. Driscoll, "Automatic Frechet differentiation for the numerical solution of boundary-value problems", <em>ACM Transactions on Mathematical Software</em>, 38 (2012), 1-26.</p>
+<p>[Driscoll 2010] T. A. Driscoll, "Automatic spectral collocation for integral, integro-differential, and integrally reformulated differential equations", <em>Journal of Computational Physics</em>, 229 (2010), 5980-5998.</p>
+<p>[Driscoll, Bornemann & Trefethen 2008] T. A. Driscoll, F. Bornemann, and L. N. Trefethen, "The chebop system for automatic solution of differential equations", <em>BIT Numerical Mathematics</em>, 46 (2008), 701-723.</p>
+<p>[Driscoll & Hale 2014] T. A. Driscoll and N. Hale, "Rectangular spectral collocation", <em>IMA Journal of Numerical Analysis</em> 36 (2016), 108--132.</p>
+<p>[Fornberg 1996] B. Fornberg, <em>A Practical Guide to Pseudospectral Methods</em>, Cambridge University Press, 1996.</p>
+<p>[Olver & Townsend 2013] S. Olver and A. Townsend, "A fast and well-conditioned spectral method," <em>SIAM Review</em>, 55 (2013), 462-489.</p>
+<p>[Schmid & Henningson 2001] P. J. Schmid and D. S. Henningson, <em>Stability and Transition in Shear Flows</em>, Springer, 2001.</p>
+<p>[Trefethen 2000] L. N. Trefethen, <em>Spectral Methods in MATLAB</em>, SIAM, 2000.</p>
+<p>[Trefethen, Birkisson & Driscoll 2018] L. N. Trefethen, A. Birkisson, and T. A. Driscoll, <em>Exploring ODEs</em>, SIAM, 2018.  Freely available at <code>http://people.maths.ox.ac.uk/trefethen/ExplODE/</code>.</p>
+<p>[Xu & Hale 2015] K. Xu and N. Hale, "Explicit construction of rectangular differentiation matrices", <em>IMA Journal of Numerical Analysis</em> 36 (2016), 618-632.</p></div>
+        </div>
+    </div>
+</div>
+    <div class="footer">
+        <p>© Copyright 2025 the University of Oxford and the Chebfun Developers.</p>
+        <!-- TESTING -->
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.7.2.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?lang=matlab" type="text/javascript"></script>
+    <script type="text/javascript" src="/js/config.js"></script>
+    <script type="text/javascript" src="/js/jquery.flexslider-min.js"></script>
+  </body>
+</html>
+</div>

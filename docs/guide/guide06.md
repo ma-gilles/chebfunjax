@@ -1,319 +1,381 @@
-# Chapter 6: Quasimatrices and Least-Squares
-
-*Based on [Chebfun Guide Chapter 6](https://www.chebfun.org/docs/guide/guide06.html)*
-
-## 6.1 Quasimatrices
-
-A chebfun can be combined with others to form a "quasimatrix" -- a matrix in which one dimension is discrete and the other continuous. In chebfunjax, a quasimatrix is represented as a list of Chebfun columns sharing a common domain, wrapped by the `Quasimatrix` class in `chebfunjax.chebfun1d.linalg`.
-
-The term "quasimatrix" originates from Stewart (1998), with related concepts appearing in de Boor (1991) and Trefethen & Bau (1997). A quasimatrix with $n$ columns on $[a, b]$ can be thought of as an $\infty \times n$ matrix whose rows are continuous.
-
-Here is how to build a quasimatrix from the first six monomials:
-
-```python
-import chebfunjax as cj
-from chebfunjax.chebfun1d.linalg import Quasimatrix
-from chebfunjax.domain import Domain
-
-x = cj.chebfun(lambda t: t)
-cols = [x**k for k in range(6)]  # 1, x, x^2, x^3, x^4, x^5
-A = Quasimatrix(cols, domain=Domain((-1.0, 1.0)))
-print(A.shape)    # ('inf', 6)
-print(A.n_cols)   # 6
-```
-
-![Columns of the monomial quasimatrix 1, x, ..., x^5](../images/guide/guide06_01.png)
-
-![Spy plot of the quasimatrix A and its transpose](../images/guide/guide06_02.png)
-
-You can access individual columns and evaluate them:
-
-```python
-import jax.numpy as jnp
-
-# Evaluate the third column (x^2) at x=0.5
-val = float(A[2](jnp.float64(0.5)))
-print(val)   # 0.25
-```
-
-Column sums (definite integrals from $-1$ to $1$):
-
-```python
-for k in range(6):
-    print(f"  integral of x^{k} = {float(A[k].sum()):.4f}")
-# x^0: 2.0000, x^1: 0.0000, x^2: 0.6667, x^3: 0.0000, x^4: 0.4000, x^5: 0.0000
-```
-
-### Inner Products
-
-The continuous $L^2$ inner product of two chebfuns $f$ and $g$ on $[a, b]$ is
-
-$$\langle f, g \rangle = \int_a^b f(x)\,g(x)\,dx.$$
-
-In chebfunjax this is computed with `f.inner(g)` or equivalently `cj.innerProduct(f, g)`:
-
-```python
-# Inner product of x^2 and x^4 over [-1,1] = 2/7
-ip = float(A[2].inner(A[4]))
-print(f"{ip:.15f}")   # 0.285714285714286
-```
-
-To build the $6 \times 6$ Gram matrix $G_{ij} = \langle A_i, A_j \rangle$:
-
-```python
-import numpy as np
-
-n = A.n_cols
-G = np.zeros((n, n))
-for i in range(n):
-    for j in range(n):
-        G[i, j] = float(A[i].inner(A[j]))
-print(G)
-```
-
-## 6.2 Least-Squares and Polynomial Fitting
-
-In MATLAB Chebfun, the backslash operator `c = A\f` computes the continuous least-squares solution -- that is, the coefficient vector $c$ that minimizes $\| Ac - f \|_2$ in the $L^2$ norm. In chebfunjax, the same computation can be performed using the QR factorization.
-
-The idea is: given a quasimatrix $A$ with columns $a_1, \ldots, a_n$ and a target function $f$, we seek coefficients $c_1, \ldots, c_n$ minimizing
-
-$$\left\| f - \sum_{j=1}^n c_j a_j \right\|_{L^2[a,b]}.$$
-
-The normal equations give $c = (A^* A)^{-1} A^* f$, but in practice we use QR factorization for numerical stability.
-
-### Polynomial Least-Squares Example
-
-```python
-import jax.numpy as jnp
-from chebfunjax.chebfun1d.linalg import qr_quasimatrix
-
-# Target function
-f = cj.chebfun(lambda t: jnp.exp(t) * jnp.sin(6 * t))
-
-# Build monomial quasimatrix [1, x, x^2, ..., x^5]
-x = cj.chebfun(lambda t: t)
-cols = [x**k for k in range(6)]
-A = Quasimatrix(cols, domain=Domain((-1.0, 1.0)))
-
-# Compute least-squares coefficients via QR
-Q, R = qr_quasimatrix(A)
-# c = R^{-1} * Q^T * f, where Q^T * f is the vector of inner products
-rhs = jnp.array([float(Q[j].inner(f)) for j in range(6)])
-c = jnp.linalg.solve(R, rhs)
-print(c)
-
-# Build the fit
-ffit = cols[0] * float(c[0])
-for j in range(1, 6):
-    ffit = ffit + cols[j] * float(c[j])
-
-# Compute the error
-error = float(f.norm() if (f - ffit).norm() == 0 else (f - ffit).norm())
-print(f"L2 error: {error:.6f}")
-```
-
-![Least-squares polynomial fit of exp(x)*sin(6x)](../images/guide/guide06_03.png)
-
-A general principle of polynomial least-squares approximation is that the best degree-$n$ polynomial approximation to a continuous function on $[a, b]$ must intersect the function at least $n+1$ times.
-
-### Least-Squares with Other Basis Functions
-
-Quasimatrices let you do least-squares fitting with any set of basis functions, not just polynomials. For example, one could use hat functions, radial basis functions, or wavelets as columns.
-
-```python
-# Example: piecewise linear hat functions on [-1, 1]
-hat_cols = []
-for j in range(11):
-    xj = -1.0 + j / 5.0
-    hat_cols.append(
-        cj.chebfun(
-            lambda t, _xj=xj: jnp.maximum(0.0, 1.0 - 5.0 * jnp.abs(t - _xj)),
-            domain=(-1.0, 1.0),
-        )
-    )
-A2 = Quasimatrix(hat_cols, domain=Domain((-1.0, 1.0)))
-```
-
-![Piecewise linear hat functions](../images/guide/guide06_04.png)
-
-![Hat-function least-squares fit](../images/guide/guide06_05.png)
-
-## 6.3 QR Factorization
-
-The QR factorization of an $\infty \times n$ quasimatrix $A$ produces
-
-$$A = QR,$$
-
-where $Q$ is an $\infty \times n$ quasimatrix with $L^2$-orthonormal columns and $R$ is an $n \times n$ upper-triangular matrix.
-
-In chebfunjax, the continuous Householder algorithm of Trefethen (2010) is used. The starting orthonormal basis consists of $L^2$-normalized Legendre polynomials.
-
-```python
-from chebfunjax.chebfun1d.linalg import qr_quasimatrix, Quasimatrix
-
-x = cj.chebfun(lambda t: t)
-cols = [x**k for k in range(6)]
-A = Quasimatrix(cols, domain=Domain((-1.0, 1.0)))
-
-Q, R = qr_quasimatrix(A)
-print(f"Q has {Q.n_cols} columns")
-print(f"R shape: {R.shape}")
-print(R)
-```
-
-![QR orthonormal columns (L2-normalized Legendre polynomials)](../images/guide/guide06_06.png)
-
-![Spy plots of A, Q, and R](../images/guide/guide06_07.png)
-
-The columns of $Q$ are the Legendre polynomials $P_0, P_1, \ldots, P_5$ on $[-1, 1]$ (with $L^2$-normalization, so $\langle Q_i, Q_j \rangle = \delta_{ij}$).
-
-### Verifying Orthonormality
-
-```python
-# Check that Q columns are orthonormal
-for i in range(Q.n_cols):
-    for j in range(i, Q.n_cols):
-        ip = float(Q[i].inner(Q[j]))
-        expected = 1.0 if i == j else 0.0
-        print(f"  <Q[{i}], Q[{j}]> = {ip:.2e}  (expected {expected})")
-```
-
-![Renormalized Legendre polynomials P(1)=1](../images/guide/guide06_08.png)
-
-![Orthonormalized hat functions](../images/guide/guide06_09.png)
-
-You can also compute QR directly from a Chebfun:
-
-```python
-f = cj.chebfun(lambda t: jnp.sin(t))
-g = cj.chebfun(lambda t: jnp.cos(t))
-Q, R = f.qr(other_cols=[g])
-```
-
-## 6.4 SVD, Norm, and Condition Number
-
-The singular value decomposition of an $\infty \times n$ quasimatrix $A$ is
-
-$$A = U S V^T,$$
-
-where $U$ is an $\infty \times n$ quasimatrix with orthonormal columns, $S$ is an $n \times n$ diagonal matrix of singular values, and $V$ is an $n \times n$ orthogonal matrix. The singular values reveal how the quasimatrix maps the unit ball in $\mathbb{R}^n$ to a "hyperellipsoid" in function space.
-
-```python
-from chebfunjax.chebfun1d.linalg import svd_quasimatrix
-
-U, S, V = svd_quasimatrix(A)
-print("Singular values:", S)
-```
-
-![Spy plots of A, U, S, and V](../images/guide/guide06_10.png)
-
-### 2-Norm
-
-The 2-norm of a quasimatrix equals its largest singular value:
-
-$$\|A\|_2 = \sigma_1.$$
-
-```python
-print(f"2-norm of A = {float(S[0]):.15f}")
-```
-
-### Condition Number
-
-The condition number of a quasimatrix is the ratio of its largest to smallest singular value:
-
-$$\kappa(A) = \frac{\sigma_1}{\sigma_n}.$$
-
-```python
-cond_A = float(S[0]) / float(S[-1])
-print(f"cond(A) = {cond_A:.6f}")
-```
-
-The monomial basis $\{1, x, x^2, \ldots\}$ is notoriously ill-conditioned on $[-1, 1]$. This is one reason why Chebyshev and Legendre polynomials are preferred in spectral methods -- they have condition numbers close to 1.
-
-### Extremal Functions
-
-The right singular vectors reveal the directions that are maximally and minimally amplified by the quasimatrix. The first column of $V$ gives the coefficient vector whose image under $A$ has the largest $L^2$ norm, while the last column gives the smallest.
-
-```python
-v1 = V[:, 0]   # maximally amplified direction
-vn = V[:, -1]  # minimally amplified direction
-
-# Build the extremal functions
-f_max = sum(float(v1[j]) * cols[j] for j in range(6))
-f_min = sum(float(vn[j]) * cols[j] for j in range(6))
-print(f"||A*v1||_2 = {float(f_max.norm()):.15f}")
-print(f"||A*vn||_2 = {float(f_min.norm()):.15f}")
-```
-
-![SVD extremal functions: maximally and minimally amplified directions](../images/guide/guide06_11.png)
-
-## 6.5 Other Norms
-
-Chebfunjax supports multiple norms on chebfuns:
-
-- **$L^2$ norm** (default): $\|f\|_2 = \sqrt{\int_a^b |f(x)|^2\,dx}$, computed by `f.norm()` or `f.norm(2)`.
-- **$L^\infty$ norm**: $\|f\|_\infty = \max_{x \in [a,b]} |f(x)|$, computed by `f.norm(jnp.inf)`.
-- **$L^p$ norm**: $\|f\|_p = \left(\int_a^b |f(x)|^p\,dx\right)^{1/p}$, computed by `f.norm(p)`.
-
-```python
-f = cj.chebfun(lambda t: jnp.exp(t))
-
-print(f"||exp(x)||_2   = {float(f.norm(2)):.10f}")
-print(f"||exp(x)||_inf = {float(f.norm(jnp.inf)):.10f}")
-print(f"||exp(x)||_1   = {float(f.norm(1)):.10f}")
-```
-
-## 6.6 Subspace Angle
-
-The `subspace` function computes the smallest principal angle between the subspaces spanned by two sets of chebfun columns. This is the continuous analogue of computing angles between column spaces of matrices.
-
-The algorithm orthonormalizes each set of columns via continuous QR, then computes the Gram matrix of inner products. The smallest singular value of this Gram matrix gives $\cos\theta$, where $\theta$ is the smallest principal angle.
-
-```python
-from chebfunjax.chebfun1d.chebfun import subspace
-
-# Two identical subspaces -> angle = 0
-f = cj.chebfun(lambda t: jnp.sin(t))
-theta = subspace([f], [f])
-print(f"Angle between identical subspaces: {theta:.2e}")  # ~0
-
-# Orthogonal subspaces
-g = cj.chebfun(lambda t: jnp.cos(t))
-theta2 = subspace([f], [g])
-print(f"Angle between sin and cos: {theta2:.6f}")
-```
-
-![Spy plots for null, orth, and pinv](../images/guide/guide06_12.png)
-
-## 6.7 Lagrange Interpolation
-
-The `lagrange` function constructs the Lagrange basis polynomials for a set of interpolation nodes. Given $n$ distinct nodes $x_0, \ldots, x_{n-1}$, it returns $n$ chebfuns $L_0, \ldots, L_{n-1}$ satisfying
-
-$$L_j(x_k) = \delta_{jk}.$$
-
-```python
-from chebfunjax.chebfun1d.chebfun import lagrange
-
-nodes = [-1.0, 0.0, 1.0]
-basis = lagrange(nodes)
-print(f"Number of basis functions: {len(basis)}")
-
-# Verify: L_0(-1) = 1, L_0(0) = 0, L_0(1) = 0
-print(f"L_0(-1) = {float(basis[0](jnp.float64(-1.0))):.12f}")
-print(f"L_0( 0) = {float(basis[0](jnp.float64( 0.0))):.12f}")
-print(f"L_0( 1) = {float(basis[0](jnp.float64( 1.0))):.12f}")
-```
-
-## 6.8 References
-
-- Z. Battles, *Numerical Linear Algebra for Continuous Functions*, DPhil thesis, Oxford Computing Laboratory, 2006.
-
-- Z. Battles and L. N. Trefethen, "An extension of Matlab to continuous functions and operators," *SIAM J. Sci. Comput.*, 25 (2004), 1743-1770.
-
-- C. de Boor, "An alternative approach to rank, basis, and dimension," *Linear Algebra Appl.*, 146 (1991), 221-229.
-
-- G. W. Stewart, *Afternotes Goes to Graduate School*, SIAM, 1998.
-
-- L. N. Trefethen, "Householder triangularization of a quasimatrix," *IMA J. Numer. Anal.*, 30 (2010), 887-897.
-
-- L. N. Trefethen and D. Bau, III, *Numerical Linear Algebra*, SIAM, 1997.
+<!-- Generated by scripts/sync_chebfun_guides.py. -->
+<!-- Source: https://www.chebfun.org/docs/guide/guide06.html -->
+
+<div class="chebfun-import">
+<div class='page-header'>
+<span class='chapter_number'>6</span>
+<h1>Quasimatrices and Least-Squares</h1>
+<h2>Lloyd N. Trefethen, November 2009, latest revision June 2019<span>
+    
+        <a href='../guide05/'
+>previous</a><span class='sep-sm
+'>·</span><a href='../'>index</a><span class='sep-sm
+'>·</span><a href='../guide07/'
+>next</a></span></h2>
+</div>
+
+<div id='content' class="col-sm-12" role="main">
+<h3 id="61-quasimatrices-and-spy">6.1  Quasimatrices and <code>spy</code></h3>
+<p>A chebfun can have more than one column, or if it is transposed, it can have more than one row.  In these cases we get a <em>quasimatrix</em>, a "matrix" in which one of the dimensions is discrete as usual but the other is continuous.  Our default choice will be that of an " $\infty\times n$ " quasimatrix consisting of $n$ columns, each of which is a chebfun.  When it is important to specify the orientation we use the term <em>column quasimatrix</em> or <em>row quasimatrix</em>.</p>
+<p>Here for example is the quasimatrix consisting of the first six powers of $x$ on the interval $[-1,1]$.  The command <code>size</code> can be used to identify the continuous dimension, and to find the numbers of rows or columns:</p>
+<pre class="mcode-input">  x = chebfun('x');
+  A = [1 x x^2 x^3 x^4 x^5];
+  size(A)
+  size(A,2)</pre>
+
+<pre class="mcode-output">ans =
+   Inf     6
+ans =
+     6
+</pre>
+
+<p>Here is the third column of $A$ evaluated at the point $x=0.5$:</p>
+<pre class="mcode-input">  A(0.5,3)</pre>
+
+<pre class="mcode-output">ans =
+   0.250000000000000
+</pre>
+
+<p>Here are the column sums, i.e., the integrals of $1, x,\dots, x^5$ from $-1$ to $1$:</p>
+<pre class="mcode-input">  format short, sum(A), format long</pre>
+
+<pre class="mcode-output">ans =
+    2.0000         0    0.6667         0    0.4000         0
+</pre>
+
+<p>And here is a plot of the columns:</p>
+<pre class="mcode-input">  plot(A), grid on, ylim([-1.1 1.1])</pre>
+
+<p><img src="../images/guide/guide06_01.png" class="figure chebfun-figure" alt=""></p>
+<p>The term quasimatrix comes from [Stewart 1998], and the same idea appears with different terminology in [de Boor 1991] and [Trefethen & Bau 1997, pp. 52-54].  The idea is a natural one, since so much of applied linear algebra deals with discrete approximations to the continuous, but it seems not to have been discussed explicitly very much until the appearance of Chebfun [Battles & Trefethen 2004, Battles 2006].</p>
+<p>If <code>f</code> and <code>g</code> are column chebfuns, then <code>f'*g</code> is a scalar, their inner product. For example, here is the inner product of $x^2$ and $x^4$ over $[-1,1]$ (equal to $2/7$):</p>
+<pre class="mcode-input">  A(:,3)'*A(:,5)</pre>
+
+<pre class="mcode-output">ans =
+   0.285714285714286
+</pre>
+
+<p>More generally, if <code>A</code> and <code>B</code> are column quasimatrices with $m$ and $n$ columns, respectively, then <code>A'*B</code> is the $m \times n$ matrix of inner products of those columns. Here is the $6\times 6$ example corresponding to $B=A$:</p>
+<pre class="mcode-input">  format short, A'*A, format long</pre>
+
+<pre class="mcode-output">ans =
+    2.0000    0.0000    0.6667   -0.0000    0.4000   -0.0000
+    0.0000    0.6667   -0.0000    0.4000   -0.0000    0.2857
+    0.6667   -0.0000    0.4000    0.0000    0.2857         0
+    0.0000    0.4000   -0.0000    0.2857    0.0000    0.2222
+    0.4000   -0.0000    0.2857    0.0000    0.2222         0
+    0.0000    0.2857    0.0000    0.2222   -0.0000    0.1818
+</pre>
+
+<p>You can get an idea of the shape of a quasimatrix with the overloaded <code>spy</code> command</p>
+<pre class="mcode-input">  subplot(1,2,1), spy(A), title A
+  subplot(1,2,2), spy(A'), title('A''')</pre>
+
+<p><img src="../images/guide/guide06_02.png" class="figure chebfun-figure" alt=""></p>
+<h3 id="62-backslash-least-squares-and-polyfit">6.2 Backslash, least-squares, and <code>polyfit</code></h3>
+<p>In MATLAB, the command <code>c = A\b</code> computes the solution to the system of equations $Ac = b$ if $A$ is a square matrix, whereas if $A$ is rectangular, with more rows than columns, it computes the least squares solution, the vector $c$ that minimizes $|Ac-b|$.  A quasimatrix is always rectangular, and <code>\</code> has accordingly been overloaded to carry out the appropriate continuous least-squares computation. (The actual MATLAB command that handles backslash is <code>mldivide</code>.)</p>
+<p>For example, continuing with the same chebfun <code>x</code> and quasimatrix <code>A</code> as above, consider the following sequence:</p>
+<pre class="mcode-input">  f = exp(x)*sin(6*x);
+  c = A\f</pre>
+
+<pre class="mcode-output">c =
+   0.309654988398406
+   4.640757102742466
+  -2.157249816336408
+ -20.041645425109170
+   1.073963006923381
+  15.477982292828022
+</pre>
+
+<p>The vector $c$ can be interpreted as the vector of coefficients of the least-squares fit to $f$ by a linear combination of the functions $1, x,\dots, x^5$.  Here is a plot of $f$ and its least-squares approximation, which we label <code>ffit</code>.</p>
+<pre class="mcode-input">  ffit = A*c;
+  clf, plot([f ffit]), grid on
+  legend({'f','ffit'})
+  error = norm(f-ffit)</pre>
+
+<pre class="mcode-output">error =
+   0.356073976001434
+</pre>
+
+<p><img src="../images/guide/guide06_03.png" class="figure chebfun-figure" alt=""></p>
+<p>It is a general result that the least-squares approximation by a polynomial of degree $n$ to a continuous function $f$ must intersect $f$ at least $n+1$ times in the interval of approximation.</p>
+<p>If you want to do least-squares fitting by polynomials in Chebfun, there is no need to set up a quasimatrix as we did above.  Instead, you can use the Chebfun <code>polyfit</code> command, like this:</p>
+<pre class="mcode-input">ffit_polyfit = polyfit(f,5);
+norm(ffit-ffit_polyfit)</pre>
+
+<pre class="mcode-output">ans =
+     2.429368357357407e-15
+</pre>
+
+<p><code>polyfit</code> can be used both for fittting a function, as here, or for fitting data.  See the Chebfun examples "Least-squares approximation in Chebfun," in the <code>approx</code> section , and "Least-squares data fitting and <code>polyfit</code>," in the <code>stats</code> section. <code>polyfit</code> will also fit periodic functions by trigonometric polynomials.</p>
+<p>For fitting by functions that are not just polynomials or trigonometric polynomials, however, you need a quasimatrix. Here is an example in which the columns correspond to hat functions located at points equally spaced from $-1$ to $1$, realized as piecewise smooth chebfuns.</p>
+<pre class="mcode-input">  A2 = [];
+  for j = 0:10
+    xj = -1 + j/5;
+    A2 = [A2 max(0,1-5*abs(x-xj))];
+  end
+  plot(A2)
+  set(gca,'xtick',-1:.2:1)</pre>
+
+<p><img src="../images/guide/guide06_04.png" class="figure chebfun-figure" alt=""></p>
+<p>A linear combination of these columns is a piecewise linear function with breakpoints at $-0.8, -0.6,\dots,0.8$.  Here is the least-squares fit by such functions to $f$.  Remember that although we happen to be fitting here by a function with a discrete flavor, all the operations are continuous ones involving integrals, not point evaluations.</p>
+<pre class="mcode-input">  c = A2\f;
+  ffit = A2*c;
+  plot([f ffit]), grid on
+  legend({'f','ffit'})
+  set(gca,'xtick',-1:.2:1)
+  error = norm(f-ffit)</pre>
+
+<pre class="mcode-output">error =
+   0.089306812087670
+</pre>
+
+<p><img src="../images/guide/guide06_05.png" class="figure chebfun-figure" alt=""></p>
+<h3 id="63-qr-factorization">6.3 QR factorization</h3>
+<p>Matrix least-squares problems are ordinarily solved by QR factorization, and in the quasimatrix case, they are solved by quasimatrix QR factorization. This is the technology underlying the backslash operator described in the last section.</p>
+<p>A quasimatrix QR factorization takes this form: $$ A = QR, $$ with $$ A:~ \infty\times n, \quad Q: ~ \infty\times n, \quad R: ~ n\times n.  $$ The columns of $A$ are arbitrary, the columns of $Q$ are orthonormal, and $R$ is an $n\times n$ upper-triangular matrix.  This factorization corresponds to what is known in various texts as the "reduced," "economy size," "skinny," "abbreviated," or "condensed" QR factorization, since $Q$ is rectangular rather than square and $R$ is square rather than rectangular.  In MATLAB the syntax for computing such things is <code>[Q,R] = qr(A)</code>, and the same command has been overloaded for chebfuns.  The computation makes use of a quasimatrix analogue of Householder triangularization [Trefethen 2010].  Alternatively one can simply write <code>[Q,R] = qr(A)</code>:</p>
+<pre class="mcode-input">  [Q,R] = qr(A);
+  plot(Q), grid on</pre>
+
+<p><img src="../images/guide/guide06_06.png" class="figure chebfun-figure" alt=""></p>
+<p>The <code>spy</code> command confirms the shape of these various matrices. In principle half the dots in the upper-triangle should be zero because of the fact that the columns of $A$ alternate even and odd functions, but rounding errors introduce nonzeros.</p>
+<pre class="mcode-input">  subplot(1,3,1), spy(A), title A
+  subplot(1,3,2), spy(Q), title Q
+  subplot(1,3,3), spy(R), title R</pre>
+
+<p><img src="../images/guide/guide06_07.png" class="figure chebfun-figure" alt=""></p>
+<p>The plot shows <em>orthogonal polynomials</em>, namely the orthogonalizations of the monomials $1, x,\dots,x^5$ over $[-1,1]$.  These are the famous Legendre polynomials $P_k$ [Abramowitz & Stegun 1972], except that the latter are conventionally normalized by the condition $P(1) = 1$ rather than by having norm $1$.  We can renormalize to impose this condition as follows:</p>
+<pre class="mcode-input">  for j = 1:size(A,2)
+    R(j,:) = R(j,:)*Q(1,j);
+    Q(:,j) = Q(:,j)/Q(1,j);
+  end
+  clf, plot(Q), grid on</pre>
+
+<p><img src="../images/guide/guide06_08.png" class="figure chebfun-figure" alt=""></p>
+<p>(A slicker way to produce this plot in Chebfun would be to execute <code>plot(legpoly(0:5))</code>.)</p>
+<p>If $A=QR$, then $A R^{-1} = Q$, and here is $R^{-1}$:</p>
+<pre class="mcode-input">  format short, inv(R), format long</pre>
+
+<pre class="mcode-output">ans =
+    1.0000         0   -0.5000   -0.0000    0.3750   -0.0000
+         0    1.0000    0.0000   -1.5000    0.0000    1.8750
+         0         0    1.5000    0.0000   -3.7500   -0.0000
+         0         0         0    2.5000   -0.0000   -8.7500
+         0         0         0         0    4.3750    0.0000
+         0         0         0         0         0    7.8750
+</pre>
+
+<p>Column $k$ of $R^{-1}$ is the vector of coefficients of the expansion of column $k$ of $Q$ as a linear combination of the columns of $A$, that is, the monomials $1, x, x^2,\dots.$  In other words, column $k$ of $R^{-1}$ is the vector of coefficients of the degree $k$ Legendre polynomial.  For example, we see from the matrix that $P_3(x) = 2.5x^3 - 1.5x$.</p>
+<p>Here is what the hat functions look like after orthonormalization:</p>
+<pre class="mcode-input">  [Q2,R2] = qr(A2);
+  plot(Q2)
+  set(gca,'xtick',-1:.2:1)</pre>
+
+<p><img src="../images/guide/guide06_09.png" class="figure chebfun-figure" alt=""></p>
+<h3 id="64-svd-norm-cond">6.4 <code>svd</code>, <code>norm</code>, <code>cond</code></h3>
+<p>An $m\times n$ matrix $A$ defines a map from $R^n$ to $R^m$, and in particular, $A$ maps the unit ball in $R^n$ to a hyperellipsoid of dimension $\le n$ in $R^m$. The (reduced, skinny, condensed, $\dots$ ) <em>SVD</em> or <em>singular value decomposition</em> exhibits this map by providing a factorization $AV = US$ or equivalently $A = USV^*$, where $U$ is $m\times n$ with orthonormal columns, $S$ is diagonal with nonincreasing nonnegative diagonal entries known as the <em>singular values</em>, and $V$ is $n\times n$ and orthogonal. $A$ maps $v_j$, the $j$ th column of $V$ or the $j$ th <em>right singular vector</em>, to $s_j$ times $u_j$, the $j$ th column of $U$ or the $j$ th <em>left singular vector</em>, which is the vector defining the $j$ th largest semiaxis of the hyperellipsoid.  See Chapters 4 and 5 of [Trefethen & Bau 1997].</p>
+<p>If $A$ is an $\infty \times n$ quasimatrix, everything is analogous: $$ A = USV^T, \qquad  A: \infty \times n,~~ U: \infty \times n, ~~  S: n \times n, ~~  V:  n \times n. $$ The image of the unit ball in $R^n$ under $A$ is still a hyperellipsoid of dimension $\le n$, which now lies within an infinite-dimensional function space. The columns of $U$ are orthonormal functions and $S$ and $V$ have the same properties as in the matrix case.</p>
+<p>For example, here are the singular values of the matrix $A$ defined earlier with columns $1,x,\dots,x^5$:</p>
+<pre class="mcode-input">  s = svd(A)</pre>
+
+<pre class="mcode-output">s =
+   1.532062889375341
+   1.032551897396700
+   0.518125864967969
+   0.258419769500035
+   0.080938947808205
+   0.035425077461572
+</pre>
+
+<p>The largest singular value is equal to the norm of the quasimatrix, which is defined by  $|A| = \max_x |Ax| / |x|$.</p>
+<pre class="mcode-input">  norm(A,2)</pre>
+
+<pre class="mcode-output">ans =
+   1.532062889375341
+</pre>
+
+<p>(Note that we must include the argument <code>2</code> here: for reasons of speed, the default for quasimatrices, unlike the usual MATLAB matrices, is the Frobenius norm rather than the 2-norm.) The SVD enables us to identify exactly what vectors are involved in achieving this maximum ratio.  The optimal vector $x$ is $v_1$, the first right singular vector of $A$,</p>
+<pre class="mcode-input">  [U,S,V] = svd(A);
+  v1 = V(:,1)</pre>
+
+<pre class="mcode-output">v1 =
+   0.913034433780914
+  -0.000000000000000
+   0.344611116356111
+  -0.000000000000000
+   0.218200140270718
+   0.000000000000000
+</pre>
+
+<p>We can use spy to confirm the shapes of the matrices. As with <code>spy&reg;</code> earlier, here <code>spy(V)</code> should in principle show a checkerboard, but nonzeros are introduced by rounding errors.</p>
+<pre class="mcode-input">  subplot(1,5,1), spy(A), title A
+  subplot(1,5,3), spy(U), title U
+  subplot(1,5,4), spy(S), title S
+  subplot(1,5,5), spy(V), title V</pre>
+
+<p><img src="../images/guide/guide06_10.png" class="figure chebfun-figure" alt=""></p>
+<p>We confirm that the norm of $v_1$ is $1$:</p>
+<pre class="mcode-input">  norm(v1)</pre>
+
+<pre class="mcode-output">ans =
+     1
+</pre>
+
+<p>This vector is mapped by $A$ to the chebfun $s_1u_1$:</p>
+<pre class="mcode-input">  u1 = U(:,1);
+  norm(u1)</pre>
+
+<pre class="mcode-output">ans =
+     1
+</pre>
+
+<pre class="mcode-input">  s1 = S(1,1)</pre>
+
+<pre class="mcode-output">s1 =
+   1.532062889375341
+</pre>
+
+<pre class="mcode-input">  norm(A*v1)</pre>
+
+<pre class="mcode-output">ans =
+   1.532062889375341
+</pre>
+
+<pre class="mcode-input">  norm(A*v1-s1*u1)</pre>
+
+<pre class="mcode-output">ans =
+     3.442062136703695e-16
+</pre>
+
+<p>Similarly, the minimal singular value and corresponding singular vectors describe the minimum amount that $A$ can enlarge an input.  The following commands plot the extreme functions $Av_1$ (blue) and $Av_n$ (red).  We can interpret these as the largest and smallest degree $5$ polynomials, as measured in the $2$-norm over $[-1,1]$, whose coefficient vectors have $2$-norm equal to $1$.</p>
+<pre class="mcode-input">  clf, plot(A*v1), grid on, hold on
+  vn = V(:,end);
+  plot(A*vn,'r'), hold off</pre>
+
+<p><img src="../images/guide/guide06_11.png" class="figure chebfun-figure" alt=""></p>
+<p>The ratio of the largest and smallest singular values --- the eccentricity of the hyperellipsoid --- is the condition number of $A$:</p>
+<pre class="mcode-input">  max(s)/min(s)</pre>
+
+<pre class="mcode-output">ans =
+  43.247975704139819
+</pre>
+
+<pre class="mcode-input">  cond(A)</pre>
+
+<pre class="mcode-output">ans =
+  43.247975704139819
+</pre>
+
+<p>The fact that <code>cond(A)</code> is a good deal greater than $1$ reflects the ill-conditioning of the monomials $1,x,\dots ,x^5$ as a basis for degree $5$ polynomials in $[-1,1]$.  The effect becomes rapidly stronger as we take more terms in the sequence:</p>
+<pre class="mcode-input">  cond([A x^6 x^7 x^8 x^9 x^10 x^11 x^12 x^13 x^14 x^15])</pre>
+
+<pre class="mcode-output">ans =
+     2.298938277185585e+05
+</pre>
+
+<p>By contrast a quasimatrix formed of suitably normalized Legendre polynomials has condition number $1$, since they are orthonormal:</p>
+<pre class="mcode-input">cond(legpoly(0:15,'norm'))</pre>
+
+<pre class="mcode-output">ans =
+   1.000000000000001
+</pre>
+
+<p>A quasimatrix of Chebyshev polynomials doesn't quite achieve condition number $1$, but it comes close:</p>
+<pre class="mcode-input">cond(chebpoly(0:15))</pre>
+
+<pre class="mcode-output">ans =
+   4.597747107616715
+</pre>
+
+<p>Chebyshev polynomials form an excellent basis for expansions on $[-1,1]$, a fact that is at the heart of Chebfun.</p>
+<h3 id="65-other-norms">6.5 Other norms</h3>
+<p>The definition $|A| = \max_x |Ax|/|x|$ makes sense in other norms besides the $2$-norm, and the particularly important alternatives are the $1$-norm and the $\infty$-norm.  The 1-norm of a column quasimatrix is the "maximum column sum," i.e., the maximum of the 1-norms of its columns.   In the case of our quasimatrix $A$, the maximum is attained by the first column, which has norm $2$:</p>
+<pre class="mcode-input">  norm(A,1)</pre>
+
+<pre class="mcode-output">ans =
+     2
+</pre>
+
+<p>The $\infty$-norm is the "maximum row sum," which for a column quasimatrix corresponds to the maximum of the chebfun obtained by adding the absolute values of the columns.  In the case of $A$, the sum is $1+|x|+\cdots +|x|^5$, which attains its maximum value $6$ at $x=-1$ and $1$:</p>
+<pre class="mcode-input">  norm(A,inf)</pre>
+
+<pre class="mcode-output">ans =
+     6
+</pre>
+
+<p>The norms of row quasimatrices are analogous, with <code>norm(A',inf) = norm(A,1)</code> and <code>norm(A',1) = norm(A,inf)</code>. Like MATLAB itself applied to a rectangular matrix, Chebfun does not define <code>cond(A,1)</code> or <code>cond(A,inf)</code> if <code>A</code> is a quasimatrix.</p>
+<p>The Frobenius or Hilbert-Schmidt norm is equal to the square root of the sum of the squares of the singular values:</p>
+<pre class="mcode-input">  norm(A,'fro')</pre>
+
+<pre class="mcode-output">ans =
+   1.938148951041007
+</pre>
+
+<h3 id="66-rank-null-orth-pinv">6.6 <code>rank</code>, <code>null</code>, <code>orth</code>, <code>pinv</code></h3>
+<p>Chebfun also contains overloads for some further MATLAB operations related to orthogonal matrix factorizations. Perhaps the most useful of these is <code>rank(A)</code>, which computes the singular values of $A$ and makes a judgement as to how many of them are significantly different from zero.  For example, with $x$ still defined as before, here is an example showing that the functions $1,$ $\sin(x)^2$, and $\cos(x)^2$ are linearly dependent:</p>
+<pre class="mcode-input">  B = [1 sin(x)^2 cos(x)^2];
+  rank(B)</pre>
+
+<pre class="mcode-output">ans =
+     2
+</pre>
+
+<p>Since $B$ is rank-deficient, is has a nontrivial nullspace, and the command <code>null(B)</code> will find an orthonormal basis for it:</p>
+<pre class="mcode-input">  null(B)</pre>
+
+<pre class="mcode-output">ans =
+  -0.577350269189626
+   0.577350269189626
+   0.577350269189626
+</pre>
+
+<p>Similarly the command <code>orth(B)</code> finds an orthonormal basis for the range of B, which in this case has dimension $2$:</p>
+<pre class="mcode-input">  orth(B)</pre>
+
+<pre class="mcode-output">ans =
+   chebfun column1 (1 smooth piece)
+       interval       length     endpoint values  
+[      -1,       1]       19      0.61     0.61 
+vertical scale = 0.76 
+   chebfun column2 (1 smooth piece)
+       interval       length     endpoint values  
+[      -1,       1]       19      -1.4     -1.4 
+vertical scale = 1.4 
+</pre>
+
+<p>If <code>A</code> is an $\infty\times n$ column quasimatrix, the command <code>pinv(A)</code> computes the pseudoinverse of <code>A</code>, an $n \times \infty$ row quasimatrix such that <code>pinv(A)*c = A\c</code>.</p>
+<p>Here is a summary of the dimensions of these objects:</p>
+<pre class="mcode-input">  subplot(1,3,1), spy(null(B)), title null(B)
+  subplot(1,3,2), spy(orth(B)), title orth(B)
+  subplot(1,3,3), spy(pinv(A)), title pinv(A)</pre>
+
+<p><img src="../images/guide/guide06_12.png" class="figure chebfun-figure" alt=""></p>
+<h3 id="67-array-valued-chebfuns-vs-arrays-of-chebfuns">6.7 Array-valued chebfuns vs. arrays of chebfuns</h3>
+<p>In Chebfun, quasimatrices are actually implemented in two different ways.  When its columns are smooth functions, a quasimatrix is normally represented as an <em>array-valued chebfun</em>. If a quasimatrix has singularities, or breakpoints that differ from one column to another, it is represented in a different fashion as an <em>array of chebfuns</em>.  This representation is more flexible, though slower for some operations. In principle, users should never see the difference.</p>
+<h3 id="68-references">6.8  References</h3>
+<p>[Abramowitz & Stegun 1972] M. A. Abramowitz and I. A. Stegun, eds., <em>Handbook of Mathematical Functions with Formulas, Graphs, and Mathematical Tables</em>, 9th printing, Dover, 1972.</p>
+<p>[Battles 2006] Z. Battles, <em>Numerical Linear Algebra for Continuous Functions</em>, DPhil thesis, Oxford University Computing Laboratory, 2006.</p>
+<p>[Battles & Trefethen 2004] Z. Battles and L. N. Trefethen, "An extension of Matlab to continuous functions and operators," <em>SIAM Journal on Scientific Computing</em>, 25 (2004), 1743-1770.</p>
+<p>[de Boor 1991] C. de Boor, "An alternative approach to (the teaching of) rank, basis, and dimension," <em>Linear Algebra and its Applications</em>, 146 (1991), 221-229.</p>
+<p>[Stewart 1998] G. W. Stewart, <em>Afternotes Goes to Graduate School: Lectures on Advanced Numerical Analysis</em>, SIAM, 1998.</p>
+<p>[Trefethen 2008] L. N. Trefethen, "Householder triangularization of a quasimatrix," <em>IMA Journal of Numerical Analysis</em>, 30 (2010), 887-897.</p>
+<p>[Trefethen & Bau 1997] L. N. Trefethen and D. Bau, III, <em>Numerical Linear Algebra</em>, SIAM, 1997.</p></div>
+        </div>
+    </div>
+</div>
+    <div class="footer">
+        <p>© Copyright 2025 the University of Oxford and the Chebfun Developers.</p>
+        <!-- TESTING -->
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.7.2.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?lang=matlab" type="text/javascript"></script>
+    <script type="text/javascript" src="/js/config.js"></script>
+    <script type="text/javascript" src="/js/jquery.flexslider-min.js"></script>
+  </body>
+</html>
+</div>
