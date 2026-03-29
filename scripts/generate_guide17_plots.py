@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import jax.numpy as jnp
 from chebfunjax.plotting import (
-    chebfun_style, plot_sphere, PARULA, _setup_3d_axes,
+    chebfun_style, plot_sphere, contour_sphere, PARULA, _setup_3d_axes,
 )
 from chebfunjax.spherefun import Spherefun
 
@@ -123,32 +123,23 @@ except Exception as e:
 
 # Plot 04: f + g (Section 17.2)
 try:
-    ll_f, tt_f, XX_f, YY_f, ZZc_f, Zf = eval_on_sphere(f)
-    _, _, _, _, _, Zg = eval_on_sphere(g)
-    Zsum = Zf + Zg
-    fig, ax = sphere_3d_from_values(XX_f, YY_f, ZZc_f, Zsum, title='f + g')
+    f_plus_g = Spherefun.from_function(lambda lam, th: f(lam, th) + g(lam, th))
+    fig, ax = sphere_3d(f_plus_g, title='f + g')
     save(fig, "f + g")
 except Exception as e:
     plot_num += 1; print(f"  guide17_{plot_num:02d}.png FAILED: {e}")
 
 # Plot 05: f .* g (Section 17.2)
 try:
-    Zprod = Zf * Zg
-    fig, ax = sphere_3d_from_values(XX_f, YY_f, ZZc_f, Zprod, title='f .* g')
+    f_times_g = Spherefun.from_function(lambda lam, th: f(lam, th) * g(lam, th))
+    fig, ax = sphere_3d(f_times_g, title='f .* g')
     save(fig, "f .* g")
 except Exception as e:
     plot_num += 1; print(f"  guide17_{plot_num:02d}.png FAILED: {e}")
 
 # Plot 06: Contour plot on sphere (Section 17.3)
 try:
-    ll_c, tt_c, _, _, _, ZZf = eval_on_sphere(f)
-    fig, ax = plt.subplots(figsize=(8, 4))
-    ax.contour(ll_c, tt_c, ZZf, levels=20, linewidths=0.8, cmap=PARULA)
-    ax.set_xlabel('lambda', fontsize=9)
-    ax.set_ylabel('theta', fontsize=9)
-    ax.set_title('Contour plot of f', fontsize=10)
-    ax.invert_yaxis()
-    fig.set_facecolor('white'); fig.tight_layout()
+    fig, ax = contour_sphere(f, levels=20, title='Contour plot of f')
     save(fig, "contour")
 except Exception as e:
     plot_num += 1; print(f"  guide17_{plot_num:02d}.png FAILED: {e}")

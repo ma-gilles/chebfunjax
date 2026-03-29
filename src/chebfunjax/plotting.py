@@ -34,6 +34,9 @@ if matplotlib.get_backend().lower() == "agg" and not os.environ.get("DISPLAY"):
     pass  # already headless — keep whatever backend is active
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.colors import LightSource, Normalize
+
+from chebfunjax.utils.quadrature import chebpts, trigpts
 
 
 # ---------------------------------------------------------------------------
@@ -185,6 +188,76 @@ def _make_parula_cmap():
 
 
 PARULA = _make_parula_cmap()
+
+
+def _coerce_cmap(cmap):
+    """Return a matplotlib colormap object."""
+    if cmap is None:
+        return PARULA
+    if isinstance(cmap, str):
+        return plt.get_cmap(cmap)
+    return cmap
+
+
+def _normalize_values(values: np.ndarray) -> Normalize:
+    """Normalization with a stable fallback for near-constant data."""
+    vmin = float(np.nanmin(values))
+    vmax = float(np.nanmax(values))
+    if not np.isfinite(vmin) or not np.isfinite(vmax):
+        vmin, vmax = 0.0, 1.0
+    elif vmax <= vmin:
+        vmax = vmin + 1.0
+    return Normalize(vmin=vmin, vmax=vmax)
+
+
+def _matlab_facecolors(
+    values: np.ndarray,
+    cmap,
+    shade_data: np.ndarray | None = None,
+    *,
+    apply_lighting: bool = False,
+) -> np.ndarray:
+    """Map scalar values to RGBA facecolors, optionally with headlight shading."""
+    cmap_obj = _coerce_cmap(cmap)
+    norm = _normalize_values(values)
+    rgba = cmap_obj(norm(values))
+    if apply_lighting and shade_data is not None:
+        ls = LightSource(azdeg=315, altdeg=45)
+        rgb = ls.shade_rgb(rgba[:, :, :3], shade_data)
+        rgba = rgba.copy()
+        rgba[:, :, :3] = rgb
+    return rgba
+
+
+def _draw_disk_boundary(ax: plt.Axes, *, dashed: bool = False, linewidth: float = 0.5) -> None:
+    """Draw the unit-circle outline used by MATLAB disk plots."""
+    t = np.linspace(-np.pi, np.pi, 201)
+    ax.plot(np.cos(t), np.sin(t), "k--" if dashed else "k-", linewidth=linewidth)
+
+
+def _draw_sphere_background(
+    ax,
+    *,
+    color=(255 / 255, 255 / 255, 204 / 255),
+    scale: float = 0.99,
+    alpha: float = 1.0,
+) -> None:
+    """Draw the slightly shrunken background sphere used by MATLAB quiver/contour plots."""
+    u = np.linspace(0.0, 2.0 * np.pi, 102)
+    v = np.linspace(0.0, np.pi, 52)
+    xs = scale * np.outer(np.cos(u), np.sin(v))
+    ys = scale * np.outer(np.sin(u), np.sin(v))
+    zs = scale * np.outer(np.ones_like(u), np.cos(v))
+    ax.plot_surface(
+        xs,
+        ys,
+        zs,
+        color=color,
+        linewidth=0,
+        antialiased=True,
+        shade=False,
+        alpha=alpha,
+    )
 
 
 def _setup_3d_axes(ax, fig, elev=25, azim=-37, figsize=(6.1, 2.58)):
@@ -472,7 +545,7 @@ def contour(
     n_pts: int = 150,
     levels: int = 12,
     cmap=None,
-    filled: bool = True,
+    filled: bool = False,
     **kw,
 ) -> tuple[plt.Figure, plt.Axes]:
     """Contour plot of a Chebfun2 (MATLAB Chebfun style).
@@ -496,8 +569,7 @@ def contour(
     -------
     fig, ax
     """
-    if cmap is None:
-        cmap = PARULA
+    cmap_obj = _coerce_cmap(cmap)
 
     try:
         x0, x1, y0, y1 = f2.domain
@@ -515,10 +587,8 @@ def contour(
         fig = ax.get_figure()
 
     if filled:
-        cs = ax.contourf(XX, YY, ZZ, levels=levels, cmap=cmap, **kw)
-        plt.colorbar(cs, ax=ax, fraction=0.046, pad=0.04)
-    ax.contour(XX, YY, ZZ, levels=levels, colors="k", linewidths=0.4,
-               alpha=0.5)
+        ax.contourf(XX, YY, ZZ, levels=levels, cmap=cmap_obj, **kw)
+    ax.contour(XX, YY, ZZ, levels=levels, cmap=cmap_obj, linewidths=0.8, **kw)
 
     ax.set_aspect("equal")
     _set_unit_ticks(ax, domain=(x0, x1, y0, y1))
@@ -620,8 +690,7 @@ def plot_disk(
     """
     import jax.numpy as jnp
 
-    if cmap is None:
-        cmap = PARULA
+    cmap_obj = _coerce_cmap(cmap)
 
     theta = np.linspace(-np.pi, np.pi, n_theta, endpoint=True)
     r = np.linspace(0.0, 1.0, n_r)
@@ -638,10 +707,19 @@ def plot_disk(
     if mode == "3d":
         fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37,
                                  figsize=(6.1, 2.58))
-        ax.plot_surface(XX, YY, ZZ, cmap=cmap,
-                        rstride=1, cstride=1,
-                        linewidth=0, antialiased=True,
-                        shade=True, **kw)
+        facecolors = _matlab_facecolors(ZZ, cmap_obj)
+        ax.plot_surface(
+            XX,
+            YY,
+            ZZ,
+            facecolors=facecolors,
+            rstride=1,
+            cstride=1,
+            linewidth=0,
+            antialiased=True,
+            shade=False,
+            **kw,
+        )
         # Draw boundary circle at the base
         theta_bdy = np.linspace(0, 2 * np.pi, 300)
         zmin = float(ZZ.min())
@@ -654,9 +732,8 @@ def plot_disk(
         else:
             fig = ax.get_figure()
 
-        ax.pcolormesh(XX, YY, ZZ, cmap=cmap, shading="auto", **kw)
-        theta_bdy = np.linspace(0, 2 * np.pi, 300)
-        ax.plot(np.cos(theta_bdy), np.sin(theta_bdy), "k-", linewidth=0.8)
+        ax.pcolormesh(XX, YY, ZZ, cmap=cmap_obj, shading="auto", **kw)
+        _draw_disk_boundary(ax, linewidth=0.8)
         ax.set_aspect("equal")
         _set_unit_ticks(ax, domain=(-1, 1, -1, 1))
 
@@ -712,10 +789,8 @@ def plot_sphere(
     fig, ax
     """
     import jax.numpy as jnp
-    from matplotlib.colors import LightSource, Normalize
 
-    if cmap is None:
-        cmap = PARULA
+    cmap_obj = _coerce_cmap(cmap)
 
     # Handle backward-compat aliases
     if n_lam is not None:
@@ -737,12 +812,7 @@ def plot_sphere(
     if np.linalg.norm(C - C[0, 0], ord=np.inf) < 1e-10:
         C = np.full_like(C, C[0, 0])
 
-    if isinstance(cmap, str):
-        cmap_obj = plt.get_cmap(cmap)
-    else:
-        cmap_obj = cmap
-
-    defaultOpts = dict(rstride=1, cstride=1, linewidth=0, antialiased=True, shade=False)
+    default_opts = dict(rstride=1, cstride=1, linewidth=0, antialiased=True, shade=False)
 
     # --- Grid meshes for lines of longitude/latitude ---
     llgl, ttgl = np.meshgrid(
@@ -772,20 +842,13 @@ def plot_sphere(
         fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36,
                                  figsize=(6.1, 2.75))
 
-        # Facecolors with LightSource shading
-        fmin, fmax = float(C.min()), float(C.max())
-        if fmax > fmin:
-            norm_vals = (C - fmin) / (fmax - fmin)
-        else:
-            norm_vals = np.full_like(C, 0.5)
-
-        ls = LightSource(azdeg=315, altdeg=45)
-        rgb = cmap_obj(norm_vals)[:, :, :3]
-        shaded = ls.shade_rgb(rgb, zz)
-        fcolors = np.ones((*shaded.shape[:2], 4))
-        fcolors[:, :, :3] = shaded
-
-        ax.plot_surface(xx, yy, zz, facecolors=fcolors, **defaultOpts, **kw)
+        facecolors = _matlab_facecolors(
+            C,
+            cmap_obj,
+            shade_data=zz,
+            apply_lighting=(projection.lower() == "bumpy"),
+        )
+        ax.plot_surface(xx, yy, zz, facecolors=facecolors, **default_opts, **kw)
 
         if grid:
             # Lines of longitude
@@ -931,12 +994,7 @@ def contour_sphere(
     """
     import jax.numpy as jnp
 
-    if cmap is None:
-        cmap = PARULA
-    if isinstance(cmap, str):
-        cmap_obj = plt.get_cmap(cmap)
-    else:
-        cmap_obj = cmap
+    cmap_obj = _coerce_cmap(cmap)
 
     if sphere_color is None:
         sphere_color = (250 / 255, 250 / 255, 250 / 255)
@@ -981,15 +1039,7 @@ def contour_sphere(
     # Setup 3D axes
     fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36, figsize=(6.1, 2.75))
 
-    # Draw background sphere
-    u = np.linspace(0, 2 * np.pi, 102)
-    v_sp = np.linspace(0, np.pi, 52)
-    XS = 0.99 * np.outer(np.cos(u), np.sin(v_sp))
-    YS = 0.99 * np.outer(np.sin(u), np.sin(v_sp))
-    ZS = 0.99 * np.outer(np.ones_like(u), np.cos(v_sp))
-    ax.plot_surface(XS, YS, ZS, color=sphere_color,
-                    rstride=2, cstride=2, linewidth=0,
-                    antialiased=True, shade=False)
+    _draw_sphere_background(ax, color=sphere_color)
 
     # Plot contour lines on sphere
     for lev_val, verts in contour_paths:
@@ -1076,18 +1126,24 @@ def quiver_sphere_cartesian(
 
     fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36, figsize=(6.1, 2.75))
 
-    # Background sphere
-    u = np.linspace(0, 2 * np.pi, 102)
-    v_sp = np.linspace(0, np.pi, 52)
-    XS = 0.99 * np.outer(np.cos(u), np.sin(v_sp))
-    YS = 0.99 * np.outer(np.sin(u), np.sin(v_sp))
-    ZS = 0.99 * np.outer(np.ones_like(u), np.cos(v_sp))
-    ax.plot_surface(XS, YS, ZS, color=sphere_color,
-                    rstride=2, cstride=2, linewidth=0,
-                    antialiased=True, shade=False, alpha=0.5)
+    _draw_sphere_background(ax, color=sphere_color)
 
-    ax.quiver(x_n, y_n, z_n, fxv, fyv, fzv, length=arrow_scale * 0.05,
-              color=arrow_color, arrow_length_ratio=0.3, linewidth=0.8, **kw)
+    mag = np.sqrt(fxv ** 2 + fyv ** 2 + fzv ** 2)
+    max_mag = float(mag.max()) if mag.size and float(mag.max()) > 0 else 1.0
+    scale = 0.08 * arrow_scale / max_mag
+    ax.quiver(
+        x_n,
+        y_n,
+        z_n,
+        fxv * scale,
+        fyv * scale,
+        fzv * scale,
+        length=1.0,
+        color=arrow_color,
+        arrow_length_ratio=0.3,
+        linewidth=0.8,
+        **kw,
+    )
 
     ax.set_xlim(-1.0, 1.0)
     ax.set_ylim(-1.0, 1.0)
@@ -1368,8 +1424,7 @@ def contour_disk(
     """
     import jax.numpy as jnp
 
-    if cmap is None:
-        cmap = PARULA
+    cmap_obj = _coerce_cmap(cmap)
 
     # Evaluate on polar grid
     theta = np.linspace(-np.pi, np.pi, n_pts)
@@ -1388,11 +1443,9 @@ def contour_disk(
     else:
         fig = ax.get_figure()
 
-    cs = ax.contour(XX, YY, vals, levels=levels, cmap=cmap, **kw)
+    ax.contour(XX, YY, vals, levels=levels, cmap=cmap_obj, **kw)
 
-    # Boundary circle
-    circ_t = np.linspace(-np.pi, np.pi, 201)
-    ax.plot(np.cos(circ_t), np.sin(circ_t), 'k-', linewidth=0.5)
+    _draw_disk_boundary(ax, linewidth=0.3)
 
     ax.set_aspect('equal')
     ax.set_xlim(-1.1, 1.1)
@@ -1435,8 +1488,7 @@ def surf_disk(
     """
     import jax.numpy as jnp
 
-    if cmap is None:
-        cmap = PARULA
+    cmap_obj = _coerce_cmap(cmap)
 
     theta = np.linspace(-np.pi, np.pi, n_pts)
     r = np.linspace(0.0, 1.0, n_pts)
@@ -1455,9 +1507,19 @@ def surf_disk(
 
     fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37, figsize=(6.1, 2.75))
 
-    ax.plot_surface(xx, yy, C, cmap=cmap,
-                    rstride=1, cstride=1,
-                    linewidth=0, antialiased=True, shade=True, **kw)
+    facecolors = _matlab_facecolors(C, cmap_obj)
+    ax.plot_surface(
+        xx,
+        yy,
+        C,
+        facecolors=facecolors,
+        rstride=1,
+        cstride=1,
+        linewidth=0,
+        antialiased=True,
+        shade=False,
+        **kw,
+    )
     ax.set_xlim(-1, 1)
     ax.set_ylim(-1, 1)
 
@@ -1515,9 +1577,7 @@ def quiver_disk(
     else:
         fig = ax.get_figure()
 
-    # Boundary circle
-    circ_t = np.linspace(-np.pi, np.pi, 201)
-    ax.plot(np.cos(circ_t), np.sin(circ_t), 'k--', linewidth=0.5)
+    _draw_disk_boundary(ax, dashed=True, linewidth=0.5)
 
     ax.quiver(xx, yy, vals1, vals2, **kw)
     ax.set_aspect('equal')
@@ -1688,12 +1748,12 @@ def quiver_sphere(
     title: str = "",
     n_lam: int = 20,
     n_theta: int = 10,
-    sphere_color: str = "#FFFFCC",
+    sphere_color=(255 / 255, 255 / 255, 204 / 255),
     arrow_color: str = "k",
-    arrow_scale: float = 0.15,
+    arrow_scale: float = 1.0,
     cmap=None,
-    use_icos: bool = False,
-    n_refine: int = 3,
+    use_icos: bool = True,
+    n_refine: int = 4,
     **kw,
 ) -> tuple[plt.Figure, Any]:
     """Quiver plot of a Spherefunv on the unit sphere (MATLAB Chebfun style).
@@ -1736,8 +1796,7 @@ def quiver_sphere(
 
     n_comps = len(fv.components)
 
-    if use_icos or n_comps == 3:
-        # MATLAB @spherefunv/quiver.m path: icosahedral nodes, 3 Cartesian components
+    if use_icos:
         nodes = _icos_nodes(n_refine)
         x_n, y_n, z_n = nodes[:, 0], nodes[:, 1], nodes[:, 2]
         lam_n = jnp.array(np.arctan2(y_n, x_n))
@@ -1761,19 +1820,24 @@ def quiver_sphere(
 
         fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36, figsize=(6.1, 2.75))
 
-        # Background sphere
-        u = np.linspace(0, 2 * np.pi, 102)
-        v_sp = np.linspace(0, np.pi, 52)
-        XS = 0.99 * np.outer(np.cos(u), np.sin(v_sp))
-        YS = 0.99 * np.outer(np.sin(u), np.sin(v_sp))
-        ZS = 0.99 * np.outer(np.ones_like(u), np.cos(v_sp))
-        ax.plot_surface(XS, YS, ZS, color=sphere_color,
-                        rstride=2, cstride=2, linewidth=0,
-                        antialiased=True, shade=False, alpha=0.3)
+        _draw_sphere_background(ax, color=sphere_color)
 
-        ax.quiver(x_n, y_n, z_n, fxv, fyv, fzv,
-                  color=arrow_color, arrow_length_ratio=0.25,
-                  linewidth=0.8, **kw)
+        mag = np.sqrt(fxv ** 2 + fyv ** 2 + fzv ** 2)
+        max_mag = float(mag.max()) if mag.size and float(mag.max()) > 0 else 1.0
+        scale = 0.08 * arrow_scale / max_mag
+        ax.quiver(
+            x_n,
+            y_n,
+            z_n,
+            fxv * scale,
+            fyv * scale,
+            fzv * scale,
+            length=1.0,
+            color=arrow_color,
+            arrow_length_ratio=0.25,
+            linewidth=0.8,
+            **kw,
+        )
 
         ax.set_xlim(-1.0, 1.0)
         ax.set_ylim(-1.0, 1.0)
@@ -1807,30 +1871,19 @@ def quiver_sphere(
         W = -g_vals * sin_th
 
         mag = np.sqrt(U ** 2 + V ** 2 + W ** 2)
-        max_mag = float(mag.max()) if mag.max() > 0 else 1.0
-        U = U * arrow_scale / max_mag
-        V = V * arrow_scale / max_mag
-        W = W * arrow_scale / max_mag
+        max_mag = float(mag.max()) if mag.size and float(mag.max()) > 0 else 1.0
+        scale = 0.08 * arrow_scale / max_mag
+        U = U * scale
+        V = V * scale
+        W = W * scale
 
         fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36, figsize=(6.1, 2.75))
-
-        # Background sphere
-        n_bg = 60
-        lam_bg = np.linspace(-np.pi, np.pi, n_bg)
-        theta_bg = np.linspace(0, np.pi, n_bg // 2)
-        LAM_bg, THETA_bg = np.meshgrid(lam_bg, theta_bg, indexing="ij")
-        X_bg = np.sin(THETA_bg) * np.cos(LAM_bg)
-        Y_bg = np.sin(THETA_bg) * np.sin(LAM_bg)
-        Z_bg = np.cos(THETA_bg)
-
-        ax.plot_surface(X_bg, Y_bg, Z_bg, color=sphere_color,
-                        rstride=1, cstride=1,
-                        linewidth=0, antialiased=True, alpha=0.3)
+        _draw_sphere_background(ax, color=sphere_color)
 
         ax.quiver(X.ravel(), Y.ravel(), Z.ravel(),
                   U.ravel(), V.ravel(), W.ravel(),
                   color=arrow_color, arrow_length_ratio=0.25,
-                  linewidth=0.8, **kw)
+                  linewidth=0.8, length=1.0, **kw)
 
         ax.set_xlim(-1.3, 1.3)
         ax.set_ylim(-1.3, 1.3)
@@ -1992,6 +2045,7 @@ def plot_ball_slices(
     cmap=None,
     elev: float = 30,
     azim: float = -37.5,
+    style: str = "ball",
     **kw,
 ) -> tuple[plt.Figure, Any]:
     """Slice plot of a Ballfun inside the unit ball (MATLAB Chebfun style).
@@ -2017,111 +2071,169 @@ def plot_ball_slices(
     """
     import jax.numpy as jnp
 
-    if cmap is None:
-        cmap = PARULA
-    if isinstance(cmap, str):
-        cmap_obj = plt.get_cmap(cmap)
-    else:
-        cmap_obj = cmap
+    cmap_obj = _coerce_cmap(cmap)
 
-    # --- Grid sizes matching MATLAB (lines 58-66 of plot.m) ---
-    m, n, p = 25, 28, 28
+    m, n, p = map(int, bf.shape)
+    m = max(25, m)
+    n = max(28, n)
+    p = max(28, p)
+    m = m + ((1 - (m % 6)) % 6)
+    n = n + ((4 - (n % 4)) % 4)
+    p = p + ((4 - (p % 4)) % 4)
 
-    # --- MATLAB line 79: r = chebpts(m), positive half ---
-    r_full = np.cos(np.pi * np.arange(m) / (m - 1))[::-1]
-    r = r_full[m // 2:]
+    r_full = np.asarray(chebpts(m))
+    r_pos = r_full[m // 2 :]
 
-    # --- MATLAB line 80: lam = [pi*trigpts(n); pi] ---
-    lam = np.append(np.pi * np.linspace(-1, 1, n, endpoint=False), np.pi)
-
-    # --- MATLAB line 81: th = [pi*trigpts(p);pi]-pi/2 (ELEVATION) ---
-    th_full = np.append(
-        np.pi * np.linspace(-1, 1, p, endpoint=False), np.pi
-    ) - np.pi / 2
-    # --- MATLAB line 85: th = th(floor(p/2)+1:end) ---
-    th = th_full[p // 2:]  # elevation from -pi/2 to pi/2
-
-    # --- Evaluate on full 3D grid ---
-    # Convert elevation grid to colatitude for fevalm (which expects colatitude)
-    th_colat = np.pi / 2 - th  # colatitude = pi/2 - elevation
-    vals = np.asarray(bf.fevalm(jnp.array(r), jnp.array(lam), jnp.array(th_colat)))
-    if bf.is_real:
-        vals = np.real(vals)
-    ff = vals  # shape (Nr, Nlam, Nth_colat)
-
-    # --- MATLAB lines 96-100: slice positions ---
-    idx_r = np.argmin(np.abs(r - 0.5))
-    # tslice: th[0] (south pole) and th[p//4] (equator, since p//4=7 -> th[7]=0)
-    tslice = [float(th[0]), float(th[p // 4])]
-    # lslice: lam[0] (-pi) and lam[n//4] (-pi/2)
-    lslice = [float(lam[0]), float(lam[n // 4])]
-
-    def _sph2cart(az, el, r_val):
-        """MATLAB sph2cart(azimuth, elevation, radius)."""
-        return (r_val * np.cos(el) * np.cos(az),
-                r_val * np.cos(el) * np.sin(az),
-                r_val * np.sin(el))
-
-    slices = []  # (xs, ys, zs, cdata)
-
-    # --- 2 constant-elevation slices (cones) ---
-    for th_val in tslice:
-        th_idx = np.argmin(np.abs(th - th_val))
-        cdata = ff[:, :, th_idx]  # (Nr, Nlam)
-        R2, L2 = np.meshgrid(r, lam, indexing='ij')
-        xs, ys, zs = _sph2cart(L2, th_val, R2)
-        slices.append((xs, ys, zs, cdata))
-
-    # --- 1 constant-r slice (sphere at r≈0.5) ---
-    cdata = ff[idx_r, :, :]  # (Nlam, Nth)
-    L2, T2 = np.meshgrid(lam, th, indexing='ij')
-    xs, ys, zs = _sph2cart(L2, T2, float(r[idx_r]))
-    slices.append((xs, ys, zs, cdata))
-
-    # --- 2 constant-lambda slices (half-planes) ---
-    for lam_val in lslice:
-        lam_idx = np.argmin(np.abs(lam - lam_val))
-        cdata = ff[:, lam_idx, :]  # (Nr, Nth)
-        R2, T2 = np.meshgrid(r, th, indexing='ij')
-        xs, ys, zs = _sph2cart(lam_val, T2, R2)
-        slices.append((xs, ys, zs, cdata))
-
-    # --- Global colour normalization ---
-    all_c = np.concatenate([s[3].ravel() for s in slices])
-    vmin, vmax = float(all_c.min()), float(all_c.max())
-    if vmax <= vmin:
-        vmax = vmin + 1.0
-    norm_fn = lambda v: (v - vmin) / (vmax - vmin)
-
-    # --- Plot ---
     if ax is None:
         fig = plt.figure(figsize=(6.1, 2.75))
-        ax = fig.add_subplot(111, projection='3d')
+        ax = fig.add_subplot(111, projection="3d")
     else:
         fig = ax.get_figure()
 
-    # MATLAB: surf(xs,ys,zs,CData,'facecolor','interp','edgecolor','none')
-    for xs, ys, zs, cdata in slices:
-        colors = cmap_obj(norm_fn(cdata))
-        ax.plot_surface(xs, ys, zs, facecolors=colors,
-                        rstride=1, cstride=1, linewidth=0,
-                        antialiased=True, shade=False)
+    def _sph2cart(az, el, radius):
+        return (
+            radius * np.cos(el) * np.cos(az),
+            radius * np.cos(el) * np.sin(az),
+            radius * np.sin(el),
+        )
 
-    # MATLAB: axis([-1 1 -1 1 -1 1]); daspect([1 1 1])
-    ax.set_xlim(-1, 1)
-    ax.set_ylim(-1, 1)
-    ax.set_zlim(-1, 1)
+    def _ball_cartesian(lam_vals, th_colat_vals, radius_vals):
+        xs = radius_vals * np.sin(th_colat_vals) * np.cos(lam_vals)
+        ys = radius_vals * np.sin(th_colat_vals) * np.sin(lam_vals)
+        zs = radius_vals * np.cos(th_colat_vals)
+        xs, ys, zs = np.broadcast_arrays(xs, ys, zs)
+        return xs, ys, zs
+
+    surfaces: list[tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]] = []
+    style_name = style.lower()
+
+    if style_name == "ball":
+        lam_core = np.asarray(trigpts(n)[0]) * np.pi
+        lam = np.concatenate([lam_core, [np.pi]])
+        th = np.concatenate([np.asarray(trigpts(p)[0]) * np.pi, [np.pi]]) - np.pi / 2.0
+        th = th[p // 2 :]
+        th_colat = np.pi / 2.0 - th
+
+        ff = np.asarray(bf.fevalm(jnp.asarray(r_pos), jnp.asarray(lam), jnp.asarray(th_colat)))
+        if bf.is_real:
+            ff = np.real(ff)
+
+        idx_r = int(np.argmin(np.abs(r_pos - 0.5)))
+        tslice = [float(th[0]), float(th[p // 4])]
+        lslice = [float(lam[0]), float(lam[n // 4])]
+
+        for th_val in tslice:
+            th_idx = int(np.argmin(np.abs(th - th_val)))
+            cdata = ff[:, :, th_idx]
+            rr, ll = np.meshgrid(r_pos, lam, indexing="ij")
+            xs, ys, zs = _sph2cart(ll, th_val, rr)
+            surfaces.append((xs, ys, zs, cdata))
+
+        cdata = ff[idx_r, :, :]
+        ll, tt = np.meshgrid(lam, th, indexing="ij")
+        xs, ys, zs = _sph2cart(ll, tt, float(r_pos[idx_r]))
+        surfaces.append((xs, ys, zs, cdata))
+
+        for lam_val in lslice:
+            lam_idx = int(np.argmin(np.abs(lam - lam_val)))
+            cdata = ff[:, lam_idx, :]
+            rr, tt = np.meshgrid(r_pos, th, indexing="ij")
+            xs, ys, zs = _sph2cart(lam_val, tt, rr)
+            surfaces.append((xs, ys, zs, cdata))
+
+    elif style_name == "wedgeaz":
+        az_intvl = (-np.pi / 2.0, np.pi)
+        lam = np.linspace(az_intvl[0], az_intvl[1], n)
+        th_colat = np.linspace(0.0, np.pi, p)
+
+        ff = np.asarray(bf.fevalm(jnp.asarray([1.0]), jnp.asarray(lam), jnp.asarray(th_colat)))[0]
+        if bf.is_real:
+            ff = np.real(ff)
+        xs, ys, zs = _ball_cartesian(lam[None, :], th_colat[:, None], 1.0)
+        surfaces.append((xs, ys, zs, ff.T))
+
+        for lam_val in (lam[0], lam[-1]):
+            ff = np.asarray(
+                bf.fevalm(jnp.asarray(r_pos), jnp.asarray([lam_val]), jnp.asarray(th_colat))
+            )[:, 0, :]
+            if bf.is_real:
+                ff = np.real(ff)
+            rr, tt = np.meshgrid(r_pos, th_colat, indexing="ij")
+            xs, ys, zs = _ball_cartesian(lam_val, tt, rr)
+            surfaces.append((xs, ys, zs, ff))
+
+    elif style_name == "wedgepol":
+        pol_intvl = (np.pi / 2.0, np.pi)
+        az_intvl = (0.0, np.pi)
+
+        lam_full = np.linspace(-np.pi, np.pi, n)
+        th_cap = np.linspace(pol_intvl[0], pol_intvl[1], p)
+        ff = np.asarray(bf.fevalm(jnp.asarray([1.0]), jnp.asarray(lam_full), jnp.asarray(th_cap)))[0]
+        if bf.is_real:
+            ff = np.real(ff)
+        xs, ys, zs = _ball_cartesian(lam_full[None, :], th_cap[:, None], 1.0)
+        surfaces.append((xs, ys, zs, ff.T))
+
+        lam_open = np.linspace(az_intvl[0], az_intvl[1], n)
+        th_open = np.linspace(0.0, pol_intvl[0], p)
+        ff = np.asarray(bf.fevalm(jnp.asarray([1.0]), jnp.asarray(lam_open), jnp.asarray(th_open)))[0]
+        if bf.is_real:
+            ff = np.real(ff)
+        xs, ys, zs = _ball_cartesian(lam_open[None, :], th_open[:, None], 1.0)
+        surfaces.append((xs, ys, zs, ff.T))
+
+        for lam_val in (lam_open[0], lam_open[-1]):
+            ff = np.asarray(
+                bf.fevalm(jnp.asarray(r_pos), jnp.asarray([lam_val]), jnp.asarray(th_open))
+            )[:, 0, :]
+            if bf.is_real:
+                ff = np.real(ff)
+            rr, tt = np.meshgrid(r_pos, th_open, indexing="ij")
+            xs, ys, zs = _ball_cartesian(lam_val, tt, rr)
+            surfaces.append((xs, ys, zs, ff))
+
+        lam_eq = np.linspace(-np.pi, np.pi, p)
+        ff = np.asarray(
+            bf.fevalm(jnp.asarray(r_pos), jnp.asarray(lam_eq), jnp.asarray([pol_intvl[0]]))
+        )[:, :, 0]
+        if bf.is_real:
+            ff = np.real(ff)
+        rr, ll = np.meshgrid(r_pos, lam_eq, indexing="ij")
+        xs, ys, zs = _ball_cartesian(ll, pol_intvl[0], rr)
+        surfaces.append((xs, ys, zs, ff))
+
+    else:
+        raise ValueError(f"Unknown Ballfun plot style {style!r}. Expected 'ball', 'wedgeaz', or 'wedgepol'.")
+
+    all_values = np.concatenate([surface[3].ravel() for surface in surfaces])
+    norm = _normalize_values(all_values)
+
+    for xs, ys, zs, cdata in surfaces:
+        facecolors = cmap_obj(norm(cdata))
+        ls = LightSource(azdeg=315, altdeg=45)
+        facecolors = facecolors.copy()
+        facecolors[:, :, :3] = ls.shade_rgb(facecolors[:, :, :3], zs)
+        ax.plot_surface(
+            xs,
+            ys,
+            zs,
+            facecolors=facecolors,
+            rstride=1,
+            cstride=1,
+            linewidth=0,
+            antialiased=True,
+            shade=False,
+            **kw,
+        )
+
+    ax.set_xlim(-1.0, 1.0)
+    ax.set_ylim(-1.0, 1.0)
+    ax.set_zlim(-1.0, 1.0)
     ax.set_box_aspect([1, 1, 1])
     ax.set_xticks([-1, 0, 1])
     ax.set_yticks([-1, 0, 1])
     ax.set_zticks([-1, 0, 1])
     ax.tick_params(labelsize=7, pad=-3)
-    ax.xaxis.pane.fill = False
-    ax.yaxis.pane.fill = False
-    ax.zaxis.pane.fill = False
-    for pn in [ax.xaxis.pane, ax.yaxis.pane, ax.zaxis.pane]:
-        pn.set_edgecolor((0.85, 0.85, 0.85, 0.3))
-    ax.grid(True, alpha=0.1, linewidth=0.3)
     ax.view_init(elev=elev, azim=azim)
 
     if title:
@@ -2198,77 +2310,63 @@ def quiver_ball(
     """
     import jax.numpy as jnp
 
-    if cmap is None:
-        cmap = PARULA
-    if isinstance(cmap, str):
-        cmap_obj = plt.get_cmap(cmap)
-    else:
-        cmap_obj = cmap
+    cmap_obj = _coerce_cmap(cmap)
 
-    # Build Chebyshev points for r (positive half only)
-    m = n_pts
-    # Simplified: use linspace instead of chebpts, then take positive half
-    r_full = np.linspace(0.01, 1.0, m)  # avoid r=0 exactly
+    r = np.asarray(chebpts(n_pts))[n_pts // 2 :]
 
-    # Build variable-density grid matching MATLAB @ballfunv/quiver.m
-    xx_list, yy_list, zz_list = [], [], []
-    Vxx_list, Vyy_list, Vzz_list = [], [], []
+    xx_list: list[np.ndarray] = []
+    yy_list: list[np.ndarray] = []
+    zz_list: list[np.ndarray] = []
+    vxx_list: list[np.ndarray] = []
+    vyy_list: list[np.ndarray] = []
+    vzz_list: list[np.ndarray] = []
 
-    for ri in r_full:
-        Nth = max(int(np.ceil(n_pts * ri / 2)), 1)
-        th_i = np.linspace(0, np.pi, Nth)
+    fx, fy, fz = bfv.components
 
-        for k_idx in range(Nth):
-            thk = th_i[k_idx]
-            Dth = min(thk, abs(thk - np.pi))
-            Nlam = max(int(np.ceil(n_pts * ri * Dth * 2 / np.pi)), 1)
-            lam_i = np.linspace(-np.pi, np.pi, Nlam + 1)[:-1]  # trigpts equivalent
+    for ri in r:
+        nth = max(int(np.ceil(n_pts * ri / 2.0)), 1)
+        th_i = np.linspace(0.0, np.pi, nth)
+        for thk in th_i:
+            dth = min(thk, abs(thk - np.pi))
+            nlam = max(int(np.ceil(n_pts * ri * dth * 2.0 / np.pi)), 1)
+            lam_i = np.asarray(trigpts(nlam)[0]) * np.pi
 
-            # Evaluate vector field at these points
-            r_arr = jnp.full(Nlam, ri)
-            lam_arr = jnp.array(lam_i)
-            th_arr = jnp.full(Nlam, thk)
+            vx = np.asarray(fx.fevalm(jnp.asarray([ri]), jnp.asarray(lam_i), jnp.asarray([thk])))[0, :, 0]
+            vy = np.asarray(fy.fevalm(jnp.asarray([ri]), jnp.asarray(lam_i), jnp.asarray([thk])))[0, :, 0]
+            vz = np.asarray(fz.fevalm(jnp.asarray([ri]), jnp.asarray(lam_i), jnp.asarray([thk])))[0, :, 0]
 
-            # Ballfunv fevalm returns Cartesian components
-            f_comp, g_comp, h_comp = bfv.components
-            VX = np.array(f_comp.fevalm(r_arr, lam_arr, th_arr))
-            VY = np.array(g_comp.fevalm(r_arr, lam_arr, th_arr))
-            VZ = np.array(h_comp.fevalm(r_arr, lam_arr, th_arr))
+            vxx_list.append(np.real(vx))
+            vyy_list.append(np.real(vy))
+            vzz_list.append(np.real(vz))
 
-            # fevalm returns (Nr, Nlam, Nth) — we want the (1, Nlam, 1) slice
-            if VX.ndim == 3:
-                VX = VX[0, :, 0]
-                VY = VY[0, :, 0]
-                VZ = VZ[0, :, 0]
-            elif VX.ndim == 1:
-                pass  # already flat
-            else:
-                VX = VX.ravel()
-                VY = VY.ravel()
-                VZ = VZ.ravel()
-
-            Vxx_list.append(VX)
-            Vyy_list.append(VY)
-            Vzz_list.append(VZ)
-
-            x_pts = ri * np.cos(lam_i) * np.sin(thk)
-            y_pts = ri * np.sin(lam_i) * np.sin(thk)
-            z_pts = np.full(Nlam, ri * np.cos(thk))
-            xx_list.append(x_pts)
-            yy_list.append(y_pts)
-            zz_list.append(z_pts)
+            xx_list.append(ri * np.cos(lam_i) * np.sin(thk))
+            yy_list.append(ri * np.sin(lam_i) * np.sin(thk))
+            zz_list.append(np.full_like(lam_i, ri * np.cos(thk), dtype=float))
 
     xx = np.concatenate(xx_list)
     yy = np.concatenate(yy_list)
     zz = np.concatenate(zz_list)
-    Vxx = np.real(np.concatenate(Vxx_list))
-    Vyy = np.real(np.concatenate(Vyy_list))
-    Vzz = np.real(np.concatenate(Vzz_list))
+    Vxx = np.concatenate(vxx_list)
+    Vyy = np.concatenate(vyy_list)
+    Vzz = np.concatenate(vzz_list)
+
+    mag = np.sqrt(Vxx ** 2 + Vyy ** 2 + Vzz ** 2)
+    max_mag = float(mag.max()) if mag.size and float(mag.max()) > 0 else 1.0
+    scale = 0.08 * arrow_scale / max_mag
 
     fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37, figsize=(6.1, 2.75))
 
-    q = ax.quiver(xx, yy, zz, Vxx, Vyy, Vzz, length=0.05 * arrow_scale,
-                  arrow_length_ratio=0.3, linewidth=0.6)
+    q = ax.quiver(
+        xx,
+        yy,
+        zz,
+        Vxx * scale,
+        Vyy * scale,
+        Vzz * scale,
+        length=1.0,
+        arrow_length_ratio=0.3,
+        linewidth=0.6,
+    )
 
     if color_by_magnitude:
         mags = np.sqrt(Vxx ** 2 + Vyy ** 2 + Vzz ** 2)
@@ -2322,14 +2420,8 @@ def plot_chebfun3(
     fig, ax
     """
     import jax.numpy as jnp
-    import matplotlib.colors as mcolors
 
-    if cmap is None:
-        cmap = PARULA
-    if isinstance(cmap, str):
-        cmap_obj = plt.get_cmap(cmap)
-    else:
-        cmap_obj = cmap
+    cmap_obj = _coerce_cmap(cmap)
 
     try:
         xa, xb, ya, yb, za, zb = f3.domain
@@ -2393,25 +2485,41 @@ def plot_chebfun3(
     ).reshape(XX_xy.shape)
     slices.append((XX_xy, YY_xy, ZZ_xy2, F_xy2))
 
-    # Global colour limits
-    all_cdata = np.concatenate([s[3].ravel() for s in slices])
-    vmin, vmax = float(all_cdata.min()), float(all_cdata.max())
-    if vmax <= vmin:
-        vmax = vmin + 1.0
-    norm = mcolors.Normalize(vmin=vmin, vmax=vmax)
+    all_cdata = np.concatenate([np.asarray(s[3]).ravel() for s in slices])
+    is_complex = np.iscomplexobj(all_cdata)
+    if is_complex:
+        mapped = np.angle(-all_cdata)
+        cmap_obj = plt.get_cmap("hsv")
+        norm = Normalize(vmin=-np.pi, vmax=np.pi)
+    else:
+        mapped = np.real(all_cdata)
+        norm = _normalize_values(mapped)
 
     fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37, figsize=(6.1, 2.75))
 
     for XX_s, YY_s, ZZ_s, F_s in slices:
-        fc = cmap_obj(norm(F_s))
-        ax.plot_surface(XX_s, YY_s, ZZ_s, facecolors=fc,
-                        rstride=1, cstride=1,
-                        linewidth=0, antialiased=True,
-                        alpha=alpha, shade=False)
+        scalar = np.angle(-F_s) if is_complex else np.real(F_s)
+        fc = cmap_obj(norm(scalar))
+        ax.plot_surface(
+            XX_s,
+            YY_s,
+            ZZ_s,
+            facecolors=fc,
+            rstride=1,
+            cstride=1,
+            linewidth=0,
+            antialiased=True,
+            alpha=alpha,
+            shade=False,
+        )
 
     ax.set_xlim(xa, xb)
     ax.set_ylim(ya, yb)
     ax.set_zlim(za, zb)
+    if not is_complex:
+        sm = mpl.cm.ScalarMappable(norm=norm, cmap=cmap_obj)
+        sm.set_array([])
+        fig.colorbar(sm, ax=ax, fraction=0.046, pad=0.04)
 
     if title:
         ax.set_title(title, fontsize=10, pad=0)

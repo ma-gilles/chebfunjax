@@ -137,20 +137,14 @@ try:
             * jnp.exp(-(r*jnp.cos(th)-0.2)**2-(r*jnp.sin(th)-0.2)**2))
     fig, ax = plot_disk(g, title='g', mode='2d'); save(fig, "g")
     fig, ax = plot_disk(f2, title='f', mode='2d'); save(fig, "f")
-    theta = np.linspace(-np.pi, np.pi, 200, endpoint=False)
-    r = np.linspace(0., 1., 100)
-    TT, RR = np.meshgrid(theta, r, indexing='ij')
-    XX = RR*np.cos(TT); YY = RR*np.sin(TT)
-    th_f = jnp.array(TT.ravel()); r_f = jnp.array(RR.ravel())
-    gv = np.array(g(th_f, r_f)).reshape(TT.shape)
-    fv = np.array(f2(th_f, r_f)).reshape(TT.shape)
-    for title, vals in [('g + f', gv+fv), ('g - f', gv-fv), ('g x f', gv*fv)]:
-        fig, ax = plt.subplots(figsize=(5, 5))
-        ax.pcolormesh(XX, YY, vals, cmap=PARULA, shading='auto')
-        bdy = np.linspace(0, 2*np.pi, 300)
-        ax.plot(np.cos(bdy), np.sin(bdy), 'k-', lw=0.8)
-        ax.set_aspect('equal'); ax.axis('off'); ax.set_title(title, fontsize=10)
-        fig.set_facecolor('white'); fig.tight_layout(); save(fig, title)
+    derived = [
+        ('g + f', Diskfun.from_function(lambda th, r: g(th, r) + f2(th, r))),
+        ('g - f', Diskfun.from_function(lambda th, r: g(th, r) - f2(th, r))),
+        ('g x f', Diskfun.from_function(lambda th, r: g(th, r) * f2(th, r))),
+    ]
+    for title, obj in derived:
+        fig, ax = plot_disk(obj, title=title, mode='2d')
+        save(fig, title)
 except Exception as e:
     for _ in range(max(0, 8-plot_num)):
         plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
