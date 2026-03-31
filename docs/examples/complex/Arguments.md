@@ -34,12 +34,12 @@ f = t.*exp(1i*t);
 plot(f,LW,lw), axis equal
 title('f(t) in complex plane',FS,fs)</pre>
 
-<p><img src="../../images/complex/Arguments_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/complex/Arguments_01.png" class="figure chebfun-figure" alt=""></p>
 <p>And here is its angle:</p>
 <pre class="mcode-input">plot(angle(f),'m',LW,lw)
 xlabel t, ylabel angle(f(t))</pre>
 
-<p><img src="../../images/complex/Arguments_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/complex/Arguments_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Often one would prefer to define a continuous argument, and for this purpose MATLAB has the command <code>unwrap</code>. For example:</p>
 <pre class="mcode-input">unwrap(angle([-1 -1-.01i]))</pre>
 
@@ -51,19 +51,19 @@ xlabel t, ylabel angle(f(t))</pre>
 <pre class="mcode-input">plot(unwrap(angle(f)),'m',LW,lw), ylim([-1 21])
 xlabel t, ylabel argument</pre>
 
-<p><img src="../../images/complex/Arguments_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/complex/Arguments_03.png" class="figure chebfun-figure" alt=""></p>
 <p>An important area of application of these commands is to functions in the complex plane, where keeping track of branch cuts is often a headache. For example, suppose we want to take the square root of that function $f$. The result is not very useful. (For the moment we have to construct the function again with <code>splitting on</code> to make this experiment work, though in principle Chebfun should be clever enough to introduce a breakpoint without splitting on.)</p>
 <pre class="mcode-input">g = chebfun('sqrt(t.*exp(1i*t))',[1 20],'splitting','on');
 plot(g,LW,lw), axis(5*[-1 1 -1 1]), axis square
 title('sqrt(f(t)) in complex plane',FS,fs)</pre>
 
-<p><img src="../../images/complex/Arguments_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/complex/Arguments_04.png" class="figure chebfun-figure" alt=""></p>
 <p>We can get the right effect with <code>unwrap</code>:</p>
 <pre class="mcode-input">g = sqrt(abs(f)).*exp(.5i*unwrap(angle(f)));
 plot(g,LW,lw), axis(5*[-1 1 -1 1]), axis square
 title('sqrt(f(t)) in complex plane',FS,fs)</pre>
 
-<p><img src="../../images/complex/Arguments_05.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/complex/Arguments_05.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

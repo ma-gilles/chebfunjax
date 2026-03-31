@@ -16,29 +16,29 @@ f = smoothie;
 plot(f)
 ylim([-4 4])</pre>
 
-<p><img src="../../images/stats/Smoothies_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/Smoothies_01.png" class="figure chebfun-figure" alt=""></p>
 <p>To see the idea, we can look at the magnitudes of the Chebyshev coefficients:</p>
 <pre class="mcode-input">plotcoeffs(f,'color','k')</pre>
 
-<p><img src="../../images/stats/Smoothies_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/Smoothies_02.png" class="figure chebfun-figure" alt=""></p>
 <p>These are random numbers of amplitudes decreasing faster than the reciprocal of any polynomial, but slower than exponentially.  This is enough to guarantee that (with probability 1) $f$ is $C^\infty$ but nowhere analytic. To be a little more precise, the construction of a smoothie closely follows that of a smooth random function, implemented in the command <code>randnfun</code>.  To ensure that the statistical properties are translation-invariant rather than changing as $x$ approaches $\pm 1$, the function is actually constructed via a random Fourier rather than Chebyshev series (hence periodic) on a longer interval than $[-1,1]$, which is then restricted to $[-1,1]$. The Fourier coefficients decrease root-exponentially in amplitude, that is, at a rate $C^{-\sqrt n}$ with $C&gt;1$.</p>
 <p>To get a periodic smoothie, one can use the <code>'trig'</code> flag:</p>
 <pre class="mcode-input">ftrig = smoothie('trig');
 plot(ftrig), snapnow
 plotcoeffs(ftrig,'color','k')</pre>
 
-<p><img src="../../images/stats/Smoothies_03.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/stats/Smoothies_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/Smoothies_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/Smoothies_04.png" class="figure chebfun-figure" alt=""></p>
 <p>For all the details, take a look at the (quite simple) code <code>smoothie.m</code>. Another option is a complex smoothie,</p>
 <pre class="mcode-input">fcomplex = smoothie('complex');
 plot(fcomplex,'m'), ylim([-1.8 1.8]), axis equal</pre>
 
-<p><img src="../../images/stats/Smoothies_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/Smoothies_05.png" class="figure chebfun-figure" alt=""></p>
 <p>What do the Taylor series of these functions look like?  To give the idea, we plot the first and second derivatives of the original function $f$ at the beginning of this example:</p>
 <pre class="mcode-input">subplot(2,1,1), plot(diff(f)), ylim([-80 80])
 subplot(2,1,2), plot(diff(f,2)), ylim([-8000 8000])</pre>
 
-<p><img src="../../images/stats/Smoothies_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/Smoothies_06.png" class="figure chebfun-figure" alt=""></p>
 <p>These are smooth functions, but they are rapidly getting bigger in amplitude as well as having visible structure on smaller and smaller space scales.  At any point $x\in [-1,1]$, the Taylor series of $f$ will be well defined, but with coefficients growing too fast for a positive radius of convergence.</p>
 <p>Here are quite a few references.  For history, a good starting point is the paper by Bilodeau.</p>
 <p>[1] G. G. Bilodeau, The origin and early development of non-analytic infinitely differentiable functions, <em>Arch. Hist. Exact Sci.</em> 27 (1982), 115-135.</p>

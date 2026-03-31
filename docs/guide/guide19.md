@@ -30,7 +30,7 @@ u = spin(S, 256, 1e-6, 'plot', 'off');</pre>
 <p>The output <code>u</code> is a <code>chebfun</code> at the final time:</p>
 <pre class="mcode-input">plot(u)</pre>
 
-<p><img src="../images/guide/guide19_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide19_01.png" class="figure chebfun-figure" alt=""></p>
 <p><code>spin</code> makes these things happen with the aid of a class called a <code>spinop</code> (later we will also see <code>spinop2</code>, <code>spinop3</code> and <code>spinopsphere</code>). For example, to see the KdV operator we have just worked with, we can type:</p>
 <pre class="mcode-input">S = spinop('kdv')</pre>
 
@@ -50,19 +50,19 @@ u = spin(S, 256, 1e-6, 'plot', 'off');</pre>
 u = spin(S, 256, 1e-1, 'plot', 'off');
 figure, plot(u)</pre>
 
-<p><img src="../images/guide/guide19_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide19_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The computation we just performed was on the time interval $[0,500]$. If we had wanted the interval $[0,100]$, we could have specified it like this:</p>
 <pre class="mcode-input">S.tspan = [0 100];
 u = spin(S, 256, 1e-1, 'plot', 'off');
 figure, plot(u)</pre>
 
-<p><img src="../images/guide/guide19_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide19_03.png" class="figure chebfun-figure" alt=""></p>
 <p>To specify a different initial condition, we can change the field <code>S.init</code>. For example, here we use a simpler initial condition:</p>
 <pre class="mcode-input">S.init = chebfun(@(x) -1 + 4*exp(-19*(x-pi).^2), [0 2*pi], 'trig');
 u = spin(S, 256, 1e-1, 'plot', 'off');
 figure, plot(u)</pre>
 
-<p><img src="../images/guide/guide19_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide19_04.png" class="figure chebfun-figure" alt=""></p>
 <p>Suppose we want Chebfun output at times $0,1,\dots, 30$. We could do this:</p>
 <pre class="mcode-input">S.tspan = 0:1:30;
 U = spin(S, 256, 1e-1, 'plot', 'off');</pre>
@@ -77,11 +77,11 @@ U = spin(S, 256, 1e-1, 'plot', 'off');</pre>
 vertical scale =   3 
 </pre>
 
-<p><img src="../images/guide/guide19_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide19_05.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is a waterfall plot of all the curves:</p>
 <pre class="mcode-input">waterfall(U), xlabel x, ylabel t</pre>
 
-<p><img src="../images/guide/guide19_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide19_06.png" class="figure chebfun-figure" alt=""></p>
 <p>To see the complete list of preloaded 1D examples, type <code>help spin</code>.</p>
 <p>Of course, <code>spin</code> is not restricted to preloaded differential operators. Suppose we wanted to run a problem on the domain $d = [0,5]$, from $t=0$ to $t=10$, with initial condition $u_0(x) = \cos(x)$ and involving the linear operator $L:u\mapsto .3u''$ and the nonlinear operator $N:u\mapsto u^2-1$. We could do it like this:</p>
 <pre class="mcode-input">dom = [0 5]; tspan = [0 10];
@@ -103,10 +103,10 @@ for k = 1:4
     snapnow
 end</pre>
 
-<p><img src="../images/guide/guide19_07.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide19_08.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide19_09.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide19_10.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide19_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide19_08.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide19_09.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide19_10.png" class="figure chebfun-figure" alt=""></p>
 <p>In 3D, the demo <code>spin3('gl3')</code> solves the PDE on $[0,50]^3$ and produces a movie to time $t=100$.</p>
 <h3 id="194-computations-on-the-sphere-with-spinsphere">19.4 Computations on the sphere with <code>spinsphere</code></h3>
 <p>As we mentioned in the introduction, it is also possible to solve PDEs of the form (1) on the unit sphere with the <code>spinsphere</code> code [13], which is based on the <code>spherefun</code> technology (see Chapter 17) and implicit-explicit time-stepping schemes.</p>
@@ -116,7 +116,7 @@ end</pre>
 <pre class="mcode-input">S = spinopsphere('ac');
 figure, plot(S.init), axis off</pre>
 
-<p><img src="../images/guide/guide19_11.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide19_11.png" class="figure chebfun-figure" alt=""></p>
 <p>Here are the solutions at times $2,5,10$:</p>
 <pre class="mcode-input">S.tspan = [0 2 5 10];
 U = spinsphere(S, 128, 1e-1, 'plot', 'off');
@@ -125,9 +125,9 @@ for k = 2:4
     snapnow
 end</pre>
 
-<p><img src="../images/guide/guide19_12.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide19_13.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide19_14.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide19_12.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide19_13.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide19_14.png" class="figure chebfun-figure" alt=""></p>
 <p>Another preoladed example is the Ginzburg-Landau equation (2) with a much smaller diffusion $10^{-3}\Delta u$, up to $t=100$ and with a random initial condition (a <code>randnfunsphere</code>). Here are the solutions at times $0,10,20,30$:</p>
 <pre class="mcode-input">S = spinopsphere('gl');
 S.tspan = 0:10:30;
@@ -137,10 +137,10 @@ for k = 1:4
     snapnow
 end</pre>
 
-<p><img src="../images/guide/guide19_15.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide19_16.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide19_17.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide19_18.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide19_15.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide19_16.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide19_17.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide19_18.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="195-managing-preferences">19.5 Managing preferences</h3>
 <p>The <code>spin</code>/<code>spin2</code>/<code>spin3</code>/<code>spinsphere</code> codes use the classes <code>spinpref</code>, <code>spinpref2</code>, <code>spinpref3</code> and <code>spinprefsphere</code> to manage preferences, including the choice of the exponential integrator/implicit-explicit scheme for the time-stepping, the value of the time-step, the number of grid points and various other options. See the help texts of these files for the complete lists of preferences.</p>
 <p>For example, to solve the Kuramoto-Sivashinsky equation using the EXPRK5S8 scheme of Luan and Ostermann [9], one can type:</p>

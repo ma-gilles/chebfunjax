@@ -70,18 +70,18 @@ ylim([1e-10 1])
 xlabel('x',FS,fs)
 ylabel('error',FS,fs)</pre>
 
-<p><img src="../../images/approx3/FindingRankOne_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/FindingRankOne_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The figure shows the $x$-component $|\hat f_x(x)-f_x(x)|$ of the error in $\hat f$, which is apparently converging to 0. Here is a 3-D plot of the error.</p>
 <pre class="mcode-input">hold off
 plot(f-ftmp*scale)</pre>
 
-<p><img src="../../images/approx3/FindingRankOne_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/FindingRankOne_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The last plots suggest linear convergence of $\hat f$ to $f$ in the whole unit cube. Indeed, it is known [1] that under mild assumptions and with an initial guess close to an intersection point, alternating projections converges linearly to the intersection. For this example; the convergence of $|f-\hat f|$ is convincingly linear.</p>
 <pre class="mcode-input">semilogy(err,'-o',LW,lw)
 xlabel('iteration',FS,fs)
 ylabel('error $\|f-\hat f\|$',TEX,tex,FS,fs)</pre>
 
-<p><img src="../../images/approx3/FindingRankOne_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/FindingRankOne_03.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="3-references">3. References</h3>
 <p>[1] D. Drusvyatskiy, A. D. Ioffe, and A. D. Lewis, Transversality and alternating projections for nonconvex sets, <em>Found. Comput. Math.</em> 15 (2015), 1637-1651.</p>
 <p>[2] Y. Nakatsukasa, T. Soma, and A. Uschmajew, Finding a low-rank basis in a matrix subspace, <em>Mathematical Programming</em>, to appear.</p></div>

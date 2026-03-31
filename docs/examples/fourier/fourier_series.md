@@ -22,11 +22,11 @@ plot(f);</pre>
 vertical scale =   1 
 </pre>
 
-<p><img src="../../images/fourier/FourierBasedChebfuns_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/fourier/FourierBasedChebfuns_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Here $f$ is represented to machine precision using a Fourier interpolant rather than a Chebyshev interpolant. The displayed information for $f$ above shows that it is of length 61, meaning that $f$ is resolved to machine precision using 61 samples, or $(61-1)/2=30$ (complex) Fourier modes. These coefficients can be displayed graphically by</p>
 <pre class="mcode-input">plotcoeffs(f), ylim([1e-18 1])</pre>
 
-<p><img src="../../images/fourier/FourierBasedChebfuns_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/fourier/FourierBasedChebfuns_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Since $f$ is smooth and periodic, a Fourier representation requires fewer terms than a Chebyshev representation of $f$ to reach machine precision. We can check this by constructing $f$ without the <code>'trig'</code> flag:</p>
 <pre class="mcode-input">f_cheby = chebfun(@(x) cos(8*sin(x)),dom)</pre>
 
@@ -60,7 +60,7 @@ f =
 vertical scale =   1 
 </pre>
 
-<p><img src="../../images/fourier/FourierBasedChebfuns_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/fourier/FourierBasedChebfuns_03.png" class="figure chebfun-figure" alt=""></p>
 <p>The length of $f$ is 65536, which is the maximum number of samples used in the construction process to try to resolve $f$. The famous Gibbs phenomenon can be seen near the discontinuity in the plot of $f$. Chebfun can be used to represent this function in non-periodic mode (i.e. using Chebyshev series) with the option of <code>splitting on</code>:</p>
 <pre class="mcode-input">f = chebfun(@(x) 0.5*(1+sign(x)),dom,'splitting','on')</pre>
 
@@ -87,7 +87,7 @@ plot(f)</pre>
 vertical scale = 0.5 
 </pre>
 
-<p><img src="../../images/fourier/FourierBasedChebfuns_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/fourier/FourierBasedChebfuns_04.png" class="figure chebfun-figure" alt=""></p>
 <p>The max, min, and roots of $f$ can be computed by</p>
 <pre class="mcode-input">[maxf,xmaxf] = max(f);
 [minf,xminf] = min(f);
@@ -115,12 +115,12 @@ plot(xmaxf,maxf,'gs',xminf,minf,'md',rootsf,0*rootsf,'ro')
 legend('f','max f','min f','zeros f','location','southwest')
 hold off;</pre>
 
-<p><img src="../../images/fourier/FourierBasedChebfuns_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/fourier/FourierBasedChebfuns_05.png" class="figure chebfun-figure" alt=""></p>
 <p>The derivative of $f$ is computed using <code>diff</code>:</p>
 <pre class="mcode-input">df = diff(f);
 plot(df)</pre>
 
-<p><img src="../../images/fourier/FourierBasedChebfuns_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/fourier/FourierBasedChebfuns_06.png" class="figure chebfun-figure" alt=""></p>
 <p>and the definite integral is computed using <code>sum</code>:</p>
 <pre class="mcode-input">intf = sum(f)</pre>
 
@@ -140,7 +140,7 @@ plot(f), axis equal</pre>
 vertical scale =  17 
 </pre>
 
-<p><img src="../../images/fourier/FourierBasedChebfuns_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/fourier/FourierBasedChebfuns_07.png" class="figure chebfun-figure" alt=""></p>
 <p>The area enclosed by this curve can be computed as</p>
 <pre class="mcode-input">area_heart = abs(sum(real(f)*diff(imag(f))))</pre>
 
@@ -180,7 +180,7 @@ plot(f,'r'), plot(h,'k')
 legend('Mollifier g','Noisy function f','Smoothed function h');
 hold off;</pre>
 
-<p><img src="../../images/fourier/FourierBasedChebfuns_08.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/fourier/FourierBasedChebfuns_08.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>Mathworld Heart Curve: <a href="http://mathworld.wolfram.com/HeartCurve.html">http://mathworld.wolfram.com/HeartCurve.html</a></li>

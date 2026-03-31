@@ -54,7 +54,7 @@ P = OrthPoly(w,N);
 plot(P,LW,lw)
 title('Orthogonal polynomials on [-1,1] wrt w = exp(pi*x)',FS,12);</pre>
 
-<p><img src="../../images/approx/OrthPolys_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/OrthPolys_01.png" class="figure chebfun-figure" alt=""></p>
 <p>and confirm that they are orthogonal</p>
 <pre class="mcode-input">W = repmat(w,1,N+1);
 I = P'*(W.*P);
@@ -77,7 +77,7 @@ P_star = P*alpha;
 plot(f,'b',P_star,'--r',LW,lw)
 title('Least-squares approximation to |x| wrt w = exp(pi*x)',FS,12);</pre>
 
-<p><img src="../../images/approx/OrthPolys_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/OrthPolys_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Notice that the approximation is much closer for larger $x$, as $w(x) = \exp(\pi x)$ gives more weight to the error introduced there.</p>
 <pre class="mcode-input">end</pre></div>
         </div>

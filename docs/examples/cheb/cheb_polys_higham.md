@@ -23,7 +23,7 @@ xlabel('k',FS,fs), ylabel('x',FS,fs), set(gca,FS,fs)
 h = get(gca,'xlabel'); set(h,'position',get(h,'position')+[1.5 0.1 0])
 h = get(gca,'ylabel'); set(h,'position',get(h,'position')+[0 0.25 0])</pre>
 
-<p><img src="../../images/cheb/ChebPolysHigham_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/cheb/ChebPolysHigham_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Fornberg also includes the Legendre polynomials for comparison. This can be easily done in Chebfun by replacing <code>chebpoly</code> with <code>legpoly</code> above. Here is the result:</p>
 <pre class="mcode-input">clf;
 for j = 1:length(k)
@@ -37,7 +37,7 @@ xlabel('k',FS,fs), ylabel('x',FS,fs), set(gca,FS,fs)
 h = get(gca,'xlabel'); set(h,'position',get(h,'position')+[1.5 0.1 0])
 h = get(gca,'ylabel'); set(h,'position',get(h,'position')+[0 0.25 0])</pre>
 
-<p><img src="../../images/cheb/ChebPolysHigham_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/cheb/ChebPolysHigham_02.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>

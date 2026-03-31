@@ -22,7 +22,7 @@ LW = 'linewidth'; lw = 2.5; FS = 'fontsize';
 xlabel('t',FS,32), ylabel('u,v',FS,32)
 title('Two independent random walks',FS,32)</pre>
 
-<p><img src="../../images/ode-random/Consensus_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-random/Consensus_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Now let's change things by making the particles attract each other by a rule scaled with a constant $F=3$ when they are near to one another.</p>
 <pre class="mcode-input">F = 3;
 N.op = @(t,u,v) [diff(u) + f + F*(u-v).*exp(-(u-v).^2); ...
@@ -31,7 +31,7 @@ N.op = @(t,u,v) [diff(u) + f + F*(u-v).*exp(-(u-v).^2); ...
 xlabel('t',FS,32), ylabel('u,v',FS,32)
 title('Walks strongly attracted together',FS,32)</pre>
 
-<p><img src="../../images/ode-random/Consensus_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-random/Consensus_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Like Richard Burton and Elizabeth Taylor, the particles need not stay together forever; it's all a matter of the balance between attraction and random fluctuation.  Here's an example in which $F$ has been reduced from $3$ to $1$.</p>
 <pre class="mcode-input">F = 1.0;
 N.op = @(t,u,v) [diff(u) + f + F*(u-v).*exp(-(u-v).^2); ...
@@ -40,7 +40,7 @@ N.op = @(t,u,v) [diff(u) + f + F*(u-v).*exp(-(u-v).^2); ...
 xlabel('t',FS,32), ylabel('u,v',FS,32)
 title('Walks weakly attracted together',FS,32)</pre>
 
-<p><img src="../../images/ode-random/Consensus_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-random/Consensus_03.png" class="figure chebfun-figure" alt=""></p>
 <p>This model has connections with work by Eitan Tadmor and others on ``social hydrodynamics''.  See for example [1].</p>
 <p>[1] E. Tadmor, Mathematical aspects of self organized dynamics, <em>SIAM News</em>, November 2015.</p></div>
         </div>

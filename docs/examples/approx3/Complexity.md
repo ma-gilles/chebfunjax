@@ -27,7 +27,7 @@ axis([1e2 1e6 3e-3 1])
 text(1.1e4,.2,'$O(m)$',IN,LT,FS,14,CO,'b')
 title('1D: $t = O(m)$',IN,LT)</pre>
 
-<p><img src="../../images/approx3/Complexity_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/Complexity_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="2-timings-in-2d">2. Timings in 2D</h3>
 <p>Now let's do a similar experiment in 2D with the function $f(x,y) = \tanh(k(x+y)/\sqrt 2)$, chosen for the property that it cannot be effectively compressed to low rank. The dots below suggest the complexity is about $O(m^3)$.  With a pure tensor product approach, it would be closer to $O(m^2\log m)$, but of course, such an approach would fail to take advantage of the many cases where low-rank compression is effective.</p>
 <p>Note that the dots representing timings fall into pronounced groups.  This is because the time goes up markedly when Chebfun2 decides to advance from one grid to the next, twice as fine.</p>
@@ -42,7 +42,7 @@ hold on, loglog(mm,1e-7*mm.^3,'--b',LW,1), axis([1e1 1e3 2e-2 1e2])
 text(1.1e2,1.1,'$O(m^3)$',IN,LT,FS,14,CO,'b')
 title('2D: $t = O(m^3)$ ?',IN,LT)</pre>
 
-<p><img src="../../images/approx3/Complexity_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/Complexity_02.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="3-timings-in-3d">3. Timings in 3D</h3>
 <p>And now we do the same in 3D with $f(x,y,z) = \tanh(k(x+y+z)/\sqrt 3)$, which is again a function that cannot be compressed to low rank. Empirically, in this range, the complexity looks about like $O(m^4)$.</p>
 <pre class="mcode-input">kk = 2.^(0:.3333:3.4); tt = []; mm = [];
@@ -57,7 +57,7 @@ text(30,2,'$O(m^4)$',IN,LT,FS,14,CO,'b')
 title('3D: $t = O(m^4)$ ?',IN,LT)
 set(gca,'xtick',[25 50 100])</pre>
 
-<p><img src="../../images/approx3/Complexity_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/Complexity_03.png" class="figure chebfun-figure" alt=""></p>
 <p>A pure tensor product approach should be $O(m^3 \log m)$. We can use Chebfun3t to check this, superimposing new dots in red on the same plot.  Perhaps the complexity prediction is confirmed, but a more useful statement in practice for this feasible range of parameters may simply be that Chebfun3t is about ten times faster than Chebfun3.  Again, this ratio would be reversed for the many functions that can be effectively compressed to low rank.</p>
 <pre class="mcode-input">kk = 2.^(0:.3333:3.4); tt = []; mm = [];
 for k = kk
@@ -69,7 +69,7 @@ xlabel('length $m$',IN,LT), ylabel('time',IN,LT)
 hold on, loglog(mm,4e-6*mm.^3,'--r',LW,1)
 text(1.2e2,4.4,'$O(m^3)$',IN,LT,FS,14,CO,'r')</pre>
 
-<p><img src="../../images/approx3/Complexity_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/Complexity_04.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="4-a-reminder-of-better-behaved-functions">4. A reminder of better-behaved functions</h3>
 <p>These experiments have involved difficult functions for which low-rank compression is ineffective.  Luckily, many functions are better behaved.  As a reminder of such cases, we now rerun the last experiment except with the $\tanh$ function replaced by a Runge function. Again, the tensor product approach of Chebfun3t has complexity approximately $O(m^3)$, but now the low-rank methods of Chebfun3 do much better, more like $O(m^2)$.</p>
 <pre class="mcode-input">kk = 2.^(0:.3333:6); tt = []; mm = [];
@@ -94,7 +94,7 @@ hold on, loglog(mm,3e-6*mm.^3,'--r',LW,1)
 text(1.2e2,4.4,'$O(m^3)$',IN,LT,FS,14,CO,'r')
 set(gca,'xtick',[50 100 200])</pre>
 
-<p><img src="../../images/approx3/Complexity_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/Complexity_05.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <p>[1] L. N. Trefethen, Cubature, approximation, and isotropy in the hypercube, <em>SIAM Review</em>, submitted, 2016; also available at arXiv.</p></div>
         </div>

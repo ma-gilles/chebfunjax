@@ -32,7 +32,7 @@ plot(0:length(pc)-1,abs(pc-fc(1:length(pc)))+eps,'.r',LW,lw,MS,ms)
 h_legend = legend('f','p','f-p');
 set(h_legend,FS,fs)</pre>
 
-<p><img src="../../images/approx/AliasingCoefficientsLeg_01.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/AliasingCoefficientsLeg_01.png" class="figure chebfun-figure" alt=""/></p>
 <p>The green and blue dots show the absolute values of the Legendre coefficients for $f$ and the interpolant $p$. We focus on the red dots, showing the error in Legendre coefficients. We see that just as in the previous example (Chebyshev coefficients via Chebyshev interpolation), the error in Legendre coefficients grows geometrically with the degree. However, the exceptional accuracy in the last coefficient is now lost, and $\hat d_n$ has one of the worst absolute errors among the $\hat d_i$.</p>
 <p>Now let's repeat the computation with a non-analytic function.</p>
 <pre class="mcode-input">fori = @(x)abs((x-0.5).^3); % twice differentiable but not analytic
@@ -52,7 +52,7 @@ plot(0:k-1,abs(pc(1:k)-fc(1:k))+eps,'.r',LW,lw,MS,ms),hold on
 h_legend = legend('f','p','f-p');
 set(h_legend,FS,fs),shg</pre>
 
-<p><img src="../../images/approx/AliasingCoefficientsLeg_02.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/AliasingCoefficientsLeg_02.png" class="figure chebfun-figure" alt=""/></p>
 <p>While qualitatively the same observation holds, note that the red plots do not resemble a mirrored version of the green, as was in the Chebyshev case.</p>
 <h3 id="2-two-dimensions">2. Two dimensions</h3>
 <p>As before, let's try an analogous experiment in Chebfun2. To obtain an accurate bivariate Legendre expansion we form a chebfun2 and convert its Chebyshev coefficients into Legendre coefficients by applying cheb2leg from both sides (left and right). To obtain a bivariate polynomial interpolant at the Legendre grid, we convert from values at Legendre grid points to bivariate Legendre coefficients, again using the legvals2legcoeffs command.</p>

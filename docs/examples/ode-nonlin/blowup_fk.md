@@ -26,7 +26,7 @@ end
 axis([-1 1 0 1.2])
 title('Frank-Kamenetskii blowup equation',FS,14)</pre>
 
-<p><img src="../../images/ode-nonlin/BlowupFK_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/BlowupFK_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>H. Fujita, On the nonlinear equations $\Delta u + \exp(u) = 0$ and $dv/dt    = \Delta v + \exp(v)$, <em>Bulletin of the American Mathematical Society</em>,    75 (1969), 132-135.</li>

@@ -18,13 +18,13 @@
 <pre class="mcode-input">v = ballfunv(@(x,y,z)cos(x.*y).*z,@(x,y,z)sin(x.*z),@(x,y,z)y.*z);
 quiver( v )</pre>
 
-<p><img src="../../images/sphere/HelmholtzDecompositionBall_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/HelmholtzDecompositionBall_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="computing-the-curl-free-component">Computing the curl-free component</h3>
 <p>Since the divergence of a curl is zero and $\phi$ is harmonic, we know that the divergence of $\mathbf{v}$ is the Laplacian of $f$, i.e., $$ \nabla \cdot \mathbf{v} = \nabla \cdot \nabla f = \nabla^2 f, $$ where the last equality holds because the divergence of the gradient is the Laplacian. Along with this, the zero Dirichlet conditions defines $f$.</p>
 <pre class="mcode-input">f = poisson(div(v), @(lam,th)0, 50);
 quiver( grad( f ) ), title('curl-free component of v')</pre>
 
-<p><img src="../../images/sphere/HelmholtzDecompositionBall_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/HelmholtzDecompositionBall_02.png" class="figure chebfun-figure" alt=""></p>
 <p>We confirm that this component is curl-free:</p>
 <pre class="mcode-input">norm( curl( grad( f ) ) )</pre>
 
@@ -39,7 +39,7 @@ bc = dot(spherefunv.unormal,v1(1,:,:,'spherical'));
 phi = helmholtz(ballfun(0), 0, bc, 50, 'neumann');
 quiver( grad( phi ) ), title('harmonic component of v')</pre>
 
-<p><img src="../../images/sphere/HelmholtzDecompositionBall_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/HelmholtzDecompositionBall_03.png" class="figure chebfun-figure" alt=""></p>
 <p>We check the harmonicity of this component:</p>
 <pre class="mcode-input">norm( laplacian( grad( phi ) ) )</pre>
 
@@ -58,7 +58,7 @@ Tpsi = Pv;</pre>
 <pre class="mcode-input">psi = ballfunv.PT2ballfunv(Ppsi,Tpsi);
 quiver( curl( psi ) ), title('divergence-free component of v')</pre>
 
-<p><img src="../../images/sphere/HelmholtzDecompositionBall_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/HelmholtzDecompositionBall_04.png" class="figure chebfun-figure" alt=""></p>
 <p>By vector identities this component is divergence-free:</p>
 <pre class="mcode-input">norm( div( curl( psi ) ) )</pre>
 
@@ -77,7 +77,7 @@ quiver( curl(psi) ,'numpts',20), title('divergence-free')
 subplot(2,2,4)
 quiver( grad(phi) ,'numpts',20), title('harmonic')</pre>
 
-<p><img src="../../images/sphere/HelmholtzDecompositionBall_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/HelmholtzDecompositionBall_05.png" class="figure chebfun-figure" alt=""></p>
 <p>As a sanity check we confirm that the decomposition has been successful:</p>
 <pre class="mcode-input">w = grad( f ) + curl( psi ) + grad( phi );
 norm( v - w )</pre>

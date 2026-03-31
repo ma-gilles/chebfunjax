@@ -26,12 +26,12 @@ title('Spike function','FontSize',14)</pre>
 vertical scale = 1.1 
 </pre>
 
-<p><img src="../../images/quad/SpikeIntegral_01.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/quad/SpikeIntegral_01.png" class="figure chebfun-figure" alt=""/></p>
 <p>Here is a confirmation that even the narrowest spike is well resolved:</p>
 <pre class="mcode-input">semilogy(ff,'b','interval',[.795,.805],LW,1.6), grid on
 title('Zoom, on semilogy axes','FontSize',14)</pre>
 
-<p><img src="../../images/quad/SpikeIntegral_02.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/quad/SpikeIntegral_02.png" class="figure chebfun-figure" alt=""/></p>
 <p>Now we compute the integral.  In order to estimate the time for this computation, we create the chebfun again without plotting it.</p>
 <pre class="mcode-input">tic
 ff = chebfun(f,[0 1]);
@@ -60,7 +60,7 @@ title('Unresolved spike function with splitting on','FontSize',14)</pre>
 vertical scale = 1.1    Total length = 392
 </pre>
 
-<p><img src="../../images/quad/SpikeIntegral_03.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/quad/SpikeIntegral_03.png" class="figure chebfun-figure" alt=""/></p>
 <p>We can fix the problem by forcing Chebfun to sample at more points.  Note that the total number of parameters is 25 times less than with the global representation.</p>
 <pre class="mcode-input">ff = chebfun(f,[0 1],'splitting','on','minSamples',100)
 plot(ff,'b',LW,1.6), grid on
@@ -82,7 +82,7 @@ title('Resolved spike function with splitting on','FontSize',14)</pre>
 vertical scale = 1.1    Total length = 583
 </pre>
 
-<p><img src="../../images/quad/SpikeIntegral_04.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/quad/SpikeIntegral_04.png" class="figure chebfun-figure" alt=""/></p>
 <p>If speed is all you care about, though, nothing has been gained over the first, global approach.  We compute the chebfun again and see that the integral is the same to full precision but the timing is worse:</p>
 <pre class="mcode-input">tic
 ff = chebfun(f,[0 1],'splitting','on','minSamples',100);

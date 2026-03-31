@@ -109,7 +109,7 @@ The V4 behaviour can be reproduced using the JOIN() method.
     end
 end</pre>
 
-<p><img src="../../images/ode-linear/Floquet_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/Floquet_01.png" class="figure chebfun-figure" alt=""></p>
 <p>With the matrix $B$ and the periodic matrix $P(t)$, we can construct the solution with any initial conditions for as long as we want!</p>
 <pre class="mcode-input">t = chebfun('t',10*d);
 expmB = [zeros(1,0) exp(t*D(1,1)) zeros(1,n-1)];
@@ -147,7 +147,7 @@ xlabel('t'), ylabel('x(t) and y(t)')
 title('Solution of the system of coupled oscillators with periodic parametric excitation')
 legend('x(t)', 'x''(t)', 'y(t)', 'y''(t)')</pre>
 
-<p><img src="../../images/ode-linear/Floquet_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/Floquet_02.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>

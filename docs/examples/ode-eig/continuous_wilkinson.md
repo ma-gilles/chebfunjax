@@ -40,14 +40,14 @@ e = diag(D)</pre>
 <pre class="mcode-input">plot(V(:,3:4)), grid on, shg
 title('Even and odd eigenfunctions, nearly degenerate')</pre>
 
-<p><img src="../../images/ode-eig/ContinuousWilkinson_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/ContinuousWilkinson_01.png" class="figure chebfun-figure" alt=""></p>
 <p>For both our matrix and our differential operator problems, mathematically one eigenmode is even and the next is odd.  However, the real effect going on here is that the two ends of the domain are virtually decoupled.  By taking the sum and the difference of of the two eigenmodes, one gets a true even-odd pair:</p>
 <pre class="mcode-input">right = V(:,4) + V(:,3);
 left = V(:,4) - V(:,3);
 plot([left right])
 title('Left and right pseudo-eigenfunctions, localized')</pre>
 
-<p><img src="../../images/ode-eig/ContinuousWilkinson_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/ContinuousWilkinson_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Let's confirm that these are pseudo-eigenfunctions.  First we confirm that the eigenfunctions are eigenfunctions:</p>
 <pre class="mcode-input">v = V(:,4); lambda = e(4); format short
 norm( L*v - lambda*v )</pre>

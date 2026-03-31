@@ -20,7 +20,7 @@ plot([-1 1],-err*[1 1],'--k',LW,1)
 ylim([-.03 .03])
 title('Degree 16 polynomial error curve',FS,fs)</pre>
 
-<p><img src="../../images/approx/BestApprox_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/BestApprox_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="2-rational-minimax-approximation">2. Rational minimax approximation</h3>
 <p>Chebfun can compute rational approximations too. For example, here is the error curve for type $(8,8)$ best rational approximation of the same function <code>f</code>; we choose $(8,8)$ so that the number of degrees of freedom is the same as before.  Note that the error is much smaller.  Again there are 22 points of equioscillation, but this time, they are more closely clustered near the singularity.</p>
 <pre class="mcode-input">[p,q,rh,err] = remez(f,8,8);
@@ -30,7 +30,7 @@ plot([-1 1],-err*[1 1],'--k',LW,1)
 ylim([-.003 .003])
 title('Type (8,8) rational error curve',FS,fs)</pre>
 
-<p><img src="../../images/approx/BestApprox_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/BestApprox_02.png" class="figure chebfun-figure" alt=""></p>
 <p>For an introduction to the theory of these approximations, see Chapters 10 and 24 of [3].</p>
 <h3 id="3-function-handles-vs-quotients-of-polynomials">3. Function handles vs. quotients of polynomials</h3>
 <p>In the example just shown we used <code>p/q</code> to compute the rational function $r$.  Mathematically this is correct, but computationally it quickly fails with more difficult problems.  In such cases it is necessary to use the third argument returned by <code>remez</code>, <code>rh</code>, a function handle connected with a barycentric representation.  For example, here we carry the same approximation to type $(16,16)$.</p>
@@ -46,7 +46,7 @@ axis([-1 1 -4e-5 4e-5])</pre>
 Trying AAA-Lawson-based initialization...
 </pre>
 
-<p><img src="../../images/approx/BestApprox_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/BestApprox_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Here we zoom by a factor of 20 near the singularity.</p>
 <pre class="mcode-input">a = .45; b = .55; xx = linspace(a,b,3000);
 hold off, plot(xx,f(xx)-rh(xx),LW,1.6), hold on
@@ -55,7 +55,7 @@ plot([a b],-err*[1 1],'--k',LW,1)
 title('Zoom near singularity',FS,fs)
 axis([a b -4e-5 4e-5])</pre>
 
-<p><img src="../../images/approx/BestApprox_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/BestApprox_04.png" class="figure chebfun-figure" alt=""></p>
 <p>Here we zoom by another factor of 20.  There are 34 extreme points all together.</p>
 <pre class="mcode-input">a = .4975; b = .5025; xx = linspace(a,b,3000);
 hold off, plot(xx,f(xx)-rh(xx),LW,1.6), hold on
@@ -64,7 +64,7 @@ plot([a b],-err*[1 1],'--k',LW,1)
 title('Closer zoom',FS,fs)
 axis([a b -4e-5 4e-5])</pre>
 
-<p><img src="../../images/approx/BestApprox_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/BestApprox_05.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="4-references">4. References</h3>
 <ol>
 <li>

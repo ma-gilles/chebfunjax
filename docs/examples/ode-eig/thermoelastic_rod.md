@@ -55,7 +55,7 @@ subplot(1,2,2)
 plot(Vu(:,4),LW,1.6)
 title(sprintf('Unstable, \\lambda = %.3f',Lu(4,4)))</pre>
 
-<p><img src="../../images/ode-eig/ThermoelasticRod_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/ThermoelasticRod_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The solutions above look linear, but they do have significant Chebyshev coefficients out to degree 8.</p>
 <p>Without knowing the transition value $\delta=1$ in advance, we could locate it through a simple Chebfun rootfinding search. First, we parameterize the boundary conditions and the maximum real eigenvalue.</p>
 <pre class="mcode-input">BC = @(delta) @(x,u) [u(0); feval(diff(u),1) + u(1) - 4*delta*sum(u)];
@@ -80,7 +80,7 @@ xlabel('\delta'), ylabel('max \lambda'), grid on</pre>
    1.000000000023135
 </pre>
 
-<p><img src="../../images/ode-eig/ThermoelasticRod_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/ThermoelasticRod_02.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>

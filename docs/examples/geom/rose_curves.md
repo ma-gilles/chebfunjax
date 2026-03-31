@@ -43,7 +43,7 @@ for m = 1:N
 end
 axis equal tight off</pre>
 
-<p><img src="../../images/geom/RoseCurves_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/geom/RoseCurves_01.png" class="figure chebfun-figure" alt=""></p>
 <p>And here is a more ambitious image of the same kind, where the patterns along diagonals become clear.</p>
 <pre class="mcode-input">tic
 clf, hold on
@@ -58,7 +58,7 @@ end
 axis equal tight off
 time = toc;</pre>
 
-<p><img src="../../images/geom/RoseCurves_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/geom/RoseCurves_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The above image did not take long to produce:</p>
 <pre class="mcode-input">time</pre>
 

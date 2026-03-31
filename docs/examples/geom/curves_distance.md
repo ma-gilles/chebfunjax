@@ -15,13 +15,13 @@ f = 1i*t + .2*randnfun(.5) - 1;
 g = 1i*t + .2*randnfun(.5) + 1;
 plot([f g],'linewidth',2), axis equal, grid on</pre>
 
-<p><img src="../../images/geom/Curves_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/geom/Curves_01.png" class="figure chebfun-figure" alt=""></p>
 <p>and we want to know the closest distance between them. (This is a great simplification of a problem John Maddocks brought up at lunch today.)  I am sure there is a lot known about how to compute this.</p>
 <p>One approach is to simply make a chebfun2 $d(x,y)$ representing the distance between $f(x)$ and $g(y)\dots$</p>
 <pre class="mcode-input">d = chebfun2(@(x,y) abs(f(x)-g(y)));
 contour(d,LW,1), axis equal, colorbar, xlabel x, ylabel y</pre>
 
-<p><img src="../../images/geom/Curves_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/geom/Curves_02.png" class="figure chebfun-figure" alt=""></p>
 <p>$\dots$ and find the global minimum:</p>
 <pre class="mcode-input">[mindist,pos] = min2(d); x = f(pos(1)); y = g(pos(2));
 plot([f g],'linewidth',2), axis equal, grid on
@@ -31,7 +31,7 @@ title(['minimum distance: ' num2str(mindist)]), toc</pre>
 <pre class="mcode-output">Elapsed time is 2.990995 seconds.
 </pre>
 
-<p><img src="../../images/geom/Curves_03.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/geom/Curves_03.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

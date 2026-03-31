@@ -34,7 +34,7 @@ err = norm(y-exact,inf);</pre>
 plot(y,'.-',LW,1,MS,18), grid on
 title(sprintf('xy'' = y^2-2y+1     Error = %6.2e',err),FS,14)</pre>
 
-<p><img src="../../images/ode-nonlin/ExactSolns_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/ExactSolns_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="example-2-separation-of-variables-ii">Example 2: Separation of variables (II)</h3>
 <p>As another example, consider</p>
 <p>$$  y' = \sin(y),\qquad   y(1) = {\pi\over 2}. $$</p>
@@ -57,7 +57,7 @@ err = norm(y-exact,inf);</pre>
 <pre class="mcode-input">plot(y,'.-',LW,1,MS,18), grid on
 title(sprintf('y'' = sin(y)     Error = %6.2e',err),FS,14)</pre>
 
-<p><img src="../../images/ode-nonlin/ExactSolns_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/ExactSolns_02.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="example-3-order-reduction-for-an-autonomous-equation">Example 3: Order reduction for an autonomous equation</h3>
 <p>Consider the autonomous problem</p>
 <p>$$ yy' = 2(y')^2,\qquad   y(1) = 1,~~ y(2) = 2, $$</p>
@@ -80,7 +80,7 @@ err = norm(y-exact,inf);</pre>
 <pre class="mcode-input">plot(y,'.-',LW,1,MS,18), grid on
 title(sprintf('yy'''' = 2(y'')^2     Error = %6.2e',err),FS,14)</pre>
 
-<p><img src="../../images/ode-nonlin/ExactSolns_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/ExactSolns_03.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="example-4-bernoulli-equation">Example 4: Bernoulli equation</h3>
 <p>An equation of the form $y' = a(x)y +b(x)y^p$, known as a <em>Bernoulli equation</em>, can be made linear by the change of variables $u=y^{1-p}$.  Consider for example the problem</p>
 <p>$$  y' = {y\over x} + {x \over y}, \qquad  y(1) = 1. $$</p>
@@ -106,7 +106,7 @@ err = norm(y-exact,inf);</pre>
 <pre class="mcode-input">plot(y,'.-',LW,1,MS,18), grid on
 title(sprintf('y'' = y/x + x/y     Error = %6.2e',err),FS,14)</pre>
 
-<p><img src="../../images/ode-nonlin/ExactSolns_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/ExactSolns_04.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>C. Bender and S. A. Orszag, <em>Advanced Mathematical Methods for Scientists    and Engineers</em>, McGraw-Hill, 1978.</li>

@@ -14,7 +14,7 @@
 f = chebfun2(@(z) sin(z),d);
 plot(f), title('Phase portrait for sin(z)',FS,fs);</pre>
 
-<p><img src="../../images/complex/PhasePortraits_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/complex/PhasePortraits_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="one-complex-variable-two-real-variables">One complex variable, two real variables</h3>
 <p>A complex valued function $f(z)$ of one complex variable can be thought of as a complex valued function of two variables. This is what is going on in the example above.</p>
 <h3 id="uniqueness">Uniqueness</h3>
@@ -24,16 +24,16 @@ plot(f), title('Phase portrait for sin(z)',FS,fs);</pre>
 <pre class="mcode-input">f = chebfun2(@(z) cos(z.^2), d);
 plot(f), title('cos(z^2)',FS,fs)</pre>
 
-<p><img src="../../images/complex/PhasePortraits_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/complex/PhasePortraits_02.png" class="figure chebfun-figure" alt=""></p>
 <pre class="mcode-input">g = chebfun2(@(z) sum(z.^(0:9)),d./2,'vectorise');
 plot(g), title('Nearly the ten roots of unity',FS,fs)</pre>
 
-<p><img src="../../images/complex/PhasePortraits_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/complex/PhasePortraits_03.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="and-one-more-just-for-fun">And one more... just for fun</h3>
 <pre class="mcode-input">f = chebfun2(@(z) sin(z)-sinh(z),2*d);
 plot(f), title('Phase portrait plot for sin(z)-sinh(z)',FS,fs)</pre>
 
-<p><img src="../../images/complex/PhasePortraits_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/complex/PhasePortraits_04.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="poles-and-other-singularities">Poles and other singularities</h3>
 <p>As illustrated copiously in [1], the power of phase portraits is most fully realised when they are applied to functions with poles or other singularities. Unfortunately, at present Chebfun2 cannot represent such functions. See, however, the Chebfun example "Phase portraits for functions with poles".</p>
 <h3 id="references">References</h3>

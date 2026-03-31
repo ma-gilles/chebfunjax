@@ -46,7 +46,7 @@ Final error estimate: 3.57e-15 (differential equation)
 
 </pre>
 
-<p><img src="../../images/ode-nonlin/Carrier_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/Carrier_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The solution has been obtained to high accuracy:</p>
 <pre class="mcode-input">accuracy = norm(N(u)-1)</pre>
 
@@ -68,7 +68,7 @@ accuracy = norm(N(u)-1)</pre>
      3.126829037542067e-10
 </pre>
 
-<p><img src="../../images/ode-nonlin/Carrier_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/Carrier_02.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="2-alternative-boundary-conditions">2. Alternative boundary conditions</h3>
 <p>If we want to change the boundary-value problem above to impose different boundary conditions, we can reuse the chebop created and only change the relevant fields. For example, suppose we want to solve the same equation with the new boundary conditions</p>
 <p>$$ u(-1) = 1,~~  u'(1) + u(1) = 0. $$</p>
@@ -86,7 +86,7 @@ accuracy = norm(N(u)-1)</pre>
      3.111051709972451e-10
 </pre>
 
-<p><img src="../../images/ode-nonlin/Carrier_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/Carrier_03.png" class="figure chebfun-figure" alt=""></p>
 <p>This example can also be found among the scalar boundary-value problem demos in Chebgui.</p>
 <h3 id="references">References</h3>
 <ol>

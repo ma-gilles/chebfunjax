@@ -42,21 +42,21 @@ for j = 1:r1
 end
 title('columns'), axis tight, box on, view([-26 44]), hold off</pre>
 
-<p><img src="../../images/approx3/Wagon_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/Wagon_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is a plot of its three rows:</p>
 <pre class="mcode-input">for j = 1:r2
     plot3(j*one,x,f.rows(:,j),'linewidth',1.6), hold on
 end
 title('rows'), box on, view([-39 43]), hold off</pre>
 
-<p><img src="../../images/approx3/Wagon_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/Wagon_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The five tubes of the function look like the following.</p>
 <pre class="mcode-input">for j = 1:r3
     plot3(j*one,x,f.tubes(:,j),'linewidth',1.6), hold on
 end
 title('tubes'), axis tight, box on, view([-40 68])</pre>
 
-<p><img src="../../images/approx3/Wagon_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/Wagon_03.png" class="figure chebfun-figure" alt=""></p>
 <p>The last one is not actually close to a constant in a relative sense. Here are its values at $z=-1$ and $z = -0.2$.</p>
 <pre class="mcode-input">format short, f.tubes(-1, end), f.tubes(-0.2, end),</pre>
 
@@ -69,7 +69,7 @@ ans =
 <p>We should make two comments about these images. The first concerns the difference between the <em>ranks</em> of a multivariate function, which in this case are very small (just $4, 3, 5$), and the complexities of its univariate pieces, which in this case are <em>not</em> so small. The columns, rows, and tubes we have displayed require Chebyshev series of considerable length to be represented. For example, here are the absolute values of the coefficients of the the Chebyshev series for the first of the tubes:</p>
 <pre class="mcode-input">clf, plotcoeffs(f.tubes(:,1))</pre>
 
-<p><img src="../../images/approx3/Wagon_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/Wagon_04.png" class="figure chebfun-figure" alt=""></p>
 <p>What's going on here is that Wagon's function is of low rank for algebraic reasons, not because it is in every sense very simple. And this brings us to our second comment. If you draw plots like those we have shown here for an arbitrary function, you may find that they look very different and not very interesting -- most of the curves will seem to be zero. That's because for most functions, the mathematical rank is infinite and it's only the numerical rank which is finite. In such cases there will be a decaying series of "pivots" involved in the Chebfun3 representation.  If you plot the associated columns/rows/tubes as we have done, you will find they are on all different scales going down to 1e-15. To get interesting plots you will have to rescale the curves individually.</p>
 <h3 id="references">References</h3>
 <ol>

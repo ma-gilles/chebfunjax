@@ -25,18 +25,18 @@ N.lbc = @(u,v,w) [u-0.5; v-0.49; w-0.49];
 plot(v)
 ylim([-0.5 1.5])</pre>
 
-<p><img src="../../images/ode-nonlin/GuckenheimerHolmes_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/GuckenheimerHolmes_01.png" class="figure chebfun-figure" alt=""></p>
 <p>On a 3D plot, we can see how the orbit swings from one corner in the $u,v,w$ octant to the next to the next.  Most of the time is spent near the corners, where the velocity is low. The orbit is approaching a <em>heteroclinic limit cycle</em> between the three fixed points $(1,0,0)$, $(0,1,0)$ and $(0,0,1)$.</p>
 <pre class="mcode-input">clf, plot3(u,v,w,'k'), view(10,10), axis equal, grid on
 xlabel u, ylabel v, zlabel w</pre>
 
-<p><img src="../../images/ode-nonlin/GuckenheimerHolmes_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/GuckenheimerHolmes_02.png" class="figure chebfun-figure" alt=""></p>
 <p>These equations come from [3], where a plot is given on p. 201. (The caption there reports initial conditions $v=w=0.499$, but this is a misprint; we thank Phil Holmes for confirming this by email 23 Feb. 2015.) The discussion in [3] is adapted from the paper [2] by Guckenheimer and Holmes, which in turn gives credit to a related discussion by Busse and Heikes [1] in the context of Rayleigh-Benard convection.</p>
 <p>Let's compute a longer orbit, to $t=2000$:</p>
 <pre class="mcode-input">clf, N.domain = [0 2000];
 [u,v,w] = N\0; plot(v), ylim([-0.5 1.5])</pre>
 
-<p><img src="../../images/ode-nonlin/GuckenheimerHolmes_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/GuckenheimerHolmes_03.png" class="figure chebfun-figure" alt=""></p>
 <p>The intervals are getting exponentially longer as the orbit winds in towards the limit cycle.  To quantify this, we can compute three vectors of crossing times at which $u$, $v$, and $w$ pass through the value $0.5$ with positive derivative:</p>
 <pre class="mcode-input">tu = roots(u-0.5); up = diff(u); tu = tu(up(tu)&gt;0); nu = length(tu);
 tv = roots(v-0.5); vp = diff(v); tv = tv(vp(tv)&gt;0); nv = length(tv);
@@ -51,7 +51,7 @@ xlabel('crossing number'), ylabel('time')
 title ('Crossing times'), grid on, axis([5 28 6 600])
 legend('u','v','w','location','southeast')</pre>
 
-<p><img src="../../images/ode-nonlin/GuckenheimerHolmes_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/GuckenheimerHolmes_04.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>

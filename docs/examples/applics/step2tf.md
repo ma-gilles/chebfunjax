@@ -52,7 +52,7 @@ resG =
   0.999999999999997 - 0.000000000000006i
 </pre>
 
-<p><img src="../../images/applics/Step2tf_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/applics/Step2tf_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Laplace becomes Fourier along the imaginary axis: $$ {{L}}{g(t)}(s=j\omega) = {{F}}{g(t)}(\omega). $$ We extract the single-sided spectrum from the FFT and AAA-approximate it. We don't even need to restrict the maximum degree, notwithstanding the low coefficient number. All poles are caught nicely, and the AAA-LS procedure [1] can be applied to identify our approximation $H(s)$.</p>
 <pre class="mcode-input">Y = fft(g(t)).';
 hY = Y(1:L/2+1)/L;
@@ -105,8 +105,8 @@ err =
      1.983202491148154e-11
 </pre>
 
-<p><img src="../../images/applics/Step2tf_02.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/applics/Step2tf_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/applics/Step2tf_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/applics/Step2tf_03.png" class="figure chebfun-figure" alt=""></p>
 <p>The reconstruction works effectively also in the presence of noisy or missing data. Consider the scalar example with noise found in [2], an LTI system with the following step response in the time domain: $$ {\mathcal{L}}^{-1} \left( \frac{1}{s}\frac{s-1}{s^2+s+2} \right) = \frac{e^{-t/2}\left(5\sin(\sqrt7t/2)+\sqrt7\cos(\sqrt7t/2)\right)}{2\sqrt7}-\frac{1}{2}. $$ The original system poles are a complex conjugate pair:</p>
 <pre class="mcode-input">poles = roots([1 1 2])</pre>
 
@@ -129,7 +129,7 @@ title(sprintf('Signal with noise and missing samples'))
 legend('corrupted data','original signal',LO,NE)
 xlabel('time [s]'), ylabel('amplitude')</pre>
 
-<p><img src="../../images/applics/Step2tf_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/applics/Step2tf_04.png" class="figure chebfun-figure" alt=""></p>
 <p>Here we face two issues. Applying the FFT directly is out of the question, since samples are missing, so we could think of AAA-approximating the noisy data on a regular grid, and exploiting the filtering effect of Lawson iteration at the same time. However, it is difficult to guess a sensible maximum degree, and keep timings reasonable. Here another powerful tool comes to the rescue: Vandermonde with Arnoldi [3] can do away with noise decently in very little time.</p>
 <pre class="mcode-input">[Hes,R] = VAorthog(tt(:),30);
 y = VAeval(t(:),Hes)*(R\data(:));
@@ -180,7 +180,7 @@ For this example:
 Elapsed time is 3.025857 seconds.
 </pre>
 
-<p><img src="../../images/applics/Step2tf_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/applics/Step2tf_05.png" class="figure chebfun-figure" alt=""></p>
 <p>[1] S. Costa and L. N. Trefethen, AAA-least squares rational approximation and solution of Laplace problems, <em>Proceedings of the 8ECM</em>, 2021.</p>
 <p>[2] I. V. Gosea and S. Güttel, Algorithms for the rational approximation of matrix-valued functions, <em>SIAM J. Sci. Comput.</em>, 43 (2021).</p>
 <p>[3] P. D. Brubeck, Y. Nakatsukasa, and L. N. Trefethen, Vandermonde with Arnoldi, <em>SIAM Rev.</em>, 63 (2021).</p></div>

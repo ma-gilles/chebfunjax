@@ -42,7 +42,7 @@ norm(X)</pre>
 hold on, plot3(X(1),X(2),X(3),'.r','markersize',25), hold off
 view(-10,35), axis equal, axis off</pre>
 
-<p><img src="../../images/sphere/Gravity_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/Gravity_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="2-inverse-square-force">2. Inverse-square force</h3>
 <p>A great discovery of Newton (or was it Hooke?) is that the gravitational forces associated with a sphere of uniform mass distribution are the same as if all the mass were concentrated at the center. Accordingly, we know that if a unit mass is spread around the sphere and the spacecraft also has unit mass, then the inverse-square attraction between them should be $(1.5)^{-2}$:</p>
 <pre class="mcode-input">force_exact = 1/1.5^2</pre>

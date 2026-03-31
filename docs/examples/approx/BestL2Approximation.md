@@ -49,7 +49,7 @@ pn = P*cleg;                            % form chebfun of best L^2 approximation
 plot(f,LW,lw), hold on, plot(pn,'r',LW,lw)
 title('Best L^2 approximation to |x| of degree 5','fontsize',16), hold off</pre>
 
-<p><img src="../../images/approx/BestL2Approximation_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/BestL2Approximation_01.png" class="figure chebfun-figure" alt=""></p>
 <p>This approach works well, but requires $O(n^2)$ operations to compute the Legendre coefficients with a relatively large constant. This was the algorithm using in Chebfun's <code>polyfit</code> command for many years, but was changed last week.</p>
 <h3 id="polyfit-using-fast-chebyshev-legendre-transform"><code>polyfit</code> using fast Chebyshev-Legendre transform</h3>
 <p>Recently, the command <code>cheb2leg</code> was added in Chebfun, which converts a vector of Chebyshev coefficients (of the first kind) to Legendre coefficients in $O(n(\log n)^2/\log\log n)$ operations [1,3]. The command <code>leg2cheb</code> is its inverse. To compute the Legendre expansion of a function (accurate to machine precision) we can first compute its Chebyshev expansion and then use <code>cheb2leg</code>. Chebfun already computes the Chebyshev expansion of a function that is accurate to machine precision. Therefore, here is another way to compute the best approximation of a smooth function via <code>cheb2leg</code>:</p>
@@ -63,7 +63,7 @@ pn = chebfun(ccheb,'coeffs');        % form a chebfun
 plot(f,LW,lw), hold on, plot(pn,'r',LW,lw)
 title('Best L^2 approx to Runge function of degree 10',FS,14), hold off</pre>
 
-<p><img src="../../images/approx/BestL2Approximation_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/BestL2Approximation_02.png" class="figure chebfun-figure" alt=""></p>
 <p>This is the algorithm that is used in Chebfun's <code>polyfit</code>, as of today. So we can obtain the same result from the code:</p>
 <pre class="mcode-input">n = 10;
 f = 1./(1+25*x.^2);                  % Runge function
@@ -71,7 +71,7 @@ pn = polyfit(f,n);
 plot(f,LW,lw), hold on, plot(pn,'r',LW,lw)
 title('Best L^2 approx to Runge function of degree 10',FS,14), hold off</pre>
 
-<p><img src="../../images/approx/BestL2Approximation_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/BestL2Approximation_03.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="high-degree-best-l2-approximation-for-smooth-functions">High-degree best $L^2$ approximation for smooth functions</h3>
 <p>The fast algorithms now employed by <code>polyfit</code> enable us to compute very high degree $L^2$ approximations.</p>
 <pre class="mcode-input">n = 1e4;
@@ -101,7 +101,7 @@ legend('|| |x| - p_n ||_2','n^{-3/2}')
 xlabel('n',FS,fs), ylabel('|| |x| - p_n ||_2',FS,fs)
 title('Convergence of || |x| - p_n ||_2',FS,fs)</pre>
 
-<p><img src="../../images/approx/BestL2Approximation_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/BestL2Approximation_04.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>

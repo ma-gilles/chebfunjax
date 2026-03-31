@@ -49,7 +49,7 @@ plot(Y, LW, lw)
 title('Three arbitrary functions', FS, fs)
 xlim([0 pi])</pre>
 
-<p><img src="../../images/ode-eig/ContourProjEig_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/ContourProjEig_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Next, we must project these arbitrary functions onto the eigenspace spanned by the eigenfunctions of $A$ corresponding to the eigenvalues within our search interval of $[0, 10]$.  It turns out that the contour integral relationship from above still applies in an appropriate sense in the continuous setting, so we do the projection by discretizing it just as before.  The key difference is that instead of solving <em>linear systems</em> at each quadrature node, we must solve <em>differential equations</em> instead.</p>
 <p>For our contour, we choose a circle centered at $5$ with radius $5$ so that it encloses all of $[0, 10]$.  For the discretization, we use the 8-point midpoint rule, i.e., the 8-point trapezoid rule with the quadrature nodes rotated through an angle of $\pi/8$ to make them symmetric with respect to the real axis.  Since $L$ is self-adjoint and "real", we can exploit this symmetry to cut the total number of boundary value problems we need to solve in half.  We compute the quadrature nodes and weights:</p>
 <pre class="mcode-input">K = 8;
@@ -102,7 +102,7 @@ title('Eigenfunctions of L = -d^2/dx^2', FS, fs)
 xlim([0 pi])
 ylim([-1 1])</pre>
 
-<p><img src="../../images/ode-eig/ContourProjEig_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/ContourProjEig_02.png" class="figure chebfun-figure" alt=""></p>
 <p>These are in excellent agreement with the known exact results from above.</p>
 <h3 id="comparison-with-eigs">Comparison with <code>eigs</code></h3>
 <p>Of course, one does not need to use this method to compute eigenvalues of differential operators in Chebfun.  A much easier way is available in the form of Chebfun's <code>eigs</code> function:</p>

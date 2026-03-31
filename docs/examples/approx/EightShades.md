@@ -31,7 +31,7 @@ plot(f,'k',p3,'r'), ylim(yl), text(-.93,.9,'minimax',FS,10)
 p4 = cf(f,m); subplot(2,2,4)
 plot(f,'k',p4,'r'), ylim(yl), text(-.93,.9,'CF',FS,10)</pre>
 
-<p><img src="../../images/approx/EightShades_01.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/EightShades_01.png" class="figure chebfun-figure" alt=""/></p>
 <p>These curves show some properties that are typical of such approximations.  One is that the differences between them are not very great. Another (for smooth functions $f$, at least) is that the minimax and CF approximations, though mathematically distinct, are for practical purposes indisinguishable.  We can quantify this effect for the present example by measuring the maximal difference between the two:</p>
 <pre class="mcode-input">CFerror = norm(p3-p4,inf)</pre>
 
@@ -66,7 +66,7 @@ set(gca,'xtick',[],'ytick',[])</pre>
 1.1e-10. 
 </pre>
 
-<p><img src="../../images/approx/EightShades_02.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/EightShades_02.png" class="figure chebfun-figure" alt=""/></p>
 <h3 id="4-rational-approximation">4. Rational approximation</h3>
 <p>Discussion to be added here.</p>
 <p><em>R1. Rational interpolation</em> (<code>ratinterp</code>, chap 27 of <em>ATAP</em>)</p>
@@ -90,7 +90,7 @@ plot(f,'k',r4,'r'), ylim(yl), text(-.93,.9,'CF',FS,10)</pre>
 4.6e-15. 
 </pre>
 
-<p><img src="../../images/approx/EightShades_03.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/EightShades_03.png" class="figure chebfun-figure" alt=""/></p>
 <h3 id="5-trigonometric-rational-approximation">5. Trigonometric rational approximation</h3>
 <p>Discussion to be added here.</p>
 <p><em>TR1. Trigonometric rational interpolation</em> (<code>triginterp</code>, in a branch)</p>
@@ -117,7 +117,7 @@ text(-.93,.9,'CF',FS,10)
 text(-.5,.2,'(not yet available)',FS,10), axis([-1 1 yl])
 set(gca,'xtick',[],'ytick',[])</pre>
 
-<p><img src="../../images/approx/EightShades_04.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/EightShades_04.png" class="figure chebfun-figure" alt=""/></p>
 <h3 id="6-references">6. References</h3>
 <p>[1] L. N. Trefethen, <em>Approximation Theory and Approximation Practice</em>, SIAM, 2013.</p>
 <p>[2] G. B. Wright, M. Javed, H. Montanelli and L. N. Trefethen, Extension of Chebfun to periodic functions, <em>SIAM J. Sci. Comp.</em>, 2016.</p></div>

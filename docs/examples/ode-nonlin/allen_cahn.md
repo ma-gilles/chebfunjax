@@ -26,7 +26,7 @@ close, plot(u,LW,lw)
 s = 'Eps = %5.1e    length(u) = %d    time = %3.1f secs';
 title(sprintf(s,Eps,length(u),t),FS,fs)</pre>
 
-<p><img src="../../images/ode-nonlin/AllenCahn_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/AllenCahn_01.png" class="figure chebfun-figure" alt=""></p>
 <p>We now progressively reduce $\varepsilon$ to get sharper and sharper solutions. We use a simple continuation method, in which the initial guess for each iteration is the previous solution. For each value of $\varepsilon$, the solution for the previous value of $\varepsilon$ is a good initial guess of the new solution, so we can turn off damping for the Newton iteration:</p>
 <pre class="mcode-input">cheboppref.setDefaults('damping', 0)
 Epsvec = [1 .5 .2 .1 .03 .01 .003];
@@ -40,13 +40,13 @@ for j = 1:length(Epsvec)
   title(sprintf(s,Eps,length(u),t),FS,fs), snapnow
 end</pre>
 
-<p><img src="../../images/ode-nonlin/AllenCahn_02.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/ode-nonlin/AllenCahn_03.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/ode-nonlin/AllenCahn_04.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/ode-nonlin/AllenCahn_05.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/ode-nonlin/AllenCahn_06.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/ode-nonlin/AllenCahn_07.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/ode-nonlin/AllenCahn_08.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/ode-nonlin/AllenCahn_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/AllenCahn_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/AllenCahn_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/AllenCahn_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/AllenCahn_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/AllenCahn_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/AllenCahn_08.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

@@ -17,14 +17,14 @@ LW = 'linewidth'; FS = 'fontsize';
 y = N\f; plot(y,LW,2), grid on
 xlabel('t',FS,32), ylabel('y',FS,32)</pre>
 
-<p><img src="../../images/ode-random/LevelHopping_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-random/LevelHopping_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Here we cut $\lambda$ in half.</p>
 <pre class="mcode-input">lambda = lambda/2;
 f = randnfun(lambda,dom,'norm');
 y = N\f; plot(y,LW,1), grid on
 xlabel('t',FS,32), ylabel('y',FS,32)</pre>
 
-<p><img src="../../images/ode-random/LevelHopping_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-random/LevelHopping_02.png" class="figure chebfun-figure" alt=""></p>
 <pre class="mcode-input">total_time_in_seconds = toc</pre>
 
 <pre class="mcode-output">total_time_in_seconds =

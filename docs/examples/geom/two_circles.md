@@ -26,7 +26,7 @@ x2 =
   -0.044281086116926
 </pre>
 
-<p><img src="../../images/geom/TwoCircles_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/geom/TwoCircles_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="2-area-of-the-overlap-region">2. Area of the overlap region</h3>
 <p>This configuration comes from Alan Stevens' 2016 review [2] of <em>Professor Povey's Perplexing Problems</em> [1], a book published in 2015.  The problem posed in [1] and [2] is, what is the area of the overlap region? Here is the numerical answer as computed by Chebfun:</p>
 <pre class="mcode-input">area = sum( bigcircle{x1,x2} - littlecircle{x1,x2} )</pre>

@@ -39,7 +39,7 @@ set(h,'FaceColor',[0.3 0.9 0.4]), axis auto
 LW = 'linewidth';
 hold on, plot(f,'k',LW,1.6,'interval',[-1 6]), grid on</pre>
 
-<p><img src="../../images/stats/NormalExercises_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/NormalExercises_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="3-problem-1d-page-124-numerical-variant">3. Problem 1(d), page 124 -- numerical variant</h3>
 <p>Now let us do a similar computation, except replacing the quadratic term in the normal distribution by an absolute value with a $5/4$ power.</p>
 <pre class="mcode-input">ff = @(x,mu,sigma) exp(-abs((x-mu)/sigma).^(5/4));</pre>
@@ -61,7 +61,7 @@ p = fint(3)-fint(1)</pre>
 set(h,'FaceColor',[0.9 0.3 0.4]), axis auto
 hold on, plot(f,'k',LW,1.6,'interval',[-1 6]), grid on</pre>
 
-<p><img src="../../images/stats/NormalExercises_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/NormalExercises_02.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>A. M. Mood, F. A. Graybill, and D. Boes, Introduction to the Theory of    Statistics, McGraw-Hill, 1974.</li>

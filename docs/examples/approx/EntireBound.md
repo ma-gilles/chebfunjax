@@ -30,7 +30,7 @@ for rho = [2 4 8 16 32]
 end
 axis([0 nmax 1e-16 1e3]), grid on, hold off</pre>
 
-<p><img src="../../images/approx/EntireBound_01.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/EntireBound_01.png" class="figure chebfun-figure" alt=""/></p>
 <h3 id="3-the-function-cos100x">3. The function cos(100x)</h3>
 <p>Now we try another entire function whose convergence curve is more interesting, $f(x) = \cos(100x)$. Since the topmost point of the $\rho$-ellipse is $x = i (\rho - \rho^{-1})/2$, we can take $$ M = \cosh(100(\rho - \rho^{-1})/2). $$ Here are the Chebyshev coefficients of $f$ together with some lines corresponding to $\rho = 1.5, 2, 3, 3.5$.</p>
 <pre class="mcode-input">ff = @(x) cos(100*x);
@@ -50,7 +50,7 @@ for rho = [1.5 2 3 3.5]
 end
 axis([0 nmax 1e-16 1e3]), grid on, hold off</pre>
 
-<p><img src="../../images/approx/EntireBound_02.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/EntireBound_02.png" class="figure chebfun-figure" alt=""/></p>
 <h3 id="4-reference">4. Reference</h3>
 <ol>
 <li>L.N. Trefethen, <em>Approximation Theory and Approximation Practice</em>,    SIAM, 2013.</li>

@@ -30,7 +30,7 @@ semilogy(d)
 xlabel('time')
 title('magnitude of separation of nearby Lorenz trajectories')</pre>
 
-<p><img src="../../images/ode-nonlin/LyapunovExponents_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/LyapunovExponents_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The log of the distance between trajectories is well approximated by a straight line with positive slope, so it seems the Lorenz system has a positive Lyapunov exponent.</p>
 <p>Notice, however, that the positive slope only holds up for the first 25 time units or so. After that, the curve levels off. That is because all trajectories of the Lorenz system wind up in its strange attractor: since trajectories are bounded, they can only get so far apart.</p>
 <p>The slope of the line can be computed by finding a linear fit to the log of <code>d</code>. We'll only use the first 25 time units, the range where the separation increases exponentially.</p>
@@ -49,7 +49,7 @@ semilogy(.8e-9 * exp(slope*x), 'k--')
 legend('dist(traj_1, traj_2)', sprintf('exp(%1.2f x)', slope), ...
     'location', 'northwest')</pre>
 
-<p><img src="../../images/ode-nonlin/LyapunovExponents_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/LyapunovExponents_02.png" class="figure chebfun-figure" alt=""></p>
 <p>This approximation isn't bad at all -- the maximal Lyapunov exponent for the Lorenz system is known to be about $0.9056$ [3]. To calculate it more accurately we could average over many trajectories. It is remarkable that this characteristic quantity of the most famous chaotic system is known to only a few decimal places; it is indicative of the difficulty in analyzing complex behavior.</p>
 <h3 id="references">References</h3>
 <ol>

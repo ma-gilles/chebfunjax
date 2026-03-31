@@ -49,7 +49,7 @@ set(h,'FaceColor',[0.3 0.2 0.5]), xlim([1 2]), ylim([0, 2])
 LW = 'linewidth';
 hold on, plot(f,'k',LW,2), grid on</pre>
 
-<p><img src="../../images/stats/UniformExercises_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/UniformExercises_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="3-problem-1m-page-124">3. Problem 1(m), page 124</h3>
 <blockquote> Suppose $X$ is a continuous random variable with uniform distribution having mean $1$ and variance $4/3$. What is $P[X&lt;0]$? </blockquote>
 
@@ -100,7 +100,7 @@ set(h,'FaceColor',[0.75 0.3 0.2]), xlim([a, b]), ylim([0, 0.5])
 LW = 'linewidth';
 hold on, plot(f,'k',LW,1.6), grid on</pre>
 
-<p><img src="../../images/stats/UniformExercises_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/UniformExercises_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Alternatively, let us find $a$ and $b$ with Chebfun. One approach is to eliminate $b$ by hand and then use Chebfun's <code>roots</code> command to find $a$.</p>
 <p>We express $b$ in terms of $a$ according to $mean = (a+b)/2 = 1$:</p>
 <pre class="mcode-input">b = @(a) 2-a</pre>
@@ -134,7 +134,7 @@ hold on, plot([-5,5],[0,0], '-k'), axis auto
 plot(aa, g(a), 'r.', 'markersize', 20)
 grid on</pre>
 
-<p><img src="../../images/stats/UniformExercises_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/UniformExercises_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Another Chebfun approach would be to solve for both $a$ and $b$ using Chebfun2.</p>
 <p>Let us define the mean of the distribution like this:</p>
 <pre class="mcode-input">meanab = chebfun2(@(a, b) (a+b)/2, [-5, 5, -5, 5]);</pre>
@@ -179,7 +179,7 @@ h6 = area(f{170, 250}); set(h6,FC,[0 0 1]),
 h7 = area(f{250, 360}); set(h7,FC,[0 0 0]),
 plot(f,'k',LW,2), grid on</pre>
 
-<p><img src="../../images/stats/UniformExercises_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/UniformExercises_04.png" class="figure chebfun-figure" alt=""></p>
 <p>The CDF of $X$ is thus:</p>
 <pre class="mcode-input">fint = cumsum(f);</pre>
 
@@ -202,7 +202,7 @@ plot(f,'k',LW,2), grid on</pre>
 hold on, h = area(f{0, 20}); set(h,FC,[0.7 0 0.6]),
 xlim([0 360])</pre>
 
-<p><img src="../../images/stats/UniformExercises_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/UniformExercises_05.png" class="figure chebfun-figure" alt=""></p>
 <blockquote> (Q2) We now know that the arrow will not point to the blue region when the wheel comes to rest. Under this condition, what is the probability that it will point to neither black nor yellow? </blockquote>
 
 <p>Because $X$ is uniformly distributed, the probability of the arrow not pointing to the blue region is:</p>
@@ -247,7 +247,7 @@ hold off, h1 = area(g{0, 20}); set(h1,FC,[0.3 0.5 0.2]),
 hold on, h2 = area(g{55, 170}); set(h2,FC,[0.3 0.5 0.2]),
 plot(g,'b',LW,2), xlim([0 360]), grid on</pre>
 
-<p><img src="../../images/stats/UniformExercises_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/UniformExercises_06.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>A. M. Mood, F. A. Graybill, and D. Boes, <em>Introduction to the Theory of    Statistics</em>, McGraw-Hill, 1974.</li>

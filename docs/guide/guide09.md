@@ -27,7 +27,7 @@ maxf = max(f)</pre>
    1.608912750768336
 </pre>
 
-<p><img src="../images/guide/guide09_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide09_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Next we plot another function and integrate it from $0$ to $\infty$:</p>
 <pre class="mcode-input">g = chebfun('1/(gamma(x+1))',[0 inf]);
 sumg = sum(g)
@@ -37,7 +37,7 @@ plot(g)</pre>
    2.266534507699849
 </pre>
 
-<p><img src="../images/guide/guide09_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide09_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Where do $f$ and $g$ intersect?  We can find out using <code>roots</code>:</p>
 <pre class="mcode-input">plot([f g])
 r = roots(f-g)
@@ -53,7 +53,7 @@ hold on, plot(r,f(r),'.k',MS,12), hold off</pre>
    1.781855556974647
 </pre>
 
-<p><img src="../images/guide/guide09_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide09_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Here's an example on $(-\infty,\infty)$ with a calculation of the location and value of the minimum:</p>
 <pre class="mcode-input">g = chebfun(@(x) tanh(x-1),[-inf inf]);
 g = abs(g-1/3);
@@ -66,7 +66,7 @@ minpos =
    1.346573590279973
 </pre>
 
-<p><img src="../images/guide/guide09_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide09_04.png" class="figure chebfun-figure" alt=""></p>
 <p>Notice that a function on an infinite domain is by default plotted on an interval like $[0,10]$ or $[-10,10]$.  You can use an extra <code>'interval'</code> flag to plot on other intervals, as shown by this example of a function of small norm whose largest values are near $x=30$:</p>
 <pre class="mcode-input">hh = @(x) cos(x)/(1e5+(x-30)^6);
 h = chebfun(hh,[0 inf]);
@@ -79,7 +79,7 @@ normh =
      2.441961783728736e-05
 </pre>
 
-<p><img src="../images/guide/guide09_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide09_05.png" class="figure chebfun-figure" alt=""></p>
 <p>Chebfun provides a convenient tool for the numerical evaluation of integrals over infinite domains:</p>
 <pre class="mcode-input">g = chebfun('(2/sqrt(pi))*exp(-x^2)',[0 inf]);
 sumg = sum(g)</pre>
@@ -122,7 +122,7 @@ plot(sinc,'m','interval',[-10 10])</pre>
 on'? 
 </pre>
 
-<p><img src="../images/guide/guide09_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide09_06.png" class="figure chebfun-figure" alt=""></p>
 <p>Chebfun's capability of handling infinite intervals was introduced originally by Rodrigo Platte in 2008-09.  The details of the implementation then changed considerably with the introduction of version 5 in 2014.</p>
 <p>The use of mappings to transform an unbounded domain to a bounded one is an idea that has been employed many times over the years.  One of the references we have benefited especially from, which also contains pointers to other works in this area, is the book [Boyd 2001].</p>
 <h3 id="92-poles">9.2 Poles</h3>
@@ -130,34 +130,34 @@ on'?
 <pre class="mcode-input">f = chebfun('sin(50*x) + 1/x',[0 4],'exps',[-1,0]);
 plot(f), ylim([-5 30])</pre>
 
-<p><img src="../images/guide/guide09_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide09_07.png" class="figure chebfun-figure" alt=""></p>
 <p>Here's the same function but over a domain that contains the singularity in the middle.  We tell the constructor where the pole is and what the singularity looks like:</p>
 <pre class="mcode-input">f = chebfun('sin(50*x) + 1/x',[-2 0 4],'exps',[0,-1,0]);
 plot(f), ylim([-30 30])</pre>
 
-<p><img src="../images/guide/guide09_08.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide09_08.png" class="figure chebfun-figure" alt=""></p>
 <p>Here's the tangent function:</p>
 <pre class="mcode-input">f = chebfun('tan(x)', pi*((-5/2):(5/2)), 'exps', -ones(1,6));
 plot(f), ylim([-5 5])</pre>
 
-<p><img src="../images/guide/guide09_09.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide09_09.png" class="figure chebfun-figure" alt=""></p>
 <p>Rootfinding works as expected:</p>
 <pre class="mcode-input">x2 = chebfun('x/2',pi*(5/2)*[-1 1]);
 hold on, plot(x2,'k')
 r = roots(f-x2,'nojump');
 plot(r,x2(r),'or',MS,8), hold off</pre>
 
-<p><img src="../images/guide/guide09_10.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide09_10.png" class="figure chebfun-figure" alt=""></p>
 <p>And we can manipulate the function in various other familiar ways:</p>
 <pre class="mcode-input">g = sin(2*x2)+min(abs(f+2),6);
 plot(g)</pre>
 
-<p><img src="../images/guide/guide09_11.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide09_11.png" class="figure chebfun-figure" alt=""></p>
 <p>If you don't know what singularities your function may have, Chebfun has some ability to find them if the flags <code>'blowup</code>' and <code>'splitting</code>' are on:</p>
 <pre class="mcode-input">gam = chebfun('gamma(x)',[-4 4],'splitting','on','blowup',1);
 plot(gam), ylim([-10 10])</pre>
 
-<p><img src="../images/guide/guide09_12.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide09_12.png" class="figure chebfun-figure" alt=""></p>
 <p>But it's always better to specify the breakpoints and powers if you know them:</p>
 <pre class="mcode-input">gam = chebfun('gamma(x)',[-4:0 4],'exps',[-1 -1 -1 -1 -1 0]);</pre>
 
@@ -185,13 +185,13 @@ plot(gam), ylim([-10 10])</pre>
 <pre class="mcode-input">f = chebfun(@(x) cos(100*x)+sin(x)^(-2+sign(x)),[-1 0 1],'exps',[0 -3 -1 0]);
 plot(f), ylim([-30 30])</pre>
 
-<p><img src="../images/guide/guide09_13.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide09_13.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="93-singularities-other-than-poles">9.3  Singularities other than poles</h3>
 <p>Less reliable but also sometimes useful is the possibility of working with functions with algebraic singularities that are not poles. Here's a function with inverse square root singularities at each end:</p>
 <pre class="mcode-input">w = chebfun('(2/pi)/(sqrt(1-x^2))','exps',[-.5 -.5]);
 plot(w,'m'), ylim([0 10])</pre>
 
-<p><img src="../images/guide/guide09_14.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide09_14.png" class="figure chebfun-figure" alt=""></p>
 <p>The integral is $2$:</p>
 <pre class="mcode-input">sum(w)</pre>
 
@@ -270,7 +270,7 @@ plot(f)</pre>
 vertical scale = 3.8 
 </pre>
 
-<p><img src="../images/guide/guide09_15.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide09_15.png" class="figure chebfun-figure" alt=""></p>
 <p>Under certain circumstances Chebfun will introduce singularities like this of its own accord.  For example, just as <code>abs(f)</code> introduces breakpoints at roots of <code>f</code>, <code>sqrt(abs(f))</code> introduces breakpoints and also singularities at such roots:</p>
 <pre class="mcode-input">theta = chebfun('t',[0,4*pi]);
 f = sqrt(abs(sin(theta)))
@@ -289,7 +289,7 @@ sumf =
    9.585121877884731
 </pre>
 
-<p><img src="../images/guide/guide09_16.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide09_16.png" class="figure chebfun-figure" alt=""></p>
 <p>If you have a function that blows up but you don't know the nature of the singularities, even whether they are poles or not, Chebfun will try to figure them out automatically if you run in <code>'blowup 2'</code> mode.  Here's an example</p>
 <pre class="mcode-input">f = chebfun('x*(1+x)^(-exp(1))*(1-x)^(-pi)','blowup',2)</pre>
 

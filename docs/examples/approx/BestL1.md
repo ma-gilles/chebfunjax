@@ -16,36 +16,36 @@ pinf = minimax(f, deg, 'tol', 1e-8);
 plot([f pinf]), ylim([-3 3]), grid on
 title('f and Linfty approximant')</pre>
 
-<p><img src="../../images/approx/BestL1_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/BestL1_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The error $f-p_\infty$ exhibits the beautiful equioscillation phenomenon:</p>
 <pre class="mcode-input">plot(f-pinf,'k'), ylim([-3 3]), grid on
 title('error of Linfty approximant')</pre>
 
-<p><img src="../../images/approx/BestL1_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/BestL1_02.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="polynomial-approximation-in-the-l2-norm">Polynomial approximation in the $L^2$ norm</h3>
 <p>The best polynomial approximant to $f$ in the $L^2$-norm is easier to compute as it is the orthogonal projection of $f$ onto the space of polynomials of degree $n$. In Chebfun, one can use the <code>polyfit</code> command:</p>
 <pre class="mcode-input">p2 = polyfit(f, deg);
 plot([f p2]), ylim([-3 3]), grid on
 title('f and L2 approximant')</pre>
 
-<p><img src="../../images/approx/BestL1_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/BestL1_03.png" class="figure chebfun-figure" alt=""></p>
 <p>The error curve is strikingly different.  Of course it is slightly larger at its largest, but not by much.</p>
 <pre class="mcode-input">plot(f-p2,'k'), ylim([-3 3]), grid on
 title('error of L2 approximant')</pre>
 
-<p><img src="../../images/approx/BestL1_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/BestL1_04.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="polynomial-approximation-in-the-l1-norm">Polynomial approximation in the $L^1$ norm</h3>
 <p>Recently, we added a Chebfun <code>polyfitL1</code> command to compute best polynomial approximants in the $L^1$-norm. (See the book by Pinkus for a survey of this subject [2].)  Compressed sensing has made the $L^1$ norm an important tool in signal processing as it can promote sparsity in the solution or residual. A Newton-based algorithm proposed by Watson [4] is known to converge, under some assumptions, and this is the basis of <code>polyfitL1</code>.</p>
 <pre class="mcode-input">p1 = polyfitL1(f, deg);
 plot([f p1]), ylim([-3 3]), grid on
 title('f and L1 approximant')</pre>
 
-<p><img src="../../images/approx/BestL1_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/BestL1_05.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is the error curve for our example. At first glance it looks like the $L^2$ case, but it is more strongly localized.</p>
 <pre class="mcode-input">plot(f-p1,'k'), ylim([-3 3]), grid on
 title('error of L1 approximant')</pre>
 
-<p><img src="../../images/approx/BestL1_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/BestL1_06.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="another-example">Another example</h3>
 <p>Let's do another example, following the example of Myth 3 of [3], the approximation of $|x-1/4|$ on $[-1,1]$ by a polynomial of degree $80$. This time we just plot the errors:</p>
 <pre class="mcode-input">x = chebfun('x'); f = abs(x-1/4);
@@ -60,14 +60,14 @@ p1 = polyfitL1(f, deg);
 plot(f-p1,'k'), ylim(1e-2*[-1 1]), grid on
 title('L1 error')</pre>
 
-<p><img src="../../images/approx/BestL1_07.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/approx/BestL1_08.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/approx/BestL1_09.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/BestL1_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/BestL1_08.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/BestL1_09.png" class="figure chebfun-figure" alt=""></p>
 <p>Again, we see that the best $L^1$ polynomial approximant has a far more localized error. This is a typical phenomenon that is explained in~[1].  To see more, we zoom the y axis by a factor of 100.  There is much to be learned here!</p>
 <pre class="mcode-input">ylim(1e-4*[-1 1])
 title('closeup')</pre>
 
-<p><img src="../../images/approx/BestL1_10.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/BestL1_10.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="a-word-on-the-algorithm-for-polyfitl1">A word on the algorithm for <code>polyfitL1</code></h3>
 <p>In [1], it is recommended that Watson's algorithm should be used in conjunction with linear programming problems and a refinement step. These additional algorithmic details can significantly speed up the computation. However, MATLAB's linear programming commands are in a toolbox, so we have avoided these steps in keeping with the Chebfun policy of just relying on core MATLAB.</p>
 <h3 id="references">References</h3>

@@ -14,7 +14,7 @@ f = chebfun(@(x) sin(x).^2 + sin(x.^2), d);
 LW = 'linewidth'; lw = 1.2;
 hold off, plot(f, LW, lw, LW, lw), ylim([-2.5 2.5])</pre>
 
-<p><img src="../../images/approx/ResolutionWiggly_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/ResolutionWiggly_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The degree of $f$ is moderate:</p>
 <pre class="mcode-input">np = length(f)</pre>
 
@@ -34,24 +34,24 @@ hold off, plot(f, LW, lw, LW, lw), ylim([-2.5 2.5])</pre>
 hold on, plot(pinterp, 'r', LW, lw), ylim([-2.5 2.5])
 title('f and interpolant of half the degree')</pre>
 
-<p><img src="../../images/approx/ResolutionWiggly_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/ResolutionWiggly_02.png" class="figure chebfun-figure" alt=""></p>
 <p>It's clear from this figure that we have pretty good approximation on the left, where $f$ has low wave numbers, and not so good on the right.  A plot of the error confirms this:</p>
 <pre class="mcode-input">hold off, plot(f-pinterp, 'k', LW, lw)
 title('error of interpolant of half the degree')</pre>
 
-<p><img src="../../images/approx/ResolutionWiggly_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/ResolutionWiggly_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Note that near the right-hand boundary the approximation improves again, reflecting the fundamental phenomenon that polynomials have less approximation power near the endpoints of an interval than in the middle, as discussed in Chapter 22 of [1].</p>
 <p>What will happen if we change the method of interpolation? For a start, here is what happens if we change from interpolation to least-squares:</p>
 <pre class="mcode-input">pleastsq = polyfit(f, nphalf-1);
 plot(f, 'b', pleastsq, 'r', LW, lw), ylim([ -2.5 2.5])
 title('f and least-squares approximant of half the degree')</pre>
 
-<p><img src="../../images/approx/ResolutionWiggly_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/ResolutionWiggly_04.png" class="figure chebfun-figure" alt=""></p>
 <p>Qualitatively, the behavior is similar on the left half of the interval, but it is very different on the right half, where the least-squares approximant, unlike the interpolant, roughly tracks the low-wave-number signal. A plot of the error shows that its amplitude has approximately cut in half.</p>
 <pre class="mcode-input">hold off, plot(f-pleastsq, 'k', LW, lw), ylim([ -2.5 2.5])
 title('error of least-squares approximant of half the degree')</pre>
 
-<p><img src="../../images/approx/ResolutionWiggly_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/ResolutionWiggly_05.png" class="figure chebfun-figure" alt=""></p>
 <p>Finally, here is what happens with best minimax approximation. Now we have beautifully smooth tracking of the low-wave-number signal on the right, but no accuracy at all on the left.</p>
 <pre class="mcode-input">warning off
 pbest = remez(f, nphalf-1, 'maxiter', 100);
@@ -59,12 +59,12 @@ warning on
 plot(f, 'b', pbest, 'r', LW, lw), ylim([ -2.5 2.5])
 title('f and best approximant of half the degree')</pre>
 
-<p><img src="../../images/approx/ResolutionWiggly_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/ResolutionWiggly_06.png" class="figure chebfun-figure" alt=""></p>
 <p>The error curve shows its familiar equioscillatory behavior -- with smaller maximum than the other methods, but no ability to take advantage of regions where the function is simpler.</p>
 <pre class="mcode-input">hold off, plot(f-pbest, 'k', LW, lw), ylim([ -2.5 2.5])
 title('error of best approximant of half the degree')</pre>
 
-<p><img src="../../images/approx/ResolutionWiggly_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/ResolutionWiggly_07.png" class="figure chebfun-figure" alt=""></p>
 <p>In summary, here is what we have observed:</p>
 <p><em>Interpolation</em>: good for low wave numbers and near boundaries, meaningless for high wave numbers.</p>
 <p><em>Least-squares</em>: good for low wave numbers and near boundaries, tracks the low-wave-number signal at high wave numbers.</p>

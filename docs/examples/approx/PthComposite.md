@@ -20,7 +20,7 @@ xx = logspace(-15,0,1000)';
 semilogx(xx,f(xx)-r(xx)), grid on
 title('absolute error of type (5,5) minimax approximant')</pre>
 
-<p><img src="../../images/approx/PthComposite_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/PthComposite_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="approximation-by-composite-rational-functions">Approximation by composite rational functions</h3>
 <p>In [1], Gawlik examined rational approximations of $x^{1/p}$ obtained by composing rational functions of lower degree.  One example is the function $f_k(x)$ defined recursively by</p>
 <p>$$ f_{k+1}(x) = \frac{1}{p}\left( (p-1)\mu_k f_k(x) + \frac{x}{\mu_k^{p-1} f_k(x)^{p-1}} \right), \quad  f_0(x) = 1, $$</p>
@@ -42,7 +42,7 @@ relerr = (y(xx)-f(xx))./(f(xx));
 semilogx(xx,relerr), grid on
 title(['relative error of composite approximant, k=3, \alpha=',num2str(alpini)])</pre>
 
-<p><img src="../../images/approx/PthComposite_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/PthComposite_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Instead of the relative error, we might be interested in the absolute error, for example when approximation at or near $x=0$ is of interest. How does it look? Here is a plot including much smaller values of $x$.</p>
 <pre class="mcode-input">xx = logspace(-15,0,1000);
 abserr = y(xx)-f(xx);
@@ -54,7 +54,7 @@ line([alpini^p alpini^p],norm(abserr,inf)*[-1 0.5],LS,'--',CO,'r')
 text(alpini^p*1.1,-norm(abserr,inf),'$\alpha^p$',IN,LT,FS,18,CO,'r')
 title(['absolute error of composite approximant, k=3, \alpha=',num2str(alpini)])</pre>
 
-<p><img src="../../images/approx/PthComposite_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/PthComposite_03.png" class="figure chebfun-figure" alt=""></p>
 <p>The error is oscillating with growing amplitude on $[\alpha^p,1]$ as expected, and it takes the smallest values near $x=\alpha^p$. On $[0,\alpha^p]$, the error grows towards $x=0$, but stays bounded.</p>
 <p>The picture looks quite different if we start with a different value of $\alpha$. For example with a larger $\alpha$,</p>
 <pre class="mcode-input">alp = 0.1; alpini = alp;
@@ -74,7 +74,7 @@ line([alpini^p alpini^p],norm(abserr,inf)*[-1 0.5],LS,'--',CO,'r')
 text(alpini^p*1.1,-norm(abserr,inf),'$\alpha^p$',IN,LT,FS,18,CO,'r')
 title(['absolute error of composite approximant, k=3, \alpha=',num2str(alpini)])</pre>
 
-<p><img src="../../images/approx/PthComposite_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/PthComposite_04.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is a run with a smaller $\alpha$.</p>
 <pre class="mcode-input">alp = 0.01; alpini = alp;
 rr = @(x)1;
@@ -93,7 +93,7 @@ line([alpini^p alpini^p],norm(abserr,inf)*[-1 0.5],LS,'--',CO,'r')
 text(alpini^p*1.1,-norm(abserr,inf),'$\alpha^p$',IN,LT,FS,18,CO,'r')
 title(['absolute error of composite approximant, k=3, \alpha=',num2str(alpini)])</pre>
 
-<p><img src="../../images/approx/PthComposite_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/PthComposite_05.png" class="figure chebfun-figure" alt=""></p>
 <p>The maximum absolute error is attained at either $x=0$ or $x=1$. In [2] we showed that by balancing the errors at these endpoints we obtain a good composite rational approximant to $x^{1/p}$. How does the convergence compare with minimax? With respect to the degree, it is of course worse. The rational approximants are of type $(3^{k-1},3^{k-1}-1)=(9,8)$. For example, let's compare minimax with the first approximant above.</p>
 <pre class="mcode-input">[~,~,r,err] = minimax(f,9,8);
 
@@ -111,7 +111,7 @@ hold off</pre>
 Trying AAA-Lawson-based initialization...
 </pre>
 
-<p><img src="../../images/approx/PthComposite_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/PthComposite_06.png" class="figure chebfun-figure" alt=""></p>
 <p>It can be shown that with respect to the degree, the composite rational approximant converges almost "pth root exponentially", that is, the error scales roughly like $\exp(-cn^{1/p})$ where $n$ is the degree. More precisely, we obtain the bound</p>
 <p>$$\max_{x \in [0,1]} |f_k(x)-x^{1/p}| \leq \exp( -b n^c ),$$</p>
 <p>where $b$ is a positive constant depending on $p$, $n=p^{k-1}$ is the degree of $f_k$, and</p>
@@ -131,7 +131,7 @@ xlabel('degrees of freedom'), ylabel('error')
 text(p*(k/2),exp(-b*nn(1)^(1/exponent)),'composite',FS,12)
 text(40,stahl(end)*10,'minimax',FS,12)</pre>
 
-<p><img src="../../images/approx/PthComposite_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/PthComposite_07.png" class="figure chebfun-figure" alt=""></p>
 <p>This makes composite rational approximants attractive in e.g. computing functions at a matrix argument, for which the efficiency gain can be exponential as compared to the minimax approximant. For details, see [2].</p>
 <h3 id="references">References</h3>
 <p>[1] E. S. Gawlik, Rational minimax iterations for computing the matrix $p$ th root, arXiv:1903.06268, 2019.</p>

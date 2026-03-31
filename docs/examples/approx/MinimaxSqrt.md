@@ -28,7 +28,7 @@ text(ns(end)+.25,rerrs(end),['rat a=',num2str(a)],'color','r')
 xlim([0 ns(end)+2]), title(['sqrt(x) on [a,1], a = ',num2str(a)])
 xlabel DOF</pre>
 
-<p><img src="../../images/approx/MinimaxSqrt_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/MinimaxSqrt_01.png" class="figure chebfun-figure" alt=""></p>
 <p>As we shrink $a$, the difference in convergence gets pronounced. While the convergence is still exponential in all cases, polynomials struggle more as $a\rightarrow 0$ as the singularity gets closer to the domain. Let's vary the value of $a$. We first take $a=0.1$:</p>
 <pre class="mcode-input">a = 0.1; x = chebfun('x',[a 1]); f = sqrt(x);
 perrs = []; rerrs = [];
@@ -45,7 +45,7 @@ semilogy(ns,rerrs,'r*-'), grid on
 text(ns(end)+.25,rerrs(end),['rat a=',num2str(a)],'color','r')
 xlim([0 ns(end)+2]), title(['sqrt(x) on [a,1], a = ',num2str(a)]), xlabel DOF</pre>
 
-<p><img src="../../images/approx/MinimaxSqrt_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/MinimaxSqrt_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Now $a=10^{-3}$:</p>
 <pre class="mcode-input">a = 1e-3;
 f = chebfun(@(x)sqrt(x),[a,1]);
@@ -64,7 +64,7 @@ semilogy(ns,rerrs,'r*-'), grid on
 text(ns(end)+.5,rerrs(end),['rat a=',num2str(a)],'color','r')
 xlim([0 ns(end)+7]), title(['sqrt(x) on [a,1], a = ',num2str(a)]), xlabel DOF</pre>
 
-<p><img src="../../images/approx/MinimaxSqrt_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/MinimaxSqrt_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Finally, $a=10^{-5}$:</p>
 <pre class="mcode-input">a = 1e-5;
 f = chebfun(@(x)sqrt(x),[a,1],'splitting','on');
@@ -87,7 +87,7 @@ xlim([0 ns(end)+7]), title(['sqrt(x) on [a,1], a = ',num2str(a)]), xlabel DOF</p
 0.0001. 
 </pre>
 
-<p><img src="../../images/approx/MinimaxSqrt_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/MinimaxSqrt_04.png" class="figure chebfun-figure" alt=""></p>
 <p>We see that the difference is widening: both errors increase as $a\rightarrow 0$, but polynomials suffer much more.</p>
 <p>We now superimpose the plot with $a=0$, taking the whole interval $[0,1]$. We recover the algebraic (poly) and root-exponential (rat) convergence as opposed to exponential (admittedly rational-minimax struggles a bit here: please note that this is a very hard problem!).</p>
 <pre class="mcode-input">a = 0;
@@ -113,7 +113,7 @@ Warning: minimax algorithm did not converge after 14 iterations to the tolerance
 0.0001. 
 </pre>
 
-<p><img src="../../images/approx/MinimaxSqrt_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/MinimaxSqrt_05.png" class="figure chebfun-figure" alt=""></p>
 <p>Let's now do the same experiment with the pth root, with $p=5$. The situation qualitatively the same (regardless of $p$).</p>
 <pre class="mcode-input">hold off
 as = [1e-5 0];
@@ -191,7 +191,7 @@ Warning: minimax algorithm did not converge after 15 iterations to the tolerance
 0.0001. 
 </pre>
 
-<p><img src="../../images/approx/MinimaxSqrt_06.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/approx/MinimaxSqrt_06.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

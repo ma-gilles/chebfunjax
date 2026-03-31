@@ -13,7 +13,7 @@
 f = 3 + sin(x) + sin(pi*x);
 plot(f)</pre>
 
-<p><img src="../../images/roots/RootsNearAxis_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/roots/RootsNearAxis_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The chebfun has no roots on the interval:</p>
 <pre class="mcode-input">roots(f)</pre>
 
@@ -26,12 +26,12 @@ plot(f)</pre>
 xlim([-5 35]), axis equal
 hold on, plot(x,0*x,'k')</pre>
 
-<p><img src="../../images/roots/RootsNearAxis_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/roots/RootsNearAxis_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The number of digits of accuracy of the chebfun can be expected to reduce smoothly from 15 or so along the interval down to 0 on the ellipse.</p>
 <p>This provides an easy way to calculate roots of functions in the complex plane near the interval of definition, using <code>roots</code> with the flag <code>'complex'</code>:</p>
 <pre class="mcode-input">r = roots(f,'complex'); plot(r,'.r','markersize',12)</pre>
 
-<p><img src="../../images/roots/RootsNearAxis_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/roots/RootsNearAxis_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Notice that the number of roots is less than the polynomial degree of the chebfun:</p>
 <pre class="mcode-input">number_of_roots = length(r)
 degree = length(f)-1</pre>
@@ -45,7 +45,7 @@ degree =
 <p>That's because there are quite a few additional roots of the chebfun that have nothing to do with roots of the underlying function.  We can see them with the flag <code>'all'</code>:</p>
 <pre class="mcode-input">plot(roots(f,'all'),'or'), axis auto, axis equal</pre>
 
-<p><img src="../../images/roots/RootsNearAxis_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/roots/RootsNearAxis_04.png" class="figure chebfun-figure" alt=""></p>
 <p>For more details about computations like these, see Section 3.6 of the <em>Chebfun Guide</em>, and for more on the mathematics, see Chapters 8 and 18 of [1].</p>
 <h3 id="references">References</h3>
 <ol>

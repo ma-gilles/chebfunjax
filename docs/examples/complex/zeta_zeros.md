@@ -43,7 +43,7 @@ hold on, plot(zeros_t,'.r')
 plot(0,3,'xk','markersize',12), hold off
 set(gca,'ytick',-12:4:12), grid on</pre>
 
-<p><img src="../../images/complex/ZetaZeros_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/complex/ZetaZeros_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Transplanted back to the $s$ variable, we see that the computed roots match the corresponding exact ones to 8 or 9 digits after the decimal point:</p>
 <pre class="mcode-input">zeros_s = s(zeros_t);
 zeros_exact = 0.5 + 1i*[14.1347251417 21.0220396388 25.0108575801 ...
@@ -72,7 +72,7 @@ title('Real and imaginary parts of zeta(s) along critical line')
 hold on, plot(real(zeros_t),imag(zeros_t-3.5i),'.k')
 grid on, hold off</pre>
 
-<p><img src="../../images/complex/ZetaZeros_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/complex/ZetaZeros_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The mathematics of what we have done in this example is nothing more than polynomial approximation in the complex plane, which worked well because we stayed away from the pole of $\zeta(s)$ at $s=1$.  Near $s=1$, one could still use polynomial approximation by working with $\zeta(s)*(s-1)$, which is an entire function (i.e., analytic for all values of $s$).  Alternatively, a more powerful approach to numerical analytic continuation is to use rational approximations, which can be computed in Chebfun with the <code>ratinterp</code> command.  For the zeta function with its single pole, rational approximations of type $(m,1)$ ($m$ zeros, 1 pole) may be sufficient to get good information.  More generally one uses approximation of type $(m,n)$, typically with $n$ rather small. See Chapters 23, 26 and 28 of [Trefethen 2019].</p>
 <p>Total time taken by this example:</p>
 <pre class="mcode-input">toc</pre>

@@ -26,7 +26,7 @@ title('Gamma function')</pre>
 vertical scale = Inf    Total length = 124
 </pre>
 
-<p><img src="../../images/approx/GammaFun_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/GammaFun_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Alternatively, and always a better idea when the information is available, one can instruct Chebfun what poles to put where:</p>
 <pre class="mcode-input">gam = chebfun('gamma(x)',[-4 -3 -2 -1 0 4],'exps',[-1 -1 -1 -1 -1 0])
 plot(gam), grid on
@@ -43,7 +43,7 @@ title('Gamma function again')</pre>
 vertical scale = Inf    Total length = 124
 </pre>
 
-<p><img src="../../images/approx/GammaFun_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/GammaFun_02.png" class="figure chebfun-figure" alt=""></p>
 <p>We can now treat $\Gamma(x)$ like any other chebfun. For example, we can:</p>
 <p>(1) Find its reciprocal $1/\Gamma(x)$:</p>
 <pre class="mcode-input">gam_i = 1/gam;</pre>
@@ -58,7 +58,7 @@ legend('\Gamma(x)', '1/\Gamma(x)', 'sqrt(|\Gamma(x)|)',...
    'location','southeast')
 title('Various related functions')</pre>
 
-<p><img src="../../images/approx/GammaFun_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/GammaFun_03.png" class="figure chebfun-figure" alt=""></p>
 <p>(4) Plot the critical points:</p>
 <pre class="mcode-input">hold on
 [y r] = minandmax(gam,'local');
@@ -69,7 +69,7 @@ plot(r,gam(r),'.k',ri,gam_i(ri),'.k', ...
     rs,sqrtgam(rs),'.k','markersize',10), hold off
 title('Critical points')</pre>
 
-<p><img src="../../images/approx/GammaFun_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/GammaFun_04.png" class="figure chebfun-figure" alt=""></p>
 <p>(5) Compute some integrals:</p>
 <pre class="mcode-input">sum(gam)
 sum(absgam)

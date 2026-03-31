@@ -32,7 +32,7 @@ z2 = chebfun.ode113(ode2,[0,tmax],-L2/2,opts);</pre>
 <pre class="mcode-input">w = z1 - z2*diff(z1)/diff(z2);
 plot(w,'k'), grid on, axis(3*[-1 1 -1 1]), axis square</pre>
 
-<p><img src="../../images/geom/Ellipses_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/geom/Ellipses_01.png" class="figure chebfun-figure" alt=""></p>
 <p>To find the answer to the problem posed, we need to know the time at which $\mathrm{imag}(w(t))=0$:</p>
 <pre class="mcode-input">format long, tfinal = roots(imag(w{5,7.5}))</pre>
 
@@ -61,7 +61,7 @@ for t = 0:1:6
 end
 plot(w,'k')</pre>
 
-<p><img src="../../images/geom/Ellipses_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/geom/Ellipses_02.png" class="figure chebfun-figure" alt=""></p>
 <p>(The imperfection in the blue fill is a bug in MATLAB, not Chebfun.) Or we can make a movie, like this:</p>
 <pre class="mcode-input">hold off, fill(real(z1),imag(z1),'b'), hold on
 axis(3*[-1 1 -1 1]), axis square, plot(w,'k')
@@ -133,7 +133,7 @@ Couldn't create JOGL canvas--using painters
 Couldn't create JOGL canvas--using painters
 </pre>
 
-<p><img src="../../images/geom/Ellipses_03.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/geom/Ellipses_03.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

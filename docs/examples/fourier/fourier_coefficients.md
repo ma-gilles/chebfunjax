@@ -125,7 +125,7 @@ plot(k,10*k.^(-4),'k-',LW,lw)
 text(500,50*(500)^(-4),'O(k^{-4})','FontSize',12)
 hold off</pre>
 
-<p><img src="../../images/fourier/FourierCoefficients_01.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/fourier/FourierCoefficients_01.png" class="figure chebfun-figure" alt=""/></p>
 <h3 id="non-smooth-functions">Non-smooth functions</h3>
 <p>The Fourier coefficients of functions (and their periodic extensions) with fewer than two continuous derivatives can also be computed.  However, the functions must first be constructed using the default, 'non-periodic', option.  In this case the Fourier coefficients are computed using the integral formulas (via Chebfun's <code>sum</code> method) instead of the Fast Fourier Transform.</p>
 <p>The quintessential example of a non-smooth function is that of the square wave (or periodic extension of the step function), which can be defined by the <code>sign</code> function as</p>
@@ -181,14 +181,14 @@ c = trigcoeffs(u,2*numModes+1);
 u_trunc = chebfun(c,[-pi,pi],'trig','coeffs');
 plot(u,'k-',u_trunc,'b-',LW,lw)</pre>
 
-<p><img src="../../images/fourier/FourierCoefficients_02.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/fourier/FourierCoefficients_02.png" class="figure chebfun-figure" alt=""/></p>
 <p>This represents the best 15-mode trigonometric approximation to the square wave over $[-\pi,\pi]$ in the $L^2$ sense. The oscillations in the approximation are called the Gibbs phenomenon.</p>
 <p>To see the actual 'wave' it is useful to plot the approximation over a larger interval, which can be done for $-4\pi \leq x \leq 4\pi$ as follows:</p>
 <pre class="mcode-input">u = chebfun(sq_wave,[-4*pi,4*pi],'splitting','on');
 u_trunc = chebfun(u_trunc,[-4*pi,4*pi],'trig');
 plot(u,'k-',u_trunc,'b-',LW,lw)</pre>
 
-<p><img src="../../images/fourier/FourierCoefficients_03.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/fourier/FourierCoefficients_03.png" class="figure chebfun-figure" alt=""/></p>
 <p>Note that in this case we don't recompute the Fourier coefficients over the larger domain, we simply construct <code>u_trunc</code> over the larger domain.</p>
 <p>Here is one last example for the sawtooth wave, again computed over $[-\pi,\pi]$ then expanded to a larger domain:</p>
 <pre class="mcode-input">sawtooth = @(x) (mod(x+pi,2*pi))/(2*pi);
@@ -200,7 +200,7 @@ u = chebfun(sawtooth,[-4*pi,4*pi],'splitting','on');
 u_trunc = chebfun(u_trunc,[-4*pi,4*pi],'trig');
 plot(u,'k-',u_trunc,'b-',LW,lw)</pre>
 
-<p><img src="../../images/fourier/FourierCoefficients_04.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/fourier/FourierCoefficients_04.png" class="figure chebfun-figure" alt=""/></p>
 <p>To hear this wave using try <code>chebtune(u_trunc,6)</code>.</p>
 <h3 id="references">References</h3>
 <p>[1] L.N. Trefethen, <em>Spectral Methods in MATLAB</em>, SIAM, 2000.</p></div>

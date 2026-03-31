@@ -46,7 +46,7 @@ opts = pdeset('Ylim', [0, 1], 'AdjustBCs', false);
 % Create plot of the solution.
 waterfall(u, t, 'LineWidth', 2)</pre>
 
-<p><img src="../../images/temp/CompactingColloids_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/temp/CompactingColloids_01.png" class="figure chebfun-figure" alt=""></p>
 <p>By playing with the Peclet number, we see all the behaviour that we'd expect. When Pe = 200, we get a sharp front as the particles are tightly packed down at the bottom of the cell, with nothing left at the top of the cell. When Pe = 20, the particles diffuse across the cell so that there is a linear concentration gradient.</p>
 <h3 id="reference">Reference</h3>
 <ol>

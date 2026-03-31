@@ -20,7 +20,7 @@ nn = round(2.^(1:.5:16));
 hold on, loglog(nn,.01*nn.^(-2),'--k',LW,2)
 text(4e2,.5e-9,'n^{-2}',FS,18)</pre>
 
-<p><img src="../../images/quad/QuadratureConvergence_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/quad/QuadratureConvergence_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Since the integral of an $O(n^{-2})$ tail is normally of size $O(n^{-1})$, you might expect these quadrature formulas to have accuracy $O(n^{-1})$. But in fact, it is $O(n^{-2})$ again:</p>
 <pre class="mcode-input">clf, exact = sum(f);
 errg = []; errc = [];
@@ -42,7 +42,7 @@ legend('Gauss','Clenshaw-Curtis','location','southwest')
 loglog(nn,.01*nn.^(-2),'--k',LW,2)
 text(7e2,.5e-9,'n^{-2}',FS,18)</pre>
 
-<p><img src="../../images/quad/QuadratureConvergence_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/quad/QuadratureConvergence_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Xiang and Bornemann develop theorems that establish that this effect occurs generally [1].  The reason is not hard to explain once you know to look for it.  Both the Clenshaw-Curtis and Gauss formulas will integrate $T_m(x)$ incorrectly for $m\gg n$: instead of giving you the integral of $T_m$, they'll give you the integral of some lower-degree polynomial alias of $T_m$. But $T_m$ is highly oscillatory, with integral $O(n^{-1})$, and most of the time those aliases are highly oscillatory too, also with integral $O(n^{-1})$.  So the error committed in integrating $T_m$ is typically of size $O(n^{-1})$, not $O(1)$.  It's only as big as $O(1)$ for the unlucky values of $m$ that get aliased to a polynomial with a lot of energy at wave number $O(1)$, and only a fraction $O(n^{-1})$ of the values of $m$ have this unlucky property.</p>
 <p>Or as Xiang and Bornemann put it: $E_n(T_m)$ is, up to some remainder, periodic in $m$ with a period of $O(n)$ and an <em>average</em> modulus of $O(n^{-1})$.</p>
 <p>Xiang and Bornemann point out that for a function with so little smoothness as $|x-.3|$, these convergence results were noted earlier by Riess and Johnson (1971/72) for Clenshaw-Curtis and Davis and Rabinowitz (1984) for Gauss.  The general theorems seem to be new, however, and their proofs require careful attention to details.</p>

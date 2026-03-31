@@ -32,7 +32,7 @@ plot(J1, 'b', J2, '--r'), shg
 title('Half-integral of $P_4(x)$', 'Interpreter', 'latex')
 legend('J1', 'J2')</pre>
 
-<p><img src="../../images/temp/FracCalc2_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/temp/FracCalc2_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Hence, if</p>
 <p>$$f(x) = \sum_{n=0}^Nc_nP_n(x),$$</p>
 <p>we have</p>
@@ -55,7 +55,7 @@ plot(J1, 'b', J2, '--r'), shg
 title('Half-integral of $\exp(x)$', 'Interpreter', 'latex')
 legend('J1', 'J2');</pre>
 
-<p><img src="../../images/temp/FracCalc2_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/temp/FracCalc2_02.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="fractional-integrals">Fractional integrals</h3>
 <p>More generally, a little manipulation of the formula [2, (18.17.9)] yields the required expression for fractional integrals of Jacobi 'polyfractonomials' of the form</p>
 <p>$${\cal{P}}_n^{(0,\beta,\mu)}(x) :=
@@ -76,7 +76,7 @@ title('Quarter-integral of $(1+x)^\beta P_n^{(0,\beta)}(x)$', ...
     'Interpreter','latex')
 legend('J1', 'J2');</pre>
 
-<p><img src="../../images/temp/FracCalc2_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/temp/FracCalc2_03.png" class="figure chebfun-figure" alt=""></p>
 <p>So, to compute a fractional integral of a chebfun, we first compute the required Jacobi coefficients with <code>jaccoeffs</code>, scale these by the Beta and Gamma functions given above, and then convert back to Chebyshev coefficients using <code>jac2cheb</code>.</p>
 <pre class="mcode-input">f = exp(x);
 n = length(f);
@@ -91,7 +91,7 @@ plot(J1, 'b', J2, '--r'), shg
 title('Quarter-integral of $\exp(x)$', 'Interpreter', 'latex')
 legend('J1', 'J2');</pre>
 
-<p><img src="../../images/temp/FracCalc2_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/temp/FracCalc2_04.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="fractional-derivatives">Fractional derivatives</h3>
 <p>Fractional derivatives are typically defined via fractional integrals, and since we can now compute the latter, it should be no problem to compute the former.</p>
 <pre class="mcode-input">mu = .25;
@@ -109,7 +109,7 @@ f = exp(x);</pre>
 legend('Caputo', 'Riemann-Liouville')
 title('Quarter-derivative of $\exp(x)$', 'Interpreter', 'latex')</pre>
 
-<p><img src="../../images/temp/FracCalc2_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/temp/FracCalc2_05.png" class="figure chebfun-figure" alt=""></p>
 <p>we can see that they both satisfy <code>diff(diff(f, a), 1-a) = diff(f)</code>:</p>
 <pre class="mcode-input">plot(diff(Df_Caputo, 1-mu, 'Caputo'), 'b', ....
      diff(Df_RL, 1-mu, 'RL'), '--r', ...,
@@ -117,7 +117,7 @@ title('Quarter-derivative of $\exp(x)$', 'Interpreter', 'latex')</pre>
 legend('Caputo', 'Riemann-Liouville', 'f''')
 title('diff(diff(f, a), 1-a) = diff(f)', 'Interpreter', 'latex')</pre>
 
-<p><img src="../../images/temp/FracCalc2_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/temp/FracCalc2_06.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>

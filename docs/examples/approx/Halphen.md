@@ -57,7 +57,7 @@ hold off, semilogy(n,model,'-b')
 hold on, semilogy(n,err,'.k','markersize',14), grid on
 xlabel n, ylabel error</pre>
 
-<p><img src="../../images/approx/Halphen_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Halphen_01.png" class="figure chebfun-figure" alt=""></p>
 <p>One way to characterize Halphen's constant mathematically is that it is the inverse of the unique positive value of $s$ where the function</p>
 <p>$$ \sum_{k=1}^\infty  \frac{k s^n}{1-(-s)^n} $$</p>
 <p>takes the value $1/8$.  This is an easy computation for Chebfun:</p>
@@ -75,7 +75,7 @@ hold on, plot(h,1/8,'.r','markersize',24)
 title('Halphen''s constant')
 text(h,.135,sprintf('%16.13f',h))</pre>
 
-<p><img src="../../images/approx/Halphen_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Halphen_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Halphen's constant appears more generally than in approximation of $e^x$. Stahl and Schmelzer generalized it to a number of perturbed exponential functions and Nakatsukasa and Trefethen showed that it also governs the accuracy of rational approximations of $x^n$ on $[-1,1]$ [3].  The latter effect is explored in the Chebfun example "Rational approximation of monomials".</p>
 <h3 id="references">References</h3>
 <ol>

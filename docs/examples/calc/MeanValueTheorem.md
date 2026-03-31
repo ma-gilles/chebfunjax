@@ -38,6 +38,6 @@ plot(c(1), f(c(1)),'.r')
 L = 2;
 plot([c(1)-L c(1)+L],[f(c(1))-L*sl f(c(1))+L*sl], 'r')</pre>
 
-<p><img src="../../images/calc/MeanValueTheorem_01.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/calc/MeanValueTheorem_01.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
 </div>

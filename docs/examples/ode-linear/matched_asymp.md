@@ -32,7 +32,7 @@ toc</pre>
 <pre class="mcode-output">Elapsed time is 3.281770 seconds.
 </pre>
 
-<p><img src="../../images/ode-linear/MatchedAsymp_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/MatchedAsymp_01.png" class="figure chebfun-figure" alt=""></p>
 <p>It is clear almost at a glance what form the solution is taking as $\varepsilon \to 0$. Away from $\pm 1$, the $\varepsilon y''$ term is negligible and the solution is approximately that of the rest of the equation,</p>
 <p>$$ y_{\mbox{interior}} = {1\over 2-x^2}. $$</p>
 <p>Near $\pm 1$, on the other hand, $\varepsilon y''$ becomes significant as the solution quickly bends down to meet the boundary condition.</p>
@@ -52,7 +52,7 @@ toc</pre>
    grid on, axis([-1.05 1.05 0 1])
 end</pre>
 
-<p><img src="../../images/ode-linear/MatchedAsymp_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/MatchedAsymp_02.png" class="figure chebfun-figure" alt=""></p>
 <p>It is interesting to plot and measure the differences between the true solution and the model:</p>
 <pre class="mcode-input">for j = 1:4
    ep = 10^(-j);
@@ -65,7 +65,7 @@ end</pre>
    title(sprintf('eps = %4.1e     err = %5.2e',ep,err),FS,8)
 end</pre>
 
-<p><img src="../../images/ode-linear/MatchedAsymp_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/MatchedAsymp_03.png" class="figure chebfun-figure" alt=""></p>
 <p>These plots reveal global convergence at a rate $O(\varepsilon^{1/2})$ as $\varepsilon\to 0$, with the maximal error being attained in a matching region near the boundaries of width $O(\varepsilon^{1/2})$. In the interior the accuracy is higher, $O(\varepsilon)$.</p>
 <p>Matched asymptotics is a highly developed field and has been applied to linear and nonlinear problems of all kinds. A linear problem with a variable coefficient may have interior as well as boundary layers, and for a nonlinear problem there may be interior layers at arbitrary locations.</p></div>
         </div>

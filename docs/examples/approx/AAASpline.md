@@ -22,18 +22,18 @@ plot(poles,'.r',MS,12)
 grid on, axis equal, axis([1.5 8.5 -2 2])
 title(['poles of AAA approximant, ' int2str(length(poles)) ' in total'])</pre>
 
-<p><img src="../../images/approx/AAASpline_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/AAASpline_01.png" class="figure chebfun-figure" alt=""></p>
 <p>We zoom in near $x=4$:</p>
 <pre class="mcode-input">clf, plot(poles,'.r',MS,10), axis([3.9 4.1 -.8 .8]), grid on
 title(['poles near x=4'])</pre>
 
-<p><img src="../../images/approx/AAASpline_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/AAASpline_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is the function we have been approximating, with the nodes shown as black dots.</p>
 <pre class="mcode-input">plot(s), grid on
 hold on, plot(nodes,data,'.k',MS,12), ylim([-1.2 1.2]), hold off
 title('the spline being approximated')</pre>
 
-<p><img src="../../images/approx/AAASpline_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/AAASpline_03.png" class="figure chebfun-figure" alt=""></p>
 <p>The mathematics of this example is pretty striking. The function $r$ approximates a piecewise polynomial by a single global rational function, and it does it with great accuracy:</p>
 <pre class="mcode-input">error = norm(s(X) - r(X))</pre>
 

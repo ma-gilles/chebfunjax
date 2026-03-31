@@ -18,14 +18,14 @@ plot(x,y,'xk','markersize',12)
 hold on, plot(f,'r')
 title('Discrete polynomial least-squares fit')</pre>
 
-<p><img src="../../images/stats/LeastSquares_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/LeastSquares_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Chebfun also has a <code>polyfit</code> command in the chebfun class, and this is for continuous rather than discrete polynomial least-squares fitting.  For example, here is a least-squares fit to a jagged function:</p>
 <pre class="mcode-input">f = chebfun('abs(x+.2)-.5*sign(x-.5) ','splitting','on');
 r = polyfit(f,10);
 hold off, plot(f,'k',r,'r')
 title('Continuous polynomial least-squares fit')</pre>
 
-<p><img src="../../images/stats/LeastSquares_02.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/stats/LeastSquares_02.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

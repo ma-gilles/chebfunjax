@@ -24,7 +24,7 @@ p =chebfun2(@(x,y) 1/(2*pi*sigma1*sigma2*sqrt(1-rho^2))*...
 contour(p,.001:.01:.2),
 title('Bivariate normal distribution', FS, fs)</pre>
 
-<p><img src="../../images/stats/BivariateNormalDistribution_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/BivariateNormalDistribution_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="integrates-to-one">Integrates to one</h3>
 <p>A joint density function is still a pdf, so it must integrate to 1:</p>
 <pre class="mcode-input">fprintf('Integral of pdf %1.16f\n', integral2(p))</pre>
@@ -39,7 +39,7 @@ title('Bivariate normal distribution', FS, fs)</pre>
 plot(px),
 title('Marginal distribution', FS, fs)</pre>
 
-<p><img src="../../images/stats/BivariateNormalDistribution_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/BivariateNormalDistribution_02.png" class="figure chebfun-figure" alt=""></p>
 <p>A fundamental property is that each marginal distribution is a univariate normal distribution:</p>
 <pre class="mcode-input">exact = chebfun(@(x) 1/(sqrt(2*pi)*sigma1)*...
                               exp(-(x-mu1).^2./sigma1^2/2),d(1:2));
@@ -54,7 +54,7 @@ fprintf('Error of marginal = %1.3e\n',norm(px-exact'))</pre>
 fy = chebfun2(@(x,y) p(x,y)./px(x).', d);   % conditional pdf
 plot(fy)</pre>
 
-<p><img src="../../images/stats/BivariateNormalDistribution_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/BivariateNormalDistribution_03.png" class="figure chebfun-figure" alt=""></p>
 <p>For the bivariate normal distribution the condition probability distribution is known explicitly.  We can use this to check the accuracy of the conditional probability computed by Chebfun2 if the realisation of $X$ is, say, $\pi/6$:</p>
 <pre class="mcode-input">x = pi/6;
 mu = mu1 + sigma1/sigma2*rho*(x-mu2); sigmasq = (1-rho^2)*sigma1^2;

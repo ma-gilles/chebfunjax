@@ -17,7 +17,7 @@
 <pre class="mcode-input">plot([-1 -1 -.2 -.2 .3 .3 1 1],[3.3 0 0 1.5 1.5 0 0 3.3],'k','linewidth',2)
 axis([-1.1 1.1 -.05 3.3]), axis off, hold on</pre>
 
-<p><img src="../../images/ode-eig/DoubleWell_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/DoubleWell_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Let's compute the first 12 eigenvalues and eigenfunctions:</p>
 <pre class="mcode-input">tic
 x = chebfun('x');
@@ -52,7 +52,7 @@ for j = 1:neigs
   plot(d+v,'color',colors(1+mod(j-1,6),:))
 end</pre>
 
-<p><img src="../../images/ode-eig/DoubleWell_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/DoubleWell_02.png" class="figure chebfun-figure" alt=""></p>
 <p>There is a great deal of such physics in such pictures. The lower eigenmodes correspond to particles trapped on one side or the other, with a state function decreasing exponentially within the barrier. At higher energies the particles are not localized.</p>
 <p>The Chebfun command <code>quantumstates</code> allows one to carry out explorations like these much more easily.</p>
 <pre class="mcode-input">clf, x = chebfun('x',[-3,3])
@@ -79,7 +79,7 @@ ans =
    1.750303602924204
 </pre>
 
-<p><img src="../../images/ode-eig/DoubleWell_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/DoubleWell_03.png" class="figure chebfun-figure" alt=""></p>
 <p>For more information on problems like these, see chapter 6 of <em>Exploring ODEs</em>, freely available at <code>people.maths.ox.ac.uk/trefethen/ExplODE/</code>.</p></div>
         </div>
     </div>

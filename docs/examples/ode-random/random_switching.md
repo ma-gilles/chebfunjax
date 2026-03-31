@@ -17,7 +17,7 @@ c = sign(randnfun(1,dom));
 L.op = @(t,y) diff(y) - c*y;
 y = L\0; plot(y,LW,4), grid on</pre>
 
-<p><img src="../../images/ode-random/RandomSwitching_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-random/RandomSwitching_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="2-a-matrix-example-of-lawley-mattingly-and-reed">2. A matrix example of Lawley, Mattingly, and Reed</h3>
 <p>More remarkable behavior appears when we move from scalars to matrices.  Suppose $y(t)$ is a 2-vector for each $t$ and it evolves with random switching between $y'= Ay$ and $y' = By$, with</p>
 <pre class="mcode-input">A = [-1 5; 0 -1], B = [-1 0; -5 -1]</pre>
@@ -43,7 +43,7 @@ subplot(2,1,2), semilogy(u^2+v^2,'k',LW,4), grid on, ylim([1e-8 1e8])
 title('norm of (u,v) on log scale'), ylim([1e-5 1e2])
 set(gca,'ytick',10.^[-4:2:4])</pre>
 
-<p><img src="../../images/ode-random/RandomSwitching_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-random/RandomSwitching_02.png" class="figure chebfun-figure" alt=""></p>
 <p>With faster switching, however, there can be net amplification over time, as we see here with an experiment with $\lambda = 1$.</p>
 <pre class="mcode-input">lambda = 1;
 f = 5*(1+sign(randnfun(lambda,dom)))/2;
@@ -55,7 +55,7 @@ subplot(2,1,2), semilogy(u^2+v^2,'k',LW,3), grid on, ylim([1e-8 1e8])
 title('norm of (u,v) on log scale'), ylim([1e-1 1e6])
 set(gca,'ytick',10.^[-4:2:4])</pre>
 
-<p><img src="../../images/ode-random/RandomSwitching_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-random/RandomSwitching_03.png" class="figure chebfun-figure" alt=""></p>
 <p>With still faster switching, solutions may decay once more. In this limit it is the average of the two matrices $A$ and $B$ that matters, which is stable.  Here we show the effect with $\lambda = 1/3$.</p>
 <pre class="mcode-input">lambda = 1/3;
 f = 5*(1+sign(randnfun(lambda,dom)))/2;
@@ -67,7 +67,7 @@ subplot(2,1,2), semilogy(u^2+v^2,'k',LW,2.5), grid on, ylim([1e-8 1e8])
 title('norm of (u,v) on log scale'), ylim([1e-8 1e2])
 set(gca,'ytick',10.^[-8:4:4])</pre>
 
-<p><img src="../../images/ode-random/RandomSwitching_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-random/RandomSwitching_04.png" class="figure chebfun-figure" alt=""></p>
 <p>For mathematical details of this fascinating effect see [1].</p>
 <pre class="mcode-input">total_time_in_seconds = toc</pre>
 

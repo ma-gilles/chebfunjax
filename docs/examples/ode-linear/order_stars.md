@@ -25,7 +25,7 @@ star = roots(f-1);
 plot(star,'k','linewidth',1.6)
 axis(d), axis square</pre>
 
-<p><img src="../../images/ode-linear/OrderStars_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/OrderStars_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Such figures reveal important properties of the function $R$.  For example, the meeting of 12 sectors at the origin reflects the 6th-order agreement of the Pade approximant with $e^z$,</p>
 <p>$$ e^z - R(z) = O(z^6). $$</p>
 <h3 id="references">References</h3>

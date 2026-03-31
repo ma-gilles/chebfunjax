@@ -108,7 +108,7 @@ set(gca, 'fontsize', 16)</pre>
      1.854028891156404e-15
 </pre>
 
-<p><img src="../../images/ode-linear/Krylov_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/Krylov_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="gmres-for-general-differential-operators">GMRES for general differential operators</h3>
 <p>GMRES is a Krylov subspace method that can be used to solve any linear system $Ax = b$. Although it can always be used, GMRES is less efficient than CG and MINRES. Analogously, any second-order ODE with Dirichlet boundary conditions can be solved with the operator GMRES method. The following code solves the differential equation $-u_{xx} + u_{x} + u = 1$, $u(\pm 1 ) = 0$, using the operator GMRES method:</p>
 <pre class="mcode-input">L = chebop( @(u) -diff(u, 2)  + diff(u, 1) + u );
@@ -146,7 +146,7 @@ set(gca, 'fontsize', 16)</pre>
      3.157980694280705e-13
 </pre>
 
-<p><img src="../../images/ode-linear/Krylov_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/Krylov_02.png" class="figure chebfun-figure" alt=""></p>
 <p>No preconditioner can be effective for all problems. Since only the integration preconditioner is supported in our operator Krylov methods, they can display poor convergence in some cases. For example, the preconditioner is ineffective for the singularly perturbed equation $-\epsilon u_{xx} + u = 1$ with $u(\pm 1) = 0$. The following code calls the operator CG method on this equation with $\epsilon = 10^{-5}$, and requires 446 iterations to converge to an accuracy of $10^{-13}$.</p>
 <pre class="mcode-input">L = chebop( @(u) -1e-5.*diff(u,2) + u );
 L.bc = 0;
@@ -190,7 +190,7 @@ set(gca, 'fontsize', 16)</pre>
      4.095871962535807e-12
 </pre>
 
-<p><img src="../../images/ode-linear/Krylov_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/Krylov_03.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <p>[1] T. A. Driscoll and N. Hale, Rectangular spectral collocation. IMA J. Numer. Anal., 36.1, 108-132, 2015.</p>
 <p>[2] M. A. Gilles and A. Townsend, Continuous analogues of Krylov methods for differential operators. arXiv preprint arXiv:1803.11049, 2018</p>

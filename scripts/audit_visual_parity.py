@@ -159,19 +159,27 @@ def compare_images(live_url: str, target_url: str) -> ImageMetrics:
     )
 
 
-def iter_guides() -> list[PageSpec]:
+def _join_live_page(live_base: str, rel: str) -> str:
+    base = live_base.rstrip("/")
+    rel = rel.strip("/")
+    if base.startswith("file://"):
+        return f"{base}/{rel}/index.html"
+    return f"{base}/{rel}/"
+
+
+def iter_guides(live_base: str) -> list[PageSpec]:
     return [
         PageSpec(
             kind="guide",
             slug=f"guide{i:02d}",
-            live_url=f"{LIVE_BASE}/guide/guide{i:02d}/",
+            live_url=_join_live_page(live_base, f"guide/guide{i:02d}"),
             target_url=f"{GUIDE_BASE}/guide{i:02d}.html",
         )
         for i in range(1, 21)
     ]
 
 
-def iter_examples() -> list[PageSpec]:
+def iter_examples(live_base: str) -> list[PageSpec]:
     specs: list[PageSpec] = []
     for md_path in sorted(DOCS_EXAMPLES.glob("**/*.md")):
         if md_path.name == "index.md":
@@ -185,7 +193,7 @@ def iter_examples() -> list[PageSpec]:
             PageSpec(
                 kind="example",
                 slug=str(rel).replace("\\", "/"),
-                live_url=f"{LIVE_BASE}/{rel.as_posix()}/",
+                live_url=_join_live_page(live_base, rel.as_posix()),
                 target_url=match.group(0),
             )
         )
@@ -318,6 +326,11 @@ def build_parser() -> argparse.ArgumentParser:
         default=PROJECT / "scripts" / "visual_parity_report.csv",
         help="Where to write the CSV report.",
     )
+    parser.add_argument(
+        "--live-base",
+        default=LIVE_BASE,
+        help="Base URL of the chebfunjax site to compare (supports file:// paths).",
+    )
     return parser
 
 
@@ -325,9 +338,9 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     specs: list[PageSpec] = []
     if args.kind in ("guides", "all"):
-        specs.extend(iter_guides())
+        specs.extend(iter_guides(args.live_base))
     if args.kind in ("examples", "all"):
-        specs.extend(iter_examples())
+        specs.extend(iter_examples(args.live_base))
     audits = [audit_page(spec, args.image_limit) for spec in specs]
     write_csv(args.csv, audits)
     print_summary(audits, args.top)

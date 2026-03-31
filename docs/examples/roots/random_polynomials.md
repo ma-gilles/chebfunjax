@@ -20,7 +20,7 @@ for j = 1:2
     title(['monomial, n=' int2str(n)])
 end</pre>
 
-<p><img src="../../images/roots/RandomPolynomials_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/roots/RandomPolynomials_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The reason these roots lie near the unit circle is that the monomials $1, z, z^2,\ldots$ are orthogonal polynomials defined on that set. For orthogonal polynomials defined on a different region of the complex plane, we get roots tending to cluster on the boundary of that region [3]. In particular, the best-known families of orthogonal polynomials are defined over $[-1,1]$, and random polynomials expressed in these bases tend to have roots near $[-1,1]$. The Chebfun <code>roots</code> command provides an easy way to compute roots of such polynomials stably. For example, here is what happens if we repeat the experiment above but for random polynomials in the basis of Chebyshev polynomials, i.e., $p = a_0 + a_1 T_1 + \cdots + a_n T_n$.</p>
 <pre class="mcode-input">rng(1)
 for j = 1:2
@@ -34,7 +34,7 @@ for j = 1:2
     title(['Chebyshev, n=' int2str(n)])
 end</pre>
 
-<p><img src="../../images/roots/RandomPolynomials_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/roots/RandomPolynomials_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Legendre polynomials are orthogonal over the same interval $[-1,1]$, so the results aren't much different:</p>
 <pre class="mcode-input">for j = 1:2
     subplot(1,2,j)
@@ -48,7 +48,7 @@ end</pre>
     title(['Legendre, n=' int2str(n)])
 end</pre>
 
-<p><img src="../../images/roots/RandomPolynomials_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/roots/RandomPolynomials_03.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>

@@ -31,7 +31,7 @@ plot(E(:,2:3)), grid on
 xlabel('\alpha'), ylabel('E_n(\alpha)')
 title('n = 2 and 3')</pre>
 
-<p><img src="../../images/approx/Checkmark_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Checkmark_01.png" class="figure chebfun-figure" alt=""></p>
 <p>As a numerical check, let us look at the breakpoints in the curve for $n=3$:</p>
 <pre class="mcode-input">[val,pos] = min(E(:,3),'local')</pre>
 
@@ -54,7 +54,7 @@ plot(E), grid on
 xlabel('\alpha'), ylabel('E_n(\alpha)')
 title('n = 1,2,...,7'), ylim([0 .5]), hold off</pre>
 
-<p><img src="../../images/approx/Checkmark_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Checkmark_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Unfortunately, although all this is very compact and natural for Chebfun, it is quite slow, because of the need to sample a function with "splitting on" that itself can only be evaluated slowly with the <code>minimax</code> command.  This is why the Chebfun tolerance was loosened above to 1e-6.  Here is the time required for this example:</p>
 <pre class="mcode-input">toc</pre>
 

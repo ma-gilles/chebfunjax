@@ -43,7 +43,7 @@ N.rbc = exp(2)*cos(1);</pre>
 <p>Plot the computed solution.</p>
 <pre class="mcode-input">plot(y), grid on</pre>
 
-<p><img src="../../images/ode-linear/WikiODE_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/WikiODE_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="problem-2-simple-harmonic-oscillator">Problem 2: Simple harmonic oscillator</h3>
 <p>$$ L(y) = y'' + \pi^2 y = 0,  \qquad y(-1) = -1, ~~ y'(1) = -\pi. $$</p>
 <pre class="mcode-input">d = [-1 1];
@@ -76,7 +76,7 @@ N.op = @(y) diff(y,2) + pi^2*y;</pre>
 <p>Plot the computed solution.</p>
 <pre class="mcode-input">plot(y), grid on</pre>
 
-<p><img src="../../images/ode-linear/WikiODE_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/WikiODE_02.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="problem-3-first-order-problem">Problem 3: First-order problem</h3>
 <p>$$ L(y) = y' + 3y = 2 \qquad y(0) = 2 . $$</p>
 <pre class="mcode-input">d = [0 1];
@@ -108,7 +108,7 @@ N = chebop(d);</pre>
 <p>Plot the computed solution</p>
 <pre class="mcode-input">plot(y), grid on</pre>
 
-<p><img src="../../images/ode-linear/WikiODE_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/WikiODE_03.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li><a href="http://en.wikipedia.org/wiki/Linear_differential_equation">http://en.wikipedia.org/wiki/Linear_differential_equation</a>.</li>

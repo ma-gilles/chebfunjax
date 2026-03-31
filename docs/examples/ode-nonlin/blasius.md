@@ -30,7 +30,7 @@ vertical scale = 9.3
 <pre class="mcode-input">plot(u, 'k')
 title('The Blasius function')</pre>
 
-<p><img src="../../images/ode-nonlin/Blasius_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/Blasius_01.png" class="figure chebfun-figure" alt=""></p>
 <p>We can check that the residuals are small:</p>
 <pre class="mcode-input">op_residual = norm(op(u))  % Residual of the differential equation
 bc_residuals = bc(0,u)     % Residuals of boundary conditions</pre>
@@ -57,7 +57,7 @@ a_exact - a_computed</pre>
 <pre class="mcode-input">x = chebfun('x', dom);
 hold on, plot(x, 'r--')</pre>
 
-<p><img src="../../images/ode-nonlin/Blasius_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/Blasius_02.png" class="figure chebfun-figure" alt=""></p>
 <pre class="mcode-input">b_exact    = -1.720787657520503;
 b_computed = feval(u-x, dom(2));
 b_exact - b_computed</pre>
@@ -98,7 +98,7 @@ v =
 vertical scale =  67 
 </pre>
 
-<p><img src="../../images/ode-nonlin/Blasius_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/Blasius_03.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>John P. Boyd, "The Blasius function in the complex plane,"    <em>Experimental Mathematics</em>, 8 (1999), 381-394.</li>

@@ -23,7 +23,7 @@ plot(p, '-', 'color', [0 .6 0], LW, 5)
 plot(x0, f(x0), 'k.'), plot(f, 'k-')
 axis equal, axis([-7 7 -3 3])</pre>
 
-<p><img src="../../images/temp/TaylorsTheorem_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/temp/TaylorsTheorem_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Many books have a version of this plot for Taylor series.</p>
 <p>Were we to continue with denser grids, we would eventually reach a limit in accuracy due to the fact that these computations are being done in floating point arithmetic. But in theory (or by using variable precision arithmetic), we could approximate the sine function to arbitrary accuracy at any point on the real line by sampling it at Chebyshev points only in this interval.</p>
 <h3 id="convergence-for-a-non-entire-analytic-function">Convergence for a non-entire analytic function</h3>
@@ -32,7 +32,7 @@ axis equal, axis([-7 7 -3 3])</pre>
 f = chebfun(func, [-5 5]);
 hold off, plot(f, 'k-'), hold on</pre>
 
-<p><img src="../../images/temp/TaylorsTheorem_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/temp/TaylorsTheorem_02.png" class="figure chebfun-figure" alt=""></p>
 <p>We will compute a Chebyshev approximation of this function on the interval $[1.5, 2.5]$ and then evaluate the approximation outside of this interval. Again, the interval is drawn as a thick line, and the red curve is the Chebyshev approximation extrapolated outside of it.</p>
 <pre class="mcode-input">x0 = 2;     % Midpoint of interval of approximation
 r1 = 0.5;   % Radius of interval of approximation
@@ -44,7 +44,7 @@ plot(p1, '-', 'color', red, LW, 5)  % Draw red interval
 plot(x0, f(x0), 'k.')               % Interval midpoint
 ylim([-0.5 2])</pre>
 
-<p><img src="../../images/temp/TaylorsTheorem_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/temp/TaylorsTheorem_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is an approximation on a larger interval with the same midpoint:</p>
 <pre class="mcode-input">r2 = 1.2;                            % Another radius
 p2 = chebfun(func, x0 + r2*[-1,1]);  % Another approximant
@@ -55,7 +55,7 @@ plot(p1, '-', 'color', red, LW, 5)   % Redraw red interval
 plot(x0, f(x0), 'k.')                % Interval midpoint
 ylim([-0.5 2])</pre>
 
-<p><img src="../../images/temp/TaylorsTheorem_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/temp/TaylorsTheorem_04.png" class="figure chebfun-figure" alt=""></p>
 <p>The second approximation was computed from an interval more than twice the length of the first, yet outside of the interval of approximation it is hardly any better. What's going on? A bit of approximation theory provides the answer.</p>
 <p>As mentioned in the introduction, Chebyshev series converge in Bernstein ellipses. To calculate the ellipse parameter (which can be thought of as the "radius") of the largest Bernstein ellipse in which $f$ is analytic, we can do the following. Since the Joukowski map turns circles into ellipses, the inverse Joukowski map turns ellipses into circles, for which we can easily calculate the radius. (The ellipse parameter $\rho$ is equal to the radius of the corresponding circle.) We will need to apply a linear transformation (a shift and a scaling) to transplant the interval of approximation to the interval $[-1,1]$ where the theory applies.</p>
 <pre class="mcode-input">invJoukowski = @(z) z + sqrt(z^2 - 1);
@@ -72,7 +72,7 @@ d2 = Joukowski(rho2)*r2;
 plot([x0-d2,x0-d2], [-0.5,2], 'b--')
 plot([x0+d2,x0+d2], [-0.5,2], 'b--')</pre>
 
-<p><img src="../../images/temp/TaylorsTheorem_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/temp/TaylorsTheorem_05.png" class="figure chebfun-figure" alt=""></p>
 <p>A Chebyshev interpolant to $f$ on the red interval can be expected to converge (aside, perhaps, from numerical problems) between the red dashed lines, whereas a Chebyshev interpolant to $f$ on the blue interval can be expected to converge in between the blue dashed lines. Expanding the interval didn't get us much!</p>
 <h3 id="bernstein-ellipses-and-intervals-of-convergence">Bernstein ellipses and intervals of convergence</h3>
 <p>We can get a better understanding of the phenomenon just observed by visualizing the corresponding Bernstein ellipses in the complex plane. The approximation theory we've discussed is applicable to functions on $[-1,1]$, so in order to accommodate other intervals we shift and scale them by a linear transformation. In this way the ellipse parameter is dependent on the interval chosen to represent the function. Here is such an ellipse corresponding to the function $f(z) = \log|z-i|$ approximated on the interval $[0.4,3.6]$:</p>
@@ -85,7 +85,7 @@ hold on, plot((sing-x0)/r, 'ko')        % Plot singularity as circle
 plot((dom-x0)/r, [0 0], 'k-')           % Plot transplanted domain
 axis equal, axis([-2.5 2.5 -2 2])</pre>
 
-<p><img src="../../images/temp/TaylorsTheorem_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/temp/TaylorsTheorem_06.png" class="figure chebfun-figure" alt=""></p>
 <p>Suppose we approximate the function from the above example on a series of larger and larger intervals each centered at the point $x_0=2$. If the radius of the interval is $r$, then the right linear transformation to transplant the interval to $[-1,1]$ is the mapping $x\mapsto (x-2)/r$.</p>
 <p>Increasing the radius of the interval, in order words, corresponds to rescaling the argument of the function (after a suitable shift). If the function happens to have a singularity, increasing the radius of the interval brings the singularity closer to the origin, which reduces the size of the ellipse of analyticity of the transformed function. In the following plot, Bernstein ellipses corresponding to the regions of analyticity of Chebyshev approximants on increasingly large intervals are shown: the darker the ellipse, the larger the interval. (The interval, shown in the center, has been transplanted to lie in $[-1,1]$.) The singularity of the transformed function is plotted in each case as a small circle.</p>
 <pre class="mcode-input">for r = 1:0.3:3
@@ -95,7 +95,7 @@ axis equal, axis([-2.5 2.5 -2 2])</pre>
     plot((sing-x0)/r, 'ko')                 % Plot singularity as circle
 end</pre>
 
-<p><img src="../../images/temp/TaylorsTheorem_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/temp/TaylorsTheorem_07.png" class="figure chebfun-figure" alt=""></p>
 <p>In the limit of extremely large intervals, the singularity of the transformed function is brought very close to the interval $[-1,1]$. So although the Chebyshev approximation is good in the interval, it is useless anywhere immediately outside it. On the other hand, Chebyshev approximations on small intervals may be extrapolated with some success (though not to machine precision).</p>
 <p>This part of the theory doesn't usually cause problems for us because we are not typically interested in evaluating a Chebyshev interpolant beyond its interval of approximation. Nevertheless, it is good to be able to explain the behavior!</p>
 <h3 id="references">References</h3>

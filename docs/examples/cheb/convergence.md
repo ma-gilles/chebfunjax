@@ -28,7 +28,7 @@ xlabel('no. of interpolation points'), ylabel('max Error')
 text(10,1e-4,'n^{-\pi}')
 title('Convergence for fractional differentiable function')</pre>
 
-<p><img src="../../images/cheb/Convergence_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/cheb/Convergence_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The fractional differentiability of $f$ clearly explains the convergence rate.</p>
 <h3 id="trigonometric-example">Trigonometric Example</h3>
 <p>Next we replace $|x|^\pi$ by $\sin(|x|^{x+5.5})$.</p>
@@ -43,7 +43,7 @@ text(10,3e-8,'n^{-5.5}')
 title('Convergence for a trigonometric function')
 hold off</pre>
 
-<p><img src="../../images/cheb/Convergence_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/cheb/Convergence_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Again the fractional differentiability determines the convergence rate.</p>
 <h3 id="references">References</h3>
 <ol>

@@ -59,7 +59,7 @@ I = integral2(f, S)</pre>
      6.030788147086102e+03
 </pre>
 
-<p><img src="../../images/approx3/SurfaceIntegral3D_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/SurfaceIntegral3D_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is integration over the surface of another seashell</p>
 <pre class="mcode-input">S = chebfun2v(@(u,v) u.*cos(u).*(cos(v)+1), ...
                     @(u,v) u.*sin(u).*(cos(v)+1), ...
@@ -74,7 +74,7 @@ I = integral2(f, S)</pre>
     -2.984056242788587e+07
 </pre>
 
-<p><img src="../../images/approx3/SurfaceIntegral3D_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/SurfaceIntegral3D_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Our last example is integration over the surface of a spring</p>
 <pre class="mcode-input">r1 = 0.5; r2 = 0.5; t = 1.5;
 S = chebfun2v(@(u,v) (1-r1*cos(v)).*cos(u), ...
@@ -94,7 +94,7 @@ error =
      1.573563547150067e-15
 </pre>
 
-<p><img src="../../images/approx3/SurfaceIntegral3D_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/SurfaceIntegral3D_03.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>J. Stewart, <em>Calculus: Early Transcendentals</em>, 6th Edition, Thomson Brooks/Cole, 2008.</li>

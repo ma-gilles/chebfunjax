@@ -29,7 +29,7 @@ for j = 1:4
   text(.3,1.6,sprintf('mode %d         lam = %6.3f',n,lam),FS,fs)
 end</pre>
 
-<p><img src="../../images/ode-eig/WaveDecay_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/WaveDecay_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Here are the same, but for the wave equation with a decay band:</p>
 <pre class="mcode-input">clf
 a = 0.2;
@@ -52,7 +52,7 @@ for j = 1:4
   text(.3,1.6,sprintf('mode %d         lam = %6.3f',n,lam),FS,fs)
 end</pre>
 
-<p><img src="../../images/ode-eig/WaveDecay_02.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/ode-eig/WaveDecay_02.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

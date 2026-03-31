@@ -25,6 +25,6 @@ xlabel('x',FS,12)
 ylabel('exp(x)',FS,12)
 title(sprintf('Solution of IVP for exp(x) -- error = %7.2e',err),FS,14)</pre>
 
-<p><img src="../../images/ode-linear/LinExpIVP_01.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/ode-linear/LinExpIVP_01.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
 </div>

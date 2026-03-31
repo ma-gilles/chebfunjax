@@ -28,7 +28,7 @@ xlabel('length m'), ylabel('time (s)')
 legend('classic','new',LO,NW), grid on, hold off
 title('Hard functions (not low rank)')</pre>
 
-<p><img src="../../images/approx3/Chebfun3Speedup_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/Chebfun3Speedup_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="3-easy-functions-low-rank">3. Easy functions (low rank)</h3>
 <p>Next we try the 3D Runge function $$ f(x,y,z) = {1\over 1 + k(x^2+y^2+z^2)}. $$ Chebfun3 shows a complexity of about $O(m^2)$ while the new constructor looks more like $O(m)$.</p>
 <pre class="mcode-input">kk = 2.^(0:(1/3):7);
@@ -45,7 +45,7 @@ xlabel('length m'), ylabel('time (s)')
 legend('classic','new',LO,NW), grid on, hold off
 title('Easy functions (low rank)')</pre>
 
-<p><img src="../../images/approx3/Chebfun3Speedup_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/Chebfun3Speedup_02.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="4-sometimes-it-goes-the-other-way">4.  Sometimes it goes the other way</h3>
 <p>The new constructor is not always faster than the classic one, which was particularly strong in cases where one pair of variables could be effectively separated from the third.  For example,</p>
 <pre class="mcode-input">ff = @(x,y,z) tanh(10*(x+y)).*cos(z);

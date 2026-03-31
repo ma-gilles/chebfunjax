@@ -31,7 +31,7 @@ title('First four Mercer eigenfunctions')
 xlabel('x')
 ylabel('\Psi(x)')</pre>
 
-<p><img src="../../images/stats/MercerKarhunenLoeve_01.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/stats/MercerKarhunenLoeve_01.png" class="figure chebfun-figure" alt=""/></p>
 <p>The eigenfunctions returned by <code>eigs</code> are orthonormal.</p>
 <pre class="mcode-input">format short
 Psi(:,1:6)'*Psi(:,1:6)</pre>
@@ -60,7 +60,7 @@ ans =
 xlabel('n')
 ylabel('| \lambda_n |')</pre>
 
-<p><img src="../../images/stats/MercerKarhunenLoeve_02.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/stats/MercerKarhunenLoeve_02.png" class="figure chebfun-figure" alt=""/></p>
 <h3 id="karhunen-loeve-expansion">Karhunen-Loeve expansion</h3>
 <p>Now suppose that $X(t,\omega)$ is a stochastic process for $t$ in some interval $[a,b]$ and $\omega$ in some probability space. The process is often characterized by its mean, $\mu(t)$, and its covariance, $K(s,t)$, the expected value of $(X(s)-\mu(s))(X(t)-\mu(t))$. Using Mercer's theorem on $K$, we can express the process by the K-L expansion</p>
 <p>$$ X(t,\omega) = \mu(t) + \sum_j^\infty \sqrt(\lambda_j) \psi_j(t)
@@ -83,7 +83,7 @@ mu = sum(X,2)/400;
 hold on, plot(mu,'k',plotopt{:})
 title('Random realizations, and the mean')</pre>
 
-<p><img src="../../images/stats/MercerKarhunenLoeve_03.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/stats/MercerKarhunenLoeve_03.png" class="figure chebfun-figure" alt=""/></p>
 <p>We should get roughly the original covariance function back. (We'll discretize the computation for speed.)</p>
 <pre class="mcode-input">points = (-1:.05:1)';
 [S,T] = meshgrid(points);
@@ -91,7 +91,7 @@ C = cov( X(points,:)' );  % covariance at discrete locations
 clf, mesh(S,T,C)
 hold on, plot3(S,T,K(S,T),'k.',plotopt{:})</pre>
 
-<p><img src="../../images/stats/MercerKarhunenLoeve_04.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/stats/MercerKarhunenLoeve_04.png" class="figure chebfun-figure" alt=""/></p>
 <p>If we shorten the correlation length of the process relative to the domain (i.e., more randomness), the amount of variance captured by the first $10$ modes will decrease.</p>
 <pre class="mcode-input">K = @(s,t) exp(-4*abs(s-t));     % decrease correlation faster, then...
 F = chebop(@(u) fred(K, u) );
@@ -110,7 +110,7 @@ captured = sum(lambdaShort(1:10)) / 2    % ... a smaller fraction is captured</p
     0.6744
 </pre>
 
-<p><img src="../../images/stats/MercerKarhunenLoeve_05.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/stats/MercerKarhunenLoeve_05.png" class="figure chebfun-figure" alt=""/></p>
 <h3 id="references">References</h3>
 <ol>
 <li>D. Xu, <em>Numerical Methods for Stochastic Computations</em>, Princeton    University Press, 2010.</li>

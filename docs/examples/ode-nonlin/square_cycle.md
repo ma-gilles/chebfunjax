@@ -15,20 +15,20 @@ N.op = @(t,x,y) [diff(x)+(.2*x-y)*(x^2-1); diff(y)+(.2*y+x)*(y^2-1)];
 [x,y] = N\0; arrowplot(x{0,50},y{0,50})
 axis(1.1*[-1 1 -1 1]), axis square off</pre>
 
-<p><img src="../../images/ode-nonlin/SquareCycle_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/SquareCycle_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is a plot of the components $x(t)$ and $y(t)$ up to $t=110$. Note how the times spend near the saddle get longer as the trajectory comes closer to them.</p>
 <pre class="mcode-input">LO = 'location';
 plot([x y]), ylim([-1.2 1.2]), grid on
 xlabel t, legend({'x','y'},LO,'southwest')
 set(gca,'ytick',-1:.5:1)</pre>
 
-<p><img src="../../images/ode-nonlin/SquareCycle_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/SquareCycle_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Let's examine more closely how close these curves come to $\pm 1$.  Here is a semilogy plot of the quantities $1-|x|$ and $1-|y|$:</p>
 <pre class="mcode-input">semilogy([1-abs(x) 1-abs(y)]), grid on
 ylabel('distance to unit square')
 xlabel t, legend({'x','y'},LO,'southwest')</pre>
 
-<p><img src="../../images/ode-nonlin/SquareCycle_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/SquareCycle_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Down to $10^{-11}$, everything looks clean, but at that point we see computational trouble.  This is the level of Chebfun's tolerances for the ODE solver. In fact, if we compute further to $t=150$, one of the variables erroneously becomes bigger than $1$, whereupon it rapidly diverges.</p>
 <p>Beyond here, one would need higher-precision arithmetic or the more careful methods developed by Tucker. One might also explore a change of variables such as $u = \tanh^{-1}x$ and $v = \tanh^{-1} y$.</p>
 <p>A different example with a square limiting behavior can be found as Exercise 48 of <em>Exploring ODEs</em> [2], adapted from p. 215 of [3].  An example with three variables moving on a sphere between three saddle points can be found in [4], where crossing times are also studied.</p>

@@ -16,7 +16,7 @@ plotcoeffs(fturbo,'or',MS,8), grid on, hold on
 plotcoeffs(f,'.k',MS,14)
 title('Ordinary and turbocharged Cheb coeffs of exp(x)')</pre>
 
-<p><img src="../../images/cheb/Turbo_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/cheb/Turbo_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Somehow, using nothing but standard arithmetic, the <code>'turbo'</code> flag leads to Chebfun finding coefficients down to about twice the usual level on a log scale.  And the improvement is genuine.  For example, the tenth derivative of <code>f</code> is not accurate at all:</p>
 <pre class="mcode-input">f10 = diff(f,10); f10(0)</pre>
 
@@ -40,7 +40,7 @@ semilogy(0:n-1,abs(chebcoeffs(f)-cexact(1:n)),'.-k',LW,1,MS,3)
 semilogy(0:2*n-1,abs(chebcoeffs(fturbo)-cexact(1:2*n)),'.-r',LW,1,MS,3)
 title('Lines added to show accuracy'), hold off</pre>
 
-<p><img src="../../images/cheb/Turbo_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/cheb/Turbo_02.png" class="figure chebfun-figure" alt=""></p>
 <p>A chebfun constructed with <code>turbo</code> is not more accurate in an overall sense; it is merely that some of its higher-degree coefficients may be more accurate.  Thus it is not all all the case the <code>turbo</code> breaks the 16-digit barrier in a general way. But there may be some applications where it makes a difference. As a small indication of enhanced accuracy, here is a chebfun for the function $\exp(x) (1+100x^2)/(1+25x^2)$.  Mathematically, the function has a root at $x= 0.1i$.  Evaluating the ordinary chebfun at this point gives just 8 digits of accuracy.</p>
 <pre class="mcode-input">ff = @(x) exp(x)*(1+100*x^2)/(1+25*x^2);
 f = chebfun(ff);

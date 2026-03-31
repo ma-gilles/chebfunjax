@@ -18,17 +18,17 @@ hold off, plot(f,CO,orange), hold on
 ylim([-8 6])
 plot(r,f(r),'.k'), hold off</pre>
 
-<p><img src="../../images/roots/Tiger_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/roots/Tiger_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Let's look at what's going on here.  First of all a chebfun $f$ is constructed:</p>
 <pre class="mcode-input">plot(f,CO,orange)
 ylim([-8 6])</pre>
 
-<p><img src="../../images/roots/Tiger_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/roots/Tiger_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Then another chebfun is constructed consisting of $f$ rounded to integers:</p>
 <pre class="mcode-input">plot(roundf,'k','jumpline','k')
 ylim([-8 6])</pre>
 
-<p><img src="../../images/roots/Tiger_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/roots/Tiger_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Superimposing the two curves yields a lot of intersections, which are computed by <code>roots</code>:</p>
 <pre class="mcode-input">number_of_roots = length(r)
 plot(f,CO,orange), hold on
@@ -39,7 +39,7 @@ plot(r,f(r),'.k'), hold off</pre>
    345
 </pre>
 
-<p><img src="../../images/roots/Tiger_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/roots/Tiger_04.png" class="figure chebfun-figure" alt=""></p>
 <p>In [1], dots appear not only where $f$ is equal to an integer, but also where it is equal to a half-integer. In the present version of the tiger's tail, this effect has been eliminated by use of the <code>'nojump'</code> flag in <code>roots</code>.</p>
 <h3 id="reference">Reference</h3>
 <ol>

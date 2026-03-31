@@ -22,7 +22,7 @@ plot(x,LW,1)
 ss = sprintf('r=%4.2f     n=%d     length(x)=%d', r, n, length(x));
 title(ss,FS,12), axis([0 1 0 1])</pre>
 
-<p><img src="../../images/ode-nonlin/Logistic2_01.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/ode-nonlin/Logistic2_01.png" class="figure chebfun-figure" alt=""/></p>
 <p>Note that the length of the chebfun is slightly less than the mathematically exact value of $1025$.  This appears to be due to an aliasing phenomenon, but we won't explore that here.</p>
 <h3 id="2-period-2">2. Period 2</h3>
 <p>Here is the same plot except for $r=3.25$, where this dynamical system is of period 2:</p>
@@ -32,7 +32,7 @@ plot(x,LW,1)
 ss = sprintf('r=%4.2f     n=%d     length(x)=%d', r, n, length(x));
 title(ss,FS,12), axis([0 1 0 1])</pre>
 
-<p><img src="../../images/ode-nonlin/Logistic2_02.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/ode-nonlin/Logistic2_02.png" class="figure chebfun-figure" alt=""/></p>
 <p>One can see that $x$ takes essentially just 2 values. If we truncate the interval a little bit to avoid the complexity at the edges, then Chebfun can take 20 steps without difficulty:</p>
 <pre class="mcode-input">n = 20;
 x0 = chebfun('x',[.02 .98]);
@@ -42,7 +42,7 @@ plot(x,LW,1)
 ss = sprintf('r=%4.2f     n=%d     length(x)=%d', r, n, length(x));
 title(ss,FS,12), axis([0 1 0 1])</pre>
 
-<p><img src="../../images/ode-nonlin/Logistic2_03.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/ode-nonlin/Logistic2_03.png" class="figure chebfun-figure" alt=""/></p>
 <p>Here are the two limiting values:</p>
 <pre class="mcode-input">x(0.5), x(0.8)</pre>
 
@@ -61,7 +61,7 @@ plot(x,LW,1)
 ss = sprintf('r=%4.2f     n=%d     length(x)=%d', r, n, length(x));
 title(ss,FS,12), axis([0 1 0 1])</pre>
 
-<p><img src="../../images/ode-nonlin/Logistic2_04.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/ode-nonlin/Logistic2_04.png" class="figure chebfun-figure" alt=""/></p>
 <p>Here are the four limiting values, which again you may be able to compute with <code>roots</code>:</p>
 <pre class="mcode-input">x(0.5), x(0.62), x(0.77), x(0.83)</pre>
 

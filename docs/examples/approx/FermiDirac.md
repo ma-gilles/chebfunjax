@@ -18,7 +18,7 @@ f = @(x) 1./(1+exp(x-L));
 fplot(f,[0,80]), grid on, ylim([-1 2])
 title('physical domain')</pre>
 
-<p><img src="../../images/approx/FermiDirac_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/FermiDirac_01.png" class="figure chebfun-figure" alt=""></p>
 <p>This is essentially a hyperbolic tangent, but with a twist: the approximation domain we care about extends a finite distance on one side and an infinite distance on the other.  (Ultimately this is because a system has a minimum-energy state but no maximum.)  For a type $(n,n)$ approximant, it is convenient to soften up the problem by a M&ouml;bius transformation to $s\in [-1,1]$, which maps type $(n,n)$ rational functions to themselves.  The transformation is this:</p>
 <pre class="mcode-input">x = @(s) (s*L+L)./(1-s);
 s = @(x) (x-L)./(x+L);</pre>
@@ -29,7 +29,7 @@ dom = [-1 1];
 fplot(g,dom), grid on, ylim([-1 2])
 title('transplantation to [-1,1]')</pre>
 
-<p><img src="../../images/approx/FermiDirac_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/FermiDirac_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Note that despite appearances, this is not symmetric about $s=0$. For example, $g(.1)$ and $1-g(-.1)$ are quite different:</p>
 <pre class="mcode-input">disp([g(.1) 1-g(-.1)])</pre>
 
@@ -61,14 +61,14 @@ end</pre>
 <pre class="mcode-output">Elapsed time is 1.227145 seconds.
 </pre>
 
-<p><img src="../../images/approx/FermiDirac_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/FermiDirac_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is a harder one with $L=100$:</p>
 <pre class="mcode-input">tic, fermi(100,15), toc</pre>
 
 <pre class="mcode-output">Elapsed time is 1.727280 seconds.
 </pre>
 
-<p><img src="../../images/approx/FermiDirac_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/FermiDirac_04.png" class="figure chebfun-figure" alt=""></p>
 <p>The code even works with $L=1000$:</p>
 <pre class="mcode-input">tic, fermi(1000,20), toc</pre>
 
@@ -77,7 +77,7 @@ Trying AAA-Lawson-based initialization...
 Elapsed time is 1.703201 seconds.
 </pre>
 
-<p><img src="../../images/approx/FermiDirac_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/FermiDirac_05.png" class="figure chebfun-figure" alt=""></p>
 <p>Here's the same function approximated with a higher value of $n$:</p>
 <pre class="mcode-input">tic, fermi(1000,30), toc</pre>
 
@@ -86,7 +86,7 @@ Trying AAA-Lawson-based initialization...
 Elapsed time is 1.816686 seconds.
 </pre>
 
-<p><img src="../../images/approx/FermiDirac_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/FermiDirac_06.png" class="figure chebfun-figure" alt=""></p>
 <p>This all looks pretty satisfactory, but it would probably not be hard to break this code.  An idea for improving the speed and robustness would be to adapt the idea of Moussa [2] and start the <code>minimax</code> barycentric Remez iteration with an initial guess derived from a Zolotarev approximation of a step.</p>
 <p>[1] L. Lin, M. Chen, C. Yang, and L. He, Accelerating atomic orbital-based electronic structure calculation via pole expansion and selected inversion, <em>Journal of Physics: Condensed Matter</em> 25 (2013), 295501.</p>
 <p>[2]  J. E. Moussa, Minimax rational approximation of the Fermi-Dirac distribution, <em>Journal of Chemical Physics</em> 145 (2016), 164108 and arXiv:1605.03085v2, 2016.</p>

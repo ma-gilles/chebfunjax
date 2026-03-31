@@ -35,7 +35,7 @@ N2 = normalDist(x, m2, s2);</pre>
 plot(N1, 'b', N2 ,'r', N3, 'k', LW, 1.6), set(gca, FS, 14)
 xlim([-1.5 1.5])</pre>
 
-<p><img src="../../images/stats/ProbabilityConvolution_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/ProbabilityConvolution_01.png" class="figure chebfun-figure" alt=""></p>
 <p>One can show (see, for example, [1]) that <code>N3</code> should be equal to $N(\mu_1+\mu_2, \sigma_1^2+\sigma_2^2)$. Let us verify this:</p>
 <pre class="mcode-input">N4 = normalDist(x, m1 + m2, sqrt(s1^2 + s2^2));
 norm(N4 - N3{dom(1), dom(2)})</pre>
@@ -64,7 +64,7 @@ G3 = conv(G1, G2);
 plot(G1, 'b', G2 ,'r', G3, 'k', LW, 1.6)
 xlim([0 5])</pre>
 
-<p><img src="../../images/stats/ProbabilityConvolution_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/ProbabilityConvolution_02.png" class="figure chebfun-figure" alt=""></p>
 <p>In this instance, we should have</p>
 <p>$$ G(k_1, \theta) + G(k_2, \theta) = G(k_1 + k_2, \theta): $$</p>
 <pre class="mcode-input">G4 = gammaDist(x, k1 + k2, t);
@@ -89,7 +89,7 @@ E2 = conv(E, E);
 plot(E, 'b', E2, 'k', LW, 1.6)
 xlim([0 40])</pre>
 
-<p><img src="../../images/stats/ProbabilityConvolution_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/ProbabilityConvolution_03.png" class="figure chebfun-figure" alt=""></p>
 <p>In this instance, the theory tells us we should have a gamma distribution, which indeed we do:</p>
 <pre class="mcode-input">E3 = gammaDist(x, 2, 1/lam);
 norm(E3 - E2{dom(1), dom(2)})</pre>
@@ -116,7 +116,7 @@ G = G./sum(G);</pre>
 <pre class="mcode-input">plot(F,'b', G, 'r', LW, 1.6)
 xlim([-4 4]);</pre>
 
-<p><img src="../../images/stats/ProbabilityConvolution_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/ProbabilityConvolution_04.png" class="figure chebfun-figure" alt=""></p>
 <p>And this is the distribution of the random variable $z=x+y$, where $x$ is drawn from $F$ and $y$ is drawn from $G$:</p>
 <pre class="mcode-input">tic
 h = conv(F, G);
@@ -126,7 +126,7 @@ hold on, plot(h, 'k', LW, 1.6), hold off</pre>
 <pre class="mcode-output">Elapsed time is 0.506917 seconds.
 </pre>
 
-<p><img src="../../images/stats/ProbabilityConvolution_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/ProbabilityConvolution_05.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>

@@ -22,7 +22,7 @@ f = chebfun(ff,[0,5]);
 hold off, plot(f)
 title('The integral f as a function of parameter x')</pre>
 
-<p><img src="../../images/approx/DivergentSeries_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/DivergentSeries_01.png" class="figure chebfun-figure" alt=""></p>
 <p>One of the interesting features of $f$ is that its derivatives at $x=0$ are $(0!)^2, -(1!)^2, (2!)^2, -(3!)^2, \dots.$  Chebfun manages to compute a few of these, at any rate, to good accuracy:</p>
 <pre class="mcode-input">for j = 0:6
   fj = diff(f,j);

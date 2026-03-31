@@ -21,7 +21,7 @@ u = N\1;</pre>
 <p>A plot agrees nicely with Figure 1 of [1],</p>
 <pre class="mcode-input">plot(u), ylim([0 2]), grid on</pre>
 
-<p><img src="../../images/temp/BinousShaikhBellagi_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/temp/BinousShaikhBellagi_01.png" class="figure chebfun-figure" alt=""></p>
 <p>and the values at $x=0$ and $x=1/\sqrt 2$ agree with BSB Table 1,</p>
 <pre class="mcode-input">format long
 u([0 1/sqrt(2)])</pre>
@@ -44,7 +44,7 @@ u1 = expm(L,t,u0);</pre>
 <p>A plot agrees nicely with BSB Figure 2,</p>
 <pre class="mcode-input">plot(u1), grid on</pre>
 
-<p><img src="../../images/temp/BinousShaikhBellagi_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/temp/BinousShaikhBellagi_02.png" class="figure chebfun-figure" alt=""></p>
 <p>and the value at $y=0.5$ matches their Table 2:</p>
 <pre class="mcode-input">u1(0.5)</pre>
 
@@ -71,7 +71,7 @@ t = 1.33;
 u1 = expm(L,t,c0);
 plot(u1)</pre>
 
-<p><img src="../../images/temp/BinousShaikhBellagi_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/temp/BinousShaikhBellagi_03.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="5-falkner-skan-equation">5. Falkner-Skan equation</h3>
 <p>Next we look at</p>
 <p>$$ f''' + ff'' + (\pi/4)(1-(f')^2) = 0, \quad f(0) = f'(0) = 0, ~~
@@ -85,7 +85,7 @@ N.rbc = @(f) diff(f)-1;
 f = N\0;
 plot(diff(f)), grid on</pre>
 
-<p><img src="../../images/temp/BinousShaikhBellagi_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/temp/BinousShaikhBellagi_04.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="6-non-newtonian-carreau-fluid">6. Non-Newtonian Carreau fluid</h3>
 <p>BSB now consider a non-Newtonian fluids problem with a shear-dependent viscosity mu,</p>
 <p>$$ mu(g) = 0.00204 (1+ 0.04 g^2)^{-1/4} $$</p>
@@ -108,11 +108,11 @@ U = N\0;</pre>
 <p>BSB plot the temperature,</p>
 <pre class="mcode-input">T = U{2}; plot(T), grid on, title temperature</pre>
 
-<p><img src="../../images/temp/BinousShaikhBellagi_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/temp/BinousShaikhBellagi_05.png" class="figure chebfun-figure" alt=""></p>
 <p>and the velocity, which is $F'$,</p>
 <pre class="mcode-input">F = U{1}; plot(diff(F)), grid on, title velocity</pre>
 
-<p><img src="../../images/temp/BinousShaikhBellagi_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/temp/BinousShaikhBellagi_06.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="reference">Reference</h3>
 <ol>
 <li>H. Binous, A. A. Shaikh, and A. Bellagi, ``Chebyshev orthogonal    collocation technique to solve transport phenomena problems with Matlab    and Mathematica", <em>Computer Applications in Engineering Education</em>, 2014,    pp. 1-10.</li>

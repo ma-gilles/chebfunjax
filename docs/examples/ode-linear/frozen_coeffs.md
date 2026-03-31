@@ -26,7 +26,7 @@ L.op = @(t,u,v) ...
 arrowplot(u,v,'linewidth',5,'markersize',30,'ystretch',2)
 grid on, axis equal</pre>
 
-<p><img src="../../images/ode-linear/FrozenCoeffs_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/FrozenCoeffs_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="4-transition-to-turbulence">4. Transition to turbulence</h3>
 <p>In fluid mechanics, certain high Reynolds number laminar flows undergo transition to turbulence even though the eigenvalues suggest they should be stable. A simple model of this phenomenon can be based on mathematics much like the example above, with the rotation provided by nonlinearity rather than a variable coefficient.  See Sec. 21 of [7], or for a one-page summary, [6].</p>
 <h3 id="5-references">5. References</h3>

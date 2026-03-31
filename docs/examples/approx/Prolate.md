@@ -29,7 +29,7 @@ plot(real(K10)), view(0,90), axis square
 hold on, plot3(xx+0*kk,kk+0*xx,2+0*xx+0*kk,'.w',MS,5), hold off
 title('$\hbox{Re}(K(x,t))$',IN,LT)</pre>
 
-<p><img src="../../images/approx/Prolate_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Prolate_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Ordinarily one might think of this image as showing a patch of a function on $(-\infty,\infty)^2$ defining the Fourier transform (see the Wikipedia article on "Fourier operator"). But here we shall take the bounds $-1 \le x,t \le 1$ seriously and regard $K$ as the kernel of an integral operator mapping $L^2([-1,1])$ to itself: $$ L: f\mapsto g, \qquad g(t) = \int_{-1}^1 K(x,t) f(x) dx. $$ This is a normal operator, and its singular value decomposition is the same as its eigenfunction decomposition apart from factors of powers of $i$, with the singular values equal to the absolute values of the eigenvalues. With Chebfun we can compute the eigenfunctions of $K$. The absolute values $\lambda_j$ of the eigenvalues for $j&lt;2c/\pi$ are all approximately equal to $\sqrt{2\pi /c}$, whereas for $j &gt; 2c/\pi$, they decrease exponentially:</p>
 <pre class="mcode-input">lamabs = sort(abs(eig(K10)),'descend');
 semilogy(lamabs,'.',MS,13), grid on, hold on, ylim([1e-15 100])
@@ -40,7 +40,7 @@ semilogy(lamabs,'.',MS,13), grid on, hold on
 text(20,4,'$c = 10\pi$',IN,LT,HA,CT)
 text(40,4,'$c = 20\pi$',IN,LT,HA,CT)</pre>
 
-<p><img src="../../images/approx/Prolate_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Prolate_02.png" class="figure chebfun-figure" alt=""></p>
 <p>It's worth looking at the numbers, which show the leading eigenvalue absolute values matching $\sqrt{2\pi / c}$ to machine precision:</p>
 <pre class="mcode-input">lamabs = sort(abs(eig(K10)),'descend')</pre>
 
@@ -107,12 +107,12 @@ for j = 1:8
    title(['$\lambda_' int2str(j) ' = ' lamstr '$'],IN,LT)
 end</pre>
 
-<p><img src="../../images/approx/Prolate_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Prolate_03.png" class="figure chebfun-figure" alt=""></p>
 <p>For larger values of $c$, however, a numerical eigenvalue calculation is no good. The trouble is that the leading eigenvalues are numerically equal (in four sets, corresponding to the four powers of $i$) and the leading eigenfunction are correspondingly numerically nonunique, so if you calculate them, they come out with somewhat random shapes as well as being no longer real. To sort this out you need to do some thinking, not just apply a numerical eigenvalue calculation.  Luckily such thinking has been done and you can find everying about prolate spheroidal wave functions in [4].  There is also a Chebfun command <code>pswf</code> that does the job, as we can see here with two examples:</p>
 <pre class="mcode-input">subplot(2,1,1), plot(pswf(10,200)), grid on
 subplot(2,1,2), plot(pswf(50,200)), grid on</pre>
 
-<p><img src="../../images/approx/Prolate_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Prolate_04.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is a summary.  For any fixed $c&gt;0$,</p>
 <p><em>Prolate spheroidal wave functions are the eigenfunctions of the kernel $K(x,t) = e^{icxt}$, $-1 \le x,t \le 1$.</em></p>
 <p>They are an infinite set spanning $L^2([-1,1])$ but it only takes somewhat more than $2c/\pi$ of them to give good approximations to the functions in $L^2([-1,1])$ that are bandlimited to wave numbers $[c,c]$. For Pollak, Slepian, and Landau, the exciting applications were in signal processing.  For many of us today, they are in providing efficient bases for numerical computations, requiring asymptotically $\pi/2$ times fewer points than polynomial bases such as Chebyshev polynomials.</p>

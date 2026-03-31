@@ -30,7 +30,7 @@ grid on, title('closeup',FS,fs), toc</pre>
 <pre class="mcode-output">Elapsed time is 2.744878 seconds.
 </pre>
 
-<p><img src="../../images/approx/WigglyApprox_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/WigglyApprox_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Here are <code>f(200,220)</code> and its best approximation of degree $199$:</p>
 <pre class="mcode-input">tic, m = 200; n = 220;
 f = fmn(m,n);
@@ -47,7 +47,7 @@ grid on, title('closeup',FS,fs), xlim([.995 1]), toc</pre>
 <pre class="mcode-output">Elapsed time is 1.239600 seconds.
 </pre>
 
-<p><img src="../../images/approx/WigglyApprox_02.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/approx/WigglyApprox_02.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

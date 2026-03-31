@@ -27,12 +27,12 @@ z =  3*(1-x).^2.*exp(-(x.^2) - (y+1).^2) ...
 
 </pre>
 
-<p><img src="../images/guide/guide12_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide12_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The same function is available as a chebfun2 in the Chebfun2 gallery:</p>
 <pre class="mcode-input">f = cheb.gallery2('peaks');
 plot(f), axis tight, title('Chebfun2 Peaks')</pre>
 
-<p><img src="../images/guide/guide12_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide12_02.png" class="figure chebfun-figure" alt=""></p>
 <p>In Chebfun we can do all sorts of things with functions to a high accuracy, such as evaluate them</p>
 <pre class="mcode-input">f(0.5,0.5)</pre>
 
@@ -67,11 +67,11 @@ f = cos(2*pi*x.*y);</pre>
 <p>Here is a plot of $f$:</p>
 <pre class="mcode-input">plot(f), zlim([-2 2])</pre>
 
-<p><img src="../images/guide/guide12_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide12_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Along with <code>plot</code>, there are also commands <code>contour</code> and <code>surf</code> for displaying a chebfun2. Here is a contour plot of $f$:</p>
 <pre class="mcode-input">contour(f), axis square</pre>
 
-<p><img src="../images/guide/guide12_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide12_04.png" class="figure chebfun-figure" alt=""></p>
 <p>One way to find the rank of the approximant used to represent $f$, discussed in Section 8.8, is like this:</p>
 <pre class="mcode-input">length(f)</pre>
 
@@ -129,12 +129,12 @@ vertical scale =   1
 plot(r), axis([-1 1 -1 1])
 axis square, title('Zero contours of f-.95')</pre>
 
-<p><img src="../images/guide/guide12_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide12_05.png" class="figure chebfun-figure" alt=""></p>
 <p>What is the partial derivative $\partial f/\partial y$?</p>
 <pre class="mcode-input">fy = diff(f,1,1);
 plot(fy)</pre>
 
-<p><img src="../images/guide/guide12_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide12_06.png" class="figure chebfun-figure" alt=""></p>
 <p>The syntax for the <code>diff</code> command can cause confusion because we are following the matrix syntax in MATLAB. Chebfun2 also offers the more easily remembered <code>diffx(f,k)</code> and <code>diffy(f,k)</code>, which differentiate $f(x,y)$ $k$ times with respect to the first and second variable, respectively.</p>
 <p>What is the mean value of $f$ on $[-1,1]\times[-1,1]$?</p>
 <pre class="mcode-input">mean2(f)</pre>
@@ -227,7 +227,7 @@ y = chebfun2(@(x,y) y, [-4 4 -2 2]);
 f = 1./( 2 + cos(.25 + x.^2.*y + y.^2) );
 contour(f), axis equal</pre>
 
-<p><img src="../images/guide/guide12_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide12_07.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="127-analytic-functions">12.7 Analytic functions</h3>
 <p>An analytic function $f(z)$ can be thought of as a complex-valued function of two real variables, $f(x,y) = f(x+iy)$. If the Chebfun2 constructor is given an anonymous function with one argument, it assumes that argument is a complex variable. For instance,</p>
 <pre class="mcode-input">f = chebfun2(@(z) sin(z));
@@ -243,7 +243,7 @@ ans =
 <pre class="mcode-input">f = chebfun2(@(z) sin(z)-sinh(z),2*pi*[-1 1 -1 1]);
 plot(f)</pre>
 
-<p><img src="../images/guide/guide12_08.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide12_08.png" class="figure chebfun-figure" alt=""></p>
 <p>Many properties of analytic functions can be visualised by these types of plots, such as the location of zeros and their multiplicities. Can you work out the multiplicity of the root at $z=0$ from this plot? For another example, try <code>cheb.gallery2('airycomplex')</code>.</p>
 <p>Since Chebfun2 only represents smooth functions, a trick is required to draw pictures like these for functions with poles [Trefethen 2013]. For functions with branch points or essential singularities, it is currently not possible in Chebfun2 to draw phase plots.</p>
 <h3 id="128-chebfun2-low-rank-approximations">12.8 Chebfun2 low rank approximations</h3>
@@ -255,7 +255,7 @@ levels = 0.1:0.1:0.9;
 contour(f,levels), axis([-1 1 -1 1]), axis square
 title(['rank ' int2str(length(f))],'fontsize',12)</pre>
 
-<p><img src="../images/guide/guide12_09.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide12_09.png" class="figure chebfun-figure" alt=""></p>
 <p>To illustrate the nature of low-rank approximations, rather than letting Chebfun2 determine the rank adaptively, we can force it to take ranks $1,2,\dots ,9$.  Here are the results, plotted with black level curves at heights $0.2,0.4,0.6,0.8$:</p>
 <pre class="mcode-input">levels = 0.2:0.2:0.8;
 clf
@@ -265,7 +265,7 @@ for k = 1:9
     xlim([-1 1]), axis equal, axis off
 end</pre>
 
-<p><img src="../images/guide/guide12_10.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide12_10.png" class="figure chebfun-figure" alt=""></p>
 <p>For this function, "plotting accuracy" is achieved approximately at rank 16; the remaining terms are then required to get from 2-3 digits to 15.</p>
 <h3 id="129-references">12.9 References</h3>
 <p>[Bebendorf 2008] M. Bebendorf, <em>Hierarchical Matrices: A Means to Efficiently Solve Elliptic Boundary Value Problems</em>, Springer, 2008.</p>

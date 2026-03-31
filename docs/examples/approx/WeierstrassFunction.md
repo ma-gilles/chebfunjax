@@ -23,12 +23,12 @@ end</pre>
 <pre class="mcode-input">plot(F{9}, 'k')
 title('A pathological function of Weierstrass')</pre>
 
-<p><img src="../../images/approx/WeierstrassFunction_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/WeierstrassFunction_01.png" class="figure chebfun-figure" alt=""></p>
 <p>We must zoom in 400 times to see that Chebfun is in fact plotting a smooth function.</p>
 <pre class="mcode-input">plot(F{9}, 'k', 'interval', [0 0.005])
 title('Close-up of Weierstrass approximant')</pre>
 
-<p><img src="../../images/approx/WeierstrassFunction_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/WeierstrassFunction_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The function $F(x)$ is not differentiable, but it is integrable. For this particular Weierstrass function, the exact value of the integral can be found easily. We begin with</p>
 <p>$$ \int_{-1}^{1} F(x)\mathrm{d}x = \int_{-1}^{1}
 \sum_{k=0}^{\infty} f_k(x) \mathrm{d}x = \int_{-1}^{1} \sum_{k=0}^{\infty}

@@ -18,12 +18,12 @@ plot( f ), title('Original',FS,fs), axis off
 subplot(1,2,2)
 plot( g ), title('Rotated',FS,fs), axis off</pre>
 
-<p><img src="../../images/sphere/SpherefunRotate_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SpherefunRotate_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The <code>rotate</code> command requires a highly nontrivial computation, because the rotated function must be represented by an approximant in the original coordinate system. This allows one to continue to do algebraic manipulations on the rotated function. For example, convenient algebraic manipulations.</p>
 <pre class="mcode-input">h = f + g;
 clf, plot( h ), axis off</pre>
 
-<p><img src="../../images/sphere/SpherefunRotate_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SpherefunRotate_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The <code>rotate</code> command computes the rotated function essentially to machine precision. For instance, the 2D integral over the sphere is preserved:</p>
 <pre class="mcode-input">abs( sum2(f) - sum2(g) )</pre>
 
@@ -46,7 +46,7 @@ subplot(2,2,4)
 g = rotate( f, pi/4, 0, pi/4);
 plot( g ), title('Rotated \phi=\psi=\pi/4',FS,fs), axis off</pre>
 
-<p><img src="../../images/sphere/SpherefunRotate_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SpherefunRotate_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Every rigid-body rotation of the sphere can be described in terms of these three Euler angles.</p>
 <h3 id="rotation-using-the-spherical-harmonic-expansions">Rotation using the spherical harmonic expansions</h3>
 <p>The classical algorithm for computing the rotation of a function $f$ on the sphere is to first express $f$ in terms of a spherical harmonic expansion and then to use the fact that the spherical harmonics form a basis of SO(3) [4]. For example, if $f$ is the spherical harmonic function $Y_{\ell}^m(\lambda,\theta)$, then any rotation of $Y_{\ell}^m(\lambda,\theta)$ can be written as a linear combination of $Y_{\ell}^s(\lambda,\theta)$ for $-\ell\leq s\leq \ell$ in the original coordinate system. That is,</p>
@@ -76,7 +76,7 @@ set(gca,'ZScale','log'), set(gca,'Xdir','reverse'),
 xlabel('$\ell$','Interpreter','Latex'), ylabel('m'), zlabel('|coeffs|')
 title('Spherical harmonic coefficients')</pre>
 
-<p><img src="../../images/sphere/SpherefunRotate_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SpherefunRotate_04.png" class="figure chebfun-figure" alt=""></p>
 <p>We see that only the $\ell=10$ coefficients have changed.  We can verify this further by computing the rotated spherical harmonic directly as a linear combination of $Y_{\ell}^s(\lambda,\theta)$ for $-\ell\leq s\leq \ell$.</p>
 <pre class="mcode-input">h = spherefun(0);
 k = 1;
@@ -98,7 +98,7 @@ norm(h - g)</pre>
 <pre class="mcode-input">f = randnfunsphere( 0.03 );
 plot( f ), title('Random function',FS,fs), axis off</pre>
 
-<p><img src="../../images/sphere/SpherefunRotate_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SpherefunRotate_05.png" class="figure chebfun-figure" alt=""></p>
 <p>For this function, we see a big speed-up for the NUFFT:</p>
 <pre class="mcode-input">s = tic; g = rotate(f, pi/3, pi/2, 0.5, 'feval'); t_feval = toc(s);
 s = tic; h = rotate(f, pi/3, pi/2, 0.5); t_nufft = toc(s);
@@ -108,7 +108,7 @@ plot( h ), title('Rotated random function',FS,fs), axis off</pre>
 <pre class="mcode-output">NUFFT speed-up factor = 4.4
 </pre>
 
-<p><img src="../../images/sphere/SpherefunRotate_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SpherefunRotate_06.png" class="figure chebfun-figure" alt=""></p>
 <p>We hope that this speed-up allows for successful applications of the <code>rotate</code> command.</p>
 <h3 id="ranks-of-rotated-functions">Ranks of rotated functions</h3>
 <p>Spherefun computations are based on exploiting an underlying low rank structure of functions on the sphere. For example, the following function on the sphere is mathematically a full rank function that can be approximated to essentially machine precision by a rank $29$ function:</p>
@@ -146,7 +146,7 @@ end
 plot(alp,rk,'x-','LineWidth',2), xlabel('Rotation angle',FS,fs)
 ylabel('Rank'), title('Rank of the rotation of a Gaussian',FS,fs)</pre>
 
-<p><img src="../../images/sphere/SpherefunRotate_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SpherefunRotate_07.png" class="figure chebfun-figure" alt=""></p>
 <p>As the Gaussian approaches the north and south poles (at rotation angles of $\pi/2$ and $3\pi/2$, respectively) we see that the rank decreases substantially. If we had not offset the Gaussian from the $y$-axis then the rank would have been exactly 1 at north and south poles since the Gaussian reduces to $\exp(-20(1\pm z))$ there.</p>
 <h3 id="references">References</h3>
 <p>[1] D. Ruiz-Antolin and A. Townsend, "A nonuniform fast Fourier transform based on low rank approximation", submitted, 2017.</p>

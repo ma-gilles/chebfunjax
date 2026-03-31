@@ -18,17 +18,17 @@
 <pre class="mcode-input">f = random + paraboloid;
 plot(f,'zebra'), axis equal off</pre>
 
-<p><img src="../../images/stats/RandomSurf_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/RandomSurf_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Of course zebra mode isn't the only way to plot a function.  Here is a contour plot:</p>
 <pre class="mcode-input">contour(f), colorbar, colormap('default'), axis off</pre>
 
-<p><img src="../../images/stats/RandomSurf_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/RandomSurf_02.png" class="figure chebfun-figure" alt=""></p>
 <p>And here is a surface plot:</p>
 <pre class="mcode-input">surf(f), zlim([-10 10])
 camlight, camlight
 view(0,60), axis off</pre>
 
-<p><img src="../../images/stats/RandomSurf_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/RandomSurf_03.png" class="figure chebfun-figure" alt=""></p>
 <p>The smooth random functions produced by <code>randnfundisk</code> are defined by finite Fourier series with random coefficients; see [7].  As discussed in Section 7 of that paper, random surfaces have been studied since Longuet-Higgins in 1957 [8], and application areas include oceanography [8], biology [10], cosmology [2,6,9], condensed matter physics [5], and the melting of the Arctic [4].  There is also interest among pure mathematicians [1] and other theoretical physicists [3]. Chebfun's smooth random functions are examples of Gaussian random fields [9].</p>
 <p>Our choice in this example to show random functions on a disk is arbitrary.  Good times can also be had with <code>randnfun</code>, <code>randnfun2</code>, and <code>randnfunsphere</code>.</p>
 <p>[1] R. J. Adler and J. E. Taylor, <em>Random Fields and Geometry,</em> Springer, 2009.</p>

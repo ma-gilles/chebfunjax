@@ -38,7 +38,7 @@ f = chebfun(nr,[-25,25],'vectorize');
 LW = 'linewidth';
 plot(f,LW,1.6), grid on</pre>
 
-<p><img src="../../images/linalg/ResolventNorm_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/linalg/ResolventNorm_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The maximum of $f$ is this,</p>
 <pre class="mcode-input">format long
 maxf = max(f)</pre>
@@ -79,7 +79,7 @@ format short, eig(B)</pre>
 plot(fB,LW,1.6), grid on
 title(['maximum = ' num2str(max(fB))]);</pre>
 
-<p><img src="../../images/linalg/ResolventNorm_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/linalg/ResolventNorm_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Here are 12 random $6\times6$ complex matrices, all with rightmost eigenvalue having real part $-0.25$:</p>
 <pre class="mcode-input">rng(1)
 for j = 1:12
@@ -92,7 +92,7 @@ for j = 1:12
     axis([-10 10 0 8]), drawnow
 end</pre>
 
-<p><img src="../../images/linalg/ResolventNorm_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/linalg/ResolventNorm_03.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>L. N. Trefethen and M. Embree, <em>Spectra and Pseudospectra: The Behavior of    Nonnormal Matrices and Operators</em>, Princeton U. Press, 2005.</li>

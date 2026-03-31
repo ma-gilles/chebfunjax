@@ -46,7 +46,7 @@ ans =
 <p>And here is a plot of the columns:</p>
 <pre class="mcode-input">  plot(A), grid on, ylim([-1.1 1.1])</pre>
 
-<p><img src="../images/guide/guide06_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide06_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The term quasimatrix comes from [Stewart 1998], and the same idea appears with different terminology in [de Boor 1991] and [Trefethen & Bau 1997, pp. 52-54].  The idea is a natural one, since so much of applied linear algebra deals with discrete approximations to the continuous, but it seems not to have been discussed explicitly very much until the appearance of Chebfun [Battles & Trefethen 2004, Battles 2006].</p>
 <p>If <code>f</code> and <code>g</code> are column chebfuns, then <code>f'*g</code> is a scalar, their inner product. For example, here is the inner product of $x^2$ and $x^4$ over $[-1,1]$ (equal to $2/7$):</p>
 <pre class="mcode-input">  A(:,3)'*A(:,5)</pre>
@@ -71,7 +71,7 @@ ans =
 <pre class="mcode-input">  subplot(1,2,1), spy(A), title A
   subplot(1,2,2), spy(A'), title('A''')</pre>
 
-<p><img src="../images/guide/guide06_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide06_02.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="62-backslash-least-squares-and-polyfit">6.2 Backslash, least-squares, and <code>polyfit</code></h3>
 <p>In MATLAB, the command <code>c = A\b</code> computes the solution to the system of equations $Ac = b$ if $A$ is a square matrix, whereas if $A$ is rectangular, with more rows than columns, it computes the least squares solution, the vector $c$ that minimizes $|Ac-b|$.  A quasimatrix is always rectangular, and <code>\</code> has accordingly been overloaded to carry out the appropriate continuous least-squares computation. (The actual MATLAB command that handles backslash is <code>mldivide</code>.)</p>
 <p>For example, continuing with the same chebfun <code>x</code> and quasimatrix <code>A</code> as above, consider the following sequence:</p>
@@ -97,7 +97,7 @@ ans =
    0.356073976001434
 </pre>
 
-<p><img src="../images/guide/guide06_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide06_03.png" class="figure chebfun-figure" alt=""></p>
 <p>It is a general result that the least-squares approximation by a polynomial of degree $n$ to a continuous function $f$ must intersect $f$ at least $n+1$ times in the interval of approximation.</p>
 <p>If you want to do least-squares fitting by polynomials in Chebfun, there is no need to set up a quasimatrix as we did above.  Instead, you can use the Chebfun <code>polyfit</code> command, like this:</p>
 <pre class="mcode-input">ffit_polyfit = polyfit(f,5);
@@ -117,7 +117,7 @@ norm(ffit-ffit_polyfit)</pre>
   plot(A2)
   set(gca,'xtick',-1:.2:1)</pre>
 
-<p><img src="../images/guide/guide06_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide06_04.png" class="figure chebfun-figure" alt=""></p>
 <p>A linear combination of these columns is a piecewise linear function with breakpoints at $-0.8, -0.6,\dots,0.8$.  Here is the least-squares fit by such functions to $f$.  Remember that although we happen to be fitting here by a function with a discrete flavor, all the operations are continuous ones involving integrals, not point evaluations.</p>
 <pre class="mcode-input">  c = A2\f;
   ffit = A2*c;
@@ -130,20 +130,20 @@ norm(ffit-ffit_polyfit)</pre>
    0.089306812087670
 </pre>
 
-<p><img src="../images/guide/guide06_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide06_05.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="63-qr-factorization">6.3 QR factorization</h3>
 <p>Matrix least-squares problems are ordinarily solved by QR factorization, and in the quasimatrix case, they are solved by quasimatrix QR factorization. This is the technology underlying the backslash operator described in the last section.</p>
 <p>A quasimatrix QR factorization takes this form: $$ A = QR, $$ with $$ A:~ \infty\times n, \quad Q: ~ \infty\times n, \quad R: ~ n\times n.  $$ The columns of $A$ are arbitrary, the columns of $Q$ are orthonormal, and $R$ is an $n\times n$ upper-triangular matrix.  This factorization corresponds to what is known in various texts as the "reduced," "economy size," "skinny," "abbreviated," or "condensed" QR factorization, since $Q$ is rectangular rather than square and $R$ is square rather than rectangular.  In MATLAB the syntax for computing such things is <code>[Q,R] = qr(A)</code>, and the same command has been overloaded for chebfuns.  The computation makes use of a quasimatrix analogue of Householder triangularization [Trefethen 2010].  Alternatively one can simply write <code>[Q,R] = qr(A)</code>:</p>
 <pre class="mcode-input">  [Q,R] = qr(A);
   plot(Q), grid on</pre>
 
-<p><img src="../images/guide/guide06_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide06_06.png" class="figure chebfun-figure" alt=""></p>
 <p>The <code>spy</code> command confirms the shape of these various matrices. In principle half the dots in the upper-triangle should be zero because of the fact that the columns of $A$ alternate even and odd functions, but rounding errors introduce nonzeros.</p>
 <pre class="mcode-input">  subplot(1,3,1), spy(A), title A
   subplot(1,3,2), spy(Q), title Q
   subplot(1,3,3), spy(R), title R</pre>
 
-<p><img src="../images/guide/guide06_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide06_07.png" class="figure chebfun-figure" alt=""></p>
 <p>The plot shows <em>orthogonal polynomials</em>, namely the orthogonalizations of the monomials $1, x,\dots,x^5$ over $[-1,1]$.  These are the famous Legendre polynomials $P_k$ [Abramowitz & Stegun 1972], except that the latter are conventionally normalized by the condition $P(1) = 1$ rather than by having norm $1$.  We can renormalize to impose this condition as follows:</p>
 <pre class="mcode-input">  for j = 1:size(A,2)
     R(j,:) = R(j,:)*Q(1,j);
@@ -151,7 +151,7 @@ norm(ffit-ffit_polyfit)</pre>
   end
   clf, plot(Q), grid on</pre>
 
-<p><img src="../images/guide/guide06_08.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide06_08.png" class="figure chebfun-figure" alt=""></p>
 <p>(A slicker way to produce this plot in Chebfun would be to execute <code>plot(legpoly(0:5))</code>.)</p>
 <p>If $A=QR$, then $A R^{-1} = Q$, and here is $R^{-1}$:</p>
 <pre class="mcode-input">  format short, inv(R), format long</pre>
@@ -171,7 +171,7 @@ norm(ffit-ffit_polyfit)</pre>
   plot(Q2)
   set(gca,'xtick',-1:.2:1)</pre>
 
-<p><img src="../images/guide/guide06_09.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide06_09.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="64-svd-norm-cond">6.4 <code>svd</code>, <code>norm</code>, <code>cond</code></h3>
 <p>An $m\times n$ matrix $A$ defines a map from $R^n$ to $R^m$, and in particular, $A$ maps the unit ball in $R^n$ to a hyperellipsoid of dimension $\le n$ in $R^m$. The (reduced, skinny, condensed, $\dots$ ) <em>SVD</em> or <em>singular value decomposition</em> exhibits this map by providing a factorization $AV = US$ or equivalently $A = USV^*$, where $U$ is $m\times n$ with orthonormal columns, $S$ is diagonal with nonincreasing nonnegative diagonal entries known as the <em>singular values</em>, and $V$ is $n\times n$ and orthogonal. $A$ maps $v_j$, the $j$ th column of $V$ or the $j$ th <em>right singular vector</em>, to $s_j$ times $u_j$, the $j$ th column of $U$ or the $j$ th <em>left singular vector</em>, which is the vector defining the $j$ th largest semiaxis of the hyperellipsoid.  See Chapters 4 and 5 of [Trefethen & Bau 1997].</p>
 <p>If $A$ is an $\infty \times n$ quasimatrix, everything is analogous: $$ A = USV^T, \qquad  A: \infty \times n,~~ U: \infty \times n, ~~  S: n \times n, ~~  V:  n \times n. $$ The image of the unit ball in $R^n$ under $A$ is still a hyperellipsoid of dimension $\le n$, which now lies within an infinite-dimensional function space. The columns of $U$ are orthonormal functions and $S$ and $V$ have the same properties as in the matrix case.</p>
@@ -213,7 +213,7 @@ norm(ffit-ffit_polyfit)</pre>
   subplot(1,5,4), spy(S), title S
   subplot(1,5,5), spy(V), title V</pre>
 
-<p><img src="../images/guide/guide06_10.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide06_10.png" class="figure chebfun-figure" alt=""></p>
 <p>We confirm that the norm of $v_1$ is $1$:</p>
 <pre class="mcode-input">  norm(v1)</pre>
 
@@ -252,7 +252,7 @@ norm(ffit-ffit_polyfit)</pre>
   vn = V(:,end);
   plot(A*vn,'r'), hold off</pre>
 
-<p><img src="../images/guide/guide06_11.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide06_11.png" class="figure chebfun-figure" alt=""></p>
 <p>The ratio of the largest and smallest singular values --- the eccentricity of the hyperellipsoid --- is the condition number of $A$:</p>
 <pre class="mcode-input">  max(s)/min(s)</pre>
 
@@ -349,7 +349,7 @@ vertical scale = 1.4
   subplot(1,3,2), spy(orth(B)), title orth(B)
   subplot(1,3,3), spy(pinv(A)), title pinv(A)</pre>
 
-<p><img src="../images/guide/guide06_12.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide06_12.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="67-array-valued-chebfuns-vs-arrays-of-chebfuns">6.7 Array-valued chebfuns vs. arrays of chebfuns</h3>
 <p>In Chebfun, quasimatrices are actually implemented in two different ways.  When its columns are smooth functions, a quasimatrix is normally represented as an <em>array-valued chebfun</em>. If a quasimatrix has singularities, or breakpoints that differ from one column to another, it is represented in a different fashion as an <em>array of chebfuns</em>.  This representation is more flexible, though slower for some operations. In principle, users should never see the difference.</p>
 <h3 id="68-references">6.8  References</h3>

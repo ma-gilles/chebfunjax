@@ -109,8 +109,9 @@ def extract_header_and_content(html_text: str) -> tuple[str, str]:
 
 def rewrite_fragment(fragment: str, guide_slug: str) -> str:
     fragment = html.unescape(fragment)
-    fragment = fragment.replace(f'src="img/{guide_slug}_', 'src="../images/guide/' + guide_slug + '_')
-    fragment = fragment.replace(f"src='img/{guide_slug}_", "src='../images/guide/" + guide_slug + "_")
+    # Guide pages build to /guide/guideNN/, so images live two levels up at /images/guide/.
+    fragment = fragment.replace(f'src="img/{guide_slug}_', 'src="../../images/guide/' + guide_slug + '_')
+    fragment = fragment.replace(f"src='img/{guide_slug}_", "src='../../images/guide/" + guide_slug + "_")
     fragment = re.sub(
         r'href="/docs/guide/guide(\d+)\.html"',
         lambda m: f'href="../guide{int(m.group(1)):02d}/"',

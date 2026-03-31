@@ -46,7 +46,7 @@ plot(f,'interval',d)
 axis([d -1.5 1.5]), grid on
 hold on, plot(r,f(r),'.r','markersize',12), hold off</pre>
 
-<p><img src="../../images/roots/RootsSpeed_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/roots/RootsSpeed_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="2-what-chebfun-might-do">2. What Chebfun might do</h3>
 <p>"Classically", using the MATLAB <code>roots</code> command, it takes $O(n^3)$ operations to compute the eigenvalues of a companion matrix, which is the method that MATLAB has used since the 1970s for finding roots of a polynomial in the monomial basis.  We can illustrate that this computation is slow, if not really that the complexity is cubic, by the following experiment.</p>
 <pre class="mcode-input">for ntest = [250 500 1000 2000]

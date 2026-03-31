@@ -45,7 +45,7 @@ ans =
      2.644251170154956e-13
 </pre>
 
-<p><img src="../../images/ode-eig/NullSpace_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/NullSpace_01.png" class="figure chebfun-figure" alt=""></p>
 <p>where we find that $V^T V = I$ and $LV \approx 0$ as required.</p>
 <p>Clearly <code>V</code> doesn't correspond directly to $1$ and $x$, since there is some freedom in how we orthogonalise the basis. However, we can check that <code>V</code> and ${1, x}$ correspond to the same spaces by computing the angle between the spaces with the <code>subspace</code> command.</p>
 <pre class="mcode-input">subspace(v, V)</pre>
@@ -83,7 +83,7 @@ ans =
      3.096261776816828e-11
 </pre>
 
-<p><img src="../../images/ode-eig/NullSpace_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/NullSpace_02.png" class="figure chebfun-figure" alt=""></p>
 <p>However, now suppose we impose one boundary condition, say, a Dirichlet condition at the left. This removes one degree of freedom, and we are left with a rank 1 nullspace.</p>
 <pre class="mcode-input">L.lbc = 0;
 L.rbc = [];
@@ -103,7 +103,7 @@ ans =
      1.427155766422003e-11
 </pre>
 
-<p><img src="../../images/ode-eig/NullSpace_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/NullSpace_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Clearly this null vector must satisfy the given condition $v(-\pi) = 0.$</p>
 <pre class="mcode-input">v(-pi)</pre>
 
@@ -117,12 +117,12 @@ ans =
 u = L\1;
 hold on, plot(u, '--r', LW, lw), hold off</pre>
 
-<p><img src="../../images/ode-eig/NullSpace_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/NullSpace_04.png" class="figure chebfun-figure" alt=""></p>
 <p>and compute the rest by adding a scalar multiple of the null-function $v$.</p>
 <pre class="mcode-input">E = chebfun(@(c) norm(u + c*v, 2), [-10, 10], 'vectorize', 'splitting', 'on');
 plot(E,LW,lw)</pre>
 
-<p><img src="../../images/ode-eig/NullSpace_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/NullSpace_05.png" class="figure chebfun-figure" alt=""></p>
 <p>We compute the 2-norm as a chebfun in the unknown variable $c$, which we can then minimise to obtain the minimal energy solution</p>
 <pre class="mcode-input">[minE, c_star] = min(E)
 u_star = u + c_star*v
@@ -139,7 +139,7 @@ u_star =
 Epslevel = 1.776357e-15.  Vscale = 3.989391e+00.
 </pre>
 
-<p><img src="../../images/ode-eig/NullSpace_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/NullSpace_06.png" class="figure chebfun-figure" alt=""></p>
 <p>So the condition we require is that $u(\pi)$ = <code>bc_star</code>, where</p>
 <pre class="mcode-input">bc_star = u_star(pi)</pre>
 
@@ -175,7 +175,7 @@ ans =
   -0.000000000000000   1.000000000000001
 </pre>
 
-<p><img src="../../images/ode-eig/NullSpace_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/NullSpace_07.png" class="figure chebfun-figure" alt=""></p>
 <pre class="mcode-input">sum(V) - V(0,:)
 norm(L(V), 1)</pre>
 

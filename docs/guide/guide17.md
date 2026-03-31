@@ -35,7 +35,7 @@ x = \cos\lambda\sin\theta, \quad y = \sin\lambda\sin\theta, \quad z =
 <pre class="mcode-input">f = spherefun( @(x,y,z) 1./(1 + (x+1/sqrt(2)).^2 + z.^2) );
 plot( f )</pre>
 
-<p><img src="../images/guide/guide17_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Or, equivalently, the function can be constructed in spherical coordinates as</p>
 <pre class="mcode-input">g = spherefun( @(lam,theta) 1./(1 + (cos(lam).*sin(theta)+1/sqrt(2)).^2 +...
                 cos(theta).^2) );</pre>
@@ -76,7 +76,7 @@ plot(fequator)</pre>
 vertical scale =   1 
 </pre>
 
-<p><img src="../images/guide/guide17_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Cartesian coordinates can also be used to obtain slices of functions. For example, <code>f</code> along the plane $x=1/4$ intersecting the sphere is</p>
 <pre class="mcode-input">fslice = f(0.25,:,:)
 plot(fslice)</pre>
@@ -88,7 +88,7 @@ plot(fslice)</pre>
 vertical scale = 0.52 
 </pre>
 
-<p><img src="../images/guide/guide17_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_03.png" class="figure chebfun-figure" alt=""></p>
 <p>In the spirit of Chebfun, one can compute with spherefuns without worrying about the underlying discretization or how a particular algorithm is implemented. At every step we aim to achieve close to machine precision results, while compressing representations wherever possible.</p>
 <p>Using object-oriented programming in MATLAB there are about one hundred commands that one can now perform on spherefuns.</p>
 <h3 id="172-basic-operations">17.2 Basic operations</h3>
@@ -160,18 +160,18 @@ for k = 1 : size(r, 1)
 end
 hold off, axis off</pre>
 
-<p><img src="../images/guide/guide17_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_04.png" class="figure chebfun-figure" alt=""></p>
 <p>Contours of a function can also be visualized on the sphere using the
 <code>contour</code> function.  Here are the contours of $f$ from $-2$ to $2$ in
 increments of $0.25$</p>
 <pre class="mcode-input">contour(f,-2:0.25:2), axis off</pre>
 
-<p><img src="../images/guide/guide17_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_05.png" class="figure chebfun-figure" alt=""></p>
 <p>The landmasses of earth can be added to this, or any other plot of a
 spherefun, as follows:</p>
 <pre class="mcode-input">hold on, spherefun.plotEarth('k-'), hold off, view([45 20]), axis off</pre>
 
-<p><img src="../images/guide/guide17_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_06.png" class="figure chebfun-figure" alt=""></p>
 <p>Differentiation of a function on the sphere with respect to spherical
 coordinates $(\lambda,\theta)$ can lead to singularities at the poles,
 even for smooth functions.  For example, the function
@@ -193,13 +193,13 @@ snapnow
 dfdz = diff( f, 3 );
 plot(dfdz), title( 'z-component of the surface gradient'), axis off</pre>
 
-<p><img src="../images/guide/guide17_07.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide17_08.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_08.png" class="figure chebfun-figure" alt=""></p>
 <p>The surface Laplacian of <code>f</code> is</p>
 <pre class="mcode-input">lapf = laplacian( f );
 plot( lapf ), axis off</pre>
 
-<p><img src="../images/guide/guide17_09.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_09.png" class="figure chebfun-figure" alt=""></p>
 <p>Finally, as with chebfun and chebfun2 objects, we can add, subtract, and multiply simple spherefuns together.</p>
 <pre class="mcode-input">g = spherefun( @(l,t) 2*cos(10*cos(l-0.25).*cos(l).*(sin(t).*cos(t)).^2) );
 plot( g ), title('g'), axis off, snapnow
@@ -210,10 +210,10 @@ plot( h ), title('f - g'), axis off, snapnow
 h = f.*g;
 plot( h ), title('f x g'), axis off</pre>
 
-<p><img src="../images/guide/guide17_10.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide17_11.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide17_12.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide17_13.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_10.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_11.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_12.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_13.png" class="figure chebfun-figure" alt=""></p>
 <p>For a complete list of methods available for spherefuns, type <code>methods spherefun</code>.  Many of these are inherited from the abstract <code>separableApprox</code> class that was introduced in Chebfun version 5.3. It is fascinating to go through these commands and ask: "What is the analogous operation for functions on the sphere?" We certainly do not have all the answers yet.</p>
 <h3 id="173-low-rank-function-approximation">17.3 Low rank function approximation</h3>
 <p>The initial plan for Spherefun was to apply the iterative Gaussian
@@ -300,15 +300,15 @@ using</p>
 plot( f, '.-', MS, 20 ), view([-105 10])
 title('Skeleton used for constructing f'), axis off</pre>
 
-<p><img src="../images/guide/guide17_14.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide17_15.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_14.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_15.png" class="figure chebfun-figure" alt=""></p>
 <p>Here are the trigonometric coefficients for the  rows $r_j(\lambda)$
 and columns $c_j(\theta)$ quasimatrices making up the approximation of
 $\tilde{f}$</p>
 <pre class="mcode-input">plotcoeffs( f )
 ylim([1e-20 1e2])</pre>
 
-<p><img src="../images/guide/guide17_16.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_16.png" class="figure chebfun-figure" alt=""></p>
 <p>An approximation to the bivariate Fourier coefficients in the double
 trigonometric expansion \eqref{eq:2DFourierExpansion} can also be
 computed rapidly from <code>f</code>:</p>
@@ -319,7 +319,7 @@ clf, surf( mm, nn, log10( abs( X ) ) ), axis tight
 title('Bivariate Fourier coefficients')
 xlabel('k'), ylabel('j')</pre>
 
-<p><img src="../images/guide/guide17_17.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_17.png" class="figure chebfun-figure" alt=""></p>
 <p>There is an important byproduct of the low rank approximation algorithm
 that can be spied in the skeleton plot above showing the pivots.  If one were
 to use a tensor product method to reconstruct $f$, then any sampling grid
@@ -344,8 +344,8 @@ clf, surf(XX, YY, ZZ, 1+0*XX, 'FaceColor', [1 1 0.8], 'EdgeColor', [0 0 1])
 view([0 -90]), axis([-1 1 -1 1 -1 1]), axis equal
 title('Tensor product function samples')</pre>
 
-<p><img src="../images/guide/guide17_18.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide17_19.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_18.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_19.png" class="figure chebfun-figure" alt=""></p>
 <p>The Spherefun constructor accepts a few optional inputs that allow one
 to experiment with low rank approximants.  The rank of the
 approximant that results from the Gaussian elimination algorithm can be
@@ -361,7 +361,7 @@ plot(f18), axis off</pre>
      unit sphere      18            1
 </pre>
 
-<p><img src="../images/guide/guide17_20.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_20.png" class="figure chebfun-figure" alt=""></p>
 <p>Visually, this representation is identical to $f$, but this approximant is only accurate to about 3 digits.</p>
 <pre class="mcode-input">norm(f-f18)</pre>
 
@@ -424,8 +424,8 @@ norm( Y - (-1/42)*laplacian( Y ), inf)</pre>
      0
 </pre>
 
-<p><img src="../images/guide/guide17_21.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide17_22.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_21.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_22.png" class="figure chebfun-figure" alt=""></p>
 <p>The $\ell=6$, $m=-3$ coefficient in the spherical harmonic expansion of $f(x) = \cos(10x)\sin(10yz)$ is</p>
 <pre class="mcode-input">sum2( spherefun( @(x,y,z) cos(10*x).*sin(10*y.*z) ).*Y )</pre>
 
@@ -461,19 +461,19 @@ example using a discretization size of $1000\times 1000$ and a value of
 u = spherefun.poisson(f, 1, 1000, 1000);     % fast Poisson solver
 plot( u ), axis off</pre>
 
-<p><img src="../images/guide/guide17_23.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_23.png" class="figure chebfun-figure" alt=""></p>
 <p>See [Townsend, Wilber, & Wright 2015] for a description of the fast algorithm used for solving Poisson's equation.</p>
 <h3 id="176-filtering">17.6 Filtering</h3>
 <p>Low-pass isotropic filtering for functions on the sphere can be performed using the command <code>gaussfilt</code>. For example, here is a smooth random spherefun, which we plot in zebra mode, which positive values white and negative values black:</p>
 <pre class="mcode-input">rng(1), f = randnfunsphere(.1);
 plot(f,'zebra'), axis off, colorbar</pre>
 
-<p><img src="../images/guide/guide17_24.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_24.png" class="figure chebfun-figure" alt=""></p>
 <p>We can smooth <code>f</code> a little with a spatial scale of 0.05 like this:</p>
 <pre class="mcode-input">ff = gaussfilt(f, 0.05);
 plot(ff,'zebra'), axis off, colorbar</pre>
 
-<p><img src="../images/guide/guide17_25.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_25.png" class="figure chebfun-figure" alt=""></p>
 <p>Mathematically, the <code>gaussfilt</code> command amounts to convolving <code>f</code> with a Gaussian kernel.  This is implemented by numerically solving the diffusion equation on the sphere with <code>f</code> as the initial condition. The second input argument of <code>gaussfilt</code> is an optional parameter $\sigma$ that determines the length scale (as measured in radians at the equator of the unit sphere) at which the smoothing occurs.  In the above example, this is set to $10\pi/180$, which corresponds to smoothing at a scale of 10 degrees.</p>
 <h3 id="177-vector-valued-functions-spherefunv">17.7 Vector-valued functions: Spherefunv</h3>
 <p>Vector valued functions on the sphere and <em>surface</em> vector calculus operations are supported through Spherefunv.  For example, the surface gradient of a spherefun returns a spherefunv object:</p>
@@ -482,7 +482,7 @@ g = grad( f );
 plot( f ), axis off, hold on
 quiver( g ), hold off</pre>
 
-<p><img src="../images/guide/guide17_26.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_26.png" class="figure chebfun-figure" alt=""></p>
 <p>Spherefunv objects consist of three spherefuns, which represent the vector-valued function in the <em>Cartesian</em> coordinate system</p>
 <pre class="mcode-input">g</pre>
 
@@ -507,12 +507,12 @@ quiver( g ), hold off</pre>
 <pre class="mcode-input">u = curl( psi );
 plot( psi ), hold on, quiver( u ), axis off, hold off</pre>
 
-<p><img src="../images/guide/guide17_27.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_27.png" class="figure chebfun-figure" alt=""></p>
 <p>The vorticity represents the local spinning motion of the field.</p>
 <pre class="mcode-input">omega = vorticity( u );
 plot( omega ), hold on, quiver( u ), axis off, hold off</pre>
 
-<p><img src="../images/guide/guide17_28.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide17_28.png" class="figure chebfun-figure" alt=""></p>
 <p>The divergence of the field is</p>
 <pre class="mcode-input">delta = div( u );</pre>
 

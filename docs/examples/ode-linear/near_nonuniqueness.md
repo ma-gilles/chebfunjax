@@ -17,7 +17,7 @@ L.op = @(x,u) 0.01*diff(u,2) - x*diff(u) + u;
 u = L\1; plot(u), set(gca,'xtick',-1:1)
 title('This function should be even')</pre>
 
-<p><img src="../../images/ode-linear/NearNonuniqueness_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/NearNonuniqueness_01.png" class="figure chebfun-figure" alt=""></p>
 <p>A clue comes when we look at the residual for the computed solution. It is very small, indicating that in some sense the computation was successful:</p>
 <pre class="mcode-input">residual_norm = norm(L*u - 1)</pre>
 
@@ -32,7 +32,7 @@ u = L\1; subplot(1,2,1), plot(u), set(gca,'xtick',-1:1)
 L.op = @(x,u) 0.001*diff(u,2) - x*diff(u) + u;
 u = L\1; subplot(1,2,2), plot(u), set(gca,'xtick',-1:1)</pre>
 
-<p><img src="../../images/ode-linear/NearNonuniqueness_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/NearNonuniqueness_02.png" class="figure chebfun-figure" alt=""></p>
 <p>What's going on is that although $L$ does not have any null functions, i.e., eigenfunctions associated with eigenvalue $0$, it has one that comes very close, as we can see by computing six eigenvalues for the case $\epsilon = 0.01$ again:</p>
 <pre class="mcode-input">L.op = @(x,u) .01*diff(u,2) - x*diff(u) + u;
 eigs(L)</pre>
@@ -50,7 +50,7 @@ eigs(L)</pre>
 <pre class="mcode-input">[v,d] = eigs(L,1,'SM');
 clf, plot(v,'m'), set(gca,'xtick',-1:1), title('null function')</pre>
 
-<p><img src="../../images/ode-linear/NearNonuniqueness_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/NearNonuniqueness_03.png" class="figure chebfun-figure" alt=""></p>
 <p>We can explain this effect as follows.  An ODE BVP will have a null function if there are too few boundary conditions, which would be analogous to a matrix problem having more columns than rows: $$ \pmatrix{a &amp; b} \pmatrix{x \cr y} = c. $$ In the language of Fredholm operators, a problem with this shape is said to have index 1 (the dimension of the nullspace exceeds the codimension of the range by 1) [1]. Now mathematically, our ODE is of index 0, with the right number of boundary conditions, namely 2, i.e., 1 at each end.  However, consider its behavior near each boundary $x=\pm 1$, taking $\epsilon = 0.01$ for concreteness.  At $x=-1$, $L$ has these characteristic values $\alpha$ for solutions $\exp(\alpha x)$ apart from boundary conditions:</p>
 <pre class="mcode-input">roots([.01 1 1])</pre>
 
@@ -77,7 +77,7 @@ u = L\1; plot(u), set(gca,'xtick',-1:1)
 ylim([-200 0]), set(gca,'ytick',-200:100:0)
 title('Solution to the dual problem')</pre>
 
-<p><img src="../../images/ode-linear/NearNonuniqueness_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/NearNonuniqueness_04.png" class="figure chebfun-figure" alt=""></p>
 <p>As we shrink $\epsilon$, the amplitude grows exponentially.</p>
 <pre class="mcode-input">L.op = @(x,u) 0.05*diff(u,2) + x*diff(u) + u;
 u = L\1; subplot(1,2,1), plot(u), set(gca,'xtick',-1:1)
@@ -86,7 +86,7 @@ L.op = @(x,u) 0.025*diff(u,2) + x*diff(u) + u;
 u = L\1; subplot(1,2,2), plot(u), set(gca,'xtick',-1:1)
 ylim([-6e8 0])</pre>
 
-<p><img src="../../images/ode-linear/NearNonuniqueness_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/NearNonuniqueness_05.png" class="figure chebfun-figure" alt=""></p>
 <p>We can explain this dual effect as follows.  An ODE BVP will fail to have a solution if there are too many boundary conditions, which would be analogous to a matrix problem having more rows than columns: $$ \pmatrix{a \cr b} x = \pmatrix{c\cr d}. $$ In the language of Fredholm operators, a problem with this shape has index $-1$ (the codimension of the range exceeds the dimension of the nullspace by 1) [1]. Near $x=-1$, with $\epsilon = 0.01$ for concreteness, our dual operator $L^*$ has these characteristic values $\alpha$,</p>
 <pre class="mcode-input">roots([.01 -1 1])</pre>
 

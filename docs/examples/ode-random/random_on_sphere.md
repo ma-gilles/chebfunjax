@@ -38,7 +38,7 @@ for j = 1:720, camorbit(.5,0), drawnow, end</pre>
 <pre class="mcode-output">Elapsed time is 12.877707 seconds.
 </pre>
 
-<p><img src="../../images/ode-random/RandomOnASphere_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-random/RandomOnASphere_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Here we repeat everything with the value of $\lambda$ cut by a factor of 4.  This would make the run 4 times slower or so, but 12-digit accuracy is a waste here, so we loosen the tolerance.</p>
 <pre class="mcode-input">tic, lambda = lambda/4; cheboppref.setDefaults('ivpAbsTol',1e-6,'ivpRelTol',1e-6)
 f = randnfun(lambda,dom); g = randnfun(lambda,dom); h = randnfun(lambda,dom);
@@ -50,7 +50,7 @@ cheboppref.setDefaults('factory')</pre>
 <pre class="mcode-output">Elapsed time is 14.854459 seconds.
 </pre>
 
-<p><img src="../../images/ode-random/RandomOnASphere_02.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/ode-random/RandomOnASphere_02.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

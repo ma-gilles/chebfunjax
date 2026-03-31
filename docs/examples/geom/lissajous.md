@@ -25,7 +25,7 @@ subplot(1,2,2), plot(x,y,LW,lw)
 title(sprintf('m=%d  n=%d  d=%3.1f',m,n,0.5),FS,12)
 axis([-1 1 -1 1]), axis square off</pre>
 
-<p><img src="../../images/geom/Lissajous_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/geom/Lissajous_01.png" class="figure chebfun-figure" alt=""></p>
 <p>As usual with 2D computations, it's convenient to use complex arithmetic, defining</p>
 <p>$$ z(t) = x(t) + iy(t). $$</p>
 <p>Here's an anonymous function that returns a Chebfun corresponding to parameters $m$, $n$, $d$:</p>
@@ -45,7 +45,7 @@ for np = 1:6
   title(sprintf('m=%d  n=%d  d=%5.3f',m,n,d),FS,10)
 end</pre>
 
-<p><img src="../../images/geom/Lissajous_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/geom/Lissajous_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Just for fun, let's draw a cube in which each face is a different Lissajous figure:</p>
 <pre class="mcode-input">clf
 f = lissajous(23,5,.5);
@@ -56,7 +56,7 @@ f = lissajous(13,17,0);
 plot3(real(f),-1+0*t,imag(f),'color',[0 .8 0])
 axis equal off</pre>
 
-<p><img src="../../images/geom/Lissajous_03.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/geom/Lissajous_03.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

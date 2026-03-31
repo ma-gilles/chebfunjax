@@ -70,7 +70,7 @@ plot(cumsum(u))
 grid on, ylim([-2 2])
 xlabel t, ylabel u</pre>
 
-<p><img src="../../images/ode-random/Random2SDE_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-random/Random2SDE_01.png" class="figure chebfun-figure" alt=""></p>
 <pre class="mcode-input">total_time_in_seconds = toc</pre>
 
 <pre class="mcode-output">total_time_in_seconds =

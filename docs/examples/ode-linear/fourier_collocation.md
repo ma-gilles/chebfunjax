@@ -27,7 +27,7 @@ figure, plot(u, LW, 2)</pre>
 vertical scale = 2.4 
 </pre>
 
-<p><img src="../../images/ode-linear/FourierCollocation_01.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/ode-linear/FourierCollocation_01.png" class="figure chebfun-figure" alt=""/></p>
 <p>The periodic solution $u$ satisfies the differential equation to high accuracy:</p>
 <pre class="mcode-input">norm(L*u - f, inf)</pre>
 
@@ -48,7 +48,7 @@ hold on, plot(v, 'r', LW, 2)</pre>
 vertical scale = 2.4 
 </pre>
 
-<p><img src="../../images/ode-linear/FourierCollocation_02.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/ode-linear/FourierCollocation_02.png" class="figure chebfun-figure" alt=""/></p>
 <p>The solution $v$ is now a chebfun with a <code>chebtech2</code> representation, that is, a polynomial interpolant in 2nd-kind Chebyshev points. It satisfies the differential equation to high accuracy too,</p>
 <pre class="mcode-input">norm(L*v - f, inf)</pre>
 
@@ -84,7 +84,7 @@ figure, plot(u, LW, 2)</pre>
 vertical scale =  21 
 </pre>
 
-<p><img src="../../images/ode-linear/FourierCollocation_03.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/ode-linear/FourierCollocation_03.png" class="figure chebfun-figure" alt=""/></p>
 <p>Again, the periodic solution $u$ satisfies the differential equation to high accuracy:</p>
 <pre class="mcode-input">norm(L*u - f, inf)</pre>
 
@@ -105,7 +105,7 @@ hold on, plot(v, 'r', LW, 2)</pre>
 vertical scale =  21 
 </pre>
 
-<p><img src="../../images/ode-linear/FourierCollocation_04.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/ode-linear/FourierCollocation_04.png" class="figure chebfun-figure" alt=""/></p>
 <p>is again about $\pi/2$ times longer:</p>
 <pre class="mcode-input">length(v)/length(u)</pre>
 

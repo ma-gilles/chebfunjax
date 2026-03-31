@@ -26,7 +26,7 @@ rhs = [zeros(n,1); 1; 0];
 u = A\rhs;
 plot(chebfun(u,X),'.-')</pre>
 
-<p><img src="../../images/ode-linear/SpectralDisc_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/SpectralDisc_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Notice that $A$ consists of three blocks.  The top of it is an $n\times (n+2)$ block representing the differential operator, discretized with <code>diffmat</code>.  Note that <code>diffmat([n n+2],0,X)</code> gives us a differentiation matrix of order zero -- a "rectangular identity".  Then comes a row <code>vT</code> corresponding to the integral condition, discretized with <code>introw</code>, and another row <code>wT</code> corresponding to the other boundary condition, involving a difference of two evaluation functionals (<code>diffrow</code> with argument 0 evaluates the zeroth derivative). The right-hand side is a vector with a block structure to match.</p>
 <p>The diagonal matrix given by <code>diag(gridsample(x,n,X))</code> is sparse, and in Matlab it can help to represent it that way for larger values of $n$.  This can be done by replacing that expression by <code>spdiags(gridsample(x,n,X),0,n,n)</code>.</p>
 <p>Note how the code segment computes a solution vector $u$ of length $n+2$.  A call to <code>chebfun(u,X)</code> is then used so that we can plot the polynomial interpolant as well as the data points.</p>
@@ -38,7 +38,7 @@ L.bc = @(x,u) [sum(u)-1; u(10)-u(-20)];
 u = L\0;
 plot(u,'.-')</pre>
 
-<p><img src="../../images/ode-linear/SpectralDisc_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/SpectralDisc_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The length is about the same as the one we hardwired:</p>
 <pre class="mcode-input">length(u)</pre>
 

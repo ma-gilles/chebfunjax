@@ -20,7 +20,7 @@ hold off, contour(x,y,abs(ff),lev1,'k')
 hold on, contour(x,y,abs(ff),lev2,'r')
 axis(6*[-1 1 -1 1]), axis square</pre>
 
-<p><img src="../../images/complex/AnalyticContinuation_01.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/complex/AnalyticContinuation_01.png" class="figure chebfun-figure" alt=""/></p>
 <p>How might we calculate some of this structure based on the values of $f$ on $[-1,1]$? One idea would be to use polynomials.  The chebfun for $f$ is a polynomial $p$ that matches $f$ to about 16 digits:</p>
 <pre class="mcode-input">z = chebfun('z');
 p = f(z);
@@ -33,14 +33,14 @@ length(p)</pre>
 <p>As is discussed in Chapter 8 of [1], one can expect $p$ to approximate $f$ roughly within the Chebfun ellipse for $f$, which is approximately the smallest Bernstein ellipse around $[-1,1]$ passing through a singularity of $f$:</p>
 <pre class="mcode-input">hold off, plotregion(p), axis(6*[-1 1 -1 1]), axis square</pre>
 
-<p><img src="../../images/complex/AnalyticContinuation_02.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/complex/AnalyticContinuation_02.png" class="figure chebfun-figure" alt=""/></p>
 <p>To confirm this prediction, here is a contour plot of the absolute value $|p(z)|$ in the complex plane, following Chapter 28 of [1].  Inside the Chebfun ellipse it matches $|\tanh(z)|$ beautifully, but outside it bears no relation.  The zeros of $p$ line up along the boundary curve, illustrating a theorem of Walsh discussed in Chapter 18 of [1].</p>
 <pre class="mcode-input">pp = p(zz);
 hold off, contour(x,y,abs(pp),lev1,'k')
 hold on, contour(x,y,abs(pp),lev2,'r')
 plotregion(p), axis(6*[-1 1 -1 1]), axis square</pre>
 
-<p><img src="../../images/complex/AnalyticContinuation_03.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/complex/AnalyticContinuation_03.png" class="figure chebfun-figure" alt=""/></p>
 <p>How can we compute $f$ further out in the complex plane?  The classic idea is to use rational approximations.  Suppose we use the Chebfun <code>ratinterp</code> command to compute a type (7,8) rational approximation to $f$ based on rational interpolation in Chebyshev points in $[-1,1]$:</p>
 <pre class="mcode-input">[p,q,r,mu,nu,poles] = ratinterp(f,7,8);
 rr = r(zz);
@@ -48,7 +48,7 @@ hold off, contour(x,y,abs(rr),lev1,'k')
 hold on, contour(x,y,abs(rr),lev2,'r')
 axis(6*[-1 1 -1 1]), axis square</pre>
 
-<p><img src="../../images/complex/AnalyticContinuation_04.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/complex/AnalyticContinuation_04.png" class="figure chebfun-figure" alt=""/></p>
 <p>The rational function has evidently done a far better job of analytic continuation than the polynomial.  (Admittedly, the choice of the parameters (7,8) is something of an art.) Here are the first eight exact poles of $f$ compared with those of $r$:</p>
 <pre class="mcode-input">format long
 exact = 0.5i*pi*(-7:2:7)';

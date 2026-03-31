@@ -45,7 +45,7 @@ for ta = TA
 %     M = [M getframe()];
 end</pre>
 
-<p><img src="../../images/fun/ValentinesDay2_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/fun/ValentinesDay2_01.png" class="figure chebfun-figure" alt=""></p>
 <p>If you would like to save this love movie to a GIF file then uncomment the lines below (and the lines beginning M = ...) and run the example.</p>
 <pre class="mcode-input">% % Save to .gif:
 % [ignored, idx] = min(abs(TA-.75));
