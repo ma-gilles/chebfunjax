@@ -39,7 +39,7 @@ plot(t, sol, '-', t, x, '.', MS, 15)</pre>
      1.009997900029461e-14
 </pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The geometric convergence of the spectral method means an accurate solution is obtained using very few points. In particular, 16 points is enough here to reach machine precision.</p>
 <p>We now consider the pantograph equation $dx/dt = x(t) - 8x(t/2)$, $x(0) = 1$ with solution $x(t) = -\frac72t^3 + \frac{21}{2}t^2 - 7t + 1$. Notice in the code below that the only significant change from the ODE example above is the introduction of <code>E = barymat(tau, t)</code>. Here <code>barymat</code> implements the `barycentric interpolation matrix' described in [5]. It the linear operator which interpolates data at the $n$-point Chebyshev grid t by a polynomial of degree $n-1$ and evaluates the interpolant at the points tau. This is precisely what we need to descretize the operator $x(\tau(t))$ when $x$ is represented by its values on a Chebyshev grid as in spectral collocation.</p>
 <pre class="mcode-input">a = 1; b = -8; q = 0.5; x0 = 1; % Problem parameters
@@ -57,7 +57,7 @@ plot(tt, sol(tt), '-', t, x, '.', MS, 15)</pre>
      9.593075404615778e-15
 </pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The same problem can be easily solved in Chebfun:</p>
 <pre class="mcode-input">N = chebop(@(t,x) diff(x) - a*x - b*x(q*t), dom);
 N.lbc = x0;
@@ -75,7 +75,7 @@ err =
      1.646795363921568e-15
 </pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Since the solution here is a low degree polynomial, it is not surprising that excellent accuracy is achieved. However, we see below that the method remains effective for more challenging problems.</p>
 <p>For example, multiple delays can be included:</p>
 <pre class="mcode-input">q1 = 1/2; q2 = 1/3;
@@ -94,7 +94,7 @@ res =
      1.054745459954652e-13
 </pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_04.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="discrete-delay">Discrete delay</h3>
 <p>Discrete delay introduces two complications. First, we must define the history function $\phi(t)$ such that $x(t) = \phi(t)$ for $-p &lt; t &lt; 0$. For simplicity we assume a constant history function so that $x(-p &lt; t &lt; 0) = x(0) = x_0$. The second complication is that discontinuities in the solution (or its derivatives) appear once the delay becomes active. We leave it to the user to supply these as break points (see the DDE example below).</p>
 <p>As above, we first review how to solve piecewise-defined problems for a non-delay example. We again solve $x'(t) = ax(t)$, $x(0) = x_0$, but now on the domain $[0, 0.5, 1]$, enforcing continuity of the solution at $x = 0.5$:</p>
@@ -124,7 +124,7 @@ plot(tt, sol(tt), '-', t, x, '.', MS, 15)</pre>
      5.911434596364366e-14
 </pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_05.png" class="figure chebfun-figure" alt=""></p>
 <p>Now we incorporate the delay and solve $x'(t) = ax(t-0.5), x(0) = x_0$. Again, the only change is the introduction of the barymats. In the first subinterval we have $\tau(t_L) = t_L - 0.5 &lt; 0$, and so all the evaluations take place at 0 (because the history function is the constant, $\phi(t) = x_0$). In the second interval we have $0 &lt; t_R - 0.5 &lt; 0.5$, so the evaluation points $\tau(t_R) = t_R - 0.5$ sit within the first interval and $x(\tau(t_R))$ = ER*xL.</p>
 <pre class="mcode-input">tauL = max(tL - p,0);   tauR = tR - p;          % Discrete delay
 EL = barymat(tauL, tL); ER = barymat(tauR, tL); % Interpolation matrices
@@ -142,7 +142,7 @@ err = norm(x - sol)</pre>
      9.957407043250060e-15
 </pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_06.png" class="figure chebfun-figure" alt=""></p>
 <p>Again, the same problem can be easily solved in Chebfun:</p>
 <pre class="mcode-input">dom = [0, .5, 1];
 N = chebop(@(t,x) diff(x) - x(max(t-p,0)), dom);
@@ -162,7 +162,7 @@ err =
      1.160467857965791e-15
 </pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_07.png" class="figure chebfun-figure" alt=""></p>
 <p>And on a larger domain:</p>
 <pre class="mcode-input">dom = 0:.5:3;
 N = chebop(@(t,x) diff(x) - x(max(t-p,0)), dom);
@@ -185,11 +185,11 @@ res =
      6.934401574041992e-14
 </pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_08.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_08.png" class="figure chebfun-figure" alt=""></p>
 <p>This is what the resulting discretisation looks like:</p>
 <pre class="mcode-input">spy(matrix(N, 10));</pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_09.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_09.png" class="figure chebfun-figure" alt=""></p>
 <p>As with the pantograph example, multiple delays can also be included:</p>
 <pre class="mcode-input">p1 = 1/2; p2 = 1/3;
 dom = sort(unique([0:p1:2 0:p2:2]));
@@ -218,11 +218,11 @@ res =
      3.584611158810306e-11
 </pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_10.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_10.png" class="figure chebfun-figure" alt=""></p>
 <p>In general, it is just a case of putting appropriate rows of barymats in the appropriate columns of the block discretisation.</p>
 <pre class="mcode-input">spy(matrix(N, 10)), shg</pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_11.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_11.png" class="figure chebfun-figure" alt=""></p>
 <p>Again, the solutions in these examples are low degree polynomials and accurate solutuons are to be expected. We will see more challenging cases below.</p>
 <h3 id="continuous-delay">Continuous delay</h3>
 <p>DDEs with continuous delay can be interpreted as Volterra integro-differential equations, which can be solved via Chebyshev spectral collocation using the ideas described by Driscoll [6].</p>
@@ -244,7 +244,7 @@ err = norm(x - sol(t))</pre>
      2.514600006643636e-15
 </pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_12.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_12.png" class="figure chebfun-figure" alt=""></p>
 <p>Again, the same problem can be easily solved in Chebfun:</p>
 <pre class="mcode-input">N = chebop(@(t,x) diff(x) + a*x - volt(f, x), dom);
 N.lbc = x0;
@@ -262,7 +262,7 @@ err =
      2.215872186258942e-15
 </pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_13.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_13.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="state-dependent-delay">State dependent delay</h3>
 <p>As the name suggests, state dependent delay is where the delay depends on the solution itself. Here we solve the simplest equation of such type, $x'(t) + x(x(t)) = 0$, $x(0) = 1$, $t \in [0,1].$</p>
 <p>The state-dependent problem is clearly nonlinear and we emply a Newton iteration to solve the discretised system. To linearize we make use of the following: $\frac{d/dx}E(g(x))x = E(g(x)) + g'(x)E'(g(x))x = E(g(x)) + g'(x)E(g(x))x'$. In our case, $g(x) = x$, so the Jacobian is simply $J = D + E + {\rm diag}(EDx)$.</p>
@@ -304,7 +304,7 @@ ndu =
      6.212628751095523e-16
 </pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_14.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_14.png" class="figure chebfun-figure" alt=""></p>
 <p>We do not have an analytic solution in this case, but the quadratic convergence of the Newton iteration is a good indication that we are on the right track. Let us check the residual of the solution using Chebfun:</p>
 <pre class="mcode-input">x = chebfun(x, dom);
 res = norm(diff(x) + x(x))</pre>
@@ -330,7 +330,7 @@ res =
      1.337640222970413e-12
 </pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_15.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_15.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="examples">Examples</h3>
 <p>Here are some other examples taken from the literature.</p>
 <p>Example 1: [8, Example 5.3] Nonlinear pantograph delay.</p>
@@ -354,7 +354,7 @@ err =
      2.372615617592961e-14
 </pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_16.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_16.png" class="figure chebfun-figure" alt=""></p>
 <p>Example 2: [8, Example 5.4] System of pantograph delays.</p>
 <pre class="mcode-input">q = 0.7;
 dom = [0 1];
@@ -381,7 +381,7 @@ err =
      3.139659788286025e-15
 </pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_17.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_17.png" class="figure chebfun-figure" alt=""></p>
 <p>Example 3: [9] State-dependent delay</p>
 <pre class="mcode-input">dom = [0 1];
 x = chebfun('x', dom);
@@ -403,7 +403,7 @@ err =
      1.446513354962840e-14
 </pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_18.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_18.png" class="figure chebfun-figure" alt=""></p>
 <p>Example 4: Modified from [10]. Vanishing delay</p>
 <pre class="mcode-input">% Find discontinuities:
 dom = [0, (1+sqrt(5))/2];
@@ -439,7 +439,7 @@ res =
      2.266971370886250e-11
 </pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_19.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_19.png" class="figure chebfun-figure" alt=""></p>
 <p>Example 5: [11] Continuous &amp; pantograph delay</p>
 <pre class="mcode-input">dom = [0 20];
 q = 1/2;
@@ -460,7 +460,7 @@ err =
      6.916261673839570e-15
 </pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_20.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_20.png" class="figure chebfun-figure" alt=""></p>
 <p>Example 7. [12] Second order nonlinear pantograph delay IVP</p>
 <pre class="mcode-input">dom = [0 1];
 x = chebfun('x', dom);
@@ -481,7 +481,7 @@ err =
      9.838069166740670e-16
 </pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_21.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_21.png" class="figure chebfun-figure" alt=""></p>
 <p>Example 8. [13] First order nonlinear 'BVP' with pantograph delay</p>
 <pre class="mcode-input">dom = [0 1/3];
 t = chebfun('t', dom);
@@ -502,7 +502,7 @@ res =
      3.429904390267680e-13
 </pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_22.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_22.png" class="figure chebfun-figure" alt=""></p>
 <p>Example 9 - [14] MATLAB DDEX1 example. System, discrete shifts</p>
 <pre class="mcode-input">dom = [0:.2:2];
 lag = [1, 0.2];
@@ -539,7 +539,7 @@ err =
      4.870904426600087e-12
 </pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_23.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_23.png" class="figure chebfun-figure" alt=""></p>
 <p>Example 10 - [15] Modified from MATLAB DDEX2. System with state-dependent delay.</p>
 <pre class="mcode-input">dom = [1 5];
 t = chebfun('t', dom);
@@ -561,7 +561,7 @@ err =
      5.515707501508308e-14
 </pre>
 
-<p><img src="../../images/ode-nonlin/DelayDifferentialEquations_24.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/DelayDifferentialEquations_24.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <p>[1] Kuang, Yang, <em>Delay Differential Equations: With Applications in Population Dynamics,</em> Academic Press, 1993.</p>
 <p>[2] Driver, Rodney David,  <em>Ordinary and Delay Differential Equations,</em> Springer Science &amp; Business Media, 2012.</p>

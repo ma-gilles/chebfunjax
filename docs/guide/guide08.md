@@ -76,7 +76,7 @@ chebfunpref.setDefaults('splitting',false)</pre>
   g = chebfun(@(t) cos(20*t));
   plot(f,g), axis equal, axis off</pre>
 
-<p><img src="../images/guide/guide08_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide08_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="83-splitting-breaking-into-subintervals-or-not">8.3 <code>splitting</code>: breaking into subintervals or not</h3>
 <p>Perhaps the preference that users wish to control most often is the choice of splitting off or on.  Splitting off is the factory default.</p>
 <p>In both splitting off and splitting on modes, a chebfun may consist of a number of pieces, called funs.  For example, even in splitting off mode, the following sequence makes a chebfun with four funs:</p>
@@ -90,7 +90,7 @@ chebfunpref.setDefaults('splitting',false)</pre>
    -1.0000   -0.1443         0    0.2045    1.0000
 </pre>
 
-<p><img src="../images/guide/guide08_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide08_02.png" class="figure chebfun-figure" alt=""></p>
 <p>One breakpoint is introduced at $x=0$, where the constructor determines that $|x|$ has a zero, and two more breakpoints are introduced at $-0.1443$ and at $0.2045$, where it recognizes that $|x|$ and $\exp(x)/6$ will intersect.</p>
 <p>The difference between splitting off and splitting on pertains to additional breakpoints that may be introduced in the more basic chebfun construction process, when the constructor makes a chebfun solely by sampling point values. For example, suppose we try to make the same chebfun as above from scratch, by sampling an anonymous function, in splitting off mode.  We get a warning message:</p>
 <pre class="mcode-input">  ff = @(x) min(abs(x),exp(x)/6);
@@ -154,7 +154,7 @@ ans =
         1465
 </pre>
 
-<p><img src="../images/guide/guide08_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide08_03.png" class="figure chebfun-figure" alt=""></p>
 <p>With splitting on, the function is broken up into pieces, and there is some reduction in the overall length:</p>
 <pre class="mcode-input">  f = chebfun(ff,'splitting','on');
   length(f)
@@ -178,7 +178,7 @@ ans =
        17603
 </pre>
 
-<p><img src="../images/guide/guide08_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide08_04.png" class="figure chebfun-figure" alt=""></p>
 <p>With splitting on the representation is much more compact:</p>
 <pre class="mcode-input">  f3 = chebfun(ff,[-3 3],'splitting','on');
   length(f3)</pre>
@@ -234,7 +234,7 @@ ans =
     65
 </pre>
 
-<p><img src="../images/guide/guide08_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide08_05.png" class="figure chebfun-figure" alt=""></p>
 <p>Notice that no warning message is produced since we have asked explicitly for exactly 65 points.  On the other hand we could also change the default maximum to this number, giving another short chebfun though now with another warning message:</p>
 <pre class="mcode-input">  f = chebfun('sign(x)','maxLength',65);
   length(f)</pre>
@@ -277,7 +277,7 @@ Elapsed time is 0.677975 seconds.
    317
 </pre>
 
-<p><img src="../images/guide/guide08_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide08_06.png" class="figure chebfun-figure" alt=""></p>
 <p>But if we change the exponent to 4, we get a failure:</p>
 <pre class="mcode-input">  f = chebfun('-x -x^2 + exp(-(30*(x-.47))^4)');
   length(f)
@@ -287,7 +287,7 @@ Elapsed time is 0.677975 seconds.
      3
 </pre>
 
-<p><img src="../images/guide/guide08_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide08_07.png" class="figure chebfun-figure" alt=""></p>
 <p>What has happened can be explained as follows. The function being sampled has a narrow spike near $x=0.47$, and the closest grid points lie near $0.383$ and $0.556$.  In the case of the exponent 2, we note that at $x=0.383$ and $x=0.556$, $\exp(-(30(x-.47)^2))$ takes values of about $0.001$, which are easily large enough to be noticed by the Chebfun constructor. On the other hand in the case of exponent 4, the values at these points shrink to less than $10^{-19}$, which is below machine precision.  So in the latter case the constructor thinks it has a quadratic and does not try a finer grid.</p>
 <p>If we increase <code>minSamples</code>, the correct chebfun is found:</p>
 <pre class="mcode-input">  f = chebfun('-x -x^2 + exp(-(30*(x-.48))^4)','minSamples',33);
@@ -298,19 +298,19 @@ Elapsed time is 0.677975 seconds.
         1087
 </pre>
 
-<p><img src="../images/guide/guide08_08.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide08_08.png" class="figure chebfun-figure" alt=""></p>
 <p>Incidentally, if the value of <code>minSamples</code> specified is not one greater than a power of 2, it is rounded up to the next such value. Values less than 17 will be treated as if the value were 17.</p>
 <p>The factory value <code>minSamples=17</code> was chosen as a compromise between efficiency and reliability.  (Until Version 5, the choice was <code>minSamples=9</code>.)  In practice it rarely seems to fail, but perhaps it is most vulnerable when applied in splitting on mode to functions with narrow spikes.  For example, the following chebfun is missing most of the spikes that should be there:</p>
 <pre class="mcode-input">  ff = @(x) max(.85,sin(x+x^2)) - x/20;
   f = chebfun(ff,[0,10],'splitting','on');
   plot(f)</pre>
 
-<p><img src="../images/guide/guide08_09.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide08_09.png" class="figure chebfun-figure" alt=""></p>
 <p>Increasing <code>minSamples</code> fills them in:</p>
 <pre class="mcode-input">  f = chebfun(ff,[0,10],'splitting','on','minsamples',33);
   plot(f)</pre>
 
-<p><img src="../images/guide/guide08_10.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide08_10.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="87-resampling-exploiting-nested-grids-or-not">8.7  <code>resampling</code>: exploiting nested grids or not</h3>
 <p>We now turn to a particularly interesting preference for Chebfun geeks, relating to the very idea of what it means to sample a function.</p>
 <p>When a chebfun is constructed, a function is normally sampled at $17, 33, 65,\dots$ Chebyshev points until convergence is achieved. (We are speaking here of the process for Chebyshev points of the second kind; for first-kind points the details are different.)  Now Chebyshev grids are nested, so the 33-point grid, for example, only contains 16 points that are not in the 17-point grid.  By default, the Chebfun constructor takes advantage of this property so as not to recompute values that have already been computed.  (The default went the other way until 2009.)</p>
@@ -351,7 +351,7 @@ ans =
   65.000000000000014
 </pre>
 
-<p><img src="../images/guide/guide08_11.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide08_11.png" class="figure chebfun-figure" alt=""></p>
 <p>This rather bizarre example encourages us to play further. What if we change <code>length(x)*sin(15*x)</code> to <code>sin(length(x)*x)</code>? Now there is no convergence, for no matter how fine the grid is, the function is underresolved.</p>
 <pre class="mcode-input">  hh = @(x) sin(length(x)*x);
   h = chebfun(hh,'sampleTest',0,'resampling','on');</pre>
@@ -369,7 +369,7 @@ plot(k,'.-')</pre>
     46
 </pre>
 
-<p><img src="../images/guide/guide08_12.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide08_12.png" class="figure chebfun-figure" alt=""></p>
 <p>Are such curious effects of any use?  Yes indeed, they are at the heart of Chebop.  When Chebfun solves an ODE boundary-value problem by a command like <code>u = L\f</code>, the chebfun <code>u</code> is determined by a "sampling" process in which a matrix problem obtained by Chebyshev spectral discretization is solved on grids of increasing sizes. The matrices change with the grids, so the sample values for $u$ are crucially grid-dependent.  Without resampling, chebops would not work.</p>
 <h3 id="88-chebfuneps-chebfun-constructor-tolerance">8.8 <code>chebfuneps</code>: Chebfun constructor tolerance</h3>
 <p>One of the controllable preferences is all too tempting: you can weaken the tolerance used in constructing a chebfun. The chebfunpref parameter <code>chebfuneps</code> is set by default to machine precision:</p>

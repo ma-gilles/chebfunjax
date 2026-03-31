@@ -18,7 +18,7 @@ Z = [E square(.1:.1:.9)];
 plot(Z,LW,1.2), xlim([-1.5 3.5]), axis equal
 set(gca,'xtick',-1:3,'ytick',-1:1)</pre>
 
-<p><img src="../../images/complex/ConformalVis_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/complex/ConformalVis_01.png" class="figure chebfun-figure" alt=""></p>
 <p>We will map the region to the unit disk in two steps, representing $f$ as the composition $f = h \circ g$.  First, $g$ maps the half-strip to the right half-plane. We remember that $\sin z$ maps a vertical half-strip of half-width $\pi/2$ to the upper half-plane; similarly $\sinh z$ maps a horizontal half-strip of half-width $\pi/2$ to the right half-plane. We introduce a factor $\pi/2$ to change the half-width to $1$, and use $z+1$ so that our strip starts at real part $-1$ rather than $0$.  So here is the necessary map $g$:</p>
 <pre class="mcode-input">g = @(z) sinh(pi*(z+1)/2)/sinh(pi/2);</pre>
 
@@ -26,7 +26,7 @@ set(gca,'xtick',-1:3,'ytick',-1:1)</pre>
 <pre class="mcode-input">plot(g(Z),LW,1.2), axis([-4 6 -5 5]), axis square
 set(gca,'xtick',-2:2:6,'ytick',-4:2:4)</pre>
 
-<p><img src="../../images/complex/ConformalVis_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/complex/ConformalVis_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Next, we map this half-plane to the unit disk by the M&ouml;bius transformation $(w-1)/(w+1)$,</p>
 <pre class="mcode-input">h = @(w) (w-1)./(w+1);
 f = @(z) h(g(z));</pre>
@@ -35,13 +35,13 @@ f = @(z) h(g(z));</pre>
 <pre class="mcode-input">hh = plot(f(Z),LW,1.2); xlim([-2 2]), axis equal
 set(gca,'xtick',-1:1,'ytick',-1:1)</pre>
 
-<p><img src="../../images/complex/ConformalVis_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/complex/ConformalVis_03.png" class="figure chebfun-figure" alt=""></p>
 <p>For fun let's add conformal images of the words ''conformal'' and ''mapping'';</p>
 <pre class="mcode-input">set(hh,LW,.5)
 s = [.7i+scribble(' conformal') ; -.9i + scribble(' mapping')];
 hold on, plot(f(s),'k',LW,1.2), hold off</pre>
 
-<p><img src="../../images/complex/ConformalVis_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/complex/ConformalVis_04.png" class="figure chebfun-figure" alt=""></p>
 <p>It is interesting to plot contours of $|f(z)|$ in the original half-strip.  Can you explain this image with the aid of the Schwarz reflection principle?</p>
 <pre class="mcode-input">x = linspace(-5,3,140); y = linspace(-4,4,140);
 [xx,yy] = meshgrid(x,y); zz = xx + 1i*yy;
@@ -49,7 +49,7 @@ contour(x,y,log10(abs(f(zz))), -.7:.05:.7), colorbar
 set(gca,'xtick',-4:2:4,'ytick',-4:2:4)
 axis([-5 3 -4 4]), axis square</pre>
 
-<p><img src="../../images/complex/ConformalVis_05.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/complex/ConformalVis_05.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

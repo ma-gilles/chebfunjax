@@ -25,7 +25,7 @@ xlabel('t',FS,32), ylabel('y',FS,32)
 title('Pitchfork',FS,32)
 axis([0 600 -.8 .8]), grid on</pre>
 
-<p><img src="../../images/ode-random/Pitchfork_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-random/Pitchfork_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Note that the solutions display big oscillations.  Adding a damping term $0.2y'$ to the equation changes this a good deal.</p>
 <pre class="mcode-input">N.op = @(t,y) diff(y,2) - 2*(-1+t/300)*y + 4*y^3 + 0.2*diff(y);
 plot(y1,'--k',LW,lw), hold on
@@ -35,7 +35,7 @@ xlabel('t',FS,32), ylabel('y',FS,32)
 title('Pitchfork with damping',FS,32)
 axis([0 600 -.8 .8]), grid on</pre>
 
-<p><img src="../../images/ode-random/Pitchfork_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-random/Pitchfork_02.png" class="figure chebfun-figure" alt=""></p>
 <p>When we first tried this, both branches went negative. So we flipped the sign on one of them.</p>
 <p>This example has connections with the example "Phase-locking in a Duffing-type equation", though that involves a first-order ODE.</p>
 <pre class="mcode-input">total_time_in_seconds = toc</pre>

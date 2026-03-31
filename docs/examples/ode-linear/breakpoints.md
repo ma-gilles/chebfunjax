@@ -33,7 +33,7 @@ title('Boundary layers for \epsilon = 1e-1, 1e-2,..., 1e-5')</pre>
      1.0e-05    0.000115129      1495           1.89
 </pre>
 
-<p><img src="../../images/ode-linear/Breakpoints_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/Breakpoints_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The lengths and timings are excellent for the first three values of $\varepsilon$ and not so bad for $\varepsilon = 10^{-4}$, but for $\varepsilon = 10^{-5}$, we need a grid with thousands of points and the method cannot be regarded as satisfactory. (This boundary layer is of width $O(\varepsilon)$, but because of the quadratic clustering of Chebyshev grids at boundaries, the length of the chebfuns only grows like $O(\varepsilon^{-1/2})$.)</p>
 <p>There is a standard method used in scientific computing for such problems, adaptive grid refinement, but Chebfun does not have such a capability. For many problems, however, it is remarkable what one can achieve by a method we might regard as "poor man's grid refinement": simply add a Chebfun breakpoint or two near the region of rapid change.  To make this happen, it is enough to define the domain of the chebop by a vector of three or more points in order, i.e., the endpoints of an interval plus one or more points in the interior.  For example, one might pass to the chebop constructor the domain vector <code>dom = [0 0.01 1]</code> rather than simply <code>dom = [0 1]</code>.</p>
 <p>If an ODE BVP is solved on a domain with breakpoints, separate Chebyshev grids are used on subintervals, and that may provide a more efficient representation of the solution, which will then be a chebfun with several pieces, i.e., several "funs". For a discussion of some of the mathematics, see [1].</p>
@@ -65,7 +65,7 @@ title('The same computed with a breakpoint, \epsilon = 1e-3')</pre>
      1.0e-08    0.000001612        41           0.08
 </pre>
 
-<p><img src="../../images/ode-linear/Breakpoints_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/Breakpoints_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Quite an amazing improvement!  Notice that the breakpoint at $x_b = 40 \varepsilon$ is well out of the boundary layer.  The reason for this choice is that the purpose of the breakpoint is not to optimize the representation of $u$ within the small region $[0, x_b]$, where a reasonable number of gridpoints will be required in any case, but rather to ensure that $u$ has no significant structure on a small length scale in the big interval $[x_b,1]$. In fact, the second piece of each chebfun constructed above, the representation of $u$ on $[x_b ,1]$, is just of length 2, i.e., a linear polynomial:</p>
 <pre class="mcode-input">u</pre>
 
@@ -98,7 +98,7 @@ title('Interior layers for \epsilon = 1e-1, 1e-2,..., 1e-4')</pre>
      1.0e-04    0.027481095      1398           2.18
 </pre>
 
-<p><img src="../../images/ode-linear/Breakpoints_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/Breakpoints_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Inserting breakpoints on either side of $x=0$ improves matters greatly.  Again we plot just one of the curves, the one with $\varepsilon = 10^{-4}$.</p>
 <pre class="mcode-input">dom = @(ep) [-2 -min(.5,10*sqrt(ep)) min(.5,10*sqrt(ep)) 2];
 L = @(ep) chebop(@(x,u) ep*diff(u,2)+x*diff(u)+x*u,dom(ep),-4,2);
@@ -127,7 +127,7 @@ title('The same computed with two breakpoints \epsilon = 1e-4')</pre>
      1.0e-08    0.000408122       101           0.17
 </pre>
 
-<p><img src="../../images/ode-linear/Breakpoints_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/Breakpoints_04.png" class="figure chebfun-figure" alt=""></p>
 <p>Here we see the sizes of the three pieces:</p>
 <pre class="mcode-input">u</pre>
 
@@ -155,7 +155,7 @@ title(['Nonlinear problem: time ' num2str(t) ' secs'])</pre>
 vertical scale = 1.5 
 </pre>
 
-<p><img src="../../images/ode-linear/Breakpoints_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/Breakpoints_05.png" class="figure chebfun-figure" alt=""></p>
 <p>The transition occurs at about $x=1/3$, and if we put a single breakpoint there, the computations becomes five times faster.</p>
 <pre class="mcode-input">N = chebop(@(u) 0.005*diff(u,2) + u*diff(u) - u, [0 1/3 1]);
 N.lbc = -7/6; N.rbc = 3/2;
@@ -175,7 +175,7 @@ t =
    2.633045000000000
 </pre>
 
-<p><img src="../../images/ode-linear/Breakpoints_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/Breakpoints_06.png" class="figure chebfun-figure" alt=""></p>
 <p>Note that the matrix size is now a good smaller, which is the main reason for the speedup.</p>
 <p>With two breakpoints, for this particular example, not much changes.</p>
 <pre class="mcode-input">N = chebop(@(u) 0.005*diff(u,2) + u*diff(u) - u, [0 .30 .36 1]);
@@ -197,7 +197,7 @@ t =
    3.296700000000000
 </pre>
 
-<p><img src="../../images/ode-linear/Breakpoints_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/Breakpoints_07.png" class="figure chebfun-figure" alt=""></p>
 <p>As the illustrations of this Example probably make clear, inserting breakpoints is bit of an art, and some experimentation is generally worthwhile.</p>
 <h3 id="4-reference">4. Reference</h3>
 <p>[1] T. A. Driscoll and J. A. C. Weideman, Optimal domain splitting for interpolation by  Chebyshev polynomials, <em>SIAM J. Numer. Anal.</em> 52 (2014), 1913-1927.</p></div>

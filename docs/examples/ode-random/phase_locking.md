@@ -21,7 +21,7 @@ title('lambda = 0.2, 6 paths'), toc</pre>
 <pre class="mcode-output">Elapsed time is 2.513491 seconds.
 </pre>
 
-<p><img src="../../images/ode-random/PhaseLocking_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-random/PhaseLocking_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Here's the same computation with $\lambda = 0.05$.</p>
 <pre class="mcode-input">tic, clf
 for k = 1:6
@@ -34,7 +34,7 @@ title('lambda = 0.05, 6 paths'), toc</pre>
 <pre class="mcode-output">Elapsed time is 3.707869 seconds.
 </pre>
 
-<p><img src="../../images/ode-random/PhaseLocking_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-random/PhaseLocking_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Here's a much bigger sample.</p>
 <pre class="mcode-input">tic, clf
 for k = 1:60
@@ -47,7 +47,7 @@ title('lambda = 0.05, 60 paths'), toc</pre>
 <pre class="mcode-output">Elapsed time is 35.787353 seconds.
 </pre>
 
-<p><img src="../../images/ode-random/PhaseLocking_03.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/ode-random/PhaseLocking_03.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

@@ -27,7 +27,7 @@ class='invisible'>previous</a><span class='sep-sm
 <pre class="mcode-input">  f = chebfun('cos(20*x)');
   plot(f), ylim([-1.2,1.2])</pre>
 
-<p><img src="../images/guide/guide01_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide01_01.png" class="figure chebfun-figure" alt=""></p>
 <p>From this little experiment, you cannot see that <code>f</code> is represented by a polynomial.  One way to see this is to find the length of <code>f</code>:</p>
 <pre class="mcode-input">  length(f)</pre>
 
@@ -48,7 +48,7 @@ vertical scale =   1
 <p>These results tell us that <code>f</code> is represented by a polynomial interpolant through 51 Chebyshev points, i.e., a polynomial of degree 50.  These numbers have been determined by an adaptive process.  We can see the data points by plotting <code>f</code> with the <code>'.-'</code> option:</p>
 <pre class="mcode-input">  plot(f,'.-'), ylim([-1.2 1.2])</pre>
 
-<p><img src="../images/guide/guide01_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide01_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The formula for $N+1$ Chebyshev points in $[-1,1]$ is $$ x(j) = -\cos(j \pi/N), \quad  j = 0:N, $$ and in the figure we can see that the points are clustered accordingly near $1$ and $-1$. Note that in the middle of the grid, there are about 5 points per wavelength, which is evidently what it takes to represent this cosine to 15 digits of accuracy.  For intervals other than $[-1,1]$, appropriate Chebyshev points are obtained by a linear scaling.</p>
 <p>The curve between the data points is the polynomial interpolant, which can be evaluated by the barycentric formula introduced by Salzer [Berrut & Trefethen 2004, Salzer 1972].  This method of evaluating polynomial interpolants is stable and efficient even if the degree is in the millions [Higham 2004].  Chebfun actually evaluates polynomials from their Chebyshev series rather than by barycentric interpolation; the difference in the two methods is little.</p>
 <p>What is the integral of $f$ from $-1$ to $1$?  Here it is:</p>
@@ -69,7 +69,7 @@ vertical scale =   1
 <pre class="mcode-input">  g = chebfun(@(t) besselj(0,t),[0,100]);
   plot(g), ylim([-.5 1])</pre>
 
-<p><img src="../images/guide/guide01_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide01_03.png" class="figure chebfun-figure" alt=""></p>
 <p>The function looks complicated, but it is actually a polynomial of surprisingly small degree:</p>
 <pre class="mcode-input">  length(g)</pre>
 
@@ -131,7 +131,7 @@ vertical scale =   1
    187
 </pre>
 
-<p><img src="../images/guide/guide01_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide01_04.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="13-operations-on-chebfuns">1.3  Operations on chebfuns</h3>
 <p>There are more than 300 commands that can be applied to a chebfun.  For a list of many of them you can type <code>methods</code>:</p>
 <pre class="mcode-input">  methods chebfun</pre>
@@ -296,7 +296,7 @@ vertical scale = 1.3    Total length = 4
 <pre class="mcode-input">  f = chebfun({@(x) x^2, 1, @(x) 4-x},[-1 1 2 4]);
   plot(f)</pre>
 
-<p><img src="../images/guide/guide01_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide01_05.png" class="figure chebfun-figure" alt=""></p>
 <p>We expect <code>f</code> to consist of three pieces of lengths 3, 1, and 2, and this is indeed the case:</p>
 <pre class="mcode-input">  f</pre>
 
@@ -319,19 +319,19 @@ vertical scale =   2    Total length = 6
 <p>Here is an algebraic transformation of <code>f</code>, which we plot in another color for variety.</p>
 <pre class="mcode-input">  plot(1/(1+f),'r')</pre>
 
-<p><img src="../images/guide/guide01_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide01_06.png" class="figure chebfun-figure" alt=""></p>
 <p>Some Chebfun commands naturally introduce breakpoints in a chebfun. For example, the <code>abs</code> command first finds zeros of a function and introduces breakpoints there.  Here is a chebfun consisting of 6 funs:</p>
 <pre class="mcode-input">  f = abs(exp(x).*sin(8*x));
   plot(f)</pre>
 
-<p><img src="../images/guide/guide01_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide01_07.png" class="figure chebfun-figure" alt=""></p>
 <p>And here is an example where breakpoints are introduced by the <code>max</code> command, leading to a chebfun with 13 pieces:</p>
 <pre class="mcode-input">  f = sin(20*x);
   g = exp(x-1);
   h = max(f,g);
   plot(h), ylim([0 1.2])</pre>
 
-<p><img src="../images/guide/guide01_08.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide01_08.png" class="figure chebfun-figure" alt=""></p>
 <p>As always, <code>h</code> may look complicated to a human, but to Chebfun it is just a function.  Here are its mean, standard deviation, minimum, and maximum:</p>
 <pre class="mcode-input">  mean(h)</pre>
 
@@ -416,7 +416,7 @@ Elapsed time is 0.035212 seconds.
 <pre class="mcode-input">  f = chebfun('exp(-x^2/16).*(1+.2*cos(10*x))',[-inf,inf]);
   plot(f)</pre>
 
-<p><img src="../images/guide/guide01_09.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide01_09.png" class="figure chebfun-figure" alt=""></p>
 <p>and here is its integral:</p>
 <pre class="mcode-input">  sum(f)</pre>
 
@@ -437,7 +437,7 @@ ans =
 <pre class="mcode-input">  h = chebfun('(1/pi)/sqrt(1-x^2)','exps',[-.5 -.5]);
   plot(h)</pre>
 
-<p><img src="../images/guide/guide01_10.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide01_10.png" class="figure chebfun-figure" alt=""></p>
 <p>In this case the integral comes out just right:</p>
 <pre class="mcode-input">  sum(h)</pre>
 
@@ -459,7 +459,7 @@ plot(f)</pre>
    1.614526099978750
 </pre>
 
-<p><img src="../images/guide/guide01_11.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide01_11.png" class="figure chebfun-figure" alt=""></p>
 <p>Its length, very roughly, is $100 \pi$,</p>
 <pre class="mcode-input">length(f)</pre>
 
@@ -476,7 +476,7 @@ plot(f2,'m')</pre>
    1.614526099978745
 </pre>
 
-<p><img src="../images/guide/guide01_12.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide01_12.png" class="figure chebfun-figure" alt=""></p>
 <p>Its length is now only about $200$ (exactly 201). This improvement by a factor of about $\pi/2$ is typical.</p>
 <pre class="mcode-input">length(f2)</pre>
 
@@ -690,7 +690,7 @@ Elapsed time is 0.131316 seconds.
 <pre class="mcode-input">plot(cheb.gallery('airy')), ylim([-.8 .8])
 title('Airy function')</pre>
 
-<p><img src="../images/guide/guide01_13.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide01_13.png" class="figure chebfun-figure" alt=""></p>
 <p>In this instance the underlying code fits in a line,</p>
 <pre class="mcode-input">fa = @airy; p = chebfun(fa, [-40,40]);</pre>
 
@@ -698,12 +698,12 @@ title('Airy function')</pre>
 <pre class="mcode-input">plot(cheb.gallery('daubechies')), ylim([-0.5 1.5])
 title('Daubechies scaling function')</pre>
 
-<p><img src="../images/guide/guide01_14.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide01_14.png" class="figure chebfun-figure" alt=""></p>
 <p>To find out how a gallery example was generated, take a look at the code with <code>type +cheb/gallery</code> or <code>edit +cheb/gallery</code>.</p>
 <p>Like the MATLAB <code>gallery</code> command, <code>cheb.gallery</code> produces a plot if you call it without specifying output variables. To illustrate, let us finish with an example the Chebfun team enjoys from the appendix to [Trefethen 2013], "Six myths of polynomial interpolation and quadrature":</p>
 <pre class="mcode-input">cheb.gallery('zigzag')</pre>
 
-<p><img src="../images/guide/guide01_15.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide01_15.png" class="figure chebfun-figure" alt=""></p>
 <p>This function looks piecewise linear, but in fact, it is a polynomial of degree 10000.  This serves no purpose from an approximation point of view -- one would never represent this function in this manner -- but it illustrates the robustness of high-degree polynomial approximation.</p>
 <p>If you call <code>cheb.gallery</code> without any input arguments, it selects a gallery function at random.</p>
 <p>Other collections worth exploring include <code>cheb.gallerytrig</code> for periodic functions and <code>cheb.gallery2</code> for 2D functions.</p>

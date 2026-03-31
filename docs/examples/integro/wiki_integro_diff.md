@@ -43,7 +43,7 @@ N = chebop(d);</pre>
 <pre class="mcode-input">plot(u), grid on
 title('Solution of integro-differential equation')</pre>
 
-<p><img src="../../images/integro/WikiIntegroDiff_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/integro/WikiIntegroDiff_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li><a href="http://en.wikipedia.org/wiki/Integro-differential_equation">http://en.wikipedia.org/wiki/Integro-differential_equation</a></li>

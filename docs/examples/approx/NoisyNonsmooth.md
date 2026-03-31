@@ -21,12 +21,12 @@ ff = @(x) sign(x-0.1)/2 + cos(4*x) + 1e-8*randn(size(x));</pre>
 LW = 'LineWidth'; MS = 'MarkerSize'; FS = 'FontSize';
 plot(f, 'm', LW, 1.6)</pre>
 
-<p><img src="../../images/approx/NoisyNonsmooth_01.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/NoisyNonsmooth_01.png" class="figure chebfun-figure" alt=""/></p>
 <p>The command <code>plotcoeffs</code> shows that each piece has been resolved to about 8 digits:</p>
 <pre class="mcode-input">plotcoeffs(f, '.-', LW, 1, MS, 14)
 title('Chebyshev coefficients of the two pieces',FS,12)</pre>
 
-<p><img src="../../images/approx/NoisyNonsmooth_02.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/NoisyNonsmooth_02.png" class="figure chebfun-figure" alt=""/></p>
 <p>The command <code>f.ends</code> shows the breakpoint that has been introduced:</p>
 <pre class="mcode-input">f.ends</pre>
 
@@ -56,7 +56,7 @@ B =
 <pre class="mcode-input">g = chebfun(gg, [0 1], 'splitting', 'on', 'eps', 1e-8, 'vectorize');
 plot(g, 'm', LW, 1.6)</pre>
 
-<p><img src="../../images/approx/NoisyNonsmooth_03.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/NoisyNonsmooth_03.png" class="figure chebfun-figure" alt=""/></p>
 <p>The figure leads us to expect two breakpoints, but in fact there are more:</p>
 <pre class="mcode-input">g.ends'</pre>
 
@@ -72,6 +72,6 @@ plot(g, 'm', LW, 1.6)</pre>
 <pre class="mcode-input">plotcoeffs(g, '.-', LW, 1, MS, 10)
 title('Chebyshev coefficients',FS,12)</pre>
 
-<p><img src="../../images/approx/NoisyNonsmooth_04.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/NoisyNonsmooth_04.png" class="figure chebfun-figure" alt=""/></p>
 <p>The explanation is that this function happens to have a square root singularity, and Chebfun has introduced additional breakpoints to resolve it.</p></div>
 </div>

@@ -20,7 +20,7 @@
 surf(f), colormap(jet), colorbar, axis off, view([50 0]), hold on
 spherefun.plotEarth('k-'), hold off</pre>
 
-<p><img src="../../images/sphere/AtmosphericTemperature_01.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/sphere/AtmosphericTemperature_01.png" class="figure chebfun-figure" alt=""/></p>
 <p>The last line includes the landmasses of earth on the plot.</p>
 <p>We can find out more about the underlying data set by looking at the rank:</p>
 <pre class="mcode-input">f</pre>
@@ -58,18 +58,18 @@ ans =
 <pre class="mcode-input">plot( f( :, pi/2 ) )   % In spherical coordinates.
 xlabel('Longitude, \lambda'), ylabel('Temperature (Celsius)')</pre>
 
-<p><img src="../../images/sphere/AtmosphericTemperature_02.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/sphere/AtmosphericTemperature_02.png" class="figure chebfun-figure" alt=""/></p>
 <p>What do the isolines look line?</p>
 <pre class="mcode-input">contour( f, -40:5:40, 'LineWidth', 2 ), axis off, view([50 5]), hold on
 spherefun.plotEarth('k-'), hold off</pre>
 
-<p><img src="../../images/sphere/AtmosphericTemperature_03.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/sphere/AtmosphericTemperature_03.png" class="figure chebfun-figure" alt=""/></p>
 <p>What is the zonal mean temperature?</p>
 <pre class="mcode-input">zonalMean = mean(f,2);
 plot(zonalMean), xlim([0 pi])
 xlabel('Co-latitude, \theta'), ylabel('Temperature (Celsius)')</pre>
 
-<p><img src="../../images/sphere/AtmosphericTemperature_04.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/sphere/AtmosphericTemperature_04.png" class="figure chebfun-figure" alt=""/></p>
 <h3 id="4-poisson-solver">4. Poisson solver</h3>
 <p>We can also compute the steady heat profile with an external source, assuming there are no internal heat sinks or sources. This requires solving Poisson's equation on the sphere.</p>
 <p>The solution to Poisson's equation only makes sense if the right hand side has mean zero.  So, we first subtract a constant from the external heat source to ensure it has a mean of zero. For fun, we take the source as $f$ from above.</p>
@@ -81,8 +81,8 @@ spherefun.plotEarth('k-'), title('Original dataset'), snapnow, hold off
 plot( steadyHeat ), colormap(jet), axis off, view([50 0]), hold on
 spherefun.plotEarth('k-'), title('Steady Heat'), snapnow, hold off</pre>
 
-<p><img src="../../images/sphere/AtmosphericTemperature_05.png" class="figure chebfun-figure" alt=""/></p>
-<p><img src="../../images/sphere/AtmosphericTemperature_06.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/sphere/AtmosphericTemperature_05.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/sphere/AtmosphericTemperature_06.png" class="figure chebfun-figure" alt=""/></p>
 <h3 id="5-scale-space-selection-using-a-gaussian-filter">5. Scale-space selection using a Gaussian filter</h3>
 <p>It is common to smooth data by applying a Gaussian filter. This type of filter also provides a means of analyzing data at various scales and is particularly appealing as it does not introduce artificial structures in the data, such as magnifying local extrema.</p>
 <p>This idea is applied in [3] to global climate data collected on the surface of the sphere, such as air surface temperature, to identify features in the data that are robust over multiple scales. The <code>smooth</code> command in Spherefun uses a Gaussian filter to smooth a function f. It has in optional parameter $\sigma$ that determines the length scale (as measured in radians at the equator of the unit sphere) at which the smoothing occurs.</p>
@@ -101,10 +101,10 @@ for j=1:3
     snapnow, hold off
 end</pre>
 
-<p><img src="../../images/sphere/AtmosphericTemperature_07.png" class="figure chebfun-figure" alt=""/></p>
-<p><img src="../../images/sphere/AtmosphericTemperature_08.png" class="figure chebfun-figure" alt=""/></p>
-<p><img src="../../images/sphere/AtmosphericTemperature_09.png" class="figure chebfun-figure" alt=""/></p>
-<p><img src="../../images/sphere/AtmosphericTemperature_10.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/sphere/AtmosphericTemperature_07.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/sphere/AtmosphericTemperature_08.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/sphere/AtmosphericTemperature_09.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/sphere/AtmosphericTemperature_10.png" class="figure chebfun-figure" alt=""/></p>
 <p>This type of filtering has also been used on CT scans of the brain to detect certain abnormalities [4].</p>
 <h3 id="references">References</h3>
 <p>[1] A. Townsend, H. Wilber, and G. B. Wright, Computing with functions in spherical and polar geometries I. The sphere, submitted, 2016.</p>

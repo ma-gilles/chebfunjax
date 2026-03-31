@@ -21,7 +21,7 @@ F = chebfun3v(@(x,y,z) x+y, @(x,y,z) x.*z + y, @(x,y,z) z, dom);</pre>
     [0, 5, 0, 2*pi]);
 surf(S), axis equal</pre>
 
-<p><img src="../../images/approx3/FluxIntegral3D_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/FluxIntegral3D_01.png" class="figure chebfun-figure" alt=""></p>
 <p>To compute the flux of $F$ through $S$ we simply type</p>
 <pre class="mcode-input">integral2(F, S)</pre>
 
@@ -35,7 +35,7 @@ surf(S), axis equal</pre>
     [0, 2*pi, pi/2, pi]);
 surf(S), axis equal</pre>
 
-<p><img src="../../images/approx3/FluxIntegral3D_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/FluxIntegral3D_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The flux of $F$ through this "bowl" is</p>
 <pre class="mcode-input">integral2(F, S)</pre>
 

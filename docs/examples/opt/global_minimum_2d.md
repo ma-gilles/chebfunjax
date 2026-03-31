@@ -17,7 +17,7 @@ x = linspace(-1,1);
 surf(xx, yy, f(xx,yy)),
 title('The complicated function')</pre>
 
-<p><img src="../../images/opt/GlobalMinimum_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/opt/GlobalMinimum_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Since the term $(x^2+y^2)/4$ grows away from $(0,0)$ while the other terms remain bounded, it can be shown that the global minimum occurs in $[-1,1]^2$ [2].</p>
 <p>The function is complicated and oscillatory, but of rank $4$, as can be seen by rearranging its terms and using the identity $\sin(a+b) = \sin(a)\cos(b) + \cos(a)\sin(b)$.</p>
 <pre class="mcode-input">g = chebfun2(f);
@@ -53,12 +53,12 @@ fprintf('Total time taken = %1.4fs\n',t)</pre>
 <p>Here is the plot of the minimum in a contour plot:</p>
 <pre class="mcode-input">contour(g), hold on, plot(X(1), X(2), '.k', 'markersize', 14), hold off</pre>
 
-<p><img src="../../images/opt/GlobalMinimum_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/opt/GlobalMinimum_02.png" class="figure chebfun-figure" alt=""></p>
 <p>To see that the computed point is the global minimum we make the following plot:</p>
 <pre class="mcode-input">plot(g), hold on, plot3(X(1),X(2),Y,'.k','markersize',20)
 zlim([-10 10]), view(-24.5,4)</pre>
 
-<p><img src="../../images/opt/GlobalMinimum_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/opt/GlobalMinimum_03.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>

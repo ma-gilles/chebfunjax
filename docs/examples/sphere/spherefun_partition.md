@@ -19,7 +19,7 @@ contour(f, 'color','k'),</pre>
      unit sphere      21          1.6
 </pre>
 
-<p><img src="../../images/sphere/SpherefunPartition_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SpherefunPartition_01.png" class="figure chebfun-figure" alt=""></p>
 <p>A spherefun can be seen as a sum of two spherefuns, one of them even/$\pi$-periodic and the other odd/$\pi$-anti-periodic [1]. Recall that a univariate function $g$ is $\pi$-anti-periodic if $g(x+\pi) = -g(x)$. The command `[fep, foa] = partition(f)' partitions $f$ accordingly.</p>
 <pre class="mcode-input">[fep, foa] = partition(f)
 err = norm(fep+foa - f)
@@ -41,27 +41,27 @@ err =
      0
 </pre>
 
-<p><img src="../../images/sphere/SpherefunPartition_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SpherefunPartition_02.png" class="figure chebfun-figure" alt=""></p>
 <p><em>fep</em> has a CDR decomposition [1] whose columns are even and whose rows are $\pi$-periodic (not just $2\pi$!):</p>
 <pre class="mcode-input">[Ce, D, Rp] = cdr(fep);
 clf, plot(Ce)
 grid on, title('Columns of the even part of f')</pre>
 
-<p><img src="../../images/sphere/SpherefunPartition_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SpherefunPartition_03.png" class="figure chebfun-figure" alt=""></p>
 <pre class="mcode-input">clf, plot(Rp)
 grid on, title('Rows of the \pi-periodic part of f')</pre>
 
-<p><img src="../../images/sphere/SpherefunPartition_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SpherefunPartition_04.png" class="figure chebfun-figure" alt=""></p>
 <p>The other part of $f$, <em>foa</em>, has a CDR decomposition whose columns are odd and whose rows are $\pi$-anti-periodic:</p>
 <pre class="mcode-input">[Co, D, Ra] = cdr(foa);
 plot(Co),
 grid on, title('Columns of the odd part of f')</pre>
 
-<p><img src="../../images/sphere/SpherefunPartition_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SpherefunPartition_05.png" class="figure chebfun-figure" alt=""></p>
 <pre class="mcode-input">clf, plot(Ra)
 grid on, title('Rows of the \pi-anti-periodic part of f')</pre>
 
-<p><img src="../../images/sphere/SpherefunPartition_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SpherefunPartition_06.png" class="figure chebfun-figure" alt=""></p>
 <p>The integral of a spherefun is equal to the integral of its even/$\pi$-periodic piece, since the integral of any odd/$\pi$-anti-periodic spherefun is zero:</p>
 <pre class="mcode-input">format long
 sum_f = sum2(f)

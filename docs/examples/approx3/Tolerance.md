@@ -160,7 +160,7 @@ Elapsed time is 1.131880 seconds.
 <p>Here are the Chebyshev coefficients of the rows of $g$. The columns and tubes are similar.</p>
 <pre class="mcode-input">plotcoeffs(g.rows), ylim([3e-6 10])</pre>
 
-<p><img src="../../images/approx3/Tolerance_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/Tolerance_01.png" class="figure chebfun-figure" alt=""></p>
 <p>As good citizens, we now return the tolerance to its factory value:</p>
 <pre class="mcode-input">chebfun3eps factory</pre></div>
         </div>

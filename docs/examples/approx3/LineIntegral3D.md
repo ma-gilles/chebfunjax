@@ -22,7 +22,7 @@ I = integral(f, C)</pre>
   10.746250564473513
 </pre>
 
-<p><img src="../../images/approx3/LineIntegral3D_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/LineIntegral3D_01.png" class="figure chebfun-figure" alt=""></p>
 <p>As a second example, consider integration of $x+yz$ over a spherical helix (a special case of a more general type of curve known as a loxodrome).</p>
 <pre class="mcode-input">r = 5;
 C = chebfun(@(t) [sin(t/(2*r)).*cos(t) sin(t/(2*r)).*sin(t) ...
@@ -35,7 +35,7 @@ I = integral(f, C)</pre>
   -0.040586850422702
 </pre>
 
-<p><img src="../../images/approx3/LineIntegral3D_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/LineIntegral3D_02.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>C. Warren, <em>An Interactive Introduction to MATLAB</em>, University of Edinburgh, 2012.</li>

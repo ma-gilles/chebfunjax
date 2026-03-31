@@ -20,7 +20,7 @@ z = join( c(1) + t*(c(2)-c(1)), ...       % top of the keyhole
 LW = 'LineWidth'; lw = 1.6;
 plot(z,LW,lw), axis equal</pre>
 
-<p><img src="../../images/complex/ComplexArcLength_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/complex/ComplexArcLength_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The total length of the contour can be calculated with one command:</p>
 <pre class="mcode-input">L = arcLength(z)</pre>
 
@@ -48,7 +48,7 @@ L = arcLength(z)</pre>
 s = exp(1i*2*pi*t).*(0.5*sin(8*pi*t).^2+0.5);
 plot(s,LW,lw), axis equal, hold on</pre>
 
-<p><img src="../../images/complex/ComplexArcLength_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/complex/ComplexArcLength_02.png" class="figure chebfun-figure" alt=""></p>
 <p>First, we calculate the total arc length of this closed curve.</p>
 <pre class="mcode-input">L = arcLength(s)</pre>
 
@@ -77,7 +77,7 @@ toc</pre>
 MS = 'MarkerSize'; ms = 16;
 plot(P,'.r',MS,ms)</pre>
 
-<p><img src="../../images/complex/ComplexArcLength_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/complex/ComplexArcLength_03.png" class="figure chebfun-figure" alt=""></p>
 <p>The rootfinding problems above, unfortunately, took quite a while, because the chebfun <code>len</code> is rather long:</p>
 <pre class="mcode-input">length(len)</pre>
 
@@ -94,7 +94,7 @@ plot(P,'.r',MS,ms)</pre>
 <p>Here we put circles around the dots to confirm that we have the same result as before:</p>
 <pre class="mcode-input">plot(s(g((0:N-1)*h)),'ok',MS,8)</pre>
 
-<p><img src="../../images/complex/ComplexArcLength_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/complex/ComplexArcLength_04.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>Chebfun Example <a href="../complex/KeyholeContour.html">complex/KeyholeContour</a></li>

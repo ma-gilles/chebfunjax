@@ -21,7 +21,7 @@ axis([-1.5 .5 -.5 1.5]), axis square
 title(['dx = ' num2str(dx)])
 set(gca,'xtick',-2:2,'ytick',-2:2)</pre>
 
-<p><img src="../../images/stats/SmoothRandomWalk_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/SmoothRandomWalk_01.png" class="figure chebfun-figure" alt=""></p>
 <p>We divide the characteristic length defining the random function by 4 three times. The limit of Brownian motion is being approached. For details, see [1].</p>
 <pre class="mcode-input">for k = 1:3
   dx = dx/4;
@@ -34,9 +34,9 @@ set(gca,'xtick',-2:2,'ytick',-2:2)</pre>
   set(gca,'xtick',-2:2,'ytick',-2:2), snapnow
 end</pre>
 
-<p><img src="../../images/stats/SmoothRandomWalk_02.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/stats/SmoothRandomWalk_03.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/stats/SmoothRandomWalk_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/SmoothRandomWalk_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/SmoothRandomWalk_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/SmoothRandomWalk_04.png" class="figure chebfun-figure" alt=""></p>
 <p>[1] S. Filip, A. Javeed, and L. N. Trefethen, Smooth random functions, random ODEs, and Gaussian processes, <em>SIAM Rev.</em> 61 (2019), 185-205.</p></div>
         </div>
     </div>

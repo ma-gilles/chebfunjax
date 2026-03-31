@@ -29,7 +29,7 @@ Var = @(f,prob) E( (f-E(f,prob)).^2, prob );</pre>
 prior = phi(.7,.3);  prior = prior/sum(prior);
 plot(prior,'linewidth',2)</pre>
 
-<p><img src="../../images/stats/BayesianGradebook_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/BayesianGradebook_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="likelihood-function">Likelihood function</h3>
 <p>Given a "true ability" value $\theta$, we can model the probability of observing a score $x$ also with a truncated normal: $$ P(x|\theta) = \frac{ \phi_{\theta,\sigma}(x) }{ q(\theta,\sigma)}, $$ where $\phi_{\theta,\sigma}$ is the Gaussian function as above with mean $\theta$ and variance $\sigma^2$, and $q$ provides normalization. Because $\phi_{\theta,\sigma}(x) = \phi_{x,\sigma}(\theta)$ for the Gaussian, we can assemble the likelihood function rather easily.</p>
 <p>We're going to treat $\sigma$ as a fixed parameter, though of course one could create a Bayesian estimator for it as well.</p>
@@ -84,7 +84,7 @@ Std dev        0.059  0.042  0.034  0.030
 xlabel('\theta')
 ylabel('P(\theta|x)')</pre>
 
-<p><img src="../../images/stats/BayesianGradebook_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/BayesianGradebook_02.png" class="figure chebfun-figure" alt=""></p>
 <p>When we want to condense a distribution into a 'best guess' for the ability $\theta$, there are two obvious choices. One is to take the mode of the distribution; that is, the value of $\theta$ that maximizes probability. However, the standard (and probably better) estimator is to use the expected value of $\theta$. Both are shown in the output above and compared to the traditional method of a running average.</p>
 <p>In this case, the different grading methods do not differ in any meaningful way. We do get a little extra information, though: the confidence with which we believe our estimates, as reported by the standard deviation of the variable $\theta$.</p>
 <h3 id="good-student">Good student</h3>
@@ -110,11 +110,11 @@ Std dev        0.060  0.043  0.037  0.032
 <p>The reason is the boundary.</p>
 <pre class="mcode-input">cla, plot(belief,'linewidth',2)</pre>
 
-<p><img src="../../images/stats/BayesianGradebook_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/BayesianGradebook_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Because it's impossible to get a score greater than 1, scores close to the upper limit are shortchanged in the traditional method. Looking back at the definition of the likelihood function, we see that the factor $1/q$ multiplies the normal distribution centered at the score $x$. Because $q$ represents normalization of a truncated Gaussian, it gets smaller near the endpoints, and its reciprocal is larger.</p>
 <pre class="mcode-input">clf, plot(1./q,'linewidth',2)</pre>
 
-<p><img src="../../images/stats/BayesianGradebook_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/BayesianGradebook_04.png" class="figure chebfun-figure" alt=""></p>
 <p>As a result, when $x$ is large enough to have some "explanatory energy" at the boundary, our belief in the higher values is amplified to compensate for the inability to observe scores greater than 1.</p>
 <h3 id="the-comeback-kid">The comeback kid</h3>
 <p>It's not uncommon for a student to do much worse on the first assessment than on the rest. Such students sometimes ask the instructor to drop the bad grade as an aberration. Let's do that experiment.</p>

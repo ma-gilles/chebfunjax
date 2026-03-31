@@ -26,7 +26,7 @@ plot(f,LW,lw), grid on
 ylim([-0.2 2.2])
 xlabel('x'), ylabel('f(x)','rotation',0)</pre>
 
-<p><img src="../../images/stats/Expectations_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/Expectations_01.png" class="figure chebfun-figure" alt=""></p>
 <p>If $f$ is a density function, its integral should be $1$, and we find that this is indeed the case to within rounding errors.</p>
 <pre class="mcode-input">sum(f)</pre>
 
@@ -40,7 +40,7 @@ plot(xf,LW,lw), grid on
 ylim([-0.05 0.4])
 xlabel('x'), ylabel(sprintf('x f(x)\n'),'rotation',0)</pre>
 
-<p><img src="../../images/stats/Expectations_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/Expectations_02.png" class="figure chebfun-figure" alt=""></p>
 <p>We can use the chebfun command <code>sum</code> to compute this integral The correct answer in this case is $1/2$.</p>
 <pre class="mcode-input">format long
 sum(xf)</pre>
@@ -55,7 +55,7 @@ plot(xxf,LW,lw), grid on
 ylim([-0.03 0.31])
 xlabel('x'), ylabel('x^2 f(x)','rotation',0)</pre>
 
-<p><img src="../../images/stats/Expectations_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/Expectations_03.png" class="figure chebfun-figure" alt=""></p>
 <pre class="mcode-input">sum(xxf)</pre>
 
 <pre class="mcode-output">ans =
@@ -74,7 +74,7 @@ plot(g,LW,lw), grid on
 ylim([-0.01 0.61])
 xlabel('x'), ylabel('g(x)','rotation',0)</pre>
 
-<p><img src="../../images/stats/Expectations_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/Expectations_04.png" class="figure chebfun-figure" alt=""></p>
 <p>a) Computing the mean is simply a matter of computing the expectation as in the previous question. The exact answer is $1.6$ and this is what we find using Chebfun.</p>
 <pre class="mcode-input">mean = sum(x.*g)</pre>
 
@@ -87,7 +87,7 @@ xlabel('x'), ylabel('g(x)','rotation',0)</pre>
 plot(G,LW,lw), grid on
 xlabel('x'), ylabel(sprintf('G(x)\n'),'rotation',0)</pre>
 
-<p><img src="../../images/stats/Expectations_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/Expectations_05.png" class="figure chebfun-figure" alt=""></p>
 <p>Note again that as we would expect for any pdf, the integral is $1$. Here is the median $a$:</p>
 <pre class="mcode-input">median = roots(G-0.5)
 median_exact = sqrt(9-9*sqrt(2)/2)</pre>
@@ -124,7 +124,7 @@ text(2.2,0.55,sprintf('mode   = %1.2f',mode),'color','k')
 hold off, ylim([-0.01 0.61])
 xlabel('x'), ylabel('g(x)','rotation',0)</pre>
 
-<p><img src="../../images/stats/Expectations_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/Expectations_06.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="reference">Reference</h3>
 <ol>
 <li>M. Spiegel, J. Schiller, and R. Srinivasan, <em>Schaum's Outlines:    Probability and Statistics</em>, 3rd. ed., 2009.</li>

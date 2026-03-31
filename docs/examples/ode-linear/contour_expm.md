@@ -32,7 +32,7 @@ grid on
 axis equal
 title('A Talbot contour', FS, fs)</pre>
 
-<p><img src="../../images/ode-linear/ContourExpm_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/ContourExpm_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Let's use the following function for our initial data:</p>
 <pre class="mcode-input">u0 = chebfun(@(x) sign(x - 3*pi/8).*sign(-(x - 5*pi/8))/2 + 1/2, [0 pi], ...
     'splitting', 'on');
@@ -42,7 +42,7 @@ xlim([0 pi])
 ylim([-0.1, 1.1])
 title('Initial data', FS, fs)</pre>
 
-<p><img src="../../images/ode-linear/ContourExpm_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/ContourExpm_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Now we just loop through the quadrature points, solving the systems and adding up the contributions from each node as we go.  We'll solve the system for four different final times:</p>
 <pre class="mcode-input">Tf = [0.01 0.1 0.5 1];
 uf = chebfun(zeros(2, length(Tf)), [0 pi]);
@@ -67,7 +67,7 @@ xlim([0 pi])
 ylim([-0.1 1.1])
 legend('Initial Data', 'Tf = 0.01', 'Tf = 0.1', 'Tf = 0.5', 'Tf = 1');</pre>
 
-<p><img src="../../images/ode-linear/ContourExpm_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/ContourExpm_03.png" class="figure chebfun-figure" alt=""></p>
 <p>These solutions have all the right characteristics we would expect from this equation.  Note that the accuracy can be improved by increasing the number of quadrature nodes used at the cost of needing to solve more boundary-value problems.</p>
 <h3 id="references">References</h3>
 <ol>

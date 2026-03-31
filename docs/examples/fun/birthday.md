@@ -14,7 +14,7 @@ LW = 'linewidth'; lw = 1.8;
 plot(s,'-',LW,lw)
 xlim([-1.1 1.1]), axis equal, grid on</pre>
 
-<p><img src="../../images/fun/Birthday_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/fun/Birthday_01.png" class="figure chebfun-figure" alt=""></p>
 <p>This chebfun <code>s</code> is a a piecewise linear complex funtion of a real variable, as we can see by writing it without the semicolon:</p>
 <pre class="mcode-input">s</pre>
 
@@ -116,18 +116,18 @@ Epslevel = 1.110223e-15.  Vscale = 1.003774e+00.  Total length = 178.
 <p>Since <code>s</code> is a chebfun, we can apply functions to it. For example, here is <code>exp(s)</code>:</p>
 <pre class="mcode-input">plot(exp(s),'b',LW,lw), axis equal, grid on</pre>
 
-<p><img src="../../images/fun/Birthday_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/fun/Birthday_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is <code>exp(3i*s)</code>:</p>
 <pre class="mcode-input">plot(exp(3i*s),'m',LW,lw), axis equal, grid on</pre>
 
-<p><img src="../../images/fun/Birthday_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/fun/Birthday_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Playing around with different functions is a good way to learn about complex variables, and a good way to make greeting cards. Here are a couple more with axes turned off for greater beauty.</p>
 <pre class="mcode-input">plot(exp((1+1i)*s),'g',LW,lw), axis equal, axis off
 snapnow
 plot(sinh(3*s),'r',LW,lw), axis equal, axis off</pre>
 
-<p><img src="../../images/fun/Birthday_04.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/fun/Birthday_05.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/fun/Birthday_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/fun/Birthday_05.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

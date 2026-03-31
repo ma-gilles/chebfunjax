@@ -17,7 +17,7 @@ A(10:11,18:24)=1; A(5:12,26:27)=1; A(11:12,26:31)=1;
 A(6:13,34:35)=1; A(6:13,38:39)=1; A(6:7,36:37)=1; A(12:13,36:37)=1;
 spy(A)</pre>
 
-<p><img src="../../images/fun/HelloWorld_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/fun/HelloWorld_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The matrix is of size $15\times 40$ and hence of rank at most 15. Actually it is of rank 10 because there are five zero rows:</p>
 <pre class="mcode-input">rank(A)</pre>
 
@@ -52,11 +52,11 @@ for k = [1 3 5 7 10]
     snapnow
 end</pre>
 
-<p><img src="../../images/fun/HelloWorld_02.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/fun/HelloWorld_03.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/fun/HelloWorld_04.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/fun/HelloWorld_05.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/fun/HelloWorld_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/fun/HelloWorld_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/fun/HelloWorld_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/fun/HelloWorld_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/fun/HelloWorld_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/fun/HelloWorld_06.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>L. N. Trefethen and D. Bau III, <em>Numerical Linear Algebra</em>, SIAM, 1997.</li>

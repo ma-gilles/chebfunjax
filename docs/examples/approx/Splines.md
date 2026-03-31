@@ -14,14 +14,14 @@ x = chebfun('x',[0 10]);
 f = sin(x + 0.25*x.^2);
 plot(f), axis([0 10 -1.2 1.2])</pre>
 
-<p><img src="../../images/approx/Splines_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Splines_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Let us call Chebfun <code>spline</code> to make a cubic spline $s$ that interpolates $f$ at the integers, and superimpose it on the same plot in red. Since a spline is just piecewise smooth, the Chebfun is made of a collection of funs, and we include red dots to mark the knots that separate them.</p>
 <pre class="mcode-input">s = chebfun.spline(0:10,f(0:10));
 hold on, plot(s,'r')
 plot(s.ends,s(s.ends),'.r','markersize',12)
 axis([0 10 -1.2 1.2])</pre>
 
-<p><img src="../../images/approx/Splines_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Splines_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Here are the first, second, and third derivatives of $s$. The curves are respectively piecewise parabolic and continuously differentiable; piecewise linear and continuous; and piecewise constant.</p>
 <pre class="mcode-input">clf
 for d = 1:3
@@ -30,7 +30,7 @@ for d = 1:3
    text(6.5,.8*2^(d+1),['derivative ' int2str(d)])
 end</pre>
 
-<p><img src="../../images/approx/Splines_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Splines_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Note that in the final image, there is no discontinuity at $x=1$ or $x=9$. This is because by default, MATLAB imposes the "not-a-knot condition" to use up the 2 available free parameters of an interpolating piecewise cubic with two continuous derivatives.</p>
 <p>One of Chebfun's features is its ability to locate discontinuities automatically in <code>splitting on</code> mode.  To illustrate this, suppose we construct a new chebfun <code>s2</code> by sampling <code>s</code> with splitting on. The accuracy is very good:</p>
 <pre class="mcode-input">s2 = chebfun(@(x) s(x),[0 10],'splitting','on');

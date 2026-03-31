@@ -30,7 +30,7 @@ U = chebfun(vals,x);
 plot(U,LW,lw), ylabel('potential')
 xlim(x([1 end]))</pre>
 
-<p><img src="../../images/ode-eig/SolarQDA_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/SolarQDA_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The effective mass is also piecewise constant, so we go through the same motions.</p>
 <pre class="mcode-input">vals = [repmat(m,1,numwell) m(1)];
 vals = mat2cell(vals,1,ones(1,2*numwell+1));  % convert to cell
@@ -55,13 +55,13 @@ plot(Psi,LW,lw), ylabel('wavefunction'), xlim(x([1 end]))</pre>
    0.251332910862716
 </pre>
 
-<p><img src="../../images/ode-eig/SolarQDA_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/SolarQDA_02.png" class="figure chebfun-figure" alt=""></p>
 <p>If we look at probability, we find that the first four modes extend significantly over all wells. This is "delocalization" or quantum tunnelling, and it means the device can conduct electricity.</p>
 <pre class="mcode-input">clf
 semilogy(Psi.^2,LW,lw), ylabel('probability'),
 axis( [x([2 end-1]) 1e-3 1e-1]  )</pre>
 
-<p><img src="../../images/ode-eig/SolarQDA_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/SolarQDA_03.png" class="figure chebfun-figure" alt=""></p>
 <p>In practice, though, the potential wells cannot be fabricated identically. A brief experiment shows that the delocalization deteriorates even with small fluctuations in the well depths. Here we perturb by 2% variance.</p>
 <pre class="mcode-input">vals = [repmat([depth 0],1,numwell) depth];  % [ 0 -depth 0 ... -depth 0 ]
 
@@ -85,7 +85,7 @@ axis( [x([2 end-1]) 1e-3 1e-0]  )</pre>
    0.269586365175261
 </pre>
 
-<p><img src="../../images/ode-eig/SolarQDA_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/SolarQDA_04.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>W. M. Reid, T. Driscoll, and M. F. Doty, "Forming delocalized    intermediate states with realistic quantum dots." <em>Journal    of Applied Physics</em>, 111,    056102 (2012). <a href="http://dx.doi.org/10.1063/1.3691113">http://dx.doi.org/10.1063/1.3691113</a></li>

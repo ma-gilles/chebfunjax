@@ -18,7 +18,7 @@ title(sprintf('10 Chebyshev points    Lambda = %3.2f',Lambda),FS,14)
 subplot(2,1,2), plot(Lfun,LW,1.6), grid on
 title(sprintf('10 equispaced points    Lambda = %4.2f',Lambda),FS,14)</pre>
 
-<p><img src="../../images/approx/LebesgueConst_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/LebesgueConst_01.png" class="figure chebfun-figure" alt=""></p>
 <p>If we increase 10 to 40, we need to switch to a semilogy plot to see the results:</p>
 <pre class="mcode-input">[Lfun,Lambda] = lebesgue(chebpts(40));
 subplot(2,1,1), semilogy(Lfun,LW,1.6), grid on
@@ -27,7 +27,7 @@ title(sprintf('40 Chebyshev points    Lambda = %3.2f',Lambda),FS,14)
 subplot(2,1,2), semilogy(Lfun,LW,1.6), grid on
 title(sprintf('40 equispaced points    Lambda = %5.2e',Lambda),FS,14)</pre>
 
-<p><img src="../../images/approx/LebesgueConst_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/LebesgueConst_02.png" class="figure chebfun-figure" alt=""></p>
 <p>This picture confirms the well-known fact (the Runge phenomenon) that polynomial interpolation in equispaced points is terribly ill-conditioned. In fact it is known that as $n$ increases to infinity, the Lebesgue constant for $n$ Chebyshev points is asymptotic to $(2/\pi)\log(n)$ whereas for $n$ equispaced points it is $2^n/(e n \log(n))$.</p>
 <p>Here are results for 10 and 30 random points in $[-1,1]$.  The reason for shrinking the number from 40 to 30 is that for larger values than this, difficulties arise caused by rounding errors since the Lebesgue function is bigger than the inverse of machine epsilon.</p>
 <pre class="mcode-input">rng('default'), rng(0)
@@ -38,7 +38,7 @@ title(sprintf('10 random points    Lambda = %5.2e',Lambda),FS,14)
 subplot(2,1,2), semilogy(Lfun,LW,1.6), grid on
 title(sprintf('30 random points    Lambda = %5.2e',Lambda),FS,14)</pre>
 
-<p><img src="../../images/approx/LebesgueConst_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/LebesgueConst_03.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>L. N. Trefethen, <em>Approximation Theory and Approximation Practice</em>,    SIAM, 2013.</li>

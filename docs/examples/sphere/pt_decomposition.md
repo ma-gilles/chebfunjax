@@ -20,7 +20,7 @@ Tw = ballfun(@(x,y,z)sin(y.*z));
 w = ballfunv.PT2ballfunv(Pw, Tw);
 quiver( w )</pre>
 
-<p><img src="../../images/sphere/PTDecomposition_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/PTDecomposition_01.png" class="figure chebfun-figure" alt=""></p>
 <p>We start by checking that $w$ is divergence-free:</p>
 <pre class="mcode-input">norm( div( w ) )</pre>
 
@@ -38,7 +38,7 @@ plot(Pw), title('poloidal scalar')
 subplot(1,2,2)
 plot(Tw), title('toroidal scalar')</pre>
 
-<p><img src="../../images/sphere/PTDecomposition_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/PTDecomposition_02.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="visualizing-the-decomposition">Visualizing the decomposition</h3>
 <p>Here are plots of the decomposition.</p>
 <pre class="mcode-input">[P,T] = ballfunv.PT2ballfunv(Pw,Tw);
@@ -49,7 +49,7 @@ quiver( P ), title('poloidal component')
 subplot(1,3,3)
 quiver( T ), title('toroidal component')</pre>
 
-<p><img src="../../images/sphere/PTDecomposition_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/PTDecomposition_03.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="recovering-the-vector-field-from-the-pt-scalars">Recovering the vector field from the PT scalars</h3>
 <p>The original vector field can be recovered from the poloidal and toroidal scalars since $$ w = \nabla\times\nabla\times(rP_w\hat{r}) + \nabla\times(rT_w\hat{r}). $$ This operation is implemented in Ballfun in the <code>PT2ballfunv</code> command:</p>
 <pre class="mcode-input">v = ballfunv.PT2ballfunv(Pw, Tw);</pre>

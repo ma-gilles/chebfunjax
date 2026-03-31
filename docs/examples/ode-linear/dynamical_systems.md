@@ -41,7 +41,7 @@ eigenvectors of A:
                    0   0.447213595499958
 </pre>
 
-<p><img src="../../images/ode-linear/DynamicalSystems_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/DynamicalSystems_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Since at least one of the eigenvalues has positive real part, the phase portrait has an unstable fixed point at the origin. If both eigenvalues have nonpositive real part, then the solution can not grow infinitely large in absolute value. The origin is here a stable fixed point, and all trajectories approach that point.</p>
 <pre class="mcode-input">A = [-1 3; 0 -3]; [EV, EW] = eig(A);
 fprintf('eigenvalues of A:\n'), disp(diag(EW)')
@@ -63,7 +63,7 @@ eigenvectors of A:
                    0   0.554700196225229
 </pre>
 
-<p><img src="../../images/ode-linear/DynamicalSystems_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/DynamicalSystems_02.png" class="figure chebfun-figure" alt=""></p>
 <p>When both eigenvalues are imaginary, the phase portrait has a center.</p>
 <pre class="mcode-input">A = [2 -2;3 -2]; [EV, EW] = eig(A);
 fprintf('eigenvalues of A:\n'), disp(diag(EW)')
@@ -92,7 +92,7 @@ eigenvectors of A:
   0.774596669241483 + 0.000000000000000i
 </pre>
 
-<p><img src="../../images/ode-linear/DynamicalSystems_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/DynamicalSystems_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Of course, not every matrix has only real or imaginary eigenvalues. Assuming the entries of $A$ are real, the remaining cases of complex eigenvalues are most conveniently described by the trace $\mathrm{tr}(A) = \lambda_1 + \lambda_2 =: \tau$ and the determinant $\mathrm{det}(A) = \lambda_1 \lambda_2 =: \Delta$ of the matrix $A$, since the eigenvalues of are given by</p>
 <p>$$ \lambda_{1,2} = \frac12(\tau \pm \sqrt{\tau^2 - 4\Delta}). $$</p>
 <p>All cases can be summarized in the following picture, where the parabola is defined by $\tau^2 - 4\Delta = 0$.</p>
@@ -108,7 +108,7 @@ plot(labels,LW,1)
 title('Stability of linear dynamical systems',FS,14)
 xlabel('det(A)',FS,14), ylabel('tr(A)',FS,14), hold off</pre>
 
-<p><img src="../../images/ode-linear/DynamicalSystems_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/DynamicalSystems_04.png" class="figure chebfun-figure" alt=""></p>
 <p>So far we have seen systems with a stable and an unstable fixed point, and one with a center, which occurred since the corresponding matrix $A$ has zero trace and positive determinant. This is the borderline between stable and unstable spirals. Here is a system with an unstable spiral, which corresponds to $A$ having positive trace $\tau$ and positive determinant $\Delta$ with $\tau &lt; 2\sqrt{\Delta}$.</p>
 <pre class="mcode-input">A = [2 -2;8 1]; [EV, EW] = eig(A);
 fprintf('eigenvalues of A:\n'), disp(diag(EW)')
@@ -137,7 +137,7 @@ eigenvectors of A:
   0.894427190999916 + 0.000000000000000i
 </pre>
 
-<p><img src="../../images/ode-linear/DynamicalSystems_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/DynamicalSystems_05.png" class="figure chebfun-figure" alt=""></p>
 <p>A system with a stable spiral, which corresponds to $A$ having negative trace $\tau$ and positive determinant $\Delta$ with $\tau &gt; -2\sqrt{\Delta}$:</p>
 <pre class="mcode-input">A = [-.5 -2;2 -.2]; [EV, EW] = eig(A);
 fprintf('eigenvalues of A:\n'), disp(diag(EW)')
@@ -166,7 +166,7 @@ eigenvectors of A:
  -0.053033008588991 + 0.705115238808523i
 </pre>
 
-<p><img src="../../images/ode-linear/DynamicalSystems_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/DynamicalSystems_06.png" class="figure chebfun-figure" alt=""></p>
 <p>A system with a saddle, which corresponds to $A$ having negative determinant:</p>
 <pre class="mcode-input">A = [1 1; 4 -2]; [EV, EW] = eig(A);
 fprintf('eigenvalues of A:\n'), disp(diag(EW)')
@@ -189,7 +189,7 @@ eigenvectors of A:
    0.707106781186547   0.970142500145332
 </pre>
 
-<p><img src="../../images/ode-linear/DynamicalSystems_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/DynamicalSystems_07.png" class="figure chebfun-figure" alt=""></p>
 <p>A system with a line of stable fixed points, which corresponds to $A$ having negative trace and zero determinant:</p>
 <pre class="mcode-input">A = [1 1; -2 -2]; [EV, EW] = eig(A);
 fprintf('eigenvalues of A:\n'), disp(diag(EW)')
@@ -211,7 +211,7 @@ eigenvectors of A:
   -0.707106781186547   0.894427190999916
 </pre>
 
-<p><img src="../../images/ode-linear/DynamicalSystems_08.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/DynamicalSystems_08.png" class="figure chebfun-figure" alt=""></p>
 <p>A system with a line of unstable fixed points, which corresponds to $A$ having positive trace and zero determinant:</p>
 <pre class="mcode-input">A = [1 2; 1 2]; [EV, EW] = eig(A);
 fprintf('eigenvalues of A:\n'), disp(diag(EW)')
@@ -238,7 +238,7 @@ eigenvectors of A:
    0.447213595499958  -0.707106781186548
 </pre>
 
-<p><img src="../../images/ode-linear/DynamicalSystems_09.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/DynamicalSystems_09.png" class="figure chebfun-figure" alt=""></p>
 <p>A system with a stable node and collinear eigendirections, which corresponds to $A$ having negative trace $\tau$ and positive determinant $\Delta$ with $\tau = -2\sqrt{\Delta}$, so that both eigenvalues are equal:</p>
 <pre class="mcode-input">A = [1 4;-1 -3]; [EV, EW] = eig(A);
 fprintf('eigenvalues of A:\n'), disp(diag(EW)')
@@ -260,7 +260,7 @@ eigenvectors of A:
   -0.447213595499958   0.447213595499958
 </pre>
 
-<p><img src="../../images/ode-linear/DynamicalSystems_10.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/DynamicalSystems_10.png" class="figure chebfun-figure" alt=""></p>
 <p>A system with an unstable node and collinear eigendirections, which corresponds to $A$ having positive trace $\tau$ and positive determinant $\Delta$ with $\tau = 2\sqrt{\Delta}$, so that both eigenvalues are equal:</p>
 <pre class="mcode-input">A = [-1 5/2;-5/2 4]; [EV, EW] = eig(A);
 fprintf('eigenvalues of A:\n'), disp(diag(EW)')
@@ -282,7 +282,7 @@ eigenvectors of A:
    0.707106784518548  -0.707106777854546
 </pre>
 
-<p><img src="../../images/ode-linear/DynamicalSystems_11.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/DynamicalSystems_11.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>

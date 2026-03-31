@@ -82,7 +82,7 @@ text(20, 500, ['Time to 1000 mph = ' num2str(t1000, 3) ' seconds']);
 title('Velocity of the Bloodhound Supersonic Car (Acceleration Phase)')
 ylabel('velocity in mph')</pre>
 
-<p><img src="../../images/ode-nonlin/Bloodhound_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/Bloodhound_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Integrate to find the distance.</p>
 <pre class="mcode-input">s = cumsum(u);
 s_miles = s/1609;     % convert to miles to plot
@@ -90,7 +90,7 @@ figure
 plot(s_miles,'LineWidth',2); title('Distance travelled')
 xlabel('Time in seconds'),   ylabel('Distance in miles')</pre>
 
-<p><img src="../../images/ode-nonlin/Bloodhound_02.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/ode-nonlin/Bloodhound_02.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

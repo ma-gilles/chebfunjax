@@ -25,7 +25,7 @@ Couldn't create JOGL canvas--using painters
 Couldn't create JOGL canvas--using painters
 </pre>
 
-<p><img src="../../images/ode-random/Tunnelling_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-random/Tunnelling_01.png" class="figure chebfun-figure" alt=""></p>
 <p>With the choices of parameters we have just used, it is clear that there is a tendency for trajectories to settle down near $+1$ or $-1$.  However, these fates are not permanent. Eventually a random fluctuation will switch the trajectory to the other state, and with probability 1, this will happen infinitely often as $t\to\infty$.  Here is an illustrative trajectory over the interval $t\in [0,800]$.</p>
 <pre class="mcode-input">dom = [0 800]; N.domain = dom;
 f = 0.45*randnfun(lambda,dom,'big');
@@ -35,7 +35,7 @@ xlabel('t'), ylabel('y')
 ylim([-1.7 1.7]), grid on
 title('Tunnelling')</pre>
 
-<p><img src="../../images/ode-random/Tunnelling_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-random/Tunnelling_02.png" class="figure chebfun-figure" alt=""></p>
 <p>What we are seeing here is the tunnelling effect so famous in quantum mechanics, which is associated for example with the decay of radioactive atoms.  Here as in that example, small differences in parameters can have exponential effects on tunnelling rates.  If we move the stable states further apart, or equivalently reduce the noise amplitude, then the metastable state will survive much longer.  Conversely if we move the stable states closer together, or equivalently increase the noise amplitude, then the metastable states will not survive as long.  Here for example we rerun the last experiment but with the noise coefficient increased from $0.45$ to $0.60$.</p>
 <pre class="mcode-input">f = (0.60/0.45)*f;
 y = N\f; plot(y,LW,.5)
@@ -43,7 +43,7 @@ xlabel('t'), ylabel('y')
 ylim([-1.7 1.7]), grid on
 title('Larger noise means faster tunnelling')</pre>
 
-<p><img src="../../images/ode-random/Tunnelling_03.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/ode-random/Tunnelling_03.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

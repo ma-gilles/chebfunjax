@@ -18,7 +18,7 @@ y = (a+b)*sin(t) - b*sin((a+b)/b*t);</pre>
 <pre class="mcode-input">fill(x,y,[.6 .6 1])
 axis equal</pre>
 
-<p><img src="../../images/geom/Area_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/geom/Area_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Note that although this curve is not smooth, the functions $x(t)$ and $y(t)$ that parameterize it are smooth, so Chebfun has no difficulty representing them by global polynomials:</p>
 <pre class="mcode-input">x
 y</pre>
@@ -55,7 +55,7 @@ A = sum(x.*diff(y))</pre>
 fill(real(z),imag(z),[.6 1 .6])
 axis equal</pre>
 
-<p><img src="../../images/geom/Area_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/geom/Area_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Because this curve is a perturbed unit circle, with every perturbation occurring twice with opposite signs, the enclosed area should be equal to $\pi$, as is confirmed by Chebfun:</p>
 <pre class="mcode-input">A = sum(real(z).*diff(imag(z)));
 [ A ; pi ]</pre>
@@ -70,7 +70,7 @@ axis equal</pre>
 hold on
 plot(c,'r+','markersize',20)</pre>
 
-<p><img src="../../images/geom/Area_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/geom/Area_03.png" class="figure chebfun-figure" alt=""></p>
 <p>If you use scissors to produce a piece of paper in this shape, it should remain balanced when placed on a vertical needle centered at the red cross. (If it doesn't, it's likely your handicraft precision isn't as good as Chebfun's!)</p></div>
         </div>
     </div>

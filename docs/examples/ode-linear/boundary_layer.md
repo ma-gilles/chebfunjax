@@ -24,12 +24,12 @@ LW = 'linewidth'; lw = 1.6;
 clf, plot(u,'b',LW,lw)
 grid on, axis([-0.03 1 0 1.03])</pre>
 
-<p><img src="../../images/ode-linear/BoundaryLayer_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/BoundaryLayer_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Let's add a curve for $\varepsilon = 0.01$:</p>
 <pre class="mcode-input">u = L(0.01)\1;
 hold on, plot(u,'r',LW,lw)</pre>
 
-<p><img src="../../images/ode-linear/BoundaryLayer_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/BoundaryLayer_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Here's $\varepsilon = 0.001$:</p>
 <pre class="mcode-input">u = L(0.001)\1;
 hold on, plot(u,LW,lw,'color',[0 .8 0])
@@ -37,7 +37,7 @@ legend('\epsilon=0.1','\epsilon=0.01','\epsilon=0.001')
 FS = 'fontsize';
 title('Boundary layers for three values of \epsilon',FS,12)</pre>
 
-<p><img src="../../images/ode-linear/BoundaryLayer_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/BoundaryLayer_03.png" class="figure chebfun-figure" alt=""></p>
 <p>It can be shown that the width of the boundary layer for this equation is $O(\varepsilon)$.  Suppose we want to measure this in Chebfun.  One method would be to find the point where the solution goes through $0.5$.  (This definition wouldn't work for larger $\varepsilon$.)</p>
 <pre class="mcode-input">width = @(eps) min(roots(L(eps)\1-.5));</pre>
 
@@ -53,7 +53,7 @@ w = [width(.1) width(.01) width(.001)]</pre>
 <pre class="mcode-input">MS = 'markersize';
 plot(w,[.5 .5 .5],'.k',MS,18)</pre>
 
-<p><img src="../../images/ode-linear/BoundaryLayer_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/BoundaryLayer_04.png" class="figure chebfun-figure" alt=""></p>
 <p>We can also plot boundary layer width against $\varepsilon$. The dashed red line confirms the linear behavior.</p>
 <pre class="mcode-input">epsvec = [.1 .03 .01 .003 .001 .0003];
 for j = 1:length(epsvec)
@@ -65,7 +65,7 @@ xlabel('\epsilon',FS,12)
 ylabel('width of boundary layer',FS,12)
 hold on, plot(epsvec,epsvec,'--r',LW,2)</pre>
 
-<p><img src="../../images/ode-linear/BoundaryLayer_05.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/ode-linear/BoundaryLayer_05.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

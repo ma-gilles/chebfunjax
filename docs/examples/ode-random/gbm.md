@@ -25,7 +25,7 @@ grid on, hold off
 xlabel('t'), ylabel('y')
 title('zero drift')</pre>
 
-<p><img src="../../images/ode-random/GBM_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-random/GBM_01.png" class="figure chebfun-figure" alt=""></p>
 <p>If we increase $\mu$ to $0.2$, there is now an upward bias on any scale.</p>
 <pre class="mcode-input">mu = 0.2;
 for k = 1:5
@@ -36,7 +36,7 @@ grid on, hold off, ylim([0 70])
 xlabel('t'), ylabel('y')
 title('positive drift')</pre>
 
-<p><img src="../../images/ode-random/GBM_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-random/GBM_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Setting $\mu = -0.2$, on the other hand, leads to decay.</p>
 <pre class="mcode-input">mu = -0.2;
 for k = 1:5
@@ -47,7 +47,7 @@ grid on, hold off
 xlabel('t'), ylabel('y')
 title('negative drift')</pre>
 
-<p><img src="../../images/ode-random/GBM_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-random/GBM_03.png" class="figure chebfun-figure" alt=""></p>
 <pre class="mcode-input">total_time_in_seconds = toc</pre>
 
 <pre class="mcode-output">total_time_in_seconds =

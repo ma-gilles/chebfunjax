@@ -13,7 +13,7 @@
 f = round(2*cos(x));
 plot(f), ylim(2.5*[-1 1])</pre>
 
-<p><img src="../../images/calc/Integrals_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/calc/Integrals_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The Chebfun command <code>sum</code> returns the definite integral over the prescribed interval, which is just a number:</p>
 <pre class="mcode-input">format long, sum(f)</pre>
 
@@ -32,7 +32,7 @@ plot(f), ylim(2.5*[-1 1])</pre>
 <pre class="mcode-input">g = cumsum(f);
 plot(g,'m')</pre>
 
-<p><img src="../../images/calc/Integrals_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/calc/Integrals_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Thus another way to compute the integral over a subinterval would be to take the difference of two values of the cumsum:</p>
 <pre class="mcode-input">g(4) - g(3)</pre>
 
@@ -57,7 +57,7 @@ plot(g,'m')</pre>
 <p>Plotting the two instantly alerts us that we forgot to add back in the value at the left endpoint, namely $f(0) = 2$:</p>
 <pre class="mcode-input">plot(f,'b',cumsum(diff(f)),'r')</pre>
 
-<p><img src="../../images/calc/Integrals_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/calc/Integrals_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Sure enough, adding this number makes the two functions agree:</p>
 <pre class="mcode-input">norm( f(0)+cumsum(diff(f)) - f)</pre>
 

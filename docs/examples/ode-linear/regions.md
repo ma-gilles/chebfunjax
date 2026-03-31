@@ -24,7 +24,7 @@ s = (23-16/z+5/z^2)/12; plot(r/s,CO,c{3})     % order 3
 axis([-2.5 .5 -1.5 1.5]), axis square, grid on
 title('Adams-Bashforth orders 1,2,3')</pre>
 
-<p><img src="../../images/ode-linear/Regions_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/Regions_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The Runge-Kutta formulas are one-step methods, a bit trickier to derive but simpler to apply; they are the basis of the MATLAB codes <code>ode23</code> and <code>ode45</code>.  To plot their stability regions, we need to solve an equation.  We can do that with a Newton iteration, which we terminate here after 3 or 4 steps. Here are stability regions of RK formulas of order 1,2,3,4. In this case the regions get bigger as the order increases.</p>
 <pre class="mcode-input">clf, plot(y,x,K), hold on, plot(x,y,K)
 w = z-1;
@@ -44,7 +44,7 @@ plot(w,CO,c{4})                                % order 4
 axis([-5 2 -3.5 3.5]), axis square, grid on
 title('Runge-Kutta orders 1,2,3,4')</pre>
 
-<p><img src="../../images/ode-linear/Regions_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/Regions_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Finally we look at the backward differentiation formulas of orders 1-6, which are related to the MATLAB code <code>ode15s</code>. In this case the stability regions are the <em>exteriors</em> of the curves drawn.</p>
 <pre class="mcode-input">clf, plot(8*y,x,K), hold on, plot(x,8*y,K)
 d = 1-1/z; r = 0;
@@ -55,12 +55,12 @@ end
 axis([-15 35 -25 25]), axis square, grid on
 title('Backward differentiation orders 1-6 (exteriors of curves)')</pre>
 
-<p><img src="../../images/ode-linear/Regions_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/Regions_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is a close-up. The order 1 and 2 RK formulas are A-stable, meaning that their stability regions contain the whole left half-plane. The stability regions of the order 3, 4, 5, 6 formulas contain the negative real axis but not the whole left half-plane.</p>
 <pre class="mcode-input">axis(6*[-1 1 -1 1])
 title('Backward differentiation close-up')</pre>
 
-<p><img src="../../images/ode-linear/Regions_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/Regions_04.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>E. Hairer and G. Wanner, <em>Solving Ordinary Differential Equations II:    Stiff and Differential-Algebraic Problems</em>, Springer, 1996.</li>

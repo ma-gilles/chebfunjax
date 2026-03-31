@@ -28,7 +28,7 @@ k = 5; % number of eigenvalues we want
 [V, D] = eigs(L, k);
 figure, plot(V, LW, 2)</pre>
 
-<p><img src="../../images/ode-eig/FourierEigs_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/FourierEigs_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The computed eigenvalues are very close to the exact ones:</p>
 <pre class="mcode-input">Dexact = [0 1 1 4 4]';
 norm(diag(D) - Dexact, inf)</pre>
@@ -84,7 +84,7 @@ k = 5; % number of eigenvalues we want
 [V, D] = eigs(L, k);
 figure, plot(V, LW, 2)</pre>
 
-<p><img src="../../images/ode-eig/FourierEigs_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/FourierEigs_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The computed eigenvalues are very close to the eigenvalues obtained with WolframAlpha:</p>
 <pre class="mcode-input">Dwolfram = [ -1.513956885056520;
              -1.390676501225323;

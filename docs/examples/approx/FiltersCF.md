@@ -23,8 +23,8 @@ for m = [100 1000]
   axis([-1 1 -1 2]), snapnow
 end</pre>
 
-<p><img src="../../images/approx/FiltersCF_01.png" class="figure chebfun-figure" alt=""/></p>
-<p><img src="../../images/approx/FiltersCF_02.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/FiltersCF_01.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/FiltersCF_02.png" class="figure chebfun-figure" alt=""/></p>
 <p>It didn't take long to produce these pictures:</p>
 <pre class="mcode-input">toc</pre>
 
@@ -41,12 +41,12 @@ for m = [100 200]
   axis([-1 1 -1 2]), snapnow
 end</pre>
 
-<p><img src="../../images/approx/FiltersCF_03.png" class="figure chebfun-figure" alt=""/></p>
-<p><img src="../../images/approx/FiltersCF_04.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/FiltersCF_03.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/FiltersCF_04.png" class="figure chebfun-figure" alt=""/></p>
 <p>Here's the error:</p>
 <pre class="mcode-input">plot(f2-p,LW,1.2), grid on</pre>
 
-<p><img src="../../images/approx/FiltersCF_05.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/FiltersCF_05.png" class="figure chebfun-figure" alt=""/></p>
 <h3 id="references">References</h3>
 <ol>
 <li>

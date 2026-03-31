@@ -35,7 +35,7 @@ end
 plot(uexact,'r'), xlabel('t'), ylabel('u')
 title('Picard iterates $k = 0,\dots,4$',IN,LT)</pre>
 
-<p><img src="../../images/ode-nonlin/Picard_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/Picard_01.png" class="figure chebfun-figure" alt=""></p>
 <p>A second plot shows $k = 5,\dots,9$.</p>
 <pre class="mcode-input">hold off
 for k = 5:9
@@ -46,7 +46,7 @@ end
 plot(uexact,'r'), xlabel('t'), ylabel('u')
 title('Picard iterates $k = 5,\dots,9$',IN,LT)</pre>
 
-<p><img src="../../images/ode-nonlin/Picard_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/Picard_02.png" class="figure chebfun-figure" alt=""></p>
 <p>A third plot shows $k = 10,\dots ,14$.</p>
 <pre class="mcode-input">hold off
 for k = 10:14
@@ -57,7 +57,7 @@ end
 plot(uexact,'r'), xlabel('t'), ylabel('u')
 title('Picard iterates $k = 10,\dots,14$',IN,LT)</pre>
 
-<p><img src="../../images/ode-nonlin/Picard_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/Picard_03.png" class="figure chebfun-figure" alt=""></p>
 <p>These plots show vividly the kind of convergence one can expect from a Picard iteration: starting at the initial condition, sweeping slowly across the domain. There is a numerical method based on this idea, called <em>waveform relaxation</em>, but one can see immediately from the pictures that it is unlikely to be efficient when carried out over long time intervals.  Instead, standard numerical methods just march once rather than many times from left to right, but they march with a small discrete time step and a discrete formula of higher order.</p>
 <p>To see the convergence in a quantitative fashion, it is interesting plot the errors of iterates $0,\dots, 4$ as a function of $t$ on a loglog plot.  The zeroth iterate has accuracy $O(t)$, the first has accuracy $O(t^2)$, and so on:</p>
 <pre class="mcode-input">u = u0 + 0*t;
@@ -73,7 +73,7 @@ xlabel('t'), ylabel('error')
 axis([1e-2 8 1e-16 1e3]), grid on
 title('Errors of iterates $0,\dots,4$',IN,LT)</pre>
 
-<p><img src="../../images/ode-nonlin/Picard_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/Picard_04.png" class="figure chebfun-figure" alt=""></p>
 <p>Reference:</p>
 <p>[1] E. A. Coddington and N. Levinson, <em>Theory of Ordinary Differential Equations</em>, McGraw-Hill, 1955.</p></div>
         </div>

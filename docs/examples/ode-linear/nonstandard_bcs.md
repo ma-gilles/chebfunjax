@@ -31,7 +31,7 @@
 <p>We now solve the problem in the regular way using backslash and plot the solution:</p>
 <pre class="mcode-input">u = N\1; plot(u,LW,1.6), grid on</pre>
 
-<p><img src="../../images/ode-linear/NonstandardBCs_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/NonstandardBCs_01.png" class="figure chebfun-figure" alt=""></p>
 <p>We confirm that we've solved the problem by calculating the residual of the differential equation and both the conditions:</p>
 <pre class="mcode-input">disp(['Residual of differential equation: ', num2str(norm(N(u)-1))])
 disp(['Residual of left BC:               ', num2str(abs(u(-1)-1))])
@@ -56,7 +56,7 @@ disp(['Residual of Interior condition: ', num2str(abs(mean(u)-1))])</pre>
 <pre class="mcode-input">N.bc = @(x,u) sum(sin(4*pi*x).*u);
 u = N\1; plot(u,LW,1.6), grid on</pre>
 
-<p><img src="../../images/ode-linear/NonstandardBCs_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/NonstandardBCs_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Again, we obtained an accurate solution (to evaluate the interior point condition, we need to create a chebfun for $x$):</p>
 <pre class="mcode-input">disp(['Residual of differential equation: ', num2str(norm(N(u)-1))])
 disp(['Residual of left BC:               ',  num2str(abs(u(-1)-1))])
@@ -89,7 +89,7 @@ Residual of left BC:               1.1102e-15
 Residual of interior condition:    4.4409e-16
 </pre>
 
-<p><img src="../../images/ode-linear/NonstandardBCs_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/NonstandardBCs_03.png" class="figure chebfun-figure" alt=""></p>
 <p>If we want to impose conditions on the derivative, such as</p>
 <p>$$ u'(0) = 1, $$</p>
 <p>we need to use a little trick in order to be able to evaluate the derivative at an interior point. MATLAB doesn't allow the stacked parentheses we would need for something like <code>@(x,u) diff(u)(0)</code>, so instead this is achived using the <code>feval</code> method:</p>
@@ -98,7 +98,7 @@ Residual of interior condition:    4.4409e-16
 <p>We solve the problem</p>
 <pre class="mcode-input">u = N\1; plot(u,LW,1.6), grid on</pre>
 
-<p><img src="../../images/ode-linear/NonstandardBCs_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/NonstandardBCs_04.png" class="figure chebfun-figure" alt=""></p>
 <p>and confirm that we obtain an accurate solution</p>
 <pre class="mcode-input">disp(['Residual of differential equation: ', num2str(norm(N(u)-1))])
 disp(['Residual of left BC:               ', num2str(abs(u(-1)-1))])

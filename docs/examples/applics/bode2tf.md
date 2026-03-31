@@ -40,7 +40,7 @@ title('Magnitude (dB)')
 subplot(212), semilogx(w,ph*180/pi,'b-'), grid on
 title('Phase (degrees)')</pre>
 
-<p><img src="../../images/applics/Bode2tf_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/applics/Bode2tf_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Given magnitude and phase, an approximation $H(s)$ for $G(s)$ is readily obtained by AAA approximation of the complex signal. Samples are mirrored in order to enforce symmetry.</p>
 <pre class="mcode-input">wA = [-fliplr(w) w]; magA = [fliplr(mag) mag]; phA = [-fliplr(ph) ph];
 GA = magA.*exp(i*phA);            % complex signal
@@ -64,7 +64,7 @@ DCgainA =
    1.999999999999999
 </pre>
 
-<p><img src="../../images/applics/Bode2tf_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/applics/Bode2tf_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Also, $H(s)$ shows negligible errors in initial data:</p>
 <pre class="mcode-input">err_mag = norm(mag-abs(H(i*w)),inf)
 err_ph = norm(ph-angle(H(i*w)),inf)</pre>
@@ -114,7 +114,7 @@ DCgainAr =
    2.036869044252427
 </pre>
 
-<p><img src="../../images/applics/Bode2tf_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/applics/Bode2tf_03.png" class="figure chebfun-figure" alt=""></p>
 <p>To see how good AAA-LS actually is, consider the scalar example with noise found in [2], i.e. $$ f(s) = (s-1)/(s^2+s+2). $$ The function is sampled at 500 logarithmically spaced points in the interval [0.1,10], and then normally distributed noise with a standard deviation of $10^{-2}$ is added:</p>
 <pre class="mcode-input">Nc = [1 -1]; Dc = [1 1 2];
 N = @(s) Nc*s.^[1 0]';
@@ -127,7 +127,7 @@ title('Magnitude (dB)')
 subplot(212), semilogx(w,ph*180/pi,'r-'), grid on
 title('Phase (degrees)')</pre>
 
-<p><img src="../../images/applics/Bode2tf_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/applics/Bode2tf_04.png" class="figure chebfun-figure" alt=""></p>
 <p>We compute a rational approximant of degree only 2 using the above method. The AAA-LS approximant shows no significant deviations from the measurements, at least in the eyeball norm. This time the number of Lawson iterations is increased, to enhance their filtering effect:</p>
 <pre class="mcode-input">wn = [-fliplr(w) w]; magn = [fliplr(mag) mag]; phn = [-fliplr(ph) ph];
 fn = magn.*exp(i*phn);
@@ -143,7 +143,7 @@ legend('Noisy data','AAA approximant',LO,SW)
 subplot(212), hold on, semilogx(w,angle(Hn(i*w))*180/pi,'b-'), hold off
 legend('Noisy data','AAA approximant',LO,SW)</pre>
 
-<p><img src="../../images/applics/Bode2tf_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/applics/Bode2tf_05.png" class="figure chebfun-figure" alt=""></p>
 <p>The poles are decently approximated, even in these perturbed conditions, as shown by the coefficients of the denominator:</p>
 <pre class="mcode-input">Dcn = poly(poln)</pre>
 
@@ -157,7 +157,7 @@ title('Estimated noise in magnitude'), axis([min(w) max(w) 1e-5 1e-1]);
 subplot(212), loglog(w,abs(ph(:)-angle(Hn(i*w))),'r-',LW,.5), grid on
 title('Estimated noise in phase'), axis([min(w) max(w) 1e-5 1e-1]);</pre>
 
-<p><img src="../../images/applics/Bode2tf_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/applics/Bode2tf_06.png" class="figure chebfun-figure" alt=""></p>
 <p>[1] S. Costa and L. N. Trefethen, AAA-least squares rational approximation and solution of Laplace problems, Proceedings of the 8ECM, 2021.</p>
 <p>[2] I. V. Gosea and S. Güttel, Algorithms for the rational approximation of matrix-valued functions, arXiv:2003.06410v2, 2021.</p></div>
         </div>

@@ -25,7 +25,7 @@ plot(f), axis([-W W -H H]), hold on, grid on</pre>
 <pre class="mcode-output">Elapsed time is 1.066179 seconds.
 </pre>
 
-<p><img src="../../images/ode-linear/DawsonIntegral_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/DawsonIntegral_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The problem can be solved analytically:</p>
 <p>$$ F(x) = e^{-x^2} \int_0^x e^{t^2} dt. $$</p>
 <p>Users with access to the MATLAB Symbolic Toolbox could also solve it with the following code:</p>
@@ -56,7 +56,7 @@ plot(f), grid on</pre>
 vertical scale = 0.54    Total length = 174
 </pre>
 
-<p><img src="../../images/ode-linear/DawsonIntegral_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/DawsonIntegral_02.png" class="figure chebfun-figure" alt=""></p>
 <p>How big is the discrepancy between $F$ and $f$? You can find out by running these three lines:</p>
 <pre class="mcode">semilogy(abs(f-fexact));
 title('error when we evaluate F directly');

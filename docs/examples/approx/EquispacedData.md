@@ -23,7 +23,7 @@ f = chebfun(data,'equi');</pre>
 plot(f,LW,1), hold on, plot(grid,data,'.k',MS,8), hold off
 title('chebfun constructed from 40 equispaced data values',FS,10)</pre>
 
-<p><img src="../../images/approx/EquispacedData_01.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/EquispacedData_01.png" class="figure chebfun-figure" alt=""/></p>
 <p>The error is encouragingly small.  It would be bigger with fewer data points, smaller with more.</p>
 <pre class="mcode-input">fexact = chebfun(ff);
 error = norm(f-fexact,inf)</pre>
@@ -37,7 +37,7 @@ error = norm(f-fexact,inf)</pre>
 plot(runge,'r',LW,1)
 hold on, plot(grid,data,'.k',MS,8), hold off</pre>
 
-<p><img src="../../images/approx/EquispacedData_02.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/EquispacedData_02.png" class="figure chebfun-figure" alt=""/></p>
 <p>So what is this very nice chebfun obtained with the <code>'equi'</code> flag, and how has Chebfun computed it?</p>
 <p>The answer is that it is a polynomial approximant, but not simply the polynomial interpolant. In fact it has a higher degree than 40:</p>
 <pre class="mcode-input">f</pre>
@@ -54,7 +54,7 @@ vscale = 2.575084e+00.
 <pre class="mcode-input">plotcoeffs(f,'color',purple), axis([0 100 1e-16 10])
 title('Chebyshev coefficients',FS,10)</pre>
 
-<p><img src="../../images/approx/EquispacedData_03.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/EquispacedData_03.png" class="figure chebfun-figure" alt=""/></p>
 <p>Note that about half of them are below the level of the accuracy of the approximation, so they can't be contributing much. We could throw them away like this:</p>
 <pre class="mcode-input">f50 = chebfun(f,51);
 error50 = norm(f50-fexact,inf)
@@ -65,7 +65,7 @@ title('Chebyshev coefficients up to degree 50',FS,10)</pre>
      3.526801940675228e-06
 </pre>
 
-<p><img src="../../images/approx/EquispacedData_04.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/EquispacedData_04.png" class="figure chebfun-figure" alt=""/></p>
 <p>Another approach would be construct the original chebfun with a loosened value of <code>eps</code>:</p>
 <pre class="mcode-input">floose = chebfun(data,'equi','eps',1e-6);
 errorloose = norm(floose-fexact,inf)
@@ -76,7 +76,7 @@ title('Chebyshev coefficients with loosened tolerance',FS,10)</pre>
      3.536842150029010e-06
 </pre>
 
-<p><img src="../../images/approx/EquispacedData_05.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/EquispacedData_05.png" class="figure chebfun-figure" alt=""/></p>
 <h3 id="3-example-with-noise">3. Example with noise</h3>
 <p>What about a function with noise?  Let's add random perturbations of size $10^{-1}$ to the data:</p>
 <pre class="mcode-input">rng('default'); rng(0)
@@ -89,7 +89,7 @@ plot(f,LW,1), hold on, plot(grid,data,'.k',MS,8), hold off
 s = sprintf('noisy data with ''equi'', eps = 1e-2: length(f) = %d',length(f));
 title(s,FS,12)</pre>
 
-<p><img src="../../images/approx/EquispacedData_06.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/EquispacedData_06.png" class="figure chebfun-figure" alt=""/></p>
 <p>And here is the same experiment but with <code>eps</code> three times as large.:</p>
 <pre class="mcode-input">ep = 3e-2;
 f = chebfun(data,'equi','eps',ep);
@@ -97,7 +97,7 @@ plot(f,LW,1), hold on, plot(grid,data,'.k',MS,8), hold off
 s = sprintf('noisy data with ''equi'', eps = 3e-2: length(f) = %d',length(f));
 title(s,FS,12)</pre>
 
-<p><img src="../../images/approx/EquispacedData_07.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/EquispacedData_07.png" class="figure chebfun-figure" alt=""/></p>
 <h3 id="4-discussion">4. Discussion</h3>
 <p>What's nice about these <code>'equi'</code> approximations is that, as usual with chebfuns, they are globally smooth functions, and can be differentiated, for example, without any anomalies arising.  In some applications this is very appealing.</p>
 <p>Another globally smooth way to deal with equispaced data, besides the Floater-Hormann approach, is to use so-called <em>Gregory interpolants</em> [2].  This idea, however, has not been implemented in Chebfun.</p>

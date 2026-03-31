@@ -49,7 +49,7 @@ xlabel('n'), ylabel('log(|a_n|)'), grid on</pre>
   -0.000000000000000  -0.000000000000000   0.000000000000000
 </pre>
 
-<p><img src="../../images/cheb/ExactChebCoeffs_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/cheb/ExactChebCoeffs_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>D. Elliott, The evaluation and estimation of the coefficients in the Chebyshev series expansion of a function, <em>Mathematics of Computation</em>, 18 (1964), 274-284.</li>

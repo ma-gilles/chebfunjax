@@ -37,7 +37,7 @@ title('Norm of update vs. iteration no.', FS, 10)
 box on, grid on
 xlabel('iteration no.', FS, 10), ylabel('norm of update', FS, 10)</pre>
 
-<p><img src="../../images/ode-nonlin/BVPSystem_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/BVPSystem_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="solution-using-a-single-indexed-variable-u">Solution using a single indexed variable <code>u</code></h3>
 <p>Another way to solve the same problem is to work with a single chebmatrix variable <code>u</code> that has two components, <code>u{1}</code> and <code>u{2}</code>.</p>
 <p>$$ (u_1)'' - \sin(u_2) = 0, $$</p>
@@ -66,7 +66,7 @@ title('Norm of update vs. iteration no.', FS, 10)
 box on, grid on
 xlabel('iteration no.', FS, 10), ylabel('norm of update', FS, 10)</pre>
 
-<p><img src="../../images/ode-nonlin/BVPSystem_02.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/ode-nonlin/BVPSystem_02.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

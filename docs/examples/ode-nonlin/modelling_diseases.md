@@ -42,7 +42,7 @@ legend('S','I','R')
 title('SIR model')
 xlabel('t')</pre>
 
-<p><img src="../../images/ode-nonlin/ModellingDiseases_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/ModellingDiseases_01.png" class="figure chebfun-figure" alt=""></p>
 <p>So beginning from a small fraction of infected people, eventually the entire population gets the disease and recovers (or dies). Notice that if $I(0)=0$, the solution component for $I$ would be the steady function $I(t)=0$, which is an unstable equilibrium of the system.</p>
 <p>What is the largest number of people infected at a particular time?</p>
 <pre class="mcode-input">round(max(I))</pre>
@@ -61,7 +61,7 @@ plot(t_eq, I(t_eq), 'k.', 'MarkerSize', 15)</pre>
    7.355455438450330
 </pre>
 
-<p><img src="../../images/ode-nonlin/ModellingDiseases_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/ModellingDiseases_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Chebfun makes such computations remarkably easy.</p>
 <p>What about the instantaneous mortality rate? A natural measure of mortality rate is $$ M(t) = \frac{\rho R(t)}{\int_0^t I(\xi) d\xi}, $$ where $0\leq\rho\leq 1$ denotes the average fraction of people who die from the disease. That is, the mortality rate at time $t$ is the number of people who have died from the disease divided by the total number of people who have been infected up to time $t$. Here is the instantaneous mortality rate as a function of time.</p>
 <pre class="mcode-input">hold off
@@ -71,7 +71,7 @@ ylim([0 1])
 xlabel('t')
 title('Instantaneous mortality rate for the SIR model')</pre>
 
-<p><img src="../../images/ode-nonlin/ModellingDiseases_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/ModellingDiseases_03.png" class="figure chebfun-figure" alt=""></p>
 <p>It turns out that $M(t)$ is constant and equal to $\rho r$, the product of $\rho$ with the recovery rate.</p>
 <p>For this model, it is perhaps unsurprising that the instantaneous mortality rate is constant. But it is important to note that in reality that is not always the case. In the case of the 2014 Ebola epidemic in West Africa, for instance, other factors are at play to make the transmission rate $c$ variable, actually an increasing function of time. When the transmission rate $c$ is increasing so $dc(t)/dt &gt; 0$, the disease spreads increasingly fast and the the instantaneous mortality rate actually <em>decreases</em>. Once the infection levels peak, however, the mortality rate skyrockets.</p>
 <h3 id="references">References</h3>

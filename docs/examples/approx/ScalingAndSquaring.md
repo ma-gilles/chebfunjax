@@ -34,13 +34,13 @@ z = x + 1i*y;
 contourf(x,y,log10(abs(exp(z) - r(z/(2^s)).^(2^s))+eps),[-16:2:0])
 colorbar</pre>
 
-<p><img src="../../images/approx/ScalingAndSquaring_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/ScalingAndSquaring_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Since we are using a Pade approximation centered at the origin, the error is zero at the origin and is expected to grow with $|z|$. However, notice that the plot is highly nonsymmetric about the imaginary axis: the error is large for large $\mbox{Re}(z)&gt;0$ and small for $\mbox{Re}(z)&lt;0$.  In particular, the region in which the error is $O(10^{-14})$ stretches much farther into the left complex plane than the right, reaching $\mbox{Re}(z)\approx -65$. This is perhaps not surprising because $e^z$ (literally) grows exponentially with $\mbox{Re}(z)$, so for $\mbox{Re}(z)\ll 0$ we have $|e^z|=e^{\mbox{Re}(z)}\approx 0$ and the error is essentially just $\left|(r(z/2^s))^{2^s}\right|$, which is itself small for moderately large $s$ provided that $|(r(z/2^s))| &lt; 1$.</p>
 <p>The relative error $\frac{1}{|e^{z}|}\left|(r(z/2^s))^{2^s}-e^{z}\right|$, on the other hand, looks completely different:</p>
 <pre class="mcode-input">contourf(x,y,log10(abs(exp(z) - r(z/(2^s)).^(2^s))./abs(exp(z))),[-16:2:16])
 colorbar</pre>
 
-<p><img src="../../images/approx/ScalingAndSquaring_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/ScalingAndSquaring_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The graph shows that $(r(z/2^s))^{2^s}$ has no digits of relative accuracy except in the blue region.</p>
 <p>The two plots illustrate for example that around the point $z = -50$, the relative accuracy is terrible but the absolute accuracy is of order unit roundoff.  Hence $(r(z/2^s))^{2^s}$ is a good approximant near $z=-50$ if we are concerned with absolute accuracy instead of relative accuracy.</p>
 <p>In the context of the matrix exponential, the forward error is measured by the quantity $|e^A- Y|_2/|e^A|_2$, which for normal $A$ reduces to</p>

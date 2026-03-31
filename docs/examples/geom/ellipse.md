@@ -22,7 +22,7 @@ arc_length = norm(sqrt(diff(x).^2+diff(y).^2),1)</pre>
    0.902779927772194
 </pre>
 
-<p><img src="../../images/geom/Ellipse_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/geom/Ellipse_01.png" class="figure chebfun-figure" alt=""></p>
 <p>[*] Confusingly Poisson reported this number with a misprint in the 2nd place!</p>
 <pre class="mcode">       "la valeur approchee de I sera I = 0,9927799272"</pre>
 

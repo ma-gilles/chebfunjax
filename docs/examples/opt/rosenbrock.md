@@ -22,7 +22,7 @@ figure, contour(x,y,ff,levels), colorbar
 axis([-1.5 1.5 -1 3]), axis square, hold on
 title('Rosenbrock function f(x,y)')</pre>
 
-<p><img src="../../images/opt/Rosenbrock_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/opt/Rosenbrock_01.png" class="figure chebfun-figure" alt=""></p>
 <p>It's obvious from the formula that the minimum value is $0$, taken at $x=y=1$. In 1D Chebfun, we can find this by taking slices. If $x_0$ is a constant, then the minimum of $f(x_0,y)$ over all $y$ can be obtained like this:</p>
 <pre class="mcode-input">fminx0 = @(x0) min(chebfun(@(y) f(x0,y),[-1 3]));</pre>
 
@@ -32,7 +32,7 @@ figure, plot(fminx)
 xlabel('x'), ylabel('min_y(f(x,y))')
 title('minimum of f(x,y) along vertical slices')</pre>
 
-<p><img src="../../images/opt/Rosenbrock_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/opt/Rosenbrock_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The global minimum of $f(x,y)$ is the minimum of <code>fminx</code>:</p>
 <pre class="mcode-input">format long
 [minf,minx] = min(fminx)</pre>
@@ -55,7 +55,7 @@ miny =
 <p>Let's show the contour plot again, with the minimum point:</p>
 <pre class="mcode-input">close, plot(minx,miny,'.k',MS,14)</pre>
 
-<p><img src="../../images/opt/Rosenbrock_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/opt/Rosenbrock_03.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="2-a-function-with-several-local-minima">2. A function with several local minima</h3>
 <p>Why did we put <code>splitting on</code> in this computation? It wasn't actually necessary in this case, but it would be necessary for more general functions $f(x,y)$ having several local extrema, because then the function <code>fminx</code> might not be smooth.</p>
 <p>For example, consider this function defined on the square $[-1,1]\times[-1,1]$:</p>
@@ -66,7 +66,7 @@ figure, contour(x,y,ff,30), colorbar
 axis([-1 1 -1 1]), axis square, hold on
 title('f(x,y)')</pre>
 
-<p><img src="../../images/opt/Rosenbrock_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/opt/Rosenbrock_04.png" class="figure chebfun-figure" alt=""></p>
 <p>We define <code>fminx0</code> and <code>fminx</code> as before. Because of the lack of smoothness and the consequent need for edge detection, this computation takes a little while:</p>
 <pre class="mcode-input">tic
 fminx0 = @(x0) min(chebfun(@(y) f(x0,y),[-1 1]));
@@ -79,7 +79,7 @@ toc</pre>
 <pre class="mcode-output">Elapsed time is 2.928254 seconds.
 </pre>
 
-<p><img src="../../images/opt/Rosenbrock_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/opt/Rosenbrock_05.png" class="figure chebfun-figure" alt=""></p>
 <p>Here are the breakpoints that Chebfun has introduced:</p>
 <pre class="mcode-input">fminx.ends</pre>
 
@@ -107,7 +107,7 @@ miny =
 <p>And here's the plot:</p>
 <pre class="mcode-input">close, plot(minx,miny,'.k',MS,14)</pre>
 
-<p><img src="../../images/opt/Rosenbrock_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/opt/Rosenbrock_06.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>

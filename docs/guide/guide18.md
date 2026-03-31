@@ -57,7 +57,7 @@
 Couldn't create JOGL canvas--using painters
 </pre>
 
-<p><img src="../images/guide/guide18_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide18_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Another plotting capability is <code>isosurface</code> which, by default, plots an isosurfaces with a slider.</p>
 <pre class="mcode-input">clf, isosurface(f), axis equal</pre>
 
@@ -66,7 +66,7 @@ Couldn't create JOGL canvas--using painters
 Couldn't create JOGL canvas--using painters
 </pre>
 
-<p><img src="../images/guide/guide18_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide18_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The full set of Chebfun3 plotting commands is <code>slice</code>, <code>isosurface</code>, <code>plot</code>, <code>scan</code> and <code>surf</code>.</p>
 <p>So far, there are about 100 methods that can be applied to chebfun3 objects. For a complete list type <code>methods chebfun3</code>. (By the way, notice that in print we use the plural form "chebfun3 objects", because the expression "chebfun3s" could be confusing, though informally in conversation we may speak of "chebfun3's".)</p>
 <h3 id="182-anatomy-of-a-chebfun3">18.2. Anatomy of a chebfun3</h3>
@@ -159,7 +159,7 @@ ans(:,:,2) =
 <p>Here are plots of the coefficients of the three quasimatrices:</p>
 <pre class="mcode-input">clf, plotcoeffs(f, '.-')</pre>
 
-<p><img src="../images/guide/guide18_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide18_03.png" class="figure chebfun-figure" alt=""></p>
 <p>These explorations give an idea of what a chebfun3 looks like. However, they don't explain how the system constructs such an object.  We will not give details here; see [Dolgov, Kressner, and Strössner 2021] for the current algorithm and [Hashemi & Trefethen 2017] for the original one, which can be invoked by calling the <code>chebfun3</code> constructor with the flag <code>'classic'</code>.</p>
 <h3 id="183-computing-with-chebfun3-objects">18.3.  Computing with chebfun3 objects</h3>
 <p>Of course, Chebfun is all about computing with functions, not just representing them.  For example, here are two 3D functions:</p>
@@ -199,11 +199,11 @@ maxpos =
 <p>If we execute just <code>sum</code>, it integrates over just one dimension, by default $x$, so the output is a 2D function, i.e., a chebfun2:</p>
 <pre class="mcode-input">close all, contourf(sum(f),20), colorbar</pre>
 
-<p><img src="../images/guide/guide18_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide18_04.png" class="figure chebfun-figure" alt=""></p>
 <p>There is also a <code>sum2</code> command for integration over two dimensions, by default $x$ and $y$, giving as output a 1D function, i.e., a chebfun:</p>
 <pre class="mcode-input">plot(sum2(exp(g+2*f)))</pre>
 
-<p><img src="../images/guide/guide18_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide18_05.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is a line integral over a 3D spiral.</p>
 <pre class="mcode-input">curve = chebfun(@(t) [cos(t) sin(t) t/(8*pi)], [0, 8*pi]);
 close all, plot3(curve(:,1), curve(:,2), curve(:,3) ), title('Helix')
@@ -217,7 +217,7 @@ exact =
   -1.000791258702039
 </pre>
 
-<p><img src="../images/guide/guide18_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide18_06.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="184-getting-inside-a-chebfun3">18.4. Getting inside a chebfun3</h3>
 <p>Suppose $f$ is a chebfun3. We can examine its columns, rows, and tubes by executing <code>f.cols</code>, <code>f.rows</code>, and <code>f.tubes</code>.  For example, let us look at the columns associated with the chebfun3 $g$ just considered. This is a quasimatrix with 8 columns:</p>
 <pre class="mcode-input">size(g.cols)</pre>
@@ -229,19 +229,19 @@ exact =
 <p>Here is a plot of the columns:</p>
 <pre class="mcode-input">plot(g.cols)</pre>
 
-<p><img src="../images/guide/guide18_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide18_07.png" class="figure chebfun-figure" alt=""></p>
 <p>The tubes are more interesting (also the rows):</p>
 <pre class="mcode-input">plot(g.tubes)</pre>
 
-<p><img src="../images/guide/guide18_08.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide18_08.png" class="figure chebfun-figure" alt=""></p>
 <p>A plot of the coefficients of $g$ (all three sets, with respect to $x$, $y$, and $z$) looks like this.</p>
 <pre class="mcode-input">plotcoeffs(g,'.-')</pre>
 
-<p><img src="../images/guide/guide18_09.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide18_09.png" class="figure chebfun-figure" alt=""></p>
 <p>We can look at the coefficients of just, say, the columns like this:</p>
 <pre class="mcode-input">clf, plotcoeffs(g.cols,'.-')</pre>
 
-<p><img src="../images/guide/guide18_10.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide18_10.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="185-periodic-chebfun3-objects">18.5.  Periodic chebfun3 objects</h3>
 <p>Chebfun3 can use trigonometric functions instead of polynomials for representing smooth functions which are triply periodic. (So far, we have no capabilities for functions that are periodic in just one or two dimensions.) To create a trig-based chebfun3 object, we can use the 'trig' (or 'periodic') flag in the Chebfun3 constructor. For example, the function $f(x,y,z) = \tanh(3\sin x) - \sin(y+1/2) + \cos(6z)$ on $[-\pi, \pi]^3$ can be constructed as follows:</p>
 <pre class="mcode-input">ff = @(x,y,z) tanh(3*sin(x))-(sin(y+1/2)).^2+cos(6*z);
@@ -271,7 +271,7 @@ p =
     13
 </pre>
 
-<p><img src="../images/guide/guide18_11.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide18_11.png" class="figure chebfun-figure" alt=""></p>
 <p>As we see, $f$ is resolved to machine precision using trigonometric interpolants through very different numbers of points in the three directions.  The corresponding degrees of the trigonometric polynomials needed to resolve this function are accordingly these:</p>
 <pre class="mcode-input">xdeg = (m-1)/2
 ydeg = (n-1)/2
@@ -335,7 +335,7 @@ F = [-y; x; z];
 close all, quiver3(F, 0)
 view([2 2 40])</pre>
 
-<p><img src="../images/guide/guide18_12.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide18_12.png" class="figure chebfun-figure" alt=""></p>
 <p>The <code>0</code> in the quiver3 command tells MATLAB not to rescale the vectors.</p>
 <p>According to the fundamental theorem of calculus for line integrals, also known as the gradient theorem, the line integral of a gradient vector field along a smooth curve depends only on the endpoints.</p>
 <pre class="mcode-input">f = chebfun3(@(x,y,z) sin(x+20*y+z.^2).*exp(-(3+y.^2)), ...
@@ -353,7 +353,7 @@ ends =
   -0.049398074616858
 </pre>
 
-<p><img src="../images/guide/guide18_13.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide18_13.png" class="figure chebfun-figure" alt=""></p>
 <p>We can determine if a given vector field is conservative using <code>curl</code>:</p>
 <pre class="mcode-input">norm(curl(F))</pre>
 
@@ -372,7 +372,7 @@ error =
     -3.749778265671466e-14
 </pre>
 
-<p><img src="../images/guide/guide18_14.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide18_14.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="188-higher-order-svd">18.8. Higher-order SVD</h3>
 <p>The higher-order SVD (HOSVD) of a discrete tensor was introduced in [De Lathauwer, De Moor & Vandewalle 2000]. For an order-3 tensor, this notion uses SVDs of the three modal unfolding matrices to compute a factorization involving a core tensor with the three matrices of left singular vectors of the unfolded tensor. Chebfun3 contains a continuous analogue of the HOSVD. Here is an example:</p>
 <pre class="mcode-input">f = chebfun3(@(x,y,z) sin(x+2*y+3*z));
@@ -434,7 +434,7 @@ h = chebfun3(@(x,y,z) cos(exp(x.*sin(-2+y+z))));</pre>
 hold on, isosurface(g, 0, 'b')
 view([-2,5,5])</pre>
 
-<p><img src="../images/guide/guide18_15.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide18_15.png" class="figure chebfun-figure" alt=""></p>
 <p>Let us compute the only common root of $f$, $g$ and $h$ in the default cube:</p>
 <pre class="mcode-input">r = root(f, g, h)</pre>
 
@@ -461,7 +461,7 @@ res3 =
 plot3(r(1), r(2), r(3), 'yh', 'markersize', 30)
 view([-8,8,5]), alpha(0.9)</pre>
 
-<p><img src="../images/guide/guide18_16.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide18_16.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="1810-changing-the-accuracy-with-chebfun3eps">18.10. Changing the accuracy with chebfun3eps</h3>
 <p>Chebfun has always had a parameter that describes its target relative accuracy which since 2015 has been called <code>chebfuneps</code>. For 1D computations, we do not recommend that users normally change this parameter from its factory value of machine precision (unless dealing with noisy functions), because the speedups to be obtained are usually not very large. See section 8.8 of this Guide and also the FAQ collection at www.chebfun.org.</p>
 <p>In two dimensions, and even more in three dimensions, the potential gains from loosening the tolerance become much greater.  Many users of Chebfun3 may find, for example, that they want to work with 10 digits of accuracy rather than 16 -- the speedup in many cases is on the order of a factor of 10. For this reason, Chebfun allows users to set different tolerances <code>chebfuneps</code>, <code>chebfun2eps</code>, and <code>chebfun3eps</code> for computations in 1D, 2D and 3D. The factory values of these parameters are all machine epsilon.</p>

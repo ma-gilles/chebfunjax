@@ -16,7 +16,7 @@ lambda = 0.2;
 h = randnfunsphere(lambda);
 plot(h), axis off, colorbar, caxis([-2 2])</pre>
 
-<p><img src="../../images/sphere/LaplaceBall_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/LaplaceBall_01.png" class="figure chebfun-figure" alt=""></p>
 <p>You can call spherefun with three arguments, which are interpreted as cartesian coordinates $x,y,z$:</p>
 <pre class="mcode-input">h(1,0,0)</pre>
 
@@ -80,12 +80,12 @@ ans =
 <p>Since the Laplace equation is a smoothing operation, the solution $u$ is not very exciting in the interior.  For example, if we simply plot $u$, the image shows an apparently uniform color in the inner sphere of radius $1/2$:</p>
 <pre class="mcode-input">plot(u)</pre>
 
-<p><img src="../../images/sphere/LaplaceBall_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/LaplaceBall_02.png" class="figure chebfun-figure" alt=""></p>
 <p>We can construct a spherefun corresponding to the values of $u$ on this sphere of radius $0.5$ and plot it:</p>
 <pre class="mcode-input">uinner = u(.5,:,:,'spherical');
 plot(uinner), colorbar</pre>
 
-<p><img src="../../images/sphere/LaplaceBall_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/LaplaceBall_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Note the small range of values revealed in the colorbar.  The mean value over this sphere is our familiar value:</p>
 <pre class="mcode-input">meanh
 mean2(uinner)</pre>

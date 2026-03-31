@@ -67,7 +67,7 @@ fprintf('Parallelogram law holds with error = %10.5e\n',plaw)</pre>
 G = chebfun2v(@(x,y) cos(4*x.*y), @(x,y) x + x.*y.^2,d);
 plot(roots(dot(F,G))), axis equal, axis(d)</pre>
 
-<p><img src="../images/guide/guide15_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide15_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The cross product for 2D vector fields works as follows.</p>
 <pre class="mcode-input">help chebfun2v/cross</pre>
 
@@ -95,7 +95,7 @@ r = roots(gradient(f));
 plot3(r(:,1),r(:,2),f(r(:,1),r(:,2)),'k.','markersize',20)
 zlim([0 4]), hold off, colormap(pink)</pre>
 
-<p><img src="../images/guide/guide15_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide15_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The curl of 2D vector function is a scalar function:</p>
 <pre class="mcode-input">help chebfun2v/curl</pre>
 
@@ -171,7 +171,7 @@ plot(y,'r'), hold on
 quiver(F,'b'), axis equal
 title('The Duffing oscillator'), hold off</pre>
 
-<p><img src="../images/guide/guide15_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide15_03.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="156-representing-2d-parametric-surfaces-in-3d-space">15.6 Representing 2D parametric surfaces in 3D space</h3>
 <p>So far, we have explored chebfun2v objects with two components, but Chebfun2 can also work with functions with three components, i.e., functions from a rectangle in $R^2$ into $R^3$. For example, we can represent the unit sphere via spherical coordinates as follows:</p>
 <pre class="mcode-input">th = chebfun2(@(th,phi) th, [0 pi 0 2*pi]);
@@ -184,20 +184,20 @@ z = cos(th);
 F = [x;y;z];
 surf(F), colormap('default'), camlight, axis equal</pre>
 
-<p><img src="../images/guide/guide15_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide15_04.png" class="figure chebfun-figure" alt=""></p>
 <p>Above, we have formed a chebfun2v with three components by vertical concatenation of chebfun2 objects. However, for the familiar surfaces cylinders, spheres, and ellipsoids, Chebfun2 has overloads of the commands <code>cylinder</code>, <code>sphere</code>, and <code>ellipsoid</code> to make things simpler. For example, a cylinder of radius $1$ and height $5$ can be constructed like this:</p>
 <pre class="mcode-input">h = 5;
 r = chebfun(@(th) 1+0*th,[0 h]);
 F = cylinder(r);
 surf(F), camlight</pre>
 
-<p><img src="../images/guide/guide15_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide15_05.png" class="figure chebfun-figure" alt=""></p>
 <p>An important class of parametric surfaces are surfaces of revolution, which are formed by revolving a curve in the left half plane about the $z$-axis. The <code>cylinder</code> command can be used to generate surfaces of revolution. For example:</p>
 <pre class="mcode-input">f = chebfun(@(t) (sin(pi*t)+1.1).*t.*(t-10),[0 5]);
 F = cylinder(f);
 surf(F), axis([-70 70 -70 70 -2 6]), camlight</pre>
 
-<p><img src="../images/guide/guide15_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide15_06.png" class="figure chebfun-figure" alt=""></p>
 <p>Here as another example is a torus with a gap in it.</p>
 <pre class="mcode-input">x = chebfun2(@(x,y) x); y = chebfun2(@(x,y) y);
 theta = 0.9*pi*x; phi = pi*y;
@@ -206,7 +206,7 @@ F = [-(1+.3*cos(phi)).*sin(theta);
       .3*sin(phi)];
 surf(F), axis equal, camlight</pre>
 
-<p><img src="../images/guide/guide15_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide15_07.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="157-surface-normals-and-the-divergence-theorem">15.7 Surface normals and the divergence theorem</h3>
 <p>Given a chebfun2v representing a surface, the normal can be computed by the Chebfun2 <code>normal</code> command.  Here are the normal vectors of another torus:</p>
 <pre class="mcode-input">r1 = 1; r2 = 1/3;       % inner and outer radius
@@ -219,7 +219,7 @@ surf(F), camlight, hold on
 quiver3(F(1),F(2),F(3),normal(F,'unit'),'numpts',10)
 axis equal, hold off</pre>
 
-<p><img src="../images/guide/guide15_08.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide15_08.png" class="figure chebfun-figure" alt=""></p>
 <p>Once we have the surface normal vectors we can compute, for instance, the volume of the torus by applying the divergence theorem:</p>
 <p>$$ \int\int_V\int \hbox{div}(G) dV = \int_S\int G\cdot d\mathbf{S}, $$</p>
 <p>where $\hbox{div}(G)=1$. Instead of integrating over the 3D volume, which is not possible in Chebfun2, we integrate over the 2D surface:</p>
@@ -243,7 +243,7 @@ z=sin(u/2).*sin(v)+cos(u/2).*sin(2*v);
 surf([x;y;z],'-k','FaceAlpha',.6), camlight left, colormap(hot)
 axis tight equal off</pre>
 
-<p><img src="../images/guide/guide15_09.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide15_09.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="158-reference">15.8 Reference</h3>
 <p>[Platte 2013] R. Platte, "Parameterizable surfaces," <a href="http://www.chebfun.org/examples/geom/ParametricSurfaces.html">http://www.chebfun.org/examples/geom/ParametricSurfaces.html</a>.</p></div>
         </div>

@@ -16,7 +16,7 @@ legend('x', 'x''', 'x^2/2','location','northwest')
 axis([0 4 0 4]), xlabel('x', FS, fs)
 title('The function ''x'' with its derivative and antiderivative', FS, fs)</pre>
 
-<p><img src="../../images/temp/FracCalc_01.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/temp/FracCalc_01.png" class="figure chebfun-figure" alt=""/></p>
 <h3 id="half-derivative">Half-derivative</h3>
 <p>A natural question one might ask is whether there exists, say, a 'half-derivative' operator ${\cal H}$, such that ${\cal H}^2(f) = df(x)/dx$.</p>
 <p>It turns out that through a generalisation of the Cauchy formula for repeated integration we can define precisely such an operator as a "Riemann-Liouville derivative" [1].</p>
@@ -28,7 +28,7 @@ leg1 = legend([h1; h2],'x', 'x''', 'x^2/2', 'd^{1/2}x / dx^{1/2}','location','no
 xlabel('x',FS,fs)
 title('The function ''x'' and its half-derivative',FS,fs)</pre>
 
-<p><img src="../../images/temp/FracCalc_02.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/temp/FracCalc_02.png" class="figure chebfun-figure" alt=""/></p>
 <p>Notice here that the second argument passed to <code>diff</code>, which for standard calculus is a positive integer specifying the number of times to differentiate the chebfun, indicates that we wish to compute the half-derivative of $x$.</p>
 <p>The plot of this half-derivative may look familiar, and in fact one can show that the half derivative of $x$ is precisely $2\sqrt{x/\pi}$, which we can verify:</p>
 <pre class="mcode-input">f = chebfun(@(x) 2*sqrt(x/pi), [0, 4], 'exps', [0.5, 0]);
@@ -51,7 +51,7 @@ title('Fractional derivatives of x', FS, fs)
 xlabel('x', FS, fs); ylabel('d^a x / d x ^a', FS, fs)
 legend(num2str((0:.1:1)'),'location','northwest')</pre>
 
-<p><img src="../../images/temp/FracCalc_03.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/temp/FracCalc_03.png" class="figure chebfun-figure" alt=""/></p>
 <p>Of course, these generalised derivatives can be applied to more complicated functions than simply the independent variable $x$. Here we demonstrate the behaviour of varying irrational derivatives of the trigonometric function $\sin(x)$.</p>
 <pre class="mcode-input">close
 u = chebfun('sin(x)', [0, 20]);
@@ -63,11 +63,11 @@ title('Fractional derivatives of sin(x)', FS, fs)
 xlabel('x', FS, fs); ylabel('d^a sin(x) / d x ^a', FS, fs)
 legend(num2str(sqrt(2)*(0:2:10)'/17))</pre>
 
-<p><img src="../../images/temp/FracCalc_04.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/temp/FracCalc_04.png" class="figure chebfun-figure" alt=""/></p>
 <p>Far away from the left-hand boundary these derivatives are essentially shifts of $x$ to $x + a\pi/2$ (which is consistent with the case of $a$ being an integer), but near $x = 0$ the boundary effects are more interesting.</p>
 <pre class="mcode-input">axis([-0.5, pi, 0.0, 1.01])</pre>
 
-<p><img src="../../images/temp/FracCalc_05.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/temp/FracCalc_05.png" class="figure chebfun-figure" alt=""/></p>
 <h3 id="fractional-integration">Fractional integration</h3>
 <p>The definition of the Riemann-Liouville derivative can also be extended to fractional integration (in fact it is sometimes referred to as the Riemann-Liouville 'differintegral' [2]). Chebfun can also handle these types of operators, here extending the definition of <code>cumsum</code> to allow non-integer degree.</p>
 <pre class="mcode-input">close
@@ -78,7 +78,7 @@ title('Half-integrals of x^k for k = 1, ..., 10', FS, fs)
 xlabel('x', FS, fs);
 legend(num2str((1:10)'),'location','northwest')</pre>
 
-<p><img src="../../images/temp/FracCalc_06.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/temp/FracCalc_06.png" class="figure chebfun-figure" alt=""/></p>
 <p>Here's another example:</p>
 <pre class="mcode-input">close
 u = chebfun('exp(x)-1', [0, 1]);
@@ -90,7 +90,7 @@ title('Fractional integrals of exp(x)-1', FS, fs)
 xlabel('x', FS, fs);
 legend(num2str((0:.1:1)'),'location','northwest')</pre>
 
-<p><img src="../../images/temp/FracCalc_07.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/temp/FracCalc_07.png" class="figure chebfun-figure" alt=""/></p>
 <h3 id="fractional-differential-equations">Fractional differential equations</h3>
 <p>Unfortunately there is not yet any functionality for fractional calculus chebop operators in Chebfun.</p>
 <h3 id="references">References</h3>

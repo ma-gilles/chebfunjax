@@ -22,7 +22,7 @@ trott = 144*(x.^4+y.^4) - 225*(x.^2+y.^2) + 350*x.^2.*y.^2 + 81;
 r = roots(trott);
 plot(r), axis([-1 1 -1 1]), axis square</pre>
 
-<p><img src="../images/guide/guide14_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide14_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The curves are represented as complex-valued chebfuns (see Section 13.4).  For example, here is one of the four components:</p>
 <pre class="mcode-input">r(:,1)</pre>
 
@@ -67,7 +67,7 @@ axis([-1 1 -1 1]), axis square, hold off</pre>
    0.799441089368587   0.413393208252346
 </pre>
 
-<p><img src="../images/guide/guide14_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide14_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The solutions to bivariate polynomial systems and intersections of curves are typically computed to full machine precision.</p>
 <h3 id="143-intersections-of-curves">14.3 Intersections of curves</h3>
 <p>The problem of determining the intersections of real parameterised complex curves can be expressed as a bivariate rootfinding problem.  For instance, here are the intersections between the 'splat' curve [Güttel 2010] and a 'figure-of-eight' curve.</p>
@@ -84,7 +84,7 @@ spr = sp(r(:,2));
 plot(real(spr),imag(spr),'.k',MS,20), ylim([-1.1 2.1])
 hold off</pre>
 
-<p><img src="../images/guide/guide14_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide14_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Chebfun2 rootfinding is based on an algorithm described in [Nakatsukasa, Noferini & Townsend 2014].</p>
 <h3 id="144-global-optimisation-max2-min2-and-minandmax2">14.4 Global optimisation: <code>max2</code>, <code>min2</code>, and <code>minandmax2</code></h3>
 <p>Chebfun2 also provides functionality for global optimisation. Here is an example where we plot the minimum and maximum as red dots.</p>
@@ -96,7 +96,7 @@ plot3(mnloc(1),mnloc(2),mn,'.r',MS,40)
 plot3(mxloc(1),mxloc(2),mx,'.r',MS,30)
 zlim([-6 6]), colormap('bone'), hold off</pre>
 
-<p><img src="../images/guide/guide14_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide14_04.png" class="figure chebfun-figure" alt=""></p>
 <p>If both the global maximum and minimum are required, it is roughly twice as fast to compute them at the same time by using the <code>minandmax2</code> command. For instance,</p>
 <pre class="mcode-input">tic; [mn mnloc] = min2(f);  [mx mxloc] = max2(f); t = toc;
 fprintf('min2 and max2 separately = %5.3fs\n',t)
@@ -130,7 +130,7 @@ Elapsed time is 0.182211 seconds.
 <pre class="mcode-input">colormap('default'), contour(f), hold on
 plot(minpos(1),minpos(2),'ok',MS,20), hold off</pre>
 
-<p><img src="../images/guide/guide14_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide14_05.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="145-critical-points">14.5 Critical points</h3>
 <p>The critical points of a smooth function of two variables can be located by finding the zeros of $\partial f/ \partial y = \partial f / \partial x = 0$. This is a rootfinding problem.  For example,</p>
 <pre class="mcode-input">f = (x.^2-y.^3+1/8).*sin(10*x.*y);
@@ -140,7 +140,7 @@ plot(roots(diff(f)),'r')                      % zero contours of f_y
 plot(r(:,1),r(:,2),'k.',MS,24)                % extrema
 axis([-1,1,-1,1]), axis square</pre>
 
-<p><img src="../images/guide/guide14_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide14_06.png" class="figure chebfun-figure" alt=""></p>
 <p>There is a new command here called <code>gradient</code> that computes the gradient vector and represents it as a chebfun2v object. The <code>roots</code> command then solves for the isolated roots of the bivariate polynomial system represented in the chebfun2v representing the gradient. For more information about <code>gradient</code>, see Chapter 15.</p>
 <h3 id="146-infinity-norm">14.6 Infinity norm</h3>
 <p>The $\infty$-norm of a function is the maximum absolute value in its domain. It can be computed by passing the argument <code>inf</code> to the <code>norm</code> command.</p>

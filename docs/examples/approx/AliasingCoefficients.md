@@ -32,7 +32,7 @@ plot(0:length(pc)-1,abs(pc-fc(1:length(pc)))+eps,'.r',LW,lw,MS,ms)
 h_legend = legend('f','p','f-p');
 set(h_legend,FS,fs)</pre>
 
-<p><img src="../../images/approx/AliasingCoefficients_01.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/AliasingCoefficients_01.png" class="figure chebfun-figure" alt=""/></p>
 <p>The green and blue dots show the absolute values of the Chebyshev coefficients for $f$ and the interpolant $p$. Our focus here is on the red dots, showing the error in Chebyshev coefficients. Two observations can be made: (i) the error grows geometrically with the degree until degree $n-1$, and (ii) (note the rightmost red dot) at the end the error is much much smaller. These effects clearly reflect the aliasing formulae given above.</p>
 <p>Let us note the connection between the aliasing in $\hat c_0$ and Gauss quadrature.  The exact integral of $f$ is equal to the degree 0 coefficient $d_0$ in its Legendre expansion $f(x)=\sum_{i=0}^\infty d_iP_i(x)$, where $P_i(x)$ is the Legendre polynomial of degree $i$.  Gauss quadrature approximates this by $\hat d_0$, the degree 0 coefficient of the degree $n$ polynomial interpolant.  The error in Gauss quadrature, $\hat d_0 - d_0,$ can accordingly  be interpreted as the result of aliasing the term $d_{2n+2}P_{2n+2}(x)$ and terms of higher degree. See section 8 of [2] for more details.</p>
 <p>The extremely high accuracy of the $n\mbox{th}$ coefficient is peculiar to the Chebyshev interpolation process, and this coefficient is exact if $f$ is a polynomial of degree up to $3n-1$. Although we are unaware of a practical application of this fact, it does suggest that if only the $n\mbox{th}$ Chebyshev coefficient is of interest, then a $n+1$-point Chebyshev interpolation could suffice, even if the corresponding interpolant is rather poor.</p>
@@ -54,7 +54,7 @@ xlim([0 length(f)/2])
 h_legend = legend('f','p','f-p');
 set(h_legend,FS,fs,'Location','Best')</pre>
 
-<p><img src="../../images/approx/AliasingCoefficients_02.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/AliasingCoefficients_02.png" class="figure chebfun-figure" alt=""/></p>
 <p>For non-analytic functions the difference in accuracy is less prominent, because the Chebyshev coefficients decay more slowly. The red plot is still roughly a 'mirrored' version of the green one, and the first and $n\mbox{th}$ coefficients still have higher accuracy than most of the rest. Again, these are all consequences of the aliasing formula.</p>
 <h3 id="2-two-dimensions">2. Two dimensions</h3>
 <p>Let's try an analogous experiment in Chebfun2. As before we start with a smooth bivariate function, form its chebfun2, and construct a low-degree interpolant (degree 5 in each direction). Then we examine the accuracy in the coefficients, which we show in matrix form.</p>

@@ -24,7 +24,7 @@ f = exp(1i*s);
 plot(f,'.',MS,10)
 axis equal</pre>
 
-<p><img src="../images/guide/guide05_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide05_01.png" class="figure chebfun-figure" alt=""></p>
 <p>In MATLAB, both the variables <code>i</code> and <code>j</code> are initialized as $i$, the square root of $-1$, but this code uses <code>1i</code> instead (just as one might write, for example, <code>3+2i</code> or <code>2.2-1.1i</code>).  Writing the imaginary unit in this fashion is a common trick among MATLAB programmers, for it avoids the risk of surprises caused by <code>i</code> or <code>j</code> having been overwritten by other values. The <code>axis equal</code> command ensures that the real and imaginary axes are scaled equally.</p>
 <p>Here is a Chebfun analogue.</p>
 <pre class="mcode-input">s = chebfun(@(s) s,[0 pi]);
@@ -32,7 +32,7 @@ f = exp(1i*s);
 plot(f)
 axis equal</pre>
 
-<p><img src="../images/guide/guide05_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide05_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The Chebfun semicircle is represented by a polynomial of low degree:</p>
 <pre class="mcode-input">length(f)
 plot(f,'.-',MS,10)
@@ -42,16 +42,16 @@ axis equal</pre>
     17
 </pre>
 
-<p><img src="../images/guide/guide05_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide05_03.png" class="figure chebfun-figure" alt=""></p>
 <p>We can have fun with variations on the theme:</p>
 <pre class="mcode-input">subplot(1,2,1), g = s*exp(10i*s); plot(g), axis equal
 subplot(1,2,2), h = exp(2i*s)+.3*exp(20i*s); plot(h), axis equal</pre>
 
-<p><img src="../images/guide/guide05_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide05_04.png" class="figure chebfun-figure" alt=""></p>
 <pre class="mcode-input">subplot(1,2,1), plot(g^2), axis equal
 subplot(1,2,2), plot(exp(h)), axis equal</pre>
 
-<p><img src="../images/guide/guide05_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide05_05.png" class="figure chebfun-figure" alt=""></p>
 <p>Such plots make pretty pictures, but as always with Chebfun, the underlying operations involve precise mathematics carried out to many digits of accuracy.  For example, the integral of <code>g</code> is $-\pi i/10$,</p>
 <pre class="mcode-input">sum(g)</pre>
 
@@ -71,7 +71,7 @@ subplot(1,2,2), plot(exp(h)), axis equal</pre>
 subplot(1,2,1), plot(z), axis equal, grid on
 subplot(1,2,2), plot(z^2), axis equal, grid on</pre>
 
-<p><img src="../images/guide/guide05_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide05_06.png" class="figure chebfun-figure" alt=""></p>
 <p>Actually, this way of constructing a piecewise chebfun is rather clumsy. An easier method is to use the <code>join</code> command, in which a construction like <code>join(f,g,h)</code> constructs a single chebfun with the same values as <code>f</code>, <code>g</code>, and <code>h</code>, but on a domain concatenated together.  Thus if the domains of <code>f</code>, <code>g</code>, <code>h</code> are $[a,b]$, $[c,d]$, and $[e,f]$, then <code>join(f,g,h)</code> has three pieces with domains $[a,b]$, $[b,b+(d-c)]$, $[b+(d-c),b+(d-c)+(f-e)]$. Using this trick, we can construct the chebfun <code>z</code> above in the following alternative manner:</p>
 <pre class="mcode-input">  s = chebfun(@(s) s,[0 1]);
   zz = join((1+.5i)*s, 1+.5i-2*s);
@@ -91,7 +91,7 @@ clf, subplot(1,2,1), plot(R,LW,lw2), grid on, axis equal
 X = join(1.3+1.5i+.4*s, 1.5+1.3i+.4i*s);
 hold on, plot(X,'r',LW,lw2)</pre>
 
-<p><img src="../images/guide/guide05_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide05_07.png" class="figure chebfun-figure" alt=""></p>
 <p>Here we see what happens to <code>R</code> and <code>X</code> under the maps $z^2$ and $\exp(z)$:</p>
 <pre class="mcode-input">clf
 subplot(1,2,1), plot(R^2,LW,lw1), grid on, axis equal
@@ -99,7 +99,7 @@ hold on, plot(X^2,'r',LW,lw2)
 subplot(1,2,2), plot(exp(R),LW,lw1), grid on, axis equal
 hold on, plot(exp(X),'r',LW,lw2)</pre>
 
-<p><img src="../images/guide/guide05_08.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide05_08.png" class="figure chebfun-figure" alt=""></p>
 <p>We can take the same idea further and construct a grid in the complex plane, each segment of which is a piece of a chebfun that happens to be linear.  In this case we accumulate the various pieces as successive columns of a quasimatrix, i.e., a "matrix" whose columns are chebfuns (see Chapter 6).</p>
 <pre class="mcode-input">  x = chebfun(@(x) x);
   S = chebfun;                  % make an empty chebfun
@@ -109,12 +109,12 @@ hold on, plot(exp(X),'r',LW,lw2)</pre>
   clf,
   subplot(1,2,1), plot(S), axis equal</pre>
 
-<p><img src="../images/guide/guide05_09.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide05_09.png" class="figure chebfun-figure" alt=""></p>
 <p>Here are the exponential and tangent of the grid:</p>
 <pre class="mcode-input">  subplot(1,2,1), plot(exp(S)), axis equal
   subplot(1,2,2), plot(tan(S)), axis equal</pre>
 
-<p><img src="../images/guide/guide05_10.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide05_10.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is a sequence that puts all three images together on a single scale:</p>
 <pre class="mcode-input">  clf
   plot(S), hold on
@@ -122,7 +122,7 @@ hold on, plot(exp(X),'r',LW,lw2)</pre>
   plot(6.6+tan(S))
   axis equal, axis off</pre>
 
-<p><img src="../images/guide/guide05_11.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide05_11.png" class="figure chebfun-figure" alt=""></p>
 <p>A particularly interesting set of conformal maps are the <em>Moebius transformations</em>, the rational functions of the form $(az+b)/(cz+d)$ for constants $a,b,c,d$.  For example, here is a square and its image under the map $w = 1/(1+z)$, and the image of the image under the same map, and the image of the image of the image.  We also plot the limit point given by the equation $z = 1/(1+z)$, i.e., $z = (\sqrt{5}-1)/2$.</p>
 <pre class="mcode-input">moebius = @(z) 1/(1+z);
 s = chebfun(@(s) s,[0 1]);
@@ -135,7 +135,7 @@ plot(S)
 hold on, axis equal
 plot((sqrt(5)-1)/2,0,'.k',MS,6)</pre>
 
-<p><img src="../images/guide/guide05_12.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide05_12.png" class="figure chebfun-figure" alt=""></p>
 <p>Here's a prettier version of the same image using the Chebfun <code>fill</code> command.</p>
 <pre class="mcode-input">S = join(-.5i+s, 1-.5i+1i*s, 1+.5i-s, .5i-1i*s);
 clf
@@ -146,7 +146,7 @@ S = moebius(S); fill(real(S),imag(S),[.5 1 1 ])
 plot((sqrt(5)-1)/2,0,'.k',MS,6)
 axis off</pre>
 
-<p><img src="../images/guide/guide05_13.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide05_13.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="53-contour-integrals">5.3 Contour integrals</h3>
 <p>If $s$ is a real parameter and $z(s)$ is a complex function of $s$, then we can define a contour integral in the complex plane like this: $$ \int f(z(s)) z'(s) ds . $$ The contour in question is the curve described by $z(s)$ as $s$ varies over its range.</p>
 <p>For example, in the example at the end of Section 5.1 the contour consists of two straight segments that begin at $0$ and end at $-1+.5i$.  We can compute the integral of $\exp(-z^2)$ over the contour like this:</p>
@@ -213,7 +213,7 @@ I3 = sum(f*diff(z))/(2i*pi)</pre>
        c(3)+s*(c(4)-c(3)), c(4)*c(1).^s./c(4).^s);
   clf, plot(z), axis equal, axis off</pre>
 
-<p><img src="../images/guide/guide05_14.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide05_14.png" class="figure chebfun-figure" alt=""></p>
 <p>The integral of $f(z) = \log(z)\tanh(z)$ around this contour will be equal to $2\pi i$ times the sum of the residues at the poles of $f$ at $\pm \pi i/2$.</p>
 <pre class="mcode-input">f = log(z)*tanh(z);
 I = sum(f*diff(z))
@@ -291,7 +291,7 @@ r = roots(f)</pre>
 LW = 'linewidth'; lw = 2;
 plot(f,LW,lw), xlim(1.1*[-1 1]), axis equal</pre>
 
-<p><img src="../images/guide/guide05_15.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide05_15.png" class="figure chebfun-figure" alt=""></p>
 <p>This chebfun happens to have 67 pieces:</p>
 <pre class="mcode-input">length(domain(f))-1</pre>
 
@@ -311,7 +311,7 @@ ans =
 <p>Perhaps more interesting is that we can apply functions to it and learn something in the process:</p>
 <pre class="mcode-input">plot(exp(3i*f),'m',LW,lw), ylim(1.2*[-1 1]), axis equal</pre>
 
-<p><img src="../images/guide/guide05_16.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide05_16.png" class="figure chebfun-figure" alt=""></p>
 <p>Does putting a box around enhance the image? (We do this by adding a second column of a Chebfun quasimatrix -- see Chapter 6.)</p>
 <pre class="mcode-input">L = f.ends(end);
 s = chebfun(@(x) 2*x+2,[-1 -0.5]);
@@ -319,13 +319,13 @@ box = join(-1.1-.05i+2.2*s,1.1-.05i+.22i*s,1.1+.17i-2.2*s,-1.1+.17i-.22i*s);
 f = [f box];
 plot(f,LW,lw), xlim(1.2*[-1 1]), axis equal</pre>
 
-<p><img src="../images/guide/guide05_17.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide05_17.png" class="figure chebfun-figure" alt=""></p>
 <pre class="mcode-input">clf, plot(exp((1+.2i)*f),LW,lw), axis equal, axis off</pre>
 
-<p><img src="../images/guide/guide05_18.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide05_18.png" class="figure chebfun-figure" alt=""></p>
 <pre class="mcode-input">plot(tan(f),LW,lw), axis equal, axis off</pre>
 
-<p><img src="../images/guide/guide05_19.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide05_19.png" class="figure chebfun-figure" alt=""></p>
 <p>Next May 16, you might wish to write a greeting card for Pafnuty Lvovich Chebyshev, accurate as always to 15 digits:</p>
 <pre class="mcode-input">f = scribble('Happy Birthday Pafnuty!');
 L = f.ends(end);
@@ -336,12 +336,12 @@ ellipse = 1.2*(circle + 1/circle)/2 + 1i*mean(imag(f));
 hold on, plot(g(ellipse),'b',LW,lw)
 axis auto equal off</pre>
 
-<p><img src="../images/guide/guide05_20.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide05_20.png" class="figure chebfun-figure" alt=""></p>
 <p>You can find an example "Birthday cards and analytic functions" in the Fun Stuff section of the Chebfun Examples collection, and further related explorations in the Geometry section.  And here's another complex scribble penned by Gil Strang:</p>
 <pre class="mcode-input">clf
 cheb.gallery('motto')</pre>
 
-<p><img src="../images/guide/guide05_21.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide05_21.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="56-references">5.6  References</h3>
 <p>[Austin, Kravanja & Trefethen 2014] A. P. Austin, P. Kravanja, and L. N. Trefethen, "Numerical algorithms based on analytic function values at roots of unity", <em>SIAM Journal on Numerical Analysis</em> 52 (2014), 1795--1821.</p>
 <p>[Bornemann 2009] F. Bornemann, "Accuracy and stability of computing high-order derivatives of analytic functions by Cauchy integrals", <em>Foundations of Computational Mathematics</em>, 11 (2011), 1-63.</p>

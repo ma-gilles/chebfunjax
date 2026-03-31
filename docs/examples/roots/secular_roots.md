@@ -18,7 +18,7 @@ for j = 1:4
 end
 hold off, plot(f,'linewidth',2), grid on</pre>
 
-<p><img src="../../images/roots/SecularRoots_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/roots/SecularRoots_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Chebfun can compute the roots:</p>
 <pre class="mcode-input">format long, format compact
 r = roots(f)</pre>
@@ -47,7 +47,7 @@ r = roots(f)</pre>
 <p>Let us add the roots to the plot.</p>
 <pre class="mcode-input">hold on, plot(r,f(r),'.r','markersize',24)</pre>
 
-<p><img src="../../images/roots/SecularRoots_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/roots/SecularRoots_02.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>

@@ -36,7 +36,7 @@ ans =
    1.899999999999997
 </pre>
 
-<p><img src="../../images/ode-eig/Eigenstates_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/Eigenstates_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Note that the eigenvalues take the regularly spaced values $h[1, 3, 5, \dots]$. The <code>quantumstates</code> command permits various outputs including just eigenvalues or eigenvalues and eigenfunctions, and it is also possible to suppress the plot with the string <code>noplot</code>; see the help text. For the rest of this Example, however, we shall just look at plots and suppress all output with a semicolon.</p>
 <p>Suppose we want $60$ eigenstates instead of the default number $10$. Here is the result:</p>
 <pre class="mcode-input">quantumstates(V,60);</pre>
@@ -45,7 +45,7 @@ ans =
 Couldn't create JOGL canvas--using painters
 </pre>
 
-<p><img src="../../images/ode-eig/Eigenstates_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/Eigenstates_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Note that the potential now looks like a parabola that meets vertical walls at $x=-3$ and $x=3$, for this is the effect of the Dirichlet boundary condition.  To get $60$ genuine states of the harmonic oscillator, we could increase the interval from $[-3,3]$ to $[-L,L]$ with, say, $L=8$. (The accuracy improves exponentially as $L$ increases.)</p>
 <p>Or suppose we want eigenstates for $h=0.01$ instead of $h=1$:</p>
 <pre class="mcode-input">quantumstates(V,0.01);</pre>
@@ -54,7 +54,7 @@ Couldn't create JOGL canvas--using painters
 Couldn't create JOGL canvas--using painters
 </pre>
 
-<p><img src="../../images/ode-eig/Eigenstates_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/Eigenstates_03.png" class="figure chebfun-figure" alt=""></p>
 <p>When <code>quantumstates</code> is given two arguments like this, it takes the second to be $h$ if it is not an integer, and the number of eigenstates if it is an integer.  To specify both, put them in this order:</p>
 <pre class="mcode-input">quantumstates(V,20,0.5);</pre>
 
@@ -62,7 +62,7 @@ Couldn't create JOGL canvas--using painters
 Couldn't create JOGL canvas--using painters
 </pre>
 
-<p><img src="../../images/ode-eig/Eigenstates_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/Eigenstates_04.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is an effectively infinite square well. The eigenvalues are spaced quadratically.</p>
 <pre class="mcode-input">V = 10 - 10*(abs(x)&lt;1);
 quantumstates(V);</pre>
@@ -71,7 +71,7 @@ quantumstates(V);</pre>
 Couldn't create JOGL canvas--using painters
 </pre>
 
-<p><img src="../../images/ode-eig/Eigenstates_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/Eigenstates_05.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is a finite square well:</p>
 <pre class="mcode-input">V = 1 - (abs(x)&lt;1);
 quantumstates(V,20);</pre>
@@ -80,7 +80,7 @@ quantumstates(V,20);</pre>
 Couldn't create JOGL canvas--using painters
 </pre>
 
-<p><img src="../../images/ode-eig/Eigenstates_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/Eigenstates_06.png" class="figure chebfun-figure" alt=""></p>
 <p>Since we are working on a finite interval $[-L,L]$, the spectrum is discrete both below and above the level $1$, but the spacing will get closer as $L$ is increased, and it is easy to imagine that for $L=\infty$, one gets a continuum of eigenvalues above $1$ -- more precisely, a <em>continuous spectrum.</em>  The discrete eigenfunctions below level $1$ are called bound states, whereas the states above level $1$ (in the limit $L=\infty$) are continuous states.</p>
 <p>Here is an absolute value potential,</p>
 <pre class="mcode-input">quantumstates(abs(x));</pre>
@@ -89,7 +89,7 @@ Couldn't create JOGL canvas--using painters
 Couldn't create JOGL canvas--using painters
 </pre>
 
-<p><img src="../../images/ode-eig/Eigenstates_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/Eigenstates_07.png" class="figure chebfun-figure" alt=""></p>
 <p>and here is a square root function:</p>
 <pre class="mcode-input">quantumstates(sqrt(abs(x)+.1));</pre>
 
@@ -97,7 +97,7 @@ Couldn't create JOGL canvas--using painters
 Couldn't create JOGL canvas--using painters
 </pre>
 
-<p><img src="../../images/ode-eig/Eigenstates_08.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/Eigenstates_08.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is a double well potential, with the barrier in the middle slightly off-center to break the symmetry:</p>
 <pre class="mcode-input">V = 0.5*(abs(x-.5)&lt;.5);
 quantumstates(V,18);</pre>
@@ -106,7 +106,7 @@ quantumstates(V,18);</pre>
 Couldn't create JOGL canvas--using painters
 </pre>
 
-<p><img src="../../images/ode-eig/Eigenstates_09.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/Eigenstates_09.png" class="figure chebfun-figure" alt=""></p>
 <p>Note that each lower eigenfunction is localized on one or the other side of the barrier, whereas the higher eigenfunctions are not localized. Inside the barrier, the eigenfunction is nonzero -- this is quantum tunnelling -- but its amplitude decreases exponentially with distance inside the barrier.</p>
 <p>Here is an analogous problem with a smooth potential:</p>
 <pre class="mcode-input">V = 0.5*exp(-2*(x-.5)^2);
@@ -116,7 +116,7 @@ quantumstates(V,18);</pre>
 Couldn't create JOGL canvas--using painters
 </pre>
 
-<p><img src="../../images/ode-eig/Eigenstates_10.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/Eigenstates_10.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is the total time for this Example:</p>
 <pre class="mcode-input">toc</pre>
 

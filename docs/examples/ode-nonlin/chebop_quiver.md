@@ -33,7 +33,7 @@ IN = 'interpreter'; LT = 'latex';
 xlabel('$u$',IN,LT), ylabel('$u''$',IN,LT)
 hold off</pre>
 
-<p><img src="../../images/ode-nonlin/ChebopQuiver_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/ChebopQuiver_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="a-mathematical-pendulum">A mathematical pendulum</h3>
 <p>The next ODE we consider is that controlling the trajectory of a  nonlinear pendulum,</p>
 <p>$$ u'' + \sin(u) = 0. $$</p>
@@ -52,7 +52,7 @@ xlim([-2.5 25])
 title('Phase portrait for an undamped nonlinear pendulum')
 xlabel('$u$',IN,LT), ylabel('$u''$',IN,LT)</pre>
 
-<p><img src="../../images/ode-nonlin/ChebopQuiver_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/ChebopQuiver_02.png" class="figure chebfun-figure" alt=""></p>
 <p>We see that for small enough initial velocities, the pendulum swings back and forth around the equilibrium $u=0$, while for larger initial velocities, it swings over and over the top position. However, if we introduce damping, all trajectories will eventually end up at rest:</p>
 <pre class="mcode-input">N.op = @(t,u) diff(u,2) + 0.25*diff(u) + sin(u);
 quiver(N, [-2.5 25 -2 5.5],'xpts',30)
@@ -66,7 +66,7 @@ hold off
 title('Phase portrait for a damped nonlinear pendulum')
 xlabel('$u$',IN,LT), ylabel('$u''$',IN,LT)</pre>
 
-<p><img src="../../images/ode-nonlin/ChebopQuiver_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/ChebopQuiver_03.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="lotka-volterra-predator-prey-model">Lotka-Volterra predator-prey model</h3>
 <p>The final equations we consider are the The Lotka-Volterra equations, which model the populations of predators (say foxes) and prey (say rabbits) [3]. These are a pair of nonlinear, first order differential equations, and exhibit the behaviour that in the absence of predators, the prey population grows exponentially, while the predator population shrinks if the prey population is too small. The equations are given by</p>
 <p>$$ u' = au - buv, \quad v' = -cv + duv $$</p>
@@ -84,7 +84,7 @@ hold off
 title('Phase portrait for Lotka-Volterra equations')
 xlabel('Rabbits'), ylabel('Foxes')</pre>
 
-<p><img src="../../images/ode-nonlin/ChebopQuiver_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/ChebopQuiver_04.png" class="figure chebfun-figure" alt=""></p>
 <p>The cyclical behaviour of the populations is evident. What happens if we increase the reproduction rate of the rabbits by 50%?</p>
 <pre class="mcode-input">N = chebop(@(t,u,v) [diff(u)-1.5*u+u.*v; diff(v)+v-u.*v], [0 10]);
 quiver(N, [0 5 0 5],'xpts',30,'ypts',30,'normalize',true,'scale',.4)
@@ -99,7 +99,7 @@ hold off
 title('Phase portrait for L-V eqns., increased rabbit reproduction')
 xlabel('Rabbits'), ylabel('Foxes')</pre>
 
-<p><img src="../../images/ode-nonlin/ChebopQuiver_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/ChebopQuiver_05.png" class="figure chebfun-figure" alt=""></p>
 <p>Comparing the phase portraits, we observe that while the maximum rabbit population increased, it was by much less than 50%. In fact, the maximum population of foxes grew more than that of rabbits.</p>
 <h3 id="references">References</h3>
 <ol>

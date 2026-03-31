@@ -51,7 +51,7 @@ construct this initial condition in Spherefun and plot it.</p>
 <pre class="mcode-input">u0 = spherefun.sphharm(6,0) + sqrt(14/11)*spherefun.sphharm(6,5);
 plot(u0), colormap(flipud(hot)), caxis([-1 1.5]), colorbar, axis('off')</pre>
 
-<p><img src="../../images/sphere/SphereHeatConduction_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SphereHeatConduction_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Since $Y_{\ell}^{m}$ is an eigenfunction of the surface Laplacian
 with eigenvalue $-\ell(\ell+1)$, the exact solution to (1) with the above
 initial condition is
@@ -81,10 +81,10 @@ for n = 2:nsteps
     end
 end</pre>
 
-<p><img src="../../images/sphere/SphereHeatConduction_02.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/sphere/SphereHeatConduction_03.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/sphere/SphereHeatConduction_04.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/sphere/SphereHeatConduction_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SphereHeatConduction_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SphereHeatConduction_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SphereHeatConduction_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SphereHeatConduction_05.png" class="figure chebfun-figure" alt=""></p>
 <p>The difference between the true solution and the computed solution is</p>
 <pre class="mcode-input">utrue = exp(-42*alpha*tfinal)*u0;
 norm(u-utrue)</pre>
@@ -104,7 +104,7 @@ for bumps = 1:5
 end
 plot(u0), colormap(flipud(hot)), colorbar, axis('off'), caxis([-0.05 1])</pre>
 
-<p><img src="../../images/sphere/SphereHeatConduction_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SphereHeatConduction_06.png" class="figure chebfun-figure" alt=""></p>
 <p>Since the sphere has no boundary, the total amount of heat is conserved: the mean of the solution at any time is equal to the mean of the the initial condition.  We repeat the code above with this new initial condition, but now also plot a contour that tracks the mean of the initial condition solution, which can be computed using the command <code>mean2</code>:</p>
 <pre class="mcode-input">meanu0 = mean2(u0);                % Mean of initial condition
 dt = 0.01;                         % Time step
@@ -132,10 +132,10 @@ for n = 2:nsteps
     end
 end</pre>
 
-<p><img src="../../images/sphere/SphereHeatConduction_07.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/sphere/SphereHeatConduction_08.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/sphere/SphereHeatConduction_09.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/sphere/SphereHeatConduction_10.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SphereHeatConduction_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SphereHeatConduction_08.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SphereHeatConduction_09.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SphereHeatConduction_10.png" class="figure chebfun-figure" alt=""></p>
 <p>The numerical scheme preserves the mean value property to machine precision:</p>
 <pre class="mcode-input">norm(meanu0 - mean2(u))</pre>
 

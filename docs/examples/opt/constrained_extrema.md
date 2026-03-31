@@ -87,14 +87,14 @@ text(X(2,1), X(2,2), '  max', 'color','w', 'FontWeight','bold', 'FontSize',42)
 hold off
 axis equal</pre>
 
-<p><img src="../../images/opt/ConstrainedExtrema_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/opt/ConstrainedExtrema_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The restriction of $g$ to the unit circle, $h = g(f)$, looks as follows:</p>
 <pre class="mcode-input">plot(h)
 hold on
 plot(Xh, Y, 'ko', 'MarkerFaceColor', 'k')
 hold off</pre>
 
-<p><img src="../../images/opt/ConstrainedExtrema_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/opt/ConstrainedExtrema_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Similarly we can find the extrema of a function of three variables on a curve in 3d space: $g$ then will be a chebfun3 and $f$ a chebfun with three columns.</p>
 <h3 id="2-extrema-on-surfaces">2. Extrema on surfaces</h3>
 <p>Suppose we want to compute the extrema of a function $g(x,y,z)$ of three variables on a 2d surface in 3d space.  For surfaces that are parametrized by a function $[x;y;z] = f(u,v)$, we can compute the extrema of $g$ on that surface by considering the composition $h = g(f)$ and determining its extrema. The advantage is that we now compute the extrema of a function of two variables and get rid of the constraint.</p>
@@ -105,7 +105,7 @@ hold off</pre>
 <pre class="mcode-input">f = chebfun2v(@(x,y) x, @(x,y) y, @(x,y) x.^3 + y.^2);
 surf(f)</pre>
 
-<p><img src="../../images/opt/ConstrainedExtrema_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/opt/ConstrainedExtrema_03.png" class="figure chebfun-figure" alt=""></p>
 <p>To find the extrema, we compute</p>
 <pre class="mcode-input">h = g(f);
 [Y, X] = minandmax2(h)</pre>
@@ -154,7 +154,7 @@ fbdry = f(bdry);
 plot(fbdry(:,1), fbdry(:,2))
 axis equal</pre>
 
-<p><img src="../../images/opt/ConstrainedExtrema_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/opt/ConstrainedExtrema_04.png" class="figure chebfun-figure" alt=""></p>
 <p>Now let us compute the extrema of the function $g(x,y) = x^3 + \cos(5x) - y^2$ on this tilted square.  As before, we compute the extrema of $h = g(f)$:</p>
 <pre class="mcode-input">g = chebfun2(@(x,y) x.^3 + cos(5*x) - y.^2);
 h = g(f);
@@ -168,7 +168,7 @@ X =
    0.500000000000000  -0.500000000000000
 </pre>
 
-<p><img src="../../images/opt/ConstrainedExtrema_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/opt/ConstrainedExtrema_05.png" class="figure chebfun-figure" alt=""></p>
 <p>So the minimum and maximum of $g$ on the tilted square are located at</p>
 <pre class="mcode-input">Xmin = f(X(1,1), X(1,2))
 Xmax = f(X(2,1), X(2,2))</pre>

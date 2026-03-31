@@ -24,7 +24,7 @@ for n = 0:3
   x = r.*x.*(1-x);
 end</pre>
 
-<p><img src="../../images/ode-nonlin/Logistic_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/Logistic_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Here are steps 4-7:</p>
 <pre class="mcode-input">for n = 4:7
   subplot(4,1,n-3)
@@ -34,7 +34,7 @@ end</pre>
   x = r.*x.*(1-x);
 end</pre>
 
-<p><img src="../../images/ode-nonlin/Logistic_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/Logistic_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Here are steps 8-11:</p>
 <pre class="mcode-input">for n = 8:11
   subplot(4,1,n-7)
@@ -44,7 +44,7 @@ end</pre>
   x = r.*x.*(1-x);
 end</pre>
 
-<p><img src="../../images/ode-nonlin/Logistic_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/Logistic_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Let's zoom in on the region $[3.5,4]$ and look at steps 12-15:</p>
 <pre class="mcode-input">r = r{3.5,4}; x = x{3.5,4};
 for n = 12:15
@@ -55,7 +55,7 @@ for n = 12:15
   x = r.*x.*(1-x);
 end</pre>
 
-<p><img src="../../images/ode-nonlin/Logistic_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/Logistic_04.png" class="figure chebfun-figure" alt=""></p>
 <p>And here are steps 16-18:</p>
 <pre class="mcode-input">for n = 16:18
   subplot(4,1,n-15)
@@ -65,17 +65,17 @@ end</pre>
   x = r.*x.*(1-x);
 end</pre>
 
-<p><img src="../../images/ode-nonlin/Logistic_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/Logistic_05.png" class="figure chebfun-figure" alt=""></p>
 <p>The reader can have some fun examining these pictures. Where do we see period 1, period 2, period 4, chaos? How does this match what is known about dependence on $r$?</p>
 <p>Let's see the final plot more fully:</p>
 <pre class="mcode-input">figure
 plot(x), ylim([0 1]), grid on</pre>
 
-<p><img src="../../images/ode-nonlin/Logistic_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/Logistic_06.png" class="figure chebfun-figure" alt=""></p>
 <p>And let's zoom in on a small interval:</p>
 <pre class="mcode-input">plot(x,'interval',[3.902,3.908]), ylim([0 1]), grid on</pre>
 
-<p><img src="../../images/ode-nonlin/Logistic_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/Logistic_07.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>G. Strang, <em>Introduction to Applied Mathematics</em>, Wellesley-Cambridge    Press, 1986.</li>

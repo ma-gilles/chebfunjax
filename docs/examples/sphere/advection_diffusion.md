@@ -19,7 +19,7 @@
 v = curl( w );
 quiver(v, 4, 'numpts',30), axis('off'), colorbar</pre>
 
-<p><img src="../../images/sphere/AdvectionDiffusion_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/AdvectionDiffusion_01.png" class="figure chebfun-figure" alt=""></p>
 <p>We verify that $v$ is divergence-free:</p>
 <pre class="mcode-input">norm(div(v))</pre>
 
@@ -56,7 +56,7 @@ subplot(2,2,4)
 plot(c, 'WedgePol'), caxis([-0.19 0.19]), axis off
 title("WedgePol")</pre>
 
-<p><img src="../../images/sphere/AdvectionDiffusion_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/AdvectionDiffusion_02.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="time-discretization">Time discretization</h3>
 <p>Now we solve the advection-diffusion equation numerically using the implicit-explicit order 1 backward differentiation time-stepping scheme (IMEX-BDF1). This yields a Helmholtz equation at each time step: $$ \nabla^2c^{n+1}+K^2c^{n+1}=K^2c^n+\frac{1}{D}v\cdot\nabla c^n,\quad \left.\frac{\partial c}{\partial \vec{n}}\right|_{\partial B(0,1)} = 0, $$ where $c_n$ denotes the solution at time $t = n\Delta t$, $\Delta t = 0.1$ is the time step, and $K^2 = -1/(D\Delta t)$. This equation can be solved by using the Ballfun command <code>helmholtz</code>.</p>
 <p>The following code solves the advection-diffusion numerically to time $t=15$ and plots the solution $c$ at different times.</p>
@@ -77,10 +77,10 @@ for n = 0:nsteps
     c = helmholtz(rhs, K, @(x,y,z)0, m, 'neumann');
 end</pre>
 
-<p><img src="../../images/sphere/AdvectionDiffusion_03.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/sphere/AdvectionDiffusion_04.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/sphere/AdvectionDiffusion_05.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/sphere/AdvectionDiffusion_06.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/sphere/AdvectionDiffusion_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/AdvectionDiffusion_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/AdvectionDiffusion_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/AdvectionDiffusion_06.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

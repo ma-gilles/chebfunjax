@@ -25,6 +25,6 @@ ylabel('cos(x)',FS,12)
 title(sprintf('Solution of IVP for cos(x) -- error = %7.2e',err),FS,14)
 ylim([-2 2])</pre>
 
-<p><img src="../../images/ode-linear/LinearIVP_01.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/ode-linear/LinearIVP_01.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
 </div>

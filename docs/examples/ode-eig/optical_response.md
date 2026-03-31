@@ -48,7 +48,7 @@ LW = 'linewidth'; FS = 'fontsize';
 plot(PSI,LW,2);
 title('Hermite Functions',FS,16);</pre>
 
-<p><img src="../../images/ode-eig/OpticalResponse_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/OpticalResponse_01.png" class="figure chebfun-figure" alt=""></p>
 <p>To see an alternative method for computing eigenfunctions of the Schroedinger equation using Chebfun checkout the command <code>quantumstates</code>.</p>
 <p>A local function to compute the polarization is defined and passed to the Chebfun constructor.</p>
 <pre class="mcode-input">Emax = .1;
@@ -65,7 +65,7 @@ title('Polarization v. Electric Field',FS,16);
 xlabel('Electric Field',FS,16);
 ylabel('Polarization',FS,16);</pre>
 
-<p><img src="../../images/ode-eig/OpticalResponse_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/OpticalResponse_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Unfortunately the errors in approximating $P(E)$ are significant enough to affect the interpolant and a larger truncation tolerance was required to get convergence in a reasonable time.</p>
 <p>Taking derivatives of $P(E)$ at $E = 0$ gives the various optical response coefficients. For this particular example it can be shown that $\alpha = \frac14$, $\beta = 0$ and $\gamma \approx 0$.</p>
 <pre class="mcode-input">dP = diff(P);

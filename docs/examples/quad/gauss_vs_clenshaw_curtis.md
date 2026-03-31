@@ -16,7 +16,7 @@ LW = 'linewidth'; FS = 'fontsize'; MS = 'markersize';
 figure, plot(fc,LW,1.2)
 title('Function f',FS,16)</pre>
 
-<p><img src="../../images/quad/GaussClenCurt_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/quad/GaussClenCurt_01.png" class="figure chebfun-figure" alt=""></p>
 <p>In Chebfun you would normally compute the integral like this:</p>
 <pre class="mcode-input">format long
 Ichebfun = sum(fc)</pre>
@@ -65,7 +65,7 @@ title('Gauss quadrature convergence',FS,16), toc</pre>
 <pre class="mcode-output">Elapsed time is 0.165843 seconds.
 </pre>
 
-<p><img src="../../images/quad/GaussClenCurt_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/quad/GaussClenCurt_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Let's add another curve to the plot for Clenshaw-Curtis:</p>
 <pre class="mcode-input">hold on, tic, err = [];
 for Npts = NN
@@ -80,7 +80,7 @@ legend('Gauss','Clenshaw-Curtis','location','southwest'), toc</pre>
 <pre class="mcode-output">Elapsed time is 0.909083 seconds.
 </pre>
 
-<p><img src="../../images/quad/GaussClenCurt_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/quad/GaussClenCurt_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Clenshaw-Curtis quadrature also converges geometrically for analytic functions ([1], Theorem 19.3). In some circumstances Gauss converges up to twice as fast as C-C, with respect to <code>Npts</code>, but as this example suggests, the two formulas are often closer than that.  The computer time is often faster with C-C. For details of the comparison, see [2], [4], and Chapter 19 of [3].</p>
 <h3 id="references">References</h3>
 <ol>

@@ -37,7 +37,7 @@ vertical scale = 2.1
 vertical scale = 0.56 
 </pre>
 
-<p><img src="../images/guide/guide13_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide13_01.png" class="figure chebfun-figure" alt=""></p>
 <p>A closer look reveals that <code>sum(f)</code> returns a row chebfun while <code>sum(f,2)</code> returns a column chebfun. This distinction is a reminder that <code>sum(f)</code> is a function of $x$ while <code>sum(f,2)</code> is a function of $y$. If we integrate over $y$ and then $x$, the result is the double integral of $f$.</p>
 <pre class="mcode-input">sum2(f)
 sum(sum(f))</pre>
@@ -96,12 +96,12 @@ mean2(runge)</pre>
    3.796119578934829
 </pre>
 
-<p><img src="../images/guide/guide13_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide13_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The command <code>mean</code> computes the average along one variable.  The output is a function of one variable represented by a chebfun, so we can plot it.</p>
 <pre class="mcode-input">plot(mean(runge))
 title('Mean value of 2D Runge function wrt y')</pre>
 
-<p><img src="../images/guide/guide13_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide13_03.png" class="figure chebfun-figure" alt=""></p>
 <p>If we average over $y$ and then $x$, we obtain the mean value over the whole domain, matching the earlier result.</p>
 <pre class="mcode-input">mean(mean(runge))</pre>
 
@@ -120,7 +120,7 @@ norm( cumsum(cumsum(f),2) - cumsum2(f) )</pre>
      0
 </pre>
 
-<p><img src="../images/guide/guide13_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide13_04.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="134-complex-encoding">13.4 Complex encoding</h3>
 <p>As is well known, a pair of real scalar functions $f$ and $g$ can be encoded as a complex function $f+ig$. This trick can be useful for simplifying many operations, though at the same time it may be confusing. For instance, instead of representing the unit circle by two real-valued functions, we can represent it by one complex-valued function:</p>
 <pre class="mcode-input">d = [0 2*pi];
@@ -134,7 +134,7 @@ axis equal, title('Two real-valued functions')
 subplot(1,2,2), plot(c)
 axis equal, title('One complex-valued function')</pre>
 
-<p><img src="../images/guide/guide13_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide13_05.png" class="figure chebfun-figure" alt=""></p>
 <p>This complex encoding trick is exploited in a number of places in Chebfun2. Specifically, it's used to encode the path of integration for a line integral (see next section), to represent zero contours of a chebfun2 (Chapter 14), and to represent trajectories in vector fields (Chapter 15).</p>
 <p>We hope users become comfortable with complex encodings, though they are not required for the majority of Chebfun2 functionality.</p>
 <h3 id="135-integration-along-curves">13.5 Integration along curves</h3>
@@ -144,13 +144,13 @@ axis equal, title('One complex-valued function')</pre>
 C = chebfun(@(t) t*exp(10i*t),[0 1]);
 plot(C,'k'), axis([-1 1 -1 1]), axis square</pre>
 
-<p><img src="../images/guide/guide13_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide13_06.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is a plot of the function $f(x,y) = \cos(10xy^2) + \exp(-x^2)$ on the square, with the values of $f(x,y)$ on the curve $C$ shown in black:</p>
 <pre class="mcode-input">f = chebfun2(@(x,y) cos(10*x.*y.^2) + exp(-x.^2));
 plot(f), hold on
 plot3(real(C),imag(C),f(C),'k')</pre>
 
-<p><img src="../images/guide/guide13_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide13_07.png" class="figure chebfun-figure" alt=""></p>
 <p>The object $|f(C)|$ is just a real-valued function defined on $[0,1]$, whose integral we can readily compute:</p>
 <pre class="mcode-input">sum(f(C))</pre>
 

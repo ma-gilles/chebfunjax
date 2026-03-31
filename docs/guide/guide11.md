@@ -27,7 +27,7 @@ plot(f), grid on</pre>
 vertical scale = 0.92 
 </pre>
 
-<p><img src="../images/guide/guide11_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide11_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The text <code>'trig'</code> in the display indicates that $f$ is represented by trigonometric functions, as discussed in the next section. For now we note that the length of 131 means that $f$ is resolved to machine precision using a trigonometric interpolant through 131 equally spaced samples over $[-\pi,\pi)$, or equivalently, 65 trigonometric (= Fourier) modes.</p>
 <p>In this chapter we review some of the functionality for trigfuns as well as some theory of trigonometric interpolation. For brevity, we refer to trigonometric-based chebfuns as <em>trigfuns</em> and polynomial-based chebfuns as <em>chebfuns</em>.</p>
 <p>Throughout our discussion, the trigfuns we construct live on the interval $[-\pi,\pi]$, which we specify explicitly in each call to the constructor.  Mathematically, it might have made sense for this to be the default domain for trigfuns, but in Chebfun the factory default is always $[-1,1]$, whether the representation is trigonometric or not.  It is possible to change the default domain to $[-\pi,\pi]$, and indeed to change the default function representation to trigonometric; see Section 8.2. To avoid confusion, however, we have not changed any defaults in this chapter.</p>
@@ -55,7 +55,7 @@ u = chebfun(uu,[-pi,pi],'trig');</pre>
 <pre class="mcode-input">plot([q11-u p11-u]), grid on
 legend('projection error','interpolation error','location','southeast')</pre>
 
-<p><img src="../images/guide/guide11_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide11_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The difference between truncation of a trigonometric series and trigonometric interpolation, while interesting mathematically, is rarely very important in practical computation.</p>
 <h3 id="113-basic-operations">11.3 Basic operations</h3>
 <p>Most computations with trigfuns follow the same pattern as with chebfuns.  Typically the result will be a trigfun too. Here for example we construct an initial trigfun $g$ and then transform it to a new trigfun $f$.</p>
@@ -78,7 +78,7 @@ plot(r,f(r),'.r','markersize',14)
 plot(maxpos,maxval,'ok')
 plot(minpos,minval,'ok')</pre>
 
-<p><img src="../images/guide/guide11_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide11_03.png" class="figure chebfun-figure" alt=""></p>
 <p>The derivative of a trigfun can be computed with <code>diff</code>, and the definite integral with <code>sum</code>:</p>
 <pre class="mcode-input">sum(f)</pre>
 
@@ -91,14 +91,14 @@ plot(minpos,minval,'ok')</pre>
 plot(g), grid on
 hold off</pre>
 
-<p><img src="../images/guide/guide11_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide11_04.png" class="figure chebfun-figure" alt=""></p>
 <p>If you combine a trigfun and a chebfun, the result will be a chebfun.</p>
 <h3 id="114-complex-valued-functions-and-contour-integrals">11.4 Complex-valued functions and contour integrals</h3>
 <p>Like other chebfuns, trigfuns can take complex values, and this feature is especially useful for the computation of contour integrals over smooth contours in the complex plane, such as circles, as was highlighted in Section 5.3. We recommend trigfuns for the computation of most contour integrals.</p>
 <p>A pretty example of a periodic complex-valued chebfun can be generated with the commands</p>
 <pre class="mcode-input">cheb.gallerytrig('starburst')</pre>
 
-<p><img src="../images/guide/guide11_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide11_05.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="115-circular-convolution">11.5 Circular convolution</h3>
 <p>The circular or periodic convolution of two functions $f$ and $g$ with period $T$ is defined by $$ (f*g)(t) := \int_{t_0}^{t_0 + T} g(s)f(t-s)ds $$ where $t_0$ is arbitrary. Circular convolutions can be computed for trigfuns with the <code>circconv</code> function. For example, here is a trigonometric interpolant through $201$ samples of a smooth function plus noise (available via <code>cheb.gallerytrig('noisyfun')</code>):</p>
 <pre class="mcode-input">rng('default'), rng(0);
@@ -115,7 +115,7 @@ plot(f), grid on</pre>
 vertical scale = 2.8 
 </pre>
 
-<p><img src="../images/guide/guide11_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide11_06.png" class="figure chebfun-figure" alt=""></p>
 <p>The high frequencies can be smoothed by convolving $f$ with a mollifier such as a Gaussian.</p>
 <pre class="mcode-input">gaussian = @(t,sigma) 1/(sigma*sqrt(2*pi))*exp(-0.5*(t/sigma)^2);
 g = @(sigma) chebfun(@(t) gaussian(t,sigma),[-pi pi],'trig');</pre>
@@ -124,7 +124,7 @@ g = @(sigma) chebfun(@(t) gaussian(t,sigma),[-pi pi],'trig');</pre>
 <pre class="mcode-input">h = circconv(f,g(0.1));
 hold on, plot(h), hold off</pre>
 
-<p><img src="../images/guide/guide11_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide11_07.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="116-trigfuns-vs-chebfuns">11.6 Trigfuns vs. chebfuns</h3>
 <p>Trigonometric interpolants have a resolution power of 2 points per wavelength, whereas Chebyshev interpolants require approximately $\pi$ points per wavelength (averaged over the grid). This means that smooth periodic functions can usually be represented as trigfuns using fewer samples than standard chebfuns.</p>
 <p>To illustrate this, consider the chebfun and trigfun representations of $f(t) = \cos(11\sin(3(t-1/\pi)))$ over $[-\pi,\pi]$:</p>
@@ -209,23 +209,23 @@ trigcoeffs(u)</pre>
 <pre class="mcode-input">f = chebfun('exp(sin(t))',[-pi pi],'trig');
 plotcoeffs(f)</pre>
 
-<p><img src="../images/guide/guide11_08.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide11_08.png" class="figure chebfun-figure" alt=""></p>
 <p>For $f(t) = 1/(2-\cos t)$, which is analytic on $[-\pi,\pi]$ but not entire, the decrease is perfectly geometric:</p>
 <pre class="mcode-input">f = chebfun('1/(2-cos(t))',[-pi pi],'trig');
 plotcoeffs(f)</pre>
 
-<p><img src="../images/guide/guide11_09.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide11_09.png" class="figure chebfun-figure" alt=""></p>
 <p>A function with a finite number of derivatives gives algebraic decay:</p>
 <pre class="mcode-input">f = chebfun('abs(sin(x))^5',[-pi pi],'trig');
 plotcoeffs(f)</pre>
 
-<p><img src="../images/guide/guide11_10.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide11_10.png" class="figure chebfun-figure" alt=""></p>
 <p>The <code>loglog</code> option enables one more easily to quantify the decay rate (showing the coefficients of index $k>0$).  This function has $\ell =5$ for the estimates above, which imply that the decay rate of coefficients is $a_k = O(|k|^{-6})$.</p>
 <pre class="mcode-input">plotcoeffs(f,'loglog')
 hold on, loglog(3*[3 300],[3 300].^-6,'--r'), hold off
 text(110,4e-9,'k^{-6}','color','r')</pre>
 
-<p><img src="../images/guide/guide11_11.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide11_11.png" class="figure chebfun-figure" alt=""></p>
 <p>At the beginning of this section, we alluded to an important fine point concerning $[-\pi,\pi]$ vs. $[0,2\pi]$ --- or more generally, the transplantation from one domain $[a,b]$ to another. We now explain this.</p>
 <p>Consider, say, the function $f(x) = \cos x = (e^{ix}+e^{-ix})/2$. Obviously its Fourier coefficients in the exponential basis are $1/2, 0, 1/2$:</p>
 <pre class="mcode-input">f = chebfun(@cos,[-pi,pi],'trig'); trigcoeffs(f)</pre>
@@ -266,7 +266,7 @@ a = trigcoeffs(u,2*degree+1);
 u_trunc = chebfun(a,[-pi pi],'trig','coeffs');
 hold on, plot(u_trunc), hold off</pre>
 
-<p><img src="../images/guide/guide11_12.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide11_12.png" class="figure chebfun-figure" alt=""></p>
 <p>This represents the best degree 15 trigonometric approximation to the square wave over $[-\pi,\pi]$ in the $L^2$ sense. The oscillations show the famous Gibbs phenomenon.</p>
 <h3 id="119-references">11.9  References</h3>
 <p>[Austin, Kravanja & Trefethen 2014] A. P. Austin, P. Kravanja and L. N. Trefethen, "Numerical algorithms based on analytic function values at roots of unity", <em>SIAM J. Numer. Anal.</em> 52 (2014), 1795--1821.</p>

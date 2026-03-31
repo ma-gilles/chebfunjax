@@ -32,12 +32,12 @@ end</pre>
 isosurface(f, 0.5)
 view([-2.5, -1, 0.4]), camlight, axis off, axis equal</pre>
 
-<p><img src="../../images/approx3/Hello3_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/Hello3_01.png" class="figure chebfun-figure" alt=""></p>
 <p>From a function approximation point of view, this is most definitely not well resolved!  Readers may have fun calling <code>isosurface(f)</code> to explore different levels with a slider.  For example, here is what we get at level $-0.1$, a value below all of the input data:</p>
 <pre class="mcode-input">isosurface(f, -0.1)
 view([-2.5, -1, 0.4]), camlight, axis off, axis equal</pre>
 
-<p><img src="../../images/approx3/Hello3_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/Hello3_02.png" class="figure chebfun-figure" alt=""></p>
 <p>In this example we approximated the discrete HELLO tensor using the 'equi' flag, leading to a trivariate Chebyshev representation associated with equispaced data.  A more straightforward approach mathematically would be to regard the tensor as triply periodic and form a chebfun3 from it with the 'trig' flag instead.  Experiments show that if this is done, the pictures look similar.</p></div>
         </div>
     </div>

@@ -16,7 +16,7 @@ exponentialResult = N\0;
 plot( exponentialResult )
 xlabel('t'), ylabel('P(t)'), title('Exponential growth')</pre>
 
-<p><img src="../../images/applics/Gompertz_01.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/applics/Gompertz_01.png" class="figure chebfun-figure" alt=""/></p>
 <p>The result is unbounded growth, which is not biologically realistic. A common way to remedy this defect is the <em>logistic model</em>. In this model, the per capita growth rate decreases linearly to zero as the population $P$ approaches a fixed value, known as the <em>carrying capacity</em>. For example, a carrying capacity of $P=6$ is imposed through</p>
 <pre class="mcode-input">logisticPCRate = @(P) 0.5*(6-P)/5.8;</pre>
 
@@ -28,7 +28,7 @@ plot( [exponentialResult, logisticResult] )
 ylim([0 8])
 xlabel('t'), ylabel('P(t)'), legend('exp','logistic')</pre>
 
-<p><img src="../../images/applics/Gompertz_02.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/applics/Gompertz_02.png" class="figure chebfun-figure" alt=""/></p>
 <p>The logistic model is appealingly simple and adequate for some situations, but it is far too generic to capture other phenomena. Another way to limit growth is the <em>Gompertz model</em>, in which, for example,</p>
 <pre class="mcode-input">GompertzPCRate = @(P) 0.5*log(6./P)/log(6/0.2);</pre>
 
@@ -37,7 +37,7 @@ xlabel('t'), ylabel('P(t)'), legend('exp','logistic')</pre>
 plot( chebfun(GompertzPCRate,[0.2 6]) )
 xlabel('P'), ylabel('P''/P')</pre>
 
-<p><img src="../../images/applics/Gompertz_03.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/applics/Gompertz_03.png" class="figure chebfun-figure" alt=""/></p>
 <p>The solutions reflect this difference, of course.</p>
 <pre class="mcode-input">N = chebop( @(t,P) diff(P) - P.*GompertzPCRate(P), [0 25] );
 N.lbc = 0.2;
@@ -46,7 +46,7 @@ clf, plot( [exponentialResult, logisticResult, GompertzResult] )
 ylim([0 8])
 xlabel('t'), ylabel('P(t)'), legend('exp','logistic','Gompertz')</pre>
 
-<p><img src="../../images/applics/Gompertz_04.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/applics/Gompertz_04.png" class="figure chebfun-figure" alt=""/></p>
 <p>The Gompertz model has been recognized for some time as a reasonable model for some tumors [1-2]. However, it too is considered inadequate for many realistic uses. At least some of the attention paid to the logistic and Gompertz models has to be attributed to the fact that they have analytic solutions.</p>
 <p>References:</p>
 <ol>

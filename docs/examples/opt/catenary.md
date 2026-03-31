@@ -120,7 +120,7 @@ title('Solution to the catenary problem', FS, 12)
 xlabel('x', FS, 14), ylabel('y(x)', FS, 14)
 legend('exact','computed','location','north')</pre>
 
-<p><img src="../../images/opt/Catenary_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/opt/Catenary_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>Charles Fox, <em>An Introduction to the Calculus of Variations</em>,    Courier Dover Publications, 1987.</li>

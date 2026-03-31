@@ -28,7 +28,7 @@ axis([0 20 -1 1.5])
 xlabel('x'), legend('u','u''','u''''','location','southeast')
 title('Slippery or stress-free b. c.')</pre>
 
-<p><img src="../../images/ode-nonlin/GulfStream_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/GulfStream_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The residuals are small:</p>
 <pre class="mcode-input">N_residual = norm(N(u))                   % residual of diffl. eq.
 lbcu = lbc(u);
@@ -51,11 +51,11 @@ xlabel('iteration')
 ylabel('norm of Newton update')
 %</pre>
 
-<p><img src="../../images/ode-nonlin/GulfStream_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/GulfStream_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The Chebyshev coefficients of the solution decrease rapidly:</p>
 <pre class="mcode-input">plotcoeffs(u)</pre>
 
-<p><img src="../../images/ode-nonlin/GulfStream_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/GulfStream_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Finally, the integral $I$ comes out with a very small error:</p>
 <pre class="mcode-input">I = sum(diff(u,2)^2 - 3*lambda*(u*diff(u)*diff(u,2)))
 I_error = abs(I-1/2)</pre>

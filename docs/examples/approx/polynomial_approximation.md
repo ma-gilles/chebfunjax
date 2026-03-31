@@ -20,7 +20,7 @@ for k = 1:numel(rr)
 end
 hold off, axis equal</pre>
 
-<p><img src="../../images/approx/Entire_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Entire_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Suppose we have a function $f$ that is analytic on $[-1,1]$ and that can be analytically continued to the closed $r$-ellipse for some $r &gt; 1$. Then [1, Chap. 8], the $\infty$-norm error arising from interpolating $f$ by a polynomial in $n+1$ Chebyshev points is</p>
 <p>$$ \max | f - p_n | \leq \frac{4 M}{r^n (r-1)}, $$</p>
 <p>where $M$ is the maximum absolute value taken by $f$ on the ellipse $E_r$. This is a geometric rate of convergence. If we require an accuracy of $0 &lt; \varepsilon &lt; 1$ for our approximations, then it will suffice to obtain the smallest $n$ satisfying</p>
@@ -59,7 +59,7 @@ text(8.02,3350, sprintf('N = %3i',NN(6)))
 hold off, xlabel('\rho')
 shg, grid on, ylim([0 3.5e3])</pre>
 
-<p><img src="../../images/approx/Entire_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Entire_02.png" class="figure chebfun-figure" alt=""></p>
 <p>How do these estimates for the length of the polynomial interpolant compare with Chebfun lengths resulting from Chebfun's adaptive construction process?</p>
 <pre class="mcode-input">est = ceil(estimates);
 fprintf('            function        estimate   chebfun length \n')

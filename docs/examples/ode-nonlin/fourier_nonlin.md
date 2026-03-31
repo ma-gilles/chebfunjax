@@ -30,7 +30,7 @@ Epslevel = 2.331417e-15.  Vscale = 2.428494e-01.
 <pre class="mcode-input">figure, plot(N.init, '--b', LW, 2)
 hold on, plot(u, 'b', LW, 2)</pre>
 
-<p><img src="../../images/ode-nonlin/FourierCollocationNonLin_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/FourierCollocationNonLin_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The solution $u(x)$ satisfies the ODE to high accuracy:</p>
 <pre class="mcode-input">norm(N*u - f, inf)</pre>
 
@@ -51,7 +51,7 @@ hold on, plot(v, 'g', LW, 2)</pre>
 Epslevel = 1.776357e-15.  Vscale = 1.785953e+00.
 </pre>
 
-<p><img src="../../images/ode-nonlin/FourierCollocationNonLin_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/FourierCollocationNonLin_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The solution $v(x)$ satisfies the ODE to high accuracy too:</p>
 <pre class="mcode-input">norm(N*v - f, inf)</pre>
 

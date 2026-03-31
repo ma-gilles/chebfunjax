@@ -26,7 +26,7 @@ The distance between A and Q2 = 1.92
 The distance between A and its closest orthonormal quasimatrix = 1.69
 </pre>
 
-<p><img src="../../images/approx/NearestOrthFun_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/NearestOrthFun_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Here, we see Legendre polynomials scaled to have norm 1 (left) and the nearest set of orthonormal functions (right). The first polynomial among these nearest orthonormal polynomials is approximately the following: $ p(x) = 0.9200 - 0.9035 x^2 + 0.3084 x^4$.</p>
 <h3 id="chebyshev-vandermonde-quasimatrix-on-the-interval-0-1">Chebyshev-Vandermonde quasimatrix on the interval [0, 1]</h3>
 <pre class="mcode-input">A = cheb.gallery('vandercheb');
@@ -40,7 +40,7 @@ The distance between A and Q2 = 2.48
 The distance between A and its closest orthonormal quasimatrix = 1.62
 </pre>
 
-<p><img src="../../images/approx/NearestOrthFun_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/NearestOrthFun_02.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="mixed-algebraic-and-trigonometric-example">Mixed algebraic and trigonometric example</h3>
 <pre class="mcode-input">x = chebfun('x'); A = [1, cos(x), sin(x.^2), x.^3, x.^4, x.^5];
 [Q,Q2] = nearestOrtho(A);</pre>
@@ -52,7 +52,7 @@ The distance between A and Q2 = 2.43
 The distance between A and its closest orthonormal quasimatrix = 1.95
 </pre>
 
-<p><img src="../../images/approx/NearestOrthFun_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/NearestOrthFun_03.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="non-smooth-functions-on-the-interval-010">Non-smooth functions on the interval [0,10]</h3>
 <pre class="mcode-input">A = [cheb.gallery('stegosaurus'), cheb.gallery('wiggly'), cheb.gallery('blasius')];
 [Q,Q2] = nearestOrtho(A);</pre>
@@ -64,7 +64,7 @@ The distance between A and Q2 = 13.63
 The distance between A and its closest orthonormal quasimatrix = 13.23
 </pre>
 
-<p><img src="../../images/approx/NearestOrthFun_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/NearestOrthFun_04.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="a-further-comment">A further comment</h3>
 <p>We mentioned in the introduction that the nearest orthonormal matrix $Q$ to a given matrix $A$ is the orthonormal factor of a polar deomposition $A = QH$.  The other factor $H$ is a Hermitian matrix. Analogously, in the case considered in this Example of functions rather than vectors, we are computing the nearest orthognormal quasimatrix $Q$ to a given quasimatrix $A$, and that could be regarded again as half of a polar decomposition $A = QH$. Here both $A$ and $Q$ are quasimatrices, but $H$ is again a fully discrete matrix. The Chebfun team may introduce at a later date a Chebfun command POLDEC to compute the polar decomposition (analogous to Higham's POLDEC command for matrices in the Matrix Computations Toolbox [5]), in which case, this example could be simplified.</p>
 <pre class="mcode-input">function [Q,Q2] = nearestOrtho(A)

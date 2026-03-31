@@ -23,7 +23,7 @@ title('error curve for type (80,80) approximation',FS,36)</pre>
 <pre class="mcode-output">Elapsed time is 21.560009 seconds.
 </pre>
 
-<p><img src="../../images/approx/RationalAbsx_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/RationalAbsx_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Computing such an approximations in ordinary 16-digit arithmetic, so far as we know, is unprecedented.  Varga, Carpenter, and Ruttan computed these approximations in the 1990s using 200-digit extended precision [4].</p>
 <p>The difficulty lies with the exponentially clustered equioscillation points (and poles along the imaginary axis, clustering near $x=0$). This clustering makes a $p/q$ representation out of the question. To show the exponential effect, we can plot the right half of the error curve on a semilogx scale:</p>
 <pre class="mcode-input">xx = logspace(-14,0,5000);
@@ -31,7 +31,7 @@ semilogx(xx,f(xx)-r(xx),LW,3)
 grid on, axis([1e-14 1 -1e-11 1e-11])
 title('semilogx scale',FS,36)</pre>
 
-<p><img src="../../images/approx/RationalAbsx_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/RationalAbsx_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Floating-point computing with rational functions like this has been effectively impossible in the past; we seem to be entering a new era.</p>
 <h3 id="references">References</h3>
 <ol>

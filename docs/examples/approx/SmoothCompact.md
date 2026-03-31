@@ -20,7 +20,7 @@ LW = 'linewidth';
 plot(f,LW,1.6), grid on
 axis([-1 1 -.2 1.2])</pre>
 
-<p><img src="../../images/approx/SmoothCompact_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/SmoothCompact_01.png" class="figure chebfun-figure" alt=""></p>
 <p>This function was constructed from three convolutions, so it will be of class $C^2$, with integral equal to 1:</p>
 <pre class="mcode-input">sum(f)</pre>
 
@@ -35,12 +35,12 @@ f1 = chebfun({0, f, 0},[-1 a b 2]);
 f2 = chebfun({0, newDomain(f,[a+1,b+1]), 0}, [-1 a+1 b+1 2]);
 plot(f1,'b',f2,'g',LW,1.6), grid on, axis([-1 2 -.2 1.2])</pre>
 
-<p><img src="../../images/approx/SmoothCompact_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/SmoothCompact_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Adding up such functions gives us unity:</p>
 <pre class="mcode-input">g = f1 + f2;
 plot(g,'m',LW,1.6), grid on, axis([-1 2 -.2 1.2])</pre>
 
-<p><img src="../../images/approx/SmoothCompact_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/SmoothCompact_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Constructions like this (both finite and infinite convolutions) have various applications, and among other things they are related to the <em>Denjoy-Carleman theorem</em> [1,2].</p>
 <h3 id="references">References</h3>
 <ol>

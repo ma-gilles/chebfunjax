@@ -14,13 +14,13 @@
 LW = 'linewidth'; MS = 'markersize';
 plot(f,'k',LW,2), ylim([-.2 .5]), grid on</pre>
 
-<p><img src="../../images/approx/Pushnitski_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Pushnitski_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The function is so steep that Chebfun thinks it actually has a jump at $x=0$, hence the gap in the plot.</p>
 <p>We know that the Chebyshev coefficients of a function with a jump discontinuity decrease at the rate $O(1/n)$. This function is almost a step discontinuity, and the Chebyshev coefficients decrease almost as slowly, at a rate (to be confirmed) $O(1/n\log n)$:</p>
 <pre class="mcode-input">f1000 = chebfun('-heaviside(x)./log(x)',[-.1,.1],1000);
 plotcoeffs(f1000,'loglog'), xlim([0 500]), grid on</pre>
 
-<p><img src="../../images/approx/Pushnitski_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Pushnitski_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Here are some polynomial approximations to $f$.</p>
 <pre class="mcode-input">tic
 f = chebfun({0,'-1./log(x)'},[-.1 0 .1],1000);
@@ -35,7 +35,7 @@ toc</pre>
 <pre class="mcode-output">Elapsed time is 12.551456 seconds.
 </pre>
 
-<p><img src="../../images/approx/Pushnitski_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Pushnitski_03.png" class="figure chebfun-figure" alt=""></p>
 <p>These converge very slowly, and that could easily be proved.  For $p$ to approximate $f$ to accuracy $\epsilon$, its derivative would have to be of size at least $\exp(C/\epsilon)$.  From Markov's inequality it will follow that $\epsilon$ can decrease no faster than approximately $O(1/\log n)$ as $n\to infty$ (to be confirmed).</p>
 <p>Here are some rational approximations.  The convergence is probably $O(1/n)$, but we are far from seeing that.</p>
 <pre class="mcode-input">tic
@@ -51,7 +51,7 @@ toc</pre>
 Elapsed time is 16.780112 seconds.
 </pre>
 
-<p><img src="../../images/approx/Pushnitski_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Pushnitski_04.png" class="figure chebfun-figure" alt=""></p>
 <p>What about CF (=AAK) approximation, which as it happens is the method used by Pushnitsky for his proofs?  It gets in the ballpark:</p>
 <pre class="mcode-input">tic
 for m = 1:4
@@ -64,7 +64,7 @@ toc</pre>
 <pre class="mcode-output">Elapsed time is 3.393613 seconds.
 </pre>
 
-<p><img src="../../images/approx/Pushnitski_05.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/approx/Pushnitski_05.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

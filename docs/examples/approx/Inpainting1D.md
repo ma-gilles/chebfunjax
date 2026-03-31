@@ -17,7 +17,7 @@ corrupted = max(smooth,noise);
 plot(corrupted), grid on
 title('corrupted smooth function')</pre>
 
-<p><img src="../../images/approx/Inpainting1D_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Inpainting1D_01.png" class="figure chebfun-figure" alt=""></p>
 <p>If we fit the function by a low-order polynomial in the $L^1$ norm, we can eliminate the corruption!  This is a 1D version of what is called <em>inpainting</em>.</p>
 <pre class="mcode-input">n = length(smooth)-3;
 p1 = polyfitL1(corrupted,n);
@@ -26,7 +26,7 @@ plot(p1), grid on, title('L1 fit')</pre>
 <pre class="mcode-output">Warning: The maximum number of iterations was reach. Answer may not be accurate. 
 </pre>
 
-<p><img src="../../images/approx/Inpainting1D_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Inpainting1D_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The error is very small and would in principle be zero if we used a polynomial of the same degree as the function being recovered:</p>
 <pre class="mcode-input">err1 = norm(p1-smooth,inf)</pre>
 
@@ -43,11 +43,11 @@ err2 = norm(p2-smooth,inf)</pre>
    0.041089804368702
 </pre>
 
-<p><img src="../../images/approx/Inpainting1D_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Inpainting1D_03.png" class="figure chebfun-figure" alt=""></p>
 <p>but now the error is actually far from zero:</p>
 <pre class="mcode-input">plot(p2-smooth,'k'), grid on, title('L2 error')</pre>
 
-<p><img src="../../images/approx/Inpainting1D_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Inpainting1D_04.png" class="figure chebfun-figure" alt=""></p>
 <p>The $\infty$-norm is useless for our purpose:</p>
 <pre class="mcode-input">pinf = minimax(corrupted,n-2);
 plot(pinf), grid on, title('Linf fit')
@@ -57,7 +57,7 @@ errinf = norm(pinf-smooth,inf)</pre>
    0.276288549195757
 </pre>
 
-<p><img src="../../images/approx/Inpainting1D_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Inpainting1D_05.png" class="figure chebfun-figure" alt=""></p>
 <p>We've called this example "1D inpainting" because it is a 1D version of the famous "inpainting" problem in image analysis.  The tools used for that problem are varied and powerful, using everything from function approximation to partial differential equations to machine learning; what we have done here is only a small indication of some of the mathematics that may come into play. Note that the issue at hand is "sparsity" of the difference between the corrupted signal and its inpainted polynomial approximation.  The $L^1$ norm comes up in many problems related to sparsity -- famously in the area of compressed sensing --  since it is an approximation to the $L^0$ "norm" (not actually a norm).</p>
 <p>Our $L^1$ computation was quite slow:</p>
 <pre class="mcode-input">toc</pre>

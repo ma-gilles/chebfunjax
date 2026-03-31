@@ -16,7 +16,7 @@ f = x/3 + cos(2*x) + .5*sin(x.^2) + .2*sin(27*x);
 LW = 'linewidth';
 plot(f,LW,1), hold on</pre>
 
-<p><img src="../../images/stats/Histogram_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/Histogram_01.png" class="figure chebfun-figure" alt=""></p>
 <p>and we have some bins defined by bin edges, like these:</p>
 <pre class="mcode-input">edges = 0:10;</pre>
 
@@ -36,7 +36,7 @@ end</pre>
 <pre class="mcode-input">h = hist(f,edges);
 plot(h,'r',LW,2)</pre>
 
-<p><img src="../../images/stats/Histogram_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/Histogram_02.png" class="figure chebfun-figure" alt=""></p>
 <p>What if we wanted to start from data points rather than a function? Chebfun would allow us to do this with delta functions, like this:</p>
 <pre class="mcode-input">npts = 50; xpts = 5+randn(npts,1);
 f2 = 0*x;
@@ -50,7 +50,7 @@ h = hist(f2,edges);
 hold on, plot(h,'r',LW,2)
 ylim([-1,max(h)+1])</pre>
 
-<p><img src="../../images/stats/Histogram_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/Histogram_03.png" class="figure chebfun-figure" alt=""></p>
 <p>This is an extremely inefficient way to work with data, but it illustrates some of the ways in which chebfuns can be manipulated.</p>
 <p>Perhaps an overload of Matlab's <code>hist</code> command should be included in Chebfun? Such an overload would certainly not use delta functions internally, and it would require some careful thinking about appropriate definitions.</p>
 <pre class="mcode-input">end</pre></div>

@@ -22,7 +22,7 @@
 g = diskfun(@(x,y) exp(-10*((x-.3).^2+y.^2)));
 plot(g), view(3)</pre>
 
-<p><img src="../images/guide/guide16_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_01.png" class="figure chebfun-figure" alt=""></p>
 <p>When working with functions on the disk, it is sometimes convenient to
 express them in terms of polar coordinates. Given a function $f(x,y)$
 expressed in Cartesian coordinates, we apply the following transformation
@@ -64,13 +64,13 @@ as well an approximation of the maximum absolute value of $f$ (the vertical scal
 plot(c(:,1), 'r', c(:,2), 'k', c(:,3), 'b')
 title( 'Three angular slices of a diskfun' )</pre>
 
-<p><img src="../images/guide/guide16_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Whenever possible, we interpret commands with respect to the function in Cartesian coordinates. So, for example, the command  <code>diag</code> returns the radial slice $f(x,x)$ as a nonperiodic chebfun, and  <code>trace</code> is the integral of $f(x,x)$ over its domain, $[-1, 1]$.   (These are admittedly rather artificial operations.)</p>
 <pre class="mcode-input">d = diag( f );
 plot( d )
 title( 'The diagonal slice of f' )</pre>
 
-<p><img src="../images/guide/guide16_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_03.png" class="figure chebfun-figure" alt=""></p>
 <pre class="mcode-input">trace_f = trace( f )
 int_d = sum( d )</pre>
 
@@ -107,11 +107,11 @@ h = g.*f;
 plot( h )
 title( 'g x f' ), axis off</pre>
 
-<p><img src="../images/guide/guide16_04.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide16_05.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide16_06.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide16_07.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide16_08.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_08.png" class="figure chebfun-figure" alt=""></p>
 <p>In addition to algebraic operations, we can also solve unconstrained global optimization problems. In this example, we use the command <code>max2</code> to plot $f$ along with its maximum value.</p>
 <pre class="mcode-input">[val, loc] = max2( f )
 plot( f ), hold on, axis off, colorbar
@@ -123,18 +123,18 @@ loc =
    0.200000005872459   0.200000000131672
 </pre>
 
-<p><img src="../images/guide/guide16_09.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_09.png" class="figure chebfun-figure" alt=""></p>
 <p>There are many ways to visualize a function on the disk. For example, here is a contour plot of $g$, with the zero contours displayed in black:</p>
 <pre class="mcode-input">contour(g, 'Linewidth', 1.2), hold on, axis off
 contour(g, [0 0], '-k', 'Linewidth', 2), hold off</pre>
 
-<p><img src="../images/guide/guide16_10.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_10.png" class="figure chebfun-figure" alt=""></p>
 <p>The roots of a function (1D contours) can also be found explicitly. Following the pattern of Chebfun2, the contours are stored as complex-valued chebfuns.</p>
 <pre class="mcode-input">r = roots(g);
 plot(g),  colorbar, hold on
 plot(r,'k',LW,2), axis off, hold off</pre>
 
-<p><img src="../images/guide/guide16_11.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_11.png" class="figure chebfun-figure" alt=""></p>
 <p>One can also perform calculus on diskfuns. For instance, the integral of the function $g(x,y) = -x^2 - 3xy-(y-1)^2$ over the unit disk can be computed using the <code>sum2</code> command. We know that the exact answer is $-3\pi/2$.</p>
 <pre class="mcode-input">f = diskfun(@(x,y) -x.^2 - 3*x.*y-(y-1).^2);
 intf = sum2(f)
@@ -176,7 +176,7 @@ ans =
 contour(v, 20, 'm'), axis off, hold off
 title( 'Contour lines for u and v' )</pre>
 
-<p><img src="../images/guide/guide16_12.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_12.png" class="figure chebfun-figure" alt=""></p>
 <p>For the next example, we consider the eigenfunctions of the Laplace operator
 in polar coordinates. As the analogue of the the spherical harmonics, they
 are a natural basis for functions on the disk.</p>
@@ -192,15 +192,15 @@ We construct $u$ in Diskfun as follows:</p>
 plot(u), axis off
 title('u')</pre>
 
-<p><img src="../images/guide/guide16_13.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_13.png" class="figure chebfun-figure" alt=""></p>
 <p>Here are the first derivatives of $u$:</p>
 <pre class="mcode-input">plot(diffx(u)), axis off
 title('du/dx'), snapnow
 plot(diffy(u)), axis off
 title('du/dy')</pre>
 
-<p><img src="../images/guide/guide16_14.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide16_15.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_14.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_15.png" class="figure chebfun-figure" alt=""></p>
 <p>Due to the rotational symmetry of $u$, $u_x$ is equivalent to
 the rotation of $u_y$ by an angle of $-\pi/2$ radians.</p>
 <pre class="mcode-input">norm(rotate(diffy(u), -pi/2)-diffx(u))</pre>
@@ -215,7 +215,7 @@ $-\lambda u$, where $\sqrt{\lambda} = 7.58834243450380$.</p>
 <pre class="mcode-input">plot(lap(u)), axis off
 title('Laplacian of u')</pre>
 
-<p><img src="../images/guide/guide16_16.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_16.png" class="figure chebfun-figure" alt=""></p>
 <pre class="mcode-input">lambda = (7.58834243450380)^2;
 norm(-lambda*u - lap(u))</pre>
 
@@ -254,8 +254,8 @@ title( 'f' ), snapnow
 plot( v ), axis off
 title( 'v' )</pre>
 
-<p><img src="../images/guide/guide16_17.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide16_18.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_17.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_18.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="164-vector-calculus">16.4 Vector calculus</h3>
 <p>Since the introduction of Chebfun2, Chebfun has supported computations with vector-valued functions, including functions in 2D (Chebfun2v), 3D (Chebfun3v), and spherical geometries (Spherefunv, Ballfunv). Similarly, Diskfunv allows one to compute with vector-valued functions on the disk. Currently, there are dozens of commands available in Diskfunv, including vector-based algebraic commands such as <code>cross</code>, as well as commands that map vector-valued functions to scalar-valued functions (e.g., <code>dot</code>, <code>curl</code>, <code>div</code> and <code>jacobian</code>) and vice-versa (e.g., <code>grad</code>), and commands for performing calculus with vector fields (e.g., <code>laplacian</code>).</p>
 <p>In this example, we create a diskfun consisting of a difference of two Gaussian functions, and then compute its gradient. The result is returned as a vector-valued object called a diskfunv, with a lower case 'd'.</p>
@@ -281,7 +281,7 @@ field using a quiver plot:</p>
 <pre class="mcode-input">plot(f), hold on
 quiver(u, 'k'), axis off, hold off</pre>
 
-<p><img src="../images/guide/guide16_19.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_19.png" class="figure chebfun-figure" alt=""></p>
 <p>Once a diskfunv object is created, dozens of overloaded commands
 can be applied to it. For example, here is a contour plot of the
 divergence of $\mathbf{u}$.</p>
@@ -289,7 +289,7 @@ divergence of $\mathbf{u}$.</p>
 contour(D,10), hold on
 quiver(u, 'k'), axis off, hold off</pre>
 
-<p><img src="../images/guide/guide16_20.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_20.png" class="figure chebfun-figure" alt=""></p>
 <p>Since $\mathbf{u}$ is the gradient of $f$, we can verify that
 $\nabla \cdot \mathbf{u} = \nabla^2 f$:</p>
 <pre class="mcode-input">norm( div(u) - lap(f) )</pre>
@@ -329,7 +329,7 @@ norm(v - [dgy; -dgx])     % equivalent to vertical concatenation</pre>
 quiver(v, 'w'), axis off
 title( 'The numerical surface curl of g' ), hold off</pre>
 
-<p><img src="../images/guide/guide16_21.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_21.png" class="figure chebfun-figure" alt=""></p>
 <p>This construction is equivalent to using the command <code>curl</code> on the scalar function $g$:</p>
 <pre class="mcode-input">norm( v - curl(g) )</pre>
 
@@ -356,7 +356,7 @@ f = diskfun(f);
 plot(f), axis off
 title('f')</pre>
 
-<p><img src="../images/guide/guide16_22.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_22.png" class="figure chebfun-figure" alt=""></p>
 <pre class="mcode-input">tf = cart2pol(f, 'cdr')
 plot(tf), view(2)
 title('The BMC function associated with f')</pre>
@@ -368,7 +368,7 @@ title('The BMC function associated with f')</pre>
 vertical scale = 1.5 
 </pre>
 
-<p><img src="../images/guide/guide16_23.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_23.png" class="figure chebfun-figure" alt=""></p>
 <p>A structure-preserving method of GE (see [Townsend, Wilber & Wright, 2016b])
 adaptively selects a collection of 1D circular and radial
 "slices" that are used to approximate $\tilde{f}$. Each circular slice
@@ -405,8 +405,8 @@ plot(XX', YY', 'k', LW, 0.1)
 view(2), axis square, axis off
 title('Tensor product function samples', FS, 16)</pre>
 
-<p><img src="../images/guide/guide16_24.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide16_25.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_24.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_25.png" class="figure chebfun-figure" alt=""></p>
 <p>Writing the approximant as in (\ref{eq:lra}) allows us to work with it as
 a continuous analogue of a matrix factorization. Then,
 the "column" (radial) slices of $f$ are the collection of Chebyshev
@@ -422,13 +422,13 @@ title('5 of the 26 column slices of f'), snapnow
 plot(f.rows(:,3:7))
 title('5 of the 26 row slices of f')</pre>
 
-<p><img src="../images/guide/guide16_26.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../images/guide/guide16_27.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_26.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_27.png" class="figure chebfun-figure" alt=""></p>
 <p>In practice, several basis choices can be used for approximation on the disk (see [Boyd & Yu, 2011]). Diskfun uses the Chebyshev--Fourier basis, and <code>f</code> is fully characterized by its Chebyshev and Fourier coefficients. The command <code>plotcoeffs</code> lets us inspect these details.</p>
 <pre class="mcode-input">clf
 plotcoeffs(f)</pre>
 
-<p><img src="../images/guide/guide16_28.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide16_28.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <p>[Boyd & Yu, 2011] J.P. Boyd, and F. Yu, Comparing seven spectral methods for interpolation and for solving the Poisson equation in a disk: Zernike polynomials, Logan & Shepp ridge polynomials, Chebyshev & Fourier series, cylindrical Robert functions, Bessel & Fourier expansions, square-to-disk conformal mapping and radial basis functions, <em>J. Comp. Physics</em>, 230.4 (2011), pp. 1408-1438.</p>
 <p>[Churchill & Brown, 1978] R.V. Churchill, and J.W. Brown, <em>Fourier Series and Boundary Value Problems</em>, McGraw-Hill, 1978.</p>

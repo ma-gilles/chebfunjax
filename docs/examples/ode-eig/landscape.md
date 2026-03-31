@@ -33,7 +33,7 @@ for k = 1:6
 end
 title('potential V and first 6 eigenfunctions'), hold off</pre>
 
-<p><img src="../../images/ode-eig/Landscape_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/Landscape_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Here are the eigenvalues:</p>
 <pre class="mcode-input">e</pre>
 
@@ -55,7 +55,7 @@ for k = 1:6
    title(['k = ' int2str(k)],CO,c{k})
 end</pre>
 
-<p><img src="../../images/ode-eig/Landscape_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/Landscape_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The reciprocal of the landscape function is the <em>effective potential</em>, $W$, introduced in [2]. In general, $W$ is smoother than $V$ by two derivatives, making a big difference in a case like this where $V$ is discontinuous. If you read off the levels of its local minima, they match perfectly (in this example) the order of the lowest eigenvalues of the original problem.</p>
 <pre class="mcode-input">W = 1/u;
 clf, fill(x,V,grey), grid on, ylim([0 1.19]), hold on
@@ -65,7 +65,7 @@ for k = 1:6
    text(pos(k),val(k)-.05,int2str(k),CO,c{k},HA,CT,FS,12)
 end</pre>
 
-<p><img src="../../images/ode-eig/Landscape_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/Landscape_03.png" class="figure chebfun-figure" alt=""></p>
 <p>This example illustrates the basic mathematics of the landscape function and effective potential, but it doesn't show their power. That becomes especially apparent with examples in two or more dimensions, as illustrated in [1-3].</p>
 <p>[1] D. N. Arnold, G. David, M. Filoche, D. Jerison, and S. Mayboroda, Computing spectra without solving eigenvalue problems, <em>SIAM J. Sci. Comput.</em> 41 (2019), B69--B92.</p>
 <p>[2] D. N. Arnold, G. David, D. Jerison, S. Mayboroda, and M. Filoche, Effective confining potential of quantum states in disordered media, <em>Phys. Rev. Lett.</em> 116 (2016), 056602.</p>

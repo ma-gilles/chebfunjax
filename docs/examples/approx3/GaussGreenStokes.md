@@ -40,7 +40,7 @@ I1 = sum3(div(v))</pre>
 g = x.^2 + y.^2 + z.^2;
 isosurface(g,1.3,'r'), axis equal, grid on</pre>
 
-<p><img src="../../images/approx3/GaussGreenStokes_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/GaussGreenStokes_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The Laplacian and gradient of $f$ can be computed with <code>lap(f)</code> and <code>grad(f)</code>. We evaluate the two sides of the first Green identity in the same way as for the Gauss's theorem above.  The exact value $48$ is matched closely by the integral over the cube,</p>
 <pre class="mcode-input">I3 = sum3(f .* lap(g) + dot(grad(f), grad(g)))</pre>
 
@@ -83,17 +83,17 @@ I6 = sum2(v1(1,:,:)) - sum2(v1(-1,:,:)) + ...
     @(rho,phi) 0, [0, 1, 0, 2*pi]);
 surf(S)</pre>
 
-<p><img src="../../images/approx3/GaussGreenStokes_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/GaussGreenStokes_02.png" class="figure chebfun-figure" alt=""></p>
 <p>We consider again the vector field $\vec{v}$ from the beginning, which we now construct by passing three function handles to the Chebfun3v constructor:</p>
 <pre class="mcode-input">v = chebfun3v(@(x,y,z) x.^2 - y, @(x,y,z) y.^2, @(x,y,z) z);
 quiver3(v)</pre>
 
-<p><img src="../../images/approx3/GaussGreenStokes_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/GaussGreenStokes_03.png" class="figure chebfun-figure" alt=""></p>
 <p>The curl of $\vec{v}$ is computed by</p>
 <pre class="mcode-input">curlv = curl(v);
 quiver3(curlv)</pre>
 
-<p><img src="../../images/approx3/GaussGreenStokes_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx3/GaussGreenStokes_04.png" class="figure chebfun-figure" alt=""></p>
 <p>Note how the curl of $\vec{v}$ points up, just through the surface we are considering.  The flux integral then is</p>
 <pre class="mcode-input">I7 = integral2(curlv, S)</pre>
 

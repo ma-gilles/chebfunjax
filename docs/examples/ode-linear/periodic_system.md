@@ -36,7 +36,7 @@ Epslevel = 1.570092e-15.  Vscale = 7.069065e-01.
 <pre class="mcode-input">LW = 'linewidth'; lw = 2; FS = 'fontsize'; fs = 14;
 plot(u,LW,lw), title('Solutions u and v',FS,fs), legend('u','v');</pre>
 
-<p><img src="../../images/ode-linear/PeriodicSystem_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/PeriodicSystem_01.png" class="figure chebfun-figure" alt=""></p>
 <p>For this problem, the solution can actually be computed analytically. How close were we?</p>
 <pre class="mcode-input">exact = [cos(x+3*pi/4) cos(x+pi/4)]/sqrt(2);
 err = max([norm(u{1}-exact(:,1),inf) norm(u{2}-exact(:,2),inf)])</pre>
@@ -72,7 +72,7 @@ err = max([norm(u{1}-exact(:,1),inf) norm(u{2}-exact(:,2),inf)])</pre>
      4.582320677971030e-14
 </pre>
 
-<p><img src="../../images/ode-linear/PeriodicSystem_02.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/ode-linear/PeriodicSystem_02.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

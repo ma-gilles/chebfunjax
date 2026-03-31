@@ -28,7 +28,7 @@ plot(f), axis equal</pre>
 vertical scale = 1.5 
 </pre>
 
-<p><img src="../../images/complex/ClosedContours_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/complex/ClosedContours_01.png" class="figure chebfun-figure" alt=""></p>
 <p>This is how the real and imaginary parts of the integrand look on the contour:</p>
 <pre class="mcode-input">subplot(1, 2, 1)
 plot(real(f))
@@ -37,7 +37,7 @@ subplot(1, 2, 2)
 plot(imag(f))
 title('imaginary part')</pre>
 
-<p><img src="../../images/complex/ClosedContours_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/complex/ClosedContours_02.png" class="figure chebfun-figure" alt=""></p>
 <p>To compute the integral, we recall that</p>
 <p>$$ \int_{|z|=2} f(z) dz = \int_{0}^{1} f(z(t)) z'(t) dt. $$</p>
 <p>We therefore first compute $z'(t)$:</p>
@@ -69,7 +69,7 @@ dz = diff(z);</pre>
 <pre class="mcode-input">clf
 plot(f), axis equal</pre>
 
-<p><img src="../../images/complex/ClosedContours_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/complex/ClosedContours_03.png" class="figure chebfun-figure" alt=""></p>
 <p>And here is the integral, which is numerically zero:</p>
 <pre class="mcode-input">s = sum(f.*dz)</pre>
 

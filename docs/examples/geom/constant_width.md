@@ -22,7 +22,7 @@ copper = [.722 .451 .20];
 fill(real(r),imag(r),copper)
 axis(12*[-1 1 -1 1]), axis square, grid on</pre>
 
-<p><img src="../../images/geom/ConstantWidth_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/geom/ConstantWidth_01.png" class="figure chebfun-figure" alt=""></p>
 <p>We compute its width measured in 5 different directions, and they agree to 5 digits, which is not bad considering the size of the coefficients.</p>
 <pre class="mcode-input">disp('theta/pi     width')
 for theta = pi*(0:4)/5;

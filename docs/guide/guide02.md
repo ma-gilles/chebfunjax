@@ -83,7 +83,7 @@ Elapsed time is 0.000158 seconds.
   f = chebfun(@(x) abs(besselj(0,x)),[0 20],'splitting','on');
   plot(f), ylim([0 1.1])</pre>
 
-<p><img src="../images/guide/guide02_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide02_01.png" class="figure chebfun-figure" alt=""></p>
 <pre class="mcode-input">  tol = 3e-14;
   tic, I = integral(F,0,20,'abstol',tol,'reltol',tol); t = toc;
     fprintf(' MATLAB:  I = %17.15f  time = %5.3f secs\n',I,t)
@@ -101,7 +101,7 @@ CHEBFUN:  I = 4.445031603001566  time = 0.065 secs
   h = min(f,g);
   plot(h)</pre>
 
-<p><img src="../images/guide/guide02_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide02_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is the integral:</p>
 <pre class="mcode-input">  tic, sum(h), toc</pre>
 
@@ -125,7 +125,7 @@ vertical scale = 1.1
 <p>The function has three spikes, each ten times narrower than the last:</p>
 <pre class="mcode-input">  plot(f)</pre>
 
-<p><img src="../images/guide/guide02_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide02_03.png" class="figure chebfun-figure" alt=""></p>
 <p>The length of the global polynomial representation is accordingly quite large, but the integral comes out correct to full precision:</p>
 <pre class="mcode-input">  length(f)
   sum(f)</pre>
@@ -195,7 +195,7 @@ ans =
 <pre class="mcode-input">  f = chebfun('exp(-1/sin(10*x)^2)');
   plot(f)</pre>
 
-<p><img src="../images/guide/guide02_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide02_04.png" class="figure chebfun-figure" alt=""></p>
 <p>Here are the norms of <code>f</code> and its tenth power:</p>
 <pre class="mcode-input">  norm(f), norm(f^10)</pre>
 
@@ -224,13 +224,13 @@ ans =
   plot(fint,'m')
   ylim([-0.2 2.2]), grid on</pre>
 
-<p><img src="../images/guide/guide02_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide02_05.png" class="figure chebfun-figure" alt=""></p>
 <p>The default indefinite integral takes the value $0$ at the left endpoint, but in this case we would like $0$ to appear at $t=0$:</p>
 <pre class="mcode-input">  fint = fint - fint(0);
   plot(fint,'m')
   ylim([-1.2 1.2]), grid on</pre>
 
-<p><img src="../images/guide/guide02_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide02_06.png" class="figure chebfun-figure" alt=""></p>
 <p>The agreement with the built-in error function is convincing:</p>
 <pre class="mcode-input">  [fint((1:5)') erf((1:5)')]</pre>
 
@@ -247,7 +247,7 @@ ans =
   f = x*sign(sin(x^2)); subplot(1,2,1), plot(f)
   g = cumsum(f); subplot(1,2,2), plot(g,'m')</pre>
 
-<p><img src="../images/guide/guide02_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide02_07.png" class="figure chebfun-figure" alt=""></p>
 <p>And here is an example from number theory.  The logarithmic integral, $Li(x)$, is the indefinite integral from $0$ to $x$ of $1/\log(s)$.  It is an approximation to $\pi(x)$, the number of primes less than or equal to $x$. To avoid the singularity at $x=0$ we begin our integral at the point $\mu = 1.451...$ where $Li(x)$ is zero, known as Soldner's constant. The test value $Li(2)$ is correct except in the last few digits:</p>
 <pre class="mcode-input">  mu = 1.45136923488338105;      % Soldner's constant
   xmax = 400;
@@ -266,7 +266,7 @@ Li2 =
   p = primes(xmax);
   hold on, plot(p,1:length(p),'.k'), hold off</pre>
 
-<p><img src="../images/guide/guide02_08.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide02_08.png" class="figure chebfun-figure" alt=""></p>
 <p>The Prime Number Theorem implies that $\pi(x) \sim Li(x)$ as $x\to\infty$. Littlewood proved in 1914 that although $Li(x)$ is greater than $\pi(x)$ at first, the two curves eventually cross each other infinitely often. It is known that the first crossing occurs somewhere between $x=10^{14}$ and $x=2\times 10^{316}$ [Kotnik 2008].</p>
 <p>The <code>mean</code>, <code>std</code>, and <code>var</code> commands have also been overloaded for chebfuns and are based on integrals.  For example,</p>
 <pre class="mcode-input">  mean(chebfun('cos(x)^2',[0,10*pi]))</pre>
@@ -291,17 +291,17 @@ ans =
   fprime = diff(f);
   plot([f fprime])</pre>
 
-<p><img src="../images/guide/guide02_09.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide02_09.png" class="figure chebfun-figure" alt=""></p>
 <p>If the derivative of a function with a jump is computed, then a delta function is introduced. Consider for example this function defined piecewise:</p>
 <pre class="mcode-input">  f = chebfun({@(x) x^2, 1, @(x) 4-x, @(x) 4/x},0:4);
   plot(f)</pre>
 
-<p><img src="../images/guide/guide02_10.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide02_10.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is the derivative:</p>
 <pre class="mcode-input">  fprime = diff(f);
   plot(fprime,'r'), ylim([-2,3])</pre>
 
-<p><img src="../images/guide/guide02_11.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide02_11.png" class="figure chebfun-figure" alt=""></p>
 <p>The first segment of $f'$ is linear, since $f$ is quadratic here. Then comes a segment with $f' = 0$, since $f$ is constant. At the end of this second segment appears a delta function of amplitude $1$, corresponding to the jump of $f$ by $1$. The third segment has constant value $f' = -1$. Finally another delta function, this time with amplitude $1/3$, takes us to the final segment.</p>
 <p>Thanks to the delta functions, <code>cumsum</code> and <code>diff</code> are essentially inverse operations.  It is no surprise that differentiating an indefinite integral returns us to the original function:</p>
 <pre class="mcode-input">  norm(f-diff(cumsum(f)))</pre>
@@ -323,7 +323,7 @@ ans =
 <pre class="mcode-input">  f = chebfun('1/(1+x^2)');
   g = diff(f,4); plot(g)</pre>
 
-<p><img src="../images/guide/guide02_12.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide02_12.png" class="figure chebfun-figure" alt=""></p>
 <p>However, one should be cautious about the potential loss of information in repeated differentiation of nonperiodic chebfuns.  For example, if we evaluate this fourth derivative at $x=0$ we get an answer that matches the correct value $24$ only to $11$ places:</p>
 <pre class="mcode-input">  g(0)</pre>
 
@@ -372,7 +372,7 @@ ans =
   clf, contour(x,y,f(xx,yy),-1:.2:1)
   axis([-2 2 0.5 2.5]), colorbar, grid on</pre>
 
-<p><img src="../images/guide/guide02_13.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide02_13.png" class="figure chebfun-figure" alt=""></p>
 <p>Using 1D Chebfun technology, we can compute the integral over the box like this.</p>
 <pre class="mcode-input">  Iy = @(y) sum(chebfun(@(x) f(x,y),[-2 2]));
   tic, I = sum(chebfun(@(y) Iy(y),[0.5 2.5])); t = toc;
@@ -403,7 +403,7 @@ Elapsed time is 0.197406 seconds.
 <p>and we can plot the function without the need for <code>meshgrid</code>:</p>
 <pre class="mcode-input">contour(f2,-1:.2:1), colorbar, grid on</pre>
 
-<p><img src="../images/guide/guide02_14.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide02_14.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="26-gauss-and-gauss-jacobi-quadrature">2.6 Gauss and Gauss-Jacobi quadrature</h3>
 <p>For quadrature experts, Chebfun contains some powerful capabilities due to Nick Hale and Alex Townsend [Hale & Townsend 2013] and Ignace Bogaert [Bogaert, Michiels & Fostier 2012, Bogaert 2014]. To start with, suppose we wish to carry out $4$-point Gauss quadrature over $[-1,1]$.  The quadrature nodes are the zeros of the degree $4$ Legendre polynomial <code>legpoly(4)</code>, which can be obtained from the Chebfun command <code>legpts</code>, and if two output arguments are requested, <code>legpts</code> provides weights also:</p>
 <pre class="mcode-input">  [s,w] = legpts(4)</pre>

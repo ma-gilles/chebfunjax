@@ -38,7 +38,7 @@ title(['Breakaway time = ' num2str(breakaway_time)],'fontsize',14)</pre>
   42.015895525074392
 </pre>
 
-<p><img src="../../images/ode-linear/ResonantVandal_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/ResonantVandal_01.png" class="figure chebfun-figure" alt=""></p>
 <p>So the vandal does his damage in 42 seconds. This is a very impressive young man, but I think he could apply his talents more constructively.</p>
 <p>By the way, how close does the vandal come to achieving the breakaway condition $d=20$ one cycle earlier?  Here's the answer:</p>
 <pre class="mcode-input">max(d{35,40})</pre>

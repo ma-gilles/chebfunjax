@@ -29,13 +29,13 @@ plot([density,cdf],LW,1.6), axis([-pi pi 0 1])
 title('von Mises distribution',FS,12)
 legend('density','distribution','Location','northwest')</pre>
 
-<p><img src="../../images/stats/ResamplingRandomVariables_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/ResamplingRandomVariables_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Sampling from this distribution involves applying its inverse to uniformly sampled points. We could do this one-by-one using <code>roots</code>, but for a large number of points it is more efficient to find a chebfun for the inverse function with <code>inv</code>:</p>
 <pre class="mcode-input">cdfinv = inv(cdf);
 plot(cdfinv,LW,1.6)
 title('Inverse of von Mises distribution',FS,12)</pre>
 
-<p><img src="../../images/stats/ResamplingRandomVariables_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/ResamplingRandomVariables_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Now the resampling is easy. We compare the resulting histogram to the original von Mises density.</p>
 <pre class="mcode-input">u = rand(1e4,1);                           % uniform
 x = cdfinv(u);                             % von Mises
@@ -45,7 +45,7 @@ cla, bar(bin,count), hold on
 plot(density,'r',LW,1.6), axis tight
 title('Sampled points and the orignal density',FS,12)</pre>
 
-<p><img src="../../images/stats/ResamplingRandomVariables_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/ResamplingRandomVariables_03.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="logit-normal-distribution">Logit-normal distribution</h3>
 <p>A more exotic and troublesome distribution is the logit-normal distribution. Its density and cdf are easy enough to define:</p>
 <pre class="mcode-input">sig = 1.11;
@@ -57,14 +57,14 @@ clf, plot([density,cdf],LW,1.6)
 title('logit-normal distribution',FS,12)
 legend('density','distribution','Location','northwest')</pre>
 
-<p><img src="../../images/stats/ResamplingRandomVariables_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/ResamplingRandomVariables_04.png" class="figure chebfun-figure" alt=""></p>
 <p>However, because $F'=f=0$ at the ends, the inverse function has infinite slope at the ends, and a straightforward inversion will fail. To cope with this, we'll take some shortcuts. First, we'll use symmetry to restrict attention to $x&gt; 1/2$. Second, we'll put Chebfun into splitting mode to help cope with the endpoint slope. Finally, we'll truncate the domain of the cdf slightly.</p>
 <pre class="mcode-input">splitting on
 cdfinv = inv( cdf{0.5,1-1e-3} );
 clf, plot(cdfinv,LW,1.6)
 title('Inverse of the logit-normal distribution',FS,12)</pre>
 
-<p><img src="../../images/stats/ResamplingRandomVariables_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/ResamplingRandomVariables_05.png" class="figure chebfun-figure" alt=""></p>
 <p>To apply the result for resampling, we have to reflect uniform values less than $1/2$ back into $[1/2,1]$, and reflect the results back.</p>
 <pre class="mcode-input">u = rand(1e4,1);
 flag = (u &lt; 0.5);  u(flag) = 1-u(flag);
@@ -75,7 +75,7 @@ clf, bar(bin,count), hold on
 plot(density,'r',LW,1.6), axis tight
 title('Sampled points and the orignal density',FS,12)</pre>
 
-<p><img src="../../images/stats/ResamplingRandomVariables_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/ResamplingRandomVariables_06.png" class="figure chebfun-figure" alt=""></p>
 <p>We can see what our truncation of the original random variable costs us by looking at the domain of the inverse cdf:</p>
 <pre class="mcode-input">cdfinv.ends.'
 missing = 1 - ans(end)</pre>

@@ -15,13 +15,13 @@ f = x^200;
 plot(f-p2./q2), grid on, ylim([-.02 .02])
 title('Type (2,2) error curve')</pre>
 
-<p><img src="../../images/approx/Rationalxn_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Rationalxn_01.png" class="figure chebfun-figure" alt=""></p>
 <p>And here is the same figure for type (3,3), except multiplied by $-9.28903$:</p>
 <pre class="mcode-input">[p3,q3,r3,err3] = minimax(f,3,3);
 plot(-9.28903*(f-p3./q3)), grid on, ylim([-.02 .02])
 title('Type (3,3) error curve multiplied by -9.28903')</pre>
 
-<p><img src="../../images/approx/Rationalxn_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Rationalxn_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The curves have just about the same height!  In fact, the ratio of these particular approximation errors is about 9.36:</p>
 <pre class="mcode-input">format short
 err2

@@ -19,7 +19,7 @@ u = N\-1;
 plot(u,LW,lw), grid on
 axis([-10.1 10 0 20])</pre>
 
-<p><img src="../../images/ode-linear/AdvDiffJump_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/AdvDiffJump_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Suppose the advection is only turned on on the right half of the domain?</p>
 <pre class="mcode-input">figure
 N.op = @(x,u) 0.2*diff(u,2) + (x&gt;=0).*diff(u);
@@ -28,12 +28,12 @@ v = N\-1;
 plot(v,'r',LW,lw), grid on
 axis([-10.1 10 0 75])</pre>
 
-<p><img src="../../images/ode-linear/AdvDiffJump_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/AdvDiffJump_02.png" class="figure chebfun-figure" alt=""></p>
 <p>For fun we can plot both solutions on the same axis.</p>
 <pre class="mcode-input">plot(u,'b',v,'--r',LW,lw), grid on
 axis([-10.1 10 0 75])</pre>
 
-<p><img src="../../images/ode-linear/AdvDiffJump_03.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/ode-linear/AdvDiffJump_03.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

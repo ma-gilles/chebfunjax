@@ -53,21 +53,21 @@ for g = 1:3
     error(g) = norm(solgamma - uexact(chebx,s(g)));
 end</pre>
 
-<p><img src="../../images/ode-linear/ParameterODE_01.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/ode-linear/ParameterODE_02.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/ode-linear/ParameterODE_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/ParameterODE_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/ParameterODE_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/ParameterODE_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Here we are required to use the <code>feval</code> method to evaluate the residual since MATLAB doesn't allowing double indexing, i.e. we can't call <code>Ns(s(gamma))(solgamma)</code>.</p>
 <p>Values of $\gamma$ up to 3 work fine, but the lenghts of the solutions are increasing.</p>
 <p>Looking at the entries in the vector storing the values of the residual reveals that they grow extremely fast with $\gamma$.</p>
 <pre class="mcode-input">semilogy(1:3,res,'-*m',LW,1.6), grid on
 title('Norm of residual',FS,12), xlabel('\gamma',FS,12)</pre>
 
-<p><img src="../../images/ode-linear/ParameterODE_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/ParameterODE_04.png" class="figure chebfun-figure" alt=""></p>
 <p>However, the error remains much better under control:</p>
 <pre class="mcode-input">semilogy(1:3,error,'-*r',LW,1.6), grid on
 title('Norm of error',FS,12), xlabel('\gamma',FS,12)</pre>
 
-<p><img src="../../images/ode-linear/ParameterODE_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/ParameterODE_05.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="introducing-a-breakpoint">Introducing a breakpoint</h3>
 <p>The plot above of the solutions for different values of $\gamma$ reveals that the solution gets more and more difficult to represent close to $x= 1/2$ as $\gamma$ increases (i.e., $s$ gets closer to $1$). This makes a good case for introducing a breakpoint in the solution at $x=1/2$, so rather than the solution being represented by a global chebfun, it is represented by two pieces.</p>
 <p>We introduce a breakpoint in the operator as follows (notice the second argument to the chebop constructor):</p>
@@ -88,18 +88,18 @@ for g = 1:7
     error(g) = norm(solgamma - uexact(chebx,s(g)));
 end</pre>
 
-<p><img src="../../images/ode-linear/ParameterODE_06.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/ode-linear/ParameterODE_07.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/ode-linear/ParameterODE_08.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/ode-linear/ParameterODE_09.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/ode-linear/ParameterODE_10.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/ode-linear/ParameterODE_11.png" class="figure chebfun-figure" alt=""></p>
-<p><img src="../../images/ode-linear/ParameterODE_12.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/ParameterODE_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/ParameterODE_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/ParameterODE_08.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/ParameterODE_09.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/ParameterODE_10.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/ParameterODE_11.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/ParameterODE_12.png" class="figure chebfun-figure" alt=""></p>
 <p>Again, the errors are quite satisfactory.</p>
 <pre class="mcode-input">semilogy(1:7,error,'-*r',LW,1.6), grid on
 title('Norm of error',FS,12), xlabel('\gamma',FS,12)</pre>
 
-<p><img src="../../images/ode-linear/ParameterODE_13.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/ParameterODE_13.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>Paul Constantine's website: <a href="http://inside.mines.edu/~pconstan/">http://inside.mines.edu/~pconstan/</a></li>

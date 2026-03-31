@@ -14,12 +14,12 @@
 figure, plot(J0), grid on
 title('Bessel function J_0')</pre>
 
-<p><img src="../../images/roots/BesselRoots_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/roots/BesselRoots_01.png" class="figure chebfun-figure" alt=""></p>
 <p>We can find its roots like this:</p>
 <pre class="mcode-input">r = roots(J0);
 hold on, plot(r,J0(r),'.r')</pre>
 
-<p><img src="../../images/roots/BesselRoots_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/roots/BesselRoots_02.png" class="figure chebfun-figure" alt=""></p>
 <p>The number of roots can be found with the <code>length</code> command:</p>
 <pre class="mcode-input">number_of_roots = length(r)</pre>
 

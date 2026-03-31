@@ -17,12 +17,12 @@
                 @(x,y,z) x.*z.*sin(4*x+.1*y+5*z.^2), @(x,y,z) 1+x.*y.*z );
 quiver3( f ), view([-36 8])</pre>
 
-<p><img src="../../images/sphere/HelmholtzDecomposition_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/HelmholtzDecomposition_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The vector field is not tangent to the surface of the sphere, so we project it onto the tangent space:</p>
 <pre class="mcode-input">f = tangent( f );
 quiver3( f ), view([-36 8])</pre>
 
-<p><img src="../../images/sphere/HelmholtzDecomposition_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/HelmholtzDecomposition_02.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="2-computing-the-curl-free-component">2. Computing the curl-free component</h3>
 <p>Since the divergence of a curl is zero, we know that $$ \nabla \cdot \mathbf{f} = \nabla \cdot \nabla \phi = \nabla^2 \phi, $$ where the last equality holds because the divergence of a gradient is the Laplacian. Therefore, we can solve for $\phi$ in the Helmholtz-Hodge decomposition as follows:</p>
 <pre class="mcode-input">phi = spherefun.poisson( divergence(f), 0, 251 );
@@ -32,7 +32,7 @@ contour( phi, 'b-', LW , 2 ),
 title('Curl-free component of f')
 view([-36 8]), hold off</pre>
 
-<p><img src="../../images/sphere/HelmholtzDecomposition_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/HelmholtzDecomposition_03.png" class="figure chebfun-figure" alt=""></p>
 <p>We confirm that this component is curl-free:</p>
 <pre class="mcode-input">norm( vorticity( gradient( phi ) ) )</pre>
 
@@ -48,7 +48,7 @@ contour( psi, 'r-', LW , 2 ),
 title('Divergence-free component of f')
 view([-36 8]), hold off</pre>
 
-<p><img src="../../images/sphere/HelmholtzDecomposition_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/HelmholtzDecomposition_04.png" class="figure chebfun-figure" alt=""></p>
 <p>By vector identities this component is divergence-free:</p>
 <pre class="mcode-input">norm( divergence( curl( psi ) ) )</pre>
 
@@ -65,7 +65,7 @@ quiver3( curl( psi ) ), title('Divergence-free'), view([-36 8])
 subplot(1,3,3)
 quiver3( f ), title('Tangent vector field'), view([-36 8])</pre>
 
-<p><img src="../../images/sphere/HelmholtzDecomposition_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/HelmholtzDecomposition_05.png" class="figure chebfun-figure" alt=""></p>
 <p>As a sanity check we confirm that the decomposition has been successful:</p>
 <pre class="mcode-input">h = grad( phi ) + curl( psi );
 norm( f - h )</pre>
@@ -83,7 +83,7 @@ contour( psi, 'r-', LW , 2 )
 title('f (arrows), \phi (blue), and \psi (red)')
 view([-36 8])</pre>
 
-<p><img src="../../images/sphere/HelmholtzDecomposition_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/HelmholtzDecomposition_06.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="6-references">6. References</h3>
 <p>[1] E. J. Fuselier and G. B. Wright, Stability and error estimates for vector field interpolation and decomposition on the sphere with RBFs, <em>SIAM J. Numer. Anal.</em>, 47 (2009), pp. 3213-3239.</p>
 <p>[2] A. Townsend, H. Wilber, and G. B. Wright, Computing with functions in spherical and polar geometries I. The sphere, <em>SIAM J. Sci. Comp.</em>, to appear in 2016</p></div>

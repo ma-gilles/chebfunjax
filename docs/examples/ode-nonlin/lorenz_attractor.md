@@ -26,13 +26,13 @@ axis([-20 20 -40 40 5 45]), grid on
 xlabel 'x(t)', ylabel 'y(t)', zlabel 'z(t)'
 title('A 3D Trajectory of the Lorenz Attractor', FS, 14)</pre>
 
-<p><img src="../../images/ode-nonlin/LorenzAttractor_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/LorenzAttractor_01.png" class="figure chebfun-figure" alt=""></p>
 <p>We can also view solutions as three interrelated scalar-valued functions of time:</p>
 <pre class="mcode-input">plot(u, LW, 1.6)
 grid on, xlabel 't', ylabel 'x(t), y(t), z(t)'
 title('Solution to the Lorenz Attractor as Scalar Functions', FS, 14)</pre>
 
-<p><img src="../../images/ode-nonlin/LorenzAttractor_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/LorenzAttractor_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Here as usual in MATLAB, $x$, $y$ and $z$ are coloured blue, green and red respectively.</p>
 <h3 id="the-lorenz-system-in-complex-time">The Lorenz system in complex time</h3>
 <p>In "Complex singularities and the Lorenz attractor" [3], Viswanath and Sahutoglu make the point that although the Lorenz attractor is a well known example in applied mathematics, relatively little is known about its mathematical analysis. It is suggested that a natural way to view the analysis is as a problem in analytic function theory, considering time as a complex variable.</p>
@@ -83,7 +83,7 @@ title('r3(t)')
 plot(poles3, 'xk', MS, 16, LW, 1.6)
 plot([0,5],[0,0],'k',LW,1.6)</pre>
 
-<p><img src="../../images/ode-nonlin/LorenzAttractor_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/LorenzAttractor_03.png" class="figure chebfun-figure" alt=""></p>
 <p>The singularities are very close to the real line, demonstrating that the behaviour of the solution on the real line is intimately related to its complex singularities. On the other hand, it has been proven that the imaginary parts of any singularity of the Lorenz attractor must have absolute value greater than $0.037$ [3].</p>
 <p>Note that by the Psi-series formula, each of $x$, $y$ and $z$ should have the same singularities. Let's compare our computed values to obtain a lower bound on the error. The first column in the following contains the computed locations of the singularities of $x$, the second those of $y$ and the third those of $z$; the final column is the maximum separation in absolute value of these computed locations:</p>
 <pre class="mcode-input">format short
@@ -175,7 +175,7 @@ title('Poles and Zeros of the Rational Interpolant', FS, 14)</pre>
 <pre class="mcode-output">Warning: Imaginary parts of complex X and/or Y arguments ignored 
 </pre>
 
-<p><img src="../../images/ode-nonlin/LorenzAttractor_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/LorenzAttractor_04.png" class="figure chebfun-figure" alt=""></p>
 <p>The issues related to the robust form of rational interpolation and least squares approximation used by <code>ratinterp</code> are discussed in [1] and Chapter 26 of [4].</p>
 <h3 id="references">References</h3>
 <ol>

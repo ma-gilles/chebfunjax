@@ -34,7 +34,7 @@ plotcoeffs(f,'ob',MS,7), ylim([1e-10 10]), hold on
 f2 = chebfun(ff,'eps',1e-6,'doublelength');
 plotcoeffs(f2,'.k',MS,10), hold off</pre>
 
-<p><img src="../../images/approx/Noisy_01.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/Noisy_01.png" class="figure chebfun-figure" alt=""/></p>
 <p>Now, how important was it that we got the amplitude of the noise just right?  Let's repeat the experiment, but with <code>eps</code> increased to $10^{-3}$.  As you'd expect, there is a loss of accuracy.</p>
 <pre class="mcode-input">f = chebfun(ff,'eps',1e-3)
 plotcoeffs(f,'ob',MS,7), ylim([1e-10 10]), hold on
@@ -47,7 +47,7 @@ plotcoeffs(f2,'.k',MS,10), hold off</pre>
 vertical scale =   1 
 </pre>
 
-<p><img src="../../images/approx/Noisy_02.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/Noisy_02.png" class="figure chebfun-figure" alt=""/></p>
 <p>And here we are with <code>eps</code> tightened to $10^{-9}$:</p>
 <pre class="mcode-input">f = chebfun(ff,'eps',1e-9)
 plotcoeffs(f,'ob',MS,7), ylim([1e-10 10]), hold on
@@ -60,7 +60,7 @@ plotcoeffs(f2,'.k',MS,10), hold off</pre>
 vertical scale =   1 
 </pre>
 
-<p><img src="../../images/approx/Noisy_03.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/Noisy_03.png" class="figure chebfun-figure" alt=""/></p>
 <p>This shows that the Chebfun constructor (the code <code>standardChop</code>) is pretty flexible about settling for a bit less accuracy than you hoped for.  It's not completely flexible, though, and if we tighten <code>eps</code> by a further factor of 1000, there is nonconvergence again:</p>
 <pre class="mcode-input">f = chebfun(ff,'eps',1e-12);</pre>
 
@@ -72,19 +72,19 @@ vertical scale =   1
 g = chebfun(gg);
 plotcoeffs(g,'ob',MS,4), ylim([1e-18 1e2])</pre>
 
-<p><img src="../../images/approx/Noisy_04.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/Noisy_04.png" class="figure chebfun-figure" alt=""/></p>
 <p>If we construct a chebfun with <code>eps</code> equal to $10^{-6}$, the plateau is treated as noise and chopped off:</p>
 <pre class="mcode-input">g = chebfun(gg,'eps',1e-6); plotcoeffs(g,'ob',MS,4), ylim([1e-18 1e2])</pre>
 
-<p><img src="../../images/approx/Noisy_05.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/Noisy_05.png" class="figure chebfun-figure" alt=""/></p>
 <p>With <code>eps</code> equal to $10^{-9}$, the plateau is still treated as noise:</p>
 <pre class="mcode-input">g = chebfun(gg,'eps',1e-9); plotcoeffs(g,'ob',MS,4), ylim([1e-18 1e2])</pre>
 
-<p><img src="../../images/approx/Noisy_06.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/Noisy_06.png" class="figure chebfun-figure" alt=""/></p>
 <p>With <code>eps</code> set to $10^{-12}$, however, Chebfun is unsatisfied with the series of length 70, looks further, and correctly captures the low-amplitude component.</p>
 <pre class="mcode-input">g = chebfun(gg,'eps',1e-12); plotcoeffs(g,'ob',MS,4), ylim([1e-18 1e2])</pre>
 
-<p><img src="../../images/approx/Noisy_07.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/approx/Noisy_07.png" class="figure chebfun-figure" alt=""/></p>
 <p>Reference:</p>
 <p>J. L. Aurentz and L. N. Trefethen, "Chopping a Chebyshev series", <a href="http://arxiv.org/abs/1512.01803">http://arxiv.org/abs/1512.01803</a>, December 2015.</p></div>
 </div>

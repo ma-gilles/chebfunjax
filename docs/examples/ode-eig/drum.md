@@ -53,7 +53,7 @@ for k = 1:4,
   zlim([-1 3]),caxis([-3 3]), view(-33,20), axis off
 end</pre>
 
-<p><img src="../../images/ode-eig/Drum_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/Drum_01.png" class="figure chebfun-figure" alt=""></p>
 <p>If the drum instead has a variable density given by $\rho(r)$, the right- hand side of the original ODE becomes $-\omega^2\rho u$. In general, the connection to Bessel functions is broken, but we will not miss a beat using <code>eigs</code>.</p>
 <p>Constant density gives $\omega_2/\omega_1 = 2.2954$. Let's design a density so that $\omega_2/\omega_1 = 2$, a perfect octave. We will search among density functions of the form</p>
 <p>$$ \rho(r) = 1 - a\sin(\pi r). $$</p>
@@ -77,7 +77,7 @@ set(gca,'xtick',[0.5,astar,1],'ytick',[2],'xgrid','on','ygrid','on')</pre>
    0.812158808552563
 </pre>
 
-<p><img src="../../images/ode-eig/Drum_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/Drum_02.png" class="figure chebfun-figure" alt=""></p>
 <p>We compute the ratio at <code>astar</code> to verify the answer, and plot the eigenfunctions.</p>
 <pre class="mcode-input">residual = evratio(astar) - 2
 subplot(1,2,1), surfl(rr.*cos(tt),rr.*sin(tt),repmat(-V(rr(1,:),1),60,1))
@@ -90,7 +90,7 @@ colormap copper</pre>
     -3.648192858918264e-12
 </pre>
 
-<p><img src="../../images/ode-eig/Drum_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-eig/Drum_03.png" class="figure chebfun-figure" alt=""></p>
 <pre class="mcode-input">end</pre>
 
 <pre class="mcode-output">Couldn't create JOGL canvas--using painters

@@ -59,7 +59,7 @@ title('symbolically integrable',FS,14)</pre>
 Epslevel = 1.004348e-15.  Vscale = 3.642639e-01.
 </pre>
 
-<p><img src="../../images/quad/SymbolicNumeric_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/quad/SymbolicNumeric_01.png" class="figure chebfun-figure" alt=""></p>
 <p>These two results are so utterly different! -- and each would be superior in some applications.</p>
 <p>The definite integral from $-1$ to $1$ could be computed in Chebfun like this,</p>
 <pre class="mcode-input">sum(f)</pre>
@@ -91,7 +91,7 @@ title('not symbolically integrable',FS,14)</pre>
 Epslevel = 1.956853e-15.  Vscale = 4.905198e-01.
 </pre>
 
-<p><img src="../../images/quad/SymbolicNumeric_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/quad/SymbolicNumeric_02.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="references">References</h3>
 <ol>
 <li>L. N. Trefethen, Computing numerically with functions     instead of numbers, <em>Communications of the ACM</em>, to appear.</li>

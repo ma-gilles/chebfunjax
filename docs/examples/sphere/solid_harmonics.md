@@ -35,7 +35,7 @@ r}\right)=l(l+1)FY^m_l.$$</p>
 <pre class="mcode-input">R42 = ballfun.solharm(4, 2);
 plot( R42 ), axis off</pre>
 
-<p><img src="../../images/sphere/SolidHarmonics_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SolidHarmonics_01.png" class="figure chebfun-figure" alt=""></p>
 <p>We can verify that this function is an eigenfunction of the Laplace operator with zero eigenvalue as follows:</p>
 <pre class="mcode-input">norm( laplacian( R42 ) )</pre>
 
@@ -67,7 +67,7 @@ for l = 0:N
     end
 end</pre>
 
-<p><img src="../../images/sphere/SolidHarmonics_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/sphere/SolidHarmonics_02.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="computing-solid-harmonic-coefficients">Computing solid harmonic coefficients</h3>
 <p>A fast and stable algorithm for computing the solid harmonics is implemented in Ballfun. The computation of the solid harmonics $R^m_l$ of degree $l$ and order $m$ requires $\mathcal{O}(l\log l)$ operations. The solid harmonics $R^m_l$ can be expressed as</p>
 <p>$$R^m_l(r,\lambda,\theta) = \sqrt{2l+3}r^lY^m_l(\lambda,\theta),$$</p>

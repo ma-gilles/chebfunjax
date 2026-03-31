@@ -28,7 +28,7 @@ x = chebfun('x');
 u = L\exp(x);
 plot(u), grid on, ylim([-50 50])</pre>
 
-<p><img src="../images/guide/guide10_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide10_01.png" class="figure chebfun-figure" alt=""></p>
 <p>What's going on in such a calculation is that <code>L</code> is a prescription for constructing matrices of arbitrary dimensions which are Chebyshev spectral approximations to the differential operator. When backslash is executed, the problem is solved on successively finer grids until convergence is achieved.</p>
 <p>The object <code>L</code> is a chebop:</p>
 <pre class="mcode-input">L</pre>
@@ -69,7 +69,7 @@ N.lbc = 1; N.rbc = -1;</pre>
 <pre class="mcode-input">u = N\0;
 plot(u), grid on</pre>
 
-<p><img src="../images/guide/guide10_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide10_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Note that this is the same result as in Section 7.9. How does Chebfun solve such problems?  That is a long story, which we shall not tell properly here.  In brief, a Newton iteration (sometimes a damped Newton iteration) is carried out in "continuous mode", that is, in a space of functions rather than vectors.  Recall that to find a zero of a scalar function, Newton's method requires a derivative at each iterative step, and to find a zero vector of a system of equations, it requires a Jacobian matrix.  Here, we seek a zero function of a nonlinear differential operator equation.  For this, Newton's method requires at each step the continuous analogue of a Jacobian matrix, which is a Frechet derivative linear operator.  This Frechet derivative is realized in Chebfun by a continuous analogue of Automatic Differentiation using methods described in [Birkisson & Driscoll 2012].</p>
 <p>Here is an example with a variable coefficient, a nonlinear BVP due to George Carrier analyzed in Sec. 9.7 of the book [Bender & Orzsag 1978].  We seek a function $u$ satisfying $$ \varepsilon u'' + 2(1-x^2) u + u^2 = 1, \qquad u(-1)=u(1) = 0 $$ with $\varepsilon = 0.01$.  Here is a Chebfun formulation and solution.</p>
 <pre class="mcode-input">ep = 0.01;
@@ -78,19 +78,19 @@ N.op = @(x,u) ep*diff(u,2) + 2*(1 - x^2)*u + u^2;
 N.bc = 'dirichlet';
 u = N\1; plot(u), ylim([-2 2]), grid on</pre>
 
-<p><img src="../images/guide/guide10_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide10_03.png" class="figure chebfun-figure" alt=""></p>
 <p>This is one of several valid solutions to this problem. To find another, we can specify a initial guess for the Newton iteration that differs from Chebfun's default (a polynomial function constructed to satisfy the boundary conditions --- the zero function in this case). For example, here we specify the initial guess $u(x) = 2(x^2 - 1)(1 - 2/(1 + 20x^2))$ and get a solution with two peaks instead of four.</p>
 <pre class="mcode-input">x = chebfun('x');
 N.init = 2*(x^2 - 1)*(1 - 2/(1 + 20*x^2));
 [u, info] = solvebvp(N, 1);
 plot(u), grid on</pre>
 
-<p><img src="../images/guide/guide10_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide10_04.png" class="figure chebfun-figure" alt=""></p>
 <p>This time, instead of using <code>\</code>, we called the underlying method <code>solvebvp</code>, and we specified two output arguments.  The second output is a MATLAB struct containing data showing the norms of the updates during the Newton iteration, revealing a slow initial phase followed by eventual rapid convergence.</p>
 <pre class="mcode-input">nrmdu = info.normDelta;
 semilogy(nrmdu,'.-k'), grid on, ylim([1e-14,1e2])</pre>
 
-<p><img src="../images/guide/guide10_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide10_05.png" class="figure chebfun-figure" alt=""></p>
 <p>Another way to get information about the Newton iteration with nonlinear backlash is by setting</p>
 <pre class="mcode-input">cheboppref.setDefaults('plotting','on')</pre>
 
@@ -122,7 +122,7 @@ N.lbc = 0.95</pre>
 <pre class="mcode-input">u = N\0;
 plot(u), grid on</pre>
 
-<p><img src="../images/guide/guide10_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide10_06.png" class="figure chebfun-figure" alt=""></p>
 <p>A major change was introduced in Version 5.1 in how initial-value (and final-value) problems are solved. Before, Chebfun used the same global spectral representations as for BVPs.  This usually works fine for linear problems, but for nonlinear ones, it is inferior to the method of time-stepping by Runge-Kutta or Adams formulas. In Chebfun Version 5.1, we accordingly switched to solving IVPs numerically by <code>ode113</code> (by default), converting the resulting output to a Chebfun representation.  (This work, a substantial job since higher-order equations must be reformulated as first-order systems, was carried out by Asgeir Birkisson [Brikisson 2018].) If you wish to invoke the global spectral method instead of time-stepping, you can write</p>
 <pre class="mcode-input">u2 = solvebvp(N,0);</pre>
 
@@ -141,7 +141,7 @@ N.lbc = [1; 0];
 u = N\0;
 plot([u diff(u)]), grid on, ylim([-1.5 1.5])</pre>
 
-<p><img src="../images/guide/guide10_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide10_07.png" class="figure chebfun-figure" alt=""></p>
 <p>As a third example, let us solve a van der Pol equation for a nonlinear oscillator, $$ \varepsilon u'' = (1-u^2)u' - u , \qquad t\in [0,20], ~~ u(0) = 3, ~~u'(0) = 0. $$ Here is a solution with $\varepsilon = 0.05$:</p>
 <pre class="mcode-input">N = chebop(0,20);
 N.op = @(t,u) 0.05*diff(u,2) - (1-u^2)*diff(u) + u;
@@ -149,7 +149,7 @@ N.lbc = [3; 0];
 u = N\0;
 plot(u), ylim([-4 4]), grid on</pre>
 
-<p><img src="../images/guide/guide10_08.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide10_08.png" class="figure chebfun-figure" alt=""></p>
 <p>As a final example let us consider the famous Lorenz equations, whose solution trajectories are chaotic: We can set up the problem and solve it like this:</p>
 <pre class="mcode-input">N = chebop(0,15);
 N.op = @(t,u,v,w) [diff(u)-10*(v-u);
@@ -159,7 +159,7 @@ N.lbc = @(u,v,w) [u+14; v+15; w-20];
 [u,v,w] = N\0;
 plot3(u,v,w), view(-5,9), axis off</pre>
 
-<p><img src="../images/guide/guide10_09.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide10_09.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="103-stiff-ivps">10.3 Stiff IVPs</h3>
 <p>Chebfun's default solution methods work well for moderately stiff ODE IVPs.  For highly stiff problems, however, it is desirable to switch the underlying engine from the default <code>ode113</code> to the stiff solver <code>ode15s</code>.  For example, the problem $$ u' = -u - 10000(u(t)-\cos(t)), \qquad u(0) = 1 $$ has the solution $u(t) = \cos(t)$.  However, it is highly stiff, and to solve it we can proceed as follows:</p>
 <pre class="mcode-input">N = chebop(0, 10);
@@ -172,14 +172,14 @@ plot(u), grid on, ylim([-1.5 1.5])</pre>
 <pre class="mcode-output">Elapsed time is 0.329978 seconds.
 </pre>
 
-<p><img src="../images/guide/guide10_10.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide10_10.png" class="figure chebfun-figure" alt=""></p>
 <p>If we don't specify <code>ode15s</code>, the solution takes minutes instead of seconds.</p>
 <h3 id="104-periodic-problems">10.4 Periodic problems</h3>
 <p>A relatively new feature in Chebfun is the solution of periodic ODEs; see chapter 19 of [Trefethen, Birkisson & Driscoll 2018]. For example, here is a function encoded in the <code>gallerytrig</code> command:</p>
 <pre class="mcode-input">plot(cheb.gallerytrig('tsunami'), 'color', [.6 .4 0]), grid on
 ylim([-.2 .2])</pre>
 
-<p><img src="../images/guide/guide10_11.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../images/guide/guide10_11.png" class="figure chebfun-figure" alt=""></p>
 <p>If you look in <code>gallerytrig</code>, you will find that this curve has been generated by the following sequence:</p>
 <pre class="mcode-input">op = @(x,u) diff(u,2) + diff(u) + 600*(1+sin(x))*u;
 L = chebop(op, [-pi,pi], 'periodic');

@@ -26,7 +26,7 @@ for k = 0:5
     r = (r.^2+x.^2)./(2*r);
 end</pre>
 
-<p><img src="../../images/approx/AbsoluteValue_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/AbsoluteValue_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The curves look nice, but the exponentially growing chebfun lengths do not. To improve this, we can put a breakpoint at $x=0$:</p>
 <pre class="mcode-input">x = chebfun('x',[-1 0 1]);
 r = chebfun('1',[-1 0 1]);
@@ -39,14 +39,14 @@ for k = 0:5
     r = (r.^2+x.^2)./(2*r);
 end</pre>
 
-<p><img src="../../images/approx/AbsoluteValue_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/AbsoluteValue_02.png" class="figure chebfun-figure" alt=""></p>
 <p>It's interesting to look at the error.  In the outer half of the interval, we've already achieved machine precision, whereas near $x=0$ the errors remain large.</p>
 <pre class="mcode-input">clf, semilogy(abs(r-abs(x)),LW,lw)
 axis([-1 1 1e-18 10]), grid on
 xlabel('x',FS,fs)
 title('Error',FS,fs)</pre>
 
-<p><img src="../../images/approx/AbsoluteValue_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/AbsoluteValue_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Let's take six more steps of the iteration:</p>
 <pre class="mcode-input">for k = 0:5
     subplot(3,2,k+1)
@@ -57,14 +57,14 @@ title('Error',FS,fs)</pre>
     r = (r.^2+x.^2)./(2*r);
 end</pre>
 
-<p><img src="../../images/approx/AbsoluteValue_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/AbsoluteValue_04.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is the error:</p>
 <pre class="mcode-input">clf, semilogy(abs(r-abs(x)),LW,lw)
 axis([-1 1 1e-18 10]), grid on
 xlabel('x',FS,fs)
 title('Error',FS,fs)</pre>
 
-<p><img src="../../images/approx/AbsoluteValue_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/AbsoluteValue_05.png" class="figure chebfun-figure" alt=""></p>
 <p>Evidently we are getting convergence to $|x|$, for all $x$. In the $\infty$-norm, the rate looks pretty disappointing. Donald Newman showed that the optimal type $(n,n)$ rational approximants to $|x|$ achieve accuracy $O(\exp(-C \sqrt n))$ [1,2], whereas here the maximum error is exactly $2^{-k}$ after $k$ steps, which corresponds to $1/n$ for the type $(n,n)$ approximation. Away from $x=0$, however, the accuracy is $O(\exp(-Cn))$, thanks to the quadratic convergence of Newton's method.</p>
 <p>Incidentally, note that this last curve is not very close to symmetrical about $x=0$.  I wonder why not?</p>
 <h3 id="references">References</h3>

@@ -20,12 +20,12 @@ plot(0,0,'.k'), hold on
 plot(x,y,x,-y,LW,.7), axis(1.2*[-1 1 -1 1]), axis square, hold off
 set(gca,'xtick',-1:1,'ytick',-1:1)</pre>
 
-<p><img src="../../images/ode-nonlin/TwoElectrons_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/TwoElectrons_01.png" class="figure chebfun-figure" alt=""></p>
 <p>For this computation we have used complex arithmetic for convenience, with the nucleus at the origin.  Because of the symmetry, only one particle needs to be tracked, so we have a scalar complex nonlinear second-order ODE initial-value problem: $$ z'' = {-2z\over |z|^3} + {z-\overline{z}\over |z-\overline{z}|^3}. $$ For initial conditions in this example we take $$ z(0)=i, \quad z'(0) = V &gt; 0. $$ In the figure above, $V=1$.</p>
 <p>Though it is not periodic, this orbit has a great deal of regularity, as we can see by plotting the $x$ component as a function of time.</p>
 <pre class="mcode-input">plot(x), xlabel t, ylabel('x(t)'), ylim([-1.5 1.5])</pre>
 
-<p><img src="../../images/ode-nonlin/TwoElectrons_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/TwoElectrons_02.png" class="figure chebfun-figure" alt=""></p>
 <p>This is not a chaotic problem; it is more like quasiperiodic. As $t\to\infty$, the trajectory fills up a certain region in the $x\hbox{-}y$ plane.</p>
 <h3 id="2-energy">2. Energy</h3>
 <p>The kinetic energy of this motion is $|z'|^2$, and the potential energy is $-4/|z| + 1/2\,\hbox{Im} z$.  Thus the total energy is $$ E = |z'|^2 -{4\over |z|} + {1\over 2\,\hbox{Im} z}, $$ and this quantity is conserved.  For our initial value $V=1$, the energy is $E = -2.5$.  (We do not verify this by a Chebfun computation, which would be very slow because of the near-singularities when $\hbox{Im}z$ is near zero.)</p>
@@ -39,11 +39,11 @@ plot(0,0,'.k'), hold on
 plot(x,y,x,-y), axis(1.2*[-1 1 -1 1]), axis square, hold off
 set(gca,'xtick',-1:1,'ytick',-1:1)</pre>
 
-<p><img src="../../images/ode-nonlin/TwoElectrons_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/TwoElectrons_03.png" class="figure chebfun-figure" alt=""></p>
 <p>A plot of $x$ values confirms the periodicity:</p>
 <pre class="mcode-input">plot(x), xlabel t, ylabel x</pre>
 
-<p><img src="../../images/ode-nonlin/TwoElectrons_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/TwoElectrons_04.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is an estimate of the period $T$:</p>
 <pre class="mcode-input">[val,pos] = min(x,'local'); T = pos(3)-pos(2)</pre>
 
@@ -58,7 +58,7 @@ plot(0,0,'.k'), hold on
 plot(x,y,x,-y), axis(1.2*[-1 1 -1 1]), axis square, hold off
 set(gca,'xtick',-1:1,'ytick',-1:1)</pre>
 
-<p><img src="../../images/ode-nonlin/TwoElectrons_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/TwoElectrons_05.png" class="figure chebfun-figure" alt=""></p>
 <p>Since the orbit is more complicated, it is not surprising that the period is longer:</p>
 <pre class="mcode-input">r = roots(x-.9*max(x)); r = r(deriv(x,r)&gt;0); T = r(2)-r(1)</pre>
 
@@ -79,7 +79,7 @@ T = mean(r(end-1:end))</pre>
   19.316951164127765
 </pre>
 
-<p><img src="../../images/ode-nonlin/TwoElectrons_06.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/TwoElectrons_06.png" class="figure chebfun-figure" alt=""></p>
 <p>Readers trying these computations on their own may enjoy experimenting with the command <code>comet(z)</code>, which shows the electrons flying about.</p>
 <h3 id="4-periodic-representation">4. Periodic representation</h3>
 <p>A periodic function should have a trigonometric representation! We can compute such a representation with Chebfun's "trig" option.</p>
@@ -111,14 +111,14 @@ zTtrig = chebfun(zT,'trig','eps',1e-6);</pre>
 <p>These are the absolute values of the Fourier coefficients:</p>
 <pre class="mcode-input">plotcoeffs(zTtrig,'.k')</pre>
 
-<p><img src="../../images/ode-nonlin/TwoElectrons_07.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/TwoElectrons_07.png" class="figure chebfun-figure" alt=""></p>
 <p>A plot of the velocities over the course of one orbit is interesting too:</p>
 <pre class="mcode-input">plot(diff(zTtrig),'m')
 title('Velocities z''(t)')
 axis([-3 3 -3 3]), axis square
 set(gca,'xtick',-3:3,'ytick',-3:3)</pre>
 
-<p><img src="../../images/ode-nonlin/TwoElectrons_08.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/TwoElectrons_08.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="5-periodic-trajectories-collision-orbits">5. Periodic trajectories: "collision orbits"</h3>
 <p>Another kind of periodic orbit arises at lower energies, which we call "collision orbits".  In these orbits, the overall motion looks smooth but in fact the electrons nearly collide near the nucleus.  Here is the simplest example:</p>
 <pre class="mcode-input">N.domain = [0 10];
@@ -128,11 +128,11 @@ plot(0,0,'.k'), hold on
 plot(x,y,x,-y), axis(1.2*[-1 1 -1 1]), axis square, hold off
 set(gca,'xtick',-1:1,'ytick',-1:1)</pre>
 
-<p><img src="../../images/ode-nonlin/TwoElectrons_09.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/TwoElectrons_09.png" class="figure chebfun-figure" alt=""></p>
 <p>The trajectory looks smooth, but a zoom near the origin shows that it is not:</p>
 <pre class="mcode-input">axis(0.001*[-1 1 -1 1]), axis square, hold off</pre>
 
-<p><img src="../../images/ode-nonlin/TwoElectrons_10.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/TwoElectrons_10.png" class="figure chebfun-figure" alt=""></p>
 <p>Other more complicated such orbits seem to arise with $V = 0.4536, 0.5539, 0.5987, 0.6205, 0.6312,\dots.$</p>
 <h3 id="6-computing-time">6. Computing time</h3>
 <p>Chebfun is wonderfully convenient, but it is not especially fast, as we can see from the computing time for this example:</p>

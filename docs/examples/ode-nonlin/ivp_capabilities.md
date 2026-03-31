@@ -33,7 +33,7 @@ plot(u,LW,1.2), hold on
 plot(breaks, u(breaks), 'k.', 'markersize', 14), hold off
 title('Van der Pol oscillator')</pre>
 
-<p><img src="../../images/ode-nonlin/IVPCapabilities_01.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/ode-nonlin/IVPCapabilities_01.png" class="figure chebfun-figure" alt=""/></p>
 <p>Unless the solution is rather complicated, this solution to an IVP will usually be a chebfun consisting of a single piece, i.e., one fun. In a problem like this one the polynomial degree is rather high:</p>
 <pre class="mcode-input">u</pre>
 
@@ -49,7 +49,7 @@ vertical scale =   2
 quiver(N,[-2 2 -10 10]), hold off
 title('Phase plane and limit cycle')</pre>
 
-<p><img src="../../images/ode-nonlin/IVPCapabilities_02.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/ode-nonlin/IVPCapabilities_02.png" class="figure chebfun-figure" alt=""/></p>
 <p>If we solve the ODE again but now with a nonzero forcing function on the right, we see a solution lying near the limit cycle but not on it.  (The "quiver" plot is no longer relevant now that there is a forcing function.)</p>
 <pre class="mcode-input">t = chebfun(@(t) t, [0 50]);
 f = 5*sin(5*t);
@@ -57,7 +57,7 @@ uForced = N\f;
 plot(uForced, diff(uForced), 'm', LW, 1.2)
 title('Van der Pol oscillator with a nonzero forcing function')</pre>
 
-<p><img src="../../images/ode-nonlin/IVPCapabilities_03.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/ode-nonlin/IVPCapabilities_03.png" class="figure chebfun-figure" alt=""/></p>
 <h3 id="solving-ivps-globally">Solving IVPs globally</h3>
 <p>It is still possible to solve IVPs via global methods rather than time-stepping in Chebfun, if one wishes to do so, and for linear problems, this may often be advantageous.  For the nonlinear Van der Pol problem above, the Newton iteration will not converge, but it converges if we decrease $\mu$ and $T$:</p>
 <pre class="mcode-input">mu = 1;
@@ -73,7 +73,7 @@ cheboppref.setDefaults('factory');</pre>
 <pre class="mcode-output">Elapsed time is 4.096036 seconds.
 </pre>
 
-<p><img src="../../images/ode-nonlin/IVPCapabilities_04.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/ode-nonlin/IVPCapabilities_04.png" class="figure chebfun-figure" alt=""/></p>
 <p>This solution took as long as the previous one despite being a much simpler problem (it requires 8 Newton steps). It really can be beneficial to make use of the special structure of IVPs!</p>
 <h3 id="references">References</h3>
 <ol>

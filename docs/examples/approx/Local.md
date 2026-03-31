@@ -36,17 +36,17 @@ end
 
 Scan(f,1e-6,.04)</pre>
 
-<p><img src="../../images/approx/Local_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Local_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is another complicated function and its scan:</p>
 <pre class="mcode-input">u = @(ep) chebop(@(x,u) ep*diff(u,2)+x.*cos(x).*u,[-10,10],0)\1;
 f = u(.01);
 Scan(f,1e-6,.2)</pre>
 
-<p><img src="../../images/approx/Local_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Local_02.png" class="figure chebfun-figure" alt=""></p>
 <p>This last plot seems surprising -- why does the complexity go up at the right endpoint?  On closer examination we find that the boundary condition has introduced a blip there:</p>
 <pre class="mcode-input">Scan(f{8,10},1e-6,.2)</pre>
 
-<p><img src="../../images/approx/Local_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/Local_03.png" class="figure chebfun-figure" alt=""></p>
 <pre class="mcode-input">end</pre></div>
         </div>
     </div>

@@ -29,7 +29,7 @@ z = join( c(1) + s*(c(2)-c(1)), ...     % top of the keyhole
 plot(z), axis equal, title('A keyhole contour in the complex plane');
 hold on, plot([-2.6 0],[0 0],'-r'); hold off, xlim([-2.6 2.6])</pre>
 
-<p><img src="../../images/complex/KeyholeContour_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/complex/KeyholeContour_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Now to integrate around the contour, we parametrise by a real variable, say $t$ (which here is done implicitly by the Chebfun representation), and integrate the function $f(z(t)) z'(t)$ with respect to $t$.</p>
 <p>In Chebfun, this is easy:</p>
 <pre class="mcode-input">I = sum(f(z)*diff(z))</pre>

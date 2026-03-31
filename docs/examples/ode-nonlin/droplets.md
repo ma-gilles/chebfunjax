@@ -30,7 +30,7 @@ plot([-b-1;b+1],[0;0],'k',LW,1.5) , hold on
 fill(R,U,blue), plot(R,U,'k',LW,1), hold off
 axis equal, grid on, title('borderline wetting')</pre>
 
-<p><img src="../../images/ode-nonlin/Droplets_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/Droplets_01.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="3-example-no-wetting">3. Example: no wetting</h3>
 <p>Let's change the contact angle to $\pi$, so the liquid minimally wets the surface.  If a liquid has a contact angle greater than $\pi/2$, this is described as ``not wetting''.</p>
 <pre class="mcode-input">Psib = -pi;
@@ -42,7 +42,7 @@ plot([-b-1;b+1],[0;0],'k',LW,1.5) , hold on
 fill(R,U,blue), plot(R,U,'k',LW,1), hold off
 axis equal, grid on, title('no wetting')</pre>
 
-<p><img src="../../images/ode-nonlin/Droplets_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/Droplets_02.png" class="figure chebfun-figure" alt=""></p>
 <h3 id="4-computational-remarks">4. Computational remarks</h3>
 <p>In Chebfun, our computations have proceeded in the simplest possible manner.  We worked on $[-1,1]$, though $[0,1]$ would also be possible with Neumann boundary conditions.  We multiplied through by $R(\tau)$ to avoid the singularity at $R=0$.  We included the unknown parameter $L$ in the problem via a trivial additional differential equation $dL/dt = 0$, though one could also use an explicit parameter formulation as described in section 7.10 fo the Chebfun Guide.</p>
 <p>Here is how long the computations took,</p>
@@ -89,7 +89,7 @@ plot([floor(min(R));ceil(max(R))],[0;0],'k',LW,1.5) , hold on
 fill(R,U,blue), plot(R,U,'k',LW,1), hold off
 axis equal, grid on, title('prescribed volume')</pre>
 
-<p><img src="../../images/ode-nonlin/Droplets_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-nonlin/Droplets_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Finally, we note that sometimes nonlinear problems can be quite sensitive to the supplied initial guess.  In this volume constrained problem, we find that Chebfun gives the correct answer for the problem above, but if the contact angle is changed too much, then the solver does not find a solution.  More robust initial guesses are discussed in [3].</p>
 <h3 id="references">References</h3>
 <p>[1] R. Finn, <em>Equilibrium Capillary Surfaces</em>, Springer Science &amp; Business Media, 2012 (originally published in 1986).</p>

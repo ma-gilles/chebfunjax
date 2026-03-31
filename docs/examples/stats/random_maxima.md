@@ -18,7 +18,7 @@ plot(f,'k',LW,lw), grid on, hold on
 plot(pos,val,'.r',MS,ms), hold off
 title([int2str(length(val)) ' maxima'],FS,fs)</pre>
 
-<p><img src="../../images/stats/RandomMaxima_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/RandomMaxima_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The random function in question is obtained as the restriction of a sum of a finite Fourier series with independent normally distributed random coefficients; the maximum wave number is about $2\pi /dx$, i.e., $2\pi$ in this case with $dx = 1$. Here is an analogous picture on an interval of length 40.</p>
 <pre class="mcode-input">f = randnfun(dx,[0,40]);
 [val,pos] = max(f,'local');
@@ -26,7 +26,7 @@ plot(f,'k',LW,lw), grid on, hold on
 plot(pos,val,'.r',MS,ms), hold off
 title([int2str(length(val)) ' maxima'],FS,fs)</pre>
 
-<p><img src="../../images/stats/RandomMaxima_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/RandomMaxima_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Let's explore the number of maxima as a function of the length of the interval:</p>
 <pre class="mcode-input">Lvec = 2.^(0:10);
 nmaxvec = [];
@@ -40,7 +40,7 @@ axis([.8 1300 .8 1300]);
 xlabel('length of interval',FS,fs)
 ylabel('no. of maxima',FS,fs)</pre>
 
-<p><img src="../../images/stats/RandomMaxima_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/stats/RandomMaxima_03.png" class="figure chebfun-figure" alt=""></p>
 <p>It would seem that the expected number of maxima is asymptotic to $L$. Very likely there is a literature on this question.</p>
 <p>Note that the first dot falls higher than the curve. This is because when Chebfun finds "local extrema", it includes extrema at the endpoints even though these (with probability 1) will not be points of zero derivative.  We could improve the experiment to correct for this, though this is not too important since the effect diminishes proportionally when $L$ is large.</p>
 <p>Execution time for this example:</p>

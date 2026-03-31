@@ -18,12 +18,12 @@ MS = 'markersize';
 plot(W,'k'), hold on, plot(W2,'k')
 hold on, plot(d,'.r',MS,10), hold off, axis off</pre>
 
-<p><img src="../../images/approx/EdgeDetection_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/EdgeDetection_01.png" class="figure chebfun-figure" alt=""></p>
 <p>That example is a bit highbrow, so let us try a simpler one. Here's one that is <em>very</em> simple.  Suppose we make a chebfun from the function $|e^x \sin(10\pi x)|$, using 'splitting on' mode:</p>
 <pre class="mcode-input">f = chebfun('abs(exp(x)*sin(10*pi*x))','splitting','on');
 plot(f)</pre>
 
-<p><img src="../../images/approx/EdgeDetection_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/EdgeDetection_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Of course we know mathematically that the points of singularity are $-1,-0.9,\dots, 1$, but Chebfun doesn't know this a priori; it figures it out with edge detection to make a piecewise Chebfun. Here we see that the edges detected are correct in all the digits printed.</p>
 <pre class="mcode-input">format long
 domain(f)'</pre>
@@ -86,11 +86,11 @@ hold on, plot(breakpts,f(breakpts),'.r',MS,10), hold off</pre>
    0.812500000000000
 </pre>
 
-<p><img src="../../images/approx/EdgeDetection_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/EdgeDetection_03.png" class="figure chebfun-figure" alt=""></p>
 <p>There are five breakpoints, but only two of them correspond to  actual singularities, as we see from a plot of the derivative:</p>
 <pre class="mcode-input">plot(diff(f)), grid on</pre>
 
-<p><img src="../../images/approx/EdgeDetection_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/EdgeDetection_04.png" class="figure chebfun-figure" alt=""></p>
 <p>The other breakpoints are introduced because in splitting on mode, Chebfun does not try very hard to give each piece a representation of maximal length.  However, we can change this by increasing the 'splitLength' parameter from its default value of 160. Here they are if we change <code>splitLength</code> to 1000.</p>
 <pre class="mcode-input">f2 = chebfun(@(t) abscissa(t),[0,1],'splitting','on',...
   'splitLength',1000,'vectorize');
@@ -103,7 +103,7 @@ hold on, plot(breakpts2,f2(breakpts2),'.r',MS,10), hold off</pre>
    0.631775989556661
 </pre>
 
-<p><img src="../../images/approx/EdgeDetection_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/approx/EdgeDetection_05.png" class="figure chebfun-figure" alt=""></p>
 <p>For details of Chebfun's edge detection algorithm, see [1], and for another example involving spline functions, see <code>http://www.chebfun.org/examples/approx/Splines.m</code>.</p>
 <h3 id="references">References</h3>
 <ol>

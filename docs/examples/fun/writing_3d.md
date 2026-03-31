@@ -14,18 +14,18 @@ LW = 'linewidth';
 plot(s,'r',LW,2.0)
 xlim(1.05*[-1 1]), axis equal, drawnow</pre>
 
-<p><img src="../../images/fun/Writing3D_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/fun/Writing3D_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The use of complex variables is just a convenience.  We could produce the same result with real and imaginary parts. Note that we include <code>'jumpline','.'</code> to prevent the inclusion of dotted lines connecting one component to the next. (Chebfun has different defaults for plotting gaps in real and complex functions.)</p>
 <pre class="mcode-input">rs = real(s); is = imag(s);
 plot(rs,is,'m',LW,2.0,'jumpline','none')
 xlim(1.05*[-1 1]), axis equal, drawnow</pre>
 
-<p><img src="../../images/fun/Writing3D_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/fun/Writing3D_02.png" class="figure chebfun-figure" alt=""></p>
 <p>It's a small step from here to plotting in 3D with the <code>plot3</code> command.  Here's an example</p>
 <pre class="mcode-input">plot3(rs,sin(6*rs),is,'b',LW,2.0,'jumpline','none')
 axis equal, view(-1.5,6), drawnow</pre>
 
-<p><img src="../../images/fun/Writing3D_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/fun/Writing3D_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Here is a longer message composed by the British poet Kate McLoughlin.  If you execute or publish this m-file, you will see the message circle around.</p>
 <pre class="mcode-input">s = 6*scribble(['There is no fun like chebfun.  ' ...
                 'Try it and you''ll see.  ' ...
@@ -39,7 +39,7 @@ set(gca,'cameraviewanglemode','manual')
 view(-540,20), pause(1)
 for j = 1:360, camorbit(2,0), drawnow, end</pre>
 
-<p><img src="../../images/fun/Writing3D_04.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/fun/Writing3D_04.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

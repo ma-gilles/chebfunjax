@@ -17,22 +17,22 @@ L.lbc = 0; L.rbc = 0;</pre>
 <pre class="mcode-input">L.bc = @(x,u) [jump(u,1/2) ; jump(diff(u),1/2)+eta];
 plot(L\0), grid on</pre>
 
-<p><img src="../../images/ode-linear/JumpGreen_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/JumpGreen_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Incidentally, <code>jump</code> is an abbreviation based on a more general Chebfun capability involving evaluations on the left and the right of a point.  For example, we could do this:</p>
 <pre class="mcode-input">L.bc = @(x,u) [feval(u,.7,'left')-2 ; feval(u,.7,'right')-1];
 plot(L\0), grid on</pre>
 
-<p><img src="../../images/ode-linear/JumpGreen_02.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/JumpGreen_02.png" class="figure chebfun-figure" alt=""></p>
 <p>Returning to the convenience of <code>jump</code>, suppose we want a jump in the function value and continuity of the derivative.  We could do this:</p>
 <pre class="mcode-input">L.bc = @(x,u) [jump(u,.2)-1; jump(diff(u),.2)];
 plot(L\0), grid on</pre>
 
-<p><img src="../../images/ode-linear/JumpGreen_03.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/JumpGreen_03.png" class="figure chebfun-figure" alt=""></p>
 <p>Now a Green's function for a linear ODE is a solution to a homogeneous BVP with a derivative jump condition at a point $s$ in the interior. The configuration at the beginning of this example was of exactly this kind.  Here is the same calculation but for $s=0.75$.</p>
 <pre class="mcode-input">L.bc = @(x,u) [jump(u,0.75) ; jump(diff(u),0.75)+eta];
 plot(L\0), grid on</pre>
 
-<p><img src="../../images/ode-linear/JumpGreen_04.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/JumpGreen_04.png" class="figure chebfun-figure" alt=""></p>
 <p>Let's superimpose results for $s=0.5$ and $s=0.25$:</p>
 <pre class="mcode-input">hold on
 for s = .5:-.25:.25
@@ -41,7 +41,7 @@ for s = .5:-.25:.25
 end
 hold off</pre>
 
-<p><img src="../../images/ode-linear/JumpGreen_05.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/JumpGreen_05.png" class="figure chebfun-figure" alt=""></p>
 <p>Actually, we can combine Matlab's anonymous functions and Chebfun's ODE capabilities to make a single object that constructs this Green function:</p>
 <pre class="mcode-input">green = @(s) chebop(@(x,u) eta*diff(u,2) + diff(u), [0 1], ...
      @(x,u) [u(0); u(1); jump(u,s); jump(diff(u),s)+eta])\0;</pre>
@@ -52,7 +52,7 @@ hold off</pre>
 end
 grid on, hold off</pre>
 
-<p><img src="../../images/ode-linear/JumpGreen_06.png" class="figure chebfun-figure" alt=""></p></div>
+<p><img src="../../../images/ode-linear/JumpGreen_06.png" class="figure chebfun-figure" alt=""></p></div>
         </div>
     </div>
 </div>

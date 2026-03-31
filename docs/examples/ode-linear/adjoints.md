@@ -191,7 +191,7 @@ text(-.8,2,'adjoint eigenfunctions','color','b')
 text(.3,2,'eigenfunctions','color','r')
 shg</pre>
 
-<p><img src="../../images/ode-linear/Adjoints_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/ode-linear/Adjoints_01.png" class="figure chebfun-figure" alt=""></p>
 <p>The first eigenfunction is very far from orthogonal to the second --- in fact, they are nearly the same:</p>
 <pre class="mcode-input">V(:,2)'*V(:,1)</pre>
 

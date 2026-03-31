@@ -65,7 +65,7 @@ end</pre>
 <pre class="mcode-input">plot(g{-8,8},'linewidth',2)
 hold on, plot(s,g(s),'.r','markersize',16), hold off</pre>
 
-<p><img src="../../images/quad/HermiteQuad_01.png" class="figure chebfun-figure" alt=""></p>
+<p><img src="../../../images/quad/HermiteQuad_01.png" class="figure chebfun-figure" alt=""></p>
 <p>Let's compare this efficiency with the trapezoidal rule. As has been known since the days of Aitken and Turing, the trapezoidal rule converges exponentially as a function of $1/h$, where $h$ is the grid size, for analytic functions on the real axis provided they satisfy modest decay conditions at $\pm \infty$; see [1]. Formally the rule involves infinitely many sample points, but for a function of the Hermite form, one can truncate at a small value $\pm d$.</p>
 <p>In work not yet published, we have derived an optimal choice of $h$ for this method.  Applied to this particular function, the optimal choice is $$ h = (-1 + \sqrt{1 + 8\pi n} )/2n $$ Let's try it!</p>
 <pre class="mcode-input">disp('    n        error')

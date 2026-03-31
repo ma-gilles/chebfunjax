@@ -19,7 +19,7 @@ MS = 'markersize'; FS = 'fontsize';
 plotframe(x0,y0,z0)
 title('t = 0',FS,18)</pre>
 
-<p><img src="../../images/ode-nonlin/ThreePlanets_01.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/ode-nonlin/ThreePlanets_01.png" class="figure chebfun-figure" alt=""/></p>
 <p>Now we solve the problem to time $t=100$:</p>
 <pre class="mcode-input">tmax = 100; dom = [0 tmax];
 N = chebop(@planetfun, dom);
@@ -34,13 +34,13 @@ N.lbc = @(x,y,z) [x-x0; y-y0; z-z0; diff(x); diff(y); diff(z)];
 plotframe(x(t),y(t),z(t))
 title(['t = ' num2str(t) ],FS,18)</pre>
 
-<p><img src="../../images/ode-nonlin/ThreePlanets_02.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/ode-nonlin/ThreePlanets_02.png" class="figure chebfun-figure" alt=""/></p>
 <p>Here is how it looks at the critical moment:</p>
 <pre class="mcode-input">t = 86;
 plotframe(x(t),y(t),z(t))
 title(['t = ' num2str(t) ],FS,18)</pre>
 
-<p><img src="../../images/ode-nonlin/ThreePlanets_03.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/ode-nonlin/ThreePlanets_03.png" class="figure chebfun-figure" alt=""/></p>
 <p>Of course, this problem really looks best in the form of movie!  To see the movie, you can execute this M-file. The final frame shows the system after it has split into two subsystems, drifting apart forever.</p>
 <pre class="mcode-input">dt = .4; tmax = 100;
 for t = 0:dt:tmax
@@ -49,7 +49,7 @@ for t = 0:dt:tmax
     drawnow, pause(0.1)
 end</pre>
 
-<p><img src="../../images/ode-nonlin/ThreePlanets_04.png" class="figure chebfun-figure" alt=""/></p>
+<p><img src="../../../images/ode-nonlin/ThreePlanets_04.png" class="figure chebfun-figure" alt=""/></p>
 <h3 id="references">References</h3>
 <ol>
 <li>L.N. Trefethen, Ten digit algorithms, unpublished essay, https://people.maths.ox.ac.uk/trefethen/tda.html, 2005.</li>
