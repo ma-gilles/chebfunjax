@@ -79,7 +79,7 @@ What is the integral of $f$ from $-1$ to $1$?  Here it is:
 f.sum()
 ```
 ```
-0.09129452507276264
+0.0912945250727627
 ```
 
 This number was computed by integrating the polynomial (Clenshaw-Curtis quadrature -- see Section 2.1), and it is interesting to compare it to the exact answer from calculus:
@@ -149,7 +149,7 @@ Notice that we have just done something nontrivial and potentially useful.  How 
 sp.j0(np.asarray(r[:5]))
 ```
 ```
-array([-3.83e-15,  3.31e-15,  2.81e-15,  2.21e-15,  2.23e-15])
+array([ 3.55e-15, -1.53e-15,  2.81e-15,  5.60e-16,  2.23e-15])
 ```
 
 Most often we get a chebfun by operating on other chebfuns. For example, here is a sequence that uses plus, times, divide, and power operations on an initial chebfun `x` to produce a famous function of Runge:
@@ -185,16 +185,23 @@ To find out what a method does, you can use Python's `help`:
 help(cj.Chebfun.sum)
 ```
 ```
- sum(self) -> jax.Array
-    Definite integral of the Chebfun over its domain.
+Help on function sum in module chebfunjax.chebfun1d.chebfun:
 
-    Returns the integral of the Chebfun f over its domain [a, b]:
+sum(self) -> 'jax.Array'
+    Definite integral over the full domain.
 
-                      b
-                      /
-            sum(f) =  | f(t) dt.
-                      /
-                     a
+    Sums the definite integrals of all pieces.
+
+    JIT-safe: yes.
+
+    Returns
+    -------
+    jax.Array (scalar)
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/sum.m
+    Chebfun commit: 7574c77
 ```
 
 We have already seen `len` and `sum` in action.  We have also already seen evaluation, since calling a chebfun `f(0.5)` evaluates at the given point.  Here is another example of its use:
@@ -247,7 +254,7 @@ print(repr(f))
 ```
 Chebfun column (2 smooth pieces)
        interval       length     endpoint values
-[      -1,     0.3]        2       1.30      0.00
+[      -1,     0.3]        2       1.30     -0.00
 [     0.3,       1]        2       0.00      0.70
 vscale = 1.30e+00    total length = 4
 ```
@@ -337,7 +344,7 @@ As always, `h` may look complicated to a human, but to chebfunjax it is just a f
 h.mean()
 ```
 ```
-0.578242020778010
+0.5782420207780105
 ```
 
 ```python
@@ -349,7 +356,7 @@ std_h = math.sqrt(float(hmc.inner(hmc)) / 2.0)  # domain length = 2
 print(std_h)
 ```
 ```
-0.280937455806246
+0.2809374558062458
 ```
 
 ```python
@@ -357,7 +364,7 @@ _, min_val = h.min()    # returns (x_min, f_min)
 print(min_val)
 ```
 ```
-0.135335283236613
+0.13533528323661273
 ```
 
 ```python
@@ -365,7 +372,7 @@ _, max_val = h.max()    # returns (x_max, f_max)
 print(max_val)
 ```
 ```
-1.000000000000000
+1.0000000000000002
 ```
 
 A final note about piecewise smooth chebfuns is that the automatic edge detection or "splitting" feature of MATLAB Chebfun, when it is turned on, may subdivide functions even though they do not have clean point singularities, and this may be desirable or undesirable depending on the application.  In chebfunjax, splitting is handled by specifying breakpoints explicitly. For example, considering $\sin(x)$ over $[0,1000\pi]$, we can construct one global chebfun:
@@ -388,12 +395,12 @@ vscale = 1.00e+00
 
 A major feature of MATLAB Chebfun is the generalization of chebfuns to allow certain functions on infinite intervals or which diverge to infinity. **Chebfunjax does not yet support infinite intervals or endpoint singularities (`'exps'`).** For now, we can approximate such functions on large finite intervals.
 
-For example, here is a function on a large interval approximating the whole real axis:
+For example, here is a function on a large interval approximating the whole real axis. The function is smaller than $2\times10^{-3}$ outside $[-10,10]$, so we build it on $[-10,10]$, which also reproduces the display window MATLAB Chebfun uses for the unbounded chebfun:
 
 ```python
 f = cj.chebfun(
     lambda x: jnp.exp(-x**2 / 16) * (1 + 0.2 * jnp.cos(10 * x)),
-    domain=[-20, 20]
+    domain=[-10, 10]
 )
 f.plot()
 ```
@@ -406,8 +413,10 @@ and here is its integral:
 f.sum()
 ```
 ```
-7.08981540361064
+7.086883420151909
 ```
+
+The exact integral over the whole real axis is $\sqrt{16\pi} \approx 7.0898$ (the fast $\cos(10x)$ term integrates to essentially zero); the small shortfall is the mass in the tails beyond $\pm 10$ that our finite interval omits.
 
 Here's the integral of a function on $[1,\infty)$, approximated on $[1, 100]$:
 
@@ -415,7 +424,7 @@ Here's the integral of a function on $[1,\infty)$, approximated on $[1, 100]$:
 cj.chebfun(lambda x: 1 / x**4, domain=[1, 100]).sum()
 ```
 ```
-0.3333329999999998
+0.33333299999999966
 ```
 
 Notice that several digits of accuracy have been lost here.  Be careful! -- operations involving large domains in chebfunjax may not always be as accurate as their counterparts on moderate intervals.
@@ -423,23 +432,23 @@ Notice that several digits of accuracy have been lost here.  Be careful! -- oper
 Here is an example of a function that diverges to infinity, the arcsine distribution $(1/\pi)/\sqrt{1-x^2}$, which we approximate by staying slightly away from the endpoints:
 
 ```python
-eps = 1e-6
+delta = 1e-3
 h = cj.chebfun(
-    lambda x: (1 / jnp.pi) / jnp.sqrt(1 - x**2 + eps),
-    domain=[-1 + eps, 1 - eps]
+    lambda x: (1 / jnp.pi) / jnp.sqrt(1 - x**2),
+    domain=[-1 + delta, 1 - delta]
 )
 h.plot()
 ```
 
 ![](../images/guide/guide01_10.png)
 
-In the MATLAB version with endpoint singularity support, the integral comes out just right as $1$:
+The exact integral of $(1/\pi)/\sqrt{1-x^2}$ over $[-1,1]$ is $1$. In the MATLAB version, endpoint-singularity support (`'exps'`) captures the divergence and returns exactly that. Chebfunjax has no singularity support, so integrating our finite-interval approximation misses the mass near the endpoints and returns a smaller value:
 
 ```python
 h.sum()
 ```
 ```
-0.999999...  (approximately 1)
+0.9715271251875206
 ```
 
 For more on the treatment of infinities, see the MATLAB Chebfun Guide Chapter 9.
@@ -458,7 +467,7 @@ print(max_val)
 f.plot()
 ```
 ```
-1.614526099978745
+1.6145260999787443
 ```
 
 ![](../images/guide/guide01_11.png)
@@ -469,7 +478,7 @@ Its length, very roughly, is $100 \pi$,
 len(f)
 ```
 ```
-383
+385
 ```
 
 In MATLAB Chebfun, the same function represented by a Fourier series (`'trig'` mode) would need only about 201 coefficients -- an improvement by a factor of about $\pi/2$. When chebfunjax adds trigonometric support, the same savings will apply.
@@ -513,7 +522,7 @@ vscale = 1.00e+00
 x.inner(x)
 ```
 ```
-0.666666666666667
+0.6666666666666666
 ```
 
 One can also form lists of chebfuns and compute Gram matrices:
@@ -523,13 +532,13 @@ one = cj.chebfun(1.0)
 A = [one, x, x**2]  # list of 3 chebfuns
 
 # Gram matrix A'*A: G[i,j] = inner(A[i], A[j])
-G = jnp.array([[float(a.inner(b)) for b in A] for a in A])
-print(G)
+G = np.array([[float(a.inner(b)) for b in A] for a in A])
+print(np.array2string(G, precision=3, suppress_small=True))
 ```
 ```
-[[ 2.000  0.000  0.667]
- [ 0.000  0.667  0.000]
- [ 0.667  0.000  0.400]]
+[[2.    0.    0.667]
+ [0.    0.667 0.   ]
+ [0.667 0.    0.4  ]]
 ```
 
 These are discussed further in Chapter 6.
@@ -569,9 +578,9 @@ for name, desc in list_gallery().items():
   kahaner          Four-spike integrand on [0, 1] (Kahaner benchmark)
   runge            Runge function 1/(1 + 25x^2) on [-1, 1]
   seismograph      tanh(20*sin(12x)) + 0.02*exp(3x)*sin(300x) on [-1, 1]
-  sinefun1         1.75 + sin(50x) on [-1, 1] -- smooth as it looks
-  sinefun2         (1.75 + sin(50x))^1.0001 -- not as smooth as it looks
-  spikycomb        exp(x)*sech(4*sin(40x))^exp(x) on [-1, 1] -- 25 peaks
+  sinefun1         1.75 + sin(50x) on [-1, 1] — smooth as it looks
+  sinefun2         (1.75 + sin(50x))^1.0001 — not as smooth as it looks
+  spikycomb        exp(x)*sech(4*sin(40x))^exp(x) on [-1, 1] — 25 peaks
   wiggly           exp(x)*sin(10*pi*x) on [-1, 1]
   wild             cos(x)^2 * sin(x^3) on [-1, 1]
   zigzag           Degree-high polynomial that looks piecewise linear on [-1, 1]
@@ -597,31 +606,44 @@ f = cj.chebfun(lambda x: jnp.array(sp.airy(np.asarray(x))[0]),
                domain=[-40, 40])
 ```
 
-Some examples make use of more complicated code, like this approximation to a Daubechies wavelet scaling function (accurate to about 3 digits of accuracy; the underlying function is a fractal):
+Some examples make use of more complicated code, like this Daubechies wavelet scaling function. The underlying function is a fractal (continuous but nowhere differentiable). MATLAB Chebfun ships a `cheb.gallery('daubechies')` entry that represents it with an equispaced (`'equi'`) chebfun; chebfunjax has neither that gallery entry nor an `'equi'` constructor, and Chebyshev interpolation of the fractal produces large endpoint (Runge) spikes. So we build the D4 (db2) scaling function directly with the cascade algorithm and plot the samples, which is what the MATLAB `'equi'` plot does visually:
 
 ```python
-# Daubechies D4 scaling function via cascade algorithm
-# (see scripts/generate_guide01_plots.py for full code)
-f.plot()
-plt.ylim(-0.5, 1.5)
-plt.title('Daubechies scaling function')
+# Daubechies D4 (db2) scaling function on [0, 3] via the cascade algorithm.
+h = np.array([(1 + np.sqrt(3)), (3 + np.sqrt(3)),
+              (3 - np.sqrt(3)), (1 - np.sqrt(3))]) / (4 * np.sqrt(2))
+xg = np.linspace(0, 3, 3 * 2**12 + 1)
+phi = ((xg >= 0) & (xg <= 3)).astype(float)
+for _ in range(12):
+    phi = sum(np.sqrt(2) * h[k] * np.interp(2 * xg - k, xg, phi, left=0, right=0)
+              for k in range(4))
+phi /= np.trapezoid(phi, xg)   # normalise to unit integral
+
+fig, ax = plt.subplots()
+ax.plot(xg, phi)
+ax.set_ylim(-0.5, 1.5)
+ax.set_title('Daubechies scaling function')
 ```
 
 ![](../images/guide/guide01_14.png)
 
 To find out how a gallery example was generated, look at the source code in `chebfunjax/utils/gallery.py`.
 
-Like the MATLAB `gallery` command, `gallery` can be used directly. To illustrate, let us finish with an example the Chebfun team enjoys from the appendix to [Trefethen 2013], "Six myths of polynomial interpolation and quadrature":
+To illustrate, let us finish with an example the Chebfun team enjoys from the appendix to [Trefethen 2013], "Six myths of polynomial interpolation and quadrature". In MATLAB this is `cheb.gallery('zigzag')`; chebfunjax's `gallery('zigzag')` is currently a lower-degree placeholder, so we build the genuine gallery function -- the indefinite integral of a fixed-length sign-of-sine square wave -- directly:
 
 ```python
-from chebfunjax.utils.gallery import gallery
-f = gallery('zigzag')
+g = cj.chebfun(lambda t: jnp.sign(jnp.sin(100 * t / (2 - t))), n=10000)
+f = g.cumsum()
+print(len(f))
 f.plot()
+```
+```
+10001
 ```
 
 ![](../images/guide/guide01_15.png)
 
-This function looks piecewise linear, but in fact, it is a polynomial of degree 5000.  This serves no purpose from an approximation point of view -- one would never represent this function in this manner -- but it illustrates the robustness of high-degree polynomial approximation.
+This function looks piecewise linear, but in fact, it is a polynomial of degree 10000.  This serves no purpose from an approximation point of view -- one would never represent this function in this manner -- but it illustrates the robustness of high-degree polynomial approximation.
 
 If you call `gallery` without any input arguments, it selects a gallery function at random.
 
