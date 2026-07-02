@@ -141,11 +141,18 @@ def conformal(
     pol_np = np.array(pol)
     polinv_np = np.array(polinv)
 
-    # Simple check: poles of f should be outside the region (|z - ctr| > scl roughly)
-    # and poles of finv should be outside the unit disk
+    # MATLAB: inC = inpolygon(real(pol), imag(pol), real(Z), imag(Z)) —
+    # a true point-in-polygon test of the forward-map poles against the
+    # discretized boundary curve; poles of finv must lie outside the unit disk.
     import warnings
-    if len(pol_np) > 0 and np.min(np.abs(pol_np - ctr_c)) < scl:
-        warnings.warn("conformal: pole of forward map inside region", stacklevel=2)
+    if len(pol_np) > 0:
+        from matplotlib.path import Path as _MplPath
+
+        region = _MplPath(np.column_stack([Z_np.real, Z_np.imag]))
+        pole_pts = np.column_stack([pol_np.real, pol_np.imag])
+        if region.contains_points(pole_pts).any():
+            warnings.warn("conformal: pole of forward map inside region",
+                          stacklevel=2)
     if len(polinv_np) > 0 and np.min(np.abs(polinv_np)) < 1.0:
         warnings.warn("conformal: pole of inverse map inside unit disk", stacklevel=2)
 
