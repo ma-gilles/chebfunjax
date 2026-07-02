@@ -23,10 +23,11 @@ New in this version
 from __future__ import annotations
 
 import os
-from typing import Any, Optional, Sequence, Union
+from typing import Any, Optional
 
-import matplotlib as mpl
 import matplotlib
+import matplotlib as mpl
+
 # Do NOT call matplotlib.use("Agg") unconditionally — that breaks Jupyter
 # inline plotting.  Only switch if we are already headless or truly have no
 # display available.
@@ -37,7 +38,6 @@ import numpy as np
 from matplotlib.colors import LightSource, Normalize
 
 from chebfunjax.utils.quadrature import chebpts, trigpts
-
 
 # ---------------------------------------------------------------------------
 # Chebfun RC style (Chebfun-quality plots)
@@ -86,6 +86,33 @@ def chebfun_style():
     mpl.rcParams.update(CHEBFUN_RC)
 
 
+def save_chebfun_figure(fig, path, size=(600, 270)):
+    """Save *fig* at an exact pixel size matching chebfun.org renders.
+
+    The figures published on chebfun.org use fixed canvas sizes
+    (600x270 px for examples, 610x258 px for the Guide chapters).
+    Matplotlib's ``bbox_inches='tight'`` rescales the canvas to the
+    content, which breaks pixel-level comparison against those
+    references — so this helper pins the canvas instead.
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+    path : str or Path
+        Output PNG path.
+    size : tuple of int
+        Target (width, height) in pixels. Defaults to the chebfun.org
+        example figure size; pass ``(610, 258)`` for Guide figures.
+    """
+    w, h = size
+    dpi = 100.0
+    fig.set_size_inches(w / dpi, h / dpi)
+    # rc 'savefig.bbox: tight' would rescale the canvas even when
+    # bbox_inches is not passed — force it off for the exact-size export.
+    with mpl.rc_context({"savefig.bbox": None}):
+        fig.savefig(path, dpi=dpi, facecolor="white")
+
+
 # ---------------------------------------------------------------------------
 # Style constants
 # ---------------------------------------------------------------------------
@@ -97,6 +124,23 @@ CHEBFUN_ORANGE = "#EDB120" # MATLAB default yellow/orange
 
 _DEFAULT_LINE_KW: dict[str, Any] = dict(color=CHEBFUN_BLUE, linewidth=1.2)
 _DEFAULT_GRID_KW: dict[str, Any] = dict(alpha=0.3, linestyle="--", linewidth=0.6)
+
+
+def _matlab_ticks(ax: plt.Axes) -> None:
+    """MATLAB-like tick density and label format on linear axes.
+
+    MATLAB picks sparser ticks than matplotlib's default (e.g. steps of
+    0.5 on [-1, 1] where matplotlib chooses 0.25) and prints labels
+    without trailing zeros (``0.5``, not ``0.50``). Log-scale axes are
+    left untouched.
+    """
+    from matplotlib.ticker import FuncFormatter, MaxNLocator
+
+    for axis, scale in ((ax.xaxis, ax.get_xscale()),
+                        (ax.yaxis, ax.get_yscale())):
+        if scale == "linear":
+            axis.set_major_locator(MaxNLocator(nbins=7, steps=[1, 2, 2.5, 5, 10]))
+            axis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:g}"))
 
 
 def _apply_style(ax: plt.Axes, title: str = "", xlabel: str = "",
@@ -114,6 +158,7 @@ def _apply_style(ax: plt.Axes, title: str = "", xlabel: str = "",
     for spine in ax.spines.values():
         spine.set_visible(True)
         spine.set_linewidth(0.5)
+    _matlab_ticks(ax)
 
 
 def _domain_points(f, n: int = 600) -> np.ndarray:
@@ -1250,7 +1295,6 @@ def quiver_2d(
     -------
     fig, ax
     """
-    import jax.numpy as jnp
 
     # Determine components
     from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
@@ -1987,8 +2031,8 @@ def isosurface_ball(
         _have_skimage = False
 
     if _have_skimage:
-        from mpl_toolkits.mplot3d.art3d import Poly3DCollection
         import matplotlib.colors as mcolors
+        from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
         norm = mcolors.Normalize(vmin=min(levels), vmax=max(levels))
 
@@ -2596,16 +2640,16 @@ def plot_dispatch(obj, *args, **kwargs):
     TypeError
         If the object type is not recognized.
     """
+    from chebfunjax.ballfun.ballfun import Ballfun
+    from chebfunjax.ballfun.ballfunv import Ballfunv
     from chebfunjax.chebfun1d.chebfun import Chebfun
     from chebfunjax.chebfun2d.chebfun2 import Chebfun2
     from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
-    from chebfunjax.spherefun.spherefun import Spherefun
-    from chebfunjax.spherefun.spherefunv import Spherefunv
+    from chebfunjax.chebfun3d.chebfun3 import Chebfun3
     from chebfunjax.diskfun.diskfun import Diskfun
     from chebfunjax.diskfun.diskfunv import Diskfunv
-    from chebfunjax.ballfun.ballfun import Ballfun
-    from chebfunjax.ballfun.ballfunv import Ballfunv
-    from chebfunjax.chebfun3d.chebfun3 import Chebfun3
+    from chebfunjax.spherefun.spherefun import Spherefun
+    from chebfunjax.spherefun.spherefunv import Spherefunv
 
     if isinstance(obj, Chebfun):
         return plot_1d(obj, *args, **kwargs)
