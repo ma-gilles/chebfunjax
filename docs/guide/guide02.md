@@ -177,10 +177,7 @@ print(f)
 ```
 
 ```
-Chebfun column (1 smooth piece)
-       interval       length     endpoint values
-[       0,       1]    14036     0.071  4.5e-07
-vscale = 1.1
+<Chebfun [0.0, 1.0], length 13963>
 ```
 
 The function has three spikes, each ten times narrower than the last:
@@ -199,7 +196,7 @@ print(f"{float(f.sum()):.15f}")
 ```
 
 ```
-14036
+13963
 0.210802735500549
 ```
 
@@ -214,7 +211,7 @@ Chebfunjax is not a specialized item of quadrature software; it is a general sys
 A special case of an integral is the `norm` method, which for a chebfun returns by default the 2-norm, i.e., the square root of the integral of the square of the absolute value over the region of definition.  Here is a well-known example:
 
 ```python
-print(float(cj.chebfun(lambda x: jnp.sin(jnp.pi * x)).norm()))
+print(f"{float(cj.chebfun(lambda x: jnp.sin(jnp.pi * x)).norm()):.15f}")
 ```
 
 ```
@@ -230,7 +227,7 @@ print(f"{float(f_sign.norm()):.15f}")
 ```
 
 ```
-1.414213562373095
+1.414213563241863
 ```
 
 Here is a function that is infinitely differentiable but not analytic.
@@ -250,8 +247,8 @@ print(f"{float((f**10).norm()):.15e}")
 ```
 
 ```
-0.292873834331035
-2.187941295308668e-05
+0.292873834331034
+2.187941295308656e-05
 ```
 
 ## 2.3 `cumsum`
@@ -307,10 +304,10 @@ for k in range(1, 6):
 
 ```
    0.842700792949715   0.842700792949715
-   0.995322265018953   0.995322265018953
+   0.995322265018952   0.995322265018953
    0.999977909503001   0.999977909503001
    0.999999984582742   0.999999984582742
-   0.999999999998463   0.999999999998463
+   0.999999999998462   0.999999999998463
 ```
 
 Here is the integral of an oscillatory step function:
@@ -353,7 +350,7 @@ print(f"Li2 = {Li2:.15f}")
 ```
 
 ```
-lengthLi = 411
+lengthLi = 510
 Li2 = 1.045163780117470
 ```
 
@@ -442,7 +439,7 @@ ax.set_ylim([-2, 3])
 
 ![Derivative of piecewise function](../images/guide/guide02_11.png)
 
-The first segment of $f'$ is linear, since $f$ is quadratic here. Then comes a segment with $f' = 0$, since $f$ is constant. At the end of this second segment appears a delta function of amplitude $1$, corresponding to the jump of $f$ by $1$. The third segment has constant value $f' = -1$. Finally another delta function, this time with amplitude $1/3$, takes us to the final segment.
+The first segment of $f'$ is linear, since $f$ is quadratic here. Then comes a segment with $f' = 0$, since $f$ is constant. At the end of this second segment appears a delta function of amplitude $1$, corresponding to the jump of $f$ by $1$. The third segment has constant value $f' = -1$. Finally another delta function, this time with amplitude $1/3$, takes us to the final segment. (chebfunjax does not yet carry delta-function terms in its data structure; the two impulses are drawn as arrows here for illustration. The practical consequence of their absence is shown at the end of this section.)
 
 Thanks to the delta functions, `cumsum` and `diff` are essentially inverse operations.  It is no surprise that differentiating an indefinite integral returns us to the original function:
 
@@ -451,10 +448,10 @@ print(f"{float((f - f.cumsum().diff()).norm()):.15e}")
 ```
 
 ```
-2.250689041652248e-16
+2.786977752864206e-31
 ```
 
-More surprising is that integrating a derivative does the same, as long as we add in the value at the left endpoint:
+In MATLAB Chebfun the reverse also holds — integrating a derivative returns the original, as long as we add in the value at the left endpoint — because differentiating across a jump produces a delta function that `cumsum` integrates back into the jump. chebfunjax does not yet represent delta functions, so for a function with jumps this round-trip instead loses the jump contributions:
 
 ```python
 f2 = float(f(jnp.float64(0.0))) + f.diff().cumsum()
@@ -462,8 +459,10 @@ print(f"{float((f - f2).norm()):.15e}")
 ```
 
 ```
-2.220446049250313e-16
+1.666666666666667e+00
 ```
+
+The residual is exactly the two jumps of `f` that were dropped: $\sqrt{1^2 + (4/3)^2} = 5/3$.  For a continuous `f` (with no jumps) the identity holds to machine precision.
 
 Multiple derivatives can be obtained by adding a second argument to `diff`.  Thus for example,
 
@@ -482,7 +481,7 @@ print(f"{float(g(jnp.float64(0.0))):.12f}")
 ```
 
 ```
-24.000000000069
+23.999999999956
 ```
 
 For a more extreme example, suppose we define a chebfun for $\exp(x)$ on $[-1,1]$:
@@ -507,19 +506,19 @@ for j in range(len(f) + 1):
 ```
      0      2.718281828459
      1      2.718281828459
-     2      2.718281828458
-     3      2.718281828438
-     4      2.718281827790
-     5      2.718281811104
-     6      2.718281472937
-     7      2.718276094326
-     8      2.718208457459
-     9      2.717533872966
-    10      2.712224747871
-    11      2.679770038301
-    12      2.530374129594
-    13      2.041046024647
-    14      1.020835497184
+     2      2.718281828459
+     3      2.718281828451
+     4      2.718281828024
+     5      2.718281814913
+     6      2.718281532292
+     7      2.718276905783
+     8      2.718217541620
+     9      2.717614087600
+    10      2.712768846277
+    11      2.682513067860
+    12      2.540095290512
+    13      2.062748648935
+    14      1.043887566391
     15      0.000000000000
 ```
 
@@ -554,9 +553,13 @@ Using 1D chebfunjax technology, we can compute the integral over the box like th
 ```python
 Iy = lambda y: float(cj.chebfun(lambda x: f(x, jnp.float64(y)),
                                   domain=[-2, 2]).sum())
+
+def Iy_vec(yy):
+    yy = np.atleast_1d(np.asarray(yy, dtype=float))
+    return jnp.array([Iy(v) for v in yy])
+
 t0 = time.time()
-I = float(cj.chebfun(lambda y: jnp.float64(Iy(float(y))),
-                       domain=[0.5, 2.5]).sum())
+I = float(cj.chebfun(Iy_vec, domain=[0.5, 2.5]).sum())
 t1 = time.time()
 print(f"CHEBFUNJAX:  I = {I:.14f}  time = {t1-t0:.3f} secs")
 ```
@@ -578,7 +581,7 @@ print(f"Elapsed time is {t1-t0:.6f} seconds.")
 ```
 
 ```
-0.020412465456998
+0.020412465456995
 Elapsed time is 0.197406 seconds.
 ```
 
@@ -627,7 +630,7 @@ print(f"Iexact = {Iexact:.15f}")
 ```
 
 ```
-Igauss = 2.350402092156377
+Igauss = 2.350402092156378
 Iexact = 2.350402387287603
 ```
 
@@ -643,15 +646,15 @@ print(f"Elapsed time is {t1-t0:.6f} seconds.")
 ```
 
 ```
-Igauss = 2.350402387287602
+Igauss = 2.350402387287601
 Elapsed time is 0.013837 seconds.
 ```
 
-Even a million points doesn't take very long:
+chebfunjax computes these nodes and weights with the classical eigenvalue algorithm of Golub and Welsch [Golub & Welsch 1969], forming an $n\times n$ symmetric tridiagonal Jacobi matrix and diagonalizing it. This is accurate, but costs $O(n^2)$ storage, so — unlike MATLAB Chebfun, whose $O(n)$ Hale-Townsend and Bogaert asymptotic algorithms [Hale & Townsend 2013, Bogaert, Michiels & Fostier 2012, Bogaert 2014] handle even a million points in a fraction of a second — chebfunjax does not scale to very large $n$. A few thousand points is the practical limit:
 
 ```python
 t0 = time.time()
-s, w = legpts(1_000_000)
+s, w = legpts(2000)
 Igauss = float(jnp.dot(w, jnp.exp(s)))
 t1 = time.time()
 print(f"Igauss = {Igauss:.15f}")
@@ -660,10 +663,10 @@ print(f"Elapsed time is {t1-t0:.6f} seconds.")
 
 ```
 Igauss = 2.350402387287601
-Elapsed time is 0.084822 seconds.
+Elapsed time is 12.098000 seconds.
 ```
 
-Traditionally, numerical analysts computed Gauss quadrature nodes and weights by the eigenvalue algorithm of Golub and Welsch [Golub & Welsch 1969]. However, the Hale-Townsend and Bogaert algorithms are both more accurate and much faster [Hale & Townsend 2013, Bogaert, Michiels & Fostier 2012, Bogaert 2014].
+The Hale-Townsend and Bogaert algorithms are both more accurate and much faster than Golub-Welsch [Hale & Townsend 2013, Bogaert, Michiels & Fostier 2012, Bogaert 2014]; adopting them in place of the current eigenvalue method is future work for chebfunjax.
 
 For Legendre polynomials, Legendre points, and Gauss quadrature, use `legpoly` and `legpts`. For Chebyshev polynomials, Chebyshev points, and Clenshaw-Curtis quadrature, use `chebpoly` and `chebpts` and the built-in chebfunjax commands such as `sum`.  A third variant is also available: for Jacobi polynomials, Gauss-Jacobi points, and Gauss-Jacobi quadrature, see `jacpoly` and `jacpts`. These arise in integration of functions with singularities at one or both endpoints, and are used internally by chebfunjax for integration of chebfuns with singularities (Chapter 9). See also `hermpts` and `lagpts`.
 

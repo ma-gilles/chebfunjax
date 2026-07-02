@@ -1,7 +1,17 @@
 """Generate all plots for Guide Chapter 2: Integration and Differentiation.
 
 This script reproduces every figure from Chebfun Guide Chapter 2 using
-chebfunjax.  Each plot is saved as docs/images/guide/guide02_NN.png.
+chebfunjax.  Each figure is exported at the exact pixel size of its
+chebfun.org reference render (610x258) via
+:func:`chebfunjax.plotting.save_chebfun_figure`, so it can be compared
+pixel-for-pixel against the MATLAB documentation images.
+
+The MATLAB source for each figure is on
+https://www.chebfun.org/docs/guide/guide02.html and is the ground truth.
+Where MATLAB Chebfun renders features that chebfunjax's public plotting
+API does not (dotted vertical connectors at jumps, delta-function arrows),
+those are drawn here with matplotlib on top of values evaluated by
+chebfunjax.
 """
 
 import matplotlib
@@ -18,232 +28,285 @@ import numpy as np
 import jax.numpy as jnp
 import scipy.special as sp
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style, contour as contour_2d
+from chebfunjax.plotting import (
+    chebfun_style, save_chebfun_figure, _apply_style,
+    CHEBFUN_BLUE, CHEBFUN_RED, PARULA,
+)
+from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+from chebfunjax.domain import Domain
 
 chebfun_style()
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'docs', 'images', 'guide')
 os.makedirs(OUT_DIR, exist_ok=True)
 
-plot_idx = 0
+# chebfun.org Guide figures are rendered at 610x258 px.
+SIZE = (610, 258)
+
+# MATLAB's 'm' colour is pure magenta (1,0,1); matplotlib's 'm' is the
+# darker (0.75,0,0.75).  Use MATLAB's value for parity with the references.
+MAGENTA = (1.0, 0.0, 1.0)
+
+# Axes box position [left, bottom, width, height] measured from the
+# chebfun.org reference renders (single-plot figures): spines at
+# x=79..551, y=19..229 of the 610x258 canvas.
+SINGLE_BOX = [79 / 610, 1 - 229 / 258, (551 - 79) / 610, (229 - 19) / 258]
+
+
+def _save(fig, idx):
+    # Single-plot figures: pin the axes to the reference box so the plot
+    # area lines up pixel-for-pixel.  Multi-axes figures (7, 13, 14) set
+    # their own positions.
+    if len(fig.axes) == 1:
+        fig.axes[0].set_position(SINGLE_BOX)
+    save_chebfun_figure(fig, os.path.join(OUT_DIR, f'guide02_{idx:02d}.png'), size=SIZE)
+    plt.close(fig)
+    print(f"guide02_{idx:02d}.png saved")
+
+
+def plot_pieces(f, ax, color=CHEBFUN_BLUE, linewidth=1.2, n=400,
+                dotted_jumps=True, jump_tol=1e-6):
+    """Plot a piecewise Chebfun MATLAB-style.
+
+    Each smooth fun is drawn as a solid line over its own interval (so no
+    spurious line connects across a discontinuity), and interior jumps are
+    marked with a dotted vertical connector between the two one-sided
+    limits -- exactly as MATLAB Chebfun's ``plot`` does.
+    """
+    funs = f.funs
+    for piece in funs:
+        a, b = piece.interval
+        xs = np.linspace(a, b, n)
+        ys = np.array(piece(jnp.array(xs)))
+        ax.plot(xs, ys, color=color, linewidth=linewidth)
+    if dotted_jumps:
+        for i in range(len(funs) - 1):
+            xb = funs[i].interval[1]
+            yl = float(funs[i](jnp.float64(xb)))
+            yr = float(funs[i + 1](jnp.float64(xb)))
+            if abs(yl - yr) > jump_tol:
+                ax.plot([xb, xb], [yl, yr], color=color,
+                        linestyle=':', linewidth=linewidth)
+
 
 # --------------------------------------------------------------------------
 # Plot 1 (guide02_01): |J_0(x)| on [0, 20]
+# MATLAB: f = chebfun(@(x) abs(besselj(0,x)),[0 20],'splitting','on');
+#         plot(f), ylim([0 1.1])
 # --------------------------------------------------------------------------
 try:
-    plot_idx += 1
     g = cj.chebfun(lambda t: sp.jv(0, np.asarray(t, dtype=np.float64)), domain=[0, 20])
     g_abs = g.abs()
-    fig, ax = cj.plot(g_abs)
+    fig, ax = plt.subplots()
+    plot_pieces(g_abs, ax, color=CHEBFUN_BLUE)   # continuous: connectors auto-skipped
     ax.set_ylim([0, 1.1])
-    fig.savefig(os.path.join(OUT_DIR, f'guide02_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide02_{plot_idx:02d}.png saved")
+    _apply_style(ax)
+    _save(fig, 1)
 except Exception as e:
     import traceback; traceback.print_exc()
-    print(f"guide02_{plot_idx:02d}.png FAILED: {e}")
+    print(f"guide02_01.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
 # Plot 2 (guide02_02): min(sech(3*sin(10*x)), sin(9*x)) on [-1,1]
+# MATLAB: x=chebfun('x'); f=sech(3*sin(10*x)); g=sin(9*x); h=min(f,g); plot(h)
 # --------------------------------------------------------------------------
 try:
-    plot_idx += 1
     f = cj.chebfun(lambda x: 1.0 / jnp.cosh(3.0 * jnp.sin(10.0 * x)))
     g = cj.chebfun(lambda x: jnp.sin(9.0 * x))
-    # min(f, g) - need piecewise construction
     diff_fg = f - g
     crossings = diff_fg.roots()
-    breaks = [-1.0] + sorted([float(r) for r in crossings]) + [1.0]
-    # Remove near-duplicates
+    breaks = [-1.0] + sorted(float(r) for r in crossings) + [1.0]
     clean = [breaks[0]]
     for b in breaks[1:]:
         if b - clean[-1] > 1e-12:
             clean.append(b)
     breaks = clean
-
-    from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
-    from chebfunjax.domain import Domain
     piece_list = []
     for i in range(len(breaks) - 1):
-        mid = 0.5 * (breaks[i] + breaks[i+1])
+        mid = 0.5 * (breaks[i] + breaks[i + 1])
         fval = float(f(jnp.float64(mid)))
         gval = float(g(jnp.float64(mid)))
-        if fval <= gval:
-            piece_list.append(_Piece.from_function(lambda x, _f=f: _f(x), breaks[i], breaks[i+1]))
-        else:
-            piece_list.append(_Piece.from_function(lambda x, _g=g: _g(x), breaks[i], breaks[i+1]))
+        chosen = f if fval <= gval else g
+        piece_list.append(_Piece.from_function(lambda x, _c=chosen: _c(x),
+                                               breaks[i], breaks[i + 1]))
     h = Chebfun(funs=piece_list, domain=Domain(tuple(breaks)))
-    fig, ax = cj.plot(h)
-    fig.savefig(os.path.join(OUT_DIR, f'guide02_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide02_{plot_idx:02d}.png saved")
+    fig, ax = plt.subplots()
+    plot_pieces(h, ax, color=CHEBFUN_BLUE)   # min is continuous: no jumps
+    ax.set_ylim([-1, 1])
+    _apply_style(ax)
+    _save(fig, 2)
 except Exception as e:
     import traceback; traceback.print_exc()
-    print(f"guide02_{plot_idx:02d}.png FAILED: {e}")
+    print(f"guide02_02.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
-# Plot 3 (guide02_03): Kahaner's F21F function with three spikes
+# Plot 3 (guide02_03): Kahaner's F21F function with three spikes on [0,1]
 # --------------------------------------------------------------------------
 try:
-    plot_idx += 1
-
     def ff(x):
         return (1.0 / jnp.cosh(10.0 * (x - 0.2)))**2 + \
                (1.0 / jnp.cosh(100.0 * (x - 0.4)))**4 + \
                (1.0 / jnp.cosh(1000.0 * (x - 0.6)))**6
 
     f = cj.chebfun(ff, domain=[0, 1])
-    fig, ax = cj.plot(f)
-    fig.savefig(os.path.join(OUT_DIR, f'guide02_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide02_{plot_idx:02d}.png saved")
+    fig, ax = plt.subplots()
+    xs = np.linspace(0, 1, 4000)
+    ax.plot(xs, np.array(f(jnp.array(xs))), color=CHEBFUN_BLUE, linewidth=1.2)
+    ax.set_ylim([0, 1.2])
+    _apply_style(ax)
+    ax.set_yticks(np.arange(0, 1.21, 0.2))   # after _apply_style (overrides MaxNLocator)
+    _save(fig, 3)
 except Exception as e:
     import traceback; traceback.print_exc()
-    print(f"guide02_{plot_idx:02d}.png FAILED: {e}")
+    print(f"guide02_03.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
 # Plot 4 (guide02_04): exp(-1/sin(10*x)^2) on [-1,1]
 # --------------------------------------------------------------------------
 try:
-    plot_idx += 1
     f = cj.chebfun(lambda x: jnp.exp(-1.0 / jnp.sin(10.0 * x)**2))
-    fig, ax = cj.plot(f)
-    fig.savefig(os.path.join(OUT_DIR, f'guide02_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide02_{plot_idx:02d}.png saved")
+    fig, ax = plt.subplots()
+    xs = np.linspace(-1, 1, 2000)
+    ax.plot(xs, np.array(f(jnp.array(xs))), color=CHEBFUN_BLUE, linewidth=1.2)
+    _apply_style(ax)
+    _save(fig, 4)
 except Exception as e:
     import traceback; traceback.print_exc()
-    print(f"guide02_{plot_idx:02d}.png FAILED: {e}")
+    print(f"guide02_04.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
-# Plot 5 (guide02_05): cumsum of erf integrand, raw (F(a)=0)
+# Plot 5 (guide02_05): cumsum of erf integrand, raw (F(-5)=0)
+# MATLAB: plot(fint,'m'), ylim([-0.2 2.2]), grid on
 # --------------------------------------------------------------------------
 try:
-    plot_idx += 1
-    t = cj.chebfun(lambda t: t, domain=[-5, 5])
     f = cj.chebfun(lambda t: 2.0 * jnp.exp(-t**2) / jnp.sqrt(jnp.pi), domain=[-5, 5])
     fint = f.cumsum()
-    fig, ax = cj.plot(fint, color='m')
+    fig, ax = plt.subplots()
+    xs = np.linspace(-5, 5, 1200)
+    ax.plot(xs, np.array(fint(jnp.array(xs))), color=MAGENTA, linewidth=1.2)
     ax.set_ylim([-0.2, 2.2])
-    ax.grid(True)
-    fig.savefig(os.path.join(OUT_DIR, f'guide02_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide02_{plot_idx:02d}.png saved")
+    _apply_style(ax)
+    ax.set_xticks([-5, 0, 5])
+    ax.set_yticks([0, 0.5, 1, 1.5, 2])
+    ax.grid(True, color=(0.85, 0.85, 0.85), linewidth=0.5, linestyle='-')
+    _save(fig, 5)
 except Exception as e:
     import traceback; traceback.print_exc()
-    print(f"guide02_{plot_idx:02d}.png FAILED: {e}")
+    print(f"guide02_05.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
-# Plot 6 (guide02_06): cumsum shifted so F(0)=0 (our erf function)
+# Plot 6 (guide02_06): cumsum shifted so F(0)=0
+# MATLAB: fint = fint - fint(0); plot(fint,'m'), ylim([-1.2 1.2]), grid on
 # --------------------------------------------------------------------------
 try:
-    plot_idx += 1
     f = cj.chebfun(lambda t: 2.0 * jnp.exp(-t**2) / jnp.sqrt(jnp.pi), domain=[-5, 5])
     fint = f.cumsum()
-    shift = float(fint(jnp.float64(0.0)))
-    fint_shifted = fint - shift
-    fig, ax = cj.plot(fint_shifted, color='m')
+    fint_shifted = fint - float(fint(jnp.float64(0.0)))
+    fig, ax = plt.subplots()
+    xs = np.linspace(-5, 5, 1200)
+    ax.plot(xs, np.array(fint_shifted(jnp.array(xs))), color=MAGENTA, linewidth=1.2)
     ax.set_ylim([-1.2, 1.2])
-    ax.grid(True)
-    fig.savefig(os.path.join(OUT_DIR, f'guide02_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide02_{plot_idx:02d}.png saved")
+    _apply_style(ax)
+    ax.set_xticks([-5, 0, 5])
+    ax.set_yticks([-1, -0.5, 0, 0.5, 1])
+    ax.grid(True, color=(0.85, 0.85, 0.85), linewidth=0.5, linestyle='-')
+    _save(fig, 6)
 except Exception as e:
     import traceback; traceback.print_exc()
-    print(f"guide02_{plot_idx:02d}.png FAILED: {e}")
+    print(f"guide02_06.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
 # Plot 7 (guide02_07): oscillatory step function and its integral
+# MATLAB: x=chebfun('x',[0 6]); f=x*sign(sin(x^2));
+#         subplot(1,2,1),plot(f); g=cumsum(f); subplot(1,2,2),plot(g,'m')
 # --------------------------------------------------------------------------
 try:
-    plot_idx += 1
-    # x * sign(sin(x^2)) on [0, 6], piecewise
-    # We need the roots of sin(x^2) on [0, 6]: x = sqrt(k*pi) for k=0,1,...
-    k_vals = np.arange(0, 12)  # sqrt(11*pi) ~ 5.88 < 6
+    k_vals = np.arange(0, 12)
     breaks_inner = np.sqrt(k_vals * np.pi)
     breaks_inner = breaks_inner[(breaks_inner >= 0) & (breaks_inner <= 6)]
-    breaks = [0.0] + list(breaks_inner[breaks_inner > 0]) + [6.0]
-    # Remove duplicates and sort
-    breaks = sorted(set(breaks))
-
-    from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
-    from chebfunjax.domain import Domain
+    breaks = sorted(set([0.0] + list(breaks_inner[breaks_inner > 0]) + [6.0]))
     piece_list = []
     for i in range(len(breaks) - 1):
-        mid = 0.5 * (breaks[i] + breaks[i+1])
-        s = np.sign(np.sin(mid**2))
+        mid = 0.5 * (breaks[i] + breaks[i + 1])
+        s = float(np.sign(np.sin(mid**2)))
         piece_list.append(_Piece.from_function(
-            lambda x, _s=s: x * _s, breaks[i], breaks[i+1]
-        ))
+            lambda x, _s=s: x * _s, breaks[i], breaks[i + 1]))
     f_pw = Chebfun(funs=piece_list, domain=Domain(tuple(breaks)))
     g_pw = f_pw.cumsum()
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
-    cj.plot(f_pw, ax=ax1)
-    cj.plot(g_pw, ax=ax2, color='m')
-    fig.tight_layout()
-    fig.savefig(os.path.join(OUT_DIR, f'guide02_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide02_{plot_idx:02d}.png saved")
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    plot_pieces(f_pw, ax1, color=CHEBFUN_BLUE)
+    plot_pieces(g_pw, ax2, color=MAGENTA)   # cumsum is continuous: no jumps
+    _apply_style(ax1)
+    _apply_style(ax2)
+    ax1.set_xticks([0, 2, 4, 6])
+    ax1.set_yticks([-6, -4, -2, 0, 2, 4, 6])
+    ax2.set_xticks([0, 2, 4, 6])
+    ax2.set_yticks([0, 0.5, 1, 1.5])
+    # Subplot boxes measured from the reference: spines at x=79/282 and
+    # x=348/551, y=19..229.
+    bottom, height = 1 - 229 / 258, (229 - 19) / 258
+    ax1.set_position([79 / 610, bottom, (282 - 79) / 610, height])
+    ax2.set_position([348 / 610, bottom, (551 - 348) / 610, height])
+    _save(fig, 7)
 except Exception as e:
     import traceback; traceback.print_exc()
-    print(f"guide02_{plot_idx:02d}.png FAILED: {e}")
+    print(f"guide02_07.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
-# Plot 8 (guide02_08): Li(x) vs pi(x) (prime counting function)
+# Plot 8 (guide02_08): Li(x) vs pi(x)
+# MATLAB: plot(Li,'m'); hold on, plot(p,1:length(p),'.k'), hold off
 # --------------------------------------------------------------------------
 try:
-    plot_idx += 1
     mu = 1.45136923488338105   # Soldner's constant
     xmax = 400
     Li = cj.chebfun(lambda x: 1.0 / jnp.log(x), domain=[mu, xmax]).cumsum()
 
-    # Sieve of Eratosthenes for primes up to xmax
     def primes_up_to(n):
-        sieve = np.ones(n+1, dtype=bool)
+        sieve = np.ones(n + 1, dtype=bool)
         sieve[:2] = False
-        for i in range(2, int(n**0.5)+1):
+        for i in range(2, int(n**0.5) + 1):
             if sieve[i]:
                 sieve[i*i::i] = False
         return np.where(sieve)[0]
 
     p = primes_up_to(xmax)
-
-    fig, ax = plt.subplots(figsize=(8, 5))
-    cj.plot(Li, ax=ax, color='m')
-    ax.plot(p, np.arange(1, len(p)+1), '.k', markersize=2)
-    fig.savefig(os.path.join(OUT_DIR, f'guide02_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide02_{plot_idx:02d}.png saved")
+    fig, ax = plt.subplots()
+    xs = np.linspace(mu, xmax, 1200)
+    ax.plot(xs, np.array(Li(jnp.array(xs))), color=MAGENTA, linewidth=1.2)
+    ax.plot(p, np.arange(1, len(p) + 1), '.k', markersize=4)
+    ax.set_xlim([0, xmax])
+    ax.set_ylim([0, 100])
+    _apply_style(ax)
+    ax.set_xticks(np.arange(50, xmax + 1, 50))
+    ax.set_yticks(np.arange(0, 101, 20))
+    _save(fig, 8)
 except Exception as e:
     import traceback; traceback.print_exc()
-    print(f"guide02_{plot_idx:02d}.png FAILED: {e}")
+    print(f"guide02_08.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
-# Plot 9 (guide02_09): cos(pi*x) and its derivative -pi*sin(pi*x) on [0,20]
+# Plot 9 (guide02_09): cos(pi*x) and its derivative on [0,20]
+# MATLAB: f=chebfun('cos(pi*x)',[0 20]); fprime=diff(f); plot([f fprime])
 # --------------------------------------------------------------------------
 try:
-    plot_idx += 1
     f = cj.chebfun(lambda x: jnp.cos(jnp.pi * x), domain=[0, 20])
     fprime = f.diff()
-    fig, ax = plt.subplots(figsize=(8, 4))
-    cj.plot_1d(f, ax=ax)
-    cj.plot_1d(fprime, ax=ax, color=cj.plotting.CHEBFUN_RED)
-    fig.savefig(os.path.join(OUT_DIR, f'guide02_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide02_{plot_idx:02d}.png saved")
+    fig, ax = plt.subplots()
+    xs = np.linspace(0, 20, 4000)
+    ax.plot(xs, np.array(f(jnp.array(xs))), color=CHEBFUN_BLUE, linewidth=1.2)
+    ax.plot(xs, np.array(fprime(jnp.array(xs))), color=CHEBFUN_RED, linewidth=1.2)
+    ax.set_ylim([-4, 4])
+    _apply_style(ax)
+    _save(fig, 9)
 except Exception as e:
     import traceback; traceback.print_exc()
-    print(f"guide02_{plot_idx:02d}.png FAILED: {e}")
+    print(f"guide02_09.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
-# Plot 10 (guide02_10): piecewise function f = {x^2, 1, 4-x, 4/x} on [0,4]
+# Plot 10 (guide02_10): piecewise f = {x^2, 1, 4-x, 4/x} on [0,4]
 # --------------------------------------------------------------------------
 try:
-    plot_idx += 1
-    from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
-    from chebfunjax.domain import Domain
-
     piece_list = [
         _Piece.from_function(lambda x: x**2, 0, 1),
         _Piece.from_function(lambda x: jnp.ones_like(x), 1, 2),
@@ -251,74 +314,133 @@ try:
         _Piece.from_function(lambda x: 4.0 / x, 3, 4),
     ]
     f_pw = Chebfun(funs=piece_list, domain=Domain((0.0, 1.0, 2.0, 3.0, 4.0)))
-    fig, ax = cj.plot(f_pw)
-    fig.savefig(os.path.join(OUT_DIR, f'guide02_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide02_{plot_idx:02d}.png saved")
+    fig, ax = plt.subplots()
+    plot_pieces(f_pw, ax, color=CHEBFUN_BLUE)
+    _apply_style(ax)
+    _save(fig, 10)
 except Exception as e:
     import traceback; traceback.print_exc()
-    print(f"guide02_{plot_idx:02d}.png FAILED: {e}")
+    print(f"guide02_10.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
-# Plot 11 (guide02_11): derivative of the piecewise function
+# Plot 11 (guide02_11): derivative of the piecewise function (with deltas)
+# MATLAB: fprime = diff(f); plot(fprime,'r'), ylim([-2,3])
+# chebfunjax has no deltafun, so the two delta impulses (amplitude 1 at
+# x=2 and 1/3 at x=3, from the jumps of f) are drawn here as arrows.
 # --------------------------------------------------------------------------
 try:
-    plot_idx += 1
     fprime_pw = f_pw.diff()
-    fig, ax = cj.plot(fprime_pw, color='r')
+    fig, ax = plt.subplots()
+    plot_pieces(fprime_pw, ax, color='r')
+
+    # Delta impulses = jumps of the original f at its interior breakpoints.
+    bp = [0.0, 1.0, 2.0, 3.0, 4.0]
+    for i in range(1, len(bp) - 1):
+        xb = bp[i]
+        f_left = float(f_pw.funs[i - 1](jnp.float64(xb)))
+        f_right = float(f_pw.funs[i](jnp.float64(xb)))
+        amp = f_right - f_left            # signed delta amplitude
+        if abs(amp) < 1e-9:
+            continue
+        # Arrow base sits at the top of the derivative's jump connector.
+        d_left = float(fprime_pw.funs[i - 1](jnp.float64(xb)))
+        d_right = float(fprime_pw.funs[i](jnp.float64(xb)))
+        base = max(d_left, d_right) if amp > 0 else min(d_left, d_right)
+        ax.annotate("", xy=(xb, base + amp), xytext=(xb, base),
+                    arrowprops=dict(arrowstyle="-|>", color='r', lw=1.2,
+                                    mutation_scale=12))
     ax.set_ylim([-2, 3])
-    fig.savefig(os.path.join(OUT_DIR, f'guide02_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide02_{plot_idx:02d}.png saved")
+    _apply_style(ax)
+    _save(fig, 11)
 except Exception as e:
     import traceback; traceback.print_exc()
-    print(f"guide02_{plot_idx:02d}.png FAILED: {e}")
+    print(f"guide02_11.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
 # Plot 12 (guide02_12): 4th derivative of 1/(1+x^2)
 # --------------------------------------------------------------------------
 try:
-    plot_idx += 1
     f = cj.chebfun(lambda x: 1.0 / (1.0 + x**2))
     g = f.diff(4)
-    fig, ax = cj.plot(g)
-    fig.savefig(os.path.join(OUT_DIR, f'guide02_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide02_{plot_idx:02d}.png saved")
+    fig, ax = plt.subplots()
+    xs = np.linspace(-1, 1, 2000)
+    ax.plot(xs, np.array(g(jnp.array(xs))), color=CHEBFUN_BLUE, linewidth=1.2)
+    _apply_style(ax)
+    _save(fig, 12)
 except Exception as e:
     import traceback; traceback.print_exc()
-    print(f"guide02_{plot_idx:02d}.png FAILED: {e}")
+    print(f"guide02_12.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
-# Plot 13 (guide02_13): 2D contour plot of sin(5*(theta - r))*sin(x)
+# 2D integrand used by figures 13 and 14
+# --------------------------------------------------------------------------
+r_fn = lambda x, y: jnp.sqrt(x**2 + y**2)
+theta_fn = lambda x, y: jnp.arctan2(y, x)
+f2d = lambda x, y: jnp.sin(5.0 * (theta_fn(x, y) - r_fn(x, y))) * jnp.sin(x)
+
+
+def contour_box(zz, xv, yv, idx):
+    """MATLAB-style contour(x,y,z,-1:.2:1) with colorbar and grid."""
+    from matplotlib.cm import ScalarMappable
+    from matplotlib.colors import Normalize
+    from matplotlib.ticker import FuncFormatter
+
+    levels = np.arange(-1.0, 1.0001, 0.2)
+    norm = Normalize(vmin=float(np.nanmin(zz)), vmax=float(np.nanmax(zz)))
+    fig, ax = plt.subplots()
+    ax.contour(xv, yv, zz, levels=levels, cmap=PARULA, norm=norm, linewidths=0.8)
+    ax.set_xlim([-2, 2])
+    ax.set_ylim([0.5, 2.5])
+    ax.set_xticks(np.arange(-2, 2.01, 0.5))
+    ax.set_yticks(np.arange(0.5, 2.51, 0.5))
+    fmt = FuncFormatter(lambda v, _: f"{v:g}")
+    ax.xaxis.set_major_formatter(fmt)
+    ax.yaxis.set_major_formatter(fmt)
+    for spine in ax.spines.values():
+        spine.set_linewidth(0.5)
+    ax.tick_params(direction='in', labelsize=9)
+    ax.grid(True, color=(0.85, 0.85, 0.85), linewidth=0.5, linestyle='-')
+    # Positions measured from the reference: plot spines x=70..488,
+    # colorbar x=511..531, y=19..229.
+    bottom, height = 1 - 229 / 258, (229 - 19) / 258
+    ax.set_position([70 / 610, bottom, (488 - 70) / 610, height])
+    # MATLAB's colorbar is a continuous parula gradient spanning the data
+    # range, not the discrete contour-line colours matplotlib would show
+    # for a line ContourSet.
+    sm = ScalarMappable(cmap=PARULA, norm=norm)
+    sm.set_array([])
+    cax = fig.add_axes([511 / 610, bottom, (531 - 511) / 610, height])
+    cb = fig.colorbar(sm, cax=cax)
+    cb.set_ticks([-0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6])
+    cb.ax.yaxis.set_major_formatter(fmt)
+    cb.ax.tick_params(labelsize=9)
+    _save(fig, idx)
+
+# --------------------------------------------------------------------------
+# Plot 13 (guide02_13): contour of the raw anonymous function
 # --------------------------------------------------------------------------
 try:
-    plot_idx += 1
-    r_fn = lambda x, y: jnp.sqrt(x**2 + y**2)
-    theta_fn = lambda x, y: jnp.arctan2(y, x)
-    f2d = lambda x, y: jnp.sin(5.0 * (theta_fn(x, y) - r_fn(x, y))) * jnp.sin(x)
-
-    f2_obj = cj.chebfun2(f2d, domain=(-2, 2, 0.5, 2.5))
-    fig, ax = contour_2d(f2_obj, title='', filled=False)
-    fig.savefig(os.path.join(OUT_DIR, f'guide02_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide02_{plot_idx:02d}.png saved")
+    xv = np.linspace(-2, 2, 201)
+    yv = np.linspace(0.5, 2.5, 201)
+    xx, yy = np.meshgrid(xv, yv)
+    zz = np.array(f2d(jnp.array(xx), jnp.array(yy)))
+    contour_box(zz, xv, yv, 13)
 except Exception as e:
     import traceback; traceback.print_exc()
-    print(f"guide02_{plot_idx:02d}.png FAILED: {e}")
+    print(f"guide02_13.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
-# Plot 14 (guide02_14): same 2D contour via Chebfun2
+# Plot 14 (guide02_14): contour of the Chebfun2 approximation
 # --------------------------------------------------------------------------
 try:
-    plot_idx += 1
     f2 = cj.chebfun2(f2d, domain=(-2, 2, 0.5, 2.5))
-    fig, ax = contour_2d(f2, title='Chebfun2 contour')
-    fig.savefig(os.path.join(OUT_DIR, f'guide02_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide02_{plot_idx:02d}.png saved")
+    xv = np.linspace(-2, 2, 201)
+    yv = np.linspace(0.5, 2.5, 201)
+    xx, yy = np.meshgrid(xv, yv)
+    zz = np.array(f2(jnp.array(xx), jnp.array(yy)))
+    contour_box(zz, xv, yv, 14)
 except Exception as e:
     import traceback; traceback.print_exc()
-    print(f"guide02_{plot_idx:02d}.png FAILED: {e}")
+    print(f"guide02_14.png FAILED: {e}")
 
-print(f"\nGuide 02: generated {plot_idx} plots total.")
+print("\nGuide 02: generated 14 plots total.")
