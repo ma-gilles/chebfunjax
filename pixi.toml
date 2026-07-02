@@ -12,6 +12,7 @@ matplotlib = ">=3.7"
 pytest = ">=7.0"
 pytest-xdist = "*"
 pytest-cov = "*"
+pytest-timeout = "*"
 ruff = "*"
 mkdocs = "*"
 mkdocs-material = "*"
@@ -23,10 +24,12 @@ equinox = ">=0.11"
 chebfunjax = { path = ".", editable = true }
 
 [tasks]
-test-fast = "python -m pytest tests/ -m 'not slow and not gpu and not matlab' -v --tb=short"
-test-full = "python -m pytest tests/ -v --tb=short --cov=chebfunjax --cov-report=term-missing"
-test-gpu = "python -m pytest tests/ -m gpu -v --tb=short"
-test-matlab = "python -m pytest tests/ -m matlab -v --tb=short"
+# --timeout guards against constructor hangs (a Ballfun loop once burned
+# 6h CI runs); -n auto uses all cores via pytest-xdist.
+test-fast = "python -m pytest tests/ -m 'not slow and not gpu and not matlab' -q --tb=short --timeout=900 -n auto"
+test-full = "python -m pytest tests/ -q --tb=short --timeout=900 -n auto --cov=chebfunjax --cov-report=term-missing"
+test-gpu = "python -m pytest tests/ -m gpu -v --tb=short --timeout=900"
+test-matlab = "python -m pytest tests/ -m matlab -q --tb=short --timeout=900 -n auto"
 check-jax = "python -c \"import jax; print('JAX devices:', jax.devices())\""
 lint = "ruff check src/ tests/"
 format = "ruff format src/ tests/"

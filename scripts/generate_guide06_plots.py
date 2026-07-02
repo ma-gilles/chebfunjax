@@ -1,15 +1,23 @@
-"""Generate all plots for Guide Chapter 6: Quasimatrices and Least-Squares."""
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+"""Generate all plots for Guide Chapter 6: Quasimatrices and Least-Squares.
+
+Every figure is generated from genuine chebfunjax objects (quasimatrices,
+continuous QR/SVD) and exported at the exact 610x258 px canvas used by the
+MATLAB renders on chebfun.org, so the pages line up pixel-for-pixel.
+"""
+import os
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+from matplotlib.ticker import FuncFormatter
 
 import jax.numpy as jnp
 import numpy as np
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style, CHEBFUN_BLUE, CHEBFUN_RED, CHEBFUN_GREEN, CHEBFUN_ORANGE
+from chebfunjax.plotting import chebfun_style, save_chebfun_figure
 from chebfunjax.chebfun1d.linalg import Quasimatrix, qr_quasimatrix, svd_quasimatrix
 from chebfunjax.domain import Domain
 
@@ -18,86 +26,155 @@ chebfun_style()
 OUTDIR = os.path.join(os.path.dirname(__file__), '..', 'docs', 'images', 'guide')
 os.makedirs(OUTDIR, exist_ok=True)
 
+# MATLAB default color order (co-ordinated with the chebfun.org renders).
+MATLAB = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E',
+          '#77AC30', '#4DBEEE', '#A2142F']
+BLUE, RED = MATLAB[0], MATLAB[1]
+
+# chebfun.org Guide canvas = 610x258 px. Single-panel axes frame sits at
+# pixel box x=[79,551], y=[19,229]; multi-panel boxes are positioned to match
+# their MATLAB renders (measured from the reference PNGs).
+SIZE = (610, 258)
+SINGLE = [79 / 610, 1 - 229 / 258, (551 - 79) / 610, (229 - 19) / 258]
+_FMT = FuncFormatter(lambda v, _: f"{v:g}")
+
 plot_index = 0
+
+
+def _pos(x0, x1, y0, y1):
+    """Axes box (figure fractions) from a pixel rectangle on the 610x258 canvas."""
+    return [x0 / 610, 1 - y1 / 258, (x1 - x0) / 610, (y1 - y0) / 258]
+
+
+def new_single():
+    fig = plt.figure()
+    ax = fig.add_axes(SINGLE)
+    return fig, ax
+
+
+def style_line(ax, xlim, ylim, xticks, yticks, grid=True):
+    ax.set_xlim(*xlim)
+    ax.set_ylim(*ylim)
+    ax.set_xticks(xticks)
+    ax.set_yticks(yticks)
+    ax.xaxis.set_major_formatter(_FMT)
+    ax.yaxis.set_major_formatter(_FMT)
+    if grid:
+        ax.grid(True, color=(0.87, 0.87, 0.87), linewidth=0.6)
+        ax.set_axisbelow(True)
+    for sp in ax.spines.values():
+        sp.set_visible(True)
+        sp.set_linewidth(0.5)
+
+
+def style_box(ax, title):
+    ax.set_title(title, fontsize=11)
+    for sp in ax.spines.values():
+        sp.set_visible(True)
+        sp.set_linewidth(0.6)
+
+
+def curve(ax, f, color, lw=1.4, n=2000):
+    xs = np.linspace(-1.0, 1.0, n)
+    ys = np.array(f(jnp.array(xs)))
+    ax.plot(xs, ys, color=color, linewidth=lw)
+
+
+def spy_cols(ax, ncol, title):
+    """inf x ncol quasimatrix: one coloured vertical line per column."""
+    for k in range(ncol):
+        ax.plot([k + 1, k + 1], [-1, 1], color=MATLAB[k % 7], linewidth=2.0)
+    ax.set_xlim(0.5, ncol + 0.5)
+    ax.set_ylim(1, -1)                      # domain [-1,1], -1 at top
+    ax.set_xticks(range(1, ncol + 1))
+    ax.set_yticks([-1, 1])
+    style_box(ax, title)
+
+
+def spy_rows(ax, nrow, title):
+    """nrow x inf quasimatrix: one coloured horizontal line per row."""
+    for k in range(nrow):
+        ax.plot([-1, 1], [k + 1, k + 1], color=MATLAB[k % 7], linewidth=2.0)
+    ax.set_xlim(-1, 1)
+    ax.set_ylim(nrow + 0.5, 0.5)            # row 1 at top
+    ax.set_xticks([-1, 1])
+    ax.set_yticks(range(1, nrow + 1))
+    style_box(ax, title)
+
+
+def spy_dots(ax, coords, title, nz, xlim, ylim, xticks, yticks):
+    for (r, c) in coords:
+        ax.plot(c, r, 'o', color=BLUE, markersize=4)
+    ax.set_xlim(*xlim)
+    ax.set_ylim(*ylim)
+    ax.set_xticks(xticks)
+    ax.set_yticks(yticks)
+    ax.set_xlabel(f"nz = {nz}", fontsize=10)
+    style_box(ax, title)
+
 
 def save(fig):
     global plot_index
     plot_index += 1
     path = os.path.join(OUTDIR, f"guide06_{plot_index:02d}.png")
-    fig.savefig(path, dpi=150, bbox_inches='tight')
+    save_chebfun_figure(fig, path, size=SIZE)
     plt.close(fig)
     print(f"  guide06_{plot_index:02d}.png saved")
 
-# Build common objects
+
+def skip(err):
+    global plot_index
+    plot_index += 1
+    print(f"  guide06_{plot_index:02d}.png FAILED: {err}")
+
+
+# --------------------------------------------------------------------------
+# Common chebfunjax objects
+# --------------------------------------------------------------------------
 x = cj.chebfun(lambda t: t)
-cols = [x**k for k in range(6)]
+cols = [x ** k for k in range(6)]
 A = Quasimatrix(cols, domain=Domain((-1.0, 1.0)))
-_colors6 = [CHEBFUN_BLUE, CHEBFUN_RED, '#228B22', '#E08030', '#8B008B', '#008080']
-tt = jnp.linspace(-1, 1, 600)
+f = cj.chebfun(lambda t: jnp.exp(t) * jnp.sin(6 * t))
+
+hat_cols = []
+for j in range(11):
+    xj = -1.0 + j / 5.0
+    hat_cols.append(
+        cj.chebfun(lambda t, _xj=xj: jnp.maximum(0.0, 1.0 - 5.0 * jnp.abs(t - _xj)),
+                   domain=(-1.0, 1.0))
+    )
+A2 = Quasimatrix(hat_cols, domain=Domain((-1.0, 1.0)))
+
+XT5 = [-1.0, -0.5, 0.0, 0.5, 1.0]                 # monomial-plot x-ticks
+XT2 = [round(-1.0 + 0.2 * i, 1) for i in range(11)]  # hat-plot x-ticks (step 0.2)
 
 # ==========================================================================
-# Plot 1: Columns of A = [1, x, x^2, ..., x^5]  -- Section 6.1
+# Plot 1: columns of A = [1, x, x^2, ..., x^5]                    (Sec 6.1)
 # ==========================================================================
 try:
-    fig, ax = plt.subplots(figsize=(6, 4))
+    fig, ax = new_single()
     for k in range(6):
-        cj.plot_1d(A[k], ax=ax, color=_colors6[k])
-    ax.set_ylim([-1.1, 1.1])
-    ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.4)
-    fig.set_facecolor('white')
-    fig.tight_layout()
+        curve(ax, cols[k], MATLAB[k])
+    style_line(ax, (-1, 1), (-1.1, 1.1), XT5, [-1, -0.5, 0, 0.5, 1])
     save(fig)
 except Exception as e:
-    plot_index += 1
-    print(f"  guide06_{plot_index:02d}.png FAILED: {e}")
+    skip(e)
 
 # ==========================================================================
-# Plot 2: spy(A) and spy(A') -- Section 6.1
+# Plot 2: spy(A) and spy(A')                                       (Sec 6.1)
 # ==========================================================================
 try:
-    fig, axes = plt.subplots(1, 2, figsize=(8, 3))
-
-    # spy(A) -- inf x 6
-    ax = axes[0]
-    for j in range(6):
-        ax.plot([j+0.5, j+0.5], [0.1, 0.9], color=CHEBFUN_BLUE, linewidth=4)
-    ax.set_xlim([0, 7])
-    ax.set_ylim([0, 1])
-    ax.set_title('A')
-    ax.set_xticks(np.arange(0.5, 6.5, 1))
-    ax.set_xticklabels(range(1, 7))
-    ax.set_yticks([])
-    ax.set_ylabel(r'$\infty$')
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-
-    # spy(A') -- 6 x inf
-    ax = axes[1]
-    for j in range(6):
-        ax.plot([0.1, 0.9], [j+0.5, j+0.5], color=CHEBFUN_BLUE, linewidth=4)
-    ax.set_xlim([0, 1])
-    ax.set_ylim([0, 7])
-    ax.set_title("A'")
-    ax.set_yticks(np.arange(0.5, 6.5, 1))
-    ax.set_yticklabels(range(1, 7))
-    ax.set_xticks([])
-    ax.set_xlabel(r'$\infty$')
-    ax.invert_yaxis()
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-
-    fig.set_facecolor('white')
-    fig.tight_layout()
+    fig = plt.figure()
+    spy_cols(fig.add_axes(_pos(130, 231, 23, 229)), 6, 'A')
+    spy_rows(fig.add_axes(_pos(348, 551, 84, 168)), 6, "A'")
     save(fig)
 except Exception as e:
-    plot_index += 1
-    print(f"  guide06_{plot_index:02d}.png FAILED: {e}")
+    skip(e)
 
 # ==========================================================================
-# Plot 3: f and its degree-5 least-squares fit  -- Section 6.2
+# Plot 3: f and its degree-5 least-squares fit                     (Sec 6.2)
 # ==========================================================================
 try:
-    f = cj.chebfun(lambda t: jnp.exp(t) * jnp.sin(6 * t))
     Q, R = qr_quasimatrix(A)
     rhs = jnp.array([float(Q[j].inner(f)) for j in range(6)])
     c = jnp.linalg.solve(R, rhs)
@@ -105,273 +182,167 @@ try:
     for j in range(1, 6):
         ffit = ffit + cols[j] * float(c[j])
 
-    fig, ax = plt.subplots(figsize=(6, 4))
-    cj.plot_1d(f, ax=ax, color=CHEBFUN_BLUE, label='f')
-    cj.plot_1d(ffit, ax=ax, color=CHEBFUN_RED, label='ffit')
-    ax.legend()
-    ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.4)
-    fig.set_facecolor('white')
-    fig.tight_layout()
+    fig, ax = new_single()
+    curve(ax, f, BLUE)
+    curve(ax, ffit, RED)
+    style_line(ax, (-1, 1), (-3, 2), XT5, [-3, -2, -1, 0, 1, 2])
+    ax.legend(['f', 'ffit'], loc='upper right', fontsize=9,
+              handlelength=1.6, borderaxespad=0.4)
     save(fig)
 except Exception as e:
-    plot_index += 1
-    print(f"  guide06_{plot_index:02d}.png FAILED: {e}")
+    skip(e)
 
 # ==========================================================================
-# Plot 4: Hat functions  -- Section 6.2
+# Plot 4: hat functions                                            (Sec 6.2)
 # ==========================================================================
 try:
-    hat_cols = []
-    for j in range(11):
-        xj = -1.0 + j / 5.0
-        hat_cols.append(
-            cj.chebfun(
-                lambda t, _xj=xj: jnp.maximum(0.0, 1.0 - 5.0 * jnp.abs(t - _xj)),
-                domain=(-1.0, 1.0),
-            )
-        )
-    A2 = Quasimatrix(hat_cols, domain=Domain((-1.0, 1.0)))
-
-    fig, ax = plt.subplots(figsize=(6, 4))
+    fig, ax = new_single()
     for k in range(11):
-        cj.plot_1d(A2[k], ax=ax)
-    ax.set_xticks(np.arange(-1, 1.2, 0.2))
-    ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.4)
-    fig.set_facecolor('white')
-    fig.tight_layout()
+        curve(ax, hat_cols[k], MATLAB[k % 7])
+    style_line(ax, (-1, 1), (-0.2, 1.0), XT2,
+               [-0.2, 0, 0.2, 0.4, 0.6, 0.8, 1.0], grid=False)
     save(fig)
 except Exception as e:
-    plot_index += 1
-    print(f"  guide06_{plot_index:02d}.png FAILED: {e}")
+    skip(e)
 
 # ==========================================================================
-# Plot 5: Hat-function least-squares fit  -- Section 6.2
+# Plot 5: hat-function least-squares fit                           (Sec 6.2)
 # ==========================================================================
 try:
-    Q2_ls, R2_ls = qr_quasimatrix(A2)
-    rhs2 = jnp.array([float(Q2_ls[j].inner(f)) for j in range(11)])
-    c2 = jnp.linalg.solve(R2_ls, rhs2)
+    Q2, R2 = qr_quasimatrix(A2)
+    rhs2 = jnp.array([float(Q2[j].inner(f)) for j in range(11)])
+    c2 = jnp.linalg.solve(R2, rhs2)
     ffit2 = hat_cols[0] * float(c2[0])
     for j in range(1, 11):
         ffit2 = ffit2 + hat_cols[j] * float(c2[j])
 
-    fig, ax = plt.subplots(figsize=(6, 4))
-    cj.plot_1d(f, ax=ax, color=CHEBFUN_BLUE, label='f')
-    cj.plot_1d(ffit2, ax=ax, color=CHEBFUN_RED, label='ffit')
-    ax.legend()
-    ax.set_xticks(np.arange(-1, 1.2, 0.2))
-    ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.4)
-    fig.set_facecolor('white')
-    fig.tight_layout()
+    fig, ax = new_single()
+    curve(ax, f, BLUE)
+    curve(ax, ffit2, RED)
+    style_line(ax, (-1, 1), (-3, 2), XT2, [-3, -2, -1, 0, 1, 2])
+    ax.legend(['f', 'ffit'], loc='upper right', fontsize=9,
+              handlelength=1.6, borderaxespad=0.4)
     save(fig)
 except Exception as e:
-    plot_index += 1
-    print(f"  guide06_{plot_index:02d}.png FAILED: {e}")
+    skip(e)
 
 # ==========================================================================
-# Plot 6: QR orthonormal columns (L2-normalized Legendre polynomials) -- Sec 6.3
+# Plot 6: QR orthonormal columns (L2-normalized Legendre)          (Sec 6.3)
 # ==========================================================================
 try:
-    Q_mono, R_mono = qr_quasimatrix(A)
-
-    fig, ax = plt.subplots(figsize=(6, 4))
-    for k in range(Q_mono.n_cols):
-        cj.plot_1d(Q_mono[k], ax=ax, color=_colors6[k])
-    ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.4)
-    fig.set_facecolor('white')
-    fig.tight_layout()
+    Qm, Rm = qr_quasimatrix(A)
+    fig, ax = new_single()
+    for k in range(Qm.n_cols):
+        curve(ax, Qm[k], MATLAB[k])
+    style_line(ax, (-1, 1), (-3, 3), XT5, [-3, -2, -1, 0, 1, 2, 3])
     save(fig)
 except Exception as e:
-    plot_index += 1
-    print(f"  guide06_{plot_index:02d}.png FAILED: {e}")
+    skip(e)
 
 # ==========================================================================
-# Plot 7: spy(A), spy(Q), spy(R)  -- Section 6.3
+# Plot 7: spy(A), spy(Q), spy(R)                                   (Sec 6.3)
 # ==========================================================================
 try:
-    R_np = np.array(R_mono)
-    fig, axes = plt.subplots(1, 3, figsize=(10, 3.5))
-
-    # spy(A)
-    ax = axes[0]
-    ax.set_title('A')
-    for j in range(6):
-        ax.plot([j, j], [0, 1], color=CHEBFUN_BLUE, linewidth=4)
-    ax.set_xlim([-0.5, 5.5]); ax.set_ylim([-0.1, 1.1])
-    ax.set_xticks(range(6)); ax.set_yticks([])
-    ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
-
-    # spy(Q)
-    ax = axes[1]
-    ax.set_title('Q')
-    for j in range(6):
-        ax.plot([j, j], [0, 1], color=CHEBFUN_BLUE, linewidth=4)
-    ax.set_xlim([-0.5, 5.5]); ax.set_ylim([-0.1, 1.1])
-    ax.set_xticks(range(6)); ax.set_yticks([])
-    ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
-
-    # spy(R) -- upper triangular
-    ax = axes[2]
-    ax.set_title('R')
-    for i in range(6):
-        for j in range(6):
-            if abs(R_np[i, j]) > 1e-14:
-                ax.plot(j, i, 's', color=CHEBFUN_BLUE, markersize=8)
-    ax.set_xlim([-0.5, 5.5]); ax.set_ylim([-0.5, 5.5])
-    ax.invert_yaxis(); ax.set_aspect('equal')
-    ax.set_xticks(range(6)); ax.set_yticks(range(6))
-    ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
-
-    fig.set_facecolor('white')
-    fig.tight_layout()
+    Rnp = np.array(Rm)
+    coords = [(r, c) for r in range(6) for c in range(6)
+              if abs(Rnp[r, c]) > 1e-12]
+    fig = plt.figure()
+    spy_cols(fig.add_axes(_pos(112, 175, 23, 229)), 6, 'A')
+    spy_cols(fig.add_axes(_pos(284, 347, 23, 229)), 6, 'Q')
+    spy_dots(fig.add_axes(_pos(422, 551, 61, 191)),
+             [(r + 1, c + 1) for (r, c) in coords], 'R', len(coords),
+             (-0.2, 6.5), (6.5, -0.2), [0, 5], [0, 2, 4, 6])
     save(fig)
 except Exception as e:
-    plot_index += 1
-    print(f"  guide06_{plot_index:02d}.png FAILED: {e}")
+    skip(e)
 
 # ==========================================================================
-# Plot 8: Renormalized Legendre (P(1)=1) -- Section 6.3
+# Plot 8: renormalized Legendre (P(1)=1)                           (Sec 6.3)
 # ==========================================================================
 try:
     Q_leg = []
     for j in range(6):
-        val_at_1 = float(Q_mono[j](jnp.float64(1.0)))
-        if abs(val_at_1) > 1e-14:
-            Q_leg.append(Q_mono[j] * (1.0 / val_at_1))
-        else:
-            Q_leg.append(Q_mono[j])
-
-    fig, ax = plt.subplots(figsize=(6, 4))
+        v1 = float(Qm[j](jnp.float64(1.0)))
+        Q_leg.append(Qm[j] * (1.0 / v1) if abs(v1) > 1e-14 else Qm[j])
+    fig, ax = new_single()
     for k in range(6):
-        cj.plot_1d(Q_leg[k], ax=ax, color=_colors6[k])
-    ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.4)
-    fig.set_facecolor('white')
-    fig.tight_layout()
+        curve(ax, Q_leg[k], MATLAB[k])
+    style_line(ax, (-1, 1), (-1.5, 1.5), XT5,
+               [-1.5, -1, -0.5, 0, 0.5, 1, 1.5])
     save(fig)
 except Exception as e:
-    plot_index += 1
-    print(f"  guide06_{plot_index:02d}.png FAILED: {e}")
+    skip(e)
 
 # ==========================================================================
-# Plot 9: Orthonormalized hat functions -- Section 6.3
+# Plot 9: orthonormalized hat functions                            (Sec 6.3)
 # ==========================================================================
 try:
-    Q2_hat, R2_hat = qr_quasimatrix(A2)
-
-    fig, ax = plt.subplots(figsize=(6, 4))
-    for k in range(Q2_hat.n_cols):
-        cj.plot_1d(Q2_hat[k], ax=ax)
-    ax.set_xticks(np.arange(-1, 1.2, 0.2))
-    ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.4)
-    fig.set_facecolor('white')
-    fig.tight_layout()
+    Q2h, R2h = qr_quasimatrix(A2)
+    fig, ax = new_single()
+    for k in range(Q2h.n_cols):
+        curve(ax, Q2h[k], MATLAB[k % 7])
+    style_line(ax, (-1, 1), (-2, 4), XT2, [-2, -1, 0, 1, 2, 3, 4], grid=False)
     save(fig)
 except Exception as e:
-    plot_index += 1
-    print(f"  guide06_{plot_index:02d}.png FAILED: {e}")
+    skip(e)
 
 # ==========================================================================
-# Plot 10: spy(A), spy(U), spy(S), spy(V) -- Section 6.4
+# Plot 10: spy(A), spy(U), spy(S), spy(V)                          (Sec 6.4)
 # ==========================================================================
 try:
-    U_svd, S_svd, V_svd = svd_quasimatrix(A)
-    V_np = np.array(V_svd)
-    S_np = np.array(S_svd)
-
-    fig, axes = plt.subplots(1, 4, figsize=(12, 3))
-
-    for idx_a, (title_, is_inf) in enumerate([('A', True), ('U', True), ('S', False), ('V', False)]):
-        ax = axes[idx_a]
-        ax.set_title(title_)
-        if is_inf:
-            for j in range(6):
-                ax.plot([j, j], [0, 1], color=CHEBFUN_BLUE, linewidth=4)
-            ax.set_xlim([-0.5, 5.5]); ax.set_ylim([-0.1, 1.1])
-            ax.set_xticks(range(6)); ax.set_yticks([])
-        elif title_ == 'S':
-            for i in range(6):
-                ax.plot(i, i, 's', color=CHEBFUN_BLUE, markersize=8)
-            ax.set_xlim([-0.5, 5.5]); ax.set_ylim([-0.5, 5.5])
-            ax.invert_yaxis(); ax.set_aspect('equal')
-            ax.set_xticks(range(6)); ax.set_yticks(range(6))
-        else:  # V
-            for i in range(6):
-                for j in range(6):
-                    if abs(V_np[i, j]) > 1e-14:
-                        ax.plot(j, i, 's', color=CHEBFUN_BLUE, markersize=8)
-            ax.set_xlim([-0.5, 5.5]); ax.set_ylim([-0.5, 5.5])
-            ax.invert_yaxis(); ax.set_aspect('equal')
-            ax.set_xticks(range(6)); ax.set_yticks(range(6))
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-
-    fig.set_facecolor('white')
-    fig.tight_layout()
+    U, S, V = svd_quasimatrix(A)
+    fig = plt.figure()
+    spy_cols(fig.add_axes(_pos(98, 135, 23, 229)), 6, 'A')
+    spy_cols(fig.add_axes(_pos(297, 333, 23, 229)), 6, 'U')
+    spy_dots(fig.add_axes(_pos(377, 452, 88, 164)),
+             [(i + 1, i + 1) for i in range(6)], 'S', 6,
+             (-0.2, 6.5), (6.5, -0.2), [0, 5], [0, 5])
+    spy_dots(fig.add_axes(_pos(477, 551, 88, 164)),
+             [(i + 1, j + 1) for i in range(6) for j in range(6)], 'V', 36,
+             (-0.2, 6.5), (6.5, -0.2), [0, 5], [0, 5])
     save(fig)
 except Exception as e:
-    plot_index += 1
-    print(f"  guide06_{plot_index:02d}.png FAILED: {e}")
+    skip(e)
 
 # ==========================================================================
-# Plot 11: Extremal functions A*v1 (blue) and A*vn (red) -- Section 6.4
+# Plot 11: SVD extremal functions A*v1 (blue) and A*vn (red)       (Sec 6.4)
 # ==========================================================================
 try:
-    v1 = np.array(V_svd[:, 0])
-    vn = np.array(V_svd[:, -1])
+    Vnp = np.array(V)
+    v1 = Vnp[:, 0]
+    vn = Vnp[:, -1]
     f_max = sum(float(v1[j]) * cols[j] for j in range(6))
     f_min = sum(float(vn[j]) * cols[j] for j in range(6))
-
-    fig, ax = plt.subplots(figsize=(6, 4))
-    cj.plot_1d(f_max, ax=ax, color=CHEBFUN_BLUE)
-    cj.plot_1d(f_min, ax=ax, color=CHEBFUN_RED)
-    ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.4)
-    fig.set_facecolor('white')
-    fig.tight_layout()
+    fig, ax = new_single()
+    curve(ax, f_max, BLUE)
+    curve(ax, f_min, '#FF0000')     # MATLAB 'r' (pure red) on chebfun.org
+    style_line(ax, (-1, 1), (-0.07, 1.5), XT5, [0, 0.5, 1, 1.5])
     save(fig)
 except Exception as e:
-    plot_index += 1
-    print(f"  guide06_{plot_index:02d}.png FAILED: {e}")
+    skip(e)
 
 # ==========================================================================
-# Plot 12: spy(null(B)), spy(orth(B)), spy(pinv(A)) -- Section 6.6
+# Plot 12: spy(null(B)), spy(orth(B)), spy(pinv(A))                (Sec 6.6)
 # ==========================================================================
 try:
-    fig, axes = plt.subplots(1, 3, figsize=(10, 3))
-
-    # null(B) -- 3 x 1 vector
-    ax = axes[0]
-    ax.set_title('null(B)')
-    for i in range(3):
-        ax.plot(0, i, 's', color=CHEBFUN_BLUE, markersize=10)
-    ax.set_xlim([-0.5, 0.5]); ax.set_ylim([-0.5, 2.5])
-    ax.invert_yaxis()
-    ax.set_xticks([0]); ax.set_yticks(range(3))
-    ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
-
-    # orth(B) -- inf x 2
-    ax = axes[1]
-    ax.set_title('orth(B)')
-    for j in range(2):
-        ax.plot([j, j], [0, 1], color=CHEBFUN_BLUE, linewidth=4)
-    ax.set_xlim([-0.5, 1.5]); ax.set_ylim([-0.1, 1.1])
-    ax.set_xticks(range(2)); ax.set_yticks([])
-    ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
-
-    # pinv(A) -- 6 x inf
-    ax = axes[2]
-    ax.set_title('pinv(A)')
-    for j in range(6):
-        ax.plot([0, 1], [j, j], color=CHEBFUN_BLUE, linewidth=3)
-    ax.set_xlim([-0.1, 1.1]); ax.set_ylim([-0.5, 5.5])
-    ax.invert_yaxis()
-    ax.set_xticks([]); ax.set_yticks(range(6))
-    ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
-
-    fig.set_facecolor('white')
-    fig.tight_layout()
+    fig = plt.figure()
+    # null(B): 3x1 -> three dots in column 1
+    spy_dots(fig.add_axes(_pos(95, 192, 23, 215)),
+             [(1, 1), (2, 1), (3, 1)], 'null(B)', 3,
+             (0, 2), (4, 0), [0, 1, 2], [0, 1, 2, 3, 4])
+    # orth(B): inf x 2 -> two coloured vertical lines
+    ax = fig.add_axes(_pos(286, 345, 23, 215))
+    for k in range(2):
+        ax.plot([k + 1, k + 1], [-1, 1], color=MATLAB[k], linewidth=2.0)
+    ax.set_xlim(0.4, 2.6)
+    ax.set_ylim(1, -1)
+    ax.set_xticks([1, 2])
+    ax.set_yticks([-1, 1])
+    style_box(ax, 'orth(B)')
+    # pinv(A): 6 x inf -> six coloured horizontal lines
+    spy_rows(fig.add_axes(_pos(422, 551, 77, 161)), 6, 'pinv(A)')
     save(fig)
 except Exception as e:
-    plot_index += 1
-    print(f"  guide06_{plot_index:02d}.png FAILED: {e}")
+    skip(e)
 
 print(f"\nGuide 06: Generated {plot_index} plots.")
