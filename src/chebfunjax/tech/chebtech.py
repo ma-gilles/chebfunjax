@@ -1295,21 +1295,16 @@ class Chebtech2(eqx.Module):
         Chebfun commit: 7574c77
         """
         if isinstance(other, Chebtech2):
-            # Evaluate both on a fine grid and divide
-            n = self.n + other.n
-            x = chebpts(n, kind=2)
-            fv = _clenshaw(self.coeffs, x)
-            gv = _clenshaw(other.coeffs, x)
-            return Chebtech2.from_values(fv / gv)
+            # MATLAB: compose(f, @rdivide, g) — adaptive re-construction so
+            # the quotient is resolved to machine precision (a fixed grid
+            # silently under-resolves, e.g. 1/(1+25x^2) needs ~185 coeffs).
+            return self.compose(lambda a, b: a / b, other)
         else:
             return Chebtech2.from_coeffs(self.coeffs / jnp.float64(other))
 
     def __rtruediv__(self, other) -> "Chebtech2":
-        """Scalar / Chebtech2."""
-        n = max(self.n, 17)
-        x = chebpts(n, kind=2)
-        fv = jnp.float64(other) / _clenshaw(self.coeffs, x)
-        return Chebtech2.from_values(fv)
+        """Scalar / Chebtech2 (adaptive, like MATLAB compose)."""
+        return self.compose(lambda y: jnp.float64(other) / y)
 
     def __pow__(self, exponent) -> "Chebtech2":
         """Raise to a power.
@@ -1330,18 +1325,11 @@ class Chebtech2(eqx.Module):
                 result = result * self
             return result
         elif isinstance(exponent, Chebtech2):
-            # f^g via evaluation
-            n = self.n + exponent.n
-            x = chebpts(n, kind=2)
-            fv = _clenshaw(self.coeffs, x)
-            gv = _clenshaw(exponent.coeffs, x)
-            return Chebtech2.from_values(fv**gv)
+            # f^g via adaptive composition (MATLAB: compose(f, @power, g))
+            return self.compose(lambda a, b: a ** b, exponent)
         else:
-            # Fractional power: evaluate on a grid
-            n = max(2 * self.n, 17)
-            x = chebpts(n, kind=2)
-            fv = _clenshaw(self.coeffs, x) ** jnp.float64(exponent)
-            return Chebtech2.from_values(fv)
+            # Fractional power: adaptive composition (MATLAB compose)
+            return self.compose(lambda y: y ** jnp.float64(exponent))
 
     def __abs__(self) -> "Chebtech2":
         """Absolute value (evaluated on a grid, re-interpolated).
@@ -2164,19 +2152,18 @@ class Chebtech1(eqx.Module):
         Chebfun commit: 7574c77
         """
         if isinstance(other, Chebtech1):
-            n = self.n + other.n
-            x = chebpts(n, kind=1)
-            fv = _clenshaw(self.coeffs, x)
-            gv = _clenshaw(other.coeffs, x)
-            return Chebtech1.from_values(fv / gv)
+            # Adaptive re-construction so the quotient is fully resolved
+            # (MATLAB: compose(f, @rdivide, g)).
+            return Chebtech1.from_function(
+                lambda x: _clenshaw(self.coeffs, x) / _clenshaw(other.coeffs, x)
+            )
         else:
             return Chebtech1.from_coeffs(self.coeffs / jnp.float64(other))
 
     def __rtruediv__(self, other) -> "Chebtech1":
-        n = max(self.n, 17)
-        x = chebpts(n, kind=1)
-        fv = jnp.float64(other) / _clenshaw(self.coeffs, x)
-        return Chebtech1.from_values(fv)
+        return Chebtech1.from_function(
+            lambda x: jnp.float64(other) / _clenshaw(self.coeffs, x)
+        )
 
     def __pow__(self, exponent) -> "Chebtech1":
         """Raise to a power.
@@ -2194,10 +2181,10 @@ class Chebtech1(eqx.Module):
                 result = result * self
             return result
         else:
-            n = max(2 * self.n, 17)
-            x = chebpts(n, kind=1)
-            fv = _clenshaw(self.coeffs, x) ** jnp.float64(exponent)
-            return Chebtech1.from_values(fv)
+            # Fractional power: adaptive re-construction (MATLAB compose)
+            return Chebtech1.from_function(
+                lambda x: _clenshaw(self.coeffs, x) ** jnp.float64(exponent)
+            )
 
     def __abs__(self) -> "Chebtech1":
         n = max(2 * self.n, 17)

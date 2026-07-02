@@ -1291,15 +1291,12 @@ class Trigtech(eqx.Module):
         MATLAB source : @chebtech/rdivide.m (analogous)
         """
         if isinstance(other, Trigtech):
-            n = self.n + other.n
-            if n % 2 == 0:
-                n += 1
-            x = trigpts(n)
-            fv = _trig_eval(self.coeffs, x, self.is_real)
-            gv = _trig_eval(other.coeffs, x, other.is_real)
-            new_is_real = self.is_real and other.is_real
-            c = trig_vals2coeffs((fv / gv).astype(jnp.complex128))
-            return Trigtech(coeffs=c, is_real=new_is_real, ishappy=self.ishappy and other.ishappy)
+            # Adaptive re-construction so the quotient is fully resolved
+            # (MATLAB: compose(f, @rdivide, g)).
+            return Trigtech.from_function(
+                lambda x: _trig_eval(self.coeffs, x, self.is_real)
+                / _trig_eval(other.coeffs, x, other.is_real)
+            )
         else:
             s = jnp.asarray(other, dtype=jnp.complex128)
             return Trigtech(
@@ -1309,15 +1306,11 @@ class Trigtech(eqx.Module):
             )
 
     def __rtruediv__(self, other) -> "Trigtech":
-        """scalar / Trigtech."""
-        n = max(self.n, 17)
-        if n % 2 == 0:
-            n += 1
-        x = trigpts(n)
-        fv = _trig_eval(self.coeffs, x, self.is_real)
-        pv = jnp.asarray(other, dtype=jnp.float64 if self.is_real else jnp.complex128) / fv
-        c = trig_vals2coeffs(pv.astype(jnp.complex128))
-        return Trigtech(coeffs=c, is_real=self.is_real, ishappy=self.ishappy)
+        """scalar / Trigtech (adaptive, like MATLAB compose)."""
+        s = jnp.asarray(other, dtype=jnp.float64 if self.is_real else jnp.complex128)
+        return Trigtech.from_function(
+            lambda x: s / _trig_eval(self.coeffs, x, self.is_real)
+        )
 
     def __pow__(self, exponent) -> "Trigtech":
         """Raise to a power."""
@@ -1331,14 +1324,11 @@ class Trigtech(eqx.Module):
                 result = result * self
             return result
         else:
-            n = max(2 * self.n, 17)
-            if n % 2 == 0:
-                n += 1
-            x = trigpts(n)
-            fv = _trig_eval(self.coeffs, x, self.is_real)
-            pv = fv ** jnp.asarray(exponent, dtype=jnp.float64)
-            c = trig_vals2coeffs(pv.astype(jnp.complex128))
-            return Trigtech(coeffs=c, is_real=self.is_real, ishappy=self.ishappy)
+            # Fractional power: adaptive re-construction (MATLAB compose)
+            e = jnp.asarray(exponent, dtype=jnp.float64)
+            return Trigtech.from_function(
+                lambda x: _trig_eval(self.coeffs, x, self.is_real) ** e
+            )
 
     def __abs__(self) -> "Trigtech":
         """Absolute value via grid evaluation."""

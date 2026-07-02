@@ -156,14 +156,16 @@ def _wild():
     return chebfun(lambda x: jnp.cos(x) ** 2 * jnp.sin(x ** 3))
 
 
-@_register("zigzag", "Degree-high polynomial that looks piecewise linear on [-1, 1]")
+@_register("zigzag", "Degree 10000 polynomial that looks piecewise linear on [-1, 1]")
 def _zigzag():
-    """Chebyshev polynomial T_10000 approximated at lower resolution."""
+    """MATLAB: cumsum(chebfun(@(t) sign(sin(100*t./(2-t))), 10000)).
+
+    From the ATAP appendix — integrating a square wave of increasing
+    frequency gives a degree-10000 polynomial that looks piecewise linear.
+    """
     from chebfunjax.chebfun1d.chebfun import chebfun
-    # T_n has n+1 extreme values in [-1,1]; for large n it looks piecewise linear
-    # We use n=5000 for a tractable demo
-    n = 5000
-    return chebfun(lambda x: jnp.cos(n * jnp.arccos(jnp.clip(x, -1.0, 1.0))))
+    square = chebfun(lambda t: jnp.sign(jnp.sin(100.0 * t / (2.0 - t))), n=10000)
+    return square.cumsum()
 
 
 # ---------------------------------------------------------------------------

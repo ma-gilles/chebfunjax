@@ -919,15 +919,24 @@ class Chebfun(eqx.Module):
         return Chebfun(funs=new_funs, domain=self.domain)
 
     def __abs__(self) -> Chebfun:
-        """Absolute value (piecewise; may introduce kinks at zeros).
+        """Absolute value — delegates to :meth:`abs`.
 
-        NOT JIT-safe (uses compose which calls adaptive construction).
+        MATLAB's abs(f) introduces breakpoints at the roots so each piece
+        stays smooth; ``abs(f)`` (this dunder) must behave identically to
+        ``f.abs()``, otherwise the builtin silently returns a non-split,
+        under-resolved representation.
+
+        NOT JIT-safe (root-finding and adaptive construction).
 
         Provenance
         ----------
         MATLAB source : @chebfun/abs.m
         Chebfun commit: 7574c77
         """
+        return self.abs()
+
+    def _abs_piecewise_raw(self) -> Chebfun:
+        """Piece-level |f| without root-splitting (internal fallback)."""
         new_funs = [
             piece._apply_unary(abs(piece.tech))
             for piece in self.funs

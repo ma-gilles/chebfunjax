@@ -139,7 +139,9 @@ def _matlab_ticks(ax: plt.Axes) -> None:
     for axis, scale in ((ax.xaxis, ax.get_xscale()),
                         (ax.yaxis, ax.get_yscale())):
         if scale == "linear":
-            axis.set_major_locator(MaxNLocator(nbins=7, steps=[1, 2, 2.5, 5, 10]))
+            # nbins=5 matches MATLAB's sparser default (0.5 steps on [-1,1]
+            # where matplotlib would pick 0.25; 0.2 where it would pick 0.1).
+            axis.set_major_locator(MaxNLocator(nbins=5, steps=[1, 2, 2.5, 5, 10]))
             axis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:g}"))
 
 
@@ -434,9 +436,6 @@ def plot_1d(
                "#8B008B", "#008080"]
 
     for idx, f in enumerate(args):
-        xs = _domain_points(f, n_pts)
-        ys = np.array(f(jnp.array(xs)))
-
         c = color if idx == 0 else _colors[idx % len(_colors)]
         plot_kw: dict[str, Any] = dict(color=c, linewidth=linewidth,
                                        linestyle=linestyle)
@@ -445,7 +444,39 @@ def plot_1d(
         # Forward extra kwargs only to first series to avoid clashes
         if idx == 0:
             plot_kw.update(kw)
-        ax.plot(xs, ys, **plot_kw)
+
+        funs = getattr(f, "funs", None)
+        if funs is not None and len(funs) > 1:
+            # Piecewise chebfun: draw each smooth piece on its own grid so
+            # jumps are not smeared into near-vertical solid segments, and
+            # connect jump discontinuities with dotted verticals (MATLAB
+            # Chebfun's plot style).
+            total = _domain_points(f, 2)
+            total_len = float(total[-1] - total[0]) or 1.0
+            piece_ends: list[tuple[float, float, float]] = []
+            for j, piece in enumerate(funs):
+                a, b = (float(v) for v in piece.interval)
+                m = max(16, int(round(n_pts * (b - a) / total_len)))
+                xs = np.linspace(a, b, m)
+                ys = np.array(piece(jnp.array(xs)))
+                pk = dict(plot_kw)
+                if j > 0:
+                    pk.pop("label", None)
+                ax.plot(xs, ys, **pk)
+                piece_ends.append((a, float(ys[0]), float(ys[-1])))
+            # Dotted connectors at interior breakpoints with a visible jump
+            vsc = max(abs(e) for _, s, e in piece_ends) or 1.0
+            for j in range(1, len(piece_ends)):
+                xb = piece_ends[j][0]
+                left = piece_ends[j - 1][2]
+                right = piece_ends[j][1]
+                if abs(right - left) > 1e-10 * vsc:
+                    ax.plot([xb, xb], [left, right], linestyle=":",
+                            color=c, linewidth=linewidth)
+        else:
+            xs = _domain_points(f, n_pts)
+            ys = np.array(f(jnp.array(xs)))
+            ax.plot(xs, ys, **plot_kw)
 
     _apply_style(ax, title=title, xlabel=xlabel, ylabel=ylabel)
     fig.set_facecolor("white")
