@@ -25,7 +25,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
 
 
-PROJECT = Path("/scratch/gpfs/GILLES/mg6942/jaxchebfun")
+PROJECT = Path(__file__).resolve().parent.parent
 DOCS_DIR = PROJECT / "docs"
 
 GUIDE_REF_BASE = "https://www.chebfun.org/docs/guide"

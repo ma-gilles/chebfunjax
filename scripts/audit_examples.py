@@ -22,7 +22,7 @@ from pathlib import Path
 from collections import defaultdict
 
 # Paths
-PROJECT = Path("/scratch/gpfs/GILLES/mg6942/jaxchebfun")
+PROJECT = Path(__file__).resolve().parent.parent
 EXAMPLES_DIR = PROJECT / "examples"
 DOCS_DIR = PROJECT / "docs" / "examples"
 IMAGES_DIR = PROJECT / "docs" / "images"
