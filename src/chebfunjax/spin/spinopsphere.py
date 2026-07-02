@@ -41,7 +41,8 @@ from __future__ import annotations
 
 from typing import Callable, Optional, Tuple
 
-import numpy as np
+import jax.numpy as jnp
+import numpy as np  # uses-numpy: host-side one-time construction of the dense DFS Laplace-Beltrami matrix (scipy.linalg.toeplitz interop; N^2xN^2 block matrix for ETDRK4 matrix exponentials, built once outside any JIT and consumed by the NumPy solver in solver3.py) plus np.random reproducible initial conditions
 
 # ---------------------------------------------------------------------------
 # Built-in sphere PDE definitions
@@ -61,8 +62,6 @@ def _make_builtin_pdes_sphere() -> dict:
       dt        : default time-step
       is_real   : True if solution is real-valued
     """
-    import jax.numpy as jnp
-
     # ------------------------------------------------------------------
     # Allen-Cahn: u_t = 1e-2*lap(u) + u - u^3
     # ------------------------------------------------------------------
@@ -195,7 +194,7 @@ class SpinOpSphere:
     """
 
     # Fixed domain for the sphere (MATLAB convention)
-    DOMAIN: Tuple[float, float, float, float] = (-np.pi, np.pi, 0.0, np.pi)
+    DOMAIN: Tuple[float, float, float, float] = (-jnp.pi, jnp.pi, 0.0, jnp.pi)
 
     def __init__(
         self,

@@ -13,7 +13,6 @@ from __future__ import annotations
 from typing import Callable
 
 import jax.numpy as jnp
-import numpy as np
 
 __all__ = ["fred", "volt"]
 
@@ -42,7 +41,7 @@ def fred(K: Callable, f, *, n: int = 128) -> "Chebfun":
     K : callable
         Kernel function ``K(x, y)``.  Must accept two scalar or 1-D array
         arguments and return an array of the same shape.  A tensor-product
-        call ``K(X, Y)`` where ``X``, ``Y`` are 2-D arrays (``np.meshgrid``
+        call ``K(X, Y)`` where ``X``, ``Y`` are 2-D arrays (``jnp.meshgrid``
         output) is used internally for efficiency.
     f : Chebfun
         Input function on domain ``[a, b]``.
@@ -95,24 +94,23 @@ def fred(K: Callable, f, *, n: int = 128) -> "Chebfun":
     a = float(f.domain.a)
     b = float(f.domain.b)
 
-    # Gauss-Legendre nodes and weights on [a, b]
-    t_ref, w_ref = np.array(legpts(n))
-    t_ref = np.asarray(t_ref, dtype=float)
-    w_ref = np.asarray(w_ref, dtype=float)
+    # Gauss-Legendre nodes and weights on [-1, 1]
+    t_ref, w_ref = legpts(n)
+    t_ref = jnp.asarray(t_ref, dtype=jnp.float64)
+    w_ref = jnp.asarray(w_ref, dtype=jnp.float64)
     # Map from [-1, 1] to [a, b]
     yj = 0.5 * (b - a) * t_ref + 0.5 * (a + b)  # shape (n,)
     wj = w_ref * 0.5 * (b - a)                    # shape (n,)
-    fvals = np.array(f(jnp.array(yj)), dtype=float)  # shape (n,)
+    fvals = jnp.asarray(f(yj), dtype=jnp.float64)  # shape (n,)
 
     def _integrand(x_arr):
         """Evaluate (Kf)(x) for a vector of x values."""
-        x_arr = np.asarray(x_arr, dtype=float)
+        x_arr = jnp.asarray(x_arr, dtype=jnp.float64)
         # Build tensor-product grid
-        X, Y = np.meshgrid(x_arr, yj, indexing="ij")  # (m, n)
-        Kvals = np.asarray(K(X, Y), dtype=float)       # (m, n)
+        X, Y = jnp.meshgrid(x_arr, yj, indexing="ij")  # (m, n)
+        Kvals = jnp.asarray(K(X, Y), dtype=jnp.float64)  # (m, n)
         # Integrate in y: (m, n) @ (n,) = (m,)
-        result = Kvals @ (wj * fvals)
-        return jnp.array(result)
+        return Kvals @ (wj * fvals)
 
     return _chebfun_factory(_integrand, domain=(a, b))
 
@@ -190,7 +188,9 @@ def volt(K: Callable, f, *, n: int = 128) -> "Chebfun":
     b = float(f.domain.b)
 
     # Gauss-Legendre nodes and weights on [-1, 1]
-    t_ref, w_ref = np.array(legpts(n // 2 if n > 1 else 1))
+    t_ref, w_ref = legpts(n // 2 if n > 1 else 1)
+    t_ref = jnp.asarray(t_ref, dtype=jnp.float64)
+    w_ref = jnp.asarray(w_ref, dtype=jnp.float64)
 
     def _volt_at_x(x_scalar: float) -> float:
         """Evaluate (Vf)(x) at a single point."""
@@ -199,16 +199,21 @@ def volt(K: Callable, f, *, n: int = 128) -> "Chebfun":
         # Map GL nodes from [-1,1] to [a, x_scalar]
         yj = 0.5 * (x_scalar - a) * t_ref + 0.5 * (x_scalar + a)  # (n/2,)
         scale = 0.5 * (x_scalar - a)
-        fvals = np.asarray(f(jnp.array(yj)), dtype=float)
-        Kvals = np.array([float(K(x_scalar, yj[j])) for j in range(len(yj))], dtype=float)
-        return float(np.dot(w_ref * scale, Kvals * fvals))
+        fvals = jnp.asarray(f(yj), dtype=jnp.float64)
+        Kvals = jnp.asarray(
+            [float(K(x_scalar, yj[j])) for j in range(yj.shape[0])],
+            dtype=jnp.float64,
+        )
+        return float(jnp.dot(w_ref * scale, Kvals * fvals))
 
     def _integrand(x_arr):
         """Vectorised evaluation over array of x values."""
-        x_arr = np.asarray(x_arr, dtype=float)
-        result = np.array([_volt_at_x(float(xi)) for xi in x_arr.ravel()],
-                          dtype=float)
-        return jnp.array(result.reshape(x_arr.shape))
+        x_arr = jnp.asarray(x_arr, dtype=jnp.float64)
+        result = jnp.asarray(
+            [_volt_at_x(float(xi)) for xi in x_arr.ravel()],
+            dtype=jnp.float64,
+        )
+        return result.reshape(x_arr.shape)
 
     return _chebfun_factory(_integrand, domain=(a, b))
 
@@ -218,7 +223,7 @@ def volt(K: Callable, f, *, n: int = 128) -> "Chebfun":
 # ===========================================================================
 
 
-def _clencurt(n: int, a: float, b: float) -> tuple[np.ndarray, np.ndarray]:
+def _clencurt(n: int, a: float, b: float) -> tuple[jnp.ndarray, jnp.ndarray]:
     """Clenshaw-Curtis nodes and weights on [a, b].
 
     Parameters
@@ -230,20 +235,20 @@ def _clencurt(n: int, a: float, b: float) -> tuple[np.ndarray, np.ndarray]:
 
     Returns
     -------
-    x : np.ndarray, shape (n,)
-    w : np.ndarray, shape (n,)
+    x : jnp.ndarray, shape (n,)
+    w : jnp.ndarray, shape (n,)
     """
     if n == 1:
-        return np.array([(a + b) / 2.0]), np.array([b - a])
+        return jnp.array([(a + b) / 2.0]), jnp.array([b - a])
 
-    theta = np.pi * np.arange(n, dtype=float) / (n - 1)
-    x = np.cos(theta)  # reference nodes in [-1, 1]
+    theta = jnp.pi * jnp.arange(n, dtype=jnp.float64) / (n - 1)
+    x = jnp.cos(theta)  # reference nodes in [-1, 1]
 
     # Clenshaw-Curtis weights (Waldvogel's formula)
-    c = np.zeros(n)
-    c[0::2] = 2.0 / (1.0 - np.arange(0, n, 2, dtype=float) ** 2)
-    c = np.real(np.fft.ifft(np.concatenate([c, c[n - 2:0:-1]])))
-    w_ref = np.concatenate([[c[0] / 2], c[1: n - 1], [c[0] / 2]])
+    c = jnp.zeros(n)
+    c = c.at[0::2].set(2.0 / (1.0 - jnp.arange(0, n, 2, dtype=jnp.float64) ** 2))
+    c = jnp.real(jnp.fft.ifft(jnp.concatenate([c, c[n - 2:0:-1]])))
+    w_ref = jnp.concatenate([c[0:1] / 2, c[1: n - 1], c[0:1] / 2])
 
     # Map to [a, b]
     x_phys = 0.5 * (b - a) * x + 0.5 * (a + b)
@@ -251,4 +256,4 @@ def _clencurt(n: int, a: float, b: float) -> tuple[np.ndarray, np.ndarray]:
     x_phys = x_phys[::-1]
     w_phys = w_ref * (b - a) / 2.0
 
-    return x_phys.copy(), w_phys.copy()
+    return x_phys, w_phys

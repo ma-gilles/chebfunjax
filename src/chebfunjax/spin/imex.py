@@ -28,6 +28,9 @@ Runge-Kutta) and imexbdf4 (4th-order BDF).  This module provides the two
 fundamental lower-order building blocks that are used as starters and for
 moderate-accuracy problems.
 
+The time-stepping loops run entirely in ``jax.numpy`` so the per-step FFTs and
+diagonal solves stay on the accelerator (no per-step device↔host transfer).
+
 Provenance
 ----------
 MATLAB source : @imex/imex.m, @imex/computeCoeffs.m, @imex/oneStep.m,
@@ -52,7 +55,7 @@ from __future__ import annotations
 
 from typing import Callable, Optional, Tuple
 
-import numpy as np
+import jax.numpy as jnp
 
 __all__ = ["imex_euler", "imex_sbdf2"]
 
@@ -63,19 +66,19 @@ __all__ = ["imex_euler", "imex_sbdf2"]
 
 
 def _nonlin_eval(
-    u_hat: np.ndarray,
-    Nc: np.ndarray,
-    nonlin_vals: Callable[[np.ndarray], np.ndarray],
-) -> np.ndarray:
+    u_hat: jnp.ndarray,
+    Nc: jnp.ndarray,
+    nonlin_vals: Callable[[jnp.ndarray], jnp.ndarray],
+) -> jnp.ndarray:
     """Evaluate the nonlinear term in Fourier space.
 
     Computes ``Nc * fft(nonlin_vals(ifft(u_hat)))``.
 
     Parameters
     ----------
-    u_hat : np.ndarray, shape (N,), complex
+    u_hat : jnp.ndarray, shape (N,), complex
         Current Fourier coefficients.
-    Nc : np.ndarray, shape (N,), complex
+    Nc : jnp.ndarray, shape (N,), complex
         Coefficient-space differentiation factor for the nonlinear term.
         ``Nc[k] = (i*xi[k])^m`` for a nonlinearity that needs *m* derivatives
         in Fourier space; ``Nc = ones(N)`` for no differentiation.
@@ -84,7 +87,7 @@ def _nonlin_eval(
 
     Returns
     -------
-    Nu_hat : np.ndarray, shape (N,), complex
+    Nu_hat : jnp.ndarray, shape (N,), complex
         Fourier coefficients of the evaluated nonlinear term.
 
     Provenance
@@ -92,9 +95,9 @@ def _nonlin_eval(
     MATLAB source : @imex/oneStep.m (inner coeffs2vals / vals2coeffs pattern)
     Chebfun commit: 7574c77
     """
-    u_vals = np.fft.ifft(u_hat)
+    u_vals = jnp.fft.ifft(u_hat)
     Nu_vals = nonlin_vals(u_vals)
-    return Nc * np.fft.fft(Nu_vals)
+    return Nc * jnp.fft.fft(jnp.asarray(Nu_vals))
 
 
 # ---------------------------------------------------------------------------
@@ -103,16 +106,16 @@ def _nonlin_eval(
 
 
 def imex_euler(
-    u0_hat: np.ndarray,
-    L_diag: np.ndarray,
-    nonlin_vals: Callable[[np.ndarray], np.ndarray],
-    Nc: np.ndarray,
+    u0_hat: jnp.ndarray,
+    L_diag: jnp.ndarray,
+    nonlin_vals: Callable[[jnp.ndarray], jnp.ndarray],
+    Nc: jnp.ndarray,
     dt: float,
     nsteps: int,
     *,
-    dealias: Optional[np.ndarray] = None,
+    dealias: Optional[jnp.ndarray] = None,
     verbose: bool = False,
-) -> Tuple[np.ndarray, float]:
+) -> Tuple[jnp.ndarray, float]:
     """Integrate u_t = L u + N(u) using first-order IMEX-Euler.
 
     The update formula is:
@@ -125,20 +128,20 @@ def imex_euler(
 
     Parameters
     ----------
-    u0_hat : np.ndarray, shape (N,), complex
+    u0_hat : jnp.ndarray, shape (N,), complex
         Initial Fourier coefficients.
-    L_diag : np.ndarray, shape (N,), complex
+    L_diag : jnp.ndarray, shape (N,), complex
         Diagonal of the linear operator in Fourier space.
     nonlin_vals : callable
         Physical-space nonlinear function: ``f(u_vals) -> Nu_vals``.
-    Nc : np.ndarray, shape (N,), complex
+    Nc : jnp.ndarray, shape (N,), complex
         Coefficient-space factor for the nonlinear term.  Use
-        ``np.ones(N, dtype=complex)`` for no differentiation.
+        ``jnp.ones(N, dtype=complex)`` for no differentiation.
     dt : float
         Time-step.
     nsteps : int
         Number of time-steps to take.
-    dealias : np.ndarray or None, shape (N,), bool
+    dealias : jnp.ndarray or None, shape (N,), bool
         Dealiasing mask (True = keep mode).  Applied after each step.
         ``None`` means no dealiasing.
     verbose : bool, default False
@@ -146,7 +149,7 @@ def imex_euler(
 
     Returns
     -------
-    u_hat : np.ndarray, shape (N,), complex
+    u_hat : jnp.ndarray, shape (N,), complex
         Fourier coefficients at the final time ``t0 + nsteps * dt``.
     t_final : float
         Final time reached (``nsteps * dt``, measured from 0).
@@ -168,11 +171,14 @@ def imex_euler(
     --------
     imex_sbdf2
     """
+    L_diag = jnp.asarray(L_diag)
+    Nc = jnp.asarray(Nc)
+
     # Pre-compute the implicit solve factor: 1 / (1 - dt * L)
     # (works element-wise since L is diagonal)
     impl_factor = 1.0 / (1.0 - dt * L_diag)  # shape (N,)
 
-    u_hat = np.array(u0_hat, dtype=complex)
+    u_hat = jnp.asarray(u0_hat, dtype=jnp.complex128)
     t = 0.0
     report_every = max(1, nsteps // 10)
 
@@ -185,7 +191,7 @@ def imex_euler(
 
         # Dealiasing
         if dealias is not None:
-            u_hat = np.where(dealias, u_hat, 0.0 + 0.0j)
+            u_hat = jnp.where(dealias, u_hat, 0.0 + 0.0j)
 
         t += dt
 
@@ -202,16 +208,16 @@ def imex_euler(
 
 
 def imex_sbdf2(
-    u0_hat: np.ndarray,
-    L_diag: np.ndarray,
-    nonlin_vals: Callable[[np.ndarray], np.ndarray],
-    Nc: np.ndarray,
+    u0_hat: jnp.ndarray,
+    L_diag: jnp.ndarray,
+    nonlin_vals: Callable[[jnp.ndarray], jnp.ndarray],
+    Nc: jnp.ndarray,
     dt: float,
     nsteps: int,
     *,
-    dealias: Optional[np.ndarray] = None,
+    dealias: Optional[jnp.ndarray] = None,
     verbose: bool = False,
-) -> Tuple[np.ndarray, float]:
+) -> Tuple[jnp.ndarray, float]:
     """Integrate u_t = L u + N(u) using second-order IMEX-SBDF2.
 
     SBDF2 (Second-order semi-implicit BDF, Ascher-Ruuth-Wetton 1995) is a
@@ -231,26 +237,26 @@ def imex_sbdf2(
 
     Parameters
     ----------
-    u0_hat : np.ndarray, shape (N,), complex
+    u0_hat : jnp.ndarray, shape (N,), complex
         Initial Fourier coefficients.
-    L_diag : np.ndarray, shape (N,), complex
+    L_diag : jnp.ndarray, shape (N,), complex
         Diagonal of the linear operator in Fourier space.
     nonlin_vals : callable
         Physical-space nonlinear function: ``f(u_vals) -> Nu_vals``.
-    Nc : np.ndarray, shape (N,), complex
+    Nc : jnp.ndarray, shape (N,), complex
         Coefficient-space factor for the nonlinear term.
     dt : float
         Time-step.
     nsteps : int
         Number of time-steps to take (including the startup step).
-    dealias : np.ndarray or None, shape (N,), bool
+    dealias : jnp.ndarray or None, shape (N,), bool
         Dealiasing mask.  ``None`` means no dealiasing.
     verbose : bool, default False
         Print progress every 10 % of the integration.
 
     Returns
     -------
-    u_hat : np.ndarray, shape (N,), complex
+    u_hat : jnp.ndarray, shape (N,), complex
         Fourier coefficients at the final time ``nsteps * dt``.
     t_final : float
         Final time reached.
@@ -280,21 +286,24 @@ def imex_sbdf2(
     --------
     imex_euler
     """
+    L_diag = jnp.asarray(L_diag)
+    Nc = jnp.asarray(Nc)
+
     if nsteps < 1:
-        return np.array(u0_hat, dtype=complex), 0.0
+        return jnp.asarray(u0_hat, dtype=jnp.complex128), 0.0
 
     # Pre-compute implicit solve factor: 1 / (3/2 - dt*L)
     impl_factor = 1.0 / (1.5 - dt * L_diag)  # shape (N,)
 
     # --- Startup step (IMEX-Euler to get u^1 from u^0) ---
-    u0 = np.array(u0_hat, dtype=complex)
+    u0 = jnp.asarray(u0_hat, dtype=jnp.complex128)
     Nu0 = _nonlin_eval(u0, Nc, nonlin_vals)
 
     # IMEX-Euler: u^1 = (I - dt*L)^{-1} * (u^0 + dt*N(u^0))
     euler_factor = 1.0 / (1.0 - dt * L_diag)
     u1 = euler_factor * (u0 + dt * Nu0)
     if dealias is not None:
-        u1 = np.where(dealias, u1, 0.0 + 0.0j)
+        u1 = jnp.where(dealias, u1, 0.0 + 0.0j)
     Nu1 = _nonlin_eval(u1, Nc, nonlin_vals)
 
     t = dt
@@ -319,7 +328,7 @@ def imex_sbdf2(
         u_new = impl_factor * rhs
 
         if dealias is not None:
-            u_new = np.where(dealias, u_new, 0.0 + 0.0j)
+            u_new = jnp.where(dealias, u_new, 0.0 + 0.0j)
 
         Nu_new = _nonlin_eval(u_new, Nc, nonlin_vals)
 

@@ -10,7 +10,7 @@ from __future__ import annotations
 from typing import Callable, Optional, Sequence, Tuple
 
 import jax.numpy as jnp
-import numpy as np
+import numpy as np  # uses-numpy: host-side one-time construction of the Fourier linear-operator tensor and dealiasing masks (consumed once by the NumPy ETDRK4 solver in solver3.py; not a JIT hot path) plus np.random reproducible initial conditions (jax.random would change reference values)
 
 # ---------------------------------------------------------------------------
 # Built-in 3-D periodic PDE definitions
@@ -304,9 +304,9 @@ class SpinOp3:
 
         # Fourier angular frequencies (FFT ordering, 0-indexed)
         freqs = np.fft.fftfreq(N, d=1.0 / N)  # integer wavenumbers
-        xi_x = (2.0 * np.pi / Lx) * freqs   # (N,)
-        xi_y = (2.0 * np.pi / Ly) * freqs   # (N,)
-        xi_z = (2.0 * np.pi / Lz) * freqs   # (N,)
+        xi_x = (2.0 * jnp.pi / Lx) * freqs   # (N,)
+        xi_y = (2.0 * jnp.pi / Ly) * freqs   # (N,)
+        xi_z = (2.0 * jnp.pi / Lz) * freqs   # (N,)
 
         # Broadcast to N×N×N (axis 0=y, axis 1=x, axis 2=z, matching meshgrid)
         # lap_tensor[i,j,k] = -(xi_y[i]^2 + xi_x[j]^2 + xi_z[k]^2)
