@@ -57,7 +57,27 @@ def _load_rgb_hist(path: Path, bins: int = 32) -> np.ndarray:
 
 
 def compare_pair(gen: Path, ref: Path) -> dict:
-    """Return similarity metrics for one image pair (higher score = worse)."""
+    """Return similarity metrics for one image pair (higher score = worse).
+
+    A generated file byte-identical to the reference is flagged
+    NOT_REGENERATED: it means the chebfun.org MATLAB render is still in
+    place and chebfunjax never produced the figure — identical bytes
+    would otherwise score a perfect 0 and mask exactly the failure this
+    tool exists to catch.
+    """
+    if gen.read_bytes() == ref.read_bytes():
+        gi = Image.open(gen)
+        return {
+            "generated": str(gen),
+            "reference": str(ref),
+            "gen_size": f"{gi.width}x{gi.height}",
+            "ref_size": f"{gi.width}x{gi.height}",
+            "aspect_err": 0.0,
+            "gray_mae": 0.0,
+            "hist_corr": 1.0,
+            "badness": 999.0,
+            "flag": "NOT_REGENERATED",
+        }
     gi, ri = Image.open(gen), Image.open(ref)
     aspect_gen = gi.width / gi.height
     aspect_ref = ri.width / ri.height
@@ -81,6 +101,7 @@ def compare_pair(gen: Path, ref: Path) -> dict:
         "gray_mae": round(mae, 4),
         "hist_corr": round(hist_corr, 4),
         "badness": round(badness, 4),
+        "flag": "",
     }
 
 
@@ -160,11 +181,17 @@ def main() -> int:
         gen, ref = Path(row["generated"]), Path(row["reference"])
         montage(gen, ref, args.out / "montages" / tag / f"{gen.stem}.png")
 
-    print(f"compared: {len(rows)}  missing generated: {len(missing)}")
+    not_regen = [r for r in rows if r.get("flag") == "NOT_REGENERATED"]
+    print(f"compared: {len(rows)}  missing generated: {len(missing)}  "
+          f"NOT_REGENERATED (byte-identical to chebfun.org ref): {len(not_regen)}")
     for m in missing[:20]:
         print(f"  MISSING {m}")
     if len(missing) > 20:
         print(f"  ... and {len(missing) - 20} more")
+    for r in not_regen[:20]:
+        print(f"  NOT_REGENERATED {Path(r['generated']).name}")
+    if len(not_regen) > 20:
+        print(f"  ... and {len(not_regen) - 20} more")
     if rows:
         print(f"metrics: {csv_path}")
         print("worst 10:")
