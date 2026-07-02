@@ -155,12 +155,13 @@ array([ 3.55e-15, -1.53e-15,  2.81e-15,  5.60e-16,  2.23e-15])
 Most often we get a chebfun by operating on other chebfuns. For example, here is a sequence that uses plus, times, divide, and power operations on an initial chebfun `x` to produce a famous function of Runge:
 
 ```python
-f = cj.chebfun(lambda x: 1 / (1 + 25 * x**2))
+x = cj.chebfun(lambda x: x)
+f = 1 / (1 + 25 * x**2)
 print(len(f))
 f.plot()
 ```
 ```
-185
+183
 ```
 
 ![](../images/guide/guide01_04.png)
@@ -629,11 +630,11 @@ ax.set_title('Daubechies scaling function')
 
 To find out how a gallery example was generated, look at the source code in `chebfunjax/utils/gallery.py`.
 
-To illustrate, let us finish with an example the Chebfun team enjoys from the appendix to [Trefethen 2013], "Six myths of polynomial interpolation and quadrature". In MATLAB this is `cheb.gallery('zigzag')`; chebfunjax's `gallery('zigzag')` is currently a lower-degree placeholder, so we build the genuine gallery function -- the indefinite integral of a fixed-length sign-of-sine square wave -- directly:
+To illustrate, let us finish with an example the Chebfun team enjoys from the appendix to [Trefethen 2013], "Six myths of polynomial interpolation and quadrature". In MATLAB this is `cheb.gallery('zigzag')`, the indefinite integral of a fixed-length sign-of-sine square wave; chebfunjax's `gallery('zigzag')` builds the same function:
 
 ```python
-g = cj.chebfun(lambda t: jnp.sign(jnp.sin(100 * t / (2 - t))), n=10000)
-f = g.cumsum()
+from chebfunjax.utils.gallery import gallery
+f = gallery('zigzag')
 print(len(f))
 f.plot()
 ```

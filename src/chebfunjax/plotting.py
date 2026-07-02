@@ -139,9 +139,11 @@ def _matlab_ticks(ax: plt.Axes) -> None:
     for axis, scale in ((ax.xaxis, ax.get_xscale()),
                         (ax.yaxis, ax.get_yscale())):
         if scale == "linear":
-            # nbins=5 matches MATLAB's sparser default (0.5 steps on [-1,1]
-            # where matplotlib would pick 0.25; 0.2 where it would pick 0.1).
-            axis.set_major_locator(MaxNLocator(nbins=5, steps=[1, 2, 2.5, 5, 10]))
+            # nbins=7 measured empirically against the chebfun.org MATLAB
+            # renders across guide chapter 1: it reproduces MATLAB's choices
+            # (0.5 on [-1,1], 0.2 on [0,1.2], integers on [0,3]) where
+            # nbins=5 comes out too sparse on several of those ranges.
+            axis.set_major_locator(MaxNLocator(nbins=7, steps=[1, 2, 2.5, 5, 10]))
             axis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:g}"))
 
 

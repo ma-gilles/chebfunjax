@@ -8,6 +8,10 @@ Each figure is exported at the exact pixel size of its chebfun.org reference
 render (610x258) with the MATLAB-default axes box position, so it can be
 compared pixel-for-pixel against the reference.  The MATLAB commands that
 produce each figure are quoted above each block.
+
+Axis limits and tick locations are set explicitly to the values MATLAB
+produced in the reference renders, so the figures do not depend on the
+library's automatic tick heuristic.
 """
 
 import matplotlib
@@ -25,6 +29,7 @@ import chebfunjax as cj
 from chebfunjax.plotting import (
     chebfun_style, save_chebfun_figure, _apply_style, CHEBFUN_BLUE,
 )
+from chebfunjax.utils.gallery import gallery
 
 chebfun_style()
 
@@ -42,7 +47,7 @@ BOX_TITLED = dict(left=0.130, right=0.903, bottom=0.112, top=0.911)
 plot_idx = 0
 
 
-def save(fig, idx, titled=False):
+def _save(fig, idx, titled=False):
     """Pin axes box + canvas to the MATLAB reference and write the PNG."""
     fig.subplots_adjust(**(BOX_TITLED if titled else BOX))
     fig.set_facecolor("white")
@@ -52,27 +57,23 @@ def save(fig, idx, titled=False):
     print(f"  guide01_{idx:02d}.png saved")
 
 
-def plot_pieces(f, ax, color, n=400):
-    """Plot a piecewise Chebfun the way MATLAB does: each smooth fun as a
-    solid line on its own subinterval, with a dotted vertical connector at
-    interior breakpoints where the function jumps.
+def finish(fig, ax, idx, *, xlim=None, ylim=None, xticks=None, yticks=None,
+           title=None):
+    """Apply the reference axis limits, ticks and title, then save."""
+    if xlim is not None:
+        ax.set_xlim(*xlim)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
+    if xticks is not None:
+        ax.set_xticks(xticks)
+    if yticks is not None:
+        ax.set_yticks(yticks)
+    if title is not None:
+        ax.set_title(title)
+    _save(fig, idx, titled=title is not None)
 
-    chebfunjax's Chebfun.plot draws the whole function as a single line
-    (a jump becomes a solid near-vertical segment); MATLAB draws the jump
-    with a dotted connector, which this reproduces.
-    """
-    funs = list(f.funs)
-    for pc in funs:
-        a, b = pc.interval
-        xs = np.linspace(float(a), float(b), n)
-        ys = np.asarray(pc(jnp.array(xs)))
-        ax.plot(xs, ys, '-', color=color, linewidth=1.2)
-    for i in range(len(funs) - 1):
-        xb = float(funs[i].interval[1])
-        left = float(np.asarray(funs[i](jnp.array([xb])))[0])
-        right = float(np.asarray(funs[i + 1](jnp.array([xb])))[0])
-        if abs(left - right) > 1e-8 * (1.0 + abs(left) + abs(right)):
-            ax.plot([xb, xb], [left, right], ':', color=color, linewidth=1.2)
+
+UNIT_TICKS = [-1, -0.5, 0, 0.5, 1]
 
 
 # --------------------------------------------------------------------------
@@ -83,8 +84,8 @@ try:
     print(f"Plot {plot_idx}: cos(20x)")
     f = cj.chebfun(lambda x: jnp.cos(20 * x))
     fig, ax = f.plot()
-    ax.set_ylim(-1.2, 1.2)
-    save(fig, plot_idx)
+    finish(fig, ax, plot_idx, ylim=(-1.2, 1.2),
+           xticks=UNIT_TICKS, yticks=UNIT_TICKS)
 except Exception as e:
     print(f"  guide01_{plot_idx:02d}.png FAILED: {e}")
 
@@ -101,8 +102,8 @@ try:
     cheb_pts = -np.cos(np.pi * np.arange(n) / (n - 1))
     cheb_vals = np.asarray(f(jnp.array(cheb_pts)))
     ax.plot(cheb_pts, cheb_vals, '.', color=CHEBFUN_BLUE, markersize=4)
-    ax.set_ylim(-1.2, 1.2)
-    save(fig, plot_idx)
+    finish(fig, ax, plot_idx, ylim=(-1.2, 1.2),
+           xticks=UNIT_TICKS, yticks=UNIT_TICKS)
 except Exception as e:
     print(f"  guide01_{plot_idx:02d}.png FAILED: {e}")
 
@@ -114,32 +115,31 @@ try:
     print(f"Plot {plot_idx}: Bessel J0 on [0,100]")
     g = cj.chebfun(lambda t: jnp.array(sp.j0(np.asarray(t))), domain=[0, 100])
     fig, ax = g.plot(n_pts=1500)
-    ax.set_ylim(-0.5, 1.0)
-    ax.set_yticks([-0.5, 0.0, 0.5, 1.0])
-    save(fig, plot_idx)
+    finish(fig, ax, plot_idx, ylim=(-0.5, 1.0),
+           xticks=[0, 20, 40, 60, 80, 100], yticks=[-0.5, 0, 0.5, 1])
 except Exception as e:
     print(f"  guide01_{plot_idx:02d}.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
 # Plot 4  (Section 1.2):  clf, plot(f)   with f = 1/(1+25x^2) (Runge)
-#   MATLAB autoscales to [0, 1.2].  NOTE: chebfunjax's arithmetic reciprocal
-#   1/(1+25*x**2) under-resolves (length 17, max error ~4e-2, visible ripples),
-#   so we construct directly from the callable, which resolves to length 185
-#   like MATLAB.  See the library-gap report.
+#   Built by operating on the identity chebfun x, as in MATLAB.
+#   MATLAB autoscales to [0, 1.2].
 # --------------------------------------------------------------------------
 try:
     plot_idx += 1
     print(f"Plot {plot_idx}: Runge function")
-    f = cj.chebfun(lambda x: 1 / (1 + 25 * x**2))
+    x = cj.chebfun(lambda x: x)
+    f = 1 / (1 + 25 * x**2)
     fig, ax = f.plot()
-    ax.set_ylim(0.0, 1.2)
-    save(fig, plot_idx)
+    finish(fig, ax, plot_idx, ylim=(0.0, 1.2), xticks=UNIT_TICKS,
+           yticks=[0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2])
 except Exception as e:
     print(f"  guide01_{plot_idx:02d}.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
 # Plot 5  (Section 1.4):  plot(f)   with f = {x^2, 1, 4-x} on [-1 1 2 4]
-#   jump at x=2 drawn as a dotted connector.  MATLAB autoscales to [0, 2].
+#   Chebfun.plot draws each piece separately and the x=2 jump as a dotted
+#   connector.  MATLAB autoscales to [0, 2].
 # --------------------------------------------------------------------------
 try:
     plot_idx += 1
@@ -151,30 +151,23 @@ try:
     f3 = cj.chebfun(lambda x: 4.0 - x, domain=[2, 4])
     f = Chebfun(funs=f1.funs + f2.funs + f3.funs,
                 domain=Domain((-1.0, 1.0, 2.0, 4.0)))
-    fig, ax = plt.subplots()
-    plot_pieces(f, ax, CHEBFUN_BLUE)
-    _apply_style(ax)
-    ax.set_xlim(-1, 4)
-    ax.set_ylim(0.0, 2.0)
-    save(fig, plot_idx)
+    fig, ax = f.plot()
+    finish(fig, ax, plot_idx, xlim=(-1, 4), ylim=(0.0, 2.0),
+           xticks=[-1, 0, 1, 2, 3, 4], yticks=[0, 0.5, 1, 1.5, 2])
 except Exception as e:
     print(f"  guide01_{plot_idx:02d}.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
 # Plot 6  (Section 1.4):  plot(1/(1+f),'r')
-#   red curve, jump at x=2 drawn as a dotted connector.  Autoscale [0.3, 1].
+#   red curve, x=2 jump drawn as a dotted connector.  Autoscale [0.3, 1].
 # --------------------------------------------------------------------------
 try:
     plot_idx += 1
     print(f"Plot {plot_idx}: 1/(1+f) piecewise, red")
     g = 1 / (1 + f)
-    fig, ax = plt.subplots()
-    plot_pieces(g, ax, 'r')
-    _apply_style(ax)
-    ax.set_xlim(-1, 4)
-    ax.set_ylim(0.3, 1.0)
-    ax.set_yticks([0.4, 0.6, 0.8, 1.0])
-    save(fig, plot_idx)
+    fig, ax = g.plot(color='r')
+    finish(fig, ax, plot_idx, xlim=(-1, 4), ylim=(0.3, 1.0),
+           xticks=[-1, 0, 1, 2, 3, 4], yticks=[0.4, 0.6, 0.8, 1.0])
 except Exception as e:
     print(f"  guide01_{plot_idx:02d}.png FAILED: {e}")
 
@@ -188,8 +181,8 @@ try:
     x = cj.chebfun(lambda x: x)
     f = (x.exp() * (8 * x).sin()).abs()
     fig, ax = f.plot(n_pts=1200)
-    ax.set_ylim(0.0, 3.0)
-    save(fig, plot_idx)
+    finish(fig, ax, plot_idx, ylim=(0.0, 3.0), xticks=UNIT_TICKS,
+           yticks=[0, 0.5, 1, 1.5, 2, 2.5, 3])
 except Exception as e:
     print(f"  guide01_{plot_idx:02d}.png FAILED: {e}")
 
@@ -210,8 +203,8 @@ try:
         domain=list(bps),
     )
     fig, ax = h.plot(n_pts=1500)
-    ax.set_ylim(0.0, 1.2)
-    save(fig, plot_idx)
+    finish(fig, ax, plot_idx, ylim=(0.0, 1.2), xticks=UNIT_TICKS,
+           yticks=[0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2])
 except Exception as e:
     print(f"  guide01_{plot_idx:02d}.png FAILED: {e}")
 
@@ -229,8 +222,9 @@ try:
         domain=[-10, 10],
     )
     fig, ax = f.plot(n_pts=2000)
-    ax.set_ylim(0.0, 1.2)
-    save(fig, plot_idx)
+    finish(fig, ax, plot_idx, ylim=(0.0, 1.2),
+           xticks=[-10, -5, 0, 5, 10],
+           yticks=[0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2])
 except Exception as e:
     print(f"  guide01_{plot_idx:02d}.png FAILED: {e}")
 
@@ -249,10 +243,8 @@ try:
         domain=[-1 + delta, 1 - delta],
     )
     fig, ax = h.plot(n_pts=2000)
-    ax.set_xlim(-1, 1)
-    ax.set_ylim(0.3, 1.15)
-    ax.set_yticks([0.4, 0.6, 0.8, 1.0])
-    save(fig, plot_idx)
+    finish(fig, ax, plot_idx, xlim=(-1, 1), ylim=(0.3, 1.15),
+           xticks=UNIT_TICKS, yticks=[0.4, 0.6, 0.8, 1.0])
 except Exception as e:
     print(f"  guide01_{plot_idx:02d}.png FAILED: {e}")
 
@@ -266,9 +258,8 @@ try:
     ff = lambda t: jnp.sin(t) + jnp.cos(2 * t) - jnp.cos(t) / 3 + jnp.cos(100 * t) / 6
     f = cj.chebfun(ff, domain=[-jnp.pi, jnp.pi])
     fig, ax = f.plot(n_pts=3000)
-    ax.set_xlim(-np.pi, np.pi)
-    ax.set_ylim(-3.0, 2.0)
-    save(fig, plot_idx)
+    finish(fig, ax, plot_idx, xlim=(-np.pi, np.pi), ylim=(-3.0, 2.0),
+           xticks=[-3, -2, -1, 0, 1, 2, 3], yticks=[-3, -2, -1, 0, 1, 2])
 except Exception as e:
     print(f"  guide01_{plot_idx:02d}.png FAILED: {e}")
 
@@ -281,9 +272,8 @@ try:
     ff = lambda t: jnp.sin(t) + jnp.cos(2 * t) - jnp.cos(t) / 3 + jnp.cos(100 * t) / 6
     f2 = cj.chebfun(ff, domain=[-jnp.pi, jnp.pi])
     fig, ax = f2.plot(color='m', n_pts=3000)
-    ax.set_xlim(-np.pi, np.pi)
-    ax.set_ylim(-3.0, 2.0)
-    save(fig, plot_idx)
+    finish(fig, ax, plot_idx, xlim=(-np.pi, np.pi), ylim=(-3.0, 2.0),
+           xticks=[-3, -2, -1, 0, 1, 2, 3], yticks=[-3, -2, -1, 0, 1, 2])
 except Exception as e:
     print(f"  guide01_{plot_idx:02d}.png FAILED: {e}")
 
@@ -295,18 +285,18 @@ try:
     print(f"Plot {plot_idx}: Airy function")
     f = cj.chebfun(lambda x: jnp.array(sp.airy(np.asarray(x))[0]), domain=[-40, 40])
     fig, ax = f.plot(n_pts=2000)
-    ax.set_ylim(-0.8, 0.8)
-    ax.set_xticks(np.arange(-40, 41, 10))
-    ax.set_yticks([-0.5, 0.0, 0.5])
-    ax.set_title('Airy function')
-    save(fig, plot_idx, titled=True)
+    finish(fig, ax, plot_idx, ylim=(-0.8, 0.8),
+           xticks=list(np.arange(-40, 41, 10)), yticks=[-0.5, 0.0, 0.5],
+           title='Airy function')
 except Exception as e:
     print(f"  guide01_{plot_idx:02d}.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
 # Plot 14 (Section 1.9):  plot(cheb.gallery('daubechies')), ylim([-.5 1.5]); title(...)
-#   MATLAB's gallery builds the Daubechies phi_2 (db2) scaling function on
-#   [0,3] via the cascade algorithm; we reproduce it the same way.
+#   chebfunjax has no equispaced ('equi') constructor and no daubechies gallery,
+#   and Chebyshev interpolation of this fractal produces endpoint Runge spikes,
+#   so we evaluate the D4 (db2) cascade on a fine grid and plot the samples
+#   directly, which is what MATLAB's 'equi' chebfun plot does visually.
 # --------------------------------------------------------------------------
 try:
     plot_idx += 1
@@ -326,42 +316,32 @@ try:
             shifted = np.interp(2 * x_pts - k, x_pts, phi, left=0, right=0)
             phi_new += np.sqrt(2) * hfilt[k] * shifted
         phi = phi_new
-    # Normalise to unit integral (the standard db2 scaling-function
-    # normalisation); the cascade preserves the integral of the box init (=3),
-    # so without this the amplitude comes out ~4x too large.
+    # Normalise to unit integral (standard db2 normalisation); the cascade
+    # preserves the box-init integral (=3), so amplitude is otherwise ~4x large.
     dx = x_pts[1] - x_pts[0]
     phi = phi / (np.sum((phi[:-1] + phi[1:]) * 0.5) * dx)
-    # chebfunjax cannot represent this fractal: it has no equispaced ('equi')
-    # constructor, and Chebyshev interpolation of the non-smooth phi produces
-    # large endpoint Runge spikes.  Plot the cascade samples directly, which is
-    # what MATLAB's 'equi' chebfun plot does visually.  See library-gap report.
     fig, ax = plt.subplots()
     ax.plot(x_pts, phi, '-', color=CHEBFUN_BLUE, linewidth=1.2)
     _apply_style(ax)
-    ax.set_xlim(0, 3)
-    ax.set_ylim(-0.5, 1.5)
-    ax.set_title('Daubechies scaling function')
-    save(fig, plot_idx, titled=True)
+    finish(fig, ax, plot_idx, xlim=(0, 3), ylim=(-0.5, 1.5),
+           xticks=[0, 0.5, 1, 1.5, 2, 2.5, 3], yticks=[-0.5, 0, 0.5, 1, 1.5],
+           title='Daubechies scaling function')
 except Exception as e:
     print(f"  guide01_{plot_idx:02d}.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
 # Plot 15 (Section 1.9):  cheb.gallery('zigzag')
-#   f = cumsum(chebfun(@(t) sign(sin(100*t/(2-t))), 10000)); title shows length.
-#   (chebfunjax's gallery('zigzag') is T_5000, which is NOT this function, so
-#    we build the genuine Chebfun-gallery zigzag here.)
+#   gallery('zigzag') = cumsum(chebfun(sign(sin(100*t/(2-t))), 10000)), the
+#   genuine ATAP "Six myths" example, length 10001.  Title shows the length.
 # --------------------------------------------------------------------------
 try:
     plot_idx += 1
     print(f"Plot {plot_idx}: Zigzag polynomial")
-    g = cj.chebfun(lambda t: jnp.sign(jnp.sin(100 * t / (2 - t))), n=10000)
-    f = g.cumsum()
+    f = gallery('zigzag')
     fig, ax = f.plot(n_pts=4000)
-    ax.set_xlim(-1, 1)
-    ax.set_ylim(-0.1, 0.05)
-    ax.set_yticks([-0.1, -0.05, 0.0, 0.05])
-    ax.set_title(f'zigzag, length = {len(f)}')
-    save(fig, plot_idx, titled=True)
+    finish(fig, ax, plot_idx, xlim=(-1, 1), ylim=(-0.1, 0.05),
+           xticks=UNIT_TICKS, yticks=[-0.1, -0.05, 0.0, 0.05],
+           title=f'zigzag, length = {len(f)}')
 except Exception as e:
     print(f"  guide01_{plot_idx:02d}.png FAILED: {e}")
 
