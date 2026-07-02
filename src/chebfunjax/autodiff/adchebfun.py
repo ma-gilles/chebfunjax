@@ -48,13 +48,11 @@ from typing import Callable
 
 import jax.numpy as jnp
 
-from chebfunjax.autodiff.treevar import TreeVar, linearize_tree
-from chebfunjax.domain import Domain
 from chebfunjax.operators.blocks import (
     ChebColloc2Disc,
-    OperatorBlock,
     D,
     I,
+    OperatorBlock,
     diag,
 )
 
@@ -329,7 +327,6 @@ class ADChebfun:
 
         The Fréchet derivative of cumsum is itself: an integration operator.
         """
-        from chebfunjax.operators.blocks import sum_functional
 
         # Build the antidifferentiation OperatorBlock
         # In collocation: cumsum matrix C satisfies Cf = antiderivative values
@@ -340,8 +337,6 @@ class ADChebfun:
             # Cumsum matrix = inverse of differentiation (up to BCs)
             # Use the standard Clenshaw-Curtis approach: integrate via coefficients
             n = disc.n
-            a, b = disc.domain
-            scale = 0.5 * (b - a)
             # Build cumsum matrix numerically via columns
             import jax.numpy as jnp
             D1 = _dm(n, 1, domain=disc.domain)
@@ -512,7 +507,6 @@ def linearize_op(
     MATLAB source : @chebop/linearize.m, @adchebfun (operator overloads)
     Chebfun commit: 7574c77
     """
-    from chebfunjax.chebfun1d.chebfun import Chebfun
 
     # Infer domain
     if domain is None:
@@ -586,7 +580,6 @@ def detect_linearity(
     MATLAB source : @adchebfun/isLinear.m, @chebop/isLinear.m
     Chebfun commit: 7574c77
     """
-    from chebfunjax.chebfun1d.chebfun import Chebfun
 
     if domain is None:
         bpts = u0.domain.breakpoints

@@ -18,11 +18,10 @@ from __future__ import annotations
 
 from typing import Callable, Tuple
 
-import numpy as np
 import jax.numpy as jnp
+import numpy as np
 
 from chebfunjax.utils.aaa import aaa
-
 
 # ===========================================================================
 # Public API
@@ -102,7 +101,6 @@ def conformal(
     aaa
     """
     Z_np = np.array(boundary_pts, dtype=complex).ravel()
-    M_in = len(Z_np)
     ctr_c = complex(ctr)
     scl = np.max(np.abs(Z_np - ctr_c))
 
@@ -145,8 +143,10 @@ def conformal(
 
     # Simple check: poles of f should be outside the region (|z - ctr| > scl roughly)
     # and poles of finv should be outside the unit disk
+    import warnings
+    if len(pol_np) > 0 and np.min(np.abs(pol_np - ctr_c)) < scl:
+        warnings.warn("conformal: pole of forward map inside region", stacklevel=2)
     if len(polinv_np) > 0 and np.min(np.abs(polinv_np)) < 1.0:
-        import warnings
         warnings.warn("conformal: pole of inverse map inside unit disk", stacklevel=2)
 
     return f1, finv1, pol, polinv
@@ -279,8 +279,6 @@ def _poly_method(
         err = np.linalg.norm(A @ c - G, np.inf)
 
         # Extract analytic coefficients
-        n1 = np.arange(n + 1)
-        n2 = np.arange(1, n + 1)
         cc = c[:n + 1] - 1j * np.concatenate([[0.0], c[n + 1:]])
 
         W = Z_scl * np.exp(Q @ cc)

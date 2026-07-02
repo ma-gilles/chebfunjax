@@ -34,7 +34,7 @@ import matplotlib as mpl
 if matplotlib.get_backend().lower() == "agg" and not os.environ.get("DISPLAY"):
     pass  # already headless — keep whatever backend is active
 import matplotlib.pyplot as plt
-import numpy as np
+import numpy as np  # uses-numpy: matplotlib rendering interop (host-side, never in JIT paths)
 from matplotlib.colors import LightSource, Normalize
 
 from chebfunjax.utils.quadrature import chebpts, trigpts

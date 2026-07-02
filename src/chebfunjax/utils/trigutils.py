@@ -7,10 +7,8 @@ Developers.  See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
-import jax
 import jax.numpy as jnp
 import numpy as np
-
 
 # ===========================================================================
 # Trigonometric polynomial on [-1, 1]
@@ -248,33 +246,6 @@ def _binom(n: int, k: int) -> float:
     """Binomial coefficient C(n,k) as float."""
     from math import comb
     return float(comb(n, k))
-
-
-def _diff_cot(t: np.ndarray, n: int) -> np.ndarray:
-    """N-th derivative of cot(t) using derivative polynomials."""
-    x = np.tan(t + np.pi / 2)
-    shape = list(x.shape) + [n + 1]
-    P = np.zeros(shape, dtype=complex)
-    P[..., 0] = -x
-    for k in range(n):
-        ell = np.arange(k + 1).reshape([1] * len(x.shape) + [-1])
-        Pk = P[..., :k + 1]
-        Pkl = Pk[..., :k + 1]
-        Pkm = Pk[..., ::-1][..., :k + 1]
-        # Derivative polynomial recurrence
-        from math import factorial, comb
-        fact_k = factorial(k)
-        for l_idx in range(k + 1):
-            # sum term
-            pass
-        # Simplified: use recursion
-        l_vec = np.arange(k + 1)
-        coeffs = fact_k / (np.array([factorial(l) * factorial(k - l) for l in l_vec]))
-        # P[k+1] = -sum_{l=0}^k C(k,l) P[l] * P[k-l] - delta(k,0)
-        P[..., k + 1] = -np.einsum('...i,...i,i->', P[..., :k + 1], P[..., k::-1],
-                                   np.array([_binom(k, l) for l in range(k + 1)])) \
-            * np.ones(x.shape) - (1.0 if k == 0 else 0.0)
-    return P[..., n]
 
 
 def _diff_cot_scalar(t: np.ndarray, n: int) -> np.ndarray:

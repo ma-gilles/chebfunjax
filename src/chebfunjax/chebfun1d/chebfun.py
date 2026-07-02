@@ -2086,8 +2086,8 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/spline.m
         Chebfun commit: 7574c77
         """
-        from scipy.interpolate import CubicSpline
         import numpy as _np
+        from scipy.interpolate import CubicSpline
         x_np = _np.asarray(x, dtype=_np.float64)
         y_np = _np.asarray(y, dtype=_np.float64)
         order = _np.argsort(x_np)
@@ -2135,8 +2135,8 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/pchip.m
         Chebfun commit: 7574c77
         """
-        from scipy.interpolate import PchipInterpolator
         import numpy as _np
+        from scipy.interpolate import PchipInterpolator
         x_np = _np.asarray(x, dtype=_np.float64)
         y_np = _np.asarray(y, dtype=_np.float64)
         order = _np.argsort(x_np)
@@ -3409,6 +3409,7 @@ class Chebfun(eqx.Module):
         """
         # uses-numpy: Watson iteration uses NumPy/SciPy linear algebra
         import numpy as _np
+
         from chebfunjax.chebfun1d.chebfun import chebfun as _cf
 
         a = float(self.domain.a)
@@ -3421,9 +3422,9 @@ class Chebfun(eqx.Module):
         tol = 1e-10
         max_iter = 100
 
+        from chebfunjax.utils.interpolation import bary as _bary
+        from chebfunjax.utils.interpolation import bary_weights as _bw
         from chebfunjax.utils.quadrature import chebpts_ab as _chebpts_ab
-        from chebfunjax.utils.transforms import vals2coeffs as _v2c
-        from chebfunjax.utils.interpolation import bary as _bary, bary_weights as _bw
 
         # Compute interpolant at n+3 Chebyshev points (n+1 inner)
         n_pts = n + 3
@@ -3433,10 +3434,6 @@ class Chebfun(eqx.Module):
         fvals = _np.asarray(self(jnp.array(x_nodes)), dtype=_np.float64)
 
         # Build interpolant via barycentric interpolation
-        from chebfunjax.utils.quadrature import chebpts_ab
-        x_cheb = _np.array(chebpts_ab(n + 1, a, b), dtype=_np.float64)
-        w_cheb = _np.array(_bw(jnp.array(x_cheb, dtype=jnp.float64)), dtype=_np.float64)
-
         def _eval_poly(x_eval):
             """Evaluate degree-n polynomial (given by values at x_nodes) at x_eval."""
             # Barycentric interpolation of fvals on x_nodes
@@ -4354,6 +4351,7 @@ def subspace(
     """
     # uses-numpy: QR / SVD use NumPy internally
     import numpy as _np
+
     from chebfunjax.chebfun1d.linalg import Quasimatrix, qr_quasimatrix
 
     if not A or not B:

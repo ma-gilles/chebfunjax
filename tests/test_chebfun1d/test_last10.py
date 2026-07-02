@@ -17,10 +17,10 @@ Covers:
 
 from __future__ import annotations
 
+import jax.numpy as jnp
 import numpy as np
 import numpy.testing as npt
 import pytest
-import jax.numpy as jnp
 
 import chebfunjax as cj
 from chebfunjax.chebfun1d.chebfun import (
@@ -34,7 +34,6 @@ from chebfunjax.chebfun1d.chebfun import (
     subspace,
 )
 from chebfunjax.chebfun1d.pde_solve import pdeSolve
-
 
 # ---------------------------------------------------------------------------
 # Shared helpers
@@ -365,7 +364,6 @@ class TestUnwrap:
     def test_unwrap_removes_2pi_jump(self):
         """Unwrap removes a 2-pi jump between two pieces."""
         # Build a chebfun with an artificial 2*pi jump
-        a, b = -1.0, 1.0
         from chebfunjax.domain import Domain
 
         def _left(x):
@@ -389,6 +387,8 @@ class TestUnwrap:
         g_vals = np.asarray(g(xs_r))
         # The jump of 2*pi should have been removed → g ≈ x*pi on [0,1]
         expected = np.asarray(xs_r) * float(jnp.pi)
+        # Sanity check: the original right piece carries the +2*pi jump
+        npt.assert_allclose(f_vals, expected + 2.0 * float(jnp.pi), atol=1e-10)
         npt.assert_allclose(g_vals, expected, atol=1e-10,
                             err_msg="unwrap did not remove 2*pi jump")
 

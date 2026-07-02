@@ -11,8 +11,6 @@ import importlib.util
 import os
 import sys
 
-import pytest
-
 # Ensure examples/ and src/ are importable
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _EXAMPLES_DIR = os.path.join(_HERE, '..', '..', 'examples')

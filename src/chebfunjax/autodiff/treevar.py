@@ -535,7 +535,6 @@ def linearize_tree(
             return diag(n * u_val ** (n - 1), domain) * op_left  # type: ignore[operator]
         elif right_is_tv and not left_is_tv:
             # a^u  → diag(a^u * log(a)) * du
-            import jax.numpy as jnp
             a = _make_chebfun(left_tree, u_cheb, domain)
             u_val = _eval_tree(right_tree, u_cheb)
             op_right = linearize_tree(right_tree, u_cheb, domain)

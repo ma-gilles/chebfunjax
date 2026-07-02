@@ -6,9 +6,8 @@ from chebfunjax.utils.conformal2 import conformal2
 from chebfunjax.utils.fov import fov
 from chebfunjax.utils.gallery import gallery, list_gallery
 from chebfunjax.utils.gpr import gpr
-from chebfunjax.utils.phaseplot import phaseplot
-from chebfunjax.utils.pswf import pswf, pswfpts
 from chebfunjax.utils.lebesgue import lebesgue_constant, lebesgue_function
+from chebfunjax.utils.phaseplot import phaseplot
 from chebfunjax.utils.polynomials import (
     chebeval,
     chebpoly,
@@ -21,6 +20,7 @@ from chebfunjax.utils.polynomials import (
     ultraeval,
     ultrapoly,
 )
+from chebfunjax.utils.pswf import pswf, pswfpts
 from chebfunjax.utils.quadrature import (
     chebpts,
     chebpts2,

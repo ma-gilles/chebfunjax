@@ -15,8 +15,8 @@ See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
-import numpy as np
 import jax.numpy as jnp
+import numpy as np
 from scipy.special import gammaln
 
 # ===========================================================================
@@ -1262,7 +1262,6 @@ def _down_jacobi(v: np.ndarray, a: float, b: float) -> np.ndarray:
     topRow *= signs
 
     # Apply S^{-1} in O(N) via fliplr cumsum
-    tmp = topRow[:, None] * v[None, :]  # broadcast: (N,N) ... but we only need cols
     # vecsum[k] = sum_{j>=k} topRow[j] * v[j]
     # Efficient: vecsum = fliplr(cumsum(fliplr(topRow * v)))
     tv = topRow * v
@@ -1383,7 +1382,6 @@ def _jacobi_fractional_conversion(
     if not chol_cols:
         return v
 
-    sz = len(chol_cols)
     C_arr = np.column_stack(chol_cols) * np.sqrt(np.array(pivot_vals))[None, :]  # (N, sz)
 
     # Toeplitz row: T_row[k] = Lambda2(k) for k=0..N-1
@@ -1532,7 +1530,6 @@ def ultracoeffs(c_cheb: jnp.ndarray, lam: float) -> jnp.ndarray:
 
     # Scale from Jacobi to ultraspherical
     n = c_jac.shape[0]
-    nn = jnp.arange(n, dtype=jnp.float64)
     from scipy.special import gammaln as _gammaln
     scl = jnp.array(
         np.exp(_gammaln(2 * lam) - _gammaln(lam + 0.5))

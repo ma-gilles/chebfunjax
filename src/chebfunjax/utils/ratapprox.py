@@ -1378,8 +1378,9 @@ def chebpade(
         from chebfunjax.utils.quadrature import chebpts
         t = np.array(chebpts(n_pts, kind=2), dtype=np.float64)
         vals = np.asarray(f(t), dtype=np.float64).ravel()
-        from chebfunjax.utils.transforms import vals2coeffs
         import jax.numpy as _jnp
+
+        from chebfunjax.utils.transforms import vals2coeffs
         c_raw = np.array(vals2coeffs(_jnp.array(vals)), dtype=np.float64)
     else:
         c_raw = np.asarray(f, dtype=np.float64).ravel()
@@ -1508,7 +1509,6 @@ def _chebpade_maehly(
     MATLAB source : chebpadeMaehly (private sub-function of chebpade.m)
     Chebfun commit: 7574c77
     """
-    tol = 1e-10
     a = c.copy()
 
     # Denominator system
@@ -1630,7 +1630,6 @@ def trigpade(
     True
     """
     a, b = float(domain[0]), float(domain[1])
-    period = b - a
 
     # ---- 1. Extract Fourier coefficients ----
     n_coeff = 2 * (m + 2 * n) + 2 if N_fft <= 0 else N_fft

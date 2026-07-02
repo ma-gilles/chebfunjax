@@ -14,10 +14,10 @@ Covers:
 
 from __future__ import annotations
 
-import numpy as np
-import numpy.testing as npt
 import jax
 import jax.numpy as jnp
+import numpy as np
+import numpy.testing as npt
 import pytest
 
 # ---------------------------------------------------------------------------
@@ -92,7 +92,7 @@ class TestLegendreTransforms:
 
     def test_legvals2legcoeffs_legcoeffs2legvals_roundtrip(self):
         """legvals -> legcoeffs -> legvals recovers input."""
-        from chebfunjax.utils import legvals2legcoeffs, legcoeffs2legvals
+        from chebfunjax.utils import legcoeffs2legvals, legvals2legcoeffs
         from chebfunjax.utils.quadrature import legpts
         n = 10
         x, w = legpts(n)
@@ -104,8 +104,8 @@ class TestLegendreTransforms:
     def test_legvals2chebcoeffs(self):
         """legvals2chebcoeffs matches manual pipeline."""
         from chebfunjax.utils import legvals2chebcoeffs
-        from chebfunjax.utils.transforms import _legendre_idlt, leg2cheb
         from chebfunjax.utils.quadrature import legpts
+        from chebfunjax.utils.transforms import _legendre_idlt, leg2cheb
         n = 8
         x, _ = legpts(n)
         v = x ** 3  # exact polynomial
@@ -118,11 +118,12 @@ class TestLegendreTransforms:
     def test_legvals2chebvals_polynomial(self):
         """legvals2chebvals is exact for polynomials."""
         from chebfunjax.utils import legvals2chebvals
-        from chebfunjax.utils.quadrature import legpts, chebpts
+        from chebfunjax.utils.quadrature import chebpts, legpts
         n = 10
         x_leg, _ = legpts(n)
         x_cheb = chebpts(n)
-        p = lambda x: x ** 4 - 2 * x ** 2 + 1
+        def p(x):
+            return x ** 4 - 2 * x ** 2 + 1
         v_leg = jnp.array(p(np.array(x_leg)))
         v_cheb_expected = jnp.array(p(np.array(x_cheb)))
         v_cheb = legvals2chebvals(v_leg)
@@ -131,11 +132,12 @@ class TestLegendreTransforms:
     def test_legcoeffs2chebvals_polynomial(self):
         """legcoeffs2chebvals is exact for polynomials."""
         from chebfunjax.utils import legcoeffs2chebvals, legvals2legcoeffs
-        from chebfunjax.utils.quadrature import legpts, chebpts
+        from chebfunjax.utils.quadrature import chebpts, legpts
         n = 8
         x_leg, _ = legpts(n)
         x_cheb = chebpts(n)
-        p = lambda x: 3 * x ** 3 - x
+        def p(x):
+            return 3 * x ** 3 - x
         v_leg = jnp.array(p(np.array(x_leg)))
         c_leg = legvals2legcoeffs(v_leg)
         v_cheb = legcoeffs2chebvals(c_leg)
@@ -144,7 +146,7 @@ class TestLegendreTransforms:
 
     def test_legcoeffs2legvals_roundtrip(self):
         """legcoeffs -> legvals -> legcoeffs recovers input."""
-        from chebfunjax.utils import legvals2legcoeffs, legcoeffs2legvals
+        from chebfunjax.utils import legcoeffs2legvals, legvals2legcoeffs
         n = 12
         c_in = jnp.array(rng.standard_normal(n), dtype=jnp.float64)
         v = legcoeffs2legvals(c_in)
@@ -158,7 +160,8 @@ class TestLegendreTransforms:
         n = 10
         x_cheb = chebpts(n)
         x_leg, _ = legpts(n)
-        p = lambda x: x ** 5 - 2 * x ** 3 + x
+        def p(x):
+            return x ** 5 - 2 * x ** 3 + x
         v_cheb = jnp.array(p(np.array(x_cheb)))
         v_leg = chebvals2legvals(v_cheb)
         v_leg_expected = jnp.array(p(np.array(x_leg)))
@@ -181,7 +184,8 @@ class TestLegendreTransforms:
         n = 8
         x1 = chebpts(n, kind=1)
         x2 = chebpts(n, kind=2)
-        p = lambda x: x ** 3 - x
+        def p(x):
+            return x ** 3 - x
         v1 = jnp.array(p(np.array(x1)))
         v2_expected = jnp.array(p(np.array(x2)))
         v2 = chebvals2chebvals(v1, 1, 2)
@@ -231,7 +235,7 @@ class TestJac2Jac:
 
     def test_against_cheb2jac(self):
         """jac2jac(cheb2jac(c, 0,0), 0,0, 1,0) matches cheb2jac(c, 1,0)."""
-        from chebfunjax.utils import jac2jac, cheb2jac
+        from chebfunjax.utils import cheb2jac, jac2jac
         c_cheb = jnp.array([1.0, 0.5, 0.3, 0.1, 0.05], dtype=jnp.float64)
         # Leg coeffs
         c_leg = cheb2jac(c_cheb, 0.0, 0.0)
@@ -271,7 +275,6 @@ class TestUltraTransforms:
     def test_ultra2ultra_legendre_cheb(self):
         """lam=0.5 is Legendre, lam=1.0 is Cheb-2nd. Conversion should agree with cheb2leg."""
         from chebfunjax.utils import ultra2ultra
-        from chebfunjax.utils.transforms import cheb2leg
         # ultraspherical lam=1 corresponds to Chebyshev-2nd kind coefficients
         # ultraspherical lam=0.5 corresponds to Legendre (up to scaling)
         c = jnp.array([1.0, 0.5, 0.3, 0.1], dtype=jnp.float64)
@@ -477,8 +480,9 @@ class TestGammaratio:
 
     def test_small_m(self):
         """For small m, gammaratio uses scipy directly."""
-        from chebfunjax.utils import gammaratio
         from scipy.special import gamma
+
+        from chebfunjax.utils import gammaratio
         for m, delta in [(2.0, 0.5), (5.0, 1.0), (10.0, 0.3)]:
             expected = gamma(m + delta) / gamma(m)
             result = gammaratio(m, delta)
@@ -487,8 +491,9 @@ class TestGammaratio:
 
     def test_large_m(self):
         """For large m, gammaratio is accurate via Stirling series."""
-        from chebfunjax.utils import gammaratio
         from scipy.special import gammaln
+
+        from chebfunjax.utils import gammaratio
         for m, delta in [(50.0, 0.5), (100.0, 0.3), (200.0, 0.7)]:
             # Use exp(gammaln) to avoid overflow for large m
             expected = np.exp(gammaln(m + delta) - gammaln(m))

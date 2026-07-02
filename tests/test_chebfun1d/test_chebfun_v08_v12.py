@@ -10,11 +10,10 @@ Covers:
 
 from __future__ import annotations
 
+import jax.numpy as jnp
 import numpy as np
 import numpy.testing as npt
 import pytest
-import jax
-import jax.numpy as jnp
 import scipy.special as ss
 
 from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
@@ -419,8 +418,8 @@ class TestIsnan:
         assert f.isnan() is False
 
     def test_nan_coeffs(self):
-        from chebfunjax.tech.chebtech import Chebtech2
         from chebfunjax.chebfun1d.chebfun import _Piece
+        from chebfunjax.tech.chebtech import Chebtech2
         bad_coeffs = jnp.array([jnp.nan, 1.0, 0.0], dtype=jnp.float64)
         bad_tech = Chebtech2.from_coeffs(bad_coeffs)
         bad_piece = _Piece(tech=bad_tech, interval=(-1.0, 1.0))
@@ -434,8 +433,8 @@ class TestIsinf:
         assert f.isinf() is False
 
     def test_inf_coeffs(self):
-        from chebfunjax.tech.chebtech import Chebtech2
         from chebfunjax.chebfun1d.chebfun import _Piece
+        from chebfunjax.tech.chebtech import Chebtech2
         inf_coeffs = jnp.array([jnp.inf, 0.0], dtype=jnp.float64)
         inf_tech = Chebtech2.from_coeffs(inf_coeffs)
         inf_piece = _Piece(tech=inf_tech, interval=(-1.0, 1.0))

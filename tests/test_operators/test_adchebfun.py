@@ -18,11 +18,8 @@ Original: Copyright 2017 by The University of Oxford and The Chebfun Developers.
 
 from __future__ import annotations
 
-import jax
 import jax.numpy as jnp
-import numpy as np
 import numpy.testing as npt
-import pytest
 
 from chebfunjax.autodiff.adchebfun import ADChebfun, detect_linearity, linearize_op
 from chebfunjax.autodiff.treevar import TreeVar, linearize_tree
@@ -561,7 +558,8 @@ class TestNewtonBVP:
         N.lbc = 0.0
         N.rbc = 2.0
 
-        rhs = lambda x: -(x ** 2 + 2 * x + 1)
+        def rhs(x):
+            return -(x ** 2 + 2 * x + 1)
         u_sol = N.solve(rhs, n=32)
 
         # Check at several interior points
@@ -663,7 +661,6 @@ class TestTaylorOrder:
 
     def _eval_op_at_values(self, op_fn, domain, vals_array):
         """Evaluate op_fn on a Chebfun given by values array, return values."""
-        from chebfunjax.chebfun1d.chebfun import chebfun as _chebfun
         n = len(vals_array)
         dom = Domain(domain)
         u = Chebfun.from_values(jnp.asarray(vals_array, dtype=jnp.float64), dom)
@@ -695,7 +692,8 @@ class TestTaylorOrder:
         v_vals = jnp.cos(2.0 * t_ref)  # arbitrary perturbation
 
         u0 = Chebfun.from_values(u0_vals, dom)
-        op_fn = lambda x, u: u.diff(2) + u ** 2
+        def op_fn(x, u):
+            return u.diff(2) + u ** 2
 
         # Compute the Fréchet derivative at u0
         J_op = linearize_op(op_fn, u0, domain=domain)

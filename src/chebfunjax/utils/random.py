@@ -9,10 +9,9 @@ Developers.  See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
-import numpy as np
 import jax
 import jax.numpy as jnp
-
+import numpy as np
 
 # ===========================================================================
 # randnfun — band-limited random function on an interval
@@ -414,7 +413,6 @@ def _sph_harm_sum(
         a = ((-1.0) ** m_vals) / np.sqrt((1.0 + (m_vals == 0).astype(float)) * np.pi)
 
         # Associated Legendre: G[m, theta]
-        from scipy.special import lpmv
         import math
         G = np.zeros((l_deg + 1, len(theta)))
         for m_idx, m_val in enumerate(m_vals):
@@ -457,8 +455,9 @@ def _sph_harm_sum_fixed_deg(
     coeffs: np.ndarray,
 ) -> np.ndarray:
     """Sum of spherical harmonics of a single fixed degree."""
-    from scipy.special import lpmv
     import math
+
+    from scipy.special import lpmv
 
     cos_theta = np.cos(theta)
     F = np.zeros((len(theta), len(lam)), dtype=np.float64)

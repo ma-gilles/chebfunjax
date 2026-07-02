@@ -8,10 +8,9 @@ See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
-import numpy as np
 import jax.numpy as jnp
-from scipy.special import gammaln, jv as bessel_j, jvp as bessel_j_prime
-
+import numpy as np
+from scipy.special import gammaln
 
 # ===========================================================================
 # Bessel roots

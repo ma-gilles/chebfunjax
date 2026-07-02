@@ -28,7 +28,7 @@ Key operator-AD entry points:
   - :func:`~chebfunjax.autodiff.treevar.linearize_tree`
 """
 
-from chebfunjax.autodiff.adchebfun import ADChebfun, linearize_op, detect_linearity
+from chebfunjax.autodiff.adchebfun import ADChebfun, detect_linearity, linearize_op
 from chebfunjax.autodiff.treevar import TreeVar, linearize_tree
 
 __all__ = [

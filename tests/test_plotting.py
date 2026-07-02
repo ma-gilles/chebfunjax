@@ -12,7 +12,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # 1. Backend guard — must come before importing chebfunjax
 # ---------------------------------------------------------------------------
@@ -39,8 +38,9 @@ def test_import_does_not_force_agg():
 
 # Use Agg for all subsequent tests so they run headlessly.
 matplotlib.use("Agg")
-import chebfunjax as cj  # noqa: E402
 import jax.numpy as jnp  # noqa: E402
+
+import chebfunjax as cj  # noqa: E402
 
 
 def _make_chebfun1d():

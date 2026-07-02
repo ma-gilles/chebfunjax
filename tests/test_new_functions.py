@@ -129,6 +129,7 @@ class TestDst:
     def test_matches_scipy(self):
         """dst should match scipy.fft.dst."""
         import scipy.fft
+
         from chebfunjax.utils.transforms import dst
 
         rng = np.random.default_rng(7)
@@ -213,7 +214,8 @@ class TestFredVolt:
         from chebfunjax.chebfun1d.chebfun import chebfun
         from chebfunjax.operators.integral import fred
 
-        K = lambda x, y: x - y
+        def K(x, y):
+            return x - y
         f = chebfun(lambda x: x, domain=(-1.0, 1.0))
         h = fred(K, f)
         xs = jnp.linspace(-0.9, 0.9, 10)
@@ -226,7 +228,8 @@ class TestFredVolt:
         from chebfunjax.chebfun1d.chebfun import chebfun
         from chebfunjax.operators.integral import fred
 
-        K = lambda x, y: jnp.ones_like(x * y)
+        def K(x, y):
+            return jnp.ones_like(x * y)
         f = chebfun(jnp.cos, domain=(-1.0, 1.0))
         Ff = fred(K, f)
         expected = float(jnp.sin(jnp.float64(1.0)) - jnp.sin(jnp.float64(-1.0)))
@@ -344,7 +347,8 @@ class TestGmres:
 
         L = Linop(D(order=2), [eval_at(-1.0), eval_at(1.0)],
                   domain=(-1.0, 1.0), bc_values=[0.0, 0.0])
-        rhs = lambda x: jnp.sin(jnp.pi * x)
+        def rhs(x):
+            return jnp.sin(jnp.pi * x)
         u_exact = L.solve(rhs, n=64)
         u_gmres = gmres(L, rhs, n=64)
         xs = jnp.linspace(-0.9, 0.9, 20)
@@ -571,6 +575,7 @@ class TestPlotting:
     def test_waterfall(self):
         """waterfall should produce a figure without errors."""
         import matplotlib.pyplot as plt
+
         from chebfunjax.chebfun1d.chebfun import chebfun
         from chebfunjax.plotting import waterfall
 
@@ -582,6 +587,7 @@ class TestPlotting:
     def test_roots_plot(self):
         """roots_plot should produce a figure without errors."""
         import matplotlib.pyplot as plt
+
         from chebfunjax.chebfun1d.chebfun import chebfun
         from chebfunjax.plotting import roots_plot
 
@@ -593,6 +599,7 @@ class TestPlotting:
     def test_spy(self):
         """spy should produce a figure for a numpy 2D array."""
         import matplotlib.pyplot as plt
+
         from chebfunjax.plotting import spy
 
         A = np.eye(8)
@@ -603,6 +610,7 @@ class TestPlotting:
     def test_plotregion(self):
         """plotregion should produce a figure without errors."""
         import matplotlib.pyplot as plt
+
         from chebfunjax.chebfun1d.chebfun import chebfun
         from chebfunjax.plotting import plotregion
 
@@ -614,6 +622,7 @@ class TestPlotting:
     def test_arrowplot(self):
         """arrowplot should produce a figure for a parametric curve."""
         import matplotlib.pyplot as plt
+
         from chebfunjax.chebfun1d.chebfun import chebfun
         from chebfunjax.plotting import arrowplot
 
@@ -626,6 +635,7 @@ class TestPlotting:
     def test_chebpolyplot(self):
         """chebpolyplot should produce a figure without errors."""
         import matplotlib.pyplot as plt
+
         from chebfunjax.chebfun1d.chebfun import chebfun
         from chebfunjax.plotting import chebpolyplot
 
@@ -637,6 +647,7 @@ class TestPlotting:
     def test_multi_chebfun_plot(self):
         """plot(*args) should accept multiple Chebfuns and produce a figure."""
         import matplotlib.pyplot as plt
+
         from chebfunjax.chebfun1d.chebfun import chebfun
         from chebfunjax.plotting import plot
 
@@ -649,6 +660,7 @@ class TestPlotting:
     def test_plotcoeffs_envelope(self):
         """plotcoeffs with envelope=True should not error."""
         import matplotlib.pyplot as plt
+
         from chebfunjax.chebfun1d.chebfun import chebfun
         from chebfunjax.plotting import plotcoeffs
 
@@ -660,6 +672,7 @@ class TestPlotting:
     def test_chebfun_plot_method(self):
         """Chebfun.plot() method should return (fig, ax)."""
         import matplotlib.pyplot as plt
+
         from chebfunjax.chebfun1d.chebfun import chebfun
 
         f = chebfun(jnp.sin)

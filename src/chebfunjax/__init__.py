@@ -11,47 +11,47 @@ jax.config.update("jax_enable_x64", True)
 from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun  # noqa: E402
 from chebfunjax.chebfun2d.chebfun2 import Chebfun2, chebfun2  # noqa: E402
 
-# Random functions
-from chebfunjax.utils.random import randnfun  # noqa: E402
-
 # Plotting — importable as cj.plot(f), cj.surf(g), etc.
 from chebfunjax.plotting import (  # noqa: E402
-    plot_1d,
-    plot_dispatch,
-    plotcoeffs,
-    contour,
-    surf,
-    phaseplot,
-    plot_disk,
-    plot_sphere,
-    plot_slices,
-    quiver_sphere,
-    isosurface_ball,
-    plot_ball_slices,
-    # New MATLAB-faithful plotting functions
-    contour_sphere,
-    contour_disk,
-    surf_disk,
-    quiver_sphere_cartesian,
-    quiver_2d,
-    quiver_disk,
-    quiver_ball,
-    surf_chebfun2v,
-    surf_ball,
-    plot_chebfun3,
-    surf_chebfun3,
-    # Rich plotting API
-    waterfall,
-    roots_plot,
-    spy,
-    plotregion,
-    arrowplot,
-    chebpolyplot,
-    # Style
-    chebfun_style,
     CHEBFUN_RC,
     PARULA,
+    arrowplot,
+    # Style
+    chebfun_style,
+    chebpolyplot,
+    contour,
+    contour_disk,
+    # New MATLAB-faithful plotting functions
+    contour_sphere,
+    isosurface_ball,
+    phaseplot,
+    plot_1d,
+    plot_ball_slices,
+    plot_chebfun3,
+    plot_disk,
+    plot_dispatch,
+    plot_slices,
+    plot_sphere,
+    plotcoeffs,
+    plotregion,
+    quiver_2d,
+    quiver_ball,
+    quiver_disk,
+    quiver_sphere,
+    quiver_sphere_cartesian,
+    roots_plot,
+    spy,
+    surf,
+    surf_ball,
+    surf_chebfun2v,
+    surf_chebfun3,
+    surf_disk,
+    # Rich plotting API
+    waterfall,
 )
+
+# Random functions
+from chebfunjax.utils.random import randnfun  # noqa: E402
 
 # The top-level `plot` is the universal dispatcher (like MATLAB's plot(f))
 plot = plot_dispatch
@@ -277,4 +277,7 @@ __all__ = [
     "arrowplot",
     "chebpolyplot",
     "PARULA",
+    # Style
+    "CHEBFUN_RC",
+    "chebfun_style",
 ]

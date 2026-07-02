@@ -965,7 +965,6 @@ def _prztrig_np(
         zjp = np.tan(zj[d_mask] / 2)
         wjp = wj[d_mask] * (1 + zjp ** 2)
         cd = np.sum(zjp * wj[d_mask])
-        m_d = np.sum(d_mask)
 
         B = np.eye(m + 1, dtype=complex)
         B[0, 0] = 0.0
