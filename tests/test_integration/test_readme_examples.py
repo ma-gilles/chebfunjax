@@ -513,127 +513,163 @@ class TestBallfun:
     """Integration tests for Ballfun."""
 
     def test_construction(self):
-        """Ballfun can be constructed from a callable."""
+        """Ballfun can be constructed from a callable.
+
+        Default op convention is CARTESIAN op(x, y, z); the spherical
+        form op(r, lam, th) requires spherical=True.
+        """
         from chebfunjax.ballfun.ballfun import Ballfun
-        f = Ballfun.from_function(lambda lam, th, r: r ** 2)
+        f = Ballfun.from_function(lambda x, y, z: x**2 + y**2 + z**2)
         assert isinstance(f, Ballfun)
 
     def test_evaluation_constant(self):
-        """Constant function evaluates to its value."""
+        """Constant function evaluates to its value (spectral accuracy)."""
         from chebfunjax.ballfun.ballfun import Ballfun
-        f = Ballfun.from_function(lambda lam, th, r: jnp.ones_like(r) * 2.5)
-        lam = jnp.array(0.5)
-        th = jnp.array(1.0)
-        r = jnp.array(0.5)
-        npt.assert_allclose(float(f(lam, th, r)), 2.5, rtol=1e-4)
+        f = Ballfun.from_function(lambda x, y, z: jnp.ones_like(x) * 2.5)
+        # Evaluation is f(r, lam, th)
+        npt.assert_allclose(
+            float(f(jnp.array(0.5), jnp.array(0.5), jnp.array(1.0))),
+            2.5, rtol=1e-12,
+        )
 
     def test_evaluation_radial(self):
-        """Radial function r^2 evaluates correctly (trilinear interp, ~1% accuracy)."""
+        """r^2 (built as x^2+y^2+z^2) evaluates to spectral accuracy."""
         from chebfunjax.ballfun.ballfun import Ballfun
-        f = Ballfun.from_function(lambda lam, th, r: r ** 2, n=25)
+        f = Ballfun.from_function(lambda x, y, z: x**2 + y**2 + z**2)
+        r = jnp.array(0.6)
         lam = jnp.array(1.0)
         th = jnp.array(0.8)
-        r = jnp.array(0.6)
-        npt.assert_allclose(float(f(lam, th, r)), 0.36, rtol=5e-3)
+        npt.assert_allclose(float(f(r, lam, th)), 0.36, rtol=1e-12)
+
+    def test_evaluation_spherical_op(self):
+        """spherical=True accepts op(r, lam, th)."""
+        from chebfunjax.ballfun.ballfun import Ballfun
+        f = Ballfun.from_function(
+            lambda r, lam, th: jnp.exp(r * jnp.cos(th)) + 0 * lam,
+            spherical=True,
+        )
+        r, lam, th = 0.9, 0.3, 0.7
+        npt.assert_allclose(
+            float(f(jnp.array(r), jnp.array(lam), jnp.array(th))),
+            float(jnp.exp(r * jnp.cos(th))), rtol=1e-12,
+        )
 
     def test_sum_constant(self):
-        """∫∫∫_B 1 r^2 sin(th) dr dth dlam = 4*pi/3 (volume of unit ball)."""
+        """Integral of 1 over the unit ball = 4*pi/3."""
         from chebfunjax.ballfun.ballfun import Ballfun
-        f = Ballfun.from_function(lambda lam, th, r: jnp.ones_like(r))
-        integral = f.sum()
-        # Volume of unit ball = 4*pi/3
+        f = Ballfun.from_function(lambda x, y, z: jnp.ones_like(x))
         expected = 4.0 * float(jnp.pi) / 3.0
-        npt.assert_allclose(float(integral), expected, rtol=1e-3)
+        npt.assert_allclose(float(f.sum()), expected, rtol=1e-10)
 
     def test_repr(self):
         """repr is a non-empty string."""
         from chebfunjax.ballfun.ballfun import Ballfun
-        f = Ballfun.from_function(lambda lam, th, r: r)
+        f = Ballfun.from_function(lambda x, y, z: z)
         assert "Ballfun" in repr(f)
 
 
 class TestBallfunv:
-    """Integration tests for Ballfunv."""
+    """Integration tests for Ballfunv.
+
+    Conventions match Ballfun: constructors take CARTESIAN ops
+    op(x, y, z) by default; evaluation is v(r, lam, th).
+    """
 
     def test_construction(self):
         """Ballfunv can be constructed from three callables."""
         from chebfunjax.ballfun.ballfunv import Ballfunv
         v = Ballfunv.from_functions(
-            lambda lam, th, r: r * jnp.cos(lam),
-            lambda lam, th, r: r * jnp.sin(lam),
-            lambda lam, th, r: jnp.cos(th) * r,
+            lambda x, y, z: x,
+            lambda x, y, z: y,
+            lambda x, y, z: z,
         )
         assert isinstance(v, Ballfunv)
         assert len(v.components) == 3
 
     def test_evaluation(self):
-        """Ballfunv evaluates all three components."""
+        """Ballfunv evaluates all three components to spectral accuracy."""
+        import numpy as np
+
         from chebfunjax.ballfun.ballfunv import Ballfunv
-        def f_fn(lam, th, r):
-            return r * jnp.cos(lam)
-        def g_fn(lam, th, r):
-            return r * jnp.sin(lam)
-        def h_fn(lam, th, r):
-            return jnp.cos(th) * r
-        v = Ballfunv.from_functions(f_fn, g_fn, h_fn, n=25)
-        lam = jnp.array(0.5)
-        th = jnp.array(1.0)
-        r = jnp.array(0.7)
-        fv, gv, hv = v(lam, th, r)
-        npt.assert_allclose(float(fv), float(f_fn(lam, th, r)), rtol=2e-3)
-        npt.assert_allclose(float(gv), float(g_fn(lam, th, r)), rtol=2e-3)
+        v = Ballfunv.from_functions(
+            lambda x, y, z: x,
+            lambda x, y, z: y,
+            lambda x, y, z: z,
+        )
+        r, lam, th = 0.7, 0.5, 1.0
+        fv, gv, hv = v(jnp.array(r), jnp.array(lam), jnp.array(th))
+        npt.assert_allclose(float(fv), r * np.sin(th) * np.cos(lam), rtol=1e-12)
+        npt.assert_allclose(float(gv), r * np.sin(th) * np.sin(lam), rtol=1e-12)
+        npt.assert_allclose(float(hv), r * np.cos(th), rtol=1e-12)
 
     def test_cross_product(self):
-        """Cross product of two Ballfunv fields is computed without error."""
+        """e_x cross e_y = e_z (constant fields)."""
         from chebfunjax.ballfun.ballfunv import Ballfunv
         ex = Ballfunv.from_functions(
-            lambda lam, th, r: jnp.ones_like(r),
-            lambda lam, th, r: jnp.zeros_like(r),
-            lambda lam, th, r: jnp.zeros_like(r),
+            lambda x, y, z: jnp.ones_like(x),
+            lambda x, y, z: jnp.zeros_like(x),
+            lambda x, y, z: jnp.zeros_like(x),
         )
         ey = Ballfunv.from_functions(
-            lambda lam, th, r: jnp.zeros_like(r),
-            lambda lam, th, r: jnp.ones_like(r),
-            lambda lam, th, r: jnp.zeros_like(r),
+            lambda x, y, z: jnp.zeros_like(x),
+            lambda x, y, z: jnp.ones_like(x),
+            lambda x, y, z: jnp.zeros_like(x),
         )
         ez = ex.cross(ey)
-        lam, th, r = jnp.array(0.3), jnp.array(0.8), jnp.array(0.5)
-        fv, gv, hv = ez(lam, th, r)
-        npt.assert_allclose(float(fv), 0.0, atol=1e-4)
-        npt.assert_allclose(float(gv), 0.0, atol=1e-4)
-        npt.assert_allclose(float(hv), 1.0, rtol=1e-4)
+        r, lam, th = jnp.array(0.5), jnp.array(0.3), jnp.array(0.8)
+        fv, gv, hv = ez(r, lam, th)
+        npt.assert_allclose(float(fv), 0.0, atol=1e-12)
+        npt.assert_allclose(float(gv), 0.0, atol=1e-12)
+        npt.assert_allclose(float(hv), 1.0, rtol=1e-12)
+
+    def test_dot_product(self):
+        """[x,y,z] . [x,y,z] = r^2."""
+        from chebfunjax.ballfun.ballfunv import Ballfunv
+        v = Ballfunv.from_functions(
+            lambda x, y, z: x,
+            lambda x, y, z: y,
+            lambda x, y, z: z,
+        )
+        d = v.dot(v)
+        r, lam, th = 0.6, 1.0, 0.8
+        npt.assert_allclose(
+            float(d(jnp.array(r), jnp.array(lam), jnp.array(th))),
+            r ** 2, rtol=1e-12,
+        )
 
     def test_norm(self):
-        """norm of a unit constant vector is 1."""
+        """MATLAB semantics: norm(V) = sqrt(sum of component L2 norms^2).
+
+        For the constant field e_x, norm = sqrt(vol(ball)) = sqrt(4*pi/3).
+        """
+        import numpy as np
+
         from chebfunjax.ballfun.ballfunv import Ballfunv
         ex = Ballfunv.from_functions(
-            lambda lam, th, r: jnp.ones_like(r),
-            lambda lam, th, r: jnp.zeros_like(r),
-            lambda lam, th, r: jnp.zeros_like(r),
+            lambda x, y, z: jnp.ones_like(x),
+            lambda x, y, z: jnp.zeros_like(x),
+            lambda x, y, z: jnp.zeros_like(x),
         )
-        n = ex.norm()
-        lam, th, r = jnp.array(0.5), jnp.array(1.0), jnp.array(0.5)
-        npt.assert_allclose(float(n(lam, th, r)), 1.0, rtol=1e-4)
+        npt.assert_allclose(ex.norm(), np.sqrt(4.0 * np.pi / 3.0), rtol=1e-10)
 
     def test_scalar_mul(self):
         """Scalar multiplication scales all components."""
         from chebfunjax.ballfun.ballfunv import Ballfunv
         ex = Ballfunv.from_functions(
-            lambda lam, th, r: jnp.ones_like(r),
-            lambda lam, th, r: jnp.zeros_like(r),
-            lambda lam, th, r: jnp.zeros_like(r),
+            lambda x, y, z: jnp.ones_like(x),
+            lambda x, y, z: jnp.zeros_like(x),
+            lambda x, y, z: jnp.zeros_like(x),
         )
         v2 = 3.0 * ex
-        lam, th, r = jnp.array(0.5), jnp.array(1.0), jnp.array(0.5)
-        fv, gv, hv = v2(lam, th, r)
-        npt.assert_allclose(float(fv), 3.0, rtol=1e-4)
+        fv, gv, hv = v2(jnp.array(0.5), jnp.array(0.5), jnp.array(1.0))
+        npt.assert_allclose(float(fv), 3.0, rtol=1e-12)
 
     def test_repr(self):
         """repr is a non-empty string."""
         from chebfunjax.ballfun.ballfunv import Ballfunv
         v = Ballfunv.from_functions(
-            lambda lam, th, r: r,
-            lambda lam, th, r: r,
-            lambda lam, th, r: r,
+            lambda x, y, z: z,
+            lambda x, y, z: z,
+            lambda x, y, z: z,
         )
         assert "Ballfunv" in repr(v)

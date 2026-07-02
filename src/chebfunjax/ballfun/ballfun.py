@@ -408,66 +408,70 @@ def _ballfun_happiness(
     MATLAB source : @ballfun/constructor.m  (ballfunHappiness subfunction)
     Chebfun commit: 7574c77
     """
+    from chebfunjax.tech.chebtech import Chebtech2, _coeffs_to_values
+    from chebfunjax.tech.trigtech import (
+        Trigtech,
+        _chop_cutoff_to_ncoeffs,
+        trig_coeffs2vals,
+    )
+
     m, n, p = vals.shape
+    vals_np = np.asarray(vals)
 
     # Transform to coefficient space
-    cfs = _vals2coeffs_3d(vals)
+    cfs = _vals2coeffs_3d(vals_np)
 
-    # Check radial (Chebyshev) direction: sum over lambda and theta
-    np.real(np.sum(np.abs(cfs), axis=(1, 2)))
-    # Tol relative to max abs coeff
-    cfs_abs = np.abs(cfs)
-    vscale = float(np.max(cfs_abs)) if cfs_abs.size > 0 else 1.0
-    tol = max(vscale * _EPS, 100.0 * _EPS)
+    # MATLAB: vscl = max(1, max(abs(vals(:)))) — passed as the global
+    # vscale into every per-direction happiness check.
+    vscl = max(1.0, float(np.max(np.abs(vals_np))))
 
-    # For each direction compute standard_chop on the "max projection"
-    def _chop_dir(c_arr: np.ndarray) -> tuple[bool, int]:
-        """c_arr is real 1D slice of abs-summed coefficients."""
-        c_jax = jnp.asarray(c_arr, dtype=jnp.float64)
-        vsc = float(jnp.max(jnp.abs(c_jax)))
-        if vsc == 0.0:
-            return True, 1
-        rt = max(tol / vsc, _EPS)
-        cut = int(standard_chop(c_jax, rt))
-        return cut < c_arr.shape[0], cut
+    # Per-direction coefficient envelopes (complex modulus, as in MATLAB:
+    # max(max(abs(cfs),[],dim_a),[],dim_b)).
+    r_cfs = jnp.asarray(np.max(np.abs(cfs), axis=(1, 2)), dtype=jnp.float64)
+    l_cfs = jnp.asarray(np.max(np.abs(cfs), axis=(0, 2)), dtype=jnp.complex128)
+    t_cfs = jnp.asarray(np.max(np.abs(cfs), axis=(0, 1)), dtype=jnp.complex128)
 
-    # Radial: first Chebyshev direction (axis 0)
-    r_proj = np.max(np.abs(np.real(cfs)), axis=(1, 2))
-    r_happy, c_r = _chop_dir(r_proj)
-    c_r = max(c_r, 1)
+    # MATLAB builds a chebtech2 from the radial envelope and trigtechs from
+    # the two Fourier envelopes and runs each tech's happinessCheck. The
+    # trig check folds the two-sided spectrum (k, -k pairs) into a decaying
+    # envelope — running standard_chop directly on a DC-rolled spectrum
+    # never resolves because the negative-frequency tail does not decay.
+    r_happy, c_r = Chebtech2.happiness_check(
+        r_cfs, _coeffs_to_values(r_cfs), vscale=vscl
+    )
+    l_happy, l_cut = Trigtech.happiness_check(
+        l_cfs, trig_coeffs2vals(l_cfs), vscale=vscl
+    )
+    t_happy, t_cut = Trigtech.happiness_check(
+        t_cfs, trig_coeffs2vals(t_cfs), vscale=vscl
+    )
 
-    # Azimuthal Fourier (axis 1): take row sums of abs
-    n_mid = n // 2
-    lam_proj = np.max(np.abs(cfs), axis=(0, 2))  # shape (n,)
-    # Re-order so DC (index n_mid) is first
-    lam_shifted = np.roll(lam_proj, -n_mid)  # DC at index 0
-    lam_happy_r, c_lam_shifted = _chop_dir(np.abs(lam_shifted))
-    c_lam = c_lam_shifted
+    c_r = max(int(c_r), 1)
+    c_lam = _chop_cutoff_to_ncoeffs(int(l_cut), n) if l_happy else n
+    c_th = _chop_cutoff_to_ncoeffs(int(t_cut), p) if t_happy else p
     c_lam = max(c_lam, 2)
     if c_lam % 2 != 0:
         c_lam += 1
-
-    # Polar Fourier (axis 2)
-    th_proj = np.max(np.abs(cfs), axis=(0, 1))  # shape (p,)
-    p_mid = p // 2
-    th_shifted = np.roll(th_proj, -p_mid)  # DC at index 0
-    th_happy_r, c_th_shifted = _chop_dir(np.abs(th_shifted))
-    c_th = c_th_shifted
     c_th = max(c_th, 4)
     if c_th % 2 != 0:
         c_th += 1
 
-    # Suggest new grid sizes (double if unhappy)
-    new_m = c_r + 1 - c_r % 2 if r_happy else min(2 * m, m + 16)
-    new_n = c_lam if lam_happy_r else min(2 * n, n + 16)
-    new_p = c_th if th_happy_r else min(2 * p, p + 16)
+    # Suggest new grid sizes. MATLAB (@ballfun/constructor.m,
+    # ballfunHappiness): a RESOLVED direction keeps its current grid size —
+    # shrinking it to the cutoff mid-loop makes it unhappy again on the next
+    # pass (standard_chop needs >= 17 points) and the loop seesaws forever
+    # (constant functions used to hang here). Unresolved directions grow by
+    # 1.5x. Final chop to the cutoffs happens after the loop.
+    new_m = m if r_happy else round(1.5 * m)
+    new_n = n if l_happy else round(1.5 * n)
+    new_p = p if t_happy else round(1.5 * p)
 
     # Ensure parity constraints: m odd, n even, p even >= 4
     new_m = new_m + 1 - new_m % 2  # odd
     new_n = new_n + new_n % 2  # even
     new_p = max(4, new_p + new_p % 2)  # even >= 4
 
-    resolved = [r_happy, lam_happy_r, th_happy_r]
+    resolved = [r_happy, l_happy, t_happy]
     cutoffs = [c_r, c_lam, c_th]
 
     return new_m, new_n, new_p, cutoffs, resolved
@@ -732,10 +736,14 @@ class Ballfun(eqx.Module):
             )
 
         # --- Adaptive construction ---
-        # Initial grid sizes (matching MATLAB defaults, minSamples=9)
-        m = 9  # odd
-        n = 4  # even
-        p = 4  # even >= 4
+        # Initial grid sizes: MATLAB @ballfun/constructor.m starts every
+        # direction at tpref.minSamples (17) with parity adjustments
+        # (grid1 odd; grid2, grid3 even). Starting below standard_chop's
+        # 17-point minimum makes every direction unhappy regardless of
+        # the function.
+        m = 17  # odd
+        n = 18  # even
+        p = 18  # even >= 4
 
         is_happy = False
         failure = False
@@ -750,10 +758,13 @@ class Ballfun(eqx.Module):
                     f"on the grid of size ({m}, {n}, {p})."
                 )
 
-            if m * n * p > max_sample:
+            # MATLAB failure test: any PAIRWISE grid product exceeding
+            # maxSample (not the triple product, which grows too fast to
+            # bound each direction meaningfully).
+            if max(m * n, n * p, m * p) > max_sample:
                 warnings.warn(
-                    f"Ballfun.from_function: grid size ({m}, {n}, {p}) = "
-                    f"{m * n * p} exceeded max_sample={max_sample}. "
+                    f"Ballfun.from_function: grid size ({m}, {n}, {p}) "
+                    f"exceeded max_sample={max_sample}. "
                     "Returning best approximation.",
                     RuntimeWarning,
                     stacklevel=2,
@@ -1346,6 +1357,30 @@ class Ballfun(eqx.Module):
         if self.is_real:
             I = float(np.real(I))
         return I
+
+    def norm(self) -> float:
+        """L2 norm of f over the unit ball: sqrt(integral of |f|^2).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/norm.m
+        Chebfun commit: 7574c77
+        """
+        c = np.array(self.coeffs)
+        m, n, p = c.shape
+        # MATLAB pads to (2m, 2n, 2p) before forming |f|^2 to avoid aliasing.
+        mp, np_, pp = 2 * m + 1 - (2 * m) % 2, 2 * n + (2 * n) % 2, max(4, 2 * p)
+        big = np.zeros((mp, np_, pp), dtype=complex)
+        n_off = np_ // 2 - n // 2
+        p_off = pp // 2 - p // 2
+        big[:m, n_off : n_off + n, p_off : p_off + p] = c
+        v = _coeffs2vals_3d(big)
+        f2 = Ballfun(
+            coeffs=jnp.asarray(_vals2coeffs_3d(v * np.conj(v)), dtype=jnp.complex128),
+            is_real=True,
+            domain=self.domain,
+        )
+        return float(np.sqrt(abs(f2.sum())))
 
     def integral(self) -> float:
         """Triple integral of f over the unit ball.

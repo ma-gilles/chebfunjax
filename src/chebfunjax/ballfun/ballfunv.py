@@ -65,32 +65,41 @@ class Ballfunv(eqx.Module):
         f: Callable,
         g: Callable,
         h: Callable,
-        n: int = 15,
+        *,
+        spherical: bool = False,
+        fixed_size: "tuple[int, int, int] | None" = None,
         tol: float = float(jnp.finfo(jnp.float64).eps),
     ) -> "Ballfunv":
         """Construct a Ballfunv from three callables.
 
         Parameters
         ----------
-        f : callable
-            f(lam, theta, r) — first scalar component.
-        g : callable
-            g(lam, theta, r) — second scalar component.
-        h : callable
-            h(lam, theta, r) — third scalar component.
-        n : int, optional
-            Grid size per direction. Default 15.
+        f, g, h : callable
+            The three scalar components. By default each accepts CARTESIAN
+            coordinates ``(x, y, z)``; with ``spherical=True`` each accepts
+            spherical coordinates ``(r, lam, th)`` — the same convention as
+            :meth:`Ballfun.from_function`.
+        spherical : bool, optional
+            If True, the callables are in spherical coordinates.
+        fixed_size : tuple of int, optional
+            Fixed (m, n, p) grid instead of adaptive construction.
         tol : float, optional
             Tolerance for Ballfun construction.
 
         Returns
         -------
         Ballfunv
+
+        Provenance
+        ----------
+        MATLAB source : @ballfunv/ballfunv.m
+        Chebfun commit: 7574c77
         """
+        kw = dict(spherical=spherical, fixed_size=fixed_size, tol=tol)
         return cls(
-            Ballfun.from_function(f, n=n, tol=tol),
-            Ballfun.from_function(g, n=n, tol=tol),
-            Ballfun.from_function(h, n=n, tol=tol),
+            Ballfun.from_function(f, **kw),
+            Ballfun.from_function(g, **kw),
+            Ballfun.from_function(h, **kw),
         )
 
     # ------------------------------------------------------------------
@@ -99,26 +108,28 @@ class Ballfunv(eqx.Module):
 
     @eqx.filter_jit
     def __call__(
-        self, lam: jax.Array, theta: jax.Array, r: jax.Array
+        self, r: jax.Array, lam: jax.Array, th: jax.Array
     ) -> tuple:
-        """Evaluate all three components at (lam, theta, r).
+        """Evaluate all three components at spherical (r, lam, th).
+
+        Same argument order as :meth:`Ballfun.__call__`.
 
         Parameters
         ----------
-        lam : jax.Array
-            Longitude(s) in [-pi, pi].
-        theta : jax.Array
-            Colatitude(s) in [0, pi].
         r : jax.Array
             Radius/radii in [0, 1].
+        lam : jax.Array
+            Longitude(s) in [-pi, pi].
+        th : jax.Array
+            Colatitude(s) in [0, pi].
 
         Returns
         -------
         tuple
-            (f_val, g_val, h_val) evaluated at (lam, theta, r).
+            (f_val, g_val, h_val) evaluated at (r, lam, th).
         """
         f, g, h = self.components
-        return (f(lam, theta, r), g(lam, theta, r), h(lam, theta, r))
+        return (f(r, lam, th), g(r, lam, th), h(r, lam, th))
 
     # ------------------------------------------------------------------
     # Vector operations
@@ -139,15 +150,7 @@ class Ballfunv(eqx.Module):
         """
         f1, g1, h1 = self.components
         f2, g2, h2 = other.components
-        n = f1.n_r
-        return Ballfun.from_function(
-            lambda lam, th, r: (
-                f1(lam, th, r) * f2(lam, th, r)
-                + g1(lam, th, r) * g2(lam, th, r)
-                + h1(lam, th, r) * h2(lam, th, r)
-            ),
-            n=n,
-        )
+        return f1 * f2 + g1 * g2 + h1 * h2
 
     def cross(self, other: "Ballfunv") -> "Ballfunv":
         """Cross product of two 3D Ballfunv fields.
@@ -166,37 +169,26 @@ class Ballfunv(eqx.Module):
         """
         f1, g1, h1 = self.components
         f2, g2, h2 = other.components
-        n = f1.n_r
-        cx = Ballfun.from_function(
-            lambda lam, th, r: g1(lam, th, r) * h2(lam, th, r) - h1(lam, th, r) * g2(lam, th, r),
-            n=n,
+        return Ballfunv(
+            g1 * h2 - h1 * g2,
+            h1 * f2 - f1 * h2,
+            f1 * g2 - g1 * f2,
         )
-        cy = Ballfun.from_function(
-            lambda lam, th, r: h1(lam, th, r) * f2(lam, th, r) - f1(lam, th, r) * h2(lam, th, r),
-            n=n,
-        )
-        cz = Ballfun.from_function(
-            lambda lam, th, r: f1(lam, th, r) * g2(lam, th, r) - g1(lam, th, r) * f2(lam, th, r),
-            n=n,
-        )
-        return Ballfunv(cx, cy, cz)
 
-    def norm(self) -> Ballfun:
-        """Pointwise Euclidean norm: sqrt(f^2 + g^2 + h^2).
+    def norm(self) -> float:
+        """L2 norm of the field: sqrt(norm(f)^2 + norm(g)^2 + norm(h)^2).
 
-        Returns
-        -------
-        Ballfun
-            Scalar norm field.
+        Matches MATLAB semantics — a scalar, not a pointwise field. For
+        the pointwise magnitude use ``v.dot(v)`` and take a sqrt of its
+        evaluations.
+
+        Provenance
+        ----------
+        MATLAB source : @ballfunv/norm.m
+        Chebfun commit: 7574c77
         """
         f, g, h = self.components
-        n = f.n_r
-        return Ballfun.from_function(
-            lambda lam, th, r: jnp.sqrt(
-                f(lam, th, r) ** 2 + g(lam, th, r) ** 2 + h(lam, th, r) ** 2
-            ),
-            n=n,
-        )
+        return float(jnp.sqrt(f.norm() ** 2 + g.norm() ** 2 + h.norm() ** 2))
 
     # ------------------------------------------------------------------
     # Arithmetic
@@ -206,23 +198,12 @@ class Ballfunv(eqx.Module):
         """Componentwise addition."""
         f1, g1, h1 = self.components
         f2, g2, h2 = other.components
-        n = f1.n_r
-        return Ballfunv(
-            Ballfun.from_function(lambda lam, th, r: f1(lam, th, r) + f2(lam, th, r), n=n),
-            Ballfun.from_function(lambda lam, th, r: g1(lam, th, r) + g2(lam, th, r), n=n),
-            Ballfun.from_function(lambda lam, th, r: h1(lam, th, r) + h2(lam, th, r), n=n),
-        )
+        return Ballfunv(f1 + f2, g1 + g2, h1 + h2)
 
     def __mul__(self, scalar: float) -> "Ballfunv":
         """Scalar multiplication (componentwise)."""
         f, g, h = self.components
-        s = float(scalar)
-        n = f.n_r
-        return Ballfunv(
-            Ballfun.from_function(lambda lam, th, r: s * f(lam, th, r), n=n),
-            Ballfun.from_function(lambda lam, th, r: s * g(lam, th, r), n=n),
-            Ballfun.from_function(lambda lam, th, r: s * h(lam, th, r), n=n),
-        )
+        return Ballfunv(f * scalar, g * scalar, h * scalar)
 
     def __rmul__(self, scalar: float) -> "Ballfunv":
         """Right scalar multiplication."""
