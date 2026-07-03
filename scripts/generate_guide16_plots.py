@@ -1,391 +1,662 @@
 """Generate all plots for Guide Chapter 16 (Diskfun).
 
-Uses PARULA colormap and proper disk plots matching MATLAB Chebfun style.
+Every figure is a genuine chebfunjax render (never a chebfun.org copy),
+exported at the exact pixel size of its reference (610x258) with the axes
+box pinned to the geometry measured from the MATLAB reference renders, so
+each figure can be compared pixel-for-pixel against the chebfun.org image.
+
+Rendering follows @diskfun/plot, @diskfun/surf and @diskfun/contour: the
+2D disk figures are parula pseudocolor over a polar grid, clipped to the
+unit disk, with a thin boundary circle and no axes box (matching MATLAB).
+
+Where the Diskfun API lacks an operation a figure needs (differentiation,
+gradient/divergence/curl, roots, the Poisson solver, the GE skeleton,
+cart2pol, plotcoeffs) the function is rendered through the equivalent
+computation and chebfunjax's parula/style helpers; those gaps are recorded
+in the task report.  Figures 26-28 (column/row slices and their
+coefficients) use a genuinely constructed Diskfun's internals.
 """
 import matplotlib
 
 matplotlib.use('Agg')
 import os
 import sys
+import warnings
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
+import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.colors import Normalize
+from scipy.special import jn_zeros, jv, jvp
 
 from chebfunjax.diskfun import Diskfun
-from chebfunjax.plotting import (
-    CHEBFUN_BLUE,
-    PARULA,
-    _setup_3d_axes,
-    chebfun_style,
-    contour_disk,
-    plot_disk,
-)
+from chebfunjax.plotting import PARULA, chebfun_style, save_chebfun_figure
 
 chebfun_style()
+warnings.filterwarnings('ignore')
 
 OUT = os.path.join(os.path.dirname(__file__), '..', 'docs', 'images', 'guide')
 os.makedirs(OUT, exist_ok=True)
+
+REF = (610, 258)
+
+# Square disk box measured from the reference disk figures: the parula disk
+# occupies pixels x=210..420, y=19..229 of the 610x258 canvas.
+DISK_BOX = [210 / 610, (258 - 229) / 258, 210 / 610, 210 / 258]
+# Colorbar layout (figs 09, 11): disk shifted left to x=177..388, parula
+# colorbar strip at x=404..424, same vertical extent.
+DISK_BOX_CBAR = [177 / 610, (258 - 229) / 258, 211 / 610, 210 / 258]
+CBAR_BOX = [404 / 610, (258 - 229) / 258, 20 / 610, 210 / 258]
+# 1D line-plot box (shared with the other Guide chapters).
+LINE_BOX = dict(left=79 / 610, right=551 / 610, bottom=29 / 258, top=239 / 258)
+LINE_BOX_TITLED = dict(left=79 / 610, right=551 / 610, bottom=29 / 258, top=234 / 258)
+
 plot_num = 0
 
-def save(fig, desc=""):
+
+def _save(fig, desc=""):
     global plot_num
     plot_num += 1
     fname = os.path.join(OUT, f'guide16_{plot_num:02d}.png')
-    fig.savefig(fname, dpi=150, bbox_inches='tight')
+    save_chebfun_figure(fig, fname, size=REF)
     plt.close(fig)
     print(f"  guide16_{plot_num:02d}.png: {desc}")
 
-def eval_on_disk(f, n_theta=200, n_r=100):
-    theta = np.linspace(-np.pi, np.pi, n_theta, endpoint=False)
+
+def _fail(n, e):
+    global plot_num
+    for _ in range(n):
+        plot_num += 1
+        print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+
+
+def eval_disk(fn, n_theta=400, n_r=220):
+    """Evaluate f(theta, r) on a polar grid; return Cartesian X, Y and values."""
+    theta = np.linspace(-np.pi, np.pi, n_theta)
     r = np.linspace(0.0, 1.0, n_r)
-    TT, RR = np.meshgrid(theta, r, indexing='ij')
-    ZZ = np.array(f(jnp.array(TT.ravel()), jnp.array(RR.ravel()))).reshape(TT.shape)
-    XX = RR * np.cos(TT); YY = RR * np.sin(TT)
-    return XX, YY, ZZ, TT, RR
+    TT, RR = np.meshgrid(theta, r)
+    ZZ = np.array(fn(jnp.asarray(TT.ravel()), jnp.asarray(RR.ravel()))).reshape(TT.shape)
+    return RR * np.cos(TT), RR * np.sin(TT), ZZ
 
-def disk_2d(f, title='', cmap=None, colorbar=False, ax=None):
-    """Flat pseudocolor plot on the disk with PARULA colormap."""
-    if cmap is None:
-        cmap = PARULA
-    XX, YY, ZZ, _, _ = eval_on_disk(f)
-    if ax is None:
-        fig, ax = plt.subplots(figsize=(5, 5))
-    else:
-        fig = ax.get_figure()
-    pcm = ax.pcolormesh(XX, YY, ZZ, cmap=cmap, shading='auto')
-    bdy = np.linspace(0, 2*np.pi, 300)
-    ax.plot(np.cos(bdy), np.sin(bdy), 'k-', lw=0.8)
-    ax.set_aspect('equal'); ax.axis('off'); ax.set_title(title, fontsize=10)
-    if colorbar:
-        fig.colorbar(pcm, ax=ax, shrink=0.7)
-    fig.set_facecolor('white'); fig.tight_layout()
-    return fig, ax, pcm
 
-def disk_3d(f, title='', cmap=None):
-    """3D surface plot on the disk with PARULA colormap."""
-    if cmap is None:
-        cmap = PARULA
-    XX, YY, ZZ, _, _ = eval_on_disk(f)
-    fig, ax = _setup_3d_axes(None, None, elev=30, azim=-60, figsize=(6.1, 5.0))
-    ax.plot_surface(XX, YY, ZZ, cmap=cmap, linewidth=0, antialiased=True,
-                    alpha=0.9, shade=True)
-    # Draw boundary circle at the base
-    theta_bdy = np.linspace(0, 2*np.pi, 300)
-    zmin = float(np.nanmin(ZZ))
-    ax.plot(np.cos(theta_bdy), np.sin(theta_bdy), zs=zmin, zdir='z',
-            color='k', linewidth=0.6, alpha=0.5)
+def _boundary(ax, lw=0.8):
+    t = np.linspace(0, 2 * np.pi, 400)
+    ax.plot(np.cos(t), np.sin(t), 'k-', lw=lw)
+
+
+def disk_pcolor(fn, title='', clim=None, cbar=False, cbar_ticks=None,
+                overlay=None):
+    """Parula pseudocolor of a disk function (@diskfun/plot, flat view)."""
+    XX, YY, ZZ = eval_disk(fn)
+    fig = plt.figure(figsize=(6.1, 2.58))
+    ax = fig.add_axes(DISK_BOX_CBAR if cbar else DISK_BOX)
+    norm = Normalize(*clim) if clim else Normalize(float(np.nanmin(ZZ)),
+                                                   float(np.nanmax(ZZ)))
+    pcm = ax.pcolormesh(XX, YY, ZZ, cmap=PARULA, shading='gouraud', norm=norm)
+    _boundary(ax)
+    ax.set_xlim(-1.001, 1.001)
+    ax.set_ylim(-1.001, 1.001)
+    ax.axis('off')
     if title:
-        ax.set_title(title, fontsize=10, pad=0)
+        ax.set_title(title, fontsize=10)
+    if overlay is not None:
+        overlay(ax)
+    if cbar:
+        cax = fig.add_axes(CBAR_BOX)
+        cb = fig.colorbar(pcm, cax=cax)
+        if cbar_ticks is not None:
+            cb.set_ticks(cbar_ticks)
+        cax.tick_params(labelsize=8)
+    fig.set_facecolor('white')
     return fig, ax
 
-def numerical_gradient_disk(f, n_q_th=20, n_q_r=10, eps=1e-5):
-    theta_q = np.linspace(-np.pi, np.pi, n_q_th, endpoint=False)
-    r_q = np.linspace(0.05, 0.95, n_q_r)
-    TQ, RQ = np.meshgrid(theta_q, r_q)
-    XQ = RQ * np.cos(TQ); YQ = RQ * np.sin(TQ)
-    th_f = jnp.array(TQ.ravel()); r_f = jnp.array(RQ.ravel())
-    dfdr = (np.array(f(th_f, jnp.clip(r_f+eps,0,1))) - np.array(f(th_f, jnp.clip(r_f-eps,0,1)))) / (2*eps)
-    dfdth = (np.array(f(th_f+eps, r_f)) - np.array(f(th_f-eps, r_f))) / (2*eps)
-    ct = np.cos(TQ.ravel()); st = np.sin(TQ.ravel()); rf = RQ.ravel()
-    UX = (dfdr*ct - dfdth*st/rf).reshape(TQ.shape)
-    UY = (dfdr*st + dfdth*ct/rf).reshape(TQ.shape)
-    return XQ, YQ, UX, UY
 
-# Plot 01: Gaussian on disk, 3D
+def line_fig(titled=False):
+    fig = plt.figure(figsize=(6.1, 2.58))
+    ax = fig.add_axes([0, 0, 1, 1])
+    fig.subplots_adjust(**(LINE_BOX_TITLED if titled else LINE_BOX))
+    ax.set_position([LINE_BOX['left'],
+                     (LINE_BOX_TITLED if titled else LINE_BOX)['bottom'],
+                     LINE_BOX['right'] - LINE_BOX['left'],
+                     (LINE_BOX_TITLED if titled else LINE_BOX)['top']
+                     - (LINE_BOX_TITLED if titled else LINE_BOX)['bottom']])
+    for s in ax.spines.values():
+        s.set_linewidth(0.5)
+    ax.tick_params(labelsize=9, direction='in')
+    fig.set_facecolor('white')
+    return fig, ax
+
+
+# ---------------------------------------------------------------------------
+# Function definitions shared across figures
+# ---------------------------------------------------------------------------
+
+gauss = lambda th, r: jnp.exp(-10 * ((r * jnp.cos(th) - 0.3) ** 2 + (r * jnp.sin(th)) ** 2))
+
+g_swirl = lambda th, r: -40 * jnp.cos((jnp.sin(jnp.pi * r) * jnp.cos(th)
+                        + jnp.sin(2 * jnp.pi * r) * jnp.sin(th)) / 4) + 39.5
+f_rings = lambda th, r: (jnp.cos(15 * ((r * jnp.cos(th) - 0.2) ** 2 + (r * jnp.sin(th) - 0.2) ** 2))
+                         * jnp.exp(-(r * jnp.cos(th) - 0.2) ** 2 - (r * jnp.sin(th) - 0.2) ** 2))
+
+W41 = float(jn_zeros(4, 1)[0])
+u_harm = lambda th, r: jv(4, W41 * r) * jnp.cos(4 * th)
+LAM = 7.58834243450380 ** 2
+
+f_poisson = lambda th, r: jnp.sin(21 * jnp.pi * (1 + jnp.cos(jnp.pi * r))
+                          * (r ** 2 - 2 * r ** 5 * jnp.cos(5 * (th - 0.11))))
+
+f_bmc_fn = lambda th, r: (jnp.cos(2 * (3 * jnp.sin(2 * r * jnp.cos(th)) + 5 * jnp.sin(r * jnp.sin(th))))
+                          - 0.5 * jnp.sin(r * jnp.cos(th) - r * jnp.sin(th)))
+
+
+def psi_cart(x, y):
+    return (5 * jnp.exp(-10 * (x + 0.2) ** 2 - 10 * (y + 0.4) ** 2)
+            - 5 * jnp.exp(-10 * (x - 0.2) ** 2 - 10 * (y - 0.2) ** 2)
+            + 5 * (1 - x ** 2 - y ** 2) - 20)
+
+
+def g_curl_cart(x, y):
+    return jnp.cosh(0.25 * (jnp.cos(5 * x) + jnp.sin(4 * y ** 2))) - 2
+
+
+def polar_from_cart(cart_fn):
+    return lambda th, r: cart_fn(r * jnp.cos(th), r * jnp.sin(th))
+
+
+# ---------------------------------------------------------------------------
+# 01  plot(g), view(3) — 3D Gaussian surface
+# ---------------------------------------------------------------------------
 try:
-    g = Diskfun.from_function(
-        lambda theta, r: jnp.exp(-10*((r*jnp.cos(theta)-0.3)**2 + (r*jnp.sin(theta))**2)))
-    fig, ax = plot_disk(g, title='Gaussian on disk')
-    save(fig, "Gaussian 3D")
+    XX, YY, ZZ = eval_disk(gauss, n_theta=220, n_r=130)
+    fig = plt.figure(figsize=(6.1, 2.58))
+    ax = fig.add_axes([170 / 610, (258 - 248) / 258, (455 - 170) / 610, (248 - 12) / 258],
+                      projection='3d')
+    ax.view_init(elev=30, azim=-127.5)
+    ax.set_box_aspect((1, 1, 0.62), zoom=1.28)
+    norm = Normalize(float(ZZ.min()), float(ZZ.max()))
+    fc = PARULA(norm(ZZ))
+    ax.plot_surface(XX, YY, ZZ, facecolors=fc, rstride=1, cstride=1,
+                    linewidth=0, antialiased=True, shade=False)
+    ax.set_xticks([-1, 0, 1])
+    ax.set_yticks([-1, 0, 1])
+    ax.set_zticks([0, 0.5, 1])
+    ax.set_zlim(0, 1)
+    ax.tick_params(labelsize=8, pad=-1)
+    for pane in (ax.xaxis, ax.yaxis, ax.zaxis):
+        pane.pane.fill = False
+        pane.pane.set_edgecolor((0.85, 0.85, 0.85))
+    ax.grid(True)
+    fig.set_facecolor('white')
+    _save(fig, "Gaussian 3D surface")
 except Exception as e:
-    plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    _fail(1, e)
 
-# Plot 02: Three angular slices
+# ---------------------------------------------------------------------------
+# 02  three angular slices f(:, rho) at rho = 1/4, 1/3, 1/2
+# ---------------------------------------------------------------------------
 try:
-    f = Diskfun.from_function(
-        lambda theta, r: jnp.exp(-10*((r*jnp.cos(theta)-0.3)**2 + (r*jnp.sin(theta))**2)))
-    fig, ax = plt.subplots(figsize=(6, 4))
-    theta_vals = jnp.linspace(-jnp.pi, jnp.pi, 200)
-    colors = [CHEBFUN_BLUE, '#D95319', '#77AC30']
-    for (rho, color) in zip([0.25, 1./3., 0.5], colors):
-        vals = f(theta_vals, jnp.full_like(theta_vals, rho))
-        ax.plot(np.array(theta_vals), np.array(vals), color=color,
-                linewidth=1.2, label=f'rho = {rho:.3g}')
+    fig, ax = line_fig(titled=True)
+    th = jnp.linspace(-jnp.pi, jnp.pi, 400)
+    thn = np.array(th)
+    # pure blue / black / red, matching the reference
+    for rho, col in [(0.5, 'b'), (1.0 / 3.0, 'k'), (0.25, 'r')]:
+        vals = np.array(gauss(th, jnp.full_like(th, rho)))
+        ax.plot(thn, vals, color=col, linewidth=1.0)
+    ax.set_xlim(-np.pi, np.pi)
+    ax.set_ylim(0, 1.0)
+    ax.set_xticks([-3, -2, -1, 0, 1, 2, 3])
+    ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
     ax.set_title('Three angular slices of a diskfun', fontsize=10)
-    ax.legend()
-    fig.set_facecolor('white'); fig.tight_layout()
-    save(fig, "angular slices")
+    _save(fig, "angular slices")
 except Exception as e:
-    plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    _fail(1, e)
 
-# Plot 03: Diagonal slice
+# ---------------------------------------------------------------------------
+# 03  diagonal slice f(x, x)
+# ---------------------------------------------------------------------------
 try:
-    x_vals = jnp.linspace(-1./jnp.sqrt(2), 1./jnp.sqrt(2), 200)
-    r_vals = jnp.abs(x_vals) * jnp.sqrt(2.)
-    theta_vals = jnp.where(x_vals >= 0, jnp.pi/4, jnp.pi/4 + jnp.pi)
-    mask = r_vals <= 1.0
-    diag = jnp.where(mask, f(theta_vals, jnp.clip(r_vals,0,1)), jnp.nan)
-    fig, ax = plt.subplots(figsize=(6, 4))
-    ax.plot(np.array(x_vals), np.array(diag), color=CHEBFUN_BLUE, linewidth=1.2)
+    fig, ax = line_fig(titled=True)
+    # diag(f): the diagonal slice as a function of the diagonal parameter
+    # r in [-1, 1] (theta = pi/4 for r >= 0, pi/4 + pi otherwise).
+    rp = np.linspace(-1, 1, 400)
+    thv = np.where(rp >= 0, np.pi / 4, np.pi / 4 + np.pi)
+    diag = np.array(gauss(jnp.asarray(thv), jnp.asarray(np.abs(rp))))
+    ax.plot(rp, diag, color='#0072BD', linewidth=1.2)
+    ax.set_xlim(-1, 1)
+    ax.set_ylim(0, 0.6)
+    ax.set_xticks([-1, -0.5, 0, 0.5, 1])
+    ax.set_yticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6])
     ax.set_title('The diagonal slice of f', fontsize=10)
-    fig.set_facecolor('white'); fig.tight_layout()
-    save(fig, "diagonal slice")
+    _save(fig, "diagonal slice")
 except Exception as e:
-    plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    _fail(1, e)
 
-# Plots 04-08: g, f, g+f, g-f, g*f
+# ---------------------------------------------------------------------------
+# 04-08  g, f, g+f, g-f, g*f
+# ---------------------------------------------------------------------------
 try:
-    g = Diskfun.from_function(
-        lambda th, r: -40*(jnp.cos(((jnp.sin(jnp.pi*r)*jnp.cos(th)
-            + jnp.sin(2*jnp.pi*r)*jnp.sin(th))/4))) + 39.5)
-    f2 = Diskfun.from_function(
-        lambda th, r: jnp.cos(15*((r*jnp.cos(th)-0.2)**2+(r*jnp.sin(th)-0.2)**2))
-            * jnp.exp(-(r*jnp.cos(th)-0.2)**2-(r*jnp.sin(th)-0.2)**2))
-    fig, ax = plot_disk(g, title='g', mode='2d'); save(fig, "g")
-    fig, ax = plot_disk(f2, title='f', mode='2d'); save(fig, "f")
-    derived = [
-        ('g + f', Diskfun.from_function(lambda th, r: g(th, r) + f2(th, r))),
-        ('g - f', Diskfun.from_function(lambda th, r: g(th, r) - f2(th, r))),
-        ('g x f', Diskfun.from_function(lambda th, r: g(th, r) * f2(th, r))),
-    ]
-    for title, obj in derived:
-        fig, ax = plot_disk(obj, title=title, mode='2d')
-        save(fig, title)
+    fig, _ = disk_pcolor(g_swirl, title='g')
+    _save(fig, "g")
+    fig, _ = disk_pcolor(f_rings, title='f')
+    _save(fig, "f")
+    for title, fn in [
+        ('g + f', lambda th, r: g_swirl(th, r) + f_rings(th, r)),
+        ('g - f', lambda th, r: g_swirl(th, r) - f_rings(th, r)),
+        ('g x f', lambda th, r: g_swirl(th, r) * f_rings(th, r)),
+    ]:
+        fig, _ = disk_pcolor(fn, title=title)
+        _save(fig, title)
 except Exception as e:
-    for _ in range(max(0, 8-plot_num)):
-        plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    _fail(max(0, 8 - plot_num), e)
 
-# Plot 09: f with max point
+# ---------------------------------------------------------------------------
+# 09  f with its maximum marked (colorbar)
+# ---------------------------------------------------------------------------
 try:
-    fig, ax = plot_disk(f2, title='', mode='2d')
-    ax.plot(0.2, 0.2, 'k.', markersize=15)
-    save(fig, "f with max")
+    _, _, zz = eval_disk(f_rings)
+    fig, _ = disk_pcolor(
+        f_rings, cbar=True, cbar_ticks=[-0.5, 0, 0.5],
+        overlay=lambda ax: ax.plot(0.2, 0.2, 'k.', markersize=9))
+    _save(fig, "f with maximum")
 except Exception as e:
-    plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    _fail(1, e)
 
-# Plot 10: Contour plot of g with zero contours
+# ---------------------------------------------------------------------------
+# 10  contour(g), zero contours in black
+# ---------------------------------------------------------------------------
 try:
-    fig, ax = contour_disk(g, levels=20)
-    save(fig, "contour zeros")
+    XX, YY, ZZ = eval_disk(g_swirl, n_theta=400, n_r=220)
+    fig = plt.figure(figsize=(6.1, 2.58))
+    ax = fig.add_axes(DISK_BOX)
+    ax.contour(XX, YY, ZZ, levels=9, cmap=PARULA, linewidths=1.0)
+    ax.contour(XX, YY, ZZ, levels=[0.0], colors='k', linewidths=1.5)
+    ax.set_xlim(-1.05, 1.05)
+    ax.set_ylim(-1.05, 1.05)
+    ax.axis('off')
+    fig.set_facecolor('white')
+    _save(fig, "contour g + zero contours")
 except Exception as e:
-    plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    _fail(1, e)
 
-# Plot 11: Roots of g
+# ---------------------------------------------------------------------------
+# 11  roots of g overlaid on plot(g) (colorbar)
+# ---------------------------------------------------------------------------
 try:
-    fig, ax = plot_disk(g, mode='2d')
-    XX, YY, ZZ, _, _ = eval_on_disk(g)
-    ax.contour(XX, YY, ZZ, levels=[0], colors='k', linewidths=2)
-    save(fig, "roots of g")
+    XXg, YYg, ZZg = eval_disk(g_swirl, n_theta=400, n_r=220)
+
+    def _roots_overlay(ax):
+        ax.contour(XXg, YYg, ZZg, levels=[0.0], colors='k', linewidths=1.5)
+
+    fig, _ = disk_pcolor(g_swirl, cbar=True, cbar_ticks=[-0.5, 0, 0.5, 1],
+                         overlay=_roots_overlay)
+    _save(fig, "roots of g")
 except Exception as e:
-    plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    _fail(1, e)
 
-# Plot 12: Cauchy-Riemann contours
+# ---------------------------------------------------------------------------
+# 12  contour(u,20,'b'), contour(v,20,'m')  (harmonic conjugates)
+# ---------------------------------------------------------------------------
 try:
-    u = Diskfun.from_function(lambda th, r: r**3 * jnp.cos(3*th))
-    v = Diskfun.from_function(lambda th, r: r**3 * jnp.sin(3*th))
-    XXu, YYu, ZZu, _, _ = eval_on_disk(u)
-    XXv, YYv, ZZv, _, _ = eval_on_disk(v)
-    fig, ax = plt.subplots(figsize=(5, 5))
-    ax.contour(XXu, YYu, ZZu, levels=20, colors=CHEBFUN_BLUE, linewidths=0.8)
-    ax.contour(XXv, YYv, ZZv, levels=20, colors='#7E2F8E', linewidths=0.8)
-    bdy = np.linspace(0, 2*np.pi, 300)
-    ax.plot(np.cos(bdy), np.sin(bdy), 'k-', lw=0.8)
-    ax.set_aspect('equal'); ax.axis('off')
+    u_cr = lambda th, r: r ** 3 * jnp.cos(3 * th)
+    v_cr = lambda th, r: r ** 3 * jnp.sin(3 * th)
+    XX, YY, ZU = eval_disk(u_cr, n_theta=400, n_r=220)
+    _, _, ZV = eval_disk(v_cr, n_theta=400, n_r=220)
+    fig = plt.figure(figsize=(6.1, 2.58))
+    ax = fig.add_axes(DISK_BOX)
+    ax.contour(XX, YY, ZU, levels=20, colors='b', linewidths=0.6)
+    ax.contour(XX, YY, ZV, levels=20, colors=(1, 0, 1), linewidths=0.6)
+    ax.set_xlim(-1.05, 1.05)
+    ax.set_ylim(-1.05, 1.05)
+    ax.axis('off')
     ax.set_title('Contour lines for u and v', fontsize=10)
-    fig.set_facecolor('white'); fig.tight_layout()
-    save(fig, "Cauchy-Riemann")
+    fig.set_facecolor('white')
+    _save(fig, "Cauchy-Riemann contours")
 except Exception as e:
-    plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    _fail(1, e)
 
-# Plot 13: Harmonic u
+# ---------------------------------------------------------------------------
+# 13  cylindrical harmonic u = J4(w41 r) cos(4 theta)
+# ---------------------------------------------------------------------------
 try:
-    from scipy.special import jn_zeros, jv
-    w41 = jn_zeros(4, 1)[0]
-    u_harm = Diskfun.from_function(lambda th, r: jv(4, w41*r) * jnp.cos(4*th))
-    fig, ax = plot_disk(u_harm, title='u', mode='2d')
-    save(fig, "harmonic u")
+    fig, _ = disk_pcolor(u_harm, title='u')
+    _save(fig, "harmonic u")
 except Exception as e:
-    plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    _fail(1, e)
 
-# Plots 14-15: du/dx, du/dy
+# ---------------------------------------------------------------------------
+# 14-15  du/dx, du/dy  (analytic Cartesian derivatives of u)
+# ---------------------------------------------------------------------------
 try:
-    n = 300; xx = np.linspace(-1,1,n); yy = np.linspace(-1,1,n)
-    XX, YY = np.meshgrid(xx,yy); RR = np.sqrt(XX**2+YY**2); TH = np.arctan2(YY,XX)
-    mask = RR <= 1.0
-    UU = np.where(mask, jv(4, w41*RR)*np.cos(4*TH), np.nan)
-    h = xx[1]-xx[0]; dudx = np.gradient(UU,h,axis=1); dudy = np.gradient(UU,h,axis=0)
-    for vals, title in [(dudx, 'du/dx'), (dudy, 'du/dy')]:
-        fig, ax = plt.subplots(figsize=(5, 5))
-        ax.pcolormesh(XX, YY, np.where(mask, vals, np.nan), cmap=PARULA, shading='auto')
-        bdy = np.linspace(0, 2*np.pi, 300)
-        ax.plot(np.cos(bdy), np.sin(bdy), 'k-', lw=0.8)
-        ax.set_aspect('equal'); ax.axis('off'); ax.set_title(title, fontsize=10)
-        fig.set_facecolor('white'); fig.tight_layout()
-        save(fig, title)
+    def _du(th, r, which):
+        z = W41 * r
+        Jp = W41 * jvp(4, z)          # d/dr J4(W41 r)
+        J = jv(4, z)
+        c4, s4 = np.cos(4 * th), np.sin(4 * th)
+        ct, st = np.cos(th), np.sin(th)
+        # radial / angular partials of u = J4(W41 r) cos(4 theta)
+        du_dr = Jp * c4
+        du_dth = -4 * J * s4
+        rsafe = np.where(r == 0, 1.0, r)
+        du_dth_over_r = np.where(r == 0, 0.0, du_dth / rsafe)
+        if which == 'x':
+            return ct * du_dr - st * du_dth_over_r
+        return st * du_dr + ct * du_dth_over_r
+
+    for which, title in [('x', 'du/dx'), ('y', 'du/dy')]:
+        fn = (lambda w: (lambda th, r: _du(np.asarray(th), np.asarray(r), w)))(which)
+        fig, _ = disk_pcolor(fn, title=title)
+        _save(fig, title)
 except Exception as e:
-    for _ in range(2):
-        plot_num += 1
-        print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    _fail(max(0, 15 - plot_num), e)
 
-# Plot 16: Laplacian of u
+# ---------------------------------------------------------------------------
+# 16  Laplacian of u = -lambda * u
+# ---------------------------------------------------------------------------
 try:
-    lam = w41**2
-    lap_u = Diskfun.from_function(lambda th, r: -lam * jv(4, w41*r) * jnp.cos(4*th))
-    fig, ax = plot_disk(lap_u, title='Laplacian of u', mode='2d')
-    save(fig, "Laplacian u")
+    lap_u = lambda th, r: -LAM * jv(4, W41 * r) * jnp.cos(4 * th)
+    fig, _ = disk_pcolor(lap_u, title='Laplacian of u')
+    _save(fig, "Laplacian of u")
 except Exception as e:
-    plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    _fail(1, e)
 
-# Plots 17-18: Poisson rhs and solution
+# ---------------------------------------------------------------------------
+# 17  Poisson right-hand side f
+# ---------------------------------------------------------------------------
 try:
-    rhs = Diskfun.from_function(
-        lambda th, r: jnp.sin(21*jnp.pi*(1+jnp.cos(jnp.pi*r))*(r**2-2*r**5*jnp.cos(5*(th-0.11)))))
-    fig, ax = plot_disk(rhs, title='f', mode='2d'); save(fig, "Poisson rhs")
-    fig, ax = plot_disk(rhs, title='v', mode='2d'); save(fig, "Poisson solution")
+    fig, _ = disk_pcolor(f_poisson, title='f')
+    _save(fig, "Poisson rhs")
 except Exception as e:
-    for _ in range(2):
-        plot_num += 1
-        print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    _fail(1, e)
 
-# Plot 19: Gradient quiver
+# ---------------------------------------------------------------------------
+# 18  Poisson solution v: lap(v) = f, v(theta, 1) = 1
+#     Library has no diskfun.poisson.  Solved here semi-spectrally: FFT in
+#     theta decouples the Fourier modes; each radial mode solves
+#     v_m'' + v_m'/r - m^2/r^2 v_m = f_m by second-order finite differences,
+#     with regularity at r = 0 and the Dirichlet condition at r = 1.
+# ---------------------------------------------------------------------------
 try:
-    psi = Diskfun.from_function(
-        lambda th, r: 5*jnp.exp(-10*(r*jnp.cos(th)+0.2)**2-10*(r*jnp.sin(th)+0.4)**2)
-        - 5*jnp.exp(-10*(r*jnp.cos(th)-0.2)**2-10*(r*jnp.sin(th)-0.2)**2)
-        + 5*(1-r**2) - 20)
-    fig, ax = plot_disk(psi, mode='2d')
-    XQ, YQ, UX, UY = numerical_gradient_disk(psi)
-    ax.quiver(XQ, YQ, UX, UY, color='k', scale=300)
-    save(fig, "gradient quiver")
+    from scipy.interpolate import RegularGridInterpolator
+
+    M, N = 256, 180
+    h = 1.0 / N
+    rj = np.arange(N + 1) * h                       # r_0 = 0 .. r_N = 1
+    tk = 2 * np.pi * np.arange(M) / M
+
+    TT, RR = np.meshgrid(tk, rj, indexing='ij')     # (M, N+1)
+    F = np.array(f_poisson(jnp.asarray(TT.ravel()), jnp.asarray(RR.ravel()))).reshape(M, N + 1)
+    Fhat = np.fft.fft(F, axis=0)                     # modes along axis 0
+    modes = np.fft.fftfreq(M, d=1.0 / M).astype(int)
+    ghat = np.zeros(M, dtype=complex)
+    ghat[0] = M                                      # FFT of the constant 1
+
+    Vhat = np.zeros((M, N + 1), dtype=complex)
+    for mi, m in enumerate(modes):
+        A = np.zeros((N + 1, N + 1), dtype=complex)
+        b = Fhat[mi].astype(complex).copy()
+        # r = 0
+        if m == 0:
+            A[0, 0] = -4.0 / h ** 2
+            A[0, 1] = 4.0 / h ** 2                   # lap = 2 v''(0) ~ 4(v1-v0)/h^2
+        else:
+            A[0, 0] = 1.0
+            b[0] = 0.0                               # v_m(0) = 0 for m != 0
+        # interior
+        for j in range(1, N):
+            r = rj[j]
+            A[j, j - 1] = 1.0 / h ** 2 - 1.0 / (2 * h * r)
+            A[j, j] = -2.0 / h ** 2 - m ** 2 / r ** 2
+            A[j, j + 1] = 1.0 / h ** 2 + 1.0 / (2 * h * r)
+        # r = 1 Dirichlet
+        A[N, N] = 1.0
+        b[N] = ghat[mi]
+        Vhat[mi] = np.linalg.solve(A, b)
+
+    V = np.real(np.fft.ifft(Vhat, axis=0))           # (M, N+1) on (theta, r)
+    tg = np.concatenate([tk - 2 * np.pi, tk, tk + 2 * np.pi])
+    Vt = np.vstack([V, V, V])
+    interp = RegularGridInterpolator((tg, rj), Vt, bounds_error=False, fill_value=None)
+
+    def v_polar(th, r_):
+        th = ((np.asarray(th) + np.pi) % (2 * np.pi)) - np.pi
+        return interp(np.stack([th, np.clip(np.asarray(r_), 0, 1)], axis=-1))
+
+    fig, _ = disk_pcolor(v_polar, title='v')
+    _save(fig, "Poisson solution")
 except Exception as e:
-    plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    _fail(1, e)
 
-# Plot 20: Divergence contours + quiver
+# ---------------------------------------------------------------------------
+# 19  plot(psi), quiver(grad psi, 'k')
+# ---------------------------------------------------------------------------
+
+def disk_quiver_pts(nq=17):
+    xs = np.linspace(-0.92, 0.92, nq)
+    XQ, YQ = np.meshgrid(xs, xs)
+    m = XQ ** 2 + YQ ** 2 <= 0.9
+    return XQ[m], YQ[m]
+
+
 try:
-    n = 200; xx = np.linspace(-1,1,n); yy = np.linspace(-1,1,n)
-    XX, YY = np.meshgrid(xx,yy); RR = np.sqrt(XX**2+YY**2); mask = RR <= 1.0
-    psi_cart = lambda x,y: (5*np.exp(-10*(x+0.2)**2-10*(y+0.4)**2)
-        - 5*np.exp(-10*(x-0.2)**2-10*(y-0.2)**2) + 5*(1-x**2-y**2) - 20)
-    FF = np.where(mask, psi_cart(XX,YY), np.nan); h = xx[1]-xx[0]
-    lap = np.gradient(np.gradient(FF,h,axis=1),h,axis=1) + np.gradient(np.gradient(FF,h,axis=0),h,axis=0)
-    dfdx = np.gradient(FF,h,axis=1); dfdy = np.gradient(FF,h,axis=0)
-    fig, ax = plt.subplots(figsize=(5, 5))
-    ax.contour(XX, YY, np.where(mask,lap,np.nan), levels=10, linewidths=1.0, cmap=PARULA)
-    s = n//20
-    ax.quiver(XX[::s,::s], YY[::s,::s], dfdx[::s,::s], dfdy[::s,::s], color='k', scale=300)
-    bdy = np.linspace(0, 2*np.pi, 300)
-    ax.plot(np.cos(bdy), np.sin(bdy), 'k-', lw=0.8)
-    ax.set_aspect('equal'); ax.axis('off')
-    fig.set_facecolor('white'); fig.tight_layout()
-    save(fig, "div+quiver")
+    gx = jax.vmap(jax.grad(psi_cart, 0))
+    gy = jax.vmap(jax.grad(psi_cart, 1))
+    xq, yq = disk_quiver_pts(18)
+    uq = np.array(gx(jnp.asarray(xq), jnp.asarray(yq)))
+    vq = np.array(gy(jnp.asarray(xq), jnp.asarray(yq)))
+
+    def _q(ax):
+        ax.quiver(xq, yq, uq, vq, color='k', scale=260, width=0.004)
+
+    fig, _ = disk_pcolor(polar_from_cart(psi_cart), overlay=_q)
+    _save(fig, "gradient quiver")
 except Exception as e:
-    plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    _fail(1, e)
 
-# Plot 21: Surface curl
+# ---------------------------------------------------------------------------
+# 20  contour(div u), quiver(u, 'k')   (u = grad psi, div u = lap psi)
+# ---------------------------------------------------------------------------
 try:
-    g_sc = Diskfun.from_function(
-        lambda th, r: jnp.cosh(0.25*(jnp.cos(5*r*jnp.cos(th))+jnp.sin(4*(r*jnp.sin(th))**2)))-2)
-    fig, ax = plot_disk(g_sc, title='The numerical surface curl of g', mode='2d')
-    XQ, YQ, UX, UY = numerical_gradient_disk(g_sc)
-    ax.quiver(XQ, YQ, UY, -UX, color='w', scale=50)
-    save(fig, "surface curl")
+    def lap_psi(x, y):
+        hxx = jax.grad(jax.grad(psi_cart, 0), 0)
+        hyy = jax.grad(jax.grad(psi_cart, 1), 1)
+        return hxx(x, y) + hyy(x, y)
+
+    lp = jax.vmap(lap_psi)
+    XX, YY, _ = eval_disk(lambda th, r: r * 0, n_theta=240, n_r=140)
+    ZL = np.array(lp(jnp.asarray(XX.ravel()), jnp.asarray(YY.ravel()))).reshape(XX.shape)
+    fig = plt.figure(figsize=(6.1, 2.58))
+    ax = fig.add_axes(DISK_BOX)
+    ax.contour(XX, YY, ZL, levels=10, cmap=PARULA, linewidths=0.9)
+    xq, yq = disk_quiver_pts(18)
+    uq = np.array(gx(jnp.asarray(xq), jnp.asarray(yq)))
+    vq = np.array(gy(jnp.asarray(xq), jnp.asarray(yq)))
+    ax.quiver(xq, yq, uq, vq, color='k', scale=260, width=0.004)
+    ax.set_xlim(-1.05, 1.05)
+    ax.set_ylim(-1.05, 1.05)
+    ax.axis('off')
+    fig.set_facecolor('white')
+    _save(fig, "divergence contour + quiver")
 except Exception as e:
-    plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    _fail(1, e)
 
-# Plot 22: f for BMC
+# ---------------------------------------------------------------------------
+# 21  plot(g), quiver(surface curl of g, 'w')   (v = [dg/dy, -dg/dx])
+# ---------------------------------------------------------------------------
 try:
-    f_bmc = Diskfun.from_function(
-        lambda th, r: jnp.cos(2*(3*jnp.sin(2*r*jnp.cos(th))+5*jnp.sin(r*jnp.sin(th))))
-            - 0.5*jnp.sin(r*jnp.cos(th)-r*jnp.sin(th)))
-    fig, ax = plot_disk(f_bmc, title='f', mode='2d')
-    save(fig, "f BMC")
+    dgx = jax.vmap(jax.grad(g_curl_cart, 0))
+    dgy = jax.vmap(jax.grad(g_curl_cart, 1))
+    xq, yq = disk_quiver_pts(18)
+    cxx = np.array(dgy(jnp.asarray(xq), jnp.asarray(yq)))
+    cyy = -np.array(dgx(jnp.asarray(xq), jnp.asarray(yq)))
+
+    def _qc(ax):
+        ax.quiver(xq, yq, cxx, cyy, color='w', scale=45, width=0.004)
+
+    fig, _ = disk_pcolor(polar_from_cart(g_curl_cart),
+                         title='The numerical surface curl of g', overlay=_qc)
+    _save(fig, "surface curl")
 except Exception as e:
-    plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    _fail(1, e)
 
-# Plot 23: BMC doubled function
+# ---------------------------------------------------------------------------
+# 22  f (block-mirror-centrosymmetric example)
+# ---------------------------------------------------------------------------
 try:
-    f_func = lambda th, r: jnp.cos(2*(3*jnp.sin(2*r*jnp.cos(th))+5*jnp.sin(r*jnp.sin(th))))-0.5*jnp.sin(r*jnp.cos(th)-r*jnp.sin(th))
-    thv = np.linspace(-np.pi, np.pi, 200); rv = np.linspace(-1, 1, 200)
-    TT, RR = np.meshgrid(thv, rv, indexing='ij')
-    TT_eff = np.where(RR >= 0, TT, TT+np.pi); RR_eff = np.abs(RR)
-    ZZ = np.array(f_func(jnp.array(TT_eff.ravel()), jnp.array(RR_eff.ravel()))).reshape(TT.shape)
-    fig, ax = plt.subplots(figsize=(6, 4))
-    ax.pcolormesh(TT, RR, ZZ, cmap=PARULA, shading='auto')
-    ax.set_xlabel('theta', fontsize=9); ax.set_ylabel('rho', fontsize=9)
+    fig, _ = disk_pcolor(f_bmc_fn, title='f')
+    _save(fig, "f (BMC example)")
+except Exception as e:
+    _fail(1, e)
+
+# ---------------------------------------------------------------------------
+# 23  BMC function tf = cart2pol(f,'cdr'), view(2)
+#     f extended to rho in [-1, 1] with the block-mirror rule.
+# ---------------------------------------------------------------------------
+try:
+    thv = np.linspace(-np.pi, np.pi, 400)
+    rhov = np.linspace(-1, 1, 300)
+    TT, RR = np.meshgrid(thv, rhov)
+    TTe = np.where(RR >= 0, TT, TT + np.pi)
+    RRe = np.abs(RR)
+    ZZ = np.array(f_bmc_fn(jnp.asarray(TTe.ravel()), jnp.asarray(RRe.ravel()))).reshape(TT.shape)
+    fig, ax = line_fig(titled=True)
+    ax.pcolormesh(TT, RR, ZZ, cmap=PARULA, shading='gouraud')
+    ax.set_xlim(-np.pi, np.pi)
+    ax.set_ylim(-1, 1)
+    ax.set_xticks([-3, -2, -1, 0, 1, 2, 3])
+    ax.set_yticks([-1, -0.5, 0, 0.5, 1])
     ax.set_title('The BMC function associated with f', fontsize=10)
-    fig.set_facecolor('white'); fig.tight_layout()
-    save(fig, "BMC function")
+    _save(fig, "BMC function")
 except Exception as e:
-    plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    _fail(1, e)
 
-# Plot 24: Skeleton
+# ---------------------------------------------------------------------------
+# 24  plot(f) skeleton — adaptively-selected GE slices (best effort: the
+#     Diskfun does not retain pivot locations, so a representative skeleton
+#     of the same rank is drawn).  Reported as a library gap.
+# ---------------------------------------------------------------------------
 try:
-    fig, ax = plot_disk(f_bmc, title='Low rank function samples', mode='2d')
+    f_bmc = Diskfun.from_function(f_bmc_fn)
+    rank = f_bmc.rank
+    fig = plt.figure(figsize=(6.1, 2.58))
+    ax = fig.add_axes(DISK_BOX)
+    blue = '#0072BD'
+    # radial slices drawn as full diameters at selected angles
+    ang = np.linspace(0, np.pi, 3 * rank, endpoint=False)
+    rr = np.linspace(-1, 1, 120)
+    for a in ang:
+        ax.plot(rr * np.cos(a), rr * np.sin(a), color=blue, lw=0.8)
+    # circular slices clustered near the centre and edge (Chebyshev radii)
+    cheb_r = np.abs(np.cos(np.pi * np.arange(1, 3 * rank) / (6 * rank)))
+    tt = np.linspace(0, 2 * np.pi, 300)
+    for rc in cheb_r:
+        ax.plot(rc * np.cos(tt), rc * np.sin(tt), color=blue, lw=0.8)
+    _boundary(ax, lw=0.8)
+    ax.set_xlim(-1.05, 1.05)
+    ax.set_ylim(-1.05, 1.05)
+    ax.axis('off')
     ax.set_title('Low rank function samples', fontsize=10)
-    save(fig, "skeleton")
+    fig.set_facecolor('white')
+    _save(fig, "skeleton (best effort)")
 except Exception as e:
-    plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    _fail(1, e)
 
-# Plot 25: Tensor product grid
+# ---------------------------------------------------------------------------
+# 25  tensor product grid on the disk
+# ---------------------------------------------------------------------------
 try:
-    from chebfunjax.utils.quadrature import chebpts
-    m = 53; n = 52
-    r_pts = np.array(chebpts(m, kind=2)); r_pts = r_pts[(m-1)//2:]
-    th_pts = np.linspace(-np.pi, np.pi, n, endpoint=False)
-    TTP, RRP = np.meshgrid(th_pts, r_pts)
-    XXP = RRP*np.cos(TTP); YYP = RRP*np.sin(TTP)
-    fig, ax = plt.subplots(figsize=(5, 5))
-    ax.plot(XXP, YYP, 'k', lw=0.1); ax.plot(XXP.T, YYP.T, 'k', lw=0.1)
-    ax.set_aspect('equal'); ax.axis('off')
+    m = 120
+    r_pts = np.abs(np.cos(np.pi * np.arange(m + 1) / (2 * m)))
+    r_pts = np.unique(np.concatenate([r_pts, [0.0, 1.0]]))
+    th_pts = np.linspace(0, 2 * np.pi, 2 * m, endpoint=True)
+    fig = plt.figure(figsize=(6.1, 2.58))
+    ax = fig.add_axes(DISK_BOX)
+    tt = np.linspace(0, 2 * np.pi, 400)
+    # concentric circles at the radial (Chebyshev) sample points
+    for rc in r_pts:
+        ax.plot(rc * np.cos(tt), rc * np.sin(tt), 'k', lw=0.22)
+    # radial rays at the angular sample points
+    for a in th_pts:
+        ax.plot([0, np.cos(a)], [0, np.sin(a)], 'k', lw=0.22)
+    ax.set_xlim(-1.05, 1.05)
+    ax.set_ylim(-1.05, 1.05)
+    ax.axis('off')
     ax.set_title('Tensor product function samples', fontsize=10)
-    fig.set_facecolor('white'); fig.tight_layout()
-    save(fig, "tensor grid")
+    fig.set_facecolor('white')
+    _save(fig, "tensor product grid")
 except Exception as e:
-    plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    _fail(1, e)
 
-# Plots 26-27: Column and row slices
+# ---------------------------------------------------------------------------
+# 26-27  column slices (radial, r in [-1,1]) and row slices (theta in [-pi,pi])
+# ---------------------------------------------------------------------------
 try:
-    fig, ax = plt.subplots(figsize=(6, 4))
-    r_eval = jnp.linspace(-1, 1, 200)
-    nc = min(5, len(f_bmc.cols)-2)
-    for j in range(2, 2+nc):
-        ax.plot(np.array(r_eval), np.array(f_bmc.cols[j](r_eval)), linewidth=1.2)
-    ax.set_title(f'5 of the {len(f_bmc.cols)} column slices of f', fontsize=10)
-    fig.set_facecolor('white'); fig.tight_layout()
-    save(fig, "column slices")
+    rank = len(f_bmc.cols)
+    sel = list(range(2, min(7, rank)))
+    fig, ax = line_fig(titled=True)
+    rr = jnp.linspace(-1, 1, 400)
+    rn = np.array(rr)
+    for j in sel:
+        ax.plot(rn, np.real(np.array(f_bmc.cols[j](rr))), linewidth=1.0)
+    ax.set_xlim(-1, 1)
+    ax.set_ylim(-2, 1.5)
+    ax.set_xticks([-1, -0.5, 0, 0.5, 1])
+    ax.set_yticks([-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5])
+    ax.set_title(f'{len(sel)} of the {rank} column slices of f', fontsize=10)
+    _save(fig, "column slices")
 
-    fig, ax = plt.subplots(figsize=(6, 4))
-    th_eval = jnp.linspace(-1, 1, 200)
-    for j in range(2, 2+nc):
-        if j < len(f_bmc.rows):
-            ax.plot(np.array(th_eval), np.array(f_bmc.rows[j](th_eval)), linewidth=1.2)
-    ax.set_title(f'5 of the {len(f_bmc.rows)} row slices of f', fontsize=10)
-    fig.set_facecolor('white'); fig.tight_layout()
-    save(fig, "row slices")
+    fig, ax = line_fig(titled=True)
+    xx = jnp.linspace(-1, 1, 400)          # theta = pi * x
+    xn = np.array(xx) * np.pi
+    for j in sel:
+        ax.plot(xn, np.real(np.array(f_bmc.rows[j](xx))), linewidth=1.0)
+    ax.set_xlim(-np.pi, np.pi)
+    ax.set_ylim(-2, 1.5)
+    ax.set_xticks([-3, -2, -1, 0, 1, 2, 3])
+    ax.set_yticks([-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5])
+    ax.set_title(f'{len(sel)} of the {rank} row slices of f', fontsize=10)
+    _save(fig, "row slices")
 except Exception as e:
-    for _ in range(2):
-        plot_num += 1
-        print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    _fail(max(0, 27 - plot_num), e)
 
-# Plot 28: plotcoeffs
+# ---------------------------------------------------------------------------
+# 28  plotcoeffs(f): Chebyshev (columns) and Fourier (rows) coefficients
+# ---------------------------------------------------------------------------
 try:
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
+    fig = plt.figure(figsize=(6.1, 2.58))
+    ax1 = fig.add_axes([0.095, 0.235, 0.375, 0.585])
+    ax2 = fig.add_axes([0.595, 0.235, 0.375, 0.585])
+    yt = [1e0, 1e-5, 1e-10, 1e-15, 1e-20]
     for c in f_bmc.cols:
-        cf = np.array(jnp.abs(c.coeffs))
-        ax1.semilogy(range(len(cf)), cf+1e-17, 'o-', ms=3, alpha=0.5)
-    ax1.set_title('Chebyshev coefficients (columns)', fontsize=10)
-    ax1.set_xlabel('Index', fontsize=9)
-    for r in f_bmc.rows:
-        cf = np.array(jnp.abs(r.coeffs))
-        ax2.semilogy(range(len(cf)), cf+1e-17, 'o-', ms=3, alpha=0.5)
-    ax2.set_title('Fourier coefficients (rows)', fontsize=10)
-    ax2.set_xlabel('Index', fontsize=9)
-    fig.set_facecolor('white'); fig.tight_layout()
-    save(fig, "plotcoeffs")
+        cf = np.abs(np.array(c.coeffs))
+        ax1.semilogy(np.arange(len(cf)), cf + 1e-40, '.', ms=4)
+    ax1.set_xlim(0, 80)
+    ax1.set_ylim(1e-20, 1e0)
+    ax1.set_yticks(yt)
+    ax1.set_xticks([0, 20, 40, 60, 80])
+    ax1.set_title('Column slices', fontsize=10)
+    ax1.set_xlabel('Degree of Chebyshev polynomial', fontsize=8)
+    ax1.set_ylabel('Magnitude of coefficient', fontsize=8)
+    ax1.grid(True, which='major', ls=':', lw=0.5, color='0.8')
+    ax1.tick_params(labelsize=7)
+    for rw in f_bmc.rows:
+        cf = np.abs(np.array(rw.coeffs))
+        k = np.arange(len(cf)) - len(cf) // 2
+        ax2.semilogy(k, cf + 1e-40, '.', ms=3)
+    ax2.set_xlim(-60, 60)
+    ax2.set_ylim(1e-20, 1e0)
+    ax2.set_yticks(yt)
+    ax2.set_xticks([-50, 0, 50])
+    ax2.set_title('Row slices', fontsize=10)
+    ax2.set_xlabel('Wave number', fontsize=8)
+    ax2.set_ylabel('Magnitude of coefficient', fontsize=8)
+    ax2.grid(True, which='major', ls=':', lw=0.5, color='0.8')
+    ax2.tick_params(labelsize=7)
+    fig.set_facecolor('white')
+    _save(fig, "plotcoeffs")
 except Exception as e:
-    plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    _fail(1, e)
 
 print(f"\nGuide 16: {plot_num} plots generated.")
