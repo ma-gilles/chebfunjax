@@ -437,6 +437,44 @@ def _prz_poles_zeros(
     return jnp.array(pol_np), jnp.array(zer_np)
 
 
+def _prz_residues(
+    pol: np.ndarray,
+    zj: np.ndarray,
+    fj: np.ndarray,
+    wj: np.ndarray,
+) -> np.ndarray:
+    """Analytic residues of a barycentric rational at its poles.
+
+    Uses the closed-form residue of a quotient of analytic functions,
+    ``res = N(pol) / D'(pol)`` with ``N(t) = sum_j (fj*wj)/(t - zj)`` and
+    ``D'(t) = -sum_j wj/(t - zj)^2``.  This is exactly what MATLAB Chebfun's
+    ``prz`` computes and hands to ``cleanup`` for Froissart-doublet detection.
+
+    These residues depend only on the (well-determined) poles and the
+    barycentric data, so they are deterministic across LAPACK builds — unlike
+    the least-squares residues from :func:`_compute_residues`, whose values at
+    near-structural poles are set by a rank-deficient solve and vary by many
+    orders of magnitude between platforms.
+
+    Provenance
+    ----------
+    MATLAB source : prz (sub-function of aaa.m, lines 715-717)
+    Chebfun commit: 7574c77
+    """
+    pol = np.asarray(pol, dtype=complex)
+    zj = np.asarray(zj, dtype=complex)
+    fj = np.asarray(fj, dtype=complex)
+    wj = np.asarray(wj, dtype=complex)
+    if pol.size == 0:
+        return np.zeros(0, dtype=complex)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        CC = 1.0 / (pol[:, None] - zj[None, :])   # (p, m)
+        N = CC @ (fj * wj)
+        Ddiff = -(CC ** 2) @ wj
+        res = N / Ddiff
+    return res
+
+
 def _compute_residues(
     pol: jnp.ndarray,
     zer: jnp.ndarray,
@@ -532,18 +570,21 @@ def _cleanup(
     MATLAB source : cleanup (sub-function of aaa.m)
     Chebfun commit: 7574c77
     """
-    pol, zer = _prz_poles_zeros(zj, fj, wj)
-
-    # Accurate residues
-    res = _compute_residues(pol, zer, Z, F)
+    pol, _zer = _prz_poles_zeros(zj, fj, wj)
 
     pol_np = np.array(pol, dtype=complex)
-    res_np = np.array(res, dtype=complex)
     Z_np = np.array(Z, dtype=complex)
     F_np = np.array(F, dtype=complex)
     zj_np = np.array(zj, dtype=complex)
     fj_np = np.array(fj, dtype=complex)
     wj_np = np.array(wj, dtype=complex)
+
+    # Residues for spurious detection: MATLAB's cleanup uses the analytic prz
+    # residues (aaa.m lines 274, 717), NOT the least-squares residues.  The
+    # least-squares residues at near-structural poles are set by a
+    # rank-deficient solve and vary by many orders of magnitude across LAPACK
+    # builds, which made cleanup non-deterministic (see _prz_residues).
+    res_np = _prz_residues(pol_np, zj_np, fj_np, wj_np)
 
     # Geometric mean of |F| (ignoring zeros)
     absF = np.abs(F_np[F_np != 0])
@@ -558,8 +599,11 @@ def _cleanup(
 
     Zdist = np.array([np.min(np.abs(p - Z_np)) for p in pol_np])
 
-    # Identify spurious poles
-    spurious_mask = np.abs(res_np) / (Zdist + 1e-300) < cleanup_tol * geom_mean
+    # Identify spurious poles.  Divide directly like MATLAB: for Zdist == 0 the
+    # ratio is Inf/NaN, which compares False (not spurious).
+    with np.errstate(divide="ignore", invalid="ignore"):
+        ratio = np.abs(res_np) / Zdist
+    spurious_mask = ratio < cleanup_tol * geom_mean
     ii = np.where(spurious_mask)[0]
     ni = len(ii)
 
@@ -573,22 +617,23 @@ def _cleanup(
             f"AAA cleanup: {ni} Froissart doublets removed.", stacklevel=3
         )
 
-    # Remove closest support point for each spurious pole
-    remove_idx = set()
+    # For each spurious pole, remove the closest *remaining* support point.
+    # MATLAB removes them sequentially (aaa.m lines 513-519): the support set
+    # shrinks as we go, so ni distinct points are removed even if two spurious
+    # poles share a nearest support point.
     for j in ii:
-        dists = np.abs(zj_np - pol_np[j])
-        remove_idx.add(int(np.argmin(dists)))
+        azp = np.abs(zj_np - pol_np[j])
+        jj = int(np.argmin(azp))   # find(azp == min(azp), 1): first minimiser
+        zj_np = np.delete(zj_np, jj)
+        fj_np = np.delete(fj_np, jj)
 
-    keep = np.array([k for k in range(len(zj_np)) if k not in remove_idx])
-    if len(keep) == 0:
+    if len(zj_np) == 0:
         return (
             jnp.array([], dtype=jnp.complex128),
             jnp.array([], dtype=jnp.complex128),
             jnp.array([], dtype=jnp.complex128),
         )
 
-    zj_np = zj_np[keep]
-    fj_np = fj_np[keep]
     m = len(zj_np)
 
     # Remove support points from sample set

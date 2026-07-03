@@ -154,7 +154,7 @@ def conformal2(
 
     # Forward map: Z -> W (annulus)
     f, pol, _, _, _, _, _ = aaa(W_best, Z, tol=tol)
-    # Inverse map: W -> Z
+    # Inverse map: W -> Z (MATLAB conformal2.m fits both independently)
     finv, polinv, _, _, _, _, _ = aaa(Z, W_best, tol=tol)
 
     return f, finv, float(rho), np.asarray(pol), np.asarray(polinv)
