@@ -324,6 +324,7 @@ class Chebop:
 
     def eigs(
         self,
+        *,
         n: int | None = None,
         k: int = 6,
         n_default: int = 64,

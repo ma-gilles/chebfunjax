@@ -43,7 +43,7 @@ def run():
     N.lbc = lambda u: u(-1.0)
     N.rbc = lambda u: u(1.0)
 
-    lam = N.eigs(6)
+    lam = N.eigs(k=6)
     # Filter out inf/nan values and sort
     lam_arr = np.real(np.array(lam))
     lam_finite = np.sort(lam_arr[np.isfinite(lam_arr)])
@@ -65,7 +65,7 @@ def run():
     N2.lbc = lambda u: u(-L)
     N2.rbc = lambda u: u(L)
 
-    lam2 = N2.eigs(5)
+    lam2 = N2.eigs(k=5)
     lam2_arr = np.real(np.array(lam2))
     lam2_finite = np.sort(lam2_arr[np.isfinite(lam2_arr)])
     exact2 = [2*n + 1 for n in range(5)]
