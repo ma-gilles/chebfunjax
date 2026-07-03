@@ -7,21 +7,28 @@ Credit: Inspired by Chebfun approx/PiecewiseSmooth.m.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
-import numpy as np
-import sys, os
+import matplotlib.pyplot as plt
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.plotting import plot
+
 
 def run():
     print("=" * 60)
@@ -32,7 +39,7 @@ def run():
     # MATLAB: f = chebfun('abs(x)', [-1, 0, 1])
     dom_split = (-1.0, 0.0, 1.0)  # breakpoint at 0
     f_abs = cj.chebfun(lambda x: jnp.abs(x), domain=dom_split)
-    print(f"\n|x| on [-1,1] with breakpoint at 0:")
+    print("\n|x| on [-1,1] with breakpoint at 0:")
     print(f"  Number of coefficients: {len(f_abs)}")
     integral_abs = float(f_abs.sum())
     print(f"  Integral = {integral_abs:.15f}  (exact: 1.0)")
@@ -50,7 +57,7 @@ def run():
         lambda x: jnp.where(x < 0, -jnp.ones_like(x), jnp.ones_like(x)),
         domain=(-1.0, 0.0, 1.0)
     )
-    print(f"\nStep function sign(x) on [-1,1]:")
+    print("\nStep function sign(x) on [-1,1]:")
     print(f"  Number of coefficients: {len(f_step)}")
     # Integral of sign(x) over [-1,1] = 0
     integral_step = float(f_step.sum())
@@ -61,7 +68,7 @@ def run():
     # f(x) = 1 - |x| on [-1, 1]
     dom_hat = (-1.0, 0.0, 1.0)
     f_hat = cj.chebfun(lambda x: 1.0 - jnp.abs(x), domain=dom_hat)
-    print(f"\nHat function 1 - |x| on [-1,1]:")
+    print("\nHat function 1 - |x| on [-1,1]:")
     print(f"  Number of coefficients: {len(f_hat)}")
     # Integral = 1.0 (area of triangle with base 2, height 1)
     integral_hat = float(f_hat.sum())
@@ -76,7 +83,7 @@ def run():
         lambda x: jnp.where(x < 0, x**2, jnp.sin(x)),
         domain=(-1.0, 0.0, 1.0)
     )
-    print(f"\nPiecewise: x^2 for x<0, sin(x) for x>=0:")
+    print("\nPiecewise: x^2 for x<0, sin(x) for x>=0:")
     print(f"  Number of coefficients: {len(f_piecewise)}")
     # Check values
     assert abs(float(f_piecewise(jnp.array(-0.5))) - 0.25) < 1e-12

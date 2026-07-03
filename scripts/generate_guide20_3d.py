@@ -8,16 +8,20 @@ equal-aspect axes.
 Uses the faithful MATLAB translation in plot_ball_slices().
 """
 import matplotlib
+
 matplotlib.use('Agg')
+import os
+import sys
+
 import matplotlib.pyplot as plt
-import numpy as np
-import os, sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 from chebfunjax.plotting import chebfun_style, plot_ball_slices
+
 chebfun_style()
 
 import jax.numpy as jnp
+
 from chebfunjax.ballfun.ballfun import Ballfun
 
 OUT = os.path.join(os.path.dirname(__file__), '..', 'docs', 'images', 'guide')
@@ -83,4 +87,4 @@ try:
 except Exception as e:
     print(f"  SKIP plot 6: {e}")
 
-print(f"\nGuide 20 (3D): Generated 6 plots.")
+print("\nGuide 20 (3D): Generated 6 plots.")

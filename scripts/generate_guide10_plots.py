@@ -1,18 +1,23 @@
 """Generate all plots for Guide Chapter 10: Nonlinear ODEs, IVPs, and Chebgui."""
 
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 import matplotlib
+
 matplotlib.use('Agg')
 
 import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
-import jax.numpy as jnp
+
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style, CHEBFUN_BLUE, CHEBFUN_RED
 from chebfunjax.operators.chebop import Chebop
+from chebfunjax.plotting import CHEBFUN_BLUE, CHEBFUN_RED, chebfun_style
 
 chebfun_style()
 

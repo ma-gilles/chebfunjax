@@ -12,15 +12,20 @@ Original MATLAB: https://www.chebfun.org/examples/pde/ReactDiffSys.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
+
+import os
 
 import numpy as np
 from scipy.integrate import solve_ivp
 from scipy.special import erf
-import os
+
 
 def run():
     print("=" * 60)
@@ -40,7 +45,7 @@ def run():
     print("\nInitial conditions:")
     print(f"  u0: mainly on left (max={u0.max():.3f})")
     print(f"  v0: mainly on right (max={v0.max():.3f})")
-    print(f"  w0: zero")
+    print("  w0: zero")
 
     # Build second-derivative matrix with Neumann BCs
     def build_d2(n, dx):

@@ -9,18 +9,25 @@ Credit: Inspired by Chebfun example complex/KeyholeContour.m
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -108,7 +115,7 @@ def run():
     I_total = I1 + I2 + I3 + I4
     I_exact = 4j * pi * np.log(pi / 2.0)
 
-    print(f"\nKeyhole contour integral of log(z)*tanh(z):")
+    print("\nKeyhole contour integral of log(z)*tanh(z):")
     print(f"  Computed (trapezoidal): {I_total.real:.8f} + {I_total.imag:.8f}i")
     print(f"  Exact 4*pi*i*log(pi/2): {I_exact.real:.8f} + {I_exact.imag:.8f}i")
     error = abs(I_total - I_exact)
@@ -221,13 +228,13 @@ def run():
 
     I_cheb = I1c + I2c + I3c + I4c
     error_cheb = abs(I_cheb - I_exact)
-    print(f"\nChebfun integration result:")
+    print("\nChebfun integration result:")
     print(f"  Computed: {I_cheb.real:.12f} + {I_cheb.imag:.12f}i")
     print(f"  Exact:    {I_exact.real:.12f} + {I_exact.imag:.12f}i")
     print(f"  Error:    {error_cheb:.2e}")
     assert error_cheb < 1e-6, f"Chebfun keyhole error {error_cheb}"
 
-    print(f"\nSegment contributions:")
+    print("\nSegment contributions:")
     print(f"  I1 (top leg):    {I1c.real:.6f} + {I1c.imag:.6f}i")
     print(f"  I2 (inner arc):  {I2c.real:.6f} + {I2c.imag:.6f}i")
     print(f"  I3 (bottom leg): {I3c.real:.6f} + {I3c.imag:.6f}i")
@@ -283,7 +290,7 @@ def run():
     axes[1].set_xlim(-2.5, 2.5)
     axes[1].set_ylim(-2.5, 2.5)
 
-    fig.suptitle(f"Keyhole contour: $\\int \\log(z)\\tanh(z)\\,dz = 4\\pi i \\log(\\pi/2)$",
+    fig.suptitle("Keyhole contour: $\\int \\log(z)\\tanh(z)\\,dz = 4\\pi i \\log(\\pi/2)$",
                  fontsize=11)
     fig.tight_layout()
     fig.savefig(os.path.join(_here, "keyhole_contour.png"), dpi=150, bbox_inches="tight")

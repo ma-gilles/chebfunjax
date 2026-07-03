@@ -7,21 +7,28 @@ Credit: Inspired by Chebfun examples calc/Differentiation.m.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
-import numpy as np
-import sys, os
+import matplotlib.pyplot as plt
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.plotting import plot
+
 
 def run():
     print("=" * 60)
@@ -32,7 +39,7 @@ def run():
     dom = (0.0, float(2.0 * jnp.pi))
     f = cj.chebfun(lambda x: jnp.sin(x), domain=dom)
     df = f.diff()
-    print(f"\nf(x) = sin(x) on [0, 2*pi]:")
+    print("\nf(x) = sin(x) on [0, 2*pi]:")
     x_test = jnp.linspace(0.0, float(2.0 * jnp.pi), 200)
     err1 = float(jnp.max(jnp.abs(df(x_test) - jnp.cos(x_test))))
     print(f"  ||diff(sin(x)) - cos(x)||_inf = {err1:.2e}")
@@ -43,7 +50,7 @@ def run():
     d2g = g.diff(2)
     x_test2 = jnp.linspace(-1.0, 1.0, 200)
     err2 = float(jnp.max(jnp.abs(d2g(x_test2) - jnp.exp(x_test2))))
-    print(f"\ng(x) = exp(x) on [-1,1]:")
+    print("\ng(x) = exp(x) on [-1,1]:")
     print(f"  ||diff(exp(x),2) - exp(x)||_inf = {err2:.2e}")
     assert err2 < 1e-12
 
@@ -52,7 +59,7 @@ def run():
     dh = h.diff()
     x_test3 = jnp.linspace(0.0, 2.0, 200)
     err3 = float(jnp.max(jnp.abs(dh(x_test3) - 2.0 * x_test3 * jnp.cos(x_test3**2))))
-    print(f"\nh(x) = sin(x^2) on [0, 2]:")
+    print("\nh(x) = sin(x^2) on [0, 2]:")
     print(f"  ||diff(sin(x^2)) - 2x*cos(x^2)||_inf = {err3:.2e}")
     assert err3 < 1e-11
 
@@ -63,7 +70,7 @@ def run():
     # = cos(pi) - cos(0) = -1 - 1 = -2
     integral_df4 = float(df4.sum())
     exact_integral = float(jnp.cos(jnp.pi)) - float(jnp.cos(jnp.array(0.0)))
-    print(f"\nf(x) = cos(x) on [0, pi]:")
+    print("\nf(x) = cos(x) on [0, pi]:")
     print(f"  Integral of f'(x) = f(pi) - f(0) = {exact_integral:.15f}")
     print(f"  Computed: {integral_df4:.15f}")
     assert abs(integral_df4 - exact_integral) < 1e-12

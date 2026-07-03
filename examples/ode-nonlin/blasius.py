@@ -11,22 +11,30 @@ Credit: Chebfun example ode-nonlin/Blasius.m (Hrothgar, Jun 2014).
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from scipy.integrate import solve_ivp
 from scipy.optimize import brentq
+
 
 def run():
     print("=" * 60)
@@ -67,7 +75,7 @@ def run():
         domain=dom,
         n=128  # fix degree rather than adaptively converge
     )
-    print(f"\nChebfun representation:")
+    print("\nChebfun representation:")
     print(f"  Length: {len(u)}")
     print(f"  u(0) = {float(u(jnp.array(0.0))):.8f}  (exact: 0)")
     print(f"  u(L) = {float(u(jnp.array(L))):.8f}")

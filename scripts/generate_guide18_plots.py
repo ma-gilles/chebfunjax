@@ -3,17 +3,24 @@
 Uses PARULA colormap and three-orthogonal-slice 3D plots matching MATLAB.
 """
 import matplotlib
+
 matplotlib.use('Agg')
-import sys, os, traceback
+import os
+import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
-import jax.numpy as jnp
+
+from chebfunjax.chebfun3d import chebfun3
 from chebfunjax.plotting import (
-    chebfun_style, plot_slices, plot_chebfun3, PARULA, _setup_3d_axes,
+    PARULA,
+    _setup_3d_axes,
+    chebfun_style,
+    plot_chebfun3,
 )
-from chebfunjax.chebfun3d import chebfun3, Chebfun3
 
 chebfun_style()
 

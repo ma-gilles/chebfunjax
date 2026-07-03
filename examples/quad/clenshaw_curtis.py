@@ -7,21 +7,25 @@ Credit: Inspired by Chebfun examples quad/ClenshawCurtis.m.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
-import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-from chebfunjax.plotting import plot
 
 def run():
     print("=" * 60)
@@ -89,7 +93,7 @@ def run():
     f_spike = cj.chebfun(lambda x: 1.0 / (1.0 + (100.0 * x)**2), domain=dom5)
     spike_int = float(f_spike.sum())
     exact_spike = (2.0 / 100.0) * float(jnp.arctan(jnp.array(100.0)))
-    print(f"\nSpike integral 1/(1+(100x)^2) over [-1,1]:")
+    print("\nSpike integral 1/(1+(100x)^2) over [-1,1]:")
     print(f"  Computed: {spike_int:.12f}")
     print(f"  Exact:    {exact_spike:.12f}")
     assert abs(spike_int - exact_spike) < 1e-11

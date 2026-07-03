@@ -10,15 +10,17 @@ Authors: Nicolas Boulle and Alex Townsend, May 2019
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style, PARULA, _setup_3d_axes
+from chebfunjax.plotting import PARULA, chebfun_style
+
 chebfun_style()
 
 def toroidal_field(T_func, r, theta, phi):
@@ -111,8 +113,8 @@ def run():
         _sphere_panel(ax, fig, X, Y, Z, F, title, cmap=PARULA)
 
     print("Poloidal-Toroidal decomposition:")
-    print(f"  T = cos(th)sin(phi): toroidal potential")
-    print(f"  P = sin(th)cos(phi): poloidal potential")
+    print("  T = cos(th)sin(phi): toroidal potential")
+    print("  P = sin(th)cos(phi): poloidal potential")
     print(f"  Max toroidal: {mag_T.max():.4f}")
     print(f"  Max poloidal: {mag_P.max():.4f}")
 

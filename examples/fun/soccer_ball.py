@@ -9,17 +9,18 @@ Author: Filomena Di Tommaso, July 2013
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-import numpy as np
-import sys, os
+import os
+import sys
 from itertools import permutations
 
+import matplotlib.pyplot as plt
+import numpy as np
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def get_truncated_icosahedron():

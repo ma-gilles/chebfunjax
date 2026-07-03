@@ -8,21 +8,25 @@ Credit: Inspired by Chebfun examples quad/Gauss.m.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-from chebfunjax.plotting import plot
 
 def golub_welsch(n):
     """Compute n-point Gauss-Legendre nodes and weights via Golub-Welsch."""
@@ -81,7 +85,7 @@ def run():
     x5, w5 = golub_welsch(n)
     computed = float(np.dot(w5, np.exp(x5)))
     exact = float(jnp.exp(jnp.array(1.0)) - jnp.exp(jnp.array(-1.0)))
-    print(f"\n5-pt GL quadrature of exp(x):")
+    print("\n5-pt GL quadrature of exp(x):")
     print(f"  Computed: {computed:.15f}")
     print(f"  Exact:    {exact:.15f}")
     print(f"  Error:    {abs(computed - exact):.2e}")

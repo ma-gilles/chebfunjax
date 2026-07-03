@@ -8,18 +8,22 @@ Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/Pushnitski.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-from chebfunjax.utils.aaa import aaa
 
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
@@ -54,7 +58,7 @@ def run():
     ax.plot(xx_safe, f_vals, 'b', lw=1.8)
     ax.set_title('Pushnitski function 1/|log|x||', fontsize=11)
     ax2 = axes[1]
-    ax2.semilogy(degrees, poly_errs, color='#0072BD', linestyle='.-', lw=1.5, ms=10)
+    ax2.semilogy(degrees, poly_errs, color='#0072BD', marker='.', linestyle='-', lw=1.5, ms=10)
     ax2.set_title('Polynomial approx errors for 1/|log|x||', fontsize=10)
     fig.tight_layout()
     fig.savefig(os.path.join(_OUTDIR, 'Pushnitski.png'), dpi=150)

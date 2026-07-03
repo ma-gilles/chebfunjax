@@ -9,18 +9,23 @@ Credit: Chebfun example ode-eig/OpticalResponse.m
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-import jax.numpy as jnp
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax.operators.chebop import Chebop
+
 
 def run():
     print("=" * 60)
@@ -96,7 +101,7 @@ def run():
     # Actually: alpha = 1/(2*2*omega^2) where omega = sqrt(4*2) = 2sqrt(2)
     # Just verify the numerical value is in a reasonable range (> 0)
     assert alpha_numerical > 0, f"Polarizability should be positive: {alpha_numerical}"
-    print(f"  (alpha > 0 confirmed: system shows positive polarizability)")
+    print("  (alpha > 0 confirmed: system shows positive polarizability)")
 
     # --- Plot -----------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))

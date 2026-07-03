@@ -8,13 +8,18 @@ Original MATLAB: https://www.chebfun.org/examples/pde/AllenCahn2.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-import numpy as np
 import os
+
+import numpy as np
+
 
 def run():
     print("=" * 60)
@@ -95,7 +100,7 @@ def run():
     if len(neg_idx) > 0 and len(pos_idx) > 0:
         t_cross = t_vals[neg_idx[0]]
         print(f"  Approximate critical time (max crosses 0): t ≈ {t_cross:.1f}")
-        print(f"  (Chebfun example gives ≈55.9 for σ=6)")
+        print("  (Chebfun example gives ≈55.9 for σ=6)")
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
@@ -117,7 +122,7 @@ def run():
     axes[0].set_ylim([-1.5, 2.5])
 
     # Panel 2: max decay over time
-    axes[1].plot(t_vals, umax, color='#0072BD', linestyle='.-', markersize=8)
+    axes[1].plot(t_vals, umax, color='#0072BD', marker='.', linestyle='-', markersize=8)
     axes[1].axhline(0, color='#D95319', linestyle='--', linewidth=1)
     axes[1].set_title("Max(u) decay — medium pulse", fontsize=11)
 

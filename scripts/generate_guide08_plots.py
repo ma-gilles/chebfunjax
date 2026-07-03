@@ -19,21 +19,26 @@ Notes on library gaps (see the chapter text and the audit report):
   fixed-length function the MATLAB constructor converges to instead.
 """
 import os
+
 os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 os.environ.setdefault("JAX_PLATFORMS", "cpu")
 
 import matplotlib
+
 matplotlib.use("Agg")
+import sys
+
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter, MaxNLocator
-import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 import jax.numpy as jnp
 import numpy as np
+
 import chebfunjax as cj
+from chebfunjax.plotting import CHEBFUN_BLUE, chebfun_style, save_chebfun_figure
 from chebfunjax.utils.quadrature import chebpts
-from chebfunjax.plotting import chebfun_style, save_chebfun_figure, CHEBFUN_BLUE
 
 chebfun_style()
 

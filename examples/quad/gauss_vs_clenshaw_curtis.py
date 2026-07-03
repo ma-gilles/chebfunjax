@@ -5,19 +5,25 @@ Based on Chebfun example quad/GaussClenCurt.m by Nick Trefethen (September 2010)
 
 Original: https://www.chebfun.org/examples/quad/GaussClenCurt.html
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.special import roots_legendre
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def clenshaw_curtis_nodes_weights(n):
@@ -77,9 +83,9 @@ def run():
     axes[0].set_title(r'$f(x) = x\sin(2e^{2\sin(2e^{2x})})$', fontsize=11)
 
     # Right: convergence
-    axes[1].semilogy(NN, err_gauss, color='#0072BD', linestyle='.-', markersize=8, linewidth=1.4,
+    axes[1].semilogy(NN, err_gauss, color='#0072BD', marker='.', linestyle='-', markersize=8, linewidth=1.4,
                      label='Gauss-Legendre')
-    axes[1].semilogy(NN, err_cc, color='#D95319', linestyle='.-', markersize=8, linewidth=1.4,
+    axes[1].semilogy(NN, err_cc, color='#D95319', marker='.', linestyle='-', markersize=8, linewidth=1.4,
                      label='Clenshaw-Curtis')
     axes[1].set_title('Convergence of quadrature rules', fontsize=11)
     axes[1].legend(fontsize=10)

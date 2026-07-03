@@ -6,18 +6,24 @@ Mark Richardson (October 2011).
 
 Original: https://www.chebfun.org/examples/approx/Entire.html
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -35,7 +41,7 @@ def run():
         f = cj.chebfun(lambda x, N=N: jnp.sin(N * jnp.pi * x))
         degrees.append(len(f) - 1)
 
-    ax.semilogy(NN, degrees, color='#0072BD', linestyle='.-', markersize=10, linewidth=1.5,
+    ax.semilogy(NN, degrees, color='#0072BD', marker='.', linestyle='-', markersize=10, linewidth=1.5,
                 label='Chebfun degree')
     theory = [int(np.ceil(N * np.pi / np.log(1.1))) for N in NN]
     ax.semilogy(NN, theory, color='#D95319', linestyle='--', linewidth=1.5, label=r'$\approx N\pi/\log r$')
@@ -52,7 +58,7 @@ def run():
     # Analytic: exp(x) — geometric decay
     f_exp = cj.chebfun(lambda x: jnp.exp(x))
     coeffs_exp = np.abs(np.array(f_exp.coeffs))
-    axes[0].semilogy(coeffs_exp, color='#0072BD', linestyle='.-', markersize=6, linewidth=1.2)
+    axes[0].semilogy(coeffs_exp, color='#0072BD', marker='.', linestyle='-', markersize=6, linewidth=1.2)
     axes[0].set_title('Chebyshev coefficients of $e^x$ (geometric decay)',
                       fontsize=11)
     axes[0].set_ylim(bottom=1e-17)
@@ -61,7 +67,7 @@ def run():
     f_abs = cj.chebfun(lambda x: jnp.abs(x), n=256)
     coeffs_abs = np.abs(np.array(f_abs.coeffs))
     kk = np.arange(1, len(coeffs_abs) + 1)
-    axes[1].semilogy(coeffs_abs, color='#0072BD', linestyle='.-', markersize=4, linewidth=1.0,
+    axes[1].semilogy(coeffs_abs, color='#0072BD', marker='.', linestyle='-', markersize=4, linewidth=1.0,
                      label='$|a_k|$')
     axes[1].semilogy(kk[10:], 2.0 / kk[10:]**2, color='#D95319', linestyle='--', linewidth=1.5,
                      label=r'$2/k^2$ envelope')

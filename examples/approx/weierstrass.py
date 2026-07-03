@@ -5,18 +5,24 @@ Based on Chebfun example approx/WeierstrassFunction.m by Hrothgar (October 2013)
 
 Original: https://www.chebfun.org/examples/approx/WeierstrassFunction.html
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -55,7 +61,7 @@ def run():
     xx_zoom = np.linspace(0.0, 0.005, 1000)
     F_zoom = np.array(partial[-1](jnp.array(xx_zoom)))
     axes[1].plot(xx_zoom, F_zoom, color='#0072BD', linestyle='-', linewidth=0.9)
-    axes[1].set_title('Close-up: $x \in [0, 0.005]$ — fractal structure', fontsize=10)
+    axes[1].set_title(r'Close-up: $x \in [0, 0.005]$ — fractal structure', fontsize=10)
 
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'weierstrass.png'), dpi=150, bbox_inches='tight')

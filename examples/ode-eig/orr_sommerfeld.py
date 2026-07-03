@@ -11,21 +11,25 @@ Credit: Chebfun example ode-eig/OrrSommerfeld.m
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-import jax.numpy as jnp
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-from chebfunjax.operators.chebop import Chebop
 
 def run():
     print("=" * 60)
@@ -149,7 +153,7 @@ def run():
     max_real = np.max(np.real(in_region)) if len(in_region) > 0 else np.nan
     print(f"  Found {len(in_region)} eigenvalues in physical region")
     print(f"  Most unstable mode: Re(lambda) = {max_real:.5f}")
-    print(f"  (Negative means stable for Re=2000; critical Re ≈ 5772)")
+    print("  (Negative means stable for Re=2000; critical Re ≈ 5772)")
     assert max_real < 0.0, f"Flow at Re=2000 should be stable, got Re(lam)={max_real:.4f}"
 
     # Near-critical Reynolds number
@@ -165,7 +169,7 @@ def run():
     ]
     max_real2 = np.max(np.real(in2)) if len(in2) > 0 else np.nan
     print(f"  Most unstable mode: Re(lambda) = {max_real2:.5f}")
-    print(f"  (Near zero means near-critical)")
+    print("  (Near zero means near-critical)")
     assert abs(max_real2) < 0.01, f"Near-critical should have |Re(lam)| < 0.01, got {max_real2:.4f}"
 
     # --- Plot -----------------------------------------------------------

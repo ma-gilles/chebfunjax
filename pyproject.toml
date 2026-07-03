@@ -65,3 +65,13 @@ target-version = "py310"
 [tool.ruff.lint]
 select = ["E", "F", "W", "I"]
 ignore = ["E741", "E501", "E402", "F821"]  # allow l, I, O as variable names (common in math code)
+
+[tool.ruff.lint.per-file-ignores]
+# Example scripts are line-by-line translations of MATLAB Chebfun examples.
+# Assigned lambdas mirror MATLAB anonymous functions (f = @(x) ...),
+# multi-statement lines mirror MATLAB's `a = 1; b = 2;` style, and
+# demonstration assignments intentionally show values without using them.
+"examples/**" = ["E731", "E702", "F841"]
+"benchmarks/**" = ["E731", "E702", "F841"]
+# Guide plot-generation scripts transcribe MATLAB plotting sequences.
+"scripts/generate_guide*.py" = ["E731", "E702", "F841"]

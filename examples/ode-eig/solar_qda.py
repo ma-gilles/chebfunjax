@@ -8,18 +8,25 @@ Credit: Chebfun example ode-eig/SolarQDA.m (Toby Driscoll, May 2011).
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.operators.chebop import Chebop
+
 
 def run():
     print("=" * 60)
@@ -46,7 +53,7 @@ def run():
     depth = 0.85   # eV, well depth
     spacing = 3.0  # nm, barrier width
 
-    print(f"\nQDA parameters:")
+    print("\nQDA parameters:")
     print(f"  {numwell} wells, width={width} nm, depth={depth} eV, spacing={spacing} nm")
     print(f"  hbar^2/(2m_GaAs) = {hbar2_over_2m:.4f} eV*nm^2")
 
@@ -100,7 +107,7 @@ def run():
     print(f"\nComputing {k} lowest energy levels ...")
     lams = L_qda.eigs(k=k)
     energies = np.sort(np.real(np.array(lams)))
-    print(f"\nEnergy levels (eV):")
+    print("\nEnergy levels (eV):")
     for i, E in enumerate(energies):
         print(f"  E_{i+1} = {E:.6f} eV")
     assert len(energies) == k, f"Expected {k} eigenvalues"

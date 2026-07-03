@@ -8,19 +8,24 @@ Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/AAAApprox.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-from chebfunjax.utils.aaa import aaa
 from scipy.special import gamma as scipy_gamma
+
+from chebfunjax.utils.aaa import aaa
 
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')

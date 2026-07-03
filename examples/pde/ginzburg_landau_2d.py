@@ -14,13 +14,18 @@ Original MATLAB: https://www.chebfun.org/examples/pde/GinzburgLandau.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-import numpy as np
 import os
+
+import numpy as np
+
 
 def run():
     print("=" * 60)
@@ -91,7 +96,7 @@ def run():
     print(f"\nAfter T={T}:")
     print(f"  max|u| = {np.max(np.abs(u)):.4f}")
     print(f"  mean|u| = {np.mean(np.abs(u)):.4f}")
-    print(f"  Solution exhibits spatio-temporal chaos")
+    print("  Solution exhibits spatio-temporal chaos")
 
     # Basic check: solution amplitude stays bounded (CGL has global attractor)
     assert np.max(np.abs(u)) < 10.0, "CGL amplitude too large"

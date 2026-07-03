@@ -10,13 +10,18 @@ Original MATLAB: https://www.chebfun.org/examples/pde/Kuramoto.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-import numpy as np
 import os
+
+import numpy as np
+
 
 def run():
     print("=" * 60)
@@ -113,7 +118,7 @@ def run():
 
     print(f"  max|u| at t=0: {np.max(np.abs(u0_sym)):.4f}")
     print(f"  max|u| at t=100: {np.max(np.abs(u_t100)):.4f}")
-    print(f"  KS chaos: solution looks random with wavelength ≈ 8-9")
+    print("  KS chaos: solution looks random with wavelength ≈ 8-9")
 
     # Check characteristic wavelength (dominant mode)
     u_hat = np.fft.fft(u_t100)

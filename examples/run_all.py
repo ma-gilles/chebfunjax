@@ -5,12 +5,12 @@ Usage:
     python examples/run_all.py --verbose  # print full output
 """
 
-import sys
-import os
-import time
-import traceback
 import importlib
 import importlib.util
+import os
+import sys
+import time
+import traceback
 
 # Ensure src/ is importable from the repo root
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))

@@ -9,15 +9,17 @@ Author: Toby Driscoll, December 2011
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-import jax.numpy as jnp
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def hermite_polynomials(z, N):
@@ -115,7 +117,7 @@ def run():
                                z_trunc[mask]))
         errors.append(err)
 
-    axes[2].semilogy(degrees, errors, color='#0072BD', linestyle='.-', markersize=12, linewidth=2)
+    axes[2].semilogy(degrees, errors, color='#0072BD', marker='.', linestyle='-', markersize=12, linewidth=2)
     axes[2].set_title('gPC convergence: lognormal Y', fontsize=11)
 
     fig.suptitle('Generalized Polynomial Chaos', fontsize=13)

@@ -8,12 +8,11 @@ Strategy:
 3. Report: coverage, gaps, link issues, image issues.
 """
 
+import csv
 import os
 import re
-import csv
-import sys
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parent.parent
 EXAMPLES_DIR = PROJECT / "examples"
@@ -267,9 +266,12 @@ def run_audit():
     has_both = 0
     for mk, pk, dk, method in matched:
         method_counts[method] += 1
-        if pk: has_script += 1
-        if dk: has_doc += 1
-        if pk and dk: has_both += 1
+        if pk:
+            has_script += 1
+        if dk:
+            has_doc += 1
+        if pk and dk:
+            has_both += 1
 
     print(f"Matched MATLAB→Python+Doc: {has_both}")
     print(f"Matched MATLAB→Python only: {has_script - has_both}")
@@ -291,9 +293,12 @@ def run_audit():
         cat = mk[0] if mk else (pk[0] if pk else dk[0])
         c = cat_stats[cat]
         c["matched"] += 1
-        if pk: c["has_script"] += 1
-        if dk: c["has_doc"] += 1
-        if pk and dk: c["has_both"] += 1
+        if pk:
+            c["has_script"] += 1
+        if dk:
+            c["has_doc"] += 1
+        if pk and dk:
+            c["has_both"] += 1
 
     for cat, name in unmatched_matlab:
         cat_stats[cat]["no_trans"] += 1
@@ -392,7 +397,7 @@ def run_audit():
     print(f"  Scripts with images in docs/images/: {scripts_with_img}/{len(python)}")
     print(f"  Scripts missing images: {len(scripts_no_img)}")
     if scripts_no_img:
-        print(f"\n  Missing images (first 30):")
+        print("\n  Missing images (first 30):")
         for cat, name in scripts_no_img[:30]:
             print(f"    {cat}/{name}")
         if len(scripts_no_img) > 30:
@@ -408,7 +413,7 @@ def run_audit():
         for dk, missing in broken_img_docs:
             print(f"    {dk[0]}/{dk[1]}: {missing}")
     else:
-        print(f"\n  No broken image references in doc pages.")
+        print("\n  No broken image references in doc pages.")
 
     # ===== DETAILED VERIFICATION SAMPLE =====
     # Check a few chebfun.org links actually work
@@ -420,7 +425,7 @@ def run_audit():
         if meta["chebfun_url"]:
             unique_urls.add(meta["chebfun_url"])
     print(f"  Total unique chebfun.org URLs referenced: {len(unique_urls)}")
-    print(f"  (URL validation requires network access — run separately)")
+    print("  (URL validation requires network access — run separately)")
 
     # ===== CSV OUTPUT =====
     csv_path = PROJECT / "scripts" / "audit_results_v2.csv"

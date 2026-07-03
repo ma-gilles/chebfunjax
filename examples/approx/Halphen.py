@@ -8,15 +8,20 @@ Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/Halphen.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -57,7 +62,7 @@ def run():
         poly_errs.append(err)
 
     ax2 = axes[1]
-    ax2.semilogy(ns_poly, poly_errs, color='#0072BD', linestyle='.-', lw=1.5, ms=8,
+    ax2.semilogy(ns_poly, poly_errs, color='#0072BD', marker='.', linestyle='-', lw=1.5, ms=8,
                  label='L2 poly approx error')
     ax2.set_title('Polynomial approx errors for exp(x) on [-1,1]', fontsize=10)
     ax2.legend(fontsize=9)

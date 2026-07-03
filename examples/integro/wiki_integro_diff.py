@@ -14,14 +14,19 @@ Original MATLAB: https://www.chebfun.org/examples/integro/WikiIntegroDiff.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
+
+import os
 
 import numpy as np
 from scipy.integrate import solve_ivp
-import os
+
 
 def run():
     print("=" * 60)
@@ -83,7 +88,7 @@ def run():
     rhs_vals = np.ones_like(ide_at_interior)
     err_ide = np.max(np.abs(ide_at_interior - rhs_vals))
     print(f"  IDE residual max (interior): {err_ide:.4f}")
-    print(f"  (Some numerical differentiation error is expected)")
+    print("  (Some numerical differentiation error is expected)")
     assert err_ide < 0.1, f"IDE residual too large: {err_ide}"
     print("  PASS: IDE satisfied to within numerical differentiation error")
 

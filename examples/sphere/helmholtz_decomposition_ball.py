@@ -10,15 +10,17 @@ Authors: Nicolas Boulle and Alex Townsend, May 2019
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style, PARULA, _setup_3d_axes
+from chebfunjax.plotting import PARULA, chebfun_style
+
 chebfun_style()
 
 def _sphere_panel(ax, fig, X, Y, Z, F, title, cmap=PARULA, elev=20, azim=-60):
@@ -98,10 +100,10 @@ def run():
         _sphere_panel(ax, fig, X, Y, Z, F, title, cmap=PARULA)
 
     print("Helmholtz-Hodge decomposition in the ball:")
-    print(f"  v = grad(xy+z^2) + curl(0,0,xy)")
-    print(f"  div(v) = Laplacian(xy+z^2) = 2 (analytic)")
-    print(f"  curl-free part: (y, x, 2z)")
-    print(f"  divergence-free part: (x, -y, 0)")
+    print("  v = grad(xy+z^2) + curl(0,0,xy)")
+    print("  div(v) = Laplacian(xy+z^2) = 2 (analytic)")
+    print("  curl-free part: (y, x, 2z)")
+    print("  divergence-free part: (x, -y, 0)")
 
     fig.tight_layout(pad=1.0)
     fig.savefig(os.path.join(outdir, 'helmholtz_decomposition_ball.png'),

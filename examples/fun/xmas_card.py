@@ -10,14 +10,17 @@ Authors: Stefan Guttel and Nick Hale, December 2011
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def str2tune(s):
@@ -153,9 +156,9 @@ def run():
         spine.set_edgecolor('white')
 
     n_notes = len([n for n in notes1 if n is not None])
-    print(f"XmasCard: 'Kling Gloeckchen'")
+    print("XmasCard: 'Kling Gloeckchen'")
     print(f"  Voice 1: {len(notes1)} notes ({n_notes} non-rest)")
-    print(f"  Three voices at octave intervals")
+    print("  Three voices at octave intervals")
 
     fig.suptitle('Merry Christmas from Chebfun!', fontsize=14,
                  color='white', fontweight='bold')

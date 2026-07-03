@@ -7,21 +7,29 @@ Credit: Inspired by Chebfun approx/ChebCoeffs.m and related examples.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-from chebfunjax.plotting import plot, plotcoeffs
+from chebfunjax.plotting import plot
+
 
 def run():
     print("=" * 60)
@@ -32,7 +40,7 @@ def run():
     # MATLAB: f = chebfun('exp(x)*sin(pi*x) + x'); a = chebcoeffs(f)
     fc = cj.chebfun(lambda x: jnp.exp(x) * jnp.sin(jnp.pi * x) + x)
     coeffs = fc.coeffs
-    print(f"\nf(x) = exp(x)*sin(pi*x) + x on [-1,1]:")
+    print("\nf(x) = exp(x)*sin(pi*x) + x on [-1,1]:")
     print(f"  Number of coefficients: {len(fc)}")
     print(f"  First 5 Chebyshev coefficients: {np.array(coeffs[:5])}")
     print(f"  Last 3 coefficients (should be ~0): {np.array(coeffs[-3:])}")

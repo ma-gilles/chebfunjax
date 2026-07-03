@@ -3,15 +3,23 @@
 Uses PARULA colormap on coloured spheres matching MATLAB Chebfun style.
 """
 import matplotlib
+
 matplotlib.use('Agg')
-import sys, os, traceback
+import os
+import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
-import jax.numpy as jnp
+
 from chebfunjax.plotting import (
-    chebfun_style, plot_sphere, contour_sphere, PARULA, _setup_3d_axes,
+    PARULA,
+    _setup_3d_axes,
+    chebfun_style,
+    contour_sphere,
+    plot_sphere,
 )
 from chebfunjax.spherefun import Spherefun
 

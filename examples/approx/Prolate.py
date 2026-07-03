@@ -8,15 +8,20 @@ Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/Prolate.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -75,7 +80,7 @@ def run():
         for cv in cs_test:
             ff = cj.chebfun(lambda x, cv=cv: jnp.sin(cv * x))
             lens.append(len(ff))
-        axes[1].plot(cs_test, lens, color='#0072BD', linestyle='.-', lw=1.5, ms=10)
+        axes[1].plot(cs_test, lens, color='#0072BD', marker='.', linestyle='-', lw=1.5, ms=10)
         axes[1].set_title('Length of chebfun for sin(cx)', fontsize=10)
 
         fig.suptitle('Prolate functions and bandlimited approximation', fontsize=12)

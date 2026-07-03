@@ -4,6 +4,7 @@ Run from repo root:
     python scripts/add_plots.py
 """
 from __future__ import annotations
+
 import os
 import re
 

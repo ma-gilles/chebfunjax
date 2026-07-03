@@ -8,21 +8,28 @@ Credit: Inspired by Chebfun2 opt examples.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
-import numpy as np
-import sys, os
+import matplotlib.pyplot as plt
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-from chebfunjax.plotting import surf, contour
+from chebfunjax.plotting import contour
+
 
 def run():
     print("=" * 60)
@@ -40,9 +47,9 @@ def run():
     min_idx = jnp.unravel_index(jnp.argmin(vals), vals.shape)
     x_min = float(xs[min_idx[1]])
     y_min = float(ys[min_idx[0]])
-    print(f"\nf(x,y) = (x-0.3)^2 + (y+0.5)^2:")
+    print("\nf(x,y) = (x-0.3)^2 + (y+0.5)^2:")
     print(f"  Grid minimum at ({x_min:.3f}, {y_min:.3f}), value = {min_val:.2e}")
-    print(f"  Exact minimum at (0.3, -0.5), value = 0")
+    print("  Exact minimum at (0.3, -0.5), value = 0")
     # With 200 grid points, we can only resolve to about 0.01
     assert abs(x_min - 0.3) < 0.02
     assert abs(y_min - (-0.5)) < 0.02
@@ -65,7 +72,7 @@ def run():
     g = cj.chebfun2(lambda x, y: jnp.cos(x) * jnp.cos(y))
     vals_g = g(XX, YY)
     max_val_g = float(jnp.max(vals_g))
-    print(f"\ng(x,y) = cos(x)*cos(y):")
+    print("\ng(x,y) = cos(x)*cos(y):")
     print(f"  Grid maximum: {max_val_g:.10f}  (exact: 1.0)")
     assert abs(max_val_g - 1.0) < 1e-4  # Grid resolution limited
 
@@ -81,7 +88,7 @@ def run():
     # Actually minimum in interior is near (1,1) but boundary constrained
     f_rb = cj.chebfun2(lambda x, y: (1.0 - x)**2 + 10.0 * (y - x**2)**2)
     integral_rb = float(f_rb.sum2())
-    print(f"\nRosenbrock (1-x)^2 + 10*(y-x^2)^2:")
+    print("\nRosenbrock (1-x)^2 + 10*(y-x^2)^2:")
     print(f"  Integral over [-1,1]^2: {integral_rb:.6f}")
     # Just verify it's a positive function
     # min on boundary of [-1,1]^2; at (1,1): f=0

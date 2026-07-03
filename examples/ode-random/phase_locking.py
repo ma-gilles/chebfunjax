@@ -9,15 +9,20 @@ Original MATLAB: https://www.chebfun.org/examples/ode-random/PhaseLocking.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import solve_ivp
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -60,7 +65,7 @@ def run():
     n_pos = np.sum(y_final > 0.5 * expected_pos)
     n_neg = np.sum(y_final < -0.5 * expected_pos)
     print(f"  Positive branch: {n_pos} paths, negative branch: {n_neg} paths")
-    print(f"  (Random due to random forcing, roughly 50/50)")
+    print("  (Random due to random forcing, roughly 50/50)")
 
     # lambda = 0.05 (finer noise → faster locking)
     print("\nSolving with lambda=0.05 (6 paths)...")

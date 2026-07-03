@@ -9,19 +9,26 @@ Credit: Inspired by Chebfun example roots/BernoulliPolynomials.m
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import jax.numpy as jnp
-import numpy as np
 import math
-import sys, os
+import os
+import sys
+
+import jax.numpy as jnp
+import matplotlib.pyplot as plt
+import numpy as np
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -103,7 +110,7 @@ def run():
 
     # Right: convergence to sin
     if errs:
-        axes[1].semilogy(list(js), errs, color='#0072BD', linestyle='.-', markersize=8, linewidth=1.5, label="error")
+        axes[1].semilogy(list(js), errs, color='#0072BD', marker='.', linestyle='-', markersize=8, linewidth=1.5, label="error")
         axes[1].semilogy(list(js), [0.5**j for j in js], color='#D95319', linestyle='--', linewidth=1.2, label="$0.5^j$ (rate)")
         axes[1].set_title("Geometric convergence to sin")
         axes[1].legend(fontsize=9)

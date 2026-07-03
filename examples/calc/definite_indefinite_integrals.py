@@ -7,21 +7,28 @@ Credit: Inspired by Chebfun examples calc/Intro.m.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
-import numpy as np
-import sys, os
+import matplotlib.pyplot as plt
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.plotting import plot
+
 
 def run():
     print("=" * 60)
@@ -35,7 +42,7 @@ def run():
     # --- Definite integral: sum(f) -----------------------------------
     integral = float(f.sum())
     exact = 2.0 * float(jnp.sin(jnp.array(10.0)))
-    print(f"\nf(x) = 2*cos(x) on [0, 10]")
+    print("\nf(x) = 2*cos(x) on [0, 10]")
     print(f"  sum(f) = {integral:.15f}")
     print(f"  exact  = 2*sin(10) = {exact:.15f}")
     print(f"  error  = {abs(integral - exact):.2e}")
@@ -58,7 +65,7 @@ def run():
     g_vals = g(x_test)
     exact_g = 2.0 * jnp.sin(x_test)
     err_g = float(jnp.max(jnp.abs(g_vals - exact_g)))
-    print(f"\n  cumsum(f) evaluated at test points:")
+    print("\n  cumsum(f) evaluated at test points:")
     print(f"  Max error vs 2*sin(x): {err_g:.2e}")
     assert err_g < 1e-12
 

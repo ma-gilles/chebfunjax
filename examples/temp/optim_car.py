@@ -11,15 +11,17 @@ Author: Asgeir Birkisson, November 2010
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.integrate import solve_ivp
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -56,7 +58,7 @@ def run():
     axes[0].axvline(1, color='k', linestyle='--', linewidth=1, alpha=0.5)
     axes[0].set_title('Optimal car: position, speed,\ncontrol vs time', fontsize=10)
     axes[0].legend(fontsize=9)
-    print(f"Optimal car:")
+    print("Optimal car:")
     print(f"  x(2) = {x[-1]:.6f} (target: 1)")
     print(f"  v(2) = {v[-1]:.6f} (target: 0)")
 

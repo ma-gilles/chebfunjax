@@ -9,15 +9,18 @@ Author: Nick Hale, February 2015
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.special import gamma, legendre, eval_legendre, eval_chebyt
-import sys, os
+from scipy.special import eval_chebyt, eval_legendre, gamma
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def half_integral_legendre(n, x):
@@ -105,7 +108,7 @@ def run():
     axes[2].set_ylim(0, 10)
 
     print("Fractional calculus implementation via Legendre/Jacobi polynomials")
-    print(f"  Key formula: J^{{1/2}}P_n = (T_n + T_{{n+1}}) / (Γ(1/2)(n+1/2)√(1+x))")
+    print("  Key formula: J^{1/2}P_n = (T_n + T_{n+1}) / (Γ(1/2)(n+1/2)√(1+x))")
 
     fig.suptitle('Fractional Calculus via Orthogonal Polynomials', fontsize=12)
     fig.tight_layout()

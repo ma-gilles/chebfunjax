@@ -16,7 +16,6 @@ import urllib.request
 from html.parser import HTMLParser
 from pathlib import Path
 
-
 PROJECT = Path(__file__).resolve().parent.parent
 DOCS_GUIDE = PROJECT / "docs" / "guide"
 DOCS_GUIDE_IMAGES = PROJECT / "docs" / "images" / "guide"

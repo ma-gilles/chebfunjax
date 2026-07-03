@@ -11,14 +11,18 @@ Original MATLAB: https://www.chebfun.org/examples/cheb/Convergence.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def cheb_interpolant_error(f, nn, x_test):
@@ -83,7 +87,7 @@ def run():
         print("  PASS: convergence rate close to n^{-pi}")
 
     # Example 2: f(x) = sin(|x|^{x+5.5})  (alpha = 5.5)
-    print(f"\n2. f(x) = sin(|x|^{{x+5.5}})  (fractional smoothness alpha = 5.5)")
+    print("\n2. f(x) = sin(|x|^{x+5.5})  (fractional smoothness alpha = 5.5)")
     # Note: |x|^{x+5.5} uses x as both base and exponent
     # At x=0: |0|^{5.5} = 0, so f(0) = sin(0) = 0 — no singularity
     f2 = lambda x: np.sin(np.abs(x) ** (x + 5.5))
@@ -98,7 +102,7 @@ def run():
         assert slope2 < -3.0, f"Convergence too slow: slope={slope2:.2f}, expected < -3.0"
         print("  PASS: convergence rate close to n^{-5.5}")
 
-    print(f"\n  Summary (polynomial convergence confirmed):")
+    print("\n  Summary (polynomial convergence confirmed):")
     print(f"  |x|^pi:           measured slope {slope1:.2f}  (expected ~{-np.pi:.2f})")
     print(f"  sin(|x|^{{x+5.5}}): measured slope {slope2:.2f}  (expected ~-5.5 but depends on low-n behavior)")
 
@@ -111,10 +115,10 @@ def run():
     # Panel 1
     axes[0].loglog(nn, errors1, '.b', markersize=10, label='error')
     axes[0].loglog(ref_n, ref_n**(-np.pi) * errors1[0] / ref_n[0]**(-np.pi),
-                   'r-', linewidth=2, label=f'n^{{-π}}')
+                   'r-', linewidth=2, label='n^{-π}')
     axes[0].set_title("|x|^π: convergence rate n^{-π}", fontsize=11)
     axes[0].legend(fontsize=9)
-    axes[0].text(0.5, 0.92, f"n^{{-π}}",
+    axes[0].text(0.5, 0.92, "n^{-π}",
                  transform=axes[0].transAxes, ha='center', fontsize=10,
                  color='#D95319')
 

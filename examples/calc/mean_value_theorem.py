@@ -8,21 +8,29 @@ Credit: Inspired by Chebfun examples calc/MeanValueThm.m.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.plotting import plot
+
 
 def run():
     print("=" * 60)
@@ -37,7 +45,7 @@ def run():
     fb = float(f(jnp.array(b)))
     mean_slope = (fb - fa) / (b - a)  # = 0 (sin(0) = sin(2*pi) = 0)
 
-    print(f"\nf(x) = sin(x) on [0, 2*pi]:")
+    print("\nf(x) = sin(x) on [0, 2*pi]:")
     print(f"  f(0)     = {fa:.10f}")
     print(f"  f(2*pi)  = {fb:.10f}")
     print(f"  Mean slope = {mean_slope:.2e}")
@@ -59,7 +67,7 @@ def run():
     fa2 = float(f2(jnp.array(-2.0)))
     fb2 = float(f2(jnp.array(2.0)))
     mean_slope2 = (fb2 - fa2) / 4.0  # = (8 - (-8)) / 4 = 4
-    print(f"\nf(x) = x^3 on [-2, 2]:")
+    print("\nf(x) = x^3 on [-2, 2]:")
     print(f"  Mean slope = {mean_slope2:.10f}  (exact: 4.0)")
     assert abs(mean_slope2 - 4.0) < 1e-12
 
@@ -80,7 +88,7 @@ def run():
     fa3 = float(f3(jnp.array(0.0)))
     fb3 = float(f3(jnp.array(1.0)))
     mean_slope3 = fb3 - fa3  # = e - 1
-    print(f"\nf(x) = exp(x) on [0, 1]:")
+    print("\nf(x) = exp(x) on [0, 1]:")
     print(f"  Mean slope = e - 1 = {mean_slope3:.10f}")
 
     df3 = f3.diff()  # = exp(x)

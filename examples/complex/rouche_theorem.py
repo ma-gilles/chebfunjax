@@ -9,18 +9,24 @@ Credit: Inspired by Chebfun example complex/RoucheTheorem.m
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def count_zeros_inside(f_complex, r, n_pts=4000):
@@ -54,7 +60,7 @@ def run():
         return z**5 + 3*z**2 + 1
 
     n_zeros1 = count_zeros_inside(p1, 2.0)
-    print(f"\nExample 1: p(z) = z^5 + 3*z^2 + 1 inside |z|=2")
+    print("\nExample 1: p(z) = z^5 + 3*z^2 + 1 inside |z|=2")
     print(f"  Number of zeros: {n_zeros1}  (expected 5 by Rouche)")
     assert n_zeros1 == 5, f"Expected 5 zeros, got {n_zeros1}"
 
@@ -76,7 +82,7 @@ def run():
     n_zeros2 = count_zeros_inside(p2, 1.0)
     roots2 = np.roots([1, 1, 0, 0, -1])
     inside2 = roots2[np.abs(roots2) < 1.0 - 1e-10]
-    print(f"\nExample 2: p(z) = z^4 + z^3 - 1 inside |z|=1")
+    print("\nExample 2: p(z) = z^4 + z^3 - 1 inside |z|=1")
     print(f"  Argument principle count: {n_zeros2}")
     print(f"  Direct root count: {len(inside2)}")
     assert n_zeros2 == len(inside2), f"Counts disagree: {n_zeros2} vs {len(inside2)}"

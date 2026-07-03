@@ -5,18 +5,24 @@ of trigonometric and polynomial functions.
 
 Original: https://www.chebfun.org/examples/linalg/
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -53,7 +59,7 @@ def run():
         'L2':   float(f.norm(2)),
         'Linf': float(f.norm(float('inf'))),
     }
-    print(f"\nNorms of exp(sin(x)) on [-1,1]:")
+    print("\nNorms of exp(sin(x)) on [-1,1]:")
     for k, v in norms.items():
         print(f"  {k} norm = {v:.10f}")
 

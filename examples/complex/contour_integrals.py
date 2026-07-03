@@ -8,21 +8,28 @@ Credit: Inspired by Chebfun complex examples.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
-import numpy as np
-import sys, os
+import matplotlib.pyplot as plt
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.plotting import plot
+
 
 def run():
     print("=" * 60)
@@ -52,9 +59,9 @@ def run():
     # = (int_im - i*int_re) / (2*pi)
     cauchy_re = int_im / (2.0 * pi)
     cauchy_im = -int_re / (2.0 * pi)
-    print(f"\nCauchy integral formula for exp(z) at z0=0:")
+    print("\nCauchy integral formula for exp(z) at z0=0:")
     print(f"  (1/2*pi*i) int exp(z)/z dz = {cauchy_re:.10f} + {cauchy_im:.2e}*i")
-    print(f"  Exact: exp(0) = 1.0")
+    print("  Exact: exp(0) = 1.0")
     assert abs(cauchy_re - 1.0) < 1e-10
     assert abs(cauchy_im) < 1e-10
 
@@ -107,9 +114,9 @@ def run():
     g_im = cj.chebfun(integrand_imag, domain=dom_circle)
     contour_re = float(g_re.sum())
     contour_im = float(g_im.sum())
-    print(f"\nContour integral of 1/(z^2+1) over |z|=2:")
+    print("\nContour integral of 1/(z^2+1) over |z|=2:")
     print(f"  Result = {contour_re:.2e} + {contour_im:.6f}*i")
-    print(f"  Exact: 0 (residues cancel)")
+    print("  Exact: 0 (residues cancel)")
     assert abs(contour_re) < 1e-10
     assert abs(contour_im) < 1e-10
 

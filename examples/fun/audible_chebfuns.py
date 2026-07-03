@@ -10,14 +10,17 @@ Author: Stefan Guttel, November 2011
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def cheb_coeffs(f_vals, n):
@@ -65,8 +68,8 @@ def run():
 
     print("Chebfun spectra as 'audio':")
     print(f"  sin(10πx): {N} samples, fundamental freq index ~10")
-    print(f"  Runge function: algebraic decay of coefficients")
-    print(f"  exp(sin(πx)): exponential decay of coefficients")
+    print("  Runge function: algebraic decay of coefficients")
+    print("  exp(sin(πx)): exponential decay of coefficients")
 
     fig.suptitle('Can One "Hear" the Shape of a Chebfun?', fontsize=12)
     fig.tight_layout()

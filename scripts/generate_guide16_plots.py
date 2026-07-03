@@ -3,17 +3,26 @@
 Uses PARULA colormap and proper disk plots matching MATLAB Chebfun style.
 """
 import matplotlib
+
 matplotlib.use('Agg')
-import sys, os, traceback
+import os
+import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
-import jax.numpy as jnp
+
+from chebfunjax.diskfun import Diskfun
 from chebfunjax.plotting import (
-    chebfun_style, plot_disk, surf_disk, contour_disk, PARULA, _setup_3d_axes, CHEBFUN_BLUE,
+    CHEBFUN_BLUE,
+    PARULA,
+    _setup_3d_axes,
+    chebfun_style,
+    contour_disk,
+    plot_disk,
 )
-from chebfunjax.diskfun import Diskfun, Diskfunv
 
 chebfun_style()
 
@@ -217,7 +226,9 @@ try:
         fig.set_facecolor('white'); fig.tight_layout()
         save(fig, title)
 except Exception as e:
-    for _ in range(2): plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    for _ in range(2):
+        plot_num += 1
+        print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
 
 # Plot 16: Laplacian of u
 try:
@@ -235,7 +246,9 @@ try:
     fig, ax = plot_disk(rhs, title='f', mode='2d'); save(fig, "Poisson rhs")
     fig, ax = plot_disk(rhs, title='v', mode='2d'); save(fig, "Poisson solution")
 except Exception as e:
-    for _ in range(2): plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    for _ in range(2):
+        plot_num += 1
+        print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
 
 # Plot 19: Gradient quiver
 try:
@@ -353,7 +366,9 @@ try:
     fig.set_facecolor('white'); fig.tight_layout()
     save(fig, "row slices")
 except Exception as e:
-    for _ in range(2): plot_num += 1; print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
+    for _ in range(2):
+        plot_num += 1
+        print(f"  guide16_{plot_num:02d}.png FAILED: {e}")
 
 # Plot 28: plotcoeffs
 try:

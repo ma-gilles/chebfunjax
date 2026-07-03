@@ -8,15 +8,18 @@ Author: Nick Hale, November 2010
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.linalg import solve
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def solve_piecewise_ode(n=60):
@@ -175,8 +178,8 @@ def run():
     axes[2].legend(fontsize=9)
 
     print("Piecewise linop demo:")
-    print(f"  Solved -u''+sign(x)*u=0 on [-1,1] with continuity at x=0")
-    print(f"  Solved -u''+sign(x)*u=sin(πx) by finite differences")
+    print("  Solved -u''+sign(x)*u=0 on [-1,1] with continuity at x=0")
+    print("  Solved -u''+sign(x)*u=sin(πx) by finite differences")
 
     fig.suptitle('Demo of Piecewise Differential Operators', fontsize=12)
     fig.tight_layout()

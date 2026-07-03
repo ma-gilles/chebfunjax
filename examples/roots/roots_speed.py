@@ -8,19 +8,26 @@ Credit: Inspired by Chebfun example roots/RootsSpeed.m
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import jax.numpy as jnp
-import numpy as np
+import os
+import sys
 import time
-import sys, os
+
+import jax.numpy as jnp
+import matplotlib.pyplot as plt
+import numpy as np
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -82,7 +89,7 @@ def run():
     finite_errs = [(n, e) for n, e in zip(ns, errs) if np.isfinite(e)]
     if finite_errs:
         ns_plot, errs_plot = zip(*finite_errs)
-        axes[0].semilogy(ns_plot, errs_plot, color='#0072BD', linestyle='.-', markersize=8, linewidth=1.5)
+        axes[0].semilogy(ns_plot, errs_plot, color='#0072BD', marker='.', linestyle='-', markersize=8, linewidth=1.5)
         axes[0].set_title("Rootfinding accuracy: $\\sin(n\\pi x)$")
 
     # Right: example sin(20*pi*x) with roots

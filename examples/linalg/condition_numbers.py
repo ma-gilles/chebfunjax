@@ -6,18 +6,22 @@ linalg/CondVandermonde.m.
 
 Original: https://www.chebfun.org/examples/linalg/CondVandermonde.html
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-import jax.numpy as jnp
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def vandermonde_matrix(nodes):
@@ -66,11 +70,11 @@ def run():
         cond_chebv_cheb.append(np.linalg.cond(CV_cheb))
 
     fig, ax = plt.subplots()
-    ax.semilogy(nn, cond_vander_equi, color='#D95319', linestyle='.-', markersize=8, linewidth=1.5,
+    ax.semilogy(nn, cond_vander_equi, color='#D95319', marker='.', linestyle='-', markersize=8, linewidth=1.5,
                 label='Vandermonde (equispaced)')
-    ax.semilogy(nn, cond_vander_cheb, color='#0072BD', linestyle='.-', markersize=8, linewidth=1.5,
+    ax.semilogy(nn, cond_vander_cheb, color='#0072BD', marker='.', linestyle='-', markersize=8, linewidth=1.5,
                 label='Vandermonde (Chebyshev nodes)')
-    ax.semilogy(nn, cond_chebv_cheb, color='#77AC30', linestyle='.-', markersize=8, linewidth=1.5,
+    ax.semilogy(nn, cond_chebv_cheb, color='#77AC30', marker='.', linestyle='-', markersize=8, linewidth=1.5,
                 label='Chebyshev-Vandermonde (Cheb nodes)')
     ax.set_title('Condition numbers of Vandermonde matrices', fontsize=12)
     ax.legend(fontsize=10)

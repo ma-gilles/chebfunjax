@@ -11,14 +11,19 @@ Original MATLAB: https://www.chebfun.org/examples/ode-random/Random2SDE.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -52,10 +57,10 @@ def run():
     # For lambda small with 'big' normalization, var ≈ T
     var_at_1 = np.mean([p[-1]**2 for p in all_paths])
     print(f"\n  Sample variance at T=1: {var_at_1:.4f} (expected ≈ 1 for normalized BM)")
-    print(f"  (With only 3 samples, exact match not expected)")
+    print("  (With only 3 samples, exact match not expected)")
 
     # White noise paradox: as lambda decreases, amplitude increases
-    print(f"\nWhite noise paradox demonstration:")
+    print("\nWhite noise paradox demonstration:")
     lambdas = [0.1, 0.01, 0.001]
     for lam_i in lambdas:
         f_i = cj.randnfun(lam_i, domain=domain, seed=42, big=True)

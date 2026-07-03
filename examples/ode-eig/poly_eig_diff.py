@@ -7,19 +7,25 @@ Credit: Chebfun example ode-eig/PolyEigDiff.m (Stefan Guettel, August 2011).
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-from scipy.special import jv, jn_zeros
-import sys, os
+from scipy.special import jn_zeros, jv
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax.operators.chebop import Chebop
+
 
 def run():
     print("=" * 60)
@@ -48,7 +54,7 @@ def run():
         max_res = np.max(np.abs(res[10:-10]))
         print(f"  {alpha:>6}  {max_res:>14.4e}")
         # FD residual at large x can be significant due to oscillatory nature; just print
-        print(f"  (FD residual check only - large x values may amplify errors)")
+        print("  (FD residual check only - large x values may amplify errors)")
 
     # ------------------------------------------------------------------
     # Part 2: Find zeros of Bessel function J_5 on [0, 100]
@@ -72,7 +78,7 @@ def run():
     y_fine = jv(alpha_test, x_fine)
     sign_changes = np.where(np.diff(np.sign(y_fine)))[0]
     approx_zeros = 0.5 * (x_fine[sign_changes] + x_fine[sign_changes + 1])
-    print(f"\n  Approximate zeros from sign changes:")
+    print("\n  Approximate zeros from sign changes:")
     print(f"  {approx_zeros[:n_zeros]}")
     err_zeros = np.abs(approx_zeros[:n_zeros] - exact_zeros[:len(approx_zeros[:n_zeros])])
     max_zero_err = np.max(err_zeros)

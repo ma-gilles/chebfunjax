@@ -6,18 +6,24 @@ by Mark Richardson (May 2011).
 
 Original: https://www.chebfun.org/examples/cheb/ChebfunFFT.html
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def cheb2coeffs_via_fft(fvals):
@@ -73,7 +79,7 @@ def run():
     axes[0].legend(fontsize=10)
 
     # Coefficient decay
-    axes[1].semilogy(np.abs(coeffs_cj), color='#0072BD', linestyle='.-', markersize=6, linewidth=1.2,
+    axes[1].semilogy(np.abs(coeffs_cj), color='#0072BD', marker='.', linestyle='-', markersize=6, linewidth=1.2,
                      label='Chebyshev coefficients')
     axes[1].semilogy(np.abs(coeffs_fft), color='#D95319', linestyle='--', linewidth=1.0,
                      label='Via FFT', alpha=0.7)

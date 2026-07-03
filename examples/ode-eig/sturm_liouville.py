@@ -7,22 +7,27 @@ Credit: Chebfun example ode-eig/SturmLiouville.m.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-from chebfunjax.plotting import plot
 from chebfunjax.operators.chebop import Chebop
+
 
 def run():
     print("=" * 60)
@@ -40,7 +45,7 @@ def run():
     lam1 = N1.eigs(k=5)
     lam1_real = np.sort(np.real(np.array(lam1)))
     exact1 = np.array([1.0, 4.0, 9.0, 16.0, 25.0])
-    print(f"\n1. -u'' = lam*u on [0,pi], Dirichlet:")
+    print("\n1. -u'' = lam*u on [0,pi], Dirichlet:")
     print(f"  Eigenvalues: {lam1_real}")
     print(f"  Exact:       {exact1}")
     max_err1 = np.max(np.abs(lam1_real - exact1))
@@ -55,7 +60,7 @@ def run():
     lam2 = N2.eigs(k=4)
     lam2_real = np.sort(np.real(np.array(lam2)))
     exact2 = np.array([(n * pi)**2 for n in range(1, 5)])
-    print(f"\n2. -u'' = lam*u on [0,1], Dirichlet:")
+    print("\n2. -u'' = lam*u on [0,1], Dirichlet:")
     for i in range(4):
         err = abs(lam2_real[i] - exact2[i])
         print(f"  n={i+1}: computed={lam2_real[i]:.6f}, exact=(n*pi)^2={exact2[i]:.6f}, err={err:.2e}")
@@ -70,7 +75,7 @@ def run():
     lam3 = N3.eigs(k=4)
     lam3_real = np.sort(np.real(np.array(lam3)))
     exact3 = np.array([1.0, 3.0, 5.0, 7.0])
-    print(f"\n3. QHO: -u'' + x^2*u = lam*u on [-5,5]:")
+    print("\n3. QHO: -u'' + x^2*u = lam*u on [-5,5]:")
     for i in range(4):
         err = abs(lam3_real[i] - exact3[i])
         print(f"  n={i}: computed={lam3_real[i]:.6f}, exact={exact3[i]:.1f}, err={err:.2e}")

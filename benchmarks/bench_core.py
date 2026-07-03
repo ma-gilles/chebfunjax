@@ -33,9 +33,9 @@ from __future__ import annotations
 import time
 from typing import Callable
 
-import numpy as np
 import jax
 import jax.numpy as jnp
+import numpy as np
 
 # Ensure float64
 jax.config.update("jax_enable_x64", True)

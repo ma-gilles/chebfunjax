@@ -13,14 +13,18 @@ Original MATLAB: https://www.chebfun.org/examples/integro/VlasovPoisson.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-import numpy as np
-from scipy.linalg import eigh
 import os
+
+import numpy as np
+
 
 def run():
     print("=" * 60)
@@ -80,7 +84,7 @@ def run():
     breakpoint_idx = np.argmax(np.abs(d2_omega[2:-2])) + 2
     a_star = a_vals[breakpoint_idx]
     print(f"  Estimated breakpoint at a* ≈ {a_star:.3f}")
-    print(f"  (Chebfun finds a* ≈ 0.46 due to eigenvalue crossing)")
+    print("  (Chebfun finds a* ≈ 0.46 due to eigenvalue crossing)")
 
     # At a=0 the formula is exact
     assert omega_vals[0] > 2.0, "omega(0) should be positive"

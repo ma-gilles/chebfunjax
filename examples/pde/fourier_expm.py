@@ -8,13 +8,18 @@ Original MATLAB: https://www.chebfun.org/examples/pde/FourierExpm.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-import numpy as np
 import os
+
+import numpy as np
+
 
 def run():
     print("=" * 60)
@@ -57,7 +62,7 @@ def run():
 
     norm_final = np.max(np.abs(history_heat[-1]))
     print(f"  Final amplitude: {norm_final:.6e} (exact: {np.exp(-9*T_heat):.6e})")
-    print(f"  PASS: diffusion has significantly reduced amplitude")
+    print("  PASS: diffusion has significantly reduced amplitude")
 
     # --- 2. Convection equation on [0, 2*pi]: u_t = c(x)*u_x ---
     # c(x) = -(1/5 + sin^2(x-1)), u0 = exp(-100*(x-1)^2)
@@ -97,7 +102,7 @@ def run():
     max_init = np.max(u0_conv)
     print(f"  Initial max: {max_init:.6f}")
     print(f"  Final max (T={T_conv}): {max_final:.6f}")
-    print(f"  Max amplitude preserved (up to small dispersive effects)")
+    print("  Max amplitude preserved (up to small dispersive effects)")
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))

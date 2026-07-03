@@ -4,14 +4,20 @@ Uses the library's plot_ball_slices() which faithfully translates
 MATLAB @ballfun/plot.m with correct elevation coordinates.
 """
 import matplotlib
+
 matplotlib.use('Agg')
+import os
+import sys
+import traceback
+
 import matplotlib.pyplot as plt
-import os, sys, traceback
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 import jax.numpy as jnp
+
 from chebfunjax.ballfun import Ballfun
-from chebfunjax.plotting import plot_ball_slices, chebfun_style
+from chebfunjax.plotting import chebfun_style, plot_ball_slices
+
 chebfun_style()
 
 OUT = os.path.join(os.path.dirname(__file__), '..', 'docs', 'images', 'guide')

@@ -12,14 +12,18 @@ Original MATLAB: https://www.chebfun.org/examples/integro/FoxLi.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-import numpy as np
-from scipy.linalg import eig
 import os
+
+import numpy as np
+
 
 def run():
     print("=" * 60)
@@ -60,7 +64,7 @@ def run():
     # Keep top 80
     lam = eigenvalues_sorted[:80]
 
-    print(f"\nTop 80 eigenvalues by magnitude:")
+    print("\nTop 80 eigenvalues by magnitude:")
     print(f"  |λ₁| = {np.abs(lam[0]):.6f}")
     print(f"  |λ₁₀| = {np.abs(lam[9]):.6f}")
     print(f"  |λ₈₀| = {np.abs(lam[79]):.6f}")
@@ -89,14 +93,14 @@ def run():
     axes[0].plot(np.cos(theta), np.sin(theta), color='#D95319', linestyle='--', linewidth=1, alpha=0.5,
                  label='Unit circle')
     axes[0].plot(np.real(lam), np.imag(lam), 'k.', markersize=10,
-                 label=f'80 eigenvalues')
+                 label='80 eigenvalues')
     axes[0].set_aspect('equal')
     axes[0].set_xlim([-1.1, 1.1]); axes[0].set_ylim([-1.1, 1.1])
-    axes[0].set_title(f"Fox-Li eigenvalues (F=64π)", fontsize=11)
+    axes[0].set_title("Fox-Li eigenvalues (F=64π)", fontsize=11)
     axes[0].legend(fontsize=9)
 
     # Magnitude plot
-    axes[1].plot(range(1, len(lam) + 1), np.abs(lam), color='#0072BD', linestyle='.-', markersize=6)
+    axes[1].plot(range(1, len(lam) + 1), np.abs(lam), color='#0072BD', marker='.', linestyle='-', markersize=6)
     axes[1].set_title("Eigenvalue magnitudes (sorted)", fontsize=11)
 
     fig.suptitle("Fox-Li integral operator eigenvalues", fontsize=13)

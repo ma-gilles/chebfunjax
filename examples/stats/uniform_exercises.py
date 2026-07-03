@@ -9,15 +9,17 @@ Author: Jie Gao, July 2013
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-import jax.numpy as jnp
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -95,7 +97,7 @@ def run():
 
     # Q1: P[red or cyan] = 20/360
     p_rc = 20 / 360
-    print(f"\nLottery wheel:")
+    print("\nLottery wheel:")
     print(f"P[red or cyan] = {p_rc:.6f}  (= {20}/360 = {p_rc:.4f})")
 
     # Q2: P[neither black nor yellow | not blue]

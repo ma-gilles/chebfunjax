@@ -8,15 +8,20 @@ Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/MinimaxSqrt.htm
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.utils.aaa import aaa
@@ -53,7 +58,7 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
-    ax.semilogy(degrees, poly_errs, color='#0072BD', linestyle='.-', lw=1.5, ms=10, label='poly L2')
+    ax.semilogy(degrees, poly_errs, color='#0072BD', marker='.', linestyle='-', lw=1.5, ms=10, label='poly L2')
     ax.axhline(rational_err, color='#D95319', lw=1.5, ls='--',
                label=f'AAA rational ({len(pol_aaa)} poles)')
     ax.set_title('Approximation errors for √x on [10⁻⁴, 1]', fontsize=10)
@@ -66,7 +71,7 @@ def run():
 
     ax2.semilogy(xx, err_poly + 1e-18, 'b', lw=1.5, label='poly deg 20')
     ax2.semilogy(xx, err_rat + 1e-18, 'r', lw=1.5,
-                 label=f'AAA rational')
+                 label='AAA rational')
     ax2.set_title('Error curves near singularity at 0', fontsize=10)
     ax2.legend(fontsize=9)
     fig.suptitle('Polynomial vs. rational approximation of √x', fontsize=12)

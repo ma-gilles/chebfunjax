@@ -5,15 +5,18 @@ Complex chebfuns in chebfunjax are represented as (real_part, imag_part) pairs.
 """
 
 import matplotlib
+
 matplotlib.use('Agg')
 
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-import matplotlib.pyplot as plt
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
+
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 

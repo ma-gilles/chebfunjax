@@ -1,17 +1,27 @@
 """Generate all plots for Guide Chapter 7: Linear Differential Operators and Equations."""
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import sys
+
+import matplotlib.pyplot as plt
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 import jax.numpy as jnp
 import numpy as np
+
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style, CHEBFUN_BLUE, CHEBFUN_RED, CHEBFUN_GREEN, CHEBFUN_ORANGE
+from chebfunjax.chebfun1d.ode import eigs
 from chebfunjax.operators.chebop import Chebop
-from chebfunjax.chebfun1d.ode import bvp, eigs
+from chebfunjax.plotting import (
+    CHEBFUN_BLUE,
+    CHEBFUN_RED,
+    chebfun_style,
+)
 
 chebfun_style()
 
@@ -273,7 +283,7 @@ except Exception as e:
 # Plot 13: Discretization matrix -- Section 7.7
 # ==========================================================================
 try:
-    from chebfunjax.operators.blocks import D, eval_at, ChebColloc2Disc
+    from chebfunjax.operators.blocks import ChebColloc2Disc, D, eval_at
     disc = ChebColloc2Disc(6, (-1.0, 1.0))
     D2_mat = D(order=2).matrix(disc)
     D2_np = np.array(D2_mat)

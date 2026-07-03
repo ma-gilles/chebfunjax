@@ -13,12 +13,10 @@ This script:
 from __future__ import annotations
 
 import importlib.util
-import os
 import re
 import shutil
 import sys
 import time
-import traceback
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent

@@ -14,14 +14,19 @@ Original MATLAB: https://www.chebfun.org/examples/pde/TrapezoidEigs.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
+
+import os
 
 import numpy as np
 from scipy.special import jv
-import os
+
 
 def run():
     print("=" * 60)

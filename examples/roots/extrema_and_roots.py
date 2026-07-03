@@ -7,21 +7,29 @@ Credit: Inspired by Chebfun examples roots/Extrema.m.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.plotting import plot
+
 
 def run():
     print("=" * 60)
@@ -34,7 +42,7 @@ def run():
 
     x_min, y_min = f.min()
     x_max, y_max = f.max()
-    print(f"\nsin(x) on [0, 2*pi]:")
+    print("\nsin(x) on [0, 2*pi]:")
     print(f"  min: f({x_min:.10f}) = {y_min:.10f}  "
           f"(exact: f(3*pi/2) = -1)")
     print(f"  max: f({x_max:.10f}) = {y_max:.10f}  "
@@ -55,7 +63,7 @@ def run():
     dom2 = (-1.5, 1.5)
     g = cj.chebfun(lambda x: x**4 - 2.0 * x**2, domain=dom2)
     (x_min2, y_min2), (x_max2, y_max2) = g.minandmax()
-    print(f"\ng(x) = x^4 - 2x^2 on [-1.5, 1.5]:")
+    print("\ng(x) = x^4 - 2x^2 on [-1.5, 1.5]:")
     print(f"  min: g({x_min2:.10f}) = {y_min2:.10f}  (exact: g(±1) = -1)")
     print(f"  max: g({x_max2:.10f}) = {y_max2:.10f}  (exact: g(±1.5) = 0.5625)")
     assert abs(y_min2 + 1.0) < 1e-10
@@ -66,7 +74,7 @@ def run():
     p = cj.chebfun(lambda x: x**3 - x, domain=dom3)  # roots: -1, 0, 1
     roots_p = p.roots()
     roots_arr = np.sort(np.array(roots_p))
-    print(f"\np(x) = x^3 - x on [-3, 3]:")
+    print("\np(x) = x^3 - x on [-3, 3]:")
     print(f"  Roots: {roots_arr}")
     assert len(roots_arr) == 3
     assert abs(roots_arr[0] + 1.0) < 1e-11

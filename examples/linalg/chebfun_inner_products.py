@@ -7,21 +7,28 @@ Credit: Inspired by Chebfun linalg examples.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
-import numpy as np
-import sys, os
+import matplotlib.pyplot as plt
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.plotting import plot
+
 
 def run():
     print("=" * 60)
@@ -58,7 +65,7 @@ def run():
     ip_02 = float(cj.chebfun(lambda x: (3.0*x**2 - 1.0)/2.0, domain=dom).sum())
     ip_12 = float(cj.chebfun(lambda x: x * (3.0*x**2 - 1.0)/2.0, domain=dom).sum())
 
-    print(f"\nLegendre orthogonality:")
+    print("\nLegendre orthogonality:")
     print(f"  <P0, P1> = {ip_01:.2e}  (exact: 0)")
     print(f"  <P0, P2> = {ip_02:.2e}  (exact: 0)")
     print(f"  <P1, P2> = {ip_12:.2e}  (exact: 0)")
@@ -86,7 +93,7 @@ def run():
     # T_0 (even) * T_1 (odd) = odd => int = 0
     ip_T0T1 = float(cj.chebfun(lambda x: 1.0 * x, domain=dom).sum())
     ip_T1T2 = float(cj.chebfun(lambda x: x * (2.0*x**2 - 1.0), domain=dom).sum())
-    print(f"\nChebyshev parity orthogonality (odd*even = 0):")
+    print("\nChebyshev parity orthogonality (odd*even = 0):")
     print(f"  int T0*T1 dx = {ip_T0T1:.2e}  (exact: 0, T1 is odd)")
     print(f"  int T1*T2 dx = {ip_T1T2:.2e}  (exact: 0, T1*T2 is odd)")
     assert abs(ip_T0T1) < 1e-14

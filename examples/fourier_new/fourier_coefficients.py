@@ -7,18 +7,25 @@ and fourier/FourierBasedChebfuns.m.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -63,7 +70,7 @@ def run():
     # --- Chebyshev coefficients of periodic function ---
     coeffs_sin = f.funs[0].tech.coeffs
     coeffs_cos = g.funs[0].tech.coeffs
-    print(f"\nCoefficient magnitudes (first 8):")
+    print("\nCoefficient magnitudes (first 8):")
     print(f"  sin: {[f'{abs(float(c)):.3e}' for c in coeffs_sin[:8]]}")
 
     # --- Fejer-Jackson partial sums: positive on (0, pi) ---

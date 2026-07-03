@@ -8,18 +8,25 @@ Credit: Inspired by Chebfun example quad/SpikeIntegral.m
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -73,7 +80,7 @@ def run():
     exact_I1 = 2.0 / 10.0
     exact_I2 = 4.0 / (3.0 * 100.0)
     exact_I3 = 16.0 / (15.0 * 1000.0)
-    print(f"\nIndividual contributions:")
+    print("\nIndividual contributions:")
     print(f"  sech(10*(x-0.2))^2:   I1 ≈ {I1_ref:.8f}  exact ≈ {exact_I1:.8f}")
     print(f"  sech(100*(x-0.4))^4:  I2 ≈ {I2_ref:.8f}  exact ≈ {exact_I2:.8f}")
     print(f"  sech(1000*(x-0.6))^6: I3 ≈ {I3_ref:.8f}")

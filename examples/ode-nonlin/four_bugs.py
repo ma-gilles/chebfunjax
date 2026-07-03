@@ -7,19 +7,24 @@ Credit: Chebfun example ode-nonlin/FourBugs.m (Hrothgar, Nov 2013).
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-import jax.numpy as jnp
 import numpy as np
 from scipy.integrate import solve_ivp
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -74,7 +79,7 @@ def run():
 
     t_coll = sol.t_events[0][0] if len(sol.t_events[0]) > 0 else t_all[-1]
     print(f"\nCollision time: t ≈ {t_coll:.6f}")
-    print(f"  (For a square with side 1: t = 0.5;  for 2x1 rectangle: larger)")
+    print("  (For a square with side 1: t = 0.5;  for 2x1 rectangle: larger)")
     assert 0.5 < t_coll < 4.0  # collision should happen between 0.5 and 4 seconds
 
     # Final positions (at collision)
@@ -102,7 +107,7 @@ def run():
         j = (i + 1) % 4
         dist = np.sqrt((x_all[j] - x_all[i])**2 + (y_all[j] - y_all[i])**2)
         axes[1].plot(t_all, dist, color=colors[i], linewidth=1.4, label=f"|{i}→{j}|")
-    axes[1].axvline(t_coll, color='k', linestyle='--', linewidth=0.8, label=f"t_coll")
+    axes[1].axvline(t_coll, color='k', linestyle='--', linewidth=0.8, label="t_coll")
     axes[1].set_title("Distance between successive bugs", fontsize=10)
     axes[1].legend(fontsize=7)
 

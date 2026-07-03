@@ -4,18 +4,21 @@ Faithful translation of all figures from the original MATLAB Chebfun Guide
 Chapter 14 (https://www.chebfun.org/docs/guide/guide14.html).
 """
 import matplotlib
+
 matplotlib.use('Agg')
+import os
+import sys
+import traceback
+
 import matplotlib.pyplot as plt
 import numpy as np
-import sys
-import os
-import traceback
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 import jax.numpy as jnp
-from chebfunjax.plotting import chebfun_style, surf, contour, CHEBFUN_BLUE, CHEBFUN_RED
+
 from chebfunjax.chebfun2d import chebfun2
+from chebfunjax.plotting import chebfun_style, contour, surf
 
 chebfun_style()
 
@@ -129,7 +132,6 @@ try:
 
     # Find approximate intersections by sampling
     # This is a simplified version; exact intersections need bivariate rootfinding
-    from scipy.interpolate import interp1d
     n_fine = 5000
     t_fine = np.linspace(0, 2*np.pi, n_fine)
     sp_fine = np.exp(1j*t_fine) + (1+1j)*np.sin(6*t_fine)**2

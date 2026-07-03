@@ -7,23 +7,31 @@ Credit: Inspired by Chebfun ode-linear/Airy.m.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy.special as sp
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-from chebfunjax.plotting import plot
 from chebfunjax.operators.chebop import Chebop
+from chebfunjax.plotting import plot
+
 
 def run():
     print("=" * 60)
@@ -75,7 +83,8 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     fig, ax = plot(u, title="Airy equation: Ai(x) on [-10, 2]",
                    label="Chebfun solution")
-    import numpy as _np; import scipy.special as _sp
+    import numpy as _np
+    import scipy.special as _sp
     _xs = _np.linspace(a, b, 400)
     ax.plot(_xs, _sp.airy(_xs)[0], "--", color="#E04040",
             linewidth=1.2, label="scipy Ai(x)")

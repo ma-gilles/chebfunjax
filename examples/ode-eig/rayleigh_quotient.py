@@ -8,21 +8,27 @@ Credit: Chebfun example ode-eig/RayleighQuotient.m
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-import jax.numpy as jnp
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
+
 
 def run():
     print("=" * 60)
@@ -67,7 +73,7 @@ def run():
 
     print(f"  Converged in {len(residuals)} iterations")
     print(f"  Final lambda: {lam:.12f}")
-    print(f"  Residuals:")
+    print("  Residuals:")
     for i, r in enumerate(residuals):
         print(f"    iter {i}: {r:.4e}")
     if residuals[-1] >= 1e-10:

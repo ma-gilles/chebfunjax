@@ -8,14 +8,19 @@ Original MATLAB: https://www.chebfun.org/examples/applics/EuropeanOptions.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
+
+import os
 
 import numpy as np
 from scipy.stats import norm
-import os
+
 
 def run():
     print("=" * 60)
@@ -135,7 +140,7 @@ def run():
     axes[1].legend(fontsize=9)
 
     axes[2].plot(S_p, np.where(S_p > K_pow, (S_p - K_pow)**2, 0), 'k-', linewidth=2,
-                 label=f'Power call (p=2)')
+                 label='Power call (p=2)')
     axes[2].fill_between(S_p, pdf_p / pdf_p.max() * 200, 0, alpha=0.3, label='PDF (scaled)')
     axes[2].axvline(K_pow, color='#D95319', linestyle='--')
     axes[2].set_title(f"Power call (p={p:.0f})", fontsize=11)

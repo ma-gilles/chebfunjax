@@ -4,18 +4,21 @@ Faithful translation of all figures from the original MATLAB Chebfun Guide
 Chapter 12 (https://www.chebfun.org/docs/guide/guide12.html).
 """
 import matplotlib
+
 matplotlib.use('Agg')
+import os
+import sys
+import traceback
+
 import matplotlib.pyplot as plt
 import numpy as np
-import sys
-import os
-import traceback
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 import jax.numpy as jnp
-from chebfunjax.plotting import chebfun_style, surf, contour, phaseplot
-from chebfunjax.chebfun2d import chebfun2, Chebfun2
+
+from chebfunjax.chebfun2d import chebfun2
+from chebfunjax.plotting import chebfun_style, contour, phaseplot, surf
 
 chebfun_style()
 

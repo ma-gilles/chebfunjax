@@ -11,21 +11,29 @@ Credit: Inspired by Chebfun complex/ArgumentPrinciple examples.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.plotting import plot
+
 
 def run():
     print("=" * 60)
@@ -36,9 +44,9 @@ def run():
     p1 = cj.chebfun(lambda x: (x - 1.0)*(x - 2.0)*(x - 3.0), domain=(0.0, 4.0))
     roots1 = p1.roots()
     roots1_arr = np.sort(np.array(roots1))
-    print(f"\np(x) = (x-1)(x-2)(x-3) on [0,4]:")
+    print("\np(x) = (x-1)(x-2)(x-3) on [0,4]:")
     print(f"  Roots found: {roots1_arr}")
-    print(f"  Expected: [1, 2, 3]")
+    print("  Expected: [1, 2, 3]")
     assert len(roots1_arr) == 3
     assert abs(roots1_arr[0] - 1.0) < 1e-10
     assert abs(roots1_arr[1] - 2.0) < 1e-10
@@ -65,7 +73,7 @@ def run():
     roots2_arr = np.sort(np.array(roots2))
     # Interior zeros of cos(5x) on [0, 2*pi]
     interior = roots2_arr[(roots2_arr > 1e-10) & (roots2_arr < 2.0*pi - 1e-10)]
-    print(f"\ncos(5x) on [0, 2*pi]:")
+    print("\ncos(5x) on [0, 2*pi]:")
     print(f"  Interior zeros: {len(interior)} (expected 10)")
     assert len(interior) == 10
 
@@ -81,7 +89,7 @@ def run():
     roots_stable = np.array(p_stable.roots())
     # All roots should be complex; no real roots
     real_roots = [r for r in roots_stable if abs(float(p_stable(jnp.array(r)))) < 1e-8]
-    print(f"\np(x) = x^4+2x^3+3x^2+4x+5 on [-10,10]:")
+    print("\np(x) = x^4+2x^3+3x^2+4x+5 on [-10,10]:")
     print(f"  Number of real roots found: {len(roots_stable)}")
     # Polynomial is positive definite? Let's check at some points
     vals_at_pts = [float(p_stable(jnp.array(float(x)))) for x in [-2., -1., 0., 1., 2.]]
@@ -97,7 +105,7 @@ def run():
     roots_f3p = np.sort(np.array(f3p.roots()))
     interior_f3 = roots_f3[(roots_f3 > 1e-8) & (roots_f3 < 3.0*pi - 1e-8)]
     interior_f3p = roots_f3p[(roots_f3p > 1e-8) & (roots_f3p < 3.0*pi - 1e-8)]
-    print(f"\nRolle's theorem for f(x) = sin(x)*cos(x):")
+    print("\nRolle's theorem for f(x) = sin(x)*cos(x):")
     print(f"  f has {len(interior_f3)} interior zeros")
     print(f"  f' has {len(interior_f3p)} interior zeros")
     # Between each pair of consecutive zeros of f, there's at least one zero of f'

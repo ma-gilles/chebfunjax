@@ -11,22 +11,30 @@ Credit: Chebfun example ode-linear/ResonantVandal.m (Nick Trefethen, Aug 2012).
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import solve_ivp
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
+
 
 def run():
     print("=" * 60)
@@ -80,7 +88,7 @@ def run():
     # where only a few Chebyshev points are needed
     T_short = float(np.pi / 2)
     dom_short = (0.0, T_short)
-    print(f"\nChebop verify: u'' + u = 1 on [0, pi/2] (harmonic osc.):")
+    print("\nChebop verify: u'' + u = 1 on [0, pi/2] (harmonic osc.):")
     # u'' + u = 1, u(0)=u'(0)=0 => exact: u(t) = 1 - cos(t)
     N_short = Chebop(lambda t, u: u.diff(2) + u, domain=dom_short)
     N_short.lbc = [0.0, 0.0]

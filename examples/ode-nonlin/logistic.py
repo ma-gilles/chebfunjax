@@ -7,21 +7,26 @@ Credit: Chebfun example ode-nonlin/Logistic.m (Nick Trefethen, Jul 2013).
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-import jax.numpy as jnp
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-from chebfunjax.operators.chebop import Chebop
 
 def run():
     print("=" * 60)
@@ -97,7 +102,7 @@ def run():
     for _ in range(n_traj):
         x = r_traj * x * (1 - x)
         traj.append(x)
-    axes[1].plot(range(n_traj + 1), traj, color='#0072BD', linestyle='.-', markersize=4, linewidth=0.8)
+    axes[1].plot(range(n_traj + 1), traj, color='#0072BD', marker='.', linestyle='-', markersize=4, linewidth=0.8)
     axes[1].set_title(f"Chaotic trajectory (r={r_traj})", fontsize=10)
 
     fig.suptitle("Logistic map: x_{n+1} = r x_n (1−x_n)", fontsize=11)

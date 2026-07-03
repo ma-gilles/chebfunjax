@@ -13,13 +13,18 @@ Original MATLAB: https://www.chebfun.org/examples/pde/SwiftHohenberg.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-import numpy as np
 import os
+
+import numpy as np
+
 
 def run():
     print("=" * 60)
@@ -85,7 +90,7 @@ def run():
 
     print(f"\nAfter T={T}:")
     print(f"  max|u| = {np.max(np.abs(u)):.4f} (expected ≈ {np.sqrt(r):.4f} for saturation)")
-    print(f"  Pattern: rolls with wavelength ≈ 2π")
+    print("  Pattern: rolls with wavelength ≈ 2π")
 
     # Check amplitude is near the expected equilibrium amplitude sqrt(r)
     expected_amp = np.sqrt(r)

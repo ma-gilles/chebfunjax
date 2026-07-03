@@ -10,11 +10,14 @@ Copyright 2016 by The University of Oxford and The Chebfun Developers.
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
 import os
 
 import matplotlib.pyplot as plt
+
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 import jax.numpy as jnp

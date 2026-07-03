@@ -9,16 +9,19 @@ Authors: Toby Driscoll and Hrothgar, April 2014
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import solve_ivp
 from scipy.optimize import brentq
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def vdp_rhs(t, y, mu):
@@ -74,7 +77,7 @@ def run():
                      alpha=0.7)
         axes[0].plot(u0, v0, 'o', color=col, markersize=6)
 
-    axes[0].set_title(f'Van der Pol μ=1\nattraction to limit cycle', fontsize=10)
+    axes[0].set_title('Van der Pol μ=1\nattraction to limit cycle', fontsize=10)
     axes[0].set_aspect('equal')
     axes[0].set_xlim(-4, 4); axes[0].set_ylim(-5, 5)
 
@@ -119,7 +122,7 @@ def run():
     T_theory_small = 2 * np.pi * np.ones_like(mu_theory)
     T_large = (3 - 2*np.log(2)) * mu_theory
 
-    axes[2].semilogx(mu_range, found_periods, color='#0072BD', linestyle='.-', markersize=10,
+    axes[2].semilogx(mu_range, found_periods, color='#0072BD', marker='.', linestyle='-', markersize=10,
                       linewidth=2, label='Numerical period')
     axes[2].semilogx(mu_range, T_theory_small, color='#D95319', linestyle='--', linewidth=1.5,
                       alpha=0.6, label='2π (μ→0 limit)')

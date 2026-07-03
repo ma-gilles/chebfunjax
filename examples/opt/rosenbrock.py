@@ -6,18 +6,23 @@ by Nick Trefethen (October 2010).
 
 Original: https://www.chebfun.org/examples/opt/Rosenbrock.html
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-import jax.numpy as jnp
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -53,7 +58,7 @@ def run():
     x_opt = x_fine[idx_min2]
     min_f = fmin_fine[idx_min2]
     print(f"Minimum of Rosenbrock: f* ≈ {min_f:.2e}  at x* ≈ {x_opt:.6f}")
-    print(f"Exact minimum: 0.0  at (1.0, 1.0)")
+    print("Exact minimum: 0.0  at (1.0, 1.0)")
 
     # Find y* given x*
     f_y_at_xstar = cj.chebfun(lambda y: (1.0 - float(x_opt))**2 + 100.0 * (y - float(x_opt)**2)**2,
@@ -80,7 +85,7 @@ def run():
     axes[0].set_aspect('equal')
 
     # Min over y slices
-    axes[1].plot(x_fine, fmin_fine, color='#0072BD', linestyle='.-', markersize=4, linewidth=1.2,
+    axes[1].plot(x_fine, fmin_fine, color='#0072BD', marker='.', linestyle='-', markersize=4, linewidth=1.2,
                  label='$\\min_y f(x,y)$')
     axes[1].axvline(x_opt, color='#D95319', linestyle='--', linewidth=1.2,
                     label=f'$x^* \\approx {x_opt:.3f}$')

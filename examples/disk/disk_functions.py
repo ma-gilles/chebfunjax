@@ -9,20 +9,29 @@ Diskfun uses polar coordinates: f(theta, r) where theta in [-pi, pi], r in [0, 1
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
+
+import os
+import sys
 
 import jax.numpy as jnp
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from chebfunjax.diskfun.diskfun import Diskfun
+
 
 def run():
     print("=" * 60)
@@ -32,7 +41,7 @@ def run():
     # f(theta, r) = r*cos(theta) = x in Cartesian
     # This is the x-coordinate on the disk
     f = Diskfun.from_function(lambda t, r: r * jnp.cos(t))
-    print(f"\nf(theta,r) = r*cos(theta) [= x] on the disk:")
+    print("\nf(theta,r) = r*cos(theta) [= x] on the disk:")
     print(f"  Rank: {f.rank}")
 
     # Integral of x over disk = 0 (odd in x)
@@ -42,7 +51,7 @@ def run():
 
     # f(theta, r) = r^2 (= x^2 + y^2)
     g = Diskfun.from_function(lambda t, r: r**2)
-    print(f"\ng(theta,r) = r^2 on the disk:")
+    print("\ng(theta,r) = r^2 on the disk:")
     print(f"  Rank: {g.rank}")
 
     # Integral of r^2 over disk = pi/2
@@ -53,7 +62,7 @@ def run():
 
     # A cos(3*theta) pattern (azimuthal mode 3)
     h = Diskfun.from_function(lambda t, r: jnp.exp(-2 * r**2) * jnp.cos(3 * t))
-    print(f"\nh(theta,r) = exp(-2r^2)cos(3θ):")
+    print("\nh(theta,r) = exp(-2r^2)cos(3θ):")
     print(f"  Rank: {h.rank}")
 
     # Integral should be 0 (cos(3*theta) averages to 0)
@@ -83,7 +92,6 @@ def run():
         plt.close(fig_2d)
 
     # Combined overview figure (2D flat mode, matching MATLAB style)
-    from chebfunjax.plotting import PARULA
     fig, axes = plt.subplots(1, 3, figsize=(12, 3.5))
     titles = ["r cos(theta) = x", "r^2 = x^2 + y^2",
               "exp(-2r^2) cos(3 theta)"]

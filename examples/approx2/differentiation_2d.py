@@ -7,21 +7,28 @@ Credit: Inspired by Chebfun2 approx2/Differentiation.m.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
-import numpy as np
-import sys, os
+import matplotlib.pyplot as plt
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-from chebfunjax.plotting import surf, contour
+from chebfunjax.plotting import contour, surf
+
 
 def run():
     print("=" * 60)
@@ -36,7 +43,7 @@ def run():
     df1_dx = f1.diff(dim=2)
     val = float(df1_dx(x_t, y_t))
     exact = float(jnp.exp(x_t + y_t))
-    print(f"\nd/dx exp(x+y) at (0.3, 0.7):")
+    print("\nd/dx exp(x+y) at (0.3, 0.7):")
     print(f"  Computed: {val:.15f}")
     print(f"  Exact:    {exact:.15f}")
     print(f"  Error:    {abs(val - exact):.2e}")
@@ -45,7 +52,7 @@ def run():
     # --- d/dy exp(x+y) = exp(x+y) ------------------------------------
     df1_dy = f1.diff(dim=1)
     val_dy = float(df1_dy(x_t, y_t))
-    print(f"\nd/dy exp(x+y) at (0.3, 0.7):")
+    print("\nd/dy exp(x+y) at (0.3, 0.7):")
     print(f"  Computed: {val_dy:.15f}")
     print(f"  Error:    {abs(val_dy - exact):.2e}")
     assert abs(val_dy - exact) < 1e-12
@@ -55,7 +62,7 @@ def run():
     df2_dx = f2.diff(dim=2)  # dim=2 => d/dx
     val2 = float(df2_dx(x_t, y_t))
     exact2 = float(2.0 * x_t * y_t + jnp.cos(x_t))
-    print(f"\nd/dx (x^2*y + sin(x)) at (0.3, 0.7):")
+    print("\nd/dx (x^2*y + sin(x)) at (0.3, 0.7):")
     print(f"  Computed: {val2:.15f}")
     print(f"  Exact:    {exact2:.15f}")
     print(f"  Error:    {abs(val2 - exact2):.2e}")
@@ -65,7 +72,7 @@ def run():
     df2_dy = f2.diff(dim=1)  # dim=1 => d/dy
     val2_dy = float(df2_dy(x_t, y_t))
     exact2_dy = float(x_t**2)
-    print(f"\nd/dy (x^2*y + sin(x)) at (0.3, 0.7):")
+    print("\nd/dy (x^2*y + sin(x)) at (0.3, 0.7):")
     print(f"  Computed: {val2_dy:.15f}")
     print(f"  Exact (x^2 = {exact2_dy:.6f}):    {exact2_dy:.15f}")
     print(f"  Error:    {abs(val2_dy - exact2_dy):.2e}")
@@ -77,7 +84,7 @@ def run():
     # d/dy (y) = 1
     df3_dxdy = df3_dx.diff(dim=1)  # d/dy
     val3 = float(df3_dxdy(x_t, y_t))
-    print(f"\nd^2/dxdy (x*y) at (0.3, 0.7):")
+    print("\nd^2/dxdy (x*y) at (0.3, 0.7):")
     print(f"  Computed: {val3:.15f}  (exact: 1.0)")
     assert abs(val3 - 1.0) < 1e-12
 

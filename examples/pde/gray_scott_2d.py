@@ -14,13 +14,18 @@ Original MATLAB: https://www.chebfun.org/examples/pde/GrayScott.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-import numpy as np
 import os
+
+import numpy as np
+
 
 def run():
     print("=" * 60)
@@ -49,7 +54,7 @@ def run():
     v0 = np.exp(-80 * ((x - 0.05)**2))
 
     print(f"\n1D Gray-Scott on [-1,1]: ep1={ep1}, ep2={ep2}, b={b}, d={d}")
-    print(f"  Initial: u ≈ 1 with dip, v small bump")
+    print("  Initial: u ≈ 1 with dip, v small bump")
 
     # ETDRK2 with Fourier
     L_u = -ep1 * k**2

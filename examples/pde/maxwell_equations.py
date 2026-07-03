@@ -13,13 +13,18 @@ Original MATLAB: https://www.chebfun.org/examples/pde/Maxwell.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-import numpy as np
 import os
+
+import numpy as np
+
 
 def run():
     print("=" * 60)
@@ -138,7 +143,7 @@ def run():
     axes[0].text(0.5, 0.92, "t: 0 → 5", transform=axes[0].transAxes, fontsize=10)
 
     # Energy conservation
-    axes[1].plot(t_arr, energy_arr - energy_arr[0], color='#0072BD', linestyle='.-', markersize=6)
+    axes[1].plot(t_arr, energy_arr - energy_arr[0], color='#0072BD', marker='.', linestyle='-', markersize=6)
     axes[1].set_title("Energy deviation ∫(E²+B²)dx − initial", fontsize=11)
 
     fig.suptitle("Maxwell's equations: electromagnetic wave", fontsize=13)

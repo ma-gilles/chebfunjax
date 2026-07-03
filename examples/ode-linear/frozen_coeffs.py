@@ -8,19 +8,24 @@ Credit: Chebfun example ode-linear/FrozenCoeffs.m (Nick Trefethen, Mar 2017).
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-import jax.numpy as jnp
 import numpy as np
 from scipy.integrate import solve_ivp
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -63,7 +68,7 @@ def run():
                     rtol=1e-10, atol=1e-12)
 
     norm_x = np.sqrt(sol.y[0]**2 + sol.y[1]**2)
-    print(f"\nContinuous case with switching A(t):")
+    print("\nContinuous case with switching A(t):")
     print(f"  eig(A1) = {np.linalg.eigvals(A1).real} (all negative)")
     print(f"  eig(A2) = {np.linalg.eigvals(A2).real} (all negative)")
     print(f"  ||x(0)||  = {norm_x[0]:.4f}")

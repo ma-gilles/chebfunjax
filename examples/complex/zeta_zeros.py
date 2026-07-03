@@ -9,18 +9,23 @@ Credit: Inspired by Chebfun example complex/ZetaZeros.m
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-import jax.numpy as jnp
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -53,14 +58,13 @@ def run():
         77.144840068874806,
     ]
 
-    print(f"\nFirst 20 known zeros of zeta(s) on critical line Re(s) = 1/2:")
-    print(f"  They all satisfy Re(s) = 0.5 exactly (Riemann Hypothesis, verified numerically)")
+    print("\nFirst 20 known zeros of zeta(s) on critical line Re(s) = 1/2:")
+    print("  They all satisfy Re(s) = 0.5 exactly (Riemann Hypothesis, verified numerically)")
 
     # Use scipy's Riemann-Siegel Z function to verify zeros
     # Z(t) = exp(i*theta(t)) * zeta(1/2 + it) is real on the critical line
     # Z(t_n) = 0 at each zero
     try:
-        from scipy.special import riemann_zeta as rzeta
         # Check |zeta(1/2 + it_n)| for each known zero
         print(f"\n  {'n':>3}  {'t_n':>22}  {'|zeta(1/2+it)|':>20}")
         print("  " + "-" * 50)
@@ -83,7 +87,7 @@ def run():
 
     # 1. The gaps between consecutive zeros are all > 0 (they're distinct)
     gaps = np.diff(known_zeros_imag)
-    print(f"\nGaps between consecutive zeros (all > 0):")
+    print("\nGaps between consecutive zeros (all > 0):")
     print(f"  min gap = {min(gaps):.4f},  max gap = {max(gaps):.4f}")
     assert all(g > 0 for g in gaps), "Zeros should be distinct and ordered"
 
@@ -115,7 +119,7 @@ def run():
     T = known_zeros_imag[-1]  # last of our list
     N_theory = T / (2 * np.pi) * np.log(T / (2 * np.pi * np.e)) + 7.0 / 8.0
     N_actual = len(known_zeros_imag)
-    print(f"\nZero count comparison:")
+    print("\nZero count comparison:")
     print(f"  Actual zeros listed: {N_actual}")
     print(f"  Asymptotic estimate for T = {T:.1f}: {N_theory:.1f}")
     assert abs(N_actual - N_theory) < 5.0, f"Zero count mismatch: {N_actual} vs {N_theory}"

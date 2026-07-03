@@ -7,21 +7,27 @@ Credit: Chebfun example ode-eig/ContourProjEig.m (Anthony Austin, May 2013).
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-import jax.numpy as jnp
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
+
 
 def run():
     print("=" * 60)
@@ -69,7 +75,7 @@ def run():
     axes[0].set_title("Eigenvalues of −d²/dx² on [0,π]", fontsize=10)
     axes[0].legend(fontsize=8)
 
-    axes[1].semilogy(range(1, k_total+1), np.abs(lams_sorted - exact) + 1e-20, color='#77AC30', linestyle='.-', markersize=8)
+    axes[1].semilogy(range(1, k_total+1), np.abs(lams_sorted - exact) + 1e-20, color='#77AC30', marker='.', linestyle='-', markersize=8)
     axes[1].set_title("Eigenvalue errors", fontsize=10)
 
     fig.suptitle("Differential operator eigenvalues by contour projection", fontsize=10)

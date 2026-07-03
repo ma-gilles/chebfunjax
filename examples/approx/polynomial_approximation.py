@@ -7,21 +7,28 @@ Credit: Inspired by Chebfun examples approx/Entire.m and related examples.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
-import numpy as np
-import sys, os
+import matplotlib.pyplot as plt
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.plotting import plot, plotcoeffs
+
 
 def run():
     print("=" * 60)
@@ -31,7 +38,7 @@ def run():
     # --- Construct a Chebfun for exp(x) on [-1, 1] --------------------
     # MATLAB: f = chebfun('exp(x)')
     f = cj.chebfun(lambda x: jnp.exp(x))
-    print(f"\nexp(x) on [-1,1]:")
+    print("\nexp(x) on [-1,1]:")
     print(f"  Number of coefficients (length): {len(f)}")
     # Should be around 18 (degree ~17 suffices for machine precision)
 
@@ -48,7 +55,7 @@ def run():
     # --- Chebfun for cos(pi*x) on [-1, 1] ----------------------------
     # MATLAB: g = chebfun('cos(pi*x)')
     g = cj.chebfun(lambda x: jnp.cos(jnp.pi * x))
-    print(f"\ncos(pi*x) on [-1,1]:")
+    print("\ncos(pi*x) on [-1,1]:")
     print(f"  Number of coefficients: {len(g)}")
     # Exact value at x=0 is 1
     print(f"  g(0) = {float(g(jnp.array(0.0))):.15f}  (exact: 1.0)")
@@ -60,7 +67,7 @@ def run():
     # MATLAB: h = sin(cos(x)), where x = chebfun('x')
     x = cj.chebfun(lambda t: t)   # identity chebfun
     h = cj.chebfun(lambda t: jnp.sin(jnp.cos(t)))
-    print(f"\nsin(cos(x)) on [-1,1]:")
+    print("\nsin(cos(x)) on [-1,1]:")
     print(f"  Number of coefficients: {len(h)}")
     # Integral of sin(cos(x)) over [-1,1]
     integral_h = float(h.sum())
@@ -74,7 +81,7 @@ def run():
     # --- Non-default domain -------------------------------------------
     # MATLAB: f = chebfun('sin(x)', [0, pi])
     f_pi = cj.chebfun(lambda x: jnp.sin(x), domain=(0.0, float(jnp.pi)))
-    print(f"\nsin(x) on [0, pi]:")
+    print("\nsin(x) on [0, pi]:")
     print(f"  Number of coefficients: {len(f_pi)}")
     integral_sin = float(f_pi.sum())
     print(f"  Integral of sin(x) from 0 to pi = {integral_sin:.15f}  (exact: 2.0)")

@@ -10,16 +10,18 @@ Authors: Alex Townsend and Grady Wright, May 2016
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 from scipy.special import sph_harm_y
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style, PARULA, _setup_3d_axes
+from chebfunjax.plotting import PARULA, chebfun_style
+
 chebfun_style()
 
 def spherical_harmonic_real(l, m, theta, phi):
@@ -103,7 +105,7 @@ def run():
                 coeffs[(l, m)] = c
 
     print(f"Heat equation on sphere (kappa={kappa}):")
-    print(f"  Initial condition: localized bump")
+    print("  Initial condition: localized bump")
     print(f"  Non-zero SH coefficients (|c|>1e-8): {len(coeffs)}")
 
     def heat_solution(t):

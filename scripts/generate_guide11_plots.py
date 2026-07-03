@@ -1,19 +1,22 @@
 """Generate all plots for Guide Chapter 11: Periodic Chebfuns."""
 
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 import matplotlib
+
 matplotlib.use('Agg')
 
 import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-import warnings
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
-import jax.numpy as jnp
-import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style, CHEBFUN_BLUE, CHEBFUN_RED
-from chebfunjax.tech.trigtech import Trigtech, trig_vals2coeffs, trig_coeffs2vals, trigpts
+
+from chebfunjax.plotting import CHEBFUN_BLUE, CHEBFUN_RED, chebfun_style
+from chebfunjax.tech.trigtech import Trigtech, trig_vals2coeffs
 
 chebfun_style()
 

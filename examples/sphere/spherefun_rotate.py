@@ -9,16 +9,18 @@ Authors: Alex Townsend and Grady Wright, May 2017
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 from scipy.spatial.transform import Rotation
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style, PARULA, _setup_3d_axes
+from chebfunjax.plotting import PARULA, chebfun_style
+
 chebfun_style()
 
 def rotate_sphere_function(f_func, R_matrix, theta, phi):
@@ -113,8 +115,8 @@ def run():
                          (theta_1d[1]-theta_1d[0]) * (phi_1d[1]-phi_1d[0]))
     norm_rot = np.sqrt(np.sum(F_rot**2 * np.sin(THETA)) *
                         (theta_1d[1]-theta_1d[0]) * (phi_1d[1]-phi_1d[0]))
-    print(f"Spherical rotation:")
-    print(f"  Euler angles ZYZ: (pi/3, pi/4, pi/6)")
+    print("Spherical rotation:")
+    print("  Euler angles ZYZ: (pi/3, pi/4, pi/6)")
     print(f"  L2 norm preserved: {norm_orig:.6f} -> {norm_rot:.6f} (diff: {abs(norm_orig-norm_rot):.4e})")
 
     fig.tight_layout(pad=1.0)

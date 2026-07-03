@@ -8,15 +8,20 @@ Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/GreedyInterp.ht
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -47,7 +52,6 @@ def run():
             p_vals = np.array([float(p_interp(jnp.array(x))) for x in xx_dense])
         except Exception:
             # Fallback: numpy polynomial interpolation
-            from numpy.polynomial import polynomial as nppoly
             coeffs = np.polyfit(x_pts, y_pts, len(x_pts) - 1)
             p_vals = np.polyval(coeffs, xx_dense)
 
@@ -75,7 +79,7 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
-    ax.semilogy(np.arange(1, len(errors_greedy) + 1), errors_greedy, color='#0072BD', linestyle='.-',
+    ax.semilogy(np.arange(1, len(errors_greedy) + 1), errors_greedy, color='#0072BD', marker='.', linestyle='-',
                 lw=1.5, ms=4, label='greedy')
     ax.semilogy([1, 2, 4, 8, 16, 32, 64, 128],
                 errors_cheb, 'r.--', ms=8, label='Chebyshev')

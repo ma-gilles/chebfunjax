@@ -8,15 +8,20 @@ Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/Noisy.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -63,7 +68,7 @@ def run():
         max_errs.append(np.max(np.abs(pn_vals - clean_vals)))
 
     ax2 = axes[1]
-    ax2.semilogy(degrees, max_errs, color='#0072BD', linestyle='.-', lw=1.5, ms=10)
+    ax2.semilogy(degrees, max_errs, color='#0072BD', marker='.', linestyle='-', lw=1.5, ms=10)
     ax2.set_title('Approximation error of sin(πx) vs. degree', fontsize=10)
     fig.suptitle('Noisy functions in Chebfun', fontsize=12)
     fig.tight_layout()

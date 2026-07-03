@@ -8,21 +8,27 @@ Credit: Inspired by Chebfun example calc/SurfaceRevolution.m
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-from chebfunjax.plotting import plot
 
 def run():
     print("=" * 60)
@@ -35,7 +41,7 @@ def run():
     # Volume of unit sphere = (4/3)*pi
     f_sphere = cj.chebfun(lambda x: jnp.sqrt(jnp.maximum(1.0 - x**2, 0.0)))
     V_sphere = pi * float(f_sphere.inner(f_sphere))   # pi * int f^2 dx
-    print(f"\nUnit sphere (rotate sqrt(1-x^2) about x-axis):")
+    print("\nUnit sphere (rotate sqrt(1-x^2) about x-axis):")
     print(f"  V = pi * int_{{-1}}^1 f^2 dx = {V_sphere:.10f}")
     print(f"  Exact (4/3)*pi = {4.0/3.0*pi:.10f}")
     assert abs(V_sphere - 4.0/3.0*pi) < 1e-4, f"Sphere volume error: {V_sphere - 4.0/3.0*pi}"
@@ -44,7 +50,7 @@ def run():
     f_cone = cj.chebfun(lambda x: -3.0*x + 3.0, domain=(0.0, 1.0))
     V_cone = pi * float((f_cone * f_cone).sum())
     exact_cone = pi * 3.0  # pi * int_0^1 (3-3x)^2 dx = pi*9*[x - x^2 + x^3/3]_0^1 = pi*3
-    print(f"\nCone (rotate -3x+3 over [0,1]):")
+    print("\nCone (rotate -3x+3 over [0,1]):")
     print(f"  V = pi * int f^2 dx = {V_cone:.10f}")
     print(f"  Exact pi*3 = {exact_cone:.10f}")
     assert abs(V_cone - exact_cone) < 1e-8
@@ -58,7 +64,7 @@ def run():
     # Volume: V = pi * int_a^b f^2(x) dx
     V = pi * float((f * f).sum())
     exact_V = 8.0 * pi**2   # Exact: pi * int_0^{2pi} (4 + 2*sin(2x)) dx = pi*8*pi
-    print(f"\nf(x) = sqrt(4 + 2*sin(2x)) on [0, 2*pi]:")
+    print("\nf(x) = sqrt(4 + 2*sin(2x)) on [0, 2*pi]:")
     print(f"  Volume V = {V:.10f}")
     print(f"  Exact 8*pi^2 = {exact_V:.10f}")
     error_V = abs(V - exact_V)

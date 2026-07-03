@@ -6,22 +6,28 @@ following sphere/SphericalHarmonics.m and sphere/AtmosphericTemperature.m.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style, PARULA, _setup_3d_axes, plot_sphere
+from chebfunjax.plotting import chebfun_style, plot_sphere
+
 chebfun_style()
 
 from chebfunjax.spherefun.spherefun import Spherefun
+
 
 def run():
     print("=" * 60)
@@ -31,7 +37,7 @@ def run():
     # --- Spherefun approximation ---
     # Constant function: f = 1
     f_const = Spherefun.from_function(lambda lam, th: jnp.ones_like(lam + th))
-    print(f"\nSpherefun f=1:")
+    print("\nSpherefun f=1:")
     print(f"  Rank: {f_const.rank}")
 
     # Integral of 1 over S^2 = 4*pi
@@ -41,7 +47,7 @@ def run():
 
     # cos(lambda) * sin(theta): first spherical harmonic Y_1^1
     f_Y11 = Spherefun.from_function(lambda lam, th: jnp.cos(lam) * jnp.sin(th))
-    print(f"\nSpherefun cos(lam)sin(th) [~= Y_1^1]:")
+    print("\nSpherefun cos(lam)sin(th) [~= Y_1^1]:")
     print(f"  Rank: {f_Y11.rank}")
 
     # Integral should be 0

@@ -7,22 +7,28 @@ Credit: Inspired by Chebfun ode-nonlin/Logistic.m.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
-import numpy as np
-import sys, os
+import matplotlib.pyplot as plt
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-from chebfunjax.plotting import plot
 from chebfunjax.operators.chebop import Chebop
+from chebfunjax.plotting import plot
+
 
 def run():
     print("=" * 60)
@@ -44,7 +50,7 @@ def run():
     N.rbc = float(exact(jnp.array(5.0)))
 
     u = N.solve(0.0)
-    print(f"\nLogistic ODE u' = u*(1-u) on [0, 5]:")
+    print("\nLogistic ODE u' = u*(1-u) on [0, 5]:")
     print(f"  u(0) = {float(u(jnp.array(0.0))):.12f}  (exact: {u0})")
     print(f"  Chebfun length: {len(u)}")
 
@@ -69,7 +75,7 @@ def run():
     u2 = N2.solve(0.0)
     t_test2 = jnp.linspace(0.0, 3.0, 300)
     err2 = float(jnp.max(jnp.abs(u2(t_test2) - exact2(t_test2))))
-    print(f"\nLogistic (r=2, K=2) on [0, 3]:")
+    print("\nLogistic (r=2, K=2) on [0, 3]:")
     print(f"  Max error vs exact: {err2:.2e}")
     assert err2 < 1e-5, f"Logistic (r=2,K=2) error too large: {err2}"
 

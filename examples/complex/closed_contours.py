@@ -9,18 +9,25 @@ Credit: Inspired by Chebfun example complex/ClosedContours.m
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def contour_integral(f_complex, r, n_pts=2000):
@@ -49,7 +56,7 @@ def run():
     I1 = contour_integral(f1, 2.0)
     exact1 = 2j * pi * (1.0/3.0 + 1.0/2.0)  # = 5*pi*i/3
     err1 = abs(I1 - exact1)
-    print(f"\nExample 1: int_(|z|=2) (1-2z)/(z(z-1)(z-3)) dz")
+    print("\nExample 1: int_(|z|=2) (1-2z)/(z(z-1)(z-3)) dz")
     print(f"  Computed: {I1.real:.10f} + {I1.imag:.10f}i")
     print(f"  Exact 5*pi*i/3: {exact1.real:.10f} + {exact1.imag:.10f}i")
     print(f"  Error: {err1:.2e}")
@@ -102,7 +109,7 @@ def run():
                         np.sin(5.0 * z) / (5.0 * z))
 
     I2 = contour_integral(f2, 1.0)
-    print(f"\nExample 2: int_(|z|=1) sin(5z)/(5z) dz")
+    print("\nExample 2: int_(|z|=1) sin(5z)/(5z) dz")
     print(f"  Computed: {I2.real:.2e} + {I2.imag:.2e}i  (should be 0 by Cauchy's theorem)")
     assert abs(I2) < 1e-10, f"sinc integral should be 0, got {abs(I2)}"
 
@@ -116,7 +123,7 @@ def run():
     I3 = contour_integral(f3, 1.0)
     exact3 = 2j * pi
     err3 = abs(I3 - exact3)
-    print(f"\nExample 3: int_(|z|=1) exp(1/z)*sin(1/z) dz")
+    print("\nExample 3: int_(|z|=1) exp(1/z)*sin(1/z) dz")
     print(f"  Computed: {I3.real:.10f} + {I3.imag:.10f}i")
     print(f"  Exact 2*pi*i: {exact3.real:.10f} + {exact3.imag:.10f}i")
     print(f"  Error: {err3:.2e}")
@@ -133,7 +140,7 @@ def run():
 
     I4_in = contour_integral(f4_in, 1.0)  # z0 inside
     I4_out = contour_integral(lambda z: 1.0/(z - 3.0), 1.0)  # pole outside
-    print(f"\nExample 4: Cauchy's integral formula")
+    print("\nExample 4: Cauchy's integral formula")
     print(f"  z0 inside |z|=1: int 1/(z-z0) dz = {I4_in.real:.2e} + {I4_in.imag:.10f}i")
     print(f"  Exact 2*pi*i: 0 + {2*pi:.10f}i")
     print(f"  z0 outside |z|=1: int 1/(z-z0) dz = {I4_out.real:.2e} + {I4_out.imag:.2e}i (should be ~0)")

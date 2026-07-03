@@ -10,16 +10,17 @@ Author: Nick Trefethen, May 2016
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
-from scipy.special import legendre
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style, PARULA, _setup_3d_axes
+from chebfunjax.plotting import PARULA, chebfun_style
+
 chebfun_style()
 
 def gravitational_potential(X, n_theta=100, n_phi=200):

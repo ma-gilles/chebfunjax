@@ -5,8 +5,6 @@ Run this script from the repo root:
     python scripts/gen_approx_docs.py
 """
 
-import os
-import re
 from pathlib import Path
 
 # -----------------------------------------------------------------------

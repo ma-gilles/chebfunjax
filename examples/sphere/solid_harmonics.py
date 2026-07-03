@@ -10,18 +10,21 @@ Authors: Nicolas Boulle and Alex Townsend, May 2019
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 from scipy.special import sph_harm_y
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import jax.numpy as jnp
-import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style, PARULA, _setup_3d_axes, plot_sphere
+
+from chebfunjax.plotting import chebfun_style, plot_sphere
 from chebfunjax.spherefun.spherefun import Spherefun
+
 chebfun_style()
 
 def regular_solid_harmonic(l, m, r, theta, phi):
@@ -52,9 +55,9 @@ def run():
     os.makedirs(outdir, exist_ok=True)
 
     # Verify: Laplacian of R_l^m = 0
-    print(f"Solid harmonics:")
-    print(f"  R_l^m = r^l * Y_l^m satisfies Delta(R_l^m) = 0")
-    print(f"  S_l^m = r^{{-(l+1)}} * Y_l^m satisfies Delta(S_l^m) = 0 for r!=0")
+    print("Solid harmonics:")
+    print("  R_l^m = r^l * Y_l^m satisfies Delta(R_l^m) = 0")
+    print("  S_l^m = r^{-(l+1)} * Y_l^m satisfies Delta(S_l^m) = 0 for r!=0")
 
     # --- Panel 1: R_2^1 on the unit sphere ---
     l, m = 2, 1

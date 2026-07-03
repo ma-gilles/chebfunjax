@@ -9,15 +9,19 @@ Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/RestrictedDenom
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.utils.aaa import aaa
@@ -67,7 +71,7 @@ def run():
     r_aaa, pol, *_ = aaa(jnp.exp(xs_aaa), xs_aaa)
     r_aaa_vals = np.array([float(r_aaa(jnp.array(x)).real) for x in xs_plot])
     ax2.semilogy(xs_plot, np.abs(r_aaa_vals - true_exp) + 1e-18, 'm-.',
-                 lw=1.3, label=f'AAA')
+                 lw=1.3, label='AAA')
     ax2.legend(fontsize=8)
 
     for ax in axes:

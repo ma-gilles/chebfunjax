@@ -9,14 +9,17 @@ Authors: Nick Hale and Alex Townsend, August 2013
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def extract_contours_at_zero(X, Y, Z):
@@ -103,8 +106,8 @@ def run():
     axes[2].set_xlim(-1, 1); axes[2].set_ylim(-1, 1)
 
     print("Scribble2: zero sets of 2D algebraic/Chebyshev functions")
-    print(f"  Concentric circles: 2 zero contours")
-    print(f"  Deltoid: classical algebraic curve of degree 4")
+    print("  Concentric circles: 2 zero contours")
+    print("  Deltoid: classical algebraic curve of degree 4")
 
     fig.suptitle('Scribbles via 2D Chebyshev Zero Sets', fontsize=12)
     fig.tight_layout()

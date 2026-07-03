@@ -4,19 +4,21 @@ Faithful translation of the MATLAB Chebfun Guide Chapter 4 plots.
 """
 
 import matplotlib
+
 matplotlib.use('Agg')
 
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-import matplotlib.pyplot as plt
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
+
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 from chebfunjax.utils.polynomials import chebpoly
-from chebfunjax.utils.quadrature import chebpts
 
 chebfun_style()
 
@@ -263,8 +265,8 @@ except Exception as e:
 # --------------------------------------------------------------------------
 try:
     plot_idx += 1
-    from chebfunjax.utils.minimax import minimax
     from chebfunjax.domain import Domain
+    from chebfunjax.utils.minimax import minimax
 
     f_sqrt = cj.chebfun(lambda x: jnp.sqrt(jnp.abs(x - 3.0)), domain=[0, 4])
     result = minimax(f_sqrt, 20, domain=(0.0, 4.0))

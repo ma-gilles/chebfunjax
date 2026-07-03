@@ -8,15 +8,20 @@ Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/RationalAbsx.ht
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.utils.aaa import aaa
@@ -54,7 +59,7 @@ def run():
     fig, axes = plt.subplots(1, 2)
 
     ax = axes[0]
-    ax.semilogy(poly_ns, poly_errs, color='#0072BD', linestyle='.-', lw=1.5, ms=10, label='poly errors')
+    ax.semilogy(poly_ns, poly_errs, color='#0072BD', marker='.', linestyle='-', lw=1.5, ms=10, label='poly errors')
     ax.semilogy(poly_ns, 1.0 / np.array(poly_ns), color='#0072BD', linestyle='--', lw=1.2,
                 label='O(1/n) reference')
     ax.axhline(rat_err_full, color='#D95319', ls='--', lw=1.5,

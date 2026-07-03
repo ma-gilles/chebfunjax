@@ -11,14 +11,17 @@ Authors: Hrothgar and Anthony Austin, February 2015
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def cheb_interp(f, n, a=-1.0, b=1.0):
@@ -113,7 +116,7 @@ def run():
     axes[1].set_title('log|x-i|: singularity at i\nConvergence limited to Bernstein ellipse',
                        fontsize=9)
     axes[1].legend(fontsize=9)
-    print(f"Panel 2: log|x-i| with singularity at z=i")
+    print("Panel 2: log|x-i| with singularity at z=i")
 
     # --- Panel 3: Bernstein ellipses in complex plane ---
     ax3 = axes[2]
@@ -141,7 +144,7 @@ def run():
     ax3.legend(fontsize=9)
 
     print("Panel 3: Bernstein ellipses for various ρ values")
-    print(f"  Joukowski map: z -> (z + 1/z)/2")
+    print("  Joukowski map: z -> (z + 1/z)/2")
 
     fig.suptitle("Taylor's Theorem Analogue for Chebyshev Series", fontsize=12)
     fig.tight_layout()

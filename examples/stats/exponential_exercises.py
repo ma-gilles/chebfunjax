@@ -9,15 +9,17 @@ Authors: Jie Gao and Nick Trefethen, May 2013
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-import jax.numpy as jnp
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -54,7 +56,7 @@ def run():
     # Memorylessness: P[X>8|X>5] = P[X>3]
     p_memoryless = (1 - F(8)) / (1 - F(5))
     p_direct = 1 - F(3)
-    print(f"\nMemorylessness:")
+    print("\nMemorylessness:")
     print(f"P[X>8|X>5] = {p_memoryless:.10f}")
     print(f"P[X>3]     = {p_direct:.10f}")
     assert abs(p_memoryless - p_direct) < 1e-12
@@ -68,7 +70,7 @@ def run():
     p_700 = np.exp(-lam2 * 7)  # 700 hours = 7 units
     p_900 = np.exp(-lam2 * 9)
     d_10pct = -np.log(0.1) / lam2  # 10% reliability threshold
-    print(f"\nLight bulb reliability (lambda=0.2):")
+    print("\nLight bulb reliability (lambda=0.2):")
     print(f"P[T>700h] = P[T>7] = {p_700:.6f}")
     print(f"P[T>900h] = P[T>9] = {p_900:.6f}")
     print(f"10% reliability at t = {d_10pct:.2f} (hundreds of hours)")

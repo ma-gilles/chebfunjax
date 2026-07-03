@@ -8,18 +8,25 @@ Credit: Inspired by Chebfun example complex/AnalyticContinuation.m
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -64,7 +71,7 @@ def run():
     coeffs = np.abs(np.array(f.coeffs))
     # Rate of geometric decay
     n = len(coeffs)
-    print(f"\nChebyshev coefficients of tanh(x) (last few):")
+    print("\nChebyshev coefficients of tanh(x) (last few):")
     for k in [-5, -4, -3, -2, -1]:
         print(f"  c[{n+k}] = {coeffs[k]:.2e}")
 
@@ -84,7 +91,7 @@ def run():
     coeffs_runge = np.abs(np.array(f_runge.coeffs))
     n_r = len(coeffs_runge)
     print(f"\n1/(1+25x^2) Chebfun length: {n_r}")
-    print(f"  Nearest poles at ±i/5 = ±0.2i")
+    print("  Nearest poles at ±i/5 = ±0.2i")
     # Bernstein parameter for singularity at distance d from [-1,1]:
     # rho ≈ (sqrt(4+d^2) + d) / 2... actually rho = d + sqrt(d^2+1) for singularity at ±di
     d = 0.2  # distance from real axis to pole ±0.2i

@@ -9,16 +9,18 @@ Author: Nick Trefethen, September 2014
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.linalg import solve
-from scipy.integrate import solve_ivp
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def cheb_matrix(n):
@@ -97,7 +99,7 @@ def run():
     u_interp = interp1d(x, u, kind='cubic')
     val_0 = u_interp(0.0)
     val_sqrt2 = u_interp(1/np.sqrt(2))
-    print(f"Problem 1 (u*u' - u'' = 1):")
+    print("Problem 1 (u*u' - u'' = 1):")
     print(f"  u(0) = {val_0:.6f}")
     print(f"  u(1/√2) = {val_sqrt2:.6f}")
     axes[0].plot(0, val_0, color='#D95319', marker='o', linestyle='none', markersize=8, label=f'u(0)={val_0:.3f}')
@@ -116,7 +118,7 @@ def run():
     axes[1].legend(fontsize=9)
 
     val_half = np.interp(0.5, y, u_heat)
-    print(f"\nProblem 2 (heat equation, t=0.0126):")
+    print("\nProblem 2 (heat equation, t=0.0126):")
     print(f"  u(0.5) = {val_half:.6f}")
     axes[1].plot(0.5, val_half, color='#0072BD', marker='*', linestyle='none', markersize=12,
                  label=f'u(0.5)={val_half:.4f}')

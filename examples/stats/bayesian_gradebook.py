@@ -9,15 +9,17 @@ Author: Toby Driscoll, November 2013
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-import jax.numpy as jnp
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -128,7 +130,7 @@ def run():
     means_m, stds_m, trad_m = bayes_update2(scores_many, prior)
     k_vals = np.arange(1, len(scores_many) + 1)
     axes[2].plot(k_vals, trad_m, 'k.-', markersize=10, linewidth=2, label='Traditional avg')
-    axes[2].plot(k_vals, means_m, color='#D95319', linestyle='.-', markersize=10, linewidth=2, label='Bayes mean')
+    axes[2].plot(k_vals, means_m, color='#D95319', marker='.', linestyle='-', markersize=10, linewidth=2, label='Bayes mean')
     axes[2].fill_between(k_vals,
                          np.array(means_m) - np.array(stds_m),
                          np.array(means_m) + np.array(stds_m),

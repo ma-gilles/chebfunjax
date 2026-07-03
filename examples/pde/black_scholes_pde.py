@@ -13,15 +13,20 @@ Original MATLAB: https://www.chebfun.org/examples/pde/BSExponential.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
+
+import os
 
 import numpy as np
 from scipy.linalg import expm
 from scipy.stats import norm
-import os
+
 
 def run():
     print("=" * 60)
@@ -104,7 +109,7 @@ def run():
     t_vals = [0.1, 0.2, 0.3, 0.4, 0.5]
     results = []
 
-    print(f"\nComputing option prices at times 0.1, 0.2, ..., 0.5 before maturity...")
+    print("\nComputing option prices at times 0.1, 0.2, ..., 0.5 before maturity...")
     for t in t_vals:
         # Apply matrix exponential: w(t) = exp(-t*A) * wT
         w_int = expm(-t * A_mat) @ wT_int
@@ -131,7 +136,7 @@ def run():
     t_last, v_last = results[-1]
     v_at_55 = np.interp(s_test, s_cheb, v_last)
 
-    print(f"\nOption value at s=55, t=0.5 before maturity:")
+    print("\nOption value at s=55, t=0.5 before maturity:")
     print(f"  Numerical: {v_at_55:.6f}")
     print(f"  Black-Scholes: {bs_exact:.6f}")
     print(f"  Error: {abs(v_at_55 - bs_exact):.4f}")

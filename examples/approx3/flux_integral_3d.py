@@ -7,21 +7,27 @@ and approx3/GaussGreenStokes.m by Nick Trefethen.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
-import numpy as np
-import sys, os
+import matplotlib.pyplot as plt
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.chebfun3d import chebfun3
+
 
 def run():
     print("=" * 60)
@@ -33,7 +39,7 @@ def run():
     # integral of div(F) over [-1,1]^3 = 0  (odd functions integrate to 0)
     div_f = chebfun3(lambda x, y, z: 2*x + 2*y + 2*z)
     integral_div = float(div_f.sum3())
-    print(f"\ndiv(F) = 2x+2y+2z, integral over [-1,1]^3:")
+    print("\ndiv(F) = 2x+2y+2z, integral over [-1,1]^3:")
     print(f"  Computed: {integral_div:.2e}  (expected: 0)")
     assert abs(integral_div) < 1e-10
 
@@ -41,7 +47,7 @@ def run():
     # integral of div(F) = 3 * 8 = 24
     div_g = chebfun3(lambda x, y, z: jnp.ones_like(x + y + z) * 3)
     integral_g = float(div_g.sum3())
-    print(f"\ndiv(G) = 3, integral over [-1,1]^3:")
+    print("\ndiv(G) = 3, integral over [-1,1]^3:")
     print(f"  Computed: {integral_g:.10f}  (expected: 24.0)")
     assert abs(integral_g - 24.0) < 1e-8
 
@@ -50,7 +56,7 @@ def run():
     integral_r2 = float(r2.sum3())
     # int_{-1}^{1} x^2 dx = 2/3, so total = 3 * (2/3) * 2 * 2 = 8
     exact_r2 = 3 * (2.0/3.0) * 4.0  # = 8
-    print(f"\nintegral of x^2+y^2+z^2 over [-1,1]^3:")
+    print("\nintegral of x^2+y^2+z^2 over [-1,1]^3:")
     print(f"  Computed: {integral_r2:.10f}  (exact: {exact_r2:.10f})")
     assert abs(integral_r2 - exact_r2) < 1e-8
 

@@ -11,14 +11,18 @@ Original MATLAB: https://www.chebfun.org/examples/applics/Bode2tf.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -31,7 +35,7 @@ def run():
     omega_n = 10.0  # natural frequency
     zeta = 0.3      # damping ratio
 
-    print(f"\nTarget: H(s) = ω_n²/(s²+2ζω_n s+ω_n²)")
+    print("\nTarget: H(s) = ω_n²/(s²+2ζω_n s+ω_n²)")
     print(f"  ω_n = {omega_n}, ζ = {zeta}")
     print(f"  Poles at s = {omega_n*(-zeta + 1j*np.sqrt(1-zeta**2)):.3f}, conj.")
 
@@ -70,12 +74,12 @@ def run():
     print(f"  Max error in phase: {max_phase_err:.3f} deg")
 
     # Physical characteristics from the Bode plot
-    print(f"\nBode characteristics:")
+    print("\nBode characteristics:")
     peak_idx = np.argmax(H_mag)
     peak_freq = omega_vals[peak_idx]
     print(f"  Peak gain: {H_mag_db[peak_idx]:.2f} dB at ω = {peak_freq:.2f} rad/s")
     print(f"  Natural frequency ω_n = {omega_n} → resonance near ω_r = {omega_n*np.sqrt(1-2*zeta**2):.2f}")
-    print(f"  DC gain: H(0) = 1.0 (= ω_n²/ω_n² = 1)")
+    print("  DC gain: H(0) = 1.0 (= ω_n²/ω_n² = 1)")
     assert abs(H_mag[0] - 1.0) < 0.05, f"DC gain should be ~1: {H_mag[0]:.4f}"
     print("PASS: DC gain = 1 verified")
 

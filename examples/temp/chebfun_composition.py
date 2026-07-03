@@ -9,14 +9,17 @@ Author: Olivier Sete, February 2017
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -63,7 +66,7 @@ def run():
     axes[1].set_title('g(x,y)=x²+y² restricted to\ncircle → constant 1', fontsize=10)
     axes[1].legend(fontsize=9)
     print(f"g(cos(t),sin(t)) range: [{np.min(h_on_circ):.8f}, {np.max(h_on_circ):.8f}]")
-    axes[1].text(0, 0, f'g=1 on circle', ha='center', color='white',
+    axes[1].text(0, 0, 'g=1 on circle', ha='center', color='white',
                  fontsize=12, fontweight='bold')
 
     # --- Panel 3: Restriction to non-rectangular domain ---

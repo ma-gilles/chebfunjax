@@ -9,14 +9,17 @@ Author: Alex Townsend, March 2013
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def letter_mask(letter, nx=100, ny=60):
@@ -83,9 +86,9 @@ def run():
     Z_sample = f[::4, ::4]
     sv = np.linalg.svd(Z_sample, compute_uv=False)
     rank_num = np.sum(sv > sv[0] * 1e-10)
-    print(f"Hello World example:")
+    print("Hello World example:")
     print(f"  f(x,y) numerical rank: {rank_num}")
-    print(f"  Rank-1 function: cos(πx)·cos(πy)")
+    print("  Rank-1 function: cos(πx)·cos(πy)")
 
     # --- Panel 3: "HELLO" text artistic ---
     ax3 = axes[2]

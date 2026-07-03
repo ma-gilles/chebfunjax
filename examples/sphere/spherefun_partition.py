@@ -11,15 +11,17 @@ Author: Behnam Hashemi, November 2016
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style, PARULA, _setup_3d_axes
+from chebfunjax.plotting import PARULA, chebfun_style
+
 chebfun_style()
 
 def _sphere_panel(ax, fig, X, Y, Z, F, title, cmap=PARULA, elev=20, azim=-60):
@@ -82,7 +84,7 @@ def run():
     f_even = (f + f_anti) / 2
     f_odd = (f - f_anti) / 2
 
-    print(f"Function f on sphere:")
+    print("Function f on sphere:")
     print(f"  Range: [{f.min():.4f}, {f.max():.4f}]")
     print(f"  Even part range: [{f_even.min():.4f}, {f_even.max():.4f}]")
     print(f"  Odd part range: [{f_odd.min():.4f}, {f_odd.max():.4f}]")

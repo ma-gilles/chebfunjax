@@ -3,16 +3,24 @@
 Uses PARULA colormap and MATLAB-style sphere plots for spinsphere.
 """
 import matplotlib
+
 matplotlib.use('Agg')
-import sys, os, traceback
+import os
+import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
-import jax.numpy as jnp
+
 from chebfunjax.plotting import (
-    chebfun_style, PARULA, CHEBFUN_BLUE, _setup_3d_axes,
+    CHEBFUN_BLUE,
+    PARULA,
+    _setup_3d_axes,
+    chebfun_style,
 )
+
 chebfun_style()
 
 OUT = os.path.join(os.path.dirname(__file__), '..', 'docs', 'images', 'guide')
@@ -63,7 +71,7 @@ def sphere_from_latlon(ll, tt, u_vals, title='', cmap=None):
         ax.set_title(title, fontsize=10, pad=0)
     return fig, ax
 
-from chebfunjax.spin import spin, spin2, SpinOp, SpinOp2
+from chebfunjax.spin import SpinOp, SpinOp2, spin, spin2
 
 # Plot 01: KdV
 try:

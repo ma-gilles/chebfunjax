@@ -7,22 +7,26 @@ Credit: Chebfun example ode-nonlin/ChebopQuiver.m (Asgeir Birkisson, Nov 2015).
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-import jax.numpy as jnp
 import numpy as np
 from scipy.integrate import solve_ivp
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-from chebfunjax.operators.chebop import Chebop
 
 def phase_portrait(ax, f, x_range, y_range, title, trajectories=None):
     """Draw quiver plot and optional trajectories for system x'=f1(x,y), y'=f2(x,y)."""

@@ -8,21 +8,29 @@ Credit: Inspired by Chebfun examples calc/SnellsLaw.m.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.plotting import plot
+
 
 def run():
     print("=" * 60)
@@ -68,7 +76,7 @@ def run():
     sin_theta2 = (d - x_min) / np.sqrt((d - x_min)**2 + h2**2)
     snell_ratio1 = sin_theta1 / c1
     snell_ratio2 = sin_theta2 / c2
-    print(f"\nSnell's law check:")
+    print("\nSnell's law check:")
     print(f"  sin(theta1)/c1 = {snell_ratio1:.12f}")
     print(f"  sin(theta2)/c2 = {snell_ratio2:.12f}")
     print(f"  Difference = {abs(snell_ratio1 - snell_ratio2):.2e}")

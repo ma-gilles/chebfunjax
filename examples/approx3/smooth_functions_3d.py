@@ -6,21 +6,27 @@ following the Chebfun3 examples in approx3/ by Nick Trefethen.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
-import numpy as np
-import sys, os
+import matplotlib.pyplot as plt
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.chebfun3d import chebfun3
+
 
 def run():
     print("=" * 60)
@@ -45,7 +51,7 @@ def run():
     # Triple integral: int int int exp(x+y+z) dV over [-1,1]^3 = (e - 1/e)^3
     integral = float(f.sum3())
     exact_int = float((jnp.exp(jnp.array(1.0)) - jnp.exp(jnp.array(-1.0)))**3)
-    print(f"\nIntegral of exp(x+y+z) over [-1,1]^3:")
+    print("\nIntegral of exp(x+y+z) over [-1,1]^3:")
     print(f"  Computed: {integral:.15f}")
     print(f"  Exact:    {exact_int:.15f}")
     print(f"  Error:    {abs(integral - exact_int):.2e}")

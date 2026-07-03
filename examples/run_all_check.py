@@ -8,13 +8,15 @@ Usage:
     python examples/run_all_check.py --timeout 120  # per-example timeout (seconds)
     python examples/run_all_check.py --category ode-nonlin  # only one category
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
 
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+
+import argparse
+import importlib.util
 import sys
 import time
 import traceback
-import importlib.util
-import argparse
 
 # Ensure src/ is importable from the repo root
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -43,12 +45,11 @@ EXAMPLES = [
     ("approx2.rank_of_functions",               "approx2 / rank_of_functions"),
     ("approx2.integration_2d",                  "approx2 / integration_2d"),
     ("approx2.differentiation_2d",              "approx2 / differentiation_2d"),
-    ("approx2.WeierstrassFunction",             "approx2 / WeierstrassFunction"),
-    ("approx2.BestApprox",                      "approx2 / BestApprox"),
-    ("approx2.BestL1",                          "approx2 / BestL1"),
-    ("approx2.GreedyInterp",                    "approx2 / GreedyInterp"),
-    ("approx2.AAASpline",                       "approx2 / AAASpline"),
-    ("approx2.EdgeDetection",                   "approx2 / EdgeDetection"),
+    # NOTE: WeierstrassFunction, BestApprox, BestL1, GreedyInterp, AAASpline,
+    # and EdgeDetection were previously listed here under approx2, but those
+    # are 1D examples whose real files live in examples/approx/ (no approx2
+    # file ever existed, so they were silently skipped). They are now picked
+    # up automatically by auto-discovery under the `approx` category.
     ("approx2.chebfun2_basics",                 "approx2 / chebfun2_basics"),
     # calc
     ("calc.definite_indefinite_integrals",      "calc / definite_indefinite_integrals"),
@@ -176,15 +177,79 @@ EXAMPLES = [
 ]
 
 
-def import_example(module_path: str):
-    """Import an example module by dotted path relative to examples/."""
-    parts = module_path.split(".")
-    category = parts[0]
-    name = parts[1]
-    fpath = os.path.join(_HERE, category, name + ".py")
-    if not os.path.exists(fpath):
-        raise FileNotFoundError(f"Example not found: {fpath}")
-    spec = importlib.util.spec_from_file_location(module_path.replace("-", "_"), fpath)
+import glob
+import re
+import signal
+
+# Basenames (no .py) that live under examples/<category>/ but are NOT runnable
+# example scripts (harness/helper modules). Auto-discovery skips these.
+_EXCLUDE_BASENAMES = {
+    "__init__",
+    "run_all",
+    "run_all_check",
+    "generate_all_plots",
+    "continuous_skeletonization_study",
+}
+
+_RUN_DEF_RE = re.compile(r"^\s*def\s+run\s*\(", re.MULTILINE)
+
+
+class _ExampleTimeout(Exception):
+    """Raised when a single example exceeds the per-example timeout."""
+
+
+def _has_run_function(fpath: str) -> bool:
+    """Source-scan for a top-level ``def run(`` without importing the module."""
+    try:
+        with open(fpath, "r", encoding="utf-8", errors="replace") as fh:
+            return bool(_RUN_DEF_RE.search(fh.read()))
+    except OSError:
+        return False
+
+
+def discover_examples():
+    """Return an ordered list of ``(filepath, display_name, category)`` records
+    covering EVERY example script under ``examples/<category>/*.py``.
+
+    Ordering: registered examples (that still exist on disk) first, in their
+    registry order, then every other discovered script sorted by category and
+    name. Non-example helpers (see ``_EXCLUDE_BASENAMES``) are omitted.
+    """
+    records = []
+    seen = set()
+
+    # 1. Registered examples, in registry order, if the file exists.
+    for module_path, display_name in EXAMPLES:
+        category, name = module_path.split(".", 1)
+        fpath = os.path.join(_HERE, category, name + ".py")
+        key = os.path.abspath(fpath)
+        if os.path.exists(fpath) and key not in seen:
+            records.append((fpath, display_name, category))
+            seen.add(key)
+
+    # 2. Everything else discovered one level deep under examples/.
+    extra = []
+    for fpath in glob.glob(os.path.join(_HERE, "*", "*.py")):
+        base = os.path.splitext(os.path.basename(fpath))[0]
+        if base in _EXCLUDE_BASENAMES:
+            continue
+        key = os.path.abspath(fpath)
+        if key in seen:
+            continue
+        category = os.path.basename(os.path.dirname(fpath))
+        extra.append((fpath, f"{category} / {base}", category))
+        seen.add(key)
+    extra.sort(key=lambda rec: (rec[2], rec[1]))
+
+    return records + extra
+
+
+def import_example_from_path(fpath: str):
+    """Import an example module from its file path with a collision-free name."""
+    base = os.path.splitext(os.path.basename(fpath))[0]
+    category = os.path.basename(os.path.dirname(fpath))
+    unique = f"example_{category}_{base}".replace("-", "_")
+    spec = importlib.util.spec_from_file_location(unique, fpath)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
@@ -195,36 +260,53 @@ def run_all(verbose: bool = False, category_filter: str = None,
     passed = []
     failed = []
     skipped = []
+    no_run = []
+    timed_out = []
 
-    examples = EXAMPLES
+    examples = discover_examples()
     if category_filter:
-        examples = [(mp, dn) for mp, dn in EXAMPLES
-                    if mp.startswith(category_filter)]
+        examples = [rec for rec in examples if rec[2].startswith(category_filter)]
         if not examples:
             print(f"No examples found for category filter: {category_filter!r}")
             return True
+
+    use_alarm = bool(per_example_timeout) and hasattr(signal, "SIGALRM")
+
+    def _alarm_handler(signum, frame):
+        raise _ExampleTimeout()
+
+    if use_alarm:
+        signal.signal(signal.SIGALRM, _alarm_handler)
 
     print(f"\n{'='*70}")
     print(f"  Running {len(examples)} chebfunjax examples")
     if category_filter:
         print(f"  Category filter: {category_filter!r}")
     if per_example_timeout:
-        print(f"  Per-example timeout: {per_example_timeout}s")
+        tail = "" if use_alarm else " (unsupported on this platform, ignored)"
+        print(f"  Per-example timeout: {per_example_timeout}s{tail}")
     print(f"{'='*70}\n")
 
-    for module_path, display_name in examples:
+    for fpath, display_name, _category in examples:
         t0 = time.time()
         if verbose:
             print(f"\n{'─'*60}")
             print(f"  {display_name}")
             print(f"{'─'*60}")
+
+        # Classify scripts without a run() function up front (no import).
+        if not _has_run_function(fpath):
+            no_run.append(display_name)
+            print(f"  [NO_RUN_FUNC]  {display_name}  (no run() function)")
+            continue
+
+        if use_alarm:
+            signal.alarm(int(per_example_timeout))
         try:
-            mod = import_example(module_path)
-            if not hasattr(mod, 'run'):
-                # No run() function — skip
-                elapsed = time.time() - t0
-                skipped.append(display_name)
-                print(f"  [SKIP]  {display_name}  (no run() function)")
+            mod = import_example_from_path(fpath)
+            if not hasattr(mod, "run"):
+                no_run.append(display_name)
+                print(f"  [NO_RUN_FUNC]  {display_name}  (no run() function)")
                 continue
             result = mod.run()
             elapsed = time.time() - t0
@@ -234,14 +316,16 @@ def run_all(verbose: bool = False, category_filter: str = None,
             else:
                 print(f"  [{status}]  {display_name}  ({elapsed:.1f}s)")
             passed.append(display_name)
-        except FileNotFoundError as e:
+        except _ExampleTimeout:
             elapsed = time.time() - t0
-            skipped.append(display_name)
-            print(f"  [SKIP]  {display_name}  (file not found: {e})")
+            timed_out.append((display_name, per_example_timeout))
+            print(f"  [TIMEOUT]  {display_name}  (>{per_example_timeout:.0f}s)")
         except NotImplementedError as e:
-            elapsed = time.time() - t0
             skipped.append(display_name)
             print(f"  [SKIP]  {display_name}  (not implemented: {e})")
+        except FileNotFoundError as e:
+            skipped.append(display_name)
+            print(f"  [SKIP]  {display_name}  (file not found: {e})")
         except Exception as e:
             elapsed = time.time() - t0
             failed.append((display_name, str(e)))
@@ -250,15 +334,20 @@ def run_all(verbose: bool = False, category_filter: str = None,
                 traceback.print_exc()
             else:
                 print(f"          Error: {e}")
+        finally:
+            if use_alarm:
+                signal.alarm(0)
 
     # Summary
     n_pass = len(passed)
     n_fail = len(failed)
     n_skip = len(skipped)
+    n_norun = len(no_run)
+    n_timeout = len(timed_out)
     n_total = len(examples)
     print(f"\n{'='*70}")
-    print(f"  Results: {n_pass} passed, {n_fail} failed, {n_skip} skipped"
-          f"  (total: {n_total})")
+    print(f"  Results: {n_pass} passed, {n_fail} failed, {n_skip} skipped, "
+          f"{n_timeout} timed out, {n_norun} no run()  (total: {n_total})")
     print(f"{'='*70}\n")
 
     if failed:
@@ -267,13 +356,25 @@ def run_all(verbose: bool = False, category_filter: str = None,
             print(f"  - {name}: {err}")
         print()
 
+    if timed_out:
+        print("TIMED OUT examples:")
+        for name, limit in timed_out:
+            print(f"  - {name}  (>{limit:.0f}s)")
+        print()
+
     if skipped:
         print("SKIPPED examples:")
         for name in skipped:
             print(f"  - {name}")
         print()
 
-    return n_fail == 0
+    if no_run:
+        print("NO_RUN_FUNC examples (no run() function, not executed):")
+        for name in no_run:
+            print(f"  - {name}")
+        print()
+
+    return n_fail == 0 and n_timeout == 0
 
 
 if __name__ == "__main__":

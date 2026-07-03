@@ -7,22 +7,32 @@ Credit: Inspired by Chebfun approx examples.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-from scipy.special import erf as scipy_erf, erfc as scipy_erfc, airy as scipy_airy
-import sys, os
+from scipy.special import airy as scipy_airy
+from scipy.special import erf as scipy_erf
+from scipy.special import erfc as scipy_erfc
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.plotting import plot
+
 
 def run():
     print("=" * 60)
@@ -31,7 +41,7 @@ def run():
 
     # --- Error function erf(x) ---------------------------------------
     f_erf = cj.chebfun(lambda x: jnp.array(scipy_erf(np.array(x))), domain=(-3.0, 3.0))
-    print(f"\nerf(x) on [-3, 3]:")
+    print("\nerf(x) on [-3, 3]:")
     print(f"  Length: {len(f_erf)}")
     print(f"  erf(0) = {float(f_erf(jnp.array(0.0))):.14f}  (exact: 0)")
     print(f"  erf(1) = {float(f_erf(jnp.array(1.0))):.14f}  "
@@ -59,7 +69,7 @@ def run():
 
     # --- erfc(x) = 1 - erf(x) ---------------------------------------
     f_erfc = cj.chebfun(lambda x: jnp.array(scipy_erfc(np.array(x))), domain=(-3.0, 3.0))
-    print(f"\nerfc(x) on [-3, 3]:")
+    print("\nerfc(x) on [-3, 3]:")
     print(f"  Length: {len(f_erfc)}")
     # Verify erfc(x) + erf(x) = 1 everywhere
     x_test = jnp.linspace(-3.0, 3.0, 100)
@@ -71,7 +81,7 @@ def run():
     # --- Airy function Ai(x) ----------------------------------------
     Ai_vals_func = lambda x: jnp.array(scipy_airy(np.array(x))[0])
     f_airy = cj.chebfun(Ai_vals_func, domain=(-5.0, 3.0))
-    print(f"\nAi(x) (Airy function) on [-5, 3]:")
+    print("\nAi(x) (Airy function) on [-5, 3]:")
     print(f"  Length: {len(f_airy)}")
     print(f"  Ai(0) = {float(f_airy(jnp.array(0.0))):.12f}  "
           f"(exact: {scipy_airy(0.0)[0]:.12f})")

@@ -5,21 +5,24 @@ continuous QR/SVD) and exported at the exact 610x258 px canvas used by the
 MATLAB renders on chebfun.org, so the pages line up pixel-for-pixel.
 """
 import os
+
 os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 import matplotlib
+
 matplotlib.use("Agg")
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.ticker import FuncFormatter
 
-import jax.numpy as jnp
-import numpy as np
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style, save_chebfun_figure
 from chebfunjax.chebfun1d.linalg import Quasimatrix, qr_quasimatrix, svd_quasimatrix
 from chebfunjax.domain import Domain
+from chebfunjax.plotting import chebfun_style, save_chebfun_figure
 
 chebfun_style()
 

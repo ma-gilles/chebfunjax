@@ -10,14 +10,17 @@ Author: Nick Trefethen, April 2012
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def letter_strokes(ch, x_off=0.0, y_off=0.0, scale=0.12):
@@ -99,7 +102,7 @@ def run():
     encrypted = apply_transform(all_strokes, angle_key, scale_key, trans_key)
     for stroke in encrypted:
         axes[1].plot(stroke[:, 0], stroke[:, 1], color='#D95319', linestyle='-', linewidth=2)
-    axes[1].set_title(f'Encrypted\n(rotate by π/3.7, scale×1.8)', fontsize=10)
+    axes[1].set_title('Encrypted\n(rotate by π/3.7, scale×1.8)', fontsize=10)
     axes[1].set_aspect('equal')
 
     # --- Panel 3: "Decrypted" (inverse transform) ---
@@ -112,8 +115,8 @@ def run():
 
     print("Encryption via complex rotation and scaling:")
     print(f"  Rotation angle: pi/3.7 rad = {np.pi/3.7:.4f}")
-    print(f"  Scale factor: 1.8")
-    print(f"  Translation: 0.5 + 0.3i")
+    print("  Scale factor: 1.8")
+    print("  Translation: 0.5 + 0.3i")
 
     fig.suptitle('Encryption of a Message via Complex Transforms', fontsize=12)
     fig.tight_layout()

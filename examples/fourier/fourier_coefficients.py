@@ -8,21 +8,25 @@ Credit: Inspired by Chebfun fourier examples.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
-import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-from chebfunjax.plotting import plot
 
 def compute_fourier_coeff(f_func, n, dom=(0.0, 2.0 * float(jnp.pi))):
     """Compute n-th Fourier coefficient a_n = (1/pi) int f(x)*cos(n*x) dx
@@ -47,7 +51,7 @@ def run():
     dom = (0.0, 2.0 * pi)
 
     # --- f(x) = cos(3x): exact a_3 = 1, all others 0 ----------------
-    print(f"\nf(x) = cos(3x):")
+    print("\nf(x) = cos(3x):")
     for n in [0, 1, 2, 3, 4, 5]:
         a_n, b_n = compute_fourier_coeff(lambda x: jnp.cos(3.0 * x), n, dom)
         expected_a = 1.0 if n == 3 else 0.0
@@ -58,7 +62,7 @@ def run():
 
     # --- f(x) = x on [0, 2*pi]: Fourier series b_n = -2/n -----------
     # f(x) = pi - sum_{n=1}^{inf} (2/n)*sin(n*x)
-    print(f"\nf(x) = x on [0, 2*pi]:")
+    print("\nf(x) = x on [0, 2*pi]:")
     a0, _ = compute_fourier_coeff(lambda x: x, 0, dom)
     print(f"  a_0 = {a0:.8f}  (exact: pi = {pi:.8f})")
     assert abs(a0 - pi) < 1e-10
@@ -78,7 +82,7 @@ def run():
     fx2 = cj.chebfun(lambda x: x**2, domain=dom)
     parseval_lhs = float(fx2.sum()) / pi
     exact_parseval = 8.0 * pi**2 / 3.0
-    print(f"\nParseval check for f(x)=x:")
+    print("\nParseval check for f(x)=x:")
     print(f"  (1/pi)*int_0^{{2*pi}} x^2 dx = {parseval_lhs:.8f}")
     print(f"  Exact 8*pi^2/3 = {exact_parseval:.8f}")
     assert abs(parseval_lhs - exact_parseval) < 1e-10
@@ -87,7 +91,7 @@ def run():
     # All Fourier coefficients are related to modified Bessel functions
     # a_0 = I_0(1), a_n = 2*I_n(1)  (where I_n are Bessel functions)
     from scipy.special import iv as bessel_i
-    print(f"\nf(x) = exp(cos(x)) on [0, 2*pi]:")
+    print("\nf(x) = exp(cos(x)) on [0, 2*pi]:")
     a0_ec, _ = compute_fourier_coeff(lambda x: jnp.exp(jnp.cos(x)), 0, dom)
     print(f"  a_0 = {a0_ec:.10f}  (exact I_0(1) = {bessel_i(0, 1.0):.10f})")
     assert abs(a0_ec - bessel_i(0, 1.0)) < 1e-10

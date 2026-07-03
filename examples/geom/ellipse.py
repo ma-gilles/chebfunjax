@@ -9,15 +9,17 @@ Authors: Nick Hale and Nick Trefethen, December 2010
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-import jax.numpy as jnp
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def ellipse_perimeter_numerical(a, b, n_pts=10000):
@@ -40,7 +42,7 @@ def run():
 
     # Numerical perimeter via arc-length integral
     arc_len = ellipse_perimeter_numerical(a, b, n_pts=100000)
-    print(f"Poisson's ellipse perimeter:")
+    print("Poisson's ellipse perimeter:")
     print(f"  Numerical = {arc_len:.14f}")
     print(f"  Exact     = {exact:.14f}")
     print(f"  Error     = {abs(arc_len - exact):.2e}")

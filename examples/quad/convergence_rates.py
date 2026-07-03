@@ -8,21 +8,29 @@ Credit: Inspired by Chebfun example quad/QuadratureConvergence.m.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.plotting import plot
+
 
 def run():
     print("=" * 60)
@@ -32,7 +40,7 @@ def run():
     # --- 1. Smooth function: exp(cos(x)) ----------------------------
     f = cj.chebfun(lambda x: jnp.exp(jnp.cos(x)))
     integral = float(f.sum())
-    print(f"\nIntegral of exp(cos(x)) over [-1,1]:")
+    print("\nIntegral of exp(cos(x)) over [-1,1]:")
     print(f"  Computed: {integral:.15f}")
     # Reference from scipy
     from scipy.integrate import quad as scipy_quad
@@ -47,7 +55,7 @@ def run():
     f_osc = cj.chebfun(lambda x: jnp.cos(100.0 * jnp.pi * x), domain=dom_osc)
     int_osc = float(f_osc.sum())
     # Exact: integral of cos(100*pi*x) from -1 to 1 = 0 (symmetric odd period)
-    print(f"\nIntegral of cos(100*pi*x) over [-1,1]:")
+    print("\nIntegral of cos(100*pi*x) over [-1,1]:")
     print(f"  Computed: {int_osc:.2e}  (exact: 0)")
     print(f"  Length:   {len(f_osc)}")
     print(f"  Error:    {abs(int_osc):.2e}")
@@ -60,10 +68,10 @@ def run():
     int_smooth = float(f_abs_smooth.sum())
     int_piece = float(f_abs_piece.sum())
     exact_abs = 1.0  # integral of |x| over [-1,1]
-    print(f"\nIntegral of |x| over [-1,1]:")
+    print("\nIntegral of |x| over [-1,1]:")
     print(f"  Without breakpoint: {int_smooth:.15f}, length={len(f_abs_smooth)}")
     print(f"  With breakpoint:    {int_piece:.15f}, length={len(f_abs_piece)}")
-    print(f"  Exact: 1.0")
+    print("  Exact: 1.0")
     # With breakpoint uses fewer terms and is more accurate
     # Without breakpoint: may not fully converge (|x| has a kink at 0)
     assert abs(int_smooth - exact_abs) < 1e-6   # |x| without breakpoint is approximate

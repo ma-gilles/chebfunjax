@@ -9,15 +9,17 @@ Author: Nick Trefethen, May 2011
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-import jax.numpy as jnp
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 RADIUS = 1.0 / 3.0
@@ -97,7 +99,7 @@ def run():
     times, points = trajectory(p0, d0, t_final)
     final_pos = points[-1]
     final_dist = abs(final_pos)
-    print(f"Photon trajectory:")
+    print("Photon trajectory:")
     print(f"  Final position: {final_pos:.6f}")
     print(f"  Distance from origin at t=10: {final_dist:.6f}")
     print(f"  Number of bounces: {len(times) - 2}")

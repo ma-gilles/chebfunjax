@@ -8,22 +8,29 @@ Credit: Inspired by Chebfun approx/BesselApprox.m.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import scipy.special as sp
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.plotting import plot
+
 
 def run():
     print("=" * 60)
@@ -31,13 +38,14 @@ def run():
     print("=" * 60)
 
     # Bessel function via scipy (no native JAX version for high accuracy)
-    from scipy.special import j0 as besselj0, j1 as besselj1
+    from scipy.special import j0 as besselj0
+    from scipy.special import j1 as besselj1
 
     # --- J_0 on [0, 20] ----------------------------------------------
     # MATLAB: J0 = chebfun(@(x) besselj(0, x), [0, 20])
     dom_20 = (0.0, 20.0)
     J0 = cj.chebfun(lambda x: jnp.array(besselj0(np.array(x))), domain=dom_20)
-    print(f"\nJ_0(x) on [0, 20]:")
+    print("\nJ_0(x) on [0, 20]:")
     print(f"  Chebfun length: {len(J0)}")
 
     # Evaluate at a few known values
@@ -51,7 +59,7 @@ def run():
 
     # --- J_1 on [0, 20] ----------------------------------------------
     J1 = cj.chebfun(lambda x: jnp.array(besselj1(np.array(x))), domain=dom_20)
-    print(f"\nJ_1(x) on [0, 20]:")
+    print("\nJ_1(x) on [0, 20]:")
     print(f"  Chebfun length: {len(J1)}")
 
     # --- Verify d/dx J_0 = -J_1 (recurrence relation) ---------------
@@ -61,7 +69,7 @@ def run():
     dJ0_vals = dJ0(x_test)
     J1_vals = J1(x_test)
     err = float(jnp.max(jnp.abs(dJ0_vals + J1_vals)))
-    print(f"\nVerifying d/dx J_0 = -J_1:")
+    print("\nVerifying d/dx J_0 = -J_1:")
     print(f"  ||J_0' + J_1||_inf = {err:.2e}  (should be ~0)")
     assert err < 1e-9, f"Recurrence relation error too large: {err}"
 
@@ -72,7 +80,7 @@ def run():
     xJ0_short = cj.chebfun(lambda x: x * jnp.array(besselj0(np.array(x))), domain=dom_01)
     integral = float(xJ0_short.sum())
     exact_int = float(besselj1(1.0))
-    print(f"\nIntegral of x*J_0(x) from 0 to 1:")
+    print("\nIntegral of x*J_0(x) from 0 to 1:")
     print(f"  Computed: {integral:.14f}")
     print(f"  J_1(1) =  {exact_int:.14f}")
     print(f"  Error:    {abs(integral - exact_int):.2e}")

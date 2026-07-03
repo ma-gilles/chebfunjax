@@ -7,21 +7,29 @@ Credit: Inspired by Chebfun examples roots/ChebPts.m.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.plotting import plot
+
 
 def run():
     print("=" * 60)
@@ -33,7 +41,7 @@ def run():
     f_T2 = cj.chebfun(lambda x: 2.0*x**2 - 1.0)
     roots_T2 = np.sort(np.array(f_T2.roots()))
     exact_T2 = np.sort([-1.0/np.sqrt(2.0), 1.0/np.sqrt(2.0)])
-    print(f"\nT_2(x) = 2x^2 - 1:")
+    print("\nT_2(x) = 2x^2 - 1:")
     print(f"  Roots: {roots_T2}")
     print(f"  Exact: {exact_T2}")
     assert len(roots_T2) == 2
@@ -54,7 +62,7 @@ def run():
     dom_sin = (-pi, pi)
     f_sin = cj.chebfun(lambda x: jnp.sin(x), domain=dom_sin)
     roots_sin = np.sort(np.array(f_sin.roots()))
-    print(f"\nsin(x) on [-pi, pi]:")
+    print("\nsin(x) on [-pi, pi]:")
     print(f"  Roots: {roots_sin}")
     # Interior roots: 0; boundary roots: -pi, pi (may or may not be included)
     # Filter to interior
@@ -66,7 +74,7 @@ def run():
     # On [-1, 1]: cos(x) > x^2 for some region
     f_mixed = cj.chebfun(lambda x: jnp.cos(x) - x**2)
     roots_mixed = np.sort(np.array(f_mixed.roots()))
-    print(f"\ncos(x) = x^2 on [-1, 1]:")
+    print("\ncos(x) = x^2 on [-1, 1]:")
     print(f"  Roots: {roots_mixed}")
     # There are 2 roots (symmetric since both functions are even)
     assert len(roots_mixed) == 2

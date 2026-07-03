@@ -6,18 +6,25 @@ The L1 approximant has error concentrated near singularities.
 Credit: Yuji Nakatsukasa and Alex Townsend, July 2019.
 Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/polyfitL1.html
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -39,7 +46,6 @@ def run():
     err_L2 = p_L2_vals - f_vals
 
     # L1-like approximation: minimize sum |f(xi) - p(xi)| via scipy IRLS
-    from scipy.optimize import linprog
     # Sample points for L1 fitting
     xi = np.linspace(-1.0, 1.0, 200)
     yi = np.abs(xi - 0.25)

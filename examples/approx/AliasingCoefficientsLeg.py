@@ -8,15 +8,20 @@ Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/AliasingCoeffic
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -33,7 +38,7 @@ def run():
 
     # Convert Chebyshev coefficients to Legendre via cheb2leg
     try:
-        from chebfunjax.utils.transforms import cheb2leg, leg2cheb
+        from chebfunjax.utils.transforms import cheb2leg
         fc_cheb = np.array(f.coeffs)
         pc_cheb = np.array(p.coeffs)
         fc_leg = np.array(cheb2leg(jnp.array(fc_cheb)))

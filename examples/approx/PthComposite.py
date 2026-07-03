@@ -8,15 +8,20 @@ Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/PthComposite.ht
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.utils.aaa import aaa
@@ -62,7 +67,7 @@ def run():
     ax.set_title(f'x^{{1/{p}}} on [{delta}, 1] and AAA approx', fontsize=10)
     ax.legend(fontsize=9)
     ax2 = axes[1]
-    ax2.semilogy(degrees_poly, poly_errs, color='#0072BD', linestyle='.-', lw=1.5, ms=10, label='poly')
+    ax2.semilogy(degrees_poly, poly_errs, color='#0072BD', marker='.', linestyle='-', lw=1.5, ms=10, label='poly')
     ax2.axhline(np.max(err_full), color='#D95319', ls='--', lw=1.5,
                 label=f'AAA ({len(pol_full)} poles)')
     ax2.set_title(f'Approximation errors for x^{{1/{p}}}', fontsize=10)

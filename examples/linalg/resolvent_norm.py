@@ -7,21 +7,29 @@ Credit: Inspired by Chebfun linalg examples.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.plotting import plot
+
 
 def run():
     print("=" * 60)
@@ -42,7 +50,7 @@ def run():
     # --- Rayleigh quotient: for -d^2/dx^2 and sin(pi*x) on [0,1] ----
     # Rayleigh quotient R(u) = <u', u'> / <u, u>
     # For u = sin(pi*x): R = pi^2
-    print(f"\n  Rayleigh quotient test: R(sin(pi*x)) = pi^2")
+    print("\n  Rayleigh quotient test: R(sin(pi*x)) = pi^2")
     u1 = cj.chebfun(lambda x: jnp.sin(float(jnp.pi) * x), domain=dom)
     u1p = u1.diff()
     # <u1', u1'> = int (pi*cos(pi*x))^2 dx from 0 to 1 = pi^2/2

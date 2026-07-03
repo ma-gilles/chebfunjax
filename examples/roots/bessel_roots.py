@@ -7,36 +7,44 @@ Credit: Inspired by Chebfun examples roots/BesselRoots.m.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import scipy.special as sp
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.plotting import plot
+
 
 def run():
     print("=" * 60)
     print("Roots of Bessel function J_0 on [0, 100]")
     print("=" * 60)
 
-    from scipy.special import j0 as besselj0, jn_zeros
+    from scipy.special import j0 as besselj0
+    from scipy.special import jn_zeros
 
     # MATLAB: J0 = chebfun(@(x) besselj(0,x), [0 100])
     J0 = cj.chebfun(
         lambda x: jnp.array(besselj0(np.array(x))),
         domain=(0.0, 100.0),
     )
-    print(f"\nJ_0(x) on [0, 100]:")
+    print("\nJ_0(x) on [0, 100]:")
     print(f"  Chebfun length: {len(J0)}")
 
     # MATLAB: r = roots(J0)
@@ -48,7 +56,7 @@ def run():
     n_roots = min(len(r_arr), 30)
     ref_roots = jn_zeros(0, n_roots)
 
-    print(f"\n  First 10 roots of J_0 (vs scipy reference):")
+    print("\n  First 10 roots of J_0 (vs scipy reference):")
     print(f"  {'k':>4}  {'Chebfun root':>20}  {'scipy root':>20}  {'Error':>12}")
     for k in range(min(10, n_roots)):
         err = abs(r_arr[k] - ref_roots[k])

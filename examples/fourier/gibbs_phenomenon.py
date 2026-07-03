@@ -10,21 +10,26 @@ Credit: Inspired by Chebfun fourier/Gibbs examples.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-from chebfunjax.plotting import plot
 
 def partial_fourier_sum(N, x_eval):
     """Compute partial Fourier sum of sign(x-pi) on [0, 2*pi] at x_eval.
@@ -52,8 +57,8 @@ def run():
     N_vals = [10, 50, 200]
     x_eval = np.linspace(0.01, 2*pi - 0.01, 2000)
 
-    print(f"\nStep function sign(x-pi) on [0, 2*pi]:")
-    print(f"  Gibbs overshoot ~ 8.9% regardless of N:")
+    print("\nStep function sign(x-pi) on [0, 2*pi]:")
+    print("  Gibbs overshoot ~ 8.9% regardless of N:")
     for N in N_vals:
         S_N = partial_fourier_sum(N, x_eval)
         # Maximum of S_N near x = pi (the jump at x=pi, jump size = 2)
@@ -107,8 +112,8 @@ def run():
     x_test = np.array([0.5, 1.0, 2.5])
     exact_vals = np.exp(np.cos(x_test))
 
-    print(f"\nSmooth function exp(cos(x)):")
-    print(f"  Exponential Fourier convergence (no Gibbs):")
+    print("\nSmooth function exp(cos(x)):")
+    print("  Exponential Fourier convergence (no Gibbs):")
     for N in [2, 5, 10]:
         S_N = partial_fourier_smooth(N, x_test)
         max_err = np.max(np.abs(S_N - exact_vals))

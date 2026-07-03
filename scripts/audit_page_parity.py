@@ -24,7 +24,6 @@ from typing import Iterable
 from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
 
-
 PROJECT = Path(__file__).resolve().parent.parent
 DOCS_DIR = PROJECT / "docs"
 

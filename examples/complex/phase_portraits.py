@@ -9,18 +9,24 @@ March 2013) and complex/PhaseplotCommand.m (Nick Trefethen, October 2020).
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def phase_plot(ax, f_complex, xlim, ylim, n=400, title=""):
@@ -86,7 +92,7 @@ def run():
     args_zero = np.unwrap(np.angle(fs_zero))
     winding = (args_zero[-1] - args_zero[0]) / (2 * pi)
     print(f"\nWinding number of (z-1)/(z+1) around z=1 (zero): {winding:.4f}")
-    print(f"  (Expected +1: one zero)")
+    print("  (Expected +1: one zero)")
     assert abs(winding - 1.0) < 0.02, f"Winding number at zero: {winding}"
 
     # Verify pole at z=-1 (phase winds clockwise)
@@ -95,7 +101,7 @@ def run():
     args_pole = np.unwrap(np.angle(fs_pole))
     winding_pole = (args_pole[-1] - args_pole[0]) / (2 * pi)
     print(f"Winding number around z=-1 (pole): {winding_pole:.4f}")
-    print(f"  (Expected -1: one pole)")
+    print("  (Expected -1: one pole)")
     assert abs(winding_pole - (-1.0)) < 0.02, f"Winding at pole: {winding_pole}"
 
     # sin(z): zeros at n*pi

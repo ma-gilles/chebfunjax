@@ -5,18 +5,24 @@ integrating, and differentiating. Based on Chebfun2 examples.
 
 Original: https://www.chebfun.org/examples/approx2/
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -43,7 +49,7 @@ def run():
     assert abs(integral - exact_int) < 1e-8
 
     # --- Plot: contour and surface plots --------------------------------
-    from chebfunjax.plotting import surf, contour
+    from chebfunjax.plotting import contour, surf
 
     fig_s, ax_s = surf(f, title=r"$e^{-(x^2+y^2)}$")
     fig_s.savefig(os.path.join(outdir, 'chebfun2_basics_surf.png'),

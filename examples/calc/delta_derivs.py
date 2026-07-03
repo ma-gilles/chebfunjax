@@ -8,21 +8,27 @@ Credit: Inspired by Chebfun example calc/DeltaDerivs.m
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-from chebfunjax.plotting import plot
 
 def run():
     print("=" * 60)
@@ -53,7 +59,7 @@ def run():
     f_mean = float(f.mean())
     f = cj.chebfun(lambda x: f_func(x) - f_mean, domain=dom_small)
 
-    print(f"\nf statistics:")
+    print("\nf statistics:")
     x_max, f_max = f.max()
     x_min, f_min = f.min()
     f_sum = float(f.sum())

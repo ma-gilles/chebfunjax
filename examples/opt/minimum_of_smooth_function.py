@@ -7,21 +7,29 @@ Credit: Inspired by Chebfun opt/GlobalMinimum.m.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.plotting import plot
+
 
 def run():
     print("=" * 60)
@@ -32,7 +40,7 @@ def run():
     dom = (-float(jnp.pi), float(jnp.pi))
     f = cj.chebfun(lambda x: x**2 + jnp.sin(x), domain=dom)
     x_min, y_min = f.min()
-    print(f"\nf(x) = x^2 + sin(x) on [-pi, pi]:")
+    print("\nf(x) = x^2 + sin(x) on [-pi, pi]:")
     print(f"  min at x* = {x_min:.12f}")
     print(f"  min value = {y_min:.12f}")
     # f'(x) = 2x + cos(x) = 0 near x ~ -0.45
@@ -47,7 +55,7 @@ def run():
     g = cj.chebfun(lambda x: jnp.sin(8.0*x) + jnp.sin(5.0*x) + 0.3*x, domain=dom2)
     x_min2, y_min2 = g.min()
     x_max2, y_max2 = g.max()
-    print(f"\ng(x) = sin(8x) + sin(5x) + 0.3x on [0, 2*pi]:")
+    print("\ng(x) = sin(8x) + sin(5x) + 0.3x on [0, 2*pi]:")
     print(f"  Global min at x* = {x_min2:.12f}, value = {y_min2:.12f}")
     print(f"  Global max at x* = {x_max2:.12f}, value = {y_max2:.12f}")
     # Verify these are actual global extrema by checking all critical points
@@ -67,7 +75,7 @@ def run():
     dom_y = (-1.0, 3.0)
     f_y1 = cj.chebfun(lambda y: 100.0 * (y - 1.0)**2, domain=dom_y)
     min_y_pt, min_y_val = f_y1.min()
-    print(f"\nRosenbrock: min over y of 100*(y-1)^2:")
+    print("\nRosenbrock: min over y of 100*(y-1)^2:")
     print(f"  min at y* = {min_y_pt:.12f}  (exact: 1.0)")
     print(f"  min value = {min_y_val:.2e}  (exact: 0)")
     assert abs(min_y_pt - 1.0) < 1e-10

@@ -8,15 +8,20 @@ Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/EquispacedData.
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -35,7 +40,6 @@ def run():
         f_equi = cj.Chebfun.interp1(grid, data)
     except Exception:
         # fallback: build directly using polyfit on equispaced nodes
-        from numpy.polynomial import chebyshev as ncheb
         f_equi = cj.chebfun(lambda x: jnp.array(ff(float(x))))
 
     # Exact chebfun for reference

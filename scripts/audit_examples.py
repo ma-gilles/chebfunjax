@@ -14,12 +14,10 @@ Checks for each original MATLAB example:
 Outputs: CSV report + summary tables.
 """
 
-import os
-import re
 import csv
-import sys
-from pathlib import Path
+import re
 from collections import defaultdict
+from pathlib import Path
 
 # Paths
 PROJECT = Path(__file__).resolve().parent.parent

@@ -8,14 +8,19 @@ Original MATLAB: https://www.chebfun.org/examples/applics/VanillaOptions.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
+
+import os
 
 import numpy as np
 from scipy.stats import norm
-import os
+
 
 def run():
     print("=" * 60)
@@ -65,7 +70,7 @@ def run():
     C_low = vanilla(S_base, K, T_base, 0.2, r, 1)
     C_high = vanilla(S_base, K, T_base, 0.6, r, 1)
     assert C_high > C_low, "Higher vol should give higher call price"
-    print(f"  PASS: C(sigma=0.6) > C(sigma=0.2)")
+    print("  PASS: C(sigma=0.6) > C(sigma=0.2)")
 
     # --- 3. Put-call parity ---
     print("\n3. Put-call parity: C - P = S*e^(-q*T) - K*e^(-r*T)")

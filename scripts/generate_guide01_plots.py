@@ -15,19 +15,25 @@ library's automatic tick heuristic.
 """
 
 import matplotlib
+
 matplotlib.use('Agg')
 
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
-import jax.numpy as jnp
 import scipy.special as sp
+
 import chebfunjax as cj
 from chebfunjax.plotting import (
-    chebfun_style, save_chebfun_figure, _apply_style, CHEBFUN_BLUE,
+    CHEBFUN_BLUE,
+    _apply_style,
+    chebfun_style,
+    save_chebfun_figure,
 )
 from chebfunjax.utils.gallery import gallery
 

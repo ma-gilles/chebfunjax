@@ -9,18 +9,24 @@ December 2016) and complex/SCToolbox.m (Nick Trefethen, October 2010).
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def plot_conformal(ax_in, ax_out, f_map, xlim=(-2, 2), ylim=(-2, 2),
@@ -93,14 +99,14 @@ def run():
         if z.real > 0:
             assert abs(w) < 1.0, f"Cayley: |w|={abs(w)} should be < 1 for Re(z)>0"
         elif z.real == 0:
-            assert abs(abs(w) - 1.0) < 1e-10, f"Cayley: imaginary axis should map to unit circle"
+            assert abs(abs(w) - 1.0) < 1e-10, "Cayley: imaginary axis should map to unit circle"
 
     # Imaginary axis maps to unit circle
     test_pts_imag = [1j, -2j, 3j]
     for z in test_pts_imag:
         w = map_cayley(z)
         assert abs(abs(w) - 1.0) < 1e-12, f"Cayley: |w|={abs(w)} should be 1 on imaginary axis"
-    print(f"Cayley transform verified: right half-plane -> unit disk")
+    print("Cayley transform verified: right half-plane -> unit disk")
 
     # --- Map 4: w = sin(z) --------------------------------------------
     def map_sin(z):
@@ -133,7 +139,7 @@ def run():
             plot_conformal(ax_in, ax_out, fmap, xlim=xlim, ylim=ylim,
                            n_lines=12, n_pts=300,
                            title_in=f"$z$-plane: $w = {t_out}$",
-                           title_out=f"$w$-plane: image")
+                           title_out="$w$-plane: image")
         except Exception:
             ax_in.text(0.5, 0.5, f"w={t_out}", transform=ax_in.transAxes, ha='center')
 

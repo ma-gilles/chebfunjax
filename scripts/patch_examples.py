@@ -5,6 +5,7 @@
 2. Fix save-path for scripts that save to `_here` instead of docs/images/<cat>/.
 """
 from __future__ import annotations
+
 import os
 import re
 import sys
@@ -95,7 +96,6 @@ def fix_save_path(text: str, cat: str, stem: str) -> str:
 
     lines = text.split("\n")
     new_lines = []
-    outdir_added = False
 
     for i, line in enumerate(lines):
         # Replace _here assignment if it's the only place _here is used for savefig
@@ -159,7 +159,6 @@ def process_file(fpath: str, fix_path_info=None) -> bool:
 
 def main():
     modified = []
-    skipped = []
     errors = []
 
     # Build fix-path lookup

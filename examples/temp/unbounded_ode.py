@@ -9,15 +9,18 @@ Author: Nick Hale, November 2010
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.linalg import solve
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def solve_unbounded_ode(L=30, n=200):
@@ -51,7 +54,7 @@ def run():
     # u(0)=1: A+B=1
     # u(inf)=0: A=0 (since r1>0), so B=1
     # Thus: u(x) = exp(r2*x)
-    print(f"ODE 0.1u'' + u' + u = 0:")
+    print("ODE 0.1u'' + u' + u = 0:")
     print(f"  Roots: r1={r1:.4f}, r2={r2:.4f}")
     print(f"  Exact solution: u = exp({r2:.4f}*x)")
 

@@ -10,12 +10,15 @@ Copyright 2016 by The University of Oxford and The Chebfun Developers.
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
 import os
 import time
 
 import matplotlib.pyplot as plt
+
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 import jax.numpy as jnp
@@ -44,7 +47,7 @@ def run():
     f = chebfun3(lambda x, y, z: jnp.exp(jnp.sin(x * y * z + jnp.exp(x * y * z))))
     t_full = time.time() - t0
     I_full = float(f.sum3())
-    print(f"  Machine precision (tol=eps):")
+    print("  Machine precision (tol=eps):")
     print(f"    Tucker rank: {f.rank}")
     print(f"    I = {I_full:.15f}")
     print(f"    Time: {t_full:.3f}s")
@@ -61,7 +64,7 @@ def run():
     )
     t_g_full = time.time() - t0
     I_g_full = float(g_full.sum3())
-    print(f"  Machine precision:")
+    print("  Machine precision:")
     print(f"    Tucker rank: {g_full.rank}")
     print(f"    I = {I_g_full:.15f}")
     print(f"    Time: {t_g_full:.3f}s")

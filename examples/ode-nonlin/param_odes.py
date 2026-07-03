@@ -7,21 +7,29 @@ Credit: Chebfun example ode-nonlin/ParamODEs.m (Alex Townsend, Aug 2011).
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
+
 
 def run():
     print("=" * 60)
@@ -71,8 +79,8 @@ def run():
     # so u'(pi/2)=0. Shoot from x=0: u(0)=0, u'(0)=s, find (c, s) so u(pi/2)=1, u'(pi/2)=0.
     print("\nExample 3: u'' = c sin(u), u(0)=0, u(pi)=0, u(pi/2)=1")
     dom3 = (0.0, float(np.pi))
-    from scipy.optimize import fsolve
     from scipy.integrate import solve_ivp as _solve_ivp3
+    from scipy.optimize import fsolve
 
     def shoot3(params):
         c_val, s_val = params
@@ -116,7 +124,7 @@ def run():
     axes[1].plot(x_plot3, u3(x_plot3), 'b', linewidth=1.8)
     axes[1].axvline(np.pi/2, color='k', linestyle='--', linewidth=0.8)
     axes[1].plot(np.pi/2, 1.0, color='#D95319', marker='o', linestyle='none', markersize=6, label=f"u(π/2)=1 (c={c_opt:.3f})")
-    axes[1].set_title(f"u\" = c sin(u) with fixed interior value", fontsize=9)
+    axes[1].set_title("u\" = c sin(u) with fixed interior value", fontsize=9)
     axes[1].legend(fontsize=8)
 
     fig.suptitle("Parameter-dependent ODEs", fontsize=11)

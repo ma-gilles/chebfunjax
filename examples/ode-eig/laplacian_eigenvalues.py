@@ -7,22 +7,28 @@ Credit: Chebfun example ode-eig/DirLap.m.
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-from chebfunjax.plotting import plot
 from chebfunjax.operators.chebop import Chebop
+
 
 def run():
     print("=" * 60)
@@ -40,7 +46,7 @@ def run():
     lam = N.eigs(k=k)
     lam_real = np.sort(np.real(np.array(lam)))
     exact = np.array([n**2 for n in range(1, k+1)], dtype=float)
-    print(f"\nDirichlet on [0, pi]: eigenvalues (exact: n^2)")
+    print("\nDirichlet on [0, pi]: eigenvalues (exact: n^2)")
     print(f"  {'n':>4}  {'computed':>16}  {'exact':>8}  {'error':>10}")
     for i in range(k):
         err = abs(lam_real[i] - exact[i])
@@ -59,7 +65,7 @@ def run():
     lam2 = N2.eigs(k=k)
     lam2_real = np.sort(np.real(np.array(lam2)))
     exact2 = np.array([n**2 for n in range(0, k)], dtype=float)
-    print(f"\nNeumann on [0, pi]: eigenvalues (exact: n^2, n=0,1,...)")
+    print("\nNeumann on [0, pi]: eigenvalues (exact: n^2, n=0,1,...)")
     for i in range(k):
         err2 = abs(lam2_real[i] - exact2[i])
         print(f"  {i:>4}  {lam2_real[i]:>16.10f}  {exact2[i]:>8.1f}  {err2:.2e}")
@@ -68,7 +74,6 @@ def run():
 
     # --- Plots -------------------------------------------------------
     _here = os.path.dirname(os.path.abspath(__file__))
-    import matplotlib.pyplot as plt
     import numpy as _np
     fig, ax = plt.subplots()
     _n = _np.arange(1, k + 1)

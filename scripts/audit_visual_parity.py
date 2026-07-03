@@ -20,7 +20,6 @@ import csv
 import html
 import math
 import re
-import sys
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -29,7 +28,6 @@ from io import BytesIO
 from pathlib import Path
 
 from PIL import Image, ImageOps
-
 
 PROJECT = Path(__file__).resolve().parent.parent
 DOCS_EXAMPLES = PROJECT / "docs" / "examples"

@@ -10,15 +10,21 @@ Original MATLAB: https://www.chebfun.org/examples/integro/FracCalc2.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-import numpy as np
-from scipy.special import gamma, legendre as sp_legendre
-from numpy.polynomial import chebyshev as C
 import os
+
+import numpy as np
+from numpy.polynomial import chebyshev as C
+from scipy.special import gamma
+from scipy.special import legendre as sp_legendre
+
 
 def run():
     print("=" * 60)
@@ -79,19 +85,18 @@ def run():
     # Analytical: J^(1/4) e^x involves incomplete gamma functions
     # We just check the numerical integral is positive and smooth
     print(f"   J^(1/4) exp(x) at x=0: {J_quarter_num[len(x2)//2]:.6f}")
-    print(f"   (Positive and smooth)")
+    print("   (Positive and smooth)")
 
     # --- Caputo vs Riemann-Liouville fractional derivatives ---
     print("\n3. Caputo vs Riemann-Liouville quarter-derivative of exp(x)")
-    from scipy.special import gamma as g
 
     # For exp(x) on [-1,1], both derivatives are close to exp(x)
     # Caputo: diff then integrate;  RL: integrate then diff
     # Both satisfy (D^a D^(1-a) f) = f'
 
-    print(f"   Both forms interpolate between f(x) and f'(x)")
-    print(f"   At x=0: exp(0)=1, (exp)'(0)=1")
-    print(f"   D^(1/4) exp(0) ≈ between 1 and 1 (both should be ≈ 1)")
+    print("   Both forms interpolate between f(x) and f'(x)")
+    print("   At x=0: exp(0)=1, (exp)'(0)=1")
+    print("   D^(1/4) exp(0) ≈ between 1 and 1 (both should be ≈ 1)")
 
     # --- Plot ---
     _here = os.path.dirname(os.path.abspath(__file__))
@@ -109,7 +114,7 @@ def run():
     n_vals = np.arange(1, 9)
     # Coefficients c_n of P_n in J^(1/2) expansion: c_n = 1/((n+1/2)*Gamma(1/2))
     b_coeffs = 1.0 / ((n_vals + 0.5) * gamma(0.5))
-    axes[1].semilogy(n_vals, np.abs(b_coeffs), color='#0072BD', linestyle='.-', markersize=10)
+    axes[1].semilogy(n_vals, np.abs(b_coeffs), color='#0072BD', marker='.', linestyle='-', markersize=10)
     axes[1].set_title("Coefficient magnitudes in J^(1/2) formula", fontsize=11)
 
     fig.suptitle("Fractional calculus algorithms (Legendre/Jacobi)", fontsize=13)

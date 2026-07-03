@@ -15,25 +15,33 @@ chebfunjax.
 """
 
 import matplotlib
+
 matplotlib.use('Agg')
 
 import os
+
 os.environ.setdefault("JAX_PLATFORMS", "cpu")
 
 import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
-import jax.numpy as jnp
 import scipy.special as sp
+
 import chebfunjax as cj
-from chebfunjax.plotting import (
-    chebfun_style, save_chebfun_figure, _apply_style,
-    CHEBFUN_BLUE, CHEBFUN_RED, PARULA,
-)
 from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
 from chebfunjax.domain import Domain
+from chebfunjax.plotting import (
+    CHEBFUN_BLUE,
+    CHEBFUN_RED,
+    PARULA,
+    _apply_style,
+    chebfun_style,
+    save_chebfun_figure,
+)
 
 chebfun_style()
 
@@ -64,30 +72,9 @@ def _save(fig, idx):
     print(f"guide02_{idx:02d}.png saved")
 
 
-def plot_pieces(f, ax, color=CHEBFUN_BLUE, linewidth=1.2, n=400,
-                dotted_jumps=True, jump_tol=1e-6):
-    """Plot a piecewise Chebfun MATLAB-style.
-
-    Each smooth fun is drawn as a solid line over its own interval (so no
-    spurious line connects across a discontinuity), and interior jumps are
-    marked with a dotted vertical connector between the two one-sided
-    limits -- exactly as MATLAB Chebfun's ``plot`` does.
-    """
-    funs = f.funs
-    for piece in funs:
-        a, b = piece.interval
-        xs = np.linspace(a, b, n)
-        ys = np.array(piece(jnp.array(xs)))
-        ax.plot(xs, ys, color=color, linewidth=linewidth)
-    if dotted_jumps:
-        for i in range(len(funs) - 1):
-            xb = funs[i].interval[1]
-            yl = float(funs[i](jnp.float64(xb)))
-            yr = float(funs[i + 1](jnp.float64(xb)))
-            if abs(yl - yr) > jump_tol:
-                ax.plot([xb, xb], [yl, yr], color=color,
-                        linestyle=':', linewidth=linewidth)
-
+# NOTE: cj.plot (plotting.plot_1d) now renders piecewise chebfuns per-fun
+# with dotted vertical jump connectors in MATLAB-Chebfun style, so the
+# discontinuous figures below (1, 2, 7, 10, 11) use it directly.
 
 # --------------------------------------------------------------------------
 # Plot 1 (guide02_01): |J_0(x)| on [0, 20]
@@ -97,13 +84,12 @@ def plot_pieces(f, ax, color=CHEBFUN_BLUE, linewidth=1.2, n=400,
 try:
     g = cj.chebfun(lambda t: sp.jv(0, np.asarray(t, dtype=np.float64)), domain=[0, 20])
     g_abs = g.abs()
-    fig, ax = plt.subplots()
-    plot_pieces(g_abs, ax, color=CHEBFUN_BLUE)   # continuous: connectors auto-skipped
+    fig, ax = cj.plot(g_abs)   # continuous: connectors auto-skipped
     ax.set_ylim([0, 1.1])
-    _apply_style(ax)
     _save(fig, 1)
 except Exception as e:
-    import traceback; traceback.print_exc()
+    import traceback
+    traceback.print_exc()
     print(f"guide02_01.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
@@ -136,7 +122,8 @@ try:
     _apply_style(ax)
     _save(fig, 2)
 except Exception as e:
-    import traceback; traceback.print_exc()
+    import traceback
+    traceback.print_exc()
     print(f"guide02_02.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
@@ -157,7 +144,8 @@ try:
     ax.set_yticks(np.arange(0, 1.21, 0.2))   # after _apply_style (overrides MaxNLocator)
     _save(fig, 3)
 except Exception as e:
-    import traceback; traceback.print_exc()
+    import traceback
+    traceback.print_exc()
     print(f"guide02_03.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
@@ -171,7 +159,8 @@ try:
     _apply_style(ax)
     _save(fig, 4)
 except Exception as e:
-    import traceback; traceback.print_exc()
+    import traceback
+    traceback.print_exc()
     print(f"guide02_04.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
@@ -191,7 +180,8 @@ try:
     ax.grid(True, color=(0.85, 0.85, 0.85), linewidth=0.5, linestyle='-')
     _save(fig, 5)
 except Exception as e:
-    import traceback; traceback.print_exc()
+    import traceback
+    traceback.print_exc()
     print(f"guide02_05.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
@@ -212,7 +202,8 @@ try:
     ax.grid(True, color=(0.85, 0.85, 0.85), linewidth=0.5, linestyle='-')
     _save(fig, 6)
 except Exception as e:
-    import traceback; traceback.print_exc()
+    import traceback
+    traceback.print_exc()
     print(f"guide02_06.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
@@ -250,7 +241,8 @@ try:
     ax2.set_position([348 / 610, bottom, (551 - 348) / 610, height])
     _save(fig, 7)
 except Exception as e:
-    import traceback; traceback.print_exc()
+    import traceback
+    traceback.print_exc()
     print(f"guide02_07.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
@@ -282,7 +274,8 @@ try:
     ax.set_yticks(np.arange(0, 101, 20))
     _save(fig, 8)
 except Exception as e:
-    import traceback; traceback.print_exc()
+    import traceback
+    traceback.print_exc()
     print(f"guide02_08.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
@@ -300,7 +293,8 @@ try:
     _apply_style(ax)
     _save(fig, 9)
 except Exception as e:
-    import traceback; traceback.print_exc()
+    import traceback
+    traceback.print_exc()
     print(f"guide02_09.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
@@ -319,7 +313,8 @@ try:
     _apply_style(ax)
     _save(fig, 10)
 except Exception as e:
-    import traceback; traceback.print_exc()
+    import traceback
+    traceback.print_exc()
     print(f"guide02_10.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
@@ -353,7 +348,8 @@ try:
     _apply_style(ax)
     _save(fig, 11)
 except Exception as e:
-    import traceback; traceback.print_exc()
+    import traceback
+    traceback.print_exc()
     print(f"guide02_11.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
@@ -368,7 +364,8 @@ try:
     _apply_style(ax)
     _save(fig, 12)
 except Exception as e:
-    import traceback; traceback.print_exc()
+    import traceback
+    traceback.print_exc()
     print(f"guide02_12.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
@@ -426,7 +423,8 @@ try:
     zz = np.array(f2d(jnp.array(xx), jnp.array(yy)))
     contour_box(zz, xv, yv, 13)
 except Exception as e:
-    import traceback; traceback.print_exc()
+    import traceback
+    traceback.print_exc()
     print(f"guide02_13.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
@@ -440,7 +438,8 @@ try:
     zz = np.array(f2(jnp.array(xx), jnp.array(yy)))
     contour_box(zz, xv, yv, 14)
 except Exception as e:
-    import traceback; traceback.print_exc()
+    import traceback
+    traceback.print_exc()
     print(f"guide02_14.png FAILED: {e}")
 
 print("\nGuide 02: generated 14 plots total.")

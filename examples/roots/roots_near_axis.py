@@ -6,18 +6,24 @@ roots/RootsNearAxis.m by Nick Trefethen (October 2011).
 
 Original: https://www.chebfun.org/examples/roots/RootsNearAxis.html
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def run():
@@ -45,7 +51,7 @@ def run():
     fv = np.array(f(jnp.array(xx)))
     axes[0].plot(xx, fv, color='#0072BD', linestyle='-', linewidth=1.5)
     axes[0].axhline(0, color='k', linewidth=0.8, linestyle='--')
-    axes[0].set_title('$f(x) = 3 + \sin(x) + \sin(\pi x)$', fontsize=11)
+    axes[0].set_title(r'$f(x) = 3 + \sin(x) + \sin(\pi x)$', fontsize=11)
     axes[0].set_ylim(-1.5, 5.5)
 
     # Bernstein ellipse for f

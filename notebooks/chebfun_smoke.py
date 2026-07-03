@@ -7,10 +7,12 @@
 
 # %%
 import matplotlib
+
 matplotlib.use("Agg")  # headless on HPC — override here for script use only
 
-import chebfunjax as cj
 import jax.numpy as jnp
+
+import chebfunjax as cj
 
 # %%
 # 1-D Chebfun: sin(x)
@@ -28,6 +30,7 @@ print("plotcoeffs(sin): OK")
 # %%
 # 2-D Chebfun: cos(x + y)
 from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+
 g = Chebfun2.from_function(lambda x, y: jnp.cos(x + y))
 fig, ax = cj.surf(g, title="cos(x+y)")
 fig.savefig("smoke_surf_cos.png", dpi=72)

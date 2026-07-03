@@ -9,18 +9,25 @@ Credit: Inspired by Chebfun example complex/ComplexArcLength.m
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def arc_length(z_func, dom):
@@ -50,7 +57,7 @@ def run():
         return np.exp(1j * t)
 
     L1 = arc_length(z_circle, (0.0, 2.0 * pi))
-    print(f"\nUnit circle arc length:")
+    print("\nUnit circle arc length:")
     print(f"  Computed: {L1:.10f}")
     print(f"  Exact 2*pi = {2*pi:.10f}")
     assert abs(L1 - 2*pi) < 1e-8, f"Circle length error: {L1 - 2*pi}"
@@ -61,7 +68,7 @@ def run():
         return t * (1 + 1j)
 
     L2 = arc_length(z_line, (0.0, 1.0))
-    print(f"\nLine z(t) = (1+i)*t arc length:")
+    print("\nLine z(t) = (1+i)*t arc length:")
     print(f"  Computed: {L2:.10f}")
     print(f"  Exact sqrt(2) = {float(jnp.sqrt(jnp.array(2.0))):.10f}")
     assert abs(L2 - float(jnp.sqrt(jnp.array(2.0)))) < 1e-10
@@ -92,7 +99,7 @@ def run():
     # Exact: int_0^10 sqrt(1+t^2) dt = [t*sqrt(1+t^2)/2 + arcsinh(t)/2]_0^10
     T = 10.0
     exact_L4 = (T * np.sqrt(1 + T**2) + np.arcsinh(T)) / 2.0
-    print(f"\nSpiral z(t) = t*exp(it), t in [0,10] arc length:")
+    print("\nSpiral z(t) = t*exp(it), t in [0,10] arc length:")
     print(f"  Computed: {L4:.10f}")
     print(f"  Exact: {exact_L4:.10f}")
     assert abs(L4 - exact_L4) < 1e-6, f"Spiral length error: {L4 - exact_L4}"
@@ -108,7 +115,7 @@ def run():
         return c1 + t * (c2 - c1)
 
     L5 = arc_length(z_leg, (0.0, 1.0))
-    print(f"\nKeyhole top leg arc length:")
+    print("\nKeyhole top leg arc length:")
     print(f"  Computed: {L5:.10f}")
     print(f"  Exact (straight line): {L5_exact:.10f}")
     assert abs(L5 - L5_exact) < 1e-10

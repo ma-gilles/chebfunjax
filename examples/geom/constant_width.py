@@ -8,16 +8,17 @@ Author: Nick Trefethen, May 2022
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-import jax.numpy as jnp
 import numpy as np
-from matplotlib.patches import Polygon
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def constant_width_poly(x, y):
@@ -81,7 +82,7 @@ def run():
 
     print(f"\np(-8, 0) = {poly_x_axis(-8):.2e}  (should be ~0)")
     print(f"p(10, 0) = {poly_x_axis(10):.2e}  (should be ~0)")
-    print(f"Exact width should be 18 = 10 - (-8)")
+    print("Exact width should be 18 = 10 - (-8)")
 
     # Plot
     fig, axes = plt.subplots(1, 2)

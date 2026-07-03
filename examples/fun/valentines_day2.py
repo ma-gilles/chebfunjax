@@ -9,15 +9,17 @@ Author: Anonymous, February 2013
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 def heart_surface(u, v):
@@ -89,10 +91,10 @@ def run():
 
     # Areas
     area_classic = abs(np.sum(x1[:-1] * np.diff(y1)))
-    print(f"Valentine's Day 2:")
+    print("Valentine's Day 2:")
     print(f"  Classic heart area: {area_classic:.2f}")
     print(f"  Exact area: {180*np.pi:.2f}")
-    print(f"  6 hearts in rose of radius 20")
+    print("  6 hearts in rose of radius 20")
 
     fig.suptitle("Happy Valentine's Day! (Chebfun2 Edition)", fontsize=12)
     fig.tight_layout()

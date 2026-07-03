@@ -9,16 +9,17 @@ Author: Nicolas Boulle, July 2019
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
-from scipy.integrate import solve_ivp
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style, PARULA, _setup_3d_axes
+from chebfunjax.plotting import PARULA, chebfun_style
+
 chebfun_style()
 
 def spherical_harmonic(l, m, theta, phi):
@@ -104,7 +105,7 @@ def run():
     fig = plt.figure(figsize=(14, 4.5), facecolor='white')
 
     panels = [
-        (F0, f'Initial: $Y_2^1(\\theta, \\phi)$'),
+        (F0, 'Initial: $Y_2^1(\\theta, \\phi)$'),
         (F_diff, f'After diffusion $t={t_final}$\n(decayed by {decay:.4f})'),
         (F_adv, f'With advection $t={t_adv}$\n(rotated + decayed)'),
     ]
@@ -114,7 +115,7 @@ def run():
         _sphere_panel(ax, fig, X, Y, Z, F, title, cmap=PARULA,
                       vmin=vmin, vmax=vmax)
 
-    print(f"Advection-diffusion on sphere:")
+    print("Advection-diffusion on sphere:")
     print(f"  Y_2^1 eigenvalue of Laplace-Beltrami: -l(l+1) = {-l*(l+1)}")
     print(f"  Decay factor exp(-{l*(l+1)}*{kappa}*{t_final}) = {decay:.6f}")
 

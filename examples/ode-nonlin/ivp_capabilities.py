@@ -7,22 +7,30 @@ Credit: Chebfun example ode-nonlin/IVPCapabilities.m (Asgeir Birkisson, Feb 2015
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
+import sys
+
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import solve_ivp
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
 from chebfunjax.operators.chebop import Chebop
+
 
 def run():
     print("=" * 60)
@@ -56,7 +64,7 @@ def run():
     # Example 3: Simple pendulum BVP (short domain — Chebop works)
     # theta'' + sin(theta) = 0, theta(0) = pi/3, theta'(0) = 0
     dom_pend = (0.0, 10.0)
-    print(f"\nPendulum BVP: theta'' + sin(theta) = 0 on [0,10]")
+    print("\nPendulum BVP: theta'' + sin(theta) = 0 on [0,10]")
 
     def pend_rhs(t, y): return [y[1], -np.sin(y[0])]
     sol_pend = solve_ivp(pend_rhs, dom_pend, [np.pi/3, 0.0],
@@ -77,7 +85,7 @@ def run():
     # Example 4: Logistic equation — u' = u*(1-u), BVP as Chebfun
     # Use exact solution directly to verify Chebfun evaluation, not Chebop BVP
     dom_log = (0.0, 5.0)
-    print(f"\nLogistic function: u = u0/(u0 + (1-u0)exp(-t))")
+    print("\nLogistic function: u = u0/(u0 + (1-u0)exp(-t))")
     u0_log = 0.1
     u_exact = cj.chebfun(
         lambda t: u0_log / (u0_log + (1.0 - u0_log) * jnp.exp(-t)),

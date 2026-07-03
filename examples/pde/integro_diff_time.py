@@ -12,14 +12,18 @@ Original MATLAB: https://www.chebfun.org/examples/pde/IntegroDiffT.html
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 from chebfunjax.plotting import chebfun_style
+
 chebfun_style()
 
-import numpy as np
-from scipy.special import erf
 import os
+
+import numpy as np
+
 
 def run():
     print("=" * 60)
@@ -41,7 +45,7 @@ def run():
     # Initial condition: (1-x^2)*exp(-30*(x+0.5)^2)
     u0 = (1 - x**2) * np.exp(-30 * (x + 0.5)**2)
 
-    print(f"\nInitial condition: (1-x^2)*exp(-30*(x+0.5)^2)")
+    print("\nInitial condition: (1-x^2)*exp(-30*(x+0.5)^2)")
     print(f"  max(u0) = {u0.max():.4f}")
 
     def rhs(t, u):
@@ -101,7 +105,7 @@ def run():
 
     # Integral over time
     total_integrals = [np.trapezoid(history[t], x) for t in t_show]
-    axes[1].plot(t_show, total_integrals, color='#0072BD', linestyle='.-', markersize=8)
+    axes[1].plot(t_show, total_integrals, color='#0072BD', marker='.', linestyle='-', markersize=8)
     axes[1].set_title("Total integral ∫u dx vs time", fontsize=11)
 
     fig.suptitle("Time-dependent integro-differential equation", fontsize=13)

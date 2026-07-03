@@ -10,15 +10,17 @@ Authors: Alex Townsend and Grady Wright, May 2016
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
-import sys, os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style, PARULA, _setup_3d_axes
+from chebfunjax.plotting import PARULA, chebfun_style
+
 chebfun_style()
 
 def surface_curl(psi, theta, phi, theta_1d, phi_1d):
@@ -131,8 +133,8 @@ def run():
                   'Total $|\\mathbf{V}|$ on sphere', cmap=PARULA)
 
     print("Helmholtz-Hodge decomposition on sphere:")
-    print(f"  Divergence-free (stream function): psi = sin^2(th)*cos(2*phi)")
-    print(f"  Curl-free (potential): phi = cos(th)*sin(phi)")
+    print("  Divergence-free (stream function): psi = sin^2(th)*cos(2*phi)")
+    print("  Curl-free (potential): phi = cos(th)*sin(phi)")
     print(f"  Max |V_div|: {np.max(mag_div):.4f}")
     print(f"  Max |V_curl|: {np.max(mag_curl):.4f}")
 

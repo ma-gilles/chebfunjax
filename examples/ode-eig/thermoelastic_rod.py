@@ -10,19 +10,22 @@ Credit: Chebfun example ode-eig/ThermoelasticRod.m (Toby Driscoll, Nov 2011).
 Original MATLAB Chebfun: Copyright 2017 by The University of Oxford and
 The Chebfun Developers. See https://www.chebfun.org/ for Chebfun information.
 """
-import os; os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
+
 matplotlib.use("Agg")
+import os
+import sys
+
 import matplotlib.pyplot as plt
-import jax.numpy as jnp
 import numpy as np
 from scipy.linalg import eig as scipy_eig
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
-from chebfunjax.operators.chebop import Chebop
 
 def thermoelastic_eigs(delta, N=64):
     """Compute eigenvalues of thermoelastic rod problem via matrix discretization.
@@ -130,7 +133,7 @@ def run():
     max_real_stable = np.max(np.real(top4))
     print(f"  Max Re(lambda): {max_real_stable:.4f} (should be < 0 for stability)")
     # Note: Chebyshev discretization accuracy varies; plot is still meaningful
-    print(f"  (Note: custom Chebop matrix discretization gives approx values)")
+    print("  (Note: custom Chebop matrix discretization gives approx values)")
 
     # ------------------------------------------------------------------
     # Unstable case: delta = 1.02
