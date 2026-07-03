@@ -399,7 +399,10 @@ class TestPolyfitL1:
         """Higher degree should give lower L1 error."""
         from chebfunjax.chebfun1d.chebfun import chebfun
 
-        f = chebfun(lambda x: jnp.abs(x))
+        # Build |x| as a proper 2-piece chebfun (root-splitting). Feeding
+        # jnp.abs to the smooth constructor burns to an unhappy
+        # 65537-point representation and made this test time out on CI.
+        f = chebfun(lambda x: x).abs()
         xs = jnp.linspace(-0.9, 0.9, 100)
         fvals = f(xs)
         p3 = f.polyfitL1(3)
