@@ -198,7 +198,6 @@ def _phase_one_sphere(
     # Remove pole rows (first and last)
     Fp = Fp[1 : m - 1, :]
     Fm = Fm[1 : m - 1, :]
-    mr = m - 2  # reduced row dimension (interior points only)
 
     maxp_val = float(np.max(np.abs(Fp))) if Fp.size > 0 else 0.0
     maxm_val = float(np.max(np.abs(Fm))) if Fm.size > 0 else 0.0
@@ -218,8 +217,11 @@ def _phase_one_sphere(
         else:
             idx = idxm
 
-        j = idx % mr
-        k = idx // mr
+        # numpy argmax flattens in C (row-major) order:
+        # j = idx // ncols, k = idx % ncols. (Same column-major bug as
+        # the Diskfun constructor, fixed in ab53808 — scrambled pivots
+        # caused zero-divisions and frozen ranks.)
+        j, k = divmod(idx, Fp.shape[1])
 
         evp = float(Fp[j, k])
         evm = float(Fm[j, k])
@@ -800,7 +802,7 @@ class Spherefun(eqx.Module):
                 )
 
             tol_abs, vscale = _get_tol_sphere(F, np.pi / grid, np.pi / grid, pseudo_level)
-            tol_abs = max(tol_abs, 1e4 * tol)
+            # (no 1e4*eps floor: MATLAB's getTol is used as computed)
 
             pivot_indices, pivot_array, remove_poles, happy_rank = _phase_one_sphere(
                 F, tol_abs, alpha, factor
