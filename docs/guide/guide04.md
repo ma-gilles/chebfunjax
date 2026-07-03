@@ -1,419 +1,328 @@
-# Chapter 4: Chebfun and Approximation Theory
+# 4. Chebfun and Approximation Theory
 
 *Based on [Chebfun Guide Chapter 4](https://www.chebfun.org/docs/guide/guide04.html) by Lloyd N. Trefethen*
+*Python/chebfunjax translation, 2026*
 
-## 4.1 Chebyshev Points and Interpolants
+## 4.1  Chebyshev series and interpolants
 
-Chebfunjax is built on polynomial interpolation at Chebyshev points.  The
-$n$ Chebyshev points of the second kind on $[-1, 1]$ are
+Chebfunjax is founded on the mathematical subject of approximation theory, and in particular, on Chebyshev series and interpolants. Conversely, it provides a simple environment in which to demonstrate these approximants and other approximation ideas.
 
-$$x_j = -\cos\!\left(\frac{j\pi}{n-1}\right), \qquad j = 0, 1, \ldots, n-1.$$
+The history of "Chebyshev technology" goes back to the 19th century Russian mathematician P. L. Chebyshev (1821-1894) and his mathematical descendants such as Zolotarev and Bernstein (1880-1968). These men realized that just as Fourier series provide an efficient way to represent a smooth periodic function, series of Chebyshev polynomials can do the same for a smooth nonperiodic function. Much of the relevant material is collected in the Chebfun-based book *Approximation Theory and Approximation Practice* [Trefethen 2013].
 
-These are the extrema (plus endpoints) of the Chebyshev polynomial $T_{n-1}(x)$,
-and they cluster near the endpoints of the interval.  You can compute them with:
+Let us begin with a look at Chebyshev polynomials. The Chebyshev polynomial of degree $n$ is defined for $x \in [-1,1]$ by $T_n(x) = \cos(n\cos^{-1}x)$. In chebfunjax the degree-$n$ Chebyshev polynomial is available as a coefficient vector from `chebpoly`, and it can be turned into a Chebfun with `Chebfun.from_coeffs`:
 
 ```python
 import jax.numpy as jnp
+import numpy as np
 import chebfunjax as cj
-from chebfunjax.utils.quadrature import chebpts
+from chebfunjax.utils.polynomials import chebpoly
 
-pts = chebpts(10)
-print(pts)
+T2 = cj.Chebfun.from_coeffs(jnp.array(chebpoly(2)))
 ```
+
+Here are the first nine Chebyshev polynomials expressed in the monomial basis (the analogue of MATLAB's `poly(chebpoly(n))`):
+
+```
+T0:  1
+T1:  x
+T2:  2x^2 - 1
+T3:  4x^3 - 3x
+T4:  8x^4 - 8x^2 + 1
+T5:  16x^5 - 20x^3 + 5x
+T6:  32x^6 - 48x^4 + 18x^2 - 1
+T7:  64x^7 - 112x^5 + 56x^3 - 7x
+T8:  128x^8 - 256x^6 + 160x^4 - 32x^2 + 1
+```
+
+The expansion of a function in Chebyshev polynomials, unlike the monomial expansion, is a numerically stable representation.
+
+Here are plots of $T_2$, $T_3$, $T_{15}$, and $T_{50}$:
+
+```python
+import matplotlib.pyplot as plt
+
+fig, axes = plt.subplots(2, 2)
+for ax, N in zip(axes.flat, [2, 3, 15, 50]):
+    T = cj.Chebfun.from_coeffs(jnp.array(chebpoly(N)))
+    xs = np.linspace(-1, 1, 3000)
+    ax.plot(xs, np.asarray(T(jnp.array(xs))))
+    ax.set_ylim(-1.5, 1.5)
+```
+
+![](../images/guide/guide04_01.png)
+
+A Chebyshev series is an expansion $f(x) = \sum_{k=0}^{\infty} a_k T_k(x)$, and the $a_k$ are known as Chebyshev coefficients. So long as $f$ is Lipschitz continuous, it has a unique such expansion, which converges absolutely and uniformly. Chebfunjax represents smooth functions on $[-1,1]$ by their Chebyshev coefficients, which is the reason for the "cheb" in the name.
+
+## 4.2  `chebcoeffs` and `poly`
+
+The command `chebpoly(n)` returns the coefficients of the degree-$n$ Chebyshev polynomial. More often we want to go the other way, computing the Chebyshev coefficients of a given Chebfun. These are available directly as `f.coeffs`. For example, here are the Chebyshev coefficients of $x^3$:
+
+```python
+x = cj.chebfun(lambda x: x)
+(x**3).coeffs
+```
+```
+Array([0.  , 0.75, 0.  , 0.25])
+```
+
+This tells us that $x^3 = \tfrac34 T_1(x) + \tfrac14 T_3(x)$.
+
+Here on the other hand are the Chebyshev coefficients of $\sin(x)$:
+
+```python
+cj.chebfun(lambda x: jnp.sin(x)).coeffs
+```
+```
+Array([ 0.        ,  0.88010117, -0.        , -0.03912670,  0.        ,
+        0.00049951, ...])   # length 14
+```
+
+The absence of even-order coefficients reflects that $\sin(x)$ is an odd function, and the rapid decay reflects its smoothness.
+
+The Chebyshev coefficients are essentially independent of scale. Multiplying $\sin(x)$ by $10^{100}$ multiplies the coefficients by the same factor and leaves the length unchanged:
+
+```python
+cj.chebfun(lambda x: 1e100 * jnp.sin(x)).coeffs
+```
+```
+Array([ 3.568e+83,  8.801e+99, -4.227e+83, -3.913e+98, ...])
+```
+
+The relationship between a Chebfun's Chebyshev coefficients and its monomial ("Taylor") coefficients is numerically delicate. For $\exp(x)$ the Chebyshev representation has length 15, and the exact monomial coefficients would be $1/k!$; but converting between the two bases is exponentially ill-conditioned in the degree, so chebfunjax does not offer a `poly` command. The Chebyshev representation is the stable one.
+
+## 4.3  `chebfun(...,N)` and the Gibbs phenomenon
+
+We can examine the effect of truncating a Chebyshev series by asking chebfunjax to construct a Chebfun with a fixed number of points $N$ rather than adaptively. This is done by passing `n=N` to the constructor. For a discontinuous function, the truncated interpolant exhibits the Gibbs phenomenon: an oscillatory overshoot near the jump. Here is $\mathrm{sign}(x)$ interpolated in $N = 10$ and $N = 20$ Chebyshev points (dots mark the interpolation nodes):
+
+```python
+f = cj.chebfun(lambda x: jnp.sign(x), n=10)
+f.plot()   # '.-' style: line through the Chebyshev points with dot markers
+```
+
+![](../images/guide/guide04_02.png)
+
+If we zoom in near the discontinuity we can see the overshoot more clearly:
+
+![](../images/guide/guide04_03.png)
+
+The overshoot does not diminish as $N$ increases; it simply gets narrower. Here are the interpolants for $N = 100$ and $N = 1000$, zoomed to $[0, 0.08]$ and $[0, 0.008]$:
 
 ![](../images/guide/guide04_04.png)
 
-
-A chebfun of length $n$ is the unique polynomial of degree $\leq n-1$ that
-interpolates the function values at these $n$ Chebyshev points.  Equivalently,
-it is a truncated Chebyshev series:
-
-$$p(x) = \sum_{k=0}^{n-1} c_k\, T_k(x),$$
-
-where $T_k(x) = \cos(k \arccos x)$ is the $k$-th Chebyshev polynomial of the
-first kind.
-
-## 4.2 Chebyshev Coefficients
-
-The Chebyshev coefficients $c_0, c_1, \ldots, c_{n-1}$ of a chebfun are
-accessible via the `coeffs` property:
+The height of the maximum overshoot converges to a constant, the Gibbs constant for Chebyshev interpolation. Here is `max(f)` for $N = 2, 4, 8, \ldots, 256$:
 
 ```python
-f = cj.chebfun(jnp.exp)
-c = f.coeffs
-print(f"Number of coefficients: {len(c)}")
-for k in range(min(8, len(c))):
-    print(f"  c[{k}] = {float(c[k]):.15e}")
+for N in [2, 4, 8, 16, 32, 64, 128, 256]:
+    f = cj.chebfun(lambda x: jnp.sign(x), n=N)
+    print(f"{N:5d}  {float(f.max()[1]):.8f}")
 ```
+```
+    2   1.00000000
+    4   1.18807518
+    8   1.26355125
+   16   1.27816423
+   32   1.28131717
+   64   1.28204939
+  128   1.28222585
+  256   1.28226917
+```
+
+The overshoot approaches the limiting value $\approx 1.282283$.
+
+## 4.4  Smoothness and rate of convergence
+
+The number of points chebfunjax needs to resolve a function to machine precision reflects the function's smoothness. A function analytic in a neighborhood of $[-1,1]$ has geometrically decaying Chebyshev coefficients, so only a few dozen points are needed; a function with a singularity has coefficients that decay only algebraically, so many more are needed.
+
+Here is $|x|$ interpolated in $N = 10$ and $N = 20$ points, then in $N = 100$ and $N = 1000$ points:
 
 ![](../images/guide/guide04_05.png)
 
-
-For the exponential function on $[-1, 1]$, the Chebyshev coefficients are
-related to modified Bessel functions: $c_k = 2 I_k(1)$ for $k \geq 1$ (and
-$c_0 = I_0(1)$).
-
-### Plotting coefficients
-
-The `plotcoeffs` function produces a semilog plot of the absolute values of
-the Chebyshev coefficients:
-
-```python
-f = cj.chebfun(jnp.exp)
-cj.plotcoeffs(f)
-```
-
-![Chebyshev coefficients of exp(x)](../images/guide/guide04_01.png)
-
-For an *analytic* function (one that can be continued analytically to a region
-in the complex plane), the coefficients decay geometrically -- the semilog
-plot is approximately a straight line.  For functions with limited smoothness,
-the decay is algebraic -- the semilog plot curves downward more slowly.
-
-## 4.3 Chebyshev Polynomials
-
-The Chebyshev polynomials themselves are available via:
-
-```python
-from chebfunjax.utils.polynomials import chebpoly
-
-# T_5(x) as a coefficient array
-T5_coeffs = chebpoly(5)
-print(T5_coeffs)
-# [0. 0. 0. 0. 0. 1.]  -- only the degree-5 coefficient is nonzero
-
-# Build a chebfun representing T_5:
-T5 = cj.Chebfun.from_coeffs(T5_coeffs)
-print(float(T5(0.5)))  # T_5(0.5) = cos(5 * arccos(0.5))
-```
-
 ![](../images/guide/guide04_06.png)
 
-
-The Chebyshev polynomials satisfy the three-term recurrence
-
-$$T_0(x) = 1, \quad T_1(x) = x, \quad T_{k+1}(x) = 2x\,T_k(x) - T_{k-1}(x),$$
-
-and the trigonometric identity $T_k(\cos\theta) = \cos(k\theta)$.
-
-## 4.4 Five Theorems of Approximation Theory
-
-The power of Chebyshev interpolation rests on several key theorems.  Here we
-state them informally and illustrate each with chebfunjax.
-
-### Theorem 1: Near-best approximation
-
-*Chebyshev interpolants are near-best polynomial approximants.*
-
-If $p_n^*$ is the best (minimax) polynomial approximation of degree $n$ to a
-continuous function $f$ on $[-1, 1]$, and $p_n$ is the Chebyshev interpolant
-of degree $n$, then
-
-$$\|f - p_n\|_\infty \leq \left(2 + \frac{2}{\pi}\log(n+1)\right) \|f - p_n^*\|_\infty.$$
-
-The logarithmic factor grows so slowly that, in practice, Chebyshev
-interpolants are within a small constant factor of optimal.
+The interpolant improves only slowly, because $|x|$ has a corner at $x = 0$. We can measure the error against the exact function on a fine grid:
 
 ```python
-# Demonstrate near-optimality: compare truncated Chebyshev series
-# with the function for various degrees
-f = cj.chebfun(lambda x: 1.0 / (1 + 25 * x**2))
-for n in [10, 20, 40, 80]:
-    fn = f.polyfit(n)
-    err = (f - fn).norm(jnp.inf)
-    print(f"  degree {n:3d}: ||f - p_n||_inf = {float(err):.6e}")
+for N in [10, 100, 1000]:
+    fN = cj.chebfun(lambda x: jnp.abs(x), n=N)
+    xs = np.linspace(-1, 1, 5000)
+    err = np.max(np.abs(np.asarray(fN(jnp.array(xs))) - np.abs(xs)))
+    print(f"err{N} = {err:.3e}")
+```
+```
+err10   = 1.109e-01
+err100  = 9.902e-03
+err1000 = 8.106e-04
+```
+
+The error decreases in proportion to $1/N$ — first-order algebraic convergence — because $|x|$ has a first-order singularity.
+
+The smoother a function, the shorter its adaptive Chebfun. The functions $|x|\,x^k$ gain continuous derivatives as $k$ increases, and the lengths shrink:
+
+```python
+for k in [1, 2, 3, 4]:
+    print(len(cj.chebfun(lambda x, k=k: jnp.abs(x) * x**k)))
+```
+```
+65537
+ 1259
+  694
+  389
+```
+
+For $k = 2, 3, 4$ the function has enough continuous derivatives to be resolved in a few hundred to a thousand points. For $k = 1$, $|x|\,x = \mathrm{sign}(x)\,x^2$ has only one continuous derivative, and chebfunjax's global (non-splitting) construction fails to resolve the corner, returning the "unhappy" maximum of 65537 points. (Chebfunjax does not yet support automatic edge detection / splitting; with an explicit breakpoint at $x=0$ the two smooth pieces would resolve immediately.)
+
+For a function like $|x|^5$ with an isolated algebraic singularity, the truncation error decays like $N^{-5}$. We can see this by comparing the fixed-$N$ interpolants against the adaptive Chebfun on log-log and semi-log axes:
+
+```python
+exact = cj.chebfun(lambda x: jnp.abs(x)**5)
+NN = np.arange(1, 101)
+e = np.array([float((cj.chebfun(lambda x: jnp.abs(x)**5, n=int(N)) - exact).norm(2))
+              for N in NN])
 ```
 
 ![](../images/guide/guide04_07.png)
 
-
-### Theorem 2: Algebraic convergence for smooth functions
-
-*If $f$ has $k$ continuous derivatives with the $k$-th derivative of bounded
-variation, then the Chebyshev interpolant converges at rate $O(n^{-k})$.*
-
-This means: the smoother the function, the faster the convergence.
+The straight line on the log-log plot (left) confirms the algebraic rate $N^{-5}$ (dashed red reference line). For a function analytic in a neighborhood of $[-1,1]$, like the Runge function $1/(1+25x^2)$, the convergence is instead *geometric* — a straight line on the semi-log plot:
 
 ```python
-# |x| has a kink at x=0: convergence is O(n^{-1})
-f = cj.chebfun(lambda x: jnp.abs(x))
-for n in [10, 20, 40, 80, 160]:
-    fn = cj.chebfun(lambda x: jnp.abs(x), n=n)
-    err_coeffs = f.coeffs
-    # Approximate the error by looking at the tail of the Chebyshev series
-    print(f"  n = {n:4d}: last |coeff| = {float(jnp.abs(fn.coeffs[-1])):.6e}")
+exact = cj.chebfun(lambda x: 1 / (1 + 25 * x**2))
+c = 1/5 + np.sqrt(1 + 1/25)          # geometric rate
+e = np.array([float((cj.chebfun(lambda x: 1 / (1 + 25 * x**2), n=int(N)) - exact).norm(2))
+              for N in NN])
 ```
 
 ![](../images/guide/guide04_08.png)
 
+The geometric rate $C^{-N}$ is governed by the size of the largest Bernstein ellipse in which the function is analytic.
 
-### Theorem 3: Geometric convergence for analytic functions
+## 4.5  Five theorems
 
-*If $f$ is analytic in a neighborhood of $[-1, 1]$, then the Chebyshev
-interpolant converges geometrically: the error decays as $O(\rho^{-n})$ for
-some $\rho > 1$.*
+The mathematics underlying these observations is developed in [Trefethen 2013] through a sequence of theorems. Loosely: (1) a Lipschitz continuous function has a unique, absolutely convergent Chebyshev series; (2) the smoother the function, the faster the coefficients decay; (3) an analytic function has geometrically convergent coefficients; (4) the truncation and interpolation errors are of the same size as the tail of the coefficient series; and (5) the Chebyshev interpolant is within a modest factor of the best possible polynomial approximation.
 
-The constant $\rho$ is determined by the *Bernstein ellipse* -- the largest
-ellipse with foci at $\pm 1$ in which $f$ is analytic.  For entire functions
-like $e^x$ or $\sin(x)$, the convergence is faster than geometric
-(supergeometric).
+A striking illustration is provided by two functions that look almost identical but have very different lengths. The gallery function `sinefun1` is $1.75 + \sin(50x)$, which is analytic, and `sinefun2` is $(1.75 + \sin(50x))^{1.0001}$, which is *not* analytic (the fractional power introduces branch points):
 
 ```python
-# exp(x) is entire: super-geometric convergence
-f = cj.chebfun(jnp.exp)
-c = f.coeffs
-print("Coefficients of exp(x):")
-for k in range(len(c)):
-    print(f"  c[{k}] = {float(jnp.abs(c[k])):.6e}")
-# Note: the coefficients decay faster than any geometric rate
+f1 = cj.chebfun(lambda x: 1.75 + jnp.sin(50 * x))
+f2 = cj.chebfun(lambda x: (1.75 + jnp.sin(50 * x))**1.0001)
+print(len(f1), len(f2))
 ```
 
 ![](../images/guide/guide04_09.png)
 
+The two curves are visually indistinguishable, yet `sinefun2` needs many more points than `sinefun1` — the tiny exponent $1.0001$ destroys analyticity and slows the convergence dramatically.
 
-The Runge function $1/(1 + 25x^2)$ has poles at $x = \pm i/5$ in the complex
-plane.  The Bernstein ellipse that avoids these poles has
-$\rho = 1/5 + \sqrt{1 + 1/25} \approx 1.2099$, so the Chebyshev interpolant
-converges geometrically at rate $\approx 1.21^{-n}$:
+## 4.6  Best approximations and the minimax command
+
+For a given function $f$ and degree $n$, the *best* (minimax, or $L^\infty$) polynomial approximation is the polynomial $p$ of degree $\le n$ that minimizes $\|f - p\|_\infty$. Chebfunjax computes it with `minimax`. Here is the degree-20 best approximation to $\sqrt{|x-3|}$ on $[0,4]$:
 
 ```python
-f = cj.chebfun(lambda x: 1.0 / (1 + 25 * x**2))
-c = f.coeffs
-print(f"Length of Runge chebfun: {len(c)}")
-# The coefficients decay at rate ~1.21^{-k}
+from chebfunjax.utils.minimax import minimax
+from chebfunjax.domain import Domain
+
+f = lambda x: jnp.sqrt(jnp.abs(x - 3.0))
+mm = minimax(f, 20, domain=(0.0, 4.0))
+p = cj.Chebfun.from_coeffs(jnp.array(mm.coeffs), domain=Domain([0.0, 4.0]))
 ```
 
 ![](../images/guide/guide04_10.png)
 
-
-### Theorem 4: Barycentric interpolation formula
-
-*The polynomial interpolant through data $(x_j, f_j)$ at Chebyshev points can
-be evaluated stably via the barycentric formula:*
-
-$$p(x) = \frac{\displaystyle\sum_{j=0}^{n} \frac{(-1)^j w_j f_j}{x - x_j}}{\displaystyle\sum_{j=0}^{n} \frac{(-1)^j w_j}{x - x_j}},$$
-
-where $w_j$ are the barycentric weights (with a factor of $1/2$ for the
-endpoints).
-
-In chebfunjax, evaluation actually uses the Clenshaw algorithm (recurrence
-on the Chebyshev coefficients) rather than the barycentric formula.  The
-Clenshaw algorithm is equally stable and more natural for Chebyshev series.
-
-### Theorem 5: Numerical stability
-
-*Both the barycentric formula and the Clenshaw algorithm are numerically stable
-for polynomial evaluation, even for very high degrees.*
-
-This means you can safely construct and evaluate chebfuns of degree 1000 or
-even 1,000,000 without worrying about catastrophic roundoff.
-
-## 4.5 The Gibbs Phenomenon
-
-When you approximate a discontinuous function by a polynomial, the polynomial
-overshoots near the discontinuity.  This is the Gibbs phenomenon, and it
-limits Chebyshev approximation to convergence at rate $O(n^{-1})$ in the
-max-norm.
+The defining property of the best approximation is that its error curve *equioscillates*: it attains its maximum absolute value, with alternating sign, at least $n+2$ times. Here is the error $f - p$ (magenta) with the $\pm\varepsilon$ levels marked (dashed black), where $\varepsilon$ is the minimax error:
 
 ```python
-# sign(x) -- a discontinuous function
-# The Chebyshev interpolant of degree n overshoots by ~9%
-x = cj.chebfun(lambda x: x)
-for n in [21, 51, 101]:
-    s = cj.chebfun(lambda x: jnp.sign(x), n=n)
-    x_max, f_max = s.max()
-    print(f"  n = {n:4d}: max overshoot = {float(f_max):.6f}")
-    # The overshoot converges to 2/pi * integral of sin(t)/t from 0 to pi
-    # = 1.17898... (about 18% above 1, or 9% of the jump)
+print(float(mm.err))
+```
+```
+0.10521287627957965
 ```
 
 ![](../images/guide/guide04_11.png)
 
-
-The remedy for the Gibbs phenomenon is to use *piecewise* polynomial
-representations, which is exactly what chebfunjax does with breakpoints.  The
-`abs` and `sign` methods automatically insert breakpoints at discontinuities.
-
-## 4.6 Convergence Rates in Practice
-
-The rate at which the Chebyshev coefficients decay reveals the smoothness
-of the function:
-
-| Function type | Coefficient decay | Example |
-|---|---|---|
-| Discontinuous | $O(1/k)$ | $\mathrm{sign}(x)$ |
-| Continuous, not $C^1$ | $O(1/k^2)$ | $\|x\|$ |
-| $C^{s-1}$, not $C^s$ | $O(1/k^{s+1})$ | $x^s$ for non-integer $s$ |
-| $C^\infty$ | Faster than any $O(1/k^s)$ | $e^{-1/x^2}$ |
-| Analytic | $O(\rho^{-k})$ for some $\rho > 1$ | $1/(1+25x^2)$ |
-| Entire | Faster than any $O(\rho^{-k})$ | $e^x$, $\sin(x)$ |
-
-You can observe this directly via `plotcoeffs`:
+By contrast, the Chebyshev interpolant of the same degree has a slightly larger maximum error, and its error curve does not equioscillate — it is largest near the singularity:
 
 ```python
-import jax.numpy as jnp
-import chebfunjax as cj
-
-# Analytic: geometric decay
-f1 = cj.chebfun(jnp.exp)
-cj.plotcoeffs(f1)
-
-# Non-smooth: algebraic decay
-f2 = cj.chebfun(lambda x: jnp.abs(x))
-cj.plotcoeffs(f2)
-```
-
-![Coefficients of exp(x) showing geometric decay](../images/guide/guide04_02.png)
-
-![Coefficients of |x| showing algebraic decay](../images/guide/guide04_03.png)
-
-## 4.7 The Runge Phenomenon
-
-The Runge phenomenon demonstrates why Chebyshev points are essential.
-With equispaced interpolation, the polynomial approximation to even a simple
-smooth function can diverge catastrophically as the degree increases.
-
-The key quantity is the *Lebesgue constant* $\Lambda_n$, defined as the
-maximum of the Lebesgue function:
-
-$$\Lambda_n = \max_{x \in [-1,1]} \sum_{j=0}^{n} |\ell_j(x)|,$$
-
-where $\ell_j$ are the Lagrange basis polynomials.  For equispaced points,
-$\Lambda_n$ grows exponentially ($\sim 2^n / (e\, n \log n)$), while for
-Chebyshev points it grows only logarithmically ($\sim (2/\pi) \log n$).
-
-This logarithmic growth is why Chebyshev interpolation converges for all
-continuous functions (Weierstrass approximation theorem), while equispaced
-interpolation can diverge.
-
-```python
-from chebfunjax.utils.lebesgue import lebesgue
-
-# Compare Lebesgue constants
-for n in [5, 10, 20, 40]:
-    # Chebyshev Lebesgue constant
-    pts_cheb = chebpts(n)
-    L_cheb = lebesgue(pts_cheb)
-    print(f"  n = {n:3d}: Chebyshev Lambda = {L_cheb:.4f}")
+pinterp = cj.chebfun(f, domain=[0, 4], n=21)
 ```
 
 ![](../images/guide/guide04_12.png)
 
+Near-best *rational* approximations can be computed cheaply by the Caratheodory-Fejer (CF) method. Chebfunjax does not yet ship a `cf` command, so the figures below use a NumPy port of Chebfun's `@chebfun/cf.m` driven by the Chebyshev coefficients `f.coeffs` (see `scripts/generate_guide04_plots.py`). Here is the type-$(5,5)$ CF approximation to $e^x$; its error equioscillates 11 times at the level $\approx 10^{-13}$:
 
-## 4.8 Polynomial Fitting: polyfit
+![](../images/guide/guide04_13.png)
 
-The `polyfit` method computes the best $L^2$ polynomial approximation of a
-given degree by truncating the Chebyshev series:
+And here is the type-$(5,5)$ CF approximation to the non-smooth function $|x-0.3|$:
+
+![](../images/guide/guide04_14.png)
+
+## 4.7  The Runge phenomenon
+
+Interpolation in Chebyshev points is stable, but interpolation in *equispaced* points is not: it suffers the Runge phenomenon, wild oscillations near the ends of the interval that grow exponentially with the number of points. Here is the degree-9 polynomial interpolant of $\tanh(10x)$ through 10 equally spaced points (blue = function, red = interpolant, red dots = data):
 
 ```python
-f = cj.chebfun(jnp.exp)
-print(f"Full chebfun length: {len(f)}")
-
-# Degree-5 least-squares fit (keeps first 6 coefficients)
-f5 = f.polyfit(5)
-print(f"Degree-5 fit length: {len(f5)}")
-
-# Error
-err = (f - f5).norm(jnp.inf)
-print(f"Max error of degree-5 fit: {float(err):.6e}")
+f = lambda x: jnp.tanh(10 * x)
+s = np.linspace(-1, 1, 10)
+p = cj.Chebfun.interp1(jnp.array(s), f(jnp.array(s)))
 ```
 
 ![](../images/guide/guide04_15.png)
 
-
-Because the Chebyshev polynomials are orthogonal on $[-1, 1]$ (with respect
-to the weight $1/\sqrt{1-x^2}$), truncation of the Chebyshev series gives an
-approximation that is near-best in both the $L^2$ and $L^\infty$ norms.
-
-## 4.9 Construction from Data
-
-When you have function values at arbitrary (non-Chebyshev) points, you can
-build a chebfun via polynomial interpolation:
-
-```python
-import jax.numpy as jnp
-import chebfunjax as cj
-
-# Data at 10 random points
-key = jax.random.PRNGKey(42)
-x_data = jnp.sort(jax.random.uniform(key, (10,), minval=-1, maxval=1))
-y_data = jnp.sin(5 * x_data)
-
-f = cj.Chebfun.interp1(x_data, y_data)
-```
+With 20 points the oscillations near $\pm 1$ reach a magnitude of over 100:
 
 ![](../images/guide/guide04_16.png)
 
-
-Or for cubic spline interpolation:
+The instability is quantified by the Lebesgue function, whose maximum (the Lebesgue constant) grows exponentially for equispaced points. Here is the Lebesgue function for 20 and for 40 equispaced points, on a semilog scale:
 
 ```python
-f_spline = cj.Chebfun.spline(x_data, y_data)
+from chebfunjax.utils.lebesgue import lebesgue_function
+t, lam = lebesgue_function(jnp.array(np.linspace(-1, 1, 20)))
 ```
 
 ![](../images/guide/guide04_17.png)
 
-
-And for shape-preserving piecewise cubic Hermite interpolation:
-
-```python
-f_pchip = cj.Chebfun.pchip(x_data, y_data)
-```
-
 ![](../images/guide/guide04_18.png)
 
+The Lebesgue constant reaches about $10^4$ for 20 points and $10^{10}$ for 40 points, an unmistakable exponential blow-up. For Chebyshev points, by contrast, the Lebesgue constant grows only logarithmically.
 
-## 4.10 From Chebyshev to Legendre and Back
+## 4.8  Rational approximations
 
-Chebyshev and Legendre expansions are two common ways to represent polynomials.
-The conversion between them can be done in $O(n \log^2 n)$ time using the
-fast algorithms of Hale and Townsend.  The quadrature module provides both
-Chebyshev and Legendre points:
+Chebfunjax can also compute rational approximations. Consider the test function $\tanh(\pi x/2) + x/20$ on $[-10,10]$:
 
 ```python
-from chebfunjax.utils.quadrature import chebpts, legpts
-
-cheb_pts = chebpts(10)
-leg_pts, leg_wts = legpts(10)
-
-print("Chebyshev points:", cheb_pts)
-print("Legendre points: ", leg_pts)
-print("Legendre weights:", leg_wts)
+f = cj.chebfun(lambda x: jnp.tanh(jnp.pi * x / 2) + x / 20, domain=[-10, 10])
+print(len(f))
+```
+```
+368
 ```
 
 ![](../images/guide/guide04_19.png)
 
+The Chebyshev-Pade approximation of type $(40,4)$ matches the function to about $5\times10^{-9}$:
 
-## 4.11 Historical Notes
+```python
+from chebfunjax.utils.ratapprox import chebpade, ratinterp
+p, q, r = chebpade(f, 40, 4)
+# max(|f - r|) ~ 5.6e-9
+```
 
-The mathematical theory behind chebfunjax dates to Pafnuty Chebyshev
-(1821-1894), who studied the polynomials bearing his name in the context of
-best approximation.  The practical use of Chebyshev expansions for numerical
-computation began in the 1950s with the work of Lanczos, Fox, and Clenshaw,
-and was greatly accelerated by the discovery of the Fast Fourier Transform
-in 1965.
+![](../images/guide/guide04_20.png)
 
-The Chebfun system, which pioneered the idea of treating functions as
-computational objects via Chebyshev technology, was created by Zachary Battles
-and Nick Trefethen at the University of Oxford in 2002-2005.
+Rational interpolation of the same type is slightly less accurate here (about $4\times10^{-7}$):
 
-## 4.12 Summary
+```python
+r = ratinterp(f, 40, 4, domain=(-10.0, 10.0))
+# max(|f - r|) ~ 4.2e-7
+```
 
-| Concept | Key idea |
-|---|---|
-| Chebyshev points | Cluster near endpoints; $O(\log n)$ Lebesgue constant |
-| Chebyshev series | $f(x) = \sum c_k T_k(x)$; coefficients via FFT |
-| Convergence | Algebraic for $C^k$, geometric for analytic, super-geometric for entire |
-| Near-best | Chebyshev interpolant within $O(\log n)$ of minimax |
-| Gibbs phenomenon | 9% overshoot for discontinuities; cure is piecewise representation |
-| Runge phenomenon | Equispaced interpolation diverges; Chebyshev points avoid this |
+![](../images/guide/guide04_21.png)
 
-## 4.13 References
+And the CF rational approximation (via the NumPy port of `cf`) reaches about $10^{-10}$:
 
-- L. N. Trefethen, *Approximation Theory and Approximation Practice*,
-  Extended Edition, SIAM, 2020.
-- J. P. Boyd, *Chebyshev and Fourier Spectral Methods*, 2nd edition,
-  Dover, 2001.
-- N. Hale and A. Townsend, "A fast, simple, and stable Chebyshev-Legendre
-  transform using an asymptotic formula," *SIAM J. Sci. Comp.* 36 (2014),
-  A148-A167.
+![](../images/guide/guide04_22.png)
+
+In MATLAB Chebfun the poles of these rational approximants are extracted with `roots(q,'complex')`. Chebfunjax's `roots` returns only real roots in the domain, so complex poles are not yet available directly; see the library-gap notes.
+
+## 4.9  References
+
+[Battles & Trefethen 2004] Z. Battles and L. N. Trefethen, "An extension of MATLAB to continuous functions and operators", *SIAM Journal on Scientific Computing*, 25 (2004), 1743-1770.
+
+[Trefethen 2013] L. N. Trefethen, *Approximation Theory and Approximation Practice*, SIAM, 2013.
