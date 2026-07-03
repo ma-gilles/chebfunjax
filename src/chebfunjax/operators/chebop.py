@@ -171,15 +171,19 @@ class Chebop:
         domain: tuple[float, float] = (-1.0, 1.0),
         lbc=None,
         rbc=None,
+        bc=None,
     ) -> None:
         self.op = op
         self.domain: tuple[float, float] = tuple(float(v) for v in domain)
         self._lbc_raw = None
         self._rbc_raw = None
+        self._bc_show = None
         if lbc is not None:
             self.lbc = lbc
         if rbc is not None:
             self.rbc = rbc
+        if bc is not None:
+            self.bc = bc
 
     # ------------------------------------------------------------------
     # BC setters (properties for MATLAB-style assignment)
@@ -202,6 +206,53 @@ class Chebop:
     @rbc.setter
     def rbc(self, val):
         self._rbc_raw = val
+
+    @property
+    def bc(self):
+        """Boundary conditions applied at BOTH endpoints.
+
+        MATLAB semantics (@chebop set.bc): a numeric value or callable
+        sets ``lbc = rbc = value``; the strings ``'dirichlet'`` and
+        ``'neumann'`` set u = 0 / u' = 0 at both ends. Before this
+        property existed, ``L.bc = 0`` silently created a dead attribute
+        and the operator solved with NO boundary conditions — wrong
+        eigenvalues with no warning.
+        """
+        return self._bc_show
+
+    @bc.setter
+    def bc(self, val):
+        self._bc_show = val
+        if val is None:
+            self._lbc_raw = None
+            self._rbc_raw = None
+            return
+        if isinstance(val, str):
+            key = val.lower()
+            if key == "dirichlet":
+                self._lbc_raw = 0.0
+                self._rbc_raw = 0.0
+            elif key == "neumann":
+                self._lbc_raw = lambda u: u.diff()
+                self._rbc_raw = lambda u: u.diff()
+            elif key == "periodic":
+                raise NotImplementedError(
+                    "Chebop.bc = 'periodic' is not implemented yet. "
+                    "Use a trig-based solver or explicit constraints."
+                )
+            else:
+                raise ValueError(
+                    f"Unknown bc keyword {val!r}: expected 'dirichlet', "
+                    f"'neumann', or 'periodic'."
+                )
+        elif isinstance(val, (int, float)) or callable(val):
+            self._lbc_raw = val
+            self._rbc_raw = val
+        else:
+            raise TypeError(
+                f"Chebop.bc must be a number, callable, or keyword string; "
+                f"got {type(val).__name__}."
+            )
 
     # ------------------------------------------------------------------
     # Public API
