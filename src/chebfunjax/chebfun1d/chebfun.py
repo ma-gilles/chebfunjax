@@ -778,13 +778,73 @@ class Chebfun(eqx.Module):
 
     @staticmethod
     def _check_domains(f: Chebfun, g: Chebfun) -> None:
-        """Raise ValueError if two Chebfuns have incompatible domains."""
-        if f.domain != g.domain:
+        """Raise ValueError if two Chebfuns live on different intervals.
+
+        Interior breakpoints may differ — :meth:`_overlap` merges those.
+        Only the outer endpoints must agree.
+        """
+        hscale = max(abs(float(f.domain.a)), abs(float(f.domain.b)), 1.0)
+        tol = 1e-14 * hscale
+        if (abs(float(f.domain.a) - float(g.domain.a)) > tol
+                or abs(float(f.domain.b) - float(g.domain.b)) > tol):
             raise ValueError(
-                f"Cannot combine Chebfun on {f.domain} with Chebfun on "
-                f"{g.domain}: domains do not match.  "
-                f"Use f.restrict(...) to make the domains compatible first."
+                f"Cannot combine Chebfun on [{f.domain.a}, {f.domain.b}] "
+                f"with Chebfun on [{g.domain.a}, {g.domain.b}]: intervals "
+                f"do not match.  Use f.restrict(...) first."
             )
+
+    def _with_breakpoints(self, bps: "tuple[float, ...]") -> Chebfun:
+        """Exactly re-break onto a refined breakpoint list.
+
+        ``bps`` must contain the current breakpoints (up to rounding).
+        Each new sub-interval is cut from its containing piece via the
+        exact coefficient-space restriction, so no re-approximation
+        error is introduced.
+        """
+        new_dom = Domain(tuple(float(b) for b in bps))
+        hscale = max(abs(float(self.domain.a)), abs(float(self.domain.b)), 1.0)
+        tol = 1e-12 * hscale
+        new_funs = []
+        for sub in new_dom.intervals:
+            mid = 0.5 * (float(sub.a) + float(sub.b))
+            piece = next(
+                p for p in self.funs
+                if float(p.interval[0]) - tol <= mid <= float(p.interval[1]) + tol
+            )
+            new_funs.append(piece.restrict(float(sub.a), float(sub.b)))
+        return Chebfun(funs=new_funs, domain=new_dom)
+
+    @staticmethod
+    def _overlap(f: Chebfun, g: Chebfun) -> "tuple[Chebfun, Chebfun]":
+        """Re-break both Chebfuns onto the union of their breakpoints.
+
+        MATLAB Chebfun arithmetic accepts operands with different interior
+        breakpoints and merges them (@chebfun/overlap.m); requiring
+        identical piecewise structure broke e.g. ``abs(x) * u`` inside
+        operators when one operand had root-splitting breakpoints.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/overlap.m
+        Chebfun commit: 7574c77
+        """
+        Chebfun._check_domains(f, g)
+        if f.domain == g.domain:
+            return f, g
+        hscale = max(abs(float(f.domain.a)), abs(float(f.domain.b)), 1.0)
+        tol = 1e-14 * hscale
+        merged: list[float] = []
+        for x in sorted(
+            {float(b) for b in f.domain.breakpoints}
+            | {float(b) for b in g.domain.breakpoints}
+        ):
+            if not merged or x - merged[-1] > tol:
+                merged.append(x)
+        # Pin the outer endpoints to f's exact values.
+        merged[0] = float(f.domain.a)
+        merged[-1] = float(f.domain.b)
+        bps = tuple(merged)
+        return f._with_breakpoints(bps), g._with_breakpoints(bps)
 
     @staticmethod
     def _binary_op(f: Chebfun, g: Chebfun, op) -> Chebfun:
@@ -793,7 +853,7 @@ class Chebfun(eqx.Module):
         ``op`` must be a method name (str) on ``Chebtech2`` accepting one
         Chebtech2 argument, or a callable ``op(tech_a, tech_b) -> Chebtech2``.
         """
-        Chebfun._check_domains(f, g)
+        f, g = Chebfun._overlap(f, g)
         new_funs = [
             _Piece(tech=op(pf.tech, pg.tech), interval=pf.interval)
             for pf, pg in zip(f.funs, g.funs)
@@ -1423,9 +1483,9 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/innerProduct.m
         Chebfun commit: 7574c77
         """
-        Chebfun._check_domains(self, other)
+        f, g = Chebfun._overlap(self, other)
         total = jnp.float64(0.0)
-        for pf, pg in zip(self.funs, other.funs):
+        for pf, pg in zip(f.funs, g.funs):
             total = total + pf.inner(pg)
         return total
 
@@ -1452,10 +1512,14 @@ class Chebfun(eqx.Module):
         if p == 2:
             return jnp.sqrt(jnp.abs(self.inner(self)))
         elif p == float("inf") or p == jnp.inf:
-            # Max over pieces
-            maxvals = [float(jnp.max(jnp.abs(piece.tech.values)))
-                       for piece in self.funs]
-            return jnp.array(max(maxvals), dtype=jnp.float64)
+            # MATLAB: [normF, ~] = minandmax(f); max(abs(normF)) — the true
+            # extremum via rootfinding on f'. Taking max|values at the
+            # Chebyshev nodes| instead misses peaks that fall between nodes
+            # (e.g. sin on a shifted domain gave 0.99084 instead of 1.0).
+            (_, f_min), (_, f_max) = self.minandmax()
+            return jnp.array(
+                max(abs(float(f_min)), abs(float(f_max))), dtype=jnp.float64
+            )
         else:
             # Integrate |f|^p
             fp = abs(self) ** p

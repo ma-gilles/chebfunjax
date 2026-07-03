@@ -236,8 +236,21 @@ class TestChebfunArithmetic:
         """Adding two Chebfuns on different domains should raise ValueError."""
         f = chebfun(jnp.sin, domain=[-1, 1])
         g = chebfun(jnp.sin, domain=[0, 1])
-        with pytest.raises(ValueError, match="domains do not match"):
+        with pytest.raises(ValueError, match="intervals do not match"):
             _ = f + g
+
+    def test_breakpoint_merge(self):
+        """Same interval, different interior breakpoints: merged like
+        MATLAB @chebfun/overlap.m (not an error)."""
+        f = chebfun(jnp.sin, domain=[-1, 0, 1])
+        g = chebfun(jnp.cos, domain=[-1, 1])
+        h = f * g
+        assert len(h.funs) == 2
+        xs = jnp.linspace(-1.0, 1.0, 101)
+        npt.assert_allclose(
+            np.array(h(xs)), np.sin(np.array(xs)) * np.cos(np.array(xs)),
+            atol=1e-13,
+        )
 
     def test_multipiece_add(self):
         """Adding two 2-piece Chebfuns piece-wise."""
@@ -563,7 +576,7 @@ class TestChebfunInnerNorm:
         """inner() with different domains should raise ValueError."""
         f = chebfun(jnp.sin)
         g = chebfun(jnp.sin, domain=[0, 1])
-        with pytest.raises(ValueError, match="domains do not match"):
+        with pytest.raises(ValueError, match="intervals do not match"):
             f.inner(g)
 
     def test_norm2_sin(self):
