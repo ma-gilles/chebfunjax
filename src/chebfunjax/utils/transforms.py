@@ -934,15 +934,16 @@ def legcoeffs2chebvals(c_leg: jnp.ndarray, *, kind: int = 2) -> jnp.ndarray:
         n = c_cheb.shape[0]
         if n <= 1:
             return c_cheb
-        # Evaluate at 1st-kind Chebyshev points via DCT-III
+        # Evaluate the T-series at 1st-kind Chebyshev points: plain T @ c.
+        # (leg2cheb returns standard T-series coefficients; the previous
+        # halve-endpoints-then-double scaling belonged to a DCT
+        # normalization and corrupted the result.)
         from chebfunjax.utils.quadrature import chebpts
         x = chebpts(n, kind=1)
         theta = jnp.arccos(jnp.clip(x, -1.0, 1.0))
         k = jnp.arange(n, dtype=jnp.float64)
         T = jnp.cos(k[None, :] * theta[:, None])
-        # Scale: c_cheb[0] is full coefficient, rest are halved in coeffs2vals
-        c_scaled = c_cheb.at[0].multiply(0.5).at[-1].multiply(0.5)
-        return T @ (2.0 * c_scaled)
+        return T @ c_cheb
     else:
         raise ValueError(f"kind must be 1 or 2, got {kind}")
 
@@ -1025,8 +1026,11 @@ def chebvals2chebvals(
         theta = jnp.arccos(jnp.clip(x, -1.0, 1.0))
         k = jnp.arange(n, dtype=jnp.float64)
         T = jnp.cos(k[None, :] * theta[:, None])
-        c_half = c.at[1:n - 1].multiply(0.5)
-        return T @ c_half * 2.0
+        # vals2coeffs returns standard T-series coefficients
+        # (p(x) = sum c_k T_k), so evaluation is a plain T @ c — the
+        # halve-interior-then-double scaling belonged to a DCT
+        # normalization and corrupted the result.
+        return T @ c
     else:
         raise ValueError(f"kind1 and kind2 must be 1 or 2, got {kind1}, {kind2}")
 
@@ -1191,11 +1195,18 @@ def _jac2jac_np(
 
     # Normalization constants h_k (squared norm of P_k^{(gam,delta)})
     k = np.arange(N, dtype=np.float64)
+    s = gam + delta + 1
+    # Denominator log((2k+s) * Gamma(k+s)): at k=0 this is log(s*Gamma(s))
+    # = gammaln(s+1), which stays finite as s -> 0 (e.g. gam=delta=-0.5,
+    # the Chebyshev weight) where the naive form gives inf - inf = NaN.
+    with np.errstate(divide="ignore", invalid="ignore"):
+        log_den = np.log(2 * k + s) + gammaln(k + s)
+    log_den[0] = gammaln(s + 1)
     h_k = np.exp(
-        (gam + delta + 1) * np.log(2)
+        s * np.log(2)
         + gammaln(k + gam + 1) + gammaln(k + delta + 1)
-        - np.log(2 * k + gam + delta + 1)
-        - gammaln(k + 1) - gammaln(k + gam + delta + 1)
+        - log_den
+        - gammaln(k + 1)
     )
 
     c_out = (P_tgt.T @ (w_np * f_vals)) / h_k
@@ -1521,8 +1532,20 @@ def ultracoeffs(c_cheb: jnp.ndarray, lam: float) -> jnp.ndarray:
         # US(0.5) == Legendre
         return cheb2leg(c_cheb)
     if lam == 1.0:
-        # US(1) == Chebyshev 2nd kind (up to normalization; just return Cheb-2nd coeffs)
-        return c_cheb
+        # C^(1) = U (Chebyshev 2nd kind), but T-series coefficients must be
+        # CONVERTED to U-series coefficients (returning them unchanged was
+        # wrong): T_0 = U_0, T_1 = U_1/2, T_n = (U_n - U_{n-2})/2 for n >= 2,
+        # so b_0 = a_0 - a_2/2 and b_k = (a_k - a_{k+2})/2 for k >= 1.
+        n = c_cheb.shape[0]
+        a = jnp.asarray(c_cheb, dtype=jnp.float64)
+        if n <= 1:
+            return a
+        a_shift = jnp.concatenate(
+            [a[2:], jnp.zeros(min(2, n), dtype=a.dtype)]
+        )[:n]
+        b = 0.5 * (a - a_shift)
+        b0 = a[0] - 0.5 * a[2] if n > 2 else a[0]
+        return b.at[0].set(b0)
 
     # Convert Chebyshev -> Jacobi (ab, ab) where ab = lam - 0.5
     ab = lam - 0.5

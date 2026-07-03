@@ -9,7 +9,7 @@ The individual derivative helpers are verified against closed-form
 derivatives / finite differences (all correct). ``diffbarytrig`` itself is
 exercised against analytic derivatives of an entire periodic function whose
 AAAtrig rational is accurate to machine precision; those tests are marked
-``xfail`` because the current implementation is off by a constant factor
+These document bugs that were fixed (previously off by a constant factor
 (see :class:`TestDiffBaryTrigBug`).
 """
 
@@ -157,9 +157,6 @@ class TestDiffBaryTrigBug:
         return r, zj, fj, wj
 
     @pytest.mark.parametrize("form", ["odd", "even"])
-    @pytest.mark.xfail(reason="BUG: diffbarytrig off by 4**N (half-angle factor "
-                              "0.5**(q-p) should be 2**(q-p)); N=1 result is 4x "
-                              "the true derivative.", strict=False)
     def test_first_derivative(self, form):
         r, zj, fj, wj = self._build(form)
         zz = np.array([0.5, 1.3, 2.7, 4.1, 5.5])
@@ -169,8 +166,6 @@ class TestDiffBaryTrigBug:
             d = np.asarray(diffbarytrig(jnp.asarray(zz), zj, fj, wj, 1, form)).real
         npt.assert_allclose(d, true, rtol=0, atol=1e-6)
 
-    @pytest.mark.xfail(reason="BUG: diffbarytrig off by 4**N; N=2 result is 16x "
-                              "the true second derivative.", strict=False)
     def test_second_derivative(self):
         r, zj, fj, wj = self._build("odd")
         zz = np.array([0.5, 1.3, 2.7, 4.1])
@@ -181,8 +176,6 @@ class TestDiffBaryTrigBug:
             d = np.asarray(diffbarytrig(jnp.asarray(zz), zj, fj, wj, 2, "odd")).real
         npt.assert_allclose(d, true, rtol=0, atol=1e-5)
 
-    @pytest.mark.xfail(reason="BUG: diffbarytrig off by 4**N (also exercises the "
-                              "support-point 0/0 correction path).", strict=False)
     def test_derivative_at_support_point(self):
         r, zj, fj, wj = self._build("odd")
         # Evaluate exactly at a support point to trigger the NaN 0/0 fix-up.

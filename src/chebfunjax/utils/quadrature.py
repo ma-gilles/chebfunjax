@@ -370,6 +370,12 @@ def _jacpts_gw(n: int, a: float, b: float,
     abj = 2.0 * j + ab
     bb_vals = 2.0 * jnp.sqrt(j * (j + a) * (j + b) * (j + ab)
                               / (abj * abj - 1.0)) / abj
+    if abs(ab + 1.0) < 1e-14:
+        # Removable 0/0 at j=1 when a+b = -1 (e.g. the Chebyshev weight
+        # a=b=-1/2): (j+ab)/(2j+ab-1) -> 1, so
+        # beta_1 = 2*sqrt((1+a)(1+b)/(3+ab)) / (2+ab).
+        b1 = 2.0 * jnp.sqrt((1.0 + a) * (1.0 + b) / (3.0 + ab)) / (2.0 + ab)
+        bb_vals = bb_vals.at[0].set(b1)
 
     # Build tridiagonal Jacobi matrix
     T = jnp.diag(aa) + jnp.diag(bb_vals, 1) + jnp.diag(bb_vals, -1)

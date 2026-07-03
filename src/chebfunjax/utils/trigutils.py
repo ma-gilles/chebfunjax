@@ -197,29 +197,35 @@ def diffbarytrig(
             dcst_vals = _diff_cst((zvp[:, None] - zj_np[None, :]) / 2.0, p - q, form)
             fj_minus_rp = (fj_np[None, :] if q == 0 else 0.0) - rp[:, q:q + 1]
             DR[:, :, q] = (
-                binom * (0.5 ** (q - p)) * dcst_vals * fj_minus_rp * wj_np[None, :]
+                binom * (2.0 ** (q - p)) * dcst_vals * fj_minus_rp * wj_np[None, :]
             )
 
         rp[:, p] = np.sum(DR, axis=(1, 2)) / rpDen
 
-        # Differentiation matrix D^{(p)}
+        # Differentiation matrix D^{(p)} (MATLAB diffbarytrig.m lines 69-83)
         D_new = np.zeros((m, m), dtype=complex)
+        diff_zj = (zj_np[:, None] - zj_np[None, :]) / 2.0  # (m, m)
         for q in range(1, p + 1):
             binom = _binom(p, q)
-            # diff_cst at support point differences
-            diff_zj = (zj_np[:, None] - zj_np[None, :]) / 2.0  # (m, m)
-            dcst_inv_diag = _diff_cst_inv(diff_zj, q, form)  # (m, m)
             Dp_q = D_list[p - q]  # (m, m)
-            # First sum: diagonal terms
-            first_sum = (wj_np[:, None] / wj_np[None, :]) * np.sum(
-                np.eye(m)[:, :, None] * Dp_q[:, :, None] * (0.5 ** (-q)) * dcst_inv_diag[:, :, None],
-                axis=1,
+            # MATLAB firstSum evaluates diffCstInv at ZERO ((zj - zj)/2),
+            # a scalar per q — not at the pairwise differences — and the
+            # weight ratio is wj.'./wj, i.e. entry (i,j) = wj[j]/wj[i].
+            dcst_inv_zero = complex(
+                np.asarray(_diff_cst_inv(np.zeros((1, 1)), q, form))[0, 0]
             )
-            # Second sum: off-diagonal terms
-            second_sum = Dp_q * (0.5 ** (-q)) * dcst_inv_diag
+            diag_Dpq = np.diag(Dp_q)  # (m,)
+            first_sum = (
+                (wj_np[None, :] / wj_np[:, None])
+                * diag_Dpq[:, None]
+                * (2.0 ** (-q))
+                * dcst_inv_zero
+            )
+            second_sum = Dp_q * (2.0 ** (-q)) * _diff_cst_inv(diff_zj, q, form)
 
-            contrib = cst(diff_zj) * binom * (first_sum - second_sum)
-            D_new += contrib
+            with np.errstate(divide="ignore", invalid="ignore"):
+                contrib = cst(diff_zj) * binom * (first_sum - second_sum)
+            D_new += np.where(np.isfinite(contrib), contrib, 0.0)
 
         np.fill_diagonal(D_new, 0.0)
         D_new -= np.diag(np.sum(D_new, axis=1))

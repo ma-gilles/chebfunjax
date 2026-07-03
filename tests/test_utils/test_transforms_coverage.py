@@ -15,7 +15,7 @@ under test, so the assertions catch genuine regressions.
 
 The final class documents four confirmed bugs found while writing these
 tests (see the module report). Those tests assert the mathematically correct
-result and are marked ``xfail`` so the suite stays green while still
+result; fixed bugs have had their xfail markers removed while still
 exercising the buggy branches (which keeps them under coverage and turns the
 tests into regression sentinels that will ``xpass`` once the bugs are fixed).
 """
@@ -339,7 +339,7 @@ class TestErrorBranches:
 
 
 # ---------------------------------------------------------------------------
-# Confirmed bugs (documented, marked xfail).  See the module report.
+# Formerly-confirmed bugs (now fixed; jac2jac gam=delta=-0.5 remains xfail).
 #
 # Each test asserts the mathematically correct answer, computed with an
 # independent reference, and runs the buggy branch so it stays covered.
@@ -347,12 +347,6 @@ class TestErrorBranches:
 # ---------------------------------------------------------------------------
 
 class TestKnownBugs:
-    @pytest.mark.xfail(
-        reason="BUG: chebvals2chebvals(kind1=2,kind2=1) applies wrong coeff "
-               "scaling (interior *0.5 then *2 in the T@c eval); result is not "
-               "the polynomial at 1st-kind points. 1->2->1 round trip fails.",
-        strict=False,
-    )
     def test_chebvals2chebvals_2_to_1(self):
         c = _rand(7, 100)
         x1 = np.asarray(chebpts(len(c), kind=1))
@@ -360,49 +354,24 @@ class TestKnownBugs:
         out = T.chebvals2chebvals(jnp.asarray(npcheb.chebval(x2, c)), 2, 1)
         npt.assert_allclose(np.asarray(out), npcheb.chebval(x1, c), rtol=0, atol=1e-10)
 
-    @pytest.mark.xfail(
-        reason="BUG: chebcoeffs2chebvals(kind=1) delegates to the broken "
-               "chebvals2chebvals 2->1 branch; output != polynomial at "
-               "1st-kind Chebyshev points.",
-        strict=False,
-    )
     def test_chebcoeffs2chebvals_kind1(self):
         c = _rand(7, 101)
         x1 = np.asarray(chebpts(len(c), kind=1))
         out = T.chebcoeffs2chebvals(jnp.asarray(c), kind=1)
         npt.assert_allclose(np.asarray(out), npcheb.chebval(x1, c), rtol=0, atol=1e-10)
 
-    @pytest.mark.xfail(
-        reason="BUG: legcoeffs2chebvals(kind=1) applies wrong endpoint scaling "
-               "(halve c[0],c[-1] then *2) in the direct T@c evaluation; result "
-               "!= Legendre series at 1st-kind Chebyshev points.",
-        strict=False,
-    )
     def test_legcoeffs2chebvals_kind1(self):
         c = _rand(7, 102)
         x1 = np.asarray(chebpts(len(c), kind=1))
         out = T.legcoeffs2chebvals(jnp.asarray(c), kind=1)
         npt.assert_allclose(np.asarray(out), npleg.legval(x1, c), rtol=0, atol=1e-10)
 
-    @pytest.mark.xfail(
-        reason="BUG: ultracoeffs(c, lam=1.0) returns the input Chebyshev-T "
-               "coefficients unchanged, but must convert T-coeffs to C^{(1)}=U "
-               "coeffs (e.g. x=[0,1,0]_T -> [0,0.5,0]_U). The lam->1 limit "
-               "(lam=1.0001) already gives the correct ~0.5.",
-        strict=False,
-    )
     def test_ultracoeffs_lambda_one(self):
         c = _rand(7, 103)
         out = np.asarray(T.ultracoeffs(jnp.asarray(c), 1.0))
         npt.assert_allclose(_geg_series(out, 1.0, _XT), npcheb.chebval(_XT, c),
                             rtol=0, atol=1e-10)
 
-    @pytest.mark.xfail(
-        reason="BUG: jac2jac(..., gam=-0.5, delta=-0.5) hits log(2k+g+d+1)=log(0) "
-               "at k=0 (g+d+1==0) in the fractional-conversion normalisation and "
-               "returns NaN.",
-        strict=False,
-    )
     def test_jac2jac_to_chebyshev_weight(self):
         c = _rand(7, 104)
         with warnings.catch_warnings():
