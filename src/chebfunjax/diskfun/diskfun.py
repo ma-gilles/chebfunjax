@@ -220,9 +220,13 @@ def _phase_one_disk(
         else:
             idx = idxm
 
-        # Convert flat index to (row, col) in the mr x n reduced grid
-        j = idx % mr
-        k = idx // mr
+        # Convert flat index to (row, col). numpy argmax flattens in
+        # C (row-major) order — j = idx // ncols, k = idx % ncols. The
+        # previous column-major (MATLAB-order) conversion put the "pivot"
+        # at a scrambled location, so GE eliminated around tiny or zero
+        # values: divide-by-zero NaNs and rank frozen at 4 regardless of
+        # grid (exp(x) built as rank 3 with 3% value error vs MATLAB 13).
+        j, k = divmod(idx, Fp.shape[1])
 
         evp = float(Fp[j, k])
         evm = float(Fm[j, k])
@@ -829,7 +833,7 @@ class Diskfun(eqx.Module):
                 )
 
             tol_abs, vscale = _get_tol(F, 2.0 * np.pi / (2 * grid), 1.0 / grid, pseudo_level)
-            tol_abs = max(tol_abs, 1e4 * tol)
+            # (no 1e4*eps floor: MATLAB's getTol is used as computed)
 
             pivot_indices, pivot_array, remove_poles, happy_rank = _phase_one_disk(
                 F, tol_abs, alpha, factor
