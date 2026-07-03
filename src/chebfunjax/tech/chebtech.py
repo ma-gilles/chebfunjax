@@ -27,6 +27,26 @@ _EPS = float(jnp.finfo(jnp.float64).eps)
 # ============================================================================
 
 
+def _as_fun_dtype(v: jax.Array) -> jax.Array:
+    """Coerce sampled data to float64, or complex128 for complex input.
+
+    MATLAB Chebfun represents complex-valued functions natively; forcing
+    float64 silently discarded imaginary parts. The dtype check is a
+    trace-time constant, so callers stay JIT-safe.
+    """
+    v = jnp.asarray(v)
+    if jnp.iscomplexobj(v):
+        return v.astype(jnp.complex128)
+    return v.astype(jnp.float64)
+
+
+def _as_scalar(v):
+    """Coerce a Python/JAX scalar preserving complexness."""
+    if isinstance(v, complex) or jnp.iscomplexobj(v):
+        return jnp.complex128(v)
+    return jnp.float64(v)
+
+
 def _clenshaw(coeffs: jax.Array, x: jax.Array) -> jax.Array:
     """Evaluate a Chebyshev series at point(s) x via Clenshaw's algorithm.
 
@@ -87,9 +107,12 @@ def _clenshaw(coeffs: jax.Array, x: jax.Array) -> jax.Array:
         bk = coeffs[k] + x2 * bk1 - bk2
         return (bk, bk1)
 
+    # Carry dtype must match the series dtype (complex chebfuns give a
+    # complex recurrence; a float64 carry breaks the lax scan/loop typing).
+    out_dtype = jnp.result_type(coeffs.dtype, x.dtype)
     init = (
-        jnp.zeros_like(x, dtype=jnp.float64),
-        jnp.zeros_like(x, dtype=jnp.float64),
+        jnp.zeros_like(x, dtype=out_dtype),
+        jnp.zeros_like(x, dtype=out_dtype),
     )
     bk1, bk2 = jax.lax.fori_loop(0, n - 1, body, init)
 
@@ -122,7 +145,7 @@ def _prolong_coeffs(coeffs: jax.Array, n: int) -> jax.Array:
     m = coeffs.shape[0]
     if m >= n:
         return coeffs[:n]
-    return jnp.concatenate([coeffs, jnp.zeros(n - m, dtype=jnp.float64)])
+    return jnp.concatenate([coeffs, jnp.zeros(n - m, dtype=coeffs.dtype)])
 
 
 # ============================================================================
@@ -161,7 +184,8 @@ def _diff_coeffs_once(c: jax.Array) -> jax.Array:
     v = w * c[1:]  # v[k] = 2*(k+1)*c_{k+1}
 
     # Accumulate from the tail, even and odd indices separately.
-    out = jnp.zeros(n - 1, dtype=jnp.float64)
+    # (buffer dtype follows the series: complex chebfuns stay complex)
+    out = jnp.zeros(n - 1, dtype=c.dtype)
 
     # Slice1: indices n-2, n-4, ..., i.e. v[-1], v[-3], ...
     s1 = v[::-1][::2]  # reversed, take every other
@@ -227,9 +251,10 @@ def _cumsum_coeffs(c: jax.Array) -> jax.Array:
         return jnp.zeros(1, dtype=jnp.float64)
 
     # Pad with two zeros so that c_{n} = c_{n+1} = 0
-    cp = jnp.concatenate([c, jnp.zeros(2, dtype=jnp.float64)])
+    # (dtype follows the series: complex chebfuns stay complex)
+    cp = jnp.concatenate([c, jnp.zeros(2, dtype=c.dtype)])
 
-    b = jnp.zeros(n + 1, dtype=jnp.float64)
+    b = jnp.zeros(n + 1, dtype=c.dtype)
 
     # b[r] = (c[r-1] - c[r+1]) / (2*r) for r = 2, ..., n
     rk = jnp.arange(2, n + 1, dtype=jnp.float64)
@@ -311,9 +336,10 @@ def _inner_product(f_coeffs: jax.Array, g_coeffs: jax.Array) -> jax.Array:
     ng = g_coeffs.shape[0]
     n = nf + ng
 
-    # Prolong both to length n
-    fc = jnp.zeros(n, dtype=jnp.float64).at[:nf].set(f_coeffs)
-    gc = jnp.zeros(n, dtype=jnp.float64).at[:ng].set(g_coeffs)
+    # Prolong both to length n (dtype follows the operands)
+    dt = jnp.result_type(f_coeffs.dtype, g_coeffs.dtype)
+    fc = jnp.zeros(n, dtype=dt).at[:nf].set(f_coeffs)
+    gc = jnp.zeros(n, dtype=dt).at[:ng].set(g_coeffs)
 
     # Convert to values
     fv = _coeffs_to_values(fc)
@@ -322,7 +348,8 @@ def _inner_product(f_coeffs: jax.Array, g_coeffs: jax.Array) -> jax.Array:
     # Clenshaw-Curtis weights
     w = chebweights(n, kind=2)
 
-    return jnp.dot(w * fv, gv)
+    # MATLAB @chebtech/innerProduct.m is conjugate-linear in F.
+    return jnp.dot(w * jnp.conj(fv), gv)
 
 
 # ============================================================================
@@ -352,9 +379,11 @@ def _coeff_multiply(fc: jax.Array, gc: jax.Array) -> jax.Array:
     ng = gc.shape[0]
     mn = nf + ng - 1
 
-    # Pad both to length mn
-    f = jnp.zeros(mn, dtype=jnp.float64).at[:nf].set(fc)
-    g = jnp.zeros(mn, dtype=jnp.float64).at[:ng].set(gc)
+    # Pad both to length mn (dtype follows the operands so complex
+    # chebfun products keep their imaginary parts)
+    out_dtype = jnp.result_type(fc.dtype, gc.dtype)
+    f = jnp.zeros(mn, dtype=out_dtype).at[:nf].set(fc)
+    g = jnp.zeros(mn, dtype=out_dtype).at[:ng].set(gc)
 
     # Embed into circulant: double the first coefficient
     t = jnp.concatenate([2.0 * f[:1], f[1:]])
@@ -363,7 +392,9 @@ def _coeff_multiply(fc: jax.Array, gc: jax.Array) -> jax.Array:
     # Circulant multiply via FFT
     t_ext = jnp.concatenate([t, t[-1:0:-1]])
     x_ext = jnp.concatenate([x, x[-1:0:-1]])
-    product = jnp.real(jnp.fft.ifft(jnp.fft.fft(t_ext) * jnp.fft.fft(x_ext)))
+    product = jnp.fft.ifft(jnp.fft.fft(t_ext) * jnp.fft.fft(x_ext))
+    if not jnp.iscomplexobj(f):
+        product = jnp.real(product)
 
     # Extract result
     hc = 0.25 * jnp.concatenate([product[:1], product[1:mn] + product[-1 : mn - 1 : -1]])
@@ -567,7 +598,7 @@ class Chebtech2(eqx.Module):
         >>> f.n
         3
         """
-        coeffs = jnp.atleast_1d(jnp.asarray(coeffs, dtype=jnp.float64))
+        coeffs = jnp.atleast_1d(_as_fun_dtype(coeffs))
         return cls(coeffs=coeffs)
 
     @classmethod
@@ -590,7 +621,7 @@ class Chebtech2(eqx.Module):
         >>> x = chebpts(5)
         >>> f = Chebtech2.from_values(jnp.sin(x))
         """
-        values = jnp.atleast_1d(jnp.asarray(values, dtype=jnp.float64))
+        values = jnp.atleast_1d(_as_fun_dtype(values))
         c = vals2coeffs(values)
         return cls(coeffs=c)
 
@@ -666,7 +697,7 @@ class Chebtech2(eqx.Module):
         if n <= 0:
             return cls(coeffs=jnp.array([], dtype=jnp.float64))
         x = chebpts(n, kind=2)
-        values = jnp.asarray(f(x), dtype=jnp.float64)
+        values = _as_fun_dtype(f(x))
         c = vals2coeffs(values)
         return cls(coeffs=c)
 
@@ -699,7 +730,7 @@ class Chebtech2(eqx.Module):
         for k in range(start_pow2, maxpow2 + 1):
             n = 2**k + 1
             x = chebpts(n, kind=2)
-            values = jnp.asarray(f(x), dtype=jnp.float64)
+            values = _as_fun_dtype(f(x))
             c = vals2coeffs(values)
             vscale = max(vscale, float(jnp.max(jnp.abs(values))))
             ishappy, cutoff = cls.happiness_check(
@@ -1198,7 +1229,7 @@ class Chebtech2(eqx.Module):
             # Build a temporary Chebtech2 with the truncated coefficients
             f_test = Chebtech2(coeffs=coeffs[:cutoff])
             v_fun = f_test(xeval)
-            v_op = jnp.asarray(op(xeval), dtype=jnp.float64)
+            v_op = _as_fun_dtype(op(xeval))
             err = float(jnp.max(jnp.abs(v_op - v_fun)))
             sample_tol = _np.sqrt(max(_EPS, tol)) * max(hscale * vscale_local, vscale)
             if err > sample_tol:
@@ -1228,8 +1259,12 @@ class Chebtech2(eqx.Module):
             gc = _prolong_coeffs(other.coeffs, n)
             return Chebtech2.from_coeffs(fc + gc)
         else:
-            # Scalar addition: only the c_0 coefficient changes
-            c = self.coeffs.at[0].add(jnp.float64(other))
+            # Scalar addition: only the c_0 coefficient changes. Promote the
+            # coefficient dtype first — scattering a complex scalar into a
+            # float64 buffer silently drops the imaginary part.
+            s = _as_scalar(other)
+            c = self.coeffs.astype(jnp.result_type(self.coeffs.dtype, s.dtype))
+            c = c.at[0].add(s)
             return Chebtech2.from_coeffs(c)
 
     def __radd__(self, other) -> "Chebtech2":
@@ -1277,7 +1312,7 @@ class Chebtech2(eqx.Module):
             hc = _coeff_multiply(self.coeffs, other.coeffs)
             return Chebtech2.from_coeffs(hc)
         else:
-            return Chebtech2.from_coeffs(self.coeffs * jnp.float64(other))
+            return Chebtech2.from_coeffs(self.coeffs * _as_scalar(other))
 
     def __rmul__(self, other) -> "Chebtech2":
         return self.__mul__(other)
@@ -1300,11 +1335,11 @@ class Chebtech2(eqx.Module):
             # silently under-resolves, e.g. 1/(1+25x^2) needs ~185 coeffs).
             return self.compose(lambda a, b: a / b, other)
         else:
-            return Chebtech2.from_coeffs(self.coeffs / jnp.float64(other))
+            return Chebtech2.from_coeffs(self.coeffs / _as_scalar(other))
 
     def __rtruediv__(self, other) -> "Chebtech2":
         """Scalar / Chebtech2 (adaptive, like MATLAB compose)."""
-        return self.compose(lambda y: jnp.float64(other) / y)
+        return self.compose(lambda y: _as_scalar(other) / y)
 
     def __pow__(self, exponent) -> "Chebtech2":
         """Raise to a power.
@@ -1329,7 +1364,7 @@ class Chebtech2(eqx.Module):
             return self.compose(lambda a, b: a ** b, exponent)
         else:
             # Fractional power: adaptive composition (MATLAB compose)
-            return self.compose(lambda y: y ** jnp.float64(exponent))
+            return self.compose(lambda y: y ** _as_scalar(exponent))
 
     def __abs__(self) -> "Chebtech2":
         """Absolute value (evaluated on a grid, re-interpolated).
@@ -1825,7 +1860,7 @@ class Chebtech1(eqx.Module):
         -------
         Chebtech1
         """
-        coeffs = jnp.atleast_1d(jnp.asarray(coeffs, dtype=jnp.float64))
+        coeffs = jnp.atleast_1d(_as_fun_dtype(coeffs))
         return cls(coeffs=coeffs)
 
     @classmethod
@@ -1843,7 +1878,7 @@ class Chebtech1(eqx.Module):
         -------
         Chebtech1
         """
-        values = jnp.atleast_1d(jnp.asarray(values, dtype=jnp.float64))
+        values = jnp.atleast_1d(_as_fun_dtype(values))
         c = _chebtech1_vals2coeffs(values)
         return cls(coeffs=c)
 
@@ -1893,7 +1928,7 @@ class Chebtech1(eqx.Module):
         if n <= 0:
             return cls(coeffs=jnp.array([], dtype=jnp.float64))
         x = chebpts(n, kind=1)
-        values = jnp.asarray(f(x), dtype=jnp.float64)
+        values = _as_fun_dtype(f(x))
         c = _chebtech1_vals2coeffs(values)
         return cls(coeffs=c)
 
@@ -1914,7 +1949,7 @@ class Chebtech1(eqx.Module):
         for k in range(start_pow2, maxpow2 + 1):
             n = 2**k
             x = chebpts(n, kind=1)
-            values = jnp.asarray(f(x), dtype=jnp.float64)
+            values = _as_fun_dtype(f(x))
             c = _chebtech1_vals2coeffs(values)
             vscale = max(vscale, float(jnp.max(jnp.abs(values))))
             ishappy, cutoff = cls.happiness_check(
@@ -2094,7 +2129,7 @@ class Chebtech1(eqx.Module):
             gc = _prolong_coeffs(other.coeffs, n)
             return Chebtech1.from_coeffs(fc + gc)
         else:
-            c = self.coeffs.at[0].add(jnp.float64(other))
+            c = self.coeffs.at[0].add(_as_scalar(other))
             return Chebtech1.from_coeffs(c)
 
     def __radd__(self, other) -> "Chebtech1":
@@ -2138,7 +2173,7 @@ class Chebtech1(eqx.Module):
             hc = _coeff_multiply(self.coeffs, other.coeffs)
             return Chebtech1.from_coeffs(hc)
         else:
-            return Chebtech1.from_coeffs(self.coeffs * jnp.float64(other))
+            return Chebtech1.from_coeffs(self.coeffs * _as_scalar(other))
 
     def __rmul__(self, other) -> "Chebtech1":
         return self.__mul__(other)
@@ -2158,11 +2193,11 @@ class Chebtech1(eqx.Module):
                 lambda x: _clenshaw(self.coeffs, x) / _clenshaw(other.coeffs, x)
             )
         else:
-            return Chebtech1.from_coeffs(self.coeffs / jnp.float64(other))
+            return Chebtech1.from_coeffs(self.coeffs / _as_scalar(other))
 
     def __rtruediv__(self, other) -> "Chebtech1":
         return Chebtech1.from_function(
-            lambda x: jnp.float64(other) / _clenshaw(self.coeffs, x)
+            lambda x: _as_scalar(other) / _clenshaw(self.coeffs, x)
         )
 
     def __pow__(self, exponent) -> "Chebtech1":
@@ -2183,7 +2218,7 @@ class Chebtech1(eqx.Module):
         else:
             # Fractional power: adaptive re-construction (MATLAB compose)
             return Chebtech1.from_function(
-                lambda x: _clenshaw(self.coeffs, x) ** jnp.float64(exponent)
+                lambda x: _clenshaw(self.coeffs, x) ** _as_scalar(exponent)
             )
 
     def __abs__(self) -> "Chebtech1":
@@ -2323,7 +2358,7 @@ class Chebtech1(eqx.Module):
             )
             f_test = Chebtech1(coeffs=coeffs[:cutoff])
             v_fun = f_test(xeval)
-            v_op = jnp.asarray(op(xeval), dtype=jnp.float64)
+            v_op = _as_fun_dtype(op(xeval))
             err = float(jnp.max(jnp.abs(v_op - v_fun)))
             sample_tol = _np.sqrt(max(_EPS, tol)) * max(hscale * vscale_local, vscale)
             if err > sample_tol:

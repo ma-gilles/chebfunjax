@@ -65,7 +65,13 @@ def vals2coeffs(values: jnp.ndarray) -> jnp.ndarray:
     # [v_{n-1}, v_{n-2}, ..., v_1, v_0, v_1, ..., v_{n-2}]
     tmp = jnp.concatenate([values[n - 1:0:-1], values[:n - 1]])
 
-    coeffs = jnp.real(jnp.fft.ifft(tmp))
+    # MATLAB @chebtech2/vals2coeffs.m: real data gives real coefficients,
+    # complex data keeps its complex coefficients. The dtype check is a
+    # trace-time constant, so this branch is JIT-safe.
+    if jnp.iscomplexobj(values):
+        coeffs = jnp.fft.ifft(tmp)
+    else:
+        coeffs = jnp.real(jnp.fft.ifft(tmp))
 
     # Truncate to first n entries
     coeffs = coeffs[:n]
@@ -118,7 +124,12 @@ def coeffs2vals(coeffs: jnp.ndarray) -> jnp.ndarray:
     # Mirror the coefficients: [c_0, c_1, ..., c_{n-1}, c_{n-2}, ..., c_1]
     tmp = jnp.concatenate([c, c[n - 2:0:-1]])
 
-    values = jnp.real(jnp.fft.fft(tmp))
+    # MATLAB @chebtech2/coeffs2vals.m: keep complex values complex.
+    # dtype check is trace-time constant (JIT-safe).
+    if jnp.iscomplexobj(coeffs):
+        values = jnp.fft.fft(tmp)
+    else:
+        values = jnp.real(jnp.fft.fft(tmp))
 
     # Reverse and truncate: values at points cos(0), cos(pi/(n-1)), ..., cos(pi)
     # = [x=1, ..., x=-1] which is descending order

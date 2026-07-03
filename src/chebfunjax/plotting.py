@@ -447,6 +447,16 @@ def plot_1d(
         if idx == 0:
             plot_kw.update(kw)
 
+        # Complex-valued chebfun: MATLAB plots the image curve in the
+        # complex plane (real vs imag) with equal axis scaling.
+        probe = np.array(f(jnp.array(_domain_points(f, 3))))
+        if np.iscomplexobj(probe):
+            xs = _domain_points(f, n_pts)
+            ys = np.array(f(jnp.array(xs)))
+            ax.plot(np.real(ys), np.imag(ys), **plot_kw)
+            ax.set_aspect("equal")
+            continue
+
         funs = getattr(f, "funs", None)
         if funs is not None and len(funs) > 1:
             # Piecewise chebfun: draw each smooth piece on its own grid so

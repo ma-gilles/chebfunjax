@@ -104,8 +104,13 @@ def standard_chop(coeffs: jnp.ndarray, tol: float | None = None) -> int:
     if tol >= 1:
         return 1
 
-    # Ensure coeffs is a 1-D array.
-    coeffs = jnp.atleast_1d(jnp.asarray(coeffs, dtype=jnp.float64)).ravel()
+    # Ensure coeffs is a 1-D real array. The envelope is built from
+    # magnitudes anyway (MATLAB standardChop), so complex coefficients are
+    # reduced via abs() rather than a real-cast that drops imaginary parts.
+    coeffs = jnp.atleast_1d(jnp.asarray(coeffs))
+    if jnp.iscomplexobj(coeffs):
+        coeffs = jnp.abs(coeffs)
+    coeffs = coeffs.astype(jnp.float64).ravel()
 
     n = coeffs.shape[0]
     cutoff = int(n)

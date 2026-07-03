@@ -927,7 +927,7 @@ class Chebfun(eqx.Module):
         if isinstance(other, Chebfun):
             return Chebfun._binary_op(self, other, lambda a, b: a * b)
         # If other is not a scalar/array, defer to other's __rmul__
-        if not isinstance(other, (int, float, jnp.ndarray, jax.Array)):
+        if not isinstance(other, (int, float, complex, jnp.ndarray, jax.Array)):
             return NotImplemented
         new_funs = [
             piece._apply_unary(piece.tech * other)
@@ -3081,6 +3081,72 @@ class Chebfun(eqx.Module):
             if jnp.iscomplexobj(piece.coeffs):
                 return False
         return True
+
+    def real(self) -> Chebfun:
+        """Real part of the Chebfun.
+
+        Exact in coefficient space: the Chebyshev basis is real, so
+        Re(f) has coefficients Re(c).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/real.m
+        Chebfun commit: 7574c77
+        """
+        new_funs = [
+            _Piece(tech=Chebtech2.from_coeffs(jnp.real(p.tech.coeffs)),
+                   interval=p.interval)
+            for p in self.funs
+        ]
+        return Chebfun(funs=new_funs, domain=self.domain)
+
+    def imag(self) -> Chebfun:
+        """Imaginary part of the Chebfun (a real Chebfun).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/imag.m
+        Chebfun commit: 7574c77
+        """
+        new_funs = [
+            _Piece(tech=Chebtech2.from_coeffs(jnp.imag(p.tech.coeffs)),
+                   interval=p.interval)
+            for p in self.funs
+        ]
+        return Chebfun(funs=new_funs, domain=self.domain)
+
+    def conj(self) -> Chebfun:
+        """Complex conjugate of the Chebfun.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/conj.m
+        Chebfun commit: 7574c77
+        """
+        new_funs = [
+            _Piece(tech=Chebtech2.from_coeffs(jnp.conj(p.tech.coeffs)),
+                   interval=p.interval)
+            for p in self.funs
+        ]
+        return Chebfun(funs=new_funs, domain=self.domain)
+
+    def angle(self) -> Chebfun:
+        """Phase angle atan2(imag f, real f), constructed adaptively.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/angle.m
+        Chebfun commit: 7574c77
+        """
+        f = self
+        new_funs = [
+            _Piece.from_function(
+                lambda x, _f=f: jnp.angle(_f(x)),
+                float(p.interval[0]), float(p.interval[1]),
+            )
+            for p in self.funs
+        ]
+        return Chebfun(funs=new_funs, domain=self.domain)
 
     def logical(self) -> Chebfun:
         """Convert to a logical (0/1) Chebfun.
