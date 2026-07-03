@@ -528,7 +528,11 @@ class TestJITCompatibility:
         jitted = jax.jit(functools.partial(diffmat, 10, 1, (-1.0, 1.0), 2))
         D_jit = jitted()
         D_eager = diffmat(10)
-        npt.assert_allclose(np.array(D_jit), np.array(D_eager), rtol=1e-15)
+        # JIT and eager compile to differently-fused kernels; the
+        # negative-sum-trick diagonal entries are cancellation-heavy and
+        # differ by 1-2 ULP depending on fusion (same reason as the kind=1
+        # test below). rtol=1e-13 is conservative.
+        npt.assert_allclose(np.array(D_jit), np.array(D_eager), rtol=1e-13)
 
     def test_diffmat_jit_kind1(self):
         """diffmat kind=1 under JIT.

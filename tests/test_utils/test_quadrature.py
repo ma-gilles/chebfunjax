@@ -684,7 +684,13 @@ class TestJITCompatibility:
         """chebpts is not fully JIT-able (n and kind control branching),
         but the core array ops work under JIT when called with static args."""
         jitted = jax.jit(functools.partial(chebpts, 10, kind=2))
-        npt.assert_allclose(np.array(jitted()), np.array(chebpts(10, kind=2)), rtol=1e-15)
+        # jit vs eager may differ by 1 ULP in the trig evaluation
+        # depending on kernel fusion; observed on CI runners and under
+        # xdist locally. atol=4*eps covers it (values are in [-1, 1]).
+        npt.assert_allclose(
+            np.array(jitted()), np.array(chebpts(10, kind=2)),
+            rtol=0.0, atol=4e-16,
+        )
 
     def test_chebweights_jit(self):
         @jax.jit
