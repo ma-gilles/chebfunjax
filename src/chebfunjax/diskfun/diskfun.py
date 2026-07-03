@@ -211,7 +211,6 @@ def _phase_one_disk(
 
     idxp = int(np.argmax(np.abs(Fp))) if maxp_val > 0 else 0
     idxm = int(np.argmax(np.abs(Fm))) if maxm_val > 0 else 0
-    mr = m - 1  # reduced row dimension
 
     while (max(maxp_val, maxm_val) > tol) and (rank_count < width) and (rank_count < minsize):
         # Choose pivot: whichever of Fp, Fm has larger max
