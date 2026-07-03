@@ -199,12 +199,12 @@ def _cf_getBlock(a, m, n, M):
     s = w[order[n]]
     u = np.real(V[:, order[n]])
     tmp = np.abs(S - np.abs(s)) < tol
-    k = l = 0
+    k = ll = 0
     while (k < n) and tmp[n - k - 1]:
         k += 1
-    while ((n + l + 2) < len(tmp)) and tmp[n + l + 1]:
-        l += 1
-    return s, u, k, l, (n + l + 2) == len(tmp)
+    while ((n + ll + 2) < len(tmp)) and tmp[n + ll + 1]:
+        ll += 1
+    return s, u, k, ll, (n + ll + 2) == len(tmp)
 
 
 def cf_rational(a_asc, m, n, M, vscale):
@@ -225,12 +225,12 @@ def cf_rational(a_asc, m, n, M, vscale):
         elif not (m % 2) and (n % 2):
             n -= 1
 
-    s, u, k, l, _ = _cf_getBlock(a, m, n, M)
-    if (k > 0) or (l > 0):
-        s2, u2, knew, lnew, _ = _cf_getBlock(a, m + l, n - k, M)
+    s, u, k, ll, _ = _cf_getBlock(a, m, n, M)
+    if (k > 0) or (ll > 0):
+        s2, u2, knew, lnew, _ = _cf_getBlock(a, m + ll, n - k, M)
         if (knew > 0) or (lnew > 0):
-            n = n + l
-            s, u, k, l, _ = _cf_getBlock(a, m - k, n, M)
+            n = n + ll
+            s, u, k, ll, _ = _cf_getBlock(a, m - k, n, M)
         else:
             n = n - k; s, u = s2, u2
 
@@ -271,8 +271,11 @@ def cf_rational(a_asc, m, n, M, vscale):
                    np.conj(fft(u, N) / fft(v, N))) / N
     ac = _acR(N)
     act = np.zeros(N, dtype=complex)
-    while (np.linalg.norm(1 - act[:m + 1] / ac[:m + 1], np.inf) > tolfft) and \
-          (np.linalg.norm(1 - act[len(act) - m:] / ac[len(ac) - m:], np.inf) > tolfft) and (N < maxnfft):
+    while (
+        (np.linalg.norm(1 - act[:m + 1] / ac[:m + 1], np.inf) > tolfft)
+        and (np.linalg.norm(1 - act[len(act) - m:] / ac[len(ac) - m:], np.inf) > tolfft)
+        and (N < maxnfft)
+    ):
         act = ac; N *= 2
         ac = _acR(N)
     ac = s * np.real(ac)
