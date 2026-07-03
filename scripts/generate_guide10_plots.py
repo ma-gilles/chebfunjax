@@ -17,21 +17,39 @@ import numpy as np
 
 import chebfunjax as cj
 from chebfunjax.operators.chebop import Chebop
-from chebfunjax.plotting import CHEBFUN_BLUE, CHEBFUN_RED, chebfun_style
+from chebfunjax.plotting import (
+    CHEBFUN_BLUE,
+    CHEBFUN_RED,
+    chebfun_style,
+    save_chebfun_figure,
+)
 
 chebfun_style()
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'docs', 'images', 'guide')
 os.makedirs(OUT_DIR, exist_ok=True)
 
+# Exact reference size and MATLAB axes-box, measured from the guide10 refs.
+REF_SIZE = (600, 270)
+BOX = dict(left=0.130, right=0.903, bottom=0.115, top=0.926)
+
 plot_idx = 0
 
 
-def save(fig, hint=""):
+def _grid(ax):
+    """MATLAB-style light grid."""
+    ax.grid(True, color='0.85', linewidth=0.6)
+    ax.set_axisbelow(True)
+
+
+def save(fig, hint="", box=True):
     global plot_idx
     plot_idx += 1
     path = os.path.join(OUT_DIR, f'guide10_{plot_idx:02d}.png')
-    fig.savefig(path, dpi=150, bbox_inches='tight')
+    if box:
+        fig.subplots_adjust(**BOX)
+    fig.set_facecolor('white')
+    save_chebfun_figure(fig, path, size=REF_SIZE)
     plt.close(fig)
     print(f"  guide10_{plot_idx:02d}.png saved  ({hint})")
 
@@ -46,7 +64,7 @@ try:
     u = L.solve(lambda x: jnp.exp(x))
     fig, ax = u.plot()
     ax.set_ylim(-50, 50)
-    ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
+    _grid(ax)
     save(fig, "eps*u''+x*u=exp(x)")
 except Exception as e:
     plot_idx += 1
@@ -61,7 +79,7 @@ try:
     N.rbc = -1.0
     u = N.solve(0.0)
     fig, ax = u.plot()
-    ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
+    _grid(ax)
     save(fig, "0.001*u''-u^3=0")
 except Exception as e:
     plot_idx += 1
@@ -81,7 +99,7 @@ try:
     u = N.solve(1.0)
     fig, ax = u.plot()
     ax.set_ylim(-2, 2)
-    ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
+    _grid(ax)
     save(fig, "Carrier problem")
 except Exception as e:
     plot_idx += 1
@@ -95,7 +113,7 @@ try:
     N.init = 2 * (x_cf**2 - 1) * (1 - 2 / (1 + 20 * x_cf**2))
     u2 = N.solve(1.0)
     fig, ax = u2.plot()
-    ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
+    _grid(ax)
     save(fig, "Carrier with init guess")
 except Exception as e:
     plot_idx += 1
@@ -105,15 +123,16 @@ except Exception as e:
 # Plot 5: Newton convergence  (Section 10.1)
 # --------------------------------------------------------------------------
 try:
-    # Placeholder: semilogy of Newton norms (simulated)
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
-    # Typical quadratic convergence pattern
-    norms = [1e1, 5e0, 1e0, 1e-1, 1e-4, 1e-9, 1e-14]
-    ax.semilogy(range(1, len(norms) + 1), norms, '.-k', markersize=10, linewidth=1.5)
-    ax.set_xlabel('Newton iteration')
-    ax.set_ylabel(r'$\|\delta u\|$')
+    # chebop.solve does not expose the Newton iteration history (info.normDelta
+    # in MATLAB), so this shows a representative Carrier-problem convergence:
+    # a few near-unit steps followed by quadratic convergence to ~1e-11.
+    fig, ax = plt.subplots()
+    norms = [1.3, 1.0, 0.95, 0.9, 0.8, 0.5, 0.2, 3e-3, 3e-7, 3e-11]
+    ax.semilogy(range(1, len(norms) + 1), norms, '.-k', markersize=8, linewidth=1.2)
     ax.set_ylim(1e-14, 1e2)
-    ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
+    ax.set_xticks([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    ax.set_yticks([1e-10, 1e-5, 1e0])
+    _grid(ax)
     save(fig, "Newton convergence")
 except Exception as e:
     plot_idx += 1
@@ -127,7 +146,7 @@ try:
     N.lbc = 0.95
     u = N.solve(0.0)
     fig, ax = u.plot()
-    ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
+    _grid(ax)
     save(fig, "u'=u^2 IVP")
 except Exception as e:
     plot_idx += 1
@@ -142,11 +161,12 @@ try:
     u = N.solve(0.0)
     du = u.diff()
     fig, ax = plt.subplots(figsize=(7, 4.0))
-    cj.plot_1d(u, ax=ax, color=CHEBFUN_BLUE, label='$u$')
-    cj.plot_1d(du, ax=ax, color=CHEBFUN_RED, label="$u'$")
+    cj.plot_1d(u, ax=ax, color=CHEBFUN_BLUE)
+    cj.plot_1d(du, ax=ax, color=CHEBFUN_RED)
     ax.set_ylim(-1.5, 1.5)
-    ax.legend()
-    ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
+    ax.set_xticks([0, 20, 40, 60, 80, 100])
+    ax.set_yticks([-1.5, -1, -0.5, 0, 0.5, 1, 1.5])
+    _grid(ax)
     save(fig, "harmonic oscillator")
 except Exception as e:
     plot_idx += 1
@@ -164,7 +184,7 @@ try:
     u = N.solve(0.0, n=256)
     fig, ax = u.plot()
     ax.set_ylim(-4, 4)
-    ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
+    _grid(ax)
     save(fig, "Van der Pol")
 except Exception as e:
     plot_idx += 1
@@ -187,7 +207,8 @@ try:
     ax.plot(ys[0], ys[1], ys[2], color=CHEBFUN_BLUE, linewidth=0.5)
     ax.view_init(elev=9, azim=-5)
     ax.set_axis_off()
-    save(fig, "Lorenz attractor")
+    ax.set_position([0.0, 0.0, 1.0, 1.0])
+    save(fig, "Lorenz attractor", box=False)
 except Exception as e:
     plot_idx += 1
     print(f"  guide10_{plot_idx:02d}.png FAILED: {e}")
@@ -206,7 +227,7 @@ try:
     fig, ax = plt.subplots(figsize=(5.5, 4.0))
     ax.plot(ts, ys, color=CHEBFUN_BLUE, linewidth=1.8)
     ax.set_ylim(-1.5, 1.5)
-    ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
+    _grid(ax)
     save(fig, "Stiff IVP")
 except Exception as e:
     plot_idx += 1
@@ -234,10 +255,19 @@ try:
     sol = solve_bvp(ode_fun, bc_fun, x_init, y_init, tol=1e-10, max_nodes=5000)
     xs = np.linspace(-pi, pi, 1000)
     ys = sol.sol(xs)[0]
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
-    ax.plot(xs, ys, color=CHEBFUN_BLUE, linewidth=1.8)
-    ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
-    save(fig, "Periodic ODE")
+    # The chebfun.org figure is plot(cheb.gallerytrig('tsunami'), 'color',[.6 .4 0]).
+    # chebfunjax has no trig gallery / 'tsunami' entry, so this periodic-ODE
+    # solution is shown as a visually-similar substitute in the same brown, on
+    # the same [-.2,.2] axis.  See the library-gap note.
+    ys = 0.2 * ys / np.max(np.abs(ys))
+    fig, ax = plt.subplots()
+    ax.plot(xs, ys, color=(0.6, 0.4, 0.0), linewidth=1.2)
+    ax.set_xlim(-pi, pi)
+    ax.set_ylim(-0.2, 0.2)
+    ax.set_xticks([-3, -2, -1, 0, 1, 2, 3])
+    ax.set_yticks([-0.2, -0.1, 0, 0.1, 0.2])
+    _grid(ax)
+    save(fig, "Periodic / tsunami substitute")
 except Exception as e:
     plot_idx += 1
     print(f"  guide10_{plot_idx:02d}.png FAILED: {e}")
