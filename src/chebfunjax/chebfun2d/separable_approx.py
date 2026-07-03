@@ -61,6 +61,43 @@ def _chebpts_phys(n: int, a: float, b: float) -> jax.Array:
 # ============================================================================
 
 
+def _get_tol(
+    x_pts: "np.ndarray",
+    y_pts: "np.ndarray",
+    vals: "np.ndarray",
+    dom: "tuple[float, float, float, float]",
+    pseudo_level: float,
+) -> float:
+    """Gradient-aware 2D construction tolerance.
+
+    Faithful translation of getTol in @chebfun2/constructor.m:
+        relTol = grid^(2/3) * pseudoLevel
+        absTol = max|dom| * max(Jac_norm, vscale) * relTol
+    The previous formula max(tol*vscale, 1e4*tol) was ~300x looser for
+    O(1) functions on the unit square (the 1e4*eps floor dominated), so
+    the ACA stopped one pivot early (rank 9 vs MATLAB's 10 on
+    1/(1+x^2+2y^2)).
+    """
+    m, n = vals.shape  # rows vary y, columns vary x
+    grid = max(m, n)
+    dfdx = np.zeros(1)
+    dfdy = np.zeros(1)
+    if m > 1 and n > 1:
+        dx = np.diff(x_pts)[np.newaxis, :]           # (1, n-1)
+        dy = np.diff(y_pts)[:, np.newaxis]           # (m-1, 1)
+        dfdx = np.diff(vals[: m - 1, :], axis=1) / dx
+        dfdy = np.diff(vals[:, : n - 1], axis=0) / dy
+    elif m > 1:
+        dfdy = np.diff(vals, axis=0) / np.diff(y_pts)[:, np.newaxis]
+    elif n > 1:
+        dfdx = np.diff(vals, axis=1) / np.diff(x_pts)[np.newaxis, :]
+    jac_norm = max(float(np.max(np.abs(dfdx))), float(np.max(np.abs(dfdy))))
+    vscale = float(np.max(np.abs(vals)))
+    rel_tol = grid ** (2.0 / 3.0) * pseudo_level
+    return float(np.max(np.abs(np.asarray(dom)))) * max(jac_norm, vscale) * rel_tol
+
+
+
 def _complete_aca(
     A: np.ndarray,
     abs_tol: float,
@@ -501,8 +538,9 @@ class SeparableApprox(eqx.Module):
                 f"on the initial grid over domain ({xa}, {xb}) x ({ya}, {yb})."
             )
 
-        # 2D tolerance (matches MATLAB's getTol logic)
-        abs_tol = max(tol * vscale, 1e4 * tol)
+        # 2D tolerance (getTol from @chebfun2/constructor.m)
+        dom4 = (xa, xb, ya, yb)
+        abs_tol = _get_tol(x_pts, y_pts, vals, dom4, tol)
 
         pivot_vals, pivot_pos, row_vals_mat, col_vals_mat, ifail = _complete_aca(
             vals, abs_tol, factor
@@ -523,7 +561,7 @@ class SeparableApprox(eqx.Module):
             grid_y = _grid_refine(grid_y)
             x_pts, y_pts, vals = _sample_grid(grid_x, grid_y)
             vscale = float(np.max(np.abs(vals)))
-            abs_tol = max(tol * vscale, 1e4 * tol)
+            abs_tol = _get_tol(x_pts, y_pts, vals, dom4, tol)
             pivot_vals, pivot_pos, row_vals_mat, col_vals_mat, ifail = _complete_aca(
                 vals, abs_tol, factor
             )
