@@ -176,12 +176,21 @@ except Exception as e:
 # Plot 8: Van der Pol oscillator  (Section 10.2)
 # --------------------------------------------------------------------------
 try:
-    N = Chebop(
-        lambda t, u: 0.05 * u.diff(2) - (1 - u**2) * u.diff() + u,
-        domain=(0.0, 20.0),
+    # MATLAB solves this IVP via chebop's time-marching path (solveivp /
+    # ode113 through treeVar), NOT global Newton — the global-Newton BVP
+    # formulation structurally diverges for van der Pol. chebfunjax does
+    # not yet route one-sided-BC problems to marching (tracked), so this
+    # figure uses the same time-marching MATLAB does, via solve_ivp.
+    from scipy.integrate import solve_ivp as _solve_ivp
+    _sol = _solve_ivp(
+        lambda t, y: [y[1], ((1 - y[0]**2) * y[1] - y[0]) / 0.05],
+        [0.0, 20.0], [3.0, 0.0], max_step=0.005, dense_output=True,
     )
-    N.lbc = [3.0, 0.0]
-    u = N.solve(0.0, n=256)
+    _ts = np.linspace(0.0, 20.0, 4000)
+    u = cj.chebfun(  # interpolate the dense solution as a chebfun
+        lambda t: jnp.asarray(_sol.sol(np.atleast_1d(np.asarray(t)))[0]).reshape(jnp.shape(t)),
+        domain=[0.0, 20.0], n=2048,
+    )
     fig, ax = u.plot()
     ax.set_ylim(-4, 4)
     _grid(ax)

@@ -663,43 +663,71 @@ class Chebop:
             # Work in materialized numpy per iteration: chaining lazy JAX
             # graphs across Newton iterations made the eventual float()
             # materialization at n~1024 segfault XLA's CPU backend.
-            u_np = _np.asarray(u_vals, dtype=_np.float64)
-            newton_converged = False
-            r_np, Nu_vals, u_fun = _residual(u_np)
-            r_norm = float(_np.max(_np.abs(r_np)))
+            u0_np = _np.asarray(u_vals, dtype=_np.float64)
 
-            for _it in range(max_iter):
-                # Linearise around u
-                J_mat = self._jacobian_matrix(disc, x_fun, u_fun, jnp.asarray(Nu_vals))
-                J_np = _np.array(J_mat)  # copy: jax buffers are read-only
-                for i, bc in enumerate(bcs):
-                    J_np[sz - n_bc + i, :] = _np.asarray(bc.matrix(disc))
-
-                delta = _np.linalg.solve(J_np, -r_np)
-                if not _np.all(_np.isfinite(delta)):
-                    break
-
-                # Damped Newton (MATLAB solvebvpNonlinear uses damping for
-                # global convergence): backtrack on the residual norm.
-                lam_damp = 1.0
-                for _ls in range(8):
-                    u_try = u_np + lam_damp * delta
-                    r_try, Nu_try, u_fun_try = _residual(u_try)
-                    r_try_norm = float(_np.max(_np.abs(r_try)))
-                    if _np.isfinite(r_try_norm) and (
-                        r_try_norm <= (1.0 - 0.25 * lam_damp) * r_norm
-                        or r_try_norm < newton_tol
-                    ):
+            def _newton_run(damped):
+                """Run Newton from u0; return (u, r, Nu, ufun, converged)."""
+                u_np = u0_np.copy()
+                r_np, Nu_v, ufun = _residual(u_np)
+                r_norm = float(_np.max(_np.abs(r_np)))
+                converged = False
+                for _it in range(max_iter):
+                    J_mat = self._jacobian_matrix(
+                        disc, x_fun, ufun, jnp.asarray(Nu_v)
+                    )
+                    J_np = _np.array(J_mat)  # copy: jax buffers read-only
+                    for i, bc in enumerate(bcs):
+                        J_np[sz - n_bc + i, :] = _np.asarray(bc.matrix(disc))
+                    try:
+                        delta = _np.linalg.solve(J_np, -r_np)
+                    except _np.linalg.LinAlgError:
                         break
-                    lam_damp *= 0.5
-                u_np, r_np, Nu_vals, u_fun = u_try, r_try, Nu_try, u_fun_try
-                r_norm = r_try_norm
+                    if not _np.all(_np.isfinite(delta)):
+                        break
 
-                correction_norm = float(_np.max(_np.abs(lam_damp * delta)))
-                u_scale = max(1.0, float(_np.max(_np.abs(u_np))))
-                if correction_norm < newton_tol * u_scale:
-                    newton_converged = True
-                    break
+                    if damped:
+                        # Monotone backtracking on the residual norm
+                        # (MATLAB solvebvpNonlinear damps for global
+                        # convergence on stiff problems).
+                        lam_damp = 1.0
+                        for _ls in range(8):
+                            u_try = u_np + lam_damp * delta
+                            r_try, Nu_try, ufun_try = _residual(u_try)
+                            r_try_norm = float(_np.max(_np.abs(r_try)))
+                            if _np.isfinite(r_try_norm) and (
+                                r_try_norm <= (1.0 - 0.25 * lam_damp) * r_norm
+                                or r_try_norm < newton_tol
+                            ):
+                                break
+                            lam_damp *= 0.5
+                    else:
+                        lam_damp = 1.0
+                        u_try = u_np + delta
+                        r_try, Nu_try, ufun_try = _residual(u_try)
+                        r_try_norm = float(_np.max(_np.abs(r_try)))
+
+                    if not _np.isfinite(r_try_norm):
+                        break
+                    u_np, r_np, Nu_v, ufun = u_try, r_try, Nu_try, ufun_try
+                    r_norm = r_try_norm
+
+                    step_norm = float(_np.max(_np.abs(lam_damp * delta)))
+                    u_scale = max(1.0, float(_np.max(_np.abs(u_np))))
+                    if step_norm < newton_tol * u_scale:
+                        converged = True
+                        break
+                return u_np, ufun, converged
+
+            # Plain Newton first (the fast path, and what stiff-but-benign
+            # problems like the van der Pol IVP-as-BVP need); fall back to
+            # a damped run from the same start only if it diverges.
+            u_np, u_fun, newton_converged = _newton_run(damped=False)
+            if not newton_converged and not _np.all(
+                _np.isfinite(u_np)
+            ) or (not newton_converged and float(
+                _np.max(_np.abs(u_np))
+            ) > 1e8):
+                u_np, u_fun, newton_converged = _newton_run(damped=True)
 
             u_vals = jnp.asarray(u_np, dtype=jnp.float64)
 
