@@ -1,549 +1,466 @@
-"""Generate all plots for Guide Chapter 5: Complex Chebfuns.
+"""Generate all 21 plots for Guide Chapter 5 (Complex Chebfuns).
 
-Faithful translation of the MATLAB Chebfun Guide Chapter 5 plots.
-Complex chebfuns in chebfunjax are represented as (real_part, imag_part) pairs.
+Files are saved as docs/images/guide/guide05_NN.png in the order of the
+figures on https://www.chebfun.org/docs/guide/guide05.html, each at the
+reference render's exact pixel size (610x258).
+
+Everything is drawn from genuine complex-valued chebfuns (native
+complex support); piecewise paths use breakpoint domains (the
+join-equivalent), and text figures use chebfunjax's scribble.
 """
+
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import matplotlib
 
-matplotlib.use('Agg')
+matplotlib.use("Agg")
 
-import os
 import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import CHEBFUN_BLUE, chebfun_style, save_chebfun_figure
+from chebfunjax.utils.scribble import scribble
 
 chebfun_style()
 
-OUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'docs', 'images', 'guide')
-os.makedirs(OUT_DIR, exist_ok=True)
-
+OUT = os.path.join(os.path.dirname(__file__), "..", "docs", "images", "guide")
+os.makedirs(OUT, exist_ok=True)
+SIZE = (610, 258)
 plot_idx = 0
 
-# Helper: evaluate complex chebfun pair at points
-def eval_complex(x_cheb, y_cheb, tt):
-    return x_cheb(tt), y_cheb(tt)
+MAGENTA = (1.0, 0.0, 1.0)  # MATLAB 'm'
+
+
+def save(fig):
+    global plot_idx
+    plot_idx += 1
+    path = os.path.join(OUT, f"guide05_{plot_idx:02d}.png")
+    save_chebfun_figure(fig, path, size=SIZE)
+    plt.close(fig)
+    print(f"  guide05_{plot_idx:02d}.png saved")
+
+
+def _path_samples(f, m=150):
+    """Sample a (possibly piecewise) complex chebfun per piece."""
+    funs = getattr(f, "funs", None)
+    if funs is not None and len(funs) > 1:
+        chunks = []
+        for p in funs:
+            a, b = (float(v) for v in p.interval)
+            ts = np.linspace(a, b, m)
+            chunks.append(np.array(p(jnp.array(ts))))
+        return np.concatenate(chunks)
+    a, b = (float(v) for v in (f.domain.breakpoints[0], f.domain.breakpoints[-1]))
+    return np.array(f(jnp.linspace(a, b, max(m, 200))))
+
+
+def cplot(ax, f, color=CHEBFUN_BLUE, lw=1.2, n=200, **kw):
+    """Plot a complex chebfun's image curve, per piece."""
+    ys = _path_samples(f, m=n)
+    ax.plot(np.real(ys), np.imag(ys), color=color, linewidth=lw, **kw)
+    ax.set_aspect("equal")
+
+
+def join_paths(segs):
+    """join()-equivalent: piecewise complex chebfun; segment k, mapped
+    from a local parameter in [0,1], occupies [k, k+1] globally."""
+
+    def piecewise(t):
+        val = segs[0](t - 0.0)
+        for k in range(1, len(segs)):
+            val = jnp.where(t > k, segs[k](t - k), val)
+        return val
+
+    return cj.chebfun(piecewise,
+                      domain=[float(k) for k in range(len(segs) + 1)])
 
 
 # --------------------------------------------------------------------------
-# Plot 1: 20 points on upper half unit circle -- Section 5.1
+# Fig 1: 20 points exp(1i*s) on upper half circle (dots)
 # --------------------------------------------------------------------------
 try:
+    s20 = np.linspace(0, np.pi, 20)
+    fig, ax = plt.subplots()
+    pts = np.exp(1j * s20)
+    ax.plot(np.real(pts), np.imag(pts), ".", color=CHEBFUN_BLUE,
+            markersize=6)
+    ax.set_aspect("equal")
+    save(fig)
+except Exception as e:  # noqa: BLE001
     plot_idx += 1
-    s = np.linspace(0, np.pi, 20)
-    f_re = np.cos(s)
-    f_im = np.sin(s)
-
-    fig, ax = plt.subplots(figsize=(5.5, 5.5))
-    ax.plot(f_re, f_im, '.', markersize=10)
-    ax.set_aspect('equal')
-    ax.set_title('20 points on the upper semicircle')
-    ax.grid(True, alpha=0.3)
-    fig.tight_layout()
-    fig.savefig(os.path.join(OUT_DIR, f'guide05_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide05_{plot_idx:02d}.png saved")
-except Exception as e:
-    print(f"guide05_{plot_idx:02d}.png FAILED: {e}")
+    print(f"  guide05_{plot_idx:02d}.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
-# Plot 2: Chebfun semicircle -- Section 5.1
+# Fig 2: continuous curve exp(1i*s), s in [0, pi]
+# --------------------------------------------------------------------------
+f = None
+try:
+    f = cj.chebfun(lambda s: jnp.exp(1j * s), domain=[0.0, float(np.pi)])
+    fig, ax = plt.subplots()
+    cplot(ax, f)
+    save(fig)
+except Exception as e:  # noqa: BLE001
+    plot_idx += 1
+    print(f"  guide05_{plot_idx:02d}.png FAILED: {e}")
+
+# --------------------------------------------------------------------------
+# Fig 3: same curve with its Chebyshev data points, '.-'
 # --------------------------------------------------------------------------
 try:
+    fig, ax = plt.subplots()
+    cplot(ax, f)
+    n = len(f)
+    tt = 0.5 * float(np.pi) * (np.cos(np.pi * np.arange(n) / (n - 1)) + 1.0)
+    zz = np.array(f(jnp.array(tt)))
+    ax.plot(np.real(zz), np.imag(zz), ".", color=CHEBFUN_BLUE, markersize=6)
+    save(fig)
+except Exception as e:  # noqa: BLE001
     plot_idx += 1
-    s = cj.chebfun(lambda s: s, domain=[0, float(jnp.pi)])
-    f_re = cj.cos(s)
-    f_im = cj.sin(s)
-
-    tt = jnp.linspace(0, float(jnp.pi), 200)
-    fig, ax = plt.subplots(figsize=(5.5, 5.5))
-    ax.plot(f_re(tt), f_im(tt), linewidth=1.5)
-    ax.set_aspect('equal')
-    ax.set_title('Chebfun semicircle')
-    ax.grid(True, alpha=0.3)
-    fig.tight_layout()
-    fig.savefig(os.path.join(OUT_DIR, f'guide05_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide05_{plot_idx:02d}.png saved")
-except Exception as e:
-    print(f"guide05_{plot_idx:02d}.png FAILED: {e}")
+    print(f"  guide05_{plot_idx:02d}.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
-# Plot 3: Semicircle with Chebyshev points marked -- Section 5.1
+# Fig 4: g = s*exp(10i*s) and h = exp(2i*s)+.3*exp(20i*s)
+# --------------------------------------------------------------------------
+g = h = None
+try:
+    dom_pi = [0.0, float(np.pi)]
+    g = cj.chebfun(lambda s: s * jnp.exp(10j * s), domain=dom_pi)
+    h = cj.chebfun(
+        lambda s: jnp.exp(2j * s) + 0.3 * jnp.exp(20j * s), domain=dom_pi
+    )
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    cplot(ax1, g, n=600)
+    cplot(ax2, h, n=800)
+    save(fig)
+except Exception as e:  # noqa: BLE001
+    plot_idx += 1
+    print(f"  guide05_{plot_idx:02d}.png FAILED: {e}")
+
+# --------------------------------------------------------------------------
+# Fig 5: g^2 and exp(h)
 # --------------------------------------------------------------------------
 try:
+    exp_h = cj.chebfun(
+        lambda s: jnp.exp(jnp.exp(2j * s) + 0.3 * jnp.exp(20j * s)),
+        domain=dom_pi,
+    )
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    cplot(ax1, g * g, n=800)
+    cplot(ax2, exp_h, n=800)
+    save(fig)
+except Exception as e:  # noqa: BLE001
     plot_idx += 1
-    s = cj.chebfun(lambda s: s, domain=[0, float(jnp.pi)])
-    f_re = cj.cos(s)
-    f_im = cj.sin(s)
-    n_pts = len(f_re)
-
-    tt = jnp.linspace(0, float(jnp.pi), 200)
-    # Chebyshev points on [0, pi]
-    from chebfunjax.utils.quadrature import chebpts
-    s_pts = (chebpts(n_pts) + 1) / 2 * float(jnp.pi)
-
-    fig, ax = plt.subplots(figsize=(5.5, 5.5))
-    ax.plot(f_re(tt), f_im(tt), '.-', markersize=10, linewidth=1.2)
-    ax.set_aspect('equal')
-    ax.set_title(f'length(f) = {n_pts}')
-    ax.grid(True, alpha=0.3)
-    fig.tight_layout()
-    fig.savefig(os.path.join(OUT_DIR, f'guide05_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide05_{plot_idx:02d}.png saved")
-except Exception as e:
-    print(f"guide05_{plot_idx:02d}.png FAILED: {e}")
+    print(f"  guide05_{plot_idx:02d}.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
-# Plot 4: s*exp(10i*s) and exp(2i*s)+0.3*exp(20i*s) -- Section 5.1
+# Fig 6: piecewise path z and z^2 (grid on)
 # --------------------------------------------------------------------------
 try:
+    z = join_paths([
+        lambda s: (1 + 0.5j) * s,
+        lambda s: 1 + 0.5j - 2 * s,
+    ])
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    cplot(ax1, z)
+    ax1.grid(True, alpha=0.4, linewidth=0.4)
+    cplot(ax2, z * z)
+    ax2.grid(True, alpha=0.4, linewidth=0.4)
+    save(fig)
+except Exception as e:  # noqa: BLE001
     plot_idx += 1
-    s = cj.chebfun(lambda s: s, domain=[0, float(jnp.pi)])
-
-    # g = s*exp(10i*s)
-    g_re = s * cj.cos(10 * s)
-    g_im = s * cj.sin(10 * s)
-
-    # h = exp(2i*s) + 0.3*exp(20i*s)
-    h_re = cj.cos(2 * s) + 0.3 * cj.cos(20 * s)
-    h_im = cj.sin(2 * s) + 0.3 * cj.sin(20 * s)
-
-    tt = jnp.linspace(0, float(jnp.pi), 1000)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
-    axes[0].plot(g_re(tt), g_im(tt), linewidth=1.2)
-    axes[0].set_aspect('equal')
-    axes[0].set_title(r'$s \cdot e^{10is}$')
-    axes[0].grid(True, alpha=0.3)
-
-    axes[1].plot(h_re(tt), h_im(tt), linewidth=1.2)
-    axes[1].set_aspect('equal')
-    axes[1].set_title(r'$e^{2is} + 0.3 e^{20is}$')
-    axes[1].grid(True, alpha=0.3)
-
-    fig.tight_layout()
-    fig.savefig(os.path.join(OUT_DIR, f'guide05_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide05_{plot_idx:02d}.png saved")
-except Exception as e:
-    print(f"guide05_{plot_idx:02d}.png FAILED: {e}")
+    print(f"  guide05_{plot_idx:02d}.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
-# Plot 5: g^2 and exp(h) -- Section 5.1
+# Fig 7: rectangle R (blue) and cross X (red), left subplot
+# --------------------------------------------------------------------------
+R = X = None
+try:
+    R = join_paths([
+        lambda s: 1 + s,
+        lambda s: 2 + 2j * s,
+        lambda s: 2 + 2j - s,
+        lambda s: 1 + 2j - 2j * s,
+    ])
+    X = join_paths([
+        lambda s: 1.3 + 1.5j + 0.4 * s,
+        lambda s: 1.5 + 1.3j + 0.4j * s,
+    ])
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    cplot(ax1, R, lw=2.2)
+    cplot(ax1, X, color="r", lw=2.2)
+    ax1.grid(True, alpha=0.4, linewidth=0.4)
+    ax2.set_visible(False)
+    save(fig)
+except Exception as e:  # noqa: BLE001
+    plot_idx += 1
+    print(f"  guide05_{plot_idx:02d}.png FAILED: {e}")
+
+# --------------------------------------------------------------------------
+# Fig 8: R^2, X^2 and exp(R), exp(X)
 # --------------------------------------------------------------------------
 try:
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    cplot(ax1, R * R, lw=1.5)
+    cplot(ax1, X * X, color="r", lw=2.2)
+    ax1.grid(True, alpha=0.4, linewidth=0.4)
+    eR = np.exp(_path_samples(R, m=200))
+    eX = np.exp(_path_samples(X, m=200))
+    ax2.plot(np.real(eR), np.imag(eR), color=CHEBFUN_BLUE, linewidth=1.5)
+    ax2.plot(np.real(eX), np.imag(eX), color="r", linewidth=2.2)
+    ax2.set_aspect("equal")
+    ax2.grid(True, alpha=0.4, linewidth=0.4)
+    save(fig)
+except Exception as e:  # noqa: BLE001
     plot_idx += 1
-    tt = jnp.linspace(0, float(jnp.pi), 1000)
-
-    # g^2 = (g_re + i*g_im)^2 = g_re^2 - g_im^2 + 2i*g_re*g_im
-    g2_re = g_re**2 - g_im**2
-    g2_im = 2 * g_re * g_im
-
-    # exp(h) = exp(h_re) * (cos(h_im) + i*sin(h_im))
-    exph_re = cj.exp(h_re) * cj.cos(h_im)
-    exph_im = cj.exp(h_re) * cj.sin(h_im)
-
-    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
-    axes[0].plot(g2_re(tt), g2_im(tt), linewidth=1.2)
-    axes[0].set_aspect('equal')
-    axes[0].set_title(r'$g^2$')
-    axes[0].grid(True, alpha=0.3)
-
-    axes[1].plot(exph_re(tt), exph_im(tt), linewidth=1.2)
-    axes[1].set_aspect('equal')
-    axes[1].set_title(r'$\exp(h)$')
-    axes[1].grid(True, alpha=0.3)
-
-    fig.tight_layout()
-    fig.savefig(os.path.join(OUT_DIR, f'guide05_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide05_{plot_idx:02d}.png saved")
-except Exception as e:
-    print(f"guide05_{plot_idx:02d}.png FAILED: {e}")
+    print(f"  guide05_{plot_idx:02d}.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
-# Plot 6: Piecewise complex z and z^2 -- Section 5.1
+# Collection S: grid of vertical/horizontal lines for figs 9-11
+# --------------------------------------------------------------------------
+S_lines = []
+for d in np.arange(-1.0, 1.01, 0.2):
+    dd = float(d)
+    S_lines.append(cj.chebfun(lambda x, _d=dd: _d + 1j * x))
+    S_lines.append(cj.chebfun(lambda x, _d=dd: 1j * _d + x))
+
+_CYCLE = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+
+
+def _plot_lines(ax, fn=None, n=300, lw=1.0, shift=0.0):
+    xs = np.linspace(-1.0, 1.0, n)
+    for i, line in enumerate(S_lines):
+        zz = np.array(line(jnp.array(xs)))
+        if fn is not None:
+            zz = fn(zz)
+        zz = zz + shift
+        ax.plot(np.real(zz), np.imag(zz),
+                color=_CYCLE[i % len(_CYCLE)], linewidth=lw)
+    ax.set_aspect("equal")
+
+
+# Fig 9: the grid S itself (left subplot)
+try:
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    _plot_lines(ax1)
+    ax2.set_visible(False)
+    save(fig)
+except Exception as e:  # noqa: BLE001
+    plot_idx += 1
+    print(f"  guide05_{plot_idx:02d}.png FAILED: {e}")
+
+# Fig 10: exp(S) and tan(S)
+try:
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    _plot_lines(ax1, fn=np.exp)
+    _plot_lines(ax2, fn=np.tan)
+    save(fig)
+except Exception as e:  # noqa: BLE001
+    plot_idx += 1
+    print(f"  guide05_{plot_idx:02d}.png FAILED: {e}")
+
+# Fig 11: S, 1.6+exp(S), 6.6+tan(S) side by side, axis off
+try:
+    fig, ax = plt.subplots()
+    _plot_lines(ax)
+    _plot_lines(ax, fn=np.exp, shift=1.6)
+    _plot_lines(ax, fn=np.tan, shift=6.6)
+    ax.set_axis_off()
+    save(fig)
+except Exception as e:  # noqa: BLE001
+    plot_idx += 1
+    print(f"  guide05_{plot_idx:02d}.png FAILED: {e}")
+
+# --------------------------------------------------------------------------
+# Figs 12-13: Möbius iterations of a square: curves, then filled regions
+# --------------------------------------------------------------------------
+def _square_samples(m=150):
+    sq = join_paths([
+        lambda s: -0.5j + s,
+        lambda s: 1 - 0.5j + 1j * s,
+        lambda s: 1 + 0.5j - s,
+        lambda s: 0.5j - 1j * s,
+    ])
+    return _path_samples(sq, m=m)
+
+
+GOLD = (np.sqrt(5) - 1) / 2
+
+try:
+    fig, ax = plt.subplots()
+    zz = _square_samples()
+    curves = [zz]
+    for _ in range(3):
+        zz = 1.0 / (1.0 + zz)
+        curves.append(zz)
+    for i, c in enumerate(curves):
+        ax.plot(np.real(c), np.imag(c), color=_CYCLE[i % len(_CYCLE)],
+                linewidth=1.2)
+    ax.plot([GOLD], [0.0], ".k", markersize=5)
+    ax.set_aspect("equal")
+    save(fig)
+except Exception as e:  # noqa: BLE001
+    plot_idx += 1
+    print(f"  guide05_{plot_idx:02d}.png FAILED: {e}")
+
+try:
+    fig, ax = plt.subplots()
+    cur = _square_samples()
+    ax.fill(np.real(cur), np.imag(cur), color=(0.5, 0.5, 1.0))
+    for col in [(0.5, 1.0, 0.5), (1.0, 0.5, 0.5), (0.5, 1.0, 1.0)]:
+        cur = 1.0 / (1.0 + cur)
+        ax.fill(np.real(cur), np.imag(cur), color=col)
+    ax.plot([GOLD], [0.0], ".k", markersize=5)
+    ax.set_aspect("equal")
+    ax.set_axis_off()
+    save(fig)
+except Exception as e:  # noqa: BLE001
+    plot_idx += 1
+    print(f"  guide05_{plot_idx:02d}.png FAILED: {e}")
+
+# --------------------------------------------------------------------------
+# Fig 14: keyhole contour
 # --------------------------------------------------------------------------
 try:
+    c1, c2 = -2 + 0.05j, -0.2 + 0.05j
+    c3, c4 = -0.2 - 0.05j, -2 - 0.05j
+    # MATLAB's c2*c3.^s./c2.^s uses SEPARATE principal powers, which sends
+    # the arcs the long way around the origin — that is what makes the
+    # contour a keyhole. (c3/c2)**s would take the short arc across the
+    # branch cut instead.
+    L1, L2, L3, L4 = (np.log(c) for c in (c1, c2, c3, c4))
+    z_key = join_paths([
+        lambda s: c1 + s * (c2 - c1),
+        lambda s: jnp.exp((1 - s) * L2 + s * L3),
+        lambda s: c3 + s * (c4 - c3),
+        lambda s: jnp.exp((1 - s) * L4 + s * L1),
+    ])
+    fig, ax = plt.subplots()
+    cplot(ax, z_key, n=1200)
+    ax.set_axis_off()
+    save(fig)
+except Exception as e:  # noqa: BLE001
     plot_idx += 1
-    # z = (1+0.5i)*s for s in [0,1] and 1+0.5i-2(s-1) for s in [1,2]
-    # Real and imag parts:
-    # Piece 1: z_re = s, z_im = 0.5*s on [0,1]
-    # Piece 2: z_re = 1 - 2*(s-1) = 3 - 2s, z_im = 0.5 on [1,2]
-    s1 = cj.chebfun(lambda s: s, domain=[0, 1])
-    z1_re = s1
-    z1_im = 0.5 * s1
-
-    s2 = cj.chebfun(lambda s: s, domain=[1, 2])
-    z2_re = 3 - 2 * s2
-    z2_im = cj.chebfun(lambda s: 0.5 + 0*s, domain=[1, 2])
-
-    tt1 = jnp.linspace(0, 1, 200)
-    tt2 = jnp.linspace(1, 2, 200)
-
-    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
-
-    # z
-    axes[0].plot(z1_re(tt1), z1_im(tt1), linewidth=1.5)
-    axes[0].plot(z2_re(tt2), z2_im(tt2), linewidth=1.5)
-    axes[0].set_aspect('equal')
-    axes[0].grid(True, alpha=0.3)
-    axes[0].set_title('z')
-
-    # z^2 = (z_re + i*z_im)^2
-    z1sq_re = z1_re**2 - z1_im**2
-    z1sq_im = 2 * z1_re * z1_im
-    z2sq_re = z2_re**2 - z2_im**2
-    z2sq_im = 2 * z2_re * z2_im
-
-    axes[1].plot(z1sq_re(tt1), z1sq_im(tt1), linewidth=1.5)
-    axes[1].plot(z2sq_re(tt2), z2sq_im(tt2), linewidth=1.5)
-    axes[1].set_aspect('equal')
-    axes[1].grid(True, alpha=0.3)
-    axes[1].set_title(r'$z^2$')
-
-    fig.tight_layout()
-    fig.savefig(os.path.join(OUT_DIR, f'guide05_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide05_{plot_idx:02d}.png saved")
-except Exception as e:
-    print(f"guide05_{plot_idx:02d}.png FAILED: {e}")
+    print(f"  guide05_{plot_idx:02d}.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
-# Plot 7: Rectangle R and cross X -- Section 5.2
+# Fig 15: scribble('Oxford University')
+# --------------------------------------------------------------------------
+f_text = None
+try:
+    f_text = scribble("Oxford University")
+    fig, ax = plt.subplots()
+    cplot(ax, f_text, lw=2.0, n=24)
+    ax.set_xlim(-1.1, 1.1)
+    save(fig)
+except Exception as e:  # noqa: BLE001
+    plot_idx += 1
+    print(f"  guide05_{plot_idx:02d}.png FAILED: {e}")
+
+# --------------------------------------------------------------------------
+# Fig 16: exp(3i*f) of the text (magenta)
 # --------------------------------------------------------------------------
 try:
+    zz = _path_samples(f_text, m=24)
+    ww = np.exp(3j * zz)
+    fig, ax = plt.subplots()
+    ax.plot(np.real(ww), np.imag(ww), color=MAGENTA, linewidth=2.0)
+    ax.set_ylim(-1.2, 1.2)
+    ax.set_aspect("equal")
+    save(fig)
+except Exception as e:  # noqa: BLE001
     plot_idx += 1
-    # R: rectangle with corners at 1, 2, 2+2i, 1+2i
-    # X: cross inside R
-    tt = jnp.linspace(0, 1, 200)
-
-    # Rectangle: R = join(1+s, 2+2i*s, 2+2i-s, 1+2i-2i*s)
-    # Side 1: z = 1+s, s in [0,1] -> re=1+s, im=0
-    R1_re = 1 + tt
-    R1_im = jnp.zeros_like(tt)
-    # Side 2: z = 2+2i*s -> re=2, im=2*s
-    R2_re = 2 * jnp.ones_like(tt)
-    R2_im = 2 * tt
-    # Side 3: z = 2+2i-s -> re=2-s, im=2
-    R3_re = 2 - tt
-    R3_im = 2 * jnp.ones_like(tt)
-    # Side 4: z = 1+2i-2i*s -> re=1, im=2-2*s
-    R4_re = jnp.ones_like(tt)
-    R4_im = 2 - 2 * tt
-
-    # Cross:
-    # X1: 1.3+1.5i + 0.4*s -> re=1.3+0.4*s, im=1.5
-    X1_re = 1.3 + 0.4 * tt
-    X1_im = 1.5 * jnp.ones_like(tt)
-    # X2: 1.5+1.3i + 0.4i*s -> re=1.5, im=1.3+0.4*s
-    X2_re = 1.5 * jnp.ones_like(tt)
-    X2_im = 1.3 + 0.4 * tt
-
-    fig, ax = plt.subplots(figsize=(6, 6))
-    # Rectangle
-    R_re = jnp.concatenate([R1_re, R2_re, R3_re, R4_re])
-    R_im = jnp.concatenate([R1_im, R2_im, R3_im, R4_im])
-    ax.plot(R_re, R_im, 'b', linewidth=2.2)
-    # Cross
-    ax.plot(X1_re, X1_im, 'r', linewidth=2.2)
-    ax.plot(X2_re, X2_im, 'r', linewidth=2.2)
-    ax.set_aspect('equal')
-    ax.grid(True, alpha=0.3)
-    ax.set_title('Rectangle R and cross X')
-    fig.tight_layout()
-    fig.savefig(os.path.join(OUT_DIR, f'guide05_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide05_{plot_idx:02d}.png saved")
-except Exception as e:
-    print(f"guide05_{plot_idx:02d}.png FAILED: {e}")
+    print(f"  guide05_{plot_idx:02d}.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
-# Plot 8: R^2 and exp(R) -- Section 5.2
+# Fig 17: text in a box
+# --------------------------------------------------------------------------
+box = None
+try:
+    box = join_paths([
+        lambda s: -1.1 - 0.05j + 2.2 * s,
+        lambda s: 1.1 - 0.05j + 0.22j * s,
+        lambda s: 1.1 + 0.17j - 2.2 * s,
+        lambda s: -1.1 + 0.17j - 0.22j * s,
+    ])
+    fig, ax = plt.subplots()
+    cplot(ax, f_text, lw=2.0, n=24)
+    cplot(ax, box, lw=2.0)
+    ax.set_xlim(-1.2, 1.2)
+    save(fig)
+except Exception as e:  # noqa: BLE001
+    plot_idx += 1
+    print(f"  guide05_{plot_idx:02d}.png FAILED: {e}")
+
+# --------------------------------------------------------------------------
+# Figs 18-19: conformal images of the boxed text
 # --------------------------------------------------------------------------
 try:
+    fig, ax = plt.subplots()
+    for path in (f_text, box):
+        zz = _path_samples(path, m=24)
+        ww = np.exp((1 + 0.2j) * zz)
+        ax.plot(np.real(ww), np.imag(ww), color=CHEBFUN_BLUE, linewidth=2.0)
+    ax.set_aspect("equal")
+    ax.set_axis_off()
+    save(fig)
+except Exception as e:  # noqa: BLE001
     plot_idx += 1
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    print(f"  guide05_{plot_idx:02d}.png FAILED: {e}")
 
-    # z^2: (re + i*im)^2 = re^2 - im^2 + 2i*re*im
-    def complex_sq(re, im):
-        return re**2 - im**2, 2 * re * im
-
-    def complex_exp(re, im):
-        return np.exp(re) * np.cos(im), np.exp(re) * np.sin(im)
-
-    # R^2
-    for (rr, ri) in [(R1_re, R1_im), (R2_re, R2_im), (R3_re, R3_im), (R4_re, R4_im)]:
-        sq_re, sq_im = complex_sq(rr, ri)
-        axes[0].plot(sq_re, sq_im, 'b', linewidth=1.5)
-    for (rr, ri) in [(X1_re, X1_im), (X2_re, X2_im)]:
-        sq_re, sq_im = complex_sq(rr, ri)
-        axes[0].plot(sq_re, sq_im, 'r', linewidth=2.2)
-    axes[0].set_aspect('equal')
-    axes[0].grid(True, alpha=0.3)
-    axes[0].set_title(r'$z^2$')
-
-    # exp(R)
-    for (rr, ri) in [(R1_re, R1_im), (R2_re, R2_im), (R3_re, R3_im), (R4_re, R4_im)]:
-        e_re, e_im = complex_exp(rr, ri)
-        axes[1].plot(e_re, e_im, 'b', linewidth=1.5)
-    for (rr, ri) in [(X1_re, X1_im), (X2_re, X2_im)]:
-        e_re, e_im = complex_exp(rr, ri)
-        axes[1].plot(e_re, e_im, 'r', linewidth=2.2)
-    axes[1].set_aspect('equal')
-    axes[1].grid(True, alpha=0.3)
-    axes[1].set_title(r'$\exp(z)$')
-
-    fig.tight_layout()
-    fig.savefig(os.path.join(OUT_DIR, f'guide05_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide05_{plot_idx:02d}.png saved")
-except Exception as e:
-    print(f"guide05_{plot_idx:02d}.png FAILED: {e}")
+try:
+    fig, ax = plt.subplots()
+    for path in (f_text, box):
+        zz = _path_samples(path, m=24)
+        ww = np.tan(zz)
+        ax.plot(np.real(ww), np.imag(ww), color=CHEBFUN_BLUE, linewidth=2.0)
+    ax.set_aspect("equal")
+    ax.set_axis_off()
+    save(fig)
+except Exception as e:  # noqa: BLE001
+    plot_idx += 1
+    print(f"  guide05_{plot_idx:02d}.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
-# Plot 9: Complex grid -- Section 5.2
+# Figs 20-21: Happy Birthday Pafnuty (mapped, red) with ellipse (blue)
 # --------------------------------------------------------------------------
 try:
-    plot_idx += 1
-    t = jnp.linspace(-1, 1, 200)
-    fig, ax = plt.subplots(figsize=(6, 6))
-    for d_val in jnp.arange(-1, 1.01, 0.2):
-        d = float(d_val)
-        # Horizontal: z = t + i*d
-        ax.plot(t, jnp.full_like(t, d), 'b', linewidth=0.6, alpha=0.7)
-        # Vertical: z = d + i*t
-        ax.plot(jnp.full_like(t, d), t, 'b', linewidth=0.6, alpha=0.7)
-    ax.set_aspect('equal')
-    ax.set_title('Complex grid')
-    ax.grid(False)
-    fig.tight_layout()
-    fig.savefig(os.path.join(OUT_DIR, f'guide05_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide05_{plot_idx:02d}.png saved")
-except Exception as e:
-    print(f"guide05_{plot_idx:02d}.png FAILED: {e}")
+    f_hb = scribble("Happy Birthday Pafnuty!")
+    zz_t = _path_samples(f_hb, m=24)
+    circle = 1.12 * np.exp(2j * np.pi * np.linspace(0.0, 1.0, 900))
+    ellipse = (1.2 * (circle + 1.0 / circle) / 2
+               + 1j * np.mean(np.imag(zz_t)))
 
-# --------------------------------------------------------------------------
-# Plot 10: exp(grid) and tan(grid) -- Section 5.2
-# --------------------------------------------------------------------------
+    def g_map(w):
+        return np.exp(-2.2j + (2.5j + 0.4) * w)
+
+    fig, ax = plt.subplots()
+    ax.plot(np.real(g_map(zz_t)), np.imag(g_map(zz_t)), "r", linewidth=2.0)
+    ax.plot(np.real(g_map(ellipse)), np.imag(g_map(ellipse)), "b",
+            linewidth=2.0)
+    ax.set_aspect("equal")
+    ax.set_axis_off()
+    save(fig)
+except Exception as e:  # noqa: BLE001
+    plot_idx += 1
+    print(f"  guide05_{plot_idx:02d}.png FAILED: {e}")
+
 try:
+    fig, ax = plt.subplots()
+    ax.plot(np.real(zz_t), np.imag(zz_t), "r", linewidth=2.0)
+    ax.plot(np.real(ellipse), np.imag(ellipse), "b", linewidth=1.2)
+    ax.set_aspect("equal")
+    ax.set_axis_off()
+    save(fig)
+except Exception as e:  # noqa: BLE001
     plot_idx += 1
-    t = jnp.linspace(-1, 1, 300)
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    print(f"  guide05_{plot_idx:02d}.png FAILED: {e}")
 
-    for d_val in jnp.arange(-1, 1.01, 0.2):
-        d = float(d_val)
-        # Line z = t + i*d
-        z = t + 1j * d
-        # exp(z)
-        w = jnp.exp(z)
-        axes[0].plot(jnp.real(w), jnp.imag(w), 'b', linewidth=0.6, alpha=0.7)
-        # tan(z)
-        w2 = jnp.tan(z)
-        good = jnp.abs(jnp.imag(w2)) < 10  # clip large values
-        # Plot segments where good
-        axes[1].plot(jnp.where(good, jnp.real(w2), jnp.nan),
-                     jnp.where(good, jnp.imag(w2), jnp.nan),
-                     'b', linewidth=0.6, alpha=0.7)
-
-        # Line z = d + i*t
-        z = d + 1j * t
-        w = jnp.exp(z)
-        axes[0].plot(jnp.real(w), jnp.imag(w), 'b', linewidth=0.6, alpha=0.7)
-        w2 = jnp.tan(z)
-        good = jnp.abs(jnp.imag(w2)) < 10
-        axes[1].plot(jnp.where(good, jnp.real(w2), jnp.nan),
-                     jnp.where(good, jnp.imag(w2), jnp.nan),
-                     'b', linewidth=0.6, alpha=0.7)
-
-    axes[0].set_aspect('equal')
-    axes[0].set_title(r'$\exp(z)$')
-    axes[0].grid(True, alpha=0.2)
-    axes[1].set_aspect('equal')
-    axes[1].set_title(r'$\tan(z)$')
-    axes[1].grid(True, alpha=0.2)
-
-    fig.tight_layout()
-    fig.savefig(os.path.join(OUT_DIR, f'guide05_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide05_{plot_idx:02d}.png saved")
-except Exception as e:
-    print(f"guide05_{plot_idx:02d}.png FAILED: {e}")
-
-# --------------------------------------------------------------------------
-# Plot 11: grid, exp(grid), tan(grid) side by side -- Section 5.2
-# --------------------------------------------------------------------------
-try:
-    plot_idx += 1
-    t = jnp.linspace(-1, 1, 300)
-    fig, ax = plt.subplots(figsize=(16, 5))
-
-    for d_val in jnp.arange(-1, 1.01, 0.2):
-        d = float(d_val)
-        # Original grid
-        z = t + 1j * d
-        ax.plot(jnp.real(z), jnp.imag(z), 'b', linewidth=0.5, alpha=0.7)
-        z = d + 1j * t
-        ax.plot(jnp.real(z), jnp.imag(z), 'b', linewidth=0.5, alpha=0.7)
-
-        # exp(grid) shifted
-        z = t + 1j * d
-        w = jnp.exp(z)
-        ax.plot(1.6 + jnp.real(w), jnp.imag(w), 'b', linewidth=0.5, alpha=0.7)
-        z = d + 1j * t
-        w = jnp.exp(z)
-        ax.plot(1.6 + jnp.real(w), jnp.imag(w), 'b', linewidth=0.5, alpha=0.7)
-
-        # tan(grid) shifted
-        z = t + 1j * d
-        w = jnp.tan(z)
-        good = jnp.abs(jnp.imag(w)) < 10
-        ax.plot(jnp.where(good, 6.6 + jnp.real(w), jnp.nan),
-                jnp.where(good, jnp.imag(w), jnp.nan),
-                'b', linewidth=0.5, alpha=0.7)
-        z = d + 1j * t
-        w = jnp.tan(z)
-        good = jnp.abs(jnp.imag(w)) < 10
-        ax.plot(jnp.where(good, 6.6 + jnp.real(w), jnp.nan),
-                jnp.where(good, jnp.imag(w), jnp.nan),
-                'b', linewidth=0.5, alpha=0.7)
-
-    ax.set_aspect('equal')
-    ax.axis('off')
-    fig.tight_layout()
-    fig.savefig(os.path.join(OUT_DIR, f'guide05_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide05_{plot_idx:02d}.png saved")
-except Exception as e:
-    print(f"guide05_{plot_idx:02d}.png FAILED: {e}")
-
-# --------------------------------------------------------------------------
-# Plot 12: Moebius iterations of a square -- Section 5.2
-# --------------------------------------------------------------------------
-try:
-    plot_idx += 1
-    moebius = lambda z: 1.0 / (1.0 + z)
-
-    # Square: corners at 0-0.5i, 1-0.5i, 1+0.5i, 0+0.5i
-    t = jnp.linspace(0, 1, 200)
-    S_re = jnp.concatenate([-0.0*jnp.ones(200) + t, jnp.ones(200), 1 - t, jnp.zeros(200)])
-    S_im = jnp.concatenate([-0.5*jnp.ones(200) + 0*t, -0.5 + t, 0.5*jnp.ones(200), 0.5 - t])
-
-    fig, ax = plt.subplots(figsize=(8, 6))
-    z = S_re + 1j * S_im
-    for j in range(4):
-        ax.plot(jnp.real(z), jnp.imag(z), linewidth=1.2)
-        z = moebius(z)
-
-    # Plot fixed point
-    ax.plot((np.sqrt(5) - 1) / 2, 0, '.k', markersize=6)
-    ax.set_aspect('equal')
-    ax.grid(True, alpha=0.3)
-    ax.set_title('Moebius iterations')
-    fig.tight_layout()
-    fig.savefig(os.path.join(OUT_DIR, f'guide05_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide05_{plot_idx:02d}.png saved")
-except Exception as e:
-    print(f"guide05_{plot_idx:02d}.png FAILED: {e}")
-
-# --------------------------------------------------------------------------
-# Plot 13: Moebius filled squares -- Section 5.2
-# --------------------------------------------------------------------------
-try:
-    plot_idx += 1
-    colors = [[0.5, 0.5, 1], [0.5, 1, 0.5], [1, 0.5, 0.5], [0.5, 1, 1]]
-
-    fig, ax = plt.subplots(figsize=(8, 6))
-    z = S_re + 1j * S_im
-    for j, col in enumerate(colors):
-        ax.fill(jnp.real(z), jnp.imag(z), color=col)
-        z = moebius(z)
-
-    ax.plot((np.sqrt(5) - 1) / 2, 0, '.k', markersize=6)
-    ax.set_aspect('equal')
-    ax.axis('off')
-    fig.tight_layout()
-    fig.savefig(os.path.join(OUT_DIR, f'guide05_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide05_{plot_idx:02d}.png saved")
-except Exception as e:
-    print(f"guide05_{plot_idx:02d}.png FAILED: {e}")
-
-# --------------------------------------------------------------------------
-# Plot 14: Keyhole contour -- Section 5.3
-# --------------------------------------------------------------------------
-try:
-    plot_idx += 1
-    # Keyhole contour
-    c = [-2 + 0.05j, -0.2 + 0.05j, -0.2 - 0.05j, -2 - 0.05j]
-    t = np.linspace(0, 1, 500)
-
-    # Side 1: straight from c[0] to c[1]
-    z1 = c[0] + t * (c[1] - c[0])
-    # Side 2: small arc from c[1] to c[2]: c[1] * (c[2]/c[1])^t
-    z2 = c[1] * (c[2] / c[1])**t
-    # Side 3: straight from c[2] to c[3]
-    z3 = c[2] + t * (c[3] - c[2])
-    # Side 4: large arc from c[3] to c[0]: c[3] * (c[0]/c[3])^t
-    z4 = c[3] * (c[0] / c[3])**t
-
-    z = np.concatenate([z1, z2, z3, z4])
-
-    fig, ax = plt.subplots(figsize=(8, 4))
-    ax.plot(np.real(z), np.imag(z), linewidth=1.5)
-    ax.set_aspect('equal')
-    ax.axis('off')
-    ax.set_title('Keyhole contour')
-    fig.tight_layout()
-    fig.savefig(os.path.join(OUT_DIR, f'guide05_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide05_{plot_idx:02d}.png saved")
-except Exception as e:
-    print(f"guide05_{plot_idx:02d}.png FAILED: {e}")
-
-# --------------------------------------------------------------------------
-# Plot 15: "chebfunjax" scribble -- Section 5.5
-# (scribble not available, we use text-based path instead)
-# --------------------------------------------------------------------------
-try:
-    plot_idx += 1
-    fig, ax = plt.subplots(figsize=(10, 3))
-    ax.text(0.5, 0.5, 'chebfunjax', fontsize=40, ha='center', va='center',
-            fontfamily='monospace', fontweight='bold')
-    ax.set_xlim([0, 1])
-    ax.set_ylim([0, 1])
-    ax.set_aspect('equal')
-    ax.axis('off')
-    ax.set_title('scribble (text approximation)')
-    fig.tight_layout()
-    fig.savefig(os.path.join(OUT_DIR, f'guide05_{plot_idx:02d}.png'), dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"guide05_{plot_idx:02d}.png saved")
-except Exception as e:
-    print(f"guide05_{plot_idx:02d}.png FAILED: {e}")
-
-# --------------------------------------------------------------------------
-# Plot 16: exp(3i*f) of scribble -- Section 5.5
-# --------------------------------------------------------------------------
-# Skip -- scribble not available
-plot_idx += 1
-print(f"guide05_{plot_idx:02d}.png SKIPPED (scribble not available)")
-
-# --------------------------------------------------------------------------
-# Plot 17-21: More scribble plots -- Section 5.5
-# --------------------------------------------------------------------------
-for _ in range(5):
-    plot_idx += 1
-    print(f"guide05_{plot_idx:02d}.png SKIPPED (scribble not available)")
-
-print(f"\nGuide 05 plot generation complete. Generated {plot_idx} plots.")
+print(f"\nGuide 05: generated {plot_idx} plots.")

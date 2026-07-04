@@ -1,592 +1,405 @@
-# Chapter 5: Complex Chebfuns
+# 5. Complex Chebfuns
 
-*Based on [Chebfun Guide Chapter 5](https://www.chebfun.org/docs/guide/guide05.html) by Lloyd N. Trefethen*
+*Based on [Chebfun Guide Chapter 5](https://www.chebfun.org/docs/guide/guide05.html)
+by Lloyd N. Trefethen. Adapted for chebfunjax; all outputs below are genuine
+chebfunjax results.*
 
-## 5.1 Complex Functions of a Real Variable
+## 5.1 Complex functions of a real variable
 
-A "complex chebfun" is a chebfun whose values are complex numbers -- that is,
-a complex-valued function of a real variable.  Such functions arise naturally
-when parametrizing curves in the complex plane.
+One of the attractive features of MATLAB is that it handles complex arithmetic
+well. For example, here are 20 points on the upper half of the unit circle in
+the complex plane:
 
-In chebfunjax, a complex function $z(t) = x(t) + i\,y(t)$ is typically
-represented as a pair of real chebfuns -- one for the real part and one for the
-imaginary part.  This is because JAX's core dtype for spectral methods is
-`float64`, and the Chebyshev machinery in chebfunjax is built around real
-coefficients.
+```python
+import numpy as np
+import matplotlib.pyplot as plt
 
-### Parametric curves
+s = np.linspace(0, np.pi, 20)
+f = np.exp(1j * s)
+plt.plot(f.real, f.imag, '.')
+```
 
-The standard approach is to construct the real and imaginary parts separately:
+![](../images/guide/guide05_01.png)
+
+In chebfunjax, such plots are just as natural — chebfuns are complex-valued
+whenever the function being sampled is complex. Here is a smooth version of
+the same curve:
 
 ```python
 import jax.numpy as jnp
 import chebfunjax as cj
 
-# The unit circle: z(t) = exp(it) = cos(t) + i*sin(t),  t in [0, 2*pi]
-t = cj.chebfun(lambda t: t, domain=[0, 2 * jnp.pi])
-x_part = cj.cos(t)   # real part
-y_part = cj.sin(t)   # imaginary part
+f = cj.chebfun(lambda s: jnp.exp(1j * s), domain=[0, np.pi])
+f.plot()
+```
+
+![](../images/guide/guide05_02.png)
+
+`plot()` of a complex chebfun draws its image in the complex plane (real part
+against imaginary part) with equal axis scaling, exactly as in MATLAB. This
+curve is represented to nearly machine precision by a polynomial of low degree:
+
+```python
+>>> len(f)
+17
+```
+
+![](../images/guide/guide05_03.png)
+
+Such curves look at first like the trajectories of particles or the contours
+of shapes, and they can be startlingly beautiful. Here are two more:
+
+```python
+g = cj.chebfun(lambda s: s * jnp.exp(10j * s), domain=[0, np.pi])
+h = cj.chebfun(lambda s: jnp.exp(2j * s) + 0.3 * jnp.exp(20j * s),
+               domain=[0, np.pi])
+```
+
+![](../images/guide/guide05_04.png)
+
+We can do arithmetic on complex chebfuns, such as squaring `g` or
+exponentiating `h`:
+
+![](../images/guide/guide05_05.png)
+
+The integral of a complex chebfun is again computed by `sum`, giving a complex
+number:
+
+```python
+>>> complex(g.sum())
+(8.851e-16-0.3141592653589793j)          # = -i*pi/10
+
+>>> complex(h.sum())
+(-7.28e-16-3.22e-16j)                    # = 0
+```
+
+A chebfun can be piecewise smooth. Here, for example, is a path consisting of
+two straight segments, built with a breakpoint domain — the point $z(s)$ is
+$(1+0.5i)s$ for $s\in[0,1]$ and $1+0.5i-2(s-1)$ for $s\in[1,2]$ — followed by
+its square:
+
+```python
+z = cj.chebfun(
+    lambda s: jnp.where(s <= 1, (1 + 0.5j) * s, 1 + 0.5j - 2 * (s - 1)),
+    domain=[0, 1, 2],
+)
+(z * z).plot()
+```
+
+![](../images/guide/guide05_06.png)
+
+(In MATLAB Chebfun the same path can also be built with the `join` command;
+in chebfunjax the breakpoint-domain construction above plays that role, and
+two constructions of the same path agree exactly: `(z - zz).norm(2)` returns
+`0.0`.)
+
+## 5.2 Analytic functions and conformal maps
+
+A function is *analytic* if it is differentiable in the complex sense, or
+equivalently, if it has a convergent Taylor series near each point in its
+domain of definition. Away from points where the derivative is zero, analytic
+functions are *conformal maps*: although they may scale and rotate an
+infinitesimal region, they preserve angles between intersecting curves.
+
+For example, suppose we define `R` to be a chebfun corresponding to the four
+sides of a rectangle and `X` to be another chebfun corresponding to a cross
+inside `R`:
+
+```python
+def join_paths(segs):
+    """Piecewise complex path: segment k, with local parameter in
+    [0, 1], occupies [k, k+1] of the global parameter."""
+    def piecewise(t):
+        val = segs[0](t)
+        for k in range(1, len(segs)):
+            val = jnp.where(t > k, segs[k](t - k), val)
+        return val
+    return cj.chebfun(piecewise, domain=list(map(float, range(len(segs) + 1))))
+
+R = join_paths([lambda s: 1 + s, lambda s: 2 + 2j * s,
+                lambda s: 2 + 2j - s, lambda s: 1 + 2j - 2j * s])
+X = join_paths([lambda s: 1.3 + 1.5j + 0.4 * s,
+                lambda s: 1.5 + 1.3j + 0.4j * s])
 ```
 
 ![](../images/guide/guide05_07.png)
 
-
-To plot such a curve, evaluate both parts and use matplotlib:
-
-```python
-import matplotlib.pyplot as plt
-
-s = jnp.linspace(0, 2 * jnp.pi, 200)
-plt.plot(x_part(s), y_part(s))
-plt.axis('equal')
-plt.title('Unit circle')
-plt.show()
-```
-
-![Unit circle](../images/guide/guide05_01.png)
-
-### Semicircle example
-
-Points on the upper semicircle from $-1$ to $1$:
-
-```python
-# Upper semicircle: z(s) = exp(i*s),  s in [0, pi]
-s = cj.chebfun(lambda s: s, domain=[0, jnp.pi])
-x_semi = cj.cos(s)
-y_semi = cj.sin(s)
-
-# Length of curve: integral of |z'(s)| ds
-# z'(s) = -sin(s) + i*cos(s), so |z'(s)| = 1
-# Arc length = pi
-dxds = x_semi.diff()
-dyds = y_semi.diff()
-speed = (dxds**2 + dyds**2).sqrt()
-arc_length = float(speed.sum())
-print(f"Arc length of semicircle: {arc_length:.15f}")
-print(f"Expected (pi):            {float(jnp.pi):.15f}")
-```
+Here is what happens to `R` and `X` under the maps $z^2$ and $\exp(z)$:
 
 ![](../images/guide/guide05_08.png)
 
-
-### Spirals and other curves
-
-More elaborate curves can be built by combining trig and polynomial chebfuns:
-
-```python
-# A spiral: z(t) = t * exp(i*t),  t in [0, 4*pi]
-t = cj.chebfun(lambda t: t, domain=[0, 4 * jnp.pi])
-x_spiral = t * cj.cos(t)
-y_spiral = t * cj.sin(t)
-
-# Evaluate and plot
-tt = jnp.linspace(0, 4 * jnp.pi, 500)
-plt.plot(x_spiral(tt), y_spiral(tt))
-plt.axis('equal')
-plt.title('Archimedean spiral')
-plt.show()
-```
-
-![Archimedean spiral](../images/guide/guide05_02.png)
-
-### Arc length of curves
-
-The arc length of a parametric curve $(x(t), y(t))$ for $t \in [a, b]$ is
-
-$$L = \int_a^b \sqrt{x'(t)^2 + y'(t)^2}\,dt.$$
-
-In chebfunjax:
+We can take the same idea further and construct a whole grid of lines in the
+complex plane (in MATLAB the segments are accumulated as columns of a
+quasimatrix; in Python a list of chebfuns serves the same purpose):
 
 ```python
-# Arc length of one period of a sine wave: y = sin(x), x in [0, 2*pi]
-# Parametrize as x(t) = t, y(t) = sin(t)
-t = cj.chebfun(lambda t: t, domain=[0, 2 * jnp.pi])
-x_curve = t
-y_curve = cj.sin(t)
-
-dx = x_curve.diff()   # = 1
-dy = y_curve.diff()   # = cos(t)
-speed = (dx**2 + dy**2).sqrt()   # sqrt(1 + cos^2(t))
-L = float(speed.sum())
-print(f"Arc length of sin(x) over [0, 2*pi]: {L:.10f}")
-# This is a complete elliptic integral -- approximately 7.6404...
+S = []
+for d in np.arange(-1, 1.01, 0.2):
+    S.append(cj.chebfun(lambda x, d=float(d): d + 1j * x))
+    S.append(cj.chebfun(lambda x, d=float(d): 1j * d + x))
 ```
 
 ![](../images/guide/guide05_09.png)
 
-
-## 5.2 Analytic Functions and Conformal Maps
-
-An analytic function $w = f(z)$ maps curves and regions in the $z$-plane to
-curves and regions in the $w$-plane.  Away from critical points (where
-$f'(z) = 0$), the mapping is *conformal* -- it preserves angles.
-
-### Visualizing conformal maps
-
-A standard technique is to map a grid of lines and see how they are
-transformed:
-
-```python
-import jax.numpy as jnp
-import chebfunjax as cj
-import matplotlib.pyplot as plt
-
-# Grid lines in the z-plane: horizontal and vertical
-t = cj.chebfun(lambda t: t, domain=[-1, 1])
-
-fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-
-# Map z -> z^2
-# Horizontal lines: z = t + i*c  for various c
-for c in jnp.linspace(-1, 1, 11):
-    x_in = t
-    y_in = cj.chebfun(float(c))
-
-    # w = z^2 = (x + iy)^2 = x^2 - y^2 + 2ixy
-    u = x_in**2 - float(c)**2
-    v = 2 * float(c) * x_in
-
-    tt = jnp.linspace(-1, 1, 200)
-    axes[0].plot(x_in(tt), jnp.full_like(tt, c), 'b-', alpha=0.5)
-    axes[1].plot(u(tt), v(tt), 'b-', alpha=0.5)
-
-# Vertical lines: z = c + i*t  for various c
-for c in jnp.linspace(-1, 1, 11):
-    y_in = t
-
-    u = float(c)**2 - t**2
-    v = 2 * float(c) * t
-
-    tt = jnp.linspace(-1, 1, 200)
-    axes[0].plot(jnp.full_like(tt, c), y_in(tt), 'r-', alpha=0.5)
-    axes[1].plot(u(tt), v(tt), 'r-', alpha=0.5)
-
-axes[0].set_title('z-plane')
-axes[0].set_aspect('equal')
-axes[1].set_title('w = z^2')
-axes[1].set_aspect('equal')
-plt.tight_layout()
-plt.show()
-```
-
-![Conformal map z to z^2](../images/guide/guide05_03.png)
-
-### Mobius transformations
-
-A Mobius transformation $w = (az + b)/(cz + d)$ maps circles and lines to
-circles and lines.  These are fundamental in complex analysis:
-
-```python
-# Mobius transformation: w = (z - 1) / (z + 1)
-# Maps the right half-plane to the unit disk
-t = cj.chebfun(lambda t: t, domain=[0, 2 * jnp.pi])
-# A circle of radius r centered at c
-r, c = 2.0, 3.0
-x_circle = c + r * cj.cos(t)
-y_circle = r * cj.sin(t)
-
-# Apply Mobius: w = (z-1)/(z+1) where z = x + iy
-# Real and imaginary parts of w:
-# w = ((x-1) + iy) / ((x+1) + iy)
-# Multiply by conjugate of denominator:
-denom = (x_circle + 1)**2 + y_circle**2
-u = ((x_circle - 1) * (x_circle + 1) + y_circle**2) / denom
-v = (y_circle * (x_circle + 1) - (x_circle - 1) * y_circle) / denom
-# Simplify: u = (x^2 + y^2 - 1) / denom, v = 2y / denom
-
-tt = jnp.linspace(0, 2 * jnp.pi, 300)
-plt.figure(figsize=(10, 4))
-plt.subplot(1, 2, 1)
-plt.plot(x_circle(tt), y_circle(tt))
-plt.title('z-plane')
-plt.axis('equal')
-plt.subplot(1, 2, 2)
-plt.plot(u(tt), v(tt))
-plt.title('w = (z-1)/(z+1)')
-plt.axis('equal')
-plt.tight_layout()
-plt.show()
-```
-
-![Mobius transformation](../images/guide/guide05_04.png)
-
-## 5.3 Contour Integrals
-
-Contour integrals in complex analysis take the form
-
-$$\oint_\gamma f(z)\,dz = \int_a^b f(z(t))\,z'(t)\,dt,$$
-
-where $z(t)$ parametrizes the contour $\gamma$.  With chebfunjax, we split
-this into real and imaginary parts.
-
-### Cauchy's theorem
-
-If $f(z)$ is analytic inside and on a closed contour $\gamma$, then
-$\oint_\gamma f(z)\,dz = 0$.
-
-```python
-import jax.numpy as jnp
-import chebfunjax as cj
-
-# Integrate z^2 around the unit circle
-# z(t) = cos(t) + i*sin(t),  z'(t) = -sin(t) + i*cos(t)
-t = cj.chebfun(lambda t: t, domain=[0, 2 * jnp.pi])
-x = cj.cos(t)
-y = cj.sin(t)
-dx = -cj.sin(t)
-dy = cj.cos(t)
-
-# f(z) = z^2 = (x + iy)^2 = (x^2 - y^2) + 2ixy
-f_re = x**2 - y**2
-f_im = 2 * x * y
-
-# f(z) * z'(t) = (f_re + i*f_im) * (dx + i*dy)
-# Real part: f_re*dx - f_im*dy
-# Imag part: f_re*dy + f_im*dx
-integrand_re = f_re * dx - f_im * dy
-integrand_im = f_re * dy + f_im * dx
-
-I_re = float(integrand_re.sum())
-I_im = float(integrand_im.sum())
-print(f"Integral of z^2 around unit circle: {I_re:.2e} + {I_im:.2e}i")
-# Should be 0 + 0i (Cauchy's theorem)
-```
+Here are the exponential and tangent of the grid:
 
 ![](../images/guide/guide05_10.png)
 
-
-### The residue theorem
-
-For a function with a pole inside the contour, the integral equals $2\pi i$
-times the residue.  For example, $f(z) = 1/z$ has a simple pole at $z = 0$
-with residue 1:
-
-```python
-# Integrate 1/z around the unit circle
-# 1/z = 1/(x + iy) = (x - iy)/(x^2 + y^2)
-r_sq = x**2 + y**2
-f_re = x / r_sq
-f_im = -y / r_sq
-
-integrand_re = f_re * dx - f_im * dy
-integrand_im = f_re * dy + f_im * dx
-
-I_re = float(integrand_re.sum())
-I_im = float(integrand_im.sum())
-print(f"Integral of 1/z around unit circle: {I_re:.6f} + {I_im:.6f}i")
-print(f"Expected: 0 + {2 * float(jnp.pi):.6f}i")
-# Should be 2*pi*i (residue = 1)
-```
+And here is a sequence that puts all three images together on a single scale:
 
 ![](../images/guide/guide05_11.png)
 
-
-### Higher-order poles and the Cauchy integral formula
-
-The Cauchy integral formula states that for $f$ analytic inside $\gamma$ and
-$a$ inside $\gamma$:
-
-$$f^{(n)}(a) = \frac{n!}{2\pi i} \oint_\gamma \frac{f(z)}{(z-a)^{n+1}}\,dz.$$
-
-For example, to compute $e^0 = 1$ via the Cauchy integral formula with
-$f(z) = e^z$, $a = 0$, $n = 0$:
-
-```python
-# f(z) = exp(z) / z  around the unit circle
-# exp(z) = exp(x) * (cos(y) + i*sin(y))
-exp_re = cj.exp(x) * cj.cos(y)
-exp_im = cj.exp(x) * cj.sin(y)
-
-# exp(z)/z = exp(z) * conj(z) / |z|^2
-g_re = (exp_re * x + exp_im * y) / r_sq
-g_im = (exp_im * x - exp_re * y) / r_sq
-
-integrand_re = g_re * dx - g_im * dy
-integrand_im = g_re * dy + g_im * dx
-
-I_re = float(integrand_re.sum())
-I_im = float(integrand_im.sum())
-# Result should be 2*pi*i * exp(0) = 2*pi*i
-print(f"Integral of exp(z)/z: {I_re:.6f} + {I_im:.6f}i")
-print(f"Expected:             0.000000 + {2*float(jnp.pi):.6f}i")
-# Dividing by 2*pi*i gives exp(0) = 1
-result = I_im / (2 * float(jnp.pi))
-print(f"exp(0) via Cauchy formula: {result:.15f}")
-```
+A particularly interesting family of conformal maps are the *Möbius
+transformations*, the rational functions $(az+b)/(cz+d)$. Here is a square
+and its image under $w = 1/(1+z)$, and the image of the image, and the image
+of the image of the image. We also plot the limit point given by the equation
+$z = 1/(1+z)$, i.e. $z = (\sqrt 5 - 1)/2$:
 
 ![](../images/guide/guide05_12.png)
 
-
-## 5.4 Winding Numbers and the Argument Principle
-
-The *winding number* of a closed curve $\gamma$ around a point $a$ is
-
-$$n(\gamma, a) = \frac{1}{2\pi i} \oint_\gamma \frac{dz}{z - a}.$$
-
-The *argument principle* states that for a meromorphic function $f$ inside
-$\gamma$:
-
-$$\frac{1}{2\pi i} \oint_\gamma \frac{f'(z)}{f(z)}\,dz = N - P,$$
-
-where $N$ is the number of zeros and $P$ the number of poles (counted with
-multiplicity).
-
-```python
-import jax.numpy as jnp
-import chebfunjax as cj
-
-# Count zeros of sin(z)^3 + cos(z)^3 in the disk |z| < 2
-# This function has no poles, so N - P = N
-
-t = cj.chebfun(lambda t: t, domain=[0, 2 * jnp.pi])
-R = 2.0
-x = R * cj.cos(t)
-y = R * cj.sin(t)
-dx = -R * cj.sin(t)
-dy = R * cj.cos(t)
-
-# f(z) = sin(z)^3 + cos(z)^3
-# sin(z) = sin(x)*cosh(y) + i*cos(x)*sinh(y)
-# cos(z) = cos(x)*cosh(y) - i*sin(x)*sinh(y)
-sin_re = cj.sin(x) * cj.cosh(y)
-sin_im = cj.cos(x) * cj.sinh(y)
-cos_re = cj.cos(x) * cj.cosh(y)
-cos_im = -cj.sin(x) * cj.sinh(y)
-
-# For the argument principle, we need f'/f integrated around the contour
-# This is equivalent to computing the winding number of the image curve f(gamma)
-# around the origin: N = (1/2*pi) * change in argument of f along gamma
-
-# We can compute this numerically by evaluating f on a fine grid
-tt = jnp.linspace(0, 2 * jnp.pi, 1000, endpoint=False)
-x_vals = R * jnp.cos(tt)
-y_vals = R * jnp.sin(tt)
-sin_z_re = jnp.sin(x_vals) * jnp.cosh(y_vals)
-sin_z_im = jnp.cos(x_vals) * jnp.sinh(y_vals)
-cos_z_re = jnp.cos(x_vals) * jnp.cosh(y_vals)
-cos_z_im = -jnp.sin(x_vals) * jnp.sinh(y_vals)
-
-# f = sin^3 + cos^3 (complex cube)
-# sin^3: use binomial expansion or repeated multiplication
-# For simplicity, compute numerically:
-z_vals = x_vals + 1j * y_vals
-f_vals = jnp.sin(z_vals)**3 + jnp.cos(z_vals)**3
-
-# Winding number = total change in argument / (2*pi)
-angles = jnp.angle(f_vals)
-dangle = jnp.diff(angles)
-# Unwrap jumps
-dangle = jnp.where(dangle > jnp.pi, dangle - 2*jnp.pi, dangle)
-dangle = jnp.where(dangle < -jnp.pi, dangle + 2*jnp.pi, dangle)
-N = jnp.sum(dangle) / (2 * jnp.pi)
-print(f"Number of zeros of sin(z)^3 + cos(z)^3 in |z| < 2: {float(N):.1f}")
-# Should be 3
-```
+Here is a prettier version of the same image with the regions filled:
 
 ![](../images/guide/guide05_13.png)
 
+## 5.3 Contour integrals
 
-## 5.5 Contour Integrals for Computing Special Quantities
+If $s$ is a real parameter and $z(s)$ is a complex function of $s$, then we
+can define a contour integral in the complex plane:
 
-### Bernoulli numbers via contour integration
+$$ \int f(z(s))\, z'(s)\, ds. $$
 
-The Bernoulli numbers can be computed via
-
-$$B_n = \frac{n!}{2\pi i} \oint \frac{z}{e^z - 1} \cdot \frac{dz}{z^{n+1}},$$
-
-where the contour encloses the origin but no other singularities of
-$z/(e^z - 1)$ (which has poles at $z = 2\pi i k$ for nonzero integers $k$).
+For example, over the two-segment contour `z` from Section 5.1 (from $0$ to
+$-1+0.5i$) the integral of $\exp(-z^2)$ is computed like this:
 
 ```python
-import jax.numpy as jnp
-import chebfunjax as cj
+def z_fn(s):
+    return jnp.where(s <= 1, (1 + 0.5j) * s, 1 + 0.5j - 2 * (s - 1))
 
-def bernoulli_via_contour(n, R=1.0):
-    """Compute B_n via contour integration on a circle of radius R."""
-    t = cj.chebfun(lambda t: t, domain=[0, 2 * jnp.pi])
-    x = R * cj.cos(t)
-    y = R * cj.sin(t)
-    dx = -R * cj.sin(t)
-    dy = R * cj.cos(t)
+z = cj.chebfun(z_fn, domain=[0, 1, 2])
+f = cj.chebfun(lambda s: jnp.exp(-z_fn(s) ** 2), domain=[0, 1, 2])
+I = complex((f * z.diff()).sum())
+```
 
-    # f(z) = z / (exp(z) - 1) / z^{n+1} = 1 / ((exp(z) - 1) * z^n)
-    # But we need to be careful with complex arithmetic
-    # Work with fine evaluation grid instead
-    tt = jnp.linspace(0, 2 * jnp.pi, 2000, endpoint=False)
-    z = R * jnp.exp(1j * tt)
-    dz = 1j * z  # dz/dt = i*z for z = R*exp(it)
+Notice how easily the contour integral is realized, even over a contour
+consisting of several pieces. According to Cauchy's theorem, the integral of
+an analytic function between two points is path-independent, and indeed the
+straight segment going directly from $0$ to $-1+0.5i$ gives the same value:
 
-    integrand = z / (jnp.exp(z) - 1) / z**(n + 1) * dz
-    dt = 2 * jnp.pi / 2000
-    I = jnp.sum(integrand) * dt
+```python
+w = cj.chebfun(lambda s: (-1 + 0.5j) * s, domain=[0, 1])
+f2 = cj.chebfun(lambda s: jnp.exp(-((-1 + 0.5j) * s) ** 2), domain=[0, 1])
+>>> complex((f2 * w.diff()).sum())
+(-0.8425445595261364+0.16658714792407375j)
+```
 
-    # B_n = n! / (2*pi*i) * I
-    from scipy.special import factorial
-    Bn = factorial(n, exact=True) / (2 * jnp.pi * 1j) * I
-    return float(jnp.real(Bn))
+A *meromorphic* function is analytic in a region of interest apart from
+possible poles. By the Cauchy integral formula, $1/2\pi i$ times the integral
+of a meromorphic $f$ around a closed contour equals the sum of the residues
+of $f$ at the enclosed poles. The function $\exp(z)/z^3$ has Laurent series
+$z^{-3} + z^{-2} + \tfrac12 z^{-1} + \tfrac16 + \cdots$ at the origin, so its
+residue there is $1/2$. We confirm this by integrating around the unit
+circle:
 
-# Compute B_10 = 5/66
-B10 = bernoulli_via_contour(10, R=1.0)
-print(f"B_10 via contour integration: {B10:.15f}")
-print(f"B_10 exact (5/66):            {5/66:.15f}")
+```python
+z = cj.chebfun(lambda s: jnp.exp(1j * s), domain=[0, 2 * np.pi])
+f = cj.chebfun(lambda s: jnp.exp(jnp.exp(1j * s)) * jnp.exp(-3j * s),
+               domain=[0, 2 * np.pi])
+>>> complex((f * z.diff()).sum() / (2j * np.pi))
+(0.49999999999999983-5.48e-17j)
+```
+
+We have just computed the degree-2 Taylor coefficient of $\exp(z)$.
+
+(MATLAB Chebfun can also exploit the periodicity of such integrands with its
+`'trig'` flag — Fourier rather than Chebyshev representation. Periodic
+construction through the chebfunjax factory is not yet wired; the Chebyshev
+representation above computes the same integrals to the same accuracy, at a
+modest efficiency cost of up to $\pi/2$ in length.)
+
+The contour does not have to be smooth. Here is the same residue computed by
+integration over a square:
+
+```python
+def sq(s):
+    v = 1 + 1j * s
+    v = jnp.where(s > 1, 1j - (s - 2), v)
+    v = jnp.where(s > 3, -1 - 1j * (s - 4), v)
+    v = jnp.where(s > 5, -1j + (s - 6), v)
+    return v
+
+z = cj.chebfun(sq, domain=[-1, 1, 3, 5, 7])
+f = cj.chebfun(lambda s: jnp.exp(sq(s)) / sq(s) ** 3, domain=[-1, 1, 3, 5, 7])
+>>> complex((f * z.diff()).sum() / (2j * np.pi))
+(0.5000000000000001-3.53e-17j)
+```
+
+One can also construct the more interesting contours that appear in complex
+variables texts, such as this "keyhole" contour around the branch cut of
+$\log z$ on the negative real axis:
+
+```python
+c1, c2 = -2 + 0.05j, -0.2 + 0.05j
+c3, c4 = -0.2 - 0.05j, -2 - 0.05j
+L1, L2, L3, L4 = (np.log(c) for c in (c1, c2, c3, c4))
+
+z = join_paths([
+    lambda s: c1 + s * (c2 - c1),
+    lambda s: jnp.exp((1 - s) * L2 + s * L3),   # arc the long way round
+    lambda s: c3 + s * (c4 - c3),
+    lambda s: jnp.exp((1 - s) * L4 + s * L1),
+])
 ```
 
 ![](../images/guide/guide05_14.png)
 
+(A subtlety worth knowing: the arcs must go the *long* way around the origin,
+which is what `c2*c3.^s./c2.^s` — separate principal powers — produces in
+MATLAB; the seemingly equivalent `(c3/c2)**s` takes the short arc straight
+across the branch cut.)
 
-## 5.6 Parametric Curves and Their Properties
-
-Chebfunjax provides natural tools for analyzing parametric curves through
-chebfun calculus.
-
-### Curvature
-
-The curvature of a plane curve $(x(t), y(t))$ is
-
-$$\kappa = \frac{|x'y'' - y'x''|}{(x'^2 + y'^2)^{3/2}}.$$
+The integral of $f(z) = \log(z)\tanh(z)$ around this contour equals $2\pi i$
+times the sum of the residues at the poles of $f$ at $\pm\pi i/2$, which is
+$4\pi i \log(\pi/2)$:
 
 ```python
-import jax.numpy as jnp
-import chebfunjax as cj
+def key(s):
+    v = c1 + s * (c2 - c1)
+    v = jnp.where(s > 1, jnp.exp((2 - s) * L2 + (s - 1) * L3), v)
+    v = jnp.where(s > 2, c3 + (s - 2) * (c4 - c3), v)
+    v = jnp.where(s > 3, jnp.exp((4 - s) * L4 + (s - 3) * L1), v)
+    return v
 
-# Curvature of an ellipse: x = 2*cos(t), y = sin(t)
-t = cj.chebfun(lambda t: t, domain=[0, 2 * jnp.pi])
-x = 2 * cj.cos(t)
-y = cj.sin(t)
+z = cj.chebfun(key, domain=[0, 1, 2, 3, 4])
+f = cj.chebfun(lambda s: jnp.log(key(s)) * jnp.tanh(key(s)),
+               domain=[0, 1, 2, 3, 4])
+>>> complex((f * z.diff()).sum())
+(-2.3e-16+5.674755637702221j)
 
-xp = x.diff()
-yp = y.diff()
-xpp = x.diff(2)
-ypp = y.diff(2)
-
-kappa = (xp * ypp - yp * xpp).abs() / (xp**2 + yp**2).sqrt()**3
-
-# Maximum and minimum curvature
-k_min_loc, k_min_val = kappa.min()
-k_max_loc, k_max_val = kappa.max()
-print(f"Min curvature: {k_min_val:.6f} at t = {k_min_loc:.6f}")
-print(f"Max curvature: {k_max_val:.6f} at t = {k_max_loc:.6f}")
-# For ellipse with semi-axes a=2, b=1:
-# kappa_min = b/a^2 = 1/4 = 0.25 (at ends of major axis)
-# kappa_max = a/b^2 = 2 (at ends of minor axis)
+>>> complex(4j * np.pi * np.log(np.pi / 2))
+5.674755637702224j
 ```
 
-![Ellipse with semi-axes a=2, b=1](../images/guide/guide05_05.png)
+## 5.4 Cauchy integrals and locating zeros and poles
 
-![Curvature of the ellipse](../images/guide/guide05_06.png)
-
-### Enclosed area
-
-The area enclosed by a closed curve $(x(t), y(t))$ is given by the shoelace
-formula:
-
-$$A = \frac{1}{2} \left|\oint (x\,dy - y\,dx)\right| = \frac{1}{2}\left|\int_a^b (x y' - y x')\,dt\right|.$$
+Here are some further examples of computations with Cauchy integrals. The
+Bernoulli number $B_k$ is $k!$ times the $k$th Taylor coefficient of
+$z/(e^z-1)$. Here is $B_{10}$ computed on a circle of radius 4, compared with
+its exact value $5/66$:
 
 ```python
-# Area of the ellipse x = 2*cos(t), y = sin(t)
-area_integrand = x * yp - y * xp
-area = float(area_integrand.sum()) / 2
-print(f"Area of ellipse (a=2, b=1): {abs(area):.15f}")
-print(f"Expected (pi*a*b = 2*pi):   {2*float(jnp.pi):.15f}")
+from math import factorial
+
+k = 10
+z = cj.chebfun(lambda s: 4 * jnp.exp(1j * s), domain=[0, 2 * np.pi])
+integrand = cj.chebfun(
+    lambda s: (4 * jnp.exp(1j * s) / (jnp.exp(4 * jnp.exp(1j * s)) - 1))
+    / (4 * jnp.exp(1j * s)) ** (k + 1),
+    domain=[0, 2 * np.pi],
+)
+>>> complex(factorial(k) * (integrand * z.diff()).sum() / (2j * np.pi))
+(0.07575757575757547+1.86e-15j)
+
+>>> 5 / 66
+0.07575757575757576
+```
+
+On the unit circle the same computation is much less accurate (error about
+$10^{-10}$) — the coefficient is better resolved on a contour whose radius
+balances the growth of the integrand, exactly as in MATLAB.
+
+Cauchy integrals can also count and locate zeros. The function
+$\sin^3(z) + \cos^3(z)$ has how many zeros in the disk about $0$ of radius 2?
+
+```python
+z = cj.chebfun(lambda s: 2 * jnp.exp(1j * s), domain=[0, 2 * np.pi])
+f = cj.chebfun(lambda s: jnp.sin(2 * jnp.exp(1j * s)) ** 3
+               + jnp.cos(2 * jnp.exp(1j * s)) ** 3, domain=[0, 2 * np.pi])
+>>> complex((f.diff() * (1.0 / f)).sum() / (2j * np.pi))
+(2.9999999999999987-2.7e-15j)
+```
+
+There are three. The same number comes from the argument principle, as the
+winding number of $f$ around the contour:
+
+```python
+theta = np.unwrap(np.angle(np.asarray(f(jnp.linspace(0, 2 * np.pi, 4000)))))
+>>> (theta[-1] - theta[0]) / (2 * np.pi)
+3.0000000000000013
+```
+
+Inside the unit disk there is just one zero, and a slightly different Cauchy
+integral gives its location:
+
+```python
+z = cj.chebfun(lambda s: jnp.exp(1j * s), domain=[0, 2 * np.pi])
+f = cj.chebfun(lambda s: jnp.sin(jnp.exp(1j * s)) ** 3
+               + jnp.cos(jnp.exp(1j * s)) ** 3, domain=[0, 2 * np.pi])
+>>> complex((z * (f.diff() * (1.0 / f))).sum() / (2j * np.pi))
+(-0.7853981633974481+9.3e-16j)
+```
+
+The zero is at $-\pi/4$, as `roots` confirms on the real axis:
+
+```python
+>>> np.asarray(cj.chebfun(lambda t: jnp.sin(t)**3 + jnp.cos(t)**3).roots())
+# -> array([-0.78539816])
+```
+
+## 5.5 Alphabet soup
+
+The chebfunjax command `scribble`, a faithful translation of MATLAB's,
+returns a piecewise-linear complex chebfun representing a word:
+
+```python
+from chebfunjax.utils.scribble import scribble
+
+f = scribble('Oxford University')
+f.plot()
 ```
 
 ![](../images/guide/guide05_15.png)
 
-
-## 5.7 Complex Arithmetic with Chebfun Pairs
-
-Since chebfunjax stores real and imaginary parts as separate chebfuns, complex
-arithmetic must be done manually.  Here is a helper pattern:
+This chebfun happens to have 67 pieces. Though it is really just a chebfun,
+one can do complex-arithmetic tricks with it:
 
 ```python
-import jax.numpy as jnp
-import chebfunjax as cj
-
-def complex_mul(a_re, a_im, b_re, b_im):
-    """Multiply two complex chebfuns: (a_re + i*a_im) * (b_re + i*b_im)."""
-    re = a_re * b_re - a_im * b_im
-    im = a_re * b_im + a_im * b_re
-    return re, im
-
-def complex_div(a_re, a_im, b_re, b_im):
-    """Divide two complex chebfuns: (a_re + i*a_im) / (b_re + i*b_im)."""
-    denom = b_re**2 + b_im**2
-    re = (a_re * b_re + a_im * b_im) / denom
-    im = (a_im * b_re - a_re * b_im) / denom
-    return re, im
-
-def complex_abs(a_re, a_im):
-    """Modulus |a_re + i*a_im|."""
-    return (a_re**2 + a_im**2).sqrt()
-
-# Example: compute |exp(z)| on the unit circle
-t = cj.chebfun(lambda t: t, domain=[0, 2 * jnp.pi])
-z_re = cj.cos(t)
-z_im = cj.sin(t)
-
-# exp(z) = exp(x)*(cos(y) + i*sin(y))
-exp_re = cj.exp(z_re) * cj.cos(z_im)
-exp_im = cj.exp(z_re) * cj.sin(z_im)
-
-modulus = complex_abs(exp_re, exp_im)
-# |exp(z)| = exp(Re(z)) = exp(cos(t))
-expected = cj.exp(cj.cos(t))
-
-# Check agreement
-tt = jnp.linspace(0, 2 * jnp.pi, 100)
-err = float(jnp.max(jnp.abs(modulus(tt) - expected(tt))))
-print(f"Max error in |exp(z)| on unit circle: {err:.2e}")
+>>> complex(f(jnp.array(0.0))), float(f.norm(2))
+((0.129+0j), 0.8476)
 ```
 
-## 5.8 The Phase Portrait
+Compositions of the text with analytic functions produce conformal word-art.
+Here is $\exp(3if)$:
 
-For visualizing complex functions, *phase portraits* color each point in the
-domain according to the phase (argument) of $f(z)$.  Chebfunjax provides:
+![](../images/guide/guide05_16.png)
 
-```python
-import chebfunjax as cj
+The text can be boxed in:
 
-# Phase plot of a complex function (uses the phaseplot utility)
-# cj.phaseplot(f, domain=[-2, 2, -2, 2])
-```
+![](../images/guide/guide05_17.png)
 
-The `phaseplot` function evaluates a complex function on a grid and colors
-each point using a standard HSV color wheel based on $\arg f(z)$.
+and mapped conformally — here $\exp((1+0.2i)f)$ and $\tan(f)$ of the boxed
+text:
 
-## 5.9 Summary
+![](../images/guide/guide05_18.png)
 
-| Task | Approach in chebfunjax |
-|---|---|
-| Complex curve $z(t)$ | Two real chebfuns: `x = cj.cos(t)`, `y = cj.sin(t)` |
-| Arc length | `speed = (dx**2 + dy**2).sqrt(); L = speed.sum()` |
-| Contour integral | Split into real/imag parts, integrate each |
-| Complex multiplication | `(a*c - b*d, a*d + b*c)` for `(a+ib)(c+id)` |
-| Winding number | Numerically track argument change |
-| Curvature | $(x'y'' - y'x'')/(x'^2 + y'^2)^{3/2}$ |
-| Enclosed area | $(1/2)\int (x y' - y x')\,dt$ |
+![](../images/guide/guide05_19.png)
 
-### Key differences from MATLAB Chebfun
+What about writing on a curve? Here is a birthday greeting for Pafnuty
+Lvovich Chebyshev, born 16 May 1821, mapped along a spiral by
+$g(z) = e^{-2.2i + (2.5i+0.4)z}$ together with a mapped ellipse:
 
-In MATLAB Chebfun, a single chebfun object can hold complex values natively
-(the coefficients are complex).  In chebfunjax, the standard storage is
-`float64`, so complex functions are represented as pairs of real chebfuns.
-This is a deliberate design choice that keeps the core Chebyshev machinery
-simple and GPU-friendly, at the cost of requiring manual real/imaginary
-bookkeeping for complex-valued problems.
+![](../images/guide/guide05_20.png)
 
-For contour integrals in particular, it is often simpler to evaluate on a fine
-grid using JAX's native complex arithmetic (via `jnp.complex128`) and perform
-the integration numerically, rather than building separate chebfuns for every
-real and imaginary part.
+![](../images/guide/guide05_21.png)
 
-## 5.10 References
+## 5.6 References
 
-- L. N. Trefethen, "Numerical computation of the Schwarz-Christoffel
-  transformation," *SIAM J. Sci. Stat. Comp.* 1 (1980), 82-102.
-- J. A. C. Weideman, "Computing the Hilbert transform on the real line,"
-  *Math. Comp.* 64 (1995), 745-762.
-- F. Bornemann, "Accuracy and stability of computing high-order derivatives
-  of analytic functions by Cauchy integrals," *Found. Comp. Math.* 11 (2011),
-  1-63.
-- E. Wegert, *Visual Complex Functions: An Introduction with Phase Portraits*,
-  Birkhauser, 2012.
+- [Davis 1959] P. J. Davis, "On the numerical integration of periodic
+  analytic functions", in R. E. Langer, ed., *On Numerical Integration*,
+  Math. Res. Ctr., U. of Wisconsin, 1959.
+- [Hale & Trefethen 2008] N. Hale and L. N. Trefethen, "New quadrature
+  formulas from conformal maps", *SIAM Journal on Numerical Analysis* 46
+  (2008), 930-948.
+- [McLachlan 1994] R. McLachlan, "Gauss quadrature and the complex error
+  function", *Mathematics of Computation* 62 (1994), 337-340.
+- [Weideman 1994] J. A. C. Weideman, "Computation of the complex error
+  function", *SIAM Journal on Numerical Analysis* 31 (1994), 1497-1518.
