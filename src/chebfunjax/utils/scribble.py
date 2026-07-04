@@ -14,8 +14,6 @@ from __future__ import annotations
 
 import warnings
 
-import jax.numpy as jnp
-
 # Stroke font: each character is a list of subpaths; each subpath is a
 # list of complex vertices in the unit em-box, joined by line segments.
 # Copied verbatim from MATLAB scribble.m.
