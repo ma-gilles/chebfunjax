@@ -448,11 +448,23 @@ def plot_1d(
             plot_kw.update(kw)
 
         # Complex-valued chebfun: MATLAB plots the image curve in the
-        # complex plane (real vs imag) with equal axis scaling.
+        # complex plane (real vs imag) with equal axis scaling. Sample
+        # per piece so many-piece paths (e.g. scribble text) keep their
+        # sharp corners instead of being corner-cut by one global grid.
         probe = np.array(f(jnp.array(_domain_points(f, 3))))
         if np.iscomplexobj(probe):
-            xs = _domain_points(f, n_pts)
-            ys = np.array(f(jnp.array(xs)))
+            funs_c = getattr(f, "funs", None)
+            if funs_c is not None and len(funs_c) > 1:
+                m = max(8, n_pts // len(funs_c))
+                chunks = []
+                for piece in funs_c:
+                    pa, pb = (float(v) for v in piece.interval)
+                    ts = np.linspace(pa, pb, m)
+                    chunks.append(np.array(piece(jnp.array(ts))))
+                ys = np.concatenate(chunks)
+            else:
+                xs = _domain_points(f, n_pts)
+                ys = np.array(f(jnp.array(xs)))
             ax.plot(np.real(ys), np.imag(ys), **plot_kw)
             ax.set_aspect("equal")
             continue
