@@ -22,7 +22,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from chebfunjax.chebfun2d import chebfun2
-from chebfunjax.plotting import PARULA, (
+from chebfunjax.plotting import (
+    PARULA,
     chebfun_style,
     contour,
     phaseplot,
