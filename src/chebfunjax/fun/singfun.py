@@ -14,7 +14,7 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 
-from chebfunjax.tech.chebtech import Chebtech2
+from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 
 # Machine epsilon for float64
 _EPS = float(jnp.finfo(jnp.float64).eps)
@@ -153,33 +153,27 @@ class Singfun(eqx.Module):
         """
         a, b = float(exponents[0]), float(exponents[1])
 
-        # Threshold below which we perturb away from the endpoint:
-        # ~ sqrt(eps) so perturbation is much smaller than grid spacing of
-        # a degree-17 Chebtech2 (~0.38), yet large enough to avoid 0/0.
-        _eps12 = float(jnp.finfo(jnp.float64).eps) ** 0.5  # ~ 1.5e-8
-
         def smooth_f(x: jax.Array) -> jax.Array:
             """Extract the smooth factor s(x) = f(x) / weight(x)."""
-            # Perturb x away from the endpoints when the weight would be < eps^0.5
-            x_safe = jnp.where(
-                (1.0 + x < _eps12) & (a != 0.0),
-                x + _eps12,
-                jnp.where(
-                    (1.0 - x < _eps12) & (b != 0.0),
-                    x - _eps12,
-                    x,
-                ),
-            )
-            val = f(x_safe)
+            val = f(x)
             if a != 0.0:
-                lf = jnp.maximum(1.0 + x_safe, float(jnp.finfo(jnp.float64).tiny))
-                val = val / lf**a
+                val = val / (1.0 + x) ** a
             if b != 0.0:
-                rf = jnp.maximum(1.0 - x_safe, float(jnp.finfo(jnp.float64).tiny))
-                val = val / rf**b
+                val = val / (1.0 - x) ** b
             return val
 
-        tech = Chebtech2.from_function(smooth_f, n=n)
+        # Sample on FIRST-kind Chebyshev points, which exclude the
+        # endpoints, so the 0/0 form at x = +-1 never occurs (MATLAB's
+        # singfun uses endpoint extrapolation for the same reason). The
+        # previous endpoint-perturbation hack (x +- sqrt(eps)) injected
+        # O(1e-8) noise into the endpoint samples, and the adaptive
+        # constructor chopped the smooth factor at that noise plateau —
+        # e.g. the smooth part of sqrt(1+x)e^x (which is exactly e^x)
+        # stopped at 11 coefficients with 1e-10 evaluation error where
+        # MATLAB is exact. Chebtech1 and Chebtech2 share the same
+        # T-series coefficients, so the result transfers directly.
+        t1 = Chebtech1.from_function(smooth_f, n=n)
+        tech = Chebtech2.from_coeffs(t1.coeffs)
         return cls(tech, (a, b))
 
     @classmethod
@@ -722,7 +716,10 @@ def _jacobi_moments(a: float, b: float, n: int) -> jax.Array:
         m0 = math.gamma(r + 0.5) * math.sqrt(math.pi) / math.gamma(r + 1.0)
         M = M.at[0].set(m0)
         # Even moments: M_{2k} = m0 * prod_{j=1}^{k} (j - r - 1) / (j + r)
-        n_even = n // 2  # number of even moments at indices 2, 4, ..., 2*(n//2)
+        # even moments live at 0-based indices 2, 4, ..., i.e. (n-1)//2 of
+        # them beyond M_0 (MATLAB: k = 1:floor((n-1)/2)); n//2 overflows
+        # the slice for even n.
+        n_even = (n - 1) // 2
         if n_even >= 1:
             ks = jnp.arange(1, n_even + 1, dtype=jnp.float64)
             ratios = (ks - r - 1.0) / (ks + r)
@@ -744,8 +741,16 @@ def _jacobi_moments(a: float, b: float, n: int) -> jax.Array:
         Mbar = Mbar.at[0].set(1.0)
         if n > 1:
             Mbar = Mbar.at[1].set(c5 / c4)
+        # MATLAB (@singfun/sum.m) iterates j = 3..n ONE-indexed:
+        #   M(j) = (2*c5*M(j-1) + (j-2-c4)*M(j-2)) / (c3 + j - 1)
+        # so with Python's 0-based index the factors are (j-1-c4) and
+        # (c3 + j). The previous transcription kept MATLAB's literals with
+        # the 0-based loop — both off by one — which made sum() wrong for
+        # every ASYMMETRIC exponent pair (the symmetric Gegenbauer branch
+        # masked it): integral of sqrt(1+x)e^x came out 2.3137 vs the true
+        # 2.6141 while evaluation stayed exact.
         for j in range(2, n):
-            val = (2.0 * c5 * Mbar[j - 1] + (j - 2 - c4) * Mbar[j - 2]) / (c3 + j - 1)
+            val = (2.0 * c5 * Mbar[j - 1] + (j - 1.0 - c4) * Mbar[j - 2]) / (c3 + j)
             Mbar = Mbar.at[j].set(val)
 
         M = c0 * Mbar
