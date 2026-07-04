@@ -2018,14 +2018,26 @@ class Chebfun(eqx.Module):
         """
         if not isinstance(n, (int,)) or n < 0:
             raise ValueError(f"polyfit: n must be a non-negative integer, got {n!r}.")
+        from chebfunjax.utils.transforms import cheb2leg, leg2cheb
+
+        def _l2_truncate(coeffs):
+            """Degree-n L2 best fit: truncate the LEGENDRE series.
+
+            MATLAB @chebfun/polyfit.m truncates legcoeffs(y, n+1) and maps
+            back with leg2cheb — the true least-squares projection.
+            Truncating the CHEBYSHEV series instead gives a different
+            (weighted-L2) polynomial: exp(x) at degree 5 differs by 1.7e-5.
+            """
+            cleg = cheb2leg(coeffs)[: n + 1]
+            return leg2cheb(cleg)
+
         if len(self.funs) == 1:
             piece = self.funs[0]
             coeffs = piece.coeffs  # Chebyshev coefficients, length = piece.n
             if piece.n <= n + 1:
                 # Already degree <= n, nothing to truncate
                 return self
-            # Truncate to first n+1 coefficients
-            truncated = coeffs[:n + 1]
+            truncated = _l2_truncate(coeffs)
             new_piece = _Piece.from_coeffs(truncated, piece.interval[0], piece.interval[1])
             return Chebfun(funs=[new_piece], domain=self.domain)
         # Multi-piece: fit each piece independently
@@ -2035,7 +2047,7 @@ class Chebfun(eqx.Module):
             if piece.n <= n + 1:
                 new_funs.append(piece)
             else:
-                truncated = coeffs[:n + 1]
+                truncated = _l2_truncate(coeffs)
                 new_funs.append(
                     _Piece.from_coeffs(truncated, piece.interval[0], piece.interval[1])
                 )

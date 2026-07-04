@@ -12,10 +12,9 @@ covered (it only pinned sin/exp construction + eval):
 Values are pinned against MATLAB Chebfun at rtol 1e-12 (project Gate 3),
 except two documented exceptions:
 
-* ``polyfit`` is a *strict xfail*: chebfunjax truncates the Chebyshev
-  series, whereas MATLAB polyfit truncates the Legendre series (the true
-  L2 least-squares fit).  They disagree for functions of degree > n.  This
-  is a reported library bug, NOT a tolerance we may widen.
+* ``polyfit`` originally strict-xfailed (Chebyshev-series truncation
+  instead of MATLAB's Legendre-series L2 projection); the library bug is
+  fixed and the test now pins the MATLAB values directly.
 * ``ode45`` / ``ode113`` wrap scipy ``solve_ivp`` with adaptive step
   control (rtol 1e-6), so their output is an *approximation* of the exact
   solution, not a 1e-12 identity.  The reference is the analytic solution
@@ -100,12 +99,7 @@ class TestSpecialFunctions:
 
 
 @pytest.mark.matlab
-@pytest.mark.xfail(
-    reason="Chebfun.polyfit truncates the Chebyshev series, but MATLAB "
-    "polyfit truncates the Legendre series (the true L2 least-squares "
-    "fit). Results differ for functions of degree > n. Reported.",
-    strict=True,
-)
+# polyfit now truncates the LEGENDRE series like MATLAB (bug fixed).
 def test_polyfit_exp5():
     p = cj.chebfun(lambda t: jnp.exp(t)).polyfit(5)
     npt.assert_allclose(_evec(p), _REF["polyfit_exp5"], rtol=RTOL, atol=1e-13)

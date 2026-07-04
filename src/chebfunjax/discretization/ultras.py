@@ -425,26 +425,35 @@ def multmat(n: int, a: jnp.ndarray, lam: int) -> jnp.ndarray:
         j_idx = jnp.arange(1, m + 1, dtype=jnp.float64)
         d2 = j_idx / (2.0 * (lam - 1.0 + j_idx))  # subdiagonal of Mx
 
-        # Mx = diag(d2[1:m], -1) + diag(d1[0:m], +1), truncated to m x m
-        Mx = jnp.diag(d2[:m - 1], -1) + jnp.diag(d1[:m - 1], 1)
+        # Mx: MATLAB spdiags semantics — a POSITIVE-offset diagonal takes
+        # the tail of the supplied column (d1[1:m]), not the head; using
+        # d1[:m-1] shifted every superdiagonal entry by one.
+        Mx = jnp.diag(d2[:m - 1], -1) + jnp.diag(d1[1:m], 1)
         Mx = Mx[:m, :m]
 
         M1 = 2.0 * lam * Mx
 
         # Three-term recurrence: M_f = sum_j a[j] * M_j
         # M_0 = I, M_1 = 2*lam*Mx
-        # M_{j+1} = 2*(j+lam)/(j+1) * Mx @ M_j - (j+2*lam-1)/(j+1) * M_{j-1}
+        # MATLAB (@ultraS/multmat.m) iterates nn = 1..len(a)-2 (1-indexed):
+        #   M_{nn+1} = 2*(nn+lam)/(nn+1) * Mx@M_nn - (nn+2*lam-1)/(nn+1)*M_{nn-1}
+        # so with Python's 0-based loop variable the factors use nn+1.
+        # (Together with the spdiags fix above this reproduces MATLAB to
+        # 1e-16; each alone still gives O(1) errors for lam >= 2.)
+        # Note: the recurrence must run over ALL positions — an early stop
+        # at the number of NONZERO coefficients broke sparse vectors (every
+        # other coefficient is zero for even/odd functions).
         M = a[0] * eye
         M = M + a[1] * M1
 
         M0 = eye
         Mcur = M1
-        nnz_a = jnp.sum(jnp.abs(a) > jnp.finfo(float).eps).item()
-        n_terms = min(int(nnz_a), a.shape[0] - 2)
+        n_terms = a.shape[0] - 2
 
         for nn in range(n_terms):
-            M2 = (2.0 * (nn + lam) / (nn + 1.0)) * Mx @ Mcur \
-                 - ((nn + 2.0 * lam - 1.0) / (nn + 1.0)) * M0
+            k = nn + 1.0  # MATLAB's 1-indexed loop variable
+            M2 = (2.0 * (k + lam) / (k + 1.0)) * Mx @ Mcur \
+                 - ((k + 2.0 * lam - 1.0) / (k + 1.0)) * M0
             M = M + a[nn + 2] * M2
             M0 = Mcur
             Mcur = M2
