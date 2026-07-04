@@ -309,7 +309,7 @@ def _draw_sphere_background(
     )
 
 
-def _setup_3d_axes(ax, fig, elev=25, azim=-37, figsize=(6.1, 2.58)):
+def _setup_3d_axes(ax, fig, elev=30, azim=-127.5, figsize=(6.1, 2.58)):
     """Create or configure 3D axes with MATLAB-Chebfun styling.
 
     Parameters
@@ -330,7 +330,9 @@ def _setup_3d_axes(ax, fig, elev=25, azim=-37, figsize=(6.1, 2.58)):
 
     if ax is None:
         fig = plt.figure(figsize=figsize)
-        ax = fig.add_subplot(111, projection="3d")
+        # Fill the canvas like MATLAB's published surf renders —
+        # add_subplot leaves large margins around 3D axes.
+        ax = fig.add_axes([0.02, -0.07, 0.96, 1.14], projection="3d")
     else:
         if fig is None:
             fig = ax.get_figure()
@@ -618,7 +620,7 @@ def surf(
     XX, YY = np.meshgrid(xs, ys, indexing="xy")
     ZZ = _eval_2d_vectorized(f2, XX, YY)
 
-    fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37,
+    fig, ax = _setup_3d_axes(ax, None, elev=30, azim=-127.5,
                              figsize=(6.1, 2.58))
 
     ax.plot_surface(XX, YY, ZZ, cmap=cmap,
@@ -805,7 +807,7 @@ def plot_disk(
     YY = RR * np.sin(TT)
 
     if mode == "3d":
-        fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37,
+        fig, ax = _setup_3d_axes(ax, None, elev=30, azim=-127.5,
                                  figsize=(6.1, 2.58))
         facecolors = _matlab_facecolors(ZZ, cmap_obj)
         ax.plot_surface(
@@ -1447,7 +1449,7 @@ def surf_chebfun2v(
     Ys = _eval_2d_vectorized(F2, XX, YY)
     Zs = _eval_2d_vectorized(F3, XX, YY)
 
-    fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37, figsize=(6.1, 2.75))
+    fig, ax = _setup_3d_axes(ax, None, elev=30, azim=-127.5, figsize=(6.1, 2.75))
 
     ax.plot_surface(Xs, Ys, Zs, cmap=cmap,
                     rstride=1, cstride=1,
@@ -1604,7 +1606,7 @@ def surf_disk(
     xx = RR * np.cos(TT)
     yy = RR * np.sin(TT)
 
-    fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37, figsize=(6.1, 2.75))
+    fig, ax = _setup_3d_axes(ax, None, elev=30, azim=-127.5, figsize=(6.1, 2.75))
 
     facecolors = _matlab_facecolors(C, cmap_obj)
     ax.plot_surface(
@@ -1816,7 +1818,7 @@ def plot_slices(
         cmap_obj = cmap
     norm = mcolors.Normalize(vmin=vmin, vmax=vmax)
 
-    fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37,
+    fig, ax = _setup_3d_axes(ax, None, elev=30, azim=-127.5,
                              figsize=(6.1, 2.58))
 
     def _surf_slice(XX, YY, ZZ, F):
@@ -2076,7 +2078,7 @@ def isosurface_ball(
         levels = np.linspace(vmin_real + 0.1 * (vmax_real - vmin_real),
                              vmax_real - 0.1 * (vmax_real - vmin_real), 3)
 
-    fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37,
+    fig, ax = _setup_3d_axes(ax, None, elev=30, azim=-127.5,
                              figsize=(6.1, 2.58))
 
     try:
@@ -2453,7 +2455,7 @@ def quiver_ball(
     max_mag = float(mag.max()) if mag.size and float(mag.max()) > 0 else 1.0
     scale = 0.08 * arrow_scale / max_mag
 
-    fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37, figsize=(6.1, 2.75))
+    fig, ax = _setup_3d_axes(ax, None, elev=30, azim=-127.5, figsize=(6.1, 2.75))
 
     q = ax.quiver(
         xx,
@@ -2594,7 +2596,7 @@ def plot_chebfun3(
         mapped = np.real(all_cdata)
         norm = _normalize_values(mapped)
 
-    fig, ax = _setup_3d_axes(ax, None, elev=25, azim=-37, figsize=(6.1, 2.75))
+    fig, ax = _setup_3d_axes(ax, None, elev=30, azim=-127.5, figsize=(6.1, 2.75))
 
     for XX_s, YY_s, ZZ_s, F_s in slices:
         scalar = np.angle(-F_s) if is_complex else np.real(F_s)

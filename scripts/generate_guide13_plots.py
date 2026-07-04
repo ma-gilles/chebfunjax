@@ -31,7 +31,8 @@ def save(fig, desc):
     global plot_num
     plot_num += 1
     fname = os.path.join(OUT, f'guide13_{plot_num:02d}.png')
-    fig.savefig(fname, dpi=150, bbox_inches='tight')
+    from chebfunjax.plotting import save_chebfun_figure
+    save_chebfun_figure(fig, fname, size=(610, 258))
     plt.close(fig)
     print(f"  Saved {fname}: {desc}")
 
@@ -44,7 +45,7 @@ try:
     # Plot h as a 1D function of y
     ys = np.linspace(0, 3, 200)
     vals = np.array([float(h(0.0, yi)) for yi in ys])
-    fig, ax = plt.subplots(figsize=(5.5, 4))
+    fig, ax = plt.subplots()
     ax.plot(ys, vals, 'b-', linewidth=1.8)
     ax.set_xlabel('y')
     ax.set_title(r'$\int_0^{\pi/4} \sin(10xy)\,dx$ as a function of $y$')
@@ -58,7 +59,7 @@ except Exception:
 # ---- Plot 2: 13.2 - 2D Runge function surface ----
 try:
     runge = chebfun2(lambda x, y: 1.0 / (0.01 + x**2 + y**2))
-    fig, ax = surf(runge, title=r'$1/(0.01 + x^2 + y^2)$')
+    fig, ax = surf(runge)
     save(fig, "2D Runge function")
 except Exception:
     traceback.print_exc()
@@ -72,7 +73,7 @@ try:
     xs = np.linspace(-1, 1, 200)
     # The sum gives integral; mean = integral / domain_length = integral / 2
     vals = np.array([float(h(xi, 0.0)) / 2.0 for xi in xs])
-    fig, ax = plt.subplots(figsize=(5.5, 4))
+    fig, ax = plt.subplots()
     ax.plot(xs, vals, 'b-', linewidth=1.8)
     ax.set_xlabel('x')
     ax.set_title('Mean value of 2D Runge function wrt y')
@@ -99,15 +100,14 @@ try:
     # Double cumulative sum (trapezoid rule)
     cumsum_y = np.cumsum(ZZ, axis=0) * dy  # cumsum along y (axis 0)
     cumsum_xy = np.cumsum(cumsum_y, axis=1) * dx  # then along x (axis 1)
-    fig, ax = plt.subplots(figsize=(5.5, 5))
-    cs = ax.contourf(XX, YY, cumsum_xy, levels=15, cmap='RdBu_r')
-    ax.contour(XX, YY, cumsum_xy, levels=15, colors='k', linewidths=0.5)
-    plt.colorbar(cs, ax=ax, fraction=0.046, pad=0.04)
+    fig, ax = plt.subplots()
+    ax.contour(XX, YY, cumsum_xy, levels=12, cmap='parula'
+               if 'parula' in plt.colormaps() else 'viridis',
+               linewidths=0.9)
     ax.set_xlim(-1, 1)
     ax.set_ylim(-1, 1)
     ax.set_aspect('equal')
     ax.set_title('Contours of cumsum2(f)')
-    fig.tight_layout()
     save(fig, "cumsum2 contour")
 except Exception:
     traceback.print_exc()
@@ -115,7 +115,7 @@ except Exception:
 
 # ---- Plot 5: 13.4 - Circle: two real vs one complex ----
 try:
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4.5))
+    fig, (ax1, ax2) = plt.subplots(1, 2)
     t = np.linspace(0, 2*np.pi, 200)
     # Two real-valued functions
     ax1.plot(np.cos(t), np.sin(t), 'b-', linewidth=1.8)
@@ -138,7 +138,7 @@ try:
     t = np.linspace(0, 1, 500)
     C_real = t * np.cos(10*t)
     C_imag = t * np.sin(10*t)
-    fig, ax = plt.subplots(figsize=(5, 5))
+    fig, ax = plt.subplots()
     ax.plot(C_real, C_imag, 'k-', linewidth=1.5)
     ax.set_xlim(-1, 1)
     ax.set_ylim(-1, 1)
@@ -154,7 +154,7 @@ except Exception:
 # ---- Plot 7: 13.5 - f(x,y) = cos(10*x*y^2) + exp(-x^2) with curve ----
 try:
     f = chebfun2(lambda x, y: jnp.cos(10*x*y**2) + jnp.exp(-x**2))
-    fig, ax = surf(f, title=r'$\cos(10xy^2) + e^{-x^2}$')
+    fig, ax = surf(f)
     # Overlay the curve on the surface
     t = np.linspace(0, 1, 500)
     cx = t * np.cos(10*t)
