@@ -209,8 +209,6 @@ print(f'|line_integral - (f(end)-f(start))| = {abs(v - ends):.2e}')
 |line_integral - (f(end)-f(start))| = 1.78e-15
 ```
 
-![Line integral / gradient theorem](../images/guide/guide15_03.png)
-
 ## 15.5 Phase diagram
 
 A phase diagram is a graphical representation of a system of trajectories for a two-variable autonomous dynamical system. Chebfun2 plots phase diagrams with the `quiver` command. Note that there is a potential terminological ambiguity in that a "phase portrait" can also refer to a portrait of a complex-valued function (see section 12.7).
@@ -243,7 +241,7 @@ ax.set_aspect('equal')
 ax.set_title('The Duffing oscillator')
 ```
 
-![Duffing oscillator](../images/guide/guide15_04.png)
+![Duffing oscillator](../images/guide/guide15_03.png)
 
 ## 15.6 Representing 2D parametric surfaces in 3D space
 
@@ -268,7 +266,7 @@ ax.plot_surface(X, Y, Z, cmap='viridis')
 ax.set_aspect('equal')
 ```
 
-![Unit sphere](../images/guide/guide15_05.png)
+![Unit sphere](../images/guide/guide15_04.png)
 
 Above, we have formed a chebfun2v with three components by vertical concatenation of chebfun2 objects. However, for the familiar surfaces cylinders, spheres, and ellipsoids, chebfun2 has overloads of the commands `cylinder`, `sphere`, and `ellipsoid` to make things simpler. For example, a cylinder of radius 1 and height 5 can be constructed like this:
 
@@ -285,7 +283,7 @@ ax = fig.add_subplot(111, projection='3d')
 ax.plot_surface(X, Y, ZZ, cmap='plasma')
 ```
 
-![Cylinder](../images/guide/guide15_06.png)
+![Cylinder](../images/guide/guide15_05.png)
 
 An important class of parametric surfaces are surfaces of revolution, which are formed by revolving a curve in the left half plane about the $z$-axis. The `cylinder` command can be used to generate surfaces of revolution. For example:
 
@@ -303,7 +301,7 @@ ax.plot_surface(X, Y, Z, cmap='viridis')
 ax.set_xlim(-70, 70); ax.set_ylim(-70, 70); ax.set_zlim(-2, 6)
 ```
 
-![Surface of revolution](../images/guide/guide15_07.png)
+![Surface of revolution](../images/guide/guide15_06.png)
 
 Here as another example is a torus with a gap in it.
 
@@ -323,7 +321,7 @@ ax.plot_surface(X, Y, Z, cmap='viridis')
 ax.set_aspect('equal')
 ```
 
-![Torus with gap](../images/guide/guide15_08.png)
+![Torus with gap](../images/guide/guide15_07.png)
 
 ## 15.7 Surface normals and the divergence theorem
 
@@ -362,7 +360,7 @@ ax.quiver(X[::step,::step], Y[::step,::step], Z[::step,::step],
 ax.set_aspect('equal')
 ```
 
-![Torus with normals](../images/guide/guide15_09.png)
+![Torus with normals](../images/guide/guide15_08.png)
 
 Once we have the surface normal vectors we can compute, for instance, the volume of the torus by applying the divergence theorem:
 
@@ -399,7 +397,9 @@ ax.set_aspect('equal')
 ax.axis('off')
 ```
 
-![Klein Bagel](../images/guide/guide15_10.png)
+![Klein Bagel](../images/guide/guide15_09.png)
+
+![Klein Bagel, detail](../images/guide/guide15_10.png)
 
 ## 15.8 Reference
 

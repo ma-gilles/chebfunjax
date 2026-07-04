@@ -525,7 +525,9 @@ class Chebfun2v(eqx.Module):
             # ||f_j||^2 = integral_domain f_j^2 dx dy
             prod = _mul_separable(c, c)
             total += float(_integral_separable(prod))
-        return float(total**0.5)
+        # Cancellation can leave total a tiny negative float, and Python's
+        # (-eps)**0.5 silently returns a COMPLEX number — clamp at zero.
+        return float(max(total, 0.0) ** 0.5)
 
     # ------------------------------------------------------------------
     # Plotting

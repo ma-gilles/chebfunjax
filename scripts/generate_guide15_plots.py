@@ -34,11 +34,12 @@ os.makedirs(OUT, exist_ok=True)
 
 plot_num = 0
 
-def save(fig, desc):
+def save(fig, desc, size=(600, 270)):
     global plot_num
     plot_num += 1
     fname = os.path.join(OUT, f'guide15_{plot_num:02d}.png')
-    fig.savefig(fname, dpi=150, bbox_inches='tight')
+    from chebfunjax.plotting import save_chebfun_figure
+    save_chebfun_figure(fig, fname, size=size)
     plt.close(fig)
     print(f"  Saved {fname}: {desc}")
 
@@ -61,7 +62,7 @@ try:
     ys = np.linspace(0, 2, n)
     XX, YY = np.meshgrid(xs, ys)
     ZZ = np.array(dot_fg(jnp.array(XX.ravel()), jnp.array(YY.ravel()))).reshape(n, n)
-    fig, ax = plt.subplots(figsize=(5, 5))
+    fig, ax = plt.subplots()
     ax.contour(XX, YY, ZZ, levels=[0.0], colors=CHEBFUN_BLUE, linewidths=1.5)
     ax.set_xlim(d[0], d[1])
     ax.set_ylim(d[2], d[3])
@@ -106,7 +107,7 @@ try:
     crit_x = XX[mask]
     crit_y = YY[mask]
 
-    fig, ax = surf(f_bump)
+    fig, ax = surf(f_bump, cmap='pink')
 
     if len(crit_x) > 0:
         from scipy.cluster.hierarchy import fclusterdata
@@ -121,35 +122,10 @@ try:
                 ax.scatter([cx], [cy], [cz], c='k', s=60, zorder=5)
 
     ax.set_zlim(0, 4)
-    ax.set_title('Sum of Gaussian bumps with critical points', fontsize=10, pad=0)
     save(fig, "Gradient critical points")
 except Exception:
     traceback.print_exc()
     print("  SKIP plot 2")
-
-# ---- Plot 3: 15.4 - Line integral (gradient theorem) ----
-try:
-    f = chebfun2(lambda x, y: jnp.cos(10*x*y**2) + jnp.exp(-x**2))
-    # Curve C = t*exp(10it), t in [0,1]
-    t = np.linspace(0, 1, 500)
-    cx = t * np.cos(10*t)
-    cy = t * np.sin(10*t)
-    cz = np.array([float(f(jnp.float64(xi), jnp.float64(yi))) for xi, yi in zip(cx, cy)])
-
-    fig, ax = _setup_3d_axes(None, None, elev=25, azim=-50, figsize=(6.1, 5.0))
-    n = 80
-    xs = np.linspace(-1, 1, n)
-    ys = np.linspace(-1, 1, n)
-    XX, YY = np.meshgrid(xs, ys)
-    ZZ = np.array(f(jnp.array(XX.ravel()), jnp.array(YY.ravel()))).reshape(n, n)
-    ax.plot_surface(XX, YY, ZZ, cmap=PARULA, linewidth=0,
-                    antialiased=True, alpha=0.6, shade=True)
-    ax.plot3D(cx, cy, cz, 'k-', linewidth=2)
-    ax.set_title(r'$f$ and $F=\nabla f$ along $C$', fontsize=10, pad=0)
-    save(fig, "Line integral / gradient theorem")
-except Exception:
-    traceback.print_exc()
-    print("  SKIP plot 3")
 
 # ---- Plot 4: 15.5 - Duffing oscillator phase diagram ----
 try:
@@ -163,7 +139,7 @@ try:
     UU = YY
     VV = -delta*YY - b*XX - a*XX**3
 
-    fig, ax = plt.subplots(figsize=(6, 5))
+    fig, ax = plt.subplots()
     ax.quiver(XX, YY, UU, VV, color=CHEBFUN_BLUE, alpha=0.6, scale=40)
 
     # Solve ODE trajectory with simple Euler method
@@ -203,7 +179,7 @@ try:
     norm = Normalize(vmin=-1, vmax=1)
     fcolors = PARULA(norm(ZZ))
 
-    fig, ax = _setup_3d_axes(None, None, elev=20, azim=-30, figsize=(6.1, 5.0))
+    fig, ax = _setup_3d_axes(None, None, elev=20, azim=-30)
     ax.plot_surface(XX, YY, ZZ, facecolors=fcolors, linewidth=0,
                     antialiased=True, alpha=0.9, shade=False)
     ax.set_title('Unit sphere', fontsize=11, pad=0)
@@ -228,10 +204,14 @@ try:
     norm = Normalize(vmin=0, vmax=h)
     fcolors = PARULA(norm(ZZ))
 
-    fig, ax = _setup_3d_axes(None, None, elev=20, azim=-30, figsize=(5.5, 5.5))
+    # MATLAB surf(F), camlight: the plot cube is stretched to the wide
+    # canvas, so the cylinder renders short and wide.
+    fig, ax = _setup_3d_axes(None, None)
     ax.plot_surface(XX, YY, ZZ, facecolors=fcolors, linewidth=0,
-                    antialiased=True, alpha=0.9, shade=False)
-    ax.set_title('Cylinder', fontsize=11, pad=0)
+                    antialiased=True, shade=False)
+    ax.set_box_aspect((1.0, 1.0, 0.45))
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
     save(fig, "Cylinder")
 except Exception:
     traceback.print_exc()
@@ -252,7 +232,7 @@ try:
     norm = Normalize(vmin=float(ZZ.min()), vmax=float(ZZ.max()))
     fcolors = PARULA(norm(ZZ))
 
-    fig, ax = _setup_3d_axes(None, None, elev=20, azim=-30, figsize=(6.1, 5.0))
+    fig, ax = _setup_3d_axes(None, None, elev=20, azim=-30)
     ax.plot_surface(XX, YY, ZZ, facecolors=fcolors, linewidth=0,
                     antialiased=True, alpha=0.9, shade=False)
     ax.set_xlim(-70, 70)
@@ -279,7 +259,7 @@ try:
     norm = Normalize(vmin=float(phi.min()), vmax=float(phi.max()))
     fcolors = PARULA(norm(phi))
 
-    fig, ax = _setup_3d_axes(None, None, elev=20, azim=-40, figsize=(6.1, 5.0))
+    fig, ax = _setup_3d_axes(None, None, elev=20, azim=-40)
     ax.plot_surface(XX, YY, ZZ, facecolors=fcolors, linewidth=0,
                     antialiased=True, alpha=0.9, shade=False)
     ax.set_title('Torus with gap', fontsize=11, pad=0)
@@ -318,7 +298,7 @@ try:
     norm = Normalize(vmin=0, vmax=2*np.pi)
     fcolors = PARULA(norm(VV))
 
-    fig, ax = _setup_3d_axes(None, None, elev=20, azim=-40, figsize=(7, 5.5))
+    fig, ax = _setup_3d_axes(None, None, elev=20, azim=-40)
     ax.plot_surface(XX, YY, ZZ, facecolors=fcolors, linewidth=0,
                     antialiased=True, alpha=0.7, shade=False)
     step = 4
@@ -331,25 +311,38 @@ except Exception:
     traceback.print_exc()
     print("  SKIP plot 9")
 
-# ---- Plot 10: 15.7 - Klein Bagel ----
-try:
-    n = 80
+# ---- Plot 9: 15.7 - Klein Bagel (MATLAB: surf(...,'-k','FaceAlpha',.6),
+#                        camlight left, colormap(hot), axis tight equal off) ----
+def _klein_bagel_figure():
+    n = 60
     u = np.linspace(0, 2*np.pi, n)
     v = np.linspace(0, 2*np.pi, n)
     UU, VV = np.meshgrid(u, v)
-    XX = (3 + np.cos(UU/2)*np.sin(VV) - np.sin(UU/2)*np.sin(2*VV)) * np.cos(UU)
-    YY = (3 + np.cos(UU/2)*np.sin(VV) - np.sin(UU/2)*np.sin(2*VV)) * np.sin(UU)
+    R = 3 + np.cos(UU/2)*np.sin(VV) - np.sin(UU/2)*np.sin(2*VV)
+    XX = R * np.cos(UU)
+    YY = R * np.sin(UU)
     ZZ = np.sin(UU/2)*np.sin(VV) + np.cos(UU/2)*np.sin(2*VV)
-    # Colour by u-parameter
-    norm = Normalize(vmin=0, vmax=2*np.pi)
-    fcolors = PARULA(norm(UU))
-
-    fig, ax = _setup_3d_axes(None, None, elev=20, azim=-40, figsize=(7, 5.5))
-    ax.plot_surface(XX, YY, ZZ, facecolors=fcolors, linewidth=0,
-                    antialiased=True, alpha=0.8, shade=False)
+    fig, ax = _setup_3d_axes(None, None, elev=20, azim=-40)
+    norm = Normalize(vmin=ZZ.min(), vmax=ZZ.max())
+    ax.plot_surface(XX, YY, ZZ, facecolors=plt.cm.hot(norm(ZZ)),
+                    linewidth=0.3, edgecolor=(0, 0, 0, 0.35),
+                    antialiased=True, alpha=0.6, shade=False)
+    ax.set_box_aspect((np.ptp(XX), np.ptp(YY), np.ptp(ZZ)))
     ax.axis('off')
-    ax.set_title('Klein Bagel', fontsize=11, pad=0)
+    return fig, ax
+
+
+try:
+    fig, ax = _klein_bagel_figure()
     save(fig, "Klein Bagel")
+except Exception:
+    traceback.print_exc()
+    print("  SKIP klein small")
+
+# ---- Plot 10: Klein Bagel, large render as published ----
+try:
+    fig, ax = _klein_bagel_figure()
+    save(fig, "Klein Bagel (large)", size=(665, 688))
 except Exception:
     traceback.print_exc()
     print("  SKIP plot 10")
