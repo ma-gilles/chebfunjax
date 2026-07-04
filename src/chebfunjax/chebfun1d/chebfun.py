@@ -278,9 +278,11 @@ class _Piece(eqx.Module):
         a, b = self.interval
         scale = (2.0 / (b - a)) ** k
         tech_der = self.tech.diff(k)
-        # Scale the coefficients
+        # Scale the coefficients; rebuild with the SAME tech class — the
+        # previous hard-coded Chebtech2 reinterpreted Fourier coefficients
+        # as Chebyshev ones for trig pieces.
         scaled_coeffs = tech_der.coeffs * jnp.float64(scale)
-        new_tech = Chebtech2.from_coeffs(scaled_coeffs)
+        new_tech = type(self.tech).from_coeffs(scaled_coeffs)
         return _Piece(tech=new_tech, interval=(a, b))
 
     def cumsum(self) -> _Piece:
@@ -301,7 +303,7 @@ class _Piece(eqx.Module):
         tech_cs = self.tech.cumsum()
         # Scale coefficients by (b-a)/2
         scaled_coeffs = tech_cs.coeffs * jnp.float64(scale)
-        new_tech = Chebtech2.from_coeffs(scaled_coeffs)
+        new_tech = type(self.tech).from_coeffs(scaled_coeffs)
         return _Piece(tech=new_tech, interval=(a, b))
 
     def sum(self) -> jax.Array:
@@ -3106,7 +3108,13 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         new_funs = [
-            _Piece(tech=Chebtech2.from_coeffs(jnp.real(p.tech.coeffs)),
+            _Piece(tech=(
+                Chebtech2.from_coeffs(jnp.real(p.tech.coeffs))
+                if isinstance(p.tech, Chebtech2)
+                # Fourier coefficients of a real function are
+                # conjugate-symmetric, not real — go through values.
+                else type(p.tech).from_values(jnp.real(p.tech.values))
+            ),
                    interval=p.interval)
             for p in self.funs
         ]
@@ -3121,7 +3129,13 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         new_funs = [
-            _Piece(tech=Chebtech2.from_coeffs(jnp.imag(p.tech.coeffs)),
+            _Piece(tech=(
+                Chebtech2.from_coeffs(jnp.imag(p.tech.coeffs))
+                if isinstance(p.tech, Chebtech2)
+                # Fourier coefficients of a real function are
+                # conjugate-symmetric, not real — go through values.
+                else type(p.tech).from_values(jnp.imag(p.tech.values))
+            ),
                    interval=p.interval)
             for p in self.funs
         ]
@@ -3136,7 +3150,13 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         new_funs = [
-            _Piece(tech=Chebtech2.from_coeffs(jnp.conj(p.tech.coeffs)),
+            _Piece(tech=(
+                Chebtech2.from_coeffs(jnp.conj(p.tech.coeffs))
+                if isinstance(p.tech, Chebtech2)
+                # Fourier coefficients of a real function are
+                # conjugate-symmetric, not real — go through values.
+                else type(p.tech).from_values(jnp.conj(p.tech.values))
+            ),
                    interval=p.interval)
             for p in self.funs
         ]
@@ -3770,11 +3790,16 @@ def chebfun(
     *,
     domain=(-1.0, 1.0),
     n: int | None = None,
+    trig: bool = False,
 ) -> Chebfun:
     """Create a Chebfun from a callable, array of coefficients, or constant.
 
     This is the primary construction entry point. It mimics MATLAB's
     ``chebfun(...)`` syntax.
+
+    With ``trig=True`` the function is represented in the Fourier basis
+    (MATLAB's ``chebfun(f, dom, 'trig')``): f must be smooth and periodic
+    on the domain, which must be a single interval.
 
     Parameters
     ----------
@@ -3871,6 +3896,25 @@ def chebfun(
             return Chebfun.from_function(lambda x: jnp.full_like(x, c), dom, n=n)
     except Exception:
         pass
+
+    if trig:
+        from chebfunjax.tech.trigtech import Trigtech
+
+        if not callable(f):
+            raise ValueError("chebfun(..., trig=True) requires a callable.")
+        dom_arr = tuple(float(v) for v in domain)
+        if len(dom_arr) != 2:
+            raise ValueError(
+                "chebfun(..., trig=True) supports a single interval only."
+            )
+        a, b = dom_arr
+
+        def f_ref(x):
+            return f(a + (b - a) * (x + 1.0) / 2.0)
+
+        tech = Trigtech.from_function(f_ref, n=n)
+        piece = _Piece(tech=tech, interval=(a, b))
+        return Chebfun(funs=[piece], domain=Domain((a, b)))
 
     if callable(f):
         return Chebfun.from_function(f, dom, n=n)

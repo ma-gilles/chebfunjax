@@ -169,6 +169,20 @@ def trigpts(n: int) -> jax.Array:
 # ============================================================================
 
 
+def _sample_as_trig_dtype(f, x):
+    """Sample f preserving complexness (mirrors Chebtech's dtype handling).
+
+    Returns (values_complex128, is_real): the constructor previously cast
+    every sample to float64 unconditionally, silently discarding the
+    imaginary part of complex-valued functions.
+    """
+    raw = jnp.asarray(f(x))
+    is_real = not jnp.iscomplexobj(raw)
+    if is_real:
+        raw = raw.astype(jnp.float64)
+    return raw.astype(jnp.complex128), is_real
+
+
 def _trig_eval(coeffs: jax.Array, x: jax.Array, is_real: bool = True) -> jax.Array:
     r"""Evaluate a trigonometric series at points x.
 
@@ -767,7 +781,29 @@ class Trigtech(eqx.Module):
         """
         coeffs = jnp.atleast_1d(jnp.asarray(coeffs, dtype=jnp.complex128))
         if is_real is None:
-            is_real = True  # default: treat as real unless caller says otherwise
+            # A real-valued function has conjugate-symmetric Fourier
+            # coefficients: c_{-k} = conj(c_k). The previous hardcoded
+            # True made every complex trig function evaluate to its real
+            # part after any coefficient-space rebuild (e.g. diff).
+            n = coeffs.shape[0]
+            if n % 2 == 1:
+                sym_err = jnp.max(jnp.abs(coeffs - jnp.conj(coeffs[::-1])))
+            else:
+                # even length: modes [-n/2, ..., n/2-1]; the unpaired
+                # -n/2 (Nyquist) mode must itself be real.
+                sym_err = jnp.maximum(
+                    jnp.max(jnp.abs(coeffs[1:] - jnp.conj(coeffs[1:][::-1]))),
+                    jnp.abs(jnp.imag(coeffs[0])),
+                )
+            scale = jnp.maximum(jnp.max(jnp.abs(coeffs)), 1e-300)
+            flag = sym_err <= 1e-13 * scale
+            if isinstance(flag, jax.core.Tracer):
+                # Under jit tracing the value is unavailable; keep the
+                # legacy default (real). Library-internal rebuilds that
+                # need accurate inference (piece diff/cumsum) run eagerly.
+                is_real = True
+            else:
+                is_real = bool(flag)
         return cls(coeffs=coeffs, is_real=bool(is_real), ishappy=ishappy)
 
     @classmethod
@@ -840,9 +876,9 @@ class Trigtech(eqx.Module):
         if n <= 0:
             return cls(coeffs=jnp.array([], dtype=jnp.complex128), is_real=True)
         x = trigpts(n)
-        values = jnp.asarray(f(x), dtype=jnp.float64)
-        c = trig_vals2coeffs(values.astype(jnp.complex128))
-        return cls(coeffs=c, is_real=True, ishappy=True)
+        values, is_real = _sample_as_trig_dtype(f, x)
+        c = trig_vals2coeffs(values)
+        return cls(coeffs=c, is_real=is_real, ishappy=True)
 
     @classmethod
     def _adaptive_construct(
@@ -862,8 +898,8 @@ class Trigtech(eqx.Module):
         for k in range(start_pow2, maxpow2 + 1):
             n = 2**k
             x = trigpts(n)
-            values = jnp.asarray(f(x), dtype=jnp.float64)
-            c = trig_vals2coeffs(values.astype(jnp.complex128))
+            values, is_real = _sample_as_trig_dtype(f, x)
+            c = trig_vals2coeffs(values)
             vscale = max(vscale, float(jnp.max(jnp.abs(values))))
 
             # Check happiness using paired coefficient magnitudes
@@ -878,7 +914,7 @@ class Trigtech(eqx.Module):
                 if n_keep % 2 == 0:
                     n_keep = max(1, n_keep - 1)
                 c_keep = _trig_prolong_coeffs(c, n_keep)
-                return cls(coeffs=c_keep, is_real=True, ishappy=True)
+                return cls(coeffs=c_keep, is_real=is_real, ishappy=True)
 
         # Did not converge
         warnings.warn(
@@ -886,10 +922,9 @@ class Trigtech(eqx.Module):
             f"{2**maxpow2} points. Returning unhappy representation.",
             stacklevel=2,
         )
-        c_final = trig_vals2coeffs(
-            jnp.asarray(f(trigpts(2**maxpow2)), dtype=jnp.float64).astype(jnp.complex128)
-        )
-        return cls(coeffs=c_final, is_real=True, ishappy=False)
+        values, is_real = _sample_as_trig_dtype(f, trigpts(2**maxpow2))
+        c_final = trig_vals2coeffs(values)
+        return cls(coeffs=c_final, is_real=is_real, ishappy=False)
 
     # ------------------------------------------------------------------
     # Evaluation
