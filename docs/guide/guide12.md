@@ -21,11 +21,15 @@ def peaks(x, y):
 f = chebfun2(peaks, domain=(-3.0, 3.0, -3.0, 3.0))
 ```
 
+![MATLAB peaks](../images/guide/guide12_01.png)
+
+The chebfun2 version is smooth (and evaluable anywhere):
+
 ```python
 cj.surf(f, title='Chebfun2 Peaks')
 ```
 
-![Peaks surface](../images/guide/guide12_01.png)
+![Chebfun2 Peaks](../images/guide/guide12_02.png)
 
 In chebfunjax we can do all sorts of things with functions to a high accuracy, such as evaluate them
 
@@ -82,7 +86,7 @@ Here is a surface plot of `f`:
 cj.surf(f)
 ```
 
-![cos(2*pi*x*y) surface](../images/guide/guide12_02.png)
+![cos(2*pi*x*y) surface](../images/guide/guide12_03.png)
 
 Along with `surf`, there is also the command `contour` for displaying a chebfun2. Here is a contour plot of `f`:
 
@@ -90,7 +94,7 @@ Along with `surf`, there is also the command `contour` for displaying a chebfun2
 cj.contour(f)
 ```
 
-![cos(2*pi*x*y) contour](../images/guide/guide12_03.png)
+![cos(2*pi*x*y) contour](../images/guide/guide12_04.png)
 
 One way to find the rank of the approximant used to represent `f`, discussed in Section 12.8, is like this:
 
@@ -162,7 +166,7 @@ ax.set_aspect('equal')
 ax.set_title('Zero contours of f - 0.95')
 ```
 
-![Zero contours of f-0.95](../images/guide/guide12_04.png)
+![Zero contours of f-0.95](../images/guide/guide12_05.png)
 
 What is the partial derivative $\partial f / \partial y$?
 
@@ -171,7 +175,7 @@ fy = f.diff(dim=1)
 cj.surf(fy)
 ```
 
-![df/dy surface](../images/guide/guide12_05.png)
+![df/dy surface](../images/guide/guide12_06.png)
 
 The syntax for the `diff` method can cause confusion because we are following the matrix syntax in MATLAB. In chebfunjax, `f.diff(dim=1)` differentiates with respect to $y$ and `f.diff(dim=2)` differentiates with respect to $x$. Chebfun2 also offers the more easily remembered `diffx(f,k)` and `diffy(f,k)` conventions in the MATLAB version, which differentiate $f(x,y)$ $k$ times with respect to the first and second variable, respectively.
 
@@ -211,7 +215,7 @@ f = chebfun2(lambda x, y: 1.0 / (2 + jnp.cos(0.25 + x**2*y + y**2)),
 cj.contour(f)
 ```
 
-![Composition contour](../images/guide/guide12_06.png)
+![Composition contour](../images/guide/guide12_07.png)
 
 ## 12.7 Analytic functions
 
@@ -238,7 +242,7 @@ cj.phaseplot(f_complex, region=[-2*np.pi, 2*np.pi, -2*np.pi, 2*np.pi],
              title=r'Phase portrait of $\sin(z) - \sinh(z)$')
 ```
 
-![Phase portrait sin(z)-sinh(z)](../images/guide/guide12_07.png)
+![Phase portrait sin(z)-sinh(z)](../images/guide/guide12_08.png)
 
 Many properties of analytic functions can be visualised by these types of plots, such as the location of zeros and their multiplicities. Can you work out the multiplicity of the root at $z=0$ from this plot?
 
@@ -266,7 +270,7 @@ ax.set_aspect('equal')
 ax.set_title(f'rank {f.rank}')
 ```
 
-![Smoke ring contour](../images/guide/guide12_08.png)
+![Smoke ring contour](../images/guide/guide12_09.png)
 
 To illustrate the nature of low-rank approximations, rather than letting chebfun2 determine the rank adaptively, we can force it to take ranks 1, 2, ..., 9. Here are the results, plotted with black level curves at heights 0.2, 0.4, 0.6, 0.8:
 
@@ -294,6 +298,6 @@ for k in range(1, 10):
     ax.set_title(f'rank {k}', fontsize=9)
 ```
 
-![Low-rank approximation grid](../images/guide/guide12_09.png)
+![Low-rank approximation grid](../images/guide/guide12_10.png)
 
 For this function, "plotting accuracy" is achieved approximately at rank 16; the remaining terms are then required to get from 2-3 digits to 15.

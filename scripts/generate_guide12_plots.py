@@ -1,174 +1,212 @@
-"""Generate plots for Guide Chapter 12: Chebfun2: Getting Started.
+"""Generate all 10 plots for Guide Chapter 12 (Chebfun2: Getting Started).
 
-Faithful translation of all figures from the original MATLAB Chebfun Guide
-Chapter 12 (https://www.chebfun.org/docs/guide/guide12.html).
+Figure order follows https://www.chebfun.org/docs/guide/guide12.html
+exactly; each file is saved at the reference render's pixel size
+(600x270).
 """
+
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+
 import matplotlib
 
-matplotlib.use('Agg')
-import os
-import sys
-import traceback
+matplotlib.use("Agg")
 
+import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
+
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
-
-import jax.numpy as jnp
-
 from chebfunjax.chebfun2d import chebfun2
-from chebfunjax.plotting import chebfun_style, contour, phaseplot, surf
+from chebfunjax.plotting import (
+    chebfun_style,
+    contour,
+    phaseplot,
+    save_chebfun_figure,
+    surf,
+)
 
 chebfun_style()
 
-OUT = os.path.join(os.path.dirname(__file__), '..', 'docs', 'images', 'guide')
+OUT = os.path.join(os.path.dirname(__file__), "..", "docs", "images", "guide")
 os.makedirs(OUT, exist_ok=True)
+SIZE = (600, 270)
+plot_idx = 0
 
-plot_num = 0
 
-def save(fig, desc):
-    global plot_num
-    plot_num += 1
-    fname = os.path.join(OUT, f'guide12_{plot_num:02d}.png')
-    fig.savefig(fname, dpi=150, bbox_inches='tight')
+def save(fig):
+    global plot_idx
+    plot_idx += 1
+    path = os.path.join(OUT, f"guide12_{plot_idx:02d}.png")
+    save_chebfun_figure(fig, path, size=SIZE)
     plt.close(fig)
-    print(f"  Saved {fname}: {desc}")
+    print(f"  guide12_{plot_idx:02d}.png saved")
 
 
-# ---- Plot 1: 12.1 - Peaks function surface plot ----
+def peaks(x, y):
+    return (3 * (1 - x) ** 2 * jnp.exp(-(x**2) - (y + 1) ** 2)
+            - 10 * (x / 5 - x**3 - y**5) * jnp.exp(-(x**2) - y**2)
+            - 1 / 3 * jnp.exp(-((x + 1) ** 2) - y**2))
+
+
+# Fig 1: MATLAB's builtin peaks (surface on the 49x49 default grid)
 try:
-    # MATLAB peaks function
-    def peaks(x, y):
-        return (3*(1-x)**2 * jnp.exp(-x**2 - (y+1)**2)
-                - 10*(x/5 - x**3 - y**5) * jnp.exp(-x**2 - y**2)
-                - 1/3 * jnp.exp(-(x+1)**2 - y**2))
+    fig = plt.figure()
+    ax = fig.add_axes([0.087, -0.05, 0.85, 1.05], projection="3d")
+    gx = np.linspace(-3, 3, 49)
+    Xg, Yg = np.meshgrid(gx, gx)
+    Zg = np.asarray(peaks(jnp.asarray(Xg), jnp.asarray(Yg)))
+    ax.plot_surface(Xg, Yg, Zg, cmap="parula"
+                    if "parula" in plt.colormaps() else "viridis",
+                    rstride=1, cstride=1, linewidth=0.15,
+                    edgecolor="k", antialiased=True)
+    ax.view_init(elev=30, azim=-127.5)
+    ax.set_title("Peaks")
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    save(fig)
+except Exception as e:  # noqa: BLE001
+    plot_idx += 1
+    print(f"  guide12_{plot_idx:02d}.png FAILED: {e}")
 
-    f = chebfun2(peaks, domain=(-3.0, 3.0, -3.0, 3.0))
-    fig, ax = surf(f, title='Chebfun2 Peaks')
-    ax.set_zlim(-7, 9)
-    save(fig, "Peaks surface")
-except Exception:
-    traceback.print_exc()
-    print("  SKIP plot 1")
-
-# ---- Plot 2: 12.3 - Surface plot of cos(2*pi*x*y) ----
+# Fig 2: chebfun2 peaks, plot(f) (smooth surface), axis tight
 try:
-    f = chebfun2(lambda x, y: jnp.cos(2*jnp.pi*x*y))
-    fig, ax = surf(f, title=r'$\cos(2\pi x y)$')
+    f_peaks = chebfun2(peaks, domain=(-3.0, 3.0, -3.0, 3.0))
+    fig, ax = surf(f_peaks, title="Chebfun2 Peaks")
+    save(fig)
+except Exception as e:  # noqa: BLE001
+    plot_idx += 1
+    print(f"  guide12_{plot_idx:02d}.png FAILED: {e}")
+
+# Figs 3-4: f = cos(2*pi*x*y): surface with zlim, then square contour
+try:
+    f = chebfun2(lambda x, y: jnp.cos(2 * jnp.pi * x * y))
+    fig, ax = surf(f)
     ax.set_zlim(-2, 2)
-    save(fig, "cos(2*pi*x*y) surface")
-except Exception:
-    traceback.print_exc()
-    print("  SKIP plot 2")
+    save(fig)
+except Exception as e:  # noqa: BLE001
+    plot_idx += 1
+    print(f"  guide12_{plot_idx:02d}.png FAILED: {e}")
 
-# ---- Plot 3: 12.3 - Contour plot of cos(2*pi*x*y) ----
 try:
-    fig, ax = contour(f, title=r'$\cos(2\pi x y)$')
-    ax.set_aspect('equal')
-    save(fig, "cos(2*pi*x*y) contour")
-except Exception:
-    traceback.print_exc()
-    print("  SKIP plot 3")
+    fig, ax = contour(f)
+    ax.set_aspect("equal")
+    save(fig)
+except Exception as e:  # noqa: BLE001
+    plot_idx += 1
+    print(f"  guide12_{plot_idx:02d}.png FAILED: {e}")
 
-# ---- Plot 4: 12.4 - Zero contours of f - 0.95 ----
+# Fig 5: zero contours of f - 0.95 (curves, not fills)
 try:
-    f = chebfun2(lambda x, y: jnp.cos(2*jnp.pi*x*y))
-    g = chebfun2(lambda x, y: jnp.cos(2*jnp.pi*x*y) - 0.95)
-    curves = g.roots()
-    fig, ax = plt.subplots(figsize=(5, 5))
-    for c in curves:
-        ax.plot(c[:, 0], c[:, 1], 'b-', linewidth=1.0)
+    fig, ax = plt.subplots()
+    gx = np.linspace(-1, 1, 600)
+    Xg, Yg = np.meshgrid(gx, gx)
+    Zg = np.asarray(f(jnp.asarray(Xg).ravel(), jnp.asarray(Yg).ravel()))
+    ax.contour(Xg, Yg, Zg.reshape(Xg.shape), levels=[0.95],
+               colors=["#0072BD"], linewidths=1.2)
     ax.set_xlim(-1, 1)
     ax.set_ylim(-1, 1)
-    ax.set_aspect('equal')
-    ax.set_title('Zero contours of f - 0.95')
-    fig.tight_layout()
-    save(fig, "Zero contours of f-0.95")
-except Exception:
-    traceback.print_exc()
-    print("  SKIP plot 4")
+    ax.set_aspect("equal")
+    ax.set_title("Zero contours of f-.95")
+    save(fig)
+except Exception as e:  # noqa: BLE001
+    plot_idx += 1
+    print(f"  guide12_{plot_idx:02d}.png FAILED: {e}")
 
-# ---- Plot 5: 12.4 - Partial derivative df/dy ----
+# Fig 6: fy = diff(f, 1, 1) surface
 try:
-    f = chebfun2(lambda x, y: jnp.cos(2*jnp.pi*x*y))
-    fy = f.diff(dim=1)
-    fig, ax = surf(fy, title=r'$\partial f/\partial y$')
-    save(fig, "df/dy surface")
-except Exception:
-    traceback.print_exc()
-    print("  SKIP plot 5")
+    fy = f.diff(dim=1)  # MATLAB diff(f,1,1): d/dy
+    fig, ax = surf(fy)
+    save(fig)
+except Exception as e:  # noqa: BLE001
+    plot_idx += 1
+    print(f"  guide12_{plot_idx:02d}.png FAILED: {e}")
 
-# ---- Plot 6: 12.6 - Composition: 1/(2+cos(.25+x^2*y+y^2)) contour ----
+# Fig 7: contour of 1/(2 + cos(.25 + x^2 y + y^2)) on [-4 4 -2 2]
 try:
-    f = chebfun2(lambda x, y: 1.0 / (2 + jnp.cos(0.25 + x**2 * y + y**2)),
-                 domain=(-4.0, 4.0, -2.0, 2.0))
-    fig, ax = contour(f, title=r'$1/(2+\cos(0.25+x^2 y+y^2))$')
-    ax.set_aspect('equal')
-    save(fig, "Composition contour")
-except Exception:
-    traceback.print_exc()
-    print("  SKIP plot 6")
+    g = chebfun2(
+        lambda x, y: 1.0 / (2.0 + jnp.cos(0.25 + x**2 * y + y**2)),
+        domain=(-4.0, 4.0, -2.0, 2.0),
+    )
+    fig, ax = contour(g)
+    ax.set_aspect("equal")
+    save(fig)
+except Exception as e:  # noqa: BLE001
+    plot_idx += 1
+    print(f"  guide12_{plot_idx:02d}.png FAILED: {e}")
 
-# ---- Plot 7: 12.7 - Phase portrait of sin(z)-sinh(z) ----
+# Fig 8: phase portrait of sin(z) - sinh(z) on 2*pi*[-1 1 -1 1]
 try:
-    def f_complex(z):
-        return np.sin(z) - np.sinh(z)
-    region = [-2*np.pi, 2*np.pi, -2*np.pi, 2*np.pi]
-    fig, ax = phaseplot(f_complex, region=region,
-                        title=r'Phase portrait of $\sin(z) - \sinh(z)$')
-    save(fig, "Phase portrait sin(z)-sinh(z)")
-except Exception:
-    traceback.print_exc()
-    print("  SKIP plot 7")
+    L = 2 * float(np.pi)
+    # MATLAB: chebfun2(@(z) sin(z)-sinh(z), 2*pi*[-1 1 -1 1]); plot(f)
+    # draws the phase portrait. The phaseplot helper takes a callable
+    # of complex z directly.
+    fig, ax = phaseplot(
+        lambda z: np.sin(z) - np.sinh(z), region=[-L, L, -L, L]
+    )
+    ax.set_axis_off()
+    # center a full-height square like the published render
+    ax.set_position([0.333, 0.115, 0.367, 0.811])
+    save(fig)
+except Exception as e:  # noqa: BLE001
+    plot_idx += 1
+    print(f"  guide12_{plot_idx:02d}.png FAILED: {e}")
 
-# ---- Plot 8: 12.8 - Smoke ring contour with rank ----
+# Fig 9: contour of the banana function with rank title
 try:
-    ff = lambda x, y: jnp.exp(-40*(x**2 - x*y + 2*y**2 - 0.5)**2)
-    f = chebfun2(ff)
-    fig, ax = contour(f, title=f'rank {f.rank}', filled=False,
-                      levels=[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])
-    save(fig, "Smoke ring contour")
-except Exception:
-    traceback.print_exc()
-    print("  SKIP plot 8")
+    def ff(x, y):
+        return jnp.exp(-40 * (x**2 - x * y + 2 * y**2 - 0.5) ** 2)
 
-# ---- Plot 9: 12.8 - Low-rank approximations grid (ranks 1-9) ----
+    fb = chebfun2(ff)
+    fig, ax = plt.subplots()
+    gx = np.linspace(-1, 1, 500)
+    Xg, Yg = np.meshgrid(gx, gx)
+    Zg = np.asarray(fb(jnp.asarray(Xg).ravel(),
+                       jnp.asarray(Yg).ravel())).reshape(Xg.shape)
+    ax.contour(Xg, Yg, Zg, levels=np.arange(0.1, 0.95, 0.1), cmap="jet")
+    ax.set_xlim(-1, 1)
+    ax.set_ylim(-1, 1)
+    ax.set_aspect("equal")
+    ax.set_title(f"rank {fb.rank}", fontsize=12)
+    save(fig)
+except Exception as e:  # noqa: BLE001
+    plot_idx += 1
+    print(f"  guide12_{plot_idx:02d}.png FAILED: {e}")
+
+# Fig 10: 3x3 grid of rank-k approximations, black contours, axis off
 try:
-    ff_np = lambda x, y: np.exp(-40*(x**2 - x*y + 2*y**2 - 0.5)**2)
-    levels = [0.2, 0.4, 0.6, 0.8]
-    fig = plt.figure(figsize=(9, 9))
-    xs = np.linspace(-1, 1, 200)
-    ys = np.linspace(-1, 1, 200)
-    XX, YY = np.meshgrid(xs, ys)
-    ZZ_exact = ff_np(XX, YY)
+    fig = plt.figure()
+    levels = np.arange(0.2, 0.81, 0.2)
+    gx = np.linspace(-1, 1, 400)
+    Xg, Yg = np.meshgrid(gx, gx)
     for k in range(1, 10):
-        ax = fig.add_axes([0.03 + 0.33*((k-1) % 3),
-                           0.67 - 0.30*((k-1) // 3),
-                           0.28, 0.28])
-        # Build rank-k approximation using SVD of sampled values
-        n_sample = 100
-        xs_s = np.linspace(-1, 1, n_sample)
-        ys_s = np.linspace(-1, 1, n_sample)
-        XXs, YYs = np.meshgrid(xs_s, ys_s)
-        ZZs = ff_np(XXs, YYs)
-        U, S, Vt = np.linalg.svd(ZZs, full_matrices=False)
-        # Rank-k approximation
-        ZZ_k_sample = U[:, :k] @ np.diag(S[:k]) @ Vt[:k, :]
-        # Interpolate to plotting grid
-        from scipy.interpolate import RectBivariateSpline
-        interp = RectBivariateSpline(ys_s, xs_s, ZZ_k_sample)
-        ZZ_k = interp(ys, xs)
-        ax.contour(XX, YY, ZZ_k, levels=levels, colors='k', linewidths=0.8)
+        ax = fig.add_axes([
+            0.03 + 0.33 * ((k - 1) % 3),
+            0.67 - 0.3 * ((k - 1) // 3),
+            0.28, 0.28,
+        ])
+        # rank-k approximation: first k ACA terms of the full chebfun2
+        # (MATLAB's chebfun2(ff, k) runs k ACA steps — same leading terms)
+        ap = fb.approx
+        Zg = np.zeros(Xg.shape)
+        tx = jnp.asarray(gx)
+        for j in range(min(k, ap.rank)):
+            cj = np.asarray(ap.cols[j](tx))
+            rj = np.asarray(ap.rows[j](tx))
+            Zg += float(ap.pivots[j]) * np.outer(cj, rj)
+        ax.contour(Xg, Yg, Zg, levels=levels, colors="k", linewidths=0.8)
         ax.set_xlim(-1, 1)
-        ax.set_ylim(-1, 1)
-        ax.set_aspect('equal')
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.set_title(f'rank {k}', fontsize=9)
-    save(fig, "Low-rank approximation grid")
-except Exception:
-    traceback.print_exc()
-    print("  SKIP plot 9")
+        ax.set_aspect("equal")
+        ax.set_axis_off()
+    # center a full-height square like the published render
+    ax.set_position([0.333, 0.115, 0.367, 0.811])
+    save(fig)
+except Exception as e:  # noqa: BLE001
+    plot_idx += 1
+    print(f"  guide12_{plot_idx:02d}.png FAILED: {e}")
 
-print(f"\nGuide 12: Generated {plot_num} plots.")
+print(f"\nGuide 12: generated {plot_idx} plots.")
