@@ -15,10 +15,13 @@ import scipy.io
 
 import chebfunjax as cj
 
-_REF = scipy.io.loadmat(
-    str(Path(__file__).resolve().parents[1] / "references" / "chebfun2d.mat"),
-    squeeze_me=True,
-)
+_REF_PATH = Path(__file__).resolve().parents[1] / "references" / "chebfun2d.mat"
+if not _REF_PATH.exists():
+    pytest.skip(
+        "chebfun2d.mat golden ref not generated (run matlab_harness/refs/chebfun2d.m)",
+        allow_module_level=True,
+    )
+_REF = scipy.io.loadmat(str(_REF_PATH), squeeze_me=True)
 _PX = jnp.asarray(_REF["pts_x"], dtype=jnp.float64)
 _PY = jnp.asarray(_REF["pts_y"], dtype=jnp.float64)
 _QX = jnp.asarray(_REF["qx"], dtype=jnp.float64)
