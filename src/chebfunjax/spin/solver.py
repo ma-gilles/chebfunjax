@@ -211,57 +211,51 @@ def _compute_etdrk4_coeffs(
 
     # psi-functions (fractional steps c=1/2 and c=1)
     psi12 = _psi_eval_contour(1, 0.5, LR)  # psi_{1,1/2} = (1/2)*phi_1(dt/2*L)
-    # psi_{1,1} = psi_1(1, dt*L) = phi_1(dt*L)  (c=1)
+    psi14 = _psi_eval_contour(1, 1.0, LR)  # psi_{1,1}   = phi_1(dt*L)
 
     # For real-eigenvalue (diffusive) operators, take real parts
     if np.isrealobj(L):
-        phi1, phi2, phi3, psi12 = (
-            np.real(phi1), np.real(phi2), np.real(phi3), np.real(psi12)
+        phi1, phi2, phi3, psi12, psi14 = (
+            np.real(phi1), np.real(phi2), np.real(phi3),
+            np.real(psi12), np.real(psi14),
         )
 
     # Matrix exponentials (pointwise on the diagonal)
     E_half = np.exp(0.5 * dt * L)
     E_full = np.exp(dt * L)
 
-    # Scheme weights for the solution update
-    # u_{n+1} = E_full*u_n + dt*(B1*N(u_n) + B2*N(a) + B3*N(b) + B4*N(c))
-    # B1 = phi1 - 3*phi2 + 4*phi3  (Chebfun's B{1} is unused; B{2}=B{3}=B2)
-    # B{1} in MATLAB corresponds to no contribution because A{2,1} is empty
-    # for etdrk4.  The update weights are:
-    #   B{2} = 2*phi_2 - 4*phi_3
-    #   B{3} = 2*phi_2 - 4*phi_3
-    #   B{4} = -phi_2 + 4*phi_3
-    # The stage-1 (u_n itself) contribution enters via
-    #   u_{n+1} = E_full*u_n + dt*(B2*N(a) + B3*N(b) + B4*N(c))
-    # but we need to include u_n's nonlinear contribution.  In Chebfun's
-    # formula the solution step is:
-    #   sol = E{5}.*vSol{1} + B{2}.*Nv{2} + B{3}.*Nv{3} + B{4}.*Nv{4}
-    # where vSol{1} = u_n, B{1} is empty (no N(u_n) term in etdrk4).
-    # The formula that matches Cox-Matthews-Kassam-Trefethen is:
-    #   u_{n+1} = E*u + dt*(phi1-3*phi2+4*phi3)*N(u) + dt*(2*phi2-4*phi3)*(N(a)+N(b))
-    #             + dt*(-phi2+4*phi3)*N(c)
-    # but Chebfun's MATLAB code does NOT include a B{1} term for etdrk4.
-    # This is because the internal stage c absorbs the u_n nonlinear term
-    # via A{4,3} = 2*psi12.  The final weights exactly match the standard
-    # ETDRK4 Butcher tableau.
+    # Scheme weights (MATLAB @expinteg/computeCoeffs.m + its
+    # computeMissingCoeffs pass). The previous translation asserted that
+    # "B{1} is empty / stage c absorbs the u_n nonlinear term" — false:
+    # computeMissingCoeffs fills A{2,1} = psi_{1,1/2},
+    # A{4,1} = psi_{1,1} - 2*psi_{1,1/2}, and B{1} = phi_1 - 3*phi_2
+    # + 4*phi_3. Omitting them made every NONLINEAR spin PDE wrong
+    # (Allen-Cahn 7.6%, NLS 48% vs MATLAB) while linear PDEs stayed
+    # exact. With the three terms restored the scheme is the standard
+    # Cox-Matthews/Kassam-Trefethen ETDRK4 and matches MATLAB to
+    # machine precision.
     B2 = dt * (2.0 * phi2 - 4.0 * phi3)
     B3 = dt * (2.0 * phi2 - 4.0 * phi3)
     B4 = dt * (-phi2 + 4.0 * phi3)
+    B1 = dt * phi1 - B2 - B3 - B4  # = dt*(phi1 - 3*phi2 + 4*phi3)
 
     # Internal-stage weights
-    A32 = dt * psi12   # (dt/2) * phi_1(dt/2 * L) for stage 3 from stage 2
-    A43 = dt * psi12   # Same — stage 4 uses 2*A32 effectively via 2*N(b)
+    A21 = dt * psi12
+    A32 = dt * psi12
+    A41 = dt * (psi14 - 2.0 * psi12)
+    A43 = dt * (2.0 * psi12)
 
     return {
         "E_half": E_half,
         "E_full": E_full,
-        "A32": A32,   # stage c weight for N(a)
+        "A21": A21,
+        "A32": A32,
+        "A41": A41,
         "A43": A43,
+        "B1": B1,
         "B2": B2,
         "B3": B3,
         "B4": B4,
-        "phi1": dt * phi1,  # dt*phi_1(dt*L) — needed for stage a
-        "psi12": dt * psi12,  # dt*psi_{1,1/2}(dt*L) — half-step propagator weight
     }
 
 
@@ -461,7 +455,11 @@ def _etdrk4_step(
     """
     E_half = coeffs["E_half"]
     E_full = coeffs["E_full"]
-    psi12 = coeffs["psi12"]
+    A21 = coeffs["A21"]
+    A32 = coeffs["A32"]
+    A41 = coeffs["A41"]
+    A43 = coeffs["A43"]
+    B1 = coeffs["B1"]
     B2 = coeffs["B2"]
     B3 = coeffs["B3"]
     B4 = coeffs["B4"]
@@ -472,21 +470,25 @@ def _etdrk4_step(
         nv = nonlin_vals(u_vals)
         return Nc * np.fft.fft(nv)
 
-    # Stage 2 (MATLAB vSol{2}): a = E{2}*u  (A{2,1} is empty in Chebfun's etdrk4)
-    a_hat = E_half * u_hat
+    # Stage 1 nonlinearity N(u_n) — used by stages 2 and 4 and the update
+    # (MATLAB computeMissingCoeffs fills A{2,1}, A{4,1}, B{1}; the previous
+    # translation omitted all three).
+    N1 = _nonlin_coeff(u_hat)
+
+    # Stage 2 (MATLAB vSol{2}): a = E{2}*u + A{2,1}*N(u)
+    a_hat = E_half * u_hat + A21 * N1
     Na = _nonlin_coeff(a_hat)
 
     # Stage 3 (MATLAB vSol{3}): b = E{3}*u + A{3,2}*N(a)
-    b_hat = E_half * u_hat + psi12 * Na
+    b_hat = E_half * u_hat + A32 * Na
     Nb = _nonlin_coeff(b_hat)
 
-    # Stage 4 (MATLAB vSol{4}): c = E{4}*u + A{4,3}*N(b)  where E{4}=exp(dt*L), A{4,3}=2*psi12
-    c_hat = E_full * u_hat + 2.0 * psi12 * Nb
+    # Stage 4 (MATLAB vSol{4}): c = E{4}*u + A{4,1}*N(u) + A{4,3}*N(b)
+    c_hat = E_full * u_hat + A41 * N1 + A43 * Nb
     Nc_hat = _nonlin_coeff(c_hat)
 
-    # Solution (MATLAB sol = E{5}.*vSol{1} + B{2}.*N(a) + B{3}.*N(b) + B{4}.*N(c))
-    # B{1} is empty (no N(u_n) term), B2=B3=dt*(2*phi2-4*phi3), B4=dt*(-phi2+4*phi3)
-    u_new = E_full * u_hat + B2 * Na + B3 * Nb + B4 * Nc_hat
+    # Update: u+ = E{5}*u + B{1}*N(u) + B{2}*N(a) + B{3}*N(b) + B{4}*N(c)
+    u_new = E_full * u_hat + B1 * N1 + B2 * Na + B3 * Nb + B4 * Nc_hat
 
     # Apply dealiasing
     if dealias is not None:

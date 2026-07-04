@@ -111,7 +111,8 @@ class TestContourIntegral:
         L = np.array([-1.0, -4.0, -9.0])
         dt = 0.1
         coeffs = _compute_etdrk4_coeffs(dt, L, M=32)
-        for key in ("E_half", "E_full", "B2", "B3", "B4", "phi1", "psi12"):
+        for key in ("E_half", "E_full", "A21", "A32", "A41", "A43",
+                    "B1", "B2", "B3", "B4"):
             assert np.isrealobj(coeffs[key]) or np.max(np.abs(np.imag(coeffs[key]))) < 1e-14, \
                 f"Coefficient {key} has unexpected imaginary part"
 
