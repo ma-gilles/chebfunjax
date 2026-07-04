@@ -30,7 +30,8 @@ def save(fig, hint=""):
     global plot_idx
     plot_idx += 1
     path = os.path.join(OUT_DIR, f'guide11_{plot_idx:02d}.png')
-    fig.savefig(path, dpi=150, bbox_inches='tight')
+    from chebfunjax.plotting import save_chebfun_figure
+    save_chebfun_figure(fig, path, size=(600, 270))
     plt.close(fig)
     print(f"  guide11_{plot_idx:02d}.png saved  ({hint})")
 
@@ -46,7 +47,7 @@ try:
     xs_ref = np.linspace(-1, 1, 600)
     xs_phys = xs_ref * np.pi
     ys = np.array(f(jnp.array(xs_ref)))
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     ax.plot(xs_phys, ys, color=CHEBFUN_BLUE, linewidth=1.8)
     ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
     save(fig, "tanh(3sin(t))-sin(t+1/2)")
@@ -77,7 +78,7 @@ try:
     ys_q = np.array(q11(jnp.array(xs)))
     ys_p = np.array(p11(jnp.array(xs)))
 
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     ax.plot(xs * np.pi, ys_p - ys_u, color=CHEBFUN_BLUE, linewidth=1.5, label='projection error')
     ax.plot(xs * np.pi, ys_q - ys_u, color=CHEBFUN_RED, linewidth=1.5, label='interpolation error')
     ax.legend(loc='lower right')
@@ -103,7 +104,7 @@ try:
     # Find roots
     r = np.array(f.roots())
 
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     ax.plot(xs_phys, ys, color=CHEBFUN_BLUE, linewidth=1.8)
     if len(r) > 0:
         yr = np.array(f(jnp.array(r)))
@@ -125,7 +126,7 @@ except Exception as e:
 # --------------------------------------------------------------------------
 try:
     ys_abs = np.abs(ys)
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     ax.plot(xs_phys, ys_abs, color=CHEBFUN_BLUE, linewidth=1.8)
     ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
     save(fig, "|f| (abs of trigfun)")
@@ -142,7 +143,7 @@ try:
     tt = np.linspace(-np.pi, np.pi, n_pts, endpoint=False)
     ff_vals = np.exp(np.sin(tt)) + 0.05 * np.random.randn(n_pts)
 
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     ax.plot(tt, ff_vals, color=CHEBFUN_BLUE, linewidth=0.8, alpha=0.7)
 
     # Gaussian convolution (smoothing)
@@ -167,7 +168,7 @@ try:
     c = np.maximum(c, 1e-18)
     ks = np.arange(len(c)) - len(c) // 2
 
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     ax.semilogy(ks, c, '.', color=CHEBFUN_BLUE, markersize=4)
     ax.set_xlabel('Fourier mode $k$')
     ax.set_ylabel('$|c_k|$')
@@ -186,7 +187,7 @@ try:
     c = np.maximum(c, 1e-18)
     ks = np.arange(len(c)) - len(c) // 2
 
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     ax.semilogy(ks, c, '.', color=CHEBFUN_BLUE, markersize=4)
     ax.set_xlabel('Fourier mode $k$')
     ax.set_ylabel('$|c_k|$')
@@ -205,7 +206,7 @@ try:
     c = np.maximum(c, 1e-18)
     ks = np.arange(len(c)) - len(c) // 2
 
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     ax.semilogy(ks, c, '.', color=CHEBFUN_BLUE, markersize=4)
     ax.set_xlabel('Fourier mode $k$')
     ax.set_ylabel('$|c_k|$')
@@ -224,7 +225,7 @@ try:
     c_pos = c[mid + 1:]  # k = 1, 2, ...
     ks_pos = np.arange(1, len(c_pos) + 1)
 
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     ax.loglog(ks_pos, c_pos, '.', color=CHEBFUN_BLUE, markersize=4)
     # Reference line k^{-6}
     ks_ref = np.array([3, 300])
@@ -264,7 +265,7 @@ try:
     ys_sq = sq_wave(xs_plot)
     ys_trunc = np.array(u_trunc(jnp.array(xs_plot)))
 
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     ax.plot(xs_plot * np.pi, ys_sq, color=CHEBFUN_BLUE, linewidth=1.8)
     ax.plot(xs_plot * np.pi, ys_trunc, color=CHEBFUN_RED, linewidth=1.5)
     ax.set_ylim(-1.5, 1.5)
@@ -275,3 +276,73 @@ except Exception as e:
     print(f"  guide11_{plot_idx:02d}.png FAILED: {e}")
 
 print(f"\nGuide 11: generated {plot_idx} plots.")
+
+# --------------------------------------------------------------------------
+# Plot 11: plotcoeffs(f,'loglog') with k^{-6} reference  (Sec 11.7)
+# --------------------------------------------------------------------------
+try:
+    # |sin(t)|^5 on [-pi,pi] in trig mode via the factory
+    import chebfunjax as cj
+    PI = float(np.pi)
+    f5 = cj.chebfun(lambda t: jnp.abs(jnp.sin(t))**5,
+                    domain=[-PI, PI], trig=True)
+    c5 = np.abs(np.asarray(f5.funs[0].tech.coeffs))
+    n5 = len(c5)
+    half5 = (n5 - 1) // 2
+    ks = np.abs(np.arange(-half5, half5 + 1)) + 1.0  # |wave number| + 1
+
+    fig, ax = plt.subplots()
+    ax.loglog(ks, np.maximum(c5, 1e-300), '.', color=CHEBFUN_BLUE,
+              markersize=3)
+    ks_ref = np.array([9.0, 900.0])
+    ax.loglog(ks_ref, 3.0 * ks_ref**(-6), '--r', linewidth=1.4)
+    ax.text(110, 4e-9, '$k^{-6}$', color='r', fontsize=11)
+    ax.set_title('Fourier coefficients')
+    ax.set_xlabel('|Normalized wave number|+1')
+    ax.set_ylabel('Magnitude of coefficient')
+    ax.set_xlim(1, 1e3)
+    ax.grid(True, which='both', alpha=0.3, linestyle=':', linewidth=0.5)
+    save(fig, "loglog coeffs with k^-6 line")
+except Exception as e:
+    plot_idx += 1
+    print(f"  guide11_{plot_idx:02d}.png FAILED: {e}")
+
+# --------------------------------------------------------------------------
+# Plot 12: square wave and degree-15 truncated Fourier series  (Sec 11.8)
+# --------------------------------------------------------------------------
+try:
+    import chebfunjax as cj
+    PI = float(np.pi)
+    # sign(sin t): piecewise via explicit breakpoints (no edge detection
+    # needed for this known jump location)
+    u = cj.chebfun(lambda t: jnp.where(t < 0.0, -1.0, 1.0),
+                   domain=[-PI, 0.0, PI])
+
+    # trigcoeffs(u, 31) equivalent: c_k = (1/2pi) * int u(t) e^{-ikt} dt,
+    # computed honestly by quadrature through the piecewise chebfun.
+    degree = 15
+    ks12 = np.arange(-degree, degree + 1)
+    coeffs12 = []
+    for k in ks12:
+        ck = complex((u * cj.chebfun(
+            lambda t, _k=float(k): jnp.exp(-1j * _k * t),
+            domain=[-PI, 0.0, PI])).sum()) / (2 * PI)
+        coeffs12.append(ck)
+    coeffs12 = np.array(coeffs12)
+
+    ts = np.linspace(-PI, PI, 1200)
+    u_trunc = np.real(np.exp(1j * np.outer(ts, ks12)) @ coeffs12)
+
+    fig, ax = plt.subplots()
+    # square wave in blue with dotted jump (draw per piece)
+    ax.plot([-PI, 0], [-1, -1], color=CHEBFUN_BLUE, linewidth=1.6)
+    ax.plot([0, PI], [1, 1], color=CHEBFUN_BLUE, linewidth=1.6)
+    ax.plot([0, 0], [-1, 1], ':', color=CHEBFUN_BLUE, linewidth=1.2)
+    ax.plot(ts, u_trunc, color=CHEBFUN_RED, linewidth=1.4)
+    ax.set_ylim(-1.5, 1.5)
+    ax.set_xlim(-PI, PI)
+    ax.grid(True, alpha=0.4, linewidth=0.4)
+    save(fig, "square wave + truncated Fourier")
+except Exception as e:
+    plot_idx += 1
+    print(f"  guide11_{plot_idx:02d}.png FAILED: {e}")

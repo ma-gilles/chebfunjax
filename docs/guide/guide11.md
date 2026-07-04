@@ -4,17 +4,17 @@
 
 ## 11.1 Introduction
 
-One of the major new features introduced in Chebfun version 5 was the ability to use trigonometric functions instead of polynomials for representing smooth periodic functions [Wright et al. 2015]. These trig-based chebfuns, or "trigfuns", can be created with the use of the `'trig'` (or `'periodic'`) flag in the Chebfun constructor. In chebfunjax, the `Trigtech` class provides this capability. For example, the function $f(t) = \tanh(3\sin t) - \sin(t + 1/2)$ on $[-\pi, \pi]$ can be constructed as follows:
+One of the major new features introduced in Chebfun version 5 was the ability to use trigonometric functions instead of polynomials for representing smooth periodic functions [Wright et al. 2015]. These trig-based chebfuns, or "trigfuns", can be created with the use of the `'trig'` (or `'periodic'`) flag in the Chebfun constructor — in chebfunjax, `cj.chebfun(f, domain=..., trig=True)`. For example, the function $f(t) = \tanh(3\sin t) - \sin(t + 1/2)$ on $[-\pi, \pi]$ can be constructed as follows:
 
 ```python
-from chebfunjax.tech.trigtech import Trigtech
+import numpy as np
 import jax.numpy as jnp
+import chebfunjax as cj
+from chebfunjax.tech.trigtech import Trigtech
 
-# Map [-pi,pi] -> [-1,1] via t = pi*s
-f = Trigtech.from_function(
-    lambda s: jnp.tanh(3 * jnp.sin(jnp.pi * s)) - jnp.sin(jnp.pi * s + 0.5),
-)
-print(f)
+f = cj.chebfun(lambda t: jnp.tanh(3 * jnp.sin(t)) - jnp.sin(t + 0.5),
+               domain=[-np.pi, np.pi], trig=True)
+print(f.funs[0].tech)
 ```
 
 ```
@@ -27,7 +27,7 @@ The text `'trig'` in the display indicates that $f$ is represented by trigonomet
 
 In this chapter we review some of the functionality for trigfuns as well as some theory of trigonometric interpolation. For brevity, we refer to trigonometric-based chebfuns as _trigfuns_ and polynomial-based chebfuns as _chebfuns_.
 
-Throughout our discussion, the trigfuns we construct live on the interval $[-\pi, \pi]$, which we specify explicitly in each call to the constructor (in chebfunjax, the `Trigtech` class always works on the reference interval $[-1, 1]$, so we apply the affine map $t = \pi s$ when needed). Mathematically, it might have made sense for this to be the default domain for trigfuns, but in Chebfun the factory default is always $[-1, 1]$, whether the representation is trigonometric or not.
+Throughout our discussion, the trigfuns we construct live on the interval $[-\pi, \pi]$, which we specify explicitly in each call to the constructor. Mathematically, it might have made sense for this to be the default domain for trigfuns, but in Chebfun the factory default is always $[-1, 1]$, whether the representation is trigonometric or not.
 
 For examples of Chebfun solution of periodic ODEs, see Chapter 7 and also Chapter 15 of [Trefethen, Birkisson & Driscoll 2018].
 
@@ -306,6 +306,10 @@ The `loglog` option enables one more easily to quantify the decay rate. This fun
 
 ![loglog |sin(t)|^5 coeffs](../images/guide/guide11_09.png)
 
+On a log-log scale the algebraic decay rate is plain: the coefficients of $|\sin t|^5$ decay like $k^{-6}$.
+
+![Fourier coefficient decay](../images/guide/guide11_11.png)
+
 There is an important fine point concerning $[-\pi, \pi]$ vs. $[0, 2\pi]$, or more generally, the transplantation from one domain $[a, b]$ to another. Consider, say, the function $f(x) = \cos x = (e^{ix} + e^{-ix})/2$. Obviously its Fourier coefficients in the exponential basis are $1/2, 0, 1/2$:
 
 ```python
@@ -344,6 +348,19 @@ u_trunc = Trigtech(coeffs=trunc_coeffs, is_real=True, ishappy=True)
 ```
 
 ![Gibbs phenomenon](../images/guide/guide11_10.png)
+
+Here is the same phenomenon for the square wave $\mathrm{sign}(\sin t)$ (built with an explicit breakpoint at $t=0$) together with its degree-15 truncated trigonometric series, computed by quadrature:
+
+```python
+u = cj.chebfun(lambda t: jnp.where(t < 0, -1.0, 1.0),
+               domain=[-np.pi, 0.0, np.pi])
+ck = [complex((u * cj.chebfun(
+          lambda t, k=float(k): jnp.exp(-1j * k * t),
+          domain=[-np.pi, 0.0, np.pi])).sum()) / (2 * np.pi)
+      for k in range(-15, 16)]
+```
+
+![Square wave and truncated series](../images/guide/guide11_12.png)
 
 This represents the best degree 15 trigonometric approximation to the square wave over $[-\pi, \pi]$ in the $L^2$ sense. The oscillations show the famous Gibbs phenomenon.
 
