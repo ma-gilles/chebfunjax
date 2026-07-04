@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 import jax.numpy as jnp
 
 from chebfunjax.chebfun2d import chebfun2
-from chebfunjax.plotting import chebfun_style, surf
+from chebfunjax.plotting import PARULA, chebfun_style, surf
 
 chebfun_style()
 
@@ -101,8 +101,7 @@ try:
     cumsum_y = np.cumsum(ZZ, axis=0) * dy  # cumsum along y (axis 0)
     cumsum_xy = np.cumsum(cumsum_y, axis=1) * dx  # then along x (axis 1)
     fig, ax = plt.subplots()
-    ax.contour(XX, YY, cumsum_xy, levels=12, cmap='parula'
-               if 'parula' in plt.colormaps() else 'viridis',
+    ax.contour(XX, YY, cumsum_xy, levels=12, cmap=PARULA,
                linewidths=0.9)
     ax.set_xlim(-1, 1)
     ax.set_ylim(-1, 1)

@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from chebfunjax.chebfun2d import chebfun2
-from chebfunjax.plotting import (
+from chebfunjax.plotting import PARULA, (
     chebfun_style,
     contour,
     phaseplot,
@@ -60,8 +60,7 @@ try:
     gx = np.linspace(-3, 3, 49)
     Xg, Yg = np.meshgrid(gx, gx)
     Zg = np.asarray(peaks(jnp.asarray(Xg), jnp.asarray(Yg)))
-    ax.plot_surface(Xg, Yg, Zg, cmap="parula"
-                    if "parula" in plt.colormaps() else "viridis",
+    ax.plot_surface(Xg, Yg, Zg, cmap=PARULA,
                     rstride=1, cstride=1, linewidth=0.15,
                     edgecolor="k", antialiased=True)
     ax.view_init(elev=30, azim=-127.5)

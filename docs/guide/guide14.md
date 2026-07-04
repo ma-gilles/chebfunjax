@@ -42,8 +42,6 @@ Although `roots` can be outwitted, it is often remarkably accurate. For example,
 f = chebfun2(lambda x, y: x**2 + y**2 - 0.25)
 ```
 
-![Circle perimeter](../images/guide/guide14_02.png)
-
 ```python
 # The perimeter of a circle of radius 1/2 is pi
 exact_perimeter = np.pi
@@ -90,7 +88,7 @@ plt.plot(r[:, 0], r[:, 1], 'k.', markersize=15)
 plt.xlim(-1, 1); plt.ylim(-1, 1); plt.axis('square')
 ```
 
-![Trott + circle intersections](../images/guide/guide14_03.png)
+![Trott + circle intersections](../images/guide/guide14_02.png)
 
 The solutions to bivariate polynomial systems and intersections of curves are typically computed to full machine precision.
 
@@ -111,7 +109,7 @@ plt.axis('equal'); plt.ylim(-1.1, 2.1)
 plt.legend()
 ```
 
-![Splat and figure-of-eight](../images/guide/guide14_04.png)
+![Splat and figure-of-eight](../images/guide/guide14_03.png)
 
 Chebfun2 rootfinding is based on an algorithm described in [Nakatsukasa, Noferini & Townsend 2014].
 
@@ -139,7 +137,7 @@ ax.scatter([mxloc[0]], [mxloc[1]], [mx], c='r', s=80)
 ax.set_zlim(-6, 6)
 ```
 
-![Global optimisation surface](../images/guide/guide14_05.png)
+![Global optimisation surface](../images/guide/guide14_04.png)
 
 If both the global maximum and minimum are required, it is roughly twice as fast to compute them at the same time by using a combined approach. For instance,
 
@@ -190,14 +188,20 @@ print(exact)
 Here is a contour plot of this wiggly function, with the minimum circled in black:
 
 ```python
-idx_min = np.unravel_index(np.argmin(np.array(vals)), (n, n))
-# ...
-plt.contourf(XX, YY, ZZ, levels=30, cmap='viridis')
-plt.plot(minpos[0], minpos[1], 'ok', markersize=12)
-plt.axis('square')
+from chebfunjax.plotting import PARULA
+
+n = 700
+xs = np.linspace(-1, 1, n)
+XX, YY = np.meshgrid(xs, xs)
+ZZ = np.asarray(f(jnp.asarray(XX).ravel(),
+                  jnp.asarray(YY).ravel())).reshape(n, n)
+plt.contour(XX, YY, ZZ, levels=10, cmap=PARULA, linewidths=0.9)
+i, j = np.unravel_index(np.argmin(ZZ), ZZ.shape)
+plt.plot(XX[0, j], YY[i, 0], 'o', markerfacecolor='none',
+         markeredgecolor='k', markersize=11)
 ```
 
-![Challenge function contour](../images/guide/guide14_06.png)
+![Challenge function contour](../images/guide/guide14_05.png)
 
 ## 14.5 Critical points
 
@@ -221,7 +225,9 @@ plt.contour(XX, YY, ZZ_fy, levels=[0.0], colors='r')  # zero contours of f_y
 plt.xlim(-1, 1); plt.ylim(-1, 1); plt.axis('square')
 ```
 
-![Critical points](../images/guide/guide14_07.png)
+![Critical points](../images/guide/guide14_06.png)
+
+![Critical points, detail](../images/guide/guide14_07.png)
 
 There is a command called `gradient` that computes the gradient vector and represents it as a `Chebfun2v` object. The `roots` command then solves for the isolated roots of the bivariate polynomial system represented in the `Chebfun2v` representing the gradient. For more information about `gradient`, see Chapter 15.
 

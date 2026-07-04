@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 import jax.numpy as jnp
 
 from chebfunjax.chebfun2d import chebfun2
-from chebfunjax.plotting import chebfun_style, contour, surf
+from chebfunjax.plotting import PARULA, chebfun_style, surf
 
 chebfun_style()
 
@@ -27,11 +27,12 @@ os.makedirs(OUT, exist_ok=True)
 
 plot_num = 0
 
-def save(fig, desc):
+def save(fig, desc, size=(610, 258)):
     global plot_num
     plot_num += 1
     fname = os.path.join(OUT, f'guide14_{plot_num:02d}.png')
-    fig.savefig(fname, dpi=150, bbox_inches='tight')
+    from chebfunjax.plotting import save_chebfun_figure
+    save_chebfun_figure(fig, fname, size=size)
     plt.close(fig)
     print(f"  Saved {fname}: {desc}")
 
@@ -51,7 +52,7 @@ try:
     trott = chebfun2(lambda x, y:
         144*(x**4 + y**4) - 225*(x**2 + y**2) + 350*x**2*y**2 + 81)
     XX, YY, ZZ = eval_on_grid(trott, -1, 1, -1, 1, n=500)
-    fig, ax = plt.subplots(figsize=(5.5, 5.5))
+    fig, ax = plt.subplots()
     ax.contour(XX, YY, ZZ, levels=[0.0], colors='b', linewidths=1.5)
     ax.set_xlim(-1, 1)
     ax.set_ylim(-1, 1)
@@ -63,23 +64,7 @@ except Exception:
     traceback.print_exc()
     print("  SKIP plot 1")
 
-# ---- Plot 2: 14.1 - Perimeter of circle (just the circle) ----
-try:
-    f_circ = chebfun2(lambda x, y: x**2 + y**2 - 0.25)
-    XX, YY, ZZ = eval_on_grid(f_circ, -1, 1, -1, 1, n=300)
-    fig, ax = plt.subplots(figsize=(5, 5))
-    ax.contour(XX, YY, ZZ, levels=[0.0], colors='b', linewidths=2.0)
-    ax.set_xlim(-1, 1)
-    ax.set_ylim(-1, 1)
-    ax.set_aspect('equal')
-    ax.set_title(r'Circle $x^2+y^2=1/4$, perimeter $\approx \pi$', fontsize=10)
-    fig.tight_layout()
-    save(fig, "Circle perimeter")
-except Exception:
-    traceback.print_exc()
-    print("  SKIP plot 2")
-
-# ---- Plot 3: 14.2 - Trott + circle intersections ----
+# ---- Plot 2: 14.2 - Trott + circle intersections ----
 try:
     trott = chebfun2(lambda x, y:
         144*(x**4 + y**4) - 225*(x**2 + y**2) + 350*x**2*y**2 + 81)
@@ -99,7 +84,7 @@ try:
         [ 0.799441089368587,  0.413393208252346],
     ])
 
-    fig, ax = plt.subplots(figsize=(5.5, 5.5))
+    fig, ax = plt.subplots()
     ax.contour(XX, YY, ZZ_t, levels=[0.0], colors='b', linewidths=1.5)
     ax.contour(XX, YY, ZZ_g, levels=[0.0], colors='r', linewidths=1.5)
     ax.plot(r[:, 0], r[:, 1], 'k.', markersize=15)
@@ -113,7 +98,7 @@ except Exception:
     traceback.print_exc()
     print("  SKIP plot 3")
 
-# ---- Plot 4: 14.3 - Splat and figure-of-eight curve intersections ----
+# ---- Plot 3: 14.3 - Splat and figure-of-eight curve intersections ----
 try:
     t = np.linspace(0, 2*np.pi, 1000)
     sp_x = np.cos(t) + (1+0)*np.sin(6*t)**2
@@ -126,7 +111,7 @@ try:
     f8_x = np.cos(t)
     f8_y = np.sin(2*t)
 
-    fig, ax = plt.subplots(figsize=(6, 5))
+    fig, ax = plt.subplots()
     ax.plot(sp_x, sp_y, 'b-', linewidth=1.5, label='Splat')
     ax.plot(f8_x, f8_y, 'r-', linewidth=1.5, label='Figure-of-eight')
 
@@ -161,7 +146,7 @@ except Exception:
     traceback.print_exc()
     print("  SKIP plot 4")
 
-# ---- Plot 5: 14.4 - Global optimisation with min/max dots ----
+# ---- Plot 4: 14.4 - Global optimisation with min/max dots ----
 try:
     f = chebfun2(lambda x, y:
         jnp.sin(30*x*y) + jnp.sin(10*y*x**2) + jnp.exp(-x**2-(y-0.8)**2))
@@ -187,7 +172,7 @@ except Exception:
     traceback.print_exc()
     print("  SKIP plot 5")
 
-# ---- Plot 6: 14.4 - Challenge function contour with minimum ----
+# ---- Plot 5: 14.4 - Challenge function contour with minimum ----
 try:
     # SIAM 100-digit challenge function
     def challenge_fn(x, y):
@@ -195,70 +180,70 @@ try:
                 + jnp.sin(70*jnp.sin(x)) + jnp.sin(jnp.sin(80*y))
                 - jnp.sin(10*(x+y)) + (x**2 + y**2)/4)
     f_ch = chebfun2(challenge_fn)
-    fig, ax = contour(f_ch, title='SIAM 100-Digit Challenge function', levels=30)
-    # Find and mark min on grid
-    XX, YY, ZZ = eval_on_grid(f_ch, -1, 1, -1, 1, n=400)
+    # MATLAB: colormap('default'), contour(f), full-width axes, no title,
+    # minimum marked with an UNFILLED circle 'ok'.
+    XX, YY, ZZ = eval_on_grid(f_ch, -1, 1, -1, 1, n=700)
+    fig, ax = plt.subplots()
+    ax.contour(XX, YY, ZZ, levels=10, cmap=PARULA,
+               linewidths=0.9)
     idx_min = np.unravel_index(np.argmin(ZZ), ZZ.shape)
     minpos = (XX[0, idx_min[1]], YY[idx_min[0], 0])
-    ax.plot(minpos[0], minpos[1], 'ok', markersize=12)
+    ax.plot(minpos[0], minpos[1], 'o', markerfacecolor='none',
+            markeredgecolor='k', markersize=11, markeredgewidth=1.2)
+    ax.set_xlim(-1, 1)
+    ax.set_ylim(-1, 1)
     save(fig, "Challenge function contour")
 except Exception:
     traceback.print_exc()
     print("  SKIP plot 6")
 
-# ---- Plot 7: 14.5 - Critical points ----
-try:
+# ---- Plot 6: 14.5 - Critical points ----
+def _critical_points_figure():
+    """Zero contours of f_x (blue) and f_y (red) with critical points."""
     f = chebfun2(lambda x, y: (x**2 - y**3 + 1.0/8)*jnp.sin(10*x*y))
     fx = f.diff(dim=2)
     fy = f.diff(dim=1)
     XX, YY, ZZ_fx = eval_on_grid(fx, -1, 1, -1, 1, n=400)
     _, _, ZZ_fy = eval_on_grid(fy, -1, 1, -1, 1, n=400)
 
-    fig, ax = plt.subplots(figsize=(5.5, 5.5))
+    fig, ax = plt.subplots()
     ax.contour(XX, YY, ZZ_fx, levels=[0.0], colors='b', linewidths=0.8)
     ax.contour(XX, YY, ZZ_fy, levels=[0.0], colors='r', linewidths=0.8)
 
-    # Find approximate critical points as intersections of zero contours
-    # Use a grid-based approach
-    sign_fx = np.sign(ZZ_fx)
-    sign_fy = np.sign(ZZ_fy)
-    # Critical points are where both sign changes occur in same cell
-    crit_pts = []
-    for i in range(ZZ_fx.shape[0]-1):
-        for j in range(ZZ_fx.shape[1]-1):
-            fx_signs = [sign_fx[i,j], sign_fx[i,j+1], sign_fx[i+1,j], sign_fx[i+1,j+1]]
-            fy_signs = [sign_fy[i,j], sign_fy[i,j+1], sign_fy[i+1,j], sign_fy[i+1,j+1]]
-            if (min(fx_signs) * max(fx_signs) <= 0 and
-                min(fy_signs) * max(fy_signs) <= 0):
-                crit_pts.append((XX[0, j] + XX[0, j+1])/2,)
-                # Actually need both coords
-    # Simpler approach: multiply ZZ_fx * ZZ_fy and find sign changes
-    product = ZZ_fx * ZZ_fy
-    # Find cells where both are close to zero
-    threshold = 0.05 * np.max(np.abs(ZZ_fx)) * np.max(np.abs(ZZ_fy))
+    # Critical points: cells where both partials are near zero, clustered
     mask = (np.abs(ZZ_fx) < 0.1 * np.max(np.abs(ZZ_fx))) & \
            (np.abs(ZZ_fy) < 0.1 * np.max(np.abs(ZZ_fy)))
     crit_x = XX[mask]
     crit_y = YY[mask]
-    # Cluster and pick centers
-    if len(crit_x) > 0:
+    if len(crit_x) > 1:
         from scipy.cluster.hierarchy import fclusterdata
         pts = np.column_stack([crit_x, crit_y])
-        if len(pts) > 1:
-            clusters = fclusterdata(pts, t=0.1, criterion='distance')
-            centers = []
-            for c in np.unique(clusters):
-                mask_c = clusters == c
-                centers.append([np.mean(pts[mask_c, 0]), np.mean(pts[mask_c, 1])])
-            centers = np.array(centers)
-            ax.plot(centers[:, 0], centers[:, 1], 'k.', markersize=15)
+        clusters = fclusterdata(pts, t=0.1, criterion='distance')
+        centers = np.array([
+            [np.mean(pts[clusters == c, 0]), np.mean(pts[clusters == c, 1])]
+            for c in np.unique(clusters)
+        ])
+        ax.plot(centers[:, 0], centers[:, 1], 'k.', markersize=15)
 
     ax.set_xlim(-1, 1)
     ax.set_ylim(-1, 1)
     ax.set_aspect('equal')
-    ax.set_title('Critical points: $f_x=0$ (blue), $f_y=0$ (red)', fontsize=10)
-    fig.tight_layout()
+    ax.set_title('Critical points: $f_x=0$ (blue), $f_y=0$ (red)',
+                 fontsize=10)
+    return fig, ax
+
+
+try:
+    fig, ax = _critical_points_figure()
     save(fig, "Critical points")
+except Exception:
+    plot_num += 1
+    traceback.print_exc()
+
+# ---- Plot 7: 14.5 - Critical points (large render, as published) ----
+try:
+    fig, ax = _critical_points_figure()
+    save(fig, "Critical points (large)", size=(814, 785))
 except Exception:
     traceback.print_exc()
     print("  SKIP plot 7")
