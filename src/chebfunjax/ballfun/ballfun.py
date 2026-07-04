@@ -1358,6 +1358,57 @@ class Ballfun(eqx.Module):
             I = float(np.real(I))
         return I
 
+    def diff(self, dim: int = 1, k: int = 1) -> "Ballfun":
+        """k-th partial derivative in the Cartesian direction dim.
+
+        Parameters
+        ----------
+        dim : int, default 1
+            1 -> d/dx, 2 -> d/dy, 3 -> d/dz (MATLAB convention).
+        k : int, default 1
+            Order (applied by iterated first derivatives).
+
+        Returns
+        -------
+        Ballfun
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/diff.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2019 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        F = np.asarray(self.coeffs, dtype=np.complex128)
+        for _ in range(int(k)):
+            F = _ballfun_onediff_cart(F, dim)
+        return Ballfun(coeffs=jnp.asarray(F), is_real=self.is_real,
+                       domain=self.domain)
+
+    def laplacian(self) -> "Ballfun":
+        """Scalar Laplacian: f_xx + f_yy + f_zz.
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/laplacian.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2019 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        return self.diff(1, 2) + self.diff(2, 2) + self.diff(3, 2)
+
+    def grad(self) -> tuple["Ballfun", "Ballfun", "Ballfun"]:
+        """Cartesian gradient (f_x, f_y, f_z).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/grad.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2019 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        return self.diff(1), self.diff(2), self.diff(3)
+
     def norm(self) -> float:
         """L2 norm of f over the unit ball: sqrt(integral of |f|^2).
 
@@ -1541,3 +1592,106 @@ class Ballfun(eqx.Module):
         return (
             f"Ballfun(shape=({m}, {n}, {p}), domain=[0,1]x[-pi,pi]x[0,pi], is_real={self.is_real})"
         )
+
+
+# ============================================================================
+# Cartesian spectral differentiation (translated from @ballfun/diff.m)
+# ============================================================================
+
+
+def _fourier_wavenumbers_1d(n: int) -> np.ndarray:
+    """Wavenumbers -floor(n/2) .. ceil(n/2)-1 (coefficient storage order)."""
+    return np.arange(-(n // 2), -(n // 2) + n, dtype=np.float64)
+
+
+def _fourier_multmat_3band(n: int, a_m1: complex, a_p1: complex) -> np.ndarray:
+    """Fourier multiplication matrix for a_m1*e^{-i t} + a_p1*e^{i t}.
+
+    In coefficient space multiplication is convolution, so the matrix has
+    a_p1 on the first subdiagonal (mode k -> k+1) and a_m1 on the first
+    superdiagonal (mode k -> k-1).
+    """
+    M = np.zeros((n, n), dtype=np.complex128)
+    idx = np.arange(n - 1)
+    M[idx + 1, idx] = a_p1
+    M[idx, idx + 1] = a_m1
+    return M
+
+
+def _ballfun_spherical_diff(F: np.ndarray, dim: int) -> np.ndarray:
+    """First derivative in the spherical variable dim (1=r, 2=lambda, 3=theta)."""
+    from chebfunjax.discretization.ultras import convertmat, diffmat
+
+    m, n, p = F.shape
+    if dim == 1:
+        DC1 = np.asarray(diffmat(m, 1))
+        S01 = np.asarray(convertmat(m, 0, 0))
+        out = np.linalg.solve(S01, DC1 @ F.reshape(m, -1))
+        return out.reshape(m, n, p)
+    if dim == 2:
+        ks = _fourier_wavenumbers_1d(n)
+        return F * (1j * ks)[None, :, None]
+    ks = _fourier_wavenumbers_1d(p)
+    return F * (1j * ks)[None, None, :]
+
+
+def _ballfun_onediff_cart(F: np.ndarray, dim: int) -> np.ndarray:
+    """One Cartesian derivative of a CFF coefficient tensor.
+
+    Follows @ballfun/diff.m: expand the tensor by two wavenumbers in each
+    direction (the variable-coefficient chain rule increases bandwidth by
+    one), take the three spherical derivatives, and combine them with
+    multiplication operators for r, sin/cos(lambda), sin/cos(theta).
+    """
+    from chebfunjax.discretization.ultras import multmat
+
+    m, n, p = F.shape
+    m_t = m + (m % 2) + 2
+    n_t = n + 2
+    p_t = p + (p % 2) + 2
+
+    Fexp = np.zeros((m_t, n_t, p_t), dtype=np.complex128)
+    n_off = n_t // 2 - n // 2
+    p_off = p_t // 2 - p // 2
+    Fexp[:m, n_off:n_off + n, p_off:p_off + p] = F
+
+    dR = _ballfun_spherical_diff(Fexp, 1)
+    dLam = _ballfun_spherical_diff(Fexp, 2)
+    dTh = _ballfun_spherical_diff(Fexp, 3)
+
+    Mr = np.asarray(multmat(m_t, jnp.array([0.0, 1.0]), 0))
+    MsinL = _fourier_multmat_3band(n_t, 0.5j, -0.5j)
+    McosL = _fourier_multmat_3band(n_t, 0.5, 0.5)
+    MsinT = _fourier_multmat_3band(p_t, 0.5j, -0.5j)
+    McosT = _fourier_multmat_3band(p_t, 0.5, 0.5)
+
+    def solve_r(X):
+        return np.linalg.solve(Mr, X.reshape(m_t, -1)).reshape(m_t, n_t, p_t)
+
+    def mul_lam(X, M):
+        # apply the multiplication operator along the lambda axis
+        return np.tensordot(X, M, axes=([1], [1])).transpose(0, 2, 1)
+
+    def mul_th(X, M):
+        # apply the multiplication operator along the theta axis
+        return np.tensordot(X, M, axes=([2], [1]))
+
+    def solve_th(X, M):
+        # X such that (result multiplied by M along theta) = X
+        return np.linalg.solve(
+            M, X.reshape(-1, p_t).T).T.reshape(m_t, n_t, p_t)
+
+    if dim == 1:
+        dR = mul_lam(dR, McosL)
+        dLam = -mul_lam(solve_r(dLam), MsinL)
+        dTh = mul_lam(solve_r(dTh), McosL)
+        out = mul_th(dR, MsinT) + solve_th(dLam, MsinT) + mul_th(dTh, McosT)
+    elif dim == 2:
+        dR = mul_lam(dR, MsinL)
+        dLam = mul_lam(solve_r(dLam), McosL)
+        dTh = mul_lam(solve_r(dTh), MsinL)
+        out = mul_th(dR, MsinT) + solve_th(dLam, MsinT) + mul_th(dTh, McosT)
+    else:
+        dTh = solve_r(dTh)
+        out = mul_th(dR, McosT) - mul_th(dTh, MsinT)
+    return out
