@@ -178,6 +178,9 @@ class Chebop:
         self._lbc_raw = None
         self._rbc_raw = None
         self._bc_show = None
+        #: Initial guess for nonlinear solves (Chebfun, callable, or None) —
+        #: MATLAB's N.init. Previously assigning N.init was silently ignored.
+        self.init = None
         if lbc is not None:
             self.lbc = lbc
         if rbc is not None:
@@ -586,93 +589,156 @@ class Chebop:
         max_iter: int,
         newton_tol: float,
     ):
-        """Newton iteration for nonlinear operators.
+        """Newton iteration with adaptive discretization refinement.
 
-        Uses a simple fixed-size Newton iteration:
+        The previous implementation ran Newton at a FIXED grid (16 points
+        unless n was given; n_max was accepted but never used) and returned
+        whatever the coarse collocation system converged to — for stiff
+        problems that solution satisfies the BCs but grossly violates the
+        ODE (residual O(100)). Following MATLAB solvebvpNonlinear's
+        adaptive strategy:
 
-        1. Start from u0 = 0.
-        2. At each step, compute the residual r = N[u] - f.
-        3. Linearise N around u to get a Linop J.
-        4. Solve J * delta = -r.
-        5. Update u ← u + delta.
-        6. Repeat until ||delta|| < newton_tol.
-
-        The discretization size is chosen as the first size in the adaptive
-        ladder that gives convergence of the *linear* solve (or the fixed n).
+        1. Newton-solve the collocation system at size sz (warm-started by
+           interpolating the previous size's iterate; the user's N.init is
+           honoured at the first size).
+        2. Check that the solution is RESOLVED at sz via the Chebyshev
+           coefficient-tail happiness check (an under-resolved solution has
+           a fat tail).
+        3. If unresolved (or Newton failed), double sz and continue — the
+           coarse solution warm-starts the next level, acting as a natural
+           continuation strategy for stiff problems.
 
         Provenance
         ----------
-        MATLAB source : @chebop/newtonBVP.m, @chebop/solvebvpNonlinear.m
+        MATLAB source : @chebop/solvebvpNonlinear.m, @chebop/newtonBVP.m
         Chebfun commit: 7574c77
         """
         from chebfunjax.chebfun1d.chebfun import Chebfun
+        from chebfunjax.tech.chebtech import Chebtech2
 
         a, b = self.domain
         dom = Domain(self.domain)
-
-        # Choose a fixed n for Newton iteration
-        # (adaptive sizing for nonlinear is more complex; use n_min or n)
-        sz = n if n is not None else max(n_min, 16)
-
-        disc = ChebColloc2Disc(sz, self.domain)
-        # Compute physical Chebyshev-2 points
-        a, b = self.domain
-        t_ref = chebpts(sz, kind=2)
-        x_pts = 0.5 * (b - a) * t_ref + 0.5 * (a + b)
-
-        # RHS at collocation points
         rhs = _make_rhs_callable(f)
-        f_vals = jnp.asarray(rhs(x_pts), dtype=jnp.float64)
-
-        # Initial guess: zero
-        u_vals = jnp.zeros(sz, dtype=jnp.float64)
-
         bcs, bc_vals = self._parse_bcs()
+        n_bc = len(bcs)
 
-        for it in range(max_iter):
-            u_fun = Chebfun.from_values(u_vals, dom)
+        fixed_size = n is not None
+        sz = int(n) if fixed_size else max(n_min, 16)
+        u_fun_prev = None
+        correction_norm = float("inf")
+
+        while True:
+            disc = ChebColloc2Disc(sz, self.domain)
+            t_ref = chebpts(sz, kind=2)
+            x_pts = 0.5 * (b - a) * t_ref + 0.5 * (a + b)
+            f_vals = jnp.asarray(rhs(x_pts), dtype=jnp.float64)
+
+            # Initial iterate: warm start from the previous size, else the
+            # user-provided N.init, else zero.
+            if u_fun_prev is not None:
+                u_vals = jnp.asarray(u_fun_prev(x_pts), dtype=jnp.float64)
+            elif self.init is not None:
+                init_f = self.init
+                u_vals = jnp.asarray(
+                    init_f(x_pts) if callable(init_f) else init_f,
+                    dtype=jnp.float64,
+                )
+            else:
+                u_vals = jnp.zeros(sz, dtype=jnp.float64)
+
             x_fun = Chebfun.identity(dom)
+            import numpy as _np
 
-            # Evaluate residual r = N[u] - f
-            Nu_fun = self._apply_op(x_fun, u_fun)
-            Nu_vals = _chebfun_to_values(Nu_fun, disc)
-            r_vals = Nu_vals - f_vals
+            def _residual(uv):
+                """Collocation residual with BC rows replaced by BC errors."""
+                ufun = Chebfun.from_values(jnp.asarray(uv, dtype=jnp.float64), dom)
+                Nu_fun = self._apply_op(x_fun, ufun)
+                Nu_v = _np.asarray(_chebfun_to_values(Nu_fun, disc))
+                rv = Nu_v - _np.asarray(f_vals)
+                for i, (bc, bc_val) in enumerate(zip(bcs, bc_vals)):
+                    bc_row = _np.asarray(bc.matrix(disc))
+                    rv[sz - n_bc + i] = float(bc_row @ uv) - float(bc_val)
+                return rv, Nu_v, ufun
 
-            # Replace BC rows in residual with BC errors
-            n_bc = len(bcs)
-            for i, (bc, bc_val) in enumerate(zip(bcs, bc_vals)):
-                bc_row = bc.matrix(disc)
-                bc_err = float(jnp.dot(bc_row, u_vals)) - float(bc_val)
-                r_idx = sz - n_bc + i
-                r_vals = r_vals.at[r_idx].set(bc_err)
+            # Work in materialized numpy per iteration: chaining lazy JAX
+            # graphs across Newton iterations made the eventual float()
+            # materialization at n~1024 segfault XLA's CPU backend.
+            u_np = _np.asarray(u_vals, dtype=_np.float64)
+            newton_converged = False
+            r_np, Nu_vals, u_fun = _residual(u_np)
+            r_norm = float(_np.max(_np.abs(r_np)))
 
-            # Linearise around u: build Jacobian matrix by finite differences
-            J_mat = self._jacobian_matrix(disc, x_fun, u_fun, Nu_vals)
+            for _it in range(max_iter):
+                # Linearise around u
+                J_mat = self._jacobian_matrix(disc, x_fun, u_fun, jnp.asarray(Nu_vals))
+                J_np = _np.array(J_mat)  # copy: jax buffers are read-only
+                for i, bc in enumerate(bcs):
+                    J_np[sz - n_bc + i, :] = _np.asarray(bc.matrix(disc))
 
-            # Impose BCs on Jacobian rows
-            for i, bc in enumerate(bcs):
-                bc_row = bc.matrix(disc)
-                row_idx = sz - n_bc + i
-                J_mat = J_mat.at[row_idx, :].set(bc_row)
+                delta = _np.linalg.solve(J_np, -r_np)
+                if not _np.all(_np.isfinite(delta)):
+                    break
 
-            # Solve J * delta = -r
-            delta_vals = jnp.linalg.solve(J_mat, -r_vals)
+                # Damped Newton (MATLAB solvebvpNonlinear uses damping for
+                # global convergence): backtrack on the residual norm.
+                lam_damp = 1.0
+                for _ls in range(8):
+                    u_try = u_np + lam_damp * delta
+                    r_try, Nu_try, u_fun_try = _residual(u_try)
+                    r_try_norm = float(_np.max(_np.abs(r_try)))
+                    if _np.isfinite(r_try_norm) and (
+                        r_try_norm <= (1.0 - 0.25 * lam_damp) * r_norm
+                        or r_try_norm < newton_tol
+                    ):
+                        break
+                    lam_damp *= 0.5
+                u_np, r_np, Nu_vals, u_fun = u_try, r_try, Nu_try, u_fun_try
+                r_norm = r_try_norm
 
-            # Update
-            u_vals = u_vals + delta_vals
+                correction_norm = float(_np.max(_np.abs(lam_damp * delta)))
+                u_scale = max(1.0, float(_np.max(_np.abs(u_np))))
+                if correction_norm < newton_tol * u_scale:
+                    newton_converged = True
+                    break
 
-            # Convergence check
-            correction_norm = float(jnp.max(jnp.abs(delta_vals)))
-            if correction_norm < newton_tol:
-                break
-        else:
-            warnings.warn(
-                f"Chebop.solve (Newton): did not converge in {max_iter} iterations "
-                f"(last correction norm = {correction_norm:.2e}).",
-                stacklevel=3,
-            )
+            u_vals = jnp.asarray(u_np, dtype=jnp.float64)
 
-        return Chebfun.from_values(u_vals, dom)
+            finite = bool(jnp.isfinite(u_vals).all())
+            if finite:
+                u_fun = Chebfun.from_values(u_vals, dom)
+                tech = u_fun.funs[0].tech
+                resolved, _cut = Chebtech2.happiness_check(
+                    tech.coeffs, tech.values
+                )
+            else:
+                resolved = False
+
+            if newton_converged and resolved:
+                return u_fun
+
+            if fixed_size:
+                if not newton_converged:
+                    warnings.warn(
+                        f"Chebop.solve (Newton): did not converge at fixed "
+                        f"n={sz} (last correction {correction_norm:.2e}).",
+                        stacklevel=3,
+                    )
+                return u_fun
+
+            if 2 * sz > n_max:
+                warnings.warn(
+                    "Chebop.solve (Newton): solution not resolved at "
+                    f"n_max={n_max} (converged={newton_converged}, "
+                    f"resolved={resolved}). Returning best approximation.",
+                    stacklevel=3,
+                )
+                return u_fun if finite else Chebfun.from_values(
+                    jnp.zeros(sz, dtype=jnp.float64), dom
+                )
+
+            # Refine and warm-start (drop a diverged iterate).
+            u_fun_prev = u_fun if finite else None
+            sz = 2 * sz
 
     def _jacobian_matrix(self, disc, x_fun, u_fun, Nu_vals):
         """Compute the Jacobian of self.op at u.
