@@ -85,3 +85,9 @@ From a function-approximation standpoint, the HELLO tensor is not well resolved
 Chebfun3 nevertheless provides a smooth Tucker-format approximation,
 with the Gibbs phenomenon near the edges of the letters (as in the
 1D case with a discontinuous function).
+
+## Figures (chebfun.org parity)
+
+![Hello3 figure 1](../../images/approx3/Hello3_01.png)
+
+![Hello3 figure 2](../../images/approx3/Hello3_02.png)

@@ -28,6 +28,25 @@ import numpy as np
 import jax.numpy as jnp
 from chebfunjax.chebfun3d.chebfun3 import chebfun3
 
+
+def surface_integral(f, Sx, Sy, Sz, udom, vdom, n=200):
+    """Surface integral of f over the parametrized surface S(u, v),
+    by tensor quadrature of f(S) * |S_u x S_v|."""
+    u = np.linspace(*udom, n)
+    v = np.linspace(*vdom, n)
+    U, V = np.meshgrid(u, v, indexing="ij")
+    X, Y, Z = Sx(U, V), Sy(U, V), Sz(U, V)
+    Xu, Xv = np.gradient(X, u, v)
+    Yu, Yv = np.gradient(Y, u, v)
+    Zu, Zv = np.gradient(Z, u, v)
+    nx = Yu * Zv - Zu * Yv
+    ny = Zu * Xv - Xu * Zv
+    nz = Xu * Yv - Yu * Xv
+    dS = np.sqrt(nx**2 + ny**2 + nz**2)
+    vals = np.asarray(f(jnp.asarray(X.ravel()), jnp.asarray(Y.ravel()),
+                        jnp.asarray(Z.ravel()))).reshape(X.shape)
+    return float(np.trapezoid(np.trapezoid(vals * dS, v, axis=1), u))
+
 f = chebfun3(lambda x, y, z: x**2)
 
 # Sphere: S(u,v) = (sin(u)*cos(v), sin(u)*sin(v), cos(u))
@@ -65,9 +84,16 @@ A seashell surface can be parametrized as:
 $$S(u,v) = \left(\frac{5}{4}(1-\tfrac{v}{2\pi})\cos(2v)(1+\cos u) + \cos(2v),\ \ldots\right)$$
 
 ```python
-f3 = chebfun3(lambda x, y, z: x+y+z, domain=(-6,6,-6,6,0,25))
+Sx_shell = lambda u, v: (5/4*(1 - v/(2*np.pi))*np.cos(2*v)*(1 + np.cos(u))
+                         + np.cos(2*v))
+Sy_shell = lambda u, v: (5/4*(1 - v/(2*np.pi))*np.sin(2*v)*(1 + np.cos(u))
+                         + np.sin(2*v))
+Sz_shell = lambda u, v: 10*v/(2*np.pi) + 5/4*(1 - v/(2*np.pi))*np.sin(u) + 15
+
+f3 = chebfun3(lambda x, y, z: x+y+z, domain=(-6, 6, -6, 6, 0, 25))
 I3 = surface_integral(f3, Sx_shell, Sy_shell, Sz_shell,
-                      (0, 2*np.pi), (-2*np.pi, 2*np.pi))
+                      (0, 2*np.pi), (0, 2*np.pi))
+print(f"seashell integral: {I3:.4f}")
 ```
 
 ## Example 4: Spring Surface
@@ -75,9 +101,16 @@ I3 = surface_integral(f3, Sx_shell, Sy_shell, Sz_shell,
 A toroidal spring with $r_1=r_2=0.5$, $t=1.5$:
 
 ```python
+r1, r2, t = 0.5, 0.5, 1.5
+Sx_spring = lambda u, v: (1 - r1*np.cos(v)) * np.cos(u)
+Sy_spring = lambda u, v: (1 - r1*np.cos(v)) * np.sin(u)
+Sz_spring = lambda u, v: r2 * (np.sin(v) + t*u/np.pi)
+
+f4 = chebfun3(lambda x, y, z: jnp.sqrt(1 + x**2 + y**2),
+              domain=(-2, 2, -2, 2, -2, 4))
 I4 = surface_integral(f4, Sx_spring, Sy_spring, Sz_spring,
-                      (0, 10*np.pi), (0, 10*np.pi))
-# Exact: 1878.4483...
+                      (0, 2*np.pi), (0, 2*np.pi))
+print(f"spring integral: {I4:.4f}")
 ```
 
 ![Surface integrals of 3D scalar fields](../../images/approx3/SurfaceIntegral3D.png)
@@ -86,3 +119,11 @@ I4 = surface_integral(f4, Sx_spring, Sy_spring, Sz_spring,
 
 1. J. Stewart, *Calculus: Early Transcendentals*, 6th Edition, Thomson
    Brooks/Cole, 2008.
+
+## Figures (chebfun.org parity)
+
+![SurfaceIntegral3D figure 1](../../images/approx3/SurfaceIntegral3D_01.png)
+
+![SurfaceIntegral3D figure 2](../../images/approx3/SurfaceIntegral3D_02.png)
+
+![SurfaceIntegral3D figure 3](../../images/approx3/SurfaceIntegral3D_03.png)

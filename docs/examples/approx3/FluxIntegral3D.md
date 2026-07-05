@@ -82,3 +82,9 @@ print(float(div_F_ball.sum3()))  # 12.566371 = 4*pi
 - [LineIntegral3D](LineIntegral3D.md) — integration over curves
 - [GaussGreenStokes](GaussGreenStokes.md) — divergence theorem, Green's identities, Stokes' theorem
 - [SurfaceIntegral3D](SurfaceIntegral3D.md) — scalar surface integrals
+
+## Figures (chebfun.org parity)
+
+![FluxIntegral3D figure 1](../../images/approx3/FluxIntegral3D_01.png)
+
+![FluxIntegral3D figure 2](../../images/approx3/FluxIntegral3D_02.png)

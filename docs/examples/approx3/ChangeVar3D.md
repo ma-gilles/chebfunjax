@@ -94,3 +94,17 @@ Exact 8π²:    78.956835
 ## References
 
 1. R. Platte, *Chebfun Examples*, 2016.
+
+## Figures (chebfun.org parity)
+
+![ChangeVar3D figure 1](../../images/approx3/ChangeVar3D_01.png)
+
+![ChangeVar3D figure 2](../../images/approx3/ChangeVar3D_02.png)
+
+![ChangeVar3D figure 3](../../images/approx3/ChangeVar3D_03.png)
+
+![ChangeVar3D figure 4](../../images/approx3/ChangeVar3D_04.png)
+
+![ChangeVar3D figure 5](../../images/approx3/ChangeVar3D_05.png)
+
+![ChangeVar3D figure 6](../../images/approx3/ChangeVar3D_06.png)

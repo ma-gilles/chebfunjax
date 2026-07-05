@@ -87,3 +87,15 @@ print(f"∫∫∫ 1/(1+r²) dV = {I:.8f}")  # 4.28685406...
 
 1. L. N. Trefethen, Cubature, approximation, and isotropy in the hypercube,
    *SIAM Review* 59 (2017), 469–491.
+
+## Figures (chebfun.org parity)
+
+![Complexity figure 1](../../images/approx3/Complexity_01.png)
+
+![Complexity figure 2](../../images/approx3/Complexity_02.png)
+
+![Complexity figure 3](../../images/approx3/Complexity_03.png)
+
+![Complexity figure 4](../../images/approx3/Complexity_04.png)
+
+![Complexity figure 5](../../images/approx3/Complexity_05.png)

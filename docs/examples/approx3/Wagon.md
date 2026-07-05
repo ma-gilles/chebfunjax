@@ -91,3 +91,13 @@ can be small (4, 3, 5 here) while its **1D complexity** is high
 
 2. B. Hashemi, L. N. Trefethen, Chebfun in three dimensions,
    *SIAM J. Sci. Comput.* 39 (2017), C341–C363.
+
+## Figures (chebfun.org parity)
+
+![Wagon figure 1](../../images/approx3/Wagon_01.png)
+
+![Wagon figure 2](../../images/approx3/Wagon_02.png)
+
+![Wagon figure 3](../../images/approx3/Wagon_03.png)
+
+![Wagon figure 4](../../images/approx3/Wagon_04.png)

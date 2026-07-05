@@ -86,3 +86,9 @@ print(f"tanh(10(x+y))*cos(z): rank = {f_mixed.rank}")
 
 4. L. N. Trefethen, Cubature, approximation, and isotropy in the hypercube,
    *SIAM Review* 59 (2017), 469–491.
+
+## Figures (chebfun.org parity)
+
+![Chebfun3Speedup figure 1](../../images/approx3/Chebfun3Speedup_01.png)
+
+![Chebfun3Speedup figure 2](../../images/approx3/Chebfun3Speedup_02.png)

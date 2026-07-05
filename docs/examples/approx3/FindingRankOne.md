@@ -86,3 +86,11 @@ for it in range(8):
 
 2. Y. Nakatsukasa, T. Soma, and A. Uschmajew, Finding a low-rank basis in a
    matrix subspace, *Mathematical Programming* (2017).
+
+## Figures (chebfun.org parity)
+
+![FindingRankOne figure 1](../../images/approx3/FindingRankOne_01.png)
+
+![FindingRankOne figure 2](../../images/approx3/FindingRankOne_02.png)
+
+![FindingRankOne figure 3](../../images/approx3/FindingRankOne_03.png)

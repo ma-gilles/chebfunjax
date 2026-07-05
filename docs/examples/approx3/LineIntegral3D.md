@@ -84,3 +84,9 @@ print(f"∫_circle 1 ds = {float(I):.6f}")  # 2*pi = 6.283185
 
 1. C. Warren, *An Interactive Introduction to MATLAB*, University of
    Edinburgh, 2012.
+
+## Figures (chebfun.org parity)
+
+![LineIntegral3D figure 1](../../images/approx3/LineIntegral3D_01.png)
+
+![LineIntegral3D figure 2](../../images/approx3/LineIntegral3D_02.png)

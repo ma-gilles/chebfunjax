@@ -52,6 +52,8 @@ For $f = 1 + xe^{y+z}$ and $g = x^2 + y^2 + z^2$, we have $\Delta g = 6$,
 so the volume integral gives exactly 48:
 
 ```python
+import jax.numpy as jnp
+
 f_lap_g = chebfun3(lambda x, y, z: (1 + x * jnp.exp(y+z)) * 6)
 gradf_gradg = chebfun3(
     lambda x, y, z: 2*x*jnp.exp(y+z) + 2*y*x*jnp.exp(y+z) + 2*z*x*jnp.exp(y+z)
@@ -87,3 +89,13 @@ Line integral = 3.14159265
 ```
 
 ![Gauss, Green, and Stokes theorems](../../images/approx3/GaussGreenStokes.png)
+
+## Figures (chebfun.org parity)
+
+![GaussGreenStokes figure 1](../../images/approx3/GaussGreenStokes_01.png)
+
+![GaussGreenStokes figure 2](../../images/approx3/GaussGreenStokes_02.png)
+
+![GaussGreenStokes figure 3](../../images/approx3/GaussGreenStokes_03.png)
+
+![GaussGreenStokes figure 4](../../images/approx3/GaussGreenStokes_04.png)
