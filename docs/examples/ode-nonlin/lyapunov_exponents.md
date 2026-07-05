@@ -27,3 +27,9 @@ sigma, rho, beta = 10, 28, 8/3
 
 
 ![Lyapunov exponents of the Lorenz system](../../images/ode-nonlin/lyapunov_exponents.png)
+
+## Figures (chebfun.org parity)
+
+![LyapunovExponents figure 1](../../images/ode-nonlin/LyapunovExponents_01.png)
+
+![LyapunovExponents figure 2](../../images/ode-nonlin/LyapunovExponents_02.png)

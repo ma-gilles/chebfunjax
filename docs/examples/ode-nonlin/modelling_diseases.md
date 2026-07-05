@@ -26,3 +26,11 @@ sol = solve_ivp(sir, [0, 200], [999, 1, 0], rtol=1e-10)
 
 
 ![Modelling infectious disease outbreaks](../../images/ode-nonlin/modelling_diseases.png)
+
+## Figures (chebfun.org parity)
+
+![ModellingDiseases figure 1](../../images/ode-nonlin/ModellingDiseases_01.png)
+
+![ModellingDiseases figure 2](../../images/ode-nonlin/ModellingDiseases_02.png)
+
+![ModellingDiseases figure 3](../../images/ode-nonlin/ModellingDiseases_03.png)

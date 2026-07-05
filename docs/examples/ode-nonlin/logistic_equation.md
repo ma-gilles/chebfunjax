@@ -48,3 +48,13 @@ print(f"Carrying capacity reached asymptotically: max ≈ {float(y_max):.4f}")
 ```
 
 ![Logistic equation solution](../../images/ode-nonlin/logistic_equation.png)
+
+## Figures (chebfun.org parity)
+
+![Logistic2 figure 1](../../images/ode-nonlin/Logistic2_01.png)
+
+![Logistic2 figure 2](../../images/ode-nonlin/Logistic2_02.png)
+
+![Logistic2 figure 3](../../images/ode-nonlin/Logistic2_03.png)
+
+![Logistic2 figure 4](../../images/ode-nonlin/Logistic2_04.png)

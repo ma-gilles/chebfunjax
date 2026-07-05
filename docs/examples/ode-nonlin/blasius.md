@@ -25,3 +25,11 @@ f = N.solve(0.0)
 
 
 ![Blasius function](../../images/ode-nonlin/blasius.png)
+
+## Figures (chebfun.org parity)
+
+![Blasius figure 1](../../images/ode-nonlin/Blasius_01.png)
+
+![Blasius figure 2](../../images/ode-nonlin/Blasius_02.png)
+
+![Blasius figure 3](../../images/ode-nonlin/Blasius_03.png)

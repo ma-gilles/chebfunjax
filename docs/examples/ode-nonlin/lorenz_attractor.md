@@ -27,3 +27,13 @@ sol = solve_ivp(lorenz, [0, 50], [1, 1, 1], rtol=1e-10)
 
 
 ![Lorenz attractor](../../images/ode-nonlin/lorenz_attractor.png)
+
+## Figures (chebfun.org parity)
+
+![LorenzAttractor figure 1](../../images/ode-nonlin/LorenzAttractor_01.png)
+
+![LorenzAttractor figure 2](../../images/ode-nonlin/LorenzAttractor_02.png)
+
+![LorenzAttractor figure 3](../../images/ode-nonlin/LorenzAttractor_03.png)
+
+![LorenzAttractor figure 4](../../images/ode-nonlin/LorenzAttractor_04.png)

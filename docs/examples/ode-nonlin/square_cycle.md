@@ -22,3 +22,11 @@ def square_cycle_rhs(t, xy):
 
 
 ![A square limit cycle](../../images/ode-nonlin/square_cycle.png)
+
+## Figures (chebfun.org parity)
+
+![SquareCycle figure 1](../../images/ode-nonlin/SquareCycle_01.png)
+
+![SquareCycle figure 2](../../images/ode-nonlin/SquareCycle_02.png)
+
+![SquareCycle figure 3](../../images/ode-nonlin/SquareCycle_03.png)

@@ -11,6 +11,7 @@ ratio $3:4:5$ placed at the vertices of a 3-4-5 right triangle at rest.
 The orbit is chaotic.
 
 ```python
+import numpy as np
 from scipy.integrate import solve_ivp
 
 G = 1.0
@@ -30,3 +31,13 @@ def pythagorean_rhs(t, state):
 
 
 ![Pythagorean planets](../../images/ode-nonlin/three_planets.png)
+
+## Figures (chebfun.org parity)
+
+![ThreePlanets figure 1](../../images/ode-nonlin/ThreePlanets_01.png)
+
+![ThreePlanets figure 2](../../images/ode-nonlin/ThreePlanets_02.png)
+
+![ThreePlanets figure 3](../../images/ode-nonlin/ThreePlanets_03.png)
+
+![ThreePlanets figure 4](../../images/ode-nonlin/ThreePlanets_04.png)

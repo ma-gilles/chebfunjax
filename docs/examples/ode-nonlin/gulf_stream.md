@@ -26,3 +26,11 @@ N.rbc = 1.0          # f'(10) → 1
 
 
 ![A third-order nonlinear BVP on the half-line](../../images/ode-nonlin/gulf_stream.png)
+
+## Figures (chebfun.org parity)
+
+![GulfStream figure 1](../../images/ode-nonlin/GulfStream_01.png)
+
+![GulfStream figure 2](../../images/ode-nonlin/GulfStream_02.png)
+
+![GulfStream figure 3](../../images/ode-nonlin/GulfStream_03.png)

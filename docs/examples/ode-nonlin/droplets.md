@@ -25,3 +25,11 @@ def capillary_rhs(s, state, Bo=1.0, P=0.3):
 
 
 ![A droplet sitting on a surface](../../images/ode-nonlin/droplets.png)
+
+## Figures (chebfun.org parity)
+
+![Droplets figure 1](../../images/ode-nonlin/Droplets_01.png)
+
+![Droplets figure 2](../../images/ode-nonlin/Droplets_02.png)
+
+![Droplets figure 3](../../images/ode-nonlin/Droplets_03.png)

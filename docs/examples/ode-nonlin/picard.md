@@ -25,3 +25,13 @@ for n in range(8):
 
 
 ![Picard iteration for ODE existence proof](../../images/ode-nonlin/picard.png)
+
+## Figures (chebfun.org parity)
+
+![Picard figure 1](../../images/ode-nonlin/Picard_01.png)
+
+![Picard figure 2](../../images/ode-nonlin/Picard_02.png)
+
+![Picard figure 3](../../images/ode-nonlin/Picard_03.png)
+
+![Picard figure 4](../../images/ode-nonlin/Picard_04.png)

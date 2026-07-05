@@ -56,3 +56,13 @@ print(f"Van der Pol: max |y| = {np.max(np.abs(y_vdp[0])):.4f}")
 
 1. C. M. Bender and S. A. Orszag, *Advanced Mathematical Methods for Scientists
    and Engineers*, Springer, 1999.
+
+## Figures (chebfun.org parity)
+
+![ExactSolns figure 1](../../images/ode-nonlin/ExactSolns_01.png)
+
+![ExactSolns figure 2](../../images/ode-nonlin/ExactSolns_02.png)
+
+![ExactSolns figure 3](../../images/ode-nonlin/ExactSolns_03.png)
+
+![ExactSolns figure 4](../../images/ode-nonlin/ExactSolns_04.png)

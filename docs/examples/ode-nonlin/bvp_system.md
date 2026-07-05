@@ -14,6 +14,9 @@ with $u(-1) = u(1) = 0$, $v(-1) = -1$, $v(1) = 1$.
 Solved by Picard-type iteration between the two equations.
 
 ```python
+import numpy as np
+import jax.numpy as jnp
+import chebfunjax as cj
 from chebfunjax.operators.chebop import Chebop
 
 dom = (-1.0, 1.0)
@@ -28,3 +31,9 @@ for _ in range(30):
 
 
 ![System of two nonlinear BVPs](../../images/ode-nonlin/bvp_system.png)
+
+## Figures (chebfun.org parity)
+
+![BVPSystem figure 1](../../images/ode-nonlin/BVPSystem_01.png)
+
+![BVPSystem figure 2](../../images/ode-nonlin/BVPSystem_02.png)

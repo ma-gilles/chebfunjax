@@ -23,3 +23,13 @@ def gravity(t, state):
 
 
 ![Orbiting around fixed stars](../../images/ode-nonlin/orbits.png)
+
+## Figures (chebfun.org parity)
+
+![Orbits figure 1](../../images/ode-nonlin/Orbits_01.png)
+
+![Orbits figure 2](../../images/ode-nonlin/Orbits_02.png)
+
+![Orbits figure 3](../../images/ode-nonlin/Orbits_03.png)
+
+![Orbits figure 4](../../images/ode-nonlin/Orbits_04.png)

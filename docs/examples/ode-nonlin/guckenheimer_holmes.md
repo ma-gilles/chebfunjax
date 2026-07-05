@@ -24,3 +24,13 @@ def gh_system(t, u, rho=0.1, alpha=0.5, beta=2.0):
 
 
 ![A nonlinear system of Guckenheimer and Holmes](../../images/ode-nonlin/guckenheimer_holmes.png)
+
+## Figures (chebfun.org parity)
+
+![GuckenheimerHolmes figure 1](../../images/ode-nonlin/GuckenheimerHolmes_01.png)
+
+![GuckenheimerHolmes figure 2](../../images/ode-nonlin/GuckenheimerHolmes_02.png)
+
+![GuckenheimerHolmes figure 3](../../images/ode-nonlin/GuckenheimerHolmes_03.png)
+
+![GuckenheimerHolmes figure 4](../../images/ode-nonlin/GuckenheimerHolmes_04.png)

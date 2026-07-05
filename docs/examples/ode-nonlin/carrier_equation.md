@@ -68,3 +68,11 @@ u3 = N.solve(1.0)
    and Engineers*, Springer, 1999, §9.7.
 2. A. Birkisson and T. Driscoll, Automatic Fréchet differentiation for the
    numerical solution of boundary-value problems, *ACM TOMS* 38 (2012), 26.
+
+## Figures (chebfun.org parity)
+
+![Carrier figure 1](../../images/ode-nonlin/Carrier_01.png)
+
+![Carrier figure 2](../../images/ode-nonlin/Carrier_02.png)
+
+![Carrier figure 3](../../images/ode-nonlin/Carrier_03.png)

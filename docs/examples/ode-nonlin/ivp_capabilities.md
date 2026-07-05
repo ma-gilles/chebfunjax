@@ -22,3 +22,13 @@ sol = solve_ivp(vdp, [0, 20], [2, 0], rtol=1e-10, atol=1e-12)
 
 
 ![IVP capabilities](../../images/ode-nonlin/ivp_capabilities.png)
+
+## Figures (chebfun.org parity)
+
+![IVPCapabilities figure 1](../../images/ode-nonlin/IVPCapabilities_01.png)
+
+![IVPCapabilities figure 2](../../images/ode-nonlin/IVPCapabilities_02.png)
+
+![IVPCapabilities figure 3](../../images/ode-nonlin/IVPCapabilities_03.png)
+
+![IVPCapabilities figure 4](../../images/ode-nonlin/IVPCapabilities_04.png)
