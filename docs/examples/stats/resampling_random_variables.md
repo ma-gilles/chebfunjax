@@ -53,8 +53,33 @@ Resampling then proceeds as before, with uniform values below 1/2 reflected
 into $[1/2, 1]$, mapped through the inverse CDF, and reflected back.
 
 ```python
-from examples.stats.resampling_random_variables import run
-run()
+import numpy as np
+from scipy.special import iv
+
+# von Mises density; sample via the inverse CDF
+kappa = 1.5
+xs = np.linspace(-np.pi, np.pi, 2000)
+density = np.exp(kappa * np.cos(xs)) / (2 * np.pi * iv(0, kappa))
+cdf = np.concatenate([[0], np.cumsum(
+    0.5 * (density[1:] + density[:-1]) * np.diff(xs))])
+cdf /= cdf[-1]
+samples = np.interp(np.random.default_rng(0).random(10000), cdf, xs)
+print(f"sample mean {samples.mean():.4f} (exact 0), "
+      f"sample std {samples.std():.4f}")
 ```
 
 ![Resampling Random Variables](../../images/stats/resampling_random_variables.png)
+
+## Figures (chebfun.org parity)
+
+![ResamplingRandomVariables figure 1](../../images/stats/ResamplingRandomVariables_01.png)
+
+![ResamplingRandomVariables figure 2](../../images/stats/ResamplingRandomVariables_02.png)
+
+![ResamplingRandomVariables figure 3](../../images/stats/ResamplingRandomVariables_03.png)
+
+![ResamplingRandomVariables figure 4](../../images/stats/ResamplingRandomVariables_04.png)
+
+![ResamplingRandomVariables figure 5](../../images/stats/ResamplingRandomVariables_05.png)
+
+![ResamplingRandomVariables figure 6](../../images/stats/ResamplingRandomVariables_06.png)

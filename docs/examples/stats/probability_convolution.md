@@ -59,8 +59,29 @@ $z = x + y$, where $x$ and $y$ are drawn from these exotic distributions.
 2. N. Hale and A. Townsend, Convolution of compactly supported functions.
 
 ```python
-from examples.stats.probability_convolution import run
-run()
+import numpy as np
+
+# conv of two Gaussians: variances add
+xs = np.linspace(-5, 5, 4001)
+dx = xs[1] - xs[0]
+g = lambda mu, s: np.exp(-0.5*((xs-mu)/s)**2) / (s*np.sqrt(2*np.pi))
+full = np.convolve(g(-0.2, 0.3), g(0.2, 0.4)) * dx
+N3 = full[(len(full)-len(xs))//2:][:len(xs)]
+s3 = np.sqrt(np.trapezoid(xs**2 * N3, xs)
+             - np.trapezoid(xs * N3, xs)**2)
+print(f"combined std {s3:.4f} vs sqrt(.3^2+.4^2) = {np.hypot(.3,.4):.4f}")
 ```
 
 ![Probability Convolution](../../images/stats/probability_convolution.png)
+
+## Figures (chebfun.org parity)
+
+![ProbabilityConvolution figure 1](../../images/stats/ProbabilityConvolution_01.png)
+
+![ProbabilityConvolution figure 2](../../images/stats/ProbabilityConvolution_02.png)
+
+![ProbabilityConvolution figure 3](../../images/stats/ProbabilityConvolution_03.png)
+
+![ProbabilityConvolution figure 4](../../images/stats/ProbabilityConvolution_04.png)
+
+![ProbabilityConvolution figure 5](../../images/stats/ProbabilityConvolution_05.png)

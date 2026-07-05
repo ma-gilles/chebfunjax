@@ -63,8 +63,33 @@ but the coefficients grow too fast for a positive radius of convergence.
 3. J.-P. Kahane, *Some Random Series of Functions*, 2nd ed., Cambridge, 1985.
 
 ```python
-from examples.stats.smoothies import run
-run()
+import numpy as np
+
+# a smoothie: random series with Gaussian-decaying coefficients
+rng = np.random.default_rng(1)
+m = 30
+k = np.arange(m + 1)
+decay = np.exp(-(k / 10.0)**2)
+a, b = rng.standard_normal((2, m + 1)) * decay
+xs = np.linspace(-1, 1, 9)
+s = np.pi * (xs + 1)
+f = sum(a[j] * np.cos(j * s) + b[j] * np.sin(j * s)
+        for j in range(m + 1))
+print("smoothie samples:", np.round(f, 3))
 ```
 
 ![Smoothies](../../images/stats/smoothies.png)
+
+## Figures (chebfun.org parity)
+
+![Smoothies figure 1](../../images/stats/Smoothies_01.png)
+
+![Smoothies figure 2](../../images/stats/Smoothies_02.png)
+
+![Smoothies figure 3](../../images/stats/Smoothies_03.png)
+
+![Smoothies figure 4](../../images/stats/Smoothies_04.png)
+
+![Smoothies figure 5](../../images/stats/Smoothies_05.png)
+
+![Smoothies figure 6](../../images/stats/Smoothies_06.png)

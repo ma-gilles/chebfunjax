@@ -53,8 +53,27 @@ skewness of the distribution.
    and Statistics*, 3rd ed., 2009.
 
 ```python
-from examples.stats.expectations import run
-run()
+import jax.numpy as jnp
+import chebfunjax as cj
+
+f = cj.chebfun(lambda x: 2 * jnp.exp(-2 * x), domain=[0.0, 6.0])
+xf = cj.chebfun(lambda x: x * 2 * jnp.exp(-2 * x), domain=[0.0, 6.0])
+print(f"total probability: {float(f.sum()):.6f}")
+print(f"E[X] = {float(xf.sum()):.6f} (exact 1/2 up to truncation)")
 ```
 
 ![Expectations of Distributions](../../images/stats/expectations.png)
+
+## Figures (chebfun.org parity)
+
+![Expectations figure 1](../../images/stats/Expectations_01.png)
+
+![Expectations figure 2](../../images/stats/Expectations_02.png)
+
+![Expectations figure 3](../../images/stats/Expectations_03.png)
+
+![Expectations figure 4](../../images/stats/Expectations_04.png)
+
+![Expectations figure 5](../../images/stats/Expectations_05.png)
+
+![Expectations figure 6](../../images/stats/Expectations_06.png)

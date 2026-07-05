@@ -57,8 +57,42 @@ for more complex problems mixing discrete and continuous components.
    3rd edition, McGraw-Hill, 1991.
 
 ```python
-from examples.stats.central_limit_theorem import run
-run()
+import numpy as np
+
+# density (4/3 + x)/2 on [-4/3, 2/3]; iterated self-convolution
+xs = np.linspace(-3, 3, 2401)
+X = np.where((xs >= -4/3) & (xs <= 2/3), (4/3 + xs) / 2, 0.0)
+mean = np.trapezoid(xs * X, xs)
+var = np.trapezoid((xs - mean)**2 * X, xs)
+print(f"mean = {mean:.4f}, variance = {var:.4f}")
+Xc = np.where((xs + mean >= -4/3) & (xs + mean <= 2/3),
+              (4/3 + xs + mean) / 2, 0.0)
+S = Xc.copy()
+dx = xs[1] - xs[0]
+for k in range(2, 6):
+    full = np.convolve(S, Xc) * dx
+    S = full[(len(full) - len(xs)) // 2:][:len(xs)]
+gauss = np.exp(-0.5 * (xs / np.sqrt(5 * var))**2) / np.sqrt(
+    2 * np.pi * 5 * var)
+print(f"CLT deviation after 5 summands: {np.max(np.abs(S - gauss)):.4f}")
 ```
 
 ![Central Limit Theorem](../../images/stats/central_limit_theorem.png)
+
+## Figures (chebfun.org parity)
+
+![CentralLimitTheorem figure 1](../../images/stats/CentralLimitTheorem_01.png)
+
+![CentralLimitTheorem figure 2](../../images/stats/CentralLimitTheorem_02.png)
+
+![CentralLimitTheorem figure 3](../../images/stats/CentralLimitTheorem_03.png)
+
+![CentralLimitTheorem figure 4](../../images/stats/CentralLimitTheorem_04.png)
+
+![CentralLimitTheorem figure 5](../../images/stats/CentralLimitTheorem_05.png)
+
+![CentralLimitTheorem figure 6](../../images/stats/CentralLimitTheorem_06.png)
+
+![CentralLimitTheorem figure 7](../../images/stats/CentralLimitTheorem_07.png)
+
+![CentralLimitTheorem figure 8](../../images/stats/CentralLimitTheorem_08.png)
