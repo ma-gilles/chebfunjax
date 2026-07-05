@@ -22,7 +22,7 @@ f = cj.chebfun(lambda x: jnp.sin(x * (20.0 - 15.0*x)),
 
 # Each piece has a different length
 for k, piece in enumerate(f.funs):
-    print(f"Piece {k}: [{breakpoints[k]:.1f}, {breakpoints[k+1]:.1f}], length = {len(piece)}")
+    print(f"Piece {k}: [{breakpoints[k]:.1f}, {breakpoints[k+1]:.1f}], length = {len(piece.tech.coeffs)}")
 ```
 
 The right-hand pieces have higher local frequency and thus more Chebyshev
