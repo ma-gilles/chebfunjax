@@ -1696,6 +1696,43 @@ class Chebfun(eqx.Module):
         """
         return _two_arg_extremum(self, other, jnp.minimum)
 
+    def floor(self) -> Chebfun:
+        """Pointwise floor, as a piecewise-constant Chebfun.
+
+        Breakpoints are inserted where ``self`` crosses an integer, so
+        each piece is constant.  Added by Claude Opus 4.8 (task #14).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/floor.m
+        Chebfun commit: 7574c77
+        """
+        return _integer_step(self, jnp.floor)
+
+    def ceil(self) -> Chebfun:
+        """Pointwise ceiling, as a piecewise-constant Chebfun.
+
+        Added by Claude Opus 4.8 (task #14).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/ceil.m
+        Chebfun commit: 7574c77
+        """
+        return _integer_step(self, jnp.ceil)
+
+    def round(self) -> Chebfun:
+        """Pointwise round-to-nearest-integer, piecewise-constant Chebfun.
+
+        Added by Claude Opus 4.8 (task #14).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/round.m
+        Chebfun commit: 7574c77
+        """
+        return _integer_step(self, jnp.round, half_offset=True)
+
     # ------------------------------------------------------------------
     # Restriction
     # ------------------------------------------------------------------
@@ -4184,6 +4221,47 @@ def _two_arg_extremum(f: "Chebfun", other, pick):
         return pick(f(x), g_eval(x))
 
     return chebfun(ev, domain=tuple(domain))
+
+
+def _integer_step(f: "Chebfun", op, half_offset: bool = False):
+    """Piecewise-constant floor/ceil/round of a Chebfun (Opus 4.8, #14).
+
+    Breakpoints are the points where ``f`` (or ``f - 1/2`` for round)
+    crosses an integer; between them ``op(f)`` is constant.
+    """
+    import numpy as _np
+
+    a = float(f.domain.a)
+    b = float(f.domain.b)
+    # sample to bound the range of f
+    xs = _np.linspace(a, b, 257)
+    fv = _np.asarray(f(jnp.asarray(xs)))
+    lo = int(_np.floor(fv.min())) - 1
+    hi = int(_np.ceil(fv.max())) + 1
+
+    brks = set(float(x) for x in f.domain.breakpoints)
+    shift = 0.5 if half_offset else 0.0
+    for k in range(lo, hi + 1):
+        # crossings of f = k + shift
+        r = _np.asarray((f - (k + shift)).roots())
+        for rr in r:
+            rr = float(rr)
+            if a + 1e-12 < rr < b - 1e-12:
+                brks.add(rr)
+    brks = sorted(x for x in brks if a + 1e-12 < x < b - 1e-12)
+    domain = _np.array([a, *brks, b])
+
+    # Each piece is exactly constant = op(f(midpoint)); build the pieces
+    # directly as degree-0 Chebtechs so shared breakpoints (which sit on
+    # the jump) don't corrupt the fit.
+    mids = 0.5 * (domain[:-1] + domain[1:])
+    consts = _np.asarray(op(f(jnp.asarray(mids))), dtype=_np.float64)
+    funs = [
+        _Piece.from_coeffs(jnp.array([float(consts[i])], dtype=jnp.float64),
+                           float(domain[i]), float(domain[i + 1]))
+        for i in range(len(consts))
+    ]
+    return Chebfun(funs=funs, domain=Domain(tuple(float(x) for x in domain)))
 
 
 def _ode_solve(

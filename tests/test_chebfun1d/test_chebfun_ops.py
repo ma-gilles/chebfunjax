@@ -916,3 +916,38 @@ class TestTwoArgMaxMin:
         np.testing.assert_allclose(
             np.asarray(h(jnp.asarray(xs))),
             np.abs(np.sin(3 * xs)), atol=1e-12)
+
+
+class TestFloorCeilRound:
+    """Piecewise-constant floor/ceil/round via integer-crossing splits (Opus 4.8)."""
+
+    def _f(self):
+        import jax.numpy as jnp
+
+        import chebfunjax as cj
+        return cj.chebfun(lambda x: 2.7 * jnp.sin(2 * x), domain=(-2.0, 2.0))
+
+    def _check(self, cheb_op, np_op, offset=0.0):
+        import jax.numpy as jnp
+        import numpy as np
+        f = self._f()
+        h = cheb_op(f)
+        xs = np.linspace(-1.98, 1.98, 300)
+        fv = 2.7 * np.sin(2 * xs)
+        # exclude points within 0.005 (in value) of a crossing
+        mask = np.min(np.abs(fv[:, None] - np.arange(-4, 5)[None, :] - offset),
+                      axis=1) > 0.005
+        got = np.asarray(h(jnp.asarray(xs)))
+        np.testing.assert_allclose(got[mask], np_op(fv[mask]), atol=1e-12)
+
+    def test_floor(self):
+        import numpy as np
+        self._check(lambda c: c.floor(), np.floor)
+
+    def test_ceil(self):
+        import numpy as np
+        self._check(lambda c: c.ceil(), np.ceil)
+
+    def test_round(self):
+        import numpy as np
+        self._check(lambda c: c.round(), np.round, offset=0.5)
