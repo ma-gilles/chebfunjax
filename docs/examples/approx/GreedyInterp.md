@@ -34,3 +34,28 @@ for _ in range(30):
 
 ![A Greedy Algorithm for Choosing Interpolation Points](../../images/approx/GreedyInterp.png)
 
+## Figures (chebfun.org parity)
+
+![GreedyInterp figure 1](../../images/approx/GreedyInterp_01.png)
+
+![GreedyInterp figure 2](../../images/approx/GreedyInterp_02.png)
+
+![GreedyInterp figure 3](../../images/approx/GreedyInterp_03.png)
+
+![GreedyInterp figure 4](../../images/approx/GreedyInterp_04.png)
+
+![GreedyInterp figure 5](../../images/approx/GreedyInterp_05.png)
+
+![GreedyInterp figure 6](../../images/approx/GreedyInterp_06.png)
+
+![GreedyInterp figure 7](../../images/approx/GreedyInterp_07.png)
+
+![GreedyInterp figure 8](../../images/approx/GreedyInterp_08.png)
+
+![GreedyInterp figure 9](../../images/approx/GreedyInterp_09.png)
+
+![GreedyInterp figure 10](../../images/approx/GreedyInterp_10.png)
+
+![GreedyInterp figure 11](../../images/approx/GreedyInterp_11.png)
+
+![GreedyInterp figure 12](../../images/approx/GreedyInterp_12.png)

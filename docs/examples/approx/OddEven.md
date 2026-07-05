@@ -31,3 +31,22 @@ with only even-degree terms.
 
 ![Odd and Even Best Approximations](../../images/approx/OddEven.png)
 
+## Figures (chebfun.org parity)
+
+![OddEven figure 1](../../images/approx/OddEven_01.png)
+
+![OddEven figure 2](../../images/approx/OddEven_02.png)
+
+![OddEven figure 3](../../images/approx/OddEven_03.png)
+
+![OddEven figure 4](../../images/approx/OddEven_04.png)
+
+![OddEven figure 5](../../images/approx/OddEven_05.png)
+
+![OddEven figure 6](../../images/approx/OddEven_06.png)
+
+![OddEven figure 7](../../images/approx/OddEven_07.png)
+
+![OddEven figure 8](../../images/approx/OddEven_08.png)
+
+![OddEven figure 9](../../images/approx/OddEven_09.png)

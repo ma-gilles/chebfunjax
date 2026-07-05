@@ -15,17 +15,19 @@ The AAA algorithm returns a function handle corresponding to a type $(m-1, m-1)$
 In chebfunjax, the `aaa` function works analogously:
 
 ```python
-import jax.numpy as jnp
 import numpy as np
+import jax.numpy as jnp
 from scipy.special import gamma
 import chebfunjax as cj
 from chebfunjax.utils.aaa import aaa
 
 # Sample gamma on [-1, 1]
-xs = jnp.linspace(-1.0, 1.0, 500)
-ys = jnp.array([float(gamma(float(x))) for x in xs])
+xs_np = np.linspace(-1.0, 1.0, 500)
+xs_np = xs_np[np.abs(xs_np) > 1e-2]          # avoid the pole at 0
+xs = jnp.asarray(xs_np)
+ys = jnp.asarray(gamma(xs_np))
 
-r, pol, res, zer, zj, fj, w, errvec = aaa(ys, xs)
+r, pol, res, zer, zj, fj, w = aaa(ys, xs)
 print(f"Type ({len(pol)-1}, {len(pol)-1}) approximant")
 print(f"Poles: {pol}")
 ```
@@ -41,7 +43,7 @@ r2, pol2, *_ = aaa(ys2, xs2)
 
 import numpy as np
 xx = np.linspace(-1.0, 1.0, 600)
-err = np.array([abs(float(jnp.exp(jnp.array(x)) - r2(jnp.array(x)))) for x in xx])
+err = np.abs(np.exp(xx) - np.real(r2(xx)))
 print(f"Max error: {np.max(err):.2e}")
 ```
 
@@ -60,3 +62,19 @@ The true power of AAA lies in its ability to work on arbitrary domains in the co
 ## References
 
 1. Y. Nakatsukasa, O. Sète, and L. N. Trefethen, The AAA algorithm for rational approximation, *SIAM J. Sci. Comput.*, 40 (2018), A1494-A1522.
+
+## Figures (chebfun.org parity)
+
+![AAAApprox figure 1](../../images/approx/AAAApprox_01.png)
+
+![AAAApprox figure 2](../../images/approx/AAAApprox_02.png)
+
+![AAAApprox figure 3](../../images/approx/AAAApprox_03.png)
+
+![AAAApprox figure 4](../../images/approx/AAAApprox_04.png)
+
+![AAAApprox figure 5](../../images/approx/AAAApprox_05.png)
+
+![AAAApprox figure 6](../../images/approx/AAAApprox_06.png)
+
+![AAAApprox figure 7](../../images/approx/AAAApprox_07.png)

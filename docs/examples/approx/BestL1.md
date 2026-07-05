@@ -30,3 +30,24 @@ the L1 error concentrates near the kink at $x=1/4$ while being small elsewhere.
 
 ![Best Polynomial Approximation in the L1 Norm](../../images/approx/BestL1.png)
 
+## Figures (chebfun.org parity)
+
+![BestL1 figure 1](../../images/approx/BestL1_01.png)
+
+![BestL1 figure 2](../../images/approx/BestL1_02.png)
+
+![BestL1 figure 3](../../images/approx/BestL1_03.png)
+
+![BestL1 figure 4](../../images/approx/BestL1_04.png)
+
+![BestL1 figure 5](../../images/approx/BestL1_05.png)
+
+![BestL1 figure 6](../../images/approx/BestL1_06.png)
+
+![BestL1 figure 7](../../images/approx/BestL1_07.png)
+
+![BestL1 figure 8](../../images/approx/BestL1_08.png)
+
+![BestL1 figure 9](../../images/approx/BestL1_09.png)
+
+![BestL1 figure 10](../../images/approx/BestL1_10.png)
