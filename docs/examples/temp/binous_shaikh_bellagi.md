@@ -78,8 +78,16 @@ $[0, 2.5]$. BSB plot both the temperature and the velocity $F'$.
 ## Code
 
 ```python
-from examples.temp.binous_shaikh_bellagi import run
-run()
+import warnings
+import jax.numpy as jnp
+from chebfunjax.operators.chebop import Chebop
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    L = Chebop(lambda x, c: 0.49 * c.diff(2) - 2.5 * c.diff(),
+               domain=(0.0, 10.0), lbc=1.0, rbc=0.0)
+    c = L.solve(0.0)
+print(f"c(1) = {float(c(jnp.array([1.0]))[0]):.6f}")
 ```
 
 ![Problems from Binous, Shaikh and Bellagi](../../images/temp/binous_shaikh_bellagi.png)
@@ -89,3 +97,17 @@ run()
 1. H. Binous, A. A. Shaikh, and A. Bellagi, "Chebyshev orthogonal collocation
    technique to solve transport phenomena problems with Matlab and Mathematica,"
    *Computer Applications in Engineering Education*, 2014, pp. 1--10.
+
+## Figures (chebfun.org parity)
+
+![Steady convection-diffusion](../../images/temp/BinousShaikhBellagi_01.png)
+
+![A damped second-order profile](../../images/temp/BinousShaikhBellagi_02.png)
+
+![Convection-diffusion on [0, 10]](../../images/temp/BinousShaikhBellagi_03.png)
+
+![Falkner-Skan boundary layer](../../images/temp/BinousShaikhBellagi_04.png)
+
+![The velocity profile](../../images/temp/BinousShaikhBellagi_05.png)
+
+![Heat-equation snapshots via expm](../../images/temp/BinousShaikhBellagi_06.png)

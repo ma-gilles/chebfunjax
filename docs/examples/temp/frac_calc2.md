@@ -61,8 +61,13 @@ the composition property $D^{1-\alpha}(D^\alpha f) = f'$.
 ## Code
 
 ```python
-from examples.temp.frac_calc2 import run
-run()
+import numpy as np
+from math import gamma
+from scipy.special import erf
+
+# Half-integral of exp on [-1, x]: J^{1/2} e^x = e^x erf(sqrt(x+1))
+x = np.linspace(-1, 1, 5)
+print(np.round(np.exp(x) * erf(np.sqrt(x + 1)), 6))
 ```
 
 ![Fractional Calculus (cont.)](../../images/temp/frac_calc2.png)
@@ -73,3 +78,17 @@ run()
 2. NIST Digital Library of Mathematical Functions, <http://dlmf.nist.gov/>,
    Release 1.0.9 of 2014-08-29.
 3. Chebfun Example [cheb/FastChebyshevLegendreTransform](https://www.chebfun.org/examples/cheb/FastChebyshevLegendreTransform.html)
+
+## Figures (chebfun.org parity)
+
+![Fractional integrals, panel 1](../../images/temp/FracCalc2_01.png)
+
+![Fractional integrals, panel 2](../../images/temp/FracCalc2_02.png)
+
+![Fractional integrals, panel 3](../../images/temp/FracCalc2_03.png)
+
+![Fractional integrals, panel 4](../../images/temp/FracCalc2_04.png)
+
+![Fractional integrals, panel 5](../../images/temp/FracCalc2_05.png)
+
+![Fractional integrals, panel 6](../../images/temp/FracCalc2_06.png)

@@ -49,8 +49,13 @@ calculus operators in the Chebop system.
 ## Code
 
 ```python
-from examples.temp.frac_calc import run
-run()
+import numpy as np
+from math import gamma
+
+# Closed form: the half-derivative of x is 2 sqrt(x/pi)
+x = np.linspace(0, 4, 9)
+d_half = x**0.5 / gamma(1.5)
+print(np.allclose(d_half, 2 * np.sqrt(x / np.pi)))
 ```
 
 ![Fractional Calculus](../../images/temp/frac_calc.png)
@@ -60,3 +65,19 @@ run()
 1. P. I. Lizorkin, "Fractional integration and differentiation,"
    *Encyclopedia of Mathematics*, Springer, 2001.
 2. <http://en.wikipedia.org/wiki/Riemann-Liouville_differintegral>
+
+## Figures (chebfun.org parity)
+
+![Fractional calculus, panel 1](../../images/temp/FracCalc_01.png)
+
+![Fractional calculus, panel 2](../../images/temp/FracCalc_02.png)
+
+![Fractional calculus, panel 3](../../images/temp/FracCalc_03.png)
+
+![Fractional calculus, panel 4](../../images/temp/FracCalc_04.png)
+
+![Fractional calculus, panel 5](../../images/temp/FracCalc_05.png)
+
+![Fractional calculus, panel 6](../../images/temp/FracCalc_06.png)
+
+![Fractional calculus, panel 7](../../images/temp/FracCalc_07.png)

@@ -60,9 +60,33 @@ $(i - x_0)/r$, which approaches the real axis as $r \to \infty$.
 ## Code
 
 ```python
-from examples.temp.taylors_theorem import run
-run()
+import numpy as np
+import jax.numpy as jnp
+import chebfunjax as cj
+
+# Interpolation near x0 = 2 converges inside the disk that first
+# touches the singularity of log|x - i| at x = i: radius sqrt(5).
+x0, r = 2.0, 0.5
+p = cj.chebfun(lambda x: jnp.log(jnp.abs(x - 1j)), domain=[x0 - r, x0 + r])
+print(f"local approximant length: {len(p)}")
+print(f"radius of convergence: {np.sqrt(x0**2 + 1):.4f}")
 ```
 
 
 ## References
+
+## Figures (chebfun.org parity)
+
+![Local approximations of sin](../../images/temp/TaylorsTheorem_01.png)
+
+![log|x - i| on [-5, 5]](../../images/temp/TaylorsTheorem_02.png)
+
+![A narrow-window approximation](../../images/temp/TaylorsTheorem_03.png)
+
+![A wider window](../../images/temp/TaylorsTheorem_04.png)
+
+![Convergence disk r = 0.5](../../images/temp/TaylorsTheorem_05.png)
+
+![Convergence disk r = 1.2](../../images/temp/TaylorsTheorem_06.png)
+
+![The maximal disk touching the singularity](../../images/temp/TaylorsTheorem_07.png)
