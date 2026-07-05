@@ -994,6 +994,83 @@ class Spherefun(eqx.Module):
         from chebfunjax.plotting import contour_sphere
         return contour_sphere(self, **kwargs)
 
+    def mean(self) -> jax.Array:
+        """Mean value of the function over the unit sphere: sum / (4 pi)."""
+        return self.sum() / (4 * jnp.pi)
+
+    @classmethod
+    def sphharm(cls, l: int, m: int) -> "Spherefun":
+        r"""Real (orthonormal) spherical harmonic :math:`Y_l^m`.
+
+        Returns a Spherefun representing the real spherical harmonic of
+        degree ``l`` and order ``m`` (``-l <= m <= l``), normalized so
+        that :math:`\int_{S^2} (Y_l^m)^2 \, dS = 1`.  The associated
+        Legendre functions are evaluated with the numerically stable
+        fully-normalized three-term recurrence.
+
+        Parameters
+        ----------
+        l : int
+            Degree (l >= 0).
+        m : int
+            Order (-l <= m <= l).  m > 0 gives the cos(m*lam) harmonic,
+            m < 0 the sin(|m|*lam) harmonic.
+
+        Returns
+        -------
+        Spherefun
+
+        Notes
+        -----
+        Verified against ``scipy.special.sph_harm_y`` to machine
+        precision (up to the standard global sign convention).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/sphharm.m
+        Chebfun commit: 7574c77
+        Original: Copyright 2017 by The University of Oxford and The
+        Chebfun Developers.  See https://www.chebfun.org/.
+        """
+        l = int(l)
+        m_signed = int(m)
+        m = abs(m_signed)
+        if l < 0:
+            raise ValueError("degree l must be non-negative")
+        if m > l:
+            raise ValueError("order |m| must be <= l")
+
+        def ev(lam, theta):
+            x = jnp.cos(theta)
+            # Fully-normalized P_m^m (Condon-Shortley phase folded in).
+            pmm = jnp.ones_like(x) / jnp.sqrt(4 * jnp.pi)
+            for i in range(1, m + 1):
+                pmm = -jnp.sqrt((2 * i + 1) / (2.0 * i)) \
+                    * jnp.sqrt(1 - x**2) * pmm
+            if l == m:
+                plm = pmm
+            else:
+                pm1 = jnp.sqrt(2 * m + 3.0) * x * pmm
+                if l == m + 1:
+                    plm = pm1
+                else:
+                    p_prev, p_curr = pmm, pm1
+                    for ll in range(m + 2, l + 1):
+                        a = jnp.sqrt((4.0 * ll * ll - 1)
+                                     / (ll * ll - m * m))
+                        b = jnp.sqrt(((ll - 1.0) ** 2 - m * m)
+                                     / (4.0 * (ll - 1.0) ** 2 - 1))
+                        p_next = a * (x * p_curr - b * p_prev)
+                        p_prev, p_curr = p_curr, p_next
+                    plm = p_curr
+            if m_signed > 0:
+                return jnp.sqrt(2.0) * plm * jnp.cos(m * lam)
+            if m_signed < 0:
+                return jnp.sqrt(2.0) * plm * jnp.sin(m * lam)
+            return plm
+
+        return cls.from_function(ev)
+
     def __repr__(self) -> str:
         """Compact display.
 

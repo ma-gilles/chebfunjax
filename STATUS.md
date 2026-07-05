@@ -93,6 +93,23 @@
 |------|------|-------|
 | V13-V18, V24-V28 | pde15s, singularity detection, Lebesgue, gallery, test coverage backfill | running |
 
+## Whole-codebase parity campaign (2026-07)
+
+See **[HANDOFF.md](HANDOFF.md)** for the authoritative status of the
+plot/example parity campaign: what is done, what was verified, and
+what remains.
+
+- **Guide figures:** 323/323 regenerated; 19/20 chapters at genuine
+  parity (ch.17 gated on the spherefun calculus layer).
+- **Example figures:** all 21 categories complete — **826 genuinely
+  computed figures**, 631 (76%) pass the strict 0.06 visual gate; the
+  rest are content-verified in documented exception classes
+  (3D-renderer aspect, random-instance, data-dependent).
+- **Tests:** 2513 passed / 4 skipped on `test-fast`.
+- **Still open:** spherefun calculus `diff`/`laplacian`/`grad` (#25),
+  Ballfun Helmholtz (#17), unhappy-constructor edge detection (#15),
+  Chebop periodic/IVP routing (#24), and the library backlog (#9–#20).
+
 ## Stats
 - **39 PRs merged**
 - **65 source files, ~38,000 LOC**
