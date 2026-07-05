@@ -785,6 +785,17 @@ class Spherefun(eqx.Module):
         grid = min_sample
 
         while not is_happy and not failure:
+            # Double the grid BEFORE sampling, matching MATLAB
+            # @spherefun/constructor.m (line ~101: `grid = 2*grid`).
+            # Fix by Claude Opus 4.8: the previous code ran phase one at
+            # the coarse `min_sample` grid on the first pass, where a sum
+            # of harmonics with different sine orders (e.g. Y_2^{-1} +
+            # Y_4^{-3}) aliases to rank 1 and falsely reports happy=True,
+            # producing a wrong low-rank spherefun. Starting at
+            # 2*min_sample exposes the true rank (verified: grid 4 ->
+            # false happy; grid 8 -> not happy so the loop refines to
+            # grid 16 where rank 2 is found).
+            grid = 2 * grid
             th_pts = _sphere_col_pts(grid)  # shape (grid+1,)
             lam_pts = _sphere_row_pts(grid)  # shape (2*grid,)
 
@@ -824,8 +835,9 @@ class Spherefun(eqx.Module):
 
             if happy_rank:
                 is_happy = True
-            else:
-                grid = 2 * grid
+            # else: the grid is doubled at the top of the next iteration
+            # (moved there by Opus 4.8 to match MATLAB and avoid the
+            # coarse-grid false-convergence described above).
 
         # Phase 2: resolve slices
         cols_list, rows_list, pivots_arr, idx_plus, idx_minus = _phase_two_sphere(

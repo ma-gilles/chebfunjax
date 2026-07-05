@@ -19,7 +19,6 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import numpy.testing as npt
-import pytest
 
 from chebfunjax.spherefun.spherefun import Spherefun
 
@@ -335,37 +334,29 @@ class TestSphericalCalculus:
         npt.assert_allclose(float(c.mean()), 2.5, atol=1e-8)
 
 
-class TestConstructorMixedOrderBug:
-    """Regression test for a pre-existing Spherefun.from_function bug.
+class TestConstructorMixedOrder:
+    """Regression test for the from_function mixed-order fix (Opus 4.8).
 
-    Discovered by Claude Opus 4.8 while validating a spectral gradient:
-    ``from_function`` mis-reconstructs a sum of spherical harmonics whose
-    sine orders differ (e.g. |m| = 1 and |m| = 3) at certain degrees --
-    the BMC Gaussian-elimination pivoting does not resolve the rank-2
-    longitude structure. Single harmonics, same-order sums, and cosine
-    sums all reconstruct correctly, so the bug has a narrow trigger.
-
-    This affects EVERY operation on such a spherefun (evaluation, sum,
-    laplacian, ...), not just the constructor. It is NOT introduced by
-    the laplacian/poisson work -- those are correct wherever
-    from_function reconstructs the input faithfully.
-
-    Marked xfail so the suite tracks it and flags when the constructor
-    is fixed. See HANDOFF.md task "from_function mixed-order".
+    ``from_function`` previously mis-reconstructed a sum of spherical
+    harmonics with differing sine orders (e.g. Y_2^{-1} + Y_4^{-3}):
+    phase one ran at the coarse ``min_sample`` grid where the two
+    harmonics alias to rank 1 and it falsely reported ``happy=True``.
+    The fix doubles the grid before phase one (matching MATLAB
+    @spherefun/constructor.m), exposing the true rank. This affected
+    EVERY operation on such a spherefun, so it is pinned here.
     """
 
-    @pytest.mark.xfail(reason="pre-existing BMC constructor bug: mixed "
-                              "sine-order harmonics mis-reconstruct",
-                       strict=True)
     def test_mixed_sine_order_reconstructs(self):
         L, T = jnp.meshgrid(jnp.linspace(-3.0, 3.0, 9),
                             jnp.linspace(0.25, 2.85, 9))
-
-        def target(lam, theta):
-            return (Spherefun.sphharm(2, -1)(lam, theta)
-                    + Spherefun.sphharm(4, -3)(lam, theta))
-
-        f = Spherefun.from_function(target)
-        got = np.asarray(f(L.ravel(), T.ravel()))
-        want = np.asarray(target(L.ravel(), T.ravel()))
-        npt.assert_allclose(got, want, atol=1e-8)
+        for terms in ([(2, -1), (4, -3)], [(3, -1), (5, -3)],
+                      [(4, -2), (6, -4)]):
+            def target(lam, theta, _t=terms):
+                out = Spherefun.sphharm(*_t[0])(lam, theta)
+                for lm in _t[1:]:
+                    out = out + Spherefun.sphharm(*lm)(lam, theta)
+                return out
+            f = Spherefun.from_function(target)
+            got = np.asarray(f(L.ravel(), T.ravel()))
+            want = np.asarray(target(L.ravel(), T.ravel()))
+            npt.assert_allclose(got, want, atol=1e-8)
