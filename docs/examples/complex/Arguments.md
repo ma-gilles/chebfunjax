@@ -58,3 +58,15 @@ print(f"Winding number: {winding:.4f}  (should be 1)")
 
 *Top*: Wrapped and unwrapped argument of a spiral.
 *Bottom*: Winding number computation for a closed curve around a pole.
+
+## Figures (chebfun.org parity)
+
+![The spiral t e^{it}](../../images/complex/Arguments_01.png)
+
+![angle(f): principal branch jumps](../../images/complex/Arguments_02.png)
+
+![unwrap(angle(f)): continuous argument](../../images/complex/Arguments_03.png)
+
+![sqrt(f) with the principal branch](../../images/complex/Arguments_04.png)
+
+![sqrt(f) with continuous argument](../../images/complex/Arguments_05.png)

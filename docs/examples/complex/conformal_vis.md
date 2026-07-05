@@ -63,3 +63,15 @@ print(f"|cayley(i)| = {abs(w_imag):.6f}  (should be 1)")
 ![Conformal visualisation](../../images/complex/conformal_vis.png)
 
 Grid lines mapped by $z^2$, $e^z$, $(z-1)/(z+1)$, and $\sin(z)$.
+
+## Figures (chebfun.org parity)
+
+![A grid on the unit square](../../images/complex/ConformalVis_01.png)
+
+![Image under (1+z)^2](../../images/complex/ConformalVis_02.png)
+
+![The same map, denser rendering](../../images/complex/ConformalVis_03.png)
+
+![Image under tanh(z)](../../images/complex/ConformalVis_04.png)
+
+![Scribbled words mapped conformally](../../images/complex/ConformalVis_05.png)

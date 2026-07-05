@@ -69,3 +69,11 @@ print(f"2πi·sin(z0)  : {2j*np.pi*np.sin(z0):.6f}")
 ![Closed contours](../../images/complex/closed_contours.png)
 
 Four closed-contour integrals with their contours and exact values.
+
+## Figures (chebfun.org parity)
+
+![Image of the unit circle](../../images/complex/ClosedContours_01.png)
+
+![Real and imaginary parts](../../images/complex/ClosedContours_02.png)
+
+![A perturbed closed contour](../../images/complex/ClosedContours_03.png)

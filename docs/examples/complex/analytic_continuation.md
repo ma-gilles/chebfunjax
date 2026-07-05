@@ -41,10 +41,10 @@ slower coefficient decay:
 f_runge = cj.chebfun(lambda x: 1.0 / (1.0 + 25*x**2))
 c_runge = f_runge.coeffs
 
-# Compare decay rates
-n_vals = np.arange(len(c))
-plt.semilogy(n_vals, np.abs(c_runge), label=r'$1/(1+25x^2)$')
-plt.semilogy(n_vals, np.abs(c),       label=r'$\tanh(x)$')
+# Compare decay rates (each series against its own length)
+plt.semilogy(np.arange(len(c_runge)), np.abs(c_runge),
+             label=r'$1/(1+25x^2)$')
+plt.semilogy(np.arange(len(c)), np.abs(c), label=r'$\tanh(x)$')
 ```
 
 ## Gallery
@@ -53,3 +53,13 @@ plt.semilogy(n_vals, np.abs(c),       label=r'$\tanh(x)$')
 
 Chebyshev coefficient magnitudes for $\tanh(x)$ (fast decay) and $1/(1+25x^2)$
 (slow decay due to nearby poles at $\pm i/5$).
+
+## Figures (chebfun.org parity)
+
+![The Chebfun ellipse of analyticity](../../images/complex/AnalyticContinuation_01.png)
+
+![Level curves of |p| with the ellipse](../../images/complex/AnalyticContinuation_02.png)
+
+![Denser level curves](../../images/complex/AnalyticContinuation_03.png)
+
+![log-magnitude contours](../../images/complex/AnalyticContinuation_04.png)

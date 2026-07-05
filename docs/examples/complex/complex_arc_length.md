@@ -56,3 +56,13 @@ print(f"Spiral arc length: {L_spiral:.10f}  (exact: {exact_spiral:.10f})")
 ![Complex arc length](../../images/complex/complex_arc_length.png)
 
 Four curves (circle, line, ellipse, spiral) with their computed arc lengths.
+
+## Figures (chebfun.org parity)
+
+![A keyhole contour](../../images/complex/ComplexArcLength_01.png)
+
+![A flower curve](../../images/complex/ComplexArcLength_02.png)
+
+![Equal-arclength points](../../images/complex/ComplexArcLength_03.png)
+
+![Equispaced-parameter points](../../images/complex/ComplexArcLength_04.png)

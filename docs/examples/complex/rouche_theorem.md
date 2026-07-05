@@ -51,3 +51,19 @@ assert winding == 5
 
 *Left*: $p(z)$ on $|z|=2$ mapped into the complex plane — it winds 5 times
 around the origin. *Right*: Roots of $p$ in the complex plane.
+
+## Figures (chebfun.org parity)
+
+![|f| and |f-g| on the unit circle (f=z, g=sin z)](../../images/complex/RoucheTheorem_01.png)
+
+![Images of the unit circle under f and g](../../images/complex/RoucheTheorem_02.png)
+
+![Image under g/f: winding number zero](../../images/complex/RoucheTheorem_03.png)
+
+![|f| and |f-g| for the degree-7 polynomial](../../images/complex/RoucheTheorem_04.png)
+
+![Roots of g and the unit circle](../../images/complex/RoucheTheorem_05.png)
+
+![Image of the circle under g](../../images/complex/RoucheTheorem_06.png)
+
+![Image under g/f: three windings](../../images/complex/RoucheTheorem_07.png)

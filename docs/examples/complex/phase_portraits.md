@@ -65,3 +65,13 @@ the zero (positive) or pole (negative):
 
 Phase portraits for $z^2$, $(z-1)/(z+1)$, $\sin z$, $e^z$, $\tan z$, and
 $z(z-1)(z+i)$.
+
+## Figures (chebfun.org parity)
+
+![Phase portrait of sin(z)](../../images/complex/PhasePortraits_01.png)
+
+![cos(z^2)](../../images/complex/PhasePortraits_02.png)
+
+![Nearly the ten roots of unity](../../images/complex/PhasePortraits_03.png)
+
+![sin(z) - sinh(z)](../../images/complex/PhasePortraits_04.png)
