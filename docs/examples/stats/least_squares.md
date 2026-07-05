@@ -41,3 +41,9 @@ run()
 ```
 
 ![Least Squares Fitting](../../images/stats/least_squares.png)
+
+## Figures (chebfun.org parity)
+
+![LeastSquares figure 1](../../images/stats/LeastSquares_01.png)
+
+![LeastSquares figure 2](../../images/stats/LeastSquares_02.png)

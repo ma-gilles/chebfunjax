@@ -47,3 +47,9 @@ run()
 ```
 
 ![Normal Distribution Exercises](../../images/stats/normal_exercises.png)
+
+## Figures (chebfun.org parity)
+
+![NormalExercises figure 1](../../images/stats/NormalExercises_01.png)
+
+![NormalExercises figure 2](../../images/stats/NormalExercises_02.png)

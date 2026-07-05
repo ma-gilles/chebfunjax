@@ -43,3 +43,11 @@ run()
 ```
 
 ![Histogram](../../images/stats/histogram.png)
+
+## Figures (chebfun.org parity)
+
+![Histogram figure 1](../../images/stats/Histogram_01.png)
+
+![Histogram figure 2](../../images/stats/Histogram_02.png)
+
+![Histogram figure 3](../../images/stats/Histogram_03.png)

@@ -58,3 +58,11 @@ run()
 ```
 
 ![Random Surfaces](../../images/stats/random_surf.png)
+
+## Figures (chebfun.org parity)
+
+![RandomSurf figure 1](../../images/stats/RandomSurf_01.png)
+
+![RandomSurf figure 2](../../images/stats/RandomSurf_02.png)
+
+![RandomSurf figure 3](../../images/stats/RandomSurf_03.png)

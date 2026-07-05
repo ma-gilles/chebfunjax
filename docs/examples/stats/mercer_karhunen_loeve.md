@@ -62,3 +62,15 @@ run()
 ```
 
 ![Mercer-Karhunen-Loeve Expansion](../../images/stats/mercer_karhunen_loeve.png)
+
+## Figures (chebfun.org parity)
+
+![MercerKarhunenLoeve figure 1](../../images/stats/MercerKarhunenLoeve_01.png)
+
+![MercerKarhunenLoeve figure 2](../../images/stats/MercerKarhunenLoeve_02.png)
+
+![MercerKarhunenLoeve figure 3](../../images/stats/MercerKarhunenLoeve_03.png)
+
+![MercerKarhunenLoeve figure 4](../../images/stats/MercerKarhunenLoeve_04.png)
+
+![MercerKarhunenLoeve figure 5](../../images/stats/MercerKarhunenLoeve_05.png)

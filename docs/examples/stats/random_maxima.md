@@ -41,3 +41,11 @@ run()
 ```
 
 ![Random Maxima](../../images/stats/random_maxima.png)
+
+## Figures (chebfun.org parity)
+
+![RandomMaxima figure 1](../../images/stats/RandomMaxima_01.png)
+
+![RandomMaxima figure 2](../../images/stats/RandomMaxima_02.png)
+
+![RandomMaxima figure 3](../../images/stats/RandomMaxima_03.png)

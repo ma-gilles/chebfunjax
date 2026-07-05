@@ -99,3 +99,13 @@ run()
 ```
 
 ![Bayesian Gradebook](../../images/stats/bayesian_gradebook.png)
+
+## Figures (chebfun.org parity)
+
+![BayesianGradebook figure 1](../../images/stats/BayesianGradebook_01.png)
+
+![BayesianGradebook figure 2](../../images/stats/BayesianGradebook_02.png)
+
+![BayesianGradebook figure 3](../../images/stats/BayesianGradebook_03.png)
+
+![BayesianGradebook figure 4](../../images/stats/BayesianGradebook_04.png)

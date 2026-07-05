@@ -57,3 +57,11 @@ run()
 ```
 
 ![Bivariate Normal Distribution](../../images/stats/bivariate_normal.png)
+
+## Figures (chebfun.org parity)
+
+![BivariateNormalDistribution figure 1](../../images/stats/BivariateNormalDistribution_01.png)
+
+![BivariateNormalDistribution figure 2](../../images/stats/BivariateNormalDistribution_02.png)
+
+![BivariateNormalDistribution figure 3](../../images/stats/BivariateNormalDistribution_03.png)

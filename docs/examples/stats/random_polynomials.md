@@ -69,3 +69,11 @@ of roots of polynomials whose coefficients are i.i.d. random variables.
    weighted approximation, *Trans. AMS* 349 (1997), 4085–4105.
 2. A. Edelman and E. Kostlan, How many zeros of a random polynomial are real?
    *Bull. AMS* 32 (1995), 1–37.
+
+## Figures (chebfun.org parity)
+
+![RandomPolynomials figure 1](../../images/stats/RandomPolynomials_01.png)
+
+![RandomPolynomials figure 2](../../images/stats/RandomPolynomials_02.png)
+
+![RandomPolynomials figure 3](../../images/stats/RandomPolynomials_03.png)

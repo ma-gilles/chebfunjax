@@ -43,3 +43,13 @@ run()
 ```
 
 ![Smooth Random Walk](../../images/stats/smooth_random_walk.png)
+
+## Figures (chebfun.org parity)
+
+![SmoothRandomWalk figure 1](../../images/stats/SmoothRandomWalk_01.png)
+
+![SmoothRandomWalk figure 2](../../images/stats/SmoothRandomWalk_02.png)
+
+![SmoothRandomWalk figure 3](../../images/stats/SmoothRandomWalk_03.png)
+
+![SmoothRandomWalk figure 4](../../images/stats/SmoothRandomWalk_04.png)

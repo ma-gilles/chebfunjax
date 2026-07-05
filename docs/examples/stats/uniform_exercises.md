@@ -67,3 +67,17 @@ run()
 ```
 
 ![Uniform Distribution Exercises](../../images/stats/uniform_exercises.png)
+
+## Figures (chebfun.org parity)
+
+![UniformExercises figure 1](../../images/stats/UniformExercises_01.png)
+
+![UniformExercises figure 2](../../images/stats/UniformExercises_02.png)
+
+![UniformExercises figure 3](../../images/stats/UniformExercises_03.png)
+
+![UniformExercises figure 4](../../images/stats/UniformExercises_04.png)
+
+![UniformExercises figure 5](../../images/stats/UniformExercises_05.png)
+
+![UniformExercises figure 6](../../images/stats/UniformExercises_06.png)
