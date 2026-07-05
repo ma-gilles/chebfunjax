@@ -861,3 +861,58 @@ class TestMATLABGoldenOps:
         result = float(f.norm())
         expected = float(self.refs["sin_norm2"])
         npt.assert_allclose(result, expected, rtol=1e-12)
+
+
+class TestTwoArgMaxMin:
+    """Two-argument max(f,g) / min(f,g) via crossing breakpoints (Opus 4.8)."""
+
+    def test_maximum_two_chebfuns(self):
+        import jax.numpy as jnp
+        import numpy as np
+
+        import chebfunjax as cj
+        f = cj.chebfun(lambda x: jnp.sin(3 * x))
+        g = cj.chebfun(lambda x: jnp.cos(2 * x))
+        h = f.maximum(g)
+        xs = np.linspace(-0.95, 0.95, 60)
+        np.testing.assert_allclose(
+            np.asarray(h(jnp.asarray(xs))),
+            np.maximum(np.sin(3 * xs), np.cos(2 * xs)), atol=1e-12)
+        assert len(h.funs) >= 2  # split at crossings
+
+    def test_minimum_two_chebfuns(self):
+        import jax.numpy as jnp
+        import numpy as np
+
+        import chebfunjax as cj
+        f = cj.chebfun(lambda x: jnp.sin(3 * x))
+        g = cj.chebfun(lambda x: jnp.cos(2 * x))
+        h = f.minimum(g)
+        xs = np.linspace(-0.95, 0.95, 60)
+        np.testing.assert_allclose(
+            np.asarray(h(jnp.asarray(xs))),
+            np.minimum(np.sin(3 * xs), np.cos(2 * xs)), atol=1e-12)
+
+    def test_maximum_with_scalar(self):
+        import jax.numpy as jnp
+        import numpy as np
+
+        import chebfunjax as cj
+        f = cj.chebfun(lambda x: jnp.sin(3 * x))
+        h = f.maximum(0.5)
+        xs = np.linspace(-0.95, 0.95, 60)
+        np.testing.assert_allclose(
+            np.asarray(h(jnp.asarray(xs))),
+            np.maximum(np.sin(3 * xs), 0.5), atol=1e-12)
+
+    def test_abs_via_maximum(self):
+        import jax.numpy as jnp
+        import numpy as np
+
+        import chebfunjax as cj
+        f = cj.chebfun(lambda x: jnp.sin(3 * x))
+        h = f.maximum(-f)
+        xs = np.linspace(-0.95, 0.95, 60)
+        np.testing.assert_allclose(
+            np.asarray(h(jnp.asarray(xs))),
+            np.abs(np.sin(3 * xs)), atol=1e-12)

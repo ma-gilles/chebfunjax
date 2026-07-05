@@ -1669,6 +1669,33 @@ class Chebfun(eqx.Module):
         _, (x_max, f_max) = self.minandmax()
         return x_max, f_max
 
+    def maximum(self, other) -> Chebfun:
+        """Pointwise maximum of two Chebfuns (or a Chebfun and a scalar).
+
+        Introduces breakpoints at the crossing points (roots of
+        ``self - other``) so each returned piece is smooth, matching
+        MATLAB's ``max(f, g)``.  Added by Claude Opus 4.8 (two-arg
+        max/min, task #14).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/max.m (two-argument form)
+        Chebfun commit: 7574c77
+        """
+        return _two_arg_extremum(self, other, jnp.maximum)
+
+    def minimum(self, other) -> Chebfun:
+        """Pointwise minimum of two Chebfuns (or a Chebfun and a scalar).
+
+        See :meth:`maximum`.  Added by Claude Opus 4.8 (task #14).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/min.m (two-argument form)
+        Chebfun commit: 7574c77
+        """
+        return _two_arg_extremum(self, other, jnp.minimum)
+
     # ------------------------------------------------------------------
     # Restriction
     # ------------------------------------------------------------------
@@ -4117,6 +4144,46 @@ def ode113(
 # ---------------------------------------------------------------------------
 # Private implementation shared by ode45 / ode113
 # ---------------------------------------------------------------------------
+
+
+def _two_arg_extremum(f: "Chebfun", other, pick):
+    """Pointwise max/min of two chebfuns via breakpoints at crossings.
+
+    ``pick`` is ``jnp.maximum`` or ``jnp.minimum``.  Crossings are the
+    roots of ``f - other``; splitting the domain there makes each piece
+    smooth.  Added by Claude Opus 4.8 (task #14).
+    """
+    import numpy as _np
+
+    a = float(f.domain.a)
+    b = float(f.domain.b)
+
+    if isinstance(other, Chebfun):
+        def g_eval(x):
+            return other(x)
+        diff = f - other
+    else:
+        c = float(other)
+
+        def g_eval(x):
+            return jnp.full_like(jnp.asarray(x, dtype=jnp.float64), c)
+        diff = f - c
+
+    # interior crossing points
+    roots = _np.asarray(diff.roots())
+    roots = roots[(roots > a + 1e-13) & (roots < b - 1e-13)]
+    # also carry over any existing breakpoints of the inputs
+    brks = set(float(x) for x in f.domain.breakpoints)
+    if isinstance(other, Chebfun):
+        brks |= set(float(x) for x in other.domain.breakpoints)
+    brks |= set(float(r) for r in roots)
+    brks = sorted(x for x in brks if a + 1e-13 < x < b - 1e-13)
+    domain = [a, *brks, b]
+
+    def ev(x):
+        return pick(f(x), g_eval(x))
+
+    return chebfun(ev, domain=tuple(domain))
 
 
 def _ode_solve(
