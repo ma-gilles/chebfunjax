@@ -16,11 +16,11 @@ See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
+import math
 from typing import Callable
 
 import equinox as eqx
 import jax
-import math
 import jax.numpy as jnp
 
 from chebfunjax.domain import Domain
