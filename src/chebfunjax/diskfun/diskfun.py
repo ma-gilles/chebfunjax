@@ -815,6 +815,16 @@ class Diskfun(eqx.Module):
 
         # Sample on tensor grid and run Phase 1
         while not is_happy and not failure:
+            # Double the grid BEFORE sampling, matching MATLAB
+            # @diskfun/constructor.  Fix by Claude Opus 4.8: running phase
+            # one at the coarse min_sample grid on the first pass lets a
+            # sum of terms with different angular orders (e.g.
+            # r^2 cos(2t) + r^6 cos(6t)) alias to rank 1 and falsely
+            # report happy=True, producing a wrong low-rank diskfun. This
+            # is the same coarse-grid false-convergence fixed in the
+            # Spherefun constructor. Starting at 2*min_sample exposes the
+            # true rank.
+            grid = 2 * grid
             r_pts = _disk_col_pts(grid)  # shape (grid+1,)
             th_pts = _disk_row_pts(grid)  # shape (2*grid,)
 
@@ -854,8 +864,9 @@ class Diskfun(eqx.Module):
 
             if happy_rank:
                 is_happy = True
-            else:
-                grid = 2 * grid
+            # else: grid is doubled at the top of the next iteration
+            # (moved there by Opus 4.8 to avoid coarse-grid
+            # false-convergence, matching the Spherefun fix).
 
         # Phase 2: resolve slices
         cols_list, rows_list, pivots_arr, idx_plus, idx_minus = _phase_two_disk(

@@ -182,3 +182,34 @@ class TestIntegration:
         f = Diskfun.from_function(lambda th, r: r ** 2)
         integral = f.sum()
         npt.assert_allclose(float(integral), np.pi / 2.0, rtol=1e-8, atol=1e-8)
+
+
+class TestDiskfunMixedAngularOrder:
+    """Regression for the from_function coarse-grid fix (Opus 4.8).
+
+    A sum of terms with different angular orders (e.g. r^2 cos(2t) +
+    r^6 cos(6t)) previously aliased to rank 1 on the coarse min_sample
+    grid and reconstructed wrongly; the constructor now doubles the grid
+    before phase one (matching the Spherefun fix).
+    """
+
+    def test_mixed_angular_order_reconstructs(self):
+        import warnings
+
+        import jax.numpy as jnp
+        import numpy as np
+
+        from chebfunjax.diskfun.diskfun import Diskfun
+        tt = jnp.linspace(-3.0, 3.0, 9)
+        rr = jnp.linspace(0.1, 0.95, 9)
+        T, R = jnp.meshgrid(tt, rr)
+        for fn in (lambda t, r: r ** 2 * jnp.cos(2 * t)
+                   + r ** 6 * jnp.cos(6 * t),
+                   lambda t, r: r ** 3 * jnp.cos(3 * t)
+                   + r ** 5 * jnp.cos(5 * t)):
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                d = Diskfun.from_function(fn)
+            got = np.asarray(d(T.ravel(), R.ravel()))
+            want = np.asarray(fn(T, R).ravel())
+            np.testing.assert_allclose(got, want, atol=1e-10)
