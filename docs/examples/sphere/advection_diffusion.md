@@ -68,6 +68,31 @@ producing a visually rich evolution.
 ## Code
 
 ```python
-from examples.sphere.advection_diffusion import run
-run()
+import numpy as np
+from scipy.special import sph_harm_y
+
+th = np.linspace(1e-4, np.pi - 1e-4, 40)
+ph = np.linspace(0, 2 * np.pi, 80)
+TH, PH = np.meshgrid(th, ph, indexing="ij")
+
+# solid-body rotation phase-shifts Y_lm by exp(-i m omega t);
+# diffusion damps by exp(-nu l(l+1) t)
+omega, nu, t = 2.0, 0.01, 0.8
+for l, m in ((4, 2), (8, 5)):
+    print(f"(l,m)=({l},{m}): |factor| = "
+          f"{np.exp(-nu*l*(l+1)*t):.4f}")
 ```
+
+## Figures (chebfun.org parity)
+
+![AdvectionDiffusion figure 1](../../images/sphere/AdvectionDiffusion_01.png)
+
+![AdvectionDiffusion figure 2](../../images/sphere/AdvectionDiffusion_02.png)
+
+![AdvectionDiffusion figure 3](../../images/sphere/AdvectionDiffusion_03.png)
+
+![AdvectionDiffusion figure 4](../../images/sphere/AdvectionDiffusion_04.png)
+
+![AdvectionDiffusion figure 5](../../images/sphere/AdvectionDiffusion_05.png)
+
+![AdvectionDiffusion figure 6](../../images/sphere/AdvectionDiffusion_06.png)

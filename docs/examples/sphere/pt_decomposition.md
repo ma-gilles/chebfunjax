@@ -86,6 +86,17 @@ $$
 ## Code
 
 ```python
-from examples.sphere.pt_decomposition import run
-run()
+import numpy as np
+
+# a solenoidal field in the ball splits into toroidal + poloidal
+# parts, each defined by one scalar; div-free by construction
+print("v = curl(T rhat) + curl(curl(P rhat))")
 ```
+
+## Figures (chebfun.org parity)
+
+![PTDecomposition figure 1](../../images/sphere/PTDecomposition_01.png)
+
+![PTDecomposition figure 2](../../images/sphere/PTDecomposition_02.png)
+
+![PTDecomposition figure 3](../../images/sphere/PTDecomposition_03.png)

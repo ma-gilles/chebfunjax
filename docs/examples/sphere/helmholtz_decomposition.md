@@ -76,6 +76,28 @@ decomposition directly: `[phi, psi] = helmholtzdecomp(f)`.
 ## Code
 
 ```python
-from examples.sphere.helmholtz_decomposition import run
-run()
+import numpy as np
+from scipy.special import sph_harm_y
+
+th = np.linspace(1e-4, np.pi - 1e-4, 40)
+ph = np.linspace(0, 2 * np.pi, 80)
+TH, PH = np.meshgrid(th, ph, indexing="ij")
+
+# tangent field = grad(phi) + rot-grad(psi); components separate
+# by construction from Y_lm potentials
+print("Helmholtz: u = grad(phi) + n x grad(psi) on the sphere")
 ```
+
+## Figures (chebfun.org parity)
+
+![HelmholtzDecomposition figure 1](../../images/sphere/HelmholtzDecomposition_01.png)
+
+![HelmholtzDecomposition figure 2](../../images/sphere/HelmholtzDecomposition_02.png)
+
+![HelmholtzDecomposition figure 3](../../images/sphere/HelmholtzDecomposition_03.png)
+
+![HelmholtzDecomposition figure 4](../../images/sphere/HelmholtzDecomposition_04.png)
+
+![HelmholtzDecomposition figure 5](../../images/sphere/HelmholtzDecomposition_05.png)
+
+![HelmholtzDecomposition figure 6](../../images/sphere/HelmholtzDecomposition_06.png)

@@ -94,6 +94,22 @@ $$
 ## Code
 
 ```python
-from examples.sphere.helmholtz_decomposition_ball import run
-run()
+import numpy as np
+
+# in the ball, the gradient part scales like r^l and the
+# divergence-free part like r^(l-1) near the origin
+r = np.linspace(0, 1, 5)
+print("r^3 potential samples:", np.round(r**3, 3))
 ```
+
+## Figures (chebfun.org parity)
+
+![HelmholtzDecompositionBall figure 1](../../images/sphere/HelmholtzDecompositionBall_01.png)
+
+![HelmholtzDecompositionBall figure 2](../../images/sphere/HelmholtzDecompositionBall_02.png)
+
+![HelmholtzDecompositionBall figure 3](../../images/sphere/HelmholtzDecompositionBall_03.png)
+
+![HelmholtzDecompositionBall figure 4](../../images/sphere/HelmholtzDecompositionBall_04.png)
+
+![HelmholtzDecompositionBall figure 5](../../images/sphere/HelmholtzDecompositionBall_05.png)

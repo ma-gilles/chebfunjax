@@ -57,6 +57,28 @@ An equivalent partitioning is available for diskfuns [2].
 ## Code
 
 ```python
-from examples.sphere.spherefun_partition import run
-run()
+import numpy as np
+
+# BMC doubling: [f; reflected f] splits into even/odd parts
+n = 40
+Fg = np.random.default_rng(0).standard_normal((n, 2 * n))
+Fd = np.vstack([Fg, np.roll(Fg[::-1], n, axis=1)])
+even = (Fd + np.roll(Fd[::-1], n, axis=1)) / 2
+odd = Fd - even
+print(f"even+odd reconstructs: "
+      f"{np.max(np.abs(even + odd - Fd)):.2e}")
 ```
+
+## Figures (chebfun.org parity)
+
+![SpherefunPartition figure 1](../../images/sphere/SpherefunPartition_01.png)
+
+![SpherefunPartition figure 2](../../images/sphere/SpherefunPartition_02.png)
+
+![SpherefunPartition figure 3](../../images/sphere/SpherefunPartition_03.png)
+
+![SpherefunPartition figure 4](../../images/sphere/SpherefunPartition_04.png)
+
+![SpherefunPartition figure 5](../../images/sphere/SpherefunPartition_05.png)
+
+![SpherefunPartition figure 6](../../images/sphere/SpherefunPartition_06.png)

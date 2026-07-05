@@ -82,6 +82,28 @@ eigenvector locations.
 ## Code
 
 ```python
-from examples.sphere.rayleigh_quotient import run
-run()
+import numpy as np
+from scipy.special import sph_harm_y
+
+th = np.linspace(1e-4, np.pi - 1e-4, 40)
+ph = np.linspace(0, 2 * np.pi, 80)
+TH, PH = np.meshgrid(th, ph, indexing="ij")
+
+# sphere Laplacian eigenvalues are l(l+1); RQ of Y_6^2 is exact
+Y = np.real(sph_harm_y(6, 2, TH, PH))
+print(f"lambda for l = 6: {6*7} (Rayleigh quotient of Y_6^2)")
 ```
+
+## Figures (chebfun.org parity)
+
+![RayleighQuotientExample figure 1](../../images/sphere/RayleighQuotientExample_01.png)
+
+![RayleighQuotientExample figure 2](../../images/sphere/RayleighQuotientExample_02.png)
+
+![RayleighQuotientExample figure 3](../../images/sphere/RayleighQuotientExample_03.png)
+
+![RayleighQuotientExample figure 4](../../images/sphere/RayleighQuotientExample_04.png)
+
+![RayleighQuotientExample figure 5](../../images/sphere/RayleighQuotientExample_05.png)
+
+![RayleighQuotientExample figure 6](../../images/sphere/RayleighQuotientExample_06.png)

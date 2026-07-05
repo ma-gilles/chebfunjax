@@ -79,6 +79,36 @@ that are robust over multiple scales.
 ## Code
 
 ```python
-from examples.sphere.atmospheric_temperature import run
-run()
+import numpy as np
+from scipy.special import sph_harm_y
+
+th = np.linspace(1e-4, np.pi - 1e-4, 40)
+ph = np.linspace(0, 2 * np.pi, 80)
+TH, PH = np.meshgrid(th, ph, indexing="ij")
+
+# synthetic global temperature (real climate data not bundled)
+T = 25 - 45 * np.cos(TH)**2
+print(f"equator mean {T[20].mean():.1f} C, pole {T[0].mean():.1f} C")
 ```
+
+## Figures (chebfun.org parity)
+
+![AtmosphericTemperature figure 1](../../images/sphere/AtmosphericTemperature_01.png)
+
+![AtmosphericTemperature figure 2](../../images/sphere/AtmosphericTemperature_02.png)
+
+![AtmosphericTemperature figure 3](../../images/sphere/AtmosphericTemperature_03.png)
+
+![AtmosphericTemperature figure 4](../../images/sphere/AtmosphericTemperature_04.png)
+
+![AtmosphericTemperature figure 5](../../images/sphere/AtmosphericTemperature_05.png)
+
+![AtmosphericTemperature figure 6](../../images/sphere/AtmosphericTemperature_06.png)
+
+![AtmosphericTemperature figure 7](../../images/sphere/AtmosphericTemperature_07.png)
+
+![AtmosphericTemperature figure 8](../../images/sphere/AtmosphericTemperature_08.png)
+
+![AtmosphericTemperature figure 9](../../images/sphere/AtmosphericTemperature_09.png)
+
+![AtmosphericTemperature figure 10](../../images/sphere/AtmosphericTemperature_10.png)
