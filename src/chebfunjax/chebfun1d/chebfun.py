@@ -59,6 +59,8 @@ class _Piece(eqx.Module):
         b: float,
         *,
         n: int | None = None,
+        maxpow2: int = 16,
+        tol: float | None = None,
     ) -> _Piece:
         """Build a piece from a callable on [a, b].
 
@@ -70,6 +72,10 @@ class _Piece(eqx.Module):
             Physical interval endpoints.
         n : int or None
             Fixed degree (None = adaptive).
+        maxpow2 : int, default 16
+            Max adaptive grid power (``max_length = 2**maxpow2 + 1``).
+        tol : float or None
+            Construction tolerance (``eps``); None uses machine epsilon.
         """
         a, b = float(a), float(b)
         # Wrap f to map from reference [-1, 1] into [a, b]
@@ -77,7 +83,7 @@ class _Piece(eqx.Module):
             x = 0.5 * (b - a) * t + 0.5 * (a + b)
             return f(x)
 
-        tech = Chebtech2.from_function(f_ref, n=n)
+        tech = Chebtech2.from_function(f_ref, n=n, maxpow2=maxpow2, tol=tol)
         return cls(tech=tech, interval=(a, b))
 
     @classmethod
@@ -483,6 +489,9 @@ class Chebfun(eqx.Module):
         f: Callable[[jax.Array], jax.Array],
         domain: Domain,
         n: int | None = None,
+        *,
+        maxpow2: int = 16,
+        tol: float | None = None,
     ) -> Chebfun:
         """Construct a Chebfun from a callable on a given domain.
 
@@ -516,7 +525,8 @@ class Chebfun(eqx.Module):
         """
         funs = []
         for sub in domain.intervals:
-            piece = _Piece.from_function(f, sub.a, sub.b, n=n)
+            piece = _Piece.from_function(f, sub.a, sub.b, n=n,
+                                         maxpow2=maxpow2, tol=tol)
             funs.append(piece)
         return cls(funs=funs, domain=domain)
 
@@ -3902,6 +3912,8 @@ def chebfun(
     domain=(-1.0, 1.0),
     n: int | None = None,
     trig: bool = False,
+    eps: float | None = None,
+    max_length: int | None = None,
 ) -> Chebfun:
     """Create a Chebfun from a callable, array of coefficients, or constant.
 
@@ -3975,6 +3987,14 @@ def chebfun(
     --------
     Chebfun.from_function, Chebfun.from_coeffs, Chebfun.from_values
     """
+    # --- Preferences (task #11): eps -> chop tolerance, max_length ->
+    #     maximum adaptive length (2**maxpow2 + 1). ---
+    _tol = None if eps is None else float(eps)
+    if max_length is None:
+        _maxpow2 = 16
+    else:
+        _maxpow2 = max(4, int(math.ceil(math.log2(max(int(max_length) - 1, 2)))))
+
     # --- Parse domain ---
     dom_seq = [float(x) for x in domain]
     if len(dom_seq) < 2:
@@ -4045,7 +4065,8 @@ def chebfun(
         return Chebfun(funs=[piece], domain=Domain((a, b)))
 
     if callable(f):
-        return Chebfun.from_function(f, dom, n=n)
+        return Chebfun.from_function(f, dom, n=n, maxpow2=_maxpow2,
+                                     tol=_tol)
 
     raise TypeError(
         f"Cannot construct a Chebfun from f of type {type(f).__name__}. "

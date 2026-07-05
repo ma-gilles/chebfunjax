@@ -982,3 +982,45 @@ class TestLocalExtrema:
         np.testing.assert_allclose(xs, [-1 / np.sqrt(3), 1 / np.sqrt(3)],
                                    atol=1e-9)
         np.testing.assert_array_equal(np.asarray(k)[order], [1.0, -1.0])
+
+
+class TestConstructorPreferences:
+    """eps / max_length wired into the chebfun() constructor (Opus 4.8, #11)."""
+
+    def test_eps_shortens_representation(self):
+        import jax.numpy as jnp
+        import numpy as np
+
+        import chebfunjax as cj
+        f = cj.chebfun(lambda x: jnp.exp(x) * jnp.sin(20 * x))
+        f_loose = cj.chebfun(lambda x: jnp.exp(x) * jnp.sin(20 * x),
+                             eps=1e-6)
+        # looser tolerance -> fewer coefficients
+        assert len(f_loose.funs[0]) < len(f.funs[0])
+        # but still accurate to ~eps on a coarse check
+        xs = np.linspace(-0.9, 0.9, 40)
+        err = np.max(np.abs(np.asarray(f_loose(jnp.asarray(xs)))
+                            - np.exp(xs) * np.sin(20 * xs)))
+        assert err < 1e-4
+
+    def test_max_length_caps_degree(self):
+        import warnings
+
+        import jax.numpy as jnp
+
+        import chebfunjax as cj
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            f = cj.chebfun(lambda x: jnp.abs(x - 0.3), max_length=65)
+        assert len(f.funs[0]) <= 65
+
+    def test_default_accuracy_preserved(self):
+        import jax.numpy as jnp
+        import numpy as np
+
+        import chebfunjax as cj
+        f = cj.chebfun(lambda x: jnp.exp(x) * jnp.sin(20 * x))
+        xs = np.linspace(-0.9, 0.9, 50)
+        np.testing.assert_allclose(
+            np.asarray(f(jnp.asarray(xs))),
+            np.exp(xs) * np.sin(20 * xs), atol=1e-12)

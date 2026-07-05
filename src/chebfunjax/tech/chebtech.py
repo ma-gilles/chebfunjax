@@ -632,6 +632,7 @@ class Chebtech2(eqx.Module):
         *,
         n: int | None = None,
         maxpow2: int = 16,
+        tol: float | None = None,
     ) -> "Chebtech2":
         """Construct a Chebtech2 from a callable.
 
@@ -687,7 +688,7 @@ class Chebtech2(eqx.Module):
         """
         if n is not None:
             return cls._fixed_construct(f, n)
-        return cls._adaptive_construct(f, maxpow2)
+        return cls._adaptive_construct(f, maxpow2, tol=tol)
 
     @classmethod
     def _fixed_construct(
@@ -707,6 +708,7 @@ class Chebtech2(eqx.Module):
         f: Callable[[jax.Array], jax.Array],
         maxpow2: int = 16,
         start_pow2: int = 4,
+        tol: float | None = None,
     ) -> "Chebtech2":
         """Adaptive construction — Python-level loop, NOT JIT-safe.
 
@@ -724,6 +726,9 @@ class Chebtech2(eqx.Module):
         start_pow2 : int, default 4
             Starting power of 2 (minimum grid size is ``2**start_pow2 + 1``).
             Used by ``compose`` to start from a larger grid.
+        tol : float, optional
+            Construction tolerance (``eps``).  If None, ``happiness_check``
+            uses machine epsilon.  Threaded from ``chebfun(..., eps=...)``.
         """
         vscale = 0.0
         c = None
@@ -737,6 +742,7 @@ class Chebtech2(eqx.Module):
                 c,
                 values,
                 op=f,
+                tol=tol,
                 vscale=vscale,
             )
             if ishappy:
