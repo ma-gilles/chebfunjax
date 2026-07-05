@@ -266,7 +266,8 @@ class TestETDRK4Coeffs3D:
         op = SpinOp3.from_name("AC")
         L = op.build_linear_eigenvalues(N)
         coeffs = _compute_etdrk4_coeffs_3d(0.05, L, M=16)
-        for key in ("E_half", "E_full", "psi12", "B2", "B3", "B4"):
+        for key in ("E_half", "E_full", "A21", "A32", "A41", "A43",
+                    "B1", "B2", "B3", "B4"):
             assert coeffs[key].shape == (N, N, N), f"{key} has wrong shape"
 
     def test_e_half_dc_is_one(self):

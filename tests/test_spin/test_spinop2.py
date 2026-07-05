@@ -256,7 +256,8 @@ class TestETDRK4Coeffs2D:
         L_flat = (1e-2 * lap).ravel()
         dt = 0.01
         coeffs = _compute_etdrk4_coeffs_2d(dt, L_flat, is_real=True, M=16)
-        for key in ("E_half", "E_full", "B2", "B3", "B4", "phi1", "psi12"):
+        for key in ("E_half", "E_full", "A21", "A32", "A41", "A43",
+                    "B1", "B2", "B3", "B4"):
             imag_max = np.max(np.abs(np.imag(coeffs[key])))
             assert imag_max < 1e-12, f"Key {key} has imaginary part {imag_max:.2e}"
 

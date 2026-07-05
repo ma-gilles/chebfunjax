@@ -88,35 +88,44 @@ def _compute_etdrk4_coeffs_2d(
     phi2 = _phi_eval_contour(2, LR)
     phi3 = _phi_eval_contour(3, LR)
     psi12 = _psi_eval_contour(1, 0.5, LR)
+    psi14 = _psi_eval_contour(1, 1.0, LR)
 
     if is_real:
-        phi1, phi2, phi3, psi12 = (
+        phi1, phi2, phi3, psi12, psi14 = (
             np.real(phi1),
             np.real(phi2),
             np.real(phi3),
             np.real(psi12),
+            np.real(psi14),
         )
 
     E_half = np.exp(0.5 * dt * L_flat)
     E_full = np.exp(dt * L_flat)
 
+    # Full Cox-Matthews/Kassam-Trefethen scheme, matching the corrected 1D
+    # solver: the stage-1 nonlinear coefficients A{2,1}, A{4,1} and B{1}
+    # (MATLAB computeMissingCoeffs) were previously omitted here too.
     B2 = dt * (2.0 * phi2 - 4.0 * phi3)
     B3 = dt * (2.0 * phi2 - 4.0 * phi3)
     B4 = dt * (-phi2 + 4.0 * phi3)
+    B1 = dt * phi1 - B2 - B3 - B4
 
+    A21 = dt * psi12
     A32 = dt * psi12
-    A43 = dt * psi12
+    A41 = dt * (psi14 - 2.0 * psi12)
+    A43 = dt * (2.0 * psi12)
 
     return {
         "E_half": E_half,
         "E_full": E_full,
+        "A21": A21,
         "A32": A32,
+        "A41": A41,
         "A43": A43,
+        "B1": B1,
         "B2": B2,
         "B3": B3,
         "B4": B4,
-        "phi1": dt * phi1,
-        "psi12": dt * psi12,
     }
 
 
@@ -161,7 +170,11 @@ def _etdrk4_step_2d_scalar(
     """
     E_half = coeffs["E_half"]  # (N*N,)
     E_full = coeffs["E_full"]
-    psi12 = coeffs["psi12"]
+    A21 = coeffs["A21"]
+    A32 = coeffs["A32"]
+    A41 = coeffs["A41"]
+    A43 = coeffs["A43"]
+    B1 = coeffs["B1"]
     B2 = coeffs["B2"]
     B3 = coeffs["B3"]
     B4 = coeffs["B4"]
@@ -174,21 +187,23 @@ def _etdrk4_step_2d_scalar(
         return np.fft.fft2(nv).ravel()
 
     u_flat = u_hat.ravel()
+    N1 = _nonlin_coeff(u_flat)
 
-    # Stage 2: a = E_half * u
-    a_flat = E_half * u_flat
+    # Stage 2: a = E_half * u + A21 * N(u)
+    a_flat = E_half * u_flat + A21 * N1
     Na = _nonlin_coeff(a_flat)
 
-    # Stage 3: b = E_half * u + psi12 * N(a)
-    b_flat = E_half * u_flat + psi12 * Na
+    # Stage 3: b = E_half * u + A32 * N(a)
+    b_flat = E_half * u_flat + A32 * Na
     Nb = _nonlin_coeff(b_flat)
 
-    # Stage 4: c = E_full * u + 2*psi12 * N(b)
-    c_flat = E_full * u_flat + 2.0 * psi12 * Nb
+    # Stage 4: c = E_full * u + A41 * N(u) + A43 * N(b)
+    c_flat = E_full * u_flat + A41 * N1 + A43 * Nb
     Nc_flat = _nonlin_coeff(c_flat)
 
     # Solution update
-    u_new_flat = E_full * u_flat + B2 * Na + B3 * Nb + B4 * Nc_flat
+    u_new_flat = (E_full * u_flat + B1 * N1 + B2 * Na + B3 * Nb
+                  + B4 * Nc_flat)
 
     u_new = u_new_flat.reshape(N, N)
 
@@ -247,16 +262,25 @@ def _etdrk4_step_2d_multi(
         vals = _vals_from_hats(hats)
         return [np.fft.fft2(nonlin_fns[i](*vals)) for i in range(n_vars)]
 
+    # Stage-1 nonlinearity per component (previously omitted, matching
+    # the corrected scalar scheme)
+    N1 = _nonlin_coeffs(list(u_hats))
+
     # ---- Stage 2 (a stages) per component ----
-    a_hats = [coeffs_list[i]["E_half"] * u_hats[i].ravel() for i in range(n_vars)]
-    a_hats = [a.reshape(N, N) for a in a_hats]
+    a_hats = [
+        (
+            coeffs_list[i]["E_half"] * u_hats[i].ravel()
+            + coeffs_list[i]["A21"] * N1[i].ravel()
+        ).reshape(N, N)
+        for i in range(n_vars)
+    ]
     Na = _nonlin_coeffs(a_hats)
 
     # ---- Stage 3 (b stages) per component ----
     b_hats = [
         (
             coeffs_list[i]["E_half"] * u_hats[i].ravel()
-            + coeffs_list[i]["psi12"] * Na[i].ravel()
+            + coeffs_list[i]["A32"] * Na[i].ravel()
         ).reshape(N, N)
         for i in range(n_vars)
     ]
@@ -266,7 +290,8 @@ def _etdrk4_step_2d_multi(
     c_hats = [
         (
             coeffs_list[i]["E_full"] * u_hats[i].ravel()
-            + 2.0 * coeffs_list[i]["psi12"] * Nb[i].ravel()
+            + coeffs_list[i]["A41"] * N1[i].ravel()
+            + coeffs_list[i]["A43"] * Nb[i].ravel()
         ).reshape(N, N)
         for i in range(n_vars)
     ]
@@ -278,6 +303,7 @@ def _etdrk4_step_2d_multi(
         cf = coeffs_list[i]
         u_new_flat = (
             cf["E_full"] * u_hats[i].ravel()
+            + cf["B1"] * N1[i].ravel()
             + cf["B2"] * Na[i].ravel()
             + cf["B3"] * Nb[i].ravel()
             + cf["B4"] * Nc[i].ravel()

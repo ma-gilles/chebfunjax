@@ -55,7 +55,7 @@ def _compute_etdrk4_coeffs_3d(
     Returns
     -------
     coeffs : dict
-        Keys: ``E_half``, ``E_full``, ``psi12``, ``B2``, ``B3``, ``B4``,
+        Keys: ``E_half``, ``E_full``, ``A21``, ``A32``, ``A41``, ``A43``, ``B1``-``B4``,
         each shape (N, N, N).
 
     Provenance
@@ -72,23 +72,35 @@ def _compute_etdrk4_coeffs_3d(
     phi2 = _phi_eval_contour(2, LR)        # (N^3,)
     phi3 = _phi_eval_contour(3, LR)        # (N^3,)
     psi12 = _psi_eval_contour(1, 0.5, LR)  # (N^3,)
+    psi14 = _psi_eval_contour(1, 1.0, LR)  # (N^3,)
 
     if np.isrealobj(L_flat):
-        phi1, phi2, phi3, psi12 = (
-            np.real(phi1), np.real(phi2), np.real(phi3), np.real(psi12)
+        phi1, phi2, phi3, psi12, psi14 = (
+            np.real(phi1), np.real(phi2), np.real(phi3),
+            np.real(psi12), np.real(psi14),
         )
 
     E_half = np.exp(0.5 * dt * L_flat).reshape(shape)
     E_full = np.exp(dt * L_flat).reshape(shape)
-    psi12 = (dt * psi12).reshape(shape)
+    # Full Cox-Matthews scheme (stage-1 terms restored, matching the
+    # corrected 1D/2D solvers).
     B2 = (dt * (2.0 * phi2 - 4.0 * phi3)).reshape(shape)
     B3 = B2.copy()
     B4 = (dt * (-phi2 + 4.0 * phi3)).reshape(shape)
+    B1 = (dt * phi1).reshape(shape) - B2 - B3 - B4
+    A21 = (dt * psi12).reshape(shape)
+    A32 = A21.copy()
+    A41 = (dt * (psi14 - 2.0 * psi12)).reshape(shape)
+    A43 = (dt * (2.0 * psi12)).reshape(shape)
 
     return {
         "E_half": E_half,
         "E_full": E_full,
-        "psi12": psi12,
+        "A21": A21,
+        "A32": A32,
+        "A41": A41,
+        "A43": A43,
+        "B1": B1,
         "B2": B2,
         "B3": B3,
         "B4": B4,
@@ -133,7 +145,11 @@ def _etdrk4_step_3d(
     """
     E_half = coeffs["E_half"]
     E_full = coeffs["E_full"]
-    psi12 = coeffs["psi12"]
+    A21 = coeffs["A21"]
+    A32 = coeffs["A32"]
+    A41 = coeffs["A41"]
+    A43 = coeffs["A43"]
+    B1 = coeffs["B1"]
     B2 = coeffs["B2"]
     B3 = coeffs["B3"]
     B4 = coeffs["B4"]
@@ -143,20 +159,23 @@ def _etdrk4_step_3d(
         nv = nonlin_vals(u_v)
         return np.fft.fftn(nv)
 
-    # Stage 2: a = E_half * u
-    a_hat = E_half * u_hat
+    N1 = _nonlin_hat(u_hat)
+
+    # Stage 2: a = E_half * u + A21 * N(u)
+    a_hat = E_half * u_hat + A21 * N1
     Na = _nonlin_hat(a_hat)
 
-    # Stage 3: b = E_half * u + psi12 * N(a)
-    b_hat = E_half * u_hat + psi12 * Na
+    # Stage 3: b = E_half * u + A32 * N(a)
+    b_hat = E_half * u_hat + A32 * Na
     Nb = _nonlin_hat(b_hat)
 
-    # Stage 4: c = E_full * u + 2*psi12 * N(b)
-    c_hat = E_full * u_hat + 2.0 * psi12 * Nb
+    # Stage 4: c = E_full * u + A41 * N(u) + A43 * N(b)
+    c_hat = E_full * u_hat + A41 * N1 + A43 * Nb
     Nc_hat = _nonlin_hat(c_hat)
 
     # Solution update
-    u_new = E_full * u_hat + B2 * Na + B3 * Nb + B4 * Nc_hat
+    u_new = (E_full * u_hat + B1 * N1 + B2 * Na + B3 * Nb
+             + B4 * Nc_hat)
 
     if dealias is not None:
         u_new = np.where(dealias, u_new, 0.0 + 0.0j)
@@ -206,7 +225,8 @@ def _compute_etdrk4_coeffs_sphere(
     Returns
     -------
     coeffs : dict
-        Keys: ``E_half``, ``E_full``, ``psi12``, ``B2``, ``B4``,
+        Keys: ``E_half``, ``E_full``, ``A21``, ``A32``, ``A41``,
+        ``A43``, ``B1``-``B4``,
         each shape (N^2, N^2) (block-diagonal matrices).
 
     Notes
@@ -229,6 +249,8 @@ def _compute_etdrk4_coeffs_sphere(
     E_half = np.zeros_like(L_mat)
     E_full = np.zeros_like(L_mat)
     psi12 = np.zeros_like(L_mat)
+    B1 = np.zeros_like(L_mat)
+    A41 = np.zeros_like(L_mat)
     B2 = np.zeros_like(L_mat)
     B4 = np.zeros_like(L_mat)
 
@@ -247,16 +269,25 @@ def _compute_etdrk4_coeffs_sphere(
         B2[sl, sl] = dt * (2.0 * phi2_mat - 4.0 * phi3_mat)
         B4[sl, sl] = dt * (-phi2_mat + 4.0 * phi3_mat)
 
-        # Half-step phi_1 for psi12
+        # Half-step phi_1 for psi_{1,1/2}; full-step phi_1 for the
+        # stage-1 coefficients (A41, B1) that complete the scheme.
         phi1_half = _compute_phi_matrix(0.5 * dt * Bj, l=1)
         psi12[sl, sl] = 0.5 * dt * phi1_half
+        phi1_full = _compute_phi_matrix(dt * Bj, l=1)
+        B1[sl, sl] = (dt * phi1_full - B2[sl, sl] - B2[sl, sl]
+                      - B4[sl, sl])
+        A41[sl, sl] = dt * phi1_full - 2.0 * psi12[sl, sl]
 
     B3 = B2.copy()
 
     return {
         "E_half": E_half,
         "E_full": E_full,
-        "psi12": psi12,
+        "A21": psi12,
+        "A32": psi12,
+        "A41": A41,
+        "A43": 2.0 * psi12,
+        "B1": B1,
         "B2": B2,
         "B3": B3,
         "B4": B4,
@@ -403,7 +434,11 @@ def _etdrk4_step_sphere(
     """
     E_half = coeffs["E_half"]   # (N^2, N^2)
     E_full = coeffs["E_full"]   # (N^2, N^2)
-    psi12 = coeffs["psi12"]     # (N^2, N^2)
+    A21 = coeffs["A21"]
+    A32 = coeffs["A32"]
+    A41 = coeffs["A41"]
+    A43 = coeffs["A43"]
+    B1 = coeffs["B1"]
     B2 = coeffs["B2"]
     B3 = coeffs["B3"]
     B4 = coeffs["B4"]
@@ -416,21 +451,25 @@ def _etdrk4_step_sphere(
     def _apply_mat(M_mat, v):
         return M_mat @ v
 
+    N1 = _nonlin_hat(u_hat)
+
     # Stage 2
-    a_hat = _apply_mat(E_half, u_hat)
+    a_hat = _apply_mat(E_half, u_hat) + _apply_mat(A21, N1)
     Na = _nonlin_hat(a_hat)
 
     # Stage 3
-    b_hat = _apply_mat(E_half, u_hat) + _apply_mat(psi12, Na)
+    b_hat = _apply_mat(E_half, u_hat) + _apply_mat(A32, Na)
     Nb = _nonlin_hat(b_hat)
 
     # Stage 4
-    c_hat = _apply_mat(E_full, u_hat) + 2.0 * _apply_mat(psi12, Nb)
+    c_hat = (_apply_mat(E_full, u_hat) + _apply_mat(A41, N1)
+             + _apply_mat(A43, Nb))
     Nc_hat = _nonlin_hat(c_hat)
 
     # Solution
-    u_new = (_apply_mat(E_full, u_hat) + _apply_mat(B2, Na)
-             + _apply_mat(B3, Nb) + _apply_mat(B4, Nc_hat))
+    u_new = (_apply_mat(E_full, u_hat) + _apply_mat(B1, N1)
+             + _apply_mat(B2, Na) + _apply_mat(B3, Nb)
+             + _apply_mat(B4, Nc_hat))
 
     if dealias is not None:
         mask_flat = dealias.ravel()

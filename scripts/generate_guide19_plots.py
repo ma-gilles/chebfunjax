@@ -31,7 +31,8 @@ def save(fig, desc=""):
     global plot_num
     plot_num += 1
     fname = os.path.join(OUT, f'guide19_{plot_num:02d}.png')
-    fig.savefig(fname, dpi=150, bbox_inches='tight')
+    from chebfunjax.plotting import save_chebfun_figure
+    save_chebfun_figure(fig, fname, size=(600, 270))
     plt.close(fig)
     print(f"  guide19_{plot_num:02d}.png: {desc}")
 
@@ -60,7 +61,7 @@ def sphere_from_latlon(ll, tt, u_vals, title='', cmap=None):
         norm_v = np.full_like(u_r, 0.5)
     fcolors = cmap_obj(norm_v)
 
-    fig, ax = _setup_3d_axes(None, None, elev=8, azim=-36, figsize=(6.1, 5.0))
+    fig, ax = _setup_3d_axes(None, None, elev=8, azim=-36)
     ax.plot_surface(XX, YY, ZZ, facecolors=fcolors, linewidth=0,
                     antialiased=True, alpha=0.95, shade=False,
                     rstride=1, cstride=1)
@@ -76,7 +77,7 @@ from chebfunjax.spin import SpinOp, SpinOp2, spin, spin2
 # Plot 01: KdV
 try:
     x, t, u = spin('KdV', N=256, dt=1e-6)
-    fig, ax = plt.subplots(figsize=(6, 3.5))
+    fig, ax = plt.subplots()
     ax.plot(x, np.real(u), color=CHEBFUN_BLUE, lw=1.8)
     ax.set_title(f'KdV at t = {t:.4g}', fontsize=10)
     ax.set_xlabel('x', fontsize=9)
@@ -89,7 +90,7 @@ except Exception as e:
 # Plot 02: Allen-Cahn t=500
 try:
     x, t, u = spin('AC', N=256, dt=0.1)
-    fig, ax = plt.subplots(figsize=(6, 3.5))
+    fig, ax = plt.subplots()
     ax.plot(x, np.real(u), color=CHEBFUN_BLUE, lw=1.8)
     ax.set_title(f'Allen-Cahn at t = {t:.0f}', fontsize=10)
     ax.set_xlabel('x', fontsize=9)
@@ -103,7 +104,7 @@ except Exception as e:
 try:
     op = SpinOp.from_name('AC'); op.tspan = (0., 100.)
     x, t, u = spin(op, N=256, dt=0.1)
-    fig, ax = plt.subplots(figsize=(6, 3.5))
+    fig, ax = plt.subplots()
     ax.plot(x, np.real(u), color=CHEBFUN_BLUE, lw=1.8)
     ax.set_title(f'Allen-Cahn at t = {t:.0f}', fontsize=10)
     ax.set_xlabel('x', fontsize=9)
@@ -118,7 +119,7 @@ try:
     op = SpinOp.from_name('AC'); op.tspan = (0., 100.)
     op.u0 = lambda x: -1 + 4*jnp.exp(-19*(x - jnp.pi)**2)
     x, t, u = spin(op, N=256, dt=0.1)
-    fig, ax = plt.subplots(figsize=(6, 3.5))
+    fig, ax = plt.subplots()
     ax.plot(x, np.real(u), color=CHEBFUN_BLUE, lw=1.8)
     ax.set_title(f'AC custom IC at t = {t:.0f}', fontsize=10)
     ax.set_xlabel('x', fontsize=9)
@@ -131,7 +132,7 @@ except Exception as e:
 # Plot 05: IC plot
 try:
     x_ic = np.linspace(0, 2*np.pi, 256, endpoint=False)
-    fig, ax = plt.subplots(figsize=(6, 3.5))
+    fig, ax = plt.subplots()
     ax.plot(x_ic, -1 + 4*np.exp(-19*(x_ic-np.pi)**2), color=CHEBFUN_BLUE, lw=1.8)
     ax.set_title('Initial condition', fontsize=10)
     ax.set_xlabel('x', fontsize=9)
@@ -148,7 +149,7 @@ try:
     op.u0 = lambda x: -1 + 4*jnp.exp(-19*(x - jnp.pi)**2)
     op.tspan = (0., 30.)
     x_w, t_w, u_w = spin(op, N=256, dt=0.1)
-    fig, ax = plt.subplots(figsize=(6, 3.5))
+    fig, ax = plt.subplots()
     ax.plot(x_w, np.real(u_w), color=CHEBFUN_BLUE, lw=1.8)
     ax.set_title(f'AC at t = {t_w:.0f}', fontsize=10)
     ax.set_xlabel('x', fontsize=9)
@@ -158,15 +159,35 @@ try:
 except Exception as e:
     plot_num += 1; print(f"  guide19_{plot_num:02d}.png FAILED: {e}")
 
-# Plots 07-10: 2D GL at various times
+# Plots 07-10: 2D GL at various times.
+# MATLAB's demo IC is randnfun2(4, [0 100 0 100], 'trig') — a RANDOM
+# band-limited field normalized to max 1, so the published pattern is
+# one particular draw and cannot be reproduced exactly. We match its
+# statistics: random Fourier modes up to wavelength 4, conjugate-
+# symmetric (real field), fixed seed for reproducibility.
+def _randnfun2_trig(N, dom_len=100.0, wavelength=4.0, seed=7):
+    rng = np.random.default_rng(seed)
+    kmax = int(dom_len / wavelength)
+    c = np.zeros((N, N), dtype=complex)
+    ks = np.fft.fftfreq(N, d=1.0 / N).astype(int)
+    for i, ki in enumerate(ks):
+        for j, kj in enumerate(ks):
+            if abs(ki) <= kmax and abs(kj) <= kmax:
+                c[i, j] = rng.standard_normal() + 1j * rng.standard_normal()
+    vals = np.real(np.fft.ifft2(c))
+    return vals / np.max(np.abs(vals))
+
+
 for tfin in [10, 20, 30, 100]:
     try:
         op = SpinOp2.from_name('GL'); op.tspan = (0., float(tfin))
-        xx, yy, t, u = spin2(op, N=64, dt=5e-2)
+        N_gl = 128
+        u0_vals = _randnfun2_trig(N_gl)
+        op.u0 = lambda x, y, _v=jnp.asarray(u0_vals): _v
+        xx, yy, t, u = spin2(op, N=N_gl, dt=5e-2)
         u_r = np.real(np.asarray(u)) if not isinstance(u, list) else np.real(np.asarray(u[0]))
-        fig, ax = plt.subplots(figsize=(5, 5))
-        ax.pcolormesh(xx, yy, u_r, cmap=PARULA, shading='auto')
-        ax.set_title(f'GL 2D at t = {tfin}', fontsize=10)
+        fig, ax = plt.subplots()
+        ax.pcolormesh(xx, yy, u_r, cmap=PARULA, shading='gouraud')
         ax.set_aspect('equal'); ax.axis('off')
         fig.set_facecolor('white'); fig.tight_layout()
         save(fig, f"GL t={tfin}")
@@ -198,7 +219,7 @@ try:
             fig, ax = sphere_from_latlon(ll, tt, u_r, title=f'AC sphere t = {tfin}')
         except Exception:
             # Fallback to flat
-            fig, ax = plt.subplots(figsize=(6, 4))
+            fig, ax = plt.subplots()
             ax.pcolormesh(ll, tt, u_r, cmap=PARULA, shading='auto')
             ax.set_title(f'AC sphere t = {tfin}', fontsize=10)
             ax.set_xlabel('lambda', fontsize=9)
@@ -218,7 +239,7 @@ try:
         try:
             fig, ax = sphere_from_latlon(ll, tt, u_abs, title=f'GL sphere |u| t = {tfin:.1f}')
         except Exception:
-            fig, ax = plt.subplots(figsize=(6, 4))
+            fig, ax = plt.subplots()
             ax.pcolormesh(ll, tt, u_abs, cmap=PARULA, shading='auto')
             ax.set_title(f'GL sphere |u| t = {tfin:.1f}', fontsize=10)
             ax.set_xlabel('lambda', fontsize=9)
