@@ -42,10 +42,20 @@ def _make(fn):
     return Trigtech.from_function(fn)
 
 
-_F1 = lambda x: jnp.exp(jnp.cos(jnp.pi * x))
-_F2 = lambda x: jnp.cos(2 * jnp.pi * jnp.sin(jnp.pi * x))
-_F3 = lambda x: 1 + jnp.sin(jnp.pi * x) + 0.5 * jnp.cos(2 * jnp.pi * x)
-_F4 = lambda x: jnp.exp(jnp.sin(jnp.pi * x)) * jnp.cos(3 * jnp.pi * x)
+def _F1(x):
+    return jnp.exp(jnp.cos(jnp.pi * x))
+
+
+def _F2(x):
+    return jnp.cos(2 * jnp.pi * jnp.sin(jnp.pi * x))
+
+
+def _F3(x):
+    return 1 + jnp.sin(jnp.pi * x) + 0.5 * jnp.cos(2 * jnp.pi * x)
+
+
+def _F4(x):
+    return jnp.exp(jnp.sin(jnp.pi * x)) * jnp.cos(3 * jnp.pi * x)
 
 
 @pytest.mark.matlab
