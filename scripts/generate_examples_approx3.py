@@ -216,8 +216,8 @@ def wagon():
 
 def gaussgreenstokes():
     """approx3/GaussGreenStokes — isosurface + a parametrized disk."""
-    from skimage.measure import marching_cubes
     from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+    from skimage.measure import marching_cubes
 
     n = 50
     gx = np.linspace(-1, 1, n)
@@ -411,9 +411,8 @@ def lineintegral3d():
 
 def hello3():
     """approx3/Hello3 — the voxelized HELLO isosurfaces."""
-    from scipy.ndimage import zoom
-    from skimage.measure import marching_cubes
     from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+    from skimage.measure import marching_cubes
 
     A = np.zeros((15, 40))
     A[1:9, 1:3] = 1; A[4:6, 3:5] = 1; A[1:9, 5:7] = 1
