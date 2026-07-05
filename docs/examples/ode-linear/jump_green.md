@@ -25,3 +25,17 @@ N.lbc = 0.0; N.rbc = 0.0
 
 
 ![Jump conditions and Green functions](../../images/ode-linear/jump_green.png)
+
+## Figures (chebfun.org parity)
+
+![JumpGreen figure 1](../../images/ode-linear/JumpGreen_01.png)
+
+![JumpGreen figure 2](../../images/ode-linear/JumpGreen_02.png)
+
+![JumpGreen figure 3](../../images/ode-linear/JumpGreen_03.png)
+
+![JumpGreen figure 4](../../images/ode-linear/JumpGreen_04.png)
+
+![JumpGreen figure 5](../../images/ode-linear/JumpGreen_05.png)
+
+![JumpGreen figure 6](../../images/ode-linear/JumpGreen_06.png)

@@ -25,3 +25,19 @@ for eps in [1e-1, 1e-2, 1e-3, 1e-4]:
 
 
 ![Inserting breakpoints to resolve layers](../../images/ode-linear/breakpoints.png)
+
+## Figures (chebfun.org parity)
+
+![Breakpoints figure 1](../../images/ode-linear/Breakpoints_01.png)
+
+![Breakpoints figure 2](../../images/ode-linear/Breakpoints_02.png)
+
+![Breakpoints figure 3](../../images/ode-linear/Breakpoints_03.png)
+
+![Breakpoints figure 4](../../images/ode-linear/Breakpoints_04.png)
+
+![Breakpoints figure 5](../../images/ode-linear/Breakpoints_05.png)
+
+![Breakpoints figure 6](../../images/ode-linear/Breakpoints_06.png)
+
+![Breakpoints figure 7](../../images/ode-linear/Breakpoints_07.png)

@@ -25,3 +25,15 @@ for eps in [0.1, 0.01]:
 
 
 ![Near-nonuniqueness and near-nonexistence](../../images/ode-linear/near_nonuniqueness.png)
+
+## Figures (chebfun.org parity)
+
+![NearNonuniqueness figure 1](../../images/ode-linear/NearNonuniqueness_01.png)
+
+![NearNonuniqueness figure 2](../../images/ode-linear/NearNonuniqueness_02.png)
+
+![NearNonuniqueness figure 3](../../images/ode-linear/NearNonuniqueness_03.png)
+
+![NearNonuniqueness figure 4](../../images/ode-linear/NearNonuniqueness_04.png)
+
+![NearNonuniqueness figure 5](../../images/ode-linear/NearNonuniqueness_05.png)

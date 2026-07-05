@@ -83,3 +83,15 @@ The widths scale linearly with $\varepsilon$, confirming the $O(\varepsilon)$ th
 1. C. de Boor and B. Swartz, Collocation at Gaussian points,
    *SIAM J. Numer. Anal.* 10 (1973), 582–606.
 2. L. N. Trefethen, *Spectral Methods in MATLAB*, SIAM, 2000, Ch. 7.
+
+## Figures (chebfun.org parity)
+
+![BoundaryLayer figure 1](../../images/ode-linear/BoundaryLayer_01.png)
+
+![BoundaryLayer figure 2](../../images/ode-linear/BoundaryLayer_02.png)
+
+![BoundaryLayer figure 3](../../images/ode-linear/BoundaryLayer_03.png)
+
+![BoundaryLayer figure 4](../../images/ode-linear/BoundaryLayer_04.png)
+
+![BoundaryLayer figure 5](../../images/ode-linear/BoundaryLayer_05.png)

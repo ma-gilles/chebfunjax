@@ -27,3 +27,31 @@ for s in [0.5, 1.0, 2.0]:
 
 
 ![A parameter-dependent ODE with breakpoints](../../images/ode-linear/parameter_ode.png)
+
+## Figures (chebfun.org parity)
+
+![ParameterODE figure 1](../../images/ode-linear/ParameterODE_01.png)
+
+![ParameterODE figure 2](../../images/ode-linear/ParameterODE_02.png)
+
+![ParameterODE figure 3](../../images/ode-linear/ParameterODE_03.png)
+
+![ParameterODE figure 4](../../images/ode-linear/ParameterODE_04.png)
+
+![ParameterODE figure 5](../../images/ode-linear/ParameterODE_05.png)
+
+![ParameterODE figure 6](../../images/ode-linear/ParameterODE_06.png)
+
+![ParameterODE figure 7](../../images/ode-linear/ParameterODE_07.png)
+
+![ParameterODE figure 8](../../images/ode-linear/ParameterODE_08.png)
+
+![ParameterODE figure 9](../../images/ode-linear/ParameterODE_09.png)
+
+![ParameterODE figure 10](../../images/ode-linear/ParameterODE_10.png)
+
+![ParameterODE figure 11](../../images/ode-linear/ParameterODE_11.png)
+
+![ParameterODE figure 12](../../images/ode-linear/ParameterODE_12.png)
+
+![ParameterODE figure 13](../../images/ode-linear/ParameterODE_13.png)
