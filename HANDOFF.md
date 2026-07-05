@@ -195,17 +195,31 @@ lost):
     (spectral / harmonic-diagonal — see §2.5). These unblock the
     Laplacian/Poisson-dependent guide-17 and sphere pages.
   - **STILL OPEN:** `diff(dim,k)` / `grad` (tangential Cartesian
-    derivatives) and `curl`/`div`. Fable's coefficient-space attempt
-    (`∂z/∂x` err 0.83) was reverted. These need the delicate BMC
-    parity handling from `@spherefun/diff.m` (the `1/sin(theta)` solve
-    on the correct even/odd columns, tracked via `idxPlus`/`idxMinus`).
-    They still block the sphere HelmholtzDecomposition /
-    PTDecomposition / AdvectionDiffusion pages' *library-genuine*
-    (vs finite-difference) versions and the guide-17 figures that plot
-    tangential vector fields. **Recommended approach:** either fix the
-    BMC solve with per-step validation against the intrinsic-gradient
-    formula, or implement `grad` spectrally via harmonic ladder
-    operators (like `laplacian` above) — the latter is lower-risk.
+    derivatives) and `curl`/`div`. A verified spectral prototype exists
+    (Opus 4.8): ∂θ/∂λ from the CDR trigtechs are **exact to 1e-15**,
+    the intrinsic-formula values at interior Gauss–Legendre nodes are
+    exact, and the projected spherical-harmonic coefficients match the
+    analytic derivative to ~1e-5. **The only blocker is the
+    `from_function` constructor bug below** — reconstructing the result
+    spherefun from its (correct) harmonic coefficients fails for the
+    same mixed-order case. Once the constructor is fixed, `grad`/`diff`
+    can be dropped in from the prototype. These block the sphere
+    HelmholtzDecomposition / PTDecomposition / AdvectionDiffusion
+    pages' *library-genuine* (vs finite-difference) versions.
+
+- **`Spherefun.from_function` mixed-order bug — NEW, found by Opus 4.8.**
+  The BMC Gaussian-elimination constructor mis-reconstructs a sum of
+  spherical harmonics whose **sine orders differ** at certain degrees
+  (e.g. `Y_2^{-1} + Y_4^{-3}` evaluates with ~0.24 error; single
+  harmonics, same-order sums, and cosine sums are all exact). This is a
+  **pre-existing correctness bug that affects every operation** on such
+  a spherefun (evaluation, `sum`, `laplacian`, …), not just
+  construction. Reproducing regression test (xfail, strict):
+  `tests/test_spherefun/test_spherefun.py::TestConstructorMixedOrderBug`.
+  Likely in the phase-one pivot selection / rank determination
+  (`_phase_one_sphere` / `_phase_two_sphere`) — the rank-2 longitude
+  structure of two different sine frequencies isn't captured. Fixing
+  this unblocks `grad`/`diff` and hardens all Spherefun ops.
 - **#17 Ballfun** remaining: HelmholtzDecomposition, div/curl/solharm
   library-API promotion, helmholtz solver (gates sphere ball pages +
   guide20 figs 23–26 placeholders).
