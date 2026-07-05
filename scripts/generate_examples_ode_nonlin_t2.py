@@ -72,27 +72,38 @@ def threeplanets():
                     a[i] += d / np.linalg.norm(d) ** 3
         return np.concatenate([v.ravel(), a.ravel()])
 
-    T = 6.0
-    sol = solve_ivp(rhs, (0, T), y0c,
-                    t_eval=np.linspace(0, T, 400), rtol=1e-10,
+    # softened gravity keeps the triple bound for a long run
+    def rhs_soft(t, y):
+        p = y[:6].reshape(3, 2)
+        v = y[6:].reshape(3, 2)
+        a = np.zeros_like(p)
+        for i in range(3):
+            for j in range(3):
+                if i != j:
+                    d = p[j] - p[i]
+                    r = np.sqrt(d @ d + 0.05)
+                    a[i] += d / r**3
+        return np.concatenate([v.ravel(), a.ravel()])
+
+    T = 50.0
+    sol = solve_ivp(rhs_soft, (0, T), y0c,
+                    t_eval=np.linspace(0, T, 800), rtol=1e-10,
                     atol=1e-10)
     P = sol.y[:6].reshape(3, 2, -1)
     colors = ["#00dd00", "red", "yellow"]
     for j, frac in enumerate((0.0, 1 / 3, 2 / 3, 1.0), 1):
         k = min(int(frac * (P.shape[2] - 1)), P.shape[2] - 1)
         fig = plt.figure()
-        ax = fig.add_axes([0.06, 0.02, 0.88, 0.86])
+        ax = fig.add_axes([0.13, 0.03, 0.76, 0.82])
         ax.set_facecolor("black")
         for i in range(3):
-            ax.plot(P[i, 0, :k + 1], P[i, 1, :k + 1],
-                    color=colors[i], linewidth=0.4, alpha=0.5)
             ax.plot([P[i, 0, k]], [P[i, 1, k]], ".",
-                    color=colors[i], markersize=14)
-        ax.set_xlim(-2.2, 2.2)
-        ax.set_ylim(-1.8, 1.8)
+                    color=colors[i], markersize=15)
+        ax.set_xlim(-2.5, 2.5)
+        ax.set_ylim(-1.6, 1.6)
         ax.set_xticks([])
         ax.set_yticks([])
-        ax.set_title(f"t = {frac * T:g}", fontsize=12)
+        ax.set_title(f"t = {frac * T:g}", fontsize=13)
         save(fig, f"ThreePlanets_{j:02d}.png")
 
 
@@ -584,7 +595,7 @@ def droplets():
     def drop_profile(kappa0, L=12.0):
         def rhs(s, y):
             r, z, phi = y
-            k = kappa0 - z
+            k = kappa0 + z
             dphi = k - np.sin(phi) / max(r, 1e-8)
             return [np.cos(phi), np.sin(phi), dphi]
 
@@ -612,9 +623,22 @@ def droplets():
         ax.set_title(title, fontsize=10)
         save(fig, name)
 
-    sessile_plot(1.2, "small drop", "Droplets_01.png")
-    sessile_plot(0.75, "no wetting", "Droplets_02.png")
-    sessile_plot(0.5, "a large flattened drop", "Droplets_03.png")
+    sessile_plot(1.5, "small drop", "Droplets_01.png")
+    sessile_plot(0.35, "no wetting", "Droplets_02.png")
+    # prescribed volume: taller drop with a waist (contact angle
+    # beyond 90 degrees)
+    r3, z3 = drop_profile(0.8, L=14.0)
+    zz3 = z3[-1] - z3
+    fig, ax = plt.subplots()
+    xs3 = np.concatenate([-r3[::-1], r3])
+    ys3 = np.concatenate([zz3[::-1], zz3])
+    ax.fill(xs3, ys3, color=(0.35, 0.45, 0.95))
+    ax.plot(xs3, ys3, "k", linewidth=1.6)
+    ax.axhline(0, color="k", linewidth=1.2)
+    ax.set_xlim(-2, 2)
+    ax.set_ylim(-0.1, 1.85)
+    ax.set_title("prescribed volume", fontsize=10)
+    save(fig, "Droplets_03.png")
 
 
 def carrier():
