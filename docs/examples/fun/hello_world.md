@@ -39,9 +39,31 @@ from blurry blobs into sharp lettering as the rank increases.
 ## Code
 
 ```python
-from examples.fun.hello_world import run
-run()
+import numpy as np
+
+A = np.zeros((15, 40))
+A[1:9, 1:3] = 1; A[4:6, 3:5] = 1; A[1:9, 5:7] = 1
+A[2:10, 9:11] = 1; A[2:4, 9:15] = 1; A[5:7, 9:15] = 1
+A[8:10, 9:15] = 1; A[3:11, 17:19] = 1; A[9:11, 17:24] = 1
+A[4:12, 25:27] = 1; A[10:12, 25:31] = 1
+A[5:13, 33:35] = 1; A[5:13, 37:39] = 1
+A[5:7, 35:37] = 1; A[12:13, 35:37] = 1
+print(f"rank of the HELLO matrix: {np.linalg.matrix_rank(A)}")
 ```
 
 
 ## References
+
+## Figures (chebfun.org parity)
+
+![HelloWorld figure 1](../../images/fun/HelloWorld_01.png)
+
+![HelloWorld figure 2](../../images/fun/HelloWorld_02.png)
+
+![HelloWorld figure 3](../../images/fun/HelloWorld_03.png)
+
+![HelloWorld figure 4](../../images/fun/HelloWorld_04.png)
+
+![HelloWorld figure 5](../../images/fun/HelloWorld_05.png)
+
+![HelloWorld figure 6](../../images/fun/HelloWorld_06.png)

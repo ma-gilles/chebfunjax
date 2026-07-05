@@ -49,6 +49,18 @@ the message as it circles around.
 ## Code
 
 ```python
-from examples.fun.writing_3d import run
-run()
+from chebfunjax.utils.scribble import scribble
+
+s = scribble("There is no fun like chebfun.")
+print(f"{len(s.funs)} strokes ready for 3D lifting")
 ```
+
+## Figures (chebfun.org parity)
+
+![Writing3D figure 1](../../images/fun/Writing3D_01.png)
+
+![Writing3D figure 2](../../images/fun/Writing3D_02.png)
+
+![Writing3D figure 3](../../images/fun/Writing3D_03.png)
+
+![Writing3D figure 4](../../images/fun/Writing3D_04.png)

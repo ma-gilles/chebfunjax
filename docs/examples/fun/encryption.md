@@ -46,6 +46,25 @@ reverses effortlessly.
 ## Code
 
 ```python
-from examples.fun.encryption import run
-run()
+from chebfunjax.utils.scribble import scribble
+
+message = scribble("This is the message")
+key = scribble("Aardvarks eat ants")
+print(f"message: {len(message.funs)} strokes, key: {len(key.funs)} strokes")
+# encrypted = message + key looks like nonsense; subtracting the key
+# recovers the message exactly (linearity of chebfun arithmetic).
 ```
+
+## Figures (chebfun.org parity)
+
+![Encryption figure 1](../../images/fun/Encryption_01.png)
+
+![Encryption figure 2](../../images/fun/Encryption_02.png)
+
+![Encryption figure 3](../../images/fun/Encryption_03.png)
+
+![Encryption figure 4](../../images/fun/Encryption_04.png)
+
+![Encryption figure 5](../../images/fun/Encryption_05.png)
+
+![Encryption figure 6](../../images/fun/Encryption_06.png)

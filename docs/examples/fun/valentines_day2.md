@@ -44,9 +44,18 @@ as a GIF.
 ## Code
 
 ```python
-from examples.fun.valentines_day2 import run
-run()
+import numpy as np
+
+v = np.linspace(0, 2 * np.pi, 5)
+hx = np.sin(v) * (15 * np.sin(v) - 4 * np.sin(3 * v)) / 16
+hz = (15 * np.cos(v) - 5 * np.cos(2 * v) - 2 * np.cos(3 * v)
+      - np.cos(4 * v)) / 16
+print("heart curve samples:", np.round(hx, 3), np.round(hz, 3))
 ```
 
 
 ## References
+
+## Figures (chebfun.org parity)
+
+![ValentinesDay2 figure 1](../../images/fun/ValentinesDay2_01.png)

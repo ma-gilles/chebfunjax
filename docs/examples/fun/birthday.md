@@ -47,7 +47,21 @@ strokes in the complex plane.
 ## Code
 
 ```python
-from examples.fun.birthday import run
-run()
+from chebfunjax.utils.scribble import scribble
+
+s = scribble("Happy Birthday Pafnuty!")
+print(f"{len(s.funs)} strokes; domain [{float(s.domain.breakpoints[0]):g}, "
+      f"{float(s.domain.breakpoints[-1]):g}]")
 ```
 
+## Figures (chebfun.org parity)
+
+![Birthday figure 1](../../images/fun/Birthday_01.png)
+
+![Birthday figure 2](../../images/fun/Birthday_02.png)
+
+![Birthday figure 3](../../images/fun/Birthday_03.png)
+
+![Birthday figure 4](../../images/fun/Birthday_04.png)
+
+![Birthday figure 5](../../images/fun/Birthday_05.png)
