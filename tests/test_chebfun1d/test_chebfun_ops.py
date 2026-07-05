@@ -951,3 +951,34 @@ class TestFloorCeilRound:
     def test_round(self):
         import numpy as np
         self._check(lambda c: c.round(), np.round, offset=0.5)
+
+
+class TestLocalExtrema:
+    """All interior local extrema with min/max classification (Opus 4.8)."""
+
+    def test_sin(self):
+        import jax.numpy as jnp
+        import numpy as np
+
+        import chebfunjax as cj
+        f = cj.chebfun(lambda x: jnp.sin(np.pi * x))
+        x, v, k = f.local_extrema()
+        np.testing.assert_allclose(np.sort(np.asarray(x)), [-0.5, 0.5],
+                                   atol=1e-10)
+        # x=-0.5 is a min (kind -1), x=0.5 is a max (kind +1)
+        order = np.argsort(np.asarray(x))
+        np.testing.assert_allclose(np.asarray(v)[order], [-1.0, 1.0],
+                                   atol=1e-10)
+        np.testing.assert_array_equal(np.asarray(k)[order], [-1.0, 1.0])
+
+    def test_cubic(self):
+        import numpy as np
+
+        import chebfunjax as cj
+        g = cj.chebfun(lambda x: x ** 3 - x)
+        x, v, k = g.local_extrema()
+        order = np.argsort(np.asarray(x))
+        xs = np.asarray(x)[order]
+        np.testing.assert_allclose(xs, [-1 / np.sqrt(3), 1 / np.sqrt(3)],
+                                   atol=1e-9)
+        np.testing.assert_array_equal(np.asarray(k)[order], [1.0, -1.0])

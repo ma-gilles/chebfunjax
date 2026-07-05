@@ -1635,6 +1635,40 @@ class Chebfun(eqx.Module):
 
         return (global_min_x, global_min_val), (global_max_x, global_max_val)
 
+    def local_extrema(self) -> tuple[jax.Array, jax.Array, jax.Array]:
+        """All interior local extrema of the Chebfun.
+
+        Returns ``(x, v, kind)`` where ``x`` are the interior critical
+        points (roots of ``f'``), ``v = f(x)`` the values, and ``kind``
+        is ``+1`` at local maxima, ``-1`` at local minima, ``0`` at
+        inflection/degenerate points (classified by the sign of ``f''``).
+        Added by Claude Opus 4.8 (task #14).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/minandmax.m ('local' flag)
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        df = self.diff()
+        d2f = df.diff()
+        a = float(self.domain.a)
+        b = float(self.domain.b)
+        r = _np.asarray(df.roots())
+        r = _np.unique(r[(r > a + 1e-12) & (r < b - 1e-12)])
+        if r.size == 0:
+            empty = jnp.array([], dtype=jnp.float64)
+            return empty, empty, empty
+        rj = jnp.asarray(r, dtype=jnp.float64)
+        v = _np.asarray(self(rj))
+        curv = _np.asarray(d2f(rj))
+        kind = _np.where(curv < -1e-10, 1,
+                         _np.where(curv > 1e-10, -1, 0))
+        return (jnp.asarray(r, dtype=jnp.float64),
+                jnp.asarray(v, dtype=jnp.float64),
+                jnp.asarray(kind, dtype=jnp.float64))
+
     def min(self) -> tuple[float, float]:
         """Global minimum: returns (x_min, f_min).
 
