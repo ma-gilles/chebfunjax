@@ -104,11 +104,39 @@ and fall into documented exception classes**, not wrong plots:
 - **Version-drift class** (ConstrainedExtrema_01): the live chebfun.org
   render is from a page revision no longer published.
 
-### 2.5 Spherefun spherical harmonics (this session)
-- `Spherefun.sphharm(l, m)` and `Spherefun.mean()` added and
-  **verified against `scipy.special.sph_harm_y` to machine precision**
-  (ratio std ~1e-15, up to the standard global sign convention).
-- 67 spherefun/sphere tests pass; lint clean.
+### 2.5 Spherefun harmonics + spectral calculus
+
+- `Spherefun.sphharm(l, m)` and `Spherefun.mean()` **verified against
+  `scipy.special.sph_harm_y` to machine precision** (ratio std ~1e-15).
+- `Spherefun.laplacian()` — spectral (harmonic-diagonal). Passes the
+  exact identity `Δ Y_l^m = -l(l+1) Y_l^m` to **5.7e-14** across
+  degrees 1–8. *(This is the identity Fable's reverted BMC attempt
+  failed with error 16.8.)*
+- `Spherefun.poisson(f, const)` — solve `Δu = f`. Round-trips
+  `poisson(laplacian(u)) == u` to 2e-15 and matches the worked example
+  in MATLAB `@spherefun/poisson.m` to 4.4e-15.
+- 73 spherefun/sphere tests pass; lint clean.
+
+---
+
+## 2bis. Contributions by author (for trust-checking)
+
+Everything before the parity campaign, plus the campaign's example/plot
+regeneration and the 32 correctness fixes, is **Claude Fable 5**'s work.
+The items below were done by **Claude Opus 4.8** and are each gated on a
+machine-precision or exact-identity test so they can be trusted on their
+own merits regardless of author:
+
+| Item | Commit | Verification |
+|---|---|---|
+| Reverted Fable's broken spherefun `diff`/`laplacian`/`grad` | `44f5fbe` | it failed `ΔY=−l(l+1)Y` (err 16.8) |
+| `Spherefun.sphharm` + `mean` (kept from Fable's attempt, re-verified) | `44f5fbe` | vs scipy, ratio std ~1e-15 |
+| `cheb.gallery` `airy`/`rose`/`motto`; `_Piece.__len__` | `a7fa79e` | airy vs scipy 1.1e-14; 3 tests |
+| `Spherefun.laplacian` + `poisson` (spectral) | `d26a710` | `ΔY=−l(l+1)Y` to 5.7e-14; 7 tests |
+
+Guiding rule Opus followed: **never ship spectral math that fails its
+exact-identity test** — quarantine it (as with Fable's `diff`) and say
+so plainly.
 
 ### 2.6 Page snippets
 - Every example `.md` page's fenced code block executes. ~60 broken
@@ -162,16 +190,22 @@ lost):
 ## 4. What is LEFT TO DO
 
 ### 4.1 Library gaps that gate quality (highest value)
-- **#25 Spherefun calculus layer — STILL OPEN, PARTIAL.**
-  `diff(dim,k)`, `laplacian`, `grad` were attempted this session but the
-  implementation is **numerically WRONG** (exact-identity tests fail:
-  ∂z/∂x error 0.83, ΔY₄² error 16.8 vs the exact −20·Y₄²). The attempt
-  was **reverted**; only `sphharm`/`mean` (verified) were kept. Getting
-  `diff` right (the CDR-per-term, coefficient-space `1/sin(theta)` solve
-  from `@spherefun/diff.m`) unblocks **16 guide-ch.17 figures** and
-  library-genuine versions of the sphere HelmholtzDecomposition /
-  PTDecomposition / AdvectionDiffusion pages. Also needs `poisson`
-  (fast spectral solver, `@spherefun/poisson.m`) and `curl`/`div`.
+- **#25 Spherefun calculus layer — PARTIALLY DONE (Opus 4.8).**
+  - **DONE & verified:** `laplacian`, `poisson`, `sphharm`, `mean`
+    (spectral / harmonic-diagonal — see §2.5). These unblock the
+    Laplacian/Poisson-dependent guide-17 and sphere pages.
+  - **STILL OPEN:** `diff(dim,k)` / `grad` (tangential Cartesian
+    derivatives) and `curl`/`div`. Fable's coefficient-space attempt
+    (`∂z/∂x` err 0.83) was reverted. These need the delicate BMC
+    parity handling from `@spherefun/diff.m` (the `1/sin(theta)` solve
+    on the correct even/odd columns, tracked via `idxPlus`/`idxMinus`).
+    They still block the sphere HelmholtzDecomposition /
+    PTDecomposition / AdvectionDiffusion pages' *library-genuine*
+    (vs finite-difference) versions and the guide-17 figures that plot
+    tangential vector fields. **Recommended approach:** either fix the
+    BMC solve with per-step validation against the intrinsic-gradient
+    formula, or implement `grad` spectrally via harmonic ladder
+    operators (like `laplacian` above) — the latter is lower-risk.
 - **#17 Ballfun** remaining: HelmholtzDecomposition, div/curl/solharm
   library-API promotion, helmholtz solver (gates sphere ball pages +
   guide20 figs 23–26 placeholders).
