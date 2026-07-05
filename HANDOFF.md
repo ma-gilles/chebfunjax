@@ -279,14 +279,26 @@ NEW**), chebfun3v, diskfun, diskfunv, spherefun, spherefunv, chebop
 discretization, spin, autodiff, chebfun1d-extras, **trigtech (NEW)**,
 **chebfun-core (NEW)**.
 
-**This session (Opus 4.8) added 10 golden-ref files / 53 tests** — all
+**This session (Opus 4.8) added 11 golden-ref files / 57 tests** — all
 vs MATLAB R2025b: trigtech (9), chebfun-core (13), chebop-extras (5),
 singfun+deltafun (6), chebfun2-extras (3), chebfun3-extras (2),
 chebfun2v/3v vector calculus (6), chebfun-core batch 2 (4), chebop
-batch 2 / Mathieu (3), spherefun-calculus-vs-MATLAB (2). It also
-**found + fixed the same coarse-grid constructor bug in `diskfun`**
-that was fixed in `spherefun` (mixed angular-order functions aliased to
-rank 1). Ballfun uses a different (safe) construction — not affected.
+batch 2 / Mathieu (3), spherefun-calculus-vs-MATLAB (2), chebtech1 (4).
+It also **found + fixed the same coarse-grid constructor bug in
+`diskfun`** that was fixed in `spherefun` (mixed angular-order
+functions aliased to rank 1). Ballfun uses a different (safe)
+construction — not affected.
+
+**Coverage now spans the whole implemented library:** every tech
+(chebtech1/2, trigtech), every fun (bndfun, singfun, deltafun,
+unbndfun), chebfun 1D (core ×2 + extras + linalg/QR/SVD), chebop
+(operators + nonlinear + extras ×2), chebfun2/2v, chebfun3/3v,
+spherefun (+ calculus), diskfun/v, ballfun/v, spin, autodiff, and the
+whole utils layer (quadrature, transforms, interpolation, diffmat,
+polynomials, aaa, minimax). Remaining uncovered = peripheral (linop
+internal blocks, chebop2 the 2D-PDE class, chebgui) + pure per-op
+breadth. Full MATLAB-marked suite: **462 passed, 14 skipped, 1
+xfailed.**
 
 **The honest gap (still real):** whole MATLAB test directories still
 lack a dedicated machine-precision golden-ref port — most of `chebop`'s
