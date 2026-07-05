@@ -914,7 +914,24 @@ class Trigtech(eqx.Module):
                 if n_keep % 2 == 0:
                     n_keep = max(1, n_keep - 1)
                 c_keep = _trig_prolong_coeffs(c, n_keep)
-                return cls(coeffs=c_keep, is_real=is_real, ishappy=True)
+                candidate = cls(coeffs=c_keep, is_real=is_real,
+                                ishappy=True)
+                # Sample test: guard against coarse-grid aliasing (a
+                # sparse high-frequency spectrum can alias to a
+                # low-frequency one on the current grid and chop early).
+                # Evaluate f and the candidate at the grid MIDPOINTS
+                # (off-grid); if they disagree, the grid is too coarse.
+                # Fix by Claude Opus 4.8.
+                # Irrational fraction of the grid spacing (2/n) so the
+                # test points never coincide with an aliasing pattern.
+                x_test = x + (2.0 / n) * 0.414213562373095
+                f_test, _ = _sample_as_trig_dtype(f, x_test)
+                cand_test = candidate(x_test)
+                tol_abs = 1e6 * _EPS * max(vscale, 1.0)
+                err = float(jnp.max(jnp.abs(
+                    jnp.asarray(cand_test) - jnp.asarray(f_test))))
+                if err <= tol_abs:
+                    return candidate
 
         # Did not converge
         warnings.warn(

@@ -766,3 +766,39 @@ class TestFourierProperties:
         npt.assert_allclose(
             float(jnp.real(s)), float(2.0 * jnp.real(c0)), atol=1e-13
         )
+
+
+class TestTrigtechSparseSpectrumResolution:
+    """Sample-test guards against coarse-grid aliasing (Opus 4.8).
+
+    A sparse high-frequency periodic function (e.g. cos(50x)) aliases to
+    a low-frequency one on coarse grids; without a sample test the
+    adaptive constructor chops early and returns a wrong short
+    representation. The added sample test forces refinement.
+    """
+
+    def test_am_signal_resolves(self):
+        import jax.numpy as jnp
+        import numpy as np
+
+        import chebfunjax as cj
+        f = cj.chebfun(lambda x: jnp.cos(50 * x) * (1 + 0.2 * jnp.cos(5 * x)),
+                       domain=(-np.pi, np.pi), trig=True)
+        # must resolve to enough modes (freq up to 55)
+        assert len(f.funs[0].tech.coeffs) > 100
+        xs = np.linspace(-3.0, 3.0, 80)
+        np.testing.assert_allclose(
+            np.asarray(f(jnp.asarray(xs))),
+            np.cos(50 * xs) * (1 + 0.2 * np.cos(5 * xs)), atol=1e-11)
+
+    def test_aliasing_prone_sine(self):
+        import jax.numpy as jnp
+        import numpy as np
+
+        import chebfunjax as cj
+        # sin(16 pi x) vanishes at all n=16 grid points -> aliases to 0
+        f = cj.chebfun(lambda x: 1.75 + jnp.sin(16 * np.pi * x), trig=True)
+        xs = np.linspace(-0.95, 0.95, 80)
+        np.testing.assert_allclose(
+            np.asarray(f(jnp.asarray(xs))),
+            1.75 + np.sin(16 * np.pi * xs), atol=1e-11)
