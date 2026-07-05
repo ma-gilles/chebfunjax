@@ -28,3 +28,16 @@ for name, f in functions.items():
 
 ![Gallery and Gallerytrig](../../images/approx/Galleries.png)
 
+## Figures (chebfun.org parity)
+
+![Galleries figure 1](../../images/approx/Galleries_01.png)
+
+![Galleries figure 2](../../images/approx/Galleries_02.png)
+
+![Galleries figure 3](../../images/approx/Galleries_03.png)
+
+![Galleries figure 4](../../images/approx/Galleries_04.png)
+
+![Galleries figure 5](../../images/approx/Galleries_05.png)
+
+![Galleries figure 6](../../images/approx/Galleries_06.png)

@@ -22,9 +22,22 @@ r, pol, *_ = aaa(ys, xs)
 
 test_pts = np.linspace(delta, 1.0, 500)
 true_vals = np.sqrt(test_pts)
-r_vals = np.array([float(r(jnp.array(x))) for x in test_pts])
+r_vals = np.real(r(np.asarray(test_pts)))
 print(f"AAA err = {np.max(np.abs(r_vals - true_vals)):.2e}, {len(pol)} poles")
 ```
 
 ![Approximating the Square Root by Polynomials and Rational Functions](../../images/approx/MinimaxSqrt.png)
 
+## Figures (chebfun.org parity)
+
+![MinimaxSqrt figure 1](../../images/approx/MinimaxSqrt_01.png)
+
+![MinimaxSqrt figure 2](../../images/approx/MinimaxSqrt_02.png)
+
+![MinimaxSqrt figure 3](../../images/approx/MinimaxSqrt_03.png)
+
+![MinimaxSqrt figure 4](../../images/approx/MinimaxSqrt_04.png)
+
+![MinimaxSqrt figure 5](../../images/approx/MinimaxSqrt_05.png)
+
+![MinimaxSqrt figure 6](../../images/approx/MinimaxSqrt_06.png)

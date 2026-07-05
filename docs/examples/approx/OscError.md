@@ -39,3 +39,16 @@ print(f"L2    max err: {np.max(np.abs(err_L2)):.3e}")
 
 ![Approximations and Oscillation of Error](../../images/approx/OscError.png)
 
+## Figures (chebfun.org parity)
+
+![OscError figure 1](../../images/approx/OscError_01.png)
+
+![OscError figure 2](../../images/approx/OscError_02.png)
+
+![OscError figure 3](../../images/approx/OscError_03.png)
+
+![OscError figure 4](../../images/approx/OscError_04.png)
+
+![OscError figure 5](../../images/approx/OscError_05.png)
+
+![OscError figure 6](../../images/approx/OscError_06.png)
