@@ -213,3 +213,63 @@ class TestDiskfunMixedAngularOrder:
             got = np.asarray(d(T.ravel(), R.ravel()))
             want = np.asarray(fn(T, R).ravel())
             np.testing.assert_allclose(got, want, atol=1e-10)
+
+
+class TestDiskfunCalculus:
+    """Diskfun Cartesian derivatives + Laplacian (Opus 4.8).
+
+    Verified against exact harmonic polynomials: Re(z^n) and Im(z^n) are
+    harmonic on the disk (zero Laplacian), and their Cartesian
+    derivatives are known in closed form.
+    """
+
+    _grid = None
+
+    def _pts(self):
+        import jax.numpy as jnp
+        tt = jnp.linspace(-3.0, 3.0, 7)
+        rr = jnp.linspace(0.15, 0.9, 7)
+        T, R = jnp.meshgrid(tt, rr)
+        return T.ravel(), R.ravel()
+
+    def _mk(self, fn):
+        import warnings
+
+        from chebfunjax.diskfun.diskfun import Diskfun
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            return Diskfun.from_function(fn)
+
+    def test_diffx_diffy_harmonic_poly(self):
+        import jax.numpy as jnp
+        import numpy as np
+        T, R = self._pts()
+        # f = r^2 cos(2t) = x^2 - y^2 : d/dx = 2x = 2r cos t, d/dy = -2r sin t
+        f = self._mk(lambda t, r: r ** 2 * jnp.cos(2 * t))
+        np.testing.assert_allclose(
+            np.asarray(f.diffx()(T, R)),
+            2 * np.asarray(R) * np.cos(np.asarray(T)), atol=1e-11)
+        np.testing.assert_allclose(
+            np.asarray(f.diffy()(T, R)),
+            -2 * np.asarray(R) * np.sin(np.asarray(T)), atol=1e-11)
+
+    def test_laplacian_harmonic_is_zero(self):
+        import jax.numpy as jnp
+        import numpy as np
+        T, R = self._pts()
+        for fn in (lambda t, r: r ** 2 * jnp.cos(2 * t),
+                   lambda t, r: r ** 3 * jnp.cos(3 * t),
+                   lambda t, r: r ** 3 * jnp.sin(3 * t)):
+            f = self._mk(fn)
+            np.testing.assert_allclose(
+                np.asarray(f.laplacian()(T, R)),
+                np.zeros(T.shape), atol=1e-10)
+
+    def test_laplacian_r_squared_is_four(self):
+        import jax.numpy as jnp
+        import numpy as np
+        T, R = self._pts()
+        f = self._mk(lambda t, r: r ** 2 + 0 * jnp.cos(t))
+        np.testing.assert_allclose(
+            np.asarray(f.laplacian()(T, R)), 4.0 * np.ones(T.shape),
+            atol=1e-10)

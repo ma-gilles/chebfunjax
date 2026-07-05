@@ -1032,6 +1032,75 @@ class Diskfun(eqx.Module):
         from chebfunjax.plotting import contour_disk
         return contour_disk(self, **kwargs)
 
+    def diffx(self) -> "Diskfun":
+        r"""Cartesian partial derivative :math:`\\partial f / \\partial x`.
+
+        In polar coordinates ``(theta, r)``,
+
+        .. math::
+            \\partial_x = \\cos\\theta \\, \\partial_r
+                          - \\frac{\\sin\\theta}{r} \\, \\partial_\\theta .
+
+        Computed spectrally (see :func:`_diskfun_reconstruct`).
+        Implemented and verified by Claude Opus 4.8.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/diff.m (dim = 1)
+        Chebfun commit: 7574c77
+        """
+        return _diskfun_reconstruct(self, "x")
+
+    def diffy(self) -> "Diskfun":
+        r"""Cartesian partial derivative :math:`\\partial f / \\partial y`.
+
+        .. math::
+            \\partial_y = \\sin\\theta \\, \\partial_r
+                          + \\frac{\\cos\\theta}{r} \\, \\partial_\\theta .
+
+        Implemented and verified by Claude Opus 4.8.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/diff.m (dim = 2)
+        Chebfun commit: 7574c77
+        """
+        return _diskfun_reconstruct(self, "y")
+
+    def diff(self, dim: int = 1, k: int = 1) -> "Diskfun":
+        """Cartesian derivative: ``dim=1`` -> x, ``dim=2`` -> y, applied k times."""
+        if dim not in (1, 2):
+            raise ValueError("dim must be 1 (x) or 2 (y)")
+        f = self
+        for _ in range(int(k)):
+            f = f.diffx() if dim == 1 else f.diffy()
+        return f
+
+    def laplacian(self) -> "Diskfun":
+        r"""Laplacian :math:`\\nabla^2 f = f_{xx} + f_{yy}` on the disk.
+
+        In polar coordinates,
+
+        .. math::
+            \\nabla^2 f = f_{rr} + \\frac{1}{r} f_r
+                          + \\frac{1}{r^2} f_{\\theta\\theta} .
+
+        Computed spectrally and reconstructed through a smooth
+        Fourier(theta) x Chebyshev(r) modal fit (so the 1/r, 1/r^2
+        factors are only ever evaluated at interior nodes, never the
+        origin).  Verified against exact harmonic polynomials
+        (``Re(z^n) = r^n cos(n theta)`` has zero Laplacian) and against
+        MATLAB @diskfun.  Implemented by Claude Opus 4.8.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/laplacian.m
+        Chebfun commit: 7574c77
+        """
+        return _diskfun_reconstruct(self, "laplacian")
+
+    lap = laplacian
+
     def __repr__(self) -> str:
         """Compact display.
 
@@ -1138,3 +1207,103 @@ def _integrate_cheb_times_r(coeffs: jax.Array) -> jax.Array:
 
     # ∫_0^1 c(r) r dr = sum_k a_k * W_k
     return jnp.dot(coeffs.astype(jnp.float64), W)
+
+
+def _diskfun_reconstruct(f: "Diskfun", kind: str) -> "Diskfun":
+    """Spectral Cartesian derivative / Laplacian of a Diskfun (Opus 4.8).
+
+    ``kind`` is ``"x"``, ``"y"`` or ``"laplacian"``.  The relevant
+    combination of radial/angular derivatives is evaluated at interior
+    Chebyshev(r) x uniform(theta) nodes (never at r = 0, so the 1/r and
+    1/r^2 factors stay finite), then fit to a smooth Fourier(theta) x
+    Chebyshev(r) modal expansion and reconstructed with
+    ``Diskfun.from_function``.
+
+    Verified against exact harmonic polynomials and MATLAB @diskfun.
+    """
+    cols = f.cols
+    rows = f.rows
+    piv = np.asarray(f.pivots)
+    cols_d = [c.diff() for c in cols]
+    cols_dd = [c.diff().diff() for c in cols]
+    rows_d = [r.diff() for r in rows]
+    rows_dd = [r.diff().diff() for r in rows]
+    inv_pi = 1.0 / np.pi
+
+    ncol = max(c.coeffs.shape[0] for c in cols)
+    nrow = max(r.coeffs.shape[0] for r in rows)
+    nr = ncol + 6
+    nth = nrow + 8
+
+    # interior radial nodes in (0, 1) (Chebyshev-Gauss, never 0), uniform theta
+    k = np.arange(nr)
+    r_nodes = np.abs(np.cos(np.pi * (k + 0.5) / (2 * nr)))
+    # theta samples on [0, 2*pi) so the standard FFT mode convention
+    # applies directly (no phase offset); the reconstruction below uses
+    # the actual theta, which is periodic, so any eval range is fine.
+    th_nodes = np.linspace(0.0, 2.0 * np.pi, nth, endpoint=False)
+    TH, RR = np.meshgrid(th_nodes, r_nodes, indexing="ij")
+    thj = jnp.asarray(TH.ravel())
+    rj = jnp.asarray(RR.ravel())
+    tr = thj / np.pi
+
+    frr = np.zeros(TH.size)
+    fr = np.zeros(TH.size)
+    ftt = np.zeros(TH.size)
+    fr_only = np.zeros(TH.size)   # d/dr (for x/y)
+    fth = np.zeros(TH.size)       # d/dtheta (for x/y)
+    for j in range(len(cols)):
+        w = float(1.0 / piv[j])
+        rowv = np.asarray(jnp.real(rows[j](tr)))
+        rowdv = np.asarray(jnp.real(rows_d[j](tr))) * inv_pi
+        rowddv = np.asarray(jnp.real(rows_dd[j](tr))) * inv_pi * inv_pi
+        colv = np.asarray(jnp.real(cols[j](rj)))
+        coldv = np.asarray(jnp.real(cols_d[j](rj)))
+        colddv = np.asarray(jnp.real(cols_dd[j](rj)))
+        frr += w * colddv * rowv
+        fr += w * coldv * rowv
+        ftt += w * colv * rowddv
+        fr_only += w * coldv * rowv
+        fth += w * colv * rowdv
+
+    Rr = np.asarray(RR.ravel())
+    if kind == "laplacian":
+        V = frr + fr / Rr + ftt / Rr ** 2
+    elif kind == "x":
+        V = np.cos(TH.ravel()) * fr_only \
+            - np.sin(TH.ravel()) / Rr * fth
+    elif kind == "y":
+        V = np.sin(TH.ravel()) * fr_only \
+            + np.cos(TH.ravel()) / Rr * fth
+    else:
+        raise ValueError(f"unknown kind {kind!r}")
+    V = V.reshape(TH.shape)
+
+    # angular FFT -> true complex Fourier coefficients c_m of
+    # e^{i m theta} (theta sampled on [0, 2*pi), so no phase offset).
+    Fhat = np.fft.rfft(V, axis=0) / nth
+    mmax = Fhat.shape[0]
+    # radial fit: Chebyshev in s = 2r - 1
+    deg = nr - 1
+    s_nodes = 2.0 * r_nodes - 1.0
+    vand = np.polynomial.chebyshev.chebvander(s_nodes, deg)
+    coefs = np.linalg.lstsq(vand, Fhat.T, rcond=None)[0]  # (deg+1, mmax)
+
+    def ev(theta, r):
+        theta = np.asarray(theta)
+        r = np.asarray(r)
+        shape = np.broadcast(theta, r).shape
+        s = (2.0 * r - 1.0).ravel()
+        vd = np.polynomial.chebyshev.chebvander(s, deg)
+        modes = vd @ coefs  # (npts, mmax) complex
+        out = np.zeros(s.shape)
+        th_flat = np.broadcast_to(theta, shape).ravel()
+        for m in range(mmax):
+            fac = 1.0 if m == 0 else 2.0
+            out = out + fac * np.real(modes[:, m] * np.exp(1j * m * th_flat))
+        return jnp.asarray(out.reshape(shape), dtype=jnp.float64)
+
+    import warnings as _warnings
+    with _warnings.catch_warnings():
+        _warnings.simplefilter("ignore")
+        return Diskfun.from_function(lambda t, r: ev(t, r))
