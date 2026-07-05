@@ -279,9 +279,14 @@ NEW**), chebfun3v, diskfun, diskfunv, spherefun, spherefunv, chebop
 discretization, spin, autodiff, chebfun1d-extras, **trigtech (NEW)**,
 **chebfun-core (NEW)**.
 
-**This session (Opus 4.8) added 6 golden-ref files / 38 tests:**
-trigtech (9), chebfun-core (13), chebop-extras (5), singfun+deltafun
-(6), chebfun2-extras (3), chebfun3-extras (2) — all vs MATLAB R2025b.
+**This session (Opus 4.8) added 10 golden-ref files / 53 tests** — all
+vs MATLAB R2025b: trigtech (9), chebfun-core (13), chebop-extras (5),
+singfun+deltafun (6), chebfun2-extras (3), chebfun3-extras (2),
+chebfun2v/3v vector calculus (6), chebfun-core batch 2 (4), chebop
+batch 2 / Mathieu (3), spherefun-calculus-vs-MATLAB (2). It also
+**found + fixed the same coarse-grid constructor bug in `diskfun`**
+that was fixed in `spherefun` (mixed angular-order functions aliased to
+rank 1). Ballfun uses a different (safe) construction — not affected.
 
 **The honest gap (still real):** whole MATLAB test directories still
 lack a dedicated machine-precision golden-ref port — most of `chebop`'s
