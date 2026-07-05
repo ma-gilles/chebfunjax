@@ -912,3 +912,37 @@ class TestLobptsEdgeCases:
         # Correct shape
         assert x.shape == (n,)
         assert w.shape == (n,)
+
+
+class TestLegptsLargeN:
+    """legpts scales to large n via the O(n)-memory Newton path (Opus 4.8).
+
+    The Golub-Welsch path builds an n x n matrix and is infeasible for
+    large n; above the threshold legpts switches to a vectorized Newton
+    iteration. The two must agree, and large n must be exact.
+    """
+
+    def test_matches_golub_welsch_at_threshold(self):
+        import numpy as np
+
+        from chebfunjax.utils.quadrature import legpts
+        for n in (201, 500, 999):
+            x, w = legpts(n)
+            xg, wg = np.polynomial.legendre.leggauss(n)
+            np.testing.assert_allclose(np.asarray(x), xg, atol=1e-13)
+            np.testing.assert_allclose(np.asarray(w), wg, atol=1e-12)
+
+    def test_large_n_exactness(self):
+        import numpy as np
+
+        from chebfunjax.utils.quadrature import legpts
+        x, w = legpts(5000)
+        xw = np.asarray(w)
+        xx = np.asarray(x)
+        assert len(x) == 5000
+        # weights sum to the interval length; polynomials integrated exactly
+        np.testing.assert_allclose(float(np.sum(xw)), 2.0, atol=1e-12)
+        np.testing.assert_allclose(float(np.sum(xw * xx ** 2)), 2.0 / 3.0,
+                                   atol=1e-12)
+        np.testing.assert_allclose(float(np.sum(xw * xx ** 4)), 2.0 / 5.0,
+                                   atol=1e-12)

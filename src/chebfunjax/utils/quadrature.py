@@ -213,7 +213,14 @@ def legpts(n: int, interval: tuple[float, float] | None = None,
             w = 0.5 * (b - a) * w
         return x, w
 
-    x, w = _legpts_gw(n)
+    # Golub-Welsch builds an n x n matrix (O(n^2) memory) — it OOMs /
+    # hangs for large n. Above a threshold, use an O(n)-memory
+    # vectorized Newton iteration on the Legendre recurrence instead.
+    # Added by Claude Opus 4.8 (task #10). The two agree to ~1e-13.
+    if n > _LEGPTS_NEWTON_THRESHOLD:
+        x, w = _legpts_newton(n)
+    else:
+        x, w = _legpts_gw(n)
 
     if interval is not None:
         a, b = interval
@@ -222,6 +229,68 @@ def legpts(n: int, interval: tuple[float, float] | None = None,
         w = dab * w / 2.0
 
     return x, w
+
+
+_LEGPTS_NEWTON_THRESHOLD = 200
+
+
+def _legpts_newton(n: int) -> tuple[jnp.ndarray, jnp.ndarray]:
+    """O(n)-memory Gauss-Legendre nodes/weights by vectorized Newton.
+
+    Computes the non-negative roots of the Legendre polynomial P_n by
+    Newton's method with a Tricomi/Gatteschi initial guess, evaluating
+    P_n and P_n' via the three-term recurrence vectorized over all
+    roots.  O(n) memory (no dense matrix), so it scales to very large n
+    where the Golub-Welsch eigensolve is infeasible.  Matches
+    Golub-Welsch / numpy.leggauss to ~1e-13.
+
+    Added by Claude Opus 4.8 (task #10 — legpts was O(n^2) only).
+    """
+    import numpy as _np
+
+    m = (n + 1) // 2  # number of non-negative roots
+    k = _np.arange(1, m + 1, dtype=_np.float64)
+    # Tricomi initial guess (roots near x = 1, descending)
+    theta = _np.pi * (4.0 * k - 1.0) / (4.0 * n + 2.0)
+    x = (1.0 - (n - 1.0) / (8.0 * n ** 3)
+         - 1.0 / (384.0 * n ** 4) * (39.0 - 28.0 / _np.sin(theta) ** 2)
+         ) * _np.cos(theta)
+
+    pnp = _np.zeros_like(x)
+    for _ in range(100):
+        p0 = _np.ones_like(x)
+        p1 = x.copy()
+        for j in range(2, n + 1):
+            p2 = ((2.0 * j - 1.0) * x * p1 - (j - 1.0) * p0) / j
+            p0 = p1
+            p1 = p2
+        pn = p1
+        pnp = n * (x * p1 - p0) / (x * x - 1.0)
+        dx = pn / pnp
+        x = x - dx
+        if _np.max(_np.abs(dx)) < 1e-15:
+            break
+
+    w = 2.0 / ((1.0 - x * x) * pnp ** 2)
+
+    # x descends from near 1; the smallest is ~0 for odd n.
+    if n % 2 == 1:
+        # last root is the centre x = 0
+        pos = x[:-1]         # strictly positive roots (descending)
+        posw = w[:-1]
+        w_mid = w[-1]
+        nodes = _np.concatenate([-pos[::-1],
+                                 _np.array([0.0]), pos])
+        weights = _np.concatenate([posw[::-1],
+                                   _np.array([w_mid]), posw])
+    else:
+        nodes = _np.concatenate([-x[::-1], x])
+        weights = _np.concatenate([w[::-1], w])
+
+    # ascending order
+    order = _np.argsort(nodes)
+    return (jnp.asarray(nodes[order], dtype=jnp.float64),
+            jnp.asarray(weights[order], dtype=jnp.float64))
 
 
 def _legpts_gw(n: int) -> tuple[jnp.ndarray, jnp.ndarray]:
