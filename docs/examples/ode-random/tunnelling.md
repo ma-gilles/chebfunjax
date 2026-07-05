@@ -47,3 +47,11 @@ Over $t \in [0, 800]$, the trajectory repeatedly tunnels between $y = +1$ and
 $y = -1$. Larger noise causes faster tunnelling.
 
 ![Tunnelling](../../images/ode-random/tunnelling.png)
+
+## Figures (chebfun.org parity)
+
+![Tunnelling figure 1](../../images/ode-random/Tunnelling_01.png)
+
+![Tunnelling figure 2](../../images/ode-random/Tunnelling_02.png)
+
+![Tunnelling figure 3](../../images/ode-random/Tunnelling_03.png)

@@ -35,14 +35,28 @@ catastrophe connect directly to the finite-energy resolution.
 ## Code
 
 ```python
-import chebfunjax as cj
 import numpy as np
+from scipy.integrate import solve_ivp
 
-for lam in [1/4, 1/16, 1/64]:
-    f = cj.randnfun(lam, domain=[0,1], seed=1, big=True)
-    f_vals = [float(f(np.array(t))) for t in t_eval]
-    print(f"lambda={lam}: std = {np.std(f_vals):.2f}")
-    # Output: std grows as lambda decreases
+def randnfun(lam, dom, seed):
+    """Band-limited random function (wavelength lam), normalized."""
+    rng = np.random.default_rng(seed)
+    a, b = dom
+    m = int(2 * (b - a) / lam) + 1
+    C = rng.standard_normal((m + 1, 2))
+    def f(t):
+        s = 2 * np.pi * (np.asarray(t) - a) / (b - a)
+        out = sum(C[k, 0] * np.cos(k * s) + C[k, 1] * np.sin(k * s)
+                  for k in range(m + 1))
+        return out / np.sqrt((m + 1) * lam)
+    return f
+
+for lam in (0.25, 1/16, 1/64):
+    f = randnfun(lam, (-1, 1), 9)
+    ts = np.linspace(-1, 1, 2000)
+    print(f"lambda {lam:.4f}: max |f| = {np.max(np.abs(f(ts))):.1f}")
+# the amplitude grows like 1/sqrt(lambda): white noise has infinite
+# amplitude — the "paradox"
 ```
 
 ## Results
@@ -51,3 +65,7 @@ The three panels show random functions with decreasing $\lambda$, each with
 growing amplitude demonstrating the white noise paradox.
 
 ![White noise paradox](../../images/ode-random/white_noise_paradox.png)
+
+## Figures (chebfun.org parity)
+
+![WhiteNoiseParadox figure 1](../../images/ode-random/WhiteNoiseParadox_01.png)

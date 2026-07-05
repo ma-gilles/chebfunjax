@@ -24,19 +24,32 @@ $\|u(t)\| = \|u(0)\| = 1$ for all $t$.
 ## Code
 
 ```python
-import chebfunjax as cj
+import numpy as np
 from scipy.integrate import solve_ivp
 
-f_fn = cj.randnfun(lam, domain=[0,100], seed=0)
-g_fn = cj.randnfun(lam, domain=[0,100], seed=1)
-h_fn = cj.randnfun(lam, domain=[0,100], seed=2)
+def randnfun(lam, dom, seed):
+    """Band-limited random function (wavelength lam), normalized."""
+    rng = np.random.default_rng(seed)
+    a, b = dom
+    m = int(2 * (b - a) / lam) + 1
+    C = rng.standard_normal((m + 1, 2))
+    def f(t):
+        s = 2 * np.pi * (np.asarray(t) - a) / (b - a)
+        out = sum(C[k, 0] * np.cos(k * s) + C[k, 1] * np.sin(k * s)
+                  for k in range(m + 1))
+        return out / np.sqrt((m + 1) * lam)
+    return f
 
-def rhs(t, u):
-    fi, gi, hi = [np.interp(t, t_grid, v) for v in [f_vals, g_vals, h_vals]]
-    M = fi * A + gi * B + hi * C
-    return M @ u
+fs = [randnfun(0.5, (0, 50), s) for s in (11, 12, 13)]
 
-sol = solve_ivp(rhs, [0, 100], u0, ...)
+def rhs(t, y):
+    v = np.array([f(t) for f in fs])
+    y = np.asarray(y)
+    return v - (v @ y) * y      # tangent projection keeps |y| = 1
+
+sol = solve_ivp(rhs, (0, 50), [0.0, 0.0, 1.0], max_step=0.02)
+print(f"|y| stays on the sphere: "
+      f"{np.max(np.abs(np.linalg.norm(sol.y, axis=0) - 1)):.2e}")
 ```
 
 ## Results
@@ -45,3 +58,13 @@ The trajectory $u(t) = (x(t), y(t), z(t))^T$ wanders ergodically over the
 unit sphere, with the exact unit norm preserved to numerical precision.
 
 ![Random walk on sphere](../../images/ode-random/random_on_sphere.png)
+
+## Figures (chebfun.org parity)
+
+![Random2SDE figure 1](../../images/ode-random/Random2SDE_01.png)
+
+## Figures (chebfun.org parity)
+
+![RandomOnASphere figure 1](../../images/ode-random/RandomOnASphere_01.png)
+
+![RandomOnASphere figure 2](../../images/ode-random/RandomOnASphere_02.png)

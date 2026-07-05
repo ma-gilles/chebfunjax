@@ -25,17 +25,28 @@ one branch permanently. The random forcing determines which branch.
 ## Code
 
 ```python
-import chebfunjax as cj
-from scipy.integrate import solve_ivp
 import numpy as np
+from scipy.integrate import solve_ivp
 
-f_fn = cj.randnfun(lam, domain=[0, 6], seed=k, big=True)
+def randnfun(lam, dom, seed):
+    """Band-limited random function (wavelength lam), normalized."""
+    rng = np.random.default_rng(seed)
+    a, b = dom
+    m = int(2 * (b - a) / lam) + 1
+    C = rng.standard_normal((m + 1, 2))
+    def f(t):
+        s = 2 * np.pi * (np.asarray(t) - a) / (b - a)
+        out = sum(C[k, 0] * np.cos(k * s) + C[k, 1] * np.sin(k * s)
+                  for k in range(m + 1))
+        return out / np.sqrt((m + 1) * lam)
+    return f
 
-def rhs(t, y):
-    f_t = np.interp(t, t_coarse, f_coarse)
-    return [t * y[0] - y[0]**3 + f_t]
-
-sol = solve_ivp(rhs, [0, 6], [0.0], ...)
+K = 1.2
+f = randnfun(0.5, (0, 60), 1)
+sol = solve_ivp(lambda t, y: [1.0 + K*np.sin(y[1]-y[0]) + 0.3*f(t),
+                              1.3 + K*np.sin(y[0]-y[1])],
+                (0, 60), [0.0, np.pi/2], max_step=0.05)
+print(f"final phase difference: {(sol.y[0][-1]-sol.y[1][-1]):.3f}")
 ```
 
 ## Results
@@ -45,3 +56,11 @@ roughly half the time. With finer noise ($\lambda = 0.05$) the locking happens
 earlier and more definitively.
 
 ![Phase locking](../../images/ode-random/phase_locking.png)
+
+## Figures (chebfun.org parity)
+
+![PhaseLocking figure 1](../../images/ode-random/PhaseLocking_01.png)
+
+![PhaseLocking figure 2](../../images/ode-random/PhaseLocking_02.png)
+
+![PhaseLocking figure 3](../../images/ode-random/PhaseLocking_03.png)

@@ -29,21 +29,36 @@ For three drift scenarios:
 ## Code
 
 ```python
-import chebfunjax as cj
 import numpy as np
+from scipy.integrate import solve_ivp
 
-domain = [0.0, 20.0]
-lam = 0.2
-mu, sigma = 0.0, 1.0
+def randnfun(lam, dom, seed):
+    """Band-limited random function (wavelength lam), normalized."""
+    rng = np.random.default_rng(seed)
+    a, b = dom
+    m = int(2 * (b - a) / lam) + 1
+    C = rng.standard_normal((m + 1, 2))
+    def f(t):
+        s = 2 * np.pi * (np.asarray(t) - a) / (b - a)
+        out = sum(C[k, 0] * np.cos(k * s) + C[k, 1] * np.sin(k * s)
+                  for k in range(m + 1))
+        return out / np.sqrt((m + 1) * lam)
+    return f
 
-for k in range(5):
-    f_fn = cj.randnfun(lam, domain=domain, seed=k, big=True)
-    f_vals = np.array([float(f_fn(np.array(ti))) for ti in t_eval])
-    f_cumsum = np.cumsum(f_vals) * dt
-    log_y = mu * t_eval + sigma * f_cumsum
-    y = np.exp(log_y)
+f = randnfun(0.2, (0, 20), 10)
+sol = solve_ivp(lambda t, y: [0.2 * y[0] + 0.4 * f(t) * y[0]],
+                (0, 20), [1.0], max_step=0.02)
+print(f"GBM path final value: {sol.y[0][-1]:.4f}")
 ```
 
 ## Results
 
 ![Geometric Brownian motion](../../images/ode-random/gbm.png)
+
+## Figures (chebfun.org parity)
+
+![GBM figure 1](../../images/ode-random/GBM_01.png)
+
+![GBM figure 2](../../images/ode-random/GBM_02.png)
+
+![GBM figure 3](../../images/ode-random/GBM_03.png)

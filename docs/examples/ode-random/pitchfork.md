@@ -27,17 +27,27 @@ Adding a damping term $0.2y'$ greatly reduces the oscillations that occur near b
 ## Code
 
 ```python
-import chebfunjax as cj
-from scipy.integrate import solve_ivp
 import numpy as np
+from scipy.integrate import solve_ivp
 
-def rhs(t, y):
-    ct = -1.0 + t / 300.0
-    f_t = np.interp(t, t_coarse, f_coarse)
-    return [y[1],
-            2.0 * ct * y[0] - 4.0 * y[0]**3 + eps * f_t - damping * y[1]]
+def randnfun(lam, dom, seed):
+    """Band-limited random function (wavelength lam), normalized."""
+    rng = np.random.default_rng(seed)
+    a, b = dom
+    m = int(2 * (b - a) / lam) + 1
+    C = rng.standard_normal((m + 1, 2))
+    def f(t):
+        s = 2 * np.pi * (np.asarray(t) - a) / (b - a)
+        out = sum(C[k, 0] * np.cos(k * s) + C[k, 1] * np.sin(k * s)
+                  for k in range(m + 1))
+        return out / np.sqrt((m + 1) * lam)
+    return f
 
-sol = solve_ivp(rhs, [0, 600], [0.0, 0.0], ...)
+f = randnfun(0.3, (0, 100), 2)
+sol = solve_ivp(lambda t, y: [(-1 + 2*t/100) * y[0] - y[0]**3
+                              + 0.03 * f(t)],
+                (0, 100), [0.0], max_step=0.05)
+print(f"branch chosen: {np.sign(sol.y[0][-1]):+.0f}")
 ```
 
 ## Results
@@ -47,3 +57,9 @@ locks onto $y = +\sqrt{c(t)/2}$ or $y = -\sqrt{c(t)/2}$. Adding damping
 reduces oscillatory behavior.
 
 ![Pitchfork bifurcation](../../images/ode-random/pitchfork.png)
+
+## Figures (chebfun.org parity)
+
+![Pitchfork figure 1](../../images/ode-random/Pitchfork_01.png)
+
+![Pitchfork figure 2](../../images/ode-random/Pitchfork_02.png)

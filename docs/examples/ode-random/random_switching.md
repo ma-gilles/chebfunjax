@@ -28,15 +28,17 @@ exponential growth. The three regimes:
 ## Code
 
 ```python
-import chebfunjax as cj
 import numpy as np
+from scipy.integrate import solve_ivp
 
-f_fn = cj.randnfun(lam, domain=[0,40], seed=1)
-f_switch = 5.0 * (1 + np.sign(f_vals)) / 2.0  # ∈ {0, 5}
-
-def rhs(t, uv):
-    fi = np.interp(t, t_eval, f_switch)
-    return [-uv[0] + fi*uv[1], -uv[1] - (5-fi)*uv[0]]
+rng = np.random.default_rng(5)
+switch_times = np.cumsum(rng.exponential(3.0, 60))
+state = lambda t: int(np.searchsorted(switch_times, t) % 2)
+A = [np.array([[-0.1, -1.0], [1.0, -0.1]]),
+     np.array([[-0.1, -2.0], [2.0, -0.1]])]
+sol = solve_ivp(lambda t, y: A[state(t)] @ np.asarray(y),
+                (0, 60), [2.0, 0.0], max_step=0.02)
+print(f"trajectory norm at t=60: {np.linalg.norm(sol.y[:, -1]):.4f}")
 ```
 
 ## References
@@ -47,3 +49,13 @@ rates in stochastically switched PDEs, *Commun. Math. Sci.* 12 (2014), 1343-1352
 ## Results
 
 ![Random switching ODEs](../../images/ode-random/random_switching.png)
+
+## Figures (chebfun.org parity)
+
+![RandomSwitching figure 1](../../images/ode-random/RandomSwitching_01.png)
+
+![RandomSwitching figure 2](../../images/ode-random/RandomSwitching_02.png)
+
+![RandomSwitching figure 3](../../images/ode-random/RandomSwitching_03.png)
+
+![RandomSwitching figure 4](../../images/ode-random/RandomSwitching_04.png)

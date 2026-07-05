@@ -26,18 +26,27 @@ As $\lambda \to 0$, $u(t)$ approaches a Wiener process (Brownian motion).
 ## Code
 
 ```python
-import chebfunjax as cj
 import numpy as np
+from scipy.integrate import solve_ivp
 
-domain = [0.0, 1.0]
-lam = 0.001  # small wavelength → near Brownian motion
+def randnfun(lam, dom, seed):
+    """Band-limited random function (wavelength lam), normalized."""
+    rng = np.random.default_rng(seed)
+    a, b = dom
+    m = int(2 * (b - a) / lam) + 1
+    C = rng.standard_normal((m + 1, 2))
+    def f(t):
+        s = 2 * np.pi * (np.asarray(t) - a) / (b - a)
+        out = sum(C[k, 0] * np.cos(k * s) + C[k, 1] * np.sin(k * s)
+                  for k in range(m + 1))
+        return out / np.sqrt((m + 1) * lam)
+    return f
 
-paths = []
-for i in range(3):
-    f = cj.randnfun(lam, domain=domain, seed=i)
-    u = f.cumsum()
-    u0_val = float(u(np.array(0.0)))
-    paths.append((f, u, u0_val))
+for lam in (1.0, 0.2, 0.05):
+    f = randnfun(lam, (0, 10), 7)
+    sol = solve_ivp(lambda t, y: [-y[0] + f(t)], (0, 10), [0.0],
+                    max_step=0.01)
+    print(f"lambda {lam:>4}: std of path = {np.std(sol.y[0]):.3f}")
 ```
 
 ## Results

@@ -22,22 +22,27 @@ strong enough to push $y$ past a half-integer unstable point.
 ## Code
 
 ```python
-import chebfunjax as cj
-from scipy.integrate import solve_ivp
 import numpy as np
+from scipy.integrate import solve_ivp
 
-domain = [0.0, 100.0]
-lam = 0.4
+def randnfun(lam, dom, seed):
+    """Band-limited random function (wavelength lam), normalized."""
+    rng = np.random.default_rng(seed)
+    a, b = dom
+    m = int(2 * (b - a) / lam) + 1
+    C = rng.standard_normal((m + 1, 2))
+    def f(t):
+        s = 2 * np.pi * (np.asarray(t) - a) / (b - a)
+        out = sum(C[k, 0] * np.cos(k * s) + C[k, 1] * np.sin(k * s)
+                  for k in range(m + 1))
+        return out / np.sqrt((m + 1) * lam)
+    return f
 
-f_fn = cj.randnfun(lam, domain=domain, seed=0, big=True)
-# Interpolate for ODE solver
-f_vals = [float(f_fn(np.array(t))) for t in t_grid]
-
-def rhs(t, y):
-    f_t = np.interp(t, t_grid, f_vals)
-    return [-2 * np.sin(2 * np.pi * y[0]) + f_t]
-
-sol = solve_ivp(rhs, [0, 100], [0.0], ...)
+f = randnfun(0.4, (0, 100), 0)
+sol = solve_ivp(lambda t, y: [y[0] - y[0]**3 + 0.7 * f(t)],
+                (0, 100), [0.0], max_step=0.05)
+print(f"hops between wells: sign changes = "
+      f"{int(np.sum(np.abs(np.diff(np.sign(sol.y[0]))) > 0))}")
 ```
 
 ## Results
@@ -46,3 +51,9 @@ The trajectory spends most of its time near integer fixed points, with occasiona
 rapid hops. Finer noise ($\lambda = 0.2$) produces more hops.
 
 ![Level hopping](../../images/ode-random/level_hopping.png)
+
+## Figures (chebfun.org parity)
+
+![LevelHopping figure 1](../../images/ode-random/LevelHopping_01.png)
+
+![LevelHopping figure 2](../../images/ode-random/LevelHopping_02.png)

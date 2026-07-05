@@ -55,3 +55,11 @@ Strong coupling ($F = 3$) causes the two particles to synchronize and move
 together. Weaker coupling ($F = 1$) gives partial synchronization.
 
 ![Consensus dynamics](../../images/ode-random/consensus.png)
+
+## Figures (chebfun.org parity)
+
+![Consensus figure 1](../../images/ode-random/Consensus_01.png)
+
+![Consensus figure 2](../../images/ode-random/Consensus_02.png)
+
+![Consensus figure 3](../../images/ode-random/Consensus_03.png)
