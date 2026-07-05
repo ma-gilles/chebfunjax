@@ -97,6 +97,20 @@ Forward Column recursion for large degrees $l > 1900$ [2].
 ## Code
 
 ```python
-from examples.sphere.solid_harmonics import run
-run()
+import numpy as np
+from scipy.special import sph_harm_y
+
+th = np.linspace(1e-4, np.pi - 1e-4, 60)
+ph = np.linspace(0, 2 * np.pi, 120)
+TH, PH = np.meshgrid(th, ph, indexing="ij")
+
+Y = np.real(sph_harm_y(4, 2, TH, PH))
+print(f"Y_4^2 range on the sphere: [{Y.min():.4f}, {Y.max():.4f}]")
+# the solid harmonic r^4 Y_4^2 is a degree-4 harmonic polynomial
 ```
+
+## Figures (chebfun.org parity)
+
+![SolidHarmonics figure 1](../../images/sphere/SolidHarmonics_01.png)
+
+![SolidHarmonics figure 2](../../images/sphere/SolidHarmonics_02.png)

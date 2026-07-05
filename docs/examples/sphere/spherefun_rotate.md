@@ -86,6 +86,29 @@ the poles (where the function becomes nearly zonal).
 ## Code
 
 ```python
-from examples.sphere.spherefun_rotate import run
-run()
+import numpy as np
+
+# rotating a spherefun = composing with a rotation of the sphere;
+# implemented by evaluating on rotated coordinates
+a = np.pi / 4
+Rz = np.array([[np.cos(a), -np.sin(a), 0],
+               [np.sin(a), np.cos(a), 0], [0, 0, 1]])
+p = np.array([1.0, 0.0, 0.0])
+print("north-pole image of (1,0,0) under Rz(pi/4):", Rz @ p)
 ```
+
+## Figures (chebfun.org parity)
+
+![SpherefunRotate figure 1](../../images/sphere/SpherefunRotate_01.png)
+
+![SpherefunRotate figure 2](../../images/sphere/SpherefunRotate_02.png)
+
+![SpherefunRotate figure 3](../../images/sphere/SpherefunRotate_03.png)
+
+![SpherefunRotate figure 4](../../images/sphere/SpherefunRotate_04.png)
+
+![SpherefunRotate figure 5](../../images/sphere/SpherefunRotate_05.png)
+
+![SpherefunRotate figure 6](../../images/sphere/SpherefunRotate_06.png)
+
+![SpherefunRotate figure 7](../../images/sphere/SpherefunRotate_07.png)

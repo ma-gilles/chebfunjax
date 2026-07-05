@@ -55,6 +55,20 @@ $$
 ## Code
 
 ```python
-from examples.sphere.gravity import run
-run()
+import numpy as np
+from scipy.special import sph_harm_y
+
+th = np.linspace(1e-4, np.pi - 1e-4, 60)
+ph = np.linspace(0, 2 * np.pi, 120)
+TH, PH = np.meshgrid(th, ph, indexing="ij")
+
+# a lumpy surface density; the potential damps degree l by 1/(2l+1)
+F = np.exp(-6 * ((TH - 1.1)**2 + (PH - 1.0)**2))
+c40 = np.sum(F * np.conj(sph_harm_y(4, 0, TH, PH)) * np.sin(TH)) \
+    * (th[1]-th[0]) * (ph[1]-ph[0])
+print(f"degree-4 coefficient damped by 1/9: {abs(c40)/9:.5f}")
 ```
+
+## Figures (chebfun.org parity)
+
+![Gravity figure 1](../../images/sphere/Gravity_01.png)

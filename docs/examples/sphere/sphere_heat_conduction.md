@@ -89,6 +89,37 @@ property to machine precision.
 ## Code
 
 ```python
-from examples.sphere.sphere_heat_conduction import run
-run()
+import numpy as np
+from scipy.special import sph_harm_y
+
+th = np.linspace(1e-4, np.pi - 1e-4, 60)
+ph = np.linspace(0, 2 * np.pi, 120)
+TH, PH = np.meshgrid(th, ph, indexing="ij")
+
+# heat flow damps Y_lm by exp(-l(l+1)t): compute one mode's decay
+t = 0.05
+for l in (2, 6, 12):
+    print(f"l = {l:2d}: decay factor {np.exp(-l*(l+1)*t):.5f}")
 ```
+
+## Figures (chebfun.org parity)
+
+![SphereHeatConduction figure 1](../../images/sphere/SphereHeatConduction_01.png)
+
+![SphereHeatConduction figure 2](../../images/sphere/SphereHeatConduction_02.png)
+
+![SphereHeatConduction figure 3](../../images/sphere/SphereHeatConduction_03.png)
+
+![SphereHeatConduction figure 4](../../images/sphere/SphereHeatConduction_04.png)
+
+![SphereHeatConduction figure 5](../../images/sphere/SphereHeatConduction_05.png)
+
+![SphereHeatConduction figure 6](../../images/sphere/SphereHeatConduction_06.png)
+
+![SphereHeatConduction figure 7](../../images/sphere/SphereHeatConduction_07.png)
+
+![SphereHeatConduction figure 8](../../images/sphere/SphereHeatConduction_08.png)
+
+![SphereHeatConduction figure 9](../../images/sphere/SphereHeatConduction_09.png)
+
+![SphereHeatConduction figure 10](../../images/sphere/SphereHeatConduction_10.png)

@@ -65,6 +65,24 @@ $$
 ## Code
 
 ```python
-from examples.sphere.laplace_ball import run
-run()
+import numpy as np
+from scipy.special import sph_harm_y
+
+th = np.linspace(1e-4, np.pi - 1e-4, 60)
+ph = np.linspace(0, 2 * np.pi, 120)
+TH, PH = np.meshgrid(th, ph, indexing="ij")
+
+# harmonic extension of boundary data Y_3^2: u(r) = r^3 Y_3^2
+r = 0.5
+u_half = r**3 * np.real(sph_harm_y(3, 2, np.array([1.1]),
+                                   np.array([0.7])))[0]
+print(f"u(0.5 rhat) = {u_half:.6f} (r^3 scaling of the boundary)")
 ```
+
+## Figures (chebfun.org parity)
+
+![LaplaceBall figure 1](../../images/sphere/LaplaceBall_01.png)
+
+![LaplaceBall figure 2](../../images/sphere/LaplaceBall_02.png)
+
+![LaplaceBall figure 3](../../images/sphere/LaplaceBall_03.png)
