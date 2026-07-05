@@ -170,6 +170,19 @@ def _motto():
     return (3j * s).exp()
 
 
+@_register("si", "Sine integral Si(x) = cumsum(sin(x)/x) on [-50, 50]")
+def _si():
+    # Added by Claude Opus 4.8 (missing gallery entry).
+    # MATLAB: cumsum(chebfun(@(x) sin(x)./x, [-50, 50])).
+    from chebfunjax.chebfun1d.chebfun import chebfun
+
+    def sinc_like(x):
+        # sin(x)/x with the removable singularity filled (limit 1 at 0)
+        return jnp.where(jnp.abs(x) < 1e-300, 1.0,
+                         jnp.sin(x) / jnp.where(x == 0.0, 1.0, x))
+    return chebfun(sinc_like, domain=(-50.0, 50.0)).cumsum()
+
+
 @_register("wiggly", "exp(x)*sin(10*pi*x) on [-1, 1]")
 def _wiggly():
     from chebfunjax.chebfun1d.chebfun import chebfun

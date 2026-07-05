@@ -397,6 +397,22 @@ class TestGallery:
         val = np.asarray(f(jnp.float64(0.0)))
         assert np.iscomplexobj(val)
 
+    def test_si_matches_sine_integral(self):
+        """gallery('si') is Si(x) up to the Si(-50) offset from cumsum.
+
+        Added by Claude Opus 4.8 (entry was missing).
+        """
+        from scipy.special import sici
+
+        from chebfunjax.utils.gallery import gallery
+        f = gallery("si")
+        assert f.domain.a == pytest.approx(-50.0)
+        assert f.domain.b == pytest.approx(50.0)
+        xs = np.array([-10.0, 0.0, 10.0, 30.0])
+        got = np.asarray(f(jnp.asarray(xs)))
+        want = sici(xs)[0] - sici(-50.0)[0]
+        npt.assert_allclose(got, want, atol=1e-11)
+
     def test_erf_value(self):
         """gallery('erf') at x=0 should be 0."""
         from chebfunjax.utils.gallery import gallery
