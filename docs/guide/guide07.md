@@ -29,8 +29,6 @@ The building blocks for operators live in `chebfunjax.operators.blocks`:
 from chebfunjax.operators.blocks import D, I, diag, eval_at, sum_functional
 ```
 
-![](../images/guide/guide07_05.png)
-
 
 ### The Differentiation Operator `D`
 
@@ -48,8 +46,6 @@ import jax.numpy as jnp
 D_pi = D(domain=(0.0, float(jnp.pi)))
 ```
 
-![](../images/guide/guide07_07.png)
-
 
 ### The Identity Operator `I`
 
@@ -58,8 +54,6 @@ D_pi = D(domain=(0.0, float(jnp.pi)))
 ```python
 Id = I()
 ```
-
-![](../images/guide/guide07_09.png)
 
 
 ### Multiplication Operator `diag`
@@ -72,8 +66,6 @@ import chebfunjax as cj
 x = cj.chebfun(lambda t: t)
 M = diag(x)   # multiplication by x
 ```
-
-![](../images/guide/guide07_10.png)
 
 
 ### Operator Algebra
@@ -88,8 +80,6 @@ L_op = D(order=2) + diag(x)
 L_op2 = 0.001 * D(order=2) - I()
 ```
 
-![](../images/guide/guide07_11.png)
-
 
 ### Evaluation Functionals
 
@@ -103,8 +93,6 @@ E_left = eval_at(-1.0)
 E_right = eval_at(1.0)
 ```
 
-![](../images/guide/guide07_12.png)
-
 
 ### Integral Functional
 
@@ -113,8 +101,6 @@ E_right = eval_at(1.0)
 ```python
 S = sum_functional()
 ```
-
-![](../images/guide/guide07_16.png)
 
 
 ## 7.4 Solving BVPs with `Linop`
@@ -140,8 +126,6 @@ u = L.solve(lambda x: -jnp.ones_like(x))
 print(f"u(0) = {float(u(jnp.float64(0.0))):.15f}")   # 0.5
 ```
 
-![cumsum(x) on [0,1]](../images/guide/guide07_01.png)
-
 ### Adaptive Discretization
 
 When no fixed size `n` is provided, `Linop.solve` uses an adaptive loop: it tries discretization sizes $n = 8, 16, 32, \ldots$ until the Chebyshev coefficients of the solution decay below the tolerance.
@@ -153,8 +137,6 @@ u_fixed = L.solve(lambda x: -jnp.ones_like(x), n=32)
 # Adaptive (default)
 u_adaptive = L.solve(lambda x: -jnp.ones_like(x), tol=1e-12)
 ```
-
-![](../images/guide/guide07_17.png)
 
 
 ### Variable Coefficients
@@ -177,6 +159,8 @@ L = Linop(
 u = L.solve(lambda t: jnp.ones_like(t))
 ```
 
+![First BVP solution](../images/guide/guide07_01.png)
+
 ![Variable-coefficient BVP: u'' + x^3 u = 1](../images/guide/guide07_02.png)
 
 ![Same problem with Neumann BC on the right, overlaid](../images/guide/guide07_03.png)
@@ -189,8 +173,6 @@ You can verify the residual by evaluating the operator on the solution:
 residual = u.diff(2) + x**3 * u - 1.0
 print(f"Residual norm: {float(residual.norm()):.2e}")
 ```
-
-![](../images/guide/guide07_18.png)
 
 
 ## 7.5 Solving BVPs with `Chebop`
@@ -207,7 +189,13 @@ u = N.solve(-1.0)
 print(f"u(0) = {float(u(jnp.float64(0.0))):.15f}")
 ```
 
-![Chebop solution of u'' = -1 with Dirichlet BCs](../images/guide/guide07_04.png)
+![Chebop solution](../images/guide/guide07_04.png)
+
+![Oscillatory coefficients](../images/guide/guide07_05.png)
+
+![u'' - sign(x) u with jump coefficient](../images/guide/guide07_06.png)
+
+![Periodic problem with strong forcing](../images/guide/guide07_07.png)
 
 ### Boundary Condition Types
 
@@ -224,8 +212,6 @@ N2.lbc = 0.0
 N2.rbc = lambda u: u.diff()
 u2 = N2.solve(-1.0)
 ```
-
-![](../images/guide/guide07_19.png)
 
 
 ### The Convenience Function `bvp`
@@ -270,6 +256,35 @@ print("Eigenvalues:", lam)
 ```
 
 ![Eigenmodes of the second derivative on [0, pi]](../images/guide/guide07_08.png)
+
+The eigenfunctions themselves come back as chebfuns with
+`return_eigenfunctions=True`:
+
+```python
+lam, V = N.eigs(k=4, return_eigenfunctions=True)
+# V is a list of chebfuns; V[k] matches sqrt(2/pi) sin((k+1)x) to ~1e-12
+```
+
+![Mathieu elliptic cosine and sine](../images/guide/guide07_09.png)
+
+![Orr-Sommerfeld eigenvalues](../images/guide/guide07_10.png)
+
+## 7.6b Exponential of a linear operator: expm
+
+`expm(t, u0)` applies the semigroup $e^{tL}$ — here the heat equation
+smoothing a sharp bump, and MATLAB's classic BLUR demo diffusing
+scribbled text under Neumann conditions:
+
+```python
+A = Chebop(lambda x, u: u.diff(2), domain=(-1.0, 1.0), lbc=0.0, rbc=0.0)
+f = cj.chebfun(lambda x: jnp.exp(-1000 * (x + 0.3) ** 6))
+u_t = A.expm(0.1, f)     # spectrally accurate for Dirichlet problems
+print(float(u_t(jnp.array(0.0))[()]) if hasattr(u_t(jnp.array(0.0)), '__len__') else float(u_t(jnp.array(0.0))))
+```
+
+![Heat diffusion of a bump via expm](../images/guide/guide07_11.png)
+
+![BLUR: scribble text diffused by the heat semigroup](../images/guide/guide07_12.png)
 
 ### Using Chebop for Eigenvalues
 
@@ -319,7 +334,15 @@ print(f"D2 matrix shape: {D2_mat.shape}")
 print(D2_mat)
 ```
 
-![Cosine solution on [-10, 10]](../images/guide/guide07_14.png)
+![Coupled first-order system u\' = v, v\' = -u](../images/guide/guide07_13.png)
+
+The block structure of the discretized system is visible with spy:
+
+![spy of the block operator](../images/guide/guide07_14.png)
+
+![spy with the derivative blocks off the diagonal](../images/guide/guide07_15.png)
+
+![System eigenfunctions: imag(U) and real(V)](../images/guide/guide07_16.png)
 
 ### Conditioning
 
@@ -345,7 +368,16 @@ print(f"u({mid:.4f}) = {float(u(jnp.float64(mid))):.10f}")
 print(f"cos({mid:.4f}) = {float(jnp.cos(jnp.float64(mid))):.10f}")
 ```
 
-![Harmonic oscillator system: u and u'](../images/guide/guide07_15.png)
+![Steep interior-layer solution of a nonlinear BVP](../images/guide/guide07_17.png)
+
+An unknown scalar parameter (MATLAB\'s `N\\0` with an extra boundary
+condition) is handled by shooting: solve the BVP for trial T and
+root-find on the extra condition. Two branches exist, T = 4.044 and
+T = 7.464:
+
+![First branch, T = 4.044](../images/guide/guide07_18.png)
+
+![Second branch, T = 7.464](../images/guide/guide07_19.png)
 
 ## 7.9 Quantum States
 
