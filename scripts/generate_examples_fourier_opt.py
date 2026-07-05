@@ -337,10 +337,15 @@ def globalminimum():
     print(f"    computed min {G[i, j]:.10f} vs exact {exact:.10f}")
 
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
-    ax.plot_surface(XX, YY, G, cmap=PARULA, rstride=2, cstride=2,
-                    linewidth=0)
-    ax.set_title("The complicated function", fontsize=10)
+    ax = fig.add_axes([0.0, -0.02, 1.0, 0.98], projection="3d")
+    stride = 6
+    ax.plot_surface(XX[::stride, ::stride], YY[::stride, ::stride],
+                    G[::stride, ::stride], cmap=PARULA, rstride=1,
+                    cstride=1, linewidth=0.2, edgecolors="k",
+                    shade=False)
+    ax.view_init(elev=30, azim=-127.5)
+    ax.set_zlim(-5, 6)
+    ax.set_title("The complicated function", fontsize=11)
     save(fig, "opt", "GlobalMinimum_01.png")
 
     fig, ax = plt.subplots()
