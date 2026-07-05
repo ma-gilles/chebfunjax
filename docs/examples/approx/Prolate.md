@@ -30,3 +30,12 @@ connection to the Nyquist sampling theorem.
 
 ![Prolate Spheroidal Wave Functions](../../images/approx/Prolate.png)
 
+## Figures (chebfun.org parity)
+
+![Prolate figure 1](../../images/approx/Prolate_01.png)
+
+![Prolate figure 2](../../images/approx/Prolate_02.png)
+
+![Prolate figure 3](../../images/approx/Prolate_03.png)
+
+![Prolate figure 4](../../images/approx/Prolate_04.png)

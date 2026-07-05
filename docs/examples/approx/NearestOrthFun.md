@@ -29,3 +29,12 @@ print("Q = UV^T =\n", U @ Vt)
 
 ![Nearest Orthonormal Functions](../../images/approx/NearestOrthFun.png)
 
+## Figures (chebfun.org parity)
+
+![NearestOrthFun figure 1](../../images/approx/NearestOrthFun_01.png)
+
+![NearestOrthFun figure 2](../../images/approx/NearestOrthFun_02.png)
+
+![NearestOrthFun figure 3](../../images/approx/NearestOrthFun_03.png)
+
+![NearestOrthFun figure 4](../../images/approx/NearestOrthFun_04.png)

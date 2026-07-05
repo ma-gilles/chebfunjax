@@ -18,7 +18,7 @@ In chebfunjax, `f.polyfit(n)` computes this efficiently:
 import chebfunjax as cj
 import jax.numpy as jnp
 
-f = cj.chebfun(jnp.abs)
+f = cj.chebfun(jnp.abs, domain=[-1.0, 0.0, 1.0])  # piecewise-exact
 p5 = f.polyfit(5)
 print(f"L2 error: {float((f - p5).norm(2)):.4f}")
 ```
@@ -32,3 +32,12 @@ For smooth functions the convergence is geometric: $O(\rho^{-n})$ for some $\rho
 
 ![Least-Squares Approximation in Chebfun](../../images/approx/BestL2Approximation.png)
 
+## Figures (chebfun.org parity)
+
+![BestL2Approximation figure 1](../../images/approx/BestL2Approximation_01.png)
+
+![BestL2Approximation figure 2](../../images/approx/BestL2Approximation_02.png)
+
+![BestL2Approximation figure 3](../../images/approx/BestL2Approximation_03.png)
+
+![BestL2Approximation figure 4](../../images/approx/BestL2Approximation_04.png)

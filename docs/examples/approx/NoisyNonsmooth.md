@@ -30,3 +30,12 @@ print("f_right(0.5) =", float(f_right(jnp.array(0.5))))
 
 ![Chebfuns of Noisy Functions with Discontinuities](../../images/approx/NoisyNonsmooth.png)
 
+## Figures (chebfun.org parity)
+
+![NoisyNonsmooth figure 1](../../images/approx/NoisyNonsmooth_01.png)
+
+![NoisyNonsmooth figure 2](../../images/approx/NoisyNonsmooth_02.png)
+
+![NoisyNonsmooth figure 3](../../images/approx/NoisyNonsmooth_03.png)
+
+![NoisyNonsmooth figure 4](../../images/approx/NoisyNonsmooth_04.png)

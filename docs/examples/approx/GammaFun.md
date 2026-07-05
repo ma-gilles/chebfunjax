@@ -32,3 +32,12 @@ integral of $\sqrt{|\Gamma|}$ is finite.
 
 ![The Gamma Function and Its Poles](../../images/approx/GammaFun.png)
 
+## Figures (chebfun.org parity)
+
+![GammaFun figure 1](../../images/approx/GammaFun_01.png)
+
+![GammaFun figure 2](../../images/approx/GammaFun_02.png)
+
+![GammaFun figure 3](../../images/approx/GammaFun_03.png)
+
+![GammaFun figure 4](../../images/approx/GammaFun_04.png)

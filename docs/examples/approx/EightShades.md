@@ -31,3 +31,12 @@ parameters than a polynomial of the same degree.
 
 ![Eight Shades of Rational Approximation](../../images/approx/EightShades.png)
 
+## Figures (chebfun.org parity)
+
+![EightShades figure 1](../../images/approx/EightShades_01.png)
+
+![EightShades figure 2](../../images/approx/EightShades_02.png)
+
+![EightShades figure 3](../../images/approx/EightShades_03.png)
+
+![EightShades figure 4](../../images/approx/EightShades_04.png)
