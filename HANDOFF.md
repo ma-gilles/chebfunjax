@@ -248,11 +248,52 @@ diminishing-returns pixel-chasing, not correctness:
 
 ### 4.4 Verification & reporting (workstream E)
 - **Full GPU test suite** (`./scripts/run_tests_parallel.sh full`, ~1h,
-  3 Slurm jobs) — the campaign only ran `test-fast` (CPU, 2513 tests).
+  3 Slurm jobs) — the campaign only ran `test-fast` (CPU, 2526 tests).
   Run this before considering the campaign closed.
 - **Master parity matrix (#23):** 2652 items (658 functions verified
   ~365, 1594 plots in progress, 400 examples now output-parity).
   Formalize the final tally.
+
+### 4.5 MATLAB unit-test replication — honest status (Opus 4.8)
+
+**This is NOT complete and should not be claimed as such.** The straight
+count:
+
+- **MATLAB Chebfun's own suite:** 1,102 test `.m` files across ~40 class
+  directories, ≈6,500+ explicit `pass(k)=` sub-assertions. Biggest:
+  `chebfun/` 166, `chebop/` 99, `chebfun3/` 82, `chebfun2/` 75,
+  `chebtech/` 55, `trigtech/` 53.
+- **chebfunjax:** 2,526 passing Python tests. Of these, **20 files are
+  true MATLAB golden-reference cross-validations** (`*_matlab.py`),
+  pinned at **atol/rtol 1e-12–1e-13** against `.mat` fixtures generated
+  from MATLAB R2025b. The rest are independently-authored Python tests
+  (broad coverage, but not 1:1 ports).
+
+**Golden-ref cross-validated classes (20 files):** ballfun, ballfun-
+calculus, ballfunv, chebfun2, chebfun2v, chebfun3, chebfun3v, diskfun,
+diskfunv, spherefun, spherefunv, chebop (operators + nonlinear), fun
+layer (unbndfun/singfun/deltafun), discretization, spin, autodiff,
+chebfun1d-extras, **trigtech (NEW)**, **chebfun-core (NEW)**.
+
+**The honest gap:** whole MATLAB test directories still lack a dedicated
+machine-precision golden-ref port — most of `chebop`'s 99 files (only
+2 golden files), `chebfun`'s 166 (2 golden files now), plus `chebtech1`,
+`bndfun`, `singfun`/`deltafun` (only via the fun-layer file),
+`classicfun`, `chebmatrix`, `linop`. A realistic count is **~22 of
+1,102 MATLAB test files** have a machine-precision Python counterpart;
+the rest are covered (if at all) by independent Python tests, not exact
+cross-validation.
+
+**To continue** (the pattern is now established and cheap to extend):
+1. Add a `matlab_harness/refs/<class>_refs.m` that exercises the class's
+   canonical operations at fixed deterministic points and `save`s a
+   `.mat`.
+2. `matlab -batch "addpath('$CHEBFUN_REF'); run('...refs.m')"`.
+3. Add `tests/.../test_<class>_matlab.py` checking chebfunjax reproduces
+   each value at 1e-12.
+Priority order by gap size × usage: `chebop` core, `chebtech2` ops,
+`bndfun`/`singfun`/`deltafun` standalone, `chebfun2/3` operation
+breadth.
 
 ---
 
