@@ -87,3 +87,34 @@ class TestChebopExtrasVsMatlab:
         npt.assert_allclose(got, want, rtol=1e-8, atol=1e-7)
         npt.assert_allclose(got, [(np.pi * n) ** 2 for n in range(1, 7)],
                             rtol=1e-6)
+
+
+@pytest.mark.parametrize("_dummy", [0])
+class TestChebopPeriodic:
+    """Periodic BVPs via Fourier collocation (Opus 4.8, task #24).
+
+    No MATLAB ref needed -- verified against exact solutions and by
+    substituting the solution back into the operator (residual check).
+    """
+
+    def test_constant_coeff(self, _dummy):
+        # u'' - u = cos(2x) on [-pi,pi] periodic -> u = -cos(2x)/5
+        L = Chebop(lambda x, u: u.diff(2) - u, domain=(-np.pi, np.pi))
+        L.bc = "periodic"
+        u = L.solve(lambda x: jnp.cos(2 * x))
+        xs = np.linspace(-3.0, 3.0, 60)
+        npt.assert_allclose(np.asarray(u(jnp.asarray(xs))),
+                            -np.cos(2 * xs) / 5, atol=1e-10)
+
+    def test_variable_coeff_residual(self, _dummy):
+        # u'' + u' + (2+sin x) u = 1 ; check by residual
+        L = Chebop(lambda x, u: u.diff(2) + u.diff() + (2 + jnp.sin(x)) * u,
+                   domain=(-np.pi, np.pi))
+        L.bc = "periodic"
+        u = L.solve(1.0)
+        xs = np.linspace(-3.0, 3.0, 60)
+        uu = np.asarray(u(jnp.asarray(xs)))
+        du = np.asarray(u.diff()(jnp.asarray(xs)))
+        d2u = np.asarray(u.diff().diff()(jnp.asarray(xs)))
+        residual = d2u + du + (2 + np.sin(xs)) * uu
+        npt.assert_allclose(residual, np.ones_like(residual), atol=1e-9)

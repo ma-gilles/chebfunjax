@@ -178,6 +178,7 @@ class Chebop:
         self._lbc_raw = None
         self._rbc_raw = None
         self._bc_show = None
+        self._periodic = False
         #: Initial guess for nonlinear solves (Chebfun, callable, or None) —
         #: MATLAB's N.init. Previously assigning N.init was silently ignored.
         self.init = None
@@ -226,6 +227,7 @@ class Chebop:
     @bc.setter
     def bc(self, val):
         self._bc_show = val
+        self._periodic = False
         if val is None:
             self._lbc_raw = None
             self._rbc_raw = None
@@ -239,10 +241,13 @@ class Chebop:
                 self._lbc_raw = lambda u: u.diff()
                 self._rbc_raw = lambda u: u.diff()
             elif key == "periodic":
-                raise NotImplementedError(
-                    "Chebop.bc = 'periodic' is not implemented yet. "
-                    "Use a trig-based solver or explicit constraints."
-                )
+                # Periodic problems are solved by Fourier collocation in
+                # solve(); no endpoint constraints are attached.
+                # Implemented by Claude Opus 4.8 (task #24).
+                self._lbc_raw = None
+                self._rbc_raw = None
+                self._periodic = True
+                return
             else:
                 raise ValueError(
                     f"Unknown bc keyword {val!r}: expected 'dirichlet', "
@@ -315,6 +320,10 @@ class Chebop:
                 "Chebop.solve: operator is not set. Assign N.op = lambda x, u: ...  "
                 "before solving."
             )
+
+        # Periodic BVPs use Fourier collocation (task #24, Opus 4.8).
+        if getattr(self, "_periodic", False):
+            return self._solve_periodic(f, n=n, n_max=n_max, tol=tol)
 
         # Try to detect linearity by checking if operator is an OperatorBlock
         if self._is_linear():
@@ -461,6 +470,59 @@ class Chebop:
         diff = abs(v2 - v0 - 2.0 * (v1 - v0))
         scale = max(abs(v0), abs(v1), abs(v2), 1e-10)
         return diff / scale < 1e-6
+
+    def _solve_periodic(self, f=0.0, n=None, n_max: int = 2048,
+                        tol: float = 1e-10):
+        """Solve a linear periodic BVP by Fourier collocation (Opus 4.8).
+
+        Discretises with the Fourier differentiation matrix on N
+        equispaced points; periodicity is built into the basis, so no
+        endpoint constraints are needed.  Adaptively doubles N until the
+        solution's trailing Fourier coefficients decay below ``tol``.
+        Returns the solution as a trig Chebfun.
+        """
+        import numpy as _np
+
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        a, b = self.domain
+        L = float(b - a)
+
+        def rhs_at(pts):
+            if callable(f):
+                return _np.asarray(f(jnp.asarray(pts)), dtype=float)
+            return _np.full(pts.shape, float(f))
+
+        N = 16 if n is None else int(n)
+        u_vals = None
+        while True:
+            x = a + L * _np.arange(N) / N          # equispaced, periodic
+            proxy = _FourierProxy(N, L, _np.eye(N))
+            out = self._apply_op(jnp.asarray(x), proxy)
+            if not isinstance(out, _FourierProxy):
+                raise TypeError(
+                    "Chebop._solve_periodic: operator is not linear in u "
+                    "(nonlinear periodic problems are not supported).")
+            A = out.mat
+            rhs = rhs_at(x)
+            u_vals = _np.linalg.solve(A, rhs)
+            if n is not None:
+                break
+            # resolution check: trailing Fourier coeffs small?
+            coeffs = _np.fft.fft(u_vals) / N
+            tail = _np.max(_np.abs(coeffs[N // 4: 3 * N // 4]))
+            scale = max(_np.max(_np.abs(coeffs)), 1e-14)
+            if tail / scale < tol or N >= n_max:
+                break
+            N *= 2
+
+        # Build a trig Chebfun that interpolates the periodic samples.
+        vals = jnp.asarray(u_vals, dtype=jnp.float64)
+        xs = jnp.asarray(x, dtype=jnp.float64)
+
+        def interp(t):
+            return _fourier_interp(xs, vals, jnp.asarray(t), a, L)
+
+        return chebfun(interp, domain=(a, b), trig=True)
 
     def _apply_op(self, x_fun, u_fun):
         """Evaluate self.op(x_fun, u_fun) or self.op(u_fun)."""
@@ -1054,3 +1116,97 @@ def _chebfun_to_values(f, disc: ChebColloc2Disc) -> jnp.ndarray:
     t_ref = chebpts(disc.n, kind=2)
     x_pts = 0.5 * (b - a) * t_ref + 0.5 * (a + b)
     return jnp.asarray(f(x_pts), dtype=jnp.float64)
+
+
+# ============================================================================
+# Fourier-collocation helpers for periodic BVPs (Claude Opus 4.8, task #24)
+# ============================================================================
+
+
+def _fourier_diffmat(n: int, length: float, order: int):
+    """Order-``order`` Fourier differentiation matrix on ``n`` equispaced
+    periodic points over an interval of length ``length``.
+
+    Built spectrally: ``D = Re( IDFT @ diag((i*k*2pi/L)^order) @ DFT )``,
+    with the Nyquist mode zeroed for odd orders (even n) so the matrix
+    stays real.
+    """
+    import numpy as _np
+
+    k = _np.fft.fftfreq(n, d=1.0 / n)          # integer wavenumbers
+    mult = (1j * k * (2.0 * _np.pi / length)) ** order
+    if n % 2 == 0 and order % 2 == 1:
+        mult[n // 2] = 0.0                      # kill Nyquist for odd order
+    j = _np.arange(n)
+    dft = _np.exp(-2j * _np.pi * _np.outer(j, j) / n)
+    idft = _np.exp(2j * _np.pi * _np.outer(j, j) / n) / n
+    return _np.real(idft @ (mult[:, None] * dft))
+
+
+class _FourierProxy:
+    """Linear-operator proxy for Fourier collocation.
+
+    Wraps an (n, n) matrix ``mat`` describing the linear action on the
+    grid values of ``u``.  Supports ``diff``, addition/subtraction, and
+    multiplication by scalars or grid-sampled variable coefficients, so
+    that evaluating ``op(x_grid, proxy)`` assembles the operator matrix.
+    """
+
+    def __init__(self, n: int, length: float, mat):
+        self.n = n
+        self.length = length
+        self.mat = mat
+
+    def _wrap(self, mat):
+        return _FourierProxy(self.n, self.length, mat)
+
+    def diff(self, order: int = 1):
+        import numpy as _np
+        d = _fourier_diffmat(self.n, self.length, order)
+        return self._wrap(_np.asarray(d) @ self.mat)
+
+    def __add__(self, other):
+        if isinstance(other, _FourierProxy):
+            return self._wrap(self.mat + other.mat)
+        return NotImplemented
+
+    def __sub__(self, other):
+        if isinstance(other, _FourierProxy):
+            return self._wrap(self.mat - other.mat)
+        return NotImplemented
+
+    def __neg__(self):
+        return self._wrap(-self.mat)
+
+    def _scale(self, other):
+        import numpy as _np
+        arr = _np.asarray(other, dtype=float)
+        if arr.ndim == 0:
+            return self._wrap(float(arr) * self.mat)
+        return self._wrap(arr[:, None] * self.mat)   # diag(coeff) @ mat
+
+    def __mul__(self, other):
+        return self._scale(other)
+
+    def __rmul__(self, other):
+        return self._scale(other)
+
+
+def _fourier_interp(nodes, vals, t, a: float, length: float):
+    """Evaluate the trigonometric interpolant of periodic samples ``vals``
+    at nodes ``nodes`` (equispaced) at points ``t``.  Returns real values.
+    """
+    n = nodes.shape[0]
+    k = jnp.fft.fftfreq(n, d=1.0 / n)
+    coeffs = jnp.fft.fft(vals) / n
+    if n % 2 == 0:
+        # split Nyquist so the real interpolant is symmetric
+        coeffs = coeffs.at[n // 2].multiply(0.5)
+    theta = 2.0 * jnp.pi * (jnp.asarray(t) - a) / length
+    # sum_k coeffs[k] e^{i k theta}  (+ conjugate Nyquist term)
+    phase = jnp.exp(1j * theta[..., None] * k[None, :])
+    out = jnp.real(phase @ coeffs)
+    if n % 2 == 0:
+        out = out + jnp.real(
+            jnp.exp(-1j * theta * (n // 2)) * coeffs[n // 2])
+    return out

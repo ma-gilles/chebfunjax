@@ -100,6 +100,16 @@ def _weierstrass():
     return chebfun(f, domain=(-jnp.pi / 4, jnp.pi / 4), trig=True)
 
 
+@_register("tsunami", "Periodic BVP u''+u'+600(1+sin x)u = 1 on [-pi,pi]")
+def _tsunami():
+    # Added by Claude Opus 4.8 (needed chebop periodic BC, now available).
+    from chebfunjax.operators.chebop import Chebop
+    N = Chebop(lambda x, u: u.diff(2) + u.diff()
+               + 600 * (1 + jnp.sin(x)) * u, domain=(-jnp.pi, jnp.pi))
+    N.bc = "periodic"
+    return N.solve(1.0)
+
+
 def list_gallerytrig() -> dict[str, str]:
     """Return a mapping from gallerytrig name to description."""
     return {name: desc for name, (desc, _) in sorted(_REGISTRY.items())}
