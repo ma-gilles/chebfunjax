@@ -25,3 +25,9 @@ F = N.solve(1.0)
 
 
 ![Dawson's integral](../../images/ode-linear/dawson_integral.png)
+
+## Figures (chebfun.org parity)
+
+![DawsonIntegral figure 1](../../images/ode-linear/DawsonIntegral_01.png)
+
+![DawsonIntegral figure 2](../../images/ode-linear/DawsonIntegral_02.png)

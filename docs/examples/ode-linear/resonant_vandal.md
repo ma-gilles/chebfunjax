@@ -11,6 +11,8 @@ demonstrating resonance when the forcing frequency matches the
 natural frequency. The resonant solution grows linearly as $x\sin(nx)/2n$.
 
 ```python
+import numpy as np
+import jax.numpy as jnp
 from chebfunjax.operators.chebop import Chebop
 
 dom = (0.0, float(np.pi))
@@ -24,3 +26,7 @@ u = N.solve(lambda x: jnp.cos((n + 0.01) * x))
 
 
 ![Resonance exploited by Carrier and Pearson's vandal](../../images/ode-linear/resonant_vandal.png)
+
+## Figures (chebfun.org parity)
+
+![ResonantVandal figure 1](../../images/ode-linear/ResonantVandal_01.png)

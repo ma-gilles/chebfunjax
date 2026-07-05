@@ -30,3 +30,11 @@ u = N.solve(-1.0)
 
 
 ![Advection-diffusion equation with a jump](../../images/ode-linear/adv_diff_jump.png)
+
+## Figures (chebfun.org parity)
+
+![AdvDiffJump figure 1](../../images/ode-linear/AdvDiffJump_01.png)
+
+![AdvDiffJump figure 2](../../images/ode-linear/AdvDiffJump_02.png)
+
+![AdvDiffJump figure 3](../../images/ode-linear/AdvDiffJump_03.png)

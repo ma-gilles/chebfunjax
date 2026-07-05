@@ -33,3 +33,7 @@ order_star = np.abs(pade22(Z)) < np.abs(np.exp(Z))
 
 
 ![Order stars](../../images/ode-linear/order_stars.png)
+
+## Figures (chebfun.org parity)
+
+![OrderStars figure 1](../../images/ode-linear/OrderStars_01.png)

@@ -14,6 +14,7 @@ These conditions cannot be expressed as evaluations at the endpoints
 and require special treatment in numerical methods.
 
 ```python
+import jax.numpy as jnp
 from chebfunjax.operators.chebop import Chebop
 from scipy.optimize import brentq
 
@@ -30,3 +31,13 @@ a_zero = brentq(u_with_shift, -5, 5)
 
 
 ![Nonstandard boundary conditions](../../images/ode-linear/nonstandard_bcs.png)
+
+## Figures (chebfun.org parity)
+
+![NonstandardBCs figure 1](../../images/ode-linear/NonstandardBCs_01.png)
+
+![NonstandardBCs figure 2](../../images/ode-linear/NonstandardBCs_02.png)
+
+![NonstandardBCs figure 3](../../images/ode-linear/NonstandardBCs_03.png)
+
+![NonstandardBCs figure 4](../../images/ode-linear/NonstandardBCs_04.png)

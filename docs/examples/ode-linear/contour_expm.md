@@ -13,6 +13,7 @@ $e^{tL}$ is represented as a Fourier series via the eigenfunctions.
 $$u(x,t) = \sum_{k=1}^{\infty} c_k e^{-k^2 \pi^2 t} \sin(k \pi x)$$
 
 ```python
+import numpy as np
 from chebfunjax.operators.chebop import Chebop
 
 dom = (0.0, 1.0)
@@ -27,3 +28,11 @@ lams_sorted = np.sort(np.real(np.array(lams)))
 
 
 ![Exponentials of linear operators via contour integration](../../images/ode-linear/contour_expm.png)
+
+## Figures (chebfun.org parity)
+
+![ContourExpm figure 1](../../images/ode-linear/ContourExpm_01.png)
+
+![ContourExpm figure 2](../../images/ode-linear/ContourExpm_02.png)
+
+![ContourExpm figure 3](../../images/ode-linear/ContourExpm_03.png)

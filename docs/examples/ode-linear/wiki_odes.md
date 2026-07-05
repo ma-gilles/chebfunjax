@@ -45,3 +45,11 @@ print(f"Chebyshev eq. residual: max {np.max(np.abs(res)):.2e}")
 
 $y'' - 2xy' + 2ny = 0$ has polynomial solutions $H_n(x)$ (Hermite polynomials).
 These arise in quantum mechanics (harmonic oscillator wave functions).
+
+## Figures (chebfun.org parity)
+
+![WikiODE figure 1](../../images/ode-linear/WikiODE_01.png)
+
+![WikiODE figure 2](../../images/ode-linear/WikiODE_02.png)
+
+![WikiODE figure 3](../../images/ode-linear/WikiODE_03.png)

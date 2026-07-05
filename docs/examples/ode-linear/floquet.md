@@ -28,3 +28,9 @@ def mathieu_rhs(t, y, a, q):
 
 
 ![Floquet theory of periodic linear systems](../../images/ode-linear/floquet.png)
+
+## Figures (chebfun.org parity)
+
+![Floquet figure 1](../../images/ode-linear/Floquet_01.png)
+
+![Floquet figure 2](../../images/ode-linear/Floquet_02.png)

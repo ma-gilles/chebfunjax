@@ -11,6 +11,7 @@ and their properties. Verifies that $D_1 f \approx f'$ and $D_2 f \approx f''$
 for smooth test functions to spectral accuracy.
 
 ```python
+import numpy as np
 from chebfunjax.operators.chebop import Chebop
 
 dom = (-1.0, 1.0)
@@ -23,3 +24,9 @@ f_vals = np.sin(x)
 
 
 ![Diffmat, diffrow, intmat, introw, gridsample](../../images/ode-linear/spectral_disc.png)
+
+## Figures (chebfun.org parity)
+
+![SpectralDisc figure 1](../../images/ode-linear/SpectralDisc_01.png)
+
+![SpectralDisc figure 2](../../images/ode-linear/SpectralDisc_02.png)

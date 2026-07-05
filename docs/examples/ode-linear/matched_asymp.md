@@ -27,3 +27,11 @@ for eps in [0.1, 0.01, 0.001]:
 
 
 ![Matched asymptotics and boundary layers](../../images/ode-linear/matched_asymp.png)
+
+## Figures (chebfun.org parity)
+
+![MatchedAsymp figure 1](../../images/ode-linear/MatchedAsymp_01.png)
+
+![MatchedAsymp figure 2](../../images/ode-linear/MatchedAsymp_02.png)
+
+![MatchedAsymp figure 3](../../images/ode-linear/MatchedAsymp_03.png)

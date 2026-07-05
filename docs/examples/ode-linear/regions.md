@@ -25,3 +25,13 @@ AB1_boundary_im = np.sin(theta)
 
 
 ![Stability regions of ODE formulas](../../images/ode-linear/regions.png)
+
+## Figures (chebfun.org parity)
+
+![Regions figure 1](../../images/ode-linear/Regions_01.png)
+
+![Regions figure 2](../../images/ode-linear/Regions_02.png)
+
+![Regions figure 3](../../images/ode-linear/Regions_03.png)
+
+![Regions figure 4](../../images/ode-linear/Regions_04.png)
