@@ -204,6 +204,26 @@ f_coarse = f.simplify(tol=1e-8)
 print(f"Coarse: {f_coarse.shape}")
 ```
 
+## 20.7b Calculus: diff, grad, laplacian
+
+Cartesian partial derivatives are computed spectrally on the CFF
+coefficient tensor (chain rule through the spherical variables, with
+multiplication operators for $r$, $\sin\lambda$, $\cos\lambda$,
+$\sin\theta$, $\cos\theta$):
+
+```python
+f = Ballfun.from_function(lambda x, y, z: jnp.cos(x * y))
+g = f.diff(1)          # df/dx; dims 1,2,3 = x,y,z, optional order k
+fx, fy, fz = f.grad()  # all three partials
+lap = f.laplacian()    # f_xx + f_yy + f_zz
+```
+
+The result of `diff` is another `Ballfun`. For example,
+$\partial_x \cos(xy) = -y\sin(xy)$, and the computed derivative
+matches that exact function to machine precision; the Laplacian of
+$x^2+y^2+z^2$ evaluates to exactly 6. These operators are pinned
+against MATLAB values in `tests/test_ballfun/test_ballfun_calculus_matlab.py`.
+
 ## 20.8 Vector-Valued Functions: Ballfunv
 
 The `Ballfunv` class represents 3-component vector fields on the ball:
@@ -262,12 +282,11 @@ print(H(0.5, 0.3, 0.1))
 The solid harmonics are polynomial solutions to Laplace's equation on the ball. They have the form $r^l Y_l^m(\lambda, \theta)$ where $Y_l^m$ are the spherical harmonics. These can be constructed as `Ballfun` objects:
 
 ```python
-from scipy.special import sph_harm
-
-# Solid harmonic: r^2 * Y_2^0(lambda, theta)
+# Solid harmonic: r^2 * Y_2^0(lambda, theta), with
 # Y_2^0 = (1/4)*sqrt(5/pi) * (3*cos^2(theta) - 1)
 f = Ballfun.from_function(
-    lambda r, lam, th: r**2 * jnp.real(sph_harm(0, 2, lam, th)),
+    lambda r, lam, th: r**2 * 0.25 * jnp.sqrt(5 / jnp.pi)
+        * (3 * jnp.cos(th)**2 - 1),
     spherical=True,
 )
 ```
