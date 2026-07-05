@@ -30,3 +30,10 @@ As $k \to \infty$, these functions converge to a Gaussian.
 
 ![Smooth Functions of Compact Support](../../images/approx/SmoothCompact.png)
 
+## Figures (chebfun.org parity)
+
+![SmoothCompact figure 1](../../images/approx/SmoothCompact_01.png)
+
+![SmoothCompact figure 2](../../images/approx/SmoothCompact_02.png)
+
+![SmoothCompact figure 3](../../images/approx/SmoothCompact_03.png)

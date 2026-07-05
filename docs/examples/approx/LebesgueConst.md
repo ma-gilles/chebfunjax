@@ -40,3 +40,10 @@ constants grow exponentially as $O(2^n / (en \log n))$.
 
 ![Lebesgue Functions and Lebesgue Constants](../../images/approx/LebesgueConst.png)
 
+## Figures (chebfun.org parity)
+
+![LebesgueConst figure 1](../../images/approx/LebesgueConst_01.png)
+
+![LebesgueConst figure 2](../../images/approx/LebesgueConst_02.png)
+
+![LebesgueConst figure 3](../../images/approx/LebesgueConst_03.png)

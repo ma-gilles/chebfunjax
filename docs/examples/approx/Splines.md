@@ -34,3 +34,10 @@ endpoints to enforce $s'''(x)$ is continuous at $x_1$ and $x_{n-1}$.
 
 ![Splines](../../images/approx/Splines.png)
 
+## Figures (chebfun.org parity)
+
+![Splines figure 1](../../images/approx/Splines_01.png)
+
+![Splines figure 2](../../images/approx/Splines_02.png)
+
+![Splines figure 3](../../images/approx/Splines_03.png)

@@ -29,9 +29,16 @@ print(f"Poles: {pol}")
 print(f"True poles: ±{1/5:.4f}i")
 
 xx = np.linspace(-1, 1, 500)
-err = np.max(np.abs([float(r(jnp.array(x))) for x in xx] - f_func(xx)))
+err = np.max(np.abs(np.real(r(np.asarray(xx))) - f_func(xx)))
 print(f"Max error: {err:.2e}")
 ```
 
 ![Rational Interpolation, Robust and Non-robust](../../images/approx/RationalInterp.png)
 
+## Figures (chebfun.org parity)
+
+![RationalInterp figure 1](../../images/approx/RationalInterp_01.png)
+
+![RationalInterp figure 2](../../images/approx/RationalInterp_02.png)
+
+![RationalInterp figure 3](../../images/approx/RationalInterp_03.png)

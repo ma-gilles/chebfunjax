@@ -30,3 +30,10 @@ The poles line up near the integers 2 through 8 — the interior knots of the sp
 
 ![AAA Approximation of a Spline](../../images/approx/AAASpline.png)
 
+## Figures (chebfun.org parity)
+
+![AAASpline figure 1](../../images/approx/AAASpline_01.png)
+
+![AAASpline figure 2](../../images/approx/AAASpline_02.png)
+
+![AAASpline figure 3](../../images/approx/AAASpline_03.png)
