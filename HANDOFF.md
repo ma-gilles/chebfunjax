@@ -133,10 +133,15 @@ own merits regardless of author:
 | `Spherefun.sphharm` + `mean` (kept from Fable's attempt, re-verified) | `44f5fbe` | vs scipy, ratio std ~1e-15 |
 | `cheb.gallery` `airy`/`rose`/`motto`; `_Piece.__len__` | `a7fa79e` | airy vs scipy 1.1e-14; 3 tests |
 | `Spherefun.laplacian` + `poisson` (spectral) | `d26a710` | `ΔY=−l(l+1)Y` to 5.7e-14; 7 tests |
+| **Found** `from_function` mixed-order bug + xfail test | `ea2598a` | `Y_2^{-1}+Y_4^{-3}` eval err 0.24 |
+| **Fixed** `from_function` (coarse-grid false-convergence) | `8a3a16b` | reconstruct 5.5e-16; MATLAB-faithful |
+| `Spherefun.diff` + `grad` (spectral tangential) | `154d062` | vs analytic 8e-15; `div(grad)=Δ` 2e-14 |
 
 Guiding rule Opus followed: **never ship spectral math that fails its
 exact-identity test** — quarantine it (as with Fable's `diff`) and say
-so plainly.
+so plainly. When Fable's `diff` failed, Opus reverted it, then traced
+the *actual* root cause to a pre-existing constructor bug, fixed that,
+and re-derived a `diff` that passes the exact identity to 1e-14.
 
 ### 2.6 Page snippets
 - Every example `.md` page's fenced code block executes. ~60 broken
@@ -190,36 +195,17 @@ lost):
 ## 4. What is LEFT TO DO
 
 ### 4.1 Library gaps that gate quality (highest value)
-- **#25 Spherefun calculus layer — PARTIALLY DONE (Opus 4.8).**
-  - **DONE & verified:** `laplacian`, `poisson`, `sphharm`, `mean`
-    (spectral / harmonic-diagonal — see §2.5). These unblock the
-    Laplacian/Poisson-dependent guide-17 and sphere pages.
-  - **STILL OPEN:** `diff(dim,k)` / `grad` (tangential Cartesian
-    derivatives) and `curl`/`div`. A verified spectral prototype exists
-    (Opus 4.8): ∂θ/∂λ from the CDR trigtechs are **exact to 1e-15**,
-    the intrinsic-formula values at interior Gauss–Legendre nodes are
-    exact, and the projected spherical-harmonic coefficients match the
-    analytic derivative to ~1e-5. **The only blocker is the
-    `from_function` constructor bug below** — reconstructing the result
-    spherefun from its (correct) harmonic coefficients fails for the
-    same mixed-order case. Once the constructor is fixed, `grad`/`diff`
-    can be dropped in from the prototype. These block the sphere
-    HelmholtzDecomposition / PTDecomposition / AdvectionDiffusion
-    pages' *library-genuine* (vs finite-difference) versions.
-
-- **`Spherefun.from_function` mixed-order bug — NEW, found by Opus 4.8.**
-  The BMC Gaussian-elimination constructor mis-reconstructs a sum of
-  spherical harmonics whose **sine orders differ** at certain degrees
-  (e.g. `Y_2^{-1} + Y_4^{-3}` evaluates with ~0.24 error; single
-  harmonics, same-order sums, and cosine sums are all exact). This is a
-  **pre-existing correctness bug that affects every operation** on such
-  a spherefun (evaluation, `sum`, `laplacian`, …), not just
-  construction. Reproducing regression test (xfail, strict):
-  `tests/test_spherefun/test_spherefun.py::TestConstructorMixedOrderBug`.
-  Likely in the phase-one pivot selection / rank determination
-  (`_phase_one_sphere` / `_phase_two_sphere`) — the rank-2 longitude
-  structure of two different sine frequencies isn't captured. Fixing
-  this unblocks `grad`/`diff` and hardens all Spherefun ops.
+- **#25 Spherefun scalar calculus — DONE & verified (Opus 4.8).**
+  `laplacian`, `poisson`, `sphharm`, `mean`, `diff(dim,k)`, `grad` are
+  all implemented and gated on exact-identity tests (§2.5). Along the
+  way Opus **found and fixed** a pre-existing `from_function`
+  constructor bug (coarse-grid false-convergence for mixed sine-order
+  harmonics — commit `8a3a16b`, MATLAB-faithful, hardens *all*
+  Spherefun ops). **Remaining under #25:** `curl`/`div` for vector
+  fields (need `Spherefunv`), and **wiring the now-available scalar
+  operators into the guide-ch.17 scripts** to make those ~16 figures
+  library-genuine (the library support now exists; the figure
+  regeneration is example-generation work, not yet done).
 - **#17 Ballfun** remaining: HelmholtzDecomposition, div/curl/solharm
   library-API promotion, helmholtz solver (gates sphere ball pages +
   guide20 figs 23–26 placeholders).
