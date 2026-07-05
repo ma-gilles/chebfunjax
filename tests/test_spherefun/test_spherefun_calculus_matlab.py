@@ -62,3 +62,30 @@ class TestSpherefunCalculusVsMatlab:
                             _REF["g_lap"], rtol=1e-8, atol=1e-9)
         npt.assert_allclose(np.asarray(g.diff(3)(_LAM, _TH)),
                             _REF["g_dz"], rtol=1e-7, atol=1e-8)
+
+
+_POISSON_PATH = (
+    Path(__file__).resolve().parents[1] / "references"
+    / "spherefun_poisson.mat"
+)
+
+
+@pytest.mark.matlab
+@pytest.mark.skipif(not _POISSON_PATH.exists(),
+                    reason="spherefun_poisson.mat not generated")
+class TestSpherefunPoissonVsMatlab:
+    def test_poisson_solver(self):
+        """Spherefun.poisson matches MATLAB spherefun.poisson (fast solver)."""
+        ref = scipy.io.loadmat(str(_POISSON_PATH), squeeze_me=True)
+        lam = jnp.asarray(ref["lam"], dtype=jnp.float64)
+        th = jnp.asarray(ref["th"], dtype=jnp.float64)
+
+        def f(lm, t):
+            return -6 * (-1 + 5 * jnp.cos(2 * t)) * jnp.sin(lm) \
+                * jnp.sin(2 * t)
+
+        u = Spherefun.poisson(f, const=0.0, lmax=8)
+        npt.assert_allclose(np.asarray(u(lam, th)), ref["u_vals"],
+                            rtol=1e-9, atol=1e-10)
+        npt.assert_allclose(float(u.mean()), float(ref["u_mean"]),
+                            atol=1e-10)
