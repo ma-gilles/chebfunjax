@@ -11,14 +11,15 @@ In chebfunjax, functions on infinite or semi-infinite intervals are handled by t
 Here is a function on $[0, \infty)$. We can compute its maximum and plot it:
 
 ```python
-from chebfunjax.fun.unbndfun import Unbndfun
-from chebfunjax.domain import Domain
+import chebfunjax as cj
 import jax.numpy as jnp
 import numpy as np
+from chebfunjax.domain import Domain
+from chebfunjax.fun.unbndfun import Unbndfun
 
-f = Unbndfun.from_function(
+f = cj.chebfun(
     lambda x: 0.75 + jnp.sin(10 * x) * jnp.exp(-x),
-    Domain((0.0, float('inf'))),
+    domain=[0.0, np.inf],
 )
 # Approximate the maximum
 xs = jnp.linspace(0.0, 10.0, 10000)
@@ -36,11 +37,12 @@ maxf = 1.608912750768336
 Here is the reciprocal of the gamma function on $[0, \infty)$. Its integral can be computed with `sum`:
 
 ```python
+import numpy as np
 from scipy.special import gamma as scipy_gamma
 
-g = Unbndfun.from_function(
-    lambda x: 1.0 / jnp.array(scipy_gamma(float(x) + 1.0)),
-    Domain((0.0, float('inf'))),
+g = cj.chebfun(
+    lambda x: 1.0 / jnp.asarray(scipy_gamma(np.asarray(x) + 1.0)),
+    domain=[0.0, np.inf],
 )
 sumg = float(g.sum())
 print(f"sumg = {sumg}")

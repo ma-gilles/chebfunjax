@@ -33,7 +33,8 @@ def save(fig, hint=""):
     global plot_idx
     plot_idx += 1
     path = os.path.join(OUT_DIR, f'guide09_{plot_idx:02d}.png')
-    fig.savefig(path, dpi=150, bbox_inches='tight')
+    from chebfunjax.plotting import save_chebfun_figure
+    save_chebfun_figure(fig, path, size=(610, 258))
     plt.close(fig)
     print(f"  guide09_{plot_idx:02d}.png saved  ({hint})")
 
@@ -48,7 +49,7 @@ try:
     )
     xs = np.linspace(0, 10, 600)
     ys = np.array([float(f(jnp.float64(xi))) for xi in xs])
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     ax.plot(xs, ys, color=CHEBFUN_BLUE, linewidth=1.8)
     ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
     save(fig, "0.75+sin(10x)/exp(x) on [0,inf)")
@@ -66,7 +67,7 @@ try:
     )
     xs = np.linspace(0, 10, 600)
     ys = np.array([float(g_fun(jnp.float64(xi))) for xi in xs])
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     ax.plot(xs, ys, color=CHEBFUN_BLUE, linewidth=1.8)
     ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
     save(fig, "1/gamma(x+1) on [0,inf)")
@@ -81,7 +82,7 @@ try:
     xs = np.linspace(0.01, 5.0, 800)
     ys_f = np.array([float(f(jnp.float64(xi))) for xi in xs])
     ys_g = np.array([float(g_fun(jnp.float64(xi))) for xi in xs])
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     ax.plot(xs, ys_f, color=CHEBFUN_BLUE, linewidth=1.8)
     ax.plot(xs, ys_g, color=CHEBFUN_RED, linewidth=1.8)
     # Mark approximate intersection points
@@ -108,7 +109,7 @@ try:
     )
     xs = np.linspace(-10, 10, 600)
     ys = np.array([float(g2(jnp.float64(xi))) for xi in xs])
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     ax.plot(xs, ys, color=CHEBFUN_BLUE, linewidth=1.8)
     ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
     save(fig, "|tanh(x-1)-1/3| on (-inf,inf)")
@@ -126,7 +127,7 @@ try:
     )
     xs = np.linspace(0, 100, 600)
     ys = np.array([float(h_fun(jnp.float64(xi))) for xi in xs])
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     ax.plot(xs, ys, color=CHEBFUN_BLUE, linewidth=1.8)
     ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
     save(fig, "cos(x)/(1e5+(x-30)^6) on [0,100]")
@@ -140,7 +141,7 @@ except Exception as e:
 try:
     xs = np.linspace(-10, 10, 800)
     ys = np.sinc(xs)  # numpy sinc(x) = sin(pi*x)/(pi*x)
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     ax.plot(xs, ys, color='m', linewidth=1.8)
     ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
     save(fig, "sinc on [-10,10]")
@@ -154,7 +155,7 @@ except Exception as e:
 try:
     xs = np.linspace(0.005, 4.0, 1000)
     ys = np.sin(50 * xs) + 1.0 / xs
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     ax.plot(xs, ys, color=CHEBFUN_BLUE, linewidth=1.8)
     ax.set_ylim(-5, 30)
     ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
@@ -167,7 +168,7 @@ except Exception as e:
 # Plot 8: sin(50x)+1/x on [-2,4] with pole at 0   (Section 9.2)
 # --------------------------------------------------------------------------
 try:
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     xs_left = np.linspace(-2.0, -0.005, 400)
     xs_right = np.linspace(0.005, 4.0, 600)
     ax.plot(xs_left, np.sin(50 * xs_left) + 1.0 / xs_left, color=CHEBFUN_BLUE, linewidth=1.8)
@@ -183,7 +184,7 @@ except Exception as e:
 # Plot 9: tan(x) with multiple poles   (Section 9.2)
 # --------------------------------------------------------------------------
 try:
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     # Plot tan(x) between each pair of consecutive poles
     for k in range(-3, 3):
         lo = k * np.pi - np.pi / 2 + 0.02
@@ -202,7 +203,7 @@ except Exception as e:
 # --------------------------------------------------------------------------
 try:
     from scipy.optimize import brentq
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     for k in range(-3, 3):
         lo = k * np.pi - np.pi / 2 + 0.02
         hi = k * np.pi + np.pi / 2 - 0.02
@@ -232,7 +233,7 @@ except Exception as e:
 # --------------------------------------------------------------------------
 try:
     # Compute g = sin(2*x/2) + min(|tan(x)+2|, 6) on several branches
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     for k in range(-3, 3):
         lo = k * np.pi - np.pi / 2 + 0.02
         hi = k * np.pi + np.pi / 2 - 0.02
@@ -249,7 +250,7 @@ except Exception as e:
 # Plot 12: gamma function on [-4,4]   (Section 9.2)
 # --------------------------------------------------------------------------
 try:
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     pole_locs = [-4, -3, -2, -1, 0, 4]
     for i in range(len(pole_locs) - 1):
         xs = np.linspace(pole_locs[i] + 0.01, pole_locs[i + 1] - 0.01, 400)
@@ -265,7 +266,7 @@ except Exception as e:
 # Plot 13: cos(100x)+sin(x)^(-2+sign(x)) asymmetric poles  (Section 9.2)
 # --------------------------------------------------------------------------
 try:
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     xs_l = np.linspace(-1.0, -0.005, 500)
     xs_r = np.linspace(0.005, 1.0, 500)
     ys_l = np.cos(100 * xs_l) + np.abs(np.sin(xs_l))**(-2 + np.sign(xs_l))
@@ -289,7 +290,7 @@ try:
     )
     xs = np.linspace(-0.999, 0.999, 800)
     ys = np.array([float(w(jnp.float64(xi))) for xi in xs])
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     ax.plot(xs, ys, color='m', linewidth=1.8)
     ax.set_ylim(0, 10)
     ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
@@ -304,7 +305,7 @@ except Exception as e:
 try:
     xs = np.linspace(0, 2, 800)
     ys = np.sqrt(xs * np.exp(xs))
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     ax.plot(xs, ys, color=CHEBFUN_BLUE, linewidth=1.8)
     ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
     save(fig, "sqrt(x*exp(x))")
@@ -318,7 +319,7 @@ except Exception as e:
 try:
     xs = np.linspace(0, 4 * np.pi, 1000)
     ys = np.sqrt(np.abs(np.sin(xs)))
-    fig, ax = plt.subplots(figsize=(5.5, 4.0))
+    fig, ax = plt.subplots()
     ax.plot(xs, ys, color=CHEBFUN_BLUE, linewidth=1.8)
     ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
     save(fig, "sqrt(|sin(theta)|)")
