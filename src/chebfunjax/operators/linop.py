@@ -307,7 +307,8 @@ class Linop:
         k: int = 6,
         n_default: int = 64,
         sigma: float | str | None = None,
-    ) -> jnp.ndarray:
+        return_eigenfunctions: bool = False,
+    ):
         """Compute eigenvalues of the constrained operator.
 
         Discretizes *L* at size *n*, imposes BC rows as in :meth:`solve`,
@@ -387,7 +388,7 @@ class Linop:
         A_np = np.array(A)
         B_np = np.array(B)
 
-        lam_all, _ = scipy.linalg.eig(A_np, B_np)
+        lam_all, V_all = scipy.linalg.eig(A_np, B_np)
 
         # Deflate: the n_bc largest-magnitude eigenvalues (from BC rows) are
         # spurious (infinite or very large). Force them to inf so they're
@@ -435,8 +436,108 @@ class Linop:
 
         # Return real parts if imaginary parts are negligible
         if np.max(np.abs(np.imag(lam_sel))) < 1e-8 * np.max(np.abs(np.real(lam_sel)) + 1e-300):
-            return jnp.array(np.real(lam_sel), dtype=jnp.float64)
-        return jnp.array(lam_sel, dtype=jnp.complex128)
+            lam_out = jnp.array(np.real(lam_sel), dtype=jnp.float64)
+        else:
+            lam_out = jnp.array(lam_sel, dtype=jnp.complex128)
+
+        if not return_eigenfunctions:
+            return lam_out
+
+        # Eigenfunctions: convert selected eigenvectors (values at the
+        # discretization's Chebyshev points) to chebfuns, normalized to
+        # unit L2 norm with a sign convention (max value positive).
+        funs = []
+        for j in selected:
+            v = V_all[:, j]
+            if np.max(np.abs(np.imag(v))) < 1e-10 * np.max(np.abs(v)):
+                v = np.real(v)
+            u = _chebfun_from_values(jnp.asarray(v), self.domain)
+            nrm = float(u.norm(2))
+            if nrm > 0:
+                u = u * (1.0 / nrm)
+            xs_pk = jnp.linspace(self.domain[0], self.domain[1], 100)
+            if float(jnp.max(u(xs_pk))) < -float(jnp.min(u(xs_pk))):
+                u = -u
+            funs.append(u)
+        return lam_out, funs
+
+    def matrix(self, n: int) -> jnp.ndarray:
+        """The n x n discretization matrix with BC rows imposed.
+
+        MATLAB's matrix(L, n): the collocation discretization of the
+        operator with the last rows replaced by the boundary conditions.
+
+        Provenance
+        ----------
+        MATLAB source : @linop/matrix.m
+        Chebfun commit: 7574c77
+        """
+        A = self._assemble(n)
+        disc = ChebColloc2Disc(n, self.domain)
+        n_bc = len(self.bcs)
+        for i, bc in enumerate(self.bcs):
+            A = A.at[n - n_bc + i, :].set(bc.matrix(disc))
+        return A
+
+    def expm(self, t: float, u0, n: int = 128):
+        """Apply the semigroup exp(t*L) to an initial function u0.
+
+        Restricts the discretized operator to the subspace satisfying the
+        (homogeneous) boundary conditions via a null-space basis, computes
+        the dense matrix exponential there, and propagates u0's values.
+
+        Provenance
+        ----------
+        MATLAB source : @linop/expm.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as np
+        import scipy.linalg
+
+        disc = ChebColloc2Disc(n, self.domain)
+        # RAW operator matrix — _assemble substitutes BC rows, which must
+        # NOT leak into the generator (a BC row inside the "interior"
+        # block silently corrupts the dynamics of that node).
+        A_np = np.array(self.L.matrix(disc))
+        n_bc = len(self.bcs)
+        Bc = (np.stack([np.array(bc.matrix(disc)) for bc in self.bcs])
+              if n_bc else np.zeros((0, n)))
+
+        # Endpoint-Dirichlet BCs (rows = unit vectors at the boundary
+        # nodes): restrict to the interior collocation nodes, the classic
+        # spectrally accurate reduction. Otherwise fall back to a
+        # null-space Galerkin projection (algebraic accuracy).
+        unit_rows = []
+        for row in Bc:
+            nz = np.nonzero(np.abs(row) > 1e-12)[0]
+            if len(nz) == 1 and nz[0] in (0, n - 1) \
+                    and abs(abs(row[nz[0]]) - 1.0) < 1e-10:
+                unit_rows.append(int(nz[0]))
+            else:
+                unit_rows = None
+                break
+
+        t_ref = chebpts(n, kind=2)
+        a, b = self.domain
+        x_pts = 0.5 * (b - a) * t_ref + 0.5 * (a + b)
+        u0_vals = np.array(_chebfun_call(u0, jnp.asarray(x_pts)))
+
+        if unit_rows is not None and n_bc:
+            keep = np.array([i for i in range(n) if i not in unit_rows])
+            A_red = A_np[np.ix_(keep, keep)]
+            E = scipy.linalg.expm(float(t) * A_red)
+            u_t = np.zeros(n)
+            u_t[keep] = E @ u0_vals[keep]
+        else:
+            if n_bc:
+                _, _, Vh = np.linalg.svd(Bc)
+                Q = Vh[n_bc:].T                  # (n, n - n_bc)
+            else:
+                Q = np.eye(n)
+            A_red = Q.T @ A_np @ Q
+            E = scipy.linalg.expm(float(t) * A_red)
+            u_t = Q @ (E @ (Q.T @ u0_vals))
+        return _chebfun_from_values(jnp.asarray(u_t), self.domain)
 
     # ------------------------------------------------------------------
     # Operator: L \ f  (mldivide)

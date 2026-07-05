@@ -325,6 +325,17 @@ class Chebop:
                 max_iter=max_iter, newton_tol=newton_tol,
             )
 
+    def expm(self, t: float, u0, n: int = 128):
+        """exp(t*L) applied to u0 for the linearised operator.
+
+        See :meth:`Linop.expm`.
+        """
+        return self._build_linop(value_shift=0.0).expm(t, u0, n=n)
+
+    def matrix(self, n: int):
+        """The n x n discretization matrix with BC rows (MATLAB matrix(L,n))."""
+        return self._build_linop(value_shift=0.0).matrix(n)
+
     def eigs(
         self,
         *,
@@ -332,7 +343,8 @@ class Chebop:
         k: int = 6,
         n_default: int = 64,
         sigma=None,
-    ) -> jnp.ndarray:
+        return_eigenfunctions: bool = False,
+    ):
         """Eigenvalues of the (linearised) operator.
 
         Constructs the :class:`Linop` corresponding to the (linearised)
@@ -360,7 +372,8 @@ class Chebop:
         Chebfun commit: 7574c77
         """
         linop = self._build_linop(value_shift=0.0)
-        return linop.eigs(n=n, k=k, n_default=n_default, sigma=sigma)
+        return linop.eigs(n=n, k=k, n_default=n_default, sigma=sigma,
+                          return_eigenfunctions=return_eigenfunctions)
 
     def __truediv__(self, f):
         """``N \\ f`` syntax — solve N[u] = f."""
