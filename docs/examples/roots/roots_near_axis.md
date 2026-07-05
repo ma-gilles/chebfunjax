@@ -64,3 +64,13 @@ gives the same access to complex roots for users who want to work with them.
 1. L. N. Trefethen, *Approximation Theory and Approximation Practice*,
    SIAM, 2013, Ch. 8.
 2. L. N. Trefethen, *Spectral Methods in MATLAB*, SIAM, 2000.
+
+## Figures (chebfun.org parity)
+
+![The function on [0, 30]](../../images/roots/RootsNearAxis_01.png)
+
+![The Chebfun ellipse of resolution](../../images/roots/RootsNearAxis_02.png)
+
+![Complex roots near the axis inside the ellipse](../../images/roots/RootsNearAxis_03.png)
+
+![All colleague-matrix roots](../../images/roots/RootsNearAxis_04.png)

@@ -73,3 +73,9 @@ marked as red dots and the poles as grey dashed vertical lines.
    tridiagonal eigenproblem. *Numerische Mathematik*, **36**, 177–195.
 2. Trefethen, L. N. & Bau, D. (1997).
    *Numerical Linear Algebra*. SIAM, p. 231.
+
+## Figures (chebfun.org parity)
+
+![The secular function between its poles](../../images/roots/SecularRoots_01.png)
+
+![Roots marked between consecutive poles](../../images/roots/SecularRoots_02.png)

@@ -24,6 +24,7 @@ $$
 
 ```python
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
 import chebfunjax as cj
 
@@ -61,3 +62,13 @@ print(f"T_{n}({x_wc:.4f}) = {float(Tn(x_wc)):.6f}")
 
 *Top*: Chebyshev polynomials $T_1$ through $T_{30}$ overlaid. The white curves
 are visible as bright bands. *Bottom*: Intersection density histogram.
+
+## Figures (chebfun.org parity)
+
+![Chebyshev polynomials T_1..T_30](../../images/roots/WhiteCurves_01.png)
+
+![White-curve intersections](../../images/roots/WhiteCurves_02.png)
+
+![Scaled Legendre polynomials](../../images/roots/WhiteCurves_03.png)
+
+![Legendre white curves traced by intersections](../../images/roots/WhiteCurves_04.png)

@@ -57,3 +57,7 @@ thousands.
 ![Roots speed](../../images/roots/roots_speed.png)
 
 Root error vs $n$ for $\sin(n\pi x)$ (left) and $T_n(x)$ (right).
+
+## Figures (chebfun.org parity)
+
+![Zoom on the roots near x = 0](../../images/roots/RootsSpeed_01.png)

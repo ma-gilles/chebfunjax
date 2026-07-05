@@ -53,3 +53,13 @@ if len(r) > 0:
 
 A random high-degree Chebyshev polynomial with geometrically decaying
 coefficients (factor 0.95). The roots (red dots) form a tiger-tail pattern.
+
+## Figures (chebfun.org parity)
+
+![The oscillatory function f](../../images/roots/Tiger_01.png)
+
+![f again](../../images/roots/Tiger_02.png)
+
+![round(f): a piecewise-constant tiger](../../images/roots/Tiger_03.png)
+
+![Roots of f - round(f)](../../images/roots/Tiger_04.png)

@@ -42,7 +42,7 @@ the number of correct digits at each step:
 x = 0.5  # initial guess
 g = cj.chebfun(lambda x: jnp.cos(x) - x, domain=(-2.0, 2.0))
 gp = g.diff()
-dottie = 0.739085133215160641655...
+dottie = 0.7390851332151607
 
 errors = []
 for _ in range(8):
@@ -60,3 +60,9 @@ at each iteration (the curve bends sharply down).
 
 1. J. M. Ortega and W. C. Rheinboldt, *Iterative Solution of Nonlinear Equations
    in Several Variables*, Academic Press, 1970.
+
+## Figures (chebfun.org parity)
+
+![The cubic and its roots](../../images/roots/NewtonRaphson_01.png)
+
+![Newton iterates converging to the root](../../images/roots/NewtonRaphson_02.png)
