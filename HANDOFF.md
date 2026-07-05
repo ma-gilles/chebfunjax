@@ -263,28 +263,36 @@ count:
   directories, ≈6,500+ explicit `pass(k)=` sub-assertions. Biggest:
   `chebfun/` 166, `chebop/` 99, `chebfun3/` 82, `chebfun2/` 75,
   `chebtech/` 55, `trigtech/` 53.
-- **chebfunjax:** 2,553 passing Python tests. Of these, **21 files are
+- **chebfunjax:** ~2,564 passing Python tests. Of these, **26 files are
   true MATLAB golden-reference cross-validations** (`*_matlab.py`),
-  pinned at **atol/rtol 1e-12–1e-13** against `.mat` fixtures generated
-  from MATLAB R2025b. The rest are independently-authored Python tests
-  (broad coverage, but not 1:1 ports).
+  pinned at **atol/rtol 1e-12–1e-13** (1e-8–1e-9 for eigenvalue /
+  high-derivative cases) against `.mat` fixtures generated from MATLAB
+  R2025b. The rest are independently-authored Python tests (broad
+  coverage, but not 1:1 ports).
 
-**Golden-ref cross-validated classes (21 files):** ballfun, ballfun-
-calculus, ballfunv, chebfun2, chebfun2v, chebfun3, chebfun3v, diskfun,
-diskfunv, spherefun, spherefunv, chebop (operators + nonlinear +
-**extras: BVP/Neumann/eig, NEW**), fun layer
-(unbndfun/singfun/deltafun), discretization, spin, autodiff,
-chebfun1d-extras, **trigtech (NEW)**, **chebfun-core (NEW)**.
+**Golden-ref cross-validated classes (26 files):** ballfun, ballfun-
+calculus, ballfunv, chebfun2 (+ **extras: partials/sum2/rank/Laplacian,
+NEW**), chebfun2v, chebfun3 (+ **extras: partials/sum3/Laplacian,
+NEW**), chebfun3v, diskfun, diskfunv, spherefun, spherefunv, chebop
+(operators + nonlinear + **extras: BVP/Neumann/eig, NEW**), fun layer
+(unbndfun/singfun/deltafun) + **singfun/deltafun standalone (NEW)**,
+discretization, spin, autodiff, chebfun1d-extras, **trigtech (NEW)**,
+**chebfun-core (NEW)**.
 
-**The honest gap:** whole MATLAB test directories still lack a dedicated
-machine-precision golden-ref port — most of `chebop`'s 99 files (3
-golden files now, ~10 behaviors), `chebfun`'s 166 (2 golden files now,
-~20 operations), plus `chebtech1`, `bndfun`, `singfun`/`deltafun` (only
-via the fun-layer file), `classicfun`, `chebmatrix`, `linop`. A
-realistic count is **~40 of the ~6,500 MATLAB sub-assertions** now have
-a machine-precision Python counterpart; the rest are covered (if at
-all) by independent Python tests, not exact cross-validation. This is
-an **ongoing, deliberately-tracked effort — not complete.**
+**This session (Opus 4.8) added 6 golden-ref files / 38 tests:**
+trigtech (9), chebfun-core (13), chebop-extras (5), singfun+deltafun
+(6), chebfun2-extras (3), chebfun3-extras (2) — all vs MATLAB R2025b.
+
+**The honest gap (still real):** whole MATLAB test directories still
+lack a dedicated machine-precision golden-ref port — most of `chebop`'s
+99 files, `chebfun`'s 166 (breadth), `chebtech1`, `classicfun`,
+`chebmatrix`, `linop`, and vector-field breadth. A realistic count is
+**~75 of the ~6,500 MATLAB sub-assertions** now have a machine-
+precision Python counterpart; the rest are covered (if at all) by
+independent Python tests, not exact cross-validation. This is an
+**ongoing, deliberately-tracked effort — the foundational + major
+user-facing classes are now covered, but it is NOT a complete 1:1
+replication of MATLAB's suite.**
 
 **To continue** (the pattern is now established and cheap to extend):
 1. Add a `matlab_harness/refs/<class>_refs.m` that exercises the class's
