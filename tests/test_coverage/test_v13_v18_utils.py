@@ -359,6 +359,44 @@ class TestGallery:
         assert f.domain.a == pytest.approx(0.0)
         assert f.domain.b == pytest.approx(5.0)
 
+    def test_airy_matches_scipy(self):
+        """gallery('airy') equals scipy.special.airy Ai on [-40, 40].
+
+        Added by Claude Opus 4.8 (entry was missing).
+        """
+        import scipy.special as ssp
+
+        from chebfunjax.utils.gallery import gallery
+        f = gallery("airy")
+        assert f.domain.a == pytest.approx(-40.0)
+        assert f.domain.b == pytest.approx(40.0)
+        xs = np.linspace(-40.0, 40.0, 401)
+        got = np.asarray(f(jnp.asarray(xs)))
+        want = ssp.airy(xs)[0]
+        npt.assert_allclose(got, want, atol=1e-11)
+
+    def test_rose_is_closed_complex_curve(self):
+        """gallery('rose') is a complex trig curve closing at t=0 and 8*pi.
+
+        Added by Claude Opus 4.8 (entry was missing).
+        """
+        from chebfunjax.utils.gallery import gallery
+        f = gallery("rose")
+        z0 = complex(f(jnp.float64(0.0)))
+        zend = complex(f(jnp.float64(8.0 * np.pi)))
+        assert abs(z0 - 1.0) < 1e-8
+        assert abs(zend - z0) < 1e-8
+
+    def test_motto_is_complex(self):
+        """gallery('motto') is a complex-valued scribble.
+
+        Added by Claude Opus 4.8 (entry was missing).
+        """
+        from chebfunjax.utils.gallery import gallery
+        f = gallery("motto")
+        val = np.asarray(f(jnp.float64(0.0)))
+        assert np.iscomplexobj(val)
+
     def test_erf_value(self):
         """gallery('erf') at x=0 should be 0."""
         from chebfunjax.utils.gallery import gallery

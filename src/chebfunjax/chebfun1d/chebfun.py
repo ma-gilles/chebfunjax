@@ -135,6 +135,18 @@ class _Piece(eqx.Module):
         """Number of Chebyshev coefficients."""
         return self.tech.n
 
+    def __len__(self) -> int:
+        """Polynomial length (number of Chebyshev coefficients).
+
+        Matches MATLAB Chebfun's ``length(fun)`` so that ``len(piece)``
+        works on the pieces returned by ``Chebfun.funs``.
+
+        Added by Claude Opus 4.8 (flagged by Claude Fable 5 during the
+        example-page campaign: several snippets had to use
+        ``len(piece.tech.coeffs)`` because this was missing).
+        """
+        return int(self.tech.n)
+
     @property
     def ishappy(self) -> bool:
         """True if resolved to tolerance."""

@@ -135,6 +135,41 @@ def _bessel():
                    domain=(-50.0, 50.0))
 
 
+@_register("airy", "Airy function Ai(x) on [-40, 40]")
+def _airy():
+    # Added by Claude Opus 4.8 (missing entry flagged by Claude Fable 5
+    # while translating the approx/Galleries example page).
+    # MATLAB: chebfun(@airy, [-40 40]).
+    import scipy.special as ssp
+
+    from chebfunjax.chebfun1d.chebfun import chebfun
+    return chebfun(lambda x: jnp.array(ssp.airy(x)[0], dtype=jnp.float64),
+                   domain=(-40.0, 40.0))
+
+
+@_register("rose", "Rose curve cos(5t/4) e^{it} on [0, 8*pi] (trig)")
+def _rose():
+    # Added by Claude Opus 4.8 (missing entry flagged by Claude Fable 5).
+    # MATLAB: fa = @(t) cos(m/n*t).*cos(t) + 1i*cos(m/n*t).*sin(t) with
+    # m = 5, n = 4; chebfun(fa, [0, 8*pi], 'trig').
+    from chebfunjax.chebfun1d.chebfun import chebfun
+    m, n = 5.0, 4.0
+    return chebfun(
+        lambda t: jnp.cos(m / n * t) * jnp.exp(1j * t),
+        domain=(0.0, 8.0 * jnp.pi),
+        trig=True,
+    )
+
+
+@_register("motto", "exp(3i*scribble('there is no fun like chebfun'))")
+def _motto():
+    # Added by Claude Opus 4.8 (missing entry flagged by Claude Fable 5).
+    # MATLAB: exp(3i*scribble('there is no fun like chebfun')).
+    from chebfunjax.utils.scribble import scribble
+    s = scribble("there is no fun like chebfun")
+    return (3j * s).exp()
+
+
 @_register("wiggly", "exp(x)*sin(10*pi*x) on [-1, 1]")
 def _wiggly():
     from chebfunjax.chebfun1d.chebfun import chebfun
