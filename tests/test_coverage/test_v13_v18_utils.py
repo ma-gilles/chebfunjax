@@ -397,6 +397,32 @@ class TestGallery:
         val = np.asarray(f(jnp.float64(0.0)))
         assert np.iscomplexobj(val)
 
+    def test_stegosaurus(self):
+        """gallery('stegosaurus') = max(sin(x)+sin(x^2), x/10).
+
+        Added by Claude Opus 4.8 (needed two-arg max).
+        """
+        from chebfunjax.utils.gallery import gallery
+        f = gallery("stegosaurus")
+        xs = np.linspace(0.1, 9.9, 80)
+        got = np.asarray(f(jnp.asarray(xs)))
+        want = np.maximum(np.sin(xs) + np.sin(xs ** 2), xs / 10)
+        npt.assert_allclose(got, want, atol=1e-12)
+
+    def test_jitter(self):
+        """gallery('jitter') = round(2 exp(x) sin(8x)).
+
+        Added by Claude Opus 4.8 (needed round()).
+        """
+        from chebfunjax.utils.gallery import gallery
+        f = gallery("jitter")
+        xs = np.linspace(-0.95, 0.95, 100)
+        fv = np.exp(xs) * 2 * np.sin(8 * xs)
+        mask = np.min(np.abs(fv[:, None] - np.arange(-6, 7)[None, :] - 0.5),
+                      axis=1) > 0.01
+        got = np.asarray(f(jnp.asarray(xs)))
+        npt.assert_allclose(got[mask], np.round(fv[mask]), atol=1e-12)
+
     def test_si_matches_sine_integral(self):
         """gallery('si') is Si(x) up to the Si(-50) offset from cumsum.
 

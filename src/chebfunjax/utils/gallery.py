@@ -170,6 +170,25 @@ def _motto():
     return (3j * s).exp()
 
 
+@_register("stegosaurus", "max(sin(x)+sin(x^2), x/10) on [0, 10]")
+def _stegosaurus():
+    # Added by Claude Opus 4.8 (needed two-arg max, now available).
+    # MATLAB: chebfun(@(x) max(sin(x)+sin(x.^2), x/10), [0 10], 'splitting','on').
+    from chebfunjax.chebfun1d.chebfun import chebfun
+    f = chebfun(lambda x: jnp.sin(x) + jnp.sin(x ** 2), domain=(0.0, 10.0))
+    g = chebfun(lambda x: x / 10.0, domain=(0.0, 10.0))
+    return f.maximum(g)
+
+
+@_register("jitter", "round(2*exp(x)*sin(8x)) on [-1, 1] — a step staircase")
+def _jitter():
+    # Added by Claude Opus 4.8 (needed round(), now available).
+    # MATLAB: chebfun(@(x) round(exp(x)*2.*sin(8*x)), 'splitting','on').
+    from chebfunjax.chebfun1d.chebfun import chebfun
+    g = chebfun(lambda x: jnp.exp(x) * 2.0 * jnp.sin(8.0 * x))
+    return g.round()
+
+
 @_register("si", "Sine integral Si(x) = cumsum(sin(x)/x) on [-50, 50]")
 def _si():
     # Added by Claude Opus 4.8 (missing gallery entry).
