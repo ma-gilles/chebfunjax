@@ -326,6 +326,59 @@ class TestSphericalCalculus:
         npt.assert_allclose(got - got.mean(), want - want.mean(),
                             atol=1e-10)
 
+    def test_diff_matches_analytic_tangential_gradient(self):
+        """diff(dim) matches the analytic intrinsic gradient of Y_l^m.
+
+        Added by Claude Opus 4.8. Ground truth via autodiff of the
+        harmonic through the intrinsic-formula definition.
+        """
+        import jax
+
+        from chebfunjax.spherefun.spherefun import _real_ylm_values
+        L, T = jnp.meshgrid(*self._grid)
+
+        def analytic(l, m, dim):
+            def Yf(lam, th):
+                return _real_ylm_values(l, m, lam, th)
+            ft = jax.vmap(jax.grad(lambda t, lm: Yf(lm, t), 0))(
+                T.ravel(), L.ravel())
+            fl = jax.vmap(jax.grad(lambda lm, t: Yf(lm, t), 0))(
+                L.ravel(), T.ravel())
+            sT = jnp.sin(T.ravel())
+            cT = jnp.cos(T.ravel())
+            sL = jnp.sin(L.ravel())
+            cL = jnp.cos(L.ravel())
+            if dim == 1:
+                return np.asarray(-sL / sT * fl + cL * cT * ft)
+            if dim == 2:
+                return np.asarray(cL / sT * fl + sL * cT * ft)
+            return np.asarray(-sT * ft)
+
+        for l, m in [(1, 0), (2, 1), (3, -2), (4, 2), (4, -3)]:
+            Y = Spherefun.sphharm(l, m)
+            for dim in (1, 2, 3):
+                got = np.asarray(Y.diff(dim)(L.ravel(), T.ravel()))
+                npt.assert_allclose(got, analytic(l, m, dim), atol=1e-11)
+
+    def test_grad_divergence_equals_laplacian(self):
+        """f_xx + f_yy + f_zz == laplacian(f) for a mixed function.
+
+        Added by Claude Opus 4.8 -- an independent consistency check on
+        grad/diff via the already-verified laplacian.
+        """
+        f = Spherefun.from_function(
+            lambda lam, th: Spherefun.sphharm(3, 1)(lam, th)
+            + 0.5 * Spherefun.sphharm(4, -2)(lam, th))
+        acc = np.zeros(self._sample(f).shape)
+        for dim in (1, 2, 3):
+            acc = acc + self._sample(f.diff(dim, 2))
+        npt.assert_allclose(acc, self._sample(f.laplacian()), atol=1e-10)
+
+    def test_grad_returns_three_spherefuns(self):
+        g = Spherefun.sphharm(4, 2).grad()
+        assert len(g) == 3
+        assert all(isinstance(x, Spherefun) for x in g)
+
     def test_mean(self):
         """mean() of a nonzero-degree harmonic is ~0; of a constant is it."""
         Y42 = Spherefun.sphharm(4, 2)
