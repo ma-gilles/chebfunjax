@@ -50,3 +50,9 @@ while extend2 gives a better estimate, correctly identifying the genuine signal
 versus noise in the Chebyshev coefficients.
 
 ![Noise level estimation](../../images/cheb/noise_level.png)
+
+## Figures (chebfun.org parity)
+
+![Turbo figure 1](../../images/cheb/Turbo_01.png)
+
+![Turbo figure 2](../../images/cheb/Turbo_02.png)

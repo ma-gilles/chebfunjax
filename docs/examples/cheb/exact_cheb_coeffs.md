@@ -30,17 +30,15 @@ where $\rho = 5 + \sqrt{24} \approx 9.899$ is the ellipse through the pole.
 
 ```python
 import numpy as np
+import jax.numpy as jnp
+import chebfunjax as cj
 
-# Exact formula (Elliott 1964)
+f = cj.chebfun(lambda x: 1.0 / (5 - 4 * x))
+c_num = np.abs(np.asarray(f.funs[0].tech.coeffs))
+N = len(c_num) - 1
 k = np.arange(N + 1)
-sqrt6, sqrt24 = np.sqrt(6.0), np.sqrt(24.0)
-c_exact = (1.0 / sqrt6) * ((-1.0)**k) / ((5.0 + sqrt24)**k)
-
-# Numerical
-f = lambda x: 1.0 / (5.0 + x)
-c_num = compute_cheb_coeffs_fft(f, N)
-
-# Should match to machine precision for k >= 1
+c_exact = (1 / np.sqrt(6)) / (5 + np.sqrt(24)) ** k
+print(f"max coefficient error: {np.max(np.abs(c_num - c_exact)):.2e}")
 ```
 
 ## References
@@ -54,3 +52,7 @@ Numerical and exact coefficients agree to machine precision for all $n \geq 1$
 (the $n = 0$ coefficient differs by the usual factor-of-2 convention).
 
 ![Exact Chebyshev coefficients](../../images/cheb/exact_cheb_coeffs.png)
+
+## Figures (chebfun.org parity)
+
+![ExactChebCoeffs figure 1](../../images/cheb/ExactChebCoeffs_01.png)

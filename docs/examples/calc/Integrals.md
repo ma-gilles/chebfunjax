@@ -55,3 +55,11 @@ print("P(1) =", float(P(1.0)), "  sum =", float(p.sum()))
 ![Definite and indefinite integrals](../../images/calc/definite_indefinite_integrals.png)
 
 Top: the integrand $f$. Bottom: its cumulative integral $F = \text{cumsum}(f)$.
+
+## Figures (chebfun.org parity)
+
+![Integrals figure 1](../../images/calc/Integrals_01.png)
+
+![Integrals figure 2](../../images/calc/Integrals_02.png)
+
+![Integrals figure 3](../../images/calc/Integrals_03.png)

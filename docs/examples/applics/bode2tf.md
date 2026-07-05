@@ -35,12 +35,13 @@ in barycentric form, which efficiently represents the resonance peak.
 from chebfunjax.utils.aaa import aaa
 import numpy as np
 
-omega_vals = np.logspace(-1, 2, 300)
-H_mag = np.abs(H_vals)
-
-f_aaa_mag, pol, res, zer, z_sup, f_sup, w = aaa(
-    H_mag, np.log10(omega_vals), tol=1e-8, mmax=20
-)
+G = lambda s: 1.0 / ((s + 0.1) * (s**2 + s + 1))
+w = np.logspace(-4, 2, 2000)
+wA = np.concatenate([-w[::-1], w])
+GA = np.concatenate([np.conj(G(1j * w))[::-1], G(1j * w)])
+r, pol, res, *_ = aaa(GA, 1j * wA, tol=1e-12, mmax=20)
+stable = pol[np.real(pol) < 0]
+print("recovered poles:", np.round(np.sort_complex(stable)[:3], 4))
 ```
 
 ## Results
@@ -55,3 +56,17 @@ f_aaa_mag, pol, res, zer, z_sup, f_sup, w = aaa(
 
 Top: Bode magnitude plot (exact vs AAA fit).
 Bottom: Bode phase plot (exact vs AAA fit).
+
+## Figures (chebfun.org parity)
+
+![Bode2tf figure 1](../../images/applics/Bode2tf_01.png)
+
+![Bode2tf figure 2](../../images/applics/Bode2tf_02.png)
+
+![Bode2tf figure 3](../../images/applics/Bode2tf_03.png)
+
+![Bode2tf figure 4](../../images/applics/Bode2tf_04.png)
+
+![Bode2tf figure 5](../../images/applics/Bode2tf_05.png)
+
+![Bode2tf figure 6](../../images/applics/Bode2tf_06.png)

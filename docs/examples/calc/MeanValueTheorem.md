@@ -52,3 +52,7 @@ assert all(-2 < ci < 2 for ci in c2), "MVT violated!"
 
 The function (blue), the chord (dashed), and the tangent lines at the MVT
 points (red dots).
+
+## Figures (chebfun.org parity)
+
+![MeanValueTheorem figure 1](../../images/calc/MeanValueTheorem_01.png)

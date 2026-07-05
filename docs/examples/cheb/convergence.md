@@ -30,16 +30,22 @@ import numpy as np
 def cheb_interpolant_error(f, nn, x_test):
     errors = []
     for n in nn:
-        j = np.arange(n)
-        nodes = np.cos(np.pi * (2*j+1) / (2*n))
-        # barycentric interpolation at test points...
-        errors.append(np.max(np.abs(interp - f(x_test))))
+        xc = np.cos(np.pi * np.arange(n) / (n - 1))
+        vals = f(xc[::-1])[::-1]
+        ext = np.concatenate([vals[::-1], vals[1:-1]])
+        c = np.real(np.fft.fft(ext))[:n] / (n - 1)
+        c[0] /= 2
+        c[-1] /= 2
+        errors.append(np.max(np.abs(
+            np.polynomial.chebyshev.chebval(x_test, c) - f(x_test))))
     return np.array(errors)
 
-# Fractional power
-f1 = lambda x: np.abs(x)**np.pi
+nn = 2 * np.round(2.0 ** np.arange(1, 7)).astype(int)
+x_test = np.linspace(-1, 1, 2000)
+f1 = lambda x: np.abs(x) ** np.pi
 errors1 = cheb_interpolant_error(f1, nn, x_test)
-# slope ≈ -pi in log-log plot
+slope = np.polyfit(np.log(nn), np.log(errors1), 1)[0]
+print(f"convergence slope ~ {slope:.2f} (expect about -pi)")
 ```
 
 ## References
@@ -52,3 +58,9 @@ Both examples demonstrate that the fractional differentiability precisely
 determines the convergence rate.
 
 ![Convergence rates](../../images/cheb/convergence.png)
+
+## Figures (chebfun.org parity)
+
+![Convergence figure 1](../../images/cheb/Convergence_01.png)
+
+![Convergence figure 2](../../images/cheb/Convergence_02.png)

@@ -58,3 +58,17 @@ print(f"sin(θ2)/v2 = {np.sin(theta2)/v2:.8f}")
 
 *Left*: Total travel time vs entry position, with minimum marked.
 *Right*: Geometric diagram showing the refracted path.
+
+## Figures (chebfun.org parity)
+
+![SnellsLaw figure 1](../../images/calc/SnellsLaw_01.png)
+
+![SnellsLaw figure 2](../../images/calc/SnellsLaw_02.png)
+
+![SnellsLaw figure 3](../../images/calc/SnellsLaw_03.png)
+
+![SnellsLaw figure 4](../../images/calc/SnellsLaw_04.png)
+
+![SnellsLaw figure 5](../../images/calc/SnellsLaw_05.png)
+
+![SnellsLaw figure 6](../../images/calc/SnellsLaw_06.png)

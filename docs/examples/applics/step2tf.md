@@ -35,12 +35,14 @@ of `log₁₀(ω)`:
 from chebfunjax.utils.aaa import aaa
 import numpy as np
 
-omega_vals = np.logspace(-2, 2, 200)
-H_mag = np.abs(H_exact(1j * omega_vals))
-
-f_aaa, pol, res, zer, z_sup, f_sup, w = aaa(
-    H_mag, np.log10(omega_vals), tol=1e-8, mmax=20
-)
+G = lambda s: 1.0 / ((s + 0.5) * (s**2 + 0.4 * s + 1))
+w = np.logspace(-3, 2, 1500)
+wA = np.concatenate([-w[::-1], w])
+GS = G(1j * w) / (1j * w)               # step response in frequency
+GSA = np.concatenate([np.conj(GS)[::-1], GS])
+r, pol, res, *_ = aaa(GSA, 1j * wA, tol=1e-10, mmax=24)
+polH = pol[np.real(pol) < -1e-8]        # the system poles
+print(f"identified {len(polH)} stable poles")
 ```
 
 ## Results
@@ -54,3 +56,15 @@ f_aaa, pol, res, zer, z_sup, f_sup, w = aaa(
 
 Left: step response `h(t)` on `[0, 8]`, with final value `H(0) = 1.875`.
 Right: Bode magnitude of exact `H(jω)` vs AAA fit.
+
+## Figures (chebfun.org parity)
+
+![Step2tf figure 1](../../images/applics/Step2tf_01.png)
+
+![Step2tf figure 2](../../images/applics/Step2tf_02.png)
+
+![Step2tf figure 3](../../images/applics/Step2tf_03.png)
+
+![Step2tf figure 4](../../images/applics/Step2tf_04.png)
+
+![Step2tf figure 5](../../images/applics/Step2tf_05.png)

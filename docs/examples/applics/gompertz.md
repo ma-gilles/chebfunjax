@@ -57,3 +57,13 @@ sol_gom = solve_ivp(
 
 Left: population trajectories for all three models.
 Right: per-capita growth rates `P'/P` as a function of `P`.
+
+## Figures (chebfun.org parity)
+
+![Gompertz figure 1](../../images/applics/Gompertz_01.png)
+
+![Gompertz figure 2](../../images/applics/Gompertz_02.png)
+
+![Gompertz figure 3](../../images/applics/Gompertz_03.png)
+
+![Gompertz figure 4](../../images/applics/Gompertz_04.png)

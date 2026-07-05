@@ -52,3 +52,13 @@ $\theta^* = \arccos(c_l/c_w)$.
 ![Bird flight optimisation](../../images/calc/bird_flight_optimization.png)
 
 Energy as a function of crossing angle, with the minimum marked.
+
+## Figures (chebfun.org parity)
+
+![ForTheBirds figure 1](../../images/calc/ForTheBirds_01.png)
+
+![ForTheBirds figure 2](../../images/calc/ForTheBirds_02.png)
+
+![ForTheBirds figure 3](../../images/calc/ForTheBirds_03.png)
+
+![ForTheBirds figure 4](../../images/calc/ForTheBirds_04.png)

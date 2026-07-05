@@ -49,3 +49,9 @@ for k in degrees:
 ## Results
 
 ![Chebyshev and Legendre polynomials](../../images/cheb/cheb_polys_higham.png)
+
+## Figures (chebfun.org parity)
+
+![ChebPolysHigham figure 1](../../images/cheb/ChebPolysHigham_01.png)
+
+![ChebPolysHigham figure 2](../../images/cheb/ChebPolysHigham_02.png)

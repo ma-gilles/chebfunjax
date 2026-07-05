@@ -51,3 +51,11 @@ The double-length series reveals where the noise plateau begins, confirming
 that the standard series was correctly truncated at that point.
 
 ![Doublelength flag](../../images/cheb/doublelength_flag.png)
+
+## Figures (chebfun.org parity)
+
+![DoublelengthFlag figure 1](../../images/cheb/DoublelengthFlag_01.png)
+
+![DoublelengthFlag figure 2](../../images/cheb/DoublelengthFlag_02.png)
+
+![DoublelengthFlag figure 3](../../images/cheb/DoublelengthFlag_03.png)
