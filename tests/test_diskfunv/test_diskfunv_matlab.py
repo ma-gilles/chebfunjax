@@ -78,3 +78,43 @@ class TestDiskfunvVsMatlab:
         n = _N().norm()
         npt.assert_allclose(np.asarray(n(_T, _R)), _REF["norm_eval"],
                             rtol=RTOL, atol=1e-12)
+
+
+class TestDiskfunvDivCurl:
+    """Diskfunv divergence/curl via Diskfun Cartesian calculus (Opus 4.8).
+
+    Verified against exact identities: div(x,y)=2, curl(x,y)=0,
+    div(-y,x)=0, curl(-y,x)=2.
+    """
+
+    def _pts(self):
+        import jax.numpy as jnp
+        tt = jnp.linspace(-3.0, 3.0, 7)
+        rr = jnp.linspace(0.15, 0.9, 7)
+        T, R = jnp.meshgrid(tt, rr)
+        return T.ravel(), R.ravel()
+
+    def test_div_curl_identities(self):
+        import warnings
+
+        import jax.numpy as jnp
+        import numpy as np
+
+        from chebfunjax.diskfun.diskfunv import Diskfunv
+        T, R = self._pts()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            # F = (x, y): div = 2, curl = 0
+            V = Diskfunv.from_functions(lambda t, r: r * jnp.cos(t),
+                                        lambda t, r: r * jnp.sin(t))
+            np.testing.assert_allclose(np.asarray(V.div()(T, R)),
+                                       2.0 * np.ones(T.shape), atol=1e-9)
+            np.testing.assert_allclose(np.asarray(V.curl()(T, R)),
+                                       np.zeros(T.shape), atol=1e-9)
+            # F = (-y, x): div = 0, curl = 2
+            W = Diskfunv.from_functions(lambda t, r: -r * jnp.sin(t),
+                                        lambda t, r: r * jnp.cos(t))
+            np.testing.assert_allclose(np.asarray(W.div()(T, R)),
+                                       np.zeros(T.shape), atol=1e-9)
+            np.testing.assert_allclose(np.asarray(W.curl()(T, R)),
+                                       2.0 * np.ones(T.shape), atol=1e-9)

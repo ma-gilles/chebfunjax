@@ -130,6 +130,43 @@ class Diskfunv(eqx.Module):
             lambda th, r: f1(th, r) * f2(th, r) + g1(th, r) * g2(th, r)
         )
 
+    def div(self) -> Diskfun:
+        r"""Divergence :math:`\\nabla \\cdot (f, g) = f_x + g_y`.
+
+        Uses the Cartesian derivatives ``Diskfun.diffx`` / ``diffy``.
+        Added by Claude Opus 4.8.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/div.m
+        Chebfun commit: 7574c77
+        """
+        f, g = self.components
+        fx = f.diffx()
+        gy = g.diffy()
+        return Diskfun.from_function(
+            lambda th, r: fx(th, r) + gy(th, r)
+        )
+
+    divergence = div
+
+    def curl(self) -> Diskfun:
+        r"""Scalar curl :math:`g_x - f_y` of the 2-D vector field.
+
+        Added by Claude Opus 4.8.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/curl.m
+        Chebfun commit: 7574c77
+        """
+        f, g = self.components
+        gx = g.diffx()
+        fy = f.diffy()
+        return Diskfun.from_function(
+            lambda th, r: gx(th, r) - fy(th, r)
+        )
+
     def norm(self) -> Diskfun:
         """Pointwise Euclidean norm: sqrt(f^2 + g^2).
 
