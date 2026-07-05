@@ -279,15 +279,24 @@ NEW**), chebfun3v, diskfun, diskfunv, spherefun, spherefunv, chebop
 discretization, spin, autodiff, chebfun1d-extras, **trigtech (NEW)**,
 **chebfun-core (NEW)**.
 
-**This session (Opus 4.8) added 11 golden-ref files / 57 tests** — all
+**This session (Opus 4.8) added 13 golden-ref files / 61 tests** — all
 vs MATLAB R2025b: trigtech (9), chebfun-core (13), chebop-extras (5),
 singfun+deltafun (6), chebfun2-extras (3), chebfun3-extras (2),
 chebfun2v/3v vector calculus (6), chebfun-core batch 2 (4), chebop
-batch 2 / Mathieu (3), spherefun-calculus-vs-MATLAB (2), chebtech1 (4).
-It also **found + fixed the same coarse-grid constructor bug in
-`diskfun`** that was fixed in `spherefun` (mixed angular-order
-functions aliased to rank 1). Ballfun uses a different (safe)
-construction — not affected.
+batch 2 / Mathieu (3), spherefun-calculus-vs-MATLAB (2), chebtech1 (4),
+diskfun-calculus-vs-MATLAB (2), chebop nonlinear batch 2 / Bratu (2).
+
+It also shipped **three library changes**:
+- **Fixed the coarse-grid constructor bug in `diskfun`** (same class as
+  the `spherefun` fix — mixed angular-order functions aliased to rank
+  1). Ballfun uses a different (safe) construction, not affected.
+- **New feature: `Diskfun.diffx` / `diffy` / `laplacian`** (Cartesian
+  calculus on the disk) — diskfun previously had only `sum`. Spectral
+  radial/angular derivatives with a smooth Fourier×Chebyshev modal
+  reconstruction; verified on harmonic polynomials and vs MATLAB
+  @diskfun.
+- (earlier) spherefun scalar calculus (#25) + the spherefun constructor
+  fix.
 
 **Coverage now spans the whole implemented library:** every tech
 (chebtech1/2, trigtech), every fun (bndfun, singfun, deltafun,
