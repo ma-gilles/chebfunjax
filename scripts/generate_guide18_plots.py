@@ -1,14 +1,22 @@
-"""Generate all plots for Guide Chapter 18 (Chebfun3).
+"""Generate all 16 plots for Guide Chapter 18 (Chebfun3).
 
-Uses PARULA colormap and three-orthogonal-slice 3D plots matching MATLAB.
+Figure order follows https://www.chebfun.org/docs/guide/guide18.html
+(see /scratch/.../chebfunjax_audit_20260702/guide18_figure_map.md for
+the block-by-block mapping); each file is saved at the reference size
+(600x270).
 """
+
+import os
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
+
 import matplotlib
 
-matplotlib.use('Agg')
-import os
+matplotlib.use("Agg")
+
 import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
@@ -16,154 +24,361 @@ import numpy as np
 
 from chebfunjax.chebfun3d import chebfun3
 from chebfunjax.plotting import (
+    CHEBFUN_BLUE,
     PARULA,
     _setup_3d_axes,
     chebfun_style,
-    plot_chebfun3,
+    save_chebfun_figure,
 )
 
 chebfun_style()
 
-OUT = os.path.join(os.path.dirname(__file__), '..', 'docs', 'images', 'guide')
+OUT = os.path.join(os.path.dirname(__file__), "..", "docs", "images", "guide")
 os.makedirs(OUT, exist_ok=True)
 plot_num = 0
+
 
 def save(fig, desc=""):
     global plot_num
     plot_num += 1
-    fname = os.path.join(OUT, f'guide18_{plot_num:02d}.png')
-    fig.savefig(fname, dpi=150, bbox_inches='tight')
+    fname = os.path.join(OUT, f"guide18_{plot_num:02d}.png")
+    save_chebfun_figure(fig, fname, size=(600, 270))
     plt.close(fig)
     print(f"  guide18_{plot_num:02d}.png: {desc}")
 
-def slices_plot(f, title='', n=80):
-    """Three orthogonal slices of a Chebfun3 using plot_chebfun3."""
-    fig, ax = plot_chebfun3(f, title=title, n_pts=n)
-    return fig, ax
 
-# Plot 01: cos(xyz) slice plot (Section 18.1)
+def _grid_vals(f3, n=60, dom=(-1, 1, -1, 1, -1, 1)):
+    xa, xb, ya, yb, za, zb = dom
+    xs = np.linspace(xa, xb, n)
+    ys = np.linspace(ya, yb, n)
+    zs = np.linspace(za, zb, n)
+    XX, YY, ZZ = np.meshgrid(xs, ys, zs, indexing="ij")
+    VV = np.asarray(
+        f3(jnp.asarray(XX.ravel()), jnp.asarray(YY.ravel()),
+           jnp.asarray(ZZ.ravel()))
+    ).reshape(XX.shape)
+    return xs, ys, zs, VV
+
+
+def _isosurface(ax, VV, level, color, dom=(-1, 1, -1, 1, -1, 1),
+                alpha=0.8, n=None):
+    from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+    from skimage.measure import marching_cubes
+
+    if n is None:
+        n = VV.shape[0]
+    xa, xb, ya, yb, za, zb = dom
+    verts, faces, _, _ = marching_cubes(VV, level=level)
+    verts[:, 0] = verts[:, 0] / (n - 1) * (xb - xa) + xa
+    verts[:, 1] = verts[:, 1] / (n - 1) * (yb - ya) + ya
+    verts[:, 2] = verts[:, 2] / (n - 1) * (zb - za) + za
+    mesh = Poly3DCollection(verts[faces], alpha=alpha, linewidth=0)
+    mesh.set_facecolor(color)
+    ax.add_collection3d(mesh)
+    ax.set_xlim(xa, xb)
+    ax.set_ylim(ya, yb)
+    ax.set_zlim(za, zb)
+
+
+def _slices_render(ax, f3, n=70):
+    """Three orthogonal mid-slices, MATLAB slice(f) style."""
+    xs = np.linspace(-1, 1, n)
+    XX, YY = np.meshgrid(xs, xs, indexing="ij")
+    flat = jnp.asarray(XX.ravel()), jnp.asarray(YY.ravel())
+    zeros = jnp.zeros(n * n)
+    import matplotlib.colors as mcolors
+
+    Fz = np.asarray(f3(flat[0], flat[1], zeros)).reshape(n, n)
+    Fy = np.asarray(f3(flat[0], zeros, flat[1])).reshape(n, n)
+    Fx = np.asarray(f3(zeros, flat[0], flat[1])).reshape(n, n)
+    vmin = min(F.min() for F in (Fx, Fy, Fz))
+    vmax = max(F.max() for F in (Fx, Fy, Fz))
+    norm = mcolors.Normalize(vmin=vmin, vmax=vmax)
+    Z0 = np.zeros_like(XX)
+    ax.plot_surface(XX, YY, Z0, facecolors=PARULA(norm(Fz)), rstride=1,
+                    cstride=1, linewidth=0, shade=False)
+    ax.plot_surface(XX, Z0, YY, facecolors=PARULA(norm(Fy)), rstride=1,
+                    cstride=1, linewidth=0, shade=False)
+    ax.plot_surface(Z0, XX, YY, facecolors=PARULA(norm(Fx)), rstride=1,
+                    cstride=1, linewidth=0, shade=False)
+    return norm
+
+
+def _plotcoeffs_3panel(fig, f3, xlab="Degree of Chebyshev polynomial"):
+    cyc = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+    for k, (name, title) in enumerate(
+            [("cols", "Cols"), ("rows", "Rows"), ("tubes", "Tubes")]):
+        ax = fig.add_subplot(1, 3, k + 1)
+        for i, t in enumerate(getattr(f3, name)):
+            c = np.abs(np.asarray(t.coeffs))
+            ax.semilogy(np.arange(len(c)), np.maximum(c, 1e-300), ".-",
+                        color=cyc[i % len(cyc)], markersize=3,
+                        linewidth=0.6)
+        ax.set_title(title, fontsize=9)
+        ax.set_ylim(1e-20, 10)
+        if k == 0:
+            ax.set_ylabel("Magnitude of coefficient", fontsize=8)
+        if k == 1:
+            ax.set_xlabel(xlab, fontsize=8)
+        ax.tick_params(labelsize=7)
+
+
+# Fig 1: slice(f) of f = cos(xyz)-ish demo function [block 6]
 try:
-    f = chebfun3(lambda x, y, z: jnp.cos(x * y * z))
-    fig, ax = slices_plot(f, 'cos(xyz)')
-    save(fig, "cos(xyz)")
-except Exception as e:
-    plot_num += 1; print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
+    f = chebfun3(lambda x, y, z: jnp.sin(8 * (x + y / 2 + z / 3)) / 2
+                 + jnp.cos(5 * (x * y * z)))
+    fig = plt.figure()
+    ax = fig.add_axes([0.1, -0.05, 0.75, 1.05], projection="3d")
+    ax.view_init(elev=30, azim=-127.5)
+    norm = _slices_render(ax, f)
+    m = plt.cm.ScalarMappable(norm=norm, cmap=PARULA)
+    fig.colorbar(m, ax=ax, fraction=0.04, pad=0.06)
+    save(fig, "slice(f)")
+except Exception as e:  # noqa: BLE001
+    plot_num += 1
+    print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
 
-# Plot 02: slice of 1/(1+x^2+y^2+z^2) (Section 18.2)
+# Fig 2: isosurface(f) [block 7]
 try:
-    f2 = chebfun3(lambda x, y, z: 1.0 / (1.0 + x**2 + y**2 + z**2))
-    fig, ax = slices_plot(f2, '1/(1+x^2+y^2+z^2)')
-    save(fig, "Runge 3D")
-except Exception as e:
-    plot_num += 1; print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
+    _, _, _, VV = _grid_vals(f, n=50)
+    fig, ax = _setup_3d_axes(None, None)
+    _isosurface(ax, VV, 0.62, (0.55, 0.05, 0.05), alpha=1.0, n=50)
+    save(fig, "isosurface(f)")
+except Exception as e:  # noqa: BLE001
+    plot_num += 1
+    print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
 
-# Plot 03: exp(x+y+z) (Section 18.3)
+# Fig 3: plotcoeffs(f, '.-') for f = sin(x+yz), g companion [blocks 15-16]
 try:
-    f3 = chebfun3(lambda x, y, z: jnp.exp(x + y + z))
-    fig, ax = slices_plot(f3, 'exp(x+y+z)')
-    save(fig, "exp(x+y+z)")
-except Exception as e:
-    plot_num += 1; print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
+    f3a = chebfun3(lambda x, y, z: jnp.sin(x + y * z))
+    fig = plt.figure()
+    _plotcoeffs_3panel(fig, f3a)
+    fig.subplots_adjust(left=0.1, right=0.97, wspace=0.35, bottom=0.16)
+    save(fig, "plotcoeffs(f)")
+except Exception as e:  # noqa: BLE001
+    plot_num += 1
+    print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
 
-# Plot 04: z-slices gallery (Section 18.4)
+# g companion used in figs 4-5 [block 16]
+g3 = None
 try:
-    n = 80
-    xs = np.linspace(-1, 1, n); ys = np.linspace(-1, 1, n)
-    XX, YY = np.meshgrid(xs, ys)
-    fig, axes = plt.subplots(1, 3, figsize=(14, 4))
-    for i, zv in enumerate([-0.5, 0.0, 0.5]):
-        ZM = np.full_like(XX, zv)
-        FF = np.array(f2(jnp.array(XX.ravel()), jnp.array(YY.ravel()),
-                         jnp.array(ZM.ravel()))).reshape(n, n)
-        cs = axes[i].contourf(XX, YY, FF, levels=15, cmap=PARULA)
-        fig.colorbar(cs, ax=axes[i], fraction=0.046, pad=0.04)
-        axes[i].set_title(f'z = {zv}', fontsize=10)
-        axes[i].set_xlabel('x', fontsize=9)
-        axes[i].set_ylabel('y', fontsize=9)
-        axes[i].set_aspect('equal')
-    fig.suptitle('1/(1+x^2+y^2+z^2) slices', fontsize=11)
-    fig.set_facecolor('white')
-    fig.tight_layout()
-    save(fig, "z-slices")
-except Exception as e:
-    plot_num += 1; print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
+    g3 = chebfun3(lambda x, y, z: jnp.cos(15 * jnp.exp(z))
+                  / (5 + x**3 + 2 * y**2 + z))
+except Exception as e:  # noqa: BLE001
+    print(f"  g3 construction FAILED: {e}")
 
-# Plot 05: sin(x+y+z) on [0,2]^3 (Section 18.5)
+# Fig 4: contourf(sum(f), 20) with colorbar [block 20]
 try:
-    f5 = chebfun3(lambda x, y, z: jnp.sin(x + y + z),
-                  domain=(0., 2., 0., 2., 0., 2.))
-    fig, ax = slices_plot(f5, 'sin(x+y+z) on [0,2]^3')
-    save(fig, "sin on [0,2]^3")
-except Exception as e:
-    plot_num += 1; print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
+    s_yz = f3a.sum(dim=1)  # integrate over x -> chebfun2(y, z)
+    ys = np.linspace(-1, 1, 300)
+    YY, ZZ = np.meshgrid(ys, ys, indexing="ij")
+    S = np.asarray(s_yz(jnp.asarray(YY.ravel()),
+                        jnp.asarray(ZZ.ravel()))).reshape(YY.shape)
+    fig, ax = plt.subplots()
+    cs = ax.contourf(YY, ZZ, S, levels=20, cmap=PARULA)
+    ax.contour(YY, ZZ, S, levels=cs.levels, colors="k", linewidths=0.5)
+    fig.colorbar(cs, ax=ax, fraction=0.045)
+    save(fig, "contourf(sum(f))")
+except Exception as e:  # noqa: BLE001
+    plot_num += 1
+    print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
 
-# Plot 06: scan plot showing column/row/tube functions (Section 18.6)
+# Fig 5: plot(sum2(exp(g+2f))) [block 21]
 try:
-    f6 = chebfun3(lambda x, y, z: jnp.cos(x * y * z))
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4))
-    t = jnp.linspace(-1, 1, 200)
-    # Columns (x)
-    for j in range(min(3, len(f6.cols))):
-        axes[0].plot(np.array(t), np.array(f6.cols[j](t)), linewidth=1.2)
-    axes[0].set_title(f'Column functions (x), rank={len(f6.cols)}', fontsize=10)
-    # Rows (y)
-    for j in range(min(3, len(f6.rows))):
-        axes[1].plot(np.array(t), np.array(f6.rows[j](t)), linewidth=1.2)
-    axes[1].set_title(f'Row functions (y), rank={len(f6.rows)}', fontsize=10)
-    # Tubes (z)
-    for j in range(min(3, len(f6.tubes))):
-        axes[2].plot(np.array(t), np.array(f6.tubes[j](t)), linewidth=1.2)
-    axes[2].set_title(f'Tube functions (z), rank={len(f6.tubes)}', fontsize=10)
-    fig.set_facecolor('white'); fig.tight_layout()
-    save(fig, "Tucker factors")
-except Exception as e:
-    plot_num += 1; print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
+    h3 = chebfun3(lambda x, y, z: jnp.exp(
+        jnp.cos(15 * jnp.exp(z)) / (5 + x**3 + 2 * y**2 + z)
+        + 2 * jnp.sin(x + y * z)))
+    s_z = h3.sum2(dims=(1, 2))  # 1D chebfun of z
+    zs = jnp.linspace(-1.0, 1.0, 600)
+    fig, ax = plt.subplots()
+    ax.plot(np.asarray(zs), np.asarray(s_z(zs)), color=CHEBFUN_BLUE,
+            linewidth=1.4)
+    save(fig, "plot(sum2(exp(g+2f)))")
+except Exception as e:  # noqa: BLE001
+    plot_num += 1
+    print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
 
-# Plot 07: isosurface-like (Section 18.7)
+# Fig 6: helix [block 22]
 try:
-    n = 40
-    xs = np.linspace(-1, 1, n); ys = np.linspace(-1, 1, n); zs = np.linspace(-1, 1, n)
-    XX3, YY3, ZZ3 = np.meshgrid(xs, ys, zs, indexing='ij')
-    VV = np.array(f2(jnp.array(XX3.ravel()), jnp.array(YY3.ravel()),
-                      jnp.array(ZZ3.ravel()))).reshape(XX3.shape)
-    fig, ax = _setup_3d_axes(None, None, elev=25, azim=-37, figsize=(6.1, 5.0))
+    t8pi = 8 * float(np.pi)
+    ts = np.linspace(0.0, t8pi, 1500)
+    fig, ax = _setup_3d_axes(None, None)
+    ax.plot3D(np.cos(ts), np.sin(ts), ts / t8pi, color=CHEBFUN_BLUE,
+              linewidth=1.2)
+    ax.set_title("Helix")
+    save(fig, "helix")
+except Exception as e:  # noqa: BLE001
+    plot_num += 1
+    print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
 
-    try:
-        from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-        from skimage.measure import marching_cubes
-        verts, faces, _, _ = marching_cubes(VV, level=0.5)
-        verts = verts / (n-1) * 2 - 1  # map to [-1,1]
-        mesh = Poly3DCollection(verts[faces], alpha=0.3, edgecolor='k', linewidth=0.1)
-        mesh.set_facecolor(PARULA(0.5))
-        ax.add_collection3d(mesh)
-    except ImportError:
-        # Fallback: show three orthogonal contour slices as coloured surfaces
-        import matplotlib.colors as mcolors
-        mid = n // 2
-        norm = mcolors.Normalize(vmin=float(VV.min()), vmax=float(VV.max()))
-        # z=0 slice
-        Xp, Yp = np.meshgrid(xs, ys, indexing='ij')
-        Zp = np.zeros_like(Xp)
-        Fp = VV[:, :, mid]
-        ax.plot_surface(Xp, Yp, Zp, facecolors=PARULA(norm(Fp)),
-                        rstride=1, cstride=1, linewidth=0, alpha=0.7, shade=False)
-        # y=0 slice
-        Xp2, Zp2 = np.meshgrid(xs, zs, indexing='ij')
-        Yp2 = np.zeros_like(Xp2)
-        Fp2 = VV[:, mid, :]
-        ax.plot_surface(Xp2, Yp2, Zp2, facecolors=PARULA(norm(Fp2)),
-                        rstride=1, cstride=1, linewidth=0, alpha=0.7, shade=False)
-        # x=0 slice
-        Yp3, Zp3 = np.meshgrid(ys, zs, indexing='ij')
-        Xp3 = np.zeros_like(Yp3)
-        Fp3 = VV[mid, :, :]
-        ax.plot_surface(Xp3, Yp3, Zp3, facecolors=PARULA(norm(Fp3)),
-                        rstride=1, cstride=1, linewidth=0, alpha=0.7, shade=False)
+# Figs 7-8: plot(g.cols), plot(g.tubes) [blocks 24-25]
+try:
+    cyc = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+    xs = np.linspace(-1, 1, 400)
+    for name in ("cols", "tubes"):
+        fig, ax = plt.subplots()
+        for i, t in enumerate(getattr(g3, name)):
+            ax.plot(xs, np.asarray(t(jnp.asarray(xs))),
+                    color=cyc[i % len(cyc)], linewidth=1.0)
+        save(fig, f"plot(g.{name})")
+except Exception as e:  # noqa: BLE001
+    plot_num += 1
+    print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
 
-    ax.set_xlim(-1, 1); ax.set_ylim(-1, 1); ax.set_zlim(-1, 1)
-    ax.set_title('Isosurface at 0.5', fontsize=10, pad=0)
-    save(fig, "isosurface")
-except Exception as e:
-    plot_num += 1; print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
+# Fig 9: plotcoeffs(g) [block 26]
+try:
+    fig = plt.figure()
+    _plotcoeffs_3panel(fig, g3)
+    fig.subplots_adjust(left=0.1, right=0.97, wspace=0.35, bottom=0.16)
+    save(fig, "plotcoeffs(g)")
+except Exception as e:  # noqa: BLE001
+    plot_num += 1
+    print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
 
-print(f"\nGuide 18: {plot_num} plots generated.")
+# Fig 10: plotcoeffs(g.cols) single panel [block 27]
+try:
+    fig, ax = plt.subplots()
+    cyc = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+    for i, t in enumerate(g3.cols):
+        c = np.abs(np.asarray(t.coeffs))
+        ax.semilogy(np.arange(len(c)), np.maximum(c, 1e-300), ".-",
+                    color=cyc[i % len(cyc)], markersize=4, linewidth=0.8)
+    ax.set_title("Chebyshev coefficients", fontsize=10)
+    ax.set_xlabel("Degree of Chebyshev polynomial", fontsize=9)
+    ax.set_ylabel("Magnitude of coefficient", fontsize=9)
+    ax.set_ylim(1e-20, 10)
+    save(fig, "plotcoeffs(g.cols)")
+except Exception as e:  # noqa: BLE001
+    plot_num += 1
+    print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
+
+# Fig 11: plotcoeffs of the trig chebfun3 [blocks 28-29].
+# chebfun3 has no 'trig' mode yet; the honest equivalent renders the
+# per-direction FOURIER coefficient profiles of the periodic function
+# computed directly by FFT along each axis (what the trig factors'
+# plotcoeffs displays, up to factor mixing).
+try:
+    L = float(np.pi)
+
+    def ff18(x, y, z):
+        return (np.tanh(3 * np.sin(x)) - np.sin(y + 0.5) ** 2
+                + np.cos(6 * z))
+
+    n = 128
+    grid = np.linspace(-L, L, n, endpoint=False)
+    mids = np.array([0.37, -0.83])  # generic fixed sections
+    fig = plt.figure()
+    for k, (axis, title) in enumerate(
+            [(0, "Cols"), (1, "Rows"), (2, "Tubes")]):
+        ax = fig.add_subplot(1, 3, k + 1)
+        for a in mids:
+            for b in mids:
+                if axis == 0:
+                    vals = ff18(grid, a, b)
+                elif axis == 1:
+                    vals = ff18(a, grid, b)
+                else:
+                    vals = ff18(a, b, grid)
+                c = np.abs(np.fft.fftshift(np.fft.fft(vals))) / n
+                ks = np.arange(-(n // 2), n // 2)
+                ax.semilogy(ks, np.maximum(c, 1e-300), ".-",
+                            markersize=3, linewidth=0.5)
+        ax.set_title(title, fontsize=9)
+        ax.set_ylim(1e-20, 10)
+        if k == 0:
+            ax.set_ylabel("Magnitude of coefficient", fontsize=8)
+        if k == 1:
+            ax.set_xlabel("Wave number", fontsize=8)
+        ax.tick_params(labelsize=7)
+    fig.subplots_adjust(left=0.1, right=0.97, wspace=0.35, bottom=0.16)
+    save(fig, "trig coefficient profiles")
+except Exception as e:  # noqa: BLE001
+    plot_num += 1
+    print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
+
+# Fig 12: quiver of F = grad(f) on the big domain [block 37]
+try:
+    L5 = 5 * float(np.pi)
+    fbig = chebfun3(
+        lambda x, y, z: jnp.sin(x + 20 * y + z**2)
+        * jnp.exp(-(3 + y**2)),
+        domain=(-L5, L5, -L5, L5, -L5, L5))
+    fx, fy, fz = fbig.grad()
+    m = 8
+    gs = np.linspace(-L5, L5, m)
+    XX, YY, ZZ = np.meshgrid(gs, gs, gs, indexing="ij")
+    flat = (jnp.asarray(XX.ravel()), jnp.asarray(YY.ravel()),
+            jnp.asarray(ZZ.ravel()))
+    U = np.asarray(fx(*flat)).reshape(XX.shape)
+    V = np.asarray(fy(*flat)).reshape(XX.shape)
+    W = np.asarray(fz(*flat)).reshape(XX.shape)
+    fig, ax = _setup_3d_axes(None, None)
+    ax.quiver(XX, YY, ZZ, U, V, W, length=3.0, normalize=True,
+              color=CHEBFUN_BLUE, linewidth=0.6)
+    save(fig, "quiver(grad(f))")
+except Exception as e:  # noqa: BLE001
+    plot_num += 1
+    print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
+
+# Figs 13-14: conical spiral, then with the radial red line [block 39]
+try:
+    t5pi = 5 * float(np.pi)
+    ts = np.linspace(0.0, t5pi, 1200)
+    cx, cy, cz = ts * np.cos(ts), ts * np.sin(ts), ts
+    fig, ax = _setup_3d_axes(None, None)
+    ax.plot3D(cx, cy, cz, "b", linewidth=1.2)
+    ax.set_title("Conical spiral")
+    save(fig, "conical spiral")
+
+    fig, ax = _setup_3d_axes(None, None)
+    ax.plot3D(cx, cy, cz, "b", linewidth=1.2)
+    r2 = np.linspace(0.0, t5pi, 200)
+    ax.plot3D(r2 * np.cos(t5pi), r2 * np.sin(t5pi), r2, "r",
+              linewidth=1.4)
+    ax.set_title("Conical spiral")
+    save(fig, "conical spiral + line")
+except Exception as e:  # noqa: BLE001
+    plot_num += 1
+    print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
+
+# Fig 15: two zero isosurfaces [block 47]
+f15 = g15 = None
+try:
+    f15 = chebfun3(lambda x, y, z: y - x**2)
+    g15 = chebfun3(lambda x, y, z: z - x**3)
+    _, _, _, VF = _grid_vals(f15, n=50)
+    _, _, _, VG = _grid_vals(g15, n=50)
+    fig, ax = _setup_3d_axes(None, None)
+    ax.view_init(elev=43, azim=112)
+    _isosurface(ax, VF, 0.0, "g", alpha=0.75, n=50)
+    _isosurface(ax, VG, 0.0, "b", alpha=0.75, n=50)
+    save(fig, "isosurfaces f=0 (g), g=0 (b)")
+except Exception as e:  # noqa: BLE001
+    plot_num += 1
+    print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
+
+# Fig 16: three isosurfaces + common root marker [block 50]
+try:
+    h16 = chebfun3(lambda x, y, z: jnp.cos(x * y * z) - x - y - z)
+    _, _, _, VH = _grid_vals(h16, n=50)
+    # Common root of {y=x^2, z=x^3, h=0}: solve h(x, x^2, x^3) = 0
+    from scipy.optimize import brentq
+
+    def h_line(x):
+        return float(np.cos(x * x**2 * x**3) - x - x**2 - x**3)
+
+    r = brentq(h_line, 0.0, 1.0)
+    root = (r, r**2, r**3)
+    fig, ax = _setup_3d_axes(None, None)
+    ax.view_init(elev=30, azim=100)
+    _isosurface(ax, VF, 0.0, "g", alpha=0.6, n=50)
+    _isosurface(ax, VG, 0.0, "b", alpha=0.6, n=50)
+    _isosurface(ax, VH, 0.0, "r", alpha=0.6, n=50)
+    ax.plot([root[0]], [root[1]], [root[2]], marker="*", markersize=16,
+            color="y", markeredgecolor="k")
+    save(fig, f"three isosurfaces + root {root[0]:.4f}")
+except Exception as e:  # noqa: BLE001
+    plot_num += 1
+    print(f"  guide18_{plot_num:02d}.png FAILED: {e}")
+
+print(f"\nGuide 18: {plot_num} slots processed.")

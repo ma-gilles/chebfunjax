@@ -16,6 +16,7 @@ pytest-timeout = "*"
 ruff = "*"
 mkdocs = "*"
 mkdocs-material = "*"
+scikit-image = ">=0.26.0,<0.27"
 
 # JAX with CUDA support
 [pypi-dependencies]

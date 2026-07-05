@@ -217,16 +217,29 @@ Like `Chebfun2`, construction is NOT JIT-safe (Python adaptive loops), but evalu
 
 ```python
 import jax
+import equinox as eqx
 
 f = chebfun3(lambda x, y, z: jnp.cos(x + y + z))
 
-# JIT-compiled evaluation
-f_jit = jax.jit(f)
-print(f_jit(0.5, 0.3, 0.1))
+# JIT-compiled evaluation (eqx.filter_jit handles the pytree module)
+f_jit = eqx.filter_jit(f)
+print(f_jit(jnp.array(0.5), jnp.array(0.3), jnp.array(0.1)))
 
 # Gradient via AD
-grad_f = jax.grad(lambda x: f(x, 0.5, 0.3))
-print(grad_f(0.0))  # -sin(0.8)
+grad_f = jax.grad(lambda x: jnp.sum(f(x, jnp.array(0.5), jnp.array(0.3))))
+print(grad_f(jnp.array(0.0)))  # -sin(0.8)
+```
+
+Spectral calculus is also available directly on the object — the Tucker
+structure makes partial derivatives and partial integrals per-factor
+operations:
+
+```python
+fx = f.diff(1)             # d/dx (dims 1, 2, 3 = x, y, z; optional order k)
+gx, gy, gz = f.grad()      # all three partials
+s_yz = f.sum(dim=1)        # integrate over x -> Chebfun2 of (y, z)
+s_z = f.sum2(dims=(1, 2))  # integrate over x and y -> 1D chebfun of z
+print(float(fx(jnp.array([0.2]), jnp.array([0.1]), jnp.array([0.3]))[0]))
 ```
 
 ## 18.10 References
