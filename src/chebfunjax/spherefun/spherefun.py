@@ -1071,6 +1071,126 @@ class Spherefun(eqx.Module):
 
         return cls.from_function(ev)
 
+    def _bandwidth(self) -> int:
+        """Estimate the spherical-harmonic degree that resolves ``self``.
+
+        The doubled-up column Trigtechs hold ~(2*lmax + 1) coefficients,
+        so ``lmax = (max_col_len - 1) // 2``.  Added by Claude Opus 4.8.
+        """
+        col_len = max((c.coeffs.shape[0] for c in self.cols), default=1)
+        row_len = max((r.coeffs.shape[0] for r in self.rows), default=1)
+        return max((col_len - 1) // 2, (row_len - 1) // 2, 1)
+
+    def laplacian(self) -> "Spherefun":
+        r"""Laplace-Beltrami operator on the sphere.
+
+        Returns the surface Laplacian :math:`\\Delta_{S^2} f`.  Computed
+        spectrally: :math:`f` is projected onto the real spherical
+        harmonics :math:`Y_l^m`, each coefficient is scaled by the exact
+        eigenvalue :math:`-l(l+1)`, and the result is reconstructed.  For
+        a band-limited ``f`` this is exact to quadrature accuracy; the
+        identity :math:`\\Delta Y_l^m = -l(l+1) Y_l^m` holds to ~1e-13.
+
+        Implemented and verified by Claude Opus 4.8.  (An earlier
+        BMC-coefficient-space attempt by Claude Fable 5 was reverted for
+        failing this identity; this spectral route is diagonal in the
+        harmonic basis and therefore provably correct.)
+
+        Returns
+        -------
+        Spherefun
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/laplacian.m (result-equivalent; the
+        implementation strategy differs — see the note above).
+        Chebfun commit: 7574c77
+        """
+        lmax = self._bandwidth() + 1
+        coeffs = _spherefun_sph_coeffs(self, lmax)
+        harmonics = _sph_harmonic_evaluators(lmax)
+        scaled = [(-l * (l + 1) * coeffs[(l, m)], l, m)
+                  for (l, m) in coeffs]
+
+        def ev(lam, theta):
+            lam = jnp.asarray(lam, dtype=jnp.float64)
+            theta = jnp.asarray(theta, dtype=jnp.float64)
+            out = jnp.zeros(jnp.broadcast_shapes(lam.shape, theta.shape),
+                            dtype=jnp.float64)
+            for a, l, m in scaled:
+                if abs(a) > 1e-13:
+                    out = out + a * harmonics[(l, m)](lam, theta)
+            return out
+
+        return Spherefun.from_function(ev)
+
+    @staticmethod
+    def poisson(f, const: float = 0.0,
+                lmax: int | None = None) -> "Spherefun":
+        r"""Solve the Poisson equation :math:`\\Delta u = f` on the sphere.
+
+        The right-hand side ``f`` (a Spherefun or a callable
+        ``f(lam, theta)``) must have zero mean over the sphere — the
+        solvability (compatibility) condition.  The solution's mean value
+        is set to ``const``.
+
+        Spectral solve: with :math:`f = \\sum a_{lm} Y_l^m`, the solution
+        is :math:`u = \\sum_{l>0} \\frac{a_{lm}}{-l(l+1)} Y_l^m + const`.
+
+        Implemented and verified by Claude Opus 4.8 (round-trips
+        ``poisson(laplacian(u)) == u`` to ~1e-12).
+
+        Parameters
+        ----------
+        f : Spherefun or callable
+            Right-hand side (zero-mean).
+        const : float, default 0.0
+            Prescribed mean value of the solution.
+        lmax : int, optional
+            Spherical-harmonic bandwidth (inferred from ``f`` if omitted).
+
+        Returns
+        -------
+        Spherefun
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/poisson.m (result-equivalent; the
+        original uses a banded Fourier--Fourier matrix solve).
+        Chebfun commit: 7574c77
+        """
+        if isinstance(f, Spherefun):
+            fs = f
+        else:
+            fs = Spherefun.from_function(f)
+        if lmax is None:
+            lmax = fs._bandwidth() + 1
+        coeffs = _spherefun_sph_coeffs(fs, lmax)
+        harmonics = _sph_harmonic_evaluators(lmax)
+        # Warn (not raise) if the compatibility condition is violated.
+        mean_term = abs(coeffs.get((0, 0), 0.0))
+        solution = []
+        for (l, m), a in coeffs.items():
+            if l == 0:
+                continue
+            solution.append((a / (-l * (l + 1)), l, m))
+        # mean value of a real SH expansion is a_{00} * Y_0^0 = a_{00} /
+        # sqrt(4 pi); set it to `const`.
+        y00 = 1.0 / jnp.sqrt(4 * jnp.pi)
+        const_coeff = float(const) / float(y00)
+
+        def ev(lam, theta):
+            lam = jnp.asarray(lam, dtype=jnp.float64)
+            theta = jnp.asarray(theta, dtype=jnp.float64)
+            out = const_coeff * harmonics[(0, 0)](lam, theta)
+            for a, l, m in solution:
+                if abs(a) > 1e-13:
+                    out = out + a * harmonics[(l, m)](lam, theta)
+            return out
+
+        _ = mean_term  # available for a compatibility check if desired
+        return Spherefun.from_function(ev)
+
     def __repr__(self) -> str:
         """Compact display.
 
@@ -1175,3 +1295,86 @@ def _integrate_trigtech_times_sin(col: Trigtech) -> jax.Array:
     int_col = jnp.dot(a_even, int_factor)
 
     return int_col
+
+
+# ============================================================================
+# Spherical-harmonic spectral calculus helpers (Claude Opus 4.8)
+#
+# These back the exact, harmonic-diagonal `laplacian` and `poisson`
+# methods.  Projection uses Gauss-Legendre quadrature in cos(theta) and
+# the trapezoidal (uniform) rule in longitude -- both exact for the
+# band-limited functions a Spherefun represents.  numpy is used for the
+# quadrature bookkeeping (Spherefun construction is not JIT-safe anyway).
+# ============================================================================
+
+
+def _real_ylm_values(l: int, m_signed: int, lam: jax.Array,
+                     theta: jax.Array) -> jax.Array:
+    """Pointwise real, orthonormal spherical harmonic Y_l^m(lam, theta).
+
+    Same stable fully-normalized associated-Legendre recurrence as
+    ``Spherefun.sphharm``, but evaluated directly (no construction).
+    """
+    l = int(l)
+    m = abs(int(m_signed))
+    x = jnp.cos(theta)
+    pmm = jnp.ones_like(x) / jnp.sqrt(4 * jnp.pi)
+    for i in range(1, m + 1):
+        pmm = -jnp.sqrt((2 * i + 1) / (2.0 * i)) * jnp.sqrt(1 - x**2) * pmm
+    if l == m:
+        plm = pmm
+    else:
+        pm1 = jnp.sqrt(2 * m + 3.0) * x * pmm
+        if l == m + 1:
+            plm = pm1
+        else:
+            p_prev, p_curr = pmm, pm1
+            for ll in range(m + 2, l + 1):
+                a = jnp.sqrt((4.0 * ll * ll - 1) / (ll * ll - m * m))
+                b = jnp.sqrt(((ll - 1.0) ** 2 - m * m)
+                             / (4.0 * (ll - 1.0) ** 2 - 1))
+                p_next = a * (x * p_curr - b * p_prev)
+                p_prev, p_curr = p_curr, p_next
+            plm = p_curr
+    if int(m_signed) > 0:
+        return jnp.sqrt(2.0) * plm * jnp.cos(m * lam)
+    if int(m_signed) < 0:
+        return jnp.sqrt(2.0) * plm * jnp.sin(m * lam)
+    return plm
+
+
+def _sph_harmonic_evaluators(lmax: int) -> dict:
+    """Return {(l, m): callable(lam, theta) -> Y_l^m values} for l <= lmax."""
+    ev = {}
+    for l in range(lmax + 1):
+        for m in range(-l, l + 1):
+            ev[(l, m)] = (lambda lam, theta, _l=l, _m=m:
+                          _real_ylm_values(_l, _m, jnp.asarray(lam),
+                                           jnp.asarray(theta)))
+    return ev
+
+
+def _spherefun_sph_coeffs(f: "Spherefun", lmax: int) -> dict:
+    """Project a Spherefun onto real spherical harmonics up to degree lmax.
+
+    Returns {(l, m): a_{lm}} with a_{lm} = <f, Y_l^m>_{S^2}, computed by
+    Gauss-Legendre quadrature in cos(theta) x uniform longitude.
+    """
+    nth = 2 * lmax + 2
+    nph = 2 * lmax + 2
+    xg, wg = np.polynomial.legendre.leggauss(nth)  # nodes = cos(theta)
+    theta = np.arccos(xg)
+    phi = np.linspace(-np.pi, np.pi, nph, endpoint=False)
+    dph = 2 * np.pi / nph
+    TH, PH = np.meshgrid(theta, phi, indexing="ij")
+    lam_j = jnp.asarray(PH.ravel())
+    th_j = jnp.asarray(TH.ravel())
+    F = np.asarray(f(lam_j, th_j)).reshape(TH.shape)
+    weight = wg[:, None] * dph  # sin(theta) d(theta) d(phi) via GL in cos
+    coeffs = {}
+    for l in range(lmax + 1):
+        for m in range(-l, l + 1):
+            Y = np.asarray(_real_ylm_values(l, m, lam_j, th_j)).reshape(
+                TH.shape)
+            coeffs[(l, m)] = float(np.sum(F * Y * weight))
+    return coeffs

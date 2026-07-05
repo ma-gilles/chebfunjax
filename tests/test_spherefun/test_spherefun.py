@@ -238,3 +238,97 @@ class TestIntegration:
         integral = f.sum()
         expected = 8.0 * np.pi / 3.0
         npt.assert_allclose(float(integral), expected, rtol=1e-7, atol=1e-7)
+
+
+class TestSphericalCalculus:
+    """Spectral Laplacian / Poisson on the sphere (Claude Opus 4.8).
+
+    These use the exact harmonic identities as ground truth, so they
+    verify correctness independently of the implementation:
+      Delta Y_l^m = -l(l+1) Y_l^m,  and  poisson(laplacian(u)) == u.
+    """
+
+    _grid = (jnp.linspace(-3.0, 3.0, 11), jnp.linspace(0.15, 2.98, 11))
+
+    def _sample(self, f):
+        L, T = jnp.meshgrid(*self._grid)
+        return np.asarray(f(L.ravel(), T.ravel()))
+
+    def test_sphharm_matches_scipy(self):
+        from scipy.special import sph_harm_y
+        L, T = jnp.meshgrid(*self._grid)
+        lam = np.asarray(L.ravel())
+        th = np.asarray(T.ravel())
+        for l, m in [(2, 0), (4, 2), (5, -3)]:
+            got = np.asarray(Spherefun.sphharm(l, m)(L.ravel(), T.ravel()))
+            if m == 0:
+                sc = np.real(sph_harm_y(l, 0, th, lam))
+            elif m > 0:
+                sc = np.sqrt(2) * (-1) ** m * np.real(
+                    sph_harm_y(l, m, th, lam))
+            else:
+                sc = np.sqrt(2) * (-1) ** abs(m) * np.imag(
+                    sph_harm_y(l, abs(m), th, lam))
+            mask = np.abs(sc) > 1e-3
+            # equal up to a global sign convention
+            ratio = got[mask] / sc[mask]
+            assert np.std(ratio) < 1e-10
+            assert abs(abs(np.mean(ratio)) - 1.0) < 1e-8
+
+    def test_laplacian_eigenvalue_identity(self):
+        """Delta Y_l^m = -l(l+1) Y_l^m to machine precision."""
+        for l, m in [(1, 0), (2, 1), (3, -2), (4, 2), (6, 3)]:
+            Y = Spherefun.sphharm(l, m)
+            got = self._sample(Y.laplacian())
+            want = -l * (l + 1) * self._sample(Y)
+            npt.assert_allclose(got, want, atol=1e-11)
+
+    def test_laplacian_linear_combination(self):
+        Y31 = Spherefun.sphharm(3, 1)
+        Y42 = Spherefun.sphharm(4, -2)
+        f = Spherefun.from_function(
+            lambda lam, th: Y31(lam, th) + 0.5 * Y42(lam, th))
+        got = self._sample(f.laplacian())
+        want = -12 * self._sample(Y31) - 0.5 * 20 * self._sample(Y42)
+        npt.assert_allclose(got, want, atol=1e-10)
+
+    def test_poisson_round_trip(self):
+        """poisson(laplacian(u), const=0) recovers a zero-mean u."""
+        Y31 = Spherefun.sphharm(3, 1)
+        Y42 = Spherefun.sphharm(4, -2)
+        u = Spherefun.from_function(
+            lambda lam, th: Y31(lam, th) + 0.5 * Y42(lam, th))
+        usol = Spherefun.poisson(u.laplacian(), const=0.0)
+        npt.assert_allclose(self._sample(usol), self._sample(u),
+                            atol=1e-11)
+
+    def test_poisson_matlab_reference(self):
+        """The example from MATLAB @spherefun/poisson.m docstring."""
+        def f(lam, th):
+            lam = jnp.asarray(lam)
+            th = jnp.asarray(th)
+            return -6 * (-1 + 5 * jnp.cos(2 * th)) * jnp.sin(lam) \
+                * jnp.sin(2 * th)
+
+        def exact(lam, th):
+            lam = np.asarray(lam)
+            th = np.asarray(th)
+            return (-2 * np.sin(lam) * np.sin(2 * th) * np.sin(th) ** 2
+                    - np.sin(lam) * np.sin(th) * np.cos(th)
+                    + 0.5 * np.sin(lam) * np.sin(2 * th) * np.cos(2 * th))
+
+        usol = Spherefun.poisson(f, const=0.0, lmax=8)
+        L, T = jnp.meshgrid(*self._grid)
+        got = np.asarray(usol(L.ravel(), T.ravel()))
+        want = exact(np.asarray(L.ravel()), np.asarray(T.ravel()))
+        # match up to the additive mean (const was set to 0, not the
+        # exact solution's mean)
+        npt.assert_allclose(got - got.mean(), want - want.mean(),
+                            atol=1e-10)
+
+    def test_mean(self):
+        """mean() of a nonzero-degree harmonic is ~0; of a constant is it."""
+        Y42 = Spherefun.sphharm(4, 2)
+        assert abs(float(Y42.mean())) < 1e-8
+        c = Spherefun.from_function(lambda lam, th: jnp.full_like(lam, 2.5))
+        npt.assert_allclose(float(c.mean()), 2.5, atol=1e-8)
