@@ -54,6 +54,25 @@ the values toward zero.
 ## Code
 
 ```python
-from examples.geom.rounding_corners import run
-run()
+import numpy as np
+
+def f(t):
+    return 3 * np.minimum(np.abs(t + 0.4), np.abs(t - 0.3))
+
+h = 0.1
+s = np.linspace(-h, h, 601)
+w = (h - np.abs(s)) / h**2          # triangular mollifier, integral 1
+print(f"mollifier mass = {np.trapezoid(w, s):.6f}")
 ```
+
+## Figures (chebfun.org parity)
+
+![A piecewise-linear function](../../images/geom/RoundingCorners_01.png)
+
+![The mollifier](../../images/geom/RoundingCorners_02.png)
+
+![The convolution f*g](../../images/geom/RoundingCorners_03.png)
+
+![A sharper mollifier](../../images/geom/RoundingCorners_04.png)
+
+![Zoom near a corner](../../images/geom/RoundingCorners_05.png)

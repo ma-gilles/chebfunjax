@@ -59,6 +59,25 @@ is actually closer in shape to a frisbee than to its own reflection!
 ## Code
 
 ```python
-from examples.geom.procrustes import run
-run()
+import numpy as np
+
+t = np.linspace(0, 2 * np.pi, 400)
+f = 3 * (1.5 * np.cos(t) + 1j * np.sin(t))                    # frisbee
+g = np.exp(1j * np.pi / 3) * (1 + np.cos(t) + 1.5j * np.sin(t)
+    + 0.125 * (1 + 1.5j) * np.sin(3 * t) ** 2)                # pebble
+F = np.column_stack([np.real(f - f.mean()), np.imag(f - f.mean())])
+G = np.column_stack([np.real(g - g.mean()), np.imag(g - g.mean())])
+U, S, Vt = np.linalg.svd(F.T @ G)
+print("optimal rotation:")
+print(U @ Vt)
 ```
+
+## Figures (chebfun.org parity)
+
+![Shape alignment, panel 1](../../images/geom/Procrustes_01.png)
+
+![Shape alignment, panel 2](../../images/geom/Procrustes_02.png)
+
+![Shape alignment, panel 3](../../images/geom/Procrustes_03.png)
+
+![Shape alignment, panel 4](../../images/geom/Procrustes_04.png)

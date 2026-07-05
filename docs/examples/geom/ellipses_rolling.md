@@ -54,6 +54,23 @@ a full revolution).
 ## Code
 
 ```python
-from examples.geom.ellipses_rolling import run
-run()
+import numpy as np
+from scipy.integrate import solve_ivp
+
+L1 = 3.0
+def ode(t, y):
+    th = np.arctan2(y[1], y[0] / L1)
+    sp = np.sqrt(L1**2 * np.sin(th)**2 + np.cos(th)**2)
+    return [-L1 * np.sin(th) / sp, np.cos(th) / sp]
+
+sol = solve_ivp(ode, [0, 12], [L1, 0.0], rtol=1e-10, atol=1e-12)
+print(f"unit-speed point after t=12: ({sol.y[0][-1]:.4f}, {sol.y[1][-1]:.4f})")
 ```
+
+## Figures (chebfun.org parity)
+
+![The envelope curve w(t)](../../images/geom/Ellipses_01.png)
+
+![The rolling-ellipse family](../../images/geom/Ellipses_02.png)
+
+![A single snapshot](../../images/geom/Ellipses_03.png)

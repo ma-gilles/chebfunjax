@@ -46,6 +46,19 @@ box, while $d = 1/2$ shifts the vertical oscillation by a quarter-period.
 ## Code
 
 ```python
-from examples.geom.lissajous import run
-run()
+import numpy as np
+import jax.numpy as jnp
+import chebfunjax as cj
+
+f = cj.chebfun(lambda t: jnp.sin(5 * t) + 1j * jnp.sin(6 * t),
+               domain=[0.0, 2 * np.pi], trig=True)
+print(len(f))   # compact Fourier representation of the curve
 ```
+
+## Figures (chebfun.org parity)
+
+![A classic Lissajous curve](../../images/geom/Lissajous_01.png)
+
+![Six random Lissajous curves](../../images/geom/Lissajous_02.png)
+
+![Two curves in 3D](../../images/geom/Lissajous_03.png)

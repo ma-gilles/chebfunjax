@@ -69,6 +69,22 @@ placed on a vertical needle centered at the centroid.
 ## Code
 
 ```python
-from examples.geom.area_centroid import run
-run()
+import numpy as np
+import jax.numpy as jnp
+import chebfunjax as cj
+
+z = cj.chebfun(lambda s: jnp.exp(1j * s) + (1 + 1j) * jnp.sin(6 * s) ** 2,
+               domain=[0.0, 2 * np.pi], trig=True)
+dz = z.diff()
+A = complex((cj.chebfun(lambda s: jnp.conj(z(s)) * dz(s),
+                        domain=[0.0, 2 * np.pi], trig=True)).sum()) / 2j
+print(f"area = {A.real:.6f}")   # pi + area of the petals
 ```
+
+## Figures (chebfun.org parity)
+
+![The unit disk](../../images/geom/Area_01.png)
+
+![A flower-like region](../../images/geom/Area_02.png)
+
+![Centroid from contour integrals](../../images/geom/Area_03.png)

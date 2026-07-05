@@ -55,6 +55,18 @@ polynomial chebfuns.
 ## Code
 
 ```python
-from examples.geom.rose_curves import run
-run()
+import numpy as np
+
+def rose(m, n, ts):
+    return np.cos(m / n * ts) * np.exp(1j * ts)
+
+ts = np.linspace(0, 24 * np.pi, 4000)
+z = rose(3, 5, ts)
+print(f"curve closes: {abs(z[0] - z[-1]) < 1e-9}")
 ```
+
+## Figures (chebfun.org parity)
+
+![A 6x6 grid of rose curves](../../images/geom/RoseCurves_01.png)
+
+![A 12x12 grid](../../images/geom/RoseCurves_02.png)

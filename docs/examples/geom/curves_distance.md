@@ -44,6 +44,23 @@ points on each curve and draw a line segment between them.
 ## Code
 
 ```python
-from examples.geom.curves_distance import run
-run()
+import numpy as np
+
+ts = np.linspace(-1, 1, 900)
+rng1, rng2 = np.random.default_rng(11), np.random.default_rng(23)
+def randfun(r):
+    return sum(a * np.cos(np.pi * k * ts) + b * np.sin(np.pi * k * ts)
+               for k, (a, b) in enumerate(r.standard_normal((5, 2)))) / np.sqrt(5)
+f = 1j * ts + 0.2 * randfun(rng1) - 1
+g = -1j * ts + 0.2 * randfun(rng2) + 1
+D = np.abs(f[:, None] - g[None, :])
+print(f"minimum distance = {D.min():.4f}")
 ```
+
+## Figures (chebfun.org parity)
+
+![Two random curves](../../images/geom/Curves_01.png)
+
+![Nearest points](../../images/geom/Curves_02.png)
+
+![Minimum distance annotated](../../images/geom/Curves_03.png)
