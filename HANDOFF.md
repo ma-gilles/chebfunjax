@@ -227,9 +227,14 @@ lost):
   collocation instead.
 
 ### 4.2 Library backlog (from the task board)
-- **#9** `Chebfun.diff()` drops delta functions at jumps.
-- **#10** `legpts` is O(n²) Golub–Welsch; MATLAB is O(n). Blocks
-  quadrature-convergence pages at n = 65536 (they were capped at 2^12).
+- **#9** `Chebfun.diff()` — delta at jumps: `sum(diff(f))` already
+  returns the correct jump contribution, but the delta is not stored in
+  the returned pieces (subtle; partially working — not yet fully wired
+  through `Deltafun`).
+- **#10 — DONE (Opus 4.8, commit `6e92ad1`).** `legpts` now uses an
+  O(n)-memory vectorized-Newton path above n=200 (Golub–Welsch below),
+  matching it to ~1e-13; n=65536 computes in ~6.5 s (was a ~34 GB
+  hang). Unblocks the quadrature-convergence pages capped at 2^12.
 - **#11** Wire preferences (eps, max_length, domain) into the
   constructor.
 - **#12** No splitting-on / edge detection (piecewise auto-construction).
