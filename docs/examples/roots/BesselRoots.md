@@ -24,6 +24,13 @@ print(f"Number of roots: {len(r)}")
 print(f"First few: {r[:5]}")
 ```
 
+![J0 on [0, 100]](../../images/roots/BesselRoots_01.png)
+
+All the roots in the interval come from a single `roots()` call, marked
+in red:
+
+![Roots of J0](../../images/roots/BesselRoots_02.png)
+
 ## Comparison with scipy
 
 The roots agree with `scipy.special.jn_zeros` to machine precision:
