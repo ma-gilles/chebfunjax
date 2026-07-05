@@ -114,8 +114,6 @@ def secularroots():
             val = val + 1.0 / (p_ - x)
         return val
 
-    bps = [-5.0] + [p_ + s for p_ in poles for s in (-1e-8, 1e-8)] + [10.0]
-    bps = sorted(set([-5.0, 10.0] + poles))
     # piecewise between the poles (open intervals; nudge breakpoints)
     # keep a small standoff from the poles: the plot clips at +-20
     # anyway, and endpoint gradients ~1/delta stall the constructor
@@ -265,11 +263,13 @@ def whitecurves():
     xs = np.linspace(-1, 1, 1500)
 
     def T(j):
-        c = np.zeros(j + 1); c[j] = 1.0
+        c = np.zeros(j + 1)
+        c[j] = 1.0
         return npcheb.chebval(xs, c)
 
     def L(j):
-        c = np.zeros(j + 1); c[j] = 1.0
+        c = np.zeros(j + 1)
+        c[j] = 1.0
         return npleg.legval(xs, c)
 
     fig, ax = plt.subplots()
