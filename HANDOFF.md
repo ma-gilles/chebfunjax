@@ -136,6 +136,13 @@ own merits regardless of author:
 | **Found** `from_function` mixed-order bug + xfail test | `ea2598a` | `Y_2^{-1}+Y_4^{-3}` eval err 0.24 |
 | **Fixed** `from_function` (coarse-grid false-convergence) | `8a3a16b` | reconstruct 5.5e-16; MATLAB-faithful |
 | `Spherefun.diff` + `grad` (spectral tangential) | `154d062` | vs analytic 8e-15; `div(grad)=Δ` 2e-14 |
+| 13 MATLAB golden-ref files (trigtech…chebtech1) | various | all 1e-8…1e-13 vs MATLAB R2025b |
+| **Fixed** same coarse-grid bug in `diskfun` constructor | `befbd42` | mixed-order reconstruct 5.5e-16 |
+| **New:** `Diskfun.diffx/diffy/laplacian` (disk calculus) | `0c1089d` | harmonic polys + MATLAB, 1e-8…1e-11 |
+| **New:** `Diskfunv.div/curl` | `ffec366` | exact identities, 1e-9 |
+| **New:** `Diskfun.poisson` (fast disk Poisson solver) | `2b96af3` | manufactured 1e-14 + MATLAB 1e-8 |
+| `Spherefun.poisson` vs MATLAB fast solver | `763f857` | 4e-15 |
+| `cheb.gallery` `si` (sine integral) | `32c2abc` | vs scipy 4e-15 |
 
 Guiding rule Opus followed: **never ship spectral math that fails its
 exact-identity test** — quarantine it (as with Fable's `diff`) and say
