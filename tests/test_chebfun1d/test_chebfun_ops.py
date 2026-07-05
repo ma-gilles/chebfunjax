@@ -1024,3 +1024,29 @@ class TestConstructorPreferences:
         np.testing.assert_allclose(
             np.asarray(f(jnp.asarray(xs))),
             np.exp(xs) * np.sin(20 * xs), atol=1e-12)
+
+
+class TestComplexRoots:
+    """roots(complex_roots=True) returns real + complex roots (Opus 4.8, #14)."""
+
+    def test_no_real_roots(self):
+        import numpy as np
+
+        import chebfunjax as cj
+        f = cj.chebfun(lambda x: x ** 2 + 1.0)
+        assert len(np.asarray(f.roots())) == 0
+        cr = np.sort_complex(np.asarray(f.roots(complex_roots=True)))
+        np.testing.assert_allclose(np.sort(cr.imag), [-1.0, 1.0], atol=1e-8)
+        np.testing.assert_allclose(cr.real, [0.0, 0.0], atol=1e-8)
+
+    def test_mixed_real_and_complex(self):
+        import numpy as np
+
+        import chebfunjax as cj
+        g = cj.chebfun(lambda x: (x - 0.3) * (x ** 2 + 0.25))
+        np.testing.assert_allclose(np.asarray(g.roots()), [0.3], atol=1e-8)
+        cr = np.asarray(g.roots(complex_roots=True))
+        # contains the real root 0.3 and the pair +-0.5i
+        assert np.any(np.abs(cr - 0.3) < 1e-6)
+        assert np.any(np.abs(cr - 0.5j) < 1e-6)
+        assert np.any(np.abs(cr + 0.5j) < 1e-6)

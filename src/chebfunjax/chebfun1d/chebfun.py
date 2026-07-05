@@ -1572,8 +1572,13 @@ class Chebfun(eqx.Module):
     # Rootfinding and extrema
     # ------------------------------------------------------------------
 
-    def roots(self) -> jax.Array:
+    def roots(self, complex_roots: bool = False) -> jax.Array:
         """All roots of the Chebfun in its domain.
+
+        With ``complex_roots=True`` returns *all* roots of the Chebyshev
+        series of each piece (real and complex, mapped to the physical
+        interval), like MATLAB's ``roots(f, 'complex')`` — added by
+        Claude Opus 4.8 (task #14).
 
         Collects roots from each piece, sorts them, and deduplicates roots
         that are very close to each other (e.g. a root at a breakpoint may
@@ -1592,6 +1597,20 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         import numpy as _np
+
+        if complex_roots:
+            croots = []
+            for piece in self.funs:
+                a, b = piece.interval
+                c = _np.asarray(piece.tech.coeffs, dtype=complex)
+                if c.size < 2:
+                    continue
+                t = _np.polynomial.chebyshev.chebroots(c)
+                # map reference [-1,1] -> physical [a, b]
+                croots.append(0.5 * (b - a) * t + 0.5 * (a + b))
+            if not croots:
+                return jnp.array([], dtype=jnp.complex128)
+            return jnp.asarray(_np.concatenate(croots), dtype=jnp.complex128)
 
         all_roots = []
         for piece in self.funs:
