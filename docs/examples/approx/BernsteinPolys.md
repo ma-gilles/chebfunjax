@@ -37,3 +37,18 @@ points for $e^x$.
 
 ![Bernstein Polynomials](../../images/approx/BernsteinPolys.png)
 
+## Figures (chebfun.org parity)
+
+![BernsteinPolys figure 1](../../images/approx/BernsteinPolys_01.png)
+
+![BernsteinPolys figure 2](../../images/approx/BernsteinPolys_02.png)
+
+![BernsteinPolys figure 3](../../images/approx/BernsteinPolys_03.png)
+
+![BernsteinPolys figure 4](../../images/approx/BernsteinPolys_04.png)
+
+![BernsteinPolys figure 5](../../images/approx/BernsteinPolys_05.png)
+
+![BernsteinPolys figure 6](../../images/approx/BernsteinPolys_06.png)
+
+![BernsteinPolys figure 7](../../images/approx/BernsteinPolys_07.png)

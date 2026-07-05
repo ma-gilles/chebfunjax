@@ -26,9 +26,24 @@ r, pol, *_ = aaa(ys, xs)
 print(f"AAA type: ({len(pol)-1}, {len(pol)-1})")
 
 test = np.linspace(delta, 1.0, 500)
-err = np.max(np.abs([float(r(jnp.array(x))) for x in test] - test**(1/p)))
+err = np.max(np.abs(np.real(r(test)) - test**(1/p)))
 print(f"Max error: {err:.2e}")
 ```
 
 ![Approximating the pth Root by Composite Rational Functions](../../images/approx/PthComposite.png)
 
+## Figures (chebfun.org parity)
+
+![PthComposite figure 1](../../images/approx/PthComposite_01.png)
+
+![PthComposite figure 2](../../images/approx/PthComposite_02.png)
+
+![PthComposite figure 3](../../images/approx/PthComposite_03.png)
+
+![PthComposite figure 4](../../images/approx/PthComposite_04.png)
+
+![PthComposite figure 5](../../images/approx/PthComposite_05.png)
+
+![PthComposite figure 6](../../images/approx/PthComposite_06.png)
+
+![PthComposite figure 7](../../images/approx/PthComposite_07.png)

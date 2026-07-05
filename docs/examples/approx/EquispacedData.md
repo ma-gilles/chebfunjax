@@ -33,3 +33,18 @@ print(f"Chebfun length: {len(f_exact)}")
 
 ![Chebfuns from Equispaced Data](../../images/approx/EquispacedData.png)
 
+## Figures (chebfun.org parity)
+
+![EquispacedData figure 1](../../images/approx/EquispacedData_01.png)
+
+![EquispacedData figure 2](../../images/approx/EquispacedData_02.png)
+
+![EquispacedData figure 3](../../images/approx/EquispacedData_03.png)
+
+![EquispacedData figure 4](../../images/approx/EquispacedData_04.png)
+
+![EquispacedData figure 5](../../images/approx/EquispacedData_05.png)
+
+![EquispacedData figure 6](../../images/approx/EquispacedData_06.png)
+
+![EquispacedData figure 7](../../images/approx/EquispacedData_07.png)

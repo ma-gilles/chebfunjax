@@ -27,3 +27,18 @@ print(f"deg-50 max err: {err50:.3f}")
 
 ![Resolution of Wiggly Functions](../../images/approx/ResolutionWiggly.png)
 
+## Figures (chebfun.org parity)
+
+![ResolutionWiggly figure 1](../../images/approx/ResolutionWiggly_01.png)
+
+![ResolutionWiggly figure 2](../../images/approx/ResolutionWiggly_02.png)
+
+![ResolutionWiggly figure 3](../../images/approx/ResolutionWiggly_03.png)
+
+![ResolutionWiggly figure 4](../../images/approx/ResolutionWiggly_04.png)
+
+![ResolutionWiggly figure 5](../../images/approx/ResolutionWiggly_05.png)
+
+![ResolutionWiggly figure 6](../../images/approx/ResolutionWiggly_06.png)
+
+![ResolutionWiggly figure 7](../../images/approx/ResolutionWiggly_07.png)
