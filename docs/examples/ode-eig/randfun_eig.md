@@ -25,3 +25,15 @@ assert np.mean(np.abs(eigs) <= 1.1) > 0.95
 
 
 ![Eigenvalues of random operators](../../images/ode-eig/randfun_eig.png)
+
+## Figures (chebfun.org parity)
+
+![Randfuneig figure 1](../../images/ode-eig/Randfuneig_01.png)
+
+![Randfuneig figure 2](../../images/ode-eig/Randfuneig_02.png)
+
+![Randfuneig figure 3](../../images/ode-eig/Randfuneig_03.png)
+
+![Randfuneig figure 4](../../images/ode-eig/Randfuneig_04.png)
+
+![Randfuneig figure 5](../../images/ode-eig/Randfuneig_05.png)

@@ -15,14 +15,33 @@ $$-\frac{\hbar^2}{2m(x)} \psi'' + U(x) \psi = E \psi$$
 The bound states (E < 0) are the allowed energy levels for electron transport.
 
 ```python
-from chebfunjax.operators.chebop import Chebop
+import numpy as np
+import scipy.linalg as sla
 
-L = Chebop(
-    lambda x, u: -hbar2_over_2m * u.diff(2) + U_func(x) * u,
-    domain=(0.0, total_width))
-L.lbc = 0.0; L.rbc = 0.0
-energies = L.eigs(k=4)  # 4 bound states for 4 wells
+# four quantum wells of depth 50 separated by barriers
+numwell, depth = 4, 50.0
+L = 1.5 * (numwell - 1) + 1.0
+n = 1500
+xs = np.linspace(0, L, n + 2)[1:-1]
+dx = xs[1] - xs[0]
+V = np.zeros_like(xs)
+for k in range(numwell):
+    a = 1.5 * k
+    V = np.where((xs >= a) & (xs < a + 1.0), -depth, V)
+evals, _ = sla.eigh_tridiagonal(2/dx**2 + V, -np.ones(n-1)/dx**2,
+                                select="i", select_range=(0, 3))
+print("lowest energies:", np.round(evals, 3))
 ```
 
 
 ![Model of a quantum dot array for solar energy](../../images/ode-eig/solar_qda.png)
+
+## Figures (chebfun.org parity)
+
+![SolarQDA figure 1](../../images/ode-eig/SolarQDA_01.png)
+
+![SolarQDA figure 2](../../images/ode-eig/SolarQDA_02.png)
+
+![SolarQDA figure 3](../../images/ode-eig/SolarQDA_03.png)
+
+![SolarQDA figure 4](../../images/ode-eig/SolarQDA_04.png)

@@ -27,3 +27,19 @@ sol_linear = L2.solve(0.0)  # should be u = x
 
 
 ![The nullspace of a linear differential operator](../../images/ode-eig/null_space.png)
+
+## Figures (chebfun.org parity)
+
+![NullSpace figure 1](../../images/ode-eig/NullSpace_01.png)
+
+![NullSpace figure 2](../../images/ode-eig/NullSpace_02.png)
+
+![NullSpace figure 3](../../images/ode-eig/NullSpace_03.png)
+
+![NullSpace figure 4](../../images/ode-eig/NullSpace_04.png)
+
+![NullSpace figure 5](../../images/ode-eig/NullSpace_05.png)
+
+![NullSpace figure 6](../../images/ode-eig/NullSpace_06.png)
+
+![NullSpace figure 7](../../images/ode-eig/NullSpace_07.png)

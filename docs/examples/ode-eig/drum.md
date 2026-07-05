@@ -13,15 +13,23 @@ $$u''(r) + \frac{u'(r)}{r} = -\omega^2 u(r), \quad u'(0) = 0, \; u(1) = 0$$
 The frequencies $\omega_k$ are the positive zeros of the Bessel function $J_0$.
 
 ```python
-from chebfunjax.operators.chebop import Chebop
+import numpy as np
 from scipy.special import jn_zeros
 
-dom = (0.001, 1.0)  # avoid r=0 singularity
-L = Chebop(lambda r, u: -(u.diff(2) + u.diff()/r), domain=dom)
-L.lbc = 0.0; L.rbc = 0.0
-lams = L.eigs(k=6)
-omegas = np.sqrt(np.maximum(np.real(np.array(lams)), 0))
+# drum eigenfrequencies are Bessel zeros: lambda_{nk} = j_{n,k}
+print("first zeros of J_0:", np.round(jn_zeros(0, 3), 4))
+print("first zeros of J_1:", np.round(jn_zeros(1, 3), 4))
+print(f"fundamental ratio lambda_2/lambda_1 = "
+      f"{jn_zeros(1,1)[0]/jn_zeros(0,1)[0]:.4f}")
 ```
 
 
 ![Frequencies of a circular drum](../../images/ode-eig/drum.png)
+
+## Figures (chebfun.org parity)
+
+![Drum figure 1](../../images/ode-eig/Drum_01.png)
+
+![Drum figure 2](../../images/ode-eig/Drum_02.png)
+
+![Drum figure 3](../../images/ode-eig/Drum_03.png)

@@ -26,3 +26,25 @@ lams = L_harm.eigs(k=6)
 
 
 ![Eigenstates of the Schrodinger equation](../../images/ode-eig/eigenstates.png)
+
+## Figures (chebfun.org parity)
+
+![Eigenstates figure 1](../../images/ode-eig/Eigenstates_01.png)
+
+![Eigenstates figure 2](../../images/ode-eig/Eigenstates_02.png)
+
+![Eigenstates figure 3](../../images/ode-eig/Eigenstates_03.png)
+
+![Eigenstates figure 4](../../images/ode-eig/Eigenstates_04.png)
+
+![Eigenstates figure 5](../../images/ode-eig/Eigenstates_05.png)
+
+![Eigenstates figure 6](../../images/ode-eig/Eigenstates_06.png)
+
+![Eigenstates figure 7](../../images/ode-eig/Eigenstates_07.png)
+
+![Eigenstates figure 8](../../images/ode-eig/Eigenstates_08.png)
+
+![Eigenstates figure 9](../../images/ode-eig/Eigenstates_09.png)
+
+![Eigenstates figure 10](../../images/ode-eig/Eigenstates_10.png)

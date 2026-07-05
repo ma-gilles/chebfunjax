@@ -46,3 +46,11 @@ $$\psi_L = \frac{\psi_0 + \psi_1}{\sqrt{2}}, \quad \psi_R = \frac{\psi_0 - \psi_
 ## References
 
 1. R. Shankar, *Principles of Quantum Mechanics*, 2nd ed., Plenum, 1994.
+
+## Figures (chebfun.org parity)
+
+![DoubleWell figure 1](../../images/ode-eig/DoubleWell_01.png)
+
+![DoubleWell figure 2](../../images/ode-eig/DoubleWell_02.png)
+
+![DoubleWell figure 3](../../images/ode-eig/DoubleWell_03.png)
