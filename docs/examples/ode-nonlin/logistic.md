@@ -25,3 +25,19 @@ for i in range(50):
 
 
 ![Logistic map and chaos](../../images/ode-nonlin/logistic.png)
+
+## Figures (chebfun.org parity)
+
+![Logistic figure 1](../../images/ode-nonlin/Logistic_01.png)
+
+![Logistic figure 2](../../images/ode-nonlin/Logistic_02.png)
+
+![Logistic figure 3](../../images/ode-nonlin/Logistic_03.png)
+
+![Logistic figure 4](../../images/ode-nonlin/Logistic_04.png)
+
+![Logistic figure 5](../../images/ode-nonlin/Logistic_05.png)
+
+![Logistic figure 6](../../images/ode-nonlin/Logistic_06.png)
+
+![Logistic figure 7](../../images/ode-nonlin/Logistic_07.png)

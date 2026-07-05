@@ -25,3 +25,21 @@ for eps in [0.3, 0.1, 0.05, 0.02]:
 
 
 ![An Allen-Cahn equation with continuation](../../images/ode-nonlin/allen_cahn.png)
+
+## Figures (chebfun.org parity)
+
+![AllenCahn figure 1](../../images/ode-nonlin/AllenCahn_01.png)
+
+![AllenCahn figure 2](../../images/ode-nonlin/AllenCahn_02.png)
+
+![AllenCahn figure 3](../../images/ode-nonlin/AllenCahn_03.png)
+
+![AllenCahn figure 4](../../images/ode-nonlin/AllenCahn_04.png)
+
+![AllenCahn figure 5](../../images/ode-nonlin/AllenCahn_05.png)
+
+![AllenCahn figure 6](../../images/ode-nonlin/AllenCahn_06.png)
+
+![AllenCahn figure 7](../../images/ode-nonlin/AllenCahn_07.png)
+
+![AllenCahn figure 8](../../images/ode-nonlin/AllenCahn_08.png)

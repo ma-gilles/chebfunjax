@@ -24,3 +24,15 @@ sol = solve_ivp(van_der_pol, [0, 20], [2, 0], rtol=1e-8)
 
 
 ![Phase portraits with chebop/quiver](../../images/ode-nonlin/chebop_quiver.png)
+
+## Figures (chebfun.org parity)
+
+![ChebopQuiver figure 1](../../images/ode-nonlin/ChebopQuiver_01.png)
+
+![ChebopQuiver figure 2](../../images/ode-nonlin/ChebopQuiver_02.png)
+
+![ChebopQuiver figure 3](../../images/ode-nonlin/ChebopQuiver_03.png)
+
+![ChebopQuiver figure 4](../../images/ode-nonlin/ChebopQuiver_04.png)
+
+![ChebopQuiver figure 5](../../images/ode-nonlin/ChebopQuiver_05.png)

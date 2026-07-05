@@ -28,3 +28,53 @@ for i in range(1, len(t_arr)):
 
 
 ![Delay differential equations in Chebfun](../../images/ode-nonlin/delay_odes.png)
+
+## Figures (chebfun.org parity)
+
+![DelayDifferentialEquations figure 1](../../images/ode-nonlin/DelayDifferentialEquations_01.png)
+
+![DelayDifferentialEquations figure 2](../../images/ode-nonlin/DelayDifferentialEquations_02.png)
+
+![DelayDifferentialEquations figure 3](../../images/ode-nonlin/DelayDifferentialEquations_03.png)
+
+![DelayDifferentialEquations figure 4](../../images/ode-nonlin/DelayDifferentialEquations_04.png)
+
+![DelayDifferentialEquations figure 5](../../images/ode-nonlin/DelayDifferentialEquations_05.png)
+
+![DelayDifferentialEquations figure 6](../../images/ode-nonlin/DelayDifferentialEquations_06.png)
+
+![DelayDifferentialEquations figure 7](../../images/ode-nonlin/DelayDifferentialEquations_07.png)
+
+![DelayDifferentialEquations figure 8](../../images/ode-nonlin/DelayDifferentialEquations_08.png)
+
+![DelayDifferentialEquations figure 9](../../images/ode-nonlin/DelayDifferentialEquations_09.png)
+
+![DelayDifferentialEquations figure 10](../../images/ode-nonlin/DelayDifferentialEquations_10.png)
+
+![DelayDifferentialEquations figure 11](../../images/ode-nonlin/DelayDifferentialEquations_11.png)
+
+![DelayDifferentialEquations figure 12](../../images/ode-nonlin/DelayDifferentialEquations_12.png)
+
+![DelayDifferentialEquations figure 13](../../images/ode-nonlin/DelayDifferentialEquations_13.png)
+
+![DelayDifferentialEquations figure 14](../../images/ode-nonlin/DelayDifferentialEquations_14.png)
+
+![DelayDifferentialEquations figure 15](../../images/ode-nonlin/DelayDifferentialEquations_15.png)
+
+![DelayDifferentialEquations figure 16](../../images/ode-nonlin/DelayDifferentialEquations_16.png)
+
+![DelayDifferentialEquations figure 17](../../images/ode-nonlin/DelayDifferentialEquations_17.png)
+
+![DelayDifferentialEquations figure 18](../../images/ode-nonlin/DelayDifferentialEquations_18.png)
+
+![DelayDifferentialEquations figure 19](../../images/ode-nonlin/DelayDifferentialEquations_19.png)
+
+![DelayDifferentialEquations figure 20](../../images/ode-nonlin/DelayDifferentialEquations_20.png)
+
+![DelayDifferentialEquations figure 21](../../images/ode-nonlin/DelayDifferentialEquations_21.png)
+
+![DelayDifferentialEquations figure 22](../../images/ode-nonlin/DelayDifferentialEquations_22.png)
+
+![DelayDifferentialEquations figure 23](../../images/ode-nonlin/DelayDifferentialEquations_23.png)
+
+![DelayDifferentialEquations figure 24](../../images/ode-nonlin/DelayDifferentialEquations_24.png)
