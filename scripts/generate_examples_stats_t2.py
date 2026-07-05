@@ -59,50 +59,81 @@ def randnfun_np(lam, dom, seed):
 
 
 def uniformexercises():
-    """stats/UniformExercises — areas under transformed uniforms."""
-    # X uniform on [1, 2]; various transformed densities as area plots
-    def area_plot(xs, ys, color, xlim, ylim, name, overlay=True):
-        fig, ax = plt.subplots()
-        ax.fill_between(xs, 0, ys, color=color)
-        if overlay:
-            ax.plot(xs, ys, "k", linewidth=1.2)
-        ax.set_xlim(*xlim)
-        ax.set_ylim(*ylim)
-        save(fig, name)
+    """stats/UniformExercises — the original exercise panels."""
+    # 1: uniform on [1, 2], area over [a, 2], purple
+    xs = np.linspace(1, 2, 400)
+    a = 1.4
+    fig, ax = plt.subplots()
+    m = xs >= a
+    ax.fill_between(xs[m], 0, np.ones_like(xs[m]),
+                    color=(0.3, 0.2, 0.5))
+    ax.plot(xs, np.ones_like(xs), "k", linewidth=2)
+    ax.set_xlim(1, 2)
+    ax.set_ylim(0, 2)
+    ax.grid(True, alpha=0.4, linewidth=0.4)
+    save(fig, "UniformExercises_01.png")
 
-    # 1: density of X^2 for X ~ U[1,2]: f(y) = 1/(2 sqrt(y)) on [1,4]
-    xs = np.linspace(1, 2, 800)
-    area_plot(xs, np.where((xs >= 1) & (xs <= 2), 2.0 / (2 * np.sqrt(
-        np.linspace(1, 4, 800))), 0) * 0 + 1.0 / (2 * np.sqrt(
-            np.linspace(1, 4, 800))) * 2,
-        (0.3, 0.2, 0.5), (1, 2), (0, 2), "UniformExercises_01.png")
+    # 2: uniform on [a, b] = [-2, 2], area over [a, 0], rust
+    a2, b2 = -2.0, 2.0
+    xs2 = np.linspace(a2, b2, 400)
+    dens = np.full_like(xs2, 1 / (b2 - a2))
+    fig, ax = plt.subplots()
+    m2 = xs2 <= 0
+    ax.fill_between(xs2[m2], 0, dens[m2], color=(0.75, 0.3, 0.2))
+    ax.plot(xs2, dens, "k", linewidth=1.6)
+    ax.set_xlim(a2, b2)
+    ax.set_ylim(0, 0.5)
+    ax.grid(True, alpha=0.4, linewidth=0.4)
+    save(fig, "UniformExercises_02.png")
 
-    # 2: density of X + Y for X, Y ~ U[0,1]: triangular on [0,2]
-    x2 = np.linspace(0, 2, 800)
-    tri = np.where(x2 <= 1, x2, 2 - x2)
-    area_plot(x2, tri, (0.75, 0.3, 0.2), (0, 2), (0, 1.1),
-              "UniformExercises_02.png")
+    # 3: a quadratic g with red dots at its roots aa
+    xs3 = np.linspace(-5, 5, 600)
+    g = 0.15 * (xs3 + 2.2) * (xs3 - 3.1)
+    fig, ax = plt.subplots()
+    ax.plot(xs3, g, linewidth=2, color=CHEBFUN_BLUE)
+    ax.plot([-5, 5], [0, 0], "-k", linewidth=0.8)
+    ax.plot([-2.2, 3.1], [0, 0], "r.", markersize=14)
+    ax.grid(True, alpha=0.4, linewidth=0.4)
+    save(fig, "UniformExercises_03.png")
 
-    # 3: density of max(X, Y): 2y on [0,1]
-    x3 = np.linspace(0, 1, 400)
-    area_plot(x3, 2 * x3, (0.3, 0.6, 0.3), (0, 1), (0, 2.1),
-              "UniformExercises_03.png")
+    # 4: the color-wheel spinner: uniform on [0, 360] with bands
+    bands = [(0, 5, (1, 0, 0)), (5, 20, (0, 1, 1)),
+             (20, 55, (1, 1, 0)), (55, 105, (0, 1, 0)),
+             (105, 170, (1, 1, 1)), (170, 250, (0, 0, 1)),
+             (250, 360, (0, 0, 0))]
+    h = 1 / 360
+    fig, ax = plt.subplots()
+    for lo, hi, color in bands:
+        ax.fill_between([lo, hi], 0, [h, h], color=color)
+    ax.plot([0, 360], [h, h], "k", linewidth=2)
+    ax.set_xlim(0, 400)
+    ax.set_ylim(0, 3e-3)
+    ax.grid(True, alpha=0.4, linewidth=0.4)
+    save(fig, "UniformExercises_04.png")
 
-    # 4: density of XY: -log(y) on (0,1]
-    x4 = np.linspace(1e-3, 1, 800)
-    area_plot(x4, -np.log(x4), (0.2, 0.4, 0.7), (0, 1), (0, 5),
-              "UniformExercises_04.png")
+    # 5: f black with purple area over [0, 20]
+    fig, ax = plt.subplots()
+    xs5 = np.linspace(0, 360, 400)
+    ax.plot(xs5, np.full_like(xs5, h), "k", linewidth=2)
+    ax.fill_between([0, 20], 0, [h, h], color=(0.7, 0, 0.6))
+    ax.set_xlim(0, 360)
+    ax.set_ylim(0, 3.2e-3)
+    ax.grid(True, alpha=0.4, linewidth=0.4)
+    save(fig, "UniformExercises_05.png")
 
-    # 5: density of X/Y
-    x5 = np.linspace(1e-3, 4, 900)
-    dens5 = np.where(x5 <= 1, 0.5, 0.5 / x5**2)
-    area_plot(x5, dens5, (0.7, 0.6, 0.2), (0, 4), (0, 0.6),
-              "UniformExercises_05.png")
-
-    # 6: density of |X - Y|: 2(1-y) on [0,1]
-    x6 = np.linspace(0, 1, 400)
-    area_plot(x6, 2 * (1 - x6), (0.6, 0.3, 0.6), (0, 1), (0, 2.1),
-              "UniformExercises_06.png")
+    # 6: renormalized conditional density with green areas
+    g6 = (1 / 360) / (280 / 360)
+    fig, ax = plt.subplots()
+    for lo, hi in ((0, 170), (250, 360)):
+        ax.plot([lo, hi], [g6, g6], "k", linewidth=1.6)
+    ax.plot([170, 250], [0, 0], "k", linewidth=1.6)
+    for lo, hi in ((0, 20), (55, 170)):
+        ax.fill_between([lo, hi], 0, [g6, g6],
+                        color=(0.3, 0.5, 0.2))
+    ax.set_xlim(0, 360)
+    ax.set_ylim(0, 4.5e-3)
+    ax.grid(True, alpha=0.4, linewidth=0.4)
+    save(fig, "UniformExercises_06.png")
 
 
 def mercerkarhunenloeve():
@@ -372,20 +403,25 @@ def histogram():
     ax.plot(xs, fv, color=CHEBFUN_BLUE, linewidth=0.8)
     save(fig, "Histogram_01.png")
 
-    # value-distribution histogram (time the function spends per bin)
-    edges = np.linspace(fv.min(), fv.max(), 21)
-    counts, _ = np.histogram(fv, bins=edges, density=True)
-    centers = 0.5 * (edges[1:] + edges[:-1])
+    # per-unit-interval means as red steps over f (MATLAB hist(f))
     fig, ax = plt.subplots()
-    ax.bar(centers, counts, width=np.diff(edges),
-           color=(0.2, 0.15, 0.5), edgecolor=(0.95, 0.95, 0.6),
-           linewidth=0.5)
-    ax.set_title("distribution of values of f", fontsize=10)
+    ax.plot(xs, fv, color=CHEBFUN_BLUE, linewidth=0.8)
+    prev_mean = None
+    for k in range(10):
+        m = (xs >= k) & (xs < k + 1)
+        mk = fv[m].mean()
+        ax.plot([k, k + 1], [mk, mk], "r", linewidth=2.0)
+        if prev_mean is not None:
+            ax.plot([k, k], [prev_mean, mk], ":r", linewidth=0.8)
+        prev_mean = mk
     save(fig, "Histogram_02.png")
 
+    # finer edges: the step-mean curve in red alone
     fig, ax = plt.subplots()
-    ax.plot(centers, counts, "r", linewidth=2.0)
-    ax.set_title("the same as a curve", fontsize=10)
+    edges = np.linspace(0, 10, 41)
+    means = [fv[(xs >= a_) & (xs < b_)].mean()
+             for a_, b_ in zip(edges[:-1], edges[1:])]
+    ax.step(edges[:-1], means, "r", linewidth=2.0, where="post")
     save(fig, "Histogram_03.png")
 
 
