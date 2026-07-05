@@ -66,3 +66,13 @@ print("I1 =", f1.sum(), "  exact ≈ 2/10 =", 2/10)
 
 Kahaner, D. K. (1971). Comparison of numerical quadrature formulas.
 In J. R. Rice (ed.), *Mathematical Software*. Academic Press, 229–259.
+
+## Figures (chebfun.org parity)
+
+![SpikeIntegral figure 1](../../images/quad/SpikeIntegral_01.png)
+
+![SpikeIntegral figure 2](../../images/quad/SpikeIntegral_02.png)
+
+![SpikeIntegral figure 3](../../images/quad/SpikeIntegral_03.png)
+
+![SpikeIntegral figure 4](../../images/quad/SpikeIntegral_04.png)

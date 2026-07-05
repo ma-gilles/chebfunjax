@@ -46,3 +46,11 @@ For non-normal matrices, it can be much larger.
 
 1. L. N. Trefethen and M. Embree, *Spectra and Pseudospectra*, Princeton
    University Press, 2005.
+
+## Figures (chebfun.org parity)
+
+![ResolventNorm figure 1](../../images/linalg/ResolventNorm_01.png)
+
+![ResolventNorm figure 2](../../images/linalg/ResolventNorm_02.png)
+
+![ResolventNorm figure 3](../../images/linalg/ResolventNorm_03.png)

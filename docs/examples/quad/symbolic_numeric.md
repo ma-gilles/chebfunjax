@@ -44,3 +44,9 @@ All integrals agree to at least 12 significant digits.
 ![Symbolic-numeric integration](../../images/quad/symbolic_numeric.png)
 
 All 8 integrands plotted with computed values.
+
+## Figures (chebfun.org parity)
+
+![SymbolicNumeric figure 1](../../images/quad/SymbolicNumeric_01.png)
+
+![SymbolicNumeric figure 2](../../images/quad/SymbolicNumeric_02.png)

@@ -50,3 +50,7 @@ integral numerically.
 
 Left: exact solution vs numerical.
 Right: pointwise error (machine precision).
+
+## Figures (chebfun.org parity)
+
+![WikiIntegroDiff figure 1](../../images/integro/WikiIntegroDiff_01.png)

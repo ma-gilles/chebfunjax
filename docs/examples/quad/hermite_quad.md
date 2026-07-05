@@ -87,3 +87,7 @@ The two methods agree to machine precision for $n \geq 10$.
 
 *Left*: Convergence of Gauss–Hermite for $\int e^{-x^2} \cos x\, dx$.
 *Right*: The integrand $e^{-x^2}\cos x$ with Hermite nodes and weighted values.
+
+## Figures (chebfun.org parity)
+
+![HermiteQuad figure 1](../../images/quad/HermiteQuad_01.png)

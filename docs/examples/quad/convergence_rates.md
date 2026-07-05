@@ -56,3 +56,9 @@ $O(\log(1/\varepsilon))$ function evaluations.
 1. L. N. Trefethen, *Approximation Theory and Approximation Practice*, SIAM, 2013.
 2. L. N. Trefethen, Is Gauss quadrature better than Clenshaw–Curtis?
    *SIAM Review* 50 (2008), 67–87.
+
+## Figures (chebfun.org parity)
+
+![QuadratureConvergence figure 1](../../images/quad/QuadratureConvergence_01.png)
+
+![QuadratureConvergence figure 2](../../images/quad/QuadratureConvergence_02.png)

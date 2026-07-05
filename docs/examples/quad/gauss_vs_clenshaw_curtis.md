@@ -72,3 +72,11 @@ Chebyshev components contribute near-zero integrals.
 1. L. N. Trefethen, *Spectral Methods in MATLAB*, SIAM, 2000, Ch. 12.
 2. S. Xiang and F. Bornemann, On the convergence rates of Gauss and
    Clenshaw-Curtis quadrature, *SIAM J. Numer. Anal.* 50 (2012), 2685–2704.
+
+## Figures (chebfun.org parity)
+
+![GaussClenCurt figure 1](../../images/quad/GaussClenCurt_01.png)
+
+![GaussClenCurt figure 2](../../images/quad/GaussClenCurt_02.png)
+
+![GaussClenCurt figure 3](../../images/quad/GaussClenCurt_03.png)

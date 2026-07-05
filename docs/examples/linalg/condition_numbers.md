@@ -70,3 +70,7 @@ numerically optimal.
 1. L. N. Trefethen, *Spectral Methods in MATLAB*, SIAM, 2000.
 2. N. J. Higham, *Accuracy and Stability of Numerical Algorithms*,
    SIAM, 2002, Ch. 22.
+
+## Figures (chebfun.org parity)
+
+![CondVandermonde figure 1](../../images/linalg/CondVandermonde_01.png)

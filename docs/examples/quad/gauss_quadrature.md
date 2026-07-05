@@ -58,3 +58,9 @@ print(f"∫ x² e^(-x²) dx = {val:.8f}  (√π/2 = {np.sqrt(np.pi)/2:.8f})")
    *SIAM Review* 50 (2008), 67–87.
 2. W. Gautschi, *Orthogonal Polynomials: Computation and Approximation*,
    Oxford University Press, 2004.
+
+## Figures (chebfun.org parity)
+
+![QuadratureConvergence figure 1](../../images/quad/QuadratureConvergence_01.png)
+
+![QuadratureConvergence figure 2](../../images/quad/QuadratureConvergence_02.png)

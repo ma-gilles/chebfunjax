@@ -52,3 +52,19 @@ def frac_integral(f_vals, x_vals, alpha):
 
 Fractional integrals of `x^k` for `k = 1, 2, 3, 4, 5` with `α = 0.5`,
 compared to analytical results.
+
+## Figures (chebfun.org parity)
+
+![FracCalc figure 1](../../images/integro/FracCalc_01.png)
+
+![FracCalc figure 2](../../images/integro/FracCalc_02.png)
+
+![FracCalc figure 3](../../images/integro/FracCalc_03.png)
+
+![FracCalc figure 4](../../images/integro/FracCalc_04.png)
+
+![FracCalc figure 5](../../images/integro/FracCalc_05.png)
+
+![FracCalc figure 6](../../images/integro/FracCalc_06.png)
+
+![FracCalc figure 7](../../images/integro/FracCalc_07.png)
