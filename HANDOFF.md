@@ -226,7 +226,25 @@ lost):
   (FourierCollocation, PeriodicSystem) had to use raw Fourier
   collocation instead.
 
-### 4.2 Library backlog (from the task board)
+### 4.2 Library backlog — MANY NOW DONE (Opus 4.8)
+
+**Closed this session:**
+- **#10** legpts O(n) for large n. **#11** eps/max_length wired into the
+  constructor. **#14** two-arg `maximum`/`minimum`, `floor`/`ceil`/
+  `round`, `local_extrema`, `roots(complex_roots=True)`. **#20**
+  `cheb.gallerytrig` (new module, 8 entries) + a Trigtech constructor
+  bug fix (coarse-grid aliasing sample-test). **#25** spherefun scalar
+  calculus. Plus new features: `Diskfun.diffx/diffy/laplacian/poisson`,
+  `Diskfunv.div/curl`, and constructor bug fixes in spherefun, diskfun,
+  and trigtech. `cheb.gallery` now 20/27 MATLAB entries.
+
+**Still open (each a substantial feature):**
+- **#9** delta-at-jumps through `diff`. **#12** splitting-on / edge
+  detection. **#17** Ballfun Helmholtz decomposition. **#24** chebop
+  `bc='periodic'` (Fourier collocation) + IVP time-marching routing.
+  **#23** master parity matrix formalization.
+
+### 4.2b Library backlog (original list)
 - **#9** `Chebfun.diff()` — delta at jumps: `sum(diff(f))` already
   returns the correct jump contribution, but the delta is not stored in
   the returned pieces (subtle; partially working — not yet fully wired
