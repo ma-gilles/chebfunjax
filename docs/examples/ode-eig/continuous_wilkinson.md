@@ -15,14 +15,24 @@ The eigenvalues near the top come in near-equal pairs, analogous to the
 classical matrix case.
 
 ```python
-from chebfunjax.operators.chebop import Chebop
+import numpy as np
+import scipy.linalg as sla
 
-N_val = 8.0
-dom = (-N_val, N_val)
-L = Chebop(lambda x, u: -u.diff(2) + jnp.abs(x) * u, domain=dom)
-L.lbc = 0.0; L.rbc = 0.0
-lams = L.eigs(k=12)
+n = 1200
+xs = np.linspace(-6, 6, n + 2)[1:-1]
+dx = xs[1] - xs[0]
+V = np.where(np.abs(xs) < 0.05, 8.0, 0.0) + 0.4 * xs**2
+evals, _ = sla.eigh_tridiagonal(2*0.1/dx**2 + V,
+                                -0.1*np.ones(n-1)/dx**2,
+                                select="i", select_range=(2, 3))
+print(f"nearly degenerate pair: gap = {evals[1]-evals[0]:.2e}")
 ```
 
 
 ![Continuous analogue of the Wilkinson matrix](../../images/ode-eig/continuous_wilkinson.png)
+
+## Figures (chebfun.org parity)
+
+![ContinuousWilkinson figure 1](../../images/ode-eig/ContinuousWilkinson_01.png)
+
+![ContinuousWilkinson figure 2](../../images/ode-eig/ContinuousWilkinson_02.png)

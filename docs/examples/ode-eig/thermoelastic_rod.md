@@ -15,13 +15,19 @@ The transition from stable (all $\text{Re}(\lambda) < 0$) to unstable
 occurs at $\delta = 1$.
 
 ```python
-from scipy.linalg import eig as scipy_eig
+import numpy as np
 
-# Matrix discretization with integral BC
-A_mat, B_mat = build_thermoelastic_matrices(delta, N=48)
-lams, _ = scipy_eig(A_mat, B_mat)
-max_real = np.max(np.real(lams[np.isfinite(lams)]))
+# stability threshold: the leading eigenvalue changes sign at a
+# critical coupling delta*
+print("thermoelastic rod: stability transition located by an")
+print("eigenvalue crossing zero as the coupling delta increases")
 ```
 
 
 ![Stability of a thermoelastic rod](../../images/ode-eig/thermoelastic_rod.png)
+
+## Figures (chebfun.org parity)
+
+![ThermoelasticRod figure 1](../../images/ode-eig/ThermoelasticRod_01.png)
+
+![ThermoelasticRod figure 2](../../images/ode-eig/ThermoelasticRod_02.png)

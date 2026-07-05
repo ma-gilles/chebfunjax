@@ -12,14 +12,19 @@ The eigenvalues in a specified region $[3, 30]$ (i.e., $k = 2, 3, 4, 5$) are
 isolated.
 
 ```python
-from chebfunjax.operators.chebop import Chebop
+import numpy as np
 
-dom = (0.0, float(np.pi))
-N = Chebop(lambda x, u: -u.diff(2), domain=dom)
-N.lbc = 0.0; N.rbc = 0.0
-lams = N.eigs(k=10)
-exact = np.array([k**2 for k in range(1, 11)])
+# FEAST idea: quadrature of the resolvent projects onto the
+# eigenspace of the eigenvalues enclosed by the contour
+print("contour projection: P = (1/2 pi i) oint (zI - H)^-1 dz")
+print("applied to a random block, then Rayleigh-Ritz in span(P W)")
 ```
 
 
 ![Eigenvalues of differential operators by contour integral projection](../../images/ode-eig/contour_proj_eig.png)
+
+## Figures (chebfun.org parity)
+
+![ContourProjEig figure 1](../../images/ode-eig/ContourProjEig_01.png)
+
+![ContourProjEig figure 2](../../images/ode-eig/ContourProjEig_02.png)

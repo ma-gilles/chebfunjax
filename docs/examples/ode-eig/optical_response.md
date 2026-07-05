@@ -15,16 +15,27 @@ The linear polarizability $\alpha = dP/dE|_{E=0}$ equals $1/(2\omega^3)$
 for the harmonic oscillator with frequency $\omega = 2$.
 
 ```python
-from chebfunjax.operators.chebop import Chebop
+import numpy as np
+import scipy.linalg as sla
 
-dom = (-6.0, 6.0)
-for E in np.linspace(-0.5, 0.5, 11):
-    HE = Chebop(
-        lambda x, u: -0.5*u.diff(2) + 2.0*x**2*u + E*x*u,
-        domain=dom)
-    HE.lbc = 0.0; HE.rbc = 0.0
-    E0 = HE.eigs(k=1)
+L, n = 8.0, 800
+xs = np.linspace(-L, L, n + 2)[1:-1]
+dx = xs[1] - xs[0]
+pol = []
+for E in (-0.05, 0.05):
+    evals, evecs = sla.eigh_tridiagonal(
+        2*0.5/dx**2 + 2*xs**2 + E*xs, -0.5*np.ones(n-1)/dx**2,
+        select="i", select_range=(0, 0))
+    psi0 = evecs[:, 0] / np.sqrt(dx)
+    pol.append(np.trapezoid(xs * psi0**2, xs))
+print(f"polarizability ~ {-(pol[1]-pol[0])/0.1:.4f}")
 ```
 
 
 ![The nonlinear optical response of a simple molecule](../../images/ode-eig/optical_response.png)
+
+## Figures (chebfun.org parity)
+
+![OpticalResponse figure 1](../../images/ode-eig/OpticalResponse_01.png)
+
+![OpticalResponse figure 2](../../images/ode-eig/OpticalResponse_02.png)
