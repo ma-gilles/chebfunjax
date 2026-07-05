@@ -20,6 +20,7 @@ from typing import Callable
 
 import equinox as eqx
 import jax
+import math
 import jax.numpy as jnp
 
 from chebfunjax.domain import Domain
@@ -3896,6 +3897,23 @@ def chebfun(
             return Chebfun.from_function(lambda x: jnp.full_like(x, c), dom, n=n)
     except Exception:
         pass
+
+    _dom_arr = [float(v) for v in (domain if hasattr(domain, "__len__")
+                                    else (domain,))]
+    if any(not math.isfinite(v) for v in _dom_arr):
+        from chebfunjax.fun.unbndfun import Unbndfun
+
+        if trig:
+            raise ValueError("trig=True is not supported on unbounded domains.")
+        if not callable(f):
+            raise ValueError("Unbounded domains require a callable.")
+        if len(_dom_arr) != 2:
+            raise ValueError(
+                "Unbounded domains support a single interval only."
+            )
+        dom_u = Domain((_dom_arr[0], _dom_arr[1]))
+        fun_u = Unbndfun.from_function(f, domain=dom_u, n=n)
+        return Chebfun(funs=[fun_u], domain=dom_u)
 
     if trig:
         from chebfunjax.tech.trigtech import Trigtech

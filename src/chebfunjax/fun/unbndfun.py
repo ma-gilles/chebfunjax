@@ -415,6 +415,16 @@ class Unbndfun(eqx.Module):
     # ------------------------------------------------------------------
 
     @property
+    def interval(self) -> tuple:
+        """Physical endpoints (a, b) — piece-protocol compatibility.
+
+        Lets an Unbndfun serve as the single fun of a Chebfun on an
+        unbounded domain (the factory's ``chebfun(f, [0, inf])`` path).
+        """
+        return (float(self.domain.breakpoints[0]),
+                float(self.domain.breakpoints[-1]))
+
+    @property
     def n(self) -> int:
         """Number of Chebyshev coefficients."""
         return self.onefun.n

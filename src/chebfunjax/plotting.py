@@ -170,7 +170,16 @@ def _domain_points(f, n: int = 600) -> np.ndarray:
     # Works for both Chebfun1D (f.domain.breakpoints) and plain Chebfun2.
     try:
         bp = f.domain.breakpoints
-        return np.linspace(float(bp[0]), float(bp[-1]), n)
+        a, b = float(bp[0]), float(bp[-1])
+        # Unbounded domains: plot on a finite window like MATLAB
+        # (10 units past the finite endpoint, or [-10, 10]).
+        if np.isinf(a) and np.isinf(b):
+            a, b = -10.0, 10.0
+        elif np.isinf(b):
+            b = a + 10.0
+        elif np.isinf(a):
+            a = b - 10.0
+        return np.linspace(a, b, n)
     except AttributeError:
         return np.linspace(-1.0, 1.0, n)
 
