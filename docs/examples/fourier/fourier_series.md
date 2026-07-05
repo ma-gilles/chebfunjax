@@ -68,3 +68,21 @@ any algebraic rate.
 
 1. L. N. Trefethen, *Spectral Methods in MATLAB*, SIAM, 2000.
 2. J. W. Gibbs, Fourier's series, *Nature* 59 (1899), 606.
+
+## Figures (chebfun.org parity)
+
+![FourierBasedChebfuns figure 1](../../images/fourier/FourierBasedChebfuns_01.png)
+
+![FourierBasedChebfuns figure 2](../../images/fourier/FourierBasedChebfuns_02.png)
+
+![FourierBasedChebfuns figure 3](../../images/fourier/FourierBasedChebfuns_03.png)
+
+![FourierBasedChebfuns figure 4](../../images/fourier/FourierBasedChebfuns_04.png)
+
+![FourierBasedChebfuns figure 5](../../images/fourier/FourierBasedChebfuns_05.png)
+
+![FourierBasedChebfuns figure 6](../../images/fourier/FourierBasedChebfuns_06.png)
+
+![FourierBasedChebfuns figure 7](../../images/fourier/FourierBasedChebfuns_07.png)
+
+![FourierBasedChebfuns figure 8](../../images/fourier/FourierBasedChebfuns_08.png)

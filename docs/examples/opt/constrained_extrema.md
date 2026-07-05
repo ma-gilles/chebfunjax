@@ -57,3 +57,15 @@ x_max, h_max = h.max()
 print(f"Max on parabola: h({float(x_max):.4f}) = {float(h_max):.8f}")
 # Max at x=0: h = 1
 ```
+
+## Figures (chebfun.org parity)
+
+![ConstrainedExtrema figure 1](../../images/opt/ConstrainedExtrema_01.png)
+
+![ConstrainedExtrema figure 2](../../images/opt/ConstrainedExtrema_02.png)
+
+![ConstrainedExtrema figure 3](../../images/opt/ConstrainedExtrema_03.png)
+
+![ConstrainedExtrema figure 4](../../images/opt/ConstrainedExtrema_04.png)
+
+![ConstrainedExtrema figure 5](../../images/opt/ConstrainedExtrema_05.png)

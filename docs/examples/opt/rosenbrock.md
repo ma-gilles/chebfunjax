@@ -87,3 +87,17 @@ refinement on the derivative would give machine precision.
    value of a function, *Computer Journal* 3 (1960), 175–184.
 2. J. J. Moré, B. S. Garbow, and K. E. Hillstrom, Testing unconstrained
    optimization software, *ACM TOMS* 7 (1981), 17–41.
+
+## Figures (chebfun.org parity)
+
+![Rosenbrock figure 1](../../images/opt/Rosenbrock_01.png)
+
+![Rosenbrock figure 2](../../images/opt/Rosenbrock_02.png)
+
+![Rosenbrock figure 3](../../images/opt/Rosenbrock_03.png)
+
+![Rosenbrock figure 4](../../images/opt/Rosenbrock_04.png)
+
+![Rosenbrock figure 5](../../images/opt/Rosenbrock_05.png)
+
+![Rosenbrock figure 6](../../images/opt/Rosenbrock_06.png)

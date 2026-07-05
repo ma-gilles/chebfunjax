@@ -64,3 +64,15 @@ at the discontinuities.
 1. E. Hewitt and R. E. Hewitt, The Gibbs-Wilbraham phenomenon: an episode in
    Fourier analysis, *Arch. Hist. Exact Sci.* 21 (1979), 129–160.
 2. L. N. Trefethen, *Spectral Methods in MATLAB*, SIAM, 2000.
+
+## Figures (chebfun.org parity)
+
+![FejerJackson figure 1](../../images/fourier/FejerJackson_01.png)
+
+![FejerJackson figure 2](../../images/fourier/FejerJackson_02.png)
+
+![FejerJackson figure 3](../../images/fourier/FejerJackson_03.png)
+
+![FejerJackson figure 4](../../images/fourier/FejerJackson_04.png)
+
+![FejerJackson figure 5](../../images/fourier/FejerJackson_05.png)

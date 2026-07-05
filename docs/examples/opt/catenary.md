@@ -45,7 +45,8 @@ the catenary's total energy to that of a parabola of the same arc length:
 ```python
 # Potential energy = integral y * ds
 ds = cj.chebfun(lambda x: jnp.sqrt(1 + yp(x)**2), domain=(-L, L))
-PE = cj.chebfun(lambda x: y(x) * float(ds(x)), domain=(-L, L))
+PE = cj.chebfun(lambda x: y(x) * jnp.sqrt(1 + yp(x)**2),
+                domain=(-L, L))
 PE_total = float(PE.sum())
 print(f"Catenary potential energy: {PE_total:.6f}")
 ```
@@ -56,3 +57,7 @@ print(f"Catenary potential energy: {PE_total:.6f}")
 
 1. D. Bernoulli, *Theoremata de oscillationibus corporum filo flexili connexorum*,
    1735.
+
+## Figures (chebfun.org parity)
+
+![Catenary figure 1](../../images/opt/Catenary_01.png)

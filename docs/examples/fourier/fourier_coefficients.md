@@ -18,7 +18,7 @@ import numpy as np
 
 # Analytic function: exponential decay
 f = cj.chebfun(lambda x: jnp.exp(jnp.cos(x)), domain=(0.0, 2*float(jnp.pi)))
-c = np.array(f.coeffs())
+c = np.array(f.coeffs)
 print(f"Degree: {len(c)-1}")
 print(f"Max coeff: {np.max(np.abs(c)):.4e}")
 print(f"Last coeff: {np.abs(c[-1]):.4e}")
@@ -49,8 +49,18 @@ equals the squared $L^2$ norm:
 
 ```python
 g = cj.chebfun(lambda x: jnp.sin(3*x) + 0.5*jnp.cos(5*x))
-c = np.array(g.coeffs())
+c = np.array(g.coeffs)
 parseval_sum = np.sum(c**2) / 2  # factor for Chebyshev normalization
 l2_norm_sq = float(g.norm(2))**2
 print(f"Parseval: sum c_k^2 ≈ ||g||^2: {abs(parseval_sum - l2_norm_sq) < 1e-10}")
 ```
+
+## Figures (chebfun.org parity)
+
+![FourierCoefficients figure 1](../../images/fourier/FourierCoefficients_01.png)
+
+![FourierCoefficients figure 2](../../images/fourier/FourierCoefficients_02.png)
+
+![FourierCoefficients figure 3](../../images/fourier/FourierCoefficients_03.png)
+
+![FourierCoefficients figure 4](../../images/fourier/FourierCoefficients_04.png)

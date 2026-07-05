@@ -47,3 +47,11 @@ $$A(x,y) = -20 e^{-0.2\sqrt{\frac{x^2+y^2}{2}}} - e^{\frac{\cos 2\pi x + \cos 2\
 ## References
 
 1. D. Himmelblau, *Applied Nonlinear Programming*, McGraw-Hill, 1972.
+
+## Figures (chebfun.org parity)
+
+![GlobalMinimum figure 1](../../images/opt/GlobalMinimum_01.png)
+
+![GlobalMinimum figure 2](../../images/opt/GlobalMinimum_02.png)
+
+![GlobalMinimum figure 3](../../images/opt/GlobalMinimum_03.png)
