@@ -1056,6 +1056,136 @@ class Chebfun3(eqx.Module):
         result = jnp.einsum('ijk,i,j,k->', self.core, ix, iy, iz)
         return result * sx * sy * sz
 
+    def diff(self, dim: int = 1, k: int = 1) -> "Chebfun3":
+        """k-th partial derivative in the Cartesian direction dim.
+
+        The Tucker structure makes this a per-factor operation: d/dx
+        differentiates only the column fibers (with the chain-rule
+        scaling for the physical interval), leaving the core and the
+        other factors untouched. dims 1, 2, 3 = x, y, z.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/diff.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        xa, xb, ya, yb, za, zb = self.domain
+        if dim == 1:
+            scale = (2.0 / (xb - xa)) ** k
+            new_cols = [
+                type(c).from_coeffs(c.diff(k).coeffs * scale)
+                for c in self.cols
+            ]
+            return Chebfun3(cols=new_cols, rows=list(self.rows),
+                            tubes=list(self.tubes), core=self.core,
+                            domain=self.domain)
+        if dim == 2:
+            scale = (2.0 / (yb - ya)) ** k
+            new_rows = [
+                type(r).from_coeffs(r.diff(k).coeffs * scale)
+                for r in self.rows
+            ]
+            return Chebfun3(cols=list(self.cols), rows=new_rows,
+                            tubes=list(self.tubes), core=self.core,
+                            domain=self.domain)
+        scale = (2.0 / (zb - za)) ** k
+        new_tubes = [
+            type(t).from_coeffs(t.diff(k).coeffs * scale)
+            for t in self.tubes
+        ]
+        return Chebfun3(cols=list(self.cols), rows=list(self.rows),
+                        tubes=new_tubes, core=self.core,
+                        domain=self.domain)
+
+    def grad(self) -> tuple["Chebfun3", "Chebfun3", "Chebfun3"]:
+        """Cartesian gradient (f_x, f_y, f_z).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/grad.m
+        Chebfun commit: 7574c77
+        """
+        return self.diff(1), self.diff(2), self.diff(3)
+
+    def sum(self, dim: int = 1):
+        """Integrate over one variable, returning a Chebfun2.
+
+        Contracts the core against the integrals of the chosen factor
+        fibers; the result is a function of the remaining two variables
+        (e.g. ``sum(dim=1)`` integrates over x and returns f(y, z)).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/sum.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun2d import chebfun2
+
+        xa, xb, ya, yb, za, zb = self.domain
+        if dim == 1:
+            w = jnp.array([c.sum() for c in self.cols], dtype=jnp.float64)
+            M = jnp.einsum('ijk,i->jk', self.core, w) * (0.5 * (xb - xa))
+            f1, f2 = self.rows, self.tubes
+            dom2 = (ya, yb, za, zb)
+        elif dim == 2:
+            w = jnp.array([r.sum() for r in self.rows], dtype=jnp.float64)
+            M = jnp.einsum('ijk,j->ik', self.core, w) * (0.5 * (yb - ya))
+            f1, f2 = self.cols, self.tubes
+            dom2 = (xa, xb, za, zb)
+        else:
+            w = jnp.array([t.sum() for t in self.tubes], dtype=jnp.float64)
+            M = jnp.einsum('ijk,k->ij', self.core, w) * (0.5 * (zb - za))
+            f1, f2 = self.cols, self.rows
+            dom2 = (xa, xb, ya, yb)
+
+        a1, b1, a2, b2 = dom2
+
+        def _fn(u, v):
+            tu = 2.0 * (u - a1) / (b1 - a1) - 1.0
+            tv = 2.0 * (v - a2) / (b2 - a2) - 1.0
+            U = jnp.stack([g(tu) for g in f1])  # (r1, ...)
+            V = jnp.stack([h(tv) for h in f2])  # (r2, ...)
+            return jnp.einsum('ij,i...,j...->...', M, U, V)
+
+        return chebfun2(_fn, domain=dom2)
+
+    def sum2(self, dims: tuple[int, int] = (1, 2)):
+        """Integrate over two variables, returning a 1D Chebfun.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/sum2.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d.chebfun import chebfun
+
+        xa, xb, ya, yb, za, zb = self.domain
+        dims = tuple(sorted(dims))
+        wx = jnp.array([c.sum() for c in self.cols], dtype=jnp.float64)
+        wy = jnp.array([r.sum() for r in self.rows], dtype=jnp.float64)
+        wz = jnp.array([t.sum() for t in self.tubes], dtype=jnp.float64)
+        if dims == (1, 2):
+            v = jnp.einsum('ijk,i,j->k', self.core, wx, wy) \
+                * (0.25 * (xb - xa) * (yb - ya))
+            fibers, (a, b) = self.tubes, (za, zb)
+        elif dims == (1, 3):
+            v = jnp.einsum('ijk,i,k->j', self.core, wx, wz) \
+                * (0.25 * (xb - xa) * (zb - za))
+            fibers, (a, b) = self.rows, (ya, yb)
+        else:
+            v = jnp.einsum('ijk,j,k->i', self.core, wy, wz) \
+                * (0.25 * (yb - ya) * (zb - za))
+            fibers, (a, b) = self.cols, (xa, xb)
+
+        def _fn(t):
+            tr = 2.0 * (t - a) / (b - a) - 1.0
+            F = jnp.stack([g(tr) for g in fibers])
+            return jnp.einsum('i,i...->...', v, F)
+
+        return chebfun(_fn, domain=(a, b))
+
     # ------------------------------------------------------------------
     # Properties
     # ------------------------------------------------------------------
