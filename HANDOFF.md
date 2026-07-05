@@ -263,26 +263,28 @@ count:
   directories, ≈6,500+ explicit `pass(k)=` sub-assertions. Biggest:
   `chebfun/` 166, `chebop/` 99, `chebfun3/` 82, `chebfun2/` 75,
   `chebtech/` 55, `trigtech/` 53.
-- **chebfunjax:** 2,526 passing Python tests. Of these, **20 files are
+- **chebfunjax:** 2,553 passing Python tests. Of these, **21 files are
   true MATLAB golden-reference cross-validations** (`*_matlab.py`),
   pinned at **atol/rtol 1e-12–1e-13** against `.mat` fixtures generated
   from MATLAB R2025b. The rest are independently-authored Python tests
   (broad coverage, but not 1:1 ports).
 
-**Golden-ref cross-validated classes (20 files):** ballfun, ballfun-
+**Golden-ref cross-validated classes (21 files):** ballfun, ballfun-
 calculus, ballfunv, chebfun2, chebfun2v, chebfun3, chebfun3v, diskfun,
-diskfunv, spherefun, spherefunv, chebop (operators + nonlinear), fun
-layer (unbndfun/singfun/deltafun), discretization, spin, autodiff,
+diskfunv, spherefun, spherefunv, chebop (operators + nonlinear +
+**extras: BVP/Neumann/eig, NEW**), fun layer
+(unbndfun/singfun/deltafun), discretization, spin, autodiff,
 chebfun1d-extras, **trigtech (NEW)**, **chebfun-core (NEW)**.
 
 **The honest gap:** whole MATLAB test directories still lack a dedicated
-machine-precision golden-ref port — most of `chebop`'s 99 files (only
-2 golden files), `chebfun`'s 166 (2 golden files now), plus `chebtech1`,
-`bndfun`, `singfun`/`deltafun` (only via the fun-layer file),
-`classicfun`, `chebmatrix`, `linop`. A realistic count is **~22 of
-1,102 MATLAB test files** have a machine-precision Python counterpart;
-the rest are covered (if at all) by independent Python tests, not exact
-cross-validation.
+machine-precision golden-ref port — most of `chebop`'s 99 files (3
+golden files now, ~10 behaviors), `chebfun`'s 166 (2 golden files now,
+~20 operations), plus `chebtech1`, `bndfun`, `singfun`/`deltafun` (only
+via the fun-layer file), `classicfun`, `chebmatrix`, `linop`. A
+realistic count is **~40 of the ~6,500 MATLAB sub-assertions** now have
+a machine-precision Python counterpart; the rest are covered (if at
+all) by independent Python tests, not exact cross-validation. This is
+an **ongoing, deliberately-tracked effort — not complete.**
 
 **To continue** (the pattern is now established and cheap to extend):
 1. Add a `matlab_harness/refs/<class>_refs.m` that exercises the class's
