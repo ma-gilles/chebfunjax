@@ -33,3 +33,14 @@ print(f"Max reconstruction error: {np.max(np.abs(reconstructed - f_true)):.3f}")
 
 ![L1 Inpainting in One Dimension](../../images/approx/Inpainting1D.png)
 
+## Figures (chebfun.org parity)
+
+![Inpainting1D figure 1](../../images/approx/Inpainting1D_01.png)
+
+![Inpainting1D figure 2](../../images/approx/Inpainting1D_02.png)
+
+![Inpainting1D figure 3](../../images/approx/Inpainting1D_03.png)
+
+![Inpainting1D figure 4](../../images/approx/Inpainting1D_04.png)
+
+![Inpainting1D figure 5](../../images/approx/Inpainting1D_05.png)

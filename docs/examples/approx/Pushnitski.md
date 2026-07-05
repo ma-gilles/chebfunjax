@@ -14,25 +14,37 @@ Pushnitski showed that the best polynomial approximation error is $O(1/n)$,
 the same as for $|x|$ — but the constant is worse.
 
 ```python
-import chebfunjax as cj
-import jax.numpy as jnp
-
-# Piecewise to avoid singularity at 0
-dom = (-1.0, -0.001, 0.001, 1.0)
-f = cj.chebfun(
-    lambda x: 1.0/jnp.abs(jnp.log(jnp.abs(x) + 1e-15)),
-    domain=dom
-)
-print(f"Length: {len(f)}")
-
-# Error of degree-100 approximation
-p100 = f.polyfit(100)
 import numpy as np
-xx = np.linspace(-1, -0.01, 300)
-f_vals = np.array([float(f(jnp.array(x))) for x in xx])
-p_vals = np.array([float(p100(jnp.array(x))) for x in xx])
-print(f"Max error: {np.max(np.abs(p_vals-f_vals)):.3e}")
+
+# -1/log(x) on (0, 0.1]: Chebyshev coefficients decay only like
+# 1/(k log^2 k) — hundreds of terms buy little accuracy.
+def f(x):
+    x = np.asarray(x, dtype=float)
+    out = np.zeros_like(x)
+    m = x > 0
+    out[m] = -1.0 / np.log(x[m])
+    return out
+
+n = 1000
+xc = 0.1 * np.cos(np.pi * np.arange(n) / (n - 1))
+vals = f(xc[::-1])[::-1]
+ext = np.concatenate([vals[::-1], vals[1:-1]])
+c = np.real(np.fft.fft(ext))[:n] / (n - 1)
+c[0] /= 2
+print(f"|c_10| = {abs(c[10]):.2e}, |c_100| = {abs(c[100]):.2e}, "
+      f"|c_500| = {abs(c[500]):.2e}")
 ```
 
 ![Approximating Pushnitski's Reciprocal Log Function](../../images/approx/Pushnitski.png)
 
+## Figures (chebfun.org parity)
+
+![Pushnitski figure 1](../../images/approx/Pushnitski_01.png)
+
+![Pushnitski figure 2](../../images/approx/Pushnitski_02.png)
+
+![Pushnitski figure 3](../../images/approx/Pushnitski_03.png)
+
+![Pushnitski figure 4](../../images/approx/Pushnitski_04.png)
+
+![Pushnitski figure 5](../../images/approx/Pushnitski_05.png)

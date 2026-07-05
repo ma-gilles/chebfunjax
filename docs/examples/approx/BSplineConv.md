@@ -31,3 +31,14 @@ corresponds to adding independent samples.
 
 ![B-splines and Convolution](../../images/approx/BSplineConv.png)
 
+## Figures (chebfun.org parity)
+
+![BSplineConv figure 1](../../images/approx/BSplineConv_01.png)
+
+![BSplineConv figure 2](../../images/approx/BSplineConv_02.png)
+
+![BSplineConv figure 3](../../images/approx/BSplineConv_03.png)
+
+![BSplineConv figure 4](../../images/approx/BSplineConv_04.png)
+
+![BSplineConv figure 5](../../images/approx/BSplineConv_05.png)

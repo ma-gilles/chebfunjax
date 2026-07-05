@@ -28,3 +28,14 @@ Parks-McClellan) gives better results near the transition band.
 
 ![Digital Filters via CF Approximation](../../images/approx/FiltersCF.png)
 
+## Figures (chebfun.org parity)
+
+![FiltersCF figure 1](../../images/approx/FiltersCF_01.png)
+
+![FiltersCF figure 2](../../images/approx/FiltersCF_02.png)
+
+![FiltersCF figure 3](../../images/approx/FiltersCF_03.png)
+
+![FiltersCF figure 4](../../images/approx/FiltersCF_04.png)
+
+![FiltersCF figure 5](../../images/approx/FiltersCF_05.png)
