@@ -91,3 +91,43 @@ class TestBallfunvVsMatlab:
 
     def test_norm_frobenius(self):
         npt.assert_allclose(float(_F().norm()), float(_REF["normF"]), rtol=RTOL)
+
+
+class TestBallfunvDivCurl:
+    """Ballfunv divergence/curl via Ballfun Cartesian diff (Opus 4.8, #17)."""
+
+    _pts = [(0.3, 0.4, 0.5), (0.6, 1.0, 2.0), (0.8, -1.5, 1.2)]
+
+    def _ev(self, bf):
+        import jax.numpy as jnp
+        import numpy as np
+        return np.array([float(bf(jnp.array(r), jnp.array(lam), jnp.array(t)))
+                         for r, lam, t in self._pts])
+
+    def test_div_curl_identities(self):
+        import numpy as np
+
+        from chebfunjax.ballfun.ballfunv import Ballfunv
+        # F = (x, y, z): div = 3, curl = 0
+        V = Ballfunv.from_functions(lambda x, y, z: x, lambda x, y, z: y,
+                                    lambda x, y, z: z)
+        np.testing.assert_allclose(self._ev(V.div()), 3.0, atol=1e-9)
+        for cc in V.curl().components:
+            np.testing.assert_allclose(self._ev(cc), 0.0, atol=1e-8)
+        # F = (-y, x, 0): div = 0, curl = (0, 0, 2)
+        W = Ballfunv.from_functions(lambda x, y, z: -y, lambda x, y, z: x,
+                                    lambda x, y, z: 0 * x)
+        np.testing.assert_allclose(self._ev(W.div()), 0.0, atol=1e-8)
+        cw = W.curl().components
+        np.testing.assert_allclose(self._ev(cw[0]), 0.0, atol=1e-8)
+        np.testing.assert_allclose(self._ev(cw[1]), 0.0, atol=1e-8)
+        np.testing.assert_allclose(self._ev(cw[2]), 2.0, atol=1e-8)
+
+    def test_div_of_curl_is_zero(self):
+        import numpy as np
+
+        from chebfunjax.ballfun.ballfunv import Ballfunv
+        G = Ballfunv.from_functions(lambda x, y, z: x * y,
+                                    lambda x, y, z: y * z,
+                                    lambda x, y, z: x * z)
+        np.testing.assert_allclose(self._ev(G.curl().div()), 0.0, atol=1e-7)

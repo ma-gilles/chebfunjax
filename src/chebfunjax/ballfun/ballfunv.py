@@ -175,6 +175,40 @@ class Ballfunv(eqx.Module):
             f1 * g2 - g1 * f2,
         )
 
+    def div(self) -> Ballfun:
+        r"""Divergence :math:`\\nabla \\cdot (f, g, h) = f_x + g_y + h_z`.
+
+        Uses the Cartesian derivatives ``Ballfun.diff`` (dim 1/2/3 = x/y/z).
+        Added by Claude Opus 4.8 (task #17).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfunv/div.m
+        Chebfun commit: 7574c77
+        """
+        f, g, h = self.components
+        return f.diff(1) + g.diff(2) + h.diff(3)
+
+    divergence = div
+
+    def curl(self) -> "Ballfunv":
+        r"""Curl :math:`\\nabla \\times (f, g, h)`.
+
+        Returns ``(h_y - g_z, f_z - h_x, g_x - f_y)``.  Added by Claude
+        Opus 4.8 (task #17).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfunv/curl.m
+        Chebfun commit: 7574c77
+        """
+        f, g, h = self.components
+        return Ballfunv(
+            h.diff(2) - g.diff(3),
+            f.diff(3) - h.diff(1),
+            g.diff(1) - f.diff(2),
+        )
+
     def norm(self) -> float:
         """L2 norm of the field: sqrt(norm(f)^2 + norm(g)^2 + norm(h)^2).
 
