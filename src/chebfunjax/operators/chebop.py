@@ -325,6 +325,14 @@ class Chebop:
         if getattr(self, "_periodic", False):
             return self._solve_periodic(f, n=n, n_max=n_max, tol=tol)
 
+        # IVPs (all BCs at one endpoint) time-march like MATLAB (#24).
+        # Fall back to collocation if the extraction fails.
+        if n is None and self._is_ivp():
+            try:
+                return self.solve_ivp(f)
+            except Exception:
+                pass
+
         # Try to detect linearity by checking if operator is an OperatorBlock
         if self._is_linear():
             return self._solve_linear(f, n=n, n_min=n_min, n_max=n_max, tol=tol)
@@ -523,6 +531,107 @@ class Chebop:
             return _fourier_interp(xs, vals, jnp.asarray(t), a, L)
 
         return chebfun(interp, domain=(a, b), trig=True)
+
+    def _is_ivp(self) -> bool:
+        """True if all boundary conditions sit at a single endpoint."""
+        if getattr(self, "_periodic", False):
+            return False
+        has_l = self._lbc_raw is not None
+        has_r = self._rbc_raw is not None
+        return (has_l and not has_r) or (has_r and not has_l)
+
+    def _op_order(self) -> int:
+        import inspect
+        sniff = _OrderSniffer()
+        a, b = self.domain
+        x = jnp.asarray(0.5 * (a + b))
+        nargs = len(inspect.signature(self.op).parameters)
+        _ = self.op(x, sniff) if nargs == 2 else self.op(sniff)
+        return sniff.order
+
+    def _bc_values(self, bc_raw, k: int):
+        """Extract the initial values [c0, ..., c_{k-1}] from a BC spec."""
+        import numpy as _np
+        if bc_raw is None:
+            return None
+        if callable(bc_raw):
+            zero = _IVPProxy([jnp.array(0.0)] * (k + 1))
+            res = bc_raw(zero)
+            if not isinstance(res, (list, tuple)):
+                res = [res]
+
+            def _num(r):
+                if isinstance(r, _IVPProxy):
+                    r = r._v
+                return float(_np.asarray(r))
+            return [-_num(r) for r in res]
+        # scalar Dirichlet value
+        return [float(bc_raw)]
+
+    def solve_ivp(self, f=0.0, rtol: float = 1e-11, atol: float = 1e-12):
+        """Solve an initial-value problem by time marching (task #24).
+
+        Applicable when all boundary conditions sit at one endpoint.  The
+        operator is assumed affine in its highest derivative (true for
+        essentially all ODEs): the k-th derivative is extracted as
+        ``u^{(k)} = (f - L|_{u^{(k)}=0}) / (L|_{u^{(k)}=1} - L|_{u^{(k)}=0})``
+        and the resulting first-order system is integrated with
+        ``scipy.integrate.solve_ivp`` (Dormand--Prince).  Returns the
+        solution ``u`` as a Chebfun.  Implemented by Claude Opus 4.8.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/solveivp.m (routing of one-sided BCs).
+        Chebfun commit: 7574c77
+        """
+        import inspect
+
+        import numpy as _np
+        from scipy.integrate import solve_ivp as _solve_ivp
+
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        a, b = self.domain
+        k = self._op_order()
+        nargs = len(inspect.signature(self.op).parameters)
+
+        def L(x, u):
+            return self.op(x, u) if nargs == 2 else self.op(u)
+
+        def fval(x):
+            if callable(f):
+                return float(_np.asarray(f(jnp.asarray(x))))
+            return float(f)
+
+        # initial conditions and marching direction
+        left = self._lbc_raw is not None
+        bc_raw = self._lbc_raw if left else self._rbc_raw
+        ic = self._bc_values(bc_raw, k)
+        if ic is None or len(ic) < k:
+            # pad with zeros if under-specified
+            ic = (ic or []) + [0.0] * (k - len(ic or []))
+        x0, x1 = (a, b) if left else (b, a)
+
+        def rhs(x, y):
+            tower0 = [jnp.asarray(v) for v in list(y) + [0.0]]
+            tower1 = [jnp.asarray(v) for v in list(y) + [1.0]]
+            lower = float(_np.asarray(L(jnp.asarray(x), _IVPProxy(tower0))))
+            ak = float(_np.asarray(L(jnp.asarray(x), _IVPProxy(tower1)))) \
+                - lower
+            ukk = (fval(x) - lower) / ak
+            return list(y[1:]) + [ukk]
+
+        sol = _solve_ivp(rhs, [x0, x1], ic, dense_output=True,
+                         rtol=rtol, atol=atol)
+        if not sol.success:
+            raise RuntimeError(f"solve_ivp failed: {sol.message}")
+
+        def u_eval(x):
+            xn = _np.atleast_1d(_np.asarray(x, dtype=float))
+            vals = sol.sol(xn)[0]
+            return jnp.asarray(vals.reshape(_np.shape(x)) if _np.ndim(x)
+                               else vals[0], dtype=jnp.float64)
+
+        return chebfun(lambda x: u_eval(x), domain=(a, b))
 
     def _apply_op(self, x_fun, u_fun):
         """Evaluate self.op(x_fun, u_fun) or self.op(u_fun)."""
@@ -1210,3 +1319,62 @@ def _fourier_interp(nodes, vals, t, a: float, length: float):
         out = out + jnp.real(
             jnp.exp(-1j * theta * (n // 2)) * coeffs[n // 2])
     return out
+
+
+# ============================================================================
+# IVP time-marching (all BCs at one endpoint) — task #24, Claude Opus 4.8
+# ============================================================================
+
+
+class _IVPProxy:
+    """Proxy that behaves as u (= its 0-th derivative) in arithmetic and
+    returns the j-th derivative from a supplied tower on ``diff(j)``.
+    Used to extract the ODE right-hand side from a Chebop operator."""
+
+    def __init__(self, tower):
+        self._d = tower                       # [u, u', ..., u^(k-1), probe]
+
+    @property
+    def _v(self):
+        return self._d[0]
+
+    def diff(self, j: int = 1):
+        return self._d[j]
+
+    def __add__(self, o):
+        return self._v + (o._v if isinstance(o, _IVPProxy) else o)
+
+    __radd__ = __add__
+
+    def __sub__(self, o):
+        return self._v - (o._v if isinstance(o, _IVPProxy) else o)
+
+    def __rsub__(self, o):
+        return (o._v if isinstance(o, _IVPProxy) else o) - self._v
+
+    def __mul__(self, o):
+        return self._v * (o._v if isinstance(o, _IVPProxy) else o)
+
+    __rmul__ = __mul__
+
+    def __neg__(self):
+        return -self._v
+
+
+class _OrderSniffer:
+    """Records the highest derivative order requested from an operator."""
+
+    def __init__(self):
+        self.order = 0
+
+    def diff(self, j: int = 1):
+        self.order = max(self.order, j)
+        return self
+
+    def __add__(self, o):
+        return self
+
+    __radd__ = __sub__ = __rsub__ = __mul__ = __rmul__ = __add__
+
+    def __neg__(self):
+        return self

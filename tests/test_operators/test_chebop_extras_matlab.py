@@ -118,3 +118,38 @@ class TestChebopPeriodic:
         d2u = np.asarray(u.diff().diff()(jnp.asarray(xs)))
         residual = d2u + du + (2 + np.sin(xs)) * uu
         npt.assert_allclose(residual, np.ones_like(residual), atol=1e-9)
+
+
+@pytest.mark.parametrize("_dummy", [0])
+class TestChebopIVP:
+    """IVPs (all BCs at one endpoint) time-march like MATLAB (#24, Opus 4.8)."""
+
+    def test_cosine_ivp(self, _dummy):
+        # u'' + u = 0, u(0)=1, u'(0)=0 -> cos(x); auto-routed to solve_ivp
+        L = Chebop(lambda x, u: u.diff(2) + u, domain=(0.0, 10.0))
+        L.lbc = lambda u: [u - 1.0, u.diff()]
+        assert L._is_ivp()
+        u = L.solve(0.0)
+        xs = np.linspace(0.0, 10.0, 60)
+        npt.assert_allclose(np.asarray(u(jnp.asarray(xs))), np.cos(xs),
+                            atol=1e-8)
+
+    def test_first_order_ivp(self, _dummy):
+        # u' + u = 0, u(0)=1 -> exp(-x)
+        L = Chebop(lambda x, u: u.diff() + u, domain=(0.0, 5.0))
+        L.lbc = 1.0
+        u = L.solve(0.0)
+        xs = np.linspace(0.0, 5.0, 40)
+        npt.assert_allclose(np.asarray(u(jnp.asarray(xs))), np.exp(-xs),
+                            atol=1e-9)
+
+    def test_airy_ivp(self, _dummy):
+        # u'' = x u, u(0)=Ai(0), u'(0)=Ai'(0) -> Airy Ai
+        from scipy.special import airy
+        ai0, aip0, _, _ = airy(0.0)
+        L = Chebop(lambda x, u: u.diff(2) - x * u, domain=(0.0, 4.0))
+        L.lbc = lambda u: [u - float(ai0), u.diff() - float(aip0)]
+        u = L.solve_ivp(0.0)
+        xs = np.linspace(0.0, 4.0, 40)
+        npt.assert_allclose(np.asarray(u(jnp.asarray(xs))), airy(xs)[0],
+                            atol=1e-9)
