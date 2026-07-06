@@ -3933,6 +3933,7 @@ def chebfun(
     trig: bool = False,
     eps: float | None = None,
     max_length: int | None = None,
+    splitting: bool = False,
 ) -> Chebfun:
     """Create a Chebfun from a callable, array of coefficients, or constant.
 
@@ -4084,6 +4085,10 @@ def chebfun(
         return Chebfun(funs=[piece], domain=Domain((a, b)))
 
     if callable(f):
+        if splitting and n is None:
+            return _construct_with_splitting(f, float(dom_seq[0]),
+                                             float(dom_seq[-1]),
+                                             _maxpow2, tol=_tol)
         return Chebfun.from_function(f, dom, n=n, maxpow2=_maxpow2,
                                      tol=_tol)
 
@@ -4295,6 +4300,95 @@ def _two_arg_extremum(f: "Chebfun", other, pick):
         return pick(f(x), g_eval(x))
 
     return chebfun(ev, domain=tuple(domain))
+
+
+def _split_piece_happy(f, a: float, b: float, maxpow2: int) -> bool:
+    """Is f resolvable on the OPEN interval (a, b)?  (Opus 4.8, #12)
+
+    Tests happiness on a slightly-shrunk interval so an ambiguous value
+    exactly at a jump (e.g. sign(0)=0) does not spoil an otherwise
+    smooth constant piece.
+    """
+    import warnings as _warnings
+    w = b - a
+    aa = a + 1e-9 * w
+    bb = b - 1e-9 * w
+    with _warnings.catch_warnings():
+        _warnings.simplefilter("ignore")
+        return _Piece.from_function(f, aa, bb, maxpow2=maxpow2).ishappy
+
+
+def _split_find_edge(f, a: float, b: float, maxpow2: int) -> float:
+    """Locate a singularity in (a, b) by happiness bisection (Opus 4.8)."""
+    for _ in range(80):
+        if b - a < 1e-13:
+            break
+        m = 0.5 * (a + b)
+        lh = _split_piece_happy(f, a, m, maxpow2)
+        rh = _split_piece_happy(f, m, b, maxpow2)
+        if lh and not rh:
+            a = m
+        elif rh and not lh:
+            b = m
+        else:
+            return m
+    return 0.5 * (a + b)
+
+
+def _split_breakpoints(f, a: float, b: float, maxpow2: int,
+                       depth: int = 0, max_depth: int = 45,
+                       min_w: float = 1e-10) -> list:
+    """Recursively find interior breakpoints for splitting-on (Opus 4.8)."""
+    import warnings as _warnings
+    with _warnings.catch_warnings():
+        _warnings.simplefilter("ignore")
+        p = _Piece.from_function(f, a + 1e-9 * (b - a), b - 1e-9 * (b - a),
+                                 maxpow2=maxpow2)
+    if p.ishappy or (b - a) < min_w or depth > max_depth:
+        return []
+    e = _split_find_edge(f, a, b, maxpow2)
+    if not (a + 1e-12 < e < b - 1e-12):
+        e = 0.5 * (a + b)
+    return (_split_breakpoints(f, a, e, maxpow2, depth + 1, max_depth, min_w)
+            + [e]
+            + _split_breakpoints(f, e, b, maxpow2, depth + 1, max_depth,
+                                 min_w))
+
+
+def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
+                              tol=None):
+    """Build a piecewise Chebfun, auto-detecting breakpoints (Opus 4.8, #12).
+
+    Each piece is constructed on a slightly-shrunk interval so that at a
+    jump the piece captures the one-sided limit (not the ambiguous value
+    exactly at the breakpoint, e.g. sign(0)=0).
+    """
+    import warnings as _warnings
+    brks = _split_breakpoints(f, a, b, maxpow2)
+    pts = sorted(set([a, b] + [float(x) for x in brks]))
+    cleaned = [pts[0]]
+    for x in pts[1:]:
+        if x - cleaned[-1] > 1e-11:
+            cleaned.append(x)
+
+    funs = []
+    for i in range(len(cleaned) - 1):
+        ai, bi = cleaned[i], cleaned[i + 1]
+        w = bi - ai
+        # shrink only at interior breakpoints (jumps); keep true domain
+        # endpoints exact.
+        lo = ai + (1e-11 * w if i > 0 else 0.0)
+        hi = bi - (1e-11 * w if i < len(cleaned) - 2 else 0.0)
+
+        def f_ref(t, _lo=lo, _hi=hi):
+            x = 0.5 * (_hi - _lo) * t + 0.5 * (_lo + _hi)
+            return f(x)
+
+        with _warnings.catch_warnings():
+            _warnings.simplefilter("ignore")
+            tech = Chebtech2.from_function(f_ref, maxpow2=maxpow2, tol=tol)
+        funs.append(_Piece(tech=tech, interval=(float(ai), float(bi))))
+    return Chebfun(funs=funs, domain=Domain(tuple(cleaned)))
 
 
 def _integer_step(f: "Chebfun", op, half_offset: bool = False):

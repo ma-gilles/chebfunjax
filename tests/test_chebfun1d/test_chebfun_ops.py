@@ -1050,3 +1050,53 @@ class TestComplexRoots:
         assert np.any(np.abs(cr - 0.3) < 1e-6)
         assert np.any(np.abs(cr - 0.5j) < 1e-6)
         assert np.any(np.abs(cr + 0.5j) < 1e-6)
+
+
+class TestSplittingOn:
+    """Automatic breakpoint detection via splitting=True (Opus 4.8, #12)."""
+
+    def _check(self, f, npf, expect_pieces=None, atol=1e-9):
+        import warnings
+
+        import jax.numpy as jnp
+        import numpy as np
+
+        import chebfunjax as cj
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            g = cj.chebfun(f, splitting=True)
+        xs = np.linspace(-0.98, 0.98, 200)
+        brk = np.asarray(g.domain.breakpoints)
+        mask = np.min(np.abs(xs[:, None] - brk[None, :]), axis=1) > 1e-4
+        got = np.asarray(g(jnp.asarray(xs)))
+        np.testing.assert_allclose(got[mask], npf(xs)[mask], atol=atol)
+        if expect_pieces is not None:
+            assert len(g.funs) == expect_pieces
+        return g
+
+    def test_jump(self):
+        import jax.numpy as jnp
+        import numpy as np
+        g = self._check(lambda x: jnp.sign(x), np.sign, expect_pieces=2)
+        # breakpoint at the jump
+        assert np.min(np.abs(np.asarray(g.domain.breakpoints))) < 1e-6
+
+    def test_kink_offcenter(self):
+        import jax.numpy as jnp
+        import numpy as np
+        g = self._check(lambda x: jnp.abs(x - 0.3),
+                        lambda x: np.abs(x - 0.3), expect_pieces=2)
+        assert np.any(np.abs(np.asarray(g.domain.breakpoints) - 0.3) < 1e-6)
+
+    def test_two_kinks(self):
+        import jax.numpy as jnp
+        import numpy as np
+        self._check(lambda x: jnp.abs(x + 0.5) + jnp.abs(x - 0.4),
+                    lambda x: np.abs(x + 0.5) + np.abs(x - 0.4))
+
+    def test_smooth_stays_one_piece(self):
+        import jax.numpy as jnp
+        import numpy as np
+        self._check(lambda x: jnp.exp(x) * jnp.sin(3 * x),
+                    lambda x: np.exp(x) * np.sin(3 * x),
+                    expect_pieces=1, atol=1e-12)
