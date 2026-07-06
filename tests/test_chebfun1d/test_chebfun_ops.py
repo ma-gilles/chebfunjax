@@ -1100,3 +1100,54 @@ class TestSplittingOn:
         self._check(lambda x: jnp.exp(x) * jnp.sin(3 * x),
                     lambda x: np.exp(x) * np.sin(3 * x),
                     expect_pieces=1, atol=1e-12)
+
+
+class TestDiffDeltas:
+    """diff() attaches Dirac deltas at jump discontinuities (#9, Opus 4.8)."""
+
+    def test_sign_jump_delta(self):
+        import warnings
+
+        import jax.numpy as jnp
+        import numpy as np
+
+        import chebfunjax as cj
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            s = cj.chebfun(lambda x: jnp.sign(x), splitting=True)
+        ds = s.diff()
+        # one delta at x=0 of magnitude 2 (the jump)
+        assert len(ds.deltas) == 1
+        loc, mag = ds.deltas[0]
+        assert abs(loc) < 1e-6
+        np.testing.assert_allclose(mag, 2.0, atol=1e-9)
+        # integral of the derivative = the jump (delta), smooth part ~0
+        np.testing.assert_allclose(float(ds.sum()), 2.0, atol=1e-8)
+
+    def test_exp_jump_delta_and_sum(self):
+        import warnings
+
+        import jax.numpy as jnp
+        import numpy as np
+
+        import chebfunjax as cj
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            h = cj.chebfun(lambda x: jnp.where(x < 0.2, jnp.exp(x),
+                                               jnp.exp(x) + 1.0),
+                           splitting=True)
+        dh = h.diff()
+        assert len(dh.deltas) == 1
+        loc, mag = dh.deltas[0]
+        np.testing.assert_allclose(loc, 0.2, atol=1e-5)
+        np.testing.assert_allclose(mag, 1.0, atol=1e-8)
+        # integral = smooth (exp(1)-exp(-1)) + jump (1)
+        np.testing.assert_allclose(float(dh.sum()),
+                                   float(np.e - 1 / np.e + 1.0), atol=1e-8)
+
+    def test_smooth_has_no_deltas(self):
+        import jax.numpy as jnp
+
+        import chebfunjax as cj
+        f = cj.chebfun(lambda x: jnp.exp(x) * jnp.sin(3 * x))
+        assert f.diff().deltas == ()

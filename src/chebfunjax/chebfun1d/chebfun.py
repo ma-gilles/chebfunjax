@@ -456,12 +456,18 @@ class Chebfun(eqx.Module):
     # Python list of pieces — static (the list itself, not the arrays inside)
     funs: list = eqx.field(static=False)
     domain: Domain = eqx.field(static=True)
+    # Dirac delta functions carried alongside the smooth part, as a tuple
+    # of (location, magnitude) pairs.  Static metadata (hashable), so the
+    # JIT/vmap pytree structure is unchanged when there are no deltas.
+    # Added by Claude Opus 4.8 (task #9).
+    deltas: tuple = eqx.field(static=True)
 
     # ------------------------------------------------------------------
     # Internal constructor (use factory classmethod or chebfun() instead)
     # ------------------------------------------------------------------
 
-    def __init__(self, funs: list[_Piece], domain: Domain) -> None:
+    def __init__(self, funs: list[_Piece], domain: Domain,
+                 deltas: tuple = ()) -> None:
         """Low-level constructor.  Prefer :func:`chebfun` for user code.
 
         Parameters
@@ -470,6 +476,10 @@ class Chebfun(eqx.Module):
             Non-empty list of smooth pieces in domain order.
         domain : Domain
             Corresponding domain (breakpoints must match piece intervals).
+        deltas : tuple, optional
+            ``((location, magnitude), ...)`` Dirac deltas (e.g. from
+            differentiating across a jump).  Ignored by point evaluation
+            (measure zero); contribute to :meth:`sum`.
         """
         if len(funs) == 0:
             raise ValueError(
@@ -478,6 +488,7 @@ class Chebfun(eqx.Module):
             )
         self.funs = funs
         self.domain = domain
+        self.deltas = tuple(deltas)
 
     # ------------------------------------------------------------------
     # Factory class methods
@@ -1420,7 +1431,23 @@ class Chebfun(eqx.Module):
         if k == 0:
             return self
         new_funs = [piece.diff(k) for piece in self.funs]
-        return Chebfun(funs=new_funs, domain=self.domain)
+        # Differentiating across a jump discontinuity produces a Dirac
+        # delta of magnitude equal to the jump (task #9, Opus 4.8).  We
+        # attach deltas only for the first derivative of a genuine jump;
+        # they are carried through and picked up by sum().
+        deltas = ()
+        if k == 1 and len(self.funs) > 1:
+            import numpy as _np
+            dlist = []
+            for i in range(len(self.funs) - 1):
+                loc = float(self.funs[i].interval[1])
+                left = float(self.funs[i](jnp.array(loc)))
+                right = float(self.funs[i + 1](jnp.array(loc)))
+                jump = right - left
+                if abs(jump) > 1e-11 * (abs(left) + abs(right) + 1.0):
+                    dlist.append((loc, jump))
+            deltas = tuple(dlist)
+        return Chebfun(funs=new_funs, domain=self.domain, deltas=deltas)
 
     def cumsum(self) -> Chebfun:
         """Antiderivative satisfying F(a) = 0 at the left endpoint.
@@ -1481,6 +1508,9 @@ class Chebfun(eqx.Module):
         total = jnp.float64(0.0)
         for piece in self.funs:
             total = total + piece.sum()
+        # Dirac deltas contribute their magnitude to the integral (#9).
+        for _loc, _mag in getattr(self, "deltas", ()):
+            total = total + jnp.float64(_mag)
         return total
 
     def inner(self, other: Chebfun) -> jax.Array:
