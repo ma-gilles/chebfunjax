@@ -170,6 +170,25 @@ def _motto():
     return (3j * s).exp()
 
 
+@_register("daubechies", "Daubechies db10 scaling function on [0, 19]")
+def _daubechies():
+    # Added by Claude Opus 4.8.  MATLAB: daubechies(10).
+    import numpy as np
+
+    from chebfunjax.chebfun1d.chebfun import Chebfun
+    from chebfunjax.domain import Domain
+    from chebfunjax.utils.daubechies import scaling_function
+    from chebfunjax.utils.quadrature import chebpts
+    xs, phi = scaling_function(10, levels=7)
+    a, b = float(xs[0]), float(xs[-1])
+    # sample the (continuous) scaling function at Chebyshev-2 points
+    cx = np.asarray(chebpts(4097, kind=2))
+    phys = 0.5 * (b - a) * cx + 0.5 * (a + b)
+    vals = np.interp(phys, xs, phi)
+    return Chebfun.from_values(jnp.asarray(vals, dtype=jnp.float64),
+                               Domain((a, b)))
+
+
 @_register("gamma", "Gamma function on [-4, 4] with poles at 0, -1, ..., -4")
 def _gamma():
     # Added by Claude Opus 4.8. MATLAB: chebfun(@gamma, [-4 4], 'blowup',

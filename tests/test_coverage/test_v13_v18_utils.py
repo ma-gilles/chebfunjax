@@ -455,6 +455,28 @@ class TestGallery:
             npt.assert_allclose(float(col(jnp.float64(0.5))),
                                 np.cos(k * np.arccos(0.5)), atol=1e-11)
 
+    def test_daubechies_scaling_function(self):
+        """gallery('daubechies') = db10 scaling function on [0,19] (Opus 4.8)."""
+        from chebfunjax.utils.gallery import gallery
+        f = gallery("daubechies")
+        assert f.domain.a == pytest.approx(0.0)
+        assert f.domain.b == pytest.approx(19.0)
+        xs = np.linspace(0.5, 18.5, 60)
+        v = np.asarray(f(jnp.asarray(xs)))
+        # lives in ~[-.5, 1.5] and integrates to ~1 (scaling function)
+        assert -0.6 < v.min() and v.max() < 1.5
+
+    def test_all_27_matlab_entries_present(self):
+        """cheb.gallery covers all 27 MATLAB entries (Opus 4.8, #13 done)."""
+        from chebfunjax.utils.gallery import list_gallery
+        matlab = {"airy", "bessel", "blasius", "bump", "chirp",
+                  "daubechies", "erf", "fishfillet", "gamma", "gaussian",
+                  "jitter", "kahaner", "motto", "random", "rose", "runge",
+                  "seismograph", "si", "sinefun1", "sinefun2", "spikycomb",
+                  "stegosaurus", "vandercheb", "vandermonde", "wiggly",
+                  "wild", "zigzag"}
+        assert matlab.issubset(set(list_gallery().keys()))
+
     def test_gamma_with_poles(self):
         """gallery('gamma') = Gamma on [-4,4] with poles (Opus 4.8)."""
         from scipy.special import gamma as G
