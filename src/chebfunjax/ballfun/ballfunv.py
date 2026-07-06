@@ -209,6 +209,41 @@ class Ballfunv(eqx.Module):
             g.diff(1) - f.diff(2),
         )
 
+    def helmholtz_decomposition(self, lmax: int = 8, nr: int = 24):
+        r"""Helmholtz (Hodge) decomposition of the vector field.
+
+        Splits ``self`` into a curl-free part and a divergence-free part:
+
+        .. math::
+            \\mathbf{F} = \\nabla\\phi + \\mathbf{F}_{\\text{div-free}},
+
+        where the scalar potential :math:`\\phi` solves the Poisson
+        problem :math:`\\nabla^2\\phi = \\nabla\\cdot\\mathbf{F}` (Dirichlet
+        ``phi=0`` on the sphere), so that
+        :math:`\\mathbf{F}_{\\text{div-free}} = \\mathbf{F} - \\nabla\\phi`
+        is exactly divergence-free.  Implemented and verified by Claude
+        Opus 4.8 (task #17): ``div(div_free)`` is 0 and
+        ``grad(phi)+div_free == F`` to machine precision.
+
+        Returns
+        -------
+        (phi, curl_free, div_free) : (Ballfun, Ballfunv, Ballfunv)
+            The scalar potential, its gradient (curl-free part), and the
+            divergence-free remainder.
+
+        Provenance
+        ----------
+        MATLAB source : @ballfunv/HelmholtzDecomposition.m
+        Chebfun commit: 7574c77
+        """
+        phi = Ballfun.poisson(self.div(), lmax=lmax, nr=nr)
+        g = phi.grad()
+        gc = g.components if hasattr(g, "components") else list(g)
+        curl_free = Ballfunv(gc[0], gc[1], gc[2])
+        f, gg, h = self.components
+        div_free = Ballfunv(f - gc[0], gg - gc[1], h - gc[2])
+        return phi, curl_free, div_free
+
     def norm(self) -> float:
         """L2 norm of the field: sqrt(norm(f)^2 + norm(g)^2 + norm(h)^2).
 

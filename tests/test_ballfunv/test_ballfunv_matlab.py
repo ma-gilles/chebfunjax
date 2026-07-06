@@ -131,3 +131,32 @@ class TestBallfunvDivCurl:
                                     lambda x, y, z: y * z,
                                     lambda x, y, z: x * z)
         np.testing.assert_allclose(self._ev(G.curl().div()), 0.0, atol=1e-7)
+
+
+class TestBallfunvHelmholtz:
+    """Helmholtz (Hodge) decomposition on the ball (Opus 4.8, task #17)."""
+
+    _pts = [(0.3, 0.4, 0.5), (0.6, 1.0, 2.0), (0.7, -1.5, 1.2)]
+
+    def _ev(self, bf):
+        import jax.numpy as jnp
+        import numpy as np
+        return np.array([float(bf(jnp.array(r), jnp.array(lam), jnp.array(t)))
+                         for r, lam, t in self._pts])
+
+    def test_decomposition(self):
+        import numpy as np
+
+        from chebfunjax.ballfun.ballfunv import Ballfunv
+        F = Ballfunv.from_functions(lambda x, y, z: x ** 2,
+                                    lambda x, y, z: y * z,
+                                    lambda x, y, z: x)
+        phi, curl_free, div_free = F.helmholtz_decomposition(lmax=8, nr=28)
+        # div-free part has zero divergence
+        np.testing.assert_allclose(self._ev(div_free.div()), 0.0, atol=1e-7)
+        # exact reconstruction F = grad(phi) + div_free
+        for i in range(3):
+            rec = self._ev(curl_free.components[i]) \
+                + self._ev(div_free.components[i])
+            np.testing.assert_allclose(rec, self._ev(F.components[i]),
+                                       atol=1e-9)
