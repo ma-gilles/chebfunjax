@@ -122,23 +122,47 @@ print(g.rank)
 
 ## 17.6 Spherical Harmonics
 
-The spherical harmonics $Y_l^m(\lambda, \theta)$ are the eigenfunctions of the Laplace-Beltrami operator on the sphere. They can be constructed as `Spherefun` objects:
+The spherical harmonics $Y_l^m(\lambda, \theta)$ are the eigenfunctions of the Laplace-Beltrami operator on the sphere. They are built directly with `Spherefun.sphharm`:
 
 ```python
-from scipy.special import sph_harm
-
-# Y_2^1 spherical harmonic
-# Note: scipy uses (m, l, phi, theta) with phi=longitude, theta=colatitude
-l, m = 2, 1
-Y21 = Spherefun.from_function(
-    lambda lam, theta: jnp.real(
-        sph_harm(m, l, lam, theta)))
+# Y_2^1 spherical harmonic (real, orthonormal)
+Y21 = Spherefun.sphharm(2, 1)
 print(Y21.rank)
 ```
 
-These satisfy $\Delta_S Y_l^m = -l(l+1) Y_l^m$ where $\Delta_S$ is the Laplace-Beltrami operator.
+These satisfy $\Delta_S Y_l^m = -l(l+1) Y_l^m$ where $\Delta_S$ is the Laplace-Beltrami operator. We can verify this with the library Laplacian:
 
-## 17.7 Vector-Valued Functions: Spherefunv
+```python
+lap = Y21.laplacian()
+ratio = lap(0.5, 1.2) / Y21(0.5, 1.2)
+print(ratio)   # -6.0  (= -l(l+1) with l=2)
+```
+
+## 17.7 Calculus on the Sphere
+
+`Spherefun` supports the surface differential operators. The surface gradient returns a three-component Cartesian `Spherefunv`, and the surface Laplacian (Laplace-Beltrami operator) returns a `Spherefun`:
+
+```python
+f = Spherefun.sphharm(3, 2)
+
+# surface Laplacian
+lap = f.laplacian()          # == -12 * f  (l=3)
+
+# surface gradient (Cartesian components)
+gx, gy, gz = f.grad()
+```
+
+The Poisson equation $\Delta_S u = f$ (with $\int_{S^2} u = \text{const}$ fixing the nullspace) is solved by projecting onto spherical harmonics:
+
+```python
+# solve Laplacian(u) = -6 Y_2^1  ->  u = Y_2^1
+rhs = Spherefun.from_function(
+    lambda lam, th: -6.0 * Spherefun.sphharm(2, 1)(lam, th))
+u = Spherefun.poisson(rhs, const=0.0)
+print(u(0.5, 1.2))           # == Y_2^1(0.5, 1.2)
+```
+
+## 17.8 Vector-Valued Functions: Spherefunv
 
 The `Spherefunv` class represents 2-component vector fields on the sphere:
 
@@ -158,7 +182,7 @@ print(F)
 - Norm: `F.norm()` returns a `Spherefun`
 - Arithmetic: `F + G`, `F - G`, `c * F`
 
-## 17.8 Construction Details
+## 17.9 Construction Details
 
 The `Spherefun.from_function` constructor follows the same two-phase algorithm as `Diskfun`, adapted for spherical geometry:
 
@@ -168,7 +192,7 @@ The `Spherefun.from_function` constructor follows the same two-phase algorithm a
 
 The algorithm avoids the artificial oversampling near the poles that plagues naive tensor-product methods on the sphere.
 
-## 17.9 Coordinate Conventions
+## 17.10 Coordinate Conventions
 
 The chebfunjax `Spherefun` follows the MATLAB Chebfun convention:
 - $\lambda$ (first argument) is the longitude in $[-\pi, \pi]$
@@ -176,7 +200,7 @@ The chebfunjax `Spherefun` follows the MATLAB Chebfun convention:
 
 This matches the standard physics convention. Note that some references use $\phi$ for longitude and $\theta$ for colatitude, while others reverse them.
 
-## 17.10 References
+## 17.11 References
 
 1. A. Townsend, H. Wilber, and G. Wright, "Computing with functions on spherical and polar geometries I: The sphere", *SIAM J. Sci. Comput.*, 38(4), C403--C425, 2016.
 
