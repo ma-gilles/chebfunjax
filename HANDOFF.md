@@ -238,11 +238,19 @@ lost):
   `Diskfunv.div/curl`, and constructor bug fixes in spherefun, diskfun,
   and trigtech. `cheb.gallery` now 20/27 MATLAB entries.
 
-**Still open (each a substantial feature):**
-- **#9** delta-at-jumps through `diff`. **#12** splitting-on / edge
-  detection. **#17** Ballfun Helmholtz decomposition. **#24** chebop
-  `bc='periodic'` (Fourier collocation) + IVP time-marching routing.
-  **#23** master parity matrix formalization.
+**Also closed:** **#12** splitting-on / edge detection
+(`chebfun(f, splitting=True)` — happiness-bisection edge locator,
+exact on jumps/kinks). **#24 (part)** chebop `bc='periodic'` via Fourier
+collocation. **#15 relieved** (kink/jump grinds avoidable with
+`splitting=True`).
+
+**Still open (each a substantial feature or research task):**
+- **#9** delta-at-jumps through `diff`. **#17** Ballfun Helmholtz
+  decomposition. **#24 (part)** IVP time-marching routing (optimization;
+  collocation already solves IVPs). **#23** master parity matrix
+  formalization. Remaining `cheb.gallery` entries (gamma/vandermonde/
+  daubechies/random) need blowup / quasimatrix / randnfun / wavelet
+  support.
 
 ### 4.2b Library backlog (original list)
 - **#9** `Chebfun.diff()` — delta at jumps: `sum(diff(f))` already
