@@ -244,13 +244,18 @@ exact on jumps/kinks). **#24 (part)** chebop `bc='periodic'` via Fourier
 collocation. **#15 relieved** (kink/jump grinds avoidable with
 `splitting=True`).
 
+**#17 DONE (Opus 4.8):** ballfunv `div`/`curl`, the ball Poisson solver
+(`Ballfun.poisson`), and `Ballfunv.helmholtz_decomposition` — all
+verified (manufactured solutions + exact identities to ~1e-14).
+
 **Still open (each a substantial feature or research task):**
-- **#9** delta-at-jumps through `diff`. **#17** Ballfun Helmholtz
-  decomposition. **#24 (part)** IVP time-marching routing (optimization;
-  collocation already solves IVPs). **#23** master parity matrix
-  formalization. Remaining `cheb.gallery` entries (gamma/vandermonde/
-  daubechies/random) need blowup / quasimatrix / randnfun / wavelet
-  support.
+- **#9** delta-at-jumps through `diff` (needs a `deltas` field on the
+  core Chebfun eqx.Module — touches every construction site).
+- **#24 (part)** IVP time-marching routing (optimization; collocation
+  already solves IVPs).
+- **#23** master parity matrix formalization (large analysis task).
+- Remaining `cheb.gallery` entries (gamma/vandermonde/daubechies/random)
+  need blowup / quasimatrix / randnfun / wavelet support.
 
 ### 4.2b Library backlog (original list)
 - **#9** `Chebfun.diff()` — delta at jumps: `sum(diff(f))` already
