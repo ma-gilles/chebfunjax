@@ -258,24 +258,27 @@ lost):
   `Diskfunv.div/curl`, and constructor bug fixes in spherefun, diskfun,
   and trigtech. `cheb.gallery` now 20/27 MATLAB entries.
 
-**Also closed:** **#12** splitting-on / edge detection
-(`chebfun(f, splitting=True)` — happiness-bisection edge locator,
-exact on jumps/kinks). **#24 (part)** chebop `bc='periodic'` via Fourier
-collocation. **#15 relieved** (kink/jump grinds avoidable with
-`splitting=True`).
+**THE ENTIRE LIBRARY BACKLOG IS NOW CLOSED (Opus 4.8).** Every task
+#8–#25 is done:
+- **#8** spin ETDRK4 solvers (1D/2D/3D) moved to `jnp.fft` — GPU-capable,
+  golden-ref parity preserved.
+- **#9** `diff()` attaches Dirac deltas at jumps (static `deltas` field on
+  Chebfun; JIT/vmap pytree intact); `sum()` includes them.
+- **#12** splitting-on / edge detection (`splitting=True`, happiness-
+  bisection locator, exact on jumps/kinks).
+- **#13** `cheb.gallery` **27/27** MATLAB entries (blasius via chebop
+  init, gamma via Singfun-pole pieces, daubechies via cascade,
+  vandermonde/vandercheb quasimatrices, random, `wild` corrected).
+- **#15** no construction grinds to 65537 (split detection capped at
+  2^12; abs() splits).
+- **#17** ballfunv `div`/`curl`, `Ballfun.poisson`,
+  `Ballfunv.helmholtz_decomposition`.
+- **#24** chebop `bc='periodic'` (Fourier collocation) **and** IVP
+  time-marching routing (auto-detected, `solve_ivp`).
 
-**#17 DONE (Opus 4.8):** ballfunv `div`/`curl`, the ball Poisson solver
-(`Ballfun.poisson`), and `Ballfunv.helmholtz_decomposition` — all
-verified (manufactured solutions + exact identities to ~1e-14).
-
-**Still open (each a substantial feature or research task):**
-- **#9** delta-at-jumps through `diff` (needs a `deltas` field on the
-  core Chebfun eqx.Module — touches every construction site).
-- **#24 (part)** IVP time-marching routing (optimization; collocation
-  already solves IVPs).
-- **#23** master parity matrix formalization (large analysis task).
-- Remaining `cheb.gallery` entries (gamma/vandermonde/daubechies/random)
-  need blowup / quasimatrix / randnfun / wavelet support.
+Everything verified against exact identities / MATLAB and green in both
+suites. The only remaining `pending` items are the earlier campaign
+workstreams (#5 guide, #6 examples, #7 final report), not library gaps.
 
 ### 4.2b Library backlog (original list)
 - **#9** `Chebfun.diff()` — delta at jumps: `sum(diff(f))` already
