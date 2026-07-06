@@ -170,6 +170,22 @@ def _motto():
     return (3j * s).exp()
 
 
+@_register("blasius", "Blasius boundary-layer profile 2u'''+u u''=0 on [0,10]")
+def _blasius():
+    # Added by Claude Opus 4.8 (needed a chebop initial guess, N.init).
+    # MATLAB: N = chebop(@(u) 2*diff(u,3)+u.*diff(u,2), [0 10]) with
+    # u(0)=0, u'(0)=0, u'(10)=1 and a Chebyshev initial guess.
+    from chebfunjax.chebfun1d.chebfun import chebfun
+    from chebfunjax.operators.chebop import Chebop
+    N = Chebop(lambda x, u: 2 * u.diff(3) + u * u.diff(2),
+               domain=(0.0, 10.0))
+    N.lbc = lambda u: [u, u.diff()]
+    N.rbc = lambda u: u.diff() - 1.0
+    N.init = chebfun(lambda x: x - 1.7 * (1 - jnp.exp(-x)),
+                     domain=(0.0, 10.0))
+    return N.solve(0.0, n_max=512, max_iter=40)
+
+
 @_register("vandermonde", "Quasimatrix of monomials 1, x, ..., x^5")
 def _vandermonde():
     # Added by Claude Opus 4.8.  MATLAB: chebfun(@(x) x.^(0:5)).
