@@ -4368,15 +4368,23 @@ def _split_find_edge(f, a: float, b: float, maxpow2: int) -> float:
 def _split_breakpoints(f, a: float, b: float, maxpow2: int,
                        depth: int = 0, max_depth: int = 45,
                        min_w: float = 1e-10) -> list:
-    """Recursively find interior breakpoints for splitting-on (Opus 4.8)."""
+    """Recursively find interior breakpoints for splitting-on (Opus 4.8).
+
+    Detection is capped at 2^12 points: a piece containing a
+    singularity does not resolve below that length, so it is flagged
+    unhappy and split, instead of being accepted as a ~10k-coefficient
+    grind that straddles the edge.  The final smooth pieces are still
+    built at the caller's full ``maxpow2``.
+    """
     import warnings as _warnings
+    det = min(maxpow2, 12)
     with _warnings.catch_warnings():
         _warnings.simplefilter("ignore")
         p = _Piece.from_function(f, a + 1e-9 * (b - a), b - 1e-9 * (b - a),
-                                 maxpow2=maxpow2)
+                                 maxpow2=det)
     if p.ishappy or (b - a) < min_w or depth > max_depth:
         return []
-    e = _split_find_edge(f, a, b, maxpow2)
+    e = _split_find_edge(f, a, b, det)
     if not (a + 1e-12 < e < b - 1e-12):
         e = 0.5 * (a + b)
     return (_split_breakpoints(f, a, e, maxpow2, depth + 1, max_depth, min_w)
