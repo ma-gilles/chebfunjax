@@ -204,3 +204,34 @@ class TestArithmetic:
         I_g = g.integral()
         vol = 4.0 * float(np.pi) / 3.0
         npt.assert_allclose(I_g, I_f + 2.0 * vol, atol=1e-4, rtol=0)
+
+
+class TestBallfunPoisson:
+    """Spectral Poisson solver on the ball (Opus 4.8, task #17).
+
+    Verified against manufactured solutions u = (1-r^2) r^l Y_l^m, whose
+    Laplacian is -(4l+6) r^l Y_l^m.
+    """
+
+    _pts = [(0.3, 0.4, 0.5), (0.6, 1.0, 2.0), (0.8, -1.5, 1.2)]
+
+    def test_manufactured_modes(self):
+        import jax.numpy as jnp
+        import numpy as np
+
+        from chebfunjax.ballfun.ballfun import Ballfun
+        from chebfunjax.spherefun.spherefun import _real_ylm_values
+        for l, m in [(0, 0), (1, 0), (2, 1), (3, -2)]:
+            def rhs(r, lam, th, _l=l, _m=m):
+                return -(4 * _l + 6) * jnp.asarray(r) ** _l \
+                    * _real_ylm_values(_l, _m, jnp.asarray(lam),
+                                       jnp.asarray(th))
+            u = Ballfun.poisson(rhs, lmax=max(4, l + 1))
+            got = np.array([float(u(jnp.array(r), jnp.array(la),
+                                    jnp.array(t)))
+                            for r, la, t in self._pts])
+            want = np.array(
+                [(1 - r ** 2) * r ** l
+                 * float(_real_ylm_values(l, m, jnp.array(la), jnp.array(t)))
+                 for r, la, t in self._pts])
+            np.testing.assert_allclose(got, want, atol=1e-10)

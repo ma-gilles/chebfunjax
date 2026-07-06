@@ -1579,6 +1579,46 @@ class Ballfun(eqx.Module):
         plt.colorbar(pcm, ax=ax)
         return ax
 
+    @staticmethod
+    def poisson(f, lmax: int = 8, nr: int = 24) -> "Ballfun":
+        r"""Solve the Poisson equation :math:`\\nabla^2 u = f` on the ball.
+
+        Homogeneous Dirichlet boundary condition ``u = 0`` on ``r = 1``.
+        Solved spectrally: the right-hand side is expanded in real
+        spherical harmonics at each radius, and each mode's radial
+        function is found by Chebyshev collocation of
+
+        .. math::
+            u_{lm}'' + \\frac{2}{r} u_{lm}'
+            - \\frac{l(l+1)}{r^2} u_{lm} = f_{lm},
+
+        with ``u_{lm}(1)=0`` and pole regularity at the origin
+        (``u_{lm}(0)=0`` for ``l>0``, ``u_{lm}'(0)=0`` for ``l=0``).
+        Implemented and verified by Claude Opus 4.8 against manufactured
+        solutions ``u = (1-r^2) r^l Y_l^m`` (task #17).
+
+        Parameters
+        ----------
+        f : Ballfun or callable
+            Right-hand side ``f(r, lambda, theta)`` in spherical coords.
+        lmax : int, default 8
+            Spherical-harmonic bandwidth.
+        nr : int, default 24
+            Radial Chebyshev resolution.
+
+        Returns
+        -------
+        Ballfun
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/poisson.m (result-equivalent).
+        Chebfun commit: 7574c77
+        """
+        ev = _ballfun_poisson_evaluator(f, lmax, nr)
+        return Ballfun.from_function(
+            lambda x, y, z: jnp.asarray(ev(x, y, z)), spherical=True)
+
     def __repr__(self) -> str:
         """Compact display like MATLAB Chebfun.
 
@@ -1695,3 +1735,86 @@ def _ballfun_onediff_cart(F: np.ndarray, dim: int) -> np.ndarray:
         dTh = solve_r(dTh)
         out = mul_th(dR, McosT) - mul_th(dTh, MsinT)
     return out
+
+
+def _ballfun_poisson_evaluator(f, lmax: int, nr: int):
+    """Spectral ball Poisson solver -> evaluator ev(r, lam, theta).
+
+    Per real spherical-harmonic mode, solve the radial ODE by Chebyshev
+    collocation with u(1)=0 and pole regularity at the origin.  Added by
+    Claude Opus 4.8 (task #17).
+    """
+    from numpy.polynomial import chebyshev as _C
+
+    from chebfunjax.diskfun.diskfun import _cheb_diff_matrix
+    from chebfunjax.spherefun.spherefun import _real_ylm_values
+
+    D, x = _cheb_diff_matrix(nr)
+    r = (x + 1.0) / 2.0
+    Dr = 2.0 * D
+    Drr = Dr @ Dr
+    npts = len(r)
+    last = npts - 1                      # r = 0 index (x = -1)
+
+    nth = 2 * lmax + 2
+    nph = 2 * lmax + 2
+    xg, wg = np.polynomial.legendre.leggauss(nth)
+    theta = np.arccos(xg)
+    phi = np.linspace(-np.pi, np.pi, nph, endpoint=False)
+    dph = 2.0 * np.pi / nph
+    TH, PH = np.meshgrid(theta, phi, indexing="ij")
+    lam_j = jnp.asarray(PH.ravel())
+    th_j = jnp.asarray(TH.ravel())
+
+    lm_list = [(l, m) for l in range(lmax + 1) for m in range(-l, l + 1)]
+    ycache = {(l, m): np.asarray(
+        _real_ylm_values(l, m, lam_j, th_j)).reshape(TH.shape)
+        for (l, m) in lm_list}
+
+    modes = {k: np.zeros(npts) for k in lm_list}
+    for ir, rr in enumerate(r):
+        if rr < 1e-12:
+            continue
+        F = np.asarray(f(jnp.full(lam_j.shape, float(rr)), lam_j, th_j)
+                       ).reshape(TH.shape)
+        for k, Y in ycache.items():
+            modes[k][ir] = np.sum(F * Y * wg[:, None] * dph)
+
+    rs = r.copy()
+    rs[rs < 1e-12] = 1e-12
+    vand = _C.chebvander(x, nr)
+    coefs = {}
+    for (l, m), flm in modes.items():
+        if np.max(np.abs(flm)) < 1e-11:
+            continue
+        Lm = Drr + np.diag(2.0 / rs) @ Dr - l * (l + 1) * np.diag(1.0 / rs ** 2)
+        A = Lm.astype(float).copy()
+        rhs = flm.astype(float).copy()
+        A[0, :] = 0.0
+        A[0, 0] = 1.0
+        rhs[0] = 0.0                      # u(1) = 0
+        if l == 0:
+            A[last, :] = Dr[last, :]      # u'(0) = 0
+            rhs[last] = 0.0
+        else:
+            A[last, :] = 0.0
+            A[last, last] = 1.0           # u(0) = 0
+            rhs[last] = 0.0
+        u = np.linalg.solve(A, rhs)
+        coefs[(l, m)] = np.linalg.lstsq(vand, u, rcond=None)[0]
+
+    def ev(r_, lam_, th_):
+        r_ = np.atleast_1d(np.asarray(r_, dtype=float))
+        lam_ = np.atleast_1d(np.asarray(lam_, dtype=float))
+        th_ = np.atleast_1d(np.asarray(th_, dtype=float))
+        shape = np.broadcast(r_, lam_, th_).shape
+        s = 2.0 * np.broadcast_to(r_, shape).ravel() - 1.0
+        lamf = jnp.asarray(np.broadcast_to(lam_, shape).ravel())
+        thf = jnp.asarray(np.broadcast_to(th_, shape).ravel())
+        out = np.zeros(s.shape)
+        for (l, m), c in coefs.items():
+            out = out + _C.chebval(s, c) * np.asarray(
+                _real_ylm_values(l, m, lamf, thf))
+        return out.reshape(shape)
+
+    return ev
