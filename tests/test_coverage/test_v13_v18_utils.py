@@ -423,6 +423,13 @@ class TestGallery:
         got = np.asarray(f(jnp.asarray(xs)))
         npt.assert_allclose(got[mask], np.round(fv[mask]), atol=1e-12)
 
+    def test_random_interpolant(self):
+        """gallery('random') interpolates 100 values (Opus 4.8)."""
+        from chebfunjax.utils.gallery import gallery
+        f = gallery("random")
+        assert len(f.funs[0].tech.coeffs) == 100
+        assert np.isfinite(float(f(jnp.float64(0.3))))
+
     def test_si_matches_sine_integral(self):
         """gallery('si') is Si(x) up to the Si(-50) offset from cumsum.
 

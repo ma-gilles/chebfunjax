@@ -170,6 +170,20 @@ def _motto():
     return (3j * s).exp()
 
 
+@_register("random", "Interpolant through 100 random values at Cheb points")
+def _random():
+    # Added by Claude Opus 4.8.  MATLAB: chebfun(rand(100,1)).
+    import random as _r
+
+    import jax
+
+    from chebfunjax.chebfun1d.chebfun import Chebfun
+    from chebfunjax.domain import Domain
+    key = jax.random.PRNGKey(_r.randint(0, 2 ** 31 - 1))
+    vals = jax.random.uniform(key, (100,), dtype=jnp.float64)
+    return Chebfun.from_values(vals, Domain((-1.0, 1.0)))
+
+
 @_register("stegosaurus", "max(sin(x)+sin(x^2), x/10) on [0, 10]")
 def _stegosaurus():
     # Added by Claude Opus 4.8 (needed two-arg max, now available).
