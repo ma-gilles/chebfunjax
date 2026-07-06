@@ -19,6 +19,7 @@ from __future__ import annotations
 
 from typing import Optional, Tuple, Union
 
+import jax.numpy as jnp
 import numpy as np
 
 from chebfunjax.spin.solver import (
@@ -155,9 +156,9 @@ def _etdrk4_step_3d(
     B4 = coeffs["B4"]
 
     def _nonlin_hat(c_hat):
-        u_v = np.fft.ifftn(c_hat)
+        u_v = jnp.fft.ifftn(c_hat)
         nv = nonlin_vals(u_v)
-        return np.fft.fftn(nv)
+        return jnp.fft.fftn(nv)
 
     N1 = _nonlin_hat(u_hat)
 
@@ -178,7 +179,7 @@ def _etdrk4_step_3d(
              + B4 * Nc_hat)
 
     if dealias is not None:
-        u_new = np.where(dealias, u_new, 0.0 + 0.0j)
+        u_new = jnp.where(dealias, u_new, 0.0 + 0.0j)
 
     return u_new
 
@@ -373,7 +374,7 @@ def _sphere_fft2(u_vals: np.ndarray) -> np.ndarray:
         u_hat[j_th * N + j_lam]).
     """
     # fft2 with axes=(0,1): axis 0 = theta, axis 1 = lambda
-    return np.fft.fft2(u_vals).ravel()
+    return jnp.fft.fft2(u_vals).ravel()
 
 
 def _sphere_ifft2(u_hat: np.ndarray, N: int) -> np.ndarray:
@@ -390,7 +391,7 @@ def _sphere_ifft2(u_hat: np.ndarray, N: int) -> np.ndarray:
     -------
     u_vals : np.ndarray, shape (N, N)
     """
-    return np.fft.ifft2(u_hat.reshape(N, N))
+    return jnp.fft.ifft2(u_hat.reshape(N, N))
 
 
 # ---------------------------------------------------------------------------
@@ -595,7 +596,7 @@ def spin3(
     dmask = op.dealias_mask(N) if dealias else None
 
     # ---- Initial Fourier coefficients ----
-    u_hat = np.fft.fftn(u0_vals)
+    u_hat = jnp.fft.fftn(u0_vals)
     if dealias and dmask is not None:
         u_hat = np.where(dmask, u_hat, 0.0 + 0.0j)
 
@@ -625,7 +626,7 @@ def spin3(
             print(f"  spin3: {pct:.0f}%  t={t:.4g}")
 
     # ---- Convert back to physical space ----
-    u_final = np.fft.ifftn(u_hat)
+    u_final = jnp.fft.ifftn(u_hat)
     if op.is_real:
         u_final = np.real(u_final)
 

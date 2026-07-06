@@ -466,9 +466,11 @@ def _etdrk4_step(
 
     def _nonlin_coeff(c_hat):
         """Compute Nc * fft(nonlin_vals(ifft(c_hat)))."""
-        u_vals = np.fft.ifft(c_hat)
+        # jnp.fft dispatches to the accelerator (GPU) when available;
+        # converted from np.fft by Claude Opus 4.8 (task #8).
+        u_vals = jnp.fft.ifft(c_hat)
         nv = nonlin_vals(u_vals)
-        return Nc * np.fft.fft(nv)
+        return Nc * jnp.fft.fft(nv)
 
     # Stage 1 nonlinearity N(u_n) — used by stages 2 and 4 and the update
     # (MATLAB computeMissingCoeffs fills A{2,1}, A{4,1}, B{1}; the previous
@@ -492,7 +494,7 @@ def _etdrk4_step(
 
     # Apply dealiasing
     if dealias is not None:
-        u_new = np.where(dealias, u_new, 0.0 + 0.0j)
+        u_new = jnp.where(dealias, u_new, 0.0 + 0.0j)
 
     return u_new
 
@@ -641,9 +643,15 @@ def spin(
     dmask = _dealias_mask(N) if dealias else None
 
     # ---- Initial Fourier coefficients ----
-    u_hat = np.fft.fft(u0_vals)
+    u_hat = jnp.fft.fft(jnp.asarray(u0_vals))
     if dealias and dmask is not None:
-        u_hat = np.where(dmask, u_hat, 0.0 + 0.0j)
+        u_hat = jnp.where(jnp.asarray(dmask), u_hat, 0.0 + 0.0j)
+
+    # ---- Move ETDRK4 coefficients + factors onto the device (task #8,
+    #      Opus 4.8): the per-step arithmetic then runs on the GPU. ----
+    coeffs = {k: jnp.asarray(v) for k, v in coeffs.items()}
+    Nc = jnp.asarray(Nc)
+    dmask_j = None if dmask is None else jnp.asarray(dmask)
 
     # ---- Extract nonlinear part function ----
     nonlin_vals_fn = op.nonlin_vals
@@ -660,8 +668,8 @@ def spin(
     report_every = max(1, nsteps // 10)
 
     for step in range(nsteps):
-        u_hat = _etdrk4_step(u_hat, Nc, nonlin_vals_fn, coeffs, dmask)
-        if np.any(np.isnan(u_hat)):
+        u_hat = _etdrk4_step(u_hat, Nc, nonlin_vals_fn, coeffs, dmask_j)
+        if bool(jnp.any(jnp.isnan(u_hat))):
             raise RuntimeError(
                 f"Solution blew up at step {step}, t={t + dt:.6g}. "
                 "Try a smaller time-step."
@@ -672,7 +680,7 @@ def spin(
             print(f"  spin: {pct:.0f}%  t={t:.4g}")
 
     # ---- Convert back to physical space ----
-    u_final = np.fft.ifft(u_hat)
+    u_final = np.asarray(jnp.fft.ifft(u_hat))
     if op.is_real:
         u_final = np.real(u_final)
 

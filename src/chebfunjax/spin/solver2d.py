@@ -26,6 +26,7 @@ from __future__ import annotations
 
 from typing import Optional, Tuple, Union
 
+import jax.numpy as jnp
 import numpy as np
 
 from chebfunjax.spin.solver import (
@@ -182,9 +183,9 @@ def _etdrk4_step_2d_scalar(
     def _nonlin_coeff(c_hat_flat):
         """Compute fft2(nonlin_vals(ifft2(c_hat)))."""
         c_hat = c_hat_flat.reshape(N, N)
-        u_vals = np.fft.ifft2(c_hat)
+        u_vals = jnp.fft.ifft2(c_hat)
         nv = nonlin_vals_fn(u_vals)
-        return np.fft.fft2(nv).ravel()
+        return jnp.fft.fft2(nv).ravel()
 
     u_flat = u_hat.ravel()
     N1 = _nonlin_coeff(u_flat)
@@ -208,7 +209,7 @@ def _etdrk4_step_2d_scalar(
     u_new = u_new_flat.reshape(N, N)
 
     if dealias is not None:
-        u_new = np.where(dealias, u_new, 0.0 + 0.0j)
+        u_new = jnp.where(dealias, u_new, 0.0 + 0.0j)
 
     return u_new
 
@@ -255,12 +256,12 @@ def _etdrk4_step_2d_multi(
     n_vars = len(u_hats)
 
     def _vals_from_hats(hats):
-        return [np.fft.ifft2(h) for h in hats]
+        return [jnp.fft.ifft2(h) for h in hats]
 
     def _nonlin_coeffs(hats):
         """Compute fft2(N_i(ifft2(h0), ifft2(h1), ...)) for each component."""
         vals = _vals_from_hats(hats)
-        return [np.fft.fft2(nonlin_fns[i](*vals)) for i in range(n_vars)]
+        return [jnp.fft.fft2(nonlin_fns[i](*vals)) for i in range(n_vars)]
 
     # Stage-1 nonlinearity per component (previously omitted, matching
     # the corrected scalar scheme)
@@ -310,7 +311,7 @@ def _etdrk4_step_2d_multi(
         )
         u_new = u_new_flat.reshape(N, N)
         if dealias is not None:
-            u_new = np.where(dealias, u_new, 0.0 + 0.0j)
+            u_new = jnp.where(dealias, u_new, 0.0 + 0.0j)
         u_new_hats.append(u_new)
 
     return u_new_hats
@@ -463,7 +464,7 @@ def spin2(
 
         # ---- Initial condition ----
         u0_vals = np.asarray(op.u0(xx, yy), dtype=complex)
-        u_hat = np.fft.fft2(u0_vals)
+        u_hat = jnp.fft.fft2(u0_vals)
         if dealias and dmask is not None:
             u_hat = np.where(dmask, u_hat, 0.0 + 0.0j)
 
@@ -485,7 +486,7 @@ def spin2(
                 print(f"  spin2: {pct:.0f}%  t={t:.4g}")
 
         # ---- Back to physical space ----
-        u_final = np.fft.ifft2(u_hat)
+        u_final = jnp.fft.ifft2(u_hat)
         if op.is_real:
             u_final = np.real(u_final)
 
@@ -516,7 +517,7 @@ def spin2(
     u_hats = []
     for i in range(n_vars):
         u0_vals = np.asarray(op.u0[i](xx, yy), dtype=complex)
-        u_hat = np.fft.fft2(u0_vals)
+        u_hat = jnp.fft.fft2(u0_vals)
         if dealias and dmask is not None:
             u_hat = np.where(dmask, u_hat, 0.0 + 0.0j)
         u_hats.append(u_hat)
@@ -539,7 +540,7 @@ def spin2(
     # ---- Back to physical space ----
     u_finals = []
     for i in range(n_vars):
-        u_val = np.fft.ifft2(u_hats[i])
+        u_val = jnp.fft.ifft2(u_hats[i])
         if op.is_real:
             u_val = np.real(u_val)
         u_finals.append(u_val)
