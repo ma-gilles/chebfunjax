@@ -1749,6 +1749,17 @@ def _ballfun_poisson_evaluator(f, lmax: int, nr: int):
     from chebfunjax.diskfun.diskfun import _cheb_diff_matrix
     from chebfunjax.spherefun.spherefun import _real_ylm_values
 
+    # Element-wise RHS evaluator (a Ballfun's __call__ grids 1D arrays,
+    # so reshape to 2D to force point-by-point evaluation).
+    if isinstance(f, Ballfun):
+        def feval(rr, lam, th):
+            rr = jnp.asarray(rr).reshape(-1, 1)
+            lam = jnp.asarray(lam).reshape(-1, 1)
+            th = jnp.asarray(th).reshape(-1, 1)
+            return jnp.asarray(f(rr, lam, th)).reshape(-1)
+    else:
+        feval = f
+
     D, x = _cheb_diff_matrix(nr)
     r = (x + 1.0) / 2.0
     Dr = 2.0 * D
@@ -1775,7 +1786,7 @@ def _ballfun_poisson_evaluator(f, lmax: int, nr: int):
     for ir, rr in enumerate(r):
         if rr < 1e-12:
             continue
-        F = np.asarray(f(jnp.full(lam_j.shape, float(rr)), lam_j, th_j)
+        F = np.asarray(feval(jnp.full(lam_j.shape, float(rr)), lam_j, th_j)
                        ).reshape(TH.shape)
         for k, Y in ycache.items():
             modes[k][ir] = np.sum(F * Y * wg[:, None] * dph)
