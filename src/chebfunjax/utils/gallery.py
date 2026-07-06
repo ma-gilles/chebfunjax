@@ -230,11 +230,25 @@ def _spikycomb():
     )
 
 
-@_register("wild", "cos(x)^2 * sin(x^3) on [-1, 1]")
+@_register("wild", "Iterated-map sum s = sum f_j, f_{j+1}=(3/4)(1-2 f_j^4)")
 def _wild():
-    """A rapidly oscillating function near x=1."""
+    """MATLAB +cheb/gallery.m 'wild': a wildly complicated function.
+
+    Corrected by Claude Opus 4.8 — the previous entry
+    (cos(x)^2 sin(x^3)) did not match MATLAB's ``wild`` subfunction,
+    which sums 16 iterates of the map f -> (3/4)(1 - 2 f^4) starting
+    from sin(pi x).  (The real one lives in [5.5, 9.5], not near 0.)
+    """
     from chebfunjax.chebfun1d.chebfun import chebfun
-    return chebfun(lambda x: jnp.cos(x) ** 2 * jnp.sin(x ** 3))
+
+    def wild(x):
+        f = jnp.sin(jnp.pi * x)
+        s = f
+        for _ in range(15):
+            f = 0.75 * (1.0 - 2.0 * f ** 4)
+            s = s + f
+        return s
+    return chebfun(wild)
 
 
 @_register("zigzag", "Degree 10000 polynomial that looks piecewise linear on [-1, 1]")

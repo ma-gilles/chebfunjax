@@ -423,6 +423,24 @@ class TestGallery:
         got = np.asarray(f(jnp.asarray(xs)))
         npt.assert_allclose(got[mask], np.round(fv[mask]), atol=1e-12)
 
+    def test_wild_matches_matlab_iterated_map(self):
+        """gallery('wild') is MATLAB's iterated-map sum (Opus 4.8 fix)."""
+        from chebfunjax.utils.gallery import gallery
+        f = gallery("wild")
+
+        def wild(x):
+            ff = np.sin(np.pi * x)
+            s = ff
+            for _ in range(15):
+                ff = 0.75 * (1 - 2 * ff ** 4)
+                s = s + ff
+            return s
+        xs = np.linspace(-0.95, 0.95, 100)
+        npt.assert_allclose(np.asarray(f(jnp.asarray(xs))), wild(xs),
+                            atol=1e-11)
+        # the real 'wild' lives in ~[5.5, 9.5], not near 0
+        assert float(f(jnp.float64(0.0))) > 5.0
+
     def test_random_interpolant(self):
         """gallery('random') interpolates 100 values (Opus 4.8)."""
         from chebfunjax.utils.gallery import gallery
