@@ -97,15 +97,16 @@ Forward Column recursion for large degrees $l > 1900$ [2].
 ## Code
 
 ```python
-import numpy as np
-from scipy.special import sph_harm_y
+import jax.numpy as jnp
 
-th = np.linspace(1e-4, np.pi - 1e-4, 60)
-ph = np.linspace(0, 2 * np.pi, 120)
-TH, PH = np.meshgrid(th, ph, indexing="ij")
+from chebfunjax.spherefun import Spherefun
 
-Y = np.real(sph_harm_y(4, 2, TH, PH))
-print(f"Y_4^2 range on the sphere: [{Y.min():.4f}, {Y.max():.4f}]")
+# Y_4^2 as a library Spherefun (real orthonormal, MATLAB convention)
+Y42 = Spherefun.sphharm(4, 2)
+
+# it is a Laplace-Beltrami eigenfunction: Delta_S Y = -l(l+1) Y
+lap = Y42.laplacian()
+print(lap(0.7, 1.1) / Y42(0.7, 1.1))   # -20.0  (l = 4)
 # the solid harmonic r^4 Y_4^2 is a degree-4 harmonic polynomial
 ```
 

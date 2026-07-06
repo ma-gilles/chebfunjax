@@ -82,16 +82,15 @@ eigenvector locations.
 ## Code
 
 ```python
-import numpy as np
-from scipy.special import sph_harm_y
+import jax.numpy as jnp
 
-th = np.linspace(1e-4, np.pi - 1e-4, 40)
-ph = np.linspace(0, 2 * np.pi, 80)
-TH, PH = np.meshgrid(th, ph, indexing="ij")
+from chebfunjax.spherefun import Spherefun
 
-# sphere Laplacian eigenvalues are l(l+1); RQ of Y_6^2 is exact
-Y = np.real(sph_harm_y(6, 2, TH, PH))
-print(f"lambda for l = 6: {6*7} (Rayleigh quotient of Y_6^2)")
+# sphere Laplacian eigenvalues are l(l+1); the Rayleigh quotient of the
+# eigenfunction Y_6^2 for -Delta_S is exactly l(l+1) = 42.
+Y62 = Spherefun.sphharm(6, 2)
+lap = Y62.laplacian()
+print(-lap(0.5, 1.3) / Y62(0.5, 1.3))   # 42.0  (= 6 * 7)
 ```
 
 ## Figures (chebfun.org parity)
