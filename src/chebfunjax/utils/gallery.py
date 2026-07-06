@@ -170,6 +170,29 @@ def _motto():
     return (3j * s).exp()
 
 
+@_register("vandermonde", "Quasimatrix of monomials 1, x, ..., x^5")
+def _vandermonde():
+    # Added by Claude Opus 4.8.  MATLAB: chebfun(@(x) x.^(0:5)).
+    from chebfunjax.chebfun1d.chebfun import chebfun
+    from chebfunjax.chebfun1d.linalg import Quasimatrix
+    from chebfunjax.domain import Domain
+    cols = [chebfun(lambda x, _k=k: x ** _k) for k in range(6)]
+    return Quasimatrix(cols, Domain((-1.0, 1.0)))
+
+
+@_register("vandercheb", "Quasimatrix of Chebyshev polys T_0, ..., T_5")
+def _vandercheb():
+    # Added by Claude Opus 4.8.  MATLAB: chebpoly(0:5).
+    from chebfunjax.chebfun1d.chebfun import Chebfun
+    from chebfunjax.chebfun1d.linalg import Quasimatrix
+    from chebfunjax.domain import Domain
+    cols = []
+    for k in range(6):
+        c = jnp.zeros(k + 1, dtype=jnp.float64).at[k].set(1.0)
+        cols.append(Chebfun.from_coeffs(c, Domain((-1.0, 1.0))))
+    return Quasimatrix(cols, Domain((-1.0, 1.0)))
+
+
 @_register("random", "Interpolant through 100 random values at Cheb points")
 def _random():
     # Added by Claude Opus 4.8.  MATLAB: chebfun(rand(100,1)).

@@ -441,6 +441,20 @@ class TestGallery:
         # the real 'wild' lives in ~[5.5, 9.5], not near 0
         assert float(f(jnp.float64(0.0))) > 5.0
 
+    def test_vandermonde_quasimatrix(self):
+        """gallery('vandermonde'/'vandercheb') are 6-column quasimatrices."""
+        from chebfunjax.utils.gallery import gallery
+        vm = gallery("vandermonde")
+        assert len(vm.cols) == 6
+        for k, col in enumerate(vm.cols):
+            npt.assert_allclose(float(col(jnp.float64(0.5))), 0.5 ** k,
+                                atol=1e-11)
+        vc = gallery("vandercheb")
+        assert len(vc.cols) == 6
+        for k, col in enumerate(vc.cols):
+            npt.assert_allclose(float(col(jnp.float64(0.5))),
+                                np.cos(k * np.arccos(0.5)), atol=1e-11)
+
     def test_random_interpolant(self):
         """gallery('random') interpolates 100 values (Opus 4.8)."""
         from chebfunjax.utils.gallery import gallery
