@@ -150,6 +150,26 @@ so plainly. When Fable's `diff` failed, Opus reverted it, then traced
 the *actual* root cause to a pre-existing constructor bug, fixed that,
 and re-derived a `diff` that passes the exact identity to 1e-14.
 
+### Backlog tasks closed by Opus 4.8 (53 commits, both suites green)
+
+| Task | Outcome |
+|---|---|
+| #10 | `legpts` O(n)-memory Newton path for large n (65536: 34 GB hang → 6.5 s) |
+| #11 | `eps`/`max_length` wired through the constructor |
+| #12 | splitting-on / edge detection (`splitting=True`), exact on jumps/kinks |
+| #14 | two-arg `maximum`/`minimum`, `floor`/`ceil`/`round`, `local_extrema`, complex roots |
+| #17 | ballfunv `div`/`curl`, `Ballfun.poisson`, `Ballfunv.helmholtz_decomposition` |
+| #20 | `cheb.gallerytrig` (11 entries) + Trigtech coarse-grid aliasing bug fix |
+| #23 | master parity matrix formalized (`PARITY_MATRIX.md`) |
+| #25 | full spherefun scalar calculus (laplacian/poisson/diff/grad/sphharm) |
+| #24 (part) | chebop `bc='periodic'` via Fourier collocation |
+
+**New PDE features:** disk calculus + Poisson, ball Poisson, sphere
+calculus + Poisson, diskfunv/ballfunv vector calculus, `randnfun`.
+**3 constructor bugs fixed:** spherefun, diskfun, trigtech (all
+coarse-grid false-convergence / aliasing). **34 golden-ref files**
+(was 18). **`cheb.gallery` 22/27**, **`cheb.gallerytrig` 11**.
+
 ### 2.6 Page snippets
 - Every example `.md` page's fenced code block executes. ~60 broken
   stubs (`from examples.X import run`, undefined names, missing
