@@ -110,6 +110,33 @@ def _tsunami():
     return N.solve(1.0)
 
 
+@_register("random", "Smooth band-limited random periodic function")
+def _random_entry():
+    # Added by Claude Opus 4.8. MATLAB: 2*randnfun(0.1, 'trig').
+    import random as _r
+
+    import jax
+    from chebfunjax.utils.randnfun import randnfun
+    key = jax.random.PRNGKey(_r.randint(0, 2 ** 31 - 1))
+    f = randnfun(0.1, domain=(-jnp.pi, jnp.pi), key=key)
+    return 2.0 * f
+
+
+@_register("noisyfun", "Smooth curve plus band-limited random noise")
+def _noisyfun():
+    # Added by Claude Opus 4.8.
+    import random as _r
+
+    import jax
+    from chebfunjax.chebfun1d.chebfun import chebfun
+    from chebfunjax.utils.randnfun import randnfun
+    base = chebfun(lambda x: jnp.sin(2 * x), domain=(-jnp.pi, jnp.pi),
+                   trig=True)
+    key = jax.random.PRNGKey(_r.randint(0, 2 ** 31 - 1))
+    noise = randnfun(0.15, domain=(-jnp.pi, jnp.pi), key=key)
+    return base + 0.2 * noise
+
+
 def list_gallerytrig() -> dict[str, str]:
     """Return a mapping from gallerytrig name to description."""
     return {name: desc for name, (desc, _) in sorted(_REGISTRY.items())}
