@@ -170,6 +170,40 @@ def _motto():
     return (3j * s).exp()
 
 
+@_register("gamma", "Gamma function on [-4, 4] with poles at 0, -1, ..., -4")
+def _gamma():
+    # Added by Claude Opus 4.8. MATLAB: chebfun(@gamma, [-4 4], 'blowup',
+    # 'on', 'splitting', 'on'). Built as a piecewise Chebfun whose pieces
+    # between the integer poles are Singfuns with (-1) endpoint exponents
+    # (simple poles).
+    import warnings as _warnings
+
+    import numpy as np
+    import scipy.special as _ssp
+
+    from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+    from chebfunjax.domain import Domain
+    from chebfunjax.fun.singfun import Singfun
+
+    funs = []
+    with _warnings.catch_warnings():
+        _warnings.simplefilter("ignore")
+        for k in (-4, -3, -2, -1):        # poles at both integer ends
+            def full(t, _k=k):
+                x = _k + (jnp.asarray(t) + 1.0) / 2.0
+                return jnp.asarray(_ssp.gamma(np.asarray(x)))
+            s = Singfun.from_function(full, exponents=(-1.0, -1.0))
+            funs.append(_Piece(tech=s, interval=(float(k), float(k + 1))))
+
+        def full04(t):                    # pole at 0 only
+            x = (jnp.asarray(t) + 1.0) * 2.0
+            return jnp.asarray(_ssp.gamma(np.asarray(x)))
+        s04 = Singfun.from_function(full04, exponents=(-1.0, 0.0))
+        funs.append(_Piece(tech=s04, interval=(0.0, 4.0)))
+    return Chebfun(funs=funs,
+                   domain=Domain((-4.0, -3.0, -2.0, -1.0, 0.0, 4.0)))
+
+
 @_register("blasius", "Blasius boundary-layer profile 2u'''+u u''=0 on [0,10]")
 def _blasius():
     # Added by Claude Opus 4.8 (needed a chebop initial guess, N.init).

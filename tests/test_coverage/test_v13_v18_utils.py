@@ -455,6 +455,17 @@ class TestGallery:
             npt.assert_allclose(float(col(jnp.float64(0.5))),
                                 np.cos(k * np.arccos(0.5)), atol=1e-11)
 
+    def test_gamma_with_poles(self):
+        """gallery('gamma') = Gamma on [-4,4] with poles (Opus 4.8)."""
+        from scipy.special import gamma as G
+
+        from chebfunjax.utils.gallery import gallery
+        f = gallery("gamma")
+        xs = np.array([-3.5, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, 3.5])
+        npt.assert_allclose(np.asarray(f(jnp.asarray(xs))), G(xs), atol=1e-11)
+        # blows up near a pole
+        assert abs(float(f(jnp.float64(0.01)))) > 50.0
+
     def test_random_interpolant(self):
         """gallery('random') interpolates 100 values (Opus 4.8)."""
         from chebfunjax.utils.gallery import gallery
