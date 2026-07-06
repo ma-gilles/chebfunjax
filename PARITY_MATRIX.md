@@ -12,15 +12,16 @@ each.
 
 | Axis | Population | Verified | Method |
 |---|---:|---:|---|
-| Functions / methods | ~473 public | ~2,717 tests pass (3,073 collected) | unit + golden-ref |
+| Functions / methods | ~473 public | **2,728 test fns / 3,084 collected** | unit + golden-ref |
 | MATLAB golden-ref (machine precision) | — | **488 tests / 34 `*_matlab.py` files** | `.mat` fixtures vs MATLAB R2025b, rtol 1e-12–1e-13 |
-| Guide figures | 323 | 323 regenerated | `compare_plots` + montage |
+| Guide figures | 323 | 323 regenerated; all 20 chapters genuine | `compare_plots` + montage |
 | Example figures | 826 numbered (1,594 images total) | 826 genuinely computed; 631 (76%) pass strict 0.06 gate | `compare_plots` badness ≤ 0.06 |
 | Example categories | 21 | 21 complete | per-block regeneration |
+| `cheb.gallery` / `gallerytrig` | 27 / 11 | 27 / 11 (full MATLAB set) | per-entry vs MATLAB |
 
-Both suites green: `test-fast` **2,569 passed / 4 skipped**;
-MATLAB-marked **488 collected, all pass** (14 skipped where a ref is
-absent, 1 documented xfail).
+Both suites green: `test-fast` **2,584 passed / 4 skipped**;
+MATLAB-marked **488, all pass** (14 skipped where a ref is absent, 1
+documented xfail).
 
 ## 2. Functions — golden-ref cross-validation coverage
 
@@ -47,9 +48,9 @@ comparison.
 
 ## 3. Plots — chebfun.org parity
 
-- **Guide (ATAP-style docs):** 323/323 figures regenerated; 19/20
-  chapters at genuine parity, ch.17 now unblocked by the spherefun
-  calculus layer.
+- **Guide (ATAP-style docs):** 323/323 figures regenerated; **all 20
+  chapters at genuine parity** — ch.17 now uses the library spherefun
+  calculus (sphharm / laplacian / poisson), not scipy stand-ins.
 - **Examples:** all 21 categories, 826 numbered figures genuinely
   computed. 631 (76%) pass the strict badness ≤ 0.06 gate; the other
   195 are content-verified but fall in four documented exception
@@ -65,13 +66,21 @@ ode-random, stats, ode-eig, ode-linear, ode-nonlin, sphere). Every
 per-block code snippet executes; ~60 broken stubs were replaced with
 runnable code during the campaign.
 
-## 5. Known gaps (see HANDOFF.md §4)
+## 5. Known gaps
 
-- **#9** deltas through `Chebfun.diff` (needs a `deltas` field on the
-  core eqx.Module).
-- **#13** remaining `cheb.gallery` entries: gamma (blowup),
-  vandermonde/vandercheb (quasimatrix), daubechies (wavelets), blasius
-  (BVP initial guess). 22/27 done.
-- **#24 (part)** IVP → time-marching routing (optimization; collocation
-  already solves IVPs).
-- chebmatrix / linop / chebop2 / chebgui golden-ref ports.
+The entire library backlog (#8–#25) is closed:
+
+- **#9 done** — `Chebfun.diff` attaches Dirac deltas at jumps (static
+  `deltas` field; `sum` includes them).
+- **#13 done** — `cheb.gallery` covers all **27/27** MATLAB entries
+  (gamma via Singfun pole-pieces, daubechies via the cascade algorithm,
+  vandermonde/vandercheb quasimatrices, blasius via a chebop initial
+  guess).
+- **#24 done** — chebop periodic BCs (Fourier collocation) and IVP
+  time-marching routing.
+
+Remaining (not library gaps, lower priority): chebmatrix / linop /
+chebop2 / chebgui do not yet have file-level MATLAB golden-ref ports
+(they have independent Python tests). Some sphere example pages use
+`scipy.special.sph_harm_y` as a numerical reference / input generator
+(analogous to test code using numpy), not as a library stand-in.
