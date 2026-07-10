@@ -1,3 +1,4 @@
+# uses-numpy: filter construction + cascade are one-time numpy/scipy setup (not JIT paths)
 """Daubechies scaling function via filter construction + cascade.
 
 Builds the Daubechies db-N low-pass filter by spectral factorization and

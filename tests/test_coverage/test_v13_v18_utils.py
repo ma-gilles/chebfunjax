@@ -488,6 +488,23 @@ class TestGallery:
         # blows up near a pole
         assert abs(float(f(jnp.float64(0.01)))) > 50.0
 
+    def test_gallery_none_random_choice(self):
+        """gallery(None) picks a random entry (regression: the 'random'
+        entry function shadowed the module's random import; found in the
+        Fable 5 audit of Opus 4.8 work)."""
+        import random as _rnd
+
+        from chebfunjax.utils.gallery import gallery
+        _rnd.seed(0)
+        # pick a fast, deterministic entry by seeding until a cheap one:
+        # just verify the dispatch path does not raise AttributeError
+        try:
+            _rnd.seed(4)
+            f = gallery(None)
+        except AttributeError as e:  # pragma: no cover
+            raise AssertionError(f"gallery(None) dispatch broken: {e}")
+        assert f is not None
+
     def test_random_interpolant(self):
         """gallery('random') interpolates 100 values (Opus 4.8)."""
         from chebfunjax.utils.gallery import gallery

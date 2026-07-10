@@ -263,7 +263,7 @@ def _vandercheb():
 
 
 @_register("random", "Interpolant through 100 random values at Cheb points")
-def _random():
+def _random_interpolant():
     # Added by Claude Opus 4.8.  MATLAB: chebfun(rand(100,1)).
     import random as _r
 

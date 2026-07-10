@@ -1437,7 +1437,6 @@ class Chebfun(eqx.Module):
         # they are carried through and picked up by sum().
         deltas = ()
         if k == 1 and len(self.funs) > 1:
-            import numpy as _np
             dlist = []
             for i in range(len(self.funs) - 1):
                 loc = float(self.funs[i].interval[1])
