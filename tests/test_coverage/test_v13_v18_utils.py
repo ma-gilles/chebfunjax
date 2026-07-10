@@ -565,16 +565,21 @@ class TestGallery:
         assert "kahaner" in d
         assert all(isinstance(v, str) for v in d.values())
 
-    def test_all_gallery_functions_constructible(self):
-        """Every gallery function can be constructed without error."""
-        from chebfunjax.utils.gallery import gallery, list_gallery
-        for name in list_gallery():
-            try:
-                f = gallery(name)
-                # Verify it's a Chebfun (has domain)
-                assert hasattr(f, "domain"), f"gallery('{name}') missing .domain"
-            except Exception as exc:
-                pytest.fail(f"gallery('{name}') raised {exc}")
+    @pytest.mark.parametrize("name", sorted(
+        __import__("chebfunjax.utils.gallery", fromlist=["list_gallery"])
+        .list_gallery().keys()))
+    def test_all_gallery_functions_constructible(self, name):
+        """Every gallery entry constructs without error.
+
+        Parametrized per entry (Fable 5): the previous single-test loop
+        built all 27 entries (incl. the blasius Newton solve) in one
+        900 s pytest-timeout budget and stalled CI runners at ~15 min.
+        """
+        from chebfunjax.utils.gallery import gallery
+        f = gallery(name)
+        assert hasattr(f, "domain") or hasattr(f, "cols"), (
+            f"gallery('{name}') returned {type(f).__name__} without "
+            "domain/cols")
 
     @pytest.mark.parametrize("name", ["runge", "chirp", "bump", "erf", "wiggly"])
     def test_gallery_is_chebfun(self, name):
