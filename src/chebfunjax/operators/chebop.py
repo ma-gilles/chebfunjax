@@ -550,23 +550,50 @@ class Chebop:
         return sniff.order
 
     def _bc_values(self, bc_raw, k: int):
-        """Extract the initial values [c0, ..., c_{k-1}] from a BC spec."""
+        """Extract the initial values [c0, ..., c_{k-1}] from a BC spec.
+
+        Robust version (Fable 5 audit of the Opus 4.8 original): instead
+        of assuming the BC list is ordered ``[u, u', ...]`` with unit
+        coefficients, evaluate the residuals at one-hot derivative towers
+        to build the Jacobian ``B`` and solve ``B @ ic = -r0``.  Raises
+        if the BCs are not k independent affine constraints (caller then
+        falls back to collocation).
+        """
         import numpy as _np
         if bc_raw is None:
             return None
-        if callable(bc_raw):
-            zero = _IVPProxy([jnp.array(0.0)] * (k + 1))
-            res = bc_raw(zero)
+        if not callable(bc_raw):
+            return [float(bc_raw)]           # scalar Dirichlet value
+
+        def _residuals(tower_vals):
+            tower = [jnp.asarray(v) for v in tower_vals] + [jnp.array(0.0)]
+            res = bc_raw(_IVPProxy(tower))
             if not isinstance(res, (list, tuple)):
                 res = [res]
-
-            def _num(r):
+            out = []
+            for r in res:
                 if isinstance(r, _IVPProxy):
                     r = r._v
-                return float(_np.asarray(r))
-            return [-_num(r) for r in res]
-        # scalar Dirichlet value
-        return [float(bc_raw)]
+                out.append(float(_np.asarray(r)))
+            return out
+
+        r0 = _np.asarray(_residuals([0.0] * k))
+        m = r0.shape[0]
+        if m != k:
+            raise ValueError(
+                f"IVP needs {k} conditions at one endpoint, got {m}")
+        B = _np.zeros((m, k))
+        for j in range(k):
+            e = [0.0] * k
+            e[j] = 1.0
+            B[:, j] = _np.asarray(_residuals(e)) - r0
+        # affinity check: residuals at 2*e_j must extrapolate linearly
+        e2 = [0.0] * k
+        e2[0] = 2.0
+        r2 = _np.asarray(_residuals(e2))
+        if not _np.allclose(r2, r0 + 2.0 * B[:, 0], rtol=1e-9, atol=1e-9):
+            raise ValueError("boundary conditions are not affine")
+        return list(_np.linalg.solve(B, -r0))
 
     def solve_ivp(self, f=0.0, rtol: float = 1e-11, atol: float = 1e-12):
         """Solve an initial-value problem by time marching (task #24).
@@ -606,22 +633,37 @@ class Chebop:
         left = self._lbc_raw is not None
         bc_raw = self._lbc_raw if left else self._rbc_raw
         ic = self._bc_values(bc_raw, k)
-        if ic is None or len(ic) < k:
-            # pad with zeros if under-specified
-            ic = (ic or []) + [0.0] * (k - len(ic or []))
+        if ic is None or len(ic) != k:
+            raise ValueError(
+                f"IVP requires exactly {k} initial conditions")
         x0, x1 = (a, b) if left else (b, a)
 
+        def _op_at(x, y, s):
+            tower = [jnp.asarray(v) for v in list(y) + [s]]
+            return float(_np.asarray(L(jnp.asarray(x), _IVPProxy(tower))))
+
+        # Verify the operator is affine in the highest derivative before
+        # trusting the extraction (Fable 5 audit: e.g. (u'')^2 would
+        # otherwise be silently mis-extracted).  Checked at the initial
+        # point; non-affine ops raise -> caller falls back to collocation.
+        r0 = _op_at(x0, ic, 0.0)
+        r1 = _op_at(x0, ic, 1.0)
+        r2 = _op_at(x0, ic, 2.0)
+        if not _np.isclose(r2 - r1, r1 - r0,
+                           rtol=1e-8, atol=1e-8 * (abs(r1 - r0) + 1.0)):
+            raise ValueError(
+                "operator is not affine in its highest derivative")
+
         def rhs(x, y):
-            tower0 = [jnp.asarray(v) for v in list(y) + [0.0]]
-            tower1 = [jnp.asarray(v) for v in list(y) + [1.0]]
-            lower = float(_np.asarray(L(jnp.asarray(x), _IVPProxy(tower0))))
-            ak = float(_np.asarray(L(jnp.asarray(x), _IVPProxy(tower1)))) \
-                - lower
+            lower = _op_at(x, y, 0.0)
+            ak = _op_at(x, y, 1.0) - lower
             ukk = (fval(x) - lower) / ak
             return list(y[1:]) + [ukk]
 
+        # LSODA switches between stiff/non-stiff automatically, so a
+        # stiff problem cannot grind RK45 into a CI timeout.
         sol = _solve_ivp(rhs, [x0, x1], ic, dense_output=True,
-                         rtol=rtol, atol=atol)
+                         method="LSODA", rtol=rtol, atol=atol)
         if not sol.success:
             raise RuntimeError(f"solve_ivp failed: {sol.message}")
 
@@ -1357,6 +1399,15 @@ class _IVPProxy:
 
     __rmul__ = __mul__
 
+    def __truediv__(self, o):
+        return self._v / (o._v if isinstance(o, _IVPProxy) else o)
+
+    def __rtruediv__(self, o):
+        return (o._v if isinstance(o, _IVPProxy) else o) / self._v
+
+    def __pow__(self, o):
+        return self._v ** (o._v if isinstance(o, _IVPProxy) else o)
+
     def __neg__(self):
         return -self._v
 
@@ -1375,6 +1426,7 @@ class _OrderSniffer:
         return self
 
     __radd__ = __sub__ = __rsub__ = __mul__ = __rmul__ = __add__
+    __truediv__ = __rtruediv__ = __pow__ = __rpow__ = __add__
 
     def __neg__(self):
         return self
