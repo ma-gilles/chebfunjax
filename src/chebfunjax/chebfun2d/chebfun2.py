@@ -576,6 +576,112 @@ class Chebfun2(eqx.Module):
     # Plotting
     # ------------------------------------------------------------------
 
+    # ------------------------------------------------------------------
+    # Arithmetic (MATLAB @separableApprox plus/minus/times/rdivide/power)
+    # Added by Claude Fable 5: Chebfun2 previously had NO arithmetic.
+    # ------------------------------------------------------------------
+
+    def _const_like(self, c) -> "Chebfun2":
+        """Rank-1 constant Chebfun2 with this function's domain."""
+        one = Chebtech2(coeffs=jnp.ones(1, dtype=jnp.float64), ishappy=True)
+        approx = SeparableApprox(
+            cols=[one], rows=[one], pivots=jnp.asarray([c]),
+            domain=self.approx.domain)
+        return Chebfun2(approx=approx)
+
+    def _check_same_domain(self, other: "Chebfun2") -> None:
+        if tuple(self.approx.domain) != tuple(other.approx.domain):
+            raise ValueError(
+                "Chebfun2 arithmetic requires matching domains: "
+                f"{self.approx.domain} vs {other.approx.domain}")
+
+    def __neg__(self) -> "Chebfun2":
+        approx = SeparableApprox(
+            cols=list(self.approx.cols), rows=list(self.approx.rows),
+            pivots=-self.approx.pivots, domain=self.approx.domain)
+        return Chebfun2(approx=approx)
+
+    def __add__(self, other) -> "Chebfun2":
+        """f + g by exact concatenation of the low-rank terms.
+
+        MATLAB @separableApprox/plus.m concatenates the CDR factors (and
+        then compresses); the uncompressed union used here represents the
+        sum exactly, only with rank(f)+rank(g) terms.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/plus.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(other, Chebfun2):
+            self._check_same_domain(other)
+            approx = SeparableApprox(
+                cols=list(self.approx.cols) + list(other.approx.cols),
+                rows=list(self.approx.rows) + list(other.approx.rows),
+                pivots=jnp.concatenate(
+                    [jnp.atleast_1d(self.approx.pivots),
+                     jnp.atleast_1d(other.approx.pivots)]),
+                domain=self.approx.domain)
+            return Chebfun2(approx=approx)
+        if isinstance(other, (int, float, complex)):
+            return self + self._const_like(other)
+        return NotImplemented
+
+    __radd__ = __add__
+
+    def __sub__(self, other) -> "Chebfun2":
+        if isinstance(other, Chebfun2):
+            return self + (-other)
+        if isinstance(other, (int, float, complex)):
+            return self + self._const_like(-other)
+        return NotImplemented
+
+    def __rsub__(self, other) -> "Chebfun2":
+        return (-self) + other
+
+    def __mul__(self, other) -> "Chebfun2":
+        """Scalar multiply scales the pivots (exact); f.*g re-approximates
+        the pointwise product with the constructor, exactly as MATLAB
+        @separableApprox/times.m does.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/times.m, mtimes.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(other, (int, float, complex)):
+            approx = SeparableApprox(
+                cols=list(self.approx.cols), rows=list(self.approx.rows),
+                pivots=self.approx.pivots * other,
+                domain=self.approx.domain)
+            return Chebfun2(approx=approx)
+        if isinstance(other, Chebfun2):
+            self._check_same_domain(other)
+            return Chebfun2.from_function(
+                lambda x, y: self(x, y) * other(x, y),
+                domain=self.approx.domain)
+        return NotImplemented
+
+    __rmul__ = __mul__
+
+    def __truediv__(self, other) -> "Chebfun2":
+        if isinstance(other, (int, float, complex)):
+            return self * (1.0 / other)
+        if isinstance(other, Chebfun2):
+            self._check_same_domain(other)
+            return Chebfun2.from_function(
+                lambda x, y: self(x, y) / other(x, y),
+                domain=self.approx.domain)
+        return NotImplemented
+
+    def __rtruediv__(self, other) -> "Chebfun2":
+        return Chebfun2.from_function(
+            lambda x, y: other / self(x, y), domain=self.approx.domain)
+
+    def __pow__(self, p) -> "Chebfun2":
+        return Chebfun2.from_function(
+            lambda x, y: self(x, y) ** p, domain=self.approx.domain)
+
     def plot(self, **kwargs):
         """Surface plot of this Chebfun2 (calls :func:`chebfunjax.plotting.surf`)."""
         from chebfunjax.plotting import surf
