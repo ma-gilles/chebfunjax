@@ -1504,7 +1504,18 @@ class Chebtech2(eqx.Module):
         --------
         sum, norm
         """
-        return _inner_product(self.coeffs, other.coeffs)
+        out = _inner_product(self.coeffs, other.coeffs)
+        # MATLAB @chebtech/innerProduct.m forces a nonnegative real result
+        # when f == g (isequal branch).  The identity check is JIT-safe;
+        # the value check runs only on concrete (non-traced) arrays.
+        same = other is self
+        if not same and self.coeffs.shape == other.coeffs.shape:
+            if not isinstance(self.coeffs, jax.core.Tracer) and \
+                    not isinstance(other.coeffs, jax.core.Tracer):
+                same = bool(jnp.all(self.coeffs == other.coeffs))
+        if same:
+            return jnp.abs(out)
+        return out
 
     def norm(self, p: float = 2.0) -> jax.Array:
         """Lp norm of the Chebtech2.
@@ -2282,7 +2293,18 @@ class Chebtech1(eqx.Module):
         MATLAB source : @chebtech/innerProduct.m
         Chebfun commit: 7574c77
         """
-        return _inner_product(self.coeffs, other.coeffs)
+        out = _inner_product(self.coeffs, other.coeffs)
+        # MATLAB @chebtech/innerProduct.m forces a nonnegative real result
+        # when f == g (isequal branch).  The identity check is JIT-safe;
+        # the value check runs only on concrete (non-traced) arrays.
+        same = other is self
+        if not same and self.coeffs.shape == other.coeffs.shape:
+            if not isinstance(self.coeffs, jax.core.Tracer) and \
+                    not isinstance(other.coeffs, jax.core.Tracer):
+                same = bool(jnp.all(self.coeffs == other.coeffs))
+        if same:
+            return jnp.abs(out)
+        return out
 
     def norm(self, p: float = 2.0) -> jax.Array:
         """Lp norm on [-1, 1].

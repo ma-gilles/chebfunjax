@@ -76,3 +76,6 @@ ignore = ["E741", "E501", "E402", "F821"]  # allow l, I, O as variable names (co
 # Guide plot-generation scripts transcribe MATLAB plotting sequences.
 "scripts/generate_guide*.py" = ["E731", "E702", "F841"]
 "scripts/generate_examples_*.py" = ["E731", "E702", "F841"]
+# MATLAB test-suite ports are line-by-line transcriptions of
+# tests/<module>/test_*.m; assigned lambdas mirror f = @(x) ... .
+"tests/test_matlab_port/**" = ["E731"]

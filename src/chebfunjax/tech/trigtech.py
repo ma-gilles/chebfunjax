@@ -537,6 +537,9 @@ def _trig_prolong_coeffs(coeffs: jax.Array, n_out: int) -> jax.Array:
     MATLAB source : @trigtech/prolong.m
     Chebfun commit: 7574c77
     """
+    if n_out <= 0 or coeffs.shape[0] == 0:
+        # MATLAB: trigcoeffs(f, 0) and prolong of an empty are empty.
+        return jnp.zeros((max(n_out, 0),), dtype=coeffs.dtype)
     n = coeffs.shape[0]
     if n_out == n:
         return jnp.asarray(coeffs, dtype=jnp.complex128)
@@ -1081,6 +1084,9 @@ class Trigtech(eqx.Module):
             return self
 
         nold = self.n
+        if nold == 0:
+            # MATLAB @trigtech/simplify.m leaves an empty trigtech alone.
+            return self
         N = max(17, round(nold * 1.25 + 5))
         prolonged = self.prolong(N)
 
