@@ -1273,11 +1273,17 @@ class Chebfun(eqx.Module):
             return self._apply_fun(jnp.sign)
 
         new_dom = Domain(tuple(float(b) for b in new_bps))
-        f = self  # capture for closure
-        new_funs = [
-            _Piece.from_function(lambda x, _f=f: jnp.sign(_f(x)), sub.a, sub.b)
-            for sub in new_dom.intervals
-        ]
+        # Each piece is exactly constant: evaluate sign at the interval
+        # MIDPOINT and build an explicit constant piece.  Sampling
+        # sign(f) across the piece hits the roots at the endpoints
+        # (sign(0) = 0) and pollutes the interpolant -- same bug class
+        # as floor/ceil/round before their fix.  (Fable 5 audit.)
+        new_funs = []
+        for sub in new_dom.intervals:
+            mid = 0.5 * (sub.a + sub.b)
+            const = float(jnp.sign(self(jnp.asarray(mid))))
+            new_funs.append(_Piece.from_coeffs(
+                jnp.asarray([const], dtype=jnp.float64), sub.a, sub.b))
         return Chebfun(funs=new_funs, domain=new_dom)
 
     def sinh(self) -> Chebfun:
