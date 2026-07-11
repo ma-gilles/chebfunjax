@@ -1330,14 +1330,26 @@ def _diskfun_reconstruct(f: "Diskfun", kind: str) -> "Diskfun":
     coefs = np.linalg.lstsq(vand, Fhat.T, rcond=None)[0]  # (deg+1, mmax)
 
     def ev(theta, r):
-        theta = np.asarray(theta)
-        r = np.asarray(r)
+        theta = np.asarray(theta, dtype=float)
+        r = np.asarray(r, dtype=float)
         shape = np.broadcast(theta, r).shape
-        s = (2.0 * r - 1.0).ravel()
+        theta = np.broadcast_to(theta, shape).copy()
+        r = np.broadcast_to(r, shape).copy()
+        # Diskfun.from_function samples the DOUBLED disk (r < 0); the
+        # radial Chebyshev fit is only valid on r in [0, 1], so map
+        # (theta, -r) -> (theta + pi, r) (the BMC identity).  Without
+        # this the fit EXTRAPOLATED for r < 0 and the constructor
+        # ingested garbage on half the grid -- the root cause of the
+        # diffx/diffy/laplacian mode corruption found in the Fable 5
+        # audit.
+        neg = r < 0
+        r = np.abs(r)
+        theta = np.where(neg, theta + np.pi, theta)
+        s = np.clip(2.0 * r - 1.0, -1.0, 1.0).ravel()
         vd = np.polynomial.chebyshev.chebvander(s, deg)
         modes = vd @ coefs  # (npts, mmax) complex
         out = np.zeros(s.shape)
-        th_flat = np.broadcast_to(theta, shape).ravel()
+        th_flat = theta.ravel()
         for m in range(mmax):
             fac = 1.0 if m == 0 else 2.0
             out = out + fac * np.real(modes[:, m] * np.exp(1j * m * th_flat))
