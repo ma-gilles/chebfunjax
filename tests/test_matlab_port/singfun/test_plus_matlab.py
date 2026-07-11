@@ -110,12 +110,9 @@ class TestSingfunPlus:
         exact = fh(X) + gh(X)
         assert _ninf(h1(X) - exact) <= 2e3 * EPS
 
-    @pytest.mark.xfail(
-        reason="MATLAB uses a complex-valued summand sinh(t*exp(2*pi*i/6)); "
-        "chebfunjax Singfun does not support complex smooth parts",
-        strict=False,
-    )
     def test_add_complex_function(self):
+        # FIXED (Fable 5): the Chebtech1 complex-transform fix made
+        # complex smooth parts work in Singfun too.
         def fh(x):
             return jnp.sin(np.pi * x) / (1 - x)
 
