@@ -30,6 +30,10 @@ chebfunjax = { path = ".", editable = true }
 # 6h CI runs); -n auto uses all cores via pytest-xdist.
 test-fast = "python -m pytest tests/ -m 'not slow and not gpu and not matlab' -q --tb=short --timeout=900 -n auto"
 test-full = "python -m pytest tests/ -q --tb=short --timeout=900 -n auto --cov=chebfunjax --cov-report=term-missing"
+# CI runners (4 vCPU / 16 GB) OOM with -n auto: each xdist worker
+# accumulates a JAX JIT cache over 3000+ tests. Two workers keep the
+# peak under control; per-test timeout is tighter to fail fast.
+test-ci = "python -m pytest tests/ -q --tb=short --timeout=600 -n 2 --cov=chebfunjax --cov-report=term"
 test-gpu = "python -m pytest tests/ -m gpu -v --tb=short --timeout=900"
 test-matlab = "python -m pytest tests/ -m matlab -q --tb=short --timeout=900 -n auto"
 check-jax = "python -c \"import jax; print('JAX devices:', jax.devices())\""

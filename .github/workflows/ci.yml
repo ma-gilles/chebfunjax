@@ -100,7 +100,7 @@ jobs:
         with:
           pixi-version: latest
       - name: Run all tests with coverage
-        run: pixi run test-full
+        run: pixi run test-ci
 
   golden-refs:
     name: Validate golden refs
