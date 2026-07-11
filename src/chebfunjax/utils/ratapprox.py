@@ -189,7 +189,11 @@ def padeapprox(
 
             D = np.diag(np.abs(b_raw) + np.sqrt(np.finfo(float).eps))
             # Use full (complete) QR — MATLAB's qr returns full Q by default
-            Q, _ = np.linalg.qr((C @ D).T, mode='complete')
+            # MATLAB: qr((C*D)') with ' = CONJUGATE transpose; a plain
+            # .T gave the wrong null vector for complex Taylor series
+            # (found in the Fable 5 audit: pade of [1, 1i] returned
+            # b = [1, +1i] instead of [1, -1i]).
+            Q, _ = np.linalg.qr((C @ D).conj().T, mode='complete')
             b_vec = D @ Q[:, n]
             b_vec = b_vec / np.linalg.norm(b_vec)
 
