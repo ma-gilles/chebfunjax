@@ -156,7 +156,28 @@ def _clenshaw_curtis_weights(n: int) -> jnp.ndarray:
 # ---------------------------------------------------------------------------
 
 
-def legpts(n: int, interval: tuple[float, float] | None = None,
+def _bary_weights_gauss(x, flip: bool = False):
+    """Normalized barycentric weights for a sorted Gauss-type node set.
+
+    Log-scaled products (safe for unbounded Hermite/Laguerre nodes),
+    normalized to max |v| = 1 with MATLAB's sign convention:
+    v_k ~ (-1)^k, or (-1)^(k+1) for Lobatto/Radau (``flip=True``), where
+    MATLAB keeps the interior Gauss alternation phase.  Added by
+    Claude Fable 5 (barycentric third output, MISSING_FEATURES #9).
+    """
+    import numpy as _onp
+    xv = _onp.asarray(x, dtype=float)
+    m = len(xv)
+    logv = _onp.zeros(m)
+    for k in range(m):
+        d = xv[k] - _onp.delete(xv, k)
+        logv[k] = -_onp.sum(_onp.log(_onp.abs(d)))
+    logv -= _onp.max(logv)
+    v = _onp.exp(logv) * (-1.0) ** (_onp.arange(m) + (1 if flip else 0))
+    return jnp.asarray(v / _onp.max(_onp.abs(v)))
+
+
+def _legpts_core(n: int, interval: tuple[float, float] | None = None,
            ) -> tuple[jnp.ndarray, jnp.ndarray]:
     """Gauss-Legendre quadrature nodes and weights.
 
@@ -333,7 +354,7 @@ def _legpts_gw(n: int) -> tuple[jnp.ndarray, jnp.ndarray]:
 # ---------------------------------------------------------------------------
 
 
-def jacpts(n: int, a: float, b: float,
+def _jacpts_core(n: int, a: float, b: float,
            interval: tuple[float, float] | None = None,
            ) -> tuple[jnp.ndarray, jnp.ndarray]:
     """Gauss-Jacobi quadrature nodes and weights.
@@ -465,7 +486,7 @@ def _jacpts_gw(n: int, a: float, b: float,
 # ---------------------------------------------------------------------------
 
 
-def hermpts(n: int, kind: str = "phys",
+def _hermpts_core(n: int, kind: str = "phys",
             ) -> tuple[jnp.ndarray, jnp.ndarray]:
     """Gauss-Hermite quadrature nodes and weights.
 
@@ -573,7 +594,7 @@ def _hermpts_gw(n: int) -> tuple[jnp.ndarray, jnp.ndarray]:
 # ---------------------------------------------------------------------------
 
 
-def lagpts(n: int, alpha: float = 0.0,
+def _lagpts_core(n: int, alpha: float = 0.0,
            interval: tuple[float, float] | None = None,
            ) -> tuple[jnp.ndarray, jnp.ndarray]:
     """Gauss-Laguerre quadrature nodes and weights.
@@ -664,7 +685,7 @@ def _lagpts_gw(n: int, alpha: float) -> tuple[jnp.ndarray, jnp.ndarray]:
 # ---------------------------------------------------------------------------
 
 
-def ultrapts(n: int, lam: float,
+def _ultrapts_core(n: int, lam: float,
              interval: tuple[float, float] | None = None,
              ) -> tuple[jnp.ndarray, jnp.ndarray]:
     """Gauss-Gegenbauer (ultraspherical) quadrature nodes and weights.
@@ -777,7 +798,7 @@ def _ultrapts_gw(n: int, lam: float,
 # ---------------------------------------------------------------------------
 
 
-def radaupts(n: int, alp: float = 0.0, bet: float = 0.0,
+def _radaupts_core(n: int, alp: float = 0.0, bet: float = 0.0,
              ) -> tuple[jnp.ndarray, jnp.ndarray]:
     """Gauss-Radau quadrature nodes and weights.
 
@@ -859,7 +880,7 @@ def radaupts(n: int, alp: float = 0.0, bet: float = 0.0,
 # ---------------------------------------------------------------------------
 
 
-def lobpts(n: int, alp: float = 0.0, bet: float = 0.0,
+def _lobpts_core(n: int, alp: float = 0.0, bet: float = 0.0,
            ) -> tuple[jnp.ndarray, jnp.ndarray]:
     """Gauss-Lobatto quadrature nodes and weights.
 
@@ -1250,3 +1271,74 @@ def paduapts(
     xy = jnp.array(np.column_stack([xy_x, xy_y]), dtype=jnp.float64)
 
     return xy, idx_jnp
+
+
+def legpts(n: int, interval: tuple[float, float] | None = None, *, bary: bool = False):
+    """See ``_legpts_core``.  With ``bary=True`` also returns the
+    normalized barycentric weights (MATLAB's third output)."""
+    out = _legpts_core(n, interval)
+    if not bary:
+        return out
+    x, w = out
+    return x, w, _bary_weights_gauss(x, flip=False)
+
+
+def jacpts(n: int, a: float, b: float, interval: tuple[float, float] | None = None, *, bary: bool = False):
+    """See ``_jacpts_core``.  With ``bary=True`` also returns the
+    normalized barycentric weights (MATLAB's third output)."""
+    out = _jacpts_core(n, a, b, interval)
+    if not bary:
+        return out
+    x, w = out
+    return x, w, _bary_weights_gauss(x, flip=False)
+
+
+def hermpts(n: int, kind: str = 'phys', *, bary: bool = False):
+    """See ``_hermpts_core``.  With ``bary=True`` also returns the
+    normalized barycentric weights (MATLAB's third output)."""
+    out = _hermpts_core(n, kind)
+    if not bary:
+        return out
+    x, w = out
+    return x, w, _bary_weights_gauss(x, flip=False)
+
+
+def lagpts(n: int, alpha: float = 0.0, interval: tuple[float, float] | None = None, *, bary: bool = False):
+    """See ``_lagpts_core``.  With ``bary=True`` also returns the
+    normalized barycentric weights (MATLAB's third output)."""
+    out = _lagpts_core(n, alpha, interval)
+    if not bary:
+        return out
+    x, w = out
+    return x, w, _bary_weights_gauss(x, flip=False)
+
+
+def ultrapts(n: int, lam: float, interval: tuple[float, float] | None = None, *, bary: bool = False):
+    """See ``_ultrapts_core``.  With ``bary=True`` also returns the
+    normalized barycentric weights (MATLAB's third output)."""
+    out = _ultrapts_core(n, lam, interval)
+    if not bary:
+        return out
+    x, w = out
+    return x, w, _bary_weights_gauss(x, flip=False)
+
+
+def radaupts(n: int, alp: float = 0.0, bet: float = 0.0, *, bary: bool = False):
+    """See ``_radaupts_core``.  With ``bary=True`` also returns the
+    normalized barycentric weights (MATLAB's third output)."""
+    out = _radaupts_core(n, alp, bet)
+    if not bary:
+        return out
+    x, w = out
+    return x, w, _bary_weights_gauss(x, flip=True)
+
+
+def lobpts(n: int, alp: float = 0.0, bet: float = 0.0, *, bary: bool = False):
+    """See ``_lobpts_core``.  With ``bary=True`` also returns the
+    normalized barycentric weights (MATLAB's third output)."""
+    out = _lobpts_core(n, alp, bet)
+    if not bary:
+        return out
+    x, w = out
+    return x, w, _bary_weights_gauss(x, flip=True)
+

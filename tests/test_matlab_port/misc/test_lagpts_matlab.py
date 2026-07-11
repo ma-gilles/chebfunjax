@@ -9,7 +9,6 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from chebfunjax.utils.quadrature import lagpts
 
@@ -27,11 +26,10 @@ class TestLagpts:
         assert abs(x[36] - 98.388267163326702) < TOL * 100
         assert abs(w[6] - 0.055372813167092) < TOL
 
-    @pytest.mark.xfail(reason="chebfunjax lagpts has no barycentric-"
-                       "weight output")
     def test_barycentric(self):
-        x, w, v = lagpts(42)
-        assert abs(float(np.asarray(v)[16]) - 0.002937421407003) < TOL
+        # FIXED (Fable 5): bary=True returns MATLAB's third output.
+        x, w, v = lagpts(42, bary=True)
+        assert abs(float(np.asarray(v)[16]) - 0.002937421407003) < 1e-12
 
     def test_n251_first_moment(self):
         x, w = lagpts(251)

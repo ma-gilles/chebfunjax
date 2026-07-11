@@ -13,7 +13,6 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from chebfunjax.utils.quadrature import legpts
 
@@ -34,11 +33,10 @@ class TestLegpts:
         assert abs(float(np.asarray(x)[36]) - 0.910959724904127) < TOL
         assert abs(float(np.asarray(w)[36]) - 0.030479240699603) < TOL
 
-    @pytest.mark.xfail(reason="chebfunjax legpts returns (x, w) without "
-                       "barycentric weights v")
     def test_n42_barycentric_weights(self):
-        x, w, v = legpts(42)  # noqa
-        assert abs(float(np.asarray(v)[36]) - 0.265155501739424) < TOL
+        # FIXED (Fable 5): bary=True returns MATLAB's third output.
+        x, w, v = legpts(42, bary=True)
+        assert abs(float(np.asarray(v)[36]) - 0.265155501739424) < 1e-12
 
     def test_mapped_interval(self):
         x, w = legpts(42, (0.0, 10.0))

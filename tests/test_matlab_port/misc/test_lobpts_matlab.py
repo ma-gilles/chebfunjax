@@ -12,7 +12,6 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import numpy as np
-import pytest
 from scipy.integrate import quad
 
 from chebfunjax.utils.quadrature import lobpts
@@ -31,11 +30,10 @@ class TestLobpts:
         assert abs(w[36] - 0.029306411216166) < TOL
         assert x[0] == -1.0 and x[-1] == 1.0
 
-    @pytest.mark.xfail(reason="chebfunjax lobpts has no barycentric-"
-                       "weight output")
     def test_barycentric(self):
-        x, w, v = lobpts(42)
-        assert abs(float(np.asarray(v)[36]) + 0.622355798366776) < TOL
+        # FIXED (Fable 5): bary=True returns MATLAB's third output.
+        x, w, v = lobpts(42, bary=True)
+        assert abs(float(np.asarray(v)[36]) + 0.622355798366776) < 1e-12
 
     def test_jacobi_lobatto_exactness(self):
         n, alp, bet = 8, 0.3, 1.2

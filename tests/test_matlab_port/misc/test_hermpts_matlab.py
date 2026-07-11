@@ -9,7 +9,6 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from chebfunjax.utils.quadrature import hermpts
 
@@ -27,11 +26,10 @@ class TestHermpts:
         assert abs(x[36] - 5.660357581283058) < 10 * TOL
         assert abs(w[16] - 0.032202101288908) < TOL
 
-    @pytest.mark.xfail(reason="chebfunjax hermpts has no barycentric-"
-                       "weight output")
     def test_barycentric(self):
-        x, w, v = hermpts(42)
-        assert abs(float(np.asarray(v)[16]) - 0.311886101735772) < TOL
+        # FIXED (Fable 5): bary=True returns MATLAB's third output.
+        x, w, v = hermpts(42, bary=True)
+        assert abs(float(np.asarray(v)[16]) - 0.311886101735772) < 1e-12
 
     def test_n251_moments(self):
         x, w = hermpts(251)

@@ -12,7 +12,6 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from chebfunjax.utils.quadrature import jacpts
 
@@ -29,11 +28,10 @@ class TestJacpts:
         assert abs(x[36] - 0.912883347814032) < TOL
         assert abs(w[36] - 0.046661910947553) < TOL
 
-    @pytest.mark.xfail(reason="chebfunjax jacpts has no barycentric-"
-                       "weight output")
     def test_barycentric_weights(self):
-        x, w, v = jacpts(42, -0.1, 0.3)
-        assert abs(float(np.asarray(v)[36]) - 0.320696510075909) < TOL
+        # FIXED (Fable 5): bary=True returns MATLAB's third output.
+        x, w, v = jacpts(42, -0.1, 0.3, bary=True)
+        assert abs(float(np.asarray(v)[36]) - 0.320696510075909) < 1e-11
 
     def test_mapped_interval(self):
         out = jacpts(42, -0.1, 0.3, (0.0, 10.0)) if True else None

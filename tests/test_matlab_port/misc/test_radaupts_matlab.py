@@ -9,7 +9,6 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import numpy as np
-import pytest
 from scipy.integrate import quad
 
 from chebfunjax.utils.quadrature import radaupts
@@ -28,11 +27,10 @@ class TestRadaupts:
         assert abs(w[36] - 0.031190846817016) < TOL
         assert x[0] == -1.0
 
-    @pytest.mark.xfail(reason="chebfunjax radaupts has no barycentric-"
-                       "weight output")
     def test_barycentric(self):
-        x, w, v = radaupts(42)
-        assert abs(float(np.asarray(v)[36]) + 0.171069152683909) < TOL
+        # FIXED (Fable 5): bary=True returns MATLAB's third output.
+        x, w, v = radaupts(42, bary=True)
+        assert abs(float(np.asarray(v)[36]) + 0.171069152683909) < 1e-12
 
     def test_jacobi_radau_exactness(self):
         n, alp, bet = 8, 0.3, 1.2

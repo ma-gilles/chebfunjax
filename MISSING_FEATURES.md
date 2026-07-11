@@ -30,8 +30,8 @@ Fully-passing files: 139 · mixed (some assertions pass, some skip): 249
 | 5 | ~~norm(inf)~~ **FIXED (Fable 5)**: complex chebfuns route through the real chebfun \|f\|² and take √max — piecewise complex exponential gives e exactly | was: crash (lt on complex128) | fixed in `norm` |
 | 6 | ~~Chebtech1 complex transforms~~ **FIXED (Fable 5)**: vals2coeffs/coeffs2vals now split complex data into re+im (as MATLAB does); complex roundtrip and exp(iπx) construction at machine precision. 17 xfails + 5 sentinels flipped to passes; Chebtech1 now included in the complex chebtech port cases | was: jnp.real cast dropped imag | fixed in `_chebtech1_*` |
 | 7 | ~~ishappy propagation~~ **FIXED (Fable 5)**: all 16 Chebtech1/2 arithmetic-and-calculus operators now AND their operands' happiness through `from_coeffs(ishappy=...)`; 6 port xfails flipped | | fixed in tech ops |
-| 8 | θ-independent Spherefun constructions (e.g. sin λ) only ~8e-9 accurate, warn "column slices not resolved" | | `spherefunv/test_constructor` |
-| 9 | legpts/jacpts/lobpts/radaupts/hermpts/lagpts/ultrapts return no barycentric-weight third output | minor API gap | misc ports |
+| 8 | ~~θ-independent Spherefun~~ **NOT A BUG (Fable 5)**: sin(λ) is discontinuous at the poles (limit depends on λ) — not a smooth function on the sphere. The constructor rightly warns; ~1e-7 is the attainable accuracy for the ill-posed input | | reclassified |
+| 9 | ~~barycentric outputs~~ **FIXED (Fable 5)**: all 7 quadrature functions accept `bary=True` and return MATLAB's normalized barycentric weights (log-scaled products, exact vs MATLAB's printed values incl. Lobatto/Radau sign conventions); 7 port xfails flipped | | fixed in quadrature |
 
 ## 2. MISSING FEATURES (the 1,273 skips, categorized)
 

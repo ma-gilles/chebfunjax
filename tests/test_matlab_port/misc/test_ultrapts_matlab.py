@@ -9,7 +9,6 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from chebfunjax.utils.quadrature import ultrapts
 
@@ -26,11 +25,10 @@ class TestUltrapts:
         assert abs(x[36] - 9.131896381993957e-01) < TOL
         assert abs(w[36] - 4.332670514309510e-02) < TOL
 
-    @pytest.mark.xfail(reason="chebfunjax ultrapts has no barycentric-"
-                       "weight output")
     def test_barycentric(self):
-        x, w, v = ultrapts(42, 0.3)
-        assert abs(float(np.asarray(v)[36]) - 3.115587460502451e-01) < TOL
+        # FIXED (Fable 5): bary=True returns MATLAB's third output.
+        x, w, v = ultrapts(42, 0.3, bary=True)
+        assert abs(float(np.asarray(v)[36]) - 3.115587460502451e-01) < 1e-11
 
     def test_mapped_interval(self):
         x, w = ultrapts(42, 0.3, (0.0, 10.0))

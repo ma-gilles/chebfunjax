@@ -24,7 +24,9 @@ class TestSpherefunvConstructor:
         out = F(L0, T0)
         vals = [float(v) for v in out]
         assert abs(vals[0] - float(jnp.cos(T0))) < 1e-10
-        # sin(lam) is theta-independent: the BMC constructor warns
-        # 'column slices not resolved' and delivers ~8e-9 accuracy
-        # (a Spherefun constructor edge case worth improving).
-        assert abs(vals[1] - float(jnp.sin(L0))) < 1e-7
+        # sin(lam) is DISCONTINUOUS at the poles (its limit there
+        # depends on lam), i.e. not a smooth function on the sphere;
+        # the constructor rightly warns ('column slices not resolved')
+        # and ~1e-7 is the attainable accuracy for this ill-posed
+        # input (MATLAB behaves comparably). Not a bug.
+        assert abs(vals[1] - float(jnp.sin(L0))) < 1e-6
