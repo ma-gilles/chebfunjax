@@ -1576,6 +1576,17 @@ class Chebfun(eqx.Module):
             # extremum via rootfinding on f'. Taking max|values at the
             # Chebyshev nodes| instead misses peaks that fall between nodes
             # (e.g. sin on a shifted domain gave 0.99084 instead of 1.0).
+            # Complex chebfuns: minandmax needs an ordered field, so work
+            # with |f|^2 (a real chebfun) and take the sqrt of its max —
+            # the previous code crashed with `lt on complex128`
+            # (Fable 5 audit, bug #5).
+            if any(jnp.iscomplexobj(piece.tech.coeffs)
+                   for piece in self.funs):
+                mag2 = (self.real() * self.real()
+                        + self.imag() * self.imag())
+                (_, _), (_, m_max) = mag2.minandmax()
+                return jnp.sqrt(jnp.array(max(float(m_max), 0.0),
+                                          dtype=jnp.float64))
             (_, f_min), (_, f_max) = self.minandmax()
             return jnp.array(
                 max(abs(float(f_min)), abs(float(f_max))), dtype=jnp.float64

@@ -40,10 +40,9 @@ class TestChebfunNorm:
         f = _pw()
         assert abs(float(f.norm(1)) - np.e) < 100 * f.vscale * EPS
 
-    @pytest.mark.xfail(
-        reason="chebfunjax norm(inf) crashes on complex chebfuns "
-        "(lt on complex128); MATLAB uses |f| via minandmax")
     def test_inf_norm_complex(self):
+        # FIXED (Fable 5): complex chebfuns now route through |f|^2
+        # (a real chebfun) and take sqrt of its max.
         f = _pw()
         assert abs(float(f.norm(jnp.inf)) - np.e) < 100 * f.vscale * EPS
 
