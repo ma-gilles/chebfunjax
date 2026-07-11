@@ -77,29 +77,14 @@ class TestChebtech1Coeffs2Vals:
         v = np.asarray(Chebtech1.coeffs2vals(jnp.asarray(_C_EVEN)))
         assert not np.any(np.imag(v))
 
-    @pytest.mark.xfail(
-        reason="Chebtech1.coeffs2vals drops imaginary part (jnp.real cast); "
-        "cannot represent complex data",
-        strict=False,
-    )
     def test_even_imaginary_branch(self):
         v = Chebtech1.coeffs2vals(jnp.asarray(1j * _C_EVEN))
         assert _ninf(np.asarray(v) - 1j * _V_EVEN) < TOL
 
-    @pytest.mark.xfail(
-        reason="Chebtech1.coeffs2vals drops imaginary part (jnp.real cast); "
-        "imaginary input yields a real result",
-        strict=False,
-    )
     def test_even_imaginary_no_real(self):
         v = np.asarray(Chebtech1.coeffs2vals(jnp.asarray(1j * _C_EVEN)))
         assert not np.any(np.real(v))
 
-    @pytest.mark.xfail(
-        reason="Chebtech1.coeffs2vals drops imaginary part (jnp.real cast); "
-        "cannot represent complex data",
-        strict=False,
-    )
     def test_even_general_branch(self):
         v = Chebtech1.coeffs2vals(jnp.asarray((1 + 1j) * _C_EVEN))
         assert _ninf(np.asarray(v) - (1 + 1j) * _V_EVEN) < TOL
@@ -118,29 +103,14 @@ class TestChebtech1Coeffs2Vals:
         v = np.asarray(Chebtech1.coeffs2vals(jnp.asarray(_C_ODD)))
         assert not np.any(np.imag(v))
 
-    @pytest.mark.xfail(
-        reason="Chebtech1.coeffs2vals drops imaginary part (jnp.real cast); "
-        "cannot represent complex data",
-        strict=False,
-    )
     def test_odd_imaginary_branch(self):
         v = Chebtech1.coeffs2vals(jnp.asarray(1j * _C_ODD))
         assert _ninf(np.asarray(v) - 1j * _V_ODD) < TOL
 
-    @pytest.mark.xfail(
-        reason="Chebtech1.coeffs2vals drops imaginary part (jnp.real cast); "
-        "imaginary input yields a real result",
-        strict=False,
-    )
     def test_odd_imaginary_no_real(self):
         v = np.asarray(Chebtech1.coeffs2vals(jnp.asarray(1j * _C_ODD)))
         assert not np.any(np.real(v))
 
-    @pytest.mark.xfail(
-        reason="Chebtech1.coeffs2vals drops imaginary part (jnp.real cast); "
-        "cannot represent complex data",
-        strict=False,
-    )
     def test_odd_general_branch(self):
         v = Chebtech1.coeffs2vals(jnp.asarray((1 + 1j) * _C_ODD))
         assert _ninf(np.asarray(v) - (1 + 1j) * _V_ODD) < TOL

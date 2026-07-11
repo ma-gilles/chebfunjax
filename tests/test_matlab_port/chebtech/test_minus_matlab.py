@@ -131,16 +131,12 @@ class TestChebtechMinus:
 
     def test_sub_exp_and_complex_sinh_negation(self, Tech):
         # pass(n, 10): isequal(f - g, -(g - f)), g = sinh(t e^{2pi i/6}).
-        if Tech is Chebtech1:
-            pytest.skip(_CT1_COMPLEX)
         f = Tech.from_function(lambda x: jnp.exp(x) - 1)
         g = Tech.from_function(lambda t: jnp.sinh(t * jnp.exp(2j * jnp.pi / 6)))
         assert _coeff_diff(f - g, -(g - f)) == 0.0
 
     def test_sub_exp_and_complex_sinh_exact(self, Tech):
         # pass(n, 11): feval(f - g) == (e^x - 1) - sinh(t e^{2pi i/6}).
-        if Tech is Chebtech1:
-            pytest.skip(_CT1_COMPLEX)
         f = Tech.from_function(lambda x: jnp.exp(x) - 1)
         g = Tech.from_function(lambda t: jnp.sinh(t * jnp.exp(2j * jnp.pi / 6)))
         h = f - g

@@ -161,13 +161,9 @@ class TestChebtechDiff:
         )
 
 
-@pytest.mark.xfail(
-    reason="Chebtech1 drops the imaginary part in vals2coeffs/coeffs2vals; it "
-    "cannot represent complex-valued functions, so the n=1 (chebtech1) "
-    "iterations of the complex sub-tests are unportable",
-    strict=False,
-)
 def test_chebtech1_rejects_complex():
+    # FIXED (Fable 5): Chebtech1 now splits complex data into re/im
+    # in vals2coeffs/coeffs2vals; this sentinel now passes.
     # Documents the gap that forces the complex sub-tests onto Chebtech2 only:
     # constructing a complex-valued function on Chebtech1 never converges.
     with warnings.catch_warnings():

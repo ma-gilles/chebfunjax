@@ -1732,6 +1732,12 @@ def _chebtech1_vals2coeffs(values: jax.Array) -> jax.Array:
     k = jnp.arange(n, dtype=jnp.float64)
     w = 2.0 * jnp.exp(1j * k * jnp.pi / (2.0 * n))
 
+    # Complex data: the FFT/DCT trick below assumes REAL values (the
+    # final jnp.real would silently DROP the imaginary part -- Fable 5
+    # audit, bug #6).  Split like MATLAB @chebtech1/vals2coeffs.m.
+    if jnp.iscomplexobj(values):
+        return (_chebtech1_vals2coeffs(jnp.real(values))
+                + 1j * _chebtech1_vals2coeffs(jnp.imag(values)))
     # MATLAB vals2coeffs: tmp = [values(n:-1:1); values]
     # values is ascending (left-to-right); values(n:-1:1) is descending.
     # In Python (values ascending): tmp = [values[::-1], values]
@@ -1788,6 +1794,12 @@ def _chebtech1_coeffs2vals(coeffs: jax.Array) -> jax.Array:
     _chebtech1_vals2coeffs, coeffs2vals
     """
     n = coeffs.shape[0]
+    # Complex coefficients: split into real/imag (the mirror-FFT below
+    # assumes real data; jnp.real dropped the imaginary part -- Fable 5
+    # audit, bug #6).
+    if jnp.iscomplexobj(coeffs):
+        return (_chebtech1_coeffs2vals(jnp.real(coeffs))
+                + 1j * _chebtech1_coeffs2vals(jnp.imag(coeffs)))
     if n <= 1:
         return coeffs.astype(jnp.float64)
 

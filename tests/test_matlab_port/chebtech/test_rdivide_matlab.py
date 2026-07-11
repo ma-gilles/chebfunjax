@@ -98,8 +98,6 @@ class TestChebtechRdivide:
 
     def test_scalar_div_by_function(self, Tech):
         # pass(n, 7): alpha ./ exp -> alpha / e^x (complex).
-        if Tech is Chebtech1:
-            pytest.skip(_CT1_COMPLEX)
         f = Tech.from_function(lambda x: jnp.exp(x))
         g = ALPHA / f
         err = _ninf(g(X) - (ALPHA / jnp.exp(X)))
@@ -133,8 +131,6 @@ class TestChebtechRdivide:
 
     def test_div_complex_sinh_by_exp(self, Tech):
         # pass(n, 11): sinh(t e^{2pi i/6}) ./ e^x.
-        if Tech is Chebtech1:
-            pytest.skip(_CT1_COMPLEX)
         g = Tech.from_function(lambda x: jnp.exp(x))
         f = Tech.from_function(lambda t: jnp.sinh(t * jnp.exp(2j * jnp.pi / 6)))
         h = f / g
@@ -151,8 +147,6 @@ class TestChebtechRdivide:
 
     def test_div_by_scalar_matches_direct_construction(self, Tech):
         # pass(n, 14): coeffs of (sin ./ alpha) match direct construction.
-        if Tech is Chebtech1:
-            pytest.skip(_CT1_COMPLEX)
         f = Tech.from_function(lambda x: jnp.sin(x))
         h1 = f / ALPHA
         h2 = Tech.from_function(lambda x: jnp.sin(x) / ALPHA)

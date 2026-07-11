@@ -105,13 +105,9 @@ class TestChebtechFeval:
         )
 
 
-@pytest.mark.xfail(
-    reason="Chebtech1 drops the imaginary part in vals2coeffs/coeffs2vals; it "
-    "cannot represent complex-valued functions, so the n=1 (chebtech1) "
-    "iterations of the sinh(t*z) sub-tests are unportable",
-    strict=False,
-)
 def test_chebtech1_rejects_complex():
+    # FIXED (Fable 5): Chebtech1 now splits complex data into re/im
+    # in vals2coeffs/coeffs2vals; this sentinel now passes.
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         f = Chebtech1.from_function(lambda t: jnp.sinh(t * _Z6))

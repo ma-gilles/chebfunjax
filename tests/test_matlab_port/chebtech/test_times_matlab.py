@@ -90,8 +90,6 @@ class TestChebtechTimes:
     # -- Multiplication by constant functions. pass(n, 6). --
     def test_mult_by_constant_function(self, Tech):
         # pass(n, 6): sin .* (alpha * ones).
-        if Tech is Chebtech1:
-            pytest.skip(_CT1_COMPLEX)
         f = Tech.from_function(lambda x: jnp.sin(x))
         g = Tech.from_function(lambda x: ALPHA * jnp.ones_like(x))
         h = f * g
@@ -127,8 +125,6 @@ class TestChebtechTimes:
 
     def test_mult_exp_by_complex_sinh(self, Tech):
         # pass(n, 11): (e^x - 1) .* sinh(t e^{2pi i/6}).
-        if Tech is Chebtech1:
-            pytest.skip(_CT1_COMPLEX)
         f = Tech.from_function(lambda x: jnp.exp(x) - 1)
         g = Tech.from_function(lambda t: jnp.sinh(t * jnp.exp(2j * jnp.pi / 6)))
         h = f * g
@@ -150,8 +146,6 @@ class TestChebtechTimes:
     # -- Specially handled cases (positivity adjustments). pass(n, 16:20). --
     def test_mult_complex_sinh_squared(self, Tech):
         # pass(n, 16): sinh(t e^{2pi i/6}) .* itself.
-        if Tech is Chebtech1:
-            pytest.skip(_CT1_COMPLEX)
         f = Tech.from_function(lambda t: jnp.sinh(t * jnp.exp(2j * jnp.pi / 6)))
         h = f * f
         exact = jnp.sinh(X * jnp.exp(2j * jnp.pi / 6)) ** 2
