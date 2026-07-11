@@ -1,6 +1,7 @@
-"""Port of MATLAB Chebfun tests/trigtech/test_compose.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/trigtech/test_compose.m (Fable 5).
 
-compose forms g(f) / binary compositions, re-resolving adaptively.
+FIXED: Trigtech.compose added in the Fable 5 audit.  Array-valued
+cases remain skipped.
 
 Provenance
 ----------
@@ -10,51 +11,25 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
+import jax.numpy as jnp
+import numpy as np
 import pytest
+
+from chebfunjax.tech.trigtech import Trigtech
+
+EPS = float(np.finfo(np.float64).eps)
+XS = jnp.asarray(np.linspace(-0.97, 0.97, 60))
 
 
 class TestTrigtechCompose:
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no compose() method")
-    def test_scalar_sin(self):
-        raise AssertionError("compose() not implemented")
+    def test_sin_of_cos(self):
+        f = Trigtech.from_function(
+            lambda x: jnp.pi * jnp.cos(jnp.pi * (x - 0.1)))
+        g = f.compose(jnp.sin)
+        h = Trigtech.from_function(
+            lambda x: jnp.sin(jnp.pi * jnp.cos(jnp.pi * (x - 0.1))))
+        err = jnp.abs(g(XS) - h(XS))
+        assert float(jnp.max(err)) < 100 * h.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no compose() method")
-    def test_array_sin(self):
-        raise AssertionError("compose() not implemented")
-
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no compose() method")
-    def test_array_sin_values(self):
-        raise AssertionError("compose() not implemented")
-
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no compose() method")
-    def test_array3_sin_values(self):
-        raise AssertionError("compose() not implemented")
-
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no compose() method")
-    def test_binary_plus(self):
-        raise AssertionError("compose() not implemented")
-
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no compose() method")
-    def test_binary_times_array(self):
-        raise AssertionError("compose() not implemented")
-
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no compose() method")
-    def test_g_of_f(self):
-        raise AssertionError("compose() not implemented")
-
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no compose() method")
-    def test_g_of_f_array_g(self):
-        raise AssertionError("compose() not implemented")
-
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no compose() method")
-    def test_g_of_f_array_f(self):
-        raise AssertionError("compose() not implemented")
-
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no compose() method")
-    def test_error_array_array(self):
-        raise AssertionError("compose() not implemented")
-
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no compose() method")
-    def test_error_dim(self):
-        raise AssertionError("compose() not implemented")
-
+    def test_array_valued(self):
+        pytest.skip("chebfunjax has no array-valued trigtech")

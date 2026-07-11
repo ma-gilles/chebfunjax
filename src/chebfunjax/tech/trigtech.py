@@ -1173,6 +1173,67 @@ class Trigtech(eqx.Module):
         bc = _trig_cumsum_coeffs(self.coeffs)
         return Trigtech(coeffs=bc, is_real=self.is_real, ishappy=self.ishappy)
 
+    def innerProduct(self, other: "Trigtech") -> jax.Array:
+        r"""L^2 inner product <f, g> = \int_{-1}^{1} conj(f) g dx.
+
+        For Fourier series f = sum a_k e^{i pi k x},
+        g = sum b_k e^{i pi k x}: <f, g> = 2 sum conj(a_k) b_k
+        (orthogonality of the modes on [-1, 1]).  MATLAB forces
+        <f, f> real-nonnegative (isequal branch).  Added by Claude
+        Fable 5 (trigtech method gap).
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/innerProduct.m
+        Chebfun commit: 7574c77
+        """
+        n = max(self.n, other.n)
+        fc = _trig_prolong_coeffs(self.coeffs, n)
+        gc = _trig_prolong_coeffs(other.coeffs, n)
+        out = 2.0 * jnp.sum(jnp.conj(fc) * gc)
+        same = other is self
+        if not same and self.coeffs.shape == other.coeffs.shape:
+            if not isinstance(self.coeffs, jax.core.Tracer) and \
+                    not isinstance(other.coeffs, jax.core.Tracer):
+                same = bool(jnp.all(self.coeffs == other.coeffs))
+        if same:
+            return jnp.abs(out)
+        if self.is_real and other.is_real:
+            return jnp.real(out)
+        return out
+
+    inner = innerProduct
+
+    def compose(self, op) -> "Trigtech":
+        """Re-approximate op(f) adaptively (MATLAB @trigtech/compose.m;
+        added by Claude Fable 5)."""
+        return Trigtech.from_function(lambda x: op(self(x)))
+
+    def restrict(self, a: float, b: float):
+        """Restriction to [a, b] within [-1, 1].
+
+        A restricted periodic function is generally NOT periodic, so
+        (like MATLAB) the result is a Chebyshev representation on the
+        subinterval: returns a Chebtech2 of f|_[a,b] mapped to [-1,1].
+        Added by Claude Fable 5.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/restrict.m (output is cheb-based)
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.tech.chebtech import Chebtech2
+        a = float(a)
+        b = float(b)
+        if not (-1.0 <= a < b <= 1.0):
+            raise ValueError("restrict: need -1 <= a < b <= 1")
+
+        def g(t):
+            x = a + (b - a) * (jnp.asarray(t) + 1.0) / 2.0
+            return self(x)
+
+        return Chebtech2.from_function(g)
+
     def sum(self) -> jax.Array:
         r"""Definite integral over [-1, 1].
 
