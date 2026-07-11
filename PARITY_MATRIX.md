@@ -66,6 +66,17 @@ ode-random, stats, ode-eig, ode-linear, ode-nonlin, sphere). Every
 per-block code snippet executes; ~60 broken stubs were replaced with
 runnable code during the campaign.
 
+## 4bis. MATLAB unit-test replication (tests/test_matlab_port)
+
+Every non-chebgui MATLAB test file (1,095 across 43 modules) now has a
+port counterpart under ``tests/test_matlab_port/<module>/`` -- either a
+genuine port of its assertions at MATLAB tolerances, or a skip/xfail
+stub naming the precise missing feature.  Authored by Opus-4.8-driven
+subagents (wave 1, salvaged + verified) and Claude Fable 5 (everything
+else).  The port drive found and fixed 8+ real library bugs and
+documented ~10 more as evidence-carrying xfails (see MATLAB_PORT_LEDGER
+in the audit scratch dir and the git log).
+
 ## 5. Known gaps
 
 The entire library backlog (#8–#25) is closed:
