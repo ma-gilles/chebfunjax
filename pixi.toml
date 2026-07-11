@@ -33,7 +33,8 @@ test-full = "python -m pytest tests/ -q --tb=short --timeout=900 -n auto --cov=c
 # CI runners (4 vCPU / 16 GB) OOM with -n auto: each xdist worker
 # accumulates a JAX JIT cache over 3000+ tests. Two workers keep the
 # peak under control; per-test timeout is tighter to fail fast.
-test-ci = "python -m pytest tests/ -q --tb=short --timeout=600 -n 2 --cov=chebfunjax --cov-report=term"
+test-ci = "python -m pytest tests/ --ignore=tests/test_matlab_port -q --tb=short --timeout=600 -n 2 --cov=chebfunjax --cov-report=term"
+test-matlab-port = "python -m pytest tests/test_matlab_port -q --tb=short --timeout=900 -n 2 -p no:cacheprovider"
 test-gpu = "python -m pytest tests/ -m gpu -v --tb=short --timeout=900"
 test-matlab = "python -m pytest tests/ -m matlab -q --tb=short --timeout=900 -n auto"
 check-jax = "python -c \"import jax; print('JAX devices:', jax.devices())\""

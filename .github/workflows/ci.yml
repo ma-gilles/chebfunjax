@@ -91,16 +91,28 @@ jobs:
   test:
     name: Tests + Coverage
     runs-on: ubuntu-latest
-    # Full suite takes ~15 min on 2 vCPUs with xdist; per-test --timeout
-    # in the pixi task turns any hang into a failure instead of a 6h burn.
+    # Core suite (excl. the MATLAB port tree, which has its own job
+    # below -- running both in one job overwhelmed hosted runners).
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: prefix-dev/setup-pixi@v0.8.1
         with:
           pixi-version: latest
-      - name: Run all tests with coverage
+      - name: Run core tests with coverage
         run: pixi run test-ci
+
+  matlab-port:
+    name: MATLAB port tree
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: prefix-dev/setup-pixi@v0.8.1
+        with:
+          pixi-version: latest
+      - name: Run MATLAB test-suite ports
+        run: pixi run test-matlab-port
 
   golden-refs:
     name: Validate golden refs
