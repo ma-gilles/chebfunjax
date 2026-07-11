@@ -4018,6 +4018,7 @@ def chebfun(
     eps: float | None = None,
     max_length: int | None = None,
     splitting: bool = False,
+    exps: tuple[float, float] | None = None,
 ) -> Chebfun:
     """Create a Chebfun from a callable, array of coefficients, or constant.
 
@@ -4091,6 +4092,30 @@ def chebfun(
     --------
     Chebfun.from_function, Chebfun.from_coeffs, Chebfun.from_values
     """
+    # Endpoint singularities (MATLAB 'exps' flag): wrap a Singfun piece
+    # (Fable 5, MISSING_FEATURES blowup gap).  f is the FULL (singular)
+    # function; exps = (e_left, e_right) are the known endpoint
+    # exponents, e.g. exps=(-0.5, -0.5) for 1/sqrt(1-x^2).
+    if exps is not None:
+        if trig or splitting or n is not None:
+            raise ValueError(
+                "chebfun: exps cannot be combined with trig/splitting/n")
+        from chebfunjax.fun.singfun import Singfun
+        dom = tuple(float(v) for v in domain)
+        if len(dom) != 2:
+            raise ValueError("chebfun: exps requires a single interval")
+        a_, b_ = dom
+
+        def _full(t):
+            x = a_ + (b_ - a_) * (jnp.asarray(t) + 1.0) / 2.0
+            return f(x)
+
+        sf = Singfun.from_function(_full,
+                                   exponents=(float(exps[0]),
+                                              float(exps[1])))
+        piece = _Piece(tech=sf, interval=(a_, b_))
+        return Chebfun(funs=[piece], domain=Domain((a_, b_)))
+
     # --- Preferences (task #11): eps -> chop tolerance, max_length ->
     #     maximum adaptive length (2**maxpow2 + 1). ---
     _tol = None if eps is None else float(eps)
