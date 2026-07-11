@@ -21,12 +21,10 @@ class TestChebfunCircconv:
     def test_empty(self):
         pytest.skip("chebfunjax has no empty chebfun")
 
-    @pytest.mark.xfail(
-        reason="chebfunjax circconv: NaN on non-unit domains ([-pi,pi]) "
-        "and on [-1,1] the result is circularly shifted by half the "
-        "period (sign flip for odd harmonics) with ~0.6% amplitude "
-        "error. Two real defects flagged in the Fable 5 audit.")
     def test_circconv_of_cos_eigenfunction(self):
+        # FIXED (Fable 5): g is now sampled periodically at m*dx (was
+        # offset by 'a' -> half-period shift) and the result is rebuilt
+        # as a Fourier series (was Runge-diverging polynomial interp).
         # circular convolution of cos(k x) with itself on [-pi, pi]
         # gives pi*cos(k x) (Fourier eigen-property).
         f = cj.chebfun(lambda x: jnp.cos(10 * x),
@@ -36,3 +34,14 @@ class TestChebfunCircconv:
         exact = np.pi * jnp.cos(10 * xs)
         err = jnp.abs(h(xs) - exact)
         assert float(jnp.max(err)) < 1e4 * EPS
+
+    def test_asymmetric_domain_vs_quadrature(self):
+        from scipy.integrate import quad
+        k = cj.chebfun(lambda x: jnp.sin(jnp.pi * x),
+                       domain=(0.0, 2.0), trig=True)
+        h = k.circconv(k)
+        for xv in (0.3, 0.9, 1.6):
+            ref = quad(lambda t, xv=xv: np.sin(np.pi * t)
+                       * np.sin(np.pi * ((xv - t) % 2.0)),
+                       0, 2, limit=200)[0]
+            assert abs(float(h(jnp.asarray(xv))) - ref) < 1e-10

@@ -2544,20 +2544,49 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         Chebfun._check_domains(self, g)
-        a, b = self.domain.a, self.domain.b
-        # Use a fine equi-spaced grid for the DFT-based circular convolution
+        a, b = float(self.domain.a), float(self.domain.b)
+        L = b - a
+        # Fine equi-spaced grid for the DFT-based circular convolution
         n = max(len(self), len(g)) * 2 + 1
-        # Next power of 2 for efficiency
         import math
         n = 2 ** math.ceil(math.log2(n + 1))
         x = jnp.linspace(jnp.float64(a), jnp.float64(b), n, endpoint=False)
-        dx = float(b - a) / n
+        dx = L / n
         fv = self(x)
-        gv = g(x)
-        h_vals = jnp.real(jnp.fft.ifft(jnp.fft.fft(fv) * jnp.fft.fft(gv))) * dx
-        # Build a Chebfun from the result values by interpolation
-        h_fun = Chebfun.interp1(x, h_vals, domain=(float(a), float(b)))
-        return h_fun
+        # h(x_j) = dx * sum_k f(x_k) g((j-k) dx), so g must be sampled
+        # at s_m = m*dx (wrapped periodically into [a, b)), NOT at
+        # x_m = a + m*dx.  The previous code sampled at x_m, shifting
+        # the result by exactly 'a' (half the period on symmetric
+        # domains).  (Fable 5 audit, bug #3a.)
+        import numpy as _np
+        m = _np.arange(n)
+        s = a + _np.mod(m * dx - a, L)
+        gv = g(jnp.asarray(s))
+        h_vals = jnp.real(
+            jnp.fft.ifft(jnp.fft.fft(fv) * jnp.fft.fft(gv))) * dx
+        # The convolution of periodic functions is periodic: rebuild as
+        # a Fourier series (the previous global-polynomial interp1
+        # through equi-spaced points Runge-diverged to NaN on wide
+        # domains -- bug #3b).
+        c = _np.fft.fft(_np.asarray(h_vals)) / n
+        cpos = c[: n // 2]
+
+        def h_eval(t):
+            tau = 2.0 * _np.pi * (jnp.asarray(t) - a) / L
+            out = jnp.zeros_like(jnp.asarray(t, dtype=jnp.float64))
+            # k = 0 and positive k (conjugate symmetry doubles k > 0)
+            out = out + jnp.real(jnp.asarray(cpos[0]))
+            for k in range(1, n // 2):
+                ck = complex(cpos[k])
+                out = out + 2.0 * (ck.real * jnp.cos(k * tau)
+                                   - ck.imag * jnp.sin(k * tau))
+            # Nyquist term (n even)
+            cN = complex(c[n // 2])
+            out = out + cN.real * jnp.cos((n // 2) * tau)
+            return out
+
+        from chebfunjax.chebfun1d.chebfun import chebfun as _cf
+        return _cf(h_eval, domain=(a, b), trig=True)
 
     def flipud(self) -> Chebfun:
         """Reverse the Chebfun: ``g(x) = f(a + b - x)``.
