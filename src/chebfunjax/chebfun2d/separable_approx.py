@@ -428,6 +428,52 @@ class SeparableApprox(eqx.Module):
         min_samples: int = 9,
         max_samples: int = 2**14 + 1,
     ) -> "SeparableApprox":
+        """Construct with a MATLAB-style sample test (Fable 5).
+
+        Runs the two-phase construction, then evaluates f at off-grid
+        points; if the approximation misses them (phase-1 ACA accepted a
+        too-coarse grid, e.g. a compactly supported bump on a large
+        domain sampled 9x9), the construction restarts with a denser
+        initial grid.  Mirrors sampleTest in @chebfun2/constructor.m.
+        """
+        xa, xb, ya, yb = (float(v) for v in domain)
+        # deterministic low-discrepancy test points (golden-ratio lattice)
+        phi = 0.6180339887498949
+        ts = np.arange(1, 33, dtype=float)
+        xt = xa + (xb - xa) * ((0.5 + phi * ts) % 1.0)
+        yt = ya + (yb - ya) * ((0.5 + phi * ts * ts) % 1.0)
+        xtj = jnp.asarray(xt)[:, None]
+        ytj = jnp.asarray(yt)[:, None]
+        fvals = np.asarray(jnp.asarray(f(xtj, ytj))).ravel()
+        n0 = min_samples
+        while True:
+            approx = cls._construct_once(f, domain=domain, tol=tol,
+                                         max_rank=max_rank,
+                                         min_samples=n0,
+                                         max_samples=max_samples)
+            avals = np.asarray(approx(jnp.asarray(xt),
+                                      jnp.asarray(yt))).ravel()
+            vsc = max(float(np.max(np.abs(fvals))), 1e-300)
+            if np.max(np.abs(avals - fvals)) <= 1e3 * vsc * max(tol, _EPS):
+                return approx
+            n0 = 2 * (n0 - 1) + 1
+            if n0 > max_samples // 4:
+                warnings.warn(
+                    "SeparableApprox.from_function: sample test still "
+                    "failing at the maximum initial grid; returning the "
+                    "best approximation.")
+                return approx
+
+    @classmethod
+    def _construct_once(
+        cls,
+        f: Callable[[jax.Array, jax.Array], jax.Array],
+        domain: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
+        tol: float = _EPS,
+        max_rank: int = 513,
+        min_samples: int = 9,
+        max_samples: int = 2**14 + 1,
+    ) -> "SeparableApprox":
         """Construct a SeparableApprox from a callable f(x, y).
 
         Uses Gaussian elimination with complete pivoting (the Chebfun2

@@ -182,6 +182,19 @@ class Chebfun2(eqx.Module):
         kwargs: dict = dict(domain=domain)
         if tol is not None:
             kwargs["tol"] = tol
+        # Complex-valued functions: the GE constructor real-casts, so
+        # build real and imaginary parts separately and recombine
+        # exactly (f = re + 1j*im).  Found in the Fable 5 audit: complex
+        # Chebfun2s previously silently dropped their imaginary part.
+        xa, xb, ya, yb = (float(v) for v in domain)
+        xprobe = jnp.asarray([[0.5 * (xa + xb) + 0.25 * (xb - xa)]])
+        yprobe = jnp.asarray([[0.5 * (ya + yb) + 0.25 * (yb - ya)]])
+        if jnp.iscomplexobj(jnp.asarray(f(xprobe, yprobe))):
+            fre = cls(approx=SeparableApprox.from_function(
+                lambda x, y: jnp.real(f(x, y)), **kwargs))
+            fim = cls(approx=SeparableApprox.from_function(
+                lambda x, y: jnp.imag(f(x, y)), **kwargs))
+            return fre + fim * 1j
         approx = SeparableApprox.from_function(f, **kwargs)
         return cls(approx=approx)
 
@@ -589,6 +602,75 @@ class Chebfun2(eqx.Module):
             domain=self.approx.domain)
         return Chebfun2(approx=approx)
 
+    def _compress(self) -> "Chebfun2":
+        """Recompress the low-rank representation (MATLAB compression).
+
+        Orthonormalizes the column and row quasimatrices by a
+        quadrature-weighted QR of their values on a common Chebyshev
+        grid, forms the small core matrix, and truncates its SVD at
+        machine precision.  This is the step MATLAB's
+        @separableApprox/plus.m performs after concatenation; without it
+        f - f keeps cancelling terms and norm(f - f) is sqrt(eps)-level
+        instead of ~0.  Added by Claude Fable 5.
+        """
+        import numpy as _np
+
+        from chebfunjax.tech.chebtech import _coeffs_to_values
+        from chebfunjax.utils.quadrature import chebweights
+        ap = self.approx
+        r = len(ap.cols)
+        if r <= 1:
+            return self
+
+        def _vals(funs):
+            # common grid of 2*nmax points: CC quadrature is then exact
+            # for pairwise products of the underlying polynomials
+            n = 2 * max(int(f.n) for f in funs)
+            cols = []
+            for f in funs:
+                c = _np.zeros(n, dtype=_np.asarray(f.coeffs).dtype)
+                c[: int(f.n)] = _np.asarray(f.coeffs)
+                cols.append(_np.asarray(_coeffs_to_values(jnp.asarray(c))))
+            return n, _np.stack(cols, axis=1)
+
+        nc, vc = _vals(ap.cols)
+        nr, vr = _vals(ap.rows)
+        wc = _np.sqrt(_np.asarray(chebweights(nc, kind=2), dtype=float))
+        wr = _np.sqrt(_np.asarray(chebweights(nr, kind=2), dtype=float))
+        qc, rc = _np.linalg.qr(wc[:, None] * vc)      # economy QR
+        qr_, rr_ = _np.linalg.qr(wr[:, None] * vr)
+        d = _np.asarray(ap.pivots)
+        core = rc @ _np.diag(d) @ rr_.T               # plain transpose:
+        # the reconstruction f = sum_j d_j c_j(y) r_j(x) has no conjugate
+        u, sig, wh = _np.linalg.svd(core, full_matrices=False)
+        scale = float(sig[0]) if sig.size else 0.0
+        keep = sig > 10 * _np.finfo(float).eps * max(scale, 1e-300)
+        if not bool(_np.any(keep)):
+            zero = Chebtech2(coeffs=jnp.zeros(1, dtype=jnp.float64),
+                             ishappy=True)
+            approx = SeparableApprox(cols=[zero], rows=[zero],
+                                     pivots=jnp.asarray([0.0]),
+                                     domain=ap.domain)
+            return Chebfun2(approx=approx)
+        u = u[:, keep]
+        w = wh.conj().T[:, keep]
+        sig = sig[keep]
+        new_col_vals = (qc / wc[:, None]) @ u          # back to function values
+        new_row_vals = (qr_ / wr[:, None]) @ w.conj()
+        from chebfunjax.tech.chebtech import _values_to_coeffs
+
+        def _mk(vals_mat):
+            out = []
+            for m in range(vals_mat.shape[1]):
+                cf = _values_to_coeffs(jnp.asarray(vals_mat[:, m]))
+                out.append(Chebtech2(coeffs=cf, ishappy=True))
+            return out
+        approx = SeparableApprox(cols=_mk(new_col_vals),
+                                 rows=_mk(new_row_vals),
+                                 pivots=jnp.asarray(sig),
+                                 domain=ap.domain)
+        return Chebfun2(approx=approx)
+
     def _check_same_domain(self, other: "Chebfun2") -> None:
         if tuple(self.approx.domain) != tuple(other.approx.domain):
             raise ValueError(
@@ -622,7 +704,7 @@ class Chebfun2(eqx.Module):
                     [jnp.atleast_1d(self.approx.pivots),
                      jnp.atleast_1d(other.approx.pivots)]),
                 domain=self.approx.domain)
-            return Chebfun2(approx=approx)
+            return Chebfun2(approx=approx)._compress()
         if isinstance(other, (int, float, complex)):
             return self + self._const_like(other)
         return NotImplemented

@@ -37,8 +37,8 @@ class TestChebfun2Arithmetic:
         assert _err(f + g, fx + gx) < 1e-13
         assert _err(f - g, fx - gx) < 1e-13
         assert _err(-f, -fx) < 1e-13
-        # rank of the sum is the concatenation
-        assert (f + g).rank == f.rank + g.rank
+        # compression keeps rank at most the concatenation
+        assert 1 <= (f + g).rank <= f.rank + g.rank
 
     def test_scalar_ops(self, fg):
         f, _ = fg
