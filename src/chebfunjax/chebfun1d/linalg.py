@@ -161,6 +161,128 @@ class Quasimatrix:
     # Factory: build from list of callables
     # ------------------------------------------------------------------
 
+    # ------------------------------------------------------------------
+    # Column-wise array-valued API (MATLAB array-valued chebfun
+    # semantics; added by Claude Fable 5, MISSING_FEATURES gap #1).
+    # ------------------------------------------------------------------
+
+    def __len__(self) -> int:
+        return len(self.cols)
+
+    def __iter__(self):
+        return iter(self.cols)
+
+    def _map(self, fn) -> "Quasimatrix":
+        return Quasimatrix([fn(c) for c in self.cols], self.domain)
+
+    def _zip(self, other, fn) -> "Quasimatrix":
+        if isinstance(other, Quasimatrix):
+            if len(other.cols) != len(self.cols):
+                raise ValueError("column counts differ")
+            return Quasimatrix(
+                [fn(a, b) for a, b in zip(self.cols, other.cols)],
+                self.domain)
+        return Quasimatrix([fn(c, other) for c in self.cols],
+                           self.domain)
+
+    def __add__(self, other):
+        return self._zip(other, lambda a, b: a + b)
+
+    __radd__ = __add__
+
+    def __sub__(self, other):
+        return self._zip(other, lambda a, b: a - b)
+
+    def __rsub__(self, other):
+        return self._zip(other, lambda a, b: b - a)
+
+    def __mul__(self, other):
+        return self._zip(other, lambda a, b: a * b)
+
+    __rmul__ = __mul__
+
+    def __neg__(self):
+        return self._map(lambda c: -c)
+
+    def __matmul__(self, A):
+        """Quasimatrix times a matrix: columns' linear combinations
+        (MATLAB f*A for array-valued f)."""
+        import numpy as _onp
+        A = _onp.asarray(A)
+        if A.ndim == 1:
+            A = A[:, None]
+        if A.shape[0] != len(self.cols):
+            raise ValueError("inner dimensions must agree")
+        newcols = []
+        for j in range(A.shape[1]):
+            c = self.cols[0] * float(A[0, j])
+            for i in range(1, len(self.cols)):
+                c = c + self.cols[i] * float(A[i, j])
+            newcols.append(c)
+        return Quasimatrix(newcols, self.domain)
+
+    def horzcat(self, other) -> "Quasimatrix":
+        cols = list(other.cols) if isinstance(other, Quasimatrix) \
+            else [other]
+        return Quasimatrix(list(self.cols) + cols, self.domain)
+
+    def diff(self, k: int = 1) -> "Quasimatrix":
+        return self._map(lambda c: c.diff(k))
+
+    def cumsum(self) -> "Quasimatrix":
+        return self._map(lambda c: c.cumsum())
+
+    def sum(self) -> jnp.ndarray:
+        """Row vector of column integrals (MATLAB sum of array-valued)."""
+        return jnp.asarray([c.sum() for c in self.cols])
+
+    def vscale(self) -> jnp.ndarray:
+        return jnp.asarray([c.vscale for c in self.cols])
+
+    def max(self):
+        """Per-column global maxima: (locations, values)."""
+        xs, vs = [], []
+        for c in self.cols:
+            x, v = c.max()
+            xs.append(float(x))
+            vs.append(float(v))
+        return jnp.asarray(xs), jnp.asarray(vs)
+
+    def min(self):
+        xs, vs = [], []
+        for c in self.cols:
+            x, v = c.min()
+            xs.append(float(x))
+            vs.append(float(v))
+        return jnp.asarray(xs), jnp.asarray(vs)
+
+    def roots(self) -> list:
+        """List of per-column root arrays (MATLAB pads with NaN)."""
+        return [c.roots() for c in self.cols]
+
+    def real(self) -> "Quasimatrix":
+        return self._map(lambda c: c.real())
+
+    def imag(self) -> "Quasimatrix":
+        return self._map(lambda c: c.imag())
+
+    def conj(self) -> "Quasimatrix":
+        return self._map(lambda c: c.conj())
+
+    def abs(self) -> "Quasimatrix":
+        return self._map(lambda c: c.abs())
+
+    def fliplr(self) -> "Quasimatrix":
+        return Quasimatrix(list(self.cols[::-1]), self.domain)
+
+    def qr(self):
+        from chebfunjax.chebfun1d.linalg import chebfun_qr
+        return chebfun_qr(list(self.cols))
+
+    def svd(self):
+        from chebfunjax.chebfun1d.linalg import chebfun_svd
+        return chebfun_svd(list(self.cols))
+
     @classmethod
     def from_functions(
         cls,
