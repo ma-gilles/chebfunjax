@@ -3789,91 +3789,93 @@ class Chebfun(eqx.Module):
         >>> float(abs(p).sum()) > 0  # smoke test: returns a valid Chebfun
         True
         """
-        # uses-numpy: Watson iteration uses NumPy/SciPy linear algebra
+        # uses-numpy: Watson-Newton iteration uses NumPy linear algebra
         import numpy as _np
+        from numpy.polynomial import chebyshev as _C
 
         from chebfunjax.chebfun1d.chebfun import chebfun as _cf
-
         a = float(self.domain.a)
         b = float(self.domain.b)
-
-        # If f is already a polynomial of degree <= n, return f directly
         if len(self.funs) == 1 and self.funs[0].n <= n + 1:
             return self
 
-        tol = 1e-10
-        max_iter = 100
+        # Work in the normalized variable s in [-1, 1].
+        def fs(s):
+            x = 0.5 * (b - a) * _np.asarray(s) + 0.5 * (a + b)
+            return _np.asarray(self(jnp.asarray(x)), dtype=float)
 
-        from chebfunjax.utils.interpolation import bary as _bary
-        from chebfunjax.utils.interpolation import bary_weights as _bw
-        from chebfunjax.utils.quadrature import chebpts_ab as _chebpts_ab
+        def _int_T(k, lo, hi):
+            # exact integral of T_k on [lo, hi] (normalized variable)
+            if k == 0:
+                return hi - lo
+            if k == 1:
+                return 0.5 * (hi ** 2 - lo ** 2)
+            A = lambda t: 0.5 * (_C.chebval(t, _np.eye(k + 2)[k + 1])
+                                 / (k + 1)
+                                 - _C.chebval(t, _np.eye(k)[k - 1])
+                                 / (k - 1))
+            return A(hi) - A(lo)
 
-        # Compute interpolant at n+3 Chebyshev points (n+1 inner)
-        n_pts = n + 3
-        x_interp = _np.array(_chebpts_ab(n_pts, a, b), dtype=_np.float64)
-        # Use inner n+1 points only (skip first/last endpoints for stability)
-        x_nodes = x_interp[1:-1]  # n+1 nodes
-        fvals = _np.asarray(self(jnp.array(x_nodes)), dtype=_np.float64)
+        # start from the L2 projection (Chebyshev-Gauss quadrature fit)
+        ng = max(8 * (n + 1), 64)
+        sg = _np.cos(_np.pi * (_np.arange(ng) + 0.5) / ng)
+        c = _C.chebfit(sg, fs(sg), n)
 
-        # Build interpolant via barycentric interpolation
-        def _eval_poly(x_eval):
-            """Evaluate degree-n polynomial (given by values at x_nodes) at x_eval."""
-            # Barycentric interpolation of fvals on x_nodes
-            w_nodes = _np.array(_bw(jnp.array(x_nodes, dtype=jnp.float64)), dtype=_np.float64)
-            return _np.array(_bary(
-                jnp.array(x_eval, dtype=jnp.float64),
-                jnp.array(fvals, dtype=jnp.float64),
-                jnp.array(x_nodes, dtype=jnp.float64),
-                jnp.array(w_nodes, dtype=jnp.float64),
-            ), dtype=_np.float64)
-
-        # Watson iteration (simplified: interpolant on x_nodes as starting point)
-        for _ in range(max_iter):
-            # Find roots of (f - p)
-            p_now = _cf(lambda x, _fn=fvals, _xn=x_nodes: jnp.array(
-                _np.array(_bary(
-                    jnp.array(_np.asarray(x), dtype=jnp.float64),
-                    jnp.array(_fn, dtype=jnp.float64),
-                    jnp.array(_xn, dtype=jnp.float64),
-                    jnp.array(_np.array(_bw(jnp.array(_xn, dtype=jnp.float64))), dtype=jnp.float64),
-                ), dtype=_np.float64)
-            ), domain=(a, b))
-            err_fun = self - p_now
-
-            r = _np.asarray(err_fun.roots(), dtype=_np.float64)
-            if len(r) == 0:
+        sfine = _np.linspace(-1.0, 1.0, 4001)
+        ffine = fs(sfine)
+        for _ in range(60):
+            e = ffine - _C.chebval(sfine, c)
+            # sign-change locations (bisection-refined from the grid)
+            sgn = _np.sign(e)
+            idx = _np.nonzero(_np.diff(sgn) != 0)[0]
+            roots = []
+            for i in idx:
+                lo, hi = sfine[i], sfine[i + 1]
+                flo = e[i]
+                for _b in range(60):
+                    mid = 0.5 * (lo + hi)
+                    fm = (fs(_np.array([mid]))[0]
+                          - _C.chebval(mid, c))
+                    if flo * fm <= 0:
+                        hi = mid
+                    else:
+                        lo, flo = mid, fm
+                roots.append(0.5 * (lo + hi))
+            roots = _np.asarray(roots)
+            # optimality residual G_k = int T_k sign(e)
+            seg = _np.concatenate([[-1.0], roots, [1.0]])
+            mids = 0.5 * (seg[:-1] + seg[1:])
+            sig = _np.sign(fs(mids) - _C.chebval(mids, c))
+            G = _np.array([
+                sum(sig[j] * _int_T(k, seg[j], seg[j + 1])
+                    for j in range(len(sig)))
+                for k in range(n + 1)])
+            if _np.max(_np.abs(G)) < 1e-11:
                 break
+            # Watson Jacobian: J_kj = 2 sum_r T_k(r) T_j(r) / |e'(r)|
+            dedx = (_np.gradient(ffine, sfine)
+                    - _C.chebval(sfine, _C.chebder(c)))
+            eprime = _np.abs(_np.interp(roots, sfine, dedx))
+            eprime = _np.maximum(eprime, 1e-8)
+            Tk = _np.vstack([_C.chebval(roots, _np.eye(n + 1)[k])
+                             for k in range(n + 1)])
+            J = 2.0 * (Tk / eprime) @ Tk.T
+            J += 1e-14 * _np.eye(n + 1)
+            step = _np.linalg.solve(J, G)
+            # damped Newton for robustness far from the optimum
+            nrm = _np.max(_np.abs(step))
+            if nrm > 0.5:
+                step *= 0.5 / nrm
+            c = c + step
 
-            # Check stopping: sums of sign-weighted integrals
-            # If integrals are all small, we've converged
-            err_vals = _np.asarray(self(jnp.array(x_nodes)), dtype=_np.float64) - fvals
-            if _np.max(_np.abs(err_vals)) < tol:
-                break
+        coeffs = jnp.asarray(_np.asarray(c, dtype=float))
 
-            # Watson update: weighted LS with weights 1/|f'(r_i)|
-            # Simplified: just adjust fvals based on residual at nodes
-            p_at_nodes = _np.asarray(p_now(jnp.array(x_nodes)), dtype=_np.float64)
-            err_at_nodes = _np.asarray(self(jnp.array(x_nodes)), dtype=_np.float64) - p_at_nodes
-            # Move fvals toward minimizing L1 residual
-            fvals = fvals + 0.5 * err_at_nodes
+        def p_eval(x):
+            s = (2.0 * jnp.asarray(x) - (a + b)) / (b - a)
+            return jnp.asarray(_C.chebval(_np.asarray(s),
+                                          _np.asarray(c)))
 
-            if _np.max(_np.abs(err_at_nodes)) < tol:
-                break
-
-        # Return as Chebfun
-        fn = fvals.copy()
-        xn = x_nodes.copy()
-        return _cf(
-            lambda x, _fn=fn, _xn=xn: jnp.array(
-                _np.array(_bary(
-                    jnp.array(_np.asarray(x, dtype=_np.float64), dtype=jnp.float64),
-                    jnp.array(_fn, dtype=jnp.float64),
-                    jnp.array(_xn, dtype=jnp.float64),
-                    jnp.array(_np.array(_bw(jnp.array(_xn, dtype=jnp.float64))), dtype=_np.float64),
-                ), dtype=_np.float64)
-            ),
-            domain=(a, b),
-        )
+        return _cf(p_eval, domain=(a, b))
 
     # ------------------------------------------------------------------
     # Plotting method on the Chebfun object
