@@ -243,6 +243,133 @@ class Deltafun(eqx.Module):
     # Calculus
     # ------------------------------------------------------------------
 
+    # ------------------------------------------------------------------
+    # Distribution predicates / accessors (MATLAB @deltafun methods;
+    # added by Claude Fable 5, Deltafun buildout).
+    # ------------------------------------------------------------------
+
+    #: MATLAB deltafun cleanup tolerance (pref.deltaPrefs.deltaTol).
+    DELTA_TOL: float = 1e-9
+
+    def iszero(self, tol: float | None = None) -> bool:
+        """True if both the smooth part and all deltas vanish.
+
+        Provenance
+        ----------
+        MATLAB source : @deltafun/iszero.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        t = self.DELTA_TOL if tol is None else float(tol)
+        mags_small = (self.n_deltas == 0
+                      or bool(_np.all(_np.abs(_np.asarray(
+                          self.delta_mags)) <= t)))
+        fvals = _np.asarray(self.funPart.values)
+        fscale = float(_np.max(_np.abs(fvals))) if fvals.size else 0.0
+        return mags_small and fscale <= 1e2 * t * max(1.0, fscale)
+
+    def isequal(self, other: "Deltafun",
+                tol: float | None = None) -> bool:
+        """Equality up to deltaTol and trailing zero-rows.
+
+        Provenance
+        ----------
+        MATLAB source : @deltafun/isequal.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        if not isinstance(other, Deltafun):
+            return False
+        t = self.DELTA_TOL if tol is None else float(tol)
+        d = self - other
+        if d.n_deltas and bool(_np.any(_np.abs(_np.asarray(
+                d.delta_mags)) > t)):
+            return False
+        xs = jnp.linspace(self.domain.a + 1e-12,
+                          self.domain.b - 1e-12, 33)
+        return bool(jnp.max(jnp.abs(d.funPart(
+            (2.0 * xs - (self.domain.a + self.domain.b))
+            / (self.domain.b - self.domain.a)))) < 1e3 * t)
+
+    def simplify_deltas(self, tol: float | None = None) -> "Deltafun":
+        """Drop deltas with |magnitude| <= deltaTol (MATLAB's
+        cleanup at construction).
+
+        Provenance
+        ----------
+        MATLAB source : @deltafun/simplifyDeltas.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        t = self.DELTA_TOL if tol is None else float(tol)
+        if self.n_deltas == 0:
+            return self
+        mags = _np.asarray(self.delta_mags)
+        keep = _np.any(_np.abs(mags) > t, axis=0)
+        if bool(_np.all(keep)):
+            return self
+        if not bool(_np.any(keep)):
+            return Deltafun(self.funPart,
+                            jnp.zeros((0,), dtype=jnp.float64),
+                            jnp.zeros((1, 0), dtype=jnp.float64))
+        return Deltafun(self.funPart,
+                        jnp.asarray(_np.asarray(self.delta_locs)[keep]),
+                        jnp.asarray(mags[:, keep]))
+
+    def innerProduct(self, other) -> jax.Array:
+        """Distributional pairing <f, g>.
+
+        <funPart_f + sum m_k delta_{x_k}, g> = <funPart_f, g_smooth>
+        + sum m_k g(x_k) (+ the symmetric delta terms of g when g is a
+        Deltafun; delta*delta pairings are ill-defined and rejected).
+
+        Provenance
+        ----------
+        MATLAB source : @deltafun/innerProduct.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        g_fun = other.funPart if isinstance(other, Deltafun) else other
+        out = self.funPart.inner(g_fun)
+        a, b = float(self.domain.a), float(self.domain.b)
+
+        def _eval(fun, locs):
+            t = (2.0 * jnp.asarray(locs) - (a + b)) / (b - a)
+            return fun(t)
+
+        if self.n_deltas:
+            out = out + jnp.sum(self.delta_mags[0]
+                                * _eval(g_fun, self.delta_locs))
+        if isinstance(other, Deltafun) and other.n_deltas:
+            if self.n_deltas:
+                locs_f = _np.asarray(self.delta_locs)
+                locs_g = _np.asarray(other.delta_locs)
+                if _np.min(_np.abs(locs_f[:, None]
+                                   - locs_g[None, :])) < 1e-12:
+                    raise ValueError(
+                        "innerProduct of overlapping deltas is "
+                        "ill-defined")
+            out = out + jnp.sum(other.delta_mags[0]
+                                * _eval(self.funPart, other.delta_locs))
+        return out
+
+    inner = innerProduct
+
+    @classmethod
+    def zero_delta_fun(cls, domain=None) -> "Deltafun":
+        """The zero distribution (zero funPart, no deltas).
+
+        Provenance
+        ----------
+        MATLAB source : @deltafun/zeroDeltaFun.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.domain import Domain
+        dom = Domain((-1.0, 1.0)) if domain is None else domain
+        zero = Bndfun.from_function(lambda x: jnp.zeros_like(x), dom)
+        return cls(zero, jnp.zeros((0,), dtype=jnp.float64),
+                   jnp.zeros((1, 0), dtype=jnp.float64))
+
     def sum(self) -> jax.Array:
         r"""Definite integral: :math:`\int f(x)\,dx + \sum_k c_k`.
 

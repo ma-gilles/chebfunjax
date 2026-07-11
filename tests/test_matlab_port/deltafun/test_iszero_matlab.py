@@ -1,7 +1,6 @@
-"""Port of MATLAB Chebfun tests/deltafun/test_iszero.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/deltafun/test_iszero.m (Fable 5).
 
-chebfunjax's Deltafun has no ``iszero`` method (and no empty Deltafun), so every
-assertion in this MATLAB test is skipped with a precise reason.
+FIXED: Deltafun.iszero added in the Fable 5 audit.
 
 Provenance
 ----------
@@ -11,18 +10,31 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-import pytest
+import jax.numpy as jnp
 
-pytestmark = pytest.mark.skip(
-    reason="chebfunjax Deltafun has no iszero() method (and no empty Deltafun)"
-)
+from chebfunjax.domain import Domain
+from chebfunjax.fun.bndfun import Bndfun
+from chebfunjax.fun.deltafun import Deltafun
+
+D = Domain((-1.0, 1.0))
 
 
 class TestDeltafunIszero:
-    def test_iszero_empty_and_zero_funpart(self):
-        # pass(1): iszero(deltafun()) && iszero(deltafun(fun.constructor(0), []))
-        pass
+    def test_zero_distribution(self):
+        assert Deltafun.zero_delta_fun().iszero()
 
-    def test_not_iszero_with_deltas(self):
-        # pass(2): ~iszero(d) when d has non-zero delta magnitudes
-        pass
+    def test_nonzero_smooth_part(self):
+        f = Deltafun.from_fun(Bndfun.from_function(jnp.sin, D))
+        assert not f.iszero()
+
+    def test_nonzero_delta(self):
+        zero = Bndfun.from_function(lambda x: jnp.zeros_like(x), D)
+        f = Deltafun.from_fun_and_deltas(zero, jnp.asarray([0.5]),
+                                         jnp.asarray([[1.0]]))
+        assert not f.iszero()
+
+    def test_below_deltaTol_is_zero(self):
+        zero = Bndfun.from_function(lambda x: jnp.zeros_like(x), D)
+        f = Deltafun.from_fun_and_deltas(zero, jnp.asarray([0.5]),
+                                         jnp.asarray([[1e-12]]))
+        assert f.iszero()

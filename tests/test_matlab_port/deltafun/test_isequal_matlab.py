@@ -1,7 +1,6 @@
-"""Port of MATLAB Chebfun tests/deltafun/test_isequal.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/deltafun/test_isequal.m (Fable 5).
 
-chebfunjax's Deltafun has no ``isequal`` method (and no empty Deltafun), so
-every assertion in this MATLAB test is skipped with a precise reason.
+FIXED: Deltafun.isequal added in the Fable 5 audit.
 
 Provenance
 ----------
@@ -11,38 +10,31 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-import pytest
+import jax.numpy as jnp
 
-pytestmark = pytest.mark.skip(
-    reason="chebfunjax Deltafun has no isequal() method (and no empty Deltafun)"
-)
+from chebfunjax.domain import Domain
+from chebfunjax.fun.bndfun import Bndfun
+from chebfunjax.fun.deltafun import Deltafun
+
+D = Domain((-1.0, 1.0))
+
+
+def _mk(mags, locs):
+    f = Bndfun.from_function(jnp.sin, D)
+    return Deltafun.from_fun_and_deltas(f, jnp.asarray(locs),
+                                        jnp.asarray(mags))
 
 
 class TestDeltafunIsequal:
-    def test_empty_equalities(self):
-        # pass(1): isequal(d1,[]) && isequal([],d1) && isequal(d1,d2) for empties
-        pass
+    def test_self_equality(self):
+        f = _mk([[1.0, -2.0]], [0.25, 0.5])
+        assert f.isequal(f)
 
-    def test_equal_identical(self):
-        # pass(2): isequal(d1, d2) for identical delta data
-        pass
+    def test_different_magnitudes(self):
+        f = _mk([[1.0]], [0.25])
+        g = _mk([[1.5]], [0.25])
+        assert not f.isequal(g)
 
-    def test_unequal_scaled(self):
-        # pass(3): ~isequal(d1, 0.992312341234*d2)
-        pass
-
-    def test_unequal_row_count(self):
-        # pass(4): ~isequal(d1, d2) after dropping a magnitude row
-        pass
-
-    def test_unequal_col_count(self):
-        # pass(5): ~isequal(d1, d2) after dropping a delta column/location
-        pass
-
-    def test_equal_trailing_zero_row(self):
-        # pass(6): isequal([1] deltaMag, [1;0] deltaMag) (trailing zero row)
-        pass
-
-    def test_unequal_funpart(self):
-        # pass(7): ~isequal(deltafun(f,[]), deltafun(bndfun([]),[]))
-        pass
+    def test_non_deltafun(self):
+        f = _mk([[1.0]], [0.25])
+        assert not f.isequal("not a deltafun")
