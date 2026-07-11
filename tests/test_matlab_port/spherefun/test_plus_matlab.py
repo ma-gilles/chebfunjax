@@ -1,0 +1,18 @@
+"""Port of MATLAB Chebfun tests/spherefun/test_plus.m (Fable 5).
+
+Provenance
+----------
+MATLAB source : tests/spherefun/test_plus.m
+Chebfun commit: 7574c77
+"""
+
+from __future__ import annotations
+
+import pytest
+
+pytestmark = pytest.mark.skip(reason="Spherefun has no + arithmetic (same gap class as Chebfun2/Chebfun3 before the Fable 5 additions)")
+
+
+class TestSpherefunPlus:
+    def test_all_matlab_assertions(self):
+        raise NotImplementedError
