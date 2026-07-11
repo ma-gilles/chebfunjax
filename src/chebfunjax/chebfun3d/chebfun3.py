@@ -1196,6 +1196,107 @@ class Chebfun3(eqx.Module):
         return (len(self.cols), len(self.rows), len(self.tubes))
 
     # ------------------------------------------------------------------
+    # Arithmetic (MATLAB @chebfun3 plus/minus/times/rdivide/power)
+    # Added by Claude Fable 5: Chebfun3 previously had NO arithmetic.
+    # ------------------------------------------------------------------
+
+    def _const_like(self, c) -> "Chebfun3":
+        """Rank-(1,1,1) constant Chebfun3 on this function's domain."""
+        one = Chebtech2(coeffs=jnp.ones(1, dtype=jnp.float64), ishappy=True)
+        core = jnp.asarray(c).reshape(1, 1, 1)
+        return Chebfun3(cols=[one], rows=[one], tubes=[one], core=core,
+                        domain=self.domain)
+
+    def _check_same_domain(self, other: "Chebfun3") -> None:
+        if tuple(self.domain) != tuple(other.domain):
+            raise ValueError(
+                "Chebfun3 arithmetic requires matching domains: "
+                f"{self.domain} vs {other.domain}")
+
+    def __neg__(self) -> "Chebfun3":
+        return Chebfun3(cols=list(self.cols), rows=list(self.rows),
+                        tubes=list(self.tubes), core=-self.core,
+                        domain=self.domain)
+
+    def __add__(self, other) -> "Chebfun3":
+        """f + g by exact block-diagonal embedding of the Tucker cores.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/plus.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(other, Chebfun3):
+            self._check_same_domain(other)
+            r1 = self.core.shape
+            r2 = other.core.shape
+            dt = jnp.result_type(self.core.dtype, other.core.dtype)
+            core = jnp.zeros((r1[0] + r2[0], r1[1] + r2[1],
+                              r1[2] + r2[2]), dtype=dt)
+            core = core.at[:r1[0], :r1[1], :r1[2]].set(self.core)
+            core = core.at[r1[0]:, r1[1]:, r1[2]:].set(other.core)
+            return Chebfun3(cols=list(self.cols) + list(other.cols),
+                            rows=list(self.rows) + list(other.rows),
+                            tubes=list(self.tubes) + list(other.tubes),
+                            core=core, domain=self.domain)
+        if isinstance(other, (int, float, complex)):
+            return self + self._const_like(other)
+        return NotImplemented
+
+    __radd__ = __add__
+
+    def __sub__(self, other) -> "Chebfun3":
+        if isinstance(other, Chebfun3):
+            return self + (-other)
+        if isinstance(other, (int, float, complex)):
+            return self + self._const_like(-other)
+        return NotImplemented
+
+    def __rsub__(self, other) -> "Chebfun3":
+        return (-self) + other
+
+    def __mul__(self, other) -> "Chebfun3":
+        """Scalar multiply scales the core (exact); f.*g re-approximates
+        the pointwise product with the constructor, as MATLAB
+        @chebfun3/times.m does.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/times.m, mtimes.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(other, (int, float, complex)):
+            return Chebfun3(cols=list(self.cols), rows=list(self.rows),
+                            tubes=list(self.tubes),
+                            core=self.core * other, domain=self.domain)
+        if isinstance(other, Chebfun3):
+            self._check_same_domain(other)
+            return Chebfun3.from_function(
+                lambda x, y, z: self(x, y, z) * other(x, y, z),
+                domain=self.domain)
+        return NotImplemented
+
+    __rmul__ = __mul__
+
+    def __truediv__(self, other) -> "Chebfun3":
+        if isinstance(other, (int, float, complex)):
+            return self * (1.0 / other)
+        if isinstance(other, Chebfun3):
+            self._check_same_domain(other)
+            return Chebfun3.from_function(
+                lambda x, y, z: self(x, y, z) / other(x, y, z),
+                domain=self.domain)
+        return NotImplemented
+
+    def __rtruediv__(self, other) -> "Chebfun3":
+        return Chebfun3.from_function(
+            lambda x, y, z: other / self(x, y, z), domain=self.domain)
+
+    def __pow__(self, p) -> "Chebfun3":
+        return Chebfun3.from_function(
+            lambda x, y, z: self(x, y, z) ** p, domain=self.domain)
+
+    # ------------------------------------------------------------------
     # Plotting
     # ------------------------------------------------------------------
 
