@@ -24,12 +24,11 @@ XX = jnp.asarray(np.linspace(0.1, 0.9, 10))
 
 
 class TestChebfunFracCalc:
-    @pytest.mark.xfail(
-        reason="chebfunjax fracDiff is off by a CONSTANT factor "
-        "(~0.9502 at q=sqrt(2)/2) vs the Riemann-Liouville closed form "
-        "Gamma(n+1)/Gamma(n+1-q) x^(n-q); fracInt is only ~4-digit "
-        "accurate. Flagged in the Fable 5 audit for investigation.")
-    @pytest.mark.parametrize("n", [1, 4])
+    # FIXED in the Fable 5 audit: fracInt now uses Gauss-Jacobi
+    # quadrature that absorbs the (x-t)^(mu-1) endpoint singularity
+    # into the weight (was Gauss-Legendre on the singular kernel:
+    # ~4-digit fracInt, constant-biased fracDiff).
+    @pytest.mark.parametrize("n", [4])
     def test_fractional_derivative_of_monomial(self, n):
         x = cj.chebfun(lambda t: t ** n, domain=(0.0, 1.0))
         U = x.fracDiff(Q)
@@ -38,13 +37,21 @@ class TestChebfunFracCalc:
         assert float(np.max(err)) < 1e3 * 100 * EPS
 
     @pytest.mark.xfail(
-        reason="chebfunjax fracInt is only ~4-digit accurate vs the "
-        "Gamma closed form (MATLAB passes at 100*eps). Flagged in the "
-        "Fable 5 audit.")
+        reason="the output x^(1-q) has an endpoint singularity; the "
+        "smooth-chebfun representation of fracInt's result limits "
+        "fracDiff(x, q) to ~2e-8 (needs Singfun-wired factory -- "
+        "feature gap). MATLAB stores the result as a singfun.")
+    def test_fractional_derivative_of_x(self):
+        x = cj.chebfun(lambda t: t, domain=(0.0, 1.0))
+        U = x.fracDiff(Q)
+        exact = gamma(2) / gamma(2 - Q) * np.asarray(XX) ** (1 - Q)
+        err = np.abs(np.asarray(U(XX)) - exact)
+        assert float(np.max(err)) < 1e3 * 100 * EPS
+
     @pytest.mark.parametrize("n", [1, 4])
     def test_fractional_integral_of_monomial(self, n):
         x = cj.chebfun(lambda t: t ** n, domain=(0.0, 1.0))
         U = x.fracInt(Q)
         exact = gamma(n + 1) / gamma(n + 1 + Q) * np.asarray(XX) ** (n + Q)
         err = np.abs(np.asarray(U(XX)) - exact)
-        assert float(np.max(err)) < 1e3 * 100 * EPS
+        assert float(np.max(err)) < 1e5 * EPS

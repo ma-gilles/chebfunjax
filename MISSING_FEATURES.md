@@ -24,7 +24,7 @@ Fully-passing files: 139 · mixed (some assertions pass, some skip): 249
 | # | Bug | Evidence | Where recorded |
 |---|---|---|---|
 | 1 | ~~diskfun `_diskfun_reconstruct`~~ **FIXED (Fable 5)**: the radial lstsq fit carried ~1e-11 noise that sent the constructor's GE down a noise-pivot path, degenerating the representation. Radial nodes moved to Chebyshev-Gauss points (well-conditioned exact solve). All previously-broken cases now exact; diskfun/diskfunv xfails flipped to passing tests | was: `lap((1−r²)r²cos2θ)` → −12r² (no cos2θ); `d/dy(y²)` → 0 | fixed in `_diskfun_reconstruct` |
-| 2 | **fracDiff** off by a constant factor (~0.9502 at q=√2/2); **fracInt** only ~4-digit accurate | vs Γ(n+1)/Γ(n+1∓q)·x^(n∓q); MATLAB passes at 100·eps | `chebfun/test_fracCalc` |
+| 2 | ~~fracDiff/fracInt~~ **FIXED (Fable 5)**: fracInt now uses Gauss-Jacobi quadrature absorbing the (x−t)^(μ−1) singularity into the weight. fracInt 4e-17, fracDiff 2.6e-14 (n=4). Residual: fracDiff of x (output x^(1−q) endpoint-singular) limited to ~2e-8 by the smooth-chebfun representation — needs the Singfun-wired factory (feature gap) | was: constant ×0.9502 bias, 4-digit fracInt | fixed in `fracInt` |
 | 3 | **circconv** NaN on non-unit trig domains; on [−1,1] output shifted by half the period (~0.6% amplitude error too) | cos(10x)⊛cos(10x) | `chebfun/test_circconv` |
 | 4 | **polyfitL1** not L1-optimal | its deg-5 fit of exp(x)sin(10x) has L1 error 1.93 > 1.27 (plain L2 projection); optimality integral ∫T_k·sign(f−p) ≠ 0 | `chebfun/test_polyfitL1` |
 | 5 | **norm(inf)** crashes on complex chebfuns (`lt` on complex128) | needs a |f| path via minandmax | `chebfun/test_norm` |

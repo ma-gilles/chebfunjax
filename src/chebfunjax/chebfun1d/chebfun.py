@@ -3583,19 +3583,26 @@ class Chebfun(eqx.Module):
         a = float(f.domain.a)
         b = float(f.domain.b)
 
-        # Quadrature nodes and weights for [a, b]
-        from chebfunjax.utils.quadrature import legpts as _legpts
-        n_q = 128
-        t_ref, w_ref = _np.array(_legpts(n_q))
+        # Gauss-JACOBI quadrature absorbing the (x - t)^(mu-1) endpoint
+        # singularity into the weight (Fable 5 fix -- plain Gauss-
+        # Legendre on the singular kernel converged only algebraically,
+        # giving ~4-digit fracInt and a systematically biased fracDiff):
+        #   I(x) = (x-a)^mu / (Gamma(mu) 2^mu)
+        #          * sum_j w_j f(a + (x-a)(xi_j+1)/2),
+        # with (xi_j, w_j) = jacpts(n, mu-1, 0) so that the weight
+        # (1-xi)^(mu-1) is exactly the kernel's singular factor.
+        from chebfunjax.utils.quadrature import jacpts as _jacpts
+        n_q = 60
+        xi_ref, w_ref = (_np.asarray(v)
+                         for v in _jacpts(n_q, mu_frac - 1.0, 0.0))
 
         def _frac_int_at_x(x_scalar: float) -> float:
             if x_scalar <= a + 1e-15 * (b - a):
                 return 0.0
-            t_phys = 0.5 * (x_scalar - a) * t_ref + 0.5 * (x_scalar + a)
-            scale = 0.5 * (x_scalar - a)
+            t_phys = a + (x_scalar - a) * (xi_ref + 1.0) / 2.0
             fvals = _np.asarray(f(jnp.array(t_phys)), dtype=float)
-            kernel = (x_scalar - t_phys) ** (mu_frac - 1.0) / gam
-            return float(_np.dot(w_ref * scale, kernel * fvals))
+            pref = (x_scalar - a) ** mu_frac / (gam * 2.0 ** mu_frac)
+            return float(pref * _np.dot(w_ref, fvals))
 
         def _frac_integrand(x_arr):
             x_arr = _np.asarray(x_arr, dtype=float)
