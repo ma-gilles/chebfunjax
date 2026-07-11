@@ -3810,10 +3810,11 @@ class Chebfun(eqx.Module):
                 return hi - lo
             if k == 1:
                 return 0.5 * (hi ** 2 - lo ** 2)
-            A = lambda t: 0.5 * (_C.chebval(t, _np.eye(k + 2)[k + 1])
-                                 / (k + 1)
-                                 - _C.chebval(t, _np.eye(k)[k - 1])
-                                 / (k - 1))
+            def A(t):
+                return 0.5 * (_C.chebval(t, _np.eye(k + 2)[k + 1])
+                              / (k + 1)
+                              - _C.chebval(t, _np.eye(k)[k - 1])
+                              / (k - 1))
             return A(hi) - A(lo)
 
         # start from the L2 projection (Chebyshev-Gauss quadrature fit)
@@ -3868,7 +3869,6 @@ class Chebfun(eqx.Module):
                 step *= 0.5 / nrm
             c = c + step
 
-        coeffs = jnp.asarray(_np.asarray(c, dtype=float))
 
         def p_eval(x):
             s = (2.0 * jnp.asarray(x) - (a + b)) / (b - a)
