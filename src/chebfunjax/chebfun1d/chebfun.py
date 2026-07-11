@@ -1238,6 +1238,90 @@ class Chebfun(eqx.Module):
         ]
         return Chebfun(funs=new_funs, domain=new_dom)
 
+    # ------------------------------------------------------------------
+    # Logical (indicator) chebfuns -- MATLAB ==, <, <=, ~, &, |
+    # (added by Claude Fable 5, MISSING_FEATURES logical-chebfun gap).
+    # ------------------------------------------------------------------
+
+    def _indicator(self, other, positive: bool) -> "Chebfun":
+        """Indicator chebfun of {self < other} (positive=False) or
+        {self > other} (positive=True), built from the exact constant
+        pieces of sign(other - self)."""
+        diff = (other - self) if not isinstance(other, (int, float))             else (-self + float(other))
+        sgn = diff.sign() if not positive else (-diff).sign()
+        # map pieces: +1 -> 1, else -> 0 (exact constant pieces)
+        new_funs = []
+        for piece in sgn.funs:
+            val = float(piece(jnp.asarray(
+                0.5 * (piece.interval[0] + piece.interval[1]))))
+            const = 1.0 if val > 0.5 else 0.0
+            new_funs.append(_Piece.from_coeffs(
+                jnp.asarray([const], dtype=jnp.float64),
+                piece.interval[0], piece.interval[1]))
+        return Chebfun(funs=new_funs, domain=sgn.domain)
+
+    def lt(self, other) -> "Chebfun":
+        """Indicator chebfun of {f < g} (MATLAB f < g).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/lt.m
+        Chebfun commit: 7574c77
+        """
+        return self._indicator(other, positive=False)
+
+    def gt(self, other) -> "Chebfun":
+        """Indicator chebfun of {f > g} (MATLAB f > g)."""
+        return self._indicator(other, positive=True)
+
+    le = lt   # measure-zero boundary: same indicator a.e.
+    ge = gt
+
+    def logical_eq(self, other) -> "Chebfun":
+        """Indicator of {f == g}: 1 if identically equal, else 0 a.e.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/eq.m
+        Chebfun commit: 7574c77
+        """
+        diff = self - other if not isinstance(other, (int, float))             else self - float(other)
+        val = 1.0 if bool(diff.iszero()) else 0.0
+        a, b = float(self.domain.a), float(self.domain.b)
+        return Chebfun(funs=[_Piece.from_coeffs(
+            jnp.asarray([val], dtype=jnp.float64), a, b)],
+            domain=Domain((a, b)))
+
+    def logical_ne(self, other) -> "Chebfun":
+        """Indicator of {f ~= g} a.e. (MATLAB ne)."""
+        return 1.0 - self.logical_eq(other)
+
+    def logical_not(self) -> "Chebfun":
+        """Indicator of {f == 0} (MATLAB ~f)."""
+        return self.logical_eq(0.0)
+
+    def logical_and(self, other) -> "Chebfun":
+        """Indicator of {f ~= 0 and g ~= 0} via the product of
+        nonzero-indicators (MATLAB &)."""
+        return self.logical_ne(0.0) * other.logical_ne(0.0)
+
+    def logical_or(self, other) -> "Chebfun":
+        """Indicator of {f ~= 0 or g ~= 0} (MATLAB |)."""
+        p = self.logical_ne(0.0) + other.logical_ne(0.0)             - self.logical_and(other)
+        return p
+
+    def __lt__(self, other):
+        return self.lt(other)
+
+    def __gt__(self, other):
+        return self.gt(other)
+
+    def __le__(self, other):
+        return self.le(other)
+
+    def __ge__(self, other):
+        return self.ge(other)
+
     def sign(self) -> Chebfun:
         """Sign function of the Chebfun.
 
