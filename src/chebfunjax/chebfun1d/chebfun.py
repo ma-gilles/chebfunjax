@@ -1239,6 +1239,157 @@ class Chebfun(eqx.Module):
         return Chebfun(funs=new_funs, domain=new_dom)
 
     # ------------------------------------------------------------------
+    # Assorted MATLAB utilities (added by Claude Fable 5,
+    # MISSING_FEATURES named-utilities sweep).
+    # ------------------------------------------------------------------
+
+    def arclength(self) -> jax.Array:
+        """Arc length of the graph: int sqrt(1 + f'(x)^2) dx.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/arcLength.m
+        Chebfun commit: 7574c77
+        """
+        d = self.diff()
+        integrand = Chebfun.from_function(
+            lambda x, _d=d: jnp.sqrt(1.0 + _d(x) ** 2),
+            Domain((float(self.domain.a), float(self.domain.b))))
+        return integrand.sum()
+
+    def hypot(self, other: "Chebfun") -> "Chebfun":
+        """sqrt(f^2 + g^2) computed robustly (MATLAB hypot).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/hypot.m
+        Chebfun commit: 7574c77
+        """
+        f = self
+
+        def op(x):
+            return jnp.hypot(f(x), other(x))
+
+        return Chebfun.from_function(
+            op, Domain((float(self.domain.a), float(self.domain.b))))
+
+    def fix(self) -> "Chebfun":
+        """Round toward zero (MATLAB fix): floor for f >= 0, ceil for
+        f < 0, as an exact piecewise-constant chebfun.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/fix.m
+        Chebfun commit: 7574c77
+        """
+        fl = self.floor()
+        ce = self.ceil()
+        # combine: pieces where the function is negative use ceil
+        import numpy as _np
+        bps = sorted(set([float(v) for v in fl.domain.breakpoints]
+                         + [float(v) for v in ce.domain.breakpoints]
+                         + [float(r) for r in _np.asarray(self.roots())]))
+        funs = []
+        for a_, b_ in zip(bps[:-1], bps[1:]):
+            mid = 0.5 * (a_ + b_)
+            v = float(self(jnp.asarray(mid)))
+            const = float(_np.floor(v) if v >= 0 else _np.ceil(v))
+            funs.append(_Piece.from_coeffs(
+                jnp.asarray([const], dtype=jnp.float64), a_, b_))
+        return Chebfun(funs=funs, domain=Domain(tuple(bps)))
+
+    def _cummax_or_min(self, use_max: bool) -> "Chebfun":
+        import numpy as _np
+        a, b = float(self.domain.a), float(self.domain.b)
+        # running extremum: piecewise -- alternates between copies of f
+        # (where f is the running extremum) and constants (where the
+        # past extremum dominates).  Build by dense scan + refinement.
+        xs = _np.linspace(a, b, 2049)
+        vals = _np.asarray(self(jnp.asarray(xs)))
+        run = (_np.maximum if use_max else _np.minimum).accumulate(vals)
+
+        def op(x):
+            xq = _np.asarray(x)
+            idx = _np.clip(_np.searchsorted(xs, xq.ravel()), 1,
+                           len(xs) - 1)
+            base = run[idx - 1]
+            cur = _np.asarray(self(jnp.asarray(xq.ravel())))
+            out = (_np.maximum(base, cur) if use_max
+                   else _np.minimum(base, cur))
+            return jnp.asarray(out.reshape(xq.shape))
+
+        with __import__("warnings").catch_warnings():
+            __import__("warnings").simplefilter("ignore")
+            return chebfun(op, domain=(a, b), splitting=True)
+
+    def cummax(self) -> "Chebfun":
+        """Running maximum (MATLAB cummax).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/cummax.m
+        Chebfun commit: 7574c77
+        """
+        return self._cummax_or_min(True)
+
+    def cummin(self) -> "Chebfun":
+        """Running minimum (MATLAB cummin)."""
+        return self._cummax_or_min(False)
+
+    def join(self, other: "Chebfun") -> "Chebfun":
+        """Concatenate with a chebfun on an adjacent domain
+        (MATLAB join).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/join.m
+        Chebfun commit: 7574c77
+        """
+        if abs(float(self.domain.b) - float(other.domain.a)) > 1e-14:
+            raise ValueError("join: domains must be adjacent")
+        bps = tuple([float(v) for v in self.domain.breakpoints]
+                    + [float(v) for v in other.domain.breakpoints][1:])
+        return Chebfun(funs=list(self.funs) + list(other.funs),
+                       domain=Domain(bps))
+
+    def inv(self) -> "Chebfun":
+        """Compositional inverse of a monotonic chebfun (MATLAB inv):
+        g with g(f(x)) = x.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/inv.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        a, b = float(self.domain.a), float(self.domain.b)
+        fa = float(self(jnp.asarray(a)))
+        fb = float(self(jnp.asarray(b)))
+        if fa == fb:
+            raise ValueError("inv: function must be monotonic")
+        lo, hi = (fa, fb) if fa < fb else (fb, fa)
+        d = self.diff()
+
+        def g(y):
+            yq = _np.asarray(y, dtype=float).ravel()
+            out = _np.empty_like(yq)
+            for i, yv in enumerate(yq):
+                x0, x1 = a, b
+                # bisection + Newton polish
+                for _ in range(80):
+                    xm = 0.5 * (x0 + x1)
+                    fv = float(self(jnp.asarray(xm))) - yv
+                    flo = float(self(jnp.asarray(x0))) - yv
+                    if fv * flo <= 0:
+                        x1 = xm
+                    else:
+                        x0 = xm
+                out[i] = 0.5 * (x0 + x1)
+            return jnp.asarray(out.reshape(_np.shape(y)))
+
+        return Chebfun.from_function(g, Domain((lo, hi)))
+
+    # ------------------------------------------------------------------
     # Logical (indicator) chebfuns -- MATLAB ==, <, <=, ~, &, |
     # (added by Claude Fable 5, MISSING_FEATURES logical-chebfun gap).
     # ------------------------------------------------------------------
