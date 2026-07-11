@@ -518,6 +518,22 @@ class Chebfun3(eqx.Module):
         za, zb = float(domain[4]), float(domain[5])
         dom = (xa, xb, ya, yb, za, zb)
 
+        # Complex-valued functions: the Tucker constructor real-casts,
+        # so build re/im separately and recombine exactly (Fable 5 audit
+        # -- the imaginary part was previously silently dropped, same
+        # bug as Chebfun2).
+        xp_ = jnp.asarray([0.5 * (xa + xb) + 0.25 * (xb - xa)])
+        yp_ = jnp.asarray([0.5 * (ya + yb) + 0.25 * (yb - ya)])
+        zp_ = jnp.asarray([0.5 * (za + zb) + 0.25 * (zb - za)])
+        if jnp.iscomplexobj(jnp.asarray(f(xp_, yp_, zp_))):
+            kw = dict(domain=domain, tol=tol, max_rank=max_rank,
+                      min_samples=min_samples)
+            fre = cls.from_function(
+                lambda x, y, z: jnp.real(f(x, y, z)), **kw)
+            fim = cls.from_function(
+                lambda x, y, z: jnp.imag(f(x, y, z)), **kw)
+            return fre + fim * 1j
+
         # ----------------------------------------------------------------
         # Helper: sample f on full tensor grid (n1 x n2 x n3)
         # ----------------------------------------------------------------
