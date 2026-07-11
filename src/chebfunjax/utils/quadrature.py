@@ -836,8 +836,12 @@ def radaupts(n: int, alp: float = 0.0, bet: float = 0.0,
         w0 = jnp.array([2.0 / (n * n)], dtype=jnp.float64)
     else:
         import jax.scipy.special as jsp
+        # MATLAB radaupts.m: w(1) = 2^(a+b+1)*beta(b+1,n)*beta(a+n,b+1)
+        #                            *(b+1)
+        # (the previous code used Gamma(b+2) in the first beta, an extra
+        # (b+1) factor -- found in the Fable 5 audit via moment matching)
         w0 = jnp.array([2.0 ** (alp + bet + 1.0)
-                         * jnp.exp(jsp.gammaln(bet + 2.0)
+                         * jnp.exp(jsp.gammaln(bet + 1.0)
                                    + jsp.gammaln(float(n))
                                    - jsp.gammaln(float(n) + bet + 1.0))
                          * jnp.exp(jsp.gammaln(alp + float(n))
@@ -928,21 +932,25 @@ def lobpts(n: int, alp: float = 0.0, bet: float = 0.0,
     else:
         import jax.scipy.special as jsp
         nf = float(n)
-        # Gautschi's explicit formulas for Jacobi-Lobatto endpoint weights.
+        # MATLAB lobpts.m endpoint weights:
+        #   w(1) = 2^(1+a+b)*beta(b+1, a+n)*beta(b+2, n-2)*(n-2)
+        #   w(n) = 2^(1+a+b)*beta(a+1, b+n)*beta(a+2, n-2)*(n-2)
+        # (the previous derivation was off by (a+b+n)*(n-2) -- found in
+        # the Fable 5 audit via moment matching)
         w_left_val = (2.0 ** (1.0 + alp + bet)
                       * jnp.exp(jsp.gammaln(bet + 1.0)
                                 + jsp.gammaln(alp + nf)
-                                - jsp.gammaln(alp + bet + nf))
+                                - jsp.gammaln(alp + bet + nf + 1.0))
                       * jnp.exp(jsp.gammaln(bet + 2.0)
-                                + jsp.gammaln(nf - 2.0 + 1.0)
+                                + jsp.gammaln(nf - 2.0)
                                 - jsp.gammaln(bet + nf))
                       * (nf - 2.0))
         w_right_val = (2.0 ** (1.0 + alp + bet)
                        * jnp.exp(jsp.gammaln(alp + 1.0)
                                  + jsp.gammaln(bet + nf)
-                                 - jsp.gammaln(alp + bet + nf))
+                                 - jsp.gammaln(alp + bet + nf + 1.0))
                        * jnp.exp(jsp.gammaln(alp + 2.0)
-                                 + jsp.gammaln(nf - 2.0 + 1.0)
+                                 + jsp.gammaln(nf - 2.0)
                                  - jsp.gammaln(alp + nf))
                        * (nf - 2.0))
         w_left = jnp.array([w_left_val], dtype=jnp.float64)
