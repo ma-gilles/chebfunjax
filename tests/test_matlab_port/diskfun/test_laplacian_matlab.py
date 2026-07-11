@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.diskfun.diskfun import Diskfun
 
@@ -18,14 +17,9 @@ TOL = 1e-8
 
 
 class TestDiskfunLaplacian:
-    @pytest.mark.xfail(
-        reason="Opus 4.8's diskfun laplacian drops the ANGULAR "
-        "dependence of the result: lap((1-r^2)r^2 cos2t) returns "
-        "-12r^2 without the cos2t factor (got -3.63, exact +0.825 at "
-        "(0.9, 0.55)). All previously-passing cases had "
-        "theta-independent laplacians. Same _diskfun_reconstruct "
-        "pipeline bug family as diffx/diffy. Fable 5 audit.")
     def test_laplacian_with_angular_dependence(self):
+        # FIXED in the Fable 5 audit (radial-fit noise -> GE noise
+        # pivot); now exact.
         u = Diskfun.from_function(
             lambda t, r: (1 - r ** 2) * r ** 2 * jnp.cos(2 * t))
         lap = u.laplacian()

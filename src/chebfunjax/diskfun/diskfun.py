@@ -1275,9 +1275,16 @@ def _diskfun_reconstruct(f: "Diskfun", kind: str) -> "Diskfun":
     nr = ncol + 6
     nth = nrow + 8
 
-    # interior radial nodes in (0, 1) (Chebyshev-Gauss, never 0), uniform theta
+    # interior radial nodes: s = 2r-1 at Chebyshev-Gauss points of
+    # order nr, so the radial fit below is a well-conditioned square
+    # solve (essentially exact) instead of an ill-conditioned lstsq.
+    # (The previous |cos| nodes gave the fit ~1e-11 noise, which sent
+    # the downstream constructor's GE down a noise-pivot path and
+    # produced degenerate results -- the actual root cause of the
+    # diffx/diffy/laplacian corruption found in the Fable 5 audit.)
     k = np.arange(nr)
-    r_nodes = np.abs(np.cos(np.pi * (k + 0.5) / (2 * nr)))
+    s_gauss = np.cos(np.pi * (k + 0.5) / nr)
+    r_nodes = (s_gauss + 1.0) / 2.0    # in (0, 1), never 0
     # theta samples on [0, 2*pi) so the standard FFT mode convention
     # applies directly (no phase offset); the reconstruction below uses
     # the actual theta, which is periodic, so any eval range is fine.
@@ -1327,7 +1334,8 @@ def _diskfun_reconstruct(f: "Diskfun", kind: str) -> "Diskfun":
     deg = nr - 1
     s_nodes = 2.0 * r_nodes - 1.0
     vand = np.polynomial.chebyshev.chebvander(s_nodes, deg)
-    coefs = np.linalg.lstsq(vand, Fhat.T, rcond=None)[0]  # (deg+1, mmax)
+    coefs = np.linalg.solve(vand, Fhat.T)  # (deg+1, mmax), exact
+
 
     def ev(theta, r):
         theta = np.asarray(theta, dtype=float)
