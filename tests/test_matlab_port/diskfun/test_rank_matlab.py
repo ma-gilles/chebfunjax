@@ -1,0 +1,18 @@
+"""Port of MATLAB Chebfun tests/diskfun/test_rank.m (Fable 5).
+
+Provenance
+----------
+MATLAB source : tests/diskfun/test_rank.m
+Chebfun commit: 7574c77
+"""
+
+from __future__ import annotations
+
+import pytest
+
+pytestmark = pytest.mark.skip(reason="rank accessor exists but MATLAB test needs plus/simplify")
+
+
+class TestDiskfunRank:
+    def test_all_matlab_assertions(self):
+        raise NotImplementedError
