@@ -1,0 +1,18 @@
+"""Port of MATLAB Chebfun tests/chebop/test_linearize_init_fails.m (Fable 5).
+
+Provenance
+----------
+MATLAB source : tests/chebop/test_linearize_init_fails.m
+Chebfun commit: 7574c77
+"""
+
+from __future__ import annotations
+
+import pytest
+
+pytestmark = pytest.mark.skip(reason="linearize() diagnostics not exposed")
+
+
+class TestChebopLinearizeInitFails:
+    def test_all_matlab_assertions(self):
+        raise NotImplementedError
