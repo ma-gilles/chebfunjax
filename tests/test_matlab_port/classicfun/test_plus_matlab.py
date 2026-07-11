@@ -153,20 +153,16 @@ class TestClassicfunPlus:
         assert _ninf(h1(X) - h2(X)) < 2 * (10 * EPS)
 
     # --- happy + unhappy ----------------------------------------------
-    @pytest.mark.xfail(
-        reason="chebfunjax arithmetic does not propagate ishappy=False from an "
-        "unhappy operand: sqrt(x+1) is unhappy but cos(x+1)+sqrt(x+1) reports "
-        "ishappy=True."
-    )
     def test_unhappy_plus_happy(self):
+        # FIXED (Fable 5): tech arithmetic now propagates
+        # ishappy=False.
         g = _bf(lambda x: jnp.sqrt(x + 1))
         h = _bf(lambda x: jnp.cos(x + 1)) + g
         assert (not g.ishappy) and (not h.ishappy)
 
-    @pytest.mark.xfail(
-        reason="chebfunjax arithmetic does not propagate ishappy=False."
-    )
     def test_happy_plus_unhappy(self):
+        # FIXED (Fable 5): tech arithmetic now propagates
+        # ishappy=False.
         g = _bf(lambda x: jnp.sqrt(x + 1))
         h = g + _bf(lambda x: jnp.cos(x + 1))
         assert (not g.ishappy) and (not h.ishappy)

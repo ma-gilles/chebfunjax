@@ -578,7 +578,8 @@ class Chebtech2(eqx.Module):
     # ------------------------------------------------------------------
 
     @classmethod
-    def from_coeffs(cls, coeffs: jax.Array) -> "Chebtech2":
+    def from_coeffs(cls, coeffs: jax.Array,
+                    ishappy: bool = True) -> "Chebtech2":
         """Construct a Chebtech2 from Chebyshev coefficients.
 
         Parameters
@@ -599,7 +600,7 @@ class Chebtech2(eqx.Module):
         3
         """
         coeffs = jnp.atleast_1d(_as_fun_dtype(coeffs))
-        return cls(coeffs=coeffs)
+        return cls(coeffs=coeffs, ishappy=bool(ishappy))
 
     @classmethod
     def from_values(cls, values: jax.Array) -> "Chebtech2":
@@ -1263,7 +1264,7 @@ class Chebtech2(eqx.Module):
             n = max(nf, ng)
             fc = _prolong_coeffs(self.coeffs, n)
             gc = _prolong_coeffs(other.coeffs, n)
-            return Chebtech2.from_coeffs(fc + gc)
+            return Chebtech2.from_coeffs(fc + gc, ishappy=self.ishappy and other.ishappy)
         else:
             # Scalar addition: only the c_0 coefficient changes. Promote the
             # coefficient dtype first — scattering a complex scalar into a
@@ -1271,7 +1272,7 @@ class Chebtech2(eqx.Module):
             s = _as_scalar(other)
             c = self.coeffs.astype(jnp.result_type(self.coeffs.dtype, s.dtype))
             c = c.at[0].add(s)
-            return Chebtech2.from_coeffs(c)
+            return Chebtech2.from_coeffs(c, ishappy=self.ishappy)
 
     def __radd__(self, other) -> "Chebtech2":
         return self.__add__(other)
@@ -1297,7 +1298,7 @@ class Chebtech2(eqx.Module):
         MATLAB source : @chebtech/uminus.m
         Chebfun commit: 7574c77
         """
-        return Chebtech2.from_coeffs(-self.coeffs)
+        return Chebtech2.from_coeffs(-self.coeffs, ishappy=self.ishappy)
 
     def __pos__(self) -> "Chebtech2":
         """Unary plus (identity)."""
@@ -1316,9 +1317,9 @@ class Chebtech2(eqx.Module):
         """
         if isinstance(other, Chebtech2):
             hc = _coeff_multiply(self.coeffs, other.coeffs)
-            return Chebtech2.from_coeffs(hc)
+            return Chebtech2.from_coeffs(hc, ishappy=self.ishappy and other.ishappy)
         else:
-            return Chebtech2.from_coeffs(self.coeffs * _as_scalar(other))
+            return Chebtech2.from_coeffs(self.coeffs * _as_scalar(other), ishappy=self.ishappy)
 
     def __rmul__(self, other) -> "Chebtech2":
         return self.__mul__(other)
@@ -1341,7 +1342,7 @@ class Chebtech2(eqx.Module):
             # silently under-resolves, e.g. 1/(1+25x^2) needs ~185 coeffs).
             return self.compose(lambda a, b: a / b, other)
         else:
-            return Chebtech2.from_coeffs(self.coeffs / _as_scalar(other))
+            return Chebtech2.from_coeffs(self.coeffs / _as_scalar(other), ishappy=self.ishappy)
 
     def __rtruediv__(self, other) -> "Chebtech2":
         """Scalar / Chebtech2 (adaptive, like MATLAB compose)."""
@@ -1419,7 +1420,7 @@ class Chebtech2(eqx.Module):
         if k == 0:
             return self
         new_coeffs = _diff_coeffs(self.coeffs, k)
-        return Chebtech2.from_coeffs(new_coeffs)
+        return Chebtech2.from_coeffs(new_coeffs, ishappy=self.ishappy)
 
     def cumsum(self) -> "Chebtech2":
         """Indefinite integral (antiderivative with F(-1) = 0).
@@ -1447,7 +1448,7 @@ class Chebtech2(eqx.Module):
         diff, sum
         """
         new_coeffs = _cumsum_coeffs(self.coeffs)
-        return Chebtech2.from_coeffs(new_coeffs)
+        return Chebtech2.from_coeffs(new_coeffs, ishappy=self.ishappy)
 
     def sum(self) -> jax.Array:
         r"""Definite integral over [-1, 1].
@@ -1877,7 +1878,8 @@ class Chebtech1(eqx.Module):
     # ------------------------------------------------------------------
 
     @classmethod
-    def from_coeffs(cls, coeffs: jax.Array) -> "Chebtech1":
+    def from_coeffs(cls, coeffs: jax.Array,
+                    ishappy: bool = True) -> "Chebtech1":
         """Construct a Chebtech1 from Chebyshev coefficients.
 
         Parameters
@@ -1890,7 +1892,7 @@ class Chebtech1(eqx.Module):
         Chebtech1
         """
         coeffs = jnp.atleast_1d(_as_fun_dtype(coeffs))
-        return cls(coeffs=coeffs)
+        return cls(coeffs=coeffs, ishappy=bool(ishappy))
 
     @classmethod
     def from_values(cls, values: jax.Array) -> "Chebtech1":
@@ -2156,10 +2158,10 @@ class Chebtech1(eqx.Module):
             n = max(self.n, other.n)
             fc = _prolong_coeffs(self.coeffs, n)
             gc = _prolong_coeffs(other.coeffs, n)
-            return Chebtech1.from_coeffs(fc + gc)
+            return Chebtech1.from_coeffs(fc + gc, ishappy=self.ishappy and other.ishappy)
         else:
             c = self.coeffs.at[0].add(_as_scalar(other))
-            return Chebtech1.from_coeffs(c)
+            return Chebtech1.from_coeffs(c, ishappy=self.ishappy)
 
     def __radd__(self, other) -> "Chebtech1":
         return self.__add__(other)
@@ -2185,7 +2187,7 @@ class Chebtech1(eqx.Module):
         MATLAB source : @chebtech/uminus.m
         Chebfun commit: 7574c77
         """
-        return Chebtech1.from_coeffs(-self.coeffs)
+        return Chebtech1.from_coeffs(-self.coeffs, ishappy=self.ishappy)
 
     def __pos__(self) -> "Chebtech1":
         return self
@@ -2200,9 +2202,9 @@ class Chebtech1(eqx.Module):
         """
         if isinstance(other, Chebtech1):
             hc = _coeff_multiply(self.coeffs, other.coeffs)
-            return Chebtech1.from_coeffs(hc)
+            return Chebtech1.from_coeffs(hc, ishappy=self.ishappy and other.ishappy)
         else:
-            return Chebtech1.from_coeffs(self.coeffs * _as_scalar(other))
+            return Chebtech1.from_coeffs(self.coeffs * _as_scalar(other), ishappy=self.ishappy)
 
     def __rmul__(self, other) -> "Chebtech1":
         return self.__mul__(other)
@@ -2222,7 +2224,7 @@ class Chebtech1(eqx.Module):
                 lambda x: _clenshaw(self.coeffs, x) / _clenshaw(other.coeffs, x)
             )
         else:
-            return Chebtech1.from_coeffs(self.coeffs / _as_scalar(other))
+            return Chebtech1.from_coeffs(self.coeffs / _as_scalar(other), ishappy=self.ishappy)
 
     def __rtruediv__(self, other) -> "Chebtech1":
         return Chebtech1.from_function(
@@ -2272,7 +2274,7 @@ class Chebtech1(eqx.Module):
         if k == 0:
             return self
         new_coeffs = _diff_coeffs(self.coeffs, k)
-        return Chebtech1.from_coeffs(new_coeffs)
+        return Chebtech1.from_coeffs(new_coeffs, ishappy=self.ishappy)
 
     def cumsum(self) -> "Chebtech1":
         """Indefinite integral with F(-1) = 0.
@@ -2284,7 +2286,7 @@ class Chebtech1(eqx.Module):
         Algorithm: Pages 32-33 of Mason & Handscomb, "Chebyshev Polynomials".
         """
         new_coeffs = _cumsum_coeffs(self.coeffs)
-        return Chebtech1.from_coeffs(new_coeffs)
+        return Chebtech1.from_coeffs(new_coeffs, ishappy=self.ishappy)
 
     def sum(self) -> jax.Array:
         r"""Definite integral over [-1, 1].

@@ -162,19 +162,16 @@ class TestClassicfunTimes:
         assert _ninf(h1(X) - h2(X)) < 2e1 * EPS * h1.vscale
 
     # --- happy .* unhappy ---------------------------------------------
-    @pytest.mark.xfail(
-        reason="chebfunjax arithmetic does not propagate ishappy=False from an "
-        "unhappy operand."
-    )
     def test_unhappy_result_1(self):
+        # FIXED (Fable 5): tech arithmetic now propagates
+        # ishappy=False.
         g = _bf(lambda x: jnp.sqrt(x + 1))
         h = _bf(lambda x: jnp.cos(x + 1)) * g
         assert (not g.ishappy) and (not h.ishappy)
 
-    @pytest.mark.xfail(
-        reason="chebfunjax arithmetic does not propagate ishappy=False."
-    )
     def test_unhappy_result_2(self):
+        # FIXED (Fable 5): tech arithmetic now propagates
+        # ishappy=False.
         g = _bf(lambda x: jnp.sqrt(x + 1))
         h = g * _bf(lambda x: jnp.cos(x + 1))
         assert (not g.ishappy) and (not h.ishappy)

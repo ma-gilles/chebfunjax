@@ -29,7 +29,7 @@ Fully-passing files: 139 · mixed (some assertions pass, some skip): 249
 | 4 | ~~polyfitL1~~ **FIXED (Fable 5)**: the previous "Watson update" was a relaxation onto a fixed interpolant. Now a proper Watson–Newton on the coefficients (SPD Jacobian 2ΣT_k(r)T_j(r)/\|e′(r)\|): optimality integral converges to ~6e-16; L1 error 1.2535 < 1.2709 (L2); the classical \|x\|+x → 0.5+x case exact to 1e-11 | was: L1 err 1.93 > L2's 1.27 | fixed in `polyfitL1` |
 | 5 | ~~norm(inf)~~ **FIXED (Fable 5)**: complex chebfuns route through the real chebfun \|f\|² and take √max — piecewise complex exponential gives e exactly | was: crash (lt on complex128) | fixed in `norm` |
 | 6 | ~~Chebtech1 complex transforms~~ **FIXED (Fable 5)**: vals2coeffs/coeffs2vals now split complex data into re+im (as MATLAB does); complex roundtrip and exp(iπx) construction at machine precision. 17 xfails + 5 sentinels flipped to passes; Chebtech1 now included in the complex chebtech port cases | was: jnp.real cast dropped imag | fixed in `_chebtech1_*` |
-| 7 | Arithmetic does not propagate `ishappy=False` | 6 markers | tech ports |
+| 7 | ~~ishappy propagation~~ **FIXED (Fable 5)**: all 16 Chebtech1/2 arithmetic-and-calculus operators now AND their operands' happiness through `from_coeffs(ishappy=...)`; 6 port xfails flipped | | fixed in tech ops |
 | 8 | θ-independent Spherefun constructions (e.g. sin λ) only ~8e-9 accurate, warn "column slices not resolved" | | `spherefunv/test_constructor` |
 | 9 | legpts/jacpts/lobpts/radaupts/hermpts/lagpts/ultrapts return no barycentric-weight third output | minor API gap | misc ports |
 
