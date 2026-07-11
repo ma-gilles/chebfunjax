@@ -1006,6 +1006,64 @@ class Spherefun(eqx.Module):
         from chebfunjax.plotting import contour_sphere
         return contour_sphere(self, **kwargs)
 
+    # ------------------------------------------------------------------
+    # Arithmetic + composition via constructor re-approximation
+    # (MATLAB @spherefun semantics; added by Claude Fable 5 --
+    # Spherefun previously had NO arithmetic).
+    # ------------------------------------------------------------------
+
+    def _reapprox(self, op2) -> "Spherefun":
+        return Spherefun.from_function(
+            lambda lam, th: op2(self(lam, th)))
+
+    def _binary(self, other, op2) -> "Spherefun":
+        if isinstance(other, Spherefun):
+            return Spherefun.from_function(
+                lambda lam, th: op2(self(lam, th), other(lam, th)))
+        return Spherefun.from_function(
+            lambda lam, th: op2(self(lam, th), other))
+
+    def __add__(self, other):
+        return self._binary(other, lambda a, b: a + b)
+
+    __radd__ = __add__
+
+    def __sub__(self, other):
+        return self._binary(other, lambda a, b: a - b)
+
+    def __rsub__(self, other):
+        return self._binary(other, lambda a, b: b - a)
+
+    def __mul__(self, other):
+        return self._binary(other, lambda a, b: a * b)
+
+    __rmul__ = __mul__
+
+    def __truediv__(self, other):
+        return self._binary(other, lambda a, b: a / b)
+
+    def __neg__(self):
+        return self._reapprox(lambda v: -v)
+
+    def __pow__(self, p):
+        return self._reapprox(lambda v: v ** p)
+
+    def compose(self, op):
+        """Re-approximate op(f) (MATLAB compose)."""
+        return self._reapprox(op)
+
+    def exp(self):
+        return self._reapprox(jnp.exp)
+
+    def sin(self):
+        return self._reapprox(jnp.sin)
+
+    def cos(self):
+        return self._reapprox(jnp.cos)
+
+    def sqrt(self):
+        return self._reapprox(jnp.sqrt)
+
     def mean(self) -> jax.Array:
         """Mean value of the function over the unit sphere: sum / (4 pi)."""
         return self.sum() / (4 * jnp.pi)

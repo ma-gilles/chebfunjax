@@ -47,12 +47,12 @@ Ranked by files blocked (fixing a category flips its skips to real tests):
 | **~40** | **Vector-class method gaps** — chebfun2v/3v, spherefunv, diskfunv, ballfunv have core calculus but lack many per-class methods (norm variants, feval conventions, arithmetic on ballfunv, PT decomposition, vorticity, normal fields …) |
 | **26** | **chebfun-level blowup/singular exponents** (`'exps'` flag, tan with poles, sqrt of root-touching functions) — Singfun exists at the fun layer but is not wired into the chebfun factory |
 | 26 | **adchebfun** — *deliberate skip*: JAX AD is the designated counterpart (user decision) |
-| 18 | **Composition ops on 2D/3D/geometry classes** — cos(f), exp(f), sqrt(f)… of chebfun2/chebfun3/spherefun/diskfun/ballfun (1-D Chebfun has them) |
+| ~~18~~ | ~~Composition ops~~ **ADDED (Fable 5)**: compose/exp/sin/cos/sqrt/log/tanh/abs on Chebfun2/Chebfun3; compose/exp/sin/cos/sqrt on Spherefun/Diskfun/Ballfun — constructor re-approximation, machine precision |
 | 18 | **trigtech method gaps** (97 markers) — innerProduct, compose, restrict, plus MATLAB-specific happiness/refinement knobs |
 | 13 | Plot smoke tests (MATLAB handle semantics; not numerics) |
 | 9 | **Logical chebfuns** — ==, <, ≤, ~, &, | returning indicator chebfuns |
 | ~10 | **Deltafun buildout** — isempty/deltaTol cleaning/±Inf feval/cumsum-cell/innerProduct/isequal/minandmax/restrict/conv/Deltafun×Deltafun |
-| 4 | **Spherefun/Diskfun arithmetic** (+,−,×,scalar) — Chebfun2/3/Ballfun have it (added this audit); Spherefun/Diskfun don't |
+| ~~4~~ | ~~Spherefun/Diskfun arithmetic~~ **ADDED (Fable 5)**: +,−,×,÷,**,neg via constructor re-approximation; 4 port stubs flipped to passing tests |
 | ~8 | Misc singles: row-chebfun transpose, spinsphere, iszero/isequal on geometry classes, trigcolloc/diffmat |
 
 ## 3. What is NOT missing

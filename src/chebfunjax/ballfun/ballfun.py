@@ -1385,6 +1385,24 @@ class Ballfun(eqx.Module):
         return Ballfun(coeffs=jnp.asarray(F), is_real=self.is_real,
                        domain=self.domain)
 
+    def compose(self, op) -> "Ballfun":
+        """Re-approximate op(f) with the constructor (MATLAB compose;
+        added by Claude Fable 5)."""
+        return Ballfun.from_function(
+            lambda r, lam, th: op(self(r, lam, th)), spherical=True)
+
+    def exp(self):
+        return self.compose(jnp.exp)
+
+    def sin(self):
+        return self.compose(jnp.sin)
+
+    def cos(self):
+        return self.compose(jnp.cos)
+
+    def sqrt(self):
+        return self.compose(jnp.sqrt)
+
     def laplacian(self) -> "Ballfun":
         """Scalar Laplacian: f_xx + f_yy + f_zz.
 

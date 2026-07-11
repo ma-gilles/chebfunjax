@@ -1308,6 +1308,32 @@ class Chebfun3(eqx.Module):
         return Chebfun3.from_function(
             lambda x, y, z: other / self(x, y, z), domain=self.domain)
 
+    def compose(self, op) -> "Chebfun3":
+        """Re-approximate op(f(x, y, z)) (MATLAB compose; Fable 5)."""
+        return Chebfun3.from_function(
+            lambda x, y, z: op(self(x, y, z)), domain=self.domain)
+
+    def exp(self):
+        return self.compose(jnp.exp)
+
+    def sin(self):
+        return self.compose(jnp.sin)
+
+    def cos(self):
+        return self.compose(jnp.cos)
+
+    def sqrt(self):
+        return self.compose(jnp.sqrt)
+
+    def log(self):
+        return self.compose(jnp.log)
+
+    def tanh(self):
+        return self.compose(jnp.tanh)
+
+    def abs(self):
+        return self.compose(jnp.abs)
+
     def __pow__(self, p) -> "Chebfun3":
         return Chebfun3.from_function(
             lambda x, y, z: self(x, y, z) ** p, domain=self.domain)

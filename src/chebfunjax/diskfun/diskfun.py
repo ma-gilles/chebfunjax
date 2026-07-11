@@ -1032,6 +1032,63 @@ class Diskfun(eqx.Module):
         from chebfunjax.plotting import contour_disk
         return contour_disk(self, **kwargs)
 
+    # ------------------------------------------------------------------
+    # Arithmetic + composition via constructor re-approximation
+    # (MATLAB @diskfun semantics; added by Claude Fable 5 -- Diskfun
+    # previously had NO arithmetic).
+    # ------------------------------------------------------------------
+
+    def _reapprox(self, op1) -> "Diskfun":
+        return Diskfun.from_function(lambda t, r: op1(self(t, r)))
+
+    def _binary(self, other, op2) -> "Diskfun":
+        if isinstance(other, Diskfun):
+            return Diskfun.from_function(
+                lambda t, r: op2(self(t, r), other(t, r)))
+        return Diskfun.from_function(
+            lambda t, r: op2(self(t, r), other))
+
+    def __add__(self, other):
+        return self._binary(other, lambda a, b: a + b)
+
+    __radd__ = __add__
+
+    def __sub__(self, other):
+        return self._binary(other, lambda a, b: a - b)
+
+    def __rsub__(self, other):
+        return self._binary(other, lambda a, b: b - a)
+
+    def __mul__(self, other):
+        return self._binary(other, lambda a, b: a * b)
+
+    __rmul__ = __mul__
+
+    def __truediv__(self, other):
+        return self._binary(other, lambda a, b: a / b)
+
+    def __neg__(self):
+        return self._reapprox(lambda v: -v)
+
+    def __pow__(self, p):
+        return self._reapprox(lambda v: v ** p)
+
+    def compose(self, op):
+        """Re-approximate op(f) (MATLAB compose)."""
+        return self._reapprox(op)
+
+    def exp(self):
+        return self._reapprox(jnp.exp)
+
+    def sin(self):
+        return self._reapprox(jnp.sin)
+
+    def cos(self):
+        return self._reapprox(jnp.cos)
+
+    def sqrt(self):
+        return self._reapprox(jnp.sqrt)
+
     def diffx(self) -> "Diskfun":
         r"""Cartesian partial derivative :math:`\\partial f / \\partial x`.
 
