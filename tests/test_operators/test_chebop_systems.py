@@ -1,0 +1,58 @@
+"""Core-suite coverage for the chebop ODE-systems paths (Fable 5).
+
+Mirrors the MATLAB-port assertions (test_linearSystem1,
+test_system3, test_eigs_system) so the systems solver counts toward
+the core coverage gate.
+"""
+
+from __future__ import annotations
+
+import jax.numpy as jnp
+import numpy as np
+
+from chebfunjax.operators.chebop import Chebop
+
+
+class TestLinearSystem:
+    def test_sin_cos_2x2(self):
+        d = (-np.pi, np.pi)
+        A = Chebop(lambda x, u, v: [u - v.diff(), u.diff() + v], d)
+        A.lbc = lambda u, v: u + 1
+        A.rbc = lambda u, v: v
+        sol = A.solve(0)
+        xs = jnp.asarray(np.linspace(-3.0, 3.0, 40))
+        assert float(jnp.max(jnp.abs(sol[0](xs) - jnp.cos(xs)))) \
+            < 1e-8
+        assert float(jnp.max(jnp.abs(sol[1](xs) - jnp.sin(xs)))) \
+            < 1e-8
+        assert len(sol.blocks) == 2
+
+
+class TestNonlinearSystem:
+    def test_coupled_sine_cosine_bvp(self):
+        N = Chebop(
+            lambda x, u, v: [u.diff(2) + v.sin(),
+                             u.cos() + v.diff(2)],
+            (-1.0, 1.0))
+        N.lbc = lambda u, v: [u - 2, v - 1]
+        N.rbc = lambda u, v: [u - 2, v + 1]
+        sol = N.solve([0, 0], n=32)
+        v = sol[1]
+        assert abs(float(v(jnp.asarray(0.2)))
+                   - (-0.371250985730553)) < 1e-7
+
+
+class TestSystemEigs:
+    def test_maxwell_inspired(self):
+        d = (0.0, np.pi)
+        A = Chebop(lambda x, u, v: [-u + v.diff(), u.diff()], d)
+        A.lbc = lambda u, v: u
+        A.rbc = lambda u, v: u
+        _, lam = A.eigs(k=5, n=48)
+        lam = np.sort(np.abs(np.asarray(lam)))
+        correct = np.sort(np.abs(np.array([
+            0, -0.5 + np.sqrt(3) / 2 * 1j,
+            -0.5 - np.sqrt(3) / 2 * 1j,
+            -0.5 + np.sqrt(15) / 2 * 1j,
+            -0.5 - np.sqrt(15) / 2 * 1j])))
+        assert np.max(np.abs(lam - correct)) < 1e-9
