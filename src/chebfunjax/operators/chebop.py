@@ -337,9 +337,13 @@ class Chebop:
             )
 
         # Systems of ODEs: op signature (x, u, v, ...) with >= 2
-        # unknowns dispatches to the block-collocation linear solver.
+        # unknowns dispatches to block collocation (linear) or Newton
+        # on top of it (nonlinear).
         if self._n_vars() >= 2:
-            return self._solve_linear_system(f, n=n)
+            if self._system_is_linear():
+                return self._solve_linear_system(f, n=n)
+            return self._solve_nonlinear_system(
+                f, n=n, max_iter=max_iter)
 
         # Periodic BVPs use Fourier collocation (task #24, Opus 4.8).
         if getattr(self, "_periodic", False):
@@ -375,6 +379,138 @@ class Chebop:
             return max(1, len(params) - 1)
         except (TypeError, ValueError):
             return 1
+
+    def _system_is_linear(self) -> bool:
+        """Superposition check for system ops:
+        op(u+v) == op(u) + op(v) - op(0) at random probes."""
+        import numpy as _np
+
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        m = self._n_vars()
+        a, b = self.domain
+        x_fun = Chebfun.identity(Domain(self.domain))
+        rng = _np.random.default_rng(7)
+        xs = jnp.asarray(a + (b - a) * rng.random(7))
+
+        def mk(seed):
+            r = _np.random.default_rng(seed)
+            return [
+                _chebfun_from_values(
+                    jnp.asarray(r.standard_normal(6)), self.domain)
+                for _ in range(m)
+            ]
+
+        def ev(us):
+            out = self.op(x_fun, *us)
+            if not isinstance(out, (list, tuple)):
+                out = [out]
+            return _np.concatenate([
+                _np.full(7, float(o)) if isinstance(o, (int, float))
+                else _np.asarray(o(xs)) for o in out])
+
+        u1, u2 = mk(1), mk(2)
+        z = [u * 0.0 for u in u1]
+        lhs = ev([p + q for p, q in zip(u1, u2)])
+        rhs = ev(u1) + ev(u2) - ev(z)
+        scale = max(_np.max(_np.abs(lhs)), 1.0)
+        return bool(_np.max(_np.abs(lhs - rhs)) < 1e-9 * scale)
+
+    def _solve_nonlinear_system(self, f=0.0, n: int | None = None,
+                                max_iter: int = 25):
+        """Newton iteration for nonlinear systems: at each iterate the
+        residual Jacobian is assembled by finite-difference probing of
+        the op (same block layout as the linear solver), with damped
+        updates.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/solvebvpNonlinear.m (system branch)
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        m = self._n_vars()
+        a, b = self.domain
+        if n is None:
+            n = 48
+        k = _np.arange(n)
+        xg = _np.cos(_np.pi * k / (n - 1))[::-1]
+        xp = a + (b - a) * (xg + 1.0) / 2.0
+        x_fun = Chebfun.identity(Domain(self.domain))
+
+        def to_funs(U):
+            return [
+                _chebfun_from_values(
+                    jnp.asarray(U[i * n: (i + 1) * n]), self.domain)
+                for i in range(m)
+            ]
+
+        if isinstance(f, (int, float)):
+            f_vals = _np.full(m * n, float(f))
+        elif isinstance(f, (list, tuple)):
+            f_vals = _np.concatenate([
+                _np.full(n, float(fi)) if isinstance(fi, (int, float))
+                else _np.asarray(fi(jnp.asarray(xp))) for fi in f])
+        else:
+            f_vals = _np.tile(_np.asarray(f(jnp.asarray(xp))), m)
+
+        def bc_list(bc_raw, us):
+            if bc_raw is None:
+                return []
+            out = bc_raw(*us)
+            if not isinstance(out, (list, tuple)):
+                out = [out]
+            return list(out)
+
+        def residual(U):
+            us = to_funs(U)
+            out = self.op(x_fun, *us)
+            if not isinstance(out, (list, tuple)):
+                out = [out]
+            R = _np.concatenate([
+                _np.full(n, float(o)) if isinstance(o, (int, float))
+                else _np.asarray(o(jnp.asarray(xp))) for o in out])
+            R = R - f_vals
+            for i, g in enumerate(bc_list(self._lbc_raw, us)):
+                R[(i % m) * n] = _eval_chebfun_at(g, a)
+            for i, g in enumerate(bc_list(self._rbc_raw, us)):
+                R[(i % m) * n + n - 1] = _eval_chebfun_at(g, b)
+            return R
+
+        U = _np.zeros(m * n)
+        if self.init is not None:
+            init = self.init if isinstance(self.init, (list, tuple)) \
+                else [self.init] * m
+            U = _np.concatenate([
+                _np.asarray(gi(jnp.asarray(xp))) for gi in init])
+        R = residual(U)
+        for _it in range(max_iter):
+            nrm = _np.max(_np.abs(R))
+            if nrm < 1e-11:
+                break
+            # finite-difference Jacobian by column probing
+            J = _np.zeros((m * n, m * n))
+            h = 1e-7 * max(1.0, _np.max(_np.abs(U)))
+            for j in range(m * n):
+                Up = U.copy()
+                Up[j] += h
+                J[:, j] = (residual(Up) - R) / h
+            step = _np.linalg.solve(J, R)
+            lam = 1.0
+            for _d in range(30):
+                Rn = residual(U - lam * step)
+                if _np.max(_np.abs(Rn)) < nrm or lam < 1e-4:
+                    break
+                lam *= 0.5
+            U = U - lam * step
+            R = Rn
+        else:
+            import warnings as _w
+            _w.warn("chebop system Newton: max iterations reached "
+                    f"(residual {_np.max(_np.abs(R)):.2e})",
+                    RuntimeWarning, stacklevel=2)
+        return SystemSolution(to_funs(U))
 
     def _solve_linear_system(self, f=0.0, n: int | None = None):
         """Solve a LINEAR system of coupled ODEs by block collocation
