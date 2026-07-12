@@ -123,7 +123,7 @@ jobs:
               tests/test_matlab_port/chebpref
               tests/test_matlab_port/adchebfun
               tests/test_matlab_port/treeVar
-          - name: techs-2d3d
+          - name: techs
             paths: >-
               tests/test_matlab_port/chebtech
               tests/test_matlab_port/chebtech1
@@ -136,8 +136,12 @@ jobs:
               tests/test_matlab_port/unbndfun
               tests/test_matlab_port/singfun
               tests/test_matlab_port/deltafun
+          - name: chebfun2d
+            paths: >-
               tests/test_matlab_port/chebfun2
               tests/test_matlab_port/chebfun2v
+          - name: chebfun3d
+            paths: >-
               tests/test_matlab_port/chebfun3
               tests/test_matlab_port/chebfun3t
               tests/test_matlab_port/chebfun3v
