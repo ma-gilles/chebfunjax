@@ -224,6 +224,18 @@ class _Piece(eqx.Module):
         _Piece
         """
         a, b = self.interval
+        # Preserve the Fourier representation: composing a periodic
+        # piece yields a periodic result, and rebuilding it as a
+        # Chebtech would poison later arithmetic with mixed techs.
+        from chebfunjax.tech.trigtech import Trigtech
+        if isinstance(self.tech, Trigtech):
+            import numpy as _np
+            m = max(4 * len(_np.asarray(self.tech.coeffs)), 64)
+            xs = a + (b - a) * _np.arange(m) / m
+            vals = op(self(jnp.asarray(xs)))
+            tech = Trigtech.from_values(
+                jnp.asarray(vals)).simplify()
+            return _Piece(tech=tech, interval=(a, b))
         return _Piece.from_function(lambda x: op(self(x)), a, b)
 
     # ------------------------------------------------------------------

@@ -338,8 +338,12 @@ class Chebop:
 
         # Systems of ODEs: op signature (x, u, v, ...) with >= 2
         # unknowns dispatches to block collocation (linear) or Newton
-        # on top of it (nonlinear).
+        # on top of it (nonlinear); periodic systems use a Fourier
+        # (equispaced/trig) discretization with no BC rows.
         if self._n_vars() >= 2:
+            if getattr(self, "_periodic", False):
+                return self._solve_periodic_system(
+                    f, n=n, max_iter=max_iter)
             if self._system_is_linear():
                 return self._solve_linear_system(f, n=n)
             return self._solve_nonlinear_system(
@@ -586,6 +590,100 @@ class Chebop:
             ridx += 1
         lam = _sla.eigvals(A, B)
         return lam[_np.isfinite(lam) & (_np.abs(lam) < 1e8)]
+
+    def _solve_periodic_system(self, f=0.0, n: int | None = None,
+                               max_iter: int = 25):
+        """Periodic systems of ODEs: Fourier collocation on an
+        equispaced grid (periodicity built into the trig
+        representation; no boundary rows), Newton if the op fails the
+        superposition probe.  Least-squares solve absorbs the
+        singular mean modes.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/solvebvp.m ('periodic' + trigcolloc)
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+        from chebfunjax.tech.trigtech import Trigtech
+
+        m = self._n_vars()
+        a, b = self.domain
+        if n is None:
+            n = 64
+        L = b - a
+        xp = a + L * _np.arange(n) / n
+        x_fun = Chebfun.identity(Domain(self.domain))
+
+        def trig_fun(values):
+            tech = Trigtech.from_values(
+                jnp.asarray(values, dtype=jnp.float64))
+            piece = _Piece(tech=tech, interval=(a, b))
+            return Chebfun(funs=[piece], domain=Domain((a, b)))
+
+        def to_funs(U):
+            return [trig_fun(U[i * n: (i + 1) * n])
+                    for i in range(m)]
+
+        if isinstance(f, (int, float)):
+            f_vals = _np.full(m * n, float(f))
+        elif isinstance(f, (list, tuple)):
+            f_vals = _np.concatenate([
+                _np.full(n, float(fi))
+                if isinstance(fi, (int, float))
+                else _np.asarray(fi(jnp.asarray(xp))) for fi in f])
+        else:
+            f_vals = _np.tile(_np.asarray(f(jnp.asarray(xp))), m)
+
+        def residual(U):
+            us = to_funs(U)
+            out = self.op(x_fun, *us)
+            if not isinstance(out, (list, tuple)):
+                out = [out]
+            R = _np.concatenate([
+                _np.full(n, float(o))
+                if isinstance(o, (int, float))
+                else _np.asarray(o(jnp.asarray(xp))) for o in out])
+            return R - f_vals
+
+        U = _np.zeros(m * n)
+        if self.init is not None:
+            init = self.init if isinstance(self.init, (list, tuple)) \
+                else [self.init] * m
+            U = _np.concatenate([
+                _np.full(n, float(gi))
+                if isinstance(gi, (int, float))
+                else _np.asarray(gi(jnp.asarray(xp)))
+                for gi in init])
+        R = residual(U)
+        Rn = R
+        for _it in range(max_iter):
+            nrm = _np.max(_np.abs(R))
+            if nrm < 1e-11:
+                break
+            J = _np.zeros((m * n, m * n))
+            h = 1e-7 * max(1.0, _np.max(_np.abs(U)))
+            for j in range(m * n):
+                Up = U.copy()
+                Up[j] += h
+                J[:, j] = (residual(Up) - R) / h
+            step = _np.linalg.lstsq(J, R, rcond=None)[0]
+            lam = 1.0
+            for _d in range(30):
+                Rn = residual(U - lam * step)
+                if _np.max(_np.abs(Rn)) < nrm or lam < 1e-4:
+                    break
+                lam *= 0.5
+            U = U - lam * step
+            R = Rn
+        else:
+            import warnings as _w
+            _w.warn("chebop periodic system: max Newton iterations "
+                    f"reached (residual {_np.max(_np.abs(R)):.2e})",
+                    RuntimeWarning, stacklevel=2)
+        return SystemSolution(to_funs(U))
 
     def _system_is_linear(self) -> bool:
         """Superposition check for system ops:
