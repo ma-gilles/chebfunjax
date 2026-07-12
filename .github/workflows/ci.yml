@@ -102,17 +102,80 @@ jobs:
       - name: Run core tests with coverage
         run: pixi run test-ci
 
+  # The port tree is sharded: one job exceeded the GitHub runner's
+  # memory (JAX's in-process jit cache grows monotonically across
+  # thousands of tests) -- serial and -n 2 both died with
+  # "The operation was canceled" and zero failing tests.
   matlab-port:
-    name: MATLAB port tree
+    name: MATLAB port tree (${{ matrix.shard.name }})
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shard:
+          - name: chebfun
+            paths: >-
+              tests/test_matlab_port/chebfun
+              tests/test_matlab_port/misc
+              tests/test_matlab_port/cheb
+              tests/test_matlab_port/domain
+              tests/test_matlab_port/chebpref
+              tests/test_matlab_port/adchebfun
+              tests/test_matlab_port/treeVar
+          - name: techs-2d3d
+            paths: >-
+              tests/test_matlab_port/chebtech
+              tests/test_matlab_port/chebtech1
+              tests/test_matlab_port/chebtech2
+              tests/test_matlab_port/trigtech
+              tests/test_matlab_port/trigspec
+              tests/test_matlab_port/fun
+              tests/test_matlab_port/classicfun
+              tests/test_matlab_port/bndfun
+              tests/test_matlab_port/unbndfun
+              tests/test_matlab_port/singfun
+              tests/test_matlab_port/deltafun
+              tests/test_matlab_port/chebfun2
+              tests/test_matlab_port/chebfun2v
+              tests/test_matlab_port/chebfun3
+              tests/test_matlab_port/chebfun3t
+              tests/test_matlab_port/chebfun3v
+          - name: geometry-ops
+            paths: >-
+              tests/test_matlab_port/spherefun
+              tests/test_matlab_port/spherefunv
+              tests/test_matlab_port/diskfun
+              tests/test_matlab_port/diskfunv
+              tests/test_matlab_port/ballfun
+              tests/test_matlab_port/ballfunv
+              tests/test_matlab_port/chebop
+              tests/test_matlab_port/chebop2
+              tests/test_matlab_port/linop
+              tests/test_matlab_port/chebmatrix
+              tests/test_matlab_port/operatorBlock
+              tests/test_matlab_port/functionalBlock
+              tests/test_matlab_port/spinop
+              tests/test_matlab_port/spinop2
+              tests/test_matlab_port/spinop3
+              tests/test_matlab_port/spinopsphere
+              tests/test_matlab_port/spinpref
+              tests/test_matlab_port/spinpref2
+              tests/test_matlab_port/spinpref3
+              tests/test_matlab_port/spinprefsphere
+              tests/test_matlab_port/spinscheme
     steps:
       - uses: actions/checkout@v4
       - uses: prefix-dev/setup-pixi@v0.8.1
         with:
           pixi-version: latest
       - name: Run MATLAB test-suite ports
-        run: pixi run test-matlab-port
+        run: >-
+          pixi run python -m pytest ${{ matrix.shard.paths }}
+          -q --tb=short --timeout=900 -p no:cacheprovider
+      - name: Check shard covers no stray directories
+        if: matrix.shard.name == 'chebfun'
+        run: python scripts/check_port_shards.py
 
   golden-refs:
     name: Validate golden refs
