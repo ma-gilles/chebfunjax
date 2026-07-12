@@ -214,10 +214,13 @@ class Quasimatrix:
         if A.shape[0] != len(self.cols):
             raise ValueError("inner dimensions must agree")
         newcols = []
+        cplx = _onp.iscomplexobj(A)
         for j in range(A.shape[1]):
-            c = self.cols[0] * float(A[0, j])
+            c = self.cols[0] * (complex(A[0, j]) if cplx
+                                else float(A[0, j]))
             for i in range(1, len(self.cols)):
-                c = c + self.cols[i] * float(A[i, j])
+                c = c + self.cols[i] * (complex(A[i, j]) if cplx
+                                        else float(A[i, j]))
             newcols.append(c)
         return Quasimatrix(newcols, self.domain)
 
@@ -279,6 +282,70 @@ class Quasimatrix:
         from chebfunjax.chebfun1d.linalg import chebfun_qr
         return chebfun_qr(list(self.cols))
 
+    def rank(self, tol: float | None = None) -> int:
+        """Numerical rank via singular values (MATLAB rank).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/rank.m
+        Chebfun commit: 7574c77
+        """
+        _, S, _ = self.svd()
+        S = np.asarray(S)
+        if tol is None:
+            tol = self.n_cols * float(np.finfo(float).eps) * \
+                (S.max() if S.size else 0.0)
+        return int(np.sum(S > tol))
+
+    def orth(self, tol: float | None = None) -> "Quasimatrix":
+        """Orthonormal basis for the range (MATLAB orth).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/orth.m
+        Chebfun commit: 7574c77
+        """
+        U, S, _ = self.svd()
+        r = self.rank(tol)
+        return Quasimatrix(list(U.cols[:r]), self.domain)
+
+    def null(self, tol: float | None = None):
+        """Orthonormal basis (matrix, n x k) for the discrete null
+        space {v : A @ v = 0} (MATLAB null of an array-valued chebfun).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/null.m
+        Chebfun commit: 7574c77
+        """
+        _, S, V = self.svd()
+        r = self.rank(tol)
+        Vn = np.asarray(V)
+        return jnp.asarray(Vn[:, r:], dtype=Vn.dtype)
+
+    def pinv(self, f):
+        """Least-squares solve pinv(A) @ f (MATLAB pinv applied to a
+        chebfun): the coefficient vector x minimizing ||A x - f||_2.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/pinv.m
+        Chebfun commit: 7574c77
+        """
+        U, S, V = self.svd()
+        S = np.real(np.asarray(S))
+        r = self.rank()
+        # sesquilinear projections <u_i, f>
+        proj = np.array([
+            complex(np.asarray(U.cols[i].inner(f)))  # inner conjugates U
+            for i in range(r)
+        ])
+        Vn = np.asarray(V)
+        x = Vn[:, :r] @ (proj / S[:r])
+        if not (np.iscomplexobj(Vn) or np.max(np.abs(x.imag)) > 0):
+            x = x.real
+        return jnp.asarray(x)
+
     def svd(self):
         from chebfunjax.chebfun1d.linalg import chebfun_svd
         return chebfun_svd(list(self.cols))
@@ -338,6 +405,13 @@ def _chebfun_inner(f: Chebfun, g: Chebfun) -> float:
     -------
     float
     """
+    fi = f.funs[0].tech.coeffs
+    gi = g.funs[0].tech.coeffs
+    if jnp.iscomplexobj(fi) or jnp.iscomplexobj(gi):
+        # Chebfun.inner is already sesquilinear (the chebtech level
+        # conjugates F, matching MATLAB innerProduct) -- do NOT add
+        # another conj here.
+        return complex(jnp.asarray(f.inner(g)))
     return float(f.inner(g))
 
 
@@ -465,7 +539,14 @@ def abstract_qr(
     E = [e for e in basis]      # working Legendre basis
     V = [None] * n              # Householder vectors
 
-    R = np.zeros((n, n), dtype=np.float64)
+    # Complex columns get a sesquilinear inner product and a complex R
+    # (Fable 5 audit -- previously the real cast silently corrupted
+    # complex quasimatrices).
+    iscomplex = any(
+        bool(jnp.iscomplexobj(c.funs[0].tech.coeffs)) for c in cols
+    )
+    R = np.zeros((n, n),
+                 dtype=np.complex128 if iscomplex else np.float64)
 
     for k in range(n):
         # Scale: max of ||E[:,k]|| and ||A[:,k]|| (both ~1 for well-scaled A)
@@ -479,11 +560,12 @@ def abstract_qr(
         if aex < tol * scl:
             s = 1.0
         else:
-            s = -np.sign(ex / aex)
+            # complex phase (reduces to -sign for real data)
+            s = -ex / aex
         E[k] = E[k] * s
 
         # Diagonal entry: norm of A[:,k]
-        r = np.sqrt(max(inner(A[k], A[k]), 0.0))
+        r = np.sqrt(max(np.real(inner(A[k], A[k])), 0.0))
         R[k, k] = r
 
         # Householder vector: v = r*E[:,k] - A[:,k]
@@ -495,7 +577,7 @@ def abstract_qr(
             v = v - E[i] * ev
 
         # Normalise v
-        nv = np.sqrt(max(inner(v, v), 0.0))
+        nv = np.sqrt(max(np.real(inner(v, v)), 0.0))
         if nv < tol * scl:
             v = E[k]
         else:
@@ -522,7 +604,8 @@ def abstract_qr(
             vq = inner(V[k], Q[j])
             Q[j] = Q[j] - V[k] * (2.0 * vq)
 
-    return Q, jnp.array(R, dtype=jnp.float64)
+    return Q, jnp.array(
+        R, dtype=jnp.complex128 if iscomplex else jnp.float64)
 
 
 # ============================================================================
@@ -608,7 +691,8 @@ def qr_quasimatrix(
     # Ensure diagonal of R is non-negative (A = QR = (Q*S)*(S*R))
     # This matches MATLAB's sign convention
     diag_signs = np.array(
-        [np.sign(float(R[i, i])) for i in range(n)], dtype=np.float64
+        [np.sign(float(np.real(R[i, i]))) for i in range(n)],
+        dtype=np.float64,
     )
     diag_signs[diag_signs == 0.0] = 1.0
 
@@ -618,7 +702,11 @@ def qr_quasimatrix(
         # flip Q column sign correspondingly
         Q_cols[i] = Q_cols[i] * diag_signs[i]
 
-    R_out = jnp.array(R_np, dtype=jnp.float64)
+    R_out = jnp.array(
+        R_np,
+        dtype=jnp.complex128 if np.iscomplexobj(R_np)
+        else jnp.float64,
+    )
     Q_out = Quasimatrix(cols=Q_cols, domain=domain)
     return Q_out, R_out
 
@@ -674,15 +762,24 @@ def svd_quasimatrix(
     # U[:,i] = sum_j Q[:,j] * U_r[j,i]
     n = qm.n_cols
     U_cols = []
+    cplx = np.iscomplexobj(U_r)
+    U_cols = []
     for i in range(n):
-        col = Q.cols[0] * float(U_r[0, i])
+        col = Q.cols[0] * (complex(U_r[0, i]) if cplx
+                           else float(U_r[0, i]))
         for j in range(1, n):
-            col = col + Q.cols[j] * float(U_r[j, i])
+            col = col + Q.cols[j] * (complex(U_r[j, i]) if cplx
+                                     else float(U_r[j, i]))
         U_cols.append(col)
 
     U = Quasimatrix(cols=U_cols, domain=qm.domain)
     S = jnp.array(S_np, dtype=jnp.float64)
-    V = jnp.array(Vt_np.T, dtype=jnp.float64)  # shape (n, n), columns = right sing. vecs
+    # A = U S V^H, so V = Vt^H (conjugate transpose, complex-safe)
+    Vn = Vt_np.conj().T
+    V = jnp.array(
+        Vn,
+        dtype=jnp.complex128 if np.iscomplexobj(Vn) else jnp.float64,
+    )  # shape (n, n), columns = right sing. vecs
     return U, S, V
 
 
