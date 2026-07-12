@@ -17,13 +17,8 @@ _CLEAR_EVERY = 25
 
 
 @pytest.fixture(autouse=True)
-def _clear_jax_caches_periodically(request):
+def _clear_jax_caches_periodically():
     yield
     _COUNTER["n"] += 1
-    # The chebfun3 constructor jit-compiles many distinct shapes per
-    # test (adaptive n growth + restarts) -- its shard OOM'd CI even
-    # with every-25 clearing, so clear after every chebfun3* test.
-    heavy = "chebfun3" in str(
-        getattr(request.node, "fspath", ""))
-    if heavy or _COUNTER["n"] % _CLEAR_EVERY == 0:
+    if _COUNTER["n"] % _CLEAR_EVERY == 0:
         jax.clear_caches()

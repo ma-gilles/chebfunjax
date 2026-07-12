@@ -140,14 +140,11 @@ jobs:
             paths: >-
               tests/test_matlab_port/chebfun2
               tests/test_matlab_port/chebfun2v
-          - name: chebfun3d-a
+          - name: chebfun3d
             paths: >-
-              tests/test_matlab_port/chebfun3/test_[a-m]*.py
+              tests/test_matlab_port/chebfun3
               tests/test_matlab_port/chebfun3t
               tests/test_matlab_port/chebfun3v
-          - name: chebfun3d-b
-            paths: >-
-              tests/test_matlab_port/chebfun3/test_[n-z]*.py
           - name: geometry-ops
             paths: >-
               tests/test_matlab_port/spherefun

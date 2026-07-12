@@ -989,8 +989,23 @@ class Chebfun3(eqx.Module):
         z_t = za + (zb - za) * _halton_1d(n_test, 5)
         v_op = np.asarray(f(jnp.asarray(x_t), jnp.asarray(y_t),
                             jnp.asarray(z_t)))
-        v_fun = np.asarray(result(jnp.asarray(x_t), jnp.asarray(y_t),
-                                  jnp.asarray(z_t)))
+        # Evaluate the Tucker representation in plain numpy: routing
+        # this through the jitted __call__ makes XLA trace/compile a
+        # graph unrolled over all 3*rank coefficient arrays, which for
+        # high-rank results costs minutes and tens of GB (observed:
+        # 295 s / 22 GB for rank 33 vs 0.02 s here).
+        from numpy.polynomial import chebyshev as _Cnp
+        sx = 2.0 * (x_t - xa) / (xb - xa) - 1.0
+        sy = 2.0 * (y_t - ya) / (yb - ya) - 1.0
+        sz = 2.0 * (z_t - za) / (zb - za) - 1.0
+        Cv = np.stack([_Cnp.chebval(sx, np.asarray(c.coeffs))
+                       for c in cols_list])
+        Rv = np.stack([_Cnp.chebval(sy, np.asarray(c.coeffs))
+                       for c in rows_list])
+        Tv = np.stack([_Cnp.chebval(sz, np.asarray(c.coeffs))
+                       for c in tubes_list])
+        v_fun = np.einsum("ijk,ip,jp,kp->p",
+                          np.asarray(core_scaled), Cv, Rv, Tv)
         sample_err = float(np.max(np.abs(v_op - v_fun)))
         if sample_err <= 10.0 * abs_tol_running:
             return result
@@ -1095,20 +1110,17 @@ class Chebfun3(eqx.Module):
         ty = jnp.broadcast_to(ty, bcast_shape)
         tz = jnp.broadcast_to(tz, bcast_shape)
 
-        result = jnp.zeros(bcast_shape, dtype=jnp.float64)
-        r1 = len(self.cols)
-        r2 = len(self.rows)
-        r3 = len(self.tubes)
-
-        for i in range(r1):
-            xi_val = self.cols[i](tx)
-            for j in range(r2):
-                yj_val = self.rows[j](ty)
-                for k in range(r3):
-                    zk_val = self.tubes[k](tz)
-                    result = result + self.core[i, j, k] * xi_val * yj_val * zk_val
-
-        return result
+        # Evaluate each factor list once and contract with the core.
+        # (The previous triple nested loop emitted r1*r2*r3 graph
+        # nodes with redundant fiber evaluations -- at rank 33 that is
+        # ~36k Clenshaw subgraphs, minutes of XLA compile time, and
+        # >20 GB of compile memory.  This form is r1+r2+r3 evaluations
+        # plus one einsum.)
+        xi = jnp.stack([c(tx) for c in self.cols])      # (r1, ...)
+        yj = jnp.stack([r(ty) for r in self.rows])      # (r2, ...)
+        zk = jnp.stack([t(tz) for t in self.tubes])     # (r3, ...)
+        return jnp.einsum("ijk,i...,j...,k...->...",
+                          self.core, xi, yj, zk)
 
     # ------------------------------------------------------------------
     # Triple integral
