@@ -75,6 +75,21 @@ def _eval_chebfun_at(u, x0: float) -> float:
     return float(arr)
 
 
+class SystemSolution(list):
+    """Solution container for systems: indexable list of chebfuns
+    with MATLAB-ish u{1} semantics via u[0] / u.blocks.
+
+    Provenance
+    ----------
+    MATLAB source : @chebmatrix (solution container role)
+    Chebfun commit: 7574c77
+    """
+
+    @property
+    def blocks(self):
+        return list(self)
+
+
 # ===========================================================================
 # Chebop
 # ===========================================================================
@@ -321,6 +336,11 @@ class Chebop:
                 "before solving."
             )
 
+        # Systems of ODEs: op signature (x, u, v, ...) with >= 2
+        # unknowns dispatches to the block-collocation linear solver.
+        if self._n_vars() >= 2:
+            return self._solve_linear_system(f, n=n)
+
         # Periodic BVPs use Fourier collocation (task #24, Opus 4.8).
         if getattr(self, "_periodic", False):
             return self._solve_periodic(f, n=n, n_max=n_max, tol=tol)
@@ -341,6 +361,145 @@ class Chebop:
                 f, n=n, n_min=n_min, n_max=n_max, tol=tol,
                 max_iter=max_iter, newton_tol=newton_tol,
             )
+
+    def _n_vars(self) -> int:
+        """Number of unknown functions (op arity minus the x arg)."""
+        import inspect
+        try:
+            params = [
+                q for q in
+                inspect.signature(self.op).parameters.values()
+                if q.kind in (q.POSITIONAL_ONLY,
+                              q.POSITIONAL_OR_KEYWORD)
+            ]
+            return max(1, len(params) - 1)
+        except (TypeError, ValueError):
+            return 1
+
+    def _solve_linear_system(self, f=0.0, n: int | None = None):
+        """Solve a LINEAR system of coupled ODEs by block collocation
+        (MATLAB solvebvpLinear for chebmatrix operators).
+
+        The op has signature (x, u1, ..., um) and returns a list of m
+        expression chebfuns.  Each unknown is discretized by its
+        values at n Chebyshev points; the (m*n) x (m*n) block matrix
+        is built by probing the op with coordinate basis functions
+        (columns are op(e_k) - op(0), exact for linear ops).  Boundary
+        residual rows from lbc/rbc replace the boundary-point rows of
+        successive block equations.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/solvebvp.m (chebmatrix branch),
+            @linop/mldivide.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        m = self._n_vars()
+        a, b = self.domain
+        if n is None:
+            n = 64
+        k = _np.arange(n)
+        xg = _np.cos(_np.pi * k / (n - 1))[::-1]      # ascending
+        xp = a + (b - a) * (xg + 1.0) / 2.0
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        x_fun = Chebfun.identity(Domain(self.domain))
+        zero = _chebfun_from_values(jnp.zeros(2), self.domain)
+
+        def apply_op(us):
+            out = self.op(x_fun, *us)
+            if not isinstance(out, (list, tuple)):
+                out = [out]
+            return [zero + o if isinstance(o, (int, float)) else o
+                    for o in out]
+
+        def rows_at(fun_list, pts):
+            return _np.concatenate([
+                _np.asarray(g(jnp.asarray(pts))) for g in fun_list])
+
+        zeros_list = [zero for _ in range(m)]
+        base = rows_at(apply_op(zeros_list), xp)       # (m*n,)
+
+        A = _np.zeros((m * n, m * n))
+        for var in range(m):
+            for j in range(n):
+                vals = _np.zeros(n)
+                vals[j] = 1.0
+                probe = list(zeros_list)
+                probe[var] = _chebfun_from_values(
+                    jnp.asarray(vals), self.domain)
+                A[:, var * n + j] = rows_at(apply_op(probe), xp) - base
+
+        # RHS
+        if isinstance(f, (int, float)):
+            rhs_list = [float(f)] * m
+        elif isinstance(f, (list, tuple)):
+            rhs_list = list(f)
+        else:
+            rhs_list = [f]
+        bvec = _np.zeros(m * n)
+        for i in range(m):
+            fi = rhs_list[i] if i < len(rhs_list) else 0.0
+            if isinstance(fi, (int, float)):
+                bvec[i * n: (i + 1) * n] = float(fi)
+            else:
+                bvec[i * n: (i + 1) * n] = _np.asarray(
+                    fi(jnp.asarray(xp)))
+        bvec = bvec - base
+
+        # Boundary condition rows (probed the same way)
+        def bc_rows(bc_raw, x0):
+            if bc_raw is None:
+                return [], []
+            if isinstance(bc_raw, (int, float)):
+                raise ValueError(
+                    "system BCs must be callables of (u1, ..., um)")
+
+            def bc_list(us):
+                out = bc_raw(*us)
+                if not isinstance(out, (list, tuple)):
+                    out = [out]
+                return [zero + o if isinstance(o, (int, float)) else o
+                        for o in out]
+
+            base_bc = _np.array([
+                _eval_chebfun_at(g, x0) for g in bc_list(zeros_list)])
+            nbc = len(base_bc)
+            R = _np.zeros((nbc, m * n))
+            for var in range(m):
+                for j in range(n):
+                    vals = _np.zeros(n)
+                    vals[j] = 1.0
+                    probe = list(zeros_list)
+                    probe[var] = _chebfun_from_values(
+                        jnp.asarray(vals), self.domain)
+                    col = _np.array([
+                        _eval_chebfun_at(g, x0)
+                        for g in bc_list(probe)]) - base_bc
+                    R[:, var * n + j] = col
+            return list(R), list(-base_bc)
+
+        rows_l, vals_l = bc_rows(self._lbc_raw, a)
+        rows_r, vals_r = bc_rows(self._rbc_raw, b)
+
+        # Replace boundary-point rows of successive equations
+        for i, (row, val) in enumerate(zip(rows_l, vals_l)):
+            ridx = (i % m) * n           # x = a row of equation i%m
+            A[ridx, :] = row
+            bvec[ridx] = val
+        for i, (row, val) in enumerate(zip(rows_r, vals_r)):
+            ridx = (i % m) * n + n - 1   # x = b row
+            A[ridx, :] = row
+            bvec[ridx] = val
+
+        sol = _np.linalg.solve(A, bvec)
+        out = [
+            _chebfun_from_values(
+                jnp.asarray(sol[i * n: (i + 1) * n]), self.domain)
+            for i in range(m)
+        ]
+        return SystemSolution(out)
 
     def expm(self, t: float, u0, n: int = 128):
         """exp(t*L) applied to u0 for the linearised operator.
