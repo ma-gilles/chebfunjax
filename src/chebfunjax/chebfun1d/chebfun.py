@@ -1427,6 +1427,32 @@ class Chebfun(eqx.Module):
             return self
         return self.addBreaks(r)
 
+    def var(self) -> jax.Array:
+        """Variance over the domain: mean(|f - mean(f)|^2)
+        (MATLAB var).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/var.m
+        Chebfun commit: 7574c77
+        """
+        m = self.mean()
+        d = self - complex(m) if jnp.iscomplexobj(jnp.asarray(m)) \
+            else self - float(m)
+        if any(jnp.iscomplexobj(p.tech.coeffs) for p in self.funs):
+            return jnp.real((d * d.conj()).mean())
+        return (d * d).mean()
+
+    def std(self) -> jax.Array:
+        """Standard deviation: sqrt(var(f)) (MATLAB std).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/std.m
+        Chebfun commit: 7574c77
+        """
+        return jnp.sqrt(self.var())
+
     def merge(self) -> "Chebfun":
         """Remove unnecessary interior breakpoints (MATLAB merge):
         re-approximate globally and keep the merged representation if

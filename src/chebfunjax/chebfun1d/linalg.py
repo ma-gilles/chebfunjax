@@ -282,6 +282,24 @@ class Quasimatrix:
         from chebfunjax.chebfun1d.linalg import chebfun_qr
         return chebfun_qr(list(self.cols))
 
+    def mean(self) -> "jnp.ndarray":
+        """Column means (MATLAB mean of an array-valued chebfun)."""
+        return jnp.asarray([c.mean() for c in self.cols])
+
+    def var(self) -> "jnp.ndarray":
+        """Column variances (MATLAB var).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/var.m
+        Chebfun commit: 7574c77
+        """
+        return jnp.asarray([c.var() for c in self.cols])
+
+    def std(self) -> "jnp.ndarray":
+        """Column standard deviations (MATLAB std)."""
+        return jnp.sqrt(self.var())
+
     def rank(self, tol: float | None = None) -> int:
         """Numerical rank via singular values (MATLAB rank).
 
