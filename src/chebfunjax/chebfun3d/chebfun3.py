@@ -78,6 +78,21 @@ def _chebpts_phys_np(n: int, a: float, b: float) -> np.ndarray:
 # ============================================================================
 
 
+def _cheb_gram(n: int) -> np.ndarray:
+    """Gram matrix G[i,j] = int_{-1}^{1} T_i(x) T_j(x) dx.
+
+    T_i T_j = (T_{i+j} + T_{|i-j|})/2 and int T_k = 2/(1-k^2) for even
+    k (0 for odd k).
+    """
+    def intT(k):
+        return 2.0 / (1.0 - k * k) if k % 2 == 0 else 0.0
+    G = np.zeros((n, n))
+    for i in range(n):
+        for j in range(n):
+            G[i, j] = 0.5 * (intT(i + j) + intT(abs(i - j)))
+    return G
+
+
 def _aca(
     A: np.ndarray,
     tol: float,
@@ -456,6 +471,9 @@ class Chebfun3(eqx.Module):
         tol: float = _EPS,
         max_rank: int = 128,
         min_samples: int = 9,
+        _restarts: int = 0,
+        _r_init: tuple = (6, 6, 6),
+        _n_init: tuple | None = None,
     ) -> "Chebfun3":
         """Construct a Chebfun3 from a callable f(x, y, z).
 
@@ -572,9 +590,12 @@ class Chebfun3(eqx.Module):
         # PHASE 1: Alternating ACA to find fiber indices
         # ================================================================
 
-        n = [max(min_samples, 9), max(min_samples, 9), max(min_samples, 9)]
+        if _n_init is not None:
+            n = [int(v) for v in _n_init]
+        else:
+            n = [max(min_samples, 9)] * 3
         # Initial ranks for random initialization
-        r = [6, 6, 6]
+        r = [int(v) for v in _r_init]
         abs_tol_running = tol
 
         xp = _chebpts_phys_np(n[0], xa, xb)
@@ -582,7 +603,7 @@ class Chebfun3(eqx.Module):
         zp = _chebpts_phys_np(n[2], za, zb)
 
         # Initialize random fiber indices (spread across interval)
-        rng = np.random.default_rng(16051821)
+        rng = np.random.default_rng(16051821 + _restarts)
 
         def _init_indices(ri: int, ni: int) -> np.ndarray:
             """Draw ri indices spread uniformly in [0, ni)."""
@@ -934,12 +955,78 @@ class Chebfun3(eqx.Module):
 
         core_jax = jnp.asarray(core_scaled, dtype=jnp.float64)
 
-        return cls(
+        result = cls(
             cols=cols_list,
             rows=rows_list,
             tubes=tubes_list,
             core=core_jax,
             domain=dom,
+        )
+
+        # ------------------------------------------------------------
+        # Sample test + restart (MATLAB chebfun3f outer "while ~happy"
+        # loop).  Without this, functions of the form g(y)*h(z) (rank 1
+        # in one variable) can lock the alternating ACA into a rank
+        # underestimate: the discoverable rank in each mode is capped
+        # by the number of candidate fibers in the others.  MATLAB
+        # detects the inaccuracy at off-grid Halton points and restarts
+        # with doubled candidate ranks.  (Fable 5 audit.)
+        # ------------------------------------------------------------
+        def _halton_1d(count: int, base: int) -> np.ndarray:
+            out = np.zeros(count)
+            for idx in range(count):
+                frac, denom, q = 0.0, 1.0, idx + 1
+                while q > 0:
+                    denom /= base
+                    q, rem = divmod(q, base)
+                    frac += rem * denom
+                out[idx] = frac
+            return out
+
+        n_test = 30
+        x_t = xa + (xb - xa) * _halton_1d(n_test, 2)
+        y_t = ya + (yb - ya) * _halton_1d(n_test, 3)
+        z_t = za + (zb - za) * _halton_1d(n_test, 5)
+        v_op = np.asarray(f(jnp.asarray(x_t), jnp.asarray(y_t),
+                            jnp.asarray(z_t)))
+        v_fun = np.asarray(result(jnp.asarray(x_t), jnp.asarray(y_t),
+                                  jnp.asarray(z_t)))
+        sample_err = float(np.max(np.abs(v_op - v_fun)))
+        if sample_err <= 10.0 * abs_tol_running:
+            return result
+        max_restarts = 10
+        if _restarts + 1 >= max_restarts:
+            warnings.warn(
+                "Chebfun3.from_function: max number of restarts "
+                f"reached (sample-test error {sample_err:.2e}).",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+            return result
+
+        # Increase n (MATLAB restart formula)
+        n_new = tuple(
+            int(np.floor(np.sqrt(2.0) **
+                         (np.floor(2 * np.log2(ni)) + 1))) + 1
+            for ni in n
+        )
+        # Ensure r is large enough for (1, r, r)-type functions
+        r_new = list(r)
+        if r[0] > 1 or r[1] > 1 or r[2] > 1:
+            if r[0] < 3:
+                r_new[1] = max(6, 2 * r[1])
+                r_new[2] = max(6, 2 * r[2])
+            elif r[1] < 2:
+                r_new[0] = max(6, 2 * r[0])
+                r_new[2] = max(6, 2 * r[2])
+            elif r[2] < 2:
+                r_new[0] = max(6, 2 * r[0])
+                r_new[1] = max(6, 2 * r[1])
+        r_new = tuple(max(v, 3) for v in r_new)
+        return cls.from_function(
+            f, domain=domain, tol=tol, max_rank=max_rank,
+            min_samples=min_samples, _restarts=_restarts + 1,
+            _r_init=r_new, _n_init=n_new,
         )
 
     # ------------------------------------------------------------------
@@ -1026,6 +1113,77 @@ class Chebfun3(eqx.Module):
     # ------------------------------------------------------------------
     # Triple integral
     # ------------------------------------------------------------------
+
+    def hosvd(self):
+        r"""Higher-order SVD (MATLAB hosvd): returns
+        ``(sv, g)`` where ``sv`` is a list of the three mode-k singular
+        value vectors (continuous L2 sense) and ``g`` is an equivalent
+        Chebfun3 whose factors are L2-orthonormal and whose core is
+        all-orthogonal.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/hosvd.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        d = self.domain
+        scales = [(d[1] - d[0]) / 2.0, (d[3] - d[2]) / 2.0,
+                  (d[5] - d[4]) / 2.0]
+        factor_lists = [self.cols, self.rows, self.tubes]
+
+        # Coefficient matrices (padded) and L2 Gram factors per mode
+        Cmats, Rs = [], []
+        for mode in range(3):
+            fl = factor_lists[mode]
+            nmax = max(len(_np.asarray(t.coeffs)) for t in fl)
+            C = _np.zeros((nmax, len(fl)))
+            for i, t in enumerate(fl):
+                ci = _np.asarray(t.coeffs)
+                C[: len(ci), i] = ci
+            # Gram of T_j on [-1,1]: <T_i,T_j> = int T_i T_j dx
+            W = _cheb_gram(nmax) * scales[mode]
+            G = C.T @ W @ C
+            # Cholesky with symmetrization safeguard
+            G = 0.5 * (G + G.T)
+            jitter = 1e-15 * max(_np.max(_np.abs(G)), 1.0)
+            R = _np.linalg.cholesky(
+                G + jitter * _np.eye(G.shape[0])).T
+            Cmats.append(C)
+            Rs.append(R)
+
+        core = _np.asarray(self.core)
+        # core' = core x1 R1 x2 R2 x3 R3
+        core1 = _np.einsum("pi,ijk->pjk", Rs[0], core)
+        core1 = _np.einsum("qj,pjk->pqk", Rs[1], core1)
+        core1 = _np.einsum("rk,pqk->pqr", Rs[2], core1)
+
+        sv, Us = [], []
+        for mode in range(3):
+            M = _np.moveaxis(core1, mode, 0).reshape(
+                core1.shape[mode], -1)
+            U, S, _ = _np.linalg.svd(M, full_matrices=False)
+            sv.append(jnp.asarray(S, dtype=jnp.float64))
+            Us.append(U)
+        # all-orthogonal core
+        core2 = _np.einsum("pi,ijk->pjk", Us[0].T, core1)
+        core2 = _np.einsum("qj,pjk->pqk", Us[1].T, core2)
+        core2 = _np.einsum("rk,pqk->pqr", Us[2].T, core2)
+
+        # new factor functions: A @ inv(R) @ U in coefficient space
+        new_factors = []
+        for mode in range(3):
+            B = Cmats[mode] @ _np.linalg.solve(Rs[mode], Us[mode])
+            new_factors.append([
+                Chebtech2.from_coeffs(
+                    jnp.asarray(B[:, i], dtype=jnp.float64))
+                for i in range(B.shape[1])])
+        g = Chebfun3(
+            cols=new_factors[0], rows=new_factors[1],
+            tubes=new_factors[2],
+            core=jnp.asarray(core2, dtype=jnp.float64),
+            domain=d)
+        return sv, g
 
     @eqx.filter_jit
     def sum3(self) -> jax.Array:
@@ -1307,6 +1465,201 @@ class Chebfun3(eqx.Module):
     def __rtruediv__(self, other) -> "Chebfun3":
         return Chebfun3.from_function(
             lambda x, y, z: other / self(x, y, z), domain=self.domain)
+
+    def permute(self, order) -> "Chebfun3":
+        """Permute the variables (MATLAB permute): permute(f, [2 1 3])
+        gives g(x,y,z) = f(y,x,z), with the domain permuted to match.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/permute.m
+        Chebfun commit: 7574c77
+        """
+        order = [int(o) - 1 if min(order) == 1 else int(o)
+                 for o in order]
+        d = self.domain
+        ivals = [(d[0], d[1]), (d[2], d[3]), (d[4], d[5])]
+        new_dom = ivals[order[0]] + ivals[order[1]] + ivals[order[2]]
+
+        def g(x, y, z):
+            args = [None, None, None]
+            args[order[0]], args[order[1]], args[order[2]] = x, y, z
+            return self(*args)
+
+        return Chebfun3.from_function(g, domain=new_dom)
+
+    def restrict(self, dom):
+        """Restrict to a subdomain (MATLAB restrict / {}-indexing).
+
+        ``dom`` is ``(xa,xb, ya,yb, za,zb)``.  Degenerate intervals
+        collapse dimensions: 3 points -> float, 2 points -> Chebfun,
+        1 point -> Chebfun2, none -> Chebfun3.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/restrict.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d.chebfun import Chebfun, Domain
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        v = [float(t) for t in dom]
+        pts = [v[0] == v[1], v[2] == v[3], v[4] == v[5]]
+        fixed = [v[0], v[2], v[4]]
+        free = [i for i in range(3) if not pts[i]]
+        if len(free) == 0:
+            return float(self(jnp.asarray(v[0]), jnp.asarray(v[2]),
+                              jnp.asarray(v[4])))
+        if len(free) == 1:
+            i = free[0]
+
+            def f1(t, i=i):
+                args = [jnp.full_like(t, fixed[k]) for k in range(3)]
+                args[i] = t
+                return self(*args)
+
+            return Chebfun.from_function(
+                f1, Domain((v[2 * i], v[2 * i + 1])))
+        if len(free) == 2:
+            i, j = free
+
+            def f2(s, t, i=i, j=j):
+                args = [jnp.full_like(s, fixed[k]) for k in range(3)]
+                args[i], args[j] = s, t
+                return self(*args)
+
+            return Chebfun2.from_function(
+                f2, domain=(v[2 * i], v[2 * i + 1],
+                            v[2 * j], v[2 * j + 1]))
+        return Chebfun3.from_function(
+            lambda x, y, z: self(x, y, z), domain=tuple(v))
+
+    def squeeze(self):
+        """Collapse constant dimensions (MATLAB squeeze):
+        returns a Chebfun (one active variable), Chebfun2 (two), or
+        self (all three active).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/squeeze.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        from chebfunjax.chebfun1d.chebfun import Chebfun, Domain
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        d = self.domain
+        grids = [jnp.asarray(_np.linspace(d[2 * i], d[2 * i + 1], 17))
+                 for i in range(3)]
+        xx, yy, zz = jnp.meshgrid(*grids, indexing="ij")
+        vals = self(xx, yy, zz)
+        vs = max(float(jnp.max(jnp.abs(vals))), 1.0)
+        tol = 1e5 * float(_np.finfo(float).eps) * vs
+        active = []
+        for i in range(3):
+            # variation ALONG axis i: range of values as x_i sweeps,
+            # for every fixed combination of the other coordinates
+            rng = vals.max(axis=i) - vals.min(axis=i)
+            if float(jnp.max(rng)) > tol:
+                active.append(i)
+        mids = [0.5 * (d[2 * i] + d[2 * i + 1]) for i in range(3)]
+        if len(active) == 3:
+            return self
+        if len(active) == 2:
+            i, j = active
+
+            def f2(s, t, i=i, j=j):
+                args = [jnp.full_like(s, mids[k]) for k in range(3)]
+                args[i], args[j] = s, t
+                return self(*args)
+
+            return Chebfun2.from_function(
+                f2, domain=(d[2 * i], d[2 * i + 1],
+                            d[2 * j], d[2 * j + 1]))
+        i = active[0] if active else 0
+
+        def f1(t, i=i):
+            args = [jnp.full_like(t, mids[k]) for k in range(3)]
+            args[i] = t
+            return self(*args)
+
+        return Chebfun.from_function(
+            f1, Domain((d[2 * i], d[2 * i + 1])))
+
+    def mean3(self) -> jax.Array:
+        """Mean value over the box (MATLAB mean3; Fable 5)."""
+        xa, xb, ya, yb, za, zb = self.domain
+        vol = (xb - xa) * (yb - ya) * (zb - za)
+        return self.sum3() / vol
+
+    def std3(self) -> jax.Array:
+        """Standard deviation over the box (MATLAB std3)."""
+        mu = float(self.mean3())
+        var = (self - mu) * (self - mu)
+        return jnp.sqrt(var.mean3())
+
+    def norm(self) -> jax.Array:
+        """L2 norm sqrt(int |f|^2) (MATLAB norm; Fable 5)."""
+        f2 = self * self if not any(
+            jnp.iscomplexobj(c.coeffs) for c in self.cols) else None
+        if f2 is None:
+            f2 = Chebfun3.from_function(
+                lambda x, y, z: jnp.abs(self(x, y, z)) ** 2,
+                domain=self.domain)
+        return jnp.sqrt(jnp.abs(f2.sum3()))
+
+    def minandmax3(self, ngrid: int = 41):
+        """Global extrema via dense-grid seed + Newton polish
+        (MATLAB minandmax3)."""
+        import numpy as _np
+        xa, xb, ya, yb, za, zb = self.domain
+        g1 = _np.linspace(xa, xb, ngrid)
+        g2 = _np.linspace(ya, yb, ngrid)
+        g3 = _np.linspace(za, zb, ngrid)
+        XX, YY, ZZ = _np.meshgrid(g1, g2, g3, indexing="ij")
+        V = _np.asarray(self(jnp.asarray(XX.ravel()),
+                             jnp.asarray(YY.ravel()),
+                             jnp.asarray(ZZ.ravel()))).reshape(XX.shape)
+        grads = [self.diff(dim=d) for d in (1, 2, 3)]
+        out_vals, out_locs = [], []
+        for which in ("min", "max"):
+            idx = _np.unravel_index(
+                _np.argmin(V) if which == "min" else _np.argmax(V),
+                V.shape)
+            p = _np.array([XX[idx], YY[idx], ZZ[idx]], dtype=float)
+            lo = _np.array([xa, ya, za])
+            hi = _np.array([xb, yb, zb])
+            step = _np.min(hi - lo) / (ngrid - 1)
+            sgn = -1.0 if which == "min" else 1.0
+            for _ in range(60):     # projected gradient ascent/descent
+                g = _np.array([float(gr(jnp.asarray(p[0]),
+                                        jnp.asarray(p[1]),
+                                        jnp.asarray(p[2])))
+                               for gr in grads])
+                pn = _np.clip(p + sgn * step * g /
+                              max(_np.linalg.norm(g), 1e-30), lo, hi)
+                vo = float(self(jnp.asarray(p[0]), jnp.asarray(p[1]),
+                                jnp.asarray(p[2])))
+                vn = float(self(jnp.asarray(pn[0]), jnp.asarray(pn[1]),
+                                jnp.asarray(pn[2])))
+                if sgn * (vn - vo) > 0:
+                    p = pn
+                else:
+                    step *= 0.5
+                    if step < 1e-12:
+                        break
+            out_vals.append(float(self(jnp.asarray(p[0]),
+                                       jnp.asarray(p[1]),
+                                       jnp.asarray(p[2]))))
+            out_locs.append(p.tolist())
+        return jnp.asarray(out_vals), jnp.asarray(out_locs)
+
+    def max3(self):
+        vals, locs = self.minandmax3()
+        return vals[1], locs[1]
+
+    def min3(self):
+        vals, locs = self.minandmax3()
+        return vals[0], locs[0]
 
     def compose(self, op) -> "Chebfun3":
         """Re-approximate op(f(x, y, z)) (MATLAB compose; Fable 5)."""

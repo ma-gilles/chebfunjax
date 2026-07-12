@@ -39,6 +39,13 @@ def _chebtech_integral(tech: Chebtech2, a: float, b: float) -> jax.Array:
     return tech.sum() * jnp.float64((b - a) / 2.0)
 
 
+def _chebtech_cumsum_physical(tech: Chebtech2, a: float, b: float) -> Chebtech2:
+    """Antiderivative on physical interval [a, b], vanishing at a."""
+    t2 = tech.cumsum()
+    half = (b - a) / 2.0
+    return Chebtech2.from_coeffs(t2.coeffs * half, ishappy=tech.ishappy)
+
+
 def _chebtech_diff_physical(tech: Chebtech2, a: float, b: float, k: int = 1) -> Chebtech2:
     """Differentiate ``tech`` with respect to the physical variable k times.
 
@@ -759,6 +766,234 @@ class Chebfun2(eqx.Module):
     def __rtruediv__(self, other) -> "Chebfun2":
         return Chebfun2.from_function(
             lambda x, y: other / self(x, y), domain=self.approx.domain)
+
+    def cumsum(self, dim: int = 1) -> "Chebfun2":
+        """Indefinite integral over y (dim=1, default) or x (dim=2),
+        vanishing at the lower domain edge (MATLAB cumsum).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/cumsum.m
+        Chebfun commit: 7574c77
+        """
+        xa, xb, ya, yb = self.domain
+        if dim == 1:
+            new_cols = [_chebtech_cumsum_physical(c, ya, yb)
+                        for c in self.approx.cols]
+            new_rows = list(self.approx.rows)
+        elif dim == 2:
+            new_cols = list(self.approx.cols)
+            new_rows = [_chebtech_cumsum_physical(r, xa, xb)
+                        for r in self.approx.rows]
+        else:
+            raise ValueError("dim must be 1 or 2")
+        return Chebfun2(approx=SeparableApprox(
+            cols=new_cols, rows=new_rows, pivots=self.approx.pivots,
+            domain=self.approx.domain))
+
+    def cumsum2(self) -> "Chebfun2":
+        """Double indefinite integral (MATLAB cumsum2).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/cumsum2.m
+        Chebfun commit: 7574c77
+        """
+        return self.cumsum(1).cumsum(2)
+
+    def restrict(self, dom):
+        """Restrict to a subdomain (MATLAB restrict / {}-indexing).
+
+        ``dom`` is ``(xa, xb, ya, yb)``.  Degenerate intervals collapse
+        dimensions: a point returns a float; a line returns a Chebfun in
+        the surviving variable.  A Chebfun ``dom`` is treated as a
+        complex path t + 1i*s(t) and returns f along that path.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/restrict.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d.chebfun import Chebfun, Domain
+
+        if hasattr(dom, "funs"):  # a Chebfun path
+            a, b = float(dom.domain.a), float(dom.domain.b)
+            return Chebfun.from_function(
+                lambda t: self(jnp.real(dom(t)), jnp.imag(dom(t))),
+                Domain((a, b)))
+        xa, xb, ya, yb = (float(v) for v in dom)
+        x_pt = xa == xb
+        y_pt = ya == yb
+        if x_pt and y_pt:
+            return float(self(jnp.asarray(xa), jnp.asarray(ya)))
+        if x_pt:
+            return Chebfun.from_function(
+                lambda y: self(jnp.full_like(y, xa), y),
+                Domain((ya, yb)))
+        if y_pt:
+            return Chebfun.from_function(
+                lambda x: self(x, jnp.full_like(x, ya)),
+                Domain((xa, xb)))
+        return Chebfun2.from_function(
+            lambda x, y: self(x, y), domain=(xa, xb, ya, yb))
+
+    def squeeze(self):
+        """Collapse dimensions along which f is constant, returning a
+        Chebfun if possible (MATLAB squeeze).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/squeeze.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        from chebfunjax.chebfun1d.chebfun import Chebfun, Domain
+        xa, xb, ya, yb = self.domain
+        xs = jnp.asarray(_np.linspace(xa, xb, 33))
+        ys = jnp.asarray(_np.linspace(ya, yb, 33))
+        xx, yy = jnp.meshgrid(xs, ys, indexing="ij")
+        vals = self(xx, yy)
+        vs = max(float(jnp.max(jnp.abs(vals))), 1.0)
+        tol = 1e4 * float(_np.finfo(float).eps) * vs
+        var_x = float(jnp.max(vals.max(axis=0) - vals.min(axis=0)))
+        var_y = float(jnp.max(vals.max(axis=1) - vals.min(axis=1)))
+        if var_y < tol and var_x < tol:
+            ymid = 0.5 * (ya + yb)
+            return Chebfun.from_function(
+                lambda x: self(x, jnp.full_like(x, ymid)),
+                Domain((xa, xb)))
+        if var_y < tol:  # constant in y -> function of x
+            ymid = 0.5 * (ya + yb)
+            return Chebfun.from_function(
+                lambda x: self(x, jnp.full_like(x, ymid)),
+                Domain((xa, xb)))
+        if var_x < tol:  # constant in x -> function of y
+            xmid = 0.5 * (xa + xb)
+            return Chebfun.from_function(
+                lambda y: self(jnp.full_like(y, xmid), y),
+                Domain((ya, yb)))
+        return self
+
+    def mean2(self) -> jax.Array:
+        """Mean value over the domain (MATLAB mean2; Fable 5)."""
+        xa, xb, ya, yb = self.approx.domain
+        return self.sum2() / ((xb - xa) * (yb - ya))
+
+    def mean(self, dim: int = 1) -> "Chebfun2":
+        """Average over one variable (MATLAB mean; constant in the
+        averaged variable, like sum(dim) normalized)."""
+        xa, xb, ya, yb = self.approx.domain
+        L = (yb - ya) if dim == 1 else (xb - xa)
+        return self.sum(dim=dim) * (1.0 / L)
+
+    def std2(self) -> jax.Array:
+        """Standard deviation over the domain (MATLAB std2)."""
+        mu = float(self.mean2())
+        var = (self - mu) * (self - mu)
+        return jnp.sqrt(var.mean2())
+
+    def diag_fun(self):
+        """The 1-D chebfun g(x) = f(x, x) on the diagonal (MATLAB diag).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/diag.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d.chebfun import chebfun as _cf
+        xa, xb, ya, yb = self.approx.domain
+        a = max(xa, ya)
+        b = min(xb, yb)
+        return _cf(lambda t: self(t, t), domain=(a, b))
+
+    def trace(self) -> jax.Array:
+        """int f(x, x) dx (MATLAB trace)."""
+        return self.diag_fun().sum()
+
+    def fliplr(self) -> "Chebfun2":
+        """f(-x, y) about the vertical midline (MATLAB fliplr)."""
+        xa, xb, ya, yb = self.approx.domain
+        return Chebfun2.from_function(
+            lambda x, y: self(xa + xb - x, y),
+            domain=self.approx.domain)
+
+    def flipud(self) -> "Chebfun2":
+        """f(x, -y) about the horizontal midline (MATLAB flipud)."""
+        xa, xb, ya, yb = self.approx.domain
+        return Chebfun2.from_function(
+            lambda x, y: self(x, ya + yb - y),
+            domain=self.approx.domain)
+
+    def minandmax2(self, ngrid: int = 129):
+        """Global minimum and maximum over the domain (MATLAB
+        minandmax2): dense-grid seed + Nelder-Mead-free local polish
+        by coordinate Newton on the gradient.
+
+        Returns
+        -------
+        (vals, locs) : vals = [min, max], locs = [[x*,y*] x 2]
+        """
+        import numpy as _np
+        xa, xb, ya, yb = self.approx.domain
+        gx = _np.linspace(xa, xb, ngrid)
+        gy = _np.linspace(ya, yb, ngrid)
+        XX, YY = _np.meshgrid(gx, gy, indexing="ij")
+        V = _np.asarray(self(jnp.asarray(XX), jnp.asarray(YY)))
+        out_vals = []
+        out_locs = []
+        fx = self.diff(dim=2)
+        fy = self.diff(dim=1)
+        fxx = fx.diff(dim=2)
+        fxy = fx.diff(dim=1)
+        fyy = fy.diff(dim=1)
+        for which in ("min", "max"):
+            idx = _np.unravel_index(
+                _np.argmin(V) if which == "min" else _np.argmax(V),
+                V.shape)
+            x0, y0 = float(XX[idx]), float(YY[idx])
+            for _ in range(30):
+                g = _np.array([float(fx(jnp.asarray(x0),
+                                        jnp.asarray(y0))),
+                               float(fy(jnp.asarray(x0),
+                                        jnp.asarray(y0)))])
+                H = _np.array([[float(fxx(jnp.asarray(x0),
+                                          jnp.asarray(y0))),
+                                float(fxy(jnp.asarray(x0),
+                                          jnp.asarray(y0)))],
+                               [float(fxy(jnp.asarray(x0),
+                                          jnp.asarray(y0))),
+                                float(fyy(jnp.asarray(x0),
+                                          jnp.asarray(y0)))]])
+                try:
+                    step = _np.linalg.solve(H, g)
+                except _np.linalg.LinAlgError:
+                    break
+                xn = min(max(x0 - step[0], xa), xb)
+                yn = min(max(y0 - step[1], ya), yb)
+                if abs(xn - x0) + abs(yn - y0) < 1e-14:
+                    x0, y0 = xn, yn
+                    break
+                x0, y0 = xn, yn
+            v_new = float(self(jnp.asarray(x0), jnp.asarray(y0)))
+            v_grid = float(V[idx])
+            if (which == "min" and v_new > v_grid) or \
+                    (which == "max" and v_new < v_grid):
+                x0, y0 = float(XX[idx]), float(YY[idx])
+                v_new = v_grid
+            out_vals.append(v_new)
+            out_locs.append([x0, y0])
+        return (jnp.asarray(out_vals), jnp.asarray(out_locs))
+
+    def max2(self):
+        """Global maximum (value, [x, y]) -- MATLAB max2."""
+        vals, locs = self.minandmax2()
+        return vals[1], locs[1]
+
+    def min2(self):
+        """Global minimum (value, [x, y]) -- MATLAB min2."""
+        vals, locs = self.minandmax2()
+        return vals[0], locs[0]
 
     def compose(self, op) -> "Chebfun2":
         """Re-approximate op(f(x, y)) (MATLAB compose; Fable 5)."""
