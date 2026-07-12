@@ -300,6 +300,34 @@ class Quasimatrix:
         """Column standard deviations (MATLAB std)."""
         return jnp.sqrt(self.var())
 
+    def cov(self) -> "jnp.ndarray":
+        """Covariance matrix of the columns (MATLAB cov):
+        C[i, j] = mean((f_i - mean_i) * conj(f_j - mean_j)).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/cov.m
+        Chebfun commit: 7574c77
+        """
+        a = float(self.domain.a)
+        b = float(self.domain.b)
+        n = self.n_cols
+        ms = [c.mean() for c in self.cols]
+        dev = [c - float(m) if not jnp.iscomplexobj(jnp.asarray(m))
+               else c - complex(m)
+               for c, m in zip(self.cols, ms)]
+        C = np.zeros((n, n), dtype=complex)
+        for i in range(n):
+            for j in range(i, n):
+                # Chebfun.inner conjugates its first argument
+                v = complex(np.asarray(dev[j].inner(dev[i])))
+                C[i, j] = v / (b - a)
+                C[j, i] = np.conj(C[i, j])
+        if np.max(np.abs(C.imag)) < 1e-14 * max(
+                np.max(np.abs(C.real)), 1.0):
+            return jnp.asarray(C.real)
+        return jnp.asarray(C)
+
     def rank(self, tol: float | None = None) -> int:
         """Numerical rank via singular values (MATLAB rank).
 
