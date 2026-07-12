@@ -193,6 +193,30 @@ class Diskfunv(eqx.Module):
             Diskfun.from_function(lambda th, r: g1(th, r) + g2(th, r)),
         )
 
+    def times(self, other) -> "Diskfunv":
+        """Componentwise product with another Diskfunv, or scaling by
+        a scalar field / scalar (MATLAB times).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/times.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(other, Diskfunv):
+            return Diskfunv(*[a * b for a, b in
+                           zip(self.components, other.components)])
+        return Diskfunv(*[a * other for a in self.components])
+
+    def power(self, n: int) -> "Diskfunv":
+        """Componentwise power (MATLAB power).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/power.m
+        Chebfun commit: 7574c77
+        """
+        return Diskfunv(*[a ** n for a in self.components])
+
     def __mul__(self, scalar: float) -> "Diskfunv":
         """Scalar multiplication (componentwise)."""
         f, g = self.components

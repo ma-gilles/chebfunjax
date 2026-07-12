@@ -157,6 +157,30 @@ class Spherefunv(eqx.Module):
             Spherefun.from_function(lambda lam, th: g1(lam, th) + g2(lam, th)),
         )
 
+    def times(self, other) -> "Spherefunv":
+        """Componentwise product with another Spherefunv, or scaling by
+        a scalar field / scalar (MATLAB times).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/times.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(other, Spherefunv):
+            return Spherefunv(*[a * b for a, b in
+                           zip(self.components, other.components)])
+        return Spherefunv(*[a * other for a in self.components])
+
+    def power(self, n: int) -> "Spherefunv":
+        """Componentwise power (MATLAB power).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/power.m
+        Chebfun commit: 7574c77
+        """
+        return Spherefunv(*[a ** n for a in self.components])
+
     def __mul__(self, scalar: float) -> "Spherefunv":
         """Scalar multiplication (componentwise)."""
         f, g = self.components
