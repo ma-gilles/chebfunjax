@@ -375,6 +375,7 @@ class Chebop:
                 inspect.signature(self.op).parameters.values()
                 if q.kind in (q.POSITIONAL_ONLY,
                               q.POSITIONAL_OR_KEYWORD)
+                and q.default is inspect.Parameter.empty
             ]
             return max(1, len(params) - 1)
         except (TypeError, ValueError):
