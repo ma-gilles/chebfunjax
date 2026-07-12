@@ -13,10 +13,9 @@ from __future__ import annotations
 
 import warnings
 
-import pytest
-
 import jax.numpy as jnp
 import numpy as np
+import pytest
 
 import chebfunjax as cj
 
