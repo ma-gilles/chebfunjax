@@ -748,6 +748,30 @@ class Diskfun(eqx.Module):
     Spherefun, SeparableApprox
     """
 
+    @classmethod
+    def empty(cls) -> "Diskfun":
+        """The empty Diskfun (MATLAB diskfun()): no data; isempty() is
+        True and operations on it are undefined.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/isempty.m
+        Chebfun commit: 7574c77
+        """
+        obj = object.__new__(cls)
+        object.__setattr__(obj, "_is_empty_object", True)
+        return obj
+
+    def isempty(self) -> bool:
+        """True for the empty Diskfun (MATLAB isempty).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/isempty.m
+        Chebfun commit: 7574c77
+        """
+        return getattr(self, "_is_empty_object", False)
+
     cols: list  # list of Chebtech2 (column slices, functions of r)
     rows: list  # list of Trigtech (row slices, functions of theta)
     pivots: jax.Array  # shape (r,), pivot values d_j

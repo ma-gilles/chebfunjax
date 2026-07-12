@@ -115,6 +115,30 @@ class Chebfun2(eqx.Module):
     SeparableApprox, chebfun2
     """
 
+    @classmethod
+    def empty(cls) -> "Chebfun2":
+        """The empty Chebfun2 (MATLAB chebfun2()): no data; isempty() is
+        True and operations on it are undefined.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/isempty.m
+        Chebfun commit: 7574c77
+        """
+        obj = object.__new__(cls)
+        object.__setattr__(obj, "_is_empty_object", True)
+        return obj
+
+    def isempty(self) -> bool:
+        """True for the empty Chebfun2 (MATLAB isempty).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/isempty.m
+        Chebfun commit: 7574c77
+        """
+        return getattr(self, "_is_empty_object", False)
+
     approx: SeparableApprox
 
     # ------------------------------------------------------------------

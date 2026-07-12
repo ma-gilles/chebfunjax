@@ -451,6 +451,30 @@ class Chebfun3(eqx.Module):
     chebfun3, Chebtech2
     """
 
+    @classmethod
+    def empty(cls) -> "Chebfun3":
+        """The empty Chebfun3 (MATLAB chebfun3()): no data; isempty() is
+        True and operations on it are undefined.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/isempty.m
+        Chebfun commit: 7574c77
+        """
+        obj = object.__new__(cls)
+        object.__setattr__(obj, "_is_empty_object", True)
+        return obj
+
+    def isempty(self) -> bool:
+        """True for the empty Chebfun3 (MATLAB isempty).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/isempty.m
+        Chebfun commit: 7574c77
+        """
+        return getattr(self, "_is_empty_object", False)
+
     cols: list    # list of Chebtech2 in x
     rows: list    # list of Chebtech2 in y
     tubes: list   # list of Chebtech2 in z

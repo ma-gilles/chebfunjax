@@ -1,5 +1,7 @@
 """Port of MATLAB Chebfun tests/spherefun/test_isempty.m (Fable 5).
 
+FIXED: Spherefun.empty()/isempty() added in the Fable 5 audit.
+
 Provenance
 ----------
 MATLAB source : tests/spherefun/test_isempty.m
@@ -8,11 +10,12 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-import pytest
+import jax.numpy as jnp
 
-pytestmark = pytest.mark.skip(reason="chebfunjax has no empty Spherefun")
+from chebfunjax.spherefun.spherefun import Spherefun
 
 
 class TestSpherefunIsempty:
-    def test_all_matlab_assertions(self):
-        raise NotImplementedError
+    def test_empty_and_nonempty(self):
+        assert Spherefun.empty().isempty()
+        assert not Spherefun.from_function(lambda lam, th: jnp.cos(th)).isempty()

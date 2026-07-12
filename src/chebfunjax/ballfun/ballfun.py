@@ -659,6 +659,30 @@ class Ballfun(eqx.Module):
     Spherefun, SeparableApprox
     """
 
+    @classmethod
+    def empty(cls) -> "Ballfun":
+        """The empty Ballfun (MATLAB ballfun()): no data; isempty() is
+        True and operations on it are undefined.
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/isempty.m
+        Chebfun commit: 7574c77
+        """
+        obj = object.__new__(cls)
+        object.__setattr__(obj, "_is_empty_object", True)
+        return obj
+
+    def isempty(self) -> bool:
+        """True for the empty Ballfun (MATLAB isempty).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/isempty.m
+        Chebfun commit: 7574c77
+        """
+        return getattr(self, "_is_empty_object", False)
+
     coeffs: jax.Array  # shape (m, n, p) complex128
     is_real: bool = eqx.field(static=True)
     domain: tuple = eqx.field(static=True)
