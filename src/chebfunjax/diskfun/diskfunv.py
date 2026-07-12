@@ -38,6 +38,29 @@ class Diskfunv(eqx.Module):
     Chebfun commit: 7574c77
     """
 
+    @classmethod
+    def empty(cls) -> "Diskfunv":
+        """The empty Diskfunv (MATLAB diskfunv()).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/diskfunv.m (empty branch)
+        Chebfun commit: 7574c77
+        """
+        obj = object.__new__(cls)
+        object.__setattr__(obj, "_is_empty_object", True)
+        return obj
+
+    def isempty(self) -> bool:
+        """True for the empty Diskfunv (MATLAB isempty).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/isempty.m
+        Chebfun commit: 7574c77
+        """
+        return getattr(self, "_is_empty_object", False)
+
     components: list  # [f, g]
 
     def __init__(self, f: Diskfun, g: Diskfun) -> None:

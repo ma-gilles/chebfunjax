@@ -40,6 +40,29 @@ class Spherefunv(eqx.Module):
     Chebfun commit: 7574c77
     """
 
+    @classmethod
+    def empty(cls) -> "Spherefunv":
+        """The empty Spherefunv (MATLAB spherefunv()).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/spherefunv.m (empty branch)
+        Chebfun commit: 7574c77
+        """
+        obj = object.__new__(cls)
+        object.__setattr__(obj, "_is_empty_object", True)
+        return obj
+
+    def isempty(self) -> bool:
+        """True for the empty Spherefunv (MATLAB isempty).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/isempty.m
+        Chebfun commit: 7574c77
+        """
+        return getattr(self, "_is_empty_object", False)
+
     components: list  # [f, g]
 
     def __init__(self, f: Spherefun, g: Spherefun) -> None:

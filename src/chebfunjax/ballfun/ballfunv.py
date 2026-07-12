@@ -39,6 +39,29 @@ class Ballfunv(eqx.Module):
     Chebfun commit: 7574c77
     """
 
+    @classmethod
+    def empty(cls) -> "Ballfunv":
+        """The empty Ballfunv (MATLAB ballfunv()).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfunv/ballfunv.m (empty branch)
+        Chebfun commit: 7574c77
+        """
+        obj = object.__new__(cls)
+        object.__setattr__(obj, "_is_empty_object", True)
+        return obj
+
+    def isempty(self) -> bool:
+        """True for the empty Ballfunv (MATLAB isempty).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfunv/isempty.m
+        Chebfun commit: 7574c77
+        """
+        return getattr(self, "_is_empty_object", False)
+
     components: list  # [f, g, h]
 
     def __init__(self, f: Ballfun, g: Ballfun, h: Ballfun) -> None:
