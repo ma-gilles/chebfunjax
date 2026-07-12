@@ -142,6 +142,134 @@ class ChebMatrix:
             self.domain = _infer_domain(blocks)
 
     # ------------------------------------------------------------------
+    # Container API (MATLAB chebmatrix parity, Fable 5 audit)
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def from_array(cls, arr, domain=None) -> "ChebMatrix":
+        """Build from a 2-D array of scalars, or a 2-D list mixing
+        scalars/chebfuns/blocks (MATLAB chebmatrix(r) /
+        chebmatrix(num2cell(r))).
+
+        Provenance
+        ----------
+        MATLAB source : @chebmatrix/chebmatrix.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        if hasattr(arr, "ndim"):
+            a = _np.atleast_2d(_np.asarray(arr))
+            blocks = [[float(a[i, j]) for j in range(a.shape[1])]
+                      for i in range(a.shape[0])]
+            return cls(blocks, domain=domain)
+        rows = arr if isinstance(arr[0], (list, tuple)) else [arr]
+        for row in rows:
+            for blk in row:
+                if hasattr(blk, "ndim") and getattr(
+                        blk, "ndim", 0) > 0:
+                    raise ValueError(
+                        "chebmatrix: cell entries must be scalars, "
+                        "chebfuns, or blocks (nonscalarcell)")
+        return cls([list(r) for r in rows], domain=domain)
+
+    @property
+    def size(self) -> tuple[int, int]:
+        """(nrows, ncols) -- MATLAB size(A)."""
+        return (self.nrows, self.ncols)
+
+    def __len__(self) -> int:
+        """max(nrows, ncols) -- MATLAB length(A)."""
+        return max(self.nrows, self.ncols)
+
+    @property
+    def T(self) -> "ChebMatrix":
+        """Transpose of the block layout (MATLAB A')."""
+        blocks = [[self.blocks[i][j] for i in range(self.nrows)]
+                  for j in range(self.ncols)]
+        return ChebMatrix(blocks, domain=self.domain)
+
+    def fliplr(self) -> "ChebMatrix":
+        """Reverse block columns (MATLAB fliplr)."""
+        return ChebMatrix([row[::-1] for row in self.blocks],
+                          domain=self.domain)
+
+    def flipud(self) -> "ChebMatrix":
+        """Reverse block rows (MATLAB flipud)."""
+        return ChebMatrix([list(r) for r in self.blocks[::-1]],
+                          domain=self.domain)
+
+    def deal(self):
+        """All blocks in row-major order (MATLAB deal)."""
+        return [blk for row in self.blocks for blk in row]
+
+    def cellfun(self, fn) -> "ChebMatrix":
+        """Apply fn to every block (MATLAB cellfun)."""
+        return ChebMatrix(
+            [[fn(blk) for blk in row] for row in self.blocks],
+            domain=self.domain)
+
+    def _zip(self, other, fn) -> "ChebMatrix":
+        if isinstance(other, ChebMatrix):
+            if (self.nrows, self.ncols) != (other.nrows,
+                                            other.ncols):
+                raise ValueError("chebmatrix: size mismatch")
+            return ChebMatrix(
+                [[fn(a, b) for a, b in zip(ra, rb)]
+                 for ra, rb in zip(self.blocks, other.blocks)],
+                domain=self.domain)
+        return ChebMatrix(
+            [[fn(a, other) for a in row] for row in self.blocks],
+            domain=self.domain)
+
+    def __add__(self, other) -> "ChebMatrix":
+        return self._zip(other, lambda a, b: a + b)
+
+    def __sub__(self, other) -> "ChebMatrix":
+        return self._zip(other, lambda a, b: a - b)
+
+    def __neg__(self) -> "ChebMatrix":
+        return self.cellfun(lambda a: -a)
+
+    def times(self, other) -> "ChebMatrix":
+        """Elementwise product (MATLAB times)."""
+        return self._zip(other, lambda a, b: a * b)
+
+    def norm(self) -> float:
+        """Frobenius-style norm over scalar/chebfun blocks
+        (MATLAB norm(A)): sqrt(sum of squared block L2 norms).
+
+        Provenance
+        ----------
+        MATLAB source : @chebmatrix/norm.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        total = 0.0
+        for row in self.blocks:
+            for blk in row:
+                if isinstance(blk, (int, float)):
+                    total += float(blk) ** 2
+                elif hasattr(blk, "norm"):
+                    total += float(blk.norm()) ** 2
+                else:
+                    raise TypeError(
+                        "norm: operator blocks have no norm")
+        return float(_np.sqrt(total))
+
+    def __getitem__(self, idx):
+        if isinstance(idx, tuple):
+            return self.blocks[idx[0]][idx[1]]
+        r = [blk for row in self.blocks for blk in row]
+        return r[idx]
+
+    def __setitem__(self, idx, value):
+        if isinstance(idx, tuple):
+            self.blocks[idx[0]][idx[1]] = value
+        else:
+            i, j = divmod(idx, self.ncols)
+            self.blocks[i][j] = value
+
+    # ------------------------------------------------------------------
     # Assembly
     # ------------------------------------------------------------------
 

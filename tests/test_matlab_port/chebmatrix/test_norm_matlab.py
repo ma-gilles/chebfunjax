@@ -1,5 +1,7 @@
 """Port of MATLAB Chebfun tests/chebmatrix/test_norm.m (Fable 5).
 
+FIXED: ChebMatrix container API added in the Fable 5 audit.
+
 Provenance
 ----------
 MATLAB source : tests/chebmatrix/test_norm.m
@@ -8,11 +10,15 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-import pytest
+import numpy as np
 
-pytestmark = pytest.mark.skip(reason="chebfunjax has no chebmatrix (block operator/chebfun container) class")
+import chebfunjax as cj
+from chebfunjax.operators.chebmatrix import ChebMatrix
 
 
 class TestChebmatrixNorm:
-    def test_all_matlab_assertions(self):
-        raise NotImplementedError
+    def test_norm(self):
+        x = cj.chebfun(lambda t: t)
+        ff = ChebMatrix.from_array([[x, x, x]])
+        # ||x||_2^2 = 2/3 per block
+        assert abs(ff.norm() - np.sqrt(2.0)) < 1e-14
