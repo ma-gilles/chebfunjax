@@ -276,3 +276,31 @@ def _nufft1(c: np.ndarray, x: np.ndarray, tol: float) -> np.ndarray:
     k = np.arange(N, dtype=float)
     phases = np.exp(-2j * np.pi * np.outer(k, x))  # (N, M)
     return phases @ c
+
+
+def nufft2(C, x, y):
+    """2D nonuniform FFT of type 2 (MATLAB chebfun.nufft2):
+
+        F[j,k] = sum_{p=0}^{m-1} sum_{q=0}^{n-1}
+                 C[p,q] exp(-2*pi*i*(y[j,k]*p + x[j,k]*q))
+
+    Evaluated by two dense contractions (O(M*N*(m+n)) memory-bounded
+    matvecs) -- exact, not approximate.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/nufft2.m
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+    C = _np.asarray(C)
+    x = _np.asarray(x, dtype=float)
+    y = _np.asarray(y, dtype=float)
+    m, n = C.shape
+    p = _np.arange(m)
+    q = _np.arange(n)
+    # D[j,k,q] = sum_p exp(-2 pi i y p) C[p,q]
+    Ey = _np.exp(-2j * _np.pi * y[..., None] * p)   # (M,N,m)
+    D = _np.tensordot(Ey, C, axes=([2], [0]))        # (M,N,n)
+    Ex = _np.exp(-2j * _np.pi * x[..., None] * q)   # (M,N,n)
+    return _np.sum(D * Ex, axis=-1)

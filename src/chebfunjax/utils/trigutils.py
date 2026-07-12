@@ -304,3 +304,96 @@ def _diff_cst_inv(t: np.ndarray, n: int, form: str) -> np.ndarray:
         return _diff_tan(t, n)
     else:
         return _diff_sin(t, n)
+
+
+def trigBaryWeights(xk):
+    """Barycentric weights for trigonometric interpolation at nodes xk
+    in [-pi, pi] (MATLAB trigBaryWeights).
+
+    Provenance
+    ----------
+    MATLAB source : trigBaryWeights.m
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+    x = _np.asarray(xk, dtype=float).ravel()
+    n = len(x)
+    if n > 1 and _np.all(_np.abs(_np.diff(x) - 2 * _np.pi / n)
+                         < max(_np.max(_np.abs(x)), 1.0) * 1e-14):
+        w = _np.ones(n)
+        w[1::2] = -1.0
+        return w
+    V = _np.sin(0.5 * (x[:, None] - x[None, :]))
+    _np.fill_diagonal(V, 1.0)
+    VV = _np.exp(_np.sum(_np.log(_np.abs(V)), axis=0))
+    w = 1.0 / (_np.prod(_np.sign(V), axis=0) * VV)
+    return w / _np.max(_np.abs(w))
+
+
+def trigBary(x, fvals, xk=None, dom=None):
+    """Trigonometric barycentric interpolation (MATLAB trigBary):
+    evaluate the trig interpolant of data {xk, fvals} at x.
+
+    Provenance
+    ----------
+    MATLAB source : trigBary.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    """
+    import numpy as _np
+    fvals = _np.asarray(fvals, dtype=float)
+    if fvals.ndim == 1:
+        fvals = fvals[:, None]
+        squeeze = True
+    else:
+        squeeze = False
+    n = fvals.shape[0]
+    x = _np.asarray(x, dtype=float).ravel()
+    if dom is None:
+        dom = (-_np.pi, _np.pi)
+    a, b = float(dom[0]), float(dom[1])
+    if xk is None:
+        xk = a + (b - a) * _np.arange(n) / n
+    xk = _np.asarray(xk, dtype=float).ravel()
+    # map to [-pi, pi]
+    xk = _np.pi / (b - a) * (2 * xk - a - b)
+    xm = _np.pi / (b - a) * (2 * x - a - b)
+    # remove periodic endpoint
+    if n > 1 and abs(xk[0] + _np.pi) + abs(xk[-1] - _np.pi) \
+            < 4 * _np.pi * 1e-15:
+        fvals = fvals.copy()
+        fvals[0, :] = 0.5 * (fvals[0, :] + fvals[-1, :])
+        fvals = fvals[:-1, :]
+        xk = xk[:-1]
+        n -= 1
+    vk = trigBaryWeights(xk)
+    if n == 1:
+        out = _np.repeat(fvals, len(xm), axis=0)
+        return out[:, 0] if squeeze else out
+    if n % 2 == 0:
+        s = _np.sum(xk)
+        # MATLAB rem keeps the sign of s -- np.fmod, NOT np.remainder
+        c = 0.0 if abs(_np.fmod(s, _np.pi)) < 4 * _np.pi * 1e-15 \
+            else 1.0 / _np.tan(s / 2.0)
+
+        def ctsc(t):
+            return 1.0 / _np.tan(t) + c
+    else:
+        def ctsc(t):
+            return 1.0 / _np.sin(t)
+    num = _np.zeros((len(xm), fvals.shape[1]))
+    den = _np.zeros((len(xm), 1))
+    with _np.errstate(divide="ignore", invalid="ignore"):
+        for j in range(n):
+            tmp = vk[j] * ctsc((xm - xk[j]) / 2.0)
+            num += tmp[:, None] * fvals[j, :][None, :]
+            den += tmp[:, None]
+        out = num / den
+    # clean up NaNs at exact nodes
+    bad = _np.nonzero(~_np.isfinite(out[:, 0]))[0]
+    for k in bad:
+        idx = _np.nonzero(xm[k] == xk)[0]
+        if len(idx):
+            out[k, :] = fvals[idx[0], :]
+    return out[:, 0] if squeeze else out

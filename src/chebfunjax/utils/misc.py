@@ -401,3 +401,24 @@ def abstract_qr(
             Q[:, j] = Q[:, j] - 2.0 * V[:, k] * vq
 
     return jnp.asarray(Q, dtype=jnp.float64), jnp.asarray(R, dtype=jnp.float64)
+
+
+def isSubset(A, B, tol: float = 0.0) -> bool:
+    """True if hyper-rectangle A is contained in B up to tol
+    (MATLAB isSubset).  A and B are length-2N vectors
+    [a1 b1 a2 b2 ...] as used for chebfun/chebfun2/chebfun3 domains.
+
+    Provenance
+    ----------
+    MATLAB source : isSubset.m
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+    A = _np.asarray(A, dtype=float).ravel()
+    B = _np.asarray(B, dtype=float).ravel()
+    if len(A) != len(B) or len(A) % 2 != 0:
+        raise ValueError("A and B must be matching length-2N vectors")
+    for i in range(0, len(A), 2):
+        if A[i] < B[i] - tol or A[i + 1] > B[i + 1] + tol:
+            return False
+    return True

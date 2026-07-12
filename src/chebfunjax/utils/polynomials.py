@@ -675,3 +675,67 @@ def ultraeval(x: jnp.ndarray, n: int, lam: float) -> jnp.ndarray:
         C_curr = C_next
 
     return C_curr
+
+
+def hermpoly_chebfun(n: int, kind: str = "phys",
+                     domain: tuple[float, float] = (-1.0, 1.0)):
+    """Hermite polynomial H_n as a Chebfun (MATLAB hermpoly).
+
+    MATLAB represents H_n on [-inf, inf] via blowup technology; the
+    chebfunjax representation is on a finite ``domain`` (the polynomial
+    is exact there, and Clenshaw extrapolation outside the domain is
+    exact for polynomials of the represented degree).
+
+    Parameters
+    ----------
+    n : int
+        Degree.
+    kind : {"phys", "prob"}
+        Physicists' (weight exp(-x^2)) or probabilists'
+        (weight exp(-x^2/2), monic) normalization.
+
+    Provenance
+    ----------
+    MATLAB source : hermpoly.m
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+    from scipy.special import eval_hermite, eval_hermitenorm
+
+    from chebfunjax.chebfun1d.chebfun import Chebfun, Domain
+    ev = eval_hermitenorm if kind.lower().startswith("p") \
+        and kind.lower() != "phys" else eval_hermite
+    if kind.lower() == "prob":
+        ev = eval_hermitenorm
+
+    def f(x):
+        return jnp.asarray(
+            ev(n, _np.asarray(x, dtype=float)), dtype=jnp.float64)
+
+    return Chebfun.from_function(
+        f, Domain((float(domain[0]), float(domain[1]))))
+
+
+def lagpoly_chebfun(n: int, alp: float = 0.0,
+                    domain: tuple[float, float] = (0.0, 1.0)):
+    """Generalized Laguerre polynomial L_n^(alp) as a Chebfun
+    (MATLAB lagpoly).  Finite-domain representation; see
+    :func:`hermpoly_chebfun` for the [0, inf] caveat.
+
+    Provenance
+    ----------
+    MATLAB source : lagpoly.m
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+    from scipy.special import eval_genlaguerre
+
+    from chebfunjax.chebfun1d.chebfun import Chebfun, Domain
+
+    def f(x):
+        return jnp.asarray(
+            eval_genlaguerre(n, alp, _np.asarray(x, dtype=float)),
+            dtype=jnp.float64)
+
+    return Chebfun.from_function(
+        f, Domain((float(domain[0]), float(domain[1]))))

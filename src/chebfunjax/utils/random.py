@@ -487,3 +487,90 @@ def _sph_harm_sum_fixed_deg(
                       np.sin((m_idx + 1) * lam))
 
     return F
+
+
+def randnfun2(
+    lam: float,
+    domain: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
+    *,
+    seed: int | None = None,
+    big: bool = False,
+    trig: bool = False,
+):
+    """Band-limited random Chebfun2 with minimal wavelength ``lam``
+    (MATLAB randnfun2).
+
+    Random Fourier coefficients with unit variance are confined to an
+    elliptical disc of wavenumbers (for isotropy) and normalized so the
+    pointwise variance is ~1.  The non-periodic case samples the
+    periodic series on a padded domain, so translated domains with the
+    same seed and aspect give the same (shifted) function -- the same
+    property the MATLAB rng-based version has.
+
+    Parameters
+    ----------
+    lam : float
+        Minimal wavelength.
+    domain : (xa, xb, ya, yb)
+    seed : int or None
+        Numpy RNG seed for reproducibility.
+    big : bool
+        Divide by sqrt(lam) (2D white-noise normalization).
+    trig : bool
+        Doubly periodic function.
+
+    Provenance
+    ----------
+    MATLAB source : randnfun2.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    """
+    from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+    xa, xb, ya, yb = (float(v) for v in domain)
+    if not trig:
+        if np.isinf(lam):
+            rng = np.random.default_rng(seed)
+            c = float(rng.standard_normal())
+            if big:
+                c = 0.0
+            return Chebfun2.from_function(
+                lambda x, y: c + 0.0 * x, domain=domain)
+        # periodic construction on a padded domain, then restrict
+        m = int(round(1.2 * (xb - xa) / lam + 2))
+        n = int(round(1.2 * (yb - ya) / lam + 2))
+        dom2 = (xa, xa + m * lam, ya, ya + n * lam)
+        f2 = randnfun2(lam, dom2, seed=seed, big=big, trig=True)
+        return f2.restrict(domain)
+
+    Lx = xb - xa
+    Ly = yb - ya
+    m = int(round(Lx / lam))
+    n = int(round(Ly / lam))
+    rng = np.random.default_rng(seed)
+    kx, ky = np.meshgrid(np.arange(-m, m + 1), np.arange(-n, n + 1))
+    c = (rng.standard_normal(kx.shape)
+         + 1j * rng.standard_normal(kx.shape))
+    if m > 0 and n > 0:
+        c = c * (((kx / m) ** 2 + (ky / n) ** 2) <= 1)
+    nnz = np.count_nonzero(c)
+    c = c / np.sqrt(max(nnz, 1))
+    if big:
+        c = c / np.sqrt(lam)
+
+    kxu = np.arange(-m, m + 1)
+    kyu = np.arange(-n, n + 1)
+
+    def f(x, y):
+        # real part of the double Fourier series (vectorised):
+        # Re( sum_ij c[i,j] exp(i*(ky_i*py + kx_j*px)) )
+        px = 2.0 * np.pi * (np.asarray(x, dtype=float) - xa) / Lx
+        py = 2.0 * np.pi * (np.asarray(y, dtype=float) - ya) / Ly
+        px, py = np.broadcast_arrays(px, py)
+        shp = px.shape
+        Ex = np.exp(1j * px.ravel()[:, None] * kxu[None, :])
+        Ey = np.exp(1j * py.ravel()[:, None] * kyu[None, :])
+        out = np.einsum("pi,ij,pj->p", Ey, c, Ex).real
+        return jnp.asarray(out.reshape(shp), dtype=jnp.float64)
+
+    return Chebfun2.from_function(f, domain=domain)
