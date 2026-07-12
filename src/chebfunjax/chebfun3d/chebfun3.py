@@ -1829,3 +1829,8 @@ def chebfun3(
         max_rank=max_rank,
         min_samples=min_samples,
     )
+
+
+from chebfunjax.utils.misc import make_empty_aware  # noqa: E402
+
+make_empty_aware(Chebfun3, ['__add__', '__radd__', '__sub__', '__rsub__', '__mul__', '__rmul__', '__truediv__', '__pow__', '__neg__', 'sum3', 'mean3', 'std3', 'norm', 'permute', 'squeeze', 'restrict', 'minandmax3', 'max3', 'min3', 'compose', 'exp', 'sin', 'cos', 'sqrt', 'log', 'tanh', 'abs', 'hosvd'])

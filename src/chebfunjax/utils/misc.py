@@ -422,3 +422,33 @@ def isSubset(A, B, tol: float = 0.0) -> bool:
         if A[i] < B[i] - tol or A[i + 1] > B[i + 1] + tol:
             return False
     return True
+
+
+def make_empty_aware(cls, names):
+    """Wrap the named methods of cls so that calling them on the
+    empty object (cls.empty()) returns the empty object instead of
+    crashing -- MATLAB propagates emptiness through its command set
+    (see the per-class test_emptyObjects.m files).
+
+    Provenance
+    ----------
+    MATLAB source : emptiness handling across @chebfun2/@chebfun3/
+        @spherefun/@diskfun methods
+    Chebfun commit: 7574c77
+    """
+    import functools
+
+    for _nm in names:
+        _orig = getattr(cls, _nm, None)
+        if _orig is None:
+            continue
+
+        def _wrap(orig):
+            @functools.wraps(orig)
+            def wrapper(self, *a, **k):
+                if getattr(self, "_is_empty_object", False):
+                    return cls.empty()
+                return orig(self, *a, **k)
+            return wrapper
+
+        setattr(cls, _nm, _wrap(_orig))

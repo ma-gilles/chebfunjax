@@ -1140,3 +1140,19 @@ def chebfun2(
     Chebfun2
     """
     return Chebfun2.from_function(f, domain=domain, tol=tol, n=n)
+
+
+# ============================================================================
+# Empty propagation (MATLAB emptyObjects semantics, Fable 5 audit)
+# ============================================================================
+
+from chebfunjax.utils.misc import make_empty_aware  # noqa: E402
+
+make_empty_aware(Chebfun2, [
+    "__add__", "__radd__", "__sub__", "__rsub__", "__mul__",
+    "__rmul__", "__truediv__", "__pow__", "__neg__",
+    "sqrt", "sum", "norm", "squeeze", "diff", "cos", "sin", "exp",
+    "log", "tanh", "abs", "diag_fun", "trace", "mean", "mean2",
+    "std2", "minandmax2", "max2", "min2", "fliplr", "flipud",
+    "cumsum", "cumsum2", "sum2", "integral2", "restrict", "compose",
+])

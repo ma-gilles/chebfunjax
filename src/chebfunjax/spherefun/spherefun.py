@@ -1730,3 +1730,8 @@ def _spherefun_diff_cart(f: "Spherefun", dim: int) -> "Spherefun":
         return out
 
     return Spherefun.from_function(ev)
+
+
+from chebfunjax.utils.misc import make_empty_aware  # noqa: E402
+
+make_empty_aware(Spherefun, ['__add__', '__radd__', '__sub__', '__rsub__', '__mul__', '__rmul__', '__truediv__', '__pow__', '__neg__', 'sum', 'sum2', 'mean', 'norm', 'rotate', 'gaussfilt', 'laplacian', 'compose', 'exp', 'sin', 'cos', 'sqrt'])

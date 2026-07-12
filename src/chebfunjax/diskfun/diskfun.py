@@ -1641,3 +1641,8 @@ def _diskfun_poisson(f, n: int, K: float = 0.0, bc=None) -> "Diskfun":
     with _warnings.catch_warnings():
         _warnings.simplefilter("ignore")
         return Diskfun.from_function(lambda t, r: ev(t, r))
+
+
+from chebfunjax.utils.misc import make_empty_aware  # noqa: E402
+
+make_empty_aware(Diskfun, ['__add__', '__radd__', '__sub__', '__rsub__', '__mul__', '__rmul__', '__truediv__', '__pow__', '__neg__', 'sum', 'sum2', 'mean', 'norm', 'laplacian', 'diffx', 'diffy', 'compose', 'exp', 'sin', 'cos', 'sqrt'])
