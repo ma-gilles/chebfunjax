@@ -269,6 +269,30 @@ class Ballfunv(eqx.Module):
         f2, g2, h2 = other.components
         return Ballfunv(f1 + f2, g1 + g2, h1 + h2)
 
+    def times(self, other) -> "Ballfunv":
+        """Componentwise product with a Ballfunv, or scaling by a
+        Ballfun / scalar (MATLAB times).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfunv/times.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(other, Ballfunv):
+            return Ballfunv(*[a * b for a, b in
+                              zip(self.components, other.components)])
+        return Ballfunv(*[a * other for a in self.components])
+
+    def power(self, n: int) -> "Ballfunv":
+        """Componentwise power (MATLAB power).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfunv/power.m
+        Chebfun commit: 7574c77
+        """
+        return Ballfunv(*[a ** n for a in self.components])
+
     def __mul__(self, scalar: float) -> "Ballfunv":
         """Scalar multiplication (componentwise)."""
         f, g, h = self.components

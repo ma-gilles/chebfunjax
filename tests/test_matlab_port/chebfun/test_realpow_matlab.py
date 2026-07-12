@@ -1,5 +1,7 @@
 """Port of MATLAB Chebfun tests/chebfun/test_realpow.m (Fable 5).
 
+FIXED: Chebfun.realpow added in the Fable 5 audit.
+
 Provenance
 ----------
 MATLAB source : tests/chebfun/test_realpow.m
@@ -8,11 +10,18 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-import pytest
+import jax.numpy as jnp
+import numpy as np
 
-pytestmark = pytest.mark.skip(reason="chebfunjax has no realpow")
+import chebfunjax as cj
 
 
 class TestChebfunRealpow:
-    def test_all_matlab_assertions(self):
-        raise NotImplementedError
+    def test_integer_ok_fractional_guarded(self):
+        import pytest
+        f = cj.chebfun(jnp.sin)
+        g = f.realpow(2)
+        assert abs(float(g(jnp.asarray(0.4))) - np.sin(0.4) ** 2) \
+            < 1e-13
+        with pytest.raises(ValueError):
+            f.realpow(0.5)

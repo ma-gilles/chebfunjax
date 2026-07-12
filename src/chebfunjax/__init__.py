@@ -8,7 +8,15 @@ import jax
 jax.config.update("jax_enable_x64", True)
 
 # Public API
-from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun  # noqa: E402
+from chebfunjax.chebfun1d.chebfun import (  # noqa: E402  # noqa: E402
+    Chebfun,
+    cell2quasi,
+    chebfun,
+    complex_fun,
+    getValuesAtBreakpoints,
+    overlap,
+    wronskian,
+)
 from chebfunjax.chebfun2d.chebfun2 import Chebfun2, chebfun2  # noqa: E402
 
 # Plotting — importable as cj.plot(f), cj.surf(g), etc.
@@ -51,7 +59,26 @@ from chebfunjax.plotting import (  # noqa: E402
 )
 
 # Random functions
-from chebfunjax.utils.random import randnfun  # noqa: E402
+from chebfunjax.utils.cfpade import cf, chebpade  # noqa: E402
+from chebfunjax.utils.fasttransforms import (  # noqa: E402
+    dct,
+    dlt,
+    dst,
+    idct,
+    idlt,
+    idst,
+)
+from chebfunjax.utils.misc import isSubset  # noqa: E402
+from chebfunjax.utils.nufft import nufft2  # noqa: E402
+from chebfunjax.utils.polynomials import (  # noqa: E402
+    hermpoly_chebfun as hermpoly,
+)
+from chebfunjax.utils.polynomials import (
+    lagpoly_chebfun as lagpoly,
+)
+from chebfunjax.utils.polyops import fred, poly, residue, volt  # noqa: E402
+from chebfunjax.utils.random import randnfun, randnfun2  # noqa: E402
+from chebfunjax.utils.trigutils import trigBary  # noqa: E402
 
 # The top-level `plot` is the universal dispatcher (like MATLAB's plot(f))
 plot = plot_dispatch
@@ -245,6 +272,30 @@ __all__ = [
     "pdeSolve",
     # Random functions
     "randnfun",
+    "randnfun2",
+    # Named utilities (Fable 5 audit)
+    "dct",
+    "idct",
+    "dst",
+    "idst",
+    "dlt",
+    "idlt",
+    "poly",
+    "residue",
+    "fred",
+    "volt",
+    "hermpoly",
+    "lagpoly",
+    "trigBary",
+    "isSubset",
+    "nufft2",
+    "complex_fun",
+    "cf",
+    "chebpade",
+    "cell2quasi",
+    "overlap",
+    "wronskian",
+    "getValuesAtBreakpoints",
     # Plotting
     "plot",
     "plot_1d",

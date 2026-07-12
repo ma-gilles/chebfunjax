@@ -1153,6 +1153,37 @@ class Ballfun(eqx.Module):
     def __rsub__(self, other: "float | int") -> "Ballfun":
         return self.__neg__().__add__(other)
 
+    def __pow__(self, n) -> "Ballfun":
+        """Pointwise power (MATLAB power).  Integer n uses repeated
+        products; fractional n re-approximates.
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/power.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(n, int) or (isinstance(n, float)
+                                  and float(n).is_integer()):
+            n = int(n)
+            if n < 0:
+                return Ballfun.from_function(
+                    lambda r, lam, th: self(r, lam, th) ** n,
+                    spherical=True)
+            out = None
+            base = self
+            k = n
+            if k == 0:
+                return Ballfun.from_function(
+                    lambda x, y, z: 1.0 + 0.0 * x)
+            while k:
+                if k & 1:
+                    out = base if out is None else out * base
+                base = base * base if k > 1 else base
+                k >>= 1
+            return out
+        return Ballfun.from_function(
+            lambda r, lam, th: self(r, lam, th) ** n, spherical=True)
+
     def __mul__(self, other: "Ballfun | float | int | complex") -> "Ballfun":
         """Pointwise multiply: f .* g or f .* scalar.
 

@@ -648,6 +648,9 @@ class Chebfun(eqx.Module):
     def __call__(self, x: jax.Array) -> jax.Array:
         """Evaluate the Chebfun at point(s) x.
 
+        If ``x`` is itself a Chebfun ``g``, returns the composition
+        ``f(g)`` as a new Chebfun (MATLAB f(g) semantics).
+
         For single-piece Chebfuns this is JIT-safe, grad-safe, and vmap-safe.
 
         For multi-piece Chebfuns, Python-level dispatch is used to route each
@@ -678,6 +681,8 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/feval.m
         Chebfun commit: 7574c77
         """
+        if isinstance(x, Chebfun):
+            return self.compose_chebfun(x)
         x = jnp.asarray(x, dtype=jnp.float64)
         scalar_input = x.ndim == 0
         x = jnp.atleast_1d(x)
@@ -1243,6 +1248,260 @@ class Chebfun(eqx.Module):
     # MISSING_FEATURES named-utilities sweep).
     # ------------------------------------------------------------------
 
+    def prod(self) -> jax.Array:
+        """Integral product: exp(sum(log(f))) (MATLAB prod).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/prod.m
+        Chebfun commit: 7574c77
+        """
+        return jnp.exp(self.log().sum())
+
+    def compose(self, op, g: "Chebfun" = None) -> "Chebfun":
+        """Compose with a pointwise operator: op(f) or op(f, g)
+        (MATLAB compose).  Falls back to splitting when the result
+        is not smooth.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/compose.m
+        Chebfun commit: 7574c77
+        """
+        import warnings as _w
+        a, b = float(self.domain.a), float(self.domain.b)
+        if g is None:
+            def h(x):
+                return op(self(x))
+        else:
+            def h(x):
+                return op(self(x), g(x))
+        with _w.catch_warnings():
+            _w.simplefilter("ignore")
+            try:
+                out = chebfun(h, domain=(a, b))
+                if all(p.tech.ishappy for p in out.funs):
+                    return out
+            except Exception:
+                pass
+            return chebfun(h, domain=(a, b), splitting=True)
+
+    def compose_chebfun(self, g: "Chebfun") -> "Chebfun":
+        """Composition f(g): evaluate self at the values of g
+        (MATLAB compose(g, f) / f(g) syntax).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/compose.m (chebfun-of-chebfun branch)
+        Chebfun commit: 7574c77
+        """
+        import warnings as _w
+
+        import numpy as _np
+        a, b = float(g.domain.a), float(g.domain.b)
+
+        def h(x):
+            return self(g(x))
+
+        # Kinks of f(g) occur where g crosses a GENUINE kink of f, so
+        # place breakpoints at the roots of g - c (as MATLAB compose
+        # does) instead of bisection splitting; spurious breaks with
+        # no derivative jump are filtered out.
+        breaks = {a, b}
+        breaks.update(float(p.interval[0]) for p in g.funs[1:])
+        if len(self.funs) > 1:
+            fd = self.diff()
+            vs = max(float(self.vscale), 1.0)
+            for i in range(len(self.funs) - 1):
+                c = float(self.funs[i + 1].interval[0])
+                jump = abs(
+                    float(fd.funs[i](jnp.asarray(c)))
+                    - float(fd.funs[i + 1](jnp.asarray(c))))
+                if jump > 1e-7 * vs:
+                    r = _np.asarray((g - c).roots(),
+                                    dtype=float).ravel()
+                    breaks.update(
+                        float(t) for t in r if a < t < b)
+        pts = sorted(breaks)
+
+        with _w.catch_warnings():
+            _w.simplefilter("ignore")
+            if len(pts) == 2:
+                return chebfun(h, domain=(a, b))
+            out = chebfun(h, domain=(pts[0], pts[1]))
+            for i in range(1, len(pts) - 1):
+                out = out.join(
+                    chebfun(h, domain=(pts[i], pts[i + 1])))
+            return out
+
+    def legcoeffs(self, n: int | None = None) -> jax.Array:
+        """Legendre expansion coefficients of a single-piece chebfun
+        (MATLAB legcoeffs), via the cheb2leg transform.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/legcoeffs.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.utils.transforms import cheb2leg
+        if len(self.funs) != 1:
+            raise ValueError("legcoeffs requires a single-piece chebfun")
+        c = cheb2leg(self.funs[0].tech.coeffs)
+        if n is not None:
+            m = len(jnp.asarray(c))
+            if n <= m:
+                c = c[:n]
+            else:
+                c = jnp.concatenate(
+                    [c, jnp.zeros(n - m, dtype=c.dtype)])
+        return c
+
+    def jaccoeffs(self, n: int | None = None, alpha: float = 0.0,
+                  beta: float = 0.0) -> jax.Array:
+        """Jacobi expansion coefficients (MATLAB jaccoeffs), via the
+        cheb2jac transform.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/jaccoeffs.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.utils.transforms import cheb2jac
+        if len(self.funs) != 1:
+            raise ValueError("jaccoeffs requires a single-piece chebfun")
+        c = cheb2jac(self.funs[0].tech.coeffs, alpha, beta)
+        if n is not None:
+            m = len(jnp.asarray(c))
+            if n <= m:
+                c = c[:n]
+            else:
+                c = jnp.concatenate(
+                    [c, jnp.zeros(n - m, dtype=c.dtype)])
+        return c
+
+    def addBreaks(self, breaks) -> "Chebfun":
+        """Introduce new interior breakpoints (MATLAB addBreaks).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/addBreaks.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        a, b = float(self.domain.a), float(self.domain.b)
+        old = [float(p.interval[0]) for p in self.funs] + [b]
+        pts = sorted(set(old)
+                     | {float(t) for t in _np.atleast_1d(
+                         _np.asarray(breaks, dtype=float))
+                        if a < float(t) < b})
+        out = self.restrict(pts[0], pts[1])
+        for i in range(1, len(pts) - 1):
+            out = out.join(self.restrict(pts[i], pts[i + 1]))
+        return out
+
+    def addBreaksAtRoots(self, tol: float = 0.0) -> "Chebfun":
+        """Introduce breakpoints at the interior roots of f
+        (MATLAB addBreaksAtRoots).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/addBreaksAtRoots.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        r = _np.asarray(self.roots(), dtype=float).ravel()
+        a, b = float(self.domain.a), float(self.domain.b)
+        eps_ = float(_np.finfo(float).eps)
+        gap = max(tol, 100 * eps_ * max(abs(a), abs(b), 1.0))
+        r = r[(r > a + gap) & (r < b - gap)]
+        if len(r) == 0:
+            return self
+        return self.addBreaks(r)
+
+    def merge(self) -> "Chebfun":
+        """Remove unnecessary interior breakpoints (MATLAB merge):
+        re-approximate globally and keep the merged representation if
+        it matches the piecewise one.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/merge.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        if len(self.funs) == 1:
+            return self
+        a, b = float(self.domain.a), float(self.domain.b)
+        import warnings as _w
+        with _w.catch_warnings():
+            _w.simplefilter("ignore")
+            cand = Chebfun.from_function(
+                lambda x: self(x), Domain((a, b)))
+        xs = jnp.asarray(_np.linspace(a + 1e-9 * (b - a),
+                                      b - 1e-9 * (b - a), 201))
+        err = float(jnp.max(jnp.abs(cand(xs) - self(xs))))
+        tol = 1e3 * float(_np.finfo(float).eps) * max(self.vscale, 1.0)
+        return cand if (err < tol and cand.funs[0].tech.ishappy) \
+            else self
+
+    def rem(self, g) -> "Chebfun":
+        """Remainder after division: f - fix(f/g)*g (MATLAB rem).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/rem.m
+        Chebfun commit: 7574c77
+        """
+        q = (self * (1.0 / float(g))) if isinstance(g, (int, float)) \
+            else (self / g)
+        return self - q.fix() * g
+
+    def deriv(self, x, k: int = 1):
+        """Evaluate the k-th derivative at x (MATLAB deriv).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/deriv.m
+        Chebfun commit: 7574c77
+        """
+        return self.diff(k)(jnp.asarray(x))
+
+    def nextpow2(self) -> "Chebfun":
+        """ceil(log2(|f|)) as a piecewise-constant chebfun
+        (MATLAB nextpow2; f must be positive).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/nextpow2.m
+        Chebfun commit: 7574c77
+        """
+        lg = Chebfun.from_function(
+            lambda x: jnp.log2(self(x)),
+            Domain((float(self.domain.a), float(self.domain.b))))
+        return lg.ceil()
+
+    def realsqrt(self) -> "Chebfun":
+        """sqrt with a realness guard (MATLAB realsqrt).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/realsqrt.m
+        Chebfun commit: 7574c77
+        """
+        (_, fmin), _ = self.minandmax()
+        if float(fmin) < -1e-12 * max(self.vscale, 1.0):
+            raise ValueError("realsqrt: function is negative somewhere")
+        return self.sqrt()
+
+    def realpow(self, p) -> "Chebfun":
+        """f**p with a realness guard (MATLAB realpow)."""
+        if float(p) != int(p):
+            (_, fmin), _ = self.minandmax()
+            if float(fmin) < -1e-12 * max(self.vscale, 1.0):
+                raise ValueError(
+                    "realpow: fractional power of a negative function")
+        return self ** p
+
     def arclength(self) -> jax.Array:
         """Arc length of the graph: int sqrt(1 + f'(x)^2) dx.
 
@@ -1368,7 +1627,6 @@ class Chebfun(eqx.Module):
         if fa == fb:
             raise ValueError("inv: function must be monotonic")
         lo, hi = (fa, fb) if fa < fb else (fb, fa)
-        d = self.diff()
 
         def g(y):
             yq = _np.asarray(y, dtype=float).ravel()
@@ -4150,6 +4408,93 @@ class Chebfun(eqx.Module):
 # ============================================================================
 # Factory function — the main user-facing entry point
 # ============================================================================
+
+def getValuesAtBreakpoints(f: "Chebfun", op=None) -> jax.Array:
+    """Values at the breakpoints of f (MATLAB
+    chebfun.getValuesAtBreakpoints): op (default f itself) evaluated
+    at every breakpoint.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/getValuesAtBreakpoints.m
+    Chebfun commit: 7574c77
+    """
+    breaks = [float(p.interval[0]) for p in f.funs] \
+        + [float(f.domain.b)]
+    xb = jnp.asarray(breaks, dtype=jnp.float64)
+    if op is None:
+        return f(xb)
+    return jnp.asarray(op(xb), dtype=xb.dtype)
+
+
+def wronskian(*args) -> Chebfun:
+    """Wronskian determinant of n chebfuns (MATLAB wronskian).
+
+    ``wronskian(f1, ..., fn)`` or ``wronskian(L, f1, ..., fn)`` (a
+    leading chebop is accepted and ignored -- it only fixes n in
+    MATLAB).  Returns det([f_i^(j)]) as a chebfun.
+
+    Provenance
+    ----------
+    MATLAB source : @chebop/wronskian.m
+    Chebfun commit: 7574c77
+    """
+    funs = [a for a in args if isinstance(a, Chebfun)]
+    if not funs:
+        raise ValueError("wronskian: no chebfun inputs")
+    n = len(funs)
+    a, b = float(funs[0].domain.a), float(funs[0].domain.b)
+    ders = [[f if j == 0 else f.diff(j) for j in range(n)]
+            for f in funs]
+
+    def w(x):
+        rows = [jnp.stack([ders[i][j](x) for i in range(n)], axis=-1)
+                for j in range(n)]
+        M = jnp.stack(rows, axis=-2)     # (..., n, n)
+        return jnp.linalg.det(M)
+
+    return Chebfun.from_function(w, Domain((a, b)))
+
+
+def complex_fun(f: Chebfun, g: Chebfun) -> Chebfun:
+    """complex(f, g) = f + 1i*g for real chebfuns (MATLAB complex).
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/complex.m
+    Chebfun commit: 7574c77
+    """
+    for h in (f, g) if isinstance(g, Chebfun) else (f,):
+        if any(jnp.iscomplexobj(p.tech.coeffs) for p in h.funs):
+            raise ValueError("complex: inputs must be real")
+    return f + g * 1j
+
+
+def cell2quasi(cells):
+    """Build a Quasimatrix from a list of chebfuns (MATLAB cell2quasi).
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/cell2quasi.m
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.chebfun1d.linalg import Quasimatrix
+    if not cells:
+        raise ValueError("cell2quasi: empty input")
+    return Quasimatrix(list(cells), cells[0].domain)
+
+
+def overlap(f: Chebfun, g: Chebfun) -> tuple[Chebfun, Chebfun]:
+    """Return copies of f and g with identical breakpoints
+    (MATLAB overlap).
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/overlap.m
+    Chebfun commit: 7574c77
+    """
+    return Chebfun._overlap(f, g)
+
 
 def atan2(y: Chebfun, x: Chebfun) -> Chebfun:
     r"""Two-argument arctangent of two Chebfuns: ``atan2(y, x)``.
