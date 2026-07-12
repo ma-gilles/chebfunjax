@@ -11,10 +11,18 @@ counterparts (1,105 port files). Final run:
 
 | Status | Count | Meaning |
 |---|---:|---|
-| **passed** | 1,145 | ported at MATLAB tolerances and passing |
-| **skipped** | 1,273 | test written; the feature does not exist (reason string names it) |
-| **xfailed** | 688 | known library bug or convention gap, with evidence in the reason |
+| **passed** | 1,386 | ported at MATLAB tolerances and passing |
+| **skipped** | 1,130 | test written; the feature does not exist (reason string names it) |
+| **xfailed** | 614 | known library bug or convention gap, with evidence in the reason |
 | **failed** | **0** | |
+
+*(Updated 2026-07-12 after the Fable 5 utilities + systems drive:
++241 ports flipped to genuine passes.  Newly closed categories:
+ODE systems -- linear/nonlinear/eigs/periodic block collocation;
+chebmatrix container API; empty objects for chebfun + all geometry
+and vector classes; geometry solvers helmholtz/harmonic/gaussfilt/
+rotate/solharm; cf/chebpade; complex quasimatrix rank/orth/null/
+pinv; ~35 named utilities.)*
 
 Fully-passing files: 139 · mixed (some assertions pass, some skip): 249
 · fully-skipped files: 717.
