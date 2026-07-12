@@ -121,10 +121,11 @@ class TestChebfunConstruction:
         with pytest.raises(ValueError):
             chebfun(jnp.sin, domain=(1.0, 1.0))
 
-    def test_f_none_raises(self):
-        """chebfun(None) should raise ValueError."""
-        with pytest.raises(ValueError, match="f=None"):
-            chebfun(None)
+    def test_f_none_gives_empty(self):
+        """chebfun(None) / chebfun() is the MATLAB empty chebfun
+        (changed in the Fable 5 audit from raising ValueError)."""
+        assert chebfun(None).isempty()
+        assert chebfun().isempty()
 
     def test_multipiece_domain(self):
         """chebfun on a piecewise domain produces multiple pieces."""

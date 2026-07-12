@@ -493,11 +493,8 @@ class Chebfun(eqx.Module):
             differentiating across a jump).  Ignored by point evaluation
             (measure zero); contribute to :meth:`sum`.
         """
-        if len(funs) == 0:
-            raise ValueError(
-                "Chebfun requires at least one piece. "
-                "Use chebfun(0.0) to create a constant zero Chebfun."
-            )
+        # An empty funs list is the MATLAB empty chebfun (chebfun());
+        # isempty() is True and most operations are undefined on it.
         self.funs = funs
         self.domain = domain
         self.deltas = tuple(deltas)
@@ -4726,12 +4723,15 @@ def chebfun(
     dom = Domain(tuple(dom_seq))
 
     # --- Dispatch on f type ---
-    if f is None:
-        raise ValueError(
-            "f=None is not supported. "
-            "Pass a callable, a scalar, or use Chebfun.from_coeffs / "
-            "Chebfun.from_values for data-driven construction."
-        )
+    # Empty chebfun: chebfun(), chebfun([]), or n=0 (MATLAB isempty
+    # semantics -- no pieces; most operations are undefined on it).
+    is_empty_arg = (
+        f is None
+        or (hasattr(f, "__len__") and not callable(f) and len(f) == 0)
+        or (n is not None and n == 0)
+    )
+    if is_empty_arg:
+        return Chebfun(funs=[], domain=dom)
 
     if isinstance(f, (int, float)) or (
         hasattr(f, "__float__") and not callable(f)
