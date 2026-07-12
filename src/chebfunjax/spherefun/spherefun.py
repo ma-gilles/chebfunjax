@@ -917,6 +917,16 @@ class Spherefun(eqx.Module):
     # Integration
     # ------------------------------------------------------------------
 
+    def sum2(self) -> jax.Array:
+        """MATLAB-parity alias for :meth:`sum` (surface integral).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/sum2.m
+        Chebfun commit: 7574c77
+        """
+        return self.sum()
+
     def sum(self) -> jax.Array:
         """Definite integral of the Spherefun over the unit sphere.
 
@@ -1011,6 +1021,44 @@ class Spherefun(eqx.Module):
     # (MATLAB @spherefun semantics; added by Claude Fable 5 --
     # Spherefun previously had NO arithmetic).
     # ------------------------------------------------------------------
+
+    def rotate(self, phi: float = 0.0, theta: float = 0.0,
+               psi: float = 0.0) -> "Spherefun":
+        """Rotate by Euler angles (ZYZ convention, MATLAB rotate):
+        the rotation is Rz(phi) @ Ry(theta) @ Rz(psi), and
+        ``f.rotate(a, b, c).rotate(-c, -b, -a)`` recovers ``f``.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/rotate.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        ca, sa = _np.cos(phi), _np.sin(phi)
+        cb, sb = _np.cos(theta), _np.sin(theta)
+        cc, sc = _np.cos(psi), _np.sin(psi)
+        Rz1 = _np.array([[ca, -sa, 0], [sa, ca, 0], [0, 0, 1]])
+        Ry = _np.array([[cb, 0, sb], [0, 1, 0], [-sb, 0, cb]])
+        Rz2 = _np.array([[cc, -sc, 0], [sc, cc, 0], [0, 0, 1]])
+        R = jnp.asarray(Rz1 @ Ry @ Rz2)
+
+        def g(lam, th):
+            x = jnp.cos(lam) * jnp.sin(th)
+            y = jnp.sin(lam) * jnp.sin(th)
+            z = jnp.cos(th)
+            xp = R[0, 0] * x + R[1, 0] * y + R[2, 0] * z
+            yp = R[0, 1] * x + R[1, 1] * y + R[2, 1] * z
+            zp = R[0, 2] * x + R[1, 2] * y + R[2, 2] * z
+            return self(jnp.arctan2(yp, xp),
+                        jnp.arccos(jnp.clip(zp, -1.0, 1.0)))
+
+        return Spherefun.from_function(g)
+
+    def norm(self) -> jax.Array:
+        """L2 norm over the sphere: sqrt(int |f|^2 dOmega) (Fable 5)."""
+        f2 = Spherefun.from_function(
+            lambda lam, th: self(lam, th) ** 2)
+        return jnp.sqrt(jnp.abs(f2.sum()))
 
     def _reapprox(self, op2) -> "Spherefun":
         return Spherefun.from_function(
@@ -1321,6 +1369,86 @@ class Spherefun(eqx.Module):
             return out
 
         _ = mean_term  # available for a compatibility check if desired
+        return Spherefun.from_function(ev)
+
+    def gaussfilt(self, sig: float = np.pi / 180.0) -> "Spherefun":
+        r"""Gaussian low-pass filter on the sphere (MATLAB gaussfilt):
+        one backward-Euler step of the heat equation to time
+        ``t = 0.5 sig^2``, i.e. each spherical-harmonic coefficient is
+        multiplied by :math:`1/(1 + t\, l(l+1))`.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/gaussfilt.m
+        Chebfun commit: 7574c77
+        """
+        dt = 0.5 * float(sig) ** 2
+        lmax = self._bandwidth() + 1
+        coeffs = _spherefun_sph_coeffs(self, lmax)
+        harmonics = _sph_harmonic_evaluators(lmax)
+        terms = [(a / (1.0 + dt * l * (l + 1)), l, m)
+                 for (l, m), a in coeffs.items() if abs(a) > 1e-14]
+
+        def ev(lam, theta):
+            lam = jnp.asarray(lam, dtype=jnp.float64)
+            theta = jnp.asarray(theta, dtype=jnp.float64)
+            out = jnp.zeros(
+                jnp.broadcast_shapes(lam.shape, theta.shape),
+                dtype=jnp.float64)
+            for a, l, m in terms:
+                out = out + a * harmonics[(l, m)](lam, theta)
+            return out
+
+        return Spherefun.from_function(ev)
+
+    @staticmethod
+    def helmholtz(f, K: float, m: int | None = None,
+                  n: int | None = None) -> "Spherefun":
+        r"""Solve the Helmholtz equation
+        :math:`\Delta u + K^2 u = f` on the sphere (MATLAB
+        spherefun.helmholtz).
+
+        Spectral solve: with :math:`f = \sum a_{lm} Y_l^m`, the
+        solution is :math:`u = \sum a_{lm}/(K^2 - l(l+1)) Y_l^m`.
+        ``K^2`` must not equal an eigenvalue ``l(l+1)``.
+
+        Parameters
+        ----------
+        f : Spherefun or callable
+        K : float
+        m, n : int, optional
+            Grid sizes, accepted for MATLAB signature compatibility
+            (the spectral solve infers the bandwidth from ``f``).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/helmholtz.m (result-equivalent).
+        Chebfun commit: 7574c77
+        """
+        fs = f if isinstance(f, Spherefun) else Spherefun.from_function(f)
+        lmax = fs._bandwidth() + 1
+        coeffs = _spherefun_sph_coeffs(fs, lmax)
+        harmonics = _sph_harmonic_evaluators(lmax)
+        K2 = float(K) ** 2
+        terms = []
+        for (l, mm), a in coeffs.items():
+            den = K2 - l * (l + 1)
+            if abs(den) < 1e-8:
+                raise ValueError(
+                    f"helmholtz: K^2 = {K2} is (near) the eigenvalue "
+                    f"l(l+1) = {l * (l + 1)}")
+            if abs(a) > 1e-13:
+                terms.append((a / den, l, mm))
+
+        def ev(lam, theta):
+            lam = jnp.asarray(lam, dtype=jnp.float64)
+            theta = jnp.asarray(theta, dtype=jnp.float64)
+            out = jnp.zeros(jnp.broadcast_shapes(lam.shape, theta.shape),
+                            dtype=jnp.float64)
+            for a, l, mm in terms:
+                out = out + a * harmonics[(l, mm)](lam, theta)
+            return out
+
         return Spherefun.from_function(ev)
 
     def __repr__(self) -> str:

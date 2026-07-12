@@ -1637,6 +1637,93 @@ class Ballfun(eqx.Module):
         return Ballfun.from_function(
             lambda x, y, z: jnp.asarray(ev(x, y, z)), spherical=True)
 
+    def rotate(self, phi: float = 0.0, theta: float = 0.0,
+               psi: float = 0.0) -> "Ballfun":
+        """Rotate by Euler angles (ZYZ, same convention as
+        Spherefun.rotate): radius is unchanged, angular coordinates
+        are pulled back through R = Rz(phi) Ry(theta) Rz(psi).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/rotate.m
+        Chebfun commit: 7574c77
+        """
+        ca, sa = np.cos(phi), np.sin(phi)
+        cb, sb = np.cos(theta), np.sin(theta)
+        cc, sc = np.cos(psi), np.sin(psi)
+        Rz1 = np.array([[ca, -sa, 0], [sa, ca, 0], [0, 0, 1]])
+        Ry = np.array([[cb, 0, sb], [0, 1, 0], [-sb, 0, cb]])
+        Rz2 = np.array([[cc, -sc, 0], [sc, cc, 0], [0, 0, 1]])
+        R = jnp.asarray(Rz1 @ Ry @ Rz2)
+
+        def g(r, lam, th):
+            x = jnp.cos(lam) * jnp.sin(th)
+            y = jnp.sin(lam) * jnp.sin(th)
+            z = jnp.cos(th)
+            xp = R[0, 0] * x + R[1, 0] * y + R[2, 0] * z
+            yp = R[0, 1] * x + R[1, 1] * y + R[2, 1] * z
+            zp = R[0, 2] * x + R[1, 2] * y + R[2, 2] * z
+            return self(r, jnp.arctan2(yp, xp),
+                        jnp.arccos(jnp.clip(zp, -1.0, 1.0)))
+
+        return Ballfun.from_function(g, spherical=True)
+
+    @staticmethod
+    def solharm(l: int, m: int) -> "Ballfun":
+        r"""Solid harmonic :math:`R_{lm} = \sqrt{2l+3}\, r^l\,
+        Y_l^m(\lambda, \theta)` , normalized to unit L2 norm on the
+        ball (MATLAB ballfun.solharm).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/solharm.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.spherefun.spherefun import _real_ylm_values
+        c = float(np.sqrt(2 * l + 3))
+
+        def g(r, lam, th):
+            return c * r ** l * jnp.asarray(
+                _real_ylm_values(l, m, jnp.asarray(lam).ravel(),
+                                 jnp.asarray(th).ravel())
+            ).reshape(jnp.broadcast_shapes(
+                jnp.asarray(r).shape, jnp.asarray(lam).shape,
+                jnp.asarray(th).shape))
+
+        return Ballfun.from_function(g, spherical=True)
+
+    @staticmethod
+    def helmholtz(f, K: float, bc=None, m: int = 39,
+                  n: int = 40, p: int = 41) -> "Ballfun":
+        r"""Solve the Helmholtz equation
+        :math:`\nabla^2 u + K^2 u = f` on the ball with Dirichlet
+        boundary data ``u(1, lam, th) = bc(lam, th)`` (MATLAB
+        ballfun helmholtz).
+
+        Parameters
+        ----------
+        f : Ballfun or callable
+            Right-hand side ``f(r, lam, theta)``.
+        K : float
+            Wavenumber (K = 0 reduces to Poisson).
+        bc : callable, float, or None
+            Dirichlet data as a function of (lam, theta); None means
+            homogeneous.
+        m, n, p : int
+            Resolution parameters (MATLAB signature; the radial and
+            harmonic bandwidths are derived from them).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/helmholtz.m (result-equivalent).
+        Chebfun commit: 7574c77
+        """
+        lmax = max(8, min(n, p) // 4)
+        nr = max(24, m // 2 + 8)
+        ev = _ballfun_poisson_evaluator(f, lmax, nr, K=float(K), bc=bc)
+        return Ballfun.from_function(
+            lambda x, y, z: jnp.asarray(ev(x, y, z)), spherical=True)
+
     def __repr__(self) -> str:
         """Compact display like MATLAB Chebfun.
 
@@ -1755,12 +1842,14 @@ def _ballfun_onediff_cart(F: np.ndarray, dim: int) -> np.ndarray:
     return out
 
 
-def _ballfun_poisson_evaluator(f, lmax: int, nr: int):
-    """Spectral ball Poisson solver -> evaluator ev(r, lam, theta).
+def _ballfun_poisson_evaluator(f, lmax: int, nr: int,
+                               K: float = 0.0, bc=None):
+    """Spectral ball Poisson/Helmholtz solver -> ev(r, lam, theta).
 
     Per real spherical-harmonic mode, solve the radial ODE by Chebyshev
-    collocation with u(1)=0 and pole regularity at the origin.  Added by
-    Claude Opus 4.8 (task #17).
+    collocation with u(1) = bc-mode and pole regularity at the origin.
+    (Poisson by Claude Opus 4.8, task #17; the K^2 term and
+    non-homogeneous Dirichlet data added in the Fable 5 audit.)
     """
     from numpy.polynomial import chebyshev as _C
 
@@ -1809,19 +1898,32 @@ def _ballfun_poisson_evaluator(f, lmax: int, nr: int):
         for k, Y in ycache.items():
             modes[k][ir] = np.sum(F * Y * wg[:, None] * dph)
 
+    # Dirichlet boundary data expanded in real spherical harmonics
+    bc_modes = {k: 0.0 for k in lm_list}
+    if bc is not None:
+        if callable(bc):
+            B = np.asarray(bc(lam_j, th_j), dtype=float).reshape(TH.shape)
+        else:
+            B = np.full(TH.shape, float(bc))
+        for k, Y in ycache.items():
+            bc_modes[k] = float(np.sum(B * Y * wg[:, None] * dph))
+
     rs = r.copy()
     rs[rs < 1e-12] = 1e-12
     vand = _C.chebvander(x, nr)
     coefs = {}
     for (l, m), flm in modes.items():
-        if np.max(np.abs(flm)) < 1e-11:
+        if np.max(np.abs(flm)) < 1e-11 \
+                and abs(bc_modes[(l, m)]) < 1e-13:
             continue
-        Lm = Drr + np.diag(2.0 / rs) @ Dr - l * (l + 1) * np.diag(1.0 / rs ** 2)
+        Lm = Drr + np.diag(2.0 / rs) @ Dr \
+            - l * (l + 1) * np.diag(1.0 / rs ** 2) \
+            + (K * K) * np.eye(len(r))
         A = Lm.astype(float).copy()
         rhs = flm.astype(float).copy()
         A[0, :] = 0.0
         A[0, 0] = 1.0
-        rhs[0] = 0.0                      # u(1) = 0
+        rhs[0] = bc_modes[(l, m)]         # u(1) = bc_lm
         if l == 0:
             A[last, :] = Dr[last, :]      # u'(0) = 0
             rhs[last] = 0.0

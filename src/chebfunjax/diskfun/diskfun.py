@@ -943,6 +943,16 @@ class Diskfun(eqx.Module):
     # Integration
     # ------------------------------------------------------------------
 
+    def sum2(self) -> jax.Array:
+        """MATLAB-parity alias for :meth:`sum` (integral over the disk).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/sum2.m
+        Chebfun commit: 7574c77
+        """
+        return self.sum()
+
     def sum(self) -> jax.Array:
         """Definite integral of the Diskfun over the unit disk.
 
@@ -1037,6 +1047,16 @@ class Diskfun(eqx.Module):
     # (MATLAB @diskfun semantics; added by Claude Fable 5 -- Diskfun
     # previously had NO arithmetic).
     # ------------------------------------------------------------------
+
+    def norm(self) -> jax.Array:
+        """L2 norm over the disk: sqrt(int |f|^2 dA) (Fable 5)."""
+        f2 = Diskfun.from_function(lambda t, r: self(t, r) ** 2)
+        return jnp.sqrt(jnp.abs(f2.sum()))
+
+    def mean(self) -> jax.Array:
+        """Mean value over the disk (integral / pi)."""
+        import numpy as _np
+        return self.sum() / _np.pi
 
     def _reapprox(self, op1) -> "Diskfun":
         return Diskfun.from_function(lambda t, r: op1(self(t, r)))
@@ -1159,7 +1179,7 @@ class Diskfun(eqx.Module):
     lap = laplacian
 
     @staticmethod
-    def poisson(f, m: int = 40) -> "Diskfun":
+    def poisson(f, bc=None, m: int = 40) -> "Diskfun":
         r"""Solve the Poisson equation :math:`\\nabla^2 u = f` on the disk.
 
         Homogeneous Dirichlet boundary condition ``u = 0`` on ``r = 1``.
@@ -1196,7 +1216,87 @@ class Diskfun(eqx.Module):
                 return f(t, r)
         else:
             fval = f
-        return _diskfun_poisson(fval, int(m))
+        return _diskfun_poisson(fval, int(m), 0.0, bc)
+
+    @staticmethod
+    def harmonic(L: int, m: int, bc: str = "dirichlet") -> "Diskfun":
+        r"""Cylindrical (disk) harmonic: the L2-normalized eigenfunction
+        of the Laplacian on the unit disk (MATLAB diskfun.harmonic),
+
+        .. math::
+            Y = c\, J_{|L|}(j_{|L|,m}\, r)
+            \begin{cases}\cos(L\theta) & L \ge 0\\
+            \sin(|L|\theta) & L < 0\end{cases}
+
+        where ``j`` is the m-th positive root of :math:`J_{|L|}`
+        (Dirichlet) or of :math:`J'_{|L|}` (Neumann), and ``c``
+        normalizes the disk L2 norm to 1.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/harmonic.m
+        Chebfun commit: 7574c77
+        """
+        from scipy.special import jn_zeros, jnp_zeros, jv
+        Labs = abs(int(L))
+        if bc.lower().startswith("n"):
+            j = float(jnp_zeros(Labs, m)[m - 1])
+            nrm = np.sqrt(2.0) / (
+                np.sqrt((1.0 - Labs * Labs / (j * j))
+                        * (1 + (Labs == 0)) * np.pi)
+                * abs(jv(Labs, j)))
+        else:
+            j = float(jn_zeros(Labs, m)[m - 1])
+            nrm = np.sqrt(2.0) / (
+                np.sqrt((1 + (Labs == 0)) * np.pi)
+                * abs(jv(Labs + 1, j)))
+
+        def f(t, r):
+            rad = jnp.asarray(
+                jv(Labs, np.asarray(r, dtype=float) * j),
+                dtype=jnp.float64)
+            ang = jnp.cos(Labs * t) if L >= 0 else jnp.sin(Labs * t)
+            return nrm * rad * ang
+
+        import warnings as _w
+        with _w.catch_warnings():
+            _w.simplefilter("ignore")
+            return Diskfun.from_function(f)
+
+    @staticmethod
+    def helmholtz(f, K: float, bc=None, m: int = 40,
+                  n: int | None = None) -> "Diskfun":
+        r"""Solve the Helmholtz equation
+        :math:`\nabla^2 u + K^2 u = f` on the disk with Dirichlet
+        boundary data ``u(1, theta) = bc(theta)`` (MATLAB
+        diskfun.helmholtz).
+
+        Parameters
+        ----------
+        f : Diskfun or callable
+            Right-hand side ``f(theta, r)``.
+        K : float
+            Helmholtz wavenumber (K = 0 reduces to Poisson).
+        bc : callable, float, or None
+            Dirichlet boundary data as a function of theta
+            (None means homogeneous).
+        m : int, default 40
+            Radial Chebyshev resolution.
+        n : int, optional
+            Angular resolution (inferred if omitted; accepted for
+            MATLAB signature compatibility).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/helmholtz.m (result-equivalent).
+        Chebfun commit: 7574c77
+        """
+        if isinstance(f, Diskfun):
+            def fval(t, r):
+                return f(t, r)
+        else:
+            fval = f
+        return _diskfun_poisson(fval, int(m), float(K), bc)
 
     def __repr__(self) -> str:
         """Compact display.
@@ -1442,11 +1542,14 @@ def _cheb_diff_matrix(n: int) -> tuple:
     return D, x
 
 
-def _diskfun_poisson(f, n: int) -> "Diskfun":
-    """Fast spectral Poisson solver on the disk (Opus 4.8).
+def _diskfun_poisson(f, n: int, K: float = 0.0, bc=None) -> "Diskfun":
+    """Fast spectral Poisson/Helmholtz solver on the disk.
 
-    See :meth:`Diskfun.poisson`.  Per angular Fourier mode, solve the
-    radial ODE by Chebyshev collocation with u(1)=0 and pole regularity.
+    See :meth:`Diskfun.poisson` / :meth:`Diskfun.helmholtz`.  Per
+    angular Fourier mode, solve the radial ODE by Chebyshev collocation
+    with u(1) = bc-mode and pole regularity.  (Poisson by Opus 4.8;
+    the K^2 term and non-homogeneous Dirichlet data added in the
+    Fable 5 audit.)
     """
     D, x = _cheb_diff_matrix(n)
     r = (x + 1.0) / 2.0            # map [-1,1] -> [0,1]
@@ -1459,19 +1562,29 @@ def _diskfun_poisson(f, n: int) -> "Diskfun":
                    ).reshape(TH.shape)
     Fhat = np.fft.rfft(F, axis=0) / nth
     mmax = Fhat.shape[0]
+    # Dirichlet boundary data, mode by mode
+    if bc is None:
+        bchat = np.zeros(mmax, dtype=complex)
+    elif callable(bc):
+        bvals = np.asarray(bc(jnp.asarray(th)), dtype=float)
+        bchat = np.fft.rfft(bvals) / nth
+    else:
+        bchat = np.zeros(mmax, dtype=complex)
+        bchat[0] = float(bc)
     Uhat = np.zeros_like(Fhat)
     r_safe = r.copy()
     r_safe[np.abs(r_safe) < 1e-14] = 1e-14
     inv_r = np.diag(1.0 / r_safe)
     inv_r2 = np.diag(1.0 / r_safe ** 2)
     for mm in range(mmax):
-        L = Drr + inv_r @ Dr - mm * mm * inv_r2
+        L = Drr + inv_r @ Dr - mm * mm * inv_r2 \
+            + (K * K) * np.eye(len(r))
         rhs = Fhat[mm].astype(complex).copy()
         A = L.astype(complex).copy()
-        # u(1) = 0 : r = 1 is x = 1 -> index 0 (x descending)
+        # u(1) = bc_m : r = 1 is x = 1 -> index 0 (x descending)
         A[0, :] = 0.0
         A[0, 0] = 1.0
-        rhs[0] = 0.0
+        rhs[0] = bchat[mm]
         # regularity at r = 0 (index n): u=0 for m!=0, u'=0 for m=0
         if mm == 0:
             A[n, :] = Dr[n, :]
