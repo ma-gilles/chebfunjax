@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="chebfunjax chebop is scalar-only (no systems of ODEs / chebmatrix operators)")
+pytestmark = pytest.mark.skip(reason="discretization-variant file (chebcolloc1/ultraS); the system itself is ported and passing in test_nonlinSysDamping_C2_matlab.py")
 
 
 class TestChebopNonlinsysdampingC1:
