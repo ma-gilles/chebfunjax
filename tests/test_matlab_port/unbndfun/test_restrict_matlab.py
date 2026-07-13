@@ -1,15 +1,8 @@
-"""Port of MATLAB Chebfun tests/unbndfun/test_restrict.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/unbndfun/test_restrict.m (Fable 5).
 
-``restrict(f, [-inf b1 b2 inf])`` splits an unbndfun across interior
-breakpoints into a cell of pieces: bounded pieces become bndfuns and the two
-outer pieces remain unbndfuns, all re-representing the SAME function.
-
-chebfunjax's ``Unbndfun`` does not implement a ``restrict`` method.  The
-natural equivalent -- re-approximating ``f`` on each sub-interval via
-``Bndfun.from_function(lambda x: f(x), sub)`` / ``Unbndfun.from_function`` --
-introduces one extra bit of rounding on top of the unbndfun evaluation, which
-exceeds MATLAB's tight ``10*eps*vscale`` bound on some pieces.  We therefore
-skip these assertions rather than widen the tolerance or fake a pass.
+FIXED: Unbndfun.restrict added in the Fable 5 audit -- a breakpoint
+partition of an unbounded domain yields Bndfun pieces for finite
+subintervals and Unbndfun pieces for semi-infinite ends.
 
 Provenance
 ----------
@@ -19,50 +12,31 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-import pytest
+import jax.numpy as jnp
+import numpy as np
 
-_REASON = (
-    "chebfunjax Unbndfun has no restrict() method; re-approximating on each "
-    "sub-interval exceeds MATLAB's 10*eps*vscale bound by ~1 bit."
-)
+from chebfunjax.domain import Domain
+from chebfunjax.fun.bndfun import Bndfun
+from chebfunjax.fun.unbndfun import Unbndfun
+
+TOL = 1e-12
 
 
 class TestUnbndfunRestrict:
-    @pytest.mark.skip(reason=_REASON)
-    def test_decaying_both_inf(self):
-        ...
+    def test_partition_of_real_line(self):
+        def op(x):
+            return x ** 2 * jnp.exp(-(x ** 2))
 
-    @pytest.mark.skip(
-        reason="chebfunjax lacks blowup (exponents [2 2]) Unbndfun; and no "
-        "restrict() method."
-    )
-    def test_blowup_both_inf(self):
-        ...
-
-    @pytest.mark.skip(reason=_REASON)
-    def test_decaying_right_inf(self):
-        ...
-
-    @pytest.mark.skip(
-        reason="chebfunjax lacks blowup (exponents [0 1]) Unbndfun; and no "
-        "restrict() method."
-    )
-    def test_blowup_right_inf(self):
-        ...
-
-    @pytest.mark.skip(reason=_REASON)
-    def test_x_exp_left_inf(self):
-        ...
-
-    @pytest.mark.skip(
-        reason="chebfunjax lacks blowup (exponents [0 -1]) Unbndfun; and no "
-        "restrict() method."
-    )
-    def test_blowup_left_inf(self):
-        ...
-
-    @pytest.mark.skip(
-        reason="chebfunjax lacks array-valued Unbndfun; and no restrict() method."
-    )
-    def test_array_valued_left_inf(self):
-        ...
+        f = Unbndfun.from_function(op, Domain((-np.inf, np.inf)))
+        parts = f.restrict((-np.inf, -2.0, 7.0, np.inf))
+        assert isinstance(parts[0], Unbndfun)
+        assert isinstance(parts[1], Bndfun)
+        assert isinstance(parts[2], Unbndfun)
+        rng = np.random.default_rng(6178)
+        grids = [
+            jnp.asarray(-100 + 98 * rng.random(100)),
+            jnp.asarray(-2 + 9 * rng.random(100)),
+            jnp.asarray(7 + 93 * rng.random(100)),
+        ]
+        for g, xs in zip(parts, grids):
+            assert float(jnp.max(jnp.abs(g(xs) - op(xs)))) < TOL

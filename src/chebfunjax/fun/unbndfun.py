@@ -366,6 +366,32 @@ class Unbndfun(eqx.Module):
     # Evaluation
     # ------------------------------------------------------------------
 
+    def restrict(self, breaks):
+        """Restrict to a piecewise partition (MATLAB restrict):
+        ``breaks`` is a sequence like (-inf, -2, 7, inf); returns a
+        list of funs, one per subinterval -- Bndfun for finite pieces
+        and Unbndfun for semi-infinite ends.
+
+        Provenance
+        ----------
+        MATLAB source : @unbndfun/restrict.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        from chebfunjax.fun.bndfun import Bndfun
+        pts = [float(t) for t in breaks]
+        out = []
+        for a, b in zip(pts[:-1], pts[1:]):
+            sub = Domain((a, b))
+            if _np.isinf(a) or _np.isinf(b):
+                out.append(Unbndfun.from_function(
+                    lambda x: self(x), sub))
+            else:
+                out.append(Bndfun.from_function(
+                    lambda x: self(x), sub))
+        return out
+
     @eqx.filter_jit
     def __call__(self, x: jax.Array) -> jax.Array:
         """Evaluate the function at physical point(s) x.
