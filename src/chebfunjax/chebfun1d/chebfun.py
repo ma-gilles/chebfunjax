@@ -4462,6 +4462,23 @@ def getValuesAtBreakpoints(f: "Chebfun", op=None) -> jax.Array:
     return jnp.asarray(op(xb), dtype=xb.dtype)
 
 
+def kron(f: Chebfun, g: Chebfun):
+    """Outer (Kronecker) product of two chebfuns as a rank-1 Chebfun2:
+    ``kron(f, g)(x, y) = f(x) * g(y)`` -- MATLAB ``kron(f.', g)`` with
+    ``f`` a row chebfun.  Swap the arguments for the other ordering.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/kron.m
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+    fa, fb = float(f.domain.a), float(f.domain.b)
+    ga, gb = float(g.domain.a), float(g.domain.b)
+    return Chebfun2.from_function(
+        lambda x, y: f(x) * g(y), domain=(fa, fb, ga, gb))
+
+
 def wronskian(*args) -> Chebfun:
     """Wronskian determinant of n chebfuns (MATLAB wronskian).
 

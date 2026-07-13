@@ -14,6 +14,7 @@ from chebfunjax.chebfun1d.chebfun import (  # noqa: E402  # noqa: E402
     chebfun,
     complex_fun,
     getValuesAtBreakpoints,
+    kron,
     overlap,
     wronskian,
 )
@@ -296,6 +297,7 @@ __all__ = [
     "overlap",
     "wronskian",
     "getValuesAtBreakpoints",
+    "kron",
     # Plotting
     "plot",
     "plot_1d",
