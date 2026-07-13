@@ -171,3 +171,16 @@ class TestSmallUtilities:
         assert abs(float(w(jnp.asarray(0.3))) - 1.0) < 1e-11
         f = cj.chebfun(lambda x: x + 2)
         assert abs(float(f.prod()) - 27 * np.exp(-2)) < 1e-13
+
+
+class TestTrigpade:
+    def test_sin_and_rational(self):
+        f = cj.chebfun(lambda t: jnp.sin(np.pi * t), trig=True)
+        p, q, r = cj.trigpade(f, 1, 0)[:3]
+        tt = jnp.asarray(np.linspace(-0.95, 0.95, 40))
+        assert float(jnp.max(jnp.abs(f(tt) - r(tt)))) < 1e-12
+        g = cj.chebfun(
+            lambda t: 1.0 / (1.0 - 0.5 * jnp.cos(np.pi * t)),
+            trig=True)
+        _, _, r2 = cj.trigpade(g, 2, 2)[:3]
+        assert float(jnp.max(jnp.abs(g(tt) - r2(tt)))) < 1e-12
