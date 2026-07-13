@@ -788,6 +788,104 @@ class Chebop:
             for i in range(m)
         ])
 
+    def eigs_generalized(self, B: "Chebop", k: int = 6,
+                         n: int = 96):
+        """Generalized eigenvalue problem A u = lambda B u for two
+        linear chebops (MATLAB eigs(A, B, k)).  Both operators are
+        assembled by basis probing on the collocation grid; A carries
+        the boundary rows, B is zeroed there; spurious modes are
+        removed with a two-resolution agreement filter.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/eigs.m (generalized branch)
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        import scipy.linalg as _sla
+
+        def assemble(nn):
+            from chebfunjax.chebfun1d.chebfun import Chebfun
+            a, b = self.domain
+            kk = _np.arange(nn)
+            xg = _np.cos(_np.pi * kk / (nn - 1))[::-1]
+            xp = a + (b - a) * (xg + 1.0) / 2.0
+            x_fun = Chebfun.identity(Domain(self.domain))
+
+            def probe_matrix(op):
+                M = _np.zeros((nn, nn))
+                for j in range(nn):
+                    vals = _np.zeros(nn)
+                    vals[j] = 1.0
+                    u = _chebfun_from_values(
+                        jnp.asarray(vals), self.domain)
+                    out = op(x_fun, u)
+                    M[:, j] = _np.asarray(out(jnp.asarray(xp)))
+                return M
+
+            Am = probe_matrix(self.op)
+            Bm = probe_matrix(B.op)
+            # boundary rows: neumann/dirichlet keywords or callables
+            Du = None
+
+            def bc_row(kind, idx):
+                nonlocal Du
+                row = _np.zeros(nn)
+                if kind in ("dirichlet", 0.0, None):
+                    row[idx] = 1.0
+                    return row
+                if kind == "neumann":
+                    if Du is None:
+                        Duloc = _np.zeros((nn, nn))
+                        for j in range(nn):
+                            vals = _np.zeros(nn)
+                            vals[j] = 1.0
+                            u = _chebfun_from_values(
+                                jnp.asarray(vals), self.domain)
+                            Duloc[:, j] = _np.asarray(
+                                u.diff()(jnp.asarray(xp)))
+                        Du = Duloc
+                    return Du[idx]
+                raise ValueError(f"unsupported bc {kind!r}")
+
+            lb = self._lbc_raw
+            rb = self._rbc_raw
+            lb_kind = lb if isinstance(lb, str) else (
+                "dirichlet" if isinstance(lb, (int, float))
+                or lb is None else lb)
+            rb_kind = rb if isinstance(rb, str) else (
+                "dirichlet" if isinstance(rb, (int, float))
+                or rb is None else rb)
+            if lb is not None:
+                Am[0, :] = bc_row(lb_kind, 0)
+                Bm[0, :] = 0.0
+            if rb is not None:
+                Am[nn - 1, :] = bc_row(rb_kind, nn - 1)
+                Bm[nn - 1, :] = 0.0
+            lam, W = _sla.eig(Am, Bm)
+            fin = _np.isfinite(lam) & (_np.abs(lam) < 1e10)
+            return lam[fin], W[:, fin], xp
+
+        lam, W, xp = assemble(n)
+        lam2, _, _ = assemble(n + 17)
+        keep, used = [], set()
+        for i in _np.argsort(_np.abs(lam)):
+            d = _np.abs(lam2 - lam[i])
+            j = int(_np.argmin(d))
+            if d[j] < 1e-6 * max(1.0, abs(lam[i])) and j not in used:
+                keep.append(i)
+                used.add(j)
+            if len(keep) >= k:
+                break
+        order = _np.asarray(keep, dtype=int)
+        lam = lam[order]
+        V = [
+            _chebfun_from_values(
+                jnp.asarray(_np.real(W[:, i])), self.domain)
+            for i in order
+        ]
+        return V, jnp.asarray(lam)
+
     def _system_is_linear(self) -> bool:
         """Superposition check for system ops:
         op(u+v) == op(u) + op(v) - op(0) at random probes."""
