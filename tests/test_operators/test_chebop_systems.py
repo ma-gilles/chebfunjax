@@ -56,3 +56,30 @@ class TestSystemEigs:
             -0.5 + np.sqrt(15) / 2 * 1j,
             -0.5 - np.sqrt(15) / 2 * 1j])))
         assert np.max(np.abs(lam - correct)) < 1e-9
+
+
+class TestSystemIVP:
+    def test_linear_ivp_system_time_marching(self):
+        # u' = v, v' = -u with u(0)=1, v(0)=0  ->  u = cos t
+        N = Chebop(lambda t, u, v: [u.diff() - v, v.diff() + u],
+                   (0.0, 2.0))
+        N.lbc = lambda u, v: [u - 1, v]
+        sol = N.solve([0, 0])
+        ts = jnp.asarray(np.linspace(0.0, 2.0, 20))
+        assert float(jnp.max(jnp.abs(sol[0](ts) - jnp.cos(ts)))) \
+            < 1e-8
+        assert float(jnp.max(jnp.abs(sol[1](ts) + jnp.sin(ts)))) \
+            < 1e-8
+
+
+class TestGeneralizedEigs:
+    def test_drum_bessel_zeros(self):
+        from scipy.special import jn_zeros
+        A = Chebop(lambda r, u: r * u.diff(2) + u.diff(),
+                   (0.0, 1.0))
+        A.lbc = "neumann"
+        A.rbc = "dirichlet"
+        B = Chebop(lambda r, u: r * u, (0.0, 1.0))
+        _, lam = A.eigs_generalized(B, k=3, n=64)
+        omega = np.sort(np.sqrt(-np.real(np.asarray(lam))))
+        assert np.max(np.abs(omega - jn_zeros(0, 3))) < 1e-7
