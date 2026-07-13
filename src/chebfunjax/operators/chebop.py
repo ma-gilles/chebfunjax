@@ -344,6 +344,13 @@ class Chebop:
             if getattr(self, "_periodic", False):
                 return self._solve_periodic_system(
                     f, n=n, max_iter=max_iter)
+            # First-order explicit IVP systems (all BCs at one end)
+            # time-march like MATLAB routes to ode113.
+            if (self._lbc_raw is None) != (self._rbc_raw is None):
+                try:
+                    return self._solve_ivp_system(f)
+                except Exception:
+                    pass
             if self._system_is_linear():
                 return self._solve_linear_system(f, n=n)
             return self._solve_nonlinear_system(
@@ -684,6 +691,102 @@ class Chebop:
                     f"reached (residual {_np.max(_np.abs(R)):.2e})",
                     RuntimeWarning, stacklevel=2)
         return SystemSolution(to_funs(U))
+
+    def _solve_ivp_system(self, f=0.0):
+        """Time-march a first-order explicit IVP system (MATLAB
+        routes these to ode113): equations of the form
+        u_i' - g_i(t, u) = f_i with all conditions at one endpoint.
+        The RHS is recovered by evaluating the op on CONSTANT
+        chebfuns (derivatives vanish), and the initial values by
+        solving the affine boundary residuals.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/solveivp.m (system branch)
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        from scipy.integrate import solve_ivp as _sivp
+
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        m = self._n_vars()
+        a, b = self.domain
+        x_fun = Chebfun.identity(Domain(self.domain))
+        forward = self._lbc_raw is not None
+        t0, t1 = (a, b) if forward else (b, a)
+        bc_raw = self._lbc_raw if forward else self._rbc_raw
+
+        def const_funs(y):
+            return [_chebfun_from_values(
+                jnp.full(2, float(yj)), self.domain) for yj in y]
+
+        if isinstance(f, (int, float)):
+            fvals = [float(f)] * m
+            f_of_t = None
+        elif isinstance(f, (list, tuple)):
+            fvals = f
+            f_of_t = None
+        else:
+            fvals = None
+            f_of_t = f
+
+        def op_at(t, y):
+            us = const_funs(y)
+            out = self.op(x_fun, *us)
+            if not isinstance(out, (list, tuple)):
+                out = [out]
+            tt = jnp.asarray(t)
+            vals = _np.array([
+                float(o) if isinstance(o, (int, float))
+                else float(o(tt)) for o in out])
+            if fvals is not None:
+                vals -= _np.array([
+                    float(v) if isinstance(v, (int, float))
+                    else float(v(tt)) for v in fvals])
+            elif f_of_t is not None:
+                vals -= float(f_of_t(tt))
+            return vals
+
+        # verify first-order explicit form: residual affine in y'
+        # with unit coefficient => R(t, y, y') = y' + op_at-part
+        def rhs(t, y):
+            return -op_at(t, y)
+
+        # initial values: solve the affine bc residuals bc(y0) = 0
+        def bc_res(y):
+            us = const_funs(y)
+            out = bc_raw(*us)
+            if not isinstance(out, (list, tuple)):
+                out = [out]
+            return _np.array([
+                float(o) if isinstance(o, (int, float))
+                else _eval_chebfun_at(o, t0) for o in out])
+
+        r0 = bc_res(_np.zeros(m))
+        if len(r0) != m:
+            raise ValueError("ivp system needs m conditions")
+        J = _np.zeros((m, m))
+        for j in range(m):
+            e = _np.zeros(m)
+            e[j] = 1.0
+            J[:, j] = bc_res(e) - r0
+        y0 = _np.linalg.solve(J, -r0)
+
+        sol = _sivp(rhs, (t0, t1), y0, method="LSODA",
+                    rtol=1e-11, atol=1e-12, dense_output=True)
+        if not sol.success:
+            raise RuntimeError(f"ivp system: {sol.message}")
+
+        # sample onto a Chebyshev grid and wrap each component
+        nn = 256
+        kk = _np.arange(nn)
+        xg = _np.cos(_np.pi * kk / (nn - 1))[::-1]
+        xp = a + (b - a) * (xg + 1.0) / 2.0
+        Y = sol.sol(xp)
+        return SystemSolution([
+            _chebfun_from_values(jnp.asarray(Y[i]), self.domain)
+            for i in range(m)
+        ])
 
     def _system_is_linear(self) -> bool:
         """Superposition check for system ops:
