@@ -11,8 +11,8 @@ counterparts (1,105 port files). Final run:
 
 | Status | Count | Meaning |
 |---|---:|---|
-| **passed** | 1,386 | ported at MATLAB tolerances and passing |
-| **skipped** | 1,130 | test written; the feature does not exist (reason string names it) |
+| **passed** | 1,403 | ported at MATLAB tolerances and passing |
+| **skipped** | 1,119 | test written; the feature does not exist (reason string names it) |
 | **xfailed** | 614 | known library bug or convention gap, with evidence in the reason |
 | **failed** | **0** | |
 
@@ -22,7 +22,9 @@ ODE systems -- linear/nonlinear/eigs/periodic block collocation;
 chebmatrix container API; empty objects for chebfun + all geometry
 and vector classes; geometry solvers helmholtz/harmonic/gaussfilt/
 rotate/solharm; cf/chebpade; complex quasimatrix rank/orth/null/
-pinv; ~35 named utilities.)*
+pinv; ~35 named utilities.  Second pass added horzcat/var/std/cov
+(quasimatrix), kron, chebfun3 mean/mean2, ballfun mean/mean2/mean3,
+zero-function and stale-skip flips.)*
 
 Fully-passing files: 139 · mixed (some assertions pass, some skip): 249
 · fully-skipped files: 717.
