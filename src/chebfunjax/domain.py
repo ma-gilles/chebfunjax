@@ -462,3 +462,19 @@ class Domain(eqx.Module):
 
 _EPS = 2.220446049250313e-16  # Machine epsilon for float64
 _HTOL = 5.0 * _EPS  # Horizontal tolerance (matches chebpy's htol)
+
+
+def merge(*domains):
+    """Union of breakpoint vectors (MATLAB domain.merge): the sorted
+    union of all breakpoints, keeping infinite endpoints.
+
+    Provenance
+    ----------
+    MATLAB source : @domain/merge.m
+    Chebfun commit: 7574c77
+    """
+    pts = set()
+    for d in domains:
+        seq = d.breakpoints if hasattr(d, "breakpoints") else d
+        pts.update(float(t) for t in seq)
+    return sorted(pts)
