@@ -1723,6 +1723,62 @@ class Ballfun(eqx.Module):
 
         return Ballfun.from_function(g, spherical=True)
 
+    def mean(self, dim: int = 1):
+        """Average over one spherical coordinate (MATLAB mean(f, dim)):
+        dim=1 averages over r and returns a Spherefun; dim=2 averages
+        over lambda and dim=3 over theta, each returning a Diskfun in
+        the surviving coordinates (doubled-angle convention for the
+        colatitude).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/mean.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        xg, wg = _np.polynomial.legendre.leggauss(48)
+
+        def _avg(r_, l_, t_):
+            # Ballfun.__call__ grids 1D args; broadcast to a common
+            # shape and evaluate pointwise via 2D reshape instead.
+            r_, l_, t_ = jnp.broadcast_arrays(r_, l_, t_)
+            shp = r_.shape
+            vals = self(r_.reshape(-1, 1), l_.reshape(-1, 1),
+                        t_.reshape(-1, 1))
+            return jnp.asarray(vals).reshape(shp)
+
+        if dim == 1:
+            from chebfunjax.spherefun.spherefun import Spherefun
+            rq = jnp.asarray((xg + 1.0) / 2.0)
+            wq = jnp.asarray(wg / 2.0)
+
+            def g(lam, th):
+                v = _avg(rq, lam[..., None], th[..., None])
+                return jnp.sum(wq * v, axis=-1)
+
+            return Spherefun.from_function(g)
+
+        from chebfunjax.diskfun.diskfun import Diskfun
+        if dim == 2:
+            lq = jnp.asarray(_np.pi * xg)
+            wq = jnp.asarray(wg / 2.0)
+
+            def g(t, rr):
+                v = _avg(rr[..., None], lq, jnp.abs(t)[..., None])
+                return jnp.sum(wq * v, axis=-1)
+
+            return Diskfun.from_function(g)
+        if dim == 3:
+            tq = jnp.asarray(_np.pi * (xg + 1.0) / 2.0)
+            wq = jnp.asarray(wg / 2.0)
+
+            def g(t, rr):
+                v = _avg(rr[..., None], t[..., None], tq)
+                return jnp.sum(wq * v, axis=-1)
+
+            return Diskfun.from_function(g)
+        raise ValueError("dim must be 1, 2, or 3")
+
     @staticmethod
     def solharm(l: int, m: int) -> "Ballfun":
         r"""Solid harmonic :math:`R_{lm} = \sqrt{2l+3}\, r^l\,
