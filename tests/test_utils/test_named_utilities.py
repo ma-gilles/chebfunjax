@@ -194,3 +194,15 @@ class TestTrigremez:
         tt = jnp.asarray(np.linspace(0.01, 1.99, 30))
         assert float(jnp.max(jnp.abs(p(tt) - 1.0))) < 1e-10
         assert abs(errmax - 1.0) < 1e-8
+
+
+class TestSpin:
+    def test_allen_cahn(self):
+        from chebfunjax.operators.spinop import Spinop, spin
+        S = Spinop("AC")
+        u = spin(S, 128, 1e-1)
+        v = spin(S, 128, 5e-2)
+        xs = jnp.asarray(np.linspace(0.01, 6.2, 30))
+        rel = float(jnp.max(jnp.abs(u(xs) - v(xs)))) \
+            / float(jnp.max(jnp.abs(v(xs))))
+        assert rel < 1e-5
