@@ -1277,6 +1277,24 @@ class Chebop:
 
         return chebfun(lambda x: u_eval(x), domain=(a, b))
 
+    def __call__(self, u):
+        """Apply the operator to a chebfun (MATLAB N(u) / N*u).
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/feval.m, @chebop/mtimes.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        x_fun = Chebfun.identity(Domain(self.domain))
+        if isinstance(u, (list, tuple)) or (
+                self._n_vars() >= 2 and hasattr(u, "__getitem__")
+                and not isinstance(u, Chebfun)):
+            out = self.op(x_fun, *list(u))
+            return SystemSolution(list(out)) \
+                if isinstance(out, (list, tuple)) else out
+        return self._apply_op(x_fun, u)
+
     def _apply_op(self, x_fun, u_fun):
         """Evaluate self.op(x_fun, u_fun) or self.op(u_fun)."""
         import inspect
