@@ -224,7 +224,10 @@ def aaa(
                 tol_sv = s[idx_min] * (1 + 1e-10)
                 mm = np.where(s <= tol_sv)[0]
                 nm = len(mm)
-                wj = V[mm, :].T @ (np.ones(nm) / np.sqrt(nm))
+                # numpy's svd returns Vh; the null vector needs the
+                # CONJUGATE transpose (plain .T silently breaks every
+                # complex-valued approximation)
+                wj = V[mm, :].conj().T @ (np.ones(nm) / np.sqrt(nm))
                 wj = wj / col_norms_safe  # un-scale
                 wj = wj / np.linalg.norm(wj)
             else:
@@ -232,7 +235,7 @@ def aaa(
                 tol_sv = s[idx_min] * (1 + 1e-10)
                 mm = np.where(s <= tol_sv)[0]
                 nm = len(mm)
-                wj = V[mm, :].T @ (np.ones(nm) / np.sqrt(nm))
+                wj = V[mm, :].conj().T @ (np.ones(nm) / np.sqrt(nm))
 
         elif n_free >= 1:
             # More columns than rows: compute null space
@@ -525,7 +528,9 @@ def _compute_residues(
     else:
         return jnp.array([], dtype=jnp.complex128)
 
-    c, _, _, _ = np.linalg.lstsq(A_ls, F_np, rcond=None)
+    finite = np.all(np.isfinite(A_ls), axis=1) & np.isfinite(F_np)
+    c, _, _, _ = np.linalg.lstsq(A_ls[finite], F_np[finite],
+                                 rcond=None)
     res_np = c[deg + 1:]   # drop polynomial part
     return jnp.array(res_np)
 
@@ -658,7 +663,9 @@ def _cleanup(
     A_mat = SF @ C - C @ Sf
 
     _, _, V = np.linalg.svd(A_mat, full_matrices=False)
-    wj_np = V[m - 1, :]  # last row of V^T = last right singular vector
+    # numpy returns Vh: the right singular vector is the CONJUGATE of
+    # its last row (plain row breaks complex-valued data)
+    wj_np = V[m - 1, :].conj()
 
     return jnp.array(zj_np), jnp.array(fj_np), jnp.array(wj_np)
 
@@ -827,7 +834,8 @@ def aaatrig(
             Sf = np.diag(fj)
             A_sub = SF @ C[J_arr, :] - C[J_arr, :] @ Sf
             _, _, V = np.linalg.svd(A_sub, full_matrices=False)
-            wj = V[m - 1, :] if V.shape[0] >= m else V[-1, :]
+            wj = V[m - 1, :].conj() if V.shape[0] >= m \
+                else V[-1, :].conj()
         else:
             wj = np.ones(m, dtype=complex) / np.sqrt(m)
 
@@ -1160,6 +1168,6 @@ def _cleanup_trig(
     A_mat = SF @ C - C @ Sf
 
     _, _, V = np.linalg.svd(A_mat, full_matrices=False)
-    wj_np = V[m - 1, :]
+    wj_np = V[m - 1, :].conj()   # Vh row -> conjugate (complex data)
 
     return jnp.array(zj_np), jnp.array(fj_np), jnp.array(wj_np)
