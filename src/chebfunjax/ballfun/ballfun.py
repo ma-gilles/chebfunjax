@@ -1779,6 +1779,48 @@ class Ballfun(eqx.Module):
             return Diskfun.from_function(g)
         raise ValueError("dim must be 1, 2, or 3")
 
+    def mean2(self, dims=(1, 2)):
+        """Average over two spherical coordinates, returning a 1D
+        Chebfun in the survivor (MATLAB mean2(f, dims)): r on [0, 1],
+        lambda on [-pi, pi] (trig), theta on [0, pi].
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/mean2.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        xg, wg = _np.polynomial.legendre.leggauss(48)
+        grids = {
+            1: (jnp.asarray((xg + 1.0) / 2.0),
+                jnp.asarray(wg / 2.0)),
+            2: (jnp.asarray(_np.pi * xg), jnp.asarray(wg / 2.0)),
+            3: (jnp.asarray(_np.pi * (xg + 1.0) / 2.0),
+                jnp.asarray(wg / 2.0)),
+        }
+        doms = {1: (0.0, 1.0), 2: (-_np.pi, _np.pi),
+                3: (0.0, _np.pi)}
+        d1, d2 = int(dims[0]), int(dims[1])
+        surv = ({1, 2, 3} - {d1, d2}).pop()
+        (q1, w1), (q2, w2) = grids[d1], grids[d2]
+
+        def g(t):
+            args = [None, None, None]
+            args[surv - 1] = t[..., None, None]
+            args[d1 - 1] = q1[:, None]
+            args[d2 - 1] = q2[None, :]
+            r_, l_, t_ = jnp.broadcast_arrays(*args)
+            shp = r_.shape
+            vals = jnp.asarray(self(
+                r_.reshape(-1, 1), l_.reshape(-1, 1),
+                t_.reshape(-1, 1))).reshape(shp)
+            return jnp.sum(w1[:, None] * w2[None, :] * vals,
+                           axis=(-2, -1))
+
+        return chebfun(g, domain=doms[surv], trig=(surv == 2))
+
     @staticmethod
     def solharm(l: int, m: int) -> "Ballfun":
         r"""Solid harmonic :math:`R_{lm} = \sqrt{2l+3}\, r^l\,
