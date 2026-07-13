@@ -1150,6 +1150,32 @@ class Chebfun3(eqx.Module):
     # Triple integral
     # ------------------------------------------------------------------
 
+    def mean(self, dim: int = 1):
+        """Average over one variable (MATLAB mean(f, dim)).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/mean.m
+        Chebfun commit: 7574c77
+        """
+        d = self.domain
+        i = dim - 1
+        return self.sum(dim) * (1.0 / (d[2 * i + 1] - d[2 * i]))
+
+    def mean2(self, dims: tuple = (1, 2)):
+        """Average over two variables (MATLAB mean2).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/mean2.m
+        Chebfun commit: 7574c77
+        """
+        d = self.domain
+        vol = 1.0
+        for dd in dims:
+            vol *= d[2 * (dd - 1) + 1] - d[2 * (dd - 1)]
+        return self.sum2(dims) * (1.0 / vol)
+
     def hosvd(self):
         r"""Higher-order SVD (MATLAB hosvd): returns
         ``(sv, g)`` where ``sv`` is a list of the three mode-k singular
