@@ -11,8 +11,8 @@ counterparts (1,105 port files). Final run:
 
 | Status | Count | Meaning |
 |---|---:|---|
-| **passed** | 1,403 | ported at MATLAB tolerances and passing |
-| **skipped** | 1,119 | test written; the feature does not exist (reason string names it) |
+| **passed** | 1,411 | ported at MATLAB tolerances and passing |
+| **skipped** | 1,105 | test written; the feature does not exist (reason string names it) |
 | **xfailed** | 614 | known library bug or convention gap, with evidence in the reason |
 | **failed** | **0** | |
 
@@ -24,7 +24,10 @@ and vector classes; geometry solvers helmholtz/harmonic/gaussfilt/
 rotate/solharm; cf/chebpade; complex quasimatrix rank/orth/null/
 pinv; ~35 named utilities.  Second pass added horzcat/var/std/cov
 (quasimatrix), kron, chebfun3 mean/mean2, ballfun mean/mean2/mean3,
-zero-function and stale-skip flips.)*
+zero-function and stale-skip flips.  Third pass drained the chebop
+systems stubs: nonlinSys1/nonlinSysDamping/paramODE (forced form)/
+LorenzIVP (system IVP time-marching)/feval2/cumsum (operator
+application), unbndfun restrict, domain merge, ballfun mean family.)*
 
 Fully-passing files: 139 · mixed (some assertions pass, some skip): 249
 · fully-skipped files: 717.
