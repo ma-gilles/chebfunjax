@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="chebfunjax chebop is scalar-only (no systems of ODEs / chebmatrix operators)")
+pytestmark = pytest.mark.skip(reason="MATLAB u{1}/u{2} cell-indexing NOTATION; the same class of linear systems is ported in test_linearSystem1_matlab.py (multi-argument form); the cell syntax itself is MATLAB-specific")
 
 
 class TestChebopLinearsystem2:

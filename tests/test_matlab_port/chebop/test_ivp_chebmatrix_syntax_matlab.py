@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="chebfunjax chebop is scalar-only (no systems of ODEs / chebmatrix operators)")
+pytestmark = pytest.mark.skip(reason="MATLAB chebmatrix cell-syntax variant of system IVPs; the functionality is ported in test_LorenzIVP_matlab.py")
 
 
 class TestChebopIvpChebmatrixSyntax:
