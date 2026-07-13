@@ -1821,6 +1821,18 @@ class Ballfun(eqx.Module):
 
         return chebfun(g, domain=doms[surv], trig=(surv == 2))
 
+    def mean3(self) -> float:
+        """Average over the whole ball: sum(f) / (4 pi / 3)
+        (MATLAB mean3).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/mean3.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        return float(self.sum()) / (4.0 * _np.pi / 3.0)
+
     @staticmethod
     def solharm(l: int, m: int) -> "Ballfun":
         r"""Solid harmonic :math:`R_{lm} = \sqrt{2l+3}\, r^l\,
