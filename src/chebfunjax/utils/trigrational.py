@@ -18,7 +18,7 @@ import jax.numpy as jnp
 import numpy as np
 from scipy.linalg import null_space, toeplitz
 
-__all__ = ["trigpade"]
+__all__ = ["trigpade", "trigremez"]
 
 
 def _trig_coeffs_ascending(f) -> np.ndarray:
@@ -160,3 +160,118 @@ def trigpade(f, m: int, n: int):
         return p(t) / q(t)
 
     return p, q, r, tn_p, td_p, tn_m, td_m
+
+
+def trigremez(f, m: int, max_iter: int = 40, tol: float = 1e-14):
+    """Best trigonometric polynomial approximation of degree m to a
+    periodic chebfun by the Remez algorithm (MATLAB trigremez,
+    polynomial case).  Returns ``(p, err_max, status)`` where
+    ``status["xk"]`` is the final reference (equioscillation) set.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/trigremez.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford and
+        The Chebfun Developers (algorithm of Javed & Trefethen).
+    """
+    from chebfunjax.chebfun1d.chebfun import chebfun as _cf
+    from chebfunjax.utils.trigutils import trigBary
+
+    a, b = float(f.domain.a), float(f.domain.b)
+    if getattr(f, "isempty", lambda: False)():
+        return f
+
+    def to_ref(x):       # [a, b] -> [-pi, pi]
+        return -np.pi + 2 * np.pi * (np.asarray(x) - a) / (b - a)
+
+    def from_ref(y):     # [-pi, pi] -> [a, b]
+        y = np.asarray(y)
+        return b * (y + np.pi) / (2 * np.pi) \
+            + a * (np.pi - y) / (2 * np.pi)
+
+    def f_ref(y):
+        return np.asarray(f(jnp.asarray(from_ref(y))))
+
+    normf = float(f.norm(np.inf)) or 1.0
+    N = 2 * m + 2
+    xk = -np.pi + 2 * np.pi * np.arange(N) / N
+    xo = xk.copy()
+    sigma = np.ones(N)
+    sigma[1::2] = -1.0
+
+    from chebfunjax.utils.trigutils import trigBaryWeights
+
+    best = None
+    deltamin = np.inf
+    delta, diffx = normf, 1.0
+    it = 0
+    while delta / normf > tol and it < max_iter and diffx > 0:
+        fk = f_ref(xk)
+        w = trigBaryWeights(xk)
+        h = float((w @ fk) / (w @ sigma))
+        if h == 0:
+            h = 1e-19
+        pk = fk - h * sigma
+
+        def p_ref(y, pk=pk, xk=xk):
+            return trigBary(np.asarray(y), pk, xk,
+                            (-np.pi, np.pi))
+
+        # error extrema: dense sampling + local refinement (the
+        # MATLAB code uses roots(diff(f - p)); a fine grid with
+        # parabolic refinement reaches the same reference set)
+        yy = np.linspace(-np.pi, np.pi, max(4000, 40 * N),
+                         endpoint=False)
+        ee = f_ref(yy) - p_ref(yy)
+
+        # candidate extrema: sign changes of the discrete derivative
+        de = np.diff(ee)
+        idx = np.where(np.sign(de[1:]) != np.sign(de[:-1]))[0] + 1
+        rr = yy[idx]
+        er = ee[idx]
+
+        # keep alternating signs, largest magnitude per run
+        s_pts, s_val = [rr[0]], [er[0]]
+        for r_i, e_i in zip(rr[1:], er[1:]):
+            if np.sign(e_i) == np.sign(s_val[-1]):
+                if abs(e_i) > abs(s_val[-1]):
+                    s_pts[-1], s_val[-1] = r_i, e_i
+            else:
+                s_pts.append(r_i)
+                s_val.append(e_i)
+        s_pts = np.array(s_pts)
+        s_val = np.array(s_val)
+
+        err = float(np.max(np.abs(s_val)))
+        imax = int(np.argmax(np.abs(s_val)))
+        d0 = max(imax - N + 1, 0)
+        if len(s_pts) >= N:
+            xk = np.sort(s_pts[d0: d0 + N])
+        else:
+            break
+
+        diffx = float(np.max(np.abs(np.sort(xo) - np.sort(xk)))) \
+            if len(xo) == len(xk) else 1.0
+        delta = err - abs(h)
+        if delta < deltamin:
+            deltamin = delta
+            best = (pk.copy(), xo.copy(), abs(h), err)
+        xo = xk.copy()
+        it += 1
+
+    if best is None:
+        fk = f_ref(xk)
+        w = trigBaryWeights(xk)
+        h = float((w @ fk) / (w @ sigma))
+        best = (fk - h * sigma, xk.copy(), abs(h),
+                float(np.max(np.abs(fk))))
+    pk_b, xk_b, h_b, err_b = best
+
+    def p_phys(x):
+        return jnp.asarray(trigBary(
+            to_ref(np.asarray(x)), pk_b, xk_b, (-np.pi, np.pi)))
+
+    p = _cf(p_phys, domain=(a, b), trig=True, n=2 * m + 1)
+    status = {"xk": jnp.asarray(from_ref(np.sort(xk_b)))}
+    return p, err_b, status

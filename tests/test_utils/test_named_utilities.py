@@ -184,3 +184,13 @@ class TestTrigpade:
             trig=True)
         _, _, r2 = cj.trigpade(g, 2, 2)[:3]
         assert float(jnp.max(jnp.abs(g(tt) - r2(tt)))) < 1e-12
+
+
+class TestTrigremez:
+    def test_best_constant(self):
+        f = cj.chebfun(lambda x: jnp.cos(4 * np.pi * x) + 1,
+                       domain=(0.0, 2.0), trig=True)
+        p, errmax, _ = cj.trigremez(f, 1)
+        tt = jnp.asarray(np.linspace(0.01, 1.99, 30))
+        assert float(jnp.max(jnp.abs(p(tt) - 1.0))) < 1e-10
+        assert abs(errmax - 1.0) < 1e-8

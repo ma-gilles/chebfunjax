@@ -79,7 +79,7 @@ from chebfunjax.utils.polynomials import (
 )
 from chebfunjax.utils.polyops import fred, poly, residue, volt  # noqa: E402
 from chebfunjax.utils.random import randnfun, randnfun2  # noqa: E402
-from chebfunjax.utils.trigrational import trigpade  # noqa: E402
+from chebfunjax.utils.trigrational import trigpade, trigremez  # noqa: E402
 from chebfunjax.utils.trigutils import trigBary  # noqa: E402
 
 # The top-level `plot` is the universal dispatcher (like MATLAB's plot(f))
@@ -290,6 +290,7 @@ __all__ = [
     "lagpoly",
     "trigBary",
     "trigpade",
+    "trigremez",
     "isSubset",
     "nufft2",
     "complex_fun",
