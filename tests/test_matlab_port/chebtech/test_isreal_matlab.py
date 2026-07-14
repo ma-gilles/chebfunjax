@@ -6,11 +6,10 @@ of complex dtype": a complex-valued function produces ``complex128``
 coeffs and a purely real one produces ``float64`` coeffs.  We therefore
 test via ``jnp.iscomplexobj(f.coeffs)``.
 
-Note on Chebtech1: chebfunjax's Chebtech1 cannot represent complex-valued
-functions — its constructor drops the imaginary part (coeffs stay real).
-The two complex-detection assertions are therefore xfailed for Chebtech1
-(a genuine chebfunjax gap) and pass for Chebtech2.  Array-valued cases
-have no scalar analogue and are skipped.
+Both Chebtech1 and Chebtech2 now represent complex-valued functions (scalar
+and array-valued) via ``from_function`` — a complex column promotes the whole
+coefficient array to ``complex128`` — so every assertion, including the
+array-valued cases (pass 4:6), is ported as a real check.
 
 Provenance
 ----------
@@ -43,20 +42,24 @@ class TestChebtechIsreal:
         f = Tech.from_function(jnp.sin)
         assert not jnp.iscomplexobj(f.coeffs)
 
+    # FIXED (Fable 5, Big-Three array-valued epic): array-valued isreal.
     def test_array_complex_first_col(self, Tech):
         # pass(n,4): ~isreal(make(@(x) [sin(x) + 1i*cos(x), exp(x)]))
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix techs"
+        f = Tech.from_function(
+            lambda x: jnp.stack([jnp.sin(x) + 1j * jnp.cos(x), jnp.exp(x)], axis=-1)
         )
+        assert jnp.iscomplexobj(f.coeffs)
 
     def test_array_imaginary_first_col(self, Tech):
         # pass(n,5): ~isreal(make(@(x) [1i*cos(x), exp(x)]))
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix techs"
+        f = Tech.from_function(
+            lambda x: jnp.stack([1j * jnp.cos(x), jnp.exp(x)], axis=-1)
         )
+        assert jnp.iscomplexobj(f.coeffs)
 
     def test_array_all_real(self, Tech):
         # pass(n,6): isreal(make(@(x) [sin(x), exp(x)]))
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix techs"
+        f = Tech.from_function(
+            lambda x: jnp.stack([jnp.sin(x), jnp.exp(x)], axis=-1)
         )
+        assert not jnp.iscomplexobj(f.coeffs)

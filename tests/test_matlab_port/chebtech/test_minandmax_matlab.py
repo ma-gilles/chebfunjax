@@ -11,7 +11,12 @@ MATLAB ``[y, x] = minandmax(f)`` returns ``y = [ymin; ymax]``; chebfunjax
 
 Gaps vs MATLAB (honest xfail/skip):
 - Chebtech1 has no ``minandmax``.
-- array-valued / complex-array-valued: chebfunjax Chebtech is scalar-valued.
+- complex-array-valued: FIXED (Fable 5) -- ``minandmax`` follows
+  MATLAB's complex path (extrema of |f|^2, values = f at those
+  positions), so pass(n, 7)-(8) port at the same tolerances.
+
+Real array-valued ``minandmax`` (pass(n, 6)) is now supported: techs carry
+(n, m) coeffs and ``minandmax`` returns per-column ``(m,)`` values/positions.
 
 Provenance
 ----------
@@ -29,6 +34,11 @@ import scipy.special as sp
 from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 
 EPS = float(np.finfo(np.float64).eps)
+
+
+def airy(x):
+    """Airy Ai at ``x`` (MATLAB ``airy(x)`` -> ``Ai``), as a NumPy array."""
+    return sp.airy(np.asarray(x))[0]
 
 
 def _eval(fun, xpos):
@@ -100,18 +110,75 @@ class TestChebtechMinAndMax:
 
     def test_minmax_array_valued(self, Tech):
         # pass(n, 6): array-valued minandmax.
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued techs"
+        # FIXED (Fable 5, Big-Three array-valued epic): techs now carry (n, m)
+        # coeffs and minandmax returns per-column (m,) values/positions.
+        self._skip_c1(Tech)
+        fun = lambda x: jnp.stack(
+            [jnp.sin(10 * x), airy(x), (x - 0.25) ** 3 * jnp.cosh(x)], axis=-1
         )
+        f = Tech.from_function(fun)
+        (mn, xmn), (mx, xmx) = f.minandmax()
+        min_exact = jnp.array(
+            [-1.0, float(sp.airy(1.0)[0]), (-1.25) ** 3 * float(np.cosh(1.0))],
+            dtype=jnp.float64,
+        )
+        max_exact = jnp.array(
+            [1.0, float(sp.airy(-1.0)[0]), 0.75**3 * float(np.cosh(1.0))],
+            dtype=jnp.float64,
+        )
+        # MATLAB value tol: 10*max(vscale(f)*eps); vscale is the scalar global max.
+        tol = 10 * f.vscale * EPS
+        assert float(jnp.max(jnp.abs(mn - min_exact))) < tol
+        assert float(jnp.max(jnp.abs(mx - max_exact))) < tol
+        # MATLAB position check: each column's function at its own extremum
+        # matches the exact value (tol 1e1*max(vscale(f)*eps)).
+        tol_pos = 1e1 * f.vscale * EPS
+        assert float(jnp.max(jnp.abs(jnp.diagonal(fun(xmn)) - min_exact))) < tol_pos
+        assert float(jnp.max(jnp.abs(jnp.diagonal(fun(xmx)) - max_exact))) < tol_pos
 
+    # FIXED (Fable 5, Big-Three array-valued epic): minandmax now takes
+    # MATLAB's complex path (extrema of |f|^2, values = f at those
+    # positions), so pass(n, 7)-(8) port at the same tolerances.
     def test_minmax_complex_array_vals(self, Tech):
         # pass(n, 7): complex array-valued minandmax (|vals| comparison).
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued techs"
-        )
+        self._skip_c1(Tech)
+        import warnings
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            f = Tech.from_function(
+                lambda x: jnp.stack(
+                    [jnp.exp(jnp.sin(2 * x)), 1j * jnp.cos(20 * x)],
+                    axis=-1))
+            f1 = Tech.from_function(lambda x: jnp.exp(jnp.sin(2 * x)))
+            f2 = Tech.from_function(lambda x: 1j * jnp.cos(20 * x))
+        (mn, _), (mx, _) = f.minandmax()
+        (mn1, _), (mx1, _) = f1.minandmax()
+        (mn2, _), (mx2, _) = f2.minandmax()
+        vals = np.abs(np.array(
+            [[complex(mn[0]), complex(mn[1])],
+             [complex(mx[0]), complex(mx[1])]]))
+        ref = np.abs(np.array(
+            [[complex(mn1), complex(mn2)],
+             [complex(mx1), complex(mx2)]]))
+        assert np.max(np.abs(vals - ref)) < 1e2 * f.vscale * EPS
 
     def test_minmax_complex_array_pos(self, Tech):
-        # pass(n, 8): complex array-valued minandmax (position comparison).
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued techs"
-        )
+        # pass(n, 8): complex array-valued minandmax (position of the
+        # FIRST column only -- the second column's extrema are not
+        # unique, as MATLAB's own comment notes).
+        self._skip_c1(Tech)
+        import warnings
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            f = Tech.from_function(
+                lambda x: jnp.stack(
+                    [jnp.exp(jnp.sin(2 * x)), 1j * jnp.cos(20 * x)],
+                    axis=-1))
+            f1 = Tech.from_function(lambda x: jnp.exp(jnp.sin(2 * x)))
+        (_, xmn), (_, xmx) = f.minandmax()
+        (_, p1), (_, P1) = f1.minandmax()
+        pos = np.array([float(xmn[0]), float(xmx[0])])
+        pos1 = np.array([float(p1), float(P1)])
+        assert np.max(np.abs(pos - pos1)) < 500 * f.vscale * EPS

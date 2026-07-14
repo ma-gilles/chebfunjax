@@ -47,7 +47,19 @@ class TestChebtechLegcoeffs:
 
     @pytest.mark.parametrize("Tech,kind", CASES)
     def test_vector_P1P2P3(self, Tech, kind):
-        # pass(n, 2): array-valued [P_1, P_2, P_3] -> legcoeffs == eye(3).
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix techs"
+        # pass(n, 2): array-valued [P_0, P_1, P_2] -> legcoeffs == eye(3).
+        # FIXED (Fable 5, Big-Three array-valued epic): Chebtech now supports
+        # (n, m) coeffs. cheb2leg does not accept an (n, m) matrix, so we apply
+        # it per column here (MATLAB legcoeffs is column-wise anyway); the
+        # stacked Legendre coefficients form the identity, matching eye(3).
+        # (MATLAB comment says [P_1,P_2,P_3] but the columns are 1, x,
+        # .5*(3x^2-1), i.e. the degree 0/1/2 Legendre polynomials.)
+        tol = 10 * EPS
+        x = chebpts(3, kind)
+        cols = [1.0 + 0.0 * x, x, 0.5 * (3 * x**2 - 1)]
+        f = Tech.from_values(jnp.stack(cols, axis=-1))
+        lc = jnp.stack(
+            [cheb2leg(jnp.asarray(f.coeffs)[:, j]) for j in range(f.coeffs.shape[1])],
+            axis=-1,
         )
+        assert _ninf(lc - jnp.eye(3)) < tol

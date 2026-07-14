@@ -20,10 +20,8 @@ from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 CASES = [(Chebtech1, 1), (Chebtech2, 2)]
 
 _NO_TURBO = "chebfunjax has no useTurbo pref / turbo construction option"
-_NO_TURBO_ARRAY = (
-    "chebfunjax has no useTurbo pref / turbo construction option "
-    "(and Chebtech is scalar-valued)"
-)
+# Array-valued techs are now supported; the sole remaining blocker is turbo.
+_NO_TURBO_ARRAY = _NO_TURBO
 
 
 class TestChebtechTurbo:

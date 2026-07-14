@@ -9,7 +9,8 @@ Gaps vs MATLAB (honest xfail/skip):
 - ``roots(f, 'complex', 1)`` / ``'prune'`` / ``'recurse'``: chebfunjax
   ``roots()`` returns only real roots in [-1, 1]; no complex/prune/recurse.
 - ``roots(f, 'qz', 1)``: chebfunjax ``roots()`` has no 'qz' algorithm option.
-- array-valued ``roots``: chebfunjax Chebtech is scalar-valued.
+- array-valued ``roots``: FIXED (Fable 5) — roots() loops the colleague
+  matrix per column and NaN-pads, so pass(n, 9) ports directly.
 
 Provenance
 ----------
@@ -132,11 +133,18 @@ class TestChebtechRoots:
             "no 'complex'/'recurse' options"
         )
 
+    # FIXED (Fable 5, Big-Three array-valued epic): roots() now loops
+    # the colleague matrix per column and NaN-pads (both tech classes).
     def test_roots_array_valued(self, Tech):
-        # pass(n, 9): roots of [sin(pi x), cos(pi x)] (array-valued).
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued techs"
-        )
+        # pass(n, 9): roots of [sin(pi x), cos(pi x)] (array-valued);
+        # MATLAB compares the flattened NaN-padded matrix.
+        f = Tech.from_function(
+            lambda x: jnp.stack(
+                [jnp.sin(jnp.pi * x), jnp.cos(jnp.pi * x)], axis=-1))
+        r = np.asarray(f.roots())
+        r2 = np.array([[-1.0, -0.5], [0.0, 0.5], [1.0, np.nan]])
+        ok = (np.abs(r - r2) < 10 * f.n * EPS) | np.isnan(r2)
+        assert bool(np.all(ok))
 
     def test_roots_qz_nonempty(self, Tech):
         # pass(n, 10): roots(1e-10 x^3 + x^2 - 1e-12, 'qz', 1) non-empty.

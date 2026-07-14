@@ -1090,8 +1090,18 @@ class Chebtech2(eqx.Module):
             composed_func = lambda x: op_cheb(self(x))  # noqa: E731
             min_n = max(self.n, op_cheb.n)
         elif g is not None:
-            # Binary operator: op(self(x), g(x))
-            composed_func = lambda x: op(self(x), g(x))  # noqa: E731
+            # Binary operator: op(self(x), g(x)).  A scalar-valued
+            # operand broadcasts against an array-valued one via a
+            # trailing column axis (MATLAB @chebtech/compose.m repmats
+            # the scalar operand to matching columns).
+            f_cols = self.coeffs.ndim == 2
+            g_cols = g.coeffs.ndim == 2
+            if f_cols and not g_cols:
+                composed_func = lambda x: op(self(x), g(x)[..., None])  # noqa: E731
+            elif g_cols and not f_cols:
+                composed_func = lambda x: op(self(x)[..., None], g(x))  # noqa: E731
+            else:
+                composed_func = lambda x: op(self(x), g(x))  # noqa: E731
             min_n = max(self.n, g.n)
         else:
             # Unary operator: op(self(x))
@@ -1843,6 +1853,24 @@ class Chebtech2(eqx.Module):
         """
         import numpy as _np
 
+        if jnp.iscomplexobj(self.coeffs):
+            # Complex-valued: extrema of |f| located via |f|^2 (avoids
+            # the abs singularity), values are f at those positions
+            # (MATLAB @chebtech/minandmax.m lines 23-36).
+            realf = self.real()
+            imagf = self.imag()
+            h = (realf * realf + imagf * imagf).simplify()
+            (_, min_pos), (_, max_pos) = h.minandmax()
+            if self.coeffs.ndim == 2:
+                # f(pos) is (m, m); the diagonal pairs column k with
+                # its own extremum position (MATLAB's stride trick).
+                min_val = jnp.diagonal(self(jnp.atleast_1d(min_pos)))
+                max_val = jnp.diagonal(self(jnp.atleast_1d(max_pos)))
+            else:
+                min_val = self(min_pos)
+                max_val = self(max_pos)
+            return (min_val, min_pos), (max_val, max_pos)
+
         if self.coeffs.ndim == 2:
             # Array-valued: extremum per column (MATLAB
             # @chebtech/minandmax.m returns 2 x m values/positions)
@@ -2011,7 +2039,9 @@ def _chebtech1_vals2coeffs(values: jax.Array) -> jax.Array:
     kk = jnp.arange(n).reshape((n,) + (1,) * (coeffs.ndim - 1))
     sym = jnp.where((kk % 2 == 1) & is_even, 0.0, coeffs)
     sym = jnp.where((kk % 2 == 0) & is_odd, 0.0, sym)
-    return coeffs + jax.lax.stop_gradient(sym - coeffs)
+    # Guard non-finite entries: inf - inf would turn them into NaN.
+    delta = jnp.where(jnp.isfinite(coeffs), sym - coeffs, 0.0)
+    return coeffs + jax.lax.stop_gradient(delta)
 
 
 def _chebtech1_coeffs2vals(coeffs: jax.Array) -> jax.Array:
@@ -2096,7 +2126,9 @@ def _chebtech1_coeffs2vals(coeffs: jax.Array) -> jax.Array:
     vflip = values[::-1]
     sym = jnp.where(is_even, (values + vflip) / 2.0, values)
     sym = jnp.where(is_odd, (values - vflip) / 2.0, sym)
-    return values + jax.lax.stop_gradient(sym - values)
+    # Guard non-finite entries: inf - inf would turn them into NaN.
+    delta = jnp.where(jnp.isfinite(values), sym - values, 0.0)
+    return values + jax.lax.stop_gradient(delta)
 
 
 # ============================================================================
@@ -2735,6 +2767,17 @@ class Chebtech1(eqx.Module):
         MATLAB source : @chebtech/roots.m
         Chebfun commit: 7574c77
         """
+        if self.coeffs.ndim == 2:
+            # Array-valued: roots per column, NaN-padded to equal length
+            # (MATLAB @chebtech/roots.m), same as Chebtech2.roots.
+            import numpy as _np
+            cols = [_np.asarray(_roots_colleague(self.coeffs[:, j]))
+                    for j in range(self.coeffs.shape[1])]
+            nmax = max((len(c) for c in cols), default=0)
+            out = _np.full((nmax, len(cols)), _np.nan)
+            for j, c in enumerate(cols):
+                out[: len(c), j] = c
+            return jnp.asarray(out)
         return _roots_colleague(self.coeffs)
 
     # ------------------------------------------------------------------

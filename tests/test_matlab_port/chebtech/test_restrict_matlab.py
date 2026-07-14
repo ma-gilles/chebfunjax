@@ -14,7 +14,10 @@ Gaps vs MATLAB (honest xfail/skip):
 - Chebtech1 has no ``restrict``.
 - Multi-breakpoint ``restrict(f, [a b c])`` returns a cell array; chebfunjax
   ``restrict`` returns a single tech for one [a, b].
-- array-valued restriction: chebfunjax Chebtech is scalar-valued.
+
+Array-valued restriction (pass 11) is now supported: Chebtech coefficients may
+be an (n, m) matrix (one function per column), and ``restrict`` acts
+column-wise (FIXED, Fable 5, Big-Three array-valued epic).
 
 Provenance
 ----------
@@ -125,7 +128,20 @@ class TestChebtechRestrict:
         )
 
     def test_restrict_array_valued(self, Tech):
-        # pass(n, 11): restrict of an array-valued function.
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued techs"
-        )
+        # pass(n, 11): restrict of the array-valued [sin cos exp] on [-1, -0.7].
+        # FIXED (Fable 5, Big-Three array-valued epic): Chebtech now supports
+        # (n, m) coeffs; restrict acts column-wise. vscale(g) is the scalar
+        # global max, matching MATLAB max(vscale(g)*eps) for the scalar tol.
+        self._skip_c1(Tech)
+        a, b = -1.0, -0.7
+
+        def fun(x):
+            return jnp.stack([jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1)
+
+        f = Chebtech2.from_function(fun)
+        g = f.restrict(a, b)
+        x = jnp.asarray(np.linspace(a, b, 100))
+        mapx = (2.0 / (b - a)) * (x - a) - 1.0
+        err = _ninf(fun(x) - g(mapx))
+        tol = 1e3 * g.vscale * EPS
+        assert err < tol

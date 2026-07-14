@@ -7,10 +7,13 @@ default check corresponds to MATLAB's standard check.  Passing ``op`` enables
 the sample test (MATLAB ``pref.sampleTest = 1``); omitting ``op`` disables it
 (``pref.sampleTest = 0``).
 
-Ported (passing): the scalar sin@33 case (tail==14) and the aliasing case
+Ported (passing): the scalar sin@33 case (tail==14), the array-valued
+[sin cos exp]@33 case (tail near 15, happy), and the aliasing case
 (cos(80*acos x)@33 => tail 15/17 without sampleTest, unhappy/33 with).
+Array-valued happiness_check on (n, m) coeffs takes the max cutoff across the
+per-column standard_chop cutoffs (FIXED, Fable 5, Big-Three array-valued epic).
 xfail/skip: the ``happinessCheck='strict'/'classic'`` pref variants (no such
-pref in chebfunjax) and all array-valued cases (scalar-valued techs only).
+pref in chebfunjax), which pull in the strict/plateau array cases (pass 8, 9).
 
 Provenance
 ----------
@@ -30,7 +33,6 @@ CASES = [(Chebtech1, 1), (Chebtech2, 2)]
 # pass(n, 5): expected tail differs between the two techs (15 vs 17).
 CASES5 = [(Chebtech1, 1, 15), (Chebtech2, 2, 17)]
 
-_SCALAR = "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix techs"
 _NO_PREF = (
     "chebfunjax happiness_check has no 'strict'/'classic' happinessCheck pref "
     "variants (only the standard check)"
@@ -58,13 +60,32 @@ class TestChebtechHappinessCheck:
 
     @pytest.mark.parametrize("Tech,kind", CASES)
     def test_array_tail(self, Tech, kind):
-        # pass(n, 3): array-valued [sin cos exp], abs(tail - 15) < 2.
-        pytest.skip(_SCALAR)
+        # pass(n, 3): array-valued [sin cos exp] at 33 pts => abs(tail-15) < 2.
+        # FIXED (Fable 5, Big-Three array-valued epic): happiness_check on (n, m)
+        # coeffs returns the max cutoff across per-column standard_chop cutoffs.
+        x = chebpts(33, kind)
+
+        def op(xx):
+            return jnp.stack([jnp.sin(xx), jnp.cos(xx), jnp.exp(xx)], axis=-1)
+
+        g = Tech.from_values(op(x))
+        values = Tech.coeffs2vals(g.coeffs)
+        ishappy, tail = Tech.happiness_check(g.coeffs, values, op=op)
+        assert abs(tail - 15) < 2
 
     @pytest.mark.parametrize("Tech,kind", CASES)
     def test_array_ishappy(self, Tech, kind):
-        # pass(n, 4): array-valued ishappy.
-        pytest.skip(_SCALAR)
+        # pass(n, 4): array-valued [sin cos exp] is happy (every column resolved).
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        x = chebpts(33, kind)
+
+        def op(xx):
+            return jnp.stack([jnp.sin(xx), jnp.cos(xx), jnp.exp(xx)], axis=-1)
+
+        g = Tech.from_values(op(x))
+        values = Tech.coeffs2vals(g.coeffs)
+        ishappy, tail = Tech.happiness_check(g.coeffs, values, op=op)
+        assert ishappy
 
     @pytest.mark.parametrize("Tech,kind,tail_ex", CASES5)
     def test_aliasing_fools_check(self, Tech, kind, tail_ex):
@@ -106,9 +127,13 @@ class TestChebtechHappinessCheck:
     @pytest.mark.parametrize("Tech,kind", CASES)
     def test_strict_array(self, Tech, kind):
         # pass(n, 8): strictCheck with an array-valued input.
-        pytest.skip(_SCALAR)
+        # Array-valuedness is now supported, but the blocker here is the missing
+        # happinessCheck='strict' pref (no strictCheck in chebfunjax).
+        pytest.skip(_NO_PREF)
 
     @pytest.mark.parametrize("Tech,kind", CASES)
     def test_plateau_array(self, Tech, kind):
         # pass(n, 9): plateauCheck with an array-valued input.
-        pytest.skip(_SCALAR)
+        # Array-valuedness is now supported, but the blocker here is the missing
+        # happinessCheck=@plateauCheck pref (no plateauCheck in chebfunjax).
+        pytest.skip(_NO_PREF)

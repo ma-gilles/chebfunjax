@@ -13,8 +13,13 @@ Gaps vs MATLAB (honest xfail/skip), reported in the final summary:
   (~1e-11) marginally exceeds 1e4*vscale*eps on Chebtech2 -> xfail (see below).
 - MATLAB ``isnan(g)`` for ``f ./ 0`` checks the tech became NaN; chebfunjax
   ``f / 0`` yields inf/NaN coefficients, checked with jnp.isnan/jnp.isinf.
-- array-valued / row-matrix divisor / size-error assertions have no scalar-tech
-  analog.
+- size-error assertions (dividing by a column vector / mismatched row vector)
+  check a MATLAB error identifier that has no chebfunjax analog.
+
+Array-valued: Chebtech now supports (n, m) coefficient matrices, so the
+array-valued rdivide-by-constant cases (pass 3:6) are ported.  These divide by
+a scalar or a row vector of constants (not by another array-valued tech), so
+they do not need the compose path.
 
 Provenance
 ----------
@@ -32,8 +37,9 @@ from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 
 EPS = float(np.finfo(np.float64).eps)
 X = jnp.asarray(np.linspace(-1.0, 1.0, 100))
-# arbitrary complex constant (matches test_rdivide.m).
+# arbitrary complex constants (match test_rdivide.m).
 ALPHA = -0.194758928283640 + 0.075474485412665j
+BETA = -0.526634844879922 - 0.685484380523668j
 
 _CT1_COMPLEX = (
     "Chebtech1 drops the imaginary part in vals2coeffs/coeffs2vals; it cannot "
@@ -46,7 +52,6 @@ _R10_FLOOR = (
     "for a degree-1e4 oscillatory series. MATLAB passes only via lucky "
     "100-random-point sampling."
 )
-_ARRAY = "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix techs"
 _SIZEERR = "chebfunjax has no MATLAB rdivide:size error identifier (scalar-valued)"
 
 
@@ -55,13 +60,16 @@ def _ninf(a):
 
 
 def _coeff_diff(f, g):
-    """||coeffs(f) - coeffs(g)||_inf after zero-padding to a common length."""
+    """||coeffs(f) - coeffs(g)||_inf after zero-padding to a common length.
+
+    Handles both scalar (n,) and array-valued (n, m) coefficient arrays.
+    """
     a = jnp.asarray(f.coeffs)
     b = jnp.asarray(g.coeffs)
     n = max(a.shape[0], b.shape[0])
     dt = jnp.result_type(a.dtype, b.dtype)
-    ap = jnp.zeros(n, dt).at[: a.shape[0]].set(a)
-    bp = jnp.zeros(n, dt).at[: b.shape[0]].set(b)
+    ap = jnp.zeros((n,) + a.shape[1:], dt).at[: a.shape[0]].set(a)
+    bp = jnp.zeros((n,) + b.shape[1:], dt).at[: b.shape[0]].set(b)
     return _ninf(ap - bp)
 
 
@@ -80,21 +88,46 @@ class TestChebtechRdivide:
         g = f / 0
         assert bool(jnp.any(jnp.isnan(g.coeffs)) or jnp.any(jnp.isinf(g.coeffs)))
 
+    # FIXED (Fable 5, Big-Three array-valued epic): [sin cos] ./ alpha.
     def test_array_valued_div_by_scalar(self, Tech):
-        # pass(n, 3): [sin cos] ./ alpha.
-        pytest.skip(_ARRAY)
+        # pass(n, 3): feval([sin cos] ./ alpha) == [sin cos] / alpha.
+        f = Tech.from_function(
+            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1)
+        )
+        g = f / ALPHA
+        exact = jnp.stack([jnp.sin(X) / ALPHA, jnp.cos(X) / ALPHA], axis=-1)
+        assert _ninf(g(X) - exact) < 10 * g.vscale * EPS
 
+    # FIXED (Fable 5, Big-Three array-valued epic): isnan([sin cos] ./ 0).
     def test_array_valued_div_by_zero(self, Tech):
-        # pass(n, 4): isnan([sin cos] ./ 0).
-        pytest.skip(_ARRAY)
+        # pass(n, 4): isnan([sin cos] ./ 0).  chebfunjax f/0 -> inf/NaN coeffs.
+        f = Tech.from_function(
+            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1)
+        )
+        g = f / 0
+        assert bool(jnp.any(jnp.isnan(g.coeffs)) or jnp.any(jnp.isinf(g.coeffs)))
 
+    # FIXED (Fable 5, Big-Three array-valued epic): [sin cos] ./ [alpha beta].
     def test_div_by_scalar_row_matrix(self, Tech):
-        # pass(n, 5): [sin cos] ./ [alpha beta].
-        pytest.skip(_ARRAY)
+        # pass(n, 5): feval([sin cos] ./ [alpha beta]) == [sin/alpha cos/beta].
+        f = Tech.from_function(
+            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1)
+        )
+        g = f / jnp.asarray([ALPHA, BETA])
+        exact = jnp.stack([jnp.sin(X) / ALPHA, jnp.cos(X) / BETA], axis=-1)
+        assert _ninf(g(X) - exact) < 10 * EPS
 
+    # FIXED (Fable 5, Big-Three array-valued epic): [sin cos] ./ [alpha 0] -> per-column NaN.
     def test_div_by_scalar_row_with_zero(self, Tech):
-        # pass(n, 6): [sin cos] ./ [alpha 0] -> per-column NaN.
-        pytest.skip(_ARRAY)
+        # pass(n, 6): dividing by [alpha 0] leaves col 1 finite and col 2 all NaN.
+        f = Tech.from_function(
+            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1)
+        )
+        g = f / jnp.asarray([ALPHA, 0.0])
+        c = g.coeffs
+        assert not bool(jnp.any(jnp.isnan(c[:, 0]))) and bool(
+            jnp.all(jnp.isnan(c[:, 1]))
+        )
 
     def test_scalar_div_by_function(self, Tech):
         # pass(n, 7): alpha ./ exp -> alpha / e^x (complex).

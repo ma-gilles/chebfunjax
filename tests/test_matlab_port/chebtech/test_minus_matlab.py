@@ -13,7 +13,12 @@ Gaps vs MATLAB (honest xfail/skip), reported in the final summary:
 - Chebtech1.__sub__ drops the imaginary part of a complex scalar operand.
 - chebfunjax arithmetic (from_coeffs) always sets ishappy=True; happiness is
   not propagated through minus (the "unhappy result" checks xfail).
-- array-valued / empty / dimension-error assertions have no scalar-tech analog.
+- empty / dimension-error assertions have no scalar-tech analog.
+
+Array-valued: Chebtech now supports (n, m) coefficient matrices, so the
+array-valued minus cases (pass 12:17) are ported.  Chebtech1 still drops the
+imaginary part of a complex *scalar* operand, so the array-valued exact check
+with the complex ALPHA (pass 15) xfails on Chebtech1 just like pass 3.
 
 Provenance
 ----------
@@ -26,6 +31,7 @@ from __future__ import annotations
 import jax.numpy as jnp
 import numpy as np
 import pytest
+import scipy.special
 
 from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 
@@ -33,6 +39,11 @@ EPS = float(np.finfo(np.float64).eps)
 X = jnp.asarray(np.linspace(-1.0, 1.0, 100))
 # arbitrary complex constant (test_minus.m uses randn() + 1i*randn()).
 ALPHA = -0.912132456789012 + 0.632984567890123j
+
+
+def _airy_ix(x):
+    """MATLAB ``airy(1i*x)`` — Airy Ai on the imaginary axis (complex-valued)."""
+    return jnp.asarray(scipy.special.airy(1j * np.asarray(x))[0])
 
 _CT1_COMPLEX = (
     "Chebtech1 drops the imaginary part in vals2coeffs/coeffs2vals; it cannot "
@@ -46,7 +57,6 @@ _UNHAPPY = (
     "chebfunjax Chebtech arithmetic builds results via from_coeffs, which "
     "always sets ishappy=True; happiness is not propagated through minus"
 )
-_ARRAY = "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix techs"
 _EMPTY = "chebfunjax has no empty-tech / array-concat API for isempty checks"
 _DIMERR = "chebfunjax has no MATLAB dimension-mismatch error identifier"
 
@@ -56,13 +66,16 @@ def _ninf(a):
 
 
 def _coeff_diff(f, g):
-    """||coeffs(f) - coeffs(g)||_inf after zero-padding to a common length."""
+    """||coeffs(f) - coeffs(g)||_inf after zero-padding to a common length.
+
+    Handles both scalar (n,) and array-valued (n, m) coefficient arrays.
+    """
     a = jnp.asarray(f.coeffs)
     b = jnp.asarray(g.coeffs)
     n = max(a.shape[0], b.shape[0])
     dt = jnp.result_type(a.dtype, b.dtype)
-    ap = jnp.zeros(n, dt).at[: a.shape[0]].set(a)
-    bp = jnp.zeros(n, dt).at[: b.shape[0]].set(b)
+    ap = jnp.zeros((n,) + a.shape[1:], dt).at[: a.shape[0]].set(a)
+    bp = jnp.zeros((n,) + b.shape[1:], dt).at[: b.shape[0]].set(b)
     return _ninf(ap - bp)
 
 
@@ -143,17 +156,71 @@ class TestChebtechMinus:
         exact = (jnp.exp(X) - 1) - jnp.sinh(X * jnp.exp(2j * jnp.pi / 6))
         assert _ninf(h(X) - exact) <= 1e4 * h.vscale * EPS
 
-    def test_array_valued_zero_diff(self, Tech):
-        # pass(n, 12:13): array-valued zero - zero.
-        pytest.skip(_ARRAY)
+    # FIXED (Fable 5, Big-Three array-valued epic): array-valued zero - zero.
+    def test_array_valued_zero_diff_negation(self, Tech):
+        # pass(n, 12): isequal(f - f, -(f - f)) for array-valued f == [0 0 0].
+        f = Tech.from_function(
+            lambda x: jnp.stack(
+                [jnp.zeros_like(x), jnp.zeros_like(x), jnp.zeros_like(x)], axis=-1
+            )
+        )
+        assert _coeff_diff(f - f, -(f - f)) == 0.0
 
-    def test_array_valued_minus_scalar(self, Tech):
-        # pass(n, 14:15): [sin cos exp] - alpha.
-        pytest.skip(_ARRAY)
+    def test_array_valued_zero_diff_exact(self, Tech):
+        # pass(n, 13): feval(f - f) == 0 for array-valued f == [0 0 0].
+        f = Tech.from_function(
+            lambda x: jnp.stack(
+                [jnp.zeros_like(x), jnp.zeros_like(x), jnp.zeros_like(x)], axis=-1
+            )
+        )
+        h = f - f
+        assert _ninf(h(X)) <= 1e4 * h.vscale * EPS
 
-    def test_array_valued_diff(self, Tech):
-        # pass(n, 16:17): [sin cos exp] - [cosh airy(ix) sinh].
-        pytest.skip(_ARRAY)
+    # FIXED (Fable 5, Big-Three array-valued epic): [sin cos exp] - alpha.
+    def test_array_valued_minus_scalar_negation(self, Tech):
+        # pass(n, 14): isequal(f - alpha, -(alpha - f)), f = [sin cos exp].
+        f = Tech.from_function(
+            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1)
+        )
+        g1 = f - ALPHA
+        g2 = ALPHA - f
+        assert _coeff_diff(g1, -g2) == 0.0
+
+    def test_array_valued_minus_scalar_exact(self, Tech):
+        # pass(n, 15): feval([sin cos exp] - alpha) == exact.
+        if Tech is Chebtech1:
+            pytest.xfail(_CT1_SUB)
+        f = Tech.from_function(
+            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1)
+        )
+        g1 = f - ALPHA
+        exact = jnp.stack([jnp.sin(X), jnp.cos(X), jnp.exp(X)], axis=-1) - ALPHA
+        assert _ninf(g1(X) - exact) <= 10 * g1.vscale * EPS
+
+    # FIXED (Fable 5, Big-Three array-valued epic): [sin cos exp] - [cosh airy(ix) sinh].
+    def test_array_valued_diff_negation(self, Tech):
+        # pass(n, 16): isequal(f - g, -(g - f)), f = [sin cos exp], g = [cosh airy(1i x) sinh].
+        f = Tech.from_function(
+            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1)
+        )
+        g = Tech.from_function(
+            lambda x: jnp.stack([jnp.cosh(x), _airy_ix(x), jnp.sinh(x)], axis=-1)
+        )
+        assert _coeff_diff(f - g, -(g - f)) == 0.0
+
+    def test_array_valued_diff_exact(self, Tech):
+        # pass(n, 17): feval(f - g) == [sin cos exp] - [cosh airy(1i x) sinh].
+        f = Tech.from_function(
+            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1)
+        )
+        g = Tech.from_function(
+            lambda x: jnp.stack([jnp.cosh(x), _airy_ix(x), jnp.sinh(x)], axis=-1)
+        )
+        h = f - g
+        exact = jnp.stack([jnp.sin(X), jnp.cos(X), jnp.exp(X)], axis=-1) - jnp.stack(
+            [jnp.cosh(X), _airy_ix(X), jnp.sinh(X)], axis=-1
+        )
+        assert _ninf(h(X) - exact) <= 1e4 * h.vscale * EPS
 
     def test_dimension_mismatch_error(self, Tech):
         # pass(n, 18): array-valued - scalar-valued -> dimension error.

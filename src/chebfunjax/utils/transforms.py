@@ -93,7 +93,9 @@ def vals2coeffs(values: jnp.ndarray) -> jnp.ndarray:
     k = jnp.arange(n).reshape((n,) + (1,) * (coeffs.ndim - 1))
     sym = jnp.where((k % 2 == 1) & is_even, 0.0, coeffs)
     sym = jnp.where((k % 2 == 0) & is_odd, 0.0, sym)
-    coeffs = coeffs + jax.lax.stop_gradient(sym - coeffs)
+    # Guard non-finite entries: inf - inf would turn them into NaN.
+    delta = jnp.where(jnp.isfinite(coeffs), sym - coeffs, 0.0)
+    coeffs = coeffs + jax.lax.stop_gradient(delta)
 
     return coeffs
 
@@ -162,7 +164,9 @@ def coeffs2vals(coeffs: jnp.ndarray) -> jnp.ndarray:
     vflip = values[::-1]
     sym = jnp.where(is_even, (values + vflip) / 2.0, values)
     sym = jnp.where(is_odd, (values - vflip) / 2.0, sym)
-    values = values + jax.lax.stop_gradient(sym - values)
+    # Guard non-finite entries: inf - inf would turn them into NaN.
+    delta = jnp.where(jnp.isfinite(values), sym - values, 0.0)
+    values = values + jax.lax.stop_gradient(delta)
 
     return values
 

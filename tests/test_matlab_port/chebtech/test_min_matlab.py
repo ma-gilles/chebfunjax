@@ -10,9 +10,12 @@ method xfails the Chebtech1 parametrization with a precise reason.  MATLAB
 
 Gaps vs MATLAB (honest xfail/skip):
 - Chebtech1 has no ``min``.
-- complex-valued ``min``: chebfunjax uses real-valued rootfinding/argmin, not
-  MATLAB's complex ordering.
-- array-valued ``min``: chebfunjax Chebtech is scalar-valued.
+- complex-valued / complex-array-valued ``min``: FIXED (Fable 5) --
+  minandmax follows MATLAB's complex path (extrema of |f|^2), so the
+  complex spot-checks port at the same tolerances.
+
+Real array-valued ``min`` (pass(n, 6)) is now supported: techs carry (n, m)
+coeffs and ``min`` returns per-column ``(m,)`` values/positions.
 
 Provenance
 ----------
@@ -30,6 +33,11 @@ import scipy.special as sp
 from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 
 EPS = float(np.finfo(np.float64).eps)
+
+
+def airy(x):
+    """Airy Ai at ``x`` (MATLAB ``airy(x)`` -> ``Ai``), as a NumPy array."""
+    return sp.airy(np.asarray(x))[0]
 
 
 def _eval(fun, xpos):
@@ -90,20 +98,61 @@ class TestChebtechMin:
 
     def test_min_array_valued(self, Tech):
         # pass(n, 6): array-valued min.
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued techs"
+        # FIXED (Fable 5, Big-Three array-valued epic): techs now carry (n, m)
+        # coeffs and min returns per-column (m,) values/positions.
+        self._skip_c1(Tech)
+        fun = lambda x: -jnp.stack(
+            [jnp.sin(10 * x), airy(x), (x - 0.25) ** 3 * jnp.cosh(x)], axis=-1
         )
+        f = Tech.from_function(fun)
+        y, xpos = f.min()
+        exact = -jnp.array(
+            [1.0, float(sp.airy(-1.0)[0]), 0.75**3 * float(np.cosh(1.0))],
+            dtype=jnp.float64,
+        )
+        # MATLAB pass(n, 6) tol: 10*max(vscale(f)*eps).
+        tol = 10 * f.vscale * EPS
+        assert float(jnp.max(jnp.abs(y - exact))) < tol
+        assert float(jnp.max(jnp.abs(jnp.diagonal(fun(xpos)) - exact))) < tol
 
+    # FIXED (Fable 5, Big-Three array-valued epic): min now follows
+    # MATLAB's complex path (|f|^2 extrema), so pass(n, 7)-(8) port.
     def test_min_complex(self, Tech):
         # pass(n, 7): min of exp(1i x) - .5i sin(x) + x.
         self._skip_c1(Tech)
-        pytest.xfail(
-            "chebfunjax min on complex-valued functions uses real-valued "
-            "rootfinding/argmin, not MATLAB's complex ordering"
-        )
+        import warnings
+
+        def fun(x):
+            return jnp.exp(1j * x) - 0.5j * jnp.sin(x) + x
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            f = Tech.from_function(fun)
+        y, x = f.min()
+        exact = 0.074968381369117 - 0.319744137826069j
+        tol = 1e2 * f.vscale * EPS
+        assert abs(complex(y) - exact) < tol
+        assert abs(complex(fun(x)) - exact) < tol
 
     def test_min_complex_array(self, Tech):
-        # pass(n, 8): complex array-valued min.
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued techs"
-        )
+        # pass(n, 8): complex array-valued min; fx picks each column at
+        # its own position (MATLAB fx([1 4]) diagonal trick).
+        self._skip_c1(Tech)
+        import warnings
+
+        def fun(x):
+            return jnp.stack(
+                [jnp.exp(1j * x) - 0.5j * jnp.sin(x) + x,
+                 (1 + 0.5 * (x - 0.1) ** 2) * jnp.exp(1j * x)],
+                axis=-1)
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            f = Tech.from_function(fun)
+        y, x = f.min()
+        exact = np.array([0.074968381369117 - 0.319744137826069j,
+                          0.995004165278026 + 0.099833416646827j])
+        fx = np.asarray(jnp.diagonal(fun(x)))
+        tol = 1e2 * f.vscale * EPS
+        assert np.max(np.abs(np.asarray(y) - exact)) < tol
+        assert np.max(np.abs(fx - exact)) < tol

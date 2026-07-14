@@ -10,9 +10,12 @@ method xfails the Chebtech1 parametrization with a precise reason.  MATLAB
 
 Gaps vs MATLAB (honest xfail/skip):
 - Chebtech1 has no ``max``.
-- complex-valued ``max``: chebfunjax uses real-valued rootfinding/argmin, not
-  MATLAB's complex ordering.
-- array-valued ``max``: chebfunjax Chebtech is scalar-valued.
+- complex-valued / complex-array-valued ``max``: FIXED (Fable 5) --
+  minandmax follows MATLAB's complex path (extrema of |f|^2), so the
+  complex spot-checks port at the same tolerances.
+
+Real array-valued ``max`` (pass(n, 6)) is now supported: techs carry (n, m)
+coeffs and ``max`` returns per-column ``(m,)`` values/positions.
 
 Provenance
 ----------
@@ -30,6 +33,11 @@ import scipy.special as sp
 from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 
 EPS = float(np.finfo(np.float64).eps)
+
+
+def airy(x):
+    """Airy Ai at ``x`` (MATLAB ``airy(x)`` -> ``Ai``), as a NumPy array."""
+    return sp.airy(np.asarray(x))[0]
 
 
 def _eval(fun, xpos):
@@ -90,20 +98,61 @@ class TestChebtechMax:
 
     def test_max_array_valued(self, Tech):
         # pass(n, 6): array-valued max.
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued techs"
+        # FIXED (Fable 5, Big-Three array-valued epic): techs now carry (n, m)
+        # coeffs and max returns per-column (m,) values/positions.
+        self._skip_c1(Tech)
+        fun = lambda x: jnp.stack(
+            [jnp.sin(10 * x), airy(x), (x - 0.25) ** 3 * jnp.cosh(x)], axis=-1
         )
+        f = Tech.from_function(fun)
+        y, xpos = f.max()
+        exact = jnp.array(
+            [1.0, float(sp.airy(-1.0)[0]), 0.75**3 * float(np.cosh(1.0))],
+            dtype=jnp.float64,
+        )
+        # MATLAB uses the plain tol 10*eps for pass(n, 6).
+        assert float(jnp.max(jnp.abs(y - exact))) < 10 * EPS
+        assert float(jnp.max(jnp.abs(jnp.diagonal(fun(xpos)) - exact))) < 10 * EPS
 
+    # FIXED (Fable 5, Big-Three array-valued epic): max now follows
+    # MATLAB's complex path (|f|^2 extrema), so pass(n, 7)-(8) port.
     def test_max_complex(self, Tech):
         # pass(n, 7): max of (x-0.2)*(exp(1i(x-0.2)) + 1i sin(x-0.2)).
         self._skip_c1(Tech)
-        pytest.xfail(
-            "chebfunjax max on complex-valued functions uses real-valued "
-            "rootfinding/argmin, not MATLAB's complex ordering"
-        )
+        import warnings
+
+        def fun(x):
+            return (x - 0.2) * (jnp.exp(1j * (x - 0.2))
+                                + 1j * jnp.sin(x - 0.2))
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            f = Tech.from_function(fun)
+        y, x = f.max()
+        exact = -0.434829305372008 + 2.236893806321343j
+        tol = 10 * f.vscale * EPS
+        assert abs(complex(y) - exact) < tol
+        assert abs(complex(fun(x)) - exact) < tol
 
     def test_max_complex_array(self, Tech):
-        # pass(n, 8): complex array-valued max.
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued techs"
-        )
+        # pass(n, 8): complex array-valued max of [sin(z) sinh(z)],
+        # z = (x - 0.3 + 1i)^3 - 2i; tol = 10*max(vscale(f), eps).
+        self._skip_c1(Tech)
+        import warnings
+
+        def z(x):
+            return (x - 0.3 + 1j) ** 3 - 2j
+
+        def fun(x):
+            return jnp.stack([jnp.sin(z(x)), jnp.sinh(z(x))], axis=-1)
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            f = Tech.from_function(fun)
+        y, x = f.max()
+        exact = np.array([-10.017874927409903j, 3.626860407847019])
+        fx = np.array([complex(jnp.sin(z(x[0]))),
+                       complex(jnp.sinh(z(x[1])))])
+        tol = 10 * max(f.vscale, EPS)
+        assert np.max(np.abs(np.asarray(y) - exact)) < tol
+        assert np.max(np.abs(fx - exact)) < tol

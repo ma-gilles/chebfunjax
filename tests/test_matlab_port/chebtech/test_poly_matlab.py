@@ -57,7 +57,6 @@ class TestChebtechPoly:
     @pytest.mark.parametrize("Tech,kind", CASES)
     def test_array_valued(self, Tech, kind):
         # pass(n, 5): array-valued poly.
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; also lacks poly() "
-            "(Chebyshev->monomial power coefficients)"
-        )
+        # Array-valued techs are now supported, but the blocker here is still
+        # the missing poly() (Chebyshev->monomial power coefficients).
+        pytest.skip(_NO_POLY)

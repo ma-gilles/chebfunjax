@@ -14,7 +14,9 @@ Gaps vs MATLAB (honest xfail/skip):
 - Chebtech1 drops the imaginary part in vals2coeffs/coeffs2vals, so it cannot
   represent complex-valued functions; the complex ``abs`` case xfails on
   Chebtech1 (Chebtech2 passes).
-- array-valued ``abs``: chebfunjax Chebtech is scalar-valued.
+- Array-valued ``abs``: Chebtech now supports (n, m) coefficient matrices, so
+  the complex array-valued abs case (pass 4) is ported.  Complex columns are
+  preserved on both classes, so it holds for Chebtech1 too.
 
 Provenance
 ----------
@@ -58,8 +60,23 @@ class TestChebtechAbs:
         h = abs(f)
         assert float((h - 1.0).norm(jnp.inf)) < 1e2 * EPS
 
+    # FIXED (Fable 5, Big-Three array-valued epic): complex array-valued abs.
     def test_abs_complex_array(self, Tech):
-        # pass(type, 4): complex array-valued abs.
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued techs"
+        # pass(type, 4): abs([(2+sin)e^{i pi x}, -(2+sin)e^{i pi x}, 2+sin]) == [2+sin, 2+sin, 2+sin].
+        f = Tech.from_function(
+            lambda x: jnp.stack(
+                [
+                    (2 + jnp.sin(x)) * jnp.exp(1j * jnp.pi * x),
+                    -(2 + jnp.sin(x)) * jnp.exp(1j * jnp.pi * x),
+                    2 + jnp.sin(x),
+                ],
+                axis=-1,
+            )
         )
+        g = Tech.from_function(
+            lambda x: jnp.stack(
+                [2 + jnp.sin(x), 2 + jnp.sin(x), 2 + jnp.sin(x)], axis=-1
+            )
+        )
+        h = abs(f)
+        assert float((h - g).norm(jnp.inf)) < 1e1 * EPS
