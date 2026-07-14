@@ -1152,7 +1152,7 @@ class Trigtech(eqx.Module):
     # Calculus
     # ------------------------------------------------------------------
 
-    def diff(self, k: int = 1) -> "Trigtech":
+    def diff(self, k: int = 1, dim: int = 1) -> "Trigtech":
         r"""Return the k-th derivative.
 
         Multiplies each Fourier coefficient c_j by (i*pi*j)^k.
@@ -1176,6 +1176,16 @@ class Trigtech(eqx.Module):
         MATLAB source : @trigtech/diff.m
         Chebfun commit: 7574c77
         """
+        if dim == 2:
+            # k-th finite differences ACROSS the columns of an
+            # array-valued tech (MATLAB diff(f, k, 2)); empty for
+            # scalar-valued input.
+            if self.coeffs.ndim == 1:
+                return Trigtech(
+                    coeffs=jnp.zeros((0,), dtype=self.coeffs.dtype),
+                    is_real=self.is_real, ishappy=self.ishappy)
+            return Trigtech(coeffs=jnp.diff(self.coeffs, n=k, axis=1),
+                            is_real=self.is_real, ishappy=self.ishappy)
         if k == 0:
             return self
         dc = _trig_diff_coeffs(self.coeffs, k)
@@ -1278,24 +1288,32 @@ class Trigtech(eqx.Module):
 
         return Chebtech2.from_function(g)
 
-    def sum(self) -> jax.Array:
+    def sum(self, dim: int = 1) -> "jax.Array | Trigtech":
         r"""Definite integral over [-1, 1].
 
-        Returns 2 * c_0 (real if ``is_real`` is True).
+        Returns 2 * c_0 (real if ``is_real`` is True); one integral per
+        column for array-valued techs.  ``dim=2`` sums ACROSS the
+        columns and returns a scalar-column Trigtech (MATLAB
+        ``sum(f, 2)``, a no-op for scalar-valued input).
 
         Returns
         -------
-        jax.Array scalar
+        jax.Array (scalar or (m,)) or Trigtech
 
         Notes
         -----
-        JIT-safe: yes.
+        JIT-safe: yes (dim=1).
 
         Provenance
         ----------
         MATLAB source : @trigtech/sum.m
         Chebfun commit: 7574c77
         """
+        if dim == 2:
+            if self.coeffs.ndim == 1:
+                return self
+            return Trigtech(coeffs=jnp.sum(self.coeffs, axis=1),
+                            is_real=self.is_real, ishappy=self.ishappy)
         s = _trig_definite_integral(self.coeffs)
         if self.is_real:
             return jnp.real(s).astype(jnp.float64)
@@ -1519,3 +1537,191 @@ class Trigtech(eqx.Module):
         fv = jnp.abs(_trig_eval(self.coeffs, x, self.is_real))
         c = trig_vals2coeffs(fv.astype(jnp.complex128))
         return Trigtech(coeffs=c, is_real=True, ishappy=self.ishappy)
+
+    # ------------------------------------------------------------------
+    # Array-valued column operations and elementwise parts
+    # (Fable 5, Big-Three array-valued epic)
+    # ------------------------------------------------------------------
+
+    def __matmul__(self, other) -> "Trigtech":
+        """MATLAB mtimes ``f * A``: right-multiply an array-valued tech
+        by a matrix, mixing its columns (coeffs @ A).
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/mtimes.m
+        Chebfun commit: 7574c77
+        """
+        A = jnp.asarray(other)
+        c = self.coeffs if self.coeffs.ndim == 2 else self.coeffs[:, None]
+        return Trigtech(coeffs=c @ A.astype(jnp.complex128),
+                        is_real=self.is_real and bool(jnp.isrealobj(A)),
+                        ishappy=self.ishappy)
+
+    def fliplr(self) -> "Trigtech":
+        """Reverse the column order of an array-valued tech (no-op for
+        scalar-valued input).
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/fliplr.m
+        Chebfun commit: 7574c77
+        """
+        if self.coeffs.ndim == 1:
+            return self
+        return Trigtech(coeffs=self.coeffs[:, ::-1],
+                        is_real=self.is_real, ishappy=self.ishappy)
+
+    def flipud(self) -> "Trigtech":
+        """Return g with g(x) = f(-x).  Odd length flips the
+        coefficients; even length keeps the c_{-N/2} mode in place
+        (conjugated) and flips the rest.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/flipud.m
+        Chebfun commit: 7574c77
+        """
+        c = self.coeffs
+        if c.shape[0] % 2 == 1:
+            new_c = c[::-1]
+        else:
+            new_c = jnp.concatenate(
+                [jnp.conj(c[:1]), c[:0:-1]])
+        return Trigtech(coeffs=new_c, is_real=self.is_real,
+                        ishappy=self.ishappy)
+
+    def real(self) -> "Trigtech":
+        """Real part (a zero tech if the input was purely imaginary).
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/real.m
+        Chebfun commit: 7574c77
+        """
+        v = jnp.real(trig_coeffs2vals(self.coeffs))
+        if not bool(jnp.any(jnp.abs(v) > 0)):
+            z = jnp.zeros((1,) + self.coeffs.shape[1:],
+                          dtype=jnp.complex128)
+            return Trigtech(coeffs=z, is_real=True, ishappy=True)
+        return Trigtech(coeffs=trig_vals2coeffs(
+                            v.astype(jnp.complex128)),
+                        is_real=True, ishappy=self.ishappy)
+
+    def imag(self) -> "Trigtech":
+        """Imaginary part (a zero tech if the input was real).
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/imag.m
+        Chebfun commit: 7574c77
+        """
+        v = jnp.imag(trig_coeffs2vals(self.coeffs))
+        if not bool(jnp.any(jnp.abs(v) > 0)):
+            z = jnp.zeros((1,) + self.coeffs.shape[1:],
+                          dtype=jnp.complex128)
+            return Trigtech(coeffs=z, is_real=True, ishappy=True)
+        return Trigtech(coeffs=trig_vals2coeffs(
+                            v.astype(jnp.complex128)),
+                        is_real=True, ishappy=self.ishappy)
+
+    def conj(self) -> "Trigtech":
+        """Complex conjugate (via conjugated grid values).
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/conj.m
+        Chebfun commit: 7574c77
+        """
+        if self.is_real:
+            return self
+        v = jnp.conj(trig_coeffs2vals(self.coeffs))
+        return Trigtech(coeffs=trig_vals2coeffs(v),
+                        is_real=self.is_real, ishappy=self.ishappy)
+
+    def minandmax(self):
+        """Global extrema per column; MATLAB delegates to a Chebyshev
+        representation of the same function.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/minandmax.m (chebtech1 delegation)
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.tech.chebtech import Chebtech2
+        g = Chebtech2.from_function(lambda x: self(x))
+        return g.minandmax()
+
+    def min(self):
+        """Global minimum (value, position) via minandmax."""
+        (mn, mnp), _ = self.minandmax()
+        return mn, mnp
+
+    def max(self):
+        """Global maximum (value, position) via minandmax."""
+        _, (mx, mxp) = self.minandmax()
+        return mx, mxp
+
+    def mat2cell(self, sizes) -> list:
+        """Split an array-valued tech by column counts (MATLAB
+        ``mat2cell(f, 1, sizes)``).
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/mat2cell.m
+        Chebfun commit: 7574c77
+        """
+        c = self.coeffs if self.coeffs.ndim == 2 \
+            else self.coeffs[:, None]
+        out = []
+        j = 0
+        for s in sizes:
+            block = c[:, j:j + s]
+            j += s
+            out.append(Trigtech(
+                coeffs=block[:, 0] if s == 1 else block,
+                is_real=self.is_real, ishappy=self.ishappy))
+        return out
+
+    @classmethod
+    def cell2mat(cls, techs) -> "Trigtech":
+        """Horizontally concatenate techs into one array-valued tech.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/cell2mat.m
+        Chebfun commit: 7574c77
+        """
+        n = max(t.n for t in techs)
+        cols = []
+        for t in techs:
+            c = _trig_prolong_coeffs(t.coeffs, n)
+            cols.append(c if c.ndim == 2 else c[:, None])
+        return cls(coeffs=jnp.concatenate(cols, axis=1),
+                   is_real=all(t.is_real for t in techs),
+                   ishappy=all(t.ishappy for t in techs))
+
+    def assign_columns(self, cols, g) -> "Trigtech":
+        """Overwrite the columns ``cols`` (0-based) with the columns of
+        ``g`` (MATLAB assignColumns); ``g=None`` deletes them.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/assignColumns.m
+        Chebfun commit: 7574c77
+        """
+        fc = self.coeffs if self.coeffs.ndim == 2 \
+            else self.coeffs[:, None]
+        cols = [cols] if isinstance(cols, int) else list(cols)
+        if g is None:
+            keep = [j for j in range(fc.shape[1]) if j not in cols]
+            return Trigtech(coeffs=fc[:, keep],
+                            is_real=self.is_real, ishappy=self.ishappy)
+        n = max(fc.shape[0], g.n)
+        fc = _trig_prolong_coeffs(fc, n)
+        gc = _trig_prolong_coeffs(g.coeffs, n)
+        gc = gc if gc.ndim == 2 else gc[:, None]
+        out = fc.at[:, jnp.asarray(cols)].set(gc)
+        return Trigtech(coeffs=out,
+                        is_real=self.is_real and g.is_real,
+                        ishappy=self.ishappy and g.ishappy)
