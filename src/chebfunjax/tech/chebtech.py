@@ -157,7 +157,18 @@ def _prolong_coeffs(coeffs: jax.Array, n: int) -> jax.Array:
     m = coeffs.shape[0]
     if m >= n:
         return coeffs[:n]
-    return jnp.concatenate([coeffs, jnp.zeros(n - m, dtype=coeffs.dtype)])
+    pad = jnp.zeros((n - m,) + coeffs.shape[1:], dtype=coeffs.dtype)
+    return jnp.concatenate([coeffs, pad])
+
+
+def _chop_columns(coeffs: jax.Array, tol: float | None) -> int:
+    """standard_chop applied column-wise; the cutoff is the max across
+    columns (MATLAB @chebtech/simplify.m and standardCheck.m loop over
+    the columns of an array-valued chebtech and keep the largest)."""
+    if coeffs.ndim == 1:
+        return standard_chop(coeffs, tol)
+    return max(standard_chop(coeffs[:, j], tol)
+               for j in range(coeffs.shape[1]))
 
 
 # ============================================================================
@@ -189,22 +200,24 @@ def _diff_coeffs_once(c: jax.Array) -> jax.Array:
     """
     n = c.shape[0]
     if n <= 1:
-        return jnp.zeros(1, dtype=jnp.float64)
+        return jnp.zeros((1,) + c.shape[1:], dtype=jnp.float64)
 
     # w[k] = 2*(k+1) for k = 0 .. n-2
+    # (trailing singleton axes broadcast over array-valued columns)
     w = 2.0 * jnp.arange(1, n, dtype=jnp.float64)
+    w = w.reshape((n - 1,) + (1,) * (c.ndim - 1))
     v = w * c[1:]  # v[k] = 2*(k+1)*c_{k+1}
 
     # Accumulate from the tail, even and odd indices separately.
     # (buffer dtype follows the series: complex chebfuns stay complex)
-    out = jnp.zeros(n - 1, dtype=c.dtype)
+    out = jnp.zeros((n - 1,) + c.shape[1:], dtype=c.dtype)
 
     # Slice1: indices n-2, n-4, ..., i.e. v[-1], v[-3], ...
     s1 = v[::-1][::2]  # reversed, take every other
-    cs1 = jnp.cumsum(s1)
+    cs1 = jnp.cumsum(s1, axis=0)
     # Slice2: indices n-3, n-5, ..., i.e. v[-2], v[-4], ...
     s2 = v[::-1][1::2]
-    cs2 = jnp.cumsum(s2)
+    cs2 = jnp.cumsum(s2, axis=0)
 
     # Place back
     out = out.at[::-1].set(0.0)  # reset
@@ -263,13 +276,16 @@ def _cumsum_coeffs(c: jax.Array) -> jax.Array:
         return jnp.zeros(1, dtype=jnp.float64)
 
     # Pad with two zeros so that c_{n} = c_{n+1} = 0
-    # (dtype follows the series: complex chebfuns stay complex)
-    cp = jnp.concatenate([c, jnp.zeros(2, dtype=c.dtype)])
+    # (dtype follows the series: complex chebfuns stay complex;
+    # trailing singleton axes broadcast over array-valued columns)
+    cp = jnp.concatenate(
+        [c, jnp.zeros((2,) + c.shape[1:], dtype=c.dtype)])
 
-    b = jnp.zeros(n + 1, dtype=c.dtype)
+    b = jnp.zeros((n + 1,) + c.shape[1:], dtype=c.dtype)
 
     # b[r] = (c[r-1] - c[r+1]) / (2*r) for r = 2, ..., n
     rk = jnp.arange(2, n + 1, dtype=jnp.float64)
+    rk = rk.reshape((n - 1,) + (1,) * (c.ndim - 1))
     b = b.at[2 : n + 1].set((cp[1:n] - cp[3 : n + 2]) / (2.0 * rk))
 
     # b[1] = c[0] - c[2]/2
@@ -280,7 +296,7 @@ def _cumsum_coeffs(c: jax.Array) -> jax.Array:
     # => b_0 = - sum_{r=1}^{n} (-1)^r * b_r = sum_{r=1}^{n} (-1)^{r+1} * b_r
     vv = jnp.ones(n, dtype=jnp.float64)
     vv = vv.at[1::2].set(-1.0)
-    b = b.at[0].set(jnp.dot(vv, b[1 : n + 1]))
+    b = b.at[0].set(jnp.tensordot(vv, b[1 : n + 1], axes=(0, 0)))
 
     return b
 
@@ -319,7 +335,9 @@ def _definite_integral(coeffs: jax.Array) -> jax.Array:
         0.0,
     )
     # k=0: 2/(1-0)=2 is already correct.
-    return jnp.dot(coeffs, moments)
+    # (tensordot over axis 0 handles array-valued (n, m) coefficients,
+    # returning one integral per column)
+    return jnp.tensordot(moments, coeffs, axes=(0, 0))
 
 
 # ============================================================================
@@ -350,8 +368,8 @@ def _inner_product(f_coeffs: jax.Array, g_coeffs: jax.Array) -> jax.Array:
 
     # Prolong both to length n (dtype follows the operands)
     dt = jnp.result_type(f_coeffs.dtype, g_coeffs.dtype)
-    fc = jnp.zeros(n, dtype=dt).at[:nf].set(f_coeffs)
-    gc = jnp.zeros(n, dtype=dt).at[:ng].set(g_coeffs)
+    fc = jnp.zeros((n,) + f_coeffs.shape[1:], dtype=dt).at[:nf].set(f_coeffs)
+    gc = jnp.zeros((n,) + g_coeffs.shape[1:], dtype=dt).at[:ng].set(g_coeffs)
 
     # Convert to values
     fv = _coeffs_to_values(fc)
@@ -361,7 +379,13 @@ def _inner_product(f_coeffs: jax.Array, g_coeffs: jax.Array) -> jax.Array:
     w = chebweights(n, kind=2)
 
     # MATLAB @chebtech/innerProduct.m is conjugate-linear in F.
-    return jnp.dot(w * jnp.conj(fv), gv)
+    if fv.ndim == 1 and gv.ndim == 1:
+        return jnp.dot(w * jnp.conj(fv), gv)
+    # Array-valued: pairwise column inner products (MATLAB returns the
+    # m_f x m_g matrix F' * W * G)
+    fv2 = fv if fv.ndim == 2 else fv[:, None]
+    gv2 = gv if gv.ndim == 2 else gv[:, None]
+    return (w[:, None] * jnp.conj(fv2)).T @ gv2
 
 
 # ============================================================================
@@ -391,20 +415,34 @@ def _coeff_multiply(fc: jax.Array, gc: jax.Array) -> jax.Array:
     ng = gc.shape[0]
     mn = nf + ng - 1
 
+    # Array-valued case: promote a scalar-column operand so both sides
+    # share the trailing column shape (MATLAB @chebtech/times.m allows
+    # scalar-valued * array-valued)
+    if fc.ndim != gc.ndim:
+        if fc.ndim == 1:
+            fc = fc[:, None]
+        if gc.ndim == 1:
+            gc = gc[:, None]
+    cols = jnp.broadcast_shapes(fc.shape[1:], gc.shape[1:])
+
     # Pad both to length mn (dtype follows the operands so complex
     # chebfun products keep their imaginary parts)
     out_dtype = jnp.result_type(fc.dtype, gc.dtype)
-    f = jnp.zeros(mn, dtype=out_dtype).at[:nf].set(fc)
-    g = jnp.zeros(mn, dtype=out_dtype).at[:ng].set(gc)
+    f = jnp.zeros((mn,) + cols, dtype=out_dtype).at[:nf].set(
+        jnp.broadcast_to(fc, (nf,) + cols))
+    g = jnp.zeros((mn,) + cols, dtype=out_dtype).at[:ng].set(
+        jnp.broadcast_to(gc, (ng,) + cols))
 
     # Embed into circulant: double the first coefficient
     t = jnp.concatenate([2.0 * f[:1], f[1:]])
     x = jnp.concatenate([2.0 * g[:1], g[1:]])
 
-    # Circulant multiply via FFT
+    # Circulant multiply via FFT (axis=0 keeps columns independent)
     t_ext = jnp.concatenate([t, t[-1:0:-1]])
     x_ext = jnp.concatenate([x, x[-1:0:-1]])
-    product = jnp.fft.ifft(jnp.fft.fft(t_ext) * jnp.fft.fft(x_ext))
+    product = jnp.fft.ifft(
+        jnp.fft.fft(t_ext, axis=0) * jnp.fft.fft(x_ext, axis=0),
+        axis=0)
     if not jnp.iscomplexobj(f):
         product = jnp.real(product)
 
@@ -921,7 +959,8 @@ class Chebtech2(eqx.Module):
             padded = jnp.concatenate(
                 [
                     self.coeffs,
-                    jnp.zeros(n - m, dtype=jnp.float64),
+                    jnp.zeros((n - m,) + self.coeffs.shape[1:],
+                              dtype=self.coeffs.dtype),
                 ]
             )
             return Chebtech2(coeffs=padded, ishappy=self.ishappy)
@@ -977,7 +1016,7 @@ class Chebtech2(eqx.Module):
         # (standard_chop uses logarithms and needs non-zero plateau values)
         c = vals2coeffs(coeffs2vals(prolonged.coeffs))
 
-        cutoff = standard_chop(c, tol)
+        cutoff = _chop_columns(c, tol)
         cutoff = min(cutoff, nold)
 
         return Chebtech2(coeffs=self.coeffs[:cutoff], ishappy=self.ishappy)
@@ -1235,7 +1274,7 @@ class Chebtech2(eqx.Module):
         else:
             scaled_tol = tol * hscale
 
-        cutoff = standard_chop(coeffs, scaled_tol)
+        cutoff = _chop_columns(coeffs, scaled_tol)
         ishappy = cutoff < n
 
         # Sample test: verify the interpolant matches the operator at
@@ -1526,7 +1565,7 @@ class Chebtech2(eqx.Module):
             if not isinstance(self.coeffs, jax.core.Tracer) and \
                     not isinstance(other.coeffs, jax.core.Tracer):
                 same = bool(jnp.all(self.coeffs == other.coeffs))
-        if same:
+        if same and out.ndim == 0:
             return jnp.abs(out)
         return out
 
@@ -1591,6 +1630,17 @@ class Chebtech2(eqx.Module):
         --------
         diff, sum
         """
+        if self.coeffs.ndim == 2:
+            # Array-valued: roots per column, NaN-padded to equal length
+            # (MATLAB @chebtech/roots.m does exactly this)
+            import numpy as _np
+            cols = [_np.asarray(_roots_colleague(self.coeffs[:, j]))
+                    for j in range(self.coeffs.shape[1])]
+            nmax = max((len(c) for c in cols), default=0)
+            out = _np.full((nmax, len(cols)), _np.nan)
+            for j, c in enumerate(cols):
+                out[: len(c), j] = c
+            return jnp.asarray(out)
         return _roots_colleague(self.coeffs)
 
     def minandmax(self) -> tuple[tuple[jax.Array, jax.Array], tuple[jax.Array, jax.Array]]:
@@ -1622,6 +1672,20 @@ class Chebtech2(eqx.Module):
         roots, diff
         """
         import numpy as _np
+
+        if self.coeffs.ndim == 2:
+            # Array-valued: extremum per column (MATLAB
+            # @chebtech/minandmax.m returns 2 x m values/positions)
+            per_col = [
+                Chebtech2(coeffs=self.coeffs[:, j],
+                          ishappy=self.ishappy).minandmax()
+                for j in range(self.coeffs.shape[1])
+            ]
+            min_val = jnp.stack([p[0][0] for p in per_col])
+            min_pos = jnp.stack([p[0][1] for p in per_col])
+            max_val = jnp.stack([p[1][0] for p in per_col])
+            max_pos = jnp.stack([p[1][1] for p in per_col])
+            return (min_val, min_pos), (max_val, max_pos)
 
         # Compute turning points (roots of derivative)
         fp = self.diff()
@@ -2150,7 +2214,7 @@ class Chebtech1(eqx.Module):
         )
         # Round-trip through values to create a plateau
         c = _chebtech1_vals2coeffs(_chebtech1_coeffs2vals(prolonged_c))
-        cutoff = standard_chop(c, tol)
+        cutoff = _chop_columns(c, tol)
         cutoff = min(cutoff, nold)
         return Chebtech1(coeffs=self.coeffs[:cutoff], ishappy=self.ishappy)
 
@@ -2328,7 +2392,7 @@ class Chebtech1(eqx.Module):
             if not isinstance(self.coeffs, jax.core.Tracer) and \
                     not isinstance(other.coeffs, jax.core.Tracer):
                 same = bool(jnp.all(self.coeffs == other.coeffs))
-        if same:
+        if same and out.ndim == 0:
             return jnp.abs(out)
         return out
 
@@ -2403,7 +2467,7 @@ class Chebtech1(eqx.Module):
         else:
             scaled_tol = tol * hscale
 
-        cutoff = standard_chop(coeffs, scaled_tol)
+        cutoff = _chop_columns(coeffs, scaled_tol)
         ishappy = cutoff < n
 
         if ishappy and op is not None:
