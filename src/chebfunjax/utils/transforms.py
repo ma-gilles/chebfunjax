@@ -15,6 +15,7 @@ See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
+import jax
 import jax.numpy as jnp
 import numpy as np
 from scipy.special import gammaln
@@ -80,6 +81,20 @@ def vals2coeffs(values: jnp.ndarray) -> jnp.ndarray:
     # Scale interior coefficients by 2
     coeffs = coeffs.at[1:n - 1].multiply(2.0)
 
+    # Enforce symmetries exactly (MATLAB @chebtech2/vals2coeffs.m):
+    # exactly even values -> odd coefficients exactly zero; exactly odd
+    # values -> even coefficients exactly zero.  Branch-free, JIT-safe.
+    # The correction goes through stop_gradient: it changes forward
+    # values by < eps but must not project autodiff gradients onto the
+    # symmetry manifold.
+    vflip = values[::-1]
+    is_even = jnp.max(jnp.abs(values - vflip), axis=0) == 0
+    is_odd = jnp.max(jnp.abs(values + vflip), axis=0) == 0
+    k = jnp.arange(n).reshape((n,) + (1,) * (coeffs.ndim - 1))
+    sym = jnp.where((k % 2 == 1) & is_even, 0.0, coeffs)
+    sym = jnp.where((k % 2 == 0) & is_odd, 0.0, sym)
+    coeffs = coeffs + jax.lax.stop_gradient(sym - coeffs)
+
     return coeffs
 
 
@@ -135,6 +150,19 @@ def coeffs2vals(coeffs: jnp.ndarray) -> jnp.ndarray:
     # Reverse and truncate: values at points cos(0), cos(pi/(n-1)), ..., cos(pi)
     # = [x=1, ..., x=-1] which is descending order
     values = values[n - 1::-1]
+
+    # Enforce symmetries exactly (MATLAB @chebtech2/coeffs2vals.m):
+    # odd coefficients exactly zero -> values exactly even; even
+    # coefficients exactly zero -> values exactly odd.  Branch-free;
+    # the correction goes through stop_gradient (see vals2coeffs).
+    is_even = jnp.max(jnp.abs(coeffs[1::2]), axis=0,
+                      initial=0.0) == 0
+    is_odd = jnp.max(jnp.abs(coeffs[0::2]), axis=0,
+                     initial=0.0) == 0
+    vflip = values[::-1]
+    sym = jnp.where(is_even, (values + vflip) / 2.0, values)
+    sym = jnp.where(is_odd, (values - vflip) / 2.0, sym)
+    values = values + jax.lax.stop_gradient(sym - values)
 
     return values
 

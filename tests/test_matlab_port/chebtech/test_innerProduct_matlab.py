@@ -145,15 +145,26 @@ class TestChebtechInnerProduct:
         assert all(float(jnp.imag(v)) == 0.0 for v in n2vals)
         assert all(float(jnp.real(v)) >= 0.0 for v in n2vals)
 
+    # FIXED (Fable 5, Big-Three array-valued epic): pass 10 ports now
+    # that inner returns the pairwise column Gram matrix.  pass 11 (the
+    # CHEBFUN:CHEBTECH:innerProduct:input error id) stays N/A.
     @pytest.mark.parametrize("Tech", BOTH)
-    def test_array_valued_and_error_condition_skipped(self, Tech):
-        # pass(n, 10): array-valued exact-matrix inner product.
-        # pass(n, 11): error when inner-producting a chebtech with a non-chebtech
-        # (chebfunjax has no such CHEBFUN:CHEBTECH:innerProduct:input error).
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued (no array-valued inner-product "
-            "matrix) and raises no innerProduct:input error"
-        )
+    def test_array_valued_inner_product_matrix(self, Tech):
+        from scipy.special import airy
+
+        f = Tech.from_function(
+            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1))
+        g = Tech.from_function(
+            lambda x: jnp.stack(
+                [jnp.exp(x), 1.0 / (1 + x ** 2),
+                 jnp.asarray(airy(np.asarray(x))[0])], axis=-1))
+        tol_f = 10 * f.vscale * EPS
+        tol_g = 10 * g.vscale * EPS
+        ip = np.asarray(f.inner(g))
+        exact = np.array(
+            [[0.663493666631241, 0.0, -0.135033172317858],
+             [1.933421496200713, 1.365866063614065, 0.592109441404267]])
+        assert np.max(np.abs(ip - exact)) < max(tol_f, tol_g)
 
 
 def test_chebtech1_rejects_complex():

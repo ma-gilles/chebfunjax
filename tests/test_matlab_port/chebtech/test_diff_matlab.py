@@ -150,15 +150,54 @@ class TestChebtechDiff:
         df6 = f.diff(6)
         assert _ninf(df6(X)) == 0.0
 
+    # FIXED (Fable 5, Big-Three array-valued epic): pass 12-16 port now
+    # that techs support (n, m) coefficient matrices and diff(k, dim=2).
     @pytest.mark.parametrize("Tech", BOTH)
-    def test_array_valued_and_dim_option_skipped(self, Tech):
-        # pass(n, 12)-(16): array-valued diff, the DIM option (diff(f,1,2),
-        # diff(f,2,2)) and issue #1641 all require array-valued (quasimatrix)
-        # techs, which chebfunjax does not implement.
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix "
-            "techs or DIM option"
-        )
+    def test_array_valued_diff(self, Tech):
+        # pass(n, 12): diff of [sin(x), x.^2, exp(1i*x)] column-wise.
+        f = Tech.from_function(
+            lambda x: jnp.stack(
+                [jnp.sin(x), x ** 2, jnp.exp(1j * x)], axis=-1))
+        df = f.diff()
+        exact = jnp.stack(
+            [jnp.cos(X), 2 * X, 1j * jnp.exp(1j * X)], axis=-1)
+        assert _ninf(df(X) - exact) < 1e2 * df.vscale * EPS
+
+    @pytest.mark.parametrize("Tech", BOTH)
+    def test_dim_option(self, Tech):
+        # pass(n, 13)-(14): diff(f, k, 2) differences across columns.
+        f = Tech.from_function(
+            lambda x: jnp.stack(
+                [jnp.sin(x), x ** 2, jnp.exp(1j * x)], axis=-1))
+        dim2df = f.diff(1, dim=2)
+        g = jnp.stack(
+            [X ** 2 - jnp.sin(X), jnp.exp(1j * X) - X ** 2], axis=-1)
+        assert dim2df.coeffs.shape[1] == 2
+        assert _ninf(dim2df(X) - g) < 10 * dim2df.vscale * EPS
+
+        dim2df2 = f.diff(2, dim=2)
+        g2 = jnp.exp(1j * X) - 2 * X ** 2 + jnp.sin(X)
+        assert dim2df2.coeffs.shape[1] == 1
+        assert _ninf(dim2df2(X)[:, 0] - g2) < 10 * dim2df2.vscale * EPS
+
+    @pytest.mark.parametrize("Tech", BOTH)
+    def test_dim_option_scalar_empty(self, Tech):
+        # pass(n, 15): diff(f, 1, 2) on scalar input -> empty coeffs.
+        f = Tech.from_function(lambda x: x ** 3)
+        dim2df = f.diff(1, dim=2)
+        assert dim2df.coeffs.size == 0
+
+    @pytest.mark.parametrize("Tech", BOTH)
+    def test_issue_1641(self, Tech):
+        # pass(n, 16): diff of [1+x+x^2, 1-x+2x^2] has exact coefficients
+        # [1 -1; 2 4] (issue #1641).
+        f = Tech.from_function(
+            lambda x: jnp.stack(
+                [1 + x + x ** 2, 1 - x + 2 * x ** 2], axis=-1))
+        df = f.diff()
+        exact = np.array([[1.0, -1.0], [2.0, 4.0]])
+        err = np.linalg.norm(np.asarray(df.coeffs)[:2] - exact)
+        assert err < 10 * EPS
 
 
 def test_chebtech1_rejects_complex():

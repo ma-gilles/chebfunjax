@@ -19,7 +19,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.tech.chebtech import Chebtech2
 
@@ -61,13 +60,24 @@ class TestChebtech2Coeffs2Vals:
         v = Chebtech2.coeffs2vals(jnp.asarray((1 + 1j) * _C))
         assert _ninf(np.asarray(v) - (1 + 1j) * _V_TRUE) < TOL
 
+    # FIXED (Fable 5, Big-Three array-valued epic): pass 7-8 port now
+    # that the transforms are column-wise with exact symmetry
+    # enforcement (MATLAB @chebtech2/coeffs2vals.m lines 41-42, 64-66).
     def test_array_input(self):
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix techs"
-        )
+        # pass(7): [c, flipud(c)] -> [vTrue, tmp .* vTrue]
+        v = np.asarray(Chebtech2.coeffs2vals(
+            jnp.asarray(np.column_stack([_C, _C[::-1]]))))
+        tmp = np.ones_like(_V_TRUE)
+        tmp[-2::-2] = -1.0
+        assert _ninf(v[:, 0] - _V_TRUE) < TOL
+        assert _ninf(v[:, 1] - tmp * _V_TRUE) < TOL
 
     def test_symmetry_preservation(self):
-        # MATLAB's pass(8) uses a kron() array of coeffs (array-valued input).
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix techs"
-        )
+        # pass(8): odd coeffs exactly zero -> values EXACTLY even;
+        # even coeffs exactly zero -> values EXACTLY odd.  (MATLAB's
+        # file calls chebtech1.coeffs2vals here -- a copy-paste slip;
+        # the property must hold for chebtech2 as well.)
+        c = np.kron(np.ones((10, 1)), np.eye(2))
+        v = np.asarray(Chebtech2.coeffs2vals(jnp.asarray(c)))
+        assert float(np.max(np.abs(v[:, 0] - v[::-1, 0]))) == 0.0
+        assert float(np.max(np.abs(v[:, 1] + v[::-1, 1]))) == 0.0

@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.tech.chebtech import Chebtech1
 
@@ -89,10 +88,15 @@ class TestChebtech1Coeffs2Vals:
         v = Chebtech1.coeffs2vals(jnp.asarray((1 + 1j) * _C_EVEN))
         assert _ninf(np.asarray(v) - (1 + 1j) * _V_EVEN) < TOL
 
+    # FIXED (Fable 5, Big-Three array-valued epic): array/symmetry
+    # cases port now that the transforms are column-wise with exact
+    # symmetry enforcement (@chebtech1/coeffs2vals.m lines 75-77).
     def test_even_array_input(self):
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix techs"
-        )
+        # pass(7): [c, -c] -> [vTrue, -vTrue]
+        v = np.asarray(Chebtech1.coeffs2vals(
+            jnp.asarray(np.column_stack([_C_EVEN, -_C_EVEN]))))
+        assert _ninf(v[:, 0] - _V_EVEN) < TOL
+        assert _ninf(v[:, 1] + _V_EVEN) < TOL
 
     # -- odd case (c = 5:-1:1) -----------------------------------------
     def test_odd_real_branch(self):
@@ -116,11 +120,16 @@ class TestChebtech1Coeffs2Vals:
         assert _ninf(np.asarray(v) - (1 + 1j) * _V_ODD) < TOL
 
     def test_odd_array_input(self):
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix techs"
-        )
+        # pass(13): [c, -c] -> [vTrue, -vTrue]
+        v = np.asarray(Chebtech1.coeffs2vals(
+            jnp.asarray(np.column_stack([_C_ODD, -_C_ODD]))))
+        assert _ninf(v[:, 0] - _V_ODD) < TOL
+        assert _ninf(v[:, 1] + _V_ODD) < TOL
 
     def test_symmetry_preservation(self):
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix techs"
-        )
+        # pass(14): odd coeffs exactly zero -> values EXACTLY even;
+        # even coeffs exactly zero -> values EXACTLY odd.
+        c = np.kron(np.ones((10, 1)), np.eye(2))
+        v = np.asarray(Chebtech1.coeffs2vals(jnp.asarray(c)))
+        assert float(np.max(np.abs(v[:, 0] - v[::-1, 0]))) == 0.0
+        assert float(np.max(np.abs(v[:, 1] + v[::-1, 1]))) == 0.0

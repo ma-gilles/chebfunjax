@@ -124,13 +124,26 @@ class TestChebtechCumsum:
         assert _std(f(X) - h(X)) < tol
         assert _at_m1(h) < tol
 
+    # FIXED (Fable 5, Big-Three array-valued epic): pass 8 ports now
+    # that techs support (n, m) coefficient matrices.
     @pytest.mark.parametrize("Tech", BOTH)
-    def test_array_valued_skipped(self, Tech):
-        # pass(n, 8): array-valued cumsum requires quasimatrix techs.
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix "
-            "techs"
-        )
+    def test_array_valued(self, Tech):
+        # pass(n, 8): cumsum of [sin(x), x.^2, exp(1i*x)] column-wise,
+        # each antiderivative vanishing at x = -1 up to a constant.
+        f = Tech.from_function(
+            lambda x: jnp.stack(
+                [jnp.sin(x), x ** 2, jnp.exp(1j * x)], axis=-1))
+        F_exact = Tech.from_function(
+            lambda x: jnp.stack(
+                [-jnp.cos(x), x ** 3 / 3, jnp.exp(1j * x) / 1j],
+                axis=-1))
+        F = f.cumsum()
+        d = np.asarray(F(X)) - np.asarray(F_exact(X))
+        err = np.std(d, axis=0)
+        tol = 10 * F.vscale * EPS
+        assert np.max(np.abs(err)) < tol
+        at_m1 = np.asarray(F(jnp.asarray([-1.0])))
+        assert np.max(np.abs(at_m1)) < tol
 
 
 def _ninf(a):

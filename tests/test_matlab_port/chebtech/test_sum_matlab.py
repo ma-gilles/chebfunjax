@@ -131,14 +131,37 @@ class TestChebtechSum:
             tol_dg, tol_g
         )
 
+    # FIXED (Fable 5, Big-Three array-valued epic): pass 9-11 port now
+    # that techs support (n, m) coefficient matrices and sum(dim=2).
     @pytest.mark.parametrize("Tech", BOTH)
-    def test_array_valued_and_dim_option_skipped(self, Tech):
-        # pass(n, 9)-(11): array-valued sum, the DIM option sum(f, 2) and its
-        # non-array-valued no-op all require quasimatrix techs / a DIM option.
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix "
-            "techs or DIM (sum(f,2)) option"
-        )
+    def test_array_valued_sum(self, Tech):
+        # pass(n, 9): sum of [sin(x), x.^2, exp(1i*x)] column-wise.
+        f = Tech.from_function(
+            lambda x: jnp.stack(
+                [jnp.sin(x), x ** 2, jnp.exp(1j * x)], axis=-1))
+        I = np.asarray(f.sum())
+        I_exact = np.array([0.0, 2.0 / 3.0, 2 * np.sin(1.0)])
+        assert np.max(np.abs(I - I_exact)) < 10 * f.vscale * EPS
+
+    @pytest.mark.parametrize("Tech", BOTH)
+    def test_dim_option_array_valued(self, Tech):
+        # pass(n, 10): sum(f, 2) collapses the columns pointwise.
+        f = Tech.from_function(
+            lambda x: jnp.stack(
+                [jnp.sin(x), x ** 2, jnp.exp(1j * x)], axis=-1))
+        g = f.sum(dim=2)
+        xs = jnp.asarray(np.linspace(-1.0, 1.0, 100))
+        h = jnp.sin(xs) + xs ** 2 + jnp.exp(1j * xs)
+        err = float(jnp.max(jnp.abs(g(xs) - h)))
+        assert err < 10 * f.vscale * EPS
+
+    @pytest.mark.parametrize("Tech", BOTH)
+    def test_dim_option_scalar_noop(self, Tech):
+        # pass(n, 11): sum(h, 2) on a scalar-valued tech is a no-op.
+        h = Tech.from_function(lambda x: jnp.cos(x))
+        sumh2 = h.sum(dim=2)
+        assert np.array_equal(np.asarray(h.coeffs),
+                              np.asarray(sumh2.coeffs))
 
 
 def test_chebtech1_rejects_complex():

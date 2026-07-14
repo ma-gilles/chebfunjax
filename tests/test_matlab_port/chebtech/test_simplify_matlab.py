@@ -111,13 +111,21 @@ class TestChebtechSimplify:
         g2 = (1e8 * f).simplify(SIMPTOL)
         assert len(g2) == len(g)
 
+    # FIXED (Fable 5, Big-Three array-valued epic): pass 10-12 port now
+    # that techs support (n, m) coefficient matrices.
     @pytest.mark.parametrize("Tech", BOTH)
-    def test_array_valued_skipped(self, Tech):
-        # pass(n, 10)-(12): array-valued simplify requires quasimatrix techs.
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix "
-            "techs"
-        )
+    def test_array_valued(self, Tech):
+        # pass(n, 10)-(12): array-valued simplify keeps a nonzero leading
+        # row, shortens the series, and stays accurate.
+        f = Tech.from_function(
+            lambda x: jnp.stack(
+                [jnp.sin(100 * (x + 0.1)), jnp.cos(100 * (x + 0.1)),
+                 jnp.exp(x)], axis=-1))
+        g = f.simplify(SIMPTOL)
+        assert bool(np.any(np.abs(np.asarray(g.coeffs)[0, :]) != 0))
+        assert len(g) < len(f)
+        err = float(jnp.max(jnp.abs(f(X) - g(X))))
+        assert err < 10 * SIMPTOL * f.vscale
 
     @pytest.mark.parametrize("Tech", BOTH)
     def test_contrived_length_one(self, Tech):

@@ -29,15 +29,20 @@ class TestChebtechSize:
         assert f.n == f.coeffs.shape[0]
         assert len(f) == f.coeffs.shape[0]
 
+    # FIXED (Fable 5, Big-Three array-valued epic): pass(n, 2)-(3)
+    # port now that techs support (n, m) coefficient matrices.
     def test_size_array_valued(self, Tech):
         # pass(n,2): all(size(f) == size(f.coeffs)) for [sin cos 1i*exp]
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix techs"
-        )
+        f = Tech.from_function(
+            lambda x: jnp.stack(
+                [jnp.sin(x), jnp.cos(x), 1j * jnp.exp(x)], axis=-1))
+        assert f.n == f.coeffs.shape[0]
+        assert f.coeffs.ndim == 2 and f.coeffs.shape[1] == 3
 
     def test_size_fixed_length_101(self, Tech):
         # pass(n,3): fixedLength=101 -> size(f) == [101, 3].
-        # Scalar analogue: fixed-length-101 tech has length 101 (the
-        # 3-column count has no scalar-valued analogue).
-        f = Tech.from_function(jnp.sin, n=101)
-        assert f.n == 101
+        f = Tech.from_function(
+            lambda x: jnp.stack(
+                [jnp.sin(x), jnp.cos(x), 1j * jnp.exp(x)], axis=-1),
+            n=101)
+        assert f.coeffs.shape == (101, 3)

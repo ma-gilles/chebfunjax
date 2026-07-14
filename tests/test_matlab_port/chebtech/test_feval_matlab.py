@@ -95,14 +95,39 @@ class TestChebtechFeval:
         assert err.shape == (10, 10, 10)
         assert _ninf(err) < 10 * f.vscale * EPS
 
+    # FIXED (Fable 5, Big-Three array-valued epic): techs now support
+    # (n, m) coefficient matrices, so pass 8-9 port directly.
     @pytest.mark.parametrize("Tech", BOTH)
-    def test_array_valued_skipped(self, Tech):
-        # pass(n, 8)-(9): evaluating array-valued techs (and at matrix args)
-        # requires quasimatrix techs.
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix "
-            "techs"
-        )
+    def test_array_valued(self, Tech):
+        # pass(n, 8): array-valued spot check [sin(x), x.^2, exp(1i*x)]
+        f = Tech.from_function(
+            lambda x: jnp.stack(
+                [jnp.sin(x), x ** 2, jnp.exp(1j * x)], axis=-1))
+        exact = jnp.stack(
+            [jnp.sin(X), X ** 2, jnp.exp(1j * X)], axis=-1)
+        assert _ninf(f(X) - exact) < 10 * f.vscale * EPS
+
+    @pytest.mark.parametrize("Tech", BOTH)
+    def test_array_valued_matrix_argument(self, Tech):
+        # pass(n, 9): array-valued tech evaluated at a matrix argument.
+        # MATLAB returns a (p, m*q) block layout [f1(x) f2(x) f3(x)];
+        # chebfunjax returns (p, q, m) -- transpose to compare.
+        f = Tech.from_function(
+            lambda x: jnp.stack(
+                [jnp.sin(jnp.pi * x), jnp.cos(jnp.pi * x),
+                 jnp.exp(jnp.pi * x)], axis=-1))
+        x2 = jnp.asarray([[-1.0, 0.0, 1.0], [0.25, 0.5, 0.75]])
+        fx = np.asarray(f(x2))            # (2, 3, 3)
+        assert fx.shape == (2, 3, 3)
+        blocked = np.transpose(fx, (0, 2, 1)).reshape(2, 9)
+        s2 = np.sqrt(2.0)
+        f_exact = np.array([
+            [0, 0, 0, -1, 1, -1, np.exp(-np.pi), 1, np.exp(np.pi)],
+            [1 / s2, s2 / s2, 1 / s2, 1 / s2, 0, -1 / s2,
+             np.exp(np.pi * 0.25), np.exp(np.pi * 0.5),
+             np.exp(np.pi * 0.75)],
+        ])
+        assert np.max(np.abs(blocked - f_exact)) < 10 * f.vscale * EPS
 
 
 def test_chebtech1_rejects_complex():

@@ -265,9 +265,12 @@ def bary(x: jnp.ndarray,
     # Quotients: vk[k] / (x[i] - xk[k]), shape (m, n)
     quot = vk[None, :] / diff
 
-    # Numerator and denominator of the barycentric formula
-    numer = jnp.dot(quot, fvals)   # shape (m,)
+    # Numerator and denominator of the barycentric formula.
+    # (array-valued data: fvals may be (n, cols) -> numer (m, cols);
+    # the trailing-axis reshape keeps the scalar path unchanged)
+    numer = jnp.dot(quot, fvals)   # shape (m,) or (m, cols)
     denom = jnp.sum(quot, axis=1)  # shape (m,)
+    denom = denom.reshape((-1,) + (1,) * (fvals.ndim - 1))
 
     fx = numer / denom
 
@@ -280,7 +283,9 @@ def bary(x: jnp.ndarray,
     match_idx = jnp.argmax(exact_match, axis=1)  # shape (m,)
     matched_val = fvals[match_idx]
 
-    fx = jnp.where(has_match, matched_val, fx)
+    fx = jnp.where(
+        has_match.reshape((-1,) + (1,) * (fvals.ndim - 1)),
+        matched_val, fx)
     return fx
 
 

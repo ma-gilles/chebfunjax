@@ -48,10 +48,18 @@ class TestChebtechBary:
         approx = bary(y, fx, xk, bary_weights(xk))
         assert float(jnp.linalg.norm(approx - fy)) < TOL
 
+    # FIXED (Fable 5, Big-Three array-valued epic): bary now handles
+    # (n, cols) data matrices, so pass(n, 2) ports directly.
     @pytest.mark.parametrize("Tech,kind", TECHS)
-    def test_array_valued_skipped(self, Tech, kind):
-        # pass(n, 2): bary(y, [fx fx]) -> array-valued data columns.
-        pytest.skip(
-            "chebfunjax bary interpolates a single (scalar) data column; no "
-            "array-valued/quasimatrix data"
-        )
+    def test_array_valued(self, Tech, kind):
+        # pass(n, 2): bary(y, [fx fx]) == [fy fy]
+        k = 14
+        m = 10
+        xk = chebpts(k, kind)
+        y = jnp.asarray(np.linspace(-1.0, 1.0, m))
+        fx = jnp.sin(xk)
+        fy = jnp.sin(y)
+        approx = bary(y, jnp.stack([fx, fx], axis=-1), xk,
+                      bary_weights(xk))
+        exact = jnp.stack([fy, fy], axis=-1)
+        assert float(jnp.linalg.norm(approx - exact)) < TOL

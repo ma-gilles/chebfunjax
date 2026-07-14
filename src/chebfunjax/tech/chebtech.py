@@ -1375,6 +1375,152 @@ class Chebtech2(eqx.Module):
     def __rmul__(self, other) -> "Chebtech2":
         return self.__mul__(other)
 
+    def __matmul__(self, other) -> "Chebtech2":
+        """MATLAB mtimes ``f * A``: right-multiply an array-valued tech
+        by a matrix, mixing its columns (coeffs @ A).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/mtimes.m
+        Chebfun commit: 7574c77
+        """
+        A = jnp.asarray(other)
+        c = self.coeffs if self.coeffs.ndim == 2 else self.coeffs[:, None]
+        return Chebtech2(coeffs=c @ A, ishappy=self.ishappy)
+
+    def fliplr(self) -> "Chebtech2":
+        """Reverse the column order of an array-valued tech (a no-op
+        for scalar-valued input).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/fliplr.m
+        Chebfun commit: 7574c77
+        """
+        if self.coeffs.ndim == 1:
+            return self
+        return Chebtech2(coeffs=self.coeffs[:, ::-1],
+                         ishappy=self.ishappy)
+
+    def flipud(self) -> "Chebtech2":
+        """Return g with g(x) = f(-x): negate the odd coefficients.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/flipud.m
+        Chebfun commit: 7574c77
+        """
+        return type(self)(coeffs=self.coeffs.at[1::2].multiply(-1.0),
+                          ishappy=self.ishappy)
+
+    def real(self) -> "Chebtech2":
+        """Real part (a zero tech if the input was purely imaginary).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/real.m
+        Chebfun commit: 7574c77
+        """
+        c = jnp.real(self.coeffs)
+        if not bool(jnp.any(c)):
+            c = jnp.zeros((1,) + self.coeffs.shape[1:],
+                          dtype=jnp.float64)
+            return type(self)(coeffs=c, ishappy=True)
+        return type(self)(coeffs=c, ishappy=self.ishappy)
+
+    def imag(self) -> "Chebtech2":
+        """Imaginary part (a zero tech if the input was real).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/imag.m
+        Chebfun commit: 7574c77
+        """
+        c = jnp.imag(self.coeffs)
+        if not bool(jnp.any(c)):
+            c = jnp.zeros((1,) + self.coeffs.shape[1:],
+                          dtype=jnp.float64)
+            return type(self)(coeffs=c, ishappy=True)
+        return type(self)(coeffs=c, ishappy=self.ishappy)
+
+    def conj(self) -> "Chebtech2":
+        """Complex conjugate.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/conj.m
+        Chebfun commit: 7574c77
+        """
+        return type(self)(coeffs=jnp.conj(self.coeffs),
+                          ishappy=self.ishappy)
+
+    def mat2cell(self, sizes) -> list:
+        """Split an array-valued tech into a list of techs with the
+        given column counts (MATLAB ``mat2cell(f, 1, sizes)``); a
+        size-1 block becomes a scalar-valued tech.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/mat2cell.m
+        Chebfun commit: 7574c77
+        """
+        c = self.coeffs if self.coeffs.ndim == 2 \
+            else self.coeffs[:, None]
+        out = []
+        j = 0
+        for s in sizes:
+            block = c[:, j:j + s]
+            j += s
+            out.append(type(self)(
+                coeffs=block[:, 0] if s == 1 else block,
+                ishappy=self.ishappy))
+        return out
+
+    @classmethod
+    def cell2mat(cls, techs) -> "Chebtech2":
+        """Horizontally concatenate techs into one array-valued tech
+        (MATLAB ``cell2mat([g h])``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/cell2mat.m
+        Chebfun commit: 7574c77
+        """
+        n = max(t.n for t in techs)
+        cols = []
+        for t in techs:
+            c = t.prolong(n).coeffs
+            cols.append(c if c.ndim == 2 else c[:, None])
+        dt = jnp.result_type(*(c.dtype for c in cols))
+        return cls(coeffs=jnp.concatenate(
+                       [c.astype(dt) for c in cols], axis=1),
+                   ishappy=all(t.ishappy for t in techs))
+
+    def assign_columns(self, cols, g) -> "Chebtech2":
+        """Overwrite the columns ``cols`` (0-based) of an array-valued
+        tech with the columns of ``g`` (MATLAB assignColumns);
+        ``g=None`` deletes the columns instead.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/assignColumns.m
+        Chebfun commit: 7574c77
+        """
+        fc = self.coeffs if self.coeffs.ndim == 2 \
+            else self.coeffs[:, None]
+        cols = [cols] if isinstance(cols, int) else list(cols)
+        if g is None:
+            keep = [j for j in range(fc.shape[1]) if j not in cols]
+            return type(self)(coeffs=fc[:, keep], ishappy=self.ishappy)
+        gc = g.coeffs if g.coeffs.ndim == 2 else g.coeffs[:, None]
+        n = max(fc.shape[0], gc.shape[0])
+        fc = _prolong_coeffs(fc, n)
+        gc = _prolong_coeffs(gc, n).astype(
+            jnp.result_type(fc.dtype, gc.dtype))
+        out = fc.astype(gc.dtype).at[:, jnp.asarray(cols)].set(gc)
+        return type(self)(coeffs=out,
+                          ishappy=self.ishappy and g.ishappy)
+
     def __truediv__(self, other) -> "Chebtech2":
         """Division: Chebtech2 / scalar or Chebtech2 / Chebtech2.
 
@@ -1438,7 +1584,7 @@ class Chebtech2(eqx.Module):
     # Calculus
     # ------------------------------------------------------------------
 
-    def diff(self, k: int = 1) -> "Chebtech2":
+    def diff(self, k: int = 1, dim: int = 1) -> "Chebtech2":
         """Differentiate *k* times.
 
         Uses the Chebyshev coefficient recurrence (Mason & Handscomb, p. 34).
@@ -1449,6 +1595,10 @@ class Chebtech2(eqx.Module):
         ----------
         k : int, default 1
             Order of differentiation.
+        dim : int, default 1
+            ``dim=2`` takes k-th finite differences ACROSS the columns
+            of an array-valued tech (MATLAB ``diff(f, k, 2)``); returns
+            an empty-coefficient tech for scalar-valued input.
 
         Returns
         -------
@@ -1468,6 +1618,13 @@ class Chebtech2(eqx.Module):
         --------
         cumsum, sum
         """
+        if dim == 2:
+            if self.coeffs.ndim == 1:
+                return Chebtech2(
+                    coeffs=jnp.zeros((0,), dtype=self.coeffs.dtype),
+                    ishappy=self.ishappy)
+            return Chebtech2(coeffs=jnp.diff(self.coeffs, n=k, axis=1),
+                             ishappy=self.ishappy)
         if k == 0:
             return self
         new_coeffs = _diff_coeffs(self.coeffs, k)
@@ -1501,17 +1658,25 @@ class Chebtech2(eqx.Module):
         new_coeffs = _cumsum_coeffs(self.coeffs)
         return Chebtech2.from_coeffs(new_coeffs, ishappy=self.ishappy)
 
-    def sum(self) -> jax.Array:
+    def sum(self, dim: int = 1) -> "jax.Array | Chebtech2":
         r"""Definite integral over [-1, 1].
 
         Uses the Chebyshev moments: integral of T_k = 2/(1-k^2) for even k.
 
         JIT-safe: yes.
 
+        Parameters
+        ----------
+        dim : int, default 1
+            ``dim=1`` integrates each column (MATLAB ``sum(f)``);
+            ``dim=2`` sums across the columns of an array-valued tech
+            and returns a scalar-column Chebtech2 (MATLAB ``sum(f, 2)``,
+            a no-op for scalar-valued input).
+
         Returns
         -------
-        jax.Array (scalar)
-            The definite integral.
+        jax.Array (scalar or (m,)) or Chebtech2
+            The definite integral(s), or the column-sum tech if dim=2.
 
         Provenance
         ----------
@@ -1525,6 +1690,11 @@ class Chebtech2(eqx.Module):
         --------
         diff, cumsum, inner
         """
+        if dim == 2:
+            if self.coeffs.ndim == 1:
+                return self
+            return Chebtech2(coeffs=jnp.sum(self.coeffs, axis=1),
+                             ishappy=self.ishappy)
         return _definite_integral(self.coeffs)
 
     def inner(self, other: "Chebtech2") -> jax.Array:
@@ -1806,8 +1976,10 @@ def _chebtech1_vals2coeffs(values: jax.Array) -> jax.Array:
         return values.astype(jnp.float64)
 
     # Weight vector: w = 2 * exp(i * k * pi / (2*n)), k = 0..n-1
+    # (trailing singleton axes broadcast over array-valued columns)
     k = jnp.arange(n, dtype=jnp.float64)
     w = 2.0 * jnp.exp(1j * k * jnp.pi / (2.0 * n))
+    w = w.reshape((n,) + (1,) * (values.ndim - 1))
 
     # Complex data: the FFT/DCT trick below assumes REAL values (the
     # final jnp.real would silently DROP the imaginary part -- Fable 5
@@ -1821,13 +1993,25 @@ def _chebtech1_vals2coeffs(values: jax.Array) -> jax.Array:
     # = [descending, ascending]
     tmp = jnp.concatenate([values[::-1], values])
     tmp = tmp.astype(jnp.complex128)
-    coeffs_complex = jnp.fft.ifft(tmp)[:n] * w
+    coeffs_complex = jnp.fft.ifft(tmp, axis=0)[:n] * w
 
     # Scale the constant term (c_0 halved)
     coeffs_complex = coeffs_complex.at[0].multiply(0.5)
 
     coeffs = jnp.real(coeffs_complex)
-    return coeffs
+
+    # Enforce symmetries exactly (MATLAB @chebtech1/vals2coeffs.m
+    # lines 74-76): even values -> odd coeffs zero, odd values -> even
+    # coeffs zero.  Branch-free, JIT-safe; correction through
+    # stop_gradient so autodiff is not projected onto the symmetry
+    # manifold.
+    vflip = values[::-1]
+    is_even = jnp.max(jnp.abs(values - vflip), axis=0) == 0
+    is_odd = jnp.max(jnp.abs(values + vflip), axis=0) == 0
+    kk = jnp.arange(n).reshape((n,) + (1,) * (coeffs.ndim - 1))
+    sym = jnp.where((kk % 2 == 1) & is_even, 0.0, coeffs)
+    sym = jnp.where((kk % 2 == 0) & is_odd, 0.0, sym)
+    return coeffs + jax.lax.stop_gradient(sym - coeffs)
 
 
 def _chebtech1_coeffs2vals(coeffs: jax.Array) -> jax.Array:
@@ -1881,26 +2065,38 @@ def _chebtech1_coeffs2vals(coeffs: jax.Array) -> jax.Array:
         return coeffs.astype(jnp.float64)
 
     # Weight vector (length 2n): w_k = exp(-i*k*pi/(2*n))/2
+    # (trailing singleton axes broadcast over array-valued columns)
     k = jnp.arange(2 * n, dtype=jnp.float64)
     w = jnp.exp(-1j * k * jnp.pi / (2.0 * n)) / 2.0
     # Special entries: w[0] = 2*w[0] = 1, w[n] = 0, w[n+1:] flipped sign
     w = w.at[0].set(1.0)
     w = w.at[n].set(0.0)
     w = w.at[n + 1:].multiply(-1.0)
+    w = w.reshape((2 * n,) + (1,) * (coeffs.ndim - 1))
 
     # Mirror: [c; 1; c_{n-1}, ..., c_1]   (MATLAB convention, descending coeffs)
     c_mirror = jnp.concatenate([
         coeffs,
-        jnp.ones(1, dtype=jnp.float64),
+        jnp.ones((1,) + coeffs.shape[1:], dtype=jnp.float64),
         coeffs[-1:0:-1],
     ]).astype(jnp.complex128)
 
     c_weighted = c_mirror * w
-    values_complex = jnp.fft.fft(c_weighted)
+    values_complex = jnp.fft.fft(c_weighted, axis=0)
 
     # Truncate to n entries; MATLAB returns in descending order (flip to ascending)
     values = jnp.real(values_complex[n - 1::-1])
-    return values
+
+    # Enforce symmetries exactly (MATLAB @chebtech1/coeffs2vals.m
+    # lines 75-77): odd coeffs zero -> even values, even coeffs zero ->
+    # odd values.  Branch-free, JIT-safe; correction through
+    # stop_gradient (see _chebtech1_vals2coeffs).
+    is_even = jnp.max(jnp.abs(coeffs[1::2]), axis=0, initial=0.0) == 0
+    is_odd = jnp.max(jnp.abs(coeffs[0::2]), axis=0, initial=0.0) == 0
+    vflip = values[::-1]
+    sym = jnp.where(is_even, (values + vflip) / 2.0, values)
+    sym = jnp.where(is_odd, (values - vflip) / 2.0, sym)
+    return values + jax.lax.stop_gradient(sym - values)
 
 
 # ============================================================================
@@ -2192,7 +2388,9 @@ class Chebtech1(eqx.Module):
             return self
         if n > m:
             padded = jnp.concatenate(
-                [self.coeffs, jnp.zeros(n - m, dtype=jnp.float64)]
+                [self.coeffs,
+                 jnp.zeros((n - m,) + self.coeffs.shape[1:],
+                           dtype=self.coeffs.dtype)]
             )
             return Chebtech1(coeffs=padded, ishappy=self.ishappy)
         return Chebtech1(coeffs=self.coeffs[:max(n, 0)], ishappy=self.ishappy)
@@ -2210,7 +2408,9 @@ class Chebtech1(eqx.Module):
         nold = self.n
         N = max(17, round(nold * 1.25 + 5))
         prolonged_c = jnp.concatenate(
-            [self.coeffs, jnp.zeros(N - nold, dtype=jnp.float64)]
+            [self.coeffs,
+             jnp.zeros((N - nold,) + self.coeffs.shape[1:],
+                       dtype=self.coeffs.dtype)]
         )
         # Round-trip through values to create a plateau
         c = _chebtech1_vals2coeffs(_chebtech1_coeffs2vals(prolonged_c))
@@ -2285,6 +2485,98 @@ class Chebtech1(eqx.Module):
     def __rmul__(self, other) -> "Chebtech1":
         return self.__mul__(other)
 
+    def __matmul__(self, other) -> "Chebtech1":
+        """MATLAB mtimes ``f * A``: right-multiply an array-valued tech
+        by a matrix, mixing its columns (coeffs @ A).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/mtimes.m
+        Chebfun commit: 7574c77
+        """
+        A = jnp.asarray(other)
+        c = self.coeffs if self.coeffs.ndim == 2 else self.coeffs[:, None]
+        return Chebtech1(coeffs=c @ A, ishappy=self.ishappy)
+
+    def fliplr(self) -> "Chebtech1":
+        """Reverse the column order of an array-valued tech (a no-op
+        for scalar-valued input).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/fliplr.m
+        Chebfun commit: 7574c77
+        """
+        if self.coeffs.ndim == 1:
+            return self
+        return Chebtech1(coeffs=self.coeffs[:, ::-1],
+                         ishappy=self.ishappy)
+
+    def flipud(self) -> "Chebtech1":
+        """Return g with g(x) = f(-x): negate the odd coefficients.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/flipud.m
+        Chebfun commit: 7574c77
+        """
+        return Chebtech2.flipud(self)
+
+    def real(self) -> "Chebtech1":
+        """Real part (MATLAB @chebtech/real.m)."""
+        return Chebtech2.real(self)
+
+    def imag(self) -> "Chebtech1":
+        """Imaginary part (MATLAB @chebtech/imag.m)."""
+        return Chebtech2.imag(self)
+
+    def conj(self) -> "Chebtech1":
+        """Complex conjugate (MATLAB @chebtech/conj.m)."""
+        return Chebtech2.conj(self)
+
+    def assign_columns(self, cols, g) -> "Chebtech1":
+        """Overwrite the columns ``cols`` (0-based) of an array-valued
+        tech with the columns of ``g`` (MATLAB assignColumns);
+        ``g=None`` deletes the columns instead.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/assignColumns.m
+        Chebfun commit: 7574c77
+        """
+        return Chebtech2.assign_columns(self, cols, g)
+
+    def mat2cell(self, sizes) -> list:
+        """Split an array-valued tech by column counts (MATLAB
+        ``mat2cell(f, 1, sizes)``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/mat2cell.m
+        Chebfun commit: 7574c77
+        """
+        return Chebtech2.mat2cell(self, sizes)
+
+    @classmethod
+    def cell2mat(cls, techs) -> "Chebtech1":
+        """Horizontally concatenate techs into one array-valued tech
+        (MATLAB ``cell2mat([g h])``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/cell2mat.m
+        Chebfun commit: 7574c77
+        """
+        n = max(t.n for t in techs)
+        cols = []
+        for t in techs:
+            c = t.prolong(n).coeffs
+            cols.append(c if c.ndim == 2 else c[:, None])
+        dt = jnp.result_type(*(c.dtype for c in cols))
+        return cls(coeffs=jnp.concatenate(
+                       [c.astype(dt) for c in cols], axis=1),
+                   ishappy=all(t.ishappy for t in techs))
+
     def __truediv__(self, other) -> "Chebtech1":
         """Division.
 
@@ -2338,8 +2630,10 @@ class Chebtech1(eqx.Module):
     # Calculus (same coefficient-level helpers as Chebtech2)
     # ------------------------------------------------------------------
 
-    def diff(self, k: int = 1) -> "Chebtech1":
-        """Differentiate *k* times.
+    def diff(self, k: int = 1, dim: int = 1) -> "Chebtech1":
+        """Differentiate *k* times (dim=2 takes finite differences
+        across the columns of an array-valued tech, MATLAB
+        ``diff(f, k, 2)``).
 
         Provenance
         ----------
@@ -2347,6 +2641,13 @@ class Chebtech1(eqx.Module):
         Chebfun commit: 7574c77
         Algorithm: Page 34 of Mason & Handscomb, "Chebyshev Polynomials", 2003.
         """
+        if dim == 2:
+            if self.coeffs.ndim == 1:
+                return Chebtech1(
+                    coeffs=jnp.zeros((0,), dtype=self.coeffs.dtype),
+                    ishappy=self.ishappy)
+            return Chebtech1(coeffs=jnp.diff(self.coeffs, n=k, axis=1),
+                             ishappy=self.ishappy)
         if k == 0:
             return self
         new_coeffs = _diff_coeffs(self.coeffs, k)
@@ -2364,8 +2665,9 @@ class Chebtech1(eqx.Module):
         new_coeffs = _cumsum_coeffs(self.coeffs)
         return Chebtech1.from_coeffs(new_coeffs, ishappy=self.ishappy)
 
-    def sum(self) -> jax.Array:
-        r"""Definite integral over [-1, 1].
+    def sum(self, dim: int = 1) -> "jax.Array | Chebtech1":
+        r"""Definite integral over [-1, 1] (dim=2 sums the columns of an
+        array-valued tech, MATLAB ``sum(f, 2)``).
 
         Provenance
         ----------
@@ -2373,6 +2675,11 @@ class Chebtech1(eqx.Module):
         Chebfun commit: 7574c77
         Algorithm: Trefethen, ATAP, Thm 19.2.
         """
+        if dim == 2:
+            if self.coeffs.ndim == 1:
+                return self
+            return Chebtech1(coeffs=jnp.sum(self.coeffs, axis=1),
+                             ishappy=self.ishappy)
         return _definite_integral(self.coeffs)
 
     def inner(self, other: "Chebtech1") -> jax.Array:

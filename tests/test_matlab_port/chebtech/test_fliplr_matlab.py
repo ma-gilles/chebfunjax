@@ -15,22 +15,29 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
+import jax.numpy as jnp
+import numpy as np
 import pytest
 
 from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 
-_REASON = (
-    "chebfunjax lacks fliplr; array-valued column-flip N/A for scalar techs "
-    "(and no isequal predicate)"
-)
+# FIXED (Fable 5, Big-Three array-valued epic): fliplr added with the
+# (n, m) coefficient support; isequal maps to exact coeff equality.
 
 
 @pytest.mark.parametrize("Tech", [Chebtech1, Chebtech2])
 class TestChebtechFliplr:
     def test_fliplr_scalar_identity(self, Tech):
         # pass(n,1): isequal(f, fliplr(f)) for scalar sin
-        pytest.skip(_REASON)
+        f = Tech.from_function(jnp.sin)
+        assert np.array_equal(np.asarray(f.coeffs),
+                              np.asarray(f.fliplr().coeffs))
 
     def test_fliplr_array_reverses_columns(self, Tech):
         # pass(n,2): isequal(fliplr([sin cos]), [cos sin])
-        pytest.skip(_REASON)
+        f = Tech.from_function(
+            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1))
+        g = Tech.from_function(
+            lambda x: jnp.stack([jnp.cos(x), jnp.sin(x)], axis=-1))
+        assert np.allclose(np.asarray(f.fliplr().coeffs),
+                           np.asarray(g.coeffs), atol=0, rtol=0)

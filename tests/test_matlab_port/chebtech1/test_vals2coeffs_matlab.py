@@ -19,7 +19,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.tech.chebtech import Chebtech1
 
@@ -77,10 +76,18 @@ class TestChebtech1Vals2Coeffs:
         c = Chebtech1.vals2coeffs(jnp.asarray((1 + 1j) * np.arange(1.0, 7.0)))
         assert _ninf(np.asarray(c) - (1 + 1j) * _C_EVEN) < TOL
 
+    # FIXED (Fable 5, Big-Three array-valued epic): array/symmetry
+    # cases port now that the transforms are column-wise with exact
+    # symmetry enforcement (@chebtech1/vals2coeffs.m lines 74-76).
     def test_even_array_input(self):
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix techs"
-        )
+        # pass(7): [v, flipud(v)] -> [cTrue, (-1)^k .* cTrue]
+        v = np.arange(1.0, 7.0)
+        c = np.asarray(Chebtech1.vals2coeffs(
+            jnp.asarray(np.column_stack([v, v[::-1]]))))
+        tmp = np.ones_like(_C_EVEN)
+        tmp[1::2] = -1.0
+        assert _ninf(c[:, 0] - _C_EVEN) < TOL
+        assert _ninf(c[:, 1] - tmp * _C_EVEN) < TOL
 
     # -- odd case (v = 1:5) --------------------------------------------
     def test_odd_real_branch(self):
@@ -104,11 +111,20 @@ class TestChebtech1Vals2Coeffs:
         assert _ninf(np.asarray(c) - (1 + 1j) * _C_ODD) < TOL
 
     def test_odd_array_input(self):
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix techs"
-        )
+        # pass(13): [v, flipud(v)] -> [cTrue, (-1)^k .* cTrue]
+        v = np.arange(1.0, 6.0)
+        c = np.asarray(Chebtech1.vals2coeffs(
+            jnp.asarray(np.column_stack([v, v[::-1]]))))
+        tmp = np.ones_like(_C_ODD)
+        tmp[1::2] = -1.0
+        assert _ninf(c[:, 0] - _C_ODD) < TOL
+        assert _ninf(c[:, 1] - tmp * _C_ODD) < TOL
 
     def test_symmetry_preservation(self):
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix techs"
-        )
+        # pass(14): exactly-even column -> odd coeffs EXACTLY zero;
+        # exactly-odd column -> even coeffs EXACTLY zero.
+        v = np.kron(np.array([[1.0, -1.0], [1.0, 1.0]]),
+                    np.ones((10, 1)))
+        c = np.asarray(Chebtech1.vals2coeffs(jnp.asarray(v)))
+        assert float(np.max(np.abs(c[1::2, 0]))) == 0.0
+        assert float(np.max(np.abs(c[0::2, 1]))) == 0.0
