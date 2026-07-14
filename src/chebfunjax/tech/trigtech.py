@@ -82,7 +82,8 @@ def trig_vals2coeffs(values: jax.Array) -> jax.Array:
         return values
 
     # coeffs = (1/n) * fftshift(fft(values))
-    coeffs = jnp.fft.fftshift(jnp.fft.fft(values)) / n
+    # (axis=0 keeps array-valued (n, m) inputs column-wise correct)
+    coeffs = jnp.fft.fftshift(jnp.fft.fft(values, axis=0), axes=0) / n
 
     # The FFT is for [0, 2) but we want [-1, 1).
     # Fix: multiply c_k by (-1)^k.
@@ -94,6 +95,8 @@ def trig_vals2coeffs(values: jax.Array) -> jax.Array:
         ks = jnp.arange(-half, half, dtype=jnp.float64)
 
     even_odd_fix = (-1.0 + 0j) ** ks
+    even_odd_fix = even_odd_fix.reshape(
+        (n,) + (1,) * (values.ndim - 1))
     return coeffs * even_odd_fix
 
 
@@ -135,10 +138,13 @@ def trig_coeffs2vals(coeffs: jax.Array) -> jax.Array:
         ks = jnp.arange(-half, half, dtype=jnp.float64)
 
     # Undo the even/odd fix applied in vals2coeffs
+    # (axis=0 keeps array-valued (n, m) inputs column-wise correct)
     even_odd_fix = (-1.0 + 0j) ** ks
+    even_odd_fix = even_odd_fix.reshape(
+        (n,) + (1,) * (coeffs.ndim - 1))
     c = coeffs * even_odd_fix
 
-    return jnp.fft.ifft(jnp.fft.ifftshift(n * c))
+    return jnp.fft.ifft(jnp.fft.ifftshift(n * c, axes=0), axis=0)
 
 
 # ============================================================================
@@ -220,11 +226,13 @@ def _trig_eval(coeffs: jax.Array, x: jax.Array, is_real: bool = True) -> jax.Arr
     n = coeffs.shape[0]
     coeffs_cx = jnp.asarray(coeffs, dtype=jnp.complex128)
 
+    # Array-valued (n, m) coefficients evaluate column-wise: the output
+    # gains a trailing column axis (matching chebtech's _clenshaw).
+    out_shape = x_1d.shape + coeffs.shape[1:]
+
     if n == 0:
-        if is_real:
-            result = jnp.zeros_like(x_1d, dtype=jnp.float64)
-        else:
-            result = jnp.zeros_like(x_1d, dtype=jnp.complex128)
+        dt = jnp.float64 if is_real else jnp.complex128
+        result = jnp.zeros(out_shape, dtype=dt)
         return result[0] if scalar_input else result
 
     if n == 1:
@@ -233,7 +241,7 @@ def _trig_eval(coeffs: jax.Array, x: jax.Array, is_real: bool = True) -> jax.Arr
             val = jnp.real(c0).astype(jnp.float64)
         else:
             val = c0.astype(jnp.complex128)
-        result = jnp.broadcast_to(val, x_1d.shape)
+        result = jnp.broadcast_to(val, out_shape)
         return result[0] if scalar_input else result
 
     if is_real:
@@ -284,16 +292,21 @@ def _trig_eval_real(coeffs_cx: jax.Array, x: jax.Array) -> jax.Array:
         b = b.at[-1].set(0.0)
 
     n_h = a.shape[0]
-    u = jnp.cos(jnp.pi * x)   # shape (m,)
-    v = jnp.sin(jnp.pi * x)   # shape (m,)
+    # Array-valued: x gains a trailing singleton axis so the (p, 1)
+    # point axis broadcasts against per-column amplitudes a[k] of
+    # shape (m,).
+    xE = x.reshape(x.shape + (1,) * (coeffs_cx.ndim - 1))
+    out_shape = x.shape + coeffs_cx.shape[1:]
+    u = jnp.cos(jnp.pi * xE)
+    v = jnp.sin(jnp.pi * xE)
 
     if n_h == 1:
-        return jnp.broadcast_to(a[0], x.shape)
+        return jnp.broadcast_to(a[0], out_shape)
 
     # Horner recurrence: start from the highest-frequency pair and work down
     # Initialize with the highest-k term (index n_h-1)
-    co = jnp.broadcast_to(a[n_h - 1], x.shape)
-    si = jnp.broadcast_to(b[n_h - 1], x.shape)
+    co = jnp.broadcast_to(a[n_h - 1], out_shape)
+    si = jnp.broadcast_to(b[n_h - 1], out_shape)
 
     def body(j, state):
         co_, si_ = state
@@ -319,10 +332,16 @@ def _trig_eval_complex(coeffs_cx: jax.Array, x: jax.Array) -> jax.Array:
     MATLAB source : @trigtech/horner.m (horner_scl_cmplx)
     """
     n = coeffs_cx.shape[0]
-    z = jnp.exp(1j * jnp.pi * x.astype(jnp.float64))  # shape (m,)
+    # Array-valued: trailing singleton point axis broadcasts against
+    # per-column coefficients.
+    xE = x.astype(jnp.float64).reshape(
+        x.shape + (1,) * (coeffs_cx.ndim - 1))
+    out_shape = x.shape + coeffs_cx.shape[1:]
+    z = jnp.exp(1j * jnp.pi * xE)
 
     # Horner from highest wavenumber (index N-1) down
-    q = jnp.broadcast_to(coeffs_cx[n - 1].astype(jnp.complex128), z.shape)
+    q = jnp.broadcast_to(coeffs_cx[n - 1].astype(jnp.complex128),
+                         out_shape)
 
     def body(i, q_):
         j = n - 2 - i  # goes from n-2 down to 1
@@ -333,12 +352,12 @@ def _trig_eval_complex(coeffs_cx: jax.Array, x: jax.Array) -> jax.Array:
     # Apply lowest-mode prefactor
     if n % 2 == 1:
         # Odd N: q = exp(-i*pi*(N-1)/2 * x) * (c[0] + z*q)
-        prefactor = jnp.exp(-1j * jnp.pi * ((n - 1) / 2) * x)
+        prefactor = jnp.exp(-1j * jnp.pi * ((n - 1) / 2) * xE)
         return prefactor * (coeffs_cx[0] + z * q)
     else:
         # Even N: q = exp(-i*pi*(N/2-1)*x)*q + cos(N*pi*x/2)*c[0]
-        prefactor = jnp.exp(-1j * jnp.pi * (n / 2 - 1) * x)
-        return prefactor * q + jnp.cos(n / 2 * jnp.pi * x) * coeffs_cx[0]
+        prefactor = jnp.exp(-1j * jnp.pi * (n / 2 - 1) * xE)
+        return prefactor * q + jnp.cos(n / 2 * jnp.pi * xE) * coeffs_cx[0]
 
 
 # ============================================================================
@@ -385,6 +404,7 @@ def _trig_diff_coeffs(coeffs: jax.Array, k: int) -> jax.Array:
         wavenumbers = jnp.arange(-half, half, dtype=jnp.float64)
 
     factor = (1j * jnp.pi * wavenumbers) ** k
+    factor = factor.reshape((n,) + (1,) * (coeffs_cx.ndim - 1))
     return coeffs_cx * factor
 
 
@@ -443,12 +463,15 @@ def _trig_cumsum_coeffs(coeffs: jax.Array) -> jax.Array:
     c_work = c_expanded.at[c0_idx].set(0.0 + 0j)
 
     # Integration factor: 1/(i*pi*k) for k != 0
+    # (trailing singleton axes broadcast over array-valued columns)
     safe_wn = jnp.where(wavenumbers == 0, 1.0, wavenumbers)
     int_factor = jnp.where(
         wavenumbers == 0,
         0.0 + 0j,
         1.0 / (1j * jnp.pi * safe_wn + 0j),
     )
+    int_factor = int_factor.reshape(
+        (n_exp,) + (1,) * (c_work.ndim - 1))
     b = c_work * int_factor
 
     # For even original N: zero out the ±N/2 modes (they're pure cos, don't integrate)
@@ -461,7 +484,7 @@ def _trig_cumsum_coeffs(coeffs: jax.Array) -> jax.Array:
     # => b_0 = -sum_{k != 0} b_k * (-1)^k
     signs = (-1.0 + 0j) ** wavenumbers
     b_no_const = b.at[c0_idx].set(0.0 + 0j)
-    b = b.at[c0_idx].set(-jnp.dot(signs, b_no_const))
+    b = b.at[c0_idx].set(-jnp.tensordot(signs, b_no_const, axes=(0, 0)))
 
     # Shrink back to original N if we expanded
     if is_even:
@@ -539,7 +562,8 @@ def _trig_prolong_coeffs(coeffs: jax.Array, n_out: int) -> jax.Array:
     """
     if n_out <= 0 or coeffs.shape[0] == 0:
         # MATLAB: trigcoeffs(f, 0) and prolong of an empty are empty.
-        return jnp.zeros((max(n_out, 0),), dtype=coeffs.dtype)
+        return jnp.zeros((max(n_out, 0),) + coeffs.shape[1:],
+                         dtype=coeffs.dtype)
     n = coeffs.shape[0]
     if n_out == n:
         return jnp.asarray(coeffs, dtype=jnp.complex128)
@@ -558,10 +582,11 @@ def _trig_prolong_coeffs(coeffs: jax.Array, n_out: int) -> jax.Array:
     if n_out > n:
         k_up = (n_out - n + 1) // 2   # ceil((n_out-n)/2)
         k_down = (n_out - n) // 2      # floor((n_out-n)/2)
+        cols = coeffs_cx.shape[1:]
         coeffs_cx = jnp.concatenate([
-            jnp.zeros(k_up, dtype=jnp.complex128),
+            jnp.zeros((k_up,) + cols, dtype=jnp.complex128),
             coeffs_cx,
-            jnp.zeros(k_down, dtype=jnp.complex128),
+            jnp.zeros((k_down,) + cols, dtype=jnp.complex128),
         ])
     else:
         # Truncate: remove k_up from top (lowest wavenumbers) and k_down from bottom
@@ -662,6 +687,24 @@ def _chop_cutoff_to_ncoeffs(chop_cutoff: int, n_full: int) -> int:
     # paired_idx modes (including constant) -> n_keep = 2*paired_idx - 1 (odd, centered)
     n_keep = max(1, 2 * paired_idx - 1)
     return min(n_keep, n_full)
+
+
+def _trig_chop_cutoff(coeffs: jax.Array,
+                      tol: float | None = None) -> tuple[int, int]:
+    """standard_chop on paired trig magnitudes; the cutoff is the max
+    across columns for array-valued coeffs (MATLAB @trigtech/simplify.m
+    loops the columns and keeps the largest).  Returns (cutoff, chop
+    array length)."""
+    if coeffs.ndim == 1:
+        chop_in = _trig_abs_coeffs_for_chop(coeffs)
+        return standard_chop(chop_in, tol), len(chop_in)
+    cutoff = 1
+    length = 0
+    for j in range(coeffs.shape[1]):
+        chop_in = _trig_abs_coeffs_for_chop(coeffs[:, j])
+        cutoff = max(cutoff, standard_chop(chop_in, tol))
+        length = len(chop_in)
+    return cutoff, length
 
 
 # ============================================================================
@@ -906,9 +949,9 @@ class Trigtech(eqx.Module):
             vscale = max(vscale, float(jnp.max(jnp.abs(values))))
 
             # Check happiness using paired coefficient magnitudes
-            chop_in = _trig_abs_coeffs_for_chop(c)
-            cutoff = standard_chop(chop_in)
-            ishappy = cutoff < len(chop_in)
+            # (per-column max cutoff for array-valued sampling)
+            cutoff, chop_len = _trig_chop_cutoff(c)
+            ishappy = cutoff < chop_len
 
             if ishappy:
                 # Map cutoff back to number of Fourier modes
@@ -1094,9 +1137,8 @@ class Trigtech(eqx.Module):
         v = trig_coeffs2vals(prolonged.coeffs)
         c_noisy = trig_vals2coeffs(v)
 
-        chop_in = _trig_abs_coeffs_for_chop(c_noisy)
-        cutoff = standard_chop(chop_in, tol)
-        cutoff = min(cutoff, len(chop_in))
+        cutoff, chop_len = _trig_chop_cutoff(c_noisy, tol)
+        cutoff = min(cutoff, chop_len)
 
         n_keep = _chop_cutoff_to_ncoeffs(cutoff, N)
         n_keep = min(n_keep, nold)
@@ -1162,7 +1204,9 @@ class Trigtech(eqx.Module):
         """
         n = self.n
         c0_idx = n // 2
-        c0_mag = float(jnp.abs(self.coeffs[c0_idx]))
+        # max over columns for array-valued techs (every column must
+        # have zero mean)
+        c0_mag = float(jnp.max(jnp.abs(self.coeffs[c0_idx])))
         vs = self.vscale if self.vscale > 0 else 1.0
         if c0_mag > 10.0 * vs * _EPS:
             raise ValueError(
@@ -1277,6 +1321,17 @@ class Trigtech(eqx.Module):
         MATLAB source : @trigtech/roots.m
         Chebfun commit: 7574c77
         """
+        if self.coeffs.ndim == 2:
+            # Array-valued: roots per column, NaN-padded to equal
+            # length (MATLAB roots.m convention, same as chebtech)
+            import numpy as _np
+            cols = [_np.asarray(_trig_roots(self.coeffs[:, j]))
+                    for j in range(self.coeffs.shape[1])]
+            nmax = max((len(c) for c in cols), default=0)
+            out = _np.full((nmax, len(cols)), _np.nan)
+            for j, c in enumerate(cols):
+                out[: len(c), j] = c
+            return jnp.asarray(out)
         return _trig_roots(self.coeffs)
 
     # ------------------------------------------------------------------
@@ -1315,9 +1370,8 @@ class Trigtech(eqx.Module):
         else:
             scaled_tol = tol
 
-        chop_in = _trig_abs_coeffs_for_chop(coeffs)
-        cutoff = standard_chop(chop_in, scaled_tol)
-        ishappy = cutoff < len(chop_in)
+        cutoff, chop_len = _trig_chop_cutoff(coeffs, scaled_tol)
+        ishappy = cutoff < chop_len
         return ishappy, cutoff
 
     # ------------------------------------------------------------------
@@ -1388,6 +1442,13 @@ class Trigtech(eqx.Module):
             fv = _trig_eval(self.coeffs, x, self.is_real)
             gv = _trig_eval(other.coeffs, x, other.is_real)
             new_is_real = self.is_real and other.is_real
+            # scalar-column * array-valued broadcasts via a trailing
+            # column axis (MATLAB @chebtech/times.m semantics)
+            if fv.ndim != gv.ndim:
+                if fv.ndim == 1:
+                    fv = fv[:, None]
+                if gv.ndim == 1:
+                    gv = gv[:, None]
             pv = fv * gv
             c = trig_vals2coeffs(pv.astype(jnp.complex128))
             return Trigtech(coeffs=c, is_real=new_is_real, ishappy=self.ishappy and other.ishappy)
