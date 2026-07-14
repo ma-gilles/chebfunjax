@@ -89,10 +89,20 @@ def _clenshaw(coeffs: jax.Array, x: jax.Array) -> jax.Array:
     """
     n = coeffs.shape[0]
 
+    # Array-valued series: coeffs (n, m) evaluated at x (...,) gives
+    # values of shape x.shape + (m,) -- the recurrence broadcasts a
+    # trailing column axis (Fable 5 array-valued support).
+    multi = coeffs.ndim == 2
+    if multi:
+        x = jnp.asarray(x)[..., None]      # (..., 1) vs (n, m) rows
+
     # Edge cases
     if n == 0:
         return jnp.zeros_like(x, dtype=jnp.float64)
     if n == 1:
+        if multi:
+            return jnp.broadcast_to(
+                coeffs[0], x.shape[:-1] + coeffs.shape[1:])
         return jnp.broadcast_to(coeffs[0], x.shape)
 
     x2 = 2.0 * x
@@ -110,9 +120,11 @@ def _clenshaw(coeffs: jax.Array, x: jax.Array) -> jax.Array:
     # Carry dtype must match the series dtype (complex chebfuns give a
     # complex recurrence; a float64 carry breaks the lax scan/loop typing).
     out_dtype = jnp.result_type(coeffs.dtype, x.dtype)
+    carry_shape = jnp.broadcast_shapes(
+        x.shape, coeffs.shape[1:] if multi else ())
     init = (
-        jnp.zeros_like(x, dtype=out_dtype),
-        jnp.zeros_like(x, dtype=out_dtype),
+        jnp.zeros(carry_shape, dtype=out_dtype),
+        jnp.zeros(carry_shape, dtype=out_dtype),
     )
     bk1, bk2 = jax.lax.fori_loop(0, n - 1, body, init)
 
