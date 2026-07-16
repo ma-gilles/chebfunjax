@@ -397,6 +397,14 @@ class _Piece(eqx.Module):
         (x_min, f_min), (x_max, f_max)
         """
         a, b = self.interval
+        if self.tech.coeffs.ndim == 2:
+            # Array-valued: per-column extrema from the tech (which
+            # handles the complex |f|^2 path too); map positions from
+            # the reference interval to [a, b].
+            (mn, mnp), (mx, mxp) = self.tech.minandmax()
+            xmn = 0.5 * (b - a) * mnp + 0.5 * (a + b)
+            xmx = 0.5 * (b - a) * mxp + 0.5 * (a + b)
+            return (xmn, mn), (xmx, mx)
         # Roots of derivative give critical points
         dp = self.diff(1)
         crit_t = dp.tech.roots()  # roots in [-1, 1]
@@ -2186,6 +2194,37 @@ class Chebfun(eqx.Module):
                 return jnp.array([], dtype=jnp.complex128)
             return jnp.asarray(_np.concatenate(croots), dtype=jnp.complex128)
 
+        domain_len = float(self.domain.b - self.domain.a)
+        dedup_tol = 1e6 * _np.finfo(_np.float64).eps * max(domain_len, 1.0)
+
+        def _dedup(combined):
+            if combined.shape[0] <= 1:
+                return combined
+            mask = _np.concatenate(
+                [[True], _np.diff(combined) > dedup_tol])
+            return combined[mask]
+
+        if any(p.tech.coeffs.ndim == 2 for p in self.funs):
+            # Array-valued: per-column collection, NaN-padded to equal
+            # length (MATLAB @chebfun/roots.m convention).
+            m = max(p.tech.coeffs.shape[1] for p in self.funs
+                    if p.tech.coeffs.ndim == 2)
+            cols = []
+            for j in range(m):
+                rj = []
+                for piece in self.funs:
+                    r = _np.asarray(piece.roots())
+                    col = r[:, j] if r.ndim == 2 else r
+                    rj.append(col[_np.isfinite(col)])
+                combined = (_np.sort(_np.concatenate(rj))
+                            if rj else _np.zeros(0))
+                cols.append(_dedup(combined))
+            nmax = max((len(c) for c in cols), default=0)
+            out = _np.full((nmax, m), _np.nan)
+            for j, c in enumerate(cols):
+                out[: len(c), j] = c
+            return jnp.asarray(out)
+
         all_roots = []
         for piece in self.funs:
             r = piece.roots()
@@ -2197,12 +2236,7 @@ class Chebfun(eqx.Module):
 
         # Deduplicate: remove consecutive roots that are within a tight tolerance
         # (handles the case where a breakpoint root is found by two pieces).
-        if combined.shape[0] <= 1:
-            return jnp.asarray(combined, dtype=jnp.float64)
-        domain_len = float(self.domain.b - self.domain.a)
-        dedup_tol = 1e6 * _np.finfo(_np.float64).eps * max(domain_len, 1.0)
-        mask = _np.concatenate([[True], _np.diff(combined) > dedup_tol])
-        unique_roots = combined[mask]
+        unique_roots = _dedup(combined)
         return jnp.asarray(unique_roots, dtype=jnp.float64)
 
     def minandmax(self) -> tuple[tuple[float, float], tuple[float, float]]:
@@ -2222,6 +2256,29 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/minandmax.m
         Chebfun commit: 7574c77
         """
+        if any(p.tech.coeffs.ndim == 2 for p in self.funs):
+            # Array-valued: elementwise per-column comparison across
+            # pieces (MATLAB returns 2 x m values/positions).
+            import numpy as _np
+
+            gmin_x = gmin_v = gmax_x = gmax_v = None
+            for piece in self.funs:
+                (x_min, f_min), (x_max, f_max) = piece.minandmax()
+                x_min, f_min = _np.asarray(x_min), _np.asarray(f_min)
+                x_max, f_max = _np.asarray(x_max), _np.asarray(f_max)
+                if gmin_v is None:
+                    gmin_x, gmin_v = x_min, f_min
+                    gmax_x, gmax_v = x_max, f_max
+                else:
+                    take = f_min < gmin_v
+                    gmin_x = _np.where(take, x_min, gmin_x)
+                    gmin_v = _np.where(take, f_min, gmin_v)
+                    take = f_max > gmax_v
+                    gmax_x = _np.where(take, x_max, gmax_x)
+                    gmax_v = _np.where(take, f_max, gmax_v)
+            return ((jnp.asarray(gmin_x), jnp.asarray(gmin_v)),
+                    (jnp.asarray(gmax_x), jnp.asarray(gmax_v)))
+
         global_min_x = None
         global_min_val = float("inf")
         global_max_x = None
