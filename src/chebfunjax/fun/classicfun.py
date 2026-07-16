@@ -357,22 +357,29 @@ class Classicfun(eqx.Module):
         new_onefun = self.onefun.cumsum() * rescale
         return self.__class__(new_onefun, self.domain)
 
-    def sum(self) -> jax.Array:
+    def sum(self, dim: int = 1) -> "jax.Array | Classicfun":
         """Definite integral over [a, b].
 
         Scales the integral of the underlying Chebtech2 (over [-1, 1])
-        by ``(b - a) / 2``.
+        by ``(b - a) / 2``.  ``dim=2`` sums ACROSS the columns of an
+        array-valued fun and returns a scalar-column fun (MATLAB
+        ``sum(f, 2)``, a no-op for scalar-valued input).
 
         Returns
         -------
-        jax.Array, scalar
-            The integral ``∫_a^b f(x) dx``.
+        jax.Array (scalar or (m,)) or Classicfun
+            The integral ``∫_a^b f(x) dx``, or the column-sum fun.
 
         Provenance
         ----------
         MATLAB source : @bndfun/sum.m
         Chebfun commit: 7574c77
         """
+        if dim == 2:
+            summed = self.onefun.sum(dim=2)
+            if summed is self.onefun:
+                return self
+            return type(self)(onefun=summed, domain=self.domain)
         rescale = self.domain.map_derivative()  # (b-a)/2
         return self.onefun.sum() * jnp.float64(rescale)
 

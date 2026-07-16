@@ -111,12 +111,11 @@ class TestBndfunSum:
         )
         assert abs(err) < tol
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks array-valued Bndfun: sum of [sin x^2 exp(1i x)] "
-        "cannot be represented (adaptive construction does not converge)."
-    )
     def test_array_valued(self):
-        f = _bf(lambda x: jnp.stack([jnp.sin(x), x ** 2, jnp.exp(1j * x)], axis=-1), n=17)
+        # pass(9): sum([sin x^2 exp(1i x)]) == per-column definite integrals.
+        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) Bndfun; sum
+        # returns one integral per column.
+        f = _bf(lambda x: jnp.stack([jnp.sin(x), x ** 2, jnp.exp(1j * x)], axis=-1))
         got = np.asarray(f.sum())
         exact = np.array(
             [
@@ -127,27 +126,21 @@ class TestBndfunSum:
         )
         assert _ninf(got - exact) < 10 * f.vscale * EPS
 
-    @pytest.mark.xfail(
-        reason="chebfunjax Bndfun.sum() has no `dim` argument: sum(f, 2) "
-        "(row-wise collapse of an array-valued fun) is not implemented."
-    )
+    # FIXED (Fable 5, Big-Three array-valued epic): Bndfun.sum(dim=2)
+    # collapses the columns pointwise (MATLAB sum(f, 2)).
     def test_dim_option_array_valued(self):
-        f = _bf(lambda x: jnp.stack([jnp.sin(x), x ** 2, jnp.exp(1j * x)], axis=-1), n=17)
-        g = f.sum(dim=2)  # no such kwarg in chebfunjax -> demonstrates the gap
+        f = _bf(lambda x: jnp.stack([jnp.sin(x), x ** 2, jnp.exp(1j * x)], axis=-1))
+        g = f.sum(dim=2)
 
         def h(x):
             return np.sin(x) + x ** 2 + np.exp(1j * x)
 
         assert _ninf(np.asarray(g(X)) - h(XR)) < 10 * g.vscale * EPS
 
-    @pytest.mark.xfail(
-        reason="chebfunjax Bndfun.sum() has no `dim` argument: sum(h, 2) on a "
-        "scalar fun (should return the fun unchanged) is not implemented.",
-        raises=TypeError,
-    )
     def test_dim_option_scalar(self):
+        # pass(11): sum(h, 2) on a scalar fun is a no-op.
         h = _bf(jnp.cos)
-        sumh2 = h.sum(dim=2)  # noqa -> TypeError: unexpected kwarg
+        sumh2 = h.sum(dim=2)
         assert _ninf(h(X) - sumh2(X)) == 0.0
 
     @pytest.mark.xfail(

@@ -3,9 +3,9 @@
 MATLAB ``f / A`` (mrdivide) divides a Bndfun quasimatrix by a numeric matrix
 (or scalar), and ``c / f`` solves a least-squares problem giving a Bndfun.
 chebfunjax's ``Classicfun.__truediv__`` is *pointwise* division (f(x)/g(x)),
-which is a different operation, and there is no matrix/least-squares mrdivide;
-most cases also require array-valued Bndfun.  Every assertion is therefore
-xfail with a precise reason.
+which is a different operation, and there is no matrix/least-squares mrdivide.
+(Array-valued Bndfun itself now works; the gap is the mrdivide operator.)
+Every assertion is therefore xfail/skip with a precise reason.
 
 Provenance
 ----------
@@ -29,7 +29,7 @@ XR = np.linspace(-2.0, 7.0, 100)
 X = jnp.asarray(XR)
 _MRDIV_MISSING = (
     "chebfunjax Classicfun.__truediv__ is pointwise division, not MATLAB "
-    "mrdivide (matrix/least-squares); also needs array-valued Bndfun"
+    "mrdivide (matrix/least-squares); array-valued Bndfun itself now works"
 )
 
 

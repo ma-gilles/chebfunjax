@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.tech.trigtech import Trigtech
 
@@ -136,10 +135,85 @@ class TestTrigtechDiff:
         df_coeffs_exact = jnp.array([-jnp.pi * 1j * (1 + 1j), 0.0], dtype=jnp.complex128)
         assert _ninf(df.coeffs - df_coeffs_exact) < EPS * _ninf(df_coeffs_exact)
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_array_valued_diff(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(13): diff([exp(-50x^2) sin(4pi(x-.2)) 1i*exp(cos(pi x))]).
+        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) coeffs; diff acts
+        # column-wise.
+        f = _tt(
+            lambda x: jnp.stack(
+                [
+                    jnp.exp(-50 * x**2),
+                    jnp.sin(4 * jnp.pi * (x - 0.2)),
+                    1j * jnp.exp(jnp.cos(jnp.pi * x)),
+                ],
+                axis=-1,
+            )
+        )
+        df = f.diff()
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued trigtech and the diff DIM option")
-    def test_diff_dim_option(self):
-        raise AssertionError("diff(f, k, 2) DIM option not implemented")
+        def df_exact(x):
+            return jnp.stack(
+                [
+                    -100 * x * jnp.exp(-50 * x**2),
+                    4 * jnp.pi * jnp.cos(4 * jnp.pi * (x - 0.2)),
+                    -jnp.pi * 1j * jnp.sin(jnp.pi * x) * jnp.exp(jnp.cos(jnp.pi * x)),
+                ],
+                axis=-1,
+            )
+
+        assert _ninf(df(X) - df_exact(X)) < 100 * df.vscale * EPS
+
+    def _f3(self):
+        return _tt(
+            lambda x: jnp.stack(
+                [
+                    jnp.exp(-50 * x**2),
+                    jnp.sin(4 * jnp.pi * (x - 0.2)),
+                    1j * jnp.exp(jnp.cos(jnp.pi * x)),
+                ],
+                axis=-1,
+            )
+        )
+
+    def test_diff_dim2_first(self):
+        # pass(14): diff(f, 1, 2) is the first difference ACROSS columns.
+        # FIXED (Fable 5, Big-Three array-valued epic).  MATLAB also asserts
+        # size(vscale)==[1 2]; chebfunjax vscale is a scalar, so we check the
+        # 2-column result shape instead.
+        f = self._f3()
+        d2 = f.diff(1, dim=2)
+
+        def g(x):
+            return jnp.stack(
+                [
+                    jnp.sin(4 * jnp.pi * (x - 0.2)) - jnp.exp(-50 * x**2),
+                    1j * jnp.exp(jnp.cos(jnp.pi * x)) - jnp.sin(4 * jnp.pi * (x - 0.2)),
+                ],
+                axis=-1,
+            )
+
+        assert d2.coeffs.shape[1] == 2
+        assert _ninf(d2(X) - g(X)) < 100 * d2.vscale * EPS
+
+    def test_diff_dim2_second(self):
+        # pass(15): diff(f, 2, 2) is the second difference ACROSS columns.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = self._f3()
+        d2b = f.diff(2, dim=2)
+
+        def g2(x):
+            return (
+                jnp.exp(-50 * x**2)
+                - 2 * jnp.sin(4 * jnp.pi * (x - 0.2))
+                + 1j * jnp.exp(jnp.cos(jnp.pi * x))
+            )
+
+        assert d2b.coeffs.shape[1] == 1
+        assert _ninf(d2b(X)[:, 0] - g2(X)) < 1e3 * d2b.vscale * EPS
+
+    def test_diff_dim2_scalar_empty(self):
+        # pass(16): diff(f, 1, 2) on scalar-valued input returns empty coeffs.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = _tt(lambda x: jnp.sin(jnp.pi * x))
+        d2 = f.diff(1, dim=2)
+        assert np.asarray(d2.coeffs).size == 0

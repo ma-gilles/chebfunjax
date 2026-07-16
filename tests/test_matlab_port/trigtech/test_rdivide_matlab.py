@@ -2,8 +2,11 @@
 
 Pointwise division (./).  Division of two resolved real functions and
 scalar/function division with a real result match direct evaluation.
-Gaps: complex-scalar division (is_real not cleared / raises), division by
-zero (needs isnan), and all array-valued / error-condition cases.
+Array-valued division works, and a column-count mismatch (2-col ./ [1 2 3])
+is rejected.  Remaining gaps: complex-scalar division (is_real not cleared,
+dropping the imaginary part -- affects the scalar and array cases), division
+by zero (needs isnan(), and f./0 yields inf not all-NaN coeffs), and the
+column-vector size check (silently broadcasts instead of raising).
 
 Provenance
 ----------
@@ -22,6 +25,11 @@ from chebfunjax.tech.trigtech import Trigtech
 EPS = float(np.finfo(np.float64).eps)
 X = jnp.asarray(np.linspace(-1.0, 1.0, 10, endpoint=False))
 XX = jnp.asarray(np.linspace(-1.0, 1.0, 10))
+
+
+# MATLAB's arbitrary constants (seedRNG(6178) draws).
+ALPHA = -0.194758928283640 + 0.075474485412665j
+BETA = -0.526634844879922 - 0.685484380523668j
 
 
 def _tt(f):
@@ -62,44 +70,77 @@ class TestTrigtechRdivide:
         h2 = _tt(lambda x: jnp.sin(10 * jnp.pi * x) / jnp.exp(jnp.cos(jnp.pi * x)))
         assert _ninf(h1(XX) - h2(XX)) < 100 * EPS
 
-    @pytest.mark.xfail(
-        reason="chebfunjax __truediv__ by a complex scalar does not clear is_real, so "
-        "the imaginary part of the quotient is dropped"
-    )
+    # FIXED (Fable 5): division by a complex scalar clears is_real,
+    # so pass(1) ports at MATLAB's tolerance (100*vscale*eps).
     def test_scalar_division_complex(self):
-        raise AssertionError("complex-scalar division drops imaginary part")
+        fop = lambda x: jnp.sin(10 * jnp.pi * x)
+        f = _tt(fop)
+        g = f / ALPHA
+        assert _ninf(g(X) - fop(X) / ALPHA) < 100 * g.vscale * EPS
 
-    @pytest.mark.xfail(
-        reason="chebfunjax __rtruediv__ raises for a complex scalar over a real function "
-        "(casts to float64) and does not clear is_real"
-    )
+    # FIXED (Fable 5): __rtruediv__ keeps a complex numerator, so
+    # pass(7) ports at MATLAB's tolerance.
     def test_complex_scalar_over_function(self):
-        raise AssertionError("complex scalar / real function not implemented")
+        import warnings
+
+        fop = lambda x: jnp.exp(jnp.cos(jnp.pi * x))
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            f = _tt(fop)
+            g = ALPHA / f
+        assert _ninf(g(X) - ALPHA / fop(X)) < 100 * g.vscale * EPS
 
     @pytest.mark.xfail(reason="chebfunjax trigtech has no isnan(); f/0 yields inf/nan coeffs silently")
     def test_scalar_division_by_zero_is_nan(self):
         raise AssertionError("isnan() not implemented")
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
+    # FIXED (Fable 5): complex scalars clear is_real, so pass(3)
+    # ports directly.
     def test_array_scalar_division(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        fop = lambda x: jnp.stack(
+            [jnp.sin(10 * jnp.pi * x), jnp.sin(20 * jnp.pi * x)],
+            axis=-1)
+        f = _tt(fop)
+        g = f / ALPHA
+        assert _ninf(g(X) - fop(X) / ALPHA) < 100 * g.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
+    @pytest.mark.xfail(
+        reason="chebfunjax trigtech has no isnan(); array f./0 yields inf/nan coeffs silently "
+        "(array-valued division works, but the isnan() check MATLAB uses is unavailable)"
+    )
     def test_array_division_by_zero(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        raise AssertionError("isnan() not implemented")
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
+    # FIXED (Fable 5): a complex row divisor clears is_real, so
+    # pass(5) ports at MATLAB's absolute 1e3*eps tolerance.
     def test_array_division_by_row(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        fop = lambda x: jnp.stack(
+            [jnp.sin(10 * jnp.pi * x), jnp.sin(20 * jnp.pi * x)],
+            axis=-1)
+        f = _tt(fop)
+        g = f / jnp.asarray([ALPHA, BETA])
+        exact = jnp.stack(
+            [jnp.sin(10 * jnp.pi * X) / ALPHA,
+             jnp.sin(20 * jnp.pi * X) / BETA], axis=-1)
+        assert _ninf(g(X) - exact) < 1e3 * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
+    @pytest.mark.xfail(
+        reason="chebfunjax has no isnan() and f./0 produces inf (not all-NaN) coeffs, so "
+        "MATLAB's per-column NaN pattern check on f./[alpha 0] is not reproducible"
+    )
     def test_array_division_by_row_with_zero(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        raise AssertionError("isnan() / NaN-pattern not reproducible")
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued dimension-mismatch detection")
+    @pytest.mark.xfail(
+        reason="chebfunjax does not validate division by a column vector [1;2]; it silently "
+        "broadcasts instead of raising CHEBFUN:TRIGTECH:rdivide:size"
+    )
     def test_size_error_column_vector(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        raise AssertionError("column-vector size check not implemented")
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued dimension-mismatch detection")
     def test_size_error_row_mismatch(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(11): 2-column f ./ [1 2 3] is rejected with a dimension error.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = _tt(lambda x: jnp.stack([jnp.sin(jnp.pi * x), jnp.cos(jnp.pi * x)], axis=-1))
+        with pytest.raises((ValueError, TypeError)):
+            _ = f / jnp.array([1.0, 2.0, 3.0])

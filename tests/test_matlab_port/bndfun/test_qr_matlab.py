@@ -3,8 +3,8 @@
 MATLAB ``qr(f)`` computes an (abstract) QR factorisation of an array-valued
 Bndfun (a quasimatrix): Q is an array-valued Bndfun with orthonormal columns
 in the L2 inner product and R is an upper-triangular numeric matrix.
-chebfunjax has neither array-valued (quasimatrix) Bndfun nor a ``qr`` method,
-so every assertion is xfail with that precise reason.  Each MATLAB helper
+chebfunjax has array-valued (quasimatrix) Bndfun but no ``qr`` method, so every
+assertion is xfail with that precise reason.  Each MATLAB helper
 ``test_one_qr`` / ``test_one_qr_with_perm`` contributes two assertions
 (orthogonality of Q, accuracy of Q*R); the pass indices are noted per method.
 
@@ -12,6 +12,10 @@ Provenance
 ----------
 MATLAB source : tests/bndfun/test_qr.m
 Chebfun commit: 7574c77
+
+Array-valued (quasimatrix) Bndfun now works (Fable 5 array-valued epic), but
+Bndfun still has no ``qr()`` method, so every assertion remains xfail on that
+precise gap.
 """
 
 from __future__ import annotations
@@ -24,14 +28,12 @@ from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
 
 DOM = Domain((-2.0, 7.0))
-_QR_MISSING = (
-    "chebfunjax lacks array-valued (quasimatrix) Bndfun and has no qr() method"
-)
+_QR_MISSING = "chebfunjax Bndfun has no qr() method"
 
 
 def _bf(f, n=None):
-    # array-valued builds never converge in chebfunjax; a small fixed n keeps
-    # the xfail fast (the qr() call raises AttributeError regardless).
+    # a small fixed n keeps the xfail fast (the qr() call raises
+    # AttributeError regardless of resolution).
     return Bndfun.from_function(f, DOM, n=n)
 
 

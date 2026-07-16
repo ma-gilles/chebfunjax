@@ -1,8 +1,15 @@
 """Port of MATLAB Chebfun tests/trigtech/test_mtimes.m (Opus 4.8).
 
-mtimes (*) with a scalar is elementwise scaling (commutes); mtimes with a
-matrix, and the associated error paths, require array-valued trigtechs
-which chebfunjax lacks.
+mtimes (*) with a scalar is elementwise scaling (commutes).  MATLAB's matrix
+multiply ``f*A`` maps to chebfunjax ``f @ A`` (matmul); array-valued trigtechs
+are now supported, so the array scalar (pass 5-7) and matrix (pass 8-10) cases
+are real assertions (FIXED, Fable 5, Big-Three array-valued epic).
+
+The MATLAB size/type error paths (pass 11-13) do raise in chebfunjax, but as a
+generic ``TypeError`` rather than MATLAB's typed identifiers/messages
+(``CHEBFUN:TRIGTECH:mtimes:size`` etc.), so those are ported as assert-raises.
+pass 1 (empty-argument arithmetic) and pass 14 (``TRIGTECH*uint8`` message) have
+no chebfunjax analogue and stay xfail with precise reasons.
 
 Provenance
 ----------
@@ -22,6 +29,24 @@ EPS = float(np.finfo(np.float64).eps)
 X = jnp.asarray(np.linspace(-1.0, 1.0, 100, endpoint=False))
 rng = np.random.default_rng(6178)
 ALPHA = complex(rng.standard_normal(), rng.standard_normal())
+
+
+def _arr3():
+    return Trigtech.from_function(
+        lambda x: jnp.stack(
+            [jnp.sin(10 * jnp.pi * x), jnp.cos(20 * jnp.pi * x), jnp.cos(jnp.sin(jnp.pi * x))],
+            axis=-1,
+        )
+    )
+
+
+def _carr3():
+    return Trigtech.from_function(
+        lambda x: jnp.stack(
+            [jnp.exp(1j * 11 * jnp.pi * x), jnp.cos(20 * jnp.pi * x), jnp.cos(jnp.sin(jnp.pi * x))],
+            axis=-1,
+        )
+    )
 
 
 def _tt(f):
@@ -53,42 +78,97 @@ class TestTrigtechMtimes:
     def test_empty_arguments(self):
         raise AssertionError("empty trigtech arithmetic not implemented")
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_array_scalar_mult_commutes(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(5): alpha*f == f*alpha for array-valued f.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = _arr3()
+        assert bool(jnp.all((ALPHA * f).coeffs == (f * ALPHA).coeffs))
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_array_scalar_mult_value(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(6): (alpha*f)(x) == alpha*[...].
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = _arr3()
+        g1 = ALPHA * f
+        exact = ALPHA * jnp.stack(
+            [jnp.sin(10 * jnp.pi * X), jnp.cos(20 * jnp.pi * X), jnp.cos(jnp.sin(jnp.pi * X))],
+            axis=-1,
+        )
+        assert _ninf(g1(X) - exact) < 100 * g1.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_array_mult_by_zero(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(7): 0*f has all-zero coeffs for array-valued f.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = _arr3()
+        assert bool(jnp.all((0.0 * f).coeffs == 0))
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued trigtech / matrix mtimes")
     def test_matrix_mult_real(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(8): f*A (real A) == [...]*A.  MATLAB f*A maps to f @ A.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = _arr3()
+        A = jnp.asarray(np.random.default_rng(1).standard_normal((3, 3)))
+        g = f @ A
+        gex = jnp.stack(
+            [jnp.sin(10 * jnp.pi * X), jnp.cos(20 * jnp.pi * X), jnp.cos(jnp.sin(jnp.pi * X))],
+            axis=-1,
+        ) @ A
+        assert _ninf(g(X) - gex) < 100 * g.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued trigtech / matrix mtimes")
     def test_matrix_mult_complex_trigtech(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(9): f*A with a complex-valued f and real A.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = _carr3()
+        A = jnp.asarray(np.random.default_rng(2).standard_normal((3, 3)))
+        g = f @ A
+        gex = jnp.stack(
+            [jnp.exp(1j * 11 * jnp.pi * X), jnp.cos(20 * jnp.pi * X), jnp.cos(jnp.sin(jnp.pi * X))],
+            axis=-1,
+        ) @ A
+        assert _ninf(g(X) - gex) < 100 * g.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued trigtech / matrix mtimes")
     def test_matrix_mult_complex_matrix(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(10): f*A with a complex-valued f and complex A.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = _carr3()
+        r = np.random.default_rng(3)
+        A = jnp.asarray(r.standard_normal((3, 3)) + 1j * r.standard_normal((3, 3)))
+        g = f @ A
+        gex = jnp.stack(
+            [jnp.exp(1j * 11 * jnp.pi * X), jnp.cos(20 * jnp.pi * X), jnp.cos(jnp.sin(jnp.pi * X))],
+            axis=-1,
+        ) @ A
+        assert _ninf(g(X) - gex) < 100 * g.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks the mtimes size-error paths (array-valued)")
     def test_error_nonscalar_double_times_trigtech(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(11): [1 2 3]*f (non-scalar double times trigtech) is a dimension
+        # mismatch.  FIXED (Fable 5, Big-Three array-valued epic): chebfunjax
+        # raises a generic TypeError (no MATLAB 'mtimes:size' identifier).
+        f = Trigtech.from_function(lambda x: jnp.exp(jnp.cos(jnp.pi * x)))
+        with pytest.raises(Exception):
+            jnp.array([1.0, 2.0, 3.0]) @ f
 
-    @pytest.mark.xfail(reason="chebfunjax lacks the mtimes size-error paths (array-valued)")
     def test_error_trigtech_times_mismatched_double(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(12): f*[1;2;3] with a 2-column f is a dimension mismatch.
+        # FIXED (Fable 5, Big-Three array-valued epic): raises (see pass 11).
+        f = Trigtech.from_function(
+            lambda x: jnp.stack([jnp.sin(10 * jnp.pi * x), jnp.cos(20 * jnp.pi * x)], axis=-1)
+        )
+        with pytest.raises(Exception):
+            f @ jnp.array([1.0, 2.0, 3.0])
 
-    @pytest.mark.xfail(reason="chebfunjax does not forbid trigtech*trigtech via *")
     def test_error_trigtech_times_trigtech(self):
-        raise AssertionError("mtimes trigtech*trigtech guard not implemented")
+        # pass(13): f*g of two trigtechs via mtimes (@) is forbidden.
+        # FIXED (Fable 5, Big-Three array-valued epic): chebfunjax raises a
+        # TypeError (MATLAB emits a "Use .* to multiply" message instead).
+        f = Trigtech.from_function(lambda x: jnp.exp(jnp.cos(jnp.pi * x)))
+        g = Trigtech.from_function(lambda x: jnp.cos(20 * jnp.pi * x))
+        with pytest.raises(Exception):
+            f @ g
 
-    @pytest.mark.xfail(reason="chebfunjax does not raise a typed error for unknown mtimes operands")
+    @pytest.mark.xfail(
+        reason="chebfunjax has no MATLAB-style typed message for TRIGTECH*<unknown "
+        "type>; matmul against an unsupported operand simply raises TypeError"
+    )
     def test_error_unknown_type(self):
-        raise AssertionError("mtimes type guard not implemented")
+        # pass(14): MATLAB emits a specific 'mtimes does not know how to multiply
+        # a TRIGTECH and a uint8' message; chebfunjax has no such typed message.
+        raise NotImplementedError("no typed mtimes message for unknown operands")

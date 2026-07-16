@@ -116,13 +116,34 @@ class TestTrigtechFeval:
         assert out.shape == (10, 10, 10)
         assert _ninf(out - f_exact) < 10 * f.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_array_valued_feval(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(11): array-valued feval.
+        # FIXED (Fable 5, Big-Three array-valued epic): trigtechs carry (n, m) coeffs.
+        fun = lambda x: jnp.stack(
+            [
+                (2 + jnp.sin(jnp.pi * x)) * jnp.exp(1j * jnp.pi * x),
+                -(2 + jnp.sin(jnp.pi * x)) * jnp.exp(1j * jnp.pi * x),
+                2 + jnp.sin(jnp.pi * x),
+            ],
+            axis=-1,
+        )
+        f = Trigtech.from_function(fun)
+        assert _ninf(f(X) - fun(X)) < 10 * f.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued trigtech evaluated at matrix args")
     def test_array_valued_matrix_args(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(12): array-valued trigtech evaluated at a matrix argument.
+        # FIXED (Fable 5, Big-Three array-valued epic).  chebfunjax returns
+        # shape (x_rows, x_cols, m); MATLAB horzcat's the m columns into
+        # (x_rows, x_cols*m) but the values are identical.
+        fun = lambda x: jnp.stack(
+            [jnp.sin(jnp.pi * x), jnp.cos(jnp.pi * x), jnp.exp(1j * jnp.pi * x)],
+            axis=-1,
+        )
+        f = Trigtech.from_function(fun)
+        x2 = jnp.array([[-1.0, 0.0, 1.0], [0.25, 0.5, 0.75]], dtype=jnp.float64)
+        fx = f(x2)
+        assert fx.shape == (2, 3, 3)
+        assert _ninf(fx - fun(x2)) < 10 * f.vscale * EPS
 
     @pytest.mark.xfail(reason="chebfunjax lacks the chebfun 'trig'/'trunc' construction path")
     def test_chebfun_trig_trunc(self):

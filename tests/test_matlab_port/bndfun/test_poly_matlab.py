@@ -56,16 +56,14 @@ class TestBndfunPoly:
         exact = np.array([2j, -3.2, 0, 2, 0, -(1.2 + 3j)])
         assert float(np.max(np.abs(p - exact))) < f.vscale * EPS
 
-    @pytest.mark.xfail(
-        reason=_POLY_MISSING + "; also needs array-valued Bndfun.",
-        raises=AttributeError,
-    )
+    @pytest.mark.xfail(reason=_POLY_MISSING, raises=AttributeError)
     def test_array_valued(self):
+        # Array-valued Bndfun now works; the sole remaining blocker is the
+        # missing poly() (power-basis coefficients).
         f = _bf(
             lambda x: jnp.stack(
                 [3 * jnp.ones_like(x), 6.4 * x - 3j, 4 * x ** 2 - 2j * x + 3.7],
                 axis=-1,
-            ),
-            n=17,
+            )
         )
         f.poly()

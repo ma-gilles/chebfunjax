@@ -36,13 +36,43 @@ class TestTrigtechHappinessCheck:
         ishappy, tail = self._check(lambda x: jnp.sin(omega * jnp.pi * x))
         assert ishappy
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_array_tail(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(3): array-valued [sin(pi x) cos(3 pi x) (sin(7pi x)+cos(7pi x))]
+        # at 33 pts => tail == 2*omega+1 with omega=7.
+        # FIXED (Fable 5, Big-Three array-valued epic): happiness_check on (n, m)
+        # coeffs takes the per-column max cutoff.
+        omega = 7
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
+        def fop(x):
+            return jnp.stack(
+                [
+                    jnp.sin(jnp.pi * x),
+                    jnp.cos((omega // 2) * jnp.pi * x),
+                    jnp.sin(omega * jnp.pi * x) + jnp.cos(omega * jnp.pi * x),
+                ],
+                axis=-1,
+            )
+
+        ishappy, tail = self._check(fop)
+        assert tail == 2 * omega + 1
+
     def test_array_ishappy(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(4): array-valued case is happy.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        omega = 7
+
+        def fop(x):
+            return jnp.stack(
+                [
+                    jnp.sin(jnp.pi * x),
+                    jnp.cos((omega // 2) * jnp.pi * x),
+                    jnp.sin(omega * jnp.pi * x) + jnp.cos(omega * jnp.pi * x),
+                ],
+                axis=-1,
+            )
+
+        ishappy, tail = self._check(fop)
+        assert ishappy
 
     @pytest.mark.xfail(
         reason="chebfunjax happiness_check has no sampleTest option; it cannot detect "

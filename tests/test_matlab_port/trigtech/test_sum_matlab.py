@@ -14,15 +14,20 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.tech.trigtech import Trigtech
 
 EPS = float(np.finfo(np.float64).eps)
+# Deterministic points in the domain (analytic checks hold at any x in [-1, 1)).
+X = jnp.asarray(np.linspace(-1.0, 1.0, 100, endpoint=False))
 
 
 def _tt(f):
     return Trigtech.from_function(f)
+
+
+def _ninf(a):
+    return float(jnp.max(jnp.abs(jnp.asarray(a))))
 
 
 class TestTrigtechSum:
@@ -87,10 +92,47 @@ class TestTrigtechSum:
         rhs = complex(g(jnp.array(1.0))) - complex(g(jnp.array(-1.0)))
         assert abs(lhs - rhs) < max(tol_dg, tol_g)
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_array_valued_sum(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(9): sum([sin(pi x) 1-cos(1e2 pi x) sin(cos(pi x))]) == [0 2 0].
+        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) coeffs; sum
+        # returns one integral per column.
+        f = _tt(
+            lambda x: jnp.stack(
+                [
+                    jnp.sin(jnp.pi * x),
+                    1 - jnp.cos(1e2 * jnp.pi * x),
+                    jnp.sin(jnp.cos(jnp.pi * x)),
+                ],
+                axis=-1,
+            )
+        )
+        I = jnp.asarray(f.sum())
+        I_exact = jnp.array([0.0, 2.0, 0.0])
+        assert _ninf(I - I_exact) < 10 * f.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued trigtech and the sum DIM option")
-    def test_sum_dim_option(self):
-        raise AssertionError("sum(f, 2) DIM option not implemented")
+    def test_sum_dim_array(self):
+        # pass(10): sum(f, 2) sums ACROSS columns; equals the sum function.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = _tt(
+            lambda x: jnp.stack(
+                [
+                    jnp.sin(jnp.pi * x),
+                    1 - jnp.cos(1e2 * jnp.pi * x),
+                    jnp.sin(jnp.cos(jnp.pi * x)),
+                ],
+                axis=-1,
+            )
+        )
+        g = f.sum(dim=2)
+
+        def h(x):
+            return jnp.sin(jnp.pi * x) + 1 - jnp.cos(1e2 * jnp.pi * x) + jnp.sin(jnp.cos(jnp.pi * x))
+
+        assert _ninf(g(X) - h(X)) < 1e3 * g.vscale * EPS
+
+    def test_sum_dim_scalar_noop(self):
+        # pass(11): sum(f, 2) on scalar-valued input leaves coeffs untouched.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        h = _tt(lambda x: jnp.cos(jnp.pi * x))
+        sumh2 = h.sum(dim=2)
+        assert bool(jnp.all(h.coeffs == sumh2.coeffs))

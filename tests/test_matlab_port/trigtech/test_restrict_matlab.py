@@ -39,4 +39,24 @@ class TestTrigtechRestrict:
         assert float(jnp.max(err)) < 100 * f.vscale * EPS
 
     def test_array_valued(self):
-        pytest.skip("chebfunjax has no array-valued trigtech")
+        # pass(10): array-valued restriction of [sin(2pi x) cos(4pi x)
+        # exp(cos(2pi x))] to [-0.5, 0.5].  MATLAB's pass(10) is commented out
+        # in the reference, but the operation is well-defined, so we port its
+        # (disabled) spec here at the same tolerance the scalar spot-check uses.
+        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) coeffs; restrict
+        # returns an array-valued Chebtech2 (restriction of a periodic function
+        # is not periodic).
+        a, b = -0.5, 0.5
+
+        def fun(x):
+            return jnp.stack(
+                [jnp.sin(2 * jnp.pi * x), jnp.cos(4 * jnp.pi * x), jnp.exp(jnp.cos(2 * jnp.pi * x))],
+                axis=-1,
+            )
+
+        f = Trigtech.from_function(fun)
+        g = f.restrict(a, b)
+        ts = jnp.asarray(np.linspace(a, b, 100))
+        mapx = (2.0 / (b - a)) * (ts - a) - 1.0
+        err = float(jnp.max(jnp.abs(fun(ts) - g(mapx))))
+        assert err < 100 * g.vscale * EPS

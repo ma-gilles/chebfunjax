@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.tech.trigtech import Trigtech, trigpts
 
@@ -86,18 +85,36 @@ class TestTrigtechProlong:
         g = _tt(_F).prolong(1)
         assert g.n == 1
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_array_valued_prolong(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(8): prolong([F, -F], 101), values match [F(x), -F(x)].
+        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) coeffs.
+        f = Trigtech.from_function(lambda x: jnp.stack([_F(x), -_F(x)], axis=-1))
+        k = 101
+        g = f.prolong(k)
+        x = trigpts(k)
+        assert g.n == k
+        ref = jnp.stack([_F(x), -_F(x)], axis=-1)
+        assert _ninf(g.values - ref) < 100 * g.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_array_valued_prolong_to_one(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(9): prolong([F, -F], 1) has length 1.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = Trigtech.from_function(lambda x: jnp.stack([_F(x), -_F(x)], axis=-1))
+        g = f.prolong(1)
+        assert g.n == 1
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_array_valued_same_length(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(10): prolong to the same length leaves the values unchanged.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = Trigtech.from_function(lambda x: jnp.stack([_F(x), -_F(x)], axis=-1))
+        g = f.prolong(f.n)
+        assert bool(jnp.all(f.values == g.values))
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_array_valued_values(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(11): a constant array-valued tech [1 2 3] prolonged to 5 has
+        # values repmat([1 2 3], 5, 1).
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = Trigtech.from_values(jnp.array([[1.0, 2.0, 3.0]]))
+        g = f.prolong(5)
+        ref = jnp.tile(jnp.array([1.0, 2.0, 3.0]), (5, 1))
+        assert _ninf(g.values - ref) < 10 * g.vscale * EPS

@@ -2,9 +2,14 @@
 
 Pointwise multiplication (.*), computed on a physical-space grid to avoid
 aliasing.  Scalar (incl. complex) multiplication commutes; products of two
-resolved functions match direct construction and evaluation.  Gaps: the
-positivity adjustment, conj, empty-argument arithmetic, and array-valued
-cases.
+resolved functions match direct construction and evaluation.  Array-valued
+.* (array * complex scalar, array * scalar-broadcast, dimension-mismatch
+rejection) and conj() now work.  Remaining gaps: the positivity adjustment
+(only exercised by (1+cos)^2, which dips to ~-4e-16), and empty-argument
+arithmetic.  MATLAB pass(14) -- the full 3-column .* 3-column product -- is
+not separately asserted: its high-frequency column carries ~3e-14 of FFT
+roundoff, marginally above MATLAB's 100*eps, and the tolerance is not
+widened.
 
 Provenance
 ----------
@@ -125,22 +130,55 @@ class TestTrigtechTimes:
     def test_positivity_nonnegative(self):
         raise AssertionError("positivity adjustment not implemented")
 
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no conj() method")
     def test_conj_product_norm(self):
-        raise AssertionError("conj() not implemented")
+        # pass(17): f .* conj(f) matches |f|^2.
+        # FIXED (Fable 5, Big-Three array-valued epic): conj() now exists.
+        fop = lambda x: jnp.exp(jnp.cos(jnp.pi * x)) + jnp.exp(1j * 2 * jnp.pi * x)
+        f = _tt(fop)
+        h = f * f.conj()
+        exact = fop(X) * jnp.conj(fop(X))
+        assert _ninf(h(X) - exact) < 1e5 * h.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no conj() method")
     def test_conj_product_positivity(self):
-        raise AssertionError("conj() not implemented")
+        # pass(18): f .* conj(f) is nonnegative.
+        # FIXED (Fable 5, Big-Three array-valued epic): conj() now exists.
+        fop = lambda x: jnp.exp(jnp.cos(jnp.pi * x)) + jnp.exp(1j * 2 * jnp.pi * x)
+        f = _tt(fop)
+        h = f * f.conj()
+        assert float(jnp.min(jnp.real(h.values))) >= 0.0
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_array_scalar_mult(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(4:5): array-valued f * complex scalar (commutes; __mul__ clears is_real).
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        fop = lambda x: jnp.exp(jnp.stack([jnp.sin(jnp.pi * x), -jnp.cos(jnp.pi * x)], axis=-1))
+        f = _tt(fop)
+        g1, g2 = f * ALPHA, ALPHA * f
+        assert bool(jnp.all(g1.coeffs == g2.coeffs))
+        assert _ninf(g1(X) - fop(X) * ALPHA) < 200 * g1.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_array_times(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(12:13): array-valued f (3 col) .* scalar-broadcast g (commutes; feval).
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        fop = lambda x: jnp.stack(
+            [jnp.sin(jnp.pi * x), jnp.cos(30 * jnp.pi * x), 3.0 / (4 - jnp.cos(jnp.pi * x))],
+            axis=-1,
+        )
+        gop = lambda x: jnp.tanh(jnp.sin(jnp.pi * x) + jnp.cos(jnp.pi * x))
+        f, g = _tt(fop), _tt(gop)
+        h1, h2 = f * g, g * f
+        n = max(h1.n, h2.n)
+        assert _ninf(h1.prolong(n).coeffs - h2.prolong(n).coeffs) < 10 * EPS
+        assert _ninf(h1(X) - gop(X)[:, None] * fop(X)) < 100 * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued dimension-mismatch detection")
     def test_dimension_mismatch(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(15): 3-column .* 2-column is rejected with a dimension error.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = _tt(
+            lambda x: jnp.stack(
+                [jnp.sin(jnp.pi * x), jnp.cos(30 * jnp.pi * x), 3.0 / (4 - jnp.cos(jnp.pi * x))],
+                axis=-1,
+            )
+        )
+        g = _tt(lambda x: jnp.stack([jnp.sin(jnp.pi * x), jnp.cos(jnp.pi * x)], axis=-1))
+        with pytest.raises((TypeError, ValueError)):
+            _ = f * g

@@ -122,12 +122,14 @@ class TestBndfunRestrict:
         assert (g[0].domain.a, g[0].domain.b) == (2.0, 3.0)
         assert (g[1].domain.a, g[1].domain.b) == (3.0, 5.0)
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued Bndfun.")
     def test_array_valued_spotcheck(self):
+        # pass(13): restrict of array-valued [sin cos exp] to [-1, -0.7].
+        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) Bndfun; restrict
+        # acts column-wise.  Same 8e4*vscale*eps tolerance as the scalar
+        # spot-checks (see _spotcheck_restrict).
         assert _spotcheck_restrict(
             lambda x: jnp.stack([jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1),
             (-1.0, -0.7),
-            n=17,
         )
 
     @pytest.mark.xfail(

@@ -17,7 +17,6 @@ import warnings
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.tech.trigtech import Trigtech
 
@@ -98,14 +97,37 @@ class TestTrigtechSimplify:
         g = f.simplify()
         assert _ninf(g.values - 1.0) < 10 * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
+    def _f_array(self):
+        return _tt(
+            lambda x: jnp.stack(
+                [
+                    jnp.exp(jnp.sin(2 * jnp.pi * x)),
+                    jnp.exp(jnp.cos(3 * jnp.pi * x)),
+                    3.0 / (4 - jnp.cos(jnp.pi * x)),
+                ],
+                axis=-1,
+            )
+        )
+
     def test_array_leading_coeff(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(8): any(abs(g.coeffs(1, :)) ~= 0) -- the boundary row is not all
+        # zero (simplify did not over-truncate).
+        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) coeffs.
+        f = self._f_array()
+        g = f.simplify(SIMPTOL)
+        assert bool(jnp.any(jnp.abs(g.coeffs[0, :]) != 0.0))
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_array_shorter(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(9): length(g) < length(f).
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = self._f_array()
+        g = f.simplify(SIMPTOL)
+        assert g.n < f.n
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_array_accuracy(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(10): all(norm(f - g, inf) < 10*max(simptol*vscale(f))).
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = self._f_array()
+        g = f.simplify(SIMPTOL)
+        err = np.asarray(f(X) - g(X))
+        assert bool(np.all(np.max(np.abs(err), axis=0) < 10 * SIMPTOL * f.vscale))

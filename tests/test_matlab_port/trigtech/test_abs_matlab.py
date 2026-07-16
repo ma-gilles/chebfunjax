@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.tech.trigtech import Trigtech
 
@@ -46,6 +45,19 @@ class TestTrigtechAbs:
         h = abs(f)
         assert _normest(h - 1) < 10 * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_complex_array_valued(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(4): abs of a complex array-valued trigtech.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = _tt(
+            lambda x: jnp.stack(
+                [
+                    (2 + jnp.sin(jnp.pi * x)) * jnp.exp(1j * jnp.pi * x),
+                    -(2 + jnp.sin(jnp.pi * x)) * jnp.exp(1j * jnp.pi * x),
+                    2 + jnp.sin(jnp.pi * x),
+                ],
+                axis=-1,
+            )
+        )
+        g = _tt(lambda x: jnp.stack([2 + jnp.sin(jnp.pi * x)] * 3, axis=-1))
+        h = abs(f)
+        assert _normest(h - g) < 10 * EPS

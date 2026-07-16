@@ -14,7 +14,6 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import jax.numpy as jnp
-import pytest
 
 from chebfunjax.tech.trigtech import Trigtech
 
@@ -24,7 +23,10 @@ def _tt(f):
 
 
 def _isequal(f, g):
-    if f.n != g.n or f.is_real != g.is_real:
+    # MATLAB @trigtech/isequal.m compares size(coeffs) then the coefficients
+    # (values follow from coeffs); the shape guard also covers the scalar-vs-
+    # array and differing-column-count cases.
+    if f.coeffs.shape != g.coeffs.shape or f.is_real != g.is_real:
         return False
     return bool(jnp.all(f.coeffs == g.coeffs))
 
@@ -45,10 +47,16 @@ class TestTrigtechIsequal:
         f = g
         assert _isequal(f, g)
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_scalar_vs_array(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(3): a scalar tech and an array-valued tech are not equal.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = _tt(lambda x: jnp.sin(200 * jnp.pi * x))
+        g = _tt(lambda x: jnp.stack([jnp.sin(200 * jnp.pi * x), jnp.cos(200 * jnp.pi * x)], axis=-1))
+        assert not _isequal(f, g)
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_array_vs_array(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(5): two array-valued techs differing in one column are not equal.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = _tt(lambda x: jnp.stack([jnp.sin(200 * jnp.pi * x), jnp.cos(200 * jnp.pi * x)], axis=-1))
+        g = _tt(lambda x: jnp.stack([jnp.sin(200 * jnp.pi * x), jnp.exp(1j * 200 * jnp.pi * x)], axis=-1))
+        assert not _isequal(f, g)

@@ -27,6 +27,6 @@ class TestTrigtechSign:
     def test_complex_valued_function(self):
         raise AssertionError("sign() not implemented")
 
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no sign() method (and no array-valued trigtech)")
+    @pytest.mark.xfail(reason="chebfunjax trigtech has no sign() method (array-valued techs now exist)")
     def test_complex_array_valued(self):
         raise AssertionError("sign() not implemented")

@@ -13,7 +13,6 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import jax.numpy as jnp
-import pytest
 
 from chebfunjax.tech.trigtech import Trigtech
 
@@ -35,14 +34,25 @@ class TestTrigtechIsreal:
         f = _tt(lambda x: jnp.sin(jnp.pi * x))
         assert f.is_real
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_complex_array(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(4): array with a complex column is not real.
+        # FIXED (Fable 5, Big-Three array-valued epic): is_real == all(isReal).
+        f = _tt(
+            lambda x: jnp.stack(
+                [jnp.sin(100 * jnp.pi * x) + 1j * jnp.sin(jnp.cos(10 * jnp.pi * x)), jnp.cos(10 * jnp.pi * x)],
+                axis=-1,
+            )
+        )
+        assert not f.is_real
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_mixed_array(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(5): array with a pure-imaginary column is not real.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = _tt(lambda x: jnp.stack([1j * jnp.cos(jnp.pi * x), jnp.cos(jnp.sin(jnp.pi * x))], axis=-1))
+        assert not f.is_real
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_real_array(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(6): array with all real columns is real.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = _tt(lambda x: jnp.stack([jnp.sin(20 * jnp.pi * x), jnp.cos(jnp.sin(jnp.pi * x))], axis=-1))
+        assert f.is_real

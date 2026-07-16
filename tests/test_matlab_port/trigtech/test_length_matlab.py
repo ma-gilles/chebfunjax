@@ -10,8 +10,9 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
+import warnings
+
 import jax.numpy as jnp
-import pytest
 
 from chebfunjax.tech.trigtech import Trigtech
 
@@ -29,6 +30,19 @@ class TestTrigtechLength:
         f = _tt(lambda x: jnp.sin(jnp.pi * x), n=101)
         assert len(f) == 101
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_array_valued_length(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(2): length(f) == size(f.coeffs, 1) for tanh([sin cos 1i*exp(x)]).
+        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) Fourier coeffs;
+        # len(f) is the row count regardless of column count.  The third column
+        # is non-periodic, so construction is unhappy -- length is still defined.
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            f = _tt(
+                lambda x: jnp.tanh(
+                    jnp.stack(
+                        [jnp.sin(jnp.pi * x), jnp.cos(jnp.pi * x), 1j * jnp.exp(x)],
+                        axis=-1,
+                    )
+                )
+            )
+        assert len(f) == f.coeffs.shape[0]

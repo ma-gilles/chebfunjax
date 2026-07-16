@@ -97,10 +97,38 @@ class TestTrigtechCumsum:
         with pytest.raises(ValueError):
             f.cumsum()
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_array_valued_cumsum(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(6, 7): diff(cumsum(f)) == f and cumsum(diff(f)) == f (up to a
+        # constant per column) for f = [sin(4pi cos(2pi x)) sin(3pi x)].
+        # FIXED (Fable 5, Big-Three array-valued epic): column-wise cumsum.
+        f = _tt(
+            lambda x: jnp.stack(
+                [jnp.sin(4 * jnp.pi * jnp.cos(2 * jnp.pi * x)), jnp.sin(3 * jnp.pi * x)],
+                axis=-1,
+            )
+        )
+        # pass(6): all(max(abs(err)) < 100*tol)
+        g = f.cumsum().diff()
+        err = np.asarray(f(X) - g(X))
+        tol = 10 * g.vscale * EPS
+        assert bool(np.all(np.max(np.abs(err), axis=0) < 100 * tol))
+        # pass(7): all(std(err) < tol) && all(abs(feval(h, -1)) < tol)
+        h = f.diff().cumsum()
+        errh = np.asarray(f(X) - h(X))
+        tolh = 10 * h.vscale * EPS
+        assert bool(np.all(np.std(errh, axis=0) < tolh))
+        assert bool(np.all(np.abs(np.asarray(h(jnp.array(-1.0)))) < tolh))
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued trigtech")
     def test_array_valued_mean_check(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # pass(9): error when just one column of an array-valued trigtech has
+        # nonzero mean.
+        # FIXED (Fable 5, Big-Three array-valued epic): the meanNotZero guard
+        # is enforced per column.
+        f = _tt(
+            lambda x: jnp.stack(
+                [jnp.sin(4 * jnp.pi * jnp.cos(jnp.pi * x)), jnp.exp(jnp.cos(jnp.pi * x))],
+                axis=-1,
+            )
+        )
+        with pytest.raises(ValueError):
+            f.cumsum()

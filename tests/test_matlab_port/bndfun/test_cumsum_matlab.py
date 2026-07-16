@@ -91,21 +91,22 @@ class TestBndfunCumsum:
         assert _diff_ninf(err) < 10 * max(tol_f, tol_h)
         assert abs(float(h(jnp.float64(A)))) < 10 * max(tol_f, tol_h)
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks array-valued Bndfun: cumsum of "
-        "[sin x^2 exp(1i x)] cannot be represented."
-    )
     def test_array_valued(self):
-        f = _bf(lambda x: jnp.stack([jnp.sin(x), x ** 2, jnp.exp(1j * x)], axis=-1), n=17)
+        # pass(8): cumsum([sin x^2 exp(1i x)]) matches the analytic
+        # antiderivative up to a per-column constant, with F(a) == 0.
+        # FIXED (Fable 5, Big-Three array-valued epic): column-wise cumsum.
+        # MATLAB's norm(diff(err), inf) differences down the SAMPLE axis
+        # (axis=0), cancelling each column's constant of integration.
+        f = _bf(lambda x: jnp.stack([jnp.sin(x), x ** 2, jnp.exp(1j * x)], axis=-1))
         F = f.cumsum()
         F_exact = _bf(
             lambda x: jnp.stack(
                 [-jnp.cos(x), x ** 3 / 3, jnp.exp(1j * x) / 1j], axis=-1
-            ),
-            n=17,
+            )
         )
         err = np.asarray(F(X)) - np.asarray(F_exact(X))
-        assert _diff_ninf(err) < 10 * f.vscale * EPS
+        assert float(np.max(np.abs(np.diff(err, axis=0)))) < 10 * f.vscale * EPS
+        assert bool(np.all(np.abs(np.asarray(F(jnp.float64(A)))) < f.vscale * EPS))
 
     @pytest.mark.xfail(
         reason="chebfunjax lacks singular (blowup) Bndfun: (x-a)^-0.64 "

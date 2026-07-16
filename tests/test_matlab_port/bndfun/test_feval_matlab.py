@@ -76,30 +76,29 @@ class TestBndfunFeval:
         assert err.shape == (10, 10, 10)
         assert _ninf(err) < 10 * f.vscale * EPS
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks array-valued (matrix-valued) Bndfun: "
-        "adaptive construction of [sin(x) x^2 exp(1i x)] does not converge "
-        "and __call__ does not return one column per component."
-    )
     def test_array_valued(self):
-        f = _bf(lambda x: jnp.stack([jnp.sin(x), x ** 2, jnp.exp(1j * x)], axis=-1), n=17)
+        # pass(8): array-valued [sin(x) x^2 exp(1i x)] on [-2, 7].
+        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) Bndfun with
+        # adaptive construction; __call__ returns one column per component.
+        f = _bf(lambda x: jnp.stack([jnp.sin(x), x ** 2, jnp.exp(1j * x)], axis=-1))
         exact = np.stack(
             [np.sin(XR), XR ** 2, np.exp(1j * XR)], axis=-1
         )
         assert _ninf(f(X) - exact) < 10 * f.vscale * EPS
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks array-valued Bndfun evaluated at matrix "
-        "arguments (needs per-column output)."
-    )
     def test_array_valued_matrix_args(self):
-        f = _bf(lambda x: jnp.stack([jnp.sin(np.pi * x), jnp.cos(np.pi * x)], axis=-1), n=17)
+        # pass(9): array-valued fun evaluated at a matrix argument.
+        # FIXED (Fable 5, Big-Three array-valued epic): chebfunjax returns the
+        # natural (rows, cols, m) layout; MATLAB flattens the m columns to
+        # (rows, cols*m), but the values are identical, so we compare in native
+        # layout against the stacked exact.
+        f = _bf(lambda x: jnp.stack([jnp.sin(np.pi * x), jnp.cos(np.pi * x)], axis=-1))
         x2 = jnp.asarray(np.array([[-1.0, 0.0, 5.0], [-1.75, 0.5, 4.75]]))
-        fx = f(x2)
-        f_exact = np.array(
-            [[0, 0, 0, -1, 1, -1],
-             [1, np.sqrt(2), 1, 1, 0, -1]]
-        ) / np.sqrt(2)
+        fx = np.asarray(f(x2))
+        f_exact = np.stack(
+            [np.sin(np.pi * np.asarray(x2)), np.cos(np.pi * np.asarray(x2))], axis=-1
+        )
+        assert fx.shape == (2, 3, 2)
         assert _ninf(fx - f_exact) < 1e2 * f.vscale * EPS
 
     @pytest.mark.xfail(

@@ -5,8 +5,10 @@ underlying ``Chebtech2.compose`` provides it; a Bndfun composition is exactly
 ``Bndfun.from_chebtech(f.onefun.compose(op[, g]), f.domain)`` -- which is what
 MATLAB @classicfun/compose.m does internally (delegate to the onefun, rewrap).
 The scalar-valued cases are ported this way and self-validated against the
-analytic exact at the SAME tolerance MATLAB uses.  The array-valued cases are
-xfail: chebfunjax has no array-valued (matrix-valued) Bndfun.
+analytic exact at the SAME tolerance MATLAB uses.  The array-valued cases now
+work too (FIXED, Fable 5, Big-Three array-valued epic): the onefun is a
+Chebtech2 that supports (n, m) coefficients, so unary, binary, and
+tech-of-tech composition all act column-wise.
 
 Provenance
 ----------
@@ -18,7 +20,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
@@ -45,23 +46,26 @@ class TestBndfunCompose:
         g = Bndfun.from_chebtech(f.onefun.compose(jnp.sin), f.domain)
         assert _ninf(np.sin(XR) - np.asarray(g(X))) < 10 * g.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued Bndfun ([x x]).")
     def test_array_valued_unary_sin_2col(self):
-        f = _bf(lambda x: jnp.stack([x, x], axis=-1), n=17)
+        # pass(2): compose([x x], @sin).
+        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) onefun compose.
+        f = _bf(lambda x: jnp.stack([x, x], axis=-1))
         g = Bndfun.from_chebtech(f.onefun.compose(jnp.sin), f.domain)
         exact = np.stack([np.sin(XR), np.sin(XR)], axis=-1)
         assert _ninf(np.asarray(g(X)) - exact) < 10 * g.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued Bndfun ([x x^2]).")
     def test_array_valued_unary_sin_x_xsq(self):
-        f = _bf(lambda x: jnp.stack([x, x ** 2], axis=-1), n=17)
+        # pass(3): compose([x x^2], @sin).
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = _bf(lambda x: jnp.stack([x, x ** 2], axis=-1))
         g = Bndfun.from_chebtech(f.onefun.compose(jnp.sin), f.domain)
         exact = np.stack([np.sin(XR), np.sin(XR ** 2)], axis=-1)
         assert _ninf(np.asarray(g(X)) - exact) < 1e2 * g.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued Bndfun ([x x x^2]).")
     def test_array_valued_unary_sin_3col(self):
-        f = _bf(lambda x: jnp.stack([x, x, x ** 2], axis=-1), n=17)
+        # pass(4): compose([x x x^2], @sin).
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = _bf(lambda x: jnp.stack([x, x, x ** 2], axis=-1))
         g = Bndfun.from_chebtech(f.onefun.compose(jnp.sin), f.domain)
         exact = np.stack([np.sin(XR), np.sin(XR), np.sin(XR ** 2)], axis=-1)
         assert _ninf(np.asarray(g(X)) - exact) < 1e2 * g.vscale * EPS
@@ -74,10 +78,11 @@ class TestBndfunCompose:
         exact = np.sin(XR) + np.cos(XR)
         assert _ninf(exact - np.asarray(g(X))) < 10 * g.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued Bndfun (binary times).")
     def test_array_valued_binary_times(self):
-        f1 = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1), n=17)
-        f2 = _bf(lambda x: jnp.stack([jnp.cos(x), jnp.exp(x)], axis=-1), n=17)
+        # pass(6): compose([sin cos], @times, [cos exp]).
+        # FIXED (Fable 5, Big-Three array-valued epic): binary onefun compose.
+        f1 = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1))
+        f2 = _bf(lambda x: jnp.stack([jnp.cos(x), jnp.exp(x)], axis=-1))
         g = Bndfun.from_chebtech(f1.onefun.compose(jnp.multiply, f2.onefun), DOM)
         exact = np.stack([np.sin(XR) * np.cos(XR), np.cos(XR) * np.exp(XR)], axis=-1)
         assert _ninf(exact - np.asarray(g(X))) < 1e2 * g.vscale * EPS
@@ -89,17 +94,19 @@ class TestBndfunCompose:
         h = Bndfun.from_chebtech(f.onefun.compose(g), DOM)
         assert _ninf(np.asarray(h(X)) - np.sin(XR ** 2)) < 1e2 * h.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued Bndfun (g array-valued).")
     def test_function_composition_g_array(self):
+        # pass(8): compose(f, g) = g(f) with f = x^2, g = [sin cos] on [0, 49].
+        # FIXED (Fable 5, Big-Three array-valued epic): array-valued g.
         f = _bf(lambda x: x ** 2)
-        g = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1), Domain((0.0, 49.0)), n=17)
+        g = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1), Domain((0.0, 49.0)))
         h = Bndfun.from_chebtech(f.onefun.compose(g), DOM)
         exact = np.stack([np.sin(XR ** 2), np.cos(XR ** 2)], axis=-1)
         assert _ninf(np.asarray(h(X)) - exact) < 1e2 * h.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued Bndfun (f array-valued).")
     def test_function_composition_f_array(self):
-        f = _bf(lambda x: jnp.stack([x, x ** 2], axis=-1), n=17)
+        # pass(9): compose(f, g) = g(f) with f = [x x^2], g = sin on [-2, 49].
+        # FIXED (Fable 5, Big-Three array-valued epic): array-valued f.
+        f = _bf(lambda x: jnp.stack([x, x ** 2], axis=-1))
         g = _bf(jnp.sin, Domain((-2.0, 49.0)))
         h = Bndfun.from_chebtech(f.onefun.compose(g), DOM)
         exact = np.stack([np.sin(XR), np.sin(XR ** 2)], axis=-1)

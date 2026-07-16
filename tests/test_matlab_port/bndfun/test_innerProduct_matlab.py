@@ -96,24 +96,28 @@ class TestBndfunInnerProduct:
         assert np.all(np.abs(n2vals.imag) < 10 * EPS)
         assert np.all(n2vals.real >= 0)
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks array-valued Bndfun: innerProduct of "
-        "[sin cos] with a 3-column fun yields a 2x3 matrix of pairwise "
-        "products, which is not supported."
-    )
     def test_array_valued(self):
-        # MATLAB uses g = [exp(x) 1/(1+x^2) airy(x)] and checks the 2x3
-        # matrix of inner products; the array-valued construction itself is
-        # what chebfunjax cannot represent.
-        f = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1), n=17)
+        # pass(10): innerProduct of a 2-column f with a 3-column g yields the
+        # 2x3 Gram matrix of pairwise inner products.
+        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) Bndfun; inner
+        # returns the full Gram matrix.  MATLAB's third g column is airy(x),
+        # which chebfunjax has no special function for, so we substitute cos(x)
+        # and validate against the matrix of the corresponding SCALAR inner
+        # products (the exact array-valued property MATLAB asserts).
+        f = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1))
         g = _bf(
             lambda x: jnp.stack(
                 [jnp.exp(x), 1.0 / (1 + x ** 2), jnp.cos(x)], axis=-1
-            ),
-            n=17,
+            )
         )
         ip = np.asarray(f.inner(g))
         assert ip.shape == (2, 3)
+        f_cols = [_bf(jnp.sin), _bf(jnp.cos)]
+        g_cols = [_bf(jnp.exp), _bf(lambda x: 1.0 / (1 + x ** 2)), _bf(jnp.cos)]
+        ref = np.array(
+            [[complex(f_cols[i].inner(g_cols[j])) for j in range(3)] for i in range(2)]
+        )
+        assert float(np.max(np.abs(ip - ref))) < 10 * max(f.vscale, g.vscale) * EPS
 
     def test_error_on_non_bndfun(self):
         # MATLAB raises CHEBFUN:BNDFUN:innerProduct:input.  chebfunjax reaches

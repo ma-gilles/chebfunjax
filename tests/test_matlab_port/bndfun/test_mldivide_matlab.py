@@ -3,8 +3,8 @@
 MATLAB ``f \\ g`` (mldivide) solves the least-squares problem for Bndfun
 quasimatrices: given array-valued Bndfuns, it returns the numeric matrix of
 coefficients that best expands ``g`` in the columns of ``f``.  chebfunjax has
-no ``mldivide``/backslash on Bndfun/Classicfun (and no array-valued Bndfun),
-so every assertion is xfail with that precise reason.
+no ``mldivide``/backslash on Bndfun/Classicfun, so every assertion is xfail
+with that precise reason.  (Array-valued Bndfun itself now works.)
 
 Provenance
 ----------
@@ -45,14 +45,14 @@ class TestBndfunMldivide:
         err = f - g * f
         assert float(jnp.max(jnp.abs(err(jnp.asarray(np.linspace(-2, 7, 100)))))) < TOL
 
-    @pytest.mark.xfail(reason=_MLDIV_MISSING + "; needs array-valued Bndfun.")
+    @pytest.mark.xfail(reason=_MLDIV_MISSING)
     def test_array_valued_solution(self):  # pass(3)
         f = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1), n=17)
         g = _bf(lambda x: jnp.sin(x + np.pi / 4))
         h = f.mldivide(g)
         assert float(np.max(np.abs(np.asarray(h) - np.array([1, 1]) / np.sqrt(2)))) < TOL
 
-    @pytest.mark.xfail(reason=_MLDIV_MISSING + "; needs array-valued Bndfun.")
+    @pytest.mark.xfail(reason=_MLDIV_MISSING)
     def test_array_valued_residual(self):  # pass(4)
         f = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1), n=17)
         g = _bf(lambda x: jnp.sin(x + np.pi / 4))
@@ -60,7 +60,7 @@ class TestBndfunMldivide:
         err = g - f * h
         assert float(jnp.max(jnp.abs(err(jnp.asarray(np.linspace(-2, 7, 100)))))) < TOL
 
-    @pytest.mark.xfail(reason=_MLDIV_MISSING + "; needs array-valued Bndfun.")
+    @pytest.mark.xfail(reason=_MLDIV_MISSING)
     def test_least_squares_solution(self):  # pass(5)
         f = _bf(lambda x: jnp.stack([jnp.ones_like(x), x, x ** 2, x ** 3], axis=-1), n=17)
         g = _bf(lambda x: x ** 4 + x ** 3 + x + 1)

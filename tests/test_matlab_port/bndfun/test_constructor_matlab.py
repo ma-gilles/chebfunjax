@@ -35,20 +35,19 @@ class TestBndfunConstructor:
         g = _bf(lambda x: jnp.sin(x) / x)
         assert abs(1 - float(g(jnp.float64(0.0)))) < 10 * g.vscale * EPS
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks array-valued Bndfun: "
-        "[sin(x)/x sin(x-3)/(x-3)] cannot be constructed per column."
-    )
     def test_array_valued_interpolation(self):
+        # pass(2): array-valued [sin(x)/x  sin(x-3)/(x-3)] recovers the two
+        # removable singularities (value 1 at x=0 and x=3 respectively).
+        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) Bndfun.
         g = _bf(
             lambda x: jnp.stack(
                 [jnp.sin(x) / x, jnp.sin(x - 3) / (x - 3)], axis=-1
-            ),
-            n=17,
+            )
         )
         gv = np.concatenate(
             [np.asarray(g(jnp.float64(0.0))), np.asarray(g(jnp.float64(3.0)))]
         )
+        # MATLAB checks gv(1) (col 0 at x=0) and gv(4) (col 1 at x=3).
         assert float(np.max(np.abs(np.ones(2) - np.array([gv[0], gv[3]])))) < (
             10 * g.vscale * EPS
         )

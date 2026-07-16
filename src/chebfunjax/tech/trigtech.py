@@ -1409,6 +1409,13 @@ class Trigtech(eqx.Module):
             n = max(nf, ng)
             fc = _trig_prolong_coeffs(self.coeffs, n)
             gc = _trig_prolong_coeffs(other.coeffs, n)
+            # scalar-column + array-valued broadcasts via a trailing
+            # column axis (MATLAB R2016b+ implicit expansion)
+            if fc.ndim != gc.ndim:
+                if fc.ndim == 1:
+                    fc = fc[:, None]
+                if gc.ndim == 1:
+                    gc = gc[:, None]
             new_is_real = self.is_real and other.is_real
             return Trigtech(
                 coeffs=fc + gc,
@@ -1416,12 +1423,25 @@ class Trigtech(eqx.Module):
                 ishappy=self.ishappy and other.ishappy,
             )
         else:
-            # Scalar: add to the constant mode c_0
-            c = self.coeffs.copy()
+            # Scalar (or row of per-column scalars): add to the
+            # constant mode c_0.  A length-m row expands a
+            # scalar-valued tech to m columns (MATLAB implicit
+            # expansion), and a complex scalar clears is_real -- the
+            # imaginary part was silently dropped before (Fable 5,
+            # flip-roots audit).
+            s = jnp.asarray(other, dtype=jnp.complex128)
+            c = self.coeffs
+            if s.ndim == 1 and s.size > 1 and c.ndim == 1:
+                c = jnp.broadcast_to(c[:, None],
+                                     (c.shape[0], s.size)).copy()
             n = self.n
             c0_idx = n // 2
-            c = c.at[c0_idx].add(jnp.complex128(other))
-            return Trigtech(coeffs=c, is_real=self.is_real, ishappy=self.ishappy)
+            c = c.at[c0_idx].add(s)
+            new_is_real = self.is_real and bool(
+                jnp.isrealobj(jnp.asarray(other))
+                or not jnp.any(jnp.imag(s)))
+            return Trigtech(coeffs=c, is_real=new_is_real,
+                            ishappy=self.ishappy)
 
     def __radd__(self, other) -> "Trigtech":
         return self.__add__(other)
@@ -1496,16 +1516,27 @@ class Trigtech(eqx.Module):
                 / _trig_eval(other.coeffs, x, other.is_real)
             )
         else:
+            # A complex divisor clears is_real (the imaginary part was
+            # silently dropped before -- Fable 5, flip-roots audit).
             s = jnp.asarray(other, dtype=jnp.complex128)
+            new_is_real = self.is_real and bool(
+                jnp.isrealobj(jnp.asarray(other))
+                or not jnp.any(jnp.imag(s)))
             return Trigtech(
                 coeffs=self.coeffs / s,
-                is_real=self.is_real,
+                is_real=new_is_real,
                 ishappy=self.ishappy,
             )
 
     def __rtruediv__(self, other) -> "Trigtech":
-        """scalar / Trigtech (adaptive, like MATLAB compose)."""
-        s = jnp.asarray(other, dtype=jnp.float64 if self.is_real else jnp.complex128)
+        """scalar / Trigtech (adaptive, like MATLAB compose).  A
+        complex numerator keeps its imaginary part (Fable 5,
+        flip-roots audit: the float64 cast raised on complex input)."""
+        use_complex = (not self.is_real) or bool(
+            jnp.iscomplexobj(jnp.asarray(other)))
+        s = jnp.asarray(
+            other,
+            dtype=jnp.complex128 if use_complex else jnp.float64)
         return Trigtech.from_function(
             lambda x: s / _trig_eval(self.coeffs, x, self.is_real)
         )
@@ -1599,6 +1630,9 @@ class Trigtech(eqx.Module):
         MATLAB source : @trigtech/real.m
         Chebfun commit: 7574c77
         """
+        # MATLAB returns f unchanged when the isReal flag is set.
+        if self.is_real:
+            return self
         v = jnp.real(trig_coeffs2vals(self.coeffs))
         if not bool(jnp.any(jnp.abs(v) > 0)):
             z = jnp.zeros((1,) + self.coeffs.shape[1:],
@@ -1616,11 +1650,13 @@ class Trigtech(eqx.Module):
         MATLAB source : @trigtech/imag.m
         Chebfun commit: 7574c77
         """
-        v = jnp.imag(trig_coeffs2vals(self.coeffs))
-        if not bool(jnp.any(jnp.abs(v) > 0)):
+        # MATLAB checks the isReal FLAG (not values): a real tech has
+        # an exactly-zero imaginary part by definition.
+        if self.is_real:
             z = jnp.zeros((1,) + self.coeffs.shape[1:],
                           dtype=jnp.complex128)
             return Trigtech(coeffs=z, is_real=True, ishappy=True)
+        v = jnp.imag(trig_coeffs2vals(self.coeffs))
         return Trigtech(coeffs=trig_vals2coeffs(
                             v.astype(jnp.complex128)),
                         is_real=True, ishappy=self.ishappy)
