@@ -764,9 +764,9 @@ def _mul_chebtech(f: "Chebtech2", g: "Chebtech2") -> "Chebtech2":
     Uses the fact that T_j(x)*T_k(x) = (T_{j+k}(x) + T_{|j-k|}(x))/2.
     The result has degree at most n_f + n_g - 1.
     """
-    from chebfunjax.tech.chebtech import Chebtech2
-
     import numpy as _np
+
+    from chebfunjax.tech.chebtech import Chebtech2
 
     cf = _np.asarray(f.coeffs)  # shape (nf,)
     cg = _np.asarray(g.coeffs)  # shape (ng,)
