@@ -81,3 +81,22 @@ class TestChebfun2ExtrasVsMatlab:
             h.diff(1, 2)(_X, _Y))
         npt.assert_allclose(lap, _REF["h_lap"], atol=1e-8)
         npt.assert_allclose(lap, np.zeros_like(lap), atol=1e-8)
+
+
+class TestChebfun2ComplexParts:
+    """real/imag/conj (Fable 5, MATLAB @chebfun2/real.m family)."""
+
+    def test_real_imag_conj(self):
+        import warnings
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            f = _mk(lambda x, y: jnp.exp(1j * jnp.pi * x)
+                    * jnp.cos(jnp.pi * y))
+            fr, fi, fc = f.real(), f.imag(), f.conj()
+        ex = np.exp(1j * np.pi * np.asarray(_X)) * np.cos(
+            np.pi * np.asarray(_Y))
+        npt.assert_allclose(np.asarray(fr(_X, _Y)), ex.real, atol=1e-12)
+        npt.assert_allclose(np.asarray(fi(_X, _Y)), ex.imag, atol=1e-12)
+        npt.assert_allclose(np.asarray(fc(_X, _Y)), np.conj(ex),
+                            atol=1e-12)

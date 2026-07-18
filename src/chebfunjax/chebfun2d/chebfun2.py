@@ -1045,6 +1045,43 @@ class Chebfun2(eqx.Module):
     def abs(self):
         return self.compose(jnp.abs)
 
+    def real(self) -> "Chebfun2":
+        """Real part, re-approximated adaptively (a complex Chebfun2's
+        real part is not directly available from its low-rank slices).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/real.m
+        Chebfun commit: 7574c77
+        """
+        return Chebfun2.from_function(
+            lambda x, y: jnp.real(self(x, y)),
+            domain=self.approx.domain)
+
+    def imag(self) -> "Chebfun2":
+        """Imaginary part.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/imag.m
+        Chebfun commit: 7574c77
+        """
+        return Chebfun2.from_function(
+            lambda x, y: jnp.imag(self(x, y)),
+            domain=self.approx.domain)
+
+    def conj(self) -> "Chebfun2":
+        """Complex conjugate.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/conj.m
+        Chebfun commit: 7574c77
+        """
+        return Chebfun2.from_function(
+            lambda x, y: jnp.conj(self(x, y)),
+            domain=self.approx.domain)
+
     def __pow__(self, p) -> "Chebfun2":
         return Chebfun2.from_function(
             lambda x, y: self(x, y) ** p, domain=self.approx.domain)
