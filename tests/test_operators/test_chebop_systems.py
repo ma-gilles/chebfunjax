@@ -73,29 +73,34 @@ class TestSystemIVP:
 
 
 class TestClampedGeneralizedEigs:
-    def test_clamped_beam(self):
-        # Euler-Bernoulli clamped-clamped beam on [0, 1]:
-        # u'''' = lambda u with u = u' = 0 at both ends.  Exact
-        # eigenvalues are beta^4 with cosh(beta) cos(beta) = 1
-        # (beta_1 ~ 4.730040744862704).  Exercises the callable
-        # multi-condition BC path of eigs_generalized.
+    def test_orr_sommerfeld_critical(self):
+        # Orr-Sommerfeld at Re = 5772.22: the critical (largest real
+        # part) eigenvalue matches MATLAB's v4 reference.  Exercises
+        # eigs_generalized's complex probing, callable multi-condition
+        # (clamped) BCs, and 'LR' selection.  A clamped-beam pencil
+        # (D4 vs I) was tried first but D4's ~n^8 conditioning makes
+        # its small eigenvalues platform-sensitive; the OS pencil
+        # (B = D2 - I, eigenvalues O(1)) is robust across BLAS
+        # implementations.
         import warnings
 
-        from chebfunjax.operators.chebop import Chebop
-
-        A = Chebop(lambda x, u: u.diff(4), domain=(0.0, 1.0))
-        B = Chebop(lambda x, u: u, domain=(0.0, 1.0))
+        Re, alph = 5772.22, 1.0
+        A = Chebop(
+            lambda x, u: (u.diff(4) - 2 * alph ** 2 * u.diff(2)
+                          + alph ** 4 * u) / Re
+            - 2j * alph * u
+            - 1j * alph * ((1 - x * x) * (u.diff(2) - alph ** 2 * u)),
+            domain=(-1.0, 1.0))
+        B = Chebop(lambda x, u: u.diff(2) - u, domain=(-1.0, 1.0))
         A.lbc = lambda u: [u, u.diff()]
         A.rbc = lambda u: [u, u.diff()]
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            _, lam = A.eigs_generalized(B, k=3, n=64)
-        lam = np.sort(np.abs(np.asarray(lam)))
-        betas = np.array([4.730040744862704, 7.853204624095838,
-                          10.995607838001671])
-        # collocation at n=81 (the finer of the two agreement
-        # resolutions) resolves beta_1^4 to ~2.4e-6 relative
-        np.testing.assert_allclose(lam, betas ** 4, rtol=1e-5)
+            _, lam = A.eigs_generalized(B, k=6, n=96, sort="LR")
+        e = np.asarray(lam)
+        e_crit = e[np.argmax(e.real)]
+        e_crit_v4 = -0.000078029804093 - 0.261565915010080j
+        assert abs(e_crit - e_crit_v4) < 5e-6
 
 
 class TestGeneralizedEigs:
