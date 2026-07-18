@@ -336,6 +336,13 @@ class Chebop:
                 "before solving."
             )
 
+        # Piecewise domains (>= 1 interior breakpoint): collocate each
+        # unknown piece-by-piece and glue with continuity conditions at the
+        # breaks.  Handles both scalar and system BVPs; single-interval
+        # domains fall through to the established spectral paths unchanged.
+        if len(self.domain) > 2 and not getattr(self, "_periodic", False):
+            return self._solve_piecewise(f, n=n, max_iter=max_iter)
+
         # Systems of ODEs: op signature (x, u, v, ...) with >= 2
         # unknowns dispatches to block collocation (linear) or Newton
         # on top of it (nonlinear); periodic systems use a Fourier
@@ -1201,6 +1208,251 @@ class Chebop:
             for i in range(m)
         ]
         return SystemSolution(out)
+
+    def _piecewise_orders(self, m: int) -> list[int]:
+        """Differential order of each of the ``m`` unknowns.
+
+        Probes the operator with one :class:`_SysOrderSniffer` per variable
+        and reads back the highest ``diff`` order applied to each.  The order
+        ``k_j`` fixes how many continuity conditions (derivatives 0..k_j-1)
+        variable ``j`` needs at every interior breakpoint.
+
+        Provenance
+        ----------
+        MATLAB source : @linop/getDiffOrder.m
+        Chebfun commit: 7574c77
+        """
+        import inspect
+
+        orders = [0] * m
+        sniffers = [_SysOrderSniffer(orders, (i,)) for i in range(m)]
+        x_sniff = _SysOrderSniffer(orders, ())
+        try:
+            nargs = len(inspect.signature(self.op).parameters)
+        except (TypeError, ValueError):
+            nargs = m + 1
+        try:
+            if nargs > m:
+                self.op(x_sniff, *sniffers)
+            else:
+                self.op(*sniffers)
+        except Exception:
+            # Probe failed (unusual op): assume every unknown is 2nd order,
+            # the common case, so continuity is still imposed.
+            orders = [2] * m
+        return orders
+
+    def _solve_piecewise(self, f=0.0, n: int | None = None,
+                         max_iter: int = 40):
+        """Solve a BVP on a domain with interior breakpoints by piecewise
+        collocation (MATLAB @chebop with a ``chebcolloc2`` discretisation on
+        a multi-interval domain).
+
+        Each unknown ``u_j`` is represented by ``P`` Chebyshev pieces (one
+        per sub-interval) of ``n`` values each, so the piecewise chebfun has
+        ``P`` funs.  The operator residual is evaluated piece-by-piece
+        (``P*n`` rows per equation); boundary rows are then overwritten to
+        impose
+
+        1. the global boundary conditions at the domain endpoints, exactly as
+           the single-interval solver does; and
+        2. continuity of ``u_j`` and its derivatives ``0..k_j-1`` across every
+           interior breakpoint, where ``k_j`` is the differential order of
+           variable ``j`` (from :meth:`_piecewise_orders`).
+
+        The duplicated breakpoint values (piece ``p``'s right endpoint and
+        piece ``p+1``'s left endpoint are separate unknowns at the same
+        physical point) provide the natural row slots for the continuity
+        conditions; they are distributed over the equation blocks
+        (``eq = c mod m``) alternating the two coincident collocation points,
+        a pattern that keeps the collocation matrix well conditioned.  A
+        damped Newton iteration with a finite-difference Jacobian solves the
+        coupled system; linear problems converge in one full step.
+
+        Handles both scalar (``m = 1``) and system (``m >= 2``) problems; the
+        return value is a :class:`~chebfunjax.chebfun1d.Chebfun` for a scalar
+        unknown and a :class:`SystemSolution` otherwise.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/solvebvp.m (piecewise chebcolloc2 branch),
+            @linop/mldivide.m, @linop/continuity.m,
+            @chebop/solvebvpNonlinear.m
+        Chebfun commit: 7574c77
+        """
+        import inspect
+
+        import numpy as _np
+
+        from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+
+        m = self._n_vars()
+        bps = [float(v) for v in self.domain]
+        P = len(bps) - 1
+        nn = 32 if n is None else int(n)
+        dom = Domain(tuple(bps))
+        ints = [(bps[p], bps[p + 1]) for p in range(P)]
+        kk = _np.arange(nn)
+        tref = _np.cos(_np.pi * kk / (nn - 1))[::-1]        # ascending cheb2
+        xps = [ints[p][0] + (ints[p][1] - ints[p][0]) * (tref + 1.0) / 2.0
+               for p in range(P)]
+        x_fun = Chebfun.identity(dom)
+        Pn = P * nn
+
+        orders = self._piecewise_orders(m)
+        K = int(sum(orders))                       # conditions per breakpoint
+        if K > 2 * m:
+            raise NotImplementedError(
+                "chebop piecewise collocation currently supports systems "
+                f"whose total differential order ({K}) is at most twice the "
+                f"number of unknowns ({m}); got order {K}.")
+
+        def to_funs(U):
+            us = []
+            for j in range(m):
+                funs = [_Piece.from_values(
+                    jnp.asarray(U[j * Pn + p * nn: j * Pn + (p + 1) * nn]),
+                    ints[p][0], ints[p][1]) for p in range(P)]
+                us.append(Chebfun(funs=funs, domain=dom))
+            return us
+
+        try:
+            nargs = len(inspect.signature(self.op).parameters)
+        except (TypeError, ValueError):
+            nargs = m + 1
+
+        def apply_op(us):
+            out = self.op(x_fun, *us) if nargs > m else self.op(*us)
+            if not isinstance(out, (list, tuple)):
+                out = [out]
+            return list(out)
+
+        def bc_res(bc_raw, us, x0):
+            if bc_raw is None:
+                return []
+            if isinstance(bc_raw, (int, float)):
+                # scalar Dirichlet on the (single) unknown
+                return [float(us[0](jnp.asarray(x0))) - float(bc_raw)]
+            out = bc_raw(*us)
+            if not isinstance(out, (list, tuple)):
+                out = [out]
+            vals = []
+            for o in out:
+                vals.append(float(o) if isinstance(o, (int, float))
+                            else float(o(jnp.asarray(x0))))
+            return vals
+
+        def row(eq, p, pt):
+            return eq * Pn + p * nn + pt
+
+        us_zero = to_funs(_np.zeros(m * Pn))
+        n_l = len(bc_res(self._lbc_raw, us_zero, bps[0]))
+        n_r = len(bc_res(self._rbc_raw, us_zero, bps[-1]))
+        l_rows = [row(i % m, 0, 0) for i in range(n_l)]
+        r_rows = [row(i % m, P - 1, nn - 1) for i in range(n_r)]
+
+        # Continuity: derivatives 0..k_j-1 of each variable j at every
+        # interior break.  Each condition takes one of the two collocation
+        # rows that coincide at the break (left piece right end / right piece
+        # left end), distributed across equations for good conditioning.
+        conds = [(j, d) for j in range(m) for d in range(orders[j])]
+        c_rows = []
+        for p in range(1, P):
+            for c, (j, d) in enumerate(conds):
+                eq = c % m
+                rr = (row(eq, p - 1, nn - 1) if (c // m) % 2 == 0
+                      else row(eq, p, 0))
+                c_rows.append((rr, j, d, bps[p], p - 1, p))
+
+        # RHS values laid out per equation / piece.
+        f_vals = _np.zeros(m * Pn)
+        for eq in range(m):
+            fi = f[eq] if isinstance(f, (list, tuple)) and eq < len(f) else (
+                f if not isinstance(f, (list, tuple)) else 0.0)
+            for p in range(P):
+                sl = slice(eq * Pn + p * nn, eq * Pn + (p + 1) * nn)
+                f_vals[sl] = (float(fi) if isinstance(fi, (int, float))
+                              else _np.asarray(fi(jnp.asarray(xps[p]))))
+
+        def residual(U):
+            us = to_funs(U)
+            out = apply_op(us)
+            R = _np.zeros(m * Pn)
+            for eq in range(m):
+                o = out[eq]
+                for p in range(P):
+                    sl = slice(eq * Pn + p * nn, eq * Pn + (p + 1) * nn)
+                    R[sl] = (float(o) if isinstance(o, (int, float))
+                             else _np.asarray(o.funs[p](jnp.asarray(xps[p]))))
+            R = R - f_vals
+            for i, v in enumerate(bc_res(self._lbc_raw, us, bps[0])):
+                R[l_rows[i]] = v
+            for i, v in enumerate(bc_res(self._rbc_raw, us, bps[-1])):
+                R[r_rows[i]] = v
+            for (rr, j, d, bp, p_l, p_r) in c_rows:
+                xb = jnp.asarray(bp)
+                left = us[j].funs[p_l].diff(d)(xb) if d > 0 \
+                    else us[j].funs[p_l](xb)
+                right = us[j].funs[p_r].diff(d)(xb) if d > 0 \
+                    else us[j].funs[p_r](xb)
+                R[rr] = float(left) - float(right)
+            return R
+
+        # Initial iterate: user's N.init, else zero.
+        U = _np.zeros(m * Pn)
+        if self.init is not None:
+            init = self.init if isinstance(self.init, (list, tuple)) \
+                else [self.init] * m
+            blocks = []
+            for gi in init:
+                if callable(gi):
+                    blocks.append(_np.concatenate([
+                        _np.asarray(gi(jnp.asarray(xps[p]))) for p in range(P)]))
+                else:
+                    blocks.append(_np.full(Pn, float(gi)))
+            U = _np.concatenate(blocks)
+
+        # Damped Newton (linear problems converge in a single full step).
+        R = residual(U)
+        Rn = R
+        for _it in range(max_iter):
+            nrm = _np.max(_np.abs(R))
+            if nrm < 1e-12:
+                break
+            J = _np.zeros((m * Pn, m * Pn))
+            h = 1e-7 * max(1.0, _np.max(_np.abs(U)))
+            for jc in range(m * Pn):
+                Up = U.copy()
+                Up[jc] += h
+                J[:, jc] = (residual(Up) - R) / h
+            try:
+                step = _np.linalg.solve(J, R)
+            except _np.linalg.LinAlgError:
+                break
+            lam = 1.0
+            for _d in range(40):
+                Rn = residual(U - lam * step)
+                if _np.max(_np.abs(Rn)) < nrm or lam < 1e-6:
+                    break
+                lam *= 0.5
+            new_nrm = _np.max(_np.abs(Rn))
+            U = U - lam * step
+            R = Rn
+            # Stagnation: the damped step no longer reduces the residual --
+            # we have reached the finite-difference/conditioning floor (a
+            # linear problem plateaus here after one full step), so stop.
+            if new_nrm >= nrm * (1.0 - 1e-8):
+                break
+
+        final_res = float(_np.max(_np.abs(R)))
+        if final_res > 1e-8:
+            import warnings as _w
+            _w.warn("chebop piecewise Newton: did not converge "
+                    f"(residual {final_res:.2e})",
+                    RuntimeWarning, stacklevel=2)
+
+        us = to_funs(U)
+        return us[0] if m == 1 else SystemSolution(us)
 
     def expm(self, t: float, u0, n: int = 128):
         """exp(t*L) applied to u0 for the linearised operator.
@@ -2310,3 +2562,61 @@ class _OrderSniffer:
 
     def __neg__(self):
         return self
+
+
+class _SysOrderSniffer:
+    """Per-variable differential-order sniffer for system operators.
+
+    Each unknown variable is given a sniffer carrying its index; the
+    highest ``diff`` order applied to it is recorded in a shared mutable
+    ``orders`` list.  Arithmetic propagates the set of variable indices an
+    expression depends on, so ``diff`` applied to a compound expression is
+    recorded against every contributing variable.  Elementwise callables
+    (``sin``, ``cos``, ``exp``, ...) are absorbed via ``__getattr__`` and
+    leave the recorded order unchanged.
+
+    Used to decide, for a piecewise-collocation system, how many continuity
+    conditions (derivatives 0..k-1) each variable needs at every interior
+    breakpoint — mirroring the diffOrder bookkeeping of MATLAB @chebop.
+
+    Provenance
+    ----------
+    MATLAB source : @chebop/getDiffOrder.m, @linop/diffOrder
+    Chebfun commit: 7574c77
+    """
+
+    def __init__(self, orders, idx=()):
+        object.__setattr__(self, "orders", orders)
+        object.__setattr__(self, "idx", frozenset(idx))
+
+    def diff(self, k: int = 1):
+        for i in self.idx:
+            self.orders[i] = max(self.orders[i], int(k))
+        return self
+
+    def _combine(self, o):
+        idx = set(self.idx)
+        if isinstance(o, _SysOrderSniffer):
+            idx |= o.idx
+        return _SysOrderSniffer(self.orders, idx)
+
+    def __add__(self, o):
+        return self._combine(o)
+
+    __radd__ = __sub__ = __rsub__ = __mul__ = __rmul__ = __add__
+    __truediv__ = __rtruediv__ = __pow__ = __rpow__ = __matmul__ = __add__
+
+    def __neg__(self):
+        return self
+
+    def __abs__(self):
+        return self
+
+    def __getattr__(self, name):
+        if name in ("orders", "idx"):
+            raise AttributeError(name)
+
+        def _method(*a, **k):
+            return self
+
+        return _method

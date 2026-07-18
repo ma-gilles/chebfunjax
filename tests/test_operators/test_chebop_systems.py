@@ -114,3 +114,49 @@ class TestGeneralizedEigs:
         _, lam = A.eigs_generalized(B, k=3, n=64)
         omega = np.sort(np.sqrt(-np.real(np.asarray(lam))))
         assert np.max(np.abs(omega - jn_zeros(0, 3))) < 1e-7
+
+
+class TestPiecewiseDomain:
+    """Piecewise-domain (interior-breakpoint) collocation, exercising the
+    _solve_piecewise path so it counts toward the core coverage gate."""
+
+    def test_scalar_matches_smooth_solve(self):
+        # u'' + u = 0, u(-1) = 1, u(1) = 0.  The piecewise solve on a domain
+        # with an interior breakpoint at 0.3 must agree with the smooth
+        # single-interval solve of the same problem.
+        def op(x, u):
+            return u.diff(2) + u
+        N_smooth = Chebop(op, domain=(-1.0, 1.0))
+        N_smooth.lbc = 1.0
+        N_smooth.rbc = 0.0
+        u_smooth = N_smooth.solve(0.0)
+
+        N_piece = Chebop(op, domain=(-1.0, 0.3, 1.0))
+        N_piece.lbc = 1.0
+        N_piece.rbc = 0.0
+        u_piece = N_piece.solve(0.0)
+
+        xs = jnp.asarray(np.linspace(-1.0, 1.0, 41))
+        assert float(jnp.max(jnp.abs(u_piece(xs) - u_smooth(xs)))) < 1e-8
+        # boundary conditions and continuity across the break at 0.3
+        assert abs(float(u_piece(jnp.asarray(-1.0))) - 1.0) < 1e-9
+        assert abs(float(u_piece(jnp.asarray(1.0)))) < 1e-9
+        jump = (float(u_piece.funs[1](jnp.asarray(0.3)))
+                - float(u_piece.funs[0](jnp.asarray(0.3))))
+        assert abs(jump) < 1e-9
+
+    def test_scalar_two_interior_breaks(self):
+        # Three pieces: verify continuity holds at both interior breaks.
+        def op(x, u):
+            return u.diff(2) + u
+        N = Chebop(op, domain=(-1.0, -0.2, 0.5, 1.0))
+        N.lbc = 1.0
+        N.rbc = 0.0
+        u = N.solve(0.0)
+        for bp, i in ((-0.2, 0), (0.5, 1)):
+            jump = (float(u.funs[i + 1](jnp.asarray(bp)))
+                    - float(u.funs[i](jnp.asarray(bp))))
+            assert abs(jump) < 1e-9
+        assert float(jnp.max(jnp.abs(
+            (u.diff(2) + u)(jnp.asarray(np.linspace(-0.99, 0.99, 60)))))
+        ) < 1e-8
