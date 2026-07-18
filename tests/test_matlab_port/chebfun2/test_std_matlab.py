@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="Chebfun2 has no std/std2")
+pytestmark = pytest.mark.skip(reason="test uses the dimensional std(f, [], dim) which returns a Chebfun of the per-row/column standard deviation; chebfunjax has the scalar std2() but not the dimensional std() -- src gap")
 
 
 class TestChebfun2Std:

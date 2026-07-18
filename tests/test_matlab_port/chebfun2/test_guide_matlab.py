@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="guide script exercises max2/mean/cumsum/composition (absent)")
+pytestmark = pytest.mark.skip(reason="guide script exercises cumsum and chebfun2 composition (still absent); max2/mean now exist")
 
 
 class TestChebfun2Guide:

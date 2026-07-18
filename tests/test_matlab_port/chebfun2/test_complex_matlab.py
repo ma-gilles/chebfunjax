@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="requires real/imag/conj on Chebfun2 (absent)")
+pytestmark = pytest.mark.skip(reason="test exercises MATLAB's complex() builtin -- complex(f) and complex(f,f) -- which chebfunjax has no counterpart for; real()/imag()/conj() on Chebfun2 now exist and are tested in test_conj_matlab.py / test_imag_matlab.py")
 
 
 class TestChebfun2Complex:

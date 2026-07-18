@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="guide script exercises composition/max3/norm (absent)")
+pytestmark = pytest.mark.skip(reason="guide script exercises chebfun3 composition (still absent); max3 and norm now exist")
 
 
 class TestChebfun3Guide:
