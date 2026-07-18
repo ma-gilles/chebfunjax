@@ -397,10 +397,13 @@ class _Piece(eqx.Module):
         (x_min, f_min), (x_max, f_max)
         """
         a, b = self.interval
-        if self.tech.coeffs.ndim == 2:
-            # Array-valued: per-column extrema from the tech (which
-            # handles the complex |f|^2 path too); map positions from
-            # the reference interval to [a, b].
+        if self.tech.coeffs.ndim == 2 or (
+                jnp.iscomplexobj(self.tech.coeffs)
+                and not getattr(self.tech, "is_real", False)):
+            # Array-valued and/or complex: delegate to the tech (which
+            # handles per-column extrema and MATLAB's complex |f|^2
+            # path); map positions from the reference interval to
+            # [a, b].
             (mn, mnp), (mx, mxp) = self.tech.minandmax()
             xmn = 0.5 * (b - a) * mnp + 0.5 * (a + b)
             xmx = 0.5 * (b - a) * mxp + 0.5 * (a + b)
@@ -2293,13 +2296,23 @@ class Chebfun(eqx.Module):
         global_min_val = float("inf")
         global_max_x = None
         global_max_val = float("-inf")
+        # Complex-valued pieces order by |f| (MATLAB minandmax.m); the
+        # returned values stay complex.
+        global_min_key = float("inf")
+        global_max_key = float("-inf")
 
         for piece in self.funs:
             (x_min, f_min), (x_max, f_max) = piece.minandmax()
-            if f_min < global_min_val:
+            k_min = abs(f_min) if isinstance(f_min, complex) or \
+                jnp.iscomplexobj(jnp.asarray(f_min)) else f_min
+            k_max = abs(f_max) if isinstance(f_max, complex) or \
+                jnp.iscomplexobj(jnp.asarray(f_max)) else f_max
+            if k_min < global_min_key:
+                global_min_key = k_min
                 global_min_val = f_min
                 global_min_x = x_min
-            if f_max > global_max_val:
+            if k_max > global_max_key:
+                global_max_key = k_max
                 global_max_val = f_max
                 global_max_x = x_max
 

@@ -42,6 +42,19 @@ class TestChebfunMinandmax:
         y = np.array([float(fmin), float(fmax)])
         assert float(np.max(np.abs(y - Y_EXACT))) <= 1e3 * f.vscale * EPS
 
+    # FIXED (Fable 5): minandmax on complex chebfuns now follows
+    # MATLAB's |f| ordering (tech-level |f|^2 path + magnitude
+    # aggregation across pieces).
     def test_complex_piecewise(self):
-        pytest.skip("minandmax of a complex chebfun (by magnitude) not "
-                    "implemented")
+        # pass(4): f = {exp((1+1i)x) on [-1,0], 1 - x/10 on [0,1]}.
+        f = cj.chebfun(
+            lambda x: jnp.where(x < 0, jnp.exp((1 + 1j) * x),
+                                1 - x / 10 + 0j),
+            domain=(-1.0, 0.0, 1.0))
+        (xmin, fmin), (xmax, fmax) = f.minandmax()
+        y = np.array([complex(fmin), complex(fmax)])
+        y_exact = np.array([np.exp(-1 - 1j), 1.0])
+        fx = np.array([complex(f(jnp.asarray(float(xmin)))),
+                       complex(f(jnp.asarray(float(xmax))))])
+        assert np.max(np.abs(y - y_exact)) <= 10 * f.vscale * EPS
+        assert np.max(np.abs(fx - y_exact)) <= 10 * f.vscale * EPS
