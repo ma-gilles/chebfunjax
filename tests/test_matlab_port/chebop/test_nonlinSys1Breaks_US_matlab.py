@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="piecewise-domain (breakpoint) system solve is not implemented: this test's system lives on dom = [-pi 0 pi], but Chebop's domain is a 2-tuple (a, b) and rejects interior breakpoints; the continuity/jump(u, 0) checks likewise have no counterpart -- src gap")
+pytestmark = pytest.mark.skip(reason="discretization-variant file (chebcolloc1/ultraS); chebfunjax has a single collocation discretization -- the piecewise-domain system itself is ported and passing in test_nonlinSys1Breaks_C2_matlab.py (FIXED, Fable 5 piecewise chebop)")
 
 
 class TestChebopNonlinsys1BreaksUs:
