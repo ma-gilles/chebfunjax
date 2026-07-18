@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="chebfunjax chebop is scalar-only (no systems of ODEs / chebmatrix operators)")
+pytestmark = pytest.mark.skip(reason="piecewise-domain (breakpoint) system solve is not implemented: this test's system lives on dom = [-pi 0 pi], but Chebop's domain is a 2-tuple (a, b) and rejects interior breakpoints; the continuity/jump(u, 0) checks likewise have no counterpart -- src gap")
 
 
 class TestChebopNonlinsysdampingbreaksUs:
