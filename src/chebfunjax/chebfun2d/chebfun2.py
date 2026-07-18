@@ -1045,6 +1045,37 @@ class Chebfun2(eqx.Module):
     def abs(self):
         return self.compose(jnp.abs)
 
+    def grad(self) -> "object":
+        """Gradient of the scalar field: the Chebfun2v [f_x; f_y].
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/grad.m, @chebfun2/gradient.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
+        fx = self.diff(2, 1)   # d/dx
+        fy = self.diff(1, 1)   # d/dy
+        return Chebfun2v([fx.approx, fy.approx])
+
+    def gradient(self) -> "object":
+        """Alias of :meth:`grad` (MATLAB gradient.m)."""
+        return self.grad()
+
+    def laplacian(self) -> "Chebfun2":
+        """Laplacian f_xx + f_yy.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/laplacian.m, @chebfun2/lap.m
+        Chebfun commit: 7574c77
+        """
+        return self.diff(2, 2) + self.diff(1, 2)
+
+    def lap(self) -> "Chebfun2":
+        """Alias of :meth:`laplacian` (MATLAB lap.m)."""
+        return self.laplacian()
+
     def real(self) -> "Chebfun2":
         """Real part, re-approximated adaptively (a complex Chebfun2's
         real part is not directly available from its low-rank slices).

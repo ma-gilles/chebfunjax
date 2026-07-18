@@ -344,6 +344,19 @@ class Chebfun2v(eqx.Module):
         df2_dy = _diff_separable(self.components[1], n=1, dim=1)
         return _add_separable(df1_dx, df2_dy)
 
+    def divgrad(self) -> SeparableApprox:
+        """The scalar d^2 F1/dx^2 + d^2 F2/dy^2 (MATLAB's divgrad --
+        the divergence of the "diagonal gradient" of the field).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/divgrad.m
+        Chebfun commit: 7574c77
+        """
+        d2f1_dx2 = _diff_separable(self.components[0], n=2, dim=2)
+        d2f2_dy2 = _diff_separable(self.components[1], n=2, dim=1)
+        return _add_separable(d2f1_dx2, d2f2_dy2)
+
     def div(self) -> SeparableApprox:
         """Alias for divergence().
 

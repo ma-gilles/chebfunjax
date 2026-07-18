@@ -100,3 +100,33 @@ class TestChebfun2ComplexParts:
         npt.assert_allclose(np.asarray(fi(_X, _Y)), ex.imag, atol=1e-12)
         npt.assert_allclose(np.asarray(fc(_X, _Y)), np.conj(ex),
                             atol=1e-12)
+
+
+class TestChebfun2GradLap:
+    """grad/gradient/laplacian/lap on scalar Chebfun2 + Chebfun2v
+    divgrad (Fable 5, MATLAB @chebfun2/grad.m family)."""
+
+    def test_grad_laplacian_divgrad(self):
+        f = _mk(lambda x, y: jnp.exp(x) * jnp.cos(y))
+        G = f.grad()
+        x0, y0 = jnp.asarray(0.3), jnp.asarray(-0.4)
+        npt.assert_allclose(
+            float(np.asarray(G.components[0](x0, y0))),
+            np.exp(0.3) * np.cos(-0.4), atol=1e-13)
+        npt.assert_allclose(
+            float(np.asarray(G.components[1](x0, y0))),
+            -np.exp(0.3) * np.sin(-0.4), atol=1e-13)
+        # exp(x)cos(y) is harmonic; div(grad f) == lap f == 0
+        npt.assert_allclose(
+            float(np.asarray(f.laplacian()(x0, y0))), 0.0, atol=1e-12)
+        npt.assert_allclose(
+            float(np.asarray(f.grad().divergence()(x0, y0))), 0.0,
+            atol=1e-12)
+        # divgrad is d^2 F1/dx^2 + d^2 F2/dy^2 (NOT div(grad .)):
+        # for grad(e^x cos y) it equals e^x (cos y + sin y).
+        npt.assert_allclose(
+            float(np.asarray(f.grad().divgrad()(x0, y0))),
+            np.exp(0.3) * (np.cos(-0.4) + np.sin(-0.4)), atol=1e-12)
+        h = _mk(lambda x, y: x ** 2 + y ** 2)
+        npt.assert_allclose(
+            float(np.asarray(h.lap()(x0, y0))), 4.0, atol=1e-12)
