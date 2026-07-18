@@ -261,9 +261,31 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/times.m
         Chebfun commit: 7574c77
         """
-        if isinstance(other, (int, float)):
-            new_comps = [_scale_separable(c, float(other)) for c in self.components]
+        if isinstance(other, (int, float, complex)):
+            # complex scalars keep complex pivots (MATLAB 1i*F)
+            s = complex(other) if isinstance(other, complex) \
+                else float(other)
+            new_comps = [_scale_separable(c, s)
+                         for c in self.components]
             return Chebfun2v(new_comps)
+        if isinstance(other, Chebfun2v):
+            # Component-wise .* (MATLAB @chebfun2v/times.m)
+            if len(self.components) != len(other.components):
+                raise ValueError(
+                    "Chebfun2v .* requires matching component counts")
+            new_comps = [
+                _mul_separable(a, b)
+                for a, b in zip(self.components, other.components)
+            ]
+            return Chebfun2v(new_comps)
+        if isinstance(other, SeparableApprox):
+            # scalar-field .* vector field: scale every component
+            new_comps = [_mul_separable(c, other)
+                         for c in self.components]
+            return Chebfun2v(new_comps)
+        if hasattr(other, "approx") and isinstance(
+                getattr(other, "approx"), SeparableApprox):
+            return self.__mul__(other.approx)
         return NotImplemented
 
     def __rmul__(self, other: "float | int") -> "Chebfun2v":
@@ -312,6 +334,25 @@ class Chebfun2v(eqx.Module):
         """
         new_comps = [_diff_separable(c, n=n, dim=dim) for c in self.components]
         return Chebfun2v(new_comps)
+
+    def real(self) -> "Chebfun2v":
+        """Real part, component-wise (MATLAB @chebfun2v/real.m).
+        Added by Claude Fable 5."""
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        return Chebfun2v([
+            Chebfun2(approx=c).real().approx for c in self.components])
+
+    def imag(self) -> "Chebfun2v":
+        """Imaginary part, component-wise (MATLAB @chebfun2v/imag.m)."""
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        return Chebfun2v([
+            Chebfun2(approx=c).imag().approx for c in self.components])
+
+    def conj(self) -> "Chebfun2v":
+        """Complex conjugate, component-wise (MATLAB conj.m)."""
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        return Chebfun2v([
+            Chebfun2(approx=c).conj().approx for c in self.components])
 
     def divergence(self) -> SeparableApprox:
         """Divergence of the vector field: F_x + G_y (or F_x + G_y + H_z for 3-comp).
@@ -533,11 +574,23 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/norm.m
         Chebfun commit: 7574c77
         """
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
         total = 0.0
         for c in self.components:
-            # ||f_j||^2 = integral_domain f_j^2 dx dy
-            prod = _mul_separable(c, c)
-            total += float(_integral_separable(prod))
+            # ||f_j||^2 = integral |f_j|^2; complex components use
+            # re^2 + im^2 (the f_j^2 form is wrong for complex data
+            # and the coefficient loop float()-cast it -- Fable 5).
+            if any(jnp.iscomplexobj(cc.coeffs) for cc in c.cols) or \
+                    any(jnp.iscomplexobj(rr.coeffs) for rr in c.rows) \
+                    or jnp.iscomplexobj(c.pivots):
+                re = Chebfun2(approx=c).real().approx
+                im = Chebfun2(approx=c).imag().approx
+                prod = _add_separable(_mul_separable(re, re),
+                                      _mul_separable(im, im))
+            else:
+                prod = _mul_separable(c, c)
+            total += float(jnp.real(jnp.asarray(
+                _integral_separable(prod))))
         # Cancellation can leave total a tiny negative float, and Python's
         # (-eps)**0.5 silently returns a COMPLEX number — clamp at zero.
         return float(max(total, 0.0) ** 0.5)
@@ -652,12 +705,18 @@ def _add_separable(f: SeparableApprox, g: SeparableApprox) -> SeparableApprox:
     new_cols = list(f.cols) + list(g.cols)
     new_rows = list(f.rows) + list(g.rows)
     new_pivots = jnp.concatenate([f.pivots, g.pivots])
-    return SeparableApprox(
+    out = SeparableApprox(
         cols=new_cols,
         rows=new_rows,
         pivots=new_pivots,
         domain=f.domain,
     )
+    # Recompress (MATLAB @separableApprox/plus.m): without this,
+    # f - f keeps cancelling O(1) terms and downstream quadratic
+    # quantities (norm, dot) lose half their digits to cancellation
+    # (Fable 5 fix; the same step Chebfun2.__add__ already performs).
+    from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+    return Chebfun2(approx=out)._compress().approx
 
 
 def _mul_separable(f: SeparableApprox, g: SeparableApprox) -> SeparableApprox:
@@ -707,8 +766,10 @@ def _mul_chebtech(f: "Chebtech2", g: "Chebtech2") -> "Chebtech2":
     """
     from chebfunjax.tech.chebtech import Chebtech2
 
-    cf = f.coeffs  # shape (nf,)
-    cg = g.coeffs  # shape (ng,)
+    import numpy as _np
+
+    cf = _np.asarray(f.coeffs)  # shape (nf,)
+    cg = _np.asarray(g.coeffs)  # shape (ng,)
     nf = cf.shape[0]
     ng = cg.shape[0]
 
@@ -716,22 +777,18 @@ def _mul_chebtech(f: "Chebtech2", g: "Chebtech2") -> "Chebtech2":
         return Chebtech2.from_coeffs(jnp.zeros(1, dtype=jnp.float64))
 
     n_out = nf + ng - 1
-    result = jnp.zeros(n_out, dtype=jnp.float64)
+    # Vectorized T_j*T_k = (T_{j+k} + T_{|j-k|})/2 accumulation.
+    # (The old per-coefficient Python loop float()-cast COMPLEX
+    # coefficients and raised -- Fable 5 fix; dtype now follows the
+    # operands.)
+    outer = 0.5 * _np.outer(cf, cg)
+    result = _np.zeros(n_out, dtype=outer.dtype)
+    J, K = _np.meshgrid(_np.arange(nf), _np.arange(ng),
+                        indexing="ij")
+    _np.add.at(result, (J + K).ravel(), outer.ravel())
+    _np.add.at(result, _np.abs(J - K).ravel(), outer.ravel())
 
-    # T_j * T_k = (T_{j+k} + T_{|j-k|})/2
-    for j in range(nf):
-        for k in range(ng):
-            coeff = float(cf[j]) * float(cg[k]) * 0.5
-            # T_{j+k} contribution
-            idx1 = j + k
-            if idx1 < n_out:
-                result = result.at[idx1].add(coeff)
-            # T_{|j-k|} contribution
-            idx2 = abs(j - k)
-            if idx2 < n_out:
-                result = result.at[idx2].add(coeff)
-
-    return Chebtech2.from_coeffs(result)
+    return Chebtech2.from_coeffs(jnp.asarray(result))
 
 
 def _diff_separable(f: SeparableApprox, n: int = 1, dim: int = 1) -> SeparableApprox:
@@ -831,11 +888,16 @@ def _chebtech_integral(f: "Chebtech2") -> float:
 
     int_{-1}^1 sum_k c_k T_k(x) dx = c_0 * 2 + sum_{k even, k>=2} c_k * 2/(1-k^2)
     """
-    c = f.coeffs
+    import numpy as _np
+
+    c = _np.asarray(f.coeffs)
     n = c.shape[0]
     if n == 0:
         return 0.0
-    total = float(c[0]) * 2.0
-    for k in range(2, n, 2):
-        total += float(c[k]) * 2.0 / (1.0 - k * k)
-    return total
+    # vectorized moments; dtype follows the coefficients (complex-safe)
+    k = _np.arange(n)
+    moments = _np.where(k % 2 == 0, 2.0 / (1.0 - k.astype(float) ** 2),
+                        0.0)
+    moments[0] = 2.0
+    total = c @ moments
+    return complex(total) if _np.iscomplexobj(c) else float(total)
