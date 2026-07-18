@@ -977,29 +977,46 @@ class Diskfun(eqx.Module):
         """
         return self.sum()
 
-    def sum(self) -> jax.Array:
-        """Definite integral of the Diskfun over the unit disk.
+    def sum(self, dim: int | None = None):
+        """Definite integration of the Diskfun.
 
-        Computes ∫∫ f(theta, r) r dr dtheta over the unit disk.
+        With no ``dim`` (the chebfunjax default), returns the scalar
+        integral over the whole unit disk, ``∫∫ f(theta, r) r dr dtheta``
+        (identical to :meth:`sum2`).
 
-        Only the "plus" terms contribute (minus terms integrate to zero
-        because their row slices are anti-periodic with period pi).
+        With ``dim=1`` integrates only over the radial direction (with the
+        disk measure ``r dr`` on ``r`` in ``[0, 1]``) and returns a
+        1D :class:`~chebfunjax.chebfun1d.Chebfun` in ``theta`` (a periodic
+        trig chebfun on ``[-pi, pi]``).  With ``dim=2`` integrates only over
+        the angular direction ``theta`` in ``[-pi, pi]`` and returns a
+        1D chebfun in ``r`` on ``[0, 1]``.  This mirrors MATLAB
+        ``sum(F, DIM)`` (where ``sum(F)`` defaults to ``sum(F, 1)``); the
+        chebfunjax no-argument form keeps its historical "integrate over the
+        whole disk" meaning, so pass an explicit ``dim`` for the partial
+        integrals.
 
-        The integral factorises as:
-            ∫ f dA = Σ_j (1/d_j) * (∫ c_j(r) r dr) * (∫ row_j(θ) dθ)
+        Parameters
+        ----------
+        dim : {None, 1, 2}, optional
+            ``None`` -> scalar integral over the disk; ``1`` -> integrate
+            over ``r``, returns a chebfun in ``theta``; ``2`` -> integrate
+            over ``theta``, returns a chebfun in ``r``.
 
         Returns
         -------
-        jax.Array, scalar
-            Definite integral ∫∫_D f r dr dtheta.
+        jax.Array (scalar) if ``dim is None``, else Chebfun.
 
         Provenance
         ----------
-        MATLAB source : @diskfun/sum2.m
+        MATLAB source : @diskfun/sum.m, @diskfun/sum2.m
         Chebfun commit: 7574c77
         Original authors: Copyright 2017 by The University of Oxford
             and The Chebfun Developers.
         """
+        if dim is not None:
+            if dim not in (1, 2):
+                raise ValueError("Diskfun.sum: dim must be 1, 2, or None.")
+            return self._partial_sum(dim)
         if len(self.idx_plus) == 0:
             return jnp.array(0.0, dtype=jnp.float64)
 
@@ -1132,6 +1149,241 @@ class Diskfun(eqx.Module):
 
     def sqrt(self):
         return self._reapprox(jnp.sqrt)
+
+    def __abs__(self):
+        return self._reapprox(jnp.abs)
+
+    def abs(self) -> "Diskfun":
+        """Absolute value ``|f|`` of the Diskfun.
+
+        Re-approximates ``abs(f)`` on the disk.  Like MATLAB
+        ``@diskfun/abs``, this is only well behaved when ``f`` does not pass
+        through (or come numerically close to) zero on the interior, where
+        ``|f|`` would develop a non-smooth ridge.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/abs.m (separableApprox/abs)
+        Chebfun commit: 7574c77
+        """
+        return self._reapprox(jnp.abs)
+
+    # ------------------------------------------------------------------
+    # Reflections and rotation (angular coordinate maps)
+    # ------------------------------------------------------------------
+
+    def _remap_theta(self, phi_ref) -> "Diskfun":
+        """Return ``g(theta, r) = f(phi(theta), r)`` for an affine angular
+        coordinate map (radius unchanged).
+
+        In the chebfunjax low-rank representation
+        ``f(theta, r) = sum_j (1/d_j) cols_j(r) rows_j(theta)`` a pure
+        angular remap only affects the (1D, periodic) row slices, so each
+        row Trigtech is rebuilt from the mapped reference coordinate while
+        ``cols``, ``pivots`` and the plus/minus split are reused verbatim.
+        Rebuilding the 1D rows (rather than reconstructing the whole 2D
+        Diskfun) is exact for these band-limited slices and sidesteps the
+        constructor's coarse-grid rank estimation.
+
+        ``phi_ref`` maps the *reference* angular coordinate ``th_ref =
+        theta/pi`` (used by :meth:`__call__`); the row Trigtechs are
+        periodic, so it may map outside ``[-1, 1]``.
+        """
+        from chebfunjax.tech.trigtech import Trigtech
+
+        new_rows = []
+        for rj in self.rows:
+            n_row = int(rj.coeffs.shape[0])
+            new_rows.append(
+                Trigtech.from_function(
+                    lambda t, _rj=rj: _rj(phi_ref(t)), n=n_row))
+        return Diskfun(
+            cols=self.cols,
+            rows=new_rows,
+            pivots=self.pivots,
+            idx_plus=self.idx_plus,
+            idx_minus=self.idx_minus,
+        )
+
+    def fliplr(self) -> "Diskfun":
+        """Reflect over the y-axis: ``G(x, y) = F(-x, y)``.
+
+        In polar coordinates this maps ``theta -> pi - theta``.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/fliplr.m
+        Chebfun commit: 7574c77
+        """
+        # theta -> pi - theta  ==>  th_ref -> 1 - th_ref
+        return self._remap_theta(lambda t: 1.0 - t)
+
+    def flipud(self) -> "Diskfun":
+        """Reflect over the x-axis: ``G(x, y) = F(x, -y)``.
+
+        In polar coordinates this maps ``theta -> -theta``.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/flipud.m
+        Chebfun commit: 7574c77
+        """
+        # theta -> -theta  ==>  th_ref -> -th_ref
+        return self._remap_theta(lambda t: -t)
+
+    def flipxy(self) -> "Diskfun":
+        """Swap the axes: ``G(x, y) = F(y, x)``.
+
+        In polar coordinates this maps ``theta -> pi/2 - theta``.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/flipxy.m
+        Chebfun commit: 7574c77
+        """
+        # theta -> pi/2 - theta  ==>  th_ref -> 1/2 - th_ref
+        return self._remap_theta(lambda t: 0.5 - t)
+
+    def flipdim(self, dim: int) -> "Diskfun":
+        """Reflect in a chosen direction: ``dim=1`` -> :meth:`flipud`
+        (``F(x, -y)``), ``dim=2`` -> :meth:`fliplr` (``F(-x, y)``).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/flipdim.m
+        Chebfun commit: 7574c77
+        """
+        if dim == 1:
+            return self.flipud()
+        if dim == 2:
+            return self.fliplr()
+        raise ValueError("Diskfun.flipdim: dim must be 1 or 2.")
+
+    def rotate(self, alpha: float = 0.0) -> "Diskfun":
+        """Rotate the Diskfun by ``alpha`` radians about the origin.
+
+        Positive ``alpha`` rotates counter-clockwise: the rotated function
+        satisfies ``g(theta, r) = f(theta - alpha, r)``.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/rotate.m, @diskfun/circshift.m
+        Chebfun commit: 7574c77
+        """
+        # theta -> theta - alpha  ==>  th_ref -> th_ref - alpha/pi
+        a_ref = float(alpha) / float(np.pi)
+        return self._remap_theta(lambda t: t - a_ref)
+
+    def circshift(self, alpha: float = 0.0) -> "Diskfun":
+        """Alias of :meth:`rotate` (MATLAB @diskfun/circshift)."""
+        return self.rotate(alpha)
+
+    # ------------------------------------------------------------------
+    # Partial integration and global optimization
+    # ------------------------------------------------------------------
+
+    def _partial_sum(self, dim: int):
+        """Partial definite integral (helper for :meth:`sum` with a dim)."""
+        from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
+        from chebfunjax.domain import Domain
+
+        if self.isempty():
+            dom = (-np.pi, np.pi) if dim == 1 else (0.0, 1.0)
+            return Chebfun(funs=[], domain=Domain(dom))
+
+        nterms = len(self.cols)
+        inv_p = [1.0 / self.pivots[j] for j in range(nterms)]
+
+        if dim == 1:
+            # Integrate over r with the disk measure -> function of theta.
+            wcol = [inv_p[j]
+                    * _integrate_cheb_times_r(self.cols[j].coeffs)
+                    for j in range(nterms)]
+
+            def g_theta(theta):
+                th_ref = jnp.asarray(theta, dtype=jnp.float64) / jnp.pi
+                out = jnp.zeros_like(jnp.asarray(theta, dtype=jnp.float64),
+                                     dtype=jnp.complex128)
+                for j in range(nterms):
+                    out = out + wcol[j] * self.rows[j](th_ref)
+                return jnp.real(out)
+
+            return chebfun(g_theta, domain=(-np.pi, np.pi), trig=True)
+
+        # dim == 2: integrate over theta -> function of r on [0, 1].
+        wrow = []
+        for j in range(nterms):
+            rc = self.rows[j].coeffs
+            c0 = rc.shape[0] // 2
+            wrow.append(inv_p[j] * jnp.pi * 2.0 * jnp.real(rc[c0]))
+
+        def g_r(r):
+            rr = jnp.asarray(r, dtype=jnp.float64)
+            out = jnp.zeros_like(rr)
+            for j in range(nterms):
+                out = out + wrow[j] * self.cols[j](rr)
+            return out
+
+        return chebfun(g_r, domain=(0.0, 1.0))
+
+    def minandmax2(self, n_theta: int = 240, n_r: int = 120):
+        """Global minimum and maximum of the Diskfun over the closed disk.
+
+        A tensor grid in ``(theta, r)`` locates candidate extrema, which are
+        then polished with a bound-constrained quasi-Newton step
+        (``r`` in ``[0, 1]``, ``theta`` free) using exact JAX gradients of
+        the evaluation.  Returns ``(Y, X)`` where ``Y = [min_value,
+        max_value]`` and ``X`` are the corresponding ``(theta, r)`` points,
+        mirroring MATLAB ``[Y, X] = minandmax2(F)``.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/minandmax2.m
+        Chebfun commit: 7574c77
+        """
+        import jax
+        from scipy.optimize import minimize
+
+        f = self
+
+        def scal(p):
+            return f(p[0], p[1])
+
+        vg = jax.jit(jax.value_and_grad(scal))
+
+        th = np.linspace(-np.pi, np.pi, n_theta)
+        rr = np.linspace(0.0, 1.0, n_r)
+        TH, RR = np.meshgrid(th, rr)
+        F = np.asarray(f(jnp.asarray(TH), jnp.asarray(RR)), dtype=np.float64)
+
+        def polish(idx_flat, sign):
+            # sign=+1 minimizes f, sign=-1 maximizes f (minimizes -f).
+            i0 = np.unravel_index(idx_flat, F.shape)
+            p0 = np.array([TH[i0], RR[i0]], dtype=np.float64)
+
+            def fun(p):
+                v, g = vg(jnp.asarray(p, dtype=jnp.float64))
+                return sign * float(v), sign * np.asarray(g, dtype=np.float64)
+
+            res = minimize(fun, p0, jac=True, method="L-BFGS-B",
+                           bounds=[(None, None), (0.0, 1.0)],
+                           options={"ftol": 1e-15, "gtol": 1e-14,
+                                    "maxiter": 500})
+            return sign * float(res.fun), res.x
+
+        vmin, xmin = polish(int(np.argmin(F)), +1)
+        vmax, xmax = polish(int(np.argmax(F)), -1)
+        Y = jnp.asarray([vmin, vmax], dtype=jnp.float64)
+        X = jnp.asarray([xmin, xmax], dtype=jnp.float64)
+        return Y, X
+
+    def max2(self) -> float:
+        """Global maximum of the Diskfun over the disk (MATLAB max2)."""
+        return float(self.minandmax2()[0][1])
+
+    def min2(self) -> float:
+        """Global minimum of the Diskfun over the disk (MATLAB min2)."""
+        return float(self.minandmax2()[0][0])
 
     def diffx(self) -> "Diskfun":
         r"""Cartesian partial derivative :math:`\\partial f / \\partial x`.

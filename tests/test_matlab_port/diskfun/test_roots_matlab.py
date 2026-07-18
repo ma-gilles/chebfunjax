@@ -10,7 +10,13 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="no roots (zero contours)")
+pytestmark = pytest.mark.skip(reason="diskfun roots requires 2D zero-contour "
+                              "extraction as parametrized complex-valued "
+                              "chebfuns (chebfun2 roots@separableApprox: "
+                              "marching-squares tracing + curve fitting), a "
+                              "subsystem not present in chebfunjax -- out of "
+                              "scope for the flip/abs/rotate/sum/optimization "
+                              "gap batch (Fable 5)")
 
 
 class TestDiskfunRoots:

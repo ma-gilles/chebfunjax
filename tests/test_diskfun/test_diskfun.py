@@ -273,3 +273,68 @@ class TestDiskfunCalculus:
         np.testing.assert_allclose(
             np.asarray(f.laplacian()(T, R)), 4.0 * np.ones(T.shape),
             atol=1e-10)
+
+
+class TestDiskfunReflectionsSumOpt:
+    """Core-suite coverage for abs, sum(dim), reflections/rotation and
+    global optimization (mirrors the MATLAB-port assertions so the new
+    src lines count toward the coverage gate)."""
+
+    @staticmethod
+    def _grid():
+        th = np.linspace(-np.pi, np.pi, 40)
+        rr = np.linspace(0.0, 1.0, 40)
+        TH, RR = np.meshgrid(th, rr)
+        return TH, RR
+
+    @staticmethod
+    def _nd(a, b):
+        TH, RR = TestDiskfunReflectionsSumOpt._grid()
+        return float(np.max(np.abs(
+            np.asarray(a(jnp.asarray(TH), jnp.asarray(RR)))
+            - np.asarray(b(jnp.asarray(TH), jnp.asarray(RR))))))
+
+    def test_abs(self):
+        f = Diskfun.from_function(lambda t, r: -(r ** 2))
+        TH, RR = self._grid()
+        v = np.asarray((abs(f) + f)(jnp.asarray(TH), jnp.asarray(RR)))
+        assert float(np.max(np.abs(v))) < 1e-12
+
+    def test_sum_dim(self):
+        one = Diskfun.from_function(lambda t, r: jnp.ones_like(r))
+        th = np.linspace(-np.pi, np.pi, 30)
+        rr = np.linspace(0.0, 1.0, 30)
+        assert float(np.max(np.abs(
+            np.asarray(one.sum(1)(jnp.asarray(th))) - 0.5))) < 1e-12
+        assert float(np.max(np.abs(
+            np.asarray(one.sum(2)(jnp.asarray(rr))) - 2.0 * np.pi))) < 1e-12
+        # no-argument sum keeps the whole-disk integral (= pi)
+        assert abs(float(one.sum()) - np.pi) < 1e-10
+        # empty diskfun -> empty partial sums
+        assert Diskfun.empty().sum(1).isempty()
+
+    def test_reflections_rotate(self):
+        # x = r cos(theta): fliplr(x) = -x, flipud(x) = x
+        x = Diskfun.from_function(lambda t, r: r * jnp.cos(t))
+        negx = Diskfun.from_function(lambda t, r: -(r * jnp.cos(t)))
+        assert self._nd(x.fliplr(), negx) < 1e-12
+        assert self._nd(x.flipud(), x) < 1e-12
+        assert self._nd(x.flipdim(2), negx) < 1e-12
+        # y = r sin(theta): flipxy(x) = y
+        y = Diskfun.from_function(lambda t, r: r * jnp.sin(t))
+        assert self._nd(x.flipxy(), y) < 1e-12
+        # rotate by pi/2: g(theta,r) = x(theta - pi/2, r) = r cos(theta-pi/2)
+        g = x.rotate(np.pi / 2)
+        rot = Diskfun.from_function(
+            lambda t, r: r * jnp.cos(t - np.pi / 2))
+        assert self._nd(g, rot) < 1e-12
+        assert self._nd(x.circshift(np.pi / 2), g) < 1e-12
+
+    def test_minandmax2(self):
+        f = Diskfun.from_function(lambda t, r: jnp.cos(np.pi * r * jnp.cos(t)))
+        Y, X = f.minandmax2()
+        assert abs(float(Y[0]) - (-1.0)) < 1e-10
+        assert abs(float(Y[1]) - 1.0) < 1e-10
+        assert abs(f.max2() - 1.0) < 1e-10
+        assert abs(f.min2() - (-1.0)) < 1e-10
+        assert X.shape == (2, 2)
