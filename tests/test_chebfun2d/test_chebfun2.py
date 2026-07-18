@@ -435,6 +435,38 @@ class TestChebfun2Roots:
             npt.assert_allclose(radii, 0.25 * np.ones(len(radii)), atol=0.01)
 
 
+class TestChebfun2GlobalOptimization:
+    """Pins the multi-start minandmax2 global-optimization accuracy.
+
+    Single-start Newton polish converged to a NON-global critical point on
+    the oscillatory trig-product battery functions (~1e-3 error); multi-start
+    polish over the deepest grid basins recovers the true global optimum to
+    near machine precision.  Mirrors the failing MATLAB-port battery entries.
+    """
+
+    def test_trig_product_global_minimum(self):
+        # cos(3*pi*x*y^2)*cos(3*pi*y*x^2): global min = -0.805912853597402,
+        # previously located only to ~1e-3 by a single-start polish.
+        f = Chebfun2.from_function(
+            lambda x, y: jnp.cos(3 * np.pi * x * y ** 2)
+            * jnp.cos(3 * np.pi * y * x ** 2),
+            domain=(0.0, 1.0, 0.0, 1.0))
+        vals, _locs = f.minandmax2()
+        assert abs(float(vals[0]) - (-0.805912853597402)) < 1e-10
+        assert abs(float(vals[1]) - 1.0) < 1e-10
+        assert abs(float(f.min2()[0]) - (-0.805912853597402)) < 1e-10
+        assert abs(float(f.max2()[0]) - 1.0) < 1e-10
+
+    def test_cos_shift_square_global_minimum(self):
+        # cos(2*pi*(x-y)^2): global min = -1 on [0,1]^2.
+        f = Chebfun2.from_function(
+            lambda x, y: jnp.cos(2 * np.pi * (x - y) ** 2),
+            domain=(0.0, 1.0, 0.0, 1.0))
+        vals, _locs = f.minandmax2()
+        assert abs(float(vals[0]) - (-1.0)) < 1e-10
+        assert abs(float(vals[1]) - 1.0) < 1e-10
+
+
 # ===========================================================================
 # Class TestChebfun2GoldenRef — MATLAB golden reference values
 # ===========================================================================

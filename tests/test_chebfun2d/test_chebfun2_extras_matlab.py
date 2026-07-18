@@ -132,6 +132,37 @@ class TestChebfun2GradLap:
             float(np.asarray(h.lap()(x0, y0))), 4.0, atol=1e-12)
 
 
+class TestChebfun2GlobalOptimizationMatlab:
+    """minandmax2 global optimization on trig-product battery entries.
+
+    Pins values from MATLAB tests/chebfun2/test_optimization.m (commit
+    7574c77) on [0,1]^2.  These oscillatory functions previously resolved
+    the global minimum to only ~1e-3 because the single-start local polish
+    converged to a non-global critical point; the multi-start polish over
+    the deepest grid basins recovers machine precision.  # FIXED (Fable 5)
+    """
+
+    def test_cos3_product_min(self):
+        # cos(3*pi*x*y^2)*cos(3*pi*y*x^2): MATLAB Mini = -0.805912853597402,
+        # Maxi = 1.
+        f = Chebfun2.from_function(
+            lambda x, y: jnp.cos(3 * np.pi * x * y ** 2)
+            * jnp.cos(3 * np.pi * y * x ** 2),
+            domain=(0.0, 1.0, 0.0, 1.0))
+        Y, _X = f.minandmax2()
+        npt.assert_allclose(float(Y[0]), -0.805912853597402, atol=1e-10)
+        npt.assert_allclose(float(Y[1]), 1.0, atol=1e-10)
+
+    def test_cos2_shift_square_min(self):
+        # cos(2*pi*(x-y)^2): MATLAB Mini = -1, Maxi = 1.
+        f = Chebfun2.from_function(
+            lambda x, y: jnp.cos(2 * np.pi * (x - y) ** 2),
+            domain=(0.0, 1.0, 0.0, 1.0))
+        Y, _X = f.minandmax2()
+        npt.assert_allclose(float(Y[0]), -1.0, atol=1e-10)
+        npt.assert_allclose(float(Y[1]), 1.0, atol=1e-10)
+
+
 class TestChebfun2vJacobianMirror:
     def test_jacobian_polar_map(self):
         # (x, y) -> (r cos t, r sin t)-style check: F = [cos(x); sin(y)]

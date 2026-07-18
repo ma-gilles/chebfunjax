@@ -949,65 +949,106 @@ class Chebfun2(eqx.Module):
             lambda x, y: self(x, ya + yb - y),
             domain=self.approx.domain)
 
-    def minandmax2(self, ngrid: int = 129):
+    def minandmax2(self, ngrid: int | None = None, n_starts: int = 24):
         """Global minimum and maximum over the domain (MATLAB
-        minandmax2): dense-grid seed + Nelder-Mead-free local polish
-        by coordinate Newton on the gradient.
+        ``minandmax2``).
+
+        A tensor grid seeds candidate extrema; the extrema are then found by
+        polishing the ``n_starts`` best grid candidates with a
+        bound-constrained quasi-Newton solve (``scipy`` L-BFGS-B) that uses
+        the exact JAX gradient of the evaluation, keeping the best result.
+        The multi-start is what makes this robust: a single polish from the
+        best grid point converges to whatever critical point is nearest and,
+        for oscillatory functions (e.g. ``cos(k*pi*x*y^2)*cos(k*pi*y*x^2)``),
+        that is frequently a NON-global extremum -- the previous
+        single-start Newton reached only ~1e-3 accuracy on those.  Trying the
+        deepest handful of grid basins recovers the true global optimum to
+        near machine precision.
+
+        Parameters
+        ----------
+        ngrid : int or None
+            Seed-grid size per axis.  ``None`` (default) picks a grid that
+            resolves the function from its Chebyshev slice degrees.
+        n_starts : int, default 24
+            Number of distinct grid candidates polished per extremum.
 
         Returns
         -------
-        (vals, locs) : vals = [min, max], locs = [[x*,y*] x 2]
+        (vals, locs) : vals = [min, max], locs = [[x*, y*] x 2]
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/minandmax2.m
+        Chebfun commit: 7574c77
         """
+        import jax
         import numpy as _np
+        from scipy.optimize import minimize
+
         xa, xb, ya, yb = self.approx.domain
+
+        # Grid resolution: sample a few points per Chebyshev mode so the
+        # seed grid resolves the function's oscillations (MATLAB seeds at the
+        # slice chebpts, i.e. full representation resolution).
+        if ngrid is None:
+            try:
+                deg = max(
+                    max(len(c.coeffs) for c in self.approx.cols),
+                    max(len(r.coeffs) for r in self.approx.rows),
+                )
+            except Exception:
+                deg = 33
+            ngrid = int(min(max(2 * deg + 1, 65), 513))
+
         gx = _np.linspace(xa, xb, ngrid)
         gy = _np.linspace(ya, yb, ngrid)
         XX, YY = _np.meshgrid(gx, gy, indexing="ij")
-        V = _np.asarray(self(jnp.asarray(XX), jnp.asarray(YY)))
-        out_vals = []
-        out_locs = []
-        fx = self.diff(dim=2)
-        fy = self.diff(dim=1)
-        fxx = fx.diff(dim=2)
-        fxy = fx.diff(dim=1)
-        fyy = fy.diff(dim=1)
-        for which in ("min", "max"):
-            idx = _np.unravel_index(
-                _np.argmin(V) if which == "min" else _np.argmax(V),
-                V.shape)
-            x0, y0 = float(XX[idx]), float(YY[idx])
-            for _ in range(30):
-                g = _np.array([float(fx(jnp.asarray(x0),
-                                        jnp.asarray(y0))),
-                               float(fy(jnp.asarray(x0),
-                                        jnp.asarray(y0)))])
-                H = _np.array([[float(fxx(jnp.asarray(x0),
-                                          jnp.asarray(y0))),
-                                float(fxy(jnp.asarray(x0),
-                                          jnp.asarray(y0)))],
-                               [float(fxy(jnp.asarray(x0),
-                                          jnp.asarray(y0))),
-                                float(fyy(jnp.asarray(x0),
-                                          jnp.asarray(y0)))]])
-                try:
-                    step = _np.linalg.solve(H, g)
-                except _np.linalg.LinAlgError:
+        V = _np.asarray(self(jnp.asarray(XX), jnp.asarray(YY)),
+                        dtype=_np.float64)
+
+        def _scal(p):
+            return self(p[0], p[1])
+
+        vg = jax.jit(jax.value_and_grad(_scal))
+
+        def _optimize(which):
+            sign = 1.0 if which == "min" else -1.0
+            order = _np.argsort((sign * V).ravel())      # best-first
+
+            def fun(p):
+                v, g = vg(jnp.asarray(p, dtype=jnp.float64))
+                return sign * float(v), sign * _np.asarray(g, dtype=_np.float64)
+
+            best_signed = _np.inf
+            best_x = (float(XX.ravel()[order[0]]),
+                      float(YY.ravel()[order[0]]))
+            seen = set()
+            starts = 0
+            for idx_flat in order:
+                if starts >= n_starts:
                     break
-                xn = min(max(x0 - step[0], xa), xb)
-                yn = min(max(y0 - step[1], ya), yb)
-                if abs(xn - x0) + abs(yn - y0) < 1e-14:
-                    x0, y0 = xn, yn
-                    break
-                x0, y0 = xn, yn
-            v_new = float(self(jnp.asarray(x0), jnp.asarray(y0)))
-            v_grid = float(V[idx])
-            if (which == "min" and v_new > v_grid) or \
-                    (which == "max" and v_new < v_grid):
-                x0, y0 = float(XX[idx]), float(YY[idx])
-                v_new = v_grid
-            out_vals.append(v_new)
-            out_locs.append([x0, y0])
-        return (jnp.asarray(out_vals), jnp.asarray(out_locs))
+                i0 = _np.unravel_index(idx_flat, V.shape)
+                p0 = (float(XX[i0]), float(YY[i0]))
+                key = (round(p0[0], 2), round(p0[1], 2))
+                if key in seen:
+                    continue
+                seen.add(key)
+                starts += 1
+                res = minimize(
+                    fun, _np.array(p0), jac=True, method="L-BFGS-B",
+                    bounds=[(xa, xb), (ya, yb)],
+                    options={"ftol": 1e-15, "gtol": 1e-14, "maxiter": 400})
+                if float(res.fun) < best_signed:
+                    best_signed = float(res.fun)
+                    best_x = (float(res.x[0]), float(res.x[1]))
+            return sign * best_signed, best_x
+
+        vmin, xmin = _optimize("min")
+        vmax, xmax = _optimize("max")
+        return (jnp.asarray([vmin, vmax], dtype=jnp.float64),
+                jnp.asarray([[xmin[0], xmin[1]], [xmax[0], xmax[1]]],
+                            dtype=jnp.float64))
 
     def max2(self):
         """Global maximum (value, [x, y]) -- MATLAB max2."""
