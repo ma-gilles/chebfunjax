@@ -130,3 +130,18 @@ class TestChebfun2GradLap:
         h = _mk(lambda x, y: x ** 2 + y ** 2)
         npt.assert_allclose(
             float(np.asarray(h.lap()(x0, y0))), 4.0, atol=1e-12)
+
+
+class TestChebfun2vJacobianMirror:
+    def test_jacobian_polar_map(self):
+        # (x, y) -> (r cos t, r sin t)-style check: F = [cos(x); sin(y)]
+        # has jac = -sin(x) cos(y) (Fable 5, @chebfun2v/jacobian.m).
+        from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
+
+        f1 = _mk(lambda x, y: jnp.cos(x))
+        f2 = _mk(lambda x, y: jnp.sin(y))
+        F = Chebfun2v([f1.approx, f2.approx])
+        x0, y0 = jnp.asarray(0.3), jnp.asarray(-0.4)
+        npt.assert_allclose(
+            float(np.asarray(F.jacobian()(x0, y0))),
+            -np.sin(0.3) * np.cos(-0.4), atol=1e-13)

@@ -398,6 +398,27 @@ class Chebfun2v(eqx.Module):
         d2f2_dy2 = _diff_separable(self.components[1], n=2, dim=1)
         return _add_separable(d2f1_dx2, d2f2_dy2)
 
+    def jacobian(self) -> SeparableApprox:
+        """Determinant of the Jacobian of a 2-component field:
+        F1_x F2_y - F1_y F2_x.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/jacobian.m
+        Chebfun commit: 7574c77
+        """
+        if len(self.components) != 2:
+            raise ValueError(
+                "jacobian is defined for 2-component Chebfun2v")
+        f1, f2 = self.components
+        f1x = _diff_separable(f1, n=1, dim=2)
+        f1y = _diff_separable(f1, n=1, dim=1)
+        f2x = _diff_separable(f2, n=1, dim=2)
+        f2y = _diff_separable(f2, n=1, dim=1)
+        return _add_separable(
+            _mul_separable(f1x, f2y),
+            _neg_separable(_mul_separable(f1y, f2x)))
+
     def div(self) -> SeparableApprox:
         """Alias for divergence().
 
