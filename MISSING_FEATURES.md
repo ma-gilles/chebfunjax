@@ -11,23 +11,30 @@ counterparts (1,105 port files). Final run:
 
 | Status | Count | Meaning |
 |---|---:|---|
-| **passed** | 1,411 | ported at MATLAB tolerances and passing |
-| **skipped** | 1,105 | test written; the feature does not exist (reason string names it) |
-| **xfailed** | 614 | known library bug or convention gap, with evidence in the reason |
+| **passed** | 1,819 | ported at MATLAB tolerances and passing |
+| **skipped** | 893 | test written; the feature does not exist (reason string names it) |
+| **xfailed** | 515 | known library bug or convention gap, with evidence in the reason |
 | **failed** | **0** | |
 
-*(Updated 2026-07-12 after the Fable 5 utilities + systems drive:
-+241 ports flipped to genuine passes.  Newly closed categories:
-ODE systems -- linear/nonlinear/eigs/periodic block collocation;
-chebmatrix container API; empty objects for chebfun + all geometry
-and vector classes; geometry solvers helmholtz/harmonic/gaussfilt/
-rotate/solharm; cf/chebpade; complex quasimatrix rank/orth/null/
-pinv; ~35 named utilities.  Second pass added horzcat/var/std/cov
-(quasimatrix), kron, chebfun3 mean/mean2, ballfun mean/mean2/mean3,
-zero-function and stale-skip flips.  Third pass drained the chebop
-systems stubs: nonlinSys1/nonlinSysDamping/paramODE (forced form)/
-LorenzIVP (system IVP time-marching)/feval2/cumsum (operator
-application), unbndfun restrict, domain merge, ballfun mean family.)*
+*(Updated 2026-07-18 after the Fable 5 Big-Three drive: +408 ports
+flipped to genuine passes (1,411 -> 1,819), -212 skips, -99 xfails.
+Newly closed categories: trig rational approximation (aaatrig SVD-conj
+fix, trigpade, trigremez); spinop family (Spinop + ETDRK4 spin(), AC
+preset; CH instability xfailed with evidence); and the ARRAY-VALUED
+(multi-column) representation through EVERY layer -- column-wise
+transforms with exact symmetry enforcement, chebtech1/2 + trigtech
+coefficient/column ops, bndfun/classicfun/unbndfun, and the Chebfun
+public API (n_columns/extract/assign/mat2cell/repmat/fliplr/any/all,
+per-column roots + minandmax incl. the MATLAB complex |f|^2 path,
+piecewise array evaluation and cumsum, array interp1/pchip/spline).
+Real bugs fixed along the way: complex colleague-matrix rootfinding
+(real-part cast gave spurious roots), Trigtech complex-scalar
+arithmetic dropping imaginary parts, Chebfun.fliplr flipud-alias,
+inf-destroying symmetry correction, gradient projection in the
+symmetry enforcement.)*
+
+*(Previous 2026-07-12 accounting: 1,411/1,105/614 after the utilities
++ systems drive.)*
 
 Fully-passing files: 139 · mixed (some assertions pass, some skip): 249
 · fully-skipped files: 717.
