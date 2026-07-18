@@ -275,6 +275,65 @@ class TestDiskfunCalculus:
             atol=1e-10)
 
 
+class TestDiskfunConstructorHighRank:
+    """Pins the constructor fix for high-rank inputs (Fable 5).
+
+    The adaptive GE loop used to declare convergence the first time the
+    dominant pivot looked tiny; a single spurious tiny pivot from evaluation
+    noise at a coarse grid (e.g. a noise-triggered pole removal when
+    reconstructing a diskfun from its own values) then collapsed a genuinely
+    high-rank function to rank 1.  MATLAB @diskfun/constructor tolerates that
+    only after three successive strikes, which this pins.
+    """
+
+    @staticmethod
+    def _bumps(t, r):
+        # Sum of several off-centre Gaussian bumps: a smooth but genuinely
+        # high-rank function on the disk (no low-rank separable structure).
+        x = r * jnp.cos(t)
+        y = r * jnp.sin(t)
+        centres = [(0.5, -0.5), (-0.5, -0.5), (0.5, 0.5),
+                   (-0.4, 0.3), (0.1, -0.6)]
+        out = jnp.zeros_like(x)
+        for cx, cy in centres:
+            out = out + 10.0 * jnp.exp(-20 * (x - cx) ** 2
+                                       - 20 * (y - cy) ** 2)
+        return out + y
+
+    def test_high_rank_direct_construction(self):
+        f = Diskfun.from_function(self._bumps)
+        # This function is genuinely high rank; must not collapse to rank 1.
+        assert f.rank > 10
+        th = np.linspace(-np.pi, np.pi, 55)
+        rr = np.linspace(0.0, 1.0, 55)
+        TH, RR = np.meshgrid(th, rr)
+        approx = np.asarray(f(jnp.asarray(TH), jnp.asarray(RR)))
+        exact = np.asarray(self._bumps(jnp.asarray(TH), jnp.asarray(RR)))
+        assert float(np.max(np.abs(approx - exact))) < 1e-10
+
+    def test_high_rank_self_reconstruction(self):
+        # Reconstructing a high-rank diskfun from its own (rounding-noisy)
+        # evaluation must recover it, not collapse to rank 1.
+        f = Diskfun.from_function(self._bumps)
+        g = Diskfun.from_function(lambda t, r: f(t, r))
+        assert g.rank > 10
+        th = np.linspace(-np.pi, np.pi, 55)
+        rr = np.linspace(0.0, 1.0, 55)
+        TH, RR = np.meshgrid(th, rr)
+        gv = np.asarray(g(jnp.asarray(TH), jnp.asarray(RR)))
+        fv = np.asarray(f(jnp.asarray(TH), jnp.asarray(RR)))
+        assert float(np.max(np.abs(gv - fv))) < 1e-10
+
+    def test_zero_and_constant_still_low_rank(self):
+        # The strike counter must not inflate trivial functions.
+        z = Diskfun.from_function(lambda t, r: jnp.zeros_like(r))
+        assert z.rank == 1
+        assert abs(float(z(jnp.asarray(0.3), jnp.asarray(0.5)))) < 1e-14
+        c = Diskfun.from_function(lambda t, r: 3.0 * jnp.ones_like(r))
+        assert c.rank == 1
+        assert abs(float(c(jnp.asarray(0.3), jnp.asarray(0.5))) - 3.0) < 1e-12
+
+
 class TestDiskfunReflectionsSumOpt:
     """Core-suite coverage for abs, sum(dim), reflections/rotation and
     global optimization (mirrors the MATLAB-port assertions so the new

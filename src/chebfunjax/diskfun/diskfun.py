@@ -836,9 +836,14 @@ class Diskfun(eqx.Module):
         is_happy = False
         failure = False
         grid = min_sample
+        # "0 + noise" strike counter (MATLAB @diskfun/constructor): a tiny
+        # dominant pivot must persist for three successive grids before the
+        # function is judged to be numerically zero.  See the strike logic
+        # below.
+        strike = 1
 
         # Sample on tensor grid and run Phase 1
-        while not is_happy and not failure:
+        while not is_happy and not failure and strike < 3:
             # Double the grid BEFORE sampling, matching MATLAB
             # @diskfun/constructor.  Fix by Claude Opus 4.8: running phase
             # one at the coarse min_sample grid on the first pass lets a
@@ -882,9 +887,19 @@ class Diskfun(eqx.Module):
                 failure = True
                 break
 
+            # If the function is 0 + noise the dominant pivot is tiny.
+            # MATLAB @diskfun/constructor treats this as convergence only
+            # after THREE successive strikes -- a single spurious tiny pivot
+            # from evaluation noise at a coarse grid must not stop the loop.
+            # The previous port declared happiness on the first occurrence,
+            # which collapsed genuinely high-rank functions to rank 1 when
+            # they were reconstructed from a noisy evaluation (e.g. a
+            # diskfun re-approximated from its own values: rounding noise at
+            # r = 0 spuriously triggered pole removal, seeding pivot 0 with a
+            # ~1e-13 value that tripped this test).  Accumulating strikes
+            # instead lets the grid refine until the true rank appears.
             if max(abs(pivot_array[0, 0]), abs(pivot_array[0, 1])) < 1e4 * tol:
-                is_happy = True
-                break
+                strike += 1
 
             if happy_rank:
                 is_happy = True
