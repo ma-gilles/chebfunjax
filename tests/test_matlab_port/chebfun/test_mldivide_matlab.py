@@ -10,7 +10,13 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="chebfunjax has no array-valued (multi-column) chebfun")
+# Array-valued chebfun / quasimatrices now work, but MATLAB A\B here is the
+# least-squares backslash on chebfun quasimatrices (using chebpoly/legpoly
+# quasimatrices, restrict, and 'ls' solves).  chebfunjax has no mldivide /
+# backslash operator on chebfun, so this stays skipped on that precise gap.
+pytestmark = pytest.mark.skip(
+    reason="chebfunjax has no chebfun mldivide (\\, least-squares quasimatrix backslash)"
+)
 
 
 class TestChebfunMldivide:

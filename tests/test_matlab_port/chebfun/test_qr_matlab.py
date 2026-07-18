@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 import chebfunjax as cj
 
@@ -43,6 +42,31 @@ class TestChebfunQr:
             assert float(jnp.max(err)) < 1e-12
 
     def test_complex_columns_rank(self):
-        pytest.skip("chebfunjax quasimatrix qr on complex columns with "
-                    "rank deficiency (MATLAB rank(A)==2 case) not "
-                    "implemented")
+        # pass(2,3): QR of the rank-deficient complex quasimatrix
+        # A = [x  1i*x  1  1+1i  (2-1i)x] on [0, 1]: Q has orthonormal columns
+        # (MATLAB cond(Q)==1) and A == Q*R (reconstruction).
+        # FIXED (Fable 5, Big-Three array-valued epic): complex-column QR works.
+        # MATLAB pass(1) additionally asserts rank(A)==2; chebfunjax has no
+        # continuous rank() for a quasimatrix, so that scalar is not checked.
+        cols = [
+            cj.chebfun(lambda x: x, domain=(0.0, 1.0)),
+            cj.chebfun(lambda x: 1j * x, domain=(0.0, 1.0)),
+            cj.chebfun(lambda x: 1.0 + 0 * x, domain=(0.0, 1.0)),
+            cj.chebfun(lambda x: (1 + 1j) + 0 * x, domain=(0.0, 1.0)),
+            cj.chebfun(lambda x: (2 - 1j) * x, domain=(0.0, 1.0)),
+        ]
+        Q, R = cols[0].qr(cols[1:])
+        qcols = Q.cols if hasattr(Q, "cols") else Q
+        n = len(qcols)
+        # Q columns orthonormal (Hermitian Gram == I).
+        G = np.array(
+            [[complex(qcols[i].innerProduct(qcols[j])) for j in range(n)]
+             for i in range(n)]
+        )
+        assert float(np.max(np.abs(G - np.eye(n)))) < 1e-12
+        # Reconstruction A == Q R.
+        R = np.asarray(R)
+        xs = jnp.asarray(np.linspace(0.01, 0.99, 50))
+        for j, c in enumerate(cols):
+            rec = sum(qcols[i](xs) * R[i, j] for i in range(n))
+            assert float(jnp.max(jnp.abs(rec - c(xs)))) < 1e-12

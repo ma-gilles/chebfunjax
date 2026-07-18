@@ -10,7 +10,13 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="chebfunjax has no array-valued Bndfun to split with mat2cell")
+# Array-valued Bndfun now works, but there is no FUN-level mat2cell wrapper:
+# the onefun (Chebtech2) exposes mat2cell, but Bndfun/Classicfun does not,
+# so this stays skipped on that precise gap.
+pytestmark = pytest.mark.skip(
+    reason="chebfunjax Bndfun/Classicfun has no mat2cell() wrapper (the onefun "
+    "Chebtech2 has mat2cell, but the fun level does not expose it)"
+)
 
 
 class TestClassicfunMat2cell:

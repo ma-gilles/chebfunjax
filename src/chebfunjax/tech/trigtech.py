@@ -1545,8 +1545,10 @@ class Trigtech(eqx.Module):
         """Raise to a power."""
         if isinstance(exponent, int) and exponent >= 0:
             if exponent == 0:
-                c = jnp.zeros(1, dtype=jnp.complex128)
-                c = c.at[0].set(1.0 + 0j)
+                # ones with the same column count (array-valued f**0
+                # keeps m columns, MATLAB power.m)
+                c = jnp.ones((1,) + self.coeffs.shape[1:],
+                             dtype=jnp.complex128)
                 return Trigtech(coeffs=c, is_real=True, ishappy=True)
             result = self
             for _ in range(exponent - 1):

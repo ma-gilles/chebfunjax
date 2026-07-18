@@ -101,12 +101,19 @@ class TestClassicfunRoots:
         # Fable 5 audit.)
         pytest.skip("Classicfun.roots has no 'recurse' option")
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks array-valued Bndfun: roots of a 3-column fun "
-        "returns a padded matrix of roots per column."
-    )
     def test_array_valued_roots(self):
-        raise NotImplementedError("array-valued Bndfun roots")
+        # pass(9): roots of [sin(pi x), cos(pi x), x^2+1] -> NaN-padded per-column
+        # roots matching [-2:7 ; -1.5:6.5 ; NaN(1,11)].
+        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) Bndfun.
+        f = _bf(lambda x: jnp.stack(
+            [jnp.sin(np.pi * x), jnp.cos(np.pi * x), x ** 2 + 1], axis=-1))
+        r = np.asarray(f.roots())
+        tol = 1e1 * EPS * f.vscale
+        c0 = np.sort(r[:, 0][~np.isnan(r[:, 0])])
+        c1 = np.sort(r[:, 1][~np.isnan(r[:, 1])])
+        assert _ninf(c0 - np.arange(-2, 8)) < tol
+        assert _ninf(c1 - np.arange(-1.5, 7.0)) < tol
+        assert np.sum(~np.isnan(r[:, 2])) == 0  # x^2+1 has no real roots
 
     @pytest.mark.xfail(
         reason="chebfunjax lacks singular (exponents) Bndfun: (x-a)^-0.5*cos(x) "

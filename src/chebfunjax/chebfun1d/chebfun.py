@@ -712,7 +712,11 @@ class Chebfun(eqx.Module):
             return result
 
         # Multi-piece: Python dispatch
-        out = jnp.full(x.shape, jnp.nan, dtype=jnp.float64)
+        # (array-valued pieces add a trailing column axis to the output;
+        # masks broadcast over it.  jnp.where promotes to complex when
+        # a piece evaluates complex, as before.)
+        cols = self.funs[0].tech.coeffs.shape[1:]
+        out = jnp.full(x.shape + cols, jnp.nan, dtype=jnp.float64)
         n_pieces = len(self.funs)
         for i, piece in enumerate(self.funs):
             a, b = piece.interval
@@ -732,7 +736,8 @@ class Chebfun(eqx.Module):
             # Evaluate masked points
             x_piece = jnp.where(mask, x, jnp.float64(a))
             vals = piece(x_piece)
-            out = jnp.where(mask, vals, out)
+            maskE = mask.reshape(mask.shape + (1,) * len(cols))
+            out = jnp.where(maskE, vals, out)
 
         if scalar_input:
             out = out[0]
@@ -1232,16 +1237,21 @@ class Chebfun(eqx.Module):
         """
         # Find roots where the function changes sign and add them as
         # breakpoints, then apply |·| piecewise for smoothness.
-        roots = self.roots()
+        import numpy as _np
+        roots = _np.asarray(self.roots())
+        if roots.ndim == 2:
+            # Array-valued: the union of every column's roots splits
+            # ALL columns (MATLAB @chebfun/abs.m uses roots(f) which
+            # gathers all columns); drop the NaN padding.
+            roots = _np.sort(roots[_np.isfinite(roots)])
         if roots.shape[0] == 0:
             # No sign changes — simple abs on each piece
             return self._apply_fun(jnp.abs)
 
         # Build new breakpoints: existing domain breakpoints + roots
-        import numpy as _np
         existing = _np.array(list(self.domain.breakpoints))
         new_bps = _np.sort(_np.unique(
-            _np.concatenate([existing, _np.asarray(roots)])
+            _np.concatenate([existing, roots])
         ))
         # Remove duplicates within tolerance
         domain_len = float(self.domain.b - self.domain.a)
@@ -2013,20 +2023,20 @@ class Chebfun(eqx.Module):
 
         # Multi-piece: compute antiderivative on each piece, then shift to
         # ensure continuity: F_i(b_i) = F_{i+1}(a_{i+1})
+        # (offset is a per-column row for array-valued chebfuns)
         new_pieces = []
-        offset = jnp.float64(0.0)
+        offset = None
         for piece in self.funs:
             piece_cs = piece.cumsum()
             # piece_cs has F_piece(a_piece) = 0 by construction
             # Shift by offset to achieve continuity
-            if float(offset) != 0.0:
+            if offset is not None and bool(jnp.any(offset != 0)):
                 # Add offset as a constant to the antiderivative piece
-                new_tech = piece_cs.tech + float(offset)
+                new_tech = piece_cs.tech + offset
                 piece_cs = _Piece(tech=new_tech, interval=piece_cs.interval)
             new_pieces.append(piece_cs)
             # Update offset: new cumulative value at the right endpoint
-            _, rval = piece_cs.endpoint_values
-            offset = jnp.float64(rval)
+            offset = piece_cs.values[-1]
 
         return Chebfun(funs=new_pieces, domain=self.domain)
 
@@ -2892,7 +2902,8 @@ class Chebfun(eqx.Module):
         w_ref = jnp.asarray(w)
 
         def interpolant(z: jax.Array) -> jax.Array:
-            """Evaluate barycentric interpolant at points z."""
+            """Evaluate barycentric interpolant at points z (column-wise
+            for array-valued (n, m) data)."""
             z = jnp.atleast_1d(z)
             # Compute w_j / (z - x_j) for each z, then sum
             diffs = z[:, None] - x_ref[None, :]   # shape (nz, n)
@@ -2900,11 +2911,14 @@ class Chebfun(eqx.Module):
             hit = jnp.abs(diffs) < 1e-14
             safe_diffs = jnp.where(hit, jnp.ones_like(diffs), diffs)
             terms = w_ref[None, :] / safe_diffs    # shape (nz, n)
-            numer = jnp.sum(jnp.where(hit, y_ref[None, :] * w_ref[None, :] / (w_ref[None, :] + 1e-300), terms * y_ref[None, :]), axis=1)
-            denom = jnp.sum(jnp.where(hit, w_ref[None, :] / (w_ref[None, :] + 1e-300), terms), axis=1)
-            # If hit, return y at the matching node
+            numer = terms @ y_ref                  # (nz,) or (nz, m)
+            denom = jnp.sum(terms, axis=1)         # (nz,)
             any_hit = jnp.any(hit, axis=1)
-            hit_val = jnp.sum(jnp.where(hit, y_ref[None, :], jnp.zeros_like(terms)), axis=1)
+            hit_idx = jnp.argmax(hit, axis=1)
+            hit_val = y_ref[hit_idx]               # (nz,) or (nz, m)
+            if y_ref.ndim == 2:
+                return jnp.where(any_hit[:, None], hit_val,
+                                 numer / denom[:, None])
             return jnp.where(any_hit, hit_val, numer / denom)
 
         return Chebfun.from_function(interpolant, dom)
@@ -3225,10 +3239,13 @@ class Chebfun(eqx.Module):
         return Chebfun(funs=new_funs, domain=new_domain)
 
     def fliplr(self) -> Chebfun:
-        """Alias for :meth:`flipud` for column Chebfuns.
+        """Reverse the COLUMN order of an array-valued Chebfun.
 
-        For a scalar (single-column) Chebfun, ``fliplr`` reverses the
-        function in the same way as ``flipud``.
+        MATLAB @chebfun/fliplr.m (columnFliplr branch): for a column
+        chebfun this flips the columns of each fun -- the identity for
+        a scalar (single-column) Chebfun.  (An earlier port aliased
+        this to flipud, which is the ROW-chebfun branch; fixed by
+        Claude Fable 5, Big-Three array-valued epic.)
 
         Returns
         -------
@@ -3239,7 +3256,117 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/fliplr.m
         Chebfun commit: 7574c77
         """
-        return self.flipud()
+        new_funs = [
+            _Piece(tech=piece.tech.fliplr(), interval=piece.interval)
+            for piece in self.funs
+        ]
+        return Chebfun(funs=new_funs, domain=self.domain)
+
+    # ------------------------------------------------------------------
+    # Array-valued column manipulation (Fable 5, Big-Three epic)
+    # ------------------------------------------------------------------
+
+    @property
+    def n_columns(self) -> int:
+        """Number of columns (1 for a scalar-valued Chebfun).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/numColumns.m
+        Chebfun commit: 7574c77
+        """
+        c = self.funs[0].tech.coeffs
+        return int(c.shape[1]) if c.ndim == 2 else 1
+
+    @staticmethod
+    def _tech_with_coeffs(tech, coeffs):
+        """Rebuild a tech of the same class around new coefficients."""
+        kwargs = {"coeffs": coeffs, "ishappy": tech.ishappy}
+        if hasattr(tech, "is_real"):
+            kwargs["is_real"] = tech.is_real
+        return type(tech)(**kwargs)
+
+    def extract_columns(self, cols) -> "Chebfun":
+        """Return the sub-Chebfun made of the 0-based columns ``cols``
+        (MATLAB extractColumns / ``f(:, cols)``); a single index gives
+        a scalar-valued Chebfun.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/extractColumns.m
+        Chebfun commit: 7574c77
+        """
+        single = isinstance(cols, int)
+        idx = [cols] if single else list(cols)
+        new_funs = []
+        for piece in self.funs:
+            t = piece.tech
+            c = t.coeffs if t.coeffs.ndim == 2 else t.coeffs[:, None]
+            block = c[:, jnp.asarray(idx)]
+            if single:
+                block = block[:, 0]
+            new_funs.append(_Piece(
+                tech=self._tech_with_coeffs(t, block),
+                interval=piece.interval))
+        return Chebfun(funs=new_funs, domain=self.domain)
+
+    def assign_columns(self, cols, g) -> "Chebfun":
+        """Overwrite the 0-based columns ``cols`` with the columns of
+        ``g`` (MATLAB assignColumns); ``g=None`` deletes them.  ``g``
+        must share this Chebfun's breakpoints.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/assignColumns.m
+        Chebfun commit: 7574c77
+        """
+        if g is not None and tuple(g.domain.breakpoints) != tuple(
+                self.domain.breakpoints):
+            raise ValueError(
+                "assign_columns requires matching breakpoints")
+        new_funs = []
+        for k, piece in enumerate(self.funs):
+            gt = None if g is None else g.funs[k].tech
+            new_funs.append(_Piece(
+                tech=piece.tech.assign_columns(cols, gt),
+                interval=piece.interval))
+        return Chebfun(funs=new_funs, domain=self.domain)
+
+    def mat2cell(self, sizes) -> list:
+        """Split an array-valued Chebfun by column counts (MATLAB
+        ``mat2cell(f, 1, sizes)``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/mat2cell.m
+        Chebfun commit: 7574c77
+        """
+        out = []
+        j = 0
+        for s in sizes:
+            cols = j if s == 1 else list(range(j, j + s))
+            out.append(self.extract_columns(cols))
+            j += s
+        return out
+
+    def repmat(self, k: int) -> "Chebfun":
+        """Horizontally tile the columns ``k`` times (MATLAB
+        ``repmat(f, 1, k)``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/repmat.m
+        Chebfun commit: 7574c77
+        """
+        new_funs = []
+        for piece in self.funs:
+            t = piece.tech
+            c = t.coeffs if t.coeffs.ndim == 2 else t.coeffs[:, None]
+            tiled = jnp.tile(c, (1, k))
+            new_funs.append(_Piece(
+                tech=self._tech_with_coeffs(t, tiled),
+                interval=piece.interval))
+        return Chebfun(funs=new_funs, domain=self.domain)
 
     # ------------------------------------------------------------------
     # V11 — Special functions: Bessel, Airy, elliptic, erf family
@@ -4026,31 +4153,39 @@ class Chebfun(eqx.Module):
         ]
         return Chebfun(funs=new_funs, domain=new_dom)
 
-    def any(self) -> bool:
-        """True if the Chebfun is non-zero anywhere on its domain.
+    def any(self):
+        """True if the Chebfun is non-zero anywhere on its domain; a
+        per-column boolean row for array-valued input (MATLAB returns
+        a 1 x m logical).
 
         Returns
         -------
-        bool
-            True if the maximum absolute value of the Chebfun exceeds
-            ``vscale * eps``, i.e., the function is not identically zero.
+        bool or jax.Array of bool, shape (m,)
 
         Provenance
         ----------
         MATLAB source : @chebfun/any.m
         Chebfun commit: 7574c77
         """
+        if self.n_columns > 1:
+            import numpy as _np
+            col_max = _np.max(
+                _np.stack([
+                    _np.max(_np.abs(_np.asarray(p.tech.values)), axis=0)
+                    for p in self.funs
+                ]), axis=0)
+            return jnp.asarray(col_max > _EPS)
         return self.vscale > _EPS
 
-    def all(self) -> bool:
-        """True if the Chebfun is non-zero *everywhere* on its domain.
+    def all(self):
+        """True if the Chebfun is non-zero *everywhere* on its domain;
+        a per-column boolean row for array-valued input.
 
-        Returns True if the Chebfun has no roots (i.e., its minimum absolute
-        value exceeds machine epsilon times the vertical scale).
+        Returns True where the column has no roots.
 
         Returns
         -------
-        bool
+        bool or jax.Array of bool, shape (m,)
 
         Notes
         -----
@@ -4062,6 +4197,12 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         roots = self.roots()
+        if self.n_columns > 1:
+            import numpy as _np
+            r = _np.asarray(roots)
+            if r.size == 0:
+                return jnp.ones(self.n_columns, dtype=bool)
+            return jnp.asarray(~_np.any(_np.isfinite(r), axis=0))
         return roots.shape[0] == 0
 
     def isempty(self) -> bool:

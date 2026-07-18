@@ -68,13 +68,19 @@ class TestClassicfunTimes:
         gexact = jnp.sin(X) * ALPHA
         assert _ninf(g1(X) - gexact) < 10 * g1.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued Bndfun.")
     def test_array_mult_scalar_isequal(self):
-        raise NotImplementedError
+        # pass(4): [sin cos] .* alpha == alpha .* [sin cos].
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1))
+        assert _isequal(f * ALPHA, ALPHA * f)
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued Bndfun.")
     def test_array_mult_scalar_norm(self):
-        raise NotImplementedError
+        # pass(5): value of [sin cos] .* alpha, tol 10*vscale*eps.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        fop = lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1)
+        f = _bf(fop)
+        g1 = f * ALPHA
+        assert _ninf(g1(X) - fop(X) * ALPHA) < 10 * g1.vscale * EPS
 
     # --- multiply by a constant function ------------------------------
     def test_mult_by_constant_function(self):
@@ -82,9 +88,15 @@ class TestClassicfunTimes:
         g_op = lambda x: ALPHA * jnp.ones_like(x)
         assert _mult_fun_by_fun(_bf(f_op), f_op, _bf(g_op), g_op)
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued Bndfun.")
     def test_array_by_constant_row(self):
-        raise NotImplementedError
+        # pass(7): [sin cos] .* [alpha beta] (row of constant columns).
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        beta = -0.526634844879922 - 0.685484380523668j
+        f_op = lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1)
+        g_op = lambda x: jnp.stack(
+            [ALPHA * jnp.ones_like(x), beta * jnp.ones_like(x)], axis=-1
+        )
+        assert _mult_fun_by_fun(_bf(f_op), f_op, _bf(g_op), g_op)
 
     # --- products of two funs -----------------------------------------
     def test_mult_ones_by_ones(self):
@@ -107,24 +119,41 @@ class TestClassicfunTimes:
         assert _mult_fun_by_fun(_bf(f_op), f_op, _bf(g_op), g_op)
 
     # --- array-valued products (pass 12-14) ---------------------------
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued Bndfun.")
     def test_array_commute(self):
-        raise NotImplementedError
+        # pass(12): [sin cos exp] .* tanh commutes (column-vs-scalar broadcast).
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1))
+        g = _bf(jnp.tanh)
+        h1 = f * g
+        h2 = g * f
+        assert _ninf((h1 - h2)(X)) < 1000 * h1.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued Bndfun.")
     def test_array_product_norm(self):
-        raise NotImplementedError
+        # pass(13): value of [sin cos exp] .* tanh, tol 10*vscale*eps.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        fop = lambda x: jnp.stack([jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1)
+        f = _bf(fop)
+        g = _bf(jnp.tanh)
+        h = f * g
+        hexact = fop(X) * jnp.tanh(X)[:, None]
+        assert _ninf(h(X) - hexact) < 10 * h.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued Bndfun.")
     def test_array_product_norm_2(self):
-        raise NotImplementedError
+        # pass(14): [sin cos exp] .* [sinh cosh tanh], tol 10*vscale*eps.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        fop = lambda x: jnp.stack([jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1)
+        gop = lambda x: jnp.stack([jnp.sinh(x), jnp.cosh(x), jnp.tanh(x)], axis=-1)
+        h = _bf(fop) * _bf(gop)
+        assert _ninf(h(X) - fop(X) * gop(X)) < 10 * h.vscale * EPS
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks array-valued Bndfun: a dimension-mismatch "
-        "product should raise CHEBFUN:CHEBTECH:times:dim2."
-    )
     def test_dimension_mismatch(self):
-        raise NotImplementedError
+        # pass(15): [sin cos exp](3col) .* [sinh cosh](2col) is a shape mismatch.
+        # FIXED (Fable 5, Big-Three array-valued epic): chebfunjax raises (MATLAB
+        # emits CHEBFUN:CHEBTECH:times:dim2; chebfunjax has no typed identifier).
+        f = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1))
+        g = _bf(lambda x: jnp.stack([jnp.sinh(x), jnp.cosh(x)], axis=-1))
+        with pytest.raises(Exception):
+            f * g
 
     # --- complex, positivity ------------------------------------------
     def test_mult_sinh_complex_self(self):
@@ -133,17 +162,19 @@ class TestClassicfunTimes:
         assert _mult_fun_by_fun(f, f_op, f, f_op)
 
     @pytest.mark.xfail(
-        reason="chebfunjax has no conj() method on Bndfun/Chebtech2, so "
-        "f.*conj(f) (with the positivity check) cannot be formed."
+        reason="chebfunjax has no conj() FUN-level wrapper on Bndfun (the onefun "
+        "Chebtech2 has conj, but Bndfun/Classicfun does not expose it), so "
+        "f.*conj(f) with the positivity check cannot be formed."
     )
     def test_mult_by_conj_1(self):
-        raise NotImplementedError("conj not implemented")
+        raise NotImplementedError("no Bndfun.conj() wrapper")
 
     @pytest.mark.xfail(
-        reason="chebfunjax has no conj() method on Bndfun/Chebtech2."
+        reason="chebfunjax has no conj() FUN-level wrapper on Bndfun (onefun "
+        "Chebtech2 has conj)."
     )
     def test_mult_by_conj_2(self):
-        raise NotImplementedError("conj not implemented")
+        raise NotImplementedError("no Bndfun.conj() wrapper")
 
     def test_mult_expix_minus1_self(self):
         # MATLAB pass(19:20): identical assertion recorded twice.

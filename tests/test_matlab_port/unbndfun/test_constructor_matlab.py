@@ -139,12 +139,10 @@ class TestUnbndfunConstructor:
         x = _pts((-1e6, b))
         assert _ninf(f(x) - op(x)) < 1e1 * EPS * f.vscale
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks array-valued Unbndfun: [exp(x) x*exp(x) "
-        "(1-exp(x))/x] is a 3-column fun; Unbndfun wraps a single scalar "
-        "Chebtech2."
-    )
     def test_array_valued_left_inf(self):
+        # Array-valued Unbndfun [exp(x) x*exp(x) (1-exp(x))/x] on [-inf, -3pi].
+        # FIXED (Fable 5, Big-Three array-valued epic): Unbndfun now supports
+        # (n, m) array-valued construction/evaluation.
         op = lambda x: jnp.stack(
             [jnp.exp(x), x * jnp.exp(x), (1 - jnp.exp(x)) / x], axis=-1
         )

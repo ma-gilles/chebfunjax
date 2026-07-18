@@ -297,11 +297,15 @@ class TestFlipud:
             atol=1e-12,
         )
 
-    def test_fliplr_same_as_flipud(self):
+    def test_fliplr_identity_for_scalar(self):
+        # MATLAB @chebfun/fliplr.m column branch: fliplr flips the
+        # COLUMNS of a column chebfun, so it is the identity for a
+        # scalar chebfun (the earlier alias to flipud was a port bug,
+        # fixed by Fable 5 with the array-valued epic).
         f = chebfun(jnp.exp)
         npt.assert_allclose(
             np.array(f.fliplr()(_pts(20))),
-            np.array(f.flipud()(_pts(20))),
+            np.array(f(_pts(20))),
             atol=1e-14,
         )
 

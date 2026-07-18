@@ -34,7 +34,18 @@ class TestChebfunCumsum:
         pytest.skip("chebfunjax has no row-chebfun transpose")
 
     def test_array_valued(self):
-        pytest.skip("chebfunjax has no array-valued Chebfun")
+        # pass(4): piecewise array-valued cumsum on [-1 -0.5 0.5 1].
+        # FIXED (Fable 5, Big-Three array-valued epic): per-column offset chain.
+        f3 = cj.chebfun(
+            lambda x: jnp.stack([jnp.cos(x), -jnp.sin(x), jnp.exp(x)], axis=-1),
+            domain=(-1, -0.5, 0.5, 1),
+        )
+        If3 = f3.cumsum()
+        exact = jnp.stack(
+            [jnp.sin(XR), jnp.cos(XR), jnp.exp(XR)], axis=-1
+        ) - jnp.array([np.sin(-1.0), np.cos(-1.0), np.exp(-1.0)])
+        err = jnp.abs(If3(XR) - exact)
+        assert float(jnp.max(err)) < 10 * If3.vscale * EPS
 
     def test_cumsum_of_deriv_recovers(self):
         f = cj.chebfun(lambda x: jnp.exp(x) * jnp.sin(3 * x))

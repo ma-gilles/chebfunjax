@@ -10,7 +10,12 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="chebfunjax has no array-valued (multi-column) chebfun")
+# Array-valued chebfun / quasimatrices now work, but MATLAB f/A here is the
+# matrix / least-squares mrdivide (mrdivide(A, B, 'ls')).  chebfunjax has no
+# mrdivide operator on chebfun, so this stays skipped on that precise gap.
+pytestmark = pytest.mark.skip(
+    reason="chebfunjax has no chebfun mrdivide (/, matrix / least-squares 'ls' solve)"
+)
 
 
 class TestChebfunMrdivide:

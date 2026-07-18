@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 import chebfunjax as cj
 
@@ -38,4 +37,11 @@ class TestChebfunSpline:
             assert abs(left - right) < 1e-5
 
     def test_array_valued(self):
-        pytest.skip("chebfunjax has no array-valued chebfun")
+        # pass(4, 5): spline of array-valued data [sin cos] hits the data and
+        # produces 10 pieces.
+        # FIXED (Fable 5, Big-Three array-valued epic): spline accepts (n, m) y.
+        x = jnp.arange(11.0)
+        y = jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1)
+        f = cj.chebfun(lambda t: t, domain=(0.0, 10.0)).spline(x, y)
+        assert float(jnp.max(jnp.abs(f(x) - y))) < 100 * EPS
+        assert len(f.funs) == 10

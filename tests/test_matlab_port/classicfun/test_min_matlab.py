@@ -57,28 +57,52 @@ class TestClassicfunMin:
             -0.7 ** 3 * np.cosh(0.7),
         )
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks array-valued Bndfun: min of a 3-column fun "
-        "returns per-column extrema."
-    )
     def test_array_valued(self):
-        raise NotImplementedError("array-valued Bndfun min")
+        # pass(5): min of -[sin(10x) real(airy(x)) (x/10)^3 cosh(x/10)].
+        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) Bndfun.
+        fun_op = lambda x: -jnp.stack(
+            [
+                jnp.sin(10 * x),
+                jnp.asarray(np.real(sp.airy(np.asarray(x))[0])),
+                (x / 10) ** 3 * jnp.cosh(x / 10),
+            ],
+            axis=-1,
+        )
+        f = _bf(fun_op)
+        y, xpos = f.min()
+        y = np.asarray(y)
+        fx = np.asarray(fun_op(xpos))[np.arange(3), np.arange(3)]
+        exact = -np.array([1.0, 0.535656656015700, 0.7 ** 3 * np.cosh(0.7)])
+        tol = 10 * f.vscale * EPS
+        assert np.max(np.abs(y - exact)) < 10 * tol
+        assert np.max(np.abs(fx - exact)) < tol
 
-    @pytest.mark.xfail(
-        reason="chebfunjax min/max on a complex Bndfun compares via "
-        "numpy.argmin on the complex values (imag part discarded)."
-    )
     def test_complex_valued(self):
+        # pass(6): min of a complex-valued Bndfun (exact 0).
+        # FIXED (Fable 5, Big-Three array-valued epic): complex extrema now work.
         _spotcheck_min(
             lambda x: (x / 2) * (jnp.exp(1j * (x / 2)) + 1j * jnp.sin(x / 2)),
             0.0,
         )
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks array-valued Bndfun (and complex extrema)."
-    )
     def test_complex_array_valued(self):
-        raise NotImplementedError("array-valued complex Bndfun min")
+        # pass(7): min of a complex array-valued Bndfun, per column.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        fun_op = lambda x: jnp.stack(
+            [
+                ((x - 2) ** 2 / 4 + 1) * jnp.exp(1j * (x / 2)),
+                -((x + 1) ** 2 / 4 + 1) * jnp.exp(1j * (x / 2)),
+            ],
+            axis=-1,
+        )
+        f = _bf(fun_op)
+        y, xpos = f.min()
+        y = np.asarray(y)
+        fx = np.asarray(fun_op(xpos))[np.arange(2), np.arange(2)]
+        exact = np.array([np.exp(1j), -np.exp(-1j / 2)])
+        tol = 10 * f.vscale * EPS
+        assert np.max(np.abs(y - exact)) < 10 * tol
+        assert np.max(np.abs(fx - exact)) < tol
 
     @pytest.mark.xfail(
         reason="chebfunjax Unbndfun has no min()/minandmax() method, and lacks "

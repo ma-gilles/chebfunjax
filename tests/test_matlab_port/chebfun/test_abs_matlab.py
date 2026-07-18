@@ -1,6 +1,8 @@
 """Port of MATLAB Chebfun tests/chebfun/test_abs.m (Fable 5).
 
-Array-valued and pointValues cases are skipped (no counterparts).
+The pointValues case has no counterpart (no pointValues field).  The
+array-valued abs case is ported (per-column ``|.|`` with union-of-columns
+breakpoints).
 
 Provenance
 ----------
@@ -42,4 +44,17 @@ class TestChebfunAbs:
         pytest.skip("chebfunjax Chebfun has no pointValues field")
 
     def test_array_valued(self):
-        pytest.skip("chebfunjax has no array-valued Chebfun")
+        # pass(5): abs of an array-valued chebfun (4 pieces on -2:2, per-column
+        # |.|, nonnegative).  FIXED (Fable 5, Big-Three array-valued epic).
+        X3 = jnp.asarray(4 * RNG.uniform(size=100) - 2)
+        g = cj.chebfun(
+            lambda x: jnp.stack(
+                [jnp.sin(jnp.pi * x), jnp.cos(jnp.pi * (x - 0.5))], axis=-1
+            ),
+            domain=(-2, -1, 0, 1, 2),
+        )
+        h = g.abs()
+        assert len(h.funs) == 4
+        # MATLAB tol 20*eps*hscale, hscale = 2 (half-width of [-2, 2]).
+        assert float(jnp.max(jnp.abs(h(X3) - jnp.abs(g(X3))))) < 20 * EPS * 2
+        assert bool(jnp.all(h(X3) >= 0))

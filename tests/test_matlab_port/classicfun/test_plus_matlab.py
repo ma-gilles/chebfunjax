@@ -17,6 +17,8 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 
+import scipy.special as sp
+
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
 from chebfunjax.fun.unbndfun import Unbndfun
@@ -113,36 +115,64 @@ class TestClassicfunPlus:
         assert _ninf(h1(X) - hexact) <= 100 * h1.vscale * EPS
 
     # --- array-valued cases (pass 12-17) ------------------------------
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued Bndfun.")
-    def test_array_zeros_isequal(self):
-        raise NotImplementedError
-
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued Bndfun.")
-    def test_array_zeros_norm(self):
-        raise NotImplementedError
-
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued Bndfun.")
-    def test_array_scalar_isequal(self):
-        raise NotImplementedError
-
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued Bndfun.")
-    def test_array_scalar_norm(self):
-        raise NotImplementedError
-
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued Bndfun.")
-    def test_array_function_isequal(self):
-        raise NotImplementedError
-
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued Bndfun.")
-    def test_array_function_norm(self):
-        raise NotImplementedError
-
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks array-valued Bndfun: adding a 3-column fun and "
-        "a scalar-valued fun should raise a dimension-mismatch error."
+    # FIXED (Fable 5, Big-Three array-valued epic): (n, m) Bndfun arithmetic.
+    _ZEROS = staticmethod(lambda x: jnp.stack([jnp.zeros_like(x)] * 3, axis=-1))
+    _SCE = staticmethod(
+        lambda x: jnp.stack([jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1)
     )
+    _CAS = staticmethod(
+        lambda x: jnp.stack(
+            [jnp.cosh(x), jnp.asarray(sp.airy(1j * np.asarray(x))[0]), jnp.sinh(x)],
+            axis=-1,
+        )
+    )
+
+    def test_array_zeros_isequal(self):
+        # pass(12): zeros(3col) + zeros(3col) commutes (coeffs equal).
+        f = _bf(self._ZEROS)
+        assert _isequal(f + f, f + f)
+
+    def test_array_zeros_norm(self):
+        # pass(13): value of zeros + zeros is ~0.
+        f = _bf(self._ZEROS)
+        h1 = f + f
+        assert _ninf(h1(X)) <= 100 * max(h1.vscale, 1.0) * EPS
+
+    def test_array_scalar_isequal(self):
+        # pass(14): [sin cos exp] + alpha == alpha + [sin cos exp].
+        f = _bf(self._SCE)
+        assert _isequal(f + ALPHA, ALPHA + f)
+
+    def test_array_scalar_norm(self):
+        # pass(15): value of [sin cos exp] + alpha, tol 10*vscale*eps.
+        f = _bf(self._SCE)
+        g1 = f + ALPHA
+        gexact = self._SCE(X) + ALPHA
+        assert _ninf(g1(X) - gexact) < 10 * g1.vscale * EPS
+
+    def test_array_function_isequal(self):
+        # pass(16): [sin cos exp] + [cosh airy(1i x) sinh] commutes.
+        f = _bf(self._SCE)
+        g = _bf(self._CAS)
+        assert _isequal(f + g, g + f)
+
+    def test_array_function_norm(self):
+        # pass(17): value of the array sum, tol 100*vscale*eps.
+        f = _bf(self._SCE)
+        g = _bf(self._CAS)
+        h1 = f + g
+        hexact = self._SCE(X) + self._CAS(X)
+        assert _ninf(h1(X) - hexact) <= 100 * h1.vscale * EPS
+
     def test_dimension_mismatch(self):
-        raise NotImplementedError
+        # pass(18): f(3-col) + g(scalar-col).  chebfunjax raises on this shape
+        # mismatch (old-MATLAB semantics); modern MATLAB (>=9.1) broadcasts
+        # column-vs-scalar instead, so chebfunjax's array-valued plus does NOT
+        # match the modern broadcast.  Kept skipped on that precise gap.
+        pytest.skip(
+            "chebfunjax raises on array + scalar-column addition (dimension "
+            "mismatch); modern MATLAB broadcasts instead"
+        )
 
     # --- direct construction vs plus ----------------------------------
     def test_direct_construction(self):

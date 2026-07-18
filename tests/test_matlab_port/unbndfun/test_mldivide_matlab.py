@@ -18,8 +18,8 @@ import pytest
 
 class TestUnbndfunMldivide:
     @pytest.mark.xfail(
-        reason="chebfunjax lacks array-valued Unbndfun and any mldivide "
-        "(A\\B least-squares solve over quasimatrix columns)."
+        reason="chebfunjax Unbndfun has no mldivide (A\\B least-squares solve "
+        "over quasimatrix columns); array-valued Unbndfun itself now works."
     )
     def test_array_valued_solve(self):
-        raise NotImplementedError("array-valued Unbndfun mldivide")
+        raise NotImplementedError("Unbndfun mldivide")

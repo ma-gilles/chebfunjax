@@ -1,7 +1,8 @@
 """Port of MATLAB Chebfun tests/chebfun/test_mean.m (Fable 5).
 
 MATLAB's two-argument mean(f, g) has no counterpart ((f+g)/2 covers
-the semantics); the scalar mean assertions are ported.
+the semantics); the scalar and array-valued single-argument mean
+assertions are ported (array-valued mean returns a per-column (m,) vector).
 
 Provenance
 ----------
@@ -13,7 +14,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 import chebfunjax as cj
 
@@ -34,4 +34,10 @@ class TestChebfunMean:
         assert abs(float(f.mean())) < EPS * 10
 
     def test_array_valued(self):
-        pytest.skip("chebfunjax has no array-valued chebfun")
+        # pass(5): mean of [sin(x), x] is ~0 per column.
+        # pass(7): mean == sum / length on the domain [0, 6].
+        # FIXED (Fable 5, Big-Three array-valued epic): array-valued mean -> (m,).
+        f = cj.chebfun(lambda x: jnp.stack([jnp.sin(x), x], axis=-1))
+        assert float(jnp.max(jnp.abs(f.mean()))) < EPS
+        f2 = cj.chebfun(lambda x: jnp.stack([jnp.sin(x), x], axis=-1), domain=(0, 6))
+        assert float(jnp.max(jnp.abs(f2.mean() - f2.sum() / 6))) < f2.vscale * EPS

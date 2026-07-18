@@ -46,8 +46,28 @@ class TestClassicfunMtimes:
         g = 0 * f
         assert bool(jnp.all(jnp.asarray(g(X)) == 0))
 
-    def test_array_valued_cases(self):
-        pytest.skip("chebfunjax has no array-valued Bndfun")
+    def test_array_valued_scalar_mult(self):
+        # pass(5,6,7): scalar mtimes of an array-valued fun -- alpha*f == f*alpha,
+        # values match, and 0*f is all-zero.
+        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) Bndfun.
+        fop = lambda x: jnp.stack([jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1)
+        f = Bndfun.from_function(fop, DOM)
+        g1 = ALPHA * f
+        g2 = f * ALPHA
+        assert bool(jnp.all(jnp.asarray(g1(X)) == jnp.asarray(g2(X))))
+        err = jnp.abs(jnp.asarray(g1(X)) - ALPHA * fop(X))
+        assert float(jnp.max(err)) < 10 * g1.vscale * EPS
+        assert bool(jnp.all(jnp.asarray((0 * f)(X)) == 0))
+
+    def test_matrix_mtimes(self):
+        # pass(8): f*A (matrix) -- MATLAB matrix mtimes.
+        pytest.skip(
+            "chebfunjax Bndfun has no matrix mtimes (f @ A); '*' is scalar/"
+            "elementwise only"
+        )
 
     def test_dimension_error(self):
-        pytest.skip("chebfunjax funs have no matrix mtimes to raise on")
+        pytest.skip(
+            "chebfunjax Bndfun has no matrix mtimes and no typed "
+            "CHEBFUN:CLASSICFUN:mtimes:size error paths"
+        )

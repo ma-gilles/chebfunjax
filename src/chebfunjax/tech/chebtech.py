@@ -479,7 +479,14 @@ def _roots_colleague(coeffs: jax.Array) -> jax.Array:
             expansion and polynomial rootfinding", SIAM J. Numer. Anal. 40, 2002.
         [3] L. N. Trefethen, ATAP, SIAM, 2013, Chapter 18.
     """
-    c = np.asarray(coeffs, dtype=np.float64)
+    # Complex coefficients stay complex: the float64 cast silently
+    # found roots of the REAL PART only (e.g. exp(2i pi x) "roots" at
+    # +-1/4, +-3/4 -- Fable 5, flip-roots audit).  The colleague
+    # matrix and imag-part filters below are complex-safe: a real root
+    # of a genuinely complex series requires both parts to vanish.
+    c = np.asarray(coeffs)
+    if not np.iscomplexobj(c):
+        c = c.astype(np.float64)
     htol = 100.0 * np.finfo(np.float64).eps
 
     # Normalize
@@ -535,6 +542,8 @@ def _roots_main(c, htol: float):
         nn = n - 1
         oh = 0.5 * np.ones(nn - 1)
         A = np.diag(oh, 1) + np.diag(oh, -1)
+        if np.iscomplexobj(c_adj):
+            A = A.astype(np.complex128)
         A[-2, -1] = 1.0
         A[:, 0] = c_adj[::-1]
 
@@ -1568,7 +1577,11 @@ class Chebtech2(eqx.Module):
         """
         if isinstance(exponent, int) and exponent >= 0:
             if exponent == 0:
-                return Chebtech2.from_coeffs(jnp.array([1.0], dtype=jnp.float64))
+                # ones with the same column count (array-valued f**0
+                # keeps m columns, MATLAB power.m)
+                return Chebtech2.from_coeffs(
+                    jnp.ones((1,) + self.coeffs.shape[1:],
+                             dtype=jnp.float64))
             result = self
             for _ in range(exponent - 1):
                 result = result * self

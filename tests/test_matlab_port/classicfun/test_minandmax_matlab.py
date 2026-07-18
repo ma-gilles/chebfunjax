@@ -61,26 +61,58 @@ class TestClassicfunMinAndMax:
             0.7 ** 3 * np.cosh(0.7),
         )
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks array-valued Bndfun: minandmax of a 3-column "
-        "fun returns a 2xN matrix of extrema."
+    _ARR = staticmethod(
+        lambda x: jnp.stack(
+            [
+                jnp.sin(10 * x),
+                jnp.asarray(np.real(sp.airy(np.asarray(x))[0])),
+                (x / 10) ** 3 * jnp.cosh(x / 10),
+            ],
+            axis=-1,
+        )
     )
+    _YEX = np.array(
+        [[-1.0, 7.492128863997157e-07, (-0.2) ** 3 * np.cosh(-0.2)],
+         [1.0, 0.535656656015700, 0.7 ** 3 * np.cosh(0.7)]]
+    )
+
     def test_array_valued_values(self):
-        raise NotImplementedError("array-valued Bndfun minandmax")
+        # pass(5): minandmax of [sin(10x) real(airy(x)) (x/10)^3 cosh(x/10)]
+        # gives the 2x3 matrix of per-column extrema, tol 100*eps.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = _bf(self._ARR)
+        (mn, _), (mx, _) = f.minandmax()
+        y = np.vstack([np.asarray(mn), np.asarray(mx)])
+        assert np.max(np.abs(y - self._YEX)) < 100 * EPS
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks array-valued Bndfun: cannot check per-column "
-        "extreme positions."
-    )
     def test_array_valued_positions(self):
-        raise NotImplementedError("array-valued Bndfun minandmax positions")
+        # pass(6): op evaluated at the per-column extreme positions matches the
+        # extrema, tol 10*eps.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        f = _bf(self._ARR)
+        (mn, mnp), (mx, mxp) = f.minandmax()
+        m = 3
+        fx_min = np.asarray(self._ARR(mnp))[np.arange(m), np.arange(m)]
+        fx_max = np.asarray(self._ARR(mxp))[np.arange(m), np.arange(m)]
+        assert np.max(np.abs(fx_min - self._YEX[0])) < 10 * EPS
+        assert np.max(np.abs(fx_max - self._YEX[1])) < 10 * EPS
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks array-valued Bndfun and complex extrema "
-        "(minandmax compares by numpy argmin/argmax, not abs)."
-    )
     def test_complex_array_valued(self):
-        raise NotImplementedError("array-valued complex Bndfun minandmax")
+        # pass(7): abs(minandmax([exp(sin 2x), 1i cos 20x])) equals the abs of
+        # the per-column scalar minandmax, tol 100*vscale*eps.
+        # FIXED (Fable 5, Big-Three array-valued epic): complex extrema work.
+        fop = lambda x: jnp.stack([jnp.exp(jnp.sin(2 * x)), 1j * jnp.cos(20 * x)], axis=-1)
+        f = _bf(fop)
+        (cmn, _), (cmx, _) = f.minandmax()
+        vals_abs = np.abs(np.vstack([np.asarray(cmn), np.asarray(cmx)]))
+        f1 = _bf(lambda x: jnp.exp(jnp.sin(2 * x)))
+        f2 = _bf(lambda x: 1j * jnp.cos(20 * x))
+        (a1, _), (a2, _) = f1.minandmax()
+        (b1, _), (b2, _) = f2.minandmax()
+        ref_abs = np.abs(
+            np.array([[complex(a1), complex(b1)], [complex(a2), complex(b2)]])
+        )
+        assert np.max(np.abs(vals_abs - ref_abs)) < 100 * f.vscale * EPS
 
     @pytest.mark.xfail(
         reason="chebfunjax lacks singular (exponents [-0.5 0]) Bndfun."
@@ -88,11 +120,13 @@ class TestClassicfunMinAndMax:
     def test_singular(self):
         raise NotImplementedError("singular Bndfun minandmax")
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks array-valued Bndfun and complex extrema."
-    )
     def test_complex_array_valued_2(self):
-        raise NotImplementedError("array-valued complex Bndfun minandmax (2)")
+        # MATLAB records the complex-array-valued minandmax assertion twice
+        # (identical); covered by test_complex_array_valued.
+        pytest.skip(
+            "duplicate of test_complex_array_valued (MATLAB records the same "
+            "assertion twice)"
+        )
 
     @pytest.mark.xfail(
         reason="chebfunjax Unbndfun has no minandmax() method."

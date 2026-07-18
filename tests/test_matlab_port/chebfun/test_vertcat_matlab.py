@@ -10,7 +10,13 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="chebfunjax has no array-valued (multi-column) chebfun")
+# Array-valued chebfun now works, but vertcat is unrelated: MATLAB [f; g] builds
+# a chebmatrix (a 2-D block matrix with a `.blocks` cell array).  chebfunjax has
+# no chebmatrix type, so this stays skipped on that precise gap.
+pytestmark = pytest.mark.skip(
+    reason="chebfunjax has no chebmatrix type ([f; g] vertical concatenation of "
+    "chebfuns into a 2-D block matrix)"
+)
 
 
 class TestChebfunVertcat:

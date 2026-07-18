@@ -25,6 +25,10 @@ X = jnp.asarray(np.linspace(-2.0, 7.0, 1000))
 ALPHA = -0.194758928283640 + 0.075474485412665j  # exact MATLAB constant
 
 
+def _ninf(a):
+    return float(jnp.max(jnp.abs(jnp.asarray(a))))
+
+
 class TestClassicfunRdivide:
     def test_divide_function_by_scalar(self):
         f = Bndfun.from_function(jnp.sin, DOM)
@@ -39,8 +43,25 @@ class TestClassicfunRdivide:
         vals = np.asarray(g(jnp.asarray(np.array([0.5]))))
         assert np.all(np.isnan(vals) | np.isinf(vals))
 
-    def test_array_valued_cases(self):
-        pytest.skip("chebfunjax has no array-valued Bndfun")
+    def test_array_valued_by_row(self):
+        # pass(5): [sin cos] ./ [alpha beta] == [sin/alpha cos/beta].
+        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) Bndfun.
+        beta = -0.526634844879922 - 0.685484380523668j
+        fop = lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1)
+        f = Bndfun.from_function(fop, DOM)
+        g = f / jnp.asarray([ALPHA, beta])
+        gexact = jnp.stack([jnp.sin(X) / ALPHA, jnp.cos(X) / beta], axis=-1)
+        assert _ninf(g(X) - gexact) < 10 * g.vscale * EPS
+
+    def test_array_valued_by_row_with_zero(self):
+        # pass(6): [sin cos] ./ [alpha 0] -> column 0 finite, column 1 all NaN.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        fop = lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1)
+        f = Bndfun.from_function(fop, DOM)
+        g = f / jnp.asarray([ALPHA, 0.0])
+        vals = np.asarray(g(X))
+        assert not np.any(np.isnan(vals[:, 0]))
+        assert np.all(np.isnan(vals[:, 1]))
 
     def test_scalar_divided_by_function(self):
         # MATLAB: g = alpha ./ f with f = @(x) 1 + x.^2 (no roots)
