@@ -789,12 +789,21 @@ class Chebop:
         ])
 
     def eigs_generalized(self, B: "Chebop", k: int = 6,
-                         n: int = 96):
+                         n: int = 96, sort: str = "SM"):
         """Generalized eigenvalue problem A u = lambda B u for two
         linear chebops (MATLAB eigs(A, B, k)).  Both operators are
-        assembled by basis probing on the collocation grid; A carries
-        the boundary rows, B is zeroed there; spurious modes are
-        removed with a two-resolution agreement filter.
+        assembled by basis probing on the collocation grid (complex
+        operators keep complex matrices); A carries the boundary rows,
+        B is zeroed there; spurious modes are removed with a
+        two-resolution agreement filter.
+
+        Boundary conditions may be 'dirichlet'/'neumann' keywords,
+        scalars, or callables returning one or MORE conditions (e.g.
+        MATLAB's clamped ``@(u) [u; diff(u)]``); each condition
+        replaces one collocation row from the corresponding end.
+
+        ``sort='SM'`` keeps the smallest-magnitude modes (default);
+        ``'LR'`` the largest real part (MATLAB eigs(..., 'LR')).
 
         Provenance
         ----------
@@ -812,78 +821,128 @@ class Chebop:
             xp = a + (b - a) * (xg + 1.0) / 2.0
             x_fun = Chebfun.identity(Domain(self.domain))
 
+            def basis(j):
+                vals = _np.zeros(nn)
+                vals[j] = 1.0
+                return _chebfun_from_values(
+                    jnp.asarray(vals), self.domain)
+
             def probe_matrix(op):
-                M = _np.zeros((nn, nn))
+                M = _np.zeros((nn, nn), dtype=complex)
                 for j in range(nn):
-                    vals = _np.zeros(nn)
-                    vals[j] = 1.0
-                    u = _chebfun_from_values(
-                        jnp.asarray(vals), self.domain)
-                    out = op(x_fun, u)
+                    out = op(x_fun, basis(j))
                     M[:, j] = _np.asarray(out(jnp.asarray(xp)))
+                if _np.max(_np.abs(M.imag)) == 0.0:
+                    return M.real
                 return M
 
             Am = probe_matrix(self.op)
             Bm = probe_matrix(B.op)
-            # boundary rows: neumann/dirichlet keywords or callables
+            dt = _np.result_type(Am.dtype, Bm.dtype)
+            Am = Am.astype(dt)
+            Bm = Bm.astype(dt)
+            # boundary rows: keywords, scalars, or callables that may
+            # return several conditions (clamped etc.)
             Du = None
 
-            def bc_row(kind, idx):
+            def bc_rows(kind, endpoint_x, idx):
                 nonlocal Du
+                if callable(kind):
+                    # Probe each condition: rows[i, j] = c_i(e_j) at
+                    # the endpoint (MATLAB bc functional evaluation).
+                    rows = None
+                    xe = jnp.asarray(float(endpoint_x))
+                    for j in range(nn):
+                        out = kind(basis(j))
+                        if not isinstance(out, (list, tuple)):
+                            out = [out]
+                        if rows is None:
+                            rows = _np.zeros((len(out), nn),
+                                             dtype=complex)
+                        for i, o in enumerate(out):
+                            rows[i, j] = complex(
+                                _np.asarray(o(xe), dtype=complex))
+                    if _np.max(_np.abs(rows.imag)) == 0.0:
+                        rows = rows.real
+                    return rows
                 row = _np.zeros(nn)
                 if kind in ("dirichlet", 0.0, None):
                     row[idx] = 1.0
-                    return row
+                    return row[None, :]
                 if kind == "neumann":
                     if Du is None:
                         Duloc = _np.zeros((nn, nn))
                         for j in range(nn):
-                            vals = _np.zeros(nn)
-                            vals[j] = 1.0
-                            u = _chebfun_from_values(
-                                jnp.asarray(vals), self.domain)
                             Duloc[:, j] = _np.asarray(
-                                u.diff()(jnp.asarray(xp)))
+                                basis(j).diff()(jnp.asarray(xp)))
                         Du = Duloc
-                    return Du[idx]
+                    return Du[idx][None, :]
                 raise ValueError(f"unsupported bc {kind!r}")
 
             lb = self._lbc_raw
             rb = self._rbc_raw
-            lb_kind = lb if isinstance(lb, str) else (
+            lb_kind = lb if isinstance(lb, str) or callable(lb) else (
                 "dirichlet" if isinstance(lb, (int, float))
                 or lb is None else lb)
-            rb_kind = rb if isinstance(rb, str) else (
+            rb_kind = rb if isinstance(rb, str) or callable(rb) else (
                 "dirichlet" if isinstance(rb, (int, float))
                 or rb is None else rb)
             if lb is not None:
-                Am[0, :] = bc_row(lb_kind, 0)
-                Bm[0, :] = 0.0
+                rows = bc_rows(lb_kind, a, 0)
+                if _np.iscomplexobj(rows) and not _np.iscomplexobj(Am):
+                    Am = Am.astype(complex)
+                for i in range(rows.shape[0]):
+                    Am[i, :] = rows[i]
+                    Bm[i, :] = 0.0
             if rb is not None:
-                Am[nn - 1, :] = bc_row(rb_kind, nn - 1)
-                Bm[nn - 1, :] = 0.0
+                rows = bc_rows(rb_kind, b, nn - 1)
+                if _np.iscomplexobj(rows) and not _np.iscomplexobj(Am):
+                    Am = Am.astype(complex)
+                for i in range(rows.shape[0]):
+                    Am[nn - 1 - i, :] = rows[i]
+                    Bm[nn - 1 - i, :] = 0.0
             lam, W = _sla.eig(Am, Bm)
             fin = _np.isfinite(lam) & (_np.abs(lam) < 1e10)
             return lam[fin], W[:, fin], xp
 
+        if sort == "LR":
+            def rank_order(lams):
+                return _np.argsort(-_np.real(lams))
+        else:
+            def rank_order(lams):
+                return _np.argsort(_np.abs(lams))
+
         lam, W, xp = assemble(n)
         lam2, _, _ = assemble(n + 17)
-        keep, used = [], set()
-        for i in _np.argsort(_np.abs(lam)):
+        # Agreement filter: 1e-4 relative (higher-order operators
+        # converge slowly enough that 1e-6 rejected GENUINE modes --
+        # e.g. the clamped beam's beta_1^4 moves by ~1e-6 relative
+        # between n and n+17); spurious modes disagree by orders of
+        # magnitude.  The FINER resolution's eigenvalue is returned.
+        keep, used, fine = [], set(), []
+        for i in rank_order(lam):
             d = _np.abs(lam2 - lam[i])
             j = int(_np.argmin(d))
-            if d[j] < 1e-6 * max(1.0, abs(lam[i])) and j not in used:
+            if d[j] < 1e-4 * max(1.0, abs(lam[i])) and j not in used:
                 keep.append(i)
                 used.add(j)
+                fine.append(lam2[j])
             if len(keep) >= k:
                 break
         order = _np.asarray(keep, dtype=int)
-        lam = lam[order]
-        V = [
-            _chebfun_from_values(
-                jnp.asarray(_np.real(W[:, i])), self.domain)
-            for i in order
-        ]
+        lam = _np.asarray(fine)
+        V = []
+        for i in order:
+            w = W[:, i]
+            if _np.max(_np.abs(w.imag)) > 1e-13 * _np.max(_np.abs(w)):
+                V.append(
+                    _chebfun_from_values(
+                        jnp.asarray(w.real), self.domain)
+                    + 1j * _chebfun_from_values(
+                        jnp.asarray(w.imag), self.domain))
+            else:
+                V.append(_chebfun_from_values(
+                    jnp.asarray(w.real), self.domain))
         return V, jnp.asarray(lam)
 
     def _system_is_linear(self) -> bool:

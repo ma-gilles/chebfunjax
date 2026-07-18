@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="chebfunjax has no kron operator")
+pytestmark = pytest.mark.skip(reason="kron(f, g', 'op') builds an OPERATOR (rank-1 operatorBlock f*(g'*.)) that is applied to and matrix-realized against a grid; cj.kron produces a Chebfun2 (tested in test_kron_matlab.py), and chebfunjax has no chebmatrix / operatorBlock matrix-realization (matrix(AC, n)) needed for the discrete-form assertions -- src gap")
 
 
 class TestChebfunKronop:
