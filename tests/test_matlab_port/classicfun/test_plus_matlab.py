@@ -16,7 +16,6 @@ from __future__ import annotations
 import jax.numpy as jnp
 import numpy as np
 import pytest
-
 import scipy.special as sp
 
 from chebfunjax.domain import Domain
