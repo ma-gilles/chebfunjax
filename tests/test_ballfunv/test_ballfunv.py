@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.ballfun.ballfun import Ballfun
 from chebfunjax.ballfun.ballfunv import Ballfunv
@@ -105,9 +104,6 @@ class TestBallfunvPoloidalToroidal:
             assert (T.diff(dim, 1, "spherical")
                     - T2.diff(dim, 1, "spherical")).norm() < tol
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="needs the spectral ball Poisson-Neumann solver (see the port file's xfail note): collocation helmholtz caps accuracy at ~5e-10 / 4.6e-8 vs 2.22e-10")
     def test_helmholtz_decomposition_two_component(self):
         tol = 1e6 * float(np.finfo(np.float64).eps)
         vx = _B(lambda x, y, z: jnp.cos(x * y))
@@ -119,9 +115,6 @@ class TestBallfunvPoloidalToroidal:
         w = Ballfunv(gf[0], gf[1], gf[2]) + Ballfunv.PT2ballfunv(P, T)
         assert (v - w).norm() < tol
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="needs the spectral ball Poisson-Neumann solver (see the port file's xfail note): collocation helmholtz caps accuracy at ~5e-10 / 4.6e-8 vs 2.22e-10")
     def test_helmholtz_decomposition_three_component(self):
         tol = 1e6 * float(np.finfo(np.float64).eps)
         vx = _B(lambda x, y, z: jnp.cos(x * y))

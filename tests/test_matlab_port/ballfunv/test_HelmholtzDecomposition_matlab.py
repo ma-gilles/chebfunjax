@@ -10,27 +10,16 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.ballfun.ballfun import Ballfun
 from chebfunjax.ballfun.ballfunv import Ballfunv
 
-# The assertions below are fully ported and the PT machinery they use
-# is exact (see test_PTdecomposition), but the identity
-# v == grad(f) + PT2ballfunv(Ppsi, Tpsi) requires v - grad(f) to be
-# divergence-free to ~1e-12, i.e. an accurate ball Poisson-NEUMANN
-# solve.  chebfunjax's Ballfun.helmholtz is a lossy spherical-harmonic
-# COLLOCATION approximation (div residual ~6.6e-9 -> final error
-# 5.06e-10 vs the 2.22e-10 tolerance).  MATLAB @ballfun/helmholtz.m is
-# a coeff-space Fourier x Fourier x ultraspherical solver with
-# per-mode Bartels-Stewart Sylvester solves and a Legendre DC-mode
-# Neumann branch -- porting that solver is the remaining work
-# (bounded, ~300-400 lines; measured, not estimated).
-pytestmark = pytest.mark.xfail(
-    strict=True,
-    reason="needs the spectral (Bartels-Stewart) ball Poisson-Neumann "
-    "solver: the collocation helmholtz leaves div(v - grad f) ~6.6e-9, "
-    "giving 5.06e-10 vs the 2.22e-10 MATLAB tolerance")
+# The identity v == grad(f) + PT2ballfunv(Ppsi, Tpsi) requires v - grad(f)
+# to be divergence-free to ~1e-12, i.e. an accurate ball Poisson-Neumann
+# solve.  This is provided by the coeff-space spectral Ballfun.helmholtz
+# (Fourier x Fourier x ultraspherical with per-mode QZ Sylvester solves and
+# the Legendre DC-mode Neumann branch), a faithful port of
+# @ballfun/helmholtz.m; the decomposition now closes to ~1e-13.
 
 # tol = 1e6 * pref.techPrefs.chebfuneps  (chebfuneps = machine eps)
 TOL = 1e6 * float(np.finfo(np.float64).eps)

@@ -344,25 +344,6 @@ def _compute_normal_boundary(v, n: int, p: int) -> np.ndarray:
     return McosL @ Vx @ MsinT.T + MsinL @ Vy @ MsinT.T + Vz @ McosT.T
 
 
-def _fourier_matrix_to_callable(mat: np.ndarray):
-    """Turn an ``n x p`` Fourier(lambda)-Fourier(theta) coeff matrix into a
-    callable ``g(lam, th)`` (double trigonometric series)."""
-    mat = np.asarray(mat, dtype=np.complex128)
-    n, p = mat.shape
-    k_lam = _fourier_wavenumbers_1d(n)
-    k_th = _fourier_wavenumbers_1d(p)
-
-    def g(lam, th):
-        lam = np.atleast_1d(np.asarray(lam, dtype=float))
-        th = np.atleast_1d(np.asarray(th, dtype=float))
-        El = np.exp(1j * np.multiply.outer(lam, k_lam))     # (..., n)
-        Et = np.exp(1j * np.multiply.outer(th, k_th))       # (..., p)
-        out = np.einsum("in,np,ip->i", El, mat, Et)
-        return np.real(out)
-
-    return g
-
-
 def helmholtz_decomposition(v, nargout: int = 3):
     """Helmholtz decomposition of a ``Ballfunv`` in poloidal-toroidal form.
 
@@ -388,9 +369,8 @@ def _helmholtz_2(v):
     m, n, p = max(m, 5), max(n, 5), max(p, 5)
 
     v_bdy = _compute_normal_boundary(v, n, p)
-    bc = _fourier_matrix_to_callable(v_bdy)
 
-    f = Ballfun.helmholtz(div_v, 0.0, bc, m, n, p, bc_type="neumann")
+    f = Ballfun.helmholtz(div_v, 0.0, v_bdy, m, n, p, bc_type="neumann")
 
     v1 = v - _grad_ballfunv(f)
     Pv1, Tv1 = ptdecomposition(v1)
@@ -411,11 +391,10 @@ def _helmholtz_3(v):
     m, n, p = max(int(S[0]), 5), max(int(S[1]), 5), max(int(S[2]), 5)
 
     v_bdy = _compute_normal_boundary(v1, n, p)
-    bc = _fourier_matrix_to_callable(v_bdy)
 
     # Delta phi = 0 with Neumann boundary r.grad(phi) = r.v1
     zero = Ballfun.from_function(lambda x, y, z: 0.0 * x)
-    phi = Ballfun.helmholtz(zero, 0.0, bc, m, n, p, bc_type="neumann")
+    phi = Ballfun.helmholtz(zero, 0.0, v_bdy, m, n, p, bc_type="neumann")
 
     v2 = v1 - _grad_ballfunv(phi)
 

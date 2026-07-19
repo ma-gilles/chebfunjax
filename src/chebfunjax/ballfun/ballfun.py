@@ -1954,38 +1954,74 @@ class Ballfun(eqx.Module):
                   n: int = 40, p: int = 41,
                   bc_type: str = "dirichlet") -> "Ballfun":
         r"""Solve the Helmholtz equation
-        :math:`\nabla^2 u + K^2 u = f` on the ball with Dirichlet
-        boundary data ``u(1, lam, th) = bc(lam, th)`` (MATLAB
-        ballfun helmholtz).
+        :math:`\nabla^2 u + K^2 u = f` on the ball with Dirichlet or
+        Neumann boundary data at ``r = 1`` (MATLAB ballfun helmholtz).
+
+        Spectral solve in coefficient space: the PDE decouples in the
+        lambda-Fourier direction, and each mode is a 2D (r, theta)
+        generalized Sylvester equation solved by Bartels-Stewart, with a
+        special Legendre-basis branch for the DC mode of the
+        Poisson-Neumann (``K = 0``) problem.
 
         Parameters
         ----------
         f : Ballfun or callable
-            Right-hand side ``f(r, lam, theta)``.
+            Right-hand side ``f(r, lam, theta)`` (spherical coordinates).
         K : float
             Wavenumber (K = 0 reduces to Poisson).
-        bc : callable, float, or None
-            Boundary data as a function of (lam, theta); None means
-            homogeneous.  For ``bc_type='dirichlet'`` this is ``u(1,.,.)``;
-            for ``bc_type='neumann'`` it is the radial derivative
-            ``du/dr(1,.,.)``.
+        bc : callable, float, ndarray, or None
+            Boundary data.  ``None`` (or the zero array) is homogeneous; a
+            callable ``bc(lam, th)`` or scalar is sampled onto the trig
+            grid; a 2D array is taken as an ``n x p`` Fourier(lambda) x
+            Fourier(theta) coefficient matrix.  For ``bc_type='dirichlet'``
+            this is ``u(1,.,.)``; for ``bc_type='neumann'`` it is the radial
+            derivative ``du/dr(1,.,.)``.
         m, n, p : int
-            Resolution parameters (MATLAB signature; the radial and
-            harmonic bandwidths are derived from them).
+            Discretization sizes (Chebyshev in r, Fourier in lambda and
+            theta).  ``m`` is made odd; ``n`` and ``p`` even.
         bc_type : {'dirichlet', 'neumann'}, default 'dirichlet'
             Boundary condition type imposed at ``r = 1``.
 
         Provenance
         ----------
-        MATLAB source : @ballfun/helmholtz.m (result-equivalent).
+        MATLAB source : @ballfun/helmholtz.m
         Chebfun commit: 7574c77
+        Original authors: Copyright 2019 by The University of Oxford
+            and The Chebfun Developers.
         """
-        lmax = max(8, min(n, p) // 4)
-        nr = max(24, m // 2 + 8)
-        ev = _ballfun_poisson_evaluator(f, lmax, nr, K=float(K), bc=bc,
-                                        bc_type=bc_type)
-        return Ballfun.from_function(
-            lambda x, y, z: jnp.asarray(ev(x, y, z)), spherical=True)
+        isNeumann = str(bc_type).lower().startswith("neu")
+        m, n, p = int(m), int(n), int(p)
+        # Parity: m odd (radial), n and p even (doubled Fourier structure).
+        m = m + 1 - m % 2
+        n = n + n % 2
+        p = p + p % 2
+
+        # Right-hand side coefficients on the solve grid.
+        if isinstance(f, Ballfun):
+            f_is_real = f.is_real
+            Fc = _resize_coeffs3_ball(
+                np.asarray(f.coeffs, dtype=np.complex128), m, n, p)
+        else:
+            fb = Ballfun.from_function(f, spherical=True)
+            f_is_real = fb.is_real
+            Fc = _resize_coeffs3_ball(
+                np.asarray(fb.coeffs, dtype=np.complex128), m, n, p)
+
+        # Boundary coefficients (n x p Fourier-Fourier matrix or None).
+        if bc is None:
+            BC1 = None
+        elif callable(bc):
+            BC1 = _sample_boundary_coeffs(bc, n, p)
+        elif np.ndim(bc) >= 2:
+            BC1 = _resize_fourier2(np.asarray(bc, dtype=np.complex128), n, p)
+        else:
+            cval = complex(bc)
+            BC1 = _sample_boundary_coeffs(
+                lambda ll, tt: cval + 0.0 * ll, n, p)
+
+        CFS = _ballfun_helmholtz_spectral(Fc, float(K), BC1, isNeumann)
+        return Ballfun.from_coeffs(
+            jnp.asarray(CFS, dtype=jnp.complex128), is_real=bool(f_is_real))
 
     def __repr__(self) -> str:
         """Compact display like MATLAB Chebfun.
@@ -2103,6 +2139,359 @@ def _ballfun_onediff_cart(F: np.ndarray, dim: int) -> np.ndarray:
         dTh = solve_r(dTh)
         out = mul_th(dR, McosT) - mul_th(dTh, MsinT)
     return out
+
+
+# ============================================================================
+# Spectral ball Helmholtz / Poisson solver (translated from
+# @ballfun/helmholtz.m).  Coefficient space Chebyshev(r) x Fourier(lambda)
+# x Fourier(theta); the PDE decouples in lambda so each Fourier mode gives a
+# 2D (r, theta) generalized Sylvester problem solved by Bartels-Stewart.
+# Supports Dirichlet and Neumann boundary data at r = 1, with a special
+# Legendre-basis branch for the DC lambda mode of the Neumann-Poisson (K=0)
+# problem.
+# ============================================================================
+
+
+def _trigspec_multmat(n: int, vec) -> np.ndarray:
+    """Fourier (trigspec) multiplication matrix (MATLAB trigspec.multmat).
+
+    ``vec`` is the centred trigonometric coefficient list
+    ``[c_{-K}, ..., c_0, ..., c_K]``; the returned ``n x n`` Toeplitz matrix
+    satisfies ``M[out, in] = c_{out-in}`` in fftshift ordering.
+    """
+    vec = np.asarray(vec, dtype=np.complex128)
+    L = len(vec)
+    K = L // 2
+    M = np.zeros((n, n), dtype=np.complex128)
+    for dk in range(-K, K + 1):
+        c = vec[K + dk]
+        if c == 0:
+            continue
+        if dk >= 0:
+            rows = np.arange(dk, n)
+            cols = np.arange(0, n - dk)
+        else:
+            rows = np.arange(0, n + dk)
+            cols = np.arange(-dk, n)
+        M[rows, cols] = c
+    return M
+
+
+def _trigspec_diffmat(n: int, k: int) -> np.ndarray:
+    """Fourier (trigspec) k-th derivative matrix ``diag((1i*wavenumber)^k)``."""
+    w = _fourier_wavenumbers_1d(n)
+    return np.diag((1j * w) ** k)
+
+
+def _resize_coeffs3_ball(F: np.ndarray, m: int, n: int, p: int) -> np.ndarray:
+    """Resize a CFF coefficient tensor to ``(m, n, p)`` (MATLAB coeffs3).
+
+    Chebyshev (axis 0) is truncated/zero-padded at the tail; the two Fourier
+    axes are truncated/zero-padded symmetrically about the DC mode.
+    """
+    F = np.asarray(F, dtype=np.complex128)
+    mf, nf, pf = F.shape
+    out = np.zeros((m, n, p), dtype=np.complex128)
+    mc = min(m, mf)
+
+    def _fourier_slices(dst, src):
+        lo = min(src // 2, dst // 2)
+        hi = min(src - src // 2, dst - dst // 2)
+        d0 = dst // 2 - lo
+        s0 = src // 2 - lo
+        length = lo + hi
+        return slice(d0, d0 + length), slice(s0, s0 + length)
+
+    dn, sn = _fourier_slices(n, nf)
+    dp, sp = _fourier_slices(p, pf)
+    out[:mc, dn, dp] = F[:mc, sn, sp]
+    return out
+
+
+def _resize_fourier2(mat: np.ndarray, n: int, p: int) -> np.ndarray:
+    """Centred zero-pad / truncate an ``(nf, pf)`` Fourier-Fourier matrix to
+    ``(n, p)`` (both axes about their DC mode)."""
+    mat = np.asarray(mat, dtype=np.complex128)
+    nf, pf = mat.shape
+    out = np.zeros((n, p), dtype=np.complex128)
+
+    def _slices(dst, src):
+        lo = min(src // 2, dst // 2)
+        hi = min(src - src // 2, dst - dst // 2)
+        d0 = dst // 2 - lo
+        s0 = src // 2 - lo
+        length = lo + hi
+        return slice(d0, d0 + length), slice(s0, s0 + length)
+
+    dn, sn = _slices(n, nf)
+    dp, sp = _slices(p, pf)
+    out[dn, dp] = mat[sn, sp]
+    return out
+
+
+def _sample_boundary_coeffs(g, n: int, p: int) -> np.ndarray:
+    """Sample boundary data ``g(lambda, theta)`` on the ``n x p`` trig grid
+    and return its Fourier(lambda) x Fourier(theta) coefficients in the
+    ballfun (fftshift + even/odd fix) convention."""
+    lam = np.linspace(-np.pi, np.pi, n, endpoint=False)
+    th = np.linspace(-np.pi, np.pi, p, endpoint=False)
+    ll, tt = np.meshgrid(lam, th, indexing="ij")  # (n, p)
+    vals = np.asarray(g(jnp.asarray(ll), jnp.asarray(tt)), dtype=np.complex128)
+    if vals.shape != (n, p):
+        vals = np.broadcast_to(vals, (n, p)).astype(np.complex128).copy()
+    # Angular transform only (m = 1 skips the radial Chebyshev step).
+    return np.asarray(_vals2coeffs_3d(vals[None, :, :])[0])
+
+
+def _compute_boundary_rows(BC1, m: int, n: int, p: int, isNeumann: bool):
+    """Build the boundary coefficient matrices ``BC1, BC2`` and the two
+    boundary-condition rows ``bc`` (MATLAB ComputeBoundary).
+
+    ``BC1`` is the ``n x p`` Fourier(lambda) x Fourier(theta) coefficient
+    matrix of the boundary data (``None`` means homogeneous).  ``BC2`` is the
+    symmetry-implied companion; ``bc`` is the ``2 x m`` matrix of radial
+    boundary functionals (values for Dirichlet, derivatives for Neumann).
+    """
+    if BC1 is None:
+        BC1 = np.zeros((n, p), dtype=np.complex128)
+    BC1 = np.asarray(BC1, dtype=np.complex128)
+
+    th_idx = np.arange(p)
+    if not isNeumann:
+        scale = (-1.0) ** (th_idx - p // 2)
+        BC2 = scale[None, :] * BC1
+        bc1 = np.ones(m, dtype=np.complex128)
+        bc2 = (-1.0) ** np.arange(m)
+    else:
+        scale = (-1.0) ** (th_idx - p // 2 + 1)
+        BC2 = scale[None, :] * BC1
+        j = np.arange(m, dtype=np.float64)
+        bc1 = j ** 2
+        bc2 = ((-1.0) ** np.arange(1, m + 1)) * bc1
+    bc = np.vstack([bc1, bc2]).astype(np.complex128)
+    return BC1, BC2, bc
+
+
+def _bs_solve(A, B, C, D, E) -> np.ndarray:
+    """Solve the generalized Sylvester equation ``A X B^T + C X D^T = E``.
+
+    Solved directly through the Kronecker system
+    ``(B (x) A + D (x) C) vec(X) = vec(E)`` using column-major vectorization
+    (``vec(A X B^T) = (B (x) A) vec(X)``).  Correct but O((mp)^3); used only
+    as a reference — the ball Helmholtz solve uses :func:`_gen_sylv_reduced`,
+    which amortizes a single QZ of the (fixed) left pencil across all Fourier
+    modes.
+    """
+    A = np.asarray(A, dtype=np.complex128)
+    B = np.asarray(B, dtype=np.complex128)
+    C = np.asarray(C, dtype=np.complex128)
+    D = np.asarray(D, dtype=np.complex128)
+    E = np.asarray(E, dtype=np.complex128)
+    if np.linalg.norm(E) == 0.0:
+        return np.zeros_like(E)
+    my, nx = E.shape
+    M = np.kron(B, A) + np.kron(D, C)
+    x = np.linalg.solve(M, E.flatten(order="F"))
+    return x.reshape((my, nx), order="F")
+
+
+def _gen_sylv_reduced(AA, CC, Q, Z, B, D, E) -> np.ndarray:
+    """Solve ``A X B^T + C X D^T = E`` given the complex QZ of ``(A, C)``.
+
+    ``AA, CC, Q, Z`` come from ``scipy.linalg.qz(A, C, output='complex')``
+    (``A = Q AA Z^H``, ``C = Q CC Z^H``, with ``AA, CC`` upper triangular).
+    With ``Y = Z^H X`` and ``F = Q^H E`` the system reduces to
+    ``AA Y B^T + CC Y D^T = F``; since ``AA, CC`` are triangular the rows of
+    ``Y`` are recovered bottom-up, each from a single ``p x p`` solve.  This
+    is the Bartels-Stewart reduction, exploiting that the radial (left) pencil
+    is identical for every lambda mode.
+    """
+    E = np.asarray(E, dtype=np.complex128)
+    if np.linalg.norm(E) == 0.0:
+        return np.zeros_like(E)
+    m2, p = E.shape
+    F = Q.conj().T @ E
+    Y = np.zeros((m2, p), dtype=np.complex128)
+    YBt = np.zeros((m2, p), dtype=np.complex128)
+    YDt = np.zeros((m2, p), dtype=np.complex128)
+    for i in range(m2 - 1, -1, -1):
+        rhs = F[i, :].copy()
+        for j in range(i + 1, m2):
+            rhs -= AA[i, j] * YBt[j, :] + CC[i, j] * YDt[j, :]
+        Mi = AA[i, i] * B + CC[i, i] * D
+        yi = np.linalg.solve(Mi, rhs)
+        Y[i, :] = yi
+        YBt[i, :] = yi @ B.T
+        YDt[i, :] = yi @ D.T
+    return Z @ Y
+
+
+def _apply_cols(fn, mat: np.ndarray) -> np.ndarray:
+    """Apply a 1D transform ``fn`` (real-input) column-wise to a complex
+    matrix, splitting the real and imaginary parts."""
+    mat = np.asarray(mat, dtype=np.complex128)
+    out = []
+    for jj in range(mat.shape[1]):
+        col = mat[:, jj]
+        cr = np.asarray(fn(jnp.asarray(np.real(col), dtype=jnp.float64)))
+        ci = np.asarray(fn(jnp.asarray(np.imag(col), dtype=jnp.float64)))
+        out.append(cr + 1j * ci)
+    return np.stack(out, axis=1)
+
+
+def _ballfun_helmholtz_spectral(Fc: np.ndarray, K: float, BC1,
+                                isNeumann: bool) -> np.ndarray:
+    r"""Solve :math:`\nabla^2 u + K^2 u = f` on the unit ball in coefficient
+    space and return the CFF coefficient tensor of ``u``.
+
+    Parameters
+    ----------
+    Fc : np.ndarray, shape (m, n, p)
+        Chebyshev(r) x Fourier(lambda) x Fourier(theta) coefficients of the
+        right-hand side, already resized to the solve grid.
+    K : float
+        Helmholtz frequency (``K = 0`` is the Poisson problem).
+    BC1 : np.ndarray or None
+        ``n x p`` Fourier-Fourier coefficient matrix of the boundary data at
+        ``r = 1`` (``None`` is homogeneous).  Dirichlet: ``u(1, .)``;
+        Neumann: ``du/dr(1, .)``.
+    isNeumann : bool
+        Whether the boundary condition is Neumann.
+
+    Returns
+    -------
+    np.ndarray, shape (m, n, p)
+        CFF coefficients of the solution.
+
+    Provenance
+    ----------
+    MATLAB source : @ballfun/helmholtz.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2019 by The University of Oxford
+        and The Chebfun Developers.
+    Algorithm: N. Boulle and A. Townsend, "Computing with Functions on
+        the Ball", SIAM J. Sci. Comput., 2019.  Per-mode Sylvester solves via
+        Gardiner et al. (Bartels-Stewart), ACM TOMS 18(2), 1992.
+    """
+    from chebfunjax.discretization.ultras import convertmat, diffmat, multmat
+    from chebfunjax.tech.trigtech import trig_coeffs2vals, trig_vals2coeffs
+    from chebfunjax.utils.transforms import (
+        chebvals2legcoeffs,
+        legcoeffs2chebvals,
+    )
+
+    m, n, p = Fc.shape
+    K = float(K)
+
+    # The code is written with variables in order (r, theta, lambda).
+    F = np.transpose(Fc, (0, 2, 1))  # permute [1 3 2] -> (m, p, n)
+
+    # Useful spectral matrices in r (ultraspherical) and theta (trigspec).
+    DC2 = np.asarray(diffmat(m, 2), dtype=np.complex128)
+    S12 = np.asarray(convertmat(m, 1, 1), dtype=np.complex128)
+    Mr = np.asarray(multmat(m, jnp.array([0.0, 1.0]), 1), dtype=np.complex128)
+    Mr2 = np.asarray(multmat(m, jnp.array([0.5, 0.0, 0.5]), 2),
+                     dtype=np.complex128)
+    DC1 = np.asarray(diffmat(m, 1), dtype=np.complex128)
+    Msin2 = _trigspec_multmat(p, [-0.25, 0.0, 0.5, 0.0, -0.25])
+    Ip = np.eye(p, dtype=np.complex128)
+    S02 = np.asarray(convertmat(m, 0, 1), dtype=np.complex128)
+    DF2 = _trigspec_diffmat(p, 2)
+    Mcossin = _trigspec_multmat(p, [0.25j, 0.0, 0.0, 0.0, -0.25j])
+    DF1 = _trigspec_diffmat(p, 1)
+
+    BC1m, BC2m, bc = _compute_boundary_rows(BC1, m, n, p, isNeumann)
+
+    if abs(K) > 1:
+        Lr = Mr2 @ DC2 / K ** 2 + 2 * S12 @ Mr @ DC1 / K ** 2 + Mr2 @ S02
+    else:
+        Lr = Mr2 @ DC2 + 2 * S12 @ Mr @ DC1 + K * K * Mr2 @ S02
+
+    Lth = Msin2 @ DF2 + Mcossin @ DF1
+
+    # Normalize bc so that bc(:, 2:3) is the identity (columns 1:3 0-based).
+    D = bc[:, 1:3].copy()
+    bc = np.linalg.solve(D, bc)  # (2, m)
+
+    # Use the boundary conditions to remove two radial degrees of freedom.
+    myS02 = S02.copy()
+    c1 = myS02[:, 1:3].copy()
+    c2 = Lr[:, 1:3].copy()
+    myS02 = myS02 - myS02[:, 1:3] @ bc
+    Lr = Lr - Lr[:, 1:3] @ bc
+
+    CFS = np.zeros((m, p, n), dtype=np.complex128)
+    n_dc = n // 2                       # DC lambda mode (shift = floor(n/2)+1)
+    cols = np.array([0] + list(range(3, m)))   # MATLAB [1 4:end] (0-based)
+
+    # The left (radial) pencil is identical for every lambda mode, so its QZ
+    # is computed once and reused by the reduced Sylvester solver.
+    import scipy.linalg
+    Lr_sub = np.real(Lr[:m - 2][:, cols]).astype(np.float64)
+    S02_sub = np.real(myS02[:m - 2][:, cols]).astype(np.float64)
+    AA_qz, CC_qz, Q_qz, Z_qz = scipy.linalg.qz(Lr_sub, S02_sub,
+                                               output="complex")
+
+    for kk in range(n):
+        if (np.max(np.abs(F[:, :, kk])) <= 1e-16
+                and np.max(np.abs(BC1m[kk, :])) <= 1e-16
+                and np.max(np.abs(BC2m[kk, :])) <= 1e-16):
+            continue
+
+        # Eliminating boundary conditions changes the rhs.
+        BCk = np.linalg.solve(D, np.vstack([BC1m[kk, :], BC2m[kk, :]]))  # (2, p)
+
+        if kk == n_dc and K == 0 and isNeumann:
+            # Special Legendre-basis branch for the Poisson-Neumann DC mode.
+            ff = Mr2 @ S02 @ F[:, :, kk]                # (m, p)
+
+            p_tilde = max(2 * p - 2, 1)
+            lo = p_tilde // 2 - p // 2
+
+            Xc = np.zeros((p_tilde, m), dtype=np.complex128)
+            Xc[lo:lo + p, :] = ff.T
+            Xc = np.asarray(trig_coeffs2vals(jnp.asarray(Xc)))
+            ff = _apply_cols(chebvals2legcoeffs, Xc[:p, :])   # (p, m)
+
+            Xc2 = np.zeros((p_tilde, 2), dtype=np.complex128)
+            Xc2[lo:lo + p, :] = BCk.T
+            Xc2 = np.asarray(trig_coeffs2vals(jnp.asarray(Xc2)))
+            BCLeg = _apply_cols(chebvals2legcoeffs, Xc2[:p, :])  # (p, 2)
+
+            XLeg = np.zeros((p, m), dtype=np.complex128)
+            for jdx in range(p):
+                fac = (jdx + 1) * jdx                 # l(l+1), l = jdx
+                A = Lr - fac * myS02
+                c3 = c2 - fac * c1
+                ff[jdx, :] = ff[jdx, :] - BCLeg[jdx, :] @ c3.T
+
+                if jdx > 0:
+                    Asub = A[:m - 2][:, cols]
+                    X = np.linalg.solve(Asub, ff[jdx, :m - 2])
+                else:
+                    Asub = A[:m - 3][:, 3:]
+                    Xs = np.linalg.solve(Asub, ff[jdx, :m - 3])
+                    X = np.concatenate([[0.0 + 0.0j], Xs])
+                col = BCLeg[jdx, :] - X @ bc[:, cols].T   # (2,)
+                XLeg[jdx, :] = np.concatenate([[X[0]], col, X[1:]])
+
+            Xcheb = _apply_cols(legcoeffs2chebvals, XLeg)     # (p, m)
+            ext = np.vstack([Xcheb, Xcheb[1:-1][::-1]])       # (p_tilde, m)
+            Xf = np.asarray(trig_vals2coeffs(jnp.asarray(ext)))
+            CFS[:, :, kk] = Xf[lo:lo + p, :].T
+        else:
+            A = Lth - (kk - n_dc) ** 2 * Ip
+            ff = Mr2 @ S02 @ F[:, :, kk] @ Msin2.T
+            if abs(K) > 1:
+                A = A / K ** 2
+                ff = ff / K ** 2
+            ff = ff - c1 @ BCk @ A.T - c2 @ BCk @ Msin2.T
+            X = _gen_sylv_reduced(AA_qz, CC_qz, Q_qz, Z_qz,
+                                  Msin2, A, ff[:m - 2, :])
+            col = BCk - bc[:, cols] @ X               # (2, p)
+            CFS[:, :, kk] = np.vstack([X[0:1, :], col, X[1:, :]])
+
+    return np.transpose(CFS, (0, 2, 1))  # permute back [1 3 2] -> (m, n, p)
 
 
 def _ballfun_poisson_evaluator(f, lmax: int, nr: int,
