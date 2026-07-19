@@ -11,10 +11,29 @@ counterparts (1,105 port files). Final run:
 
 | Status | Count | Meaning |
 |---|---:|---|
-| **passed** | 1,957 | ported at MATLAB tolerances and passing |
-| **skipped** | 795 | test written; the feature does not exist (reason string names it) |
-| **xfailed** | 516 | known library bug or convention gap, with evidence in the reason |
+| **passed** | 2,230 | ported at MATLAB tolerances and passing |
+| **skipped** | 676 | test written; the feature does not exist (reason string names it) |
+| **xfailed** | 378 | known library bug or convention gap, with evidence in the reason |
 | **failed** | **0** | |
+
+*(Updated 2026-07-19 after the structural + fleet phase: +273 passes,
+-119 skips, -138 xfails.  Landed: row-chebfun transpose; ballfunv
+poloidal-toroidal decomposition + the SPECTRAL ball Helmholtz/
+Poisson-Neumann solver (HelmholtzDecomposition at 2.95e-14 vs a
+2.2e-10 tolerance); spherefunv 3-Cartesian-component overhaul
+(curl/div/vorticity/cross); tech-level empty representations;
+SingFun 64-flip wave + residue (canonicalisation, autodetection,
+chebcoeffs); deltafun 39-flip wave; chebop params-in-BCs,
+interior-point BCs, dense matrix realization, typed linop();
+chebfun2 svd/spectral norms/Padua/fevalm; chebtech accessors
+(alias/turbo/sample/trigcoeffs); chebfun mldivide/mrdivide/gmres.
+FIVE more real bugs fixed (13 total): bartels_stewart's two QZ
+defects, three SingFun cumsum/add bugs, and the long-standing
+Cahn-Hilliard spinop instability (conjugate-antisymmetric roundoff
+growing in the spinodal band -- fixed by per-step
+re-Hermitianization).  NEW measured finding: nested spherefun
+compositions blow up XLA CPU compilation (3 tests skipped with the
+diagnosis; investigation queued).)*
 
 *(Updated 2026-07-19 after the feature-build phase: +138 passes,
 -98 skips.  Landed: piecewise-domain chebop solver (per-piece
