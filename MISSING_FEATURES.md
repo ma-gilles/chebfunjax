@@ -11,10 +11,16 @@ counterparts (1,105 port files). Final run:
 
 | Status | Count | Meaning |
 |---|---:|---|
-| **passed** | 2,230 | ported at MATLAB tolerances and passing |
+| **passed** | 2,252 | ported at MATLAB tolerances and passing |
 | **skipped** | 676 | test written; the feature does not exist (reason string names it) |
-| **xfailed** | 378 | known library bug or convention gap, with evidence in the reason |
+| **xfailed** | 356 | known library bug or convention gap, with evidence in the reason |
 | **failed** | **0** | |
+
+*(2026-07-19 follow-up: the 22 alias-port xfails (chebtech1/2
+test_alias) flipped to plain passes -- the fleet's `chebtech.alias`
+made 20 of them stale XPASSes, and adding `chebtech.bary`/`barywts`
+(closed-form barycentric weights + MATLAB-style static evaluator)
+closed the final large-tail case in each file at 2e2*eps.)*
 
 *(Updated 2026-07-19 after the structural + fleet phase: +273 passes,
 -119 skips, -138 xfails.  Landed: row-chebfun transpose; ballfunv

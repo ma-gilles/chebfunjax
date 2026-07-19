@@ -1110,6 +1110,39 @@ class Chebtech2(eqx.Module):
         return _alias_chebtech2(coeffs, m)
 
     @staticmethod
+    def barywts(n: int) -> jax.Array:
+        """Barycentric weights for the ``n`` 2nd-kind Chebyshev points.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech2/barywts.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.utils.diffmat import _cheb2_barywts
+
+        return _cheb2_barywts(n)
+
+    @staticmethod
+    def bary(x: jax.Array, gvals: jax.Array) -> jax.Array:
+        """Barycentric interpolation of values on the 2nd-kind grid.
+
+        Evaluates at ``x`` the polynomial interpolant through the data
+        ``gvals`` given on the ``len(gvals)``-point 2nd-kind Chebyshev
+        grid, using the closed-form barycentric weights.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech2/bary.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.utils.diffmat import _cheb2_barywts
+        from chebfunjax.utils.interpolation import bary as _bary
+
+        n = gvals.shape[0]
+        return _bary(jnp.asarray(x, dtype=gvals.dtype), gvals,
+                     chebpts(n, kind=2), _cheb2_barywts(n))
+
+    @staticmethod
     def angles(n: int) -> jax.Array:
         """Angles ``acos(x)`` of the ``n`` 2nd-kind Chebyshev points.
 
@@ -2709,6 +2742,39 @@ class Chebtech1(eqx.Module):
         Chebfun commit: 7574c77
         """
         return _alias_chebtech1(coeffs, m)
+
+    @staticmethod
+    def barywts(n: int) -> jax.Array:
+        """Barycentric weights for the ``n`` 1st-kind Chebyshev points.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech1/barywts.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.utils.diffmat import _cheb1_barywts
+
+        return _cheb1_barywts(n)
+
+    @staticmethod
+    def bary(x: jax.Array, gvals: jax.Array) -> jax.Array:
+        """Barycentric interpolation of values on the 1st-kind grid.
+
+        Evaluates at ``x`` the polynomial interpolant through the data
+        ``gvals`` given on the ``len(gvals)``-point 1st-kind Chebyshev
+        grid, using the closed-form barycentric weights.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech1/bary.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.utils.diffmat import _cheb1_barywts
+        from chebfunjax.utils.interpolation import bary as _bary
+
+        n = gvals.shape[0]
+        return _bary(jnp.asarray(x, dtype=gvals.dtype), gvals,
+                     chebpts(n, kind=1), _cheb1_barywts(n))
 
     @staticmethod
     def angles(n: int) -> jax.Array:

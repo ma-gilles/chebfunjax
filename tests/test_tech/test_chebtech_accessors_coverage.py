@@ -123,3 +123,29 @@ class TestChebtechTurbo:
             val = complex(f(jnp.float64(x)))
             npt.assert_allclose(val.real, np.exp(x), atol=1e-10)
             npt.assert_allclose(val.imag, np.sin(x), atol=1e-10)
+
+
+@pytest.mark.parametrize("cls, kind", [(Chebtech2, 2), (Chebtech1, 1)])
+class TestChebtechBary:
+    def test_bary_reproduces_polynomial(self, cls, kind):
+        # A degree-5 polynomial sampled on 8 points is reproduced exactly.
+        p = lambda x: 1.0 + x - 2.0 * x**3 + 0.5 * x**5  # noqa: E731
+        gvals = p(chebpts(8, kind=kind))
+        x = jnp.linspace(-1.0, 1.0, 31, dtype=jnp.float64)
+        npt.assert_allclose(np.asarray(cls.bary(x, gvals)), np.asarray(p(x)),
+                            atol=5e-15)
+
+    def test_bary_at_nodes(self, cls, kind):
+        gvals = jnp.sin(3.0 * chebpts(12, kind=kind))
+        out = cls.bary(chebpts(12, kind=kind), gvals)
+        npt.assert_allclose(np.asarray(out), np.asarray(gvals), atol=1e-14)
+
+    def test_barywts_matches_generic(self, cls, kind):
+        from chebfunjax.utils.interpolation import bary_weights
+
+        n = 9
+        v = np.asarray(cls.barywts(n), dtype=np.float64)
+        w = np.asarray(bary_weights(chebpts(n, kind=kind)), dtype=np.float64)
+        # Barycentric weights are scale-invariant (incl. overall sign);
+        # normalize both by their first entry before comparing.
+        npt.assert_allclose(v / v[0], w / w[0], atol=1e-12)
