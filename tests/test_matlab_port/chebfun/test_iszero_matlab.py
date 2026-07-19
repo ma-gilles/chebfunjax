@@ -9,7 +9,6 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import jax.numpy as jnp
-import pytest
 
 import chebfunjax as cj
 
@@ -20,7 +19,8 @@ class TestChebfunIszero:
         assert bool(f.iszero())
 
     def test_empty(self):
-        pytest.skip("chebfunjax has no empty chebfun")
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        assert chebfun().iszero()
 
     def test_nonzero_constant(self):
         f = cj.chebfun(lambda x: 2.0 + 0 * x)

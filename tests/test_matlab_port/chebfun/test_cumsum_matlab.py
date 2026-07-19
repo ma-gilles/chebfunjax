@@ -21,7 +21,8 @@ XR = jnp.asarray(2 * RNG.uniform(size=1000) - 1)
 
 class TestChebfunCumsum:
     def test_empty(self):
-        pytest.skip("chebfunjax has no empty chebfun")
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        assert chebfun().cumsum().isempty()
 
     def test_piecewise_cos(self):
         f1 = cj.chebfun(jnp.cos, domain=[-1.0, -0.5, 0.5, 1.0])

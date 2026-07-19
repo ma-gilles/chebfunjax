@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 import chebfunjax as cj
 
@@ -21,7 +20,11 @@ X = jnp.asarray(2 * RNG.uniform(size=100) - 1)
 
 class TestChebfunRdivide:
     def test_empty_cases(self):
-        pytest.skip("chebfunjax has no empty chebfun")
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        f = chebfun(lambda x: jnp.sin(x))
+        g = chebfun()
+        assert (f / g).isempty()
+        assert (g / f).isempty()
 
     def test_zero_over_f_is_zero(self):
         f = cj.chebfun(jnp.sin)

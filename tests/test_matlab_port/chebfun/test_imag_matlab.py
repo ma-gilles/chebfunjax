@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
 from chebfunjax.domain import Domain
@@ -33,7 +32,8 @@ def _kinked_complex():
 
 class TestChebfunImag:
     def test_empty(self):
-        pytest.skip("chebfunjax has no empty chebfun")
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        assert chebfun().imag().isempty()
 
     def test_imag_of_kinked_complex(self):
         f = _kinked_complex()

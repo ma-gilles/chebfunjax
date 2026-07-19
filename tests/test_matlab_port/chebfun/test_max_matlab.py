@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 import chebfunjax as cj
 
@@ -24,7 +23,11 @@ def _f(x):
 
 class TestChebfunMax:
     def test_empty(self):
-        pytest.skip("chebfunjax has no empty chebfun")
+        import numpy as _np
+
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        y, x = chebfun().max()
+        assert _np.asarray(y).size == 0 and _np.asarray(x).size == 0
 
     def test_global_max_reference(self):
         f = cj.chebfun(_f)

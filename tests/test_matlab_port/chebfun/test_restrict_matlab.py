@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 import chebfunjax as cj
 
@@ -20,7 +19,8 @@ RNG = np.random.default_rng(7681)
 
 class TestChebfunRestrict:
     def test_empty(self):
-        pytest.skip("chebfunjax has no empty chebfun")
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        assert chebfun().restrict(-0.5, 0.5).isempty()
 
     def test_restrict_does_not_mutate(self):
         f = cj.chebfun(lambda x: x)

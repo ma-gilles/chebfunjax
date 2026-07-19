@@ -26,7 +26,8 @@ import chebfunjax as cj
 class TestChebfunAny:
     def test_empty(self):
         # pass(1): ~any(chebfun()).
-        pytest.skip("chebfunjax has no empty chebfun")
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        assert not chebfun().any()
 
     def test_columns(self):
         # pass(2): any([sin(x) 0*x exp(x)]) == [1 0 1].

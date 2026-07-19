@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 import chebfunjax as cj
 
@@ -26,7 +25,8 @@ def _pw():
 
 class TestChebfunNorm:
     def test_empty(self):
-        pytest.skip("chebfunjax has no empty chebfun")
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        assert float(chebfun().norm()) == 0.0
 
     def test_two_norm_default(self):
         f = _pw()

@@ -26,7 +26,8 @@ XR = jnp.asarray(2 * RNG.uniform(size=50) - 1)
 class TestChebfunFliplr:
     def test_empty(self):
         # pass(1): isempty(fliplr(chebfun())).
-        pytest.skip("chebfunjax has no empty chebfun")
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        assert chebfun().fliplr().isempty()
 
     def test_row_chebfuns(self):
         # pass(2-5): fliplr of row chebfuns (f.').

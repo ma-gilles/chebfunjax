@@ -432,6 +432,23 @@ class _Piece(eqx.Module):
 # Chebfun — the main user-facing class
 # ============================================================================
 
+
+def _is_empty_operand(x) -> bool:
+    """True if ``x`` is an empty Chebfun or an empty numeric array/list
+    (MATLAB propagates emptiness through arithmetic: ``f + [] == []``)."""
+    import numpy as _np
+    if isinstance(x, Chebfun):
+        return x.isempty()
+    if x is None:
+        return True
+    if not callable(x) and hasattr(x, "__len__"):
+        try:
+            return len(_np.ravel(_np.asarray(x, dtype=object))) == 0
+        except (TypeError, ValueError):
+            return False
+    return False
+
+
 class Chebfun(eqx.Module):
     """Piecewise smooth function approximation on an arbitrary interval.
 
@@ -509,6 +526,18 @@ class Chebfun(eqx.Module):
         self.funs = funs
         self.domain = domain
         self.deltas = tuple(deltas)
+
+    @classmethod
+    def empty(cls) -> "Chebfun":
+        """The empty Chebfun (MATLAB ``chebfun()``): no pieces; isempty() is
+        True and every operation propagates emptiness.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/isempty.m
+        Chebfun commit: 7574c77
+        """
+        return cls(funs=[], domain=Domain((-1.0, 1.0)))
 
     # ------------------------------------------------------------------
     # Factory class methods
@@ -936,6 +965,8 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/plus.m
         Chebfun commit: 7574c77
         """
+        if self.isempty() or _is_empty_operand(other):
+            return Chebfun.empty()
         if isinstance(other, Chebfun):
             return Chebfun._binary_op(self, other, lambda a, b: a + b)
         # scalar: delegate to each piece
@@ -956,6 +987,8 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/minus.m
         Chebfun commit: 7574c77
         """
+        if self.isempty() or _is_empty_operand(other):
+            return Chebfun.empty()
         if isinstance(other, Chebfun):
             return Chebfun._binary_op(self, other, lambda a, b: a - b)
         new_funs = [
@@ -990,6 +1023,8 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/times.m
         Chebfun commit: 7574c77
         """
+        if self.isempty() or _is_empty_operand(other):
+            return Chebfun.empty()
         if isinstance(other, Chebfun):
             return Chebfun._binary_op(self, other, lambda a, b: a * b)
         # If other is not a scalar/array, defer to other's __rmul__
@@ -1012,6 +1047,8 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/rdivide.m
         Chebfun commit: 7574c77
         """
+        if self.isempty() or _is_empty_operand(other):
+            return Chebfun.empty()
         if isinstance(other, Chebfun):
             return Chebfun._binary_op(self, other, lambda a, b: a / b)
         new_funs = [
@@ -2269,6 +2306,9 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/minandmax.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            e = jnp.asarray([], dtype=jnp.float64)
+            return (e, e), (e, e)
         if any(p.tech.coeffs.ndim == 2 for p in self.funs):
             # Array-valued: elementwise per-column comparison across
             # pieces (MATLAB returns 2 x m values/positions).
@@ -2484,6 +2524,8 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/restrict.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return Chebfun.empty()
         a, b = float(a), float(b)
         da, db = self.domain.a, self.domain.b
         if a < da - 100 * _EPS or b > db + 100 * _EPS or a >= b:
@@ -3178,6 +3220,8 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/circconv.m
         Chebfun commit: 7574c77
         """
+        if self.isempty() or _is_empty_operand(g):
+            return Chebfun.empty()
         Chebfun._check_domains(self, g)
         a, b = float(self.domain.a), float(self.domain.b)
         L = b - a
@@ -3357,15 +3401,20 @@ class Chebfun(eqx.Module):
                 interval=piece.interval))
         return Chebfun(funs=new_funs, domain=self.domain)
 
-    def mat2cell(self, sizes) -> list:
+    def mat2cell(self, sizes=None) -> list:
         """Split an array-valued Chebfun by column counts (MATLAB
-        ``mat2cell(f, 1, sizes)``).
+        ``mat2cell(f, 1, sizes)``).  An empty Chebfun returns a single-cell
+        list holding the empty Chebfun.
 
         Provenance
         ----------
         MATLAB source : @chebfun/mat2cell.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return [Chebfun.empty()]
+        if sizes is None:
+            sizes = [self.n_columns]
         out = []
         j = 0
         for s in sizes:
@@ -3867,6 +3916,8 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/iszero.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return True
         return float(self.vscale) < _EPS
 
     # ------ innerProduct alias -----------------------------------------------
@@ -4192,6 +4243,8 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/any.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return False
         if self.n_columns > 1:
             import numpy as _np
             col_max = _np.max(
@@ -5111,6 +5164,28 @@ def chebfun(
     --------
     Chebfun.from_function, Chebfun.from_coeffs, Chebfun.from_values
     """
+    # Empty chebfun (MATLAB chebfun(), chebfun([]), chebfun([], dom),
+    # chebfun(@sin, 0)): no data / a zero-length domain -> the empty object.
+    import numpy as _np
+    _empty_f = f is None or (
+        not callable(f) and hasattr(f, "__len__")
+        and len(_np.ravel(_np.asarray(f, dtype=object))) == 0)
+    try:
+        _dv = ([float(x) for x in domain] if hasattr(domain, "__len__")
+               else [float(domain)])
+    except (TypeError, ValueError):
+        _dv = [0.0]
+    # An EMPTY domain gives the empty object; a DEGENERATE domain
+    # (repeated endpoints) with actual data is an error, matching
+    # MATLAB's 'Domain intervals must be of positive length' (pinned
+    # by test_invalid_domain).
+    _empty_dom = len(_dv) == 0
+    if _empty_f or _empty_dom or n == 0:
+        return Chebfun.empty()
+    if len(_dv) < 2 or len(set(_dv)) < len(_dv):
+        raise ValueError(
+            "chebfun: domain intervals must be of positive length")
+
     # Endpoint singularities (MATLAB 'exps' flag): wrap a Singfun piece
     # (Fable 5, MISSING_FEATURES blowup gap).  f is the FULL (singular)
     # function; exps = (e_left, e_right) are the known endpoint
@@ -5536,6 +5611,8 @@ def _integer_step(f: "Chebfun", op, half_offset: bool = False):
     Breakpoints are the points where ``f`` (or ``f - 1/2`` for round)
     crosses an integer; between them ``op(f)`` is constant.
     """
+    if f.isempty():
+        return Chebfun.empty()
     import numpy as _np
 
     a = float(f.domain.a)

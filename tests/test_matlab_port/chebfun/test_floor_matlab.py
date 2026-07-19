@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 import chebfunjax as cj
 
@@ -21,7 +20,8 @@ X = jnp.asarray(2 * RNG.uniform(size=100) - 1)
 
 class TestChebfunFloor:
     def test_empty(self):
-        pytest.skip("chebfunjax has no empty chebfun")
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        assert chebfun().floor().isempty()
 
     def test_floor_of_sin(self):
         f = cj.chebfun(jnp.sin, domain=[-1.0, -0.5, 0.5, 1.0])

@@ -16,7 +16,9 @@ import chebfunjax as cj
 
 class TestChebfunIsequal:
     def test_empty(self):
-        pytest.skip("chebfunjax has no empty chebfun")
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        f = chebfun()
+        assert f.isequal(f)
 
     def test_self_equality(self):
         f = cj.chebfun(lambda x: jnp.sin(x) * (x - 0.1))

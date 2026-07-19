@@ -38,7 +38,9 @@ def _F():
 class TestChebfunMat2cell:
     def test_empty(self):
         # pass(k,1): mat2cell(chebfun()).
-        pytest.skip("chebfunjax has no empty chebfun")
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        C = chebfun().mat2cell()
+        assert len(C) == 1 and C[0].isempty()
 
     def test_split_into_columns(self):
         # pass(k,2-5): mat2cell(F) -> {sin, cos, exp}, each a single column.

@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 import chebfunjax as cj
 from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
@@ -27,7 +26,10 @@ ALPHA = -0.194758928283640 + 0.075474485412665j
 
 class TestChebfunMtimes:
     def test_empty_cases(self):
-        pytest.skip("chebfunjax has no empty chebfun")
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        f = chebfun(lambda x: jnp.sin(x))
+        assert (f * []).isempty()
+        assert (f * chebfun()).isempty()
 
     def test_scalar_mtimes_kinked(self):
         funs = [_Piece.from_function(lambda x: -jnp.sin(x) * (x - 0.1),

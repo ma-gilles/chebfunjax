@@ -513,3 +513,34 @@ class TestMATLABGolden:
         npt.assert_allclose(
             np.array(f(xs)), expected, rtol=1e-12, atol=1e-14
         )
+
+
+class TestEmptyChebfun:
+    """Core mirror for the Fable 5 empty-chebfun feature: construction,
+    isempty, and emptiness propagation through the command set."""
+
+    def test_empty_construction(self):
+        assert chebfun().isempty()
+        assert chebfun([]).isempty()
+        assert chebfun(jnp.sin, n=0).isempty()
+        assert chebfun([], domain=(-2, 2)).isempty()
+        assert not chebfun(jnp.sin).isempty()
+
+    def test_empty_propagation(self):
+        f = chebfun(jnp.sin)
+        g = chebfun()
+        # arithmetic with an empty operand (either side) is empty.
+        for r in (f + g, g + f, f - g, f * g, f / g, f + [], f * []):
+            assert r.isempty()
+        # calculus / shape ops on empty are empty.
+        for r in (g.diff(), g.cumsum(), g.abs(), g.imag(), g.fliplr(),
+                  g.floor(), g.restrict(-0.5, 0.5)):
+            assert r.isempty()
+        # reductions: sum and norm collapse to 0; roots to an empty array.
+        assert float(g.sum()) == 0.0
+        assert float(g.norm()) == 0.0
+        assert np.asarray(g.roots()).size == 0
+        # min/max/minandmax return empty arrays.
+        assert np.asarray(g.max()[0]).size == 0
+        assert not g.any()
+        assert g.iszero()

@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
 from chebfunjax.domain import Domain
@@ -31,7 +30,11 @@ def _kinked():
 
 class TestChebfunMinus:
     def test_empty_cases(self):
-        pytest.skip("chebfunjax has no empty chebfun")
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        f = chebfun(lambda x: jnp.sin(x))
+        g = chebfun()
+        assert (f - []).isempty()
+        assert (f - g).isempty()
 
     def test_subtract_scalar(self):
         f1 = _kinked()

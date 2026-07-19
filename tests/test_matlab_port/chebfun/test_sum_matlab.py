@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 import chebfunjax as cj
 
@@ -30,7 +29,8 @@ def _pw():
 
 class TestChebfunSum:
     def test_empty(self):
-        pytest.skip("chebfunjax has no empty chebfun")
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        assert float(chebfun().sum()) == 0.0
 
     def test_piecewise_complex_total(self):
         f = _pw()

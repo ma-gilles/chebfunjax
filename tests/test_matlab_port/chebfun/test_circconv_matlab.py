@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 import chebfunjax as cj
 
@@ -19,7 +18,11 @@ EPS = float(np.finfo(np.float64).eps)
 
 class TestChebfunCircconv:
     def test_empty(self):
-        pytest.skip("chebfunjax has no empty chebfun")
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        f = chebfun(lambda x: jnp.sin(x))
+        g = chebfun()
+        assert f.circconv(g).isempty()
+        assert g.circconv(f).isempty()
 
     def test_circconv_of_cos_eigenfunction(self):
         # FIXED (Fable 5): g is now sampled periodically at m*dx (was

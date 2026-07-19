@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 import chebfunjax as cj
 
@@ -24,7 +23,11 @@ def _f(x):
 
 class TestChebfunMinandmax:
     def test_empty(self):
-        pytest.skip("chebfunjax has no empty chebfun")
+        import numpy as _np
+
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        (ymn, xmn), (ymx, xmx) = chebfun().minandmax()
+        assert all(_np.asarray(z).size == 0 for z in (ymn, xmn, ymx, xmx))
 
     def test_smooth_reference_values(self):
         f = cj.chebfun(_f)
