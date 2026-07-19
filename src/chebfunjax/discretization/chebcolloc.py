@@ -75,12 +75,17 @@ def _chebtech1_quadwts(n: int) -> jnp.ndarray:
     # MATLAB (0-based re-index for Python):
     #   if n is odd:   c = [m, -m[(n+1)/2-1 : 0 : -1]]   length n
     #   if n is even:  c = [m, 0, -m[n/2-1 : 0 : -1]]    length n
+    # MATLAB mirrors m(end) down to m(2) -- 0-based m[-1]..m[1], i.e.
+    # m[:0:-1].  The original port sliced m[n_even-2::-1] =
+    # m[end-1]..m[0], an off-by-one on BOTH ends that produced weights
+    # with the right total mass (sum 2) but wrong moments
+    # (int x^2 -> 1.333 instead of 2/3).  Fixed by Claude Fable 5.
     if n % 2 == 1:
-        # odd n: c = [m[0], ..., m[(n-1)/2], -m[(n-1)/2-1], ..., -m[0]]
-        c = jnp.concatenate([m, -m[n_even - 2::-1]])
+        # odd n:  c = [m, -m[end], ..., -m[1]]
+        c = jnp.concatenate([m, -m[:0:-1]])
     else:
-        # even n: c = [m[0], ..., m[n/2-1], 0, -m[n/2-2], ..., -m[0]]
-        c = jnp.concatenate([m, jnp.array([0.0]), -m[n_even - 2::-1]])
+        # even n: c = [m, 0, -m[end], ..., -m[1]]
+        c = jnp.concatenate([m, jnp.array([0.0]), -m[:0:-1]])
 
     # Apply the rotation vector v_k = exp(i*k*pi/n)
     k_idx = jnp.arange(n, dtype=jnp.float64)

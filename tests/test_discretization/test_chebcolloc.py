@@ -640,3 +640,28 @@ class TestChebColloc1VsMatlab:
         E = disc.eval_matrix(y)
         ref = matlab_chebcolloc["evalmat1_n10_y15"]
         npt.assert_allclose(np.array(E), ref, rtol=1e-12, atol=1e-14)
+
+
+class TestChebtech1QuadwtsMoments:
+    """Pin the Fejer-first-rule moments (Fable 5 bug fix: the mirror
+    slice was off by one on both ends -- weights had the right total
+    mass but int x^2 came out 1.333 instead of 2/3)."""
+
+    def test_polynomial_moments(self):
+        import numpy as np
+
+        from chebfunjax.discretization.chebcolloc import (
+            _chebtech1_quadwts,
+        )
+        from chebfunjax.utils.quadrature import chebpts
+
+        for n in (5, 9, 16, 33):
+            w = np.asarray(_chebtech1_quadwts(n))
+            x = np.asarray(chebpts(n, kind=1))
+            assert abs(w.sum() - 2.0) < 1e-14
+            assert abs(w @ x ** 2 - 2.0 / 3.0) < 1e-14
+            assert abs(w @ x ** 4 - 0.4) < 1e-14
+        # n-point rule is exact through degree n-1: smooth spot check
+        w = np.asarray(_chebtech1_quadwts(33))
+        x = np.asarray(chebpts(33, kind=1))
+        assert abs(w @ np.exp(x) - (np.e - 1.0 / np.e)) < 1e-13
