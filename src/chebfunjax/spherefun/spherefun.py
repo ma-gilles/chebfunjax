@@ -807,8 +807,18 @@ class Spherefun(eqx.Module):
         is_happy = False
         failure = False
         grid = min_sample
+        # "0 + noise" strike counter (MATLAB @spherefun/constructor): a tiny
+        # dominant pivot must persist for three successive grids before the
+        # function is judged numerically zero.  Declaring happiness on the
+        # FIRST tiny pivot (the previous behaviour) collapsed genuinely
+        # high-rank functions to rank 1 when they were re-approximated from
+        # their own noisy values (e.g. abs(f), real(f), or any compose op):
+        # rounding noise seeds a ~1e-13 dominant pivot that spuriously trips
+        # the zero test.  Accumulating strikes lets the grid refine until the
+        # true rank appears.  Mirrors the diskfun constructor fix.
+        strike = 1
 
-        while not is_happy and not failure:
+        while not is_happy and not failure and strike < 3:
             # Double the grid BEFORE sampling, matching MATLAB
             # @spherefun/constructor.m (line ~101: `grid = 2*grid`).
             # Fix by Claude Opus 4.8: the previous code ran phase one at
@@ -853,9 +863,12 @@ class Spherefun(eqx.Module):
                 failure = True
                 break
 
+            # If the function is 0 + noise the dominant pivot is tiny.  Treat
+            # this as convergence only after THREE successive strikes so a
+            # single spurious tiny pivot from coarse-grid evaluation noise
+            # cannot stop the loop (mirrors the diskfun constructor).
             if max(abs(pivot_array[0, 0]), abs(pivot_array[0, 1])) < 1e4 * tol:
-                is_happy = True
-                break
+                strike += 1
 
             if happy_rank:
                 is_happy = True
@@ -1135,6 +1148,105 @@ class Spherefun(eqx.Module):
 
     def sqrt(self):
         return self._reapprox(jnp.sqrt)
+
+    def abs(self) -> "Spherefun":
+        """Absolute value ``|f|``, re-approximated (MATLAB abs).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/abs.m
+        Chebfun commit: 7574c77
+        """
+        return self._reapprox(jnp.abs)
+
+    def __abs__(self) -> "Spherefun":
+        return self.abs()
+
+    def iszero(self) -> bool:
+        """True iff f is the zero function (MATLAB iszero, inherited from
+        separableApprox).
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/iszero.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        lam = jnp.asarray(_np.linspace(-_np.pi, _np.pi, 17))
+        th = jnp.asarray(_np.linspace(0.0, _np.pi, 17))
+        LL, TT = jnp.meshgrid(lam, th)
+        return float(jnp.max(jnp.abs(self(LL, TT)))) <= 1e4 * _EPS
+
+    def minandmax2(self, n_lam: int = 128, n_th: int = 64, n_starts: int = 8):
+        """Global minimum and maximum of the Spherefun over the sphere.
+
+        A tensor grid in ``(lambda, theta)`` seeds candidate extrema; the
+        ``n_starts`` deepest distinct grid candidates are polished with a
+        bound-constrained quasi-Newton step (``scipy`` L-BFGS-B) using the
+        exact JAX gradient of the evaluation, keeping the best.  The
+        multi-start guards against the oscillatory battery functions
+        (e.g. ``cos(2*pi*x)*cos(2*pi*y)``) whose deepest grid basin is not
+        the global one.  Returns ``(Y, X)`` with ``Y = [min, max]`` and
+        ``X`` the corresponding ``(lambda, theta)`` points, mirroring
+        MATLAB ``[Y, X] = minandmax2(F)``.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/minandmax2.m
+        Chebfun commit: 7574c77
+        """
+        import jax
+        import numpy as _np
+        from scipy.optimize import minimize
+
+        def scal(p):
+            return self(p[0], p[1])
+
+        vg = jax.jit(jax.value_and_grad(scal))
+
+        lam = _np.linspace(-_np.pi, _np.pi, n_lam)
+        th = _np.linspace(0.0, _np.pi, n_th)
+        LL, TT = _np.meshgrid(lam, th)
+        F = _np.asarray(self(jnp.asarray(LL), jnp.asarray(TT)),
+                        dtype=_np.float64)
+
+        def _optimize(sign):
+            order = _np.argsort((sign * F).ravel())
+            best_signed = _np.inf
+            best_x = (float(LL.ravel()[order[0]]),
+                      float(TT.ravel()[order[0]]))
+
+            def fun(p):
+                v, g = vg(jnp.asarray(p, dtype=jnp.float64))
+                return sign * float(v), sign * _np.asarray(
+                    g, dtype=_np.float64)
+
+            for k in range(min(n_starts, order.size)):
+                i0 = _np.unravel_index(order[k], F.shape)
+                p0 = _np.array([LL[i0], TT[i0]], dtype=_np.float64)
+                res = minimize(
+                    fun, p0, jac=True, method="L-BFGS-B",
+                    bounds=[(-_np.pi, _np.pi), (0.0, _np.pi)],
+                    options={"ftol": 1e-15, "gtol": 1e-14, "maxiter": 400})
+                if float(res.fun) < best_signed:
+                    best_signed = float(res.fun)
+                    best_x = (float(res.x[0]), float(res.x[1]))
+            return sign * best_signed, best_x
+
+        vmin, xmin = _optimize(1.0)
+        vmax, xmax = _optimize(-1.0)
+        return (jnp.asarray([vmin, vmax], dtype=jnp.float64),
+                jnp.asarray([list(xmin), list(xmax)], dtype=jnp.float64))
+
+    def max2(self):
+        """Global maximum (value, [lambda, theta]) -- MATLAB max2."""
+        vals, locs = self.minandmax2()
+        return vals[1], locs[1]
+
+    def min2(self):
+        """Global minimum (value, [lambda, theta]) -- MATLAB min2."""
+        vals, locs = self.minandmax2()
+        return vals[0], locs[0]
 
     def mean(self) -> jax.Array:
         """Mean value of the function over the unit sphere: sum / (4 pi)."""

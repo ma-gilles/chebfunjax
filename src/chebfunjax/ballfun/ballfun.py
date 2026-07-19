@@ -1458,6 +1458,88 @@ class Ballfun(eqx.Module):
     def sqrt(self):
         return self.compose(jnp.sqrt)
 
+    def log(self):
+        return self.compose(jnp.log)
+
+    def tan(self):
+        return self.compose(jnp.tan)
+
+    def tanh(self):
+        return self.compose(jnp.tanh)
+
+    def sinh(self):
+        return self.compose(jnp.sinh)
+
+    def cosh(self):
+        return self.compose(jnp.cosh)
+
+    def real(self) -> "Ballfun":
+        """Real part of f (MATLAB real): re-approximates ``Re f``.
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/real.m
+        Chebfun commit: 7574c77
+        """
+        return self.compose(jnp.real)
+
+    def imag(self) -> "Ballfun":
+        """Imaginary part of f (MATLAB imag).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/imag.m
+        Chebfun commit: 7574c77
+        """
+        return self.compose(jnp.imag)
+
+    def conj(self) -> "Ballfun":
+        """Complex conjugate of f (MATLAB conj).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/conj.m
+        Chebfun commit: 7574c77
+        """
+        return self.compose(jnp.conj)
+
+    def abs(self) -> "Ballfun":
+        """Absolute value of f (MATLAB abs): re-approximates ``|f|``.
+        Assumes f does not change sign / pass through zero.
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/abs.m
+        Chebfun commit: 7574c77
+        """
+        return self.compose(jnp.abs)
+
+    def __abs__(self) -> "Ballfun":
+        return self.abs()
+
+    def iszero(self) -> bool:
+        """True iff f is exactly the zero function (MATLAB iszero:
+        ``nnz(coeffs) == 0``).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/iszero.m
+        Chebfun commit: 7574c77
+        """
+        return bool(np.count_nonzero(np.asarray(self.coeffs)) == 0)
+
+    def isequal(self, other: "Ballfun") -> bool:
+        """True iff f == g, i.e. ``iszero(f - g)`` (MATLAB isequal).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/isequal.m
+        Chebfun commit: 7574c77
+        """
+        if not isinstance(other, Ballfun):
+            return False
+        return (self - other).iszero()
+
     def laplacian(self) -> "Ballfun":
         """Scalar Laplacian: f_xx + f_yy + f_zz.
 

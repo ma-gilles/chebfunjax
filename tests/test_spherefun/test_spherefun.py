@@ -413,3 +413,42 @@ class TestConstructorMixedOrder:
             got = np.asarray(f(L.ravel(), T.ravel()))
             want = np.asarray(target(L.ravel(), T.ravel()))
             npt.assert_allclose(got, want, atol=1e-8)
+
+
+class TestSpherefunAbsIszeroOpt:
+    """Core exercise of the Fable 5 additions: abs, iszero, and the
+    multi-start minandmax2/max2/min2 global optimizer.  Mirrors the
+    MATLAB-port battery so these code paths are covered directly."""
+
+    def _xyz(self, lam, th):
+        return (jnp.cos(lam) * jnp.sin(th), jnp.sin(lam) * jnp.sin(th),
+                jnp.cos(th))
+
+    def test_abs(self):
+        # -(x^2+y^2+z^2) = -1 on the sphere; abs(f)+f == 0.
+        def fn(lam, th):
+            x, y, z = self._xyz(lam, th)
+            return -(x ** 2 + y ** 2 + z ** 2)
+        f = Spherefun.from_function(fn)
+        L, T = jnp.meshgrid(jnp.linspace(-3.0, 3.0, 15),
+                            jnp.linspace(0.05, 3.09, 15))
+        s = abs(f) + f
+        assert float(jnp.max(jnp.abs(s(L, T)))) < 1e-12
+
+    def test_iszero(self):
+        assert Spherefun.from_function(lambda lam, th: 0.0 * lam).iszero()
+        assert not Spherefun.from_function(
+            lambda lam, th: jnp.cos(jnp.cos(lam) * jnp.sin(th))).iszero()
+
+    def test_minandmax2_oscillatory(self):
+        # cos(2*pi*x)*cos(2*pi*y): global min -1, max 1 (a non-global grid
+        # basin would trap a single-start polish).
+        def fn(lam, th):
+            x, y, _z = self._xyz(lam, th)
+            return jnp.cos(2 * np.pi * x) * jnp.cos(2 * np.pi * y)
+        g = Spherefun.from_function(fn)
+        Y, _X = g.minandmax2()
+        npt.assert_allclose(float(Y[0]), -1.0, atol=1e-10)
+        npt.assert_allclose(float(Y[1]), 1.0, atol=1e-10)
+        npt.assert_allclose(float(g.max2()[0]), 1.0, atol=1e-10)
+        npt.assert_allclose(float(g.min2()[0]), -1.0, atol=1e-10)

@@ -235,3 +235,49 @@ class TestBallfunPoisson:
                  * float(_real_ylm_values(l, m, jnp.array(la), jnp.array(t)))
                  for r, la, t in self._pts])
             np.testing.assert_allclose(got, want, atol=1e-10)
+
+
+class TestBallfunComplexPartsAndComposition:
+    """Core exercise of the Fable 5 additions: real/imag/conj/abs, the
+    iszero/isequal predicates, and the log/tan/tanh/sinh/cosh composition
+    ops.  Mirrors the MATLAB-port assertions so these paths are covered."""
+
+    def test_complex_parts_and_abs(self):
+        from chebfunjax.ballfun.ballfun import Ballfun
+        f = Ballfun.from_function(lambda x, y, z: x + 1j * y)
+        assert (f.real() - Ballfun.from_function(
+            lambda x, y, z: x)).norm() < 1e4 * np.finfo(np.float64).eps
+        g = Ballfun.from_function(lambda x, y, z: x + 1j * y * z)
+        assert (g.imag() - Ballfun.from_function(
+            lambda x, y, z: y * z)).norm() < 1e4 * np.finfo(np.float64).eps
+        assert (f.conj() - Ballfun.from_function(
+            lambda x, y, z: x - 1j * y)).norm() \
+            < 1e2 * np.finfo(np.float64).eps
+        a = abs(Ballfun.from_function(lambda x, y, z: 1j * x ** 2))
+        assert (a - Ballfun.from_function(
+            lambda x, y, z: x ** 2)).norm() \
+            < 1e2 * np.finfo(np.float64).eps
+
+    def test_predicates(self):
+        from chebfunjax.ballfun.ballfun import Ballfun
+        f = Ballfun.from_function(lambda x, y, z: 1.0 + 0.0 * x)
+        assert (f - f).iszero()
+        assert not Ballfun.from_function(
+            lambda x, y, z: 1e-20 + 0.0 * x).iszero()
+        assert f.isequal(f + f - f)
+
+    def test_composition_ops(self):
+        from chebfunjax.ballfun.ballfun import Ballfun
+        tol = 1e4 * np.finfo(np.float64).eps
+        f = Ballfun.from_function(lambda x, y, z: jnp.exp(y))
+        assert (f.log() - Ballfun.from_function(
+            lambda x, y, z: y)).norm() < tol
+        s = Ballfun.from_function(lambda x, y, z: jnp.sin(y))
+        assert (s.tan() - Ballfun.from_function(
+            lambda x, y, z: jnp.tan(jnp.sin(y)))).norm() < tol
+        b = Ballfun.from_function(lambda x, y, z: y)
+        assert (b.sinh() - Ballfun.from_function(
+            lambda x, y, z: jnp.sinh(y))).norm() < tol
+        assert (b.cosh() - Ballfun.from_function(
+            lambda x, y, z: jnp.cosh(y))).norm() < 1e2 * np.finfo(
+            np.float64).eps
