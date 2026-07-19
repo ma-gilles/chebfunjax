@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
@@ -31,21 +30,16 @@ def _ninf(a):
 
 
 class TestDeltafunPlus:
-    @pytest.mark.skip(
-        reason="chebfunjax has no empty Deltafun, so deltafun()+deltafun() and "
-        "its isempty result have no analog"
-    )
     def test_empty_plus_empty(self):
         # pass(1): isempty(deltafun() + deltafun())
-        pass
+        assert (Deltafun.empty() + Deltafun.empty()).isempty()
 
-    @pytest.mark.skip(
-        reason="chebfunjax has no empty Deltafun; in MATLAB an empty deltafun "
-        "absorbs to empty under addition, which has no analog"
-    )
     def test_empty_plus_nonempty(self):
         # pass(2): isempty(deltafun()+df1) && isempty(df1+deltafun())
-        pass
+        df1 = Deltafun(Bndfun.from_function(jnp.sin, DAB),
+                       jnp.array([0.5]), jnp.array([1.0]))
+        assert (Deltafun.empty() + df1).isempty()
+        assert (df1 + Deltafun.empty()).isempty()
 
     def test_same_locations_sum_and_sort(self):
         # pass(3): df1 + df2 with shared locations -> mags summed, sorted

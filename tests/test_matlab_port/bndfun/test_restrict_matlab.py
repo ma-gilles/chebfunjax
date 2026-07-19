@@ -45,14 +45,11 @@ def _spotcheck_restrict(fun_op, subint, tol_factor=8e4, n=None):
 
 
 class TestBndfunRestrict:
-    @pytest.mark.xfail(
-        reason="chebfunjax has no empty Bndfun: Bndfun.from_function requires a "
-        "callable, and there is no isempty()/empty-restrict path."
-    )
     def test_empty_input(self):
-        f = Bndfun()  # noqa -> no default/empty constructor
-        f = f.restrict(-0.5, 0.5)
-        assert f.n == 0
+        # pass(1): restrict of an empty bndfun is empty
+        f = Bndfun.empty()
+        g = f.restrict(-0.5, 0.5)
+        assert g.isempty()
 
     def test_restrict_whole_domain_is_identity(self):
         f = _bf(jnp.sin)

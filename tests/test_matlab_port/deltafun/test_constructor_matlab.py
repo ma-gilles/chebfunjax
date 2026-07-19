@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
@@ -33,13 +32,10 @@ def _zero_bndfun(dom=DOM):
 
 
 class TestDeltafunConstructor:
-    @pytest.mark.skip(
-        reason="chebfunjax has no empty Deltafun: a funPart is always required, "
-        "so deltafun() and its isempty check have no analog"
-    )
     def test_empty_constructor_isempty(self):
         # pass(1): d = deltafun(); isempty(d) && isa(d,'deltafun')
-        pass
+        d = Deltafun.empty()
+        assert isinstance(d, Deltafun) and d.isempty()
 
     def test_zero_funpart_no_deltas(self):
         # pass(2): deltafun(fun.constructor(0)) -> empty deltas, iszero(funPart)

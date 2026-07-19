@@ -604,6 +604,11 @@ def _roots_main(c, htol: float):
 # ============================================================================
 
 
+def _is_empty_tech(obj) -> bool:
+    """True if ``obj`` is a marker-empty tech (see ``Chebtech2.empty``)."""
+    return getattr(obj, "_is_empty_object", False)
+
+
 class Chebtech2(eqx.Module):
     """Chebyshev interpolant on 2nd-kind points.
 
@@ -631,6 +636,37 @@ class Chebtech2(eqx.Module):
 
     coeffs: jax.Array
     ishappy: bool = eqx.field(static=True, default=True)
+
+    # ------------------------------------------------------------------
+    # Empty representation (MATLAB chebtech2() with no arguments)
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def empty(cls) -> "Chebtech2":
+        """The empty Chebtech2 (MATLAB ``chebtech2()``).
+
+        ``isempty()`` is True; arithmetic with it propagates empties.  Built
+        without ``__init__`` (no coefficient data), so its fields must not be
+        accessed — guard with ``isempty()`` first.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/isempty.m
+        Chebfun commit: 7574c77
+        """
+        obj = object.__new__(cls)
+        object.__setattr__(obj, "_is_empty_object", True)
+        return obj
+
+    def isempty(self) -> bool:
+        """True for the empty Chebtech2 (MATLAB ``isempty``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/isempty.m
+        Chebfun commit: 7574c77
+        """
+        return getattr(self, "_is_empty_object", False)
 
     # ------------------------------------------------------------------
     # Construction (class methods — NOT __init__)
@@ -1327,6 +1363,8 @@ class Chebtech2(eqx.Module):
         MATLAB source : @chebtech/plus.m
         Chebfun commit: 7574c77
         """
+        if _is_empty_tech(self) or _is_empty_tech(other):
+            return Chebtech2.empty()
         if isinstance(other, Chebtech2):
             # Prolong to the same length (zero-pad shorter one)
             nf = self.n
@@ -1355,9 +1393,13 @@ class Chebtech2(eqx.Module):
         MATLAB source : @chebtech/minus.m
         Chebfun commit: 7574c77
         """
+        if _is_empty_tech(self) or _is_empty_tech(other):
+            return Chebtech2.empty()
         return self + (-other)
 
     def __rsub__(self, other) -> "Chebtech2":
+        if _is_empty_tech(self) or _is_empty_tech(other):
+            return Chebtech2.empty()
         return -(self - other)
 
     def __neg__(self) -> "Chebtech2":
@@ -1385,6 +1427,8 @@ class Chebtech2(eqx.Module):
         MATLAB source : @chebtech/times.m
         Chebfun commit: 7574c77
         """
+        if _is_empty_tech(self) or _is_empty_tech(other):
+            return Chebtech2.empty()
         if isinstance(other, Chebtech2):
             hc = _coeff_multiply(self.coeffs, other.coeffs)
             return Chebtech2.from_coeffs(hc, ishappy=self.ishappy and other.ishappy)
@@ -1403,6 +1447,8 @@ class Chebtech2(eqx.Module):
         MATLAB source : @chebtech/mtimes.m
         Chebfun commit: 7574c77
         """
+        if _is_empty_tech(self):
+            return Chebtech2.empty()
         A = jnp.asarray(other)
         c = self.coeffs if self.coeffs.ndim == 2 else self.coeffs[:, None]
         return Chebtech2(coeffs=c @ A, ishappy=self.ishappy)
@@ -2191,6 +2237,33 @@ class Chebtech1(eqx.Module):
     ishappy: bool = eqx.field(static=True, default=True)
 
     # ------------------------------------------------------------------
+    # Empty representation (MATLAB chebtech1() with no arguments)
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def empty(cls) -> "Chebtech1":
+        """The empty Chebtech1 (MATLAB ``chebtech1()``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/isempty.m
+        Chebfun commit: 7574c77
+        """
+        obj = object.__new__(cls)
+        object.__setattr__(obj, "_is_empty_object", True)
+        return obj
+
+    def isempty(self) -> bool:
+        """True for the empty Chebtech1 (MATLAB ``isempty``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/isempty.m
+        Chebfun commit: 7574c77
+        """
+        return getattr(self, "_is_empty_object", False)
+
+    # ------------------------------------------------------------------
     # Construction (class methods)
     # ------------------------------------------------------------------
 
@@ -2475,6 +2548,8 @@ class Chebtech1(eqx.Module):
         MATLAB source : @chebtech/plus.m
         Chebfun commit: 7574c77
         """
+        if _is_empty_tech(self) or _is_empty_tech(other):
+            return Chebtech1.empty()
         if isinstance(other, Chebtech1):
             n = max(self.n, other.n)
             fc = _prolong_coeffs(self.coeffs, n)
@@ -2495,9 +2570,13 @@ class Chebtech1(eqx.Module):
         MATLAB source : @chebtech/minus.m
         Chebfun commit: 7574c77
         """
+        if _is_empty_tech(self) or _is_empty_tech(other):
+            return Chebtech1.empty()
         return self + (-other)
 
     def __rsub__(self, other) -> "Chebtech1":
+        if _is_empty_tech(self) or _is_empty_tech(other):
+            return Chebtech1.empty()
         return -(self - other)
 
     def __neg__(self) -> "Chebtech1":
@@ -2521,6 +2600,8 @@ class Chebtech1(eqx.Module):
         MATLAB source : @chebtech/times.m
         Chebfun commit: 7574c77
         """
+        if _is_empty_tech(self) or _is_empty_tech(other):
+            return Chebtech1.empty()
         if isinstance(other, Chebtech1):
             hc = _coeff_multiply(self.coeffs, other.coeffs)
             return Chebtech1.from_coeffs(hc, ishappy=self.ishappy and other.ishappy)
@@ -2539,6 +2620,8 @@ class Chebtech1(eqx.Module):
         MATLAB source : @chebtech/mtimes.m
         Chebfun commit: 7574c77
         """
+        if _is_empty_tech(self):
+            return Chebtech1.empty()
         A = jnp.asarray(other)
         c = self.coeffs if self.coeffs.ndim == 2 else self.coeffs[:, None]
         return Chebtech1(coeffs=c @ A, ishappy=self.ishappy)

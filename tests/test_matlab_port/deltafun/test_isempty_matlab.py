@@ -1,8 +1,8 @@
-"""Port of MATLAB Chebfun tests/deltafun/test_isempty.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/deltafun/test_isempty.m (Fable 5).
 
-chebfunjax has no empty Deltafun (a ``funPart`` is always required) and no
-``isempty`` method, so every assertion in this MATLAB test is skipped with a
-precise reason.
+A Deltafun is empty iff it has no deltas AND its funPart is empty
+(``isempty(deltaLoc) && isempty(funPart)``).  The marker-empty ``Deltafun``
+and a Deltafun wrapping an empty Bndfun are both empty.
 
 Provenance
 ----------
@@ -12,27 +12,26 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-import pytest
-
-pytestmark = pytest.mark.skip(
-    reason="chebfunjax has no empty Deltafun and no isempty() method "
-    "(a funPart is always required)"
-)
+from chebfunjax.fun.bndfun import Bndfun
+from chebfunjax.fun.deltafun import Deltafun
 
 
 class TestDeltafunIsempty:
     def test_empty_constructor(self):
         # pass(1): isempty(deltafun())
-        pass
+        assert Deltafun.empty().isempty()
 
     def test_empty_bndfun_funpart(self):
         # pass(2): isempty(deltafun(bndfun([])))
-        pass
+        assert Deltafun.from_fun(Bndfun.empty()).isempty()
 
     def test_empty_delta_arg(self):
-        # pass(3): isempty(deltafun(f, []))
-        pass
+        # pass(3): isempty(deltafun(f, [])) with empty funPart f
+        d = Deltafun(Bndfun.empty(), [], [])
+        assert d.isempty()
 
     def test_empty_delta_struct(self):
         # pass(4): isempty(deltafun(f, struct('deltaMag', [], 'deltaLoc', [])))
-        pass
+        import jax.numpy as jnp
+        d = Deltafun(Bndfun.empty(), jnp.zeros(0), jnp.zeros((1, 0)))
+        assert d.isempty()

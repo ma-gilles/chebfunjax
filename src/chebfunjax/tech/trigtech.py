@@ -800,6 +800,33 @@ class Trigtech(eqx.Module):
     ishappy: bool = eqx.field(static=True, default=True)
 
     # ------------------------------------------------------------------
+    # Empty representation (MATLAB trigtech() with no arguments)
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def empty(cls) -> "Trigtech":
+        """The empty Trigtech (MATLAB ``trigtech()``).
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/isempty.m
+        Chebfun commit: 7574c77
+        """
+        obj = object.__new__(cls)
+        object.__setattr__(obj, "_is_empty_object", True)
+        return obj
+
+    def isempty(self) -> bool:
+        """True for the empty Trigtech (MATLAB ``isempty``).
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/isempty.m
+        Chebfun commit: 7574c77
+        """
+        return getattr(self, "_is_empty_object", False)
+
+    # ------------------------------------------------------------------
     # Construction
     # ------------------------------------------------------------------
 
@@ -1277,6 +1304,8 @@ class Trigtech(eqx.Module):
         Chebfun commit: 7574c77
         """
         from chebfunjax.tech.chebtech import Chebtech2
+        if self.isempty():
+            return Chebtech2.empty()
         a = float(a)
         b = float(b)
         if not (-1.0 <= a < b <= 1.0):

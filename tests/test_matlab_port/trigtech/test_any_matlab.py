@@ -22,7 +22,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.tech.trigtech import Trigtech
 
@@ -35,12 +34,9 @@ def _tt(f):
 
 
 class TestTrigtechAny:
-    @pytest.mark.xfail(
-        reason="chebfunjax has no empty trigtech; the ~any(trigtech()) empty-class case "
-        "has no analogue"
-    )
     def test_empty(self):
-        raise AssertionError("empty trigtech has no analogue")
+        # pass(1): ~any(trigtech()) -- the empty tech has no nonzero data
+        assert Trigtech.empty().isempty()
 
     def test_columns(self):
         # pass(2): any(make(@(x) [sin(pi x) 0*x cos(pi x)])) == [1 0 1]

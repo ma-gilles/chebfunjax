@@ -22,8 +22,8 @@ EPS = float(np.finfo(np.float64).eps)
 
 class TestTrigtechRestrict:
     def test_empty(self):
-        pytest.skip("chebfunjax has no empty trigtech construction "
-                    "via make()")
+        # pass(1): restrict of an empty trigtech is empty
+        assert Trigtech.empty().restrict(-0.5, 0.5).isempty()
 
     def test_bad_interval_raises(self):
         f = Trigtech.from_function(lambda x: jnp.sin(2 * jnp.pi * x))

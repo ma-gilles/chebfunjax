@@ -26,7 +26,13 @@ ALPHA = 0.3 + 0.7j
 
 class TestClassicfunMtimes:
     def test_empty_cases(self):
-        pytest.skip("chebfunjax has no empty Bndfun representation")
+        # pass(1): isempty(f*[]) && isempty([]*f) && isempty(2*g) && isempty(g*2)
+        f = Bndfun.from_function(jnp.sin, DOM)
+        e = Bndfun.empty()
+        assert (f * e).isempty()
+        assert (e * f).isempty()
+        assert (2.0 * e).isempty()
+        assert (e * 2.0).isempty()
 
     def test_scalar_left_equals_right(self):
         f = Bndfun.from_function(jnp.sin, DOM)

@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
@@ -43,10 +42,15 @@ def _dvals(fun, loc, k):
 
 class TestDeltafunTimes:
     def test_empty_times_empty(self):
-        pytest.skip("chebfunjax has no empty Deltafun representation")
+        # pass(1): isempty(deltafun() .* deltafun())
+        assert (Deltafun.empty() * Deltafun.empty()).isempty()
 
     def test_empty_times_delta(self):
-        pytest.skip("chebfunjax has no empty Deltafun representation")
+        # pass(2): isempty(deltafun().*d) && isempty(d.*deltafun())
+        d = Deltafun(Bndfun.from_function(jnp.sin, DOM),
+                     jnp.array([0.0]), jnp.array([1.0]))
+        assert (Deltafun.empty() * d).isempty()
+        assert (d * Deltafun.empty()).isempty()
 
     def test_expneg_times_delta4(self):
         # pass(3): exp(-x) .* delta^(4) -> [1, 4, 6, 4, 1]'

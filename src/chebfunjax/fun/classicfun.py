@@ -60,6 +60,37 @@ class Classicfun(eqx.Module):
     domain: Domain = eqx.field(static=True)
 
     # ------------------------------------------------------------------
+    # Empty representation (MATLAB bndfun() with no arguments)
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def empty(cls) -> "Classicfun":
+        """The empty fun (MATLAB ``bndfun()``).
+
+        ``isempty()`` is True; arithmetic and restriction with it propagate
+        empties.  Built without ``__init__`` (no onefun/domain), so guard field
+        access with ``isempty()`` first.
+
+        Provenance
+        ----------
+        MATLAB source : @classicfun/isempty.m
+        Chebfun commit: 7574c77
+        """
+        obj = object.__new__(cls)
+        object.__setattr__(obj, "_is_empty_object", True)
+        return obj
+
+    def isempty(self) -> bool:
+        """True for the empty fun (MATLAB ``isempty``).
+
+        Provenance
+        ----------
+        MATLAB source : @classicfun/isempty.m
+        Chebfun commit: 7574c77
+        """
+        return getattr(self, "_is_empty_object", False)
+
+    # ------------------------------------------------------------------
     # Construction (class methods — NOT __init__)
     # ------------------------------------------------------------------
 
@@ -202,6 +233,8 @@ class Classicfun(eqx.Module):
         MATLAB source : @classicfun/plus.m (delegates to @chebtech/plus.m)
         Chebfun commit: 7574c77
         """
+        if self.isempty() or getattr(other, "_is_empty_object", False):
+            return type(self).empty()
         if isinstance(other, Classicfun):
             self._check_domain(other)
             return self.__class__(self.onefun + other.onefun, self.domain)
@@ -219,6 +252,8 @@ class Classicfun(eqx.Module):
         MATLAB source : @classicfun/minus.m (delegates to @chebtech/minus.m)
         Chebfun commit: 7574c77
         """
+        if self.isempty() or getattr(other, "_is_empty_object", False):
+            return type(self).empty()
         if isinstance(other, Classicfun):
             self._check_domain(other)
             return self.__class__(self.onefun - other.onefun, self.domain)
@@ -226,6 +261,8 @@ class Classicfun(eqx.Module):
             return self.__class__(self.onefun - other, self.domain)
 
     def __rsub__(self, other) -> "Classicfun":
+        if self.isempty() or getattr(other, "_is_empty_object", False):
+            return type(self).empty()
         return -(self - other)
 
     def __neg__(self) -> "Classicfun":
@@ -250,6 +287,8 @@ class Classicfun(eqx.Module):
         MATLAB source : @classicfun/times.m (delegates to @chebtech/times.m)
         Chebfun commit: 7574c77
         """
+        if self.isempty() or getattr(other, "_is_empty_object", False):
+            return type(self).empty()
         if isinstance(other, Classicfun):
             self._check_domain(other)
             return self.__class__(self.onefun * other.onefun, self.domain)

@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
@@ -30,7 +29,8 @@ def _ninf(a):
 
 class TestDeltafunImag:
     def test_imag_empty(self):
-        pytest.skip("chebfunjax has no empty Deltafun representation")
+        # pass(1): isempty(imag(deltafun()))
+        assert Deltafun.empty().imag().isempty()
 
     def test_imag_of_real_delta_not_deltafun(self):
         # pass(2): ~isa(imag(d), 'deltafun') when deltaMag is real

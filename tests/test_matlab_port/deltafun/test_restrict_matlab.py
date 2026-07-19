@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
@@ -31,7 +30,8 @@ def _ninf(a):
 
 class TestDeltafunRestrict:
     def test_restrict_empty(self):
-        pytest.skip("chebfunjax has no empty Deltafun representation")
+        # pass(1): isempty(restrict(deltafun(), [-.5, .5]))
+        assert Deltafun.empty().restrict([-0.5, 0.5]).isempty()
 
     def test_restrict_away_from_delta_left(self):
         # pass(2): ~isa(restrict(d, [-1, -.5]), 'deltafun') (delta at 0 excluded)

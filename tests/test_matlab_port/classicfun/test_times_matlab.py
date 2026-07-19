@@ -50,12 +50,13 @@ def _mult_fun_by_fun(f, f_op, g, g_op):
 
 
 class TestClassicfunTimes:
-    @pytest.mark.xfail(
-        reason="chebfunjax has no empty-fun construction (bndfun() with no "
-        "args)."
-    )
     def test_empty(self):
-        raise NotImplementedError("empty Bndfun")
+        # pass(1): isempty(f .* f) && isempty(f .* g) && isempty(g .* f)
+        f = Bndfun.empty()
+        g = Bndfun.from_function(jnp.sin, DOM)
+        assert (f * f).isempty()
+        assert (f * g).isempty()
+        assert (g * f).isempty()
 
     # --- multiply by scalar -------------------------------------------
     def test_mult_scalar_isequal(self):

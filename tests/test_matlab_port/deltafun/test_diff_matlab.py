@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
@@ -31,13 +30,10 @@ def _ninf(a):
 
 
 class TestDeltafunDiff:
-    @pytest.mark.skip(
-        reason="chebfunjax has no empty Deltafun, so diff(deltafun()) and its "
-        "isempty result have no analog"
-    )
     def test_diff_empty(self):
         # pass(1): isempty(diff(d)) && isempty(diff(d,4)) for d = deltafun()
-        pass
+        assert Deltafun.empty().diff().isempty()
+        assert Deltafun.empty().diff(4).isempty()
 
     def test_diff_k0_is_identity(self):
         # pass(2): isequal(d, diff(d,0))

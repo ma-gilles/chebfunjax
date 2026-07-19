@@ -197,6 +197,8 @@ class Bndfun(Classicfun):
         MATLAB source : @bndfun/restrict.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return type(self).empty()
         a = float(a)
         b = float(b)
         self_a, self_b = self.domain.a, self.domain.b

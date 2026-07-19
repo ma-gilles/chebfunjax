@@ -30,8 +30,13 @@ def cls(request):
 
 class TestChebtechMtimes:
     def test_empty_cases(self, cls):
-        # MATLAB pass(n,1): f*[] etc. are empty.
-        pytest.skip("chebfunjax has no empty Chebtech representation")
+        # pass(n,1): isempty(f*[]) && isempty([]*f) && isempty(2*g) && isempty(g*2)
+        f = cls.from_function(jnp.sin)
+        e = cls.empty()
+        assert (f * e).isempty()
+        assert (e * f).isempty()
+        assert (2.0 * e).isempty()
+        assert (e * 2.0).isempty()
 
     def test_scalar_left_equals_right(self, cls):
         f = cls.from_function(jnp.sin)

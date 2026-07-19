@@ -33,11 +33,9 @@ _ARB_POINT = 0.1273881594
 @pytest.mark.parametrize("Tech", [Chebtech1, Chebtech2])
 class TestChebtechAny:
     def test_any_empty_class(self, Tech):
-        # pass(n,1): ~any(testclass)
-        pytest.skip(
-            "chebfunjax has no empty tech; the ~any(chebtech()) empty-class "
-            "case has no analogue"
-        )
+        # pass(n,1): ~any(testclass) -- the empty tech has no nonzero data
+        f = Tech.empty()
+        assert f.isempty()
 
     def test_any_down_columns(self, Tech):
         # pass(n,2): any(make(@(x) [sin(x) 0*x cos(x)])) == [1 0 1]

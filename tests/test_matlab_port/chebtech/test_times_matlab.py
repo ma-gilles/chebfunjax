@@ -74,8 +74,12 @@ def _coeff_diff(f, g):
 @pytest.mark.parametrize("Tech", [Chebtech1, Chebtech2])
 class TestChebtechTimes:
     def test_empty_arguments(self, Tech):
-        # pass(n, 1): isempty(f .* f) etc. with an empty f.
-        pytest.skip(_EMPTY)
+        # pass(n, 1): isempty(f .* f) && isempty(f .* g) && isempty(g .* f)
+        f = Tech.empty()
+        g = Tech.from_function(lambda x: x)
+        assert (f * f).isempty()
+        assert (f * g).isempty()
+        assert (g * f).isempty()
 
     # -- Multiplication by a (complex) scalar. pass(n, 2:3). --
     def test_mult_scalar_commutes(self, Tech):

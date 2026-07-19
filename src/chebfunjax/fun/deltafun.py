@@ -259,6 +259,34 @@ class Deltafun(eqx.Module):
     #: MATLAB deltafun cleanup tolerance (pref.deltaPrefs.deltaTol).
     DELTA_TOL: float = 1e-9
 
+    @classmethod
+    def empty(cls) -> "Deltafun":
+        """The empty Deltafun (MATLAB ``deltafun()``).
+
+        Built without ``__init__`` (no funPart/delta data); guard field access
+        with ``isempty()`` first.
+
+        Provenance
+        ----------
+        MATLAB source : @deltafun/isempty.m
+        Chebfun commit: 7574c77
+        """
+        obj = object.__new__(cls)
+        object.__setattr__(obj, "_is_empty_object", True)
+        return obj
+
+    def isempty(self) -> bool:
+        """True for an empty Deltafun: no deltas AND an empty funPart.
+
+        Provenance
+        ----------
+        MATLAB source : @deltafun/isempty.m
+        Chebfun commit: 7574c77
+        """
+        if getattr(self, "_is_empty_object", False):
+            return True
+        return self.n_deltas == 0 and self.funPart.isempty()
+
     def iszero(self, tol: float | None = None) -> bool:
         """True if both the smooth part and all deltas vanish.
 
@@ -375,6 +403,8 @@ class Deltafun(eqx.Module):
         MATLAB source : @deltafun/real.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return Deltafun.empty()
         fun_r = Bndfun.from_chebtech(
             self.funPart.onefun.real(), self.funPart.domain
         )
@@ -394,6 +424,8 @@ class Deltafun(eqx.Module):
         MATLAB source : @deltafun/imag.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return Deltafun.empty()
         fun_i = Bndfun.from_chebtech(
             self.funPart.onefun.imag(), self.funPart.domain
         )
@@ -428,6 +460,9 @@ class Deltafun(eqx.Module):
         """
         import numpy as _np
 
+        if self.isempty():
+            return (jnp.zeros(0, dtype=jnp.float64),
+                    jnp.zeros(0, dtype=jnp.float64))
         (min_val, min_pos), (max_val, max_pos) = self.funPart.minandmax()
         vals = [float(min_val), float(max_val)]
         pos = [float(min_pos), float(max_pos)]
@@ -466,6 +501,8 @@ class Deltafun(eqx.Module):
         """
         import numpy as _np
 
+        if self.isempty():
+            return Deltafun.empty()
         a, b = float(self.domain.a), float(self.domain.b)
         s = [float(v) for v in s]
         tol = _PROXIMITY_TOL
@@ -578,6 +615,8 @@ class Deltafun(eqx.Module):
         MATLAB source : @deltafun/diff.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return Deltafun.empty()
         if k == 0:
             return Deltafun(self.funPart, self.delta_locs, self.delta_mags)
 
@@ -615,6 +654,8 @@ class Deltafun(eqx.Module):
         MATLAB source : @deltafun/cumsum.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return Deltafun.empty()
         new_funPart = self.funPart.cumsum()
 
         if self.n_deltas == 0:
@@ -660,6 +701,8 @@ class Deltafun(eqx.Module):
         MATLAB source : @deltafun/plus.m
         Chebfun commit: 7574c77
         """
+        if self.isempty() or (isinstance(other, Deltafun) and other.isempty()):
+            return Deltafun.empty()
         if isinstance(other, Deltafun):
             new_funPart = self.funPart + other.funPart
             new_locs, new_mags = _merge_deltas(
@@ -716,6 +759,8 @@ class Deltafun(eqx.Module):
         MATLAB source : @deltafun/times.m
         Chebfun commit: 7574c77
         """
+        if self.isempty() or (isinstance(other, Deltafun) and other.isempty()):
+            return Deltafun.empty()
         if isinstance(other, (int, float, complex)) or (
             hasattr(other, "shape") and getattr(other, "shape", None) == ()
         ):

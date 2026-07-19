@@ -47,12 +47,13 @@ def _isequal(f, g):
 
 
 class TestClassicfunMinus:
-    @pytest.mark.xfail(
-        reason="chebfunjax has no empty-fun construction (bndfun() with no "
-        "args)."
-    )
     def test_empty(self):
-        raise NotImplementedError("empty Bndfun")
+        # pass(1): isempty(f - f) && isempty(f - g) && isempty(g - f)
+        f = Bndfun.empty()
+        g = Bndfun.from_function(jnp.sin, DOM)
+        assert (f - f).isempty()
+        assert (f - g).isempty()
+        assert (g - f).isempty()
 
     # --- subtract a scalar --------------------------------------------
     def test_sub_scalar_isequal(self):

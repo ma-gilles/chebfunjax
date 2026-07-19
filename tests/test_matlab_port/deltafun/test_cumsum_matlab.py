@@ -28,13 +28,9 @@ DOM = Domain((-1.0, 1.0))
 
 
 class TestDeltafunCumsum:
-    @pytest.mark.skip(
-        reason="chebfunjax has no empty Deltafun, so cumsum(deltafun()) and its "
-        "isempty result have no analog"
-    )
     def test_cumsum_empty(self):
         # pass(1): F = cumsum(deltafun()); isempty(F)
-        pass
+        assert Deltafun.empty().cumsum().isempty()
 
     @pytest.mark.filterwarnings("ignore::UserWarning")
     @pytest.mark.xfail(

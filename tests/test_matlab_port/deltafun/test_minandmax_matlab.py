@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
@@ -32,7 +31,9 @@ def _f():
 
 class TestDeltafunMinandmax:
     def test_empty(self):
-        pytest.skip("chebfunjax has no empty Deltafun representation")
+        # pass(1): [vals,pos]=minandmax(deltafun()) both empty
+        vals, pos = Deltafun.empty().minandmax()
+        assert vals.shape[0] == 0 and pos.shape[0] == 0
 
     # --- all positive zeroth-order deltas ---
     def _pos(self):
