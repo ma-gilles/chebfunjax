@@ -11,10 +11,23 @@ counterparts (1,105 port files). Final run:
 
 | Status | Count | Meaning |
 |---|---:|---|
-| **passed** | 1,819 | ported at MATLAB tolerances and passing |
-| **skipped** | 893 | test written; the feature does not exist (reason string names it) |
-| **xfailed** | 515 | known library bug or convention gap, with evidence in the reason |
+| **passed** | 1,957 | ported at MATLAB tolerances and passing |
+| **skipped** | 795 | test written; the feature does not exist (reason string names it) |
+| **xfailed** | 516 | known library bug or convention gap, with evidence in the reason |
 | **failed** | **0** | |
+
+*(Updated 2026-07-19 after the feature-build phase: +138 passes,
+-98 skips.  Landed: piecewise-domain chebop solver (per-piece
+collocation + continuity rows); Orr-Sommerfeld (complex generalized
+eigs, clamped BCs, 'LR'); the zero-curve roots subsystem
+(Chebfun2/diskfun/spherefun curves + chebfun2v common zeros);
+chebmatrix vertcat/diag-op/rank-k kron-op; chebfun mldivide/mrdivide/
+gmres; empty chebfun with propagation; chebfun3 13-feature fill;
+diskfun/spherefun/ballfun/ballfunv sub-features; minandmax2
+multi-start global optimization.  More real bugs fixed: diskfun
+constructor rank collapse (3-strike counter), _chebtech1_quadwts
+off-by-one (wrong moments), Chebfun2v arithmetic recompression,
+degenerate-domain validation.)*
 
 *(Updated 2026-07-18 after the Fable 5 Big-Three drive: +408 ports
 flipped to genuine passes (1,411 -> 1,819), -212 skips, -99 xfails.
