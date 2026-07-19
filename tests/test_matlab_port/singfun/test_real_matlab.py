@@ -28,27 +28,22 @@ class TestSingfunReal:
     def test_empty(self):
         pytest.skip("chebfunjax has no empty Singfun representation")
 
-    @pytest.mark.xfail(reason=_REASON, strict=True)
     def test_imaginary_smooth_not_singfun(self):
         f = _sf(lambda x: 1j * jnp.sin(x), (0.0, 0.0))
         assert not isinstance(f.real(), Singfun)
 
-    @pytest.mark.xfail(reason=_REASON, strict=True)
     def test_real_smooth(self):
         f = _sf(lambda x: jnp.exp(x), (0.0, 0.0))
         assert f.real() is f.smoothPart
 
-    @pytest.mark.xfail(reason=_REASON, strict=True)
     def test_real_with_exponents(self):
         f = _sf(lambda x: 1.0 / ((1 + x) * (1 - x)), (-1.0, -1.0))
         assert f.real() == f
 
-    @pytest.mark.xfail(reason=_REASON, strict=True)
     def test_purely_imaginary(self):
         f = 1j * _sf(lambda x: 1.0 / ((1 + x) * (1 - x)), (-1.0, -1.0))
         assert f.real() is not None
 
-    @pytest.mark.xfail(reason=_REASON, strict=True)
     def test_complex_smooth_part(self):
         f = _sf(lambda x: (jnp.sin(x) + 1j * jnp.cos(x)) / ((1 + x) * (1 - x)), (-1.0, -1.0))
         g = _sf(lambda x: jnp.sin(x) / ((1 + x) * (1 - x)), (-1.0, -1.0))

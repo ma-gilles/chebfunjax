@@ -19,7 +19,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.fun.singfun import Singfun
 
@@ -114,29 +113,16 @@ class TestSingfunConstructorNegativeInteger:
 class TestSingfunConstructorAutoDetect:
     """MATLAB detects the exponents when the user passes none (singfun(fh))."""
 
-    @pytest.mark.xfail(
-        reason="chebfunjax Singfun.from_function requires explicit exponents; "
-        "it has no exponent auto-detection",
-        strict=True,
-    )
     def test_negative_fractional_autodetect(self):
         fh = lambda x: jnp.exp(jnp.sin(x)) / ((1 + x) ** A * (1 - x) ** B)
         f = Singfun.from_function(fh)  # missing required exponents -> TypeError
         assert _ninf(np.asarray(f.exponents) + np.array([A, B])) < 1e-11
 
-    @pytest.mark.xfail(
-        reason="chebfunjax has no exponent auto-detection",
-        strict=True,
-    )
     def test_positive_fractional_autodetect(self):
         fh = lambda x: jnp.sin(jnp.exp(jnp.cos(x))) * (1 + x) ** A * (1 - x) ** B
         f = Singfun.from_function(fh)
         assert _ninf(np.asarray(f.exponents) - np.array([A, B])) < 1e-11
 
-    @pytest.mark.xfail(
-        reason="chebfunjax has no exponent auto-detection",
-        strict=True,
-    )
     def test_negative_integer_autodetect(self):
         fh = lambda x: jnp.exp(jnp.sin(x ** 2)) / ((1 + x) ** A_INT * (1 - x) ** B_INT)
         f = Singfun.from_function(fh)
@@ -144,11 +130,6 @@ class TestSingfunConstructorAutoDetect:
 
 
 class TestSingfunConstructorFromSmoothfunOrDouble:
-    @pytest.mark.xfail(
-        reason="chebfunjax has no smoothfun class / smoothfun input constructor "
-        "and no iszero",
-        strict=True,
-    )
     def test_from_smoothfun(self):
         from chebfunjax.tech.chebtech import Chebtech2
 
@@ -156,11 +137,6 @@ class TestSingfunConstructorFromSmoothfunOrDouble:
         s = Singfun(f)  # missing required exponents -> TypeError
         assert bool(jnp.all((f - s.smoothPart).coeffs == 0))
 
-    @pytest.mark.xfail(
-        reason="chebfunjax Singfun.from_function needs a callable; there is no "
-        "double->Singfun constructor nor iszero",
-        strict=True,
-    )
     def test_from_double(self):
         f = Singfun(42)  # not a valid constructor -> error
         assert bool(jnp.all((f - 42).coeffs == 0))

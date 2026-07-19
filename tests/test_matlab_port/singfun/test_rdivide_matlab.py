@@ -78,12 +78,6 @@ class TestSingfunRdivide:
         exact = jnp.ones_like(XI)
         assert _ninf(h(XI) - exact) <= 1e3 * _vscale(h) * EPS
 
-    @pytest.mark.xfail(
-        reason="chebfunjax has no exponent auto-detection: dividing two smooth "
-        "Singfuns whose quotient has endpoint poles (sin(x)/(1-x^2)) yields a "
-        "pure Chebtech2 that cannot converge (returns NaN)",
-        strict=True,
-    )
     def test_divide_creating_poles(self):
         f = _sf(lambda x: jnp.sin(x), (0.0, 0.0))
         g = _sf(lambda x: (1 + x) * (1 - x), (0.0, 0.0))

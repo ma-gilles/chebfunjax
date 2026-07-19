@@ -413,3 +413,201 @@ class TestSingfunArithmetic:
         sf3 = self.sf1 / 2.0
         x = jnp.float64(0.3)
         npt.assert_allclose(float(sf3(x)), float(self.sf1(x)) / 2.0, rtol=1e-14)
+
+
+# =============================================================================
+# Tier 5: Methods added in the SingFun expansion (Fable 5)
+# =============================================================================
+
+
+class TestSingfunReflectionAndComplex:
+    """flipud / real / imag / conj / __eq__."""
+
+    def test_flipud_swaps_ends(self):
+        """flipud gives g(x) = f(-x) and swaps the exponents."""
+        f = Singfun.from_function(lambda x: (1.0 + x) ** 0.5 * jnp.exp(x), (0.5, 0.0))
+        g = f.flipud()
+        assert g.exponents == (0.0, 0.5)
+        x = jnp.array([-0.7, 0.0, 0.6], dtype=jnp.float64)
+        npt.assert_allclose(np.array(g(x)), np.array(f(-x)), rtol=1e-12)
+
+    def test_real_demotes_when_smooth(self):
+        """real of a smooth Singfun returns the bare smooth part (identity)."""
+        f = Singfun.from_function(lambda x: jnp.exp(x), (0.0, 0.0))
+        assert f.real() is f.smoothPart
+        assert not isinstance(f.real(), Singfun)
+
+    def test_real_imag_of_complex_singfun(self):
+        """real/imag split a complex smooth part while keeping the exponents."""
+        f = 1j * Singfun.from_function(lambda x: 1.0 / ((1 + x) * (1 - x)), (-1.0, -1.0))
+        assert isinstance(f.real(), Singfun)
+        x = jnp.array([-0.3, 0.2], dtype=jnp.float64)
+        npt.assert_allclose(np.array(f.imag()(x)),
+                            np.array(1.0 / ((1 + x) * (1 - x))), rtol=1e-11)
+        npt.assert_allclose(np.abs(np.array(f.real()(x))), 0.0, atol=1e-11)
+
+    def test_conj(self):
+        """conj negates the imaginary part of the smooth factor."""
+        g = Singfun.from_function(lambda x: jnp.sin(x) / (1 + x), (-1.0, 0.0))
+        f = 1j * g
+        assert f.conj() == -f
+
+    def test_eq(self):
+        """__eq__ compares exponents and smooth-part coefficients."""
+        a = Singfun.from_function(lambda x: jnp.cos(x) / (1 + x), (-1.0, 0.0))
+        b = Singfun.from_function(lambda x: jnp.cos(x) / (1 + x), (-1.0, 0.0))
+        c = Singfun.from_function(lambda x: jnp.sin(x) / (1 + x), (-1.0, 0.0))
+        assert a == b
+        assert a != c
+
+
+class TestSingfunRootsExtrema:
+    """roots / minandmax."""
+
+    def test_roots_positive_left_exponent(self):
+        """A positive left exponent contributes a root at x = -1."""
+        f = Singfun.from_function(lambda x: (1.0 + x) ** 0.5 * jnp.exp(x), (0.5, 0.0))
+        r = np.array(f.roots())
+        assert np.min(np.abs(r + 1.0)) < 1e-12
+
+    def test_roots_interior(self):
+        """Interior roots come from the smooth part."""
+        f = Singfun.from_function(lambda x: jnp.sin(3 * x) * (1 - x) ** 0.5, (0.0, 0.5))
+        r = np.sort(np.array(f.roots()))
+        # sin(3x)=0 at x=0, +-pi/3 in [-1,1]; plus x=1 from the positive exponent
+        assert np.min(np.abs(r - 0.0)) < 1e-10
+        assert np.min(np.abs(r - 1.0)) < 1e-12
+
+    def test_minandmax_bounded_root(self):
+        """Bounded case: extrema found among endpoints and roots of f'."""
+        f = Singfun.from_function(lambda x: (1.0 + x) ** 0.5 * jnp.exp(x), (0.5, 0.0))
+        vals, pos = f.minandmax()
+        npt.assert_allclose(float(vals[0]), 0.0, atol=1e-12)
+        npt.assert_allclose(float(vals[1]), 2.0 ** 0.5 * np.exp(1.0), rtol=1e-10)
+
+    def test_minandmax_blowup(self):
+        """A negative endpoint exponent gives an infinite extreme value."""
+        f = Singfun.from_function(lambda x: (1.0 + x) ** (-0.5), (-0.5, 0.0))
+        vals, _ = f.minandmax()
+        assert float(vals[1]) == np.inf
+
+
+class TestSingfunRestrict:
+    """restrict."""
+
+    def test_restrict_interior_returns_smooth(self):
+        f = Singfun.from_function(lambda x: (1.0 + x) ** 0.5 * jnp.exp(x), (0.5, 0.0))
+        g = f.restrict([-0.2, 0.3])
+        assert isinstance(g, Chebtech2)
+        x = jnp.array([-0.5, 0.0, 0.7], dtype=jnp.float64)
+        # g lives on [-1,1] reparam of [-0.2,0.3]
+        mapped = ((1.0 - x) * (-0.2) + (1.0 + x) * 0.3) / 2.0
+        npt.assert_allclose(np.array(g(x)), np.array(f(mapped)), rtol=1e-10)
+
+    def test_restrict_endpoint_keeps_exponent(self):
+        f = Singfun.from_function(lambda x: (1.0 + x) ** (-0.5), (-0.5, 0.0))
+        g = f.restrict([-1.0, 0.3])
+        assert isinstance(g, Singfun)
+        assert g.exponents == (-0.5, 0.0)
+
+    def test_restrict_multi_returns_list(self):
+        f = Singfun.from_function(lambda x: (1.0 - x) ** 0.5 * jnp.cos(x), (0.0, 0.5))
+        pieces = f.restrict([-1.0, 0.0, 1.0])
+        assert isinstance(pieces, list) and len(pieces) == 2
+
+
+class TestSingfunChebcoeffs:
+    """chebcoeffs projection."""
+
+    def test_chebcoeffs_sqrt(self):
+        """First-kind coefficients of sqrt(1-x) match the exact values."""
+        f = Singfun.from_function(lambda x: jnp.sqrt(1 - x), (0.0, 0.5))
+        c = np.array(f.chebcoeffs(10))
+        assert c.shape[0] == 10
+        exact = np.array([np.sqrt(2), -2 * np.sqrt(2) / 35]) * (2 / np.pi)
+        npt.assert_allclose(c[[0, 3]], exact, atol=1e-13)
+
+    def test_chebcoeffs_rejects_strong_singularity(self):
+        f = Singfun.from_function(lambda x: (1.0 + x) ** (-0.5), (-0.5, 0.0))
+        with pytest.raises(ValueError):
+            f.chebcoeffs(5)
+
+
+class TestSingfunFactoryCompose:
+    """make / compose / autodetection."""
+
+    def test_make_roundtrips(self):
+        def fh(x):
+            return jnp.sin(x) * (1 + x) ** 0.3 * (1 - x) ** 0.4
+        f = Singfun.from_function(fh, (0.3, 0.4))
+        assert f.make(fh, (0.3, 0.4)) == f
+
+    def test_autodetect_fractional(self):
+        a, b = 0.3387, 0.5612
+        def fh(x):
+            return jnp.exp(jnp.sin(x)) / ((1 + x) ** a * (1 - x) ** b)
+        f = Singfun.from_function(fh)  # no exponents -> autodetect
+        assert abs(f.exponents[0] + a) < 1e-10
+        assert abs(f.exponents[1] + b) < 1e-10
+
+    def test_autodetect_integer_pole(self):
+        def fh(x):
+            return jnp.exp(x) / ((1 + x) ** 2 * (1 - x) ** 3)
+        f = Singfun.from_function(fh)
+        assert f.exponents == (-2.0, -3.0)
+
+    def test_compose_operator(self):
+        f = Singfun.from_function(lambda x: jnp.sqrt(x + 1), (0.5, 0.0))
+        h = f.compose(jnp.sin)
+        x = jnp.array([-0.6, 0.0, 0.5], dtype=jnp.float64)
+        npt.assert_allclose(np.array(h(x)), np.array(jnp.sin(jnp.sqrt(x + 1))),
+                            rtol=1e-10)
+
+    def test_compose_binary(self):
+        f = Singfun.from_function(lambda x: jnp.sin(x) / (x + 1), (-1.0, 0.0))
+        g = Singfun.from_function(lambda x: jnp.cos(x) / (x + 1), (-1.0, 0.0))
+        h = f.compose(jnp.add, g)
+        x = jnp.array([-0.5, 0.2], dtype=jnp.float64)
+        npt.assert_allclose(np.array(h(x)),
+                            np.array((jnp.sin(x) + jnp.cos(x)) / (x + 1)), rtol=1e-10)
+
+
+class TestSingfunScalarConstruction:
+    """Scalar / smoothfun construction and complex-scalar addition."""
+
+    def test_from_smoothfun(self):
+        tech = Chebtech2.from_function(lambda x: jnp.sin(x))
+        s = Singfun(tech)
+        assert s.exponents == (0.0, 0.0)
+        assert bool(jnp.all((tech - s.smoothPart).coeffs == 0))
+
+    def test_from_double(self):
+        s = Singfun(42.0)
+        x = jnp.array([-0.3, 0.5], dtype=jnp.float64)
+        npt.assert_allclose(np.array(s(x)), 42.0, rtol=1e-14)
+
+    def test_add_complex_scalar(self):
+        alpha = -0.1948 + 0.0755j
+        f = Singfun.from_function(lambda x: 1.0 / ((1 + x) * (1 - x)), (-1.0, -1.0))
+        g1 = f + alpha
+        g2 = alpha + f
+        assert g1 == g2
+
+
+class TestSingfunDiffCrossing:
+    """diff of a both-endpoint-singular function (crossing exponents)."""
+
+    def test_diff_pole_and_root(self):
+        B, C = -0.56, 1.28
+        f = Singfun.from_function(
+            lambda x: (1 + x) ** B * jnp.sin(x) * (1 - x) ** C, (B, C)
+        )
+        df = f.diff()
+        x = jnp.linspace(-0.9, 0.9, 40)
+        exact = (
+            jnp.cos(x) * (1 - x) ** C * (x + 1) ** B
+            + B * jnp.sin(x) * (1 - x) ** C * (x + 1) ** (B - 1)
+            - C * jnp.sin(x) * (1 - x) ** (C - 1) * (x + 1) ** B
+        )
+        rel = float(jnp.max(jnp.abs(df(x) - exact)) / jnp.max(jnp.abs(exact)))
+        assert rel < 1e-10

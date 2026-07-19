@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.fun.singfun import Singfun
 
@@ -30,32 +29,26 @@ def _sf(f, exps):
 
 
 class TestSingfunRestrict:
-    @pytest.mark.xfail(reason=_REASON, strict=True)
     def test_frac_root_left(self):
         f = _sf(lambda x: (1 + x) ** A * jnp.exp(x), (A, 0.0))
         f.restrict([-0.2, 0.1])
 
-    @pytest.mark.xfail(reason=_REASON, strict=True)
     def test_frac_pole_left(self):
         f = _sf(lambda x: (1 + x) ** D * jnp.sin(50 * np.pi * x), (D + 1, 0.0))
         f.restrict([-1, 0.3])
 
-    @pytest.mark.xfail(reason=_REASON, strict=True)
     def test_frac_root_right_multi(self):
         f = _sf(lambda x: (1 - x) ** C * jnp.cos(x), (0.0, C))
         f.restrict([-1, -0.7, 1])
 
-    @pytest.mark.xfail(reason=_REASON, strict=True)
     def test_frac_pole_right_multi(self):
         f = _sf(lambda x: (1 - x) ** B, (0.0, B))
         f.restrict([-0.9, -0.3, 0.7, 1])
 
-    @pytest.mark.xfail(reason=_REASON, strict=True)
     def test_two_poles_multi(self):
         f = _sf(lambda x: (1 + x) ** B * jnp.sin(x) * (1 - x) ** D, (B, D))
         f.restrict([-1, -0.9, 0.5, 0.7, 1])
 
-    @pytest.mark.xfail(reason=_REASON, strict=True)
     def test_roots_close_to_endpoints(self):
         p = 1e-4
         f = _sf(lambda x: (1 + x) ** B * jnp.sin(x) * (1 - x) ** (3 * C), (B, B))

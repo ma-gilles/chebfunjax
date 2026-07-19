@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.fun.singfun import Singfun
 
@@ -29,13 +28,11 @@ def _sf(f, exps):
 
 
 class TestSingfunChebcoeffs:
-    @pytest.mark.xfail(reason=_REASON, strict=True)
     def test_length_first_kind(self):
         f = _sf(lambda x: jnp.sqrt(1 - x), (0.0, 0.5))
         c = f.chebcoeffs(10)
         assert len(c) == 10
 
-    @pytest.mark.xfail(reason=_REASON, strict=True)
     def test_values_first_kind(self):
         f = _sf(lambda x: jnp.sqrt(1 - x), (0.0, 0.5))
         c = f.chebcoeffs(10)
@@ -43,13 +40,11 @@ class TestSingfunChebcoeffs:
         got = np.asarray(c)[[0, 3]]
         assert np.linalg.norm(got - exact) < 10 * EPS
 
-    @pytest.mark.xfail(reason=_REASON, strict=True)
     def test_length_second_kind(self):
         f = _sf(lambda x: (1 + x ** 2 + x ** 3) * jnp.sqrt(1 - x ** 2), (0.5, 0.5))
         c = f.chebcoeffs(10, kind=2)
         assert len(c) == 10
 
-    @pytest.mark.xfail(reason=_REASON, strict=True)
     def test_values_second_kind(self):
         f = _sf(lambda x: (1 + x ** 2 + x ** 3) * jnp.sqrt(1 - x ** 2), (0.5, 0.5))
         c = f.chebcoeffs(10, kind=2)

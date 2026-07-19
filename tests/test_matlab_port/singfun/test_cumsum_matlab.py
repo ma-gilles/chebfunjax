@@ -80,21 +80,11 @@ class TestSingfunCumsum:
         exact = (1 - X) ** (-3.0) / 3 - 2 ** (-3.0) / 3
         assert _ninf(g(X) - exact) < 1e2 * EPS * _ninf(exact)
 
-    @pytest.mark.xfail(
-        reason="chebfunjax Singfun has no restrict method (needed to compare "
-        "integrate-then-restrict vs restrict-then-integrate)",
-        strict=True,
-    )
     def test_no_closed_form_pole_left(self):
         f = _sf(lambda x: jnp.cos(x ** 2 + 3) * ((1 + x) ** B), (B, 0.0))
         u = f.cumsum()
         u.restrict([-1 + 1e-2, 1])  # AttributeError -> xfail
 
-    @pytest.mark.xfail(
-        reason="chebfunjax Singfun has no restrict method (needed to compare "
-        "integrate-then-restrict vs restrict-then-integrate)",
-        strict=True,
-    )
     def test_no_closed_form_root_left(self):
         f = _sf(lambda x: jnp.cos(jnp.sin(x)) * (1 + x) ** C, (C, 0.0))
         u = f.cumsum()

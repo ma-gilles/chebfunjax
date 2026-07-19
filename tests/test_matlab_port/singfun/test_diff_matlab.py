@@ -82,13 +82,6 @@ class TestSingfunDiff:
         exact = (1 - X) ** (B - 1) * (5 - 5 * X - B * X) * (X ** 4)
         assert _ninf(df(X) - exact) < 1e2 * EPS * _ninf(exact)
 
-    @pytest.mark.xfail(
-        reason="Singfun.__add__ Case-2 is wrong for 'crossing' exponents (one "
-        "operand smaller at the left end, the other smaller at the right end). "
-        "diff() of a both-endpoint-singular function sums three terms whose "
-        "exponents cross, so the product-rule result is corrupted.",
-        strict=True,
-    )
     def test_pole_and_root(self):
         # combination of fractional pole (left) and fractional root (right)
         f = _sf(lambda x: (1 + x) ** B * jnp.sin(x) * (1 - x) ** C, (B, C))
@@ -100,11 +93,6 @@ class TestSingfunDiff:
         )
         assert _ninf(df(X) - exact) < 1e2 * EPS * _ninf(exact)
 
-    @pytest.mark.xfail(
-        reason="Singfun.__add__ Case-2 wrong for crossing exponents "
-        "(both-endpoint singular diff); see test_pole_and_root",
-        strict=True,
-    )
     def test_diff_vs_direct_construction(self):
         f = _sf(lambda x: (1 + x) ** B * jnp.sin(2 * x) * (1 - x) ** B, (B, B))
         df = f.diff()
@@ -117,11 +105,6 @@ class TestSingfunDiff:
         )
         assert _ninf(df(X) - df_exact(X)) < 20 * EPS * _ninf(df_exact(X))
 
-    @pytest.mark.xfail(
-        reason="Singfun.__add__ Case-2 wrong for crossing exponents "
-        "(both-endpoint singular 2nd derivative); see test_pole_and_root",
-        strict=True,
-    )
     def test_second_derivative(self):
         f = _sf(lambda x: (1 + x) ** A * jnp.sin(x) * (1 - x) ** B, (A, B))
         df2 = f.diff(2)

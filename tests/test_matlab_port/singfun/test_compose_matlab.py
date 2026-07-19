@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.fun.singfun import Singfun
 from chebfunjax.tech.chebtech import Chebtech2
@@ -33,7 +32,6 @@ def _ninf(a):
 
 
 class TestSingfunCompose:
-    @pytest.mark.xfail(reason=_REASON, strict=True)
     def test_compose_two_singfuns(self):
         f = _sf(lambda x: jnp.sin(x) / (x + 1), (-1.0, 0.0))
         g = _sf(lambda x: jnp.cos(x) / (x + 1), (-1.0, 0.0))
@@ -41,14 +39,12 @@ class TestSingfunCompose:
         exact = (jnp.sin(X) + jnp.cos(X)) / (X + 1)
         assert _ninf(h(X) - exact) < 1e3 * EPS * h.smoothPart.vscale
 
-    @pytest.mark.xfail(reason=_REASON, strict=True)
     def test_compose_operator_and_singfun(self):
         f = _sf(lambda x: jnp.sqrt(x + 1), (0.5, 0.0))
         h = f.compose(jnp.sin)
         exact = jnp.sin(jnp.sqrt(X + 1))
         assert _ninf(h(X) - exact) < 1e1 * EPS * h.smoothPart.vscale
 
-    @pytest.mark.xfail(reason=_REASON, strict=True)
     def test_compose_smoothfun_and_singfun(self):
         f = _sf(lambda x: jnp.sqrt(x + 1), (0.5, 0.0))
         g = Chebtech2.from_function(lambda x: jnp.cos(x))

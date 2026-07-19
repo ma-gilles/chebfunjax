@@ -59,11 +59,6 @@ class TestSingfunPlus:
     def test_smoothfun_plus_singfun(self):
         pytest.skip("chebfunjax has no separate smoothfun class")
 
-    @pytest.mark.xfail(
-        reason="chebfunjax Singfun.__add__ cannot add a complex scalar "
-        "(float(complex) raises); MATLAB uses a complex additive constant",
-        strict=True,
-    )
     def test_add_complex_scalar(self):
         alpha = -0.194758928283640 + 0.075474485412665j
         f = _sf(lambda x: 1.0 / ((1 + x) * (1 - x)), (-1.0, -1.0))
