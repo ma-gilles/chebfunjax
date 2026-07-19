@@ -16,7 +16,6 @@ from typing import Callable, Optional, Union
 import equinox as eqx
 import jax
 import jax.numpy as jnp
-import numpy as np
 
 from chebfunjax.chebfun2d.separable_approx import SeparableApprox
 from chebfunjax.tech.chebtech import Chebtech2
@@ -539,31 +538,29 @@ class Chebfun2(eqx.Module):
     # Root finding
     # ------------------------------------------------------------------
 
-    def roots(self) -> list:
-        """Zero contours of f as a list of (x, y) coordinate arrays.
+    def roots(self):
+        """Zero curves of f as a list of complex-valued Chebfun contours.
 
-        Finds the zero level-set of f by evaluating on a fine grid and
-        applying marching squares to locate edge crossings.  Each call
-        returns a list of point clouds, one per connected component; the
-        points are not sorted along the contour.
+        Returns the zero level set of ``f`` as parametrized curves
+        ``c(t) = x(t) + 1i*y(t)`` for ``t in [-1, 1]`` (MATLAB
+        ``roots(f)``): a rank-1 ``f`` gives the horizontal/vertical lines
+        through the roots of its 1D slices, and a higher-rank ``f`` is
+        traced by marching squares and refined to near machine precision by
+        a complex-Newton polish.  The list is the chebfunjax stand-in for
+        MATLAB's quasimatrix of zero contours; per-curve quantities such as
+        arc length (``sum(abs(diff(c)))``) and enclosed area
+        (``sum(real(c).*diff(imag(c)))``) are obtained by iterating the
+        list.
 
         Returns
         -------
-        list of np.ndarray, each of shape (n_pts, 2)
-            Each element is an array of (x, y) coordinates lying on the
-            zero contour.  If f has no zeros inside the domain, returns
-            an empty list.
+        list of Chebfun
+            One complex Chebfun per connected zero contour (empty if ``f``
+            does not change sign in the domain).
 
         Notes
         -----
-        This is a simplified implementation using a cell-based marching
-        squares algorithm for initial curve detection (no Newton
-        refinement and no contour tracing/ordering).  Accuracy is limited
-        by the grid resolution (n = 500 by default).  For high accuracy
-        or ordered zero curves, use the MATLAB Chebfun2 ``roots()`` method
-        which performs Newton refinement.
-
-        NOT JIT-safe.
+        NOT JIT-safe (marching squares + adaptive construction).
 
         Provenance
         ----------
@@ -576,45 +573,8 @@ class Chebfun2(eqx.Module):
         --------
         diff, sum
         """
-        xa, xb, ya, yb = self.domain
-        n = 500
-        x_pts = np.linspace(float(xa), float(xb), n)
-        y_pts = np.linspace(float(ya), float(yb), n)
-        xx, yy = np.meshgrid(x_pts, y_pts)
-        xx_j = jnp.asarray(xx, dtype=jnp.float64)
-        yy_j = jnp.asarray(yy, dtype=jnp.float64)
-        vals = np.array(self.approx(xx_j, yy_j), dtype=np.float64)
-
-        # Marching-squares: collect edge midpoints where sign changes.
-        def _interp(x0, y0, v0, x1, y1, v1):
-            t = v0 / (v0 - v1)
-            return x0 + t * (x1 - x0), y0 + t * (y1 - y0)
-
-        crossing_pts = []
-        ny, nx = vals.shape
-        for i in range(ny - 1):
-            for j in range(nx - 1):
-                v00 = vals[i, j]
-                v10 = vals[i, j + 1]
-                v01 = vals[i + 1, j]
-                v11 = vals[i + 1, j + 1]
-                x0, y0 = x_pts[j], y_pts[i]
-                x1, y1 = x_pts[j + 1], y_pts[i + 1]
-
-                if v00 * v10 < 0:  # bottom edge
-                    crossing_pts.append(_interp(x0, y0, v00, x1, y0, v10))
-                if v01 * v11 < 0:  # top edge
-                    crossing_pts.append(_interp(x0, y1, v01, x1, y1, v11))
-                if v00 * v01 < 0:  # left edge
-                    crossing_pts.append(_interp(x0, y0, v00, x0, y1, v01))
-                if v10 * v11 < 0:  # right edge
-                    crossing_pts.append(_interp(x1, y0, v10, x1, y1, v11))
-
-        if not crossing_pts:
-            return []
-
-        pts = np.array(crossing_pts, dtype=np.float64)  # shape (n_pts, 2)
-        return [pts]
+        from chebfunjax.chebfun2d.zerocurves import zero_curves
+        return zero_curves(self)
 
     # ------------------------------------------------------------------
     # Plotting

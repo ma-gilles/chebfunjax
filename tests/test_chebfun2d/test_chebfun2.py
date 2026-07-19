@@ -402,37 +402,40 @@ class TestChebfun2Norm:
 
 
 class TestChebfun2Roots:
-    """Tests for Chebfun2.roots (zero contour detection)."""
+    """Tests for Chebfun2.roots — complex-valued Chebfun zero curves
+    (marching squares + Newton polish; rank-1 lines exact).  Updated for
+    the Fable 5 zero-curve engine (roots now returns parametrized Chebfun
+    contours rather than point clouds)."""
 
-    def test_roots_returns_list(self):
-        """roots() returns a list."""
+    _t = jnp.asarray(np.linspace(-1.0, 1.0, 200))
+
+    def test_roots_returns_list_of_chebfuns(self):
         f = Chebfun2.from_function(lambda x, y: x)
         result = f.roots()
         assert isinstance(result, list)
+        assert len(result) == 1
 
-    def test_roots_zero_contour_x(self):
-        """roots() of f=x should find the zero contour x=0.
-
-        The zero set of f(x,y)=x is the line x=0, which crosses the domain.
-        """
+    def test_roots_zero_line_x(self):
+        # f = x  ->  the vertical line x = 0, parametrized 1i*t.
         f = Chebfun2.from_function(lambda x, y: x + jnp.zeros_like(y))
-        contours = f.roots()
-        # Should find at least one contour near x=0
-        assert len(contours) >= 1
-        # All points on the contour should have |x| < some tolerance
-        for c in contours:
-            npt.assert_allclose(c[:, 0], np.zeros(c.shape[0]), atol=0.01)
+        curves = f.roots()
+        assert len(curves) == 1
+        z = np.asarray(curves[0](self._t))
+        npt.assert_allclose(z.real, 0.0, atol=1e-12)
 
-    def test_roots_circle(self):
-        """roots() of x^2+y^2-0.25 should trace a circle of radius 0.5."""
+    def test_roots_circle_arclength_and_area(self):
+        # x^2 + y^2 - 1/4: circle radius 1/2, circumference pi, area pi/4.
         f = Chebfun2.from_function(lambda x, y: x**2 + y**2 - 0.25)
-        contours = f.roots()
-        # Should find one contour (the circle)
-        assert len(contours) >= 1
-        # Each point on the contour should satisfy x^2+y^2 ≈ 0.25
-        for c in contours:
-            radii = c[:, 0] ** 2 + c[:, 1] ** 2
-            npt.assert_allclose(radii, 0.25 * np.ones(len(radii)), atol=0.01)
+        curves = f.roots()
+        assert len(curves) == 1
+        c = curves[0]
+        # Every curve point lies on the zero set.
+        z = np.asarray(c(self._t))
+        npt.assert_allclose(z.real**2 + z.imag**2, 0.25, atol=1e-8)
+        arclength = float(abs(c.diff()).sum())
+        npt.assert_allclose(arclength, np.pi, atol=1e-8)
+        area = abs(float((c.real() * c.imag().diff()).sum()))
+        npt.assert_allclose(area, np.pi / 4, atol=1e-8)
 
 
 class TestChebfun2GlobalOptimization:
