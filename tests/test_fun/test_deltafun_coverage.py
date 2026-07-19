@@ -134,9 +134,12 @@ class TestMultiplication:
                             np.sin(np.asarray(xs)) * np.cos(np.asarray(xs)),
                             atol=1e-11)
 
-    def test_mul_two_deltafuns_rejected(self):
+    def test_mul_two_deltafuns_same_loc_rejected(self):
+        # MATLAB @deltafun/times.m: products of deltafuns are allowed
+        # when the delta supports do not intersect (Leibniz expansion,
+        # Fable 5); coincident deltas remain undefined and raise.
         df = _cos_with_delta(mag=2.0)
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(ValueError):
             df * df
 
     def test_mul_incompatible_type_raises(self):

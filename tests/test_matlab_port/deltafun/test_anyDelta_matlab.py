@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
@@ -46,11 +45,6 @@ class TestDeltafunAnyDelta:
         d = Deltafun(_f(), jnp.array([0.0]), jnp.array([1.0]))
         assert d.has_deltas
 
-    @pytest.mark.xfail(
-        reason="chebfunjax Deltafun.has_deltas tests magnitude != 0, not "
-        "> deltaPrefs.deltaTol; magnitudes below deltaTol are neither cleaned "
-        "at construction nor ignored"
-    )
     def test_below_deltatol_is_not_a_delta(self):
         # pass(4): mag = deltaTol/2 -> ~anyDelta
         d = Deltafun(_f(), jnp.array([0.0]), jnp.array([DELTA_TOL / 2]))

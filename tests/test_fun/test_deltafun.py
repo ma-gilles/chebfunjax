@@ -22,6 +22,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import numpy.testing as npt
+import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
@@ -411,3 +412,112 @@ class TestMergeDeltas:
         mags2 = jnp.zeros((1, 0), dtype=jnp.float64)
         new_locs, new_mags = _merge_deltas(locs1, mags1, locs2, mags2)
         assert len(new_locs) == 0
+
+
+# =============================================================================
+# Deltafun expansion (Fable 5): cleaning, real/imag, restrict, minandmax, times
+# =============================================================================
+
+
+class TestDeltafunCleaning:
+    """Constructor drops sub-deltaTol impulses and merges coincident deltas."""
+
+    def test_below_deltatol_dropped(self):
+        f = Bndfun.from_function(jnp.exp, D_STD)
+        d = Deltafun(f, jnp.array([-1.0, 0.0, 0.5]),
+                     jnp.array([1.0, 1e-12, 2.0]))
+        # the tiny middle impulse is removed at construction
+        assert d.n_deltas == 2
+        np.testing.assert_allclose(np.asarray(d.delta_locs), [-1.0, 0.5])
+
+    def test_coincident_locations_merged(self):
+        f = Bndfun.from_function(jnp.exp, D_STD)
+        d = Deltafun(f, jnp.array([0.3, 0.3]), jnp.array([1.0, 2.0]))
+        assert d.n_deltas == 1
+        np.testing.assert_allclose(float(d.delta_mags[0, 0]), 3.0)
+
+    def test_sorted_by_location(self):
+        f = Bndfun.from_function(jnp.exp, D_STD)
+        d = Deltafun(f, jnp.array([0.5, -0.5, 0.0]), jnp.array([1.0, 2.0, 3.0]))
+        np.testing.assert_allclose(np.asarray(d.delta_locs), [-0.5, 0.0, 0.5])
+        np.testing.assert_allclose(np.asarray(d.delta_mags[0]), [2.0, 3.0, 1.0])
+
+
+class TestDeltafunRealImag:
+    def test_real_of_complex_mags(self):
+        f = Bndfun.from_function(jnp.exp, D_STD)
+        d = Deltafun(f, jnp.array([0.0, 0.5]), jnp.asarray([1 + 2j, 3 - 4j]))
+        h = d.real()
+        assert isinstance(h, Deltafun)
+        np.testing.assert_allclose(np.asarray(h.delta_mags[0]), [1.0, 3.0])
+
+    def test_imag_demotes_when_real(self):
+        f = Bndfun.from_function(jnp.sin, D_STD)
+        d = Deltafun(f, jnp.array([0.0]), jnp.array([1.0]))
+        # imag of a real-magnitude delta has no deltas -> bare Bndfun
+        assert not isinstance(d.imag(), Deltafun)
+
+    def test_imag_of_scaled(self):
+        f = Bndfun.from_function(jnp.sin, D_STD)
+        d = Deltafun(f, jnp.array([0.0]), jnp.array([1.0]))
+        h = (1j * d).imag()
+        assert isinstance(h, Deltafun)
+        np.testing.assert_allclose(float(h.delta_mags[0, 0]), 1.0)
+
+
+class TestDeltafunRestrict:
+    def test_piece_without_delta_is_bndfun(self):
+        f = Bndfun.from_function(jnp.sin, D_STD)
+        d = Deltafun(f, jnp.array([0.0]), jnp.array([1.0]))
+        g = d.restrict([-1.0, -0.5])
+        assert not isinstance(g, Deltafun)
+
+    def test_interior_break_halves_delta(self):
+        f = Bndfun.from_function(jnp.exp, D_STD)
+        d = Deltafun(f, jnp.array([0.0]), jnp.array([2.0]))
+        pieces = d.restrict([-1.0, 0.0, 1.0])
+        # delta exactly on the interior break goes half to each side
+        np.testing.assert_allclose(float(pieces[0].delta_mags[0, -1]), 1.0)
+        np.testing.assert_allclose(float(pieces[1].delta_mags[0, 0]), 1.0)
+
+
+class TestDeltafunMinandmax:
+    def test_positive_delta_gives_inf_max(self):
+        f = Bndfun.from_function(jnp.exp, D_STD)
+        d = Deltafun(f, jnp.array([0.3]), jnp.array([2.0]))
+        vals, pos = d.minandmax()
+        assert float(vals[1]) == np.inf
+        np.testing.assert_allclose(float(pos[1]), 0.3)
+
+    def test_negative_delta_gives_minus_inf_min(self):
+        f = Bndfun.from_function(jnp.exp, D_STD)
+        d = Deltafun(f, jnp.array([0.3]), jnp.array([-2.0]))
+        vals, _ = d.minandmax()
+        assert float(vals[0]) == -np.inf
+
+
+class TestDeltafunTimesLeibniz:
+    def test_smooth_times_delta4(self):
+        f = Bndfun.from_function(lambda x: jnp.exp(-x), D_STD)
+        g = Bndfun.from_function(jnp.sin, D_STD)
+        df1 = Deltafun.from_fun(f)
+        df2 = Deltafun(g, jnp.array([0.0]),
+                       jnp.array([[0.0], [0.0], [0.0], [0.0], [1.0]]))
+        s = df1 * df2
+        np.testing.assert_allclose(
+            np.asarray(s.delta_mags).ravel(), [1.0, 4.0, 6.0, 4.0, 1.0], atol=1e-9)
+
+    def test_times_bndfun_scales_delta(self):
+        # f(x)*delta(x-x0) = f(x0)*delta(x-x0)
+        f = Bndfun.from_function(lambda x: 2.0 + x, D_STD)
+        d = Deltafun(Bndfun.from_function(jnp.sin, D_STD),
+                     jnp.array([0.5]), jnp.array([3.0]))
+        s = d * f
+        np.testing.assert_allclose(float(s.delta_mags[0, 0]), 3.0 * 2.5, atol=1e-9)
+
+    def test_coincident_deltas_raise(self):
+        g = Bndfun.from_function(jnp.sin, D_STD)
+        d1 = Deltafun(g, jnp.array([0.0]), jnp.array([1.0]))
+        d2 = Deltafun(g, jnp.array([0.0]), jnp.array([1.0]))
+        with pytest.raises(ValueError):
+            _ = d1 * d2

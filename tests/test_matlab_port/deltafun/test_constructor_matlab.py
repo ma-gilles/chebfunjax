@@ -93,11 +93,6 @@ class TestDeltafunConstructor:
         assert _ninf(d.delta_mags - deltas) == 0.0
         assert _ninf(d.delta_locs - locs) == 0.0
 
-    @pytest.mark.xfail(
-        reason="chebfunjax constructor does not clean delta magnitudes below "
-        "deltaPrefs.deltaTol; MATLAB drops [-1, deltaTol/2, 1, deltaTol/2] to "
-        "[-1, 1] at locations [-1, .5]"
-    )
     def test_deltatol_cleaning(self):
         # pass(8): tiny magnitudes removed at construction
         f = Bndfun.from_function(lambda x: 20 * 1.3 * jnp.sin(10 * -0.7 * x), DOM)
