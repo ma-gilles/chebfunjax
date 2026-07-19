@@ -1413,15 +1413,21 @@ class Ballfun(eqx.Module):
             I = float(np.real(I))
         return I
 
-    def diff(self, dim: int = 1, k: int = 1) -> "Ballfun":
-        """k-th partial derivative in the Cartesian direction dim.
+    def diff(self, dim: int = 1, k: int = 1,
+             coord: str = "cartesian") -> "Ballfun":
+        """k-th partial derivative in direction ``dim``.
 
         Parameters
         ----------
         dim : int, default 1
-            1 -> d/dx, 2 -> d/dy, 3 -> d/dz (MATLAB convention).
+            With ``coord='cartesian'`` (default): 1 -> d/dx, 2 -> d/dy,
+            3 -> d/dz.  With ``coord='spherical'``: 1 -> d/dr, 2 -> d/dlam,
+            3 -> d/dtheta (MATLAB convention).
         k : int, default 1
             Order (applied by iterated first derivatives).
+        coord : {'cartesian', 'spherical'}, default 'cartesian'
+            Coordinate frame of the derivative.  ``'spherical'`` mirrors
+            MATLAB ``diff(f, dim, 'spherical')``.
 
         Returns
         -------
@@ -1435,8 +1441,12 @@ class Ballfun(eqx.Module):
             and The Chebfun Developers.
         """
         F = np.asarray(self.coeffs, dtype=np.complex128)
-        for _ in range(int(k)):
-            F = _ballfun_onediff_cart(F, dim)
+        if str(coord).lower().startswith("spher"):
+            for _ in range(int(k)):
+                F = _ballfun_spherical_diff(F, dim)
+        else:
+            for _ in range(int(k)):
+                F = _ballfun_onediff_cart(F, dim)
         return Ballfun(coeffs=jnp.asarray(F), is_real=self.is_real,
                        domain=self.domain)
 
@@ -1941,7 +1951,8 @@ class Ballfun(eqx.Module):
 
     @staticmethod
     def helmholtz(f, K: float, bc=None, m: int = 39,
-                  n: int = 40, p: int = 41) -> "Ballfun":
+                  n: int = 40, p: int = 41,
+                  bc_type: str = "dirichlet") -> "Ballfun":
         r"""Solve the Helmholtz equation
         :math:`\nabla^2 u + K^2 u = f` on the ball with Dirichlet
         boundary data ``u(1, lam, th) = bc(lam, th)`` (MATLAB
@@ -1954,11 +1965,15 @@ class Ballfun(eqx.Module):
         K : float
             Wavenumber (K = 0 reduces to Poisson).
         bc : callable, float, or None
-            Dirichlet data as a function of (lam, theta); None means
-            homogeneous.
+            Boundary data as a function of (lam, theta); None means
+            homogeneous.  For ``bc_type='dirichlet'`` this is ``u(1,.,.)``;
+            for ``bc_type='neumann'`` it is the radial derivative
+            ``du/dr(1,.,.)``.
         m, n, p : int
             Resolution parameters (MATLAB signature; the radial and
             harmonic bandwidths are derived from them).
+        bc_type : {'dirichlet', 'neumann'}, default 'dirichlet'
+            Boundary condition type imposed at ``r = 1``.
 
         Provenance
         ----------
@@ -1967,7 +1982,8 @@ class Ballfun(eqx.Module):
         """
         lmax = max(8, min(n, p) // 4)
         nr = max(24, m // 2 + 8)
-        ev = _ballfun_poisson_evaluator(f, lmax, nr, K=float(K), bc=bc)
+        ev = _ballfun_poisson_evaluator(f, lmax, nr, K=float(K), bc=bc,
+                                        bc_type=bc_type)
         return Ballfun.from_function(
             lambda x, y, z: jnp.asarray(ev(x, y, z)), spherical=True)
 
@@ -2090,7 +2106,8 @@ def _ballfun_onediff_cart(F: np.ndarray, dim: int) -> np.ndarray:
 
 
 def _ballfun_poisson_evaluator(f, lmax: int, nr: int,
-                               K: float = 0.0, bc=None):
+                               K: float = 0.0, bc=None,
+                               bc_type: str = "dirichlet"):
     """Spectral ball Poisson/Helmholtz solver -> ev(r, lam, theta).
 
     Per real spherical-harmonic mode, solve the radial ODE by Chebyshev
@@ -2113,6 +2130,8 @@ def _ballfun_poisson_evaluator(f, lmax: int, nr: int,
             return jnp.asarray(f(rr, lam, th)).reshape(-1)
     else:
         feval = f
+
+    neumann = str(bc_type).lower().startswith("neu")
 
     D, x = _cheb_diff_matrix(nr)
     r = (x + 1.0) / 2.0
@@ -2168,16 +2187,25 @@ def _ballfun_poisson_evaluator(f, lmax: int, nr: int,
             + (K * K) * np.eye(len(r))
         A = Lm.astype(float).copy()
         rhs = flm.astype(float).copy()
-        A[0, :] = 0.0
-        A[0, 0] = 1.0
-        rhs[0] = bc_modes[(l, m)]         # u(1) = bc_lm
-        if l == 0:
-            A[last, :] = Dr[last, :]      # u'(0) = 0
+        if neumann:
+            A[0, :] = Dr[0, :]            # u'(1) = bc_lm  (Neumann data)
+            rhs[0] = bc_modes[(l, m)]
+            # u(0) = 0 pins the origin value (regularity for l>0 and the
+            # otherwise-free additive constant of the l=0 Neumann mode)
+            A[last, :] = 0.0
+            A[last, last] = 1.0
             rhs[last] = 0.0
         else:
-            A[last, :] = 0.0
-            A[last, last] = 1.0           # u(0) = 0
-            rhs[last] = 0.0
+            A[0, :] = 0.0
+            A[0, 0] = 1.0
+            rhs[0] = bc_modes[(l, m)]         # u(1) = bc_lm
+            if l == 0:
+                A[last, :] = Dr[last, :]      # u'(0) = 0
+                rhs[last] = 0.0
+            else:
+                A[last, :] = 0.0
+                A[last, last] = 1.0           # u(0) = 0
+                rhs[last] = 0.0
         u = np.linalg.solve(A, rhs)
         coefs[(l, m)] = np.linalg.lstsq(vand, u, rcond=None)[0]
 

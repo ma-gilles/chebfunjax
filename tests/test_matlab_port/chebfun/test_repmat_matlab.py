@@ -34,5 +34,12 @@ class TestChebfunRepmat:
         assert float(jnp.max(jnp.abs(Q(XR) - exact))) < 10 * Q.vscale * EPS
 
     def test_vertical_tiling(self):
-        # pass(3): repmat(f.', 3, 1) -- commented out in MATLAB (needs vertcat).
-        pytest.skip("chebfunjax has no row-chebfun transpose / vertcat")
+        # pass(3): repmat(f.', 3, 1) -- vertically tiling a row chebfun into a
+        # 3-row array-valued row chebfun.  This assertion is COMMENTED OUT in
+        # the MATLAB source itself (it needs quasimatrix vertcat of rows, which
+        # chebfunjax routes through the ChebMatrix block container rather than
+        # an array-valued row chebfun), so it stays skipped.
+        pytest.skip(
+            "repmat(f.', 3, 1) is commented out in the MATLAB source; needs "
+            "array-valued row vertcat (not the ChebMatrix block path)"
+        )

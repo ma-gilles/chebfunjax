@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 import chebfunjax as cj
 
@@ -31,7 +30,12 @@ class TestChebfunDiff:
         assert float(jnp.max(err)) < 100 * df1.vscale * EPS
 
     def test_transpose_variant(self):
-        pytest.skip("chebfunjax has no row-chebfun transpose")
+        # pass(3): diff of a row chebfun f1.' matches cos, staying a row.
+        f1 = cj.chebfun(jnp.sin, domain=[-1.0, -0.5, 0.5, 1.0])
+        df1t = f1.T.diff()
+        assert df1t.is_transposed
+        err = jnp.abs(df1t(XR) - jnp.cos(XR))
+        assert float(jnp.max(err)) < 100 * df1t.vscale * EPS
 
     def test_second_derivative(self):
         f = cj.chebfun(lambda x: jnp.exp(x) * jnp.sin(2 * x))

@@ -67,8 +67,27 @@ class TestChebfunMat2cell:
         assert float(jnp.max(jnp.abs(C[1](XR) - h(XR)))) < 10 * C[1].vscale * EPS
 
     def test_row_chebfuns(self):
-        # pass(k,10-12): mat2cell of row chebfuns (F.').
-        pytest.skip("chebfunjax has no row-chebfun transpose")
+        # pass(k,10-12): mat2cell of row chebfuns (F.') splits along the rows;
+        # each cell is itself a row chebfun (isTransposed) with the requested
+        # number of rows.
+        Ft = _F().T
+
+        # pass(10): mat2cell(Ft) -> 3 single-row cells.
+        C = Ft.mat2cell()
+        assert len(C) == 3
+        assert all(c.is_transposed and c.size(1) == 1 for c in C)
+        # each cell reproduces the corresponding component (sin, cos, exp).
+        f = cj.chebfun(jnp.sin)
+        g = cj.chebfun(jnp.cos)
+        h = cj.chebfun(jnp.exp)
+        for c, ref in zip(C, (f, g, h)):
+            assert float(jnp.max(jnp.abs(c(XR) - ref(XR)))) < 10 * c.vscale * EPS
+
+        # pass(11): mat2cell(Ft, [2 1]) -> cells with 2 and 1 rows.
+        C = Ft.mat2cell([2, 1])
+        assert len(C) == 2
+        assert C[0].is_transposed and C[0].size(1) == 2
+        assert C[1].is_transposed and C[1].size(1) == 1
 
     def test_error_conditions(self):
         # pass(k,13-17): mat2cell with invalid sizes raises.

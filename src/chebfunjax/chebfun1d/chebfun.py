@@ -540,6 +540,108 @@ class Chebfun(eqx.Module):
         return cls(funs=[], domain=Domain((-1.0, 1.0)))
 
     # ------------------------------------------------------------------
+    # Orientation (row vs column chebfun) — the MATLAB isTransposed flag
+    # ------------------------------------------------------------------
+    #
+    # A column Chebfun is an Inf-by-n object; its transpose is an n-by-Inf
+    # *row* Chebfun.  MATLAB records the orientation in an ``isTransposed``
+    # property and dispatches size(), mtimes(), fliplr(), etc. on it.
+    #
+    # We store the flag as a private marker attribute set via
+    # ``object.__setattr__`` (the same bypass of eqx's frozen ``__setattr__``
+    # that the delta machinery uses for ``_delta_locs``).  It is therefore
+    # NOT part of the equinox pytree: it is Python-side dispatch metadata that
+    # does not survive ``jax.jit``/``vmap`` flattening.  This is deliberate --
+    # orientation is never consulted inside a JIT hot path, and keeping it off
+    # the pytree means every existing (column) Chebfun keeps the identical
+    # pytree structure, so ``is_transposed`` defaults to False everywhere.
+
+    @property
+    def is_transposed(self) -> bool:
+        """True for a row (transposed) Chebfun, False for a column.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/chebfun.m (isTransposed property)
+        Chebfun commit: 7574c77
+        """
+        return bool(getattr(self, "_is_transposed", False))
+
+    @staticmethod
+    def _as_transposed(obj: "Chebfun", flag: bool) -> "Chebfun":
+        """Tag ``obj`` with orientation ``flag`` (in place) and return it."""
+        if flag:
+            object.__setattr__(obj, "_is_transposed", True)
+        return obj
+
+    def transpose(self) -> "Chebfun":
+        """Non-conjugate transpose ``F.'``: swap row/column orientation.
+
+        Converts a column Chebfun to a row Chebfun and vice versa without
+        conjugating.  The underlying pieces are shared unchanged.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/transpose.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.ctranspose
+        """
+        new = Chebfun(funs=self.funs, domain=self.domain, deltas=self.deltas)
+        return Chebfun._as_transposed(new, not self.is_transposed)
+
+    @property
+    def T(self) -> "Chebfun":
+        """The non-conjugate transpose ``F.'`` (see :meth:`transpose`)."""
+        return self.transpose()
+
+    def ctranspose(self) -> "Chebfun":
+        """Complex-conjugate transpose ``F'`` = ``transpose(conj(F))``.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/ctranspose.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.transpose
+        """
+        return self.conj().transpose()
+
+    @property
+    def H(self) -> "Chebfun":
+        """The complex-conjugate transpose ``F'`` (see :meth:`ctranspose`)."""
+        return self.ctranspose()
+
+    def permute(self, order) -> "Chebfun":
+        """Permute the two Chebfun array dimensions.
+
+        Since a Chebfun has exactly two dimensions, ``order`` must be
+        ``[1, 2]`` (identity) or ``[2, 1]`` (transpose, ``F.'``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/permute.m
+        Chebfun commit: 7574c77
+        """
+        order = tuple(int(o) for o in order)
+        if order == (1, 2):
+            return self
+        if order == (2, 1):
+            return self.transpose()
+        raise ValueError(
+            "ORDER must be a permutation of [1, 2] for a Chebfun "
+            f"(got {list(order)})."
+        )
+
+    # ------------------------------------------------------------------
     # Factory class methods
     # ------------------------------------------------------------------
 
@@ -741,7 +843,7 @@ class Chebfun(eqx.Module):
             result = self.funs[0](x)
             if scalar_input:
                 result = result[0]
-            return result
+            return self._orient_values(result)
 
         # Multi-piece: Python dispatch
         # (array-valued pieces add a trailing column axis to the output;
@@ -773,7 +875,23 @@ class Chebfun(eqx.Module):
 
         if scalar_input:
             out = out[0]
-        return out
+        return self._orient_values(out)
+
+    def _orient_values(self, vals):
+        """Transpose an evaluation result for a row (transposed) Chebfun.
+
+        MATLAB ``feval(f.', x)`` returns ``feval(f, x).'``.  For an
+        array-valued row Chebfun the (n_points, n_cols) column result becomes
+        (n_cols, n_points).  A scalar-valued (1-D) result is unchanged (its
+        transpose is itself, matching MATLAB where a 1-by-m row stays 1-by-m).
+        Column Chebfuns (the default) are returned untouched.
+        """
+        if not self.is_transposed:
+            return vals
+        v = jnp.asarray(vals)
+        if v.ndim >= 2:
+            return jnp.swapaxes(v, -1, -2)
+        return v
 
     # ------------------------------------------------------------------
     # Properties
@@ -840,7 +958,8 @@ class Chebfun(eqx.Module):
         """
         n_pieces = len(self.funs)
         piece_word = "piece" if n_pieces == 1 else "pieces"
-        header = f"Chebfun column ({n_pieces} smooth {piece_word})"
+        orientation = "row" if self.is_transposed else "column"
+        header = f"Chebfun {orientation} ({n_pieces} smooth {piece_word})"
         # Mimic MATLAB's column header layout:
         # "       interval       length     endpoint values"
         col_header = "       interval       length     endpoint values"
@@ -1009,24 +1128,52 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         new_funs = [piece._apply_unary(-piece.tech) for piece in self.funs]
-        return Chebfun(funs=new_funs, domain=self.domain)
+        return Chebfun._as_transposed(
+            Chebfun(funs=new_funs, domain=self.domain), self.is_transposed)
 
     def __pos__(self) -> Chebfun:
         """Unary plus (identity)."""
         return self
 
     def __mul__(self, other) -> Chebfun:
-        """Pointwise multiplication of two Chebfuns or Chebfun by scalar.
+        """Matrix-style multiplication (MATLAB ``*``/``mtimes``).
+
+        Dispatch mirrors @chebfun/mtimes.m:
+
+        - Chebfun * scalar: pointwise scaling (orientation preserved).
+        - Chebfun * Chebfun with the SAME orientation: pointwise product
+          ``f .* g`` (both column or both row).
+        - row * column: the L2 inner product ``\\int f g dx`` (a scalar).
+          MATLAB computes ``innerProduct(conj(f), g)`` to undo the
+          conjugation that ``innerProduct`` applies to its first factor; the
+          equivalent here is ``conj(f).inner(g)``.
+        - column * row: the rank-1 outer product (a Chebfun2), which
+          chebfunjax does not yet provide.
 
         Provenance
         ----------
-        MATLAB source : @chebfun/times.m
+        MATLAB source : @chebfun/mtimes.m, @chebfun/times.m
         Chebfun commit: 7574c77
         """
         if self.isempty() or _is_empty_operand(other):
             return Chebfun.empty()
         if isinstance(other, Chebfun):
-            return Chebfun._binary_op(self, other, lambda a, b: a * b)
+            f_trans = self.is_transposed
+            g_trans = other.is_transposed
+            if f_trans == g_trans:
+                # Both column or both row: pointwise product, orientation kept.
+                return Chebfun._as_transposed(
+                    Chebfun._binary_op(self, other, lambda a, b: a * b),
+                    f_trans)
+            if f_trans and not g_trans:
+                # Row * column -> inner product scalar.  inner() conjugates
+                # its first argument, so conj(f).inner(g) == int f*g.
+                return self.conj().inner(other)
+            # Column * row -> rank-1 outer product (a Chebfun2).
+            raise NotImplementedError(
+                "column * row (rank-1 outer product / Chebfun2) is not "
+                "supported in chebfunjax."
+            )
         # If other is not a scalar/array, defer to other's __rmul__
         if not isinstance(other, (int, float, complex, jnp.ndarray, jax.Array)):
             return NotImplemented
@@ -1034,7 +1181,8 @@ class Chebfun(eqx.Module):
             piece._apply_unary(piece.tech * other)
             for piece in self.funs
         ]
-        return Chebfun(funs=new_funs, domain=self.domain)
+        return Chebfun._as_transposed(
+            Chebfun(funs=new_funs, domain=self.domain), self.is_transposed)
 
     def __rmul__(self, other) -> Chebfun:
         return self.__mul__(other)
@@ -2023,6 +2171,7 @@ class Chebfun(eqx.Module):
         if k == 0:
             return self
         new_funs = [piece.diff(k) for piece in self.funs]
+        # (orientation is preserved below via _as_transposed)
         # Differentiating across a jump discontinuity produces a Dirac
         # delta of magnitude equal to the jump (task #9, Opus 4.8).  We
         # attach deltas only for the first derivative of a genuine jump;
@@ -2038,7 +2187,9 @@ class Chebfun(eqx.Module):
                 if abs(jump) > 1e-11 * (abs(left) + abs(right) + 1.0):
                     dlist.append((loc, jump))
             deltas = tuple(dlist)
-        return Chebfun(funs=new_funs, domain=self.domain, deltas=deltas)
+        return Chebfun._as_transposed(
+            Chebfun(funs=new_funs, domain=self.domain, deltas=deltas),
+            self.is_transposed)
 
     def cumsum(self) -> Chebfun:
         """Antiderivative satisfying F(a) = 0 at the left endpoint.
@@ -2059,7 +2210,9 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         if len(self.funs) == 1:
-            return Chebfun(funs=[self.funs[0].cumsum()], domain=self.domain)
+            return Chebfun._as_transposed(
+                Chebfun(funs=[self.funs[0].cumsum()], domain=self.domain),
+                self.is_transposed)
 
         # Multi-piece: compute antiderivative on each piece, then shift to
         # ensure continuity: F_i(b_i) = F_{i+1}(a_{i+1})
@@ -2078,7 +2231,8 @@ class Chebfun(eqx.Module):
             # Update offset: new cumulative value at the right endpoint
             offset = piece_cs.values[-1]
 
-        return Chebfun(funs=new_pieces, domain=self.domain)
+        return Chebfun._as_transposed(
+            Chebfun(funs=new_pieces, domain=self.domain), self.is_transposed)
 
     def sum(self) -> jax.Array:
         r"""Definite integral over the full domain.
@@ -2758,14 +2912,15 @@ class Chebfun(eqx.Module):
     def size(self, dim: int | None = None):
         """Size of the Chebfun (quasimatrix notion).
 
-        A scalar Chebfun is treated as a single column: size = (inf, 1).
+        A column Chebfun with ``n`` columns has size ``(inf, n)``; a row
+        (transposed) Chebfun has size ``(n, inf)``.  A scalar column Chebfun
+        is thus ``(inf, 1)``.
 
         Parameters
         ----------
         dim : int or None
-            If 1, return infinity (continuous dimension).
-            If 2, return 1 (number of columns for a scalar Chebfun).
-            If None (default), return (inf, 1).
+            If 1, return the first dimension; if 2, the second; if None,
+            return the ``(d1, d2)`` tuple.
 
         Returns
         -------
@@ -2778,13 +2933,18 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         inf_dim = float("inf")
-        n_cols = 1  # scalar Chebfun has one column
+        n_cols = 0 if self.isempty() else self.n_columns
+        # Column: (inf, n_cols); row (transposed): swap the two.
+        if self.is_transposed:
+            d1, d2 = n_cols, inf_dim
+        else:
+            d1, d2 = inf_dim, n_cols
         if dim is None:
-            return (inf_dim, n_cols)
+            return (d1, d2)
         elif dim == 1:
-            return inf_dim
+            return d1
         elif dim == 2:
-            return n_cols
+            return d2
         else:
             # Higher dimensions are 1 (no tensor Chebfuns)
             return 1
@@ -3305,16 +3465,21 @@ class Chebfun(eqx.Module):
         for p in new_funs:
             bps = bps + (p.interval[1],)
         new_domain = Domain(bps)
-        return Chebfun(funs=new_funs, domain=new_domain)
+        return Chebfun._as_transposed(
+            Chebfun(funs=new_funs, domain=new_domain), self.is_transposed)
 
     def fliplr(self) -> Chebfun:
-        """Reverse the COLUMN order of an array-valued Chebfun.
+        """Flip/reverse a Chebfun.
 
-        MATLAB @chebfun/fliplr.m (columnFliplr branch): for a column
-        chebfun this flips the columns of each fun -- the identity for
-        a scalar (single-column) Chebfun.  (An earlier port aliased
-        this to flipud, which is the ROW-chebfun branch; fixed by
-        Claude Fable 5, Big-Three array-valued epic.)
+        For an array-valued COLUMN Chebfun (``~isTransposed``), this reverses
+        the order of the columns -- the identity for a scalar (single-column)
+        Chebfun.  For a ROW (transposed) Chebfun, ``fliplr`` reflects the
+        function about the domain mid-point, i.e. ``columnFliplr`` computes
+        ``flipud(f.').'`` so that ``g(x) = f(a + b - x)``.
+
+        (An earlier port aliased the column branch to flipud, which is the
+        row-chebfun branch; fixed by Claude Fable 5, Big-Three array-valued
+        epic.  The row branch was added with the transpose feature.)
 
         Returns
         -------
@@ -3325,6 +3490,14 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/fliplr.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return self
+        # Row (transposed) chebfun: columnFliplr == flipud(f.').'
+        # (reflect about the domain mid-point, preserving row orientation).
+        if self.is_transposed:
+            return self.transpose().flipud().transpose()
+        # Column chebfun: reverse the column order of each piece
+        # (the identity for a scalar single-column chebfun).
         new_funs = [
             _Piece(tech=piece.tech.fliplr(), interval=piece.interval)
             for piece in self.funs
@@ -3413,13 +3586,20 @@ class Chebfun(eqx.Module):
         """
         if self.isempty():
             return [Chebfun.empty()]
+        # For a row (transposed) chebfun the split is along the rows; operate
+        # on the underlying columns and re-tag every cell as a row chebfun so
+        # each cell's size is (size(k), inf) rather than (inf, size(k)).
+        row = self.is_transposed
+        base = self.transpose() if row else self
         if sizes is None:
-            sizes = [self.n_columns]
+            # MATLAB mat2cell(F): split into single components (ones vector).
+            sizes = [1] * base.n_columns
         out = []
         j = 0
         for s in sizes:
             cols = j if s == 1 else list(range(j, j + s))
-            out.append(self.extract_columns(cols))
+            cell = base.extract_columns(cols)
+            out.append(Chebfun._as_transposed(cell, row))
             j += s
         return out
 
@@ -4163,7 +4343,8 @@ class Chebfun(eqx.Module):
                    interval=p.interval)
             for p in self.funs
         ]
-        return Chebfun(funs=new_funs, domain=self.domain)
+        return Chebfun._as_transposed(
+            Chebfun(funs=new_funs, domain=self.domain), self.is_transposed)
 
     def angle(self) -> Chebfun:
         """Phase angle atan2(imag f, real f), constructed adaptively.
@@ -4320,6 +4501,9 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/isequal.m
         Chebfun commit: 7574c77
         """
+        if self.is_transposed != other.is_transposed:
+            # A column and a row Chebfun are never equal (MATLAB isequal).
+            return False
         if self.domain != other.domain:
             return False
         if len(self.funs) != len(other.funs):

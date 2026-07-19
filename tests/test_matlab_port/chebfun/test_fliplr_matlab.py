@@ -30,8 +30,31 @@ class TestChebfunFliplr:
         assert chebfun().fliplr().isempty()
 
     def test_row_chebfuns(self):
-        # pass(2-5): fliplr of row chebfuns (f.').
-        pytest.skip("chebfunjax has no row-chebfun transpose")
+        # pass(2-5): fliplr of row chebfuns (f.') reflects about the domain
+        # mid-point: g(x) = f(a + b - x) = f(-x) on [-1, 1].
+        # pass(2, 3): scalar row chebfun.
+        f = cj.chebfun(lambda x: jnp.sin(x) * jnp.abs(x - 0.1), domain=(-1, 0.1, 1))
+        ff = f.T.fliplr()
+        assert ff.is_transposed
+        ff_exact = f(-XR)  # 1-D scalar values; row transpose is identity here
+        assert float(jnp.max(jnp.abs(ff(XR) - ff_exact))) < 10 * ff.vscale * EPS
+        # fliplr is an involution: fliplr(fliplr(f.')) == f.'
+        assert ff.fliplr().isequal(f.T)
+
+        # pass(4, 5): array-valued row chebfun (each column reflected).
+        # (MATLAB's cos(x)*sign(x+0.2) second column is replaced by exp(x):
+        # sign lands on a breakpoint and prevents convergence -- a construction
+        # quirk unrelated to fliplr's reflection semantics, as in the column
+        # array test above.)
+        g = cj.chebfun(
+            lambda x: jnp.stack([jnp.sin(x) * jnp.abs(x - 0.1), jnp.exp(x)], axis=-1),
+            domain=(-1, 0.1, 1),
+        )
+        gg = g.T.fliplr()
+        assert gg.is_transposed
+        gg_exact = jnp.swapaxes(g(-XR), -1, -2)  # (n_cols, n_points)
+        assert float(jnp.max(jnp.abs(gg(XR) - gg_exact))) < 1e2 * gg.vscale * EPS
+        assert gg.fliplr().isequal(g.T)
 
     def test_column_scalar_identity(self):
         # pass(6, 7): fliplr of a scalar column chebfun is the identity.

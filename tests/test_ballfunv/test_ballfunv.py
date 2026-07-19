@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
+import pytest
 
 from chebfunjax.ballfun.ballfun import Ballfun
 from chebfunjax.ballfun.ballfunv import Ballfunv
@@ -69,3 +70,68 @@ class TestBallfunvPredicatesCalculus:
         assert (V / 2 - Ballfunv(_B(lambda x, y, z: x / 2),
                                  _B(lambda x, y, z: y / 2),
                                  _B(lambda x, y, z: z / 2))).norm() < TOL
+
+
+class TestBallfunvPoloidalToroidal:
+    """Poloidal-toroidal decomposition (PT2ballfunv / PTdecomposition)
+    and the poloidal-toroidal Helmholtz decomposition."""
+
+    def test_pt2ballfunv_is_divergence_free(self):
+        # curl(curl(rP)) + curl(rT) is divergence-free by construction.
+        P = _B(lambda x, y, z: x ** 2 + y * z)
+        T = _B(lambda x, y, z: x * y * z)
+        V = Ballfunv.PT2ballfunv(P, T)
+        assert V.div().norm() < 1e-8
+
+    def test_pt2ballfunv_two_output_split(self):
+        # [Pv, Tv] must sum to the combined field.
+        P = _B(lambda x, y, z: x ** 2 + y * z)
+        T = _B(lambda x, y, z: x * y * z)
+        Pv, Tv = Ballfunv.PT2ballfunv(P, T, nargout=2)
+        V = Ballfunv.PT2ballfunv(P, T)
+        assert (V - (Pv + Tv)).norm() < TOL
+
+    def test_pt_roundtrip_recovers_scalars(self):
+        # PTdecomposition inverts PT2ballfunv up to the l=0 (angular-mean)
+        # gauge, so the spherical lambda/theta derivatives must match.
+        tol = 1e5 * float(np.finfo(np.float64).eps)
+        P = _B(lambda x, y, z: x ** 2 + y * z)
+        T = _B(lambda x, y, z: x * y * z)
+        V = Ballfunv.PT2ballfunv(P, T)
+        P2, T2 = V.PTdecomposition()
+        for dim in (2, 3):
+            assert (P.diff(dim, 1, "spherical")
+                    - P2.diff(dim, 1, "spherical")).norm() < tol
+            assert (T.diff(dim, 1, "spherical")
+                    - T2.diff(dim, 1, "spherical")).norm() < tol
+
+    @pytest.mark.xfail(
+        strict=True,
+        reason="needs the spectral ball Poisson-Neumann solver (see the port file's xfail note): collocation helmholtz caps accuracy at ~5e-10 / 4.6e-8 vs 2.22e-10")
+    def test_helmholtz_decomposition_two_component(self):
+        tol = 1e6 * float(np.finfo(np.float64).eps)
+        vx = _B(lambda x, y, z: jnp.cos(x * y))
+        vy = _B(lambda x, y, z: jnp.sin(x * z))
+        vz = _B(lambda x, y, z: jnp.cos(y * z))
+        v = Ballfunv(vx, vy, vz)
+        f, P, T = v.HelmholtzDecomposition(nargout=3)
+        gf = f.grad()
+        w = Ballfunv(gf[0], gf[1], gf[2]) + Ballfunv.PT2ballfunv(P, T)
+        assert (v - w).norm() < tol
+
+    @pytest.mark.xfail(
+        strict=True,
+        reason="needs the spectral ball Poisson-Neumann solver (see the port file's xfail note): collocation helmholtz caps accuracy at ~5e-10 / 4.6e-8 vs 2.22e-10")
+    def test_helmholtz_decomposition_three_component(self):
+        tol = 1e6 * float(np.finfo(np.float64).eps)
+        vx = _B(lambda x, y, z: jnp.cos(x * y))
+        vy = _B(lambda x, y, z: jnp.sin(x * z))
+        vz = _B(lambda x, y, z: jnp.cos(y * z))
+        v = Ballfunv(vx, vy, vz)
+        f, P, T, phi = v.HelmholtzDecomposition(nargout=4)
+        gf = f.grad()
+        gp = phi.grad()
+        w = (Ballfunv(gf[0], gf[1], gf[2])
+             + Ballfunv.PT2ballfunv(P, T).curl()
+             + Ballfunv(gp[0], gp[1], gp[2]))
+        assert (v - w).norm() < tol

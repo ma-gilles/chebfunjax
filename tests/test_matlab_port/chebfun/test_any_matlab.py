@@ -49,8 +49,21 @@ class TestChebfunAny:
         assert list(np.asarray(f.any()).astype(int)) == [0, 1, 1]
 
     def test_transpose_rows(self):
-        # pass(3, 6): any(f.', 2) on a row chebfun.
-        pytest.skip("chebfunjax has no row-chebfun transpose")
+        # pass(3, 6): any(f.', 2) on a row chebfun == [1 0 1].' / [0 1 1].'
+        # -- the per-component reduction is the same values as the column any.
+        f = cj.chebfun(
+            lambda x: jnp.stack([jnp.sin(x), 0 * x, jnp.exp(x)], axis=-1),
+            domain=(-1, -0.5, 0, 0.5, 1),
+        )
+        assert list(np.asarray(f.T.any()).astype(int)) == [1, 0, 1]
+
+        hvsde = lambda x: 0.5 * (jnp.sign(x) + 1)
+        g = cj.chebfun(
+            lambda x: jnp.stack([0 * x, hvsde(x), jnp.exp(2 * np.pi * 1j * x)],
+                                axis=-1),
+            domain=(-1, 0, 1),
+        )
+        assert list(np.asarray(g.T.any()).astype(int)) == [0, 1, 1]
 
     def test_pointvalues_nan(self):
         # pass(4): any(f, 1) after setting a pointValues entry to NaN.

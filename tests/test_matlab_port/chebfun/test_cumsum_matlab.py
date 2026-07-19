@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 import chebfunjax as cj
 
@@ -32,7 +31,14 @@ class TestChebfunCumsum:
         assert float(jnp.max(err)) < 100 * If1.vscale * EPS
 
     def test_transpose_variant(self):
-        pytest.skip("chebfunjax has no row-chebfun transpose")
+        # pass(3): cumsum of a row chebfun f1.' matches (sin - sin(-1)).'
+        # -- and stays a row (isTransposed).
+        f1 = cj.chebfun(jnp.cos, domain=[-1.0, -0.5, 0.5, 1.0])
+        If1t = f1.T.cumsum()
+        assert If1t.is_transposed
+        exact = jnp.sin(XR) - np.sin(-1.0)
+        err = jnp.abs(If1t(XR) - exact)
+        assert float(jnp.max(err)) < 100 * If1t.vscale * EPS
 
     def test_array_valued(self):
         # pass(4): piecewise array-valued cumsum on [-1 -0.5 0.5 1].

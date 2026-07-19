@@ -267,6 +267,57 @@ class Ballfunv(eqx.Module):
         div_free = Ballfunv(f - gc[0], gg - gc[1], h - gc[2])
         return phi, curl_free, div_free
 
+    # ------------------------------------------------------------------
+    # Poloidal-toroidal decomposition
+    # ------------------------------------------------------------------
+
+    def PTdecomposition(self):
+        """Poloidal-toroidal decomposition of a divergence-free field.
+
+        Returns ``(P, T)`` (poloidal, toroidal :class:`Ballfun` scalars)
+        such that ``self = curl(curl(r*P)) + curl(r*T)``, where ``r`` is
+        the radial position vector.
+
+        Provenance
+        ----------
+        MATLAB source : @ballfunv/PTdecomposition.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.ballfun._pt import ptdecomposition
+        return ptdecomposition(self, nargout=2)
+
+    @staticmethod
+    def PT2ballfunv(P, T, nargout: int = 1):
+        """Inverse poloidal-toroidal decomposition.
+
+        ``V = PT2ballfunv(P, T)`` returns the :class:`Ballfunv`
+        ``V = curl(curl(r*P)) + curl(r*T)``.  With ``nargout == 2`` the
+        poloidal and toroidal vector fields are returned separately.
+
+        Provenance
+        ----------
+        MATLAB source : @ballfunv/PT2ballfunv.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.ballfun._pt import pt2ballfunv
+        return pt2ballfunv(P, T, nargout=nargout)
+
+    def HelmholtzDecomposition(self, nargout: int = 3):
+        r"""Helmholtz decomposition in poloidal-toroidal form.
+
+        ``[f, P, T] = HelmholtzDecomposition(V)`` (``nargout=3``) gives
+        the two-component form ``V = grad(f) + curl(curl(r*P)) +
+        curl(r*T)``.  ``[f, P, T, phi]`` (``nargout=4``) gives the
+        three-component form with an extra ``+ grad(phi)``.
+
+        Provenance
+        ----------
+        MATLAB source : @ballfunv/HelmholtzDecomposition.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.ballfun._pt import helmholtz_decomposition
+        return helmholtz_decomposition(self, nargout=nargout)
+
     def norm(self) -> float:
         """L2 norm of the field: sqrt(norm(f)^2 + norm(g)^2 + norm(h)^2).
 
