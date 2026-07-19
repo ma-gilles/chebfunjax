@@ -204,6 +204,46 @@ class Spherefunv(eqx.Module):
         """
         return Spherefunv(*[a ** n for a in self.components])
 
+    def real(self) -> "Spherefunv":
+        """Componentwise real part (MATLAB real).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/real.m
+        Chebfun commit: 7574c77
+        """
+        return Spherefunv(*[c.real() for c in self.components])
+
+    def imag(self) -> "Spherefunv":
+        """Componentwise imaginary part (MATLAB imag).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/imag.m
+        Chebfun commit: 7574c77
+        """
+        return Spherefunv(*[c.imag() for c in self.components])
+
+    def conj(self) -> "Spherefunv":
+        """Componentwise complex conjugate (MATLAB conj).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/conj.m
+        Chebfun commit: 7574c77
+        """
+        return Spherefunv(*[c.conj() for c in self.components])
+
+    def iszero(self) -> bool:
+        """True iff every component is the zero function (MATLAB iszero).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/iszero.m
+        Chebfun commit: 7574c77
+        """
+        return all(c.iszero() for c in self.components)
+
     def __mul__(self, scalar: float) -> "Spherefunv":
         """Scalar multiplication (componentwise)."""
         f, g = self.components

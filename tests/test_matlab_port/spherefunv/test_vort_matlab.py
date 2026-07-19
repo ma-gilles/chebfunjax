@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="spherefunv: 'vort' targets a missing feature (MATLAB accessor/op not implemented in chebfunjax)")
+pytestmark = pytest.mark.skip(reason="Spherefunv vorticity needs a 3-Cartesian-component representation + surface differential operators; chebfunjax Spherefunv is 2-component. Out of scope (representation overhaul).")
 
 
 class TestSpherefunvVort:

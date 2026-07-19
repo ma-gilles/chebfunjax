@@ -316,14 +316,28 @@ class Ballfunv(eqx.Module):
         """
         return Ballfunv(*[a ** n for a in self.components])
 
-    def __mul__(self, scalar: float) -> "Ballfunv":
-        """Scalar multiplication (componentwise)."""
+    def __mul__(self, other) -> "Ballfunv":
+        """Multiplication by a scalar, a scalar Ballfun field, or another
+        Ballfunv (componentwise) -- MATLAB times/mtimes."""
+        if isinstance(other, Ballfunv):
+            return self.times(other)
         f, g, h = self.components
-        return Ballfunv(f * scalar, g * scalar, h * scalar)
+        return Ballfunv(f * other, g * other, h * other)
 
-    def __rmul__(self, scalar: float) -> "Ballfunv":
-        """Right scalar multiplication."""
-        return self.__mul__(scalar)
+    def __rmul__(self, other) -> "Ballfunv":
+        """Right multiplication (scalar or scalar Ballfun field)."""
+        return self.__mul__(other)
+
+    def __truediv__(self, scalar) -> "Ballfunv":
+        """Division by a scalar (componentwise) -- MATLAB mrdivide.
+
+        Provenance
+        ----------
+        MATLAB source : @ballfunv/mrdivide.m
+        Chebfun commit: 7574c77
+        """
+        f, g, h = self.components
+        return Ballfunv(f / scalar, g / scalar, h / scalar)
 
     def __neg__(self) -> "Ballfunv":
         """Negation."""
@@ -332,6 +346,69 @@ class Ballfunv(eqx.Module):
     def __sub__(self, other: "Ballfunv") -> "Ballfunv":
         """Componentwise subtraction."""
         return self.__add__(other.__neg__())
+
+    def laplacian(self) -> "Ballfunv":
+        """Componentwise vector Laplacian (MATLAB laplacian).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfunv/laplacian.m
+        Chebfun commit: 7574c77
+        """
+        return Ballfunv(*[c.laplacian() for c in self.components])
+
+    def real(self) -> "Ballfunv":
+        """Componentwise real part (MATLAB real).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfunv/real.m
+        Chebfun commit: 7574c77
+        """
+        return Ballfunv(*[c.real() for c in self.components])
+
+    def imag(self) -> "Ballfunv":
+        """Componentwise imaginary part (MATLAB imag).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfunv/imag.m
+        Chebfun commit: 7574c77
+        """
+        return Ballfunv(*[c.imag() for c in self.components])
+
+    def conj(self) -> "Ballfunv":
+        """Componentwise complex conjugate (MATLAB conj).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfunv/conj.m
+        Chebfun commit: 7574c77
+        """
+        return Ballfunv(*[c.conj() for c in self.components])
+
+    def iszero(self) -> bool:
+        """True iff every component is exactly zero (MATLAB iszero).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfunv/iszero.m
+        Chebfun commit: 7574c77
+        """
+        return all(c.iszero() for c in self.components)
+
+    def isequal(self, other: "Ballfunv") -> bool:
+        """True iff self and other are equal componentwise (MATLAB
+        isequal), i.e. ``iszero(self - other)``.
+
+        Provenance
+        ----------
+        MATLAB source : @ballfunv/isequal.m
+        Chebfun commit: 7574c77
+        """
+        if not isinstance(other, Ballfunv):
+            return False
+        return (self - other).iszero()
 
     # ------------------------------------------------------------------
     # Plotting

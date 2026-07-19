@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="spherefunv: 'cross' targets a missing feature (MATLAB accessor/op not implemented in chebfunjax)")
+pytestmark = pytest.mark.skip(reason="Spherefunv cross needs a 3-Cartesian-component representation (MATLAB builds 3-component fields, e.g. the unit normal); chebfunjax Spherefunv is 2-component. Out of scope (representation overhaul).")
 
 
 class TestSpherefunvCross:

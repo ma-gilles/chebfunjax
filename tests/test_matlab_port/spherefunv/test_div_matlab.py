@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="spherefunv: 'div' targets a missing feature (MATLAB accessor/op not implemented in chebfunjax)")
+pytestmark = pytest.mark.skip(reason="Spherefunv div needs a 3-Cartesian-component representation + surface differential operators; chebfunjax Spherefunv is 2-component. Out of scope (representation overhaul).")
 
 
 class TestSpherefunvDiv:

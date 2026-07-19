@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="ballfunv feature 'HelmholtzDecomposition' not implemented (MATLAB-specific accessor or missing op)")
+pytestmark = pytest.mark.skip(reason="MATLAB HelmholtzDecomposition uses the poloidal-toroidal API (ballfunv.PT2ballfunv / PTdecomposition), which chebfunjax lacks; the existing Ballfunv.helmholtz_decomposition is a different (Hodge curl-free/div-free) split, not comparable to this test. Needs the PT subsystem.")
 
 
 class TestBallfunvHelmholtzdecomposition:

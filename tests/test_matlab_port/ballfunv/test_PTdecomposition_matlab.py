@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="ballfunv feature 'PTdecomposition' not implemented (MATLAB-specific accessor or missing op)")
+pytestmark = pytest.mark.skip(reason="Needs the poloidal-toroidal machinery (ballfunv.PT2ballfunv / PTdecomposition) which chebfunjax does not implement.")
 
 
 class TestBallfunvPtdecomposition:

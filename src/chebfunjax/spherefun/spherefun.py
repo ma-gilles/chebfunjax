@@ -1162,6 +1162,36 @@ class Spherefun(eqx.Module):
     def __abs__(self) -> "Spherefun":
         return self.abs()
 
+    def real(self) -> "Spherefun":
+        """Real part, re-approximated (MATLAB real).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/real.m
+        Chebfun commit: 7574c77
+        """
+        return self._reapprox(jnp.real)
+
+    def imag(self) -> "Spherefun":
+        """Imaginary part (MATLAB imag).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/imag.m
+        Chebfun commit: 7574c77
+        """
+        return self._reapprox(jnp.imag)
+
+    def conj(self) -> "Spherefun":
+        """Complex conjugate (MATLAB conj).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/conj.m
+        Chebfun commit: 7574c77
+        """
+        return self._reapprox(jnp.conj)
+
     def iszero(self) -> bool:
         """True iff f is the zero function (MATLAB iszero, inherited from
         separableApprox).

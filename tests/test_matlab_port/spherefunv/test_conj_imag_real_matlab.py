@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="spherefunv: 'conj_imag_real' targets a missing feature (MATLAB accessor/op not implemented in chebfunjax)")
+pytestmark = pytest.mark.skip(reason="Spherefunv real/imag/conj exist (added Fable 5), but this MATLAB test builds u=grad(f), a 3-Cartesian-component field; chebfunjax Spherefunv is a 2-component (intrinsic tangent) representation, so the port needs a 3-component Spherefunv overhaul. Methods are exercised in tests/test_spherefunv core instead.")
 
 
 class TestSpherefunvConjImagReal:
