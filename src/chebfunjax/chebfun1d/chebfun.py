@@ -4721,6 +4721,151 @@ def kron(f, g, mode=None):
         lambda x, y: f(x) * g(y), domain=(fa, fb, ga, gb))
 
 
+def _qm_gram(cols):
+    """Gram matrix ``G[i,j] = <cols_i, cols_j>`` of a list of chebfuns."""
+    import numpy as _np
+    m = len(cols)
+    G = _np.zeros((m, m), dtype=complex)
+    for i in range(m):
+        for j in range(m):
+            G[i, j] = complex((cols[i].conj() * cols[j]).sum())
+    return G
+
+
+def _lincomb(cols, coeffs):
+    """Chebfun linear combination ``sum_k coeffs[k] * cols[k]``."""
+    out = cols[0] * complex(coeffs[0])
+    for k in range(1, len(cols)):
+        out = out + cols[k] * complex(coeffs[k])
+    return out
+
+
+def mldivide(A, B):
+    """Left matrix division ``A \\ B`` (least squares) -- MATLAB mldivide.
+
+    Supports the mixed scalar / numeric-matrix / quasimatrix cases used by
+    ``@chebfun/mldivide``:
+
+    - scalar ``A``: ``B / A`` (elementwise);
+    - numeric ``A`` (m x n) and a row-quasimatrix ``B`` (a list of m
+      chebfuns): ``X = pinv(A) @ B``, a list of n chebfuns;
+    - a row-quasimatrix ``A`` (a list of m chebfuns) and numeric ``B``
+      (m x k): the least-squares chebfun(s) ``X`` with ``<A_i, X> = B_i``
+      via the Gram system.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/mldivide.m
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+    if isinstance(A, (int, float, complex)):
+        if isinstance(B, list):
+            return [b * (1.0 / A) for b in B]
+        return B * (1.0 / A)
+    if isinstance(A, list) and not isinstance(B, list):
+        # Row-quasimatrix A, numeric B: Gram solve <A_i, X> = B_i.
+        Bv = _np.atleast_2d(_np.asarray(B, dtype=complex))
+        if Bv.shape[0] != len(A):
+            Bv = Bv.T
+        G = _qm_gram(A)
+        C = _np.linalg.solve(G, Bv)          # (m, k)
+        cols = [_lincomb(A, C[:, j]) for j in range(C.shape[1])]
+        return cols[0] if len(cols) == 1 else cols
+    # Numeric A, row-quasimatrix B: X = pinv(A) @ B.
+    Am = _np.atleast_2d(_np.asarray(A, dtype=float))
+    Bl = B if isinstance(B, list) else [B]
+    # Orient A so its row count matches the number of B chebfuns.
+    if Am.shape[0] != len(Bl) and Am.shape[1] == len(Bl):
+        Am = Am.T
+    P = _np.linalg.pinv(Am)                   # (n, m)
+    out = [_lincomb(Bl, P[j, :]) for j in range(P.shape[0])]
+    return out[0] if len(out) == 1 else out
+
+
+def mrdivide(A, B):
+    """Right matrix division ``A / B`` (least squares) -- MATLAB mrdivide.
+
+    ``A / B`` solves ``X B = A``; it is the transpose-dual of
+    :func:`mldivide` (``X B = A  <=>  B' X' = A'``).
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/mrdivide.m
+    Chebfun commit: 7574c77
+    """
+    if isinstance(B, (int, float, complex)):
+        if isinstance(A, list):
+            return [a * (1.0 / B) for a in A]
+        return A * (1.0 / B)
+    # X B = A  <=>  B' \ A'  (mldivide with the orientations swapped).
+    return mldivide(B, A)
+
+
+def gmres(L, f, tol: float = 1e-10, maxiter: int = 36):
+    """Solve the linear operator equation ``L(u) = f`` for a Chebfun ``u``
+    by GMRES with Chebfun inner products (MATLAB ``@chebfun/gmres``).
+
+    Parameters
+    ----------
+    L : callable
+        A linear operator ``u -> L(u)`` mapping a Chebfun to a Chebfun.
+    f : Chebfun
+        Right-hand side.
+    tol : float, default 1e-10
+        Relative-residual convergence tolerance.
+    maxiter : int, default 36
+        Maximum number of Arnoldi iterations.
+
+    Returns
+    -------
+    (u, flag) : (Chebfun, int)
+        The solution and a convergence flag (0 = converged, 1 = not).
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/gmres.m
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+
+    def _ip(a, b):
+        return complex((a.conj() * b).sum())
+
+    def _nrm(a):
+        return float(_np.sqrt(abs(_ip(a, a))))
+
+    normb = _nrm(f)
+    if normb == 0.0:
+        return f * 0.0, 0
+    beta = _nrm(f)
+    Q = [f * (1.0 / beta)]
+    H = _np.zeros((maxiter + 2, maxiter + 1), dtype=complex)
+    flag = 1
+    y = _np.array([beta], dtype=complex)
+    n_used = 0
+    for n in range(maxiter):
+        n_used = n
+        v = L(Q[n])
+        for k in range(n + 1):
+            H[k, n] = _ip(Q[k], v)
+            v = v - Q[k] * complex(H[k, n])
+        H[n + 1, n] = _nrm(v)
+        if H[n + 1, n] > 1e-300:
+            Q.append(v * (1.0 / H[n + 1, n]))
+        rhs = _np.zeros(n + 2, dtype=complex)
+        rhs[0] = beta
+        y, *_ = _np.linalg.lstsq(H[:n + 2, :n + 1], rhs, rcond=None)
+        res = _np.linalg.norm(H[:n + 2, :n + 1] @ y - rhs) / normb
+        if res < tol:
+            flag = 0
+            break
+    u = Q[0] * complex(y[0])
+    for k in range(1, min(len(y), n_used + 2)):
+        u = u + Q[k] * complex(y[k])
+    return u, flag
+
+
 def wronskian(*args) -> Chebfun:
     """Wronskian determinant of n chebfuns (MATLAB wronskian).
 

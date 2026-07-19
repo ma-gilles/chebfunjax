@@ -460,3 +460,37 @@ class TestConvenienceAPI:
             chebfun_qr([])
         with pytest.raises(ValueError):
             chebfun_svd([])
+
+
+class TestLinearSolvers:
+    """Core mirror for the Fable 5 additions: mldivide / mrdivide over
+    quasimatrices, and gmres for a linear operator equation."""
+
+    def _T(self):
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        dom = Domain((-1.0, 1.0))
+        return [Chebfun.from_function(
+            lambda t, k=k: jnp.cos(k * jnp.arccos(jnp.clip(t, -1.0, 1.0))),
+            dom) for k in range(4)]
+
+    def test_mldivide_and_mrdivide(self):
+        from chebfunjax.chebfun1d.chebfun import mldivide, mrdivide
+        T = self._T()
+        # scalar backslash / slash.
+        assert float((mldivide(2.0, T)[1] - T[1] * 0.5).norm()) < 1e-13
+        assert float((mrdivide(T, 2.0)[1] - T[1] * 0.5).norm()) < 1e-13
+        # (1:4)' \ T.'  ->  value -1/15 at 0.
+        x = mldivide(np.array([1, 2, 3, 4]), T)
+        assert abs(complex(x(jnp.asarray(0.0))) - (-1.0 / 15.0)) < 1e-12
+        # T.' \ (1:4)'  ->  value -2.625 at 0 (Gram solve).
+        y = mldivide(T, np.array([1, 2, 3, 4]))
+        assert abs(complex(y(jnp.asarray(0.0))) - (-2.625)) < 1e-11
+
+    def test_gmres(self):
+        from chebfunjax.chebfun1d.chebfun import Chebfun, gmres
+        dom = Domain((-1.0, 1.0))
+        f = Chebfun.from_function(lambda t: jnp.exp(t), dom)
+        w = 100.0
+        u, flag = gmres(lambda uu: uu.diff() + 1j * w * uu, f)
+        assert flag == 0
+        assert float((u.diff() + 1j * w * u - f).norm()) < 1e-8
