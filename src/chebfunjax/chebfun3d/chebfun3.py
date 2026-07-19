@@ -1345,6 +1345,85 @@ class Chebfun3(eqx.Module):
         """
         return self.diff(1), self.diff(2), self.diff(3)
 
+    def laplacian(self) -> "Chebfun3":
+        """Laplacian f_xx + f_yy + f_zz (MATLAB laplacian).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/laplacian.m
+        Chebfun commit: 7574c77
+        """
+        return self.diff(1, 2) + self.diff(2, 2) + self.diff(3, 2)
+
+    def lap(self) -> "Chebfun3":
+        """Alias of :meth:`laplacian` (MATLAB lap).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/lap.m
+        Chebfun commit: 7574c77
+        """
+        return self.laplacian()
+
+    def cumsum(self, dim: int = 1) -> "Chebfun3":
+        """Indefinite integral along one variable, returning a Chebfun3
+        that vanishes at the lower edge of that variable (MATLAB cumsum).
+
+        The Tucker structure makes this a per-factor operation: integrating
+        in x replaces every column fiber by its antiderivative (with the
+        physical-interval half-width scaling), leaving the core and the
+        other factors untouched.  ``dim`` = 1, 2, 3 -> x, y, z.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/cumsum.m
+        Chebfun commit: 7574c77
+        """
+        xa, xb, ya, yb, za, zb = self.domain
+        if dim == 1:
+            half = 0.5 * (xb - xa)
+            new_cols = [type(c).from_coeffs(c.cumsum().coeffs * half)
+                        for c in self.cols]
+            return Chebfun3(cols=new_cols, rows=list(self.rows),
+                            tubes=list(self.tubes), core=self.core,
+                            domain=self.domain)
+        if dim == 2:
+            half = 0.5 * (yb - ya)
+            new_rows = [type(r).from_coeffs(r.cumsum().coeffs * half)
+                        for r in self.rows]
+            return Chebfun3(cols=list(self.cols), rows=new_rows,
+                            tubes=list(self.tubes), core=self.core,
+                            domain=self.domain)
+        if dim == 3:
+            half = 0.5 * (zb - za)
+            new_tubes = [type(t).from_coeffs(t.cumsum().coeffs * half)
+                         for t in self.tubes]
+            return Chebfun3(cols=list(self.cols), rows=list(self.rows),
+                            tubes=new_tubes, core=self.core,
+                            domain=self.domain)
+        raise ValueError("Integration direction must be x, y, or z.")
+
+    def cumsum2(self, dims: tuple[int, int] = (1, 2)) -> "Chebfun3":
+        """Double indefinite integral along two variables (MATLAB cumsum2).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/cumsum2.m
+        Chebfun commit: 7574c77
+        """
+        d1, d2 = dims
+        return self.cumsum(d1).cumsum(d2)
+
+    def cumsum3(self) -> "Chebfun3":
+        """Triple indefinite integral in x, then y, then z (MATLAB cumsum3).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/cumsum3.m
+        Chebfun commit: 7574c77
+        """
+        return self.cumsum(1).cumsum(2).cumsum(3)
+
     def sum(self, dim: int = 1):
         """Integrate over one variable, returning a Chebfun2.
 
@@ -1430,6 +1509,70 @@ class Chebfun3(eqx.Module):
     def rank(self) -> tuple[int, int, int]:
         """Tucker rank (rx, ry, rz) of the approximation."""
         return (len(self.cols), len(self.rows), len(self.tubes))
+
+    def isreal(self) -> bool:
+        """True if f is real-valued (MATLAB isreal).
+
+        Checks the stored Tucker representation: a Chebfun3 is real iff its
+        core and all factor coefficients are real (a purely structural test,
+        matching MATLAB, so ``real(1i*x+y-z)`` reports real).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/isreal.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return True
+        if jnp.iscomplexobj(self.core):
+            if float(jnp.max(jnp.abs(jnp.imag(self.core)))) > 0.0:
+                return False
+        for factors in (self.cols, self.rows, self.tubes):
+            for t in factors:
+                c = jnp.asarray(t.coeffs)
+                if jnp.iscomplexobj(c) and \
+                        float(jnp.max(jnp.abs(jnp.imag(c)))) > 0.0:
+                    return False
+        return True
+
+    def iszero(self) -> bool:
+        """True if f is the zero function (MATLAB iszero).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/iszero.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return True
+        return float(jnp.max(jnp.abs(self.core))) == 0.0
+
+    def isequal(self, other: "Chebfun3") -> bool:
+        """True if f and g are the same function (MATLAB isequal).
+
+        Compares on the common domain by the L-infinity difference over a
+        dense lattice (down to a scaled machine-epsilon threshold), which is
+        robust to the non-unique Tucker representation of a given function.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/isequal.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        if not isinstance(other, Chebfun3):
+            return False
+        if tuple(self.domain) != tuple(other.domain):
+            return False
+        d = self.domain
+        grids = [jnp.asarray(_np.linspace(d[2 * i], d[2 * i + 1], 13))
+                 for i in range(3)]
+        xx, yy, zz = jnp.meshgrid(*grids, indexing="ij")
+        a = self(xx, yy, zz)
+        b = other(xx, yy, zz)
+        scale = max(float(jnp.max(jnp.abs(a))),
+                    float(jnp.max(jnp.abs(b))), 1.0)
+        return float(jnp.max(jnp.abs(a - b))) <= 1e4 * _EPS * scale
 
     # ------------------------------------------------------------------
     # Arithmetic (MATLAB @chebfun3 plus/minus/times/rdivide/power)
@@ -1748,6 +1891,231 @@ class Chebfun3(eqx.Module):
 
     def abs(self):
         return self.compose(jnp.abs)
+
+    def real(self) -> "Chebfun3":
+        """Real part, re-approximated adaptively (a complex Chebfun3's
+        real part is not directly available from its Tucker factors).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/real.m
+        Chebfun commit: 7574c77
+        """
+        return Chebfun3.from_function(
+            lambda x, y, z: jnp.real(self(x, y, z)), domain=self.domain)
+
+    def imag(self) -> "Chebfun3":
+        """Imaginary part (MATLAB imag).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/imag.m
+        Chebfun commit: 7574c77
+        """
+        return Chebfun3.from_function(
+            lambda x, y, z: jnp.imag(self(x, y, z)), domain=self.domain)
+
+    def conj(self) -> "Chebfun3":
+        """Complex conjugate (MATLAB conj).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/conj.m
+        Chebfun commit: 7574c77
+        """
+        return Chebfun3.from_function(
+            lambda x, y, z: jnp.conj(self(x, y, z)), domain=self.domain)
+
+    @classmethod
+    def complex(cls, re: "Chebfun3", im: "Chebfun3") -> "Chebfun3":
+        """Complex Chebfun3 from real and imaginary parts (MATLAB complex).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/complex.m
+        Chebfun commit: 7574c77
+        """
+        re._check_same_domain(im)
+        return Chebfun3.from_function(
+            lambda x, y, z: re(x, y, z) + 1j * im(x, y, z),
+            domain=re.domain)
+
+    def std(self, flag=None, dim: int = 1):
+        """Standard deviation along one variable, returning a Chebfun2.
+
+        ``std(f) = sqrt(mean((f - mean(f))**2))`` taken over the x-variable
+        by default (``dim`` = 1, 2, 3 -> x, y, z).  ``flag`` is accepted and
+        ignored to mirror MATLAB's ``std(f, flag, dim)`` syntax.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/std.m
+        Chebfun commit: 7574c77
+        """
+        d = self.domain
+        i = dim - 1
+        m2 = self.mean(dim)  # Chebfun2 over the two remaining variables
+
+        if dim == 1:
+            def _mfun(x, y, z):
+                return m2(y, z)
+        elif dim == 2:
+            def _mfun(x, y, z):
+                return m2(x, z)
+        elif dim == 3:
+            def _mfun(x, y, z):
+                return m2(x, y)
+        else:
+            raise ValueError("dim must be 1, 2, or 3.")
+
+        m3 = Chebfun3.from_function(_mfun, domain=d)
+        width = d[2 * i + 1] - d[2 * i]
+        var = ((self - m3) ** 2).sum(dim) * (1.0 / width)
+        return var.sqrt()
+
+    def std2(self, flag=None, dims: tuple[int, int] = (1, 2)):
+        """Standard deviation along two variables, returning a Chebfun.
+
+        ``std2(f) = sqrt(mean2((f - mean2(f))**2))`` over the (x, y)
+        variables by default.  ``flag`` is accepted and ignored to mirror
+        MATLAB's ``std2(f, flag, dims)`` syntax.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/std2.m
+        Chebfun commit: 7574c77
+        """
+        d = self.domain
+        s = tuple(sorted(dims))
+        m1 = self.mean2(s)  # Chebfun over the one remaining variable
+
+        if s == (1, 2):
+            def _mfun(x, y, z):
+                return m1(z)
+        elif s == (1, 3):
+            def _mfun(x, y, z):
+                return m1(y)
+        elif s == (2, 3):
+            def _mfun(x, y, z):
+                return m1(x)
+        else:
+            raise ValueError("dims must be two distinct values in 1, 2, 3.")
+
+        m3 = Chebfun3.from_function(_mfun, domain=d)
+        wa = d[2 * (s[0] - 1) + 1] - d[2 * (s[0] - 1)]
+        wb = d[2 * (s[1] - 1) + 1] - d[2 * (s[1] - 1)]
+        var = ((self - m3) ** 2).sum2(s) * (1.0 / (wa * wb))
+        return var.sqrt()
+
+    def integral(self, curve=None, domain=None):
+        """Line integral of f along a parametric curve, or the triple
+        definite integral when no curve is given (MATLAB integral).
+
+        With ``curve`` supplied the value is
+        ``int_C f ds = int_{t0}^{t1} f(g(t)) |g'(t)| dt`` where the curve
+        ``g(t) = (x(t), y(t), z(t))`` is given either as a callable
+        returning the three coordinates (with ``domain=(t0, t1)``) or as an
+        array-valued Chebfun with three columns.  Without a curve it returns
+        :meth:`sum3`.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/integral.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d.chebfun import Chebfun, Domain
+
+        if curve is None:
+            return self.sum3()
+
+        # Build a scalar Chebfun for each coordinate over the parameter
+        # interval, so we can differentiate the curve and integrate the
+        # resulting arc-length-weighted integrand with the 1D machinery.
+        if hasattr(curve, "funs") or isinstance(curve, Chebfun):
+            cdom = curve.domain
+            t0, t1 = float(cdom[0]), float(cdom[-1])
+
+            def _comp(k):
+                return Chebfun.from_function(
+                    lambda t, k=k: jnp.asarray(curve(t))[..., k],
+                    Domain((t0, t1)))
+        else:
+            if domain is None:
+                raise ValueError(
+                    "A callable curve requires domain=(t0, t1).")
+            t0, t1 = float(domain[0]), float(domain[1])
+
+            def _comp(k):
+                return Chebfun.from_function(
+                    lambda t, k=k: jnp.asarray(curve(t))[k],
+                    Domain((t0, t1)))
+
+        cx, cy, cz = _comp(0), _comp(1), _comp(2)
+        dx, dy, dz = cx.diff(), cy.diff(), cz.diff()
+
+        def _integrand(t):
+            xt, yt, zt = cx(t), cy(t), cz(t)
+            speed = jnp.sqrt(dx(t) ** 2 + dy(t) ** 2 + dz(t) ** 2)
+            return self(xt, yt, zt) * speed
+
+        return Chebfun.from_function(
+            _integrand, Domain((t0, t1))).sum()
+
+    def integral2(self, surface=None, domain=None):
+        """Surface integral of f over a parametric surface, or the double
+        definite integral when no surface is given (MATLAB integral2).
+
+        With ``surface`` supplied the value is
+        ``int int_S f dS = int int_DOM f(S(u,v)) |S_u x S_v| du dv`` where
+        the surface ``S(u, v) = (x(u,v), y(u,v), z(u,v))`` is given either
+        as a callable returning the three coordinates (with
+        ``domain=(ua, ub, va, vb)``) or as a Chebfun2v with three
+        components.  Without a surface it returns :meth:`sum2`.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/integral2.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun2d import chebfun2
+
+        if surface is None:
+            return self.sum2()
+
+        if hasattr(surface, "components"):
+            comps = surface.components
+            s1, s2, s3 = comps[0], comps[1], comps[2]
+            sdom = s1.approx.domain if hasattr(s1, "approx") else s1.domain
+
+            def _S(u, v):
+                return s1(u, v), s2(u, v), s3(u, v)
+        else:
+            if domain is None:
+                raise ValueError(
+                    "A callable surface requires "
+                    "domain=(ua, ub, va, vb).")
+            sdom = tuple(float(t) for t in domain)
+            _S = surface
+
+        def _stacked(uv):
+            comp = _S(uv[0], uv[1])
+            return jnp.stack([comp[0], comp[1], comp[2]])
+
+        jac = jax.jacfwd(_stacked)
+
+        def _one(u, v):
+            jm = jac(jnp.stack([u, v]))          # (3, 2): columns S_u, S_v
+            cr = jnp.cross(jm[:, 0], jm[:, 1])
+            area = jnp.sqrt(jnp.sum(cr ** 2))
+            x, y, z = _S(u, v)
+            return self(x, y, z) * area
+
+        def _integrand(u, v):
+            u = jnp.asarray(u, dtype=jnp.float64)
+            v = jnp.asarray(v, dtype=jnp.float64)
+            return jnp.vectorize(_one)(u, v)
+
+        return chebfun2(_integrand, domain=sdom).sum2()
 
     def __pow__(self, p) -> "Chebfun3":
         return Chebfun3.from_function(

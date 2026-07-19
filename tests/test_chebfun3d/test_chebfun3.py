@@ -264,6 +264,96 @@ class TestJAXInterop:
         val = float(f.sum3())
         npt.assert_allclose(val, 8.0, rtol=1e-12)
 
+
+class TestChebfun3Calculus:
+    """Core exercise of the Fable 5 additions: complex parts, predicates,
+    laplacian, cumsum family, std/std2, and line/surface integrals.
+    Mirrors the MATLAB-suite ports so the new code paths are covered even
+    when the MATLAB golden refs are unavailable."""
+
+    def _grid(self, dom=(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0), n=6):
+        xa, xb, ya, yb, za, zb = dom
+        g = [np.linspace(a + 0.05, b - 0.05, n)
+             for a, b in ((xa, xb), (ya, yb), (za, zb))]
+        xx, yy, zz = np.meshgrid(*g, indexing="ij")
+        return (jnp.asarray(xx.ravel()), jnp.asarray(yy.ravel()),
+                jnp.asarray(zz.ravel()))
+
+    def test_real_imag_conj_complex(self):
+        f = chebfun3(lambda x, y, z: jnp.cos(x * y * z))
+        g = chebfun3(lambda x, y, z: jnp.sin(x + y ** 2 + z ** 3))
+        h = f + 1j * g
+        X, Y, Z = self._grid()
+        npt.assert_allclose(np.asarray(h.real()(X, Y, Z)),
+                            np.asarray(f(X, Y, Z)), atol=1e-12)
+        npt.assert_allclose(np.asarray(h.imag()(X, Y, Z)),
+                            np.asarray(g(X, Y, Z)), atol=1e-12)
+        npt.assert_allclose(np.asarray(h.conj()(X, Y, Z)),
+                            np.asarray((f - 1j * g)(X, Y, Z)), atol=1e-12)
+        npt.assert_allclose(np.asarray(Chebfun3.complex(f, g)(X, Y, Z)),
+                            np.asarray(h(X, Y, Z)), atol=1e-12)
+
+    def test_predicates(self):
+        assert chebfun3(lambda x, y, z: x + y - z).isreal()
+        assert not chebfun3(lambda x, y, z: 1j * x + y - z).isreal()
+        assert chebfun3(lambda x, y, z: 1j * x + y - z).real().isreal()
+        assert chebfun3(lambda x, y, z: 0.0 * x).iszero()
+        assert not chebfun3(lambda x, y, z: 2.0 + 0.0 * x).iszero()
+        f = chebfun3(lambda x, y, z: jnp.cos(x * y * z))
+        g = chebfun3(lambda x, y, z: jnp.sin(x + y ** 2 - z ** 3))
+        assert f.isequal(f)
+        assert not f.isequal(g)
+
+    def test_laplacian(self):
+        F = chebfun3(lambda x, y, z: jnp.cos(x * z) + jnp.sin(y * z))
+        lap = F.laplacian()
+        ref = F.diff(1, 2) + F.diff(2, 2) + F.diff(3, 2)
+        X, Y, Z = self._grid()
+        npt.assert_allclose(np.asarray(lap(X, Y, Z)),
+                            np.asarray(ref(X, Y, Z)), atol=1e-10)
+        npt.assert_allclose(np.asarray(F.lap()(X, Y, Z)),
+                            np.asarray(lap(X, Y, Z)), atol=1e-12)
+
+    def test_cumsum_and_cumsum3(self):
+        x = chebfun3(lambda x, y, z: x)
+        X, Y, Z = self._grid()
+        npt.assert_allclose(np.asarray(x.cumsum()(X, Y, Z)),
+                            np.asarray(0.5 * (X ** 2 - 1)), atol=1e-12)
+        npt.assert_allclose(np.asarray(x.cumsum(2)(X, Y, Z)),
+                            np.asarray(X * (Y + 1)), atol=1e-12)
+        npt.assert_allclose(np.asarray(x.cumsum(3)(X, Y, Z)),
+                            np.asarray(X * (Z + 1)), atol=1e-12)
+        # cumsum3(x) = (y+1)(z+1)(x^2/2 - 1/2)
+        npt.assert_allclose(
+            np.asarray(x.cumsum3()(X, Y, Z)),
+            np.asarray((Y + 1) * (Z + 1) * (X ** 2 / 2 - 0.5)), atol=1e-12)
+        # cumsum2 == cumsum along the two given dims
+        npt.assert_allclose(
+            np.asarray(x.cumsum2((1, 2))(X, Y, Z)),
+            np.asarray(x.cumsum(1).cumsum(2)(X, Y, Z)), atol=1e-12)
+
+    def test_std_and_std2(self):
+        exact = np.sqrt(4.0 / 45.0)
+        f1 = chebfun3(lambda x, y, z: x ** 2 + y * z)
+        s = f1.std()  # Chebfun2 over (y, z)
+        npt.assert_allclose(
+            float(s(jnp.asarray(0.2), jnp.asarray(-0.3))), exact, atol=1e-12)
+        g1 = chebfun3(lambda x, y, z: x ** 2 + z)
+        s2 = g1.std2()  # Chebfun over z
+        npt.assert_allclose(float(s2(jnp.asarray(0.1))), exact, atol=1e-12)
+
+    def test_line_and_surface_integral(self):
+        f = chebfun3(lambda x, y, z: 2 * x * y + 3 * z)
+        val = f.integral(lambda t: (2 * t, 5 * t, 4 * t), domain=(0, 1))
+        npt.assert_allclose(val, 38 * np.sqrt(5), rtol=1e-12)
+        fs = Chebfun3.from_function(
+            lambda x, y, z: jnp.sqrt(1 + x ** 2 + y ** 2),
+            domain=(-4.0, 4.0, -4.0, 4.0, 0.0, 2 * np.pi))
+        area = fs.integral2(
+            lambda u, v: (u * jnp.cos(v), u * jnp.sin(v), v),
+            domain=(0.0, 4.0, 0.0, 2 * np.pi))
+        npt.assert_allclose(area, 152 * np.pi / 3, atol=1e-7)
+
     def test_jit_stable_across_calls(self):
         """JIT-compiled (via eqx.filter_jit) gives same result as eager."""
         import equinox as eqx
