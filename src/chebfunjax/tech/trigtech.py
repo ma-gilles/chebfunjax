@@ -603,6 +603,139 @@ def _trig_prolong_coeffs(coeffs: jax.Array, n_out: int) -> jax.Array:
     return coeffs_cx
 
 
+def _alias_trigtech(coeffs: jax.Array, m: int) -> jax.Array:
+    """Alias Fourier coefficients on the equispaced grid to length ``m``.
+
+    Direct port of ``@trigtech/alias.m``.  If ``m`` exceeds ``len(coeffs)``
+    the coefficients are zero-padded (with the correct even-``n`` Nyquist
+    symmetry handling); otherwise higher modes are folded down onto the
+    modes indistinguishable from them on the ``m``-point grid.  Aliasing to
+    length ``m`` reproduces exactly the coefficients of the interpolant on
+    the ``m``-point equispaced grid.
+
+    Not JIT-safe (Python-int branching + loop-based accumulation); uses
+    numpy for the folding, mirroring the coefficient-surgery helpers in
+    ``chebtech``.
+    """
+    import numpy as np
+
+    orig = jnp.asarray(coeffs)
+    twod = orig.ndim == 2
+    c = np.asarray(orig).astype(np.complex128)
+    if not twod:
+        c = c.reshape(-1, 1)
+    else:
+        c = c.copy()
+    n = c.shape[0]
+    cols = c.shape[1]
+
+    if m > n:
+        k = int(np.ceil((m - n) / 2))
+        z = np.zeros((k, cols), dtype=c.dtype)
+        if n % 2 == 0:
+            # Account for the even-n asymmetry (the cos(N/2) coeff) using
+            # the symmetry of the complex exponential.
+            c = np.concatenate([c[:1] / 2, c[1:n], c[:1] / 2], axis=0)
+            c = np.concatenate([z, c, z[: z.shape[0] - 1]], axis=0)
+            if m % 2 == 1:
+                c = c[1:]
+        else:
+            c = np.concatenate([z, c, z], axis=0)
+            if m % 2 == 0:
+                c = c[:-1]
+        out = jnp.asarray(c, dtype=jnp.complex128)
+        return out if twod else out.reshape(-1)
+
+    # Make n odd by exploiting symmetry, which simplifies the cases below.
+    if n % 2 == 0:
+        c = c.copy()
+        c[0] = 0.5 * c[0]
+        c = np.concatenate([c, c[:1]], axis=0)
+        n = n + 1
+
+    if m % 2 == 1:
+        if m == 1:
+            n2 = (n - 1) // 2
+            const = c[n2]
+            pos = c[n2 - 1::-1]
+            neg = c[n2 + 1:n]
+            e = np.ones(int(np.ceil((n - 1) / 2)), dtype=c.dtype)
+            e[0::2] = -1
+            c = (const + (e @ pos + e @ neg)).reshape(1, cols)
+        else:
+            m2 = (m - 1) // 2
+            n2 = (n - 1) // 2
+            al = c[n2 - m2:n2 + m2 + 1].copy()
+            for j in range(-n2, -m2):
+                k = int(np.mod(j + m2 + 1, -m)) + m2
+                sgn = (-1) ** ((j + k) % 2)
+                al[k + m2] = al[k + m2] + sgn * c[j + n2]
+                al[-k + m2] = al[-k + m2] + sgn * c[-j + n2]
+            c = al
+    else:
+        m2 = m // 2
+        n2 = (n - 1) // 2
+        al = c[n2 - m2:n2 + m2].copy()
+        al = np.concatenate([al, -al[:1]], axis=0)
+        for j in range(-n2, -m2 + 1):
+            k = int(np.mod(j + m2, -m)) + m2
+            al[k + m2] = al[k + m2] + c[j + n2]
+            al[-k + m2] = al[-k + m2] + c[-j + n2]
+        # Collapse the +m/2 exp term back onto the -m/2 one and drop the tail.
+        al[0] = al[0] + al[-1]
+        al = al[:-1]
+        c = al
+
+    out = jnp.asarray(c, dtype=jnp.complex128)
+    return out if twod else out.reshape(-1)
+
+
+def _trigcoeffs_trigtech(coeffs: jax.Array, N: int) -> jax.Array:
+    """Return exactly ``N`` trigonometric coefficients of a trigtech.
+
+    Direct port of ``@trigtech/trigcoeffs.m``: pads symmetrically when ``N``
+    exceeds the stored length and, when truncating to an even ``N``, folds
+    the highest retained mode back onto the ``cos(N/2)`` coefficient (rather
+    than the plain ``prolong`` scaling).  Not JIT-safe (Python-int
+    branching).
+    """
+    import numpy as np
+
+    if N is None or N <= 0:
+        return jnp.array([], dtype=jnp.complex128)
+
+    orig = jnp.asarray(coeffs)
+    twod = orig.ndim == 2
+    c = np.asarray(orig).astype(np.complex128)
+    if not twod:
+        c = c.reshape(-1, 1)
+    num = c.shape[0]
+    cols = c.shape[1]
+
+    if num < N:
+        k = int(np.ceil((N - num) / 2))
+        z = np.zeros((k, cols), dtype=c.dtype)
+        c = np.concatenate([z, c, z], axis=0)
+        num = c.shape[0]
+
+    f_is_even = num % 2 == 0
+    const_index = num // 2 if f_is_even else (num - 1) // 2  # 0-based
+
+    if N % 2 == 0:
+        start = const_index - N // 2
+        end = const_index + (N // 2 - 1)
+        out = c[start:end + 1].copy()
+        if end < num - 1:
+            out[0] = out[0] + c[end + 1]
+    else:
+        start = const_index - (N - 1) // 2
+        end = const_index + (N - 1) // 2
+        out = c[start:end + 1].copy()
+
+    out = jnp.asarray(out, dtype=jnp.complex128)
+    return out if twod else out.reshape(-1)
+
+
 # ============================================================================
 # Happiness check helpers
 # ============================================================================
@@ -1073,6 +1206,77 @@ class Trigtech(eqx.Module):
         Chebfun commit: 7574c77
         """
         return trig_coeffs2vals(coeffs)
+
+    @staticmethod
+    def alias(coeffs: jax.Array, m: int) -> jax.Array:
+        """Alias Fourier coefficients on the equispaced grid to length ``m``.
+
+        ``ALIAS(C, M)`` zero-pads (``M > len(C)``) or frequency-folds
+        (``M < len(C)``) the coefficients ``C``.  Aliasing to length ``M``
+        gives exactly the coefficients of the interpolant through the
+        underlying function on the ``M``-point equispaced grid.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/alias.m
+        Chebfun commit: 7574c77
+        """
+        return _alias_trigtech(coeffs, m)
+
+    @staticmethod
+    def quadwts(n: int) -> jax.Array:
+        """Quadrature (trapezoid-rule) weights for ``n`` equispaced points.
+
+        ``QUADWTS(N)`` returns ``2/n`` repeated ``n`` times: the weights for
+        the periodic trapezoid rule on ``n`` points of ``[-1, 1)``.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/quadwts.m
+        Chebfun commit: 7574c77
+        """
+        if n == 0:
+            return jnp.array([], dtype=jnp.float64)
+        return jnp.full((n,), 2.0 / n, dtype=jnp.float64)
+
+    def trigcoeffs(self, N: int | None = None) -> jax.Array:
+        """Trigonometric (complex-exponential) coefficients of the trigtech.
+
+        ``trigcoeffs(f)`` returns the stored Fourier coefficients;
+        ``trigcoeffs(f, N)`` returns exactly ``N`` of them, padding
+        symmetrically or truncating with the correct even-``N`` Nyquist fold.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/trigcoeffs.m
+        Chebfun commit: 7574c77
+        """
+        if N is None:
+            N = len(self)
+        return _trigcoeffs_trigtech(self.coeffs, N)
+
+    def sample(self, n: int | None = None):
+        """Sample the trigtech at ``n`` equispaced points on ``[-1, 1)``.
+
+        Returns ``(values, points)``; ``n = len(self)`` if omitted.  When
+        ``n == len(self)`` the stored values are returned directly,
+        otherwise the coefficients are aliased to length ``n`` first.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/sample.m
+        Chebfun commit: 7574c77
+        """
+        if n is None:
+            n = len(self)
+        if n == len(self):
+            values = self.values
+        else:
+            values = trig_coeffs2vals(_alias_trigtech(self.coeffs, n))
+            if self.is_real:
+                values = jnp.real(values).astype(jnp.float64)
+        points = trigpts(n)
+        return values, points
 
     # ------------------------------------------------------------------
     # Properties

@@ -137,16 +137,21 @@ def bartels_stewart(
     m = A.shape[0]
     n = B.shape[0]
 
-    # QZ decomposition of (A, C): A = Q1 P Z1^H, C = Q1 S Z1^H
+    # QZ decomposition of (A, C): A = Q1 P Z1^T, C = Q1 S Z1^T (real orthogonal
+    # Q1, Z1).  P and S are quasi-triangular; do NOT force them upper triangular
+    # -- the column recursion below solves full m x m systems with them, so
+    # zeroing their 2x2-block subdiagonals corrupts the transformed pencil.
     P, S, Q1, Z1 = scipy.linalg.qz(A, C, output="real")
-    P = np.triu(P)
-    S = np.triu(S)
 
-    # QZ decomposition of (D, B): D = Q2 T Z2^H, B = Q2 R Z2^H
+    # QZ decomposition of (D, B): D = Q2 T Z2^T, B = Q2 R Z2^T.  T is (quasi-)
+    # upper triangular and R is upper triangular, which is what enables the
+    # column-by-column back-substitution over the right pencil.
     T, R, Q2, Z2 = scipy.linalg.qz(D, B, output="real")
 
-    # Transform the RHS: F = Q1 E Q2^T
-    F = Q1 @ E @ Q2.T
+    # With Y = Z1^T X Z2 the equation reduces to P Y R^T + S Y T^T = F where the
+    # transformed RHS is F = Q1^T E Q2 (the solution is recovered as
+    # X = Z1 Y Z2^T below).
+    F = Q1.T @ E @ Q2
 
     # Backward substitution: build solution Y column by column
     Y = np.zeros((m, n), dtype=np.float64)

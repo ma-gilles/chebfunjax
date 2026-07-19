@@ -1,9 +1,8 @@
 """Port of MATLAB Chebfun tests/trigtech/test_quadpts.m (Opus 4.8).
 
-Tests the trigonometric quadrature weights ``trigtech.quadwts(n)``.
-chebfunjax's trigtech exposes definite integration through ``sum`` (== 2*c_0)
-but does not expose a standalone ``quadwts`` weight vector, so each weight
-assertion is skipped with that precise reason.
+Tests the trigonometric quadrature weights ``trigtech.quadwts(n)``.  chebfunjax
+now implements ``Trigtech.quadwts`` (a port of ``@trigtech/quadwts.m``, the
+periodic trapezoid-rule weights ``2/n``), so the weight assertions run.
 
 Provenance
 ----------
@@ -13,38 +12,48 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-import pytest
+import jax.numpy as jnp
+import numpy as np
+
+from chebfunjax.tech.trigtech import Trigtech, trigpts
+
+EPS = float(np.finfo(np.float64).eps)
+
+
+def _dot(w, v):
+    return float(jnp.dot(jnp.asarray(w), jnp.asarray(v)))
 
 
 class TestTrigtechQuadpts:
-    @pytest.mark.skip(reason="chebfunjax trigtech has no quadwts(n) method (integration via sum only)")
     def test_weights_sum_to_two(self):
-        pass
+        w = Trigtech.quadwts(10)
+        assert abs(float(jnp.sum(w)) - 2) < 2 * EPS
 
-    @pytest.mark.skip(reason="chebfunjax trigtech has no quadwts(n) method")
     def test_weights_annihilate_sin(self):
-        pass
+        w = Trigtech.quadwts(10)
+        x = trigpts(10)
+        assert abs(_dot(w, jnp.sin(jnp.pi * x))) < EPS
 
-    @pytest.mark.skip(reason="chebfunjax trigtech has no quadwts(n) method")
     def test_weights_annihilate_sin_cos(self):
-        pass
+        w = Trigtech.quadwts(10)
+        x = trigpts(10)
+        assert abs(_dot(w, jnp.sin(2 * jnp.pi * x) * jnp.cos(2 * jnp.pi * x))) < 2 * EPS
 
-    @pytest.mark.skip(reason="chebfunjax trigtech has no quadwts(n) method")
     def test_weights_integrate_sin_squared(self):
-        pass
+        w = Trigtech.quadwts(10)
+        x = trigpts(10)
+        assert abs(_dot(w, jnp.sin(2 * jnp.pi * x) ** 2) - 1) < 2 * EPS
 
-    @pytest.mark.skip(reason="chebfunjax trigtech has no quadwts(n) method")
     def test_weights_integrate_cos_squared(self):
-        pass
+        w = Trigtech.quadwts(10)
+        x = trigpts(10)
+        assert abs(_dot(w, jnp.cos(2 * jnp.pi * x) ** 2) - 1) < 2 * EPS
 
-    @pytest.mark.skip(reason="chebfunjax trigtech has no quadwts(n) method")
     def test_weights_empty(self):
-        pass
+        assert Trigtech.quadwts(0).shape[0] == 0
 
-    @pytest.mark.skip(reason="chebfunjax trigtech has no quadwts(n) method")
     def test_weights_n_one(self):
-        pass
+        assert float(Trigtech.quadwts(1)[0]) == 2.0
 
-    @pytest.mark.skip(reason="chebfunjax trigtech has no quadwts(n) method")
     def test_weights_n_two(self):
-        pass
+        assert bool(jnp.all(Trigtech.quadwts(2) == 1))

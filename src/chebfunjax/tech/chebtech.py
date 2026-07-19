@@ -161,6 +161,155 @@ def _prolong_coeffs(coeffs: jax.Array, n: int) -> jax.Array:
     return jnp.concatenate([coeffs, pad])
 
 
+def _alias_chebtech2(coeffs: jax.Array, m: int) -> jax.Array:
+    """Alias 2nd-kind Chebyshev coefficients to length ``m``.
+
+    Direct port of ``@chebtech2/alias.m``.  If ``m`` exceeds the current
+    length the coefficients are zero-padded; otherwise the higher modes are
+    folded down onto the retained ones per eq. (4.4) of Trefethen, ATAP.
+
+    Not JIT-safe (Python-int branching + fancy-index accumulation); uses
+    numpy for the folding, mirroring the other coefficient-surgery helpers.
+    """
+    import numpy as np
+
+    orig = jnp.asarray(coeffs)
+    twod = orig.ndim == 2
+    c = np.asarray(orig)
+    if not twod:
+        c = c.reshape(-1, 1)
+    else:
+        c = c.copy()
+    n = c.shape[0]
+    if m > n:
+        c = np.concatenate([c, np.zeros((m - n,) + c.shape[1:], dtype=c.dtype)], axis=0)
+    elif m == 1:
+        e = np.ones(int(np.ceil(n / 2)), dtype=c.dtype)
+        e[1::2] = -1
+        c = (e @ c[0::2, :]).reshape((1,) + c.shape[1:])
+    else:
+        c = c.copy()
+        if m > n / 2:
+            # Only single coefficients are aliased (k is unique), so the
+            # fancy-indexed accumulation matches MATLAB's vectorised assign.
+            j = np.arange(m + 1, n + 1)
+            k = np.abs(np.mod(j + m - 3, 2 * m - 2) - m + 2) + 1
+            c[k - 1, :] = c[k - 1, :] + c[j - 1, :]
+        else:
+            for j in range(m + 1, n + 1):
+                k = abs((j + m - 3) % (2 * m - 2) - m + 2) + 1
+                c[k - 1, :] = c[k - 1, :] + c[j - 1, :]
+        c = c[:m, :]
+    out = jnp.asarray(c, dtype=orig.dtype)
+    return out if twod else out.reshape(-1)
+
+
+def _alias_chebtech1(coeffs: jax.Array, m: int) -> jax.Array:
+    """Alias 1st-kind Chebyshev coefficients to length ``m``.
+
+    Direct port of ``@chebtech1/alias.m``.  The folding formula differs from
+    the 2nd-kind grid even though the coefficients are for 1st-kind
+    Chebyshev polynomials in both cases.  Not JIT-safe (see
+    :func:`_alias_chebtech2`).
+    """
+    import numpy as np
+
+    orig = jnp.asarray(coeffs)
+    twod = orig.ndim == 2
+    c = np.asarray(orig)
+    if not twod:
+        c = c.reshape(-1, 1)
+    else:
+        c = c.copy()
+    n = c.shape[0]
+    if m > n:
+        c = np.concatenate([c, np.zeros((m - n,) + c.shape[1:], dtype=c.dtype)], axis=0)
+    elif m == 1:
+        e = np.ones(int(np.ceil(n / 2)), dtype=c.dtype)
+        e[1::2] = -1
+        c = (e @ c[0::2, :]).reshape((1,) + c.shape[1:])
+    else:
+        c = c.copy()
+        if m > n / 2:
+            j = np.arange(m + 1, n + 1)
+            k = np.abs(np.mod(j + m - 2, 2 * m) - m + 1) + 1
+            p = np.floor((j - 1 + m) / (2 * m))
+            t = ((-1.0) ** p).astype(c.dtype)
+            c[k - 1, :] = c[k - 1, :] + t[:, None] * c[j - 1, :]
+        else:
+            for j in range(m + 1, n + 1):
+                k = abs((j + m - 2) % (2 * m) - m + 1) + 1
+                sgn = 1 - 2 * (int(np.floor((j - 1 + m) / (2 * m))) % 2)
+                c[k - 1, :] = c[k - 1, :] + sgn * c[j - 1, :]
+        c = c[:m, :]
+    out = jnp.asarray(c, dtype=orig.dtype)
+    return out if twod else out.reshape(-1)
+
+
+def _cheb_coeffs_turbo(op: Callable, rho: float, n: int) -> jax.Array:
+    """Compute the first ``n`` Chebyshev coefficients of an analytic ``op``
+    via Cauchy (contour) integrals over the Bernstein ellipse of parameter
+    ``rho``.
+
+    Port of the ``chebCoeffsTurbo`` subfunction of
+    ``@chebtech/constructorTurbo.m``.  ``op`` must be vectorised and accept
+    complex inputs.
+    """
+    K = 4 * n
+    z = jnp.exp(2j * jnp.pi * jnp.arange(K, dtype=jnp.float64) / K)
+    g = jnp.asarray(op((rho * z + 1.0 / (rho * z)) / 2.0), dtype=jnp.complex128)
+    c = jnp.fft.fft(g) / K / (rho ** jnp.arange(K, dtype=jnp.float64))
+    return jnp.concatenate([c[:1], 2.0 * c[1:n]])
+
+
+def _turbo_coeffs(op: Callable, plain_coeffs: jax.Array, num: int) -> jax.Array:
+    """Recompute ``num`` coefficients of ``op`` to high accuracy from a plain
+    construction (``plain_coeffs``) using the turbo contour integral.
+
+    Port of ``@chebtech/constructorTurbo.m``: picks the Bernstein ellipse
+    from the plain length, computes the coefficients, then respects the
+    real/pure-imaginary structure of the plain representation.
+    """
+    length = plain_coeffs.shape[0]
+    rho_cheb = jnp.exp(abs(jnp.log(_EPS)) / length)
+    rho = rho_cheb ** (2.0 / 3.0)
+    c = _cheb_coeffs_turbo(op, float(rho), num)
+
+    # Respect the real / pure-imaginary structure of the plain series
+    # (MATLAB @chebtech/constructorTurbo.m: real(c) / imag(c) / c).
+    if not bool(jnp.iscomplexobj(plain_coeffs)):
+        return jnp.real(c)
+    if float(jnp.max(jnp.abs(jnp.real(plain_coeffs)))) == 0.0:
+        return jnp.asarray(jnp.imag(c), dtype=plain_coeffs.dtype)
+    return c
+
+
+def _trigcoeffs_from_tech(tech, N: int | None) -> jax.Array:
+    """Trigonometric (complex-exponential) coefficients of a CHEBTECH.
+
+    Port of ``@chebtech/trigcoeffs.m``: the ``k``-th Fourier mode is built as
+    a tech of the same kind and its (unconjugated) integral against ``f``
+    gives the coefficient ``0.5 * sum(exp(-i pi k x) * f)``.
+    """
+    if N is None:
+        N = len(tech)
+    if N is None or N <= 0:
+        return jnp.array([], dtype=jnp.complex128)
+
+    half = (N - 1) // 2 if N % 2 == 1 else N // 2
+    if N % 2 == 1:
+        modes = range(-half, half + 1)
+    else:
+        modes = range(-half, half)
+
+    cls = type(tech)
+    out = []
+    for k in modes:
+        mode = cls.from_function(lambda x, k=k: jnp.exp(-1j * jnp.pi * k * x))
+        out.append(0.5 * (mode * tech).sum())
+    return jnp.asarray(out)
+
+
 def _chop_columns(coeffs: jax.Array, tol: float | None) -> int:
     """standard_chop applied column-wise; the cutoff is the max across
     columns (MATLAB @chebtech/simplify.m and standardCheck.m loop over
@@ -729,6 +878,7 @@ class Chebtech2(eqx.Module):
         n: int | None = None,
         maxpow2: int = 16,
         tol: float | None = None,
+        turbo: bool = False,
     ) -> "Chebtech2":
         """Construct a Chebtech2 from a callable.
 
@@ -782,6 +932,19 @@ class Chebtech2(eqx.Module):
         Original authors: Copyright 2017 by The University of Oxford
             and The Chebfun Developers.
         """
+        if turbo:
+            # "Turbo" construction: build the plain (adaptive) representation,
+            # then recompute the coefficients to high accuracy via contour
+            # integrals.  Port of @chebtech/constructorTurbo.m: the plain
+            # construction stays adaptive even when a fixed output length is
+            # requested (the constructor only prolongs for numeric data), so
+            # the Bernstein ellipse is fixed from the adaptive length while the
+            # number of computed coefficients is ``fixedLength`` (here ``n``)
+            # or ``2*length`` otherwise.
+            plain = cls._adaptive_construct(f, maxpow2, tol=tol)
+            num = n if n is not None else 2 * len(plain)
+            c = _turbo_coeffs(f, plain.coeffs, num)
+            return cls(coeffs=c, ishappy=plain.ishappy)
         if n is not None:
             return cls._fixed_construct(f, n)
         return cls._adaptive_construct(f, maxpow2, tol=tol)
@@ -929,6 +1092,66 @@ class Chebtech2(eqx.Module):
         Chebfun commit: 7574c77
         """
         return coeffs2vals(coeffs)
+
+    @staticmethod
+    def alias(coeffs: jax.Array, m: int) -> jax.Array:
+        """Alias 2nd-kind Chebyshev coefficients to length ``m``.
+
+        ``ALIAS(C, M)`` folds the coefficients ``C`` down to length ``M``
+        (or zero-pads if ``M`` exceeds ``len(C)``).  Aliasing to length
+        ``M`` gives exactly the coefficients of the interpolant through the
+        underlying function on the ``M``-point 2nd-kind grid.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech2/alias.m
+        Chebfun commit: 7574c77
+        """
+        return _alias_chebtech2(coeffs, m)
+
+    @staticmethod
+    def angles(n: int) -> jax.Array:
+        """Angles ``acos(x)`` of the ``n`` 2nd-kind Chebyshev points.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech2/angles.m
+        Chebfun commit: 7574c77
+        """
+        if n == 0:
+            return jnp.array([], dtype=jnp.float64)
+        if n == 1:
+            return jnp.array([jnp.pi / 2], dtype=jnp.float64)
+        m = n - 1
+        return jnp.arange(m, -1, -1, dtype=jnp.float64) * jnp.pi / m
+
+    def sample(self, n: int | None = None):
+        """Sample the tech at ``n`` 2nd-kind Chebyshev points.
+
+        Returns ``(values, points)`` where ``values`` are the function
+        values on the ``n``-point 2nd-kind grid (``n = len(self)`` if
+        omitted) and ``points`` is that grid.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/sample.m
+        Chebfun commit: 7574c77
+        """
+        if n is None:
+            n = len(self)
+        values = coeffs2vals(_alias_chebtech2(self.coeffs, n))
+        points = chebpts(n, kind=2)
+        return values, points
+
+    def trigcoeffs(self, N: int | None = None) -> jax.Array:
+        """Trigonometric (complex-exponential) coefficients of the tech.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/trigcoeffs.m
+        Chebfun commit: 7574c77
+        """
+        return _trigcoeffs_from_tech(self, N)
 
     # ------------------------------------------------------------------
     # Properties
@@ -2310,6 +2533,7 @@ class Chebtech1(eqx.Module):
         *,
         n: int | None = None,
         maxpow2: int = 16,
+        turbo: bool = False,
     ) -> "Chebtech1":
         """Construct a Chebtech1 from a callable.
 
@@ -2337,6 +2561,14 @@ class Chebtech1(eqx.Module):
         Original authors: Copyright 2017 by The University of Oxford
             and The Chebfun Developers.
         """
+        if turbo:
+            # "Turbo" construction (see Chebtech2.from_function): the plain
+            # construction is adaptive; only the number of computed
+            # coefficients is fixed by ``n`` (fixedLength).
+            plain = cls._adaptive_construct(f, maxpow2)
+            num = n if n is not None else 2 * len(plain)
+            c = _turbo_coeffs(f, plain.coeffs, num)
+            return cls(coeffs=c, ishappy=plain.ishappy)
         if n is not None:
             return cls._fixed_construct(f, n)
         return cls._adaptive_construct(f, maxpow2)
@@ -2462,6 +2694,60 @@ class Chebtech1(eqx.Module):
         Chebfun commit: 7574c77
         """
         return _chebtech1_coeffs2vals(coeffs)
+
+    @staticmethod
+    def alias(coeffs: jax.Array, m: int) -> jax.Array:
+        """Alias 1st-kind Chebyshev coefficients to length ``m``.
+
+        Note the 1st-kind folding formula differs from the 2nd-kind grid
+        even though the coefficients are for 1st-kind Chebyshev polynomials
+        in both cases.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech1/alias.m
+        Chebfun commit: 7574c77
+        """
+        return _alias_chebtech1(coeffs, m)
+
+    @staticmethod
+    def angles(n: int) -> jax.Array:
+        """Angles ``acos(x)`` of the ``n`` 1st-kind Chebyshev points.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech1/angles.m
+        Chebfun commit: 7574c77
+        """
+        if n == 0:
+            return jnp.array([], dtype=jnp.float64)
+        return jnp.arange(n - 0.5, 0.0, -1.0, dtype=jnp.float64) * jnp.pi / n
+
+    def sample(self, n: int | None = None):
+        """Sample the tech at ``n`` 1st-kind Chebyshev points.
+
+        Returns ``(values, points)``; ``n = len(self)`` if omitted.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/sample.m
+        Chebfun commit: 7574c77
+        """
+        if n is None:
+            n = len(self)
+        values = _chebtech1_coeffs2vals(_alias_chebtech1(self.coeffs, n))
+        points = chebpts(n, kind=1)
+        return values, points
+
+    def trigcoeffs(self, N: int | None = None) -> jax.Array:
+        """Trigonometric (complex-exponential) coefficients of the tech.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/trigcoeffs.m
+        Chebfun commit: 7574c77
+        """
+        return _trigcoeffs_from_tech(self, N)
 
     # ------------------------------------------------------------------
     # Properties

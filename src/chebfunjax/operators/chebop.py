@@ -58,13 +58,13 @@ def _chebfun_from_values(values, domain: tuple[float, float]):
 def _chebfun_zeros(domain: tuple[float, float]):
     """Return the zero Chebfun on domain."""
     from chebfunjax.chebfun1d.chebfun import chebfun
-    return chebfun(lambda x: jnp.zeros_like(x), domain=Domain(domain), n=2)
+    return chebfun(lambda x: jnp.zeros_like(x), domain=tuple(domain), n=2)
 
 
 def _chebfun_identity(domain: tuple[float, float]):
     """Return the identity Chebfun f(x) = x on domain."""
     from chebfunjax.chebfun1d.chebfun import chebfun
-    return chebfun(lambda x: x, domain=Domain(domain), n=2)
+    return chebfun(lambda x: x, domain=tuple(domain), n=2)
 
 
 def _eval_chebfun_at(u, x0: float) -> float:
@@ -193,6 +193,13 @@ class Chebop:
         self._lbc_raw = None
         self._rbc_raw = None
         self._bc_show = None
+        #: General constraint callable set via ``N.bc = @(x, u, ...) [...]``
+        #: (MATLAB's "other" boundary conditions).  Unlike lbc/rbc it is a
+        #: single callable returning a list of scalar residual conditions
+        #: that the user evaluates at arbitrary points (e.g. ``u(0)``,
+        #: ``feval(diff(u), 0) - p``), including interior points.  It is
+        #: additive to any lbc/rbc and can reference unknown parameters.
+        self._bc_general = None
         self._periodic = False
         #: Initial guess for nonlinear solves (Chebfun, callable, or None) —
         #: MATLAB's N.init. Previously assigning N.init was silently ignored.
@@ -243,6 +250,7 @@ class Chebop:
     def bc(self, val):
         self._bc_show = val
         self._periodic = False
+        self._bc_general = None
         if val is None:
             self._lbc_raw = None
             self._rbc_raw = None
@@ -268,7 +276,13 @@ class Chebop:
                     f"Unknown bc keyword {val!r}: expected 'dirichlet', "
                     f"'neumann', or 'periodic'."
                 )
-        elif isinstance(val, (int, float)) or callable(val):
+        elif callable(val):
+            # MATLAB N.bc = @(x, u, ...) [...] : a general constraint
+            # function returning scalar conditions (u evaluated at arbitrary
+            # points, possibly interior; may reference unknown parameters).
+            # Additive to lbc/rbc rather than overwriting them.
+            self._bc_general = val
+        elif isinstance(val, (int, float)):
             self._lbc_raw = val
             self._rbc_raw = val
         else:
@@ -352,8 +366,14 @@ class Chebop:
                 return self._solve_periodic_system(
                     f, n=n, max_iter=max_iter)
             # First-order explicit IVP systems (all BCs at one end)
-            # time-march like MATLAB routes to ode113.
-            if (self._lbc_raw is None) != (self._rbc_raw is None):
+            # time-march like MATLAB routes to ode113.  A general .bc
+            # constraint or an unknown parameter means the problem is a
+            # genuine (coupled) BVP, not an initial-value march.
+            if (
+                self._bc_general is None
+                and self._n_params() == 0
+                and (self._lbc_raw is None) != (self._rbc_raw is None)
+            ):
                 try:
                     return self._solve_ivp_system(f)
                 except Exception:
@@ -366,6 +386,18 @@ class Chebop:
         # Periodic BVPs use Fourier collocation (task #24, Opus 4.8).
         if getattr(self, "_periodic", False):
             return self._solve_periodic(f, n=n, n_max=n_max, tol=tol)
+
+        # A scalar problem carrying a general .bc constraint (conditions the
+        # user evaluates at arbitrary points, e.g. an interior u(0)) is
+        # assembled by the block collocation solver, which supports the
+        # general-constraint row placement.  A single-block system reduces to
+        # the scalar collocation matrix; unwrap to a plain Chebfun.
+        if self._bc_general is not None:
+            if self._system_is_linear():
+                sol = self._solve_linear_system(f, n=n)
+            else:
+                sol = self._solve_nonlinear_system(f, n=n, max_iter=max_iter)
+            return sol[0] if len(sol) == 1 else sol
 
         # IVPs (all BCs at one endpoint) time-march like MATLAB (#24).
         # Fall back to collocation if the extraction fails.
@@ -398,6 +430,146 @@ class Chebop:
             return max(1, len(params) - 1)
         except (TypeError, ValueError):
             return 1
+
+    def _n_equations(self) -> int:
+        """Number of differential equations the operator returns.
+
+        Probed by evaluating ``op`` on zero functions and counting outputs.
+        When this is fewer than :meth:`_n_vars`, the trailing unknowns are
+        scalar *parameters* (MATLAB @chebop treats extra unknowns pinned by
+        boundary conditions as constants determined by the linearization).
+        """
+        m = self._n_vars()
+        try:
+            from chebfunjax.chebfun1d.chebfun import Chebfun
+            x_fun = Chebfun.identity(Domain(self.domain))
+            zero = _chebfun_from_values(jnp.zeros(2), self.domain)
+            out = self.op(x_fun, *([zero] * m))
+        except Exception:
+            return m
+        if isinstance(out, (list, tuple)):
+            return len(out)
+        return 1
+
+    def _n_params(self) -> int:
+        """Number of unknown scalar parameters (m - number of equations).
+
+        A parameter is an extra trailing argument of ``op`` for which the
+        operator returns no differential equation; it is carried in the
+        square system as a constant unknown (``p' = 0``) pinned by a boundary
+        condition, matching MATLAB @chebop's parameter treatment.
+        """
+        if self._n_vars() < 2:
+            return 0
+        return max(0, self._n_vars() - self._n_equations())
+
+    def linop(self):
+        """Linearize this CHEBOP and return its typed block operator.
+
+        Probes the operator with one system-aware linearization variable per
+        unknown (see :class:`_LinopVar`) and assembles a
+        :class:`~chebfunjax.operators.chebmatrix.ChebMatrix` whose ``blocks``
+        are *typed* exactly as MATLAB ``linop(N).blocks``:
+
+        * a block is an :class:`~chebfunjax.operators.blocks.OperatorBlock`
+          when its unknown is differentiated or integrated *somewhere* in the
+          system (or when nothing in the system is differentiated/integrated at
+          all -- then every unknown is a genuine function, hence an operator);
+        * otherwise the unknown is a *parameter* (never differentiated while
+          something else is) and its block collapses to a
+          :class:`~chebfunjax.chebfun1d.chebfun.Chebfun` -- the multiplicative
+          coefficient of that unknown in the equation.
+
+        This mirrors the ``isParam`` bookkeeping of MATLAB
+        ``@chebop/linearize.m``::
+
+            isParam = any(any(~isNotDiffOrInt)) & all(isNotDiffOrInt, 1);
+
+        Returns
+        -------
+        ChebMatrix
+            ``n_eq x m`` block matrix (``n_eq`` equations, ``m`` unknowns).
+            For a scalar equation it is ``1 x m`` and linear indexing
+            (``L.linop()[j]``) recovers block ``j``.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/linop.m, @chebop/linearize.m, @linop/linop.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        ChebMatrix, OperatorBlock
+        """
+        import inspect
+
+        from chebfunjax.operators.chebmatrix import ChebMatrix
+
+        m = self._n_vars()
+        domain = self.domain
+
+        if self.op is None:
+            raise ValueError("Chebop.linop: operator is not set.")
+
+        # Seed one system-linearization variable per unknown: variable j has an
+        # identity block in column j and structural zeros elsewhere.
+        seeds = []
+        for j in range(m):
+            jac = [None] * m
+            jac[j] = _I_block(domain)
+            seeds.append(_LinopVar(jac, domain))
+
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        x_fun = Chebfun.identity(Domain(domain))
+        try:
+            nargs = len(inspect.signature(self.op).parameters)
+        except (TypeError, ValueError):
+            nargs = m + 1
+        out = self.op(x_fun, *seeds) if nargs > m else self.op(*seeds)
+
+        # Normalize the output into a list of equation rows.
+        if isinstance(out, _LinopVar):
+            equations = [out]
+        elif isinstance(out, (list, tuple)):
+            equations = list(out)
+        else:
+            # An equation that is a bare affine part (no unknown) -> zero row.
+            equations = [out]
+
+        rows = []
+        for eq in equations:
+            if isinstance(eq, _LinopVar):
+                rows.append(list(eq.jac))
+            else:
+                rows.append([None] * m)
+
+        # Column classification (MATLAB isParam): a variable is a parameter iff
+        # something in the system is differentiated/integrated AND that variable
+        # never is.
+        def _is_diffint(blk):
+            return blk is not None and getattr(blk, "order", 0) != 0
+
+        any_diffint = any(_is_diffint(blk) for row in rows for blk in row)
+        is_param = [
+            any_diffint and not any(_is_diffint(row[j]) for row in rows)
+            for j in range(m)
+        ]
+
+        one_fun = _chebfun_ones(domain)
+        typed_rows = []
+        for row in rows:
+            typed_row = []
+            for j, blk in enumerate(row):
+                if is_param[j]:
+                    typed_row.append(_block_to_coefficient(blk, one_fun, domain))
+                else:
+                    typed_row.append(blk if blk is not None
+                                     else _zero_operator(domain))
+            typed_rows.append(typed_row)
+
+        return ChebMatrix(typed_rows, domain=domain)
 
     def _eigs_system(self, k: int = 6, n: int = 64):
         """Eigenvalues of a linear system of ODEs (MATLAB eigs for
@@ -1119,6 +1291,14 @@ class Chebop:
             out = self.op(x_fun, *us)
             if not isinstance(out, (list, tuple)):
                 out = [out]
+            out = list(out)
+            # Parameter augmentation: trailing unknowns for which the operator
+            # returns no equation are unknown scalar parameters.  Carry each as
+            # a constant field by appending the equation ``p' = 0`` (MATLAB
+            # @chebop treats parameters as extra unknowns in the linearization,
+            # pinned by a boundary condition).
+            for i in range(len(out), m):
+                out.append(us[i].diff())
             return [zero + o if isinstance(o, (int, float)) else o
                     for o in out]
 
@@ -1188,18 +1368,101 @@ class Chebop:
                     R[:, var * n + j] = col
             return list(R), list(-base_bc)
 
+        # General .bc constraint rows: a single callable op(x, u1, ..., um)
+        # returning a list of scalar conditions the user evaluated at
+        # arbitrary points (u(0), feval(diff(u), 0) - p, ...), possibly
+        # interior and possibly referencing unknown parameters.  Each is a
+        # linear functional of the unknowns, probed the same way.
+        def general_rows():
+            if self._bc_general is None:
+                return [], []
+
+            def cond_list(us):
+                out = self._bc_general(x_fun, *us)
+                if not isinstance(out, (list, tuple)):
+                    out = [out]
+                return out
+
+            mid = 0.5 * (a + b)
+
+            def scalarize(c):
+                if isinstance(c, (int, float)):
+                    return float(c)
+                if hasattr(c, "funs"):
+                    # a constant Chebfun (e.g. scalar minus a const parameter)
+                    return float(c(jnp.asarray(mid)))
+                return float(_np.asarray(c).reshape(()))
+
+            base_g = _np.array([scalarize(c) for c in cond_list(zeros_list)])
+            ng = len(base_g)
+            R = _np.zeros((ng, m * n))
+            for var in range(m):
+                for j in range(n):
+                    vals = _np.zeros(n)
+                    vals[j] = 1.0
+                    probe = list(zeros_list)
+                    probe[var] = _chebfun_from_values(
+                        jnp.asarray(vals), self.domain)
+                    col = _np.array([
+                        scalarize(c) for c in cond_list(probe)]) - base_g
+                    R[:, var * n + j] = col
+            return list(R), list(-base_g)
+
         rows_l, vals_l = bc_rows(self._lbc_raw, a)
         rows_r, vals_r = bc_rows(self._rbc_raw, b)
+        rows_g, vals_g = general_rows()
 
-        # Replace boundary-point rows of successive equations
-        for i, (row, val) in enumerate(zip(rows_l, vals_l)):
-            ridx = (i % m) * n           # x = a row of equation i%m
+        used_rows: set[int] = set()
+
+        def _place(ridx, row, val):
             A[ridx, :] = row
             bvec[ridx] = val
-        for i, (row, val) in enumerate(zip(rows_r, vals_r)):
-            ridx = (i % m) * n + n - 1   # x = b row
-            A[ridx, :] = row
-            bvec[ridx] = val
+            used_rows.add(ridx)
+
+        if self._bc_general is None and self._n_params() == 0:
+            # Balanced system: keep the established lbc-left / rbc-right
+            # placement that the coupled-system ports rely on.
+            for i, (row, val) in enumerate(zip(rows_l, vals_l)):
+                _place((i % m) * n, row, val)          # x = a row of eq i%m
+            for i, (row, val) in enumerate(zip(rows_r, vals_r)):
+                _place((i % m) * n + n - 1, row, val)  # x = b row
+        else:
+            # Parameter / general-constraint problems.  Drop exactly
+            # ``order_i`` boundary rows from block i and fill the freed slots
+            # with the constraints.  ``order_i`` comes from the augmented
+            # system: a parameter block carries the appended equation
+            # ``p' = 0`` (order 1).  Which constraint lands in which freed
+            # slot is immaterial to the linear system -- only the set of
+            # retained collocation rows matters -- so all conditions (lbc,
+            # rbc, then general) are laid into the freed slots in order,
+            # boundary-first, guaranteeing every parameter block receives a
+            # pinning row.
+            n_eq = self._n_equations()
+            orders = self._piecewise_orders(m)
+            for i in range(min(n_eq, m), m):
+                orders[i] = 1
+            orders = [max(1, int(o)) for o in orders]
+            drop_slots: list[int] = []
+            for blk in range(m):
+                seq: list[int] = []
+                for depth in range(n):
+                    seq.append(blk * n + depth)
+                    seq.append(blk * n + n - 1 - depth)
+                drop_slots.extend(seq[: orders[blk]])
+            conditions = (
+                list(zip(rows_l, vals_l))
+                + list(zip(rows_r, vals_r))
+                + list(zip(rows_g, vals_g))
+            )
+            if len(conditions) != len(drop_slots):
+                raise ValueError(
+                    "chebop parameter/general-bc solve: number of boundary "
+                    f"conditions ({len(conditions)}) does not match the "
+                    f"system's total differential order ({len(drop_slots)}); "
+                    "the problem is over- or under-determined."
+                )
+            for (row, val), ridx in zip(conditions, drop_slots):
+                _place(ridx, row, val)
 
         sol = _np.linalg.solve(A, bvec)
         out = [
@@ -1792,11 +2055,19 @@ class Chebop:
     def __call__(self, u):
         """Apply the operator to a chebfun (MATLAB N(u) / N*u).
 
+        An integer argument realizes the dense collocation (differentiation)
+        matrix at that grid size, matching MATLAB's deprecated ``D(n)`` /
+        ``feval(D, n)`` syntax (ATAP chapter 21).  It is equivalent to
+        :meth:`matrix`.
+
         Provenance
         ----------
         MATLAB source : @chebop/feval.m, @chebop/mtimes.m
         Chebfun commit: 7574c77
         """
+        import numbers
+        if isinstance(u, numbers.Integral) and not isinstance(u, bool):
+            return self.matrix(int(u))
         from chebfunjax.chebfun1d.chebfun import Chebfun
         x_fun = Chebfun.identity(Domain(self.domain))
         if isinstance(u, (list, tuple)) or (
@@ -2620,3 +2891,194 @@ class _SysOrderSniffer:
             return self
 
         return _method
+
+
+# ===========================================================================
+# linop introspection — system linearization producing typed blocks
+# ===========================================================================
+
+
+def _chebfun_ones(domain: tuple[float, float]):
+    """Return the constant Chebfun ``f(x) = 1`` on domain."""
+    from chebfunjax.chebfun1d.chebfun import Chebfun
+    return Chebfun.from_values(jnp.ones(2, dtype=jnp.float64), Domain(domain))
+
+
+def _I_block(domain: tuple[float, float]) -> OperatorBlock:
+    """Identity OperatorBlock on domain (the self-derivative of an unknown)."""
+    from chebfunjax.operators.blocks import I as _I
+    return _I(domain)
+
+
+def _block_to_coefficient(blk, one_fun, domain: tuple[float, float]):
+    """Collapse a pure-multiplication Jacobian block to its coefficient Chebfun.
+
+    A parameter unknown appears only multiplicatively, so its block is an
+    order-0 operator ``diag(c)`` (a composition of ``I`` / ``diag`` / scalar
+    scalings); applying it to the constant ``1`` recovers the coefficient
+    ``c(x)`` as a Chebfun.  ``None`` (absent unknown) yields the zero Chebfun.
+    """
+    if blk is None:
+        return _chebfun_zeros(domain)
+    try:
+        return blk.apply(one_fun)
+    except Exception:
+        # Fall back to reading the coefficient off the collocation diagonal.
+        import numpy as _np
+        n = 9
+        mat = _np.asarray(blk.matrix(ChebColloc2Disc(n, domain)))
+        return _chebfun_from_values(_np.diag(mat), domain)
+
+
+def _zero_operator(domain: tuple[float, float]) -> OperatorBlock:
+    """Zero operator block (an unknown that is absent from an equation).
+
+    Represents the ``0`` Frechet-derivative entry of a block Jacobian; its
+    matrix is the ``n x n`` zero matrix and its function-space action maps any
+    function to the zero function.  Differential order 0 (multiplicative).
+    """
+
+    def _fn(disc: ChebColloc2Disc):
+        return jnp.zeros((disc.n, disc.n), dtype=jnp.float64)
+
+    return OperatorBlock(
+        _fn, order=0, domain=domain,
+        apply_fn=lambda u: _chebfun_zeros(domain))
+
+
+class _LinopVar:
+    """System-aware linearization variable for :meth:`Chebop.linop`.
+
+    Carries only the Jacobian *row* of an expression: ``jac[k]`` is the
+    :class:`~chebfunjax.operators.blocks.OperatorBlock` giving the Frechet
+    derivative of the expression with respect to unknown ``k`` (``None`` marks
+    a structurally-zero entry).  The primal value is not tracked: for a linear
+    operator the Jacobian blocks are constant, so linearizing around the zero
+    function is exact and the affine part (constants / ``x``-only terms) simply
+    leaves the Jacobian unchanged.
+
+    Arithmetic mirrors the Frechet-derivative rules used by
+    :class:`~chebfunjax.autodiff.adchebfun.ADChebfun`, generalized to a row of
+    per-variable blocks.  Multiplying/dividing two unknowns, or applying a
+    nonlinear elementwise function to one, raises -- such an operator is not a
+    linop.
+
+    Provenance
+    ----------
+    MATLAB source : @chebop/linearize.m, @linop/linop.m, @adchebfun
+    Chebfun commit: 7574c77
+    """
+
+    __slots__ = ("jac", "domain")
+
+    def __init__(self, jac, domain):
+        self.jac = jac
+        self.domain = domain
+
+    # -- additive structure: block-wise combination of Jacobian rows --------
+
+    def __add__(self, other):
+        if isinstance(other, _LinopVar):
+            return _LinopVar(
+                [_op_add(a, b) for a, b in zip(self.jac, other.jac)],
+                self.domain)
+        # Adding a constant / x-only chebfun is affine: Jacobian unchanged.
+        return self
+
+    __radd__ = __add__
+
+    def __sub__(self, other):
+        if isinstance(other, _LinopVar):
+            return _LinopVar(
+                [_op_sub(a, b) for a, b in zip(self.jac, other.jac)],
+                self.domain)
+        return self
+
+    def __rsub__(self, other):
+        # (affine) - self  ->  Jacobian is negated.
+        return self.__neg__()
+
+    def __neg__(self):
+        return _LinopVar(
+            [None if a is None else -a for a in self.jac], self.domain)
+
+    def __pos__(self):
+        return self
+
+    # -- scaling by a scalar or a chebfun coefficient -----------------------
+
+    def _scale(self, other):
+        if isinstance(other, _LinopVar):
+            raise ValueError(
+                "Chebop.linop: nonlinear term (product of two unknowns); "
+                "the operator is not linear.")
+        if isinstance(other, (int, float)):
+            c = float(other)
+            return _LinopVar(
+                [None if a is None else c * a for a in self.jac], self.domain)
+        # Chebfun (variable) coefficient: pre-compose with multiplication.
+        from chebfunjax.operators.blocks import diag
+        M = diag(other, self.domain)
+        return _LinopVar(
+            [None if a is None else M * a for a in self.jac], self.domain)
+
+    def __mul__(self, other):
+        return self._scale(other)
+
+    __rmul__ = __mul__
+
+    def __truediv__(self, other):
+        if isinstance(other, (int, float)):
+            return self._scale(1.0 / float(other))
+        if isinstance(other, _LinopVar):
+            raise ValueError(
+                "Chebop.linop: nonlinear term (division by an unknown); "
+                "the operator is not linear.")
+        return self._scale(1.0 / other)
+
+    # -- differential / integral operators ----------------------------------
+
+    def diff(self, k: int = 1):
+        from chebfunjax.operators.blocks import D
+        Dk = D(self.domain, order=int(k))
+        return _LinopVar(
+            [None if a is None else Dk * a for a in self.jac], self.domain)
+
+    def cumsum(self):
+        def _cumsum_fn(disc: ChebColloc2Disc):
+            from chebfunjax.utils.diffmat import diffmat as _dm
+            return jnp.linalg.pinv(_dm(disc.n, 1, domain=disc.domain))
+
+        C = OperatorBlock(_cumsum_fn, order=-1, domain=self.domain)
+        return _LinopVar(
+            [None if a is None else C * a for a in self.jac], self.domain)
+
+    sum = cumsum
+
+    def __getattr__(self, name):
+        if name in ("jac", "domain"):
+            raise AttributeError(name)
+        # Any elementwise nonlinear method (sin, cos, exp, ...) applied to an
+        # unknown makes the operator nonlinear -> not a linop.
+        def _method(*a, **k):
+            raise ValueError(
+                f"Chebop.linop: nonlinear operation '{name}' on an unknown; "
+                "the operator is not linear.")
+
+        return _method
+
+
+def _op_add(a, b):
+    if a is None:
+        return b
+    if b is None:
+        return a
+    return a + b
+
+
+def _op_sub(a, b):
+    if a is None:
+        return None if b is None else -b
+    if b is None:
+        return a
+    return a - b

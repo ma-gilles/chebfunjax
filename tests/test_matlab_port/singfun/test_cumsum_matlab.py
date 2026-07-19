@@ -46,9 +46,15 @@ class TestSingfunCumsum:
         assert _ninf(g(X) - exact) < 1e1 * EPS * _ninf(exact)
 
     @pytest.mark.xfail(
-        reason="Singfun.cumsum flip-path (right-endpoint singularity) omits the "
-        "additive constant that enforces F(-1)=0: the antiderivative shape is "
-        "exact but shifted by 2^(d+1)/(d+1), so it fails at MATLAB tolerance",
+        reason="The F(-1)=0 constant is now correctly added (flip-path fixed), "
+        "so the antiderivative shape and constant are right.  The residual "
+        "~1.5e-6 comes from the fractional pole: the F(-1)=0 shift turns the "
+        "smooth part into 1/0.28 - 2^(-0.28)/0.28*(1-x)^0.28, whose interior "
+        "resolution requires MATLAB's chebtech constructor accuracy for mild "
+        "endpoint branch singularities (1e-13 interior at length 65537).  "
+        "chebfunjax's Chebtech2 constructor is algebraic-convergence-limited "
+        "here (~1e-6) -- a tech-level gap, not a singfun bug.  Cf. "
+        "integer_pole_right, which passes because (1-x)^3 is a polynomial.",
         strict=True,
     )
     def test_frac_pole_right_order_lt_m1(self):
@@ -58,22 +64,12 @@ class TestSingfunCumsum:
         exact = -(1 - X) ** (D + 1) / (D + 1) + 2 ** (D + 1) / (D + 1)
         assert _ninf(g(X) - exact) < 1e3 * EPS * _ninf(exact)
 
-    @pytest.mark.xfail(
-        reason="Singfun.cumsum for a fractional root at the left endpoint loses "
-        "~5 digits (~5.6e-11) vs MATLAB's machine-precision (1*eps) result",
-        strict=True,
-    )
     def test_frac_root_left(self):
         f = _sf(lambda x: (1 + x) ** A, (A, 0.0))
         g = f.cumsum()
         exact = (1 + X) ** (A + 1) / (A + 1)
         assert _ninf(g(X) - exact) < EPS * _ninf(exact)
 
-    @pytest.mark.xfail(
-        reason="Singfun.cumsum flip-path (right-endpoint pole) omits the F(-1)=0 "
-        "constant and loses precision; see test_frac_pole_right_order_lt_m1",
-        strict=True,
-    )
     def test_integer_pole_right(self):
         f = _sf(lambda x: (1 - x) ** (-4.0), (0.0, -4.0))
         g = f.cumsum()

@@ -5197,7 +5197,13 @@ def atan2(y: Chebfun, x: Chebfun) -> Chebfun:
 
     1. Find roots of ``y`` where ``x < 0`` (discontinuities of atan2).
     2. Add those as breakpoints to the domain.
-    3. Compose with ``jnp.arctan2`` pointwise.
+    3. Compose with ``jnp.arctan2`` pointwise, extrapolating the piece
+       endpoints (which lie on the roots of ``y``) so the branch cut is
+       not sampled directly.  This mirrors MATLAB's
+       ``pref.techPrefs.extrapolate = true`` and is required for
+       eps-level accuracy: at a root ``y`` is numerically +/-0 and
+       ``atan2`` returns the wrong branch, injecting a spurious ``2*pi``
+       jump that otherwise defeats the adaptive constructor.
 
     NOT JIT-safe (root-finding and adaptive construction).
 
@@ -5255,13 +5261,40 @@ def atan2(y: Chebfun, x: Chebfun) -> Chebfun:
     new_dom = Domain(tuple(float(b) for b in new_bps))
     _y = y
     _x = x
-    new_funs = [
-        _Piece.from_function(
-            lambda t, _y=_y, _x=_x: jnp.arctan2(_y(t), _x(t)),
-            sub.a, sub.b,
-        )
-        for sub in new_dom.intervals
-    ]
+
+    def _piece_fun(sub_a, sub_b):
+        # MATLAB's atan2.m sets pref.techPrefs.extrapolate = true: the
+        # subinterval endpoints are the roots of y where the atan2 branch
+        # cut lives, so y is numerically +/-0 there and atan2 returns the
+        # WRONG branch (e.g. -pi instead of the +pi the interior
+        # approaches) whenever the root's rounding sign disagrees with the
+        # limit.  Sampled directly, that single flipped endpoint value
+        # injects a spurious 2*pi jump at the piece boundary, giving 1/n
+        # Chebyshev decay and a construction that never resolves.  We
+        # emulate extrapolation by pulling the (only troublesome) endpoint
+        # samples an infinitesimal step inside the subinterval, so atan2 is
+        # evaluated on the correct branch; the shift is O(1e-11) of the
+        # width, far below the construction tolerance.
+        width = sub_b - sub_a
+        # Nudge ONLY the two endpoint nodes off the roots of y where the
+        # atan2 branch cut lives.  A tolerance band (1e-10 of the width)
+        # catches them robustly despite the reference->physical mapping
+        # rounding, yet is far tighter than the gap to the nearest interior
+        # Chebyshev node at the degrees needed here, so the interior samples
+        # -- including atan2's steep g=0 crossings -- are left untouched.
+        # The inward step (1e-12 of the width) lifts y well above its
+        # roundoff floor while shifting the endpoint value by < ~1e-12.
+        tol_e = 1e-10 * width
+        step = 1e-12 * width
+
+        def fn(t, sa=sub_a, sb=sub_b, te=tol_e, d=step):
+            x = jnp.where(jnp.abs(t - sa) < te, sa + d, t)
+            x = jnp.where(jnp.abs(x - sb) < te, sb - d, x)
+            return jnp.arctan2(_y(x), _x(x))
+
+        return _Piece.from_function(fn, sub_a, sub_b)
+
+    new_funs = [_piece_fun(sub.a, sub.b) for sub in new_dom.intervals]
     return Chebfun(funs=new_funs, domain=new_dom)
 
 

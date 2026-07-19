@@ -369,14 +369,18 @@ class Singfun(eqx.Module):
                     self.exponents[0] - other.exponents[0],
                     self.exponents[1] - other.exponents[1],
                 )
-                return Singfun(new_smoothPart, new_exps)
+                s = Singfun(new_smoothPart, new_exps)
+            else:
+                f_self, f_other = self, other
 
-            f_self, f_other = self, other
+                def _quot(x, _f=f_self, _g=f_other):
+                    return _f(x) / _g(x)
 
-            def _quot(x, _f=f_self, _g=f_other):
-                return _f(x) / _g(x)
+                s = Singfun.from_function(_quot)
 
-            return Singfun.from_function(_quot)
+            # MATLAB @singfun/rdivide (lines 87-88): cancel boundary roots
+            # against negative exponents, then absorb integer exponents.
+            return s.cancelExponents().simplify()
         else:
             return Singfun(self.smoothPart / other, self.exponents)
 
@@ -384,7 +388,10 @@ class Singfun(eqx.Module):
         """scalar / Singfun."""
         new_smoothPart = other / self.smoothPart
         new_exps = (-self.exponents[0], -self.exponents[1])
-        return Singfun(new_smoothPart, new_exps)
+        # MATLAB @singfun/rdivide canonicalises the reciprocal's exponents:
+        # absorb integer parts (>= 1) into the smooth part and cancel any
+        # boundary roots, so e.g. 1/((1+x)^-3 (1-x)^-4) has exponents (0, 0).
+        return Singfun(new_smoothPart, new_exps).cancelExponents().simplify()
 
     def __add__(self, other) -> "Singfun":
         """Addition: f + g where g is a Singfun, Chebtech2, or scalar.
@@ -401,6 +408,17 @@ class Singfun(eqx.Module):
         MATLAB source : @singfun/plus.m
         Chebfun commit: 7574c77
         """
+        # MATLAB @singfun/plus (lines 29-33, 41-45): adding an exact zero
+        # returns the other operand unchanged.  Without this short-circuit a
+        # ``g - 0`` (e.g. cumsum's F(-1)=0 shift when lval == 0 at a positive
+        # fractional root) falls through to the Case-3 pointwise reconstruction,
+        # which takes ``new_a = min(exp, 0) = 0`` and silently collapses the
+        # exponent — turning a one-coefficient singular function into a
+        # 362-coefficient polynomial with ~5e-11 evaluation error.
+        if not isinstance(other, (Singfun, Chebtech2)) and jnp.ndim(other) == 0:
+            if other == 0:
+                return self
+
         # Upgrade scalar (real or complex) / Chebtech2 to a Singfun with zero
         # exponents.  Singfun.__init__ promotes a bare scalar to a constant
         # smooth part.
@@ -536,6 +554,96 @@ class Singfun(eqx.Module):
         """
         a, b = self.exponents
         return Singfun(self.smoothPart ** p, (a * p, b * p))
+
+    # ------------------------------------------------------------------
+    # Exponent canonicalisation
+    # ------------------------------------------------------------------
+
+    def extractBoundaryRoots(self, num_roots=None) -> "Singfun":
+        """Absorb boundary roots of the smooth part into the exponents.
+
+        ``num_roots`` is an optional ``(left, right)`` pair of target
+        multiplicities; ``None`` extracts every boundary root automatically.
+
+        Provenance
+        ----------
+        MATLAB source : @singfun/extractBoundaryRoots.m
+        Chebfun commit: 7574c77
+        """
+        if num_roots is None:
+            nl = nr = None
+        else:
+            nl, nr = float(num_roots[0]), float(num_roots[1])
+        new_sp, rL, rR = _extract_boundary_roots_coeffs(self.smoothPart, nl, nr)
+        return Singfun(
+            new_sp, (self.exponents[0] + rL, self.exponents[1] + rR)
+        )
+
+    def cancelExponents(self) -> "Singfun":
+        """Cancel negative exponents against vanishing boundary values.
+
+        Where an exponent is negative and the smooth part vanishes at that
+        endpoint, the offending boundary root is peeled off and the exponent
+        incremented toward zero.
+
+        Provenance
+        ----------
+        MATLAB source : @singfun/cancelExponents.m
+        Chebfun commit: 7574c77
+        """
+        a, b = self.exponents
+        tol = 100.0 * _EPS * float(self.smoothPart.vscale)
+        bl = float(self.smoothPart(jnp.float64(-1.0)))
+        br = float(self.smoothPart(jnp.float64(1.0)))
+        nl = -a if (a < 0.0 and abs(bl) < tol) else 0.0
+        nr = -b if (b < 0.0 and abs(br) < tol) else 0.0
+        if nl > 0.0 or nr > 0.0:
+            return self.extractBoundaryRoots((nl, nr))
+        return self
+
+    def simplifyExponents(self) -> "Singfun":
+        """Reduce exponents to ``< 1`` by absorbing integer parts into the smooth part.
+
+        Provenance
+        ----------
+        MATLAB source : @singfun/simplifyExponents.m
+        Chebfun commit: 7574c77
+        """
+        tol = 100.0 * _EPS * float(self.smoothPart.vscale)
+        exps = [float(e) for e in self.exponents]
+        # Snap near-zero and near-integer exponents.
+        exps = [0.0 if abs(e) < tol else e for e in exps]
+        exps = [round(e) if abs(round(e) - e) < tol else e for e in exps]
+        ind = [e >= 1.0 - tol for e in exps]
+        if not any(ind):
+            return Singfun(self.smoothPart, (exps[0], exps[1]))
+        new_exps = [
+            e - math.floor(e) if ind[i] else e for i, e in enumerate(exps)
+        ]
+        pow0 = exps[0] - new_exps[0]
+        pow1 = exps[1] - new_exps[1]
+
+        def _mult(x, _p0=pow0, _p1=pow1):
+            v = jnp.ones_like(jnp.asarray(x, dtype=jnp.float64))
+            if _p0 != 0.0:
+                v = v * (1.0 + x) ** _p0
+            if _p1 != 0.0:
+                v = v * (1.0 - x) ** _p1
+            return v
+
+        mult = Chebtech2.from_function(_mult)
+        return Singfun(self.smoothPart * mult, (new_exps[0], new_exps[1]))
+
+    def simplify(self, tol: float | None = None) -> "Singfun":
+        """Simplify the smooth part and canonicalise the exponents to ``< 1``.
+
+        Provenance
+        ----------
+        MATLAB source : @singfun/simplify.m
+        Chebfun commit: 7574c77
+        """
+        sp = self.smoothPart.simplify() if tol is None else self.smoothPart.simplify(tol)
+        return Singfun(sp, self.exponents).simplifyExponents()
 
     # ------------------------------------------------------------------
     # Reflection and complex parts
@@ -1198,6 +1306,91 @@ def _beta(a: float, b: float) -> float:
     return math.gamma(a) * math.gamma(b) / math.gamma(a + b)
 
 
+def _extract_boundary_roots_coeffs(
+    tech: Chebtech2, num_left, num_right
+) -> tuple[Chebtech2, int, int]:
+    """Peel boundary roots off a Chebtech2, returning ``(g, rootsLeft, rootsRight)``.
+
+    Divides the smooth part by ``(1 + x)`` (left root) or ``(1 - x)`` (right
+    root) as many times as there is a vanishing endpoint value, using the
+    Chebyshev-coefficient deflation recurrence.  ``num_left``/``num_right`` are
+    target multiplicities; pass ``None`` for both to extract every boundary root
+    automatically (MATLAB ``nargin == 1`` mode).
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech/extractBoundaryRoots.m
+    Chebfun commit: 7574c77
+    """
+    c = [float(v) for v in tech.coeffs]
+    vscale = float(tech.vscale)
+    tol = 1e3 * vscale * _EPS
+    auto = num_left is None and num_right is None
+    nl = num_left
+    nr = num_right
+
+    def endvals(coeffs):
+        vm = sum(coeffs[k] * ((-1.0) ** k) for k in range(len(coeffs)))
+        vp = sum(coeffs)
+        return abs(vm), abs(vp)
+
+    rootsLeft = 0
+    rootsRight = 0
+    ev = endvals(c)
+    if auto and min(ev) > tol:
+        return tech, 0, 0
+
+    while True:
+        if auto:
+            if not (ev[0] <= tol or ev[1] <= tol):
+                break
+            if ev[0] <= tol:
+                sgn = 1
+                rootsLeft += 1
+            else:
+                sgn = -1
+                rootsRight += 1
+        else:
+            if not ((nl is not None and nl > 0) or (nr is not None and nr > 0)):
+                break
+            if nl is not None and nl > 0:
+                # Root wanted at the left: only extract if one is actually there
+                if ev[0] <= tol:
+                    sgn = 1
+                    nl -= 1
+                    rootsLeft += 1
+                else:
+                    nl = 0
+                    continue
+            else:
+                if ev[1] <= tol:
+                    sgn = -1
+                    nr -= 1
+                    rootsRight += 1
+                else:
+                    nr = 0
+                    continue
+
+        # Deflate one factor by solving the banded upper-triangular system
+        # D x = c[1:], then c[:-1] = sgn*x, c[-1] = 0.  D has 0.5 on the main
+        # diagonal (D[0,0] = 1), sgn on the first superdiagonal, and 0.5 on the
+        # second.
+        n = len(c)
+        rhs = c[1:n]
+        x = [0.0] * (n - 1)
+        for i in range(n - 2, -1, -1):
+            xi1 = x[i + 1] if i + 1 < n - 1 else 0.0
+            xi2 = x[i + 2] if i + 2 < n - 1 else 0.0
+            dii = 1.0 if i == 0 else 0.5
+            x[i] = (rhs[i] - sgn * xi1 - 0.5 * xi2) / dii
+        c = [sgn * xi for xi in x] + [0.0]
+        ev = endvals(c)
+        tol *= 1e2
+
+    new_tech = Chebtech2.from_coeffs(jnp.asarray(c, dtype=jnp.float64)).simplify()
+    return new_tech, rootsLeft, rootsRight
+
+
 # Blowup-detection preferences (MATLAB chebfunpref factory defaults).
 _EXPONENT_TOL = 1.1e-11
 _MAX_POLE_ORDER = 20
@@ -1480,21 +1673,42 @@ def _sing_cumsum(f: Singfun) -> Singfun:
 
     if abs(ra - aa) > tol:
         CM = Cm / (ra - aa)
-        u_smooth = Singfun(u_tech + xa_tech * CM, tuple(exps_new))
+        g = Singfun(u_tech + xa_tech * CM, tuple(exps_new))
     else:
-        u_smooth = Singfun(u_tech, tuple(exps_new))
+        g = Singfun(u_tech, tuple(exps_new))
 
-    # Adjust so antiderivative is zero at -1
-    if exps_new[0] >= 0.0:
-        lval = float(u_smooth(jnp.float64(-1.0)))
-        u_smooth = u_smooth - lval
+    # Absorb the boundary root introduced by the (x+1) prefactor back into the
+    # left exponent (MATLAB @singfun/cumsum.m lines 177/181/188:
+    # ``extractBoundaryRoots(g, [1;0])``).  This canonicalises e.g. a smooth
+    # part ~(1+x)/(A+1) with exponent 0.64 into a constant with exponent 1.64,
+    # which then evaluates to the exact power law rather than a resampled
+    # polynomial (recovering the ~5 lost digits at a left fractional root).
+    g = g.extractBoundaryRoots((1.0, 0.0))
 
+    # Flip back and negate for the right-endpoint-singularity case.  MATLAB
+    # (@singfun/cumsum.m lines 197-209) does this BEFORE enforcing F(-1)=0,
+    # then checks the FINAL left exponent.  The previous ordering enforced
+    # F(-1)=0 in the flipped working space and tested the working left
+    # exponent (the singularity itself), so for a right-endpoint pole the
+    # constant was never added and the antiderivative came out shifted by the
+    # missing 2^(d+1)/(d+1).
     if flip:
-        # Flip back and negate
-        inner_smooth = u_smooth.smoothPart
+        inner_smooth = g.smoothPart
         flipped_back = Chebtech2.from_function(lambda x: inner_smooth(-x))
-        u_smooth = Singfun(
-            -flipped_back, (u_smooth.exponents[1], u_smooth.exponents[0])
-        )
+        g = Singfun(-flipped_back, (g.exponents[1], g.exponents[0]))
 
-    return u_smooth
+    # If G is not blowing up at the left end, ensure G(-1) == 0.  MATLAB
+    # (@singfun/cumsum.m line 207) subtracts get(g,'lval') unconditionally, but
+    # when the antiderivative already satisfies F(-1)=0 the offset is only
+    # roundoff (~1e-16).  Subtracting a negligible constant from a function with
+    # a nonzero right exponent forces the Case-3 pointwise reconstruction of a
+    # non-smooth ``lval*(1-x)^p`` term, which our adaptive constructor cannot
+    # resolve (it runs to the max length and aliases in ~1e-6 error).  Skipping
+    # the no-op subtraction keeps the exact result and matches MATLAB's intent.
+    if g.exponents[0] >= 0.0:
+        lval = float(g(jnp.float64(-1.0)))
+        tol_lval = 1e3 * _EPS * max(float(g.smoothPart.vscale), 1.0)
+        if abs(lval) > tol_lval:
+            g = g - lval
+
+    return g

@@ -1462,6 +1462,52 @@ class Spherefun(eqx.Module):
         """
         return (self.diff(1), self.diff(2), self.diff(3))
 
+    def gradient(self) -> "Spherefunv":
+        r"""Surface gradient as a :class:`Spherefunv`.
+
+        Returns the SPHEREFUNV ``(fx, fy, fz)`` of tangential Cartesian
+        derivatives — the vector-field form of :meth:`grad`.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/gradient.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        from chebfunjax.spherefun.spherefunv import Spherefunv
+
+        if self.isempty():
+            return Spherefunv.empty()
+        return Spherefunv(self.diff(1), self.diff(2), self.diff(3))
+
+    def curl(self) -> "Spherefunv":
+        r"""Surface curl of a scalar field: ``curl(f) = N x grad(f)``.
+
+        Returns the SPHEREFUNV obtained by rotating the surface gradient a
+        quarter turn about the outward normal ``N = (x, y, z)``:
+
+        .. math::
+            (-z f_y + y f_z,\; z f_x - x f_z,\; -y f_x + x f_y).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/curl.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        from chebfunjax.spherefun.spherefunv import Spherefunv, _sphere_xyz
+
+        if self.isempty():
+            return Spherefunv.empty()
+        fx, fy, fz = self.diff(1), self.diff(2), self.diff(3)
+        x, y, z = _sphere_xyz()
+        gx = -z * fy + y * fz
+        gy = z * fx - x * fz
+        gz = -y * fx + x * fy
+        return Spherefunv(gx, gy, gz)
+
     def laplacian(self) -> "Spherefun":
         r"""Laplace-Beltrami operator on the sphere.
 

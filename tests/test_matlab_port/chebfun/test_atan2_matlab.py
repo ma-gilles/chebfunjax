@@ -1,7 +1,10 @@
 """Port of MATLAB Chebfun tests/chebfun/test_atan2.m (Fable 5).
 
 FIXED: module-level atan2 exists; port flipped from a skip stub in
-the Fable 5 audit.
+the Fable 5 audit.  A later fix resolved eps-level accuracy: atan2's
+pieces are built by nudging endpoint samples off the roots of y (the
+branch cut), emulating MATLAB's pref.techPrefs.extrapolate = true, so
+the constructor no longer sees a spurious 2*pi jump at each break.
 
 Provenance
 ----------
@@ -15,7 +18,6 @@ import warnings
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 import chebfunjax as cj
 
@@ -25,12 +27,6 @@ XX = jnp.asarray(np.linspace(0.99 * A, 0.99 * B, 100))
 
 
 class TestChebfunAtan2:
-    @pytest.mark.xfail(
-        reason="atan2 places jump breakpoints to ~1e-5 (values wrong "
-        "only in tiny neighborhoods of the discontinuities); MATLAB "
-        "achieves eps-level via edge detection.  Needs sharper root "
-        "localization in atan2's break placement.",
-        strict=False)
     def test_scalar_valued_both_orders(self):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")

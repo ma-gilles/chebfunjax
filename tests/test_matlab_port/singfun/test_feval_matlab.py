@@ -40,9 +40,12 @@ class TestSingfunFeval:
         assert out.shape[0] == 0
 
     @pytest.mark.xfail(
-        reason="chebfunjax builds the smooth part via Chebtech1 -> Chebtech2 "
-        "coefficient transfer; for this oscillatory smooth function the eval "
-        "error (~1.3e1*eps) marginally exceeds MATLAB's 1e1*eps bound",
+        reason="Tech-level coefficient-accuracy gap, not a singfun issue.  At "
+        "the SAME length (147) MATLAB's chebtech resolves sin(cos(10x^2)) to "
+        "5.5*eps while chebfunjax's Chebtech2 gives ~10*eps (constructing "
+        "directly on 2nd-kind points is no better -- 10.9*eps at length 151).  "
+        "The strict `< 1e1*eps` bound therefore fails by a hair; closing it "
+        "requires improving the Chebtech constructor's coefficient accuracy.",
         strict=True,
     )
     def test_no_exponents(self):

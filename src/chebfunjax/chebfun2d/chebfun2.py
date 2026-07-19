@@ -228,6 +228,91 @@ class Chebfun2(eqx.Module):
         approx = SeparableApprox.from_function(f, **kwargs)
         return cls(approx=approx)
 
+    @classmethod
+    def from_padua(
+        cls,
+        vals,
+        domain: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
+    ) -> "Chebfun2":
+        """Construct a Chebfun2 from data sampled at the Padua points.
+
+        MATLAB equivalent: ``chebfun2(f, dom, 'padua')`` where ``f`` are the
+        values of a function at ``paduapts(n, dom)`` (Padua2DM ordering).  The
+        degree ``n`` is inferred from ``len(vals) == (n+1)(n+2)/2``.
+
+        Parameters
+        ----------
+        vals : array_like, shape ((n+1)(n+2)/2,)
+            Function values at ``paduapts(n, domain)``.
+        domain : tuple of 4 floats, optional
+            ``(xa, xb, ya, yb)``.  Default is ``(-1, 1, -1, 1)``.
+
+        Returns
+        -------
+        Chebfun2
+
+        Notes
+        -----
+        The Padua interpolant is a total-degree ``n`` bivariate polynomial;
+        it is stored exactly in the low-rank representation via an SVD of its
+        values on the ``(n+1) x (n+1)`` Chebyshev tensor grid.  NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/constructor.m ('padua' branch),
+            @chebfun2/paduaVals2coeffs.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        from_function, chebfunjax.chebfun2d.padua.paduapts
+        """
+        import numpy as _np
+
+        from chebfunjax.chebfun2d.padua import paduavals2coeffs
+        from chebfunjax.tech.chebtech import _values_to_coeffs
+
+        if len(domain) != 4:
+            raise ValueError(
+                "Chebfun2.from_padua: domain must have exactly 4 elements "
+                f"(xa, xb, ya, yb), got {len(domain)}."
+            )
+        _, V = paduavals2coeffs(vals, domain)
+        # V rows/cols are in descending 2nd-kind node order; flip both axes
+        # to chebfunjax's ascending grid.  V[i, j] = g(x_j, y_i).
+        Vasc = _np.asarray(V)[::-1, ::-1]
+
+        u, sig, vh = _np.linalg.svd(Vasc, full_matrices=False)
+        scale = float(sig[0]) if sig.size else 0.0
+        keep = sig > 1e3 * _np.finfo(float).eps * max(scale, 1e-300)
+        if not bool(_np.any(keep)):
+            zero = Chebtech2(coeffs=jnp.zeros(1, dtype=jnp.float64),
+                             ishappy=True)
+            approx = SeparableApprox(cols=[zero], rows=[zero],
+                                     pivots=jnp.asarray([0.0]),
+                                     domain=tuple(float(v) for v in domain))
+            return cls(approx=approx)
+        u = u[:, keep]          # column slices (functions of y)
+        w = vh[keep, :].T       # row slices (functions of x)
+        sig = sig[keep]
+
+        def _mk(vals_mat):
+            out = []
+            for k in range(vals_mat.shape[1]):
+                cf = _values_to_coeffs(jnp.asarray(vals_mat[:, k]))
+                out.append(Chebtech2(coeffs=cf, ishappy=True))
+            return out
+
+        approx = SeparableApprox(
+            cols=_mk(_np.asarray(u)),
+            rows=_mk(_np.asarray(w)),
+            pivots=jnp.asarray(sig, dtype=jnp.float64),
+            domain=tuple(float(v) for v in domain),
+        )
+        return cls(approx=approx)
+
     # ------------------------------------------------------------------
     # Evaluation (JIT-safe)
     # ------------------------------------------------------------------
@@ -469,6 +554,84 @@ class Chebfun2(eqx.Module):
             total = total + self.approx.pivots[j] * col_int * row_int
         return total
 
+    def svd(self) -> jax.Array:
+        r"""Singular values of the Chebfun2 (as a Hilbert-Schmidt kernel).
+
+        Returns the singular values of ``f`` in decreasing order.  The number
+        returned equals the rank of the low-rank representation.
+
+        Algorithm (identical to MATLAB @separableApprox/svd.m)::
+
+            f = C D R'                 (low-rank / cdr representation)
+            C = Q_C R_C                (quasimatrix QR in the y inner product)
+            R = Q_R R_R                (quasimatrix QR in the x inner product)
+            f = Q_C (R_C D R_R') Q_R'
+            singular values of f = singular values of  R_C D R_R'
+
+        The quasimatrix QRs are realised as ordinary QRs of the column/row
+        slice *values* on a common Chebyshev grid, weighted by the square
+        root of the Clenshaw-Curtis quadrature weights and the physical
+        affine-map scale, so that ``Q^H Q = I`` in the physical L^2 inner
+        product.  The core ``R_C D R_R'`` is then an ``r x r`` matrix whose
+        singular values are those of ``f``.
+
+        Returns
+        -------
+        jax.Array, shape (rank,)
+            Singular values in decreasing order (non-negative reals).
+
+        Notes
+        -----
+        NOT JIT-safe (uses numpy QR/SVD on the small core).
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/svd.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        norm, rank
+        """
+        import numpy as _np
+
+        from chebfunjax.tech.chebtech import _coeffs_to_values
+        from chebfunjax.utils.quadrature import chebweights
+        ap = self.approx
+        xa, xb, ya, yb = self.domain
+        col_scale = float((yb - ya) / 2.0)
+        row_scale = float((xb - xa) / 2.0)
+
+        d = _np.asarray(ap.pivots)
+        if _np.linalg.norm(d) == 0.0:
+            return jnp.zeros((1,), dtype=jnp.float64)
+
+        def _weighted_vals(funs, scale):
+            # common grid of 2*nmax points: Clenshaw-Curtis quadrature is
+            # then exact for pairwise products of the underlying polynomials.
+            n = 2 * max(int(f.n) for f in funs)
+            mat = []
+            for f in funs:
+                c = _np.zeros(n, dtype=_np.asarray(f.coeffs).dtype)
+                c[: int(f.n)] = _np.asarray(f.coeffs)
+                mat.append(_np.asarray(_coeffs_to_values(jnp.asarray(c))))
+            vals = _np.stack(mat, axis=1)
+            w = _np.sqrt(_np.asarray(chebweights(n, kind=2), dtype=float)
+                         * scale)
+            return w[:, None] * vals
+
+        wc_vc = _weighted_vals(ap.cols, col_scale)
+        wr_vr = _weighted_vals(ap.rows, row_scale)
+        _, rc = _np.linalg.qr(wc_vc)              # economy QR
+        _, rr = _np.linalg.qr(wr_vr)
+        # Plain transpose (not conjugate): the reconstruction
+        # f = sum_j d_j c_j(y) r_j(x) carries no conjugate on the rows.
+        core = rc @ _np.diag(d) @ rr.T
+        sig = _np.linalg.svd(core, compute_uv=False)
+        return jnp.asarray(sig, dtype=jnp.float64)
+
     def norm(self, p: Union[int, float, str] = "fro") -> jax.Array:
         """Norm of f.
 
@@ -476,10 +639,16 @@ class Chebfun2(eqx.Module):
         ----------
         p : int, float, or str, default ``'fro'``
             The norm type:
-            - ``2`` or ``'fro'``: Frobenius (L2) norm,
-              ``sqrt(integral_domain |f(x,y)|^2 dx dy)``.
-            - ``jnp.inf`` or ``float('inf')``: not implemented (raises
-              ``NotImplementedError``).
+
+            - ``'fro'`` (or omitted): Frobenius (L2) norm,
+              ``sqrt(integral_domain |f(x,y)|^2 dx dy)`` = ``sqrt(sum(svd**2))``.
+            - ``2``, ``'op'``, ``'operator'``: spectral (operator) norm, the
+              largest singular value.
+            - ``'nuc'``, ``'nuclear'``: nuclear norm, the sum of singular
+              values.
+            - ``jnp.inf``, ``'inf'``, ``'max'``: global maximum of ``|f|``.
+            - an even integer ``p``: the ``p``-norm
+              ``(sum2(f**p))**(1/p)`` (real, even ``p`` only, as in MATLAB).
 
         Returns
         -------
@@ -489,17 +658,8 @@ class Chebfun2(eqx.Module):
         Raises
         ------
         NotImplementedError
-            If p is not 2 or 'fro'.
-
-        Notes
-        -----
-        The Frobenius norm is computed as::
-
-            ||f||_F^2 = Σ_j Σ_k d_j * d_k
-                          * <c_j, c_k>_[ya,yb]  * <r_j, r_k>_[xa,xb]
-
-        where the inner products use the L2 inner product on the physical
-        domain with the affine-map scale factor.
+            If ``p`` is ``1``, ``'min'``, ``-inf``, or an odd/non-integer
+            numeric value (MATLAB raises the same restrictions).
 
         Provenance
         ----------
@@ -510,13 +670,83 @@ class Chebfun2(eqx.Module):
 
         See Also
         --------
-        sum2
+        svd, sum2, minandmax2
         """
-        if p not in (2, "fro", 2.0):
+        # Frobenius / L2 norm: sqrt(sum of squared singular values).  Kept as
+        # the direct quadratic form because it is exact and does not need the
+        # numpy QR/SVD path.
+        if p in ("fro", "F"):
+            return self._norm_fro()
+
+        if p in (2, 2.0, "op", "operator"):
+            return jnp.asarray(self.svd()[0], dtype=jnp.float64)
+
+        if p in ("nuc", "nuclear"):
+            return jnp.sum(self.svd())
+
+        if p in (jnp.inf, float("inf"), "inf", "max"):
+            if self._is_real():
+                vals, _ = self.minandmax2()
+                return jnp.max(jnp.abs(vals))
+            # complex: max of |f| = sqrt(max of conj(f)*f); build |f|^2 as a
+            # real-valued Chebfun2 so the optimiser sees real outputs.
+            g = Chebfun2.from_function(
+                lambda x, y: jnp.abs(self(x, y)) ** 2,
+                domain=self.approx.domain)
+            vals, _ = g.minandmax2()
+            return jnp.sqrt(jnp.max(jnp.abs(vals)))
+
+        if p in (1, "1"):
             raise NotImplementedError(
-                f"Chebfun2.norm: only the Frobenius/L2 norm (p=2 or p='fro') "
-                f"is implemented, got p={p!r}."
+                "Chebfun2.norm: the L1 norm (p=1) is not supported "
+                "(matches MATLAB)."
             )
+        if p in (-jnp.inf, float("-inf"), "-inf", "min"):
+            raise NotImplementedError(
+                "Chebfun2.norm: the 'min' norm is not supported "
+                "(matches MATLAB)."
+            )
+
+        # Even numeric p: (sum2(f**p))**(1/p).
+        if isinstance(p, (int, float)) and not isinstance(p, bool):
+            pf = float(p)
+            if abs(round(pf) - pf) < _EPS:
+                ip = int(round(pf))
+                if ip % 2 == 0:
+                    val = jnp.asarray((self ** ip).sum2())
+                    # An even power of a real-valued function integrates to a
+                    # real number; drop negligible imaginary noise left by the
+                    # complex low-rank reconstruction so the p-norm stays real.
+                    if jnp.iscomplexobj(val) and \
+                            abs(float(val.imag)) <= 1e-10 * abs(float(val.real)):
+                        val = jnp.real(val)
+                    return val ** (1.0 / ip)
+                raise NotImplementedError(
+                    "Chebfun2.norm: p-norm must have p even for now "
+                    "(matches MATLAB)."
+                )
+        raise NotImplementedError(
+            f"Chebfun2.norm: unknown norm p={p!r}."
+        )
+
+    def _is_real(self) -> bool:
+        """True if the low-rank representation is real-valued.
+
+        Checks the dtypes (and, for complex-typed data, the magnitude of the
+        imaginary parts) of the pivots and column/row slice coefficients.
+        Not JIT-safe (runs on concrete arrays).
+        """
+        import numpy as _np
+        parts = [_np.asarray(self.approx.pivots)]
+        parts += [_np.asarray(c.coeffs) for c in self.approx.cols]
+        parts += [_np.asarray(r.coeffs) for r in self.approx.rows]
+        for a in parts:
+            if _np.iscomplexobj(a) and _np.any(_np.abs(a.imag) > 0):
+                return False
+        return True
+
+    def _norm_fro(self) -> jax.Array:
+        """Frobenius/L2 norm via the exact quadratic form over the pivots."""
         xa, xb, ya, yb = self.domain
         r = self.approx.rank
         # Scale factors for physical inner products
@@ -905,6 +1135,71 @@ class Chebfun2(eqx.Module):
     def trace(self) -> jax.Array:
         """int f(x, x) dx (MATLAB trace)."""
         return self.diag_fun().sum()
+
+    def fevalm(self, x, y) -> jax.Array:
+        """Evaluate on the tensor grid ``meshgrid(x, y)`` (MATLAB fevalm).
+
+        ``Z = f.fevalm(x, y)`` returns a matrix ``Z`` of size
+        ``len(y)`` by ``len(x)`` with ``Z[i, j] = f(x[j], y[i])``.  This is
+        equivalent to ``feval`` on ``meshgrid(x, y)`` but exploits the
+        separable representation: it evaluates the row slices at ``x`` and the
+        column slices at ``y`` once and combines them, which is much cheaper
+        than forming the full mesh.
+
+        Parameters
+        ----------
+        x : array_like, shape (nx,)
+            x-coordinates (a 1-D vector).
+        y : array_like, shape (ny,)
+            y-coordinates (a 1-D vector).
+
+        Returns
+        -------
+        jax.Array, shape (ny, nx)
+            The grid of values, ``Z[i, j] = f(x[j], y[i])``.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/fevalm.m, @chebfun2/fevalm.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        __call__
+        """
+        if self.isempty():
+            return jnp.zeros((0, 0), dtype=jnp.float64)
+        xr = jnp.atleast_1d(jnp.asarray(x, dtype=jnp.float64)).reshape(-1)
+        yr = jnp.atleast_1d(jnp.asarray(y, dtype=jnp.float64)).reshape(-1)
+        # meshgrid('xy'): XX[i, j] = xr[j], YY[i, j] = yr[i]  -> (ny, nx).
+        XX, YY = jnp.meshgrid(xr, yr)
+        return self(XX, YY)
+
+    def isequal(self, other: "Chebfun2") -> bool:
+        """Equality test up to relative machine precision (MATLAB isequal).
+
+        Returns ``True`` iff ``self`` and ``other`` represent the same
+        function to relative machine precision (same domain and
+        ``norm(self - other)`` negligible relative to ``norm(self)``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/isequal.m, @separableApprox/isequal.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        if not isinstance(other, Chebfun2):
+            return False
+        if self.isempty() or other.isempty():
+            return self.isempty() and other.isempty()
+        if tuple(self.approx.domain) != tuple(other.approx.domain):
+            return False
+        scale = float(self.norm("fro"))
+        tol = 1e4 * _EPS * max(scale, 1.0)
+        return bool(float((self - other).norm("fro")) <= tol)
 
     def fliplr(self) -> "Chebfun2":
         """f(-x, y) about the vertical midline (MATLAB fliplr)."""

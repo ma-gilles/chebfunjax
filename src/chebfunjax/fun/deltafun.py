@@ -544,6 +544,205 @@ class Deltafun(eqx.Module):
             return g[0]
         return g
 
+    def change_map(self, newdom) -> "Deltafun":
+        r"""Map the domain of this Deltafun via a linear change of variable.
+
+        ``G = f.change_map(newdom)``, where ``f`` has domain ``[a, b]``,
+        returns a Deltafun ``G`` on ``[c, d] = newdom``.  The ``funPart`` is
+        remapped with :meth:`Bndfun.change_map`, and each delta location is
+        carried along by the same affine map ``[a, b] -> [c, d]``.
+
+        Parameters
+        ----------
+        newdom : Domain or sequence of two floats
+            The new interval ``[c, d]``.
+
+        Returns
+        -------
+        Deltafun
+            The distribution re-mapped onto ``newdom``.
+
+        Notes
+        -----
+        NOT JIT-safe (construction-level operation).
+
+        Provenance
+        ----------
+        MATLAB source : @deltafun/changeMap.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        if isinstance(newdom, Domain):
+            c, d = float(newdom.a), float(newdom.b)
+        else:
+            vals = [float(v) for v in newdom]
+            c, d = vals[0], vals[-1]
+        a, b = float(self.domain.a), float(self.domain.b)
+        new_funPart = self.funPart.change_map((c, d))
+        if self.n_deltas > 0 and b != a:
+            locs = _np.asarray(self.delta_locs)
+            new_locs = c + (locs - a) / (b - a) * (d - c)
+            new_locs = jnp.asarray(new_locs, dtype=jnp.float64)
+        else:
+            new_locs = self.delta_locs
+        return Deltafun(new_funPart, new_locs, self.delta_mags)
+
+    def conv(self, g) -> list:
+        r"""Convolution of two Deltafuns (or a Deltafun and a smooth fun).
+
+        Produces the convolution
+
+        .. math::
+            h(x) = \int f(t)\, g(x - t)\, dt,
+            \quad x \in [a + c,\, b + d],
+
+        using the bilinearity of convolution to split each operand into its
+        smooth ``funPart`` and its Dirac-delta part.  Writing
+        ``f = f_s + df`` and ``g = g_s + dg`` (where ``df``, ``dg`` are the
+        delta parts):
+
+        .. math::
+            f * g = f_s * g_s
+                    + dg * (f_s + df/2)
+                    + df * (g_s + dg/2).
+
+        Convolving a *k*-th derivative of a Dirac delta at ``x_0`` with a
+        function ``\phi`` translates and differentiates it:
+        ``\delta^{(k)}(\cdot - x_0) * \phi = \phi^{(k)}(\cdot - x_0)``.  The
+        halving of the delta magnitudes in the cross terms avoids
+        double-counting the delta-delta interaction.
+
+        The output is a *list* of Bndfun / Deltafun pieces on
+        non-overlapping subintervals whose union is ``[a + c, b + d]``,
+        mirroring the cell array returned by MATLAB's ``@deltafun/conv``.
+        An empty input on either side yields an empty list.
+
+        Parameters
+        ----------
+        g : Deltafun or Bndfun
+            The second operand, on a bounded domain.
+
+        Returns
+        -------
+        list
+            The convolution pieces (Bndfun and/or Deltafun), left to right.
+
+        Notes
+        -----
+        NOT JIT-safe (construction-level operation).
+
+        Provenance
+        ----------
+        MATLAB source : @deltafun/conv.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        # Empty inputs -> empty result (both Bndfun and Deltafun have isempty).
+        if self.isempty() or g.isempty():
+            return []
+
+        deltaTol = _DELTA_TOL
+
+        # Split each operand into (deltaMag, deltaLoc, funPart, operand),
+        # where ``operand`` is the simplified object (Deltafun if deltas
+        # remain, else its bare Bndfun funPart -- as MATLAB's simplifyDeltas
+        # downgrades a delta-free Deltafun to a CLASSICFUN).
+        magF, locF, funF, opF = _split_delta_operand(self)
+        magG, locG, funG, opG = _split_delta_operand(g)
+
+        a, b = float(funF.domain.a), float(funF.domain.b)
+        c, d = float(funG.domain.a), float(funG.domain.b)
+
+        # Smooth-smooth part.
+        h = [hk for hk in funF.conv(funG) if not _fun_iszero(hk)]
+
+        # Delta contributions.  Each call convolves the deltas of one operand
+        # with the *whole* other operand; the deltas of that other operand are
+        # halved so the delta-delta term is not counted twice.
+        h = _conv_deltas(magF, locF, opG, c, d, deltaTol, h)
+        h = _conv_deltas(magG, locG, opF, a, b, deltaTol, h)
+
+        if len(h) == 0:
+            zero = Bndfun.from_function(lambda x: jnp.zeros_like(x),
+                                        Domain((a, b)))
+            return [zero]
+
+        # --- Reassemble into non-overlapping pieces -----------------------
+        doms = []
+        for hk in h:
+            doms.append(float(hk.domain.a))
+            doms.append(float(hk.domain.b))
+        breakPoints = _np.unique(_np.asarray(sorted(doms)))
+
+        if _np.any(~_np.isfinite(breakPoints)):
+            tol = 2.0 * _EPS
+        else:
+            tol = 2.0 * _EPS * _np.max(_np.abs(breakPoints)) if breakPoints.size \
+                else 2.0 * _EPS
+        # Coalesce breakpoints that are extremely close (drop the left one).
+        if breakPoints.size > 1:
+            close = _np.abs(_np.diff(breakPoints)) < tol
+            keep = _np.ones(breakPoints.size, dtype=bool)
+            keep[:-1] = ~close
+            breakPoints = breakPoints[keep]
+
+        proxTol = _PROXIMITY_TOL
+        H = []
+        for hk in h:
+            dom_a = float(hk.domain.a)
+            dom_b = float(hk.domain.b)
+            idx1 = int(_np.argmin(_np.abs(breakPoints - dom_a)))
+            idx2 = int(_np.argmin(_np.abs(breakPoints - dom_b)))
+            hk = hk.change_map((float(breakPoints[idx1]),
+                                float(breakPoints[idx2])))
+            # Snap delta locations onto the piece endpoints if very close.
+            if isinstance(hk, Deltafun) and hk.n_deltas > 0:
+                locs = _np.asarray(hk.delta_locs).copy()
+                dka, dkb = float(hk.domain.a), float(hk.domain.b)
+                if abs(locs[0] - dka) < proxTol:
+                    locs[0] = dka
+                if abs(locs[-1] - dkb) < proxTol:
+                    locs[-1] = dkb
+                hk = Deltafun(hk.funPart, jnp.asarray(locs, dtype=jnp.float64),
+                              hk.delta_mags)
+            seq = [float(x) for x in breakPoints[idx1:idx2 + 1]]
+            if isinstance(hk, Deltafun):
+                restricted = hk.restrict(seq)
+            elif len(seq) == 2:
+                restricted = hk.restrict(seq[0], seq[1])
+            else:
+                restricted = [hk.restrict(seq[i], seq[i + 1])
+                              for i in range(len(seq) - 1)]
+            if isinstance(restricted, list):
+                H.extend(restricted)
+            else:
+                H.append(restricted)
+
+        # If every subinterval already has exactly one piece, we are done.
+        if len(H) == len(breakPoints) - 1:
+            return H
+
+        # Otherwise, re-bin the pieces onto the breakpoint intervals.
+        pieces = []
+        for k in range(len(breakPoints) - 1):
+            zero = Bndfun.from_function(
+                lambda x: jnp.zeros_like(x),
+                Domain((float(breakPoints[k]), float(breakPoints[k + 1]))),
+            )
+            pieces.append(zero)
+        for hk in H:
+            dom_a = float(hk.domain.a)
+            dom_b = float(hk.domain.b)
+            if abs(dom_b - dom_a) > tol:
+                idx = int(_np.argmin(_np.abs(breakPoints - dom_a)))
+                if isinstance(hk, Deltafun):
+                    pieces[idx] = hk + pieces[idx]
+                else:
+                    pieces[idx] = pieces[idx] + hk
+        return pieces
+
     @classmethod
     def zero_delta_fun(cls, domain=None) -> "Deltafun":
         """The zero distribution (zero funPart, no deltas).
@@ -827,6 +1026,114 @@ class Deltafun(eqx.Module):
 #: MATLAB delta preferences (chebfunpref factory defaults).
 _DELTA_TOL = 1e-9        # pref.deltaPrefs.deltaTol
 _PROXIMITY_TOL = 1e-11   # pref.deltaPrefs.proximityTol
+
+
+def _fun_iszero(fun, tol: float | None = None) -> bool:
+    """True if a Bndfun/Classicfun is (numerically) the zero function.
+
+    Mirrors MATLAB ``iszero`` on a FUN: the convolution of a smooth part
+    with a zero smooth part produces exactly-zero coefficients, so a small
+    coefficient threshold cleanly discards those pieces.
+    """
+    import numpy as _np
+
+    coeffs = _np.asarray(fun.coeffs)
+    if coeffs.size == 0:
+        return True
+    mx = float(_np.max(_np.abs(coeffs)))
+    if tol is None:
+        tol = 10.0 * _EPS
+    return mx <= tol
+
+
+def _split_delta_operand(obj):
+    """Split a conv operand into (deltaMag, deltaLoc, funPart, operand).
+
+    ``obj`` may be a Deltafun or a bare Bndfun.  Following MATLAB's
+    ``simplifyDeltas``, a Deltafun whose deltas all vanish is downgraded to
+    its smooth ``funPart`` (a Bndfun), so the returned ``operand`` -- used
+    as the *other* factor inside :func:`_conv_deltas` -- is a Deltafun only
+    when genuine deltas remain.
+
+    Returns
+    -------
+    deltaMag : numpy.ndarray or None
+        ``(M, N)`` delta magnitude matrix, or ``None`` when there are no
+        deltas.
+    deltaLoc : numpy.ndarray or None
+        ``(N,)`` delta locations, or ``None``.
+    funPart : Bndfun
+        The smooth part.
+    operand : Deltafun or Bndfun
+        The simplified operand.
+    """
+    import numpy as _np
+
+    if not isinstance(obj, Deltafun):
+        # Bare fun: no deltas.
+        return None, None, obj, obj
+
+    s = obj.simplify_deltas()
+    if s.n_deltas > 0:
+        return (_np.asarray(s.delta_mags), _np.asarray(s.delta_locs),
+                s.funPart, s)
+    return None, None, s.funPart, s.funPart
+
+
+def _conv_deltas(deltaMag, deltaLoc, other, c, d, deltaTol, h):
+    r"""Append the delta-function contributions to the convolution list.
+
+    Convolves the delta functions described by ``deltaMag`` / ``deltaLoc``
+    (living, before mapping, on ``[c, d]`` -- the domain of ``other``) with
+    the operand ``other``.  For each delta of order ``i`` at location
+    ``x_j`` and magnitude ``m``:
+
+    .. math::
+        m\,\delta^{(i)}(\cdot - x_j) * \phi
+        = m\,\phi^{(i)}(\cdot - x_j),
+
+    realised by differentiating ``other`` ``i`` times, mapping it onto
+    ``x_j + [c, d]``, and scaling by ``m``.  When the result still carries
+    deltas (``other`` had its own), their magnitudes are halved so the
+    delta-delta term is not double-counted (this routine is called once per
+    operand).
+
+    Provenance
+    ----------
+    MATLAB source : @deltafun/conv.m (convDeltas subfunction)
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+
+    if deltaMag is None:
+        return h
+    deltaMag = _np.asarray(deltaMag)
+    if deltaMag.size == 0:
+        return h
+    deltaLoc = _np.asarray(deltaLoc).ravel()
+    m_rows, n_cols = deltaMag.shape
+    for i in range(m_rows):
+        for j in range(n_cols):
+            mag = float(deltaMag[i, j])
+            if abs(mag) <= deltaTol:
+                continue
+            # Differentiate ``other`` i times, then shift/scale it.
+            g_diff = other.diff(i) if i > 0 else other
+            newdom = (float(deltaLoc[j]) + c, float(deltaLoc[j]) + d)
+            hij = g_diff.change_map(newdom)
+            hij = hij * mag
+            # Halve any deltas so the delta-delta interaction is counted once.
+            if isinstance(hij, Deltafun) and hij.n_deltas > 0:
+                hij = Deltafun(hij.funPart, hij.delta_locs,
+                               hij.delta_mags / 2.0)
+            # Append if non-zero.
+            if isinstance(hij, Deltafun):
+                if not hij.iszero(deltaTol):
+                    h.append(hij)
+            else:
+                if not _fun_iszero(hij):
+                    h.append(hij)
+    return h
 
 
 def _merge_columns(A, v, tol: float = _PROXIMITY_TOL):

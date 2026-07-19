@@ -1,9 +1,19 @@
-"""Spherefunv — vector field on the unit sphere (thin wrapper over Spherefun components).
+"""Spherefunv — vector field on the unit sphere (Spherefun components).
 
-A Spherefunv holds a pair of Spherefun scalar components (f, g), representing
-a 2-component vector field on the unit sphere (e.g. the longitudinal and
-latitudinal components of a surface vector field).  This mirrors the MATLAB
-@spherefunv class.
+A Spherefunv holds an ordered list of :class:`Spherefun` scalar components.
+Two representations coexist:
+
+- The MATLAB-faithful **3-Cartesian-component** field ``[fx, fy, fz]`` — the
+  x/y/z components of a vector field on (or tangent to) the unit sphere.
+  This is what ``Spherefun.gradient`` returns and what the surface
+  differential operators (curl, divergence, vorticity, cross, normal,
+  tangent) act on.
+- A **2-component** field ``[f, g]`` — a lighter intrinsic-tangent pair kept
+  for backward compatibility with existing callers.
+
+All componentwise operations (arithmetic, real/imag/conj, dot, norm,
+evaluation) work for any number of components; the surface differential
+operators require the 3-Cartesian form.
 
 Provenance
 ----------
@@ -23,16 +33,30 @@ import jax.numpy as jnp
 from chebfunjax.spherefun.spherefun import Spherefun
 
 
-class Spherefunv(eqx.Module):
-    """Vector field on the unit sphere with 2 scalar Spherefun components.
+def _sphere_xyz() -> tuple[Spherefun, Spherefun, Spherefun]:
+    """The three Cartesian coordinate functions x, y, z as Spherefuns.
 
-    Represents [f(lam, theta), g(lam, theta)] where f and g are Spherefun
-    objects and (lam, theta) are longitude and colatitude.
+    On the unit sphere x = cos(lam) sin(th), y = sin(lam) sin(th),
+    z = cos(th); together they form the outward unit normal field.
+    """
+    x = Spherefun.from_function(lambda lam, th: jnp.cos(lam) * jnp.sin(th))
+    y = Spherefun.from_function(lambda lam, th: jnp.sin(lam) * jnp.sin(th))
+    z = Spherefun.from_function(lambda lam, th: jnp.cos(th))
+    return x, y, z
+
+
+class Spherefunv(eqx.Module):
+    """Vector field on the unit sphere with 2 or 3 scalar Spherefun components.
+
+    Constructed either as ``Spherefunv(fx, fy, fz)`` (MATLAB 3-Cartesian
+    form) or ``Spherefunv(f, g)`` (2-component form).  Each component is a
+    :class:`Spherefun` in intrinsic coordinates ``(lambda, theta)`` with
+    lambda the longitude in [-pi, pi] and theta the colatitude in [0, pi].
 
     Attributes
     ----------
-    components : list
-        [f, g] — two Spherefun scalar fields.
+    components : list of Spherefun
+        The scalar components (length 2 or 3).
 
     Provenance
     ----------
@@ -63,19 +87,22 @@ class Spherefunv(eqx.Module):
         """
         return getattr(self, "_is_empty_object", False)
 
-    components: list  # [f, g]
+    components: list  # [fx, fy, fz] or [f, g]
 
-    def __init__(self, f: Spherefun, g: Spherefun) -> None:
-        """Create a Spherefunv from two Spherefun scalar components.
+    def __init__(self, *components: Spherefun) -> None:
+        """Create a Spherefunv from 2 or 3 Spherefun scalar components.
 
         Parameters
         ----------
-        f : Spherefun
-            First component (e.g. longitudinal component).
-        g : Spherefun
-            Second component (e.g. latitudinal component).
+        *components : Spherefun
+            The scalar components.  Pass three (fx, fy, fz) for the MATLAB
+            Cartesian form or two (f, g) for the intrinsic-tangent form.
         """
-        self.components = [f, g]
+        if len(components) not in (2, 3):
+            raise ValueError(
+                "Spherefunv takes 2 or 3 Spherefun components, got "
+                f"{len(components)}.")
+        self.components = list(components)
 
     # ------------------------------------------------------------------
     # Factory
@@ -84,29 +111,39 @@ class Spherefunv(eqx.Module):
     @classmethod
     def from_functions(
         cls,
-        f: Callable,
-        g: Callable,
+        *fns: Callable,
         tol: float = float(jnp.finfo(jnp.float64).eps),
     ) -> "Spherefunv":
-        """Construct a Spherefunv from two callables.
+        """Construct a Spherefunv from 2 or 3 callables ``f(lam, theta)``.
 
         Parameters
         ----------
-        f : callable
-            f(lam, theta) — first scalar component.
-        g : callable
-            g(lam, theta) — second scalar component.
+        *fns : callable
+            Component callables ``f(lam, theta)``.
         tol : float, optional
-            Tolerance for Spherefun construction.
+            Tolerance for each Spherefun construction.
 
         Returns
         -------
         Spherefunv
         """
-        return cls(
-            Spherefun.from_function(f, tol=tol),
-            Spherefun.from_function(g, tol=tol),
-        )
+        return cls(*[Spherefun.from_function(fn, tol=tol) for fn in fns])
+
+    # ------------------------------------------------------------------
+    # Static constructors
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def unormal() -> "Spherefunv":
+        """Unit outward normal vector field of the unit sphere ``(x, y, z)``.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/unormal.m
+        Chebfun commit: 7574c77
+        """
+        x, y, z = _sphere_xyz()
+        return Spherefunv(x, y, z)
 
     # ------------------------------------------------------------------
     # Evaluation
@@ -114,7 +151,9 @@ class Spherefunv(eqx.Module):
 
     @eqx.filter_jit
     def __call__(self, lam: jax.Array, theta: jax.Array) -> tuple:
-        """Evaluate both components at spherical coordinates (lam, theta).
+        """Evaluate every component at spherical coordinates (lam, theta).
+
+        Returns a tuple with one entry per component (length 2 or 3).
 
         Parameters
         ----------
@@ -122,50 +161,167 @@ class Spherefunv(eqx.Module):
             Longitude(s) in [-pi, pi].
         theta : jax.Array
             Colatitude(s) in [0, pi].
-
-        Returns
-        -------
-        tuple
-            (f_val, g_val) evaluated at (lam, theta).
         """
-        f, g = self.components
-        return (f(lam, theta), g(lam, theta))
+        return tuple(c(lam, theta) for c in self.components)
 
     # ------------------------------------------------------------------
     # Vector operations
     # ------------------------------------------------------------------
 
     def dot(self, other: "Spherefunv") -> Spherefun:
-        """Dot product of two Spherefunv: f1*f2 + g1*g2.
+        """Vector dot product ``sum_j f_j * g_j`` (MATLAB dot).
 
-        Parameters
+        Provenance
         ----------
-        other : Spherefunv
-            Second vector field.
-
-        Returns
-        -------
-        Spherefun
-            Scalar dot product.
+        MATLAB source : @spherefunv/dot.m
+        Chebfun commit: 7574c77
         """
-        f1, g1 = self.components
-        f2, g2 = other.components
-        return Spherefun.from_function(
-            lambda lam, th: f1(lam, th) * f2(lam, th) + g1(lam, th) * g2(lam, th)
+        if self.isempty() or other.isempty():
+            return Spherefun.empty()
+        prods = [a * b for a, b in zip(self.components, other.components)]
+        out = prods[0]
+        for c in prods[1:]:
+            out = out + c
+        return out
+
+    def cross(self, other: "Spherefunv") -> "Spherefunv":
+        """3D vector cross product (MATLAB cross).
+
+        Both fields must have three Cartesian components.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/cross.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty() or other.isempty():
+            return Spherefunv.empty()
+        if len(self.components) != 3 or len(other.components) != 3:
+            raise ValueError("cross requires 3-component Spherefunv inputs.")
+        a1, a2, a3 = self.components
+        b1, b2, b3 = other.components
+        return Spherefunv(
+            a2 * b3 - a3 * b2,
+            a3 * b1 - a1 * b3,
+            a1 * b2 - a2 * b1,
         )
 
     def norm(self) -> Spherefun:
-        """Pointwise Euclidean norm: sqrt(f^2 + g^2).
+        """Pointwise Euclidean magnitude ``sqrt(sum_j f_j^2)`` as a Spherefun.
 
-        Returns
-        -------
-        Spherefun
-            Scalar norm field.
+        Note: chebfunjax returns the pointwise magnitude field (a Spherefun),
+        not MATLAB's scalar Frobenius norm.
         """
-        f, g = self.components
+        comps = self.components
         return Spherefun.from_function(
-            lambda lam, th: jnp.sqrt(f(lam, th) ** 2 + g(lam, th) ** 2)
-        )
+            lambda lam, th: jnp.sqrt(
+                sum(c(lam, th) ** 2 for c in comps)))
+
+    # ------------------------------------------------------------------
+    # Surface differential operators (3-Cartesian-component fields)
+    # ------------------------------------------------------------------
+
+    def _require3(self, name: str) -> tuple:
+        if len(self.components) != 3:
+            raise ValueError(
+                f"Spherefunv.{name} requires a 3-Cartesian-component field.")
+        return tuple(self.components)
+
+    def curl(self) -> "Spherefunv":
+        r"""Surface curl of a (tangential) vector field (MATLAB curl).
+
+        Returns the SPHEREFUNV whose components are the tangential
+        derivatives ``(d_y f_z - d_z f_y, d_z f_x - d_x f_z,
+        d_x f_y - d_y f_x)``.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/curl.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return Spherefunv.empty()
+        fx, fy, fz = self._require3("curl")
+        gx = fz.diff(2) - fy.diff(3)
+        gy = fx.diff(3) - fz.diff(1)
+        gz = fy.diff(1) - fx.diff(2)
+        return Spherefunv(gx, gy, gz)
+
+    def divergence(self) -> Spherefun:
+        r"""Surface divergence ``d_x f_x + d_y f_y + d_z f_z`` (MATLAB
+        divergence).  Only meaningful for tangential fields.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/divergence.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return Spherefun.empty()
+        fx, fy, fz = self._require3("divergence")
+        return fx.diff(1) + fy.diff(2) + fz.diff(3)
+
+    def div(self) -> Spherefun:
+        """Shorthand for :meth:`divergence` (MATLAB div).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/div.m
+        Chebfun commit: 7574c77
+        """
+        return self.divergence()
+
+    def vorticity(self) -> Spherefun:
+        r"""Surface vorticity ``N . curl(F)`` — the normal component of the
+        surface curl (MATLAB vorticity).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/vorticity.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return Spherefun.empty()
+        return Spherefunv.unormal().dot(self.curl())
+
+    def vort(self) -> Spherefun:
+        """Shorthand for :meth:`vorticity` (MATLAB vort).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/vort.m
+        Chebfun commit: 7574c77
+        """
+        return self.vorticity()
+
+    def normal(self) -> "Spherefunv":
+        """Projection of the field onto the sphere's normal direction
+        ``(F . N) N`` (MATLAB normal).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/normal.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return Spherefunv.empty()
+        self._require3("normal")
+        N = Spherefunv.unormal()
+        f = self.dot(N)
+        return Spherefunv(*[c * f for c in N.components])
+
+    def tangent(self) -> "Spherefunv":
+        """Projection of the field onto the tangent plane ``F - normal(F)``
+        (MATLAB tangent).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/tangent.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return self
+        return self - self.normal()
 
     # ------------------------------------------------------------------
     # Arithmetic
@@ -173,12 +329,8 @@ class Spherefunv(eqx.Module):
 
     def __add__(self, other: "Spherefunv") -> "Spherefunv":
         """Componentwise addition."""
-        f1, g1 = self.components
-        f2, g2 = other.components
-        return Spherefunv(
-            Spherefun.from_function(lambda lam, th: f1(lam, th) + f2(lam, th)),
-            Spherefun.from_function(lambda lam, th: g1(lam, th) + g2(lam, th)),
-        )
+        return Spherefunv(*[a + b for a, b in
+                            zip(self.components, other.components)])
 
     def times(self, other) -> "Spherefunv":
         """Componentwise product with another Spherefunv, or scaling by
@@ -191,7 +343,7 @@ class Spherefunv(eqx.Module):
         """
         if isinstance(other, Spherefunv):
             return Spherefunv(*[a * b for a, b in
-                           zip(self.components, other.components)])
+                                zip(self.components, other.components)])
         return Spherefunv(*[a * other for a in self.components])
 
     def power(self, n: int) -> "Spherefunv":
@@ -246,12 +398,8 @@ class Spherefunv(eqx.Module):
 
     def __mul__(self, scalar: float) -> "Spherefunv":
         """Scalar multiplication (componentwise)."""
-        f, g = self.components
         s = float(scalar)
-        return Spherefunv(
-            Spherefun.from_function(lambda lam, th: s * f(lam, th)),
-            Spherefun.from_function(lambda lam, th: s * g(lam, th)),
-        )
+        return Spherefunv(*[c * s for c in self.components])
 
     def __rmul__(self, scalar: float) -> "Spherefunv":
         """Right scalar multiplication."""
@@ -259,7 +407,7 @@ class Spherefunv(eqx.Module):
 
     def __neg__(self) -> "Spherefunv":
         """Negation."""
-        return self.__mul__(-1.0)
+        return Spherefunv(*[-c for c in self.components])
 
     def __sub__(self, other: "Spherefunv") -> "Spherefunv":
         """Componentwise subtraction."""
@@ -284,9 +432,8 @@ class Spherefunv(eqx.Module):
     # ------------------------------------------------------------------
 
     def __repr__(self) -> str:
-        f, g = self.components
-        return (
-            f"Spherefunv with 2 components:\n"
-            f"  [0]: {f!r}\n"
-            f"  [1]: {g!r}"
-        )
+        n = len(self.components)
+        lines = [f"Spherefunv with {n} components:"]
+        for i, c in enumerate(self.components):
+            lines.append(f"  [{i}]: {c!r}")
+        return "\n".join(lines)

@@ -92,23 +92,12 @@ class TestSingfunRdivide:
         h = 1.0 / g
         assert tuple(h.exponents) == (-float(a), -float(b))
 
-    @pytest.mark.xfail(
-        reason="chebfunjax does not simplify/absorb exponents >= 1 into the "
-        "smooth part; 1/((1+x)^-a (1-x)^-b) keeps exponents (a, b) >= 1",
-        strict=True,
-    )
     def test_reciprocal_simplifies_exponents(self):
         a, b = 3, 4
         g = _sf(lambda x: ((1 + x) ** -a) * ((1 - x) ** -b), (-float(a), -float(b)))
         h = 1.0 / g
         assert all(e < 1 for e in h.exponents)
 
-    @pytest.mark.xfail(
-        reason="chebfunjax does not canonicalise exponents: (1+x)/sqrt(1+x) "
-        "yields exponents (-0.5, 0) with smooth part (1+x) rather than the "
-        "simplified (0.5, 0)",
-        strict=True,
-    )
     def test_simplify_positive_exponent(self):
         f = _sf(lambda x: 1 + x, (0.0, 0.0))
         g = _sf(lambda x: jnp.sqrt(1 + x), (0.5, 0.0))

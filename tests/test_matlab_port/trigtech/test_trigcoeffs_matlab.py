@@ -2,8 +2,9 @@
 
 ``trigcoeffs(f)`` returns the Fourier coefficients (== ``f.coeffs`` for a
 resolved trigtech), and ``trigcoeffs(f, N)`` returns exactly N of them,
-zero-padding or truncating symmetrically.  chebfunjax exposes the
-coefficients directly and reuses ``prolong`` for the length-N variant.
+zero-padding or truncating symmetrically.  chebfunjax implements
+``Trigtech.trigcoeffs`` as an exact port of ``@trigtech/trigcoeffs.m``,
+including the even-``N`` Nyquist fold on truncation.
 
 Provenance
 ----------
@@ -17,7 +18,7 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 
-from chebfunjax.tech.trigtech import Trigtech, _trig_prolong_coeffs
+from chebfunjax.tech.trigtech import Trigtech
 
 EPS = float(np.finfo(np.float64).eps)
 
@@ -27,9 +28,7 @@ def _tt(f):
 
 
 def _trigcoeffs(f, n=None):
-    if n is None:
-        return f.coeffs
-    return _trig_prolong_coeffs(f.coeffs, n)
+    return f.trigcoeffs(n)
 
 
 def _ninf(a):
@@ -86,11 +85,6 @@ class TestTrigtechTrigcoeffs:
         p = _trigcoeffs(f, 2)
         assert _ninf(p - jnp.array([1, 2])) < 10 * f.vscale * EPS
 
-    @pytest.mark.xfail(
-        reason="chebfunjax _trig_prolong_coeffs even-truncation scales the retained "
-        "Nyquist coefficient by 2 rather than folding c_{N/2}+c_{-N/2}; for a pure "
-        "sine (odd) Nyquist mode MATLAB folds to 0 but chebfunjax yields 1i"
-    )
     def test_even_sin(self):
         f = _tt(lambda x: 2 + jnp.sin(jnp.pi * x))
         p = _trigcoeffs(f, 2)

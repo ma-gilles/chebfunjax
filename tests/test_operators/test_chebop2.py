@@ -135,6 +135,40 @@ class TestBartelsStewart:
         X = bartels_stewart(A, B, C, D, E)
         npt.assert_allclose(X, X_exact, atol=1e-11)
 
+    @pytest.mark.parametrize("shape", [(5, 6), (7, 7), (8, 4)])
+    def test_random_generalized_sylvester_residual(self, shape):
+        """Dense random A, B, C, D, E: residual of A X B^T + C X D^T - E is tiny.
+
+        Regression pin for the QZ Bartels-Stewart reduction.  Identity/diagonal
+        inputs (the other tests) have trivial QZ factors and hid a transposed
+        RHS transform; only dense random pencils exercise it.
+        """
+        m, n = shape
+        rng = np.random.default_rng(12345 + m + n)
+        A = rng.standard_normal((m, m))
+        C = rng.standard_normal((m, m))
+        B = rng.standard_normal((n, n))
+        D = rng.standard_normal((n, n))
+        E = rng.standard_normal((m, n))
+        X = bartels_stewart(A, B, C, D, E)
+        residual = np.linalg.norm(A @ X @ B.T + C @ X @ D.T - E)
+        assert residual < 1e-10, f"residual={residual:.3e}"
+
+    def test_random_matches_kronecker_solve(self):
+        """Bartels-Stewart matches the direct Kronecker solve of the same system."""
+        m, n = 6, 5
+        rng = np.random.default_rng(2024)
+        A = rng.standard_normal((m, m))
+        C = rng.standard_normal((m, m))
+        B = rng.standard_normal((n, n))
+        D = rng.standard_normal((n, n))
+        E = rng.standard_normal((m, n))
+        X = bartels_stewart(A, B, C, D, E)
+        # Direct solve: (B (x) A + D (x) C) vec(X) = vec(E), column-major.
+        M = np.kron(B, A) + np.kron(D, C)
+        X_kron = np.linalg.solve(M, E.ravel(order="F")).reshape((m, n), order="F")
+        npt.assert_allclose(X, X_kron, atol=1e-9)
+
 
 # ===========================================================================
 # Chebop2 construction tests

@@ -390,9 +390,9 @@ class TestChebfun2Norm:
         npt.assert_allclose(float(f.norm()), norm_expected, rtol=1e-11)
 
     def test_norm_invalid_p(self):
-        """norm with invalid p raises NotImplementedError."""
+        """norm with the unsupported p=1 raises NotImplementedError."""
         f = Chebfun2.from_function(lambda x, y: x + y)
-        with pytest.raises(NotImplementedError, match="Frobenius"):
+        with pytest.raises(NotImplementedError, match="L1"):
             f.norm(p=1)
 
 

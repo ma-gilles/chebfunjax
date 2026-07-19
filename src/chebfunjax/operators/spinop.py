@@ -20,13 +20,18 @@ import numpy as np
 
 __all__ = ["Spinop", "spin"]
 
-# KNOWN LIMITATION (Fable 5 audit): the 'CH' preset develops a
-# numerical hard instability at t ~ 30 with every integrator tried
-# (ETDRK4 at n up to 1024 / dt down to 2e-3, stable-split ETDRK4,
-# and scipy BDF at rtol 1e-8) even though the energy functional
-# decays correctly until then -- the semi-discrete blowup mechanism
-# vs MATLAB's spin CH demo is not yet understood.  See the port
-# test's xfail for the evidence trail.
+# RESOLVED (Fable 5 audit): the 'CH' preset used to blow up at t ~ 30.
+# Root cause was NOT the integrator, resolution, dealiasing, or the
+# transcription (all verified correct against @spinop/spinop.m): the
+# ETDRK4 loop propagates the full complex Fourier state, and CH's
+# linear part has a growth band (L = 1e-2 om^2 - 1e-5 om^4 > 0 for
+# small om).  Because Nhat evaluates np.real(ifft(.)), the nonlinear
+# saturation never sees the conjugate-antisymmetric part of the state
+# (the imaginary part of u); seeded at roundoff it grows as exp(2.5 t)
+# under the bare exponential propagator until it corrupts the real
+# solution near t ~ 30.  Fixed by re-Hermitianizing the state each
+# step (v = fft(real(ifft(v)))) -- a no-op in exact arithmetic.  See
+# the time-stepping loop below and the spinop port test.
 
 
 class Spinop:
@@ -172,6 +177,20 @@ def spin(S: Spinop, n: int, dt: float):
         cv = E2 * av + Q * (2 * Nb - Nv)
         Nc = Nhat(cv)
         v = E * v + Nv * f1 + 2 * (Na + Nb) * f2 + Nc * f3
+        # Re-Hermitianize the Fourier state so u stays real.  This is a
+        # no-op in exact arithmetic (v is conjugate-symmetric because the
+        # symbol L and the nonlinear map are real and even), but it is
+        # ESSENTIAL for PDEs whose linear part has a growth band, e.g.
+        # Cahn-Hilliard's spinodal instability (L = 1e-2 om^2 - 1e-5 om^4
+        # is positive for |om| < ~31).  The nonlinear term evaluates
+        # np.real(ifft(.)), so it never sees the conjugate-ANTISYMMETRIC
+        # component of v (the imaginary part of u).  Seeded at roundoff,
+        # that component is therefore propagated by the bare linear
+        # operator exp(dt L) with NO nonlinear saturation and grows like
+        # exp(2.5 t) until it overflows into the real solution near t~30.
+        # Projecting onto the real subspace each step removes it and
+        # leaves the physical (already-real) solution untouched.
+        v = np.fft.fft(np.real(np.fft.ifft(v)))
 
     u_vals = np.real(np.fft.ifft(v))
 
