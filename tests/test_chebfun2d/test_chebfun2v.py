@@ -311,3 +311,30 @@ class TestDotCross:
         F = Chebfun2v.from_functions(lambda x, y: jnp.sin(x), lambda x, y: jnp.cos(y))
         n = F.norm()
         assert n >= 0.0, f"norm should be >= 0, got {n}"
+
+
+class TestChebfun2vRoots:
+    """Core mirror for the Fable 5 common-zero finder (Chebfun2v.roots /
+    Chebfun2.roots(f, g))."""
+
+    def test_linear_intersection(self):
+        # x - y + 1/2 = 0 and x + y = 0 meet at (-1/4, 1/4).
+        from chebfunjax.chebfun2d import chebfun2
+        f = chebfun2(lambda x, y: x - y + 0.5)
+        g = chebfun2(lambda x, y: x + y)
+        r = f.roots(g)
+        assert r.shape == (1, 2)
+        npt.assert_allclose(r[0], [-0.25, 0.25], atol=1e-12)
+
+    def test_circle_line_common_zeros(self):
+        # circle x^2+y^2=1/4 and line y=x: two common zeros at
+        # (+/- 1/(2 sqrt 2), same); verify residuals and count.
+        from chebfunjax.chebfun2d import chebfun2
+        f = chebfun2(lambda x, y: x ** 2 + y ** 2 - 0.25)
+        g = chebfun2(lambda x, y: y - x)
+        r = f.roots(g)
+        assert r.shape[0] == 2
+        x = jnp.asarray(r[:, 0])
+        y = jnp.asarray(r[:, 1])
+        npt.assert_allclose(np.asarray(f(x, y)), 0.0, atol=1e-10)
+        npt.assert_allclose(np.asarray(g(x, y)), 0.0, atol=1e-10)

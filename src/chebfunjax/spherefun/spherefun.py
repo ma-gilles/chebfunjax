@@ -1278,6 +1278,41 @@ class Spherefun(eqx.Module):
         vals, locs = self.minandmax2()
         return vals[0], locs[0]
 
+    def roots(self, n: int = 257):
+        """Zero contours of the Spherefun on the sphere (MATLAB
+        ``@spherefun/roots``).
+
+        The Spherefun is viewed as a Chebfun2 in ``(lambda, theta)`` on
+        ``[-pi, pi] x [0, pi]``; its zero curves are traced there and each
+        is sampled and mapped to Cartesian points on the unit sphere
+        ``(cos(lam) sin(th), sin(lam) sin(th), cos(th))``.  Returns a list
+        of ``(n, 3)`` arrays, one per contour (the chebfunjax stand-in for
+        MATLAB's cell array of contour chebfuns; ``sample`` is the identity
+        here).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/roots.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        from chebfunjax.chebfun2d import chebfun2
+        from chebfunjax.chebfun2d.zerocurves import zero_curves
+        dom = (-_np.pi, _np.pi, 0.0, _np.pi)
+        fp = chebfun2(lambda lam, th: self(lam, th), domain=dom)
+        curves = zero_curves(fp)
+        ts = jnp.asarray(_np.linspace(-1.0, 1.0, n))
+        out = []
+        for c in curves:
+            z = _np.asarray(c(ts))
+            lam, th = z.real, z.imag
+            x = _np.cos(lam) * _np.sin(th)
+            y = _np.sin(lam) * _np.sin(th)
+            zz = _np.cos(th)
+            out.append(_np.column_stack([x, y, zz]))
+        return out
+
     def mean(self) -> jax.Array:
         """Mean value of the function over the unit sphere: sum / (4 pi)."""
         return self.sum() / (4 * jnp.pi)

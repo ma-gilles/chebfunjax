@@ -397,3 +397,19 @@ class TestDiskfunReflectionsSumOpt:
         assert abs(f.max2() - 1.0) < 1e-10
         assert abs(f.min2() - (-1.0)) < 1e-10
         assert X.shape == (2, 2)
+
+    def test_roots(self):
+        # r^2 - 1/4 (polar) -> circle of radius 1/2 mapped to the disk.
+        f = Diskfun.from_function(lambda t, r: r ** 2 - 0.25)
+        r = f.roots()
+        assert len(r) == 1
+        x = np.sort(np.cos(np.pi * np.arange(129) / 128))
+        exact = 0.5 * np.exp(1j * x * np.pi)
+        got = np.asarray(r[0](jnp.asarray(x)))
+        assert float(np.max(np.abs(got - exact))) < 1e-10
+        # common zeros of (x^2+y^2-1/4) and x -> (0, +-1/2)
+        f = Diskfun.from_function(
+            lambda t, r: (r * jnp.cos(t)) ** 2 + (r * jnp.sin(t)) ** 2 - 0.25)
+        gx = Diskfun.from_function(lambda t, r: r * jnp.cos(t))
+        pts = np.array(sorted(f.roots(gx).tolist(), key=lambda p: p[1]))
+        assert np.max(np.abs(pts - np.array([[0, -0.5], [0, 0.5]]))) < 1e-8

@@ -616,6 +616,27 @@ class Chebfun2v(eqx.Module):
         # (-eps)**0.5 silently returns a COMPLEX number — clamp at zero.
         return float(max(total, 0.0) ** 0.5)
 
+    def roots(self):
+        """Common zeros of the first two components (MATLAB
+        ``chebfun2v/roots``).
+
+        Returns an ``(m, 2)`` array whose rows are the ``[x, y]`` points
+        where both ``F(1)`` and ``F(2)`` vanish, found by the
+        marching-squares path (seed from the sign changes of the second
+        component along the zero curves of the first, then 2D Newton with
+        the exact Jacobian).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/roots.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        from chebfunjax.chebfun2d.zerocurves import common_zeros
+        f = Chebfun2(approx=self.components[0])
+        g = Chebfun2(approx=self.components[1])
+        return common_zeros(f, g)
+
     # ------------------------------------------------------------------
     # Plotting
     # ------------------------------------------------------------------

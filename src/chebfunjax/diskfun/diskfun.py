@@ -1400,6 +1400,48 @@ class Diskfun(eqx.Module):
         """Global minimum of the Diskfun over the disk (MATLAB min2)."""
         return float(self.minandmax2()[0][0])
 
+    def roots(self, g=None):
+        """Zero contours of the Diskfun, or common zeros with another
+        Diskfun ``g`` (MATLAB ``@diskfun/roots``).
+
+        The Diskfun is viewed as a Chebfun2 in polar coordinates
+        ``(theta, r)`` on ``[-pi, pi] x [0, 1]``; its zero curves are traced
+        there (see :func:`chebfunjax.chebfun2d.zerocurves.zero_curves`) and
+        mapped back into the unit disk as complex-valued Chebfuns
+        ``z(t) = r(t) * exp(1i*theta(t))``.  With a second Diskfun ``g`` the
+        isolated common zeros are returned as an ``(m, 2)`` array of
+        ``[x, y]`` points.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/roots.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        from chebfunjax.chebfun1d.chebfun import Chebfun, Domain
+        from chebfunjax.chebfun2d import chebfun2
+        from chebfunjax.chebfun2d.zerocurves import common_zeros, zero_curves
+        dom = (-_np.pi, _np.pi, 0.0, 1.0)
+        fp = chebfun2(lambda t, r: self(t, r), domain=dom)
+        if g is not None:
+            gp = chebfun2(lambda t, r: g(t, r), domain=dom)
+            pts = common_zeros(fp, gp)
+            if pts.shape[0] == 0:
+                return _np.zeros((0, 2))
+            th, rr = pts[:, 0], pts[:, 1]
+            return _np.column_stack([rr * _np.cos(th), rr * _np.sin(th)])
+        curves = zero_curves(fp)
+        out = []
+        for c in curves:
+            # (theta, r) curve c(t) = theta(t) + 1i*r(t)  ->  disk point
+            # z(t) = r(t) * exp(1i*theta(t)).
+            out.append(Chebfun.from_function(
+                lambda t, _c=c: jnp.imag(_c(t))
+                * jnp.exp(1j * jnp.real(_c(t))),
+                Domain((-1.0, 1.0))))
+        return out
+
     def diffx(self) -> "Diskfun":
         r"""Cartesian partial derivative :math:`\\partial f / \\partial x`.
 

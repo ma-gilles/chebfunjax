@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="chebfun2v: 'roots09' targets a missing feature (MATLAB accessor/op not implemented in chebfunjax)")
+pytestmark = pytest.mark.skip(reason="Cross-checks ms vs resultant (resultant not implemented in chebfunjax). Correctness covered by test_roots01/02/03/06/07.")
 
 
 class TestChebfun2vRoots09:

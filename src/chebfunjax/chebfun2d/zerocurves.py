@@ -1,3 +1,4 @@
+# uses-numpy: marching-squares contour tracing and curve fitting are one-shot numpy/scipy
 """Zero-curve rootfinding for Chebfun2 (marching squares + Newton polish).
 
 Traces the zero level set of a real Chebfun2 as a set of complex-valued
@@ -32,7 +33,7 @@ import numpy as np
 
 from chebfunjax.chebfun1d.chebfun import Chebfun, Domain
 
-__all__ = ["zero_curves"]
+__all__ = ["zero_curves", "common_zeros"]
 
 
 def _chebpts(n: int) -> np.ndarray:
@@ -268,6 +269,14 @@ def _fit_curve(f, fx, fy, pts, scl, vscale, dom, snap_tol):
         if s[-1] == 0:
             return curve
         s = 2.0 * s / s[-1] - 1.0
+        # Coincident samples (e.g. after boundary snapping) create duplicate
+        # arclength values, which the spline interpolant rejects -- drop them.
+        keep = np.concatenate([[True], np.diff(s) > 0])
+        if keep.sum() < 4:
+            return curve
+        s = s[keep]
+        data = data[keep]
+        npts = min(npts, s.shape[0])
         cp = _chebpts(npts)
         # Interpolate real/imag separately (cubic when possible).
         kind = "cubic" if npts >= 4 else "linear"
@@ -356,3 +365,96 @@ def zero_curves(f):
         if c is not None:
             curves.append(c)
     return curves
+
+
+def common_zeros(f, g, n_sample: int = 400):
+    """Isolated common zeros of two Chebfun2s ``f`` and ``g`` (MATLAB
+    ``roots(f, g)`` / ``chebfun2v/roots``, marching-squares path).
+
+    Seeds from the sign changes of ``g`` along each zero curve of ``f``
+    (traced by :func:`zero_curves`), then a 2D Newton iteration with the
+    exact Jacobian converges each seed to a common zero.  Returns an
+    ``(m, 2)`` array of ``[x, y]`` solution points.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun2v/roots.m (roots_marchingSquares)
+    Chebfun commit: 7574c77
+    """
+    xa, xb, ya, yb = (float(v) for v in f.domain)
+    scl = max(xb - xa, yb - ya)
+
+    fx, fy = f.diff(dim=2), f.diff(dim=1)
+    gx, gy = g.diff(dim=2), g.diff(dim=1)
+
+    def _seed_from_polylines(h_curves_of, h_other):
+        """Seed points from sign changes (and near-zero touches) of
+        ``h_other`` along the raw marching-squares polylines of the zero set
+        of ``h_curves_of``.  The coarse polyline points already lie on the
+        first zero set to grid accuracy, which is all Newton needs."""
+        out = []
+        n = min(_grid_size(h_curves_of), 513) | 1
+        for pts in _marching_squares(h_curves_of, n):
+            px, py = pts[:, 0], pts[:, 1]
+            hv = np.asarray(
+                h_other(jnp.asarray(px), jnp.asarray(py)),
+                dtype=np.float64)
+            sign = np.sign(hv)
+            for i in np.where(sign[:-1] * sign[1:] < 0)[0]:
+                w = hv[i] / (hv[i] - hv[i + 1])
+                out.append((px[i] + w * (px[i + 1] - px[i]),
+                            py[i] + w * (py[i + 1] - py[i])))
+            scale = np.max(np.abs(hv)) + 1.0
+            for i in np.where(np.abs(hv) < 3e-3 * scale)[0]:
+                out.append((px[i], py[i]))
+        return out
+
+    # Symmetric seeding from coarse polylines: g's sign changes along f's
+    # zero set AND f's along g's.  A near-tangential contact missed from one
+    # side is usually caught from the other.
+    seeds = _seed_from_polylines(f, g) + _seed_from_polylines(g, f)
+    if not seeds:
+        return np.zeros((0, 2))
+
+    # Batched 2D Newton over all seeds at once (one JAX call per operator
+    # per iteration, rather than per seed -- orders of magnitude faster).
+    P = np.array(seeds, dtype=np.float64)
+    m = 1e-6 * scl
+    for _ in range(40):
+        x = jnp.asarray(P[:, 0])
+        y = jnp.asarray(P[:, 1])
+        F1 = np.asarray(f(x, y), dtype=np.float64)
+        F2 = np.asarray(g(x, y), dtype=np.float64)
+        J11 = np.asarray(fx(x, y), dtype=np.float64)
+        J12 = np.asarray(fy(x, y), dtype=np.float64)
+        J21 = np.asarray(gx(x, y), dtype=np.float64)
+        J22 = np.asarray(gy(x, y), dtype=np.float64)
+        det = J11 * J22 - J12 * J21
+        with np.errstate(divide="ignore", invalid="ignore"):
+            sx = (J22 * F1 - J12 * F2) / det
+            sy = (-J21 * F1 + J11 * F2) / det
+        sx = np.where(np.abs(det) > 0, sx, 0.0)
+        sy = np.where(np.abs(det) > 0, sy, 0.0)
+        P = P - np.column_stack([sx, sy])
+        # Keep iterates from wandering far outside the domain.
+        P[:, 0] = np.clip(P[:, 0], xa - m, xb + m)
+        P[:, 1] = np.clip(P[:, 1], ya - m, yb + m)
+
+    # Keep converged, in-domain, genuine common zeros.
+    x = jnp.asarray(P[:, 0])
+    y = jnp.asarray(P[:, 1])
+    rf = np.abs(np.asarray(f(x, y), dtype=np.float64))
+    rg = np.abs(np.asarray(g(x, y), dtype=np.float64))
+    good = ((np.maximum(rf, rg) < 1e-8 * scl ** 2)
+            & (P[:, 0] >= xa - 1e-10) & (P[:, 0] <= xb + 1e-10)
+            & (P[:, 1] >= ya - 1e-10) & (P[:, 1] <= yb + 1e-10))
+    roots = P[good]
+    if roots.shape[0] == 0:
+        return np.zeros((0, 2))
+    # Deduplicate points closer than a tolerance.
+    keep = []
+    for p in roots:
+        if all(np.hypot(p[0] - q[0], p[1] - q[1]) > 1e-6 * scl
+               for q in keep):
+            keep.append(p)
+    return np.array(keep)

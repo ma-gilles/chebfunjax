@@ -452,3 +452,13 @@ class TestSpherefunAbsIszeroOpt:
         npt.assert_allclose(float(Y[1]), 1.0, atol=1e-10)
         npt.assert_allclose(float(g.max2()[0]), 1.0, atol=1e-10)
         npt.assert_allclose(float(g.min2()[0]), -1.0, atol=1e-10)
+
+    def test_roots(self):
+        # z = 0 contour is the equator (z-coordinate ~ 0).
+        f = Spherefun.from_function(lambda lam, th: self._xyz(lam, th)[2])
+        r = f.roots()
+        assert len(r) > 0
+        assert float(np.max(np.abs(r[0][:, 2]))) < 1e-8
+        # 2 + z > 0 -> no contour.
+        f2 = Spherefun.from_function(lambda lam, th: 2 + self._xyz(lam, th)[2])
+        assert len(f2.roots()) == 0

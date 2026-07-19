@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="chebfun2v: 'roots10' targets a missing feature (MATLAB accessor/op not implemented in chebfunjax)")
+pytestmark = pytest.mark.skip(reason="Degenerate common-zero set (a whole line x=1 of solutions); the marching-squares + Newton finder targets isolated zeros. Isolated-zero correctness covered by test_roots01/02/03/06/07.")
 
 
 class TestChebfun2vRoots10:

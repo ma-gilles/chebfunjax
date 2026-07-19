@@ -538,8 +538,13 @@ class Chebfun2(eqx.Module):
     # Root finding
     # ------------------------------------------------------------------
 
-    def roots(self):
-        """Zero curves of f as a list of complex-valued Chebfun contours.
+    def roots(self, g=None):
+        """Zero curves of f, or common zeros of f and g.
+
+        With no argument returns the zero curves of ``f`` as complex-valued
+        Chebfun contours.  With a second Chebfun2 ``g`` (MATLAB
+        ``roots(f, g)``) returns the isolated common zeros as an ``(m, 2)``
+        array of ``[x, y]`` points.
 
         Returns the zero level set of ``f`` as parametrized curves
         ``c(t) = x(t) + 1i*y(t)`` for ``t in [-1, 1]`` (MATLAB
@@ -573,7 +578,13 @@ class Chebfun2(eqx.Module):
         --------
         diff, sum
         """
-        from chebfunjax.chebfun2d.zerocurves import zero_curves
+        from chebfunjax.chebfun2d.zerocurves import (
+            common_zeros,
+            zero_curves,
+        )
+        if g is not None:
+            other = g.approx if isinstance(g, Chebfun2) else g
+            return common_zeros(self, Chebfun2(approx=other))
         return zero_curves(self)
 
     # ------------------------------------------------------------------
