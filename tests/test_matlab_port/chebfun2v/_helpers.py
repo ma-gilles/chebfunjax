@@ -1,10 +1,10 @@
 """Shared helpers for the chebfun2v roots MATLAB-suite ports (Fable 5).
 
-chebfunjax provides the marching-squares common-zero finder only (the
-Bezout-resultant path is not implemented), so the MATLAB assertions that
-merely cross-check the 'ms' and 'resultant' methods are ported as direct
-residual / count / known-root checks on the single method -- a faithful
-and in fact stricter correctness test.
+chebfunjax provides both common-zero finders: the marching-squares path
+(``method='ms'``) and the hidden-variable Bezout resultant path
+(``method='resultant'``).  The MATLAB assertions that cross-check the two
+methods are ported directly as ``match_points(r_ms, r_resultant, TOL)``.
+Tests that check only one method use residual / count / known-root checks.
 """
 
 from __future__ import annotations

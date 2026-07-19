@@ -338,3 +338,73 @@ class TestChebfun2vRoots:
         y = jnp.asarray(r[:, 1])
         npt.assert_allclose(np.asarray(f(x, y)), 0.0, atol=1e-10)
         npt.assert_allclose(np.asarray(g(x, y)), 0.0, atol=1e-10)
+
+
+class TestChebfun2vRootsResultant:
+    """Core mirror for the Fable 5 Bezout-resultant common-zero finder
+    (Chebfun2.roots(f, g, method='resultant') / Chebfun2v.roots).
+
+    The resultant backend must agree with the marching-squares backend to
+    Newton accuracy on the same isolated common zeros."""
+
+    def _sorted_cols(self, r):
+        r = np.asarray(r)
+        return np.sort(r[:, 0]), np.sort(r[:, 1])
+
+    def test_resultant_matches_ms_linear(self):
+        from chebfunjax.chebfun2d import chebfun2
+        f = chebfun2(lambda x, y: x - y + 0.5)
+        g = chebfun2(lambda x, y: x + y)
+        r = f.roots(g, method="resultant")
+        assert r.shape == (1, 2)
+        npt.assert_allclose(r[0], [-0.25, 0.25], atol=1e-12)
+
+    def test_resultant_matches_ms_circle_hyperbola(self):
+        from chebfunjax.chebfun2d import chebfun2
+        f = chebfun2(lambda x, y: x ** 2 + y ** 2 - 0.9 ** 2)
+        g = chebfun2(lambda x, y: jnp.sin(x * y))
+        r_ms = f.roots(g, method="ms")
+        r_re = f.roots(g, method="resultant")
+        assert r_ms.shape[0] == r_re.shape[0]
+        xm, ym = self._sorted_cols(r_ms)
+        xr, yr = self._sorted_cols(r_re)
+        npt.assert_allclose(xr, xm, atol=1e-12)
+        npt.assert_allclose(yr, ym, atol=1e-12)
+        # both are genuine common zeros
+        x = jnp.asarray(r_re[:, 0])
+        y = jnp.asarray(r_re[:, 1])
+        npt.assert_allclose(np.asarray(f(x, y)), 0.0, atol=1e-10)
+        npt.assert_allclose(np.asarray(g(x, y)), 0.0, atol=1e-10)
+
+    def test_resultant_trig_grid(self):
+        from chebfunjax.chebfun2d import chebfun2
+        f = chebfun2(lambda x, y: jnp.sin(3 * (x + y)))
+        g = chebfun2(lambda x, y: jnp.sin(3 * (x - y)))
+        r_ms = f.roots(g, method="ms")
+        r_re = f.roots(g, method="resultant")
+        assert r_ms.shape[0] == r_re.shape[0] > 0
+        xm, ym = self._sorted_cols(r_ms)
+        xr, yr = self._sorted_cols(r_re)
+        npt.assert_allclose(xr, xm, atol=1e-12)
+        npt.assert_allclose(yr, ym, atol=1e-12)
+
+    def test_resultant_via_chebfun2v(self):
+        from chebfunjax.chebfun2d import chebfun2
+        from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
+        f = chebfun2(lambda x, y: x ** 2 + y ** 2 - 0.49 ** 2)
+        g = chebfun2(lambda x, y: (x - 0.1) * (x * y - 0.2))
+        F = Chebfun2v([f.approx, g.approx])
+        r_ms = F.roots(method="ms")
+        r_re = F.roots(method="resultant")
+        assert r_ms.shape[0] == r_re.shape[0]
+        xm, ym = self._sorted_cols(r_ms)
+        xr, yr = self._sorted_cols(r_re)
+        npt.assert_allclose(xr, xm, atol=1e-12)
+        npt.assert_allclose(yr, ym, atol=1e-12)
+
+    def test_resultant_bad_method_raises(self):
+        from chebfunjax.chebfun2d import chebfun2
+        f = chebfun2(lambda x, y: x + y)
+        g = chebfun2(lambda x, y: x - y)
+        with pytest.raises(ValueError):
+            f.roots(g, method="nonsense")

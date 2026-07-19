@@ -1,8 +1,11 @@
 """Port of MATLAB Chebfun tests/chebfun2v/test_roots07.m (Fable 5).
 
-FIXED (Fable 5): Chebfun2v common zeros (residual).  The a=1e-9 rescaled
-case from the MATLAB file is omitted -- that extreme scaling is a stress
-test for the resultant path, which chebfunjax does not implement.
+FIXED (Fable 5): Chebfun2v common zeros verified by residual of the found
+zeros.  Both the marching-squares and Bezout-resultant backends exist; this
+port keeps the (stricter) residual check on the default backend.  The
+a=1e-9 rescaled case from the MATLAB file is omitted -- that domain is
+1e-9*[-1,1], and the in-domain residual filter (relative to the domain
+scale) is not tuned for such extreme rescaling.
 
 Provenance
 ----------

@@ -768,13 +768,20 @@ class Chebfun2(eqx.Module):
     # Root finding
     # ------------------------------------------------------------------
 
-    def roots(self, g=None):
+    def roots(self, g=None, method="ms"):
         """Zero curves of f, or common zeros of f and g.
 
         With no argument returns the zero curves of ``f`` as complex-valued
         Chebfun contours.  With a second Chebfun2 ``g`` (MATLAB
         ``roots(f, g)``) returns the isolated common zeros as an ``(m, 2)``
         array of ``[x, y]`` points.
+
+        ``method`` selects the common-zero engine (MATLAB ``roots(f, g,
+        method)``): ``'ms'`` / ``'marchingsquares'`` (the default) traces the
+        zero curves and polishes with 2D Newton, while ``'resultant'`` uses the
+        hidden-variable Bezout resultant of
+        :func:`chebfunjax.chebfun2d.resultant.resultant_common_zeros`.  Both
+        return the same isolated common zeros to Newton accuracy.
 
         Returns the zero level set of ``f`` as parametrized curves
         ``c(t) = x(t) + 1i*y(t)`` for ``t in [-1, 1]`` (MATLAB
@@ -814,7 +821,18 @@ class Chebfun2(eqx.Module):
         )
         if g is not None:
             other = g.approx if isinstance(g, Chebfun2) else g
-            return common_zeros(self, Chebfun2(approx=other))
+            other = Chebfun2(approx=other)
+            m = method.lower()
+            if m in ("ms", "marchingsquares"):
+                return common_zeros(self, other)
+            if m == "resultant":
+                from chebfunjax.chebfun2d.resultant import (
+                    resultant_common_zeros,
+                )
+                return resultant_common_zeros(self, other)
+            raise ValueError(
+                f"Chebfun2.roots: unknown method {method!r} "
+                "(expected 'ms', 'marchingsquares', or 'resultant').")
         return zero_curves(self)
 
     # ------------------------------------------------------------------

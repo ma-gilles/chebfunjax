@@ -1,8 +1,9 @@
 """Port of MATLAB Chebfun tests/chebfun2v/test_roots02.m (Fable 5).
 
-FIXED (Fable 5): Chebfun2v common zeros.  MATLAB cross-checks the 'ms' and
-'resultant' methods; chebfunjax has only the marching-squares method, so
-each case is verified by the residual of the found common zeros.
+FIXED (Fable 5): the marching-squares and Bezout-resultant common-zero
+finders are both implemented, so the MATLAB cross-check is ported directly
+(``roots(F, 'ms')`` and ``roots(F, 'resultant')`` must agree), with an
+additional residual check on the found common zeros.
 
 Provenance
 ----------
@@ -17,7 +18,7 @@ import numpy as np
 
 from chebfunjax.chebfun2d import chebfun2
 
-from ._helpers import TOL, residuals
+from ._helpers import TOL, match_points, residuals
 
 
 class TestChebfun2vRoots02:
@@ -31,7 +32,9 @@ class TestChebfun2vRoots02:
         for ff, gg in cases:
             f = chebfun2(ff)
             g = chebfun2(gg)
-            r = f.roots(g)
-            assert len(r) > 0
-            rf, rg = residuals(f, g, r)
+            r1 = f.roots(g, method="ms")
+            r2 = f.roots(g, method="resultant")
+            assert len(r1) > 0
+            assert match_points(r1, r2, TOL)
+            rf, rg = residuals(f, g, r2)
             assert rf < 1e3 * TOL and rg < 1e3 * TOL
