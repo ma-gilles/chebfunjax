@@ -270,3 +270,40 @@ class TestLinopRepr:
         bcs = [eval_at(-1.0, domain=domain)]
         with pytest.raises(ValueError, match="bc_values"):
             Linop(L_op, bcs=bcs, domain=domain, bc_values=[0.0, 1.0])
+
+
+class TestBlockApplyAndVertcat:
+    """Core mirror for the Fable 5 additions: function-space application of
+    operator blocks (D*g, diag(f)*g, I*g) and ChebMatrix vertcat/horzcat."""
+
+    def test_diag_apply(self):
+        from chebfunjax.chebfun1d.chebfun import Chebfun, Domain
+        from chebfunjax.operators.blocks import diag
+        f = Chebfun.from_function(lambda t: jnp.sin(t), Domain((-1.0, 6.0)))
+        g = Chebfun.from_function(lambda t: jnp.cos(4 * t),
+                                  Domain((-1.0, 6.0)))
+        assert float((diag(f) * g - f * g).norm()) < 1e-14
+        assert float((f.diag() * g - f * g).norm()) < 1e-14
+
+    def test_d_and_i_apply(self):
+        from chebfunjax.chebfun1d.chebfun import Chebfun, Domain
+        g = Chebfun.from_function(lambda t: jnp.cos(4 * t),
+                                  Domain((-1.0, 1.0)))
+        assert float((D((-1.0, 1.0)) * g - g.diff()).norm()) < 1e-10
+        assert float((I((-1.0, 1.0)) * g - g).norm()) < 1e-14
+        # (2*I + D) composite still carries a function-space action.
+        comp = 2 * I((-1.0, 1.0)) + D((-1.0, 1.0))
+        assert float((comp * g - (2 * g + g.diff())).norm()) < 1e-10
+
+    def test_chebmatrix_vertcat(self):
+        from chebfunjax.chebfun1d.chebfun import Chebfun, Domain
+        from chebfunjax.operators.chebmatrix import ChebMatrix
+        x = Chebfun.from_function(lambda t: t, Domain((-1.0, 1.0)))
+        m = ChebMatrix.vertcat(x, 1)
+        assert m.size == (2, 1)
+        assert isinstance(m.blocks[1][0], (int, float))
+        m = ChebMatrix.vertcat(ChebMatrix.horzcat(x, 1),
+                               ChebMatrix.horzcat(x, x))
+        assert m.size == (2, 2)
+        assert isinstance(m.blocks[0][1], (int, float))
+        assert isinstance(m.blocks[1][1], Chebfun)

@@ -172,6 +172,52 @@ class ChebMatrix:
                         "chebfuns, or blocks (nonscalarcell)")
         return cls([list(r) for r in rows], domain=domain)
 
+    @staticmethod
+    def _as_rows(item) -> list[list]:
+        """Normalize a vertcat item into a list of block-rows."""
+        import numpy as _np
+        if isinstance(item, ChebMatrix):
+            return [list(r) for r in item.blocks]
+        if isinstance(item, _np.ndarray):
+            a = _np.atleast_2d(item)
+            if a.shape[0] == 1 and a.shape[1] > 1:
+                a = a.T  # a bare 1-D array is a column for vertcat
+            return [[float(a[i, j]) for j in range(a.shape[1])]
+                    for i in range(a.shape[0])]
+        if isinstance(item, (list, tuple)):
+            return [list(item)]          # an explicit row
+        return [[item]]                  # a scalar or Chebfun -> 1x1 row
+
+    @classmethod
+    def vertcat(cls, *items, domain=None) -> "ChebMatrix":
+        """Vertical block concatenation ``[a; b; ...]`` (MATLAB vertcat).
+
+        Each item may be a Chebfun, a scalar, a numeric column vector, a row
+        (list of blocks), or another ChebMatrix; the resulting rows are
+        stacked.  Returns a ChebMatrix.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/vertcat.m, @chebmatrix/vertcat.m
+        Chebfun commit: 7574c77
+        """
+        rows: list[list] = []
+        for it in items:
+            rows.extend(cls._as_rows(it))
+        return cls(rows, domain=domain)
+
+    @classmethod
+    def horzcat(cls, *items, domain=None) -> "ChebMatrix":
+        """Horizontal block concatenation ``[a b ...]`` -- one block-row
+        (MATLAB horzcat).
+
+        Provenance
+        ----------
+        MATLAB source : @chebmatrix/horzcat.m
+        Chebfun commit: 7574c77
+        """
+        return cls([list(items)], domain=domain)
+
     @property
     def size(self) -> tuple[int, int]:
         """(nrows, ncols) -- MATLAB size(A)."""

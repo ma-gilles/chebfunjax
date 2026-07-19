@@ -2606,6 +2606,18 @@ class Chebfun(eqx.Module):
             cols = [self] + list(other_cols)
         return chebfun_svd(cols)
 
+    def diag(self):
+        """Multiplication-by-self operator ``D`` with ``D*g == self.*g``
+        (MATLAB ``diag(f)``): returns an ``OperatorBlock``.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/diag.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.operators.blocks import diag as _diag
+        return _diag(self)
+
     # ------------------------------------------------------------------
     # V08 — Quasimatrix ops: horzcat, vertcat, size, __getitem__
     # ------------------------------------------------------------------
@@ -4673,16 +4685,35 @@ def getValuesAtBreakpoints(f: "Chebfun", op=None) -> jax.Array:
     return jnp.asarray(op(xb), dtype=xb.dtype)
 
 
-def kron(f: Chebfun, g: Chebfun):
-    """Outer (Kronecker) product of two chebfuns as a rank-1 Chebfun2:
-    ``kron(f, g)(x, y) = f(x) * g(y)`` -- MATLAB ``kron(f.', g)`` with
-    ``f`` a row chebfun.  Swap the arguments for the other ordering.
+def kron(f, g, mode=None):
+    """Kronecker product of two chebfuns.
+
+    ``kron(f, g)`` (default) is the rank-1 Chebfun2
+    ``kron(f, g)(x, y) = f(x) * g(y)`` -- MATLAB ``kron(f.', g)`` with ``f``
+    a row chebfun.
+
+    ``kron(f, g, 'op')`` builds the rank-1 integral OPERATOR
+    ``A = f (g' .)``: ``A*h = f * <g, h>`` (see
+    :class:`chebfunjax.operators.blocks.KronOp`).  ``f`` and ``g`` may be
+    array-valued (given as a list of column chebfuns), in which case the
+    operator is a sum of rank-1 terms.
 
     Provenance
     ----------
     MATLAB source : @chebfun/kron.m
     Chebfun commit: 7574c77
     """
+    if mode == "op":
+        from chebfunjax.operators.blocks import KronOp
+        fs = list(f) if isinstance(f, (list, tuple)) else [f]
+        gs = list(g) if isinstance(g, (list, tuple)) else [g]
+        dom = (float(fs[0].domain.a), float(fs[0].domain.b))
+        return KronOp(fs, gs, dom)
+    if mode is not None and mode != "op":
+        raise ValueError(
+            "CHEBFUN:CHEBFUN:kron:sizes -- unknown kron mode "
+            f"{mode!r} (expected 'op').")
+
     from chebfunjax.chebfun2d.chebfun2 import Chebfun2
     fa, fb = float(f.domain.a), float(f.domain.b)
     ga, gb = float(g.domain.a), float(g.domain.b)

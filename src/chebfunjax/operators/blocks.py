@@ -121,10 +121,27 @@ class OperatorBlock:
         op_fn: Callable[[ChebColloc2Disc], Array],
         order: int = 0,
         domain: _DomainT = _DEFAULT_DOMAIN,
+        apply_fn: Callable | None = None,
     ) -> None:
         self._op_fn = op_fn
         self.order = order
         self.domain = domain
+        # Optional function-space action u |-> (A u), used when the block is
+        # applied to a Chebfun (D*g) rather than composed/realized as a
+        # matrix.  ``None`` for composite blocks that only carry a matrix.
+        self._apply_fn = apply_fn
+
+    def apply(self, u):
+        """Apply the operator to a function ``u`` (returns a function).
+
+        Only defined for atomic blocks that carry a function-space action
+        (multiplication ``diag(f)``, derivative ``D``, identity ``I``, and
+        their scalar multiples / sums / compositions)."""
+        if self._apply_fn is None:
+            raise TypeError(
+                "This OperatorBlock has no function-space action; it can "
+                "only be realized as a matrix via .matrix(n).")
+        return self._apply_fn(u)
 
     # ------------------------------------------------------------------
     # Core method
@@ -160,11 +177,15 @@ class OperatorBlock:
         _check_domains(self, other)
         new_order = max(self.order, other.order)
         domain = self.domain
+        af, bf = self._apply_fn, other._apply_fn
 
         def _fn(disc: ChebColloc2Disc) -> Array:
             return self.matrix(disc) + other.matrix(disc)
 
-        return OperatorBlock(_fn, order=new_order, domain=domain)
+        return OperatorBlock(
+            _fn, order=new_order, domain=domain,
+            apply_fn=(None if (af is None or bf is None)
+                      else (lambda u: af(u) + bf(u))))
 
     def __radd__(self, other: "OperatorBlock") -> "OperatorBlock":
         return self.__add__(other)
@@ -176,11 +197,15 @@ class OperatorBlock:
         _check_domains(self, other)
         new_order = max(self.order, other.order)
         domain = self.domain
+        af, bf = self._apply_fn, other._apply_fn
 
         def _fn(disc: ChebColloc2Disc) -> Array:
             return self.matrix(disc) - other.matrix(disc)
 
-        return OperatorBlock(_fn, order=new_order, domain=domain)
+        return OperatorBlock(
+            _fn, order=new_order, domain=domain,
+            apply_fn=(None if (af is None or bf is None)
+                      else (lambda u: af(u) - bf(u))))
 
     def __rsub__(self, other):
         if isinstance(other, (int, float)):
@@ -188,29 +213,42 @@ class OperatorBlock:
         return other.__sub__(self)
 
     def __mul__(self, other) -> "OperatorBlock":
-        """Operator composition or scalar multiplication.
+        """Operator composition, scalar scaling, or application to a function.
 
         - ``A * B`` composes operators (matrix product in discretization).
         - ``A * c`` scales the operator by scalar ``c``.
+        - ``A * u`` (u a Chebfun) applies the operator, returning a Chebfun.
         """
         if isinstance(other, (int, float)):
             c = float(other)
             domain = self.domain
+            af = self._apply_fn
 
             def _fn(disc: ChebColloc2Disc) -> Array:
                 return c * self.matrix(disc)
 
-            return OperatorBlock(_fn, order=self.order, domain=domain)
+            return OperatorBlock(
+                _fn, order=self.order, domain=domain,
+                apply_fn=(None if af is None else (lambda u: c * af(u))))
 
         if isinstance(other, OperatorBlock):
             _check_domains(self, other)
             new_order = self.order + other.order
             domain = self.domain
+            af, bf = self._apply_fn, other._apply_fn
 
             def _fn(disc: ChebColloc2Disc) -> Array:
                 return self.matrix(disc) @ other.matrix(disc)
 
-            return OperatorBlock(_fn, order=new_order, domain=domain)
+            return OperatorBlock(
+                _fn, order=new_order, domain=domain,
+                apply_fn=(None if (af is None or bf is None)
+                          else (lambda u: af(bf(u)))))
+
+        # Application to a function (Chebfun): A * u -> A(u).
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        if isinstance(other, Chebfun):
+            return self.apply(other)
 
         return NotImplemented
 
@@ -222,11 +260,14 @@ class OperatorBlock:
     def __neg__(self) -> "OperatorBlock":
         """Unary minus."""
         domain = self.domain
+        af = self._apply_fn
 
         def _fn(disc: ChebColloc2Disc) -> Array:
             return -self.matrix(disc)
 
-        return OperatorBlock(_fn, order=self.order, domain=domain)
+        return OperatorBlock(
+            _fn, order=self.order, domain=domain,
+            apply_fn=(None if af is None else (lambda u: -af(u))))
 
     def __pow__(self, k: int) -> "OperatorBlock":
         """Repeated composition: ``A^k = A * A * ... * A`` (k times)."""
@@ -458,7 +499,8 @@ def D(domain: _DomainT = _DEFAULT_DOMAIN, order: int = 1) -> OperatorBlock:
     def _op_fn(disc: ChebColloc2Disc) -> Array:
         return diffmat(disc.n, order, domain=disc.domain)
 
-    return OperatorBlock(_op_fn, order=order, domain=domain)
+    return OperatorBlock(_op_fn, order=order, domain=domain,
+                         apply_fn=lambda u: u.diff(order))
 
 
 def I(domain: _DomainT = _DEFAULT_DOMAIN) -> OperatorBlock:  # noqa: E743
@@ -497,7 +539,8 @@ def I(domain: _DomainT = _DEFAULT_DOMAIN) -> OperatorBlock:  # noqa: E743
     def _op_fn(disc: ChebColloc2Disc) -> Array:
         return jnp.eye(disc.n, dtype=jnp.float64)
 
-    return OperatorBlock(_op_fn, order=0, domain=domain)
+    return OperatorBlock(_op_fn, order=0, domain=domain,
+                         apply_fn=lambda u: u)
 
 
 def diag(f, domain: _DomainT | None = None) -> OperatorBlock:
@@ -562,7 +605,10 @@ def diag(f, domain: _DomainT | None = None) -> OperatorBlock:
         fvals = jnp.asarray(f(x_phys), dtype=jnp.float64)
         return jnp.diag(fvals)
 
-    return OperatorBlock(_op_fn, order=0, domain=dom)
+    # Function-space action u |-> f*u, available when f is itself a Chebfun.
+    from chebfunjax.chebfun1d.chebfun import Chebfun
+    apply_fn = (lambda u: f * u) if isinstance(f, Chebfun) else None
+    return OperatorBlock(_op_fn, order=0, domain=dom, apply_fn=apply_fn)
 
 
 def eval_at(x: float, domain: _DomainT = _DEFAULT_DOMAIN) -> FunctionalBlock:
@@ -700,3 +746,90 @@ def sum_functional(domain: _DomainT = _DEFAULT_DOMAIN) -> FunctionalBlock:
         return chebweights(disc.n) * 0.5 * (disc.domain[1] - disc.domain[0])
 
     return FunctionalBlock(_fn, domain=dom)
+
+
+# ===========================================================================
+# KronOp — rank-1 (or low-rank) integral operator kron(f, g', 'op')
+# ===========================================================================
+
+
+class KronOp:
+    """Rank-k integral operator ``A = sum_j f_j (g_j' .)`` (MATLAB
+    ``kron(f, g', 'op')``).
+
+    Applied to a function ``h`` it returns
+    ``A h = sum_j f_j * <g_j, h>`` where ``<g_j, h> = int g_j(x) h(x) dx``.
+    In a collocation discretization at ``n`` points ``x_i`` with quadrature
+    weights ``w_i`` it is the rank-k matrix
+    ``M = sum_j outer(f_j(x_i), w * g_j(x))``.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/kron.m (the 'op' branch)
+    Chebfun commit: 7574c77
+    """
+
+    def __init__(self, fs, gs, domain) -> None:
+        self.fs = list(fs)
+        self.gs = list(gs)
+        if len(self.fs) != len(self.gs):
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:kron:sizes -- f and g must have the same "
+                "number of columns.")
+        self.domain = domain
+
+    def apply(self, h):
+        """A h = sum_j f_j * <g_j, h>."""
+        result = None
+        for fj, gj in zip(self.fs, self.gs):
+            ip = float((gj * h).sum())
+            term = fj * ip
+            result = term if result is None else result + term
+        return result
+
+    def __mul__(self, other):
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        if isinstance(other, Chebfun):
+            return self.apply(other)
+        return NotImplemented
+
+    def matrix(self, n: int, kind: str = "chebcolloc2") -> Array:
+        """Rank-k collocation matrix at ``n`` points (``kind`` is one of
+        ``'chebcolloc1'``, ``'chebcolloc2'``, ``'trigcolloc'``)."""
+        import numpy as _np
+        import numpy as _np2
+
+        from chebfunjax.utils.quadrature import (
+            chebpts_ab,
+            chebweights,
+            trigpts,
+        )
+        a, b = float(self.domain[0]), float(self.domain[1])
+        if kind == "chebcolloc1":
+            pts = chebpts_ab(n, a, b, kind=1)
+            # Fejer's first-rule weights for the kind-1 points (integrate
+            # f dx on [-1,1], then scaled to [a,b]).
+            kk = _np2.arange(n)
+            theta = (2 * kk + 1) * _np2.pi / (2 * n)
+            xk = _np2.cos(theta)
+            mm = _np2.arange(1, n // 2 + 1)
+            wref = (2.0 / n) * (1.0 - 2.0 * (
+                _np2.cos(2.0 * _np2.outer(theta, mm))
+                / (4.0 * mm ** 2 - 1.0)).sum(axis=1))
+            wref = wref[_np2.argsort(xk)]  # ascending, matches chebpts_ab
+            w = jnp.asarray(wref) * (0.5 * (b - a))
+        elif kind == "chebcolloc2":
+            pts = chebpts_ab(n, a, b, kind=2)
+            w = chebweights(n, kind=2) * (0.5 * (b - a))
+        elif kind == "trigcolloc":
+            pts, w = trigpts(n, (a, b))
+        else:
+            raise ValueError(f"Unknown discretization kind {kind!r}.")
+        pts = jnp.asarray(pts)
+        w = _np.asarray(w, dtype=_np.float64)
+        M = _np.zeros((n, n), dtype=_np.float64)
+        for fj, gj in zip(self.fs, self.gs):
+            fv = _np.asarray(fj(pts), dtype=_np.float64)
+            gv = _np.asarray(gj(pts), dtype=_np.float64)
+            M = M + _np.outer(fv, w * gv)
+        return M
