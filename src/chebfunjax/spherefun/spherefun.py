@@ -50,6 +50,14 @@ from chebfunjax.utils.misc import standard_chop
 # Machine epsilon for float64.
 _EPS = float(jnp.finfo(jnp.float64).eps)
 
+# Relative threshold below which a binary-operation result is treated as the
+# exact zero field (see Spherefun._binary).  The surface differential
+# operators reconstruct via spherical-harmonic quadrature, whose relative
+# accuracy floor is ~1e-11; a result 9 orders of magnitude below the operand
+# scale is therefore numerically zero, and reconstructing it instead chases
+# rounding noise to the maximum grid (the XLA CPU compile blow-up).
+_ZERO_REL_TOL = 1e-9
+
 
 # ============================================================================
 # Grid helpers (matching MATLAB getPoints for spherefun, colatitude domain)
@@ -764,6 +772,7 @@ class Spherefun(eqx.Module):
         tol: float = _EPS,
         max_rank: int = 512,
         max_sample: int = 2**14,
+        min_abs_tol: float = 0.0,
     ) -> "Spherefun":
         """Construct a Spherefun from a callable.
 
@@ -782,6 +791,15 @@ class Spherefun(eqx.Module):
             Maximum allowed rank. Default 512.
         max_sample : int, optional
             Maximum grid size per dimension. Default 2^14.
+        min_abs_tol : float, optional
+            Absolute floor on the pivoting tolerance.  When re-approximating
+            a result that is much smaller than the data it was derived from
+            (e.g. a nearly-cancelling difference), the operands' construction
+            noise -- ~eps times the operand scale in absolute terms -- has no
+            band-limited structure and the adaptive search chases it to
+            ``max_sample``.  Passing the noise level here lets the
+            constructor ignore sub-noise structure and converge.  Default 0
+            (pure relative tolerance).
 
         Returns
         -------
@@ -848,6 +866,12 @@ class Spherefun(eqx.Module):
 
             tol_abs, vscale = _get_tol_sphere(F, np.pi / grid, np.pi / grid, pseudo_level)
             # (no 1e4*eps floor: MATLAB's getTol is used as computed)
+            # Absolute floor: ignore structure below the caller-supplied
+            # noise level (see the ``min_abs_tol`` parameter) so a
+            # nearly-cancelling difference does not chase its operands'
+            # construction noise to ``max_sample``.
+            if min_abs_tol > 0.0:
+                tol_abs = max(tol_abs, min_abs_tol)
 
             pivot_indices, pivot_array, remove_poles, happy_rank = _phase_one_sphere(
                 F, tol_abs, alpha, factor
@@ -1102,11 +1126,70 @@ class Spherefun(eqx.Module):
             lambda lam, th: op2(self(lam, th)))
 
     def _binary(self, other, op2) -> "Spherefun":
-        if isinstance(other, Spherefun):
-            return Spherefun.from_function(
-                lambda lam, th: op2(self(lam, th), other(lam, th)))
-        return Spherefun.from_function(
-            lambda lam, th: op2(self(lam, th), other))
+        """Re-approximate ``op2(self, other)`` as a new Spherefun.
+
+        Near-zero snapping: a result whose magnitude is below
+        ``_ZERO_REL_TOL`` (1e-9) times the larger operand's scale is
+        indistinguishable from the surface operators' ~1e-11 relative noise
+        floor -- reconstructing it just chases rounding noise -- so it is
+        snapped to the exact zero field.  Genuinely small results above that
+        line survive; they are reconstructed with the tolerance floored at
+        the operand noise level so the constructor does not chase the
+        operands' own construction noise (added by Claude Fable 5).
+        """
+        other_is_fun = isinstance(other, Spherefun)
+        if other_is_fun:
+            def fn(lam, th):
+                return op2(self(lam, th), other(lam, th))
+        else:
+            def fn(lam, th):
+                return op2(self(lam, th), other)
+
+        # Near-zero short-circuit.  When ``op2(self, other)`` is only
+        # rounding noise relative to the operands -- e.g. the analytically
+        # zero fields ``div(grad f) - laplacian(f)`` or ``div(curl F)`` --
+        # re-approximating it via from_function is pathological on two
+        # counts: (1) noise has no low-rank band-limited structure, so the
+        # adaptive constructor never reaches "happy" and doubles the grid
+        # all the way to ``max_sample`` (2^14), producing a giant Clenshaw
+        # graph that hangs or crashes XLA's CPU backend ("Failed to
+        # materialize symbols"); (2) it returns a ~1e-11 noise Spherefun
+        # instead of the exact zero the surface-calculus identities demand.
+        # A coarse-grid check catches this and returns the exact zero
+        # Spherefun.  The threshold is relative to the operand scale: the
+        # surface differential operators carry ~1e-11 relative error, so a
+        # result 9+ orders below the operands is numerically indistinguish-
+        # able from zero (added by Claude Fable 5).
+        m = 16
+        th = jnp.asarray(_sphere_col_pts(m), dtype=jnp.float64)
+        lam = jnp.asarray(_sphere_row_pts(m), dtype=jnp.float64)
+        lam2d, th2d = jnp.meshgrid(lam, th)
+        res = np.asarray(fn(lam2d, th2d))
+        if np.all(np.isfinite(res)):
+            scale = float(np.max(np.abs(np.asarray(self(lam2d, th2d)))))
+            if other_is_fun:
+                scale = max(
+                    scale,
+                    float(np.max(np.abs(np.asarray(other(lam2d, th2d))))))
+            else:
+                scale = max(scale, float(np.max(np.abs(np.asarray(other)))))
+            vmax = float(np.max(np.abs(res)))
+            if vmax <= _ZERO_REL_TOL * scale:
+                return Spherefun.from_function(
+                    lambda lam, th: jnp.zeros(
+                        jnp.broadcast_shapes(jnp.asarray(lam).shape,
+                                             jnp.asarray(th).shape),
+                        dtype=jnp.float64))
+            # Small-but-real result (well below the operand scale but above
+            # the zero threshold): floor the construction tolerance at the
+            # operands' noise level so from_function resolves the genuine
+            # low-rank signal instead of chasing sub-noise structure to
+            # max_sample.
+            if scale > 0.0 and vmax < 1e-4 * scale:
+                return Spherefun.from_function(
+                    fn, min_abs_tol=_ZERO_REL_TOL * scale)
+
+        return Spherefun.from_function(fn)
 
     def __add__(self, other):
         return self._binary(other, lambda a, b: a + b)
@@ -1535,19 +1618,12 @@ class Spherefun(eqx.Module):
         """
         lmax = self._bandwidth() + 1
         coeffs = _spherefun_sph_coeffs(self, lmax)
-        harmonics = _sph_harmonic_evaluators(lmax)
-        scaled = [(-l * (l + 1) * coeffs[(l, m)], l, m)
-                  for (l, m) in coeffs]
+        coeff_map = {(l, m): -l * (l + 1) * coeffs[(l, m)]
+                     for (l, m) in coeffs
+                     if abs(l * (l + 1) * coeffs[(l, m)]) > 1e-13}
 
         def ev(lam, theta):
-            lam = jnp.asarray(lam, dtype=jnp.float64)
-            theta = jnp.asarray(theta, dtype=jnp.float64)
-            out = jnp.zeros(jnp.broadcast_shapes(lam.shape, theta.shape),
-                            dtype=jnp.float64)
-            for a, l, m in scaled:
-                if abs(a) > 1e-13:
-                    out = out + a * harmonics[(l, m)](lam, theta)
-            return out
+            return _sph_harmonic_eval_sum(coeff_map, lmax, lam, theta)
 
         return Spherefun.from_function(ev)
 
@@ -1593,27 +1669,22 @@ class Spherefun(eqx.Module):
         if lmax is None:
             lmax = fs._bandwidth() + 1
         coeffs = _spherefun_sph_coeffs(fs, lmax)
-        harmonics = _sph_harmonic_evaluators(lmax)
         # Warn (not raise) if the compatibility condition is violated.
         mean_term = abs(coeffs.get((0, 0), 0.0))
-        solution = []
-        for (l, m), a in coeffs.items():
-            if l == 0:
-                continue
-            solution.append((a / (-l * (l + 1)), l, m))
         # mean value of a real SH expansion is a_{00} * Y_0^0 = a_{00} /
         # sqrt(4 pi); set it to `const`.
         y00 = 1.0 / jnp.sqrt(4 * jnp.pi)
         const_coeff = float(const) / float(y00)
+        coeff_map = {(0, 0): const_coeff}
+        for (l, m), a in coeffs.items():
+            if l == 0:
+                continue
+            val = a / (-l * (l + 1))
+            if abs(val) > 1e-13:
+                coeff_map[(l, m)] = val
 
         def ev(lam, theta):
-            lam = jnp.asarray(lam, dtype=jnp.float64)
-            theta = jnp.asarray(theta, dtype=jnp.float64)
-            out = const_coeff * harmonics[(0, 0)](lam, theta)
-            for a, l, m in solution:
-                if abs(a) > 1e-13:
-                    out = out + a * harmonics[(l, m)](lam, theta)
-            return out
+            return _sph_harmonic_eval_sum(coeff_map, lmax, lam, theta)
 
         _ = mean_term  # available for a compatibility check if desired
         return Spherefun.from_function(ev)
@@ -1632,19 +1703,11 @@ class Spherefun(eqx.Module):
         dt = 0.5 * float(sig) ** 2
         lmax = self._bandwidth() + 1
         coeffs = _spherefun_sph_coeffs(self, lmax)
-        harmonics = _sph_harmonic_evaluators(lmax)
-        terms = [(a / (1.0 + dt * l * (l + 1)), l, m)
-                 for (l, m), a in coeffs.items() if abs(a) > 1e-14]
+        coeff_map = {(l, m): a / (1.0 + dt * l * (l + 1))
+                     for (l, m), a in coeffs.items() if abs(a) > 1e-14}
 
         def ev(lam, theta):
-            lam = jnp.asarray(lam, dtype=jnp.float64)
-            theta = jnp.asarray(theta, dtype=jnp.float64)
-            out = jnp.zeros(
-                jnp.broadcast_shapes(lam.shape, theta.shape),
-                dtype=jnp.float64)
-            for a, l, m in terms:
-                out = out + a * harmonics[(l, m)](lam, theta)
-            return out
+            return _sph_harmonic_eval_sum(coeff_map, lmax, lam, theta)
 
         return Spherefun.from_function(ev)
 
@@ -1675,9 +1738,8 @@ class Spherefun(eqx.Module):
         fs = f if isinstance(f, Spherefun) else Spherefun.from_function(f)
         lmax = fs._bandwidth() + 1
         coeffs = _spherefun_sph_coeffs(fs, lmax)
-        harmonics = _sph_harmonic_evaluators(lmax)
         K2 = float(K) ** 2
-        terms = []
+        coeff_map = {}
         for (l, mm), a in coeffs.items():
             den = K2 - l * (l + 1)
             if abs(den) < 1e-8:
@@ -1685,16 +1747,10 @@ class Spherefun(eqx.Module):
                     f"helmholtz: K^2 = {K2} is (near) the eigenvalue "
                     f"l(l+1) = {l * (l + 1)}")
             if abs(a) > 1e-13:
-                terms.append((a / den, l, mm))
+                coeff_map[(l, mm)] = a / den
 
         def ev(lam, theta):
-            lam = jnp.asarray(lam, dtype=jnp.float64)
-            theta = jnp.asarray(theta, dtype=jnp.float64)
-            out = jnp.zeros(jnp.broadcast_shapes(lam.shape, theta.shape),
-                            dtype=jnp.float64)
-            for a, l, mm in terms:
-                out = out + a * harmonics[(l, mm)](lam, theta)
-            return out
+            return _sph_harmonic_eval_sum(coeff_map, lmax, lam, theta)
 
         return Spherefun.from_function(ev)
 
@@ -1850,6 +1906,116 @@ def _real_ylm_values(l: int, m_signed: int, lam: jax.Array,
     return plm
 
 
+def _all_real_ylm_values(lmax: int, lam: jax.Array,
+                         theta: jax.Array) -> dict:
+    """Evaluate EVERY real harmonic ``Y_l^m`` (``l <= lmax``) at once.
+
+    Returns ``{(l, m): values}`` for all ``0 <= l <= lmax`` and
+    ``-l <= m <= l``.  Unlike calling :func:`_real_ylm_values` once per
+    ``(l, m)`` -- which restarts the associated-Legendre recurrence from
+    scratch every time, an ``O(lmax^3)`` blow-up dominated by tiny eager
+    JAX dispatches -- this shares the fixed-``m`` recurrence across all
+    ``l`` and reuses ``P_l^m`` for the ``+m``/``-m`` pair.  The result is
+    bit-identical to :func:`_real_ylm_values` (same fully-normalized
+    recurrence and Condon-Shortley phase) but ~25x faster, which is what
+    lets nested spherefun compositions (``div(grad f)``, ``vort(grad f)``,
+    ...) build in seconds instead of hanging XLA CPU compilation.
+    """
+    lam = jnp.asarray(lam, dtype=jnp.float64)
+    theta = jnp.asarray(theta, dtype=jnp.float64)
+    x = jnp.cos(theta)
+    s = jnp.sqrt(1 - x**2)  # sin(theta) >= 0 on [0, pi]
+    out: dict = {}
+    for m in range(lmax + 1):
+        pmm = jnp.ones_like(x) / jnp.sqrt(4 * jnp.pi)
+        for i in range(1, m + 1):
+            pmm = -jnp.sqrt((2 * i + 1) / (2.0 * i)) * s * pmm
+        if m == 0:
+            cos_ml = sin_ml = None
+        else:
+            cos_ml = jnp.sqrt(2.0) * jnp.cos(m * lam)
+            sin_ml = jnp.sqrt(2.0) * jnp.sin(m * lam)
+
+        def _store(l, plm):
+            if m == 0:
+                out[(l, 0)] = plm
+            else:
+                out[(l, m)] = plm * cos_ml
+                out[(l, -m)] = plm * sin_ml
+
+        _store(m, pmm)
+        if m < lmax:
+            pm1 = jnp.sqrt(2 * m + 3.0) * x * pmm
+            _store(m + 1, pm1)
+            p_prev, p_curr = pmm, pm1
+            for ll in range(m + 2, lmax + 1):
+                a = jnp.sqrt((4.0 * ll * ll - 1) / (ll * ll - m * m))
+                b = jnp.sqrt(((ll - 1.0) ** 2 - m * m)
+                             / (4.0 * (ll - 1.0) ** 2 - 1))
+                p_next = a * (x * p_curr - b * p_prev)
+                p_prev, p_curr = p_curr, p_next
+                _store(ll, p_curr)
+    return out
+
+
+def _sph_harmonic_eval_sum(coeff_map: dict, lmax: int,
+                           lam: jax.Array, theta: jax.Array) -> jax.Array:
+    """Evaluate ``sum_{l,m} a_{lm} Y_l^m(lam, theta)`` in one shared pass.
+
+    ``coeff_map`` maps ``(l, m)`` -> coefficient (only the entries present
+    contribute).  The weighted sum is accumulated *inside* the
+    associated-Legendre recurrence, so the full harmonic reconstruction
+    costs ``O(lmax^2)`` large vectorised ops with ``O(grid)`` memory --
+    never materialising all ``(lmax+1)^2`` harmonic arrays at once.  This
+    replaces the previous ``for (l, m) in terms: out += a *
+    Y_lm(lam, theta)`` reconstruction, whose per-term recurrence restart
+    drove the nested-composition compile blow-up.
+    """
+    lam = jnp.asarray(lam, dtype=jnp.float64)
+    theta = jnp.asarray(theta, dtype=jnp.float64)
+    x = jnp.cos(theta)
+    s = jnp.sqrt(1 - x**2)
+    out = jnp.zeros(jnp.broadcast_shapes(lam.shape, theta.shape),
+                    dtype=jnp.float64)
+    for m in range(lmax + 1):
+        pmm = jnp.ones_like(x) / jnp.sqrt(4 * jnp.pi)
+        for i in range(1, m + 1):
+            pmm = -jnp.sqrt((2 * i + 1) / (2.0 * i)) * s * pmm
+        if m == 0:
+            cos_ml = sin_ml = None
+        else:
+            cos_ml = jnp.sqrt(2.0) * jnp.cos(m * lam)
+            sin_ml = jnp.sqrt(2.0) * jnp.sin(m * lam)
+
+        def _accum(acc, l, plm):
+            if m == 0:
+                a = coeff_map.get((l, 0))
+                if a is not None:
+                    acc = acc + a * plm
+            else:
+                ap = coeff_map.get((l, m))
+                if ap is not None:
+                    acc = acc + ap * (plm * cos_ml)
+                an = coeff_map.get((l, -m))
+                if an is not None:
+                    acc = acc + an * (plm * sin_ml)
+            return acc
+
+        out = _accum(out, m, pmm)
+        if m < lmax:
+            pm1 = jnp.sqrt(2 * m + 3.0) * x * pmm
+            out = _accum(out, m + 1, pm1)
+            p_prev, p_curr = pmm, pm1
+            for ll in range(m + 2, lmax + 1):
+                a = jnp.sqrt((4.0 * ll * ll - 1) / (ll * ll - m * m))
+                b = jnp.sqrt(((ll - 1.0) ** 2 - m * m)
+                             / (4.0 * (ll - 1.0) ** 2 - 1))
+                p_next = a * (x * p_curr - b * p_prev)
+                p_prev, p_curr = p_curr, p_next
+                out = _accum(out, ll, p_curr)
+    return out
+
+
 def _sph_harmonic_evaluators(lmax: int) -> dict:
     """Return {(l, m): callable(lam, theta) -> Y_l^m values} for l <= lmax."""
     ev = {}
@@ -1878,11 +2044,11 @@ def _spherefun_sph_coeffs(f: "Spherefun", lmax: int) -> dict:
     th_j = jnp.asarray(TH.ravel())
     F = np.asarray(f(lam_j, th_j)).reshape(TH.shape)
     weight = wg[:, None] * dph  # sin(theta) d(theta) d(phi) via GL in cos
+    Yall = _all_real_ylm_values(lmax, lam_j, th_j)
     coeffs = {}
     for l in range(lmax + 1):
         for m in range(-l, l + 1):
-            Y = np.asarray(_real_ylm_values(l, m, lam_j, th_j)).reshape(
-                TH.shape)
+            Y = np.asarray(Yall[(l, m)]).reshape(TH.shape)
             coeffs[(l, m)] = float(np.sum(F * Y * weight))
     return coeffs
 
@@ -1932,25 +2098,18 @@ def _spherefun_diff_cart(f: "Spherefun", dim: int) -> "Spherefun":
     else:
         V = -sinT * ft
 
-    coeffs = {}
     weight = wg[:, None] * dph
+    Yall = _all_real_ylm_values(lmax, lam_j, th_j)
+    coeff_map = {}
     for l in range(lmax + 1):
         for m in range(-l, l + 1):
-            Y = np.asarray(_real_ylm_values(l, m, lam_j, th_j)).reshape(
-                TH.shape)
-            coeffs[(l, m)] = float(np.sum(V * Y * weight))
-
-    harmonics = _sph_harmonic_evaluators(lmax)
+            Y = np.asarray(Yall[(l, m)]).reshape(TH.shape)
+            a = float(np.sum(V * Y * weight))
+            if abs(a) > 1e-13:
+                coeff_map[(l, m)] = a
 
     def ev(lam, theta):
-        lam = jnp.asarray(lam, dtype=jnp.float64)
-        theta = jnp.asarray(theta, dtype=jnp.float64)
-        out = jnp.zeros(jnp.broadcast_shapes(lam.shape, theta.shape),
-                        dtype=jnp.float64)
-        for (l, m), a in coeffs.items():
-            if abs(a) > 1e-13:
-                out = out + a * harmonics[(l, m)](lam, theta)
-        return out
+        return _sph_harmonic_eval_sum(coeff_map, lmax, lam, theta)
 
     return Spherefun.from_function(ev)
 

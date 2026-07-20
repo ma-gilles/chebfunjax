@@ -12,7 +12,6 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import jax.numpy as jnp
-import pytest
 
 from chebfunjax.spherefun.spherefun import Spherefun
 from chebfunjax.spherefun.spherefunv import Spherefunv
@@ -37,14 +36,6 @@ class TestSpherefunvCross:
         u = f.gradient()
         assert vnorm(u.cross(u)) < TOL
 
-    @pytest.mark.skip(
-        reason="XLA CPU compile crash (INTERNAL 'Failed to materialize "
-        "symbols', interpreter segfault) on the deeply-composed "
-        "normal(cross(...)) expression graph -- reproduces solo with a "
-        "fresh compilation cache; the operations themselves pass in the "
-        "other cross/tangentnormal tests.  Needs a compile-graph "
-        "investigation (likely giant constant buffers from nested "
-        "spherefun re-approximations)")
     def test_normal_cross_tangential_cross(self):
         # pass(3): w = grad(f) x grad(g) is purely normal, so
         # N x w = 0 (its tangential rotation vanishes).

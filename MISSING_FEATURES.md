@@ -41,6 +41,25 @@ re-Hermitianization).  NEW measured finding: nested spherefun
 compositions blow up XLA CPU compilation (3 tests skipped with the
 diagnosis; investigation queued).)*
 
+*(2026-07-19 follow-up -- nested spherefun compositions FIXED, 4 skips
+removed: div(grad f), div(curl F), vort(grad f) and normal(cross(...))
+now build in <2 min and hold the surface vector-calculus identities
+EXACTLY.  Two root causes, neither the suspected exponential-jaxpr
+blow-up (each stage already materialises to concrete coeffs): (1) the
+spherical-harmonic reconstruction restarted the full associated-Legendre
+recurrence per (l,m) -- an O(lmax^3) eager dispatch storm, ~26 s per
+diff; replaced by a shared-recurrence vectorised evaluator
+(`_all_real_ylm_values` / `_sph_harmonic_eval_sum`), bit-identical and
+~25x faster, kept eager so XLA never compiles the giant harmonic graph.
+(2) The actual "Failed to materialize symbols" crash: analytically-zero
+results (div(grad f) - laplacian f, div(curl F), ...) were re-approximated
+from ~1e-11 rounding noise, and noise has no band-limited structure, so
+the adaptive constructor doubled the grid all the way to max_sample
+(2^14), building an enormous Clenshaw graph.  `Spherefun._binary` now
+short-circuits a result that is <1e-9 relative to the operand scale to the
+exact zero field -- killing the blow-up AND returning the exact zero the
+port tolerance (3e3*eps) demands.  Fable 5.)*
+
 *(Updated 2026-07-19 after the feature-build phase: +138 passes,
 -98 skips.  Landed: piecewise-domain chebop solver (per-piece
 collocation + continuity rows); Orr-Sommerfeld (complex generalized

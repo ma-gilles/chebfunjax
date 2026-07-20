@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.spherefun.spherefun import Spherefun
 from chebfunjax.spherefun.spherefunv import Spherefunv
@@ -59,11 +58,6 @@ class TestSpherefunvCalculus:
     def test_curl_of_position_is_zero(self):
         assert _vnorm(Spherefunv.unormal().curl()) < 1e-10
 
-    @pytest.mark.skip(
-        reason="XLA CPU compile blow-up on the nested div(grad f) "
-        "composition (same pathology as the skipped port "
-        "vectorRelations file); the operators are covered "
-        "individually by the other tests here")
     def test_div_grad_is_laplacian(self):
         f = _f()
         assert _snorm(f.gradient().div() - f.laplacian()) < 1e-9

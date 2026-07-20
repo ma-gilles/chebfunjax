@@ -21,19 +21,6 @@ from ._helpers import EPS, snorm
 TOL = 3e3 * EPS
 
 
-import pytest
-
-pytestmark = pytest.mark.skip(
-    reason="XLA CPU compile blow-up: the nested vector-identity "
-    "compositions (div(curl F), vort(grad f), div(grad f)) hang >400s "
-    "in compilation or crash with INTERNAL 'materialize symbols' even "
-    "solo with a fresh cache -- pathological graphs from chained "
-    "spherefun re-approximations.  The individual operators are "
-    "verified in test_curl/test_div/test_vort/test_cross; needs a "
-    "compile-graph investigation (jit boundaries / eager evaluation "
-    "in the composition chain)")
-
-
 class TestSpherefunvVectorRelations:
     def _f(self) -> Spherefun:
         return Spherefun.from_function(
