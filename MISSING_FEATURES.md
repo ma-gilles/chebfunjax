@@ -60,6 +60,38 @@ short-circuits a result that is <1e-9 relative to the operand scale to the
 exact zero field -- killing the blow-up AND returning the exact zero the
 port tolerance (3e3*eps) demands.  Fable 5.)*
 
+*(2026-07-19 -- @spherefun/diff.m coefficient-space port INVESTIGATED and
+DEFERRED, not landed.  Goal: make Spherefun.diff match MATLAB's exact BMC
+coefficient-space parity derivatives so the strict xfail
+tests/test_matlab_port/spherefunv/test_tangentnormal_matlab.py
+(normal(grad f)/tangent(grad f), 1e2*eps = 2.2e-14) passes.  The faithful
+port was implemented and verified: sin/cos multipliers as banded shifts,
+1/sin(theta) as the banded solve Msinn\\C, derivative assembled directly as
+the exact concatenated low-rank decomposition [C1 C2]*diag(D,D)*[R1 R2]'.
+It DID fix tangentnormal (2.6e-13 -> 1.7e-14) and made the individual
+harmonic tangential gradients exact to ~1e-15 (vs the ~1e-13 of the current
+harmonic-projection route).  BUT it REGRESSES the test_div_matlab trig_x/y
+parity tests from ~3.5e-12 (passing, 200*eps) to ~1.3-2.2e-11 (failing):
+the Msinn\\C solve amplifies the input columns' pole construction noise
+(chebfunjax's spherefun constructor leaves ~5e-8 where columns should
+vanish at the poles) by cond(Msinn) ~ n/2, and for the highly-oscillatory
+azimuthal div fields (col length ~47) that reaches ~1e-11.  The current
+harmonic-projection route avoids this by dividing by sin(theta) pointwise
+at interior Gauss nodes (sin bounded away from 0).  The two cases cannot be
+separated by bandwidth -- tangentnormal's f is HIGHER bandwidth (col length
+~81) than div's u1 (~47); the difference is structural (tangentnormal's
+metric cancels the per-component error, div compares absolute values).
+Per the priority "correctness of existing tests takes precedence", the
+port was reverted rather than trade a passing test for a currently-xfailed
+one.  TWO clean fixes identified for a follow-up: (a) compute the gradient
+in the SPHERICAL-HARMONIC basis -- project f to Y_l^m once, apply the
+analytic Cartesian-derivative recurrence; the surface gradient of each
+Y_l^m is analytically tangential so normal(grad f)==0 to machine precision
+AND there is no 1/sin amplification (projection ~1e-13 would also pass div);
+or (b) fix the constructor's pole condition so columns vanish to ~1e-13,
+after which the faithful coeff-space port passes both (cond*1e-13 ~ 3e-12 <
+200*eps).  Fable 5.)*
+
 *(Updated 2026-07-19 after the feature-build phase: +138 passes,
 -98 skips.  Landed: piecewise-domain chebop solver (per-piece
 collocation + continuity rows); Orr-Sommerfeld (complex generalized
