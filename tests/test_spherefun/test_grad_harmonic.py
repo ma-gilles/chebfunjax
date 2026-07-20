@@ -138,3 +138,26 @@ class TestExactZeroShortCircuit:
         f = Spherefun.from_function(
             lambda lam, th: 1e-10 * jnp.cos(lam) * jnp.sin(th))
         assert not f._is_exact_zero()
+
+
+class TestRealFieldComplexParts:
+    """conj/real/imag are exact (structural) on real representations."""
+
+    def _f(self):
+        return Spherefun.from_function(
+            lambda lam, th: jnp.cos(jnp.cos(lam) * jnp.sin(th)))
+
+    def test_isreal_true_for_real_field(self):
+        assert self._f().isreal()
+
+    def test_conj_is_noop(self):
+        f = self._f()
+        assert f.conj() is f
+
+    def test_real_is_noop(self):
+        f = self._f()
+        assert f.real() is f
+
+    def test_imag_is_exact_zero(self):
+        f = self._f()
+        assert f.imag()._is_exact_zero()

@@ -1265,34 +1265,68 @@ class Spherefun(eqx.Module):
     def __abs__(self) -> "Spherefun":
         return self.abs()
 
+    def isreal(self) -> bool:
+        """True iff the representation holds only real data.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/isreal.m (via @spherefun/isreal.m)
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return True
+        return (not bool(jnp.iscomplexobj(self.pivots))
+                and all(c.is_real for c in self.cols)
+                and all(r.is_real for r in self.rows))
+
     def real(self) -> "Spherefun":
-        """Real part, re-approximated (MATLAB real).
+        """Real part (MATLAB real).
+
+        A real representation is returned unchanged (exact); otherwise the
+        real part is re-approximated as in MATLAB's compose route.
 
         Provenance
         ----------
         MATLAB source : @spherefun/real.m
         Chebfun commit: 7574c77
         """
+        if self.isreal():
+            return self
         return self._reapprox(jnp.real)
 
     def imag(self) -> "Spherefun":
         """Imaginary part (MATLAB imag).
+
+        Exactly zero for a real representation; otherwise re-approximated
+        as in MATLAB's compose route.
 
         Provenance
         ----------
         MATLAB source : @spherefun/imag.m
         Chebfun commit: 7574c77
         """
+        if self.isreal():
+            return Spherefun.from_function(
+                lambda lam, th: jnp.zeros(
+                    jnp.broadcast_shapes(jnp.asarray(lam).shape,
+                                         jnp.asarray(th).shape),
+                    dtype=jnp.float64))
         return self._reapprox(jnp.imag)
 
     def conj(self) -> "Spherefun":
-        """Complex conjugate (MATLAB conj).
+        """Complex conjugate (MATLAB conj: a no-op).
+
+        MATLAB's @spherefun/conj.m returns f unchanged -- spherefun
+        represents real-valued functions -- so this is exact, not a
+        re-approximation.
 
         Provenance
         ----------
         MATLAB source : @spherefun/conj.m
         Chebfun commit: 7574c77
         """
+        if self.isreal():
+            return self
         return self._reapprox(jnp.conj)
 
     def iszero(self) -> bool:
