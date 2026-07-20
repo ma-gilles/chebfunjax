@@ -1076,6 +1076,240 @@ class Diskfun(eqx.Module):
         return len(self.cols)
 
     # ------------------------------------------------------------------
+    # Representation / low-rank accessors
+    # ------------------------------------------------------------------
+
+    def cdr(self):
+        """CDR (column-diagonal-row) decomposition of the Diskfun.
+
+        Returns ``(C, D, R)`` such that, in doubled-up polar coordinates,
+
+            f(theta, r) = C(r) @ D @ R(theta)' ,
+
+        i.e. ``f = sum_j C[j](r) * D[j, j] * conj(R[j](theta))``.  Here ``C``
+        is the list of radial column slices (:class:`Chebtech2` on ``[-1, 1]``,
+        physical ``r`` in ``[0, 1]``), ``R`` is the list of angular row slices
+        (:class:`Trigtech` on ``[-pi, pi]``), and ``D`` is the diagonal matrix
+        ``diag(1 / pivots)`` (infinite entries, i.e. zero pivots, mapped to 0).
+
+        This mirrors MATLAB's three-output ``[C, D, R] = cdr(F)``.  Because the
+        chebfunjax rows evaluate to real functions, the conjugate on ``R`` is
+        immaterial for the reconstruction of a real Diskfun.
+
+        Returns
+        -------
+        C : list of Chebtech2
+            Radial column slices ``C[j](r)``.
+        D : jax.Array, shape (rank, rank)
+            Diagonal matrix ``diag(1 / pivots)``.
+        R : list of Trigtech
+            Angular row slices ``R[j](theta)``.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/cdr.m, @separableApprox/cdr.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        svd, coeffs2
+        """
+        d = jnp.asarray(self.pivots, dtype=jnp.float64)
+        dinv = jnp.where(jnp.abs(d) > 0.0, 1.0 / d, 0.0)
+        return list(self.cols), jnp.diag(dinv), list(self.rows)
+
+    def coeffs2(self, m: int | None = None, n: int | None = None) -> jax.Array:
+        """Fourier--Chebyshev coefficient matrix of the Diskfun.
+
+        ``coeffs2(F)`` returns the matrix ``X`` of bivariate coefficients in
+        the Fourier (angular, columns) and Chebyshev (radial, rows) bases such
+        that
+
+            f(theta, r) = sum_{k, l} X[k, l] * T_k(r) * exp(1i * mu_l * theta),
+
+        where the radial index ``k`` runs over ascending Chebyshev degree and
+        the angular index ``l`` runs over ascending Fourier wavenumber
+        ``mu_l``.  ``X`` is formed from the CDR decomposition as
+        ``U @ diag(1 / pivots) @ R.T`` with ``U`` the Chebyshev coefficients of
+        the column slices and ``R`` the Fourier coefficients of the row slices.
+
+        ``coeffs2(F, M, N)`` returns coefficients aliased to ``N`` Chebyshev
+        modes in the radial direction and ``M`` Fourier modes in the angular
+        direction (shape ``(N, M)``).  ``coeffs2(F, M)`` uses ``N = M``.
+
+        Parameters
+        ----------
+        m : int, optional
+            Number of Fourier (angular) coefficients.
+        n : int, optional
+            Number of Chebyshev (radial) coefficients.  Defaults to ``m``.
+
+        Returns
+        -------
+        jax.Array (complex128), shape (n_cheb, m_fourier)
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/coeffs2.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        cdr, coeffs2vals
+        """
+        from chebfunjax.tech.chebtech import _alias_chebtech2, _prolong_coeffs
+        from chebfunjax.tech.trigtech import _alias_trigtech, _trig_prolong_coeffs
+
+        if self.isempty() or len(self.cols) == 0:
+            return jnp.zeros((0, 0), dtype=jnp.complex128)
+
+        d = jnp.asarray(self.pivots, dtype=jnp.float64)
+        dinv = jnp.where(jnp.abs(d) > 0.0, 1.0 / d, 0.0).astype(jnp.complex128)
+
+        col_coeffs = [jnp.asarray(c.coeffs, dtype=jnp.float64) for c in self.cols]
+        row_coeffs = [jnp.asarray(rw.coeffs, dtype=jnp.complex128) for rw in self.rows]
+
+        if m is None:
+            # nargin == 1: pad every slice to the common (maximum) length,
+            # matching MATLAB's quasimatrix .coeffs.
+            ncheb = max(c.shape[0] for c in col_coeffs)
+            mfour = max(rc.shape[0] for rc in row_coeffs)
+            U = jnp.stack(
+                [_prolong_coeffs(c, ncheb) for c in col_coeffs], axis=1
+            ).astype(jnp.complex128)
+            R = jnp.stack(
+                [_trig_prolong_coeffs(rc, mfour) for rc in row_coeffs], axis=1
+            )
+        else:
+            if n is None:
+                n = m
+            U = jnp.stack(
+                [_alias_chebtech2(c, n) for c in col_coeffs], axis=1
+            ).astype(jnp.complex128)
+            R = jnp.stack(
+                [_alias_trigtech(rc, m) for rc in row_coeffs], axis=1
+            )
+
+        return U @ jnp.diag(dinv) @ R.T
+
+    def svd(self) -> jax.Array:
+        r"""Singular values of the Diskfun (as a Hilbert--Schmidt kernel).
+
+        Returns the singular values of ``f`` in non-increasing order.  The
+        number returned equals the length (number of pivots) of the Diskfun.
+
+        The SVD is computed from the CDR decomposition ``f = C D R'`` by
+        orthonormalising the column and row slices in their physical inner
+        products::
+
+            C = Q_C R_C     (QR in the disk radial weight  <u, v> = int_0^1 u v r dr)
+            R = Q_R R_R      (QR in the angular L^2 weight  <u, v> = int_{-pi}^{pi} u v dtheta)
+            f = Q_C ( R_C D R_R' ) Q_R'
+
+        so the singular values of ``f`` are those of the small ``rank x rank``
+        core ``R_C D R_R'``.  The radial QR uses a Gauss--Legendre rule on
+        ``[0, 1]`` weighted by ``sqrt(w * r)`` (the disk measure); the angular
+        QR uses the exact Parseval inner product on the Fourier coefficients
+        (weight ``sqrt(2 * pi)``).
+
+        Returns
+        -------
+        jax.Array, shape (rank,)
+            Singular values in non-increasing order.
+
+        Notes
+        -----
+        NOT JIT-safe (uses numpy QR/SVD on the small core).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/svd.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        cdr, norm, rank
+        """
+        from chebfunjax.tech.trigtech import _trig_prolong_coeffs
+        from chebfunjax.utils.quadrature import legpts
+
+        if self.isempty() or len(self.cols) == 0:
+            return jnp.zeros((0,), dtype=jnp.float64)
+
+        d = np.asarray(self.pivots, dtype=np.float64)
+        if np.linalg.norm(d) == 0.0:
+            return jnp.zeros((1,), dtype=jnp.float64)
+        dinv = 1.0 / d
+
+        # Radial columns: disk-weighted QR on [0, 1].
+        ncol = max(int(c.n) for c in self.cols)
+        npts = ncol + 1
+        r_nodes, w_nodes = (np.asarray(x, dtype=np.float64)
+                            for x in legpts(npts, interval=(0.0, 1.0)))
+        vc = np.stack(
+            [np.asarray(c(jnp.asarray(r_nodes, dtype=jnp.float64)))
+             for c in self.cols],
+            axis=1,
+        )
+        wc = np.sqrt(w_nodes * r_nodes)
+        _, rc = np.linalg.qr(wc[:, None] * vc)
+
+        # Angular rows: exact L^2 QR via the Fourier coefficients (Parseval).
+        mrow = max(int(rw.n) for rw in self.rows)
+        rr_coeffs = np.stack(
+            [np.asarray(_trig_prolong_coeffs(rw.coeffs, mrow)) for rw in self.rows],
+            axis=1,
+        )
+        _, rr = np.linalg.qr(np.sqrt(2.0 * np.pi) * rr_coeffs)
+
+        core = rc @ np.diag(dinv) @ rr.T
+        sig = np.linalg.svd(core, compute_uv=False)
+        return jnp.asarray(sig, dtype=jnp.float64)
+
+    def fevalm(self, theta, r) -> jax.Array:
+        """Evaluate the Diskfun on a polar meshgrid.
+
+        ``Z = fevalm(F, THETA, R)`` returns the ``len(R) x len(THETA)`` matrix
+        of values ``Z[i, j] = f(THETA[j], R[i])`` -- equivalent to building a
+        meshgrid of ``THETA`` and ``R`` and calling :meth:`__call__`.
+
+        Parameters
+        ----------
+        theta : array_like
+            Angular coordinates in ``[-pi, pi]``.
+        r : array_like
+            Radial coordinates in ``[0, 1]``.
+
+        Returns
+        -------
+        jax.Array, shape (len(r), len(theta))
+            Empty ``(0, 0)`` array for the empty Diskfun.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/fevalm.m, @separableApprox/fevalm.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        __call__
+        """
+        if self.isempty():
+            return jnp.zeros((0, 0), dtype=jnp.float64)
+        theta = jnp.atleast_1d(jnp.asarray(theta, dtype=jnp.float64))
+        r = jnp.atleast_1d(jnp.asarray(r, dtype=jnp.float64))
+        tt, rr = jnp.meshgrid(theta, r)  # shapes (len(r), len(theta))
+        return self(tt, rr)
+
+    # ------------------------------------------------------------------
     # Representation
     # ------------------------------------------------------------------
 

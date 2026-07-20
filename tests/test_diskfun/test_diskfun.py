@@ -413,3 +413,84 @@ class TestDiskfunReflectionsSumOpt:
         gx = Diskfun.from_function(lambda t, r: r * jnp.cos(t))
         pts = np.array(sorted(f.roots(gx).tolist(), key=lambda p: p[1]))
         assert np.max(np.abs(pts - np.array([[0, -0.5], [0, 0.5]]))) < 1e-8
+
+
+# ===========================================================================
+# Low-rank accessors: cdr, coeffs2, svd, fevalm (Fable 5)
+# ===========================================================================
+
+
+class TestDiskfunLowRankAccessors:
+    """Core mirror tests for the CDR-based accessors."""
+
+    @staticmethod
+    def _cart(fn):
+        return Diskfun.from_function(
+            lambda t, r: fn(r * jnp.cos(t), r * jnp.sin(t)))
+
+    def test_cdr_reconstructs(self):
+        f = Diskfun.from_function(
+            lambda t, r: jnp.exp(-r**2) * (1.0 + r * jnp.cos(t)))
+        C, D, R = f.cdr()
+        D = np.asarray(D)
+        assert D.shape == (len(C), len(C))
+        assert len(C) == len(R) == f.rank
+        th = np.linspace(-np.pi, np.pi, 37)
+        rr = np.linspace(0.0, 1.0, 29)
+        tt, rrr = np.meshgrid(th, rr)
+        tt_j, rr_j = jnp.asarray(tt), jnp.asarray(rrr)
+        recon = np.zeros_like(tt, dtype=np.complex128)
+        for j in range(len(C)):
+            recon += (D[j, j] * np.asarray(C[j](rr_j))
+                      * np.asarray(R[j](tt_j / np.pi)))
+        assert np.linalg.norm(recon.real - np.asarray(f(tt_j, rr_j))) < 1e-10
+
+    def test_coeffs2_reconstructs_on_grid(self):
+        # coeffs2(F) then evaluate the Fourier-Chebyshev series directly.
+        f = Diskfun.from_function(
+            lambda t, r: r**2 + r * (4 * jnp.cos(t) + 2 * jnp.sin(t)))
+        X = np.asarray(f.coeffs2())
+        ncheb, mfour = X.shape
+        # Chebyshev degrees 0..ncheb-1; Fourier wavenumbers span symmetric range.
+        mu = np.arange(mfour) - (mfour // 2)
+        th = np.linspace(-np.pi, np.pi, 25)[:-1]
+        rr = np.linspace(0.1, 0.9, 7)
+        for tval in th:
+            for rval in rr:
+                Tk = np.cos(np.arange(ncheb) * np.arccos(np.clip(rval, -1, 1)))
+                emu = np.exp(1j * mu * tval)
+                val = Tk @ X @ emu
+                exact = float(f(jnp.asarray(tval), jnp.asarray(rval)))
+                assert abs(val.real - exact) < 1e-9
+                assert abs(val.imag) < 1e-9
+
+    def test_coeffs2_explicit_sizes(self):
+        f = Diskfun.from_function(lambda t, r: r * jnp.sin(t))
+        X = np.asarray(f.coeffs2(9, 6))   # 6 Chebyshev, 9 Fourier
+        assert X.shape == (6, 9)
+
+    def test_svd_norm_and_scale(self):
+        f = self._cart(lambda x, y: jnp.cos(x * y**2))
+        s = np.asarray(f.svd())
+        assert len(s) == f.rank
+        assert abs(float(f.norm())**2 - float(np.sum(s**2))) < 1e-10
+        # non-increasing
+        assert np.all(np.diff(s) <= 1e-12)
+        g = 3.0 * f
+        assert np.linalg.norm(np.asarray(g.svd()) - 3.0 * s) < 1e-9
+
+    def test_svd_empty(self):
+        assert np.asarray(Diskfun.empty().svd()).size == 0
+
+    def test_fevalm_matches_meshgrid(self):
+        f = Diskfun.from_function(lambda t, r: jnp.exp(-r**2) * jnp.cos(t))
+        t = np.linspace(-np.pi, np.pi, 6)
+        r = np.linspace(0.0, 1.0, 5)
+        tt, rr = np.meshgrid(t, r)
+        A = np.asarray(f(jnp.asarray(tt), jnp.asarray(rr)))
+        B = np.asarray(f.fevalm(t, r))
+        assert B.shape == (len(r), len(t))
+        assert np.linalg.norm(A - B) < 1e-11
+
+    def test_fevalm_empty(self):
+        assert np.asarray(Diskfun.empty().fevalm([0.0], [0.0])).size == 0
