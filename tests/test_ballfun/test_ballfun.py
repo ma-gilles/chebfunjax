@@ -281,3 +281,75 @@ class TestBallfunComplexPartsAndComposition:
         assert (b.cosh() - Ballfun.from_function(
             lambda x, y, z: jnp.cosh(y))).norm() < 1e2 * np.finfo(
             np.float64).eps
+
+
+# ===========================================================================
+# Partial integration: sum(dim) and sum2(dims) (Fable 5)
+# ===========================================================================
+
+
+class TestBallfunPartialIntegration:
+    """Core mirror tests for Ballfun.sum(dim) and Ballfun.sum2(dims)."""
+
+    @staticmethod
+    def _bf(fn):
+        from chebfunjax.ballfun.ballfun import Ballfun
+        return Ballfun.from_function(fn, spherical=True)
+
+    def test_full_sum_still_scalar(self):
+        f = self._bf(lambda r, lam, th: jnp.ones_like(r))
+        val = f.sum()
+        assert isinstance(val, float)
+        npt.assert_allclose(val, 4.0 * np.pi / 3.0, atol=1e-11)
+
+    def test_sum_dim1_returns_spherefun(self):
+        from chebfunjax.spherefun.spherefun import Spherefun
+        f = self._bf(lambda r, lam, th: r * jnp.cos(lam) * jnp.sin(th))
+        g = f.sum(1)
+        assert isinstance(g, Spherefun)
+        lam = np.linspace(-np.pi, np.pi, 15)
+        th = np.linspace(0.05, np.pi - 0.05, 11)
+        LL, TT = np.meshgrid(lam, th)
+        got = np.asarray(g(jnp.asarray(LL), jnp.asarray(TT)))
+        assert np.max(np.abs(got - np.cos(LL) * np.sin(TT) / 4.0)) < 1e-11
+
+    def test_sum_dim2_and_dim3_return_diskfun(self):
+        from chebfunjax.diskfun.diskfun import Diskfun
+        f = self._bf(lambda r, lam, th: (r * jnp.sin(lam) * jnp.sin(th)) ** 2)
+        g2 = f.sum(2)
+        assert isinstance(g2, Diskfun)
+        th = np.linspace(-np.pi, np.pi, 15)
+        r = np.linspace(0.1, 0.9, 11)
+        TH, R = np.meshgrid(th, r)
+        got = np.asarray(g2(jnp.asarray(TH), jnp.asarray(R)))
+        assert np.max(np.abs(got - np.pi * R**2 * np.sin(TH) ** 2)) < 1e-11
+        f3 = self._bf(lambda r, lam, th: r * jnp.cos(lam) * jnp.sin(th))
+        g3 = f3.sum(3)
+        assert isinstance(g3, Diskfun)
+        got3 = np.asarray(g3(jnp.asarray(TH), jnp.asarray(R)))
+        assert np.max(np.abs(got3 - R * np.cos(TH) * np.pi / 2.0)) < 1e-11
+
+    def test_sum_invalid_dim(self):
+        import pytest
+        f = self._bf(lambda r, lam, th: jnp.ones_like(r))
+        with pytest.raises(ValueError):
+            f.sum(4)
+
+    def test_sum2_defaults_and_variants(self):
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        # default dims=(2,3): constant 4pi in r.
+        f = self._bf(lambda r, lam, th: jnp.ones_like(r))
+        g = f.sum2()
+        assert isinstance(g, Chebfun)
+        r = np.linspace(0.0, 1.0, 11)
+        assert np.max(np.abs(np.asarray(g(jnp.asarray(r))) - 4.0 * np.pi)) < 1e-11
+        # dims=(1,3): trig in lambda, cos(lam) pi/8.
+        f = self._bf(lambda r, lam, th: r * jnp.sin(th) * jnp.cos(lam))
+        g = f.sum2((1, 3))
+        lam = np.linspace(-np.pi, np.pi, 17)
+        assert np.max(np.abs(np.asarray(g(jnp.asarray(lam)))
+                             - np.cos(lam) * np.pi / 8.0)) < 1e-11
+        # dims=(1,2): trig in theta; integrand odd in lambda -> zero here.
+        g = f.sum2((1, 2))
+        th = np.linspace(-np.pi, np.pi, 17)
+        assert np.max(np.abs(np.asarray(g(jnp.asarray(th))))) < 1e-11

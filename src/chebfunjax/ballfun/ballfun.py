@@ -608,6 +608,134 @@ def _evaluate_on_grid(
 
 
 # ============================================================================
+# Partial-integration helpers (coefficient space; MATLAB @ballfun/sum,sum2)
+# ============================================================================
+
+
+def _pad_coeffs_r_theta(cfs: np.ndarray) -> np.ndarray:
+    """Zero-pad a (m, n, p) coeff tensor by 2 in r (Chebyshev, high degree)
+    and by 2 in theta (Fourier, symmetric), matching ``coeffs3(f, m+2, n, p+2)``.
+    """
+    m0, n, p0 = cfs.shape
+    m, p = m0 + 2, p0 + 2
+    F = np.zeros((m, n, p), dtype=complex)
+    off = p // 2 - p0 // 2
+    F[:m0, :, off:off + p0] = cfs
+    return F
+
+
+def _mult_r2_matrix(m: int) -> np.ndarray:
+    """Chebyshev multiplication matrix for ``r^2 = (T_0 + T_2)/2`` (m x m)."""
+    M = np.zeros((m, m))
+    for i in range(m):
+        M[i, i] += 0.5
+        if i + 2 < m:
+            M[i + 2, i] += 0.25
+        M[abs(i - 2), i] += 0.25
+    return M
+
+
+def _mult_sin_matrix(p: int) -> np.ndarray:
+    """Fourier (fftshift-ordered) multiplication matrix for ``sin(theta)``."""
+    M = np.zeros((p, p), dtype=complex)
+    for o in range(p):
+        for j in range(p):
+            if o - j == -1:
+                M[o, j] = 0.5j
+            elif o - j == 1:
+                M[o, j] = -0.5j
+    return M
+
+
+def _int_cheb_weights(m: int) -> np.ndarray:
+    """Definite integrals ``int_0^1 T_i(r) dr`` for i = 0..m-1."""
+    K = np.zeros(m)
+    for i in range(m):
+        rmod = i % 4
+        if i == 0:
+            K[i] = 1.0
+        elif rmod == 1:
+            K[i] = 1.0 / (i + 1)
+        elif rmod == 3:
+            K[i] = -1.0 / (i - 1)
+        else:  # rmod in (0, 2)
+            K[i] = -1.0 / (i * i - 1)
+    return K
+
+
+def _int_fourier_weights(n: int, dc_value: float) -> np.ndarray:
+    """Integrals of the Fourier modes ``exp(i k x)`` over a half period
+    (``int_0^pi``): ``-i((-1)^k - 1)/k`` for k != 0 and ``dc_value`` at k = 0.
+    ``n`` modes in fftshift order (k = -n//2 .. n//2-1).
+    """
+    ks = np.arange(n) - n // 2
+    C = np.zeros(n, dtype=complex)
+    for i, k in enumerate(ks):
+        C[i] = dc_value if k == 0 else -1j * ((-1.0) ** k - 1.0) / k
+    return C
+
+
+def _mk_fourier_fourier_eval(A: np.ndarray):
+    """Callable evaluating ``sum_{i,j} A[i,j] exp(i k_l lam) exp(i k_t th)``
+    (A: Fourier(lambda) x Fourier(theta), fftshift-ordered).  Returns real part.
+    """
+    A = jnp.asarray(A, dtype=jnp.complex128)
+    nl, pt = A.shape
+    kl = jnp.arange(nl) - nl // 2
+    kt = jnp.arange(pt) - pt // 2
+
+    def ev(lam, th):
+        lam = jnp.asarray(lam, dtype=jnp.float64)
+        th = jnp.asarray(th, dtype=jnp.float64)
+        el = jnp.exp(1j * kl * lam[..., None])
+        et = jnp.exp(1j * kt * th[..., None])
+        return jnp.real(jnp.einsum("...i,ij,...j->...", el, A, et))
+
+    return ev
+
+
+def _mk_cheb_fourier_eval(A: np.ndarray):
+    """Callable evaluating ``sum_{i,j} A[i,j] T_i(r) exp(i k_a ang)``
+    (A: Chebyshev(r) x Fourier(angular), fftshift-ordered).  Returns real part.
+
+    The angular coordinate ``ang`` is the disk angle in ``[-pi, pi]`` and the
+    radius ``rad`` is in ``[0, 1]`` (the Chebyshev basis is evaluated directly
+    at ``rad``, matching the Ballfun radial convention).
+    """
+    A = jnp.asarray(A, dtype=jnp.complex128)
+    mr, na = A.shape
+    ka = jnp.arange(na) - na // 2
+    kc = jnp.arange(mr)
+
+    def ev(ang, rad):
+        ang = jnp.asarray(ang, dtype=jnp.float64)
+        rad = jnp.asarray(rad, dtype=jnp.float64)
+        tk = jnp.cos(kc * jnp.arccos(jnp.clip(rad[..., None], -1.0, 1.0)))
+        e = jnp.exp(1j * ka * ang[..., None])
+        return jnp.real(
+            jnp.einsum("...i,ij,...j->...", tk.astype(jnp.complex128), A, e)
+        )
+
+    return ev
+
+
+def _mk_theta_trig_eval(A: np.ndarray):
+    """Callable evaluating a 1D Fourier series ``sum_k A[k] exp(i k x)``
+    (A: fftshift-ordered Fourier coefficients).  Returns the real part.
+    """
+    A = jnp.asarray(A, dtype=jnp.complex128)
+    nk = A.shape[0]
+    ks = jnp.arange(nk) - nk // 2
+
+    def ev(x):
+        x = jnp.asarray(x, dtype=jnp.float64)
+        e = jnp.exp(1j * ks * x[..., None])
+        return jnp.real(e @ A)
+
+    return ev
+
+
+# ============================================================================
 # Main class
 # ============================================================================
 
@@ -1280,26 +1408,48 @@ class Ballfun(eqx.Module):
     # Calculus
     # ------------------------------------------------------------------
 
-    def sum(self) -> float:
-        """Triple integral of f over the unit ball.
+    def sum(self, dim: int | None = None):
+        """Definite integration of the Ballfun.
 
-        Computes integral_ball f dV = integral_0^1 integral_{-pi}^{pi}
-        integral_0^pi f(r,lam,th) r^2 sin(th) dr dlam dth.
+        With no ``dim`` (the chebfunjax default) returns the scalar triple
+        integral over the unit ball,
+        ``int_0^1 int_{-pi}^{pi} int_0^pi f r^2 sin(th) dr dlam dth``
+        (MATLAB ``sum3``).
+
+        With an explicit ``dim`` integrates over a single variable and returns
+        a lower-dimensional object (MATLAB ``sum(F, DIM)``):
+
+        - ``dim=1``: integrate over ``r`` with the radial measure ``r^2 dr`` on
+          ``[0, 1]`` -> a :class:`~chebfunjax.spherefun.spherefun.Spherefun`
+          in ``(lambda, theta)``.
+        - ``dim=2``: integrate over ``lambda`` on ``[-pi, pi]`` -> a
+          :class:`~chebfunjax.diskfun.diskfun.Diskfun` in the disk angle
+          ``theta`` and radius ``r``.
+        - ``dim=3``: integrate over ``theta`` with the measure ``sin(th) dth``
+          on ``[0, pi]`` -> a Diskfun in the disk angle ``lambda`` and
+          radius ``r``.
+
+        Parameters
+        ----------
+        dim : {None, 1, 2, 3}, optional
+            ``None`` -> scalar triple integral; otherwise the single variable
+            to integrate over.
 
         Returns
         -------
-        float
-            The triple integral.
+        float if ``dim is None``, else Spherefun (``dim=1``) or Diskfun.
 
         Notes
         -----
-        For a constant function f = c, sum() = c * 4*pi/3.
+        For a constant function f = c, ``sum()`` = c * 4*pi/3.
 
         Provenance
         ----------
-        MATLAB source : @ballfun/sum3.m, @ballfun/integral.m
+        MATLAB source : @ballfun/sum3.m, @ballfun/integral.m, @ballfun/sum.m
         Chebfun commit: 7574c77
         """
+        if dim is not None:
+            return self._partial_sum(dim)
         cfs = np.array(self.coeffs)
         m_orig, n, p_orig = cfs.shape
 
@@ -1412,6 +1562,111 @@ class Ballfun(eqx.Module):
         if self.is_real:
             I = float(np.real(I))
         return I
+
+    def _partial_sum(self, dim: int):
+        """Integrate over a single spherical variable (MATLAB @ballfun/sum)."""
+        from chebfunjax.diskfun.diskfun import Diskfun
+        from chebfunjax.spherefun.spherefun import Spherefun
+
+        if dim not in (1, 2, 3):
+            raise ValueError("Ballfun.sum: dim must be 1, 2, 3, or None.")
+
+        if self.isempty():
+            return Spherefun.empty() if dim == 1 else Diskfun.empty()
+
+        F = _pad_coeffs_r_theta(np.asarray(self.coeffs))
+        m, n, p = F.shape
+
+        if dim == 1:
+            # Integrate r^2 * f over r -> Spherefun(lambda, theta).
+            F = (_mult_r2_matrix(m) @ F.reshape(m, -1)).reshape(m, n, p)
+            A = np.tensordot(_int_cheb_weights(m), F, axes=(0, 0))  # (n, p)
+            return Spherefun.from_function(_mk_fourier_fourier_eval(A))
+
+        if dim == 2:
+            # Integrate f over lambda -> Diskfun(theta, r).
+            C = _int_fourier_weights(n, 2.0 * np.pi)
+            A = np.tensordot(C, F, axes=(0, 1))  # (m, p)
+            return Diskfun.from_function(_mk_cheb_fourier_eval(np.real(A)))
+
+        # dim == 3: integrate sin(theta) * f over theta -> Diskfun(lambda, r).
+        F = (F.reshape(-1, p) @ _mult_sin_matrix(p).T).reshape(m, n, p)
+        C = _int_fourier_weights(p, np.pi)
+        A = np.tensordot(C, F, axes=(0, 2))  # (m, n)
+        return Diskfun.from_function(_mk_cheb_fourier_eval(np.real(A)))
+
+    def sum2(self, dims: tuple[int, int] = (2, 3)):
+        """Definite integration over two spherical variables.
+
+        ``sum2(F, DIMS)`` integrates over the two variables named by ``DIMS``
+        (any two of ``1`` = r, ``2`` = lambda, ``3`` = theta, with the physical
+        measures ``r^2 dr`` and ``sin(th) dth``) and returns a 1D
+        :class:`~chebfunjax.chebfun1d.chebfun.Chebfun` in the remaining
+        variable.  ``sum2(F)`` defaults to ``DIMS = (2, 3)`` -> a Chebfun in
+        ``r`` on ``[0, 1]``.  Integrating out ``r`` leaves a periodic (trig)
+        Chebfun in ``theta`` or ``lambda`` on ``[-pi, pi]``.
+
+        Parameters
+        ----------
+        dims : tuple of two ints, optional
+            The two variables to integrate over.  Default ``(2, 3)``.
+
+        Returns
+        -------
+        Chebfun
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/sum2.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        from chebfunjax.domain import Domain
+
+        d1, d2 = sorted(dims)
+        if (d1, d2) not in ((2, 3), (1, 2), (1, 3)):
+            raise ValueError("Ballfun.sum2: dims must be two of {1, 2, 3}.")
+
+        if self.isempty():
+            return Chebfun.empty()
+
+        F = _pad_coeffs_r_theta(np.asarray(self.coeffs))
+        m, n, p = F.shape
+
+        if (d1, d2) == (2, 3):
+            # Integrate over lambda (DC mode) and theta -> Chebfun in r.
+            Frt = F[:, n // 2, :]  # (m, p)
+            Frt = Frt @ _mult_sin_matrix(p).T
+            C = 2.0 * np.pi * _int_fourier_weights(p, np.pi)
+            A = np.real(Frt @ C)  # (m,) Chebyshev coeffs in r
+
+            def ev(r):
+                r = jnp.asarray(r, dtype=jnp.float64)
+                kc = jnp.arange(A.shape[0])
+                tk = jnp.cos(kc * jnp.arccos(jnp.clip(r[..., None], -1.0, 1.0)))
+                return jnp.real(tk.astype(jnp.complex128)
+                                @ jnp.asarray(A, dtype=jnp.complex128))
+
+            return Chebfun.from_function(ev, Domain((0.0, 1.0)))
+
+        if (d1, d2) == (1, 2):
+            # Integrate over r (with r^2) and lambda -> trig Chebfun in theta.
+            F = (_mult_r2_matrix(m) @ F.reshape(m, -1)).reshape(m, n, p)
+            Frt = 2.0 * np.pi * F[:, n // 2, :]  # (m, p)
+            A = np.real(_int_cheb_weights(m) @ Frt)  # (p,) Fourier coeffs in theta
+            return Chebfun.from_function(
+                _mk_theta_trig_eval(A), Domain((-np.pi, np.pi)))
+
+        # (1, 3): integrate over r (with r^2) and theta (with sin) -> trig
+        # Chebfun in lambda.
+        F = (_mult_r2_matrix(m) @ F.reshape(m, -1)).reshape(m, n, p)
+        F = (F.reshape(-1, p) @ _mult_sin_matrix(p).T).reshape(m, n, p)
+        Kc = _int_cheb_weights(m)
+        Ct = _int_fourier_weights(p, np.pi)
+        # A[k] = Kc @ F[:, k, :] @ Ct  for each lambda mode k.
+        A = np.real(np.einsum("i,ikj,j->k", Kc, F, Ct))  # (n,) Fourier in lambda
+        return Chebfun.from_function(
+            _mk_theta_trig_eval(A), Domain((-np.pi, np.pi)))
 
     def diff(self, dim: int = 1, k: int = 1,
              coord: str = "cartesian") -> "Ballfun":
