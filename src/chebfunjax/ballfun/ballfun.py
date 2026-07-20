@@ -719,6 +719,37 @@ def _mk_cheb_fourier_eval(A: np.ndarray):
     return ev
 
 
+def _ballfun_eval_points(coeffs: jax.Array, R, lam, colat) -> jax.Array:
+    """Evaluate a Ballfun coeff tensor at arbitrary spherical points.
+
+    ``coeffs`` is the ``(m, n, p)`` Chebyshev(r) x Fourier(lambda) x
+    Fourier(theta) tensor.  ``R``, ``lam``, ``colat`` are broadcastable arrays
+    of the same shape.  The radial Chebyshev basis is evaluated by the
+    three-term recurrence (so ``|R| > 1`` extrapolation is well defined, as in
+    MATLAB's Clenshaw radial evaluation).  Returns the real part.
+    """
+    coeffs = jnp.asarray(coeffs, dtype=jnp.complex128)
+    m, n, p = coeffs.shape
+    R = jnp.asarray(R, dtype=jnp.float64)
+    lam = jnp.asarray(lam, dtype=jnp.float64)
+    colat = jnp.asarray(colat, dtype=jnp.float64)
+
+    cols = [jnp.ones_like(R)]
+    if m > 1:
+        cols.append(R)
+    for a in range(2, m):
+        cols.append(2.0 * R * cols[-1] - cols[-2])
+    ta = jnp.stack(cols[:m], axis=-1).astype(jnp.complex128)  # (..., m)
+
+    kb = jnp.arange(n) - n // 2
+    el = jnp.exp(1j * kb * lam[..., None])  # (..., n)
+    kc = jnp.arange(p) - p // 2
+    et = jnp.exp(1j * kc * colat[..., None])  # (..., p)
+
+    val = jnp.einsum("...a,abc,...b,...c->...", ta, coeffs, el, et)
+    return jnp.real(val)
+
+
 def _mk_theta_trig_eval(A: np.ndarray):
     """Callable evaluating a 1D Fourier series ``sum_k A[k] exp(i k x)``
     (A: fftshift-ordered Fourier coefficients).  Returns the real part.
@@ -1667,6 +1698,108 @@ class Ballfun(eqx.Module):
         A = np.real(np.einsum("i,ikj,j->k", Kc, F, Ct))  # (n,) Fourier in lambda
         return Chebfun.from_function(
             _mk_theta_trig_eval(A), Domain((-np.pi, np.pi)))
+
+    def to_spherefun(self, r: float = 1.0):
+        """Extract the spherical shell at radius ``r`` as a Spherefun.
+
+        ``g(lambda, theta) = f(r, lambda, theta)``.  The radius may exceed 1
+        (the radial Chebyshev series is extrapolated, matching MATLAB's
+        Clenshaw evaluation).  This is the chebfunjax translation of the
+        MATLAB constructor ``spherefun(F, r)``.
+
+        Parameters
+        ----------
+        r : float, default 1.0
+            Radial coordinate of the shell.
+
+        Returns
+        -------
+        Spherefun
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/spherefun.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2019 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        from chebfunjax.spherefun.spherefun import Spherefun
+
+        if self.isempty():
+            return Spherefun.empty()
+        coeffs = self.coeffs
+
+        def ev(lam, th):
+            lam = jnp.asarray(lam, dtype=jnp.float64)
+            th = jnp.asarray(th, dtype=jnp.float64)
+            return _ballfun_eval_points(
+                coeffs, jnp.full_like(lam, float(r)), lam, th)
+
+        return Spherefun.from_function(ev)
+
+    def to_diskfun(self, axis: str = "z", c: float = 0.0):
+        """Extract a planar slice of the ball as a Diskfun.
+
+        Returns the slice of ``f`` in the plane ``axis = c`` (``axis`` one of
+        ``'x'``, ``'y'``, ``'z'``), rescaled to the unit disk.  For ``axis='z'``
+        and ``c=0`` this is the equatorial (xy-plane) disk.  The disk's polar
+        coordinate ``(theta, rho)`` maps to the Cartesian in-plane point
+        ``rho * sqrt(1 - c^2) * (cos theta, sin theta)`` at height ``c`` along
+        the chosen axis; the value is ``f`` evaluated there.  This is the
+        chebfunjax translation of the axis-aligned cases of the MATLAB
+        constructor ``diskfun(F, axis, c)``.
+
+        Parameters
+        ----------
+        axis : {'x', 'y', 'z'}, default 'z'
+            Normal axis of the slicing plane.
+        c : float, default 0.0
+            Signed offset of the plane along ``axis`` (``|c| <= 1``).
+
+        Returns
+        -------
+        Diskfun
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/diskfun.m (axis-aligned slices)
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2019 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        from chebfunjax.diskfun.diskfun import Diskfun
+
+        if axis not in ("x", "y", "z"):
+            raise ValueError("Ballfun.to_diskfun: axis must be 'x', 'y', or 'z'.")
+        if abs(c) > 1.0:
+            raise ValueError(
+                "Ballfun.to_diskfun: the slice does not lie in the unit ball.")
+        if self.isempty():
+            return Diskfun.empty()
+
+        coeffs = self.coeffs
+        s = float(np.sqrt(1.0 - c * c))
+        c = float(c)
+
+        def ev(theta_d, rho):
+            theta_d = jnp.asarray(theta_d, dtype=jnp.float64)
+            rho = jnp.asarray(rho, dtype=jnp.float64)
+            a = rho * jnp.cos(theta_d) * s
+            b = rho * jnp.sin(theta_d) * s
+            cc = jnp.full_like(a, c)
+            if axis == "z":
+                x, y, z = a, b, cc
+            elif axis == "y":
+                x, y, z = a, cc, b
+            else:  # axis == "x"
+                x, y, z = cc, a, b
+            rr = jnp.sqrt(x * x + y * y + z * z)
+            lam = jnp.arctan2(y, x)
+            colat = jnp.arccos(
+                jnp.clip(z / jnp.where(rr == 0.0, 1.0, rr), -1.0, 1.0))
+            return _ballfun_eval_points(coeffs, rr, lam, colat)
+
+        return Diskfun.from_function(ev)
 
     def diff(self, dim: int = 1, k: int = 1,
              coord: str = "cartesian") -> "Ballfun":

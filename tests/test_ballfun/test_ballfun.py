@@ -353,3 +353,61 @@ class TestBallfunPartialIntegration:
         g = f.sum2((1, 2))
         th = np.linspace(-np.pi, np.pi, 17)
         assert np.max(np.abs(np.asarray(g(jnp.asarray(th))))) < 1e-11
+
+
+# ===========================================================================
+# Slice extraction: to_spherefun(r) and to_diskfun(axis, c) (Fable 5)
+# ===========================================================================
+
+
+class TestBallfunSliceExtraction:
+    """Core mirror tests for Ballfun.to_spherefun and Ballfun.to_diskfun."""
+
+    def test_to_spherefun_shell(self):
+        from chebfunjax.ballfun.ballfun import Ballfun
+        from chebfunjax.spherefun.spherefun import Spherefun
+        f = Ballfun.from_function(lambda x, y, z: jnp.sin(z))
+        g = f.to_spherefun(0.5)
+        assert isinstance(g, Spherefun)
+        lam = np.linspace(-np.pi, np.pi, 20, endpoint=False)
+        th = np.linspace(0.05, np.pi - 0.05, 15)
+        LL, TT = np.meshgrid(lam, th)
+        got = np.asarray(g(jnp.asarray(LL), jnp.asarray(TT)))
+        assert np.max(np.abs(got - np.sin(0.5 * np.cos(TT)))) < 1e-12
+
+    def test_to_diskfun_equatorial(self):
+        from chebfunjax.ballfun.ballfun import Ballfun
+        from chebfunjax.diskfun.diskfun import Diskfun
+        f = Ballfun.from_function(lambda x, y, z: jnp.cos(x * y))
+        g = f.to_diskfun()
+        assert isinstance(g, Diskfun)
+        th = np.linspace(-np.pi, np.pi, 20)
+        r = np.linspace(0.05, 0.9, 15)
+        TH, R = np.meshgrid(th, r)
+        x = R * np.cos(TH)
+        y = R * np.sin(TH)
+        got = np.asarray(g(jnp.asarray(TH), jnp.asarray(R)))
+        assert np.max(np.abs(got - np.cos(x * y))) < 1e-12
+
+    def test_to_diskfun_x_axis(self):
+        from chebfunjax.ballfun.ballfun import Ballfun
+        # f = y z; slice x=0 maps disk (x,y) -> ball (0, x, z=y) -> x y.
+        f = Ballfun.from_function(lambda x, y, z: y * z)
+        g = f.to_diskfun("x")
+        th = np.linspace(-np.pi, np.pi, 20)
+        r = np.linspace(0.05, 0.9, 15)
+        TH, R = np.meshgrid(th, r)
+        a = R * np.cos(TH)
+        b = R * np.sin(TH)
+        got = np.asarray(g(jnp.asarray(TH), jnp.asarray(R)))
+        assert np.max(np.abs(got - a * b)) < 1e-12
+
+    def test_to_diskfun_bad_axis_and_offset(self):
+        import pytest
+
+        from chebfunjax.ballfun.ballfun import Ballfun
+        f = Ballfun.from_function(lambda x, y, z: x)
+        with pytest.raises(ValueError):
+            f.to_diskfun("w")
+        with pytest.raises(ValueError):
+            f.to_diskfun("z", 1.5)
