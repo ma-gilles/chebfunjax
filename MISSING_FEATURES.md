@@ -92,6 +92,32 @@ or (b) fix the constructor's pole condition so columns vanish to ~1e-13,
 after which the faithful coeff-space port passes both (cond*1e-13 ~ 3e-12 <
 200*eps).  Fable 5.)*
 
+*(2026-07-19 -- harmonic-basis surface gradient LANDED; the
+tangentnormal strict xfail
+(tests/test_matlab_port/spherefunv/test_tangentnormal_matlab.py) now PASSES
+and the coeff-space diff.m port is no longer needed.  Fix (a) from the
+investigation above: `Spherefun.gradient`/`grad` now route through
+`_spherefun_grad_harmonic`, which projects f onto the real spherical
+harmonics once and applies the EXACT analytic Cartesian surface-gradient
+recurrence to each Y_l^m (degree l -> l+-1; d/dz is pole-free, d/dx+-i d/dy
+via the standard associated-Legendre ladder coefficients).  Because each
+harmonic's surface gradient is analytically tangential, the reconstructed
+(fx, fy, fz) satisfy x*fx + y*fy + z*fz == 0 to machine precision -- the
+dot with the normal snaps to the EXACT zero field (before: normal(grad f)
+was a genuine ~2.6e-13 field), with NO 1/sin(theta) amplification, so
+test_div_matlab trig_x/y stay green (Spherefun.diff itself is unchanged --
+divergence still routes through the pole-avoiding value-space route).
+Second half of the fix: subtracting/adding the exact zero field is now a
+no-op (`Spherefun._is_exact_zero` structural short-circuit in
+`__add__`/`__sub__`) -- previously `u - normal(u)` re-approximated u via
+from_function and drifted ~1.8e-13 even against a zeroed normal, which was
+the DOMINANT failure of pass(3) (`tangent(grad f) == grad f`); both routes
+had shared it.  Measured: normal(grad f) 2.6e-13 -> 0 (exact), tangent
+round-trip 1.8e-13 -> 0 (exact), individual-harmonic gradients exact to
+~1e-15; test_div_matlab, test_grad/vort/diff/laplacian_matlab, the
+div(grad)/div(curl)/vort(grad) composition identities and the c18ca02
+harmonic helpers all still green.  Fable 5.)*
+
 *(Updated 2026-07-19 after the feature-build phase: +138 passes,
 -98 skips.  Landed: piecewise-domain chebop solver (per-piece
 collocation + continuity rows); Orr-Sommerfeld (complex generalized

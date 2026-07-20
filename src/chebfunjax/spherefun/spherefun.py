@@ -1191,12 +1191,32 @@ class Spherefun(eqx.Module):
 
         return Spherefun.from_function(fn)
 
+    def _is_exact_zero(self) -> bool:
+        """True iff every column coefficient is exactly zero.
+
+        Cheap structural test (no evaluation) that recognises the exact zero
+        field produced by the near-zero snap in :meth:`_binary`.  It lets
+        ``f +/- 0`` return ``f`` unchanged instead of re-approximating it via
+        ``from_function`` -- that re-approximation drifts by ~1e-13, which is
+        why ``tangent(grad f) == grad f`` (subtracting an exactly-tangential
+        field's zero normal component) otherwise fails at the 1e2*eps
+        tolerance.  Added by Claude Fable 5.
+        """
+        return all(bool(jnp.all(c.coeffs == 0.0)) for c in self.cols)
+
     def __add__(self, other):
+        if isinstance(other, Spherefun):
+            if other._is_exact_zero():
+                return self
+            if self._is_exact_zero():
+                return other
         return self._binary(other, lambda a, b: a + b)
 
     __radd__ = __add__
 
     def __sub__(self, other):
+        if isinstance(other, Spherefun) and other._is_exact_zero():
+            return self
         return self._binary(other, lambda a, b: a - b)
 
     def __rsub__(self, other):
@@ -1535,21 +1555,27 @@ class Spherefun(eqx.Module):
         r"""Surface gradient in Cartesian components.
 
         Returns ``(fx, fy, fz)``, the three tangential Cartesian
-        derivatives of ``self`` (each a Spherefun).  Verified by Opus
-        4.8 via ``div(grad f) == laplacian f`` to ~1e-14.
+        derivatives of ``self`` (each a Spherefun).  Computed in the
+        spherical-harmonic basis (see :func:`_spherefun_grad_harmonic`),
+        so the components are exactly tangential
+        (``x*fx + y*fy + z*fz == 0`` to machine precision).  Verified via
+        ``div(grad f) == laplacian f`` to ~1e-13.
 
         Provenance
         ----------
         MATLAB source : @spherefun/gradient.m
         Chebfun commit: 7574c77
         """
-        return (self.diff(1), self.diff(2), self.diff(3))
+        return _spherefun_grad_harmonic(self)
 
     def gradient(self) -> "Spherefunv":
         r"""Surface gradient as a :class:`Spherefunv`.
 
         Returns the SPHEREFUNV ``(fx, fy, fz)`` of tangential Cartesian
-        derivatives — the vector-field form of :meth:`grad`.
+        derivatives — the vector-field form of :meth:`grad`.  Uses the
+        exactly-tangential spherical-harmonic-basis surface gradient
+        (:func:`_spherefun_grad_harmonic`), so ``normal(grad f) == 0`` to
+        machine precision.
 
         Provenance
         ----------
@@ -1562,7 +1588,7 @@ class Spherefun(eqx.Module):
 
         if self.isempty():
             return Spherefunv.empty()
-        return Spherefunv(self.diff(1), self.diff(2), self.diff(3))
+        return Spherefunv(*_spherefun_grad_harmonic(self))
 
     def curl(self) -> "Spherefunv":
         r"""Surface curl of a scalar field: ``curl(f) = N x grad(f)``.
@@ -2112,6 +2138,145 @@ def _spherefun_diff_cart(f: "Spherefun", dim: int) -> "Spherefun":
         return _sph_harmonic_eval_sum(coeff_map, lmax, lam, theta)
 
     return Spherefun.from_function(ev)
+
+
+# ---------------------------------------------------------------------------
+# Spherical-harmonic-basis surface gradient
+# ---------------------------------------------------------------------------
+#
+# The surface gradient of a single (complex) spherical harmonic Y_l^m is a
+# finite combination of harmonics of degree l-1 and l+1.  Applying the exact
+# recurrence coefficients below to the harmonic expansion of ``f`` yields the
+# three Cartesian components (fx, fy, fz) as exact harmonic expansions, so the
+# normal component ``x*fx + y*fy + z*fz`` (obtained by multiplying by the exact
+# coordinate-times operators, which lower/raise the degree in the same way)
+# vanishes identically -- the gradient is tangential to machine precision.
+# This avoids both the ``1/sin(theta)`` amplification of the coefficient-space
+# diff.m port and the per-component quadrature floor of the value-space route.
+#
+# Recurrences (real, fully-normalized, Condon-Shortley complex harmonics):
+#   d/dz Y_l^m       = -l A_l^m Y_{l+1}^m  + (l+1) A_{l-1}^m Y_{l-1}^m
+#   (d/dx + i d/dy) Y = P_l^m Y_{l+1}^{m+1} + Q_l^m Y_{l-1}^{m+1}
+#   (d/dx - i d/dy) Y = P'_l^m Y_{l+1}^{m-1} + Q'_l^m Y_{l-1}^{m-1}
+# with A_l^m = sqrt(((l+1)^2 - m^2)/((2l+1)(2l+3))) and
+#   P_l^m  =  l   sqrt((l+m+1)(l+m+2)/((2l+1)(2l+3)))
+#   Q_l^m  = (l+1) sqrt((l-m)(l-m-1)/((2l-1)(2l+1)))
+#   P'_l^m = -l   sqrt((l-m+1)(l-m+2)/((2l+1)(2l+3)))
+#   Q'_l^m = -(l+1) sqrt((l+m)(l+m-1)/((2l-1)(2l+1)))
+# All square-root arguments are non-negative for admissible (l, m).  The
+# coefficients were derived and verified numerically against the value-space
+# tangential gradient to ~1e-15 (see the associated core tests).
+
+
+def _sph_grad_op_z(l: int, m: int) -> dict:
+    """d/dz of the complex harmonic Y_l^m: {(l', m'): coefficient}."""
+    o = {(l + 1, m): -l * np.sqrt(((l + 1) ** 2 - m * m)
+                                  / ((2 * l + 1) * (2 * l + 3)))}
+    if l - 1 >= abs(m):
+        o[(l - 1, m)] = (l + 1) * np.sqrt((l * l - m * m)
+                                          / ((2 * l - 1) * (2 * l + 1)))
+    return o
+
+
+def _sph_grad_op_plus(l: int, m: int) -> dict:
+    """(d/dx + i d/dy) of Y_l^m (raises the order to m+1)."""
+    o = {(l + 1, m + 1): l * np.sqrt((l + m + 1) * (l + m + 2)
+                                     / ((2 * l + 1) * (2 * l + 3)))}
+    if l - 1 >= abs(m + 1):
+        o[(l - 1, m + 1)] = (l + 1) * np.sqrt((l - m) * (l - m - 1)
+                                              / ((2 * l - 1) * (2 * l + 1)))
+    return o
+
+
+def _sph_grad_op_minus(l: int, m: int) -> dict:
+    """(d/dx - i d/dy) of Y_l^m (lowers the order to m-1)."""
+    o = {(l + 1, m - 1): -l * np.sqrt((l - m + 1) * (l - m + 2)
+                                      / ((2 * l + 1) * (2 * l + 3)))}
+    if l - 1 >= abs(m - 1):
+        o[(l - 1, m - 1)] = -(l + 1) * np.sqrt((l + m) * (l + m - 1)
+                                               / ((2 * l - 1) * (2 * l + 1)))
+    return o
+
+
+def _apply_sph_operator(c: dict, opfn, lmax: int) -> dict:
+    """Apply a per-harmonic operator to a complex coefficient map."""
+    out: dict = {}
+    for (l, m), val in c.items():
+        if val == 0:
+            continue
+        for (ll, mm), co in opfn(l, m).items():
+            if ll <= lmax and abs(mm) <= ll:
+                out[(ll, mm)] = out.get((ll, mm), 0j) + val * co
+    return out
+
+
+def _real_to_complex_sph(a: dict, lmax: int) -> dict:
+    """Real-SH coefficients a[(l, m)] -> complex-SH coefficients c[(l, m)].
+
+    Uses the standard orthonormal transform matching :func:`_real_ylm_values`
+    (Condon-Shortley, ``m>0`` = cos, ``m<0`` = sin).
+    """
+    r2 = np.sqrt(2.0)
+    c: dict = {}
+    for l in range(lmax + 1):
+        c[(l, 0)] = complex(a.get((l, 0), 0.0))
+        for mu in range(1, l + 1):
+            ap = a.get((l, mu), 0.0)
+            an = a.get((l, -mu), 0.0)
+            c[(l, mu)] = complex(ap, -an) / r2
+            c[(l, -mu)] = ((-1) ** mu) * complex(ap, an) / r2
+    return c
+
+
+def _complex_to_real_sph(c: dict, lmax: int) -> dict:
+    """Inverse of :func:`_real_to_complex_sph` (returns real coefficients)."""
+    r2 = np.sqrt(2.0)
+    a: dict = {}
+    for l in range(lmax + 1):
+        a[(l, 0)] = c.get((l, 0), 0j).real
+        for mu in range(1, l + 1):
+            cp = c.get((l, mu), 0j)
+            cn = c.get((l, -mu), 0j)
+            a[(l, mu)] = ((cp + ((-1) ** mu) * cn) / r2).real
+            a[(l, -mu)] = ((1j * (cp - ((-1) ** mu) * cn)) / r2).real
+    return a
+
+
+def _spherefun_grad_harmonic(f: "Spherefun") -> tuple:
+    """Surface gradient ``(fx, fy, fz)`` in the spherical-harmonic basis.
+
+    Projects ``f`` onto the real spherical harmonics once, then applies the
+    exact analytic Cartesian surface-gradient recurrence (above) to every
+    harmonic.  Because each ``Y_l^m``'s surface gradient is analytically
+    tangential, the three returned components satisfy ``x*fx + y*fy + z*fz ==
+    0`` to machine precision and there is no ``1/sin(theta)`` amplification,
+    unlike the value-space route in :func:`_spherefun_diff_cart`.  Added by
+    Claude Fable 5.
+    """
+    lmax = f._bandwidth() + 2
+    a = _spherefun_sph_coeffs(f, lmax)
+    cap = lmax + 1  # gradient raises the degree by one
+    c = _real_to_complex_sph(a, cap)
+    cp = _apply_sph_operator(c, _sph_grad_op_plus, cap)
+    cm = _apply_sph_operator(c, _sph_grad_op_minus, cap)
+    cz = _apply_sph_operator(c, _sph_grad_op_z, cap)
+    keys = set(cp) | set(cm)
+    cx = {k: 0.5 * (cp.get(k, 0j) + cm.get(k, 0j)) for k in keys}
+    cy = {k: -0.5j * (cp.get(k, 0j) - cm.get(k, 0j)) for k in keys}
+    bx = _complex_to_real_sph(cx, cap)
+    by = _complex_to_real_sph(cy, cap)
+    bz = _complex_to_real_sph(cz, cap)
+    comps = []
+    for b in (bx, by, bz):
+        # Keep every coefficient above the rounding floor: dropping real
+        # content at ~1e-14 would break the exact normal cancellation.
+        coeff_map = {k: v for k, v in b.items() if abs(v) > 1e-15}
+
+        def ev(lam, theta, _cm=coeff_map):
+            return _sph_harmonic_eval_sum(_cm, cap, lam, theta)
+
+        comps.append(Spherefun.from_function(ev))
+    return tuple(comps)
 
 
 from chebfunjax.utils.misc import make_empty_aware  # noqa: E402
