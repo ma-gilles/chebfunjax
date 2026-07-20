@@ -734,20 +734,34 @@ def _ballfun_eval_points(coeffs: jax.Array, R, lam, colat) -> jax.Array:
     lam = jnp.asarray(lam, dtype=jnp.float64)
     colat = jnp.asarray(colat, dtype=jnp.float64)
 
-    cols = [jnp.ones_like(R)]
-    if m > 1:
-        cols.append(R)
-    for a in range(2, m):
-        cols.append(2.0 * R * cols[-1] - cols[-2])
-    ta = jnp.stack(cols[:m], axis=-1).astype(jnp.complex128)  # (..., m)
+    shape = jnp.broadcast_shapes(R.shape, lam.shape, colat.shape)
+    Rf = jnp.broadcast_to(R, shape).reshape(-1)
+    lamf = jnp.broadcast_to(lam, shape).reshape(-1)
+    colatf = jnp.broadcast_to(colat, shape).reshape(-1)
 
     kb = jnp.arange(n) - n // 2
-    el = jnp.exp(1j * kb * lam[..., None])  # (..., n)
     kc = jnp.arange(p) - p // 2
-    et = jnp.exp(1j * kc * colat[..., None])  # (..., p)
 
-    val = jnp.einsum("...a,abc,...b,...c->...", ta, coeffs, el, et)
-    return jnp.real(val)
+    # The einsum contraction materializes an (npts, n, p) intermediate, so
+    # evaluate in point chunks — a 500k-point adaptive grid against a
+    # 40x40 Fourier mode set would otherwise allocate >10 GB at once.
+    chunk = 8192
+    out = []
+    for i in range(0, Rf.shape[0], chunk):
+        Rc = Rf[i:i + chunk]
+        cols = [jnp.ones_like(Rc)]
+        if m > 1:
+            cols.append(Rc)
+        for a in range(2, m):
+            cols.append(2.0 * Rc * cols[-1] - cols[-2])
+        ta = jnp.stack(cols[:m], axis=-1).astype(jnp.complex128)  # (q, m)
+        el = jnp.exp(1j * kb * lamf[i:i + chunk, None])  # (q, n)
+        et = jnp.exp(1j * kc * colatf[i:i + chunk, None])  # (q, p)
+        out.append(jnp.real(
+            jnp.einsum("qa,abc,qb,qc->q", ta, coeffs, el, et)))
+    if not out:
+        return jnp.zeros(shape, dtype=jnp.float64)
+    return jnp.concatenate(out).reshape(shape)
 
 
 def _mk_theta_trig_eval(A: np.ndarray):
