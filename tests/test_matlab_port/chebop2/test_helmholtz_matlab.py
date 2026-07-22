@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="chebfunjax Chebop2 solves scalar 2-D PDEs with lbc/rbc/ubc/dbc; MATLAB-specific syntaxes (coefficient chebfun2 inputs, generalized bc objects) absent -- basic Poisson/Helmholtz solves are golden-ref tested in tests/test_operators/test_chebop2_matlab.py")
+pytestmark = pytest.mark.skip(reason="Helmholtz Dirichlet solves in the chebfun2 L2 norm at 100*eps; the value-space solver floor (~1e-12) exceeds it (pass1-2). pass3-4 are mu=50 high-frequency cases needing large n, prohibitive for the dense O(n^6) Kronecker solve.")
 
 
 class TestChebop2Helmholtz:

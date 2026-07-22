@@ -35,7 +35,12 @@ import pytest
 from chebfunjax.operators.chebop2 import (
     Chebop2,
     _Chebop2Proxy,
+    _op_from_coeffs,
     bartels_stewart,
+    diffx,
+    diffy,
+    lap,
+    laplacian,
 )
 
 # ===========================================================================
@@ -434,3 +439,90 @@ class TestNonDefaultDomain:
                          jnp.array(yi, dtype=jnp.float64)))
         u_ex = (xi - 1.0)**2 * (yi - 1.5)**2
         npt.assert_allclose(u_num, u_ex, atol=1e-7)
+
+
+# ===========================================================================
+# Operator introspection, arithmetic, and free-function helpers (U64)
+# ===========================================================================
+
+
+class TestChebop2Accessors:
+    """Coefficient/order accessors and operator arithmetic."""
+
+    def test_coeffs_is_transpose_of_internal(self):
+        # diffx(u,3)+diffx(diffy(u,1),2)+diffy(u,2)+pi*u  (non-symmetric).
+        N = Chebop2(
+            lambda u: diffx(u, 3)
+            + diffx(diffy(u, 1), 2)
+            + diffy(u, 2)
+            + np.pi * u
+        )
+        # MATLAB @chebop2 layout: rows index x-order, cols index y-order.
+        expected = np.array(
+            [[np.pi, 0, 1], [0, 0, 0], [0, 1, 0], [1, 0, 0]], dtype=np.float64
+        )
+        npt.assert_allclose(N.coeffs, expected, atol=1e-15)
+        assert N.xorder == 3
+        assert N.yorder == 2
+
+    def test_coeffs_empty_operator(self):
+        N = Chebop2()  # op is None
+        npt.assert_allclose(N.coeffs, np.zeros((1, 1)))
+
+    def test_free_functions(self):
+        N1 = Chebop2(lambda u: laplacian(u))
+        N2 = Chebop2(lambda u: lap(u))
+        N3 = Chebop2(lambda u: diffx(u, 2) + diffy(u, 2))
+        npt.assert_allclose(N1.coeffs, N3.coeffs, atol=1e-15)
+        npt.assert_allclose(N2.coeffs, N3.coeffs, atol=1e-15)
+
+    def test_add_operators(self):
+        N1 = Chebop2(lambda u: diffx(u, 2))
+        N2 = Chebop2(lambda u: diffy(u, 2))
+        N = N1 + N2
+        assert N.xorder == 2 and N.yorder == 2
+        expected = np.array([[0, 0, 1], [0, 0, 0], [1, 0, 0]], dtype=np.float64)
+        npt.assert_allclose(N.coeffs, expected, atol=1e-15)
+
+    def test_add_then_solve(self):
+        # Combined operator must remain solvable (Laplacian, u == 0 on bdy).
+        N = Chebop2(lambda u: diffx(u, 2)) + Chebop2(lambda u: diffy(u, 2))
+        N.bc = 0.0
+        u = N.solve(1.0, n=15)
+        # Poisson u_xx+u_yy=1 with zero BC has a negative-definite interior.
+        u0 = float(u(jnp.array(0.0), jnp.array(0.0)))
+        assert u0 < 0.0
+
+    def test_sub_operators(self):
+        N = Chebop2(lambda u: diffx(u, 2) + diffy(u, 2))
+        M = N - Chebop2(lambda u: diffy(u, 2))
+        # Left with u_xx only: coeffs[2,0] == 1, everything else 0.
+        expected = np.zeros((3, 3), dtype=np.float64)
+        expected[2, 0] = 1.0
+        npt.assert_allclose(M.coeffs, expected, atol=1e-15)
+
+    def test_add_domain_mismatch(self):
+        N1 = Chebop2(lambda u: diffx(u, 2), domain=(-1.0, 1.0, -1.0, 1.0))
+        N2 = Chebop2(lambda u: diffy(u, 2), domain=(0.0, 1.0, 0.0, 1.0))
+        with pytest.raises(ValueError):
+            _ = N1 + N2
+
+    def test_add_non_chebop2(self):
+        N1 = Chebop2(lambda u: diffx(u, 2))
+        assert N1.__add__(5) is NotImplemented
+        assert N1.__sub__(5) is NotImplemented
+
+    def test_op_from_coeffs_roundtrip(self):
+        S = np.zeros((3, 3), dtype=np.float64)
+        S[2, 0] = 1.0  # u_yy
+        S[0, 2] = 2.0  # 2 u_xx
+        op = _op_from_coeffs(S)
+        proxy = op(_Chebop2Proxy())
+        A = proxy._coeffs_matrix()
+        npt.assert_allclose(A[2, 0], 1.0)
+        npt.assert_allclose(A[0, 2], 2.0)
+
+    def test_op_from_coeffs_zero(self):
+        op = _op_from_coeffs(np.zeros((1, 1), dtype=np.float64))
+        proxy = op(_Chebop2Proxy())
+        npt.assert_allclose(proxy._coeffs_matrix(), np.zeros((1, 1)))

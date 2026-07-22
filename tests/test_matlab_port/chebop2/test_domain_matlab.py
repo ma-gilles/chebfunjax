@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="chebfunjax Chebop2 solves scalar 2-D PDEs with lbc/rbc/ubc/dbc; MATLAB-specific syntaxes (coefficient chebfun2 inputs, generalized bc objects) absent -- basic Poisson/Helmholtz solves are golden-ref tested in tests/test_operators/test_chebop2_matlab.py")
+pytestmark = pytest.mark.skip(reason="Needs boundary-slice accessors u(:,y)/u(x,:) returning a 1-D chebfun for the BC-imposition checks, plus a Robin BC dbc=@(x,u) u+2.1*diff(u)-... (pass10).")
 
 
 class TestChebop2Domain:

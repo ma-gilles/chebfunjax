@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="chebfunjax Chebop2 solves scalar 2-D PDEs with lbc/rbc/ubc/dbc; MATLAB-specific syntaxes (coefficient chebfun2 inputs, generalized bc objects) absent -- basic Poisson/Helmholtz solves are golden-ref tested in tests/test_operators/test_chebop2_matlab.py")
+pytestmark = pytest.mark.skip(reason="Requires multi-condition BC syntax rbc=@(t,u)[u;diff(u)], a 3rd-order-in-x term diffx(u,3), and the length-controlled mldivide(N,0,nx,ny) adaptivity API; none exist in the value-space scalar Chebop2 solver.")
 
 
 class TestChebop2Adaptivity:

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="chebfunjax Chebop2 solves scalar 2-D PDEs with lbc/rbc/ubc/dbc; MATLAB-specific syntaxes (coefficient chebfun2 inputs, generalized bc objects) absent -- basic Poisson/Helmholtz solves are golden-ref tested in tests/test_operators/test_chebop2_matlab.py")
+pytestmark = pytest.mark.skip(reason="Requires a two-condition initial BC dbc=@(x,u)[u-...;diff(u)-...] for the 2nd-order-in-time wave IVP; unavailable in the value-space Dirichlet solver.")
 
 
 class TestChebop2Squarewaveequation:

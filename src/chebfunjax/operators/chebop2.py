@@ -373,6 +373,41 @@ class Chebop2:
         self._dbc = val
 
     @property
+    def coeffs(self):
+        """Constant-coefficient PDO matrix (MATLAB ``@chebop2`` layout).
+
+        Returns an ``(xorder+1, yorder+1)`` array ``C`` where ``C[k, j]`` is
+        the coefficient of ``∂^k/∂x^k ∂^j/∂y^j``.  This is the transpose of
+        the internal ``_coeffs`` matrix (whose rows index the y-order), and
+        matches the ordering of MATLAB ``N.coeffs`` for constant-coefficient
+        operators.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop2/chebop2.m (coeffs property)
+        Chebfun commit: 7574c77
+        """
+        if self._coeffs is None:
+            if self.op is None:
+                return np.zeros((1, 1), dtype=np.float64)
+            self._extract_coeffs()
+        return np.array(self._coeffs.T, dtype=np.float64)
+
+    @property
+    def xorder(self) -> int:
+        """Highest x-derivative order appearing in the operator."""
+        if self._coeffs is None and self.op is not None:
+            self._extract_coeffs()
+        return self._xorder
+
+    @property
+    def yorder(self) -> int:
+        """Highest y-derivative order appearing in the operator."""
+        if self._coeffs is None and self.op is not None:
+            self._extract_coeffs()
+        return self._yorder
+
+    @property
     def bc(self):
         """Read lbc (write sets all four BCs simultaneously)."""
         return self._lbc
@@ -498,6 +533,58 @@ class Chebop2:
     def __truediv__(self, f):
         """``N \\ f`` — solve N[u] = f."""
         return self.solve(f)
+
+    def __add__(self, other: "Chebop2") -> "Chebop2":
+        """Sum of two constant-coefficient operators on the same domain.
+
+        The coefficient matrices are added (with zero-padding to a common
+        shape) and a new :class:`Chebop2` with the combined operator is
+        returned.  Boundary conditions are not carried over.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop2/plus.m
+        Chebfun commit: 7574c77
+        """
+        if not isinstance(other, Chebop2):
+            return NotImplemented
+        if self.domain != other.domain:
+            raise ValueError(
+                "Chebop2.__add__: operators must share the same domain, "
+                f"got {self.domain} and {other.domain}."
+            )
+        if self._coeffs is None:
+            self._extract_coeffs()
+        if other._coeffs is None:
+            other._extract_coeffs()
+        A, B = self._coeffs, other._coeffs
+        rows = max(A.shape[0], B.shape[0])
+        cols = max(A.shape[1], B.shape[1])
+        S = np.zeros((rows, cols), dtype=np.float64)
+        S[: A.shape[0], : A.shape[1]] += A
+        S[: B.shape[0], : B.shape[1]] += B
+
+        new = Chebop2(domain=self.domain)
+        new._coeffs = S
+        new.op = _op_from_coeffs(S)
+        nz_r = np.where(np.any(S != 0, axis=1))[0]
+        nz_c = np.where(np.any(S != 0, axis=0))[0]
+        new._yorder = int(nz_r[-1]) if len(nz_r) > 0 else 0
+        new._xorder = int(nz_c[-1]) if len(nz_c) > 0 else 0
+        return new
+
+    def __sub__(self, other: "Chebop2") -> "Chebop2":
+        """Difference of two constant-coefficient operators (``N1 - N2``)."""
+        if not isinstance(other, Chebop2):
+            return NotImplemented
+        if other._coeffs is None:
+            other._extract_coeffs()
+        neg = Chebop2(domain=other.domain)
+        neg._coeffs = -np.array(other._coeffs, dtype=np.float64)
+        neg.op = _op_from_coeffs(neg._coeffs)
+        neg._xorder = other._xorder
+        neg._yorder = other._yorder
+        return self.__add__(neg)
 
     # ------------------------------------------------------------------
     # Fixed-size solve (value space, full Kronecker)
@@ -862,6 +949,53 @@ def _eval_bc_on_pts(bc_spec, pts: np.ndarray) -> np.ndarray:
             dtype=np.float64,
         )
     return np.asarray(bc_spec, dtype=np.float64).ravel()
+
+
+def _op_from_coeffs(S: np.ndarray) -> Callable:
+    """Build an operator lambda that reproduces a coefficient matrix ``S``.
+
+    ``S[j, k]`` is the coefficient of ``∂^j/∂y^j ∂^k/∂x^k`` (the internal
+    ``_coeffs`` layout).  The returned callable maps a :class:`_Chebop2Proxy`
+    to the corresponding proxy term, so that :class:`Chebop2` objects produced
+    by arithmetic remain solvable.
+    """
+
+    def op(u: "_Chebop2Proxy") -> "_Chebop2Proxy":
+        term: _Chebop2Proxy | None = None
+        for j in range(S.shape[0]):
+            for k in range(S.shape[1]):
+                c = float(S[j, k])
+                if c != 0.0:
+                    piece = c * u.diff(j, k)
+                    term = piece if term is None else term + piece
+        return term if term is not None else 0.0 * u.diff(0, 0)
+
+    return op
+
+
+# ---------------------------------------------------------------------------
+# Free operator helpers for building operator lambdas (MATLAB-style syntax)
+# ---------------------------------------------------------------------------
+
+
+def diffx(u: "_Chebop2Proxy", n: int = 1) -> "_Chebop2Proxy":
+    """``n``-th partial derivative in x (MATLAB ``diffx(u, n)``)."""
+    return u.diff(0, n)
+
+
+def diffy(u: "_Chebop2Proxy", n: int = 1) -> "_Chebop2Proxy":
+    """``n``-th partial derivative in y (MATLAB ``diffy(u, n)``)."""
+    return u.diff(n, 0)
+
+
+def laplacian(u: "_Chebop2Proxy") -> "_Chebop2Proxy":
+    """2D Laplacian ``u_xx + u_yy`` (MATLAB ``laplacian(u)``)."""
+    return u.diff(0, 2) + u.diff(2, 0)
+
+
+def lap(u: "_Chebop2Proxy") -> "_Chebop2Proxy":
+    """Alias for :func:`laplacian` (MATLAB ``lap(u)``)."""
+    return laplacian(u)
 
 
 def _next_grid(n: int) -> int:
