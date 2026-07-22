@@ -11,10 +11,28 @@ counterparts (1,105 port files). Final run:
 
 | Status | Count | Meaning |
 |---|---:|---|
-| **passed** | 2,252 | ported at MATLAB tolerances and passing |
-| **skipped** | 676 | test written; the feature does not exist (reason string names it) |
-| **xfailed** | 356 | known library bug or convention gap, with evidence in the reason |
+| **passed** | 2,291 | ported at MATLAB tolerances and passing |
+| **skipped** | 658 | test written; the feature does not exist (reason string names it) |
+| **xfailed** | 375 | known library bug or convention gap, with evidence in the reason |
 | **failed** | **0** | |
+
+*(2026-07-20 fresh full accounting (chunked per-directory run, zero
+failures): 2,291 / 0 / 658 / 375.  Since the last count: Bezout
+hidden-variable resultant rootfinder (7 port files now genuine
+ms-vs-resultant cross-checks at 1e-16..2e-14); spherefun nested-
+composition XLA blow-up fixed (O(lmax^3) harmonic reconstruction
+vectorized 25x + analytically-zero results snapped exactly); harmonic-
+basis surface gradient (exactly tangential -- tangentnormal strict
+xfail FLIPPED, all identities exactly 0); faithful no-op spherefun
+conj + structural real/imag (a 2e-14 resample noise was a latent CI
+failure); ballfun point-evaluation chunking (a >20 GB einsum
+intermediate OOM-killed the geometry-ops CI runner); diskfun
+cdr/coeffs2/svd/fevalm; ballfun sum(dim)/sum2/to_spherefun/to_diskfun.
+The coeff-space @spherefun/diff.m port was implemented, measured, and
+deliberately deferred: its 1/sin(theta) banded solve amplifies the
+constructor's ~5e-8 pole residual by cond~n/2 and regresses div parity
+(3.5e-12 -> 1.3e-11 vs 4.4e-12 tol) -- see commit 35c45b7 for the full
+analysis and the harmonic-basis route that superseded it.)*
 
 *(2026-07-19 follow-up: the 22 alias-port xfails (chebtech1/2
 test_alias) flipped to plain passes -- the fleet's `chebtech.alias`
