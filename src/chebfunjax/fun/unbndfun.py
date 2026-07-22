@@ -451,6 +451,37 @@ class Unbndfun(eqx.Module):
                 float(self.domain.breakpoints[-1]))
 
     @property
+    def tech(self) -> Chebtech2:
+        """Underlying Chebtech2 on the reference interval [-1, 1].
+
+        Alias for :attr:`onefun` so that an Unbndfun satisfies the same
+        ``piece.tech`` protocol as :class:`_Piece`; Chebfun-level column
+        operations (``extract_columns``, ``assign_columns``, ``repmat``,
+        ``n_columns``, ``any``) read and rebuild through this attribute.
+        """
+        return self.onefun
+
+    def with_tech(self, tech: Chebtech2) -> "Unbndfun":
+        """Return a new Unbndfun with the same mapping but a new onefun.
+
+        Type-preserving rebuild used by the Chebfun column operations: for a
+        bounded :class:`_Piece` the rebuild is ``_Piece(tech, interval)``; for
+        an Unbndfun it must keep the domain and mapping_type so the unbounded
+        map is not lost (a plain _Piece on an infinite interval is invalid).
+        """
+        return Unbndfun(onefun=tech, domain=self.domain,
+                        mapping_type=self.mapping_type)
+
+    def _apply_unary(self, tech_result: Chebtech2) -> "Unbndfun":
+        """Wrap a onefun result in a new Unbndfun with the same mapping.
+
+        Piece-protocol hook mirroring ``_Piece._apply_unary`` so Chebfun-level
+        scalar arithmetic (``f + c``, ``-f``, ``f ** k`` ...) keeps the
+        unbounded mapping.
+        """
+        return self.with_tech(tech_result)
+
+    @property
     def n(self) -> int:
         """Number of Chebyshev coefficients."""
         return self.onefun.n

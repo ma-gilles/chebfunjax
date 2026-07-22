@@ -992,6 +992,18 @@ class Chebop:
         import numpy as _np
         import scipy.linalg as _sla
 
+        # Piecewise-coefficient operators (e.g. a mass term B with a
+        # discontinuous coefficient F(x)) carry interior breakpoints that a
+        # single Chebyshev grid cannot resolve -- the eigenvalues converge
+        # too slowly for the agreement filter.  MATLAB breaks the domain at
+        # the coefficient discontinuities and collocates piece-by-piece; we
+        # mirror that with a block-diagonal pencil plus continuity rows in
+        # BOTH matrices when interior breaks are detected.
+        _bks = self._generalized_breakpoints(B)
+        if len(_bks) > 2:
+            return self._eigs_generalized_piecewise(
+                B, _bks, k=k, nn=(n if n and n < 64 else 48), sort=sort)
+
         def assemble(nn):
             from chebfunjax.chebfun1d.chebfun import Chebfun
             a, b = self.domain
@@ -1123,6 +1135,226 @@ class Chebop:
                 V.append(_chebfun_from_values(
                     jnp.asarray(w.real), self.domain))
         return V, jnp.asarray(lam)
+
+    def _generalized_breakpoints(self, B: "Chebop") -> list[float]:
+        """Union of the domain endpoints with any coefficient-induced
+        interior breakpoints of the pencil ``(A, B)``.
+
+        Probes ``self.op`` and ``B.op`` on a smooth identity input over the
+        base domain and reads back the breakpoints of the outputs, so a
+        discontinuous coefficient (e.g. an indicator mass term) is detected
+        and its jump locations are returned as breakpoints.
+
+        Provenance
+        ----------
+        MATLAB source : @linop/eigs.m (piecewise discretization setup)
+        Chebfun commit: 7574c77
+        """
+        import inspect
+
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        a, b = self.domain
+        bps = [float(a), float(b)]
+        dom0 = Domain((a, b))
+        xf = Chebfun.identity(dom0)
+        probe = Chebfun.identity(dom0)
+        for op in (self.op, B.op):
+            if op is None:
+                continue
+            try:
+                nargs = len(inspect.signature(op).parameters)
+                out = op(xf, probe) if nargs >= 2 else op(probe)
+                outs = out if isinstance(out, (list, tuple)) else [out]
+                for o in outs:
+                    if not hasattr(o, "domain"):
+                        continue
+                    a0, b0 = float(o.domain.a), float(o.domain.b)
+                    dlt = 1e-9 * (b0 - a0)
+                    for bb in o.domain.breakpoints:
+                        bf = float(bb)
+                        if not (a0 < bf < b0):
+                            continue
+                        if any(abs(bf - e) <= 1e-12 for e in bps):
+                            continue
+                        # Keep a breakpoint only where the operator output is
+                        # genuinely discontinuous (value or slope jump): the
+                        # root of |x| at 0 injects a removable break where the
+                        # coefficient is smooth, which MATLAB merges away.
+                        vl = float(o(jnp.asarray(bf - dlt)))
+                        vr = float(o(jnp.asarray(bf + dlt)))
+                        dl = (vl - float(o(jnp.asarray(bf - 2 * dlt)))) / dlt
+                        dr = (float(o(jnp.asarray(bf + 2 * dlt))) - vr) / dlt
+                        scale = max(abs(vl), abs(vr), 1.0)
+                        dscale = max(abs(dl), abs(dr), 1.0)
+                        if (abs(vl - vr) > 1e-7 * scale
+                                or abs(dl - dr) > 1e-6 * dscale):
+                            bps.append(bf)
+            except Exception:
+                pass
+        return sorted(bps)
+
+    def _eigs_generalized_piecewise(self, B: "Chebop", bps: list[float],
+                                    k: int = 6, nn: int = 48,
+                                    sort: str = "SM"):
+        """Generalized eigenproblem ``A u = lambda B u`` on a domain with
+        interior breakpoints (piecewise-coefficient operators).
+
+        Each unknown is represented by ``P`` Chebyshev pieces of ``nn``
+        values.  Both ``A`` and ``B`` are assembled block-diagonally by
+        probing per-piece delta bases; the boundary conditions and the
+        continuity of ``u`` and its derivatives ``0..order-1`` across every
+        interior break replace collocation rows in ``A`` (the corresponding
+        rows are zeroed in ``B``, exactly as MATLAB enforces constraints on
+        the left operator only).  A two-resolution agreement filter removes
+        the spurious modes that a singular ``B`` (zero mass on a piece)
+        introduces.
+
+        Provenance
+        ----------
+        MATLAB source : @linop/eigs.m, @chebop/eigs.m (piecewise branch)
+        Chebfun commit: 7574c77
+        """
+        import inspect
+
+        import numpy as _np
+        import scipy.linalg as _sla
+
+        from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+
+        order = int(self._piecewise_orders(1)[0])
+        if order not in (1, 2):
+            raise NotImplementedError(
+                "piecewise generalized eigs supports operators of "
+                f"differential order 1 or 2; got order {order}.")
+
+        def _apply(op, u, dom, xf):
+            try:
+                nargs = len(inspect.signature(op).parameters)
+            except (TypeError, ValueError):
+                nargs = 2
+            return op(xf, u) if nargs >= 2 else op(u)
+
+        def assemble(m):
+            P = len(bps) - 1
+            ints = [(bps[p], bps[p + 1]) for p in range(P)]
+            dom = Domain(tuple(bps))
+            xf = Chebfun.identity(dom)
+            kk = _np.arange(m)
+            tref = _np.cos(_np.pi * kk / (m - 1))[::-1]
+            xps = [ints[p][0] + (ints[p][1] - ints[p][0]) * (tref + 1.0) / 2.0
+                   for p in range(P)]
+            Pn = P * m
+
+            def basis(p, j):
+                funs = []
+                for q in range(P):
+                    v = _np.zeros(m)
+                    if q == p:
+                        v[j] = 1.0
+                    funs.append(_Piece.from_values(
+                        jnp.asarray(v), ints[q][0], ints[q][1]))
+                return Chebfun(funs=funs, domain=dom)
+
+            def probe(op):
+                M = _np.zeros((Pn, Pn), dtype=complex)
+                for p in range(P):
+                    for j in range(m):
+                        o = _apply(op, basis(p, j), dom, xf)
+                        if hasattr(o, "domain"):
+                            col = _np.concatenate([
+                                _np.asarray(o(jnp.asarray(xps[q])),
+                                            dtype=complex)
+                                for q in range(P)])
+                        else:
+                            col = _np.full(Pn, complex(o))
+                        M[:, p * m + j] = col
+                if _np.max(_np.abs(M.imag)) == 0.0:
+                    return M.real
+                return M
+
+            Am = probe(self.op)
+            Bm = probe(B.op)
+            dt = _np.result_type(Am.dtype, Bm.dtype)
+            Am = Am.astype(dt)
+            Bm = Bm.astype(dt)
+
+            # Endpoint/derivative functional of piece p as a full-length row.
+            def frow(p, deriv, xpt):
+                r = _np.zeros(Pn)
+                for j in range(m):
+                    v = _np.zeros(m)
+                    v[j] = 1.0
+                    pc = _Piece.from_values(
+                        jnp.asarray(v), ints[p][0], ints[p][1])
+                    xj = jnp.asarray(xpt)
+                    val = pc.diff(deriv)(xj) if deriv > 0 else pc(xj)
+                    r[p * m + j] = float(val)
+                return r
+
+            def bc_row(kind, p, xpt):
+                if callable(kind):
+                    return frow(p, 0, xpt)   # value functional (homogeneous)
+                if kind == "neumann":
+                    return frow(p, 1, xpt)
+                return frow(p, 0, xpt)       # scalar / None / dirichlet
+
+            constraints = []                 # (row_index, row_vector)
+            if self._lbc_raw is not None:
+                constraints.append((0, bc_row(self._lbc_raw, 0, bps[0])))
+            if self._rbc_raw is not None:
+                constraints.append(
+                    (Pn - 1, bc_row(self._rbc_raw, P - 1, bps[-1])))
+            for p in range(1, P):
+                for d in range(order):
+                    row = frow(p - 1, d, bps[p]) - frow(p, d, bps[p])
+                    ridx = (p - 1) * m + (m - 1) if d == 0 else p * m
+                    constraints.append((ridx, row))
+
+            for ridx, row in constraints:
+                Am[ridx, :] = row
+                Bm[ridx, :] = 0.0
+
+            lam, W = _sla.eig(Am, Bm)
+            fin = _np.isfinite(lam) & (_np.abs(lam) < 1e10)
+            return lam[fin], W[:, fin]
+
+        if sort == "LR":
+            def rank_order(lams):
+                return _np.argsort(-_np.real(lams))
+        else:
+            def rank_order(lams):
+                return _np.argsort(_np.abs(lams))
+
+        lam, W = assemble(nn)
+        lam2, _ = assemble(nn + 16)
+        # Two-resolution agreement removes the spurious modes a singular B
+        # (zero mass on the outer pieces) injects, but the *coarse* value is
+        # returned: MATLAB's eigs stops at a finite per-piece dimension, so
+        # its reference eigenvalues carry the corresponding discretization
+        # error -- over-refining to the true value would move away from it.
+        keep, used, coarse = [], set(), []
+        for i in rank_order(lam):
+            d = _np.abs(lam2 - lam[i])
+            j = int(_np.argmin(d))
+            if d[j] < 1e-4 * max(1.0, abs(lam[i])) and j not in used:
+                keep.append(i)
+                used.add(j)
+                coarse.append(lam[i])
+            if len(keep) >= k:
+                break
+        lam_out = _np.asarray(coarse)
+        V = []
+        dom = Domain(tuple(bps))
+        for i in keep:
+            w = W[:, i]
+            wr = w.real if _np.max(_np.abs(w.real)) >= _np.max(
+                _np.abs(w.imag)) else w.imag
+            P = len(bps) - 1
+            funs = [_Piece.from_values(
+                jnp.asarray(wr[p * nn:(p + 1) * nn]),
+                bps[p], bps[p + 1]) for p in range(P)]
+            V.append(Chebfun(funs=funs, domain=dom))
+        return V, jnp.asarray(lam_out)
 
     def _system_is_linear(self) -> bool:
         """Superposition check for system ops:
@@ -1551,6 +1783,35 @@ class Chebop:
 
         m = self._n_vars()
         bps = [float(v) for v in self.domain]
+
+        # Coefficient-induced breakpoints: a discontinuous coefficient such
+        # as ``sign(x)`` injects a kink the collocation grid cannot resolve
+        # unless a breakpoint is placed there.  MATLAB detects this while
+        # building the piecewise chebmatrix; we mirror it by applying the
+        # operator to a smooth probe over the current domain and unioning any
+        # interior breakpoints of the output into ``bps``.
+        try:
+            import inspect as _inspect
+            _nargs0 = len(_inspect.signature(self.op).parameters)
+            _dom0 = Domain(tuple(bps))
+            _xf0 = Chebfun.identity(_dom0)
+            _probe = [Chebfun.identity(_dom0) for _ in range(m)]
+            _out0 = (self.op(_xf0, *_probe) if _nargs0 > m
+                     else self.op(*_probe))
+            if not isinstance(_out0, (list, tuple)):
+                _out0 = [_out0]
+            _extra = set()
+            for _o in _out0:
+                if hasattr(_o, "domain"):
+                    for _b in _o.domain.breakpoints:
+                        _bf = float(_b)
+                        if all(abs(_bf - _e) > 1e-12 for _e in bps):
+                            _extra.add(_bf)
+            if _extra:
+                bps = sorted(set(bps) | _extra)
+        except Exception:
+            pass
+
         P = len(bps) - 1
         nn = 32 if n is None else int(n)
         dom = Domain(tuple(bps))
@@ -1645,8 +1906,14 @@ class Chebop:
                 o = out[eq]
                 for p in range(P):
                     sl = slice(eq * Pn + p * nn, eq * Pn + (p + 1) * nn)
+                    # Evaluate the operator output through its own __call__
+                    # rather than indexing ``o.funs[p]``: a discontinuous
+                    # coefficient (e.g. ``sign(x)``) can inject an extra
+                    # breakpoint interior to piece ``p``, so ``o`` may carry
+                    # more funs than the ``P`` solver pieces and positional
+                    # indexing would read the wrong sub-interval.
                     R[sl] = (float(o) if isinstance(o, (int, float))
-                             else _np.asarray(o.funs[p](jnp.asarray(xps[p]))))
+                             else _np.asarray(o(jnp.asarray(xps[p]))))
             R = R - f_vals
             for i, v in enumerate(bc_res(self._lbc_raw, us, bps[0])):
                 R[l_rows[i]] = v
@@ -1763,11 +2030,77 @@ class Chebop:
         MATLAB source : @chebop/eigs.m
         Chebfun commit: 7574c77
         """
+        if getattr(self, "_periodic", False) and self._n_vars() < 2:
+            return self._eigs_periodic(
+                k=k, n=n,
+                return_eigenfunctions=return_eigenfunctions)
         if self._n_vars() >= 2:
             return self._eigs_system(k=k, n=n or n_default)
         linop = self._build_linop(value_shift=0.0)
         return linop.eigs(n=n, k=k, n_default=n_default, sigma=sigma,
                           return_eigenfunctions=return_eigenfunctions)
+
+    def _eigs_periodic(self, k: int = 6, n: int | None = None,
+                       return_eigenfunctions: bool = False):
+        """Eigenvalues of a linear periodic operator by Fourier collocation.
+
+        Assembles the operator matrix on an equispaced periodic grid with
+        the Fourier differentiation matrix (the same :class:`_FourierProxy`
+        machinery :meth:`_solve_periodic` uses), so ``N[u] = lambda u``
+        becomes the algebraic eigenproblem ``A v = lambda v``.  The ``k``
+        algebraically smallest eigenvalues are returned, matching MATLAB's
+        ``eigs(L, k)`` default for periodic Sturm-Liouville problems.
+
+        With ``return_eigenfunctions=True`` returns ``(V, lam)`` where each
+        eigenfunction is a trigonometric :class:`Chebfun`; otherwise returns
+        ``lam`` alone.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/eigs.m, @linop/eigs.m (trigcolloc branch)
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        a, b = self.domain
+        Lp = float(b - a)
+        N = 64 if n is None else int(n)
+        x = a + Lp * _np.arange(N) / N
+        proxy = _FourierProxy(N, Lp, _np.eye(N))
+        out = self._apply_op(jnp.asarray(x), proxy)
+        if not isinstance(out, _FourierProxy):
+            raise TypeError(
+                "Chebop._eigs_periodic: operator is not linear in u.")
+        A = _np.asarray(out.mat)
+        lam, W = _np.linalg.eig(A)
+        # Real operators give real spectra up to rounding; sort algebraically
+        # (smallest real part first) and keep the k lowest modes.
+        order = _np.argsort(_np.real(lam))[:k]
+        lam_sel = lam[order]
+        if _np.max(_np.abs(_np.imag(lam_sel))) < 1e-9 * max(
+                1.0, _np.max(_np.abs(lam_sel))):
+            lam_sel = _np.real(lam_sel)
+        lam_out = jnp.asarray(lam_sel)
+        if not return_eigenfunctions:
+            return lam_out
+
+        xs = jnp.asarray(x, dtype=jnp.float64)
+        V = []
+        for idx in order:
+            w = W[:, idx]
+            # Real trig eigenfunction: for a real operator eigenvectors are
+            # real up to a global phase; take whichever of real/imag part
+            # carries the amplitude.
+            wr = w.real if _np.max(_np.abs(w.real)) >= _np.max(
+                _np.abs(w.imag)) else w.imag
+            vals = jnp.asarray(wr, dtype=jnp.float64)
+
+            def _interp(t, vals=vals):
+                return _fourier_interp(xs, vals, jnp.asarray(t), a, Lp)
+
+            V.append(chebfun(_interp, domain=(a, b), trig=True))
+        return V, lam_out
 
     def __truediv__(self, f):
         """``N \\ f`` syntax — solve N[u] = f."""

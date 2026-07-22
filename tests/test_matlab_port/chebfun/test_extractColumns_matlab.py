@@ -52,5 +52,18 @@ class TestChebfunExtractcolumns:
         assert h.n_columns == 4 and _normest(g - h) < 1e1 * EPS
 
     def test_unbounded(self):
-        # pass(4): extractColumns on an unbounded domain.
-        pytest.skip("chebfunjax has no unbounded-domain support")
+        # pass(4): extractColumns on an unbounded domain (-inf, -3*pi].
+        # op = [exp(x) x*exp(x) (1-exp(x))/x];  extractColumns(f, [2 3 3 1]).
+        dom = (-jnp.inf, -3 * np.pi)
+        op = lambda x: jnp.stack(
+            [jnp.exp(x), x * jnp.exp(x), (1 - jnp.exp(x)) / x], axis=-1)
+        opg = lambda x: jnp.stack(
+            [x * jnp.exp(x), (1 - jnp.exp(x)) / x,
+             (1 - jnp.exp(x)) / x, jnp.exp(x)], axis=-1)
+        f = cj.chebfun(op, domain=dom)
+        g = f.extract_columns([1, 2, 2, 0])
+        assert g.n_columns == 4
+        rng = np.random.default_rng(415)
+        x = jnp.asarray(((-3 * np.pi) - (-1e6)) * rng.uniform(size=100) + (-1e6))
+        err = float(np.max(np.abs(np.asarray(g(x)) - np.asarray(opg(x)))))
+        assert err < 1e2 * EPS * f.vscale

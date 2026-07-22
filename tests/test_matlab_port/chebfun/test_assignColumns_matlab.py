@@ -105,5 +105,18 @@ class TestChebfunAssigncolumns:
                     "n_columns")
 
     def test_unbounded(self):
-        # pass(k,13): assignColumns on an unbounded domain.
-        pytest.skip("chebfunjax has no unbounded-domain support")
+        # pass(k,13): assignColumns(f, 2, g) on (-inf, -3*pi].
+        # op = [exp(x) x*exp(x) (1-exp(x))/x]; g = exp(-x^2) replaces col 2;
+        # oph = [exp(x) exp(-x^2) (1-exp(x))/x].
+        dom = (-jnp.inf, -3 * np.pi)
+        op = lambda x: jnp.stack(
+            [jnp.exp(x), x * jnp.exp(x), (1 - jnp.exp(x)) / x], axis=-1)
+        oph = lambda x: jnp.stack(
+            [jnp.exp(x), jnp.exp(-x**2), (1 - jnp.exp(x)) / x], axis=-1)
+        f = cj.chebfun(op, domain=dom)
+        g = cj.chebfun(lambda x: jnp.exp(-x**2), domain=dom)
+        h = f.assign_columns(1, g)
+        rng = np.random.default_rng(1729)
+        x = jnp.asarray(((-3 * np.pi) - (-1e6)) * rng.uniform(size=100) + (-1e6))
+        err = float(np.max(np.abs(np.asarray(h(x)) - np.asarray(oph(x)))))
+        assert err < 1e2 * EPS * h.vscale

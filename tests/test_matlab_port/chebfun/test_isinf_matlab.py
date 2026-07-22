@@ -19,6 +19,12 @@ class TestChebfunIsinf:
         f = cj.chebfun(lambda x: jnp.exp(x))
         assert not bool(f.isinf())
 
+    def test_unbounded_not_inf(self):
+        # pass(5): ~isinf of a smooth, bounded function on [0, inf).
+        f = cj.chebfun(lambda x: 0.75 + jnp.sin(10 * x) / jnp.exp(x),
+                       domain=(0, jnp.inf))
+        assert not bool(f.isinf())
+
     def test_singular_is_inf(self):
         # pass(4): a singular SingFun (endpoint pole) is infinite.
         dom = (-2.0, 7.0)

@@ -94,5 +94,20 @@ class TestChebfunMat2cell:
         pytest.skip("Chebfun.mat2cell() does not validate that sizes sum to n_columns")
 
     def test_unbounded(self):
-        # pass(k,18): mat2cell on an unbounded domain.
-        pytest.skip("chebfunjax has no unbounded-domain support")
+        # pass(k,18): mat2cell(f, 1, [1 2]) on (-inf, -3*pi].
+        # op = [exp(x) x*exp(x) (1-exp(x))/x]; split into {exp, [x*exp (1-exp)/x]}.
+        dom = (-jnp.inf, -3 * np.pi)
+        op = lambda x: jnp.stack(
+            [jnp.exp(x), x * jnp.exp(x), (1 - jnp.exp(x)) / x], axis=-1)
+        opg = lambda x: jnp.exp(x)
+        oph = lambda x: jnp.stack(
+            [x * jnp.exp(x), (1 - jnp.exp(x)) / x], axis=-1)
+        f = cj.chebfun(op, domain=dom)
+        C = f.mat2cell([1, 2])
+        assert len(C) == 2 and C[0].n_columns == 1 and C[1].n_columns == 2
+        rng = np.random.default_rng(1618)
+        x = jnp.asarray(((-3 * np.pi) - (-1e6)) * rng.uniform(size=100) + (-1e6))
+        err1 = float(np.max(np.abs(np.ravel(np.asarray(C[0](x)))
+                                   - np.asarray(opg(x)))))
+        err2 = float(np.max(np.abs(np.asarray(C[1](x)) - np.asarray(oph(x)))))
+        assert max(err1, err2) < 1e2 * EPS * f.vscale

@@ -80,6 +80,13 @@ class TestChebfunAny:
         # pass(12): any(f, 3) raises CHEBFUN:CHEBFUN:any:dim.
         pytest.skip("Chebfun.any() takes no dim argument")
 
-    def test_singular_and_unbounded(self):
-        # pass(13-16): singular / unbounded-domain cases.
-        pytest.skip("chebfunjax has no SingFun or unbounded-domain support")
+    def test_unbounded_zero(self):
+        # pass(16): ~any(0*x) on the unbounded domain [1, inf).  A zero
+        # function on a semi-infinite interval has no nonzero value anywhere.
+        g = cj.chebfun(lambda x: 0 * x, domain=(1, jnp.inf))
+        assert not bool(g.any())
+
+    def test_singular_and_unbounded_blowup(self):
+        # pass(13,14): singular (SingFun) cases; pass(15): any(1/x^2) on
+        # [1, inf) with 'exps' [0 -2] -- unbounded-domain blow-up.
+        pytest.skip("chebfunjax has no SingFun or 'exps' blow-up support")
