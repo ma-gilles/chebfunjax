@@ -179,6 +179,15 @@ class _Piece(eqx.Module):
         vals = self.values
         return (float(vals[0]), float(vals[-1]))
 
+    def with_tech(self, tech) -> _Piece:
+        """Return a new piece with the same interval but a new tech.
+
+        Type-preserving rebuild so column operations can share one code path
+        across bounded pieces and :class:`~chebfunjax.fun.unbndfun.Unbndfun`
+        (which overrides this to keep its unbounded mapping).
+        """
+        return _Piece(tech=tech, interval=self.interval)
+
     def restrict(self, a: float, b: float) -> _Piece:
         """Restrict to sub-interval [a, b].
 
@@ -205,8 +214,13 @@ class _Piece(eqx.Module):
     # ------------------------------------------------------------------
 
     def _apply_unary(self, tech_result: Chebtech2) -> _Piece:
-        """Wrap a Chebtech2 result in a _Piece with the same interval."""
-        return _Piece(tech=tech_result, interval=self.interval)
+        """Wrap a Chebtech2 result in a piece of the same kind.
+
+        Goes through :meth:`with_tech` so an unbounded piece keeps its
+        mapping (scalar arithmetic on an ``Unbndfun`` piece must not collapse
+        it to a bounded ``_Piece`` on an infinite interval).
+        """
+        return self.with_tech(tech_result)
 
     def _apply_fun(self, op) -> _Piece:
         """Compose this piece with a scalar function op.
@@ -368,6 +382,20 @@ class _Piece(eqx.Module):
             )
         a, b = self.interval
         scale = (b - a) / 2.0
+        from chebfunjax.fun.singfun import Singfun
+        if isinstance(self.tech, Singfun) or isinstance(other.tech, Singfun):
+            # <f, g> = \int conj(f) g over the reference interval; the
+            # SingFun product folds the endpoint exponents together and
+            # integrates them exactly (Gauss-Jacobi).  Promote a smooth
+            # partner to a trivial-exponent SingFun so the product is defined.
+            sf = self.tech if isinstance(self.tech, Singfun) \
+                else Singfun.from_chebtech(self.tech, (0.0, 0.0))
+            og = other.tech if isinstance(other.tech, Singfun) \
+                else Singfun.from_chebtech(other.tech, (0.0, 0.0))
+            # Conjugate the left factor, keeping it a Singfun (Singfun.conj
+            # downgrades a trivial-exponent case to its smooth part).
+            conj_sf = Singfun(sf.smoothPart.conj(), sf.exponents)
+            return (conj_sf * og).sum() * jnp.float64(scale)
         return self.tech.inner(other.tech) * jnp.float64(scale)
 
     def roots(self) -> jax.Array:
@@ -1069,7 +1097,7 @@ class Chebfun(eqx.Module):
         """
         f, g = Chebfun._overlap(f, g)
         new_funs = [
-            _Piece(tech=op(pf.tech, pg.tech), interval=pf.interval)
+            pf.with_tech(op(pf.tech, pg.tech))
             for pf, pg in zip(f.funs, g.funs)
         ]
         return Chebfun(funs=new_funs, domain=f.domain)
@@ -1400,7 +1428,50 @@ class Chebfun(eqx.Module):
         --------
         Chebfun.log, Chebfun.exp
         """
-        return self._apply_fun(jnp.sqrt)
+        return self._root_power(0.5, jnp.sqrt)
+
+    def _root_power(self, b: float, smooth_op) -> Chebfun:
+        """Raise to a real power ``b`` producing singular reps at roots.
+
+        Mirrors MATLAB @chebfun/power.m (``columnPower``, general case):
+        breakpoints are added at the interior roots of ``f``, then each piece
+        is raised to the power at the fun level.  A piece that vanishes at a
+        breakpoint carries the root into a fractional (branch-point) exponent
+        via :class:`Singfun`; pieces with no roots stay smooth.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/power.m (columnPower), @singfun/power.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        from chebfunjax.fun.singfun import Singfun
+        # No roots anywhere -> smooth composition (fast path, matches the
+        # positive-function tests exactly).
+        r = _np.asarray(self.roots(), dtype=float).ravel()
+        r = r[_np.isfinite(r)]
+        if len(r) == 0:
+            return self._apply_fun(smooth_op)
+        # Split at interior roots so every remaining root sits on a breakpoint.
+        fbr = self.addBreaksAtRoots()
+        new_funs = []
+        for p in fbr.funs:
+            tech = p.tech
+            if isinstance(tech, Singfun):
+                sf = tech ** b
+            else:
+                sf = (Singfun.from_chebtech(tech, (0.0, 0.0))
+                      .extractBoundaryRoots() ** b).simplifyExponents()
+            # A piece with no boundary roots collapses to trivial exponents;
+            # keep it smooth to avoid needless Singfun overhead downstream.
+            if all(abs(e) < 1e-14 for e in sf.exponents):
+                new_funs.append(_Piece.from_function(
+                    lambda x, _p=p: smooth_op(_p(x)),
+                    p.interval[0], p.interval[1]))
+            else:
+                new_funs.append(_Piece(tech=sf, interval=p.interval))
+        return Chebfun(funs=new_funs, domain=fbr.domain)
 
     def abs(self) -> Chebfun:
         """Absolute value of the Chebfun.
@@ -3547,9 +3618,8 @@ class Chebfun(eqx.Module):
             block = c[:, jnp.asarray(idx)]
             if single:
                 block = block[:, 0]
-            new_funs.append(_Piece(
-                tech=self._tech_with_coeffs(t, block),
-                interval=piece.interval))
+            new_funs.append(piece.with_tech(
+                self._tech_with_coeffs(t, block)))
         return Chebfun(funs=new_funs, domain=self.domain)
 
     def assign_columns(self, cols, g) -> "Chebfun":
@@ -3569,9 +3639,8 @@ class Chebfun(eqx.Module):
         new_funs = []
         for k, piece in enumerate(self.funs):
             gt = None if g is None else g.funs[k].tech
-            new_funs.append(_Piece(
-                tech=piece.tech.assign_columns(cols, gt),
-                interval=piece.interval))
+            new_funs.append(piece.with_tech(
+                piece.tech.assign_columns(cols, gt)))
         return Chebfun(funs=new_funs, domain=self.domain)
 
     def mat2cell(self, sizes=None) -> list:
@@ -3617,9 +3686,8 @@ class Chebfun(eqx.Module):
             t = piece.tech
             c = t.coeffs if t.coeffs.ndim == 2 else t.coeffs[:, None]
             tiled = jnp.tile(c, (1, k))
-            new_funs.append(_Piece(
-                tech=self._tech_with_coeffs(t, tiled),
-                interval=piece.interval))
+            new_funs.append(piece.with_tech(
+                self._tech_with_coeffs(t, tiled)))
         return Chebfun(funs=new_funs, domain=self.domain)
 
     # ------------------------------------------------------------------
@@ -4237,13 +4305,49 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/isnan.m
         Chebfun commit: 7574c77
         """
+        from chebfunjax.fun.singfun import Singfun
         for piece in self.funs:
-            if bool(jnp.any(jnp.isnan(piece.coeffs))):
+            tech = piece.tech
+            coeffs = tech.smoothPart.coeffs if isinstance(tech, Singfun) \
+                else tech.coeffs
+            if bool(jnp.any(jnp.isnan(coeffs))):
                 return True
         return False
 
+    def isfinite(self) -> bool:
+        """True if the Chebfun is bounded everywhere.
+
+        A piece backed by a :class:`Singfun` with any negative endpoint
+        exponent is unbounded (a pole/blowup), so the Chebfun is not
+        finite.
+
+        Returns
+        -------
+        bool
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/isfinite.m, @singfun/isfinite.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.fun.singfun import _EXP_TOL, Singfun
+        for piece in self.funs:
+            tech = piece.tech
+            if isinstance(tech, Singfun):
+                if any(e < -_EXP_TOL for e in tech.exponents):
+                    return False
+                coeffs = tech.smoothPart.coeffs
+            else:
+                coeffs = tech.coeffs
+            if bool(jnp.any(~jnp.isfinite(coeffs))):
+                return False
+        return True
+
     def isinf(self) -> bool:
-        """True if any coefficient of any piece is infinite.
+        """True if the Chebfun has any infinite values.
+
+        The negation of :meth:`isfinite`: a Singfun piece with a negative
+        endpoint exponent (a pole/blowup) makes the Chebfun infinite.
 
         Returns
         -------
@@ -4254,10 +4358,7 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/isinf.m
         Chebfun commit: 7574c77
         """
-        for piece in self.funs:
-            if bool(jnp.any(jnp.isinf(piece.coeffs))):
-                return True
-        return False
+        return not self.isfinite()
 
     def isreal(self) -> bool:
         """True if all coefficients are real-valued (no imaginary part).
@@ -4291,14 +4392,13 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         new_funs = [
-            _Piece(tech=(
+            p.with_tech(
                 Chebtech2.from_coeffs(jnp.real(p.tech.coeffs))
                 if isinstance(p.tech, Chebtech2)
                 # Fourier coefficients of a real function are
                 # conjugate-symmetric, not real — go through values.
                 else type(p.tech).from_values(jnp.real(p.tech.values))
-            ),
-                   interval=p.interval)
+            )
             for p in self.funs
         ]
         return Chebfun(funs=new_funs, domain=self.domain)
@@ -4312,14 +4412,13 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         new_funs = [
-            _Piece(tech=(
+            p.with_tech(
                 Chebtech2.from_coeffs(jnp.imag(p.tech.coeffs))
                 if isinstance(p.tech, Chebtech2)
                 # Fourier coefficients of a real function are
                 # conjugate-symmetric, not real — go through values.
                 else type(p.tech).from_values(jnp.imag(p.tech.values))
-            ),
-                   interval=p.interval)
+            )
             for p in self.funs
         ]
         return Chebfun(funs=new_funs, domain=self.domain)
@@ -4333,14 +4432,13 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         new_funs = [
-            _Piece(tech=(
+            p.with_tech(
                 Chebtech2.from_coeffs(jnp.conj(p.tech.coeffs))
                 if isinstance(p.tech, Chebtech2)
                 # Fourier coefficients of a real function are
                 # conjugate-symmetric, not real — go through values.
                 else type(p.tech).from_values(jnp.conj(p.tech.values))
-            ),
-                   interval=p.interval)
+            )
             for p in self.funs
         ]
         return Chebfun._as_transposed(
@@ -5298,6 +5396,123 @@ def atan2(y: Chebfun, x: Chebfun) -> Chebfun:
     return Chebfun(funs=new_funs, domain=new_dom)
 
 
+# ============================================================================
+# Singular-exponent factory helpers ('exps' / 'blowup' — SingFun wiring)
+# ============================================================================
+# uses-numpy: exponent parsing/reshaping is pure Python/NumPy bookkeeping on
+# small user-supplied vectors, never on library array data.
+
+
+def _parse_exps(exps, n_int: int) -> "list[tuple[float, float]]":
+    """Expand a user ``exps`` vector into one ``(left, right)`` pair per interval.
+
+    Mirrors the MATLAB @chebfun/chebfun.m parsing (``parseInputs``):
+
+    * 1 value        -> broadcast to every endpoint;
+    * 2 values       -> the two entire-domain endpoints, interior breaks 0;
+    * ``n_int + 1``  -> one shared value per breakpoint;
+    * ``2*n_int``    -> a ``(left, right)`` pair per interval.
+
+    ``NaN`` entries are preserved so the caller can autodetect that endpoint.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/chebfun.m (parseInputs, exps reshaping)
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+    if exps is None:
+        flat = [float("nan")] * (2 * n_int)
+    else:
+        e = [float(v) for v in _np.atleast_1d(
+            _np.asarray(exps, dtype=float)).ravel()]
+        ne = len(e)
+        if ne == 1:
+            flat = e * (2 * n_int)
+        elif ne == 2:
+            flat = [e[0]] + [0.0] * (2 * (n_int - 1)) + [e[1]]
+        elif ne == n_int + 1:
+            flat = []
+            for j in range(n_int):
+                flat += [e[j], e[j + 1]]
+        elif ne == 2 * n_int:
+            flat = e
+        else:
+            raise ValueError(
+                f"chebfun: {ne} exponents supplied for {n_int} interval(s); "
+                f"expected 1, 2, {n_int + 1}, or {2 * n_int}.")
+    return [(flat[2 * j], flat[2 * j + 1]) for j in range(n_int)]
+
+
+def _parse_singtype(singType, n_int: int, blowup: bool
+                    ) -> "list[tuple[str | None, str | None]]":
+    """Expand a user ``singType`` into one ``(left, right)`` pair per interval.
+
+    Each entry is ``'pole'``, ``'sing'``, or ``'none'`` (or ``None`` to defer
+    to the exponent value).  Two entries are read as the entire-domain
+    endpoints with interior breaks ``'none'``.  When ``blowup`` is set with no
+    ``singType`` the default is ``'sing'`` at every endpoint.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/chebfun.m (parseInputs, singType handling)
+    Chebfun commit: 7574c77
+    """
+    if singType is None:
+        default = "sing" if blowup else None
+        return [(default, default)] * n_int
+    st = list(singType)
+    if len(st) == 2 and n_int >= 1:
+        flat = [st[0]] + ["none"] * (2 * (n_int - 1)) + [st[1]]
+    elif len(st) == 2 * n_int:
+        flat = st
+    else:
+        raise ValueError(
+            f"chebfun: {len(st)} singType entries for {n_int} interval(s).")
+    return [(flat[2 * j], flat[2 * j + 1]) for j in range(n_int)]
+
+
+def _build_exps_piece(op, a: float, b: float, el, er, stl, str_) -> _Piece:
+    """Build one Chebfun piece on ``[a, b]`` honouring endpoint exponents.
+
+    ``op`` is the physical function on ``[a, b]``.  Each exponent is either
+    given (``el``/``er``), autodetected when ``NaN``/``None``, or forced to 0
+    by a ``'none'`` singType.  A ``'pole'`` hint uses the integer pole-order
+    finder; otherwise the fractional singularity finder (which also recovers
+    integer poles) is used.  When both exponents vanish a smooth piece is
+    returned; otherwise a :class:`Singfun` piece.
+
+    Provenance
+    ----------
+    MATLAB source : @classicfun/constructor.m -> @singfun/singfun.m
+    Chebfun commit: 7574c77
+    """
+    import math as _m
+
+    from chebfunjax.fun.singfun import Singfun, _find_pole_order, _find_sing_order
+
+    def _full(t):
+        x = a + (b - a) * (jnp.asarray(t) + 1.0) / 2.0
+        return op(x)
+
+    def _resolve(e, st, end):
+        if st == "none":
+            return 0.0
+        detect = e is None or (isinstance(e, float) and _m.isnan(e))
+        if detect:
+            if st == "pole":
+                return _find_pole_order(_full, end)
+            return _find_sing_order(_full, end)
+        return float(e)
+
+    el = _resolve(el, stl, "left")
+    er = _resolve(er, str_, "right")
+    if abs(el) < 1e-14 and abs(er) < 1e-14:
+        return _Piece.from_function(op, a, b)
+    sf = Singfun.from_function(_full, exponents=(el, er))
+    return _Piece(tech=sf, interval=(float(a), float(b)))
+
+
 def chebfun(
     f=None,
     *,
@@ -5308,6 +5523,8 @@ def chebfun(
     max_length: int | None = None,
     splitting: bool = False,
     exps: tuple[float, float] | None = None,
+    blowup: bool | int = False,
+    singType: "list | tuple | None" = None,
 ) -> Chebfun:
     """Create a Chebfun from a callable, array of coefficients, or constant.
 
@@ -5403,29 +5620,35 @@ def chebfun(
         raise ValueError(
             "chebfun: domain intervals must be of positive length")
 
-    # Endpoint singularities (MATLAB 'exps' flag): wrap a Singfun piece
-    # (Fable 5, MISSING_FEATURES blowup gap).  f is the FULL (singular)
-    # function; exps = (e_left, e_right) are the known endpoint
-    # exponents, e.g. exps=(-0.5, -0.5) for 1/sqrt(1-x^2).
-    if exps is not None:
-        if trig or splitting or n is not None:
+    # Endpoint singularities (MATLAB 'exps'/'blowup' flags): each interval
+    # becomes a Singfun piece s(x)*(1+x)^a*(1-x)^b (Fable 5, wiring the
+    # SingFun class into the chebfun factory).  Exponents are either given
+    # explicitly (``exps``), autodetected (``blowup``/NaN entries), or a
+    # mix.  ``singType`` hints the detector (``'pole'``/``'sing'``/``'none'``).
+    if exps is not None or blowup:
+        if trig or n is not None:
             raise ValueError(
-                "chebfun: exps cannot be combined with trig/splitting/n")
-        from chebfunjax.fun.singfun import Singfun
-        dom = tuple(float(v) for v in domain)
-        if len(dom) != 2:
-            raise ValueError("chebfun: exps requires a single interval")
-        a_, b_ = dom
-
-        def _full(t):
-            x = a_ + (b_ - a_) * (jnp.asarray(t) + 1.0) / 2.0
-            return f(x)
-
-        sf = Singfun.from_function(_full,
-                                   exponents=(float(exps[0]),
-                                              float(exps[1])))
-        piece = _Piece(tech=sf, interval=(a_, b_))
-        return Chebfun(funs=[piece], domain=Domain((a_, b_)))
+                "chebfun: exps/blowup cannot be combined with trig/n")
+        if not callable(f):
+            raise ValueError("chebfun: exps/blowup requires a callable.")
+        dom_vals = [float(v) for v in (domain if hasattr(domain, "__len__")
+                                       else (domain,))]
+        if len(dom_vals) < 2:
+            raise ValueError("chebfun: exps/blowup requires a domain.")
+        n_int = len(dom_vals) - 1
+        pairs = _parse_exps(exps, n_int)
+        stypes = _parse_singtype(singType, n_int, bool(blowup))
+        # ``splitting`` only affects detection of INTERIOR singularities
+        # (poles/branch points away from the breakpoints), which the
+        # singular factory does not yet locate; the given/detected endpoint
+        # exponents are still honoured on each supplied interval.
+        funs = []
+        for j in range(n_int):
+            a_, b_ = dom_vals[j], dom_vals[j + 1]
+            piece = _build_exps_piece(f, a_, b_, pairs[j][0], pairs[j][1],
+                                      stypes[j][0], stypes[j][1])
+            funs.append(piece)
+        return Chebfun(funs=funs, domain=Domain(tuple(dom_vals)))
 
     # --- Preferences (task #11): eps -> chop tolerance, max_length ->
     #     maximum adaptive length (2**maxpow2 + 1). ---

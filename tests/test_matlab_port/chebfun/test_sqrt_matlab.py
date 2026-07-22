@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 import chebfunjax as cj
 
@@ -40,5 +39,27 @@ class TestChebfunSqrt:
         assert float(jnp.max(err)) < 1e3 * EPS * float(jnp.max(exact))
 
     def test_root_touching(self):
-        pytest.skip("sqrt of a function with roots needs chebfun-level "
-                    "singular exponents (blowup)")
+        # sqrt of a non-negative function that touches zero at its endpoints
+        # carries a branch point into a fractional (0.5) SingFun exponent
+        # (MATLAB @chebfun/power.m -> @singfun/power.m).  1 - x^2 vanishes at
+        # x = +/-1, so sqrt(1 - x^2) has exponents (0.5, 0.5).
+        f = cj.chebfun(lambda x: 1.0 - x ** 2, domain=(-1.0, 1.0))
+        g = f.sqrt()
+        from chebfunjax.fun.singfun import Singfun
+        assert isinstance(g.funs[0].tech, Singfun)
+        assert g.funs[0].tech.exponents == (0.5, 0.5)
+        assert not bool(g.isinf())
+        xt = jnp.asarray(np.linspace(-0.98, 0.98, 50))
+        exact = jnp.sqrt(1.0 - xt ** 2)
+        err = float(jnp.max(jnp.abs(g(xt) - exact)))
+        assert err < 1e2 * EPS
+
+    def test_root_touching_interior(self):
+        # A non-negative function with an INTERIOR double root: sqrt gets a
+        # breakpoint at the root and stays finite (|x| on either side).
+        f = cj.chebfun(lambda x: x ** 2, domain=(-1.0, 1.0))
+        g = f.sqrt()
+        xt = jnp.asarray(np.linspace(-0.97, 0.97, 41))
+        err = float(jnp.max(jnp.abs(g(xt) - jnp.abs(xt))))
+        assert err < 1e2 * EPS
+        assert not bool(g.isinf())

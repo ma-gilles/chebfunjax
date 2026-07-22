@@ -37,10 +37,13 @@ class TestChebfunFracCalc:
         assert float(np.max(err)) < 1e3 * 100 * EPS
 
     @pytest.mark.xfail(
-        reason="the output x^(1-q) has an endpoint singularity; the "
-        "smooth-chebfun representation of fracInt's result limits "
-        "fracDiff(x, q) to ~2e-8 (needs Singfun-wired factory -- "
-        "feature gap). MATLAB stores the result as a singfun.")
+        reason="the output x^(1-q) has an endpoint singularity; fracDiff still "
+        "resolves it to ~1.95e-8 vs the 2.2e-11 target (re-measured after the "
+        "SingFun-wired factory landed).  The factory now supports singular "
+        "construction, but fracDiff must itself emit a Singfun result (detect "
+        "the endpoint branch order of fracInt's output and store it as an "
+        "'exps' piece) -- a change to fracCalc, not the factory.  MATLAB "
+        "stores the result as a singfun.")
     def test_fractional_derivative_of_x(self):
         x = cj.chebfun(lambda t: t, domain=(0.0, 1.0))
         U = x.fracDiff(Q)

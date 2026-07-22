@@ -265,6 +265,21 @@ class Singfun(eqx.Module):
         return self.smoothPart.coeffs
 
     @property
+    def vscale(self) -> float:
+        """Vertical scale of the smooth part.
+
+        The full Singfun blows up where an exponent is negative, so a finite
+        magnitude scale is taken from the smooth factor ``s(x)`` (mirroring
+        MATLAB, which reads the SINGFUN vscale off its ``smoothPart``).
+
+        Provenance
+        ----------
+        MATLAB source : @singfun/singfun.m (vscale via smoothPart)
+        Chebfun commit: 7574c77
+        """
+        return self.smoothPart.vscale
+
+    @property
     def issmooth(self) -> bool:
         """True if both exponents are (numerically) zero."""
         a, b = self.exponents
@@ -692,6 +707,19 @@ class Singfun(eqx.Module):
         if self.issmooth:
             return self.smoothPart.imag()
         return Singfun(self.smoothPart.imag(), self.exponents)
+
+    def fliplr(self):
+        """Reverse the columns of the smooth part (identity for a scalar).
+
+        ``fliplr`` acts on the array (column) dimension, not the x-axis, so the
+        endpoint exponents are unchanged.
+
+        Provenance
+        ----------
+        MATLAB source : @singfun/fliplr.m
+        Chebfun commit: 7574c77
+        """
+        return Singfun(self.smoothPart.fliplr(), self.exponents)
 
     def conj(self):
         """Complex conjugate of ``f``.

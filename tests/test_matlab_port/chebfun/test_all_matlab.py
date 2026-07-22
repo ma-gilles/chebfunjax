@@ -50,8 +50,11 @@ class TestChebfunAll:
             np.asarray(f.all()), [False, False, True])
 
     def test_singular(self):
-        # pass(5): ~all(sin(x)/(x+1)) with an endpoint singularity.
-        pytest.skip("chebfunjax has no SingFun (endpoint 'exps') support")
+        # pass(5): ~all(sin(x)/(x+1)) with an endpoint pole -- the SingFun has
+        # an interior root (sin(0) = 0), so all() is False.
+        f = cj.chebfun(lambda x: jnp.sin(x) / (x + 1.0),
+                       domain=(-1.0, 1.0), exps=(-1.0, 0.0))
+        assert not bool(f.all())
 
     def test_unbounded(self):
         # pass(6): all(x^2(1-exp(-x^2))+3) on [-inf, inf].

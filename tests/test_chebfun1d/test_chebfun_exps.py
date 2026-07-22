@@ -48,3 +48,90 @@ class TestChebfunExps:
     def test_exps_conflicts_raise(self):
         with pytest.raises(ValueError, match="exps"):
             cj.chebfun(lambda x: x, exps=(0.0, -0.5), trig=True)
+
+
+class TestChebfunBlowup:
+    def test_blowup_autodetect_fractional(self):
+        # 'blowup' with no exps autodetects a branch point at the left end.
+        pow = -0.5
+        f = cj.chebfun(lambda x: (1 + x) ** pow * jnp.sin(x),
+                       domain=(-1.0, 1.0), blowup=2)
+        assert f.funs[0].tech.exponents[0] == pytest.approx(pow, abs=1e-9)
+        xs = np.linspace(-0.99, 0.99, 40)
+        npt.assert_allclose(np.asarray(f(jnp.asarray(xs))),
+                            (1 + xs) ** pow * np.sin(xs), atol=1e-12)
+
+    def test_singtype_pole(self):
+        # singType 'pole' forces the integer pole-order finder.
+        f = cj.chebfun(lambda x: (1 + x) ** (-1.0) * jnp.cos(x),
+                       domain=(-1.0, 1.0), blowup=2,
+                       singType=["pole", "none"])
+        assert f.funs[0].tech.exponents == (-1.0, 0.0)
+
+    def test_singtype_none_stays_smooth(self):
+        # singType 'none' at both ends -> exponent 0 -> a smooth piece.
+        from chebfunjax.fun.singfun import Singfun
+        f = cj.chebfun(jnp.sin, domain=(-1.0, 1.0), blowup=1,
+                       singType=["none", "none"])
+        assert not isinstance(f.funs[0].tech, Singfun)
+
+    def test_isinf_isfinite(self):
+        pole = cj.chebfun(lambda x: jnp.sin(x) / (x + 1.0),
+                          domain=(-1.0, 1.0), exps=(-1.0, 0.0))
+        assert pole.isinf() and not pole.isfinite()
+        smooth = cj.chebfun(jnp.sin)
+        assert smooth.isfinite() and not smooth.isinf()
+
+
+class TestExpsParsing:
+    def test_parse_exps_conventions(self):
+        from chebfunjax.chebfun1d.chebfun import _parse_exps
+        # 2 values on a single interval -> the two endpoints.
+        assert _parse_exps((-0.5, 0.0), 1) == [(-0.5, 0.0)]
+        # 2 values on 3 intervals -> only the outer domain endpoints.
+        assert _parse_exps((0.5, -0.5), 3) == [
+            (0.5, 0.0), (0.0, 0.0), (0.0, -0.5)]
+        # 1 value broadcasts everywhere.
+        assert _parse_exps((-1.0,), 2) == [(-1.0, -1.0), (-1.0, -1.0)]
+        # n_int+1 values: one shared per breakpoint.
+        assert _parse_exps((-1.0, -1.0, -1.0, -1.0), 3) == [
+            (-1.0, -1.0), (-1.0, -1.0), (-1.0, -1.0)]
+        # 2*n_int values: per-interval pairs.
+        assert _parse_exps((0.0, 0.0, -1.0, 0.0, 0.0, 0.0), 3) == [
+            (0.0, 0.0), (-1.0, 0.0), (0.0, 0.0)]
+
+    def test_parse_exps_bad_count(self):
+        from chebfunjax.chebfun1d.chebfun import _parse_exps
+        with pytest.raises(ValueError, match="exponents"):
+            _parse_exps((0.0, 0.0, 0.0), 3)
+
+    def test_multi_interval_poles(self):
+        # tan on a domain broken at its poles: a simple pole per breakpoint.
+        from chebfunjax.fun.singfun import Singfun
+        dom = tuple(np.pi * np.arange(-2.5, 3.0, 1.0))
+        f = cj.chebfun(jnp.tan, domain=dom, exps=tuple([-1.0] * 6))
+        assert len(f.funs) == 5
+        for p in f.funs:
+            assert isinstance(p.tech, Singfun)
+            assert p.tech.exponents == (-1.0, -1.0)
+
+
+class TestSqrtSingular:
+    def test_sqrt_boundary_roots(self):
+        from chebfunjax.fun.singfun import Singfun
+        f = cj.chebfun(lambda x: 1.0 - x ** 2, domain=(-1.0, 1.0))
+        g = f.sqrt()
+        assert isinstance(g.funs[0].tech, Singfun)
+        assert g.funs[0].tech.exponents == (0.5, 0.5)
+        xs = jnp.asarray(np.linspace(-0.98, 0.98, 40))
+        npt.assert_allclose(np.asarray(g(xs)),
+                            np.sqrt(1 - np.asarray(xs) ** 2), atol=1e-13)
+
+    def test_sqrt_positive_stays_smooth(self):
+        from chebfunjax.fun.singfun import Singfun
+        f = cj.chebfun(lambda x: 2.0 + jnp.sin(x))
+        g = f.sqrt()
+        assert not isinstance(g.funs[0].tech, Singfun)
+        xs = jnp.asarray(np.linspace(-0.99, 0.99, 40))
+        npt.assert_allclose(np.asarray(g(xs)),
+                            np.sqrt(2 + np.sin(np.asarray(xs))), atol=1e-13)

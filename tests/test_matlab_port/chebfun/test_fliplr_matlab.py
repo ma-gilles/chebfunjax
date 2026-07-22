@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 import chebfunjax as cj
 
@@ -80,5 +79,17 @@ class TestChebfunFliplr:
         assert gg.fliplr().isequal(g)  # fliplr(fliplr(g)) == g
 
     def test_singular(self):
-        # pass(10, 11): singular-function fliplr.
-        pytest.skip("chebfunjax has no SingFun (endpoint 'exps') support")
+        # pass(10): fliplr of a singular COLUMN chebfun is the identity.
+        # (x+2)^-0.5 sin(100x) (x-7)^-0.5 on [-2, 7] with poles at both ends.
+        dom = (-2.0, 7.0)
+        pow = -0.5
+        op = lambda x: ((x - dom[0] + 0j) ** pow * jnp.sin(100 * x)  # noqa: E731
+                        * (x - dom[1] + 0j) ** pow)
+        f = cj.chebfun(op, domain=dom, exps=(pow, pow))
+        g = f.fliplr()
+        rng = np.random.default_rng(6178)
+        x = jnp.asarray(9.0 * rng.uniform(size=100) - 2.0)
+        vf = f(x)
+        err = float(jnp.max(jnp.abs(vf - g(x))))
+        assert err < EPS * float(jnp.max(jnp.abs(vf)))
+        assert g.isequal(f)
