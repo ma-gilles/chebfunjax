@@ -519,7 +519,7 @@ def _is_resolved_coeffs(C: np.ndarray, tol: float) -> bool:
         return True
     m, n = C.shape
     scale = max(float(np.max(np.abs(C))), 1e-300)
-    thresh = tol * scale * 20.0
+    thresh = tol * scale
     tail_rows = np.max(np.abs(C[max(0, m - 3):, :])) if m >= 1 else 0.0
     tail_cols = np.max(np.abs(C[:, max(0, n - 3):])) if n >= 1 else 0.0
     return bool(tail_rows < thresh and tail_cols < thresh)
@@ -938,13 +938,16 @@ class Chebop2:
             X = self._dense_solve(f, n, n)
             return self._wrap_solution(X)
 
-        # Adaptive loop: double the grid until resolved
+        # Adaptive loop: double the grid until resolved.  The coefficient-space
+        # path resolves to ~eps (like MATLAB solvepde), so it uses a tighter
+        # relative tail tolerance than the value-space convergence check.
+        coeff_tol = min(tol, 1e-13)
         sz = n_min
         for _ in range(20):
             if use_coeff:
                 try:
                     C = self._coeff_solve(f, sz, sz)
-                    if _is_resolved_coeffs(C, tol):
+                    if _is_resolved_coeffs(C, coeff_tol):
                         return self._wrap_coeffs(C)
                     old_sz = sz
                     sz = _next_grid(sz)
@@ -1691,6 +1694,27 @@ def laplacian(u: "_Chebop2Proxy") -> "_Chebop2Proxy":
 def lap(u: "_Chebop2Proxy") -> "_Chebop2Proxy":
     """Alias for :func:`laplacian` (MATLAB ``lap(u)``)."""
     return laplacian(u)
+
+
+def gradient(u: "_Chebop2Proxy") -> tuple["_Chebop2Proxy", "_Chebop2Proxy"]:
+    """2D gradient ``(u_x, u_y)`` (MATLAB ``gradient(u)``)."""
+    return (u.diff(0, 1), u.diff(1, 0))
+
+
+def grad(u: "_Chebop2Proxy") -> tuple["_Chebop2Proxy", "_Chebop2Proxy"]:
+    """Alias for :func:`gradient` (MATLAB ``grad(u)``)."""
+    return gradient(u)
+
+
+def divergence(vec: tuple["_Chebop2Proxy", "_Chebop2Proxy"]) -> "_Chebop2Proxy":
+    """2D divergence ``F1_x + F2_y`` of a vector field (MATLAB ``divergence``)."""
+    f1, f2 = vec
+    return f1.diff(0, 1) + f2.diff(1, 0)
+
+
+def div(vec: tuple["_Chebop2Proxy", "_Chebop2Proxy"]) -> "_Chebop2Proxy":
+    """Alias for :func:`divergence` (MATLAB ``div(F)``)."""
+    return divergence(vec)
 
 
 def _next_grid(n: int) -> int:
