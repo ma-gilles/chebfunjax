@@ -30,6 +30,49 @@ from chebfunjax.tech.chebtech import Chebtech2
 _EPS = float(jnp.finfo(jnp.float64).eps)
 
 
+# One-sided-evaluation recording: while a list is installed here, every
+# ``Chebfun(x, side)`` call (and hence every ``jump``) appends its evaluation
+# point ``x``, so a chebop can discover the interior breakpoints an interior
+# jump / one-sided boundary condition refers to before solving.
+_SIDE_EVAL_RECORD: "list | None" = None
+
+
+def _record_side_eval(x) -> None:
+    if _SIDE_EVAL_RECORD is not None:
+        try:
+            _SIDE_EVAL_RECORD.append(float(jnp.asarray(x).reshape(())))
+        except Exception:
+            pass
+
+
+def start_side_eval_record() -> None:
+    """Begin recording the points passed to one-sided evaluations."""
+    global _SIDE_EVAL_RECORD
+    _SIDE_EVAL_RECORD = []
+
+
+def stop_side_eval_record() -> "list":
+    """Stop recording and return the collected one-sided evaluation points."""
+    global _SIDE_EVAL_RECORD
+    rec = _SIDE_EVAL_RECORD or []
+    _SIDE_EVAL_RECORD = None
+    return rec
+
+
+def jump(f: "Chebfun", x, c: float = 0.0):
+    """The jump in ``f`` across the breakpoint ``x`` (MATLAB ``jump``).
+
+    ``jump(f, x, c) = f(x, 'right') - f(x, 'left') - c``; with two arguments
+    ``c`` defaults to zero.  For a smooth ``f`` the result is zero.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/jump.m
+    Chebfun commit: 7574c77
+    """
+    return f(x, "right") - f(x, "left") - c
+
+
 # ============================================================================
 # Piece wrapper: a Chebtech2 together with the physical interval it lives on
 # ============================================================================
@@ -824,11 +867,18 @@ class Chebfun(eqx.Module):
     # Evaluation
     # ------------------------------------------------------------------
 
-    def __call__(self, x: jax.Array) -> jax.Array:
+    def __call__(self, x: jax.Array, side: "str | None" = None) -> jax.Array:
         """Evaluate the Chebfun at point(s) x.
 
         If ``x`` is itself a Chebfun ``g``, returns the composition
         ``f(g)`` as a new Chebfun (MATLAB f(g) semantics).
+
+        The optional ``side`` selects a one-sided limit at a breakpoint:
+        ``'left'`` / ``'-'`` / ``'start'`` uses the piece to the left of
+        ``x``; ``'right'`` / ``'+'`` / ``'end'`` uses the piece to the
+        right (MATLAB ``feval(f, x, 'left')`` etc.).  This matters only at
+        interior breakpoints of a piecewise Chebfun, where the value may
+        differ from either side.
 
         For single-piece Chebfuns this is JIT-safe, grad-safe, and vmap-safe.
 
@@ -862,6 +912,9 @@ class Chebfun(eqx.Module):
         """
         if isinstance(x, Chebfun):
             return self.compose_chebfun(x)
+        if side is not None:
+            _record_side_eval(x)
+            return self._feval_side(x, side)
         x = jnp.asarray(x, dtype=jnp.float64)
         scalar_input = x.ndim == 0
         x = jnp.atleast_1d(x)
@@ -901,6 +954,60 @@ class Chebfun(eqx.Module):
             maskE = mask.reshape(mask.shape + (1,) * len(cols))
             out = jnp.where(maskE, vals, out)
 
+        if scalar_input:
+            out = out[0]
+        return self._orient_values(out)
+
+    def _feval_side(self, x, side: str):
+        """One-sided evaluation at ``x`` (see :meth:`__call__`).
+
+        Selects the piece on the requested side of every point and
+        evaluates that piece's polynomial there, so a breakpoint returns
+        the left- or right-hand limit rather than the default (which favours
+        the right piece).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/feval.m (one-sided evaluation)
+        Chebfun commit: 7574c77
+        """
+        key = str(side).lower()
+        if key in ("left", "-", "start"):
+            want_left = True
+        elif key in ("right", "+", "end"):
+            want_left = False
+        else:
+            raise ValueError(
+                f"Chebfun side {side!r}: expected 'left'/'-'/'start' or "
+                f"'right'/'+'/'end'.")
+        xa = jnp.asarray(x, dtype=jnp.float64)
+        scalar_input = xa.ndim == 0
+        xa = jnp.atleast_1d(xa)
+        tol = 1e-12 * max(1.0, abs(float(self.domain.b) - float(self.domain.a)))
+        n_pieces = len(self.funs)
+
+        def pick_piece(xi: float) -> int:
+            # First pass: an interior breakpoint match on the requested side
+            # (left limit -> piece whose right end is xi; right limit ->
+            # piece whose left end is xi) takes priority over containment.
+            for i, piece in enumerate(self.funs):
+                a, b = float(piece.interval[0]), float(piece.interval[1])
+                if want_left and abs(xi - b) <= tol:
+                    return i
+                if not want_left and abs(xi - a) <= tol:
+                    return i
+            # Second pass: the piece containing xi, else the nearest endpoint.
+            for i, piece in enumerate(self.funs):
+                a, b = float(piece.interval[0]), float(piece.interval[1])
+                if a - tol <= xi <= b + tol:
+                    return i
+            return n_pieces - 1 if xi >= float(self.funs[-1].interval[1]) else 0
+
+        vals = []
+        for xi in xa:
+            i = pick_piece(float(xi))
+            vals.append(self.funs[i](jnp.asarray(xi, dtype=jnp.float64)))
+        out = jnp.stack(vals)
         if scalar_input:
             out = out[0]
         return self._orient_values(out)

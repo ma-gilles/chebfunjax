@@ -357,6 +357,17 @@ class Chebop:
         if len(self.domain) > 2 and not getattr(self, "_periodic", False):
             return self._solve_piecewise(f, n=n, max_iter=max_iter)
 
+        # Interior jump / one-sided conditions in a general .bc make the
+        # solution discontinuous at the referenced points: detect those
+        # breakpoints and solve piecewise, imposing the .bc conditions in
+        # place of continuity there.
+        if (self._bc_general is not None and self._n_vars() < 2
+                and not getattr(self, "_periodic", False)):
+            jbps = self._detect_jump_breakpoints()
+            if jbps:
+                return self._solve_piecewise(
+                    f, n=n, max_iter=max_iter, extra_breaks=jbps)
+
         # Systems of ODEs: op signature (x, u, v, ...) with >= 2
         # unknowns dispatches to block collocation (linear) or Newton
         # on top of it (nonlinear); periodic systems use a Fourier
@@ -1001,8 +1012,13 @@ class Chebop:
         # BOTH matrices when interior breaks are detected.
         _bks = self._generalized_breakpoints(B)
         if len(_bks) > 2:
+            # 32 points per piece matches MATLAB's default eigs stopping
+            # dimension for this class of piecewise-smooth eigenfunctions, so
+            # the returned eigenvalues carry the same discretization error as
+            # the reference values (over-refining moves away from them).
             return self._eigs_generalized_piecewise(
-                B, _bks, k=k, nn=(n if n and n < 64 else 48), sort=sort)
+                B, _bks, k=k, nn=(int(n) if (n and 16 <= n <= 40) else 32),
+                sort=sort)
 
         def assemble(nn):
             from chebfunjax.chebfun1d.chebfun import Chebfun
@@ -1737,8 +1753,59 @@ class Chebop:
             orders = [2] * m
         return orders
 
+    def _detect_jump_breakpoints(self) -> list[float]:
+        """Interior points a general ``.bc`` refers to via ``jump`` / one-sided
+        evaluation.
+
+        Runs the ``.bc`` callable once on a smooth probe with one-sided
+        evaluation recording active (see
+        :func:`chebfunjax.chebfun1d.chebfun.start_side_eval_record`), so every
+        ``u(x0, 'left')`` and ``jump(u, x0)`` reports its point ``x0``.  The
+        distinct interior points become breakpoints of a piecewise solve, at
+        which the ``.bc`` conditions replace continuity.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/mldivide.m, @linop/matrix.m (jump handling)
+        Chebfun commit: 7574c77
+        """
+        if self._bc_general is None:
+            return []
+        import inspect
+
+        from chebfunjax.chebfun1d.chebfun import (
+            Chebfun,
+            start_side_eval_record,
+            stop_side_eval_record,
+        )
+
+        m = self._n_vars()
+        dom0 = Domain(self.domain)
+        xf = Chebfun.identity(dom0)
+        us = [Chebfun.identity(dom0) for _ in range(m)]
+        try:
+            nargs = len(inspect.signature(self._bc_general).parameters)
+        except (TypeError, ValueError):
+            nargs = m + 1
+        a, b = self.domain
+        start_side_eval_record()
+        try:
+            if nargs > m:
+                self._bc_general(xf, *us)
+            else:
+                self._bc_general(*us)
+        except Exception:
+            pass
+        pts = stop_side_eval_record()
+        out: list[float] = []
+        for p in pts:
+            if (a + 1e-10 < p < b - 1e-10
+                    and all(abs(p - q) > 1e-10 for q in out)):
+                out.append(float(p))
+        return sorted(out)
+
     def _solve_piecewise(self, f=0.0, n: int | None = None,
-                         max_iter: int = 40):
+                         max_iter: int = 40, extra_breaks=None):
         """Solve a BVP on a domain with interior breakpoints by piecewise
         collocation (MATLAB @chebop with a ``chebcolloc2`` discretisation on
         a multi-interval domain).
@@ -1812,6 +1879,17 @@ class Chebop:
         except Exception:
             pass
 
+        # Interior breakpoints introduced by jump / one-sided conditions in a
+        # general .bc.  At these the solution may be discontinuous, so the
+        # usual continuity rows are replaced by the .bc conditions.
+        jump_xs = [float(v) for v in (extra_breaks or [])]
+        for jx in jump_xs:
+            if all(abs(jx - e) > 1e-12 for e in bps):
+                bps = sorted(bps + [jx])
+        jump_break_ps = {
+            p for p in range(1, len(bps) - 1)
+            if any(abs(bps[p] - jx) <= 1e-12 for jx in jump_xs)}
+
         P = len(bps) - 1
         nn = 32 if n is None else int(n)
         dom = Domain(tuple(bps))
@@ -1881,12 +1959,51 @@ class Chebop:
         # left end), distributed across equations for good conditioning.
         conds = [(j, d) for j in range(m) for d in range(orders[j])]
         c_rows = []
+        g_slots = []
         for p in range(1, P):
             for c, (j, d) in enumerate(conds):
                 eq = c % m
                 rr = (row(eq, p - 1, nn - 1) if (c // m) % 2 == 0
                       else row(eq, p, 0))
-                c_rows.append((rr, j, d, bps[p], p - 1, p))
+                if p in jump_break_ps:
+                    # A jump breakpoint: the .bc supplies the interface
+                    # conditions, so this row slot is reserved for them.
+                    g_slots.append(rr)
+                else:
+                    c_rows.append((rr, j, d, bps[p], p - 1, p))
+
+        # General .bc conditions (jump / one-sided) fill the reserved
+        # interface rows at the jump breakpoints.
+        try:
+            gen_nargs = (len(inspect.signature(self._bc_general).parameters)
+                         if self._bc_general is not None else 0)
+        except (TypeError, ValueError):
+            gen_nargs = m + 1
+
+        def gen_res(us):
+            if self._bc_general is None:
+                return []
+            out = (self._bc_general(x_fun, *us) if gen_nargs > m
+                   else self._bc_general(*us))
+            if not isinstance(out, (list, tuple)):
+                out = [out]
+            mid = 0.5 * (bps[0] + bps[-1])
+            vals = []
+            for o in out:
+                if isinstance(o, (int, float)):
+                    vals.append(float(o))
+                elif hasattr(o, "funs"):
+                    vals.append(float(o(jnp.asarray(mid))))
+                else:
+                    vals.append(float(_np.asarray(o).reshape(())))
+            return vals
+
+        n_g = len(gen_res(us_zero))
+        if n_g != len(g_slots):
+            raise ValueError(
+                "chebop piecewise jump solve: number of general .bc "
+                f"conditions ({n_g}) does not match the interface rows freed "
+                f"at the jump breakpoints ({len(g_slots)}).")
 
         # RHS values laid out per equation / piece.
         f_vals = _np.zeros(m * Pn)
@@ -1926,6 +2043,8 @@ class Chebop:
                 right = us[j].funs[p_r].diff(d)(xb) if d > 0 \
                     else us[j].funs[p_r](xb)
                 R[rr] = float(left) - float(right)
+            for i, v in enumerate(gen_res(us)):
+                R[g_slots[i]] = v
             return R
 
         # Initial iterate: user's N.init, else zero.
