@@ -1309,9 +1309,400 @@ class Diskfun(eqx.Module):
         tt, rr = jnp.meshgrid(theta, r)  # shapes (len(r), len(theta))
         return self(tt, rr)
 
-    # ------------------------------------------------------------------
-    # Representation
-    # ------------------------------------------------------------------
+    def length(self) -> tuple[int, int]:
+        """Lengths of the row and column slices ``(m, n)``.
+
+        Mirrors MATLAB's two-output ``[M, N] = length(F)`` where ``M`` is
+        the length of the (angular) row quasimatrix -- the maximum Fourier
+        degree over the row slices -- and ``N`` is the length of the
+        (radial) column quasimatrix.  The scalar one-output MATLAB form
+        ``K = length(F)`` (the rank) is available as the :attr:`rank`
+        property.
+
+        Returns
+        -------
+        (m, n) : tuple of int
+            ``(max row length, max col length)``.  ``(0, 0)`` for the empty
+            Diskfun.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/length.m, @separableApprox/length.m
+        Chebfun commit: 7574c77
+
+        See Also
+        --------
+        rank
+        """
+        if self.isempty() or len(self.cols) == 0:
+            return (0, 0)
+        m = max(int(rw.coeffs.shape[0]) for rw in self.rows)
+        n = max(int(c.coeffs.shape[0]) for c in self.cols)
+        return (m, n)
+
+    def iszero(self) -> bool:
+        """Check whether the Diskfun is identically zero on the disk.
+
+        Returns ``True`` iff ``f`` is exactly the zero function.  Follows
+        the MATLAB @separableApprox/iszero logic: all pivots infinite, or a
+        meshgrid evaluation is exactly zero *and* every column or every row
+        slice is the zero slice.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/iszero.m, @separableApprox/iszero.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty() or len(self.cols) == 0:
+            return True
+        d = np.asarray(self.pivots, dtype=np.float64)
+        # All pivots infinite (1/pivots == 0 everywhere) -> zero function.
+        if np.max(np.abs(np.where(d != 0.0, 1.0 / d, np.inf))) == 0.0:
+            return True
+        # Quick check: nonzero on a meshgrid -> not zero.
+        th = jnp.linspace(-jnp.pi, jnp.pi, 10, dtype=jnp.float64)
+        r = jnp.linspace(0.0, 1.0, 10, dtype=jnp.float64)
+        vals = self.fevalm(th, r)
+        if float(jnp.max(jnp.abs(vals))) > 0.0:
+            return False
+        # Slower check: all columns or all rows are the zero slice.
+        cols_zero = all(
+            float(jnp.max(jnp.abs(c.coeffs))) == 0.0 for c in self.cols)
+        rows_zero = all(
+            float(jnp.max(jnp.abs(rw.coeffs))) == 0.0 for rw in self.rows)
+        return bool(cols_zero or rows_zero)
+
+    def sample(self, m: int | None = None, n: int | None = None) -> jax.Array:
+        """Sample the Diskfun on a Fourier--Chebyshev tensor grid.
+
+        ``X = sample(F)`` returns the ``n x m`` matrix of values of
+        ``f(theta, r)`` on a tensor product grid, where ``m`` and ``n`` are
+        the row/column lengths (see :meth:`length`).  ``sample(F, M, N)``
+        uses an ``M`` (angular) by ``N`` (radial) grid.
+
+        The angular nodes are the ``m`` equispaced Fourier points on
+        ``[-pi, pi)``; the radial nodes are the upper ``n`` of the
+        ``2n - 1`` second-kind Chebyshev points, i.e. ``n`` points in
+        ``[0, 1]``.  This mirrors MATLAB ``sample(f, cols, rows)`` on the
+        doubled-up disk grid.
+
+        Parameters
+        ----------
+        m : int, optional
+            Number of angular (Fourier) nodes.  Defaults to the row length.
+        n : int, optional
+            Number of radial (Chebyshev) nodes.  Defaults to the column
+            length.
+
+        Returns
+        -------
+        jax.Array, shape (n, m)
+            Values ``X[i, j] = f(theta[j], r[i])``.  Empty ``(0, 0)`` for
+            the empty Diskfun.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/sample.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        fevalm, length
+        """
+        if self.isempty() or len(self.cols) == 0:
+            return jnp.zeros((0, 0), dtype=jnp.float64)
+        if m is None or n is None:
+            lm, ln = self.length()
+            m = lm if m is None else m
+            n = ln if n is None else n
+        if m <= 0 or n <= 0:
+            raise ValueError("Diskfun.sample: number of samples must be positive.")
+
+        # Angular Fourier nodes on [-pi, pi): theta_j = -pi + 2*pi*j/m.
+        theta = -jnp.pi + 2.0 * jnp.pi * jnp.arange(m, dtype=jnp.float64) / m
+        # Radial nodes: the upper n of the 2n-1 second-kind Chebyshev points,
+        # ascending in [0, 1] (matching MATLAB chebpts(2n-1) restricted to
+        # its non-negative half), r_j = cos(pi*(n-1-j)/(2n-2)), j = 0 .. n-1.
+        if n == 1:
+            r = jnp.zeros((1,), dtype=jnp.float64)
+        else:
+            j = jnp.arange(n, dtype=jnp.float64)
+            r = jnp.cos(jnp.pi * (n - 1 - j) / (2 * n - 2))
+        return self.fevalm(theta, r)
+
+    def minandmax2est(self, n: int = 33) -> jax.Array:
+        """Estimate the min and max of the Diskfun on the disk.
+
+        ``mM = minandmax2est(F)`` returns a length-2 array ``[m, M]`` with
+        ``m`` an estimate of the minimum and ``M`` of the maximum, obtained
+        from an ``n x n`` :meth:`sample` (``n = 33`` by default).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/minandmax2est.m,
+            @separableApprox/minandmax2est.m
+        Chebfun commit: 7574c77
+
+        See Also
+        --------
+        minandmax2
+        """
+        if self.isempty() or len(self.cols) == 0:
+            return jnp.zeros((2,), dtype=jnp.float64)
+        vals = self.sample(n, n).reshape(-1)
+        return jnp.array([jnp.min(vals), jnp.max(vals)], dtype=jnp.float64)
+
+    def _select(self, idx: tuple) -> "Diskfun":
+        """Return the sub-Diskfun keeping only the given term indices,
+        renumbering the plus/minus split accordingly."""
+        idx = tuple(int(i) for i in idx)
+        new_plus, new_minus = [], []
+        for new_j, j in enumerate(idx):
+            if j in self.idx_plus:
+                new_plus.append(new_j)
+            elif j in self.idx_minus:
+                new_minus.append(new_j)
+        return Diskfun(
+            cols=[self.cols[j] for j in idx],
+            rows=[self.rows[j] for j in idx],
+            pivots=jnp.asarray([self.pivots[j] for j in idx], dtype=jnp.float64),
+            idx_plus=tuple(new_plus),
+            idx_minus=tuple(new_minus),
+        )
+
+    def partition(self) -> tuple["Diskfun", "Diskfun"]:
+        """Split into even/pi-periodic and odd/anti-periodic parts.
+
+        ``[FP, FM] = partition(F)`` returns two Diskfuns: ``FP`` collects the
+        "plus" terms (columns even in ``r`` / rows pi-periodic in ``theta``)
+        and ``FM`` the "minus" terms (columns odd / rows pi-anti-periodic),
+        so that ``F = FP + FM``.  Either may be the empty Diskfun.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/partition.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        combine
+        """
+        if self.isempty() or len(self.cols) == 0:
+            return Diskfun.empty(), Diskfun.empty()
+        fp = (Diskfun.empty() if len(self.idx_plus) == 0
+              else self._select(self.idx_plus))
+        fm = (Diskfun.empty() if len(self.idx_minus) == 0
+              else self._select(self.idx_minus))
+        return fp, fm
+
+    @staticmethod
+    def combine(g: "Diskfun", h: "Diskfun") -> "Diskfun":
+        """Combine an even/pi-periodic Diskfun with an odd/anti-periodic one.
+
+        ``F = combine(G, H)`` glues ``G`` (all "plus" terms) and ``H`` (all
+        "minus" terms) into a single Diskfun ``F = G + H`` *without*
+        re-running the constructor, preserving the exact low-rank slices.
+        Each input must have a single parity (only plus terms or only minus
+        terms); otherwise use ``G + H``.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/combine.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        partition
+        """
+        if not isinstance(g, Diskfun) or not isinstance(h, Diskfun):
+            raise TypeError("Diskfun.combine: inputs must be Diskfun objects.")
+        if g.isempty():
+            return h
+        if h.isempty():
+            return g
+        g_mixed = len(g.idx_plus) > 0 and len(g.idx_minus) > 0
+        h_mixed = len(h.idx_plus) > 0 and len(h.idx_minus) > 0
+        if g_mixed or h_mixed:
+            # MATLAB identifier: CHEBFUN:DISKFUN:combine:parity
+            raise ValueError(
+                "CHEBFUN:DISKFUN:combine:parity: Inputs must have opposite "
+                "parity. Consider using plus.")
+        # Order: g-plus, h-plus, g-minus, h-minus.
+        cols, rows, pivots, new_plus, new_minus = [], [], [], [], []
+        n_plus = len(g.idx_plus) + len(h.idx_plus)
+        pos = 0
+        for src, idx in (
+            (g, g.idx_plus), (h, h.idx_plus),
+            (g, g.idx_minus), (h, h.idx_minus),
+        ):
+            for j in idx:
+                cols.append(src.cols[j])
+                rows.append(src.rows[j])
+                pivots.append(src.pivots[j])
+                (new_plus if pos < n_plus else new_minus).append(pos)
+                pos += 1
+        return Diskfun(
+            cols=cols,
+            rows=rows,
+            pivots=jnp.asarray(pivots, dtype=jnp.float64),
+            idx_plus=tuple(new_plus),
+            idx_minus=tuple(new_minus),
+        )
+
+    @staticmethod
+    def vertcat(*args) -> "Diskfun":
+        """Vertical concatenation ``[F; G]`` of Diskfun objects.
+
+        ``vertcat(F)`` returns ``F``; ``vertcat(F, G)`` returns the
+        :class:`~chebfunjax.diskfun.diskfunv.Diskfunv` ``[F; G]``.  Three or
+        more arguments raise (mirroring MATLAB's two-component Diskfunv).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/vertcat.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        chebfunjax.diskfun.diskfunv.Diskfunv
+        """
+        if len(args) == 1:
+            return args[0]
+        if len(args) == 2:
+            from chebfunjax.diskfun.diskfunv import Diskfunv
+            if all(isinstance(a, Diskfun) for a in args):
+                return Diskfunv(args[0], args[1])
+            raise TypeError(
+                "DISKFUN:vertcat: only DISKFUN objects are valid to concatenate.")
+        raise ValueError(
+            "DISKFUN:vertcat: can only vertically concatenate two DISKFUN objects.")
+
+    @classmethod
+    def coeffs2diskfun(cls, X) -> "Diskfun":
+        """Construct a Diskfun from a Chebyshev--Fourier coefficient matrix.
+
+        ``F = coeffs2diskfun(X)`` returns the Diskfun whose bivariate
+        coefficient matrix (in the :meth:`coeffs2` convention) is ``X``,
+        i.e.
+
+            f(theta, r) = real( sum_{k, l} X[k, l] T_k(r) exp(1i mu_l theta) )
+
+        with ``k`` the ascending Chebyshev (radial) degree and ``mu_l`` the
+        ascending Fourier (angular) wavenumbers implied by the column count
+        of ``X`` (``[-h, .., h]`` for an odd number of columns,
+        ``[-h, .., h - 1]`` for an even number, matching the Trigtech
+        convention).  This is the inverse of :meth:`coeffs2`.
+
+        Parameters
+        ----------
+        X : array_like
+            Coefficient matrix, shape ``(n_cheb, m_fourier)``.  A scalar is
+            treated as a ``1 x 1`` matrix.
+
+        Returns
+        -------
+        Diskfun
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/coeffs2diskfun.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        coeffs2
+        """
+        X = jnp.atleast_2d(jnp.asarray(X, dtype=jnp.complex128))
+        m, n = X.shape
+        if n % 2 == 1:
+            half = (n - 1) // 2
+            mu = jnp.arange(-half, half + 1, dtype=jnp.float64)
+        else:
+            half = n // 2
+            mu = jnp.arange(-half, half, dtype=jnp.float64)
+        kdeg = jnp.arange(m, dtype=jnp.float64)
+
+        def f(theta, r):
+            theta = jnp.asarray(theta, dtype=jnp.float64)
+            r = jnp.asarray(r, dtype=jnp.float64)
+            # T_k(r) via cos(k arccos r), r in [0, 1] subset of [-1, 1].
+            tk = jnp.cos(
+                kdeg * jnp.arccos(jnp.clip(r, -1.0, 1.0))[..., None]
+            ).astype(jnp.complex128)
+            ex = jnp.exp(1j * theta[..., None] * mu)
+            return jnp.real(jnp.einsum("...k,kl,...l->...", tk, X, ex))
+
+        return cls.from_function(f)
+
+    def integral(self, curve=None) -> jax.Array:
+        """Definite / line integral of the Diskfun.
+
+        * ``integral(F)`` -> the double integral over the disk (same as
+          :meth:`sum2`).
+        * ``integral(F, 'unitcircle')`` -> the line integral of ``F`` along
+          the unit circle, ``int_{-pi}^{pi} f(theta, 1) dtheta``.
+        * ``integral(F, C)`` with a complex-valued
+          :class:`~chebfunjax.chebfun1d.chebfun.Chebfun` ``C`` -> the line
+          integral ``int f(C) |C'| dt`` along the curve ``C`` (parametrised
+          over its own domain), evaluating ``f`` at the polar coordinates
+          ``(angle(C), abs(C))``.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/integral.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        sum2, sum
+        """
+        if self.isempty() or len(self.cols) == 0:
+            return jnp.array(0.0, dtype=jnp.float64)
+        if curve is None:
+            return self.sum()
+        if isinstance(curve, str):
+            if curve.lower() != "unitcircle":
+                raise ValueError(
+                    "Diskfun.integral: unrecognized line integral type. "
+                    'Did you mean "unitcircle"?')
+            # int_{-pi}^{pi} f(theta, 1) dtheta, exact from the row DC modes:
+            # int row_j dtheta = 2*pi*real(c0_j); minus (odd) rows vanish.
+            total = jnp.array(0.0, dtype=jnp.float64)
+            one = jnp.asarray(1.0, dtype=jnp.float64)
+            for j in range(len(self.cols)):
+                rc = self.rows[j].coeffs
+                int_row = 2.0 * jnp.pi * jnp.real(rc[rc.shape[0] // 2])
+                total = total + (1.0 / self.pivots[j]) * self.cols[j](one) * int_row
+            return total
+        # Line integral along a Chebfun curve.
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+
+        if not isinstance(curve, Chebfun):
+            raise TypeError(
+                "Diskfun.integral: curve must be 'unitcircle' or a Chebfun.")
+        dcurve = curve.diff()
+
+        def integrand(t):
+            zt = curve(t)
+            r = jnp.abs(zt)
+            th = jnp.angle(zt)
+            return self(th, r) * jnp.abs(dcurve(t))
+
+        return Chebfun.from_function(integrand, domain=curve.domain).sum()
+
+    integral2 = integral
 
     # ------------------------------------------------------------------
     # Plotting
@@ -1381,11 +1772,109 @@ class Diskfun(eqx.Module):
         return self._reapprox(lambda v: -v)
 
     def __pow__(self, p):
+        """Pointwise power ``f .^ p`` (MATLAB @diskfun/power).
+
+        ``p`` may be a scalar or another :class:`Diskfun` (giving
+        ``f(theta, r) ** g(theta, r)``).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/power.m (separableApprox/power)
+        Chebfun commit: 7574c77
+        """
+        if isinstance(p, Diskfun):
+            return self._binary(p, lambda a, b: a ** b)
         return self._reapprox(lambda v: v ** p)
 
-    def compose(self, op):
-        """Re-approximate op(f) (MATLAB compose)."""
+    def __rpow__(self, base):
+        """Scalar base to a Diskfun power ``base .^ f`` (MATLAB power)."""
+        return self._reapprox(lambda v: base ** v)
+
+    def compose(self, op, g=None):
+        """Composition ``op(f)`` (MATLAB @diskfun/compose).
+
+        ``op`` may be
+
+        * a plain callable of one argument -> re-approximates ``op(f)`` as a
+          :class:`Diskfun`;
+        * a plain callable of two arguments together with ``g`` -> the
+          Diskfun approximating ``op(f, g)``;
+        * a :class:`~chebfunjax.chebfun1d.chebfun.Chebfun` (single column)
+          -> the Diskfun ``op(f)``;
+        * a :class:`~chebfunjax.chebfun1d.linalg.Quasimatrix` with two
+          columns -> a :class:`~chebfunjax.diskfun.diskfunv.Diskfunv`
+          ``[op_1(f), op_2(f)]``;
+        * a :class:`~chebfunjax.chebfun2d.chebfun2.Chebfun2` -> the Diskfun
+          ``op(real(f), imag(f))`` (Diskfuns are real, so ``imag(f) = 0``);
+        * a :class:`~chebfunjax.chebfun2d.chebfun2v.Chebfun2v` with two
+          components -> a Diskfunv ``[op_1(real(f), imag(f)),
+          op_2(real(f), imag(f))]``.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/compose.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        # Local imports keep the module import graph acyclic.
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        from chebfunjax.chebfun1d.linalg import Quasimatrix
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
+        from chebfunjax.diskfun.diskfunv import Diskfunv
+
+        if isinstance(op, Chebfun):
+            # op(f) with a single-column CHEBFUN.
+            return Diskfun.from_function(lambda t, r: op(self(t, r)))
+
+        if isinstance(op, Quasimatrix):
+            ncol = op.shape[1] if hasattr(op, "shape") else len(op.cols)
+            cols = list(op.cols)
+            if ncol == 1:
+                return Diskfun.from_function(lambda t, r: cols[0](self(t, r)))
+            if ncol == 2:
+                return Diskfunv(
+                    Diskfun.from_function(lambda t, r: cols[0](self(t, r))),
+                    Diskfun.from_function(lambda t, r: cols[1](self(t, r))),
+                )
+            raise ValueError(
+                "Diskfun.compose: CHEBFUN must have 1 or 2 columns.")
+
+        if isinstance(op, Chebfun2):
+            # op(real(f), imag(f)); Diskfuns are real so imag(f) = 0.
+            return Diskfun.from_function(
+                lambda t, r: op(self(t, r), jnp.zeros_like(self(t, r))))
+
+        if isinstance(op, Chebfun2v):
+            if op.n_components != 2:
+                raise ValueError(
+                    "Diskfun.compose: CHEBFUN2V must have two components.")
+            c0, c1 = op.components[0], op.components[1]
+            return Diskfunv(
+                Diskfun.from_function(
+                    lambda t, r: c0(self(t, r), jnp.zeros_like(self(t, r)))),
+                Diskfun.from_function(
+                    lambda t, r: c1(self(t, r), jnp.zeros_like(self(t, r)))),
+            )
+
+        if g is not None:
+            other = g
+            return Diskfun.from_function(
+                lambda t, r: op(
+                    self(t, r),
+                    other(t, r) if isinstance(other, Diskfun) else other))
+
+        # Plain callable of one argument.
         return self._reapprox(op)
+
+    def real(self) -> "Diskfun":
+        """Real part of the Diskfun (identity: Diskfuns are real)."""
+        return self
+
+    def imag(self) -> "Diskfun":
+        """Imaginary part of the Diskfun (zero: Diskfuns are real)."""
+        return Diskfun.from_function(lambda t, r: jnp.zeros_like(r + t))
 
     def exp(self):
         return self._reapprox(jnp.exp)
@@ -1395,6 +1884,14 @@ class Diskfun(eqx.Module):
 
     def cos(self):
         return self._reapprox(jnp.cos)
+
+    def sinh(self):
+        """Hyperbolic sine ``sinh(f)`` (MATLAB @diskfun/sinh)."""
+        return self._reapprox(jnp.sinh)
+
+    def cosh(self):
+        """Hyperbolic cosine ``cosh(f)`` (MATLAB @diskfun/cosh)."""
+        return self._reapprox(jnp.cosh)
 
     def sqrt(self):
         return self._reapprox(jnp.sqrt)

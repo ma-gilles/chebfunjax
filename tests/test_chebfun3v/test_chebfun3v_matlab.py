@@ -72,7 +72,14 @@ class TestChebfun3vVsMatlab:
         npt.assert_allclose(cz, _REF["crossz_eval"], rtol=RTOL, atol=1e-13)
 
     def test_norm_pointwise(self):
-        # Chebfun3v.norm() returns the pointwise magnitude field sqrt(sum comp^2).
-        n = _F().norm()
+        # Chebfun3v.magnitude() returns the pointwise magnitude field
+        # sqrt(sum comp^2).  (norm() is now the MATLAB Frobenius scalar.)
+        n = _F().magnitude()
         npt.assert_allclose(np.asarray(n(_PX, _PY, _PZ)), _REF["normP_eval"],
                             rtol=RTOL, atol=1e-12)
+
+    def test_norm_frobenius(self):
+        # norm() matches MATLAB @chebfun3v/norm: sqrt(sum_j norm(F_j)^2).
+        expected = np.sqrt(sum(
+            float(np.real(c.norm())) ** 2 for c in _F().components))
+        npt.assert_allclose(float(_F().norm()), expected, rtol=RTOL)

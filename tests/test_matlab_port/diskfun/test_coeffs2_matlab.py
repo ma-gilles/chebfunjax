@@ -5,17 +5,17 @@ Provenance
 MATLAB source : tests/diskfun/test_coeffs2.m
 Chebfun commit: 7574c77
 
-Note: MATLAB assertion 5 (``diskfun(zeros(5,4))``) requires the
-values/coefficient-matrix constructor, which chebfunjax does not expose
-(see test_coeffs2diskfun_matlab.py, "no coefficient constructor"), so it
-is omitted here.
+MATLAB assertion 5 (``diskfun(zeros(5,4))``) is realised through the
+coefficient constructor ``Diskfun.coeffs2diskfun`` (see
+test_coeffs2diskfun_matlab.py); chebfunjax has no values-matrix
+constructor, so the exact MATLAB storage size is not modelled and the
+zero property is checked instead.
 """
 
 from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.diskfun.diskfun import Diskfun
 
@@ -66,9 +66,13 @@ class TestDiskfunCoeffs2:
         assert got.shape == c.shape
         assert np.linalg.norm(got - c) < _TOL
 
-    @pytest.mark.skip(
-        reason="MATLAB assertion 5 needs diskfun(zeros(m,n)) matrix "
-        "constructor (not exposed in chebfunjax)"
-    )
     def test_zeros_matrix(self):
-        pass
+        # MATLAB pass(5): diskfun(zeros(5,4)) is the zero function and its
+        # coeffs2 is the all-zero matrix.  chebfunjax has no values-matrix
+        # constructor, but the zero coefficient matrix round-trips through
+        # coeffs2diskfun to the zero Diskfun (equivalent mathematically); the
+        # exact MATLAB storage size (5,4) is an internal detail not modelled
+        # here, so we check the zero property rather than the shape.
+        g = Diskfun.coeffs2diskfun(np.zeros((5, 4), dtype=np.complex128))
+        assert g.iszero()
+        assert np.linalg.norm(np.asarray(g.coeffs2())) == 0.0

@@ -450,14 +450,18 @@ class TestChebfun3v:
         npt.assert_allclose(float(hv), 1.0, atol=1e-10)
 
     def test_norm(self):
-        """norm([x, y, z]) = sqrt(x^2 + y^2 + z^2)."""
+        """magnitude([x, y, z]) = sqrt(x^2 + y^2 + z^2) pointwise.
+
+        (Chebfun3v.norm() is the MATLAB Frobenius scalar; the pointwise
+        magnitude field is Chebfun3v.magnitude().)
+        """
         from chebfunjax.chebfun3d.chebfun3v import Chebfun3v
         v = Chebfun3v.from_functions(
             lambda x, y, z: x,
             lambda x, y, z: y,
             lambda x, y, z: z,
         )
-        n = v.norm()
+        n = v.magnitude()
         x, y, z = jnp.array(0.3), jnp.array(0.4), jnp.array(0.0)
         npt.assert_allclose(float(n(x, y, z)), 0.5, rtol=1e-5)
 

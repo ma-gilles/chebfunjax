@@ -212,6 +212,421 @@ def bartels_stewart(
 
 
 # ===========================================================================
+# Coefficient-space (ultraspherical) discretization and solve
+#
+# This is MATLAB Chebfun's actual @chebop2 method: represent the PDO as a
+# separable-rank expansion, discretize each 1D term with banded ultraspherical
+# operators (conversion S, differentiation D, multiplication M), eliminate the
+# boundary DOFs (constructBC + zeroDOF + canonicalBC), solve the resulting
+# generalized Sylvester equation, then re-impose the boundary rows.  It returns
+# the solution's Chebyshev coefficient matrix directly, reaching MATLAB's
+# ~eps accuracy (the value-space Kronecker solve floors at ~1e-12).
+#
+# Provenance
+# ----------
+# MATLAB source : @chebop2/discretize.m, @chebop2/denseSolve.m,
+#     @chebop2/constructBC.m, @ultraS/*
+# Chebfun commit: 7574c77
+# Original authors: Copyright 2017 by The University of Oxford
+#     and The Chebfun Developers.
+# ===========================================================================
+
+
+def _ultra_diffmat(n: int, k: int) -> np.ndarray:
+    """Unscaled ultraspherical differentiation matrix C^{(0)} -> C^{(k)}."""
+    from chebfunjax.discretization.ultras import diffmat as _dm
+    return np.asarray(_dm(n, k), dtype=np.float64)
+
+
+def _ultra_convertmat(n: int, k1: int, k2: int) -> np.ndarray:
+    """Ultraspherical conversion matrix C^{(k1)} -> C^{(k2+1)} (identity if k2<k1)."""
+    from chebfunjax.discretization.ultras import convertmat as _cm
+    return np.asarray(_cm(n, k1, k2), dtype=np.float64)
+
+
+def _ultra_multmat(n: int, a: np.ndarray, lam: int) -> np.ndarray:
+    """Ultraspherical multiplication matrix by ``a`` (Cheb-T coeffs) in C^{(lam)}."""
+    from chebfunjax.discretization.ultras import multmat as _mm
+    return np.asarray(_mm(n, jnp.asarray(a, dtype=jnp.float64), lam), dtype=np.float64)
+
+
+def _cheb_coeffs_1d(fn, n: int, dom: tuple[float, float]) -> np.ndarray:
+    """Chebyshev-T coefficients (length n) of a 1D function on ``dom``.
+
+    Provenance
+    ----------
+    MATLAB source : chebfun constructor (bcArg.coeffs)
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.utils.transforms import vals2coeffs
+    a, b = dom
+    t = np.array(chebpts(n, kind=2), dtype=np.float64)
+    pts = 0.5 * (b - a) * t + 0.5 * (a + b)
+    vals = np.asarray(fn(jnp.asarray(pts, dtype=jnp.float64)), dtype=np.complex128)
+    if np.max(np.abs(vals.imag)) < 1e-13 * max(np.max(np.abs(vals)), 1.0):
+        vals = vals.real
+    c = np.array(vals2coeffs(jnp.asarray(vals)), dtype=vals.dtype)
+    return c
+
+
+def _cheb_coeffs_2d(f, m: int, n: int,
+                    dom: tuple[float, float, float, float]) -> np.ndarray:
+    """2D Chebyshev-T coefficient matrix (rows=y, cols=x) of ``f`` on ``dom``.
+
+    ``C[i, j]`` is the coefficient of ``T_i(y) T_j(x)``.
+
+    Provenance
+    ----------
+    MATLAB source : chebfun2/chebcoeffs2
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.utils.transforms import vals2coeffs
+    xa, xb, ya, yb = dom
+    tx = np.array(chebpts(n, kind=2), dtype=np.float64)
+    ty = np.array(chebpts(m, kind=2), dtype=np.float64)
+    xpts = 0.5 * (xb - xa) * tx + 0.5 * (xa + xb)
+    ypts = 0.5 * (yb - ya) * ty + 0.5 * (ya + yb)
+    XX, YY = np.meshgrid(xpts, ypts)  # (m, n)
+    V = np.asarray(
+        f(jnp.asarray(XX, dtype=jnp.float64), jnp.asarray(YY, dtype=jnp.float64)),
+        dtype=np.complex128,
+    )
+    if np.max(np.abs(V.imag)) < 1e-13 * max(np.max(np.abs(V)), 1.0):
+        V = V.real
+    dt = V.dtype
+    C = np.empty((m, n), dtype=dt)
+    for j in range(n):
+        C[:, j] = np.array(vals2coeffs(jnp.asarray(V[:, j])), dtype=dt)
+    for i in range(m):
+        C[i, :] = np.array(vals2coeffs(jnp.asarray(C[i, :])), dtype=dt)
+    return C
+
+
+def _unconstrained_matrix_equation(ode_col, n: int, order: int,
+                                   dom: tuple[float, float]) -> np.ndarray:
+    """Build one 1D ultraspherical ODE operator, size n x n, in C^{(order)}.
+
+    ``ode_col`` is the sequence of derivative coefficients ``[c_0, c_1, ...]``:
+    each ``c_k`` multiplies ``D^k``.  A ``c_k`` may be a scalar (constant
+    coefficient) or a length-p Chebyshev-T coefficient vector (variable
+    coefficient), handled via a multiplication matrix.
+
+    Provenance
+    ----------
+    MATLAB source : @chebop2/discretize.m (unconstrainedMatrixEquation)
+    Chebfun commit: 7574c77
+    """
+    a, b = dom
+    B = None
+    for kk in range(len(ode_col)):
+        c = ode_col[kk]
+        if c is None:
+            continue
+        S = _ultra_convertmat(n, kk, order - 1)       # C^{(kk)} -> C^{(order)}
+        D = ((2.0 / (b - a)) ** kk) * _ultra_diffmat(n, kk)
+        if np.ndim(c) == 0:
+            if c == 0:
+                continue
+            A = c * (S @ D)
+        else:
+            cvec = np.asarray(c)
+            if np.max(np.abs(cvec)) == 0:
+                continue
+            M = _ultra_multmat(n, cvec.real if np.iscomplexobj(cvec)
+                               and np.max(np.abs(cvec.imag)) < 1e-14 else cvec, kk)
+            A = S @ M @ D
+        B = A if B is None else B + A
+    if B is None:
+        B = np.zeros((n, n), dtype=np.float64)
+    return B
+
+
+def _cheb_values(k: int, n: int, x: float) -> np.ndarray:
+    """Values of ``T_j^{(k)}(x)`` for j=0..n-1 at ``x`` in {-1, 1}.
+
+    Provenance
+    ----------
+    MATLAB source : @chebop2/constructBC.m (chebValues)
+    Chebfun commit: 7574c77
+    """
+    if k == 0:
+        return x ** np.arange(n, dtype=np.float64)
+    ll, kk = np.meshgrid(np.arange(n, dtype=np.float64),
+                         np.arange(k, dtype=np.float64))
+    factor = np.prod((ll ** 2 - kk ** 2) / (2.0 * kk + 1.0), axis=0)
+    return (x ** np.arange(1, n + 1, dtype=np.float64)) * factor
+
+
+def _canonical_bc(B: np.ndarray, G: np.ndarray):
+    """Reduce boundary rows to canonical (unit upper-triangular) form.
+
+    Returns ``(B, G, P)`` where the leading ``nbc x nbc`` block of ``B @ P``
+    is the identity after LU + scaling, so that ``B X = G`` can be used to
+    eliminate degrees of freedom.  ``P`` is a permutation matrix.
+
+    Provenance
+    ----------
+    MATLAB source : @chebop2/discretize.m (canonicalBC, nonsingularPermute)
+    Chebfun commit: 7574c77
+    """
+    import scipy.linalg
+    if B.size == 0:
+        return B, G, None
+    nbc, dim = B.shape
+    # nonsingularPermute: find leading nbc columns forming a nonsingular block.
+    k = 0
+    while np.linalg.matrix_rank(B[:, k:k + nbc]) < nbc:
+        k += 1
+        if nbc + k > dim:
+            raise RuntimeError(
+                "Chebop2: boundary conditions are linearly dependent.")
+    perm = list(range(k, nbc + k)) + list(range(0, k)) + list(range(nbc + k, dim))
+    P = np.eye(dim, dtype=np.float64)[:, perm]
+    B = B @ P
+    PL, U = scipy.linalg.lu(B, permute_l=True)  # PL @ U = B
+    B = U
+    G = np.linalg.solve(PL, G)
+    d = np.diag(B).copy()
+    Dinv = np.diag(1.0 / d)
+    B = Dinv @ B
+    G = Dinv @ G
+    return B, G, P
+
+
+def _zero_dof(C1: np.ndarray, C2: np.ndarray, E: np.ndarray,
+              B: np.ndarray, G: np.ndarray):
+    """Eliminate boundary degrees of freedom from a matrix-equation term.
+
+    Provenance
+    ----------
+    MATLAB source : @chebop2/discretize.m (zeroDOF)
+    Chebfun commit: 7574c77
+    """
+    C1 = C1.copy()
+    E = E.copy()
+    for ii in range(B.shape[0]):
+        for kk in range(C1.shape[0]):
+            if abs(C1[kk, ii]) > 10.0 * _EPS:
+                c = C1[kk, ii]
+                C1[kk, :] = C1[kk, :] - c * B[ii, :]
+                E[kk, :] = E[kk, :] - c * (G[ii, :] @ C2.T)
+    return C1, E
+
+
+def _impose_boundary_conditions(X, bb, gg, Px, Py, m, n):
+    """Re-impose the eliminated boundary rows onto the interior solution.
+
+    Provenance
+    ----------
+    MATLAB source : @chebop2/denseSolve.m (imposeBoundaryConditions)
+    Chebfun commit: 7574c77
+    """
+    def as2col(v):
+        return v.reshape(-1, 1) if v is not None else None
+
+    L, R, U, D = (as2col(b) for b in bb)
+    lg, rg, ug, dg = (as2col(g) for g in gg)
+
+    def hcat(parts):
+        parts = [p for p in parts if p is not None]
+        return np.hstack(parts) if parts else None
+
+    Uc = U.shape[1] if U is not None else 0
+    Dc = D.shape[1] if D is not None else 0
+    cs = Uc + Dc
+    Lc = L.shape[1] if L is not None else 0
+    Rc = R.shape[1] if R is not None else 0
+    rs = Lc + Rc
+
+    By = hcat([U, D])    # (m, cs)
+    Gy = hcat([ug, dg])  # (n, cs)
+    if By is not None:
+        By = Py.T @ By
+        rows = X.shape[1]
+        X12 = np.linalg.solve(
+            By[:cs, :].T,
+            Gy[rs:rs + rows, :].T - By[cs:cs + X.shape[0], :].T @ X,
+        )
+        X = np.vstack([X12, X])
+
+    Bx = hcat([L, R])
+    Gx = hcat([lg, rg])
+    if Bx is not None:
+        Bx = Px.T @ Bx
+        rows = X.shape[0]
+        X2 = np.linalg.solve(
+            Bx[:rs, :].T,
+            Gx[:rows, :].T - Bx[rs:rs + X.shape[1], :].T @ X.T,
+        ).T
+        X = np.hstack([X2, X])
+
+    if X.shape[0] < m:
+        X = np.vstack([X, np.zeros((m - X.shape[0], X.shape[1]), dtype=X.dtype)])
+    if X.shape[1] < n:
+        X = np.hstack([X, np.zeros((X.shape[0], n - X.shape[1]), dtype=X.dtype)])
+    if Px is not None:
+        X = X @ Px.T
+    if Py is not None:
+        X = Py @ X
+    return X
+
+
+def _reduced_solve(CC, rhs, rk):
+    """Solve the reduced matrix equation ``sum_j CC[j][0] X CC[j][1].' = rhs``.
+
+    Rank 1 is a pair of triangular-free solves; rank 2 (real) uses the
+    Bartels-Stewart generalized Sylvester solver; higher rank (or complex
+    rank 2) falls back to the dense Kronecker solve.
+
+    Provenance
+    ----------
+    MATLAB source : @chebop2/denseSolve.m
+    Chebfun commit: 7574c77
+    """
+    complex_sys = np.iscomplexobj(rhs) or any(
+        np.iscomplexobj(c) for pair in CC for c in pair)
+
+    if rk == 1:
+        A, B = CC[0][0], CC[0][1]
+        Y = np.linalg.solve(A, rhs)
+        return np.linalg.solve(B, Y.T).T
+
+    if rk == 2 and not complex_sys:
+        return bartels_stewart(CC[0][0], CC[0][1], CC[1][0], CC[1][1], rhs)
+
+    # Rank >= 2: dense Kronecker solve (also the complex rank-2 path).
+    p = CC[0][0].shape[0]
+    q = CC[0][1].shape[0]
+    sz = p * q
+    dt = np.complex128 if complex_sys else np.float64
+    K = np.zeros((sz, sz), dtype=dt)
+    for jj in range(rk):
+        K = K + np.kron(CC[jj][1], CC[jj][0])
+    b = rhs.ravel("F")
+    x = np.linalg.solve(K, b)
+    return x.reshape(p, q, order="F")
+
+
+def _is_resolved_coeffs(C: np.ndarray, tol: float) -> bool:
+    """Check that a Chebyshev-coefficient solution matrix has a decayed tail.
+
+    Provenance
+    ----------
+    MATLAB source : @chebop2/solvepde.m (resolution check)
+    Chebfun commit: 7574c77
+    """
+    if C.size == 0:
+        return True
+    m, n = C.shape
+    scale = max(float(np.max(np.abs(C))), 1e-300)
+    thresh = tol * scale * 20.0
+    tail_rows = np.max(np.abs(C[max(0, m - 3):, :])) if m >= 1 else 0.0
+    tail_cols = np.max(np.abs(C[:, max(0, n - 3):])) if n >= 1 else 0.0
+    return bool(tail_rows < thresh and tail_cols < thresh)
+
+
+# ===========================================================================
+# Boundary-condition proxies for general (Neumann/Robin) constraints
+# ===========================================================================
+
+
+class _BCZeroProxy:
+    """Zero-valued 1D solution proxy used to extract a BC's forcing term.
+
+    Behaves as an additive/multiplicative zero so that evaluating a BC lambda
+    ``@(t, u) c*u + ... + f(t)`` with ``u`` set to this proxy returns ``f(t)``.
+
+    Provenance
+    ----------
+    MATLAB source : @chebop2/constructBC.m (bcArg(x, 0*x))
+    Chebfun commit: 7574c77
+    """
+
+    def diff(self, *args, **kwargs):
+        return self
+
+    def __add__(self, other):
+        return other
+
+    def __radd__(self, other):
+        return other
+
+    def __sub__(self, other):
+        return -other
+
+    def __rsub__(self, other):
+        return other
+
+    def __mul__(self, other):
+        return self
+
+    def __rmul__(self, other):
+        return self
+
+    def __neg__(self):
+        return self
+
+    def __truediv__(self, other):
+        return self
+
+
+class _BCProbeProxy:
+    """1D solution proxy that records derivative-order coefficients of a BC.
+
+    ``diff(k)`` shifts the recorded order; scalar multiplication scales the
+    coefficients; additive terms that are pure functions of the coordinate
+    (the forcing) are discarded, isolating the linear operator on ``u``.
+
+    Provenance
+    ----------
+    MATLAB source : @chebop2/recoverCoeffs.m
+    Chebfun commit: 7574c77
+    """
+
+    def __init__(self, terms: dict | None = None) -> None:
+        self._terms: dict = terms if terms is not None else {0: 1.0}
+
+    def diff(self, k: int = 1):
+        return _BCProbeProxy({order + k: c for order, c in self._terms.items()})
+
+    def __add__(self, other):
+        if isinstance(other, _BCProbeProxy):
+            new = dict(self._terms)
+            for order, c in other._terms.items():
+                new[order] = new.get(order, 0.0) + c
+            return _BCProbeProxy(new)
+        # Pure function/scalar forcing -- discard (handled separately).
+        return self
+
+    def __radd__(self, other):
+        return self.__add__(other)
+
+    def __sub__(self, other):
+        if isinstance(other, _BCProbeProxy):
+            return self.__add__(other.__neg__())
+        return self
+
+    def __rsub__(self, other):
+        return self.__neg__()
+
+    def __mul__(self, other):
+        if isinstance(other, (int, float, complex)):
+            return _BCProbeProxy({o: c * other for o, c in self._terms.items()})
+        return NotImplemented
+
+    def __rmul__(self, other):
+        return self.__mul__(other)
+
+    def __neg__(self):
+        return _BCProbeProxy({o: -c for o, c in self._terms.items()})
+
+    def __truediv__(self, other):
+        if isinstance(other, (int, float, complex)):
+            return self.__mul__(1.0 / other)
+        return NotImplemented
+
+
+# ===========================================================================
 # Main Chebop2 class
 # ===========================================================================
 
@@ -507,17 +922,46 @@ class Chebop2:
         if self._coeffs is None:
             self._extract_coeffs()
 
+        # Prefer the coefficient-space (ultraspherical) solver -- MATLAB's
+        # actual method -- which reaches ~eps accuracy.  Fall back to the
+        # value-space Kronecker collocation solver if it cannot handle the
+        # problem (raises), preserving previous behaviour.
+        use_coeff = self._can_use_coeff_solve()
+
         if n is not None:
+            if use_coeff:
+                try:
+                    C = self._coeff_solve(f, n, n)
+                    return self._wrap_coeffs(C)
+                except Exception:
+                    pass
             X = self._dense_solve(f, n, n)
             return self._wrap_solution(X)
 
         # Adaptive loop: double the grid until resolved
         sz = n_min
-        X = None
         for _ in range(20):
+            if use_coeff:
+                try:
+                    C = self._coeff_solve(f, sz, sz)
+                    if _is_resolved_coeffs(C, tol):
+                        return self._wrap_coeffs(C)
+                    old_sz = sz
+                    sz = _next_grid(sz)
+                    if sz >= n_max:
+                        warnings.warn(
+                            f"Chebop2.solve: adaptive loop reached n_max={n_max} "
+                            f"without convergence (tol={tol}). Returning best "
+                            f"available solution.",
+                            stacklevel=2,
+                        )
+                        return self._wrap_coeffs(self._coeff_solve(f, old_sz, old_sz))
+                    continue
+                except Exception:
+                    use_coeff = False  # fall back for the rest of the loop
             X = self._dense_solve(f, sz, sz)
             if _is_resolved_vals(X, tol):
-                break
+                return self._wrap_solution(X)
             old_sz = sz
             sz = _next_grid(sz)
             if sz >= n_max:
@@ -526,9 +970,8 @@ class Chebop2:
                     f"convergence (tol={tol}). Returning best available solution.",
                     stacklevel=2,
                 )
-                X = self._dense_solve(f, old_sz, old_sz)
-                break
-        return self._wrap_solution(X)
+                return self._wrap_solution(self._dense_solve(f, old_sz, old_sz))
+        return self._wrap_solution(self._dense_solve(f, sz, sz))
 
     def __truediv__(self, f):
         """``N \\ f`` — solve N[u] = f."""
@@ -749,6 +1192,241 @@ class Chebop2:
         return U
 
     # ------------------------------------------------------------------
+    # Coefficient-space (ultraspherical) solve
+    # ------------------------------------------------------------------
+
+    def _can_use_coeff_solve(self) -> bool:
+        """Whether the coefficient-space solver can handle this problem.
+
+        The ultraspherical path handles constant- and variable-coefficient
+        (real or complex) PDOs with Dirichlet, Neumann, or Robin boundary
+        conditions.  It requires that the operator have at least one
+        derivative in each direction that has a boundary condition (so the
+        BC-elimination bookkeeping is well posed).  Anything it cannot form
+        raises inside :meth:`_coeff_solve` and triggers the value-space
+        fallback, so this predicate only needs to avoid the obvious misfits.
+        """
+        if self._coeffs is None:
+            return False
+        A = self._coeffs
+        if A.shape[0] < 1 or A.shape[1] < 1:
+            return False
+        # Need a positive order in a direction before we can impose BCs there.
+        has_x_bc = (self._lbc is not None) or (self._rbc is not None)
+        has_y_bc = (self._dbc is not None) or (self._ubc is not None)
+        if has_x_bc and self._xorder < 1:
+            return False
+        if has_y_bc and self._yorder < 1:
+            return False
+        return True
+
+    def _construct_bc(self, bc_spec, bcpos: int, een: int, bcn: int,
+                      dom: tuple[float, float], scl: tuple[float, float],
+                      order: int):
+        """Discretize a single boundary condition (MATLAB ``constructBC``).
+
+        Returns ``(bcrow, bcvalue)`` where ``bcrow`` (length ``bcn``) is the
+        boundary functional acting on the Chebyshev coefficients in the
+        direction perpendicular to the edge, and ``bcvalue`` (length ``een``)
+        holds the Chebyshev coefficients of the (nonhomogeneous) data along
+        the edge.
+
+        Handles Dirichlet (scalar or one-argument callable) and general
+        Neumann/Robin conditions of the form
+        ``lambda t, u: c0*u + c1*u' + ... + f(t)`` (two-argument callable).
+
+        Provenance
+        ----------
+        MATLAB source : @chebop2/constructBC.m
+        Chebfun commit: 7574c77
+        """
+        import inspect
+
+        # Determine the callable arity (Dirichlet=1 arg, Neumann/Robin=2 args).
+        nargs = None
+        if callable(bc_spec):
+            try:
+                nargs = len(inspect.signature(bc_spec).parameters)
+            except (ValueError, TypeError):
+                nargs = 1
+
+        if isinstance(bc_spec, (int, float, complex)) or (callable(bc_spec)
+                                                          and nargs == 1):
+            # Dirichlet condition.
+            bcrow = _cheb_values(0, bcn, float(bcpos))
+            if isinstance(bc_spec, (int, float, complex)):
+                bcvalue = np.zeros(een, dtype=np.complex128
+                                   if isinstance(bc_spec, complex) else np.float64)
+                bcvalue[0] = bc_spec
+            else:
+                data = _cheb_coeffs_1d(bc_spec, een, dom)
+                bcvalue = np.zeros(een, dtype=data.dtype)
+                L = min(een, len(data))
+                bcvalue[:L] = data[:L]
+            return bcrow, bcvalue
+
+        if callable(bc_spec) and nargs == 2:
+            # General condition @(t, u) = c0*u + c1*diff(u) + ... + f(t).
+            # 1) Forcing f(t): evaluate with u == 0.
+            a, b = dom
+            t = np.array(chebpts(een, kind=2), dtype=np.float64)
+            tpts = 0.5 * (b - a) * t + 0.5 * (a + b)
+            zero_u = _BCZeroProxy()
+            f_vals = bc_spec(jnp.asarray(tpts, dtype=jnp.float64), zero_u)
+            f_vals = np.asarray(f_vals, dtype=np.complex128)
+            if np.max(np.abs(f_vals.imag)) < 1e-13 * max(np.max(np.abs(f_vals)), 1.0):
+                f_vals = f_vals.real
+            from chebfunjax.utils.transforms import vals2coeffs
+            fc = np.array(vals2coeffs(jnp.asarray(f_vals)), dtype=f_vals.dtype)
+            # bcvalue = -f as it goes to the RHS.
+            bcvalue = np.zeros(een, dtype=fc.dtype)
+            L = min(een, len(fc))
+            bcvalue[:L] = -fc[:L]
+
+            # 2) Constants c_k: probe with u carrying derivative structure.
+            probe = _BCProbeProxy({0: 1.0})
+            expr = bc_spec(jnp.asarray(tpts, dtype=jnp.float64), probe)
+            if not isinstance(expr, _BCProbeProxy):
+                raise TypeError("Chebop2: unsupported boundary condition form.")
+            terms = expr._terms
+
+            dx = abs(2.0 / (scl[1] - scl[0]))
+            any_complex = any(isinstance(c, complex) for c in terms.values())
+            bcrow = np.zeros(bcn, dtype=np.complex128 if any_complex else np.float64)
+            for k, c in terms.items():
+                if c == 0:
+                    continue
+                bcrow = bcrow + c * (dx ** k) * _cheb_values(k, bcn, float(bcpos))
+            return bcrow, bcvalue
+
+        raise TypeError("Chebop2: unrecognised boundary condition syntax.")
+
+    def _coeff_solve(self, f, m: int, n: int) -> np.ndarray:
+        """Coefficient-space (ultraspherical) solve at fixed size m x n.
+
+        Returns the ``m x n`` Chebyshev-T coefficient matrix ``X`` of the
+        solution, ``X[i, j]`` being the coefficient of ``T_i(y) T_j(x)``.
+
+        This mirrors MATLAB ``@chebop2/discretize`` + ``denseSolve``: separable
+        rank expansion of the PDO, banded ultraspherical 1D operators, boundary
+        DOF elimination, generalized Sylvester (or Kronecker) solve, then
+        re-imposition of the boundary rows.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop2/discretize.m, @chebop2/denseSolve.m
+        Chebfun commit: 7574c77
+        """
+        xa, xb, ya, yb = self.domain
+        A = self._coeffs                      # (yorder+1, xorder+1)
+        xorder = self._xorder
+        yorder = self._yorder
+
+        # ---- separable rank expansion via SVD of A.' (rows=x, cols=y) ----
+        U_svd, svals, Vt_svd = np.linalg.svd(A.T, full_matrices=False)
+        V_svd = Vt_svd.T
+        tol = 10.0 * _EPS
+        rk = max(1, int(np.sum(svals > tol * max(svals[0], 1e-300))))
+        U_svd = U_svd[:, :rk]     # rows index x-order
+        svals = svals[:rk]
+        V_svd = V_svd[:, :rk]     # rows index y-order
+
+        # ---- 1D ultraspherical operators for each rank term ----
+        CC = []
+        for jj in range(rk):
+            RIGHT = _unconstrained_matrix_equation(U_svd[:, jj], n, xorder, (xa, xb))
+            LEFT = _unconstrained_matrix_equation(V_svd[:, jj], m, yorder, (ya, yb))
+            sv = np.sqrt(svals[jj])
+            CC.append([sv * LEFT, sv * RIGHT])
+
+        # ---- boundary conditions ----
+        bcLeft = bcRight = bcUp = bcDown = None
+        leftVal = rightVal = upVal = downVal = None
+        if self._lbc is not None:
+            bcLeft, leftVal = self._construct_bc(
+                self._lbc, -1, m, n, (ya, yb), (xa, xb), xorder)
+        if self._rbc is not None:
+            bcRight, rightVal = self._construct_bc(
+                self._rbc, 1, m, n, (ya, yb), (xa, xb), xorder)
+        if self._ubc is not None:
+            bcUp, upVal = self._construct_bc(
+                self._ubc, 1, n, m, (xa, xb), (ya, yb), yorder)
+        if self._dbc is not None:
+            bcDown, downVal = self._construct_bc(
+                self._dbc, -1, n, m, (xa, xb), (ya, yb), yorder)
+
+        def _stack(rows, vals):
+            R = [r for r in rows if r is not None]
+            Vv = [v for v in vals if v is not None]
+            if not R:
+                return np.zeros((0, 0)), np.zeros((0, 0))
+            return np.array(R), np.array(Vv)
+
+        By, Gy = _stack([bcUp, bcDown], [upVal, downVal])
+        Bx, Gx = _stack([bcLeft, bcRight], [leftVal, rightVal])
+        if By.size:
+            By, Gy, Py = _canonical_bc(By, Gy)
+        else:
+            Py = None
+        if Bx.size:
+            Bx, Gx, Px = _canonical_bc(Bx, Gx)
+            Bx = Bx.T
+            Gx = Gx.T
+        else:
+            Px = None
+
+        # ---- right-hand side coefficient matrix, mapped to C^{(order)} ----
+        if callable(f):
+            F = _cheb_coeffs_2d(f, m, n, self.domain)
+        elif f == 0:
+            F = np.zeros((m, n), dtype=np.float64)
+        else:
+            F = np.zeros((m, n), dtype=np.float64)
+            F[0, 0] = float(f)
+        lmap = _ultra_convertmat(m, 0, yorder - 1)
+        rmap = _ultra_convertmat(n, 0, xorder - 1)
+        E = lmap @ F @ rmap.T
+
+        # Promote to complex if any operator/BC/RHS piece is complex.
+        pieces = [c for pair in CC for c in pair] + [E]
+        for arr in (By, Gy, Bx, Gx):
+            if arr is not None and getattr(arr, "size", 0):
+                pieces.append(arr)
+        if any(np.iscomplexobj(p) for p in pieces):
+            CC = [[np.asarray(c, dtype=np.complex128) for c in pair] for pair in CC]
+            E = np.asarray(E, dtype=np.complex128)
+
+        # ---- eliminate boundary DOFs (zeroDOF) ----
+        for jj in range(rk):
+            if By.size:
+                C, E = _zero_dof(CC[jj][0], CC[jj][1], E, By, Gy)
+                CC[jj][0] = C
+            if Bx.size:
+                C, E = _zero_dof(CC[jj][1], CC[jj][0], E.T, Bx.T, Gx.T)
+                CC[jj][1] = C
+                E = E.T
+
+        # ---- remove degrees of freedom (truncation) ----
+        mo = max(xorder, yorder)
+        nn = n - mo
+        mm = m - mo
+        df1 = max(0, xorder - yorder)
+        df2 = max(0, yorder - xorder)
+        for jj in range(rk):
+            CC[jj][0] = CC[jj][0][:mm, yorder:m - df1]
+            CC[jj][1] = CC[jj][1][:nn, xorder:n - df2]
+        rhs = E[:mm, :nn]
+
+        # ---- solve the reduced (generalized Sylvester / Kronecker) system ----
+        X = _reduced_solve(CC, rhs, rk)
+
+        # ---- re-impose the boundary rows ----
+        bb = [bcLeft, bcRight, bcUp, bcDown]
+        gg = [leftVal, rightVal, upVal, downVal]
+        X = _impose_boundary_conditions(X, bb, gg, Px, Py, m, n)
+        return X
+
+    # ------------------------------------------------------------------
     # Wrap solution as SeparableApprox
     # ------------------------------------------------------------------
 
@@ -770,10 +1448,8 @@ class Chebop2:
         MATLAB source : @chebop2/solvepde.m
         Chebfun commit: 7574c77
         """
-        from chebfunjax.chebfun2d.separable_approx import SeparableApprox
         from chebfunjax.utils.transforms import vals2coeffs
 
-        xa, xb, ya, yb = self.domain
         m, n = U_vals.shape
 
         # Convert value matrix to Chebyshev coefficient matrix
@@ -785,7 +1461,30 @@ class Chebop2:
             row = jnp.asarray(C[i, :], dtype=jnp.float64)
             C[i, :] = np.array(vals2coeffs(row), dtype=np.float64)
 
-        # Low-rank SVD compression of the coefficient matrix
+        return self._wrap_coeffs(C)
+
+    def _wrap_coeffs(self, C: np.ndarray):
+        """Wrap a Chebyshev-coefficient matrix as a SeparableApprox.
+
+        ``C[i, j]`` is the coefficient of ``T_i(y) T_j(x)``.  A low-rank SVD
+        of ``C`` gives the column (functions of y) and row (functions of x)
+        Chebtech2 pieces.  A tiny imaginary part (from a complex-coefficient
+        solve) is dropped when negligible.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop2/solvepde.m (chebfun2 from coeffs)
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun2d.separable_approx import SeparableApprox
+        from chebfunjax.tech.chebtech import Chebtech2
+
+        xa, xb, ya, yb = self.domain
+        C = np.asarray(C)
+        if np.iscomplexobj(C) and np.max(np.abs(C.imag)) < np.sqrt(_EPS):
+            C = C.real
+        dt = jnp.complex128 if np.iscomplexobj(C) else jnp.float64
+
         U_svd, s, Vt_svd = np.linalg.svd(C, full_matrices=False)
         tol_sa = _EPS * 10
         rk = max(1, int(np.sum(s / max(s[0], 1e-300) > tol_sa)))
@@ -793,15 +1492,11 @@ class Chebop2:
         s = s[:rk]
         Vt_svd = Vt_svd[:rk, :]
 
-        from chebfunjax.tech.chebtech import Chebtech2
-
         cols_list = []
         rows_list = []
         for r in range(rk):
-            col_c = jnp.asarray(U_svd[:, r], dtype=jnp.float64)
-            row_c = jnp.asarray(Vt_svd[r, :], dtype=jnp.float64)
-            cols_list.append(Chebtech2(col_c))
-            rows_list.append(Chebtech2(row_c))
+            cols_list.append(Chebtech2(jnp.asarray(U_svd[:, r], dtype=dt)))
+            rows_list.append(Chebtech2(jnp.asarray(Vt_svd[r, :], dtype=dt)))
 
         pivots = jnp.asarray(s, dtype=jnp.float64)
 

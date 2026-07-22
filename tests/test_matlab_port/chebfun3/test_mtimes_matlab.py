@@ -9,9 +9,9 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import jax.numpy as jnp
-import pytest
 
 from chebfunjax.chebfun3d.chebfun3 import Chebfun3
+from chebfunjax.chebfun3d.chebfun3v import Chebfun3v
 
 from ._helpers import EPS, maxdiff
 
@@ -27,5 +27,15 @@ class TestChebfun3Mtimes:
                        lambda x, y, z: 3 * jnp.cos(x * y * z)) < TOL
 
     def test_chebfun3_times_chebfun3v(self):
-        pytest.skip("chebfun3 * chebfun3v mtimes needs chebfun3v "
-                    "arithmetic (absent)")
+        # A scalar CHEBFUN3 scales every component of a CHEBFUN3V
+        # (MATLAB @chebfun3v/times, invoked as f .* F / f * F).
+        f = Chebfun3.from_function(lambda x, y, z: jnp.cos(x * y * z))
+        F = Chebfun3v.from_functions(lambda x, y, z: x,
+                                     lambda x, y, z: y,
+                                     lambda x, y, z: z)
+        expect = Chebfun3v.from_functions(
+            lambda x, y, z: x * jnp.cos(x * y * z),
+            lambda x, y, z: y * jnp.cos(x * y * z),
+            lambda x, y, z: z * jnp.cos(x * y * z))
+        assert float((f * F - expect).norm()) < TOL
+        assert float((F * f - expect).norm()) < TOL

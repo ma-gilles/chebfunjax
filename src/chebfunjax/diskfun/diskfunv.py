@@ -203,6 +203,22 @@ class Diskfunv(eqx.Module):
             lambda th, r: jnp.sqrt(f(th, r) ** 2 + g(th, r) ** 2)
         )
 
+    def minandmax2est(self, n: int = 33) -> jax.Array:
+        """Estimate the range of each component on the disk.
+
+        ``mM = minandmax2est(F)`` returns a length-4 array
+        ``[min(f), max(f), min(g), max(g)]`` obtained from each component's
+        :meth:`Diskfun.minandmax2est`.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/minandmax2est.m
+        Chebfun commit: 7574c77
+        """
+        f, g = self.components
+        return jnp.concatenate(
+            [f.minandmax2est(n), g.minandmax2est(n)]).astype(jnp.float64)
+
     # ------------------------------------------------------------------
     # Arithmetic
     # ------------------------------------------------------------------
