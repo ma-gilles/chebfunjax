@@ -109,7 +109,9 @@ jobs:
   matlab-port:
     name: MATLAB port tree (${{ matrix.shard.name }})
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # 90 (not 60): late-shard XLA compile stalls are uninterruptible by
+    # pytest-timeout and have eaten 30 minutes before the job cap fired.
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
@@ -147,11 +149,16 @@ jobs:
               tests/test_matlab_port/chebfun3v
           # geometry-ops outgrew the 60-minute job cap (chebop/chebop2
           # gained real solves, diskfun/spherefun gained compositions),
-          # so it is split into geometry and operators shards.
-          - name: geometry
+          # so it is split into sphere, disk-ball, and operators shards.
+          # The split also limits per-process JAX jit-cache growth, which
+          # has caused silent 30-minute XLA compile stalls late in long
+          # shards (pytest-timeout cannot interrupt a C-level compile).
+          - name: sphere
             paths: >-
               tests/test_matlab_port/spherefun
               tests/test_matlab_port/spherefunv
+          - name: disk-ball
+            paths: >-
               tests/test_matlab_port/diskfun
               tests/test_matlab_port/diskfunv
               tests/test_matlab_port/ballfun
