@@ -421,11 +421,9 @@ def _impose_boundary_conditions(X, bb, gg, Px, Py, m, n):
     MATLAB source : @chebop2/denseSolve.m (imposeBoundaryConditions)
     Chebfun commit: 7574c77
     """
-    def as2col(v):
-        return v.reshape(-1, 1) if v is not None else None
-
-    L, R, U, D = (as2col(b) for b in bb)
-    lg, rg, ug, dg = (as2col(g) for g in gg)
+    # bb entries are (bcn, ncond) bcrow matrices; gg entries (een, ncond).
+    L, R, U, D = bb
+    lg, rg, ug, dg = gg
 
     def hcat(parts):
         parts = [p for p in parts if p is not None]
@@ -1234,9 +1232,11 @@ class Chebop2:
         holds the Chebyshev coefficients of the (nonhomogeneous) data along
         the edge.
 
-        Handles Dirichlet (scalar or one-argument callable) and general
-        Neumann/Robin conditions of the form
-        ``lambda t, u: c0*u + c1*u' + ... + f(t)`` (two-argument callable).
+        Handles Dirichlet (scalar or one-argument callable), general
+        Neumann/Robin conditions ``lambda t, u: c0*u + c1*u' + ... + f(t)``
+        (two-argument callable), and multiple conditions on one edge expressed
+        as a list ``lambda t, u: [u - g0(t), diff(u) - g1(t)]``.  The returned
+        arrays are 2D with one column per condition.
 
         Provenance
         ----------
@@ -1244,6 +1244,8 @@ class Chebop2:
         Chebfun commit: 7574c77
         """
         import inspect
+
+        from chebfunjax.utils.transforms import vals2coeffs
 
         # Determine the callable arity (Dirichlet=1 arg, Neumann/Robin=2 args).
         nargs = None
@@ -1253,53 +1255,75 @@ class Chebop2:
             except (ValueError, TypeError):
                 nargs = 1
 
+        # --- Dirichlet: scalar or one-argument callable ---
         if isinstance(bc_spec, (int, float, complex)) or (callable(bc_spec)
                                                           and nargs == 1):
-            # Dirichlet condition.
-            bcrow = _cheb_values(0, bcn, float(bcpos))
+            bcrow = _cheb_values(0, bcn, float(bcpos)).reshape(bcn, 1)
             if isinstance(bc_spec, (int, float, complex)):
-                bcvalue = np.zeros(een, dtype=np.complex128
-                                   if isinstance(bc_spec, complex) else np.float64)
-                bcvalue[0] = bc_spec
+                dt = np.complex128 if isinstance(bc_spec, complex) else np.float64
+                bcvalue = np.zeros((een, 1), dtype=dt)
+                bcvalue[0, 0] = bc_spec
             else:
                 data = _cheb_coeffs_1d(bc_spec, een, dom)
-                bcvalue = np.zeros(een, dtype=data.dtype)
+                bcvalue = np.zeros((een, 1), dtype=data.dtype)
                 L = min(een, len(data))
-                bcvalue[:L] = data[:L]
+                bcvalue[:L, 0] = data[:L]
             return bcrow, bcvalue
 
+        # --- General / multi-condition: two-argument callable ---
         if callable(bc_spec) and nargs == 2:
-            # General condition @(t, u) = c0*u + c1*diff(u) + ... + f(t).
-            # 1) Forcing f(t): evaluate with u == 0.
             a, b = dom
             t = np.array(chebpts(een, kind=2), dtype=np.float64)
             tpts = 0.5 * (b - a) * t + 0.5 * (a + b)
-            zero_u = _BCZeroProxy()
-            f_vals = bc_spec(jnp.asarray(tpts, dtype=jnp.float64), zero_u)
-            f_vals = np.asarray(f_vals, dtype=np.complex128)
-            if np.max(np.abs(f_vals.imag)) < 1e-13 * max(np.max(np.abs(f_vals)), 1.0):
-                f_vals = f_vals.real
-            from chebfunjax.utils.transforms import vals2coeffs
-            fc = np.array(vals2coeffs(jnp.asarray(f_vals)), dtype=f_vals.dtype)
-            # bcvalue = -f as it goes to the RHS.
-            bcvalue = np.zeros(een, dtype=fc.dtype)
-            L = min(een, len(fc))
-            bcvalue[:L] = -fc[:L]
+            dx = abs(2.0 / (scl[1] - scl[0]))
+
+            # 1) Forcing f(t): evaluate with u == 0 (each list entry a column).
+            f_res = bc_spec(jnp.asarray(tpts, dtype=jnp.float64), _BCZeroProxy())
+            f_list = list(f_res) if isinstance(f_res, (list, tuple)) else [f_res]
 
             # 2) Constants c_k: probe with u carrying derivative structure.
-            probe = _BCProbeProxy({0: 1.0})
-            expr = bc_spec(jnp.asarray(tpts, dtype=jnp.float64), probe)
-            if not isinstance(expr, _BCProbeProxy):
-                raise TypeError("Chebop2: unsupported boundary condition form.")
-            terms = expr._terms
+            p_res = bc_spec(jnp.asarray(tpts, dtype=jnp.float64),
+                            _BCProbeProxy({0: 1.0}))
+            p_list = list(p_res) if isinstance(p_res, (list, tuple)) else [p_res]
+            if len(p_list) != len(f_list):
+                raise TypeError("Chebop2: inconsistent boundary condition list.")
 
-            dx = abs(2.0 / (scl[1] - scl[0]))
-            any_complex = any(isinstance(c, complex) for c in terms.values())
-            bcrow = np.zeros(bcn, dtype=np.complex128 if any_complex else np.float64)
-            for k, c in terms.items():
-                if c == 0:
-                    continue
-                bcrow = bcrow + c * (dx ** k) * _cheb_values(k, bcn, float(bcpos))
+            ncond = len(p_list)
+            bcvalue_cols = []
+            bcrow_cols = []
+            for jj in range(ncond):
+                # Forcing column (bcvalue = -f).
+                fj = f_list[jj]
+                if isinstance(fj, _BCZeroProxy):
+                    bcvalue_cols.append(np.zeros(een, dtype=np.float64))
+                else:
+                    fv = np.asarray(fj, dtype=np.complex128)
+                    if np.max(np.abs(fv.imag)) < 1e-13 * max(np.max(np.abs(fv)), 1.0):
+                        fv = fv.real
+                    fc = np.array(vals2coeffs(jnp.asarray(fv)), dtype=fv.dtype)
+                    col = np.zeros(een, dtype=fc.dtype)
+                    L = min(een, len(fc))
+                    col[:L] = -fc[:L]
+                    bcvalue_cols.append(col)
+
+                # Operator row column.
+                pj = p_list[jj]
+                if not isinstance(pj, _BCProbeProxy):
+                    raise TypeError("Chebop2: unsupported boundary condition form.")
+                terms = pj._terms
+                any_c = any(isinstance(c, complex) for c in terms.values())
+                row = np.zeros(bcn, dtype=np.complex128 if any_c else np.float64)
+                for k, c in terms.items():
+                    if c == 0:
+                        continue
+                    row = row + c * (dx ** k) * _cheb_values(k, bcn, float(bcpos))
+                bcrow_cols.append(row)
+
+            dt = (np.complex128
+                  if any(np.iscomplexobj(c) for c in bcvalue_cols + bcrow_cols)
+                  else np.float64)
+            bcvalue = np.array(bcvalue_cols, dtype=dt).T   # (een, ncond)
+            bcrow = np.array(bcrow_cols, dtype=dt).T       # (bcn, ncond)
             return bcrow, bcvalue
 
         raise TypeError("Chebop2: unrecognised boundary condition syntax.")
@@ -1359,11 +1383,13 @@ class Chebop2:
                 self._dbc, -1, n, m, (xa, xb), (ya, yb), yorder)
 
         def _stack(rows, vals):
-            R = [r for r in rows if r is not None]
-            Vv = [v for v in vals if v is not None]
+            # Each bcrow is (bcn, ncond); stack their transposes so every
+            # condition becomes one row of B (MATLAB [bcUp.'; bcDown.']).
+            R = [r.T for r in rows if r is not None]
+            Vv = [v.T for v in vals if v is not None]
             if not R:
                 return np.zeros((0, 0)), np.zeros((0, 0))
-            return np.array(R), np.array(Vv)
+            return np.vstack(R), np.vstack(Vv)
 
         By, Gy = _stack([bcUp, bcDown], [upVal, downVal])
         Bx, Gx = _stack([bcLeft, bcRight], [leftVal, rightVal])

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="Requires a two-condition BC on one edge ubc=@(x,u)[u-...;diff(u)-...] (value + normal derivative) for the 2nd-order-in-time wave IVP; the value-space solver imposes a single Dirichlet condition per edge.")
+pytestmark = pytest.mark.skip(reason="Two-condition BC on one edge ubc=@(x,u)[u-...;diff(u)-...] now works via the coefficient-space path, but this single case solves to 2.40e-13 vs its 10*100*eps=2.22e-13 tolerance -- a 1.08x margin, below the 2x needed for CI's BLAS. Same conditioning limitation as the wave family on the wide [-pi,pi] domain (see test_waveequation).")
 
 
 class TestChebop2Backwardswaveequation:
