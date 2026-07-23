@@ -335,6 +335,50 @@ class Chebfun2v(eqx.Module):
         new_comps = [_diff_separable(c, n=n, dim=dim) for c in self.components]
         return Chebfun2v(new_comps)
 
+    def normal(self) -> "Chebfun2v":
+        """Normal vector of the surface parametrized by F (MATLAB normal).
+
+        ``N = cross(diff(F, 1, 2), diff(F, 1, 1))`` -- the cross product of
+        the two parametric tangent fields.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/normal.m
+        Chebfun commit: 7574c77
+        """
+        return self.diff(1, 2).cross(self.diff(1, 1))
+
+    def integral(self, c) -> float:
+        """Line integral of F along a complex Chebfun curve (MATLAB integral).
+
+        ``integral(F, c) = sum(F1(c) real(c') + F2(c) imag(c'))``; a third
+        component, if present, is ignored as in MATLAB.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/integral.m
+        Chebfun commit: 7574c77
+        """
+        import warnings as _warnings
+
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+
+        if len(self.components) == 3:
+            _warnings.warn("Ignoring third component of chebfun2v.")
+        F1 = Chebfun2(approx=self.components[0])
+        F2 = Chebfun2(approx=self.components[1])
+        a, b = float(c.domain.a), float(c.domain.b)
+        dc = c.diff()
+
+        def ev(t):
+            z = c(t)
+            d = dc(t)
+            return (F1(jnp.real(z), jnp.imag(z)) * jnp.real(d)
+                    + F2(jnp.real(z), jnp.imag(z)) * jnp.imag(d))
+
+        return float(chebfun(ev, domain=(a, b)).sum())
+
     def real(self) -> "Chebfun2v":
         """Real part, component-wise (MATLAB @chebfun2v/real.m).
         Added by Claude Fable 5."""

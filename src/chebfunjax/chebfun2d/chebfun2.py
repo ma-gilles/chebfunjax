@@ -344,6 +344,28 @@ class Chebfun2(eqx.Module):
         """
         return self.approx(x, y)
 
+    def on_curve(self, c) -> "object":
+        """Restrict f to a complex Chebfun curve (MATLAB f(c)).
+
+        ``c`` is a complex-valued 1D Chebfun parametrizing the curve
+        ``t -> (real c(t), imag c(t))``; the result is the 1D Chebfun
+        ``t -> f(real c(t), imag c(t))`` on c's domain.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/feval.m (chebfun-curve branch)
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d.chebfun import chebfun
+
+        a, b = float(c.domain.a), float(c.domain.b)
+
+        def ev(t):
+            z = c(t)
+            return self(jnp.real(z), jnp.imag(z))
+
+        return chebfun(ev, domain=(a, b))
+
     # ------------------------------------------------------------------
     # Properties
     # ------------------------------------------------------------------

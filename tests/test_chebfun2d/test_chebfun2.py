@@ -570,3 +570,43 @@ class TestChebfun2Reductions:
         _np.testing.assert_allclose(v.real, 0.15, atol=1e-13)
         _np.testing.assert_allclose(v.imag, 0.15, atol=1e-13)
         assert Chebfun2.complex(f) is f
+
+
+class TestChebfun2CurveOps:
+    """Core mirrors for on_curve, Chebfun2v.normal, Chebfun2v.integral."""
+
+    def test_on_curve_polynomial(self):
+        import numpy as _np
+
+        from chebfunjax.chebfun1d.chebfun import chebfun as _chebfun
+        f = Chebfun2.from_function(lambda x, y: x**2 + y)
+        C = _chebfun(lambda t: t + 1j * t**2, domain=(0.0, 1.0))
+        g = f.on_curve(C)  # t^2 + t^2 = 2 t^2
+        t = jnp.asarray(_np.linspace(0.0, 1.0, 21))
+        _np.testing.assert_allclose(_np.asarray(g(t)),
+                                    2.0 * _np.asarray(t)**2, atol=1e-12)
+
+    def test_normal_of_plane(self):
+        import numpy as _np
+
+        from chebfunjax.chebfun2d.chebfun2v import Chebfun2v as _C2v
+        # F(u, v) = (u, v, 0): normal = cross(F_u, F_v) = (0, 0, +1)
+        # (MATLAB normal.m computes cross(diff(F,1,2), diff(F,1,1))).
+        Fx = Chebfun2.from_function(lambda u, v: u + 0 * v)
+        Fy = Chebfun2.from_function(lambda u, v: v + 0 * u)
+        Fz = Chebfun2.from_function(lambda u, v: 0 * u)
+        N = _C2v([Fx.approx, Fy.approx, Fz.approx]).normal()
+        z0 = jnp.asarray(0.3)
+        vals = [float(Chebfun2(approx=c)(z0, z0)) for c in N.components]
+        _np.testing.assert_allclose(vals, [0.0, 0.0, 1.0], atol=1e-10)
+
+    def test_line_integral_exact_gradient(self):
+        import numpy as _np
+
+        from chebfunjax.chebfun1d.chebfun import chebfun as _chebfun
+        # F = grad(x^2 y): integral along any curve = endpoint difference.
+        f = Chebfun2.from_function(lambda x, y: x**2 * y)
+        C = _chebfun(lambda t: t + 1j * (t - t**2), domain=(0.0, 1.0))
+        v = f.gradient().integral(C)
+        # C(1) = 1 + 0i -> f(1, 0) = 0; C(0) = 0 -> f(0, 0) = 0.
+        _np.testing.assert_allclose(v, 0.0, atol=1e-10)
