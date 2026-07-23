@@ -145,7 +145,10 @@ jobs:
               tests/test_matlab_port/chebfun3
               tests/test_matlab_port/chebfun3t
               tests/test_matlab_port/chebfun3v
-          - name: geometry-ops
+          # geometry-ops outgrew the 60-minute job cap (chebop/chebop2
+          # gained real solves, diskfun/spherefun gained compositions),
+          # so it is split into geometry and operators shards.
+          - name: geometry
             paths: >-
               tests/test_matlab_port/spherefun
               tests/test_matlab_port/spherefunv
@@ -153,6 +156,8 @@ jobs:
               tests/test_matlab_port/diskfunv
               tests/test_matlab_port/ballfun
               tests/test_matlab_port/ballfunv
+          - name: operators
+            paths: >-
               tests/test_matlab_port/chebop
               tests/test_matlab_port/chebop2
               tests/test_matlab_port/linop
