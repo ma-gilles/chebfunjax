@@ -263,6 +263,8 @@ def _cheb_coeffs_1d(fn, n: int, dom: tuple[float, float]) -> np.ndarray:
     t = np.array(chebpts(n, kind=2), dtype=np.float64)
     pts = 0.5 * (b - a) * t + 0.5 * (a + b)
     vals = np.asarray(fn(jnp.asarray(pts, dtype=jnp.float64)), dtype=np.complex128)
+    # A constant-returning BC (e.g. exact(-1, y) == 1) yields a scalar; broadcast.
+    vals = np.broadcast_to(vals, pts.shape).copy()
     if np.max(np.abs(vals.imag)) < 1e-13 * max(np.max(np.abs(vals)), 1.0):
         vals = vals.real
     c = np.array(vals2coeffs(jnp.asarray(vals)), dtype=vals.dtype)
@@ -339,6 +341,17 @@ def _unconstrained_matrix_equation(ode_col, n: int, order: int,
     if B is None:
         B = np.zeros((n, n), dtype=np.float64)
     return B
+
+
+def _deriv_col(order: int, coeff):
+    """Build a derivative-coefficient column ``[None, ..., coeff]`` for order.
+
+    The result feeds :func:`_unconstrained_matrix_equation`, whose ``ode_col``
+    is indexed by derivative order; only entry ``order`` is present.
+    """
+    col = [None] * (order + 1)
+    col[order] = coeff
+    return col
 
 
 def _cheb_values(k: int, n: int, x: float) -> np.ndarray:
@@ -740,6 +753,7 @@ class Chebop2:
         self._ubc = None
         self._dbc = None
         self._coeffs: np.ndarray | None = None
+        self._var_terms: dict | None = None
         self._xorder: int = 0
         self._yorder: int = 0
         if op is not None:
@@ -800,23 +814,28 @@ class Chebop2:
         MATLAB source : @chebop2/chebop2.m (coeffs property)
         Chebfun commit: 7574c77
         """
-        if self._coeffs is None:
+        if self._coeffs is None and self._var_terms is None:
             if self.op is None:
                 return np.zeros((1, 1), dtype=np.float64)
             self._extract_coeffs()
+        if self._var_terms is not None:
+            raise NotImplementedError(
+                "Chebop2.coeffs: the scalar coefficient matrix is only defined "
+                "for constant-coefficient operators; this operator has variable "
+                "coefficients.")
         return np.array(self._coeffs.T, dtype=np.float64)
 
     @property
     def xorder(self) -> int:
         """Highest x-derivative order appearing in the operator."""
-        if self._coeffs is None and self.op is not None:
+        if self._coeffs is None and self._var_terms is None and self.op is not None:
             self._extract_coeffs()
         return self._xorder
 
     @property
     def yorder(self) -> int:
         """Highest y-derivative order appearing in the operator."""
-        if self._coeffs is None and self.op is not None:
+        if self._coeffs is None and self._var_terms is None and self.op is not None:
             self._extract_coeffs()
         return self._yorder
 
@@ -848,18 +867,42 @@ class Chebop2:
         MATLAB source : @chebop2/chebop2.m (constructor)
         Chebfun commit: 7574c77
         """
+        import inspect
+
         proxy = _Chebop2Proxy()
-        result = self.op(proxy)
+        try:
+            nparams = len(inspect.signature(self.op).parameters)
+        except (ValueError, TypeError):
+            nparams = 1
+        if nparams >= 3:
+            # @(x, y, u) syntax: pass symbolic coordinate functions.
+            x_sym = _Coord(lambda X, Y: X)
+            y_sym = _Coord(lambda X, Y: Y)
+            result = self.op(x_sym, y_sym, proxy)
+        else:
+            result = self.op(proxy)
         if not isinstance(result, _Chebop2Proxy):
             raise TypeError(
                 "Chebop2: operator must return a _Chebop2Proxy term.  "
                 "Make sure the lambda uses only u.diff(dy, dx) and scalar "
                 "arithmetic (e.g., lambda u: u.diff(2,0) + u.diff(0,2))."
             )
+
+        # Variable-coefficient operator: any term coefficient is a _Coord.
+        if any(isinstance(c, _Coord) for c in result._terms.values()):
+            terms = {key: c for key, c in result._terms.items()
+                     if isinstance(c, _Coord) or c != 0.0}
+            self._var_terms = terms
+            self._coeffs = None
+            self._yorder = max((j for (j, k) in terms), default=0)
+            self._xorder = max((k for (j, k) in terms), default=0)
+            return
+
         A = result._coeffs_matrix()
         tol = 10.0 * _EPS
         A[np.abs(A) < tol] = 0.0
         self._coeffs = A
+        self._var_terms = None
         nonzero_rows = np.where(np.any(A != 0, axis=1))[0]
         nonzero_cols = np.where(np.any(A != 0, axis=0))[0]
         self._yorder = int(nonzero_rows[-1]) if len(nonzero_rows) > 0 else 0
@@ -917,7 +960,7 @@ class Chebop2:
                 "Chebop2.solve: operator is not set. "
                 "Assign N.op = lambda u: ... before solving."
             )
-        if self._coeffs is None:
+        if self._coeffs is None and self._var_terms is None:
             self._extract_coeffs()
 
         # Prefer the coefficient-space (ultraspherical) solver -- MATLAB's
@@ -925,9 +968,15 @@ class Chebop2:
         # value-space Kronecker collocation solver if it cannot handle the
         # problem (raises), preserving previous behaviour.
         use_coeff = self._can_use_coeff_solve()
+        # Variable-coefficient operators have no value-space solver: the
+        # coefficient-space path is the only option, so do not swallow its
+        # errors into a (nonexistent) fallback.
+        no_fallback = self._var_terms is not None
 
         if n is not None:
             if use_coeff:
+                if no_fallback:
+                    return self._wrap_coeffs(self._coeff_solve(f, n, n))
                 try:
                     C = self._coeff_solve(f, n, n)
                     return self._wrap_coeffs(C)
@@ -959,6 +1008,8 @@ class Chebop2:
                         return self._wrap_coeffs(self._coeff_solve(f, old_sz, old_sz))
                     continue
                 except Exception:
+                    if no_fallback:
+                        raise
                     use_coeff = False  # fall back for the rest of the loop
             X = self._dense_solve(f, sz, sz)
             if _is_resolved_vals(X, tol):
@@ -1207,10 +1258,7 @@ class Chebop2:
         raises inside :meth:`_coeff_solve` and triggers the value-space
         fallback, so this predicate only needs to avoid the obvious misfits.
         """
-        if self._coeffs is None:
-            return False
-        A = self._coeffs
-        if A.shape[0] < 1 or A.shape[1] < 1:
+        if self._coeffs is None and self._var_terms is None:
             return False
         # Need a positive order in a direction before we can impose BCs there.
         has_x_bc = (self._lbc is not None) or (self._rbc is not None)
@@ -1328,6 +1376,82 @@ class Chebop2:
 
         raise TypeError("Chebop2: unrecognised boundary condition syntax.")
 
+    def _build_separable_terms(self, m: int, n: int) -> list:
+        """Discretize the PDO as a list of separable ``[LEFT(y), RIGHT(x)]`` pairs.
+
+        For a constant-coefficient operator this is the SVD-compressed low-rank
+        expansion of the coefficient matrix (optimal rank, matching MATLAB
+        ``discretize``).  For a variable-coefficient operator each derivative
+        term ``c(x, y) d^j/dy^j d^k/dx^k`` is CDR-decomposed via the SVD of the
+        coefficient's Chebyshev matrix into rank-1 ``a_r(x) b_r(y)`` pieces,
+        each giving one separable ``[M[b_r] S D^j, M[a_r] S D^k]`` term.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop2/discretize.m (SVD + unconstrainedMatrixEquation)
+        Chebfun commit: 7574c77
+        """
+        xa, xb, ya, yb = self.domain
+        xorder = self._xorder
+        yorder = self._yorder
+
+        if self._var_terms is None:
+            # Constant coefficients: SVD of A.' (rows=x, cols=y).
+            A = self._coeffs
+            U_svd, svals, Vt_svd = np.linalg.svd(A.T, full_matrices=False)
+            V_svd = Vt_svd.T
+            tol = 10.0 * _EPS
+            rk = max(1, int(np.sum(svals > tol * max(svals[0], 1e-300))))
+            U_svd, svals, V_svd = U_svd[:, :rk], svals[:rk], V_svd[:, :rk]
+            CC = []
+            for jj in range(rk):
+                RIGHT = _unconstrained_matrix_equation(U_svd[:, jj], n, xorder, (xa, xb))
+                LEFT = _unconstrained_matrix_equation(V_svd[:, jj], m, yorder, (ya, yb))
+                sv = np.sqrt(svals[jj])
+                CC.append([sv * LEFT, sv * RIGHT])
+            return CC
+
+        # Variable coefficients: build separable terms per (j, k) via CDR.
+        from chebfunjax.utils.transforms import vals2coeffs
+        tx = np.array(chebpts(n, kind=2), dtype=np.float64)
+        ty = np.array(chebpts(m, kind=2), dtype=np.float64)
+        xpts = 0.5 * (xb - xa) * tx + 0.5 * (xa + xb)
+        ypts = 0.5 * (yb - ya) * ty + 0.5 * (ya + yb)
+        XX, YY = np.meshgrid(xpts, ypts)  # (m, n)
+
+        CC = []
+        for (j, k), c in self._var_terms.items():
+            if isinstance(c, _Coord):
+                # Sample coefficient, get its Chebyshev matrix, CDR-decompose.
+                V = np.asarray(c.fn(XX, YY), dtype=np.complex128)
+                if np.max(np.abs(V.imag)) < 1e-13 * max(np.max(np.abs(V)), 1.0):
+                    V = V.real
+                dt = V.dtype
+                Cc = np.empty((m, n), dtype=dt)
+                for jj in range(n):
+                    Cc[:, jj] = np.array(vals2coeffs(jnp.asarray(V[:, jj])), dtype=dt)
+                for ii in range(m):
+                    Cc[ii, :] = np.array(vals2coeffs(jnp.asarray(Cc[ii, :])), dtype=dt)
+                Us, Ss, Vts = np.linalg.svd(Cc, full_matrices=False)
+                rk = max(1, int(np.sum(np.abs(Ss) > 1e-14 * max(Ss[0], 1e-300))))
+                for r in range(rk):
+                    b_y = Ss[r] * Us[:, r]   # y Cheb-T coeffs
+                    a_x = Vts[r, :]          # x Cheb-T coeffs
+                    RIGHT = _unconstrained_matrix_equation(
+                        _deriv_col(k, a_x), n, xorder, (xa, xb))
+                    LEFT = _unconstrained_matrix_equation(
+                        _deriv_col(j, b_y), m, yorder, (ya, yb))
+                    CC.append([LEFT, RIGHT])
+            else:
+                # Constant coefficient inside a variable-coefficient operator.
+                cc = complex(c) if isinstance(c, complex) else float(c)
+                RIGHT = _unconstrained_matrix_equation(
+                    _deriv_col(k, cc), n, xorder, (xa, xb))
+                LEFT = _unconstrained_matrix_equation(
+                    _deriv_col(j, 1.0), m, yorder, (ya, yb))
+                CC.append([LEFT, RIGHT])
+        return CC
+
     def _coeff_solve(self, f, m: int, n: int) -> np.ndarray:
         """Coefficient-space (ultraspherical) solve at fixed size m x n.
 
@@ -1345,26 +1469,12 @@ class Chebop2:
         Chebfun commit: 7574c77
         """
         xa, xb, ya, yb = self.domain
-        A = self._coeffs                      # (yorder+1, xorder+1)
         xorder = self._xorder
         yorder = self._yorder
 
-        # ---- separable rank expansion via SVD of A.' (rows=x, cols=y) ----
-        U_svd, svals, Vt_svd = np.linalg.svd(A.T, full_matrices=False)
-        V_svd = Vt_svd.T
-        tol = 10.0 * _EPS
-        rk = max(1, int(np.sum(svals > tol * max(svals[0], 1e-300))))
-        U_svd = U_svd[:, :rk]     # rows index x-order
-        svals = svals[:rk]
-        V_svd = V_svd[:, :rk]     # rows index y-order
-
-        # ---- 1D ultraspherical operators for each rank term ----
-        CC = []
-        for jj in range(rk):
-            RIGHT = _unconstrained_matrix_equation(U_svd[:, jj], n, xorder, (xa, xb))
-            LEFT = _unconstrained_matrix_equation(V_svd[:, jj], m, yorder, (ya, yb))
-            sv = np.sqrt(svals[jj])
-            CC.append([sv * LEFT, sv * RIGHT])
+        # ---- separable-rank discretization of the PDO ----
+        CC = self._build_separable_terms(m, n)
+        rk = len(CC)
 
         # ---- boundary conditions ----
         bcLeft = bcRight = bcUp = bcDown = None
@@ -1554,6 +1664,101 @@ class Chebop2:
 # ===========================================================================
 
 
+class _Coord:
+    """Symbolic variable coefficient -- a function of ``(x, y)``.
+
+    Used for the ``@(x, y, u)`` operator syntax so that variable-coefficient
+    terms like ``x * u.diff(2, 0)`` or ``jnp.cos(x * y) * u.diff(0, 2)`` can be
+    written.  Internally wraps a callable ``fn(X, Y)`` evaluated on the tensor
+    grid during discretization; arithmetic and NumPy ufuncs build new callables.
+
+    Provenance
+    ----------
+    MATLAB source : @chebop2/chebop2.m (chebfun2 coefficient functions)
+    Chebfun commit: 7574c77
+    """
+
+    __array_ufunc__ = None  # set below to enable np.cos(coord) etc.
+
+    def __init__(self, fn):
+        self.fn = fn
+
+    @staticmethod
+    def _as_fn(v):
+        if isinstance(v, _Coord):
+            return v.fn
+        return lambda X, Y, _v=v: _v
+
+    def __add__(self, other):
+        f, g = self.fn, _Coord._as_fn(other)
+        return _Coord(lambda X, Y: f(X, Y) + g(X, Y))
+
+    __radd__ = __add__
+
+    def __sub__(self, other):
+        f, g = self.fn, _Coord._as_fn(other)
+        return _Coord(lambda X, Y: f(X, Y) - g(X, Y))
+
+    def __rsub__(self, other):
+        f, g = self.fn, _Coord._as_fn(other)
+        return _Coord(lambda X, Y: g(X, Y) - f(X, Y))
+
+    def __mul__(self, other):
+        if isinstance(other, _Chebop2Proxy):
+            return _Chebop2Proxy(
+                {key: _coeff_mul(self, c) for key, c in other._terms.items()})
+        f, g = self.fn, _Coord._as_fn(other)
+        return _Coord(lambda X, Y: f(X, Y) * g(X, Y))
+
+    __rmul__ = __mul__
+
+    def __neg__(self):
+        f = self.fn
+        return _Coord(lambda X, Y: -f(X, Y))
+
+    def __truediv__(self, other):
+        f, g = self.fn, _Coord._as_fn(other)
+        return _Coord(lambda X, Y: f(X, Y) / g(X, Y))
+
+    def __rtruediv__(self, other):
+        f, g = self.fn, _Coord._as_fn(other)
+        return _Coord(lambda X, Y: g(X, Y) / f(X, Y))
+
+    def __pow__(self, p):
+        f = self.fn
+        return _Coord(lambda X, Y: f(X, Y) ** p)
+
+    def _ufunc(self, ufunc, method, *inputs, **kwargs):
+        if method != "__call__":
+            return NotImplemented
+        fns = [_Coord._as_fn(inp) for inp in inputs]
+        return _Coord(lambda X, Y: ufunc(*[f(X, Y) for f in fns], **kwargs))
+
+
+# Enable NumPy ufuncs (np.cos, np.exp, ...) to dispatch onto _Coord.
+_Coord.__array_ufunc__ = _Coord._ufunc
+
+
+def _coeff_mul(a, b):
+    """Multiply two operator coefficients, each a scalar or :class:`_Coord`."""
+    a_coord = isinstance(a, _Coord)
+    b_coord = isinstance(b, _Coord)
+    if not a_coord and not b_coord:
+        return a * b
+    fa = _Coord._as_fn(a)
+    fb = _Coord._as_fn(b)
+    return _Coord(lambda X, Y: fa(X, Y) * fb(X, Y))
+
+
+def _coeff_add(a, b):
+    """Add two operator coefficients, each a scalar or :class:`_Coord`."""
+    if not isinstance(a, _Coord) and not isinstance(b, _Coord):
+        return a + b
+    fa = _Coord._as_fn(a)
+    fb = _Coord._as_fn(b)
+    return _Coord(lambda X, Y: fa(X, Y) + fb(X, Y))
+
+
 class _Chebop2Proxy:
     """Symbolic 2D function proxy for extracting PDE operator coefficients.
 
@@ -1580,18 +1785,18 @@ class _Chebop2Proxy:
         new_terms: dict[tuple[int, int], float] = {}
         for (j, k), c in self._terms.items():
             key = (j + yorder, k + xorder)
-            new_terms[key] = new_terms.get(key, 0.0) + c
+            new_terms[key] = _coeff_add(new_terms[key], c) if key in new_terms else c
         return _Chebop2Proxy(new_terms)
 
     def __add__(self, other) -> "_Chebop2Proxy":
         if isinstance(other, (int, float)):
             new_terms = dict(self._terms)
-            new_terms[(0, 0)] = new_terms.get((0, 0), 0.0) + float(other)
+            new_terms[(0, 0)] = _coeff_add(new_terms.get((0, 0), 0.0), float(other))
             return _Chebop2Proxy(new_terms)
         if isinstance(other, _Chebop2Proxy):
             new_terms = dict(self._terms)
             for key, c in other._terms.items():
-                new_terms[key] = new_terms.get(key, 0.0) + c
+                new_terms[key] = _coeff_add(new_terms[key], c) if key in new_terms else c
             return _Chebop2Proxy(new_terms)
         return NotImplemented
 
@@ -1609,20 +1814,24 @@ class _Chebop2Proxy:
         return self.__neg__().__add__(other)
 
     def __mul__(self, other) -> "_Chebop2Proxy":
-        if isinstance(other, (int, float)):
-            c = float(other)
-            return _Chebop2Proxy({key: val * c for key, val in self._terms.items()})
+        if isinstance(other, (int, float, complex)):
+            return _Chebop2Proxy(
+                {key: _coeff_mul(val, other) for key, val in self._terms.items()})
+        if isinstance(other, _Coord):
+            return _Chebop2Proxy(
+                {key: _coeff_mul(other, val) for key, val in self._terms.items()})
         return NotImplemented
 
     def __rmul__(self, other) -> "_Chebop2Proxy":
         return self.__mul__(other)
 
     def __neg__(self) -> "_Chebop2Proxy":
-        return _Chebop2Proxy({key: -val for key, val in self._terms.items()})
+        return _Chebop2Proxy(
+            {key: _coeff_mul(val, -1.0) for key, val in self._terms.items()})
 
     def __truediv__(self, other) -> "_Chebop2Proxy":
-        if isinstance(other, (int, float)):
-            return self.__mul__(1.0 / float(other))
+        if isinstance(other, (int, float, complex)):
+            return self.__mul__(1.0 / other)
         return NotImplemented
 
     def _coeffs_matrix(self) -> np.ndarray:
