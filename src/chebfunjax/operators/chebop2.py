@@ -1048,38 +1048,42 @@ class Chebop2:
                 "Chebop2.__add__: operators must share the same domain, "
                 f"got {self.domain} and {other.domain}."
             )
-        if self._coeffs is None:
-            self._extract_coeffs()
-        if other._coeffs is None:
-            other._extract_coeffs()
-        A, B = self._coeffs, other._coeffs
-        rows = max(A.shape[0], B.shape[0])
-        cols = max(A.shape[1], B.shape[1])
-        S = np.zeros((rows, cols), dtype=np.float64)
-        S[: A.shape[0], : A.shape[1]] += A
-        S[: B.shape[0], : B.shape[1]] += B
-
-        new = Chebop2(domain=self.domain)
-        new._coeffs = S
-        new.op = _op_from_coeffs(S)
-        nz_r = np.where(np.any(S != 0, axis=1))[0]
-        nz_c = np.where(np.any(S != 0, axis=0))[0]
-        new._yorder = int(nz_r[-1]) if len(nz_r) > 0 else 0
-        new._xorder = int(nz_c[-1]) if len(nz_c) > 0 else 0
-        return new
+        terms = dict(self._all_terms())
+        for key, c in other._all_terms().items():
+            terms[key] = _coeff_add(terms[key], c) if key in terms else c
+        return _chebop2_from_terms(terms, self.domain)
 
     def __sub__(self, other: "Chebop2") -> "Chebop2":
-        """Difference of two constant-coefficient operators (``N1 - N2``)."""
+        """Difference of two operators (``N1 - N2``); supports variable coeffs."""
         if not isinstance(other, Chebop2):
             return NotImplemented
-        if other._coeffs is None:
-            other._extract_coeffs()
-        neg = Chebop2(domain=other.domain)
-        neg._coeffs = -np.array(other._coeffs, dtype=np.float64)
-        neg.op = _op_from_coeffs(neg._coeffs)
-        neg._xorder = other._xorder
-        neg._yorder = other._yorder
-        return self.__add__(neg)
+        terms = dict(self._all_terms())
+        for key, c in other._all_terms().items():
+            neg = _coeff_mul(c, -1.0)
+            terms[key] = _coeff_add(terms[key], neg) if key in terms else neg
+        return _chebop2_from_terms(terms, self.domain)
+
+    def _all_terms(self) -> dict:
+        """Return ``{(j, k): coeff}`` for the operator (scalar or _Coord coeffs).
+
+        Works for both constant-coefficient (from the coefficient matrix) and
+        variable-coefficient (from the stored term dict) operators.
+        """
+        if self._coeffs is None and self._var_terms is None and self.op is not None:
+            self._extract_coeffs()
+        if self._var_terms is not None:
+            return dict(self._var_terms)
+        terms: dict = {}
+        A = self._coeffs
+        if A is None:
+            return terms
+        cplx = np.iscomplexobj(A)
+        for j in range(A.shape[0]):
+            for k in range(A.shape[1]):
+                v = A[j, k]
+                if v != 0:
+                    terms[(j, k)] = complex(v) if cplx and v.imag != 0 else float(v.real)
+        return terms
 
     # ------------------------------------------------------------------
     # Fixed-size solve (value space, full Kronecker)
@@ -1421,6 +1425,8 @@ class Chebop2:
 
         CC = []
         for (j, k), c in self._var_terms.items():
+            if not isinstance(c, _Coord) and c == 0:
+                continue  # zero term (e.g. from operator arithmetic)
             if isinstance(c, _Coord):
                 # Sample coefficient, get its Chebyshev matrix, CDR-decompose.
                 V = np.asarray(c.fn(XX, YY), dtype=np.complex128)
@@ -1840,7 +1846,10 @@ class _Chebop2Proxy:
             return np.zeros((1, 1), dtype=np.float64)
         max_j = max(j for j, k in self._terms)
         max_k = max(k for j, k in self._terms)
-        A = np.zeros((max_j + 1, max_k + 1), dtype=np.float64)
+        dt = (np.complex128
+              if any(isinstance(c, complex) for c in self._terms.values())
+              else np.float64)
+        A = np.zeros((max_j + 1, max_k + 1), dtype=dt)
         for (j, k), c in self._terms.items():
             A[j, k] = c
         return A
@@ -1893,17 +1902,66 @@ def _op_from_coeffs(S: np.ndarray) -> Callable:
     by arithmetic remain solvable.
     """
 
+    cplx = np.iscomplexobj(S)
+
     def op(u: "_Chebop2Proxy") -> "_Chebop2Proxy":
         term: _Chebop2Proxy | None = None
         for j in range(S.shape[0]):
             for k in range(S.shape[1]):
-                c = float(S[j, k])
-                if c != 0.0:
+                v = S[j, k]
+                c = complex(v) if cplx and v.imag != 0 else float(v.real)
+                if c != 0:
                     piece = c * u.diff(j, k)
                     term = piece if term is None else term + piece
         return term if term is not None else 0.0 * u.diff(0, 0)
 
     return op
+
+
+def _op_from_var_terms(terms: dict) -> Callable:
+    """Build a ``@(x, y, u)`` operator lambda reproducing a variable-coeff dict."""
+
+    def op(x, y, u: "_Chebop2Proxy") -> "_Chebop2Proxy":
+        term: _Chebop2Proxy | None = None
+        for (j, k), c in terms.items():
+            piece = c * u.diff(j, k)
+            term = piece if term is None else term + piece
+        return term if term is not None else 0.0 * u.diff(0, 0)
+
+    return op
+
+
+def _chebop2_from_terms(terms: dict, domain) -> "Chebop2":
+    """Build a :class:`Chebop2` from a ``{(j, k): coeff}`` term dict.
+
+    Coefficients may be scalars or :class:`_Coord` functions; if any is a
+    ``_Coord`` the result is a variable-coefficient operator, otherwise a
+    constant-coefficient one.
+    """
+    # Keep zero scalar terms so the coefficient-matrix shape (and hence the
+    # x/y order) matches padded arithmetic on constant operators; the solver
+    # skips zero coefficients when discretizing.
+    if not terms:
+        terms = {(0, 0): 0.0}
+    yorder = max((j for (j, k) in terms), default=0)
+    xorder = max((k for (j, k) in terms), default=0)
+    new = Chebop2(domain=domain)
+    if any(isinstance(c, _Coord) for c in terms.values()):
+        new._var_terms = terms
+        new._coeffs = None
+        new.op = _op_from_var_terms(terms)
+    else:
+        cplx = any(isinstance(c, complex) for c in terms.values())
+        A = np.zeros((yorder + 1, xorder + 1),
+                     dtype=np.complex128 if cplx else np.float64)
+        for (j, k), c in terms.items():
+            A[j, k] = c
+        new._coeffs = A
+        new._var_terms = None
+        new.op = _op_from_coeffs(A)
+    new._yorder = yorder
+    new._xorder = xorder
+    return new
 
 
 # ---------------------------------------------------------------------------
