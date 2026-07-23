@@ -389,6 +389,32 @@ def _eval_tensor(
 # ============================================================================
 
 
+def _grid_interp2(vals: jax.Array, dom2) -> Callable:
+    """Spectral interpolant of values on a 2D tensor Chebyshev grid.
+
+    ``vals[i, j]`` are function values at the (a_i, b_j) tensor product of
+    2nd-kind Chebyshev points on ``dom2 = (a0, a1, b0, b1)``.  Returns an
+    evaluator ``ev(a, b)`` (broadcastable arrays) computing the bivariate
+    Chebyshev interpolant, used to rebuild reduced grids as Chebfun2s
+    (MATLAB does this via the chebfun2 values-matrix constructor).
+    """
+    coeffs = vals2coeffs(vals2coeffs(vals).T).T  # (na, nb) Chebyshev coeffs
+    na, nb = coeffs.shape
+    a0, a1, b0, b1 = float(dom2[0]), float(dom2[1]), float(dom2[2]), \
+        float(dom2[3])
+
+    def ev(a, b):
+        ta = jnp.clip((2.0 * jnp.asarray(a, dtype=jnp.float64) - a0 - a1)
+                      / (a1 - a0), -1.0, 1.0)
+        tb = jnp.clip((2.0 * jnp.asarray(b, dtype=jnp.float64) - b0 - b1)
+                      / (b1 - b0), -1.0, 1.0)
+        Ta = jnp.cos(jnp.arange(na) * jnp.arccos(ta)[..., None])  # (..., na)
+        Tb = jnp.cos(jnp.arange(nb) * jnp.arccos(tb)[..., None])  # (..., nb)
+        return jnp.einsum("...a,ab,...b->...", Ta, coeffs, Tb)
+
+    return ev
+
+
 def _reffun(n: int) -> int:
     """Next Chebyshev-2 grid size via the chebfun3f refinement rule.
 
@@ -1865,6 +1891,115 @@ class Chebfun3(eqx.Module):
     def min3(self):
         vals, locs = self.minandmax3()
         return vals[0], locs[0]
+
+    def sample(self, m: int, n: int, p: int) -> jax.Array:
+        """Values on an m-by-n-by-p tensor Chebyshev grid.
+
+        Returns ``V[i, j, k] = f(x_i, y_j, z_k)`` with 2nd-kind Chebyshev
+        points in each direction (natural x, y, z index order).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/sample.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.utils.quadrature import chebpts_ab
+
+        d = self.domain
+        x = chebpts_ab(m, d[0], d[1], kind=2)
+        y = chebpts_ab(n, d[2], d[3], kind=2)
+        z = chebpts_ab(p, d[4], d[5], kind=2)
+        X, Y, Z = jnp.meshgrid(x, y, z, indexing="ij")
+        return self(X, Y, Z)
+
+    def _extremum(self, g, dim: int, reducer):
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+
+        if g is not None:
+            raise ValueError(
+                "Unable to maximize/minimize two Chebfun3 objects.")
+        if dim == 0:
+            raise ValueError(
+                "Dimension argument must be a positive integer scalar "
+                "within indexing range.")
+        if dim not in (1, 2, 3):
+            # MATLAB returns f itself for out-of-range dims (like max()).
+            return self
+        d = self.domain
+        n = 129  # MATLAB's sampling resolution
+        vals = self.sample(n, n, n)
+        v = reducer(vals, dim - 1)
+        rem = [i for i in (0, 1, 2) if i != dim - 1]
+        dom2 = (d[2 * rem[0]], d[2 * rem[0] + 1],
+                d[2 * rem[1]], d[2 * rem[1] + 1])
+        ev = _grid_interp2(v, dom2)
+        return Chebfun2.from_function(ev, domain=dom2)
+
+    def max(self, g=None, dim: int = 1) -> "Chebfun2":
+        """Maximum along one variable, as a Chebfun2 (MATLAB max).
+
+        ``max(f)`` / ``dim=1`` maximizes over x, returning a Chebfun2 in
+        (y, z); ``dim=2`` over y -> (x, z); ``dim=3`` over z -> (x, y).
+        For a ``dim`` outside 1-3, f itself is returned, as in MATLAB.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/max.m
+        Chebfun commit: 7574c77
+        """
+        return self._extremum(g, dim, lambda v, ax: jnp.max(v, axis=ax))
+
+    def min(self, g=None, dim: int = 1) -> "Chebfun2":
+        """Minimum along one variable, as a Chebfun2 (MATLAB min).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/min.m
+        Chebfun commit: 7574c77
+        """
+        return self._extremum(g, dim, lambda v, ax: jnp.min(v, axis=ax))
+
+    def _extremum2(self, g, dims, reducer):
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        from chebfunjax.domain import Domain
+
+        if g is not None:
+            raise ValueError(
+                "Unable to maximize/minimize two Chebfun3 objects.")
+        s = tuple(sorted(int(t) for t in dims))
+        if s not in ((1, 2), (1, 3), (2, 3)):
+            if 0 in s:
+                raise ValueError(
+                    "Dimension arguments must be two positive integer "
+                    "scalars within indexing range.")
+            return self
+        d = self.domain
+        n = 129  # MATLAB's sampling resolution
+        vals = self.sample(n, n, n)
+        v = reducer(vals, (s[0] - 1, s[1] - 1))
+        rem = ({0, 1, 2} - {s[0] - 1, s[1] - 1}).pop()
+        return Chebfun.from_values(
+            v, Domain((d[2 * rem], d[2 * rem + 1])))
+
+    def max2(self, g=None, dims=(1, 2)):
+        """Maximum along two variables, as a 1D Chebfun (MATLAB max2).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/max2.m
+        Chebfun commit: 7574c77
+        """
+        return self._extremum2(g, dims, lambda v, ax: jnp.max(v, axis=ax))
+
+    def min2(self, g=None, dims=(1, 2)):
+        """Minimum along two variables, as a 1D Chebfun (MATLAB min2).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/min2.m
+        Chebfun commit: 7574c77
+        """
+        return self._extremum2(g, dims, lambda v, ax: jnp.min(v, axis=ax))
 
     def compose(self, op) -> "Chebfun3":
         """Re-approximate op(f(x, y, z)) (MATLAB compose; Fable 5)."""

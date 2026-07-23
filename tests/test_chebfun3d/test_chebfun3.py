@@ -366,3 +366,38 @@ class TestChebfun3Calculus:
             v1 = float(f(jnp.array(xi), jnp.array(yi), jnp.array(zi)))
             v2 = float(f_jit(jnp.array(xi), jnp.array(yi), jnp.array(zi)))
             npt.assert_allclose(v2, v1, rtol=1e-14)
+
+
+class TestChebfun3Reductions:
+    """Core mirrors for sample / dimensional max, min / max2, min2."""
+
+    def test_sample_natural_indexing(self):
+        import numpy as _np
+        f = Chebfun3.from_function(lambda x, y, z: x + 10 * y + 100 * z)
+        V = f.sample(4, 5, 6)
+        assert V.shape == (4, 5, 6)
+        from chebfunjax.utils.quadrature import chebpts_ab
+        x = _np.asarray(chebpts_ab(4, -1.0, 1.0, kind=2))
+        y = _np.asarray(chebpts_ab(5, -1.0, 1.0, kind=2))
+        z = _np.asarray(chebpts_ab(6, -1.0, 1.0, kind=2))
+        _np.testing.assert_allclose(
+            _np.asarray(V),
+            x[:, None, None] + 10 * y[None, :, None] + 100 * z[None, None, :],
+            atol=1e-12)
+
+    def test_max_dim_gives_chebfun2(self):
+        import numpy as _np
+        f = Chebfun3.from_function(lambda x, y, z: -(x**2) + y + z)
+        h = f.max()  # over x -> y + z
+        t = _np.linspace(-1.0, 1.0, 21)
+        A, B = _np.meshgrid(t, t)
+        _np.testing.assert_allclose(
+            _np.asarray(h(jnp.asarray(A), jnp.asarray(B))), A + B, atol=1e-6)
+
+    def test_min2_gives_chebfun(self):
+        import numpy as _np
+        f = Chebfun3.from_function(lambda x, y, z: x**2 + y**2 + z)
+        h = f.min2()  # over (x, y) -> z
+        t = _np.linspace(-1.0, 1.0, 21)
+        _np.testing.assert_allclose(_np.asarray(h(jnp.asarray(t))), t,
+                                    atol=1e-6)

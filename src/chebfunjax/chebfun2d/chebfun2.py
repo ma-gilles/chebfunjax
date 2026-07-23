@@ -1344,6 +1344,127 @@ class Chebfun2(eqx.Module):
         vals, locs = self.minandmax2()
         return vals[0], locs[0]
 
+    def sample(self, m: int, n: int) -> jax.Array:
+        """Values of f on an m-by-n tensor Chebyshev grid.
+
+        Returns the (n, m) matrix ``V[j, i] = f(x_i, y_j)`` where ``x`` are
+        the ``m`` 2nd-kind Chebyshev points in the x-direction and ``y`` the
+        ``n`` points in the y-direction (MATLAB's row-per-y layout).
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/sample.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.utils.quadrature import chebpts_ab
+
+        xa, xb, ya, yb = self.domain
+        x = chebpts_ab(m, xa, xb, kind=2)
+        y = chebpts_ab(n, ya, yb, kind=2)
+        X, Y = jnp.meshgrid(x, y)
+        return self(X, Y)
+
+    def _extremum(self, g, dim: int, reducer) -> "object":
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        from chebfunjax.domain import Domain
+
+        if g is not None:
+            raise ValueError(
+                "Unable to maximize/minimize two Chebfun2 objects.")
+        if dim == 0:
+            raise ValueError(
+                "Dimension argument must be a positive integer scalar "
+                "within indexing range.")
+        if dim not in (1, 2):
+            # MATLAB returns f itself for out-of-range dims (like max()).
+            return self
+        xa, xb, ya, yb = self.domain
+        n = 2049  # MATLAB's sampling resolution
+        vals = self.sample(n, n)
+        if dim == 1:  # extremum over y -> function of x
+            v = reducer(vals, 0)
+            return Chebfun.from_values(v, Domain((xa, xb)))
+        v = reducer(vals, 1)  # over x -> function of y
+        return Chebfun.from_values(v, Domain((ya, yb)))
+
+    def max(self, g=None, dim: int = 1):
+        """Maximum along one variable, as a 1D Chebfun (MATLAB max).
+
+        ``max(f)`` / ``max(f, dim=1)`` maximizes over y and returns a
+        function of x; ``dim=2`` maximizes over x.  (MATLAB returns a row
+        chebfun for ``dim=1``; orientation is not tracked here.)  For a
+        ``dim`` outside 1-2, f itself is returned, as in MATLAB.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/max.m
+        Chebfun commit: 7574c77
+        """
+        return self._extremum(g, dim, lambda v, ax: jnp.max(v, axis=ax))
+
+    def min(self, g=None, dim: int = 1):
+        """Minimum along one variable, as a 1D Chebfun (MATLAB min).
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/min.m
+        Chebfun commit: 7574c77
+        """
+        return self._extremum(g, dim, lambda v, ax: jnp.min(v, axis=ax))
+
+    def std(self, flag=None, dim: int = 1):
+        """Standard deviation along one variable, as a 1D Chebfun.
+
+        ``std(f)`` (``dim=1``) is the y-standard-deviation, a function of
+        x; ``dim=2`` the x-standard-deviation, a function of y.  ``flag``
+        is accepted and ignored to mirror MATLAB's ``std(f, flag, dim)``.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/std.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        from chebfunjax.domain import Domain
+        from chebfunjax.utils.quadrature import chebpts_ab
+
+        if dim not in (1, 2):
+            raise ValueError("std dim must be 1 or 2.")
+        xa, xb, ya, yb = self.domain
+        m = self.mean(dim=dim)
+        width = (yb - ya) if dim == 1 else (xb - xa)
+        var = ((self - m) ** 2).sum(dim=dim) * (1.0 / width)
+        # var is a Chebfun2 flat in the averaged variable; sample it along
+        # the remaining variable and take the pointwise square root.
+        n = 513
+        if dim == 1:
+            t = chebpts_ab(n, xa, xb, kind=2)
+            v = var(t, jnp.full_like(t, 0.5 * (ya + yb)))
+            dom = Domain((xa, xb))
+        else:
+            t = chebpts_ab(n, ya, yb, kind=2)
+            v = var(jnp.full_like(t, 0.5 * (xa + xb)), t)
+            dom = Domain((ya, yb))
+        return Chebfun.from_values(jnp.sqrt(jnp.maximum(v, 0.0)), dom)
+
+    @classmethod
+    def complex(cls, re: "Chebfun2", im: "Chebfun2" = None) -> "Chebfun2":
+        """Complex Chebfun2 from real (and imaginary) parts (MATLAB complex).
+
+        ``complex(f)`` requires a real f and returns it (f + 0i);
+        ``complex(f, g)`` requires real f, g and returns f + 1i*g.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/complex.m
+        Chebfun commit: 7574c77
+        """
+        if im is not None:
+            if not isinstance(im, Chebfun2):
+                raise TypeError("Second input must be a Chebfun2.")
+            return re + 1j * im
+        return re
+
     def compose(self, op) -> "Chebfun2":
         """Re-approximate op(f(x, y)) (MATLAB compose; Fable 5)."""
         return Chebfun2.from_function(

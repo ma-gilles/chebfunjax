@@ -8,11 +8,24 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-import pytest
+import jax.numpy as jnp
+import numpy as np
 
-pytestmark = pytest.mark.skip(reason="test exercises MATLAB's complex() builtin -- complex(f) and complex(f,f) -- which chebfunjax has no counterpart for; real()/imag()/conj() on Chebfun2 now exist and are tested in test_conj_matlab.py / test_imag_matlab.py")
+from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+
+TOL = 1000 * float(np.finfo(np.float64).eps)
+_T = np.linspace(-1.0, 1.0, 61)
+_A, _B = np.meshgrid(_T, _T)
+_JA, _JB = jnp.asarray(_A), jnp.asarray(_B)
 
 
 class TestChebfun2Complex:
-    def test_all_matlab_assertions(self):
-        raise NotImplementedError
+    def test_complex_one_arg(self):
+        f = Chebfun2.from_function(lambda x, y: jnp.cos(x * y))
+        d = f - Chebfun2.complex(f)
+        assert float(np.max(np.abs(np.asarray(d(_JA, _JB))))) < TOL
+
+    def test_complex_two_args(self):
+        f = Chebfun2.from_function(lambda x, y: jnp.cos(x * y))
+        d = (f + 1j * f) - Chebfun2.complex(f, f)
+        assert float(np.max(np.abs(np.asarray(d(_JA, _JB))))) < TOL

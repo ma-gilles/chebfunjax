@@ -527,3 +527,46 @@ class TestChebfun2GoldenRef:
         f = Chebfun2.from_function(lambda x, y: jnp.exp(x * y))
         npt.assert_allclose(float(f.sum2()), ref, rtol=1e-10,
                             err_msg="Golden ref: sum2(exp(x*y))")
+
+
+class TestChebfun2Reductions:
+    """Core mirrors for sample / dimensional max, min, std / complex."""
+
+    def test_sample_shape_and_values(self):
+        import numpy as _np
+        f = Chebfun2.from_function(lambda x, y: x + 2 * y)
+        V = f.sample(9, 5)
+        assert V.shape == (5, 9)
+        from chebfunjax.utils.quadrature import chebpts_ab
+        x = chebpts_ab(9, -1.0, 1.0, kind=2)
+        y = chebpts_ab(5, -1.0, 1.0, kind=2)
+        X, Y = _np.meshgrid(_np.asarray(x), _np.asarray(y))
+        _np.testing.assert_allclose(_np.asarray(V), X + 2 * Y, atol=1e-13)
+
+    def test_max_min_paraboloid(self):
+        import numpy as _np
+        f = Chebfun2.from_function(lambda x, y: -(x**2) - y**2)
+        t = jnp.asarray(_np.linspace(-1.0, 1.0, 33))
+        hmax = f.max()          # over y -> -x^2
+        hmin = f.min(None, 2)   # over x -> -1 - y^2
+        _np.testing.assert_allclose(_np.asarray(hmax(t)),
+                                    -_np.asarray(t)**2, atol=1e-6)
+        _np.testing.assert_allclose(_np.asarray(hmin(t)),
+                                    -1.0 - _np.asarray(t)**2, atol=1e-6)
+
+    def test_std_constant_in_dim(self):
+        import numpy as _np
+        f = Chebfun2.from_function(lambda x, y: y**2 + 0 * x)
+        s = f.std()  # y-std of y^2 is sqrt(4/45) for every x
+        t = jnp.asarray(_np.linspace(-1.0, 1.0, 33))
+        _np.testing.assert_allclose(_np.asarray(s(t)),
+                                    _np.sqrt(4.0 / 45.0), atol=1e-12)
+
+    def test_complex_classmethod(self):
+        import numpy as _np
+        f = Chebfun2.from_function(lambda x, y: x * y)
+        c = Chebfun2.complex(f, f)
+        v = complex(c(jnp.asarray(0.3), jnp.asarray(0.5)))
+        _np.testing.assert_allclose(v.real, 0.15, atol=1e-13)
+        _np.testing.assert_allclose(v.imag, 0.15, atol=1e-13)
+        assert Chebfun2.complex(f) is f
