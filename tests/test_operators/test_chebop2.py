@@ -27,6 +27,8 @@ Helmholtz: RHS zero, BC data from exact solution.
 
 from __future__ import annotations
 
+import warnings
+
 import jax.numpy as jnp
 import numpy as np
 import numpy.testing as npt
@@ -36,6 +38,7 @@ from chebfunjax.operators.chebop2 import (
     Chebop2,
     _Chebop2Proxy,
     _op_from_coeffs,
+    _resolve_dir,
     bartels_stewart,
     diffx,
     diffy,
@@ -526,3 +529,79 @@ class TestChebop2Accessors:
         op = _op_from_coeffs(np.zeros((1, 1), dtype=np.float64))
         proxy = op(_Chebop2Proxy())
         npt.assert_allclose(proxy._coeffs_matrix(), np.zeros((1, 1)))
+
+
+class TestResolveDir:
+    """Unit tests for the per-direction adaptive resolution check."""
+
+    def test_decayed_tail_resolves(self):
+        # A coefficient matrix whose last rows/cols are tiny is resolved and
+        # keeps the same grid size.
+        C = np.zeros((17, 17), dtype=np.float64)
+        C[0, 0] = 1.0  # a single low mode; the tails are exactly zero
+        res_y, new_y = _resolve_dir(C, 0, 17, 1e-14)
+        res_x, new_x = _resolve_dir(C, 1, 17, 1e-14)
+        assert res_y and res_x
+        assert new_y == 17 and new_x == 17
+
+    def test_large_tail_doubles(self):
+        # A non-decaying tail is unresolved and the grid is doubled.
+        C = np.ones((17, 17), dtype=np.float64)
+        res_y, new_y = _resolve_dir(C, 0, 17, 1e-14)
+        res_x, new_x = _resolve_dir(C, 1, 17, 1e-14)
+        assert (not res_y) and (not res_x)
+        assert new_y == 33 and new_x == 33
+
+    def test_direction_independence(self):
+        # Tail only in the y-direction: y unresolved, x resolved.
+        C = np.zeros((20, 20), dtype=np.float64)
+        C[-1, 0] = 1.0  # high y-mode, low x-mode
+        res_y, _ = _resolve_dir(C, 0, 20, 1e-14)
+        res_x, _ = _resolve_dir(C, 1, 20, 1e-14)
+        assert (not res_y) and res_x
+
+
+class TestParabolicSolve:
+    """The rectangular adaptive solve of a parabolic (space-time) problem."""
+
+    def test_heat_solve_no_warning_and_bc(self):
+        # u_t = u_xx on [-1,1]x[0,0.5], u(x,0)=(1-x^2), u(+-1,t)=0.
+        # The parabolic solve must complete without a non-convergence warning
+        # and honour the initial + boundary conditions.
+        N = Chebop2(lambda u: diffy(u, 1) - diffx(u, 2),
+                    domain=(-1.0, 1.0, 0.0, 0.5))
+        N.dbc = lambda x: 1.0 - x ** 2
+        N.lbc = 0.0
+        N.rbc = 0.0
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")  # any convergence warning -> failure
+            u = N.solve(0.0)
+        xs = np.linspace(-1.0, 1.0, 25)
+        # Initial condition at t=0.
+        u0 = np.asarray(u(jnp.asarray(xs), jnp.zeros(xs.size)))
+        npt.assert_allclose(u0, 1.0 - xs ** 2, atol=1e-8)
+        # Dirichlet edges held at zero for all sampled times.
+        for t in (0.0, 0.25, 0.5):
+            lval = float(u(jnp.asarray([-1.0]), jnp.asarray([t]))[0])
+            rval = float(u(jnp.asarray([1.0]), jnp.asarray([t]))[0])
+            assert abs(lval) < 1e-8 and abs(rval) < 1e-8
+
+    def test_heat_solve_interval_independence(self):
+        # The heat solution must not depend on the time-interval length; solve
+        # on [0,0.5] and [0,0.8] and compare on the common region.
+        def solve(tmax):
+            N = Chebop2(lambda u: diffy(u, 1) - diffx(u, 2),
+                        domain=(-1.0, 1.0, 0.0, tmax))
+            N.dbc = lambda x: 1.0 - x ** 2
+            N.lbc = 0.0
+            N.rbc = 0.0
+            return N.solve(0.0)
+
+        u = solve(0.5)
+        v = solve(0.8)
+        xx = np.linspace(-1.0, 1.0, 30)
+        tt = np.linspace(0.0, 0.5, 30)
+        X, Y = np.meshgrid(xx, tt)
+        uv = np.asarray(u(jnp.asarray(X.ravel()), jnp.asarray(Y.ravel())))
+        vv = np.asarray(v(jnp.asarray(X.ravel()), jnp.asarray(Y.ravel())))
+        assert np.max(np.abs(uv - vv)) < 1e-7

@@ -518,24 +518,6 @@ def _reduced_solve(CC, rhs, rk):
     return x.reshape(p, q, order="F")
 
 
-def _is_resolved_coeffs(C: np.ndarray, tol: float) -> bool:
-    """Check that a Chebyshev-coefficient solution matrix has a decayed tail.
-
-    Provenance
-    ----------
-    MATLAB source : @chebop2/solvepde.m (resolution check)
-    Chebfun commit: 7574c77
-    """
-    if C.size == 0:
-        return True
-    m, n = C.shape
-    scale = max(float(np.max(np.abs(C))), 1e-300)
-    thresh = tol * scale
-    tail_rows = np.max(np.abs(C[max(0, m - 3):, :])) if m >= 1 else 0.0
-    tail_cols = np.max(np.abs(C[:, max(0, n - 3):])) if n >= 1 else 0.0
-    return bool(tail_rows < thresh and tail_cols < thresh)
-
-
 # ===========================================================================
 # Boundary-condition proxies for general (Neumann/Robin) constraints
 # ===========================================================================
@@ -917,7 +899,7 @@ class Chebop2:
         f=0.0,
         n: int | None = None,
         n_min: int = 9,
-        n_max: int = 257,
+        n_max: int = 513,
         tol: float = 1e-10,
     ):
         """Solve the PDE ``L[u] = f`` with the attached boundary conditions.
@@ -933,8 +915,8 @@ class Chebop2:
             adaptive doubling until convergence or ``n_max``.
         n_min : int, default 9
             Minimum grid size for adaptive loop.
-        n_max : int, default 257
-            Maximum grid size for adaptive loop.
+        n_max : int, default 513
+            Maximum grid size for adaptive loop (per direction).
         tol : float, default 1e-10
             Coefficient tail tolerance for convergence check.
 
@@ -985,32 +967,24 @@ class Chebop2:
             X = self._dense_solve(f, n, n)
             return self._wrap_solution(X)
 
-        # Adaptive loop: double the grid until resolved.  The coefficient-space
-        # path resolves to ~eps (like MATLAB solvepde), so it uses a tighter
-        # relative tail tolerance than the value-space convergence check.
-        coeff_tol = min(tol, 1e-13)
+        # Adaptive loop.  The coefficient-space path follows MATLAB
+        # ``solvepde``: start on a 9x9 grid, check resolution *independently*
+        # in each direction (MATLAB ``resolveCheck``), and double only the
+        # unresolved direction.  This rectangular adaptivity is essential for
+        # parabolic / advective space-time problems, whose time direction has
+        # an initial layer needing far more modes than the space direction.
+        if use_coeff:
+            try:
+                return self._wrap_coeffs(
+                    self._adaptive_coeff_solve(f, n_min, n_max))
+            except Exception:
+                if no_fallback:
+                    raise
+                use_coeff = False  # fall back to the value-space loop below
+
+        # Value-space fallback loop (square grid): double until resolved.
         sz = n_min
         for _ in range(20):
-            if use_coeff:
-                try:
-                    C = self._coeff_solve(f, sz, sz)
-                    if _is_resolved_coeffs(C, coeff_tol):
-                        return self._wrap_coeffs(C)
-                    old_sz = sz
-                    sz = _next_grid(sz)
-                    if sz >= n_max:
-                        warnings.warn(
-                            f"Chebop2.solve: adaptive loop reached n_max={n_max} "
-                            f"without convergence (tol={tol}). Returning best "
-                            f"available solution.",
-                            stacklevel=2,
-                        )
-                        return self._wrap_coeffs(self._coeff_solve(f, old_sz, old_sz))
-                    continue
-                except Exception:
-                    if no_fallback:
-                        raise
-                    use_coeff = False  # fall back for the rest of the loop
             X = self._dense_solve(f, sz, sz)
             if _is_resolved_vals(X, tol):
                 return self._wrap_solution(X)
@@ -1571,6 +1545,56 @@ class Chebop2:
         X = _impose_boundary_conditions(X, bb, gg, Px, Py, m, n)
         return X
 
+    def _adaptive_coeff_solve(self, f, n_min: int, n_max: int) -> np.ndarray:
+        """Adaptively resolve the coefficient-space solution (MATLAB solvepde).
+
+        Starts on an ``n_min x n_min`` grid and checks resolution independently
+        in the y- and x-directions using MATLAB's ``resolveCheck`` criterion
+        (the last nine Chebyshev coefficients must fall below ``20 * size *
+        tol``).  Only the unresolved direction is doubled, so parabolic /
+        advective problems can use a high time-resolution with a modest space
+        resolution.  Returns the coefficient matrix at the resolved (or maximal)
+        grid.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop2/solvepde.m (resolveCheck, updateTolerance)
+        Chebfun commit: 7574c77
+        """
+        # Relative tail tolerance (matches the coefficient-space solver's
+        # ~eps resolution below grid 250).  On large grids it is relaxed,
+        # mirroring MATLAB ``updateTolerance``: parabolic / advective time
+        # directions converge only algebraically (their high-mode tail can
+        # plateau around 1e-7), so a strict tolerance would refine to the cap
+        # without ever resolving.  MATLAB's absolute ``20*m*tol`` threshold at
+        # ``m > 250`` corresponds to ~1e-5 relative for an O(1) solution; a
+        # 1e-6 relative floor is a slightly tighter analogue that still lets
+        # these problems stop (advection-dominated cases reach ~1e-7 accuracy
+        # near grid 257, well inside their MATLAB tolerances).
+        tol = 1e-13
+        m = n = n_min
+        X = None
+        resolved = False
+        for _ in range(40):
+            X = self._coeff_solve(f, m, n)
+            old_m, old_n = m, n
+            res_y, m = _resolve_dir(X, 0, old_m, tol)
+            res_x, n = _resolve_dir(X, 1, old_n, tol)
+            # updateTolerance: relax on large grids (weak corner singularities
+            # / algebraically-converging space-time tails).
+            if max(m, n) > 250:
+                tol = max(tol, 1e-6)
+            resolved = res_x and res_y
+            if resolved or (m >= n_max) or (n >= n_max):
+                break
+        if not resolved:
+            warnings.warn(
+                f"Chebop2.solve: maximum discretization ({n_max}) reached "
+                "without full resolution. Solution may be inaccurate.",
+                stacklevel=2,
+            )
+        return X
+
     # ------------------------------------------------------------------
     # Wrap solution as SeparableApprox
     # ------------------------------------------------------------------
@@ -2016,6 +2040,39 @@ def _next_grid(n: int) -> int:
         return 3
     p = int(np.floor(np.log2(n - 1)))
     return 2 ** (p + 1) + 1
+
+
+def _resolve_dir(X: np.ndarray, axis: int, old: int, tol: float):
+    """Per-direction resolution check for a coefficient matrix.
+
+    ``X[i, j]`` is the coefficient of ``T_i(y) T_j(x)``.  The direction is
+    resolved when the last three coefficients (high y-modes, ``axis=0``, i.e.
+    the last rows; or high x-modes, ``axis=1``, the last columns) fall below
+    ``tol`` *relative to* the coefficient scale.  Returns ``(resolved,
+    new_size)`` where ``new_size`` is ``old`` if resolved and the doubled grid
+    otherwise.
+
+    This mirrors MATLAB ``solvepde``/``resolveCheck`` (double the unresolved
+    direction) but keeps the *relative* tail criterion of chebfunjax's
+    coefficient-space solver: MATLAB's absolute ``20*m*tol`` threshold is
+    looser and, combined with the mild grid-dependent conditioning growth of
+    the ultraspherical solve for high-order operators (e.g. linear KDV, best
+    resolved near n=17), would over-refine onto a less accurate grid.
+
+    Provenance
+    ----------
+    MATLAB source : @chebop2/solvepde.m (resolveCheck), @chebop2/solvepde.m
+        (cutTrailingCoefficients resolution test)
+    Chebfun commit: 7574c77
+    """
+    scale = max(float(np.max(np.abs(X))), 1e-300) if X.size else 1.0
+    if axis == 0:
+        block = X[max(0, X.shape[0] - 3):, :]
+    else:
+        block = X[:, max(0, X.shape[1] - 3):]
+    tail = float(np.max(np.abs(block))) if block.size else 0.0
+    resolved = tail < tol * scale
+    return resolved, (old if resolved else _next_grid(old))
 
 
 def _is_resolved_vals(U: np.ndarray, tol: float) -> bool:

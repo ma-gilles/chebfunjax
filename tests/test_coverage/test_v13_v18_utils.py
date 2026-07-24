@@ -138,6 +138,56 @@ class TestPde15s:
         for uk in UU:
             assert isinstance(uk, Chebfun)
 
+    def test_pde15s_neumann_bc_exact(self):
+        """Callable Neumann BCs: u_t=u_xx on [0,pi], u=cos(x)exp(-t) exact.
+
+        ``lbc=lambda u: u.diff()`` and ``rbc=lambda u: u.diff()`` impose
+        ``u_x=0`` at both ends; the exact solution ``cos(x) exp(-t)`` satisfies
+        them.  The boundary values are slaved algebraically (reduced-system
+        integration), which is exact for this linear problem.
+        """
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        from chebfunjax.chebfun1d.pde15s import pde15s
+
+        u0 = chebfun(lambda x: jnp.cos(x), domain=(0.0, np.pi))
+        t_final = 0.5
+        UU = pde15s(
+            lambda t, x, u: u.diff(2),
+            np.array([0.0, t_final]), u0,
+            lbc=lambda u: u.diff(), rbc=lambda u: u.diff(),
+            n=48, rtol=1e-10, atol=1e-12,
+        )
+        xs = jnp.linspace(0.2, np.pi - 0.2, 20, dtype=jnp.float64)
+        exact = np.array(jnp.cos(xs)) * float(jnp.exp(-jnp.float64(t_final)))
+        npt.assert_allclose(np.array(UU[-1](xs)), exact, atol=1e-8)
+        # Neumann condition honoured at the endpoints.
+        for uk in UU:
+            duk = uk.diff()
+            assert abs(float(duk(jnp.float64(0.0)))) < 1e-7
+            assert abs(float(duk(jnp.float64(np.pi)))) < 1e-7
+
+    def test_pde15s_advection_dominated_stable(self):
+        """Advection-dominated BC problem stays bounded (algebraic BC slaving).
+
+        ``u_t = 0.05 u_xx + u_x`` with a Neumann-left / Dirichlet-right pair is
+        stable only if the boundary values are slaved algebraically; imposing
+        the same BCs by ODE row-replacement gives a spurious growing mode.
+        """
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        from chebfunjax.chebfun1d.pde15s import pde15s
+
+        f = chebfun(lambda x: jnp.sin(jnp.pi * x), domain=(-1.0, 1.0))
+        UU = pde15s(
+            lambda t, x, u: 0.05 * u.diff(2) + u.diff(),
+            np.linspace(0.0, 4.0, 9), f,
+            lbc=lambda u: u.diff(), rbc=0.0, n=48, rtol=1e-9, atol=1e-11,
+        )
+        xs = jnp.linspace(-1.0, 1.0, 40, dtype=jnp.float64)
+        max_vals = [float(jnp.max(jnp.abs(uk(xs)))) for uk in UU]
+        # Diffusion-dominated decay: solution never grows past the initial size.
+        assert max(max_vals) < 1.5 * max_vals[0]
+        assert max_vals[-1] < max_vals[0]
+
 
 # ============================================================================
 # V14 — sing (singularity detection)
