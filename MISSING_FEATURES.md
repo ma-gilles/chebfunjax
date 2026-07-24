@@ -11,10 +11,25 @@ counterparts (1,105 port files). Final run:
 
 | Status | Count | Meaning |
 |---|---:|---|
-| **passed** | 2,534 | ported at MATLAB tolerances and passing |
-| **skipped** | 580 | test written; the feature does not exist (reason string names it) |
+| **passed** | 2,554 | ported at MATLAB tolerances and passing |
+| **skipped** | 563 | test written; the feature does not exist (reason string names it) |
 | **xfailed** | 375 | known library bug or convention gap, with evidence in the reason |
 | **failed** | **0** | |
+
+*(2026-07-24 second refresh: 2,554 / 0 / 563 / 375.  Landed: the
+SPINSPHERE solver (Spinopsphere + spinsphere, IMEX-BDF4/LIRK4 on the
+DFS Fourier-Fourier sphere; AC 8x margin, GL genuine 4th-order scheme
+error at the shared 1e-2 tol); chebop2 PARABOLIC space-time solves
+(root cause: square adaptive grid + 257 cap could never resolve the
+anisotropic initial layer -- rectangular per-direction resolver per
+MATLAB solvepde) + pde15s callable/Neumann BCs -> advectionDiffusion1/2
++ heatequation 2-4 flipped; chebop DEFLATION (deflate L2/H1, exact
+product-rule Newton Jacobian, damped Newton + Farrell-Birkisson-Funke
+multi-start; Bratu/Painleve/Herceg all flipped, 10-27x margins);
+Spinop2/Spinop3 plumbing over the golden-tested ETDRK4 numerics; and
+the chebfun3t audit -- its blanket "has no chebfun3t" reason was WRONG
+(a Tucker wrapper exists), 6 files flipped.  A tech-layer XPASS sweep
+confirmed ZERO stale xfails among the 279 tech xfails.)*
 
 *(2026-07-24 fresh full accounting (chunked per-directory, zero
 failures): 2,534 / 0 / 580 / 375 -- +243 passes, -78 skips in the
