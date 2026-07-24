@@ -143,16 +143,13 @@ class TestBndfunSum:
         sumh2 = h.sum(dim=2)
         assert _ninf(h(X) - sumh2(X)) == 0.0
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks singular (blowup) Bndfun: (x-a)^-0.5 sin(x) "
-        "cannot be constructed."
-    )
     def test_singular_function(self):
         pow_ = -0.5
 
         def op(x):
             return (x - A) ** pow_ * jnp.sin(x)
 
-        f = _bf(op, n=17)
+        # exponents=[pow 0]: algebraic blowup at the left endpoint.
+        f = Bndfun.from_function(op, DOM, exponents=(pow_, 0.0))
         I_exact = -1.92205524578386613
         assert abs(complex(f.sum()) - I_exact) < 200 * EPS * abs(I_exact)

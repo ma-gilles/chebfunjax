@@ -22,7 +22,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
@@ -38,22 +37,18 @@ def _bf(f, n=None):
 
 
 class TestBndfunQR:
-    @pytest.mark.xfail(reason=_QR_MISSING, raises=AttributeError)
     def test_qr_sin(self):  # pass(1:4): orthogonality + accuracy, with/without perm
         f = _bf(jnp.sin)
         f.qr()
 
-    @pytest.mark.xfail(reason=_QR_MISSING, raises=AttributeError)
     def test_qr_cos_exp(self):  # pass(5:8)
         f = _bf(lambda x: jnp.stack([jnp.cos(x), jnp.exp(x)], axis=-1), n=17)
         f.qr()
 
-    @pytest.mark.xfail(reason=_QR_MISSING, raises=AttributeError)
     def test_qr_monomials(self):  # pass(9:12)
         f = _bf(lambda x: jnp.stack([x ** k for k in range(8)], axis=-1), n=17)
         f.qr()
 
-    @pytest.mark.xfail(reason=_QR_MISSING, raises=AttributeError)
     def test_qr_mixed_complex(self):  # pass(13:16)
         f = _bf(
             lambda x: jnp.stack(
@@ -64,7 +59,6 @@ class TestBndfunQR:
         )
         f.qr()
 
-    @pytest.mark.xfail(reason=_QR_MISSING, raises=AttributeError)
     def test_qr_vector_flag(self):  # pass(17): permutation 'vector' flag
         f = _bf(
             lambda x: jnp.stack(
@@ -75,15 +69,15 @@ class TestBndfunQR:
         )
         f.qr(mode="vector")
 
-    @pytest.mark.xfail(reason=_QR_MISSING, raises=AttributeError)
     def test_qr_rank_deficient_shapes(self):  # pass(18)
-        f = _bf(lambda x: jnp.stack([x, x, x], axis=-1), n=17)
+        # MATLAB size(Q) == [3, 3]: [x x x] resolves to a linear (n=2) fun,
+        # then qr prolongs to n = m = 3 columns.  Adaptive build matches.
+        f = _bf(lambda x: jnp.stack([x, x, x], axis=-1))
         Q, R = f.qr()
-        assert Q.shape == (3, 3) and R.shape == (3, 3)
+        assert Q.onefun.coeffs.shape == (3, 3) and R.shape == (3, 3)
 
-    @pytest.mark.xfail(reason=_QR_MISSING, raises=AttributeError)
     def test_qr_rank_deficient_orthogonality(self):  # pass(19)
-        f = _bf(lambda x: jnp.stack([x, x, x], axis=-1), n=17)
+        f = _bf(lambda x: jnp.stack([x, x, x], axis=-1))
         Q, R = f.qr()
         ip = np.asarray(Q.inner(Q))
         assert float(np.max(np.abs(ip - np.eye(3)))) < float(f.vscale) * np.finfo(

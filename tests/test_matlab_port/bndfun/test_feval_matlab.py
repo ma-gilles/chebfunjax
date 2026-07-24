@@ -102,8 +102,13 @@ class TestBndfunFeval:
         assert _ninf(fx - f_exact) < 1e2 * f.vscale * EPS
 
     @pytest.mark.xfail(
-        reason="chebfunjax lacks singular (blowup) Bndfun: Bndfun.from_function "
-        "has no `exponents`/blowup support for (x-a)^p factors."
+        reason="Singfun near-endpoint eval precision: (x-a)^-0.5 sin(x) with "
+        "exponents=(-0.5,0) now BUILDS (Bndfun exponents support) and sum()/"
+        "cumsum() pass, but feval at the point closest to the singular "
+        "endpoint (x=-1.991, |f|~9.6) has error ~8.9e-13 vs MATLAB's "
+        "1e2*vscale*eps ~= 2.1e-13 bound -- a ~4x gap in the Singfun weight "
+        "evaluation near y=-1 (owned by the Singfun/tech layer).",
+        strict=True,
     )
     def test_singular_function(self):
         pow_ = -0.5
@@ -111,6 +116,12 @@ class TestBndfunFeval:
         def op(x):
             return (x - DOM.a) ** pow_ * jnp.sin(x)
 
-        f = _bf(op, n=17)
-        exact = (XR - DOM.a) ** pow_ * np.sin(XR)
-        assert _ninf(f(X) - exact) < 1e2 * EPS * float(np.max(np.abs(exact)))
+        # exponents=[pow 0]: algebraic blowup at the left endpoint (MATLAB
+        # data.exponents = [pow 0], pref.blowup = true).  Evaluate on an
+        # interior grid -- MATLAB uses random interior points, so the exact
+        # (infinite) value at the singular endpoint is never sampled.
+        f = Bndfun.from_function(op, DOM, exponents=(pow_, 0.0))
+        XR_int = np.linspace(-2.0, 7.0, 1000)[1:]
+        X_int = jnp.asarray(XR_int)
+        exact = (XR_int - DOM.a) ** pow_ * np.sin(XR_int)
+        assert _ninf(f(X_int) - exact) < 1e2 * EPS * float(np.max(np.abs(exact)))

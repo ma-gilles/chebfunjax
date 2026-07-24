@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
@@ -108,14 +107,17 @@ class TestBndfunCumsum:
         assert float(np.max(np.abs(np.diff(err, axis=0)))) < 10 * f.vscale * EPS
         assert bool(np.all(np.abs(np.asarray(F(jnp.float64(A)))) < f.vscale * EPS))
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks singular (blowup) Bndfun: (x-a)^-0.64 "
-        "cannot be constructed via Bndfun.from_function."
-    )
     def test_singular_function(self):
         pow_ = -0.64
-        f = _bf(lambda x: (x - A) ** pow_, n=17)
+        f = Bndfun.from_function(
+            lambda x: (x - A) ** pow_, DOM, exponents=(pow_, 0.0)
+        )
         g = f.cumsum()
-        exact = (XR - A) ** (pow_ + 1) / (pow_ + 1)
-        err = np.asarray(g(X)) - exact
+        # MATLAB samples random INTERIOR points; the exact antiderivative
+        # (x-a)^0.36/0.36 is 0 at x=a and the singular representation of the
+        # antiderivative evaluates 0*inf at the exact endpoint, so exclude it.
+        XR_int = XR[1:]
+        X_int = jnp.asarray(XR_int)
+        exact = (XR_int - A) ** (pow_ + 1) / (pow_ + 1)
+        err = np.asarray(g(X_int)) - exact
         assert float(np.max(np.abs(err))) < 1e2 * EPS * float(np.max(np.abs(exact)))

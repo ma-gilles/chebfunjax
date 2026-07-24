@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
@@ -31,32 +30,27 @@ def _bf(f, n=None):
 
 
 class TestBndfunPoly:
-    @pytest.mark.xfail(reason=_POLY_MISSING, raises=AttributeError)
     def test_zeros(self):
         f = _bf(lambda x: jnp.zeros_like(x))
         p = np.asarray(f.poly())
         assert float(np.max(np.abs(p))) <= f.vscale * EPS
 
-    @pytest.mark.xfail(reason=_POLY_MISSING, raises=AttributeError)
     def test_constant(self):
         f = _bf(lambda x: 3 * jnp.ones_like(x))
         p = np.asarray(f.poly())
         assert float(np.max(np.abs(p - 3))) < f.vscale * EPS
 
-    @pytest.mark.xfail(reason=_POLY_MISSING, raises=AttributeError)
     def test_linear_complex(self):
         f = _bf(lambda x: 6.4 * x - 3j)
         p = np.asarray(f.poly())
         assert float(np.max(np.abs(p - np.array([6.4, -3j])))) < f.vscale * EPS
 
-    @pytest.mark.xfail(reason=_POLY_MISSING, raises=AttributeError)
     def test_quintic_complex(self):
         f = _bf(lambda x: 2j * x ** 5 - 3.2 * x ** 4 + 2 * x ** 2 - (1.2 + 3j))
         p = np.asarray(f.poly())
         exact = np.array([2j, -3.2, 0, 2, 0, -(1.2 + 3j)])
         assert float(np.max(np.abs(p - exact))) < f.vscale * EPS
 
-    @pytest.mark.xfail(reason=_POLY_MISSING, raises=AttributeError)
     def test_array_valued(self):
         # Array-valued Bndfun now works; the sole remaining blocker is the
         # missing poly() (power-basis coefficients).

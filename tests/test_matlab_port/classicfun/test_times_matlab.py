@@ -162,20 +162,25 @@ class TestClassicfunTimes:
         f = _bf(f_op)
         assert _mult_fun_by_fun(f, f_op, f, f_op)
 
-    @pytest.mark.xfail(
-        reason="chebfunjax has no conj() FUN-level wrapper on Bndfun (the onefun "
-        "Chebtech2 has conj, but Bndfun/Classicfun does not expose it), so "
-        "f.*conj(f) with the positivity check cannot be formed."
-    )
     def test_mult_by_conj_1(self):
-        raise NotImplementedError("no Bndfun.conj() wrapper")
+        # MATLAB pass(17): f = sinh(t e^{2πi/6}); g = conj(f).  f .* conj(f)
+        # matches |f|^2 pointwise.
+        f_op = lambda t: jnp.sinh(t * np.exp(2 * np.pi * 1j / 6))
+        g_op = lambda t: np.conj(np.sinh(np.asarray(t) * np.exp(2 * np.pi * 1j / 6)))
+        f = _bf(f_op)
+        g = f.conj()
+        assert _mult_fun_by_fun(f, f_op, g, g_op)
 
-    @pytest.mark.xfail(
-        reason="chebfunjax has no conj() FUN-level wrapper on Bndfun (onefun "
-        "Chebtech2 has conj)."
-    )
     def test_mult_by_conj_2(self):
-        raise NotImplementedError("no Bndfun.conj() wrapper")
+        # MATLAB pass(18): the positivity check -- f .* conj(f) is real and
+        # nonnegative (it equals |f|^2).
+        f_op = lambda t: jnp.sinh(t * np.exp(2 * np.pi * 1j / 6))
+        f = _bf(f_op)
+        h = f * f.conj()
+        hx = np.asarray(h(X))
+        tol = 10 * h.vscale * EPS
+        assert _ninf(hx.imag) < 1e4 * tol
+        assert float(np.min(hx.real)) > -1e4 * tol
 
     def test_mult_expix_minus1_self(self):
         # MATLAB pass(19:20): identical assertion recorded twice.
@@ -209,18 +214,39 @@ class TestClassicfunTimes:
         assert (not g.ishappy) and (not h.ishappy)
 
     # --- singular (pass 24-25) ----------------------------------------
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks singular (exponents) Bndfun: (x-b)^p * scalar."
-    )
-    def test_singular_scalar(self):
-        raise NotImplementedError("singular Bndfun times scalar")
+    # Singular funs are built via Bndfun.from_function(..., exponents=...),
+    # mirroring MATLAB's bndfun(op, data.exponents, singPref).  The base
+    # (x - b) is negative on the interval, so a fractional power is complex;
+    # we build with a complex base to match MATLAB's complex singfun.  MATLAB
+    # samples random INTERIOR points, so the singular endpoint b=7 is dropped.
+    XI = jnp.asarray(np.linspace(-2.0, 7.0, 100)[:-1])
+    XIR = np.linspace(-2.0, 7.0, 100)[:-1]
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks singular (exponents) Bndfun: product of two "
-        "singular funs."
-    )
-    def test_singular_product(self):
-        raise NotImplementedError("singular Bndfun product")
+    def test_singular_scalar(self):  # pass(24): c .* (x-b)^-0.5 sin(x)
+        pow_ = -0.5
+        c = ALPHA
+        op = lambda x: (x - DOM.b).astype(jnp.complex128) ** pow_ * jnp.sin(x)
+        f = Bndfun.from_function(op, DOM, exponents=(0.0, pow_))
+        g = c * f
+        g_exact = c * (
+            (self.XIR - DOM.b).astype(complex) ** pow_ * np.sin(self.XIR)
+        )
+        tol = 1e2 * EPS * float(np.max(np.abs(g_exact)))
+        assert _ninf(np.asarray(g(self.XI)) - g_exact) < tol
+
+    def test_singular_product(self):  # pass(25): product adds exponents
+        pow1, pow2 = -0.3, -0.5
+        op1 = lambda x: (x - DOM.b).astype(jnp.complex128) ** pow1 * jnp.sin(x)
+        op2 = lambda x: (x - DOM.b).astype(jnp.complex128) ** pow2 * jnp.cos(3 * x)
+        f = Bndfun.from_function(op1, DOM, exponents=(0.0, pow1))
+        g = Bndfun.from_function(op2, DOM, exponents=(0.0, pow2))
+        h = f * g
+        assert h.onefun.exponents == (0.0, pow1 + pow2)
+        h_exact = (self.XIR - DOM.b).astype(complex) ** (pow1 + pow2) * (
+            np.sin(self.XIR) * np.cos(3 * self.XIR)
+        )
+        tol = 1e2 * EPS * float(np.max(np.abs(h_exact)))
+        assert _ninf(np.asarray(h(self.XI)) - h_exact) < tol
 
     # --- Unbndfun multiplication (pass 26) ----------------------------
     def test_unbndfun_times(self):

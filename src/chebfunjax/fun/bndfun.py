@@ -15,6 +15,8 @@ import jax.numpy as jnp
 from chebfunjax.domain import Domain
 from chebfunjax.fun.classicfun import Classicfun
 from chebfunjax.tech.chebtech import Chebtech2
+from chebfunjax.utils.interpolation import barymat
+from chebfunjax.utils.quadrature import chebpts, legpts
 
 # Machine epsilon for float64
 _EPS = float(jnp.finfo(jnp.float64).eps)
@@ -74,6 +76,7 @@ class Bndfun(Classicfun):
         domain: Domain,
         *,
         n: int | None = None,
+        exponents: tuple[float, float] | None = None,
     ) -> "Bndfun":
         """Construct a Bndfun from a callable on [a, b].
 
@@ -81,6 +84,13 @@ class Bndfun(Classicfun):
         [a, b].  If ``n`` is ``None`` (default), an adaptive algorithm
         doubles the grid size until the Chebyshev coefficients decay to
         machine precision.
+
+        When ``exponents`` is supplied the ``onefun`` is built as a
+        :class:`~chebfunjax.fun.singfun.Singfun`, giving a *singular* Bndfun
+        ``s(x) * (x - a)^e0 * (b - x)^e1`` where ``s`` is smooth.  This
+        mirrors MATLAB's ``bndfun(op, data, pref)`` with
+        ``data.exponents = [e0 e1]`` (and ``pref.blowup``), which routes the
+        remapped operator to the ``singfun`` onefun constructor.
 
         Parameters
         ----------
@@ -91,6 +101,13 @@ class Bndfun(Classicfun):
         n : int or None, optional
             Fixed number of Chebyshev points.  ``None`` triggers adaptive
             construction.
+        exponents : tuple of two floats, optional
+            ``(e0, e1)`` algebraic exponents at the left (``a``) and right
+            (``b``) endpoints.  When given (and not ``(0, 0)``) the onefun
+            is a Singfun.  These are the exponents in the *mapped* [-1, 1]
+            frame, which coincide with the physical-endpoint exponents
+            because the map is affine (``x - a ∝ 1 + y`` and
+            ``b - x ∝ 1 - y``).
 
         Returns
         -------
@@ -117,6 +134,11 @@ class Bndfun(Classicfun):
         _validate_single_domain(domain)
         # Remap f from [a, b] to [-1, 1]: x = forward_map(y)
         mapped_f = lambda y: f(domain.forward_map(y))  # noqa: E731
+        if exponents is not None and (exponents[0] != 0.0 or exponents[1] != 0.0):
+            from chebfunjax.fun.singfun import Singfun
+
+            onefun = Singfun.from_function(mapped_f, exponents, n=n)
+            return cls(onefun=onefun, domain=domain)
         onefun = Chebtech2.from_function(mapped_f, n=n)
         return cls(onefun=onefun, domain=domain)
 
@@ -225,6 +247,92 @@ class Bndfun(Classicfun):
         new_onefun = self.onefun.restrict(float(t_a), float(t_b))
 
         return Bndfun(onefun=new_onefun, domain=new_domain)
+
+    # ------------------------------------------------------------------
+    # QR factorisation of an array-valued (quasimatrix) Bndfun
+    # ------------------------------------------------------------------
+
+    def qr(self, mode: str = "matrix") -> tuple["Bndfun", jax.Array]:
+        """Abstract QR factorisation ``f = Q R`` of a quasimatrix.
+
+        For an array-valued Bndfun (``m`` columns), returns ``Q`` — an
+        array-valued Bndfun whose columns are orthonormal in the L2 inner
+        product on [a, b] — and ``R``, an ``m x m`` upper-triangular matrix,
+        such that ``f = Q @ R`` column-wise and ``Q.inner(Q) == I``.
+
+        Uses the Gauss-Legendre weighted discrete QR of MATLAB's built-in
+        method: Chebyshev nodal values are mapped to Legendre nodes, scaled
+        by ``sqrt(w_leg)``, factored with a dense QR, then mapped back.  The
+        diagonal of ``R`` is forced non-negative.  Finally the Bndfun layer
+        rescales by ``sqrt((b - a) / 2)`` (``Q /= s``, ``R *= s``) to move
+        the orthonormality from [-1, 1] to [a, b].
+
+        Parameters
+        ----------
+        mode : str, default "matrix"
+            Accepted for MATLAB parity (permutation-output flag).  The
+            built-in method performs no column pivoting, so ``mode`` has no
+            effect on the two-output form.
+
+        Returns
+        -------
+        Q : Bndfun
+            Array-valued Bndfun with L2-orthonormal columns.
+        R : jax.Array, shape (m, m)
+            Upper-triangular factor.
+
+        NOT JIT-safe (dense linear algebra with data-dependent shapes).
+
+        Provenance
+        ----------
+        MATLAB source : @bndfun/qr.m and @chebtech/qr.m (built-in method)
+        Chebfun commit: 7574c77
+        """
+        rescale = float(self.domain.map_derivative())  # (b-a)/2
+        s = jnp.sqrt(jnp.float64(rescale))
+
+        coeffs = self.onefun.coeffs
+        if coeffs.ndim == 1:
+            # Single-column quasimatrix: R = sqrt(<f, f>), Q = f / R.
+            r_scalar = jnp.sqrt(self.onefun.inner(self.onefun))
+            q_onefun = self.onefun / r_scalar
+            q_bnd = Bndfun.from_chebtech(q_onefun, self.domain)
+            R = jnp.reshape(r_scalar, (1, 1))
+            return q_bnd / s, R * s
+
+        # Array-valued case.
+        values = self.onefun.coeffs2vals(coeffs)  # (n, m)
+        n, m = values.shape
+        if n < m:
+            # Prolong to n = m by zero-padding the Chebyshev coefficients.
+            pad = jnp.zeros((m - n, m), dtype=coeffs.dtype)
+            coeffs = jnp.concatenate([coeffs, pad], axis=0)
+            values = self.onefun.coeffs2vals(coeffs)
+            n = m
+
+        xc = chebpts(n, kind=2)
+        vc = self.onefun.barywts(n)
+        xl, wl, vl = legpts(n, bary=True)
+        sqrt_wl = jnp.sqrt(wl)
+        # P: Chebyshev-nodal values -> Legendre-nodal values.
+        P = barymat(xl, xc, vc)
+        # Pinv: Legendre-nodal values -> Chebyshev-nodal values.
+        Pinv = barymat(xc, xl, vl)
+        WP = sqrt_wl[:, None] * P
+        invWP = Pinv * (1.0 / sqrt_wl)[None, :]
+
+        converted = WP @ values  # (n, m)
+        Q, R = jnp.linalg.qr(converted, mode="reduced")  # (n, m), (m, m)
+
+        diag_R = jnp.diagonal(R)
+        sign = jnp.where(diag_R == 0, jnp.ones_like(diag_R), jnp.sign(diag_R))
+        Q = invWP @ (Q * sign[None, :])  # (n, m) Chebyshev-nodal values
+        R = sign[:, None] * R
+
+        q_coeffs = self.onefun.vals2coeffs(Q)
+        q_onefun = Chebtech2.from_coeffs(q_coeffs)
+        q_bnd = Bndfun.from_chebtech(q_onefun, self.domain)
+        return q_bnd / s, R * s
 
     # ------------------------------------------------------------------
     # Linear change of variable

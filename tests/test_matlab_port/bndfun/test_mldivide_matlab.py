@@ -32,43 +32,38 @@ def _bf(f, n=None):
 
 
 class TestBndfunMldivide:
-    @pytest.mark.xfail(reason=_MLDIV_MISSING, raises=AttributeError)
     def test_scalar_self_divide_coefficient(self):  # pass(1)
         f = _bf(jnp.sin)
         g = f.mldivide(f)
         assert abs(float(g) - 1) < TOL
 
-    @pytest.mark.xfail(reason=_MLDIV_MISSING, raises=AttributeError)
     def test_scalar_self_divide_residual(self):  # pass(2)
         f = _bf(jnp.sin)
         g = f.mldivide(f)
         err = f - g * f
         assert float(jnp.max(jnp.abs(err(jnp.asarray(np.linspace(-2, 7, 100)))))) < TOL
 
-    @pytest.mark.xfail(reason=_MLDIV_MISSING)
     def test_array_valued_solution(self):  # pass(3)
-        f = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1), n=17)
+        f = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1))
         g = _bf(lambda x: jnp.sin(x + np.pi / 4))
         h = f.mldivide(g)
         assert float(np.max(np.abs(np.asarray(h) - np.array([1, 1]) / np.sqrt(2)))) < TOL
 
-    @pytest.mark.xfail(reason=_MLDIV_MISSING)
     def test_array_valued_residual(self):  # pass(4)
-        f = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1), n=17)
+        f = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1))
         g = _bf(lambda x: jnp.sin(x + np.pi / 4))
         h = f.mldivide(g)
-        err = g - f * h
+        err = g - f @ h  # mtimes: mix the columns of f by h
         assert float(jnp.max(jnp.abs(err(jnp.asarray(np.linspace(-2, 7, 100)))))) < TOL
 
-    @pytest.mark.xfail(reason=_MLDIV_MISSING)
     def test_least_squares_solution(self):  # pass(5)
-        f = _bf(lambda x: jnp.stack([jnp.ones_like(x), x, x ** 2, x ** 3], axis=-1), n=17)
+        f = _bf(lambda x: jnp.stack([jnp.ones_like(x), x, x ** 2, x ** 3], axis=-1))
         g = _bf(lambda x: x ** 4 + x ** 3 + x + 1)
         sol = np.asarray(f.mldivide(g))
         exact = np.array([2469 / 70, -163 / 7, -141 / 7, 11])
         assert float(np.max(np.abs(sol - exact))) < 1000 * TOL
 
-    @pytest.mark.xfail(reason=_MLDIV_MISSING, raises=AttributeError)
     def test_error_on_non_bndfun(self):  # pass(6)
-        f = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1), n=17)
-        f.mldivide(2)
+        f = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1))
+        with pytest.raises(TypeError):
+            f.mldivide(2)

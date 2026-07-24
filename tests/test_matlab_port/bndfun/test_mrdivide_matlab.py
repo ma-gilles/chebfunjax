@@ -39,28 +39,24 @@ def _bf(f, n=None):
 
 
 class TestBndfunMrdivide:
-    @pytest.mark.xfail(reason=_MRDIV_MISSING)
     def test_divide_by_zero_is_nan(self):  # pass(1)
-        f = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1), n=17)
+        f = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1))
         assert bool(np.all(np.isnan(np.asarray((f / 0).coeffs))))
 
-    @pytest.mark.xfail(reason=_MRDIV_MISSING)
     def test_divide_by_scalar_array_valued(self):  # pass(2)
-        f = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1), n=17)
+        f = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1))
         g = f / ALPHA
         exact = np.stack([np.sin(XR), np.cos(XR)], axis=-1) / ALPHA
         assert float(np.max(np.abs(np.asarray(g(X)) - exact))) < 10 * g.vscale * EPS
 
-    @pytest.mark.xfail(reason=_MRDIV_MISSING)
     def test_divide_by_identity_matrix(self):  # pass(3)
-        f = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1), n=17)
+        f = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1))
         g = f / np.eye(2)
-        err = g * np.eye(2) - f
+        err = g @ np.eye(2) - f  # mtimes back by the identity
         assert float(np.max(np.abs(np.asarray(err(X))))) < 1e2 * g.vscale * EPS
 
-    @pytest.mark.xfail(reason=_MRDIV_MISSING)
     def test_divide_by_row_vector_least_squares(self):  # pass(4)
-        f = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1), n=17)
+        f = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1))
         g = f / np.array([[1, 1]])
         exact = (np.sin(XR) + np.cos(XR)) / 2
         assert float(np.max(np.abs(np.asarray(g(X)) - exact))) < 1e2 * g.vscale * EPS
@@ -76,9 +72,8 @@ class TestBndfunMrdivide:
         g = ALPHA / f
         assert abs(complex(f.inner(g)) - ALPHA) < 10 * g.vscale * EPS
 
-    @pytest.mark.xfail(reason=_MRDIV_MISSING)
     def test_row_vector_divided_by_bndfun(self):  # pass(6)
-        f = _bf(lambda x: jnp.stack([jnp.sin(2 * np.pi * x), jnp.cos(2 * np.pi * x)], axis=-1), n=17)
+        f = _bf(lambda x: jnp.stack([jnp.sin(2 * np.pi * x), jnp.cos(2 * np.pi * x)], axis=-1))
         g = np.array([[1, 1]]) / f
         exact = (2 / 9) * (np.sin(2 * np.pi * XR) + np.cos(2 * np.pi * XR))
         assert float(np.max(np.abs(np.asarray(g(X)) - exact))) < 1e2 * g.vscale * EPS

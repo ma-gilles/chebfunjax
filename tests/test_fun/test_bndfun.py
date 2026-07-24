@@ -714,3 +714,113 @@ class TestBndfunMATLAB:
         r = np.sort(np.array(f.roots()))
         r_ref = np.sort(self.ref["roots_xsq_minus1"])
         npt.assert_allclose(r, r_ref, rtol=1e-10)
+
+
+class TestBndfunLinalg:
+    """Mirror coverage for poly, qr, mldivide, mrdivide, conj, and mtimes.
+
+    These exercise the same code paths as the MATLAB-port tests but live in
+    the core (non-port) suite so the coverage gate stays satisfied.
+    """
+
+    DOM = Domain((-2.0, 7.0))
+
+    def test_poly_linear(self):
+        # 6.4 x - 3 on [a, b]; power-basis coeffs are [6.4, -3].
+        f = Bndfun.from_function(lambda x: 6.4 * x - 3.0, self.DOM)
+        p = np.asarray(f.poly())
+        npt.assert_allclose(p, np.array([6.4, -3.0]), atol=1e-12)
+
+    def test_poly_quadratic_array_valued(self):
+        f = Bndfun.from_function(
+            lambda x: jnp.stack([x ** 2, 2.0 * x + 1.0], axis=-1), self.DOM
+        )
+        p = np.asarray(f.poly())
+        assert p.shape == (2, 3)
+        npt.assert_allclose(p[0], np.array([1.0, 0.0, 0.0]), atol=1e-11)
+        npt.assert_allclose(p[1], np.array([0.0, 2.0, 1.0]), atol=1e-11)
+
+    def test_qr_orthonormal_columns(self):
+        f = Bndfun.from_function(
+            lambda x: jnp.stack([jnp.cos(x), jnp.exp(x)], axis=-1), self.DOM
+        )
+        Q, R = f.qr()
+        gram = np.asarray(Q.inner(Q))
+        npt.assert_allclose(gram, np.eye(2), atol=1e-12)
+        # Q @ R reconstructs f.
+        xs = jnp.linspace(-2.0, 7.0, 50)
+        recon = np.asarray((Q @ np.asarray(R))(xs))
+        npt.assert_allclose(recon, np.asarray(f(xs)), atol=1e-10)
+
+    def test_qr_single_column(self):
+        f = Bndfun.from_function(jnp.sin, self.DOM)
+        Q, R = f.qr()
+        assert R.shape == (1, 1)
+        npt.assert_allclose(float(Q.inner(Q).reshape(())), 1.0, atol=1e-12)
+
+    def test_mldivide_self_is_one(self):
+        f = Bndfun.from_function(jnp.sin, self.DOM)
+        assert abs(float(f.mldivide(f)) - 1.0) < 1e-12
+
+    def test_mldivide_least_squares(self):
+        f = Bndfun.from_function(
+            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1), self.DOM
+        )
+        g = Bndfun.from_function(lambda x: jnp.sin(x + np.pi / 4), self.DOM)
+        h = np.asarray(f.mldivide(g))
+        npt.assert_allclose(h, np.array([1.0, 1.0]) / np.sqrt(2), atol=1e-12)
+
+    def test_mldivide_type_error(self):
+        f = Bndfun.from_function(jnp.sin, self.DOM)
+        with pytest.raises(TypeError):
+            f.mldivide(2)
+
+    def test_mrdivide_by_scalar(self):
+        f = Bndfun.from_function(jnp.sin, self.DOM)
+        g = f / 2.0
+        xs = jnp.linspace(-2.0, 7.0, 40)
+        npt.assert_allclose(np.asarray(g(xs)), np.sin(np.asarray(xs)) / 2.0, atol=1e-12)
+
+    def test_mrdivide_by_zero_is_nan(self):
+        f = Bndfun.from_function(
+            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1), self.DOM
+        )
+        assert bool(np.all(np.isnan(np.asarray((f / 0).coeffs))))
+
+    def test_mrdivide_matrix_least_squares(self):
+        f = Bndfun.from_function(
+            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1), self.DOM
+        )
+        g = f / np.array([[1.0, 1.0]])
+        xs = jnp.linspace(-2.0, 7.0, 40)
+        exact = (np.sin(np.asarray(xs)) + np.cos(np.asarray(xs))) / 2.0
+        npt.assert_allclose(np.asarray(g(xs)), exact, atol=1e-10)
+
+    def test_rmrdivide_matrix(self):
+        f = Bndfun.from_function(
+            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1), self.DOM
+        )
+        g = np.array([[1.0, 1.0]]) / f
+        assert isinstance(g, Bndfun)
+
+    def test_conj(self):
+        f = Bndfun.from_function(lambda x: jnp.exp(1j * x), self.DOM)
+        xs = jnp.linspace(-2.0, 7.0, 40)
+        got = np.asarray(f.conj()(xs))
+        npt.assert_allclose(got, np.conj(np.exp(1j * np.asarray(xs))), atol=1e-11)
+
+    def test_matmul_mixes_columns(self):
+        f = Bndfun.from_function(
+            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1), self.DOM
+        )
+        g = f @ np.array([[1.0], [1.0]])
+        xs = jnp.linspace(-2.0, 7.0, 40)
+        exact = np.sin(np.asarray(xs)) + np.cos(np.asarray(xs))
+        npt.assert_allclose(np.asarray(g(xs)).reshape(-1), exact, atol=1e-10)
+
+    def test_singular_construction_sum(self):
+        # (x - a)^-0.5 sin(x) on [-2, 7] via exponents; integral matches.
+        f = Bndfun.from_function(
+            lambda x: (x + 2.0) ** -0.5 * jnp.sin(x), self.DOM, exponents=(-0.5, 0.0)
+        )
+        assert abs(complex(f.sum()) - (-1.92205524578386613)) < 1e-12

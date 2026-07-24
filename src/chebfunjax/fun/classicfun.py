@@ -18,6 +18,91 @@ from chebfunjax.domain import Domain
 from chebfunjax.tech.chebtech import Chebtech2
 
 
+def _gammaln(x: jax.Array) -> jax.Array:
+    """Log-gamma, used only for stable binomial coefficients in ``poly``."""
+    return jax.lax.lgamma(jnp.asarray(x, dtype=jnp.float64))
+
+
+def _is_matrix_operand(other) -> bool:
+    """True if ``other`` is a numeric array acting as a matrix (ndim >= 1).
+
+    Scalars (Python numbers, 0-d arrays) and funs are excluded, so they keep
+    the pointwise ``rdivide`` / ``mtimes`` behaviour.
+    """
+    if isinstance(other, Classicfun):
+        return False
+    return hasattr(other, "ndim") and not callable(other) and other.ndim >= 1
+
+
+def _is_scalar_zero(other) -> bool:
+    """True if ``other`` is a numeric scalar equal to zero (MATLAB F/0)."""
+    if isinstance(other, Classicfun) or isinstance(other, bool):
+        return False
+    try:
+        arr = jnp.asarray(other)
+    except (TypeError, ValueError):
+        return False
+    return arr.ndim == 0 and jnp.issubdtype(arr.dtype, jnp.number) and bool(arr == 0)
+
+
+def _cheb_to_poly(coeffs: jax.Array) -> jax.Array:
+    """Chebyshev-T coefficients to monomial coefficients on [-1, 1].
+
+    Parameters
+    ----------
+    coeffs : jax.Array
+        Ascending Chebyshev coefficients, shape ``(n,)`` (scalar-valued) or
+        ``(n, m)`` (array-valued).
+
+    Returns
+    -------
+    jax.Array, shape ``(m, n)``
+        Monomial coefficients in DESCENDING power order (column 0 is the
+        coefficient of ``x^(n-1)``).  Always 2-D; the caller squeezes.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech/poly.m
+    Chebfun commit: 7574c77
+    """
+    c = coeffs.reshape(coeffs.shape[0], -1)  # (n, m)
+    # MATLAB flips to descending Chebyshev order before the recurrence.
+    c = jnp.flipud(c)
+    n, m = c.shape
+    cT = c.T  # (m, n)
+
+    if n == 1:
+        return cT  # (m, 1) constant
+    if n == 2:
+        return cT  # (m, 2): [T1 coeff, T0 coeff] == [x coeff, const]
+
+    out_dtype = cT.dtype
+    tnold1 = jnp.zeros((m, n)).at[:, 1].set(1.0)  # T_1 = x
+    tnold2 = jnp.zeros((m, n)).at[:, 0].set(1.0)  # T_0 = 1
+    out = jnp.zeros((m, n), dtype=out_dtype)
+    # Initial step (k = 2): out[:, 0] = T1 coeff, out[:, 1] = T0 coeff.
+    out = out.at[:, 0].set(cT[:, n - 2])
+    out = out.at[:, 1].set(cT[:, n - 1])
+
+    for k in range(3, n + 1):  # 1-based k, up to n
+        new_tn = jnp.zeros((m, n))
+        # tn[:, 0:k] = [0, 2*tnold1[:, 0:k-1]] - [tnold2[:, 0:k-2], 0, 0]
+        A = jnp.zeros((m, k)).at[:, 1:k].set(2.0 * tnold1[:, 0 : k - 1])
+        B = jnp.zeros((m, k))
+        if k - 2 >= 1:
+            B = B.at[:, 0 : k - 2].set(tnold2[:, 0 : k - 2])
+        new_tn = new_tn.at[:, 0:k].set(A - B)
+        # out[:, 0:k] = coeffs[:, n-k] * reverse(tn[:, 0:k]) + [0, out[:, 0:k-1]]
+        coef = cT[:, n - k]
+        tn_rev = new_tn[:, 0:k][:, ::-1]
+        shifted = jnp.zeros((m, k), dtype=out_dtype).at[:, 1:k].set(out[:, 0 : k - 1])
+        out = out.at[:, 0:k].set(coef[:, None] * tn_rev + shifted)
+        tnold2 = tnold1
+        tnold1 = new_tn
+
+    return out
+
+
 class Classicfun(eqx.Module):
     """Abstract base class for smooth functions on a bounded interval [a, b].
 
@@ -58,6 +143,10 @@ class Classicfun(eqx.Module):
 
     onefun: Chebtech2
     domain: Domain = eqx.field(static=True)
+
+    # Let numpy defer ``ndarray <op> Classicfun`` (e.g. ``A / f`` mrdivide)
+    # to our reflected operators instead of broadcasting elementwise.
+    __array_ufunc__ = None
 
     # ------------------------------------------------------------------
     # Empty representation (MATLAB bndfun() with no arguments)
@@ -298,22 +387,58 @@ class Classicfun(eqx.Module):
     def __rmul__(self, other) -> "Classicfun":
         return self.__mul__(other)
 
-    def __truediv__(self, other) -> "Classicfun":
-        """Division.
+    def __matmul__(self, other) -> "Classicfun":
+        """MATLAB mtimes ``f * A``: right-multiply an array-valued fun by a
+        numeric matrix, mixing its columns (``coeffs @ A``).
+
+        chebfunjax uses ``*`` for pointwise (``.*``) multiplication, so the
+        column-mixing MATLAB ``*`` is exposed as ``@`` (matching Chebtech2).
 
         Provenance
         ----------
-        MATLAB source : @classicfun/rdivide.m
+        MATLAB source : @classicfun/mtimes.m (delegates to @chebtech/mtimes.m)
+        Chebfun commit: 7574c77
+        """
+        return self.__class__(self.onefun @ other, self.domain)
+
+    def __truediv__(self, other) -> "Classicfun":
+        """Division.
+
+        A numeric-matrix divisor triggers MATLAB ``mrdivide`` (quasimatrix
+        right division / least squares); a scalar or fun divisor is pointwise
+        (``rdivide``).
+
+        Provenance
+        ----------
+        MATLAB source : @classicfun/rdivide.m, @bndfun/mrdivide.m
         Chebfun commit: 7574c77
         """
         if isinstance(other, Classicfun):
             self._check_domain(other)
             return self.__class__(self.onefun / other.onefun, self.domain)
-        else:
-            return self.__class__(self.onefun / other, self.domain)
+        if _is_matrix_operand(other):
+            return self._mrdivide(other)
+        if _is_scalar_zero(other):
+            # MATLAB CHEBTECH/double: F/0 -> NaN constant (per column).
+            m = 1 if self.onefun.coeffs.ndim == 1 else self.onefun.coeffs.shape[1]
+            shape = (1,) if self.onefun.coeffs.ndim == 1 else (1, m)
+            nan_coeffs = jnp.full(shape, jnp.nan, dtype=jnp.float64)
+            return self.__class__(Chebtech2.from_coeffs(nan_coeffs), self.domain)
+        return self.__class__(self.onefun / other, self.domain)
 
     def __rtruediv__(self, other) -> "Classicfun":
-        """Scalar divided by Classicfun."""
+        """Numeric divided by Classicfun.
+
+        A numeric-matrix numerator triggers MATLAB ``mrdivide`` (double /
+        quasimatrix least squares); a scalar numerator is pointwise.
+
+        Provenance
+        ----------
+        MATLAB source : @classicfun/rdivide.m, @bndfun/mrdivide.m
+        Chebfun commit: 7574c77
+        """
+        if _is_matrix_operand(other):
+            return self._rmrdivide(other)
         return self.__class__(other / self.onefun, self.domain)
 
     def __pow__(self, exponent) -> "Classicfun":
@@ -341,6 +466,19 @@ class Classicfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         return self.__class__(abs(self.onefun), self.domain)
+
+    def conj(self) -> "Classicfun":
+        """Complex conjugate.
+
+        Delegates to ``self.onefun.conj()`` (the domain map is real, so
+        conjugation commutes with it).
+
+        Provenance
+        ----------
+        MATLAB source : @classicfun/conj.m (delegates to @chebtech/conj.m)
+        Chebfun commit: 7574c77
+        """
+        return self.__class__(self.onefun.conj(), self.domain)
 
     # ------------------------------------------------------------------
     # Calculus (with domain scaling)
@@ -490,6 +628,112 @@ class Classicfun(eqx.Module):
         return self.sum() / jnp.float64(b - a)
 
     # ------------------------------------------------------------------
+    # Matrix / least-squares division (quasimatrix)
+    # ------------------------------------------------------------------
+
+    def _column_coeffs(self) -> jax.Array:
+        """Onefun coefficients as a 2-D ``(n, m)`` column array."""
+        c = self.onefun.coeffs
+        return c if c.ndim == 2 else c[:, None]
+
+    def _mrdivide(self, other) -> "Classicfun":
+        """``f / B`` with ``B`` a numeric matrix (MATLAB mrdivide).
+
+        Solves ``X B = f`` in the least-squares sense column-wise, which for
+        the finite column matrix ``B`` reduces to ``X.coeffs = f.coeffs B^+``.
+
+        Provenance
+        ----------
+        MATLAB source : @bndfun/mrdivide.m, @chebtech/mrdivide.m
+        Chebfun commit: 7574c77
+        """
+        B = jnp.asarray(other, dtype=jnp.result_type(other, jnp.float64))
+        if B.ndim == 1:
+            B = B[None, :]  # MATLAB treats a bare vector as a row.
+        coeffs = self._column_coeffs()  # (n, m)
+        m = coeffs.shape[1]
+        if B.shape[1] != m:
+            raise ValueError(
+                "CHEBFUN:BNDFUN:mrdivide:size Matrix dimensions must agree."
+            )
+        new_coeffs = coeffs @ jnp.linalg.pinv(B)  # (n, p)
+        return self._from_new_coeffs(new_coeffs)
+
+    def _rmrdivide(self, other) -> "Classicfun":
+        """``A / f`` with ``A`` a numeric matrix (MATLAB double/quasimatrix).
+
+        Uses the weighted (L2) QR of ``self``: ``[Q, R] = qr(f)`` and
+        ``X = Q (A R^{-1})^T``.  The Bndfun QR rescale cancels so no further
+        domain scaling is applied.
+
+        Provenance
+        ----------
+        MATLAB source : @bndfun/mrdivide.m, @chebtech/mrdivide.m
+        Chebfun commit: 7574c77
+        """
+        A = jnp.asarray(other, dtype=jnp.result_type(other, jnp.float64))
+        if A.ndim == 1:
+            A = A[None, :]
+        coeffs = self._column_coeffs()
+        m = coeffs.shape[1]
+        if A.shape[1] != m:
+            raise ValueError(
+                "CHEBFUN:BNDFUN:mrdivide:size Matrix dimensions must agree."
+            )
+        Q, R = self.qr()
+        AR = jnp.linalg.solve(R.T, A.T).T  # A @ inv(R), shape (p, m)
+        q_coeffs = Q._column_coeffs()  # (n, m)
+        new_coeffs = q_coeffs @ AR.T  # (n, p)
+        return self._from_new_coeffs(new_coeffs)
+
+    def _from_new_coeffs(self, coeffs: jax.Array) -> "Classicfun":
+        """Wrap ``(n, p)`` onefun coefficients as a fun on this domain.
+
+        A single output column is squeezed to a scalar-valued fun so that
+        evaluation returns a 1-D array (matching MATLAB feval shapes).
+        """
+        if coeffs.shape[1] == 1:
+            coeffs = coeffs[:, 0]
+        return self.__class__(Chebtech2.from_coeffs(coeffs), self.domain)
+
+    def mldivide(self, other: "Classicfun") -> jax.Array:
+        """``f \\ g`` (mldivide): least-squares expansion of ``g`` in ``f``.
+
+        Returns the numeric coefficient matrix ``X`` minimising
+        ``|| f X - g ||_{L2[a,b]}`` via ``[Q, R] = qr(f)`` and
+        ``X = R^{-1} <Q, g>``.  The domain rescale cancels between ``Q`` and
+        ``R``.
+
+        Parameters
+        ----------
+        other : Classicfun
+            Right-hand side (same domain).
+
+        Returns
+        -------
+        jax.Array
+            The coefficient matrix (scalar / vector / matrix as appropriate).
+
+        NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @bndfun/mldivide.m, @chebtech/mldivide.m
+        Chebfun commit: 7574c77
+        """
+        if not isinstance(other, Classicfun):
+            raise TypeError(
+                "Arguments to Bndfun mldivide must both be Bndfun objects."
+            )
+        self._check_domain(other)
+        Q, R = self.qr()
+        rhs = jnp.asarray(Q.inner(other))
+        if rhs.ndim == 0:
+            rhs = rhs[None]
+        X = jnp.linalg.solve(R, rhs)
+        return jnp.squeeze(X)
+
+    # ------------------------------------------------------------------
     # Rootfinding and extrema
     # ------------------------------------------------------------------
 
@@ -632,6 +876,63 @@ class Classicfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         return self.__class__(self.onefun.simplify(tol), self.domain)
+
+    # ------------------------------------------------------------------
+    # Power-basis coefficients
+    # ------------------------------------------------------------------
+
+    def poly(self) -> jax.Array:
+        """Monomial (power-basis) coefficients on [a, b].
+
+        Returns coefficients ``C`` so that, for a scalar-valued fun,
+
+            f(x) = C[0] x^N + C[1] x^(N-1) + ... + C[N-1] x + C[N]
+
+        (highest power first).  For an array-valued fun the result has
+        shape ``(m, N+1)`` with row ``k`` giving the coefficients of the
+        ``k``-th column of ``f`` (mirroring MATLAB's row-vector-per-column
+        convention).
+
+        NOT JIT-safe (variable output size; dense recurrence).
+
+        Provenance
+        ----------
+        MATLAB source : @bndfun/poly.m and @chebtech/poly.m
+        Chebfun commit: 7574c77
+        """
+        # Monomial coefficients of the onefun on [-1, 1] (descending power).
+        onefun_poly = _cheb_to_poly(self.onefun.coeffs)  # (m, n)
+        m, n = onefun_poly.shape
+        a = float(self.domain.a)
+        b = float(self.domain.b)
+
+        if a != -1.0 or b != 1.0:
+            alpha = 2.0 / (b - a)
+            beta = -(b + a) / (b - a)
+            # Work in ASCENDING power order (out[:, 0] = constant term).
+            out = onefun_poly[:, ::-1]
+            k_all = jnp.arange(n, dtype=jnp.float64)
+            new_cols = []
+            for j in range(n):
+                k = jnp.arange(j, n)  # powers >= j contribute to power j
+                # Binomial coefficients C(k, j).
+                binom = jnp.round(
+                    jnp.exp(
+                        _gammaln(k + 1.0)
+                        - _gammaln(k - j + 1.0)
+                        - _gammaln(k_all[j] + 1.0)
+                    )
+                )
+                bba = binom * (beta ** (k - j)) * (alpha ** j)
+                new_cols.append(jnp.sum(out[:, j:] * bba[None, :], axis=1))
+            out = jnp.stack(new_cols, axis=1)  # ascending
+            out = out[:, ::-1]  # back to descending
+        else:
+            out = onefun_poly
+
+        if self.onefun.coeffs.ndim == 1:
+            return out[0]
+        return out
 
     # ------------------------------------------------------------------
     # Display

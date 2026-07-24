@@ -198,11 +198,25 @@ class TestClassicfunPlus:
         assert (not g.ishappy) and (not h.ishappy)
 
     # --- singular (pass 22) -------------------------------------------
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks singular (exponents [0 -1]) Bndfun."
-    )
     def test_singular(self):
-        raise NotImplementedError("singular Bndfun plus")
+        # pow=-1 pole at the right endpoint b: f=(x-b)^-1 sin(x),
+        # g=(x-b)^-1 cos(3x); both share exponents [0,-1] so f+g stays a
+        # single singfun (x-b)^-1 (sin x + cos 3x).  Built via the exponents
+        # API (MATLAB bndfun with data.exponents=[0 -1]).  MATLAB samples
+        # random interior points; drop the singular endpoint b=7.
+        pow_ = -1.0
+        f = Bndfun.from_function(
+            lambda x: (x - DOM.b) ** pow_ * jnp.sin(x), DOM, exponents=(0.0, pow_)
+        )
+        g = Bndfun.from_function(
+            lambda x: (x - DOM.b) ** pow_ * jnp.cos(3 * x), DOM, exponents=(0.0, pow_)
+        )
+        h = f + g
+        xr = np.linspace(-2.0, 7.0, 100)[:-1]
+        xj = jnp.asarray(xr)
+        exact = (xr - DOM.b) ** pow_ * (np.sin(xr) + np.cos(3 * xr))
+        tol = 1e3 * EPS * float(np.max(np.abs(exact)))
+        assert float(np.max(np.abs(np.asarray(h(xj)) - exact))) < tol
 
     # --- Unbndfun addition (pass 23) ----------------------------------
     def test_unbndfun_plus(self):
