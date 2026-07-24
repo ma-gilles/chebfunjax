@@ -51,11 +51,8 @@ class TestChebtechAbs:
 
     def test_abs_complex(self, Tech):
         # pass(type, 3): |exp(1i pi x)| == 1 (normest(h - 1) < 1e2 eps).
-        if Tech is Chebtech1:
-            pytest.xfail(
-                "Chebtech1 drops imaginary part in vals2coeffs/coeffs2vals; "
-                "cannot represent complex-valued functions"
-            )
+        # FIXED: Chebtech1 vals2coeffs/coeffs2vals now split real/imag parts,
+        # so complex-valued functions are represented on both tech classes.
         f = Tech.from_function(lambda x: jnp.exp(1j * jnp.pi * x))
         h = abs(f)
         assert float((h - 1.0).norm(jnp.inf)) < 1e2 * EPS

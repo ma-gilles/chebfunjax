@@ -29,6 +29,8 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
+import warnings
+
 import jax.numpy as jnp
 import numpy as np
 import pytest
@@ -274,11 +276,22 @@ class TestChebtechTimes:
 
     def test_unhappy_times_happy_stays_unhappy(self, Tech):
         # pass(n, 23): f (happy) .* g (unhappy) -> unhappy.
-        pytest.xfail(_UNHAPPY)
+        # FIXED: arithmetic propagates ishappy (self.ishappy and other.ishappy).
+        f = Tech.from_function(lambda x: jnp.cos(x + 1))
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            g = Tech.from_function(lambda x: jnp.sqrt(x + 1))  # unhappy
+        h = f * g
+        assert (not g.ishappy) and (not h.ishappy)
 
     def test_happy_times_unhappy_stays_unhappy(self, Tech):
         # pass(n, 24): g (unhappy) .* f (happy) -> unhappy.
-        pytest.xfail(_UNHAPPY)
+        f = Tech.from_function(lambda x: jnp.cos(x + 1))
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            g = Tech.from_function(lambda x: jnp.sqrt(x + 1))  # unhappy
+        h = g * f
+        assert (not g.ishappy) and (not h.ishappy)
 
     def test_polynomial_product_degree(self, Tech):
         # pass(n, 25): products give the correct polynomial degree/length.

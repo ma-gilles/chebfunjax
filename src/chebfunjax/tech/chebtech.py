@@ -612,12 +612,17 @@ def _coeff_multiply(fc: jax.Array, gc: jax.Array) -> jax.Array:
 # ============================================================================
 
 
-def _roots_colleague(coeffs: jax.Array) -> jax.Array:
+def _roots_colleague(coeffs: jax.Array, qz: bool = False) -> jax.Array:
     import numpy as np
     """Find all real roots of a Chebyshev expansion in [-1, 1].
 
     Uses recursive subdivision for degree > 50 and colleague matrix
     eigenvalue computation for degree <= 50.
+
+    When ``qz`` is True the small-degree roots are computed from the
+    colleague *matrix pencil* via the QZ (generalized eigenvalue)
+    algorithm instead of the plain QR algorithm, mirroring the ``'qz'``
+    option of MATLAB ``@chebtech/roots.m`` ([Nakatsukasa & Noferini]).
 
     NOT JIT-safe (variable output size, recursive subdivision).
 
@@ -650,12 +655,12 @@ def _roots_colleague(coeffs: jax.Array) -> jax.Array:
         return jnp.array([0.0], dtype=jnp.float64)
     c_scaled = c / vscl
 
-    r = _roots_main(c_scaled, htol)
+    r = _roots_main(c_scaled, htol, qz=qz)
     r = np.sort(r)
     return jnp.asarray(r, dtype=jnp.float64)
 
 
-def _roots_main(c, htol: float):
+def _roots_main(c, htol: float, qz: bool = False):
     import numpy as np
     """Recursive root-finding engine (numpy, NOT JIT-safe).
 
@@ -697,12 +702,29 @@ def _roots_main(c, htol: float):
         nn = n - 1
         oh = 0.5 * np.ones(nn - 1)
         A = np.diag(oh, 1) + np.diag(oh, -1)
-        if np.iscomplexobj(c_adj):
+        if np.iscomplexobj(c_adj) or (qz and np.iscomplexobj(c)):
             A = A.astype(np.complex128)
         A[-2, -1] = 1.0
         A[:, 0] = c_adj[::-1]
 
-        rts = np.linalg.eigvals(A)
+        if qz:
+            # Colleague matrix *pencil* (A, B) solved by the QZ / GEP
+            # algorithm for extra numerical stability, mirroring the
+            # scaled generalized eigenproblem of MATLAB
+            # @chebtech/roots.m ('qz' branch).
+            c_old = c.copy()
+            c_old = c_old / np.linalg.norm(c_old, np.inf)
+            B = np.eye(nn)
+            if np.iscomplexobj(c_old):
+                B = B.astype(np.complex128)
+            B[0, 0] = c_old[-1]
+            c_scaled = -0.5 * c_old[:-1]
+            c_scaled[-2] = c_scaled[-2] + 0.5 * B[0, 0]
+            A[:, 0] = c_scaled[::-1]
+            import scipy.linalg as _sla
+            rts = _sla.eig(A, B, right=False)
+        else:
+            rts = np.linalg.eigvals(A)
 
         # Filter: keep roots with small imaginary part and inside [-1, 1]
         mask = np.abs(np.imag(rts)) < htol
@@ -744,8 +766,8 @@ def _roots_main(c, htol: float):
     c_right = np.asarray(vals2coeffs(jnp.asarray(v_right)))
 
     # Recurse
-    r_left = _roots_main(c_left, 2.0 * htol)
-    r_right = _roots_main(c_right, 2.0 * htol)
+    r_left = _roots_main(c_left, 2.0 * htol, qz=qz)
+    r_right = _roots_main(c_right, 2.0 * htol, qz=qz)
 
     # Map back to original interval
     r_left_mapped = 0.5 * (SPLIT_POINT - 1.0) + 0.5 * (SPLIT_POINT + 1.0) * r_left
@@ -762,6 +784,196 @@ def _roots_main(c, htol: float):
 def _is_empty_tech(obj) -> bool:
     """True if ``obj`` is a marker-empty tech (see ``Chebtech2.empty``)."""
     return getattr(obj, "_is_empty_object", False)
+
+
+def _poly_coeffs(coeffs: jax.Array) -> jax.Array:
+    r"""Monomial (power-basis) coefficients of a Chebyshev-T expansion.
+
+    Given coefficients ``c`` of ``f(x) = sum_k c[k] T_k(x)`` returns the
+    power-basis coefficients ``p`` with the *highest* degree first, so
+    ``f(x) = p[0]*x^(n-1) + ... + p[n-2]*x + p[n-1]`` (mirroring MATLAB
+    ``poly``).  For an ``(n, m)`` array-valued input the result has shape
+    ``(m, n)``: row ``j`` holds the power coefficients of column ``j`` of
+    ``f`` (this transposition matches MATLAB ``@chebtech/poly.m``).
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech/poly.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    Reference: Section 3.3, Mason & Handscomb, "Chebyshev Polynomials",
+        Chapman & Hall/CRC (2003).
+    """
+    c = jnp.atleast_1d(coeffs)
+    if c.ndim == 2:
+        return jnp.stack(
+            [_poly_coeffs(c[:, j]) for j in range(c.shape[1])], axis=0
+        )
+    n = c.shape[0]
+    dt = jnp.result_type(c.dtype, jnp.float64)
+    c = c.astype(dt)
+    if n == 0:
+        return c
+    # Accumulate p(x) = sum_k c[k] T_k(x) in the power basis (ascending),
+    # using T_0 = 1, T_1 = x, T_k = 2 x T_{k-1} - T_{k-2}.
+    tkm2 = jnp.zeros(n, dtype=dt).at[0].set(1.0)          # T_0
+    p = c[0] * tkm2
+    if n == 1:
+        return p[::-1]
+    tkm1 = jnp.zeros(n, dtype=dt).at[1].set(1.0)          # T_1
+    p = p + c[1] * tkm1
+    for k in range(2, n):
+        # x * tkm1  == shift power coeffs up by one index
+        xt = jnp.concatenate([jnp.zeros(1, dt), tkm1[:-1]])
+        tk = 2.0 * xt - tkm2
+        p = p + c[k] * tk
+        tkm2 = tkm1
+        tkm1 = tk
+    return p[::-1]                                        # highest degree first
+
+
+def _chebT_to_chebU_coeffs(cT: jax.Array) -> jax.Array:
+    r"""Convert Chebyshev-T coefficients to Chebyshev-U coefficients.
+
+    Uses the identity ``T_n = (1/2)(U_n - U_{n-2})`` (with ``U_{-1}=0``,
+    ``T_0 = U_0``).  A column vector or a matrix (column-wise conversion)
+    is accepted.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech/chebTcoeffs2chebUcoeffs.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    """
+    cT = jnp.asarray(cT)
+    if cT.size == 0:
+        return cT
+    twod = cT.ndim == 2
+    c = cT if twod else cT[:, None]
+    # Pad two zero rows: coeff of U_n needs T_n and T_{n+2}.
+    cU = jnp.concatenate(
+        [c, jnp.zeros((2,) + c.shape[1:], dtype=c.dtype)], axis=0
+    )
+    cU = cU.at[0].set(2.0 * c[0])
+    top = 0.5 * (cU[:-2] - cU[2:])
+    cU = jnp.concatenate([top, cU[-2:]], axis=0)
+    cU = cU[:-2]
+    return cU if twod else cU[:, 0]
+
+
+def _boundary_end_values(c):
+    """|f(-1)| and |f(1)| from Chebyshev-T coeffs, as a numpy (2, m) array.
+
+    Row 0 is x = -1 (``T_k(-1) = (-1)^k``); row 1 is x = +1 (``T_k(1) = 1``).
+    """
+    import numpy as np
+
+    n = c.shape[0]
+    signs = ((-1.0) ** np.arange(n)).reshape((n,) + (1,) * (c.ndim - 1))
+    fm1 = np.sum(c * signs, axis=0)
+    fp1 = np.sum(c, axis=0)
+    return np.abs(np.stack([np.atleast_1d(fm1), np.atleast_1d(fp1)], axis=0))
+
+
+def _extract_boundary_roots(coeffs, vscale, num_roots=None):
+    """Peel roots at the boundary points -1 and +1 in coefficient space.
+
+    Returns ``(new_coeffs, rootsLeft, rootsRight)`` where ``new_coeffs`` is
+    free of boundary roots (up to ``num_roots`` when supplied) and the
+    multiplicity vectors give the number of roots removed at ``x = -1`` and
+    ``x = +1`` per column.  Not simplified — the calling method simplifies.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech/extractBoundaryRoots.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    """
+    import numpy as np
+
+    c0 = np.asarray(coeffs)
+    scalar = c0.ndim == 1
+    c = c0.reshape(c0.shape[0], -1).astype(
+        np.complex128 if np.iscomplexobj(c0) else np.float64
+    )
+    m = c.shape[1]
+    rootsLeft = np.zeros(m)
+    rootsRight = np.zeros(m)
+    tol = 1e3 * float(vscale) * _EPS
+
+    nr = None if num_roots is None else np.array(num_roots, dtype=float).reshape(2, m)
+
+    endValues = _boundary_end_values(c)
+    if nr is None and np.all(np.min(endValues, axis=0) > tol):
+        l = int(rootsLeft[0]) if scalar else jnp.asarray(rootsLeft)
+        r = int(rootsRight[0]) if scalar else jnp.asarray(rootsRight)
+        return c0, l, r
+
+    def _still_going():
+        if nr is None:
+            return bool(np.any(np.min(endValues, axis=0) <= tol))
+        return bool(np.any(nr > 0))
+
+    while _still_going():
+        if nr is None:
+            if np.any(endValues[0, :] <= tol):
+                sgn = 1.0
+                ind = np.where(endValues[0, :] <= tol)[0]
+                rootsLeft[ind] += 1
+            else:
+                sgn = -1.0
+                ind = np.where(endValues[1, :] <= tol)[0]
+                rootsRight[ind] += 1
+        else:
+            if np.any(nr[0, :] > 0):
+                ind_mask = endValues[0, :] <= tol
+                if np.array_equal(ind_mask, nr[0, :] > 0):
+                    sgn = 1.0
+                    ind = np.where(ind_mask)[0]
+                    nr[0, ind] -= 1
+                    rootsLeft += 1
+                else:
+                    nr[0, :] = 0
+                    continue
+            elif np.any(nr[1, :] > 0):
+                ind_mask = endValues[1, :] <= tol
+                if np.array_equal(ind_mask, nr[1, :] > 0):
+                    sgn = -1.0
+                    ind = np.where(ind_mask)[0]
+                    nr[1, ind] -= 1
+                    rootsRight += 1
+                else:
+                    nr[1, :] = 0
+                    continue
+            else:
+                break
+
+        # Recurrence matrix D (size (n-1)) for dividing out (1 +/- x):
+        n = c.shape[0]
+        sz = n - 1
+        D = np.zeros((sz, sz), dtype=np.float64)
+        np.fill_diagonal(D, 0.5)
+        if sz >= 2:
+            D[np.arange(sz - 1), np.arange(1, sz)] = sgn
+        if sz >= 3:
+            D[np.arange(sz - 2), np.arange(2, sz)] = 0.5
+        D[0, 0] = 1.0
+
+        rhs = c[1:, ind]
+        sol = np.linalg.solve(D, rhs)
+        c[: n - 1, ind] = sgn * sol
+        c[n - 1, ind] = 0.0
+
+        endValues = _boundary_end_values(c)
+        tol = 1e2 * tol
+
+    c_out = c[:, 0] if scalar else c
+    l = int(rootsLeft[0]) if scalar else jnp.asarray(rootsLeft)
+    r = int(rootsRight[0]) if scalar else jnp.asarray(rootsRight)
+    return jnp.asarray(c_out), l, r
 
 
 class Chebtech2(eqx.Module):
@@ -2106,10 +2318,19 @@ class Chebtech2(eqx.Module):
     # Rootfinding
     # ------------------------------------------------------------------
 
-    def roots(self) -> jax.Array:
+    def roots(self, qz: bool = False) -> jax.Array:
         """Real roots in [-1, 1] via colleague matrix eigenvalues.
 
         NOT JIT-safe (variable output size, recursive subdivision).
+
+        Parameters
+        ----------
+        qz : bool, default False
+            When True, compute the small-degree roots from the colleague
+            matrix *pencil* via the QZ (generalized eigenvalue) algorithm
+            for extra numerical stability, mirroring ``roots(f, 'qz', 1)``
+            in MATLAB.  When False, the standard colleague matrix and the
+            QR algorithm are used.
 
         Returns
         -------
@@ -2126,6 +2347,9 @@ class Chebtech2(eqx.Module):
             [1] I. J. Good, "The colleague matrix, a Chebyshev analogue of the
                 companion matrix", QJM 12, 1961.
             [2] L. N. Trefethen, ATAP, SIAM, 2013, Chapter 18.
+            [3] Y. Nakatsukasa and V. Noferini, "On the stability of
+                polynomial rootfinding via linearizations in nonmonomial
+                bases" (the QZ variant).
 
         See Also
         --------
@@ -2135,14 +2359,14 @@ class Chebtech2(eqx.Module):
             # Array-valued: roots per column, NaN-padded to equal length
             # (MATLAB @chebtech/roots.m does exactly this)
             import numpy as _np
-            cols = [_np.asarray(_roots_colleague(self.coeffs[:, j]))
+            cols = [_np.asarray(_roots_colleague(self.coeffs[:, j], qz=qz))
                     for j in range(self.coeffs.shape[1])]
             nmax = max((len(c) for c in cols), default=0)
             out = _np.full((nmax, len(cols)), _np.nan)
             for j, c in enumerate(cols):
                 out[: len(c), j] = c
             return jnp.asarray(out)
-        return _roots_colleague(self.coeffs)
+        return _roots_colleague(self.coeffs, qz=qz)
 
     def minandmax(self) -> tuple[tuple[jax.Array, jax.Array], tuple[jax.Array, jax.Array]]:
         """Global minimum and maximum of the function on [-1, 1].
@@ -2267,6 +2491,82 @@ class Chebtech2(eqx.Module):
         """
         _, (max_val, max_pos) = self.minandmax()
         return max_val, max_pos
+
+    # ------------------------------------------------------------------
+    # Sign, monomial coefficients, boundary-root extraction, T->U
+    # ------------------------------------------------------------------
+
+    def sign(self) -> "Chebtech2":
+        """Signum of the function (assumes no interior roots).
+
+        For a real ``f`` with no roots in ``[-1, 1]`` this returns the
+        constant ``+1`` or ``-1`` matching the sign of ``f`` (evaluated as
+        the mean over the endpoints and an arbitrary interior point).  For
+        complex ``f`` it returns ``f / |f|`` via ``compose``.  As in MATLAB
+        ``@chebtech/sign.m``, no warning is issued when ``f`` has roots.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/sign.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        if _is_empty_tech(self):
+            return Chebtech2.empty()
+        if not jnp.iscomplexobj(self.coeffs):
+            arbitrary_point = 0.1273881594
+            fx = self(jnp.array([-1.0, arbitrary_point, 1.0],
+                                dtype=jnp.float64))
+            meanfx = jnp.mean(fx, axis=0)
+            s = jnp.sign(meanfx)
+            if self.coeffs.ndim == 2:
+                return Chebtech2(coeffs=jnp.atleast_1d(s)[None, :])
+            return Chebtech2.from_coeffs(jnp.atleast_1d(s))
+        return self.compose(lambda x: x / jnp.abs(x))
+
+    def poly(self) -> jax.Array:
+        """Monomial (power-basis) coefficients of the function.
+
+        Returns ``C`` so that ``f(x) = C[0]*x^(n-1) + ... + C[n-1]``.  For
+        an array-valued tech the rows of ``C`` correspond to the columns of
+        ``f`` (as in MATLAB ``poly``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/poly.m
+        Chebfun commit: 7574c77
+        """
+        if _is_empty_tech(self):
+            return jnp.array([], dtype=jnp.float64)
+        return _poly_coeffs(self.coeffs)
+
+    def extractBoundaryRoots(self, num_roots=None):
+        """Extract roots at the boundary points -1 and +1.
+
+        Returns ``(g, rootsLeft, rootsRight)`` where ``g`` is a Chebtech2
+        free of boundary roots and ``rootsLeft`` / ``rootsRight`` are the
+        multiplicities removed at ``x = -1`` and ``x = +1``.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/extractBoundaryRoots.m
+        Chebfun commit: 7574c77
+        """
+        c, l, r = _extract_boundary_roots(self.coeffs, self.vscale, num_roots)
+        g = Chebtech2(coeffs=c, ishappy=self.ishappy).simplify()
+        return g, l, r
+
+    @staticmethod
+    def chebTcoeffs2chebUcoeffs(cT: jax.Array) -> jax.Array:
+        """Convert Chebyshev-T coefficients to Chebyshev-U coefficients.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/chebTcoeffs2chebUcoeffs.m
+        Chebfun commit: 7574c77
+        """
+        return _chebT_to_chebU_coeffs(cT)
 
 
 # ============================================================================
@@ -2914,7 +3214,12 @@ class Chebtech1(eqx.Module):
             gc = _prolong_coeffs(other.coeffs, n)
             return Chebtech1.from_coeffs(fc + gc, ishappy=self.ishappy and other.ishappy)
         else:
-            c = self.coeffs.at[0].add(_as_scalar(other))
+            # Scalar addition changes only c_0.  Promote the coefficient
+            # dtype first — scattering a complex scalar into a float64
+            # buffer silently drops the imaginary part.
+            s = _as_scalar(other)
+            c = self.coeffs.astype(jnp.result_type(self.coeffs.dtype, s.dtype))
+            c = c.at[0].add(s)
             return Chebtech1.from_coeffs(c, ishappy=self.ishappy)
 
     def __radd__(self, other) -> "Chebtech1":
@@ -3211,10 +3516,17 @@ class Chebtech1(eqx.Module):
     # Rootfinding
     # ------------------------------------------------------------------
 
-    def roots(self) -> jax.Array:
+    def roots(self, qz: bool = False) -> jax.Array:
         """Real roots in [-1, 1] via colleague matrix eigenvalues.
 
         NOT JIT-safe.
+
+        Parameters
+        ----------
+        qz : bool, default False
+            When True, use the colleague matrix pencil and the QZ
+            (generalized eigenvalue) algorithm for extra numerical
+            stability, mirroring ``roots(f, 'qz', 1)`` in MATLAB.
 
         Provenance
         ----------
@@ -3225,14 +3537,14 @@ class Chebtech1(eqx.Module):
             # Array-valued: roots per column, NaN-padded to equal length
             # (MATLAB @chebtech/roots.m), same as Chebtech2.roots.
             import numpy as _np
-            cols = [_np.asarray(_roots_colleague(self.coeffs[:, j]))
+            cols = [_np.asarray(_roots_colleague(self.coeffs[:, j], qz=qz))
                     for j in range(self.coeffs.shape[1])]
             nmax = max((len(c) for c in cols), default=0)
             out = _np.full((nmax, len(cols)), _np.nan)
             for j, c in enumerate(cols):
                 out[: len(c), j] = c
             return jnp.asarray(out)
-        return _roots_colleague(self.coeffs)
+        return _roots_colleague(self.coeffs, qz=qz)
 
     # ------------------------------------------------------------------
     # Happiness check (mirrors Chebtech2 but uses 1st-kind sampling)
@@ -3288,3 +3600,215 @@ class Chebtech1(eqx.Module):
                 cutoff = n
 
         return ishappy, cutoff
+
+    # ------------------------------------------------------------------
+    # Composition, restriction, extrema (mirror Chebtech2)
+    # ------------------------------------------------------------------
+
+    def compose(
+        self,
+        op: Callable,
+        g: "Chebtech1 | None" = None,
+        *,
+        maxpow2: int = 16,
+    ) -> "Chebtech1":
+        """Compose an operator with this Chebtech1.
+
+        ``self.compose(op)`` returns ``op(self(x))``; with a second tech
+        ``g`` it returns ``op(self(x), g(x))``; ``self.compose(g)`` for a
+        Chebtech1 ``g`` returns ``g(self(x))``.  Result is adaptively
+        constructed on a 1st-kind grid.  NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/compose.m, @chebtech1/compose.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        import math
+
+        if isinstance(op, Chebtech1):
+            op_cheb = op
+            composed_func = lambda x: op_cheb(self(x))  # noqa: E731
+            min_n = max(self.n, op_cheb.n)
+        elif g is not None:
+            f_cols = self.coeffs.ndim == 2
+            g_cols = g.coeffs.ndim == 2
+            if f_cols and not g_cols:
+                composed_func = lambda x: op(self(x), g(x)[..., None])  # noqa: E731
+            elif g_cols and not f_cols:
+                composed_func = lambda x: op(self(x)[..., None], g(x))  # noqa: E731
+            else:
+                composed_func = lambda x: op(self(x), g(x))  # noqa: E731
+            min_n = max(self.n, g.n)
+        else:
+            composed_func = lambda x: op(self(x))  # noqa: E731
+            min_n = self.n
+
+        start_pow2 = max(4, math.ceil(math.log2(max(min_n - 1, 1))))
+        return Chebtech1._adaptive_construct(
+            composed_func,
+            maxpow2=maxpow2,
+            start_pow2=start_pow2,
+        )
+
+    def restrict(self, a: float, b: float) -> "Chebtech1":
+        """Restrict this Chebtech1 to a sub-interval [a, b] of [-1, 1].
+
+        Returns a new Chebtech1 on [-1, 1] representing ``self`` on
+        ``[a, b]`` via the affine map ``y = (b-a)/2 x + (a+b)/2``.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/restrict.m
+        Chebfun commit: 7574c77
+        """
+        a = float(a)
+        b = float(b)
+        if a < -1.0 - 10 * _EPS or b > 1.0 + 10 * _EPS or a >= b:
+            raise ValueError(
+                f"[a, b] = [{a}, {b}] is not a valid sub-interval of [-1, 1]. "
+                f"Require -1 <= a < b <= 1."
+            )
+        if abs(a - (-1.0)) < 10 * _EPS and abs(b - 1.0) < 10 * _EPS:
+            return Chebtech1(coeffs=self.coeffs.copy(), ishappy=self.ishappy)
+        n = self.n
+        x = chebpts(n, kind=1)
+        y = 0.5 * (b - a) * x + 0.5 * (a + b)
+        new_values = self(y)
+        new_coeffs = _chebtech1_vals2coeffs(new_values)
+        return Chebtech1(coeffs=new_coeffs, ishappy=self.ishappy)
+
+    def minandmax(self):
+        """Global minimum and maximum on [-1, 1] with their positions.
+
+        NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/minandmax.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        if jnp.iscomplexobj(self.coeffs):
+            realf = self.real()
+            imagf = self.imag()
+            h = (realf * realf + imagf * imagf).simplify()
+            (_, min_pos), (_, max_pos) = h.minandmax()
+            if self.coeffs.ndim == 2:
+                min_val = jnp.diagonal(self(jnp.atleast_1d(min_pos)))
+                max_val = jnp.diagonal(self(jnp.atleast_1d(max_pos)))
+            else:
+                min_val = self(min_pos)
+                max_val = self(max_pos)
+            return (min_val, min_pos), (max_val, max_pos)
+
+        if self.coeffs.ndim == 2:
+            per_col = [
+                Chebtech1(coeffs=self.coeffs[:, j],
+                          ishappy=self.ishappy).minandmax()
+                for j in range(self.coeffs.shape[1])
+            ]
+            min_val = jnp.stack([p[0][0] for p in per_col])
+            min_pos = jnp.stack([p[0][1] for p in per_col])
+            max_val = jnp.stack([p[1][0] for p in per_col])
+            max_pos = jnp.stack([p[1][1] for p in per_col])
+            return (min_val, min_pos), (max_val, max_pos)
+
+        fp = self.diff()
+        r = fp.roots()
+        endpoints = jnp.array([-1.0, 1.0], dtype=jnp.float64)
+        if r.shape[0] > 0:
+            candidates = jnp.concatenate([endpoints, r])
+        else:
+            candidates = endpoints
+        v = self(candidates)
+        v_np = _np.array(v)
+        cand_np = _np.array(candidates)
+        min_idx = int(_np.argmin(v_np))
+        max_idx = int(_np.argmax(v_np))
+        min_val = jnp.array(v_np[min_idx], dtype=jnp.float64)
+        max_val = jnp.array(v_np[max_idx], dtype=jnp.float64)
+        min_pos = jnp.array(cand_np[min_idx], dtype=jnp.float64)
+        max_pos = jnp.array(cand_np[max_idx], dtype=jnp.float64)
+        return (min_val, min_pos), (max_val, max_pos)
+
+    def min(self):
+        """Global minimum on [-1, 1]. NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/min.m
+        Chebfun commit: 7574c77
+        """
+        (min_val, min_pos), _ = self.minandmax()
+        return min_val, min_pos
+
+    def max(self):
+        """Global maximum on [-1, 1]. NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/max.m
+        Chebfun commit: 7574c77
+        """
+        _, (max_val, max_pos) = self.minandmax()
+        return max_val, max_pos
+
+    def sign(self) -> "Chebtech1":
+        """Signum of the function (assumes no interior roots).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/sign.m
+        Chebfun commit: 7574c77
+        """
+        if _is_empty_tech(self):
+            return Chebtech1.empty()
+        if not jnp.iscomplexobj(self.coeffs):
+            arbitrary_point = 0.1273881594
+            fx = self(jnp.array([-1.0, arbitrary_point, 1.0],
+                                dtype=jnp.float64))
+            meanfx = jnp.mean(fx, axis=0)
+            s = jnp.sign(meanfx)
+            if self.coeffs.ndim == 2:
+                return Chebtech1(coeffs=jnp.atleast_1d(s)[None, :])
+            return Chebtech1.from_coeffs(jnp.atleast_1d(s))
+        return self.compose(lambda x: x / jnp.abs(x))
+
+    def poly(self) -> jax.Array:
+        """Monomial (power-basis) coefficients (highest degree first).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/poly.m
+        Chebfun commit: 7574c77
+        """
+        if _is_empty_tech(self):
+            return jnp.array([], dtype=jnp.float64)
+        return _poly_coeffs(self.coeffs)
+
+    def extractBoundaryRoots(self, num_roots=None):
+        """Extract roots at the boundary points -1 and +1.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/extractBoundaryRoots.m
+        Chebfun commit: 7574c77
+        """
+        c, l, r = _extract_boundary_roots(self.coeffs, self.vscale, num_roots)
+        g = Chebtech1(coeffs=c, ishappy=self.ishappy).simplify()
+        return g, l, r
+
+    @staticmethod
+    def chebTcoeffs2chebUcoeffs(cT: jax.Array) -> jax.Array:
+        """Convert Chebyshev-T coefficients to Chebyshev-U coefficients.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/chebTcoeffs2chebUcoeffs.m
+        Chebfun commit: 7574c77
+        """
+        return _chebT_to_chebU_coeffs(cT)

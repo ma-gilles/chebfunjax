@@ -146,14 +146,22 @@ class TestChebtechRoots:
         ok = (np.abs(r - r2) < 10 * f.n * EPS) | np.isnan(r2)
         assert bool(np.all(ok))
 
+    # roots(f, 'qz', 1): colleague-matrix pencil solved by the QZ /
+    # generalized-eigenvalue algorithm (chebfunjax roots(qz=True)).
     def test_roots_qz_nonempty(self, Tech):
         # pass(n, 10): roots(1e-10 x^3 + x^2 - 1e-12, 'qz', 1) non-empty.
-        pytest.xfail("chebfunjax roots() has no 'qz' algorithm option")
+        f = Tech.from_function(lambda x: 1e-10 * x ** 3 + x ** 2 - 1e-12)
+        r = f.roots(qz=True)
+        assert np.asarray(r).size > 0
 
     def test_roots_qz_feval(self, Tech):
         # pass(n, 11): feval at the 'qz' roots is ~0.
-        pytest.xfail("chebfunjax roots() has no 'qz' algorithm option")
+        f = Tech.from_function(lambda x: 1e-10 * x ** 3 + x ** 2 - 1e-12)
+        r = f.roots(qz=True)
+        assert _ninf(f(jnp.asarray(r))) < 10 * EPS
 
     def test_roots_qz_lowdegree(self, Tech):
         # pass(n, 12): roots((x-.5)(x-1/3), 'qz', 1).
-        pytest.xfail("chebfunjax roots() has no 'qz' algorithm option")
+        f = Tech.from_function(lambda x: (x - 0.5) * (x - 1.0 / 3.0))
+        r = f.roots(qz=True)
+        assert _ninf(f(jnp.asarray(r))) < EPS

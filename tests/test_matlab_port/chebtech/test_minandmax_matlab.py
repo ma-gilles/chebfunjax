@@ -4,13 +4,12 @@ Self-validating: the global min and max values and their locations are checked
 against analytic exacts at the SAME tolerance MATLAB uses (10*vscale(f)*eps).
 The MATLAB file loops ``for n = 1:2`` over ``{chebtech1(), chebtech2()}``.
 
-``minandmax`` exists ONLY on Chebtech2 in chebfunjax (Chebtech1 lacks it), so
-every method xfails the Chebtech1 parametrization with a precise reason.
-MATLAB ``[y, x] = minandmax(f)`` returns ``y = [ymin; ymax]``; chebfunjax
-``f.minandmax()`` returns ``((minval, minpos), (maxval, maxpos))``.
+``minandmax`` now exists on BOTH tech classes; every method is exercised on
+Chebtech1 and Chebtech2.  MATLAB ``[y, x] = minandmax(f)`` returns
+``y = [ymin; ymax]``; chebfunjax ``f.minandmax()`` returns
+``((minval, minpos), (maxval, maxpos))``.
 
 Gaps vs MATLAB (honest xfail/skip):
-- Chebtech1 has no ``minandmax``.
 - complex-array-valued: FIXED (Fable 5) -- ``minandmax`` follows
   MATLAB's complex path (extrema of |f|^2, values = f at those
   positions), so pass(n, 7)-(8) port at the same tolerances.
@@ -46,8 +45,8 @@ def _eval(fun, xpos):
     return float(np.asarray(fun(jnp.asarray([float(xpos)])))[0])
 
 
-def _spotcheck_minmax(fun, exact_min, exact_max):
-    f = Chebtech2.from_function(fun)
+def _spotcheck_minmax(Tech, fun, exact_min, exact_max):
+    f = Tech.from_function(fun)
     (mn, xmn), (mx, xmx) = f.minandmax()
     tol = 10 * f.vscale * EPS
     # Value errors and position errors (MATLAB checks both y and fun_op(x)).
@@ -62,14 +61,12 @@ def _spotcheck_minmax(fun, exact_min, exact_max):
 
 @pytest.mark.parametrize("Tech", [Chebtech1, Chebtech2])
 class TestChebtechMinAndMax:
-    def _skip_c1(self, Tech):
-        if Tech is Chebtech1:
-            pytest.xfail("Chebtech1 lacks .minandmax (Chebtech2-only method)")
+
 
     def test_minmax_secant_cubic(self, Tech):
         # pass(n, 1)
-        self._skip_c1(Tech)
         e = _spotcheck_minmax(
+            Tech,
             lambda x: ((x - 0.2) ** 3 - (x - 0.2) + 1) * (1.0 / jnp.cos(x - 0.2)),
             0.710869767377087,
             1.884217141925336,
@@ -78,14 +75,13 @@ class TestChebtechMinAndMax:
 
     def test_minmax_sin10(self, Tech):
         # pass(n, 2)
-        self._skip_c1(Tech)
-        e = _spotcheck_minmax(lambda x: jnp.sin(10 * x), -1.0, 1.0)
+        e = _spotcheck_minmax(Tech, lambda x: jnp.sin(10 * x), -1.0, 1.0)
         assert all(v < e[-1] for v in e[:-1])
 
     def test_minmax_airy(self, Tech):
         # pass(n, 3)
-        self._skip_c1(Tech)
         e = _spotcheck_minmax(
+            Tech,
             lambda x: sp.airy(np.asarray(x))[0],
             float(sp.airy(1.0)[0]),
             float(sp.airy(-1.0)[0]),
@@ -94,14 +90,13 @@ class TestChebtechMinAndMax:
 
     def test_minmax_neg_runge(self, Tech):
         # pass(n, 4)
-        self._skip_c1(Tech)
-        e = _spotcheck_minmax(lambda x: -1.0 / (1.0 + x**2), -1.0, -0.5)
+        e = _spotcheck_minmax(Tech, lambda x: -1.0 / (1.0 + x**2), -1.0, -0.5)
         assert all(v < e[-1] for v in e[:-1])
 
     def test_minmax_cubic_cosh(self, Tech):
         # pass(n, 5)
-        self._skip_c1(Tech)
         e = _spotcheck_minmax(
+            Tech,
             lambda x: (x - 0.25) ** 3 * jnp.cosh(x),
             (-1.25) ** 3 * float(np.cosh(-1.0)),
             0.75**3 * float(np.cosh(1.0)),
@@ -112,7 +107,6 @@ class TestChebtechMinAndMax:
         # pass(n, 6): array-valued minandmax.
         # FIXED (Fable 5, Big-Three array-valued epic): techs now carry (n, m)
         # coeffs and minandmax returns per-column (m,) values/positions.
-        self._skip_c1(Tech)
         fun = lambda x: jnp.stack(
             [jnp.sin(10 * x), airy(x), (x - 0.25) ** 3 * jnp.cosh(x)], axis=-1
         )
@@ -141,7 +135,6 @@ class TestChebtechMinAndMax:
     # positions), so pass(n, 7)-(8) port at the same tolerances.
     def test_minmax_complex_array_vals(self, Tech):
         # pass(n, 7): complex array-valued minandmax (|vals| comparison).
-        self._skip_c1(Tech)
         import warnings
 
         with warnings.catch_warnings():
@@ -167,7 +160,6 @@ class TestChebtechMinAndMax:
         # pass(n, 8): complex array-valued minandmax (position of the
         # FIRST column only -- the second column's extrema are not
         # unique, as MATLAB's own comment notes).
-        self._skip_c1(Tech)
         import warnings
 
         with warnings.catch_warnings():

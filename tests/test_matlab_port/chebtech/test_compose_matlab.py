@@ -8,8 +8,8 @@ n=4 sets ``extrapolate=true``).  chebfunjax has no such refinement/extrapolate
 preferences, so n=3 and n=4 collapse into the single Chebtech2 parametrization
 (their assertions are otherwise identical to n=2).
 
-``compose`` exists ONLY on Chebtech2 in chebfunjax (Chebtech1 lacks it), so
-every method xfails the Chebtech1 parametrization with a precise reason.
+``compose`` now exists on BOTH tech classes in chebfunjax, so every method
+is exercised on Chebtech1 and Chebtech2 (MATLAB's ``for n = 1:2`` loop).
 MATLAB mapping:
 - ``compose(f, @sin)``          -> ``f.compose(jnp.sin)``          (op(f(x)))
 - ``compose(f1, @plus, f2)``    -> ``f1.compose(op, f2)``          (op(f(x), g(x)))
@@ -20,7 +20,6 @@ coefficients may be an (n, m) matrix (one function per column), and ``compose``
 acts column-wise (FIXED, Fable 5, Big-Three array-valued epic).
 
 Gaps vs MATLAB (honest xfail/skip):
-- Chebtech1 has no ``compose``.
 - pass 11: binary compose of an array-valued f with a scalar-valued g does NOT
   broadcast in chebfunjax (raises on shape mismatch); modern MATLAB broadcasts.
   Kept skipped with a precise reason.
@@ -51,16 +50,11 @@ def _ninf(a):
 
 @pytest.mark.parametrize("Tech", [Chebtech1, Chebtech2])
 class TestChebtechCompose:
-    def _skip_c1(self, Tech):
-        if Tech is Chebtech1:
-            pytest.xfail("Chebtech1 lacks .compose (Chebtech2-only method)")
-
     def test_compose_scalar_sin(self, Tech):
         # pass(n, 1): compose(f=x, @sin) has the coeffs of sin.
-        self._skip_c1(Tech)
-        f = Chebtech2.from_function(lambda x: x)
+        f = Tech.from_function(lambda x: x)
         g = f.compose(jnp.sin)
-        h = Chebtech2.from_function(jnp.sin)
+        h = Tech.from_function(jnp.sin)
         n = max(g.n, h.n)
         gc = np.zeros(n)
         gc[: g.n] = np.asarray(g.coeffs)
@@ -71,10 +65,9 @@ class TestChebtechCompose:
     def test_compose_array_sin_2col(self, Tech):
         # pass(n, 2): compose([x x], @sin) has the coeffs of [sin sin].
         # FIXED (Fable 5, Big-Three array-valued epic): (n, m) coeffs.
-        self._skip_c1(Tech)
-        f = Chebtech2.from_function(lambda x: jnp.stack([x, x], axis=-1))
+        f = Tech.from_function(lambda x: jnp.stack([x, x], axis=-1))
         g = f.compose(jnp.sin)
-        h = Chebtech2.from_function(
+        h = Tech.from_function(
             lambda x: jnp.stack([jnp.sin(x), jnp.sin(x)], axis=-1)
         )
         n = max(g.n, h.n)
@@ -88,8 +81,7 @@ class TestChebtechCompose:
     def test_compose_array_sin_x_x2(self, Tech):
         # pass(n, 3): compose([x x^2], @sin) == sin([x x^2]) at the grid.
         # FIXED (Fable 5, Big-Three array-valued epic): (n, m) coeffs.
-        self._skip_c1(Tech)
-        f = Chebtech2.from_function(lambda x: jnp.stack([x, x**2], axis=-1))
+        f = Tech.from_function(lambda x: jnp.stack([x, x**2], axis=-1))
         g = f.compose(jnp.sin)
         # chebfunjax has no g.points(); the Chebtech2 grid is chebpts(g.n, 2).
         xc = chebpts(g.n, 2)
@@ -100,8 +92,7 @@ class TestChebtechCompose:
     def test_compose_array_sin_3col(self, Tech):
         # pass(n, 4): compose([x x x^2], @sin) == sin([x x x^2]) at the grid.
         # FIXED (Fable 5, Big-Three array-valued epic): (n, m) coeffs.
-        self._skip_c1(Tech)
-        f = Chebtech2.from_function(lambda x: jnp.stack([x, x, x**2], axis=-1))
+        f = Tech.from_function(lambda x: jnp.stack([x, x, x**2], axis=-1))
         g = f.compose(jnp.sin)
         xc = chebpts(g.n, 2)
         values = Chebtech2.coeffs2vals(g.coeffs)
@@ -110,9 +101,8 @@ class TestChebtechCompose:
 
     def test_compose_binary_plus(self, Tech):
         # pass(n, 5): compose(sin, @plus, cos) == sin + cos.
-        self._skip_c1(Tech)
-        f1 = Chebtech2.from_function(jnp.sin)
-        f2 = Chebtech2.from_function(jnp.cos)
+        f1 = Tech.from_function(jnp.sin)
+        f2 = Tech.from_function(jnp.cos)
         g = f1.compose(lambda a, b: a + b, f2)
         ref = jnp.sin(X) + jnp.cos(X)
         vs = float(jnp.max(jnp.abs(ref)))
@@ -121,15 +111,14 @@ class TestChebtechCompose:
     def test_compose_binary_times_array(self, Tech):
         # pass(n, 6): compose([sin cos], @times, [cos exp]) == [sin*cos cos*exp].
         # FIXED (Fable 5, Big-Three array-valued epic): (n, m) coeffs.
-        self._skip_c1(Tech)
-        f1 = Chebtech2.from_function(
+        f1 = Tech.from_function(
             lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1)
         )
-        f2 = Chebtech2.from_function(
+        f2 = Tech.from_function(
             lambda x: jnp.stack([jnp.cos(x), jnp.exp(x)], axis=-1)
         )
         g = f1.compose(lambda a, b: a * b, f2)
-        h = Chebtech2.from_function(
+        h = Tech.from_function(
             lambda x: jnp.stack(
                 [jnp.sin(x) * jnp.cos(x), jnp.cos(x) * jnp.exp(x)], axis=-1
             )
@@ -141,9 +130,8 @@ class TestChebtechCompose:
 
     def test_compose_gof_scalar(self, Tech):
         # pass(n, 7): compose(f=x^2, g=sin) == sin(x^2).
-        self._skip_c1(Tech)
-        f = Chebtech2.from_function(lambda x: x**2)
-        g = Chebtech2.from_function(jnp.sin)
+        f = Tech.from_function(lambda x: x**2)
+        g = Tech.from_function(jnp.sin)
         h = f.compose(g)
         ref = jnp.sin(X**2)
         vs = float(jnp.max(jnp.abs(ref)))
@@ -152,9 +140,8 @@ class TestChebtechCompose:
     def test_compose_gof_array_g(self, Tech):
         # pass(n, 8): compose(f=x^2, g=[sin cos]) == [sin(x^2) cos(x^2)].
         # FIXED (Fable 5, Big-Three array-valued epic): array-valued g.
-        self._skip_c1(Tech)
-        f = Chebtech2.from_function(lambda x: x**2)
-        g = Chebtech2.from_function(
+        f = Tech.from_function(lambda x: x**2)
+        g = Tech.from_function(
             lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1)
         )
         h = f.compose(g)
@@ -166,9 +153,8 @@ class TestChebtechCompose:
     def test_compose_gof_array_f(self, Tech):
         # pass(n, 9): compose(f=[x x^2], g=sin) == [sin(x) sin(x^2)].
         # FIXED (Fable 5, Big-Three array-valued epic): array-valued f.
-        self._skip_c1(Tech)
-        f = Chebtech2.from_function(lambda x: jnp.stack([x, x**2], axis=-1))
-        g = Chebtech2.from_function(jnp.sin)
+        f = Tech.from_function(lambda x: jnp.stack([x, x**2], axis=-1))
+        g = Tech.from_function(jnp.sin)
         h = f.compose(g)
         xc = chebpts(h.n, 2)
         hvalues = Chebtech2.coeffs2vals(h.coeffs)
@@ -181,9 +167,8 @@ class TestChebtechCompose:
         # exist, and composing two of them as g(f) is genuinely unsupported --
         # it raises. chebfunjax has no MATLAB 'CHEBFUN:CHEBTECH:compose:arrval'
         # error identifier, so we assert only that it raises.
-        self._skip_c1(Tech)
-        f = Chebtech2.from_function(lambda x: jnp.stack([x, x**2], axis=-1))
-        g = Chebtech2.from_function(
+        f = Tech.from_function(lambda x: jnp.stack([x, x**2], axis=-1))
+        g = Tech.from_function(
             lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1)
         )
         with pytest.raises(Exception):
@@ -195,10 +180,9 @@ class TestChebtechCompose:
         # now broadcasts a scalar-valued operand against an array-valued
         # one (modern MATLAB >= R2016b semantics -- the test's non-error
         # branch).
-        self._skip_c1(Tech)
-        f = Chebtech2.from_function(
+        f = Tech.from_function(
             lambda x: jnp.stack([x, x ** 2], axis=-1))
-        g = Chebtech2.from_function(lambda x: jnp.sin(x))
+        g = Tech.from_function(lambda x: jnp.sin(x))
         h = f.compose(lambda a, b: a + b, g)
         xs = jnp.asarray(np.linspace(-1.0, 1.0, 30))
         exact = jnp.stack(

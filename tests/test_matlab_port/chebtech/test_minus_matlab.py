@@ -28,6 +28,8 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
+import warnings
+
 import jax.numpy as jnp
 import numpy as np
 import pytest
@@ -99,8 +101,8 @@ class TestChebtechMinus:
 
     def test_sub_scalar_matches_exact(self, Tech):
         # pass(n, 3): feval(f - alpha) == sin - alpha.
-        if Tech is Chebtech1:
-            pytest.xfail(_CT1_SUB)
+        # FIXED: Chebtech1.__add__ (used by __sub__) promotes the coeff dtype,
+        # so a complex operand keeps its imaginary part.
         f = Tech.from_function(lambda x: jnp.sin(x))
         g1 = f - ALPHA
         err = _ninf(g1(X) - (jnp.sin(X) - ALPHA))
@@ -192,8 +194,7 @@ class TestChebtechMinus:
 
     def test_array_valued_minus_scalar_exact(self, Tech):
         # pass(n, 15): feval([sin cos exp] - alpha) == exact.
-        if Tech is Chebtech1:
-            pytest.xfail(_CT1_SUB)
+        # FIXED: Chebtech1.__add__ promotes the coeff dtype (keeps imag part).
         f = Tech.from_function(
             lambda x: jnp.stack([jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1)
         )
@@ -241,8 +242,19 @@ class TestChebtechMinus:
 
     def test_unhappy_minus_happy_stays_unhappy(self, Tech):
         # pass(n, 20): f (happy) - g (unhappy) -> unhappy.
-        pytest.xfail(_UNHAPPY)
+        # FIXED: arithmetic propagates ishappy (self.ishappy and other.ishappy).
+        f = Tech.from_function(lambda x: jnp.cos(x + 1))
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            g = Tech.from_function(lambda x: jnp.sqrt(x + 1))  # unhappy
+        h = f - g
+        assert (not g.ishappy) and (not h.ishappy)
 
     def test_happy_minus_unhappy_stays_unhappy(self, Tech):
         # pass(n, 21): g (unhappy) - f (happy) -> unhappy.
-        pytest.xfail(_UNHAPPY)
+        f = Tech.from_function(lambda x: jnp.cos(x + 1))
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            g = Tech.from_function(lambda x: jnp.sqrt(x + 1))  # unhappy
+        h = g - f
+        assert (not g.ishappy) and (not h.ishappy)
