@@ -204,6 +204,13 @@ class Chebop:
         #: Initial guess for nonlinear solves (Chebfun, callable, or None) —
         #: MATLAB's N.init. Previously assigning N.init was silently ignored.
         self.init = None
+        #: Deflation data set by :meth:`deflate` — ``(roots, p, alp, type)``
+        #: where ``roots`` is a list of previously found solutions (Chebfun).
+        #: When non-None the operator carries a multiplicative deflation
+        #: factor ``M(u; roots)`` (see :meth:`deflate`); it is genuinely
+        #: nonlinear and its Newton Jacobian is formed by finite differences
+        #: so the deflation term is captured (MATLAB uses AD for this).
+        self._deflation = None
         if lbc is not None:
             self.lbc = lbc
         if rbc is not None:
@@ -398,6 +405,16 @@ class Chebop:
         if getattr(self, "_periodic", False):
             return self._solve_periodic(f, n=n, n_max=n_max, tol=tol)
 
+        # Deflated operators (G = M(u; r) N(u)) use a dedicated globalized
+        # solve: the multiplicative factor makes plain undamped Newton from a
+        # zero guess diverge, so a damped Newton with a boundary-condition
+        # satisfying default initial guess is required to reach a NEW root.
+        if self._deflation is not None:
+            return self._solve_deflated(
+                f, n=n, n_min=n_min, n_max=n_max, tol=tol,
+                max_iter=max_iter, newton_tol=newton_tol,
+            )
+
         # A scalar problem carrying a general .bc constraint (conditions the
         # user evaluates at arbitrary points, e.g. an interior u(0)) is
         # assembled by the block collocation solver, which supports the
@@ -426,6 +443,94 @@ class Chebop:
                 f, n=n, n_min=n_min, n_max=n_max, tol=tol,
                 max_iter=max_iter, newton_tol=newton_tol,
             )
+
+    def deflate(self, r, p, alp, type="L2"):
+        """Deflate known solutions ``r`` from this operator.
+
+        Returns a new :class:`Chebop` whose operator ``G`` is the original
+        operator ``N`` scaled by the deflation factor ``M``::
+
+            G(u) = M(u; r) * N(u)
+
+        with, for a single deflated root and ``type='L2'``,
+
+        .. math::
+
+            M(u; r) = \\frac{1}{\\|u - r\\|^{p}} + \\alpha,
+
+        and for several deflated roots :math:`r_1, \\dots, r_n`
+
+        .. math::
+
+            M(u; r_1, \\dots, r_n)
+                = \\frac{1}{\\|u - r_1\\|^{p} \\cdots \\|u - r_n\\|^{p}}
+                  + \\alpha .
+
+        Solving ``G(u) = 0`` with Newton then converges to a solution of the
+        original problem *distinct* from every deflated root: the singularity
+        of ``M`` at each known root repels the iteration.  Only the returned
+        operator is modified; the boundary conditions, initial guess and
+        domain are carried over unchanged, so ``Ndef.solve(0)`` (MATLAB's
+        ``Ndef \\ 0``) computes a new solution.
+
+        Only scalar problems are supported, matching MATLAB @chebop/deflate.
+
+        Parameters
+        ----------
+        r : Chebfun or list of Chebfun or SystemSolution
+            Previously found solution(s) to deflate.
+        p : float
+            Power coefficient of the deflation scheme.
+        alp : float
+            Shift coefficient of the deflation scheme.
+        type : {'L2', 'H1'}, default 'L2'
+            Norm used for deflation.  ``'H1'`` adds the derivative's L2 norm.
+
+        Returns
+        -------
+        Chebop
+            A new operator with the deflation factor applied.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/deflate.m, @chebmatrix/deflationFun.m,
+            @chebfun/deflationFun.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        References
+        ----------
+        P. E. Farrell, A. Birkisson, S. W. Funke, "Deflation techniques for
+        finding distinct solutions of nonlinear partial differential
+        equations", SIAM J. Sci. Comput. 37 (2015).
+        """
+        if self.op is None:
+            raise ValueError("Chebop.deflate: operator is not set.")
+        if self._n_vars() > 1:
+            raise ValueError(
+                "Chebop.deflate: only scalar problems are supported "
+                "(mirrors MATLAB @chebop/deflate)."
+            )
+        if type not in ("L2", "H1"):
+            raise ValueError(
+                f"Chebop.deflate: unknown norm type {type!r} "
+                "(expected 'L2' or 'H1')."
+            )
+
+        roots = _normalize_deflation_roots(r)
+
+        N2 = Chebop(domain=self.domain)
+        N2.op = _make_deflated_op(self.op, roots, float(p), float(alp), type)
+        # Carry over the boundary conditions, initial guess and periodicity.
+        N2._lbc_raw = self._lbc_raw
+        N2._rbc_raw = self._rbc_raw
+        N2._bc_general = self._bc_general
+        N2._bc_show = self._bc_show
+        N2._periodic = self._periodic
+        N2.init = self.init
+        N2._deflation = (self.op, roots, float(p), float(alp), type)
+        return N2
 
     def _n_vars(self) -> int:
         """Number of unknown functions (op arity minus the x arg)."""
@@ -2245,6 +2350,11 @@ class Chebop:
 
         This is conservative: if in doubt, returns ``False``.
         """
+        # A deflated operator carries a nonlinear multiplicative factor
+        # M(u; r) and is never linear (probing it with AD would trip over the
+        # norm reductions inside M).
+        if self._deflation is not None:
+            return False
         # If op is already an OperatorBlock, definitely linear
         if isinstance(self.op, OperatorBlock):
             return True
@@ -2660,6 +2770,270 @@ class Chebop:
     # Nonlinear solve (Newton iteration)
     # ------------------------------------------------------------------
 
+    def _deflation_default_init_vals(self, x_pts):
+        """Boundary-condition satisfying default initial guess values.
+
+        MATLAB's chebop uses a default initial guess that satisfies the
+        boundary conditions; from a plain zero guess the deflated Newton
+        iteration for a non-homogeneous problem (e.g. Painleve, ``u(L) =
+        sqrt(L)``) stalls.  For scalar Dirichlet endpoints ``u(a)=la`` and
+        ``u(b)=lb`` the guess is the straight line through them; a single
+        scalar endpoint gives a constant; callable (e.g. Neumann) endpoints
+        fall back to zero.
+        """
+        a, b = self.domain
+        la = self._lbc_raw if isinstance(self._lbc_raw, (int, float)) else None
+        lb = self._rbc_raw if isinstance(self._rbc_raw, (int, float)) else None
+        if la is not None and lb is not None:
+            return la + (lb - la) * (jnp.asarray(x_pts) - a) / (b - a)
+        if la is not None:
+            return jnp.full_like(jnp.asarray(x_pts, dtype=jnp.float64),
+                                 float(la))
+        if lb is not None:
+            return jnp.full_like(jnp.asarray(x_pts, dtype=jnp.float64),
+                                 float(lb))
+        return jnp.zeros_like(jnp.asarray(x_pts, dtype=jnp.float64))
+
+    def _deflated_newton_once(
+        self, disc, x_fun, bcs, bc_vals, f_vals, init_vals,
+        max_iter, newton_tol,
+    ):
+        """One fixed-size damped-Newton solve of the deflated system.
+
+        A monotone backtracking line search on the residual norm globalises
+        the iteration.  Returns ``(u_fun, converged, r_norm, finite)`` where
+        ``converged`` means the Newton step fell below tolerance and
+        ``r_norm`` is the final collocation-residual infinity norm (small only
+        at a genuine root).
+        """
+        import numpy as _np
+
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+
+        dom = Domain(disc.domain)
+        sz = disc.n
+        n_bc = len(bcs)
+
+        def _residual(uv):
+            ufun = Chebfun.from_values(jnp.asarray(uv, dtype=jnp.float64), dom)
+            Nu_fun = self._apply_op(x_fun, ufun)
+            Nu_v = _np.array(_chebfun_to_values(Nu_fun, disc))
+            rv = Nu_v - _np.asarray(f_vals)
+            for i, (bc, bc_val) in enumerate(zip(bcs, bc_vals)):
+                bc_row = _np.asarray(bc.matrix(disc))
+                rv[sz - n_bc + i] = float(bc_row @ uv) - float(bc_val)
+            return rv, Nu_v, ufun
+
+        u_np = _np.asarray(init_vals, dtype=_np.float64).copy()
+        r_np, Nu_v, ufun = _residual(u_np)
+        r_norm = float(_np.max(_np.abs(r_np)))
+        converged = False
+        for _it in range(max_iter):
+            J_mat = self._jacobian_matrix(disc, x_fun, ufun, jnp.asarray(Nu_v))
+            J_np = _np.array(J_mat)
+            for i, bc in enumerate(bcs):
+                J_np[sz - n_bc + i, :] = _np.asarray(bc.matrix(disc))
+            try:
+                delta = _np.linalg.solve(J_np, -r_np)
+            except _np.linalg.LinAlgError:
+                break
+            if not _np.all(_np.isfinite(delta)):
+                break
+
+            lam_damp = 1.0
+            accepted = False
+            for _ls in range(40):
+                u_try = u_np + lam_damp * delta
+                r_try, Nu_try, ufun_try = _residual(u_try)
+                r_try_norm = float(_np.max(_np.abs(r_try)))
+                if _np.isfinite(r_try_norm) and (
+                    r_try_norm <= (1.0 - 1e-4 * lam_damp) * r_norm
+                    or r_try_norm < newton_tol
+                ):
+                    accepted = True
+                    break
+                lam_damp *= 0.5
+            if not accepted:
+                break
+            u_np, r_np, Nu_v, ufun = u_try, r_try, Nu_try, ufun_try
+            r_norm = r_try_norm
+
+            step_norm = float(_np.max(_np.abs(lam_damp * delta)))
+            u_scale = max(1.0, float(_np.max(_np.abs(u_np))))
+            if step_norm < newton_tol * u_scale:
+                converged = True
+                break
+
+        u_vals = jnp.asarray(u_np, dtype=jnp.float64)
+        finite = bool(jnp.isfinite(u_vals).all())
+        u_fun = Chebfun.from_values(u_vals, dom) if finite else None
+        return u_fun, converged, r_norm, finite
+
+    def _deflation_const_candidates(self):
+        """Constant initial-guess levels for the multi-start fallback.
+
+        A single boundary-condition-satisfying guess is enough for most
+        deflated problems, but when several solutions have already been
+        deflated the remaining root can lie in a basin the default guess does
+        not reach (e.g. Herceg's third solution sits near a *negative*
+        constant while the deflated ones are positive).  Following the
+        Farrell--Birkisson--Funke practice of pairing deflation with varied
+        initial guesses, we sweep constants spanning -- and extending well
+        beyond -- the value range of the already-found solutions.
+        """
+        import numpy as _np
+        roots = self._deflation[1]
+        a, b = self.domain
+        t_ref = chebpts(32, kind=2)
+        x_pts = 0.5 * (b - a) * t_ref + 0.5 * (a + b)
+        vals = _np.concatenate([
+            _np.asarray(r_k(x_pts), dtype=float) for r_k in roots])
+        lo, hi = float(vals.min()), float(vals.max())
+        span = max(hi - lo, 1.0)
+        return list(_np.linspace(lo - 2.0 * span, hi + 2.0 * span, 9))
+
+    def _solve_deflated(
+        self,
+        f,
+        n: int | None,
+        n_min: int,
+        n_max: int,
+        tol: float,
+        max_iter: int,
+        newton_tol: float,
+    ):
+        """Globalized damped-Newton solve for a deflated operator.
+
+        Solves ``G(u) = M(u; r) N(u) = f`` (usually ``f = 0``) with the
+        attached scalar boundary conditions and returns a solution of the
+        *undeflated* problem distinct from every deflated root.  Three
+        deflation-specific robustness features are layered on top of the
+        adaptive-resolution strategy of :meth:`_solve_nonlinear`:
+
+        * **Damped Newton from the start.**  A monotone backtracking line
+          search keeps the iteration in the basin of a new solution; plain
+          undamped Newton from a zero guess diverges on these problems.
+        * **Boundary-condition satisfying default guess.**  When ``N.init`` is
+          unset the iteration starts from
+          :meth:`_deflation_default_init_vals` (matching MATLAB's default
+          initial guess -- essential for non-homogeneous BCs such as
+          Painleve's ``u(L) = sqrt(L)``).
+        * **Multi-start fallback.**  If the default guess stalls at a
+          non-root, or converges onto an already-deflated solution, the solve
+          retries from a spread of constant guesses
+          (:meth:`_deflation_const_candidates`) until a genuine *distinct*
+          root is found.  A candidate that stalls or rediscovers a known root
+          is abandoned immediately rather than refined, so the fallback stays
+          cheap.
+
+        The Jacobian is the exact product-rule Jacobian assembled by
+        :meth:`_jacobian_matrix_deflated`.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/deflate.m, @chebop/solvebvpNonlinear.m,
+            @chebop/newtonBVP.m
+        Chebfun commit: 7574c77
+
+        References
+        ----------
+        P. E. Farrell, A. Birkisson, S. W. Funke, "Deflation techniques for
+        finding distinct solutions of nonlinear partial differential
+        equations", SIAM J. Sci. Comput. 37 (2015).
+        """
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        from chebfunjax.tech.chebtech import Chebtech2
+
+        a, b = self.domain
+        dom = Domain(self.domain)
+        rhs = _make_rhs_callable(f)
+        bcs, bc_vals = self._parse_bcs()
+        roots = self._deflation[1]
+
+        fixed_size = n is not None
+        start_sz = int(n) if fixed_size else max(n_min, 16)
+        genuine_tol = 1e-6
+
+        def _distinct(u_fun) -> bool:
+            scale = max(1.0, float(u_fun.norm(2)))
+            return all(
+                float((u_fun - r_k).norm(2)) > 1e-3 * scale for r_k in roots)
+
+        def _setup(sz):
+            disc = ChebColloc2Disc(sz, self.domain)
+            t_ref = chebpts(sz, kind=2)
+            x_pts = 0.5 * (b - a) * t_ref + 0.5 * (a + b)
+            f_vals = jnp.asarray(rhs(x_pts), dtype=jnp.float64)
+            return disc, Chebfun.identity(dom), x_pts, f_vals
+
+        def _run_adaptive(init_from):
+            """Adaptive damped Newton from ``init_from(x_pts) -> values``.
+
+            Returns ``(u_fun, ok)``.  ``ok`` is True only for a genuine,
+            distinct, resolved root.  Aborts (without growing the grid) as
+            soon as Newton stalls or lands on an already-deflated root, since
+            refining resolution cannot fix a basin/identity problem.
+            """
+            sz = start_sz
+            warm = None
+            best = None
+            while True:
+                disc, x_fun, x_pts, f_vals = _setup(sz)
+                init_vals = (warm(x_pts) if warm is not None
+                             else init_from(x_pts))
+                u_fun, converged, r_norm, finite = self._deflated_newton_once(
+                    disc, x_fun, bcs, bc_vals, f_vals,
+                    jnp.asarray(init_vals, dtype=jnp.float64),
+                    max_iter, newton_tol)
+                if not finite or not converged:
+                    return best, False
+                if not _distinct(u_fun):
+                    return u_fun, False
+                best = u_fun
+                tech = u_fun.funs[0].tech
+                resolved, _cut = Chebtech2.happiness_check(
+                    tech.coeffs, tech.values)
+                genuine = r_norm < genuine_tol
+                if resolved or fixed_size or 2 * sz > n_max:
+                    return u_fun, genuine
+                warm = u_fun
+                sz = 2 * sz
+
+        # Primary attempt: N.init if provided, else BC-satisfying default.
+        if self.init is not None:
+            init_f = self.init
+
+            def primary(xp):
+                return init_f(xp) if callable(init_f) else init_f
+        else:
+            primary = self._deflation_default_init_vals
+
+        u_fun, ok = _run_adaptive(primary)
+        if ok:
+            return u_fun
+        best = u_fun
+
+        # Multi-start fallback over constant guesses.
+        for c in self._deflation_const_candidates():
+            def const_init(xp, c=c):
+                return jnp.full(len(jnp.asarray(xp)), float(c),
+                                dtype=jnp.float64)
+            u_c, ok_c = _run_adaptive(const_init)
+            if ok_c:
+                return u_c
+            if best is None and u_c is not None:
+                best = u_c
+
+        warnings.warn(
+            "Chebop.solve (deflated Newton): could not locate a new solution "
+            "distinct from the deflated roots; returning best approximation.",
+            stacklevel=3,
+        )
+        if best is not None:
+            return best
+        return Chebfun.from_values(
+            jnp.zeros(start_sz, dtype=jnp.float64), dom)
+
     def _solve_nonlinear(
         self,
         f,
@@ -2855,6 +3229,21 @@ class Chebop:
         Tries to use ADChebfun symbolic linearization first (exact, faster).
         Falls back to finite differences if symbolic linearization fails.
         """
+        # A deflated operator G(u) = M(u; r) * N(u) needs the product-rule
+        # Jacobian  J_G = M * J_N + N (x) dM/du.  The (dM/du) * N term is what
+        # steers Newton away from the deflated roots and must not be dropped.
+        # J_N is linearized exactly with ADChebfun and dM/du is obtained by
+        # reverse-mode autodiff of the scalar deflation factor, so the whole
+        # Jacobian is exact (matching MATLAB, which builds it via AD).
+        if self._deflation is not None:
+            try:
+                return self._jacobian_matrix_deflated(
+                    disc, x_fun, u_fun, Nu_vals)
+            except Exception:
+                # If the underlying operator cannot be linearized symbolically,
+                # fall back to a finite-difference Jacobian of the full
+                # deflated residual (slower, but still captures both terms).
+                return self._jacobian_matrix_fd(disc, x_fun, u_fun, Nu_vals)
         # Try symbolic linearization via ADChebfun
         try:
             return self._jacobian_matrix_ad(disc, u_fun)
@@ -2868,6 +3257,73 @@ class Chebop:
         from chebfunjax.autodiff.adchebfun import linearize_op
         J_op = linearize_op(self.op, u_fun, domain=disc.domain)
         return J_op.matrix(disc)
+
+    def _jacobian_matrix_deflated(self, disc, x_fun, u_fun, Nu_vals):
+        """Exact collocation Jacobian of a deflated operator ``M(u; r) N(u)``.
+
+        Uses the product rule ``J_G = M J_N + N (x) dM/du`` where
+
+        * ``J_N`` is the exact Jacobian of the *undeflated* operator ``N``,
+          obtained by ADChebfun symbolic linearization;
+        * ``M`` is the scalar deflation factor at ``u``;
+        * ``dM/du`` is the gradient of that scalar with respect to the
+          collocation values of ``u``, obtained by reverse-mode autodiff;
+        * ``N`` is the vector of undeflated residual values at the collocation
+          points (recovered as ``Nu_vals / M`` — ``Nu_vals`` already carries
+          the factor ``M`` from the residual assembly).
+
+        The outer-product term is what drives Newton away from the deflated
+        roots; near a *new* root ``N`` vanishes and the Jacobian reduces to
+        ``M J_N``, restoring quadratic convergence (mirroring MATLAB, which
+        forms the same derivative through ADchebfun).
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/deflate.m, @chebmatrix/deflationFun.m,
+            @chebop/linearize.m
+        Chebfun commit: 7574c77
+        """
+        import jax
+        import numpy as _np
+
+        from chebfunjax.autodiff.adchebfun import linearize_op
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+
+        orig_op, roots, p, alp, norm_type = self._deflation
+
+        # Exact Jacobian of the undeflated operator N at u.
+        JN = _np.asarray(
+            linearize_op(orig_op, u_fun, domain=disc.domain).matrix(disc)
+        )
+
+        dom = Domain(disc.domain)
+        u_vals = jnp.asarray(u_fun.funs[0].values, dtype=jnp.float64)
+        # Sample each deflated root on the collocation nodes so that
+        # ``u - r_k`` is the interpolant of the value difference (same length).
+        a, b = disc.domain
+        t_ref = chebpts(disc.n, kind=2)
+        node_x = 0.5 * (b - a) * t_ref + 0.5 * (a + b)
+        roots_vals = [jnp.asarray(r_k(node_x), dtype=jnp.float64)
+                      for r_k in roots]
+
+        def _M_of(uv):
+            prod = jnp.asarray(1.0, dtype=jnp.float64)
+            for rv in roots_vals:
+                g = Chebfun.from_values(uv - rv, dom)
+                s_k = jnp.real(g.inner(g))
+                if norm_type != "L2":  # H1
+                    gd = g.diff()
+                    s_k = s_k + jnp.real(gd.inner(gd))
+                prod = prod * s_k
+            norm_fun = prod ** (p / 2.0)
+            return 1.0 / norm_fun + alp
+
+        M = float(_M_of(u_vals))
+        dM = _np.asarray(jax.grad(_M_of)(u_vals), dtype=_np.float64)
+
+        # Undeflated residual values N = (M N) / M.
+        N_vals = _np.asarray(Nu_vals, dtype=_np.float64) / M
+        return M * JN + _np.outer(N_vals, dM)
 
     def _jacobian_matrix_fd(self, disc, x_fun, u_fun, Nu_vals):
         """Compute the Jacobian of self.op at u by forward finite differences."""
@@ -3518,6 +3974,88 @@ class _LinopVar:
                 "the operator is not linear.")
 
         return _method
+
+
+def _normalize_deflation_roots(r):
+    """Normalize a deflation-root argument to a plain list of Chebfun.
+
+    Accepts a single Chebfun, a list/tuple of Chebfun, or any object exposing
+    a ``blocks`` sequence (e.g. :class:`SystemSolution` or a ChebMatrix of
+    solution columns, mirroring MATLAB's ``chebmatrix(r)`` promotion in
+    @chebop/deflate).
+    """
+    from chebfunjax.chebfun1d.chebfun import Chebfun
+    if isinstance(r, Chebfun):
+        return [r]
+    if hasattr(r, "blocks"):
+        return list(r.blocks)
+    return list(r)
+
+
+def _deflation_factor(u, roots, p, alp, norm_type):
+    """Scalar deflation factor ``M(u; roots)`` at the current guess ``u``.
+
+    Faithful port of the norm construction in @chebmatrix/deflationFun.m::
+
+        normFun = prod_k ||u - r_k||^2            (L2)
+        normFun = prod_k (||u-r_k||^2 + ||d(u-r_k)/dx||^2)   (H1)
+        normFun = normFun^(p/2)
+        M       = 1 / normFun + alp
+
+    Returned as a Python float; the residual multiplies the (undeflated)
+    operator output by this scalar.
+
+    Provenance
+    ----------
+    MATLAB source : @chebmatrix/deflationFun.m
+    Chebfun commit: 7574c77
+    """
+    norm_fun = 1.0
+    for r_k in roots:
+        ur = u - r_k
+        if norm_type == "L2":
+            s_k = float(ur.norm(2)) ** 2
+        else:  # H1
+            s_k = float(ur.norm(2)) ** 2 + float(ur.diff().norm(2)) ** 2
+        norm_fun = norm_fun * s_k
+    norm_fun = norm_fun ** (p / 2.0)
+    return 1.0 / norm_fun + alp
+
+
+def _make_deflated_op(orig_op, roots, p, alp, norm_type):
+    """Build the deflated operator ``G(u) = M(u; roots) * N(u)``.
+
+    Mirrors @chebop/deflate.m, which wraps ``N.op`` in ``deflationFun``.  The
+    returned callable always has an ``(x, u)`` signature; it dispatches on the
+    original operator's arity to support both ``@(u)`` and ``@(x, u)`` forms.
+    """
+    import inspect
+    try:
+        nargs = len(inspect.signature(orig_op).parameters)
+    except (TypeError, ValueError):
+        nargs = 2
+
+    def deflated_op(x, u):
+        nu = orig_op(u) if nargs == 1 else orig_op(x, u)
+        factor = _deflation_factor(u, roots, p, alp, norm_type)
+        return nu * factor
+
+    return deflated_op
+
+
+def deflate(N, r, p, alp, type="L2"):
+    """Deflate known solutions ``r`` from a :class:`Chebop`.
+
+    Free-function form of :meth:`Chebop.deflate`, matching MATLAB's
+    ``deflate(N, r, p, alp)`` calling sequence.  See :meth:`Chebop.deflate`
+    for the full description.
+
+    Provenance
+    ----------
+    MATLAB source : @chebop/deflate.m
+    Chebfun commit: 7574c77
+    """
+    return N.deflate(r, p, alp, type)
 
 
 def _op_add(a, b):

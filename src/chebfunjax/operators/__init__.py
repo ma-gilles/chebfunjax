@@ -22,7 +22,7 @@ from chebfunjax.operators.blocks import (
     sum_functional,
 )
 from chebfunjax.operators.chebmatrix import ChebMatrix
-from chebfunjax.operators.chebop import Chebop
+from chebfunjax.operators.chebop import Chebop, deflate
 from chebfunjax.operators.chebop2 import Chebop2
 from chebfunjax.operators.linop import Linop
 
@@ -31,6 +31,7 @@ __all__ = [
     "ChebMatrix",
     "Chebop",
     "Chebop2",
+    "deflate",
     "D",
     "FunctionalBlock",
     "I",
