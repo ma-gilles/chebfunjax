@@ -1,4 +1,4 @@
-"""Port of MATLAB Chebfun tests/trigtech/test_imag.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/trigtech/test_imag.m (Opus 4.8[1m]).
 
 imag(f) extracts the imaginary part of a trigtech.
 
@@ -10,23 +10,51 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-import pytest
+import jax.numpy as jnp
+import numpy as np
+
+from chebfunjax.tech.trigtech import Trigtech
+
+EPS = float(np.finfo(np.float64).eps)
+
+
+def _tt(f):
+    return Trigtech.from_function(f)
+
+
+def _ninf(a):
+    return float(jnp.max(jnp.abs(jnp.asarray(a))))
 
 
 class TestTrigtechImag:
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no imag() method")
     def test_scalar(self):
-        raise AssertionError("imag() not implemented")
+        # imag(cos + i sin) = sin.
+        f = _tt(lambda x: jnp.cos(jnp.pi * x) + 1j * jnp.sin(jnp.pi * x))
+        g = _tt(lambda x: jnp.sin(jnp.pi * x))
+        h = f.imag()
+        g = g.prolong(len(h))
+        assert _ninf(h.coeffs - g.coeffs) < 10 * h.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no imag() method")
     def test_array(self):
-        raise AssertionError("imag() not implemented")
+        f = _tt(lambda x: jnp.stack(
+            [jnp.cos(jnp.sin(jnp.pi * x)) + 1j * jnp.sin(jnp.cos(jnp.pi * x)),
+             -jnp.exp(1j * jnp.pi * x)], axis=-1))
+        g = _tt(lambda x: jnp.stack(
+            [jnp.sin(jnp.cos(jnp.pi * x)),
+             -jnp.imag(jnp.exp(1j * jnp.pi * x))], axis=-1))
+        h = f.imag()
+        n = max(len(g), len(h))
+        assert _ninf(h.prolong(n).coeffs - g.prolong(n).coeffs) \
+            < 100 * h.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no imag() method")
     def test_real_function(self):
-        raise AssertionError("imag() not implemented")
+        # imag of a real function is a zero (single-coefficient) tech.
+        f = _tt(lambda x: jnp.cos(jnp.pi * x))
+        g = f.imag()
+        assert g.coeffs.size == 1
 
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no imag() method")
     def test_real_array(self):
-        raise AssertionError("imag() not implemented")
-
+        f = _tt(lambda x: jnp.stack(
+            [jnp.cos(jnp.pi * x), jnp.sin(jnp.pi * x)], axis=-1))
+        g = f.imag()
+        assert g.coeffs.shape == (1, 2) and _ninf(g.coeffs) == 0

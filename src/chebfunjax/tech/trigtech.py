@@ -40,6 +40,21 @@ _EPS = float(jnp.finfo(jnp.float64).eps)
 # ============================================================================
 
 
+def _is_double(x) -> bool:
+    """True if ``x`` is a real/complex numeric array or Python number
+    (MATLAB ``isa(x, 'double')``), i.e. not a bool and not a Trigtech."""
+    if isinstance(x, bool):
+        return False
+    if isinstance(x, (int, float, complex)):
+        return True
+    try:
+        arr = jnp.asarray(x)
+    except (TypeError, ValueError):
+        return False
+    return jnp.issubdtype(arr.dtype, jnp.number) and not jnp.issubdtype(
+        arr.dtype, jnp.bool_)
+
+
 def trig_vals2coeffs(values: jax.Array) -> jax.Array:
     r"""Convert values at N equally spaced points on [-1,1) to Fourier coefficients.
 
@@ -886,6 +901,111 @@ def _trig_roots(coeffs: jax.Array) -> jax.Array:
     return g.roots()
 
 
+def _trig_roots_complex(coeffs: jax.Array, prune: bool = True) -> jax.Array:
+    """Roots of a trigonometric series via the companion-matrix (MATLAB
+    built-in ``roots``) applied to the flipped coefficients, mapping the
+    variable ``z = exp(i pi x)`` back through ``x = -i/pi log(z)``.
+
+    When ``prune`` is True, keep only the roots inside the estimated strip
+    of analyticity, matching the ``'complex'`` flag of @trigtech/roots.m.
+
+    NOT JIT-safe.
+
+    Provenance
+    ----------
+    MATLAB source : @trigtech/roots.m (useMatlabsRootsCommand branch)
+    Chebfun commit: 7574c77
+    """
+    import numpy as np
+
+    c = np.asarray(coeffs, dtype=np.complex128).ravel()
+    # Simplify: strip leading/trailing negligible modes symmetrically is
+    # handled by the caller via simplify(); here just drop the padding.
+    if c.size == 0:
+        return jnp.array([], dtype=jnp.complex128)
+    # Flip coeffs to match MATLAB's roots (descending powers of z).
+    r = np.roots(c[::-1])
+    r = -1j / np.pi * np.log(r)
+    if prune:
+        nnz = np.nonzero(np.abs(c) > 1e-13 * max(np.max(np.abs(c)), 1e-300))[0]
+        if nnz.size == 0:
+            return jnp.array([], dtype=jnp.complex128)
+        N = int(np.ceil(c.size / 2) - 1)
+        N = max(N, 1)
+        a = 1.0 / N / np.pi * np.log(4.0 / (10 * _EPS) + 1.0)
+        r = r[np.abs(np.imag(r)) <= a]
+    return jnp.asarray(r, dtype=jnp.complex128)
+
+
+def _trig_minandmax_scalar(f) -> tuple:
+    """Global min/max of a scalar-valued Trigtech via critical points.
+
+    Returns ``((min_val, min_pos), (max_val, max_pos))``.  For a complex
+    tech the extrema of ``|f|`` are located (via ``|f|^2`` to avoid the abs
+    singularity) and the reported values are ``f`` at those positions.
+
+    NOT JIT-safe (rootfinding has variable output size).
+
+    Provenance
+    ----------
+    MATLAB source : @trigtech/minandmax.m
+    Chebfun commit: 7574c77
+    """
+    import numpy as np
+
+    is_real = f.is_real
+    n = f.n
+    if n <= 1:
+        val = _trig_eval(f.coeffs, jnp.zeros((1,), jnp.float64),
+                         is_real=is_real)[0]
+        pos = jnp.array(-1.0, dtype=jnp.float64)
+        v = jnp.real(val).astype(jnp.float64) if is_real else val
+        return (v, pos), (v, pos)
+
+    if is_real:
+        objc = f.coeffs
+    else:
+        m = max(2 * n + 1, 65)
+        x = trigpts(m)
+        v = _trig_eval(f.coeffs, x, is_real=False)
+        objc = trig_vals2coeffs((jnp.abs(v) ** 2).astype(jnp.complex128))
+    # Critical points are the roots of the objective's derivative.
+    d1 = _trig_diff_coeffs(objc, 1)
+    d2 = _trig_diff_coeffs(objc, 2)
+    crit = np.asarray(_trig_roots(d1))
+    # Polish with Newton on obj'(x) = 0 (the chebyshev-sampled roots of a
+    # high-frequency derivative can be off by ~1e-7; the exact trig
+    # derivatives recover machine precision).
+    if crit.size:
+        xc = jnp.asarray(crit, dtype=jnp.float64)
+        for _ in range(2):
+            g1 = _trig_eval(d1, xc, is_real=True)
+            g2 = _trig_eval(d2, xc, is_real=True)
+            step = jnp.where(jnp.abs(g2) > 1e-30, g1 / g2, 0.0)
+            xc = xc - step
+        crit = np.asarray(xc)
+    # Include a periodic reference point so a constant/near-constant
+    # objective (empty critical set) still yields a valid extremum.
+    if crit.size:
+        cand = jnp.asarray(np.concatenate([[-1.0], crit]), dtype=jnp.float64)
+    else:
+        cand = jnp.array([-1.0], dtype=jnp.float64)
+    fv = np.asarray(_trig_eval(f.coeffs, cand, is_real=is_real))
+    cand_np = np.asarray(cand)
+
+    if is_real:
+        fr = np.real(fv)
+        imn = int(np.argmin(fr))
+        imx = int(np.argmax(fr))
+        return ((jnp.asarray(fr[imn]), jnp.asarray(cand_np[imn])),
+                (jnp.asarray(fr[imx]), jnp.asarray(cand_np[imx])))
+    mag = np.abs(fv)
+    imn = int(np.argmin(mag))
+    imx = int(np.argmax(mag))
+    return ((jnp.asarray(fv[imn]), jnp.asarray(cand_np[imn])),
+            (jnp.asarray(fv[imx]), jnp.asarray(cand_np[imx])))
+
+
 # ============================================================================
 # Trigtech class
 # ============================================================================
@@ -1475,16 +1595,32 @@ class Trigtech(eqx.Module):
         n = max(self.n, other.n)
         fc = _trig_prolong_coeffs(self.coeffs, n)
         gc = _trig_prolong_coeffs(other.coeffs, n)
-        out = 2.0 * jnp.sum(jnp.conj(fc) * gc)
+        both_1d = (fc.ndim == 1) and (gc.ndim == 1)
+        # Fourier-mode orthogonality on [-1, 1]:
+        # <e^{i pi k x}, e^{i pi m x}> = 2 delta_{km}, hence
+        # <f, g>_{ij} = 2 sum_k conj(a_{k,i}) b_{k,j}.
+        fc2 = fc if fc.ndim == 2 else fc[:, None]
+        gc2 = gc if gc.ndim == 2 else gc[:, None]
+        out = 2.0 * (jnp.conj(fc2).T @ gc2)  # (mf, mg) matrix
         same = other is self
         if not same and self.coeffs.shape == other.coeffs.shape:
             if not isinstance(self.coeffs, jax.core.Tracer) and \
                     not isinstance(other.coeffs, jax.core.Tracer):
                 same = bool(jnp.all(self.coeffs == other.coeffs))
-        if same:
-            return jnp.abs(out)
         if self.is_real and other.is_real:
-            return jnp.real(out)
+            out = jnp.real(out).astype(jnp.complex128)
+        if same:
+            # Force a non-negative real diagonal (MATLAB isequal branch).
+            d = jnp.diag(out)
+            out = out - jnp.diag(d) + jnp.diag(jnp.abs(d))
+        if both_1d:
+            # Scalar-valued inputs: return a scalar (legacy behaviour).
+            val = out[0, 0]
+            if same:
+                return jnp.abs(val)
+            if self.is_real and other.is_real:
+                return jnp.real(val)
+            return val
         return out
 
     inner = innerProduct
@@ -1556,34 +1692,47 @@ class Trigtech(eqx.Module):
     # Roots
     # ------------------------------------------------------------------
 
-    def roots(self) -> jax.Array:
-        """Find real roots in [-1, 1].
+    def roots(self, complex: bool = False) -> jax.Array:
+        """Find roots in [-1, 1].
 
-        Converts to a Chebyshev representation and calls Chebyshev
-        rootfinding (NOT JIT-safe).
+        By default converts to a Chebyshev representation and calls
+        Chebyshev rootfinding, returning the real roots in [-1, 1].  With
+        ``complex=True`` (MATLAB ``roots(f, 'complex', 1)``) returns all
+        roots -- including complex ones outside [-1, 1] -- via the
+        companion-matrix method, pruned to the strip of analyticity.
+
+        NOT JIT-safe (variable output size).
 
         Returns
         -------
-        jax.Array, shape (r,) float64
-            Roots in [-1, 1], sorted.
+        jax.Array
+            Roots (float64 for the default real path, complex128 for the
+            ``complex=True`` path); array-valued techs return one
+            NaN-padded column per column of ``f``.
 
         Provenance
         ----------
         MATLAB source : @trigtech/roots.m
         Chebfun commit: 7574c77
         """
+        import numpy as _np
+
+        def _one(col):
+            if complex:
+                simp = Trigtech.from_coeffs(col).simplify()
+                return _np.asarray(_trig_roots_complex(simp.coeffs, prune=True))
+            return _np.asarray(_trig_roots(col))
+
         if self.coeffs.ndim == 2:
-            # Array-valued: roots per column, NaN-padded to equal
-            # length (MATLAB roots.m convention, same as chebtech)
-            import numpy as _np
-            cols = [_np.asarray(_trig_roots(self.coeffs[:, j]))
+            cols = [_one(self.coeffs[:, j])
                     for j in range(self.coeffs.shape[1])]
             nmax = max((len(c) for c in cols), default=0)
-            out = _np.full((nmax, len(cols)), _np.nan)
+            dtype = _np.complex128 if complex else _np.float64
+            out = _np.full((nmax, len(cols)), _np.nan, dtype=dtype)
             for j, c in enumerate(cols):
                 out[: len(c), j] = c
             return jnp.asarray(out)
-        return _trig_roots(self.coeffs)
+        return jnp.asarray(_one(self.coeffs))
 
     # ------------------------------------------------------------------
     # Happiness check
@@ -1868,14 +2017,19 @@ class Trigtech(eqx.Module):
         # MATLAB returns f unchanged when the isReal flag is set.
         if self.is_real:
             return self
-        v = jnp.real(trig_coeffs2vals(self.coeffs))
-        if not bool(jnp.any(jnp.abs(v) > 0)):
+        # Exact coefficient-space real part: conj(f) has coeffs
+        # flip(conj(c)) (see conj), so Re(f) = (f + conj(f))/2 has coeffs
+        # (c + flip(conj(c)))/2.  Avoids an FFT round-trip.
+        c = self.coeffs
+        cr = 0.5 * (c + jnp.flip(jnp.conj(c), axis=0))
+        scale = max(float(jnp.max(jnp.abs(trig_coeffs2vals(c)))), 1.0)
+        if float(jnp.max(jnp.abs(cr))) <= 1e2 * _EPS * scale:
             z = jnp.zeros((1,) + self.coeffs.shape[1:],
                           dtype=jnp.complex128)
             return Trigtech(coeffs=z, is_real=True, ishappy=True)
-        return Trigtech(coeffs=trig_vals2coeffs(
-                            v.astype(jnp.complex128)),
-                        is_real=True, ishappy=self.ishappy)
+        out = Trigtech(coeffs=cr, is_real=True, ishappy=self.ishappy)
+        # Simplify: the imaginary part may have inflated the length.
+        return out.simplify()
 
     def imag(self) -> "Trigtech":
         """Imaginary part (a zero tech if the input was real).
@@ -1891,10 +2045,12 @@ class Trigtech(eqx.Module):
             z = jnp.zeros((1,) + self.coeffs.shape[1:],
                           dtype=jnp.complex128)
             return Trigtech(coeffs=z, is_real=True, ishappy=True)
-        v = jnp.imag(trig_coeffs2vals(self.coeffs))
-        return Trigtech(coeffs=trig_vals2coeffs(
-                            v.astype(jnp.complex128)),
-                        is_real=True, ishappy=self.ishappy)
+        # Exact coefficient-space imaginary part: Im(f) = (f - conj(f))/2i
+        # has coeffs (c - flip(conj(c)))/(2i).
+        c = self.coeffs
+        ci = (c - jnp.flip(jnp.conj(c), axis=0)) / (2j)
+        out = Trigtech(coeffs=ci, is_real=True, ishappy=self.ishappy)
+        return out.simplify()
 
     def conj(self) -> "Trigtech":
         """Complex conjugate (via conjugated grid values).
@@ -1910,18 +2066,37 @@ class Trigtech(eqx.Module):
         return Trigtech(coeffs=trig_vals2coeffs(v),
                         is_real=self.is_real, ishappy=self.ishappy)
 
+    def extract_column(self, j: int) -> "Trigtech":
+        """Return column ``j`` (0-based) of an array-valued tech as a
+        scalar-valued Trigtech (MATLAB ``extractColumns``)."""
+        c = self.coeffs if self.coeffs.ndim == 2 else self.coeffs[:, None]
+        return Trigtech(coeffs=c[:, j], is_real=self.is_real,
+                        ishappy=self.ishappy)
+
     def minandmax(self):
-        """Global extrema per column; MATLAB delegates to a Chebyshev
-        representation of the same function.
+        """Global minimum and maximum on [-1, 1].
+
+        Extrema of a smooth periodic function occur at the roots of its
+        derivative.  We locate those critical points by finding the real
+        roots of the derivative trig series (for a complex-valued tech, of
+        ``|f|^2``) and evaluate ``f`` there, matching MATLAB's chebtech
+        delegation while avoiding the expensive adaptive re-construction.
+        Array-valued techs return a 2 x m result, one column per column.
 
         Provenance
         ----------
-        MATLAB source : @trigtech/minandmax.m (chebtech1 delegation)
+        MATLAB source : @trigtech/minandmax.m
         Chebfun commit: 7574c77
         """
-        from chebfunjax.tech.chebtech import Chebtech2
-        g = Chebtech2.from_function(lambda x: self(x))
-        return g.minandmax()
+        if self.coeffs.ndim == 2:
+            per_col = [_trig_minandmax_scalar(self.extract_column(j))
+                       for j in range(self.coeffs.shape[1])]
+            min_val = jnp.stack([p[0][0] for p in per_col])
+            min_pos = jnp.stack([p[0][1] for p in per_col])
+            max_val = jnp.stack([p[1][0] for p in per_col])
+            max_pos = jnp.stack([p[1][1] for p in per_col])
+            return (min_val, min_pos), (max_val, max_pos)
+        return _trig_minandmax_scalar(self)
 
     def min(self):
         """Global minimum (value, position) via minandmax."""
@@ -1996,3 +2171,348 @@ class Trigtech(eqx.Module):
         return Trigtech(coeffs=out,
                         is_real=self.is_real and g.is_real,
                         ishappy=self.ishappy and g.ishappy)
+
+    # ------------------------------------------------------------------
+    # Size / scale introspection (array-valued)
+    # ------------------------------------------------------------------
+
+    @property
+    def num_columns(self) -> int:
+        """Number of columns (1 for scalar-valued techs)."""
+        return 1 if self.coeffs.ndim == 1 else self.coeffs.shape[1]
+
+    def size(self, dim: int | None = None):
+        """MATLAB ``size(f)``: (n_rows, n_cols); ``size(f, 2)`` is the
+        column count.  ``n_rows`` is the number of Fourier coefficients."""
+        shape = (self.n, self.num_columns)
+        if dim is None:
+            return shape
+        return shape[dim - 1]
+
+    def vscale_columns(self) -> jax.Array:
+        """Per-column vertical scale (MATLAB ``vscale`` returns a 1xN row
+        for an array-valued tech).  ``vscale`` (the scalar property) is the
+        max over all columns.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/vscale.m
+        Chebfun commit: 7574c77
+        """
+        v = jnp.abs(self.values)
+        if v.ndim == 1:
+            return jnp.max(v, keepdims=True)
+        return jnp.max(v, axis=0)
+
+    # ------------------------------------------------------------------
+    # Logical predicates on the values (array-valued)
+    # ------------------------------------------------------------------
+
+    def iszero(self) -> jax.Array:
+        """Per-column test: identically zero (and free of NaN).
+
+        MATLAB ``@trigtech/iszero.m``::
+
+            out = ~any(f.values, 1) & ~any(isnan(f.values), 1);
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/iszero.m
+        Chebfun commit: 7574c77
+        """
+        v = self.values
+        v2 = v if v.ndim == 2 else v[:, None]
+        zero = ~jnp.any(v2 != 0, axis=0)
+        no_nan = ~jnp.any(jnp.isnan(v2), axis=0)
+        out = zero & no_nan
+        return out[0] if v.ndim == 1 else out
+
+    def isnan(self) -> bool:
+        """True if the tech has any NaN value.
+
+        In the coeffs-only model a genuine NaN value produces NaN (but not
+        Inf) Fourier coefficients, whereas an Inf value produces both Inf
+        and NaN coefficients.  We therefore report NaN only when the
+        coefficients contain a NaN that is *not* accompanied by an Inf,
+        matching MATLAB ``any(isnan(f.values(:)))``.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/isnan.m
+        Chebfun commit: 7574c77
+        """
+        c = jnp.asarray(self.coeffs)
+        has_nan = bool(jnp.any(jnp.isnan(c)))
+        has_inf = bool(jnp.any(jnp.isinf(c)))
+        return has_nan and not has_inf
+
+    def isinf(self) -> bool:
+        """True if the tech has any infinite value (MATLAB ``isinf``).
+
+        An Inf value maps to Inf Fourier coefficients under the FFT.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/isinf.m
+        Chebfun commit: 7574c77
+        """
+        return bool(jnp.any(jnp.isinf(jnp.asarray(self.coeffs))))
+
+    def isfinite(self) -> bool:
+        """True if the tech is everywhere finite (MATLAB ``isfinite``).
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/isfinite.m
+        Chebfun commit: 7574c77
+        """
+        return bool(jnp.all(jnp.isfinite(jnp.asarray(self.coeffs))))
+
+    def isreal(self) -> bool:
+        """True if the underlying function is real-valued (MATLAB
+        ``isreal``); for array-valued techs, True only if every column is
+        real.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/isreal.m
+        Chebfun commit: 7574c77
+        """
+        return bool(self.is_real)
+
+    # ------------------------------------------------------------------
+    # Sign / poly
+    # ------------------------------------------------------------------
+
+    def sign(self) -> "Trigtech":
+        """Signum of a root-free TRIGTECH.
+
+        For a real-valued tech, samples at ``[-1, x0, 1]`` and returns the
+        sign of the column mean as a constant tech.  For a complex-valued
+        tech, returns ``f ./ |f|`` (re-approximated).
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/sign.m
+        Chebfun commit: 7574c77
+        """
+        if self.is_real:
+            arbitrary = 0.1273881594
+            x = jnp.array([-1.0, arbitrary, 1.0], dtype=jnp.float64)
+            fx = jnp.asarray(self(x))
+            meanfx = jnp.mean(jnp.real(fx), axis=0)
+            s = jnp.sign(meanfx)
+            c = jnp.atleast_1d(s.astype(jnp.complex128))
+            if self.coeffs.ndim == 2 and c.ndim == 1:
+                c = c[None, :]
+            return Trigtech(coeffs=c, is_real=True, ishappy=True)
+        return Trigtech.from_function(
+            lambda t: (lambda v: v / jnp.abs(v))(self(t)))
+
+    def poly(self) -> jax.Array:
+        """Polynomial (Laurent) coefficients — the transpose of the
+        Fourier coefficients.  For an array-valued tech the rows of the
+        output correspond to the columns of ``f``.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/poly.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return jnp.array([], dtype=jnp.complex128)
+        return self.coeffs.T
+
+    # ------------------------------------------------------------------
+    # Circular convolution
+    # ------------------------------------------------------------------
+
+    def circconv(self, other: "Trigtech") -> "Trigtech":
+        """Circular (periodic) convolution of two scalar-valued techs.
+
+        Convolution is multiplication of the Fourier coefficients; the
+        two techs are first prolonged to a common length.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/circconv.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty() or other.isempty():
+            return Trigtech.empty()
+        if self.num_columns > 1 or other.num_columns > 1:
+            raise ValueError(
+                "CHEBFUN:TRIGTECH:conv:array "
+                "No support for array-valued TRIGTECH objects.")
+        # Fourier-mode orthogonality on [-1, 1] gives
+        # (f * g)(x) = sum_k 2 a_k b_k e^{i pi k x}, i.e. the convolution
+        # is coefficient multiplication scaled by the mode norm 2.
+        n = max(self.n, other.n)
+        fp = _trig_prolong_coeffs(self.coeffs, n)
+        gp = _trig_prolong_coeffs(other.coeffs, n)
+        c = 2.0 * fp * gp
+        new_is_real = self.is_real and other.is_real
+        if new_is_real:
+            # Enforce the conjugate symmetry of a real result.
+            v = jnp.real(trig_coeffs2vals(c)).astype(jnp.complex128)
+            c = trig_vals2coeffs(v)
+        h = Trigtech(coeffs=c, is_real=new_is_real,
+                     ishappy=self.ishappy and other.ishappy)
+        return h.simplify()
+
+    # ------------------------------------------------------------------
+    # Concatenation
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def horzcat(cls, *techs) -> "Trigtech":
+        """Horizontally concatenate techs into one array-valued tech,
+        dropping empty inputs (MATLAB ``[A B ...]``).
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/horzcat.m
+        Chebfun commit: 7574c77
+        """
+        techs = list(techs)
+        nonempty = [t for t in techs if not t.isempty()]
+        if not nonempty:
+            return techs[0]
+        return cls.cell2mat(nonempty)
+
+    # ------------------------------------------------------------------
+    # QR factorisation (array-valued)
+    # ------------------------------------------------------------------
+
+    def qr(self, mode: str = "matrix", want_e: bool = False):
+        """QR factorisation of an array-valued tech: ``f = Q R`` with ``Q``
+        orthonormal in the continuous L^2 inner product on [-1, 1] and
+        ``R`` upper-triangular.
+
+        Parameters
+        ----------
+        mode : {'matrix', 'vector'}
+            Form of the optional permutation output ``E`` (identity here,
+            as JAX lacks column-pivoted QR).
+        want_e : bool
+            If True, also return the permutation ``E`` (identity).
+
+        Returns
+        -------
+        (Q, R) or (Q, R, E)
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/qr.m (built-in / weighted discrete QR)
+        Chebfun commit: 7574c77
+        """
+        import numpy as np
+        mf = self.num_columns
+        nf = self.n
+        if mf == 1:
+            R = jnp.sqrt(self.innerProduct(self))
+            Q = self / R
+            if want_e:
+                E = jnp.array([0]) if mode == "vector" else jnp.eye(1)
+                return Q, jnp.reshape(R, (1, 1)), E
+            return Q, jnp.reshape(R, (1, 1))
+
+        isreal = self.is_real
+        n = max(nf, mf)
+        fp = _trig_prolong_coeffs(self.coeffs, n)  # (n, mf)
+        vals = np.asarray(trig_coeffs2vals(fp))
+        if isreal:
+            vals = np.real(vals)
+        Qm, Rm = np.linalg.qr(vals, mode="reduced")  # (n, mf), (mf, mf)
+        # Enforce diag(R) >= 0.
+        s = np.sign(np.diag(Rm))
+        s[s == 0] = 1
+        Qm = Qm * s[np.newaxis, :]
+        Rm = s[:, np.newaxis] * Rm
+        # Scale by the trapezoid weight sqrt(2/n).
+        W = np.sqrt(2.0 / n)
+        Qm = Qm / W
+        Rm = W * Rm
+        Qc = trig_vals2coeffs(jnp.asarray(Qm, dtype=jnp.complex128))
+        Q = Trigtech(coeffs=Qc, is_real=isreal, ishappy=self.ishappy)
+        Q = Q.prolong(nf)
+        R = jnp.asarray(Rm, dtype=jnp.complex128)
+        if isreal:
+            R = jnp.real(R).astype(jnp.complex128)
+        if want_e:
+            E = jnp.arange(mf) if mode == "vector" else jnp.eye(mf)
+            return Q, R, E
+        return Q, R
+
+    # ------------------------------------------------------------------
+    # Left / right matrix division (least squares)
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def mldivide(A, B) -> jax.Array:
+        """``A \\ B``: continuous-L^2 least-squares solution of ``A X = B``
+        for two techs, returning the numeric coefficient matrix ``X``.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/mldivide.m
+        Chebfun commit: 7574c77
+        """
+        if not (isinstance(A, Trigtech) and isinstance(B, Trigtech)):
+            raise ValueError(
+                "CHEBFUN:TRIGTECH:mldivide:trigtechMldivideUnknown")
+        Q, R = A.qr()
+        ip = Q.innerProduct(B)
+        ip = jnp.reshape(jnp.asarray(ip, dtype=jnp.complex128),
+                         (R.shape[0], -1))
+        X = jnp.linalg.solve(R, ip)
+        if A.is_real and B.is_real:
+            X = jnp.real(X)
+        return X
+
+    @staticmethod
+    def mrdivide(A, B):
+        """``A / B``: right matrix divide.  Divides a tech ``A`` by a scalar
+        or matrix ``B`` (least squares), or a numeric ``A`` by a tech ``B``.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/mrdivide.m
+        Chebfun commit: 7574c77
+        """
+        A_is_tech = isinstance(A, Trigtech)
+        B_is_tech = isinstance(B, Trigtech)
+        if A_is_tech and B_is_tech:
+            raise ValueError("CHEBFUN:TRIGTECH:mrdivide:trigtechDivTrigtech")
+
+        if A_is_tech and not B_is_tech:
+            if not _is_double(B):
+                raise ValueError("CHEBFUN:TRIGTECH:mrdivide:badArg")
+            Bd = jnp.asarray(B)
+            if Bd.ndim < 2:
+                Bd_cols = Bd.size
+            else:
+                Bd_cols = Bd.shape[1]
+            if Bd.size > 1 and Bd_cols != A.num_columns:
+                raise ValueError("CHEBFUN:TRIGTECH:mrdivide:size")
+            if not bool(jnp.any(Bd != 0)):
+                z = jnp.full((1, A.num_columns), jnp.nan, dtype=jnp.complex128)
+                return Trigtech(coeffs=z, is_real=A.is_real, ishappy=True)
+            if Bd.size == 1:
+                return A * (1.0 / Bd.reshape(()))
+            # Matrix least squares: X = Q * (R / B).
+            Q, R = A.qr()
+            Bm = Bd.astype(jnp.complex128)
+            # R / B  ==  (B.' \ R.').'
+            Y = jnp.linalg.lstsq(Bm.T, R.T)[0].T
+            return Q @ Y
+
+        if not A_is_tech and B_is_tech:
+            if not _is_double(A):
+                raise ValueError("CHEBFUN:TRIGTECH:mrdivide:badArg")
+            Am = jnp.atleast_2d(jnp.asarray(A, dtype=jnp.complex128))
+            Q, R = B.qr()
+            # A / R  ==  (R.' \ A.').'
+            AR = jnp.linalg.lstsq(R.T, Am.T)[0].T
+            return Q @ AR.T
+        raise ValueError("CHEBFUN:TRIGTECH:mrdivide:badArg")

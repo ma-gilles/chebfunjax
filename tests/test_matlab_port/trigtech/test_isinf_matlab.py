@@ -1,6 +1,6 @@
-"""Port of MATLAB Chebfun tests/trigtech/test_isinf.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/trigtech/test_isinf.m (Opus 4.8[1m]).
 
-isinf(f) is true if any value is Inf.
+isinf(f) is True iff f has any infinite value.
 
 Provenance
 ----------
@@ -10,23 +10,31 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-import pytest
+import jax.numpy as jnp
+
+from chebfunjax.tech.trigtech import Trigtech
+
+
+def _inf_values(n=11):
+    y = jnp.ones(n, dtype=jnp.float64).at[3].set(jnp.inf)
+    return y
 
 
 class TestTrigtechIsinf:
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no isinf() method")
     def test_scalar_inf(self):
-        raise AssertionError("isinf() not implemented")
+        f = Trigtech.from_values(_inf_values())
+        assert f.isinf()
 
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no isinf() method")
     def test_array_inf(self):
-        raise AssertionError("isinf() not implemented")
+        y = _inf_values()
+        f = Trigtech.from_values(jnp.stack([y, y], axis=-1))
+        assert f.isinf()
 
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no isinf() method")
-    def test_finite_scalar(self):
-        raise AssertionError("isinf() not implemented")
+    def test_scalar_finite(self):
+        f = Trigtech.from_function(lambda x: jnp.cos(jnp.pi * x))
+        assert not f.isinf()
 
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no isinf() method")
-    def test_finite_array(self):
-        raise AssertionError("isinf() not implemented")
-
+    def test_array_finite(self):
+        f = Trigtech.from_function(lambda x: jnp.stack(
+            [jnp.cos(jnp.pi * x), jnp.cos(jnp.pi * x)], axis=-1))
+        assert not f.isinf()
