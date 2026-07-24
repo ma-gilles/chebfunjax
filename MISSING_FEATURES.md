@@ -11,10 +11,24 @@ counterparts (1,105 port files). Final run:
 
 | Status | Count | Meaning |
 |---|---:|---|
-| **passed** | 2,554 | ported at MATLAB tolerances and passing |
-| **skipped** | 563 | test written; the feature does not exist (reason string names it) |
+| **passed** | 2,574 | ported at MATLAB tolerances and passing |
+| **skipped** | 558 | test written; the feature does not exist (reason string names it) |
 | **xfailed** | 375 | known library bug or convention gap, with evidence in the reason |
 | **failed** | **0** | |
+
+*(2026-07-24 third refresh: 2,574 / 0 / 558 / 375 after the
+chebfun-dir residue commit e083d52 -- pointValues field (+ abs/sign
+propagation), the 'turbo' constructor flag threaded through the
+factory (incl. an array-valued turbo FFT-axis fix), and trig/cheb
+mixed-arithmetic casting.  Interior-singularity splitting re-reasoned
+specifically: needs an interior blow-up-abscissa detector; endpoint
+exps/blowup only act at supplied breakpoints.  The remaining skip
+surface is now (a) documented-N/A MATLAB semantics (string/@(z)
+constructors, subsref/end indexing, adchebfun-by-design, linop
+architecture, plotting), (b) evidenced-hard numerics (wave-family
+conditioning, interior blow-up detection, chebop path-following,
+resultant on extreme 1e-9 boxes), and (c) measured tolerance-edge
+xfails with the exact errors in their reasons.)*
 
 *(2026-07-24 second refresh: 2,554 / 0 / 563 / 375.  Landed: the
 SPINSPHERE solver (Spinopsphere + spinsphere, IMEX-BDF4/LIRK4 on the
