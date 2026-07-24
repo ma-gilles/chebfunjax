@@ -258,8 +258,14 @@ def _cheb_coeffs_turbo(op: Callable, rho: float, n: int) -> jax.Array:
     K = 4 * n
     z = jnp.exp(2j * jnp.pi * jnp.arange(K, dtype=jnp.float64) / K)
     g = jnp.asarray(op((rho * z + 1.0 / (rho * z)) / 2.0), dtype=jnp.complex128)
-    c = jnp.fft.fft(g) / K / (rho ** jnp.arange(K, dtype=jnp.float64))
-    return jnp.concatenate([c[:1], 2.0 * c[1:n]])
+    # Sum over the contour is the length-K DFT along the sample axis (axis 0);
+    # for an array-valued ``op`` the columns are independent.  The rho^k
+    # weights broadcast along the leading axis.
+    powers = rho ** jnp.arange(K, dtype=jnp.float64)
+    if g.ndim > 1:
+        powers = powers.reshape((K,) + (1,) * (g.ndim - 1))
+    c = jnp.fft.fft(g, axis=0) / K / powers
+    return jnp.concatenate([c[:1], 2.0 * c[1:n]], axis=0)
 
 
 def _turbo_coeffs(op: Callable, plain_coeffs: jax.Array, num: int) -> jax.Array:

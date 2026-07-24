@@ -104,6 +104,7 @@ class _Piece(eqx.Module):
         n: int | None = None,
         maxpow2: int = 16,
         tol: float | None = None,
+        turbo: bool = False,
     ) -> _Piece:
         """Build a piece from a callable on [a, b].
 
@@ -119,6 +120,9 @@ class _Piece(eqx.Module):
             Max adaptive grid power (``max_length = 2**maxpow2 + 1``).
         tol : float or None
             Construction tolerance (``eps``); None uses machine epsilon.
+        turbo : bool, default False
+            Recompute the coefficients to high accuracy via the turbo
+            contour integral (MATLAB ``'turbo'`` flag).
         """
         a, b = float(a), float(b)
         # Wrap f to map from reference [-1, 1] into [a, b]
@@ -126,7 +130,8 @@ class _Piece(eqx.Module):
             x = 0.5 * (b - a) * t + 0.5 * (a + b)
             return f(x)
 
-        tech = Chebtech2.from_function(f_ref, n=n, maxpow2=maxpow2, tol=tol)
+        tech = Chebtech2.from_function(f_ref, n=n, maxpow2=maxpow2, tol=tol,
+                                       turbo=turbo)
         return cls(tech=tech, interval=(a, b))
 
     @classmethod
@@ -388,7 +393,18 @@ class _Piece(eqx.Module):
         """
         a, b = self.interval
         scale = (b - a) / 2.0
-        tech_cs = self.tech.cumsum()
+        try:
+            tech_cs = self.tech.cumsum()
+        except ValueError:
+            # A Trigtech antiderivative of a non-zero-mean periodic function
+            # is not periodic; MATLAB casts to the chebtech basis rather than
+            # error (test_trigcasting pass 19).  Zero-mean trig stays trig.
+            from chebfunjax.tech.trigtech import Trigtech
+            if not isinstance(self.tech, Trigtech):
+                raise
+            cheb = Chebtech2.from_function(lambda t, _s=self.tech: _s(t))
+            scaled = cheb.cumsum().coeffs * jnp.float64(scale)
+            return _Piece(tech=Chebtech2.from_coeffs(scaled), interval=(a, b))
         # Scale coefficients by (b-a)/2
         scaled_coeffs = tech_cs.coeffs * jnp.float64(scale)
         new_tech = type(self.tech).from_coeffs(scaled_coeffs)
@@ -713,6 +729,83 @@ class Chebfun(eqx.Module):
         )
 
     # ------------------------------------------------------------------
+    # pointValues — the MATLAB explicit-value-at-breakpoints field
+    # ------------------------------------------------------------------
+    #
+    # MATLAB Chebfun carries a ``pointValues`` array: the function value AT
+    # each breakpoint, which for a kink / jump may differ from either
+    # one-sided limit (e.g. ``abs`` and ``sign`` record ``|f|`` / ``sign(f)``
+    # of the stored value there).  It is metadata, not part of the smooth
+    # pieces, so -- like the ``_is_transposed`` orientation flag -- we store
+    # any explicit override off the equinox pytree via ``object.__setattr__``
+    # and default to the endpoint feval when none is set.  This keeps the
+    # pytree structure of every existing Chebfun untouched.
+
+    @property
+    def point_values(self) -> jax.Array:
+        """Function values at the breakpoints (MATLAB ``pointValues``).
+
+        Returns the explicit override set by :meth:`set_point_values` when
+        present, else the default: the value of the Chebfun evaluated at each
+        breakpoint (shape ``(n_ends,)``, or ``(n_ends, n_cols)`` when
+        array-valued).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/chebfun.m (pointValues property)
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.set_point_values
+        """
+        override = getattr(self, "_point_values", None)
+        if override is not None:
+            return override
+        import numpy as _np
+        bps = _np.asarray(list(self.domain.breakpoints), dtype=float)
+        return self(jnp.asarray(bps))
+
+    def set_point_values(self, values) -> "Chebfun":
+        """Return a copy carrying explicit ``pointValues`` (MATLAB
+        ``f.pointValues = values``).
+
+        The stored values must have one entry per breakpoint (an
+        ``(n_ends,)`` vector, or ``(n_ends, n_cols)`` for an array-valued
+        Chebfun).  They are metadata: point evaluation away from the
+        breakpoints is unaffected; :meth:`abs` and :meth:`sign` propagate
+        them element-wise (as MATLAB's ``abs``/``sign`` do).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/chebfun.m (pointValues assignment)
+        Chebfun commit: 7574c77
+
+        See Also
+        --------
+        Chebfun.point_values
+        """
+        new = Chebfun(funs=self.funs, domain=self.domain, deltas=self.deltas)
+        object.__setattr__(new, "_point_values", jnp.asarray(values))
+        if self.is_transposed:
+            object.__setattr__(new, "_is_transposed", True)
+        return new
+
+    def _propagate_point_values(self, result: "Chebfun", op) -> "Chebfun":
+        """Carry an explicit ``pointValues`` override through a pointwise op.
+
+        MATLAB's ``abs``/``sign`` record ``op(pointValues)`` at the
+        breakpoints.  Applies only when an override was explicitly set; the
+        default (endpoint feval) is recomputed from ``result`` on demand.
+        """
+        override = getattr(self, "_point_values", None)
+        if override is not None:
+            object.__setattr__(result, "_point_values", op(override))
+        return result
+
+    # ------------------------------------------------------------------
     # Factory class methods
     # ------------------------------------------------------------------
 
@@ -725,6 +818,7 @@ class Chebfun(eqx.Module):
         *,
         maxpow2: int = 16,
         tol: float | None = None,
+        turbo: bool = False,
     ) -> Chebfun:
         """Construct a Chebfun from a callable on a given domain.
 
@@ -759,7 +853,8 @@ class Chebfun(eqx.Module):
         funs = []
         for sub in domain.intervals:
             piece = _Piece.from_function(f, sub.a, sub.b, n=n,
-                                         maxpow2=maxpow2, tol=tol)
+                                         maxpow2=maxpow2, tol=tol,
+                                         turbo=turbo)
             funs.append(piece)
         return cls(funs=funs, domain=domain)
 
@@ -1204,7 +1299,7 @@ class Chebfun(eqx.Module):
         """
         f, g = Chebfun._overlap(f, g)
         new_funs = [
-            pf.with_tech(op(pf.tech, pg.tech))
+            pf.with_tech(op(*_cast_tech_pair(pf.tech, pg.tech)))
             for pf, pg in zip(f.funs, g.funs)
         ]
         return Chebfun(funs=new_funs, domain=f.domain)
@@ -1601,6 +1696,10 @@ class Chebfun(eqx.Module):
         --------
         Chebfun.sign, Chebfun.__abs__
         """
+        return self._propagate_point_values(self._abs_core(), jnp.abs)
+
+    def _abs_core(self) -> Chebfun:
+        """Root-splitting ``|f|`` without pointValues propagation."""
         # Find roots where the function changes sign and add them as
         # breakpoints, then apply |·| piecewise for smoothness.
         import numpy as _np
@@ -2170,6 +2269,10 @@ class Chebfun(eqx.Module):
         --------
         Chebfun.abs, Chebfun.roots
         """
+        return self._propagate_point_values(self._sign_core(), jnp.sign)
+
+    def _sign_core(self) -> Chebfun:
+        """Root-splitting ``sign(f)`` without pointValues propagation."""
         roots = self.roots()
         import numpy as _np
         existing = _np.array(list(self.domain.breakpoints))
@@ -5579,7 +5682,32 @@ def _parse_singtype(singType, n_int: int, blowup: bool
     return [(flat[2 * j], flat[2 * j + 1]) for j in range(n_int)]
 
 
-def _build_exps_piece(op, a: float, b: float, el, er, stl, str_) -> _Piece:
+def _cast_tech_pair(a, b):
+    """Return ``(a, b)`` with a common tech type for cross-tech arithmetic.
+
+    MATLAB casts mixed TRIGTECH + CHEBTECH arithmetic to the CHEBTECH basis
+    (``@chebfun/plus.m`` and friends promote a periodic operand to the
+    non-periodic tech before combining).  When the two operands have the
+    same tech type (the common case) they are returned unchanged, so the
+    hot path is untouched.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/plus.m, @chebfun/times.m (tech casting)
+    Chebfun commit: 7574c77
+    """
+    if type(a) is type(b):
+        return a, b
+    from chebfunjax.tech.trigtech import Trigtech
+    if isinstance(a, Trigtech) and not isinstance(b, Trigtech):
+        return Chebtech2.from_function(lambda t, _a=a: _a(t)), b
+    if isinstance(b, Trigtech) and not isinstance(a, Trigtech):
+        return a, Chebtech2.from_function(lambda t, _b=b: _b(t))
+    return a, b
+
+
+def _build_exps_piece(op, a: float, b: float, el, er, stl, str_,
+                      turbo: bool = False) -> _Piece:
     """Build one Chebfun piece on ``[a, b]`` honouring endpoint exponents.
 
     ``op`` is the physical function on ``[a, b]``.  Each exponent is either
@@ -5615,8 +5743,8 @@ def _build_exps_piece(op, a: float, b: float, el, er, stl, str_) -> _Piece:
     el = _resolve(el, stl, "left")
     er = _resolve(er, str_, "right")
     if abs(el) < 1e-14 and abs(er) < 1e-14:
-        return _Piece.from_function(op, a, b)
-    sf = Singfun.from_function(_full, exponents=(el, er))
+        return _Piece.from_function(op, a, b, turbo=turbo)
+    sf = Singfun.from_function(_full, exponents=(el, er), turbo=turbo)
     return _Piece(tech=sf, interval=(float(a), float(b)))
 
 
@@ -5632,6 +5760,7 @@ def chebfun(
     exps: tuple[float, float] | None = None,
     blowup: bool | int = False,
     singType: "list | tuple | None" = None,
+    turbo: bool = False,
 ) -> Chebfun:
     """Create a Chebfun from a callable, array of coefficients, or constant.
 
@@ -5753,7 +5882,7 @@ def chebfun(
         for j in range(n_int):
             a_, b_ = dom_vals[j], dom_vals[j + 1]
             piece = _build_exps_piece(f, a_, b_, pairs[j][0], pairs[j][1],
-                                      stypes[j][0], stypes[j][1])
+                                      stypes[j][0], stypes[j][1], turbo=turbo)
             funs.append(piece)
         return Chebfun(funs=funs, domain=Domain(tuple(dom_vals)))
 
@@ -5841,9 +5970,9 @@ def chebfun(
         if splitting and n is None:
             return _construct_with_splitting(f, float(dom_seq[0]),
                                              float(dom_seq[-1]),
-                                             _maxpow2, tol=_tol)
+                                             _maxpow2, tol=_tol, turbo=turbo)
         return Chebfun.from_function(f, dom, n=n, maxpow2=_maxpow2,
-                                     tol=_tol)
+                                     tol=_tol, turbo=turbo)
 
     raise TypeError(
         f"Cannot construct a Chebfun from f of type {type(f).__name__}. "
@@ -6117,7 +6246,7 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
 
 
 def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
-                              tol=None):
+                              tol=None, turbo: bool = False):
     """Build a piecewise Chebfun, auto-detecting breakpoints (Opus 4.8, #12).
 
     Each piece is constructed on a slightly-shrunk interval so that at a
@@ -6147,7 +6276,8 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
 
         with _warnings.catch_warnings():
             _warnings.simplefilter("ignore")
-            tech = Chebtech2.from_function(f_ref, maxpow2=maxpow2, tol=tol)
+            tech = Chebtech2.from_function(f_ref, maxpow2=maxpow2, tol=tol,
+                                           turbo=turbo)
         funs.append(_Piece(tech=tech, interval=(float(ai), float(bi))))
     return Chebfun(funs=funs, domain=Domain(tuple(cleaned)))
 

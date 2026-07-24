@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 import chebfunjax as cj
 
@@ -41,7 +40,17 @@ class TestChebfunAbs:
         assert float(jnp.max(err)) < 10 * f.vscale * EPS
 
     def test_point_values(self):
-        pytest.skip("chebfunjax Chebfun has no pointValues field")
+        # pass(1,3): abs propagates an explicit pointValues override
+        # element-wise as |pointValues|.  ``f = cos(pi x) + 2`` is strictly
+        # positive so abs adds no breakpoints; only the stored point values
+        # (here set to the breakpoint abscissae) are transformed.
+        pts = np.sort(2 * RNG.uniform(size=8) - 1)
+        f = cj.chebfun(lambda x: jnp.cos(np.pi * x) + 2,
+                       domain=tuple(float(v) for v in pts))
+        n_ends = len(f.domain.breakpoints)
+        f = f.set_point_values(jnp.asarray(pts[:n_ends]))
+        f1 = f.abs()
+        assert bool(jnp.all(f1.point_values == jnp.abs(jnp.asarray(pts[:n_ends]))))
 
     def test_array_valued(self):
         # pass(5): abs of an array-valued chebfun (4 pieces on -2:2, per-column

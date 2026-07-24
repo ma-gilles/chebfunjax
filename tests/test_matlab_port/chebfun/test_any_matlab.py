@@ -66,8 +66,18 @@ class TestChebfunAny:
         assert list(np.asarray(g.T.any()).astype(int)) == [0, 1, 1]
 
     def test_pointvalues_nan(self):
-        # pass(4): any(f, 1) after setting a pointValues entry to NaN.
-        pytest.skip("chebfunjax Chebfun has no pointValues field")
+        # pass(4): any(f, 1) still returns [1 0 1] after setting a pointValues
+        # entry to NaN -- any() reduces over the continuous behaviour of each
+        # column and ignores an isolated NaN carried in the pointValues
+        # metadata (MATLAB semantics).
+        f = cj.chebfun(
+            lambda x: jnp.stack([jnp.sin(x), 0 * x, jnp.exp(x)], axis=-1),
+            domain=(-1, -0.5, 0, 0.5, 1),
+        )
+        pv = np.array(f.point_values, dtype=float, copy=True)
+        pv[2, 1] = np.nan
+        f = f.set_point_values(jnp.asarray(pv))
+        assert list(np.asarray(f.any()).astype(int)) == [1, 0, 1]
 
     def test_discrete_dimension(self):
         # pass(7-11): any(f, 2) reduces across columns to a chebfun.

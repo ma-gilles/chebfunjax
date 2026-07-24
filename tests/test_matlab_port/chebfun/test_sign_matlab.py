@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 import chebfunjax as cj
 
@@ -31,7 +30,17 @@ class TestChebfunSign:
         assert bool(jnp.all(f1(X) == 1))
 
     def test_point_values(self):
-        pytest.skip("chebfunjax Chebfun has no pointValues field")
+        # pass(1,2): sign propagates an explicit pointValues override
+        # element-wise.  ``f = cos(pi x) + 2`` is strictly positive so sign
+        # adds no breakpoints; the stored point values (all set to -pi) map to
+        # sign(-pi) = -1.
+        pts = np.sort(2 * RNG.uniform(size=8) - 1)
+        f = cj.chebfun(lambda x: jnp.cos(np.pi * x) + 2,
+                       domain=tuple(float(v) for v in pts))
+        n_ends = len(f.domain.breakpoints)
+        f = f.set_point_values(-np.pi * jnp.ones(n_ends))
+        f1 = f.sign()
+        assert bool(jnp.all(f1.point_values == -1))
 
     def test_sign_with_jump(self):
         import warnings

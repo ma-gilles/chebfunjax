@@ -110,6 +110,7 @@ class Singfun(eqx.Module):
         exponents: tuple[float, float] | None = None,
         *,
         n: int | None = None,
+        turbo: bool = False,
     ) -> "Singfun":
         """Construct a Singfun from a callable and (optionally) known exponents.
 
@@ -188,7 +189,7 @@ class Singfun(eqx.Module):
         # stopped at 11 coefficients with 1e-10 evaluation error where
         # MATLAB is exact. Chebtech1 and Chebtech2 share the same
         # T-series coefficients, so the result transfers directly.
-        t1 = Chebtech1.from_function(smooth_f, n=n)
+        t1 = Chebtech1.from_function(smooth_f, n=n, turbo=turbo)
         tech = Chebtech2.from_coeffs(t1.coeffs)
         return cls(tech, (a, b))
 

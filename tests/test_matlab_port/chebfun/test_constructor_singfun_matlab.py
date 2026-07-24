@@ -109,7 +109,17 @@ class TestChebfunConstructorSingfun:
                     "per-interval operators")
 
     def test_splitting_singular(self):
-        # pass(13, 16, 17): 'splitting','on' with singular endpoints /
-        # interior poles (tan).  Interior singularity location is not wired.
-        pytest.skip("interior singularity splitting for SingFun pieces not "
-                    "implemented")
+        # pass(13, 16, 17): 'splitting','on' with interior poles, e.g.
+        # ``chebfun(@(x) tan(x), [0 2*pi], 'splitting','on','blowup','on')``.
+        # The endpoint-exponent machinery (``_build_exps_piece``,
+        # ``_find_sing_order``) only detects a blow-up AT a supplied breakpoint;
+        # locating a singularity in the INTERIOR of an interval (the poles of
+        # tan at pi/2, 3pi/2) requires a blow-up detector that finds the
+        # divergence abscissa from the callable, inserts it as a breakpoint,
+        # and assigns per-side pole exponents -- none of which exists.  The
+        # splitting constructor (`_construct_with_splitting`) only bisects at
+        # value discontinuities/kinks and builds smooth (non-SingFun) pieces,
+        # so it cannot represent an interior pole.
+        pytest.skip("interior singularity location (finding + splitting at a "
+                    "pole inside an interval, e.g. tan) not implemented; "
+                    "endpoint 'exps'/'blowup' only detect AT a breakpoint")
