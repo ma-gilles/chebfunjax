@@ -883,6 +883,8 @@ def _trig_roots(coeffs: jax.Array) -> jax.Array:
     MATLAB source : @trigtech/roots.m
     Chebfun commit: 7574c77
     """
+    import numpy as np
+
     from chebfunjax.tech.chebtech import Chebtech2
     from chebfunjax.utils.quadrature import chebpts
 
@@ -893,12 +895,28 @@ def _trig_roots(coeffs: jax.Array) -> jax.Array:
     # Sample on Chebyshev-2 points and call Chebtech2.roots()
     n_sample = max(2 * n + 1, 33)
     x_cheb = chebpts(n_sample, kind=2)
-    vals = _trig_eval(coeffs, x_cheb, is_real=jnp.isrealobj(coeffs))
-    if jnp.iscomplexobj(vals):
-        vals = jnp.real(vals)
+    vals = _trig_eval(coeffs, x_cheb, is_real=False)
+    vals = jnp.real(vals)
 
     g = Chebtech2.from_values(vals.astype(jnp.float64))
-    return g.roots()
+    r = np.asarray(g.roots())
+    if r.size == 0:
+        return jnp.asarray(r, dtype=jnp.float64)
+    # Polish with Newton on Re(f)(x) = 0 using the exact trig derivative:
+    # the Chebyshev resampling of a high-frequency series can leave the
+    # roots ~1e-10 off, but each root is simple, so Newton recovers
+    # machine precision.
+    d1 = _trig_diff_coeffs(coeffs, 1)
+    xr = jnp.asarray(r, dtype=jnp.float64)
+    for _ in range(2):
+        fv = jnp.real(_trig_eval(coeffs, xr, is_real=False))
+        fp = jnp.real(_trig_eval(d1, xr, is_real=False))
+        step = jnp.where(jnp.abs(fp) > 1e-30, fv / fp, 0.0)
+        xr = xr - step
+    rp = np.asarray(xr)
+    # Discard any polished root that left [-1, 1] (spurious) and re-sort.
+    rp = rp[(rp >= -1.0 - 1e-12) & (rp <= 1.0 + 1e-12)]
+    return jnp.asarray(np.sort(rp), dtype=jnp.float64)
 
 
 def _trig_roots_complex(coeffs: jax.Array, prune: bool = True) -> jax.Array:
@@ -926,6 +944,27 @@ def _trig_roots_complex(coeffs: jax.Array, prune: bool = True) -> jax.Array:
     # Flip coeffs to match MATLAB's roots (descending powers of z).
     r = np.roots(c[::-1])
     r = -1j / np.pi * np.log(r)
+    # Polish with complex Newton on f(x) = sum_k c_k e^{i pi k x} = 0
+    # (companion-matrix roots of a long series can carry ~1e-13 error).
+    n = c.size
+    if n % 2 == 1:
+        ks = np.arange(-(n - 1) // 2, (n - 1) // 2 + 1)
+    else:
+        ks = np.arange(-n // 2, n // 2)
+    ck = c
+    dk = (1j * np.pi * ks) * c
+    for _ in range(2):
+        E = np.exp(1j * np.pi * np.outer(r, ks))
+        fv = E @ ck
+        fp = E @ dk
+        with np.errstate(invalid="ignore", divide="ignore"):
+            step = np.where(np.abs(fp) > 1e-300, fv / fp, 0.0)
+        r = r - step
+    # f is 2-periodic in x (e^{i pi k (x+2)} = e^{i pi k x}), so wrap the
+    # real part to (-1, 1]; this fixes the log branch that sends z = -1 to
+    # x = -1 rather than MATLAB's x = 1.
+    rr = np.real(r) - 2.0 * np.ceil((np.real(r) - 1.0) / 2.0)
+    r = rr + 1j * np.imag(r)
     if prune:
         nnz = np.nonzero(np.abs(c) > 1e-13 * max(np.max(np.abs(c)), 1e-300))[0]
         if nnz.size == 0:
