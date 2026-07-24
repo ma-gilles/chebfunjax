@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
@@ -58,32 +57,32 @@ class TestBndfunChangeMap:
         f = _change_map(g, DOM1)
         assert _ninf(f(X) - g(Y)) < 10 * f.vscale * EPS
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks singular (blowup) Bndfun: 1/((x-a)(x-b)) with "
-        "pref.blowup cannot be constructed via Bndfun.from_function."
-    )
     def test_change_singular_dom1_to_dom2(self):
+        # 1/((x-a)(x-b)) has simple poles at BOTH endpoints -> exponents
+        # (-1,-1) (MATLAB bndfun with data.exponents=[-1 -1], pref.blowup).
+        # change_map keeps the [-1,1] onefun and swaps only the affine map,
+        # so the singular structure carries over.  Compare on interior points
+        # (MATLAB samples random interior ones; endpoints are poles).
         def op(x):
             return 1.0 / ((x - A) * (x - B))
 
-        f = Bndfun.from_function(op, Domain(DOM1))
+        f = Bndfun.from_function(op, Domain(DOM1), exponents=(-1.0, -1.0))
         g = _change_map(f, DOM2)
+        Xi, Yi, XRi = X[1:-1], Y[1:-1], XR[1:-1]
         assert np.all(
-            np.abs(np.asarray(g(Y)) - np.asarray(f(X)))
-            < 1e4 * np.abs(op(XR)) * f.vscale * EPS
+            np.abs(np.asarray(g(Yi)) - np.asarray(f(Xi)))
+            < 1e4 * np.abs(op(XRi)) * f.vscale * EPS
         )
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks singular (blowup) Bndfun (see above)."
-    )
     def test_change_singular_dom2_to_dom1(self):
         def op(x):
             return 1.0 / ((x - A) * (x - B))
 
-        f0 = Bndfun.from_function(op, Domain(DOM1))
+        f0 = Bndfun.from_function(op, Domain(DOM1), exponents=(-1.0, -1.0))
         g = _change_map(f0, DOM2)
         f = _change_map(g, DOM1)
+        Xi, Yi, XRi = X[1:-1], Y[1:-1], XR[1:-1]
         assert np.all(
-            np.abs(np.asarray(f(X)) - np.asarray(g(Y)))
-            < 1e4 * np.abs(op(XR)) * f.vscale * EPS
+            np.abs(np.asarray(f(Xi)) - np.asarray(g(Yi)))
+            < 1e4 * np.abs(op(XRi)) * f.vscale * EPS
         )

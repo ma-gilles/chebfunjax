@@ -82,19 +82,28 @@ class TestBndfunConstructor:
 
         _bf(lambda x: jnp.stack([F(x), F(x)], axis=-1))
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks singular (blowup) Bndfun: "
-        "(x-a)^-0.5 (x-b)^-1.6 sin(x) cannot be constructed."
-    )
     def test_singular_function(self):
+        # Blowup at BOTH endpoints: exponents (-0.5, -1.6) (MATLAB bndfun
+        # with data.exponents=[-0.5 -1.6], pref.blowup).  The right base
+        # (x-b) is negative, so the fractional power is complex -- build with
+        # a complex base to match MATLAB's complex singfun.  Endpoints are
+        # poles (MATLAB samples random interior points), so compare interior.
         powl, powr = -0.5, -1.6
 
         def op(x):
-            return (x - DOM.a) ** powl * (x - DOM.b) ** powr * jnp.sin(x)
+            return (
+                (x - DOM.a).astype(jnp.complex128) ** powl
+                * (x - DOM.b).astype(jnp.complex128) ** powr
+                * jnp.sin(x)
+            )
 
-        f = _bf(op, n=17)
-        xr = np.linspace(-2.0, 7.0, 100)
-        vals_exact = op(xr)
+        f = Bndfun.from_function(op, DOM, exponents=(powl, powr))
+        xr = np.linspace(-2.0, 7.0, 100)[1:-1]
+        vals_exact = (
+            (xr - DOM.a).astype(complex) ** powl
+            * (xr - DOM.b).astype(complex) ** powr
+            * np.sin(xr)
+        )
         err = np.asarray(f(jnp.asarray(xr))) - vals_exact
         assert float(np.max(np.abs(err))) < 1e3 * EPS * float(
             np.max(np.abs(vals_exact))
