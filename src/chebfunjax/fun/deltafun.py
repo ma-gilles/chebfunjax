@@ -19,6 +19,10 @@ from chebfunjax.fun.bndfun import Bndfun
 # Machine epsilon for float64
 _EPS = float(jnp.finfo(jnp.float64).eps)
 
+# Relative distance below which an evaluation point is deemed to sit on a delta
+# location (MATLAB factory default pref.deltaPrefs.proximityTol).
+_PROXIMITY_TOL = 1e-11
+
 
 class Deltafun(eqx.Module):
     """Distribution of the form f(x) + Σ_k c_k δ(x − x_k).
@@ -220,11 +224,14 @@ class Deltafun(eqx.Module):
 
     @eqx.filter_jit
     def __call__(self, x: jax.Array) -> jax.Array:
-        """Evaluate the smooth part at x (ignoring delta contributions).
+        """Evaluate the Deltafun at ``x``.
 
-        Delta functions have no pointwise values; this method evaluates only
-        ``funPart(x)``.  Callers wanting to detect delta locations should
-        inspect ``self.delta_locs``.
+        Away from every delta location the value is that of the smooth
+        ``funPart``.  At a point coinciding (to within a relative
+        ``_PROXIMITY_TOL``) with a delta location the value is a signed
+        infinity ``Inf * sign(mag)`` when a first-order delta is present, or
+        ``NaN`` when only higher-order deltas sit there — mirroring MATLAB
+        ``@deltafun/feval.m``.
 
         Parameters
         ----------
@@ -234,7 +241,8 @@ class Deltafun(eqx.Module):
         Returns
         -------
         jax.Array, same shape as x
-            Values of the smooth part.
+            Values of the distribution (funPart values, or ±Inf/NaN at
+            delta locations).
 
         Notes
         -----
@@ -245,7 +253,41 @@ class Deltafun(eqx.Module):
         MATLAB source : @deltafun/feval.m
         Chebfun commit: 7574c77
         """
-        return self.funPart(x)
+        val = self.funPart(x)
+        # Fast path: a plain funPart with no deltas evaluates as its smooth
+        # part everywhere (the common case, and the only JIT-hot one).
+        if self.n_deltas == 0:
+            return val
+
+        xx = jnp.asarray(x, dtype=jnp.float64)
+        mags = self.delta_mags
+        mag0 = mags[0]
+        has_higher = mags.shape[0] > 1
+        # Apply each delta in turn so that, as in MATLAB's loop, a later
+        # coincident delta overwrites an earlier assignment.
+        for i in range(self.n_deltas):
+            loc = self.delta_locs[i]
+            d = xx - loc
+            # Relative proximity, guarding the divide-by-zero at loc == 0.
+            near = jnp.where(
+                loc == 0.0,
+                jnp.abs(d) < _PROXIMITY_TOL,
+                jnp.abs(d / loc) < _PROXIMITY_TOL,
+            )
+            m0 = mag0[i]
+            inf_val = jnp.inf * jnp.sign(m0)
+            if has_higher:
+                # First-order delta -> signed Inf; only higher-order -> NaN.
+                hi = jnp.any(mags[1:, i] != 0.0)
+                assign = jnp.where(
+                    jnp.abs(m0) > 0.0,
+                    inf_val,
+                    jnp.where(hi, jnp.nan, val),
+                )
+            else:
+                assign = jnp.where(jnp.abs(m0) > 0.0, inf_val, val)
+            val = jnp.where(near, assign, val)
+        return val
 
     # ------------------------------------------------------------------
     # Calculus
@@ -832,61 +874,137 @@ class Deltafun(eqx.Module):
         new_mags = jnp.concatenate([zero_rows, self.delta_mags], axis=0)
         return Deltafun(new_funPart, self.delta_locs, new_mags)
 
-    def cumsum(self) -> "Deltafun":
+    def cumsum(self):
         """Antiderivative in the distributional sense.
 
-        Integrates the smooth part and converts each delta δ(x − x_k) into
-        a Heaviside step H(x − x_k).  Higher-order delta derivatives are
-        shifted up (i.e., the first zero row is removed from delta_mags).
+        Integrates the smooth part and turns each first-order delta
+        :math:`\\delta(x - x_k)` into a jump (Heaviside step) of the same
+        magnitude; higher-order derivatives of deltas are integrated by
+        shifting the rows of the magnitude matrix up by one.  Following
+        MATLAB ``@deltafun/cumsum.m`` the return type varies:
+
+        * **No deltas** -> the plain ``funPart`` antiderivative (a Bndfun).
+        * **Only end-point jumps** (no interior delta) -> a single Bndfun
+          (or a Deltafun if higher-order deltas survive).
+        * **Interior deltas** -> a *list* of funs/Deltafuns, one per
+          sub-interval delimited by the jump locations (MATLAB's cell array).
 
         Returns
         -------
-        Deltafun
-            The antiderivative.
+        Bndfun, Deltafun, or list
+            The antiderivative in the form dictated above.
 
         Notes
         -----
-        NOT JIT-safe.
+        NOT JIT-safe (Python control flow, endpoint bookkeeping).
 
         Provenance
         ----------
         MATLAB source : @deltafun/cumsum.m
         Chebfun commit: 7574c77
         """
+        import numpy as _np
+
         if self.isempty():
             return Deltafun.empty()
-        new_funPart = self.funPart.cumsum()
 
-        if self.n_deltas == 0:
-            empty_locs = jnp.zeros(0, dtype=jnp.float64)
-            empty_mags = jnp.zeros((1, 0), dtype=jnp.float64)
-            return Deltafun(new_funPart, empty_locs, empty_mags)
+        deltaTol = self.DELTA_TOL
 
-        m, n_d = self.delta_mags.shape
-        plain_mags = self.delta_mags[0]  # shape (n_d,)
-        locs_py = [float(self.delta_locs[i]) for i in range(n_d)]
-        mags_py = [float(plain_mags[i]) for i in range(n_d)]
+        # ~anyDelta(f): no non-trivial deltas -> just integrate the funPart.
+        if not self.has_deltas:
+            return self.funPart.cumsum()
 
-        # Add Heaviside contributions to funPart
-        if any(abs(mag) > 0.0 for mag in mags_py):
-            def heaviside_correction(x: jax.Array) -> jax.Array:
-                out = jnp.zeros_like(x, dtype=jnp.float64)
-                for loc, mag in zip(locs_py, mags_py):
-                    out = out + mag * jnp.where(x >= loc, 1.0, 0.0).astype(jnp.float64)
-                return out
+        # Clean up delta functions (drop magnitudes below deltaTol).
+        f = self.simplify_deltas()
+        if f.n_deltas == 0:
+            return f.funPart.cumsum()
 
-            hside = Bndfun.from_function(heaviside_correction, self.funPart.domain)
-            combined = new_funPart + hside
+        deltaMag = _np.asarray(f.delta_mags)  # (M, N)
+        deltaLoc = _np.asarray(f.delta_locs)  # (N,)
+
+        # Locations where the first-order deltas introduce jumps.
+        idx = _np.abs(deltaMag[0, :]) >= deltaTol
+        jumpLocs = deltaLoc[idx]
+        jumpVals = list(deltaMag[0, idx])
+
+        # Remove the first row (it is being integrated) and drop columns that
+        # are now all-zero (MATLAB deltafun.cleanColumns).
+        if deltaMag.shape[0] > 1:
+            resMag = deltaMag[1:, :]
+            keep = _np.any(resMag != 0.0, axis=0)
+            resMag = resMag[:, keep]
+            resLoc = deltaLoc[keep]
         else:
-            combined = new_funPart
+            resMag = None
+            resLoc = None
 
-        if m > 1:
-            remaining_mags = self.delta_mags[1:]  # shape (m-1, n_d)
-            return Deltafun(combined, self.delta_locs, remaining_mags)
+        def _has_residual():
+            return resMag is not None and resLoc is not None \
+                and resMag.size > 0 and resLoc.size > 0
+
+        # No jumps at all: only higher-order deltas (or nothing) remain.
+        if jumpLocs.size == 0:
+            if _has_residual():
+                return Deltafun(f.funPart.cumsum(),
+                                jnp.asarray(resLoc),
+                                jnp.asarray(resMag))
+            return f.funPart.cumsum()
+
+        # There are jumps.  Handle the end points first.
+        dom = f.funPart.domain
+        a, b = float(dom.a), float(dom.b)
+
+        if jumpLocs[0] > a:
+            deltaLeft = 0
+            jumpVals = [0.0] + jumpVals
         else:
-            empty_locs = jnp.zeros(0, dtype=jnp.float64)
-            empty_mags = jnp.zeros((1, 0), dtype=jnp.float64)
-            return Deltafun(combined, empty_locs, empty_mags)
+            deltaLeft = 1
+        if jumpLocs[-1] < b:
+            deltaRight = 0
+            jumpVals = jumpVals + [0.0]
+        else:
+            deltaRight = 1
+
+        # If the only jumps sit at the end point(s) with no interior delta,
+        # integrate and add the (single) constant.
+        nJumps = jumpLocs.size
+        p1 = nJumps == 1 and deltaLeft
+        p2 = nJumps == 1 and deltaRight
+        p3 = nJumps == 2 and deltaLeft and deltaRight
+        if p1 or p2 or p3:
+            s = self.funPart.cumsum() + jumpVals[0]
+            if _has_residual():
+                return Deltafun(s, jnp.asarray(resLoc), jnp.asarray(resMag))
+            return s
+
+        # ---- Cell-array case: interior jumps split the domain. ----
+        breakPts = sorted(set([a, b] + [float(v) for v in jumpLocs]))
+        nfuns = len(breakPts) - 1
+        g = []
+        prevFunVal = 0.0
+        for k in range(nfuns):
+            dk_a, dk_b = breakPts[k], breakPts[k + 1]
+            fk = self.funPart.restrict(dk_a, dk_b).cumsum() \
+                + jumpVals[k] + prevFunVal
+            prevFunVal = float(fk(jnp.float64(dk_b)))
+
+            # Higher-order deltas strictly inside [dk_a, dk_b].
+            if _has_residual():
+                sel = (resLoc >= dk_a) & (resLoc <= dk_b)
+            else:
+                sel = None
+            if sel is not None and bool(_np.any(sel)):
+                lk = resLoc[sel]
+                mk = resMag[:, sel].copy()
+                # Split an end-point delta shared with the next fun in half.
+                if k <= nfuns - 2 and lk[-1] == dk_b:
+                    last = int(_np.where(sel)[0][-1])
+                    mk[:, -1] = resMag[:, last] / 2.0
+                g.append(Deltafun(fk, jnp.asarray(lk), jnp.asarray(mk)))
+            else:
+                g.append(fk)
+
+        return g
 
     # ------------------------------------------------------------------
     # Arithmetic

@@ -44,11 +44,6 @@ class TestSingfunTimes:
     def test_empty(self):
         pytest.skip("chebfunjax has no empty Singfun representation")
 
-    @pytest.mark.xfail(
-        reason="chebfunjax f*g of two smooth Singfuns always returns a Singfun; "
-        "it never demotes to a bare smoothfun/Chebtech2",
-        strict=True,
-    )
     def test_smooth_times_smooth_not_singfun(self):
         f = _sf(lambda x: jnp.sin(x), (0.0, 0.0))
         g = _sf(lambda x: jnp.cos(x), (0.0, 0.0))

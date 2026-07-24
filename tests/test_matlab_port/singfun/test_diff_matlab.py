@@ -44,11 +44,6 @@ class TestSingfunDiff:
         # MATLAB: diff(singfun()) is empty. chebfunjax has no empty Singfun.
         pytest.skip("chebfunjax has no empty Singfun representation")
 
-    @pytest.mark.xfail(
-        reason="chebfunjax diff always returns a Singfun; it never demotes a "
-        "smooth (zero-exponent) result to a bare smoothfun/Chebtech2",
-        strict=True,
-    )
     def test_smooth_returns_nonsingfun(self):
         f = _sf(lambda x: jnp.sin(x), (0.0, 0.0))
         g = f.diff()

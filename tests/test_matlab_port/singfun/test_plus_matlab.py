@@ -33,10 +33,16 @@ def _ninf(a):
     return float(jnp.max(jnp.abs(jnp.asarray(a))))
 
 
+def _exps(f):
+    # A smooth (all-zero-exponent) sum is demoted to a bare Chebtech2, which
+    # carries no `exponents` attribute; that corresponds to exponents (0, 0).
+    return tuple(f.exponents) if isinstance(f, Singfun) else (0.0, 0.0)
+
+
 def _isequal(f, g):
     # chebfunjax has no isequal method; MATLAB isequal compares exponents and
     # the (deterministically constructed) smooth-part coefficients.
-    if tuple(f.exponents) != tuple(g.exponents):
+    if _exps(f) != _exps(g):
         return False
     cf, cg = f.coeffs, g.coeffs
     return cf.shape == cg.shape and bool(jnp.array_equal(cf, cg))
@@ -46,11 +52,6 @@ class TestSingfunPlus:
     def test_empty(self):
         pytest.skip("chebfunjax has no empty Singfun representation")
 
-    @pytest.mark.xfail(
-        reason="chebfunjax f+g of two smooth Singfuns always returns a Singfun; "
-        "it never demotes to a bare smoothfun",
-        strict=True,
-    )
     def test_smooth_plus_smooth_not_singfun(self):
         f = _sf(lambda x: jnp.sin(x), (0.0, 0.0))
         g = _sf(lambda x: jnp.cos(x), (0.0, 0.0))
@@ -123,9 +124,11 @@ class TestSingfunPlus:
     def test_plus_vs_direct_construction(self):
         f = _sf(lambda x: x, (0.0, 0.0))
         g = _sf(lambda x: jnp.cos(x) - 1, (0.0, 0.0))
-        h1 = f + g
+        h1 = f + g  # smooth sum -> demoted to a bare Chebtech2
         h2 = _sf(lambda x: x + jnp.cos(x) - 1, (0.0, 0.0))
-        tol = 10 * max(h1.smoothPart.vscale * EPS, h2.smoothPart.vscale * EPS)
+        vs1 = getattr(h1, "smoothPart", h1).vscale
+        vs2 = getattr(h2, "smoothPart", h2).vscale
+        tol = 10 * max(vs1 * EPS, vs2 * EPS)
         assert _ninf(h1(X) - h2(X)) < tol
 
     @pytest.mark.xfail(

@@ -23,6 +23,32 @@ _EPS = float(jnp.finfo(jnp.float64).eps)
 _EXP_TOL = 1e-11
 
 
+def _demote_if_smooth(s):
+    """Demote a smooth Singfun to its bare smooth part.
+
+    Mirrors the closing block that every MATLAB ``@singfun`` arithmetic
+    method (``plus``, ``times``, ``rdivide``, ``diff``) shares::
+
+        if ( isa(f, 'singfun') && issmooth(f) )
+            f = f.smoothPart;
+        end
+
+    A Singfun whose exponents are both (numerically) zero carries no
+    singular structure, so the result of the operation is a plain
+    ``smoothfun`` (here a :class:`Chebtech2`) rather than a Singfun.
+    Non-Singfun inputs (already-demoted results, scalars) pass through.
+
+    Provenance
+    ----------
+    MATLAB source : @singfun/issmooth.m (all(exponents == 0)) and the
+    trailing demotion block in plus.m/times.m/rdivide.m/diff.m
+    Chebfun commit: 7574c77
+    """
+    if isinstance(s, Singfun) and s.issmooth:
+        return s.smoothPart
+    return s
+
+
 class Singfun(eqx.Module):
     """Function with algebraic endpoint singularities on [-1, 1].
 
@@ -353,11 +379,13 @@ class Singfun(eqx.Module):
                 self.exponents[0] + other.exponents[0],
                 self.exponents[1] + other.exponents[1],
             )
-            return Singfun(new_smoothPart, new_exps)
+            h = Singfun(new_smoothPart, new_exps)
         elif isinstance(other, Chebtech2):
-            return Singfun(self.smoothPart * other, self.exponents)
+            h = Singfun(self.smoothPart * other, self.exponents)
         else:
-            return Singfun(self.smoothPart * other, self.exponents)
+            h = Singfun(self.smoothPart * other, self.exponents)
+        # MATLAB @singfun/times.m: demote a smooth product to its smoothfun.
+        return _demote_if_smooth(h)
 
     def __rmul__(self, other) -> "Singfun":
         return self.__mul__(other)
@@ -396,9 +424,12 @@ class Singfun(eqx.Module):
 
             # MATLAB @singfun/rdivide (lines 87-88): cancel boundary roots
             # against negative exponents, then absorb integer exponents.
-            return s.cancelExponents().simplify()
+            # Then demote a smooth quotient to its bare smoothfun.
+            return _demote_if_smooth(s.cancelExponents().simplify())
         else:
-            return Singfun(self.smoothPart / other, self.exponents)
+            return _demote_if_smooth(
+                Singfun(self.smoothPart / other, self.exponents)
+            )
 
     def __rtruediv__(self, other) -> "Singfun":
         """scalar / Singfun."""
@@ -407,7 +438,9 @@ class Singfun(eqx.Module):
         # MATLAB @singfun/rdivide canonicalises the reciprocal's exponents:
         # absorb integer parts (>= 1) into the smooth part and cancel any
         # boundary roots, so e.g. 1/((1+x)^-3 (1-x)^-4) has exponents (0, 0).
-        return Singfun(new_smoothPart, new_exps).cancelExponents().simplify()
+        return _demote_if_smooth(
+            Singfun(new_smoothPart, new_exps).cancelExponents().simplify()
+        )
 
     def __add__(self, other) -> "Singfun":
         """Addition: f + g where g is a Singfun, Chebtech2, or scalar.
@@ -417,7 +450,9 @@ class Singfun(eqx.Module):
         still be expressed as a Singfun by factoring out the more-singular
         exponent (Case 2 in MATLAB Chebfun).  Otherwise a warning-free
         approximation is used by evaluating the sum pointwise and
-        re-constructing (Case 3).
+        re-constructing (Case 3).  A result whose exponents are both zero is
+        demoted to its bare smooth part, mirroring the ``issmooth`` block that
+        closes MATLAB ``@singfun/plus.m``.
 
         Provenance
         ----------
@@ -425,9 +460,11 @@ class Singfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         # MATLAB @singfun/plus (lines 29-33, 41-45): adding an exact zero
-        # returns the other operand unchanged.  Without this short-circuit a
-        # ``g - 0`` (e.g. cumsum's F(-1)=0 shift when lval == 0 at a positive
-        # fractional root) falls through to the Case-3 pointwise reconstruction,
+        # returns the other operand unchanged (an early return that bypasses
+        # the trailing issmooth demotion), so keep it here rather than in the
+        # demoting ``_plus`` helper.  Without this short-circuit a ``g - 0``
+        # (e.g. cumsum's F(-1)=0 shift when lval == 0 at a positive fractional
+        # root) falls through to the Case-3 pointwise reconstruction,
         # which takes ``new_a = min(exp, 0) = 0`` and silently collapses the
         # exponent — turning a one-coefficient singular function into a
         # 362-coefficient polynomial with ~5e-11 evaluation error.
@@ -435,6 +472,23 @@ class Singfun(eqx.Module):
             if other == 0:
                 return self
 
+        return _demote_if_smooth(self._plus(other))
+
+    def _plus(self, other) -> "Singfun":
+        """Raw Singfun addition without the trailing smooth-part demotion.
+
+        Splits out the Case 1/2/3 arithmetic of :meth:`__add__` so callers
+        that must keep a Singfun result mid-computation (e.g. the product
+        rule in :meth:`diff`, where an intermediate all-zero-exponent sum
+        must NOT be demoted before the next differentiation step) can reuse
+        it.  Public addition (:meth:`__add__`) wraps this in
+        :func:`_demote_if_smooth`.
+
+        Provenance
+        ----------
+        MATLAB source : @singfun/plus.m (Cases 1-3, pre-issmooth)
+        Chebfun commit: 7574c77
+        """
         # Upgrade scalar (real or complex) / Chebtech2 to a Singfun with zero
         # exponents.  Singfun.__init__ promotes a bare scalar to a constant
         # smooth part.
@@ -1010,10 +1064,11 @@ class Singfun(eqx.Module):
 
         Returns
         -------
-        Singfun
-            The *k*-th derivative.  If all exponents of the result are zero,
-            a Singfun with ``exponents=(0, 0)`` is returned (not a bare
-            Chebtech2, to keep the type consistent).
+        Singfun or Chebtech2
+            The *k*-th derivative.  If all exponents of the result are zero
+            the derivative is smooth and is demoted to a bare
+            :class:`Chebtech2` (mirroring the ``issmooth`` block that closes
+            MATLAB ``@singfun/diff.m``); otherwise a Singfun is returned.
 
         Notes
         -----
@@ -1036,18 +1091,25 @@ class Singfun(eqx.Module):
             s_term = Singfun(f.smoothPart.diff(), (a, b))
 
             # Second term: a * s(x) * (1+x)^(a-1) * (1-x)^b
+            # Use the raw (non-demoting) ``_plus`` so an intermediate all-zero
+            # exponent sum stays a Singfun for the next iteration; e.g. an
+            # integer exponent a == 1 makes s_term + a_term smooth, and
+            # demoting it to a Chebtech2 mid-loop would break ``f.exponents``
+            # on the next differentiation step (k > 1).
             if abs(a) > _EXP_TOL:
                 a_term = Singfun(f.smoothPart * a, (a - 1.0, b))
-                s_term = s_term + a_term
+                s_term = s_term._plus(a_term)
 
             # Third term: -b * s(x) * (1+x)^a * (1-x)^(b-1)
             if abs(b) > _EXP_TOL:
                 b_term = Singfun(f.smoothPart * (-b), (a, b - 1.0))
-                s_term = s_term + b_term
+                s_term = s_term._plus(b_term)
 
             f = s_term
 
-        return f
+        # MATLAB @singfun/diff.m (lines 73-74): demote a smooth derivative
+        # (all-zero exponents) to its bare smoothfun/Chebtech2.
+        return _demote_if_smooth(f)
 
     def chebcoeffs(self, N: int, kind: int = 1) -> jax.Array:
         r"""First ``N`` Chebyshev coefficients of the singular function ``f``.

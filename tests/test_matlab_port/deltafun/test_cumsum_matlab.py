@@ -33,10 +33,6 @@ class TestDeltafunCumsum:
         assert Deltafun.empty().cumsum().isempty()
 
     @pytest.mark.filterwarnings("ignore::UserWarning")
-    @pytest.mark.xfail(
-        reason="chebfunjax Deltafun.cumsum returns a Deltafun, not a cell array "
-        "of chebfuns as MATLAB does"
-    )
     def test_cumsum_returns_cell(self):
         # pass(2): F = cumsum(d); iscell(F)
         f = Bndfun.from_function(jnp.exp, DOM)
@@ -47,11 +43,6 @@ class TestDeltafunCumsum:
         assert isinstance(F, list)
 
     @pytest.mark.filterwarnings("ignore::UserWarning")
-    @pytest.mark.xfail(
-        reason="chebfunjax Deltafun.cumsum returns a Deltafun (not ~isa deltafun) "
-        "and evaluates the right-endpoint Heaviside with x >= loc, so "
-        "feval(F, 1) is ~0 instead of the MATLAB left-limit value -1"
-    )
     def test_cumsum_heaviside_endpoints(self):
         # pass(3): ~isa(F,'deltafun') && feval(F,-1)~=-1 && feval(F,1)~=-1
         f = Bndfun.from_function(lambda x: jnp.sin(jnp.pi * x), DOM)

@@ -32,10 +32,6 @@ def _ninf(a):
 
 
 class TestDeltafunFeval:
-    @pytest.mark.xfail(
-        reason="chebfunjax Deltafun.__call__ evaluates only funPart; it returns "
-        "a finite value at a delta location instead of +Inf"
-    )
     def test_positive_delta_is_plus_inf(self):
         # pass(1): isinf(feval(d,0)) && feval(d,0) > 0
         f = Bndfun.from_function(jnp.sin, DOM)
@@ -43,10 +39,6 @@ class TestDeltafunFeval:
         val = float(d(jnp.float64(0.0)))
         assert np.isinf(val) and val > 0
 
-    @pytest.mark.xfail(
-        reason="chebfunjax Deltafun.__call__ evaluates only funPart; it returns "
-        "a finite value at a delta location instead of -Inf"
-    )
     def test_negated_delta_is_minus_inf(self):
         # pass(2, first): isinf(feval(-d,0)) && feval(-d,0) < 0
         f = Bndfun.from_function(jnp.sin, DOM)
@@ -61,10 +53,6 @@ class TestDeltafunFeval:
         x = jnp.asarray(np.linspace(-0.9, 0.9, 4))
         assert _ninf(f(x) - d(x)) == 0.0
 
-    @pytest.mark.xfail(
-        reason="chebfunjax Deltafun.__call__ evaluates only funPart; it returns "
-        "finite values at delta locations instead of Inf"
-    )
     def test_eval_at_delta_locations_is_inf(self):
         # pass(3): all(isinf(feval(d,x))) where deltas sit at x
         f = Bndfun.from_function(jnp.sin, DOM)

@@ -34,8 +34,9 @@ def _ninf(a):
 
 
 def _vscale(f):
-    # MATLAB get(singfun, 'vscale') == vscale(smoothPart)
-    return f.smoothPart.vscale
+    # MATLAB get(singfun, 'vscale') == vscale(smoothPart).  A smooth quotient
+    # is demoted to a bare Chebtech2, whose own vscale is the smoothfun vscale.
+    return getattr(f, "smoothPart", f).vscale
 
 
 class TestSingfunRdivide:
@@ -45,11 +46,6 @@ class TestSingfunRdivide:
     def test_smoothfun_rdivide_singfun(self):
         pytest.skip("chebfunjax has no separate smoothfun class")
 
-    @pytest.mark.xfail(
-        reason="chebfunjax f/g of two smooth Singfuns always returns a Singfun; "
-        "it never demotes to a bare smoothfun",
-        strict=True,
-    )
     def test_smooth_div_smooth_not_singfun(self):
         f = _sf(lambda x: jnp.sin(x), (0.0, 0.0))
         g = _sf(lambda x: jnp.cos(x), (0.0, 0.0))
@@ -96,7 +92,11 @@ class TestSingfunRdivide:
         a, b = 3, 4
         g = _sf(lambda x: ((1 + x) ** -a) * ((1 - x) ** -b), (-float(a), -float(b)))
         h = 1.0 / g
-        assert all(e < 1 for e in h.exponents)
+        # 1/((1+x)^-3 (1-x)^-4) has positive *integer* exponents (3, 4) that
+        # simplify entirely into the smooth part, leaving a smooth result which
+        # is demoted to a bare Chebtech2 (i.e. exponents (0, 0), all < 1).
+        if isinstance(h, Singfun):
+            assert all(e < 1 for e in h.exponents)
 
     def test_simplify_positive_exponent(self):
         f = _sf(lambda x: 1 + x, (0.0, 0.0))

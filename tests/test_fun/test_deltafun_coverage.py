@@ -12,8 +12,6 @@ sign-and-scale operators must satisfy:
 
 from __future__ import annotations
 
-import warnings
-
 import jax.numpy as jnp
 import numpy as np
 import numpy.testing as npt
@@ -36,7 +34,9 @@ class TestCumsum:
     def test_cumsum_no_deltas_matches_funpart(self):
         df = Deltafun.from_function(jnp.sin, D)
         cs = df.cumsum()
-        assert cs.n_deltas == 0
+        # MATLAB @deltafun/cumsum: a delta-free Deltafun integrates to its
+        # bare funPart antiderivative (a Bndfun, not a Deltafun/cell array).
+        assert not isinstance(cs, (Deltafun, list))
         xs = jnp.linspace(-1, 1, 11)
         npt.assert_allclose(np.asarray(cs(xs)),
                             np.asarray(df.funPart.cumsum()(xs)), atol=1e-12)
@@ -44,23 +44,24 @@ class TestCumsum:
     def test_cumsum_delta_becomes_heaviside_step(self):
         mag, loc = 2.0, 0.3
         df = _cos_with_delta(mag, loc)
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")  # Heaviside -> unhappy chebfun (expected)
-            cs = df.cumsum()
-        # The delta is consumed into the smooth part -> no deltas remain.
-        assert cs.n_deltas == 0
+        cs = df.cumsum()
+        # MATLAB @deltafun/cumsum: an interior delta splits the domain at the
+        # jump, returning a cell array (Python list) of funs -- one on
+        # [-1, loc], one on [loc, 1] -- with an exact +mag step across the cut.
+        assert isinstance(cs, list) and len(cs) == 2
+        below, above = cs
 
         def smooth(x):  # ∫ cos from -1
             return np.sin(x) - np.sin(-1.0)
 
-        # Below the delta: no step; above the delta: +mag.
-        npt.assert_allclose(float(cs(jnp.array(-0.5))), smooth(-0.5), atol=1e-3)
-        npt.assert_allclose(float(cs(jnp.array(0.8))), smooth(0.8) + mag, atol=1e-3)
-        # The net step contributed by the delta, measured far from the jump
-        # (near the discontinuity the approximated Heaviside rings), equals mag.
-        step = (float(cs(jnp.array(0.8))) - smooth(0.8)) \
-            - (float(cs(jnp.array(-0.5))) - smooth(-0.5))
-        npt.assert_allclose(step, mag, atol=1e-3)
+        # Below the delta: no step; above the delta: +mag.  These are exact
+        # (no Heaviside ringing) because each piece is a smooth antiderivative.
+        npt.assert_allclose(float(below(jnp.array(-0.5))), smooth(-0.5), atol=1e-10)
+        npt.assert_allclose(float(above(jnp.array(0.8))), smooth(0.8) + mag,
+                            atol=1e-10)
+        step = (float(above(jnp.array(0.8))) - smooth(0.8)) \
+            - (float(below(jnp.array(-0.5))) - smooth(-0.5))
+        npt.assert_allclose(step, mag, atol=1e-10)
 
     def test_diff_then_cumsum_restores_delta(self):
         # d/dx: δ -> δ'; ∫: δ' -> δ.  The magnitude survives the round trip.
