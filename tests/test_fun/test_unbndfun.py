@@ -663,3 +663,107 @@ class TestUnbndfunValidation:
         d = Domain((-jnp.inf, 0.0, jnp.inf))
         with pytest.raises(ValueError, match="single-interval"):
             _validate_unbounded_domain(d)
+
+
+class TestUnbndfunExtrema:
+    """Mirror coverage for Unbndfun.minandmax, min, max, and roots."""
+
+    INF = float(np.inf)
+
+    def test_minandmax_decaying(self):
+        inf = float(np.inf)
+        f = Unbndfun.from_function(
+            lambda x: (1 - jnp.exp(-x ** 2)) / x, Domain((-inf, inf))
+        )
+        (mn, mnp), (mx, mxp) = f.minandmax()
+        npt.assert_allclose(float(mn), -0.6381726863389515, atol=1e-12)
+        npt.assert_allclose(float(mx), 0.6381726863389515, atol=1e-12)
+        npt.assert_allclose(float(mnp), -1.120906422778534, atol=1e-11)
+        npt.assert_allclose(float(mxp), 1.120906422778534, atol=1e-11)
+
+    def test_max_right_unbounded(self):
+        f = Unbndfun.from_function(
+            lambda x: x * jnp.exp(-x), Domain((1.0, float(np.inf)))
+        )
+        y, xpos = f.max()
+        npt.assert_allclose(float(y), np.exp(-1.0), atol=1e-12)
+        npt.assert_allclose(float(xpos), 1.0, atol=1e-10)
+
+    def test_min_right_unbounded(self):
+        # min of x e^{-x} on [1, inf) is 0 (attained as x -> inf).
+        f = Unbndfun.from_function(
+            lambda x: x * jnp.exp(-x), Domain((1.0, float(np.inf)))
+        )
+        y, _ = f.min()
+        assert abs(float(y)) < 1e-10
+
+
+class TestUnbndfunLinalg:
+    """Mirror coverage for Unbndfun mldivide, mrdivide, mtimes, cumsum(dim=2)."""
+
+    INF = float(np.inf)
+    DOM = (-float(np.inf), 3 * np.pi)
+
+    @staticmethod
+    def _opA(x):
+        return jnp.stack(
+            [jnp.exp(x), x * jnp.exp(x), (1 - jnp.exp(x)) / x], axis=-1
+        )
+
+    def _A(self):
+        return Unbndfun.from_function(self._opA, Domain(self.DOM))
+
+    def test_mldivide_exact_span(self):
+        A = self._A()
+
+        def opB(x):
+            return jnp.stack(
+                [(2 * x + 1) * jnp.exp(x), jnp.exp(x), 2 * (1 - jnp.exp(x)) / x],
+                axis=-1,
+            )
+
+        B = Unbndfun.from_function(opB, Domain(self.DOM))
+        X = np.asarray(A.mldivide(B))
+        # B's columns are exact linear combinations of A's columns.
+        npt.assert_allclose(
+            X, np.array([[1.0, 1.0, 0.0], [2.0, 0.0, 0.0], [0.0, 0.0, 2.0]]),
+            atol=1e-8,
+        )
+
+    def test_mldivide_type_error(self):
+        A = self._A()
+        with pytest.raises(TypeError):
+            A.mldivide(3)
+
+    def test_mrdivide_scalar_columnwise(self):
+        A = self._A()
+        X = A / 3.0
+        x = jnp.asarray(np.linspace(-1e2, 3 * np.pi, 40))
+        got = np.asarray(X(x))
+        exact = np.asarray(A(x)) / 3.0
+        npt.assert_allclose(got, exact, atol=1e-10)
+
+    def test_mrdivide_matrix_roundtrip(self):
+        A = self._A()
+        Bm = np.eye(3)
+        X = A / Bm
+        x = jnp.asarray(np.linspace(-1e2, 3 * np.pi, 40))
+        npt.assert_allclose(np.asarray((X @ Bm)(x)), np.asarray(A(x)), atol=1e-9)
+
+    def test_rmrdivide_raises(self):
+        A = self._A()
+        with pytest.raises(ValueError):
+            np.eye(3) / A
+
+    def test_cumsum_dim2_columns(self):
+        def op(x):
+            return jnp.stack([jnp.exp(x), x * jnp.exp(x)], axis=-1)
+
+        f = Unbndfun.from_function(op, Domain((-float(np.inf), -3 * np.pi)))
+        h = f.cumsum(dim=2)
+        x = jnp.asarray(np.linspace(-1e2, -3 * np.pi, 40))
+        exact = np.stack(
+            [np.exp(np.asarray(x)), np.exp(np.asarray(x)) * (1 + np.asarray(x))],
+            axis=-1,
+        )
+        npt.assert_allclose(np.asarray(h(x)), exact, atol=1e-12)

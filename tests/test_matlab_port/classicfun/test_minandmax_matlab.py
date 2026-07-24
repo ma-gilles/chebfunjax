@@ -20,9 +20,11 @@ import scipy.special as sp
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
+from chebfunjax.fun.unbndfun import Unbndfun
 
 EPS = float(np.finfo(np.float64).eps)
 DOM = Domain((-2.0, 7.0))
+INF = np.inf
 
 
 def _bf(op):
@@ -115,10 +117,18 @@ class TestClassicfunMinAndMax:
         assert np.max(np.abs(vals_abs - ref_abs)) < 100 * f.vscale * EPS
 
     @pytest.mark.xfail(
-        reason="chebfunjax lacks singular (exponents [-0.5 0]) Bndfun."
+        reason="Singular Bndfun (exponents (-0.5,0)) now BUILDS, but "
+        "Singfun.minandmax ignores the algebraic blowup: for (x-a)^-0.5 "
+        "sin(x)^2 it returns the smooth-part max (~0.14) instead of MATLAB's "
+        "+Inf.  Needs @singfun/minandmax blowup handling (tech/Singfun layer)."
     )
     def test_singular(self):
-        raise NotImplementedError("singular Bndfun minandmax")
+        pow_ = -0.5
+        op = lambda x: (x - DOM.a) ** pow_ * jnp.sin(x) ** 2
+        f = Bndfun.from_function(op, DOM, exponents=(pow_, 0.0))
+        (min_val, _), (max_val, _) = f.minandmax()
+        assert float(min_val) < 1e-10
+        assert not np.isfinite(float(max_val))  # MATLAB: +Inf
 
     def test_complex_array_valued_2(self):
         # MATLAB records the complex-array-valued minandmax assertion twice
@@ -128,8 +138,15 @@ class TestClassicfunMinAndMax:
             "assertion twice)"
         )
 
-    @pytest.mark.xfail(
-        reason="chebfunjax Unbndfun has no minandmax() method."
-    )
-    def test_unbndfun(self):
-        raise NotImplementedError("Unbndfun minandmax")
+    def test_unbndfun(self):  # pass(10): (1-e^{-x^2})/x on (-inf, inf)
+        f = Unbndfun.from_function(
+            lambda x: (1 - jnp.exp(-x ** 2)) / x, Domain((-INF, INF))
+        )
+        (min_val, min_pos), (max_val, max_pos) = f.minandmax()
+        v = np.array([complex(min_val), complex(max_val)])
+        p = np.array([float(min_pos), float(max_pos)])
+        v_exact = np.array([-0.6381726863389515, 0.6381726863389515])
+        p_exact = np.array([-1.120906422778534, 1.120906422778534])
+        vscale = float(f.vscale)
+        assert np.max(np.abs(v - v_exact)) < 1e1 * EPS * vscale
+        assert np.max(np.abs(p - p_exact)) < 1e2 * EPS * vscale

@@ -123,8 +123,10 @@ class TestClassicfunRoots:
         raise NotImplementedError("singular Bndfun roots")
 
     @pytest.mark.xfail(
-        reason="chebfunjax Unbndfun has no roots() method, and lacks the "
-        "blowup (exponents [2 2]) representation this test requires."
+        reason="Unbndfun.roots() now exists, but this test needs a BLOWUP "
+        "Unbndfun (exponents [2 2], polynomial growth at +-inf) which "
+        "chebfunjax's Unbndfun.from_function cannot construct (no exponents/"
+        "singular-Unbndfun support yet)."
     )
     def test_unbndfun_roots(self):
-        raise NotImplementedError("Unbndfun roots")
+        raise NotImplementedError("blowup Unbndfun roots")

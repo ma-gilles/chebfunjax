@@ -83,12 +83,6 @@ class TestUnbndfunCumsum:
         x = _pts((-1e6, -3 * np.pi))
         assert _ninf(g(x) - jnp.exp(x)) < 1e5 * EPS * g.vscale
 
-    @pytest.mark.xfail(
-        reason="Unbndfun array-valued construction/eval works, but Unbndfun.cumsum "
-        "raises on (n, m) funs: its integrand multiplies the (p, m) onefun values "
-        "by the (p,) map_derivative and the shapes fail to broadcast "
-        "(src gap in unbndfun.cumsum)."
-    )
     def test_cumsum_array_valued(self):
         op = lambda x: jnp.stack([jnp.exp(x), x * jnp.exp(x)], axis=-1)
         f = _U(op, (-INF, -3 * np.pi))
@@ -97,11 +91,15 @@ class TestUnbndfunCumsum:
         gexact = jnp.stack([jnp.exp(x), jnp.exp(x) * (x - 1)], axis=-1)
         assert _ninf(np.asarray(g(x)) - np.asarray(gexact)) < 5e5 * EPS * g.vscale
 
-    @pytest.mark.xfail(
-        reason="Unbndfun array-valued construction works, but Unbndfun.cumsum has "
-        "no dim=2 (cumulative sum across columns) argument."
-    )
     def test_cumsum_over_columns(self):
         # MATLAB: f = unbndfun(@(x) [exp(x) x.*exp(x)], [-inf -3*pi]);
-        #         h = cumsum(f, 2) -- cumulative sum across the 2 columns.
-        raise NotImplementedError("array-valued Unbndfun + dim=2 cumsum")
+        #         h = cumsum(f, 2) -- cumulative sum ACROSS the 2 columns,
+        # giving [exp(x)  exp(x) + x*exp(x)].
+        op = lambda x: jnp.stack([jnp.exp(x), x * jnp.exp(x)], axis=-1)
+        f = _U(op, (-INF, -3 * np.pi))
+        h = f.cumsum(dim=2)
+        x = _pts((-1e2, -3 * np.pi))
+        hexact = jnp.stack(
+            [jnp.exp(x), jnp.exp(x) + x * jnp.exp(x)], axis=-1
+        )
+        assert _ninf(np.asarray(h(x)) - np.asarray(hexact)) < 10 * EPS * h.vscale

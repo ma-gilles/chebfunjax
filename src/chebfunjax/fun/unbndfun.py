@@ -16,6 +16,7 @@ import jax
 import jax.numpy as jnp
 
 from chebfunjax.domain import Domain
+from chebfunjax.fun.classicfun import _is_matrix_operand
 from chebfunjax.tech.chebtech import Chebtech2
 from chebfunjax.utils.quadrature import legpts
 
@@ -243,6 +244,10 @@ class Unbndfun(eqx.Module):
     onefun: Chebtech2
     domain: Domain = eqx.field(static=True)
     mapping_type: str = eqx.field(static=True)
+
+    # Let numpy defer ``ndarray <op> Unbndfun`` (e.g. ``A / f``) to our
+    # reflected operators instead of broadcasting elementwise.
+    __array_ufunc__ = None
 
     # ------------------------------------------------------------------
     # Construction
@@ -639,7 +644,7 @@ class Unbndfun(eqx.Module):
 
         return result
 
-    def cumsum(self) -> "Unbndfun":
+    def cumsum(self, dim: int = 1) -> "Unbndfun":
         """Indefinite integral with the constant chosen so that F(left endpoint) = 0.
 
         Uses the substitution rule:
@@ -649,10 +654,18 @@ class Unbndfun(eqx.Module):
         and is represented as a new Chebtech2, whose ``cumsum`` (on [-1, 1])
         gives the antiderivative in reference coordinates.
 
+        Parameters
+        ----------
+        dim : int, default 1
+            ``dim=1`` integrates with respect to the continuous variable.
+            ``dim=2`` performs a cumulative sum ACROSS the columns of an
+            array-valued fun (MATLAB ``cumsum(f, 2)``), a purely algebraic
+            column operation that does not touch the map.
+
         Returns
         -------
         Unbndfun
-            The antiderivative on the same domain.
+            The antiderivative (``dim=1``) or column-cumulative fun (``dim=2``).
 
         Notes
         -----
@@ -663,12 +676,23 @@ class Unbndfun(eqx.Module):
         MATLAB source : @unbndfun/cumsum.m
         Chebfun commit: 7574c77
         """
+        if dim == 2:
+            coeffs = self.onefun.coeffs
+            if coeffs.ndim == 1:
+                return self
+            return self.with_tech(Chebtech2.from_coeffs(jnp.cumsum(coeffs, axis=1)))
         # Build onefun for the integrand: f(map(y)) * (dx/dy)
         # = self.onefun(y) * map_derivative(y).
         # At boundaries y=±1, map_derivative → ∞ while onefun → 0;
         # IEEE 754 gives 0 * ∞ = NaN, so we sanitise with nan_to_num.
         def integrand_fn(y: jax.Array) -> jax.Array:
-            raw = self.onefun(y) * self.map_derivative(y)
+            vals = self.onefun(y)
+            deriv = self.map_derivative(y)
+            # Array-valued onefun: vals is (p, m), deriv is (p,); broadcast
+            # the Jacobian across the m columns.
+            if vals.ndim > deriv.ndim:
+                deriv = deriv[..., None]
+            raw = vals * deriv
             return jnp.nan_to_num(raw, nan=0.0, posinf=0.0, neginf=0.0)
 
         integrand_onefun = Chebtech2.from_function(
@@ -777,6 +801,61 @@ class Unbndfun(eqx.Module):
             )
 
     # ------------------------------------------------------------------
+    # Rootfinding and extrema
+    # ------------------------------------------------------------------
+
+    def minandmax(
+        self,
+    ) -> tuple[tuple[jax.Array, jax.Array], tuple[jax.Array, jax.Array]]:
+        """Global minimum and maximum on the unbounded domain.
+
+        Computes the extrema of the underlying Chebtech2 on [-1, 1] (which
+        represents ``f`` composed with the unbounded map) and maps the
+        extremum positions back to the physical domain via the forward map.
+        Endpoint positions y = +-1 map to +-inf; for a decaying function the
+        extrema are attained at interior/finite points.
+
+        NOT JIT-safe.
+
+        Returns
+        -------
+        (min_val, min_pos) : tuple[jax.Array, jax.Array]
+        (max_val, max_pos) : tuple[jax.Array, jax.Array]
+
+        Provenance
+        ----------
+        MATLAB source : @classicfun/minandmax.m (shared by @unbndfun)
+        Chebfun commit: 7574c77
+        """
+        (min_val, min_y), (max_val, max_y) = self.onefun.minandmax()
+        return (
+            (min_val, self.forward_map(min_y)),
+            (max_val, self.forward_map(max_y)),
+        )
+
+    def min(self) -> tuple[jax.Array, jax.Array]:
+        """Global minimum on the unbounded domain.
+
+        Provenance
+        ----------
+        MATLAB source : @classicfun/min.m (shared by @unbndfun)
+        Chebfun commit: 7574c77
+        """
+        (min_val, min_pos), _ = self.minandmax()
+        return min_val, min_pos
+
+    def max(self) -> tuple[jax.Array, jax.Array]:
+        """Global maximum on the unbounded domain.
+
+        Provenance
+        ----------
+        MATLAB source : @classicfun/max.m (shared by @unbndfun)
+        Chebfun commit: 7574c77
+        """
+        _, (max_val, max_pos) = self.minandmax()
+        return max_val, max_pos
+
+    # ------------------------------------------------------------------
     # Arithmetic (pointwise; domains must match)
     # ------------------------------------------------------------------
 
@@ -844,21 +923,97 @@ class Unbndfun(eqx.Module):
     def __rmul__(self, other) -> "Unbndfun":
         return self.__mul__(other)
 
-    def __truediv__(self, other) -> "Unbndfun":
-        """Division.
+    def __matmul__(self, other) -> "Unbndfun":
+        """MATLAB mtimes ``f * A``: right-multiply an array-valued Unbndfun by
+        a numeric matrix, mixing its columns (``coeffs @ A``).
+
+        chebfunjax uses ``*`` for pointwise multiplication, so column-mixing
+        MATLAB ``*`` is exposed as ``@`` (matching Chebtech2 / Classicfun).
 
         Provenance
         ----------
-        MATLAB source : @classicfun/rdivide.m
+        MATLAB source : @unbndfun/mtimes.m
+        Chebfun commit: 7574c77
+        """
+        return self.with_tech(self.onefun @ other)
+
+    def __truediv__(self, other) -> "Unbndfun":
+        """Division.
+
+        A numeric-matrix divisor triggers MATLAB ``mrdivide`` (quasimatrix
+        right division / least squares); a scalar or Unbndfun divisor is
+        pointwise (``rdivide``).
+
+        Provenance
+        ----------
+        MATLAB source : @classicfun/rdivide.m, @unbndfun/mrdivide.m
         Chebfun commit: 7574c77
         """
         if isinstance(other, Unbndfun):
             self._check_domain(other)
             return Unbndfun(self.onefun / other.onefun, self.domain, self.mapping_type)
+        if _is_matrix_operand(other):
+            return self._mrdivide(other)
         return Unbndfun(self.onefun / other, self.domain, self.mapping_type)
 
     def __rtruediv__(self, other) -> "Unbndfun":
+        if _is_matrix_operand(other):
+            # MATLAB @unbndfun/mrdivide errors on double / unbndfun.
+            raise ValueError(
+                "/ does not support a numeric matrix divided by an Unbndfun."
+            )
         return Unbndfun(other / self.onefun, self.domain, self.mapping_type)
+
+    def _mrdivide(self, other) -> "Unbndfun":
+        """``f / B`` with ``B`` a numeric matrix (MATLAB mrdivide).
+
+        Solves ``X B = f`` column-wise; for the finite column matrix ``B``
+        this reduces to ``X.coeffs = f.coeffs B^+``.
+
+        Provenance
+        ----------
+        MATLAB source : @unbndfun/mrdivide.m, @chebtech/mrdivide.m
+        Chebfun commit: 7574c77
+        """
+        B = jnp.asarray(other, dtype=jnp.result_type(other, jnp.float64))
+        if B.ndim == 1:
+            B = B[None, :]
+        coeffs = self.onefun.coeffs
+        coeffs2 = coeffs if coeffs.ndim == 2 else coeffs[:, None]
+        m = coeffs2.shape[1]
+        if B.shape[1] != m:
+            raise ValueError(
+                "CHEBFUN:UNBNDFUN:mrdivide:size Matrix dimensions must agree."
+            )
+        new_coeffs = coeffs2 @ jnp.linalg.pinv(B)
+        if new_coeffs.shape[1] == 1:
+            new_coeffs = new_coeffs[:, 0]
+        return self.with_tech(Chebtech2.from_coeffs(new_coeffs))
+
+    def mldivide(self, other: "Unbndfun") -> jax.Array:
+        """``f \\ g`` (mldivide): least-squares expansion of ``g`` in ``f``.
+
+        Mirrors MATLAB ``@unbndfun/mldivide`` (``X = A.onefun \\ B.onefun``):
+        the solve happens purely in the [-1, 1] coefficient representation, so
+        it is computed by wrapping both onefuns as Bndfuns on [-1, 1] (where
+        the QR rescale is unity) and calling :meth:`Bndfun.mldivide`.
+
+        Provenance
+        ----------
+        MATLAB source : @unbndfun/mldivide.m, @chebtech/mldivide.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.fun.bndfun import Bndfun
+
+        if not isinstance(other, Unbndfun):
+            raise TypeError(
+                "Arguments to Unbndfun mldivide must both be Unbndfun objects."
+            )
+        self._check_domain(other)
+        d = Domain((-1.0, 1.0))
+        A = Bndfun.from_chebtech(self.onefun, d)
+        B = Bndfun.from_chebtech(other.onefun, d)
+        return A.mldivide(B)
 
     def __pow__(self, exponent) -> "Unbndfun":
         """Raise to a power."""

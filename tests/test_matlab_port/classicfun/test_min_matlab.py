@@ -105,8 +105,10 @@ class TestClassicfunMin:
         assert np.max(np.abs(fx - exact)) < tol
 
     @pytest.mark.xfail(
-        reason="chebfunjax Unbndfun has no min()/minandmax() method, and lacks "
-        "the blowup (exponents [0 -1]) representation this test requires."
+        reason="Unbndfun.min()/minandmax() now exist, but this test needs a "
+        "BLOWUP Unbndfun (exponents [0 -1], y=-Inf at the finite endpoint) "
+        "which chebfunjax's Unbndfun.from_function cannot construct (no "
+        "exponents/singular-Unbndfun support yet)."
     )
     def test_unbndfun_min(self):
-        raise NotImplementedError("Unbndfun min")
+        raise NotImplementedError("blowup Unbndfun min")

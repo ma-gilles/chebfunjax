@@ -15,14 +15,15 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 import scipy.special as sp
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
+from chebfunjax.fun.unbndfun import Unbndfun
 
 EPS = float(np.finfo(np.float64).eps)
 DOM = Domain((-2.0, 7.0))
+INF = np.inf
 
 
 def _bf(op):
@@ -107,8 +108,8 @@ class TestClassicfunMax:
         assert np.max(np.abs(y - exact)) < 10 * tol
         assert np.max(np.abs(fx - exact)) < tol
 
-    @pytest.mark.xfail(
-        reason="chebfunjax Unbndfun has no max()/minandmax() method."
-    )
-    def test_unbndfun_max(self):
-        raise NotImplementedError("Unbndfun max")
+    def test_unbndfun_max(self):  # pass(8): x e^{-x} on [1, inf)
+        f = Unbndfun.from_function(lambda x: x * jnp.exp(-x), Domain((1.0, INF)))
+        y, xpos = f.max()
+        err = np.abs(complex(y) - np.exp(-1.0)) + np.abs(float(xpos) - 1.0)
+        assert err < 1e3 * EPS * float(f.vscale)

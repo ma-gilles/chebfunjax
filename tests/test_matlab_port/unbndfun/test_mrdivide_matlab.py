@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.unbndfun import Unbndfun
@@ -42,9 +41,18 @@ class TestUnbndfunMrdivide:
         err = float(jnp.max(jnp.abs(X(x) - op_exact(x))))
         assert err < 1e1 * EPS * X.vscale
 
-    @pytest.mark.xfail(
-        reason="chebfunjax Unbndfun has no matrix mrdivide (A/B with B a 3x3 "
-        "matrix); array-valued Unbndfun itself now works."
-    )
     def test_array_valued_over_matrix(self):
-        raise NotImplementedError("Unbndfun / matrix mrdivide")
+        # pass(2): A/B with B a 3x3 matrix; residual X*B - A ~ 0 (mtimes).
+        op = lambda x: jnp.stack(
+            [jnp.exp(x), x * jnp.exp(x), (1 - jnp.exp(x)) / x], axis=-1
+        )
+        A = Unbndfun.from_function(op, Domain((-INF, 3 * np.pi)))
+        rng = np.random.default_rng(6178)
+        Bm = rng.random((3, 3))
+        X = A / Bm
+        res = X @ Bm - A
+        # MATLAB samples random INTERIOR points; the exp columns peak at the
+        # finite endpoint x=3*pi, so stop just short of it.
+        x = jnp.asarray(np.linspace(-1e6, 3 * np.pi, 100)[:-1])
+        err = float(np.max(np.abs(np.asarray(res(x)))))
+        assert err < 1e1 * EPS * float(X.vscale)
