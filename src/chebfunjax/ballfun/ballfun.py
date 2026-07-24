@@ -138,7 +138,12 @@ def _impose_bmc(g: np.ndarray, h: np.ndarray) -> tuple[np.ndarray, bool]:
     # h0 excludes the lambda=0 duplicate (index 1 in 0-based)
     g0 = g[0, :, :]  # (n_g, p_g)
     h0 = h[0, 1:, :]  # (n_half, p_g) — excludes lambda=0 (already in g)
-    m_zero_r = float(np.real(np.mean(np.concatenate([g0.ravel(), h0.ravel()]))))
+    # NOTE: no real() cast here -- MATLAB keeps the complex mean.  A real
+    # cast zeroed the r=0 value of complex functions (e.g. 1j*cos(y) has
+    # f(0)=1j), planting a jump at the origin in the doubled data whose
+    # O(1/m) alternating radial Chebyshev tail kept the constructor
+    # unhappy all the way to max_sample (found via a 900 s CI timeout).
+    m_zero_r = complex(np.mean(np.concatenate([g0.ravel(), h0.ravel()])))
     g[0, :, :] = m_zero_r
     h[0, :, :] = m_zero_r
 
@@ -1885,35 +1890,65 @@ class Ballfun(eqx.Module):
     def cosh(self):
         return self.compose(jnp.cosh)
 
+    def _conj_pair(self):
+        """Padded coefficients of f and of conj(f).
+
+        With the CFF expansion f = sum C[a,b,c] T_a(r) e^{i k_b lam}
+        e^{i k_c th} (T_a real), conj(f) has coefficients conj(C) with
+        both Fourier indices reflected k -> -k.  Each Fourier axis is
+        zero-padded by one slot at each end so the extreme negative
+        mode's conjugate (+n/2) is representable; sizes stay even.
+        """
+        C = jnp.pad(jnp.asarray(self.coeffs, dtype=jnp.complex128),
+                    ((0, 0), (1, 1), (1, 1)))
+        D = jnp.conj(C)
+        for ax in (1, 2):
+            D = jnp.roll(jnp.flip(D, axis=ax), 1, axis=ax)
+        return C, D
+
     def real(self) -> "Ballfun":
-        """Real part of f (MATLAB real): re-approximates ``Re f``.
+        """Real part of f (MATLAB real).
+
+        Computed structurally in coefficient space as (f + conj f)/2 --
+        an exact index-reflection identity (equivalent to MATLAB's
+        compose route, without the re-approximation).
 
         Provenance
         ----------
         MATLAB source : @ballfun/real.m
         Chebfun commit: 7574c77
         """
-        return self.compose(jnp.real)
+        if self.is_real:
+            return self
+        C, D = self._conj_pair()
+        return Ballfun.from_coeffs((C + D) / 2.0, is_real=True)
 
     def imag(self) -> "Ballfun":
-        """Imaginary part of f (MATLAB imag).
+        """Imaginary part of f (MATLAB imag), structural (see real).
 
         Provenance
         ----------
         MATLAB source : @ballfun/imag.m
         Chebfun commit: 7574c77
         """
-        return self.compose(jnp.imag)
+        if self.is_real:
+            return Ballfun.from_coeffs(jnp.zeros_like(self.coeffs),
+                                       is_real=True)
+        C, D = self._conj_pair()
+        return Ballfun.from_coeffs((C - D) / 2.0j, is_real=True)
 
     def conj(self) -> "Ballfun":
-        """Complex conjugate of f (MATLAB conj).
+        """Complex conjugate of f (MATLAB conj), structural (see real).
 
         Provenance
         ----------
         MATLAB source : @ballfun/conj.m
         Chebfun commit: 7574c77
         """
-        return self.compose(jnp.conj)
+        if self.is_real:
+            return self
+        _, D = self._conj_pair()
+        return Ballfun.from_coeffs(D, is_real=False)
 
     def abs(self) -> "Ballfun":
         """Absolute value of f (MATLAB abs): re-approximates ``|f|``.
