@@ -11,10 +11,37 @@ counterparts (1,105 port files). Final run:
 
 | Status | Count | Meaning |
 |---|---:|---|
-| **passed** | 2,291 | ported at MATLAB tolerances and passing |
-| **skipped** | 658 | test written; the feature does not exist (reason string names it) |
+| **passed** | 2,534 | ported at MATLAB tolerances and passing |
+| **skipped** | 580 | test written; the feature does not exist (reason string names it) |
 | **xfailed** | 375 | known library bug or convention gap, with evidence in the reason |
 | **failed** | **0** | |
+
+*(2026-07-24 fresh full accounting (chunked per-directory, zero
+failures): 2,534 / 0 / 580 / 375 -- +243 passes, -78 skips in the
+2026-07-22/23 wave.  Landed: SingFun wired into the chebfun factory
+(exps/blowup/singType, singular sqrt, isfinite/isinf/isnan on
+exponents); chebfun-level UNBOUNDED domains (Unbndfun piece protocol;
+also fixed f+f/-f/f+c returning NaN on unbounded domains); chebop
+periodic + piecewise-coefficient eigs, interior jump conditions,
+sign/breakpoint solves (margins 9x-3000x); chebop2 audit (24 blanket
+skips re-reasoned specifically) + the coefficient-space ULTRASPHERICAL
+solve path -- MATLAB's actual method, ~eps accuracy where the
+value-space solver floored at 1e-12 (14 files flipped: battery/
+helmholtz/rhs/transport/neumann/domain/linearKDV/eulerTricomi/
+generalVariableCoefficients/schrodinger/...); the COMPLETE Chebfun3v
+surface (27 files, 953-line class mirroring chebfun2v; norm() now the
+MATLAB Frobenius scalar, pointwise magnitude -> magnitude()); diskfun
+composition/power/minandmax2est/line-integral/coefficient-constructor
++ diskfunv vertcat; chebfun2/3 dimensional max/min/max2/min2, std(dim),
+complex(), sample; both guide files ported (31 of 33 passes live; new
+Chebfun2.on_curve + Chebfun2v.normal + Chebfun2v.integral);
+repeatedArithmetic flip (compression skip was stale).  REAL BUG #16
+fixed: ballfun's _impose_bmc real()-cast the r=0 BMC mean, breaking
+every complex-valued construction (jump at origin -> radial grid 1643,
+1.2e-3 error, 900 s CI timeouts); now machine precision at radial 15,
+plus structural coefficient-space real/imag/conj.  CI port shards
+re-split (sphere/disk-ball/operators, 90-min cap) after the tree
+outgrew the 60-minute jobs.)*
 
 *(2026-07-20 fresh full accounting (chunked per-directory run, zero
 failures): 2,291 / 0 / 658 / 375.  Since the last count: Bezout
