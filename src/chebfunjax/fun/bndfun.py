@@ -244,7 +244,16 @@ class Bndfun(Classicfun):
         # Then restrict self.onefun (which lives on [-1, 1]) to [t_a, t_b]:
         t_a = self.domain.inverse_map(jnp.float64(a))
         t_b = self.domain.inverse_map(jnp.float64(b))
-        new_onefun = self.onefun.restrict(float(t_a), float(t_b))
+        # Chebtech2.restrict takes two scalar endpoints; Singfun.restrict
+        # takes an increasing sequence (a partition).  A singular onefun
+        # restricted to a subinterval that avoids the singular endpoint
+        # returns a bare smooth piece.
+        from chebfunjax.fun.singfun import Singfun
+
+        if isinstance(self.onefun, Singfun):
+            new_onefun = self.onefun.restrict([float(t_a), float(t_b)])
+        else:
+            new_onefun = self.onefun.restrict(float(t_a), float(t_b))
 
         return Bndfun(onefun=new_onefun, domain=new_domain)
 

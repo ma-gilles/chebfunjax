@@ -129,13 +129,18 @@ class TestBndfunRestrict:
             (-1.0, -0.7),
         )
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks singular (blowup) Bndfun: (x-a)^-0.5 sin(x)."
-    )
     def test_singular_spotcheck(self):
+        # (x-a)^-0.5 sin(x) with a blowup at the left endpoint; restrict to a
+        # subinterval that avoids the singularity yields a smooth piece.
         pow_ = -0.5
 
         def op(x):
             return (x - DOM.a) ** pow_ * jnp.sin(x)
 
-        assert _spotcheck_restrict(op, (-1.0, -0.7), n=17)
+        f = Bndfun.from_function(op, DOM, exponents=(pow_, 0.0))
+        a, b = -1.0, -0.7
+        g = f.restrict(a, b)
+        xr = np.linspace(a, b, 100)
+        y_exact = np.asarray(op(jnp.asarray(xr)))
+        y_approx = np.asarray(g(jnp.asarray(xr)))
+        assert float(np.max(np.abs(y_exact - y_approx))) < 8e4 * f.vscale * EPS

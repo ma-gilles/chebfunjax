@@ -824,3 +824,19 @@ class TestBndfunLinalg:
             lambda x: (x + 2.0) ** -0.5 * jnp.sin(x), self.DOM, exponents=(-0.5, 0.0)
         )
         assert abs(complex(f.sum()) - (-1.92205524578386613)) < 1e-12
+
+    def test_singular_restrict_smooth_piece(self):
+        # Restrict a blowup fun to a subinterval avoiding the singular
+        # endpoint -> a smooth (Chebtech2-backed) piece matching the function.
+        import jax.numpy as _jnp
+
+        from chebfunjax.tech.chebtech import Chebtech2 as _C2
+
+        f = Bndfun.from_function(
+            lambda x: (x + 2.0) ** -0.5 * _jnp.sin(x), self.DOM, exponents=(-0.5, 0.0)
+        )
+        g = f.restrict(-1.0, -0.7)
+        assert isinstance(g.onefun, _C2)
+        xr = np.linspace(-1.0, -0.7, 50)
+        exact = (xr + 2.0) ** -0.5 * np.sin(xr)
+        npt.assert_allclose(np.asarray(g(jnp.asarray(xr))), exact, atol=1e-11)

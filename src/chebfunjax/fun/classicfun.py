@@ -24,14 +24,17 @@ def _gammaln(x: jax.Array) -> jax.Array:
 
 
 def _is_matrix_operand(other) -> bool:
-    """True if ``other`` is a numeric array acting as a matrix (ndim >= 1).
+    """True if ``other`` is a numeric array acting as a matrix (ndim >= 2).
 
-    Scalars (Python numbers, 0-d arrays) and funs are excluded, so they keep
-    the pointwise ``rdivide`` / ``mtimes`` behaviour.
+    MATLAB matrices map to 2-D numpy arrays (``np.eye(2)``,
+    ``np.array([[1, 1]])``), which trigger mrdivide/mtimes semantics.
+    1-D arrays are this codebase's array-valued POINTWISE row convention
+    (``f / [a, b]`` divides column k by ``[a, b][k]``, per the rdivide
+    ports) and must stay pointwise; scalars and funs likewise.
     """
     if isinstance(other, Classicfun):
         return False
-    return hasattr(other, "ndim") and not callable(other) and other.ndim >= 1
+    return hasattr(other, "ndim") and not callable(other) and other.ndim >= 2
 
 
 def _is_scalar_zero(other) -> bool:
