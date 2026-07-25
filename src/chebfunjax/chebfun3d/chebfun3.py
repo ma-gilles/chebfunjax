@@ -1273,6 +1273,51 @@ class Chebfun3(eqx.Module):
             domain=d)
         return sv, g
 
+    def _compress(self, tol: float | None = None) -> "Chebfun3":
+        """Recompress the Tucker representation via truncated HOSVD.
+
+        Drops the trailing mode-k directions whose singular values fall
+        below ``tol`` relative to the dominant one, restoring the minimal
+        rank after exact-but-rank-inflating operations (block-diagonal
+        plus).  Returns ``self`` unchanged when nothing truncates.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/plus.m (the constructor recompression
+        its active path performs), via @chebfun3/hosvd.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        # hosvd is real-valued (float64 factors + real core); compressing
+        # a complex representation through it would silently discard the
+        # imaginary part.  Keep complex sums in their exact block-diagonal
+        # form instead.
+        if jnp.iscomplexobj(self.core) or any(
+                jnp.iscomplexobj(c.coeffs)
+                for c in list(self.cols) + list(self.rows)
+                + list(self.tubes)):
+            return self
+
+        sv, g = self.hosvd()
+        if tol is None:
+            tol = 10.0 * _EPS
+        smax = max(float(_np.max(_np.asarray(s))) for s in sv)
+        if smax == 0.0:
+            return self
+        keep = []
+        for s in sv:
+            sn = _np.asarray(s)
+            keep.append(max(1, int(_np.sum(sn > tol * smax))))
+        if tuple(keep) == tuple(self.core.shape):
+            return self
+        k0, k1, k2 = keep
+        return Chebfun3(
+            cols=list(g.cols[:k0]), rows=list(g.rows[:k1]),
+            tubes=list(g.tubes[:k2]),
+            core=g.core[:k0, :k1, :k2],
+            domain=self.domain)
+
     @eqx.filter_jit
     def sum3(self) -> jax.Array:
         """Definite triple integral over the domain.
@@ -1624,15 +1669,16 @@ class Chebfun3(eqx.Module):
                         domain=self.domain)
 
     def __add__(self, other) -> "Chebfun3":
-        """f + g by re-approximating the pointwise sum with the constructor.
+        """f + g: exact block-diagonal Tucker embedding, then compression.
 
-        This mirrors the *active* code path of MATLAB ``@chebfun3/plus.m``,
-        which rebuilds the sum through the Chebfun3 constructor
-        (``h = chebfun3(@(x,y,z) f+g, ...)``) rather than the commented-out
-        ``compressed_plus`` block-diagonal embedding.  Reconstruction yields
-        the minimal-rank Tucker representation of the sum (so ``rank(f+f)``
-        stays ``rank(f)`` instead of doubling), and is exact to constructor
-        tolerance.
+        The embedding is exact; the truncated-HOSVD compression then
+        restores the minimal Tucker rank (so ``rank(f+f)`` stays
+        ``rank(f)`` instead of doubling), which is what MATLAB's
+        constructor-based ``@chebfun3/plus.m`` achieves.  A previous
+        version re-approximated the sum through the full adaptive
+        constructor instead -- semantically the MATLAB path, but it made
+        EVERY addition cost a 3D adaptive construction and hung the abs/
+        compose chains for ~30 minutes on CI.
 
         Provenance
         ----------
@@ -1641,9 +1687,20 @@ class Chebfun3(eqx.Module):
         """
         if isinstance(other, Chebfun3):
             self._check_same_domain(other)
-            return Chebfun3.from_function(
-                lambda x, y, z: self(x, y, z) + other(x, y, z),
+            r1 = self.core.shape
+            r2 = other.core.shape
+            dt = jnp.result_type(self.core.dtype, other.core.dtype)
+            core = jnp.zeros((r1[0] + r2[0], r1[1] + r2[1],
+                              r1[2] + r2[2]), dtype=dt)
+            core = core.at[:r1[0], :r1[1], :r1[2]].set(self.core)
+            core = core.at[r1[0]:, r1[1]:, r1[2]:].set(other.core)
+            out = Chebfun3(
+                cols=list(self.cols) + list(other.cols),
+                rows=list(self.rows) + list(other.rows),
+                tubes=list(self.tubes) + list(other.tubes),
+                core=core,
                 domain=self.domain)
+            return out._compress()
         if isinstance(other, (int, float, complex)):
             return self + self._const_like(other)
         return NotImplemented
