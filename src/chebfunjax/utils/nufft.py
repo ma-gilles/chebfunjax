@@ -139,16 +139,25 @@ def inufft(
     F: np.ndarray,
     x: np.ndarray,
     tol: float = 1e-12,
+    nufft_type: int = 2,
 ) -> np.ndarray:
-    r"""Inverse non-uniform FFT (type 2).
+    r"""Inverse non-uniform FFT.
 
-    Given non-uniform function values ``F_j`` at nodes ``x_j in [0, 1)``,
-    recovers the Fourier coefficients ``c_k`` satisfying
+    With ``nufft_type=2`` (the default), given non-uniform function values
+    ``F_j`` at nodes ``x_j in [0, 1)``, recovers the Fourier coefficients
+    ``c_k`` satisfying the **type-2** relation
 
-        F_j = sum_{k=0}^{N-1} c_k * exp(-2*pi*i * x_j * k)
+        F_j = sum_{k=0}^{N-1} c_k * exp(-2*pi*i * x_j * k)      (uniform k)
 
-    by solving the NUFFT normal equations iteratively (conjugate gradient on
-    the normal equations).
+    With ``nufft_type=1`` it inverts the **type-1** (adjoint) relation, in
+    which the output indices are uniform and the frequencies are the
+    non-uniform nodes,
+
+        F_j = sum_{k=0}^{N-1} c_k * exp(-2*pi*i * j * x_k)      (uniform j)
+
+    i.e. the same coefficients solve the transposed linear system.  Both
+    variants are obtained by a direct dense solve of the corresponding
+    Vandermonde-type system.
 
     Parameters
     ----------
@@ -158,6 +167,8 @@ def inufft(
         Non-uniform nodes in ``[0, 1)``.
     tol : float, optional
         Target accuracy.  Default ``1e-12``.
+    nufft_type : {1, 2}, optional
+        Which forward transform to invert.  Default ``2``.
 
     Returns
     -------
@@ -201,11 +212,20 @@ def inufft(
     x = np.asarray(x, dtype=float).ravel()
     N = len(F)
 
-    # Build the NUFFT matrix A_{jk} = exp(-2*pi*i*x_j*k)
-    # and solve A @ c = F via least-squares.
-    # For M = N (square system) this is solved directly; for overdetermined use lstsq.
+    # Build the appropriate transform matrix and solve A @ c = F via
+    # least-squares.  For M = N (square system) this is a direct solve; for
+    # an overdetermined system lstsq returns the minimum-residual solution.
     k = np.arange(N, dtype=float)
-    A = np.exp(-2j * np.pi * np.outer(x, k))  # (M, N)
+    if nufft_type == 2:
+        # Type-2 matrix: non-uniform rows x_j, uniform columns k.
+        A = np.exp(-2j * np.pi * np.outer(x, k))  # (M, N)
+    elif nufft_type == 1:
+        # Type-1 (adjoint) matrix: uniform rows j, non-uniform columns x_k.
+        A = np.exp(-2j * np.pi * np.outer(k, x))  # (M, N)
+    else:
+        raise ValueError(
+            f"inufft: unsupported nufft_type={nufft_type}. Use 1 or 2."
+        )
     c, _, _, _ = np.linalg.lstsq(A, F, rcond=None)
     return c
 

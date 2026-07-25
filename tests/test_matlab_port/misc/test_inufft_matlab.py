@@ -22,7 +22,10 @@ RNG = np.random.default_rng(0)
 
 
 class TestInufft:
-    @pytest.mark.parametrize("N", [1, 10, 100, 1000])
+    # N=1000 takes ~290 s (dense reference solve dominates); give it
+    # headroom beyond the default 300 s so contention cannot flake it.
+    @pytest.mark.parametrize(
+        "N", [1, 10, 100, pytest.param(1000, marks=pytest.mark.timeout(890))])
     def test_recovers_direct_solve(self, N):
         # chebfunjax inufft inverts its type-2 matrix
         # A[j,k] = e^{-2 pi i x_j k}; MATLAB's inufft(...,1) inverts the
@@ -38,9 +41,6 @@ class TestInufft:
         err = float(np.max(np.abs(exact - fast)))
         assert err < 4000 * N * EPS * float(np.sum(np.abs(c)))
 
-    @pytest.mark.xfail(reason="chebfunjax inufft exposes only the "
-                       "type-2 inverse; MATLAB's type-1 inverse "
-                       "(transpose system) is not available")
     def test_matlab_type1_convention(self):
         N = 10
         omega = np.arange(N, dtype=float) + 0.4 * RNG.uniform(size=N)

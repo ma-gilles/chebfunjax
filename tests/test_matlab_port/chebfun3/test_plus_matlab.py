@@ -46,8 +46,9 @@ class TestChebfun3Plus:
 
     def test_rank_not_inflated(self):
         # MATLAB pass(4): rank(f+f) == rank(f) after compression.
+        # Chebfun3.plus rebuilds the sum through the constructor (MATLAB's
+        # active plus path), so the Tucker rank stays minimal.
         f = Chebfun3.from_function(lambda x, y, z: x)
         g = f + f
         assert maxdiff(g, lambda x, y, z: 2 * x) < TOL
-        pytest.xfail("chebfunjax Chebfun3.plus does not compress: "
-                     "rank(f+f) = 2*rank(f); values are exact")
+        assert g.rank == f.rank == (1, 1, 1)

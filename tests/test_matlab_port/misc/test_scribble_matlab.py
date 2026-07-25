@@ -10,8 +10,6 @@ from __future__ import annotations
 
 import warnings
 
-import pytest
-
 from chebfunjax.utils.scribble import scribble
 
 
@@ -24,10 +22,6 @@ class TestScribble:
             s = scribble(c)
         assert s is not None
 
-    @pytest.mark.xfail(
-        reason="chebfunjax scribble lacks MATLAB's full character set: "
-        '; : " ` _ ( ) [ ] { } * / ^ = < > backslash | % # ~ @ $ & '
-        "warn as unsupported")
     def test_full_matlab_character_set(self):
         c = ("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,;:?!'\"`_ )([]{}"
              "-+*/^=<>\\|%#~@$&")

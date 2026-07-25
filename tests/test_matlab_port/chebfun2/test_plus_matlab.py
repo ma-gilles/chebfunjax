@@ -36,13 +36,11 @@ class TestChebfun2Plus:
 
     def test_rank_not_inflated_rank1(self):
         # MATLAB pass(4)-(6): length(f+f) == length(f) after compression.
-        # chebfunjax plus concatenates without compression, so rank(f+f)
-        # is 2*rank(f); values are still exact.  The rank identity is a
-        # compression feature chebfunjax lacks.
+        # Chebfun2.plus concatenates the CDR factors then recompresses via
+        # _compress(), so rank(f+f) stays rank(f) and the values are exact.
         f = Chebfun2.from_function(lambda x, y: x)
         g = f + f
         x = jnp.asarray(0.3)
         y = jnp.asarray(-0.4)
         assert abs(float(g(x, y)) - 2 * float(f(x, y))) < TOL
-        pytest.xfail("chebfunjax Chebfun2.plus does not compress: "
-                     "rank(f+f)=2*rank(f), MATLAB keeps rank(f)")
+        assert g.rank == f.rank == 1

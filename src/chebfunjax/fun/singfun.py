@@ -1264,6 +1264,42 @@ class Singfun(eqx.Module):
         M = _jacobi_moments(a, b, n)  # shape (n,)
         return jnp.dot(M, coeffs)
 
+    def inner(self, other) -> jax.Array:
+        r"""L2 inner product :math:`\langle f, g\rangle = \int_{-1}^{1}
+        \overline{f(x)}\,g(x)\,dx` (conjugate-linear in ``f``).
+
+        Mirrors MATLAB ``@singfun/innerProduct.m``, which is literally
+        ``sum(conj(f).*g)``.  The conjugated left operand is built directly
+        as ``Singfun(self.smoothPart.conj(), self.exponents)`` rather than via
+        :meth:`conj` so that a trivial-exponent operand is *not* demoted to a
+        bare Chebtech2 before the product.  A smooth (Chebtech2 or scalar)
+        partner is promoted to a zero-exponent Singfun.  Scalar (single
+        column) operands only, which matches every chebfunjax Singfun.
+
+        Parameters
+        ----------
+        other : Singfun, Chebtech2, or scalar
+            Right operand ``g``.
+
+        Returns
+        -------
+        jax.Array, scalar
+            The (possibly complex) inner product.
+
+        Provenance
+        ----------
+        MATLAB source : @singfun/innerProduct.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        cf = Singfun(self.smoothPart.conj(), self.exponents)
+        if not isinstance(other, Singfun):
+            other = Singfun.from_chebtech(other, (0.0, 0.0))
+        return (cf * other).sum()
+
+    innerProduct = inner
+
     def cumsum(self) -> "Singfun":
         """Antiderivative with F(-1) = 0.
 

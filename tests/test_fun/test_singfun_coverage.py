@@ -371,6 +371,37 @@ class TestSingfunSumBranches:
 
 
 # ----------------------------------------------------------------------
+# inner: <f, g> = int conj(f) g dx (conjugate-linear in f, MATLAB
+# @singfun/innerProduct.m); singular pairing, complex conjugation,
+# smooth-partner promotion, and the innerProduct alias.
+# ----------------------------------------------------------------------
+class TestSingfunInner:
+    def test_real_singular_pairing(self):
+        # <sqrt(1-x^2), 1> = integral sqrt(1-x^2) dx = pi/2
+        f = Singfun(1.0, (0.5, 0.5))
+        g = Singfun(1.0, (0.0, 0.0))
+        npt.assert_allclose(float(f.inner(g).real), math.pi / 2.0, rtol=1e-9)
+
+    def test_conjugate_linear_in_f(self):
+        # f = 1 + i x, g = x  ->  <f,g> = int conj(1+ix) x dx = -2i/3.
+        # The conjugation is essential: without it the result would be +2i/3.
+        f = Singfun(Chebtech2.from_function(lambda x: 1.0 + 1j * x), (0.0, 0.0))
+        g = Singfun(Chebtech2.from_function(lambda x: x), (0.0, 0.0))
+        npt.assert_allclose(complex(f.inner(g)), -2j / 3.0, atol=1e-12)
+
+    def test_promotes_smooth_partner(self):
+        # A bare Chebtech2 partner is promoted to a zero-exponent Singfun.
+        f = Singfun(1.0, (0.5, 0.5))
+        g = Chebtech2.from_function(lambda x: 1.0 + 0.0 * x)
+        npt.assert_allclose(float(f.inner(g).real), math.pi / 2.0, rtol=1e-9)
+
+    def test_innerProduct_alias(self):
+        f = Singfun(1.0, (0.5, 0.5))
+        g = Singfun(1.0, (0.0, 0.0))
+        assert complex(f.innerProduct(g)) == complex(f.inner(g))
+
+
+# ----------------------------------------------------------------------
 # cumsum: smooth, both-singular error, one-sided (both orientations)
 # ----------------------------------------------------------------------
 class TestSingfunCumsum:

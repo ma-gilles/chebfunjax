@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.fun.singfun import Singfun
 
@@ -92,18 +91,14 @@ class TestSingfunInnerProduct:
         I_exact = 2.30589565644897950113
         assert abs(I - I_exact) < 1e1 * EPS * abs(I_exact)
 
-    @pytest.mark.xfail(
-        reason="chebfunjax Singfun does not support complex smooth parts or "
-        "conjugation, so the complex-valued innerProduct is unavailable",
-        strict=False,
-    )
     def test_complex(self):
         f = _sf(
             lambda x: (jnp.sin(x) + 1j * jnp.cos(x)) / ((1 + x) ** 0.4 * (1 - x) ** 0.3),
             (-0.4, -0.3),
         )
         g = _sf(lambda x: (jnp.sin(x) - 1j * jnp.cos(x)) / ((1 + x) ** 0.2), (-0.2, 0.0))
-        # innerProduct(f, g) = sum(conj(f).*g)
-        I = complex((f.__class__(f.smoothPart, f.exponents) * g).sum())
+        # innerProduct(f, g) = sum(conj(f).*g); Singfun supports complex smooth
+        # parts and conjugation, so the complex pairing is available.
+        I = complex((f.conj() * g).sum())
         I_exact = -0.66255618280005499086 + 0.95157967059305931745j
         assert abs(I - I_exact) < 1e1 * EPS * abs(I_exact)

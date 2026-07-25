@@ -1624,7 +1624,15 @@ class Chebfun3(eqx.Module):
                         domain=self.domain)
 
     def __add__(self, other) -> "Chebfun3":
-        """f + g by exact block-diagonal embedding of the Tucker cores.
+        """f + g by re-approximating the pointwise sum with the constructor.
+
+        This mirrors the *active* code path of MATLAB ``@chebfun3/plus.m``,
+        which rebuilds the sum through the Chebfun3 constructor
+        (``h = chebfun3(@(x,y,z) f+g, ...)``) rather than the commented-out
+        ``compressed_plus`` block-diagonal embedding.  Reconstruction yields
+        the minimal-rank Tucker representation of the sum (so ``rank(f+f)``
+        stays ``rank(f)`` instead of doubling), and is exact to constructor
+        tolerance.
 
         Provenance
         ----------
@@ -1633,17 +1641,9 @@ class Chebfun3(eqx.Module):
         """
         if isinstance(other, Chebfun3):
             self._check_same_domain(other)
-            r1 = self.core.shape
-            r2 = other.core.shape
-            dt = jnp.result_type(self.core.dtype, other.core.dtype)
-            core = jnp.zeros((r1[0] + r2[0], r1[1] + r2[1],
-                              r1[2] + r2[2]), dtype=dt)
-            core = core.at[:r1[0], :r1[1], :r1[2]].set(self.core)
-            core = core.at[r1[0]:, r1[1]:, r1[2]:].set(other.core)
-            return Chebfun3(cols=list(self.cols) + list(other.cols),
-                            rows=list(self.rows) + list(other.rows),
-                            tubes=list(self.tubes) + list(other.tubes),
-                            core=core, domain=self.domain)
+            return Chebfun3.from_function(
+                lambda x, y, z: self(x, y, z) + other(x, y, z),
+                domain=self.domain)
         if isinstance(other, (int, float, complex)):
             return self + self._const_like(other)
         return NotImplemented
