@@ -11,10 +11,38 @@ counterparts (1,105 port files). Final run:
 
 | Status | Count | Meaning |
 |---|---:|---|
-| **passed** | 2,574 | ported at MATLAB tolerances and passing |
-| **skipped** | 558 | test written; the feature does not exist (reason string names it) |
-| **xfailed** | 375 | known library bug or convention gap, with evidence in the reason |
+| **passed** | 2,855 | ported at MATLAB tolerances and passing |
+| **skipped** | 556 | test written; the feature does not exist (reason string names it) |
+| **xfailed** | 97 | known library bug or convention gap, with evidence in the reason |
 | **failed** | **0** | |
+
+*(2026-07-25 XFAIL-ELIMINATION DRIVE: 2,855 / 0 / 556 / 97 -- 278 of
+the 375 xfails flipped to passes at unchanged MATLAB tolerances.
+trigtech 154 -> 32 (array-valued qr/mldivide/mrdivide, min/max/
+minandmax, real/imag/conj, circconv, sign/flipud/poly, diffmat,
+Newton-polished roots, bit-exact transform symmetries incl. MATLAB's
+trigpts symmetrization and an rfft conjugate-mirror for real input);
+chebtech 128 -> ~28 (sign/poly/extractBoundaryRoots/chebT2chebU/
+roots-qz on both techs, Chebtech1 method parity; REAL BUG #17 fixed:
+Chebtech1.__add__ dropped imaginary parts of complex scalar addends);
+bndfun/classicfun/unbndfun ~72 -> ~30 (poly/qr/mldivide/mrdivide/conj/
+mtimes, singular changeMap + both-endpoint blowup, unbndfun minandmax/
+mldivide/mtimes/array cumsum, singular restrict); singfun/deltafun/
+misc scattered flips (smooth demotion, deltafun cumsum/feval, scribble,
+inufft type-1, ratinterp, chebfun2/3 plus, complex innerProduct).
+Collateral engineering: classicfun mrdivide dispatch regression
+caught+fixed (1-D rows stay pointwise; MATLAB matrices are 2-D numpy);
+chebfun3 plus restored to exact block-diagonal + truncated-HOSVD
+compression (the constructor-plus variant hung CI 30 min/test; complex
+reps skip the real-only hosvd); trig transforms gained a lockstep-
+verified numpy fast path for concrete arrays (dispatch dominated
+ballfun/spherefun construction; non-finite data keeps the jnp path);
+spherefun rotate now applies its Rz factors EXACTLY in coefficient
+space (z-rotations to 2e-16) and its roundtrip assertion is an honest
+non-strict xfail at MATLAB's own bound (1.2e-12..3.1e-12 across
+sub-ulp rounding variants vs 2.2e-12; needs a fastSphereEval port).
+The 97 remaining xfails are measured accuracy walls, each with the
+exact error in its reason.)*
 
 *(2026-07-24 third refresh: 2,574 / 0 / 558 / 375 after the
 chebfun-dir residue commit e083d52 -- pointValues field (+ abs/sign
