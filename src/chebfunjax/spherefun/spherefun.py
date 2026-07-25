@@ -773,6 +773,7 @@ class Spherefun(eqx.Module):
         max_rank: int = 512,
         max_sample: int = 2**14,
         min_abs_tol: float = 0.0,
+        start_grid: int | None = None,
     ) -> "Spherefun":
         """Construct a Spherefun from a callable.
 
@@ -825,6 +826,13 @@ class Spherefun(eqx.Module):
         is_happy = False
         failure = False
         grid = min_sample
+        if start_grid is not None:
+            # Oversampled deterministic start (MATLAB @spherefun/rotate.m
+            # samples at a fixed grid sized from the input's own length so
+            # the result is resolved on the FIRST pass -- adaptive
+            # refinement from a coarse grid makes the representation
+            # depend chaotically on sub-ulp sampling perturbations).
+            grid = max(min_sample, int(start_grid) // 2)
         # "0 + noise" strike counter (MATLAB @spherefun/constructor): a tiny
         # dominant pivot must persist for three successive grids before the
         # function is judged numerically zero.  Declaring happiness on the
@@ -1083,11 +1091,45 @@ class Spherefun(eqx.Module):
     # Spherefun previously had NO arithmetic).
     # ------------------------------------------------------------------
 
+    def _shift_lambda(self, a: float) -> "Spherefun":
+        """Exact z-rotation: ``g(lam, th) = f(lam - a, th)``.
+
+        A rotation about the z-axis is a pure longitude shift, which is
+        EXACT in the DFS representation -- each row Trigtech's Fourier
+        coefficients pick up the phase ``c_k -> c_k exp(-i k a)`` with no
+        resampling.  Realness is preserved (the phased coefficients stay
+        conjugate-symmetric).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/rotate.m (the Rz factors of the ZYZ
+        composition; evaluated here in coefficient space)
+        Chebfun commit: 7574c77
+        """
+        if a == 0.0:
+            return self
+        from chebfunjax.tech.trigtech import Trigtech
+
+        new_rows = []
+        for r in self.rows:
+            c = jnp.asarray(r.coeffs, dtype=jnp.complex128)
+            n = c.shape[0]
+            k = jnp.arange(n, dtype=jnp.float64) - n // 2
+            new_rows.append(Trigtech.from_coeffs(
+                c * jnp.exp(-1j * k * a), is_real=r.is_real))
+        return Spherefun(cols=self.cols, rows=new_rows, pivots=self.pivots,
+                         idx_plus=self.idx_plus, idx_minus=self.idx_minus)
+
     def rotate(self, phi: float = 0.0, theta: float = 0.0,
                psi: float = 0.0) -> "Spherefun":
         """Rotate by Euler angles (ZYZ convention, MATLAB rotate):
         the rotation is Rz(phi) @ Ry(theta) @ Rz(psi), and
         ``f.rotate(a, b, c).rotate(-c, -b, -a)`` recovers ``f``.
+
+        The two Rz factors are applied EXACTLY in coefficient space
+        (longitude phase shifts); only the Ry factor is re-approximated.
+        MATLAB resamples the full composite -- the decomposition here is
+        the same map with strictly less resampling noise.
 
         Provenance
         ----------
@@ -1095,25 +1137,28 @@ class Spherefun(eqx.Module):
         Chebfun commit: 7574c77
         """
         import numpy as _np
-        ca, sa = _np.cos(phi), _np.sin(phi)
+
+        if theta == 0.0:
+            # Pure z-rotation: f(Rz(phi+psi)^T x) exactly.
+            return self._shift_lambda(phi + psi)
+
+        f1 = self._shift_lambda(psi)
         cb, sb = _np.cos(theta), _np.sin(theta)
-        cc, sc = _np.cos(psi), _np.sin(psi)
-        Rz1 = _np.array([[ca, -sa, 0], [sa, ca, 0], [0, 0, 1]])
-        Ry = _np.array([[cb, 0, sb], [0, 1, 0], [-sb, 0, cb]])
-        Rz2 = _np.array([[cc, -sc, 0], [sc, cc, 0], [0, 0, 1]])
-        R = jnp.asarray(Rz1 @ Ry @ Rz2)
+        Ry = jnp.asarray(_np.array([[cb, 0, sb], [0, 1, 0], [-sb, 0, cb]]))
 
         def g(lam, th):
             x = jnp.cos(lam) * jnp.sin(th)
             y = jnp.sin(lam) * jnp.sin(th)
             z = jnp.cos(th)
-            xp = R[0, 0] * x + R[1, 0] * y + R[2, 0] * z
-            yp = R[0, 1] * x + R[1, 1] * y + R[2, 1] * z
-            zp = R[0, 2] * x + R[1, 2] * y + R[2, 2] * z
-            return self(jnp.arctan2(yp, xp),
-                        jnp.arccos(jnp.clip(zp, -1.0, 1.0)))
+            xp = Ry[0, 0] * x + Ry[1, 0] * y + Ry[2, 0] * z
+            yp = Ry[0, 1] * x + Ry[1, 1] * y + Ry[2, 1] * z
+            zp = Ry[0, 2] * x + Ry[1, 2] * y + Ry[2, 2] * z
+            return f1(jnp.arctan2(yp, xp),
+                      jnp.arccos(jnp.clip(zp, -1.0, 1.0)))
 
-        return Spherefun.from_function(g)
+        f2 = Spherefun.from_function(g)
+        # Final Rz factor, exact.
+        return f2._shift_lambda(phi)
 
     def norm(self) -> jax.Array:
         """L2 norm over the sphere: sqrt(int |f|^2 dOmega) (Fable 5)."""
