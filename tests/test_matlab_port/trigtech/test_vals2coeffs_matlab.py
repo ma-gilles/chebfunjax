@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.tech.trigtech import Trigtech, trigpts
 
@@ -75,14 +74,28 @@ class TestTrigtechVals2Coeffs:
         cTrue = jnp.array([1, 0.5j, 0, 1, 0, -0.5j], dtype=jnp.complex128)
         assert _ninf(_v2c((1 + 1j) * vals) - (1 + 1j) * cTrue) < TOL
 
-    @pytest.mark.xfail(reason="chebfunjax vals2coeffs is 1-D only; no multi-column array input")
     def test_odd_array_input(self):
-        raise AssertionError("array (multi-column) vals2coeffs not implemented")
+        x = trigpts(5)
+        vals = 1 + jnp.cos(2 * jnp.pi * x)
+        cTrue = jnp.array([0.5, 0, 1, 0, 0.5], dtype=jnp.complex128)
+        c = _v2c(jnp.stack([vals, -vals], axis=-1))
+        assert _ninf(c[:, 0] - cTrue) < TOL and _ninf(c[:, 1] + cTrue) < TOL
 
-    @pytest.mark.xfail(reason="chebfunjax vals2coeffs is 1-D only; no multi-column array input")
     def test_even_array_input(self):
-        raise AssertionError("array (multi-column) vals2coeffs not implemented")
+        x = trigpts(6)
+        vals = 1 + jnp.sin(2 * jnp.pi * x) + jnp.cos(3 * jnp.pi * x)
+        cTrue = jnp.array([1, 0.5j, 0, 1, 0, -0.5j], dtype=jnp.complex128)
+        c = _v2c(jnp.stack([vals, -vals], axis=-1))
+        assert _ninf(c[:, 0] - cTrue) < TOL and _ninf(c[:, 1] + cTrue) < TOL
 
-    @pytest.mark.xfail(reason="chebfunjax vals2coeffs is 1-D only; no multi-column array input")
     def test_symmetry_array(self):
-        raise AssertionError("array (multi-column) vals2coeffs not implemented")
+        x = trigpts(123)
+        col0 = jnp.cos(jnp.pi * x)
+        col1 = jnp.sin(jnp.pi * x).at[0].set(0.0)  # exactly skew-Hermitian
+        col2 = jnp.cos(jnp.pi * x) + jnp.sin(jnp.pi * x)
+        vals = jnp.stack([col0, col1, col2], axis=-1)
+        c = _v2c(vals)
+        assert _ninf(c[:, 0] - jnp.flip(c[:, 0])) == 0.0
+        assert _ninf(c[:, 1] + jnp.flip(c[:, 1])) == 0.0
+        assert _ninf(c[:, 2] - jnp.flip(c[:, 2])) > 0.0
+        assert _ninf(c[:, 2] + jnp.flip(c[:, 2])) > 0.0

@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.tech.trigtech import Trigtech
 
@@ -60,15 +59,6 @@ class TestTrigtechRoots:
         f = _tt(lambda x: jnp.sin(100 * jnp.pi * x))
         assert f.roots().shape[0] >= 201
 
-    @pytest.mark.xfail(
-        reason="roots('complex') is correct (roots = 1 +/- 0.419i) but the "
-        "residual norm ||feval(f, r)|| = 6.9e-16 marginally exceeds the "
-        "MATLAB tolerance vscale*eps = 5.6e-16: a machine-precision tie "
-        "driven by the ~5e-17 conjugate-symmetry noise in the FFT-built "
-        "coeffs, amplified ~3.7x by the cosh growth at the complex roots. "
-        "With exact coeffs [0.5, 2, 0.5] the residual is 4.1e-16 (passes); "
-        "not widened to avoid a hot-path symmetrisation change for one tie.",
-        strict=True)
     def test_complex_roots_of_shifted_cos(self):
         f = _tt(lambda x: 2 + jnp.cos(jnp.pi * x))
         r = f.roots(complex=True)

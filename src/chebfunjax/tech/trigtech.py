@@ -55,6 +55,17 @@ def _is_double(x) -> bool:
         arr.dtype, jnp.bool_)
 
 
+def _scale_real(c: jax.Array, r: jax.Array) -> jax.Array:
+    """Scale a complex array ``c`` by a real array ``r`` component-wise.
+
+    ``c * r`` promotes ``r`` to complex and does a full complex multiply,
+    which injects ``inf * 0 = nan`` when ``c`` has infinite parts.  Scaling
+    the real and imaginary components separately preserves Inf/NaN, so
+    ``isinf``/``isnan`` on FFT-built coefficients stay meaningful.
+    """
+    return jnp.real(c) * r + 1j * (jnp.imag(c) * r)
+
+
 def trig_vals2coeffs(values: jax.Array) -> jax.Array:
     r"""Convert values at N equally spaced points on [-1,1) to Fourier coefficients.
 
@@ -90,15 +101,44 @@ def trig_vals2coeffs(values: jax.Array) -> jax.Array:
     MATLAB source : @trigtech/vals2coeffs.m
     Chebfun commit: 7574c77
     """
+    input_real = not jnp.iscomplexobj(jnp.asarray(values))
     values = jnp.asarray(values, dtype=jnp.complex128)
     n = values.shape[0]
 
     if n <= 1:
         return values
 
+    # Test the value symmetries the FFT does not preserve bit-exactly
+    # (MATLAB @trigtech/vals2coeffs.m): Hermitian values -> exactly real
+    # coeffs, skew-Hermitian values -> exactly imaginary coeffs.
+    v2 = values if values.ndim == 2 else values[:, None]
+    aug = jnp.concatenate([v2, v2[:1]], axis=0)
+    aug_flip = jnp.conj(jnp.flip(aug, axis=0))
+    is_herm = jnp.max(jnp.abs(aug - aug_flip), axis=0) == 0
+    is_skew = jnp.max(jnp.abs(aug + aug_flip), axis=0) == 0
+
     # coeffs = (1/n) * fftshift(fft(values))
     # (axis=0 keeps array-valued (n, m) inputs column-wise correct)
-    coeffs = jnp.fft.fftshift(jnp.fft.fft(values, axis=0), axes=0) / n
+    #
+    # For REAL input the spectrum is built from rfft with an explicit
+    # conjugate mirror, X[n-k] := conj(X[k]).  MATLAB inherits this
+    # bit-exact conjugate symmetry from FFTW's real-input transform;
+    # numpy/JAX's complex FFT does not guarantee it, and the MATLAB
+    # test suite pins EXACT (== 0) even/odd coefficient symmetry for
+    # even/odd real inputs, which follows from it.
+    if input_real:
+        Xr = jnp.fft.rfft(jnp.real(values), axis=0)  # (n//2 + 1, ...)
+        mirror = jnp.conj(jnp.flip(Xr[1:(n + 1) // 2], axis=0))
+        X = jnp.concatenate([Xr, mirror], axis=0)
+        coeffs = jnp.fft.fftshift(X, axes=0) / n
+    else:
+        coeffs = jnp.fft.fftshift(jnp.fft.fft(values, axis=0), axes=0) / n
+
+    c2 = coeffs if coeffs.ndim == 2 else coeffs[:, None]
+    c2 = jnp.where(is_herm[None, :], jnp.real(c2).astype(jnp.complex128), c2)
+    c2 = jnp.where(is_skew[None, :],
+                   1j * jnp.imag(c2).astype(jnp.complex128), c2)
+    coeffs = c2 if coeffs.ndim == 2 else c2[:, 0]
 
     # The FFT is for [0, 2) but we want [-1, 1).
     # Fix: multiply c_k by (-1)^k.
@@ -109,10 +149,13 @@ def trig_vals2coeffs(values: jax.Array) -> jax.Array:
         half = n // 2
         ks = jnp.arange(-half, half, dtype=jnp.float64)
 
-    even_odd_fix = (-1.0 + 0j) ** ks
+    # Exactly real (+/-1): a complex power leaves ~1e-16 imaginary noise
+    # that would break the bit-exact symmetry above.
+    even_odd_fix = jnp.where(
+        (ks.astype(jnp.int64) % 2) == 0, 1.0, -1.0)
     even_odd_fix = even_odd_fix.reshape(
         (n,) + (1,) * (values.ndim - 1))
-    return coeffs * even_odd_fix
+    return _scale_real(coeffs, even_odd_fix)
 
 
 def trig_coeffs2vals(coeffs: jax.Array) -> jax.Array:
@@ -154,12 +197,30 @@ def trig_coeffs2vals(coeffs: jax.Array) -> jax.Array:
 
     # Undo the even/odd fix applied in vals2coeffs
     # (axis=0 keeps array-valued (n, m) inputs column-wise correct)
-    even_odd_fix = (-1.0 + 0j) ** ks
+    # Exactly real (+/-1) so the symmetry tests above stay bit-exact
+    # Exactly real (+/-1): a complex power leaves ~1e-16 imaginary noise.
+    even_odd_fix = jnp.where(
+        (ks.astype(jnp.int64) % 2) == 0, 1.0, -1.0)
     even_odd_fix = even_odd_fix.reshape(
         (n,) + (1,) * (coeffs.ndim - 1))
-    c = coeffs * even_odd_fix
+    c = _scale_real(coeffs, even_odd_fix)
 
-    return jnp.fft.ifft(jnp.fft.ifftshift(n * c, axes=0), axis=0)
+    values = jnp.fft.ifft(jnp.fft.ifftshift(n * c, axes=0), axis=0)
+
+    # Enforce the symmetries that the FFT does not preserve bit-exactly
+    # (MATLAB @trigtech/coeffs2vals.m): real coeffs -> Hermitian values,
+    # imaginary coeffs -> skew-Hermitian values.  Done per column.
+    c2 = c if c.ndim == 2 else c[:, None]
+    v2 = values if values.ndim == 2 else values[:, None]
+    is_herm = jnp.max(jnp.abs(jnp.imag(c2)), axis=0) == 0
+    is_skew = jnp.max(jnp.abs(jnp.real(c2)), axis=0) == 0
+    aug = jnp.concatenate([v2, v2[:1]], axis=0)
+    flipped = jnp.flip(jnp.conj(aug), axis=0)
+    herm = ((aug + flipped) / 2)[:-1]
+    skew = ((aug - flipped) / 2)[:-1]
+    v2 = jnp.where(is_herm[None, :], herm, v2)
+    v2 = jnp.where(is_skew[None, :], skew, v2)
+    return v2 if values.ndim == 2 else v2[:, 0]
 
 
 # ============================================================================
@@ -181,8 +242,17 @@ def trigpts(n: int) -> jax.Array:
     -------
     jax.Array, shape (n,) float64
         Equispaced points on [-1, 1).
+
+    Notes
+    -----
+    Symmetry is enforced exactly, ``x = (x - flip(x))/2``, as in MATLAB
+    trigpts.m -- downstream bit-exact symmetry detection (Hermitian /
+    skew-Hermitian value tests in vals2coeffs) depends on sampled values
+    of even/odd functions being exactly palindromic.
     """
-    return jnp.linspace(-1.0, 1.0, n, endpoint=False, dtype=jnp.float64)
+    x = jnp.linspace(-1.0, 1.0, n + 1, dtype=jnp.float64)
+    x = (x - x[::-1]) / 2.0
+    return x[:-1]
 
 
 # ============================================================================

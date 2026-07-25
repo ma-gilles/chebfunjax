@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.tech.trigtech import Trigtech, trigpts
 
@@ -103,24 +102,26 @@ class TestTrigtechCoeffs2Vals:
         v = _c2v((1 + 1j) * c)
         assert _ninf(v - (1 + 1j) * vTrue) < TOL
 
-    @pytest.mark.xfail(reason="chebfunjax coeffs2vals is 1-D only; no multi-column array input")
     def test_even_array_input(self):
-        raise AssertionError("array (multi-column) coeffs2vals not implemented")
+        c, vTrue = self._even_setup()
+        v = _c2v(jnp.stack([c, -c], axis=-1))
+        assert _ninf(v[:, 0] - vTrue) < TOL and _ninf(v[:, 1] + vTrue) < TOL
 
-    @pytest.mark.xfail(reason="chebfunjax coeffs2vals is 1-D only; no multi-column array input")
     def test_odd_array_input(self):
-        raise AssertionError("array (multi-column) coeffs2vals not implemented")
+        c, vTrue = self._odd_setup()
+        v = _c2v(jnp.stack([c, -c], axis=-1))
+        assert _ninf(v[:, 0] - vTrue) < TOL and _ninf(v[:, 1] + vTrue) < TOL
 
-    @pytest.mark.xfail(
-        reason="chebfunjax coeffs2vals is not bit-exactly Hermitian-symmetric "
-        "(norm(v - flip(conj(v))) ~ 4e-13, MATLAB requires == 0 via its real branch)"
-    )
     def test_symmetry_real(self):
-        raise AssertionError("exact Hermitian symmetry not guaranteed")
+        # Real coeffs -> exactly Hermitian values (MATLAB real branch).
+        c = jnp.ones(100, dtype=jnp.complex128)
+        v = _c2v(c)
+        v = jnp.concatenate([v, v[:1]])
+        assert float(jnp.linalg.norm(v - jnp.flip(jnp.conj(v)))) == 0.0
 
-    @pytest.mark.xfail(
-        reason="chebfunjax coeffs2vals is not bit-exactly anti-Hermitian-symmetric; "
-        "MATLAB requires norm(v + flip(conj(v))) == 0 via its imaginary branch"
-    )
     def test_symmetry_imag(self):
-        raise AssertionError("exact anti-Hermitian symmetry not guaranteed")
+        # Imaginary coeffs -> exactly skew-Hermitian values.
+        c = jnp.ones(100, dtype=jnp.complex128)
+        v = _c2v(1j * c)
+        v = jnp.concatenate([v, v[:1]])
+        assert float(jnp.linalg.norm(v + jnp.flip(jnp.conj(v)))) == 0.0
