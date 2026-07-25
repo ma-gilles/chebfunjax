@@ -32,6 +32,10 @@ class TestChebfun2Interpaccuracy:
         pytest.skip("exp(pi*(x+y)) with chebfun2 identities requires "
                     "composition ops on Chebfun2")
 
+    # ~300 s adaptive construction of the narrow ridge; headroom beyond
+    # the local 300 s default so contention cannot flake it (CI's 900 s
+    # shard timeout already covers it).
+    @pytest.mark.timeout(890)
     def test_narrow_ridge_norm_and_value(self):
         def f(x, y):
             return jnp.exp(-100 * (x ** 2 - x * y + 2 * y ** 2 - 0.5) ** 2)
