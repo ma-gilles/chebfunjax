@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
+import pytest
 
 from chebfunjax.ballfun.ballfun import Ballfun
 from chebfunjax.ballfun.ballfunv import Ballfunv
@@ -31,6 +32,9 @@ def _grad(f: Ballfun) -> Ballfunv:
 
 
 class TestBallfunvHelmholtzdecomposition:
+    # ~345 s of QZ-based spectral solves; needs headroom beyond the
+    # default local 300 s cap (CI's 900 s shard timeout already covers it).
+    @pytest.mark.timeout(890)
     def test_all_matlab_assertions(self):
         pass_ = {}
 

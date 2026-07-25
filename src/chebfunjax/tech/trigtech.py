@@ -22,12 +22,17 @@ function was sampled from real values.
 
 from __future__ import annotations
 
+# uses-numpy: concrete-array fast path for the trig transforms -- eager JAX
+# dispatch (or per-shape XLA compiles) dominates the tens of thousands of
+# small transform calls in ballfun/spherefun construction; numpy mirrors
+# the exact same algorithm at C speed.  Tracers use the jnp implementation.
 import warnings
 from typing import Callable
 
 import equinox as eqx
 import jax
 import jax.numpy as jnp
+import numpy as np
 
 from chebfunjax.utils.misc import standard_chop
 
@@ -67,6 +72,62 @@ def _scale_real(c: jax.Array, r: jax.Array) -> jax.Array:
 
 
 def trig_vals2coeffs(values: jax.Array) -> jax.Array:
+    """Dispatching wrapper -- see _trig_vals2coeffs_impl.
+
+    The symmetry-preserving transform is ~14 array ops; ballfun/
+    spherefun constructions call it tens of thousands of times on small
+    CONCRETE arrays, where per-op JAX dispatch dominates (measured
+    1.4 ms/call eager; a jax.jit variant instead paid one XLA compile
+    per distinct shape -- 416 compiles in one Helmholtz solve).
+    Concrete inputs therefore run a numpy mirror of the same algorithm
+    (C-speed, no dispatch, same pocketfft, bit-identical); tracers keep
+    the traceable jnp path.
+    """
+    if isinstance(values, jax.core.Tracer):
+        if values.shape[0] <= 1:
+            return values.astype(jnp.complex128)
+        return _trig_vals2coeffs_impl(values)
+    v = np.asarray(values)
+    if v.shape[0] <= 1:
+        return jnp.asarray(v, dtype=jnp.complex128)
+    if not np.all(np.isfinite(v)):
+        # Non-finite data: keep the jnp path, whose Inf/NaN propagation
+        # the isinf/isnan ports pin (rfft vs fft differ on it).
+        return _trig_vals2coeffs_impl(jnp.asarray(values))
+    return jnp.asarray(_trig_vals2coeffs_np(v))
+
+
+def _trig_vals2coeffs_np(values):
+    """numpy mirror of _trig_vals2coeffs_impl (kept in lockstep)."""
+    n = values.shape[0]
+    input_real = not np.iscomplexobj(values)
+    vals = values.astype(np.complex128)
+    v2 = vals if vals.ndim == 2 else vals[:, None]
+    aug = np.concatenate([v2, v2[:1]], axis=0)
+    aug_flip = np.conj(aug[::-1])
+    is_herm = np.max(np.abs(aug - aug_flip), axis=0) == 0
+    is_skew = np.max(np.abs(aug + aug_flip), axis=0) == 0
+    if input_real:
+        Xr = np.fft.rfft(np.real(vals), axis=0)
+        mirror = np.conj(Xr[1:(n + 1) // 2][::-1])
+        X = np.concatenate([Xr, mirror], axis=0)
+        coeffs = np.fft.fftshift(X, axes=0) / n
+    else:
+        coeffs = np.fft.fftshift(np.fft.fft(vals, axis=0), axes=0) / n
+    c2 = coeffs if coeffs.ndim == 2 else coeffs[:, None]
+    c2[:, is_herm] = np.real(c2[:, is_herm])
+    c2[:, is_skew] = 1j * np.imag(c2[:, is_skew])
+    coeffs = c2 if coeffs.ndim == 2 else c2[:, 0]
+    if n % 2 == 1:
+        ks = np.arange(-(n - 1) // 2, (n - 1) // 2 + 1)
+    else:
+        ks = np.arange(-(n // 2), n // 2)
+    fix = np.where(ks % 2 == 0, 1.0, -1.0).reshape(
+        (n,) + (1,) * (values.ndim - 1))
+    return np.real(coeffs) * fix + 1j * (np.imag(coeffs) * fix)
+
+
+def _trig_vals2coeffs_impl(values: jax.Array) -> jax.Array:
     r"""Convert values at N equally spaced points on [-1,1) to Fourier coefficients.
 
     Given values ``v[k] = f(x_k)`` at ``x_k = -1 + 2k/N``, k = 0,...,N-1,
@@ -158,7 +219,47 @@ def trig_vals2coeffs(values: jax.Array) -> jax.Array:
     return _scale_real(coeffs, even_odd_fix)
 
 
+def _trig_coeffs2vals_np(coeffs):
+    """numpy mirror of _trig_coeffs2vals_impl (kept in lockstep)."""
+    c0 = coeffs.astype(np.complex128)
+    n = c0.shape[0]
+    if n % 2 == 1:
+        ks = np.arange(-((n - 1) // 2), (n - 1) // 2 + 1)
+    else:
+        ks = np.arange(-(n // 2), n // 2)
+    fix = np.where(ks % 2 == 0, 1.0, -1.0).reshape(
+        (n,) + (1,) * (c0.ndim - 1))
+    c = np.real(c0) * fix + 1j * (np.imag(c0) * fix)
+    values = np.fft.ifft(np.fft.ifftshift(n * c, axes=0), axis=0)
+    c2 = c if c.ndim == 2 else c[:, None]
+    v2 = values if values.ndim == 2 else values[:, None]
+    is_herm = np.max(np.abs(np.imag(c2)), axis=0) == 0
+    is_skew = np.max(np.abs(np.real(c2)), axis=0) == 0
+    aug = np.concatenate([v2, v2[:1]], axis=0)
+    flipped = np.conj(aug[::-1])
+    herm = ((aug + flipped) / 2)[:-1]
+    skew = ((aug - flipped) / 2)[:-1]
+    v2[:, is_herm] = herm[:, is_herm]
+    v2[:, is_skew] = skew[:, is_skew]
+    return v2 if values.ndim == 2 else v2[:, 0]
+
+
 def trig_coeffs2vals(coeffs: jax.Array) -> jax.Array:
+    """Dispatching wrapper -- see _trig_coeffs2vals_impl (same concrete/
+    tracer rationale as trig_vals2coeffs)."""
+    if isinstance(coeffs, jax.core.Tracer):
+        if coeffs.shape[0] <= 1:
+            return coeffs.astype(jnp.complex128)
+        return _trig_coeffs2vals_impl(coeffs)
+    c = np.asarray(coeffs)
+    if c.shape[0] <= 1:
+        return jnp.asarray(c, dtype=jnp.complex128)
+    if not np.all(np.isfinite(c)):
+        return _trig_coeffs2vals_impl(jnp.asarray(coeffs))
+    return jnp.asarray(_trig_coeffs2vals_np(c))
+
+
+def _trig_coeffs2vals_impl(coeffs: jax.Array) -> jax.Array:
     r"""Convert Fourier coefficients to values at N equally spaced points on [-1,1).
 
     Inverse of ``trig_vals2coeffs``.
