@@ -318,7 +318,8 @@ def _draw_sphere_background(
     )
 
 
-def _setup_3d_axes(ax, fig, elev=30, azim=-127.5, figsize=(6.1, 2.58)):
+def _setup_3d_axes(ax, fig, elev=30, azim=-127.5, figsize=(6.1, 2.58),
+                   fill_canvas=True):
     """Create or configure 3D axes with MATLAB-Chebfun styling.
 
     Parameters
@@ -330,6 +331,15 @@ def _setup_3d_axes(ax, fig, elev=30, azim=-127.5, figsize=(6.1, 2.58)):
         Camera view angles.
     figsize : tuple
         Figure size if creating a new figure.
+    fill_canvas : bool
+        If True (default), place the 3D axes with a slight canvas overflow so
+        surf/height-field renders fill the frame like MATLAB's published
+        figures. Sphere plots (viewed near the equator with a unit bounding
+        box) must NOT fill the canvas — the overflow combined with
+        ``bbox_inches='tight'`` blows up the crop and mis-frames the sphere
+        (see the a1af714 camera-fix regression). Those callers pass
+        ``fill_canvas=False`` to keep the plain ``add_subplot`` framing that
+        the reference sphere renders were produced with.
 
     Returns
     -------
@@ -339,9 +349,12 @@ def _setup_3d_axes(ax, fig, elev=30, azim=-127.5, figsize=(6.1, 2.58)):
 
     if ax is None:
         fig = plt.figure(figsize=figsize)
-        # Fill the canvas like MATLAB's published surf renders —
-        # add_subplot leaves large margins around 3D axes.
-        ax = fig.add_axes([0.02, -0.07, 0.96, 1.14], projection="3d")
+        if fill_canvas:
+            # Fill the canvas like MATLAB's published surf renders —
+            # add_subplot leaves large margins around 3D axes.
+            ax = fig.add_axes([0.02, -0.07, 0.96, 1.14], projection="3d")
+        else:
+            ax = fig.add_subplot(111, projection="3d")
     else:
         if fig is None:
             fig = ax.get_figure()
@@ -951,7 +964,7 @@ def plot_sphere(
         zz = vv * np.sin(elev)
 
         fig, ax = _setup_3d_axes(ax, None, elev=8, azim=-36,
-                                 figsize=(6.1, 2.75))
+                                 figsize=(6.1, 2.75), fill_canvas=False)
 
         facecolors = _matlab_facecolors(
             C,
