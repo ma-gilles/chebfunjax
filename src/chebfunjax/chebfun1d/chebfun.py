@@ -4820,10 +4820,19 @@ class Chebfun(eqx.Module):
         for pf, pg in zip(self.funs, other.funs):
             cf = pf.coeffs
             cg = pg.coeffs
-            # Pad shorter coefficient array with zeros for comparison
+            if cf.shape[1:] != cg.shape[1:]:
+                # Different column counts -> not equal (array-valued mismatch).
+                return False
+            # Pad the shorter coefficient array with zeros along the *degree*
+            # axis only (axis 0).  A bare ``(0, k)`` pad width applies to every
+            # axis, which for array-valued (n, m) coeffs wrongly grows the
+            # column axis too -- e.g. (13, 2) -> (14, 3) -- and raised a
+            # broadcasting error whenever two pieces had different lengths.
             n = max(cf.shape[0], cg.shape[0])
-            cf_pad = jnp.pad(cf, (0, n - cf.shape[0]))
-            cg_pad = jnp.pad(cg, (0, n - cg.shape[0]))
+            pad_f = [(0, n - cf.shape[0])] + [(0, 0)] * (cf.ndim - 1)
+            pad_g = [(0, n - cg.shape[0])] + [(0, 0)] * (cg.ndim - 1)
+            cf_pad = jnp.pad(cf, pad_f)
+            cg_pad = jnp.pad(cg, pad_g)
             if float(jnp.max(jnp.abs(cf_pad - cg_pad))) > tol:
                 return False
         return True

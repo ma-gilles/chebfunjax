@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.fun.singfun import Singfun
 
@@ -39,16 +38,12 @@ class TestSingfunFeval:
         out = f(jnp.asarray(np.array([], dtype=np.float64)))
         assert out.shape[0] == 0
 
-    @pytest.mark.xfail(
-        reason="Tech-level coefficient-accuracy gap, not a singfun issue.  At "
-        "the SAME length (147) MATLAB's chebtech resolves sin(cos(10x^2)) to "
-        "5.5*eps while chebfunjax's Chebtech2 gives ~10*eps (constructing "
-        "directly on 2nd-kind points is no better -- 10.9*eps at length 151).  "
-        "The strict `< 1e1*eps` bound therefore fails by a hair; closing it "
-        "requires improving the Chebtech constructor's coefficient accuracy.",
-        strict=True,
-    )
     def test_no_exponents(self):
+        # FIXED by quadfix's sine-node construction (1c3fd5e): the bit-exactly
+        # symmetric 2nd-kind nodes improved the Chebtech2 coefficient accuracy
+        # for sin(cos(10x^2)) from ~10*eps (over the < 1e1*eps bound) to
+        # ~0.7*eps, so this now passes.  (Was a strict xfail on the tech
+        # coefficient-accuracy gap.)
         def fh(x):
             return jnp.sin(jnp.cos(10 * x ** 2))
 
