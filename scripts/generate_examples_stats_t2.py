@@ -260,46 +260,70 @@ def bayesiangradebook():
 
 
 def randomsurf():
-    """stats/RandomSurf — random smooth surface + paraboloid."""
+    """stats/RandomSurf — random smooth function on the unit disk.
+
+    Mirrors the chebfun.org stats/RandomSurf example: a band-limited
+    random function on the disk (``randnfun2`` disk-confines its Fourier
+    coefficients for isotropy) shown as a sign "zebra" plot, a contour
+    plot, and a 3-D surface.  The exact realization cannot match the
+    MATLAB reference (chebfunjax uses numpy's RNG, not MATLAB's ``rng``),
+    so the goal here is structural fidelity, not pixel parity -- see the
+    matrix note for RandomSurf_0{1,2,3}.
+    """
+    import jax.numpy as jnp
+
+    import chebfunjax as cj
     from chebfunjax.plotting import PARULA
 
-    rng = np.random.default_rng(3)
-    n = 200
-    xs = np.linspace(-1, 1, n)
+    # Random band-limited function on [-1,1]^2, restricted to the unit disk.
+    lam = 0.15
+    f2 = cj.randnfun2(lam, (-1.0, 1.0, -1.0, 1.0), seed=3, big=True)
+    ng = 260
+    xs = np.linspace(-1, 1, ng)
     X, Y = np.meshgrid(xs, xs)
-    m = 12
-    F = np.zeros_like(X)
-    for _ in range(60):
-        kx, ky = rng.integers(0, m, 2)
-        a, b = rng.standard_normal(2)
-        F += (a * np.cos(PI * (kx * X + ky * Y) / 2)
-              + b * np.sin(PI * (kx * X + ky * Y) / 2)) \
-            * np.exp(-(kx**2 + ky**2) / 18)
-    F *= 0.8
+    Rr = np.hypot(X, Y)
+    Z = np.array(f2(jnp.asarray(X), jnp.asarray(Y)), dtype=float)
+    inside = Rr <= 1.0
+    Zd = np.where(inside, Z, np.nan)
 
+    th = np.linspace(0, 2 * PI, 400)
+    cx, cy = np.cos(th), np.sin(th)
+
+    # (1) Zebra plot: sign of the function on the disk.
     fig, ax = plt.subplots()
-    cs = ax.contourf(X, Y, F, levels=[F.min(), 0, F.max()],
-                     colors=["white", "black"])
+    ax.contourf(X, Y, np.where(inside, np.sign(Z), np.nan),
+                levels=[-2.0, 0.0, 2.0], colors=["black", "white"])
+    ax.plot(cx, cy, "k", linewidth=1.0)
     ax.set_aspect("equal")
     ax.axis("off")
     ax.set_title("zebra plot of a random function", fontsize=10)
     save(fig, "RandomSurf_01.png")
 
-    G = F + 4 * (X**2 + Y**2)
+    # (2) Contour plot with a continuous colorbar.
+    from matplotlib.cm import ScalarMappable
+    from matplotlib.colors import Normalize
+    clim = 5.0
     fig, ax = plt.subplots()
-    cs = ax.contourf(X, Y, G, levels=[G.min(), 2, G.max()],
-                     colors=["white", "black"])
+    ax.contour(X, Y, Zd, levels=np.linspace(-clim, clim, 21),
+               cmap=PARULA, linewidths=0.5)
+    ax.plot(cx, cy, "k", linewidth=1.0)
+    sm = ScalarMappable(norm=Normalize(-clim, clim), cmap=PARULA)
+    sm.set_array([])
+    fig.colorbar(sm, ax=ax, ticks=[-5, 0, 5])
     ax.set_aspect("equal")
     ax.axis("off")
     save(fig, "RandomSurf_02.png")
 
+    # (3) 3-D surface over the disk.
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
-    ax.plot_surface(X, Y, G, cmap=PARULA, rstride=2, cstride=2,
-                    linewidth=0)
-    ax.set_zlim(-10, 10)
-    ax.view_init(elev=60, azim=-90)
+    ax.plot_surface(X, Y, Zd, cmap=PARULA, rstride=2, cstride=2,
+                    linewidth=0, antialiased=False)
+    ax.view_init(elev=18, azim=-60)
+    ax.set_box_aspect((1.0, 1.0, 0.35))
     ax.axis("off")
+    # 3-D axes leave wide margins with axis("off"); enlarge to fill the frame.
+    ax.set_position([-0.18, -0.18, 1.36, 1.36])
     save(fig, "RandomSurf_03.png")
 
 
