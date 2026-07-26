@@ -982,6 +982,38 @@ class Spherefun(eqx.Module):
 
         return result
 
+    def fast_sphere_eval(self, lam, theta):
+        """Fast, high-accuracy evaluation at scattered points (2D NUFFT).
+
+        Evaluates the Spherefun at ``(lam, theta)`` to ~1e-15 per point via the
+        type-2 two-dimensional NUFFT of the doubled-up Fourier coefficient
+        matrix, versus the ~1e-14 Horner scheme of :meth:`__call__`.  Not
+        JIT-safe (uses numpy / optional ``finufft``); use :meth:`__call__` on
+        the hot, differentiable path and this for high-accuracy resampling
+        (e.g. :meth:`rotate`).
+
+        Parameters
+        ----------
+        lam, theta : array_like
+            Longitude in ``[-pi, pi]`` and co-latitude in ``[0, pi]``; broadcast
+            against one another.
+
+        Returns
+        -------
+        np.ndarray
+            Values of the Spherefun, shape ``broadcast(lam, theta)``.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/fastSphereEval.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.  Primary author: Alex Townsend.
+        """
+        from chebfunjax.spherefun.fast_sphere_eval import fast_sphere_eval
+
+        return fast_sphere_eval(self, lam, theta)
+
     # ------------------------------------------------------------------
     # Integration
     # ------------------------------------------------------------------
@@ -1131,6 +1163,15 @@ class Spherefun(eqx.Module):
         MATLAB resamples the full composite -- the decomposition here is
         the same map with strictly less resampling noise.
 
+        The Ry resampling evaluates ``f1`` through :meth:`fast_sphere_eval`
+        (the 2D-NUFFT ``fastSphereEval``) rather than the Horner scheme, and
+        samples on a fixed grid sized to ``f1``'s bandlimit (``start_grid``) --
+        the rotation of a bandlimited function stays bandlimited, so this grid
+        recovers it spectrally on the first pass instead of chasing sub-ulp
+        Horner noise through adaptive refinement.  Together these reach
+        MATLAB's ``10*eps`` round-trip bound with margin (see
+        ``@spherefun/rotate.m``, which uses ``method='nufft'`` by default).
+
         Provenance
         ----------
         MATLAB source : @spherefun/rotate.m
@@ -1138,25 +1179,35 @@ class Spherefun(eqx.Module):
         """
         import numpy as _np
 
+        from chebfunjax.spherefun.fast_sphere_eval import fast_sphere_eval
+
         if theta == 0.0:
             # Pure z-rotation: f(Rz(phi+psi)^T x) exactly.
             return self._shift_lambda(phi + psi)
 
         f1 = self._shift_lambda(psi)
         cb, sb = _np.cos(theta), _np.sin(theta)
-        Ry = jnp.asarray(_np.array([[cb, 0, sb], [0, 1, 0], [-sb, 0, cb]]))
+        Ry = _np.array([[cb, 0, sb], [0, 1, 0], [-sb, 0, cb]])
+
+        # Bandlimit grid: the rotation of a degree-l bandlimited function is of
+        # degree l, so sampling at f1's bandlimit resolves g on the first pass
+        # (MATLAB @spherefun/rotate.m: ``n = max(m, n)``).
+        start_grid = 2 * f1._bandwidth() + 2
 
         def g(lam, th):
-            x = jnp.cos(lam) * jnp.sin(th)
-            y = jnp.sin(lam) * jnp.sin(th)
-            z = jnp.cos(th)
+            lam = _np.asarray(lam, dtype=_np.float64)
+            th = _np.asarray(th, dtype=_np.float64)
+            x = _np.cos(lam) * _np.sin(th)
+            y = _np.sin(lam) * _np.sin(th)
+            z = _np.cos(th)
             xp = Ry[0, 0] * x + Ry[1, 0] * y + Ry[2, 0] * z
             yp = Ry[0, 1] * x + Ry[1, 1] * y + Ry[2, 1] * z
             zp = Ry[0, 2] * x + Ry[1, 2] * y + Ry[2, 2] * z
-            return f1(jnp.arctan2(yp, xp),
-                      jnp.arccos(jnp.clip(zp, -1.0, 1.0)))
+            return fast_sphere_eval(
+                f1, _np.arctan2(yp, xp),
+                _np.arccos(_np.clip(zp, -1.0, 1.0)))
 
-        f2 = Spherefun.from_function(g)
+        f2 = Spherefun.from_function(g, start_grid=start_grid)
         # Final Rz factor, exact.
         return f2._shift_lambda(phi)
 
