@@ -10,12 +10,10 @@ at the SAME tolerance MATLAB uses.
 Random test points are drawn in the OPEN interval ``(-1, 1)`` (as MATLAB does
 via ``2*rand-1``); the analytic error checks hold at any such points.
 
-Gap vs MATLAB (honest xfail):
-- pass(n, 5) and pass(n, 6) build ``sin(1-x)/(1-x)``, which is a removable
-  0/0 at x = +1.  Chebtech2 samples the endpoints and its constructor does
-  not extrapolate non-finite endpoint values, so the *construction* yields
-  NaN; Chebtech1 samples interior points and is unaffected.  These two cases
-  are kept xfailed for Chebtech2 only, with a precise reason.
+FIXED (Fable 5): pass(n, 5) and pass(n, 6) build ``sin(1-x)/(1-x)``, a
+removable 0/0 at x = +1.  The tech constructor now extrapolates non-finite
+endpoint samples (MATLAB @chebtech/populate.m -> extrapolate.m), so Chebtech2
+builds a finite representation and both cases hold on both techs.
 
 Provenance
 ----------
@@ -36,13 +34,6 @@ EPS = float(np.finfo(np.float64).eps)
 # Deterministic test points in the open interval (-1, 1).
 _RNG = np.random.default_rng(6178)
 X = jnp.asarray(1.98 * _RNG.random(100) - 0.99)
-
-_C2_ENDPOINT_NAN = (
-    "sin(1-x)/(1-x) is a removable 0/0 at x=+1; Chebtech2 samples the "
-    "endpoints and its constructor does not extrapolate non-finite endpoint "
-    "values, so construction yields NaN (Chebtech1 samples interior points)"
-)
-
 
 def _ninf(a):
     return float(jnp.max(jnp.abs(jnp.asarray(a))))
@@ -98,8 +89,9 @@ class TestChebtechExtractBoundaryRoots:
 
     def test_no_roots(self, Tech):
         # pass(n, 5): sin(1-x)/(1-x) has no boundary roots (l == r == 0).
-        if Tech is Chebtech2:
-            pytest.xfail(_C2_ENDPOINT_NAN)
+        # FIXED (Fable 5): the constructor now extrapolates the removable 0/0
+        # endpoint sample (MATLAB @chebtech/populate.m), so Chebtech2 builds a
+        # finite representation instead of NaN coeffs.
         f = Tech.from_function(lambda x: jnp.sin(1 - x) / (1 - x))
         g, l, r = f.extractBoundaryRoots()
         assert _ninf(g(X) - f(X)) == 0.0
@@ -107,8 +99,7 @@ class TestChebtechExtractBoundaryRoots:
 
     def test_roots_not_explicit(self, Tech):
         # pass(n, 6): sin(1-x) has an implicit root at x = 1 (r == 1).
-        if Tech is Chebtech2:
-            pytest.xfail(_C2_ENDPOINT_NAN)
+        # FIXED (Fable 5): constructor endpoint extrapolation (see pass 5).
         f = Tech.from_function(lambda x: jnp.sin(1 - x))
         g, l, r = f.extractBoundaryRoots()
         gexact = Tech.from_function(lambda x: jnp.sin(1 - x) / (1 - x))

@@ -52,20 +52,15 @@ class TestBndfunConstructor:
             10 * g.vscale * EPS
         )
 
-    @pytest.mark.xfail(
-        reason="chebfunjax does not detect/raise on NaN function values; the "
-        "adaptive constructor never converges and returns an unhappy fun "
-        "instead of raising 'Too many NaNs/Infs to handle.'"
-    )
     def test_nan_raises(self):
+        # FIXED (Fable 5): the tech constructor now extrapolates NaN/Inf
+        # samples (MATLAB @chebtech/populate.m). An all-NaN sample leaves no
+        # good points, so extrapolate raises 'Too many NaNs/Infs to handle.'
         with pytest.raises(Exception):
             _bf(lambda x: x + jnp.nan, n=17)
 
-    @pytest.mark.xfail(
-        reason="chebfunjax does not detect/raise on Inf function values "
-        "(see NaN case)."
-    )
     def test_inf_raises(self):
+        # FIXED (Fable 5): all-Inf sample -> extrapolate raises (see NaN case).
         with pytest.raises(Exception):
             _bf(lambda x: x + jnp.inf, n=17)
 

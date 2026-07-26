@@ -1570,6 +1570,9 @@ class Chebtech2(eqx.Module):
             return cls(coeffs=jnp.array([], dtype=jnp.float64))
         x = chebpts(n, kind=2)
         values = _as_fun_dtype(f(x))
+        if not bool(jnp.all(jnp.isfinite(values))):
+            # Extrapolate NaN/Inf samples (MATLAB @chebtech/populate.m).
+            values = _extrapolate_values(values, x, cls.barywts(n))[0]
         c = vals2coeffs(values)
         return cls(coeffs=c)
 
@@ -1607,8 +1610,16 @@ class Chebtech2(eqx.Module):
             n = 2**k + 1
             x = chebpts(n, kind=2)
             values = _as_fun_dtype(f(x))
+            # Update vscale from the finite samples only, then extrapolate any
+            # NaN/Inf rows before transforming (MATLAB @chebtech/populate.m).
+            finite_mask = jnp.isfinite(values)
+            vscale = max(
+                vscale,
+                float(jnp.max(jnp.abs(jnp.where(finite_mask, values, 0.0)))),
+            )
+            if not bool(jnp.all(finite_mask)):
+                values = _extrapolate_values(values, x, cls.barywts(n))[0]
             c = vals2coeffs(values)
-            vscale = max(vscale, float(jnp.max(jnp.abs(values))))
             ishappy, cutoff = cls.happiness_check(
                 c,
                 values,
@@ -3342,6 +3353,9 @@ class Chebtech1(eqx.Module):
             return cls(coeffs=jnp.array([], dtype=jnp.float64))
         x = chebpts(n, kind=1)
         values = _as_fun_dtype(f(x))
+        if not bool(jnp.all(jnp.isfinite(values))):
+            # Extrapolate NaN/Inf samples (MATLAB @chebtech/populate.m).
+            values = _extrapolate_values(values, x, cls.barywts(n))[0]
         c = _chebtech1_vals2coeffs(values)
         return cls(coeffs=c)
 
@@ -3363,8 +3377,14 @@ class Chebtech1(eqx.Module):
             n = 2**k
             x = chebpts(n, kind=1)
             values = _as_fun_dtype(f(x))
+            finite_mask = jnp.isfinite(values)
+            vscale = max(
+                vscale,
+                float(jnp.max(jnp.abs(jnp.where(finite_mask, values, 0.0)))),
+            )
+            if not bool(jnp.all(finite_mask)):
+                values = _extrapolate_values(values, x, cls.barywts(n))[0]
             c = _chebtech1_vals2coeffs(values)
-            vscale = max(vscale, float(jnp.max(jnp.abs(values))))
             ishappy, cutoff = cls.happiness_check(
                 c,
                 values,
