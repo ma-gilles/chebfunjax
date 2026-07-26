@@ -274,7 +274,12 @@ class TestUnbndfunEval:
         f = Unbndfun.from_function(jnp.exp, d)
         xs = jnp.array([-10.0, -5.0, -2.0, -1.0, 0.0], dtype=jnp.float64)
         expected = np.exp(np.array([-10.0, -5.0, -2.0, -1.0, 0.0]))
-        npt.assert_allclose(np.array(f(xs)), expected, rtol=1e-12)
+        # atol floor at ~2 eps of the (unit) vscale: spectral construction
+        # guarantees vscale-RELATIVE accuracy, not pointwise-relative --
+        # at exp(-10)=4.5e-5 a pure rtol=1e-12 demands 0.2 eps*vscale,
+        # which flips on BLAS rounding luck (measured 8.9e-17 abs here).
+        npt.assert_allclose(np.array(f(xs)), expected, rtol=1e-12,
+                            atol=5e-16)
 
     def test_eval_both_inf_interior(self):
         """Evaluate exp(-x²) on (-∞, ∞) at interior points."""
