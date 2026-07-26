@@ -189,13 +189,26 @@ def bestl1():
 
     pinf = None
 
+    # The published example opens with f overlaid on its L-infinity
+    # approximant, then the error; the port previously skipped straight to
+    # the error, shifting every subsequent figure by one against the
+    # reference numbering (and duplicating the L2 error later to compensate).
+    fig, ax = plt.subplots()
+    ax.plot(np.asarray(xs), fv, color=CHEBFUN_BLUE, linewidth=0.9)
+    ax.plot(np.asarray(xs), eval_p(pinf, np.asarray(xs)), color=ORANGE,
+            linewidth=0.9)
+    ax.set_ylim(-3, 3)
+    ax.grid(True, alpha=0.4, linewidth=0.4)
+    ax.set_title("f and Linfty approximant", fontsize=9)
+    save(fig, "BestL1_01.png")
+
     fig, ax = plt.subplots()
     ax.plot(np.asarray(xs), fv - eval_p(pinf, np.asarray(xs)), "k",
             linewidth=0.9)
     ax.set_ylim(-3, 3)
     ax.grid(True, alpha=0.4, linewidth=0.4)
     ax.set_title("error of Linfty approximant", fontsize=9)
-    save(fig, "BestL1_01.png")
+    save(fig, "BestL1_02.png")
 
     p2 = f.polyfit(deg)
     fig, ax = plt.subplots()
@@ -205,14 +218,14 @@ def bestl1():
     ax.set_ylim(-3, 3)
     ax.grid(True, alpha=0.4, linewidth=0.4)
     ax.set_title("f and L2 approximant", fontsize=9)
-    save(fig, "BestL1_02.png")
+    save(fig, "BestL1_03.png")
 
     fig, ax = plt.subplots()
     ax.plot(np.asarray(xs), fv - np.asarray(p2(xs)), "k", linewidth=0.9)
     ax.set_ylim(-3, 3)
     ax.grid(True, alpha=0.4, linewidth=0.4)
     ax.set_title("error of L2 approximant", fontsize=9)
-    save(fig, "BestL1_03.png")
+    save(fig, "BestL1_04.png")
 
     # L1 approximation via iteratively reweighted least squares
     xg = np.linspace(dom[0], dom[1], 1200)
@@ -234,14 +247,14 @@ def bestl1():
     ax.set_ylim(-3, 3)
     ax.grid(True, alpha=0.4, linewidth=0.4)
     ax.set_title("f and L1 approximant", fontsize=9)
-    save(fig, "BestL1_04.png")
+    save(fig, "BestL1_05.png")
 
     fig, ax = plt.subplots()
     ax.plot(np.asarray(xs), fv - p1v, "k", linewidth=0.9)
     ax.set_ylim(-3, 3)
     ax.grid(True, alpha=0.4, linewidth=0.4)
     ax.set_title("error of L1 approximant", fontsize=9)
-    save(fig, "BestL1_05.png")
+    save(fig, "BestL1_06.png")
 
     # Second example: f = |x - 1/4| on [-1, 1], degree 80
     x1 = np.linspace(-1, 1, 4000)
@@ -268,7 +281,7 @@ def bestl1():
     ax.set_ylim(-1e-2, 1e-2)
     ax.grid(True, alpha=0.4, linewidth=0.4)
     ax.set_title("Linf error", fontsize=9)
-    save(fig, "BestL1_06.png")
+    save(fig, "BestL1_07.png")
 
     # L2 projection onto degree-80 polynomials by Gauss-Legendre
     # quadrature (constructing chebfun(|x-1/4|) hits the unhappy path)
@@ -280,12 +293,6 @@ def bestl1():
             gl_x, np.eye(81)[k]))
         for k in range(81)])
     p2a_v = np.polynomial.legendre.legval(x1, cleg)
-    fig, ax = plt.subplots()
-    ax.plot(x1, fabs - p2a_v, "k", linewidth=0.7)
-    ax.set_ylim(-1e-2, 1e-2)
-    ax.grid(True, alpha=0.4, linewidth=0.4)
-    ax.set_title("L2 error", fontsize=9)
-    save(fig, "BestL1_07.png")
     fig, ax = plt.subplots()
     ax.plot(x1, fabs - p2a_v, "k", linewidth=0.7)
     ax.set_ylim(-1e-2, 1e-2)
