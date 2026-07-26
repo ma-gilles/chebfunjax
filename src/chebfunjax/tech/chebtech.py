@@ -282,11 +282,17 @@ def _turbo_coeffs(op: Callable, plain_coeffs: jax.Array, num: int) -> jax.Array:
     c = _cheb_coeffs_turbo(op, float(rho), num)
 
     # Respect the real / pure-imaginary structure of the plain series
-    # (MATLAB @chebtech/constructorTurbo.m: real(c) / imag(c) / c).
+    # (MATLAB @chebtech/constructorTurbo.m: real(c) / imag(c) / c).  MATLAB
+    # stores ``imag(c)`` (real) for a pure-imaginary function and carries the
+    # 1i at the chebfun layer; chebfunjax's tech is self-contained, so we keep
+    # the pure-imaginary coefficients ``1i*imag(c)`` -- exactly what the plain
+    # (general-complex) path produced before fcb4831 made the plain coeffs
+    # bit-exactly pure-imaginary and thus triggered this branch.  Dropping the
+    # 1i here collapsed 1i*exp(x) onto the real axis.
     if not bool(jnp.iscomplexobj(plain_coeffs)):
         return jnp.real(c)
     if float(jnp.max(jnp.abs(jnp.real(plain_coeffs)))) == 0.0:
-        return jnp.asarray(jnp.imag(c), dtype=plain_coeffs.dtype)
+        return jnp.asarray(1j * jnp.imag(c), dtype=plain_coeffs.dtype)
     return c
 
 

@@ -16,6 +16,8 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
+import warnings
+
 import jax.numpy as jnp
 import numpy as np
 import pytest
@@ -81,8 +83,6 @@ class TestTrigtechRdivide:
     # FIXED (Fable 5): __rtruediv__ keeps a complex numerator, so
     # pass(7) ports at MATLAB's tolerance.
     def test_complex_scalar_over_function(self):
-        import warnings
-
         fop = lambda x: jnp.exp(jnp.cos(jnp.pi * x))
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")

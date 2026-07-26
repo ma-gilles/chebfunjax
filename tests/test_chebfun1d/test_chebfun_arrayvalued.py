@@ -54,8 +54,15 @@ class TestChebfunArrayValued:
                                    atol=1e-12)
         np.testing.assert_allclose(np.asarray(mnx), [-0.5, 0.0],
                                    atol=1e-7)
-        np.testing.assert_allclose(np.asarray(mxx), [0.5, 1.0],
-                                   atol=1e-7)
+        # Column 0 (sin(pi x)) has a unique maximiser at x = 0.5.  Column 1
+        # (x^2 - 0.25) attains its max 0.75 at BOTH endpoints x = +/-1, so the
+        # argmax is non-unique; MATLAB's max() reports the first occurrence
+        # (x = -1) and quadfix's eps-level sine-node change flipped chebfunjax's
+        # tie the same way.  Pin the unique column and accept either maximiser
+        # for the tied one (its value, 0.75, is verified above).
+        mxx = np.asarray(mxx)
+        np.testing.assert_allclose(mxx[0], 0.5, atol=1e-7)
+        assert abs(abs(float(mxx[1])) - 1.0) < 1e-7
 
     def test_piecewise_array_roots(self):
         h = cj.chebfun(
