@@ -112,16 +112,25 @@ def phaseplot(
     # Compute phase angle
     phase = np.angle(fz)  # in [-pi, pi]
 
-    # Apply smoothing transformation if not classic
     theta_start = float(caxis_start)
-    if classic:
-        phi = phase
-    else:
-        phi = phase - 0.5 * np.cos(1.5 * phase) ** 3 * np.sin(1.5 * phase)
 
-    # Map to [0, 1] for colourmap lookup
-    # MATLAB: mod(phi(angle(f(zz)))-pi+pi-theta, 2*pi)+theta, normalised to [0,1]
-    hue = np.mod(phi - theta_start, 2.0 * np.pi) / (2.0 * np.pi)  # in [0, 1)
+    # MATLAB (phaseplot.m):
+    #   C = mod(phi(angle(f)-pi) + pi - theta, 2*pi) + theta
+    # with phi(t) = t (classic) or t - 0.5*cos(1.5t)^3*sin(1.5t) (smoothed).
+    # The smoothing MUST be applied to (angle - pi), not to angle itself, and
+    # the +pi is folded back before the modulo -- otherwise the smoothed
+    # variant lands on a different point of the colour wheel than MATLAB
+    # (phi(A-pi)+pi != phi(A): the smoothing term flips from -cos^3*sin to
+    # +sin^3*cos), spatially rearranging every hue. See phaseplot.m.
+    t = phase - np.pi
+    if classic:
+        phi_t = t
+    else:
+        phi_t = t - 0.5 * np.cos(1.5 * t) ** 3 * np.sin(1.5 * t)
+    c = np.mod(phi_t + np.pi - theta_start, 2.0 * np.pi) + theta_start
+
+    # caxis is [theta, theta+2*pi]; normalise C to [0, 1) for colourmap lookup.
+    hue = (c - theta_start) / (2.0 * np.pi)  # in [0, 1)
 
     # Build RGB image using matplotlib colormap
     try:

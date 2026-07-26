@@ -312,6 +312,12 @@ def phaseportraits():
     for k, (fz, reg, title) in enumerate(cases, 1):
         fig, ax = phaseplot(fz, region=list(reg))
         ax.set_title(title, fontsize=10)
+        # MATLAB phaseplot renders a clean square with no Re/Im axis
+        # decoration (see phaseplot.m: axis square, grid off, no labels).
+        # Match the published render's centered square, as guide12 fig 8 does,
+        # instead of the wrapper's default labelled axes.
+        ax.set_axis_off()
+        ax.set_position([0.333, 0.115, 0.367, 0.80])
         save(fig, f"PhasePortraits_{k:02d}.png")
 
 
