@@ -250,6 +250,11 @@ def _nufft2(c: np.ndarray, x: np.ndarray, tol: float) -> np.ndarray:
     N = len(c)
 
     try:
+        if N < 16:
+            # finufft's practical accuracy floor (~1e-14 relative) cannot
+            # meet the MATLAB test bounds at tiny sizes (300*N*eps*sum|c|),
+            # and the direct O(NM) evaluation is faster there anyway.
+            raise ImportError
         import finufft as _finufft
         # finufft convention: c[j] = sum_{k=-N//2}^{N//2-1} f[k] exp(-i*k*x_nu[j])
         # with x_nu = 2*pi*x_j  in (-pi, pi].
