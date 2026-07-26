@@ -15,6 +15,9 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
+import gc
+
+import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
@@ -39,6 +42,15 @@ SIZE = (610, 258)
 plot_num = 0
 
 
+def _release():
+    # ~28 heavy Spherefun constructions in one process exhaust the JAX/XLA
+    # compilation cache (the generator silently died at fig 13 without
+    # this -- validated fix from the guide17 OOM diagnosis).
+    plt.close('all')
+    jax.clear_caches()
+    gc.collect()
+
+
 def save(fig, desc=""):
     global plot_num
     plot_num += 1
@@ -46,12 +58,14 @@ def save(fig, desc=""):
     save_chebfun_figure(fig, fname, size=SIZE)
     plt.close(fig)
     print(f"  guide17_{plot_num:02d}.png: {desc}")
+    _release()
 
 
 def fail(e):
     global plot_num
     plot_num += 1
     print(f"  guide17_{plot_num:02d}.png FAILED: {e}")
+    _release()
 
 
 def sf(fn3):
