@@ -49,13 +49,21 @@ def chebpts(n: int, kind: int = 2) -> jnp.ndarray:
         return jnp.array([0.0], dtype=jnp.float64)
 
     if kind == 1:
-        # Roots of T_n: cos((2k-1)*pi / (2n)), k = 1..n
-        k = jnp.arange(n, 0, -1, dtype=jnp.float64)
-        x = jnp.cos((2 * k - 1) * jnp.pi / (2 * n))
+        # Roots of T_n.  MATLAB @chebtech1/chebpts.m uses the sine form
+        # x = sin(pi*(-n+1:2:n-1)/(2n)) rather than cos((2k-1)pi/(2n)):
+        # the sine construction is exactly antisymmetric (centre node is a
+        # bit-exact 0 for odd n) and pairs small-argument sines against the
+        # symmetric endpoints, matching MATLAB to the last bit.
+        k = jnp.arange(-n + 1, n, 2, dtype=jnp.float64)
+        x = jnp.sin(jnp.pi * k / (2 * n))
     elif kind == 2:
-        # Extrema of T_{n-1}: cos(k*pi / (n-1)), k = 0..n-1
-        k = jnp.arange(n - 1, -1, -1, dtype=jnp.float64)
-        x = jnp.cos(k * jnp.pi / (n - 1))
+        # Extrema of T_{n-1}.  MATLAB @chebtech2/chebpts.m uses the sine form
+        # x = sin(pi*(-m:2:m)/(2m)), m = n-1, instead of cos(k*pi/(n-1)):
+        # "Use of sine enforces symmetry" (antisymmetry residual and centre
+        # node are bit-exact 0, not ~1e-16 as the cosine form gives).
+        m = n - 1
+        k = jnp.arange(-m, m + 1, 2, dtype=jnp.float64)
+        x = jnp.sin(jnp.pi * k / (2 * m))
     else:
         raise ValueError(f"kind must be 1 or 2, got {kind}")
 
@@ -69,14 +77,27 @@ def chebpts_ab(n: int, a: float, b: float, kind: int = 2) -> jnp.ndarray:
 
 
 def chebweights(n: int, kind: int = 2) -> jnp.ndarray:
-    """Clenshaw-Curtis (kind=2) or Gauss-Chebyshev (kind=1) quadrature weights.
+    """Quadrature weights for Chebyshev points of the 1st or 2nd kind.
+
+    For the *plain* integral of a function over [-1, 1] (with respect to
+    ``dx``):
+
+    * ``kind=2`` gives the Clenshaw-Curtis weights on 2nd-kind points.
+    * ``kind=1`` gives Fejér's first-rule weights on 1st-kind points.
+
+    Both mirror MATLAB ``@chebtech2/quadwts.m`` and ``@chebtech1/quadwts.m``
+    exactly: the weights sum to 2 and integrate polynomials up to the
+    appropriate degree to machine precision.
+
+    For the Gauss-Chebyshev rule (weights ``pi/n`` for the
+    ``1/sqrt(1-x^2)``-weighted integral) use :func:`gauss_cheb_weights`.
 
     Parameters
     ----------
     n : int
         Number of points.
     kind : {1, 2}
-        1 for Gauss-Chebyshev weights, 2 for Clenshaw-Curtis weights.
+        1 for Fejér-1 weights, 2 for Clenshaw-Curtis weights.
 
     Returns
     -------
@@ -84,17 +105,18 @@ def chebweights(n: int, kind: int = 2) -> jnp.ndarray:
 
     Provenance
     ----------
-    MATLAB source : chebpts.m (weights computed alongside points)
+    MATLAB source : @chebtech1/quadwts.m, @chebtech2/quadwts.m
     Chebfun commit: 7574c77
     Original authors: Copyright 2017 by The University of Oxford
-        and The Chebfun Developers.
+        and The Chebfun Developers.  Variant of Waldvogel's algorithm due
+        to Nick Hale.
     Algorithm:
         [1] Waldvogel, "Fast construction of the Fejér and Clenshaw-Curtis
             quadrature rules", BIT Numerical Mathematics, 46, 2006.
 
     See Also
     --------
-    chebpts
+    chebpts, gauss_cheb_weights
     """
     if n == 0:
         return jnp.array([], dtype=jnp.float64)
@@ -102,13 +124,72 @@ def chebweights(n: int, kind: int = 2) -> jnp.ndarray:
         return jnp.array([2.0], dtype=jnp.float64)
 
     if kind == 1:
-        # Gauss-Chebyshev: w_k = pi/n for all k
-        return jnp.full(n, jnp.pi / n, dtype=jnp.float64)
+        # Fejér's first rule via FFT (Waldvogel / Nick Hale)
+        return _fejer_first_weights(n)
     elif kind == 2:
         # Clenshaw-Curtis weights via FFT (Waldvogel's algorithm)
         return _clenshaw_curtis_weights(n)
     else:
         raise ValueError(f"kind must be 1 or 2, got {kind}")
+
+
+def gauss_cheb_weights(n: int) -> jnp.ndarray:
+    """Gauss-Chebyshev (1st-kind) quadrature weights ``w_k = pi/n``.
+
+    These integrate ``f(x) / sqrt(1 - x^2)`` over [-1, 1] exactly for
+    polynomials ``f`` of degree ``<= 2n - 1`` on the 1st-kind Chebyshev
+    nodes.  This is the classical Gauss-Chebyshev rule and is distinct from
+    Fejér's first rule (:func:`chebweights` with ``kind=1``), which targets
+    the plain ``dx`` integral.
+
+    Parameters
+    ----------
+    n : int
+        Number of points.
+
+    Returns
+    -------
+    w : jnp.ndarray, shape (n,)
+        All entries equal to ``pi / n`` (empty for ``n == 0``).
+
+    See Also
+    --------
+    chebpts, chebweights
+    """
+    if n == 0:
+        return jnp.array([], dtype=jnp.float64)
+    return jnp.full(n, jnp.pi / n, dtype=jnp.float64)
+
+
+def _fejer_first_weights(n: int) -> jnp.ndarray:
+    """Fejér's first-rule quadrature weights for n 1st-kind Chebyshev points.
+
+    Ported from MATLAB ``@chebtech1/quadwts.m`` (a variant of Waldvogel's
+    FFT algorithm due to Nick Hale).  The exact Chebyshev moments
+    ``m_k = 2/(1-k^2)`` (even ``k``) are mirrored, rotated by
+    ``exp(1i*(0:n-1)*pi/n)`` to account for the half-integer angles of the
+    1st-kind grid, and inverted by a single ``ifft``.
+
+    Weights are returned in ascending ``x`` order (matching
+    ``chebpts(n, kind=1)``); they sum to 2 and integrate polynomials of
+    degree ``<= n-1`` exactly.
+    """
+    # Moments: m = 2./[1, 1-(2:2:(n-1)).^2]  (exact integrals of even T_k).
+    even = jnp.arange(2, n, 2, dtype=jnp.float64)  # 2, 4, ..., up to n-1
+    m = jnp.concatenate([jnp.array([2.0], dtype=jnp.float64),
+                         2.0 / (1.0 - even ** 2)])
+
+    # Mirror the moment vector for the ifft (odd/even n handled separately,
+    # matching MATLAB's [m, -m(...)] / [m, 0, -m(...)] construction).
+    if n % 2 == 1:
+        c = jnp.concatenate([m, -m[(n + 1) // 2 - 1:0:-1]])
+    else:
+        c = jnp.concatenate([m, jnp.array([0.0], dtype=jnp.float64),
+                             -m[n // 2 - 1:0:-1]])
+
+    # Rotation (weight) vector for the half-integer 1st-kind angles.
+    v = jnp.exp(1j * jnp.arange(n, dtype=jnp.float64) * jnp.pi / n)
+    return jnp.real(jnp.fft.ifft(c * v))
 
 
 def _clenshaw_curtis_weights(n: int) -> jnp.ndarray:

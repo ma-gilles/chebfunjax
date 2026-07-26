@@ -27,6 +27,7 @@ from chebfunjax.utils.quadrature import (
     chebpts3,
     chebpts_ab,
     chebweights,
+    gauss_cheb_weights,
     paduapts,
 )
 from chebfunjax.utils.random import randnfun, randnfundisk, randnfunsphere, smoothie
@@ -94,6 +95,7 @@ __all__ = [
     "chebpts3",
     "chebpts_ab",
     "chebweights",
+    "gauss_cheb_weights",
     "paduapts",
     # transforms
     "cheb2leg",

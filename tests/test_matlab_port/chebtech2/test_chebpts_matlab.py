@@ -12,11 +12,10 @@ MATLAB's ``chebtech2.chebpts(n)`` returns ``[x, w, v]``.  In chebfunjax:
 chebfunjax returns 1-D arrays of shape ``(n,)`` throughout, so size checks
 are adapted to ``.shape == (n,)``.
 
-Genuine gap (xfailed): chebfunjax ``chebpts(n, kind=2)`` uses
-``cos(k*pi/(n-1))``, so the centre node is ``6.1e-17`` rather than exactly
-``0`` and the antisymmetry residual is ``~4e-16`` rather than exactly ``0``.
-MATLAB's sin-based symmetric construction gives an exact zero, so the three
-MATLAB assertions that use exact ``==`` on the centre / antisymmetry fail.
+All assertions pass, including the three exact-``==`` centre/antisymmetry
+checks: ``chebpts(n, kind=2)`` now uses MATLAB's sine construction
+``x = sin(pi*(-m:2:m)/(2m))`` (m = n-1), which is bit-exactly antisymmetric
+(centre node and antisymmetry residual are exactly ``0``).
 
 Provenance
 ----------
@@ -28,7 +27,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.utils.interpolation import cheb_bary_weights
 from chebfunjax.utils.quadrature import chebpts, chebweights
@@ -77,12 +75,6 @@ class TestChebtech2Chebpts:
         assert v.shape == (2,)
         assert np.array_equal(v, 0.5 * np.array([-1.0, 1.0]))
 
-    @pytest.mark.xfail(
-        reason="chebpts(n, kind=2) uses cos(k*pi/(n-1)); the centre node is "
-        "6.1e-17, not exactly 0, so MATLAB's exact 'x == [-1;0;1]' fails "
-        "(MATLAB uses a sin-based symmetric formula)",
-        strict=False,
-    )
     def test_n3_points(self):
         x = _x(3)
         assert x.shape == (3,)
@@ -102,11 +94,6 @@ class TestChebtech2Chebpts:
         n = 129
         assert _x(n).shape == (n,) and _w(n).shape == (n,) and _v(n).shape == (n,)
 
-    @pytest.mark.xfail(
-        reason="chebpts(n, kind=2) uses cos(k*pi/(n-1)); antisymmetry residual "
-        "is ~4e-16, not exactly 0 as MATLAB's sin-based construction gives",
-        strict=False,
-    )
     def test_n129_symmetric_nodes(self):
         n = 129
         x = _x(n)
@@ -114,11 +101,6 @@ class TestChebtech2Chebpts:
         right = x[(n + 1) // 2 :][::-1]
         assert _ninf(left + right) == 0.0
 
-    @pytest.mark.xfail(
-        reason="chebpts(n, kind=2) uses cos(k*pi/(n-1)); the centre node is "
-        "6.1e-17, not exactly 0 as MATLAB's sin-based construction gives",
-        strict=False,
-    )
     def test_n129_center_node(self):
         n = 129
         assert _x(n)[(n - 1) // 2] == 0.0

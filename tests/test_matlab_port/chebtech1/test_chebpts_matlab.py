@@ -7,18 +7,15 @@ tolerance MATLAB uses (10*eps).
 MATLAB's ``chebtech1.chebpts(n)`` returns ``[x, w, v]``.  In chebfunjax
 these are three separate helpers:
     x = chebpts(n, kind=1)
-    w = chebweights(n, kind=1)
-    v = bary_weights(chebpts(n, kind=1))   (barycentric weights)
+    w = chebweights(n, kind=1)          (Fejér-1, matches MATLAB)
+    v = _cheb1_barywts(n)               (1st-kind barywts, matches MATLAB)
 chebfunjax returns 1-D arrays of shape ``(n,)`` throughout (no MATLAB
 column/row distinction), so size checks are adapted to ``.shape == (n,)``.
 
-Two genuine gaps show up here (both xfailed with precise reasons):
-  * ``chebweights(n, kind=1)`` returns Gauss-Chebyshev weights ``pi/n``
-    (w.r.t. the 1/sqrt(1-x^2) measure), NOT the Fejer first-rule weights
-    (w.r.t. dx) that MATLAB ``chebtech1.chebpts`` returns.
-  * chebfunjax has no chebtech1-specific ``barywts``; ``bary_weights``
-    normalises ``max|v| == 1`` (giving ``[1, -1]`` for n=2), which differs
-    from MATLAB's ``[-1/sqrt2, 1/sqrt2]`` normalisation for n=2.
+All assertions pass: ``chebweights(n, kind=1)`` now returns Fejér's
+first-rule weights (ported from ``@chebtech1/quadwts.m``) and
+``_cheb1_barywts`` supplies the 1st-kind barycentric weights (ported from
+``@chebtech1/barywts.m``, giving ``[-1/sqrt2, 1/sqrt2]`` for n=2).
 
 Provenance
 ----------
@@ -30,9 +27,9 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
-from chebfunjax.utils.interpolation import bary_weights, cheb_bary_weights
+from chebfunjax.utils.diffmat import _cheb1_barywts
+from chebfunjax.utils.interpolation import cheb_bary_weights
 from chebfunjax.utils.quadrature import chebpts, chebweights
 
 EPS = float(np.finfo(np.float64).eps)
@@ -53,12 +50,12 @@ def _w(n):
 
 
 def _v(n):
-    # Barycentric weights for the n 1st-kind nodes.  For n <= 1 the single
-    # node / empty set is degenerate; cheb_bary_weights gives the standard
-    # v = [] (n=0) and v = [1] (n=1) shared by both kinds.
+    # 1st-kind barycentric weights (MATLAB @chebtech1/barywts.m).  For
+    # n <= 1 the single node / empty set is degenerate; cheb_bary_weights
+    # gives the standard v = [] (n=0) and v = [1] (n=1) shared by both kinds.
     if n <= 1:
         return np.asarray(cheb_bary_weights(n))
-    return np.asarray(bary_weights(chebpts(n, kind=KIND)))
+    return np.asarray(_cheb1_barywts(n))
 
 
 class TestChebtech1Chebpts:
@@ -73,21 +70,11 @@ class TestChebtech1Chebpts:
         assert x.shape == (2,)
         assert _ninf(x - np.array([-1 / np.sqrt(2), 1 / np.sqrt(2)])) < TOL
 
-    @pytest.mark.xfail(
-        reason="chebweights(n, kind=1) returns Gauss-Chebyshev weights pi/n, "
-        "not the Fejer first-rule weights [1, 1] MATLAB chebtech1.chebpts uses",
-        strict=False,
-    )
     def test_n2_weights(self):
         w = _w(2)
         assert w.shape == (2,)
         assert np.array_equal(w, np.array([1.0, 1.0]))
 
-    @pytest.mark.xfail(
-        reason="chebfunjax bary_weights normalises max|v|==1 giving [1, -1]; "
-        "no chebtech1-specific barywts producing [-1/sqrt2, 1/sqrt2]",
-        strict=False,
-    )
     def test_n2_baryweights(self):
         v = _v(2)
         assert v.shape == (2,)
@@ -98,11 +85,6 @@ class TestChebtech1Chebpts:
         assert x.shape == (3,)
         assert _ninf(x - np.array([-np.sqrt(3) / 2, 0.0, np.sqrt(3) / 2])) < TOL
 
-    @pytest.mark.xfail(
-        reason="chebweights(n, kind=1) returns Gauss-Chebyshev weights pi/n, "
-        "not the Fejer first-rule weights [4/9, 10/9, 4/9] MATLAB uses",
-        strict=False,
-    )
     def test_n3_weights(self):
         w = _w(3)
         assert w.shape == (3,)

@@ -12,6 +12,7 @@ from chebfunjax.utils.quadrature import (
     chebpts,
     chebpts_ab,
     chebweights,
+    gauss_cheb_weights,
     hermpts,
     jacpts,
     lagpts,
@@ -27,10 +28,13 @@ class TestChebpts:
     """Tests for Chebyshev points."""
 
     def test_chebpts2_n5(self):
-        """5 Chebyshev points of the 2nd kind."""
+        """5 Chebyshev points of the 2nd kind (sine construction: exact 0)."""
         x = chebpts(5, kind=2)
-        expected = np.cos(np.arange(4, -1, -1) * np.pi / 4)
-        npt.assert_allclose(np.array(x), expected, rtol=1e-14)
+        # MATLAB's sine form gives a bit-exact centre 0, so compare against
+        # the symmetric analytic values rather than cos(k*pi/4) (whose centre
+        # rounds to 6.1e-17).
+        expected = np.array([-1.0, -1 / np.sqrt(2), 0.0, 1 / np.sqrt(2), 1.0])
+        npt.assert_allclose(np.array(x), expected, rtol=1e-14, atol=1e-15)
 
     def test_chebpts2_endpoints(self):
         """2nd-kind points include +/-1."""
@@ -113,8 +117,29 @@ class TestChebweights:
     def test_gc_integrates_1(self):
         """Gauss-Chebyshev weights: sum should = pi (integral of 1/sqrt(1-x^2))."""
         for n in [5, 10, 50]:
-            w = chebweights(n, kind=1)
+            w = gauss_cheb_weights(n)
             npt.assert_allclose(float(jnp.sum(w)), jnp.pi, rtol=1e-14)
+
+    def test_fejer1_integrates_1(self):
+        """Fejér-1 weights (kind=1) integrate f(x)=1 exactly (sum = 2)."""
+        # Core mirror of tests/test_matlab_port/chebtech/test_quadpts.py.
+        for n in [2, 5, 10, 51]:
+            w = chebweights(n, kind=1)
+            npt.assert_allclose(float(jnp.sum(w)), 2.0, atol=1e-14)
+
+    def test_fejer1_integrates_x2(self):
+        """Fejér-1 (kind=1) integrates x^2 on [-1,1] exactly = 2/3."""
+        for n in [3, 5, 10]:
+            x = chebpts(n, kind=1)
+            w = chebweights(n, kind=1)
+            npt.assert_allclose(float(jnp.dot(w, x**2)), 2.0 / 3.0, atol=1e-14)
+
+    def test_fejer1_small_n(self):
+        """Fejér-1 (kind=1) closed-form values for tiny n."""
+        npt.assert_allclose(np.array(chebweights(2, kind=1)), [1.0, 1.0],
+                            atol=1e-15)
+        npt.assert_allclose(np.array(chebweights(3, kind=1)),
+                            [4 / 9, 10 / 9, 4 / 9], atol=1e-14)
 
 
 # ===========================================================================

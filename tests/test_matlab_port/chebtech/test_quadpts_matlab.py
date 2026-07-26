@@ -4,12 +4,17 @@ MATLAB ``testTech.quadwts(n)`` -> chebfunjax ``chebweights(n, kind)`` and
 ``testTech.chebpts(n)`` -> ``chebpts(n, kind)`` (kind=1 for chebtech1,
 kind=2 for chebtech2).
 
-IMPORTANT GAP: chebfunjax ``chebweights(n, kind=1)`` returns GAUSS-CHEBYSHEV
-weights (pi/n, for the 1/sqrt(1-x^2)-weighted integral), NOT MATLAB
-``chebtech1.quadwts`` which are Fejer's first-rule weights for the *plain*
-integral (sum = 2, exact for polynomials).  So for kind=1 the polynomial
-exactness / weight-value assertions cannot pass and are xfail'd precisely.
-For kind=2 (Clenshaw-Curtis) all assertions pass at the MATLAB tolerance.
+``chebweights(n, kind=1)`` now returns MATLAB ``@chebtech1/quadwts.m``'s
+Fejér-first-rule weights (sum = 2, exact for polynomials on the plain
+``dx`` integral), so the kind=1 exactness / weight-value assertions pass at
+the MATLAB tolerance alongside kind=2 (Clenshaw-Curtis).
+
+One residual gap (xfailed): ``test_sum_equals_2`` at kind=1 uses n=10, where
+the correctly-rounded Fejér weights sum (via ``fsum``) to exactly 2, but the
+naive ``jnp.sum`` reduction accumulates a single ulp, giving
+``abs(sum-2) == 2*eps`` — failing the strict ``< 2*eps`` by one ulp of
+reduction rounding (not a weight error).  Kept xfail rather than widen the
+MATLAB tolerance.
 
 Provenance
 ----------
@@ -32,14 +37,18 @@ def _ninf(a):
     return float(jnp.max(jnp.abs(jnp.asarray(a))))
 
 
-_FEJER = (
-    "chebfunjax chebweights(n, kind=1) are Gauss-Chebyshev weights (pi/n), not "
-    "MATLAB chebtech1.quadwts Fejer-1 weights for the plain integral (sum=2)"
+_SUM_ULP = (
+    "kind=1 Fejér weights are correct (fsum(w) == 2 exactly), but the naive "
+    "jnp.sum(w) reduction for n=10 accumulates one ulp, so abs(sum-2) == 2*eps "
+    "fails the strict < 2*eps by a single reduction rounding ulp"
 )
 
-# kind=2 (chebtech2) passes; kind=1 (chebtech1) xfails the exactness checks.
-KIND_EXACT = [
-    pytest.param(1, marks=pytest.mark.xfail(reason=_FEJER, strict=False)),
+# Both kinds now integrate polynomials exactly (kind=1 = Fejér-1).
+KIND_EXACT = [1, 2]
+# test_sum_equals_2 uses n=10, where kind=1's raw jnp.sum(w) lands one ulp
+# over 2 (see module docstring); kept xfail rather than widen the tolerance.
+KIND_SUM = [
+    pytest.param(1, marks=pytest.mark.xfail(reason=_SUM_ULP, strict=False)),
     2,
 ]
 # Assertions that hold for both kinds (symmetry, w.x=0, w.x^3=0, empties):
@@ -47,7 +56,7 @@ KIND_BOTH = [1, 2]
 
 
 class TestChebtechQuadpts:
-    @pytest.mark.parametrize("kind", KIND_EXACT)
+    @pytest.mark.parametrize("kind", KIND_SUM)
     def test_sum_equals_2(self, kind):
         # pass(m, 1): abs(sum(w) - 2) < 2*eps.
         w = chebweights(10, kind)

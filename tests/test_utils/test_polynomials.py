@@ -695,12 +695,12 @@ class TestChebyshevOrthogonality:
 
     def test_T_orthogonality(self):
         """Integral of T_m * T_n / sqrt(1-x^2) dx = {0, pi/2, pi} for m!=n, m=n>0, m=n=0."""
-        from chebfunjax.utils.quadrature import chebpts, chebweights
+        from chebfunjax.utils.quadrature import chebpts, gauss_cheb_weights
 
         # Gauss-Chebyshev quadrature (1st kind): weights = pi/n
         N = 100
         x = chebpts(N, kind=1)
-        w = chebweights(N, kind=1)
+        w = gauss_cheb_weights(N)
         for m in range(6):
             Tm = chebeval(x, m)
             for n in range(6):
