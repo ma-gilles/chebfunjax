@@ -116,23 +116,25 @@ def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/applics')
     os.makedirs(outdir, exist_ok=True)
-    fig, axes = plt.subplots(1, 3)
+    fig, axes = plt.subplots(1, 3, figsize=(13, 4))
 
     S_plot = np.linspace(50, 200, 200)
     C_plot = black_scholes_call(S_plot, K, T, r, sigma)
     D_plot = black_scholes_delta(S_plot, K, T, r, sigma)
     intrinsic = np.maximum(S_plot - K, 0)
 
-    axes[0].plot(S_plot, C_plot, color='#0072BD', linestyle='-', linewidth=2, label='Call price')
-    axes[0].plot(S_plot, intrinsic, color='#D95319', linestyle='--', linewidth=1.5, label='Intrinsic value')
+    axes[0].plot(S_plot, C_plot, 'b-', linewidth=2, label='Call price')
+    axes[0].plot(S_plot, intrinsic, 'r--', linewidth=1.5, label='Intrinsic value')
     axes[0].axvline(K, color='k', linestyle=':', alpha=0.5, label=f'Strike K={K}')
     axes[0].set_title("Black-Scholes call option", fontsize=12)
-    axes[0].legend(fontsize=9)
+    axes[0].set_xlabel("Stock price S"); axes[0].set_ylabel("Option value")
+    axes[0].legend(fontsize=9); axes[0].grid(True, alpha=0.3)
 
-    axes[1].plot(S_plot, D_plot, color='#77AC30', linestyle='-', linewidth=2)
+    axes[1].plot(S_plot, D_plot, 'g-', linewidth=2)
     axes[1].axhline(0.5, color='k', linestyle='--', alpha=0.5, label='Δ=0.5 (ATM)')
     axes[1].set_title("Delta: dC/dS", fontsize=12)
-    axes[1].legend(fontsize=9)
+    axes[1].set_xlabel("Stock price S"); axes[1].set_ylabel("Delta")
+    axes[1].legend(fontsize=9); axes[1].grid(True, alpha=0.3)
 
     # Volatility surface
     S_grid = np.linspace(60, 160, 40)
@@ -141,6 +143,7 @@ def run():
     C_vol = black_scholes_call(SG, K, T, r, SIG)
     im = axes[2].contourf(SG, SIG, C_vol, levels=20, cmap="viridis")
     axes[2].set_title("Volatility surface", fontsize=12)
+    axes[2].set_xlabel("Stock price S"); axes[2].set_ylabel("σ")
     fig.colorbar(im, ax=axes[2], label='Call price')
 
     fig.suptitle("Black-Scholes option pricing", fontsize=13)

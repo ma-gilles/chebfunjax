@@ -29,6 +29,8 @@ from chebfunjax.plotting import chebfun_style
 
 chebfun_style()
 
+
+
 def ellipse_perimeter(a, b, n=100000):
     """Compute ellipse perimeter numerically via high-resolution integration."""
     t = np.linspace(0, 2*np.pi, n, endpoint=False)
@@ -36,6 +38,7 @@ def ellipse_perimeter(a, b, n=100000):
     dy = b * np.cos(t)
     ds = np.sqrt(dx**2 + dy**2)
     return np.trapezoid(ds, t)
+
 
 def run():
     print("=" * 60)
@@ -95,29 +98,38 @@ def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/geom')
     os.makedirs(outdir, exist_ok=True)
-    fig, axes = plt.subplots(1, 3)
+    fig, axes = plt.subplots(1, 3, figsize=(13, 4))
 
     t = np.linspace(0, 2*np.pi, 500)
 
     # Ellipse
-    axes[0].plot(a * np.cos(t), b * np.sin(t), color='#0072BD', linestyle='-', linewidth=2)
+    axes[0].plot(a * np.cos(t), b * np.sin(t), 'b-', linewidth=2)
     axes[0].set_aspect('equal')
     axes[0].set_title(f"Ellipse a={a}, b={b}\nPerimeter ≈ {perimeter:.4f}", fontsize=11)
+    axes[0].set_xlabel("x")
+    axes[0].set_ylabel("y")
+    axes[0].grid(True, alpha=0.3)
 
     # Lissajous
     x_l = np.sin(a_l * t + delta)
     y_l = np.sin(b_l * t)
-    axes[1].plot(x_l, y_l, color='#D95319', linestyle='-', linewidth=1.5)
+    axes[1].plot(x_l, y_l, 'r-', linewidth=1.5)
     axes[1].set_aspect('equal')
     axes[1].set_title(f"Lissajous a={a_l}, b={b_l}\nLength ≈ {length_l:.4f}", fontsize=11)
+    axes[1].set_xlabel("x")
+    axes[1].set_ylabel("y")
+    axes[1].grid(True, alpha=0.3)
 
     # Rose curve
     r_rose = np.cos(2 * t)
     x_rose = r_rose * np.cos(t)
     y_rose = r_rose * np.sin(t)
-    axes[2].plot(x_rose, y_rose, color='#77AC30', linestyle='-', linewidth=2)
+    axes[2].plot(x_rose, y_rose, 'g-', linewidth=2)
     axes[2].set_aspect('equal')
     axes[2].set_title(f"Rose r=cos(2θ)\nArea ≈ {area_rose:.4f}", fontsize=11)
+    axes[2].set_xlabel("x")
+    axes[2].set_ylabel("y")
+    axes[2].grid(True, alpha=0.3)
 
     fig.suptitle("Geometric curves with chebfunjax", fontsize=13)
     fig.tight_layout()
@@ -126,6 +138,7 @@ def run():
 
     print("\nAll assertions passed.")
     return True
+
 
 if __name__ == "__main__":
     run()

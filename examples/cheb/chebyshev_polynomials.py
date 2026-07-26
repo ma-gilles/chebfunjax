@@ -25,33 +25,36 @@ from chebfunjax.plotting import chebfun_style
 
 chebfun_style()
 
+
+
 def chebyshev_T(n, x):
     """Chebyshev polynomial T_n via cosine formula."""
     return np.cos(n * np.arccos(np.clip(x, -1, 1)))
+
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/cheb')
     os.makedirs(outdir, exist_ok=True)
 
-    # --- Plot T_0 through T_8 -------------------------------------------
-    fig, axes = plt.subplots(3, 3)
+    # --- Plot T_0 through T_6 as a single overlay -----------------------
+    fig, ax = plt.subplots(figsize=(8, 5))
     xx = np.linspace(-1, 1, 500)
 
-    for n in range(9):
-        ax = axes[n // 3, n % 3]
+    # matplotlib default (tab10) color cycle, to match the reference render
+    cyc = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
+           '#9467bd', '#8c564b', '#e377c2']
+    for n in range(7):
         Tn = chebyshev_T(n, xx)
-        ax.plot(xx, Tn, color='#0072BD', linestyle='-', linewidth=1.6)
-        ax.axhline(0, color='k', linewidth=0.5)
-        # Chebyshev roots: cos((2k-1)*pi/(2n)) for k=1..n
-        if n > 0:
-            k = np.arange(1, n + 1)
-            roots = np.cos((2 * k - 1) * np.pi / (2 * n))
-            ax.plot(roots, np.zeros_like(roots), '.r', markersize=6)
-        ax.set_title(f'$T_{n}(x)$', fontsize=11)
-        ax.set_ylim(-1.3, 1.3)
-        ax.set_xlim(-1.05, 1.05)
-    fig.suptitle('Chebyshev polynomials $T_0$ through $T_8$', fontsize=13)
+        ax.plot(xx, Tn, color=cyc[n], linewidth=1.5, label=f'T_{n}')
+
+    ax.set_title('Chebyshev polynomials T_0, ..., T_6', fontsize=13)
+    ax.set_xlabel('x')
+    ax.set_ylabel('T_n(x)')
+    ax.set_xlim(-1, 1)
+    ax.set_ylim(-1.1, 1.1)
+    ax.grid(True, alpha=0.3)
+    ax.legend(ncol=2, fontsize=10)
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'chebyshev_polynomials.png'),
                 dpi=150, bbox_inches='tight')
@@ -96,6 +99,7 @@ def run():
 
     print("chebyshev_polynomials: done")
     return True
+
 
 if __name__ == "__main__":
     run()

@@ -29,9 +29,12 @@ from chebfunjax.plotting import chebfun_style
 
 chebfun_style()
 
+
+
 def normal_pdf(mu=0.0, sigma=1.0):
     """Normal distribution PDF."""
     return lambda x: jnp.exp(-0.5 * ((x - mu) / sigma)**2) / (sigma * jnp.sqrt(2 * jnp.pi))
+
 
 def run():
     print("=" * 60)
@@ -121,7 +124,7 @@ def run():
     _here = os.path.dirname(os.path.abspath(__file__))
     outdir = os.path.join(_here, '../../docs/images/stats')
     os.makedirs(outdir, exist_ok=True)
-    fig, axes = plt.subplots(1, 3)
+    fig, axes = plt.subplots(1, 3, figsize=(13, 4))
 
     # Normal PDFs
     xs_n = np.linspace(-4, 4, 200)
@@ -129,15 +132,20 @@ def run():
         axes[0].plot(xs_n, np.exp(-0.5*((xs_n-mu)/sigma)**2)/(sigma*np.sqrt(2*np.pi)),
                      linewidth=2, label=label)
     axes[0].set_title("Normal distributions", fontsize=12)
+    axes[0].set_xlabel("x")
+    axes[0].set_ylabel("pdf")
     axes[0].legend(fontsize=9)
+    axes[0].grid(True, alpha=0.3)
 
     # Convolution result (using numpy-based convolution computed above)
     xs_plot_conv = np.linspace(-6, 6, 200)
     exact_conv = np.exp(-xs_plot_conv**2/4) / (np.sqrt(2) * np.sqrt(2*np.pi))
-    axes[1].plot(xs_plot_conv, conv_half, color='#0072BD', linestyle='-', linewidth=2, label='N(0,1) ∗ N(0,1)')
-    axes[1].plot(xs_plot_conv, exact_conv, color='#D95319', linestyle='--', linewidth=2, label='N(0,√2) exact')
+    axes[1].plot(xs_plot_conv, conv_half, 'b-', linewidth=2, label='N(0,1) ∗ N(0,1)')
+    axes[1].plot(xs_plot_conv, exact_conv, 'r--', linewidth=2, label='N(0,√2) exact')
     axes[1].set_title("Convolution of normals", fontsize=12)
+    axes[1].set_xlabel("x")
     axes[1].legend(fontsize=9)
+    axes[1].grid(True, alpha=0.3)
 
     # Beta distribution family
     xs_b = np.linspace(0, 1, 200)
@@ -146,7 +154,9 @@ def run():
         y = xs_b**(aa-1) * (1-xs_b)**(bb-1) / Bnorm
         axes[2].plot(xs_b, np.clip(y, 0, 5), linewidth=2, label=f'B({aa},{bb})')
     axes[2].set_title("Beta distributions", fontsize=12)
+    axes[2].set_xlabel("x")
     axes[2].legend(fontsize=9)
+    axes[2].grid(True, alpha=0.3)
     axes[2].set_ylim(0, 4)
 
     fig.suptitle("Probability distributions", fontsize=13)
@@ -156,6 +166,7 @@ def run():
 
     print("\nAll assertions passed.")
     return True
+
 
 if __name__ == "__main__":
     run()

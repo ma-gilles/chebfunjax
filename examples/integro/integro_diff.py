@@ -94,27 +94,31 @@ def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/integro')
     os.makedirs(outdir, exist_ok=True)
-    fig, axes = plt.subplots(1, 2)
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
 
     x1 = np.linspace(0, 2, 200)
     u1_vals = [float(u(jnp.array(xi))) for xi in x1]
     exact1 = 1 - np.exp(-x1)
 
-    axes[0].plot(x1, exact1, color='#0072BD', linestyle='-', linewidth=2, label='Exact: 1-exp(-x)')
+    axes[0].plot(x1, exact1, 'b-', linewidth=2, label='Exact: 1-exp(-x)')
     axes[0].plot(x1[::10], [u1_vals[i] for i in range(0, len(x1), 10)],
                  'r.', markersize=8, label='chebfunjax')
     axes[0].set_title("u' + u = 1, u(0) = 0", fontsize=12)
+    axes[0].set_xlabel("x")
     axes[0].legend()
+    axes[0].grid(True, alpha=0.3)
 
     x2 = np.linspace(0, np.pi, 200)
     u2_vals = [float(u2(jnp.array(xi))) for xi in x2]
     exact2 = np.sin(x2)
 
-    axes[1].plot(x2, exact2, color='#0072BD', linestyle='-', linewidth=2, label='Exact: sin(x)')
+    axes[1].plot(x2, exact2, 'b-', linewidth=2, label='Exact: sin(x)')
     axes[1].plot(x2[::10], [u2_vals[i] for i in range(0, len(x2), 10)],
                  'r.', markersize=8, label='chebfunjax')
     axes[1].set_title("u'' + u = 0 on [0,π]", fontsize=12)
+    axes[1].set_xlabel("x")
     axes[1].legend()
+    axes[1].grid(True, alpha=0.3)
 
     fig.suptitle("Integro-differential equations", fontsize=13)
     fig.tight_layout()
@@ -123,6 +127,7 @@ def run():
 
     print("\nAll assertions passed.")
     return True
+
 
 if __name__ == "__main__":
     run()
