@@ -5,12 +5,13 @@ tolerance MATLAB uses (multiples of length(f)*eps).  The MATLAB file loops
 ``for n = 1:2`` over ``{chebtech1(), chebtech2()}``; here each assertion is
 parametrized over both classes.
 
-Gaps vs MATLAB (honest xfail/skip):
-- ``roots(f, 'complex', 1)`` / ``'prune'`` / ``'recurse'``: chebfunjax
-  ``roots()`` returns only real roots in [-1, 1]; no complex/prune/recurse.
-- ``roots(f, 'qz', 1)``: chebfunjax ``roots()`` has no 'qz' algorithm option.
-- array-valued ``roots``: FIXED (Fable 5) — roots() loops the colleague
-  matrix per column and NaN-pads, so pass(n, 9) ports directly.
+Option surface (all ported):
+- ``roots(f, 'complex', 1)`` -> ``roots(complex_roots=True)``;
+  ``'prune'`` -> ``prune=``; ``'recurse'`` -> ``recurse=``.  MATLAB's
+  ``'complex'`` is exactly ``all_roots=True, prune=True``.
+- ``roots(f, 'qz', 1)`` -> ``roots(qz=True)``.
+- array-valued ``roots``: roots() loops the colleague matrix per column and
+  NaN-pads, so pass(n, 9) ports directly.
 
 Provenance
 ----------
@@ -114,24 +115,28 @@ class TestChebtechRoots:
 
     def test_roots_complex_pair(self, Tech):
         # pass(n, 6): roots(1 + 25 x^2, 'complex', 1) -> +/- i/5.
-        pytest.xfail(
-            "chebfunjax roots() returns only real roots in [-1, 1]; "
-            "no 'complex' option"
-        )
+        f = Tech.from_function(lambda x: 1 + 25 * x**2)
+        r = np.asarray(f.roots(complex_roots=True))
+        # MATLAB compares against [1i; -1i]/5; the eig order is arbitrary, so
+        # sort by descending imaginary part (a faithful set/order comparison).
+        r = r[np.argsort(np.imag(r))[::-1]]
+        assert r.size == 2
+        assert _ninf(r - np.array([1j, -1j]) / 5) < 10 * EPS
 
     def test_roots_complex_prune(self, Tech):
-        # pass(n, 7): roots(..., 'complex', 1, 'prune', 1).
-        pytest.xfail(
-            "chebfunjax roots() returns only real roots in [-1, 1]; "
-            "no 'complex'/'prune' options"
-        )
+        # pass(n, 7): roots((1+25x^2)exp(x), 'complex', 1, 'prune', 1).
+        f = Tech.from_function(lambda x: (1 + 25 * x**2) * jnp.exp(x))
+        r = np.asarray(f.roots(complex_roots=True, prune=True))
+        r = r[np.argsort(np.imag(r))[::-1]]
+        assert r.size == 2
+        assert _ninf(r - np.array([1j, -1j]) / 5) < 10 * f.n * EPS
 
     def test_roots_complex_recurse(self, Tech):
         # pass(n, 8): roots(sin(100 pi x), 'complex', 1, 'recurse', 0/1).
-        pytest.xfail(
-            "chebfunjax roots() returns only real roots in [-1, 1]; "
-            "no 'complex'/'recurse' options"
-        )
+        f = Tech.from_function(lambda x: jnp.sin(100 * jnp.pi * x))
+        r1 = f.roots(complex_roots=True, recurse=False)
+        r2 = f.roots(complex_roots=True)
+        assert np.asarray(r1).size == 201 and np.asarray(r2).size >= 213
 
     # FIXED (Fable 5, Big-Three array-valued epic): roots() now loops
     # the colleague matrix per column and NaN-pads (both tech classes).

@@ -64,6 +64,25 @@ class TestNewChebtechSurface:
         assert r.size == 2
         assert _ninf(f(jnp.asarray(r))) < 1e2 * EPS
 
+    def test_roots_complex_flag(self, Tech):
+        # Core mirror of tests/test_matlab_port/chebtech/test_roots.py
+        # pass(n, 6): roots(1 + 25 x^2, 'complex', 1) -> +/- i/5.
+        f = Tech.from_function(lambda x: 1 + 25 * x**2)
+        r = np.asarray(f.roots(complex_roots=True))
+        r = r[np.argsort(np.imag(r))[::-1]]
+        assert r.size == 2
+        assert _ninf(r - np.array([1j, -1j]) / 5) < 10 * EPS
+        # Plain roots() finds no real root in [-1, 1] for this function.
+        assert np.asarray(f.roots()).size == 0
+
+    def test_roots_recurse_toggle(self, Tech):
+        # recurse=False solves one colleague problem (no subdivision); the
+        # real roots of sin(100 pi x) in [-1, 1] are k/100, k=-100..100.
+        f = Tech.from_function(lambda x: jnp.sin(100 * jnp.pi * x))
+        r = np.sort(np.asarray(f.roots(recurse=False)))
+        assert r.size == 201
+        assert _ninf(r - np.arange(-100, 101) / 100) < 1e3 * EPS
+
     def test_min_max(self, Tech):
         f = Tech.from_function(lambda x: jnp.sin(10 * x))
         ymin, _ = f.min()

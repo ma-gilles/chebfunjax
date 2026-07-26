@@ -612,17 +612,43 @@ def _coeff_multiply(fc: jax.Array, gc: jax.Array) -> jax.Array:
 # ============================================================================
 
 
-def _roots_colleague(coeffs: jax.Array, qz: bool = False) -> jax.Array:
+def _prune_spurious_roots(r, rho):
+    """Prune 'spurious' complex roots by Boyd's radius test.
+
+    Keeps roots whose Bernstein-ellipse radius ``|r + sqrt(r^2 - 1)|``
+    (reflected to be >= 1) does not exceed ``rho``, mirroring the
+    ``'prune'`` branch of MATLAB ``@chebtech/roots.m``.  ``r`` is treated
+    as complex so the square root is well defined for real ``|r| < 1``.
+    """
     import numpy as np
-    """Find all real roots of a Chebyshev expansion in [-1, 1].
+    r = np.asarray(r)
+    rho_roots = np.abs(r + np.sqrt(r.astype(np.complex128) ** 2 - 1.0))
+    rho_roots = np.where(rho_roots < 1.0, 1.0 / rho_roots, rho_roots)
+    return r[rho_roots <= rho]
+
+
+def _roots_colleague(coeffs: jax.Array, qz: bool = False,
+                     all_roots: bool = False, prune: bool = False,
+                     recurse: bool = True) -> jax.Array:
+    import numpy as np
+    """Find roots of a Chebyshev expansion in [-1, 1].
 
     Uses recursive subdivision for degree > 50 and colleague matrix
     eigenvalue computation for degree <= 50.
 
-    When ``qz`` is True the small-degree roots are computed from the
-    colleague *matrix pencil* via the QZ (generalized eigenvalue)
-    algorithm instead of the plain QR algorithm, mirroring the ``'qz'``
-    option of MATLAB ``@chebtech/roots.m`` ([Nakatsukasa & Noferini]).
+    Parameters mirror the option surface of MATLAB ``@chebtech/roots.m``:
+
+    * ``qz`` — solve the colleague *matrix pencil* via the QZ / generalized
+      eigenvalue algorithm instead of plain QR ([Nakatsukasa & Noferini]).
+    * ``all_roots`` — return every root the linearization produces
+      (complex, and outside [-1, 1]) instead of only real roots in [-1, 1]
+      (MATLAB ``'all'``).
+    * ``prune`` — when ``all_roots`` holds, discard 'spurious' roots by the
+      Bernstein-radius test (MATLAB ``'prune'``).
+    * ``recurse`` — when ``False``, never subdivide; solve one colleague
+      problem for the whole series (MATLAB ``'recurse'``, 0).
+
+    MATLAB's ``'complex'`` flag is exactly ``all_roots=True, prune=True``.
 
     NOT JIT-safe (variable output size, recursive subdivision).
 
@@ -649,25 +675,44 @@ def _roots_colleague(coeffs: jax.Array, qz: bool = False) -> jax.Array:
         c = c.astype(np.float64)
     htol = 100.0 * np.finfo(np.float64).eps
 
+    # length(f) for the top-level prune radius (MATLAB uses numel(coeffs)).
+    length_f = c.shape[0]
+
     # Normalize
     vscl = np.max(np.abs(c))
     if vscl == 0.0:
         return jnp.array([0.0], dtype=jnp.float64)
     c_scaled = c / vscl
 
-    r = _roots_main(c_scaled, htol, qz=qz)
-    r = np.sort(r)
+    r = _roots_main(c_scaled, htol, qz=qz, all_roots=all_roots,
+                    prune=prune, recurse=recurse)
+
+    # Prune the roots if requested (MATLAB prunes at the top level only when
+    # recurse is off; with recursion the per-leaf prune already ran).
+    if prune and not recurse and length_f > 0:
+        rho = np.sqrt(np.finfo(np.float64).eps) ** (-1.0 / length_f)
+        r = _prune_spurious_roots(r, rho)
+
+    if all_roots:
+        # Keep complex roots; sort deterministically (real, then imag).
+        r = np.asarray(r)
+        order = np.lexsort((np.imag(r), np.real(r)))
+        return jnp.asarray(r[order])
+    r = np.sort(np.real(r))
     return jnp.asarray(r, dtype=jnp.float64)
 
 
-def _roots_main(c, htol: float, qz: bool = False):
+def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
+                prune: bool = False, recurse: bool = True):
     import numpy as np
     """Recursive root-finding engine (numpy, NOT JIT-safe).
 
     Follows MATLAB Chebfun's roots.m strategy:
     - Trim trailing small coefficients.
-    - If degree > 50, subdivide at a slightly off-center point and recurse.
-    - If degree <= 50, form the colleague matrix and compute eigenvalues.
+    - If ``recurse`` and degree > 50, subdivide at a slightly off-center
+      point and recurse.
+    - Otherwise form the colleague matrix and compute eigenvalues, then
+      filter (real roots in [-1, 1]), prune, or keep all per the options.
     """
     SPLIT_POINT = -0.004849834917525
     MAX_EIG_SIZE = 50
@@ -688,13 +733,14 @@ def _roots_main(c, htol: float, qz: bool = False):
 
     if n == 2:
         r = np.array([-c[0] / c[1]])
-        mask_im = np.abs(np.imag(r)) < htol
-        r = np.real(r[mask_im])
-        r = r[(r >= -(1.0 + htol)) & (r <= (1.0 + htol))]
-        r = np.clip(r, -1.0, 1.0)
+        if not all_roots:
+            mask_im = np.abs(np.imag(r)) < htol
+            r = np.real(r[mask_im])
+            r = r[(r >= -(1.0 + htol)) & (r <= (1.0 + htol))]
+            r = np.clip(r, -1.0, 1.0)
         return r
 
-    if n - 1 <= MAX_EIG_SIZE:
+    if (not recurse) or (n - 1 <= MAX_EIG_SIZE):
         # Form the colleague matrix
         c_adj = -0.5 * c[:-1] / c[-1]
         c_adj[-2] += 0.5
@@ -726,14 +772,19 @@ def _roots_main(c, htol: float, qz: bool = False):
         else:
             rts = np.linalg.eigvals(A)
 
-        # Filter: keep roots with small imaginary part and inside [-1, 1]
-        mask = np.abs(np.imag(rts)) < htol
-        rts = np.real(rts[mask])
-        rts = rts[np.abs(rts) <= 1.0 + htol]
-        rts = np.sort(rts)
-        if rts.size > 0:
-            rts[0] = max(rts[0], -1.0)
-            rts[-1] = min(rts[-1], 1.0)
+        if not all_roots:
+            # Keep roots with small imaginary part and inside [-1, 1].
+            mask = np.abs(np.imag(rts)) < htol
+            rts = np.real(rts[mask])
+            rts = rts[np.abs(rts) <= 1.0 + htol]
+            rts = np.sort(rts)
+            if rts.size > 0:
+                rts[0] = max(rts[0], -1.0)
+                rts[-1] = min(rts[-1], 1.0)
+        elif prune:
+            # Prune spurious roots by the Bernstein-radius test (local n).
+            rho = np.sqrt(np.finfo(np.float64).eps) ** (-1.0 / n)
+            rts = _prune_spurious_roots(rts, rho)
         return rts
 
     # Subdivide and recurse
@@ -766,8 +817,10 @@ def _roots_main(c, htol: float, qz: bool = False):
     c_right = np.asarray(vals2coeffs(jnp.asarray(v_right)))
 
     # Recurse
-    r_left = _roots_main(c_left, 2.0 * htol, qz=qz)
-    r_right = _roots_main(c_right, 2.0 * htol, qz=qz)
+    r_left = _roots_main(c_left, 2.0 * htol, qz=qz, all_roots=all_roots,
+                         prune=prune, recurse=recurse)
+    r_right = _roots_main(c_right, 2.0 * htol, qz=qz, all_roots=all_roots,
+                          prune=prune, recurse=recurse)
 
     # Map back to original interval
     r_left_mapped = 0.5 * (SPLIT_POINT - 1.0) + 0.5 * (SPLIT_POINT + 1.0) * r_left
@@ -2318,8 +2371,10 @@ class Chebtech2(eqx.Module):
     # Rootfinding
     # ------------------------------------------------------------------
 
-    def roots(self, qz: bool = False) -> jax.Array:
-        """Real roots in [-1, 1] via colleague matrix eigenvalues.
+    def roots(self, qz: bool = False, *, complex_roots: bool = False,
+              all_roots: bool = False, prune: bool = False,
+              recurse: bool = True) -> jax.Array:
+        """Roots in [-1, 1] via colleague matrix eigenvalues.
 
         NOT JIT-safe (variable output size, recursive subdivision).
 
@@ -2331,11 +2386,25 @@ class Chebtech2(eqx.Module):
             for extra numerical stability, mirroring ``roots(f, 'qz', 1)``
             in MATLAB.  When False, the standard colleague matrix and the
             QR algorithm are used.
+        complex_roots : bool, default False
+            MATLAB's ``'complex'`` flag: equivalent to setting both
+            ``all_roots`` and ``prune`` True.  Returns the (pruned) complex
+            roots, including those off the real axis.
+        all_roots : bool, default False
+            MATLAB's ``'all'``: return every root the linearization yields
+            (complex, and outside [-1, 1]) rather than only real roots in
+            [-1, 1].
+        prune : bool, default False
+            MATLAB's ``'prune'``: when ``all_roots`` holds, discard
+            'spurious' roots by the Bernstein-radius test.
+        recurse : bool, default True
+            MATLAB's ``'recurse'``: when False, never subdivide; solve one
+            colleague eigenproblem for the whole series.
 
         Returns
         -------
         jax.Array, shape (n_roots,)
-            Sorted roots in [-1, 1].
+            Roots (sorted, real by default; complex when ``all_roots``).
 
         Provenance
         ----------
@@ -2355,18 +2424,24 @@ class Chebtech2(eqx.Module):
         --------
         diff, sum
         """
+        if complex_roots:
+            all_roots = True
+            prune = True
+        kw = dict(qz=qz, all_roots=all_roots, prune=prune, recurse=recurse)
         if self.coeffs.ndim == 2:
             # Array-valued: roots per column, NaN-padded to equal length
             # (MATLAB @chebtech/roots.m does exactly this)
             import numpy as _np
-            cols = [_np.asarray(_roots_colleague(self.coeffs[:, j], qz=qz))
+            cols = [_np.asarray(_roots_colleague(self.coeffs[:, j], **kw))
                     for j in range(self.coeffs.shape[1])]
             nmax = max((len(c) for c in cols), default=0)
-            out = _np.full((nmax, len(cols)), _np.nan)
+            dt = (_np.complex128
+                  if any(_np.iscomplexobj(c) for c in cols) else float)
+            out = _np.full((nmax, len(cols)), _np.nan, dtype=dt)
             for j, c in enumerate(cols):
                 out[: len(c), j] = c
             return jnp.asarray(out)
-        return _roots_colleague(self.coeffs, qz=qz)
+        return _roots_colleague(self.coeffs, **kw)
 
     def minandmax(self) -> tuple[tuple[jax.Array, jax.Array], tuple[jax.Array, jax.Array]]:
         """Global minimum and maximum of the function on [-1, 1].
@@ -3516,35 +3591,38 @@ class Chebtech1(eqx.Module):
     # Rootfinding
     # ------------------------------------------------------------------
 
-    def roots(self, qz: bool = False) -> jax.Array:
-        """Real roots in [-1, 1] via colleague matrix eigenvalues.
+    def roots(self, qz: bool = False, *, complex_roots: bool = False,
+              all_roots: bool = False, prune: bool = False,
+              recurse: bool = True) -> jax.Array:
+        """Roots in [-1, 1] via colleague matrix eigenvalues.
 
-        NOT JIT-safe.
-
-        Parameters
-        ----------
-        qz : bool, default False
-            When True, use the colleague matrix pencil and the QZ
-            (generalized eigenvalue) algorithm for extra numerical
-            stability, mirroring ``roots(f, 'qz', 1)`` in MATLAB.
+        NOT JIT-safe.  See :meth:`Chebtech2.roots` for the full option
+        surface (``qz``, ``complex_roots``, ``all_roots``, ``prune``,
+        ``recurse``) mirroring MATLAB ``@chebtech/roots.m``.
 
         Provenance
         ----------
         MATLAB source : @chebtech/roots.m
         Chebfun commit: 7574c77
         """
+        if complex_roots:
+            all_roots = True
+            prune = True
+        kw = dict(qz=qz, all_roots=all_roots, prune=prune, recurse=recurse)
         if self.coeffs.ndim == 2:
             # Array-valued: roots per column, NaN-padded to equal length
             # (MATLAB @chebtech/roots.m), same as Chebtech2.roots.
             import numpy as _np
-            cols = [_np.asarray(_roots_colleague(self.coeffs[:, j], qz=qz))
+            cols = [_np.asarray(_roots_colleague(self.coeffs[:, j], **kw))
                     for j in range(self.coeffs.shape[1])]
             nmax = max((len(c) for c in cols), default=0)
-            out = _np.full((nmax, len(cols)), _np.nan)
+            dt = (_np.complex128
+                  if any(_np.iscomplexobj(c) for c in cols) else float)
+            out = _np.full((nmax, len(cols)), _np.nan, dtype=dt)
             for j, c in enumerate(cols):
                 out[: len(c), j] = c
             return jnp.asarray(out)
-        return _roots_colleague(self.coeffs, qz=qz)
+        return _roots_colleague(self.coeffs, **kw)
 
     # ------------------------------------------------------------------
     # Happiness check (mirrors Chebtech2 but uses 1st-kind sampling)
