@@ -18,7 +18,6 @@ import jax.numpy as jnp
 from chebfunjax.domain import Domain
 from chebfunjax.fun.classicfun import _is_matrix_operand
 from chebfunjax.tech.chebtech import Chebtech2
-from chebfunjax.utils.quadrature import legpts
 
 # Machine epsilon for float64
 _EPS = float(jnp.finfo(jnp.float64).eps)
@@ -731,23 +730,32 @@ class Unbndfun(eqx.Module):
         MATLAB source : @unbndfun/sum.m, ``unbndfunIntegrand``
         Chebfun commit: 7574c77
         """
-        # Integrate via Gauss-Legendre quadrature on the reference interval [-1,1].
+        # Faithful port of MATLAB @unbndfun/sum.m + ``unbndfunIntegrand``:
+        # construct a fixed-length CHEBTECH for the mapped integrand
+        #   h(y) = filter(f(map(y))) * (dx/dy),
+        # then integrate it with the tech's own coefficient sum.
         #
-        # The substitution rule gives:
-        #   ∫_{domain} f(x) dx = ∫_{-1}^{1} f(map(y)) * (dx/dy) dy
+        # The filter zeros samples with |f| < 10*eps*vscale BEFORE multiplying
+        # by dx/dy: near the infinite endpoints f is ~0 but its round-off would
+        # otherwise be amplified by the large map derivative (which blows up as
+        # y -> +/-1).  Directly quadraturing f(map(y))*der(y) without this
+        # filter lets those amplified round-off values corrupt the integral --
+        # e.g. after the sine-node change the Gaussian integral degraded ~20x.
         #
-        # Gauss-Legendre nodes are strictly interior to (-1, 1), which avoids the
-        # endpoint singularity where dx/dy → ∞.  The Chebyshev-2 extreme points
-        # include y=±1 exactly, causing 0*∞ = NaN/Inf; GL quadrature is free of
-        # this issue.
-        #
-        # We use n_gl ≥ n to ensure sufficient quadrature accuracy.
-        n_gl = max(self.n, 64)
-        pts_gl, wts_gl = legpts(n_gl)
-        # Evaluate integrand at GL nodes (all interior, so der is finite)
-        fy = self.onefun(pts_gl)
-        der = self.map_derivative(pts_gl)
-        return jnp.dot(wts_gl, fy * der)
+        # At y = +/-1 the map derivative is infinite and the (filtered) value is
+        # 0, so the integrand samples 0*Inf = NaN there; the CHEBTECH
+        # constructor extrapolates those endpoints from the interior (MATLAB
+        # populate.m), exactly as the MATLAB algorithm relies on.
+        vscale = float(self.vscale)
+        tol = 10.0 * _EPS * vscale
+
+        def integrand_fn(y: jax.Array) -> jax.Array:
+            fy = self.onefun(y)
+            fy = jnp.where(jnp.abs(fy) < tol, jnp.zeros_like(fy), fy)
+            return fy * self.map_derivative(y)
+
+        integrand_onefun = Chebtech2.from_function(integrand_fn, n=self.n)
+        return integrand_onefun.sum()
 
     def inner(self, other: "Unbndfun") -> jax.Array:
         """L2 inner product ⟨f, g⟩ = ∫_{domain} f(x) g(x) dx.
