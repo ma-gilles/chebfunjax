@@ -11,10 +11,30 @@ counterparts (1,105 port files). Final run:
 
 | Status | Count | Meaning |
 |---|---:|---|
-| **passed** | 2,855 | ported at MATLAB tolerances and passing |
-| **skipped** | 556 | test written; the feature does not exist (reason string names it) |
-| **xfailed** | 97 | known library bug or convention gap, with evidence in the reason |
+| **passed** | 2,916 | ported at MATLAB tolerances and passing |
+| **skipped** | 523 | test written; the feature does not exist (reason string names it) |
+| **xfailed** | 67 | known library bug or convention gap, with evidence in the reason |
 | **failed** | **0** | |
+
+*(2026-07-26 DRIVE COMPLETE: 2,916 / 0 / 523 / 67 (+3 documented
+knife-edge xpasses).  308 of the original 375 xfails eliminated at
+unchanged MATLAB tolerances.  Final round: MATLAB Fejér-1/Waldvogel
+quadrature weights + sine-constructed chebpts (bit-exact node
+symmetry); chebtech/classicfun roots options (all/prune/recurse/
+complex); happiness strict/classic checks; @chebtech/extrapolate.m
+(NaN/Inf endpoint fill + pref, 34 flips); purely-imaginary transform
+branch; trigtech sampleTest/isnan; fastSphereEval (2D-NUFFT sphere
+evaluation, pointwise 6.7e-16) with exact coefficient-space Rz
+rotation factors; exact CDR-Gram L2 norms for complex chebfun2v (no
+re-approximation; cancellation-residue norms instant).  FIVE more
+real bugs (21 total): Chebtech1.__add__ imaginary drop, unbndfun sum
+missing MATLAB's integrand filter, Chebfun.isequal padding every
+array axis, turbo pure-imaginary 1i drop, chebweights(kind=1) was
+Gauss-Chebyshev not Fejér.  The 67 remaining xfails are measured
+float64 walls (construction-tail amplification, eval conditioning at
+degree 1e4, one-ulp reduction rounding, platform-marginal rotate
+roundtrip pending a native-NUFFT install) -- each reason carries the
+exact measurements.)*
 
 *(2026-07-25 XFAIL-ELIMINATION DRIVE: 2,855 / 0 / 556 / 97 -- 278 of
 the 375 xfails flipped to passes at unchanged MATLAB tolerances.
