@@ -90,9 +90,14 @@ class TestTrigtechRdivide:
             g = ALPHA / f
         assert _ninf(g(X) - ALPHA / fop(X)) < 100 * g.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax trigtech has no isnan(); f/0 yields inf/nan coeffs silently")
     def test_scalar_division_by_zero_is_nan(self):
-        raise AssertionError("isnan() not implemented")
+        # pass(2): f ./ 0 -> isnan(g).  FIXED (Fable 5): Trigtech.isnan()
+        # ports @trigtech/isnan.m; f/0 makes NaN coeffs -> NaN values.
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            f = _tt(lambda x: jnp.exp(jnp.cos(jnp.pi * x)))
+            g = f / 0.0
+        assert g.isnan()
 
     # FIXED (Fable 5): complex scalars clear is_real, so pass(3)
     # ports directly.
@@ -104,12 +109,14 @@ class TestTrigtechRdivide:
         g = f / ALPHA
         assert _ninf(g(X) - fop(X) / ALPHA) < 100 * g.vscale * EPS
 
-    @pytest.mark.xfail(
-        reason="chebfunjax trigtech has no isnan(); array f./0 yields inf/nan coeffs silently "
-        "(array-valued division works, but the isnan() check MATLAB uses is unavailable)"
-    )
     def test_array_division_by_zero(self):
-        raise AssertionError("isnan() not implemented")
+        # pass(4): array-valued f ./ 0 -> isnan(g).  FIXED (Fable 5).
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            f = _tt(lambda x: jnp.stack(
+                [jnp.sin(10 * jnp.pi * x), jnp.sin(20 * jnp.pi * x)], axis=-1))
+            g = f / 0.0
+        assert g.isnan()
 
     # FIXED (Fable 5): a complex row divisor clears is_real, so
     # pass(5) ports at MATLAB's absolute 1e3*eps tolerance.
@@ -125,11 +132,13 @@ class TestTrigtechRdivide:
         assert _ninf(g(X) - exact) < 1e3 * EPS
 
     @pytest.mark.xfail(
-        reason="chebfunjax has no isnan() and f./0 produces inf (not all-NaN) coeffs, so "
-        "MATLAB's per-column NaN pattern check on f./[alpha 0] is not reproducible"
+        reason="isnan() now exists, but MATLAB divides VALUES by the row [alpha 0] "
+        "(the zero column's values become 0/0=NaN and Inf, whose transform is all-NaN "
+        "coeffs); chebfunjax rdivide divides COEFFS, so the zero column keeps Inf (not "
+        "all-NaN) coeffs and the per-column all(isnan(coeffs)) pattern differs"
     )
     def test_array_division_by_row_with_zero(self):
-        raise AssertionError("isnan() / NaN-pattern not reproducible")
+        raise AssertionError("value-space rdivide NaN-pattern not reproducible")
 
     @pytest.mark.xfail(
         reason="chebfunjax does not validate division by a column vector [1;2]; it silently "

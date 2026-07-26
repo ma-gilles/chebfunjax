@@ -2471,23 +2471,24 @@ class Trigtech(eqx.Module):
         return out[0] if v.ndim == 1 else out
 
     def isnan(self) -> bool:
-        """True if the tech has any NaN value.
+        """True if the tech has any NaN value (MATLAB ``isnan``).
 
-        In the coeffs-only model a genuine NaN value produces NaN (but not
-        Inf) Fourier coefficients, whereas an Inf value produces both Inf
-        and NaN coefficients.  We therefore report NaN only when the
-        coefficients contain a NaN that is *not* accompanied by an Inf,
-        matching MATLAB ``any(isnan(f.values(:)))``.
+        Mirrors ``@trigtech/isnan.m`` (``any(isnan(f.values(:)))``): the
+        function values are recovered from the coefficients and tested for
+        NaN.  A NaN Fourier coefficient (e.g. from ``f ./ 0``, which yields
+        ``0/0 = NaN`` in the non-constant coefficients) makes the inverse
+        transform NaN everywhere, so this flags it -- including the case
+        where Inf coefficients are also present.
 
         Provenance
         ----------
         MATLAB source : @trigtech/isnan.m
         Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
         """
-        c = jnp.asarray(self.coeffs)
-        has_nan = bool(jnp.any(jnp.isnan(c)))
-        has_inf = bool(jnp.any(jnp.isinf(c)))
-        return has_nan and not has_inf
+        values = trig_coeffs2vals(self.coeffs)
+        return bool(jnp.any(jnp.isnan(jnp.asarray(values))))
 
     def isinf(self) -> bool:
         """True if the tech has any infinite value (MATLAB ``isinf``).
