@@ -737,7 +737,11 @@ try:
         ri = ratinterp(_ftest, 40, 4)   # no domain: fit on [-1,1]
         rh = ri[0]
         xx = np.linspace(-10, 10, 2000)
-        rv = np.array([float(rh(float(t / 10.0))) for t in xx])
+        # Extrapolate the [-1,1]-domain type-(40,4) interpolant to [-10,10]:
+        # the degree-40 numerator grows like x^36 outside the fit interval, so
+        # the error blows up at the endpoints (the intended demonstration).
+        # (Evaluating rh(t/10) instead would stay inside [-1,1] -> no blow-up.)
+        rv = np.array([float(rh(float(t))) for t in xx])
         err = np.asarray(_ftest(jnp.array(xx))) - rv
         fig, ax = plt.subplots(figsize=(8, 5))
         ax.plot(xx, err, color=MAG, linewidth=1.0)
