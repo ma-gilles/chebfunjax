@@ -160,7 +160,7 @@ def bestl1():
     """approx/BestL1 — Linf vs L2 vs L1 approximation errors."""
 
     dom = (0.0, 14.0)
-    deg = 40  # published example uses 100; 40 shows the same structure
+    deg = 100  # match the published example's oscillation density (deg 100)
     f = cj.chebfun(lambda x: jnp.sin(x) ** 2 + jnp.sin(x**2), domain=list(dom))
     xs = jnp.linspace(dom[0], dom[1], 3000)
     fv = np.asarray(f(xs))
