@@ -56,19 +56,16 @@ def run():
                   dpi=150, bbox_inches='tight')
     plt.close(fig_s)
 
-    # Filled contour of the Chebfun2 (matches the reference render: viridis
-    # contourf with a continuous colorbar on the unit square).
-    xs = np.linspace(-1.0, 1.0, 150)
-    ys = np.linspace(-1.0, 1.0, 150)
-    XX, YY = np.meshgrid(xs, ys)
-    ZZ = np.array(f(jnp.asarray(XX), jnp.asarray(YY)), dtype=float)
-    from chebfunjax.plotting import PARULA
-    fig_c, ax_c = plt.subplots(figsize=(5.4, 4.0))
-    cs = ax_c.contourf(XX, YY, ZZ, levels=12, cmap=PARULA)
-    fig_c.colorbar(cs, ax=ax_c)
-    ax_c.set_title(r"$f(x,y) = e^{-(x^2+y^2)}$")
-    ax_c.set_xticks([-1, -0.5, 0, 0.5, 1])
-    ax_c.set_yticks([-1, -0.5, 0, 0.5, 1])
+    # Filled contour of the Chebfun2, matching the reference render: parula
+    # contourf with black contour lines and a colorbar on the unit square.
+    # Uses the shared plotting.contour helper (filled + black line overlay +
+    # colorbar + square box) rather than an inline fork.
+    from chebfunjax.plotting import contour
+
+    fig_c, ax_c = contour(
+        f, title=r"$f(x,y) = e^{-(x^2+y^2)}$", levels=12, filled=True,
+        line_color="k", colorbar=True, figsize=(4.2, 3.3),
+    )
     fig_c.savefig(os.path.join(outdir, 'chebfun2_basics_contour.png'),
                   dpi=150, bbox_inches='tight')
     plt.close(fig_c)

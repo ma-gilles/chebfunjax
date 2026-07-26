@@ -670,12 +670,15 @@ def contour(
     levels: int = 12,
     cmap=None,
     filled: bool = False,
+    line_color=None,
+    colorbar: bool = False,
+    figsize: tuple = (6.1, 2.58),
     **kw,
 ) -> tuple[plt.Figure, plt.Axes]:
     """Contour plot of a Chebfun2 (MATLAB Chebfun style).
 
-    By default draws filled contours with black contour lines overlaid,
-    using the parula colormap and unit-domain ticks.
+    Draws contour lines (optionally over filled bands) using the parula
+    colormap and unit-domain ticks.
 
     Parameters
     ----------
@@ -686,8 +689,19 @@ def contour(
     levels : int
     cmap : colormap, optional  (default: parula)
     filled : bool
-        If True (default), use contourf + contour overlay.  If False,
-        contour lines only.
+        If True, draw filled bands (contourf) under the contour lines.
+        Default False (lines only).
+    line_color : color spec, optional
+        Colour for the overlaid contour lines.  Default None uses the
+        colormap (guide-chapter style).  Pass e.g. ``"k"`` for the black
+        contour lines the filled chebfun2 reference renders use.
+    colorbar : bool
+        If True, attach a colorbar to the filled bands (needs ``filled``).
+        Default False.
+    figsize : tuple
+        Figure size when creating a new figure.  Default (6.1, 2.58) is the
+        wide guide-chapter box; filled square renders (e.g. chebfun2_basics)
+        pass a squarer size.
 
     Returns
     -------
@@ -706,19 +720,36 @@ def contour(
     ZZ = _eval_2d_vectorized(f2, XX, YY)
 
     if ax is None:
-        fig, ax = plt.subplots(figsize=(6.1, 2.58))
+        fig, ax = plt.subplots(figsize=figsize)
     else:
         fig = ax.get_figure()
 
+    cf = None
     if filled:
-        ax.contourf(XX, YY, ZZ, levels=levels, cmap=cmap_obj, **kw)
-    ax.contour(XX, YY, ZZ, levels=levels, cmap=cmap_obj, linewidths=0.8, **kw)
+        cf = ax.contourf(XX, YY, ZZ, levels=levels, cmap=cmap_obj, **kw)
+    if line_color is None:
+        ax.contour(XX, YY, ZZ, levels=levels, cmap=cmap_obj,
+                   linewidths=0.8, **kw)
+    else:
+        ax.contour(XX, YY, ZZ, levels=levels, colors=line_color,
+                   linewidths=0.5, **kw)
 
-    ax.set_aspect("equal")
+    has_colorbar = colorbar and cf is not None
+    if has_colorbar:
+        fig.colorbar(cf, ax=ax)
+
+    # With a colorbar the reference render lets the plot fill the box; a
+    # forced equal aspect just shrinks it and leaves whitespace. Without a
+    # colorbar (guide-chapter style) keep the square aspect.
+    if not has_colorbar:
+        ax.set_aspect("equal")
     _set_unit_ticks(ax, domain=(x0, x1, y0, y1))
     _apply_style(ax, title=title, grid=False)
     fig.set_facecolor("white")
-    fig.tight_layout(pad=0.5)
+    # tight_layout fights an attached colorbar (it re-flows the axes and
+    # blows up the bbox_inches='tight' crop); skip it in that case.
+    if not has_colorbar:
+        fig.tight_layout(pad=0.5)
     return fig, ax
 
 
