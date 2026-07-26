@@ -56,17 +56,35 @@ def _load_rgb_hist(path: Path, bins: int = 32) -> np.ndarray:
     return np.concatenate(hists)
 
 
+def _software_tag(path: Path) -> str:
+    """Return the PNG 'Software' metadata tag (empty string if none)."""
+    try:
+        return str(Image.open(path).info.get("Software", ""))
+    except Exception:
+        return ""
+
+
 def compare_pair(gen: Path, ref: Path) -> dict:
     """Return similarity metrics for one image pair (higher score = worse).
 
-    A generated file byte-identical to the reference is flagged
-    NOT_REGENERATED: it means the chebfun.org MATLAB render is still in
-    place and chebfunjax never produced the figure — identical bytes
-    would otherwise score a perfect 0 and mask exactly the failure this
-    tool exists to catch.
+    A generated file byte-identical to the reference is flagged one of:
+
+    * ``SELF_REF`` — the reference itself was produced by chebfunjax's
+      matplotlib (its PNG carries a ``Software: Matplotlib ...`` tag), so it
+      has NO chebfun.org MATLAB counterpart.  The byte-identical file is
+      therefore chebfunjax's own render already in place, not an
+      un-rendered placeholder; the matrix counts these separately from
+      genuine gaps.
+    * ``NOT_REGENERATED`` — the reference is a real chebfun.org render
+      (MATLAB ``Software`` tag or none) still sitting in ``docs/images``;
+      chebfunjax never produced the figure.  Identical bytes would
+      otherwise score a perfect 0 and mask exactly the gap this tool
+      exists to catch.
     """
     if gen.read_bytes() == ref.read_bytes():
         gi = Image.open(gen)
+        flag = ("SELF_REF" if "Matplotlib" in _software_tag(ref)
+                else "NOT_REGENERATED")
         return {
             "generated": str(gen),
             "reference": str(ref),
@@ -76,7 +94,7 @@ def compare_pair(gen: Path, ref: Path) -> dict:
             "gray_mae": 0.0,
             "hist_corr": 1.0,
             "badness": 999.0,
-            "flag": "NOT_REGENERATED",
+            "flag": flag,
         }
     gi, ri = Image.open(gen), Image.open(ref)
     aspect_gen = gi.width / gi.height
@@ -182,8 +200,11 @@ def main() -> int:
         montage(gen, ref, args.out / "montages" / tag / f"{gen.stem}.png")
 
     not_regen = [r for r in rows if r.get("flag") == "NOT_REGENERATED"]
+    self_ref = [r for r in rows if r.get("flag") == "SELF_REF"]
     print(f"compared: {len(rows)}  missing generated: {len(missing)}  "
-          f"NOT_REGENERATED (byte-identical to chebfun.org ref): {len(not_regen)}")
+          f"NOT_REGENERATED (byte-identical to chebfun.org ref): {len(not_regen)}  "
+          f"SELF_REF (byte-identical to a chebfunjax self-snapshot ref): "
+          f"{len(self_ref)}")
     for m in missing[:20]:
         print(f"  MISSING {m}")
     if len(missing) > 20:
