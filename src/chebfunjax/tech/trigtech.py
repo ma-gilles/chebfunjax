@@ -1952,26 +1952,45 @@ class Trigtech(eqx.Module):
     def happiness_check(
         coeffs: jax.Array,
         values: jax.Array,
+        op: Callable | None = None,
         tol: float | None = None,
         vscale: float = 0.0,
     ) -> tuple[bool, int]:
         """Standard happiness check for trigonometric adaptive construction.
 
+        Optionally performs a sample test (MATLAB ``pref.sampleTest``):
+        evaluates the operator ``op`` and the trigonometric interpolant at two
+        off-grid points and, if they disagree by more than
+        ``sqrt(max(tol, eps)) * vscale``, declares the representation unhappy
+        and reverts the cutoff to the full length.  This rejects the
+        aliasing-fooled "happy" case that the coefficient chop alone misses.
+
         Parameters
         ----------
         coeffs : jax.Array, shape (N,) complex
         values : jax.Array, shape (N,)
+        op : callable or None, optional
+            Original function handle for the sample test.  When ``None`` the
+            sample test is skipped (MATLAB ``pref.sampleTest = 0``).
         tol : float or None
         vscale : float, default 0.0
 
         Returns
         -------
         (ishappy, cutoff) : (bool, int)
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/happinessCheck.m, @trigtech/standardCheck.m,
+            @trigtech/sampleTest.m
+        Chebfun commit: 7574c77
         """
+        import numpy as _np
+
         if tol is None:
             tol = _EPS
 
-        coeffs.shape[0]
+        n = coeffs.shape[0]
         vscale_local = float(jnp.max(jnp.abs(values)))
         vscale = max(vscale, vscale_local)
 
@@ -1982,6 +2001,20 @@ class Trigtech(eqx.Module):
 
         cutoff, chop_len = _trig_chop_cutoff(coeffs, scaled_tol)
         ishappy = cutoff < chop_len
+
+        # Sample test (MATLAB @trigtech/sampleTest.m): compare the full
+        # interpolant against the operator at two fixed off-grid points.
+        if ishappy and op is not None:
+            xeval = jnp.array(
+                [-0.357998918959666, 0.036785641195074], dtype=jnp.float64
+            )
+            v_fun = _trig_eval(coeffs, xeval, is_real=False)
+            v_op = jnp.asarray(op(xeval), dtype=jnp.complex128)
+            err = float(jnp.max(jnp.abs(v_op - v_fun)))
+            sample_tol = _np.sqrt(max(_EPS, tol)) * vscale
+            if err > sample_tol:
+                ishappy = False
+                cutoff = n  # revert to size(f.values, 1)
         return ishappy, cutoff
 
     # ------------------------------------------------------------------

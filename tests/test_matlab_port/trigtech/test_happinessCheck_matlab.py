@@ -14,7 +14,6 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import jax.numpy as jnp
-import pytest
 
 from chebfunjax.tech.trigtech import Trigtech, trigpts
 
@@ -74,16 +73,35 @@ class TestTrigtechHappinessCheck:
         ishappy, tail = self._check(fop)
         assert ishappy
 
-    @pytest.mark.xfail(
-        reason="chebfunjax happiness_check has no sampleTest option; it cannot detect "
-        "the aliasing-fooled happy case that MATLAB's sampleTest=0 branch checks"
-    )
     def test_aliased_happy_without_sampletest(self):
-        raise AssertionError("sampleTest preference not implemented")
+        # pass(5): sin((k+m+1)*pi*x) sampled on k+1 points aliases to look like
+        # a resolved frequency, so the chop-only check is (wrongly) happy with
+        # tail == 2*m+1.  FIXED (Fable 5): sampleTest ported (see pass 6).
+        k = 4 * 8
+        m = k // 4
 
-    @pytest.mark.xfail(
-        reason="chebfunjax happiness_check has no sampleTest option to reject the "
-        "aliasing-fooled case"
-    )
+        def fop(x):
+            return jnp.sin((k + m + 1) * jnp.pi * x)
+
+        x = trigpts(k + 1)
+        vals = fop(x)
+        c = Trigtech.vals2coeffs(vals)
+        ishappy, tail = Trigtech.happiness_check(c, vals)  # sampleTest off
+        assert ishappy and tail == 2 * m + 1
+
     def test_unhappy_with_sampletest(self):
-        raise AssertionError("sampleTest preference not implemented")
+        # pass(6): with sampleTest on (op supplied), the aliasing is detected
+        # and the representation is unhappy with tail reverted to k+1 == 33.
+        # FIXED (Fable 5): Trigtech.happiness_check gained an `op=` sample test
+        # (MATLAB @trigtech/sampleTest.m).
+        k = 4 * 8
+        m = k // 4
+
+        def fop(x):
+            return jnp.sin((k + m + 1) * jnp.pi * x)
+
+        x = trigpts(k + 1)
+        vals = fop(x)
+        c = Trigtech.vals2coeffs(vals)
+        ishappy, tail = Trigtech.happiness_check(c, vals, op=fop)  # sampleTest
+        assert (not ishappy) and tail == k + 1
