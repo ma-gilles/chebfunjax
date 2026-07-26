@@ -470,8 +470,13 @@ except Exception as e:
 
 # ==========================================================================
 # 24: rng(1); f = randnfunsphere(.1); plot(f,'zebra'), colorbar
-#     (random realisation cannot pixel-match MATLAB's RNG; build a genuine
-#      random smooth spherefun from random spherical-harmonic coefficients)
+#     (random realisation cannot pixel-match MATLAB's RNG; genuine random
+#      smooth field via FFT low-pass, rendered zebra.)
+# TODO(figs 24/25): rebuild from a real Spherefun once a Spherefun-returning
+#   random constructor lands -- utils.random.randnfunsphere currently returns
+#   grid VALUES only, and the randnfun2 port (explots) will give the proper
+#   object to feed plot_sphere(...,'zebra') + f.gaussfilt(0.05).  Still won't
+#   pixel-match MATLAB's rng(1) but will be the faithful primitive.
 # ==========================================================================
 zebra_cmap = ListedColormap([(0, 0, 0), (1, 1, 1)])
 rand_field = random_sphere_field(seed=1, cutoff=0.14)
