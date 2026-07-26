@@ -7,13 +7,10 @@ assertions are ported as real checks against direct construction.
 MATLAB ``norm(h.coeffs - g.coeffs, inf)`` -> the inf-norm of the coefficient
 difference after zero-padding to a common length.
 
-Gaps vs MATLAB (honest xfail, reported in the final summary):
-- ``real()`` collapses an all-zero result to a length-1 constant only when the
-  real part is bit-exactly zero (its guard is ``jnp.any(c)`` with no
-  tolerance).  ``real(1i*cos(x))`` leaves ~5e-18 residuals on Chebtech2, so the
-  zero result keeps its full length instead of collapsing to numel 1.  The
-  numel/size checks (pass 3, 4) therefore xfail on Chebtech2; Chebtech1
-  happens to yield an exact zero and passes.  (``imag`` collapses on both.)
+FIXED (Fable 5): ``vals2coeffs`` now mirrors MATLAB's purely-imaginary branch
+(``coeffs = 1i*real(ifft(imag(tmp)))``), so a purely imaginary construction has
+a bit-exactly-zero real part and ``real()`` collapses the all-zero result to a
+length-1 constant on Chebtech2 as well.  Passes 3 and 4 hold on both techs.
 
 Provenance
 ----------
@@ -30,14 +27,6 @@ import pytest
 from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 
 EPS = float(np.finfo(np.float64).eps)
-
-_REAL_NO_COLLAPSE = (
-    "Chebtech2.real() collapses an all-zero result to length 1 only when the "
-    "real part is bit-exactly zero (guard is jnp.any(c), no tolerance); "
-    "real(1i*cos(x)) leaves ~5e-18 residuals so the length is not reduced to 1 "
-    "-- src robustness gap, reported"
-)
-
 
 def _ninf(a):
     return float(jnp.max(jnp.abs(jnp.asarray(a))))
@@ -81,16 +70,17 @@ class TestChebtechReal:
 
     def test_real_of_imaginary_is_zero(self, Tech):
         # pass(n, 3): real(1i*cos(x)) has a single zero coeff.
-        if Tech is Chebtech2:
-            pytest.xfail(_REAL_NO_COLLAPSE)
+        # FIXED (Fable 5): vals2coeffs now mirrors MATLAB's purely-imaginary
+        # branch (coeffs = 1i*real(ifft(imag(tmp)))), so the real part of a
+        # purely imaginary construction is bit-exactly zero and real()
+        # collapses to a length-1 constant on Chebtech2 as well.
         f = Tech.from_function(lambda x: 1j * jnp.cos(x))
         g = f.real()
         assert g.coeffs.size == 1 and bool(jnp.all(jnp.asarray(g.coeffs) == 0))
 
     def test_real_array_of_imaginary_is_zero(self, Tech):
         # pass(n, 4): real(1i*[cos sin exp]) is a [1, 3] block of zeros.
-        if Tech is Chebtech2:
-            pytest.xfail(_REAL_NO_COLLAPSE)
+        # FIXED (Fable 5): purely-imaginary vals2coeffs branch (see pass 3).
         f = Tech.from_function(
             lambda x: 1j * jnp.stack([jnp.cos(x), jnp.sin(x), jnp.exp(x)], axis=-1)
         )

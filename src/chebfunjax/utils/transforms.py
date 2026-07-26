@@ -66,12 +66,19 @@ def vals2coeffs(values: jnp.ndarray) -> jnp.ndarray:
     # [v_{n-1}, v_{n-2}, ..., v_1, v_0, v_1, ..., v_{n-2}]
     tmp = jnp.concatenate([values[n - 1:0:-1], values[:n - 1]])
 
-    # MATLAB @chebtech2/vals2coeffs.m: real data gives real coefficients,
-    # complex data keeps its complex coefficients. The dtype check is a
-    # trace-time constant, so this branch is JIT-safe.
-    # axis=0 keeps array-valued (n, m) inputs column-wise correct
+    # MATLAB @chebtech2/vals2coeffs.m splits into three cases: real data gives
+    # real coefficients; purely imaginary data gives coefficients computed as
+    # ``1i*real(ifft(imag(tmp)))`` so the real part is *exactly* zero; general
+    # complex data keeps the plain ``ifft(tmp)``. The dtype check is a
+    # trace-time constant; the purely-imaginary selection is data dependent so
+    # it is done branch-free with ``jnp.where`` (JIT-safe). axis=0 keeps
+    # array-valued (n, m) inputs column-wise correct.
     if jnp.iscomplexobj(values):
-        coeffs = jnp.fft.ifft(tmp, axis=0)
+        coeffs_general = jnp.fft.ifft(tmp, axis=0)
+        # Purely imaginary branch: exact zero real part, no eps residual.
+        coeffs_imag = 1j * jnp.real(jnp.fft.ifft(jnp.imag(tmp), axis=0))
+        purely_imag = jnp.all(jnp.real(values) == 0)
+        coeffs = jnp.where(purely_imag, coeffs_imag, coeffs_general)
     else:
         coeffs = jnp.real(jnp.fft.ifft(tmp, axis=0))
 
