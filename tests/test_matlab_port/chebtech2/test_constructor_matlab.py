@@ -8,11 +8,12 @@ logical-valued construction.  chebfunjax has none of that machinery:
 ``from_function`` is a single adaptive constructor (extrapolate OFF, one
 refinement path) with no prefs.
 
-The faithfully portable assertions are the two scalar ``sin`` checks for
-the default case (``extrapolate=0``, nested refinement):
-  * pass(1): construction accuracy at ``tol = 100*eps``
-  * pass(2): ``vscale(g) == sin(1)`` (to eps) and ``g.ishappy``
-Everything that turns on a pref chebfunjax lacks is skipped precisely.
+FIXED (Fable 5): ``from_function`` now accepts ``extrapolate=`` (MATLAB
+``pref.extrapolate``: evaluate interior points only, extrapolate the endpoints)
+and constructs array-valued techs, and its adaptive path resamples the whole
+grid each iteration (MATLAB ``refinementFunction='resampling'``), so passes
+3-15 hold.  ``pref.minSamples``/``pref.maxLength`` are still unsupported, so
+pass(16) stays skipped.
 
 Provenance
 ----------
@@ -53,64 +54,98 @@ class TestChebtech2Constructor:
         assert EPS < TOL
 
     def test_scalar_sin_nested_extrap1_accuracy(self):
-        pytest.skip("chebfunjax has no pref.extrapolate option")
+        # MATLAB pass(3): extrapolate=1, scalar sin.  FIXED (Fable 5).
+        g = Chebtech2.from_function(jnp.sin, extrapolate=True)
+        x = chebpts(len(g.coeffs), kind=2)
+        values = Chebtech2.coeffs2vals(g.coeffs)
+        assert _ninf(jnp.sin(x) - values) < TOL
 
     def test_scalar_sin_nested_extrap1_vscale(self):
-        pytest.skip("chebfunjax has no pref.extrapolate option")
+        # MATLAB pass(4): extrapolate=1 -> vscale within tol of sin(1)
+        # (100*eps, not eps: the endpoint is extrapolated).  FIXED (Fable 5).
+        g = Chebtech2.from_function(jnp.sin, extrapolate=True)
+        assert abs(g.vscale - float(np.sin(1.0))) < TOL
 
     def test_scalar_sin_resampling_extrap0_accuracy(self):
-        pytest.skip(
-            "chebfunjax has no pref.refinementFunction='resampling' "
-            "(single adaptive construction path)"
-        )
+        # MATLAB pass(5): the chebfunjax adaptive path resamples the whole grid
+        # each iteration (== refinementFunction='resampling').  FIXED (Fable 5).
+        g = Chebtech2.from_function(jnp.sin)
+        x = chebpts(len(g.coeffs), kind=2)
+        values = Chebtech2.coeffs2vals(g.coeffs)
+        assert _ninf(jnp.sin(x) - values) < TOL
 
     def test_scalar_sin_resampling_extrap0_vscale(self):
-        pytest.skip(
-            "chebfunjax has no pref.refinementFunction='resampling' "
-            "(single adaptive construction path)"
-        )
+        # MATLAB pass(6): endpoints sampled -> vscale == sin(1) to eps.
+        g = Chebtech2.from_function(jnp.sin)
+        assert abs(g.vscale - float(np.sin(1.0))) < EPS
 
     def test_scalar_sin_resampling_extrap1_accuracy(self):
-        pytest.skip("chebfunjax has no pref.extrapolate/refinementFunction options")
+        # MATLAB pass(7): resampling + extrapolate=1.  FIXED (Fable 5).
+        g = Chebtech2.from_function(jnp.sin, extrapolate=True)
+        x = chebpts(len(g.coeffs), kind=2)
+        values = Chebtech2.coeffs2vals(g.coeffs)
+        assert _ninf(jnp.sin(x) - values) < TOL
 
     def test_scalar_sin_resampling_extrap1_vscale(self):
-        pytest.skip("chebfunjax has no pref.extrapolate/refinementFunction options")
+        # MATLAB pass(8): resampling + extrapolate=1 -> vscale within tol.
+        g = Chebtech2.from_function(jnp.sin, extrapolate=True)
+        assert abs(g.vscale - float(np.sin(1.0))) < TOL
+
+    @staticmethod
+    def _array_op(x):
+        return jnp.stack([jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1)
 
     def test_array_nested_extrap0(self):
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix techs"
-        )
+        # MATLAB pass(9): array-valued [sin cos exp], extrapolate=0.
+        # FIXED (Fable 5, Big-Three array-valued epic).
+        g = Chebtech2.from_function(self._array_op)
+        x = chebpts(g.coeffs.shape[0], kind=2)
+        values = Chebtech2.coeffs2vals(g.coeffs)
+        assert _ninf(self._array_op(x) - values) < TOL
 
     def test_array_nested_extrap1(self):
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix techs"
-        )
+        # MATLAB pass(10): array-valued, extrapolate=1.  FIXED (Fable 5).
+        g = Chebtech2.from_function(self._array_op, extrapolate=True)
+        x = chebpts(g.coeffs.shape[0], kind=2)
+        values = Chebtech2.coeffs2vals(g.coeffs)
+        assert _ninf(self._array_op(x) - values) < TOL
 
     def test_array_resampling_extrap0(self):
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix techs"
-        )
+        # MATLAB pass(11): array-valued, resampling, extrapolate=0.
+        g = Chebtech2.from_function(self._array_op)
+        x = chebpts(g.coeffs.shape[0], kind=2)
+        values = Chebtech2.coeffs2vals(g.coeffs)
+        assert _ninf(self._array_op(x) - values) < TOL
 
     def test_array_resampling_extrap1(self):
-        pytest.skip(
-            "chebfunjax Chebtech is scalar-valued; no array-valued/quasimatrix techs"
-        )
+        # MATLAB pass(12): array-valued, resampling, extrapolate=1.
+        g = Chebtech2.from_function(self._array_op, extrapolate=True)
+        x = chebpts(g.coeffs.shape[0], kind=2)
+        values = Chebtech2.coeffs2vals(g.coeffs)
+        assert _ninf(self._array_op(x) - values) < TOL
 
     def test_nan_raises(self):
-        pytest.skip(
-            "chebfunjax has no populate() NaN/Inf handling "
-            "('Too many NaNs/Infs to handle.' error)"
-        )
+        # MATLAB pass(13): x + NaN -> 'Too many NaNs/Infs to handle.'
+        # FIXED (Fable 5): constructor extrapolation raises on all-NaN samples.
+        with pytest.raises(Exception):
+            Chebtech2.from_function(lambda x: x + jnp.nan, n=17)
 
     def test_inf_raises(self):
-        pytest.skip(
-            "chebfunjax has no populate() NaN/Inf handling "
-            "('Too many NaNs/Infs to handle.' error)"
-        )
+        # MATLAB pass(14): x + Inf -> 'Too many NaNs/Infs to handle.'
+        with pytest.raises(Exception):
+            Chebtech2.from_function(lambda x: x + jnp.inf, n=17)
 
     def test_extrapolate_avoids_endpoints(self):
-        pytest.skip(
-            "chebfunjax has no pref.extrapolate; cannot avoid endpoint evaluation"
+        # MATLAB pass(15): extrapolate=1 must not evaluate f at |x| == 1.
+        # FIXED (Fable 5): interior-only sampling + endpoint extrapolation.
+        def F(x):
+            if bool(np.any(np.abs(np.asarray(x)) == 1.0)):
+                raise RuntimeError("Extrapolate should prevent endpoint evaluation.")
+            return jnp.sin(x)
+
+        # Must not raise:
+        Chebtech2.from_function(
+            lambda x: jnp.stack([F(x), F(x)], axis=-1), extrapolate=True
         )
 
     def test_minsamples_equals_maxlength(self):

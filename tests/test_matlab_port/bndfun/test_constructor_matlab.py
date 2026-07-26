@@ -64,18 +64,21 @@ class TestBndfunConstructor:
         with pytest.raises(Exception):
             _bf(lambda x: x + jnp.inf, n=17)
 
-    @pytest.mark.skip(
-        reason="chebfunjax has no `extrapolate` preference and no array-valued "
-        "Bndfun: there is no equivalent knob to assert the MATLAB behaviour "
-        "(construct [F(x) F(x)] while avoiding endpoint |x|==1 evaluation)."
-    )
     def test_extrapolate_avoids_endpoints(self):
+        # MATLAB pass(15): with extrapolate=1 the operator is never evaluated at
+        # the domain endpoints (the mapped grid's +/-1 == physical a, b).
+        # FIXED (Fable 5): Bndfun.from_function forwards extrapolate= to the
+        # tech, which samples interior points only and extrapolates endpoints.
         def F(x):
-            if bool(np.any(np.abs(np.asarray(x)) == 1)):
+            xa = np.asarray(x)
+            if bool(np.any((xa == DOM.a) | (xa == DOM.b))):
                 raise RuntimeError("Extrapolate should prevent endpoint evaluation.")
             return jnp.sin(x)
 
-        _bf(lambda x: jnp.stack([F(x), F(x)], axis=-1))
+        # Must not raise (array-valued, endpoints extrapolated):
+        Bndfun.from_function(
+            lambda x: jnp.stack([F(x), F(x)], axis=-1), DOM, extrapolate=True
+        )
 
     def test_singular_function(self):
         # Blowup at BOTH endpoints: exponents (-0.5, -1.6) (MATLAB bndfun

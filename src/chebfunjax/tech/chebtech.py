@@ -667,6 +667,32 @@ def _extrapolate_values(
     return jnp.asarray(out), mask_nan, mask_inf
 
 
+def _sample_extrapolate(
+    f: Callable[[jax.Array], jax.Array],
+    x: jax.Array,
+    extrapolate: bool,
+) -> jax.Array:
+    """Sample ``f`` on grid ``x``, optionally skipping the endpoints.
+
+    With ``extrapolate=False`` this is just ``f(x)``.  With ``extrapolate=True``
+    (MATLAB ``pref.extrapolate``) the operator is evaluated only at the
+    interior points ``x[1:-1]`` and the two endpoint rows are set to NaN, so
+    the constructor's extrapolation step fills them from the interior samples
+    -- this avoids ever evaluating ``f`` at ``x = +/-1``.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech2/refine.m (refineResampling / refineNested,
+        ``pref.extrapolate`` branch), @chebtech/populate.m
+    Chebfun commit: 7574c77
+    """
+    if not extrapolate:
+        return _as_fun_dtype(f(x))
+    v_int = _as_fun_dtype(f(x[1:-1]))
+    nan_row = jnp.full((1,) + v_int.shape[1:], jnp.nan, dtype=v_int.dtype)
+    return jnp.concatenate([nan_row, v_int, nan_row], axis=0)
+
+
 # ============================================================================
 # Coefficient-level differentiation (JIT-safe)
 # ============================================================================
@@ -1491,6 +1517,7 @@ class Chebtech2(eqx.Module):
         maxpow2: int = 16,
         tol: float | None = None,
         turbo: bool = False,
+        extrapolate: bool = False,
     ) -> "Chebtech2":
         """Construct a Chebtech2 from a callable.
 
@@ -1558,18 +1585,19 @@ class Chebtech2(eqx.Module):
             c = _turbo_coeffs(f, plain.coeffs, num)
             return cls(coeffs=c, ishappy=plain.ishappy)
         if n is not None:
-            return cls._fixed_construct(f, n)
-        return cls._adaptive_construct(f, maxpow2, tol=tol)
+            return cls._fixed_construct(f, n, extrapolate=extrapolate)
+        return cls._adaptive_construct(f, maxpow2, tol=tol, extrapolate=extrapolate)
 
     @classmethod
     def _fixed_construct(
-        cls, f: Callable[[jax.Array], jax.Array], n: int
+        cls, f: Callable[[jax.Array], jax.Array], n: int,
+        extrapolate: bool = False,
     ) -> "Chebtech2":
         """Fixed-length construction on an n-point Chebyshev-2 grid."""
         if n <= 0:
             return cls(coeffs=jnp.array([], dtype=jnp.float64))
         x = chebpts(n, kind=2)
-        values = _as_fun_dtype(f(x))
+        values = _sample_extrapolate(f, x, extrapolate)
         if not bool(jnp.all(jnp.isfinite(values))):
             # Extrapolate NaN/Inf samples (MATLAB @chebtech/populate.m).
             values = _extrapolate_values(values, x, cls.barywts(n))[0]
@@ -1583,6 +1611,7 @@ class Chebtech2(eqx.Module):
         maxpow2: int = 16,
         start_pow2: int = 4,
         tol: float | None = None,
+        extrapolate: bool = False,
     ) -> "Chebtech2":
         """Adaptive construction — Python-level loop, NOT JIT-safe.
 
@@ -1603,13 +1632,17 @@ class Chebtech2(eqx.Module):
         tol : float, optional
             Construction tolerance (``eps``).  If None, ``happiness_check``
             uses machine epsilon.  Threaded from ``chebfun(..., eps=...)``.
+        extrapolate : bool, default False
+            When True (MATLAB ``pref.extrapolate``), evaluate ``f`` only at the
+            interior grid points and extrapolate the endpoint values, so ``f``
+            is never sampled at ``x = +/-1``.
         """
         vscale = 0.0
         c = None
         for k in range(start_pow2, maxpow2 + 1):
             n = 2**k + 1
             x = chebpts(n, kind=2)
-            values = _as_fun_dtype(f(x))
+            values = _sample_extrapolate(f, x, extrapolate)
             # Update vscale from the finite samples only, then extrapolate any
             # NaN/Inf rows before transforming (MATLAB @chebtech/populate.m).
             finite_mask = jnp.isfinite(values)
