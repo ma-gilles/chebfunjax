@@ -73,23 +73,19 @@ class TestClassicfunRoots:
         assert r.shape[0] == 2
         assert _ninf(r) < EPS * f.vscale
 
-    @pytest.mark.xfail(
-        reason="chebfunjax roots() returns only real roots; the 'complex' "
-        "option (roots(f,'complex',1)) is not implemented."
-    )
     def test_complex_roots_1_plus_x2(self):
+        # roots(f, 'complex', 1) -> [i, -i]; Classicfun forwards the option
+        # to the tech rootfinder and the affine map carries complex roots.
         f = _bf(lambda x: 1 + x ** 2)
-        r = f.roots()  # would need roots(f, 'complex', 1) -> [i, -i]
+        r = f.roots(complex_roots=True)
         assert _ninf(np.sort_complex(np.asarray(r)) - np.array([-1j, 1j])) < EPS * f.vscale
 
-    @pytest.mark.xfail(
-        reason="chebfunjax roots() has no 'complex'/'prune' options."
-    )
     def test_complex_roots_pruned(self):
+        # roots(f, 'complex', 1) prunes spurious roots -> +/- i/5.
         f = Bndfun.from_function(
             lambda x: (1 + 25 * x ** 2) * jnp.exp(x), Domain((-1.0, 1.0))
         )
-        r = f.roots()
+        r = f.roots(complex_roots=True)
         assert _ninf(np.sort_complex(np.asarray(r)) - np.array([-1j, 1j]) / 5) < 10 * EPS * f.vscale
 
     def test_complex_roots_recurse(self):

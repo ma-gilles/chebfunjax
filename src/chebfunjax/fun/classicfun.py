@@ -740,27 +740,41 @@ class Classicfun(eqx.Module):
     # Rootfinding and extrema
     # ------------------------------------------------------------------
 
-    def roots(self) -> jax.Array:
-        """Real roots in [a, b].
+    def roots(self, qz: bool = False, *, complex_roots: bool = False,
+              all_roots: bool = False, prune: bool = False,
+              recurse: bool = True) -> jax.Array:
+        """Roots in [a, b].
 
-        Delegates to the underlying Chebtech2 rootfinder (which returns
-        roots in [-1, 1]) and maps them back to [a, b].
+        Delegates to the underlying tech rootfinder (which returns roots in
+        [-1, 1]) and maps them back to [a, b] via the affine forward map.
+        The option surface (``qz``, ``complex_roots``, ``all_roots``,
+        ``prune``, ``recurse``) mirrors MATLAB ``@chebtech/roots.m``; the
+        affine map carries complex roots through unchanged.
 
         NOT JIT-safe (variable output size).
 
         Returns
         -------
         jax.Array, shape (n_roots,)
-            Sorted roots in [a, b].
+            Roots in [a, b] (real by default; complex when ``all_roots`` /
+            ``complex_roots``).
 
         Provenance
         ----------
         MATLAB source : @classicfun/roots.m
         Chebfun commit: 7574c77
         """
-        # Roots in [-1, 1]
-        onefun_roots = self.onefun.roots()
-        # Map to [a, b]
+        # Roots in [-1, 1].  Preserve the exact default path for every
+        # onefun type (some, e.g. Trigtech, take a different roots
+        # signature); only forward the option surface when a non-default
+        # option is requested (chebtech-backed funs).
+        if qz or complex_roots or all_roots or prune or not recurse:
+            onefun_roots = self.onefun.roots(
+                qz=qz, complex_roots=complex_roots, all_roots=all_roots,
+                prune=prune, recurse=recurse)
+        else:
+            onefun_roots = self.onefun.roots()
+        # Map to [a, b] (affine map applies to complex roots too).
         return self.domain.forward_map(onefun_roots)
 
     def minandmax(
