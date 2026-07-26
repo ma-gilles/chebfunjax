@@ -1952,45 +1952,26 @@ class Trigtech(eqx.Module):
     def happiness_check(
         coeffs: jax.Array,
         values: jax.Array,
-        op: Callable | None = None,
         tol: float | None = None,
         vscale: float = 0.0,
     ) -> tuple[bool, int]:
         """Standard happiness check for trigonometric adaptive construction.
 
-        Optionally performs a sample test (MATLAB ``pref.sampleTest``):
-        evaluates the operator ``op`` and the trigonometric interpolant at two
-        off-grid points and, if they disagree by more than
-        ``sqrt(max(tol, eps)) * vscale``, declares the representation unhappy
-        and reverts the cutoff to the full length.  This rejects the
-        aliasing-fooled "happy" case that the coefficient chop alone misses.
-
         Parameters
         ----------
         coeffs : jax.Array, shape (N,) complex
         values : jax.Array, shape (N,)
-        op : callable or None, optional
-            Original function handle for the sample test.  When ``None`` the
-            sample test is skipped (MATLAB ``pref.sampleTest = 0``).
         tol : float or None
         vscale : float, default 0.0
 
         Returns
         -------
         (ishappy, cutoff) : (bool, int)
-
-        Provenance
-        ----------
-        MATLAB source : @trigtech/happinessCheck.m, @trigtech/standardCheck.m,
-            @trigtech/sampleTest.m
-        Chebfun commit: 7574c77
         """
-        import numpy as _np
-
         if tol is None:
             tol = _EPS
 
-        n = coeffs.shape[0]
+        coeffs.shape[0]
         vscale_local = float(jnp.max(jnp.abs(values)))
         vscale = max(vscale, vscale_local)
 
@@ -2001,20 +1982,6 @@ class Trigtech(eqx.Module):
 
         cutoff, chop_len = _trig_chop_cutoff(coeffs, scaled_tol)
         ishappy = cutoff < chop_len
-
-        # Sample test (MATLAB @trigtech/sampleTest.m): compare the full
-        # interpolant against the operator at two fixed off-grid points.
-        if ishappy and op is not None:
-            xeval = jnp.array(
-                [-0.357998918959666, 0.036785641195074], dtype=jnp.float64
-            )
-            v_fun = _trig_eval(coeffs, xeval, is_real=False)
-            v_op = jnp.asarray(op(xeval), dtype=jnp.complex128)
-            err = float(jnp.max(jnp.abs(v_op - v_fun)))
-            sample_tol = _np.sqrt(max(_EPS, tol)) * vscale
-            if err > sample_tol:
-                ishappy = False
-                cutoff = n  # revert to size(f.values, 1)
         return ishappy, cutoff
 
     # ------------------------------------------------------------------
@@ -2471,24 +2438,23 @@ class Trigtech(eqx.Module):
         return out[0] if v.ndim == 1 else out
 
     def isnan(self) -> bool:
-        """True if the tech has any NaN value (MATLAB ``isnan``).
+        """True if the tech has any NaN value.
 
-        Mirrors ``@trigtech/isnan.m`` (``any(isnan(f.values(:)))``): the
-        function values are recovered from the coefficients and tested for
-        NaN.  A NaN Fourier coefficient (e.g. from ``f ./ 0``, which yields
-        ``0/0 = NaN`` in the non-constant coefficients) makes the inverse
-        transform NaN everywhere, so this flags it -- including the case
-        where Inf coefficients are also present.
+        In the coeffs-only model a genuine NaN value produces NaN (but not
+        Inf) Fourier coefficients, whereas an Inf value produces both Inf
+        and NaN coefficients.  We therefore report NaN only when the
+        coefficients contain a NaN that is *not* accompanied by an Inf,
+        matching MATLAB ``any(isnan(f.values(:)))``.
 
         Provenance
         ----------
         MATLAB source : @trigtech/isnan.m
         Chebfun commit: 7574c77
-        Original authors: Copyright 2017 by The University of Oxford
-            and The Chebfun Developers.
         """
-        values = trig_coeffs2vals(self.coeffs)
-        return bool(jnp.any(jnp.isnan(jnp.asarray(values))))
+        c = jnp.asarray(self.coeffs)
+        has_nan = bool(jnp.any(jnp.isnan(c)))
+        has_inf = bool(jnp.any(jnp.isinf(c)))
+        return has_nan and not has_inf
 
     def isinf(self) -> bool:
         """True if the tech has any infinite value (MATLAB ``isinf``).

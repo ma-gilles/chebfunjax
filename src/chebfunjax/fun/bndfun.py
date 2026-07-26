@@ -77,7 +77,6 @@ class Bndfun(Classicfun):
         *,
         n: int | None = None,
         exponents: tuple[float, float] | None = None,
-        extrapolate: bool = False,
     ) -> "Bndfun":
         """Construct a Bndfun from a callable on [a, b].
 
@@ -140,7 +139,7 @@ class Bndfun(Classicfun):
 
             onefun = Singfun.from_function(mapped_f, exponents, n=n)
             return cls(onefun=onefun, domain=domain)
-        onefun = Chebtech2.from_function(mapped_f, n=n, extrapolate=extrapolate)
+        onefun = Chebtech2.from_function(mapped_f, n=n)
         return cls(onefun=onefun, domain=domain)
 
     @classmethod
