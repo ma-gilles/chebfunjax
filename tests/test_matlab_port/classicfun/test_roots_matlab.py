@@ -90,12 +90,13 @@ class TestClassicfunRoots:
 
     def test_complex_roots_recurse(self):
         # MATLAB pass(8): numel(roots(f,'complex',1)) >=
-        # numel(roots(f,'complex',1,'recurse',0)).  chebfunjax
-        # Classicfun.roots takes no options, so the recurse=0 baseline
-        # cannot be expressed.  (The vacuous r1==r2 transcription left by
-        # the Opus 4.8 port xpassed; replaced by an honest skip in the
-        # Fable 5 audit.)
-        pytest.skip("Classicfun.roots has no 'recurse' option")
+        # numel(roots(f,'complex',1,'recurse',0)).  FIXED (Fable 5):
+        # Classicfun.roots forwards the 'recurse' option to the tech, so the
+        # recurse=0 baseline can be expressed and compared.
+        f = _bf(lambda x: jnp.sin(10 * np.pi * x))
+        r1 = np.asarray(f.roots(complex_roots=True, recurse=False))
+        r2 = np.asarray(f.roots(complex_roots=True))
+        assert r2.size >= r1.size
 
     def test_array_valued_roots(self):
         # pass(9): roots of [sin(pi x), cos(pi x), x^2+1] -> NaN-padded per-column
