@@ -326,6 +326,264 @@ def _chop_columns(coeffs: jax.Array, tol: float | None) -> int:
                for j in range(coeffs.shape[1]))
 
 
+def _round_half_away(x: float) -> int:
+    """MATLAB ``round`` (round-half-away-from-zero), not Python banker's."""
+    import numpy as _np
+
+    return int(_np.floor(_np.abs(x) + 0.5) * _np.sign(x)) if x != 0 else 0
+
+
+def _strict_check(
+    coeffs: jax.Array,
+    vscale: float,
+    epslevel: float,
+) -> tuple[bool, int]:
+    """'strict' happiness variant (MATLAB @chebtech/strictCheck.m).
+
+    The absolute coefficients (relative to ``vscale``) in the tail must all
+    lie below ``epslevel``; the tolerance is NOT relaxed by the length of the
+    representation or a gradient estimate the way ``classicCheck`` does.
+
+    Parameters
+    ----------
+    coeffs : jax.Array, shape (n,) or (n, m)
+        Chebyshev coefficients (ascending order in the leading axis).
+    vscale : float
+        Vertical scale (``max(|values|)``).
+    epslevel : float
+        Target tolerance (``pref.chebfuneps``).
+
+    Returns
+    -------
+    ishappy : bool
+    cutoff : int
+        1-based number of coefficients to retain (MATLAB's CUTOFF).
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech/strictCheck.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    """
+    import numpy as _np
+
+    c = _np.asarray(coeffs)
+    if c.ndim == 1:
+        c = c[:, None]
+    n = c.shape[0]
+
+    if n < 2:  # (Can't be simpler than a constant.)
+        return False, n
+    if vscale == 0:  # The zero function; we must be happy.
+        return True, 1
+    if not _np.isfinite(vscale):  # Inf located. No cutoff.
+        return False, n
+    if _np.any(_np.isnan(c)):
+        raise ValueError("Function returned NaN when evaluated.")
+
+    test_length = min(n, max(5, _round_half_away((n - 1) / 8)))
+    ac = _np.abs(c) / vscale
+    c = _np.where(ac <= epslevel, 0.0, c)
+    tail = c[n - test_length:, :]
+    if not _np.any(tail):
+        # Last row with any nonzero coefficient (MATLAB find(..., 'last')).
+        row_max = _np.max(_np.abs(c), axis=1)
+        nz = _np.nonzero(row_max > 0)[0]
+        cutoff = int(nz[-1]) + 1 if nz.size else 1
+        return True, cutoff
+    return False, n
+
+
+def _classic_check(
+    coeffs: jax.Array,
+    values: jax.Array,
+    points: jax.Array,
+    vscale: float,
+    hscale: float,
+    epslevel: float,
+) -> tuple[bool, int]:
+    """'classic' happiness variant (MATLAB @chebtech/classicCheck.m).
+
+    The Chebfun-v4 happiness test: the tail coefficients (relative to
+    ``vscale``) must fall below ``epslevel``, where ``epslevel`` is relaxed by
+    the tail length and a finite-difference condition-number estimate.  The
+    ``cutoff`` is refined by a "bang for buck" cost model.
+
+    Parameters
+    ----------
+    coeffs : jax.Array, shape (n,) or (n, m)
+        Chebyshev coefficients (ascending order).
+    values : jax.Array, shape (n,) or (n, m)
+        Sampled values (used for the gradient estimate).
+    points : jax.Array, shape (n,)
+        The Chebyshev points at which ``values`` were sampled.
+    vscale : float
+    hscale : float
+    epslevel : float
+        Target tolerance (``pref.chebfuneps``).
+
+    Returns
+    -------
+    ishappy : bool
+    cutoff : int
+        1-based number of coefficients to retain.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech/classicCheck.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    """
+    import numpy as _np
+
+    c = _np.asarray(coeffs)
+    v = _np.asarray(values)
+    x = _np.asarray(points).reshape(-1)
+    if c.ndim == 1:
+        c = c[:, None]
+    if v.ndim == 1:
+        v = v[:, None]
+    n = c.shape[0]
+    m = c.shape[1]
+    eps_vec = _np.full(m, float(epslevel))
+
+    if n < 2:
+        return False, n
+    if _np.any(_np.isnan(c)):
+        raise ValueError("Function returned NaN when evaluated.")
+    if vscale == 0:
+        return True, 1
+    if not _np.isfinite(vscale):
+        return False, n
+    vs = vscale if vscale != 0 else 1.0
+
+    ac = _np.abs(c) / vs
+
+    # happinessRequirements: test length + relaxed epslevel.
+    min_prec = 1e-4
+    test_length = min(n, max(5, _round_half_away((n - 1) / 8)))
+    tail_err = min(_EPS * test_length, min_prec)
+    dy = _np.diff(v, axis=0)
+    dx = _np.diff(x)[:, None] * _np.ones((1, m))
+    grad_est = _np.max(_np.abs(dy / dx), axis=0)
+    # eps(hscale): spacing of floats at hscale.
+    cond_est = _np.spacing(hscale) / vs * grad_est
+    cond_est = _np.minimum(cond_est, min_prec)
+    eps_vec = _np.maximum(_np.maximum(eps_vec, cond_est), tail_err)
+
+    tail_block = ac[n - test_length:, :]
+    if _np.all(_np.max(tail_block, axis=0) < eps_vec):
+        # Converged. Find last row with a coefficient at/above epslevel.
+        rows_large = _np.any(ac >= eps_vec[None, :], axis=1)
+        nz = _np.nonzero(rows_large)[0]
+        if nz.size == 0:
+            return True, 1
+        tloc = int(nz[-1]) + 1 + 1  # find(...) is 1-based, MATLAB adds +1
+
+        # Cumulative max of eps/4 and the tail entries, from the end down to
+        # Tloc (MATLAB restricts ac to ac(end:-1:Tloc, :)).
+        t = 0.25 * _EPS * _np.ones(m)
+        acr = ac[::-1][: (n - tloc + 1), :].copy()
+        for k in range(acr.shape[0]):
+            below = acr[k, :] < t
+            acr[k, below] = t[below]
+            atleast = ~below
+            t[atleast] = acr[k, atleast]
+
+        # "Bang for buck": accuracy gained vs. coefficients kept.
+        with _np.errstate(divide="ignore", invalid="ignore"):
+            bang = _np.log(1e3 * (eps_vec[None, :] / acr))
+        buck = _np.arange(n - 1, tloc - 2, -1).astype(float)[:, None]
+        tbpb = bang / buck
+
+        # max over rows 3..(n-Tloc+1) (1-based) => Python indices 2:(n-tloc+1).
+        sub = tbpb[2:(n - tloc + 1), :]
+        if sub.shape[0] == 0:
+            cutoff = n
+        else:
+            per_col_tchop = _np.argmax(sub, axis=0) + 1  # 1-based position
+            tchop = int(_np.min(per_col_tchop))
+            cutoff = n - tchop - 2
+        return True, int(cutoff)
+
+    return False, 0
+
+
+def _happiness_check_impl(
+    tech_cls,
+    kind: int,
+    coeffs: jax.Array,
+    values: jax.Array,
+    op: Callable | None,
+    tol: float | None,
+    vscale: float,
+    hscale: float,
+    check: str,
+) -> tuple[bool, int]:
+    """Shared happiness-check dispatch for Chebtech1/Chebtech2.
+
+    Dispatches to the requested happiness variant (``'standard'``,
+    ``'strict'``, ``'classic'``) and then applies the common sample test
+    (MATLAB ``@chebtech/happinessCheck.m``), reverting the cutoff to the full
+    length if the sample test fails.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech/happinessCheck.m, @chebtech/sampleTest.m
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+
+    if tol is None:
+        tol = _EPS
+
+    n = coeffs.shape[0]
+    vscale_local = float(jnp.max(jnp.abs(values)))
+    vscale = max(vscale, vscale_local)
+
+    if check == "strict":
+        ishappy, cutoff = _strict_check(coeffs, vscale, tol)
+    elif check == "classic":
+        points = chebpts(n, kind)
+        ishappy, cutoff = _classic_check(
+            coeffs, values, points, vscale, hscale, tol
+        )
+    elif check == "standard":
+        # Scale tolerance by max(hscale, vscale / vscale_local)
+        # (see MATLAB standardCheck.m lines 60-62)
+        if vscale_local > 0:
+            scaled_tol = tol * max(hscale, vscale / vscale_local)
+        else:
+            scaled_tol = tol * hscale
+        cutoff = _chop_columns(coeffs, scaled_tol)
+        ishappy = cutoff < n
+    else:
+        raise ValueError(
+            f"unknown happiness check {check!r} "
+            "(expected 'standard', 'strict', or 'classic')"
+        )
+
+    # Sample test: verify the interpolant matches the operator at two
+    # off-grid points (MATLAB sampleTest.m).  Runs for any happiness variant.
+    if ishappy and op is not None:
+        xeval = jnp.array(
+            [-0.357998918959666, 0.036785641195074], dtype=jnp.float64
+        )
+        keep = max(1, min(int(cutoff), n))
+        f_test = tech_cls(coeffs=coeffs[:keep])
+        v_fun = f_test(xeval)
+        v_op = _as_fun_dtype(op(xeval))
+        err = float(jnp.max(jnp.abs(v_op - v_fun)))
+        sample_tol = _np.sqrt(max(_EPS, tol)) * max(hscale * vscale_local, vscale)
+        if err > sample_tol:
+            ishappy = False
+            cutoff = n
+
+    return ishappy, cutoff
+
+
 # ============================================================================
 # Coefficient-level differentiation (JIT-safe)
 # ============================================================================
@@ -1784,13 +2042,16 @@ class Chebtech2(eqx.Module):
         tol: float | None = None,
         vscale: float = 0.0,
         hscale: float = 1.0,
+        check: str = "standard",
     ) -> tuple[bool, int]:
-        """Standard happiness check for adaptive construction.
+        """Happiness check for adaptive construction.
 
-        Tests whether a Chebyshev coefficient sequence has converged by
-        calling ``standard_chop``, with the tolerance scaled by
-        ``max(hscale, vscale / vscale_local)`` (matching MATLAB's
-        ``@chebtech/standardCheck.m``).
+        Tests whether a Chebyshev coefficient sequence has converged.  With
+        ``check='standard'`` (the default) it calls ``standard_chop`` with the
+        tolerance scaled by ``max(hscale, vscale / vscale_local)`` (matching
+        MATLAB's ``@chebtech/standardCheck.m``).  The ``'strict'`` and
+        ``'classic'`` variants dispatch to the corresponding MATLAB happiness
+        checks (``@chebtech/strictCheck.m`` / ``classicCheck.m``).
 
         Optionally performs a sample test: evaluates the operator ``op``
         and the Chebyshev interpolant at two off-grid points and checks
@@ -1798,9 +2059,9 @@ class Chebtech2(eqx.Module):
 
         Parameters
         ----------
-        coeffs : jax.Array, shape (n,)
+        coeffs : jax.Array, shape (n,) or (n, m)
             Chebyshev coefficients.
-        values : jax.Array, shape (n,)
+        values : jax.Array, shape (n,) or (n, m)
             Function values at 2nd-kind Chebyshev points.
         op : callable or None, optional
             Original function handle for sample testing.
@@ -1811,6 +2072,8 @@ class Chebtech2(eqx.Module):
             interval). Updated to ``max(vscale, max(|values|))``.
         hscale : float, default 1.0
             Horizontal scale factor.
+        check : {'standard', 'strict', 'classic'}, default 'standard'
+            Which happiness definition to use (MATLAB ``pref.happinessCheck``).
 
         Returns
         -------
@@ -1831,6 +2094,7 @@ class Chebtech2(eqx.Module):
         Provenance
         ----------
         MATLAB source : @chebtech/happinessCheck.m, @chebtech/standardCheck.m,
+            @chebtech/strictCheck.m, @chebtech/classicCheck.m,
             @chebtech/sampleTest.m
         Chebfun commit: 7574c77
         Original authors: Copyright 2017 by The University of Oxford
@@ -1840,43 +2104,9 @@ class Chebtech2(eqx.Module):
         --------
         standard_chop
         """
-        import numpy as _np
-
-        if tol is None:
-            tol = _EPS
-
-        n = coeffs.shape[0]
-        vscale_local = float(jnp.max(jnp.abs(values)))
-        vscale = max(vscale, vscale_local)
-
-        # Scale tolerance by max(hscale, vscale / vscale_local)
-        # (see MATLAB standardCheck.m lines 60-62)
-        if vscale_local > 0:
-            scaled_tol = tol * max(hscale, vscale / vscale_local)
-        else:
-            scaled_tol = tol * hscale
-
-        cutoff = _chop_columns(coeffs, scaled_tol)
-        ishappy = cutoff < n
-
-        # Sample test: verify the interpolant matches the operator at
-        # two off-grid points (MATLAB sampleTest.m)
-        if ishappy and op is not None:
-            # Fixed test points from MATLAB (not on any Chebyshev grid)
-            xeval = jnp.array(
-                [-0.357998918959666, 0.036785641195074], dtype=jnp.float64
-            )
-            # Build a temporary Chebtech2 with the truncated coefficients
-            f_test = Chebtech2(coeffs=coeffs[:cutoff])
-            v_fun = f_test(xeval)
-            v_op = _as_fun_dtype(op(xeval))
-            err = float(jnp.max(jnp.abs(v_op - v_fun)))
-            sample_tol = _np.sqrt(max(_EPS, tol)) * max(hscale * vscale_local, vscale)
-            if err > sample_tol:
-                ishappy = False
-                cutoff = n
-
-        return ishappy, cutoff
+        return _happiness_check_impl(
+            Chebtech2, 2, coeffs, values, op, tol, vscale, hscale, check
+        )
 
     # ------------------------------------------------------------------
     # Arithmetic operators
@@ -3636,48 +3866,23 @@ class Chebtech1(eqx.Module):
         tol: float | None = None,
         vscale: float = 0.0,
         hscale: float = 1.0,
+        check: str = "standard",
     ) -> tuple[bool, int]:
-        """Standard happiness check for adaptive construction.
+        """Happiness check for adaptive construction.
 
         Same logic as Chebtech2.happiness_check but sample-tests at
-        1st-kind off-grid points.
+        1st-kind off-grid points.  Supports the ``'standard'``, ``'strict'``,
+        and ``'classic'`` happiness variants (MATLAB ``pref.happinessCheck``).
 
         Provenance
         ----------
-        MATLAB source : @chebtech/happinessCheck.m, @chebtech/standardCheck.m
+        MATLAB source : @chebtech/happinessCheck.m, @chebtech/standardCheck.m,
+            @chebtech/strictCheck.m, @chebtech/classicCheck.m
         Chebfun commit: 7574c77
         """
-        import numpy as _np
-
-        if tol is None:
-            tol = _EPS
-
-        n = coeffs.shape[0]
-        vscale_local = float(jnp.max(jnp.abs(values)))
-        vscale = max(vscale, vscale_local)
-
-        if vscale_local > 0:
-            scaled_tol = tol * max(hscale, vscale / vscale_local)
-        else:
-            scaled_tol = tol * hscale
-
-        cutoff = _chop_columns(coeffs, scaled_tol)
-        ishappy = cutoff < n
-
-        if ishappy and op is not None:
-            xeval = jnp.array(
-                [-0.357998918959666, 0.036785641195074], dtype=jnp.float64
-            )
-            f_test = Chebtech1(coeffs=coeffs[:cutoff])
-            v_fun = f_test(xeval)
-            v_op = _as_fun_dtype(op(xeval))
-            err = float(jnp.max(jnp.abs(v_op - v_fun)))
-            sample_tol = _np.sqrt(max(_EPS, tol)) * max(hscale * vscale_local, vscale)
-            if err > sample_tol:
-                ishappy = False
-                cutoff = n
-
-        return ishappy, cutoff
+        return _happiness_check_impl(
+            Chebtech1, 1, coeffs, values, op, tol, vscale, hscale, check
+        )
 
     # ------------------------------------------------------------------
     # Composition, restriction, extrema (mirror Chebtech2)

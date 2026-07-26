@@ -12,8 +12,10 @@ Ported (passing): the scalar sin@33 case (tail==14), the array-valued
 (cos(80*acos x)@33 => tail 15/17 without sampleTest, unhappy/33 with).
 Array-valued happiness_check on (n, m) coeffs takes the max cutoff across the
 per-column standard_chop cutoffs (FIXED, Fable 5, Big-Three array-valued epic).
-xfail/skip: the ``happinessCheck='strict'/'classic'`` pref variants (no such
-pref in chebfunjax), which pull in the strict/plateau array cases (pass 8, 9).
+FIXED (Fable 5): ``happiness_check(..., check='strict'/'classic')`` ports the
+MATLAB strictCheck/classicCheck variants (pass 7, 8).
+skip: the ``happinessCheck=@plateauCheck`` array case (pass 9) still needs the
+plateau construction path (no plateauCheck pref in chebfunjax).
 
 Provenance
 ----------
@@ -118,18 +120,48 @@ class TestChebtechHappinessCheck:
         ishappy, tail = Tech.happiness_check(g.coeffs, values, op=f)  # op => sampleTest
         assert (not ishappy) and tail == 33
 
-    @pytest.mark.xfail(reason=_NO_PREF, strict=False)
     @pytest.mark.parametrize("Tech,kind", CASES)
     def test_strict_vs_classic(self, Tech, kind):
         # pass(n, 7): strictCheck vs classicCheck pref variants.
-        raise NotImplementedError(_NO_PREF)
+        # g1 (39 pts) has a few small-but-not-small-enough coefficients so it
+        # fails strictCheck; g2 (41 pts) has just enough; g1 still passes the
+        # (relaxed) classicCheck.  FIXED (Fable 5): 'strict'/'classic' ported.
+        tol = 2.0**-52  # pref.chebfuneps = 2^(-52)
+
+        def f(xx):
+            return jnp.sin(10 * (xx - 0.1))
+
+        def build(npts):
+            x = chebpts(npts, kind)
+            g = Tech.from_values(f(x))
+            return g.coeffs, Tech.coeffs2vals(g.coeffs)
+
+        c1, v1 = build(39)
+        c2, v2 = build(41)
+        ishappy1, _ = Tech.happiness_check(c1, v1, op=f, tol=tol, check="strict")
+        ishappy2, _ = Tech.happiness_check(c2, v2, op=f, tol=tol, check="strict")
+        ishappy3, _ = Tech.happiness_check(c1, v1, op=f, tol=tol, check="classic")
+        assert (not ishappy1) and ishappy2 and ishappy3
 
     @pytest.mark.parametrize("Tech,kind", CASES)
     def test_strict_array(self, Tech, kind):
         # pass(n, 8): strictCheck with an array-valued input.
-        # Array-valuedness is now supported, but the blocker here is the missing
-        # happinessCheck='strict' pref (no strictCheck in chebfunjax).
-        pytest.skip(_NO_PREF)
+        # FIXED (Fable 5): 'strict' happiness variant ported, array-valued.
+        tol = 2.0**-52
+
+        def f(xx):
+            return jnp.stack([jnp.sin(10 * (xx - 0.1)), jnp.exp(xx)], axis=-1)
+
+        def build(npts):
+            x = chebpts(npts, kind)
+            g = Tech.from_values(f(x))
+            return g.coeffs, Tech.coeffs2vals(g.coeffs)
+
+        c1, v1 = build(39)
+        c2, v2 = build(41)
+        ishappy1, _ = Tech.happiness_check(c1, v1, op=f, tol=tol, check="strict")
+        ishappy2, _ = Tech.happiness_check(c2, v2, op=f, tol=tol, check="strict")
+        assert (not ishappy1) and ishappy2
 
     @pytest.mark.parametrize("Tech,kind", CASES)
     def test_plateau_array(self, Tech, kind):
