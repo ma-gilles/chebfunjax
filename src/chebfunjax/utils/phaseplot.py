@@ -61,9 +61,10 @@ def phaseplot(
     Returns
     -------
     img : np.ndarray, shape (n_pts, n_pts, 3), dtype float
-        RGB image array suitable for ``matplotlib.pyplot.imshow``.  The
-        (0, 0) corner corresponds to (ax[0], ax[3]) — upper left in the
-        standard image orientation.
+        RGB image array suitable for ``matplotlib.pyplot.imshow``.  Row 0
+        corresponds to y = ax[2] (y_min), so display it with
+        ``origin='lower'`` to get the standard orientation (imaginary axis
+        increasing upward, matching MATLAB's ``surf`` + ``view(0,90)``).
 
     Notes
     -----
@@ -152,8 +153,10 @@ def phaseplot(
         # Fallback: HSV to RGB manually
         img = _hsv_to_rgb(hue)
 
-    # Flip vertically so y_min is at bottom (origin='lower' convention)
-    img = img[::-1, :, :]
+    # Row 0 already corresponds to y_min (yy = meshgrid over y ascending),
+    # which is exactly what ``imshow(..., origin='lower')`` expects.  Do NOT
+    # flip here: a flip combined with origin='lower' inverts the imaginary
+    # axis, mirroring the phase portrait (arg -> -arg) versus MATLAB.
     return img
 
 

@@ -557,6 +557,36 @@ class TestPhaseplot:
         ref = np.broadcast_to(img[0, 0, :], img.shape)
         npt.assert_allclose(img, ref, atol=1e-10)
 
+    def test_hue_convention_arg_zero_is_red(self):
+        """MATLAB phaseplot.m maps arg(f)=0 to red (hsv circshift, caxis)."""
+        from chebfunjax.utils.phaseplot import phaseplot
+
+        # f(z) = z: arg = 0 along the positive real axis.  Sample a point
+        # well inside the +x half so the pixel argument is ~0.
+        n = 101
+        img = phaseplot(lambda z: z, ax=[-1.0, 1.0, -1.0, 1.0], n_pts=n)
+        mid = n // 2                       # y = 0 row
+        col = int(0.75 * (n - 1))          # x ~ +0.5
+        r, g, b = img[mid, col]
+        assert r > 0.8 and g < 0.3 and b < 0.3, f"arg=0 should be red, got {(r, g, b)}"
+
+    def test_imaginary_axis_orientation(self):
+        """Row 0 must be y_min so imshow(origin='lower') is not double-flipped.
+
+        For f(z)=z, the upper half-plane (arg=+pi/2) is green and the lower
+        half (arg=-pi/2) is magenta/purple.  A vertical flip would swap them
+        (arg -> -arg), mirroring the whole portrait vs MATLAB.
+        """
+        from chebfunjax.utils.phaseplot import phaseplot
+
+        n = 101
+        img = phaseplot(lambda z: z, ax=[-1.0, 1.0, -1.0, 1.0], n_pts=n)
+        mid = n // 2
+        top = img[-1, mid]     # y = +1 (arg = +pi/2)  -> green
+        bot = img[0, mid]      # y = -1 (arg = -pi/2)  -> magenta/purple
+        assert top[1] > 0.7 and top[2] < 0.3, f"+imag should be green, got {tuple(top)}"
+        assert bot[2] > 0.7 and bot[1] < 0.3, f"-imag should be purple, got {tuple(bot)}"
+
     def test_classic_mode(self):
         """Classic mode runs without error."""
         from chebfunjax.utils.phaseplot import phaseplot
