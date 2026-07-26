@@ -135,7 +135,34 @@ except Exception as e:
     print(f"  guide11_{plot_idx:02d}.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
-# Plot 5: Noisy function + Gaussian smoothing (circconv)  (Sec 11.5)
+# Plot 5: starburst gallery example -- cheb.gallerytrig('starburst') (Sec 11.4)
+#   fa(t) = (3 + sin(10t) + sin(61 exp(.8 sin t + .7))) exp(i t), a complex
+#   trig chebfun; plot(f) draws imag(f) against real(f) with axis equal.
+# --------------------------------------------------------------------------
+try:
+    starburst = lambda s: (
+        (3.0 + jnp.sin(10.0 * jnp.pi * s)
+         + jnp.sin(61.0 * jnp.exp(0.8 * jnp.sin(jnp.pi * s) + 0.7)))
+        * jnp.exp(1j * jnp.pi * s)
+    )
+    f_star = Trigtech.from_function(starburst)
+    nlen = len(np.array(f_star.coeffs))
+    ss = np.linspace(-1, 1, 4000)
+    zz = np.array(f_star(jnp.array(ss)))
+
+    fig, ax = plt.subplots()
+    ax.plot(zz.real, zz.imag, color=CHEBFUN_BLUE, linewidth=1.0)
+    ax.set_aspect('equal')
+    ax.set_xlim(-5.5, 5.5)
+    ax.set_ylim(-5.0, 5.5)
+    ax.set_title(f'starburst, length = {nlen}')
+    save(fig, "starburst")
+except Exception as e:
+    plot_idx += 1
+    print(f"  guide11_{plot_idx:02d}.png FAILED: {e}")
+
+# --------------------------------------------------------------------------
+# Plot 6: noisy periodic function (201 samples) as a trig chebfun  (Sec 11.5)
 # --------------------------------------------------------------------------
 try:
     np.random.seed(0)
@@ -143,24 +170,46 @@ try:
     tt = np.linspace(-np.pi, np.pi, n_pts, endpoint=False)
     ff_vals = np.exp(np.sin(tt)) + 0.05 * np.random.randn(n_pts)
 
-    fig, ax = plt.subplots()
-    ax.plot(tt, ff_vals, color=CHEBFUN_BLUE, linewidth=0.8, alpha=0.7)
+    # Genuine trigonometric interpolant through the 201 equispaced samples.
+    c_noisy = trig_vals2coeffs(jnp.array(ff_vals, dtype=jnp.complex128))
+    f_noisy = Trigtech(coeffs=c_noisy, is_real=True, ishappy=True)
+    xs = np.linspace(-1, 1, 2000)
+    y_noisy = np.array(f_noisy(jnp.array(xs))).real
 
-    # Gaussian convolution (smoothing)
-    sigma = 0.1
-    gaussian = (1.0 / (sigma * np.sqrt(2 * np.pi))) * np.exp(-0.5 * (tt / sigma)**2)
-    # Circular convolution via FFT
-    dt = 2 * np.pi / n_pts
-    h_vals = np.real(np.fft.ifft(np.fft.fft(ff_vals) * np.fft.fft(gaussian))) * dt
-    ax.plot(tt, h_vals, color=CHEBFUN_RED, linewidth=1.8)
+    fig, ax = plt.subplots()
+    ax.plot(xs * np.pi, y_noisy, color=CHEBFUN_BLUE, linewidth=1.0)
     ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
-    save(fig, "noisy function + Gaussian smoothing")
+    save(fig, "noisy function")
 except Exception as e:
     plot_idx += 1
     print(f"  guide11_{plot_idx:02d}.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
-# Plot 6: plotcoeffs for exp(sin(t)) -- entire function  (Section 11.7)
+# Plot 7: smoothed curve from circular convolution with a Gaussian  (Sec 11.5)
+#   overlaid on the noisy function of plot 6 (hold on, plot(h)).
+# --------------------------------------------------------------------------
+try:
+    sigma = 0.1
+    gaussian = (1.0 / (sigma * np.sqrt(2 * np.pi))) * np.exp(-0.5 * (tt / sigma)**2)
+    dt = 2 * np.pi / n_pts
+    h_vals = np.real(np.fft.ifft(np.fft.fft(ff_vals) * np.fft.fft(gaussian))) * dt
+    # roll so the Gaussian (peaked at t=0) convolves centred on the grid
+    h_vals = np.roll(h_vals, n_pts // 2)
+    c_smooth = trig_vals2coeffs(jnp.array(h_vals, dtype=jnp.complex128))
+    f_smooth = Trigtech(coeffs=c_smooth, is_real=True, ishappy=True)
+    y_smooth = np.array(f_smooth(jnp.array(xs))).real
+
+    fig, ax = plt.subplots()
+    ax.plot(xs * np.pi, y_noisy, color=CHEBFUN_BLUE, linewidth=1.0)
+    ax.plot(xs * np.pi, y_smooth, color=CHEBFUN_RED, linewidth=1.8)
+    ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
+    save(fig, "noisy + Gaussian-smoothed")
+except Exception as e:
+    plot_idx += 1
+    print(f"  guide11_{plot_idx:02d}.png FAILED: {e}")
+
+# --------------------------------------------------------------------------
+# Plot 8: plotcoeffs for exp(sin(t)) -- supergeometric decay  (Section 11.7)
 # --------------------------------------------------------------------------
 try:
     f_ent = Trigtech.from_function(lambda s: jnp.exp(jnp.sin(jnp.pi * s)))
@@ -170,8 +219,9 @@ try:
 
     fig, ax = plt.subplots()
     ax.semilogy(ks, c, '.', color=CHEBFUN_BLUE, markersize=4)
-    ax.set_xlabel('Fourier mode $k$')
-    ax.set_ylabel('$|c_k|$')
+    ax.set_title('Fourier coefficients')
+    ax.set_xlabel('Wave number')
+    ax.set_ylabel('Magnitude of coefficient')
     ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
     save(fig, "plotcoeffs exp(sin(t))")
 except Exception as e:
@@ -179,7 +229,7 @@ except Exception as e:
     print(f"  guide11_{plot_idx:02d}.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
-# Plot 7: plotcoeffs for 1/(2-cos(t)) -- geometric decay  (Section 11.7)
+# Plot 9: plotcoeffs for 1/(2-cos(t)) -- geometric decay  (Section 11.7)
 # --------------------------------------------------------------------------
 try:
     f_geo = Trigtech.from_function(lambda s: 1.0 / (2.0 - jnp.cos(jnp.pi * s)))
@@ -189,8 +239,9 @@ try:
 
     fig, ax = plt.subplots()
     ax.semilogy(ks, c, '.', color=CHEBFUN_BLUE, markersize=4)
-    ax.set_xlabel('Fourier mode $k$')
-    ax.set_ylabel('$|c_k|$')
+    ax.set_title('Fourier coefficients')
+    ax.set_xlabel('Wave number')
+    ax.set_ylabel('Magnitude of coefficient')
     ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
     save(fig, "plotcoeffs 1/(2-cos(t))")
 except Exception as e:
@@ -198,7 +249,7 @@ except Exception as e:
     print(f"  guide11_{plot_idx:02d}.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
-# Plot 8: plotcoeffs for |sin(t)|^5 -- algebraic decay  (Section 11.7)
+# Plot 10: plotcoeffs for |sin(t)|^5 -- algebraic decay  (Section 11.7)
 # --------------------------------------------------------------------------
 try:
     f_alg = Trigtech.from_function(lambda s: jnp.abs(jnp.sin(jnp.pi * s))**5)
@@ -208,8 +259,9 @@ try:
 
     fig, ax = plt.subplots()
     ax.semilogy(ks, c, '.', color=CHEBFUN_BLUE, markersize=4)
-    ax.set_xlabel('Fourier mode $k$')
-    ax.set_ylabel('$|c_k|$')
+    ax.set_title('Fourier coefficients')
+    ax.set_xlabel('Wave number')
+    ax.set_ylabel('Magnitude of coefficient')
     ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
     save(fig, "plotcoeffs |sin(t)|^5")
 except Exception as e:
@@ -217,68 +269,7 @@ except Exception as e:
     print(f"  guide11_{plot_idx:02d}.png FAILED: {e}")
 
 # --------------------------------------------------------------------------
-# Plot 9: loglog plotcoeffs for |sin(t)|^5 with k^{-6} ref  (Sec 11.7)
-# --------------------------------------------------------------------------
-try:
-    # Use only positive modes for loglog
-    mid = len(c) // 2
-    c_pos = c[mid + 1:]  # k = 1, 2, ...
-    ks_pos = np.arange(1, len(c_pos) + 1)
-
-    fig, ax = plt.subplots()
-    ax.loglog(ks_pos, c_pos, '.', color=CHEBFUN_BLUE, markersize=4)
-    # Reference line k^{-6}
-    ks_ref = np.array([3, 300])
-    ax.loglog(ks_ref, 3.0 * ks_ref.astype(float)**(-6), '--r', linewidth=1.2)
-    ax.text(110, 4e-9, '$k^{-6}$', color='r', fontsize=11)
-    ax.set_xlabel('Fourier mode $k$')
-    ax.set_ylabel('$|c_k|$')
-    ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
-    save(fig, "loglog |sin(t)|^5 coeffs")
-except Exception as e:
-    plot_idx += 1
-    print(f"  guide11_{plot_idx:02d}.png FAILED: {e}")
-
-# --------------------------------------------------------------------------
-# Plot 10: Gibbs phenomenon: square wave + truncated Fourier  (Sec 11.8)
-# --------------------------------------------------------------------------
-try:
-    # Square wave via splitting
-    sq_wave = lambda s: np.sign(np.sin(np.pi * s))
-    n_sq = 201
-    t_sq = np.linspace(-1, 1, n_sq, endpoint=False)
-    vals_sq = sq_wave(t_sq)
-
-    # Get Fourier coefficients
-    coeffs_sq = np.array(trig_vals2coeffs(jnp.array(vals_sq, dtype=jnp.float64)))
-    M_sq = n_sq // 2
-
-    degree = 15
-    trunc_c = np.zeros(2 * degree + 1, dtype=np.complex128)
-    for k in range(-degree, degree + 1):
-        trunc_c[k + degree] = coeffs_sq[k + M_sq]
-
-    # Build truncated Trigtech
-    u_trunc = Trigtech(coeffs=jnp.array(trunc_c), is_real=True, ishappy=True)
-
-    xs_plot = np.linspace(-1, 1, 1000)
-    ys_sq = sq_wave(xs_plot)
-    ys_trunc = np.array(u_trunc(jnp.array(xs_plot)))
-
-    fig, ax = plt.subplots()
-    ax.plot(xs_plot * np.pi, ys_sq, color=CHEBFUN_BLUE, linewidth=1.8)
-    ax.plot(xs_plot * np.pi, ys_trunc, color=CHEBFUN_RED, linewidth=1.5)
-    ax.set_ylim(-1.5, 1.5)
-    ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.6)
-    save(fig, "Gibbs phenomenon")
-except Exception as e:
-    plot_idx += 1
-    print(f"  guide11_{plot_idx:02d}.png FAILED: {e}")
-
-print(f"\nGuide 11: generated {plot_idx} plots.")
-
-# --------------------------------------------------------------------------
-# Plot 11: plotcoeffs(f,'loglog') with k^{-6} reference  (Sec 11.7)
+# Plot 11: plotcoeffs(f,'loglog') for |sin(t)|^5 with k^{-6} reference (Sec 11.7)
 # --------------------------------------------------------------------------
 try:
     # |sin(t)|^5 on [-pi,pi] in trig mode via the factory
@@ -346,3 +337,5 @@ try:
 except Exception as e:
     plot_idx += 1
     print(f"  guide11_{plot_idx:02d}.png FAILED: {e}")
+
+print(f"\nGuide 11: generated {plot_idx} plots.")
