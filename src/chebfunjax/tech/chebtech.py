@@ -584,6 +584,89 @@ def _happiness_check_impl(
     return ishappy, cutoff
 
 
+def _extrapolate_values(
+    values: jax.Array,
+    x: jax.Array,
+    w: jax.Array,
+):
+    """Barycentric extrapolation of NaN/Inf sample rows (MATLAB extrapolate.m).
+
+    Replaces every row of ``values`` that contains a NaN or Inf (in any
+    column) by the value of the barycentric interpolant built from the finite
+    rows.  Rows with only finite entries are left bit-for-bit unchanged, so a
+    clean sample is returned identically.  Uses NumPy internally (data-dependent
+    masks make this unsuitable for tracing); it is a construction-time helper,
+    not a JIT hot path.
+
+    Parameters
+    ----------
+    values : jax.Array, shape (n,) or (n, m)
+        Sampled function values (possibly containing NaN/Inf).
+    x : jax.Array, shape (n,)
+        The Chebyshev points at which ``values`` were sampled.
+    w : jax.Array, shape (n,)
+        The barycentric weights for the ``n``-point grid.
+
+    Returns
+    -------
+    new_values : jax.Array
+        ``values`` with masked rows replaced (same shape/dtype as input).
+    mask_nan : numpy.ndarray, shape (n,)
+        Column vector flagging rows that held a NaN.
+    mask_inf : numpy.ndarray, shape (n,)
+        Column vector flagging rows that held an Inf.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech/extrapolate.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    """
+    import numpy as _np
+
+    v = _np.asarray(values)
+    was_1d = v.ndim == 1
+    if was_1d:
+        v = v[:, None]
+    xr = _np.asarray(x).reshape(-1)
+    wr = _np.asarray(w).reshape(-1)
+    n, m = v.shape
+
+    mask_nan = _np.any(_np.isnan(v), axis=1)
+    mask_inf = _np.any(_np.isinf(v), axis=1)
+    mask = mask_nan | mask_inf
+
+    if _np.any(mask):
+        good = ~mask
+        xgood = xr[good]
+        if xgood.size == 0:
+            raise ValueError(
+                "CHEBFUN:CHEBTECH:extrapolate:nansInfs: "
+                "Too many NaNs/Infs to handle."
+            )
+        xbad = xr[mask]
+
+        # Modified barycentric weights for the good points (MATLAB loop):
+        # w_k <- w_k * prod_j (xgood_k - xbad_j).
+        wmod = wr[good].astype(_np.float64).copy()
+        for xb in xbad:
+            wmod = wmod * (xgood - xb)
+
+        vgood = v[good, :]
+        newvals = _np.zeros((xbad.size, m), dtype=v.dtype)
+        for k in range(xbad.size):
+            # Barycentric formula of the second kind at the bad point.
+            w2 = wmod / (xbad[k] - xgood)
+            newvals[k, :] = (w2 @ vgood) / _np.sum(w2)
+
+        v = v.copy()
+        v[mask, :] = newvals
+
+    out = v[:, 0] if was_1d else v
+    return jnp.asarray(out), mask_nan, mask_inf
+
+
 # ============================================================================
 # Coefficient-level differentiation (JIT-safe)
 # ============================================================================
@@ -1650,6 +1733,39 @@ class Chebtech2(eqx.Module):
         from chebfunjax.utils.diffmat import _cheb2_barywts
 
         return _cheb2_barywts(n)
+
+    @staticmethod
+    def extrapolate(values: jax.Array) -> jax.Array:
+        """Extrapolate NaN/Inf sample rows via barycentric interpolation.
+
+        Replaces every row of ``values`` holding a NaN or Inf (in any column)
+        by the barycentric interpolant of the finite rows, at the 2nd-kind
+        Chebyshev points.  Finite rows -- including the endpoints -- are
+        returned unchanged, so this reverts to the identity on clean data.
+
+        Parameters
+        ----------
+        values : jax.Array, shape (n,) or (n, m)
+            Sampled function values (may contain NaN/Inf).
+
+        Returns
+        -------
+        jax.Array
+            ``values`` with the masked rows replaced.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/extrapolate.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        v = jnp.asarray(values)
+        n = v.shape[0]
+        new_values, _, _ = _extrapolate_values(
+            v, chebpts(n, kind=2), Chebtech2.barywts(n)
+        )
+        return new_values
 
     @staticmethod
     def bary(x: jax.Array, gvals: jax.Array) -> jax.Array:
@@ -3366,6 +3482,28 @@ class Chebtech1(eqx.Module):
         from chebfunjax.utils.diffmat import _cheb1_barywts
 
         return _cheb1_barywts(n)
+
+    @staticmethod
+    def extrapolate(values: jax.Array) -> jax.Array:
+        """Extrapolate NaN/Inf sample rows via barycentric interpolation.
+
+        Replaces every row of ``values`` holding a NaN or Inf (in any column)
+        by the barycentric interpolant of the finite rows, at the 1st-kind
+        Chebyshev points.  Finite rows are returned unchanged.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/extrapolate.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        v = jnp.asarray(values)
+        n = v.shape[0]
+        new_values, _, _ = _extrapolate_values(
+            v, chebpts(n, kind=1), Chebtech1.barywts(n)
+        )
+        return new_values
 
     @staticmethod
     def bary(x: jax.Array, gvals: jax.Array) -> jax.Array:
