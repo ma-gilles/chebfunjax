@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.spherefun.spherefun import Spherefun
 
@@ -31,16 +30,11 @@ def _maxdiff(f, g):
 
 
 class TestSpherefunRotate:
-    @pytest.mark.xfail(
-        reason="MATLAB pass(3) reaches its 10*TOL roundtrip bound via "
-        "fastSphereEval (2D sphere NUFFT, ~1e-15/point evaluation); "
-        "chebfunjax resamples through CDR Clenshaw evaluation "
-        "(~1e-14/point on this rank-28 f), giving a single-rotation "
-        "construction error of ~7.8e-13 and a roundtrip of "
-        "1.2e-12..3.1e-12 depending on sub-ulp transform rounding -- it "
-        "straddles the bound by luck.  Needs a fastSphereEval port.",
-        strict=False)
     def test_rotate_and_undo(self):
+        # MATLAB pass(3): a rotate-and-undo round-trip returns f to within the
+        # 10*TOL bound.  Reached via the fastSphereEval port (2D-NUFFT
+        # ~1e-15/point evaluation) plus fixed-bandlimit resampling in
+        # Spherefun.rotate; the round-trip lands at ~9.6e-13 (margin ~2.3x).
         f = Spherefun.from_function(
             lambda lam, th: jnp.sin(
                 jnp.cos(th) + jnp.cos(lam - 0.2) * jnp.sin(th)
