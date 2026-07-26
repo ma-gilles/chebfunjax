@@ -18,6 +18,7 @@ mkdocs = "*"
 mkdocs-material = "*"
 scikit-image = ">=0.26.0,<0.27"
 mpmath = ">=1.4.1,<2"
+finufft = ">=2.5.1,<3"
 
 # JAX with CUDA support
 [pypi-dependencies]
