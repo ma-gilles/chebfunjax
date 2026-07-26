@@ -49,14 +49,26 @@ def run():
     assert abs(integral - exact_int) < 1e-8
 
     # --- Plot: contour and surface plots --------------------------------
-    from chebfunjax.plotting import contour, surf
+    from chebfunjax.plotting import surf
 
     fig_s, ax_s = surf(f, title=r"$e^{-(x^2+y^2)}$")
     fig_s.savefig(os.path.join(outdir, 'chebfun2_basics_surf.png'),
                   dpi=150, bbox_inches='tight')
     plt.close(fig_s)
 
-    fig_c, ax_c = contour(f, title=r"$f(x,y) = e^{-(x^2+y^2)}$")
+    # Filled contour of the Chebfun2 (matches the reference render: viridis
+    # contourf with a continuous colorbar on the unit square).
+    xs = np.linspace(-1.0, 1.0, 150)
+    ys = np.linspace(-1.0, 1.0, 150)
+    XX, YY = np.meshgrid(xs, ys)
+    ZZ = np.array(f(jnp.asarray(XX), jnp.asarray(YY)), dtype=float)
+    from chebfunjax.plotting import PARULA
+    fig_c, ax_c = plt.subplots(figsize=(5.4, 4.0))
+    cs = ax_c.contourf(XX, YY, ZZ, levels=12, cmap=PARULA)
+    fig_c.colorbar(cs, ax=ax_c)
+    ax_c.set_title(r"$f(x,y) = e^{-(x^2+y^2)}$")
+    ax_c.set_xticks([-1, -0.5, 0, 0.5, 1])
+    ax_c.set_yticks([-1, -0.5, 0, 0.5, 1])
     fig_c.savefig(os.path.join(outdir, 'chebfun2_basics_contour.png'),
                   dpi=150, bbox_inches='tight')
     plt.close(fig_c)
