@@ -454,16 +454,7 @@ class SeparableApprox(eqx.Module):
             avals = np.asarray(approx(jnp.asarray(xt),
                                       jnp.asarray(yt))).ravel()
             vsc = max(float(np.max(np.abs(fvals))), 1e-300)
-            # The 10*eps ABSOLUTE floor accepts noise-level functions
-            # immediately: for f at the double-precision noise floor
-            # (e.g. real() of a ~1e-16 cancellation residue) the purely
-            # relative threshold is ~1e-29 while every rebuild evaluates
-            # differently at ~1e-16, so the loop escalated all the way to
-            # the maximum grid (~500 s) before giving up.  Structured
-            # under-resolution (the bump-function case this test exists
-            # for) has O(vscale) errors and is still caught.
-            if (np.max(np.abs(avals - fvals))
-                    <= 1e3 * vsc * max(tol, _EPS) + 10 * _EPS):
+            if np.max(np.abs(avals - fvals)) <= 1e3 * vsc * max(tol, _EPS):
                 return approx
             n0 = 2 * (n0 - 1) + 1
             if n0 > max_samples // 4:

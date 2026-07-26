@@ -639,23 +639,23 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/norm.m
         Chebfun commit: 7574c77
         """
-        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
         total = 0.0
         for c in self.components:
-            # ||f_j||^2 = integral |f_j|^2; complex components use
-            # re^2 + im^2 (the f_j^2 form is wrong for complex data
-            # and the coefficient loop float()-cast it -- Fable 5).
+            # ||f_j||^2 = integral |f_j|^2, computed EXACTLY from the CDR
+            # Gram matrices: for f = sum_j d_j col_j(y) row_j(x),
+            # ||f||^2 = sum_{j,k} d_j conj(d_k) <col_j, col_k><row_j,
+            # row_k> with Chebyshev-coefficient inner products.  No
+            # re-approximation: the previous complex path rebuilt
+            # real()/imag() adaptively, which stalled for minutes when f
+            # was a cancellation residue (structureless ~1e-16 noise).
             if any(jnp.iscomplexobj(cc.coeffs) for cc in c.cols) or \
                     any(jnp.iscomplexobj(rr.coeffs) for rr in c.rows) \
                     or jnp.iscomplexobj(c.pivots):
-                re = Chebfun2(approx=c).real().approx
-                im = Chebfun2(approx=c).imag().approx
-                prod = _add_separable(_mul_separable(re, re),
-                                      _mul_separable(im, im))
+                total += _l2norm_sq_separable_gram(c)
             else:
                 prod = _mul_separable(c, c)
-            total += float(jnp.real(jnp.asarray(
-                _integral_separable(prod))))
+                total += float(jnp.real(jnp.asarray(
+                    _integral_separable(prod))))
         # Cancellation can leave total a tiny negative float, and Python's
         # (-eps)**0.5 silently returns a COMPLEX number — clamp at zero.
         return float(max(total, 0.0) ** 0.5)
@@ -945,6 +945,54 @@ def _diff_chebtech(f: "Chebtech2", n: int = 1) -> "Chebtech2":
     Chebyshev coefficient recurrence from Mason & Handscomb p. 34.
     """
     return f.diff(n)
+
+
+def _cheb_gram(n: int):
+    """Chebyshev-T L2 Gram on [-1,1]: G[a,b] = int T_a T_b dx.
+
+    Closed form via int T_a T_b = (int T_{a+b} + int T_{|a-b|})/2 and
+    int T_k = 2/(1-k^2) for even k (0 for odd k).
+    """
+    import numpy as _np
+
+    k = _np.arange(2 * n)
+    den = 1.0 - k.astype(float) ** 2
+    den[den == 0.0] = 1.0  # odd k rows are zeroed below anyway
+    intT = _np.where(k % 2 == 0, 2.0 / den, 0.0)
+    a = _np.arange(n)[:, None]
+    b = _np.arange(n)[None, :]
+    return 0.5 * (intT[a + b] + intT[_np.abs(a - b)])
+
+
+def _l2norm_sq_separable_gram(f: SeparableApprox) -> float:
+    """Exact ||f||_{L2}^2 from the CDR coefficients (complex-safe).
+
+    ||sum_j d_j c_j(y) r_j(x)||^2 = sum_{jk} d_j conj(d_k)
+    <c_j, c_k> <r_j, r_k>, with the Chebyshev-coefficient Gram; no
+    re-approximation (MATLAB norms its quasimatrices the same
+    coefficient-space way).
+    """
+    import numpy as _np
+
+    xa, xb, ya, yb = f.domain
+    r = len(f.cols)
+    nc = max(len(_np.asarray(c.coeffs)) for c in f.cols)
+    nr = max(len(_np.asarray(rr.coeffs)) for rr in f.rows)
+    C = _np.zeros((nc, r), dtype=complex)
+    R = _np.zeros((nr, r), dtype=complex)
+    for j, (c, rr) in enumerate(zip(f.cols, f.rows)):
+        cc = _np.asarray(c.coeffs)
+        rc = _np.asarray(rr.coeffs)
+        C[: len(cc), j] = cc
+        R[: len(rc), j] = rc
+    Gc = C.conj().T @ _cheb_gram(nc) @ C          # <c_k, c_j> conj-linear left
+    Gr = R.conj().T @ _cheb_gram(nr) @ R
+    d = _np.asarray(f.pivots, dtype=complex)
+    # ||f||^2 = sum_{jk} d_j conj(d_k) <c_j,c_k><r_j,r_k>
+    #         = d^T (Gc.T * Gr.T) conj(d)  with G[j,k] = <c_j, c_k>
+    G = (Gc.conj() * Gr.conj())
+    val = float(_np.real(d @ G @ d.conj()))
+    return max(val, 0.0) * ((xb - xa) / 2.0) * ((yb - ya) / 2.0)
 
 
 def _integral_separable(f: SeparableApprox) -> float:

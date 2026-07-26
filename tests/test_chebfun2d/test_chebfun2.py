@@ -610,3 +610,44 @@ class TestChebfun2CurveOps:
         v = f.gradient().integral(C)
         # C(1) = 1 + 0i -> f(1, 0) = 0; C(0) = 0 -> f(0, 0) = 0.
         _np.testing.assert_allclose(v, 0.0, atol=1e-10)
+
+
+class TestChebfun2vGramNorm:
+    """Core mirrors for the exact CDR-Gram L2 norm (complex-safe)."""
+
+    def test_cheb_gram_orthogonality(self):
+        import numpy as _np
+
+        from chebfunjax.chebfun2d.chebfun2v import _cheb_gram
+        G = _cheb_gram(6)
+        # int T_0^2 = 2, int T_1^2 = 2/3, int T_0 T_2 = -2/3
+        _np.testing.assert_allclose(G[0, 0], 2.0, atol=1e-14)
+        _np.testing.assert_allclose(G[1, 1], 2.0 / 3.0, atol=1e-14)
+        _np.testing.assert_allclose(G[0, 2], -2.0 / 3.0, atol=1e-14)
+        _np.testing.assert_allclose(G, G.T, atol=0)
+
+    def test_complex_norm_matches_quadrature(self):
+        import numpy as _np
+
+        from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
+        f = Chebfun2.from_function(lambda x, y: jnp.cos(x * y))
+        g = f + 1j * Chebfun2.from_function(
+            lambda x, y: jnp.sin(x + y**2))
+        F = Chebfun2v([g.approx, g.approx])
+        from scipy.integrate import dblquad
+        I, _ = dblquad(lambda y, x: _np.cos(x * y)**2
+                       + _np.sin(x + y**2)**2, -1, 1, -1, 1, epsabs=1e-13)
+        _np.testing.assert_allclose(F.norm(), _np.sqrt(2 * I), atol=1e-12)
+
+    def test_noise_residue_norm_fast_and_tiny(self):
+        import time as _time
+
+        from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
+        f = Chebfun2.from_function(lambda x, y: jnp.cos(x * y))
+        g = Chebfun2.from_function(lambda x, y: jnp.sin(x + y**2))
+        F = Chebfun2v([(f + 1j * g).approx, (f + 1j * g).approx])
+        G = Chebfun2v([(f - (-1j) * g).approx, (f - (-1j) * g).approx])
+        t0 = _time.time()
+        n = (F - G).norm()   # exact-cancellation residue
+        assert _time.time() - t0 < 60.0   # was minutes via re-approximation
+        assert n < 1e-13
