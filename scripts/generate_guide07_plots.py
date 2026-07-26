@@ -169,17 +169,18 @@ except Exception as e:
 # Plot 8: Eigenmodes of u'' on [0,pi] -- Section 7.5
 # ==========================================================================
 try:
-    lam = eigs(lambda x, u: u.diff(2), domain=(0.0, PI), lbc=0.0, rbc=0.0, k=6)
-    print(f"  Eigenvalues of u'' on [0,pi]: {lam}")
+    # MATLAB: [V, D] = eigs(chebop(@(x,u) diff(u,2), [0 pi]), 'dirichlet');
+    #         plot(V(:,1:4))  -- the true eigenfunctions, sqrt(2/pi) sin(k x).
+    lam, V = eigs(lambda x, u: u.diff(2), domain=(0.0, PI),
+                  lbc=0.0, rbc=0.0, k=6, return_eigenfunctions=True)
+    print(f"  Eigenvalues of u'' on [0,pi]: {np.real(np.asarray(lam))}")
 
-    # Plot first 4 eigenfunctions (sin(k*x))
     fig, ax = plt.subplots()
     tt = jnp.linspace(0, PI, 300)
-    for k in range(1, 5):
-        ys = np.sin(k * np.array(tt))
-        ax.plot(tt, ys, linewidth=1.5, label=f'mode {k}')
+    for j in range(4):
+        ys = np.array(V[j](tt))
+        ax.plot(tt, ys, linewidth=1.5)
     ax.set_ylim([-1, 1])
-    ax.legend(fontsize=8)
     ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.4)
     ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
     fig.set_facecolor('white'); fig.tight_layout()
@@ -191,21 +192,33 @@ except Exception as e:
 # Plot 9: Mathieu eigenfunctions -- Section 7.5
 # ==========================================================================
 try:
+    # MATLAB: A = chebop(-pi, pi);
+    #         A.op = @(x,u) diff(u,2) - 2*q*cos(2*x)*u;  A.bc = 'periodic';
+    #         [V, D] = eigs(A, 16, 'LR');   % sorted descending by real part
+    #         plot(V(:,9))   -> elliptic cosine (even)
+    #         plot(V(:,10))  -> elliptic sine   (odd)
+    # The eigenfunctions are the real Mathieu functions; the periodic
+    # trigcolloc path with 'LR' selects the smooth low-order modes.  Use
+    # jnp.cos (not cj.cos) so the variable coefficient stays a raw array
+    # for the Fourier collocation proxy.
     q = 10
-    lam_math = eigs(
-        lambda x, u: u.diff(2) - 2*q*cj.cos(2*x)*u,
-        domain=(-PI, PI), lbc=0.0, rbc=0.0, k=10, sigma='LR',
-    )
-    print(f"  Mathieu eigenvalues: {lam_math}")
+    Nmath = Chebop(lambda x, u: u.diff(2) - 2*q*jnp.cos(2*x)*u,
+                   domain=(-PI, PI))
+    Nmath.bc = 'periodic'
+    V_math, lam_math = Nmath.eigs(k=16, sigma='LR',
+                                  return_eigenfunctions=True)
+    print(f"  Mathieu eigenvalues: {np.real(np.asarray(lam_math))}")
 
     fig, axes = plt.subplots(1, 2)
     tt = jnp.linspace(-PI, PI, 500)
-    axes[0].plot(tt, np.array(jnp.cos(4*tt)), color=CHEBFUN_BLUE, linewidth=1.5)
+    axes[0].plot(tt, np.array(V_math[8](tt)), color=CHEBFUN_BLUE,
+                 linewidth=1.5)
     axes[0].set_ylim([-0.8, 0.8]); axes[0].set_title('elliptic cosine')
     axes[0].grid(True, alpha=0.25, linestyle='--', linewidth=0.4)
     axes[0].spines['top'].set_visible(False); axes[0].spines['right'].set_visible(False)
 
-    axes[1].plot(tt, np.array(jnp.sin(5*tt)), color=CHEBFUN_BLUE, linewidth=1.5)
+    axes[1].plot(tt, np.array(V_math[9](tt)), color=CHEBFUN_BLUE,
+                 linewidth=1.5)
     axes[1].set_ylim([-0.8, 0.8]); axes[1].set_title('elliptic sine')
     axes[1].grid(True, alpha=0.25, linestyle='--', linewidth=0.4)
     axes[1].spines['top'].set_visible(False); axes[1].spines['right'].set_visible(False)
@@ -345,7 +358,7 @@ try:
     n_spy = 24
     L_s, _ = _coupled_system(n_spy)
     fig, ax = plt.subplots()
-    ax.spy(np.abs(L_s) > 1e-12, markersize=2, color='b')
+    ax.spy(np.abs(L_s) > 1e-12, markersize=6, color='b')
     ax.set_xticks([]); ax.set_yticks([])
     fig.set_facecolor('white')
     save(fig)
@@ -357,7 +370,7 @@ try:
     Z = np.zeros((n_spy, n_spy))
     L_anti = np.block([[Z, Dm_s], [Dm_s, Z]])
     fig, ax = plt.subplots()
-    ax.spy(np.abs(L_anti) > 1e-12, markersize=2, color='b')
+    ax.spy(np.abs(L_anti) > 1e-12, markersize=6, color='b')
     ax.set_xticks([]); ax.set_yticks([])
     fig.set_facecolor('white')
     save(fig)

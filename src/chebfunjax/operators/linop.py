@@ -445,7 +445,11 @@ class Linop:
 
         # Eigenfunctions: convert selected eigenvectors (values at the
         # discretization's Chebyshev points) to chebfuns, normalized to
-        # unit L2 norm with a sign convention (max value positive).
+        # unit L2 norm with the MATLAB sign convention -- the real part of
+        # each eigenfunction is made positive just right of the domain
+        # midpoint (@linop/eigs.m: fevalPoint = a + (b-a)*0.500023981).
+        a_dom, b_dom = self.domain
+        x_sign = jnp.asarray(a_dom + (b_dom - a_dom) * 0.500023981)
         funs = []
         for j in selected:
             v = V_all[:, j]
@@ -455,8 +459,8 @@ class Linop:
             nrm = float(u.norm(2))
             if nrm > 0:
                 u = u * (1.0 / nrm)
-            xs_pk = jnp.linspace(self.domain[0], self.domain[1], 100)
-            if float(jnp.max(u(xs_pk))) < -float(jnp.min(u(xs_pk))):
+            s = float(jnp.real(u(x_sign)))
+            if s < 0:
                 u = -u
             funs.append(u)
         return lam_out, funs

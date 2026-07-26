@@ -2256,7 +2256,7 @@ class Chebop:
         """
         if getattr(self, "_periodic", False) and self._n_vars() < 2:
             return self._eigs_periodic(
-                k=k, n=n,
+                k=k, n=n, sigma=sigma,
                 return_eigenfunctions=return_eigenfunctions)
         if self._n_vars() >= 2:
             return self._eigs_system(k=k, n=n or n_default)
@@ -2265,19 +2265,27 @@ class Chebop:
                           return_eigenfunctions=return_eigenfunctions)
 
     def _eigs_periodic(self, k: int = 6, n: int | None = None,
-                       return_eigenfunctions: bool = False):
+                       sigma=None, return_eigenfunctions: bool = False):
         """Eigenvalues of a linear periodic operator by Fourier collocation.
 
         Assembles the operator matrix on an equispaced periodic grid with
         the Fourier differentiation matrix (the same :class:`_FourierProxy`
         machinery :meth:`_solve_periodic` uses), so ``N[u] = lambda u``
         becomes the algebraic eigenproblem ``A v = lambda v``.  The ``k``
-        algebraically smallest eigenvalues are returned, matching MATLAB's
-        ``eigs(L, k)`` default for periodic Sturm-Liouville problems.
+        modes selected by ``sigma`` are returned (default: algebraically
+        smallest, matching MATLAB's ``eigs(L, k)`` for periodic
+        Sturm-Liouville problems).
+
+        ``sigma`` accepts the same selectors as :meth:`Linop.eigs`:
+        ``None``/``'SM'`` (smallest magnitude), ``'LR'``/``'SR'`` (largest
+        / smallest real part), ``'LM'`` (largest magnitude), or a scalar
+        target (nearest to ``sigma``).  MATLAB's periodic Mathieu example
+        uses ``'LR'`` to pick the smooth low-order elliptic modes.
 
         With ``return_eigenfunctions=True`` returns ``(V, lam)`` where each
-        eigenfunction is a trigonometric :class:`Chebfun`; otherwise returns
-        ``lam`` alone.
+        eigenfunction is a trigonometric :class:`Chebfun`, L2-normalized
+        with the MATLAB sign convention (real part positive just right of
+        the domain midpoint); otherwise returns ``lam`` alone.
 
         Provenance
         ----------
@@ -2298,9 +2306,30 @@ class Chebop:
                 "Chebop._eigs_periodic: operator is not linear in u.")
         A = _np.asarray(out.mat)
         lam, W = _np.linalg.eig(A)
-        # Real operators give real spectra up to rounding; sort algebraically
-        # (smallest real part first) and keep the k lowest modes.
-        order = _np.argsort(_np.real(lam))[:k]
+
+        # Selection key: mirror Linop.eigs so the periodic path honours the
+        # same ``sigma`` selectors (default: algebraically smallest, i.e.
+        # smallest real part -- the lowest periodic Sturm-Liouville modes).
+        if sigma is None:
+            key = _np.real(lam)
+        elif sigma == "SM":
+            key = _np.abs(lam)
+        elif sigma == "LM":
+            key = -_np.abs(lam)
+        elif sigma == "LR":
+            key = -_np.real(lam)
+        elif sigma == "SR":
+            key = _np.real(lam)
+        elif sigma == "LI":
+            key = -_np.imag(lam)
+        elif sigma == "SI":
+            key = _np.imag(lam)
+        elif isinstance(sigma, (int, float, complex)):
+            key = _np.abs(lam - sigma)
+        else:
+            raise ValueError(
+                f"Chebop._eigs_periodic: unrecognised sigma={sigma!r}.")
+        order = _np.argsort(key, kind="stable")[:k]
         lam_sel = lam[order]
         if _np.max(_np.abs(_np.imag(lam_sel))) < 1e-9 * max(
                 1.0, _np.max(_np.abs(lam_sel))):
@@ -2310,6 +2339,9 @@ class Chebop:
             return lam_out
 
         xs = jnp.asarray(x, dtype=jnp.float64)
+        # MATLAB @linop/eigs.m fixes the sign of each eigenfunction from the
+        # real part just right of the domain midpoint.
+        x_sign = a + Lp * 0.500023981
         V = []
         for idx in order:
             w = W[:, idx]
@@ -2323,7 +2355,14 @@ class Chebop:
             def _interp(t, vals=vals):
                 return _fourier_interp(xs, vals, jnp.asarray(t), a, Lp)
 
-            V.append(chebfun(_interp, domain=(a, b), trig=True))
+            u = chebfun(_interp, domain=(a, b), trig=True)
+            nrm = float(u.norm(2))
+            if nrm > 0:
+                u = u * (1.0 / nrm)
+            s = float(u(jnp.asarray(x_sign)))
+            if s < 0:
+                u = -u
+            V.append(u)
         return V, lam_out
 
     def __truediv__(self, f):

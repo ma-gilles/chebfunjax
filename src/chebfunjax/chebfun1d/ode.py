@@ -200,6 +200,7 @@ def eigs(
     n: int | None = None,
     n_default: int = 64,
     sigma=None,
+    return_eigenfunctions: bool = False,
 ):
     """Compute eigenvalues of a linear differential operator.
 
@@ -224,11 +225,19 @@ def eigs(
         Default size when ``n`` is None.
     sigma : scalar, str, or None
         Target eigenvalue or selector string.
+    return_eigenfunctions : bool, default False
+        If ``True``, also return the eigenfunctions.  Mirrors MATLAB's
+        two-output ``[V, D] = eigs(N)``: the eigenvectors are converted to
+        :class:`~chebfunjax.chebfun1d.Chebfun` objects on ``domain``,
+        L2-normalized with the MATLAB sign convention.
 
     Returns
     -------
     lam : jnp.ndarray, shape (k,)
-        Selected eigenvalues.
+        Selected eigenvalues (when ``return_eigenfunctions`` is ``False``).
+    (lam, V) : tuple
+        Eigenvalues and a list of eigenfunction :class:`Chebfun` objects
+        (when ``return_eigenfunctions`` is ``True``).
 
     Examples
     --------
@@ -247,7 +256,8 @@ def eigs(
     from chebfunjax.operators.chebop import Chebop
 
     N = Chebop(op, domain=domain, lbc=lbc, rbc=rbc)
-    return N.eigs(k=k, n=n, n_default=n_default, sigma=sigma)
+    return N.eigs(k=k, n=n, n_default=n_default, sigma=sigma,
+                  return_eigenfunctions=return_eigenfunctions)
 
 
 # ============================================================================
