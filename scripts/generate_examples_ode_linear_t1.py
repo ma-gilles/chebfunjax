@@ -22,7 +22,12 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 import matplotlib.pyplot as plt
 import numpy as np
 
-from chebfunjax.plotting import CHEBFUN_BLUE, chebfun_style, save_chebfun_figure
+from chebfunjax.plotting import (
+    CHEBFUN_BLUE,
+    _matlab_ticks,
+    chebfun_style,
+    save_chebfun_figure,
+)
 
 chebfun_style()
 
@@ -176,77 +181,188 @@ def parameterode():
 
 
 def dynamicalsystems():
-    """ode-linear/DynamicalSystems — 2x2 linear phase portraits."""
-    def portrait(A, name, title=""):
-        xs = np.linspace(-1, 1, 20)
+    """ode-linear/DynamicalSystems — classification of 2x2 linear systems.
+
+    Faithful port of the chebfun.org ode-linear/DynamicalSystems example:
+    a sequence of phase portraits of x' = A x for representative 2x2
+    matrices A (unstable/stable fixed point, center, unstable/stable
+    spiral, saddle, lines of fixed points, degenerate nodes), plus the
+    trace-determinant stability-classification diagram (figure 4).
+    Each portrait draws the vector field as a blue quiver, red integral
+    trajectories from prescribed initial values, and black eigendirection
+    / fixed-point lines where the reference does.
+    """
+    from scipy.integrate import solve_ivp
+
+    def portrait(A, name, title, trajs, extra_lines=(), mark_origin=True):
+        A = np.asarray(A, dtype=float)
+        # blue vector field on [-1, 1]^2 (chebfun2v quiver default grid)
+        xs = np.linspace(-1, 1, 17)
         X, Y = np.meshgrid(xs, xs)
         U = A[0, 0] * X + A[0, 1] * Y
         V = A[1, 0] * X + A[1, 1] * Y
         fig, ax = plt.subplots()
-        ax.quiver(X, Y, U, V, color=CHEBFUN_BLUE, width=0.003)
-        # a few trajectories
-        from scipy.integrate import solve_ivp
-
-        for x0 in ((0.9, 0.9), (-0.9, 0.5), (0.5, -0.9), (-0.8, -0.8),
-                   (0.9, -0.3)):
-            sol = solve_ivp(lambda t, y: A @ np.asarray(y), (0, 6),
-                            x0, max_step=0.05, rtol=1e-8)
-            ax.plot(sol.y[0], sol.y[1], "r", linewidth=0.9)
-        # eigvector directions
-        ew, EV = np.linalg.eig(A)
-        for j in range(2):
-            v = np.real(EV[:, j])
-            if np.linalg.norm(v) > 1e-12:
-                v = v / np.linalg.norm(v)
-                ax.plot([-v[0], v[0]], [-v[1], v[1]], "k--",
-                        linewidth=1.0)
-        ax.set_xlim(-1, 1)
-        ax.set_ylim(-1, 1)
+        # MATLAB-style autoscale: longest arrow ~ one grid cell so the
+        # field reads as a near-continuous flow (matches the reference).
+        mag = float(np.sqrt(U ** 2 + V ** 2).max())
+        spacing = xs[1] - xs[0]
+        scale = mag / (1.1 * spacing) if mag > 0 else 1.0
+        ax.quiver(X, Y, U, V, color="b", width=0.0035,
+                  angles="xy", scale_units="xy", scale=scale,
+                  pivot="tail")
+        for x0, T in trajs:
+            sol = solve_ivp(lambda t, y: A @ np.asarray(y), (0.0, T),
+                            x0, max_step=0.02, rtol=1e-9, atol=1e-12,
+                            dense_output=True)
+            ax.plot(sol.y[0], sol.y[1], "r", linewidth=1.1)
+            ax.plot([x0[0]], [x0[1]], "r.", markersize=9)
+        for (px, py) in extra_lines:
+            ax.plot(px, py, "k", linewidth=1.1)
+        if mark_origin:
+            ax.plot([0.0], [0.0], "k.", markersize=9)
         ax.set_aspect("equal")
-        if title:
-            ax.set_title(title, fontsize=9)
+        ax.set_xlim(-1.2, 1.2)
+        ax.set_ylim(-1.2, 1.2)
+        ax.set_title(title, fontsize=12)
+        _matlab_ticks(ax)
         save(fig, name)
-        return ew
 
-    cases = [
-        (np.array([[-1.0, 3.0], [0.0, -3.0]]), "stable node"),
-        (np.array([[1.0, 0.0], [0.0, 2.0]]), "unstable node"),
-        (np.array([[-1.0, 0.0], [0.0, 2.0]]), "saddle"),
-        (np.array([[0.0, 2.0], [-2.0, 0.0]]), "center"),
-        (np.array([[-0.3, 2.0], [-2.0, -0.3]]), "stable spiral"),
-        (np.array([[0.3, 2.0], [-2.0, 0.3]]), "unstable spiral"),
-        (np.array([[-1.0, 1.0], [0.0, -1.0]]), "degenerate node"),
-        (np.array([[0.0, 1.0], [0.0, 0.0]]), "shear"),
-        (np.array([[-2.0, 0.0], [0.0, -2.0]]), "star node"),
-    ]
-    for j, (A, title) in enumerate(cases, 1):
-        ew = portrait(A, f"DynamicalSystems_{j:02d}.png", title)
-        if j == 1:
-            print(f"    eigenvalues of the first system: {ew}")
+    T3 = 3.0
+    # Figure 1: unstable fixed point, A = [2 -2; 0 1]
+    A = np.array([[2.0, -2.0], [0.0, 1.0]])
+    ew = np.linalg.eigvals(A)
+    print(f"    eigenvalues of the first system: {ew}")
+    trajs = [((0.1, 0.05), T3), ((-0.1, -0.05), T3), ((-0.1, -0.05), T3),
+             ((-0.1, 0.0), T3), ((0.1, 0.0), T3),
+             ((0.1, 0.1), 2 * T3 / 3), ((-0.1, -0.1), 2 * T3 / 3)]
+    portrait(A, "DynamicalSystems_01.png",
+             "The origin is an unstable fixed point", trajs)
 
-    # 3D linear system trajectory panels (10, 11)
-    from scipy.integrate import solve_ivp
+    # Figure 2: stable fixed point, A = [-1 3; 0 -3]
+    A = np.array([[-1.0, 3.0], [0.0, -3.0]])
+    trajs = [((1.0, -2.0 / 3), 6.0), ((-1.0, 2.0 / 3), 6.0),
+             ((0.5, -1.0), 6.0), ((-0.5, 1.0), 6.0),
+             ((1.0, 0.0), 6.0), ((-1.0, 0.0), 6.0)]
+    portrait(A, "DynamicalSystems_02.png",
+             "The origin is a stable fixed point", trajs)
 
-    A3 = np.array([[-0.2, -1.0, 0.0], [1.0, -0.2, 0.0],
-                   [0.0, 0.0, -0.4]])
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
-    for x0 in ((1, 0, 1), (0, 1, -1), (-1, -0.5, 0.8)):
-        sol = solve_ivp(lambda t, y: A3 @ np.asarray(y), (0, 20), x0,
-                        max_step=0.05)
-        ax.plot3D(sol.y[0], sol.y[1], sol.y[2], linewidth=0.9)
-    ax.set_title("3D stable spiral", fontsize=9)
-    save(fig, "DynamicalSystems_10.png")
+    # Figure 3: center, A = [2 -2; 3 -2]
+    A = np.array([[2.0, -2.0], [3.0, -2.0]])
+    trajs = [((0.2, 0.0), 5.0), ((0.5, 0.0), 5.0)]
+    portrait(A, "DynamicalSystems_03.png",
+             "The origin is a center", trajs)
 
+    # Figure 4: trace-determinant stability-classification diagram
+    _stability_diagram()
+
+    # Figure 5: unstable spiral, A = [2 -2; 8 1]
+    A = np.array([[2.0, -2.0], [8.0, 1.0]])
+    trajs = [((0.1, 0.1), 2.0), ((-0.1, -0.1), 2.0),
+             ((0.1, -0.1), 2.0), ((-0.1, 0.1), 2.0)]
+    portrait(A, "DynamicalSystems_05.png",
+             "The origin is an unstable spiral", trajs)
+
+    # Figure 6: stable spiral, A = [-.5 -2; 2 -.2]
+    A = np.array([[-0.5, -2.0], [2.0, -0.2]])
+    trajs = [((0.0, 1.0), 10.0), ((1.0, 0.0), 10.0),
+             ((0.0, -1.0), 10.0), ((-1.0, 0.0), 10.0)]
+    portrait(A, "DynamicalSystems_06.png",
+             "The origin is a stable spiral", trajs)
+
+    # Figure 7: saddle, A = [1 1; 4 -2], with black eigendirection lines
+    A = np.array([[1.0, 1.0], [4.0, -2.0]])
+    trajs = [((-0.1, 1.0), 2.0), ((-0.5, 1.0), 2.0),
+             ((0.1, -1.0), 2.0), ((0.6, -1.0), 2.0)]
+    lines = [(0.275 * np.array([-1.0, 1.0]), np.array([1.1, -1.1])),
+             (np.array([-1.1, 1.1]), np.array([-1.1, 1.1]))]
+    portrait(A, "DynamicalSystems_07.png",
+             "The origin is a saddle point", trajs,
+             extra_lines=lines, mark_origin=False)
+
+    # Figure 8: line of stable fixed points, A = [1 1; -2 -2]
+    A = np.array([[1.0, 1.0], [-2.0, -2.0]])
+    trajs = [((-0.6, 1.0), 2.0), ((-0.2, 1.0), 2.0), ((0.2, 1.0), 2.0),
+             ((0.7, -1.0), 2.0), ((0.3, -1.0), 2.0), ((-0.1, -1.0), 2.0)]
+    lines = [(np.array([-1.0, 1.0]), np.array([1.0, -1.0]))]
+    portrait(A, "DynamicalSystems_08.png",
+             "A line of stable fixed points", trajs,
+             extra_lines=lines, mark_origin=False)
+
+    # Figure 9: line of unstable fixed points, A = [1 2; 1 2]
+    A = np.array([[1.0, 2.0], [1.0, 2.0]])
+    trajs = [((0.0, 0.05), 2.0), ((-0.5, 0.3), 2.0), ((-1.0, 0.55), 2.0),
+             ((1.0, -0.55), 2.0), ((0.0, -0.05), 2.0), ((0.5, -0.3), 2.0),
+             ((-0.5, 0.2), 1.0), ((0.5, -0.2), 1.0)]
+    lines = [(np.array([-1.0, 1.0]), np.array([0.5, -0.5]))]
+    portrait(A, "DynamicalSystems_09.png",
+             "A line of unstable fixed points", trajs,
+             extra_lines=lines, mark_origin=False)
+
+    # Figure 10: stable node, collinear eigendirections, A = [1 4; -1 -3]
+    A = np.array([[1.0, 4.0], [-1.0, -3.0]])
+    trajs = [((-1.0, 0.5), 4.0), ((1.0, -0.5), 4.0), ((-0.9, 1.0), 4.0),
+             ((-0.5, 1.0), 4.0), ((0.9, -1.0), 4.0), ((0.5, -1.0), 4.0),
+             ((1.0, -0.75), 4.0), ((-1.0, 0.75), 4.0)]
+    portrait(A, "DynamicalSystems_10.png",
+             "A stable node and collinear eigendirections", trajs)
+
+    # Figure 11: unstable node, collinear eigendirections, A = [-1 5/2; -5/2 4]
+    A = np.array([[-1.0, 2.5], [-2.5, 4.0]])
+    trajs = [((0.1, 0.1), 2.0), ((-0.1, -0.1), 2.0), ((0.5, 0.35), 2.0),
+             ((0.1, -0.1), 2.0), ((-0.1, 0.1), 2.0), ((-0.5, -0.35), 2.0)]
+    portrait(A, "DynamicalSystems_11.png",
+             "An unstable node and collinear eigendirections", trajs)
+
+
+# MATLAB default color order (used for the classification-diagram labels).
+_MATLAB_COLORS = [
+    (0.0000, 0.4470, 0.7410),
+    (0.8500, 0.3250, 0.0980),
+    (0.9290, 0.6940, 0.1250),
+    (0.4940, 0.1840, 0.5560),
+    (0.4660, 0.6740, 0.1880),
+    (0.3010, 0.7450, 0.9330),
+    (0.6350, 0.0780, 0.1840),
+]
+
+
+def _stability_diagram():
+    """DynamicalSystems figure 4 — trace-determinant classification.
+
+    Reproduces the chebfun ``scribble``-based diagram: the tr=0 and
+    det=0 axes, the discriminant parabola tr = +/-2 sqrt(det), and eight
+    word-labels (SADDLES / UNSTABLE / STABLE / SPIRALS) positioned and
+    coloured exactly as the MATLAB ``plot(labels)`` colour cycle does.
+    """
     fig, ax = plt.subplots()
-    ts = np.linspace(0, 20, 800)
-    sol = solve_ivp(lambda t, y: A3 @ np.asarray(y), (0, 20),
-                    (1, 0, 1), t_eval=ts)
-    for j in range(3):
-        ax.plot(sol.t, sol.y[j], linewidth=1.1)
-    ax.grid(True, alpha=0.4, linewidth=0.4)
-    ax.set_xlabel("t")
-    save(fig, "DynamicalSystems_11.png")
+    c = _MATLAB_COLORS
+    ax.plot([-1.0, 1.0], [0.0, 0.0], color=c[0], linewidth=1.6)
+    ax.plot([0.0, 0.0], [-2.0, 2.0], color=c[1], linewidth=1.6)
+    d = np.linspace(0.0, 1.0, 200)
+    tr = 2.0 * np.sqrt(d)
+    ax.plot(d, tr, "b", linewidth=1.6)
+    ax.plot(d, -tr, "b", linewidth=1.6)
+    # (word, det, tr, colour index) — matches MATLAB label array + cycle
+    labels = [
+        ("saddles", -0.5, 1.0, 0),
+        ("saddles", -0.5, -1.0, 1),
+        ("unstable", 0.4, 1.8, 2),
+        ("stable", 0.4, -1.8, 3),
+        ("unstable", 0.6, 0.8, 4),
+        ("spirals", 0.6, 0.6, 5),
+        ("stable", 0.6, -0.6, 6),
+        ("spirals", 0.6, -0.8, 0),
+    ]
+    for word, det, tr_, ci in labels:
+        ax.text(det, tr_, word, color=c[ci], fontsize=11,
+                ha="center", va="center", family="monospace")
+    ax.set_xlim(-1.0, 1.0)
+    ax.set_ylim(-2.5, 2.5)
+    ax.set_xlabel("det(A)", fontsize=12)
+    ax.set_ylabel("tr(A)", fontsize=12)
+    ax.set_title("Stability of linear dynamical systems", fontsize=12)
+    _matlab_ticks(ax)
+    save(fig, "DynamicalSystems_04.png")
 
 
 def breakpoints():
