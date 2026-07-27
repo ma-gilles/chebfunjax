@@ -229,6 +229,30 @@ class Chebfun2(eqx.Module):
         return cls(approx=approx)
 
     @classmethod
+    def from_values(
+        cls,
+        A,
+        domain: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
+        tol: Optional[float] = None,
+    ) -> "Chebfun2":
+        """Construct a Chebfun2 from a matrix of values on a Chebyshev grid.
+
+        ``A[j, i]`` are the values of the function at the tensor grid of
+        2nd-kind Chebyshev points (``size(A, 2)`` in x, ``size(A, 1)`` in y).
+        MATLAB equivalent: ``chebfun2(A)`` with ``A`` a matrix.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/chebfun2.m, @chebfun2/constructor.m
+            (constructFromDouble)
+        Chebfun commit: 7574c77
+        """
+        kwargs: dict = dict(domain=domain)
+        if tol is not None:
+            kwargs["tol"] = tol
+        return cls(approx=SeparableApprox.from_values(A, **kwargs))
+
+    @classmethod
     def from_padua(
         cls,
         vals,
@@ -379,6 +403,39 @@ class Chebfun2(eqx.Module):
     def rank(self) -> int:
         """Numerical rank of the low-rank approximation."""
         return self.approx.rank
+
+    def length(self) -> tuple[int, int]:
+        """Polynomial lengths ``(m, n)`` in x and y (MATLAB length(f)).
+
+        ``m`` is the longest row slice (degree+1 in x); ``n`` is the longest
+        column slice (degree+1 in y).
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/length.m
+        Chebfun commit: 7574c77
+        """
+        m = max(int(r.coeffs.shape[0]) for r in self.approx.rows)
+        n = max(int(c.coeffs.shape[0]) for c in self.approx.cols)
+        return int(m), int(n)
+
+    def chebpolyval2(self, m: Optional[int] = None, n: Optional[int] = None):
+        """Values of f on an ``m`` (x) by ``n`` (y) tensor Chebyshev grid.
+
+        With no arguments the grid size is ``length(f)``, so
+        ``chebpolyval2(chebfun2(A))`` recovers ``A`` for a matrix ``A``.
+        Returns the ``(n, m)`` matrix ``V[j, i] = f(x_i, y_j)``.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/chebpolyval2.m
+        Chebfun commit: 7574c77
+        """
+        if m is None or n is None:
+            lm, ln = self.length()
+            m = lm if m is None else m
+            n = ln if n is None else n
+        return self.sample(m, n)
 
     # ------------------------------------------------------------------
     # Calculus
@@ -1704,6 +1761,13 @@ def chebfun2(
     --------
     Chebfun2
     """
+    # A matrix of numbers is interpreted as values on a 2nd-kind Chebyshev
+    # tensor grid (MATLAB chebfun2(F) with F a matrix); a callable is sampled.
+    if not callable(f):
+        arr = jnp.asarray(f)
+        if arr.ndim == 2:
+            kwargs = {} if tol is None else {"tol": tol}
+            return Chebfun2.from_values(arr, domain=domain, **kwargs)
     return Chebfun2.from_function(f, domain=domain, tol=tol, n=n)
 
 

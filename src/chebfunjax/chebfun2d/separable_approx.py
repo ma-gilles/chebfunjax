@@ -465,6 +465,80 @@ class SeparableApprox(eqx.Module):
                 return approx
 
     @classmethod
+    def from_values(
+        cls,
+        A,
+        domain: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
+        tol: float = _EPS,
+    ) -> "SeparableApprox":
+        """Construct from a matrix of values on a 2nd-kind Chebyshev grid.
+
+        ``A[j, i]`` is interpreted as ``f(x_i, y_j)`` where ``x`` are the
+        ``size(A, 2)`` 2nd-kind Chebyshev points across the x-domain and ``y``
+        the ``size(A, 1)`` points across the y-domain.  A single GE with
+        complete pivoting (no adaptive resolution -- the matrix IS the grid)
+        gives the low-rank column/row value slices, which become Chebtech2
+        objects via ``vals2coeffs``.  Mirrors ``constructFromDouble`` in
+        @chebfun2/constructor.m.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/constructor.m (constructFromDouble)
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        from chebfunjax.utils.transforms import vals2coeffs
+
+        A = np.asarray(A, dtype=np.float64)
+        if A.ndim != 2:
+            raise ValueError(
+                f"SeparableApprox.from_values: A must be a 2-D matrix, got "
+                f"shape {A.shape}.")
+        xa, xb, ya, yb = (float(v) for v in domain)
+        ny, nx = A.shape
+        x_pts = np.array(_chebpts_phys(nx, xa, xb))
+        y_pts = np.array(_chebpts_phys(ny, ya, yb))
+
+        # Zero matrix -> zero Chebfun2.
+        if float(np.max(np.abs(A))) == 0.0:
+            zero = Chebtech2.from_coeffs(jnp.zeros(1, dtype=jnp.float64))
+            return cls(cols=[zero], rows=[zero],
+                       pivots=jnp.array([1.0], dtype=jnp.float64),
+                       domain=(xa, xb, ya, yb))
+
+        abs_tol = _get_tol(x_pts, y_pts, A, (xa, xb, ya, yb), tol)
+
+        # GE with complete pivoting.  factor=1 => allow up to full rank
+        # (MATLAB passes factor=0 for numeric data, i.e. no rank throttle).
+        pivot_vals, pivot_pos, row_vals_mat, col_vals_mat, _ = _complete_aca(
+            A, abs_tol, factor=1)
+        if row_vals_mat.ndim == 1:
+            row_vals_mat = row_vals_mat[np.newaxis, :]
+        r = len(pivot_vals)
+
+        cols_list, rows_list = [], []
+        for j in range(r):
+            col_v = jnp.asarray(col_vals_mat[:, j], dtype=jnp.float64)
+            col_c = vals2coeffs(col_v)
+            if float(jnp.max(jnp.abs(col_v))) > 0:
+                col_c = col_c[:standard_chop(col_c, tol)]
+            cols_list.append(Chebtech2.from_coeffs(col_c))
+
+            row_v = jnp.asarray(row_vals_mat[j, :], dtype=jnp.float64)
+            row_c = vals2coeffs(row_v)
+            if float(jnp.max(jnp.abs(row_v))) > 0:
+                row_c = row_c[:standard_chop(row_c, tol)]
+            rows_list.append(Chebtech2.from_coeffs(row_c))
+
+        return cls(
+            cols=cols_list,
+            rows=rows_list,
+            pivots=jnp.asarray(1.0 / pivot_vals, dtype=jnp.float64),
+            domain=(xa, xb, ya, yb),
+        )
+
+    @classmethod
     def _construct_once(
         cls,
         f: Callable[[jax.Array, jax.Array], jax.Array],

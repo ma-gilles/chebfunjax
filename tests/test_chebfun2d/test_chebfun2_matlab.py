@@ -82,3 +82,39 @@ class TestChebfun2NonUnitDomain:
 
     def test_rank(self):
         assert int(self._g().rank) == int(_REF["g_rank"])
+
+
+@pytest.mark.matlab
+class TestChebfun2FromValues:
+    """chebfun2(A) from a values matrix + chebpolyval2 roundtrip.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun2/chebfun2.m (matrix input), @chebfun2/chebpolyval2.m
+    Chebfun commit: 7574c77
+    """
+
+    def test_roundtrip_lowrank_matrix(self):
+        # A low-rank (rank 3) matrix of values on a Chebyshev grid must be
+        # recovered by chebpolyval2(chebfun2(A)) to machine precision.
+        rng = np.random.default_rng(0)
+        u = rng.standard_normal((17, 3))
+        v = rng.standard_normal((23, 3))
+        A = u @ v.T  # shape (17, 23), rank 3
+        f = cj.chebfun2(A)
+        assert f.rank == 3
+        X = np.asarray(f.chebpolyval2())
+        assert X.shape == A.shape
+        npt.assert_allclose(X, A, atol=1e-12)
+
+    def test_smooth_function_matrix(self):
+        # Sampling a smooth function on a Chebyshev grid and rebuilding via
+        # chebfun2(A) reproduces the function.
+        from chebfunjax.utils.quadrature import chebpts_ab
+        x = np.asarray(chebpts_ab(20, -1.0, 1.0, kind=2))
+        y = np.asarray(chebpts_ab(24, -1.0, 1.0, kind=2))
+        X, Y = np.meshgrid(x, y)
+        A = np.sin(3 * X) * np.exp(Y)
+        f = cj.chebfun2(A)
+        got = np.asarray(f(jnp.asarray([[0.3]]), jnp.asarray([[-0.2]])))
+        npt.assert_allclose(got, np.sin(3 * 0.3) * np.exp(-0.2), atol=1e-10)
