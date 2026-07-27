@@ -170,59 +170,79 @@ def fourierbasedchebfuns():
 
 def fouriercoefficients():
     """fourier/FourierCoefficients — decay rates and truncations."""
-    dom = [-PI, PI]
+    # Faithful port of chebfun.org fourier/FourierCoefficients:
+    #   1. plotcoeffs(loglog) of u = |sin(x)|^3 (trig), O(k^-4) decay
+    #   2/3. truncated Fourier partial sum of a square wave (Gibbs)
+    #   4. truncated Fourier partial sum of a sawtooth wave.
 
-    # u with a jump in the 3rd derivative: |sin(x)|^3-like, coeffs k^-4
-    u = cj.chebfun(lambda x: jnp.abs(jnp.sin(x)) ** 3, domain=dom,
-                   trig=True)
-    # dense two-sided |coefficients| against |wavenumber|+1, computed
-    # from a long FFT so the k^-4 tail reaches 1e3
-    N = 4096
+    def trig_partial_sum(f, num_modes, nsamp=8192):
+        """Coefficients c_m (m=-num_modes..num_modes) of the truncated
+        Fourier series of periodic f on [-pi, pi], returned as an
+        evaluator u_trunc(t) valid for any t (periodic extension)."""
+        xg = np.linspace(-PI, PI, nsamp, endpoint=False)
+        ck = np.fft.fft(f(xg)) / nsamp
+        ms = np.arange(-num_modes, num_modes + 1)
+        cm = np.array([ck[m % nsamp] for m in ms])
+
+        def u_trunc(t):
+            t = np.asarray(t, dtype=float)
+            return np.real(np.exp(1j * np.outer(t, ms)) @ cm)
+
+        return u_trunc
+
+    # ---- Figure 1: Fourier coefficients, |sin(x)|^3, k^-4 decay ----
+    N = 8192
     xg = np.linspace(-PI, PI, N, endpoint=False)
     ck = np.abs(np.fft.fft(np.abs(np.sin(xg)) ** 3)) / N
-    kk = np.abs(np.fft.fftfreq(N, d=1.0 / N)).astype(float)
-    order = np.argsort(kk)
+    kk = np.arange(N // 2)
+    mag = ck[: N // 2]
+    # chebfun stops plotting at length(u)/2 (~1.3e3 for this function).
+    kmax = 1300
     fig, ax = plt.subplots()
-    ax.loglog(kk[order] + 1, np.maximum(ck[order], 1e-16),
+    ax.loglog(kk[:kmax] + 1, np.maximum(mag[:kmax], 1e-16),
               color=CHEBFUN_BLUE, linewidth=0.5)
-    kseg = np.logspace(2, 3.1, 30)
-    ax.loglog(kseg, 10.0 * kseg**-4.0, "k-", linewidth=1.6)
+    kline = np.array([100.0, float(kmax)])
+    ax.loglog(kline, 10.0 * kline ** -4.0, "k-", linewidth=1.6)
+    ax.text(500, 50 * 500.0 ** -4.0, r"$O(k^{-4})$", fontsize=12)
     ax.set_xlim(1, 1e4)
     ax.set_ylim(1e-15, 1)
-    ax.grid(True, which="both", alpha=0.4, linewidth=0.4)
+    ax.set_yticks([1e0, 1e-5, 1e-10, 1e-15])
+    ax.grid(True, which="major", alpha=0.25, linewidth=0.4)
     ax.set_title("Fourier coefficients", fontsize=10)
     ax.set_xlabel("|Wave number|+1")
     ax.set_ylabel("Magnitude of coefficient")
     save(fig, "fourier", "FourierCoefficients_01.png")
 
-    xs = np.linspace(-PI, PI, 2000)
+    # ---- Figure 2: square wave, 15-mode truncation on [-pi, pi] ----
+    num_modes = 15
+    sq_wave = lambda x: np.sign(np.sin(x))  # noqa: E731
+    sq_trunc = trig_partial_sum(sq_wave, num_modes)
+    xs = np.linspace(-PI, PI, 3000)
     fig, ax = plt.subplots()
-    ax.plot(xs, np.abs(np.sin(xs)) ** 3, color=CHEBFUN_BLUE,
-            linewidth=1.2)
+    ax.plot(xs, sq_wave(xs), "k:", linewidth=1.6)
+    ax.plot(xs, sq_trunc(xs), "b-", linewidth=1.2)
+    ax.set_xlim(-PI, PI)
+    ax.set_ylim(-1.5, 1.5)
     save(fig, "fourier", "FourierCoefficients_02.png")
 
-    # truncation to 15 modes
-    numModes = 15
-    N = 512
-    xg = np.linspace(-PI, PI, N, endpoint=False)
-    ck = np.fft.fft(np.abs(np.sin(xg)) ** 3) / N
-    keep = np.zeros(N, dtype=bool)
-    keep[:numModes + 1] = True
-    keep[-numModes:] = True
-    ct = np.where(keep, ck, 0)
-    recon = np.real(np.fft.ifft(ct) * N)
+    # ---- Figure 3: same truncation extended to [-4pi, 4pi] ----
+    xs = np.linspace(-4 * PI, 4 * PI, 6000)
     fig, ax = plt.subplots()
-    ax.plot(xg, np.abs(np.sin(xg)) ** 3, color=CHEBFUN_BLUE,
-            linewidth=1.2, label="u")
-    ax.plot(xg, recon, "--", color=ORANGE, linewidth=1.0,
-            label="15-mode truncation")
-    ax.legend(fontsize=8)
+    ax.plot(xs, sq_wave(xs), "k:", linewidth=1.6)
+    ax.plot(xs, sq_trunc(xs), "b-", linewidth=1.2)
+    ax.set_xlim(-4 * PI, 4 * PI)
+    ax.set_ylim(-1.5, 1.5)
     save(fig, "fourier", "FourierCoefficients_03.png")
 
+    # ---- Figure 4: sawtooth wave, 15-mode truncation on [-4pi, 4pi] ----
+    saw = lambda x: np.mod(x + PI, 2 * PI) / (2 * PI)  # noqa: E731
+    saw_trunc = trig_partial_sum(saw, num_modes)
+    xs = np.linspace(-4 * PI, 4 * PI, 6000)
     fig, ax = plt.subplots()
-    ax.semilogy(xg, np.maximum(np.abs(np.abs(np.sin(xg)) ** 3 - recon),
-                               1e-18), "k", linewidth=0.6)
-    ax.set_title("truncation error", fontsize=9)
+    ax.plot(xs, saw(xs), "k:", linewidth=1.6)
+    ax.plot(xs, saw_trunc(xs), "b-", linewidth=1.2)
+    ax.set_xlim(-4 * PI, 4 * PI)
+    ax.set_ylim(-0.2, 1.2)
     save(fig, "fourier", "FourierCoefficients_04.png")
 
 
