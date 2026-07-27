@@ -169,6 +169,9 @@ class TestEndToEnd:
         assert np.allclose(np.asarray(a(pts)), np.asarray(b(pts)),
                            rtol=1e-8, atol=1e-9)
 
+    # ~400 s of Newton solves (drifted up from ~100 s as construction
+    # numerics evolved); headroom beyond the local 300 s default.
+    @pytest.mark.timeout(890)
     def test_multistart_fallback_exhausts(self):
         # Bratu has exactly two solutions below the critical parameter;
         # deflating BOTH leaves no third root, so the multi-start fallback
