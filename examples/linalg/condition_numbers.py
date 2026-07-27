@@ -1,8 +1,10 @@
-"""Condition numbers of Chebyshev vs Vandermonde matrices.
+"""Condition number of the Vandermonde quasimatrix.
 
-Explores how Chebyshev interpolation gives much better-conditioned matrices
-than Vandermonde matrices for equispaced nodes. Based on Chebfun example
-linalg/CondVandermonde.m.
+The continuous Vandermonde "matrix" A = [1, x, x^2, ..., x^n] on [-1, 1] is a
+quasimatrix whose columns are monomials.  Its 2-norm condition number (from
+the continuous L2 SVD) grows exponentially with n at the rate rho_c^n with
+rho_c = 1 + sqrt(2).  Faithful port of Chebfun example linalg/CondVandermonde.m
+by Nick Trefethen.
 
 Original: https://www.chebfun.org/examples/linalg/CondVandermonde.html
 """
@@ -20,82 +22,57 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+import chebfunjax as cj
+from chebfunjax.chebfun1d.linalg import Quasimatrix
 from chebfunjax.plotting import chebfun_style
 
 chebfun_style()
 
-def vandermonde_matrix(nodes):
-    """Vandermonde matrix for the given nodes."""
-    nodes = np.asarray(nodes)
-    n = len(nodes)
-    V = np.ones((n, n))
-    for j in range(1, n):
-        V[:, j] = V[:, j - 1] * nodes
-    return V
 
-def chebyshev_vandermonde(nodes):
-    """Chebyshev-Vandermonde matrix: V_{kj} = T_j(x_k)."""
-    nodes = np.asarray(nodes)
-    n = len(nodes)
-    V = np.ones((n, n))
-    if n > 1:
-        V[:, 1] = nodes
-    for j in range(2, n):
-        V[:, j] = 2 * nodes * V[:, j - 1] - V[:, j - 2]
-    return V
+def vandermonde_quasimatrix(x, n):
+    """Quasimatrix A = [x^0, x^1, ..., x^n] on x's domain (MATLAB x.^(0:n))."""
+    cols = [x ** k for k in range(n + 1)]
+    return Quasimatrix(cols, x.domain)
+
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/linalg')
     os.makedirs(outdir, exist_ok=True)
 
-    nn = list(range(3, 26))
-    cond_vander_equi = []
-    cond_vander_cheb = []
-    cond_chebv_cheb = []
+    # MATLAB: x = chebfun('x'); A = x.^(0:10); cond(A)
+    x = cj.chebfun(lambda x: x)
+    A = vandermonde_quasimatrix(x, 10)
+    cond_A = A.cond()
+    print(f"cond(A) = {cond_A:.15e}")
 
-    for n in nn:
-        # Equispaced nodes
-        equi = np.linspace(-1, 1, n)
-        # Chebyshev-2 nodes
-        k = np.arange(n)
-        cheb = np.cos(np.pi * k / (n - 1))[::-1]  # ascending
+    # MATLAB: for n = 1:20, c(n) = cond(x.^(0:n)); end
+    nn = list(range(1, 21))
+    c = [vandermonde_quasimatrix(x, n).cond() for n in nn]
 
-        V_equi = vandermonde_matrix(equi)
-        V_cheb = vandermonde_matrix(cheb)
-        CV_cheb = chebyshev_vandermonde(cheb)
-
-        cond_vander_equi.append(np.linalg.cond(V_equi))
-        cond_vander_cheb.append(np.linalg.cond(V_cheb))
-        cond_chebv_cheb.append(np.linalg.cond(CV_cheb))
+    rhoc = 1.0 + np.sqrt(2.0)
+    asymptotics = rhoc ** np.arange(1, 21)
 
     fig, ax = plt.subplots()
-    ax.semilogy(nn, cond_vander_equi, color='#D95319', marker='.', linestyle='-', markersize=8, linewidth=1.5,
-                label='Vandermonde (equispaced)')
-    ax.semilogy(nn, cond_vander_cheb, color='#0072BD', marker='.', linestyle='-', markersize=8, linewidth=1.5,
-                label='Vandermonde (Chebyshev nodes)')
-    ax.semilogy(nn, cond_chebv_cheb, color='#77AC30', marker='.', linestyle='-', markersize=8, linewidth=1.5,
-                label='Chebyshev-Vandermonde (Cheb nodes)')
-    ax.set_title('Condition numbers of Vandermonde matrices', fontsize=12)
-    ax.legend(fontsize=10)
+    ax.semilogy(nn, c, color='#0072BD', marker='.', linestyle='-',
+                markersize=8, linewidth=1.5, label='Vandermonde matrix')
+    ax.semilogy(nn, asymptotics, color='#D95319', marker='.', linestyle='-',
+                markersize=8, linewidth=1.5, label='asymptotics')
+    ax.grid(True)
+    ax.set_xlabel('n')
+    ax.set_ylabel('condition number')
+    ax.legend(fontsize=10, loc='upper left')
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'condition_numbers.png'),
                 dpi=150, bbox_inches='tight')
     plt.close(fig)
 
-    print("Condition numbers at n=20:")
-    i20 = nn.index(20)
-    print(f"  Vandermonde (equispaced): {cond_vander_equi[i20]:.2e}")
-    print(f"  Vandermonde (Cheb nodes): {cond_vander_cheb[i20]:.2e}")
-    print(f"  Cheb-Vandermonde (Cheb):  {cond_chebv_cheb[i20]:.2e}")
-
-    # The Chebyshev-Vandermonde with Chebyshev nodes should be well-conditioned
-    assert cond_chebv_cheb[i20] < 1e4, "Chebyshev-Vandermonde condition too large"
-    # The Vandermonde with equispaced nodes should be exponentially ill-conditioned
-    assert cond_vander_equi[i20] > 1e8, "Vandermonde equispaced should be ill-conditioned"
+    # The condition number grows exponentially; asymptotic rate rho_c = 1+sqrt(2)
+    assert c[-1] > 1e5, "cond(x.^(0:20)) should be exponentially large"
 
     print("condition_numbers: done")
     return True
+
 
 if __name__ == "__main__":
     run()

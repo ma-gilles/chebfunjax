@@ -396,6 +396,26 @@ class Quasimatrix:
         from chebfunjax.chebfun1d.linalg import chebfun_svd
         return chebfun_svd(list(self.cols))
 
+    def cond(self) -> float:
+        """2-norm condition number: ratio of largest to smallest singular value.
+
+        For a quasimatrix, the singular values come from the continuous SVD
+        (L2 inner products), so this is the condition number of the columns
+        as elements of ``L^2([a, b])``.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/cond.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        _, S, _ = self.svd()
+        s = jnp.asarray(S)
+        if s.ndim == 2:
+            s = jnp.diagonal(s)
+        return float(jnp.max(s) / jnp.min(s))
+
     @classmethod
     def from_functions(
         cls,
