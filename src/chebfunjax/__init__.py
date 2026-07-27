@@ -79,6 +79,10 @@ from chebfunjax.utils.polynomials import (
 )
 from chebfunjax.utils.polyops import fred, poly, residue, volt  # noqa: E402
 from chebfunjax.utils.random import randnfun, randnfun2  # noqa: E402
+from chebfunjax.utils.ratapprox import (  # noqa: E402
+    padeapprox,
+    ratinterp,
+)
 from chebfunjax.utils.trigrational import trigpade, trigremez  # noqa: E402
 from chebfunjax.utils.trigutils import trigBary  # noqa: E402
 
@@ -296,6 +300,8 @@ __all__ = [
     "complex_fun",
     "cf",
     "chebpade",
+    "padeapprox",
+    "ratinterp",
     "cell2quasi",
     "overlap",
     "wronskian",
