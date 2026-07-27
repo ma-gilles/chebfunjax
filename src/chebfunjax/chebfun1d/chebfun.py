@@ -251,9 +251,14 @@ class _Piece(eqx.Module):
         """
         pa, pb = self.interval
         # Map [a, b] (physical) into reference [-1, 1] coordinates
-        # t_a = (2*a - (pa+pb)) / (pb-pa),  t_b similarly
-        t_a = (2.0 * a - (pa + pb)) / (pb - pa)
-        t_b = (2.0 * b - (pa + pb)) / (pb - pa)
+        # t_a = (2*a - (pa+pb)) / (pb-pa),  t_b similarly.  Clamp to [-1, 1]:
+        # when [a, b] is (essentially) the whole piece, floating-point in the
+        # affine map -- or a breakpoint merged from another operand that lands a
+        # rounding step outside this piece -- can push t just past +/-1, which
+        # the tech-level restrict rejects.  Restricting to marginally more than
+        # the piece is the piece itself, so clamping is the correct guard.
+        t_a = min(1.0, max(-1.0, (2.0 * a - (pa + pb)) / (pb - pa)))
+        t_b = min(1.0, max(-1.0, (2.0 * b - (pa + pb)) / (pb - pa)))
         new_tech = self.tech.restrict(t_a, t_b)
         return _Piece(tech=new_tech, interval=(float(a), float(b)))
 
@@ -6208,39 +6213,6 @@ def _two_arg_extremum(f: "Chebfun", other, pick):
     return chebfun(ev, domain=tuple(domain))
 
 
-def _split_piece_happy(f, a: float, b: float, maxpow2: int) -> bool:
-    """Is f resolvable on the OPEN interval (a, b)?  (Opus 4.8, #12)
-
-    Tests happiness on a slightly-shrunk interval so an ambiguous value
-    exactly at a jump (e.g. sign(0)=0) does not spoil an otherwise
-    smooth constant piece.
-    """
-    import warnings as _warnings
-    w = b - a
-    aa = a + 1e-9 * w
-    bb = b - 1e-9 * w
-    with _warnings.catch_warnings():
-        _warnings.simplefilter("ignore")
-        return _Piece.from_function(f, aa, bb, maxpow2=maxpow2).ishappy
-
-
-def _split_find_edge(f, a: float, b: float, maxpow2: int) -> float:
-    """Locate a singularity in (a, b) by happiness bisection (Opus 4.8)."""
-    for _ in range(80):
-        if b - a < 1e-13:
-            break
-        m = 0.5 * (a + b)
-        lh = _split_piece_happy(f, a, m, maxpow2)
-        rh = _split_piece_happy(f, m, b, maxpow2)
-        if lh and not rh:
-            a = m
-        elif rh and not lh:
-            b = m
-        else:
-            return m
-    return 0.5 * (a + b)
-
-
 def _split_breakpoints(f, a: float, b: float, maxpow2: int,
                        depth: int = 0, max_depth: int = 45,
                        min_w: float = 1e-10) -> list:
@@ -6253,20 +6225,94 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
     built at the caller's full ``maxpow2``.
     """
     import warnings as _warnings
-    det = min(maxpow2, 12)
+    # MATLAB splitting caps each FUN at pref.splitPrefs.splitLength (= 257,
+    # i.e. 2**8 + 1): a piece that is not resolved by 257 points is declared
+    # sad and split, rather than ground up to 2**16 + 1 = 65537 points.  The
+    # previous cap of 2**12 = 4097 made an endpoint branch-point singularity
+    # (e.g. sqrt(4-(x-1)^2), which is ~2*sqrt(1+x) at x=-1) thrash: every
+    # detection and edge-bisection construction ran to thousands of points and
+    # the recursion hung for minutes.  MATLAB source: @chebfunpref splitLength.
+    det = min(maxpow2, 8)
     with _warnings.catch_warnings():
         _warnings.simplefilter("ignore")
         p = _Piece.from_function(f, a + 1e-9 * (b - a), b - 1e-9 * (b - a),
                                  maxpow2=det)
     if p.ishappy or (b - a) < min_w or depth > max_depth:
         return []
-    e = _split_find_edge(f, a, b, det)
-    if not (a + 1e-12 < e < b - 1e-12):
+    # Locate the singularity with a cheap finite-difference scan (the spirit of
+    # MATLAB @fun/detectEdge: sample on a grid, take the largest first
+    # difference) instead of the old 80-iteration construction-based bisection
+    # (_split_find_edge did 160 adaptive constructions PER recursion level,
+    # which -- combined with the recursion toward an endpoint branch point --
+    # made splitting-on hang for minutes).
+    e = _split_edge_fd(f, a, b)
+    w = b - a
+    htol = 1e-12 * max(abs(a), abs(b), 1.0)
+    if e <= a + htol:
+        # Singularity on the LEFT boundary (e.g. the sqrt branch point of
+        # sqrt(4-(x-1)^2) at x=-1).  MATLAB detectEdge moves a boundary edge in
+        # by diff(dom)/100; the boundary-adjacent child then peels off ~1% at a
+        # time (geometric, a handful of levels) instead of halving ~35 times.
+        e = a + w / 100
+    elif e >= b - htol:
+        e = b - w / 100
+    elif not (a < e < b):
         e = 0.5 * (a + b)
     return (_split_breakpoints(f, a, e, maxpow2, depth + 1, max_depth, min_w)
             + [e]
             + _split_breakpoints(f, e, b, maxpow2, depth + 1, max_depth,
                                  min_w))
+
+
+def _split_edge_fd(f, a: float, b: float, n: int = 17) -> float:
+    """Cheap finite-difference singularity locator for splitting (Fable 5).
+
+    Iteratively zooms into the sub-interval carrying the largest first
+    difference of ``f`` -- a fast stand-in for @fun/detectEdge that needs only
+    ``O(n)`` function evaluations per zoom (no adaptive constructions).  A jump
+    or branch point produces the dominant first difference, so the bracket
+    closes geometrically on the singularity; the returned point is precise
+    enough (~1e-14) to place a breakpoint exactly on a jump (so ``sign(x)``
+    splits into exactly two pieces), while a boundary singularity converges to
+    the endpoint and is handled by the caller's move-in rule.
+
+    Provenance
+    ----------
+    MATLAB source : @fun/detectEdge.m (findMaxDer / findJump)
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+    lo, hi = float(a), float(b)
+    scale = max(abs(a), abs(b), 1.0)
+    for _ in range(80):
+        if hi - lo < 1e-15 * scale:
+            break
+        xs = _np.linspace(lo, hi, n)
+        ys = _np.asarray(f(jnp.asarray(xs)), dtype=_np.float64)
+        ys = _np.where(_np.isfinite(ys), ys, 0.0)
+        # A jump (0th-derivative discontinuity) shows an ISOLATED spike in the
+        # first difference and localises cleanly there; a kink (1st-derivative
+        # discontinuity, e.g. abs(x-c)) leaves the first difference ~uniform but
+        # spikes the second difference.  Pick the first difference when it
+        # already isolates a jump, otherwise the second.
+        d1 = _np.abs(_np.diff(ys))
+        med1 = _np.median(d1) if d1.size else 0.0
+        if d1.size and _np.max(d1) > 4.0 * med1 + 1e-300:
+            centres = 0.5 * (xs[:-1] + xs[1:])
+            score = d1
+        else:
+            score = _np.abs(_np.diff(ys, n=2))
+            centres = xs[1:-1]
+        i = int(_np.argmax(score))
+        step = (hi - lo) / (n - 1)
+        nlo = max(lo, centres[i] - step)
+        nhi = min(hi, centres[i] + step)
+        if (nhi - nlo) >= (hi - lo) * (1.0 - 1e-12):
+            # Bracket no longer shrinking: settle on the peak location.
+            lo, hi = float(nlo), float(nhi)
+            break
+        lo, hi = float(nlo), float(nhi)
+    return 0.5 * (lo + hi)
 
 
 def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
@@ -6279,11 +6325,17 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
     """
     import warnings as _warnings
     brks = _split_breakpoints(f, a, b, maxpow2)
-    pts = sorted(set([a, b] + [float(x) for x in brks]))
-    cleaned = [pts[0]]
-    for x in pts[1:]:
-        if x - cleaned[-1] > 1e-11:
+    # Always keep the true domain endpoints a and b; merge only INTERIOR
+    # breakpoints, and drop any interior point that lands within the merge
+    # tolerance of EITHER neighbour (previously a geometric peel breakpoint a
+    # rounding step inside b could displace b itself, yielding a domain like
+    # [-1, -1e-12] instead of [-1, 0]).
+    interior = sorted(float(x) for x in brks if a < float(x) < b)
+    cleaned = [float(a)]
+    for x in interior:
+        if x - cleaned[-1] > 1e-11 and (b - x) > 1e-11:
             cleaned.append(x)
+    cleaned.append(float(b))
 
     funs = []
     for i in range(len(cleaned) - 1):
@@ -6298,10 +6350,16 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
             x = 0.5 * (_hi - _lo) * t + 0.5 * (_lo + _hi)
             return f(x)
 
+        # Splitting-mode pieces are capped at MATLAB's splitLength (2**8 + 1
+        # = 257): the recursion has already subdivided until each piece either
+        # resolves within that budget or is a minimal-width singular piece that
+        # is accepted unresolved.  Building at the caller's full maxpow2 (2**16)
+        # would re-grind the near-singular pieces to 65537 points.
+        piece_maxpow2 = min(maxpow2, 8)
         with _warnings.catch_warnings():
             _warnings.simplefilter("ignore")
-            tech = Chebtech2.from_function(f_ref, maxpow2=maxpow2, tol=tol,
-                                           turbo=turbo)
+            tech = Chebtech2.from_function(f_ref, maxpow2=piece_maxpow2,
+                                           tol=tol, turbo=turbo)
         funs.append(_Piece(tech=tech, interval=(float(ai), float(bi))))
     return Chebfun(funs=funs, domain=Domain(tuple(cleaned)))
 
