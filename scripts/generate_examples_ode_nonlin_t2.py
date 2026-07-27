@@ -591,54 +591,89 @@ def gulfstream():
 
 
 def droplets():
-    """ode-nonlin/Droplets — sessile drops (Young-Laplace)."""
-    def drop_profile(kappa0, L=12.0):
+    """ode-nonlin/Droplets — sessile drops (Young-Laplace).
+
+    Faithful port of the chebfun.org ode-nonlin/Droplets example.  Each
+    axisymmetric drop is the solution of the parametrised Young-Laplace
+    system (arclength form)
+
+        R' = cos(Psi),  U' = sin(Psi),  Psi' = U - sin(Psi)/R
+
+    with base radius ``b`` and contact angle ``Psib``.  The chebop BVP is
+    solved here by apex shooting: integrate from the apex (R = 0, Psi = 0,
+    with the removable singularity resolved by Psi'|apex = U/2) and root-
+    find the apex height U0 so the tangent angle reaches ``Psib`` exactly
+    when R = b.  The prescribed-volume case instead fixes the solid-of-
+    revolution volume and lets b follow.
+    """
+    from scipy.optimize import brentq
+
+    BLUE = (0.3, 0.4, 1.0)  # chebfun 'blue = [.3 .4 1]'
+
+    def integrate(U0, Psib):
         def rhs(s, y):
-            r, z, phi = y
-            k = kappa0 + z
-            dphi = k - np.sin(phi) / max(r, 1e-8)
-            return [np.cos(phi), np.sin(phi), dphi]
+            R, U, Psi = y
+            dPsi = U / 2.0 if R < 1e-7 else U - np.sin(Psi) / R
+            return [np.cos(Psi), np.sin(Psi), dPsi]
 
-        sol = solve_ivp(rhs, (1e-8, L), [1e-8, 0.0, 0.0],
-                        t_eval=np.linspace(1e-8, L, 2400),
-                        rtol=1e-10)
-        # cut where the tangent angle reaches pi (no wetting)
-        phi = sol.y[2]
-        stop = np.argmax(phi >= PI) if np.any(phi >= PI) else len(phi)
-        return (sol.y[0][:stop], sol.y[1][:stop])
+        def event(s, y):
+            return y[2] - Psib
+        event.terminal = True
+        event.direction = -1
+        return solve_ivp(rhs, (0.0, 60.0), [0.0, U0, 0.0], events=event,
+                         max_step=0.01, rtol=1e-9, atol=1e-11)
 
-    def sessile_plot(kappa0, title, name):
-        r, z = drop_profile(kappa0)
-        zmax = z[-1]
-        # flip so the drop sits on the ground line z = 0
-        zz = zmax - z
+    def half_profile(U0, Psib):
+        sol = integrate(U0, Psib)
+        return sol.y[0], sol.y[1]  # R(s), U(s) on the right half
+
+    def solve_radius(b, Psib):
+        """Apex height U0 giving base radius b at contact angle Psib."""
+        def resid(U0):
+            sol = integrate(U0, Psib)
+            if len(sol.t_events[0]) == 0:
+                return 10.0
+            return sol.y_events[0][0][0] - b
+        return brentq(resid, -6.0, -1e-3, xtol=1e-11)
+
+    def solve_volume(v0, Psib):
+        """Apex height U0 giving solid-of-revolution volume v0."""
+        def vol(U0):
+            R, U = half_profile(U0, Psib)
+            return np.pi * abs(np.trapezoid(R ** 2, U))
+        return brentq(lambda U0: vol(U0) - v0, -0.5, -1.5, xtol=1e-11)
+
+    def draw(R, U, title, name, xlim, ylim, ground):
+        Us = U - U.min()          # sit the drop on the ground line U = 0
+        xs = np.concatenate([-R[::-1], R])
+        ys = np.concatenate([Us[::-1], Us])
         fig, ax = plt.subplots()
-        xs_ = np.concatenate([-r[::-1], r])
-        ys_ = np.concatenate([zz[::-1], zz])
-        ax.fill(xs_, ys_, color=(0.35, 0.45, 0.95))
-        ax.plot(xs_, ys_, "k", linewidth=1.6)
-        ax.axhline(0, color="k", linewidth=1.2)
-        ax.set_xlim(-4, 4)
-        ax.set_ylim(-0.8, 2.8)
+        ax.plot(ground, [0.0, 0.0], "k", linewidth=1.5)
+        ax.fill(xs, ys, color=BLUE)
+        ax.plot(xs, ys, "k", linewidth=1.0)
+        ax.set_aspect("equal")
+        ax.set_xlim(*xlim)
+        ax.set_ylim(*ylim)
+        ax.grid(True, alpha=0.4, linewidth=0.4)
         ax.set_title(title, fontsize=10)
         save(fig, name)
 
-    sessile_plot(1.5, "small drop", "Droplets_01.png")
-    sessile_plot(0.35, "no wetting", "Droplets_02.png")
-    # prescribed volume: taller drop with a waist (contact angle
-    # beyond 90 degrees)
-    r3, z3 = drop_profile(0.8, L=14.0)
-    zz3 = z3[-1] - z3
-    fig, ax = plt.subplots()
-    xs3 = np.concatenate([-r3[::-1], r3])
-    ys3 = np.concatenate([zz3[::-1], zz3])
-    ax.fill(xs3, ys3, color=(0.35, 0.45, 0.95))
-    ax.plot(xs3, ys3, "k", linewidth=1.6)
-    ax.axhline(0, color="k", linewidth=1.2)
-    ax.set_xlim(-2, 2)
-    ax.set_ylim(-0.1, 1.85)
-    ax.set_title("prescribed volume", fontsize=10)
-    save(fig, "Droplets_03.png")
+    # Figure 1: borderline wetting, b = 3, contact angle 90 deg
+    b = 3.0
+    R, U = half_profile(solve_radius(b, -PI / 2), -PI / 2)
+    draw(R, U, "borderline wetting", "Droplets_01.png",
+         (-4, 4), (-1, 2.5), [-b - 1, b + 1])
+
+    # Figure 2: no wetting, b = 3, contact angle 180 deg (overhang)
+    R, U = half_profile(solve_radius(b, -PI), -PI)
+    draw(R, U, "no wetting", "Droplets_02.png",
+         (-4, 4), (-1, 2.5), [-b - 1, b + 1])
+
+    # Figure 3: prescribed volume v0 = 10, contact angle 180 deg
+    R, U = half_profile(solve_volume(10.0, -PI), -PI)
+    ground3 = [float(np.floor(-R.max())), float(np.ceil(R.max()))]
+    draw(R, U, "prescribed volume", "Droplets_03.png",
+         (-2, 2), (-0.1, 1.75), ground3)
 
 
 def carrier():
