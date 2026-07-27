@@ -1,12 +1,15 @@
 """Rose curves.
 
-Demonstrates rose curves r = sin(k*theta) in polar coordinates,
-filling a grid for various rational values of k = m/n.
-Translated from geom/RoseCurves.m.
+A rose curve is the complex chebfun cos(m/n t)(cos t + i sin t) on
+[0, 2*pi*lcm(m,n)].  Because it is periodic, a trigonometric (Fourier)
+representation needs about pi/2 times fewer coefficients than a Chebyshev
+representation of the same curve.  Faithful port of geom/RoseCurves.m.
 
 Original: https://www.chebfun.org/examples/geom/RoseCurves.html
 Author: Hrothgar, June 2014
 """
+
+import math
 
 import matplotlib
 
@@ -14,71 +17,73 @@ matplotlib.use("Agg")
 import os
 import sys
 
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 
 chebfun_style()
 
-def rose_curve(m, n, n_pts=5000):
-    """Generate rose curve for k = m/n.
 
-    Domain: [0, 2*pi*lcm(m,n)].
-    Parametrize in Cartesian: x = cos(k*t)*cos(t), y = cos(k*t)*sin(t).
-    """
-    import math
-    lcm_mn = m * n // math.gcd(m, n)
-    t = np.linspace(0, 2 * np.pi * lcm_mn, n_pts)
-    k = m / n
-    r = np.cos(k * t)
-    x = r * np.cos(t)
-    y = r * np.sin(t)
-    return x + 1j * y
+def rose_curve(m, n, trig=True):
+    """MATLAB roseCurve(m,n): complex chebfun on [0, 2*pi*lcm(m,n)]."""
+    L = math.lcm(m, n)
+    dom = (0.0, 2.0 * math.pi * L)
+    fn = lambda t: jnp.cos(m / n * t) * jnp.cos(t) + 1j * jnp.cos(m / n * t) * jnp.sin(t)
+    return cj.chebfun(fn, domain=dom, trig=trig)
+
+
+def _length(f):
+    return sum(len(p.tech.coeffs) for p in f.funs)
+
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/geom')
     os.makedirs(outdir, exist_ok=True)
 
+    # MATLAB:
+    #   m = 50; n = 51;
+    #   f = roseCurve(m, n);                          % 'trig'
+    #   g = chebfun(@(x) f(x), [0, 2*pi*lcm(m,n)]);   % Chebyshev
+    #   length(g) ./ length(f)                        % ~ pi/2
+    #   pi/2
+    m, n = 50, 51
+    f = rose_curve(m, n, trig=True)
+    g = rose_curve(m, n, trig=False)
+    ratio = _length(g) / _length(f)
+    print(f"length(g)/length(f) = {ratio:.15f}")
+    print(f"pi/2 = {math.pi / 2:.15f}")
+
+    # A gallery of rose curves for m, n = 1..N (offset on the complex plane).
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.set_aspect('equal')
     ax.axis('off')
-
     N = 6
-    for m in range(1, N + 1):
-        for n in range(1, N + 1):
-            z = rose_curve(m, n)
-            offset = 2.5 * m + (-2.5j * n)
-            ax.plot(np.real(z) + np.real(offset),
-                    np.imag(z) + np.imag(offset),
-                    'k-', linewidth=0.8, alpha=0.8)
-
-    # Labels
-    for m in range(1, N + 1):
-        ax.text(2.5 * m, -2.5 * N - 1.5, f'm={m}', ha='center', fontsize=8)
-    for n in range(1, N + 1):
-        ax.text(0.5, -2.5 * n, f'n={n}', ha='center', fontsize=8)
-
-    fig.suptitle('Rose Curves r = cos(m/n · θ)', fontsize=14, y=1.02)
+    for mm in range(1, N + 1):
+        for nn in range(1, N + 1):
+            fc = rose_curve(mm, nn, trig=True)
+            tt = np.linspace(fc.domain.a, fc.domain.b, 4000)
+            z = np.asarray(fc(jnp.array(tt)))
+            offset = 2.5 * mm - 2.5j * nn
+            ax.plot(np.real(z) + offset.real, np.imag(z) + offset.imag,
+                    'k-', linewidth=0.8)
+    fig.suptitle('Rose curves cos(m/n·t)·e^{it}', fontsize=14, y=1.02)
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'rose_curves.png'),
                 dpi=150, bbox_inches='tight')
     plt.close(fig)
 
-    # Verify: k=1 gives a circle
-    z_circle = rose_curve(1, 1)
-    radius = np.abs(z_circle)
-    print(f"Rose(m=1,n=1): max radius = {np.max(radius):.4f}  (should be ≤ 1)")
-
-    # k=2/1 gives 4 petals
-    z_4petal = rose_curve(2, 1)
-    print(f"Rose(m=2,n=1): max radius = {np.max(np.abs(z_4petal)):.4f}")
+    # The representation-length ratio approaches pi/2.
+    assert abs(ratio - math.pi / 2) < 0.05, "trig/Chebyshev length ratio off"
 
     print("rose_curves: done")
     return True
+
 
 if __name__ == "__main__":
     run()
