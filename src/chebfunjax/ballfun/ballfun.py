@@ -699,6 +699,34 @@ def _mk_fourier_fourier_eval(A: np.ndarray):
     return ev
 
 
+def _radial_slice_coeffs(coeffs: np.ndarray, r: float) -> np.ndarray:
+    """Collapse the radial Chebyshev axis of a ``(m, n, p)`` Ballfun coeff
+    tensor at radius ``r``, returning the ``(n, p)`` Fourier(lambda) x
+    Fourier(theta) coefficient matrix of the spherical shell ``f(r, ., .)``.
+
+    The radial Chebyshev basis ``T_a(r)`` is built by the three-term
+    recurrence (so ``|r| > 1`` extrapolation is well defined, matching
+    MATLAB's Clenshaw radial evaluation in ``@ballfun/spherefun.m``).  The
+    physical radius ``r in [0, 1]`` is used directly (the Ballfun radial
+    convention), consistent with :func:`_ballfun_eval_points`.
+
+    Provenance
+    ----------
+    MATLAB source : @ballfun/spherefun.m  (clenshaw_vec + coeffs2spherefun)
+    Chebfun commit: 7574c77
+    """
+    coeffs = np.asarray(coeffs, dtype=complex)
+    m = coeffs.shape[0]
+    t = np.empty(m, dtype=np.float64)
+    t[0] = 1.0
+    if m > 1:
+        t[1] = float(r)
+    for a in range(2, m):
+        t[a] = 2.0 * float(r) * t[a - 1] - t[a - 2]
+    # A[b, c] = sum_a T_a(r) * coeffs[a, b, c]
+    return np.tensordot(t.astype(complex), coeffs, axes=(0, 0))
+
+
 def _mk_cheb_fourier_eval(A: np.ndarray):
     """Callable evaluating ``sum_{i,j} A[i,j] T_i(r) exp(i k_a ang)``
     (A: Chebyshev(r) x Fourier(angular), fftshift-ordered).  Returns real part.
@@ -1746,15 +1774,20 @@ class Ballfun(eqx.Module):
 
         if self.isempty():
             return Spherefun.empty()
-        coeffs = self.coeffs
 
-        def ev(lam, th):
-            lam = jnp.asarray(lam, dtype=jnp.float64)
-            th = jnp.asarray(th, dtype=jnp.float64)
-            return _ballfun_eval_points(
-                coeffs, jnp.full_like(lam, float(r)), lam, th)
-
-        return Spherefun.from_function(ev)
+        # MATLAB @ballfun/spherefun.m collapses the radial Chebyshev axis at
+        # r (Clenshaw), yielding the Fourier(lambda) x Fourier(theta) coeff
+        # matrix of the shell, then builds the Spherefun directly from those
+        # coefficients (coeffs2spherefun) -- no adaptive re-sampling of the
+        # full 3D tensor.  Sampling the ball pointwise here instead (the old
+        # path) fed the Spherefun Gaussian-elimination constructor an
+        # O(npts * m*n*p) evaluator: for a high-frequency shell (e.g.
+        # galleryball('moire')) the adaptive grid grows to max_sample and
+        # construction stalls for tens of minutes.  Contracting the radial
+        # axis first makes the per-evaluation cost a cheap O(npts * (n+p))
+        # separable Fourier sum.
+        A = _radial_slice_coeffs(np.asarray(self.coeffs), float(r))
+        return Spherefun.from_function(_mk_fourier_fourier_eval(A))
 
     def to_diskfun(self, axis: str = "z", c: float = 0.0):
         """Extract a planar slice of the ball as a Diskfun.

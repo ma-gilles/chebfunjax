@@ -359,16 +359,12 @@ def fig04(moire):
 
 def fig05(moire):
     """f(1,:,:) -> spherefun (restriction to unit sphere r=1)."""
-    def _slice_r1(lam, th):
-        lam_np = np.asarray(lam, dtype=float)
-        th_np = np.asarray(th, dtype=float)
-        shp = np.broadcast(lam_np, th_np).shape
-        lam_f = np.broadcast_to(lam_np, shp).ravel()
-        th_f = np.broadcast_to(th_np, shp).ravel()
-        vals = _ballfun_pointwise(moire, np.ones(lam_f.shape), lam_f, th_f)
-        return jnp.asarray(vals.reshape(shp))
-
-    fsph = Spherefun.from_function(_slice_r1)
+    # MATLAB spherefun(F, 1): collapse the radial Chebyshev axis at r=1 and
+    # build the shell's spherefun directly from the Fourier-Fourier coeffs.
+    # (Sampling the ball pointwise through the adaptive Spherefun constructor
+    # stalls here -- the moire shell is a rank-~86 high-frequency function and
+    # each pointwise ball evaluation is O(npts * m*n*p).)
+    fsph = moire.to_spherefun(1.0)
     fig, ax = plot_sphere(fsph)
     _save(fig, 5, "r=1 spherefun restriction")
 
