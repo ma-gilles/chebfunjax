@@ -30,9 +30,14 @@ _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
 
+    # MATLAB: d = [0 14]; f = chebfun(@(x) sin(x).^2 + sin(x.^2), d);
+    #         np = length(f); nphalf = round(np/2)
     dom = (0.0, 14.0)
     def wiggly(x): return jnp.sin(x)**2 + jnp.sin(x**2)
     f = cj.chebfun(wiggly, domain=dom)
+    n_p = len(np.asarray(f.coeffs))
+    print(f"np = {n_p}")
+    print(f"nphalf = {round(n_p / 2)}")
 
     xx = np.linspace(0.0, 14.0, 1200)
     f_vals = np.array([float(f(jnp.array(x))) for x in xx])
