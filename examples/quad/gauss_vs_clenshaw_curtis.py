@@ -18,86 +18,64 @@ import sys
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.special import roots_legendre
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+from chebfunjax.utils.quadrature import chebpts, chebweights, legpts
 
 chebfun_style()
 
-def clenshaw_curtis_nodes_weights(n):
-    """Clenshaw-Curtis nodes (Chebyshev-2 points) and weights on [-1,1]."""
-    if n == 1:
-        return np.array([0.0]), np.array([2.0])
-    k = np.arange(n)
-    x = -np.cos(np.pi * k / (n - 1))  # Chebyshev points of 2nd kind
-    # Weights via FFT-based Clenshaw-Curtis formula
-    c = np.zeros(n)
-    c[0::2] = 2.0 / (1 - np.arange(0, n, 2)**2)
-    # DCT
-    w = np.real(np.fft.ifft(np.concatenate([c, c[-2:0:-1]])))[:n]
-    w[0] /= 2
-    w[-1] /= 2
-    return x, w
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/quad')
     os.makedirs(outdir, exist_ok=True)
 
-    # Wiggly analytic function
+    # MATLAB: x = chebfun('x'); f = @(x) x.*sin(2*exp(2*sin(2*exp(2*x))));
+    #         fc = chebfun(f); Ichebfun = sum(fc); Npts = length(fc);
     f_fn = lambda x: x * np.sin(2 * np.exp(2 * np.sin(2 * np.exp(2 * x))))
     f_jax = lambda x: x * jnp.sin(2 * jnp.exp(2 * jnp.sin(2 * jnp.exp(2 * x))))
 
-    # Chebfun "exact" integral
     fc = cj.chebfun(f_jax)
-    I_exact = float(fc.sum())
-    print(f"Reference integral (Chebfun) = {I_exact:.15f}")
-    print(f"Chebfun degree = {len(fc)}")
+    Ichebfun = float(fc.sum())
+    Npts = len(np.asarray(fc.coeffs))
+    print(f"Ichebfun = {Ichebfun:.15f}")
+    print(f"Npts = {Npts}")
 
-    # Convergence comparison
-    NN = list(range(10, 220, 10))
-    err_gauss = []
-    err_cc = []
+    # Clenshaw-Curtis quadrature at Npts points: [s,w]=chebpts(Npts); w*f(s)
+    s = np.asarray(chebpts(Npts, 2))
+    w = np.asarray(chebweights(Npts, 2))
+    Iclenshawcurtis = float(w @ f_fn(s))
+    print(f"Iclenshawcurtis = {Iclenshawcurtis:.15f}")
 
-    for n in NN:
-        # Gauss-Legendre
-        x_g, w_g = roots_legendre(n)
-        I_g = np.dot(w_g, f_fn(x_g))
-        err_gauss.append(abs(I_g - I_exact))
+    # Gauss quadrature at Npts points: [s,w]=legpts(Npts); w*f(s)
+    sg, wg = legpts(Npts)
+    Igauss = float(np.asarray(wg) @ f_fn(np.asarray(sg)))
+    print(f"Igauss = {Igauss:.15f}")
 
-        # Clenshaw-Curtis
-        try:
-            x_c, w_c = clenshaw_curtis_nodes_weights(n)
-            I_c = np.dot(w_c, f_fn(x_c))
-            err_cc.append(abs(I_c - I_exact))
-        except Exception:
-            err_cc.append(np.nan)
-
+    # --- Plot -----------------------------------------------------------
     fig, axes = plt.subplots(1, 2)
-
-    # Left: function plot
-    xx = np.linspace(-1, 1, 600)
-    axes[0].plot(xx, f_fn(xx), color='#0072BD', linestyle='-', linewidth=1.5)
+    xx = np.linspace(-1, 1, 800)
+    axes[0].plot(xx, f_fn(xx), color='#0072BD', lw=1.4)
     axes[0].set_title(r'$f(x) = x\sin(2e^{2\sin(2e^{2x})})$', fontsize=11)
-
-    # Right: convergence
-    axes[1].semilogy(NN, err_gauss, color='#0072BD', marker='.', linestyle='-', markersize=8, linewidth=1.4,
-                     label='Gauss-Legendre')
-    axes[1].semilogy(NN, err_cc, color='#D95319', marker='.', linestyle='-', markersize=8, linewidth=1.4,
-                     label='Clenshaw-Curtis')
-    axes[1].set_title('Convergence of quadrature rules', fontsize=11)
+    NN = list(range(10, 700, 20))
+    err_g, err_c = [], []
+    for n in NN:
+        xg, wgn = np.asarray(legpts(n)[0]), np.asarray(legpts(n)[1])
+        err_g.append(abs(float(wgn @ f_fn(xg)) - Ichebfun))
+        sc, wc = np.asarray(chebpts(n, 2)), np.asarray(chebweights(n, 2))
+        err_c.append(abs(float(wc @ f_fn(sc)) - Ichebfun))
+    axes[1].semilogy(NN, err_g, color='#0072BD', marker='.', lw=1.4, label='Gauss')
+    axes[1].semilogy(NN, err_c, color='#D95319', marker='.', lw=1.4, label='Clenshaw-Curtis')
+    axes[1].set_title('Convergence', fontsize=11)
     axes[1].legend(fontsize=10)
     axes[1].set_ylim(bottom=1e-17)
-
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'gauss_vs_clenshaw_curtis.png'),
                 dpi=150, bbox_inches='tight')
     plt.close(fig)
 
-    print(f"Gauss 100-pt error: {err_gauss[9]:.2e}")
-    print(f"CC    100-pt error: {err_cc[9]:.2e}")
     print("gauss_vs_clenshaw_curtis: done")
     return True
 
