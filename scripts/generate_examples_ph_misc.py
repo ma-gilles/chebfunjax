@@ -7,9 +7,9 @@ New standalone generator (does not edit any existing generator). Ports:
   approx3/Tolerance_01.png    -- plotcoeffs of the rows of a loose-tol chebfun3
 
 Faithful ports of the MATLAB sources on chebfun.org.  CompactingColloids
-(temp/) is intentionally NOT produced here: it needs pde15s general
-function-form (Robin/flux) boundary conditions, which chebfunjax's pdeSolve
-does not support -- reported BLOCKED.
+(temp/) is produced by the sibling generator ``generate_examples_ph_pde.py``
+(it needs pde15s general function-form Robin/flux boundary conditions, now
+supported by ``chebfunjax.chebfun1d.pde15s``).
 """
 
 import os
@@ -205,7 +205,7 @@ PAGES = {
     "Ellipse": ellipse,
     "TwoCircles": twocircles,
     "Tolerance": tolerance,
-    # "CompactingColloids": BLOCKED -- pdeSolve lacks Robin/flux BC (pde15s).
+    # CompactingColloids -> see generate_examples_ph_pde.py (pde15s Robin BC).
 }
 
 

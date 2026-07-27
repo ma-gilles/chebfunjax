@@ -188,6 +188,117 @@ class TestPde15s:
         assert max(max_vals) < 1.5 * max_vals[0]
         assert max_vals[-1] < max_vals[0]
 
+    # ------------------------------------------------------------------
+    # General callable BC forms (Robin/flux/time-dependent + arity dispatch).
+    # ------------------------------------------------------------------
+    def test_pde15s_single_arg_pdefun(self):
+        """A one-argument ``pdefun(u)`` matches the full ``pdefun(t, x, u)``.
+
+        MATLAB PDE operators are frequently written as ``@(u) ...`` (no ``t``
+        or ``x``); the arity dispatch must treat that identically to the
+        three-argument form.
+        """
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        from chebfunjax.chebfun1d.pde15s import pde15s
+
+        u0 = chebfun(lambda x: jnp.sin(jnp.pi * x), domain=(0.0, 1.0))
+        tt = np.array([0.0, 0.05])
+        one = pde15s(lambda u: 0.1 * u.diff(2), tt, u0, lbc=0.0, rbc=0.0, n=40)
+        three = pde15s(lambda t, x, u: 0.1 * u.diff(2), tt, u0,
+                       lbc=0.0, rbc=0.0, n=40)
+        xs = jnp.linspace(0.0, 1.0, 15, dtype=jnp.float64)
+        npt.assert_allclose(np.array(one[-1](xs)), np.array(three[-1](xs)),
+                            atol=1e-12)
+
+    def test_pde15s_robin_bc_exact(self):
+        """Robin boundary condition ``a*u + b*u' = c`` is imposed exactly.
+
+        ``lbc=lambda u: u.diff() + 2*u - 1`` imposes ``u'(0) + 2 u(0) = 1``.
+        The residual is linear in ``u`` with a time-invariant slope, so it is
+        slaved algebraically (DAE reduction) and driven to zero to machine
+        precision at every output time.
+        """
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        from chebfunjax.chebfun1d.pde15s import pde15s
+
+        u0 = chebfun(lambda x: 0.5 + 0.0 * x, domain=(0.0, 1.0))
+        UU = pde15s(
+            lambda t, x, u: u.diff(2), np.linspace(0.0, 0.3, 4), u0,
+            lbc=lambda u: u.diff() + 2.0 * u - 1.0, rbc=0.0,
+            n=48, rtol=1e-9, atol=1e-11,
+        )
+        for uk in UU:
+            resid = (float(uk.diff()(jnp.float64(0.0)))
+                     + 2.0 * float(uk(jnp.float64(0.0))) - 1.0)
+            assert abs(resid) < 1e-8
+            assert abs(float(uk(jnp.float64(1.0)))) < 1e-8
+
+    def test_pde15s_time_dependent_dirichlet(self):
+        """A prescribed time-varying boundary value ``u(0, t) = sin(t)``.
+
+        Written as the two-argument residual ``lambda t, u: u - sin(t)``.  The
+        constraint is linear in ``u`` with a time-invariant slope but a
+        time-dependent right-hand side, so it is slaved through the DAE path
+        with time-dependent forcing and tracks ``sin(t)`` exactly (not the
+        lagged relaxation a plain row-replacement would give).
+        """
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        from chebfunjax.chebfun1d.pde15s import pde15s
+
+        u0 = chebfun(lambda x: 0.0 * x, domain=(0.0, 1.0))
+        ts = np.linspace(0.0, 1.0, 6)
+        UU = pde15s(
+            lambda t, x, u: 0.1 * u.diff(2), ts, u0,
+            lbc=lambda t, u: u - jnp.sin(t), rbc=0.0,
+            n=48, rtol=1e-9, atol=1e-11,
+        )
+        for k, uk in enumerate(UU):
+            npt.assert_allclose(float(uk(jnp.float64(0.0))),
+                                float(np.sin(ts[k])), atol=1e-6)
+
+    def test_pde15s_bc_arity_forms_agree(self):
+        """The ``(u)``, ``(t, u)`` and ``(t, x, u)`` BC forms all agree.
+
+        A time-independent Neumann residual written three ways must give
+        identical solutions.
+        """
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        from chebfunjax.chebfun1d.pde15s import pde15s
+
+        u0 = chebfun(lambda x: jnp.sin(jnp.pi * x), domain=(0.0, 1.0))
+        tt = np.array([0.0, 0.05])
+        base = dict(n=40)
+        a = pde15s(lambda u: 0.1 * u.diff(2), tt, u0,
+                   lbc=lambda u: u.diff(), rbc=lambda u: u.diff(), **base)
+        b = pde15s(lambda u: 0.1 * u.diff(2), tt, u0,
+                   lbc=lambda t, u: u.diff(), rbc=lambda t, u: u.diff(), **base)
+        c = pde15s(lambda u: 0.1 * u.diff(2), tt, u0,
+                   lbc=lambda t, x, u: u.diff(),
+                   rbc=lambda t, x, u: u.diff(), **base)
+        xs = jnp.linspace(0.0, 1.0, 15, dtype=jnp.float64)
+        npt.assert_allclose(np.array(a[-1](xs)), np.array(b[-1](xs)),
+                            atol=1e-12)
+        npt.assert_allclose(np.array(a[-1](xs)), np.array(c[-1](xs)),
+                            atol=1e-12)
+
+    def test_pde15s_arity_helpers(self):
+        """The signature-arity helpers dispatch the documented forms."""
+        from chebfunjax.chebfun1d.pde15s import (
+            _call_flexible,
+            _positional_arity,
+        )
+
+        assert _positional_arity(lambda u: u) == 1
+        assert _positional_arity(lambda t, u: u) == 2
+        assert _positional_arity(lambda t, x, u: u) == 3
+        # Variadic / unintrospectable callables report None (try-chain).
+        assert _positional_arity(lambda *a: a) is None
+        # Dispatch picks the right positional slot for each arity.
+        assert _call_flexible(lambda u: ("u", u), 3.0, "X", "U") == ("u", "U")
+        assert _call_flexible(lambda t, u: (t, u), 3.0, "X", "U") == (3.0, "U")
+        assert _call_flexible(lambda t, x, u: (t, x, u), 3.0, "X", "U") \
+            == (3.0, "X", "U")
+
 
 # ============================================================================
 # V14 — sing (singularity detection)
