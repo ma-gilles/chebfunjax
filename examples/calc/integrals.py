@@ -31,22 +31,36 @@ def run():
     os.makedirs(outdir, exist_ok=True)
 
     # --- Basic function ---------------------------------------------------
-    # f = round(2*cos(x)) on [0, 10]  (piecewise constant)
-    f = cj.chebfun(lambda x: jnp.round(2 * jnp.cos(x)), domain=(0.0, 10.0))
+    # MATLAB: x = chebfun('x',[0 10]); f = round(2*cos(x));
+    # round() of a Chebfun is piecewise-constant with breakpoints inserted
+    # where 2*cos(x) crosses a half-integer, so integrals are computed
+    # exactly.  (Sampling round(2*cos(x)) into a single global polynomial
+    # would Gibbs-oscillate and give the wrong integral.)
+    x = cj.chebfun(lambda x: x, domain=(0.0, 10.0))
+    f = (2 * x.cos()).round()
 
-    # Definite integral over [0, 10]
-    total = float(f.sum())
-    print(f"sum(f) over [0,10] = {total:.10f}")
+    # Definite integral over [0, 10]  -- MATLAB sum(f)
+    print(f"sum(f) = {float(f.sum()):.15f}")
+
+    # Definite integral over the sub-interval [3, 4]  -- MATLAB sum(f,3,4)
+    print(f"sum(f,3,4) = {float(f.restrict(3.0, 4.0).sum()):.15f}")
 
     # Indefinite integral (cumsum)
     g = f.cumsum()
 
-    # Norm tests: diff(cumsum(f)) = f
-    err1 = float(f.diff().cumsum().norm() - f.cumsum().diff().norm())
-    dc = f.diff().cumsum()
-    err2 = float((dc - (f - f(jnp.array(0.0)))).norm())
-    print(f"||diff(cumsum(f)) - f|| = {float((f.diff().cumsum() - f.diff().cumsum()).norm()):.2e}")
-    print(f"||f(0) + cumsum(diff(f)) - f|| = {err2:.2e}")
+    # g(4) - g(3) equals the integral over [3, 4]
+    print(f"g(4) - g(3) = {float(g(jnp.array(4.0)) - g(jnp.array(3.0))):.15f}")
+
+    # diff(cumsum(f)) recovers f exactly
+    print(f"norm(diff(cumsum(f)) - f) = {float((f.cumsum().diff() - f).norm()):.15g}")
+
+    # cumsum(diff(f)) recovers f up to the constant f(0): diff() emits Dirac
+    # deltas at the jumps, which cumsum() integrates back into the steps.
+    print(f"norm(cumsum(diff(f)) - f) = {float((f.diff().cumsum() - f).norm()):.15f}")
+    print(
+        "norm(f(0)+cumsum(diff(f)) - f) = "
+        f"{float((f.diff().cumsum() + f(jnp.array(0.0)) - f).norm()):.15g}"
+    )
 
     # --- Plot -------------------------------------------------------------
     fig, axes = plt.subplots(1, 2)

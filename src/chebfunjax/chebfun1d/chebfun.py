@@ -2490,7 +2490,7 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/cumsum.m
         Chebfun commit: 7574c77
         """
-        if len(self.funs) == 1:
+        if len(self.funs) == 1 and not self.deltas:
             return Chebfun._as_transposed(
                 Chebfun(funs=[self.funs[0].cumsum()], domain=self.domain),
                 self.is_transposed)
@@ -2498,6 +2498,14 @@ class Chebfun(eqx.Module):
         # Multi-piece: compute antiderivative on each piece, then shift to
         # ensure continuity: F_i(b_i) = F_{i+1}(a_{i+1})
         # (offset is a per-column row for array-valued chebfuns)
+        #
+        # Dirac deltas carried on this Chebfun (e.g. from diff() across a
+        # jump) integrate to Heaviside steps: a delta of magnitude ``m`` at
+        # location ``loc`` adds ``m`` to the antiderivative for all x > loc.
+        # MATLAB source: @deltafun/cumsum.m (deltas -> jumps in the funPart).
+        delta_by_loc = {}
+        for loc, mag in self.deltas:
+            delta_by_loc[float(loc)] = delta_by_loc.get(float(loc), 0.0) + float(mag)
         new_pieces = []
         offset = None
         for piece in self.funs:
@@ -2511,6 +2519,13 @@ class Chebfun(eqx.Module):
             new_pieces.append(piece_cs)
             # Update offset: new cumulative value at the right endpoint
             offset = piece_cs.values[-1]
+            # A delta sitting on this piece's right breakpoint adds a step
+            # (Heaviside jump) to every subsequent piece.
+            if delta_by_loc:
+                right = float(piece.interval[1])
+                for loc, mag in delta_by_loc.items():
+                    if abs(loc - right) <= 1e-10 * (abs(right) + 1.0):
+                        offset = offset + mag
 
         return Chebfun._as_transposed(
             Chebfun(funs=new_pieces, domain=self.domain), self.is_transposed)
