@@ -2754,40 +2754,140 @@ class Chebop:
         case h=1 and the formula is exact.
 
         This is a Python-level operation and NOT JIT-safe.
+
+        Assembly strategy
+        -----------------
+        A variable-coefficient linear operator has the form
+
+            L[u] = c_0(x) u + c_1(x) u' + ... + c_m(x) u^(m).
+
+        The collocation matrix is therefore
+
+            A = sum_k diag(c_k(nodes)) @ D^k
+
+        where ``D^k = diffmat(n, k)``.  We extract the coefficient functions
+        ``c_k`` with only ``m + 1`` operator applications (independent of
+        ``n``) by probing ``L`` on the scaled monomials ``y^k/k!`` and
+        forward-substituting.  This replaces the previous
+        column-by-column probe (``n`` operator applications assembled into a
+        single ``jnp.stack``), whose XLA graph grew as ``O(n)`` and, for the
+        large / stiff variable-coefficient BVPs of guide chapter 7, blew up
+        the compile (an ~11 min ``jit_stack`` compile followed by an
+        out-of-memory segfault at ``n`` ~ 1024).
+
+        For operators the structured form cannot represent (e.g. integral /
+        nonlocal terms) the monomial probe either fails or the assembled
+        matrix does not reproduce ``L`` on a test function; in that case we
+        fall back to the general column-by-column probe, materialised
+        eagerly column-by-column (never a monolithic ``jnp.stack``) so the
+        fallback stays bounded in memory.
         """
         domain = self.domain
+        max_order = 8
 
         def _op_fn(disc: ChebColloc2Disc) -> jnp.ndarray:
-            n = disc.n
-            a, b = disc.domain
+            import numpy as _np
 
             from chebfunjax.chebfun1d.chebfun import Chebfun
+            n = disc.n
+            a, b = disc.domain
             dom = Domain((a, b))
             x_fun = Chebfun.identity(dom)
 
-            # Evaluate op at zero
-            zero_vals = jnp.zeros(n, dtype=jnp.float64)
-            u0 = Chebfun.from_values(zero_vals, dom)
+            def _op_at(vals):
+                """L applied to the Chebfun with these nodal values -> nodal
+                values of L[u] at the collocation nodes (the affine constant
+                L[0] is NOT removed here; callers subtract ``op0``)."""
+                uf = Chebfun.from_values(jnp.asarray(vals, dtype=jnp.float64),
+                                         dom)
+                return _np.asarray(_chebfun_to_values(
+                    self._apply_op(x_fun, uf), disc), dtype=_np.float64)
+
+            # Constant part L[0] (nonzero for affine operators).
             try:
-                op0 = self._apply_op(x_fun, u0)
-                op0_vals = _chebfun_to_values(op0, disc)
+                op0 = _op_at(_np.zeros(n))
             except Exception:
-                op0_vals = jnp.zeros(n, dtype=jnp.float64)
+                op0 = _np.zeros(n)
 
-            # Build Jacobian column by column
-            cols = []
+            # Physical Chebyshev-2 nodes and the domain-scaled variable y.
+            t_ref = _np.asarray(chebpts(n, kind=2))
+            nodes = 0.5 * (b - a) * t_ref + 0.5 * (a + b)
+            x0 = 0.5 * (a + b)
+            h = 0.5 * (b - a)
+            y = (nodes - x0) / h
+
+            # ---- Structured assembly (fast: m+1 operator applications). ----
+            m = self._sniff_order(x_fun, max_order)
+            if m is not None:
+                try:
+                    from math import factorial
+
+                    from chebfunjax.utils.diffmat import diffmat
+                    # L[y^k/k!] at the nodes (constant part removed).
+                    Lp = [_op_at((y ** k) / factorial(k)) - op0
+                          for k in range(m + 1)]
+                    # Forward-substitute for c_k:  c_k/h^k = L[p_k] -
+                    #   sum_{j<k} c_j y^{k-j} / (h^j (k-j)!).
+                    coeffs = []
+                    for k in range(m + 1):
+                        acc = Lp[k].copy()
+                        for j in range(k):
+                            acc = acc - coeffs[j] * (
+                                (y ** (k - j))
+                                / (h ** j * factorial(k - j)))
+                        coeffs.append(acc * (h ** k))
+                    A = _np.zeros((n, n), dtype=_np.float64)
+                    for k in range(m + 1):
+                        A = A + coeffs[k][:, None] * _np.asarray(
+                            diffmat(n, k, domain=(a, b)))
+                    if self._assembly_ok(A, op0, _op_at, y):
+                        return jnp.asarray(A, dtype=jnp.float64)
+                except Exception:
+                    pass
+
+            # ---- Fallback: general column probe, eager per column. ----
+            A = _np.empty((n, n), dtype=_np.float64)
             for j in range(n):
-                e_j = jnp.zeros(n, dtype=jnp.float64).at[j].set(1.0)
-                u_j = Chebfun.from_values(e_j, dom)
-                op_j = self._apply_op(x_fun, u_j)
-                op_j_vals = _chebfun_to_values(op_j, disc)
-                cols.append(op_j_vals - op0_vals)
-
-            # Each column corresponds to the j-th basis action
-            J = jnp.stack(cols, axis=1)
-            return J
+                e_j = _np.zeros(n)
+                e_j[j] = 1.0
+                A[:, j] = _op_at(e_j) - op0
+            return jnp.asarray(A, dtype=jnp.float64)
 
         return OperatorBlock(_op_fn, order=2, domain=domain)
+
+    def _sniff_order(self, x_fun, max_order: int):
+        """Highest derivative order the operator applies to ``u``.
+
+        Probes ``self.op`` with an :class:`_OrderSniffer` in the ``u`` slot
+        (and the real identity Chebfun in the ``x`` slot, so variable
+        coefficients such as ``sin(x)`` evaluate normally).  Returns the
+        order, or ``None`` if it cannot be determined or exceeds
+        ``max_order`` (e.g. integral / nonlocal operators), signalling the
+        caller to use the general column probe instead.
+        """
+        try:
+            sniff = _OrderSniffer()
+            self._apply_op(x_fun, sniff)
+            m = int(sniff.order)
+        except Exception:
+            return None
+        if m < 0 or m > max_order:
+            return None
+        return m
+
+    @staticmethod
+    def _assembly_ok(A, op0, op_at, y) -> bool:
+        """True if the structured matrix ``A`` reproduces ``L`` on a test
+        function -- guards against operators the differential form cannot
+        represent (integral / nonlocal terms), for which the caller falls
+        back to the general column probe."""
+        import numpy as _np
+        tv = (_np.cos(2.3 * y) + 0.4 * _np.sin(1.7 * y)
+              + 0.2 * _np.cos(4.1 * y))
+        lhs = op_at(tv) - op0
+        rhs = A @ tv
+        scale = max(float(_np.max(_np.abs(lhs))), 1e-30)
+        return bool(_np.max(_np.abs(lhs - rhs)) / scale < 1e-6)
 
     def _solve_linear(
         self,
@@ -3366,22 +3466,30 @@ class Chebop:
 
     def _jacobian_matrix_fd(self, disc, x_fun, u_fun, Nu_vals):
         """Compute the Jacobian of self.op at u by forward finite differences."""
+        import numpy as _np
+
         from chebfunjax.chebfun1d.chebfun import Chebfun
 
         n = disc.n
         dom = Domain(disc.domain)
         h = max(1e-6, 1e-6 * float(jnp.max(jnp.abs(u_fun.funs[0].values))))
 
-        # Jacobian columns
-        J_cols = []
+        # Jacobian columns -- materialised eagerly column-by-column into a
+        # numpy array so the finite-difference probe never accumulates a
+        # single O(n)-sized ``jnp.stack`` graph (which blows up the XLA
+        # compile at large n; see _linearize_op).
+        base_vals = u_fun.funs[0].values
+        Nu_np = _np.asarray(Nu_vals, dtype=_np.float64)
+        J = _np.empty((n, n), dtype=_np.float64)
         for j in range(n):
             e_j = jnp.zeros(n, dtype=jnp.float64).at[j].set(h)
-            u_pert = Chebfun.from_values(u_fun.funs[0].values + e_j, dom)
+            u_pert = Chebfun.from_values(base_vals + e_j, dom)
             Nu_pert = self._apply_op(x_fun, u_pert)
-            Nu_pert_vals = _chebfun_to_values(Nu_pert, disc)
-            J_cols.append((Nu_pert_vals - Nu_vals) / h)
+            Nu_pert_vals = _np.asarray(_chebfun_to_values(Nu_pert, disc),
+                                       dtype=_np.float64)
+            J[:, j] = (Nu_pert_vals - Nu_np) / h
 
-        return jnp.stack(J_cols, axis=1)
+        return jnp.asarray(J, dtype=jnp.float64)
 
     # ------------------------------------------------------------------
     # BC parsing
