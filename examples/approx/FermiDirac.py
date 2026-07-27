@@ -32,6 +32,21 @@ _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
 
+    # MATLAB: L = 20; f = @(x) 1./(1+exp(x-L));
+    # The transplant s <-> x maps the semi-infinite decay onto [-1, 1] so the
+    # smooth transition can be resolved; g is the transplanted Fermi-Dirac.
+    #   x = @(s) (s*L+L)./(1-s);  s = @(x) (x-L)./(x+L);  g = @(s) f(x(s));
+    # This is exactly symmetric in appearance but NOT symmetric about s = 0,
+    # which the two printed values demonstrate.
+    L = 20.0
+    f_fd = lambda x: 1.0 / (1.0 + jnp.exp(x - L))
+    x_of_s = lambda s: (s * L + L) / (1.0 - s)
+    g = lambda s: f_fd(x_of_s(s))
+    g_pos = float(g(jnp.array(0.1)))
+    one_minus_g_neg = float(1.0 - g(jnp.array(-0.1)))
+    # MATLAB: disp([g(.1) 1-g(-.1)])
+    print(f"{g_pos:.15f}   {one_minus_g_neg:.15f}")
+
     def fermi_dirac(x): return jnp.array(1.0 / (1.0 + jnp.exp(x)))
 
     # The function on [-10, 10]
