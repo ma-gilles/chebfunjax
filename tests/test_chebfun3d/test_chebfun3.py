@@ -401,3 +401,44 @@ class TestChebfun3Reductions:
         t = _np.linspace(-1.0, 1.0, 21)
         _np.testing.assert_allclose(_np.asarray(h(jnp.asarray(t))), t,
                                     atol=1e-6)
+
+
+class TestChebfun3FixedRank:
+    """chebfun3(f, rank=(t1,t2,t3)) truncates the Tucker rank (fixTheRank).
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun3/constructor.m (fixTheRank, 'rank' option)
+    Chebfun commit: 7574c77
+    """
+
+    def test_truncate_to_rank_one(self):
+        # A rank-3 function truncated to rank (1,1,1).
+        g = chebfun3(lambda x, y, z: jnp.sin(x) * jnp.cos(y) * jnp.exp(z)
+                     + (jnp.cos(x) * jnp.exp(y) * jnp.sin(z)
+                        + jnp.exp(x) * jnp.sin(y) * jnp.cos(z)) / 10.0)
+        assert g.rank == (3, 3, 3)
+        t = g.fix_the_rank((1, 1, 1))
+        assert t.rank == (1, 1, 1)
+        # A rank-1 truncation still captures the dominant term reasonably well.
+        pt = (jnp.array(0.3), jnp.array(-0.4), jnp.array(0.2))
+        assert abs(float(t(*pt))) > 0
+
+    def test_rank_option_matches_fix_the_rank(self):
+        def fn(x, y, z):
+            return jnp.sin(x) * jnp.cos(2 * y) * jnp.exp(z) + 0.2 * x * y * z
+        full = chebfun3(fn)
+        viaopt = chebfun3(fn, rank=(2, 2, 2))
+        viafix = full.fix_the_rank((2, 2, 2))
+        assert viaopt.rank == (2, 2, 2) == viafix.rank
+        pt = (jnp.array(0.1), jnp.array(0.5), jnp.array(-0.3))
+        npt.assert_allclose(float(viaopt(*pt)), float(viafix(*pt)), atol=1e-12)
+
+    def test_pad_to_higher_rank(self):
+        # Padding a rank-1 function up to rank (2,2,2) leaves it unchanged.
+        g = chebfun3(lambda x, y, z: jnp.sin(x) * jnp.cos(y) * jnp.exp(z))
+        assert g.rank == (1, 1, 1)
+        p = g.fix_the_rank((2, 2, 2))
+        assert p.rank == (2, 2, 2)
+        pt = (jnp.array(0.2), jnp.array(0.3), jnp.array(-0.1))
+        npt.assert_allclose(float(p(*pt)), float(g(*pt)), atol=1e-12)

@@ -1581,6 +1581,69 @@ class Chebfun3(eqx.Module):
         """Tucker rank (rx, ry, rz) of the approximation."""
         return (len(self.cols), len(self.rows), len(self.tubes))
 
+    def fix_the_rank(self, fixed_rank) -> "Chebfun3":
+        """Truncate (or zero-pad) the Tucker rank to ``fixed_rank``.
+
+        ``fixed_rank`` is a triple ``(t1, t2, t3)``; each mode's factors and
+        the corresponding slice of the core tensor are truncated to the first
+        ``t`` (dominant, ACA-pivot order) or padded with zero factors.  This
+        is the ``chebfun3(op, 'rank', [t1 t2 t3])`` truncation.
+
+        NOTE: the truncated approximation depends on the factor ordering of
+        the underlying ACA construction; for the exact MATLAB result the
+        chebfun3 constructor's pivoting must also match.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/constructor.m (fixTheRank)
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        t = [int(v) for v in fixed_rank]
+        if len(t) != 3 or any(v < 0 for v in t):
+            raise ValueError(
+                "fix_the_rank: fixed_rank must be three nonnegative integers.")
+        r = [len(self.cols), len(self.rows), len(self.tubes)]
+        cols = list(self.cols)
+        rows = list(self.rows)
+        tubes = list(self.tubes)
+        core = _np.asarray(self.core)
+
+        def _zero_fun(sample):
+            return Chebtech2.from_coeffs(jnp.zeros(1, dtype=jnp.float64))
+
+        # Mode 1 (cols)
+        if r[0] > t[0]:
+            cols = cols[:t[0]]
+            core = core[:t[0], :, :]
+        elif r[0] < t[0]:
+            cols = cols + [_zero_fun(cols[0]) for _ in range(t[0] - r[0])]
+            pad = _np.zeros((t[0], core.shape[1], core.shape[2]), dtype=core.dtype)
+            pad[:r[0], :, :] = core
+            core = pad
+        # Mode 2 (rows)
+        if r[1] > t[1]:
+            rows = rows[:t[1]]
+            core = core[:, :t[1], :]
+        elif r[1] < t[1]:
+            rows = rows + [_zero_fun(rows[0]) for _ in range(t[1] - r[1])]
+            pad = _np.zeros((core.shape[0], t[1], core.shape[2]), dtype=core.dtype)
+            pad[:, :r[1], :] = core
+            core = pad
+        # Mode 3 (tubes)
+        if r[2] > t[2]:
+            tubes = tubes[:t[2]]
+            core = core[:, :, :t[2]]
+        elif r[2] < t[2]:
+            tubes = tubes + [_zero_fun(tubes[0]) for _ in range(t[2] - r[2])]
+            pad = _np.zeros((core.shape[0], core.shape[1], t[2]), dtype=core.dtype)
+            pad[:, :, :r[2]] = core
+            core = pad
+
+        return Chebfun3(cols=cols, rows=rows, tubes=tubes,
+                        core=jnp.asarray(core, dtype=self.core.dtype),
+                        domain=self.domain)
+
     def isreal(self) -> bool:
         """True if f is real-valued (MATLAB isreal).
 
@@ -2366,6 +2429,7 @@ def chebfun3(
     tol: float = _EPS,
     max_rank: int = 128,
     min_samples: int = 9,
+    rank=None,
 ) -> Chebfun3:
     """Construct a Chebfun3 approximation of a trivariate function.
 
@@ -2408,13 +2472,17 @@ def chebfun3(
     --------
     Chebfun3, Chebfun3.from_function
     """
-    return Chebfun3.from_function(
+    g = Chebfun3.from_function(
         f,
         domain=domain,
         tol=tol,
         max_rank=max_rank,
         min_samples=min_samples,
     )
+    # chebfun3(f, 'rank', [t1 t2 t3]): construct fully, then fix the rank.
+    if rank is not None:
+        g = g.fix_the_rank(rank)
+    return g
 
 
 from chebfunjax.utils.misc import make_empty_aware  # noqa: E402
