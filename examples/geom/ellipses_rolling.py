@@ -1,7 +1,9 @@
 """An ellipse rolling around another ellipse.
 
-Computes the trajectory of the midpoint of a small ellipse rolling around
-a larger ellipse without slipping. Translated from geom/Ellipses.m.
+Two contact points z1(t), z2(t) trace the rims of two ellipses (solved as
+complex ODEs); the coupled midpoint w(t) = z1 - z2*diff(z1)/diff(z2) is a
+complex Chebfun.  tfinal is a root of imag(w) on [5, 7.5] and the trajectory
+length is norm(diff(w), 1).  Faithful port of geom/Ellipses.m.
 
 Original: https://www.chebfun.org/examples/geom/Ellipses.html
 Author: Nick Trefethen, October 2011
@@ -13,125 +15,91 @@ matplotlib.use("Agg")
 import os
 import sys
 
-import matplotlib.pyplot as plt
+import jax.numpy as jnp
 import numpy as np
 from scipy.integrate import solve_ivp
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 
 chebfun_style()
+
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/geom')
     os.makedirs(outdir, exist_ok=True)
 
-    # Ellipse 1 (big): 3x1, semi-major L1=3
-    # Ellipse 2 (small): 2x1, semi-major L2=2
     L1, L2 = 3.0, 2.0
-    t_max = 7.5
+    tmax = 7.5
 
-    def theta1(z1):
-        return np.arctan2(np.imag(z1), np.real(z1) / L1)
+    def theta1(z):
+        return np.arctan2(np.imag(z), np.real(z) / L1)
 
-    def theta2(z2):
-        return np.arctan2(np.imag(z2), np.real(z2) / L2)
+    def theta2(z):
+        return np.arctan2(np.imag(z), np.real(z) / L2)
 
+    # Complex ODEs (real 2-component form for scipy; MATLAB uses chebfun.ode113
+    # on the complex field directly, with abstol = reltol = 1e-13).
     def ode1(t, y):
-        z1 = y[0] + 1j * y[1]
-        th = theta1(z1)
-        dz1 = (-L1 * np.sin(th) + 1j * np.cos(th)) / np.sqrt(L1**2 * np.sin(th)**2 + np.cos(th)**2)
-        return [np.real(dz1), np.imag(dz1)]
+        z = y[0] + 1j * y[1]
+        th = theta1(z)
+        dz = (-L1 * np.sin(th) + 1j * np.cos(th)) / np.sqrt(
+            L1**2 * np.sin(th)**2 + np.cos(th)**2)
+        return [np.real(dz), np.imag(dz)]
 
     def ode2(t, y):
-        z2 = y[0] + 1j * y[1]
-        th = theta2(z2)
-        dz2 = (L2 * np.sin(th) - 1j * np.cos(th)) / np.sqrt(L2**2 * np.sin(th)**2 + np.cos(th)**2)
-        return [np.real(dz2), np.imag(dz2)]
+        z = y[0] + 1j * y[1]
+        th = theta2(z)
+        dz = (L2 * np.sin(th) - 1j * np.cos(th)) / np.sqrt(
+            L2**2 * np.sin(th)**2 + np.cos(th)**2)
+        return [np.real(dz), np.imag(dz)]
 
-    # Solve ODEs
-    t_span = (0, t_max)
-    t_eval = np.linspace(0, t_max, 1000)
+    s1 = solve_ivp(ode1, (0.0, tmax), [L1 / 2, 0.0], method='DOP853',
+                   rtol=1e-13, atol=1e-13, dense_output=True)
+    s2 = solve_ivp(ode2, (0.0, tmax), [-L2 / 2, 0.0], method='DOP853',
+                   rtol=1e-13, atol=1e-13, dense_output=True)
 
-    # z1 starts at right tip of big ellipse (L1/2, 0)
-    sol1 = solve_ivp(ode1, t_span, [L1/2, 0], t_eval=t_eval,
-                     method='RK45', rtol=1e-8, atol=1e-10)
-    # z2 starts at left tip of small ellipse (-L2/2, 0)
-    sol2 = solve_ivp(ode2, t_span, [-L2/2, 0], t_eval=t_eval,
-                     method='RK45', rtol=1e-8, atol=1e-10)
+    def _cplx(sol):
+        def f(t):
+            y = sol.sol(np.asarray(t))
+            return jnp.asarray(y[0] + 1j * y[1])
+        return cj.chebfun(f, domain=(0.0, tmax))
 
-    z1_traj = sol1.y[0] + 1j * sol1.y[1]
-    z2_traj = sol2.y[0] + 1j * sol2.y[1]
+    z1 = _cplx(s1)
+    z2 = _cplx(s2)
 
-    # Midpoint trajectory: w = z1 - z2 * (dz1/dz2)
-    # Approximate derivative ratio
-    dz1_dt = np.gradient(z1_traj, t_eval)
-    dz2_dt = np.gradient(z2_traj, t_eval)
-    dz1_dz2 = dz1_dt / (dz2_dt + 1e-15)
-    w_traj = z1_traj - z2_traj * dz1_dz2
+    # Midpoint trajectory (complex Chebfun).
+    w = z1 - z2 * z1.diff() / z2.diff()
 
-    # Trajectory arc length up to ~t=final (when imag(w) crosses 0 again)
-    # Find approximate tfinal
-    imag_w = np.imag(w_traj)
-    sign_change = np.where(np.diff(np.sign(imag_w[500:])) != 0)[0]
-    if len(sign_change) > 0:
-        t_final_idx = 500 + sign_change[0]
-        t_final = t_eval[t_final_idx]
-    else:
-        t_final = t_max
-        t_final_idx = len(t_eval) - 1
+    # tfinal: root of imag(w) restricted to [5, 7.5]; MATLAB w{5,7.5}.
+    r = np.asarray(w.restrict(5.0, 7.5).imag().roots()).ravel()
+    tfinal = float(r[0])
+    print(f"tfinal = {tfinal:.15f}")
 
-    # Arc length of w up to t_final
-    dw = np.diff(w_traj[:t_final_idx+1])
-    arc_length = np.sum(np.abs(dw))
-    print(f"Trajectory length ≈ {arc_length:.4f}")
+    # Trajectory length = norm(diff(w{0,tfinal}), 1).
+    trajectory_length = float(w.restrict(0.0, tfinal).diff().norm(1))
+    print(f"trajectory_length = {trajectory_length:.15f}")
 
-    # Plot
+    # --- Plot ------------------------------------------------------------
+    tt = np.linspace(0.0, tfinal, 800)
+    w_vals = np.asarray(w(jnp.array(tt)))
+    z1v = np.asarray(z1(jnp.array(tt)))
+    z2v = np.asarray(z2(jnp.array(tt)))
+
+    import matplotlib.pyplot as plt
     fig, axes = plt.subplots(1, 2)
-
-    # Plot big ellipse
-    theta_e = np.linspace(0, 2 * np.pi, 500)
-    big_ell_x = L1/2 * np.cos(theta_e)
-    big_ell_y = 0.5 * np.sin(theta_e)
-
-    axes[0].fill(big_ell_x, big_ell_y, color='lightblue', alpha=0.5)
-    axes[0].plot(big_ell_x, big_ell_y, color='#0072BD', linestyle='-', linewidth=1.5)
-
-    # Plot trajectory of midpoint w
-    axes[0].plot(np.real(w_traj), np.imag(w_traj), 'k-', linewidth=2)
-
-    # Plot some positions of the small ellipse
-    for t_step in np.linspace(0, t_max * 0.8, 6):
-        idx = np.argmin(np.abs(t_eval - t_step))
-        z1_pos = z1_traj[idx]
-        z2_pos = z2_traj[idx]
-        w_pos = w_traj[idx]
-        dz1 = dz1_dt[idx]
-        dz2 = dz2_dt[idx]
-
-        # Position of small ellipse (approximate)
-        # Draw small ellipse centered at w_pos
-        small_ell = (L2/2 * np.cos(theta_e) * np.exp(1j * np.angle(z1_pos))
-                     + 1j * 0.5 * np.sin(theta_e) * np.exp(1j * np.angle(z1_pos)))
-        axes[0].plot(np.real(small_ell + w_pos), np.imag(small_ell + w_pos),
-                     'r-', linewidth=1, alpha=0.6)
-        axes[0].plot(np.real(w_pos), np.imag(w_pos), '.k', markersize=6)
-
+    axes[0].plot(np.real(w_vals), np.imag(w_vals), 'k-', lw=2)
     axes[0].set_aspect('equal')
-    axes[0].set_xlim(-3, 3); axes[0].set_ylim(-3, 3)
-    axes[0].set_title('Ellipse rolling around ellipse', fontsize=11)
-
-    # Contact point trajectories
-    axes[1].plot(np.real(z1_traj), np.imag(z1_traj), color='#0072BD', linestyle='-', linewidth=2, label='Contact on big')
-    axes[1].plot(np.real(z2_traj), np.imag(z2_traj), color='#D95319', linestyle='-', linewidth=2, label='Contact on small')
-    axes[1].plot(np.real(w_traj), np.imag(w_traj), 'k-', linewidth=2, label='Midpoint w(t)')
+    axes[0].set_title('Midpoint trajectory w(t)', fontsize=11)
+    axes[1].plot(np.real(z1v), np.imag(z1v), color='#0072BD', lw=2, label='z1 (big)')
+    axes[1].plot(np.real(z2v), np.imag(z2v), color='#D95319', lw=2, label='z2 (small)')
+    axes[1].plot(np.real(w_vals), np.imag(w_vals), 'k-', lw=2, label='w(t)')
     axes[1].set_aspect('equal')
-    axes[1].set_title(f'Contact points and midpoint trajectory\nArc length ≈ {arc_length:.3f}',
-                      fontsize=10)
     axes[1].legend(fontsize=9)
-
-    fig.suptitle('Ellipse Rolling around Ellipse', fontsize=13)
+    axes[1].set_title(f'length = {trajectory_length:.4f}', fontsize=10)
+    fig.suptitle('Ellipse rolling around ellipse', fontsize=13)
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'ellipses_rolling.png'),
                 dpi=150, bbox_inches='tight')
@@ -139,6 +107,7 @@ def run():
 
     print("ellipses_rolling: done")
     return True
+
 
 if __name__ == "__main__":
     run()
