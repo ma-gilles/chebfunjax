@@ -5,7 +5,7 @@ in a centrifuge:
     u_t + [(1-u)^6.55 * (u - (1.85/Pe) * phi_m * u' / (phi_m-u)^2)]' = 0
 Translated from temp/CompactingColloids.m (original: pde/CompactingColloids.m).
 
-Original: https://www.chebfun.org/examples/pde/CompactingColloids.html
+Original: https://www.chebfun.org/examples/temp/CompactingColloids.html
 Authors: Julia Schollick and Rob Style, September 2014
 """
 

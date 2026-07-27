@@ -6,7 +6,7 @@ convergence is limited to the largest Bernstein ellipse inside which the
 function is analytic.
 Translated from temp/TaylorsTheorem.m (original: approx/TaylorsTheorem.m).
 
-Original: https://www.chebfun.org/examples/approx/TaylorsTheorem.html
+Original: https://www.chebfun.org/examples/temp/TaylorsTheorem.html
 Authors: Hrothgar and Anthony Austin, February 2015
 """
 

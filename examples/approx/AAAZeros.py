@@ -4,7 +4,7 @@ Demonstrates using the AAA rational approximant's poles and zeros to locate
 roots of analytic and trigonometric functions.
 
 Credit: Stefano Costa, June 2022.
-Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/AAAZeros.html
+Original MATLAB Chebfun: https://www.chebfun.org/examples/roots/AAAZeros.html
 """
 
 import matplotlib
