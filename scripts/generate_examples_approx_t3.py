@@ -20,6 +20,8 @@ import numpy as np
 from scipy.optimize import linprog
 
 from chebfunjax.plotting import CHEBFUN_BLUE, chebfun_style, save_chebfun_figure
+from chebfunjax.utils.aaa import aaa
+from chebfunjax.utils.minimax import minimax
 
 chebfun_style()
 
@@ -158,68 +160,141 @@ def oscerror():
         save(fig, f"OscError_{k:02d}.png")
 
 
+def _num2str(a):
+    """Mimic MATLAB num2str for the a-values used on this page."""
+    if a == 0:
+        return "0"
+    if a == 1e-5:
+        return "1e-05"
+    return f"{a:g}"
+
+
+def _rat_fit_grid(a, N=4000):
+    """Sample grid clustered near the left endpoint (where root-type
+    functions are steepest) for the AAA rational fit."""
+    lo = a if a > 0 else 1e-12
+    g = np.unique(np.concatenate([
+        lo * (1.0 / lo) ** np.linspace(0.0, 1.0, N // 2),
+        np.linspace(lo, 1.0, N // 2),
+    ]))
+    if a == 0:
+        g = np.concatenate([[0.0], g])
+    return g
+
+
+def _poly_err(fn, n, a):
+    """Best degree-``n`` minimax polynomial error of ``fn`` on [a, 1]."""
+    try:
+        return float(minimax(fn, int(n), domain=(a, 1.0)).err)
+    except Exception:  # noqa: BLE001 — fall back to grid LP if Remez fails
+        xg = _rat_fit_grid(a, 2000)
+        return _lp_minimax(fn(xg), xg, int(n), dom=(a, 1.0))[1]
+
+
+def _rat_err(fn, n, a):
+    """Near-minimax type-(n/2, n/2) rational error of ``fn`` on [a, 1].
+
+    Combines two near-best rational fits and keeps the smaller (better)
+    error at each degree:
+
+    * AAA (adaptive Antoulas-Anderson) with ``n/2 + 1`` support points —
+      captures the root-exponential convergence at higher degree that
+      differential correction on a fixed grid stalls short of for the
+      near-singular cases (a -> 0);
+    * differential correction on a left-clustered grid — closer to the
+      true minimax at very low degree, where AAA's greedy interpolation
+      overshoots.
+    """
+    m = int(n) // 2
+    ze = np.linspace(a, 1.0, 20000)
+    fze = fn(ze)
+    zf = _rat_fit_grid(a)
+    r = aaa(fn(zf), zf, mmax=m + 1, tol=1e-14, cleanup=False)[0]
+    err = float(np.max(np.abs(fze - np.real(r(ze)))))
+    # DC on a small left-clustered grid is closer to minimax at low
+    # degree; only worth it there (its LP is O(grid^3) and it stalls at
+    # higher degree anyway).
+    if m <= 4:
+        try:
+            zc = _rat_fit_grid(a, 400)
+            _, dc = _dc_rational(fn(zc), zc, m, dom=(a, 1.0), iters=25)
+            if np.isfinite(dc):
+                err = min(err, float(dc))
+        except Exception:  # noqa: BLE001
+            pass
+    return err
+
+
+def _minimax_sweep(fn, a, ns):
+    perrs = np.array([_poly_err(fn, n, a) for n in ns])
+    rerrs = np.array([_rat_err(fn, n, a) for n in ns])
+    # The best degree-n approximation error is monotone non-increasing in
+    # n (a higher type/degree can always reproduce a lower one). AAA is
+    # interpolatory and can overshoot this at individual degrees, so take
+    # the running minimum to recover the true (monotone) minimax envelope.
+    return np.minimum.accumulate(perrs), np.minimum.accumulate(rerrs)
+
+
 def minimaxsqrt():
-    """approx/MinimaxSqrt — poly vs rational best approx of sqrt."""
-    ns = np.arange(2, 9, 2)
+    """approx/MinimaxSqrt — polynomial vs rational best approximation.
 
-    def sweep(a, ns_local, ngrid=800):
-        xg = np.linspace(a, 1.0, ngrid)
-        fv = np.sqrt(xg)
-        perrs, rerrs = [], []
-        for n in ns_local:
-            perrs.append(_lp_minimax(fv, xg, int(n), dom=(a, 1.0))[1])
-            rerrs.append(_dc_rational(fv, xg, int(n) // 2,
-                                      dom=(a, 1.0))[1])
-        return perrs, rerrs
+    Faithful port of the chebfun.org approx/MinimaxSqrt example:
+    convergence (max error vs degrees-of-freedom) of best polynomial
+    (blue) and best type-(n/2, n/2) rational (red) approximation of
+    sqrt(x) on [a, 1] as a -> 0 (figures 1-4), an a=0 vs a=1e-5 overlay
+    (figure 5), and the same study for the fifth root of x (figure 6).
+    The rational approximant converges root-exponentially while the
+    polynomial one stalls, the point of the example.
+    """
+    sqrt_fn = lambda x: np.sqrt(np.asarray(x, dtype=float))  # noqa: E731
 
-    for k, a in enumerate((0.8, 0.1), 1):
-        perrs, rerrs = sweep(a, ns)
+    def draw(ax, fn, a, ns, xpad, pstyle, rstyle, label_dy=1.0):
+        """Add one (poly, rational) convergence pair + text labels."""
+        perrs, rerrs = _minimax_sweep(fn, a, ns)
+        astr = _num2str(a)
+        ax.semilogy(ns, perrs, pstyle, markersize=7, linewidth=1.0)
+        ax.text(ns[-1] + xpad, perrs[-1] * label_dy, f"poly a={astr}",
+                color="b", fontsize=9)
+        ax.semilogy(ns, rerrs, rstyle, markersize=7, linewidth=1.0)
+        ax.text(ns[-1] + xpad, rerrs[-1], f"rat a={astr}",
+                color="r", fontsize=9)
+        ax.grid(True, which="both", alpha=0.4, linewidth=0.4)
+        ax.set_xlim(0, ns[-1] + (2 if ns[-1] <= 8 else 7))
+        ax.set_xlabel("DOF")
+
+    ns_short = np.arange(2, 9, 2)
+    ns_long = np.arange(2, 21, 2)
+
+    # Figures 1-2: sqrt on [a,1], a = 0.8, 0.1 (short DOF range)
+    for a, name in ((0.8, "MinimaxSqrt_01.png"), (0.1, "MinimaxSqrt_02.png")):
         fig, ax = plt.subplots()
-        ax.semilogy(ns, perrs, ".-", color=CHEBFUN_BLUE, markersize=8,
-                    linewidth=1.0, label="polynomial")
-        ax.semilogy(ns, rerrs, ".-r", markersize=8, linewidth=1.0,
-                    label="rational (n/2, n/2)")
-        ax.legend(fontsize=8)
-        ax.grid(True, alpha=0.4, linewidth=0.4)
-        ax.set_title(f"sqrt on [{a}, 1]", fontsize=10)
-        save(fig, f"MinimaxSqrt_{k:02d}.png")
+        draw(ax, sqrt_fn, a, ns_short, 0.25, "b*-", "r*-")
+        ax.set_title(f"sqrt(x) on [a,1], a = {_num2str(a)}", fontsize=10)
+        save(fig, name)
 
-    ns3 = np.arange(2, 15, 2)
-    perrs, rerrs = sweep(1e-3, ns3)
+    # Figure 3: a = 0.001 (long DOF range)
     fig, ax = plt.subplots()
-    ax.semilogy(ns3, perrs, ".-", color=CHEBFUN_BLUE, markersize=8,
-                linewidth=1.0, label="polynomial")
-    ax.semilogy(ns3, rerrs, ".-r", markersize=8, linewidth=1.0,
-                label="rational")
-    ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.4, linewidth=0.4)
-    ax.set_title("sqrt on [1e-3, 1]", fontsize=10)
+    draw(ax, sqrt_fn, 1e-3, ns_long, 0.5, "b*-", "r*-")
+    ax.set_title("sqrt(x) on [a,1], a = 0.001", fontsize=10)
     save(fig, "MinimaxSqrt_03.png")
 
-    # error curves: poly and rational at n = 6 on [0.1, 1]
-    a = 0.1
-    xg = np.linspace(a, 1, 1200)
-    fv = np.sqrt(xg)
-    evp, _ = _lp_minimax(fv, xg, 6, dom=(a, 1.0))
-    evr, _ = _dc_rational(fv, xg, 3, dom=(a, 1.0))
-    xs = np.linspace(a, 1, 2000)
+    # Figure 4: a = 1e-5, then figure 5 overlays a = 0 (dashed) on the
+    # SAME axes (MATLAB omits `hold off` between them).
     fig, ax = plt.subplots()
-    ax.plot(xs, np.sqrt(xs) - evp(xs), color=CHEBFUN_BLUE,
-            linewidth=1.2)
-    ax.set_title("polynomial error, n = 6", fontsize=10)
+    draw(ax, sqrt_fn, 1e-5, ns_long, 0.5, "b*-", "r*-")
+    ax.set_title("sqrt(x) on [a,1], a = 1e-05", fontsize=10)
     save(fig, "MinimaxSqrt_04.png")
 
-    fig, ax = plt.subplots()
-    ax.plot(xs, np.sqrt(xs) - evr(xs), "r", linewidth=1.2)
-    ax.set_title("rational error, type (3,3)", fontsize=10)
+    draw(ax, sqrt_fn, 0.0, ns_long, 0.5, "bo--", "ro--", label_dy=1.3)
+    ax.set_title("sqrt(x) on [a,1], a = 0", fontsize=10)
     save(fig, "MinimaxSqrt_05.png")
 
+    # Figure 6: fifth root of x, a = 1e-5 (solid) and a = 0 (dashed)
+    fifth = lambda x: np.asarray(x, dtype=float) ** (1.0 / 5.0)  # noqa: E731
     fig, ax = plt.subplots()
-    ax.semilogy(xs, np.maximum(np.abs(np.sqrt(xs) - evr(xs)), 1e-18),
-                "r", linewidth=0.9)
-    ax.semilogy(xs, np.maximum(np.abs(np.sqrt(xs) - evp(xs)), 1e-18),
-                color=CHEBFUN_BLUE, linewidth=0.9)
-    ax.grid(True, alpha=0.4, linewidth=0.4)
+    draw(ax, fifth, 1e-5, ns_long, 0.2, "b*-", "r*-")
+    draw(ax, fifth, 0.0, ns_long, 0.2, "bo--", "ro--")
+    ax.set_title("fifth root of x on [a,1], a = 0 and 1e-5", fontsize=10)
     save(fig, "MinimaxSqrt_06.png")
 
 
