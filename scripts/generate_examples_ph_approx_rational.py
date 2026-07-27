@@ -146,6 +146,18 @@ def rationalabsx():
 
     f_np = lambda x: np.abs(np.asarray(x, dtype=np.float64))
 
+    # STILL BLOCKED (measured 2026-07, JAX_PLATFORMS=cpu): the barycentric
+    # Filip-Nakatsukasa-Beckermann-Trefethen Remez converges for |x| up to
+    # moderate types -- (5,5) err 8.5e-3, (10,10) 2.7e-4, (20,20) 4.9e-6 (~29s)
+    # -- but the type (80,80) target error is ~5e-13 (exp(-pi*sqrt(80))), which
+    # is at the float64 wall for this method: (40,40)+ is prohibitively slow and
+    # the AAA-Lawson reference loses equioscillation before reaching it.
+    # Seeding an exponentially-clustered symmetric reference near x=0 (the
+    # Zolotarev/Newman remedy) does NOT help here: points spaced down to ~1e-13
+    # collide in the barycentric weights and the trial-polynomial solve goes
+    # singular (matmul dimension error).  Matching MATLAB would require its
+    # CF / cdf initialization cascade and higher-precision inner solves.  Until
+    # then this panel stays a placeholder rather than a wrong render.
     r = minimax(f, 80, denom=80, rational=True, domain=(-1.0, 1.0))
     if not r.success:
         print("  RationalAbsx: (80,80) minimax did not converge -- skipping")
