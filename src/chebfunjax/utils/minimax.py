@@ -38,12 +38,19 @@ from typing import Callable, Sequence
 
 import jax.numpy as jnp
 import numpy as np
+from scipy.linalg import eig
 
 from chebfunjax.utils.interpolation import bary, bary_weights
 from chebfunjax.utils.quadrature import chebpts_ab
 from chebfunjax.utils.transforms import coeffs2vals, vals2coeffs
 
-__all__ = ["minimax", "trigremez", "MinimaxResult", "TrigremezResult"]
+__all__ = [
+    "minimax",
+    "trigremez",
+    "MinimaxResult",
+    "MinimaxRationalResult",
+    "TrigremezResult",
+]
 
 # ---------------------------------------------------------------------------
 # Public result type
@@ -94,11 +101,12 @@ def minimax(
     *,
     domain: tuple[float, float] = (-1.0, 1.0),
     tol: float | None = None,
-    max_iter: int = 30,
+    max_iter: int | None = None,
     init_xk: np.ndarray | None = None,
     breakpoints: Sequence[float] | None = None,
     rational: bool = False,
-) -> MinimaxResult:
+    denom: int | None = None,
+) -> MinimaxResult | MinimaxRationalResult:
     """Best polynomial approximation of degree ``n`` via the Remez algorithm.
 
     Computes the minimax (best Chebyshev / supremum-norm) polynomial
@@ -127,20 +135,31 @@ def minimax(
         Initial reference set (length ``n + 2``).  If ``None``, Chebyshev
         points of the 2nd kind are used.
     breakpoints : sequence of float or None, optional
-        Additional breakpoints (e.g., kink locations) for the error function.
-        These are added to the sub-interval partition in ``_find_extrema``
-        to improve root-finding accuracy near non-smooth points of ``f``.
-        If ``None``, no extra breakpoints are added.  For piecewise-smooth
-        functions (e.g., ``abs(x)`` with a kink at 0), passing the kink
-        location here reproduces MATLAB Chebfun's behavior, which detects
-        breakpoints automatically via ``splitting=on``.
+        **Deprecated and ignored.**  This was a non-MATLAB extension that
+        forced kink locations to be sub-interval boundaries; because boundary
+        extrema were then excluded from the reference, it produced
+        non-equioscillating, sub-optimal approximants (e.g. ``|x-0.5|`` with
+        ``n=1`` reported an error of 0.25 versus the exact 0.375).  MATLAB's
+        ``minimax`` has no such option and the plain algorithm already resolves
+        kinks correctly via adaptive sampling, so any value passed here now
+        emits a :class:`DeprecationWarning` and has no effect.
     rational : bool, optional
-        Not yet implemented.  Must be ``False`` (default).
+        If ``True``, compute the best *rational* approximant of type
+        ``(n, denom)`` instead of a polynomial.  The numerator degree is the
+        positional argument ``n`` and the denominator degree is ``denom``
+        (defaulting to ``n``, i.e. the diagonal type ``(n, n)``).  A
+        :class:`MinimaxRationalResult` is returned in this case.  Uses the
+        adaptive barycentric-Remez algorithm of Filip, Nakatsukasa,
+        Beckermann & Trefethen (2018) with an AAA-Lawson initial reference.
+    denom : int or None, optional
+        Denominator degree for the rational case.  Ignored unless
+        ``rational=True``.  Defaults to ``n`` (diagonal type).
 
     Returns
     -------
-    result : MinimaxResult
-        Dataclass with fields:
+    result : MinimaxResult or MinimaxRationalResult
+        A :class:`MinimaxRationalResult` when ``rational=True``, else a
+        :class:`MinimaxResult` with fields:
 
         - ``coeffs`` — Chebyshev coefficients of the best polynomial
           (length ``n+1``).
@@ -153,8 +172,6 @@ def minimax(
 
     Raises
     ------
-    NotImplementedError
-        If ``rational=True``.
     ValueError
         If ``n < 0`` or the domain is invalid.
 
@@ -207,9 +224,38 @@ def minimax(
     aaa, chebpts, bary, bary_weights
     """
     if rational:
-        raise NotImplementedError(
-            "minimax: rational=True is not yet implemented. "
-            "Use rational=False for the polynomial Remez algorithm."
+        denom_deg = n if denom is None else int(denom)
+        if n < 0 or denom_deg < 0:
+            raise ValueError(
+                f"minimax: rational degrees must be >= 0, got ({n}, {denom_deg})."
+            )
+        if denom_deg == 0:
+            # Type (m, 0) is a polynomial; fall through to the polynomial path
+            # and wrap the result as a (trivial-denominator) rational result.
+            poly_kw = dict(
+                domain=domain, tol=tol, init_xk=init_xk,
+                breakpoints=breakpoints, rational=False,
+            )
+            if max_iter is not None:
+                poly_kw["max_iter"] = max_iter
+            poly = minimax(f, n, **poly_kw)
+            a_, b_ = poly.domain
+
+            def _poly_r(x, _c=np.array(poly.coeffs), _a=a_, _b=b_):
+                return _eval_poly_bary(
+                    np.asarray(x, dtype=np.float64), _c, _a, _b
+                )
+
+            return MinimaxRationalResult(
+                r=_poly_r, err=float(poly.err), xk=poly.xk,
+                delta=float(poly.delta), iter=int(poly.iter), m=n, n=0,
+                support=jnp.array([]), wN=jnp.array([]), wD=jnp.array([]),
+                poles=jnp.array([]), zeros=jnp.array([]),
+                domain=(a_, b_), success=True,
+            )
+        return _minimax_rational(
+            f, n, denom_deg, domain=domain, tol=tol, max_iter=max_iter,
+            init_xk=init_xk,
         )
 
     a, b = float(domain[0]), float(domain[1])
@@ -222,18 +268,33 @@ def minimax(
 
     n_ref = n + 2  # size of reference set
 
-    # ---- Default tolerance (matches MATLAB polynomial case) ----
+    # ---- Default tolerance / iteration cap (matches MATLAB polynomial case) ----
     if tol is None:
         tol = 1e-14 * (n ** 2 + 10)
+    if max_iter is None:
+        max_iter = 30
 
-    # ---- Extra breakpoints (kink locations) ----
+    # ---- Extra breakpoints (deprecated no-op) ----
+    # The ``breakpoints`` argument is a non-MATLAB extension.  MATLAB's minimax
+    # has no such option: it detects kinks automatically through the chebfun
+    # ``splitting`` representation.  Passing kink locations here forced them to
+    # be sub-interval boundaries in ``_find_extrema``; because the colleague
+    # matrix excludes roots at sub-interval endpoints, the extremum AT the kink
+    # (where the error typically peaks) was dropped, so the reference stalled at
+    # a non-equioscillating set and the reported error was far below the true
+    # sup error (e.g. |x-0.5|, n=1 reported 0.25 vs the exact 0.375).  The plain
+    # algorithm already resolves kinks correctly via adaptive sampling, so the
+    # argument is now ignored.
     extra_bkpts: list[float] = []
     if breakpoints is not None:
-        for bp in breakpoints:
-            bpf = float(bp)
-            if a < bpf < b:
-                extra_bkpts.append(bpf)
-        extra_bkpts.sort()
+        warnings.warn(
+            "minimax: the 'breakpoints' argument is deprecated and now ignored. "
+            "MATLAB minimax has no such option; the algorithm resolves kinks "
+            "automatically. Passing breakpoints previously produced "
+            "non-equioscillating, sub-optimal approximants.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
     # ---- Estimate function norm ----
     # Sample on a dense Chebyshev-2 grid to estimate max|f|.
@@ -835,6 +896,906 @@ def _exchange(
         flag = 0
 
     return xk_new, norme, flag
+
+
+# ===========================================================================
+# Rational minimax — barycentric-Remez (Filip, Nakatsukasa, Beckermann,
+# Trefethen 2018).  Public entry point is ``minimax(..., rational=True)``.
+# ===========================================================================
+
+
+@dataclass
+class MinimaxRationalResult:
+    """Result of a rational minimax (best type-(m, n) rational) approximation.
+
+    Attributes
+    ----------
+    r : Callable
+        Numerically stable barycentric evaluator of the best rational
+        approximant ``p/q``.  Accepts and returns ``np.ndarray``.  This is the
+        MATLAB ``rh`` (function-handle) output and is the recommended way to
+        evaluate the approximant.
+    err : float
+        Supremum-norm error ``max|f - r|`` on the domain.
+    xk : jnp.ndarray
+        Final equioscillation reference (length ``m + n + 2``).
+    delta : float
+        Normalised equioscillation deviation ``(err - |h|)/normf`` (near zero
+        when converged).
+    iter : int
+        Number of Remez iterations performed.
+    m, n : int
+        Numerator / denominator degrees actually used (after any
+        even/odd symmetry reduction).
+    support : jnp.ndarray
+        Barycentric support points of the approximant.
+    wN, wD : jnp.ndarray
+        Barycentric numerator / denominator weights (``r = N/D`` with
+        ``N(x)=sum wN_i/(x-support_i)``, ``D(x)=-sum wD_i/(x-support_i)``).
+    poles, zeros : jnp.ndarray
+        Poles and zeros of the approximant (complex).
+    domain : tuple[float, float]
+        Approximation domain ``(a, b)``.
+    success : bool
+        Whether a valid (sign-consistent) trial interpolant was produced.
+    """
+
+    r: Callable
+    err: float
+    xk: jnp.ndarray
+    delta: float
+    iter: int
+    m: int
+    n: int
+    support: jnp.ndarray
+    wN: jnp.ndarray
+    wD: jnp.ndarray
+    poles: jnp.ndarray
+    zeros: jnp.ndarray
+    domain: tuple[float, float]
+    success: bool
+
+
+def _chebpts1p(nn: int, a: float, b: float) -> np.ndarray:
+    """``nn + 1`` Chebyshev-2 points on ``[a, b]`` in ascending order."""
+    return np.array(chebpts_ab(nn + 1, a, b), dtype=np.float64)
+
+
+def _orthspace(z: np.ndarray, dim: int, q: np.ndarray | None = None) -> np.ndarray:
+    """Orthonormal projection space for a nondiagonal type ``(m, n)``.
+
+    Provenance
+    ----------
+    MATLAB source : orthspace (sub-function of minimax.m), Chebfun commit 7574c77
+    """
+    z = np.asarray(z, dtype=np.float64)
+    L = len(z)
+    if dim == 0:
+        return np.eye(L)
+    if q is None:
+        q = np.ones(L)
+    q = np.asarray(q, dtype=np.float64).reshape(-1, 1)
+    Q = q / np.linalg.norm(q)
+    for _ in range(2, dim + 1):
+        Qtmp = z[:, None] * Q[:, -1:]
+        Qtmp = Qtmp - Q @ (Q.T @ Qtmp)
+        Qtmp = Qtmp - Q @ (Q.T @ Qtmp)  # CGS2
+        Qtmp = Qtmp / np.linalg.norm(Qtmp)
+        Q = np.hstack([Q, Qtmp])
+    Qfull, _ = np.linalg.qr(Q, mode="complete")
+    return Qfull[:, dim:]
+
+
+def _leja(x: np.ndarray, start_index: int, n_pts: int) -> np.ndarray:
+    """Pick ``n_pts`` points from ``x`` in a Leja sequence from ``x[start]``.
+
+    Provenance
+    ----------
+    MATLAB source : leja (sub-function of minimax.m), Chebfun commit 7574c77
+    """
+    x = np.asarray(x, dtype=np.float64)
+    nx = len(x)
+    xx = np.zeros(n_pts, dtype=np.float64)
+    xx[0] = x[start_index]
+    for j in range(1, n_pts):
+        with np.errstate(divide="ignore"):  # log(0) at repeated points -> -inf
+            p = np.array(
+                [np.sum(np.log(np.abs(x[i] - xx[:j]))) for i in range(nx)],
+                dtype=np.float64,
+            )
+        xx[j] = x[int(np.argmax(p))]
+    return xx
+
+
+def _roots_diff_rat(
+    vals: np.ndarray,
+    dom: tuple[float, float],
+    err_handle: Callable,
+) -> np.ndarray:
+    """Roots of ``d/dx`` of the error via a Chebyshev-U colleague matrix.
+
+    ``vals`` are the error samples at ``chebpts2`` on the sub-interval; the
+    routine resamples adaptively until the Chebyshev series has decayed.
+
+    Provenance
+    ----------
+    MATLAB source : rootsdiff (sub-function of minimax.m), Chebfun commit 7574c77
+    """
+    a, b = dom
+    nn = len(vals) - 1
+    tol = 1e-3
+    c = np.array([1.0])
+    while True:
+        c = np.array(
+            vals2coeffs(jnp.array(vals, dtype=jnp.float64)), dtype=np.float64
+        )
+        cU = c[1:] * np.arange(1, len(c), dtype=np.float64)
+        nz = np.where(np.abs(cU) / (np.linalg.norm(cU) + 1e-300) > 1e-14)[0]
+        if len(nz) == 0:
+            return np.array([], dtype=np.float64)
+        cU = cU[: nz[-1] + 1][::-1]  # significant part, highest degree first
+        if len(cU) <= 1:
+            return np.array([], dtype=np.float64)
+        decayed = c[0] == 0.0 or abs(c[-1] / c[0]) <= tol
+        if not decayed and nn <= 2 ** 6:
+            nn *= 2
+            xx = _chebpts1p(nn, a, b)
+            vals = np.asarray(err_handle(xx), dtype=np.float64).ravel()
+            continue
+        break
+    if len(cU) == 2:
+        ei = np.array([-cU[1] / (2.0 * cU[0])], dtype=np.float64)
+        ei = ei[np.abs(ei) <= 1.0 + 1e-7]
+    else:
+        length = len(cU)
+        oh = np.ones(length - 2, dtype=np.float64) * 0.5
+        C = np.diag(oh, 1) + np.diag(oh, -1)
+        row = -cU[1:] / cU[0] / 2.0
+        row[1] = row[1] + 0.5
+        C[0, :] = row
+        ei = np.linalg.eigvals(C)
+        ei = np.real(ei[(np.abs(np.imag(ei)) < 1e-5) & (np.abs(ei) <= 1.0 + 1e-7)])
+    if len(ei) == 0:
+        return np.array([], dtype=np.float64)
+    return (a + b) / 2.0 + ei * (b - a) / 2.0
+
+
+def _find_extrema_rat(
+    f: Callable,
+    rh: Callable,
+    xk: np.ndarray,
+    a: float,
+    b: float,
+) -> np.ndarray:
+    """Local extrema of ``f - rh`` using the current reference as breakpoints.
+
+    Provenance
+    ----------
+    MATLAB source : findExtrema (sub-function of minimax.m), Chebfun commit 7574c77
+    """
+    def err_handle(x):
+        return np.asarray(f(jnp.array(x)), dtype=np.float64).ravel() - np.asarray(
+            rh(x), dtype=np.float64
+        ).ravel()
+
+    doms = np.unique(np.concatenate([np.array([a, b]), np.asarray(xk)]))
+    doms = np.sort(doms)
+    nn = 2 ** 3
+    mid = (doms[:-1] + doms[1:]) / 2.0
+    rad = (doms[1:] - doms[:-1]) / 2.0
+    cosv = np.cos(np.pi * np.arange(nn, -1, -1) / nn)  # ascending on [-1, 1]
+    xx = np.outer(np.ones(nn + 1), mid) + np.outer(cosv, rad)  # (nn+1, nseg)
+    valerr = np.asarray(f(jnp.array(xx)), dtype=np.float64) - np.asarray(
+        rh(xx), dtype=np.float64
+    )
+    rts: list[float] = []
+    for k in range(len(doms) - 1):
+        rnow = _roots_diff_rat(valerr[:, k], (doms[k], doms[k + 1]), err_handle)
+        rts.extend(np.atleast_1d(rnow).tolist())
+    out = np.unique(np.concatenate([np.array([a, b]), np.array(rts, dtype=np.float64)]))
+    return np.sort(out)
+
+
+def _exchange_rat(
+    xk: np.ndarray,
+    h: float,
+    method: int,
+    f: Callable,
+    rh: Callable,
+    n_pts: int,
+    a: float,
+    b: float,
+) -> tuple[np.ndarray, float, int]:
+    """One Remez exchange step for the rational case.
+
+    Provenance
+    ----------
+    MATLAB source : exchange (sub-function of minimax.m), Chebfun commit 7574c77
+    """
+    def err_handle(x):
+        return np.asarray(f(jnp.array(x)), dtype=np.float64).ravel() - np.asarray(
+            rh(x), dtype=np.float64
+        ).ravel()
+
+    rr = _find_extrema_rat(f, rh, xk, a, b)
+    er_rr = err_handle(rr)
+    if method == 1:
+        pos = np.array([int(np.argmax(np.abs(er_rr)))])
+    else:
+        pos = np.where(np.abs(er_rr) >= np.abs(h))[0]
+        if len(pos) == 0:
+            pos = np.array([int(np.argmax(np.abs(er_rr)))])
+
+    v = np.ones(n_pts, dtype=np.float64)
+    v[1::2] = -1.0
+    r = np.concatenate([rr[pos], np.asarray(xk, dtype=np.float64)])
+    er = np.concatenate([er_rr[pos], v * h])
+    idx = np.argsort(r, kind="stable")
+    r = r[idx]
+    er = er[idx]
+    keep = np.concatenate([[True], np.diff(r) != 0])
+    r = r[keep]
+    er = er[keep]
+
+    s = [r[0]]
+    es = [er[0]]
+    for i in range(1, len(r)):
+        if np.sign(er[i]) == np.sign(es[-1]):
+            if abs(er[i]) > abs(es[-1]):
+                s[-1] = r[i]
+                es[-1] = er[i]
+        else:
+            s.append(r[i])
+            es.append(er[i])
+    s = np.array(s, dtype=np.float64)
+    es = np.array(es, dtype=np.float64)
+
+    norme = float(np.max(np.abs(es)))
+    index = int(np.argmax(np.abs(es)))
+    d = max(index - n_pts + 1, 0)
+    if n_pts <= len(s):
+        return s[d : d + n_pts], norme, 1
+    return s, norme, 0
+
+
+def _make_reval(
+    xsupport: np.ndarray, wN: np.ndarray, wD: np.ndarray
+) -> Callable:
+    """Barycentric evaluator ``r = N/D`` with support ``xsupport``.
+
+    Provenance
+    ----------
+    MATLAB source : reval (sub-function of minimax.m), Chebfun commit 7574c77
+    """
+    xs = np.asarray(xsupport, dtype=np.float64)
+    wN = np.asarray(wN, dtype=np.float64).ravel()
+    wD = np.asarray(wD, dtype=np.float64).ravel()
+
+    def rh(zz):
+        zz = np.asarray(zz, dtype=np.float64)
+        shape = zz.shape
+        zv = zz.ravel()
+        with np.errstate(divide="ignore", invalid="ignore"):
+            CC = 1.0 / (zv[:, None] - xs[None, :])
+            N = CC @ wN
+            D = -(CC @ wD)  # note the sign flip in D
+            r = N / D
+        bad = np.where(~np.isfinite(r))[0]
+        for j in bad:
+            match = np.where(zv[j] == xs)[0]
+            if len(match) > 0:
+                r[j] = -wN[match[0]] / wD[match[0]]
+        return r.reshape(shape)
+
+    return rh
+
+
+def _sorted_qr(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Householder QR with descending row-norm sorting (as in MATLAB)."""
+    nrm = np.linalg.norm(A, axis=1)
+    ix = np.argsort(-nrm)
+    Q, R = np.linalg.qr(A[ix, :])
+    ixx = np.empty_like(ix)
+    ixx[ix] = np.arange(len(ix))
+    return Q[ixx, :], R
+
+
+def _compute_trial_rational(
+    f: Callable,
+    xk: np.ndarray,
+    m: int,
+    n: int,
+    hpre: float,
+    a: float,
+    b: float,
+) -> tuple:
+    """Barycentric trial rational via the symmetric eigenproblem.
+
+    Solves ``(F + h*sigma) N = D`` in barycentric form; the eigenvector of a
+    symmetric matrix that yields a denominator with no sign changes gives the
+    trial approximant and the levelled reference error ``h``.
+
+    Provenance
+    ----------
+    MATLAB source : computeTrialFunctionRational (sub-function of minimax.m)
+    Chebfun commit: 7574c77
+    """
+    xk = np.asarray(xk, dtype=np.float64)
+    L = len(xk)
+    fk = np.asarray(f(jnp.array(xk)), dtype=np.float64).ravel()
+
+    xsupport = xk[1::2].copy()
+    xsuppind = np.arange(1, L, 2)
+    xother = xk[0::2].copy()
+    xotherind = np.arange(0, L, 2)
+
+    Qmn = None
+    Qmnall = None
+    if m != n:
+        xadd = _leja(xother, 0, len(xother))
+        need = max(m, n) + 1 - len(xsupport)
+        xsupport = np.concatenate([xsupport, xadd[:need]])
+        supp_set = set(xsupport.tolist())
+        xother_l, xotherind_l, xsuppind_l = [], [], []
+        for ii in range(L):
+            if xk[ii] not in supp_set:
+                xother_l.append(xk[ii])
+                xotherind_l.append(ii)
+            else:
+                xsuppind_l.append(ii)
+        xother = np.array(xother_l, dtype=np.float64)
+        xotherind = np.array(xotherind_l, dtype=int)
+        xsuppind = np.array(xsuppind_l, dtype=int)
+
+    xsupport = np.sort(xsupport)
+    if m != n:
+        Qmn = _orthspace(xsupport, abs(m - n), np.ones(len(xsupport)))
+        Qmnall, _ = np.linalg.qr(Qmn, mode="complete")
+
+    with np.errstate(divide="ignore"):
+        C = 1.0 / (xk[:, None] - xsupport[None, :])
+
+    # Build Cstar = sqrt(|Delta|)*C in the log domain (avoids over/underflow).
+    Xkdiff = np.abs(xk[:, None] - xk[None, :])
+    np.fill_diagonal(Xkdiff, 1.0)
+    SX = np.sum(np.log(Xkdiff), axis=0)
+
+    Xtdiff = np.abs(xother[:, None] - xsupport[None, :])
+    ST = np.sum(np.log(Xtdiff.T), axis=0)
+    VV = np.exp(ST - 0.5 * SX[xotherind])[:, None] * np.ones((1, len(xsupport)))
+    Div = xother[:, None] - xsupport[None, :]
+    C1 = VV / Div
+
+    Xtdiff2 = np.abs(xsupport[:, None] - xsupport[None, :])
+    np.fill_diagonal(Xtdiff2, 1.0)
+    ST2 = np.sum(np.log(Xtdiff2.T), axis=0)
+    C2 = np.diag(np.exp(ST2 - 0.5 * SX[xsuppind]))
+
+    Cstar = np.zeros((L, len(xsupport)), dtype=np.float64)
+    Cstar[xsuppind, :] = C2
+    Cstar[xotherind, :] = C1
+
+    if m == n:
+        Q, R = _sorted_qr(Cstar)
+    elif m > n:
+        Q, R = _sorted_qr(Cstar @ Qmn)
+        Qall, Rall = _sorted_qr(Cstar @ Qmnall)
+    else:
+        Q, R = _sorted_qr(Cstar)
+        Qpart, Rpart = _sorted_qr(Cstar @ Qmn)
+
+    S = (-1.0) ** np.arange(L)
+    QSQ = Q.T @ (S[:, None] * (fk[:, None] * Q))
+    QSQ = (QSQ + QSQ.T) / 2.0
+    d_eig, VR = np.linalg.eigh(-QSQ)
+    beta = np.linalg.solve(R, VR)
+
+    if m == n:
+        alpha = np.linalg.solve(R, -(Q.T @ (fk[:, None] * Q)) @ VR)
+    elif m > n:
+        alpha = Qmnall @ np.linalg.solve(Rall, (Qall.T @ (-fk[:, None] * Q)) @ VR)
+    else:
+        alpha = np.linalg.solve(Rpart, (Qpart.T @ (-fk[:, None] * Q)) @ VR)
+    vt = np.vstack([alpha, beta])
+
+    bet = vt[m + 1 :, :] if m <= n else Qmn @ vt[m + 1 :, :]
+    Dvals = C @ bet
+
+    def node(z):
+        return np.prod(z - xsupport)
+
+    nodevec = np.array([node(x) for x in xother], dtype=np.float64)
+    checksign = np.zeros((L, VR.shape[1]), dtype=np.float64)
+    mn = max(m, n)
+    signfac = ((-1.0) ** np.arange(mn, mn + len(xsupport)))[:, None]
+    checksign[: len(xsupport), :] = signfac * bet
+    checksign[len(xsupport) :, :] = np.sign(nodevec[:, None] * Dvals[xotherind, :])
+    pos = np.where(
+        (np.abs(np.sum(np.sign(checksign), axis=0)) == m + n + 2)
+        & (np.sum(np.abs(Dvals), axis=0) > 1e-7)
+    )[0]
+
+    if len(pos) == 0:
+        return _compute_trial_rational_fallback(f, xk, m, n, hpre, a, b)
+    if len(pos) > 1:
+        pos = np.array([pos[int(np.argmin(np.abs(np.abs(hpre) - np.abs(d_eig[pos]))))]])
+    p = pos[0]
+
+    h = float(-d_eig[p])
+    wD = vt[m + 1 :, p] if m <= n else (Qmn @ vt[m + 1 :, :])[:, p]
+    wN = vt[: m + 1, p] if m >= n else (Qmn @ vt[: m + 1, :])[:, p]
+    return _make_reval(xsupport, wN, wD), h, True, xsupport, wN, wD
+
+
+def _compute_trial_rational_fallback(
+    f: Callable,
+    xk: np.ndarray,
+    m: int,
+    n: int,
+    hpre: float,
+    a: float,
+    b: float,
+) -> tuple:
+    """Fallback trial rational using midpoint support points.
+
+    Provenance
+    ----------
+    MATLAB source : computeTrialFunctionRational fallback branch (minimax.m)
+    Chebfun commit: 7574c77
+    """
+    xk = np.asarray(xk, dtype=np.float64)
+    L = len(xk)
+    fk = np.asarray(f(jnp.array(xk)), dtype=np.float64).ravel()
+
+    xsupport = (xk[0:-1:2] + xk[1::2]) / 2.0
+    xadd = (xk[1:-1:2] + xk[2::2]) / 2.0
+    if a not in xk:
+        xadd = np.concatenate([[(a + xk[0]) / 2.0], xadd])
+    if b not in xk:
+        xadd = np.concatenate([[(b + xk[-1]) / 2.0], xadd])
+    num = abs(max(m, n) + 1 - len(xsupport))
+    xadd_leja = _leja(xadd, 0, num) if (num > 0 and len(xadd) > 0) else np.array([])
+    if m != n:
+        need = max(m, n) + 1 - len(xsupport)
+        xsupport = np.concatenate([xsupport, xadd_leja[:need]])
+    xsupport = np.sort(xsupport)
+
+    Qmn = Qmnall = None
+    if m != n:
+        Qmn = _orthspace(xsupport, abs(m - n), np.ones(len(xsupport)))
+        Qmnall, _ = np.linalg.qr(Qmn, mode="complete")
+
+    with np.errstate(divide="ignore"):
+        C = 1.0 / (xk[:, None] - xsupport[None, :])
+    Delta = np.zeros(L, dtype=np.float64)
+    for ii in range(L):
+        others = np.delete(xk, ii)
+        Delta[ii] = -np.exp(
+            2 * np.sum(np.log(np.abs(np.prod(xk[ii] - xsupport))))
+            - np.sum(np.log(np.abs(xk[ii] - others)))
+        )
+    sq = np.sqrt(np.abs(Delta))[:, None]
+
+    if m == n:
+        Q, R = np.linalg.qr(sq * C)
+    elif m > n:
+        Q, R = np.linalg.qr((sq * C) @ Qmn)
+        Qall, Rall = np.linalg.qr((sq * C) @ Qmnall)
+    else:
+        Q, R = np.linalg.qr(sq * C)
+        Qpart, Rpart = np.linalg.qr((sq * C) @ Qmn)
+
+    S = (-1.0) ** np.arange(L)
+    QSQ = Q.T @ (S[:, None] * (fk[:, None] * Q))
+    QSQ = (QSQ + QSQ.T) / 2.0
+    d_eig, VR = np.linalg.eigh(-QSQ)
+    beta = np.linalg.solve(R, VR)
+    if m == n:
+        alpha = np.linalg.solve(R, -(Q.T @ (fk[:, None] * Q)) @ VR)
+    elif m > n:
+        alpha = Qmnall @ np.linalg.solve(Rall, (Qall.T @ (-fk[:, None] * Q)) @ VR)
+    else:
+        alpha = np.linalg.solve(Rpart, (Qpart.T @ (-fk[:, None] * Q)) @ VR)
+    vt = np.vstack([alpha, beta])
+
+    if m <= n:
+        Dvals = C[:, : n + 1] @ vt[m + 1 :, :]
+    else:
+        Dvals = C @ (Qmn @ vt[m + 1 :, :])
+
+    def node(z):
+        return np.prod(z - xsupport)
+
+    nodevec = np.array([node(x) for x in xk], dtype=np.float64)
+    pos = np.where(
+        (np.abs(np.sum(np.sign(nodevec[:, None] * Dvals), axis=0)) == m + n + 2)
+        & (np.sum(np.abs(Dvals), axis=0) > 1e-4)
+    )[0]
+    if len(pos) == 0:
+        return None, 1e-19, False, None, None, None
+    if len(pos) > 1:
+        pos = np.array([pos[int(np.argmin(np.abs(np.abs(hpre) - np.abs(d_eig[pos]))))]])
+    p = pos[0]
+    h = float(-d_eig[p])
+    wD = vt[m + 1 :, p] if m <= n else (Qmn @ vt[m + 1 :, :])[:, p]
+    wN = vt[: m + 1, p] if m >= n else (Qmn @ vt[: m + 1, :])[:, p]
+    return _make_reval(xsupport, wN, wD), h, True, xsupport, wN, wD
+
+
+def _aaamn_lawson(
+    f: Callable,
+    Z: np.ndarray,
+    m: int,
+    n: int,
+    lawson_iter: int | None = None,
+    tol_lawson: float = 1e-5,
+    tol: float = 1e-15,
+) -> tuple[Callable, np.ndarray]:
+    """AAA + Lawson near-best rational approximation (for reference init).
+
+    Provenance
+    ----------
+    MATLAB source : aaamn_lawson (sub-function of minimax.m), Chebfun commit 7574c77
+    """
+    Z = np.asarray(Z, dtype=np.float64).ravel()
+    F = np.asarray(f(jnp.array(Z)), dtype=np.float64).ravel()
+    M = len(Z)
+    mmax, nmax = m + 1, n + 1
+    if lawson_iter is None:
+        lawson_iter = max(5, min(20, mmax, nmax))
+
+    J = list(range(M))
+    z: list[float] = []
+    fvals: list[float] = []
+    C = np.zeros((M, 0), dtype=np.float64)
+    R = np.full(M, np.mean(F))
+    w = None
+    Q = None
+    mn = 1
+    for mn in range(1, max(mmax, nmax) + 1):
+        j = int(np.argmax(np.abs(F - R)))
+        z.append(Z[j])
+        fvals.append(F[j])
+        if j in J:
+            J.remove(j)
+        with np.errstate(divide="ignore"):
+            col = 1.0 / (Z - Z[j])
+        col[j] = 0.0
+        C = np.hstack([C, col[:, None]])
+        fa = np.array(fvals)
+        A = F[:, None] * C - C * fa[None, :]
+        zc = np.array(z)
+        if mn > min(nmax, mmax):
+            q = fa if mmax < nmax else np.ones(len(z))
+            Q = _orthspace(zc, mn - min(mmax, nmax), q)
+            _, _, Vh = np.linalg.svd(A[J, :] @ Q, full_matrices=False)
+            w = Q @ Vh[-1, :]
+        else:
+            _, _, Vh = np.linalg.svd(A[J, :], full_matrices=False)
+            w = Vh[mn - 1, :]
+        N = C @ (w * fa)
+        D = C @ w
+        R = F.copy()
+        R[J] = N[J] / D[J]
+        if np.max(np.abs(F - R)) < tol * np.max(np.abs(F)):
+            break
+
+    zc = np.array(z)
+    fa = np.array(fvals)
+    wf = w * fa
+    wei = np.ones(len(J))
+    nrmbest = np.inf
+    SFC = F[:, None] * C
+    if mn > min(nmax, mmax):
+        if mn > nmax:
+            Amat = np.hstack([SFC @ Q, -C])
+        else:
+            Q = _orthspace(zc, mn - min(mmax, nmax), np.ones(len(z)))
+            Amat = np.hstack([SFC, -C @ Q])
+    else:
+        Amat = np.hstack([SFC, -C])
+    rate = 1.0
+    nrmincreased = 0
+    best = dict(z=zc, w=w, wf=wf, f=fa)
+    for _ in range(lawson_iter):
+        weiold = wei
+        wei = wei * np.power(np.abs(F[J] - R[J]), rate)
+        wei = wei / np.sum(wei)
+        if np.linalg.norm(weiold - wei) / np.linalg.norm(wei) < tol_lawson:
+            break
+        Dw = np.sqrt(wei)[:, None]
+        _, _, Vh = np.linalg.svd(Dw * Amat[J, :], full_matrices=False)
+        V = Vh.T
+        if mn > min(nmax, mmax):
+            if mn > nmax:
+                w = Q @ V[:nmax, -1]
+                wf = V[nmax:, -1]
+            else:
+                w = V[:nmax, -1]
+                wf = Q @ V[nmax:, -1]
+        else:
+            w = V[:mn, -1]
+            wf = V[mn : 2 * mn, -1]
+        fa = wf / w
+        N = C @ wf
+        D = C @ w
+        R = F.copy()
+        R[J] = N[J] / D[J]
+        err = np.max(np.abs(F - R))
+        if err < nrmbest:
+            nrmbest = err
+            best = dict(z=zc, w=w.copy(), wf=wf.copy(), f=fa.copy())
+        else:
+            nrmincreased += 1
+        if nrmincreased >= 3:
+            rate = max(rate / 2, 0.01)
+            nrmincreased = 0
+
+    z_b, w_b, wf_b, f_b = best["z"], best["w"], best["wf"], best["f"]
+
+    def rr(zz):
+        zz = np.asarray(zz, dtype=np.float64)
+        shape = zz.shape
+        zv = zz.ravel()
+        with np.errstate(divide="ignore", invalid="ignore"):
+            CC = 1.0 / (zv[:, None] - z_b[None, :])
+            r = (CC @ wf_b) / (CC @ w_b)
+        bad = np.where(~np.isfinite(r))[0]
+        for jj in bad:
+            match = np.where(zv[jj] == z_b)[0]
+            if len(match) > 0:
+                r[jj] = f_b[match[0]]
+        return r.reshape(shape)
+
+    return rr, z_b
+
+
+def _find_reference_rat(
+    f: Callable, rh: Callable, m: int, n: int, z: np.ndarray, a: float, b: float
+) -> np.ndarray:
+    """Turn AAA-Lawson support points into an ``m+n+2`` extremal reference.
+
+    Provenance
+    ----------
+    MATLAB source : findReference (sub-function of minimax.m), Chebfun commit 7574c77
+    """
+    xk = _find_extrema_rat(f, rh, np.sort(z), a, b)
+    target = m + n + 2
+    if len(xk) > target:
+        ix = np.argsort(-np.diff(xk))
+        xk = np.sort(np.concatenate([[xk[0]], xk[1 + ix[: m + n + 1]]]))
+    elif len(xk) < target:
+        add = target - len(xk)
+        ix = np.argsort(-np.diff(xk))
+        ix = ix[:add]
+        xk = np.sort(np.concatenate([xk, (xk[ix] + xk[ix + 1]) / 2.0]))
+    return xk
+
+
+def _aaa_lawson_init(f: Callable, m: int, n: int, a: float, b: float) -> np.ndarray:
+    """AAA-Lawson-based initial reference (the robust default init).
+
+    Provenance
+    ----------
+    MATLAB source : AAALawsonInit (sub-function of minimax.m), Chebfun commit 7574c77
+    """
+    NN = int(max(10 * max(m, n), round(1e5 / max(m, n))))
+    Z = np.linspace(a, b, NN)
+    rh, z = _aaamn_lawson(f, Z, m, n)
+    xk = _find_reference_rat(f, rh, m, n, z, a, b)
+    for _ in range(2):
+        num = max(2, int(round(NN / len(xk))))
+        parts = [np.linspace(xk[ii], xk[ii + 1], num) for ii in range(len(xk) - 1)]
+        Z = np.unique(np.concatenate(parts))
+        rh, z = _aaamn_lawson(f, Z, m, n)
+        xk = _find_reference_rat(f, rh, m, n, z, a, b)
+    return xk
+
+
+def _adjust_degrees_for_symmetries(
+    f: Callable, m: int, n: int, a: float, b: float
+) -> tuple[int, int, int]:
+    """Reduce type degrees when ``f`` is even or odd.
+
+    Provenance
+    ----------
+    MATLAB source : adjustDegreesForSymmetries (sub-function of minimax.m)
+    Chebfun commit: 7574c77
+    """
+    x = _chebpts1p(128, a, b)
+    fv = np.asarray(f(jnp.array(x)), dtype=np.float64).ravel()
+    c = np.array(vals2coeffs(jnp.array(fv, dtype=jnp.float64)), dtype=np.float64)
+    c = c.copy()
+    c[0] = 2 * c[0]
+    vscale = np.max(np.abs(fv))
+    if vscale == 0:
+        vscale = 1.0
+    eps = float(np.finfo(np.float64).eps)
+    sym = 0
+    if np.max(np.abs(c[1::2])) / vscale < eps:  # even
+        sym = 1
+        if m % 2 == 1:
+            m = max(m - 1, 0)
+        if n % 2 == 1:
+            n = max(n - 1, 0)
+    elif np.max(np.abs(c[0::2])) / vscale < eps:  # odd
+        sym = 2
+        if m % 2 == 0:
+            m = m - 1
+        if n % 2 == 1:
+            n = n - 1
+    return m, n, sym
+
+
+def _pzeros(
+    zj: np.ndarray,
+    alpha: np.ndarray,
+    beta: np.ndarray,
+    m: int,
+    n: int,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Zeros and poles of a barycentric approximant via generalized eig.
+
+    Provenance
+    ----------
+    MATLAB source : pzeros (sub-function of minimax.m), Chebfun commit 7574c77
+    """
+    def _ge(coeffs):
+        L = len(coeffs)
+        B = np.eye(L + 1)
+        B[0, 0] = 0.0
+        E = np.zeros((L + 1, L + 1), dtype=np.float64)
+        E[0, 1:] = coeffs
+        E[1:, 0] = 1.0
+        E[1:, 1:] = np.diag(zj)
+        ev = eig(E, B, right=False)
+        return ev[np.isfinite(ev)]
+
+    zer = np.array([]) if (m == 0 and len(alpha) == 0) else _ge(alpha)
+    pol = np.array([]) if (n == 0 or len(beta) == 0) else _ge(beta)
+    return zer, pol
+
+
+def _minimax_rational(
+    f: Callable,
+    m: int,
+    n: int,
+    *,
+    domain: tuple[float, float] = (-1.0, 1.0),
+    tol: float | None = None,
+    max_iter: int | None = None,
+    init_xk: np.ndarray | None = None,
+) -> MinimaxRationalResult:
+    """Best type-(m, n) rational approximation via barycentric-Remez.
+
+    See :func:`minimax` for the public interface and parameter description.
+
+    Provenance
+    ----------
+    MATLAB source : minimaxKernel (rational branch of minimax.m)
+    Chebfun commit: 7574c77
+    """
+    a, b = float(domain[0]), float(domain[1])
+    m, n, _sym = _adjust_degrees_for_symmetries(f, m, n, a, b)
+
+    if m == -1:
+        # Odd f with numerator degree 0: best approximant is the zero function.
+        xd = _chebpts1p(512, a, b)
+        err = float(np.max(np.abs(np.asarray(f(jnp.array(xd)), dtype=np.float64))))
+        return MinimaxRationalResult(
+            r=lambda x: np.zeros_like(np.asarray(x, dtype=np.float64)),
+            err=err, xk=jnp.array([a, b], dtype=jnp.float64), delta=0.0, iter=0,
+            m=m, n=n, support=jnp.array([]), wN=jnp.array([]), wD=jnp.array([]),
+            poles=jnp.array([]), zeros=jnp.array([]), domain=(a, b), success=True,
+        )
+
+    N = m + n
+    if tol is None:
+        tol = 1e-4
+    if max_iter is None:
+        max_iter = 10 + round(max(m, n) / 2)
+
+    xd = _chebpts1p(max(512, 8 * (N + 2)), a, b)
+    scale = float(np.max(np.abs(np.asarray(f(jnp.array(xd)), dtype=np.float64))))
+    if scale == 0:
+        return MinimaxRationalResult(
+            r=lambda x: np.zeros_like(np.asarray(x, dtype=np.float64)),
+            err=0.0, xk=jnp.array([a, b], dtype=jnp.float64), delta=0.0, iter=0,
+            m=m, n=n, support=jnp.array([]), wN=jnp.array([]), wD=jnp.array([]),
+            poles=jnp.array([]), zeros=jnp.array([]), domain=(a, b), success=True,
+        )
+
+    # Scale-normalise: minimax is homogeneous, minimax(c f) = c minimax(f).
+    forig = f
+
+    def fs(x, _f=forig, _s=scale):
+        # Shape-preserving: 2-D inputs are used in _find_extrema_rat.
+        return np.asarray(_f(jnp.array(x)), dtype=np.float64) / _s
+
+    normf = 1.0
+    if init_xk is not None:
+        xk = np.asarray(init_xk, dtype=np.float64).ravel()
+    else:
+        xk = _aaa_lawson_init(fs, m, n, a, b)
+
+    xk = np.asarray(xk, dtype=np.float64)
+    xo = xk.copy()
+    iter_count = 0
+    deltamin = np.inf
+    diffx = 1.0
+    err = normf
+    h = 2 * err + 1
+    interp_success = True
+    best = None
+    support = wN = wD = None
+
+    while (
+        abs(abs(h) - abs(err)) / abs(err) > tol
+        and iter_count < max_iter
+        and diffx > 0
+        and interp_success
+    ):
+        hpre = h
+        if abs(abs(h) - abs(err)) / normf < 1e-14:
+            break
+        err = np.inf
+        rh, h, interp_success, support, wN, wD = _compute_trial_rational(
+            fs, xk, m, n, hpre, a, b
+        )
+        if not interp_success:
+            break
+        if h == 0:
+            h = 1e-19
+        xk_new, err, flag = _exchange_rat(xk, h, 2, fs, rh, N + 2, a, b)
+        xk = xk_new
+        diffx = float(np.max(np.abs(xo - xk))) if len(xo) == len(xk) else 1.0
+        delta = err - abs(h)
+        if delta < deltamin:
+            deltamin = delta
+            best = dict(support=support, wN=wN, wD=wD, err=err, xk=xk.copy(), h=h)
+        xo = xk.copy()
+        iter_count += 1
+
+    if best is None:
+        # No successful iteration; report failure with a best-effort evaluator.
+        rh0 = _make_reval(support, wN, wD) if support is not None else (
+            lambda x: np.zeros_like(np.asarray(x, dtype=np.float64))
+        )
+        return MinimaxRationalResult(
+            r=lambda x, _r=rh0, _s=scale: _s * np.asarray(_r(x), dtype=np.float64),
+            err=float(err) * scale if np.isfinite(err) else np.inf,
+            xk=jnp.array(xk, dtype=jnp.float64),
+            delta=float(deltamin) / normf, iter=iter_count, m=m, n=n,
+            support=jnp.array(support if support is not None else []),
+            wN=jnp.array(wN if wN is not None else []),
+            wD=jnp.array(wD if wD is not None else []),
+            poles=jnp.array([]), zeros=jnp.array([]), domain=(a, b),
+            success=False,
+        )
+
+    support = np.asarray(best["support"], dtype=np.float64)
+    wN = np.asarray(best["wN"], dtype=np.float64)
+    wD = np.asarray(best["wD"], dtype=np.float64)
+    # Undo the scale normalisation on the numerator weights only (D unchanged).
+    rh_scaled = _make_reval(support, wN * scale, wD)
+    zer, pol = _pzeros(support, wN, wD, m, n)
+
+    return MinimaxRationalResult(
+        r=rh_scaled,
+        err=float(best["err"]) * scale,
+        xk=jnp.array(best["xk"], dtype=jnp.float64),
+        delta=float(deltamin) / normf,
+        iter=iter_count,
+        m=m,
+        n=n,
+        support=jnp.array(support, dtype=jnp.float64),
+        wN=jnp.array(wN * scale, dtype=jnp.float64),
+        wD=jnp.array(wD, dtype=jnp.float64),
+        poles=jnp.array(pol),
+        zeros=jnp.array(zer),
+        domain=(a, b),
+        success=True,
+    )
 
 
 # ===========================================================================

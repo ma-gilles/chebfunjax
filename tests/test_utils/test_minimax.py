@@ -30,7 +30,12 @@ import pytest
 
 jax.config.update("jax_enable_x64", True)
 
-from chebfunjax.utils.minimax import MinimaxResult, _eval_poly_bary, minimax
+from chebfunjax.utils.minimax import (
+    MinimaxRationalResult,
+    MinimaxResult,
+    _eval_poly_bary,
+    minimax,
+)
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -242,10 +247,30 @@ class TestMinimaxDomain:
 class TestMinimaxErrors:
     """Test that invalid inputs raise appropriate exceptions."""
 
-    def test_rational_raises(self):
-        """rational=True should raise NotImplementedError."""
-        with pytest.raises(NotImplementedError, match="rational=True"):
-            minimax(jnp.abs, 4, rational=True)
+    def test_rational_negative_degree_raises(self):
+        """Negative rational degrees should raise ValueError."""
+        with pytest.raises(ValueError, match="rational degrees must be >= 0"):
+            minimax(jnp.abs, 4, denom=-1, rational=True)
+
+    def test_breakpoints_deprecated_and_ignored(self):
+        """The deprecated 'breakpoints' arg warns and no longer corrupts results.
+
+        Previously ``minimax(|x-0.5|, 1, breakpoints=[0.5])`` stalled at a
+        non-equioscillating reference and reported err=0.25 while the true sup
+        error is 0.375.  It must now match the plain (correct) result.
+        """
+        def f(x):
+            return jnp.abs(x - 0.5)
+
+        with pytest.warns(DeprecationWarning, match="breakpoints"):
+            r_bp = minimax(f, 1, breakpoints=[0.5])
+        r_plain = minimax(f, 1)
+        # Exact best degree-1 error to |x-0.5| on [-1,1] is 0.375.
+        npt.assert_allclose(r_bp.err, 0.375, rtol=1e-3)
+        npt.assert_allclose(r_bp.err, r_plain.err, rtol=1e-10)
+        # Reported error matches the true global error (equioscillation holds).
+        g = _global_max_error(f, r_bp.coeffs, r_bp.domain)
+        npt.assert_allclose(g, r_bp.err, rtol=1e-3)
 
     def test_negative_n_raises(self):
         """n < 0 should raise ValueError."""
@@ -261,6 +286,145 @@ class TestMinimaxErrors:
         """init_xk with wrong length should raise ValueError."""
         with pytest.raises(ValueError, match="init_xk must have length"):
             minimax(jnp.abs, 4, init_xk=np.array([0.0, 0.5]))
+
+
+# ---------------------------------------------------------------------------
+# Rational minimax (barycentric-Remez, Filip-Nakatsukasa-Beckermann-Trefethen)
+# ---------------------------------------------------------------------------
+
+
+def _rat_global_error(f, r, domain, n_dense=20000):
+    """Sup error of a rational approximant on a dense grid."""
+    a, b = domain
+    xx = np.linspace(a, b, n_dense)
+    fv = np.asarray(f(jnp.array(xx)), dtype=np.float64).ravel()
+    rv = np.asarray(r.r(xx), dtype=np.float64).ravel()
+    return float(np.max(np.abs(fv - rv)))
+
+
+def _rat_alternations(f, r):
+    """Number of sign alternations of the error on the final reference."""
+    xk = np.asarray(r.xk, dtype=np.float64)
+    e = np.asarray(f(jnp.array(xk)), dtype=np.float64).ravel() - np.asarray(
+        r.r(xk), dtype=np.float64
+    ).ravel()
+    signs = np.sign(e)
+    return int(np.sum(np.diff(signs) != 0)) + 1
+
+
+class TestMinimaxRational:
+    """Rational (type-(m, n)) best approximation via barycentric-Remez.
+
+    Gates mirror the recorded MATLAB ``minimax`` outputs (test_minimax.m and
+    ATAP), verifying both the sup-norm error level and the equioscillation
+    (alternation) count of the returned reference.
+    """
+
+    def test_returns_rational_result(self):
+        r = minimax(jnp.abs, 4, denom=4, rational=True)
+        assert isinstance(r, MinimaxRationalResult)
+        assert r.success
+        assert callable(r.r)
+
+    def test_default_denom_is_diagonal(self):
+        """denom defaults to n (diagonal type)."""
+        r = minimax(jnp.abs, 6, rational=True)
+        assert (r.m, r.n) == (6, 6)
+
+    def test_absx_2_2_error_and_alternation(self):
+        """|x| type (2,2): err ~ 0.043689 (MATLAB pass(8)), 6 alternations."""
+        r = minimax(jnp.abs, 2, denom=2, rational=True)
+        npt.assert_allclose(r.err, 0.043689, rtol=1e-3)
+        assert _rat_alternations(jnp.abs, r) == 6
+        # Reported error matches the true global sup error.
+        npt.assert_allclose(_rat_global_error(jnp.abs, r, r.domain), r.err, rtol=1e-4)
+
+    def test_absx_8_8_error_and_alternation(self):
+        """|x| type (8,8): err ~ 8e-4 with 18 equioscillation points."""
+        r = minimax(jnp.abs, 8, denom=8, rational=True)
+        assert r.err < 1e-3
+        assert 7e-4 < r.err < 8e-4
+        assert _rat_alternations(jnp.abs, r) == 18
+        assert len(r.poles) == 8
+
+    def test_absx_30_30_error(self):
+        """|x| type (30,30): err ~ 2.1739878e-7 (MATLAB pass(13))."""
+        r = minimax(jnp.abs, 30, denom=30, rational=True)
+        npt.assert_allclose(r.err, 2.1739878e-7, rtol=1e-3)
+
+    def test_exact_rational_2_2_recovered(self):
+        """An exact type-(2,2) rational is recovered to ~machine precision.
+
+        f = ((x+3)(x-0.5))/(x^2-4).  MATLAB pass(3): err < 1e-10.
+        """
+        def f(x):
+            return ((x + 3.0) * (x - 0.5)) / (x ** 2 - 4.0)
+
+        r = minimax(f, 2, denom=2, rational=True, tol=1e-12, max_iter=20)
+        assert _rat_global_error(f, r, r.domain) < 1e-10
+
+    def test_exact_rational_3_2_recovered(self):
+        """Exact type-(3,2) rational recovered (MATLAB pass(4): err < 1e-10)."""
+        def f(x):
+            return ((x - 3.0) * (x + 0.2) * (x - 0.7)) / ((x - 1.5) * (x + 2.1))
+
+        r = minimax(f, 3, denom=2, rational=True)
+        assert _rat_global_error(f, r, r.domain) < 1e-10
+
+    def test_scale_invariance_huge_amplitude(self):
+        """1e40*|x| type (5,5): err < 1e38 (MATLAB pass(18)); scale-homogeneous."""
+        r_big = minimax(lambda x: 1e40 * jnp.abs(x), 5, denom=5, rational=True)
+        r_small = minimax(jnp.abs, 5, denom=5, rational=True)
+        assert r_big.err < 1e38
+        npt.assert_allclose(r_big.err, r_small.err * 1e40, rtol=1e-6)
+
+    def test_scale_invariance_tiny_amplitude(self):
+        """Tiny-amplitude invariance, type (1,3) (MATLAB pass(11))."""
+        r_big, r_small = (
+            minimax(jnp.exp, 1, denom=3, rational=True),
+            minimax(lambda x: 1e-100 * jnp.exp(x), 1, denom=3, rational=True),
+        )
+        s_big = float(r_big.r(np.array([0.3]))[0]) - float(np.exp(0.3))
+        s_small = float(r_small.r(np.array([0.3]))[0]) - float(1e-100 * np.exp(0.3))
+        assert abs(s_big - s_small * 1e100) < 1e-3
+
+    def test_odd_function_zero_numerator(self):
+        """Odd f with numerator degree 0 collapses to the zero function.
+
+        MATLAB pass(9): minimax(x^3, 0, 2) succeeds (returns 0 via the
+        even/odd symmetry reduction m -> -1).
+        """
+        r = minimax(lambda x: x ** 3, 0, denom=2, rational=True)
+        assert r.success
+        npt.assert_allclose(np.asarray(r.r(np.linspace(-1, 1, 50))), 0.0, atol=0)
+
+    def test_type_m0_is_polynomial(self):
+        """Type (m,0) reduces to the polynomial best approximation.
+
+        MATLAB pass(7): minimax(|x|, 0, 0) has error ~0.5.
+        """
+        r = minimax(jnp.abs, 0, denom=0, rational=True)
+        assert isinstance(r, MinimaxRationalResult)
+        npt.assert_allclose(r.err, 0.5, rtol=1e-6)
+
+    def test_sqrt_poles_zeros_negative_real(self):
+        """sqrt on [0,1] type (4,4): poles/zeros interlace on negative reals.
+
+        MATLAB pass(19) checks status.zer / status.pol against roots(p),
+        roots(q); the Zolotarev structure places them on the negative axis.
+        """
+        r = minimax(jnp.sqrt, 4, denom=4, rational=True, domain=(0.0, 1.0))
+        assert len(r.poles) == 4 and len(r.zeros) == 4
+        assert np.all(np.real(r.poles) < 0)
+        zr = np.sort(np.real(r.zeros[np.abs(np.imag(r.zeros)) < 1e-8]))
+        # Every real zero z satisfies r(z) ~ 0.
+        npt.assert_allclose(np.asarray(r.r(zr)), 0.0, atol=1e-10)
+
+    def test_r_is_jit_safe_callable(self):
+        """The returned evaluator produces finite values across the domain."""
+        r = minimax(jnp.exp, 3, denom=3, rational=True)
+        vals = np.asarray(r.r(np.linspace(-1, 1, 200)))
+        assert np.all(np.isfinite(vals))
 
 
 # ---------------------------------------------------------------------------
