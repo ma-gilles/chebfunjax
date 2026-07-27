@@ -1,8 +1,9 @@
 """Central Limit Theorem via convolution.
 
-Demonstrates the Central Limit Theorem by convolving a triangular
-distribution and showing convergence to the normal distribution.
-Translated from stats/CentralLimitTheorem.m.
+A triangular density X is convolved with itself; the renormalised sums
+converge to a Gaussian.  A discrete coin-toss density (a pair of Dirac
+masses) is convolved ten times to give the binomial distribution.
+Faithful port of stats/CentralLimitTheorem.m.
 
 Original: https://www.chebfun.org/examples/stats/CentralLimitTheorem.html
 Authors: Nick Trefethen and Mohsin Javed, July 2012
@@ -14,92 +15,107 @@ matplotlib.use("Agg")
 import os
 import sys
 
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.signal import fftconvolve
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+import chebfunjax as cj
+from chebfunjax.chebfun1d.chebfun import Chebfun
+from chebfunjax.domain import Domain
 from chebfunjax.plotting import chebfun_style
 
 chebfun_style()
+
+
+def _triangular_X():
+    """MATLAB X = chebfun({0, '(4/3+x)/2', 0}, [-3 -4/3 2/3 3]).
+
+    Built from explicit per-piece Chebfuns (a jnp.where keyed on the
+    breakpoints flips under float rounding of the mapped Chebyshev nodes,
+    which spuriously fails adaptive construction)."""
+    pL = cj.chebfun(0.0, domain=(-3.0, -4.0 / 3.0))
+    pM = cj.chebfun(lambda x: (4.0 / 3.0 + x) / 2.0, domain=(-4.0 / 3.0, 2.0 / 3.0))
+    pR = cj.chebfun(0.0, domain=(2.0 / 3.0, 3.0))
+    return Chebfun(funs=pL.funs + pM.funs + pR.funs,
+                   domain=Domain((-3.0, -4.0 / 3.0, 2.0 / 3.0, 3.0)))
+
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/stats')
     os.makedirs(outdir, exist_ok=True)
 
+    # --- Triangular density and its moments -------------------------------
+    # MATLAB: t = chebfun('t',[-3 3]); mu = sum(t*X); variance = sum(t^2*X)
+    X = _triangular_X()
+    t = cj.chebfun(lambda t: t, domain=(-3.0, 3.0))
+    mu = float((t * X).sum())
+    variance = float(((t * t) * X).sum())
+    print(f"mu = {mu:.15e}")
+    print(f"variance = {variance:.15f}")
+
+    sigma = np.sqrt(variance)
+    xs = np.linspace(-3, 3, 600)
+    gauss = np.exp(-0.5 * (xs / sigma) ** 2) / (sigma * np.sqrt(2 * np.pi))
+
+    # Renormalised self-convolutions of X (chebfun conv), rescaled to [-3, 3].
+    X2 = X.conv(X)
+    X3 = X2.conv(X)
+
+    def _renorm(F, k):
+        s = np.sqrt(k)
+        a, b = float(F.domain.a) / s, float(F.domain.b) / s
+        xr = np.linspace(a, b, 600)
+        yr = s * np.asarray(F(jnp.array(xr * s)))
+        return xr, np.real(yr)
+
     fig, axes = plt.subplots(1, 3)
-
-    # Triangular distribution: support [-4/3, 2/3], zero outside [-3,3]
-    # PDF: (4/3 + x)/2 on [-4/3, 2/3]
-    n_pts = 2000
-    xs = np.linspace(-3, 3, n_pts)
-    dx = xs[1] - xs[0]
-
-    def tri_pdf(x):
-        result = np.zeros_like(x, dtype=float)
-        mask = (x >= -4/3) & (x <= 2/3)
-        result[mask] = (4/3 + x[mask]) / 2
-        return result
-
-    X_pdf = tri_pdf(xs)
-
-    # Mean and variance
-    mean_X = np.trapezoid(xs * X_pdf, xs)
-    var_X = np.trapezoid(xs**2 * X_pdf, xs) - mean_X**2
-    sigma_X = np.sqrt(var_X)
-    print(f"Mean of X: {mean_X:.6f}  (exact: 0)")
-    print(f"Variance of X: {var_X:.6f}  (exact: 2/9 = {2/9:.6f})")
-
-    # Normal with same mean and variance
-    gauss = np.exp(-0.5 * ((xs - mean_X) / sigma_X)**2) / (sigma_X * np.sqrt(2 * np.pi))
-
-    axes[0].plot(xs, X_pdf, color='#0072BD', linestyle='-', linewidth=2, label='Triangular X')
-    axes[0].plot(xs, gauss, color='#D95319', linestyle='--', linewidth=2, label='Normal fit')
-    axes[0].set_title('Distribution of X', fontsize=11)
-    axes[0].legend(fontsize=9)
-    axes[0].set_xlim(-3, 3); axes[0].set_ylim(-0.2, 1.2)
-
-    # Convolve X with itself and renormalize
-    X2 = fftconvolve(X_pdf, X_pdf, mode='full') * dx
-    # The support doubles, need to rescale to compare
-    n2 = len(X2)
-    xs2 = np.linspace(-6, 6, n2)
-    # Renormalize: scale by sqrt(2) so variance is again var_X
-    # S2(x) = sqrt(2) * X2(sqrt(2)*x)  -- distribution of (X1+X2)/sqrt(2)
-    xs2_rescaled = np.linspace(-3, 3, n_pts)
-    # Interpolate X2 at sqrt(2)*x
-    from scipy.interpolate import interp1d
-    X2_interp = interp1d(xs2, X2, bounds_error=False, fill_value=0)
-    S2 = np.sqrt(2) * X2_interp(np.sqrt(2) * xs2_rescaled)
-
-    axes[1].plot(xs2_rescaled, S2, color='#0072BD', linestyle='-', linewidth=2, label='(X+X)/√2')
-    axes[1].plot(xs, gauss, color='#D95319', linestyle='--', linewidth=2, label='Normal fit')
-    axes[1].set_title('Renorm. sum of 2', fontsize=11)
-    axes[1].legend(fontsize=9)
-    axes[1].set_xlim(-3, 3); axes[1].set_ylim(-0.2, 1.2)
-
-    # Convolve again for sum of 3
-    X3 = fftconvolve(X2, X_pdf, mode='full') * dx
-    n3 = len(X3)
-    xs3 = np.linspace(-9, 9, n3)
-    X3_interp = interp1d(xs3, X3, bounds_error=False, fill_value=0)
-    S3 = np.sqrt(3) * X3_interp(np.sqrt(3) * xs2_rescaled)
-
-    axes[2].plot(xs2_rescaled, S3, color='#0072BD', linestyle='-', linewidth=2, label='(X+X+X)/√3')
-    axes[2].plot(xs, gauss, color='#D95319', linestyle='--', linewidth=2, label='Normal fit')
-    axes[2].set_title('Renorm. sum of 3', fontsize=11)
-    axes[2].legend(fontsize=9)
-    axes[2].set_xlim(-3, 3); axes[2].set_ylim(-0.2, 1.2)
-
+    Xx = np.linspace(-3, 3, 600)
+    for ax, (data, title) in zip(axes, [
+        ((Xx, np.asarray(X(jnp.array(Xx)))), 'Distribution of X'),
+        (_renorm(X2, 2), 'Renormalized (X+X)/sqrt2'),
+        (_renorm(X3, 3), 'Renormalized (X+X+X)/sqrt3'),
+    ]):
+        ax.plot(data[0], np.real(data[1]), color='#0072BD', lw=2)
+        ax.plot(xs, gauss, color='#D95319', ls='--', lw=2)
+        ax.set_xlim(-3, 3)
+        ax.set_ylim(-0.2, 1.2)
+        ax.set_title(title, fontsize=10)
     fig.suptitle('Central Limit Theorem', fontsize=13)
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, 'central_limit_theorem.png'),
                 dpi=150, bbox_inches='tight')
     plt.close(fig)
 
+    # --- Coin toss: convolution of Dirac point masses ---------------------
+    # MATLAB: p1 = q*dirac(x-0) + p*dirac(x-1); p2 = conv(p1,p1); sum(p2); ...
+    # p1 is a pair of Dirac masses (weights q, p at 0, 1).  Convolving Dirac
+    # trains is the discrete convolution of their point masses, so the k-fold
+    # self-convolution is the binomial distribution and each total mass is 1.
+    # (chebfunjax's conv() integrates the smooth part only and does not yet
+    # propagate Dirac deltas, so the point masses are convolved directly.)
+    p = 0.6
+    q = 1.0 - p
+    p1 = np.array([q, p])          # masses at x = 0, 1
+    p2 = np.convolve(p1, p1)       # conv(p1, p1)
+    print(f"sum(p2) = {float(np.sum(p2)):.15g}")
+
+    n = 10
+    pn = p2
+    for _k in range(3, n + 1):
+        pn = np.convolve(pn, p1)
+    print(f"sum(pn) = {float(np.sum(pn)):.15f}")
+
+    # MATLAB: mu = n*p; sigma = sqrt(n*p*q)
+    mu_binom = n * p
+    sigma_binom = np.sqrt(n * p * q)
+    print(f"mu = {mu_binom:.15g}")
+    print(f"sigma = {sigma_binom:.15f}")
+
     print("central_limit_theorem: done")
     return True
+
 
 if __name__ == "__main__":
     run()
