@@ -4536,6 +4536,43 @@ class Chebfun(eqx.Module):
         """
         return self._apply_fun(jax.scipy.special.erfinv)
 
+    def gamma(self) -> Chebfun:
+        r"""Gamma function :math:`\Gamma(f(x))`.
+
+        Computes the composition of the gamma function with ``f``.  For
+        example, a Chebfun of the gamma function on ``[0.1, 3]`` is
+
+        >>> import chebfunjax as cj
+        >>> x = cj.chebfun(lambda t: t, domain=[0.1, 3.0])
+        >>> g = x.gamma()
+
+        This does not introduce poles: the range of ``f`` must avoid the
+        non-positive integers where :math:`\Gamma` is singular.  (To get a
+        Chebfun with poles, construct ``gamma`` directly with the
+        ``splitting``/``blowup`` options.)
+
+        Returns
+        -------
+        Chebfun
+
+        Notes
+        -----
+        Uses ``jax.scipy.special.gamma``.  NOT JIT-safe (adaptive
+        construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/gamma.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.exp, Chebfun.log
+        """
+        return self._apply_fun(jax.scipy.special.gamma)
+
     # ------------------------------------------------------------------
     # V12 — Type / logical ops
     # ------------------------------------------------------------------

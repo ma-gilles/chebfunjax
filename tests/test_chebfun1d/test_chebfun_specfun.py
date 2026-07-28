@@ -141,6 +141,36 @@ class TestSinCos:
 # ============================================================================
 
 
+class TestGamma:
+    """gamma: composition with the gamma function (@chebfun/gamma.m)."""
+
+    def test_gamma_of_identity(self):
+        from scipy.special import gamma as sgamma
+        x = chebfun(lambda t: t, domain=[0.1, 3.0])
+        g = x.gamma()
+        xs = np.linspace(0.1, 3.0, 40)
+        npt.assert_allclose(np.asarray(g(jnp.asarray(xs))), sgamma(xs),
+                            rtol=1e-11, atol=1e-11)
+
+    def test_gamma_factorial_at_integers(self):
+        # gamma(n) = (n-1)! : gamma(1..5) = 1, 1, 2, 6, 24.
+        from scipy.special import gamma as sgamma
+        x = chebfun(lambda t: t, domain=[0.5, 5.5])
+        g = x.gamma()
+        for n in (1, 2, 3, 4, 5):
+            npt.assert_allclose(float(g(float(n))), sgamma(n),
+                                rtol=1e-10, atol=1e-10)
+
+    def test_gamma_of_nonlinear(self):
+        from scipy.special import gamma as sgamma
+        f = chebfun(lambda t: 1.5 + 0.5 * jnp.sin(t), domain=[0.0, 3.0])
+        g = f.gamma()
+        xs = np.linspace(0.0, 3.0, 40)
+        npt.assert_allclose(np.asarray(g(jnp.asarray(xs))),
+                            sgamma(1.5 + 0.5 * np.sin(xs)),
+                            rtol=1e-11, atol=1e-11)
+
+
 class TestExpLog:
     """exp and log: method form, module form, and round-trip."""
 
