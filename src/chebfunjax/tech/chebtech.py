@@ -1706,7 +1706,14 @@ class Chebtech2(eqx.Module):
         MATLAB source : @chebtech/clenshaw.m, @chebtech/feval.m
         Chebfun commit: 7574c77
         """
-        x = jnp.asarray(x, dtype=jnp.float64)
+        # Preserve a complex argument (MATLAB evaluates a real Chebyshev
+        # series at complex points via Clenshaw with a complex recurrence);
+        # everything else is promoted to float64.
+        x = jnp.asarray(x)
+        if jnp.issubdtype(x.dtype, jnp.complexfloating):
+            x = x.astype(jnp.complex128)
+        else:
+            x = x.astype(jnp.float64)
         return _clenshaw(self.coeffs, x)
 
     # ------------------------------------------------------------------
@@ -3469,7 +3476,14 @@ class Chebtech1(eqx.Module):
         MATLAB source : @chebtech/clenshaw.m, @chebtech/feval.m
         Chebfun commit: 7574c77
         """
-        x = jnp.asarray(x, dtype=jnp.float64)
+        # Preserve a complex argument (MATLAB evaluates a real Chebyshev
+        # series at complex points via Clenshaw with a complex recurrence);
+        # everything else is promoted to float64.
+        x = jnp.asarray(x)
+        if jnp.issubdtype(x.dtype, jnp.complexfloating):
+            x = x.astype(jnp.complex128)
+        else:
+            x = x.astype(jnp.float64)
         return _clenshaw(self.coeffs, x)
 
     # ------------------------------------------------------------------

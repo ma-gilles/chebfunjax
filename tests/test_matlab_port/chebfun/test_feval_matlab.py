@@ -51,3 +51,29 @@ class TestChebfunFeval:
         out = f(xm)
         assert np.asarray(out).shape == (3, 4)
         assert float(jnp.max(jnp.abs(out - xm ** 2))) < 100 * EPS
+
+    def test_complex_points_just_outside_domain(self):
+        # MATLAB test_feval.m pass(20): evaluate a real chebfun at complex
+        # points (and points just outside the domain), comparing to the
+        # analytic function.  f_exact = cos(x - 0.2) on [-1, 1].
+        def f_exact(x):
+            return np.cos(x - 0.2)
+
+        f = cj.chebfun(lambda x: jnp.cos(x - 0.2), domain=[-1, 1])
+        x = np.array([-1 - 1e-6, 1e-6 + 1e-6j, 1 + 1e-6])
+        err = np.asarray(f(jnp.asarray(x))) - f_exact(x)
+        assert float(np.max(np.abs(err))) < 10 * EPS * f.vscale
+
+    def test_complex_valued_chebfun_at_real_points(self):
+        # MATLAB test_feval.m pass(13): a complex-VALUED chebfun (complex
+        # coefficients) evaluated at real points.  f_exact = sinh(t*z),
+        # z = exp(2*pi*1i/6).
+        z = np.exp(2 * np.pi * 1j / 6)
+
+        def f_exact(t):
+            return np.sinh(t * z)
+
+        f = cj.chebfun(lambda t: jnp.sinh(t * z), domain=[-1, 1])
+        x = np.asarray(XR)
+        err = np.asarray(f(jnp.asarray(x))) - f_exact(x)
+        assert float(np.max(np.abs(err))) < 10 * EPS * f.vscale

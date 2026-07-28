@@ -265,7 +265,14 @@ class Classicfun(eqx.Module):
         MATLAB source : @bndfun/feval.m
         Chebfun commit: 7574c77
         """
-        x = jnp.asarray(x, dtype=jnp.float64)
+        # Preserve a complex argument (the affine [a, b] -> [-1, 1] map and
+        # the underlying Clenshaw recurrence are both valid for complex x);
+        # everything else is promoted to float64.
+        x = jnp.asarray(x)
+        if jnp.issubdtype(x.dtype, jnp.complexfloating):
+            x = x.astype(jnp.complex128)
+        else:
+            x = x.astype(jnp.float64)
         # Map from [a, b] to [-1, 1]
         y = self.domain.inverse_map(x)
         return self.onefun(y)

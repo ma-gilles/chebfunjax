@@ -175,7 +175,14 @@ class _Piece(eqx.Module):
         -------
         jax.Array, same shape as x
         """
-        x = jnp.asarray(x, dtype=jnp.float64)
+        # Preserve a complex argument (the affine [a, b] -> [-1, 1] map and
+        # the Clenshaw recurrence are both valid for complex x); everything
+        # else is promoted to float64.
+        x = jnp.asarray(x)
+        if jnp.issubdtype(x.dtype, jnp.complexfloating):
+            x = x.astype(jnp.complex128)
+        else:
+            x = x.astype(jnp.float64)
         a, b = self.interval
         t = (2.0 * x - (a + b)) / (b - a)
         return self.tech(t)
@@ -1015,7 +1022,14 @@ class Chebfun(eqx.Module):
         if side is not None:
             _record_side_eval(x)
             return self._feval_side(x, side)
-        x = jnp.asarray(x, dtype=jnp.float64)
+        # Preserve a complex argument (MATLAB feval evaluates a real Chebfun
+        # at complex points, routing pieces by real(x)); everything else is
+        # promoted to float64.
+        x = jnp.asarray(x)
+        if jnp.issubdtype(x.dtype, jnp.complexfloating):
+            x = x.astype(jnp.complex128)
+        else:
+            x = x.astype(jnp.float64)
         scalar_input = x.ndim == 0
         x = jnp.atleast_1d(x)
 
@@ -1026,12 +1040,15 @@ class Chebfun(eqx.Module):
                 result = result[0]
             return self._orient_values(result)
 
-        # Multi-piece: Python dispatch
+        # Multi-piece: Python dispatch.  Piece selection uses real(x) so a
+        # complex evaluation point is routed by its real part (MATLAB
+        # xReal = real(x) in columnFeval).
         # (array-valued pieces add a trailing column axis to the output;
         # masks broadcast over it.  jnp.where promotes to complex when
         # a piece evaluates complex, as before.)
+        xr = jnp.real(x)
         cols = self.funs[0].tech.coeffs.shape[1:]
-        out = jnp.full(x.shape + cols, jnp.nan, dtype=jnp.float64)
+        out = jnp.full(x.shape + cols, jnp.nan, dtype=x.dtype)
         n_pieces = len(self.funs)
         for i, piece in enumerate(self.funs):
             a, b = piece.interval
@@ -1040,16 +1057,16 @@ class Chebfun(eqx.Module):
                 if n_pieces == 1:
                     mask = jnp.ones(x.shape, dtype=bool)
                 else:
-                    mask = x <= b
+                    mask = xr <= b
             elif i == n_pieces - 1:
                 # Right piece: include all x >= a
-                mask = x >= a
+                mask = xr >= a
             else:
                 # Interior piece: include a <= x <= b
-                mask = (x >= a) & (x <= b)
+                mask = (xr >= a) & (xr <= b)
 
             # Evaluate masked points
-            x_piece = jnp.where(mask, x, jnp.float64(a))
+            x_piece = jnp.where(mask, x, jnp.asarray(a, dtype=x.dtype))
             vals = piece(x_piece)
             maskE = mask.reshape(mask.shape + (1,) * len(cols))
             out = jnp.where(maskE, vals, out)

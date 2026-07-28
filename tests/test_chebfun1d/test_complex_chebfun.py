@@ -126,6 +126,42 @@ class TestRealImagConjAngle:
         npt.assert_allclose(float(a(self.x)), 1.0, rtol=1e-12)
 
 
+class TestEvalAtComplexPoints:
+    """Evaluate a REAL chebfun at complex argument(s).
+
+    MATLAB @chebfun/feval evaluates via Clenshaw with a complex argument,
+    routing piecewise pieces by real(x). A real polynomial is reproduced
+    exactly; an analytic function agrees with its true value.
+    """
+
+    def test_polynomial_exact_at_complex_point(self):
+        f = cj.chebfun(lambda x: x ** 2 - 0.25)
+        z = 1 + 2j
+        npt.assert_allclose(_cx(f(z)), z ** 2 - 0.25, rtol=1e-12, atol=1e-12)
+
+    def test_analytic_function_at_complex_points(self):
+        f = cj.chebfun(lambda x: jnp.exp(x), domain=[-1.0, 1.0])
+        zs = np.array([0.3 + 0.4j, -0.2 + 0.1j, 0.5 - 0.5j])
+        got = np.asarray(f(jnp.asarray(zs)))
+        npt.assert_allclose(got, np.exp(zs), rtol=1e-12, atol=1e-12)
+
+    def test_complex_input_yields_complex_output_dtype(self):
+        f = cj.chebfun(lambda x: x ** 2)
+        assert jnp.iscomplexobj(f(1 + 1j))
+
+    def test_real_input_stays_real(self):
+        f = cj.chebfun(lambda x: x ** 2)
+        out = f(jnp.asarray([0.1, 0.2, 0.3]))
+        assert not jnp.iscomplexobj(out)
+
+    def test_multipiece_routes_by_real_part(self):
+        # abs(x) on [-1, 0, 1]: right piece is +x, left piece is -x.
+        # Routing uses real(x), so real(z) > 0 -> +z, real(z) < 0 -> -z.
+        f = cj.chebfun(lambda x: jnp.abs(x), domain=[-1.0, 0.0, 1.0])
+        npt.assert_allclose(_cx(f(0.5 + 0.1j)), 0.5 + 0.1j, atol=1e-12)
+        npt.assert_allclose(_cx(f(-0.5 + 0.1j)), 0.5 - 0.1j, atol=1e-12)
+
+
 class TestComplexPlot:
     def test_plot_draws_complex_plane_curve(self):
         import matplotlib
