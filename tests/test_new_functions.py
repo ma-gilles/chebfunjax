@@ -268,6 +268,89 @@ class TestFredVolt:
         assert isinstance(h, Chebfun)
 
 
+class TestIntegralEigs:
+    """Eigenvalues/eigenfunctions of Fredholm and Volterra operators."""
+
+    def test_fred_rank_one_kernel(self):
+        # K(x, y) = x*y is rank 1: the only nonzero eigenvalue is
+        # int_{-1}^1 y^2 dy = 2/3 (eigenfunction phi(x) = x).
+        from chebfunjax.operators.integral import fred_eigs
+
+        lam = fred_eigs(lambda X, Y: X * Y, (-1.0, 1.0), k=1, n=16)
+        npt.assert_allclose(complex(lam[0]), 2.0 / 3.0, atol=1e-12)
+
+    def test_fred_constant_kernel(self):
+        # K = 1: eigenvalue int_{-1}^1 dy = 2 (eigenfunction constant).
+        from chebfunjax.operators.integral import fred_eigs
+
+        lam = fred_eigs(lambda X, Y: np.ones_like(X), (-1.0, 1.0), k=1, n=16)
+        npt.assert_allclose(complex(lam[0]), 2.0, atol=1e-12)
+
+    def test_fred_symmetric_kernel_real_positive(self):
+        # A real symmetric (Hilbert-Schmidt) kernel has real eigenvalues;
+        # exp(-(x-y)^2) is positive definite so they are positive and
+        # decreasing.
+        from chebfunjax.operators.integral import fred_eigs
+
+        lam = np.asarray(
+            fred_eigs(lambda X, Y: np.exp(-(X - Y) ** 2), (-1.0, 1.0),
+                      k=4, n=48))
+        assert np.max(np.abs(np.imag(lam))) < 1e-10
+        vals = np.sort(np.real(lam))[::-1]
+        assert np.all(vals > 0)
+        assert np.all(np.diff(vals) < 0)
+
+    def test_fred_eigenfunction_residual(self):
+        # A returned eigenpair (lam, phi) satisfies (K phi)(x) = lam phi(x)
+        # at the collocation points.
+        from chebfunjax.operators.integral import _fredholm_matrix, fred_eigs
+
+        def K(X, Y):
+            return np.exp(-(X - Y) ** 2)
+
+        lam, funs = fred_eigs(K, (-1.0, 1.0), k=2, n=48,
+                              return_eigenfunctions=True)
+        M, x = _fredholm_matrix(K, -1.0, 1.0, 48, 1.0)
+        phi = np.asarray(funs[0](jnp.asarray(x)))
+        res = M @ phi - complex(lam[0]) * phi
+        assert np.max(np.abs(res)) < 1e-10
+
+    def test_fred_convergence_adaptive(self):
+        # The adaptive (n=None) path returns the same leading eigenvalue as
+        # a fixed fine grid.
+        from chebfunjax.operators.integral import fred_eigs
+
+        K = lambda X, Y: np.cos(X + Y)  # noqa: E731
+        lam_a = np.asarray(fred_eigs(K, (-1.0, 1.0), k=2, tol=1e-11))
+        lam_f = np.asarray(fred_eigs(K, (-1.0, 1.0), k=2, n=64))
+        top_a = np.sort_complex(lam_a)
+        top_f = np.sort_complex(lam_f)
+        npt.assert_allclose(top_a, top_f, atol=1e-9)
+
+    def test_volt_matrix_matches_analytic_integral(self):
+        # The Volterra discretisation applied to a sampled function equals
+        # the analytic Volterra integral int_a^x f(y) dy.
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        from chebfunjax.operators.integral import _volterra_matrix
+
+        M, x = _volterra_matrix(lambda X, Y: np.ones_like(X), -1.0, 1.0,
+                                40, 1.0)
+        f = chebfun(lambda t: jnp.cos(t), domain=[-1.0, 1.0])
+        phi = np.asarray(f(jnp.asarray(x)))
+        got = (M @ phi).real
+        true = np.sin(x) - np.sin(-1.0)  # int_{-1}^x cos(y) dy
+        assert np.max(np.abs(got - true)) < 1e-12
+
+    def test_volt_spectrum_is_small(self):
+        # A Volterra operator with a bounded kernel is quasi-nilpotent:
+        # its (finite-n) eigenvalues cluster near zero.
+        from chebfunjax.operators.integral import volt_eigs
+
+        lam = np.asarray(
+            volt_eigs(lambda X, Y: np.ones_like(X), (-1.0, 1.0), k=5, n=32))
+        assert np.max(np.abs(lam)) < 0.2
+
+
 # ===========================================================================
 # 5. fracInt / fracDiff
 # ===========================================================================
