@@ -115,6 +115,27 @@ class TestRatInterp:
         x_test = np.linspace(-0.9, 0.9, 20)
         npt.assert_allclose(r_fn(x_test), f(x_test), rtol=1e-8)
 
+    def test_ratinterp_reduces_resolved_function_degree(self):
+        """A resolved (non-rational) function reduces the requested type.
+
+        exp is entire, so a robustified type-(8, 8) interpolant collapses
+        the denominator to a much lower degree (SVD rank detection): the
+        exact value MATLAB reports here is nu = 4.  The approximant must
+        still match exp to machine precision.
+        """
+        for grid in ("type1", "type2"):
+            r_fn, a, b, mu, nu, poles, res = ratinterp(np.exp, 8, 8, xi=grid)
+            assert nu == 4
+            assert mu == 8
+            xx = np.linspace(-1.0, 1.0, 50)
+            npt.assert_allclose(r_fn(xx), np.exp(xx), atol=1e-12)
+
+    def test_ratinterp_reduction_disabled_by_zero_tol(self):
+        """With tol=0 robustness/reduction is off, so the full type is kept."""
+        r_fn, a, b, mu, nu, poles, res = ratinterp(
+            np.exp, 8, 8, xi="type2", tol=0.0)
+        assert nu == 8
+
     def test_ratinterp_polynomial(self):
         """Rational interpolant to a polynomial should give zero denominator degree."""
         # x^3 is a polynomial; type (3, 0) should work

@@ -678,82 +678,85 @@ def _build_toeplitz_complex(col, row):
 def _compute_denominator_coeffs(Z, m, n, fEven, fOdd, N1, ts):
     """Compute denominator Chebyshev coefficients b via SVD robustification.
 
-    The submatrix C = Z[m+1:N1, :n+1] has:
-      - intrinsic null dim = max(0, n_cols - n_rows)   (from underdetermination)
-      - 1 additional null direction when the function is exactly rational of type
-        (m, n_current) — this is the denominator we seek.
+    Faithful port of ``computeDenominatorCoeffs`` in MATLAB
+    ``ratinterp.m``.  The denominator is the trailing right singular
+    vector of the lower part of ``Z``.  When the ``ns``-th singular value
+    of that block drops to (or below) the absolute tolerance ``ts`` the
+    rational type is over-specified: the degree ``n`` is reduced by the
+    number of singular values within ``ts`` of the smallest one and the
+    SVD is recomputed, until the block is numerically full rank.  This is
+    what lets a type-(m, n) request collapse to the exact reduced type
+    (e.g. ``(x^4-3)/((x+0.2)(x-2.2))`` requested (10, 10) -> (4, 2); a
+    resolved ``exp`` requested (8, 8) -> a much smaller denominator).
 
-    So the EXPECTED number of near-zero SVs is intrinsic_null_dim + 1.
-    We count how many SVs are near the smallest (relative to ts).
-    If count > expected_null → more null directions than expected → reduce degree
-    by (count - expected_null).
-    If count <= expected_null → found our denominator, stop.
+    Provenance
+    ----------
+    MATLAB source : ratinterp.m (computeDenominatorCoeffs)
+    Chebfun commit: 7574c77
     """
-    if n == 0:
-        return np.array([1.0]), 0
-
     shift = int(fEven) ^ int(m % 2 == 1)
 
-    if not (fOdd or fEven) or (n > 1):
-        n_current = n
+    if (n > 0) and (not (fOdd or fEven) or (n > 1)):
         while True:
             if not (fOdd or fEven):
-                sub = Z[m + 1: N1, : n_current + 1]
-                n_rows, n_cols = sub.shape
-                sv = np.linalg.svd(sub, compute_uv=False)
-                b = np.linalg.svd(sub, full_matrices=True)[2][-1, :].conj()
+                # svd(Z(m+2:N1, 1:n+1), 0).  MATLAB's economy SVD still
+                # returns the FULL right factor V, so ``V(:,end)`` (the
+                # trailing/null direction) is numpy's full_matrices Vh[-1].
+                sub = Z[m + 1: N1, : n + 1]
+                _, S, Vh = np.linalg.svd(sub, full_matrices=True)
+                ns = n
+                b = Vh[-1, :].conj()
             else:
-                rows = slice(m + 1 + shift, N1, 2)
-                cols = slice(None, n_current + 1, 2)
-                sub = Z[rows, cols]
-                n_rows, n_cols = sub.shape
-                sv = np.linalg.svd(sub, compute_uv=False)
-                b_half = np.linalg.svd(sub, full_matrices=True)[2][-1, :].conj()
-                b = np.zeros(n_current + 1, dtype=complex)
-                b[::2] = b_half
+                # svd(Z(m+2+shift:2:N1, 1:2:n+1), 0).
+                sub = Z[m + 1 + shift: N1: 2, 0: n + 1: 2]
+                _, S, Vh = np.linalg.svd(sub, full_matrices=True)
+                ns = n // 2
+                b = np.zeros(n + 1, dtype=complex)
+                b[::2] = Vh[-1, :].conj()
 
-            if n_current <= 0 or len(sv) == 0:
+            # ssv = S(ns, ns).  S holds min(rows, cols) singular values;
+            # the ns-th diagonal entry is zero when ns exceeds that count.
+            k = S.shape[0]
+            if ns <= k:
+                s = S[:ns]
+                ssv = S[ns - 1]
+            else:
+                s = np.concatenate([S, np.zeros(ns - k)])
+                ssv = 0.0
+
+            if ssv > ts:
+                # Numerically full rank: denominator found.
                 break
 
-            ssv = sv[-1]
-
-            # Expected null dim: intrinsic (underdetermination) + 1 (rational)
-            intrinsic_null_dim = max(0, n_cols - n_rows)
-            expected_null = intrinsic_null_dim + 1
-
-            # Count near-zero SVs (those within ts of the smallest)
-            count = int(np.sum(sv - ssv <= ts))
-
-            if count <= expected_null:
-                # Exactly the expected null space — denominator found, stop
-                break
-
-            # More near-zero SVs than expected: degree is too high
-            reduce = count - expected_null
+            # Reduce the denominator degree by the number of singular
+            # values clustered within ts of the smallest.
             if fEven or fOdd:
-                n_current -= 2 * reduce
+                n = n - 2 * int(np.sum(s - ssv <= ts))
             else:
-                n_current -= reduce
+                n = n - int(np.sum(s - ssv <= ts))
 
-            if n_current <= 0:
+            # Terminate on a trivial denominator.
+            if n == 0:
+                b = np.array([1.0])
+                break
+            elif n == 1:
                 if fEven:
                     b = np.array([1.0, 0.0])
+                    break
                 elif fOdd:
                     b = np.array([0.0, 1.0])
-                else:
-                    b = np.array([1.0])
-                n_current = max(n_current, 0)
-                break
-    else:
+                    break
+    elif n > 0:
         if fEven:
             b = np.array([1.0, 0.0])
         elif fOdd:
             b = np.array([0.0, 1.0])
         else:
             b = np.array([1.0])
-        n_current = n
+    else:
+        b = np.array([1.0])
 
-    return b, n_current
+    return b, n
 
 
 def _compute_numerator_coeffs(f, m, n, xi_type, Z, b, fEven, fOdd, N, N1,
