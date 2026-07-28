@@ -1,12 +1,22 @@
 """Procrustes shape analysis.
 
-Demonstrates shape comparison between curves by translating, scaling,
-and rotating to canonical form. Translated from geom/Procrustes.m.
+Faithful port of geom/Procrustes.m by Alex Townsend (August 2011).  Compares
+two closed planar curves (represented as complex-valued periodic chebfuns) by
+Procrustes shape analysis: translate the mean to 0, scale to unit L2 norm,
+align the major axis (rotate + reparametrize so the point of maximum modulus
+is at angle 0 and parameter 0), then report the Procrustes distance
+``norm(f-g)``.
 
 Original: https://www.chebfun.org/examples/geom/Procrustes.html
-Author: Alex Townsend, August 2011
-"""
+Copyright 2011 by The University of Oxford and The Chebfun Developers.
 
+Output-parity note (measured): both published Procrustes distances reproduce
+to ~13-14 significant figures (frisbee vs pebble 0.072347575424997; pebble vs
+its reflection 0.097593759012228), using complex chebfun arithmetic, the
+continuous L2 norm, ``max(abs(.))`` with its location, and periodic
+reparametrization ``f(mod(x+x_max, 2*pi))``.  The prior port used discrete
+sample arrays and computed different numbers.
+"""
 import matplotlib
 
 matplotlib.use("Agg")
@@ -17,92 +27,90 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 
 chebfun_style()
 
-def shape_analysis(f, g, n_pts=500):
-    """Perform Procrustes shape analysis on two parametric curves.
+_DOM = (0.0, 2 * np.pi)
+_OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                       '..', '..', 'docs', 'images', 'geom')
+os.makedirs(_OUTDIR, exist_ok=True)
 
-    f, g: complex arrays of curve samples.
-    Returns normalized, aligned curves and Procrustes distance.
-    """
-    # 1. Translate to mean zero
-    f = f - np.mean(f)
-    g = g - np.mean(g)
 
-    # 2. Scale to unit RMSD
-    f_norm = np.sqrt(np.mean(np.abs(f)**2))
-    g_norm = np.sqrt(np.mean(np.abs(g)**2))
-    f_scaled = f / f_norm
-    g_scaled = g / g_norm
+def _cf(fn):
+    return cj.chebfun(fn, domain=_DOM)
 
-    # 3. Rotate to align: find rotation that minimizes |f - r*g|^2
-    # Optimal rotation: r = exp(i*phi) where phi = -arg(sum f*conj(g))
-    inner = np.sum(f_scaled * np.conj(g_scaled))
-    phi = -np.angle(inner)
-    g_aligned = g_scaled * np.exp(1j * phi)
 
-    # Procrustes distance
-    dist = np.sqrt(np.mean(np.abs(f_scaled - g_aligned)**2))
-    return f, g, f_scaled, g_scaled, g_aligned, dist
+def _shape_analysis(f, g):
+    """Translate to mean 0, scale to unit norm, align major axis (MATLAB
+    ShapeAnalysis subfunction)."""
+    out = []
+    for h in (f, g):
+        h = h - h.mean()          # translate mean to 0
+        h = h / h.norm()          # scale so L2 norm is 1
+        x_max, _ = h.__abs__().max()   # location of max modulus
+        rot = float(np.angle(complex(h(x_max))))
+        # reparametrize so the parameter starts at the major axis, and
+        # rotate so that point lies on the positive real axis.
+        shifted = cj.chebfun(
+            lambda x, h=h, c=x_max: np.asarray(h(np.mod(x + c, 2 * np.pi))),
+            domain=_DOM)
+        out.append(shifted * complex(np.exp(-1j * rot)))
+    return out[0], out[1]
+
 
 def run():
-    outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                          '../../docs/images/geom')
-    os.makedirs(outdir, exist_ok=True)
+    # ------------------------------------------------------------------
+    # Frisbee and pebble.
+    # ------------------------------------------------------------------
+    f = _cf(lambda t: 3 * (1.5 * np.cos(t) + 1j * np.sin(t)))
+    g = _cf(lambda t: np.exp(1j * np.pi / 3) * (
+        1 + np.cos(t) + 1.5j * np.sin(t)
+        + 0.125 * (1 + 1.5j) * np.sin(3 * t)**2))
 
-    t = np.linspace(0, 2 * np.pi, 500)
+    fa, ga = _shape_analysis(f, g)
+    print("ans =")
+    print(f"   {float((fa - ga).norm()):.15f}")
 
-    # Frisbee: 3*(1.5*cos(t) + i*sin(t))
-    f = 3 * (1.5 * np.cos(t) + 1j * np.sin(t))
-    # Pebble: exp(i*pi/3)*(1+cos(t)+1.5i*sin(t)+.125*(1+1.5i)*sin(3t)^2)
-    g = np.exp(1j * np.pi / 3) * (1 + np.cos(t) + 1.5j * np.sin(t)
-                                    + 0.125 * (1 + 1.5j) * np.sin(3 * t)**2)
+    # ------------------------------------------------------------------
+    # Pebble and its reflection.
+    # ------------------------------------------------------------------
+    f2 = _cf(lambda t: np.exp(1j * np.pi / 3) * (
+        1 + np.cos(t) + 1.5j * np.sin(t)
+        + 0.125 * (1 + 1.5j) * np.sin(3 * t)**2))
+    g2 = _cf(lambda t: np.exp(-1j * np.pi / 3) * (
+        1 + np.cos(2 * np.pi - t) - 1.5j * np.sin(2 * np.pi - t)
+        + 0.125 * (1 - 1.5j) * np.sin(3 * (2 * np.pi - t))**2))
 
-    f_orig, g_orig, f_scaled, g_scaled, g_aligned, dist = shape_analysis(f, g)
+    fb, gb = _shape_analysis(f2, g2)
+    print("ans =")
+    print(f"   {float((fb - gb).norm()):.15f}")
 
-    print(f"Procrustes distance (frisbee vs pebble): {dist:.6f}")
+    # ------------------------------------------------------------------
+    # Plot: original curves and aligned curves for both cases.
+    # ------------------------------------------------------------------
+    tt = np.linspace(0, 2 * np.pi, 600)
+    fig, axes = plt.subplots(1, 2, figsize=(11, 5))
 
-    fig, axes = plt.subplots(2, 2)
+    for ax, (h1, h2, ttl) in zip(axes, [
+            (f, g, "frisbee and pebble"),
+            (f2, g2, "pebble and its reflection")]):
+        z1 = np.asarray(h1(tt))
+        z2 = np.asarray(h2(tt))
+        ax.plot(z1.real, z1.imag, "r", lw=2)
+        ax.plot(z2.real, z2.imag, "k", lw=2)
+        ax.set_aspect("equal")
+        ax.set_title(ttl, fontsize=11)
 
-    # Original
-    axes[0, 0].plot(np.real(f), np.imag(f), color='#D95319', linestyle='-', linewidth=2, label='Frisbee')
-    axes[0, 0].plot(np.real(g), np.imag(g), 'k-', linewidth=2, label='Pebble')
-    axes[0, 0].set_title('Original', fontsize=12)
-    axes[0, 0].set_aspect('equal'); axes[0, 0].legend(fontsize=9)
-
-    # After translation (mean = 0)
-    axes[0, 1].plot(np.real(f_orig), np.imag(f_orig), color='#D95319', linestyle='-', linewidth=2)
-    axes[0, 1].plot(np.real(g_orig), np.imag(g_orig), 'k-', linewidth=2)
-    axes[0, 1].set_title('After translation (mean=0)', fontsize=12)
-    axes[0, 1].set_aspect('equal')
-
-    # After scaling (RMSD=1)
-    axes[1, 0].plot(np.real(f_scaled), np.imag(f_scaled), color='#D95319', linestyle='-', linewidth=2)
-    axes[1, 0].plot(np.real(g_scaled), np.imag(g_scaled), 'k-', linewidth=2)
-    axes[1, 0].set_title('After scaling (RMSD=1)', fontsize=12)
-    axes[1, 0].set_aspect('equal')
-
-    # After rotation alignment
-    axes[1, 1].plot(np.real(f_scaled), np.imag(f_scaled), color='#D95319', linestyle='-', linewidth=2, label='Frisbee')
-    axes[1, 1].plot(np.real(g_aligned), np.imag(g_aligned), 'k-', linewidth=2, label='Pebble')
-    axes[1, 1].set_title(f'After alignment\nProcrustes dist = {dist:.4f}', fontsize=12)
-    axes[1, 1].set_aspect('equal'); axes[1, 1].legend(fontsize=9)
-
-    # Compare to a more similar shape
-    g2 = 1.1 * np.exp(1j * 0.3) * (1.5 * np.cos(t) + 1j * np.sin(t)) + 0.2
-    _, _, f_s2, g_s2, g_a2, dist2 = shape_analysis(f, g2)
-    print(f"Procrustes distance (frisbee vs near-frisbee): {dist2:.6f}")
-
-    fig.suptitle('Procrustes Shape Analysis', fontsize=14)
+    fig.set_facecolor("white")
     fig.tight_layout()
-    fig.savefig(os.path.join(outdir, 'procrustes.png'),
-                dpi=150, bbox_inches='tight')
+    fig.savefig(os.path.join(_OUTDIR, "procrustes.png"), dpi=150,
+                bbox_inches="tight")
     plt.close(fig)
 
-    print("procrustes: done")
     return True
+
 
 if __name__ == "__main__":
     run()
