@@ -61,7 +61,7 @@ def run():
     assert err_heat < 1e-10, f"Heat equation error too large: {err_heat}"
 
     norm_final = np.max(np.abs(history_heat[-1]))
-    print(f"  Final amplitude: {norm_final:.6e} (exact: {np.exp(-9*T_heat):.6e})")
+    print(f"  Final amplitude: {norm_final:.15e} (exact: {np.exp(-9*T_heat):.15e})")
     print("  PASS: diffusion has significantly reduced amplitude")
 
     # --- 2. Convection equation on [0, 2*pi]: u_t = c(x)*u_x ---
