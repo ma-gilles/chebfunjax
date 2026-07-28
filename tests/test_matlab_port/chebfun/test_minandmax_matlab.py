@@ -61,3 +61,40 @@ class TestChebfunMinandmax:
                        complex(f(jnp.asarray(float(xmax))))])
         assert np.max(np.abs(y - y_exact)) <= 10 * f.vscale * EPS
         assert np.max(np.abs(fx - y_exact)) <= 10 * f.vscale * EPS
+
+
+class TestChebfunMinandmaxLocal:
+    """MATLAB test_minandmax.m pass(7): local extrema (incl. endpoints)."""
+
+    def test_local_extrema_scalar(self):
+        f = cj.chebfun(lambda x: jnp.sin(x) ** 2 + jnp.sin(x ** 2),
+                       domain=[0, 4])
+        x, y = f.minandmax("local")
+        x = np.asarray(x)
+        y = np.asarray(y)
+        y_exact = np.array([
+            0.0, 1.923771282655145, -0.342247088203205, 1.117294907913736,
+            -0.971179645473729, 1.343997479566445, 0.284846700239241])
+        x_exact = np.array([
+            0.0, 1.323339426259694, 2.220599667639221, 2.781195946808315,
+            3.308480466603983, 3.776766383330969, 4.0])
+        assert len(y) == 7
+        assert np.max(np.abs(y - y_exact)) < 10 * f.vscale * EPS
+        assert np.max(np.abs(x - x_exact)) < 1e-10
+
+    def test_local_extrema_array_valued_nan_padded(self):
+        # pass(7'): columns of unequal extrema counts are NaN-padded.
+        op = lambda t: jnp.sin(t) ** 2 + jnp.sin(t ** 2)  # noqa: E731
+        f = cj.chebfun(lambda x: jnp.stack([op(x), op(x / 2)], axis=-1),
+                       domain=[0, 4])
+        x, y = f.minandmax("local")
+        y = np.asarray(y)
+        assert y.shape == (7, 2)
+        col0 = np.array([
+            0.0, 1.923771282655145, -0.342247088203205, 1.117294907913736,
+            -0.971179645473729, 1.343997479566445, 0.284846700239241])
+        assert np.max(np.abs(y[:, 0] - col0)) < 1e-10
+        assert np.max(np.abs(y[:3, 1]
+                             - np.array([0.0, 1.923771282655145,
+                                         0.070019315123878]))) < 1e-10
+        assert np.all(np.isnan(y[3:, 1]))

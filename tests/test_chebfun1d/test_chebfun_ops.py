@@ -738,6 +738,53 @@ class TestChebfunExtrema:
         npt.assert_allclose(f_max, f_max2, atol=1e-14)
 
 
+class TestChebfunLocalExtrema:
+    """Chebfun.minandmax/min/max with the 'local' flag."""
+
+    def test_cos_local_extrema_include_endpoints(self):
+        # cos on [0, 3pi] has interior extrema at pi, 2pi (and 3pi is the
+        # right endpoint); all local extrema include both endpoints.
+        f = chebfun(jnp.cos, domain=[0, 3 * float(np.pi)])
+        x, y = f.minandmax("local")
+        x = np.asarray(x)
+        y = np.asarray(y)
+        npt.assert_allclose(x, [0.0, np.pi, 2 * np.pi, 3 * np.pi], atol=1e-8)
+        npt.assert_allclose(y, np.cos(x), atol=1e-10)
+
+    def test_local_min_and_max_partition_extrema(self):
+        # Every local extremum is either a local min or a local max; their
+        # union recovers minandmax('local').
+        f = chebfun(lambda t: jnp.sin(3 * t) + 0.5 * t, domain=[-1, 1])
+        xa, ya = f.minandmax("local")
+        xmin, ymin = f.min("local")
+        xmax, ymax = f.max("local")
+        na = len(np.asarray(xa))
+        assert len(np.asarray(xmin)) + len(np.asarray(xmax)) == na
+        merged = np.sort(np.concatenate([np.asarray(xmin),
+                                         np.asarray(xmax)]))
+        npt.assert_allclose(merged, np.sort(np.asarray(xa)), atol=1e-9)
+
+    def test_local_min_classification_parabola(self):
+        # A downward parabola on [-1,1]: single interior maximum at 0,
+        # both endpoints are local minima.
+        f = chebfun(lambda t: 1.0 - t ** 2, domain=[-1, 1])
+        xmin, ymin = f.min("local")
+        xmax, ymax = f.max("local")
+        npt.assert_allclose(np.sort(np.asarray(xmin)), [-1.0, 1.0], atol=1e-9)
+        npt.assert_allclose(np.asarray(ymin), [0.0, 0.0], atol=1e-10)
+        npt.assert_allclose(np.asarray(xmax), [0.0], atol=1e-9)
+        npt.assert_allclose(np.asarray(ymax), [1.0], atol=1e-10)
+
+    def test_unknown_flag_raises(self):
+        f = chebfun(jnp.sin)
+        with pytest.raises(ValueError):
+            f.minandmax("global")
+        with pytest.raises(ValueError):
+            f.min("bogus")
+        with pytest.raises(ValueError):
+            f.max("bogus")
+
+
 # ============================================================================
 # Tier 9: Composed operations (integration tests)
 # ============================================================================

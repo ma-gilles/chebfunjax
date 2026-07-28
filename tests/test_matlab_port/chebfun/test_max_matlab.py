@@ -51,3 +51,30 @@ class TestChebfunMax:
         mask = jnp.abs(xs - (-3 * np.pi / 4)) > 1e-6
         err = jnp.abs(h(xs) - exact)[mask]
         assert float(jnp.max(err)) < 1e3 * EPS
+
+    def test_local_maxima(self):
+        # MATLAB test_max.m pass(7): local maxima (interior only here).
+        f = cj.chebfun(lambda x: jnp.sin(x) ** 2 + jnp.sin(x ** 2),
+                       domain=[0, 4])
+        x, y = f.max("local")
+        x = np.asarray(x)
+        y = np.asarray(y)
+        y_exact = np.array([1.923771282655145, 1.117294907913736,
+                            1.343997479566445])
+        x_exact = np.array([1.323339426259694, 2.781195946808315,
+                            3.776766383330969])
+        assert len(y) == 3
+        assert np.max(np.abs(y - y_exact)) < 10 * f.vscale * EPS
+        assert np.max(np.abs(x - x_exact)) < 1e-10
+
+    def test_local_maxima_array_nan_padded(self):
+        # MATLAB test_max.m array-valued local maxima, NaN-padded.
+        op = lambda t: jnp.sin(t) ** 2 + jnp.sin(t ** 2)  # noqa: E731
+        f = cj.chebfun(lambda x: jnp.stack([op(x), op(x / 2)], axis=-1),
+                       domain=[0, 4])
+        x, y = f.max("local")
+        y = np.asarray(y)
+        assert y.shape[1] == 2
+        assert abs(y[0, 0] - 1.923771282655145) < 1e-10
+        assert abs(y[0, 1] - 1.923771282655145) < 1e-10
+        assert np.all(np.isnan(y[1:, 1]))

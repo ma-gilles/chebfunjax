@@ -2761,23 +2761,39 @@ class Chebfun(eqx.Module):
         unique_roots = _dedup(combined)
         return jnp.asarray(unique_roots, dtype=jnp.float64)
 
-    def minandmax(self) -> tuple[tuple[float, float], tuple[float, float]]:
+    def minandmax(self, flag: "str | None" = None):
         """Global minimum and maximum of the Chebfun.
 
         Searches each piece for its local extrema (critical points of the
         derivative plus piece endpoints), then returns the global min/max.
 
+        With ``flag='local'`` returns *all* local extrema instead of the
+        global pair: ``(x, y)`` where ``x`` are the extrema locations (the
+        interior critical points where ``f'=0`` together with the two domain
+        endpoints, which MATLAB always includes) sorted ascending, and
+        ``y = f(x)``.  For an array-valued Chebfun the columns of ``x``/``y``
+        correspond to the columns of ``f`` and are padded with ``NaN`` to a
+        common length.
+
         NOT JIT-safe (uses roots of derivative — eigenvalue computation).
 
         Returns
         -------
-        (x_min, f_min), (x_max, f_max) : pair of (location, value) tuples.
+        (x_min, f_min), (x_max, f_max) : pair of (location, value) tuples
+            (default).
+        (x, y) : tuple of arrays
+            All local extrema locations and values (``flag='local'``).
 
         Provenance
         ----------
         MATLAB source : @chebfun/minandmax.m
         Chebfun commit: 7574c77
         """
+        if flag is not None:
+            if str(flag).lower() != "local":
+                raise ValueError(
+                    f"minandmax: unknown flag {flag!r} (expected 'local').")
+            return self._local_minandmax()
         if self.isempty():
             e = jnp.asarray([], dtype=jnp.float64)
             return (e, e), (e, e)
@@ -2864,37 +2880,160 @@ class Chebfun(eqx.Module):
                 jnp.asarray(v, dtype=jnp.float64),
                 jnp.asarray(kind, dtype=jnp.float64))
 
-    def min(self) -> tuple[float, float]:
-        """Global minimum: returns (x_min, f_min).
+    def _local_minandmax_scalar(self):
+        """All local extrema ``(x, y)`` of a scalar-valued Chebfun.
+
+        Interior critical points (roots of ``f'``) together with the two
+        domain endpoints (always included, per MATLAB ``localMinAndMax``),
+        sorted ascending, with ``y = f(x)``.
+        """
+        import numpy as _np
+
+        df = self.diff()
+        a = float(self.domain.a)
+        b = float(self.domain.b)
+        r = _np.asarray(df.roots()).ravel()
+        r = _np.real(r[_np.abs(_np.imag(r)) < 1e-12]) \
+            if _np.iscomplexobj(r) else r
+        r = r[(r > a + 1e-12) & (r < b - 1e-12)]
+        r = _np.unique(r)
+        x = _np.sort(_np.concatenate([[a], r, [b]]))
+        y = _np.asarray(self(jnp.asarray(x, dtype=jnp.float64)))
+        return x, y
+
+    def _local_min_or_max_scalar(self, which: str):
+        """Local minima (``which='min'``) or maxima of a scalar Chebfun.
+
+        Interior extrema are classified by the sign of ``f''``; endpoints by
+        the sign of ``f'`` (falling back to ``f''`` when ``f'`` is negligible
+        there), matching MATLAB ``localMin``/``localMax``.
+        """
+        import numpy as _np
+
+        x, y = self._local_minandmax_scalar()
+        df = self.diff()
+        d2f = df.diff()
+        a = float(self.domain.a)
+        b = float(self.domain.b)
+        xj = jnp.asarray(x, dtype=jnp.float64)
+        d1 = _np.asarray(df(xj)).real
+        d2 = _np.asarray(d2f(xj)).real
+        dfvs = float(df.vscale)
+        eps = float(_np.finfo(_np.float64).eps)
+        keep = _np.zeros(len(x), dtype=bool)
+        want_min = which == "min"
+        for i, xi in enumerate(x):
+            small = abs(d1[i]) < 1e3 * dfvs * eps
+            if abs(xi - a) <= 1e-12:            # left endpoint
+                if want_min:
+                    keep[i] = (d2[i] > 0) if small else (d1[i] > 0)
+                else:
+                    keep[i] = (d2[i] < 0) if small else (d1[i] < 0)
+            elif abs(xi - b) <= 1e-12:          # right endpoint
+                if want_min:
+                    keep[i] = (d2[i] > 0) if small else (d1[i] < 0)
+                else:
+                    keep[i] = (d2[i] < 0) if small else (d1[i] > 0)
+            else:                               # interior
+                keep[i] = (d2[i] > 0) if want_min else (d2[i] < 0)
+        return x[keep], y[keep]
+
+    def _stack_local_columns(self, per_col):
+        """Pad per-column ``(x, y)`` lists to a common length with NaN.
+
+        ``per_col`` is a list of ``(x, y)`` numpy arrays, one per column.
+        Returns ``(X, Y)`` of shape ``(maxlen, ncols)`` (or 1-D for a single
+        column), matching MATLAB's NaN-padding of ragged local-extrema
+        columns.
+        """
+        import numpy as _np
+
+        if len(per_col) == 1:
+            x, y = per_col[0]
+            return jnp.asarray(x), jnp.asarray(y)
+        maxlen = max(len(x) for x, _ in per_col) if per_col else 0
+        ncols = len(per_col)
+        X = _np.full((maxlen, ncols), _np.nan)
+        Y = _np.full((maxlen, ncols), _np.nan, dtype=complex)
+        for j, (x, y) in enumerate(per_col):
+            X[: len(x), j] = x
+            Y[: len(y), j] = y
+        # Collapse to real when no column carried a complex value.
+        if _np.all(_np.nan_to_num(Y.imag) == 0.0):
+            Y = Y.real
+        return jnp.asarray(X), jnp.asarray(Y)
+
+    def _is_array_valued(self) -> bool:
+        return any(getattr(p.tech, "coeffs", jnp.zeros(1)).ndim == 2
+                   for p in self.funs)
+
+    def _local_minandmax(self):
+        """All local extrema; scalar or array-valued (NaN-padded columns)."""
+        if not self._is_array_valued():
+            return self._stack_local_columns([self._local_minandmax_scalar()])
+        cols = [self.extract_columns(j) for j in range(self.n_columns)]
+        return self._stack_local_columns(
+            [c._local_minandmax_scalar() for c in cols])
+
+    def _local_min_or_max(self, which: str):
+        if not self._is_array_valued():
+            return self._stack_local_columns(
+                [self._local_min_or_max_scalar(which)])
+        cols = [self.extract_columns(j) for j in range(self.n_columns)]
+        return self._stack_local_columns(
+            [c._local_min_or_max_scalar(which) for c in cols])
+
+    def min(self, flag: "str | None" = None):
+        """Global minimum ``(x_min, f_min)``, or all local minima.
+
+        With ``flag='local'`` returns ``(x, y)`` of every local minimum
+        (interior minima where ``f'' > 0`` plus any endpoint that is a local
+        minimum), sorted ascending.
 
         NOT JIT-safe.
 
         Returns
         -------
-        (x_min, f_min) : tuple of floats
+        (x_min, f_min) : tuple of floats (default).
+        (x, y) : tuple of arrays (``flag='local'``).
 
         Provenance
         ----------
         MATLAB source : @chebfun/min.m
         Chebfun commit: 7574c77
         """
+        if flag is not None:
+            if str(flag).lower() != "local":
+                raise ValueError(
+                    f"min: unknown flag {flag!r} (expected 'local').")
+            return self._local_min_or_max("min")
         (x_min, f_min), _ = self.minandmax()
         return x_min, f_min
 
-    def max(self) -> tuple[float, float]:
-        """Global maximum: returns (x_max, f_max).
+    def max(self, flag: "str | None" = None):
+        """Global maximum ``(x_max, f_max)``, or all local maxima.
+
+        With ``flag='local'`` returns ``(x, y)`` of every local maximum
+        (interior maxima where ``f'' < 0`` plus any endpoint that is a local
+        maximum), sorted ascending.
 
         NOT JIT-safe.
 
         Returns
         -------
-        (x_max, f_max) : tuple of floats
+        (x_max, f_max) : tuple of floats (default).
+        (x, y) : tuple of arrays (``flag='local'``).
 
         Provenance
         ----------
         MATLAB source : @chebfun/max.m
         Chebfun commit: 7574c77
         """
+        if flag is not None:
+            if str(flag).lower() != "local":
+                raise ValueError(
+                    f"max: unknown flag {flag!r} (expected 'local').")
+            return self._local_min_or_max("max")
         _, (x_max, f_max) = self.minandmax()
         return x_max, f_max
 
