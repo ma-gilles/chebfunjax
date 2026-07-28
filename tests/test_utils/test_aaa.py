@@ -500,3 +500,69 @@ class TestAAACleanup:
         _, _, _, _, zj_nc, _, _ = aaa(jnp.sin, Z, cleanup=False)
         _, _, _, _, zj_c, _, _ = aaa(jnp.sin, Z, cleanup=True)
         assert len(zj_c) <= len(zj_nc)
+
+
+class TestAAALawson:
+    """AAA-Lawson iteration: minimax refinement and degree/lawson semantics."""
+
+    def test_lawson_off_by_default(self):
+        # Plain aaa (no degree, no lawson) takes no Lawson steps: identical
+        # to an explicit lawson=0 call.
+        Z = np.linspace(-1.0, 1.0, 800)
+        F = np.exp(Z)
+        r0, *_rest0 = aaa(F, Z)
+        _, _, _, _, zj0, fj0, wj0 = aaa(F, Z)
+        _, _, _, _, zj1, fj1, wj1 = aaa(F, Z, lawson=0)
+        npt.assert_allclose(np.asarray(zj0), np.asarray(zj1), atol=0)
+
+    def test_lawson_reduces_error_toward_minimax(self):
+        # For exp, a degree-3 rational refined by Lawson beats the plain AAA
+        # degree-3 approximant in the sup norm (closer to minimax).
+        Z = np.linspace(-1.0, 1.0, 2000)
+        F = np.exp(Z)
+        xx = np.linspace(-1.0, 1.0, 500)
+        r_aaa, *_ = aaa(F, Z, mmax=4)          # 3 poles, no Lawson
+        r_law, *_ = aaa(F, Z, degree=3)        # 3 poles, adaptive Lawson
+        err_aaa = np.max(np.abs(np.exp(xx) - np.real(r_aaa(xx))))
+        err_law = np.max(np.abs(np.exp(xx) - np.real(r_law(xx))))
+        assert err_law < err_aaa
+
+    def test_lawson_equioscillation(self):
+        # A near-minimax degree-3 approximant to exp equioscillates: the
+        # error attains near |maxerr| with alternating sign several times.
+        Z = np.linspace(-1.0, 1.0, 4000)
+        F = np.exp(Z)
+        r, *_ = aaa(F, Z, degree=3)
+        err = np.real(r(Z)) - np.exp(Z)
+        peak = np.max(np.abs(err))
+        # Count sign changes of the error among the near-peak extrema.
+        near = np.abs(err) > 0.5 * peak
+        signs = np.sign(err[near])
+        n_alt = int(np.sum(np.abs(np.diff(signs)) > 0)) + 1
+        # Degree-(3,3) minimax has at least 2*3 + 2 = 8 alternation points;
+        # allow a slack lower bound.
+        assert n_alt >= 6
+
+    def test_lawson_exact_number_of_steps_runs(self):
+        # An explicit finite lawson count runs without error and returns a
+        # usable approximant.
+        X = np.asarray(np.linspace(-1.0, 1.0, 400))
+        F = np.maximum(X, 0.0)
+        r, pol, res, zer, zj, fj, wj = aaa(F, X, degree=4, lawson=50,
+                                           damping=0.5)
+        assert len(zj) <= 5
+        err = np.max(np.abs(F - np.real(r(X))))
+        assert err < 0.05
+
+    def test_degree_caps_pole_count(self):
+        # exp is not rational, so a degree-N request yields exactly N poles;
+        # degree caps the barycentric size at N + 1 support points.
+        Z = np.linspace(-1.0, 1.0, 1000)
+        F = np.exp(Z)
+        _, pol, *_ = aaa(F, Z, degree=4)
+        assert len(pol) == 4
+        # An exactly type-(0, 2) function needs only its 2 true poles even
+        # when a higher degree is requested.
+        F2 = 1.0 / (1.0 + 25.0 * Z ** 2)
+        _, pol2, *_ = aaa(F2, Z, degree=4)
+        assert len(pol2) <= 4

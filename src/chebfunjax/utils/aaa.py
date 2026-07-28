@@ -47,6 +47,9 @@ def aaa(
     *,
     tol: float = 1e-13,
     mmax: int = 100,
+    degree: int | None = None,
+    lawson: "int | float | None" = None,
+    damping: float = 1.0,
     cleanup: bool = True,
     cleanup_tol: float | None = None,
 ) -> tuple[Callable, jnp.ndarray, jnp.ndarray, jnp.ndarray,
@@ -84,6 +87,20 @@ def aaa(
     mmax : int, optional
         Maximum number of support points / barycentric terms (default 100).
         The approximant will have degree at most ``mmax - 1``.
+    degree : int or None, optional
+        Maximal rational degree ``N`` (like ``mmax = N + 1``).  Unlike
+        ``mmax``, specifying ``degree`` turns the AAA-Lawson iteration on by
+        default (adaptive number of steps), driving the approximant toward
+        the minimax (near-best) rational of that degree.
+    lawson : int, float, or None, optional
+        Number of AAA-Lawson iteratively reweighted least-squares (IRLS)
+        steps used to push the approximant toward minimax.  ``lawson=0``
+        disables the iteration (plain AAA).  ``None`` (default) selects the
+        MATLAB default: adaptive Lawson when ``degree`` is given, otherwise
+        off.  A finite value takes exactly that many steps.
+    damping : float, optional
+        Lawson damping ratio applied at each IRLS step (default 1.0 =
+        standard); values < 1 can be more robust.
     cleanup : bool, optional
         If ``True`` (default), apply Froissart-doublet removal: poles whose
         residue is negligible relative to nearby sample-set distances are
@@ -161,6 +178,18 @@ def aaa(
 
     if cleanup_tol is None:
         cleanup_tol = tol if tol > 0 else 1e-13
+
+    # --- Degree / Lawson bookkeeping (MATLAB aaa.m parseInputs) ---
+    # ``degree`` acts like ``mmax = degree + 1`` but turns Lawson on by
+    # default.  ``nlawson`` defaults to Inf (adaptive); if no degree was
+    # given and Lawson was not requested, it collapses to 0 (plain AAA).
+    degree_flag = degree is not None
+    if degree_flag:
+        mmax = int(degree) + 1
+    nlawson = float("inf") if lawson is None else float(lawson)
+    if (not degree_flag) and (nlawson == float("inf")):
+        nlawson = 0.0
+    dampratio = float(damping)
 
     abstol = tol * np.linalg.norm(F_np, np.inf)
 
@@ -269,6 +298,14 @@ def aaa(
         if maxerr <= abstol:
             break
 
+    maxerrAAA = maxerr   # error at the end of the AAA greedy phase
+
+    # ---- AAA-Lawson iteration (barycentric IRLS toward minimax) ----
+    if nlawson > 0:
+        zj, fj, wj = _aaa_lawson(
+            zj, fj, wj, Z_np, F_np, nlawson, dampratio, maxerrAAA,
+        )
+
     # ---- Remove zero-weight support points ----
     nonzero = wj != 0
     zj = zj[nonzero]
@@ -281,7 +318,9 @@ def aaa(
     wj_jnp = jnp.array(wj)
 
     # ---- Cleanup: remove Froissart doublets ----
-    if cleanup:
+    # MATLAB only runs the doublet cleanup when no Lawson steps were taken;
+    # the Lawson iteration itself suppresses spurious poles.
+    if cleanup and nlawson == 0:
         zj_jnp, fj_jnp, wj_jnp = _cleanup(
             zj_jnp, fj_jnp, wj_jnp,
             jnp.array(Z_np), jnp.array(F_np),
@@ -300,6 +339,98 @@ def aaa(
     r = _make_callable(zj_jnp, fj_jnp, wj_jnp)
 
     return r, pol, res, zer, zj_jnp, fj_jnp, wj_jnp
+
+
+# ---------------------------------------------------------------------------
+# AAA-Lawson iteration (barycentric IRLS)
+# ---------------------------------------------------------------------------
+
+def _aaa_lawson(zj, fj, wj, Z, F, nlawson, dampratio, maxerrAAA):
+    """Barycentric iteratively reweighted least-squares (Lawson) refinement.
+
+    Refines the AAA barycentric weights toward the minimax approximant by
+    IRLS on the Loewner/Cauchy system.  ``nlawson`` is either a finite
+    number of steps or ``inf`` (adaptive: at least 20 steps, then continue
+    while the max error keeps decreasing, up to 1000).  Returns the updated
+    ``(zj, fj, wj)``; support points are unchanged, only the weights and
+    the values ``fj`` are recomputed from the IRLS solution.
+
+    Provenance
+    ----------
+    MATLAB source : aaa.m (Lawson iteration block)
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2023 by The University of Oxford and The
+        Chebfun Developers.
+    Algorithm: Nakatsukasa & Trefethen, "An algorithm for real and complex
+        rational minimax approximation", SIAM J. Sci. Comput. 42 (2020).
+    """
+    Z = np.asarray(Z, dtype=complex)
+    F = np.asarray(F, dtype=complex)
+    M = len(Z)
+    nj = len(zj)
+
+    wj0 = wj.copy()
+    fj0 = fj.copy()
+
+    # Cauchy/Loewner matrix A (M x 2*nj): columns [1/(Z-zj), F/(Z-zj)] per zj.
+    A = np.zeros((M, 2 * nj), dtype=complex)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        for j in range(nj):
+            col = 1.0 / (Z - zj[j])
+            A[:, 2 * j] = col
+            A[:, 2 * j + 1] = F * col
+    # Support-point rows are special: the barycentric value there is exact.
+    for j in range(nj):
+        i = np.where(Z == zj[j])[0]
+        A[i, :] = 0.0
+        A[i, 2 * j] = 1.0
+        A[i, 2 * j + 1] = F[i]
+
+    wt_new = np.ones(M)
+    maxerrold = maxerrAAA
+    maxerr = maxerrAAA
+    c = None
+    stepno = 0
+    inf = float("inf")
+    while (((nlawson < inf) and (stepno < nlawson))
+           or ((nlawson == inf) and (stepno < 20))
+           or ((nlawson == inf) and (maxerr / maxerrold < 0.999)
+               and (stepno < 1000))):
+        stepno += 1
+        wt = wt_new
+        # W = diag(sqrt(wt)); smallest right singular vector of W*A.
+        WA = np.sqrt(wt)[:, None] * A
+        _, _, Vh = np.linalg.svd(WA, full_matrices=False)
+        c = Vh[-1, :].conj()
+
+        c_num = c[0::2]     # odd (1-based) entries -> numerator coeffs
+        c_den = c[1::2]     # even (1-based) entries -> denominator coeffs
+        with np.errstate(divide="ignore", invalid="ignore"):
+            cauchy = 1.0 / (Z[:, None] - zj[None, :])   # (M, nj)
+            denom = cauchy @ c_den
+            num = -(cauchy @ c_num)
+            Rvals = num / denom
+        for j in range(nj):
+            i = np.where(Z == zj[j])[0]
+            Rvals[i] = -c_num[j] / c_den[j]
+
+        abserr = np.abs(F - Rvals)
+        maxerrold = maxerr
+        maxerr = float(np.max(abserr))
+        relerr = abserr / maxerr
+        wt_new = wt * ((1.0 - dampratio) + dampratio * relerr)
+        wt_new = wt_new / np.linalg.norm(wt_new, np.inf)
+
+    if c is not None:
+        wj = c[1::2]
+        with np.errstate(divide="ignore", invalid="ignore"):
+            fj = -c[0::2] / wj
+        # If adaptive Lawson failed to improve, restore the AAA weights.
+        if (maxerr > maxerrAAA) and (nlawson == inf):
+            wj = wj0
+            fj = fj0
+
+    return zj, fj, wj
 
 
 # ---------------------------------------------------------------------------
