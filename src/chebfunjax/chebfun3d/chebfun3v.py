@@ -787,7 +787,12 @@ class Chebfun3v(eqx.Module):
 
         if hasattr(curve, "funs") or isinstance(curve, Chebfun):
             cdom = curve.domain
-            t0, t1 = float(cdom[0]), float(cdom[-1])
+            # ``cdom`` may be a Domain object (exposing .a/.b) or a plain
+            # sequence of breakpoints; support both.
+            if isinstance(cdom, Domain):
+                t0, t1 = float(cdom.a), float(cdom.b)
+            else:
+                t0, t1 = float(cdom[0]), float(cdom[-1])
 
             def _comp(k):
                 return Chebfun.from_function(
