@@ -159,7 +159,7 @@ ys = np.sinc(xs)  # numpy sinc(x) = sin(pi*x)/(pi*x)
 
 ![sinc on [-10,10]](../images/guide/guide09_06.png)
 
-Chebfunjax's capability of handling infinite intervals was introduced originally by Rodrigo Platte in 2008--09. The details of the implementation then changed considerably with the introduction of version 5 in 2014.
+Chebfun's capability of handling infinite intervals was introduced originally by Rodrigo Platte in 2008--09. The details of the implementation then changed considerably with the introduction of version 5 in 2014.
 
 The use of mappings to transform an unbounded domain to a bounded one is an idea that has been employed many times over the years. For $[a, \infty)$, the forward map is:
 

@@ -76,7 +76,7 @@ print(np.asarray(rB)[-3:])
 [-4.83073784 -3.2710933  -1.17371322]
 ```
 
-Chebfunjax finds roots by a method due to Boyd and Battles [Boyd 2002, Boyd 2014, Battles 2006].  If the chebfun is of degree greater than about $50$, it is broken into smaller pieces recursively.  On each small piece zeros are then found as eigenvalues of a "colleague matrix", the analogue for Chebyshev polynomials of a companion matrix for monomials [Specht 1960, Good 1961]. This method is accurate and robust.  For example, here is a sine function with $11$ zeros:
+Chebfun finds roots by a method due to Boyd and Battles [Boyd 2002, Boyd 2014, Battles 2006].  If the chebfun is of degree greater than about $50$, it is broken into smaller pieces recursively.  On each small piece zeros are then found as eigenvalues of a "colleague matrix", the analogue for Chebyshev polynomials of a companion matrix for monomials [Specht 1960, Good 1961]. This method is accurate and robust.  For example, here is a sine function with $11$ zeros:
 
 ```python
 import time

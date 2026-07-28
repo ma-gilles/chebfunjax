@@ -8,13 +8,13 @@ Python/chebfunjax translation, 2026; all outputs below are genuine chebfunjax re
 
 A chebfun is a function of one variable defined on an interval $[a,b]$. The syntax for chebfuns is almost exactly the same as the usual Python syntax for arrays, with familiar operations overloaded in natural ways. Thus, for example, whereas `sum(f)` returns the sum of the entries when `f` is an array, `f.sum()` returns a definite integral when `f` is a chebfun.
 
-Chebfunjax with a capital C is the name of the software system.
+Chebfun with a capital C is the name of the software system (chebfunjax is its Python/JAX translation); a chebfun with a lowercase c is the mathematical object.
 
-The aim of chebfunjax is to "feel symbolic but run at the speed of numerics". More precisely, our vision is to achieve for functions what floating-point arithmetic achieves for numbers: rapid computation in which each successive operation is carried out exactly apart from a rounding error that is very small in relative terms [Trefethen 2007].
+The aim of Chebfun is to "feel symbolic but run at the speed of numerics". More precisely, our vision is to achieve for functions what floating-point arithmetic achieves for numbers: rapid computation in which each successive operation is carried out exactly apart from a rounding error that is very small in relative terms [Trefethen 2007].
 
-The implementation of chebfunjax is based on the mathematical fact that smooth functions can be represented very efficiently by polynomial interpolation in Chebyshev points, or equivalently, thanks to the Fast Fourier Transform, by expansions in Chebyshev polynomials.  For a simple function, 20 or 30 points often suffice, but the process is stable and effective even for functions complicated enough to require 1000 or 1,000,000 points. Chebfunjax makes use of adaptive procedures that aim to find the right number of points automatically so as to represent each function to roughly machine precision, that is, about 15 or 16 digits of relative accuracy.  (Chebfunjax stores Chebyshev expansion coefficients.)
+The implementation of Chebfun is based on the mathematical fact that smooth functions can be represented very efficiently by polynomial interpolation in Chebyshev points, or equivalently, thanks to the Fast Fourier Transform, by expansions in Chebyshev polynomials.  For a simple function, 20 or 30 points often suffice, but the process is stable and effective even for functions complicated enough to require 1000 or 1,000,000 points. Chebfunjax makes use of adaptive procedures that aim to find the right number of points automatically so as to represent each function to roughly machine precision, that is, about 15 or 16 digits of relative accuracy.  (Chebfun stores Chebyshev expansion coefficients, and so does chebfunjax.)
 
-The mathematical foundations of chebfunjax are for the most part well established by results scattered throughout the 20th century.  A key early figure, for example, was Bernstein in the 1910s. Much of the relevant material can be found collected in the Chebfun-based book *Approximation Theory and Approximation Practice* [Trefethen 2013].
+The mathematical foundations of Chebfun are for the most part well established by results scattered throughout the 20th century.  A key early figure, for example, was Bernstein in the 1910s. Much of the relevant material can be found collected in the Chebfun-based book *Approximation Theory and Approximation Practice* [Trefethen 2013].
 
 Chebfun was originally created by Zachary Battles and Nick Trefethen at Oxford during 2002-2005 [Battles & Trefethen 2004].  Battles left the project in 2005, and soon four new members were added to the team: Ricardo Pachon (from 2006), Rodrigo Platte (from 2007), and Toby Driscoll and Nick Hale (from 2008). In 2009, Asgeir Birkisson and Mark Richardson also became involved, and other contributors included Pedro Gonnet, Joris Van Deun, and Georges Klein.  Nick Hale served as Director of the project during 2010-2014.  The Chebfun Version 5 rewrite was directed by Nick Hale during 2013-2014, and the team included Anthony Austin, Asgeir Birkisson, Toby Driscoll, Hrothgar, Mohsin Javed, Hadrien Montanelli, Alex Townsend, Nick Trefethen, Grady Wright, and Kuan Xu. October 2014 brought new arrivals Jared Aurentz, and Behnam Hashemi.  In 2019 the team includes also Nicolas Boulle, Abi Gopal, Yuji Nakatsukasa, and Ryan Sherbo. Further information about Chebfun history is available at the Chebfun web site, [http://www.chebfun.org](http://www.chebfun.org), where one can also find a discussion of other software projects related to Chebfun. This Guide is based on the chebfunjax Python translation of MATLAB Chebfun Version 5.7.0.
 
@@ -395,7 +395,7 @@ vscale = 1.00e+00
 
 ## 1.5  Infinite intervals and infinite function values
 
-A major feature of MATLAB Chebfun is the generalization of chebfuns to allow certain functions on infinite intervals or which diverge to infinity. **Chebfunjax does not yet support infinite intervals or endpoint singularities (`'exps'`).** For now, we can approximate such functions on large finite intervals.
+A major feature of MATLAB Chebfun is the generalization of chebfuns to allow certain functions on infinite intervals or which diverge to infinity. Chebfunjax supports these too: infinite intervals are handled by the `Unbndfun` class and endpoint singularities by `Singfun`, as described in Chapter 9. In this introductory section we instead approximate such functions on large finite intervals, which is often a serviceable alternative.
 
 For example, here is a function on a large interval approximating the whole real axis. The function is smaller than $2\times10^{-3}$ outside $[-10,10]$, so we build it on $[-10,10]$, which also reproduces the display window MATLAB Chebfun uses for the unbounded chebfun:
 
@@ -444,7 +444,7 @@ h.plot()
 
 ![](../images/guide/guide01_10.png)
 
-The exact integral of $(1/\pi)/\sqrt{1-x^2}$ over $[-1,1]$ is $1$. In the MATLAB version, endpoint-singularity support (`'exps'`) captures the divergence and returns exactly that. Chebfunjax has no singularity support, so integrating our finite-interval approximation misses the mass near the endpoints and returns a smaller value:
+The exact integral of $(1/\pi)/\sqrt{1-x^2}$ over $[-1,1]$ is $1$. In the MATLAB version, endpoint-singularity support (`'exps'`) captures the divergence and returns exactly that. Integrating our finite-interval approximation misses the mass near the endpoints and returns a smaller value (Chapter 9 shows how to capture it exactly with `Singfun` endpoint exponents):
 
 ```python
 h.sum()
@@ -457,7 +457,7 @@ For more on the treatment of infinities, see the MATLAB Chebfun Guide Chapter 9.
 
 ## 1.6  Periodic functions
 
-MATLAB Chebfun Version 5 introduced a capability for representing sufficiently smooth periodic functions by trigonometric polynomials instead of Chebyshev polynomials, invoked with the string `'trig'`. **Chebfunjax does not yet support periodic (trigonometric) representations directly.** However, periodic functions can still be represented using the standard Chebyshev basis. This section shows the Chebyshev approach; a trigonometric mode is planned for a future release.
+MATLAB Chebfun Version 5 introduced a capability for representing sufficiently smooth periodic functions by trigonometric polynomials instead of Chebyshev polynomials, invoked with the string `'trig'`. In chebfunjax this is `cj.chebfun(f, domain=..., trig=True)`, described in Chapter 11. Periodic functions can also be represented in the standard Chebyshev basis, and for contrast that is what this section shows.
 
 For example, here is a periodic function on $[-\pi,\pi]$ represented by a Chebyshev series.
 
@@ -483,7 +483,7 @@ len(f)
 385
 ```
 
-In MATLAB Chebfun, the same function represented by a Fourier series (`'trig'` mode) would need only about 201 coefficients -- an improvement by a factor of about $\pi/2$. When chebfunjax adds trigonometric support, the same savings will apply.
+In MATLAB Chebfun, the same function represented by a Fourier series (`'trig'` mode) would need only about 201 coefficients -- an improvement by a factor of about $\pi/2$. In chebfunjax the same savings are obtained with `trig=True`; see Chapter 11.
 
 For illustration, here is the same function plotted in magenta:
 
