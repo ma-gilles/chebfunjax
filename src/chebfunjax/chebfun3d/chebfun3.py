@@ -1958,30 +1958,36 @@ class Chebfun3(eqx.Module):
                 domain=self.domain)
         return jnp.sqrt(jnp.abs(f2.sum3()))
 
-    def minandmax3(self, ngrid: int = 41):
-        """Global extrema via dense-grid seed + Newton polish
-        (MATLAB minandmax3)."""
+    def minandmax3(self, ngrid: int = 41, n_starts: int = 48):
+        """Global extrema via dense-grid seed + multi-start Newton polish
+        (MATLAB minandmax3).
+
+        A single projected-gradient descent from the best grid point is not
+        robust for oscillatory functions: the coarse seed grid rarely lands
+        in the basin of the global extremum, so the polish settles into a
+        nearby local one.  We therefore polish from the ``n_starts`` most
+        extremal grid points and keep the best result -- this recovers the
+        true global extremum (e.g. Wagon's function, min3 = -3.32833834566,
+        which single-start seeding misses by ~1%).
+        """
         import numpy as _np
         xa, xb, ya, yb, za, zb = self.domain
         g1 = _np.linspace(xa, xb, ngrid)
         g2 = _np.linspace(ya, yb, ngrid)
         g3 = _np.linspace(za, zb, ngrid)
         XX, YY, ZZ = _np.meshgrid(g1, g2, g3, indexing="ij")
-        V = _np.asarray(self(jnp.asarray(XX.ravel()),
-                             jnp.asarray(YY.ravel()),
-                             jnp.asarray(ZZ.ravel()))).reshape(XX.shape)
+        xr, yr, zr = XX.ravel(), YY.ravel(), ZZ.ravel()
+        V = _np.asarray(self(jnp.asarray(xr), jnp.asarray(yr),
+                             jnp.asarray(zr)))
         grads = [self.diff(dim=d) for d in (1, 2, 3)]
-        out_vals, out_locs = [], []
-        for which in ("min", "max"):
-            idx = _np.unravel_index(
-                _np.argmin(V) if which == "min" else _np.argmax(V),
-                V.shape)
-            p = _np.array([XX[idx], YY[idx], ZZ[idx]], dtype=float)
-            lo = _np.array([xa, ya, za])
-            hi = _np.array([xb, yb, zb])
-            step = _np.min(hi - lo) / (ngrid - 1)
-            sgn = -1.0 if which == "min" else 1.0
-            for _ in range(60):     # projected gradient ascent/descent
+        lo = _np.array([xa, ya, za])
+        hi = _np.array([xb, yb, zb])
+        step0 = _np.min(hi - lo) / (ngrid - 1)
+
+        def _polish(p0, sgn):
+            p = _np.array(p0, dtype=float)
+            step = step0
+            for _ in range(80):     # projected gradient ascent/descent
                 g = _np.array([float(gr(jnp.asarray(p[0]),
                                         jnp.asarray(p[1]),
                                         jnp.asarray(p[2])))
@@ -1996,12 +2002,28 @@ class Chebfun3(eqx.Module):
                     p = pn
                 else:
                     step *= 0.5
-                    if step < 1e-12:
+                    if step < 1e-13:
                         break
-            out_vals.append(float(self(jnp.asarray(p[0]),
-                                       jnp.asarray(p[1]),
-                                       jnp.asarray(p[2]))))
-            out_locs.append(p.tolist())
+            return float(self(jnp.asarray(p[0]), jnp.asarray(p[1]),
+                              jnp.asarray(p[2]))), p
+
+        out_vals, out_locs = [], []
+        k = int(max(1, min(n_starts, V.size)))
+        for which in ("min", "max"):
+            sgn = -1.0 if which == "min" else 1.0
+            # Top-k most extremal grid seeds (argsort ascending; min takes
+            # the smallest, max the largest).
+            order = _np.argsort(V)
+            seeds = order[:k] if which == "min" else order[-k:]
+            best_val = _np.inf if which == "min" else -_np.inf
+            best_p = None
+            for i in seeds:
+                val, p = _polish((xr[i], yr[i], zr[i]), sgn)
+                if (which == "min" and val < best_val) or \
+                   (which == "max" and val > best_val):
+                    best_val, best_p = val, p
+            out_vals.append(best_val)
+            out_locs.append(best_p.tolist())
         return jnp.asarray(out_vals), jnp.asarray(out_locs)
 
     def max3(self):
