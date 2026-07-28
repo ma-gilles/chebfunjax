@@ -5807,6 +5807,7 @@ def chebfun(
     blowup: bool | int = False,
     singType: "list | tuple | None" = None,
     turbo: bool = False,
+    equi: bool = False,
 ) -> Chebfun:
     """Create a Chebfun from a callable, array of coefficients, or constant.
 
@@ -5939,6 +5940,34 @@ def chebfun(
         _maxpow2 = 16
     else:
         _maxpow2 = max(4, int(math.ceil(math.log2(max(int(max_length) - 1, 2)))))
+
+    # --- 'equi' flag: data sampled on an equispaced grid ---
+    # The values are interpreted as coming from linspace(a, b, N); a
+    # Floater-Hormann rational interpolant (FUNQUI) is built and then
+    # resolved adaptively as a Chebfun (MATLAB @chebfun/chebfun.m
+    # 'equi' -> chebfunpref.enableFunqui -> @smoothfun funqui).
+    if equi:
+        if callable(f):
+            raise ValueError(
+                "chebfun(..., equi=True): the 'equi' flag requires numeric "
+                "data sampled on an equispaced grid; adaptive construction "
+                "from a function handle is not supported "
+                "(MATLAB CHEBFUN:CHEBFUN:parseInputs:equi).")
+        from chebfunjax.utils.interpolation import funqui
+
+        handle = funqui(jnp.asarray(f))
+        _de = [float(v) for v in (domain if hasattr(domain, "__len__")
+                                  else (domain,))]
+        if len(_de) < 2:
+            _de = [-1.0, 1.0]
+        a_e, b_e = _de[0], _de[-1]
+        if (a_e, b_e) == (-1.0, 1.0):
+            op_e = handle
+        else:
+            def op_e(x, h=handle, a=a_e, b=b_e):
+                return h((2.0 * x - (a + b)) / (b - a))
+        return Chebfun.from_function(
+            op_e, Domain((a_e, b_e)), n=n, maxpow2=_maxpow2, tol=_tol)
 
     # --- Parse domain ---
     dom_seq = [float(x) for x in domain]

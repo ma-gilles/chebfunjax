@@ -8,6 +8,8 @@ See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
+import math
+
 import jax
 import jax.numpy as jnp
 
@@ -287,6 +289,169 @@ def bary(x: jnp.ndarray,
         has_match.reshape((-1,) + (1,) * (fvals.ndim - 1)),
         matched_val, fx)
     return fx
+
+
+# ---------------------------------------------------------------------------
+# Floater-Hormann rational interpolation of equispaced data (FUNQUI)
+# ---------------------------------------------------------------------------
+
+def _fh_bary_weights(x, d: int, maxind: "int | None" = None):
+    """Floater-Hormann barycentric weights, eq. (18) of the FH paper.
+
+    ``x`` is a Python sequence of node coordinates. ``d`` is the blending
+    degree.  Returns a Python list of ``min(len(x), maxind)`` weights.
+    Pure-Python float arithmetic (no numpy) keeps this exact and away from
+    the JAX tracer during construction.
+    """
+    n = len(x) - 1
+    if maxind is None:
+        maxind = n + 1
+    num = min(n + 1, maxind)
+    w = [0.0] * num
+    for k in range(num):
+        acc = 0.0
+        for i in range(max(0, k - d), min(k, n - d) + 1):
+            s = 1.0
+            for j in range(i, min(n, i + d) + 1):
+                if j != k:
+                    s = s / (x[k] - x[j])
+            acc += ((-1.0) ** i) * s
+        w[k] = acc
+    return w
+
+
+def funqui(vals: jnp.ndarray):
+    """Rational interpolant of equispaced data (Chebfun's ``'equi'`` path).
+
+    Builds a callable ``f(zz)`` interpolating the values ``vals`` sampled on
+    the equispaced grid ``linspace(-1, 1, N)`` using Floater-Hormann
+    interpolation with an adaptively chosen blending degree ``d``.  ``vals``
+    may be a length-``N`` vector or an ``(N, m)`` matrix (array-valued);
+    the returned handle then maps ``zz`` of shape ``(p,)`` to ``(p,)`` or
+    ``(p, m)`` respectively.
+
+    Provenance
+    ----------
+    MATLAB source : @smoothfun/smoothfun.m (private ``funqui``/``fhBaryWts``)
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    Algorithm: Floater & Hormann, "Barycentric rational interpolation with
+        no poles and high rates of approximation", Numer. Math. 107,
+        315--331 (2007).
+
+    See Also
+    --------
+    bary
+    """
+    vals = jnp.asarray(vals)
+    if not jnp.issubdtype(vals.dtype, jnp.complexfloating):
+        vals = vals.astype(jnp.float64)
+    v2 = vals if vals.ndim == 2 else vals.reshape(-1, 1)
+    N = v2.shape[0]
+    n = N - 1
+
+    # Single sample: a constant function.
+    if n <= 0:
+        const = v2[0]
+        if vals.ndim < 2:
+            const = const.reshape(())
+
+        def _const_handle(zz, c=const):
+            zz = jnp.asarray(zz)
+            return jnp.broadcast_to(c, zz.shape + c.shape)
+
+        return _const_handle
+
+    # Equispaced nodes on [-1, 1].
+    x = [-1.0 + 2.0 * i / n for i in range(N)]
+    xj = jnp.asarray(x, dtype=jnp.float64)
+
+    # Limit the maximal blending degree by n (MATLAB funqui table).
+    if n < 60:
+        maxd = min(n, 35)
+    elif n < 100:
+        maxd = 30
+    elif n < 1000:
+        maxd = 25
+    elif n < 5000:
+        maxd = 20
+    else:
+        maxd = 15
+
+    # Interior test indices (2 and n-1, 1-based) -> 0-based (1, n-2).
+    rm = [1, n - 2] if n > 2 else []
+    keep = [i for i in range(N) if i not in rm]
+    x_rm = [x[i] for i in keep]
+    xj_rm = jnp.asarray(x_rm, dtype=jnp.float64)
+
+    # Arbitrary linear combination of columns to drive the degree search.
+    m_cols = v2.shape[1]
+    lin_comb = jnp.sin(jnp.arange(1, m_cols + 1, dtype=jnp.float64))
+    fvals = v2 @ lin_comb                    # (N,)
+    fvals_np = [complex(z) if jnp.iscomplexobj(fvals) else float(z)
+                for z in fvals]
+    fvals_rm = jnp.asarray([fvals_np[i] for i in keep])
+    fvals_at_rm = jnp.asarray([fvals_np[i] for i in rm]) if rm else None
+
+    eps = float(jnp.finfo(jnp.float64).eps)
+    inf_all = float(jnp.max(jnp.abs(fvals)))
+    inf_rm = 0.0 if not rm else float(jnp.max(jnp.abs(fvals_at_rm)))
+
+    if inf_rm < 2 * eps * inf_all:
+        # Degenerate interior values fool the degree search: take small d.
+        d_opt = min(4, n)
+    else:
+        errs = []
+        for d in range(0, min(n - 2, maxd) + 1):
+            if d <= (n - 5) / 2.0:
+                wl = [abs(v) for v in _fh_bary_weights(x_rm, d, d + 2)]
+                wr = [abs(v) for v in
+                      _fh_bary_weights(list(reversed(x_rm)), d, d + 2)]
+                wr = wr[::-1]
+                mid = [wl[-1]] * max(0, n - 5 - 2 * d)
+                w = wl + mid + wr
+            else:
+                w = _fh_bary_weights(x_rm, d)
+            for i in range(0, len(w), 2):
+                w[i] = -w[i]
+            wj = jnp.asarray(w, dtype=jnp.float64)
+            xj_at_rm = jnp.asarray([x[i] for i in rm], dtype=jnp.float64)
+            yy = bary(xj_at_rm, fvals_rm, xj_rm, wj)
+            err = float(jnp.max(jnp.abs(yy - fvals_at_rm)))
+            errs.append(err)
+            if err > 1000 * min(errs[:d + 1]):
+                break
+        d_opt = int(min(range(len(errs)), key=lambda k: errs[k]))
+
+    # Final Floater-Hormann weights on the full node set at degree d_opt.
+    if d_opt <= (n + 1) / 2.0:
+        wl = [abs(v) for v in _fh_bary_weights(x, d_opt, d_opt + 1)]
+        w = wl + [wl[-1]] * max(0, n - 1 - 2 * d_opt)
+        half = math.ceil((n + 1) / 2)
+        w = w[:half]
+        if n % 2 == 1:
+            w = w + w[::-1]
+        else:
+            w = w[:-1] + w[::-1]
+        for i in range(0, len(w), 2):
+            w[i] = -w[i]
+    else:
+        w = _fh_bary_weights(x, d_opt)
+    wj = jnp.asarray(w, dtype=jnp.float64)
+
+    fvals_full = v2 if vals.ndim == 2 else v2.reshape(-1)
+
+    def _handle(zz, fv=fvals_full, xk=xj, vk=wj):
+        zz = jnp.asarray(zz)
+        scalar = zz.ndim == 0
+        zz1 = jnp.atleast_1d(zz)
+        out = bary(zz1, fv, xk, vk)
+        if scalar:
+            out = out[0]
+        return out
+
+    return _handle
 
 
 # ---------------------------------------------------------------------------

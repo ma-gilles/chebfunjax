@@ -16,10 +16,46 @@ from chebfunjax.utils.interpolation import (
     bary_weights,
     barymat,
     cheb_bary_weights,
+    funqui,
     trig_bary,
     trig_bary_weights,
 )
 from chebfunjax.utils.quadrature import chebpts
+
+
+class TestFunqui:
+    """Floater-Hormann rational interpolation of equispaced data."""
+
+    def test_reproduces_low_degree_polynomials_exactly(self):
+        # Data sampled from a cubic on an equispaced grid is interpolated
+        # exactly (FH reproduces polynomials up to the blending degree).
+        x = np.linspace(-1, 1, 12)
+
+        def p(t):
+            return 2 * t ** 3 - t + 0.5
+
+        h = funqui(jnp.asarray(p(x)))
+        xx = np.linspace(-1, 1, 97)
+        got = np.asarray(h(jnp.asarray(xx)))
+        npt.assert_allclose(got, p(xx), atol=1e-12)
+
+    def test_interpolates_the_data_at_the_nodes(self):
+        x = np.linspace(-1, 1, 15)
+        vals = np.exp(np.sin(3 * x))
+        h = funqui(jnp.asarray(vals))
+        npt.assert_allclose(np.asarray(h(jnp.asarray(x))), vals, atol=1e-12)
+
+    def test_single_sample_is_constant(self):
+        h = funqui(jnp.asarray([3.25]))
+        xx = jnp.asarray(np.linspace(-1, 1, 11))
+        npt.assert_allclose(np.asarray(h(xx)), 3.25, atol=1e-14)
+
+    def test_array_valued_shape(self):
+        x = np.linspace(-1, 1, 9)
+        V = np.column_stack([np.cos(x), np.sin(x), x ** 2])
+        h = funqui(jnp.asarray(V))
+        out = np.asarray(h(jnp.asarray(np.linspace(-1, 1, 20))))
+        assert out.shape == (20, 3)
 
 # ---------------------------------------------------------------------------
 # Tier 1: cheb_bary_weights

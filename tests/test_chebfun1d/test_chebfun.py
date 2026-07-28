@@ -415,6 +415,40 @@ class TestChebfunRestrict:
 # ============================================================================
 
 
+class TestChebfunEquiFlag:
+    """Construction from equispaced data via the 'equi' flag (FUNQUI)."""
+
+    def test_equi_recovers_smooth_function(self):
+        # Dense equispaced samples of a smooth function are resolved back to
+        # that function on a Chebyshev grid.
+        x = np.linspace(-1, 1, 40)
+        vals = np.exp(x) * np.cos(3 * x)
+        g = cj.chebfun(vals, equi=True)
+        xx = np.linspace(-0.98, 0.98, 50)
+        got = np.asarray(g(jnp.asarray(xx))).reshape(-1)
+        npt.assert_allclose(got, np.exp(xx) * np.cos(3 * xx), atol=1e-6)
+
+    def test_equi_on_nondefault_domain(self):
+        # Samples on linspace(a, b, N) map to the requested domain.
+        a, b = 0.0, 2.0
+        x = np.linspace(a, b, 30)
+        vals = np.sin(x)
+        g = cj.chebfun(vals, domain=(a, b), equi=True)
+        xx = np.linspace(a + 0.05, b - 0.05, 40)
+        got = np.asarray(g(jnp.asarray(xx))).reshape(-1)
+        npt.assert_allclose(got, np.sin(xx), atol=1e-6)
+
+    def test_equi_line_is_exact(self):
+        g = cj.chebfun(np.array([-1.0, 0.0, 1.0]).reshape(-1, 1), equi=True)
+        xx = np.linspace(-1, 1, 25)
+        got = np.asarray(g(jnp.asarray(xx))).reshape(-1)
+        npt.assert_allclose(got, xx, atol=1e-13)
+
+    def test_equi_rejects_callable(self):
+        with pytest.raises(ValueError):
+            cj.chebfun(jnp.exp, equi=True)
+
+
 class TestTopLevelAPI:
     """Tests that cj.chebfun is accessible and works from the package root."""
 
