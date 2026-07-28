@@ -106,3 +106,22 @@ class TestChebfunAaa:
         xx = np.linspace(-1, 1, 300)
         err = np.max(np.abs(np.maximum(xx, 0.0) - np.real(r(xx))))
         assert abs(err - 0.0006) < 0.001
+
+    def test_sign_improvement_relu(self):
+        # pass(30): max(x, 0) on chebpts(200), degree 4, 100 Lawson steps,
+        # damping 0.5, sign=1 -> error near 0.006.
+        X = np.asarray(chebpts(200, kind=2))
+        F = np.maximum(X, 0.0)
+        r, *_ = aaa(F, X, degree=4, lawson=100, damping=0.5, sign=True)
+        err = np.max(np.abs(F - np.real(r(X))))
+        assert abs(err - 0.006) < 0.002
+
+    def test_sign_improvement_fermi_dirac(self):
+        # pass(31): Fermi-Dirac 1/(1+exp(5/(x-2))) on chebpts(1000, [0,10]),
+        # degree 12, 100 Lawson steps, damping 0.85, sign=1 -> err ~ 3.5e-5.
+        X = 5.0 * (np.asarray(chebpts(1000, kind=2)) + 1.0)  # -> [0, 10]
+        with np.errstate(over="ignore"):
+            F = 1.0 / (1.0 + np.exp(5.0 / (X - 2.0)))
+        r, *_ = aaa(F, X, degree=12, lawson=100, damping=0.85, sign=True)
+        err = np.max(np.abs(F - np.real(r(X))))
+        assert abs(err - 0.000035) < 0.0001

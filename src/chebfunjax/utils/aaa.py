@@ -50,6 +50,7 @@ def aaa(
     degree: int | None = None,
     lawson: "int | float | None" = None,
     damping: float = 1.0,
+    sign: bool = False,
     cleanup: bool = True,
     cleanup_tol: float | None = None,
 ) -> tuple[Callable, jnp.ndarray, jnp.ndarray, jnp.ndarray,
@@ -101,6 +102,13 @@ def aaa(
     damping : float, optional
         Lawson damping ratio applied at each IRLS step (default 1.0 =
         standard); values < 1 can be more robust.
+    sign : bool, optional
+        If True, enable the sign-function improvement: instead of the
+        trailing null vector, the barycentric weights are formed from all
+        right singular vectors weighted by ``1/s^2`` (both in the greedy
+        AAA step and in the Lawson iteration).  This markedly improves
+        approximation of sign-like / step functions (Trefethen memo Rat342,
+        2024).  Default False.
     cleanup : bool, optional
         If ``True`` (default), apply Froissart-doublet removal: poles whose
         residue is negligible relative to nearby sample-set distances are
@@ -248,16 +256,25 @@ def aaa(
                 col_norms_safe = np.where(col_norms > 0, col_norms, 1.0)
                 A_scaled = A_sub / col_norms_safe[None, :]
                 _, s, V = np.linalg.svd(A_scaled, full_matrices=False)
-                idx_min = np.argmin(s)
-                # Handle multiple minimum singular values
-                tol_sv = s[idx_min] * (1 + 1e-10)
-                mm = np.where(s <= tol_sv)[0]
-                nm = len(mm)
-                # numpy's svd returns Vh; the null vector needs the
-                # CONJUGATE transpose (plain .T silently breaks every
-                # complex-valued approximation)
-                wj = V[mm, :].conj().T @ (np.ones(nm) / np.sqrt(nm))
+                if sign and np.min(s) > 0:
+                    # 'sign' improvement: weight all right singular vectors
+                    # by 1/s^2 (Trefethen memo Rat342, 2024).
+                    wj = V.conj().T @ (1.0 / s ** 2)
+                    wj = wj / np.linalg.norm(wj)
+                else:
+                    idx_min = np.argmin(s)
+                    # Handle multiple minimum singular values
+                    tol_sv = s[idx_min] * (1 + 1e-10)
+                    mm = np.where(s <= tol_sv)[0]
+                    nm = len(mm)
+                    # numpy's svd returns Vh; the null vector needs the
+                    # CONJUGATE transpose (plain .T silently breaks every
+                    # complex-valued approximation)
+                    wj = V[mm, :].conj().T @ (np.ones(nm) / np.sqrt(nm))
                 wj = wj / col_norms_safe  # un-scale
+                wj = wj / np.linalg.norm(wj)
+            elif sign and np.min(s) > 0:
+                wj = V.conj().T @ (1.0 / s ** 2)
                 wj = wj / np.linalg.norm(wj)
             else:
                 idx_min = np.argmin(s)
@@ -303,7 +320,7 @@ def aaa(
     # ---- AAA-Lawson iteration (barycentric IRLS toward minimax) ----
     if nlawson > 0:
         zj, fj, wj = _aaa_lawson(
-            zj, fj, wj, Z_np, F_np, nlawson, dampratio, maxerrAAA,
+            zj, fj, wj, Z_np, F_np, nlawson, dampratio, maxerrAAA, sign,
         )
 
     # ---- Remove zero-weight support points ----
@@ -345,7 +362,7 @@ def aaa(
 # AAA-Lawson iteration (barycentric IRLS)
 # ---------------------------------------------------------------------------
 
-def _aaa_lawson(zj, fj, wj, Z, F, nlawson, dampratio, maxerrAAA):
+def _aaa_lawson(zj, fj, wj, Z, F, nlawson, dampratio, maxerrAAA, sign=False):
     """Barycentric iteratively reweighted least-squares (Lawson) refinement.
 
     Refines the AAA barycentric weights toward the minimax approximant by
@@ -400,8 +417,12 @@ def _aaa_lawson(zj, fj, wj, Z, F, nlawson, dampratio, maxerrAAA):
         wt = wt_new
         # W = diag(sqrt(wt)); smallest right singular vector of W*A.
         WA = np.sqrt(wt)[:, None] * A
-        _, _, Vh = np.linalg.svd(WA, full_matrices=False)
+        _, S, Vh = np.linalg.svd(WA, full_matrices=False)
         c = Vh[-1, :].conj()
+        if sign and S.min() > 0:
+            # 'sign' improvement: weight right singular vectors by 1/s^2.
+            c = Vh.conj().T @ (1.0 / S ** 2)
+            c = c / np.linalg.norm(c)
 
         c_num = c[0::2]     # odd (1-based) entries -> numerator coeffs
         c_den = c[1::2]     # even (1-based) entries -> denominator coeffs

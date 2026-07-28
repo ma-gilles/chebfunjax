@@ -554,6 +554,31 @@ class TestAAALawson:
         err = np.max(np.abs(F - np.real(r(X))))
         assert err < 0.05
 
+    def test_sign_improvement_activates_and_fits(self):
+        # The 'sign' improvement takes a different weight path (all right
+        # singular vectors weighted by 1/s^2) and still yields an accurate
+        # step-function fit.
+        Z = np.linspace(-1.0, 1.0, 400)
+        F = np.abs(Z)
+        _, _, _, _, _, _, w_plain = aaa(F, Z, degree=6, lawson=100,
+                                        damping=0.5)
+        r_sign, _, _, _, _, _, w_sign = aaa(F, Z, degree=6, lawson=100,
+                                            damping=0.5, sign=True)
+        # A different weight vector confirms the sign path is active.
+        assert w_sign.shape == w_plain.shape
+        assert np.max(np.abs(np.asarray(w_sign) - np.asarray(w_plain))) > 1e-6
+        # And the approximant is still a good fit.
+        assert np.max(np.abs(F - np.real(r_sign(Z)))) < 0.01
+
+    def test_sign_default_off_unchanged(self):
+        # sign defaults to False, leaving the weights identical to a plain
+        # call for a smooth function.
+        Z = np.linspace(-1.0, 1.0, 500)
+        F = np.exp(Z)
+        _, _, _, _, _, _, w0 = aaa(F, Z)
+        _, _, _, _, _, _, w1 = aaa(F, Z, sign=False)
+        npt.assert_allclose(np.asarray(w0), np.asarray(w1), atol=0)
+
     def test_degree_caps_pole_count(self):
         # exp is not rational, so a degree-N request yields exactly N poles;
         # degree caps the barycentric size at N + 1 support points.
