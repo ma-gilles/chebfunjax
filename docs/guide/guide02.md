@@ -1,8 +1,8 @@
 # 2. Integration and Differentiation
 
-*Lloyd N. Trefethen, November 2009, latest revision May 2019*
-
-*Adapted for chebfunjax by the chebfunjax contributors*
+*Based on [Chebfun Guide Chapter 2](https://www.chebfun.org/docs/guide/guide02.html)
+by Lloyd N. Trefethen, November 2009, latest revision May 2019.
+Adapted for chebfunjax; all outputs below are genuine chebfunjax results.*
 
 [previous (guide01)](guide01.md) | [index](index.md) | [next (guide03)](guide03.md)
 

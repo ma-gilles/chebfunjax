@@ -1,7 +1,8 @@
 # 1. Getting Started with chebfunjax
 
-*Lloyd N. Trefethen, October 2009, latest revision May 2019*
-*Python/chebfunjax translation, 2026*
+*Based on [Chebfun Guide Chapter 1](https://www.chebfun.org/docs/guide/guide01.html)
+by Lloyd N. Trefethen, October 2009, latest revision May 2019.
+Python/chebfunjax translation, 2026; all outputs below are genuine chebfunjax results.*
 
 ## 1.1  What is a chebfun?
 

@@ -1,8 +1,8 @@
 # 3. Rootfinding and Minima and Maxima
 
-*Lloyd N. Trefethen, October 2009, latest revision May 2019*
-
-*Adapted for chebfunjax by the chebfunjax developers*
+*Based on [Chebfun Guide Chapter 3](https://www.chebfun.org/docs/guide/guide03.html)
+by Lloyd N. Trefethen, October 2009, latest revision May 2019.
+Adapted for chebfunjax; all outputs below are genuine chebfunjax results.*
 
 [previous (guide02)](guide02.md) | [index](index.md) | [next (guide04)](guide04.md)
 
