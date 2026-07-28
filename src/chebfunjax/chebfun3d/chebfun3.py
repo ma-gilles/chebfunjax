@@ -2310,7 +2310,11 @@ class Chebfun3(eqx.Module):
         # resulting arc-length-weighted integrand with the 1D machinery.
         if hasattr(curve, "funs") or isinstance(curve, Chebfun):
             cdom = curve.domain
-            t0, t1 = float(cdom[0]), float(cdom[-1])
+            if hasattr(cdom, "a"):
+                # Chebfun.domain is a Domain object (endpoints .a/.b).
+                t0, t1 = float(cdom.a), float(cdom.b)
+            else:
+                t0, t1 = float(cdom[0]), float(cdom[-1])
 
             def _comp(k):
                 return Chebfun.from_function(
@@ -2322,10 +2326,23 @@ class Chebfun3(eqx.Module):
                     "A callable curve requires domain=(t0, t1).")
             t0, t1 = float(domain[0]), float(domain[1])
 
+            def _coord(t, k):
+                # A callable curve may return the three coordinates either
+                # as a tuple/list ``(x(t), y(t), z(t))`` -> shape (3, n_t)
+                # after asarray, or as a stacked array ``stack([...], -1)``
+                # -> shape (n_t, 3).  Select coordinate k from whichever
+                # axis has length 3 (the parameter grid n_t is never 3 in
+                # adaptive construction, so this is unambiguous).
+                arr = jnp.asarray(curve(t))
+                if arr.ndim <= 1:
+                    return arr[k]
+                if arr.shape[0] == 3 and arr.shape[-1] != 3:
+                    return arr[k]
+                return arr[..., k]
+
             def _comp(k):
                 return Chebfun.from_function(
-                    lambda t, k=k: jnp.asarray(curve(t))[k],
-                    Domain((t0, t1)))
+                    lambda t, k=k: _coord(t, k), Domain((t0, t1)))
 
         cx, cy, cz = _comp(0), _comp(1), _comp(2)
         dx, dy, dz = cx.diff(), cy.diff(), cz.diff()

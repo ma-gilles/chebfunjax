@@ -354,6 +354,32 @@ class TestChebfun3Calculus:
             domain=(0.0, 4.0, 0.0, 2 * np.pi))
         npt.assert_allclose(area, 152 * np.pi / 3, atol=1e-7)
 
+    def test_line_integral_curve_conventions_agree(self):
+        # An oscillatory (helix) curve resolves adaptively and gives the
+        # exact value regardless of how the curve is supplied: as an
+        # array-valued Chebfun (MATLAB Inf x 3 quasimatrix), a stacked
+        # callable, or a tuple callable.  Previously the Chebfun form
+        # crashed and the stacked-callable form failed to resolve
+        # (unhappy 65537-point integrand).
+        import chebfunjax as cj
+        dom = (-1.0, 1.0, -1.0, 1.0, 0.0, 12 * np.pi)
+        f = chebfun3(lambda x, y, z: x * y * z, domain=dom)
+        exact = -3 * np.sqrt(10) * np.pi
+
+        curve = cj.chebfun(
+            lambda t: jnp.stack([jnp.cos(t), jnp.sin(t), 3 * t], axis=-1),
+            domain=[0, 4 * np.pi])
+        v_cheb = float(f.integral(curve))
+        v_stack = float(f.integral(
+            lambda t: jnp.stack([jnp.cos(t), jnp.sin(t), 3 * t], axis=-1),
+            domain=(0, 4 * np.pi)))
+        v_tuple = float(f.integral(
+            lambda t: (jnp.cos(t), jnp.sin(t), 3 * t),
+            domain=(0, 4 * np.pi)))
+        npt.assert_allclose(v_cheb, exact, rtol=1e-12)
+        npt.assert_allclose(v_stack, exact, rtol=1e-12)
+        npt.assert_allclose(v_tuple, exact, rtol=1e-12)
+
     def test_jit_stable_across_calls(self):
         """JIT-compiled (via eqx.filter_jit) gives same result as eager."""
         import equinox as eqx

@@ -15,6 +15,7 @@ from __future__ import annotations
 import jax.numpy as jnp
 import numpy as np
 
+import chebfunjax as cj
 from chebfunjax.chebfun3d.chebfun3 import Chebfun3
 
 from ._helpers import EPS
@@ -44,4 +45,17 @@ class TestChebfun3Integral:
         val = f.integral(
             lambda t: (jnp.cos(t), jnp.sin(t), 3 * t),
             domain=(0, 4 * np.pi))
+        assert abs(val - exact) / abs(exact) < TOL
+
+    def test_curve_as_arrayvalued_chebfun(self):
+        # MATLAB passes the curve as an Inf x 3 quasimatrix (a chebfun with
+        # three columns); mirror that here with an array-valued Chebfun.
+        # This path previously crashed (Domain not subscriptable).
+        dom = (-1.0, 1.0, -1.0, 1.0, 0.0, 12 * np.pi)
+        f = Chebfun3.from_function(lambda x, y, z: x * y * z, domain=dom)
+        exact = -3 * np.sqrt(10) * np.pi
+        curve = cj.chebfun(
+            lambda t: jnp.stack([jnp.cos(t), jnp.sin(t), 3 * t], axis=-1),
+            domain=[0, 4 * np.pi])
+        val = f.integral(curve)
         assert abs(val - exact) / abs(exact) < TOL
