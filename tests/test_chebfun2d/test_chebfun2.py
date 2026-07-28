@@ -572,6 +572,58 @@ class TestChebfun2Reductions:
         assert Chebfun2.complex(f) is f
 
 
+class TestChebfun2Chebcoeffs2:
+    """Bivariate Chebyshev coefficient matrix (chebcoeffs2 / coeffs2)."""
+
+    def _cheb_T(self, t, k):
+        return jnp.cos(k * jnp.arccos(t))
+
+    def test_reconstructs_function_from_coeff_matrix(self):
+        # X[i, j] is the coefficient of T_i(y) T_j(x); summing the basis
+        # must recover the function.
+        f = Chebfun2.from_function(
+            lambda x, y: jnp.exp(x) * jnp.cos(2 * y) + x * y)
+        X = np.asarray(f.chebcoeffs2())
+        xs = np.array([0.2, -0.4, 0.7, -0.9])
+        ys = np.array([-0.1, 0.5, 0.3, 0.8])
+        ii = np.arange(X.shape[0])
+        jj = np.arange(X.shape[1])
+        Ty = np.cos(np.outer(np.arccos(ys), ii))
+        Tx = np.cos(np.outer(np.arccos(xs), jj))
+        recon = np.einsum("ai,ij,aj->a", Ty, X, Tx)
+        true = np.asarray(f(jnp.asarray(xs), jnp.asarray(ys)))
+        npt.assert_allclose(recon, true, atol=1e-12)
+
+    def test_low_rank_factors_rebuild_matrix(self):
+        f = Chebfun2.from_function(lambda x, y: jnp.sin(x + y) + x**2)
+        X = np.asarray(f.chebcoeffs2())
+        C, d, R = f.chebcoeffs2(low_rank=True)
+        Xr = np.asarray((C * d) @ R.T)
+        npt.assert_allclose(Xr, X, atol=1e-14)
+        # C has one column per pivot (rank), rows = y-degrees.
+        assert C.shape[1] == R.shape[1] == d.shape[0] == f.rank
+
+    def test_single_mode_is_a_unit_entry(self):
+        # f = T_3(y) T_2(x): the only nonzero coefficient is X[3, 2] = 1.
+        f = Chebfun2.from_function(
+            lambda x, y: self._cheb_T(y, 3) * self._cheb_T(x, 2))
+        X = np.asarray(f.chebcoeffs2())
+        assert abs(X[3, 2] - 1.0) < 1e-12
+        X2 = X.copy()
+        X2[3, 2] = 0.0
+        assert np.max(np.abs(X2)) < 1e-12
+
+    def test_coeffs2_truncation_and_padding_shapes(self):
+        f = Chebfun2.from_function(lambda x, y: x + y)
+        assert np.asarray(f.coeffs2(2, 1)).shape == (2, 1)
+        # padding beyond the natural length fills zeros.
+        big = np.asarray(f.coeffs2(6, 7))
+        assert big.shape == (6, 7)
+        # coeffs2() with no args equals chebcoeffs2().
+        npt.assert_allclose(np.asarray(f.coeffs2()),
+                            np.asarray(f.chebcoeffs2()), atol=1e-14)
+
+
 class TestChebfun2CurveOps:
     """Core mirrors for on_curve, Chebfun2v.normal, Chebfun2v.integral."""
 

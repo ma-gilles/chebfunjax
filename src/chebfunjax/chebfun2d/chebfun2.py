@@ -437,6 +437,118 @@ class Chebfun2(eqx.Module):
             n = ln if n is None else n
         return self.sample(m, n)
 
+    def _lowrank_coeffs(self):
+        """Padded low-rank Chebyshev coefficient factors ``(C, d, R)``.
+
+        ``C`` is the ``(ny, r)`` matrix whose column ``k`` holds the
+        Chebyshev coefficients of the ``k``-th column slice (a function of
+        ``y``), zero-padded to the longest column; ``R`` is the ``(nx, r)``
+        matrix for the row slices (functions of ``x``); ``d`` is the length
+        ``r`` vector of pivot weights, so that the full coefficient matrix
+        is ``C @ diag(d) @ R.T`` with ``X[i, j]`` the coefficient of
+        ``T_i(y) T_j(x)`` (MATLAB ``cols_coeffs``, ``d``, ``rows_coeffs``).
+        """
+        def _pad(techs):
+            mmax = max(int(t.coeffs.shape[0]) for t in techs)
+            out = []
+            for t in techs:
+                c = jnp.asarray(t.coeffs)
+                if c.shape[0] < mmax:
+                    c = jnp.concatenate(
+                        [c, jnp.zeros(mmax - c.shape[0], dtype=c.dtype)])
+                out.append(c)
+            return jnp.stack(out, axis=1)
+
+        cols_coeffs = _pad(self.approx.cols)
+        rows_coeffs = _pad(self.approx.rows)
+        d = jnp.asarray(self.approx.pivots)
+        return cols_coeffs, d, rows_coeffs
+
+    def chebcoeffs2(self, low_rank: bool = False):
+        """Bivariate Chebyshev coefficients of f.
+
+        ``X = f.chebcoeffs2()`` returns the matrix of bivariate
+        coefficients such that
+
+            f = sum_{i} sum_{j} X[i, j] T_i(y) T_j(x),
+
+        i.e. row index ``i`` counts the Chebyshev degree in ``y`` and column
+        index ``j`` the degree in ``x``.
+
+        Parameters
+        ----------
+        low_rank : bool, default False
+            If True, return the coefficients in low-rank form
+            ``(C, d, R)`` with ``X = C @ diag(d) @ R.T`` (MATLAB's
+            ``[A, D, B] = chebcoeffs2(f)``).
+
+        Returns
+        -------
+        X : jax.Array, shape (ny, nx)      (if ``low_rank`` is False)
+        (C, d, R) : tuple                  (if ``low_rank`` is True)
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/chebcoeffs2.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun2.coeffs2, Chebfun2.chebpolyval2
+        """
+        cols_coeffs, d, rows_coeffs = self._lowrank_coeffs()
+        if low_rank:
+            return cols_coeffs, d, rows_coeffs
+        return (cols_coeffs * d) @ rows_coeffs.T
+
+    def coeffs2(self, m: Optional[int] = None, n: Optional[int] = None,
+                low_rank: bool = False):
+        """Bivariate Chebyshev coefficients, optionally sized ``m`` by ``n``.
+
+        ``f.coeffs2()`` equals :meth:`chebcoeffs2`.  ``f.coeffs2(m, n)``
+        returns the coefficient matrix truncated or zero-padded to ``m``
+        rows (``y`` degrees) and ``n`` columns (``x`` degrees).  With
+        ``low_rank=True`` the (padded/truncated) low-rank factors
+        ``(C, d, R)`` are returned instead (MATLAB ``[C, D, R]``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/coeffs2.m
+        Chebfun commit: 7574c77
+
+        See Also
+        --------
+        Chebfun2.chebcoeffs2
+        """
+        cols_coeffs, d, rows_coeffs = self._lowrank_coeffs()
+
+        # MATLAB coeffs2(f, m) uses n = m.
+        if m is not None and n is None:
+            n = m
+
+        if m is not None:
+            mf = cols_coeffs.shape[0]
+            rf = cols_coeffs.shape[1]
+            if mf <= m:
+                cols_coeffs = jnp.concatenate(
+                    [cols_coeffs,
+                     jnp.zeros((m - mf, rf), dtype=cols_coeffs.dtype)])
+            else:
+                cols_coeffs = cols_coeffs[:m, :]
+            nf = rows_coeffs.shape[0]
+            if nf <= n:
+                rows_coeffs = jnp.concatenate(
+                    [rows_coeffs,
+                     jnp.zeros((n - nf, rf), dtype=rows_coeffs.dtype)])
+            else:
+                rows_coeffs = rows_coeffs[:n, :]
+
+        if low_rank:
+            return cols_coeffs, d, rows_coeffs
+        return (cols_coeffs * d) @ rows_coeffs.T
+
     # ------------------------------------------------------------------
     # Calculus
     # ------------------------------------------------------------------
