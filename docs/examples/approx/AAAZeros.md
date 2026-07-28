@@ -2,7 +2,8 @@
 
 *Stefano Costa, June 2022*
 
-[Original MATLAB source](https://github.com/chebfun/examples/blob/master/approx/AAAZeros.m)
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/roots/AAAZeros.html)
+(source: [approx/AAAZeros.m](https://github.com/chebfun/examples/blob/master/approx/AAAZeros.m))
 
 ## Rootfinding via rational approximation
 
