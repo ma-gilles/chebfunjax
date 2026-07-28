@@ -1222,6 +1222,15 @@ def _compute_trial_rational(
     """
     xk = np.asarray(xk, dtype=np.float64)
     L = len(xk)
+    # Shape invariant: the barycentric trial solver needs EXACTLY m+n+2
+    # reference points, so that len(xsupport) == m+1 and every downstream QR,
+    # eigenproblem and matmul (Q.T@..@Q, C@bet, vstack slicing) is conformable.
+    # A shorter reference -- which can arise on a platform where the exchange
+    # step's alternating-extrema count rounds differently -- would otherwise
+    # crash with "matmul: Input operand ... core dimension" instead of failing
+    # gracefully.  Report failure and let the caller keep its best iterate.
+    if L != m + n + 2:
+        return None, 1e-19, False, None, None, None
     fk = np.asarray(f(jnp.array(xk)), dtype=np.float64).ravel()
 
     xsupport = xk[1::2].copy()
@@ -1747,12 +1756,24 @@ def _minimax_rational(
         if h == 0:
             h = 1e-19
         xk_new, err, flag = _exchange_rat(xk, h, 2, fs, rh, N + 2, a, b)
-        xk = xk_new
-        diffx = float(np.max(np.abs(xo - xk))) if len(xo) == len(xk) else 1.0
+        # Record the best iterate using the CURRENT (valid, length-N+2)
+        # reference the trial was computed on -- support/wN/wD are consistent
+        # with this xk.
         delta = err - abs(h)
         if delta < deltamin:
             deltamin = delta
             best = dict(support=support, wN=wN, wD=wD, err=err, xk=xk.copy(), h=h)
+        # Shape-consistency guard: _compute_trial_rational requires exactly
+        # N+2 = m+n+2 reference points.  ``flag == 0`` (or a short set) means the
+        # exchange could not assemble a full alternating reference -- which can
+        # happen on a platform where the extrema/sign count rounds differently
+        # than it does here.  Stop with the best full-length iterate instead of
+        # feeding a short reference back in (that crashed downstream on a matmul
+        # core-dimension mismatch).
+        if flag == 0 or len(xk_new) != N + 2:
+            break
+        xk = xk_new
+        diffx = float(np.max(np.abs(xo - xk))) if len(xo) == len(xk) else 1.0
         xo = xk.copy()
         iter_count += 1
 

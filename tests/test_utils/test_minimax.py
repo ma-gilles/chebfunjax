@@ -36,6 +36,7 @@ from chebfunjax.utils.minimax import (
     _eval_poly_bary,
     minimax,
 )
+from chebfunjax.utils.quadrature import chebpts_ab
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -362,6 +363,30 @@ class TestMinimaxRational:
 
         r = minimax(f, 2, denom=2, rational=True, tol=1e-12, max_iter=20)
         assert _rat_global_error(f, r, r.domain) < 1e-10
+
+    def test_exact_rational_2_2_perturbed_no_shape_crash(self):
+        """Stress mirror for the reference-length shape invariant.
+
+        An exact type-(2,2) rational drives the Remez error toward zero, where
+        the exchange step's alternating-extrema count is fragile: on some
+        BLAS/platforms it returns fewer than m+n+2 points (flag == 0).  Feeding
+        that short reference back into the barycentric trial solver used to
+        crash with a matmul core-dimension mismatch.  Perturbing the sample
+        geometry by a few ULPs exercises both the full-length and short-exchange
+        branches; every run must finish (crash-free) and land near the exact
+        rational.
+        """
+        def f(x):
+            return ((x + 3.0) * (x - 0.5)) / (x ** 2 - 4.0)
+
+        eps = np.finfo(np.float64).eps
+        for k in (0, 1, -1, 7, -13, 101, -257):
+            init = np.array(chebpts_ab(6, -1.0, 1.0, kind=2)) * (1.0 + k * eps)
+            r = minimax(f, 2, denom=2, rational=True, tol=1e-12, max_iter=20,
+                        init_xk=init)
+            # No exception is the primary assertion; the recovered rational is
+            # still essentially exact.
+            assert _rat_global_error(f, r, r.domain) < 1e-8, f"k={k}"
 
     def test_exact_rational_3_2_recovered(self):
         """Exact type-(3,2) rational recovered (MATLAB pass(4): err < 1e-10)."""
