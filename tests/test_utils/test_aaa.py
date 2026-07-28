@@ -570,6 +570,28 @@ class TestAAALawson:
         # And the approximant is still a good fit.
         assert np.max(np.abs(F - np.real(r_sign(Z)))) < 0.01
 
+    def test_ill_scaled_data_recovers_clean_poles(self):
+        # A rational F with a huge |F| dynamic range (a 1/(i w) factor over
+        # w in [1e-4, 1e2]) must recover its true poles via the Froissart
+        # cleanup, not spurious high-frequency doublets.
+        def num(s):
+            return (1 + 105 * s) * (1 + 28 * s + 400 * s ** 2)
+
+        def den(s):
+            return (1 + 100 * s) * (1 + 35 * s + 625 * s ** 2) * (1 + 0.4 * s ** 2)
+
+        w = np.logspace(-4, 2, 4000)
+        gs = num(1j * w) / den(1j * w) / (1j * w)
+        z = 1j * np.concatenate([-w[::-1], w])
+        f = np.concatenate([np.conj(gs)[::-1], gs])
+        assert np.max(np.abs(f)) / np.min(np.abs(f)) > 1e8  # ill-scaled
+        _, pol, *_ = aaa(f, z, lawson=0)
+        # True poles: +/-1.5811i, -0.028+/-0.0286i, -0.01, 0.
+        assert np.max(np.abs(np.imag(np.asarray(pol)))) < 2.0
+        expected_imag = np.sqrt(1.0 / 0.4)  # 1.5811...
+        assert np.min(np.abs(np.abs(np.imag(np.asarray(pol))) - expected_imag)) \
+            < 1e-6
+
     def test_sign_default_off_unchanged(self):
         # sign defaults to False, leaving the weights identical to a plain
         # call for a smooth function.

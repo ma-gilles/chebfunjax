@@ -125,3 +125,60 @@ class TestChebfunAaa:
         r, *_ = aaa(F, X, degree=12, lawson=100, damping=0.85, sign=True)
         err = np.max(np.abs(F - np.real(r(X))))
         assert abs(err - 0.000035) < 0.0001
+
+
+def _match_poles(found, expected):
+    """Max pairwise error matching ``found`` poles to ``expected`` (greedy)."""
+    remaining = list(expected)
+    worst = 0.0
+    for p in found:
+        k = int(np.argmin([abs(p - q) for q in remaining]))
+        worst = max(worst, abs(p - remaining.pop(k)))
+    return worst
+
+
+class TestAaaStep2tfSystemID:
+    """Acceptance case: the chebfun.org Step2tf/Bode2tf system-ID fit.
+
+    Fitting GS = G(i w)/(i w) over w in [1e-4, 1e2] (a huge |F| dynamic
+    range from the 1/(i w) factor) must recover the clean physical poles,
+    NOT Froissart doublets.  Mirrors the first aaa call of
+    examples/applics/Step2tf.html.
+    """
+
+    @staticmethod
+    def _gs_data():
+        def num(s):
+            return (1 + 105 * s) * (1 + 28 * s + 400 * s ** 2)
+
+        def den(s):
+            return (1 + 100 * s) * (1 + 35 * s + 625 * s ** 2) * (1 + 0.4 * s ** 2)
+
+        w = np.logspace(-4, 2, 6000)
+        gs = num(1j * w) / den(1j * w) / (1j * w)
+        z = 1j * np.concatenate([-w[::-1], w])
+        f = np.concatenate([np.conj(gs)[::-1], gs])
+        return f, z
+
+    # MATLAB polG from the Step2tf example.
+    POL_G = np.array([
+        -1.581138830084190j, 1.581138830084190j,
+        -0.027999999999557 + 0.028565713714499j,
+        -0.027999999999914 - 0.028565713713914j,
+        -0.009999999999644 + 0.000000000000123j,
+        0.0j])
+
+    def test_recovers_physical_poles_no_froissart(self):
+        f, z = self._gs_data()
+        _, pol, *_ = aaa(f, z, lawson=0)
+        assert len(pol) == 6
+        assert _match_poles(np.asarray(pol), self.POL_G) < 1e-9
+        # No spurious high-frequency doublet (physical |Im| <= ~1.6).
+        assert np.max(np.abs(np.imag(np.asarray(pol)))) < 2.0
+
+    def test_degree_constrained_also_clean(self):
+        # degree=6 (adaptive Lawson path) must also give the physical poles.
+        f, z = self._gs_data()
+        _, pol, *_ = aaa(f, z, degree=6)
+        assert len(pol) == 6
+        assert _match_poles(np.asarray(pol), self.POL_G) < 1e-6
