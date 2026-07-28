@@ -71,7 +71,8 @@ def run():
     fig.savefig(os.path.join(_OUTDIR, 'Halphen.png'), dpi=150)
     plt.close(fig)
 
-    print(f"Halphen: C = {HALPHEN:.6f}")
+    print("halphen_const =")
+    print(f"   {HALPHEN:.15f}")
     return True
 
 if __name__ == '__main__':
