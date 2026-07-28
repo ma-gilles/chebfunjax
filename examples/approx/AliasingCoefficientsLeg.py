@@ -1,12 +1,19 @@
 """Accuracy of Legendre coefficients via aliasing.
 
-Follow-up to AliasingCoefficients exploring aliasing errors in Legendre
-rather than Chebyshev coefficients.
+Faithful port of approx/AliasingCoefficientsLeg.m by Yuji Nakatsukasa (April
+2016).  The Legendre analogue of AliasingCoefficients: the 2D Legendre
+coefficients of ``sin(x+y)+cos(x-y)`` are compared with those of its
+interpolant on a 6x6 Gauss-Legendre grid, and the aliasing-error matrix is
+reported.
 
-Credit: Yuji Nakatsukasa, April 2016.
-Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/AliasingCoefficientsLeg.html
+Original: https://www.chebfun.org/examples/approx/AliasingCoefficientsLeg.html
+Copyright 2016 by The University of Oxford and The Chebfun Developers.
+
+Output-parity note (measured): the full aliasing-error matrix reproduces the
+published values (row 1: 1.2730e-12, 2.2176e-11, 6.2811e-10, 1.4621e-08,
+2.9536e-07, 5.1823e-06) using chebfun2 ``chebcoeffs2``, ``cheb2leg``,
+``legpts``, and ``legvals2legcoeffs``.
 """
-
 import matplotlib
 
 matplotlib.use("Agg")
@@ -19,66 +26,67 @@ import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
+from chebfunjax.chebfun2d.chebfun2 import chebfun2
 from chebfunjax.plotting import chebfun_style
+from chebfunjax.utils.quadrature import legpts
+from chebfunjax.utils.transforms import cheb2leg, legvals2legcoeffs
 
 chebfun_style()
 
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
 
+
+def _cols(fn, M):
+    """Apply a 1D transform ``fn`` to every column of ``M``."""
+    return np.stack([np.asarray(fn(jnp.asarray(M[:, j])))
+                     for j in range(M.shape[1])], axis=1)
+
+
+def _both(fn, M):
+    """Apply ``fn`` along both dimensions (MATLAB ``fn(fn(M)')'``)."""
+    return _cols(fn, _cols(fn, M).T).T
+
+
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
 
-    def fori(x): return jnp.log(jnp.sin(10.0 * x) + 2.0)
+    fori = lambda x, y: jnp.sin(x + y) + jnp.cos(x - y)
 
-    f = cj.chebfun(fori)
-    n_low = max(5, len(f) // 3)
-    p = cj.chebfun(fori, n=n_low)
+    # Full 2D Legendre coefficients of f.
+    f = chebfun2(fori)
+    fc = _both(cheb2leg, np.asarray(f.chebcoeffs2()))
 
-    # Convert Chebyshev coefficients to Legendre via cheb2leg
-    try:
-        from chebfunjax.utils.transforms import cheb2leg
-        fc_cheb = np.array(f.coeffs)
-        pc_cheb = np.array(p.coeffs)
-        fc_leg = np.array(cheb2leg(jnp.array(fc_cheb)))
-        pc_leg = np.array(cheb2leg(jnp.array(pc_cheb)))
-        n_p = len(pc_leg)
-        err_leg = np.abs(pc_leg - fc_leg[:n_p]) + 1e-18
+    # Interpolant on a 6x6 Gauss-Legendre grid -> its Legendre coefficients.
+    k = 6
+    s = np.asarray(legpts(k))[0]
+    xx = np.tile(s.reshape(1, -1), (k, 1))
+    yy = np.tile(s.reshape(-1, 1), (1, k))
+    V = np.asarray(fori(jnp.asarray(xx), jnp.asarray(yy)))
+    ptc = _both(legvals2legcoeffs, V)
 
-        fig, ax = plt.subplots()
-        ax.semilogy(np.arange(len(fc_leg)), np.abs(fc_leg) + 1e-18,
-                    '.g', ms=7, label='f Legendre coeffs')
-        ax.semilogy(np.arange(n_p), np.abs(pc_leg) + 1e-18,
-                    '.b', ms=7, label='p Legendre coeffs')
-        ax.semilogy(np.arange(n_p), err_leg, '.r', ms=7,
-                    label='|f−p| (aliasing error)')
-        ax.set_title('Aliasing of Legendre coefficients', fontsize=11)
-        ax.legend(fontsize=9)
-        fig.tight_layout()
-        fig.savefig(os.path.join(_OUTDIR, 'AliasingCoefficientsLeg.png'), dpi=150)
-        plt.close(fig)
-        print("AliasingCoefficientsLeg: done with cheb2leg transform.")
-    except ImportError:
-        # Fallback: use Chebyshev coefficients with a note
-        fc = np.array(f.coeffs)
-        pc = np.array(p.coeffs)
-        n_p = len(pc)
-        fig, ax = plt.subplots()
-        ax.semilogy(np.arange(len(fc)), np.abs(fc) + 1e-18, '.g', ms=7,
-                    label='f Chebyshev coeffs (proxy for Legendre)')
-        ax.semilogy(np.arange(n_p), np.abs(pc) + 1e-18, '.b', ms=7,
-                    label='p coeffs')
-        ax.semilogy(np.arange(n_p), np.abs(pc - fc[:n_p]) + 1e-18, '.r',
-                    ms=7, label='aliasing error')
-        ax.set_title('Aliasing of coefficients (Chebyshev basis)', fontsize=11)
-        ax.legend(fontsize=9)
-        fig.tight_layout()
-        fig.savefig(os.path.join(_OUTDIR, 'AliasingCoefficientsLeg.png'), dpi=150)
-        plt.close(fig)
-        print("AliasingCoefficientsLeg: cheb2leg not available, used Chebyshev basis.")
+    alias = np.abs(fc[:k, :k] - ptc)
+    print("ans =")
+    for i in range(k):
+        print("  " + "  ".join(f"{alias[i, j]:.4e}" for j in range(k)))
+
+    # ------------------------------------------------------------------
+    # Plot: the Legendre aliasing-error matrix magnitude.
+    # ------------------------------------------------------------------
+    fig, ax = plt.subplots(figsize=(5.5, 4.5))
+    im = ax.imshow(np.log10(alias + 1e-20), cmap="viridis")
+    ax.set_title("log10 |Legendre aliasing error|", fontsize=10)
+    ax.set_xlabel("j")
+    ax.set_ylabel("i")
+    fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+    fig.set_facecolor("white")
+    fig.tight_layout()
+    fig.savefig(os.path.join(_OUTDIR, 'AliasingCoefficientsLeg.png'), dpi=150,
+                bbox_inches="tight")
+    plt.close(fig)
 
     return True
+
 
 if __name__ == '__main__':
     run()
