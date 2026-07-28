@@ -1,12 +1,25 @@
 """Rational interpolation, robust and non-robust.
 
-Compares standard rational interpolation (fragile) with the robust
-least-squares rational interpolation and AAA approximation.
+Faithful port of approx/RationalInterp.m by Nick Trefethen (August 2011).
+Rational interpolants r = p/q of a function in Chebyshev points via
+``ratinterp``: for cos(exp(x)) the type-(n,n) interpolation error decreases
+super-algebraically, and for exp(x) the type-(8,8) interpolant develops
+near-cancelling spurious pole/zero pairs (Froissart doublets).
 
-Credit: Nick Trefethen, August 2011.
-Original MATLAB Chebfun: https://www.chebfun.org/examples/approx/RationalInterp.html
+Original: https://www.chebfun.org/examples/approx/RationalInterp.html
+Copyright 2011 by The University of Oxford and The Chebfun Developers.
+
+Output-parity note (measured): the type-(n,n) interpolation-error table for
+cos(exp(x)) reproduces the published values -- (1,1) 2.46e-01, (2,2) 7.32e-03,
+(4,4) 6.11e-06, (5,5) 4.16e-07, (6,6) 6.19e-09.  The (3,3) case has a pole in
+[-1,1], so its sup-norm error is infinite (published Inf) -- unverifiable.
+
+The spurious-zero/degree portion (Example 3) is a documented ratinterp
+behaviour gap: MATLAB's ratinterp reduces the exact denominator degree to
+nu=4 for exp(x) at type (8,8) (and reports two spurious zeros), whereas our
+ratinterp keeps nu=8, so the reported degree_of_q and the spurious
+zeros/poles differ.  Ledger backlog: ratinterp exact-degree reduction.
 """
-
 import matplotlib
 
 matplotlib.use("Agg")
@@ -21,69 +34,66 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+from chebfunjax.utils.ratapprox import ratinterp
 
 chebfun_style()
 
-from chebfunjax.utils.aaa import aaa
-
 _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
+os.makedirs(_OUTDIR, exist_ok=True)
+
 
 def run():
-    os.makedirs(_OUTDIR, exist_ok=True)
+    # ------------------------------------------------------------------
+    # Type-(n,n) rational interpolation error for cos(exp(x)).
+    # ------------------------------------------------------------------
+    f = cj.chebfun(lambda x: jnp.cos(jnp.exp(x)), domain=(-1, 1))
+    xx = np.linspace(-1, 1, 8000)
+    fx = np.asarray(f(xx))
+    print("    (n,n)       Error ")
+    for n in range(1, 7):
+        r = ratinterp(f, n, n)[0]
+        err = float(np.max(np.abs(fx - np.asarray(r(xx)))))
+        print(f"    ({n},{n})     {err:7.2e}")
 
-    # Function with near-pole: f(x) = 1/(1 + 25*x^2) (poles at ±0.2i)
-    def f_func(x): return 1.0 / (1.0 + 25.0 * x**2)
-    f = cj.chebfun(lambda x: jnp.array(1.0 / (1.0 + 25.0 * x**2)))
+    # ------------------------------------------------------------------
+    # Type-(8,8) interpolant of exp(x): spurious pole/zero pairs.
+    # ------------------------------------------------------------------
+    g = cj.chebfun(lambda x: jnp.exp(x), domain=(-1, 1))
+    _, pc, qc, mu, nu = ratinterp(g, 8, 8)[:5]
+    p = cj.Chebfun.from_coeffs(jnp.asarray(pc, dtype=jnp.complex128))
+    q = cj.Chebfun.from_coeffs(jnp.asarray(qc, dtype=jnp.complex128))
+    print("degree_of_p =")
+    print(f"     {int(mu)}")
+    zeros = np.sort_complex(np.asarray(p.roots()))
+    print("spurious_zeros =")
+    for z in zeros:
+        print(f"   {z.real:.15f}")
+    print("degree_of_q =")
+    print(f"     {int(nu)}")
+    poles = np.sort_complex(np.asarray(q.roots()))
+    print("spurious_poles =")
+    for z in poles:
+        print(f"   {z.real:.15f}")
 
-    xx = np.linspace(-1.0, 1.0, 500)
-    f_true = 1.0 / (1.0 + 25.0 * xx**2)
-
-    # AAA rational approximation
-    xs_aaa = jnp.linspace(-1.0, 1.0, 300)
-    ys_aaa = jnp.array([f_func(x) for x in xs_aaa])
-    r_aaa, pol, res, zer, *_ = aaa(ys_aaa, xs_aaa)
-    r_vals = np.array([float(r_aaa(jnp.array(x)).real) for x in xx])
-    err_aaa = np.abs(r_vals - f_true)
-
-    # Polynomial approximation for comparison
-    p30 = f.polyfit(30)
-    p30_vals = np.array([float(p30(jnp.array(x))) for x in xx])
-    err_poly = np.abs(p30_vals - f_true)
-
-    fig, axes = plt.subplots(1, 3)
-
-    ax = axes[0]
-    ax.plot(xx, f_true, 'b', lw=1.8, label='f(x) = 1/(1+25x²)')
-    ax.plot(xx, r_vals, color='#D95319', linestyle='--', lw=1.5, label=f'AAA ({len(pol)} poles)')
-    ax.set_title('Runge function and AAA approximant', fontsize=10)
-    ax.legend(fontsize=8)
-    ax2 = axes[1]
-    ax2.semilogy(xx, err_aaa + 1e-18, 'r', lw=1.5, label='AAA error')
-    ax2.semilogy(xx, err_poly + 1e-18, 'b', lw=1.5, label='poly deg-30')
-    ax2.set_title('Approximation errors', fontsize=10)
-    ax2.legend(fontsize=8)
-    # Poles of AAA approximant
-    ax3 = axes[2]
-    pol_arr = np.array([complex(p) for p in pol])
-    ax3.plot(pol_arr.real, pol_arr.imag, '.r', ms=10, label='AAA poles')
-    ax3.plot([0], [0.2], 'kx', ms=12, label='true poles ±0.2i')
-    ax3.plot([0], [-0.2], 'kx', ms=12)
-    ax3.set_title('Poles of AAA approximant', fontsize=10)
-    ax3.legend(fontsize=8)
-    ax3.axhline(0, color='k', lw=0.5)
-    ax3.axvline(0, color='k', lw=0.5)
-
-    for ax in axes:
-        pass
-    fig.suptitle('Rational interpolation of the Runge function', fontsize=12)
+    # ------------------------------------------------------------------
+    # Plot: the type-(8,8) interpolant of exp(x) through 17 Chebyshev points.
+    # ------------------------------------------------------------------
+    r88 = ratinterp(g, 8, 8)[0]
+    fig, ax = plt.subplots(figsize=(7, 4))
+    ax.plot(xx, np.asarray(r88(xx)).real, "m", lw=1.6, label="p/q")
+    xc = np.cos(np.pi * np.arange(17) / 16)
+    ax.plot(xc, np.exp(xc), ".k", ms=10, label="exp at Cheb pts")
+    ax.legend(fontsize=9)
+    ax.set_title("type (8,8) rational interpolant of exp(x)", fontsize=11)
+    fig.set_facecolor("white")
     fig.tight_layout()
-    fig.savefig(os.path.join(_OUTDIR, 'RationalInterp.png'), dpi=150)
+    fig.savefig(os.path.join(_OUTDIR, "RationalInterp.png"), dpi=150,
+                bbox_inches="tight")
     plt.close(fig)
 
-    print(f"RationalInterp: AAA err={np.max(err_aaa):.3e}, "
-          f"{len(pol)} poles found")
     return True
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     run()
