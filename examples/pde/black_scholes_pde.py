@@ -1,183 +1,145 @@
-"""Black-Scholes PDE using operator exponential.
+"""Black-Scholes PDE via the operator exponential.
 
-Solves the Black-Scholes PDE for a European call option:
-  v_t = -(sigma^2/2)*s^2*v_ss - r*s*v_s + r*v
+Faithful port of pde/BSExponential.m by Toby Driscoll (June 2014).  Prices a
+European call by evolving the Black-Scholes operator with ``expm`` (the
+operator exponential) rather than time stepping.  The far-field boundary
+``v -> s`` is handled by a steady correction ``u = A\\0`` (with the
+inhomogeneous Neumann condition ``v'(s_max) = 1``); the adjusted variable
+``w = v - u`` then satisfies homogeneous boundary conditions and
+``w_t = A w``, integrated by ``w = expm(A, -t, wT)``.
 
-by transforming to heat equation form and using matrix exponential,
-following pde/BSExponential.m by Toby Driscoll (June 2014).
+Original: https://www.chebfun.org/examples/pde/BSExponential.html
+Copyright 2014 by The University of Oxford and The Chebfun Developers.
 
-The trick is to remove non-homogeneous BCs via a particular solution u
-satisfying A*u = 0, B*u = q. Then propagate w = v - u with A and zero BCs.
+Output-parity note (measured): this example exercises two chebop features on
+the Black-Scholes operator ``A = -sigma^2/2 s^2 D^2 - r s D + r`` over the
+large, *singular* interval ``[0, 500]`` (the leading coefficient ``s^2``
+vanishes at ``s = 0``).  Two scheme-dependent walls result:
 
-Original MATLAB: https://www.chebfun.org/examples/pde/BSExponential.html
+1. ``u = A\\0`` (steady state).  On a non-singular interval the operator and
+   the inhomogeneous Robin condition solve exactly -- verified on ``[1,2]``,
+   where ``A\\0`` returns ``u = s`` to 1e-9.  On ``[0,500]`` the s=0
+   endpoint makes the collocation matrix singular: our dense collocation
+   returns a function that meets both boundary conditions but leaves an
+   interior residual ``A(u) ~ 1.7`` near ``s=500`` (MATLAB's ultraspherical
+   discretization handles the vanishing leading coefficient; ours does not).
+   The exact steady solution is analytically ``u(s) = s`` (the ``s^{-0.293}``
+   mode is killed by ``u(0)=0``, and ``u'(500)=1`` fixes the slope), so we
+   substitute it -- this is the exact ``A\\0`` answer, not an approximation.
+
+2. ``expm(A, -t, wT)`` with a corner.  ``wT = max(0,s-50) - u`` has a corner
+   at the strike ``s=50``, so the evolved ``w`` is only piecewise smooth and
+   the fixed-size operator exponential converges algebraically:
+   v(55) = 9.8504 at n=256 vs the published 9.849887661936435 (relative
+   error ~5e-5; n=192 gives 9.8456, n=384 gives 9.8514 -- it brackets the
+   MATLAB value but no fixed n reproduces its 16 displayed digits).  The
+   vertical scale of w, 49.25, matches to ~5 figures; the chebfun length
+   (MATLAB's adaptive 97 vs our fixed 256) is scheme-dependent; and jump2,
+   the second-derivative jump at the corner, is a numerically-zero residual
+   (~4e-17 vs published -2.4e-17).  Adaptive ``expm`` (auto n) currently
+   segfaults on this operator, so a fixed n is used.
 """
+import warnings
 
 import matplotlib
 
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import os
 
-from chebfunjax.plotting import chebfun_style
+import matplotlib.pyplot as plt
+import numpy as np
+
+from chebfunjax.chebfun1d.chebfun import chebfun
+from chebfunjax.operators.chebop import Chebop
+from chebfunjax.plotting import CHEBFUN_BLUE, chebfun_style
 
 chebfun_style()
 
-import os
+_HERE = os.path.dirname(os.path.abspath(__file__))
 
-import numpy as np
-from scipy.linalg import expm
-from scipy.stats import norm
+_N = 256   # fixed collocation size (adaptive expm segfaults on this operator)
 
 
 def run():
-    print("=" * 60)
-    print("Black-Scholes PDE via operator exponential")
-    print("=" * 60)
-
-    # Black-Scholes PDE:
-    # v_t = -(sigma^2/2)*s^2*v_ss - r*s*v_s + r*v
-    # BCs: v(0) = 0 (at s=0), v_s(s_max) = 1 (Neumann, approx v→s)
-    # Final condition: v(T) = max(s - K, 0)
-
+    d = (0.0, 500.0)
     sigma = 0.45
     r = 0.03
-    K = 50.0        # strike
-    s_max = 500.0   # truncate the domain
+    s = chebfun(lambda x: x, domain=d)
 
-    # Discretize [0, s_max] with Chebyshev nodes
-    N = 80
-    # Use Gauss-Lobatto points on [0, s_max]
-    j = np.arange(N + 1)
-    s_cheb = 0.5 * s_max * (1 - np.cos(np.pi * j / N))  # mapped to [0, s_max]
+    # A = -sigma^2/2 s^2 v'' - r s v' + r v
+    op = lambda s, v: -sigma**2 / 2 * s**2 * v.diff(2) - r * s * v.diff() + r * v
+    A = Chebop(op, domain=d)
+    A.lbc = 0.0
+    A.rbc = lambda v: v.diff() - 1     # replaces v -> s as s -> infinity
 
-    # Build the BS operator using finite differences on s_cheb
-    # Second-order FD for s^2 v_ss and s*v_s
-    ds = np.diff(s_cheb)
-    s_int = s_cheb[1:-1]  # interior points
+    # u = A\0.  The exact steady state is u = s (see the module docstring:
+    # our dense collocation cannot solve the s=0-singular operator, so we
+    # use the analytically exact solution rather than a failing discretization).
+    u = s
 
-    n_int = len(s_int)
+    A.rbc = 0.0                        # homogeneous BCs for the evolution
 
-    # Build matrices for interior points
-    # Use second-order FD with non-uniform spacing
-    A_mat = np.zeros((n_int, n_int))
+    vT = chebfun(lambda x: np.maximum(0.0, x - 50.0), domain=d)
+    wT = vT - u                        # w_t = A w, B w = 0
 
-    for i in range(n_int):
-        h_l = ds[i]       # spacing to the left
-        h_r = ds[i + 1]   # spacing to the right
-        s_i = s_int[i]
+    v = None
+    w = None
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        for t in np.arange(0.1, 0.51, 0.1):
+            w = A.expm(-float(t), wT, n=_N)
+            v = w + u
 
-        # Coefficients for second derivative: v_ss
-        c_l = 2.0 / (h_l * (h_l + h_r))
-        c_m = -2.0 / (h_l * h_r)
-        c_r = 2.0 / (h_r * (h_l + h_r))
+    # v(55) after t = 0.5.
+    print("ans =")
+    print(f"   {float(v(55.0)):.15f}")
 
-        # Coefficients for first derivative: v_s
-        d_l = -h_r / (h_l * (h_l + h_r))
-        d_m = (h_r - h_l) / (h_l * h_r)
-        d_r = h_l / (h_r * (h_l + h_r))
+    # w display (MATLAB chebfun summary).
+    coeffs = np.asarray(w.funs[0].coeffs)
+    vscale = float(np.max(np.abs(np.asarray([w(x) for x in
+                    np.linspace(0.0, 500.0, 401)]))))
+    print("w =")
+    print("   chebfun column (1 smooth piece)")
+    print("       interval       length   endpoint values  ")
+    print(f"[       0,   5e+02]      {len(coeffs)}    "
+          f"{float(w(0.0)):.1e}  {float(w(500.0)):.1e} ")
+    print(f"Vscale = {vscale:.6e}.")
 
-        # BS operator: A = -(sigma^2/2)*s^2*d2/ds2 - r*s*d/ds + r*I
-        factor_ss = -sigma**2 / 2 * s_i**2
-        factor_s = -r * s_i
-        factor_r = r
+    # jump2 = w''(50+) - w''(50-): second-derivative jump at the strike.
+    wss = w.diff(2)
+    eps = float(np.finfo(float).eps)
+    jump2 = float(wss(50.0 + 100 * eps)) - float(wss(50.0 - 100 * eps))
+    print("jump2 =")
+    print(f"    {jump2:.15e}")
 
-        if i > 0:
-            A_mat[i, i-1] = factor_ss * c_l + factor_s * d_l
-        A_mat[i, i] = factor_ss * c_m + factor_s * d_m + factor_r
-        if i < n_int - 1:
-            A_mat[i, i+1] = factor_ss * c_r + factor_s * d_r
+    # ------------------------------------------------------------------
+    # Plot: the option value v(s) at the evolved times, near the strike.
+    # ------------------------------------------------------------------
+    fig, ax = plt.subplots(figsize=(7, 4.5))
+    sx = np.linspace(40, 60, 400)
+    ax.plot(sx, np.maximum(0.0, sx - 50.0), color=CHEBFUN_BLUE, lw=1.5,
+            label="payoff v_T")
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        for t in np.arange(0.1, 0.51, 0.1):
+            w_t = A.expm(-float(t), wT, n=_N)
+            v_t = w_t + u
+            ax.plot(sx, np.asarray([float(v_t(x)) for x in sx]), "k", lw=0.9)
+    ax.set_xlim([40, 60])
+    ax.set_ylim([-0.5, 14])
+    ax.set_xlabel("asset price s")
+    ax.set_ylabel("option value v")
+    ax.set_title("Black-Scholes via operator exponential")
+    ax.legend(framealpha=0.9)
 
-    # Boundary conditions:
-    # Left BC: v(0) = 0 → s[0] = 0, v = 0
-    # Right BC: v_s(s_max) ≈ 1 (Neumann)
-
-    # Particular solution u satisfying A*u = 0, BC: u(0)=0, u_s(s_max)=1
-    # For BC u_s(s_max) = 1, a linear function u(s) = s/s_max satisfies u_s = 1/s_max,
-    # but we need u_s = 1 at s_max. Let u(s) = s. Then u_s = 1.
-    # Does u(s) = s satisfy A*u = 0?
-    # A*s = -(sigma^2/2)*s^2*0 - r*s*1 + r*s = 0. Yes!
-    u_particular = s_cheb.copy()  # u(s) = s satisfies BCs and A*u = 0
-
-    # Final condition for call: vT = max(s - K, 0)
-    vT = np.maximum(s_cheb - K, 0.0)
-    wT = vT - u_particular  # adjusted variable w = v - u
-
-    # wT at interior nodes
-    wT_int = wT[1:-1]
-
-    # Propagate w backward in time from T to T-t using exp(-t*A)
-    # (time runs backward: at t=0 we have the terminal condition)
-    t_vals = [0.1, 0.2, 0.3, 0.4, 0.5]
-    results = []
-
-    print("\nComputing option prices at times 0.1, 0.2, ..., 0.5 before maturity...")
-    for t in t_vals:
-        # Apply matrix exponential: w(t) = exp(-t*A) * wT
-        w_int = expm(-t * A_mat) @ wT_int
-
-        # Reconstruct v: add back particular solution at interior points
-        v_int = w_int + u_particular[1:-1]
-
-        # Full profile with BCs
-        v_full = np.zeros(N + 1)
-        v_full[0] = 0.0              # Dirichlet BC
-        v_full[1:-1] = v_int
-        v_full[-1] = v_int[-1] + ds[-1]  # approximate Neumann
-
-        results.append((t, v_full.copy()))
-
-    # Compare with Black-Scholes formula for call at s=55, t=0.5
-    s_test = 55.0
-    t_test = 0.5
-    d1 = (np.log(s_test / K) + (r + 0.5 * sigma**2) * t_test) / (sigma * np.sqrt(t_test))
-    d2 = d1 - sigma * np.sqrt(t_test)
-    bs_exact = s_test * norm.cdf(d1) - K * np.exp(-r * t_test) * norm.cdf(d2)
-
-    # Interpolate our result at s=55
-    t_last, v_last = results[-1]
-    v_at_55 = np.interp(s_test, s_cheb, v_last)
-
-    print("\nOption value at s=55, t=0.5 before maturity:")
-    print(f"  Numerical: {v_at_55:.6f}")
-    print(f"  Black-Scholes: {bs_exact:.6f}")
-    print(f"  Error: {abs(v_at_55 - bs_exact):.4f}")
-
-    # --- Plot ---
-    _here = os.path.dirname(os.path.abspath(__file__))
-    fig, axes = plt.subplots(1, 2)
-
-    # Show around the strike
-    s_range = (s_cheb >= 30) & (s_cheb <= 100)
-    s_plot = s_cheb[s_range]
-
-    colors = plt.cm.Blues(np.linspace(0.4, 0.9, len(results)))
-    axes[0].plot(s_plot, vT[s_range], 'k--', linewidth=2, label='Payoff at T')
-    for (t, v), col in zip(results, colors):
-        axes[0].plot(s_plot, v[s_range], color=col, linewidth=1.5,
-                     label=f't={t:.1f}')
-    axes[0].set_title("Black-Scholes option values (K=50)", fontsize=11)
-    axes[0].legend(fontsize=8)
-    axes[0].set_ylim([-0.5, 15])
-
-    # Final solution vs BS formula
-    s_bs = np.linspace(30, 100, 200)
-    d1_bs = (np.log(s_bs / K) + (r + 0.5 * sigma**2) * 0.5) / (sigma * np.sqrt(0.5))
-    d2_bs = d1_bs - sigma * np.sqrt(0.5)
-    v_bs = s_bs * norm.cdf(d1_bs) - K * np.exp(-r * 0.5) * norm.cdf(d2_bs)
-
-    axes[1].plot(s_bs, v_bs, color='#D95319', linestyle='-', linewidth=2, label='Black-Scholes formula')
-    t_last, v_last = results[-1]
-    axes[1].plot(s_plot, v_last[s_range], color='#0072BD', marker='.', linestyle='none', markersize=5, label='Numerical (t=0.5)')
-    axes[1].axvline(55, color='#77AC30', linestyle=':', label=f's=55: {v_at_55:.3f}')
-    axes[1].set_title("Comparison with Black-Scholes at t=0.5", fontsize=11)
-    axes[1].legend(fontsize=9)
-
-    fig.suptitle("Black-Scholes PDE via matrix exponential", fontsize=13)
+    fig.set_facecolor("white")
     fig.tight_layout()
-    fig.savefig(os.path.join(_here, "black_scholes_pde.png"), dpi=150, bbox_inches="tight")
+    fig.savefig(os.path.join(_HERE, "black_scholes_pde.png"), dpi=150,
+                bbox_inches="tight")
     plt.close(fig)
 
-    print("\nAll checks passed.")
     return True
+
 
 if __name__ == "__main__":
     run()
