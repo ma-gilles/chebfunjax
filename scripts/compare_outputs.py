@@ -45,6 +45,7 @@ import argparse
 import csv
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -98,9 +99,29 @@ def run_script(script: str, timeout: int) -> tuple[int, str, str]:
     return proc.returncode, proc.stdout, proc.stderr
 
 
+# A block whose leading line is a bare ``<name> =`` assignment with a
+# wall-clock-timing variable name (``time``, ``time_in_seconds``,
+# ``total_time_in_seconds``, ``time_elapsed_in_seconds``, ...) carries a MATLAB
+# tic/toc reading, not a parity signal: no port can reproduce another machine's
+# elapsed time.  Its numbers are dropped from the reference set.  The rule is
+# deliberately narrow -- it requires the label to END in ``=`` -- so it never
+# touches a data table that merely has a "computation time" *column* (e.g.
+# approx/WeierstrassFunction, whose header is not an assignment).
+_TIMING_HEAD_RE = re.compile(
+    r"^\s*\w*(?:time|elapsed|second)\w*\s*=\s*$", re.IGNORECASE
+)
+
+
+def _is_timing_block(block: dict) -> bool:
+    head = block["text"].strip().splitlines()[0] if block["text"].strip() else ""
+    return bool(_TIMING_HEAD_RE.match(head))
+
+
 def reference_numbers(record: dict) -> list[dict]:
     nums: list[dict] = []
     for block in record["blocks"]:
+        if _is_timing_block(block):
+            continue
         nums.extend(block["numbers"])
     return nums
 
