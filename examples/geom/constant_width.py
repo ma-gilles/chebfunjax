@@ -1,7 +1,9 @@
 """Polynomial level curve of constant width.
 
-Demonstrates a degree-8 polynomial whose zero set is a curve of constant
-width, like the British 50p coin. Translated from geom/ConstantWidth.m.
+A degree-8 polynomial p(x,y) whose zero set is a curve of constant width
+(like the British 50p coin).  The boundary is extracted as the zero curve of
+a chebfun2 (roots), then its width across five directions and its perimeter
+are measured.  Faithful port of geom/ConstantWidth.m.
 
 Original: https://www.chebfun.org/examples/geom/ConstantWidth.html
 Author: Nick Trefethen, May 2022
@@ -13,106 +15,68 @@ matplotlib.use("Agg")
 import os
 import sys
 
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+from chebfunjax.chebfun2d.chebfun2 import chebfun2
 from chebfunjax.plotting import chebfun_style
 
 chebfun_style()
 
-def constant_width_poly(x, y):
-    """The Rabinowitz polynomial whose zero set has constant width."""
-    r2 = x**2 + y**2
-    xy_term = x**2 - 3 * y**2
-    return (r2**4 - 45 * r2**3 - 41283 * r2**2
-            + 7950960 * r2
-            + 16 * xy_term**3
-            + 48 * r2 * xy_term**2
-            + x * xy_term * (16 * r2**2 - 5544 * r2 + 266382)
-            - 373248000)
 
-def extract_contour_points(X, Y, Z, level=0):
-    """Extract contour points at given level."""
-    import matplotlib.pyplot as plt
-    fig_tmp, ax_tmp = plt.subplots()
-    cs = ax_tmp.contour(X, Y, Z, levels=[level])
-    points = []
-    for path in cs.allsegs[0]:
-        points.append(path)
-    plt.close(fig_tmp)
-    return points
+def _p(x, y):
+    r2 = x**2 + y**2
+    xy = x**2 - 3 * y**2
+    return (r2**4 - 45 * r2**3 - 41283 * r2**2 + 7950960 * r2
+            + 16 * xy**3 + 48 * r2 * xy**2
+            + x * xy * (16 * r2**2 - 5544 * r2 + 266382) - 373248000)
+
 
 def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/geom')
     os.makedirs(outdir, exist_ok=True)
 
-    # Evaluate polynomial on grid
-    n_grid = 400
-    xs = np.linspace(-12, 12, n_grid)
-    ys = np.linspace(-12, 12, n_grid)
-    X, Y = np.meshgrid(xs, ys)
-    Z = constant_width_poly(X, Y)
+    # MATLAB: pc = chebfun2(p,[-11 11 -11 11]); r = roots(pc);
+    pc = chebfun2(_p, domain=(-11.0, 11.0, -11.0, 11.0))
+    r = pc.roots()[0]  # the (single) closed zero curve, a complex chebfun
 
-    # Extract zero contour
-    contour_pts = extract_contour_points(X, Y, Z, level=0)
-    print(f"Number of contour segments: {len(contour_pts)}")
+    # Width across five directions: max(real(a*r)) - min(real(a*r)).
+    print("theta/pi     width")
+    for theta in np.pi * np.arange(5) / 5:
+        a = complex(np.exp(1j * theta))
+        rp = (r * a).real()
+        width = float(rp.max()[1]) - float(rp.min()[1])
+        print(f"{theta / np.pi:8.5f} {width:12.8f}")
 
-    # Compute widths in different directions
-    if contour_pts:
-        all_pts = np.vstack(contour_pts)
-        all_complex = all_pts[:, 0] + 1j * all_pts[:, 1]
+    # y=0 slice polynomial, evaluated at -8 and 10 (both roots -> 0).
+    def p1(x):
+        return (x**8 + 16 * x**7 + 19 * x**6 - 5544 * x**5 - 41283 * x**4
+                + 266382 * x**3 + 7950960 * x**2 - 373248000)
+    print(f"p(-8) = {p1(-8.0):.6g}")
+    print(f"p(10) = {p1(10.0):.6g}")
 
-        print("\nWidth measurements in different directions:")
-        print(f"{'theta/pi':>10} {'width':>12}")
-        for frac in [0, 1/5, 2/5, 3/5, 4/5]:
-            theta = np.pi * frac
-            a = np.exp(1j * theta)
-            proj = np.real(a * all_complex)
-            width = np.max(proj) - np.min(proj)
-            print(f"{frac:>10.4f} {width:>12.6f}")
-    else:
-        print("No contour found - using x-axis verification")
+    # Perimeter = norm(diff(r), 1) = arc length.
+    print(f"perimeter = {float(r.diff().norm(1)):.15f}")
 
-    # Verify on x-axis: p(x, 0) = 0 at x=-8 and x=10
-    def poly_x_axis(x):
-        return (x**8 + 16 * x**7 + 19 * x**6 - 5544 * x**5
-                - 41283 * x**4 + 266382 * x**3 + 7950960 * x**2 - 373248000)
-
-    print(f"\np(-8, 0) = {poly_x_axis(-8):.2e}  (should be ~0)")
-    print(f"p(10, 0) = {poly_x_axis(10):.2e}  (should be ~0)")
-    print("Exact width should be 18 = 10 - (-8)")
-
-    # Plot
-    fig, axes = plt.subplots(1, 2)
-
-    # Contour fill
-    im = axes[0].contourf(X, Y, Z, levels=[-1e10, 0], colors=['#b87333'], alpha=0.9)
-    axes[0].contour(X, Y, Z, levels=[0], colors=['k'], linewidths=2)
-    axes[0].set_aspect('equal')
-    axes[0].set_xlim(-12, 12); axes[0].set_ylim(-12, 12)
-    axes[0].set_title('Polynomial curve of constant width\n(Rabinowitz, 1997)', fontsize=10)
-
-    # X-axis cross section
-    xs_1d = np.linspace(-12, 12, 500)
-    p_vals = poly_x_axis(xs_1d)
-    axes[1].plot(xs_1d, p_vals, color='#0072BD', linestyle='-', linewidth=2)
-    axes[1].axhline(0, color='k', linestyle='--', linewidth=1)
-    axes[1].axvline(-8, color='#D95319', linestyle='--', linewidth=1.5, label='x=-8')
-    axes[1].axvline(10, color='#77AC30', linestyle='--', linewidth=1.5, label='x=10')
-    axes[1].set_title('p(x,0) on x-axis\nZeros at x=-8 and x=10 (width=18)', fontsize=10)
-    axes[1].set_ylim(-1e9, 1e9)
-    axes[1].legend(fontsize=9)
-
-    fig.suptitle('Polynomial Curve of Constant Width', fontsize=13)
+    # --- Plot the curve ---------------------------------------------------
+    tt = np.linspace(r.domain.a, r.domain.b, 2000)
+    z = np.asarray(r(jnp.array(tt)))
+    fig, ax = plt.subplots()
+    ax.fill(np.real(z), np.imag(z), color=[0.722, 0.451, 0.20])
+    ax.set_aspect('equal')
+    ax.grid(True)
+    ax.set_title('Curve of constant width', fontsize=12)
     fig.tight_layout()
-    fig.savefig(os.path.join(outdir, 'constant_width.png'),
-                dpi=150, bbox_inches='tight')
+    fig.savefig(os.path.join(outdir, 'constant_width.png'), dpi=150,
+                bbox_inches='tight')
     plt.close(fig)
 
     print("constant_width: done")
     return True
+
 
 if __name__ == "__main__":
     run()
