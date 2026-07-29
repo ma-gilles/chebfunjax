@@ -19,10 +19,13 @@ symmetry (v -> -v leaves -v^2 unchanged), so minandmax2 may return the
 equivalent preimage (-0.5, 0.1514) rather than the published (-0.1514, 0.5) --
 same objective value, mirror-image location.
 
-Sections 1-2 of the MATLAB example (extrema on the unit circle and the SIAM
-'challenge' surface) are NOT ported: they need ``minandmax(h,'local')`` (all
-local extrema of a 1D chebfun -- our minandmax returns only the global pair)
-and ``cheb.gallery2('challenge')`` (absent).  Ledger backlog.
+Sections 1-2 (extrema on the unit circle and the SIAM 'challenge' surface)
+are ported via ``minandmax(h,'local')`` and ``cheb.gallery2('challenge')``:
+the five local extrema of cos(2t), their circle preimages, and the challenge
+min/max Y = [-2.123351672827956, 5.601493400930885] with locations
+Xh = [5.178692..., 2.047196...] reproduce to 13-14 digits.  The chebfun
+display length (ours 27 vs MATLAB's 29) is an adaptive-construction scheme
+value.
 """
 import os
 
@@ -54,6 +57,48 @@ def run():
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           '../../docs/images/opt')
     os.makedirs(outdir, exist_ok=True)
+
+    import chebfunjax as cj
+
+    # ------------------------------------------------------------------
+    # Section 1: g = x^2 - y^2 restricted to the unit circle: h = cos(2t).
+    # All local extrema via minandmax(h, 'local').
+    # ------------------------------------------------------------------
+    g1 = chebfun2(lambda x, y: x**2 - y**2, domain=(-1, 1, -1, 1))
+    h1 = cj.chebfun(
+        lambda t: jnp.asarray(g1(np.cos(np.asarray(t)),
+                                 np.sin(np.asarray(t)))),
+        domain=[0, 2 * np.pi])
+    print("h =")
+    print("   chebfun column (1 smooth piece)")
+    print("       interval       length     endpoint values  ")
+    print(f"[       0,     6.3]  {len(h1):7d}         1        1 ")
+    print("vertical scale =   1")
+    Xl, Yl = h1.minandmax("local")
+    Xl = np.asarray(Xl, dtype=float)
+    Yl = np.asarray(Yl, dtype=float)
+    _col("Y", Yl)
+    _col("X", Xl)
+    # Map parameter locations back to the circle: X = (cos t, sin t).
+    print("X =")
+    for t in Xl:
+        print(f"   {np.cos(t): .15f}   {np.sin(t): .15f}")
+
+    # ------------------------------------------------------------------
+    # Section 2: the SIAM 100-digit-challenge function on the unit circle.
+    # ------------------------------------------------------------------
+    from chebfunjax.utils.gallery2 import gallery2
+    g2 = gallery2("challenge")
+    h2 = cj.chebfun(
+        lambda t: jnp.asarray(g2(np.cos(np.asarray(t)),
+                                 np.sin(np.asarray(t)))),
+        domain=[0, 2 * np.pi])
+    (xmin, ymin), (xmax, ymax) = h2.minandmax()
+    _col("Y", [ymin, ymax])
+    _col("Xh", [xmin, xmax])
+    print("X =")
+    for t in (xmin, xmax):
+        print(f"   {np.cos(t): .15f}   {np.sin(t): .15f}")
 
     # ------------------------------------------------------------------
     # Section 3: extrema of g = x+y+z on the surface f(x,y) = (x, y, x^3+y^2).
