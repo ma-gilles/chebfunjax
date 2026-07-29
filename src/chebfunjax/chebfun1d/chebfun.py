@@ -240,15 +240,18 @@ class _Piece(eqx.Module):
         exps = getattr(self.tech, "exponents", None)
         if exps is not None:
             sm = self.tech.smoothPart.values
+            a_exp, b_exp = float(exps[0]), float(exps[1])
             out = []
-            for exp, v in ((float(exps[0]), float(sm[0])),
-                           (float(exps[1]), float(sm[-1]))):
+            # At each endpoint the OTHER end's singular factor is finite
+            # and equals 2**other_exp: f(-1) = s(-1)*2^b, f(1) = s(1)*2^a.
+            for exp, v, other in ((a_exp, float(sm[0]), b_exp),
+                                  (b_exp, float(sm[-1]), a_exp)):
                 if exp < -1e-14:
                     out.append(math.copysign(math.inf, v if v != 0 else 1.0))
                 elif exp > 1e-14:
                     out.append(0.0)
                 else:
-                    out.append(v)
+                    out.append(v * 2.0 ** other)
             return (out[0], out[1])
         vals = self.values
         return (float(vals[0]), float(vals[-1]))
@@ -429,6 +432,13 @@ class _Piece(eqx.Module):
         a, b = self.interval
         scale = (2.0 / (b - a)) ** k
         tech_der = self.tech.diff(k)
+        from chebfunjax.fun.singfun import Singfun
+        if isinstance(tech_der, Singfun):
+            # Constant scaling of a Singfun acts on its smooth factor;
+            # the exponents (already adjusted by @singfun/diff) stay.
+            new_tech = Singfun(tech_der.smoothPart * jnp.float64(scale),
+                               tech_der.exponents)
+            return _Piece(tech=new_tech, interval=(a, b))
         # Scale the coefficients; rebuild with the SAME tech class — the
         # previous hard-coded Chebtech2 reinterpreted Fourier coefficients
         # as Chebyshev ones for trig pieces.
