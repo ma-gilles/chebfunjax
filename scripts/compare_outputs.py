@@ -249,6 +249,14 @@ def main() -> int:
         print(f"  {result['state']:<9} {record['category']}/{record['stem']}: {result['metric']}")
 
     RESULTS_CSV.parent.mkdir(parents=True, exist_ok=True)
+    # Selector runs MERGE into an existing csv rather than clobbering the
+    # full-sweep results: keep prior rows for scripts not re-run here.
+    if selectors is not None and RESULTS_CSV.exists():
+        rerun = {(r["category"], r["stem"]) for r in rows}
+        with open(RESULTS_CSV, newline="") as fh:
+            kept = [r for r in csv.DictReader(fh)
+                    if (r["category"], r["stem"]) not in rerun]
+        rows = sorted(kept + rows, key=lambda r: (r["category"], r["stem"]))
     with open(RESULTS_CSV, "w", newline="") as fh:
         w = csv.DictWriter(
             fh, fieldnames=["script", "category", "stem", "url", "state", "metric", "note"]
