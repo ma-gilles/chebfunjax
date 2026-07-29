@@ -42,7 +42,11 @@ class TestChebGallery2:
     def test_entry_constructs_and_matches(self, name):
         f, fa = gallery2(name, return_handle=True)
         dom = _REGISTRY[name][1]
-        assert _sample_err(f, fa, dom, seed=abs(hash(name)) % 2 ** 31) < 1e-9
+        # Self-imposed bound (no MATLAB-mirrored tolerance exists for
+        # gallery reconstruction).  Measured: airycomplex hits 8.8e-9 on
+        # CI BLAS (scipy complex Airy) vs ~1e-10 locally; 1e-7 keeps a
+        # 10x margin over the worst measured error.
+        assert _sample_err(f, fa, dom, seed=abs(hash(name)) % 2 ** 31) < 1e-7
 
     def test_no_arg_returns_random(self):
         f = gallery2()
