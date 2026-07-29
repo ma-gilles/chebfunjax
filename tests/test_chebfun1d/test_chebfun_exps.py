@@ -135,3 +135,55 @@ class TestSqrtSingular:
         xs = jnp.asarray(np.linspace(-0.99, 0.99, 40))
         npt.assert_allclose(np.asarray(g(xs)),
                             np.sqrt(2 + np.sin(np.asarray(xs))), atol=1e-13)
+
+
+class TestSingularAbsRealRepr:
+    """abs/real/repr on 'exps' chebfuns keep the singular structure."""
+
+    def _pole(self):
+        # 1/(1-x^2): simple poles at both endpoints.
+        return cj.chebfun(lambda x: 1.0 / (1.0 - x ** 2),
+                          exps=[-1, -1])
+
+    def test_abs_keeps_exponents_and_values(self):
+        from chebfunjax.fun.singfun import Singfun
+        f = self._pole()
+        g = abs(f)
+        assert isinstance(g.funs[0].tech, Singfun)
+        assert g.funs[0].tech.exponents == f.funs[0].tech.exponents
+        xs = jnp.asarray(np.linspace(-0.9, 0.9, 21))
+        npt.assert_allclose(np.asarray(g(xs)),
+                            1.0 / (1.0 - np.asarray(xs) ** 2), rtol=1e-12)
+
+    def test_abs_negative_smooth_part(self):
+        f = -self._pole()
+        g = abs(f)
+        xs = jnp.asarray(np.linspace(-0.9, 0.9, 21))
+        npt.assert_allclose(np.asarray(g(xs)),
+                            1.0 / (1.0 - np.asarray(xs) ** 2), rtol=1e-12)
+
+    def test_sum_abs_pole_infinite(self):
+        assert np.isposinf(float(abs(self._pole()).sum()))
+
+    def test_real_structural_on_singfun(self):
+        from chebfunjax.fun.singfun import Singfun
+        f = self._pole()
+        g = f.real()
+        assert isinstance(g.funs[0].tech, Singfun)
+        xs = jnp.asarray(np.linspace(-0.9, 0.9, 21))
+        npt.assert_allclose(np.asarray(g(xs)), np.asarray(f(xs)), rtol=1e-13)
+
+    def test_repr_no_crash_inf_endpoints(self):
+        r = repr(self._pole())
+        assert "inf" in r.lower()
+
+    def test_root_power_no_interior_roots(self):
+        from chebfunjax.fun.singfun import Singfun
+        g = abs(self._pole()) ** 0.5
+        assert isinstance(g.funs[0].tech, Singfun)
+        a, b = g.funs[0].tech.exponents
+        assert (a, b) == (-0.5, -0.5)
+        xs = jnp.asarray(np.linspace(-0.9, 0.9, 21))
+        npt.assert_allclose(np.asarray(g(xs)),
+                            (1.0 / (1.0 - np.asarray(xs) ** 2)) ** 0.5,
+                            rtol=1e-12)

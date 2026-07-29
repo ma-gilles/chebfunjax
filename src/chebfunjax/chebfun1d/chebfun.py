@@ -230,7 +230,26 @@ class _Piece(eqx.Module):
 
     @property
     def endpoint_values(self) -> tuple[float, float]:
-        """Function values at the left and right endpoints (a, b)."""
+        """Function values at the left and right endpoints (a, b).
+
+        A Singfun piece has no plain ``values`` grid; its endpoint value
+        is +/-Inf where the endpoint exponent is negative (sign taken from
+        the smooth part, mirroring MATLAB's ``get(f, 'lval')``), 0 where
+        it is positive, and the smooth-part value where it vanishes.
+        """
+        exps = getattr(self.tech, "exponents", None)
+        if exps is not None:
+            sm = self.tech.smoothPart.values
+            out = []
+            for exp, v in ((float(exps[0]), float(sm[0])),
+                           (float(exps[1]), float(sm[-1]))):
+                if exp < -1e-14:
+                    out.append(math.copysign(math.inf, v if v != 0 else 1.0))
+                elif exp > 1e-14:
+                    out.append(0.0)
+                else:
+                    out.append(v)
+            return (out[0], out[1])
         vals = self.values
         return (float(vals[0]), float(vals[-1]))
 
@@ -331,6 +350,33 @@ class _Piece(eqx.Module):
     def log(self) -> _Piece:
         """Natural logarithm of the piece."""
         return self._apply_fun(jnp.log)
+
+    def abs(self) -> _Piece:
+        """Absolute value of the piece (no interior sign change assumed).
+
+        A Singfun piece keeps its exponents: the singular factors
+        ``(1+x)^a (1-x)^b`` are positive on the interior, so
+        ``|f| = |s| * (1+x)^a (1-x)^b``, and after root-splitting the
+        smooth part has one sign — ``|s| = sign(s(0)) * s`` exactly.
+        Re-approximating through ``_apply_fun`` instead silently drops
+        the exponents (a pole's |f| would come back as a finite,
+        unhappy interpolant).
+
+        Provenance
+        ----------
+        MATLAB source : @singfun/abs.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.fun.singfun import Singfun
+        tech = self.tech
+        if isinstance(tech, Singfun):
+            mid = float(jnp.asarray(
+                tech.smoothPart(jnp.asarray([0.0], dtype=jnp.float64)))[0])
+            sgn = -1.0 if mid < 0 else 1.0
+            return _Piece(tech=Singfun(tech.smoothPart * sgn,
+                                       tech.exponents),
+                          interval=self.interval)
+        return self._apply_fun(jnp.abs)
 
     def sqrt(self) -> _Piece:
         """Square root of the piece."""
@@ -1676,6 +1722,16 @@ class Chebfun(eqx.Module):
         r = _np.asarray(self.roots(), dtype=float).ravel()
         r = r[_np.isfinite(r)]
         if len(r) == 0:
+            # Exponent-aware even without interior roots: a Singfun piece
+            # must scale its exponents (f^b keeps the singularity), not be
+            # re-approximated smoothly.
+            if any(isinstance(p.tech, Singfun) for p in self.funs):
+                new_funs = [
+                    _Piece(tech=p.tech ** b, interval=p.interval)
+                    if isinstance(p.tech, Singfun) else p._apply_fun(smooth_op)
+                    for p in self.funs
+                ]
+                return Chebfun(funs=new_funs, domain=self.domain)
             return self._apply_fun(smooth_op)
         # Split at interior roots so every remaining root sits on a breakpoint.
         fbr = self.addBreaksAtRoots()
@@ -1732,8 +1788,10 @@ class Chebfun(eqx.Module):
             # gathers all columns); drop the NaN padding.
             roots = _np.sort(roots[_np.isfinite(roots)])
         if roots.shape[0] == 0:
-            # No sign changes — simple abs on each piece
-            return self._apply_fun(jnp.abs)
+            # No sign changes — simple abs on each piece (exponent-
+            # preserving for Singfun pieces, see _Piece.abs).
+            return Chebfun(funs=[p.abs() for p in self.funs],
+                           domain=self.domain)
 
         # Build new breakpoints: existing domain breakpoints + roots
         existing = _np.array(list(self.domain.breakpoints))
@@ -1747,7 +1805,8 @@ class Chebfun(eqx.Module):
         new_bps = new_bps[mask]
 
         if len(new_bps) < 2:
-            return self._apply_fun(jnp.abs)
+            return Chebfun(funs=[p.abs() for p in self.funs],
+                           domain=self.domain)
 
         new_dom = Domain(tuple(float(b) for b in new_bps))
         f = self  # capture for closure
@@ -4814,16 +4873,20 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/real.m
         Chebfun commit: 7574c77
         """
-        new_funs = [
-            p.with_tech(
-                Chebtech2.from_coeffs(jnp.real(p.tech.coeffs))
-                if isinstance(p.tech, Chebtech2)
-                # Fourier coefficients of a real function are
-                # conjugate-symmetric, not real — go through values.
-                else type(p.tech).from_values(jnp.real(p.tech.values))
-            )
-            for p in self.funs
-        ]
+        from chebfunjax.fun.singfun import Singfun
+
+        def _real_tech(tech):
+            if isinstance(tech, Chebtech2):
+                return Chebtech2.from_coeffs(jnp.real(tech.coeffs))
+            if isinstance(tech, Singfun):
+                # Real part acts on the smooth factor; the singular
+                # factors (1±x)^e are real (@singfun real via smoothPart).
+                return Singfun(_real_tech(tech.smoothPart), tech.exponents)
+            # Fourier coefficients of a real function are
+            # conjugate-symmetric, not real — go through values.
+            return type(tech).from_values(jnp.real(tech.values))
+
+        new_funs = [p.with_tech(_real_tech(p.tech)) for p in self.funs]
         return Chebfun(funs=new_funs, domain=self.domain)
 
     def imag(self) -> Chebfun:
