@@ -331,10 +331,10 @@ class TestChebfunRepr:
     """Tests for Chebfun.__repr__ and __str__."""
 
     def test_repr_contains_header(self):
-        """repr should start with 'Chebfun column'."""
+        """repr should start with MATLAB's '   chebfun column' header."""
         f = chebfun(jnp.sin)
         r = repr(f)
-        assert r.startswith("Chebfun column")
+        assert r.startswith("   chebfun column")
 
     def test_repr_contains_interval(self):
         """repr should mention the interval."""
@@ -343,10 +343,10 @@ class TestChebfunRepr:
         assert "-1" in r and "1" in r
 
     def test_repr_contains_vscale(self):
-        """repr should include 'vscale'."""
+        """repr should include MATLAB's 'vertical scale'."""
         f = chebfun(jnp.sin)
         r = repr(f)
-        assert "vscale" in r
+        assert "vertical scale" in r
 
     def test_repr_single_piece_label(self):
         """Single-piece repr should say '1 smooth piece'."""
@@ -359,7 +359,7 @@ class TestChebfunRepr:
         f = chebfun(jnp.sin, domain=[-1, 0, 1])
         r = repr(f)
         assert "2 smooth pieces" in r
-        assert "total length" in r
+        assert "Total length" in r
 
     def test_str_format(self):
         """str(f) should be one line matching the spec."""

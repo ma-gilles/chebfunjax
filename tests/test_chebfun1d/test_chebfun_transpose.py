@@ -85,8 +85,8 @@ class TestSizeAndRepr:
         assert _arr().T.size(2) == float("inf")
 
     def test_repr_orientation(self):
-        assert repr(_col()).startswith("Chebfun column")
-        assert repr(_col().T).startswith("Chebfun row")
+        assert repr(_col()).startswith("   chebfun column")
+        assert repr(_col().T).startswith("   chebfun row")
 
 
 class TestMtimesDispatch:

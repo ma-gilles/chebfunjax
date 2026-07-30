@@ -1256,38 +1256,71 @@ class Chebfun(eqx.Module):
         return sum(p.n for p in self.funs)
 
     def __repr__(self) -> str:
-        """Informative multi-line representation matching MATLAB Chebfun style.
+        """MATLAB-faithful multi-line display (@chebfun/disp.m).
+
+        Reproduces MATLAB's format exactly: the ``chebfun column (N smooth
+        pieces)`` header, the per-piece ``[a, b]  length  lval  rval`` rows
+        (``%8.2g`` fields, ``complex values`` for complex pieces, an
+        ``endpoint exponents`` column when any piece is singular), and the
+        ``vertical scale = ... Total length = ...`` footer.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/disp.m, @chebfun/dispData.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
 
         Examples
         --------
         >>> f = chebfun(jnp.sin)
         >>> repr(f)
-        'Chebfun column (1 smooth piece)\\n       interval       length ...\\n...'
+        '   chebfun column (1 smooth piece)\\n       interval ...'
         """
         n_pieces = len(self.funs)
         piece_word = "piece" if n_pieces == 1 else "pieces"
         orientation = "row" if self.is_transposed else "column"
-        header = f"Chebfun {orientation} ({n_pieces} smooth {piece_word})"
-        # Mimic MATLAB's column header layout:
-        # "       interval       length     endpoint values"
-        col_header = "       interval       length     endpoint values"
-        lines = [header, col_header]
-        for piece in self.funs:
+        s = f"   chebfun {orientation} ({n_pieces} smooth {piece_word})"
+
+        # dispData: an 'endpoint exponents' column when any piece has one.
+        all_exps = [tuple(float(e) for e in
+                          getattr(p.tech, "exponents", (0.0, 0.0)))
+                    for p in self.funs]
+        has_exps = any(e != (0.0, 0.0) for e in all_exps)
+        extra_item = "  endpoint exponents" if has_exps else " "
+        s += ("\n       interval       length     endpoint values"
+              f" {extra_item}\n")
+
+        total = 0
+        vs_sup = 0.0
+        for piece, exps in zip(self.funs, all_exps):
             a, b = piece.interval
             length = piece.n
-            lval, rval = piece.endpoint_values
-            # Format interval as "[      -1,       1]" (8 chars each side)
-            interval_str = f"[{a:8g},{b:8g}]"
-            lines.append(
-                f"{interval_str}  {length:7d}    {lval:7.2f}    {rval:6.2f}"
-            )
-        total_len = len(self)
-        vs = self.vscale
-        footer = f"vscale = {vs:.2e}"
+            total += length
+            extra = (f"        [{exps[0]:2.2g}      {exps[1]:2.2g}]  "
+                     if has_exps else "")
+            cf = piece.coeffs
+            if bool(jnp.iscomplexobj(cf)) and float(
+                    jnp.max(jnp.abs(jnp.imag(cf)))) > 0:
+                s += ("[%8.2g,%8.2g]   %6i     complex values %s\n"
+                      % (a, b, length, extra))
+                vs_sup = max(vs_sup, piece.vscale)
+            else:
+                lval, rval = piece.endpoint_values
+                # Prevent -0/+0 (MATLAB's endvals tweak).
+                if not (math.isnan(lval) or math.isnan(rval)):
+                    lval = 0.0 if lval == 0 else lval
+                    rval = 0.0 if rval == 0 else rval
+                s += ("[%8.2g,%8.2g]   %6i  %8.2g %8.2g %s\n"
+                      % (a, b, length, lval, rval, extra))
+                for v in (piece.vscale, abs(lval), abs(rval)):
+                    if not math.isnan(v):
+                        vs_sup = max(vs_sup, v)
+        s += "vertical scale = %3.2g " % vs_sup
         if n_pieces > 1:
-            footer += f"    total length = {total_len}"
-        lines.append(footer)
-        return "\n".join(lines)
+            s += "   Total length = %i" % total
+        # MATLAB capitalises Inf/NaN; Python's %g prints them lowercase.
+        return s.replace("inf", "Inf").replace("nan", "NaN")
 
     def __str__(self) -> str:
         """One-line summary."""

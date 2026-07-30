@@ -43,30 +43,10 @@ _OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        '..', '..', 'docs', 'images', 'approx')
 
 
-def _fmt_end(v):
-    if np.isposinf(v):
-        return "Inf"
-    if np.isneginf(v):
-        return "-Inf"
-    return f"{v:.2g}"
-
-
 def _display(f, name):
-    """MATLAB-style singular-chebfun display table."""
-    n = len(f.funs)
+    """MATLAB REPL-style display: 'name =' then the library repr."""
     print(f"{name} =")
-    print(f"   chebfun column ({n} smooth pieces)")
-    print("       interval       length     endpoint values"
-          "   endpoint exponents")
-    total = 0
-    for p in f.funs:
-        a, b = p.interval
-        lval, rval = p.endpoint_values
-        exps = getattr(p.tech, "exponents", (0.0, 0.0))
-        total += p.n
-        print(f"[{a:8g},{b:8g}]  {p.n:7d}  {_fmt_end(lval):>8}  "
-              f"{_fmt_end(rval):>7}         [{exps[0]:g}  {exps[1]:g}]  ")
-    print(f"vertical scale = Inf    Total length = {total}")
+    print(repr(f))
 
 
 def run():
