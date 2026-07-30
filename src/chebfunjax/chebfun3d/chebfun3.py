@@ -520,7 +520,7 @@ class Chebfun3(eqx.Module):
         ),
         tol: float = _EPS,
         max_rank: int = 128,
-        min_samples: int = 9,
+        min_samples: int = 17,
         _restarts: int = 0,
         _r_init: tuple = (6, 6, 6),
         _n_init: tuple | None = None,
@@ -643,7 +643,7 @@ class Chebfun3(eqx.Module):
         if _n_init is not None:
             n = [int(v) for v in _n_init]
         else:
-            n = [max(min_samples, 9)] * 3
+            n = [max(min_samples, 9)] * 3  # MATLAB tpref.minSamples = 17
         # Initial ranks for random initialization
         r = [int(v) for v in _r_init]
         abs_tol_running = tol
@@ -652,18 +652,21 @@ class Chebfun3(eqx.Module):
         yp = _chebpts_phys_np(n[1], ya, yb)
         zp = _chebpts_phys_np(n[2], za, zb)
 
-        # Initialize random fiber indices (spread across interval)
-        rng = np.random.default_rng(16051821 + _restarts)
-
+        # Initialize random fiber indices exactly as MATLAB's
+        # initializeIndexRandomly: a FRESH rng(16051821+restarts,
+        # 'twister') per call (so J == K), one draw per subinterval via
+        # val = i*box + randi(box).  numpy's RandomState shares MT19937
+        # + init_genrand seeding with MATLAB 'twister', and
+        # floor(u*box)+1 reproduces randi's stream bit-exactly --
+        # verified against MATLAB R2025b (J=[3 6 7 9 12 13] for
+        # seed 16051821, r=6, n=17).
         def _init_indices(ri: int, ni: int) -> np.ndarray:
-            """Draw ri indices spread uniformly in [0, ni)."""
             box = max(1, ni // ri)
-            idx = []
-            for q in range(ri):
-                lo = q * box
-                hi = min(lo + box, ni) - 1
-                idx.append(int(rng.integers(lo, max(lo + 1, hi + 1))))
-            return np.array(sorted(set(idx[:ri])), dtype=int)
+            rs = np.random.RandomState(16051821 + _restarts)
+            draws = np.floor(rs.random_sample(ri) * box).astype(int) + 1
+            vals = [(i + 1) * box + int(d) for i, d in enumerate(draws)]
+            # 1-based MATLAB indices -> 0-based, clipped to the grid.
+            return np.array([min(v, ni) - 1 for v in vals], dtype=int)
 
         J = _init_indices(r[1], n[1])
         K = _init_indices(r[2], n[2])
