@@ -1204,8 +1204,8 @@ class TestDeltaPropagation:
     """Core coverage for the unified deltas field on arithmetic + conv."""
 
     def _d(self, mags):
-        z = cj.chebfun(lambda t: 0.0 * t, domain=[-1, 1])
-        return cj.Chebfun(funs=z.funs, domain=z.domain, deltas=tuple(mags))
+        z = chebfun(lambda t: 0.0 * t, domain=[-1, 1])
+        return Chebfun(funs=z.funs, domain=z.domain, deltas=tuple(mags))
 
     def test_add_sub_scalar_paths_keep_deltas(self):
         d = self._d([(0.5, 2.0)])
