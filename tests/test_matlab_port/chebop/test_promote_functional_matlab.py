@@ -27,12 +27,10 @@ XS = jnp.asarray(np.linspace(-0.99, 0.99, 30))
 
 
 class TestChebopPromoteFunctional:
-    @pytest.mark.xfail(
-        reason="scalar linear solve resolves the promoted sum(u) "
-        "functional to only ~7e-9 (2e-7 at n=128) vs MATLAB's 1e-10; "
-        "the linear functional-promotion discretization needs the "
-        "exact quadrature row MATLAB uses",
-        strict=False)
+    # (Previously xfailed at ~7e-9: the solve returned an unchopped
+    # ~1e-14 coefficient tail that diff(2) amplified in the residual;
+    # solutions are now simplified as in MATLAB's linsolve.  Measured
+    # 6.4e-14 on 2026-07-30.)
     def test_linear_integro_differential(self):
         # pass(1)
         N = Chebop(lambda x, u: u.diff(2) + u.sum(), (-1.0, 1.0))

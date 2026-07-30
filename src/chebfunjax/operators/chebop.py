@@ -312,6 +312,33 @@ class Chebop:
         max_iter: int = 15,
         newton_tol: float = 5e-13,
     ):
+        out = self._solve_impl(f, n=n, n_min=n_min, n_max=n_max, tol=tol,
+                               max_iter=max_iter, newton_tol=newton_tol)
+        # MATLAB's linsolve/solvebvp returns SIMPLIFIED chebfuns; an
+        # unchopped 1e-14 coefficient tail is amplified ~n^(2m) by
+        # diff(m) in residual checks (test_promote_functional measured
+        # 2e-9 from exactly this).
+        return self._simplify_solution(out)
+
+    @staticmethod
+    def _simplify_solution(out):
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        if isinstance(out, Chebfun):
+            return out.simplify()
+        if isinstance(out, (list, tuple)):
+            return type(out)(Chebop._simplify_solution(v) for v in out)
+        return out
+
+    def _solve_impl(
+        self,
+        f=0.0,
+        n: int | None = None,
+        n_min: int = 8,
+        n_max: int = 2048,
+        tol: float = 1e-10,
+        max_iter: int = 15,
+        newton_tol: float = 5e-13,
+    ):
         """Solve the BVP ``N[u] = f`` with the attached boundary conditions.
 
         For linear operators this calls :meth:`Linop.solve` directly.

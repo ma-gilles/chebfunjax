@@ -1224,3 +1224,34 @@ class TestDeltaPropagation:
     def test_sum_includes_deltas(self):
         d = self._d([(0.0, 1.0), (0.5, -0.25)])
         assert float(d.sum()) == pytest.approx(0.75, abs=1e-13)
+
+
+class TestChebfunSimplify:
+    """Core coverage for Chebfun.simplify (@chebfun/simplify port)."""
+
+    def test_chops_noise_tail(self):
+        base = chebfun(lambda x: x ** 2, domain=[-1, 1])
+        c = jnp.asarray(np.concatenate(
+            [np.asarray(base.funs[0].coeffs), 1e-14 * np.ones(29)]))
+        from chebfunjax.tech.chebtech import Chebtech2
+        noisy = Chebfun(
+            funs=[type(base.funs[0])(tech=Chebtech2.from_coeffs(c),
+                                     interval=(-1.0, 1.0))],
+            domain=base.domain)
+        out = noisy.simplify()
+        assert len(out) < 8
+        xs = jnp.asarray(np.linspace(-1, 1, 11))
+        npt.assert_allclose(np.asarray(out(xs)),
+                            np.asarray(xs) ** 2, atol=1e-12)
+
+    def test_identity_on_clean(self):
+        f = chebfun(jnp.sin)
+        assert len(f.simplify()) == len(f)
+
+    def test_piecewise_global_vscale(self):
+        # A tiny piece next to a large one is chopped relative to the
+        # global scale.
+        f = chebfun(lambda x: jnp.where(x < 0, 1e6 * x, 1e-10 * x),
+                    domain=[-1, 0, 1])
+        out = f.simplify()
+        assert len(out.funs) == 2

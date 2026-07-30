@@ -2652,6 +2652,38 @@ class Chebfun(eqx.Module):
             Chebfun(funs=new_funs, domain=self.domain, deltas=deltas),
             self.is_transposed)
 
+    def simplify(self, tol: float | None = None) -> "Chebfun":
+        """Chop negligible trailing coefficients from every piece.
+
+        Each fun is simplified against the GLOBAL vertical scale: the
+        tolerance passed to the tech is ``tol * vscale_global /
+        vscale_local`` so small pieces of a large function are chopped
+        relative to the whole (MATLAB @chebfun/simplify.m).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/simplify.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        base = 2.220446049250313e-16 if tol is None else float(tol)
+        vloc = [max(float(p.vscale), 0.0) for p in self.funs]
+        vglob = max(vloc) if vloc else 0.0
+        new_funs = []
+        for piece, vl in zip(self.funs, vloc):
+            t = piece.tech
+            if hasattr(t, "simplify"):
+                scaled = base * (vglob / vl) if (vl > 0 and vglob > 0) else base
+                try:
+                    t = t.simplify(scaled)
+                except TypeError:
+                    t = t.simplify()
+            new_funs.append(_Piece(tech=t, interval=piece.interval))
+        out = Chebfun._as_transposed(
+            Chebfun(funs=new_funs, domain=self.domain), self.is_transposed)
+        return self._attach_deltas(out, getattr(self, "deltas", ()))
+
     def cumsum(self) -> Chebfun:
         """Antiderivative satisfying F(a) = 0 at the left endpoint.
 
