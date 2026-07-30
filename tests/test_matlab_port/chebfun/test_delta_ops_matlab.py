@@ -64,3 +64,13 @@ def test_smooth_conv_unaffected():
     want = np.sqrt(np.pi / 2) * erf(np.sqrt(2.0))
     assert float(np.asarray(h(jnp.asarray([0.0])))[0]) == pytest.approx(
         want, rel=1e-10)
+
+
+def test_pointwise_product_scales_deltas():
+    # delta_{0.5} * g = g(0.5) * delta_{0.5} (@deltafun/times.m).
+    g = cj.chebfun(lambda t: 2.0 + t, domain=[-1, 1])
+    d = _delta_train((-1, 1), [(0.5, 1.0)])
+    h = d * g
+    (loc, mag), = h.deltas
+    assert loc == pytest.approx(0.5) and mag == pytest.approx(2.5)
+    assert float(h.sum()) == pytest.approx(2.5, abs=1e-12)

@@ -1537,9 +1537,20 @@ class Chebfun(eqx.Module):
             g_trans = other.is_transposed
             if f_trans == g_trans:
                 # Both column or both row: pointwise product, orientation kept.
-                return Chebfun._as_transposed(
+                out = Chebfun._as_transposed(
                     Chebfun._binary_op(self, other, lambda a, b: a * b),
                     f_trans)
+                # Dirac deltas scale by the cofactor's value at their
+                # location: delta_u * g = g(u) * delta_u
+                # (@deltafun/times.m).
+                ds = ()
+                for me, oth in ((self, other), (other, self)):
+                    for loc, mag in getattr(me, "deltas", ()):
+                        val = float(jnp.real(jnp.asarray(
+                            oth(jnp.float64(loc)))))
+                        ds = Chebfun._merge_deltas(
+                            ds, ((loc, mag * val),))
+                return self._attach_deltas(out, ds)
             if f_trans and not g_trans:
                 # Row * column -> inner product scalar.  inner() conjugates
                 # its first argument, so conj(f).inner(g) == int f*g.
