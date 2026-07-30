@@ -33,15 +33,10 @@ BOTH = [Chebtech1, Chebtech2]
 # pass(n, 3): cos(1e4*x) relative-error quadrature — Chebtech1 is marginally
 # (~1.2x) less accurate than MATLAB's 1e6*vscale*eps bound; Chebtech2 passes.
 SUM_COS_TECHS = [
-    pytest.param(
-        Chebtech1,
-        marks=pytest.mark.xfail(
-            reason="chebfunjax Chebtech1 quadrature of cos(1e4*x) is ~1.2x less "
-            "accurate than MATLAB; relative error slightly exceeds "
-            "1e6*vscale(f)*eps",
-            strict=False,
-        ),
-    ),
+    # (Chebtech1 carried a non-strict xfail for a ~1.2x margin over
+    # MATLAB's 1e6*vscale*eps bound; it has passed 4 consecutive CI runs
+    # and locally -- removed 2026-07-30, restoring strict enforcement.)
+    Chebtech1,
     Chebtech2,
 ]
 

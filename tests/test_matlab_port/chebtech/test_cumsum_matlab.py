@@ -69,13 +69,19 @@ class TestChebtechCumsum:
         assert _at_m1(F) < tol
 
     # pass(n, 3): cos(1e4*x) — real but exceeds MATLAB's 5e4*vscale*eps bound.
-    @pytest.mark.xfail(
-        reason="chebfunjax antiderivative of cos(1e4*x) is ~1.1-3x less "
-        "accurate than MATLAB Chebfun; std of the antiderivative error "
-        "marginally exceeds 5e4*vscale(F)*eps for both tech kinds",
-        strict=False,
-    )
-    @pytest.mark.parametrize("Tech", BOTH)
+    @pytest.mark.parametrize("Tech", [
+        pytest.param(
+            Chebtech1,
+            marks=pytest.mark.xfail(
+                reason="Chebtech1 antiderivative of cos(1e4*x): std of the "
+                "error marginally exceeds 5e4*vscale(F)*eps (platform-"
+                "marginal; Chebtech2 passes the bound -- re-measured "
+                "2026-07-30 after 4 consecutive CI xpasses)",
+                strict=False,
+            ),
+        ),
+        Chebtech2,
+    ])
     def test_antideriv_high_frequency(self, Tech):
         f = Tech.from_function(lambda x: jnp.cos(1e4 * x))
         F = f.cumsum()

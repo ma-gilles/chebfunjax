@@ -5351,39 +5351,73 @@ class Chebfun(eqx.Module):
                 "Use a Chebfun with one interval."
             )
 
-        gam = float(_gamma(mu_frac))
+        # Spectral coefficient-space algorithm (@chebtech/fracInt.m):
+        # Legendre (or Jacobi P^(0,b)) coefficients scaled by
+        # beta(k+b+1, mu)/Gamma(mu), mapped back as Jacobi P^(-mu, b+mu)
+        # coefficients; the result carries the analytic endpoint
+        # exponent update exps + [mu, 0] as a Singfun
+        # (@singfun/fracInt.m), scaled by (diff(domain)/2)^mu
+        # (@bndfun/fracInt.m).  The previous pointwise Gauss-Jacobi
+        # quadrature built a SMOOTH result whose endpoint branch
+        # plateaued at ~1e-8.
+        import scipy.special as _sps
+
+        from chebfunjax.fun.singfun import Singfun
+        from chebfunjax.utils.transforms import cheb2jac, cheb2leg, jac2cheb
+
         a = float(f.domain.a)
         b = float(f.domain.b)
+        piece = f.funs[0]
+        tech = piece.tech
+        if isinstance(tech, Singfun):
+            e_l, e_r = (float(v) for v in tech.exponents)
+            if e_r != 0.0:
+                raise ValueError(
+                    "fracInt: only functions smooth at the right "
+                    "boundary are supported (right exponent must be 0).")
+            sp_coeffs = _np.asarray(tech.smoothPart.coeffs, dtype=float)
+        else:
+            e_l = 0.0
+            sp_coeffs = _np.asarray(tech.coeffs, dtype=float)
 
-        # Gauss-JACOBI quadrature absorbing the (x - t)^(mu-1) endpoint
-        # singularity into the weight (Fable 5 fix -- plain Gauss-
-        # Legendre on the singular kernel converged only algebraically,
-        # giving ~4-digit fracInt and a systematically biased fracDiff):
-        #   I(x) = (x-a)^mu / (Gamma(mu) 2^mu)
-        #          * sum_j w_j f(a + (x-a)(xi_j+1)/2),
-        # with (xi_j, w_j) = jacpts(n, mu-1, 0) so that the weight
-        # (1-xi)^(mu-1) is exactly the kernel's singular factor.
-        from chebfunjax.utils.quadrature import jacpts as _jacpts
-        n_q = 60
-        xi_ref, w_ref = (_np.asarray(v)
-                         for v in _jacpts(n_q, mu_frac - 1.0, 0.0))
+        n = sp_coeffs.shape[0]
+        k = _np.arange(n, dtype=float)
+        if e_l == 0.0:
+            c_leg = _np.asarray(cheb2leg(jnp.asarray(sp_coeffs)))
+            if mu_frac != 0.5:
+                c_jac = (c_leg * _sps.beta(k + 1.0, mu_frac)
+                         / _gamma(mu_frac))
+                c_new = _np.asarray(jac2cheb(jnp.asarray(c_jac),
+                                             -mu_frac, mu_frac))
+            else:
+                # Half-integral special case ([1, (18.17.45)]); divide
+                # out (1+x) via the tridiagonal averaging operator.
+                scl = k + 0.5
+                c_scl = c_leg / (scl * _gamma(0.5))
+                c_ext = _np.concatenate([c_scl, [0.0]])
+                c_shift = _np.concatenate([[0.0], c_scl])
+                c_sum = c_ext + c_shift
+                import scipy.sparse as _spa
+                e = _np.ones(n)
+                D = _spa.spdiags([0.5 * e, e, 0.5 * e], [0, 1, 2],
+                                 n, n).tolil()
+                D[0, 0] = 1.0
+                sol = _spa.linalg.spsolve(D.tocsr(), c_sum[1:])
+                c_new = _np.concatenate([sol, [0.0]])
+        else:
+            c_jac1 = _np.asarray(cheb2jac(jnp.asarray(sp_coeffs),
+                                          0.0, e_l))
+            c_jac2 = (c_jac1 * _sps.beta(k + e_l + 1.0, mu_frac)
+                      / _gamma(mu_frac))
+            c_new = _np.asarray(jac2cheb(jnp.asarray(c_jac2),
+                                         -mu_frac, e_l + mu_frac))
 
-        def _frac_int_at_x(x_scalar: float) -> float:
-            if x_scalar <= a + 1e-15 * (b - a):
-                return 0.0
-            t_phys = a + (x_scalar - a) * (xi_ref + 1.0) / 2.0
-            fvals = _np.asarray(f(jnp.array(t_phys)), dtype=float)
-            pref = (x_scalar - a) ** mu_frac / (gam * 2.0 ** mu_frac)
-            return float(pref * _np.dot(w_ref, fvals))
-
-        def _frac_integrand(x_arr):
-            x_arr = _np.asarray(x_arr, dtype=float)
-            result = _np.array([_frac_int_at_x(float(xi)) for xi in x_arr.ravel()],
-                               dtype=float)
-            return jnp.array(result.reshape(x_arr.shape))
-
-        from chebfunjax.chebfun1d.chebfun import chebfun as _cf
-        return _cf(_frac_integrand, domain=(a, b))
+        scl = ((b - a) / 2.0) ** mu_frac
+        new_smooth = Chebtech2.from_coeffs(
+            jnp.asarray(scl * c_new, dtype=jnp.float64))
+        sf = Singfun(new_smooth, (e_l + mu_frac, 0.0))
+        out_piece = _Piece(tech=sf, interval=(a, b))
+        return Chebfun(funs=[out_piece], domain=Domain((a, b)))
 
     def fracDiff(self, mu: float, kind: str = "RL") -> "Chebfun":
         r"""Fractional derivative of order *mu* (Riemann-Liouville or Caputo).
