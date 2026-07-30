@@ -1419,6 +1419,27 @@ class Chebfun(eqx.Module):
         ]
         return Chebfun(funs=new_funs, domain=f.domain)
 
+    @staticmethod
+    def _merge_deltas(d1, d2, s1: float = 1.0, s2: float = 1.0) -> tuple:
+        """Combine two ``deltas`` tuples with scalar weights.
+
+        Coincident locations accumulate; zero magnitudes drop.  Mirrors
+        the delta bookkeeping of MATLAB @deltafun/plus.m.
+        """
+        acc: dict = {}
+        for scale, ds in ((s1, d1), (s2, d2)):
+            for loc, mag in ds:
+                key = float(loc)
+                acc[key] = acc.get(key, 0.0) + scale * float(mag)
+        return tuple(sorted((k, v) for k, v in acc.items() if v != 0.0))
+
+    def _attach_deltas(self, result: "Chebfun", deltas: tuple) -> "Chebfun":
+        """Return ``result`` carrying ``deltas`` (no-op when empty)."""
+        if not deltas:
+            return result
+        return Chebfun(funs=result.funs, domain=result.domain,
+                       deltas=deltas)
+
     def __add__(self, other) -> Chebfun:
         """Add two Chebfuns or a Chebfun and a scalar.
 
@@ -1432,13 +1453,16 @@ class Chebfun(eqx.Module):
         if self.isempty() or _is_empty_operand(other):
             return Chebfun.empty()
         if isinstance(other, Chebfun):
-            return Chebfun._binary_op(self, other, lambda a, b: a + b)
+            out = Chebfun._binary_op(self, other, lambda a, b: a + b)
+            return self._attach_deltas(out, Chebfun._merge_deltas(
+                getattr(self, "deltas", ()), getattr(other, "deltas", ())))
         # scalar: delegate to each piece
         new_funs = [
             piece._apply_unary(piece.tech + other)
             for piece in self.funs
         ]
-        return Chebfun(funs=new_funs, domain=self.domain)
+        out = Chebfun(funs=new_funs, domain=self.domain)
+        return self._attach_deltas(out, getattr(self, "deltas", ()))
 
     def __radd__(self, other) -> Chebfun:
         return self.__add__(other)
@@ -1454,12 +1478,16 @@ class Chebfun(eqx.Module):
         if self.isempty() or _is_empty_operand(other):
             return Chebfun.empty()
         if isinstance(other, Chebfun):
-            return Chebfun._binary_op(self, other, lambda a, b: a - b)
+            out = Chebfun._binary_op(self, other, lambda a, b: a - b)
+            return self._attach_deltas(out, Chebfun._merge_deltas(
+                getattr(self, "deltas", ()), getattr(other, "deltas", ()),
+                1.0, -1.0))
         new_funs = [
             piece._apply_unary(piece.tech - other)
             for piece in self.funs
         ]
-        return Chebfun(funs=new_funs, domain=self.domain)
+        out = Chebfun(funs=new_funs, domain=self.domain)
+        return self._attach_deltas(out, getattr(self, "deltas", ()))
 
     def __rsub__(self, other) -> Chebfun:
         return -(self - other)
@@ -1473,8 +1501,10 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         new_funs = [piece._apply_unary(-piece.tech) for piece in self.funs]
-        return Chebfun._as_transposed(
+        out = Chebfun._as_transposed(
             Chebfun(funs=new_funs, domain=self.domain), self.is_transposed)
+        return self._attach_deltas(out, Chebfun._merge_deltas(
+            (), getattr(self, "deltas", ()), 1.0, -1.0))
 
     def __pos__(self) -> Chebfun:
         """Unary plus (identity)."""
@@ -1526,8 +1556,19 @@ class Chebfun(eqx.Module):
             piece._apply_unary(piece.tech * other)
             for piece in self.funs
         ]
-        return Chebfun._as_transposed(
+        out = Chebfun._as_transposed(
             Chebfun(funs=new_funs, domain=self.domain), self.is_transposed)
+        # Scalar scaling also scales any Dirac deltas (@deltafun/mtimes.m).
+        ds = getattr(self, "deltas", ())
+        if ds:
+            try:
+                sc = complex(other)
+                sc = sc.real if sc.imag == 0 else sc
+                out = self._attach_deltas(out, Chebfun._merge_deltas(
+                    (), ds, 1.0, sc))
+            except TypeError:
+                pass
+        return out
 
     def __rmul__(self, other) -> Chebfun:
         return self.__mul__(other)
@@ -3874,13 +3915,57 @@ class Chebfun(eqx.Module):
         keep = _np.concatenate([[True], _np.diff(dom_pts) > tol])
         dom_pts = dom_pts[keep]
 
+        # Dirac deltas convolve exactly (@deltafun semantics):
+        #   (f + sum a_i d_{u_i}) * (g + sum b_j d_{v_j})
+        #     = f*g + sum a_i g(x-u_i) + sum b_j f(x-v_j)
+        #       + sum a_i b_j d_{u_i+v_j}.
+        f_deltas = tuple(getattr(self, "deltas", ()))
+        g_deltas = tuple(getattr(g, "deltas", ()))
+        if f_deltas or g_deltas:
+            extra_bps = []
+            for loc, _mag in f_deltas:
+                extra_bps.extend([loc + c, loc + d])
+                extra_bps.extend((loc + _np.asarray(g_bps)).tolist())
+            for loc, _mag in g_deltas:
+                extra_bps.extend([loc + a, loc + b])
+                extra_bps.extend((loc + _np.asarray(f_bps)).tolist())
+            extra = _np.asarray(extra_bps, dtype=_np.float64)
+            extra = extra[(extra > dom_pts[0] + tol)
+                          & (extra < dom_pts[-1] - tol)]
+            dom_pts = _np.unique(_np.concatenate([dom_pts, extra]))
+            keep = _np.concatenate([[True], _np.diff(dom_pts) > tol])
+            dom_pts = dom_pts[keep]
+        out_deltas: dict = {}
+        for lu, au in f_deltas:
+            for lv, bv in g_deltas:
+                key = float(lu + lv)
+                out_deltas[key] = out_deltas.get(key, 0.0) + au * bv
+
+        def _delta_terms(x_val: float) -> float:
+            sacc = 0.0
+            for loc, mag in f_deltas:
+                t = x_val - loc
+                if c <= t <= d:
+                    sacc += mag * float(_np.asarray(
+                        g(jnp.float64(t))))
+            for loc, mag in g_deltas:
+                t = x_val - loc
+                if a <= t <= b:
+                    sacc += mag * float(_np.asarray(
+                        f(jnp.float64(t))))
+            return sacc
+
+        # The smooth-part integrand f(t)g(x-t) vanishes identically when
+        # either smooth part is zero (pure Dirac trains): skip quadrature.
+        _skip_quad = (float(self.vscale) == 0.0 or float(g.vscale) == 0.0)
+
         def _conv_at(x_val: float) -> float:
             """Evaluate convolution integral at a single point x."""
             from scipy import integrate as _scint
             A_lim = max(a, x_val - d)
             B_lim = min(b, x_val - c)
-            if A_lim >= B_lim:
-                return 0.0
+            if _skip_quad or A_lim >= B_lim:
+                return _delta_terms(x_val)
             # Build integration sub-intervals from breakpoints of f and g
             ends_g = x_val - g_bps  # maps g breakpoints to t-space
             int_bps = _np.union1d(f_bps, ends_g)
@@ -3897,7 +3982,7 @@ class Chebfun(eqx.Module):
                 val, _ = _scint.quad(integrand, sub_dom[j], sub_dom[j + 1],
                                      epsabs=1e-13, epsrel=1e-13, limit=100)
                 result += val
-            return result
+            return result + _delta_terms(x_val)
 
         conv_dom = Domain((float(dom_pts[0]), float(dom_pts[-1])))
         if len(dom_pts) > 2:
@@ -3910,6 +3995,11 @@ class Chebfun(eqx.Module):
             ),
             conv_dom,
         )
+        if out_deltas:
+            h = Chebfun(funs=h.funs, domain=h.domain,
+                        deltas=tuple(sorted(
+                            (k, v) for k, v in out_deltas.items()
+                            if v != 0.0)))
         return h
 
     def circconv(self, g: Chebfun) -> Chebfun:
@@ -4529,9 +4619,12 @@ class Chebfun(eqx.Module):
         # Each delta has weight 1/|f'(r_i)|
         weights = 1.0 / _np.abs(fpvals)
 
-        # Store delta metadata as a list of (location, weight) on the result.
-        # Chebfun is a frozen equinox module so we use object.__setattr__ to
-        # attach distributional metadata outside the pytree.
+        # Carry the deltas on the UNIFIED ``deltas`` field (read by sum,
+        # cumsum, arithmetic, and conv).  The legacy ``_delta_locs``/
+        # ``_delta_weights`` attributes are kept for back-compat readers.
+        result = Chebfun(funs=result.funs, domain=result.domain,
+                         deltas=tuple((float(loc), float(w))
+                                      for loc, w in zip(r, weights)))
         object.__setattr__(result, "_delta_locs", r.tolist())
         object.__setattr__(result, "_delta_weights", weights.tolist())
         return result

@@ -1198,3 +1198,29 @@ class TestDiffDeltas:
         import chebfunjax as cj
         f = cj.chebfun(lambda x: jnp.exp(x) * jnp.sin(3 * x))
         assert f.diff().deltas == ()
+
+
+class TestDeltaPropagation:
+    """Core coverage for the unified deltas field on arithmetic + conv."""
+
+    def _d(self, mags):
+        z = cj.chebfun(lambda t: 0.0 * t, domain=[-1, 1])
+        return cj.Chebfun(funs=z.funs, domain=z.domain, deltas=tuple(mags))
+
+    def test_add_sub_scalar_paths_keep_deltas(self):
+        d = self._d([(0.5, 2.0)])
+        assert (d + 1.0).deltas == ((0.5, 2.0),)
+        assert (d - 1.0).deltas == ((0.5, 2.0),)
+
+    def test_chebfun_add_merges(self):
+        d1 = self._d([(0.0, 1.0)])
+        d2 = self._d([(0.0, 2.0), (0.5, 1.0)])
+        assert (d1 + d2).deltas == ((0.0, 3.0), (0.5, 1.0))
+
+    def test_scalar_mul_scales(self):
+        d = self._d([(0.0, 1.5)])
+        assert (3.0 * d).deltas == ((0.0, 4.5),)
+
+    def test_sum_includes_deltas(self):
+        d = self._d([(0.0, 1.0), (0.5, -0.25)])
+        assert float(d.sum()) == pytest.approx(0.75, abs=1e-13)
