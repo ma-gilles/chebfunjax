@@ -288,7 +288,12 @@ class _Piece(eqx.Module):
         # the piece is the piece itself, so clamping is the correct guard.
         t_a = min(1.0, max(-1.0, (2.0 * a - (pa + pb)) / (pb - pa)))
         t_b = min(1.0, max(-1.0, (2.0 * b - (pa + pb)) / (pb - pa)))
-        new_tech = self.tech.restrict(t_a, t_b)
+        from chebfunjax.fun.singfun import Singfun
+        if isinstance(self.tech, Singfun):
+            # @singfun/restrict takes a subinterval SEQUENCE.
+            new_tech = self.tech.restrict([t_a, t_b])
+        else:
+            new_tech = self.tech.restrict(t_a, t_b)
         return _Piece(tech=new_tech, interval=(float(a), float(b)))
 
     # ------------------------------------------------------------------
@@ -6469,11 +6474,14 @@ def chebfun(
         if splitting:
             import numpy as _np
             SPLIT_MAX_LENGTH = 6000  # pref.splitPrefs.splitMaxLength
-            while (any(not _happy(p) for p in funs)
+            unsplittable: set = set()
+            while (any(not _happy(p) and id(p) not in unsplittable
+                       for p in funs)
                    and sum(p.n for p in funs) < SPLIT_MAX_LENGTH):
                 # Largest sad interval:
                 widths = [(p.interval[1] - p.interval[0]
-                           if not _happy(p) else 0.0) for p in funs]
+                           if (not _happy(p) and id(p) not in unsplittable)
+                           else 0.0) for p in funs]
                 k = int(_np.argmax(_np.asarray(widths)))
                 a_, b_ = funs[k].interval
                 # Compensate the operator for the piece's KNOWN endpoint
@@ -6498,14 +6506,26 @@ def chebfun(
                                              dtype=float))
                 ys = ys[_np.isfinite(ys)]
                 vsc = float(_np.median(ys)) if ys.size else 1.0
+                def _edge_ok(e, _a=a_, _b=b_):
+                    return (e is not None and _a < e < _b
+                            and e - _a >= 4 * _np.spacing(max(abs(_a),
+                                                              1e-300))
+                            and _b - e >= 4 * _np.spacing(max(abs(_b),
+                                                              1e-300)))
+
+                # Preference order: detected blow-up point, then a
+                # derivative edge, then plain bisection (MATLAB's
+                # detectEdge midpoint fallback).  A spurious edge from
+                # one detector (e.g. a steep-oscillation gradient
+                # landing at an endpoint) falls through to the next.
                 edge = _find_blowup(comp, a_, b_, max(vsc, 1e-300))
-                if edge is None:
+                if not _edge_ok(edge):
                     edge = _split_edge_fd(comp, a_, b_)
-                if (edge is None or not (a_ < edge < b_)
-                        or edge - a_ < 4 * _np.spacing(max(abs(a_), 1e-300))
-                        or b_ - edge < 4 * _np.spacing(max(abs(b_),
-                                                           1e-300))):
-                    break  # cannot usefully split this piece
+                if not _edge_ok(edge):
+                    edge = 0.5 * (a_ + b_)
+                if not _edge_ok(edge):
+                    unsplittable.add(id(funs[k]))
+                    continue  # try remaining sad pieces
                 el, er = pairs[k]
                 nan = float("nan")
                 mid_l, mid_r = (0.0, 0.0) if exps_given else (nan, nan)

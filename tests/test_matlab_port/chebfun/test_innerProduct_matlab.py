@@ -24,14 +24,24 @@ EPS = float(np.finfo(np.float64).eps)
 class TestChebfunInnerProduct:
     def test_singular_exponent_reference(self):
         # MATLAB pass(1): <(x-7)^-0.3 sin(100x), (x-7)^-0.5 cos(300x)> on
-        # [-2, 7] with the right endpoint singular.  The SingFun-wired factory
-        # and SingFun innerProduct now compute this (single-piece), but the
-        # highly oscillatory singular integral resolves to 1.16e-11 versus the
-        # MATLAB 1e5*eps*|I| = 9.84e-12 tolerance (MATLAB reaches it via
-        # splitting-on, which the singular factory does not yet apply to
-        # interior oscillation).  Kept skipped rather than widen the tolerance.
-        pytest.skip("singular innerProduct reaches 1.16e-11 vs 9.84e-12 "
-                    "(1e5*eps) target; needs splitting-on for the SingFun path")
+        # [-2, 7], right endpoint singular, 'splitting','on'.  The complex
+        # branch (x-7)^p for x<7 is taken as in MATLAB.  (Previously
+        # skipped at 1.16e-11 vs the 1e5*eps*|I| bound when the singular
+        # factory could not split interior oscillation; splitting now
+        # applies to singular pieces -- 2026-07-30.)
+        dom = (-2.0, 7.0)
+        p1, p2 = -0.3, -0.5
+        f = cj.chebfun(
+            lambda x: (x.astype(jnp.complex128) - dom[1]) ** p1
+            * jnp.sin(100 * x),
+            domain=dom, exps=[0, p1], splitting=True)
+        g = cj.chebfun(
+            lambda x: (x.astype(jnp.complex128) - dom[1]) ** p2
+            * jnp.cos(300 * x),
+            domain=dom, exps=[0, p2], splitting=True)
+        I = complex(np.asarray(f.inner(g)))
+        I_exact = 0.35838148154346034 - 0.26037938759089226j
+        assert abs(I - I_exact) < 1e5 * EPS * abs(I_exact)
 
     def test_singular_exponent_smooth_partner(self):
         # A well-conditioned check of the SingFun-wired innerProduct: the
