@@ -137,6 +137,7 @@ class Singfun(eqx.Module):
         *,
         n: int | None = None,
         turbo: bool = False,
+        maxpow2: int = 16,
     ) -> "Singfun":
         """Construct a Singfun from a callable and (optionally) known exponents.
 
@@ -215,8 +216,13 @@ class Singfun(eqx.Module):
         # stopped at 11 coefficients with 1e-10 evaluation error where
         # MATLAB is exact. Chebtech1 and Chebtech2 share the same
         # T-series coefficients, so the result transfers directly.
-        t1 = Chebtech1.from_function(smooth_f, n=n, turbo=turbo)
+        t1 = Chebtech1.from_function(smooth_f, n=n, turbo=turbo,
+                                     maxpow2=maxpow2)
         tech = Chebtech2.from_coeffs(t1.coeffs)
+        # from_coeffs defaults to happy; keep the adaptive verdict so
+        # unresolved singular pieces are visible to the splitting loop.
+        if not getattr(t1, "ishappy", True):
+            tech = Chebtech2(coeffs=tech.coeffs, ishappy=False)
         return cls(tech, (a, b))
 
     @classmethod
@@ -1540,13 +1546,17 @@ def _find_sing_exponents(op: Callable) -> tuple[float, float]:
 def _pole_order_finder(fvals: jax.Array, x: jax.Array) -> int:
     """Integer pole order from sampled |values| (MATLAB poleOrderFinder)."""
     sv = jnp.abs(fvals)
-    keep = ~jnp.isinf(sv)
+    # Samples landing exactly ON the pole (Inf/NaN) carry no order
+    # information; drop them.  This happens when a detected blow-up
+    # breakpoint sits within an ulp of the pole and a scaled sample
+    # rounds onto it.
+    keep = ~(jnp.isinf(sv) | jnp.isnan(sv))
     sv = sv[keep]
     x = x[keep]
-    if bool(jnp.any(jnp.isinf(sv))):
-        raise ValueError("Function returned inf value.")
-    if bool(jnp.any(jnp.isnan(sv))):
-        raise ValueError("Function returned NaN value.")
+    if int(sv.shape[0]) < 4:
+        raise ValueError(
+            "Too few finite samples near the endpoint to determine a "
+            "pole order.")
 
     test_ratio = 1.01
     pole_order = 0

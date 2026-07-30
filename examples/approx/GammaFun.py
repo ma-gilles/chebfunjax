@@ -14,11 +14,11 @@ exactly -- sum(gam) = NaN, sum(|gam|) = Inf, and sum(sqrt(|gam|)) =
 14.043323986892393 (all digits).  The display tables' interval
 endpoints, +/-Inf endpoint values, and endpoint exponents [-1 -1]
 reproduce; the per-piece LENGTHS (MATLAB 20/25/24/20/35, ours
-19/19/19/18/36) are adaptive-construction scheme values.  The page's
-first construction uses 'blowup'+'splitting' automatic pole detection,
-which chebfunjax does not yet reproduce (detection gap, ledgered); both
-printed displays here use the 'exps' construction the page itself
-recommends ("always a better idea").
+19/18/18/18/36) are adaptive-construction scheme values.  The first
+construction uses 'blowup'+'splitting' automatic pole detection, which
+reproduces MATLAB's published piece structure exactly -- breakpoints at
+-3, -2, -1 and the same near-zero denormal (-2.2e-308) splitting
+artifact, exponents [-1 -1] ([-1 0] on the last piece).
 """
 import matplotlib
 
@@ -52,15 +52,20 @@ def _display(f, name):
 def run():
     os.makedirs(_OUTDIR, exist_ok=True)
 
+    # First construction: automatic pole detection.
+    gam_auto = cj.chebfun(
+        lambda x: jnp.asarray(scipy_gamma(np.asarray(x))),
+        domain=[-4, 4], blowup=True, splitting=True,
+    )
+    _display(gam_auto, "gam")
+
+    # Second: telling Chebfun what poles to put where ("always a better
+    # idea when the information is available").
     gam = cj.chebfun(
         lambda x: jnp.asarray(scipy_gamma(np.asarray(x))),
         domain=[-4, -3, -2, -1, 0, 4],
         exps=[-1, -1, -1, -1, -1, 0],
     )
-    # The page's first construction ('blowup','on','splitting','on')
-    # auto-detects the same poles; chebfunjax lacks that detection, so
-    # both displays show the 'exps' construction.
-    _display(gam, "gam")
     _display(gam, "gam")
 
     gam_i = 1.0 / gam

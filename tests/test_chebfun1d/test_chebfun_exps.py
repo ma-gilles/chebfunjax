@@ -187,3 +187,32 @@ class TestSingularAbsRealRepr:
         npt.assert_allclose(np.asarray(g(xs)),
                             (1.0 / (1.0 - np.asarray(xs) ** 2)) ** 0.5,
                             rtol=1e-12)
+
+
+class TestBlowupSplitting:
+    """Automatic interior-pole detection with blowup + splitting."""
+
+    def test_single_interior_pole(self):
+        from chebfunjax.fun.singfun import Singfun
+        f = cj.chebfun(lambda x: 1.0 / (x - 0.25), domain=[-1, 1],
+                       blowup=True, splitting=True)
+        assert len(f.funs) == 2
+        assert abs(f.funs[0].interval[1] - 0.25) < 1e-10
+        assert isinstance(f.funs[0].tech, Singfun)
+        xs = jnp.asarray(np.linspace(-0.9, 0.9, 21))
+        xs = xs[np.abs(np.asarray(xs) - 0.25) > 0.05]
+        npt.assert_allclose(np.asarray(f(xs)),
+                            1.0 / (np.asarray(xs) - 0.25), rtol=1e-9)
+
+    def test_find_blowup_locates_pole(self):
+        from chebfunjax.chebfun1d.chebfun import _find_blowup
+        edge = _find_blowup(lambda x: 1.0 / (x - 0.3) ** 2, -1.0, 1.0, 1.0)
+        assert edge is not None and abs(edge - 0.3) < 1e-12
+
+    def test_find_blowup_rejects_smooth(self):
+        from chebfunjax.chebfun1d.chebfun import _find_blowup
+        assert _find_blowup(jnp.cos, -1.0, 1.0, 1.0) is None
+
+    def test_no_splitting_flag_unchanged(self):
+        f = cj.chebfun(lambda x: 1.0 / (1.0 - x ** 2), exps=[-1, -1])
+        assert len(f.funs) == 1

@@ -70,3 +70,37 @@ def test_repr_singular_endpoints(gam):
     r = repr(gam)
     assert "inf" in r.lower()
     assert "5 smooth pieces" in r
+
+
+class TestBlowupSplittingDetection:
+    """'blowup' + 'splitting' automatic pole detection.
+
+    MATLAB reference: the first construction of the GammaFun example page,
+    chebfun('gamma(x)', [-4 4], 'blowup', 'on', 'splitting', 'on'), whose
+    published display shows 5 pieces broken exactly at the poles -3, -2,
+    -1, ~0 with endpoint exponents [-1 -1] ([-1 0] on the last piece).
+    """
+
+    @pytest.fixture(scope="class")
+    def gam_auto(self):
+        return cj.chebfun(
+            lambda x: jnp.asarray(_scipy_gamma(np.asarray(x))),
+            domain=[-4, 4], blowup=True, splitting=True,
+        )
+
+    def test_five_pieces_at_the_poles(self, gam_auto):
+        assert len(gam_auto.funs) == 5
+        bps = [p.interval[1] for p in gam_auto.funs[:-1]]
+        for found, true in zip(bps, (-3.0, -2.0, -1.0, 0.0)):
+            assert abs(found - true) < 1e-10
+
+    def test_detected_exponents(self, gam_auto):
+        exps = [tuple(round(float(e)) for e in p.tech.exponents)
+                for p in gam_auto.funs]
+        assert exps == [(-1, -1)] * 4 + [(-1, 0)]
+
+    def test_integrals_match_exps_construction(self, gam_auto):
+        assert np.isnan(float(gam_auto.sum()))
+        assert np.isposinf(float(abs(gam_auto).sum()))
+        val = float((abs(gam_auto) ** 0.5).real().sum())
+        assert val == pytest.approx(14.043323986892393, rel=1e-12)

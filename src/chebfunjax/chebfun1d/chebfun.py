@@ -5988,16 +5988,24 @@ def _parse_singtype(singType, n_int: int, blowup: bool
 
     Each entry is ``'pole'``, ``'sing'``, or ``'none'`` (or ``None`` to defer
     to the exponent value).  Two entries are read as the entire-domain
-    endpoints with interior breaks ``'none'``.  When ``blowup`` is set with no
-    ``singType`` the default is ``'sing'`` at every endpoint.
+    endpoints with interior breaks ``'none'``.  With no ``singType``,
+    ``blowup=1``/``True`` defaults to ``'pole'`` (integer pole orders,
+    MATLAB "blowup poles only") and ``blowup=2`` to ``'sing'``
+    (fractional detection).
 
     Provenance
     ----------
-    MATLAB source : @chebfun/chebfun.m (parseInputs, singType handling)
+    MATLAB source : @chebfun/chebfun.m (parseInputs, blowup flag 1 ->
+        singType 'pole', flag 2 -> 'sing')
     Chebfun commit: 7574c77
     """
     if singType is None:
-        default = "sing" if blowup else None
+        if not blowup:
+            default = None
+        elif blowup == 2:
+            default = "sing"
+        else:
+            default = "pole"
         return [(default, default)] * n_int
     st = list(singType)
     if len(st) == 2 and n_int >= 1:
@@ -6034,8 +6042,67 @@ def _cast_tech_pair(a, b):
     return a, b
 
 
+def _find_blowup(op, a: float, b: float, vscale: float):
+    """Locate a blow-up point of ``op`` in ``(a, b)`` by function values.
+
+    Zooms in on the maximum of ``|op|`` on successively finer grids until
+    the bracketing interval reaches a few ulps, then returns the sample
+    with the largest value.  Returns ``None`` if the largest value is not
+    large relative to ``vscale`` (a "fake" blow-up).
+
+    Provenance
+    ----------
+    MATLAB source : @fun/detectEdge.m (findBlowup, zoomIn;
+        gridSize1 = 50, gridSize234 = 15)
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+
+    def _absop(x):
+        with _np.errstate(all="ignore"):
+            y = _np.abs(_np.asarray(op(jnp.asarray(_np.atleast_1d(x))),
+                                    dtype=float))
+        # MATLAB's max ignores NaN; make NaN lose the argmax.
+        return _np.where(_np.isnan(y), -_np.inf, y)
+
+    ya = float(_absop(a)[0])
+    yb = float(_absop(b)[0])
+
+    def _zoom(a, b, ya, yb, grid):
+        x = _np.linspace(a, b, grid)
+        y = _np.concatenate([[ya], _absop(x[1:-1]), [yb]])
+        ind = int(_np.argmax(y))
+        if ind == 0:
+            return a, x[1], ya, y[1]
+        if ind == grid - 1:
+            return x[-2], b, y[-2], yb
+        return x[ind - 1], x[ind + 1], y[ind - 1], y[ind + 1]
+
+    def _eps_at(v):
+        return _np.spacing(max(abs(v), _np.finfo(float).tiny))
+
+    while (b - a) > 1e7 * _eps_at(a):
+        a, b, ya, yb = _zoom(a, b, ya, yb, 50)
+    while (b - a) > 50 * _eps_at(a):
+        a, b, ya, yb = _zoom(a, b, ya, yb, 15)
+    x = _np.linspace(a, b, 4)
+    y = _np.concatenate([[ya], _absop(x[1:3]), [yb]])
+    while (b - a) >= 4 * _eps_at(a):
+        x = _np.linspace(a, b, 4)
+        y = _np.concatenate([[ya], _absop(x[1:3]), [yb]])
+        if y[1] > y[2]:
+            b, yb = x[2], y[2]
+        else:
+            a, ya = x[1], y[1]
+    maxy = float(_np.max(y))
+    blow_up = float(x[int(_np.argmax(y))])
+    if not (maxy > 1e5 * vscale or _np.isinf(maxy)):
+        return None
+    return blow_up
+
+
 def _build_exps_piece(op, a: float, b: float, el, er, stl, str_,
-                      turbo: bool = False) -> _Piece:
+                      turbo: bool = False, maxpow2: int = 16) -> _Piece:
     """Build one Chebfun piece on ``[a, b]`` honouring endpoint exponents.
 
     ``op`` is the physical function on ``[a, b]``.  Each exponent is either
@@ -6071,8 +6138,9 @@ def _build_exps_piece(op, a: float, b: float, el, er, stl, str_,
     el = _resolve(el, stl, "left")
     er = _resolve(er, str_, "right")
     if abs(el) < 1e-14 and abs(er) < 1e-14:
-        return _Piece.from_function(op, a, b, turbo=turbo)
-    sf = Singfun.from_function(_full, exponents=(el, er), turbo=turbo)
+        return _Piece.from_function(op, a, b, turbo=turbo, maxpow2=maxpow2)
+    sf = Singfun.from_function(_full, exponents=(el, er), turbo=turbo,
+                               maxpow2=maxpow2)
     return _Piece(tech=sf, interval=(float(a), float(b)))
 
 
@@ -6202,18 +6270,84 @@ def chebfun(
             raise ValueError("chebfun: exps/blowup requires a domain.")
         n_int = len(dom_vals) - 1
         pairs = _parse_exps(exps, n_int)
-        stypes = _parse_singtype(singType, n_int, bool(blowup))
-        # ``splitting`` only affects detection of INTERIOR singularities
-        # (poles/branch points away from the breakpoints), which the
-        # singular factory does not yet locate; the given/detected endpoint
-        # exponents are still honoured on each supplied interval.
-        funs = []
-        for j in range(n_int):
-            a_, b_ = dom_vals[j], dom_vals[j + 1]
-            piece = _build_exps_piece(f, a_, b_, pairs[j][0], pairs[j][1],
-                                      stypes[j][0], stypes[j][1], turbo=turbo)
-            funs.append(piece)
-        return Chebfun(funs=funs, domain=Domain(tuple(dom_vals)))
+        stypes = _parse_singtype(singType, n_int, blowup)
+        exps_given = exps is not None
+
+        def _happy(p):
+            sp = getattr(p.tech, "smoothPart", p.tech)
+            return bool(getattr(sp, "ishappy", True))
+
+        # Under splitting, cap per-piece construction length (MATLAB
+        # pref.splitPrefs.splitLength) so unresolved pieces fail fast and
+        # the total-length budget below is meaningful.
+        _mp2 = 8 if splitting else 16
+        funs = [
+            _build_exps_piece(f, dom_vals[j], dom_vals[j + 1],
+                              pairs[j][0], pairs[j][1],
+                              stypes[j][0], stypes[j][1], turbo=turbo,
+                              maxpow2=_mp2)
+            for j in range(n_int)
+        ]
+        # With 'splitting' on, unhappy pieces are split at detected
+        # interior blow-up points (poles located by function values),
+        # mirroring the sad-interval loop of @chebfun/constructor.m with
+        # singDetect: each new endpoint autodetects its exponent.
+        if splitting:
+            import numpy as _np
+            SPLIT_MAX_LENGTH = 6000  # pref.splitPrefs.splitMaxLength
+            while (any(not _happy(p) for p in funs)
+                   and sum(p.n for p in funs) < SPLIT_MAX_LENGTH):
+                # Largest sad interval:
+                widths = [(p.interval[1] - p.interval[0]
+                           if not _happy(p) else 0.0) for p in funs]
+                k = int(_np.argmax(_np.asarray(widths)))
+                a_, b_ = funs[k].interval
+                # Compensate the operator for the piece's KNOWN endpoint
+                # exponents so boundary poles (already isolated at the
+                # breakpoints) do not attract the interior edge search
+                # (@fun/detectEdge.m: "Compensating for exponents").
+                exps_k = tuple(float(e) for e in
+                               getattr(funs[k].tech, "exponents",
+                                       (0.0, 0.0)))
+                if any(exps_k):
+                    def comp(x, _a=a_, _b=b_, _e=exps_k):
+                        xx = jnp.asarray(x)
+                        return (f(xx)
+                                / ((xx - _a) ** _e[0]
+                                   * (_b - xx) ** _e[1]))
+                else:
+                    comp = f
+                # A finite vscale estimate from interior samples:
+                xs = _np.linspace(a_, b_, 130)[1:-1]
+                with _np.errstate(all="ignore"):
+                    ys = _np.abs(_np.asarray(comp(jnp.asarray(xs)),
+                                             dtype=float))
+                ys = ys[_np.isfinite(ys)]
+                vsc = float(_np.median(ys)) if ys.size else 1.0
+                edge = _find_blowup(comp, a_, b_, max(vsc, 1e-300))
+                if edge is None:
+                    edge = _split_edge_fd(comp, a_, b_)
+                if (edge is None or not (a_ < edge < b_)
+                        or edge - a_ < 4 * _np.spacing(max(abs(a_), 1e-300))
+                        or b_ - edge < 4 * _np.spacing(max(abs(b_),
+                                                           1e-300))):
+                    break  # cannot usefully split this piece
+                el, er = pairs[k]
+                nan = float("nan")
+                mid_l, mid_r = (0.0, 0.0) if exps_given else (nan, nan)
+                stl, str_k = stypes[k]
+                left = _build_exps_piece(f, a_, edge, el, mid_l,
+                                         stl, str_k, turbo=turbo,
+                                         maxpow2=_mp2)
+                right = _build_exps_piece(f, edge, b_, mid_r, er,
+                                          stl, str_k, turbo=turbo,
+                                          maxpow2=_mp2)
+                funs[k:k + 1] = [left, right]
+                pairs[k:k + 1] = [(el, mid_l), (mid_r, er)]
+                stypes[k:k + 1] = [(stl, str_k), (stl, str_k)]
+        bps = [funs[0].interval[0]] + [p.interval[1] for p in funs]
+        return Chebfun(funs=funs, domain=Domain(tuple(float(v)
+                                                      for v in bps)))
 
     # --- Preferences (task #11): eps -> chop tolerance, max_length ->
     #     maximum adaptive length (2**maxpow2 + 1). ---
