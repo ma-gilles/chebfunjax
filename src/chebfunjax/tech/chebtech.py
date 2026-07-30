@@ -1185,9 +1185,34 @@ def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
     v_left = _eval_cheb(x_left, c)
     v_right = _eval_cheb(x_right, c)
 
-    # Convert values to coefficients
-    c_left = np.asarray(vals2coeffs(jnp.asarray(v_left)))
-    c_right = np.asarray(vals2coeffs(jnp.asarray(v_right)))
+    # Convert values to coefficients with a pure-numpy transform: this
+    # recursion is NOT JIT-safe anyway, and routing through the jitted
+    # vals2coeffs compiled one XLA program per distinct piece length
+    # (~20 ms each), dominating multi-piece roots() wall time.
+    def _v2c_np(v):
+        nn = v.shape[0]
+        if nn <= 1:
+            return v.copy()
+        tmp = np.concatenate([v[nn - 1:0:-1], v[:nn - 1]])
+        if np.iscomplexobj(v):
+            if np.all(np.real(v) == 0):
+                cc = 1j * np.real(np.fft.ifft(np.imag(tmp)))
+            else:
+                cc = np.fft.ifft(tmp)
+        else:
+            cc = np.real(np.fft.ifft(tmp))
+        cc = cc[:nn]
+        cc[1:nn - 1] *= 2.0
+        vflip = v[::-1]
+        k = np.arange(nn)
+        if np.max(np.abs(v - vflip)) == 0:
+            cc[k % 2 == 1] = 0.0
+        if np.max(np.abs(v + vflip)) == 0:
+            cc[k % 2 == 0] = 0.0
+        return cc
+
+    c_left = _v2c_np(v_left)
+    c_right = _v2c_np(v_right)
 
     # Recurse
     r_left = _roots_main(c_left, 2.0 * htol, qz=qz, all_roots=all_roots,

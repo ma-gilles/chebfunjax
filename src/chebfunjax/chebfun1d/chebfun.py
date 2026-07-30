@@ -535,11 +535,15 @@ class _Piece(eqx.Module):
         jax.Array, shape (n_roots,)
             Sorted roots in [a, b].
         """
+        import numpy as _np
         a, b = self.interval
         t_roots = self.tech.roots()
-        # Map t in [-1, 1] to x in [a, b]: x = (b-a)/2 * t + (a+b)/2
-        x_roots = 0.5 * (b - a) * t_roots + 0.5 * (a + b)
-        return x_roots
+        # Map t in [-1, 1] to x in [a, b]: x = (b-a)/2 * t + (a+b)/2.
+        # The map runs in numpy: rootfinding is not JIT-safe, and jnp
+        # arithmetic here compiled one program per distinct root count.
+        x_roots = (0.5 * (b - a) * _np.asarray(t_roots)
+                   + 0.5 * (a + b))
+        return jnp.asarray(x_roots)
 
     def minandmax(self) -> tuple[tuple[float, float], tuple[float, float]]:
         """Global min and max of this piece.
