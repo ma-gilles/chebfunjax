@@ -1255,3 +1255,29 @@ class TestChebfunSimplify:
                     domain=[-1, 0, 1])
         out = f.simplify()
         assert len(out.funs) == 2
+
+
+class TestTrigcoeffs:
+    """Core coverage for Chebfun.trigcoeffs (@chebfun/trigcoeffs port)."""
+
+    def test_exp_form_default_length(self):
+        f = chebfun(lambda x: jnp.cos(2 * np.pi * x), trig=True)
+        c = np.asarray(f.trigcoeffs())
+        n = len(c)
+        mid = (n - 1) // 2
+        assert abs(c[mid + 2] - 0.5) < 1e-14
+        assert abs(c[mid - 2] - 0.5) < 1e-14
+
+    def test_errors(self):
+        f = chebfun(jnp.sin)
+        with pytest.raises(ValueError):
+            f.trigcoeffs()  # non-periodic without N
+        g = chebfun(jnp.sin, domain=[-1, 0, 1])
+        with pytest.raises(ValueError):
+            g.trigcoeffs()  # piecewise without N
+
+    def test_isreal_trigfun(self):
+        f = chebfun(lambda x: jnp.sin(np.pi * x), trig=True)
+        assert f.isreal()
+        g = chebfun(lambda x: jnp.exp(1j * np.pi * x), trig=True)
+        assert not g.isreal()

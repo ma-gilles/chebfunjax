@@ -2668,6 +2668,94 @@ class Chebfun(eqx.Module):
             Chebfun(funs=new_funs, domain=self.domain, deltas=deltas),
             self.is_transposed)
 
+    def trigcoeffs(self, n: int | None = None, form: str = "exp"):
+        """Fourier coefficients of the Chebfun (MATLAB trigcoeffs).
+
+        With ``form='exp'`` (default) returns the complex-exponential
+        coefficients ``c_k`` for modes ``k = -(N-1)/2 .. (N-1)/2``
+        (ascending; even ``N`` uses ``-N/2 .. N/2-1``).  With
+        ``form='cos_sin'`` returns the pair ``(a, b)`` of cosine/sine
+        coefficients (MATLAB's two-output form).  For a single-piece
+        periodic (trig) chebfun ``n`` defaults to ``len(f)``; piecewise
+        or non-periodic chebfuns require ``n`` and are integrated
+        against ``exp(-1i k omega x)`` mode by mode.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/trigcoeffs.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        import numpy as _np
+
+        from chebfunjax.tech.trigtech import Trigtech
+
+        num_funs = len(self.funs)
+        is_trig = num_funs == 1 and isinstance(self.funs[0].tech, Trigtech)
+        if n is None:
+            if num_funs > 1:
+                raise ValueError(
+                    "trigcoeffs: input N is required for piecewise "
+                    "chebfuns.")
+            if not is_trig:
+                raise ValueError(
+                    "trigcoeffs(f, N) is allowed but not trigcoeffs(f) "
+                    "for non-periodic chebfuns.")
+            n = len(self)
+        n = int(n)
+        if n <= 0:
+            return jnp.asarray([], dtype=jnp.complex128)
+        a_d = float(self.domain.a)
+        b_d = float(self.domain.b)
+        L = b_d - a_d
+        if n % 2 == 1:
+            modes = _np.arange(-(n - 1) // 2, (n - 1) // 2 + 1)
+        else:
+            modes = _np.arange(-n // 2, n // 2)
+        if is_trig:
+            c_tech = _np.asarray(self.funs[0].tech.coeffs,
+                                 dtype=_np.complex128)
+            m = c_tech.shape[0]
+            if m % 2 == 1:
+                tech_modes = _np.arange(-(m - 1) // 2, (m - 1) // 2 + 1)
+            else:
+                tech_modes = _np.arange(-m // 2, m // 2)
+            C = _np.zeros(n, dtype=_np.complex128)
+            for i, k in enumerate(modes):
+                j = _np.where(tech_modes == k)[0]
+                if j.size:
+                    C[i] = c_tech[int(j[0])]
+        else:
+            omega = 2.0 * _np.pi / L
+            C = _np.zeros(n, dtype=_np.complex128)
+            for i, k in enumerate(modes):
+                Fc = chebfun(
+                    lambda x, _k=k: jnp.exp(-1j * _k * omega * x),
+                    domain=tuple(float(v)
+                                 for v in self.domain.breakpoints))
+                C[i] = complex(_np.asarray((self * Fc).sum())) / L
+        change = _np.exp(-1j * modes * 2.0 * _np.pi
+                         * (a_d + L / 2.0) / L)
+        C = C * change
+        if form == "exp":
+            return jnp.asarray(C)
+        if form != "cos_sin":
+            raise ValueError("trigcoeffs: form must be 'exp' or 'cos_sin'.")
+        if n % 2 == 1:
+            z = (n - 1) // 2
+            A = _np.concatenate([[C[z]], C[z - 1::-1] + C[z + 1:]])
+            B = 1j * (C[z + 1:] - C[z - 1::-1])
+        else:
+            z = n // 2
+            A = _np.concatenate([[C[z]], C[z - 1:0:-1] + C[z + 1:],
+                                 [C[0]]])
+            B = 1j * (C[z + 1:] - C[z - 1:0:-1])
+        if self.isreal():
+            A = _np.real(A)
+            B = _np.real(B)
+        return jnp.asarray(A), jnp.asarray(B)
+
     def simplify(self, tol: float | None = None) -> "Chebfun":
         """Chop negligible trailing coefficients from every piece.
 
@@ -5057,6 +5145,10 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         for piece in self.funs:
+            # A real trigfun stores complex FOURIER coefficients; MATLAB
+            # isreal checks the fun's realness, recorded in is_real.
+            if getattr(piece.tech, "is_real", False):
+                continue
             if jnp.iscomplexobj(piece.coeffs):
                 return False
         return True
