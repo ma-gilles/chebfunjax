@@ -6440,6 +6440,7 @@ def chebfun(
     singType: "list | tuple | None" = None,
     turbo: bool = False,
     equi: bool = False,
+    coeffs: bool = False,
 ) -> Chebfun:
     """Create a Chebfun from a callable, array of coefficients, or constant.
 
@@ -6540,6 +6541,27 @@ def chebfun(
     # SingFun class into the chebfun factory).  Exponents are either given
     # explicitly (``exps``), autodetected (``blowup``/NaN entries), or a
     # mix.  ``singType`` hints the detector (``'pole'``/``'sing'``/``'none'``).
+    # MATLAB chebfun(c, dom, 'coeffs') / chebfun(c, dom, 'trig',
+    # 'coeffs'): construct from a COEFFICIENT vector (@chebfun/chebfun.m
+    # parseInputs 'coeffs' flag).
+    if coeffs:
+        if callable(f):
+            raise ValueError("chebfun(..., coeffs=True) requires a "
+                             "coefficient array, not a callable.")
+        _dc = [float(v) for v in (domain if hasattr(domain, "__len__")
+                                  else (domain,))]
+        if len(_dc) < 2:
+            _dc = [-1.0, 1.0]
+        a_c, b_c = _dc[0], _dc[-1]
+        arr = jnp.asarray(f)
+        if trig:
+            from chebfunjax.tech.trigtech import Trigtech
+            tech = Trigtech.from_coeffs(arr.astype(jnp.complex128))
+        else:
+            tech = Chebtech2.from_coeffs(arr)
+        piece = _Piece(tech=tech, interval=(a_c, b_c))
+        return Chebfun(funs=[piece], domain=Domain((a_c, b_c)))
+
     if exps is not None or blowup:
         if trig or n is not None:
             raise ValueError(

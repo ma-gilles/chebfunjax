@@ -1281,3 +1281,17 @@ class TestTrigcoeffs:
         assert f.isreal()
         g = chebfun(lambda x: jnp.exp(1j * np.pi * x), trig=True)
         assert not g.isreal()
+
+    def test_coeffs_constructor_flag(self):
+        # chebfun(c, dom, 'trig', 'coeffs') and the Chebyshev analogue.
+        c = np.zeros(5, dtype=complex)
+        c[2], c[1], c[3] = 1.0, 0.5, 0.5  # 1 + cos(x) on [-pi, pi]
+        f = chebfun(jnp.asarray(c), domain=[-np.pi, np.pi],
+                    trig=True, coeffs=True)
+        assert abs(float(np.real(np.asarray(f(jnp.asarray([0.5])))[0]))
+                   - (1 + np.cos(0.5))) < 1e-14
+        cc = jnp.asarray(np.array([0.0, 1.0]))  # T_1 = x
+        g = chebfun(cc, coeffs=True)
+        assert abs(float(np.asarray(g(jnp.asarray([0.3])))[0]) - 0.3) < 1e-14
+        with pytest.raises(ValueError):
+            chebfun(jnp.sin, coeffs=True)
