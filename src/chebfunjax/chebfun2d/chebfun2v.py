@@ -145,7 +145,12 @@ class Chebfun2v(eqx.Module):
         """
         if len(fns) < 2 or len(fns) > 3:
             raise ValueError(f"Chebfun2v.from_functions requires 2 or 3 callables, got {len(fns)}.")
-        comps = [SeparableApprox.from_function(f, domain=domain, tol=tol) for f in fns]
+        # Route through Chebfun2.from_function, which splits complex
+        # handles into re + 1j*im exactly; calling SeparableApprox
+        # directly silently dropped imaginary parts (audit 2026-07-31).
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        comps = [Chebfun2.from_function(f, domain=domain, tol=tol).approx
+                 for f in fns]
         return cls(comps)
 
     # ------------------------------------------------------------------
@@ -625,6 +630,50 @@ class Chebfun2v(eqx.Module):
                 _mul_separable(f[0], g[1]), _neg_separable(_mul_separable(f[1], g[0]))
             )
             return Chebfun2v([c1, c2, c3])
+
+    def laplacian(self) -> "Chebfun2v":
+        """Componentwise vector Laplacian.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/laplacian.m (lap.m)
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        new = [
+            (Chebfun2(approx=c.diff(1, 2))
+             + Chebfun2(approx=c.diff(2, 2))).approx
+            for c in self.components
+        ]
+        return Chebfun2v(components=new)
+
+    def lap(self) -> "Chebfun2v":
+        """Alias for :meth:`laplacian` (MATLAB @chebfun2v/lap.m)."""
+        return self.laplacian()
+
+    def isreal(self) -> bool:
+        """True if every component is real-valued.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/isreal.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        for c in self.components:
+            for tech in list(c.cols) + list(c.rows):
+                arr = _np.asarray(tech.coeffs)
+                if _np.iscomplexobj(arr) and _np.max(_np.abs(arr.imag)) > 0:
+                    return False
+            piv = _np.asarray(c.pivots)
+            if _np.iscomplexobj(piv) and _np.max(_np.abs(piv.imag)) > 0:
+                return False
+        return True
+
+    @property
+    def shape(self) -> tuple:
+        """MATLAB size(F): (n_components, inf, inf)."""
+        return (len(self.components), float("inf"), float("inf"))
 
     def norm(self) -> float:
         """Frobenius norm: sqrt(sum_j ||f_j||^2).

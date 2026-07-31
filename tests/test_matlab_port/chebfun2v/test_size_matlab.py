@@ -8,11 +8,25 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-import pytest
+import jax.numpy as jnp
 
-pytestmark = pytest.mark.skip(reason="chebfun2v: 'size' targets a missing feature (MATLAB accessor/op not implemented in chebfunjax)")
+from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
+
+INF = float("inf")
 
 
 class TestChebfun2vSize:
-    def test_all_matlab_assertions(self):
-        raise NotImplementedError
+    def test_two_components(self):
+        # pass(1)-(4): size(F) == [2 inf inf].
+        F = Chebfun2v.from_functions(lambda x, y: jnp.cos(x),
+                                     lambda x, y: jnp.sin(y))
+        assert F.shape == (2, INF, INF)
+        assert F.shape[0] == 2
+
+    def test_three_components(self):
+        # pass(5)-(8): size(F) == [3 inf inf].
+        F = Chebfun2v.from_functions(lambda x, y: jnp.cos(x),
+                                     lambda x, y: jnp.sin(y),
+                                     lambda x, y: jnp.cos(x))
+        assert F.shape == (3, INF, INF)
+        assert F.shape[0] == 3
