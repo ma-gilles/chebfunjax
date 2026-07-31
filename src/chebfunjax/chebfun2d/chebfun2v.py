@@ -631,6 +631,38 @@ class Chebfun2v(eqx.Module):
             )
             return Chebfun2v([c1, c2, c3])
 
+    def compose(self, g):
+        """Composition ``g(F)`` for scalar or vector ``g`` (MATLAB compose).
+
+        For a Chebfun2 ``g`` returns the Chebfun2 ``g(F1, F2)``; for a
+        Chebfun2v ``G`` returns the componentwise composition (a
+        Chebfun2v).  ``F`` must have 2 components whose range lies in
+        ``g``'s domain.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/compose.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        if len(self.components) != 2:
+            raise ValueError(
+                "compose: F must have exactly 2 components.")
+        F1 = Chebfun2(approx=self.components[0])
+        F2 = Chebfun2(approx=self.components[1])
+        dom = self.domain
+        if isinstance(g, Chebfun2v):
+            comps = [
+                Chebfun2.from_function(
+                    lambda x, y, _gc=Chebfun2(approx=gc): _gc(
+                        F1(x, y), F2(x, y)),
+                    domain=dom).approx
+                for gc in g.components
+            ]
+            return Chebfun2v(components=comps)
+        return Chebfun2.from_function(
+            lambda x, y: g(F1(x, y), F2(x, y)), domain=dom)
+
     def laplacian(self) -> "Chebfun2v":
         """Componentwise vector Laplacian.
 

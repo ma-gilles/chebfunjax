@@ -39,3 +39,17 @@ class TestChebfun2vCore:
         assert not G.isreal()
         v = complex(np.asarray(Chebfun2(approx=G.components[1])(0.3, 0.5)))
         assert abs(v - 0.5j) < 1e-13
+
+    def test_compose_scalar_and_vector(self):
+        # g(F) for scalar g and componentwise for vector G.
+        F = Chebfun2v.from_functions(lambda x, y: x + 0 * y,
+                                     lambda x, y: y + 0 * x)
+        from chebfunjax.chebfun2d.chebfun2 import chebfun2
+        g = chebfun2(lambda x, y: x * y)
+        h = F.compose(g)
+        assert abs(float(np.asarray(h(0.3, 0.5))) - 0.15) < 1e-12
+        G = Chebfun2v.from_functions(lambda x, y: x - y,
+                                     lambda x, y: x + y)
+        H = F.compose(G)
+        h0 = Chebfun2(approx=H.components[0])
+        assert abs(float(np.asarray(h0(0.3, 0.5))) - (-0.2)) < 1e-12
