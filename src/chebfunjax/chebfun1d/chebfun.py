@@ -237,6 +237,13 @@ class _Piece(eqx.Module):
         the smooth part, mirroring MATLAB's ``get(f, 'lval')``), 0 where
         it is positive, and the smooth-part value where it vanishes.
         """
+        from chebfunjax.tech.trigtech import Trigtech
+        if isinstance(self.tech, Trigtech):
+            # The trig grid excludes the right endpoint; by periodicity
+            # f(b) == f(a), and MATLAB's get(f,'lval'/'rval') evaluates
+            # the FUN at the endpoints.
+            v0 = float(jnp.real(jnp.asarray(self.tech.values).ravel()[0]))
+            return (v0, v0)
         exps = getattr(self.tech, "exponents", None)
         if exps is not None:
             sm = self.tech.smoothPart.values
@@ -1309,7 +1316,11 @@ class Chebfun(eqx.Module):
             extra = (f"        [{exps[0]:2.2g}      {exps[1]:2.2g}]  "
                      if has_exps else "")
             cf = piece.coeffs
-            if bool(jnp.iscomplexobj(cf)) and float(
+            # A real trigfun's FOURIER coefficients are complex; MATLAB's
+            # disp checks the FUN's realness (isreal(f.funs{j})), so honour
+            # the tech's is_real flag before inspecting coefficients.
+            piece_real = bool(getattr(piece.tech, "is_real", False))
+            if (not piece_real) and bool(jnp.iscomplexobj(cf)) and float(
                     jnp.max(jnp.abs(jnp.imag(cf)))) > 0:
                 s += ("[%8.2g,%8.2g]   %6i     complex values %s\n"
                       % (a, b, length, extra))
