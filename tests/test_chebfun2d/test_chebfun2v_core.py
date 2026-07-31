@@ -53,3 +53,12 @@ class TestChebfun2vCore:
         H = F.compose(G)
         h0 = Chebfun2(approx=H.components[0])
         assert abs(float(np.asarray(h0(0.3, 0.5))) - (-0.2)) < 1e-12
+
+    def test_minandmax2est(self):
+        from chebfunjax.chebfun2d.chebfun2 import chebfun2
+        f = chebfun2(lambda x, y: jnp.cos(x) * jnp.sin(y))
+        lo, hi = f.minandmax2est()
+        assert -1.01 < lo < -0.8 and 0.8 < hi < 1.01
+        F = Chebfun2v.from_functions(lambda x, y: x + 0 * y,
+                                     lambda x, y: y + 0 * x)
+        assert len(F.minandmax2est()) == 4

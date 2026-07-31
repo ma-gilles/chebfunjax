@@ -1656,6 +1656,19 @@ class Chebfun2(eqx.Module):
             return re + 1j * im
         return re
 
+    def minandmax2est(self, N: int = 33):
+        """Estimated [min, max] from an N x N sample grid.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/minandmax2est.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        vals = _np.asarray(self.sample(N, N)).ravel()
+        vals = _np.real(vals)
+        return (float(_np.min(vals)), float(_np.max(vals)))
+
     def compose(self, op) -> "Chebfun2":
         """Re-approximate op(f(x, y)) (MATLAB compose; Fable 5)."""
         return Chebfun2.from_function(

@@ -631,6 +631,20 @@ class Chebfun2v(eqx.Module):
             )
             return Chebfun2v([c1, c2, c3])
 
+    def minandmax2est(self, N: int = 33):
+        """Concatenated per-component [min, max] estimates.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/minandmax2est.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        box: list = []
+        for c in self.components:
+            box.extend(Chebfun2(approx=c).minandmax2est(N))
+        return tuple(box)
+
     def compose(self, g):
         """Composition ``g(F)`` for scalar or vector ``g`` (MATLAB compose).
 
