@@ -23,6 +23,36 @@
 
 These decisions are **final**. Agents MUST NOT deviate without explicit user approval.
 
+### 1.0 Scope: TOTAL feature parity (user directive, 2026-07-31)
+
+**There are no acceptable feature gaps.** Every MATLAB Chebfun class,
+method, and unit-test assertion is in scope EXCEPT `chebgui` (GUI).
+Explicitly IN scope (previous sessions wrongly treated some as
+out-of-scope "design decisions"):
+
+- **All discretizations**: `@chebcolloc1`, `@chebcolloc2`, `@ultraS`
+  (Olver-Townsend ultraspherical), `@trigcolloc`/`@trigspec` — the
+  discretization-variant test files (`*_C1`, `*_ultraS`) must become
+  real passing ports, not skips.
+- **`treeVar`** (syntax-tree ODE parser for IVP routing).
+- **Block-operator systems**: chebop coupled ODE systems, linop block
+  algebra, chebmatrix-equivalent containers.
+- **Singular/blowup representations on unbounded domains** (exponents
+  on `Unbndfun`), divergent-integral detection.
+- **Array-valued techs** (multi-column Chebtech/Trigtech).
+- **Empty-object semantics** (empty chebfun arithmetic, zeroSingFun).
+- Every small API in the 2026-07-30 skip/xfail inventory.
+
+The ONLY retained substitution: **JAX autodiff replaces `adchebfun`**
+("JAX-AD should stay") — chebop linearization uses `jax.linearize`/
+`jax.jacfwd`, and adchebfun mirrors remain skipped with that reason.
+
+**Examples**: every chebfun.org example page (~319 across 24
+categories) must be EXACTLY replicated — same prose, computations in
+order, printed outputs (faithfully produced by our code), and figures.
+Self-authored "inspired-by" demos are not acceptable substitutes for a
+published page. Guide chapters follow the same standard (done).
+
 ### 1.1 Array Backend: JAX-only
 
 ```python
