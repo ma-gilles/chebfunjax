@@ -14,8 +14,8 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
+import chebfunjax as cj
 from chebfunjax.operators.chebop import Chebop
 
 TOL = 1e-8
@@ -23,15 +23,16 @@ TOL = 1e-8
 
 class TestChebopZerothOrder:
     def test_pointwise_nonlinear_equation(self):
-        def op(x, u):
-            return u * u + u.sin() + u.exp() - (jnp.sin(x) + 2)
-        N = Chebop(lambda x, u: op(x, u))
-        try:
-            u = N.solve(0.0)
-        except Exception:
-            pytest.skip("chebop cannot solve zeroth-order (no diff) "
-                        "operators")
+        # MATLAB pass(1): u^2 + sin(u) + exp(u) = sin(x) + 2, solved by
+        # Newton; f is a chebfun built outside the op as in the MATLAB
+        # source (the previous port called jnp.sin on the chebfun x and
+        # skipped on the resulting TypeError -- a port bug, not a
+        # chebop limitation).
+        f = cj.chebfun(lambda t: jnp.sin(t) + 2)
+        N = Chebop(lambda x, u: u * u + u.sin() + u.exp() - f)
+        u = N.solve(0.0)
         xs = jnp.asarray(np.linspace(-0.9, 0.9, 20))
-        res = (u(xs)) ** 2 + jnp.sin(u(xs)) + jnp.exp(u(xs)) \
-            - (jnp.sin(xs) + 2)
-        assert float(jnp.max(jnp.abs(res))) < TOL
+        ux = np.asarray(u(xs))
+        res = ux ** 2 + np.sin(ux) + np.exp(ux) \
+            - (np.sin(np.asarray(xs)) + 2)
+        assert float(np.max(np.abs(res))) < 1e-10
