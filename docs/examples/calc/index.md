@@ -16,3 +16,14 @@ examples demonstrate differentiation, integration, and their interplay.
 | [Definite and Indefinite Integrals](integrals.md) | One of the most natural operations in calculus is integration. Chebfunjax provides two complementary operations: ... ... |
 | [The Mean Value Theorem](mean_value_theorem.md) | The Mean Value Theorem is one of the central results of differential calculus. It states: if ... is continuous on ...... |
 | [Snell's Law and Refraction](snells_law.md) | Snell's law of refraction states that when light crosses an interface between two media with refractive indices ... a... |
+
+## Replicated chebfun.org examples
+
+| Example | Description |
+|---------|-------------|
+| [Mean Value Theorem](MeanValueTheorem.md) | Faithful replica: MVT points as roots of f' - slope; c = [-2, 6] exactly. |
+| [Definite and indefinite integrals](Integrals.md) | Faithful replica: sum/cumsum on round(2cos x); the delta FTC round-trip digit-for-digit. |
+| [Delta functions and derivatives](DeltaDerivs.md) | Faithful replica: Impulse trains, delta-aware norms, and integral chains. |
+| [A drowning man and Snell's Law](SnellsLaw.md) | Faithful replica: Optimal rescue path; Snell's law at machine zero. |
+| [Optimizing a bird's flight path](ForTheBirds.md) | Faithful replica: Landfall optima for several energy ratios, all published values exact. |
+| [Surfaces of revolution](SurfaceRevolution.md) | Faithful replica: Volume/area/centroid/inertia integrals digit-for-digit. |
