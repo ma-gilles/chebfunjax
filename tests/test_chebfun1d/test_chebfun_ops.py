@@ -1307,7 +1307,7 @@ class TestTrigremezRationalCore:
         p, q, r, err, status = cj.trigremez(f, 2, 1)
         assert abs(err - 0.001789066754500) < 5e-12
         assert len(p) == 5 and len(q) == 3
-        xs = np.linspace(-np.pi, np.pi, 500)
+        xs = np.linspace(-np.pi, np.pi, 4000)
         e = np.abs(np.asarray(f(jnp.asarray(xs))) - np.asarray(r(xs)))
         assert abs(float(np.max(e)) / err - 1.0) < 1e-5
 
