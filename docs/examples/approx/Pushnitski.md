@@ -1,50 +1,73 @@
-# Approximating Pushnitski's Reciprocal Log Function
+# Approximating Pushnitski's reciprocal log function
 
 *Nick Trefethen, November 2016*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/Pushnitski.html)
 
-## Logarithmic singularity
+(Chebfun example approx/Pushnitski.m)
 
-The function $f(x) = 1/|\log|x||$ is continuous on $[-1,1]$ (with $f(0) = 0$)
-but its Taylor-like expansion near 0 involves $1/\log$, which is harder for
-polynomials to represent than power singularities.
+The function $|x|$ can be approximated with accuracy $O(1/n)$ by degree
+$n$ polynomials on $[-1,1]$ but accuracy $O(\exp(-C\sqrt n))$ by type
+$(n,n)$ rationals.  In a lecture at Oxford on 8 November, Alexander
+Pushnitski presented some striking theorems concerning much more
+difficult functions involving $1/\log x$.  Roughly speaking polynomials
+can achieve accuracy $1/\log n$ whereas rationals are closer to $1/n$.
 
-Pushnitski showed that the best polynomial approximation error is $O(1/n)$,
-the same as for $|x|$ — but the constant is worse.
+As a concrete example, consider the function that takes the value $0$
+for $x\in [-.1,0]$ and $-1/\log x$ for $x\in [0,.1]$:
 
 ```python
 import numpy as np
+import jax.numpy as jnp
+import chebfunjax as cj
 
-# -1/log(x) on (0, 0.1]: Chebyshev coefficients decay only like
-# 1/(k log^2 k) — hundreds of terms buy little accuracy.
-def f(x):
-    x = np.asarray(x, dtype=float)
-    out = np.zeros_like(x)
-    m = x > 0
-    out[m] = -1.0 / np.log(x[m])
-    return out
+def fop(x):
+    ax = jnp.where(x > 0, x, 1e-300)
+    return jnp.where(x > 0, -1.0/jnp.log(ax), 0.0)
 
-n = 1000
-xc = 0.1 * np.cos(np.pi * np.arange(n) / (n - 1))
-vals = f(xc[::-1])[::-1]
-ext = np.concatenate([vals[::-1], vals[1:-1]])
-c = np.real(np.fft.fft(ext))[:n] / (n - 1)
-c[0] /= 2
-print(f"|c_10| = {abs(c[10]):.2e}, |c_100| = {abs(c[100]):.2e}, "
-      f"|c_500| = {abs(c[500]):.2e}")
+f = cj.chebfun(fop, domain=[-0.1, 0.0, 0.1])
 ```
 
-![Approximating Pushnitski's Reciprocal Log Function](../../images/approx/Pushnitski.png)
+![Pushnitski figure 1](../../images/approx/Pushnitski_repl_01.png)
 
-## Figures (chebfun.org parity)
+The function is so steep that it is nearly a step at $x=0$.  We know
+that the Chebyshev coefficients of a function with a jump discontinuity
+decrease at the rate $O(1/n)$.  This function is almost a step
+discontinuity, and the Chebyshev coefficients decrease almost as
+slowly, at a rate roughly $O(1/n\log n)$:
 
-![Pushnitski figure 1](../../images/approx/Pushnitski_01.png)
+```python
+f1000 = cj.chebfun(fop, domain=(-0.1, 0.1), n=1000)
+```
 
-![Pushnitski figure 2](../../images/approx/Pushnitski_02.png)
+![Pushnitski figure 2](../../images/approx/Pushnitski_repl_02.png)
 
-![Pushnitski figure 3](../../images/approx/Pushnitski_03.png)
+Here are some polynomial approximations to $f$ (degrees 4, 8, 12, 16):
 
-![Pushnitski figure 4](../../images/approx/Pushnitski_04.png)
+![Pushnitski figure 3](../../images/approx/Pushnitski_repl_03.png)
 
-![Pushnitski figure 5](../../images/approx/Pushnitski_05.png)
+These converge very slowly, and that could easily be proved.  For $p$
+to approximate $f$ to accuracy $\epsilon$, its derivative would have to
+be of size at least $\exp(C/\epsilon)$.  From Markov's inequality it
+will follow that $\epsilon$ can decrease no faster than approximately
+$O(1/\log n)$ as $n\to\infty$.
+
+Here are some rational approximations (types $(0,0)$ through $(3,3)$).
+The convergence is probably $O(1/n)$, but we are far from seeing that:
+
+![Pushnitski figure 4](../../images/approx/Pushnitski_repl_04.png)
+
+What about CF (=AAK) approximation, which as it happens is the method
+used by Pushnitski for his proofs?  It gets in the ballpark:
+
+![Pushnitski figure 5](../../images/approx/Pushnitski_repl_05.png)
+
+## References
+
+1. A. Pushnitski and D. Yafaev, Best rational approximation of functions
+   with logarithmic singularities, _Constructive Approximation_, 2016.
+
+---
+
+*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
+example copyright The University of Oxford and The Chebfun Developers.*
