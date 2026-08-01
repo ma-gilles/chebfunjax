@@ -7150,14 +7150,24 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
     funs = []
     for i in range(len(cleaned) - 1):
         ai, bi = cleaned[i], cleaned[i + 1]
-        w = bi - ai
-        # shrink only at interior breakpoints (jumps); keep true domain
-        # endpoints exact.
-        lo = ai + (1e-11 * w if i > 0 else 0.0)
-        hi = bi - (1e-11 * w if i < len(cleaned) - 2 else 0.0)
+        # Map on the TRUE interval; nudge only the SAMPLE POINTS inward
+        # at interior breakpoints so a jump's ambiguous midpoint value
+        # (e.g. sign(0)=0) is never sampled.  (Previously the whole map
+        # was built on a shrunk interval, distorting every piece's
+        # geometry by ~1e-11 relative -- sum(|x-0.3|) came out
+        # 1.0900000000109 instead of 1.09.)
+        # The nudge must exceed the edge locator's precision (~1e-11
+        # relative) or a piece can straddle the true jump and cascade
+        # into bisection; the value error it induces is O(1e-11 * |f'|)
+        # at two samples only (geometry is exact).  Sharper edge
+        # refinement is a ledgered improvement.
+        _w = bi - ai
+        eps_l = 1e-11 * _w if i > 0 else 0.0
+        eps_r = 1e-11 * _w if i < len(cleaned) - 2 else 0.0
 
-        def f_ref(t, _lo=lo, _hi=hi):
-            x = 0.5 * (_hi - _lo) * t + 0.5 * (_lo + _hi)
+        def f_ref(t, _a=ai, _b=bi, _el=eps_l, _er=eps_r):
+            x = 0.5 * (_b - _a) * t + 0.5 * (_a + _b)
+            x = jnp.clip(x, _a + _el, _b - _er)
             return f(x)
 
         # Splitting-mode pieces are capped at MATLAB's splitLength (2**8 + 1
