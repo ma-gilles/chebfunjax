@@ -6471,6 +6471,7 @@ def chebfun(
     eps: float | None = None,
     max_length: int | None = None,
     splitting: bool = False,
+    split_length: int | None = None,
     exps: tuple[float, float] | None = None,
     blowup: bool | int = False,
     singType: "list | tuple | None" = None,
@@ -6818,7 +6819,8 @@ def chebfun(
             return _construct_with_splitting(f, float(dom_seq[0]),
                                              float(dom_seq[-1]),
                                              _maxpow2, tol=_tol, turbo=turbo,
-                                             min_samples=min_samples)
+                                             min_samples=min_samples,
+                                             split_length=split_length)
         return Chebfun.from_function(f, dom, n=n, maxpow2=_maxpow2,
                                      tol=_tol, turbo=turbo)
 
@@ -7052,7 +7054,8 @@ def _two_arg_extremum(f: "Chebfun", other, pick):
 
 def _split_breakpoints(f, a: float, b: float, maxpow2: int,
                        depth: int = 0, max_depth: int = 45,
-                       min_w: float = 1e-10) -> list:
+                       min_w: float = 1e-10,
+                       split_pow2: int = 8) -> list:
     """Recursively find interior breakpoints for splitting-on (Opus 4.8).
 
     Detection is capped at 2^12 points: a piece containing a
@@ -7069,7 +7072,7 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
     # (e.g. sqrt(4-(x-1)^2), which is ~2*sqrt(1+x) at x=-1) thrash: every
     # detection and edge-bisection construction ran to thousands of points and
     # the recursion hung for minutes.  MATLAB source: @chebfunpref splitLength.
-    det = min(maxpow2, 8)
+    det = min(maxpow2, split_pow2)
     with _warnings.catch_warnings():
         _warnings.simplefilter("ignore")
         p = _Piece.from_function(f, a + 1e-9 * (b - a), b - 1e-9 * (b - a),
@@ -7098,10 +7101,11 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
         e = b - w / 100
     elif not (a < e < b):
         e = 0.5 * (a + b)
-    return (_split_breakpoints(f, a, e, maxpow2, depth + 1, max_depth, min_w)
+    return (_split_breakpoints(f, a, e, maxpow2, depth + 1, max_depth,
+                               min_w, split_pow2)
             + [e]
             + _split_breakpoints(f, e, b, maxpow2, depth + 1, max_depth,
-                                 min_w))
+                                 min_w, split_pow2))
 
 
 def _detect_edge_matlab(f, a: float, b: float,
@@ -7276,15 +7280,20 @@ def _split_edge_fd(f, a: float, b: float, n: int = 17) -> float:
 
 def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                               tol=None, turbo: bool = False,
-                              min_samples: "int | None" = None):
+                              min_samples: "int | None" = None,
+                              split_length: "int | None" = None):
     """Build a piecewise Chebfun, auto-detecting breakpoints (Opus 4.8, #12).
 
     Each piece is constructed on a slightly-shrunk interval so that at a
     jump the piece captures the one-sided limit (not the ambiguous value
     exactly at the breakpoint, e.g. sign(0)=0).
     """
+    import math as _math0
     import warnings as _warnings
-    brks = _split_breakpoints(f, a, b, maxpow2)
+    split_pow2 = (8 if split_length is None
+                  else max(4, int(_math0.ceil(_math0.log2(
+                      max(int(split_length) - 1, 2))))))
+    brks = _split_breakpoints(f, a, b, maxpow2, split_pow2=split_pow2)
     # Always keep the true domain endpoints a and b; merge only INTERIOR
     # breakpoints, and drop any interior point that lands within the merge
     # tolerance of EITHER neighbour (previously a geometric peel breakpoint a
@@ -7328,7 +7337,7 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
         # resolves within that budget or is a minimal-width singular piece that
         # is accepted unresolved.  Building at the caller's full maxpow2 (2**16)
         # would re-grind the near-singular pieces to 65537 points.
-        piece_maxpow2 = min(maxpow2, 8)
+        piece_maxpow2 = min(maxpow2, split_pow2)
         # MATLAB 'minSamples': floor the INITIAL adaptive grid so narrow
         # features inside a piece are not chopped away prematurely.
         import math as _math

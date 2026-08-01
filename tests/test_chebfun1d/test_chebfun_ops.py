@@ -1398,3 +1398,14 @@ class TestDetectEdgeMatlab:
         ends = sorted(float(b) for b in g.domain.breakpoints)
         assert len(ends) == 3
         assert abs(ends[1] - 0.3) < 1e-12
+
+
+class TestSplitLength:
+    """chebfun(..., split_length=N) maps MATLAB splitPrefs.splitLength."""
+
+    def test_edges_still_machine_precise(self):
+        f = chebfun(lambda x: jnp.abs(jnp.exp(x) * jnp.sin(10 * jnp.pi * x)),
+                    splitting=True, split_length=1000)
+        ends = np.array(sorted(float(b) for b in f.domain.breakpoints))
+        assert len(ends) == 21
+        assert np.max(np.abs(ends - np.arange(-1, 1.05, 0.1))) < 1e-14
