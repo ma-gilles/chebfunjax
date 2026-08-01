@@ -13,6 +13,8 @@ MATLAB golden-reference values are computed from:
 
 from __future__ import annotations
 
+import math
+
 import equinox as eqx
 import jax
 import jax.numpy as jnp
@@ -703,3 +705,47 @@ class TestChebfun2vGramNorm:
         n = (F - G).norm()   # exact-cancellation residue
         assert _time.time() - t0 < 60.0   # was minutes via re-approximation
         assert n < 1e-13
+
+
+class TestSumdisk:
+    """Core tests for Chebfun2.sumdisk (integral over inscribed disk)."""
+
+    def test_constant_is_pi(self):
+        f = chebfun2(lambda x, y: 1.0 + 0 * x + 0 * y)
+        assert abs(f.sumdisk() - math.pi) < 1e-14
+
+    def test_gaussian_closed_form(self):
+        # int over unit disk of exp(-(x^2+y^2)/2) = 2*pi*(1 - exp(-1/2))
+        f = chebfun2(lambda x, y: jnp.exp(-(x**2 + y**2) / 2))
+        exact = 2 * math.pi * (1 - math.exp(-0.5))
+        assert abs(f.sumdisk() - exact) < 1e-14
+
+    def test_odd_function_is_zero(self):
+        f = chebfun2(lambda x, y: x * jnp.cos(y) + y**3)
+        assert abs(f.sumdisk()) < 1e-14
+
+    def test_domain_scaling(self):
+        # constant 1 on [0,2]x[0,2]: inscribed disk has radius 1 -> area pi
+        f = chebfun2(lambda x, y: 1.0 + 0 * x + 0 * y, domain=(0.0, 2.0, 0.0, 2.0))
+        assert abs(f.sumdisk() - math.pi) < 1e-14
+
+    def test_x_squared(self):
+        # int over unit disk of x^2 = pi/4
+        f = chebfun2(lambda x, y: x**2 + 0 * y)
+        assert abs(f.sumdisk() - math.pi / 4) < 1e-14
+
+
+class TestVscale:
+    """Core tests for Chebfun2.vscale (MATLAB @separableApprox/vscale.m)."""
+
+    def test_constant(self):
+        f = chebfun2(lambda x, y: -3.0 + 0 * x + 0 * y)
+        assert abs(f.vscale() - 3.0) < 1e-13
+
+    def test_peak_value(self):
+        f = chebfun2(lambda x, y: 5 * jnp.exp(-(x**2 + y**2)))
+        assert abs(f.vscale() - 5.0) < 1e-10
+
+    def test_empty_is_zero(self):
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        assert Chebfun2.empty().vscale() == 0.0

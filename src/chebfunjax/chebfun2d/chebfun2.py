@@ -1656,6 +1656,69 @@ class Chebfun2(eqx.Module):
             return re + 1j * im
         return re
 
+    def vscale(self) -> float:
+        """Vertical scale: max abs value on a sampled grid.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/vscale.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return 0.0
+        m, n = self.length()
+        m = min(max(int(m), 9), 2000)
+        n = min(max(int(n), 9), 2000)
+        vals = self.sample(m, n)
+        return float(jnp.max(jnp.abs(vals)))
+
+    def sumdisk(self) -> float:
+        """Integral over the unit disk inscribed in the domain square.
+
+        Coefficient-space formula: only the 0 and +-2 diagonals of the
+        even-even Chebyshev coefficient submatrix contribute, with
+        closed-form integrals of T_i(x) T_j(y) over the disk.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/sumdisk.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        C = _np.asarray(self.coeffs2())
+        C = _np.real(C[0::2, 0::2])
+        nRow, nCol = C.shape
+
+        def _diag0_int(m):
+            k = 2 * _np.arange(m)
+            v = (_np.pi * (-1.0) ** (k / 2)) / (2.0 - 2.0 * k ** 2)
+            v[0] = _np.pi
+            return v
+
+        def _diag2_int(m):
+            k = 2 * _np.arange(m)
+            v = (_np.pi * (-1.0) ** (1 + k / 2)) / (4.0 * k + 4.0)
+            v[0] = -_np.pi / 2
+            return v
+
+        if nRow == 1 or nCol == 1:
+            I = float(C[0, 0]) * _np.pi
+            if nCol > 1:
+                I += float(C[0, 1]) * (-_np.pi / 2)
+            if nRow > 1:
+                I += float(C[1, 0]) * (-_np.pi / 2)
+        else:
+            d0 = _np.diag(C, 0)
+            I = float(d0 @ _diag0_int(len(d0)))
+            d2 = _np.diag(C, 1)
+            I += float(d2 @ _diag2_int(len(d2)))
+            dm2 = _np.diag(C, -1)
+            I += float(dm2 @ _diag2_int(len(dm2)))
+        xa, xb, ya, yb = self.domain
+        if (xa, xb, ya, yb) != (-1.0, 1.0, -1.0, 1.0):
+            I *= (xb - xa) * (yb - ya) / 4.0
+        return I
+
     def minandmax2est(self, N: int = 33):
         """Estimated [min, max] from an N x N sample grid.
 
