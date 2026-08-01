@@ -12,6 +12,7 @@ and related quadrature rules.
 | [Quadrature convergence rates (replica)](QuadratureConvergence.md) | Faithful replica: convergence-rate comparison of Gauss and Clenshaw-Curtis on functions of varying smoothness. |
 | [Symbolic and numeric integration (replica)](SymbolicNumeric.md) | Faithful replica: chebfun integrals versus published closed forms. |
 | [Sumdisk for integration over a disk (replica)](SumdiskDemo.md) | Faithful replica: chebfun2 sumdisk integrates over the inscribed disk via closed-form Chebyshev-product disk integrals. |
+| [Integrating Tj(x)Tk(y) over the unit disk (replica)](TjTkDisk.md) | Faithful replica: disk integrals of Chebyshev products vanish unless j,k are even and differ by 0 or 2; the tridiagonal matrix reproduces sign-for-sign. |
 | [Battery test of Chebfun as a general-purpose integrator](battery_test.md) | This example applies chebfunjax to a selection of the Kahaner battery of test integrands — functions that are challen... |
 | [Hermite quadrature](hermite_quad.md) | Gauss–Hermite quadrature integrates functions of the form ... over ... using ... carefully chosen nodes and weights: |
 | [Spike integral](spike_integral.md) | The spike function (also known as F21F in the Kahaner benchmark) consists of several spikes of increasing sharpness: |
