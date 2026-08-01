@@ -1,44 +1,104 @@
-# Resolution of Wiggly Functions
+# Resolution of wiggly functions
 
 *Nick Hale and Nick Trefethen, October 2013*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/ResolutionWiggly.html)
 
-## The wiggly function
+(Chebfun example approx/ResolutionWiggly.m)
 
-The function $f(x) = \sin^2(x) + \sin(x^2)$ on $[0,14]$ is one of the Chebfun
-team's favorites for testing. It requires a polynomial of degree about 1000 for
-machine precision because $\sin(x^2)$ has increasing frequency.
+One of the Chebfun team's favorite functions is this one:
 
 ```python
-import chebfunjax as cj
-import jax.numpy as jnp
 import numpy as np
+import jax.numpy as jnp
+import chebfunjax as cj
 
-f = cj.chebfun(lambda x: jnp.sin(x)**2 + jnp.sin(x**2), domain=(0.0, 14.0))
-print(f"Chebfun length: {len(f)}")
-
-# Low-degree polynomial approximation
-p50 = f.polyfit(50)
-xx = np.linspace(0, 14, 500)
-err50 = max(abs(float(p50(jnp.array(x))) - float(f(jnp.array(x)))) for x in xx)
-print(f"deg-50 max err: {err50:.3f}")
+f = cj.chebfun(lambda x: jnp.sin(x)**2 + jnp.sin(x**2),
+               domain=(0.0, 14.0))
 ```
 
-![Resolution of Wiggly Functions](../../images/approx/ResolutionWiggly.png)
+![ResolutionWiggly figure 1](../../images/approx/ResolutionWiggly_repl_01.png)
 
-## Figures (chebfun.org parity)
+The degree of $f$ is moderate:
 
-![ResolutionWiggly figure 1](../../images/approx/ResolutionWiggly_01.png)
+```python
+len(f)
+```
+```
+np =
+   196
+nphalf =
+    98
+```
 
-![ResolutionWiggly figure 2](../../images/approx/ResolutionWiggly_02.png)
+(Both values match the published output exactly.)  It's interesting to
+see what happens when we compute approximations to $f$ of an
+intermediate degree.  Let us arbitrarily choose the degree to be about
+half that of $f$.  Here is what happens with interpolation:
 
-![ResolutionWiggly figure 3](../../images/approx/ResolutionWiggly_03.png)
+```python
+pinterp = cj.chebfun(lambda x: f(x), domain=(0.0, 14.0), n=98)
+```
 
-![ResolutionWiggly figure 4](../../images/approx/ResolutionWiggly_04.png)
+![ResolutionWiggly figure 2](../../images/approx/ResolutionWiggly_repl_02.png)
 
-![ResolutionWiggly figure 5](../../images/approx/ResolutionWiggly_05.png)
+It's clear from this figure that we have pretty good approximation on
+the left, where $f$ has low wave numbers, and not so good on the right.
+A plot of the error confirms this:
 
-![ResolutionWiggly figure 6](../../images/approx/ResolutionWiggly_06.png)
+![ResolutionWiggly figure 3](../../images/approx/ResolutionWiggly_repl_03.png)
 
-![ResolutionWiggly figure 7](../../images/approx/ResolutionWiggly_07.png)
+Note that near the right-hand boundary the approximation improves
+again, reflecting the fundamental phenomenon that polynomials have less
+approximation power near the endpoints of an interval than in the
+middle, as discussed in Chapter 22 of [1].
+
+What will happen if we change the method of interpolation?  For a
+start, here is what happens if we change from interpolation to
+least-squares:
+
+```python
+pleastsq = f.polyfit(97)
+```
+
+![ResolutionWiggly figure 4](../../images/approx/ResolutionWiggly_repl_04.png)
+
+Qualitatively, the behavior is similar on the left half of the
+interval, but it is very different on the right half, where the
+least-squares approximant, unlike the interpolant, roughly tracks the
+low-wave-number signal.  A plot of the error shows that its amplitude
+has approximately cut in half:
+
+![ResolutionWiggly figure 5](../../images/approx/ResolutionWiggly_repl_05.png)
+
+Finally, here is what happens with best minimax approximation.  Now we
+have beautifully smooth tracking of the low-wave-number signal on the
+right, but no accuracy at all on the left:
+
+```python
+from chebfunjax.utils.minimax import minimax
+res = minimax(lambda x: jnp.sin(x)**2 + jnp.sin(x**2), 97,
+              domain=(0.0, 14.0), max_iter=100)
+```
+
+![ResolutionWiggly figure 6](../../images/approx/ResolutionWiggly_repl_06.png)
+
+The error curve shows its familiar equioscillatory behavior — with
+smaller maximum than the other methods, but no ability to take
+advantage of regions where the function is simpler:
+
+![ResolutionWiggly figure 7](../../images/approx/ResolutionWiggly_repl_07.png)
+
+(Max errors: interpolation 2.17, least-squares 1.13, best 1.0000.  As
+in the published MATLAB run, the degree-97 Remez iteration does not
+fully converge and its warning is suppressed.)
+
+## References
+
+1. L. N. Trefethen, _Approximation Theory and Approximation Practice_,
+   SIAM, 2013.
+
+---
+
+*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
+example copyright The University of Oxford and The Chebfun Developers.*
