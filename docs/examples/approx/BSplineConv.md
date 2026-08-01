@@ -1,44 +1,63 @@
-# B-splines and Convolution
+# B-splines and convolution
 
 *Nick Trefethen, July 2012*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/BSplineConv.html)
 
-## B-splines via convolution
+(Chebfun example approx/BSplineConv.m)
 
-The degree-$n$ B-spline is obtained by convolving the box function $B_0 = \mathbf{1}_{[-1/2,1/2]}$
-with itself $n+1$ times:
-$$B_n = B_0 * B_{n-1}.$$
-
-Each convolution increases the smoothness class by one: $B_n$ is $C^{n-1}$.
+Here is the characteristic function on the interval $[-1/2,1/2]$:
 
 ```python
 import chebfunjax as cj
-import jax.numpy as jnp
-
-B0 = cj.chebfun(lambda x: jnp.ones_like(x), domain=(-0.5, 0.5))
-B1 = B0.conv(B0)  # hat function, C^0
-B2 = B1.conv(B0)  # C^1 piecewise parabola
-B3 = B2.conv(B0)  # C^2 cubic B-spline
-B4 = B3.conv(B0)  # C^3 quartic B-spline
+B0 = cj.chebfun(lambda x: 1.0 + 0*x, domain=(-0.5, 0.5))
 ```
 
-## Connection to the Central Limit Theorem
+![BSplineConv figure 1](../../images/approx/BSplineConv_repl_01.png)
 
-As $n \to \infty$, $B_n$ converges to a Gaussian — exactly as in the Central
-Limit Theorem, since $B_0$ represents a uniform distribution and each convolution
-corresponds to adding independent samples.
+If we convolve `B0` with itself, we get a hat function:
 
-![B-splines and Convolution](../../images/approx/BSplineConv.png)
+```python
+B1 = B0.conv(B0)
+```
 
-## Figures (chebfun.org parity)
+![BSplineConv figure 2](../../images/approx/BSplineConv_repl_02.png)
 
-![BSplineConv figure 1](../../images/approx/BSplineConv_01.png)
+Convolving this result with `B0` gives us a $C^1$ function, piecewise
+parabolic:
 
-![BSplineConv figure 2](../../images/approx/BSplineConv_02.png)
+![BSplineConv figure 3](../../images/approx/BSplineConv_repl_03.png)
 
-![BSplineConv figure 3](../../images/approx/BSplineConv_03.png)
+As the titles of the plots indicate, these functions are known as
+B-splines.  In our notation the B-spline $B_n$ is a $C^{n-1}$ piecewise
+polynomial of degree $n$ with support $[-(n+1)/2,(n+1)/2]$ and
+breakpoints uniformly spaced with separation $1$ on this interval.  The
+B-splines form a good basis for numerical computation with splines.
+Here is `B3`:
 
-![BSplineConv figure 4](../../images/approx/BSplineConv_04.png)
+![BSplineConv figure 4](../../images/approx/BSplineConv_repl_04.png)
 
-![BSplineConv figure 5](../../images/approx/BSplineConv_05.png)
+And here is `B4`:
+
+![BSplineConv figure 5](../../images/approx/BSplineConv_repl_05.png)
+
+(Each $B_n$ integrates to exactly 1, as befits the density of a sum of
+$n+1$ independent uniform random variables — the connection to the
+central limit theorem is visible in the increasingly Gaussian shape.)
+
+B-splines were introduced by Schoenberg and became a standard method
+for numerical computation following the work of de Boor [1] and Cox [2]
+in 1972.
+
+## References
+
+1. C. de Boor, On calculating with B-splines, _J. Approx. Theory_, 6
+   (1972), 50-62.
+
+2. M. G. Cox, The numerical evaluation of B-splines, _IMA J. Appl.
+   Math._, 10 (1972), 134-149.
+
+---
+
+*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
+example copyright The University of Oxford and The Chebfun Developers.*
