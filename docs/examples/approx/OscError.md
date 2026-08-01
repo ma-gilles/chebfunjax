@@ -1,54 +1,61 @@
-# Approximations and Oscillation of Error
+# Approximations and oscillation of error
 
 *Mohsin Javed, October 2013*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/OscError.html)
 
-## How errors oscillate
+(Chebfun example approx/OscError.m)
 
-- **Interpolation** at Chebyshev points: the error equioscillates between $n+2$
-  extreme values (Chebyshev equioscillation theorem).
-- **L2 (polyfit)**: the error is smaller on average but larger in some places;
-  it does NOT equioscillate.
+## Introduction
+
+Let us approximate a continuous function $f$ defined on $[-1,1]$ in
+several different ways:
 
 ```python
-import chebfunjax as cj
 import jax.numpy as jnp
-import numpy as np
+import chebfunjax as cj
 
-def f_func(x): return jnp.exp(x) + jnp.cos(5.0*x)
-f = cj.chebfun(f_func)
-n = 20
-
-# L2 best approximation
-p_L2 = f.polyfit(n)
-
-# Chebyshev interpolant (degree n)
-cheb_nodes = np.cos(np.pi * np.arange(n+1) / n)
-y_nodes = np.array([float(f(jnp.array(x))) for x in cheb_nodes])
-coeffs = np.polyfit(cheb_nodes, y_nodes, n)
-
-xx = np.linspace(-1, 1, 500)
-f_true = np.array([float(f(jnp.array(x))) for x in xx])
-err_interp = np.polyval(coeffs, xx) - f_true
-err_L2 = np.array([float(p_L2(jnp.array(x))) for x in xx]) - f_true
-
-print(f"Interp max err: {np.max(np.abs(err_interp)):.3e}")
-print(f"L2    max err: {np.max(np.abs(err_L2)):.3e}")
+f = cj.chebfun(lambda x: jnp.exp(x) + 0.5*jnp.sin(2*jnp.pi*x), n=10)
 ```
 
-![Approximations and Oscillation of Error](../../images/approx/OscError.png)
+![OscError figure 1](../../images/approx/OscError_repl_01.png)
 
-## Figures (chebfun.org parity)
+## Best approximation in the $\infty$-norm
 
-![OscError figure 1](../../images/approx/OscError_01.png)
+The existence and uniqueness of the best minimax approximation of $f$
+in the space of polynomials of degree up to $n$ is well known.  The
+best degree $n$ approximation is characterized by the equioscillation
+of the error between at least $n+2$ extrema; the error consequently
+changes sign at least $n+1$ times [1].  Chebfun's `minimax` command
+finds this polynomial for $n=4$:
 
-![OscError figure 2](../../images/approx/OscError_02.png)
+```python
+from chebfunjax.utils.minimax import minimax
+res = minimax(lambda x: f(x), 4)
+```
 
-![OscError figure 3](../../images/approx/OscError_03.png)
+![OscError figure 2](../../images/approx/OscError_repl_02.png)
 
-![OscError figure 4](../../images/approx/OscError_04.png)
+## Comparing the error curves
 
-![OscError figure 5](../../images/approx/OscError_05.png)
+We can see that the minimax error (red) equioscillates $n+2$ times with
+$n+1$ sign changes.  The error curve of the best weighted $L_2$
+approximation (a truncated Chebyshev series, black) also changes sign
+at least $n+1$ times [2] but does not equioscillate; likewise the
+Legendre least-squares approximation (blue, via `polyfit`) and
+interpolation in $n+1$ Chebyshev points (green):
 
-![OscError figure 6](../../images/approx/OscError_06.png)
+![OscError figure 3](../../images/approx/OscError_repl_03.png)
+
+## References
+
+1. L. N. Trefethen, _Approximation Theory and Approximation Practice_,
+   SIAM, 2013.
+
+2. M. Javed and L. N. Trefethen, Euler-Maclaurin and Gregory
+   interpolants, in preparation.
+
+---
+
+*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
+example copyright The University of Oxford and The Chebfun Developers.*
