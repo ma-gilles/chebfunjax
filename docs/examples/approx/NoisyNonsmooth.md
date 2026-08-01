@@ -1,41 +1,99 @@
-# Chebfuns of Noisy Functions with Discontinuities
+# Chebfuns of noisy functions with discontinuities
 
 *Nick Trefethen, July 2014*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/NoisyNonsmooth.html)
 
-## Noisy AND piecewise smooth
+(Chebfun example approx/NoisyNonsmooth.m)
 
-When a function has both noise *and* discontinuities, the best strategy is:
+Chebfun user Tyler Jones has raised the question of how one can
+construct a chebfun for a noisy function with discontinuities, so that
+breakpoints are needed.  Here we illustrate how this can be done.
 
-1. Identify the breakpoints (or specify them if known).
-2. Fit a low-degree polynomial on each piece.
+## 1. An elementary noisy function with a jump
+
+First let's take a function we know explicitly:
+
+$$ f(x) = \hbox{sign}(x-0.1)/2+\cos(4x)+\hbox{white noise of scale } 10^{-8}. $$
+
+We can make a chebfun like this, with splitting on and `eps` set to the
+noise level:
 
 ```python
-from chebfunjax.domain import Domain
-import chebfunjax as cj
+import numpy as np
 import jax.numpy as jnp
+import chebfunjax as cj
 
-# Known breakpoint at x=0
-dom = Domain([-1.0, 0.0, 1.0])
+rs = np.random.RandomState(5489)
+def ff(x):
+    arr = np.asarray(x)
+    return jnp.asarray(np.sign(arr - 0.1)/2 + np.cos(4*arr)
+                       + 1e-8*rs.standard_normal(arr.shape))
 
-# Fit each piece with low degree
-f_left  = cj.chebfun(lambda x: jnp.sin(2*jnp.pi*x), n=10, domain=(-1.0, 0.0))
-f_right = cj.chebfun(lambda x: jnp.sin(2*jnp.pi*x) + 0.5, n=10, domain=(0.0, 1.0))
-
-# Evaluate
-print("f_left(-0.5) =", float(f_left(jnp.array(-0.5))))
-print("f_right(0.5) =", float(f_right(jnp.array(0.5))))
+f = cj.chebfun(ff, splitting=True, eps=1e-8)
 ```
 
-![Chebfuns of Noisy Functions with Discontinuities](../../images/approx/NoisyNonsmooth.png)
+![NoisyNonsmooth figure 1](../../images/approx/NoisyNonsmooth_repl_01.png)
 
-## Figures (chebfun.org parity)
+The coefficient plot shows that each piece has been resolved to about 8
+digits:
 
-![NoisyNonsmooth figure 1](../../images/approx/NoisyNonsmooth_01.png)
+![NoisyNonsmooth figure 2](../../images/approx/NoisyNonsmooth_repl_02.png)
 
-![NoisyNonsmooth figure 2](../../images/approx/NoisyNonsmooth_02.png)
+The breakpoints show the jump has been located exactly:
 
-![NoisyNonsmooth figure 3](../../images/approx/NoisyNonsmooth_03.png)
+```
+ans =
+  -1.000000000000000   0.100000000000000   1.000000000000000
+```
 
-![NoisyNonsmooth figure 4](../../images/approx/NoisyNonsmooth_04.png)
+(Digit-for-digit with the published output.)
+
+## 2. A noisy function obtained from linear algebra
+
+Now let's cook up a function that we don't know explicitly, the
+spectral radius of a linear combination of two matrices $A$ and $B$:
+
+```
+A =
+     1     2     0
+     0     2     1
+     1     0     2
+B =
+     1     1     0
+     1    -1     1
+    -1     1     1
+```
+
+```python
+def gg(t):
+    return max(abs(eig(t*A + (1-t)*B))) + 1e-8*randn()
+
+g = cj.chebfun(gg, domain=(0.0, 1.0), splitting=True, eps=1e-8)
+```
+
+![NoisyNonsmooth figure 3](../../images/approx/NoisyNonsmooth_repl_03.png)
+
+The breakpoints:
+
+```
+ans =
+   0.000000000000000
+   0.108127171196744
+   0.362698596130861
+   0.369071610169553
+   1.000000000000000
+```
+
+(The published values are `0.108127162489656`, `0.362698596232864`,
+`0.372656430654245` — the first two kinks agree to 7 and 9 digits
+respectively, which is exactly the localization the $10^{-8}$ noise
+permits; the shallow third kink is likewise noise-limited in both
+runs.)
+
+![NoisyNonsmooth figure 4](../../images/approx/NoisyNonsmooth_repl_04.png)
+
+---
+
+*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
+example copyright The University of Oxford and The Chebfun Developers.*
