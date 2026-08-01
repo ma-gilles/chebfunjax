@@ -1340,3 +1340,30 @@ class TestUnboundedRestrict:
         part = float(f.restrict(-6.0, 6.0).sum())
         assert abs(full - np.sqrt(np.pi)) < 1e-12
         assert abs(part - full) < 1e-12
+
+
+class TestTwoArgExtremumRestrict:
+    """max/min pick the winner per subinterval by restriction (MATLAB
+    max.m), never re-approximating: re-construction collapses the piece
+    vscale to O(eps) beyond a crossing and cannot converge."""
+
+    def test_hat_function_no_unhappy_warning(self):
+        import warnings as _w
+        with _w.catch_warnings(record=True) as rec:
+            _w.simplefilter("always")
+            s = chebfun(lambda t: t, domain=(0.0, 1.0))
+            m = (s - 0.3).abs().minimum(2.0 * (s - 0.7).abs())
+            f = s + (1.0 - 5.0 * m).maximum(0.0)
+        assert not [r for r in rec if "did not converge" in str(r.message)]
+        xs = np.linspace(0, 1, 5001)
+        ref = xs + np.maximum(
+            0, 1 - 5 * np.minimum(np.abs(xs - 0.3), 2 * np.abs(xs - 0.7)))
+        err = np.max(np.abs(np.asarray(f(jnp.asarray(xs))) - ref))
+        assert err < 5e-15
+
+    def test_zero_plateau_is_exact(self):
+        s = chebfun(lambda t: t, domain=(0.0, 1.0))
+        g = (1.0 - 2.0 * s).maximum(0.0)   # 0 beyond x = 0.5
+        xs = np.linspace(0.6, 1.0, 101)
+        vals = np.asarray(g(jnp.asarray(xs)))
+        assert np.max(np.abs(vals)) == 0.0

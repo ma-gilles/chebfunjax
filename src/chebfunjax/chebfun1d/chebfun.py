@@ -7026,10 +7026,28 @@ def _two_arg_extremum(f: "Chebfun", other, pick):
     brks = sorted(x for x in brks if a + 1e-13 < x < b - 1e-13)
     domain = [a, *brks, b]
 
-    def ev(x):
-        return pick(f(x), g_eval(x))
-
-    return chebfun(ev, domain=tuple(domain))
+    # MATLAB max.m: on each subinterval the winner is decided by a
+    # midpoint comparison and that chebfun is RESTRICTED to the piece.
+    # No re-construction: re-approximating pick(f, g) near a crossing
+    # produces a piece whose vscale is O(eps), on which the residual
+    # crossing offset is an O(1) relative step that never converges.
+    is_max = pick is jnp.maximum
+    funs = []
+    for lo, hi in zip(domain[:-1], domain[1:]):
+        midv = jnp.asarray(0.5 * (lo + hi))
+        fv = float(f(midv))
+        gv = float(g_eval(midv))
+        take_f = (fv >= gv) if is_max else (fv <= gv)
+        if take_f:
+            piece = f.restrict(lo, hi)
+        elif isinstance(other, Chebfun):
+            piece = other.restrict(lo, hi)
+        else:
+            piece = chebfun(
+                lambda x: jnp.full_like(jnp.asarray(x, dtype=jnp.float64), c),
+                domain=(lo, hi))
+        funs.extend(piece.funs)
+    return Chebfun(funs=funs, domain=Domain(tuple(domain)))
 
 
 def _split_breakpoints(f, a: float, b: float, maxpow2: int,
