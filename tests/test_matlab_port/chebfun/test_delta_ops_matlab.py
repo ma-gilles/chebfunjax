@@ -74,3 +74,15 @@ def test_pointwise_product_scales_deltas():
     (loc, mag), = h.deltas
     assert loc == pytest.approx(0.5) and mag == pytest.approx(2.5)
     assert float(h.sum()) == pytest.approx(2.5, abs=1e-12)
+
+
+def test_delta_aware_extrema_and_norms():
+    # @deltafun: positive deltas -> max Inf; negative -> min -Inf;
+    # 1-norm adds |mass|; other norms infinite (calc/DeltaDerivs).
+    d = _delta_train((-1, 1), [(0.0, 2.0), (0.5, -1.0)])
+    g = cj.chebfun(lambda t: 0 * t + 1.0)
+    f = d + g
+    assert f.max()[1] == float("inf")
+    assert f.min()[1] == float("-inf")
+    assert float(f.norm(1)) == pytest.approx(2.0 + 1.0 + 2.0, abs=1e-12)
+    assert float(f.norm(2)) == float("inf")

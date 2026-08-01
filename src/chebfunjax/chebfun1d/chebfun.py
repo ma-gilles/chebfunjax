@@ -2921,6 +2921,18 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/norm.m
         Chebfun commit: 7574c77
         """
+        # Dirac deltas (@deltafun semantics): the 1-norm adds the total
+        # delta mass; every other norm of a genuine delta is infinite.
+        _ds = getattr(self, "deltas", ())
+        if _ds:
+            import numpy as _np
+            mags = _np.asarray([m for _l, m in _ds], dtype=float)
+            base = Chebfun(funs=self.funs, domain=self.domain)
+            if p == 1:
+                return jnp.asarray(float(base.norm(1))
+                                   + float(_np.sum(_np.abs(mags))))
+            return jnp.asarray(_np.inf)
+
         if p == 2:
             return jnp.sqrt(jnp.abs(self.inner(self)))
         elif p == float("inf") or p == jnp.inf:
@@ -3296,6 +3308,12 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/min.m
         Chebfun commit: 7574c77
         """
+        # A negative Dirac delta makes the min infinite (@deltafun).
+        _ds = getattr(self, "deltas", ())
+        if _ds and any(m < 0 for _l, m in _ds):
+            loc = [_l for _l, m in _ds if m < 0][0]
+            return (float(loc), float("-inf"))
+
         if flag is not None:
             if str(flag).lower() != "local":
                 raise ValueError(
@@ -3323,6 +3341,12 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/max.m
         Chebfun commit: 7574c77
         """
+        # A positive Dirac delta makes the max infinite (@deltafun).
+        _ds = getattr(self, "deltas", ())
+        if _ds and any(m > 0 for _l, m in _ds):
+            loc = [_l for _l, m in _ds if m > 0][0]
+            return (float(loc), float("+inf"))
+
         if flag is not None:
             if str(flag).lower() != "local":
                 raise ValueError(
