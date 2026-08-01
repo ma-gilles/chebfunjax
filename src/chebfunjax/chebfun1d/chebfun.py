@@ -7113,7 +7113,8 @@ def _two_arg_extremum(f: "Chebfun", other, pick):
 def _split_breakpoints(f, a: float, b: float, maxpow2: int,
                        depth: int = 0, max_depth: int = 45,
                        min_w: float = 1e-10,
-                       split_pow2: int = 8) -> list:
+                       split_pow2: int = 8,
+                       tol=None) -> list:
     """Recursively find interior breakpoints for splitting-on (Opus 4.8).
 
     Detection is capped at 2^12 points: a piece containing a
@@ -7133,8 +7134,11 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
     det = min(maxpow2, split_pow2)
     with _warnings.catch_warnings():
         _warnings.simplefilter("ignore")
+        # thread the caller's eps into detection: with noisy data at the
+        # eps level, machine-precision happiness would never be reached
+        # and the recursion would grind to min_w on every subinterval
         p = _Piece.from_function(f, a + 1e-9 * (b - a), b - 1e-9 * (b - a),
-                                 maxpow2=det)
+                                 maxpow2=det, tol=tol)
     if p.ishappy or (b - a) < min_w or depth > max_depth:
         return []
     # Locate the singularity with the MATLAB detectEdge derivative-growth
@@ -7160,10 +7164,10 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
     elif not (a < e < b):
         e = 0.5 * (a + b)
     return (_split_breakpoints(f, a, e, maxpow2, depth + 1, max_depth,
-                               min_w, split_pow2)
+                               min_w, split_pow2, tol)
             + [e]
             + _split_breakpoints(f, e, b, maxpow2, depth + 1, max_depth,
-                                 min_w, split_pow2))
+                                 min_w, split_pow2, tol))
 
 
 def _detect_edge_matlab(f, a: float, b: float,
@@ -7351,7 +7355,8 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
     split_pow2 = (8 if split_length is None
                   else max(4, int(_math0.ceil(_math0.log2(
                       max(int(split_length) - 1, 2))))))
-    brks = _split_breakpoints(f, a, b, maxpow2, split_pow2=split_pow2)
+    brks = _split_breakpoints(f, a, b, maxpow2, split_pow2=split_pow2,
+                              tol=tol)
     # Always keep the true domain endpoints a and b; merge only INTERIOR
     # breakpoints, and drop any interior point that lands within the merge
     # tolerance of EITHER neighbour (previously a geometric peel breakpoint a

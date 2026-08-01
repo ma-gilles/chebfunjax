@@ -1449,3 +1449,21 @@ class TestPolyfitGlobalPiecewise:
         e1000 = float((f - f.polyfit(1000)).norm(2))
         ratio = e1000 / e100
         assert 0.02 < ratio < 0.05   # n^{-3/2} predicts 0.0316
+
+
+class TestNoisySplitting:
+    """splitting + eps: detection must honor the loosened tolerance, or
+    noise at the eps level makes every piece eternally unhappy."""
+
+    def test_noisy_jump_three_ends(self):
+        rs = np.random.RandomState(5489)
+
+        def ff(x):
+            arr = np.asarray(x)
+            return jnp.asarray(np.sign(arr - 0.1) / 2 + np.cos(4 * arr)
+                               + 1e-8 * rs.standard_normal(arr.shape))
+
+        f = chebfun(ff, splitting=True, eps=1e-8)
+        ends = [float(b) for b in f.domain.breakpoints]
+        assert len(ends) == 3
+        assert abs(ends[1] - 0.1) < 1e-7
