@@ -1295,3 +1295,25 @@ class TestTrigcoeffs:
         assert abs(float(np.asarray(g(jnp.asarray([0.3])))[0]) - 0.3) < 1e-14
         with pytest.raises(ValueError):
             chebfun(jnp.sin, coeffs=True)
+
+
+class TestTrigremezRationalCore:
+    """Core coverage for the rational (m, n) trigremez mode."""
+
+    def test_type_2_1_reference_error(self):
+        import chebfunjax as cj
+        f = chebfun(lambda t: jnp.exp(jnp.sin(t)),
+                    domain=[-np.pi, np.pi], trig=True)
+        p, q, r, err, status = cj.trigremez(f, 2, 1)
+        assert abs(err - 0.001789066754500) < 5e-12
+        assert len(p) == 5 and len(q) == 3
+        xs = np.linspace(-np.pi, np.pi, 500)
+        e = np.abs(np.asarray(f(jnp.asarray(xs))) - np.asarray(r(xs)))
+        assert abs(float(np.max(e)) / err - 1.0) < 1e-5
+
+    def test_polynomial_mode_unchanged(self):
+        import chebfunjax as cj
+        f = chebfun(lambda t: jnp.exp(jnp.sin(t)),
+                    domain=[-np.pi, np.pi], trig=True)
+        out = cj.trigremez(f, 3)
+        assert len(out) == 3  # (p, err, status)

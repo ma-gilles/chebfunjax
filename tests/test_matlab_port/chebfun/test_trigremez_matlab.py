@@ -39,3 +39,39 @@ class TestChebfunTrigremez:
         p, errmax, _ = cj.trigremez(f, 4)
         assert float(jnp.max(jnp.abs(p(TT) - f(TT)))) < 100 * TOL
         assert errmax < 100 * TOL
+
+
+class TestTrigremezRational:
+    """MATLAB passes 8-13: the rational (m, n) mode."""
+
+    def test_abs_x_rational_equioscillation(self):
+        # passes 8-11: f = |x|, type (2,2): reference errors
+        # equioscillate with alternating signs.
+        f = cj.chebfun(lambda x: jnp.abs(x), splitting=True)
+        p, q, r, err, status = cj.trigremez(f, 2, 2)
+        assert len(p) == 5 and len(q) == 5
+        xk = np.asarray(status["xk"])
+        equi = np.asarray(f(jnp.asarray(xk))) - np.asarray(r(xk))
+        assert float(np.std(np.abs(equi))) < 1e-8
+        if equi[0] < 0:
+            equi = -equi
+        assert np.all(np.sign(equi[0::2]) == 1)
+        assert np.all(np.sign(equi[1::2]) == -1)
+
+    def test_exp_sin_pi_x_type_6_6(self):
+        # passes 12-13: f = exp(sin(pi x)), type (6,6): near-exact.
+        f = cj.chebfun(lambda x: jnp.exp(jnp.sin(np.pi * x)), trig=True)
+        p, q, r, err, status = cj.trigremez(f, 6, 6)
+        xs = np.linspace(-1, 1, 1500)
+        e = np.max(np.abs(np.asarray(f(jnp.asarray(xs)))
+                          - np.asarray(r(xs))))
+        assert float(e) < 1e-8
+        assert len(p) == 13 and len(q) == 13
+
+    def test_trigcf_example_reference_error(self):
+        # The TrigCFExample page's punchline value: exp(sin t), type
+        # (2,1) has minimax error 0.001789066754500 (13 digits here).
+        f = cj.chebfun(lambda t: jnp.exp(jnp.sin(t)),
+                       domain=[-np.pi, np.pi], trig=True)
+        _, _, _, err, _ = cj.trigremez(f, 2, 1)
+        assert abs(err - 0.001789066754500) < 5e-12
