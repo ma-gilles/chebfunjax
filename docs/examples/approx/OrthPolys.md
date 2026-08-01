@@ -1,43 +1,73 @@
-# Orthogonal Polynomials via the Gram-Schmidt Process
+# Orthogonal polynomials via the Gram-Schmidt process
 
 *Nick Hale, June 2011*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/OrthPolys.html)
 
-## Gram-Schmidt orthogonalization
+(Chebfun example approx/OrthPolys.m)
 
-For any weight $w(x) \ge 0$, we can build orthonormal polynomials via:
-$$P_{k+1} = x^{k+1} - \sum_{j=0}^k \frac{\langle x^{k+1}, P_j \rangle_w}{\langle P_j, P_j \rangle_w} P_j.$$
+*Orthogonal* polynomials are, as the name suggests, polynomials which
+are orthogonal to each other in some weighted $L^2$ inner product,
+i.e.,
+
+$$ \int_a^b w(x)P_j(x)P_k(x)\, dx = \langle P_j, P_k \rangle = 0 $$
+
+for all $j\ne k$.  If we normalise so that
+$\langle P_j, P_j \rangle = 1$, the polynomials are *orthonormal*.
+
+Chebfun has commands built-in for some of the standard orthogonal
+polynomials (`legpoly`, `chebpoly`, etc.), computed via recurrence
+relations.  However, sometimes we wish to construct orthogonal
+polynomials with non-standard weight functions, and orthogonalisation
+via the Gram-Schmidt (Stieltjes) process is one method of doing so.
+
+Here we construct the first six orthonormal polynomials for the weight
+$w = e^{\pi x}$ on $[-1,1]$:
 
 ```python
-import chebfunjax as cj
-import jax.numpy as jnp
 import numpy as np
+import jax.numpy as jnp
+import chebfunjax as cj
 
-def w(x): return jnp.exp(jnp.pi * x)
+def orth_poly(w, N):
+    x = cj.chebfun(lambda t: t)
+    P = [cj.chebfun(lambda t: 1.0/np.sqrt(float(w.sum())) + 0*t)]
+    for k in range(N):
+        pk1 = x * P[k]
+        for j in range(k + 1):
+            C = float((w * (x * P[k]) * P[j]).sum())
+            pk1 = pk1 - C * P[j]
+        P.append(pk1 * (1.0/np.sqrt(float((w * pk1**2).sum()))))
+    return P
 
-w_f = cj.chebfun(w)
-x_f = cj.chebfun(lambda t: t)
-N = 4
-
-# Normalize constant
-norm0 = float(jnp.sqrt(jnp.array(float(w_f.sum()))))
-polys = [cj.chebfun(lambda t: jnp.ones_like(t)/norm0)]
-
-for k in range(1, N+1):
-    xpk = x_f * polys[k-1]
-    cand = xpk
-    for j in range(k):
-        c = float((w_f * xpk * polys[j]).sum())
-        cand = cand - c * polys[j]
-    norm = float(jnp.sqrt(jnp.array(float((w_f * cand**2).sum()))))
-    polys.append(cand * (1.0/norm))
-
-# Verify: inner product matrix should be identity
-I = np.array([[float((w_f*polys[i]*polys[j]).sum()) for j in range(N+1)]
-              for i in range(N+1)])
-print(f"||I - G||_max = {np.max(np.abs(I - np.eye(N+1))):.2e}")
+w = cj.chebfun(lambda t: jnp.exp(jnp.pi * t))
+P = orth_poly(w, 5)
 ```
 
-![Orthogonal Polynomials via the Gram-Schmidt Process](../../images/approx/OrthPolys.png)
+![OrthPolys figure 1](../../images/approx/OrthPolys_repl_01.png)
 
+We verify orthonormality by computing the Gram matrix:
+
+```
+err =
+     2.220645841662927e-14
+```
+
+(Published: `3.898e-14`.)
+
+One useful application of orthogonal polynomials is weighted
+least-squares approximation: expanding $|x|$ in the new basis gives the
+best approximation in the weighted $L^2$ norm, which is drawn toward
+the right of the interval where the weight $e^{\pi x}$ is large:
+
+```python
+f = cj.chebfun(lambda t: jnp.abs(t), domain=[-1.0, 0.0, 1.0])
+alpha = [float((w * p * f).sum()) for p in P]
+```
+
+![OrthPolys figure 2](../../images/approx/OrthPolys_repl_02.png)
+
+---
+
+*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
+example copyright The University of Oxford and The Chebfun Developers.*
