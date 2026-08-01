@@ -43,8 +43,9 @@ from scipy import linalg as spla
 
 def aaa(
     F: jnp.ndarray | Callable,
-    Z: jnp.ndarray,
+    Z: jnp.ndarray | None = None,
     *,
+    dom: tuple[float, float] = (-1.0, 1.0),
     tol: float = 1e-13,
     mmax: int = 100,
     degree: int | None = None,
@@ -158,6 +159,14 @@ def aaa(
     Original authors: Copyright 2023 by The University of Oxford and The
         Chebfun Developers.
     """
+    if Z is None:
+        if not callable(F):
+            raise ValueError("aaa: Z may only be omitted when F is callable "
+                             "(MATLAB aaa_autoZ).")
+        return _aaa_autoZ(F, dom, tol=tol, mmax=mmax, degree=degree,
+                          lawson=lawson, damping=damping, sign=sign,
+                          cleanup=cleanup, cleanup_tol=cleanup_tol)
+
     # ---- Input handling ----
     Z = jnp.asarray(Z, dtype=jnp.complex128).ravel()
     M = Z.shape[0]
@@ -825,6 +834,59 @@ def _cleanup(
 # ---------------------------------------------------------------------------
 # Trigonometric AAA  (aaatrig)
 # ---------------------------------------------------------------------------
+
+
+def _aaa_autoZ(F, dom, *, tol, mmax, degree, lawson, damping,
+               sign, cleanup, cleanup_tol):
+    """Automated sample-set choice for a function handle on an interval.
+
+    Provenance
+    ----------
+    MATLAB source : aaa.m (aaa_autoZ)
+    Chebfun commit: 7574c77
+    """
+    import warnings as _warnings
+
+    a, b = float(dom[0]), float(dom[1])
+    width = b - a
+    tol_eff = tol if tol > 0 else 1e-13
+
+    def _F(zz):
+        return np.asarray(F(jnp.asarray(zz)), dtype=np.complex128)
+
+    is_resolved = False
+    out = None
+    Zlen = 0
+    for n in range(5, 15):
+        Z = np.linspace(a + 1.37e-8 * width, b - 3.08e-9 * width, 1 + 2**n)
+        Zlen = len(Z)
+        out = aaa(F, jnp.asarray(Z), tol=tol, mmax=mmax, degree=degree,
+                  lawson=lawson, damping=damping, sign=sign,
+                  cleanup=cleanup, cleanup_tol=cleanup_tol)
+        r = out[0]
+        FZ = _F(Z)
+        finite = np.isfinite(FZ)
+        abstol = tol_eff * np.max(np.abs(FZ[finite]))
+        err1 = np.max(np.abs(FZ[finite]
+                             - np.asarray(r(Z[finite]))))
+        Zr = np.linspace(a + 1.37e-8 * width, b - 3.08e-9 * width,
+                         round(1.5 * (1 + 2**(n + 1))))
+        FZr = _F(Zr)
+        finr = np.isfinite(FZr)
+        err2 = np.max(np.abs(FZr[finr] - np.asarray(r(Zr[finr]))))
+        if err1 < abstol and err2 < abstol:
+            # Final check, inspired by sampleTest():
+            xeval = np.array([-0.357998918959666, 0.036785641195074])
+            xeval = (b - a) / 2 * xeval + (b + a) / 2
+            if np.max(np.abs(_F(xeval)
+                             - np.asarray(r(xeval)))) < abstol:
+                is_resolved = True
+                break
+
+    if not is_resolved and mmax >= 100:
+        _warnings.warn(f"Function not resolved using {Zlen} pts.",
+                       stacklevel=3)
+    return out
 
 
 def aaatrig(

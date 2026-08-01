@@ -182,3 +182,36 @@ class TestAaaStep2tfSystemID:
         _, pol, *_ = aaa(f, z, degree=6)
         assert len(pol) == 6
         assert _match_poles(np.asarray(pol), self.POL_G) < 1e-6
+
+
+class TestChebfunAaaAutoZ:
+    """aaa(handle) with no sample set: the aaa_autoZ port (pass 14)."""
+
+    def test_pass14_gamma(self):
+        from scipy.special import gamma as sp_gamma
+        gam = lambda z: sp_gamma(np.real(np.asarray(z))) + 0j  # noqa: E731
+        r, pol, res, *_ = aaa(gam)
+        assert abs(complex(np.asarray(r(np.asarray([1.5]))[0]))
+                   - sp_gamma(1.5)) < 1e-3
+        # the poles at 0 and -1 with residues 1 and -1 are captured
+        p = np.asarray(pol)
+        q = np.asarray(res)
+        i0 = np.argmin(np.abs(p))
+        i1 = np.argmin(np.abs(p + 1))
+        assert abs(p[i0]) < 1e-8 and abs(q[i0] - 1) < 1e-6
+        assert abs(p[i1] + 1) < 1e-8 and abs(q[i1] + 1) < 1e-6
+
+    def test_autoZ_matches_explicit_grid(self):
+        # exp resolves at the first autoZ level (n=5); the result equals
+        # aaa on that explicit grid.
+        Z = _auto_z(-1.0, 1.0, 5)
+        r_auto, *_ = aaa(lambda z: np.exp(np.asarray(z)))
+        r_grid, *_ = aaa(np.exp(Z), Z)
+        xx = np.linspace(-1, 1, 100)
+        assert np.max(np.abs(np.real(r_auto(xx))
+                             - np.real(r_grid(xx)))) < 1e-13
+
+    def test_autoZ_dom(self):
+        r, *_ = aaa(lambda z: np.exp(np.asarray(z)), dom=(-2.0, 2.0))
+        xx = np.linspace(-2, 2, 100)
+        assert np.max(np.abs(np.exp(xx) - np.real(r(xx)))) < 1e-11
