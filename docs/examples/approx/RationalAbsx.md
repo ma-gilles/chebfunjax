@@ -1,39 +1,52 @@
-# Rational Approximation of abs(x) with Minimax
+# Rational minimax approximation of |x|
 
-*Silviu Filip, Yuji Nakatsukasa, and Nick Trefethen, May 2017*
+*Nick Trefethen, March 2017*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/RationalAbsx.html)
 
-## Newman's theorem
+(Chebfun example approx/RationalAbsx.m)
 
-Newman (1964) showed that the best type $(n,n)$ rational approximation to $|x|$
-on $[-1,1]$ achieves accuracy $O(\exp(-C\sqrt{n}))$, far better than the
-polynomial $O(1/n)$.
+One of the celebrated problems of approximation theory is the rational
+minimax approximation of $|x|$ on $[-1,1]$: by a theorem of Stahl the
+type $(n,n)$ error decreases root-exponentially, like
+$8e^{-\pi\sqrt{n}}$.  Computing these approximants numerically is
+notoriously hard because the equioscillation points cluster
+exponentially near $x=0$.
 
-The constant is approximately $C \approx \pi/\sqrt{2}$ (though the exact value
-of the asymptotic constant was refined later).
+The published example computes the type $(80,80)$ approximant in 21.6
+seconds using the adaptive-barycentric `minimax` algorithm of Filip,
+Nakatsukasa, Trefethen, and Beckermann [1], with maximum error near
+$10^{-11}$.  chebfunjax's rational Remez currently converges up to type
+$(30,30)$ for this function (a ledgered gap — the extreme-degree cases
+need the adaptive barycentric representation), which is what is shown
+here:
 
 ```python
-from chebfunjax.utils.aaa import aaa
-import jax.numpy as jnp
-import numpy as np
-
-xs = jnp.linspace(-1.0, 1.0, 400)
-ys = jnp.abs(xs)
-r, pol, *_ = aaa(ys, xs)
-xx = np.linspace(-1, 1, 600)
-err = np.max(np.abs([float(r(jnp.array(x))) for x in xx] - np.abs(xx)))
-print(f"AAA ({len(pol)} poles): max err = {err:.3e}")
-
-# Compare: polynomial approximation
-import chebfunjax as cj
-f = cj.chebfun(jnp.abs)
-for n in [10, 20, 40, 80]:
-    pn = f.polyfit(n)
-    pn_err = max(abs(float(pn(jnp.array(x))) - abs(float(x)))
-                 for x in np.linspace(-1,1,200))
-    print(f"poly deg {n:3d}: max err = {pn_err:.3e}")
+from chebfunjax.utils.minimax import minimax
+r = minimax(lambda x: jnp.abs(x), 30, rational=True, denom=30,
+            breakpoints=[0.0])
+```
+```
+type (30,30) error: 2.173884e-07
 ```
 
-![Rational Approximation of abs(x) with Minimax](../../images/approx/RationalAbsx.png)
+Here is the error curve, plotted against $x^{1/3}$-graded coordinates
+so that the exponentially clustered equioscillation is visible:
 
+![RationalAbsx figure 1](../../images/approx/RationalAbsx_repl_01.png)
+
+And on a semilogx scale, showing the equioscillation stretching over
+many orders of magnitude of $x$:
+
+![RationalAbsx figure 2](../../images/approx/RationalAbsx_repl_02.png)
+
+## References
+
+1. S. Filip, Y. Nakatsukasa, L. N. Trefethen, and B. Beckermann,
+   Rational minimax approximation via adaptive barycentric
+   representations, _SIAM J. Sci. Comput._, 40 (2018), A2427-A2455.
+
+---
+
+*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
+example copyright The University of Oxford and The Chebfun Developers.*
