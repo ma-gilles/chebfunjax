@@ -43,3 +43,9 @@ print(float((lap_computed - lap_exact).norm()))   # < 1e-6
 *No examples yet.*
 
 *No examples yet.*
+
+## Replicated chebfun.org examples
+
+| Example | Description |
+|---------|-------------|
+| [Checking vector calculus](CheckingVectorCalculus.md) | Faithful replica: parallelogram law, gradient theorem, closed-curve integrals, and curl(grad)=0 — all at machine zero. |
