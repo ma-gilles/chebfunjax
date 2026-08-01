@@ -7076,13 +7076,16 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
                                  maxpow2=det)
     if p.ishappy or (b - a) < min_w or depth > max_depth:
         return []
-    # Locate the singularity with a cheap finite-difference scan (the spirit of
-    # MATLAB @fun/detectEdge: sample on a grid, take the largest first
-    # difference) instead of the old 80-iteration construction-based bisection
-    # (_split_find_edge did 160 adaptive constructions PER recursion level,
-    # which -- combined with the recursion toward an endpoint branch point --
-    # made splitting-on hang for minutes).
-    e = _split_edge_fd(f, a, b)
+    # Locate the singularity with the MATLAB detectEdge derivative-growth
+    # test (orders 1..4 with bracket refinement; findJump bisection for
+    # first-derivative blowups).  The order-adaptive localisation places
+    # e.g. a spline-knot (D3-jump) edge ~1e-5 off, which is exactly tight
+    # enough for the neighbouring cubic pieces to be happy at 1e-15 --
+    # the previous first/second-difference scan put such edges ~3e-4 off
+    # and the still-unhappy pieces cascaded into hundreds of splits.
+    e = _detect_edge_matlab(f, a, b)
+    if e is None:
+        e = _split_edge_fd(f, a, b)
     w = b - a
     htol = 1e-12 * max(abs(a), abs(b), 1.0)
     if e <= a + htol:
@@ -7099,6 +7102,125 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
             + [e]
             + _split_breakpoints(f, e, b, maxpow2, depth + 1, max_depth,
                                  min_w))
+
+
+def _detect_edge_matlab(f, a: float, b: float,
+                        vscale: "float | None" = None) -> "float | None":
+    """Faithful port of MATLAB @fun/detectEdge (detectedgeMain).
+
+    Tests finite differences of orders 1..4 on successively refined
+    brackets; the derivative order whose maximum keeps growing locates
+    the edge, and a first-derivative blowup switches to the findJump
+    bisection.  Returns None when no derivative growth is detected
+    (caller should bisect), matching MATLAB's empty return.
+
+    The achievable localisation is order-adaptive: a jump in the k-th
+    derivative is found to O(w) where the neighbouring pieces' deviation
+    is O(w^k) -- exactly the accuracy needed for machine-precision
+    pieces (e.g. spline knots land ~1e-5 off, and the cubic pieces are
+    still resolved to 1e-15).
+
+    Provenance
+    ----------
+    MATLAB source : @fun/detectEdge.m (detectedgeMain, findMaxDer,
+        findJump)
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+
+    eps = _np.finfo(float).eps
+    hscale = max(abs(a), abs(b), 1.0)
+
+    def op(x):
+        y = _np.asarray(f(jnp.asarray(_np.atleast_1d(_np.asarray(x,
+                        dtype=_np.float64)))), dtype=_np.float64).ravel()
+        return _np.where(_np.isfinite(y), y, 0.0)
+
+    def find_max_der(da, db, num_ders, grid_size):
+        na = _np.full(num_ders, da, dtype=_np.float64)
+        nb = _np.full(num_ders, db, dtype=_np.float64)
+        max_der = _np.zeros(num_ders)
+        dx = (db - da) / (grid_size - 1)
+        x = _np.concatenate([da + _np.arange(grid_size - 1) * dx, [db]])
+        y = op(x)
+        dy = y.copy()
+        xx = x.copy()
+        for j in range(num_ders):
+            dy = _np.diff(dy)
+            xx = 0.5 * (xx[:-1] + xx[1:])
+            absdy = _np.abs(dy)
+            if absdy.size == 0:
+                break
+            ind = int(_np.argmax(absdy))
+            max_der[j] = absdy[ind]
+            if ind > 0:
+                na[j] = xx[ind - 1]
+            if ind < len(xx) - 2:
+                nb[j] = xx[ind + 1]
+        if dx ** num_ders <= _np.finfo(float).tiny:
+            max_der = max_der + _np.inf
+        else:
+            max_der = max_der / dx ** _np.arange(1, num_ders + 1)
+        return na, nb, max_der
+
+    def find_jump(ja, jb):
+        ya = op(ja)[0]
+        yb = op(jb)[0]
+        max_der = abs(ya - yb) / (jb - ja)
+        if max_der < 1e-5 * vsc / hscale:
+            return None
+        cont = 0
+        aa, bb = ja, jb
+        e1 = 0.5 * (aa + bb)
+        e0 = e1 + 1.0
+        while ((cont < 2) or (max_der == _np.inf)) and (e0 != e1):
+            c = 0.5 * (aa + bb)
+            yc = op(c)[0]
+            dyl = abs(yc - ya)
+            dyr = abs(yb - yc)
+            maxd1 = max_der
+            if dyl > dyr:
+                bb, yb = c, yc
+                max_der = dyl / (bb - aa)
+            else:
+                aa, ya = c, yc
+                max_der = dyr / (bb - aa)
+            e0 = e1
+            e1 = 0.5 * (aa + bb)
+            if max_der < maxd1 * 1.5:
+                cont += 1
+        if (e0 - e1) <= 2 * _np.spacing(e0):
+            yright = op(bb + _np.spacing(bb))[0]
+            if abs(yright - yb) > eps * 100 * vsc:
+                return bb
+            return aa
+        return None
+
+    num = 4
+    grid1, grid234 = 50, 15
+    na, nb, max_der = find_max_der(a, b, num, grid1)
+    if vscale is None:
+        vsc = float(_np.max(_np.abs(op(_np.linspace(a, b, grid1)))))
+        vsc = max(vsc, _np.finfo(float).tiny)
+    else:
+        vsc = max(float(vscale), _np.finfo(float).tiny)
+    ends = (float(na[num - 1]), float(nb[num - 1]))
+    while (max_der[num - 1] != _np.inf
+           and not _np.isnan(max_der[num - 1])
+           and (ends[1] - ends[0]) > eps * hscale):
+        max_der_prev = max_der[:num]
+        na, nb, max_der = find_max_der(ends[0], ends[1], num, grid234)
+        ks = _np.arange(1, num + 1)
+        crit = ((max_der > (5.5 - ks) * max_der_prev)
+                & (max_der > 10 * vsc / hscale ** ks))
+        idxs = _np.where(crit)[0]
+        if idxs.size == 0:
+            return None
+        num = int(idxs[0]) + 1
+        if num == 1 and (ends[1] - ends[0]) < 1e-3 * hscale:
+            return find_jump(ends[0], ends[1])
+        ends = (float(na[num - 1]), float(nb[num - 1]))
+    return 0.5 * (ends[0] + ends[1])
 
 
 def _split_edge_fd(f, a: float, b: float, n: int = 17) -> float:

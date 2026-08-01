@@ -1367,3 +1367,34 @@ class TestTwoArgExtremumRestrict:
         xs = np.linspace(0.6, 1.0, 101)
         vals = np.asarray(g(jnp.asarray(xs)))
         assert np.max(np.abs(vals)) == 0.0
+
+
+class TestDetectEdgeMatlab:
+    """@fun/detectEdge port: order-adaptive derivative-growth edge
+    localisation (splitting-on)."""
+
+    def test_spline_knots_found_once_each(self):
+        # A cubic spline has D3 jumps at interior knots; detectEdge must
+        # locate each once (~1e-5 accuracy suffices for 1e-12 pieces).
+        # The previous difference-scan detector splintered this into
+        # ~300 pieces at 1.7e-6 error.
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        f = chebfun(lambda x: jnp.sin(x + 0.25 * x**2),
+                    domain=(0.0, 10.0))
+        nodes = np.arange(0, 11, dtype=np.float64)
+        s = Chebfun.spline(jnp.asarray(nodes),
+                           jnp.asarray(np.asarray(f(jnp.asarray(nodes)))))
+        s2 = chebfun(lambda x: s(x), domain=(0.0, 10.0), splitting=True)
+        ends = sorted(float(b) for b in s2.domain.breakpoints)
+        assert len(ends) == 9          # 0, ~2..~8, 10 (as MATLAB)
+        for k, e in zip(range(2, 9), ends[1:-1]):
+            assert abs(e - k) < 1e-3
+        assert float((s - s2).norm(np.inf)) < 1e-10
+
+    def test_jump_still_machine_precise(self):
+        # findJump bisection: a plain jump splits at machine precision.
+        g = chebfun(lambda x: jnp.sign(x - 0.3), domain=(-1.0, 1.0),
+                    splitting=True)
+        ends = sorted(float(b) for b in g.domain.breakpoints)
+        assert len(ends) == 3
+        assert abs(ends[1] - 0.3) < 1e-12
