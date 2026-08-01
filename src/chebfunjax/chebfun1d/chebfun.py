@@ -3473,7 +3473,17 @@ class Chebfun(eqx.Module):
             hi = min(pb, b)
             if lo >= hi - 100 * _EPS:
                 continue  # No overlap or zero-width
-            new_funs.append(piece.restrict(lo, hi))
+            from chebfunjax.fun.unbndfun import Unbndfun
+            if isinstance(piece, Unbndfun) or not (
+                    math.isfinite(pa) and math.isfinite(pb)):
+                # Unbounded pieces restrict via the partition API
+                # (@unbndfun/restrict.m returns one fun per subinterval).
+                subs = piece.restrict((lo, hi))
+                if not isinstance(subs, (list, tuple)):
+                    subs = [subs]
+                new_funs.extend(subs)
+            else:
+                new_funs.append(piece.restrict(lo, hi))
         if not new_funs:
             raise ValueError(
                 f"Restriction [{a}, {b}] produced no pieces — check domain."

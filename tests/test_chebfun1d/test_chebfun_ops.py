@@ -1328,3 +1328,15 @@ class TestMinSamples:
         g = chebfun(f, domain=[0, 1], min_samples=100)
         exact = (16.0 / 15.0) / 1000.0  # int sech^6 = 16/15
         assert abs(float(g.sum()) - exact) < 1e-10
+
+
+class TestUnboundedRestrict:
+    """Chebfun.restrict on unbounded domains (partition-API dispatch)."""
+
+    def test_gaussian_restriction_preserves_integral(self):
+        f = chebfun(lambda x: jnp.exp(-x ** 2),
+                    domain=[-np.inf, np.inf])
+        full = float(f.sum())
+        part = float(f.restrict(-6.0, 6.0).sum())
+        assert abs(full - np.sqrt(np.pi)) < 1e-12
+        assert abs(part - full) < 1e-12
