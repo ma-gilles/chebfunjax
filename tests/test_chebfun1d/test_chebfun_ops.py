@@ -1317,3 +1317,14 @@ class TestTrigremezRationalCore:
                     domain=[-np.pi, np.pi], trig=True)
         out = cj.trigremez(f, 3)
         assert len(out) == 3  # (p, err, status)
+
+
+class TestMinSamples:
+    """min_samples floors the initial adaptive grid (MATLAB minSamples)."""
+
+    def test_narrow_spike_seen_globally(self):
+        sech = lambda z: 1 / jnp.cosh(z)  # noqa: E731
+        f = lambda x: sech(1000 * (x - 0.6)) ** 6  # noqa: E731
+        g = chebfun(f, domain=[0, 1], min_samples=100)
+        exact = (16.0 / 15.0) / 1000.0  # int sech^6 = 16/15
+        assert abs(float(g.sum()) - exact) < 1e-10

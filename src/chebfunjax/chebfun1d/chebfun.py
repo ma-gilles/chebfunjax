@@ -105,6 +105,7 @@ class _Piece(eqx.Module):
         maxpow2: int = 16,
         tol: float | None = None,
         turbo: bool = False,
+        start_pow2: int = 4,
     ) -> _Piece:
         """Build a piece from a callable on [a, b].
 
@@ -131,6 +132,7 @@ class _Piece(eqx.Module):
             return f(x)
 
         tech = Chebtech2.from_function(f_ref, n=n, maxpow2=maxpow2, tol=tol,
+                                       start_pow2=start_pow2,
                                        turbo=turbo)
         return cls(tech=tech, interval=(a, b))
 
@@ -6465,6 +6467,7 @@ def chebfun(
     turbo: bool = False,
     equi: bool = False,
     coeffs: bool = False,
+    min_samples: int | None = None,
 ) -> Chebfun:
     """Create a Chebfun from a callable, array of coefficients, or constant.
 
@@ -6804,7 +6807,8 @@ def chebfun(
         if splitting and n is None:
             return _construct_with_splitting(f, float(dom_seq[0]),
                                              float(dom_seq[-1]),
-                                             _maxpow2, tol=_tol, turbo=turbo)
+                                             _maxpow2, tol=_tol, turbo=turbo,
+                                             min_samples=min_samples)
         return Chebfun.from_function(f, dom, n=n, maxpow2=_maxpow2,
                                      tol=_tol, turbo=turbo)
 
@@ -7121,7 +7125,8 @@ def _split_edge_fd(f, a: float, b: float, n: int = 17) -> float:
 
 
 def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
-                              tol=None, turbo: bool = False):
+                              tol=None, turbo: bool = False,
+                              min_samples: "int | None" = None):
     """Build a piecewise Chebfun, auto-detecting breakpoints (Opus 4.8, #12).
 
     Each piece is constructed on a slightly-shrunk interval so that at a
@@ -7161,12 +7166,55 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
         # is accepted unresolved.  Building at the caller's full maxpow2 (2**16)
         # would re-grind the near-singular pieces to 65537 points.
         piece_maxpow2 = min(maxpow2, 8)
+        # MATLAB 'minSamples': floor the INITIAL adaptive grid so narrow
+        # features inside a piece are not chopped away prematurely.
+        import math as _math
+        _sp2 = (max(4, int(_math.ceil(_math.log2(max(min_samples - 1, 2)))))
+                if min_samples else 4)
+        piece_maxpow2 = max(piece_maxpow2, _sp2)
         with _warnings.catch_warnings():
             _warnings.simplefilter("ignore")
             tech = Chebtech2.from_function(f_ref, maxpow2=piece_maxpow2,
+                                           start_pow2=_sp2,
                                            tol=tol, turbo=turbo)
         funs.append(_Piece(tech=tech, interval=(float(ai), float(bi))))
-    return Chebfun(funs=funs, domain=Domain(tuple(cleaned)))
+
+    # MATLAB's constructor keeps splitting any still-sad piece (at a
+    # detected edge, else bisection) until it resolves or the total
+    # budget is exhausted -- without this, narrow smooth spikes are
+    # silently accepted unresolved (quad/SpikeIntegral).
+    def _sad(pc):
+        return not bool(getattr(pc.tech, "ishappy", True))
+
+    SPLIT_MAX_LENGTH = 6000
+    guard = 0
+    while (any(_sad(pc) for pc in funs)
+           and sum(pc.n for pc in funs) < SPLIT_MAX_LENGTH
+           and guard < 200):
+        guard += 1
+        import numpy as _np
+        widths = [(pc.interval[1] - pc.interval[0]) if _sad(pc) else 0.0
+                  for pc in funs]
+        k = int(_np.argmax(_np.asarray(widths)))
+        a_k, b_k = funs[k].interval
+        edge = _split_edge_fd(f, a_k, b_k)
+        okw = 4 * _np.spacing(max(abs(a_k), abs(b_k), 1e-300))
+        if (edge is None or not (a_k < edge < b_k)
+                or edge - a_k < okw or b_k - edge < okw):
+            edge = 0.5 * (a_k + b_k)
+        if not (a_k + okw < edge < b_k - okw):
+            break
+        halves = []
+        for aa, bb in ((a_k, edge), (edge, b_k)):
+            with _warnings.catch_warnings():
+                _warnings.simplefilter("ignore")
+                halves.append(_Piece.from_function(
+                    f, aa, bb, maxpow2=piece_maxpow2, tol=tol,
+                    turbo=turbo, start_pow2=_sp2))
+        funs[k:k + 1] = halves
+    bps2 = [funs[0].interval[0]] + [pc.interval[1] for pc in funs]
+    return Chebfun(funs=funs, domain=Domain(tuple(float(v)
+                                                  for v in bps2)))
 
 
 def _integer_step(f: "Chebfun", op, half_offset: bool = False):

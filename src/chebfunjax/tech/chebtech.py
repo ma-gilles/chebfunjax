@@ -1549,6 +1549,7 @@ class Chebtech2(eqx.Module):
         tol: float | None = None,
         turbo: bool = False,
         extrapolate: bool = False,
+        start_pow2: int = 4,
     ) -> "Chebtech2":
         """Construct a Chebtech2 from a callable.
 
@@ -1617,7 +1618,9 @@ class Chebtech2(eqx.Module):
             return cls(coeffs=c, ishappy=plain.ishappy)
         if n is not None:
             return cls._fixed_construct(f, n, extrapolate=extrapolate)
-        return cls._adaptive_construct(f, maxpow2, tol=tol, extrapolate=extrapolate)
+        return cls._adaptive_construct(f, maxpow2, tol=tol,
+                                       extrapolate=extrapolate,
+                                       start_pow2=start_pow2)
 
     @classmethod
     def _fixed_construct(
