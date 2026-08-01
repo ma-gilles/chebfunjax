@@ -5,6 +5,15 @@ using a Chebyshev-Fourier series in polar coordinates `(r, θ)`.
 
 ---
 
+## Replicated chebfun.org examples
+
+| Example | Description |
+|---------|-------------|
+| [The heat equation on the unit disk](HeatEqn.md) | Faithful replica: BDF2 via imaginary-K Helmholtz solves, exact-decay validation, and the maximum-principle steady state. |
+| [Eigenfunctions of the Laplacian](Eigenfunctions.md) | Faithful replica: cylindrical harmonics, orthonormality, Neumann variants, and eigenfunction expansions. |
+
+---
+
 ## Functions on the unit disk
 
 **Source:** `disk/Eigenfunctions.m`, `disk/HeatEqn.m`
