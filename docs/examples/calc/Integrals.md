@@ -1,65 +1,78 @@
 # Definite and indefinite integrals
 
-**Nick Trefethen, October 2012**
+*Nick Trefethen*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/calc/Integrals.html)
 
----
+(Chebfun example calc/Integrals.m)
 
-Chebfun computes both definite integrals (via `sum`) and indefinite integrals
-(via `cumsum`) to machine precision.
-
-## Definite integrals
+Here is a piecewise-constant function obtained by rounding
+$2\cos(x)$ on $[0, 10]$:
 
 ```python
 import jax.numpy as jnp
 import chebfunjax as cj
 
-# A simple example on [0, 10]
-f = cj.chebfun(lambda x: jnp.sin(x)**2, domain=(0.0, 10.0))
-print("Definite integral:", f.sum())   # = 5 - sin(20)/2
-
-# Exponential
-g = cj.chebfun(jnp.exp)
-print("int exp(x) dx =", g.sum(), "  exact:", float(jnp.e) - 1.0)
+f = cj.chebfun(lambda t: 2 * jnp.cos(t), domain=[0, 10]).round()
 ```
 
-## Indefinite integrals
+![](../../images/calc/Integrals_repl_01.png)
 
-`cumsum` returns a new chebfun $F(x) = \int_{a}^{x} f(t)\, dt$:
+Its definite integral over the whole interval, and over $[3, 4]$:
 
 ```python
-# Fundamental theorem: d/dx of cumsum(f) recovers f
-h    = cj.chebfun(lambda x: 3*x**2 - 1)
-H    = h.cumsum()        # indefinite integral
-dH   = H.diff()          # derivative of the antiderivative
-err  = (dH - h).norm()
-print("Round-trip error:", err)   # < 1e-14
+f.sum()
+f.restrict(3, 4).sum()
+```
+```
+ans =
+  -1.150444078461235
+ans =
+  -1.864326901403211
 ```
 
-## Combining sum and cumsum
+The indefinite integral `g = cumsum(f)` satisfies
+$g(4) - g(3) = \int_3^4 f$:
 
-The total integral can be extracted from a cumsum object by evaluating at the
-right endpoint, which matches `f.sum()`:
+![](../../images/calc/Integrals_repl_02.png)
+
+```
+ans =
+  -1.864326901403210
+```
+
+The fundamental theorem of calculus: differentiating the indefinite
+integral recovers the function exactly,
 
 ```python
-import numpy as np
-x_vals = np.linspace(-1, 1, 500)
-p = cj.chebfun(lambda x: jnp.exp(-x**2))
-P = p.cumsum()
-print("P(1) =", float(P(1.0)), "  sum =", float(p.sum()))
+(g.diff() - f).norm()
+```
+```
+ans =
+     0
 ```
 
-## Gallery
+The reverse composition is subtler: `diff(f)` of a function with jumps
+produces Dirac deltas at the jump locations, and `cumsum` integrates
+them back into the jumps — but the constant $f(0)$ is lost:
 
-![Definite and indefinite integrals](../../images/calc/definite_indefinite_integrals.png)
+```python
+(f.diff().cumsum() - f).norm()
+```
+```
+ans =
+   6.324555320336759
+```
 
-Top: the integrand $f$. Bottom: its cumulative integral $F = \text{cumsum}(f)$.
+![](../../images/calc/Integrals_repl_03.png)
 
-## Figures (chebfun.org parity)
+The missing piece is exactly $f(0) = 2$ (note
+$2\sqrt{10} = 6.3245\ldots$); adding it recovers $f$ exactly:
 
-![Integrals figure 1](../../images/calc/Integrals_01.png)
-
-![Integrals figure 2](../../images/calc/Integrals_02.png)
-
-![Integrals figure 3](../../images/calc/Integrals_03.png)
+```python
+(f(0) + f.diff().cumsum() - f).norm()
+```
+```
+ans =
+     0
+```
