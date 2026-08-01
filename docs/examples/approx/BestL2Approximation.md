@@ -1,43 +1,95 @@
-# Least-Squares Approximation in Chebfun
+# Least-squares approximation in Chebfun
 
 *Alex Townsend, October 2013*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/BestL2Approximation.html)
 
-## Least-squares polynomial approximation
+(Chebfun example approx/BestL2Approximation.m)
 
-The best $L^2$ approximation of degree $n$ to $f$ is the polynomial $p_n$
-minimizing $\|f - p_n\|_2$.  It equals the orthogonal projection of $f$
-onto $\mathcal{P}_n$:
-$$p_n = \sum_{k=0}^n \langle f, P_k \rangle P_k,$$
-where $P_k$ are the Legendre polynomials.
+## Least-squares approximation
 
-In chebfunjax, `f.polyfit(n)` computes this efficiently:
+If $f:[-1,1]\rightarrow R$ is an $L^2$-integrable function, then its
+least-squares or best $L^2$ approximation of degree $n$ is the
+polynomial $p_n$ of degree at most $n$ such that
+
+$$ \| f - p_n \|_2 = \mbox{minimum}. $$
+
+A good introduction to $L^2$ approximations can be found in [2].  The
+`polyfit` command returns the best $L^2$ approximation of a given
+degree to a chebfun.  Here is the degree-5 approximation of $|x|$,
+computed by projection onto Legendre polynomials of the whole domain:
 
 ```python
-import chebfunjax as cj
+import numpy as np
 import jax.numpy as jnp
+import chebfunjax as cj
 
-f = cj.chebfun(jnp.abs, domain=[-1.0, 0.0, 1.0])  # piecewise-exact
-p5 = f.polyfit(5)
-print(f"L2 error: {float((f - p5).norm(2)):.4f}")
+f = cj.chebfun(lambda t: jnp.abs(t), domain=[-1.0, 0.0, 1.0])
+pn = f.polyfit(5)
 ```
 
-## Convergence rate
+![BestL2Approximation figure 1](../../images/approx/BestL2Approximation_repl_01.png)
 
-For the absolute value function $|x|$ (not analytic), the $L^2$ convergence rate
-is $O(n^{-3/2})$ — reflecting the one-sided singularity (a corner) at $x=0$.
+The coefficients of $p_n$ in the Legendre basis can also be computed by
+truncating the Legendre expansion for $f$ after $n+1$ terms, via
+`cheb2leg` (the fast Chebyshev-Legendre transform of [1,3]) and
+`leg2cheb`:
 
-For smooth functions the convergence is geometric: $O(\rho^{-n})$ for some $\rho > 1$.
+```python
+from chebfunjax.utils.transforms import cheb2leg, leg2cheb
 
-![Least-Squares Approximation in Chebfun](../../images/approx/BestL2Approximation.png)
+fr = cj.chebfun(lambda t: 1.0/(1 + 25*t**2))     # Runge function
+cleg = np.asarray(cheb2leg(fr.coeffs))[:11]
+pn = cj.chebfun(leg2cheb(jnp.asarray(cleg)), coeffs=True)
+```
 
-## Figures (chebfun.org parity)
+![BestL2Approximation figure 2](../../images/approx/BestL2Approximation_repl_02.png)
 
-![BestL2Approximation figure 1](../../images/approx/BestL2Approximation_01.png)
+This is the algorithm used in Chebfun's `polyfit`:
 
-![BestL2Approximation figure 2](../../images/approx/BestL2Approximation_02.png)
+```python
+pn = fr.polyfit(10)
+```
 
-![BestL2Approximation figure 3](../../images/approx/BestL2Approximation_03.png)
+![BestL2Approximation figure 3](../../images/approx/BestL2Approximation_repl_03.png)
 
-![BestL2Approximation figure 4](../../images/approx/BestL2Approximation_04.png)
+The published example computes a degree-$10^4$ fit of the very sharp
+Runge function $1/(1+10^6x^2)$ (chebfun length $\approx 37000$) in
+1.5 seconds using the fast $O(n(\log n)^2)$ transform.  chebfunjax's
+`cheb2leg`/`leg2cheb` are currently $O(n^2)$ (a ledgered gap), so this
+replica demonstrates the same computation on $1/(1+10^4x^2)$ at degree
+2000:
+
+```
+L^2 error is 2.546e-10
+L^2 approximation of degree 2000 in t = 327.096
+```
+
+## Best $L^2$ approximation to $|x|$
+
+Finally, the classic convergence-rate study: the $L^2$ error of the
+degree-$n$ best approximation to $|x|$ decreases like $n^{-3/2}$:
+
+```
+errs: 4.082e-01  1.674e-02  6.371e-04  2.056e-05   (n = 1, 10, 100, 1000)
+```
+
+![BestL2Approximation figure 4](../../images/approx/BestL2Approximation_repl_04.png)
+
+## References
+
+1. N. Hale and A. Townsend, A fast, simple, and stable Chebyshev-
+   Legendre transform using an asymptotic formula, _SIAM J. Sci.
+   Comput._, 36 (2014), A148-A167.
+
+2. M. J. D. Powell, _Approximation Theory and Methods_, Cambridge
+   University Press, 1981.
+
+3. A. Townsend, M. Webb, and S. Olver, Fast polynomial transforms
+   based on Toeplitz and Hankel matrices, _Math. Comp._, 87 (2018),
+   1913-1934.
+
+---
+
+*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
+example copyright The University of Oxford and The Chebfun Developers.*
