@@ -1,64 +1,70 @@
 # Optimizing a bird's flight path
 
-**Toby Driscoll, November 2012**
+*Toby Driscoll*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/calc/ForTheBirds.html)
 
----
+(Chebfun example calc/ForTheBirds.m)
 
-Birds expend energy both flying over water (high cost) and flying over land
-(lower cost). Given two shoreline points, the optimal path minimises total
-energy. This is a continuous optimisation problem solved elegantly with Chebfun.
-
-## The setup
-
-A bird starts at point $A$ on shore and must reach point $B$ also on shore, with
-a stretch of water in between. Let the water width be $d$ and the horizontal
-distance be $L$. If the bird crosses the water at angle $\theta$ from the shore,
-the total energy cost is
-
-$$
-E(\theta) = c_w \frac{d}{\sin\theta} + c_l \left(L - \frac{d}{\tan\theta}\right),
-$$
-
-where $c_w > c_l$ are the per-unit-distance costs over water and land.
-
-## chebfunjax computation
+A bird on an island 5 km offshore must fly to its nest 13 km down the
+shoreline.  Flying over water costs more energy than over land; where
+should it make landfall?  With water-to-land energy ratio 1.4:
 
 ```python
 import jax.numpy as jnp
 import chebfunjax as cj
 
-d = 1.0; L = 4.0; cw = 2.0; cl = 1.0
-
-def energy(theta):
-    return cw * d / jnp.sin(theta) + cl * (L - d / jnp.tan(theta))
-
-# Build chebfun on (0, pi/2) — open interval to avoid singularities
-f = cj.chebfun(energy, domain=(0.05, jnp.pi / 2 - 0.05))
-
-# Find the minimum
-x_min, f_min = f.min()
-theta_opt = float(x_min)
-print(f"Optimal angle: {jnp.degrees(theta_opt):.4f} degrees")
-print(f"Minimum energy: {float(f_min):.6f}")
+water_length = cj.chebfun(lambda x: jnp.sqrt(x**2 + 25), domain=[0, 13])
+land_length = cj.chebfun(lambda x: 13 - x, domain=[0, 13])
+total = land_length + 1.4 * water_length
+(x_opt, e_opt), _ = total.minandmax()
+```
+```
+energy_optimal =
+   17.8990
+x_optimal =
+    5.1031
 ```
 
-The optimal angle satisfies $\cos\theta^* = c_l/c_w$, giving
-$\theta^* = \arccos(c_l/c_w)$.
+![](../../images/calc/ForTheBirds_repl_01.png)
 
-## Gallery
+The same optimum arises as the root of the derivative:
 
-![Bird flight optimisation](../../images/calc/bird_flight_optimization.png)
+```
+ans =
+    5.1031
+```
 
-Energy as a function of crossing angle, with the minimum marked.
+For a ratio barely above 1 the bird flies straight to the nest
+(boundary optimum); for large ratios it crosses the water nearly
+perpendicularly:
 
-## Figures (chebfun.org parity)
+```
+energy_optimal =
+   14.6248
+x_optimal =
+    13
+energy_optimal =
+   37.4949
+x_optimal =
+    1.0206
+energy_optimal =
+  262.9500
+x_optimal =
+    0.1000
+```
 
-![ForTheBirds figure 1](../../images/calc/ForTheBirds_01.png)
+![](../../images/calc/ForTheBirds_repl_02.png)
 
-![ForTheBirds figure 2](../../images/calc/ForTheBirds_02.png)
+The optimal landfall as a function of the energy ratio is itself a
+smooth function, and asking where it equals 4.5 answers "at what ratio
+does the bird land 4.5 km from the perpendicular?":
 
-![ForTheBirds figure 3](../../images/calc/ForTheBirds_03.png)
+```
+ans =
+    5.1031
+ans =
+    1.4948
+```
 
-![ForTheBirds figure 4](../../images/calc/ForTheBirds_04.png)
+![](../../images/calc/ForTheBirds_repl_03.png)
