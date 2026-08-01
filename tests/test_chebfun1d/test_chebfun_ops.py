@@ -1428,3 +1428,24 @@ class TestNewDomain:
         g = f.new_domain((2.0, 6.0))
         assert [float(b) for b in g.domain.breakpoints] == [2.0, 4.0, 6.0]
         assert abs(float(g(jnp.asarray(5.0))) - 0.5) < 1e-13
+
+
+class TestPolyfitGlobalPiecewise:
+    """polyfit on a piecewise chebfun is the GLOBAL L2 projection
+    (MATLAB @chebfun/polyfit.m), not a per-piece fit."""
+
+    def test_absx_degree10(self):
+        f = chebfun(lambda t: jnp.abs(t), domain=[-1.0, 0.0, 1.0])
+        pn = f.polyfit(10)
+        # global polynomial: one piece, nonzero at the kink
+        assert len(list(pn.funs)) == 1
+        assert 0.03 < float(pn(jnp.asarray(0.0))) < 0.08
+        err = float((f - pn).norm(2))
+        assert 0.015 < err < 0.019   # known ~1.67e-2
+
+    def test_convergence_rate_three_halves(self):
+        f = chebfun(lambda t: jnp.abs(t), domain=[-1.0, 0.0, 1.0])
+        e100 = float((f - f.polyfit(100)).norm(2))
+        e1000 = float((f - f.polyfit(1000)).norm(2))
+        ratio = e1000 / e100
+        assert 0.02 < ratio < 0.05   # n^{-3/2} predicts 0.0316

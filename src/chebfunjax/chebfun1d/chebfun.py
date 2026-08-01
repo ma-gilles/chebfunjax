@@ -3837,18 +3837,45 @@ class Chebfun(eqx.Module):
             truncated = _l2_truncate(coeffs)
             new_piece = _Piece.from_coeffs(truncated, piece.interval[0], piece.interval[1])
             return Chebfun(funs=[new_piece], domain=self.domain)
-        # Multi-piece: fit each piece independently
-        new_funs = []
+
+        # Multi-piece: the GLOBAL least-squares polynomial (MATLAB
+        # @chebfun/polyfit.m projects onto Legendre polynomials of the
+        # whole domain; fitting each piece separately returns the input
+        # whenever every piece already has degree <= n, e.g. |x|).
+        # Legendre coefficients via exact per-piece Gauss-Legendre
+        # quadrature: c_k = (2k+1)/2 * int f(x) P_k(xhat) dxhat.
+        import numpy as _np
+
+        from chebfunjax.utils.quadrature import legpts as _legpts
+
+        a = float(self.domain.a)
+        b = float(self.domain.b)
+        c_leg = _np.zeros(n + 1)
         for piece in self.funs:
-            coeffs = piece.coeffs
-            if piece.n <= n + 1:
-                new_funs.append(piece)
-            else:
-                truncated = _l2_truncate(coeffs)
-                new_funs.append(
-                    _Piece.from_coeffs(truncated, piece.interval[0], piece.interval[1])
-                )
-        return Chebfun(funs=new_funs, domain=self.domain)
+            pa, pb = float(piece.interval[0]), float(piece.interval[1])
+            deg = int(piece.n)
+            nq = max(4, (n + deg) // 2 + 2)
+            xq, wq = _legpts(nq)
+            xq = _np.asarray(xq, dtype=_np.float64)
+            wq = _np.asarray(wq, dtype=_np.float64)
+            # physical nodes on the piece; weights scaled to xhat measure
+            xp = 0.5 * (pb - pa) * xq + 0.5 * (pa + pb)
+            w_hat = wq * (pb - pa) / (b - a)
+            fv = _np.asarray(self(jnp.asarray(xp)), dtype=_np.float64)
+            xhat = 2.0 * (xp - a) / (b - a) - 1.0
+            # Legendre-Vandermonde on xhat via the three-term recurrence
+            P = _np.zeros((len(xhat), n + 1))
+            P[:, 0] = 1.0
+            if n >= 1:
+                P[:, 1] = xhat
+            for k in range(1, n):
+                P[:, k + 1] = ((2 * k + 1) * xhat * P[:, k]
+                               - k * P[:, k - 1]) / (k + 1)
+            c_leg += P.T @ (w_hat * fv)
+        c_leg *= (_np.arange(n + 1) + 0.5)
+        ccheb = leg2cheb(jnp.asarray(c_leg))
+        new_piece = _Piece.from_coeffs(jnp.asarray(ccheb), a, b)
+        return Chebfun(funs=[new_piece], domain=Domain((a, b)))
 
     @staticmethod
     def interp1(
