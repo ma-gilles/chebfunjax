@@ -749,3 +749,28 @@ class TestVscale:
     def test_empty_is_zero(self):
         from chebfunjax.chebfun2d.chebfun2 import Chebfun2
         assert Chebfun2.empty().vscale() == 0.0
+
+
+class TestComplexHandleCtor:
+    """chebfun2(op) with a one-argument handle means op(x + 1i*y).
+
+    MATLAB @chebfun2/parseInputs; evaluation f(z) mirrors
+    @separableApprox/feval with a single complex argument.
+    """
+
+    def test_harmonic_mean_value(self):
+        # real part of an analytic function is harmonic: its mean over the
+        # unit disk equals its value at the origin (= cos(2) here).
+        fc = chebfun2(lambda z: jnp.cos(2 * jnp.cosh(z)))
+        f = fc.real()
+        assert abs(f.sumdisk() / math.pi - math.cos(2.0)) < 1e-14
+        assert abs(float(f(0.0, 0.0)) - math.cos(2.0)) < 1e-14
+
+    def test_complex_point_eval(self):
+        f = chebfun2(lambda z: z**2)
+        z0 = 0.3 + 0.4j
+        assert abs(complex(f(z0)) - z0**2) < 1e-13
+
+    def test_two_arg_lambda_unchanged(self):
+        f = chebfun2(lambda x, y: x + 2 * y)
+        assert abs(float(f(0.25, 0.5)) - 1.25) < 1e-13

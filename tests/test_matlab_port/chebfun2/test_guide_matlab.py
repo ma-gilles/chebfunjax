@@ -1,8 +1,7 @@
 """Port of MATLAB Chebfun tests/chebfun2/test_guide.m (Fable 5).
 
 Assertion-for-assertion at the MATLAB tolerances, with these exceptions
-(named per-case below): pass 3-5 build chebfun2s from a SINGLE-argument
-complex handle ``@(z) sin(z)`` (constructor form chebfunjax lacks);
+(named per-case below):
 the pass-11/12 string constructor ``chebfun2('exp(...)')`` is replaced
 by the equivalent lambda (the assertion under test is the norm
 identity, not the parser); pass 9's quad2d reference is computed with
@@ -23,7 +22,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.chebfun1d.chebfun import chebfun
 from chebfunjax.chebfun2d.chebfun2 import Chebfun2
@@ -64,11 +62,22 @@ class TestChebfun2Guide:
             np.asarray(f(jnp.asarray(X), jnp.asarray(Y))) - op)))
         assert err < 200 * TOL
 
-    @pytest.mark.skip(reason="chebfun2 from a single-argument complex "
-                      "handle @(z) sin(z) (MATLAB pass 3-5) is a "
-                      "constructor form chebfunjax does not have")
     def test_pass3to5_complex_handle_ctor(self):
-        raise NotImplementedError
+        from chebfunjax.chebfun2d.chebfun2 import chebfun2
+        # pass 3: f = chebfun2(@(z) sin(z)); |f(1+1i) - sin(1+1i)| < tol
+        f = chebfun2(lambda z: jnp.sin(z))
+        assert abs(complex(f(1.0 + 1.0j)) - np.sin(1.0 + 1.0j)) < TOL
+        # pass 4-5: f = chebfun2(@(z) sin(z)-sinh(z), 2*pi*[-1 1 -1 1])
+        f = chebfun2(lambda z: jnp.sin(z) - jnp.sinh(z),
+                     domain=(-2 * np.pi, 2 * np.pi, -2 * np.pi, 2 * np.pi))
+        x = np.linspace(-2 * np.pi, 2 * np.pi, 100)
+        X, Y = np.meshgrid(x, x)
+        Z = jnp.asarray(X + 1j * Y)
+        v_z = np.asarray(f(Z))
+        v_xy = np.asarray(f(jnp.asarray(X), jnp.asarray(Y)))
+        assert float(np.max(np.abs(v_z - v_xy))) < TOL
+        exact = np.sin(X + 1j * Y) - np.sinh(X + 1j * Y)
+        assert float(np.max(np.abs(v_z - exact))) < 1e3 * TOL
 
     def test_pass6to8_dimensional_sums(self):
         d = (0.0, np.pi / 4, 0.0, 3.0)

@@ -342,14 +342,16 @@ class Chebfun2(eqx.Module):
     # ------------------------------------------------------------------
 
     @eqx.filter_jit
-    def __call__(self, x: jax.Array, y: jax.Array) -> jax.Array:
-        """Evaluate f(x, y).
+    def __call__(self, x: jax.Array, y: jax.Array | None = None) -> jax.Array:
+        """Evaluate f(x, y), or f(z) with z = x + iy.
 
         Parameters
         ----------
         x : jax.Array, scalar or shape (m,)
-            x-coordinates in [xa, xb].
-        y : jax.Array, scalar or shape (m,)
+            x-coordinates in [xa, xb].  If ``y`` is omitted, ``x`` is
+            interpreted as complex z and the evaluation point is
+            (real(z), imag(z)) (MATLAB ``feval(f, z)``).
+        y : jax.Array, scalar or shape (m,), optional
             y-coordinates in [ya, yb]. Must broadcast with x.
 
         Returns
@@ -366,6 +368,9 @@ class Chebfun2(eqx.Module):
         MATLAB source : @separableApprox/feval.m, @chebfun2/feval.m
         Chebfun commit: 7574c77
         """
+        if y is None:
+            z = jnp.asarray(x)
+            x, y = jnp.real(z), jnp.imag(z)
         return self.approx(x, y)
 
     def on_curve(self, c) -> "object":
@@ -1956,6 +1961,22 @@ def chebfun2(
         if arr.ndim == 2:
             kwargs = {} if tol is None else {"tol": tol}
             return Chebfun2.from_values(arr, domain=domain, **kwargs)
+    else:
+        # MATLAB parseInputs: a one-argument handle op(z) is interpreted as
+        # a function of the complex variable, op(x + 1i*y).
+        import inspect
+        try:
+            sig_params = list(inspect.signature(f).parameters.values())
+            n_pos = sum(p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD)
+                        for p in sig_params)
+            has_var = any(p.kind == p.VAR_POSITIONAL for p in sig_params)
+        except (TypeError, ValueError):
+            n_pos, has_var = 2, False
+        if n_pos == 1 and not has_var:
+            g = f
+
+            def f(x, y):
+                return g(x + 1j * y)
     return Chebfun2.from_function(f, domain=domain, tol=tol, n=n)
 
 
