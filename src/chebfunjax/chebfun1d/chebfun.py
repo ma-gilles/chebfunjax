@@ -7317,7 +7317,10 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
 
         def f_ref(t, _a=ai, _b=bi, _el=eps_l, _er=eps_r):
             x = 0.5 * (_b - _a) * t + 0.5 * (_a + _b)
-            x = jnp.clip(x, _a + _el, _b - _er)
+            # turbo evaluates on a complex (Bernstein-ellipse) contour;
+            # the endpoint nudge only applies to real sample points.
+            if not jnp.iscomplexobj(x):
+                x = jnp.clip(x, _a + _el, _b - _er)
             return f(x)
 
         # Splitting-mode pieces are capped at MATLAB's splitLength (2**8 + 1
