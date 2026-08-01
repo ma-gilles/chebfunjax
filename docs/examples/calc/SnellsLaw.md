@@ -1,74 +1,45 @@
 # A drowning man and Snell's Law
 
-**Mohsin Javed, October 2013**
+*Mohsin Javed*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/calc/SnellsLaw.html)
 
----
+(Chebfun example calc/SnellsLaw.m)
 
-A lifeguard on the beach needs to reach a drowning swimmer as quickly as
-possible. The lifeguard can run at speed $v_1$ on sand and swim at speed $v_2 <
-v_1$. What is the optimal entry point on the water's edge?
-
-## Snell's Law of refraction
-
-The total travel time as a function of the entry angle $\theta_1$ on land is
-
-$$
-T(\theta_1) = \frac{d_1}{v_1 \cos\theta_1} + \frac{d_2}{v_2 \cos\theta_2},
-$$
-
-where $\theta_2$ satisfies the geometric constraint. Minimising $T$ gives
-Snell's Law:
-
-$$
-\frac{\sin\theta_1}{v_1} = \frac{\sin\theta_2}{v_2}.
-$$
-
-## chebfunjax computation
+A lifeguard at $(-5, 5)$ must reach a drowning man at $(5, -5)$.  She
+runs at speed 10 on land and swims at speed 3.  Where should she enter
+the water?  The total travel time as a function of the entry point $x$
+is a chebfun, and its minimum is found directly:
 
 ```python
 import jax.numpy as jnp
 import chebfunjax as cj
-import numpy as np
 
-v1, v2  = 3.0, 1.0    # speeds on land and water
-y1, y2  = 2.0, 1.5    # distances from shore
-D       = 4.0          # horizontal separation
-
-def time(x):
-    """Total time as function of entry position x."""
-    return jnp.sqrt((x)**2 + y1**2)/v1 + jnp.sqrt((D - x)**2 + y2**2)/v2
-
-f = cj.chebfun(time, domain=(0.0, D))
-x_opt, t_min = f.min()
-print(f"Optimal entry at x = {float(x_opt):.6f}")
-print(f"Minimum time      = {float(t_min):.6f}")
-
-# Snell's law check
-theta1 = float(jnp.arctan(float(x_opt) / y1))
-theta2 = float(jnp.arctan((D - float(x_opt)) / y2))
-print(f"sin(θ1)/v1 = {np.sin(theta1)/v1:.8f}")
-print(f"sin(θ2)/v2 = {np.sin(theta2)/v2:.8f}")
+sMan, dMan = -5 + 5j, 5 - 5j
+vLand, vWater = 10, 3
+T = cj.chebfun(
+    lambda x: jnp.abs(x - sMan) / vLand + jnp.abs(x - dMan) / vWater,
+    domain=[-5, 5])
+(x0, Tmin), _ = T.minandmax()
+```
+```
+Tmin =
+   2.725459432914104
+x0 =
+   3.654986635087152
 ```
 
-## Gallery
+![](../../images/calc/SnellsLaw_repl_01.png)
 
-![Snell's Law](../../images/calc/snells_law.png)
+![](../../images/calc/SnellsLaw_repl_02.png)
 
-*Left*: Total travel time vs entry position, with minimum marked.
-*Right*: Geometric diagram showing the refracted path.
+At the optimal entry point, the angles of incidence and refraction
+satisfy Snell's law $\sin\theta_1 / v_1 = \sin\theta_2 / v_2$:
 
-## Figures (chebfun.org parity)
-
-![SnellsLaw figure 1](../../images/calc/SnellsLaw_01.png)
-
-![SnellsLaw figure 2](../../images/calc/SnellsLaw_02.png)
-
-![SnellsLaw figure 3](../../images/calc/SnellsLaw_03.png)
-
-![SnellsLaw figure 4](../../images/calc/SnellsLaw_04.png)
-
-![SnellsLaw figure 5](../../images/calc/SnellsLaw_05.png)
-
-![SnellsLaw figure 6](../../images/calc/SnellsLaw_06.png)
+```python
+sinTh1 / vLand - sinTh2 / vWater
+```
+```
+ans =
+    -4.163336342344337e-16
+```
