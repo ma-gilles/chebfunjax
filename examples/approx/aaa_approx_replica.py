@@ -137,7 +137,7 @@ def run():
 
     # Section 4: the moustache in the complex plane
     npts = 2000
-    rs = np.random.RandomState(0)
+    rs = np.random.RandomState(5489)   # MATLAB rng(0) == MT init 5489
     X = 8 * rs.random_sample(npts) - 4
     Y = 2 * rs.random_sample(npts) - 1 + X**3 / 16
     Z = X + 1j * Y

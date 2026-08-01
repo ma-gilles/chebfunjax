@@ -163,7 +163,7 @@ approximate $f(z) = (2+z^2)^{1/2}/(z-4)$ on $Z$ and plot the poles:
 
 ```python
 npts = 2000
-rs = np.random.RandomState(0)      # matches MATLAB rng(0) 'twister'
+rs = np.random.RandomState(5489)   # MATLAB rng(0) = MT default init 5489
 X = 8*rs.random_sample(npts) - 4
 Y = 2*rs.random_sample(npts) - 1 + X**3/16
 Z = X + 1j*Y
@@ -181,16 +181,17 @@ Here we check the approximation at $5+5i$, $5$, and $5-5i$:
   5.196152422706632 + 0.000000000000000i
   1.138695267175776 + 0.792456849446122i
   Column 2
-  1.138695266592532 - 0.792456849730762i
-  5.196152408570123 + 0.000000027325005i
-  1.152196205136640 + 0.790396032904778i
+  1.138695267218128 - 0.792456849405802i
+  5.196152429256967 - 0.000000005076496i
+  1.135680958126955 + 0.790757401201530i
 ```
 
-(Column 1 — the exact values — matches the published output
-digit-for-digit, confirming the identical random point set.  Column 2 is
-an extrapolation outside the moustache: like MATLAB's published values,
-the first two points reproduce $f$ to $\sim 10^{-8}$ while the third is
-accurate only to a few digits.)
+(The random point set is bit-identical to MATLAB's — `rng(0)` seeds the
+Mersenne Twister with its default init 5489.  Column 1 matches the
+published output digit-for-digit, and Column 2 — an extrapolation
+outside the moustache — matches to 11-12 digits in the first two rows
+and 5-6 digits in the ill-conditioned third, published:
+`1.138695267218005`, `5.196152429259934`, `1.135686390087262`.)
 
 ## 5. References
 
