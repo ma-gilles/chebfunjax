@@ -1749,18 +1749,57 @@ class Diskfun(eqx.Module):
         return Diskfun.from_function(
             lambda t, r: op2(self(t, r), other))
 
+    def _scale(self, c) -> "Diskfun":
+        # Structural scalar multiple (@diskfun/mtimes.m): with
+        # f = sum_j (1/d_j) c_j row_j, scaling divides each pivot by c.
+        c = complex(c)
+        c = c.real if c.imag == 0 else c
+        if c == 0:
+            return Diskfun.from_function(lambda t, r: 0.0 * t)
+        piv = jnp.asarray(self.pivots) / c
+        return Diskfun(cols=list(self.cols), rows=list(self.rows),
+                       pivots=piv, idx_plus=tuple(self.idx_plus),
+                       idx_minus=tuple(self.idx_minus))
+
+    def _structural_plus(self, other, sign: float) -> "Diskfun":
+        # Structural sum (@diskfun/plus.m): concatenate low-rank terms;
+        # no adaptive re-approximation (which was ~300s and NaN-prone).
+        o = other if sign == 1.0 else other._scale(-1.0)
+        n_self = len(self.cols)
+        cols = list(self.cols) + list(o.cols)
+        rows = list(self.rows) + list(o.rows)
+        piv = jnp.concatenate([jnp.asarray(self.pivots),
+                               jnp.asarray(o.pivots)])
+        idx_p = tuple(self.idx_plus) + tuple(
+            i + n_self for i in o.idx_plus)
+        idx_m = tuple(self.idx_minus) + tuple(
+            i + n_self for i in o.idx_minus)
+        return Diskfun(cols=cols, rows=rows, pivots=piv,
+                       idx_plus=idx_p, idx_minus=idx_m)
+
     def __add__(self, other):
+        if isinstance(other, Diskfun):
+            return self._structural_plus(other, 1.0)
         return self._binary(other, lambda a, b: a + b)
 
     __radd__ = __add__
 
     def __sub__(self, other):
+        if isinstance(other, Diskfun):
+            return self._structural_plus(other, -1.0)
         return self._binary(other, lambda a, b: a - b)
 
     def __rsub__(self, other):
+        if isinstance(other, Diskfun):
+            return other._structural_plus(self, -1.0)
         return self._binary(other, lambda a, b: b - a)
 
     def __mul__(self, other):
+        if not isinstance(other, Diskfun):
+            try:
+                return self._scale(other)
+            except TypeError:
+                pass
         return self._binary(other, lambda a, b: a * b)
 
     __rmul__ = __mul__
