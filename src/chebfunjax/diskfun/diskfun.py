@@ -2360,7 +2360,16 @@ class Diskfun(eqx.Module):
                 return f(t, r)
         else:
             fval = f
-        return _diskfun_poisson(fval, int(m), float(K), bc)
+        # K may be complex (e.g. K = i*k for BDF timestepping of the
+        # heat equation: K^2 = -k^2 is a real screened-Poisson shift).
+        # Only K^2 enters the discretisation; keep it real when it is.
+        Kc = complex(K)
+        K2 = Kc * Kc
+        if abs(K2.imag) < 1e-14 * max(abs(K2.real), 1.0):
+            K_eff = np.sqrt(abs(K2.real)) * (1j if K2.real < 0 else 1.0)
+        else:
+            K_eff = Kc
+        return _diskfun_poisson(fval, int(m), K_eff, bc)
 
     def __repr__(self) -> str:
         """Compact display.
