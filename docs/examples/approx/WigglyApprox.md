@@ -1,33 +1,56 @@
-# A Wiggly Function and Its Best Approximations
+# A wiggly function and its best approximations
 
 *Ricardo Pachon and Nick Trefethen, November 2010*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/WigglyApprox.html)
 
-## The oscillatory function
+(Chebfun example approx/WigglyApprox.m)
 
-The wiggly function $f(x) = \sin^2(x) + \sin(x^2)$ on $[0,14]$ has frequency
-that increases with $x$: while $\sin^2(x)$ has frequency $1/\pi$, the term
-$\sin(x^2)$ has instantaneous frequency $x/\pi$ at position $x$.
+Ken Lord, whose doctoral supervisor was the Chebyshev technology wizard
+Charles Clenshaw, has explored functions of the form
+
+$$ f(x) = T_m(x) + T_{m+1}(x) + \cdots + T_n(x), $$
+
+where $T_k$ is the Chebyshev polynomial of degree $k$, as challenging
+functions for minimax approximation by polynomials of lower order.  We
+can construct such functions in a single Chebfun command:
 
 ```python
-import chebfunjax as cj
-import jax.numpy as jnp
 import numpy as np
+import jax.numpy as jnp
+import chebfunjax as cj
+from chebfunjax.utils.minimax import minimax
 
-f = cj.chebfun(lambda x: jnp.sin(x)**2 + jnp.sin(x**2), domain=(0.0, 14.0))
-print(f"Adaptive chebfun degree: {len(f)}")
-
-# Low-degree L2 approximant
-p50 = f.polyfit(50)
-xx = np.linspace(0, 14, 800)
-err = [abs(float(p50(jnp.array(x))) - float(f(jnp.array(x)))) for x in xx]
-print(f"deg-50 max err: {max(err):.3f}")
+def fmn(m, n):
+    c = np.zeros(n + 1)
+    c[m:n+1] = 1.0
+    return cj.chebfun(jnp.asarray(c), coeffs=True)
 ```
 
-The adaptive chebfun requires a high-degree polynomial to capture the increasing
-frequency of $\sin(x^2)$, while a low-degree approximant cannot resolve the
-high-frequency content.
+For example, here we plot `f(30,40)` and its best approximation of
+degree $29$:
 
-![A Wiggly Function and Its Best Approximations](../../images/approx/WigglyApprox.png)
+```python
+f = fmn(30, 40)
+res = minimax(lambda x: f(x), 29)
+```
 
+![WigglyApprox figure 1](../../images/approx/WigglyApprox_repl_01.png)
+
+Here are `f(200,220)` and its best approximation of degree $199$:
+
+```python
+f = fmn(200, 220)
+res = minimax(lambda x: f(x), 199)
+```
+
+![WigglyApprox figure 2](../../images/approx/WigglyApprox_repl_02.png)
+
+In both cases the error curve $f-p$ equioscillates over the whole
+interval, with the oscillation compressed toward the endpoints where
+the Chebyshev-sum function itself oscillates fastest.
+
+---
+
+*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
+example copyright The University of Oxford and The Chebfun Developers.*
