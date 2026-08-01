@@ -1409,3 +1409,22 @@ class TestSplitLength:
         ends = np.array(sorted(float(b) for b in f.domain.breakpoints))
         assert len(ends) == 21
         assert np.max(np.abs(ends - np.arange(-1, 1.05, 0.1))) < 1e-14
+
+
+class TestNewDomain:
+    """@chebfun/newDomain.m: linear remap of the domain."""
+
+    def test_two_endpoint_scaling(self):
+        f = chebfun(lambda x: jnp.sin(x), domain=(-1.0, 1.0))
+        g = f.new_domain((0.0, 4.0))
+        # g(t) = f(t/2 - 1)
+        ts = np.linspace(0, 4, 41)
+        err = np.max(np.abs(np.asarray(g(jnp.asarray(ts)))
+                            - np.sin(ts / 2 - 1)))
+        assert err < 1e-13
+
+    def test_piecewise_breakpoints_scaled(self):
+        f = chebfun(lambda x: jnp.abs(x), domain=[-1.0, 0.0, 1.0])
+        g = f.new_domain((2.0, 6.0))
+        assert [float(b) for b in g.domain.breakpoints] == [2.0, 4.0, 6.0]
+        assert abs(float(g(jnp.asarray(5.0))) - 0.5) < 1e-13

@@ -4039,6 +4039,37 @@ class Chebfun(eqx.Module):
     # V10 — Convolution, flip
     # ------------------------------------------------------------------
 
+    def new_domain(self, new_dom) -> "Chebfun":
+        """Linearly remap the chebfun onto a new domain.
+
+        With two endpoints, all breakpoints are scaled linearly; with
+        one endpoint per existing breakpoint, they are replaced
+        directly.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/newDomain.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        old = _np.asarray([float(b) for b in self.domain.breakpoints])
+        nd = _np.asarray([float(v) for v in new_dom], dtype=_np.float64)
+        if nd.size == old.size:
+            newb = nd
+        elif nd.size == 2:
+            c, d = old[0], old[-1]
+            a, b = nd[0], nd[1]
+            newb = (b - a) * (old - c) / (d - c) + a
+        else:
+            raise ValueError("newDomain: inconsistent domains.")
+        funs = [
+            _Piece(tech=pc.tech,
+                   interval=(float(newb[k]), float(newb[k + 1])))
+            for k, pc in enumerate(self.funs)
+        ]
+        return Chebfun(funs=funs, domain=Domain(tuple(float(v)
+                                                      for v in newb)))
+
     def conv(self, g: Chebfun) -> Chebfun:
         r"""Convolution of two Chebfuns.
 
