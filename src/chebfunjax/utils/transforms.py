@@ -476,16 +476,24 @@ def _legendre_vandermonde(N: int, x: jnp.ndarray) -> jnp.ndarray:
 
     L[i, j] = P_j(x[i]) for j = 0, ..., N using the 3-term recurrence.
     """
-    m = x.shape[0]
-    L = jnp.zeros((m, N + 1), dtype=jnp.float64)
-    L = L.at[:, 0].set(1.0)
-    if N >= 1:
-        L = L.at[:, 1].set(x)
-    for j in range(1, N):
-        L = L.at[:, j + 1].set(
-            ((2 * j + 1) * x * L[:, j] - j * L[:, j - 1]) / (j + 1)
-        )
-    return L
+    from jax import lax
+
+    p0 = jnp.ones_like(x)
+    if N == 0:
+        return p0[:, None]
+    p1 = x
+
+    def _step(carry, j):
+        pjm1, pj = carry
+        pjp1 = ((2 * j + 1) * x * pj - j * pjm1) / (j + 1)
+        return (pj, pjp1), pjp1
+
+    if N >= 2:
+        _, cols = lax.scan(_step, (p0, p1),
+                           jnp.arange(1, N, dtype=jnp.float64))
+        return jnp.concatenate(
+            [jnp.stack([p0, p1], axis=1), cols.T], axis=1)
+    return jnp.stack([p0, p1], axis=1)
 
 
 # ===========================================================================
@@ -816,12 +824,30 @@ def _legendre_dlt(c_leg: jnp.ndarray) -> jnp.ndarray:
     if n == 1:
         return c_leg
 
-    # Gauss-Legendre nodes (ascending order)
+    # Gauss-Legendre nodes (ascending order); rolling scan accumulation
+    # (the Vandermonde route was O(n^2) memory and, before the scan
+    # rewrite, O(n^3) traffic)
+    from jax import lax
+
     from chebfunjax.utils.quadrature import legpts
     x, _ = legpts(n)
+    x = jnp.asarray(x)
+    p0 = jnp.ones_like(x)
+    p1 = x
+    v0 = c_leg[0] * p0 + c_leg[1] * p1
 
-    L = _legendre_vandermonde(n - 1, x)
-    return L @ c_leg
+    def _step(carry, j):
+        pjm1, pj, v = carry
+        pjp1 = ((2 * j + 1) * x * pj - j * pjm1) / (j + 1)
+        v = v + c_leg[j.astype(jnp.int32) + 1] * pjp1
+        return (pj, pjp1, v), None
+
+    if n >= 3:
+        (_, _, v), _ = lax.scan(
+            _step, (p0, p1, v0.astype(jnp.result_type(c_leg, x))),
+            jnp.arange(1, n - 1, dtype=jnp.float64))
+        return v
+    return v0
 
 
 def _legendre_idlt(v_leg: jnp.ndarray) -> jnp.ndarray:
@@ -841,12 +867,27 @@ def _legendre_idlt(v_leg: jnp.ndarray) -> jnp.ndarray:
     from chebfunjax.utils.quadrature import legpts
     x, w = legpts(n)
 
-    L = _legendre_vandermonde(n - 1, x)  # (n, n)
+    # rolling scan projection: c_k = (2k+1)/2 * sum_j w_j P_k(x_j) v_j
+    from jax import lax
 
-    # c_k = (2k+1)/2 * sum_j w_j * P_k(x_j) * v_j
-    scale = (2 * jnp.arange(n, dtype=jnp.float64) + 1) / 2.0
-    c_leg = scale * (L.T @ (w * v_leg))
-    return c_leg
+    x = jnp.asarray(x)
+    wv = jnp.asarray(w) * v_leg
+    p0 = jnp.ones_like(x)
+    p1 = x
+    c0 = 0.5 * jnp.dot(wv, p0)
+    c1 = 1.5 * jnp.dot(wv, p1)
+
+    def _step(carry, j):
+        pjm1, pj = carry
+        pjp1 = ((2 * j + 1) * x * pj - j * pjm1) / (j + 1)
+        contrib = (2 * (j + 1) + 1) / 2.0 * jnp.dot(wv, pjp1)
+        return (pj, pjp1), contrib
+
+    if n >= 3:
+        _, rest = lax.scan(_step, (p0, p1),
+                           jnp.arange(1, n - 1, dtype=jnp.float64))
+        return jnp.concatenate([jnp.stack([c0, c1]), rest])
+    return jnp.stack([c0, c1])[:n]
 
 
 def _legendre_ndct(c_cheb: jnp.ndarray) -> jnp.ndarray:
