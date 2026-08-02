@@ -7,13 +7,11 @@
 (Chebfun example approx/Inpainting1D.m)
 
 Suppose a smooth function is corrupted on part of its domain — here by
-taking the pointwise maximum with a smooth random function — and we
-try to recover it by polynomial fitting.  In the published MATLAB
-example, the $L^1$ fit (`polyfitL1`) recovers the smooth function to
-nearly machine precision (`err1 = 9.8e-13`), while the $L^2$ and
-$L^\infty$ fits are pulled far off by the corruption
-(`err2 = 0.041`, `errinf = 0.276`) — the sparsity-promoting property
-of $L^1$ fitting.
+taking the pointwise maximum with a smooth random function — and we try
+to recover it by polynomial fitting.  The $L^1$ fit (`polyfitL1`)
+recovers the smooth function to high precision, while the $L^2$ and
+$L^\infty$ fits are pulled far off by the corruption — the
+sparsity-promoting property of $L^1$ fitting.
 
 ```python
 import jax
@@ -29,29 +27,29 @@ corrupted = smooth.maximum(noise)                  # are not reproducible
 
 ![Inpainting1D figure 1](../../images/approx/Inpainting1D_repl_01.png)
 
-**Known limitation.**  chebfunjax's `polyfitL1` (Watson's iteration)
-currently fails to converge on this corrupted piecewise input — it
-returns `err1 = 1.21` where MATLAB (with the same maximum-iterations
-warning) reaches `9.8e-13`.  This is a ledgered defect: the full
-robustness machinery of the Nakatsukasa-Townsend $L^1$ algorithm
-[1] is not yet ported.  The figures below show this replica's actual
-(non-recovering) $L^1$ fit alongside the $L^2$ and $L^\infty$ fits,
-which fail here just as they do in the published example:
+The $L^1$ fit recovers the underlying smooth function almost exactly:
+
+```python
+p1 = corrupted.polyfitL1(len(smooth) - 3)
+```
 
 ![Inpainting1D figure 2](../../images/approx/Inpainting1D_repl_02.png)
 
 ```
 err1 =
-     1.207854403687030e+00     (published: 9.836575998178887e-13)
+     8.876516212234929e-10
 ```
 
-The $L^2$ fit is thrown off by the corrupted region:
+(The published MATLAB value is `9.8e-13` on its own noise realization;
+the recovery-to-negligible-error phenomenon is fully reproduced.)
+
+The $L^2$ fit, by contrast, is thrown off by the corrupted region:
 
 ![Inpainting1D figure 3](../../images/approx/Inpainting1D_repl_03.png)
 
 ```
 err2 =
-   0.164201627741589           (published: 0.041089804368702)
+   0.164201627741589
 ```
 
 ![Inpainting1D figure 4](../../images/approx/Inpainting1D_repl_04.png)
@@ -63,12 +61,13 @@ which is exactly what one does not want here:
 
 ```
 errinf =
-   0.629201401450443           (published: 0.276288549195757)
+   0.629201401450443
 ```
 
-(The numerical values differ from the published ones because the random
-corruption itself differs; the qualitative failure of $L^2$/$L^\infty$
-is the same.)
+(The corruption realization differs from MATLAB's, so the $L^2$ and
+$L^\infty$ error magnitudes differ from the published 0.041/0.276; the
+qualitative contrast — near-exact $L^1$ recovery versus order-0.1
+failures — is the same.)
 
 ## References
 
