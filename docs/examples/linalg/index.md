@@ -12,7 +12,7 @@ spaces, using inner products, norms, QR factorization, and SVD.
 | [QR factorization of a quasimatrix (replica)](QuasiQR.md) | Faithful replica: continuous Householder QR, residual at machine precision. |
 | [Vandermonde with Arnoldi (replica)](VandermondeArnoldi.md) | Faithful replica: Vandermonde conds digit-for-digit; Arnoldi stabilizes degree-80 fitting. |
 | [Field of values (replica)](FieldOfValues.md) | Faithful replica: fov boundary chebfun, numerical abscissa 15-digit consistency, polygon case via merge. |
+| [Resolvent norm on the imaginary axis (replica)](ResolventNorm.md) | Faithful replica: eigenvalues digit-for-digit, max resolvent norm to 13 digits. |
 | [Chebfun Inner Products](chebfun_inner_products.md) | The inner product of two Chebfuns is computed via ..., which evaluates ... exactly using the |
 | [Inner Products and Norms](inner_products.md) | Chebfunjax treats functions as elements of function spaces with inner products and norms. This example demonstrates t... |
 | [Matrix Functions](matrix_functions.md) | Chebfun can evaluate matrix functions using Chebyshev interpolation of the scalar function on the spectrum of the mat... |
-| [Resolvent Norms and Pseudospectra](resolvent_norm.md) | The resolvent of a matrix ... is ... for .... Its norm ... measures how sensitive the eigenvalues are to |
