@@ -105,37 +105,43 @@ def conformal(
     scl = np.max(np.abs(Z_np - ctr_c))
 
     if method == "kerzman-stein":
-        W = _kerzman_stein((Z_np - ctr_c) / scl, tol=tol)
+        # MATLAB loop: M = 600, 900, 1200 sample points equispaced in
+        # arclength; err is the norm of the 20 extreme trig
+        # coefficients of the boundary correspondence function.
+        M = 300
+        err = np.inf
+        while err > tol:
+            M += 300
+            W, Z_ks = _kerzman_stein((Z_np - ctr_c) / scl, M)
+            Z_ks = Z_ks * scl + ctr_c
+            gc = np.fft.fftshift(np.fft.fft(W)) / M
+            err = np.linalg.norm(np.concatenate([gc[:10], gc[-10:]]))
+            if err > tol and M >= 1200:
+                import warnings
+                warnings.warn("conformal did not converge", stacklevel=2)
+                break
+        Z_fit = Z_ks
     else:
         W = _poly_method((Z_np - ctr_c) / scl, tol=tol)
+        Z_fit = Z_np
 
     # Forward map: Z -> W (unit circle)
-    f0, pol_raw, _, _, zj0, fj0, wj0 = aaa(
-        jnp.array(W), jnp.array(Z_np), tol=tol
+    f0, pol, _, _, zj0, fj0, wj0 = aaa(
+        jnp.array(W), jnp.array(Z_fit), tol=tol
     )
 
-    # Correct rotation so that f'(ctr) > 0
-    eps_fd = 1e-4 * scl
-    zz_fd = np.array([ctr_c + eps_fd, ctr_c + 1j * eps_fd,
-                      ctr_c - eps_fd, ctr_c - 1j * eps_fd])
-    dwdz = np.sum(np.array(f0(jnp.array(zz_fd))) / (zz_fd - ctr_c))
+    # Correct rotation so that f'(ctr) > 0 (finite differences at ctr)
+    zz_fd = 1e-4 * scl * np.array([1, 1j, -1, -1j])
+    dwdz = np.sum(np.array(f0(jnp.array(ctr_c + zz_fd))) / zz_fd)
     rot = np.exp(-1j * np.angle(dwdz))
-
-    # Rotate W
+    f1 = lambda z: rot * f0(z)  # noqa: E731
     W_rot = rot * W
 
-    # Re-fit with rotation applied
-    f1, pol1, _, _, zj1, fj1, wj1 = aaa(
-        jnp.array(W_rot), jnp.array(Z_np), tol=tol
-    )
-
     # Inverse map: W_rot -> Z
-    finv1, polinv1, _, _, _, _, _ = aaa(
-        jnp.array(Z_np), jnp.array(W_rot), tol=tol
+    finv1, polinv, _, _, _, _, _ = aaa(
+        jnp.array(Z_fit), jnp.array(W_rot), tol=tol
     )
-
-    pol = pol1
-    polinv = polinv1
+    Z_np = np.asarray(Z_fit)
 
     # Warn about poles inside region or inside disk
     pol_np = np.array(pol)
@@ -161,84 +167,75 @@ def conformal(
 
 def _kerzman_stein(
     Z_scl: np.ndarray,
-    *,
-    tol: float = 1e-5,
-    M_start: int = 300,
-    M_max: int = 1200,
-) -> np.ndarray:
-    """Kerzman-Stein integral equation solver.
+    M: int,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Kerzman-Stein integral equation solver (MATLAB kerzstein).
 
-    Given boundary points Z_scl (scaled so that the region has unit scale),
-    solve the integral equation to find W (images on the unit circle).
+    The boundary samples Z_scl (assumed equispaced in the curve
+    parameter, tracing the closed curve once counterclockwise) are
+    first reparametrized by arclength via trigonometric interpolation;
+    the integral equation is then discretized at M points equispaced
+    in arclength with the trapezoid rule, exactly as in kerzstein.
 
     Returns
     -------
-    W : np.ndarray, complex
+    W : np.ndarray, complex, shape (M,)
         Boundary correspondence values on the unit circle.
+    Z : np.ndarray, complex, shape (M,)
+        The arclength-equispaced boundary points used.
+
+    Provenance
+    ----------
+    MATLAB source : conformal.m (kerzstein subfunction; original code
+        by Anne Greenbaum and Trevor Caldwell)
+    Chebfun commit: 7574c77
     """
-    M = M_start
-    err = np.inf
-    W_best = None
+    N = len(Z_scl)
+    # trig-series representation of the curve and its derivative
+    coeffs = np.fft.fft(Z_scl) / N
+    k = np.fft.fftfreq(N, d=1.0 / N)  # integer wavenumbers
 
-    while err > tol and M <= M_max:
-        # Arclength-equispaced points on the boundary
-        # For simplicity, use the provided boundary points
-        # (A full implementation would re-parameterize by arclength)
-        M_pts = min(M, len(Z_scl))
-        idx = np.round(np.linspace(0, len(Z_scl) - 1, M_pts)).astype(int)
-        Dvec = Z_scl[idx]
+    def C_eval(t):  # t in [0, 2*pi)
+        return np.exp(1j * np.outer(t, k)) @ coeffs
 
-        M_actual = len(Dvec)
-        ds = 1.0 / M_actual  # approximate arc-length element (normalized)
+    def Cp_eval(t):
+        return np.exp(1j * np.outer(t, k)) @ (1j * k * coeffs)
 
-        # Tangent directions
-        dD = np.diff(np.concatenate([Dvec, [Dvec[0]]]))
-        gamdot = dD / (np.abs(dD) + 1e-300)
+    # cumulative arclength on a fine grid, then invert at equispaced s
+    fine = max(8 * N, 4096)
+    tf = 2 * np.pi * np.arange(fine + 1) / fine
+    speed = np.abs(Cp_eval(tf))
+    s_fine = np.concatenate([
+        [0.0],
+        np.cumsum((speed[1:] + speed[:-1]) / 2) * (2 * np.pi / fine)])
+    S = s_fine[-1]
+    svec = S * np.arange(M) / M
+    tvec = np.interp(svec, s_fine, tf)
+    # one Newton step: s(t) - target = 0, s'(t) = |C'(t)|
+    sv = np.interp(tvec, tf, s_fine)
+    tvec = tvec - (sv - svec) / np.maximum(np.abs(Cp_eval(tvec)), 1e-300)
 
-        # Right-hand side
-        d = 1.0 / (2j * np.pi)
-        gvec = d * np.conj(gamdot / (0.0 - Dvec))  # 0 = ctr (already scaled)
+    Dvec = C_eval(tvec)
+    gamdot = Cp_eval(tvec)
+    gamdot = gamdot / np.abs(gamdot)  # unit tangents
 
-        # Kerzman-Stein matrix
-        A = np.eye(M_actual, dtype=complex)
-        for j_idx in range(M_actual):
-            w_pt = Dvec[j_idx]
-            for i_idx in range(M_actual):
-                if i_idx != j_idx:
-                    z_pt = Dvec[i_idx]
-                    A[i_idx, j_idx] -= d * (
-                        np.conj(gamdot[i_idx] / (z_pt - w_pt))
-                        + gamdot[j_idx] / (w_pt - z_pt)
-                    ) * ds
+    ds = S / M
+    d = 1.0 / (2j * np.pi)
+    gvec = d * np.conj(gamdot / (0.0 - Dvec))  # ctr = 0 (pre-shifted)
 
-        fvec = np.linalg.solve(A, gvec)
+    # A = I - d*ds*( conj(gamdot_i/(z_i - w_j)) + gamdot_j/(w_j - z_i) )
+    Zi = Dvec[:, None]
+    Wj = Dvec[None, :]
+    with np.errstate(divide="ignore", invalid="ignore"):
+        K = (np.conj(gamdot[:, None] / (Zi - Wj))
+             + gamdot[None, :] / (Wj - Zi))
+    np.fill_diagonal(K, 0.0)
+    A = np.eye(M, dtype=complex) - d * ds * K
 
-        # Compute boundary images on unit circle
-        Rprime = fvec ** 2
-        with np.errstate(divide='ignore', invalid='ignore'):
-            Rvec = -1j * gamdot * (Rprime / (np.abs(Rprime) + 1e-300))
-        W = Rvec
-
-        # Error estimate: last few Fourier coefficients of W
-        W_fft = np.fft.fft(W)
-        n_check = min(10, M_actual // 4)
-        err = np.max(np.abs(W_fft[:n_check])) + np.max(np.abs(W_fft[-n_check:]))
-        err /= (np.max(np.abs(W_fft)) + 1e-300)
-        W_best = W
-
-        M += 300
-
-    # Return W at the original boundary points via interpolation
-    if len(W_best) == len(Z_scl):
-        return W_best
-
-    # Interpolate W back to original Z_scl points
-    theta_src = np.angle(W_best)
-    theta_tgt = np.linspace(theta_src[0], theta_src[-1], len(Z_scl))
-    W_out = np.interp(theta_tgt, theta_src, np.real(W_best)) + \
-            1j * np.interp(theta_tgt, theta_src, np.imag(W_best))
-    W_out = W_out / np.abs(W_out)
-    return W_out
+    fvec = np.linalg.solve(A, gvec)
+    Rprime = fvec ** 2
+    W = -1j * gamdot * (Rprime / np.abs(Rprime))
+    return W, Dvec
 
 
 def _poly_method(

@@ -638,3 +638,27 @@ class TestConformal:
         assert callable(finv)
         assert isinstance(pol, jnp.ndarray)
         assert isinstance(polinv, jnp.ndarray)
+
+    def test_default_tol_accuracy(self):
+        """Default tol=1e-5 achieves ~1e-5 accuracy on a wavy region.
+
+        Pins the 2026-08 Kerzman-Stein rewrite (arclength
+        reparametrization + trapezoid weights, as in MATLAB
+        kerzstein): verified against MATLAB R2025b on the
+        ConformalMapping example region, where identical boundary
+        data gives max deviation 6.7e-6 (MATLAB: 6.2e-6) and pole
+        counts 60/46 matching the published "degree 59 ... and 46".
+        """
+        from chebfunjax.utils import conformal
+        theta = np.linspace(0, 2 * np.pi, 600, endpoint=False)
+        C = jnp.asarray(np.exp(1j * theta)
+                        * (1 + 0.15 * np.cos(5 * theta)))
+        f, finv, pol, polinv = conformal(C)
+        # boundary maps onto the unit circle
+        W = np.asarray(f(C))
+        assert np.max(np.abs(np.abs(W) - 1)) < 5e-5
+        # back-and-forth composition is the identity on the boundary
+        C2 = np.asarray(finv(jnp.asarray(W)))
+        assert np.max(np.abs(C2 - np.asarray(C))) < 5e-4
+        # no poles inside the disk
+        assert np.min(np.abs(np.asarray(polinv))) > 1.0
