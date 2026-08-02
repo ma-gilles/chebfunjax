@@ -22,6 +22,7 @@ integration, winding number computation, and argument principle calculations.
 | [Hyperfunctions (replica)](Hyperfuns.md) | Faithful replica: delta and Heaviside as boundary values of analytic functions. |
 | [Visualizing conformal maps (replica)](ConformalVis.md) | Faithful replica: half-strip to disk via sinh + Mobius, quasimatrix of joined squares, scribble text. |
 | [Conformal map to a square (replica)](ConformalSquare.md) | Faithful replica: Schwarz-Christoffel disk-to-square map by integrating f' along rays and circles. |
+| [Conformal mapping of an L-shaped region (replica)](ConformalL.md) | Faithful replica: lightning least-squares Laplace solve + AAA map with exponentially clustered poles. |
 | [Analytic continuation via rational approximation](analytic_continuation.md) | A function analytic on ... can in principle be continued to a larger region in the complex plane. The size of the Ber... |
 | [Integrals over closed contours using periodic chebfuns](closed_contours.md) | If a closed contour ... is parametrised by ... for ... with ..., then the integrand ... is periodic and the |
 | [Arc length in the complex plane](complex_arc_length.md) | If ... is a smooth curve in ... parametrised by ..., its arc length is |
