@@ -9,10 +9,10 @@ illustrate rootfinding in one dimension.
 | [Roots of a Bessel function (replica)](BesselRoots.md) | Faithful replica: all roots of J0 on [0,100]; 318 roots counted near x = 10^6. |
 | [Newton's method (replica)](NewtonRaphson.md) | Faithful replica: tangent-line visualization; quadratic and cubic convergence tables digit-for-digit. |
 | [Complex roots near the real axis (replica)](RootsNearAxis.md) | Faithful replica: roots(f,'complex') ellipse-pruned roots — 32/degree-85 digit-for-digit. |
+| [Speed and accuracy of Chebfun roots (replica)](RootsSpeed.md) | Faithful replica: 2001 roots, length 3284 exact, error one ulp. |
 | [The mystery of Bernoulli polynomials](bernoulli_polynomials.md) | Bernoulli polynomials are a family of polynomials defined by the recurrence |
 | [Does a Chebfun of degree n have n roots?](fundamental_theorem_algebra.md) | The Fundamental Theorem of Algebra states that a polynomial of degree ... has exactly ... roots in ... (counting mult... |
 | [Roots of random polynomials](random_polynomials.md) | If ... is a monic polynomial with independent standard-normal coefficients $a_0, \ldots, |
-| [Speed and accuracy of Chebfun roots](roots_speed.md) | Chebfun's ... command uses the colleague matrix — the Chebyshev analogue of the companion matrix — whose eigenvalues ... |
 | [Roots of a secular equation with poles](secular_roots.md) | A secular equation is a rational function of the form |
 | [The tiger's tail](tiger.md) | A high-degree chebfun with geometrically decaying Chebyshev coefficients produces a striking visual pattern when its ... |
 | [The white curves of Ortiz and Rivlin](white_curves.md) | In their 1983 article "Another look at the Chebyshev polynomials", Ortiz and Rivlin noticed that the graph of the fir... |
