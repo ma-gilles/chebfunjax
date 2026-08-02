@@ -13,6 +13,7 @@ integration, winding number computation, and argument principle calculations.
 | [Phase portraits of singularities (replica)](Singularities.md) | Faithful replica: removable, pole-order, and essential singularities as phase portraits. |
 | [Zeros of the Riemann zeta function (replica)](ZetaZeros.md) | Faithful replica: 8 critical-line zeros to ~10 digits via complex chebfun rootfinding. |
 | [Analytic continuation (replica)](AnalyticContinuation.md) | Faithful replica: chebfun length 30 exact; ratinterp poles capture tanh's poles with the published accuracy cascade. |
+| [Portraits with poles (replica)](PortraitsWithPoles.md) | Faithful replica: smash-trick phase portraits of pole-bearing functions. |
 | [Analytic continuation via rational approximation](analytic_continuation.md) | A function analytic on ... can in principle be continued to a larger region in the complex plane. The size of the Ber... |
 | [Integrals over closed contours using periodic chebfuns](closed_contours.md) | If a closed contour ... is parametrised by ... for ... with ..., then the integrand ... is periodic and the |
 | [Arc length in the complex plane](complex_arc_length.md) | If ... is a smooth curve in ... parametrised by ..., its arc length is |
