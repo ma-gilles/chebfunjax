@@ -2250,11 +2250,13 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/merge.m
         Chebfun commit: 7574c77
         """
+        import warnings as _w
+
         import numpy as _np
         if len(self.funs) == 1:
             return self
         a, b = float(self.domain.a), float(self.domain.b)
-        import warnings as _w
+        # fast path: a single global piece
         with _w.catch_warnings():
             _w.simplefilter("ignore")
             cand = Chebfun.from_function(
@@ -2263,8 +2265,44 @@ class Chebfun(eqx.Module):
                                       b - 1e-9 * (b - a), 201))
         err = float(jnp.max(jnp.abs(cand(xs) - self(xs))))
         tol = 1e3 * float(_np.finfo(float).eps) * max(self.vscale, 1.0)
-        return cand if (err < tol and cand.funs[0].tech.ishappy) \
-            else self
+        if err < tol and cand.funs[0].tech.ishappy:
+            return cand
+        # MATLAB merge.m removes breakpoints ONE AT A TIME: each
+        # interior breakpoint is dropped if the union of its two
+        # neighbouring pieces re-approximates happily (true jumps and
+        # singular pieces keep their breakpoints).
+        funs = list(self.funs)
+        changed = True
+        while changed:
+            changed = False
+            for k in range(len(funs) - 1):
+                p, q = funs[k], funs[k + 1]
+                from chebfunjax.fun.singfun import Singfun
+                if isinstance(p.tech, Singfun) or isinstance(
+                        q.tech, Singfun):
+                    continue
+                aa = float(p.interval[0])
+                bb = float(q.interval[1])
+                with _w.catch_warnings():
+                    _w.simplefilter("ignore")
+                    trial = _Piece.from_function(
+                        lambda x: self(x), aa, bb, maxpow2=10)
+                if not getattr(trial.tech, "ishappy", False):
+                    continue
+                t = _np.linspace(aa + 1e-9 * (bb - aa),
+                                 bb - 1e-9 * (bb - aa), 101)
+                e = float(_np.max(_np.abs(
+                    _np.asarray(trial(jnp.asarray(t)))
+                    - _np.asarray(self(jnp.asarray(t))))))
+                if e < tol:
+                    funs[k:k + 2] = [trial]
+                    changed = True
+                    break
+        if len(funs) == len(self.funs):
+            return self
+        bps = [funs[0].interval[0]] + [pc.interval[1] for pc in funs]
+        return Chebfun(funs=funs,
+                       domain=Domain(tuple(float(v) for v in bps)))
 
     def rem(self, g) -> "Chebfun":
         """Remainder after division: f - fix(f/g)*g (MATLAB rem).
@@ -7440,8 +7478,13 @@ def _detect_edge_matlab(f, a: float, b: float,
     hscale = max(abs(a), abs(b), 1.0)
 
     def op(x):
+        # keep complex values complex: MATLAB detectEdge measures
+        # |ya - yb| of the raw (possibly complex) samples, so an edge
+        # visible only in the imaginary part is still detected
         y = _np.asarray(f(jnp.asarray(_np.atleast_1d(_np.asarray(x,
-                        dtype=_np.float64)))), dtype=_np.float64).ravel()
+                        dtype=_np.float64))))).ravel()
+        if not _np.iscomplexobj(y):
+            y = y.astype(_np.float64)
         return _np.where(_np.isfinite(y), y, 0.0)
 
     def find_max_der(da, db, num_ders, grid_size):
@@ -7555,7 +7598,9 @@ def _split_edge_fd(f, a: float, b: float, n: int = 17) -> float:
         if hi - lo < 1e-15 * scale:
             break
         xs = _np.linspace(lo, hi, n)
-        ys = _np.asarray(f(jnp.asarray(xs)), dtype=_np.float64)
+        ys = _np.asarray(f(jnp.asarray(xs)))
+        if not _np.iscomplexobj(ys):
+            ys = ys.astype(_np.float64)
         ys = _np.where(_np.isfinite(ys), ys, 0.0)
         # A jump (0th-derivative discontinuity) shows an ISOLATED spike in the
         # first difference and localises cleanly there; a kink (1st-derivative
