@@ -2219,18 +2219,16 @@ class Chebfun(eqx.Module):
         return self ** p
 
     def arclength(self) -> jax.Array:
-        """Arc length of the graph: int sqrt(1 + f'(x)^2) dx.
+        """Arc length (alias of :meth:`arc_length`; the older
+        real-graph-only implementation broke on complex paths and
+        piecewise inputs).
 
         Provenance
         ----------
         MATLAB source : @chebfun/arcLength.m
         Chebfun commit: 7574c77
         """
-        d = self.diff()
-        integrand = Chebfun.from_function(
-            lambda x, _d=d: jnp.sqrt(1.0 + _d(x) ** 2),
-            Domain((float(self.domain.a), float(self.domain.b))))
-        return integrand.sum()
+        return jnp.asarray(self.arc_length())
 
     def hypot(self, other: "Chebfun") -> "Chebfun":
         """sqrt(f^2 + g^2) computed robustly (MATLAB hypot).
