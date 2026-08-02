@@ -133,14 +133,22 @@ def conformal2(
 
         # Least-squares: real and imaginary parts
         A = np.column_stack([np.real(P), np.real(P2), -np.imag(P), -np.imag(P2), rvec])
-        c_ls, _, _, _ = np.linalg.lstsq(A, H, rcond=None)
+        # column-pivoted QR least squares, like MATLAB backslash on a
+        # rank-deficient rectangular system
+        from scipy.linalg import lstsq as _sla_lstsq
+        c_ls, _, _, _ = _sla_lstsq(A, H, lapack_driver="gelsy")
 
         log_rho = 1.0 - c_ls[-1]
         rho = float(np.exp(log_rho))
         err = float(np.linalg.norm(A @ c_ls - H, np.inf))
 
         c_ls = c_ls[:-1]
-        cc = c_ls.reshape(-1, 2) @ np.array([1.0, 1j])
+        # MATLAB reshape(c,[],2)*[1;1i] is COLUMN-major: the first half
+        # of c holds the real-part coefficients and the second half the
+        # imaginary-part coefficients (a row-major reshape interleaves
+        # them, which scrambles W entirely).
+        half = len(c_ls) // 2
+        cc = c_ls[:half] + 1j * c_ls[half:]
         F = np.concatenate([P, P2], axis=1) @ cc
         W = Z * np.exp(F)
 

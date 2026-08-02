@@ -466,6 +466,34 @@ class TestConformal2:
         npt.assert_allclose(np.abs(W1), 1.0, atol=0.05,
                             err_msg="|f(Z1)| should be ~1")
 
+    def test_matlab_ellipse_parity(self):
+        """ConformalMapping2 example, verified vs MATLAB R2025b.
+
+        Pins the 2026-08 fix of the column-major reshape bug (MATLAB
+        reshape(c,[],2) splits halves; a row-major reshape interleaves
+        the real/imaginary coefficient blocks, scrambling W so AAA hit
+        mmax with poles inside the annulus).  MATLAB reference values:
+        rho = 0.409705344001635 (tol 1e-6), 0.409705344001634
+        (tol 1e-12), pole counts 17/15, finv(f([1,1i])) = [1,1i].
+        """
+        import jax.numpy as jnp
+
+        from chebfunjax.utils.conformal2 import conformal2
+
+        t = np.linspace(-1, 1, 1200, endpoint=False)
+        circle = np.exp(1j * np.pi * t)
+        ellipse = circle.real + 0.6j * circle.imag
+        C1 = 3 * ellipse - 1
+        C2 = np.exp(0.5j) * ellipse
+        f, finv, rho, pol, polinv = conformal2(
+            jnp.asarray(C1), jnp.asarray(C2))
+        npt.assert_allclose(rho, 0.409705344001635, rtol=1e-9)
+        assert len(np.asarray(pol)) == 17
+        assert len(np.asarray(polinv)) == 15
+        z = np.array([1.0, 1j])
+        z2 = np.asarray(finv(f(jnp.asarray(z))))
+        npt.assert_allclose(z2, z, atol=1e-5)
+
     def test_roundtrip_error(self):
         """finv(f(z)) ≈ z for boundary points (relaxed tolerance for an iterative method)."""
         import jax.numpy as jnp

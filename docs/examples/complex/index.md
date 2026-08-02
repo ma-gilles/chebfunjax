@@ -24,6 +24,7 @@ integration, winding number computation, and argument principle calculations.
 | [Conformal map to a square (replica)](ConformalSquare.md) | Faithful replica: Schwarz-Christoffel disk-to-square map by integrating f' along rays and circles. |
 | [Conformal mapping of an L-shaped region (replica)](ConformalL.md) | Faithful replica: lightning least-squares Laplace solve + AAA map with exponentially clustered poles. |
 | [Conformal mapping in Chebfun (replica)](ConformalMapping.md) | Faithful replica: Kerzman-Stein conformal map of a random smooth region, AAA rational representations. |
+| [Conformal maps to an annulus (replica)](ConformalMapping2.md) | Faithful replica: conformal2 doubly-connected maps, conformal modulus rho to 15 digits vs MATLAB. |
 | [Analytic continuation via rational approximation](analytic_continuation.md) | A function analytic on ... can in principle be continued to a larger region in the complex plane. The size of the Ber... |
 | [Integrals over closed contours using periodic chebfuns](closed_contours.md) | If a closed contour ... is parametrised by ... for ... with ..., then the integrand ... is periodic and the |
 | [Arc length in the complex plane](complex_arc_length.md) | If ... is a smooth curve in ... parametrised by ..., its arc length is |
