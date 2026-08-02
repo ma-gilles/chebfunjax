@@ -47,6 +47,12 @@ def _as_scalar(v):
     return jnp.float64(v)
 
 
+def _defers_binary(other) -> bool:
+    """True when a tech binary op should defer to the other operand
+    (Singfun wraps a tech and owns the mixed-operand arithmetic)."""
+    return type(other).__name__ == "Singfun"
+
+
 def _clenshaw(coeffs: jax.Array, x: jax.Array) -> jax.Array:
     """Evaluate a Chebyshev series at point(s) x via Clenshaw's algorithm.
 
@@ -2321,6 +2327,8 @@ class Chebtech2(eqx.Module):
         MATLAB source : @chebtech/plus.m
         Chebfun commit: 7574c77
         """
+        if _defers_binary(other):
+            return NotImplemented
         if _is_empty_tech(self) or _is_empty_tech(other):
             return Chebtech2.empty()
         if isinstance(other, Chebtech2):
@@ -2351,6 +2359,8 @@ class Chebtech2(eqx.Module):
         MATLAB source : @chebtech/minus.m
         Chebfun commit: 7574c77
         """
+        if _defers_binary(other):
+            return NotImplemented
         if _is_empty_tech(self) or _is_empty_tech(other):
             return Chebtech2.empty()
         return self + (-other)
@@ -2385,6 +2395,8 @@ class Chebtech2(eqx.Module):
         MATLAB source : @chebtech/times.m
         Chebfun commit: 7574c77
         """
+        if _defers_binary(other):
+            return NotImplemented
         if _is_empty_tech(self) or _is_empty_tech(other):
             return Chebtech2.empty()
         if isinstance(other, Chebtech2):
@@ -2556,6 +2568,8 @@ class Chebtech2(eqx.Module):
         MATLAB source : @chebtech/rdivide.m
         Chebfun commit: 7574c77
         """
+        if _defers_binary(other):
+            return NotImplemented
         if isinstance(other, Chebtech2):
             # MATLAB: compose(f, @rdivide, g) — adaptive re-construction so
             # the quotient is resolved to machine precision (a fixed grid
@@ -3750,6 +3764,8 @@ class Chebtech1(eqx.Module):
         MATLAB source : @chebtech/plus.m
         Chebfun commit: 7574c77
         """
+        if _defers_binary(other):
+            return NotImplemented
         if _is_empty_tech(self) or _is_empty_tech(other):
             return Chebtech1.empty()
         if isinstance(other, Chebtech1):
@@ -3777,6 +3793,8 @@ class Chebtech1(eqx.Module):
         MATLAB source : @chebtech/minus.m
         Chebfun commit: 7574c77
         """
+        if _defers_binary(other):
+            return NotImplemented
         if _is_empty_tech(self) or _is_empty_tech(other):
             return Chebtech1.empty()
         return self + (-other)
@@ -3807,6 +3825,8 @@ class Chebtech1(eqx.Module):
         MATLAB source : @chebtech/times.m
         Chebfun commit: 7574c77
         """
+        if _defers_binary(other):
+            return NotImplemented
         if _is_empty_tech(self) or _is_empty_tech(other):
             return Chebtech1.empty()
         if isinstance(other, Chebtech1):
@@ -3920,6 +3940,8 @@ class Chebtech1(eqx.Module):
         MATLAB source : @chebtech/rdivide.m
         Chebfun commit: 7574c77
         """
+        if _defers_binary(other):
+            return NotImplemented
         if isinstance(other, Chebtech1):
             # Adaptive re-construction so the quotient is fully resolved
             # (MATLAB: compose(f, @rdivide, g)).

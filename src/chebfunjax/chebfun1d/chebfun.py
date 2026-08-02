@@ -606,6 +606,102 @@ class _Piece(eqx.Module):
 # ============================================================================
 
 
+def _real_simple_roots(den: "Chebfun"):
+    """Interior real roots of a denominator chebfun (pole locations).
+
+    Returns a sorted numpy array of the roots of ``den`` strictly
+    inside its domain; endpoint roots are kept too (they become
+    endpoint poles of the quotient).  Complex-valued denominators
+    return an empty array (their zeros are generically off the real
+    line, and MATLAB rdivide only singularises real crossings).
+    """
+    import numpy as _np
+    if any(_np.iscomplexobj(_np.asarray(p.tech.coeffs))
+           for p in den.funs):
+        return _np.zeros(0)
+    try:
+        r = _np.asarray(den.roots())
+    except Exception:
+        return _np.zeros(0)
+    if r.ndim != 1:
+        return _np.zeros(0)
+    return _np.sort(_np.real(r))
+
+
+def _divide_with_poles(num, den: "Chebfun", poles) -> "Chebfun":
+    """num/den where den vanishes at ``poles`` (MATLAB rdivide + singfun).
+
+    Breakpoints are inserted at the poles and each piece is built as a
+    SingFun whose (negative, integer or detected) endpoint exponents
+    absorb the blow-up, mirroring @chebfun/rdivide.m with the default
+    'blowup' behaviour used by operator arithmetic like 1./(1-x).
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/rdivide.m, @singfun/singfun.m
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+
+    from chebfunjax.fun.singfun import Singfun
+
+    a0, b0 = float(den.domain.a), float(den.domain.b)
+    tol = 1e-10 * max(b0 - a0, 1.0)
+    # cluster nearly-equal roots: pole location + multiplicity
+    raw = sorted(float(p) for p in _np.asarray(poles, dtype=float))
+    clusters: list[list[float]] = [[raw[0]]]
+    for v in raw[1:]:
+        if v - clusters[-1][-1] <= tol:
+            clusters[-1].append(v)
+        else:
+            clusters.append([v])
+    pole_locs = [float(_np.mean(c)) for c in clusters]
+    pole_mult = {loc: len(c) for loc, c in zip(pole_locs, clusters)}
+
+    bps = sorted(
+        set(float(v) for v in den.domain.breakpoints)
+        | set(pole_locs))
+    merged = [bps[0]]
+    for v in bps[1:]:
+        if v - merged[-1] > tol:
+            merged.append(v)
+    merged[0], merged[-1] = a0, b0
+
+    def _mult_at(x):
+        for loc, m in pole_mult.items():
+            if abs(x - loc) <= tol:
+                return m
+        return 0
+
+    def _num_eval(x):
+        if isinstance(num, Chebfun):
+            return num(x)
+        return jnp.asarray(num) * jnp.ones_like(jnp.asarray(x))
+
+    new_funs = []
+    for a, b in zip(merged[:-1], merged[1:]):
+        half = (b - a) / 2.0
+        mid = (a + b) / 2.0
+        ml, mr = _mult_at(a), _mult_at(b)
+        if ml == 0 and mr == 0:
+            new_funs.append(_Piece.from_function(
+                lambda x: _num_eval(x) / den(x), a, b))
+            continue
+
+        # smooth part: (num/den) * (1+t)^ml * (1-t)^mr on [-1, 1];
+        # the singular factors are known structurally from the root
+        # multiplicities (like extractBoundaryRoots in MATLAB), so no
+        # eps-scale sampling detection is needed.
+        def op(t, _half=half, _mid=mid):
+            x = _mid + _half * t
+            return _num_eval(x) / den(x)
+
+        sf = Singfun.from_function(op, exponents=(-float(ml),
+                                                  -float(mr)))
+        new_funs.append(_Piece(tech=sf, interval=(a, b)))
+    return Chebfun(funs=new_funs, domain=Domain(tuple(merged)))
+
+
 def _is_empty_operand(x) -> bool:
     """True if ``x`` is an empty Chebfun or an empty numeric array/list
     (MATLAB propagates emptiness through arithmetic: ``f + [] == []``)."""
@@ -1613,6 +1709,9 @@ class Chebfun(eqx.Module):
         if self.isempty() or _is_empty_operand(other):
             return Chebfun.empty()
         if isinstance(other, Chebfun):
+            poles = _real_simple_roots(other)
+            if poles.size:
+                return _divide_with_poles(self, other, poles)
             return Chebfun._binary_op(self, other, lambda a, b: a / b)
         new_funs = [
             piece._apply_unary(piece.tech / other)
@@ -1621,7 +1720,11 @@ class Chebfun(eqx.Module):
         return Chebfun(funs=new_funs, domain=self.domain)
 
     def __rtruediv__(self, other) -> Chebfun:
-        """scalar / Chebfun."""
+        """scalar / Chebfun (MATLAB rdivide: denominator roots become
+        poles represented by SingFun pieces with negative exponents)."""
+        poles = _real_simple_roots(self)
+        if poles.size:
+            return _divide_with_poles(other, self, poles)
         new_funs = [
             piece._apply_unary(other / piece.tech)
             for piece in self.funs
@@ -1836,7 +1939,7 @@ class Chebfun(eqx.Module):
         from chebfunjax.fun.singfun import Singfun
         # No roots anywhere -> smooth composition (fast path, matches the
         # positive-function tests exactly).
-        r = _np.asarray(self.roots(), dtype=float).ravel()
+        r = _np.asarray(self.roots(nojump=True), dtype=float).ravel()
         r = r[_np.isfinite(r)]
         if len(r) == 0:
             # Exponent-aware even without interior roots: a Singfun piece
@@ -1896,9 +1999,12 @@ class Chebfun(eqx.Module):
     def _abs_core(self) -> Chebfun:
         """Root-splitting ``|f|`` without pointValues propagation."""
         # Find roots where the function changes sign and add them as
-        # breakpoints, then apply |·| piecewise for smoothness.
+        # breakpoints, then apply |·| piecewise for smoothness.  Jump
+        # roots are excluded: a sign flip through a jump or pole sits
+        # at an existing breakpoint, and re-splitting there would
+        # rebuild singular pieces as (unhappy) smooth ones.
         import numpy as _np
-        roots = _np.asarray(self.roots())
+        roots = _np.asarray(self.roots(nojump=True))
         if roots.ndim == 2:
             # Array-valued: the union of every column's roots splits
             # ALL columns (MATLAB @chebfun/abs.m uses roots(f) which
@@ -2008,7 +2114,7 @@ class Chebfun(eqx.Module):
                     float(fd.funs[i](jnp.asarray(c)))
                     - float(fd.funs[i + 1](jnp.asarray(c))))
                 if jump > 1e-7 * vs:
-                    r = _np.asarray((g - c).roots(),
+                    r = _np.asarray((g - c).roots(nojump=True),
                                     dtype=float).ravel()
                     breaks.update(
                         float(t) for t in r if a < t < b)
@@ -2099,7 +2205,7 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         import numpy as _np
-        r = _np.asarray(self.roots(), dtype=float).ravel()
+        r = _np.asarray(self.roots(nojump=True), dtype=float).ravel()
         a, b = float(self.domain.a), float(self.domain.b)
         eps_ = float(_np.finfo(float).eps)
         gap = max(tol, 100 * eps_ * max(abs(a), abs(b), 1.0))
@@ -2261,7 +2367,7 @@ class Chebfun(eqx.Module):
         import numpy as _np
         bps = sorted(set([float(v) for v in fl.domain.breakpoints]
                          + [float(v) for v in ce.domain.breakpoints]
-                         + [float(r) for r in _np.asarray(self.roots())]))
+                         + [float(r) for r in _np.asarray(self.roots(nojump=True))]))
         funs = []
         for a_, b_ in zip(bps[:-1], bps[1:]):
             mid = 0.5 * (a_ + b_)
@@ -2480,7 +2586,7 @@ class Chebfun(eqx.Module):
 
     def _sign_core(self) -> Chebfun:
         """Root-splitting ``sign(f)`` without pointValues propagation."""
-        roots = self.roots()
+        roots = self.roots(nojump=True)
         import numpy as _np
         existing = _np.array(list(self.domain.breakpoints))
         new_bps = _np.sort(_np.unique(
@@ -2994,7 +3100,8 @@ class Chebfun(eqx.Module):
     # ------------------------------------------------------------------
 
     def roots(self, complex_roots: bool = False,
-              all_roots: bool = False) -> jax.Array:
+              all_roots: bool = False,
+              nojump: bool = False) -> jax.Array:
         """All roots of the Chebfun in its domain.
 
         With ``complex_roots=True`` returns the complex roots of the
@@ -3080,9 +3187,41 @@ class Chebfun(eqx.Module):
             r = piece.roots()
             if r.shape[0] > 0:
                 all_roots.append(r)
-        if not all_roots:
+        combined = (_np.sort(_np.concatenate(
+            [_np.asarray(r) for r in all_roots]))
+            if all_roots else _np.zeros(0))
+
+        # Jump roots (@chebfun/roots.m, jumpRoot default on): an
+        # interior breakpoint is a root when the one-sided values
+        # rval(fun_k) * lval(fun_{k+1}) <= 0 (sign change through a
+        # jump; a pole flip gives -inf and qualifies), unless it is
+        # already within tolerance of a computed root.
+        if not nojump and len(self.funs) > 1:
+            htol = 100 * _np.finfo(_np.float64).eps * max(
+                abs(float(self.domain.a)), abs(float(self.domain.b)),
+                1.0)
+            jumps = []
+            with _np.errstate(all="ignore"):
+                for k in range(len(self.funs) - 1):
+                    bp = float(self.funs[k].interval[1])
+                    lv = float(_np.real(_np.asarray(
+                        self.funs[k](jnp.asarray(bp)))))
+                    rv = float(_np.real(_np.asarray(
+                        self.funs[k + 1](jnp.asarray(bp)))))
+                    if _np.isnan(lv) or _np.isnan(rv):
+                        continue
+                    if lv * rv <= 0 or (_np.isinf(lv) and
+                                        _np.isinf(rv) and
+                                        _np.sign(lv) != _np.sign(rv)):
+                        if (combined.size == 0
+                                or _np.min(_np.abs(combined - bp))
+                                > htol):
+                            jumps.append(bp)
+            if jumps:
+                combined = _np.sort(_np.concatenate(
+                    [combined, _np.asarray(jumps)]))
+        if combined.size == 0:
             return jnp.array([], dtype=jnp.float64)
-        combined = _np.sort(_np.concatenate([_np.asarray(r) for r in all_roots]))
 
         # Deduplicate: remove consecutive roots that are within a tight tolerance
         # (handles the case where a breakpoint root is found by two pieces).
@@ -3194,7 +3333,7 @@ class Chebfun(eqx.Module):
         d2f = df.diff()
         a = float(self.domain.a)
         b = float(self.domain.b)
-        r = _np.asarray(df.roots())
+        r = _np.asarray(df.roots(nojump=True))
         r = _np.unique(r[(r > a + 1e-12) & (r < b - 1e-12)])
         if r.size == 0:
             empty = jnp.array([], dtype=jnp.float64)
@@ -3220,7 +3359,7 @@ class Chebfun(eqx.Module):
         df = self.diff()
         a = float(self.domain.a)
         b = float(self.domain.b)
-        r = _np.asarray(df.roots()).ravel()
+        r = _np.asarray(df.roots(nojump=True)).ravel()
         r = _np.real(r[_np.abs(_np.imag(r)) < 1e-12]) \
             if _np.iscomplexobj(r) else r
         r = r[(r > a + 1e-12) & (r < b - 1e-12)]
@@ -4732,7 +4871,7 @@ class Chebfun(eqx.Module):
             raise ValueError("besselh: k must be 1 or 2.")
 
         # Check for zeros in the domain (Hankel undefined at origin)
-        r = self.roots()
+        r = self.roots(nojump=True)
         if r.shape[0] > 0:
             raise ValueError(
                 "besselh: the Chebfun passes through zero in its domain; "
@@ -4787,7 +4926,7 @@ class Chebfun(eqx.Module):
         import numpy as _np
         import scipy.special as _ss
 
-        r = self.roots()
+        r = self.roots(nojump=True)
         if r.shape[0] > 0:
             raise ValueError(
                 "besselk: the Chebfun passes through zero; K_nu is undefined at x=0."
@@ -4891,7 +5030,7 @@ class Chebfun(eqx.Module):
         b = float(self.domain.b)
 
         # Find all interior roots
-        r_jax = self.roots()
+        r_jax = self.roots(nojump=True)
         r = _np.sort(_np.asarray(r_jax, dtype=_np.float64))
 
         # Compute derivative for checking simple-root condition and weights
@@ -5410,7 +5549,7 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         import numpy as _np
-        roots = self.roots()
+        roots = self.roots(nojump=True)
         existing = _np.array(list(self.domain.breakpoints))
         if roots.shape[0] > 0:
             new_bps = _np.sort(_np.unique(

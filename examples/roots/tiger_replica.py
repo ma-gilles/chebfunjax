@@ -47,7 +47,7 @@ def run():
         * (jnp.sin(5 * x) + jnp.sin(101 * x)),
         domain=(-2.0, 1.0))
     roundf = f.round()
-    r = np.asarray((f - roundf).roots())
+    r = np.asarray((f - roundf).roots(nojump=True))
 
     xs = np.linspace(-2, 1, 4000)
     fv = np.asarray(f(xs))
