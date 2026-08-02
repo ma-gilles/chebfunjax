@@ -7689,6 +7689,28 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                     f, aa, bb, maxpow2=piece_maxpow2, tol=tol,
                     turbo=turbo, start_pow2=_sp2))
         funs[k:k + 1] = halves
+    # A still-sad piece narrower than the edge locator's resolution is
+    # an unresolvable-kink sliver; its adaptive coefficients can be
+    # wildly unbounded (observed 1e48 on the SOR spectral-radius kink),
+    # poisoning min/max candidate evaluation.  Replace it with the
+    # bounded interpolant of a few interior samples.
+    hscale = max(abs(float(cleaned[0])), abs(float(cleaned[-1])), 1.0)
+    for k, pc in enumerate(funs):
+        if not _sad(pc):
+            continue
+        a_k, b_k = pc.interval
+        if (b_k - a_k) >= 1e-8 * hscale:
+            continue
+        import numpy as _np
+        tq = _np.cos(_np.pi * _np.arange(8, dtype=float) / 7)[::-1]
+        xq = 0.5 * (b_k - a_k) * (0.98 * tq) + 0.5 * (a_k + b_k)
+        with _warnings.catch_warnings():
+            _warnings.simplefilter("ignore")
+            vals = _np.asarray(f(jnp.asarray(xq)))
+        vals = _np.where(_np.isfinite(vals), vals, 0.0)
+        funs[k] = _Piece(
+            tech=Chebtech2.from_values(jnp.asarray(vals)),
+            interval=(a_k, b_k))
     bps2 = [funs[0].interval[0]] + [pc.interval[1] for pc in funs]
     return Chebfun(funs=funs, domain=Domain(tuple(float(v)
                                                   for v in bps2)))
