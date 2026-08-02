@@ -22,6 +22,7 @@ spaces, using inner products, norms, QR factorization, and SVD.
 | [Conditioning of the Vandermonde quasimatrix (replica)](CondVandermonde.md) | Faithful replica: cond to 12 digits; (1+sqrt(2))^n growth. |
 | [Eigenvalue near-crossings and analyticity (replica)](CrossingsAnalyticity.md) | Faithful replica: AAA poles reveal the narrow strip of analyticity at near-crossings. |
 | [Mercury-Earth conjunctions (replica)](MercuryEarthConjunctions.md) | Faithful replica: conjunction times as determinant roots. |
+| [Constrained least squares (replica)](ConstrainedLeastSquares.md) | Faithful replica: generalized QR, constrained fits — solution digit-for-digit, residuals at machine precision. |
 | [Chebfun Inner Products](chebfun_inner_products.md) | The inner product of two Chebfuns is computed via ..., which evaluates ... exactly using the |
 | [Inner Products and Norms](inner_products.md) | Chebfunjax treats functions as elements of function spaces with inner products and norms. This example demonstrates t... |
 | [Matrix Functions](matrix_functions.md) | Chebfun can evaluate matrix functions using Chebyshev interpolation of the scalar function on the spectrum of the mat... |
