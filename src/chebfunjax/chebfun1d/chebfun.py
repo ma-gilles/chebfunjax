@@ -3030,11 +3030,14 @@ class Chebfun(eqx.Module):
                 a, b = piece.interval
                 if piece.tech.coeffs.shape[0] < 2:
                     continue
-                # full chebtech machinery: recursive subdivision with
-                # per-leaf Bernstein-ellipse pruning for 'complex'
+                # full chebtech machinery: 'complex' recurses with
+                # per-leaf Bernstein-ellipse pruning; 'all' disables
+                # recursion so a degree-n piece yields exactly n roots
+                # (@chebfun/roots.m flag table)
                 t = _np.asarray(piece.tech.roots(
                     complex_roots=(complex_roots and not all_roots),
-                    all_roots=all_roots))
+                    all_roots=all_roots,
+                    recurse=not all_roots))
                 # map reference [-1,1] -> physical [a, b]
                 croots.append(0.5 * (b - a) * t + 0.5 * (a + b))
             if not croots:
