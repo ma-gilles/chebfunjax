@@ -9,6 +9,7 @@ integration, winding number computation, and argument principle calculations.
 | [Rouche's theorem (replica)](RoucheTheorem.md) | Faithful replica: winding-number illustrations; 3 roots inside as Rouche predicts. |
 | [Integrals over closed contours (replica)](ClosedContours.md) | Faithful replica: residues 5/3 pi i (1e-15) and essential-singularity 2 pi i. |
 | [Arc length of complex paths (replica)](ComplexArcLength.md) | Faithful replica: keyhole and flower arc lengths to 13-15 digits; 64 equal-arclength points. |
+| [Phase and argument (replica)](Arguments.md) | Faithful replica: angle vs unwrapped argument on a spiral; smooth square-root branch. |
 | [Analytic continuation via rational approximation](analytic_continuation.md) | A function analytic on ... can in principle be continued to a larger region in the complex plane. The size of the Ber... |
 | [Integrals over closed contours using periodic chebfuns](closed_contours.md) | If a closed contour ... is parametrised by ... for ... with ..., then the integrand ... is periodic and the |
 | [Arc length in the complex plane](complex_arc_length.md) | If ... is a smooth curve in ... parametrised by ..., its arc length is |

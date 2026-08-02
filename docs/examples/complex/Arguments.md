@@ -1,72 +1,57 @@
-# `angle`, `unwrap`, and branches of complex chebfuns
+# Phase and argument of complex functions
 
-**Nick Trefethen, May 2011**
+*Nick Trefethen, May 2011*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/complex/Arguments.html)
 
+(Chebfun example complex/Arguments.m)
+
+The `angle` command returns the principal argument in $(-\pi,\pi]$:
+
+```
+ans =
+     0
+ans =
+   3.141592653589793
+ans =
+  -3.131592986903128
+```
+
+(Digit-for-digit with the published output — note the jump from $+\pi$
+to nearly $-\pi$ for a point just below the negative real axis.)
+
+Consider the spiral $f(t) = t e^{it}$ on $[1, 20]$:
+
+![Arguments figure 1](../../images/complex/Arguments_repl_01.png)
+
+Its principal argument jumps every time the spiral crosses the negative
+real axis:
+
+![Arguments figure 2](../../images/complex/Arguments_repl_02.png)
+
+The cure is `unwrap`, which adds multiples of $2\pi$ to make the
+argument continuous:
+
+```
+ans =
+   3.141592653589793   3.151592320276458
+```
+
+![Arguments figure 3](../../images/complex/Arguments_repl_03.png)
+
+Why does this matter?  Consider computing $\sqrt{f(t)}$.  With the
+principal branch, the square root inherits the argument jumps and the
+curve is broken:
+
+![Arguments figure 4](../../images/complex/Arguments_repl_04.png)
+
+But with the unwrapped argument,
+$g = \sqrt{|f|}\, e^{i\,\mathrm{arg}(f)/2}$ is a smooth spiral —
+one of the two continuous square-root branches:
+
+![Arguments figure 5](../../images/complex/Arguments_repl_05.png)
+
 ---
 
-A complex number $z$ has a modulus $|z| \in [0, \infty)$ and an argument
-$\arg(z) \in (-\pi, \pi]$. For a complex-valued function of a real variable,
-we can track the *continuously varying* argument by unwrapping.
-
-## The argument of a spiral
-
-Consider the Archimedean spiral $z(t) = (1 + t) e^{it}$ for $t \in [0, 4\pi]$.
-The standard `angle` wraps into $(-\pi, \pi]$, but the unwrapped argument grows
-continuously:
-
-```python
-import jax.numpy as jnp
-import numpy as np
-import chebfunjax as cj
-
-# Parameterise the spiral as a complex chebfun
-t = np.linspace(0, 4*np.pi, 2000)
-z = (1 + t) * np.exp(1j * t)
-
-arg_wrapped   = np.angle(z)
-arg_unwrapped = np.unwrap(arg_wrapped)
-
-print(f"Final wrapped angle:   {arg_wrapped[-1]:.4f}")
-print(f"Final unwrapped angle: {arg_unwrapped[-1]:.4f}  (≈ 4π = {4*np.pi:.4f})")
-```
-
-## Winding numbers via total argument change
-
-The winding number of a closed curve $\gamma$ around a point $p$ is
-
-$$
-n(\gamma, p) = \frac{1}{2\pi} \Delta \arg\!\bigl(z(t) - p\bigr),
-$$
-
-where $\Delta$ denotes the total change over one traversal. For a circle of
-radius $r$ centred at the origin:
-
-```python
-# Circle |z| = r; winding number around 0 should be 1
-theta = np.linspace(0, 2*np.pi, 2001)
-z_circle = 2.0 * np.exp(1j * theta)
-arg_change = np.unwrap(np.angle(z_circle))[-1] - np.unwrap(np.angle(z_circle))[0]
-winding = arg_change / (2 * np.pi)
-print(f"Winding number: {winding:.4f}  (should be 1)")
-```
-
-## Gallery
-
-![Argument principle](../../images/complex/argument_principle.png)
-
-*Top*: Wrapped and unwrapped argument of a spiral.
-*Bottom*: Winding number computation for a closed curve around a pole.
-
-## Figures (chebfun.org parity)
-
-![The spiral t e^{it}](../../images/complex/Arguments_01.png)
-
-![angle(f): principal branch jumps](../../images/complex/Arguments_02.png)
-
-![unwrap(angle(f)): continuous argument](../../images/complex/Arguments_03.png)
-
-![sqrt(f) with the principal branch](../../images/complex/Arguments_04.png)
-
-![sqrt(f) with continuous argument](../../images/complex/Arguments_05.png)
+*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
+example copyright The University of Oxford and The Chebfun Developers.*
