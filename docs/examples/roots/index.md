@@ -16,6 +16,7 @@ illustrate rootfinding in one dimension.
 | [Roots of random polynomials (replica)](RandomPolynomials.md) | Faithful replica: root clustering by basis — unit circle vs interval-plus-ring. |
 | [Random polynomials and their roots in [-1,1] (replica)](RandomPolys.md) | Faithful replica: fraction of real roots tends to 1/sqrt(3). |
 | [Computing complex roots with contour integrals (replica)](ComplexRoots.md) | Faithful replica: Delves-Lyness moments, roots to 14-15 digits. |
+| [Finding zeros with AAA (replica)](AAAZeros.md) | Faithful replica: AAA zeros as root estimates — Bessel, random polynomials, disk functions. |
 | [The mystery of Bernoulli polynomials](bernoulli_polynomials.md) | Bernoulli polynomials are a family of polynomials defined by the recurrence |
 | [Roots of a secular equation with poles](secular_roots.md) | A secular equation is a rational function of the form |
 | [Extrema and Roots](extrema_and_roots.md) | The extrema of a Chebfun ... are the roots of its derivative .... Chebfun computes both with spectral accuracy. |
