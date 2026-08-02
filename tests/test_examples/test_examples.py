@@ -220,14 +220,19 @@ class TestOpt:
 # ---------------------------------------------------------------------------
 
 class TestLinalg:
-    def test_chebfun_inner_products(self):
-        assert _load("linalg", "chebfun_inner_products").run()
+    # 2026-08: the inspired-by scripts were replaced by faithful
+    # *_replica.py scripts (chebfun_inner_products / inner_products /
+    # matrix_functions cited nonexistent chebfun.org originals and
+    # were removed).  Replicas print parity outputs and return None,
+    # so these tests assert completion.
+    def test_cond_nos_replica(self):
+        _load("linalg", "cond_nos_replica").run()
 
-    def test_resolvent_norm(self):
-        assert _load("linalg", "resolvent_norm").run()
+    def test_nonnormal_quiz_replica(self):
+        _load("linalg", "nonnormal_quiz_replica").run()
 
-    def test_matrix_functions(self):
-        assert _load("linalg", "matrix_functions").run()
+    def test_mercury_earth_conjunctions_replica(self):
+        _load("linalg", "mercury_earth_conjunctions_replica").run()
 
 
 # ---------------------------------------------------------------------------
