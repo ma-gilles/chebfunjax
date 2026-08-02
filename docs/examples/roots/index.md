@@ -22,6 +22,7 @@ illustrate rootfinding in one dimension.
 | [The resultant method for bivariate rootfinding (replica)](ResultantMethod.md) | Faithful replica: Bezout resultant common zeros; our marching squares also finds the degenerate case MATLAB's misses. |
 | [The average degree reduction of subdivision, 1D (replica)](AverageDegreeReduction1D.md) | Faithful replica: tau parameter of recursive rootfinding; Elliott degree table digit-for-digit. |
 | [The average degree reduction of subdivision, 2D (replica)](AverageDegreeReduction2D.md) | Faithful replica: tau = 0.52/0.7071 matching the theory; Elliott table digit-for-digit. |
+| [Computing common roots of two bivariate functions (replica)](BivariateRoots.md) | Faithful replica: Bezout + DLP linearization; truncation errors match published values. |
 | [The mystery of Bernoulli polynomials](bernoulli_polynomials.md) | Bernoulli polynomials are a family of polynomials defined by the recurrence |
 | [Roots of a secular equation with poles](secular_roots.md) | A secular equation is a rational function of the form |
 | [Extrema and Roots](extrema_and_roots.md) | The extrema of a Chebfun ... are the roots of its derivative .... Chebfun computes both with spectral accuracy. |
