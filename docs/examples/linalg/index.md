@@ -16,6 +16,7 @@ spaces, using inner products, norms, QR factorization, and SVD.
 | [A quiz about nonnormal matrices (replica)](NonnormalQuiz.md) | Faithful replica: transient growth maxima digit-for-digit. |
 | [Transient growth in linear systems (replica)](TransientGrowth.md) | Faithful replica: maximum energy 358147.98785177 matches to the last digit. |
 | [Crouzeix's conjecture (replica)](Crouzeix.md) | Faithful replica: Crouzeix ratios — Jordan block exactly 2, normal matrix exactly 1. |
+| [Eigenvalue landscapes (replica)](EigLandscapes.md) | Faithful replica: chebfun2 eigenvalue surfaces; fixed-grid construction added for kinked symmetric case. |
 | [Chebfun Inner Products](chebfun_inner_products.md) | The inner product of two Chebfuns is computed via ..., which evaluates ... exactly using the |
 | [Inner Products and Norms](inner_products.md) | Chebfunjax treats functions as elements of function spaces with inner products and norms. This example demonstrates t... |
 | [Matrix Functions](matrix_functions.md) | Chebfun can evaluate matrix functions using Chebyshev interpolation of the scalar function on the spectrum of the mat... |

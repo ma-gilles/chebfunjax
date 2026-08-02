@@ -205,10 +205,22 @@ class Chebfun2(eqx.Module):
                 f"(xa, xb, ya, yb), got {len(domain)}."
             )
         if n is not None:
-            raise NotImplementedError(
-                "Chebfun2.from_function: fixed-degree construction (n=...) "
-                "is not yet implemented."
-            )
+            # Fixed-size construction (MATLAB chebfun2(op, [m n])):
+            # sample on an n-by-n 2nd-kind Chebyshev tensor grid and
+            # build from the value matrix, skipping adaptivity — used
+            # for functions with kinks (e.g. sorted-eigenvalue
+            # landscapes) that adaptive construction cannot resolve.
+            import numpy as _np
+            xa, xb, ya, yb = (float(v) for v in domain)
+            tx = _np.cos(_np.pi * _np.arange(n - 1, -1, -1) / (n - 1))
+            xg = xa + (xb - xa) * (tx + 1) / 2
+            yg = ya + (yb - ya) * (tx + 1) / 2
+            X, Y = _np.meshgrid(xg, yg)
+            V = _np.asarray(f(jnp.asarray(X), jnp.asarray(Y)))
+            kwargs2: dict = dict(domain=domain)
+            if tol is not None:
+                kwargs2["tol"] = tol
+            return cls.from_values(jnp.asarray(V), **kwargs2)
         kwargs: dict = dict(domain=domain)
         if tol is not None:
             kwargs["tol"] = tol
