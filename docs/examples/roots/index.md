@@ -18,6 +18,7 @@ illustrate rootfinding in one dimension.
 | [Computing complex roots with contour integrals (replica)](ComplexRoots.md) | Faithful replica: Delves-Lyness moments, roots to 14-15 digits. |
 | [Finding zeros with AAA (replica)](AAAZeros.md) | Faithful replica: AAA zeros as root estimates — Bessel, random polynomials, disk functions. |
 | [Bivariate rootfinding for a fluid mechanics problem (replica)](Subramanian.md) | Faithful replica: 15-digit common zeros; finds a 7th genuine root the published run missed (verified vs MATLAB R2025b). |
+| [Marching squares for bivariate rootfinding (replica)](MarchingSquares.md) | Faithful replica: curve intersections, Trott curve, critical points. |
 | [The mystery of Bernoulli polynomials](bernoulli_polynomials.md) | Bernoulli polynomials are a family of polynomials defined by the recurrence |
 | [Roots of a secular equation with poles](secular_roots.md) | A secular equation is a rational function of the form |
 | [Extrema and Roots](extrema_and_roots.md) | The extrema of a Chebfun ... are the roots of its derivative .... Chebfun computes both with spectral accuracy. |
