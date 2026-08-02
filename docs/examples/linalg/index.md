@@ -13,6 +13,7 @@ spaces, using inner products, norms, QR factorization, and SVD.
 | [Vandermonde with Arnoldi (replica)](VandermondeArnoldi.md) | Faithful replica: Vandermonde conds digit-for-digit; Arnoldi stabilizes degree-80 fitting. |
 | [Field of values (replica)](FieldOfValues.md) | Faithful replica: fov boundary chebfun, numerical abscissa 15-digit consistency, polygon case via merge. |
 | [Resolvent norm on the imaginary axis (replica)](ResolventNorm.md) | Faithful replica: eigenvalues digit-for-digit, max resolvent norm to 13 digits. |
+| [A quiz about nonnormal matrices (replica)](NonnormalQuiz.md) | Faithful replica: transient growth maxima digit-for-digit. |
 | [Chebfun Inner Products](chebfun_inner_products.md) | The inner product of two Chebfuns is computed via ..., which evaluates ... exactly using the |
 | [Inner Products and Norms](inner_products.md) | Chebfunjax treats functions as elements of function spaces with inner products and norms. This example demonstrates t... |
 | [Matrix Functions](matrix_functions.md) | Chebfun can evaluate matrix functions using Chebyshev interpolation of the scalar function on the spectrum of the mat... |
