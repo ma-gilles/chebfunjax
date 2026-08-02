@@ -1677,6 +1677,53 @@ class Chebfun2(eqx.Module):
         vals = self.sample(m, n)
         return float(jnp.max(jnp.abs(vals)))
 
+    def eig(self, return_functions: bool = False):
+        """Eigenvalues of the Fredholm integral operator with kernel f.
+
+        For a chebfun2 on a square domain [a,b]x[a,b], returns the
+        (nonzero) eigenvalues of (Kg)(x) = int_a^b f(x,t) g(t) dt.
+        With ``return_functions=True`` also returns the eigenfunction
+        values on the discretization grid together with the grid.
+
+        Algorithm: discretize on an n-point Chebyshev grid resolving f
+        with Clenshaw-Curtis weights, A = F diag(w); the operator has
+        finite rank, so eig(A) carries its nonzero spectrum.  (MATLAB
+        uses the equivalent low-rank identity eig(v'*u*S).)
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/eig.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        from chebfunjax.utils.quadrature import chebpts, chebweights
+
+        xa, xb, ya, yb = self.domain
+        if not (xa == ya and xb == yb):
+            raise ValueError(
+                "eig: domain of chebfun2 needs to be of the form "
+                "[a b a b].")
+        m, n_len = self.length()
+        n = max(int(m), int(n_len), 16)
+        pts = _np.asarray(chebpts(n), dtype=_np.float64)
+        w = _np.asarray(chebweights(n), dtype=_np.float64)
+        xg = 0.5 * (xb - xa) * pts + 0.5 * (xa + xb)
+        w_phys = w * 0.5 * (xb - xa)
+        X, T = _np.meshgrid(xg, xg, indexing="ij")
+        F = _np.asarray(self(jnp.asarray(X), jnp.asarray(T)))
+        A = F * w_phys[None, :]
+        lam, V = _np.linalg.eig(A)
+        order = _np.argsort(-_np.abs(lam))
+        lam = lam[order]
+        V = V[:, order]
+        r = self.rank
+        lam = lam[:r]
+        if return_functions:
+            return jnp.asarray(lam), jnp.asarray(V[:, :r]), \
+                jnp.asarray(xg)
+        return jnp.asarray(lam)
+
     def sumdisk(self) -> float:
         """Integral over the unit disk inscribed in the domain square.
 

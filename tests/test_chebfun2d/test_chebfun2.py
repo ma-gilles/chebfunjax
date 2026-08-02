@@ -774,3 +774,29 @@ class TestComplexHandleCtor:
     def test_two_arg_lambda_unchanged(self):
         f = chebfun2(lambda x, y: x + 2 * y)
         assert abs(float(f(0.25, 0.5)) - 1.25) < 1e-13
+
+
+class TestChebfun2Eig:
+    """Fredholm-operator eigenvalues of a chebfun2 kernel
+    (MATLAB @chebfun2/eig.m)."""
+
+    def test_separable_rank_one(self):
+        # k(x,t) = x*t: single nonzero eigenvalue int t^2 dt = 2/3
+        k = chebfun2(lambda x, t: x * t)
+        lam = np.asarray(k.eig())
+        assert abs(lam[0].real - 2.0 / 3) < 1e-13
+        assert abs(lam[0].imag) < 1e-13
+
+    def test_bandlimited_kernel_plateau(self):
+        # exp(i*10*pi*x*t): leading |eigenvalues| = 1/sqrt(5) (published
+        # Prolate example values, digit-for-digit)
+        c = 10 * np.pi
+        K = chebfun2(lambda x, t: jnp.exp(1j * c * x * t))
+        lam = np.sort(np.abs(np.asarray(K.eig())))[::-1]
+        assert abs(lam[0] - 0.447213595499959) < 1e-12
+        assert abs(lam[4] - 0.447213595499958) < 1e-11
+
+    def test_domain_check(self):
+        k = chebfun2(lambda x, t: x + t, domain=(0.0, 1.0, -1.0, 1.0))
+        with pytest.raises(ValueError):
+            k.eig()
