@@ -2993,13 +2993,18 @@ class Chebfun(eqx.Module):
     # Rootfinding and extrema
     # ------------------------------------------------------------------
 
-    def roots(self, complex_roots: bool = False) -> jax.Array:
+    def roots(self, complex_roots: bool = False,
+              all_roots: bool = False) -> jax.Array:
         """All roots of the Chebfun in its domain.
 
-        With ``complex_roots=True`` returns *all* roots of the Chebyshev
-        series of each piece (real and complex, mapped to the physical
-        interval), like MATLAB's ``roots(f, 'complex')`` — added by
-        Claude Opus 4.8 (task #14).
+        With ``complex_roots=True`` returns the complex roots of the
+        Chebyshev series of each piece pruned to the region where the
+        chebfun has some accuracy, like MATLAB's ``roots(f,
+        'complex')``: a root is kept when its Bernstein-ellipse
+        parameter ``|r + sqrt(r^2-1)|`` (symmetrized to >= 1) is at
+        most ``sqrt(eps)^(-1/n)`` with ``n`` the piece length
+        (chebtech/roots.m).  With ``all_roots=True`` no pruning is
+        done, like MATLAB's ``roots(f, 'all')``.
 
         Collects roots from each piece, sorts them, and deduplicates roots
         that are very close to each other (e.g. a root at a breakpoint may
@@ -3019,14 +3024,17 @@ class Chebfun(eqx.Module):
         """
         import numpy as _np
 
-        if complex_roots:
+        if complex_roots or all_roots:
             croots = []
             for piece in self.funs:
                 a, b = piece.interval
-                c = _np.asarray(piece.tech.coeffs, dtype=complex)
-                if c.size < 2:
+                if piece.tech.coeffs.shape[0] < 2:
                     continue
-                t = _np.polynomial.chebyshev.chebroots(c)
+                # full chebtech machinery: recursive subdivision with
+                # per-leaf Bernstein-ellipse pruning for 'complex'
+                t = _np.asarray(piece.tech.roots(
+                    complex_roots=(complex_roots and not all_roots),
+                    all_roots=all_roots))
                 # map reference [-1,1] -> physical [a, b]
                 croots.append(0.5 * (b - a) * t + 0.5 * (a + b))
             if not croots:
