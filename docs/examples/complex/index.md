@@ -7,6 +7,7 @@ integration, winding number computation, and argument principle calculations.
 |---------|-------------|
 | [A keyhole contour integral (replica)](KeyholeContour.md) | Faithful replica: log(x)tanh(x) around the keyhole to 2.8e-15 (beats the published 1.3e-14). |
 | [Rouche's theorem (replica)](RoucheTheorem.md) | Faithful replica: winding-number illustrations; 3 roots inside as Rouche predicts. |
+| [Integrals over closed contours (replica)](ClosedContours.md) | Faithful replica: residues 5/3 pi i (1e-15) and essential-singularity 2 pi i. |
 | [Analytic continuation via rational approximation](analytic_continuation.md) | A function analytic on ... can in principle be continued to a larger region in the complex plane. The size of the Ber... |
 | [Integrals over closed contours using periodic chebfuns](closed_contours.md) | If a closed contour ... is parametrised by ... for ... with ..., then the integrand ... is periodic and the |
 | [Arc length in the complex plane](complex_arc_length.md) | If ... is a smooth curve in ... parametrised by ..., its arc length is |
