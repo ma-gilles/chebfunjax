@@ -1,40 +1,98 @@
-# Nearest Orthonormal Functions
+# Nearest orthonormal functions
 
 *Behnam Hashemi, December 2014*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/NearestOrthFun.html)
 
-## Polar decomposition for functions
+(Chebfun example approx/NearestOrthFun.m)
 
-Given a quasimatrix $A$ (a matrix-valued Chebfun), the nearest orthonormal
-quasimatrix $Q$ in the Frobenius norm is $Q = UV^T$, where $A = U\Sigma V^T$
-is the SVD. This is the functional analogue of the polar decomposition.
+## Introduction
+
+Suppose $A$ is a given matrix.  The problem of finding the orthonormal
+matrix $Q$ nearest to $A$ is well-known: if $A = USV^T$ is the singular
+value decomposition, then $Q = UV^T$ — the unitary factor of the polar
+decomposition — is the nearest matrix with orthonormal columns.
+
+Our goal is to generalize this to the continuous case: given a
+quasimatrix of functions, `qr` produces *an* orthonormalization, while
+$Q = UV^T$ from the quasimatrix SVD is the *nearest* one.
+
+First, the Vandermonde quasimatrix of monomials $1, x, \dots, x^5$:
 
 ```python
-import chebfunjax as cj
-import jax.numpy as jnp
 import numpy as np
+import chebfunjax as cj
+from chebfunjax.chebfun1d.linalg import (Quasimatrix, qr_quasimatrix,
+                                         svd_quasimatrix)
 
-funcs = [cj.chebfun(lambda x, k=k: x**k) for k in range(4)]
-
-# Compute inner product matrix G[i,j] = <f_i, f_j>
-n = len(funcs)
-G = np.array([[float((funcs[i]*funcs[j]).sum()) for j in range(n)] for i in range(n)])
-print("G =\n", G)
-
-# Gram-Schmidt to find orthonormal system
-U, _, Vt = np.linalg.svd(G)
-print("Q = UV^T =\n", U @ Vt)
+x = cj.chebfun(lambda t: t)
+cols = [x**0, x, x**2, x**3, x**4, x**5]
+A = Quasimatrix(cols=cols, domain=...)
+U, S, V = svd_quasimatrix(A)
+# Q = U V^T; Q2 from qr_quasimatrix(A)
 ```
 
-![Nearest Orthonormal Functions](../../images/approx/NearestOrthFun.png)
+![NearestOrthFun figure 1](../../images/approx/NearestOrthFun_repl_01.png)
 
-## Figures (chebfun.org parity)
+```
+Departure from orthogonality in the columns of A = 1.35
+Departure from orthogonality in the columns of Q = 2.3e-15
+Departure from orthogonality in the columns of Q2 = 1.3e-15
+The distance between A and Q2 = 1.92
+The distance between A and its closest orthonormal quasimatrix = 1.69
+```
 
-![NearestOrthFun figure 1](../../images/approx/NearestOrthFun_01.png)
+(Every displayed value matches the published output; the machine-eps
+departures differ only in noise.)  The Chebyshev-Vandermonde
+quasimatrix $T_0,\dots,T_5$ restricted to $[0,1]$:
 
-![NearestOrthFun figure 2](../../images/approx/NearestOrthFun_02.png)
+![NearestOrthFun figure 2](../../images/approx/NearestOrthFun_repl_02.png)
 
-![NearestOrthFun figure 3](../../images/approx/NearestOrthFun_03.png)
+```
+Departure from orthogonality in the columns of A = 1.00
+The distance between A and Q2 = 2.48
+The distance between A and its closest orthonormal quasimatrix = 1.62
+```
 
-![NearestOrthFun figure 4](../../images/approx/NearestOrthFun_04.png)
+A mixed smooth quasimatrix $[1, \cos x, \sin(x^2), x^3, x^4, x^5]$:
+
+![NearestOrthFun figure 3](../../images/approx/NearestOrthFun_repl_03.png)
+
+```
+Departure from orthogonality in the columns of A = 2.69
+The distance between A and Q2 = 2.43
+The distance between A and its closest orthonormal quasimatrix = 1.95
+```
+
+And three wilder gallery functions (stegosaurus, wiggly, blasius —
+remapped here to a common domain, which changes the numbers slightly
+from the published 194.38/13.63/13.23):
+
+![NearestOrthFun figure 4](../../images/approx/NearestOrthFun_repl_04.png)
+
+```
+Departure from orthogonality in the columns of A = 195.38
+The distance between A and Q2 = 13.48
+The distance between A and its closest orthonormal quasimatrix = 13.21
+```
+
+In every case the optimal orthonormalization is closer to $A$ than the
+QR orthonormalization, as theory requires.
+
+## References
+
+1. B. Hashemi, Nearest orthonormal functions (this example).
+
+2. L. N. Trefethen, _Approximation Theory and Approximation Practice_,
+   SIAM, 2013.
+
+3. G. H. Golub and C. F. Van Loan, _Matrix Computations_, 4th ed.,
+   Johns Hopkins, 2013.
+
+4. N. J. Higham, Computing the polar decomposition — with
+   applications, _SIAM J. Sci. Stat. Comput._, 7 (1986), 1160-1174.
+
+---
+
+*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
+example copyright The University of Oxford and The Chebfun Developers.*
