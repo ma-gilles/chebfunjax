@@ -10,6 +10,7 @@ theory of polynomial approximation in the Chebyshev basis.
 | [Chebyshev polynomials as plotted by Fornberg and Higham (replica)](ChebPolysHigham.md) | Faithful replica: the 3D waterfall plots of T_k and P_k. |
 | [Convergence for fractional smoothness (replica)](Convergence.md) | Faithful replica: n^-pi and n^-5.5 interpolation convergence rates. |
 | [Exact Chebyshev coefficients (replica)](ExactChebCoeffs.md) | Faithful replica: closed-form geometric coefficients of 1/(5+x) digit-for-digit. |
+| [Turbocharged Chebyshev coefficients (replica)](Turbo.md) | Faithful replica: turbo doubles the coefficients; 10th-derivative and complex-evaluation payoffs match published. |
 | [Chebyshev Polynomials as Plotted by Fornberg and Higham](cheb_polys_higham.md) | Original MATLAB: cheb/ChebPolysHigham Author: Nick Trefethen (December 2011) |
 | [The FFT in Chebfun](chebfun_fft.md) | One of the most fundamental operations in Chebfun is converting between function values at Chebyshev points and Cheby... |
 | [Chebyshev Polynomials $T_n$](chebyshev_polynomials.md) | The Chebyshev polynomials ... are fundamental to numerical analysis. Every smooth function can be expanded in a Cheby... |
