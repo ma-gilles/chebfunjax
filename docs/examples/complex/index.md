@@ -19,6 +19,7 @@ integration, winding number computation, and argument principle calculations.
 | [Ablowitz-Fokas double keyhole (replica)](KeyholeAblowitzFokas.md) | Faithful replica: both contours give sqrt(2)/2 to the last digit. |
 | [Rational harmonic zeros (replica)](RationalHarmonic.md) | Faithful replica: 10 lensing zeros (max 5n-5) and the 15-zero perturbed count exactly as published. |
 | [The phaseplot command (replica)](PhaseplotCommand.md) | Faithful replica: handle-based phase portraits including branch cuts and an essential singularity. |
+| [Hyperfunctions (replica)](Hyperfuns.md) | Faithful replica: delta and Heaviside as boundary values of analytic functions. |
 | [Analytic continuation via rational approximation](analytic_continuation.md) | A function analytic on ... can in principle be continued to a larger region in the complex plane. The size of the Ber... |
 | [Integrals over closed contours using periodic chebfuns](closed_contours.md) | If a closed contour ... is parametrised by ... for ... with ..., then the integrand ... is periodic and the |
 | [Arc length in the complex plane](complex_arc_length.md) | If ... is a smooth curve in ... parametrised by ..., its arc length is |
