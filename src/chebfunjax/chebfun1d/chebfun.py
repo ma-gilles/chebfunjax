@@ -4066,6 +4066,43 @@ class Chebfun(eqx.Module):
     # V10 — Convolution, flip
     # ------------------------------------------------------------------
 
+    def arc_length(self, a: "float | None" = None,
+                   b: "float | None" = None) -> float:
+        """Arc length of the curve defined by the chebfun.
+
+        For a real chebfun, the length of the graph
+        int sqrt(1 + f'(x)^2) dx; for a complex chebfun (a path in the
+        plane), int |f'(t)| dt.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/arcLength.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        fp = self.diff()
+        if a is None:
+            a = float(self.domain.a)
+        if b is None:
+            b = float(self.domain.b)
+        # integrate piecewise (avoids delta functions at jumps)
+        total = 0.0
+        for pc in fp.funs:
+            lo = max(float(pc.interval[0]), a)
+            hi = min(float(pc.interval[1]), b)
+            if hi <= lo:
+                continue
+
+            def integrand(t, _pc=pc):
+                v = _pc(t)
+                if self.isreal():
+                    return jnp.sqrt(1.0 + v**2)
+                return jnp.abs(v)
+
+            g = chebfun(integrand, domain=(lo, hi))
+            total += float(_np.real(_np.asarray(g.sum())))
+        return total
+
     def new_domain(self, new_dom) -> "Chebfun":
         """Linearly remap the chebfun onto a new domain.
 

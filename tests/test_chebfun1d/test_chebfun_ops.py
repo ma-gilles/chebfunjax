@@ -1492,3 +1492,21 @@ class TestPolyfitL1Robust:
         sup = np.max(np.abs(np.asarray(f(jnp.asarray(xs)))
                             - np.asarray(p(jnp.asarray(xs)))))
         assert sup < 3.0   # previously diverged to ~14
+
+
+class TestArcLength:
+    """@chebfun/arcLength.m: graph length (real) / path length (complex)."""
+
+    def test_unit_circle(self):
+        z = chebfun(lambda t: jnp.exp(2j * jnp.pi * t),
+                    domain=(0.0, 1.0), trig=True)
+        assert abs(z.arc_length() - 2 * np.pi) < 1e-12
+
+    def test_real_graph(self):
+        f = chebfun(lambda x: x, domain=(0.0, 1.0))
+        assert abs(f.arc_length() - np.sqrt(2)) < 1e-13
+
+    def test_subinterval(self):
+        z = chebfun(lambda t: jnp.exp(2j * jnp.pi * t),
+                    domain=(0.0, 1.0), trig=True)
+        assert abs(z.arc_length(0.0, 0.5) - np.pi) < 1e-12
