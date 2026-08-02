@@ -2309,21 +2309,32 @@ class Chebfun(eqx.Module):
         """Running minimum (MATLAB cummin)."""
         return self._cummax_or_min(False)
 
-    def join(self, other: "Chebfun") -> "Chebfun":
-        """Concatenate with a chebfun on an adjacent domain
-        (MATLAB join).
+    def join(self, other: "Chebfun", *rest: "Chebfun") -> "Chebfun":
+        """Concatenate chebfuns end to end (MATLAB join).
+
+        The domain of each subsequent chebfun is translated to begin
+        where the previous one ends; function values are unchanged.
 
         Provenance
         ----------
         MATLAB source : @chebfun/join.m
         Chebfun commit: 7574c77
         """
-        if abs(float(self.domain.b) - float(other.domain.a)) > 1e-14:
-            raise ValueError("join: domains must be adjacent")
-        bps = tuple([float(v) for v in self.domain.breakpoints]
-                    + [float(v) for v in other.domain.breakpoints][1:])
-        return Chebfun(funs=list(self.funs) + list(other.funs),
-                       domain=Domain(bps))
+        out = self
+        for g in (other, *rest):
+            shift = float(out.domain.b) - float(g.domain.a)
+            shifted = [
+                _Piece(tech=p.tech,
+                       interval=(p.interval[0] + shift,
+                                 p.interval[1] + shift))
+                for p in g.funs]
+            bps = tuple(
+                [float(v) for v in out.domain.breakpoints]
+                + [float(v) + shift
+                   for v in list(g.domain.breakpoints)[1:]])
+            out = Chebfun(funs=list(out.funs) + shifted,
+                          domain=Domain(bps))
+        return out
 
     def inv(self) -> "Chebfun":
         """Compositional inverse of a monotonic chebfun (MATLAB inv):
