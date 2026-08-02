@@ -5800,91 +5800,137 @@ class Chebfun(eqx.Module):
         >>> float(abs(p).sum()) > 0  # smoke test: returns a valid Chebfun
         True
         """
-        # uses-numpy: Watson-Newton iteration uses NumPy linear algebra
+        # uses-numpy/scipy: robust weighted-LP formulation of the
+        # continuous L1 problem.  The previous hand-rolled Watson-Newton
+        # loop silently diverged beyond small degrees (BestL1 deg-100:
+        # sup err 14 on a function of scale 2; Inpainting1D failed to
+        # recover).  min_c sum_i w_i |f(x_i) - (Vc)_i| on a dense
+        # Clenshaw-Curtis grid is the discretized L1 best approximation
+        # and is solved exactly by HiGHS.
         import numpy as _np
         from numpy.polynomial import chebyshev as _C
+        from scipy.optimize import linprog
 
         from chebfunjax.chebfun1d.chebfun import chebfun as _cf
+        from chebfunjax.utils.quadrature import chebpts, chebweights
+
         a = float(self.domain.a)
         b = float(self.domain.b)
         if len(self.funs) == 1 and self.funs[0].n <= n + 1:
             return self
 
-        # Work in the normalized variable s in [-1, 1].
-        def fs(s):
-            x = 0.5 * (b - a) * _np.asarray(s) + 0.5 * (a + b)
-            return _np.asarray(self(jnp.asarray(x)), dtype=float)
+        N = max(8 * (n + 1), 400)
+        s = _np.asarray(chebpts(N), dtype=_np.float64)
+        w = _np.asarray(chebweights(N), dtype=_np.float64)
+        x = 0.5 * (b - a) * s + 0.5 * (a + b)
+        F = _np.asarray(self(jnp.asarray(x)), dtype=_np.float64)
+        V = _np.cos(_np.outer(_np.arccos(_np.clip(s, -1.0, 1.0)),
+                              _np.arange(n + 1)))
+        A_ub = _np.vstack([_np.hstack([V, -_np.eye(N)]),
+                           _np.hstack([-V, -_np.eye(N)])])
+        b_ub = _np.concatenate([F, -F])
+        cvec = _np.concatenate([_np.zeros(n + 1), w])
+        res = linprog(cvec, A_ub=A_ub, b_ub=b_ub,
+                      bounds=[(None, None)] * (n + 1)
+                      + [(0, None)] * N, method="highs")
+        if not res.success:
+            raise RuntimeError(f"polyfitL1: LP failed ({res.message})")
+        coef = res.x[:n + 1]
 
-        def _int_T(k, lo, hi):
-            # exact integral of T_k on [lo, hi] (normalized variable)
-            if k == 0:
-                return hi - lo
-            if k == 1:
-                return 0.5 * (hi ** 2 - lo ** 2)
-            def A(t):
-                return 0.5 * (_C.chebval(t, _np.eye(k + 2)[k + 1])
-                              / (k + 1)
-                              - _C.chebval(t, _np.eye(k)[k - 1])
-                              / (k - 1))
-            return A(hi) - A(lo)
+        # Watson-Newton polish (continuous optimality): minimize
+        # Phi(c) = int |f - p_c| whose gradient is -G_k = -int sign(e) T_k
+        # and whose Hessian J_kj = sum_i (2/|e'(tau_i)|) T_k(tau_i)
+        # T_j(tau_i) over the sign crossings tau_i is symmetric PSD.
+        # Crossings are bisected to machine precision and G is computed
+        # exactly from antiderivatives, so the LP grid solution is
+        # polished to continuous optimality in a few Newton steps.
+        def _antider_coeffs(k):
+            ck = _np.zeros(k + 1)
+            ck[k] = 1.0
+            return _C.chebint(ck)
 
-        # start from the L2 projection (Chebyshev-Gauss quadrature fit)
-        ng = max(8 * (n + 1), 64)
-        sg = _np.cos(_np.pi * (_np.arange(ng) + 0.5) / ng)
-        c = _C.chebfit(sg, fs(sg), n)
+        _A = [_antider_coeffs(k) for k in range(n + 1)]
 
-        sfine = _np.linspace(-1.0, 1.0, 4001)
-        ffine = fs(sfine)
-        for _ in range(60):
-            e = ffine - _C.chebval(sfine, c)
-            # sign-change locations (bisection-refined from the grid)
-            sgn = _np.sign(e)
-            idx = _np.nonzero(_np.diff(sgn) != 0)[0]
+        sf = _np.linspace(-1.0, 1.0, max(4001, 40 * (n + 1)))
+        xf = 0.5 * (b - a) * sf + 0.5 * (a + b)
+        Ff = _np.asarray(self(jnp.asarray(xf)), dtype=_np.float64)
+
+        def _crossings(cc):
+            ef = Ff - _C.chebval(sf, cc)
+            sgn0 = _np.sign(ef[0]) if ef[0] != 0 else 1.0
+            idx = _np.nonzero(_np.diff(_np.sign(ef)) != 0)[0]
             roots = []
             for i in idx:
-                lo, hi = sfine[i], sfine[i + 1]
-                flo = e[i]
-                for _b in range(60):
+                lo, hi = sf[i], sf[i + 1]
+                flo = ef[i]
+                for _bi in range(60):
                     mid = 0.5 * (lo + hi)
-                    fm = (fs(_np.array([mid]))[0]
-                          - _C.chebval(mid, c))
-                    if flo * fm <= 0:
-                        hi = mid
-                    else:
+                    xm = 0.5 * (b - a) * mid + 0.5 * (a + b)
+                    fm = (float(self(jnp.asarray(xm)))
+                          - _C.chebval(mid, cc))
+                    if fm == 0.0 or hi - lo < 4e-16:
+                        break
+                    if _np.sign(fm) == _np.sign(flo):
                         lo, flo = mid, fm
+                    else:
+                        hi = mid
                 roots.append(0.5 * (lo + hi))
-            roots = _np.asarray(roots)
-            # optimality residual G_k = int T_k sign(e)
-            seg = _np.concatenate([[-1.0], roots, [1.0]])
-            mids = 0.5 * (seg[:-1] + seg[1:])
-            sig = _np.sign(fs(mids) - _C.chebval(mids, c))
-            G = _np.array([
-                sum(sig[j] * _int_T(k, seg[j], seg[j + 1])
-                    for j in range(len(sig)))
-                for k in range(n + 1)])
-            if _np.max(_np.abs(G)) < 1e-11:
+            return sgn0, _np.asarray(roots)
+
+        for _it in range(30):
+            sgn0, tau = _crossings(coef)
+            if len(tau) == 0:
                 break
-            # Watson Jacobian: J_kj = 2 sum_r T_k(r) T_j(r) / |e'(r)|
-            dedx = (_np.gradient(ffine, sfine)
-                    - _C.chebval(sfine, _C.chebder(c)))
-            eprime = _np.abs(_np.interp(roots, sfine, dedx))
-            eprime = _np.maximum(eprime, 1e-8)
-            Tk = _np.vstack([_C.chebval(roots, _np.eye(n + 1)[k])
-                             for k in range(n + 1)])
-            J = 2.0 * (Tk / eprime) @ Tk.T
-            J += 1e-14 * _np.eye(n + 1)
-            step = _np.linalg.solve(J, G)
-            # damped Newton for robustness far from the optimum
-            nrm = _np.max(_np.abs(step))
-            if nrm > 0.5:
-                step *= 0.5 / nrm
-            c = c + step
+            # G_k = int_{-1}^{1} sign(e) T_k: alternating sum of
+            # antiderivative increments over the crossing partition
+            nodes = _np.concatenate([[-1.0], tau, [1.0]])
+            segsign = sgn0 * (-1.0) ** _np.arange(len(nodes) - 1)
+            G = _np.zeros(n + 1)
+            for k in range(n + 1):
+                Avals = _C.chebval(nodes, _A[k])
+                G[k] = _np.sum(segsign * _np.diff(Avals))
+            if _np.max(_np.abs(G)) < 1e-12:
+                break
+            # e'(tau) by centered finite difference
+            h = 1e-7
+            taum = _np.clip(tau - h, -1.0, 1.0)
+            taup = _np.clip(tau + h, -1.0, 1.0)
+            xm_ = 0.5 * (b - a) * taum + 0.5 * (a + b)
+            xp_ = 0.5 * (b - a) * taup + 0.5 * (a + b)
+            em = (_np.asarray(self(jnp.asarray(xm_)), dtype=_np.float64)
+                  - _C.chebval(taum, coef))
+            ep = (_np.asarray(self(jnp.asarray(xp_)), dtype=_np.float64)
+                  - _C.chebval(taup, coef))
+            de = (ep - em) / (taup - taum)
+            de = _np.where(_np.abs(de) < 1e-300, 1e-300, de)
+            Tt = _np.cos(_np.outer(
+                _np.arccos(_np.clip(tau, -1.0, 1.0)),
+                _np.arange(n + 1)))
+            J = (Tt * (2.0 / _np.abs(de))[:, None]).T @ Tt
+            try:
+                dc = _np.linalg.solve(
+                    J + 1e-14 * _np.eye(n + 1) * _np.trace(J), G)
+            except _np.linalg.LinAlgError:
+                break
+            # damped step with objective check
+            phi0 = _np.trapezoid(_np.abs(Ff - _C.chebval(sf, coef)), sf)
+            step = 1.0
+            improved = False
+            for _d in range(20):
+                cnew = coef + step * dc
+                phi = _np.trapezoid(_np.abs(Ff - _C.chebval(sf, cnew)),
+                                    sf)
+                if phi <= phi0 + 1e-15:
+                    coef = cnew
+                    improved = True
+                    break
+                step /= 2
+            if not improved:
+                break
 
-
-        def p_eval(x):
-            s = (2.0 * jnp.asarray(x) - (a + b)) / (b - a)
-            return jnp.asarray(_C.chebval(_np.asarray(s),
-                                          _np.asarray(c)))
+        def p_eval(xx):
+            ss = (2.0 * (_np.asarray(xx) - a) / (b - a)) - 1.0
+            return jnp.asarray(_C.chebval(ss, coef))
 
         return _cf(p_eval, domain=(a, b))
 

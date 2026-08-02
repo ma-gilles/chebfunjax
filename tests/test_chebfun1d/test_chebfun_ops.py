@@ -1467,3 +1467,28 @@ class TestNoisySplitting:
         ends = [float(b) for b in f.domain.breakpoints]
         assert len(ends) == 3
         assert abs(ends[1] - 0.1) < 1e-7
+
+
+class TestPolyfitL1Robust:
+    """LP + Watson-Newton polyfitL1: recovers a corrupted smooth
+    function (the Inpainting1D property) and stays sane at high degree."""
+
+    def test_inpainting_recovery(self):
+        import jax as _jax
+
+        from chebfunjax.utils.randnfun import randnfun
+        x = chebfun(lambda t: t)
+        smooth = 0.3 + x**2 + (0.3 * x).exp()
+        noise = randnfun(0.1, key=_jax.random.PRNGKey(1))
+        corrupted = smooth.maximum(noise)
+        p1 = corrupted.polyfitL1(len(smooth) - 3)
+        assert float((p1 - smooth).norm(np.inf)) < 1e-7
+
+    def test_high_degree_wiggly_bounded(self):
+        f = chebfun(lambda t: jnp.sin(t)**2 + jnp.sin(t**2),
+                    domain=(0.0, 14.0))
+        p = f.polyfitL1(100)
+        xs = np.linspace(0, 14, 2001)
+        sup = np.max(np.abs(np.asarray(f(jnp.asarray(xs)))
+                            - np.asarray(p(jnp.asarray(xs)))))
+        assert sup < 3.0   # previously diverged to ~14
