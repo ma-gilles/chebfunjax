@@ -20,6 +20,7 @@ illustrate rootfinding in one dimension.
 | [Bivariate rootfinding for a fluid mechanics problem (replica)](Subramanian.md) | Faithful replica: 15-digit common zeros; finds a 7th genuine root the published run missed (verified vs MATLAB R2025b). |
 | [Marching squares for bivariate rootfinding (replica)](MarchingSquares.md) | Faithful replica: curve intersections, Trott curve, critical points. |
 | [The resultant method for bivariate rootfinding (replica)](ResultantMethod.md) | Faithful replica: Bezout resultant common zeros; our marching squares also finds the degenerate case MATLAB's misses. |
+| [The average degree reduction of subdivision, 1D (replica)](AverageDegreeReduction1D.md) | Faithful replica: tau parameter of recursive rootfinding; Elliott degree table digit-for-digit. |
 | [The mystery of Bernoulli polynomials](bernoulli_polynomials.md) | Bernoulli polynomials are a family of polynomials defined by the recurrence |
 | [Roots of a secular equation with poles](secular_roots.md) | A secular equation is a rational function of the form |
 | [Extrema and Roots](extrema_and_roots.md) | The extrema of a Chebfun ... are the roots of its derivative .... Chebfun computes both with spectral accuracy. |
