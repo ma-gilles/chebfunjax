@@ -7,6 +7,7 @@ theory of polynomial approximation in the Chebyshev basis.
 | Example | Description |
 |---------|-------------|
 | [Chebyshev coefficients (replica)](ChebyshevCoeffs.md) | Faithful replica: chebcoeffs of polynomials and exp(x) digit-for-digit, decay plots, and the truncated sign(x) series. |
+| [Explaining chebfun construction (replica)](ChebExplain.md) | Faithful replica: annotated coefficient plots of constructor decisions; eps=1e-8 construction digit-for-digit. |
 | [Chebyshev polynomials as plotted by Fornberg and Higham (replica)](ChebPolysHigham.md) | Faithful replica: the 3D waterfall plots of T_k and P_k. |
 | [Convergence for fractional smoothness (replica)](Convergence.md) | Faithful replica: n^-pi and n^-5.5 interpolation convergence rates. |
 | [Exact Chebyshev coefficients (replica)](ExactChebCoeffs.md) | Faithful replica: closed-form geometric coefficients of 1/(5+x) digit-for-digit. |
