@@ -7,6 +7,7 @@ theory of polynomial approximation in the Chebyshev basis.
 | Example | Description |
 |---------|-------------|
 | [Chebyshev coefficients (replica)](ChebyshevCoeffs.md) | Faithful replica: chebcoeffs of polynomials and exp(x) digit-for-digit, decay plots, and the truncated sign(x) series. |
+| [Chebyshev polynomials as plotted by Fornberg and Higham (replica)](ChebPolysHigham.md) | Faithful replica: the 3D waterfall plots of T_k and P_k. |
 | [Chebyshev Polynomials as Plotted by Fornberg and Higham](cheb_polys_higham.md) | Original MATLAB: cheb/ChebPolysHigham Author: Nick Trefethen (December 2011) |
 | [The FFT in Chebfun](chebfun_fft.md) | One of the most fundamental operations in Chebfun is converting between function values at Chebyshev points and Cheby... |
 | [Chebyshev Polynomials $T_n$](chebyshev_polynomials.md) | The Chebyshev polynomials ... are fundamental to numerical analysis. Every smooth function can be expanded in a Cheby... |
