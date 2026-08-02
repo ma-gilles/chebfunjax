@@ -257,21 +257,31 @@ def _cheb2leg_direct(c_cheb: jnp.ndarray, normalize: bool) -> jnp.ndarray:
     # Clenshaw-Curtis quadrature weights for 2N+1 points
     w = _cc_weights(2 * N + 1)
 
-    # Build Legendre Vandermonde matrix via 3-term recurrence
-    # L[i, j] = P_j(x_i)
-    m = 2 * N + 1
-    L = jnp.zeros((m, N + 1), dtype=jnp.float64)
-    L = L.at[:, 0].set(1.0)
-    L = L.at[:, 1].set(x)
-    for j in range(1, N):
-        # P_{j+1}(x) = ((2j+1)*x*P_j(x) - j*P_{j-1}(x)) / (j+1)
-        L = L.at[:, j + 1].set(
-            ((2 * j + 1) * x * L[:, j] - j * L[:, j - 1]) / (j + 1)
-        )
+    # Rolling three-term recurrence via lax.scan: the previous
+    # implementation built the full Legendre-Vandermonde with N JAX
+    # .at[].set copies (O(N^3) memory traffic -- minutes at N ~ 4000);
+    # the scan is O(N^2) flops, O(N) memory, and stays jit/grad
+    # traceable (seconds at N ~ 30000).
+    from jax import lax
 
-    # Legendre coefficients: c_leg[j] = (2j+1)/2 * sum(w * f * P_j)
-    scale = (2 * jnp.arange(N + 1, dtype=jnp.float64) + 1) / 2
-    c_leg = scale * (L.T @ (f * w))
+    wf = f * w
+    p0 = jnp.ones_like(x)
+    c0 = 0.5 * jnp.dot(wf, p0)
+    p1 = x
+    c1 = 1.5 * jnp.dot(wf, p1)
+
+    def _step(carry, j):
+        pjm1, pj = carry
+        pjp1 = ((2 * j + 1) * x * pj - j * pjm1) / (j + 1)
+        contrib = (2 * (j + 1) + 1) / 2.0 * jnp.dot(wf, pjp1)
+        return (pj, pjp1), contrib
+
+    if N >= 2:
+        _, rest = lax.scan(_step, (p0, p1),
+                           jnp.arange(1, N, dtype=jnp.float64))
+        c_leg = jnp.concatenate([jnp.stack([c0, c1]), rest])
+    else:
+        c_leg = jnp.stack([c0, c1])[: N + 1]
 
     if normalize:
         norms = jnp.sqrt(jnp.arange(N + 1, dtype=jnp.float64) + 0.5)
@@ -425,11 +435,32 @@ def _leg2cheb_direct(c_leg: jnp.ndarray) -> jnp.ndarray:
     k = jnp.arange(N + 1, dtype=jnp.float64)
     x = jnp.cos(jnp.pi * k / N) if N > 0 else jnp.array([1.0], dtype=jnp.float64)
 
-    # Legendre Vandermonde: L[i,j] = P_j(x_i) at descending points
-    L = _legendre_vandermonde(N, x)
+    # Rolling three-term recurrence via lax.scan (see cheb2leg):
+    # accumulate v(x) = sum_j c_j P_j(x) without materialising the
+    # Vandermonde; jit/grad traceable.
+    from jax import lax
 
-    # Values on Chebyshev grid (descending order)
-    v_desc = L @ c_leg
+    p0 = jnp.ones_like(x)
+    if N == 0:
+        v_desc = c_leg[0] * p0
+    else:
+        p1 = x
+        v_init = c_leg[0] * p0 + c_leg[1] * p1
+
+        def _step(carry, j):
+            pjm1, pj, v = carry
+            pjp1 = ((2 * j + 1) * x * pj - j * pjm1) / (j + 1)
+            jd = j.astype(jnp.int32)
+            v = v + c_leg[jd + 1] * pjp1
+            return (pj, pjp1, v), None
+
+        if N >= 2:
+            (_, _, v_desc), _ = lax.scan(
+                _step, (p0, p1, v_init.astype(
+                    jnp.result_type(c_leg, x))),
+                jnp.arange(1, N, dtype=jnp.float64))
+        else:
+            v_desc = v_init
 
     # Reverse to ascending order (x=-1 to x=1) for vals2coeffs
     v_asc = v_desc[::-1]
