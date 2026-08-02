@@ -13,8 +13,9 @@ illustrate rootfinding in one dimension.
 | [The tiger's tail (replica)](Tiger.md) | Faithful replica: f = round(f) stripes, 345 roots digit-for-digit. |
 | [The white curves of Ortiz and Rivlin (replica)](WhiteCurves.md) | Faithful replica: Chebyshev and Legendre white-curve pictures. |
 | [Does a chebfun of degree n have n roots? (replica)](FundamentalTheoremOfAlgebra.md) | Faithful replica: roots(f,'all') counts, Wilkinson-style stress test verified vs MATLAB R2025b. |
+| [Roots of random polynomials (replica)](RandomPolynomials.md) | Faithful replica: root clustering by basis — unit circle vs interval-plus-ring. |
+| [Random polynomials and their roots in [-1,1] (replica)](RandomPolys.md) | Faithful replica: fraction of real roots tends to 1/sqrt(3). |
 | [The mystery of Bernoulli polynomials](bernoulli_polynomials.md) | Bernoulli polynomials are a family of polynomials defined by the recurrence |
-| [Roots of random polynomials](random_polynomials.md) | If ... is a monic polynomial with independent standard-normal coefficients $a_0, \ldots, |
 | [Roots of a secular equation with poles](secular_roots.md) | A secular equation is a rational function of the form |
 | [Extrema and Roots](extrema_and_roots.md) | The extrema of a Chebfun ... are the roots of its derivative .... Chebfun computes both with spectral accuracy. |
 | [Polynomial Roots](polynomial_roots.md) | Chebfun finds roots by converting the Chebyshev expansion to a companion matrix and computing its eigenvalues. This i... |
