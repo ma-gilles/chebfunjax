@@ -84,11 +84,15 @@ class TestCalc:
 # ---------------------------------------------------------------------------
 
 class TestRoots:
-    def test_bessel_roots(self):
-        assert _load("roots", "bessel_roots").run()
+    # bessel_roots / newton_raphson / random_polynomials were replaced
+    # by the faithful *_replica.py scripts (2026-08); their run()
+    # prints the MATLAB-parity outputs and returns None, so these
+    # tests assert completion rather than a return value.
+    def test_bessel_roots_replica(self):
+        _load("roots", "bessel_roots_replica").run()
 
-    def test_newton_raphson(self):
-        assert _load("roots", "newton_raphson").run()
+    def test_newton_raphson_replica(self):
+        _load("roots", "newton_raphson_replica").run()
 
     def test_polynomial_roots(self):
         assert _load("roots", "polynomial_roots").run()
@@ -96,8 +100,8 @@ class TestRoots:
     def test_extrema_and_roots(self):
         assert _load("roots", "extrema_and_roots").run()
 
-    def test_random_polynomials(self):
-        assert _load("roots", "random_polynomials").run()
+    def test_white_curves_replica(self):
+        _load("roots", "white_curves_replica").run()
 
 
 # ---------------------------------------------------------------------------
