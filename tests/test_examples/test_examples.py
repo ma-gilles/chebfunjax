@@ -205,14 +205,17 @@ class TestApprox2:
 # ---------------------------------------------------------------------------
 
 class TestOpt:
-    def test_minimum_of_smooth_function(self):
-        assert _load("opt", "minimum_of_smooth_function").run()
+    # 2026-08: inspired-by scripts replaced by faithful *_replica.py
+    # (replicas print parity outputs and return None; completion is
+    # the assertion).
+    def test_mercury_earth_replica(self):
+        _load("opt", "mercury_earth_replica").run()
 
-    def test_catenary(self):
-        assert _load("opt", "catenary").run()
+    def test_catenary_replica(self):
+        _load("opt", "catenary_replica").run()
 
-    def test_global_minimum_2d(self):
-        assert _load("opt", "global_minimum_2d").run()
+    def test_global_minimum_replica(self):
+        _load("opt", "global_minimum_replica").run()
 
 
 # ---------------------------------------------------------------------------
