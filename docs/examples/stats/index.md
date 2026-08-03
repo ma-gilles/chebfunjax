@@ -14,6 +14,7 @@ and statistical computations.
 | [Smoothies: nowhere-analytic functions (replica)](Smoothies.md) | Faithful replica: root-exponential coefficient decay; smoothie non-trig branch fixed. |
 | [How many local maxima? (replica)](RandomMaxima.md) | Faithful replica: maxima counts grow linearly with interval length. |
 | [Histograms (replica)](Histogram.md) | Faithful replica: bin integrals via cumsum; delta-train point histograms. |
+| [Resampling random variables (replica)](ResamplingRandomVariables.md) | Faithful replica: inverse-cdf sampling for von Mises and logit-normal. |
 | [Bayesian Gradebook](bayesian_gradebook.md) | Original: stats/BayesianGradebook Author(s): Nick Trefethen, September 2014 |
 | [Beta Distribution Exercise](beta_exercise.md) | Original: stats/BetaExercise Author(s): Nick Trefethen, September 2014 |
 | [Bivariate Normal Distribution](bivariate_normal.md) | Original: stats/BivariateNormalDistribution Author(s): Nick Trefethen, September 2014 |
@@ -26,4 +27,3 @@ and statistical computations.
 | [Probability Distributions](probability_distributions.md) | Original: stats/ProbabilityConvolution Author(s): Nick Trefethen, 2012 |
 | [Random Polynomials](random_polynomials.md) | The distribution of roots of random polynomials is a beautiful subject connecting probability theory, complex analysi... |
 | [Random Surfaces](random_surf.md) | Original: stats/RandomSurf Author(s): Nick Trefethen, September 2014 |
-| [Resampling Random Variables](resampling_random_variables.md) | Original: stats/ResamplingRandomVariables Author(s): Nick Trefethen, July 2012 |
