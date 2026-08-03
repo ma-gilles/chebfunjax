@@ -313,8 +313,11 @@ def randnfundisk(
     # Resolution: m = max wave number ≈ n / lam
     m = max(2, int(round(n / lam)))
 
-    n_r = max(4, 2 * m + 1)
-    n_theta = max(4, 4 * m)
+    # Oversample the output grid relative to the band limit so the
+    # returned samples resolve the smooth field (2 samples/mode was
+    # angularly under-resolved, rendering as pixel noise).
+    n_r = max(8, 4 * m + 1)
+    n_theta = max(16, 8 * m)
     n_theta = n_theta + (n_theta % 2)  # make even
 
     # Generate random 2D Fourier coefficients
@@ -342,13 +345,19 @@ def randnfundisk(
     xx = rr * np.cos(tt)
     yy = rr * np.sin(tt)
 
-    # Evaluate 2D Fourier series on the disk
-    F = np.zeros((n_r, n_theta), dtype=np.float64)
-    for ki, k in enumerate(kk):
-        for li, l_val in enumerate(kk):
-            phase = (c[ki, li] * np.cos((k * xx + l_val * yy) * 2 * np.pi / L)
-                     - cs[ki, li] * np.sin((k * xx + l_val * yy) * 2 * np.pi / L))
-            F += decay * phase
+    # Evaluate the 2D Fourier series on the disk, vectorized:
+    #   c*cos(A) - cs*sin(A) = Re[(c + i*cs) * e^{iA}],
+    #   e^{iA} = e^{2*pi*i*k*x/L} * e^{2*pi*i*l*y/L},
+    # so F[p] = Re( U[p,:] @ W @ V[p,:].T ) with mode matrices U, V.
+    # (The previous per-mode Python loop was O((2m+1)^2) full-grid
+    # trig evaluations — minutes at lam = 0.1.)
+    W = c + 1j * cs
+    xf = xx.ravel()
+    yf = yy.ravel()
+    U = np.exp(2j * np.pi * np.outer(xf, kk) / L)
+    V = np.exp(2j * np.pi * np.outer(yf, kk) / L)
+    Fflat = np.real(np.einsum('pk,pk->p', U @ W, V))
+    F = decay * Fflat.reshape(n_r, n_theta)
 
     return jnp.array(F, dtype=jnp.float64)
 
