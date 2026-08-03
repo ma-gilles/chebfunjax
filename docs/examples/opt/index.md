@@ -13,3 +13,4 @@ on the derivative — no gradient descent needed.
 | [Constrained extrema via composition (replica)](ConstrainedExtrema.md) | Faithful replica: constrained optima digit-for-digit, no Lagrange multipliers. |
 | [Closest approach of Mercury and Earth (replica)](MercuryEarth.md) | Faithful replica: global minimum of the distance chebfun. |
 | [Rosenbrock revisited with chebfun2 (replica)](Rosenbrock2.md) | Faithful replica: one-call min2 + gradient critical points. |
+| [Constrained optimization (replica)](ConstrainedOptimization.md) | Faithful replica: indicator constraints + heart-region maximum to 15 digits. |
