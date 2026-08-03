@@ -263,6 +263,12 @@ class _Piece(eqx.Module):
                     out.append(v * 2.0 ** other)
             return (out[0], out[1])
         vals = self.values
+        # A complex-dtype piece with identically-zero imaginary part
+        # (e.g. one straight horizontal scribble stroke) is displayed as
+        # real by MATLAB; take the real part so float() accepts the dtype.
+        v0, v1 = complex(vals[0]), complex(vals[-1])
+        if v0.imag == 0 and v1.imag == 0:
+            return (v0.real, v1.real)
         return (float(vals[0]), float(vals[-1]))
 
     def with_tech(self, tech) -> _Piece:
