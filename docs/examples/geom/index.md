@@ -5,7 +5,7 @@ areas, perimeters, and more — all computed to near machine precision.
 
 | Example | Description |
 |---------|-------------|
-| [Area and Centroid](area_centroid.md) | Original: geom/Area Author(s): Alex Townsend, October 2011 |
+| [Areas and centroids (replica)](Area.md) | Faithful replica: Green's-theorem areas and centroids digit-for-digit. |
 | [Constant Width Curves](constant_width.md) | Original: geom/ConstantWidth Author(s): Hrothgar, March 2014 |
 | [Distance between Curves](curves_distance.md) | Original: geom/Curves Author(s): Alex Townsend, August 2011 |
 | [Dual Curves](dual_curves.md) | Original: geom/DualCurves Author(s): Alex Townsend, August 2011 |
