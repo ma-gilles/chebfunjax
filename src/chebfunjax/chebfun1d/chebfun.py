@@ -1724,6 +1724,11 @@ class Chebfun(eqx.Module):
                     for p in self.funs]
         has_exps = any(e != (0.0, 0.0) for e in all_exps)
         extra_item = "  endpoint exponents" if has_exps else " "
+        # MATLAB's disp appends a 'trig' marker for periodic reps.
+        from chebfunjax.tech.trigtech import Trigtech as _Trig
+        if any(isinstance(p.tech, _Trig) for p in self.funs):
+            extra_item = (extra_item.rstrip() + " trig"
+                          if extra_item.strip() else "trig")
         s += ("\n       interval       length     endpoint values"
               f" {extra_item}\n")
 
