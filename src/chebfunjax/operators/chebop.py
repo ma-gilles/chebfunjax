@@ -75,6 +75,98 @@ def _eval_chebfun_at(u, x0: float) -> float:
     return float(arr)
 
 
+class _TrigX:
+    """Array wrapper exposing chebfun-style elementwise methods.
+
+    The periodic discretizations sample the independent variable as a
+    plain array; ops written chebfun-style (``x.cos().sin()``) need the
+    method chain to keep working, while mixed arithmetic with the
+    solver's linear-operator proxies must hand over the raw array (via
+    the proxy's reflected operation).
+    """
+
+    def __init__(self, v):
+        self.v = jnp.asarray(v)
+
+    def _w(self, v):
+        return _TrigX(v)
+
+    def sin(self):
+        return self._w(jnp.sin(self.v))
+
+    def cos(self):
+        return self._w(jnp.cos(self.v))
+
+    def tan(self):
+        return self._w(jnp.tan(self.v))
+
+    def exp(self):
+        return self._w(jnp.exp(self.v))
+
+    def log(self):
+        return self._w(jnp.log(self.v))
+
+    def sqrt(self):
+        return self._w(jnp.sqrt(self.v))
+
+    def sinh(self):
+        return self._w(jnp.sinh(self.v))
+
+    def cosh(self):
+        return self._w(jnp.cosh(self.v))
+
+    def tanh(self):
+        return self._w(jnp.tanh(self.v))
+
+    def abs(self):
+        return self._w(jnp.abs(self.v))
+
+    def __abs__(self):
+        return self.abs()
+
+    def __neg__(self):
+        return self._w(-self.v)
+
+    def __pow__(self, p):
+        return self._w(self.v ** p)
+
+    @staticmethod
+    def _plain(o):
+        return isinstance(o, (int, float, complex)) or hasattr(o, "dtype")
+
+    def _bin(self, o, fwd, refl_name):
+        if isinstance(o, _TrigX):
+            return self._w(fwd(self.v, o.v))
+        if self._plain(o):
+            return self._w(fwd(self.v, o))
+        # Proxy operand: hand the raw array to its reflected op.
+        return getattr(o, refl_name)(self.v)
+
+    def __add__(self, o):
+        return self._bin(o, lambda a, b: a + b, "__radd__")
+
+    def __radd__(self, o):
+        return self._bin(o, lambda a, b: b + a, "__add__")
+
+    def __sub__(self, o):
+        return self._bin(o, lambda a, b: a - b, "__rsub__")
+
+    def __rsub__(self, o):
+        return self._bin(o, lambda a, b: b - a, "__sub__")
+
+    def __mul__(self, o):
+        return self._bin(o, lambda a, b: a * b, "__rmul__")
+
+    def __rmul__(self, o):
+        return self._bin(o, lambda a, b: b * a, "__mul__")
+
+    def __truediv__(self, o):
+        return self._bin(o, lambda a, b: a / b, "__rtruediv__")
+
+    def __rtruediv__(self, o):
+        return self._bin(o, lambda a, b: b / a, "__truediv__")
+
+
 class SystemSolution(list):
     """Solution container for systems: indexable list of chebfuns
     with MATLAB-ish u{1} semantics via u[0] / u.blocks.
@@ -311,7 +403,18 @@ class Chebop:
         tol: float = 1e-10,
         max_iter: int = 15,
         newton_tol: float = 5e-13,
+        discretization: str | None = None,
     ):
+        if (discretization is not None
+                and str(discretization).lower() in ("chebcolloc2", "colloc2")
+                and getattr(self, "_periodic", False)):
+            # MATLAB: pref.discretization = @chebcolloc2 on a periodic
+            # problem solves by Chebyshev collocation with wrap-around
+            # rows u^(d)(a) = u^(d)(b), d < order, instead of a Fourier
+            # discretization (FourierCollocation example).
+            out = self._solve_periodic_colloc(f, n=n, n_min=n_min,
+                                              n_max=n_max, tol=tol)
+            return self._simplify_solution(out)
         out = self._solve_impl(f, n=n, n_min=n_min, n_max=n_max, tol=tol,
                                max_iter=max_iter, newton_tol=newton_tol)
         # MATLAB's linsolve/solvebvp returns SIMPLIFIED chebfuns; an
@@ -2621,7 +2724,7 @@ class Chebop:
         Lp = float(b - a)
         N = 64 if n is None else int(n)
         x = a + Lp * _np.arange(N) / N
-        proxy = _FourierProxy(N, Lp, _np.eye(N))
+        proxy = _FourierProxy(N, Lp, _np.eye(N), grid=x)
         out = self._apply_op(jnp.asarray(x), proxy)
         if not isinstance(out, _FourierProxy):
             raise TypeError(
@@ -2804,7 +2907,7 @@ class Chebop:
         u_vals = None
         while True:
             x = a + L * _np.arange(N) / N          # equispaced, periodic
-            proxy = _FourierProxy(N, L, _np.eye(N))
+            proxy = _FourierProxy(N, L, _np.eye(N), grid=x)
             out = self._apply_op(jnp.asarray(x), proxy)
             if not isinstance(out, _FourierProxy):
                 raise TypeError(
@@ -2846,7 +2949,11 @@ class Chebop:
         a, b = self.domain
         x = jnp.asarray(0.5 * (a + b))
         nargs = len(inspect.signature(self.op).parameters)
-        _ = self.op(x, sniff) if nargs == 2 else self.op(sniff)
+        try:
+            _ = self.op(x, sniff) if nargs == 2 else self.op(sniff)
+        except AttributeError:
+            # chebfun-style op (x.cos() ...): retry with the wrapper.
+            _ = self.op(_TrigX(x), sniff)
         return sniff.order
 
     def _bc_values(self, bc_raw, k: int):
@@ -2895,6 +3002,40 @@ class Chebop:
             raise ValueError("boundary conditions are not affine")
         return list(_np.linalg.solve(B, -r0))
 
+    def _solve_periodic_colloc(self, f=0.0, n=None, n_min: int = 8,
+                               n_max: int = 4096, tol: float = 1e-10):
+        """Periodic BVP by Chebyshev collocation with wrap-around rows.
+
+        Provenance
+        ----------
+        MATLAB source : @chebcolloc2 discretization of a periodic linop
+            (continuity rows via @linop/continuity.m)
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.operators.blocks import FunctionalBlock
+        from chebfunjax.operators.linop import Linop
+        from chebfunjax.utils.diffmat import diffmat as _diffmat
+
+        k = self._op_order()
+        op_block = self._linearize_op()
+        dom = tuple(float(v) for v in self.domain)
+
+        def _wrap_row(order_d):
+            def _fn(disc):
+                nloc = disc.n
+                if order_d == 0:
+                    row = jnp.zeros(nloc, dtype=jnp.float64)
+                    return row.at[0].set(1.0).at[nloc - 1].set(-1.0)
+                D = _diffmat(nloc, order_d, domain=disc.domain)
+                return D[0, :] - D[nloc - 1, :]
+            return FunctionalBlock(_fn, domain=dom)
+
+        wraps = [_wrap_row(d) for d in range(k)]
+        linop = Linop(op_block, bcs=wraps, domain=dom,
+                      bc_values=[0.0] * k)
+        rhs = _make_rhs_callable(f)
+        return linop.solve(rhs, n=n, n_min=n_min, n_max=n_max, tol=tol)
+
     def solve_ivp(self, f=0.0, rtol: float = 1e-11, atol: float = 1e-12):
         """Solve an initial-value problem by time marching (task #24).
 
@@ -2940,7 +3081,16 @@ class Chebop:
 
         def _op_at(x, y, s):
             tower = [jnp.asarray(v) for v in list(y) + [s]]
-            return float(_np.asarray(L(jnp.asarray(x), _IVPProxy(tower))))
+            try:
+                return float(_np.asarray(
+                    L(jnp.asarray(x), _IVPProxy(tower))))
+            except AttributeError:
+                # chebfun-style op (x.cos() ...): wrap the scalar x so
+                # the method chain works (see _TrigX / _apply_op).
+                r = L(_TrigX(jnp.asarray(x)), _IVPProxy(tower))
+                if isinstance(r, _TrigX):
+                    r = r.v
+                return float(_np.asarray(r))
 
         # Verify the operator is affine in the highest derivative before
         # trusting the extraction (Fable 5 audit: e.g. (u'')^2 would
@@ -3002,7 +3152,14 @@ class Chebop:
         return self._apply_op(x_fun, u)
 
     def _apply_op(self, x_fun, u_fun):
-        """Evaluate self.op(x_fun, u_fun) or self.op(u_fun)."""
+        """Evaluate self.op(x_fun, u_fun) or self.op(u_fun).
+
+        The periodic discretizations pass ``x_fun`` as a raw value array,
+        so an op written chebfun-style (``x.cos()``, as MATLAB's
+        ``cos(x)`` allows on either type) raises AttributeError; retry
+        with a thin wrapper that supports the chebfun-style elementwise
+        methods while degrading to plain arrays in mixed arithmetic.
+        """
         import inspect
         try:
             n = len(inspect.signature(self.op).parameters)
@@ -3011,8 +3168,18 @@ class Chebop:
 
         if n == 1:
             return self.op(u_fun)
-        else:
+        try:
             return self.op(x_fun, u_fun)
+        except AttributeError:
+            if hasattr(x_fun, "dtype"):
+                out = self.op(_TrigX(x_fun), u_fun)
+                if isinstance(out, _TrigX):
+                    out = out.v
+                elif isinstance(out, (list, tuple)):
+                    out = type(out)(o.v if isinstance(o, _TrigX) else o
+                                    for o in out)
+                return out
+            raise
 
     # ------------------------------------------------------------------
     # Linear solve
@@ -4106,13 +4273,14 @@ class _FourierProxy:
     that evaluating ``op(x_grid, proxy)`` assembles the operator matrix.
     """
 
-    def __init__(self, n: int, length: float, mat):
+    def __init__(self, n: int, length: float, mat, grid=None):
         self.n = n
         self.length = length
         self.mat = mat
+        self.grid = grid
 
     def _wrap(self, mat):
-        return _FourierProxy(self.n, self.length, mat)
+        return _FourierProxy(self.n, self.length, mat, grid=self.grid)
 
     def diff(self, order: int = 1):
         import numpy as _np
@@ -4134,7 +4302,16 @@ class _FourierProxy:
 
     def _scale(self, other):
         import numpy as _np
-        arr = _np.asarray(other, dtype=float)
+        try:
+            arr = _np.asarray(other, dtype=float)
+        except (TypeError, ValueError):
+            # Variable coefficient given as a chebfun (MATLAB
+            # ``a1.*diff(u)``): sample it on the collocation grid.
+            if callable(other) and self.grid is not None:
+                arr = _np.asarray(other(jnp.asarray(self.grid)),
+                                  dtype=float)
+            else:
+                raise
         if arr.ndim == 0:
             return self._wrap(float(arr) * self.mat)
         return self._wrap(arr[:, None] * self.mat)   # diag(coeff) @ mat

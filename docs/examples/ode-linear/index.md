@@ -18,7 +18,7 @@ via spectral collocation. These examples cover the classical linear ODEs.
 | [Delta functions and ODEs](delta_odes.md) | Explores delta-function forcing for ODEs. The solution to |
 | [Classification of linear dynamical systems](dynamical_systems.md) | Classifies 2D linear dynamical systems ... by the nature of their equilibrium at the origin: stable/unstable node, |
 | [Floquet theory of periodic linear systems](floquet.md) | Studies the Mathieu equation ..., a classic example in Floquet theory. For certain parameters ... the solutions |
-| [Fourier spectral collocation](fourier_collocation.md) | Solves the periodic ODE ... on ... using Fourier spectral collocation, enabled by setting ... in the Chebop. |
+| [Fourier collocation for periodic ODEs (replica)](FourierCollocation.md) | Faithful replica: trig vs chebcolloc2-wrap solves, Hill discriminant to 9 digits. |
 | [Frozen coefficients do not determine stability (replica)](FrozenCoeffs.md) | Faithful replica: rotating 2x2 system, stable frozen eigenvalues yet growing spiral. |
 | [Jump conditions in BVPs](jump_conditions.md) | Solves a BVP with a jump discontinuity in the coefficient: |
 | [Jump conditions and Green functions](jump_green.md) | Constructs the Green's function for ... on ... with Dirichlet conditions. The exact Green's function is: |
