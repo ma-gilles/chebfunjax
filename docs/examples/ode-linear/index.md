@@ -14,7 +14,7 @@ via spectral collocation. These examples cover the classical linear ODEs.
 | [Boundary layer for advection-diffusion equation (replica)](BoundaryLayer.md) | Faithful replica: O(eps) layer, widths to 12-13 digits vs MATLAB. |
 | [Inserting breakpoints to resolve layers](breakpoints.md) | Demonstrates how Chebfun uses breakpoints to accurately represent rapidly-varying solutions to advection-diffusion pr... |
 | [Exponentials of linear operators via contour integration](contour_expm.md) | Computes the heat equation solution ... where ... is the Laplacian with Dirichlet boundary conditions. The operator e... |
-| [Dawson's integral](dawson_integral.md) | Dawson's integral ... satisfies the ODE |
+| [Dawson's integral (replica)](DawsonIntegral.md) | Faithful replica: interior-point BC chebop, analytic cumsum construction (87+87 display parity), Weideman cef. |
 | [Delta functions and ODEs](delta_odes.md) | Explores delta-function forcing for ODEs. The solution to |
 | [Classification of linear dynamical systems](dynamical_systems.md) | Classifies 2D linear dynamical systems ... by the nature of their equilibrium at the origin: stable/unstable node, |
 | [Floquet theory of periodic linear systems](floquet.md) | Studies the Mathieu equation ..., a classic example in Floquet theory. For certain parameters ... the solutions |
