@@ -205,10 +205,60 @@ def smoothie(
     if trig:
         return jnp.array(c_sym, dtype=jnp.complex128)
 
-    # Non-periodic: evaluate on a slightly longer interval and restrict
-    # We return the Fourier coefficients of the periodic extension
-    # (caller can evaluate on the desired domain)
-    return jnp.array(np.real(c_sym), dtype=jnp.float64)
+    # Non-periodic (MATLAB smoothie.m): build the periodic smoothie on
+    # a 20%-longer interval, evaluate at 2nd-kind Chebyshev points of
+    # the target domain, and convert to Chebyshev coefficients.  The
+    # previous code returned the raw Fourier coefficients here while
+    # the docstring promised Chebyshev coefficients.
+    L2 = 1.2 * L
+    m2 = int(round(np.ceil(2000 * L2))) + 1
+    if key is not None:
+        cr = np.array(jax.random.normal(
+            key, shape=(m2, n if n > 1 else 1)), dtype=np.float64)
+        ci = np.array(jax.random.normal(
+            jax.random.fold_in(key, 1),
+            shape=(m2, n if n > 1 else 1)), dtype=np.float64)
+    else:
+        rng = np.random.default_rng()
+        cr = rng.standard_normal((m2, n if n > 1 else 1))
+        ci = rng.standard_normal((m2, n if n > 1 else 1))
+    c2 = cr + 1j * ci
+    c2[0, :] = np.sqrt(2) * np.real(c2[0, :])
+    decay2 = np.exp(-np.sqrt(np.arange(1, m2 + 1) / L2))
+    c2 = (decay2[:, None] * c2) / np.sqrt(L2)
+    # evaluate the real periodic series sum Re(c_k e^{2 pi i k t/L2})
+    npts = int(round(2.5 * m2)) + 20
+    tk = np.cos(np.pi * np.arange(npts - 1, -1, -1) / (npts - 1))
+    xk = a + (b - a) * (tk + 1) / 2
+    theta = 2 * np.pi * (xk - a) / L2
+    ks = np.arange(1, m2)
+    E = np.exp(1j * np.outer(theta, ks))
+    # real series: f = c_0 + 2 sum_{k>=1} Re(c_k e^{ik theta})
+    vals = (np.real(c2[0, :])[None, :]
+            + 2 * np.real(E @ c2[1:, :]))
+    # values -> Chebyshev coefficients (DCT-I)
+    def _v2c(v):
+        nn = len(v)
+        tmp = np.concatenate([v[nn - 1:0:-1], v[:nn - 1]])
+        cc = np.real(np.fft.ifft(tmp))[:nn]
+        cc[1:nn - 1] *= 2.0
+        return cc
+    cols = []
+    for j in range(vals.shape[1]):
+        cc = _v2c(vals[:, j])
+        acc = np.abs(cc)
+        mx = acc.max() if acc.size else 0.0
+        if mx > 0:
+            nz = np.where(acc > 1e-15 * mx)[0]
+            cc = cc[:nz[-1] + 1] if nz.size else cc[:1]
+        cols.append(cc)
+    if n == 1:
+        return jnp.array(cols[0], dtype=jnp.float64)
+    mlen = max(len(cv) for cv in cols)
+    out = np.zeros((mlen, n))
+    for j, cv in enumerate(cols):
+        out[:len(cv), j] = cv
+    return jnp.array(out, dtype=jnp.float64)
 
 
 # ===========================================================================
