@@ -8,5 +8,6 @@ on the derivative — no gradient descent needed.
 | [Six-hump camel function (replica)](DixonSzego.md) | Faithful replica: global minimum to 15 digits via chebfun2 min2. |
 | [Optimization of the Rosenbrock function (replica)](Rosenbrock.md) | Faithful replica: nested 1D minimization; minima digit-for-digit. |
 | [SIAM 100-digit challenge minimum (replica)](GlobalMinimum.md) | Faithful replica: rank 4, minimum to 4.4e-15 (beats published 4.5e-13). |
+| [Optimization over an integral (replica)](OptimInt.md) | Faithful replica: parametrized-integral chebfun; roots to 13 digits, max digit-for-digit. |
 | [The Catenary](catenary.md) | A hanging chain or cable under gravity takes the shape of a catenary: |
 | [Constrained Extrema](constrained_extrema.md) | Finding the maximum or minimum of a function subject to equality constraints can be approached via Lagrange multiplie... |
