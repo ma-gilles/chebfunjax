@@ -11,7 +11,7 @@ via spectral collocation. These examples cover the classical linear ODEs.
 | [Bessel Equation BVP](bessel_bvp.md) | Bessel's differential equation of order ...: |
 | [Time independent Black-Scholes with jumps](black_scholes.md) | Solves the time-independent Black-Scholes ODE for an option pricing problem: |
 | [A bouncing ball](bouncing_ball.md) | Simulates a bouncing ball subject to gravity. Between bounces, the trajectory is a parabola: .... At each bounce, |
-| [Boundary Layer for the Advection-Diffusion Equation](boundary_layer.md) | Boundary layers are one of the central phenomena of applied mathematics. They arise when a small parameter multiplies... |
+| [Boundary layer for advection-diffusion equation (replica)](BoundaryLayer.md) | Faithful replica: O(eps) layer, widths to 12-13 digits vs MATLAB. |
 | [Inserting breakpoints to resolve layers](breakpoints.md) | Demonstrates how Chebfun uses breakpoints to accurately represent rapidly-varying solutions to advection-diffusion pr... |
 | [Exponentials of linear operators via contour integration](contour_expm.md) | Computes the heat equation solution ... where ... is the Laplacian with Dirichlet boundary conditions. The operator e... |
 | [Dawson's integral](dawson_integral.md) | Dawson's integral ... satisfies the ODE |

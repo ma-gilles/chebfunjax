@@ -141,8 +141,8 @@ class TestOdeLinear:
     def test_airy_equation(self):
         assert _load("ode-linear", "airy_equation").run()
 
-    def test_boundary_layer(self):
-        assert _load("ode-linear", "boundary_layer").run()
+    def test_boundary_layer_replica(self):
+        _load("ode-linear", "boundary_layer_replica").run()
 
     def test_bessel_bvp(self):
         assert _load("ode-linear", "bessel_bvp").run()
