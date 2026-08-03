@@ -391,6 +391,37 @@ class Chebop:
         if len(self.domain) > 2 and not getattr(self, "_periodic", False):
             return self._solve_piecewise(f, n=n, max_iter=max_iter)
 
+        # A discontinuous coefficient (e.g. ``(x>=0)*diff(u)``) injects
+        # breakpoints the single-interval spectral path cannot resolve —
+        # it grinds to n_max unhappy and loses digits.  Probe the op once
+        # on a smooth chebfun; interior breakpoints in the output route
+        # the problem to the piecewise solver (which re-detects and
+        # unions them into its grid).  MATLAB does the equivalent while
+        # building the piecewise chebmatrix.
+        if (not getattr(self, "_periodic", False)
+                and self._n_vars() == 1 and self._bc_general is None):
+            try:
+                import inspect as _inspect
+
+                from chebfunjax.chebfun1d.chebfun import Chebfun as _Cf
+                _dom = Domain(tuple(float(v) for v in self.domain))
+                _nargs = len(_inspect.signature(self.op).parameters)
+                _probe = _Cf.identity(_dom)
+                _out = (self.op(_probe, _probe) if _nargs > 1
+                        else self.op(_probe))
+                if not isinstance(_out, (list, tuple)):
+                    _out = [_out]
+                _bps = [float(v) for v in self.domain]
+                _has_break = any(
+                    hasattr(o, "domain")
+                    and any(all(abs(float(b) - e) > 1e-12 for e in _bps)
+                            for b in o.domain.breakpoints)
+                    for o in _out)
+                if _has_break:
+                    return self._solve_piecewise(f, n=n, max_iter=max_iter)
+            except Exception:
+                pass
+
         # Interior jump / one-sided conditions in a general .bc make the
         # solution discontinuous at the referenced points: detect those
         # breakpoints and solve piecewise, imposing the .bc conditions in
@@ -1721,8 +1752,14 @@ class Chebop:
             if bc_raw is None:
                 return [], []
             if isinstance(bc_raw, (int, float)):
-                raise ValueError(
-                    "system BCs must be callables of (u1, ..., um)")
+                if m != 1:
+                    raise ValueError(
+                        "system BCs must be callables of (u1, ..., um)")
+                # Scalar Dirichlet on the single unknown: u(x0) = value
+                # (reached when a scalar lbc/rbc combines with a general
+                # .bc constraint, e.g. NonstandardBCs).
+                val = float(bc_raw)
+                bc_raw = lambda u, _v=val: u - _v  # noqa: E731
 
             def bc_list(us):
                 out = bc_raw(*us)

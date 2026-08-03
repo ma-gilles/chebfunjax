@@ -6,7 +6,7 @@ via spectral collocation. These examples cover the classical linear ODEs.
 | Example | Description |
 |---------|-------------|
 | [Adjoint of a linear operator](adjoints.md) | For a linear operator ..., the adjoint ... satisfies .... This example numerically verifies the adjoint identity for ... |
-| [Advection-diffusion equation with a jump](adv_diff_jump.md) | Solves the advection-diffusion boundary value problem |
+| [Advection-diffusion equation with a jump (replica)](AdvDiffJump.md) | Faithful replica: discontinuous advection coefficient auto-routes to piecewise solve, scipy-verified 1e-11. |
 | [Airy Equation](airy_equation.md) | The Airy equation ... is the simplest second-order ODE with a turning point. Its two independent solutions — ... and ... |
 | [Bessel Equation BVP](bessel_bvp.md) | Bessel's differential equation of order ...: |
 | [Time independent Black-Scholes with jumps](black_scholes.md) | Solves the time-independent Black-Scholes ODE for an option pricing problem: |
@@ -27,9 +27,9 @@ via spectral collocation. These examples cover the classical linear ODEs.
 | [Lee and Greengard ODE examples](lee_greengard.md) | Reproduces three classic ODE examples from Lee and Greengard (1997): a viscous shock (solved via ...), an interior-la... |
 | [A linear exponential initial-value problem (replica)](LinExpIVP.md) | Faithful replica: stiff IVP u' = -10000u via chebop, err 1.15e-11. |
 | [Linear sine/cosine initial-value problem (replica)](LinearIVP.md) | Faithful replica: u''+u=0 on [0,100], IVP via chebop backslash. |
-| [Matched asymptotics and boundary layers](matched_asymp.md) | Solves ... with ... for small .... As ..., the WKB/outer solution and the |
+| [Boundary layers and matched asymptotics (replica)](MatchedAsymp.md) | Faithful replica: singular perturbation vs matched-asymptotics model, O(sqrt(eps)) error. |
 | [Near-nonuniqueness in linear BVPs (replica)](NearNonuniqueness.md) | Faithful replica: near-zero eigenvalue, null function, WKB roots digit-for-digit. |
-| [Nonstandard boundary conditions](nonstandard_bcs.md) | Solves BVPs with nonstandard boundary conditions, including: - A mean-zero condition: ... |
+| [Nonstandard boundary conditions (replica)](NonstandardBCs.md) | Faithful replica: mean/integral/interior-point/interior-derivative side conditions. |
 | [Order stars](order_stars.md) | Visualizes order stars for Pade approximants to the exponential function .... An order star for a rational approximan... |
 | [A parameter dependent ODE with breakpoints (replica)](ParameterODE.md) | Faithful replica: near-singular coefficient, breakpoint restores 1e-12 accuracy to gamma=6. |
 | [A periodic ODE system](periodic_system.md) | Solves two periodic first-order ODEs: - ... — stable, unique periodic solution |
