@@ -18,12 +18,12 @@ and statistical computations.
 | [The bivariate normal distribution (replica)](BivariateNormalDistribution.md) | Faithful replica: joint/marginal/conditional pdfs at machine precision. |
 | [A random surface on a disk (replica)](RandomSurf.md) | Faithful replica: randnfundisk + paraboloid, zebra/contour/surface. |
 | [Mercer / Karhunen-Loeve (replica)](MercerKarhunenLoeve.md) | Faithful replica: OU kernel eigenexpansion; corrects the published 10-mode capture for the fast-decay kernel. |
-| [Bayesian Gradebook](bayesian_gradebook.md) | Original: stats/BayesianGradebook Author(s): Nick Trefethen, September 2014 |
+| [Discrete and continuous least squares (replica)](LeastSquares.md) | Faithful replica: polyfit on data and on chebfuns. |
+| [A Bayesian gradebook (replica)](BayesianGradebook.md) | Faithful replica: chebfun Bayes updates — all four tables digit-for-digit. |
 | [Beta Distribution Exercise](beta_exercise.md) | Original: stats/BetaExercise Author(s): Nick Trefethen, September 2014 |
 | [Exponential Distribution Exercises](exponential_exercises.md) | Original: stats/ExponentialExercises Author(s): Nick Trefethen, September 2014 |
 | [Generalized Polynomial Chaos](generalized_polynomial_chaos.md) | Original: stats/GeneralizedPolynomialChaos Author(s): Nick Trefethen, September 2014 |
 | [Kelly Criterion](kelly_criterion.md) | Original: stats/KellyCriterion Author(s): Nick Trefethen, September 2014 |
-| [Least Squares Fitting](least_squares.md) | Original: stats/LeastSquares Author(s): Nick Trefethen, June 2012 |
 | [Maxwell Distribution Exercises](maxwell_exercises.md) | Original: stats/MaxwellExercises Author(s): Nick Trefethen, September 2014 |
 | [Probability Distributions](probability_distributions.md) | Original: stats/ProbabilityConvolution Author(s): Nick Trefethen, 2012 |
 | [Random Polynomials](random_polynomials.md) | The distribution of roots of random polynomials is a beautiful subject connecting probability theory, complex analysi... |
