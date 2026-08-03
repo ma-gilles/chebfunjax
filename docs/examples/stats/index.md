@@ -9,6 +9,7 @@ and statistical computations.
 | [Convolutions of probability distributions (replica)](ProbabilityConvolution.md) | Faithful replica: normal/gamma/exponential closed-form checks at 1e-15. |
 | [Mean, median, mode (replica)](Expectations.md) | Faithful replica: moments, median via cumsum root, mode via max — 15 digits. |
 | [Probability exercises: normal distributions (replica)](NormalExercises.md) | Faithful replica: 68.3% rule on the unbounded line; fractional-kink density to 10 digits. |
+| [Probability exercises: uniform distributions (replica)](UniformExercises.md) | Faithful replica: quartiles, chebfun2 root recovery, wheel of fortune — digit-for-digit. |
 | [Bayesian Gradebook](bayesian_gradebook.md) | Original: stats/BayesianGradebook Author(s): Nick Trefethen, September 2014 |
 | [Beta Distribution Exercise](beta_exercise.md) | Original: stats/BetaExercise Author(s): Nick Trefethen, September 2014 |
 | [Bivariate Normal Distribution](bivariate_normal.md) | Original: stats/BivariateNormalDistribution Author(s): Nick Trefethen, September 2014 |
@@ -26,4 +27,3 @@ and statistical computations.
 | [Resampling Random Variables](resampling_random_variables.md) | Original: stats/ResamplingRandomVariables Author(s): Nick Trefethen, July 2012 |
 | [Smooth Random Walk](smooth_random_walk.md) | Original: stats/SmoothRandomWalk Author(s): Nick Trefethen, July 2012 |
 | [Smoothies](smoothies.md) | Original: stats/Smoothies Author(s): Hrothgar, March 2014 |
-| [Uniform Distribution Exercises](uniform_exercises.md) | Original: stats/UniformExercises Author(s): Nick Trefethen, September 2014 |
