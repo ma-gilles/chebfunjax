@@ -25,7 +25,7 @@ via spectral collocation. These examples cover the classical linear ODEs.
 | [A continuous analogue of Krylov subspace methods for ODEs](krylov.md) | Demonstrates the spectral convergence of the Chebyshev pseudospectral method for solving ... on ... with Dirichlet bo... |
 | [Lane-Emden equation from astrophysics](lane_emden_linear.md) | Solves the Lane-Emden equation of stellar structure: |
 | [Lee and Greengard ODE examples](lee_greengard.md) | Reproduces three classic ODE examples from Lee and Greengard (1997): a viscous shock (solved via ...), an interior-la... |
-| [Linear exp initial-value problem](lin_exp_ivp.md) | Solves the stiff IVP ... with ... on the short interval .... The exact solution is .... |
+| [A linear exponential initial-value problem (replica)](LinExpIVP.md) | Faithful replica: stiff IVP u' = -10000u via chebop, err 1.15e-11. |
 | [Linear sine/cosine initial-value problem (replica)](LinearIVP.md) | Faithful replica: u''+u=0 on [0,100], IVP via chebop backslash. |
 | [Matched asymptotics and boundary layers](matched_asymp.md) | Solves ... with ... for small .... As ..., the WKB/outer solution and the |
 | [Near-nonuniqueness and near-nonexistence](near_nonuniqueness.md) | Examines the BVP ... on ... with .... As ..., the problem approaches one |
