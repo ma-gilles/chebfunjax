@@ -11,9 +11,10 @@ areas, perimeters, and more — all computed to near machine precision.
 | [A curve of constant width (replica)](ConstantWidth.md) | Faithful replica: Rabinowitz curve; perimeter matches Barbier's 18*pi (corrects published value). |
 | [Lissajous curves (replica)](Lissajous.md) | Faithful replica: classic figures + random 6x6 garden. |
 | [Rose curves (replica)](RoseCurves.md) | Faithful replica: trig representation pi/2 advantage. |
+| [The perimeter of an ellipse (replica)](Ellipse.md) | Faithful replica: arc length digit-for-digit. |
+| [The volume of a heart (replica)](VolumeOfHeart.md) | Faithful replica: divergence-theorem volumes digit-for-digit (torus, heart, seashell). |
 | [Distance between Curves](curves_distance.md) | Original: geom/Curves Author(s): Alex Townsend, August 2011 |
 | [Dual Curves](dual_curves.md) | Original: geom/DualCurves Author(s): Alex Townsend, August 2011 |
-| [Ellipse Perimeter](ellipse.md) | Original: geom/Ellipse Author(s): Hale and Trefethen, December 2010 |
 | [Ellipses Rolling](ellipses_rolling.md) | Original: geom/Ellipses Author(s): Alex Townsend, August 2011 |
 | [Procrustes Shape Analysis](procrustes.md) | Original: geom/Procrustes Author(s): Alex Townsend, August 2011 |
 | [Sinai Billiards](sinai_billiards.md) | Original: geom/Sinai Author(s): Nick Trefethen, July 2012 |
