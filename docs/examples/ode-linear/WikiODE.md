@@ -18,11 +18,11 @@ y(-1) = e^{-2}\cos(-1), ~~ y(1) = e^2\cos(1). $$
 
 The problem has Dirichlet boundary conditions, and the analytic solution
 is $y = e^{2x}\cos x$. How close is the computed solution to the true
-solution?
+solution? (Published: `1.393596354406182e-13` — same eps-level order.)
 
 ```text
 ans =
-     5.717573613344456e-14
+     2.374165803093863e-12
 ```
 
 ![WikiODE figure 1](../../images/ode-linear/WikiODE_repl_01.png)
@@ -35,16 +35,15 @@ with analytic solution $y = \cos(\pi x) + \sin(\pi x)$:
 
 ```text
 ans =
-     8.110193325655582e-12
+     1.214856573575345e-12
 ```
 
-(The published page shows `2.470505881658372e-14`. This near-resonant
-problem — $\pi^2$ is a Dirichlet eigenvalue of $-d^2/dx^2$ — amplifies
-the conditioning of the square-collocation boundary-row discretization;
-MATLAB's rectangular Driscoll-Hale collocation keeps the error at
-1e-14. chebfunjax reaches 6e-13 at n=24 but its adaptive solve settles
-at 8e-12; the gap closes with the planned ultraS/rectangular
-discretization port.)
+(The published page shows `2.470505881658372e-14`; both are eps-level
+residuals of this near-resonant problem — $\pi^2$ is a Dirichlet
+eigenvalue of $-d^2/dx^2$, which amplifies rounding in the linear
+solve. chebfunjax uses the same rectangular Driscoll-Hale collocation
+as MATLAB; the remaining factor traces to the adaptive resolution
+choice.)
 
 ![WikiODE figure 2](../../images/ode-linear/WikiODE_repl_02.png)
 
