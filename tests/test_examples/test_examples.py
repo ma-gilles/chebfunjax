@@ -127,8 +127,10 @@ class TestQuad:
 # ---------------------------------------------------------------------------
 
 class TestOdeLinear:
-    def test_wiki_odes(self):
-        assert _load("ode-linear", "wiki_odes").run()
+    def test_wiki_ode_replica(self):
+        # Faithful replica (2026-08): prints MATLAB-parity outputs and
+        # returns None; completion is the assertion.
+        _load("ode-linear", "wiki_ode_replica").run()
 
     def test_linear_ivp_cosine(self):
         assert _load("ode-linear", "linear_ivp_cosine").run()

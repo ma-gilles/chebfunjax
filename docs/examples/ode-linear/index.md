@@ -39,4 +39,4 @@ via spectral collocation. These examples cover the classical linear ODEs.
 | [Resonance exploited by Carrier and Pearson's vandal](resonant_vandal.md) | Solves the harmonic oscillator BVP ... demonstrating resonance when the forcing frequency matches the |
 | [Diffmat, diffrow, intmat, introw, gridsample](spectral_disc.md) | Directly demonstrates Chebyshev differentiation matrices ..., ... and their properties. Verifies that ... and ... |
 | [Multiple BVP solutions by solving an IVP](two_sol_bvp.md) | The BVP ... with ... has multiple solutions. Different initial guesses for the shooting parameter ... converge to |
-| [Linear ODEs from Wikipedia](wiki_odes.md) | A collection of classical linear ODEs, each with known exact solutions, demonstrating the accuracy of Chebyshev spect... |
+| [Wikipedia ODE examples (replica)](WikiODE.md) | Faithful replica: the three Wikipedia linear ODE problems via chebop backslash, eps-level accuracy. |
