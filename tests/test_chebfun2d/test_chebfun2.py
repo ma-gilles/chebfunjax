@@ -73,10 +73,12 @@ class TestChebfun2Construction:
         with pytest.raises(ValueError, match="domain must have exactly 4"):
             Chebfun2.from_function(lambda x, y: x + y, domain=(-1.0, 1.0))
 
-    def test_fixed_n_not_implemented(self):
-        """n= keyword raises NotImplementedError."""
-        with pytest.raises(NotImplementedError, match="fixed-degree"):
-            Chebfun2.from_function(lambda x, y: x + y, n=10)
+    def test_fixed_n_construction(self):
+        """n= keyword samples an n-by-n tensor grid (MATLAB
+        chebfun2(op, [m n]); implemented 2026-08 for kinked
+        eigenvalue-landscape surfaces)."""
+        f = Chebfun2.from_function(lambda x, y: x + y, n=10)
+        assert abs(float(f(0.3, -0.2)) - 0.1) < 1e-12
 
     def test_repr(self):
         """repr includes class name, rank, and domain."""
