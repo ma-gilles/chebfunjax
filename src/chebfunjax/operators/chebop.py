@@ -1936,8 +1936,221 @@ class Chebop:
                 out.append(float(p))
         return sorted(out)
 
+    def _piecewise_linear_matrix(self, m, P, nn, Pn, bps, ints, xps,
+                                 orders, to_funs, apply_op, bc_res,
+                                 residual, l_rows, r_rows, c_rows,
+                                 f_vals):
+        """Direct collocation matrix for a LINEAR piecewise problem.
+
+        Returns ``(A, R0)`` with ``residual(U) == A @ U + R0`` for linear
+        operators; the caller verifies affineness on a random vector
+        before trusting the matrix (nonlinear ops fail that check and
+        fall back to FD-Newton).
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/linearize.m (coefficient extraction),
+            @linop/continuity.m (interface rows)
+        Chebfun commit: 7574c77
+        """
+        import math as _math
+
+        import numpy as _np
+
+        from chebfunjax.utils.diffmat import diffmat as _diffmat
+
+        # Per-piece differentiation matrices up to the max order.
+        max_ord = max(orders) if orders else 0
+        Dmats = [[_np.asarray(_diffmat(nn, k, domain=ints[p]))
+                  for k in range(max_ord + 1)] for p in range(P)]
+
+        pts = [_np.asarray(xps[p]) for p in range(P)]
+        A = _np.zeros((m * Pn, m * Pn))
+
+        # Operator block via monomial probes: place x^k/k! in variable
+        # `var` (zeros elsewhere), apply the op, and forward-substitute
+        # for the coefficient FUNCTIONS (kept as evaluable callables and
+        # cached across adaptive refinement levels — re-applying the op
+        # at every level costs seconds of chebfun arithmetic per call,
+        # while re-evaluating the extracted coefficients is millisecs).
+        cache_key = (m, tuple(bps), id(self.op),
+                     id(self._lbc_raw), id(self._rbc_raw))
+        cache = getattr(self, "_pw_lin_cache", None)
+        fresh = cache is None or cache.get("key") != cache_key
+        if fresh:
+            def _as_fun(o):
+                if isinstance(o, (int, float)):
+                    return (lambda x, _v=float(o):
+                            _np.full(_np.shape(x), _v))
+                return lambda x, _o=o: _np.asarray(_o(jnp.asarray(x)))
+
+            out0 = apply_op(to_funs(_np.zeros(m * Pn)))
+            op0_funs = [_as_fun(o) for o in out0]
+            c_funs = [[None] * m for _ in range(m)]   # [eq][var] -> list_k
+            for var in range(m):
+                kmax = orders[var] if orders else 0
+                outs = []
+                for k in range(kmax + 1):
+                    U_probe = _np.zeros(m * Pn)
+                    for p in range(P):
+                        U_probe[var * Pn + p * nn:
+                                var * Pn + (p + 1) * nn] = \
+                            pts[p] ** k / _math.factorial(k)
+                    outs.append([_as_fun(o)
+                                 for o in apply_op(to_funs(U_probe))])
+                for eq in range(m):
+                    ck_list = []
+                    for k in range(kmax + 1):
+                        def _ck(x, _k=k, _eq=eq, _outs=outs,
+                                _prev=tuple(ck_list),
+                                _op0=op0_funs[eq]):
+                            v = _outs[_k][_eq](x) - _op0(x)
+                            xx = _np.asarray(x)
+                            for j, cj in enumerate(_prev):
+                                v = v - cj(x) * (
+                                    xx ** (_k - j)
+                                    / _math.factorial(_k - j))
+                            return v
+                        ck_list.append(_ck)
+                    c_funs[eq][var] = ck_list
+            cache = {"key": cache_key, "c_funs": c_funs,
+                     "op0_funs": op0_funs}
+            self._pw_lin_cache = cache
+
+        # R0 = residual at zero, built from the cached op0 (one op
+        # application total, not one per refinement level): op rows are
+        # op0(x) - f, continuity rows vanish at zero, boundary rows come
+        # from bc_res on the zero function.
+        op0_funs = cache["op0_funs"]
+        R0 = _np.zeros(m * Pn)
+        for eq in range(m):
+            for p in range(P):
+                sl = slice(eq * Pn + p * nn, eq * Pn + (p + 1) * nn)
+                v0 = _np.asarray(op0_funs[eq](pts[p])).reshape(-1)
+                if v0.size == 1:
+                    v0 = _np.full(nn, float(v0))
+                R0[sl] = v0
+        # Subtract the RHS exactly as residual() does.
+        R0 = R0 - f_vals
+        us_zero_l = to_funs(_np.zeros(m * Pn))
+        for i, v in enumerate(bc_res(self._lbc_raw, us_zero_l, bps[0])):
+            R0[l_rows[i]] = v
+        for i, v in enumerate(bc_res(self._rbc_raw, us_zero_l, bps[-1])):
+            R0[r_rows[i]] = v
+        for (rr, _j, _d, _bp, _pl, _pr) in c_rows:
+            R0[rr] = 0.0
+
+        c_funs = cache["c_funs"]
+        for var in range(m):
+            kmax = orders[var] if orders else 0
+            for eq in range(m):
+                for k in range(kmax + 1):
+                    for p in range(P):
+                        rs = slice(eq * Pn + p * nn,
+                                   eq * Pn + (p + 1) * nn)
+                        cs = slice(var * Pn + p * nn,
+                                   var * Pn + (p + 1) * nn)
+                        ckv = _np.asarray(
+                            c_funs[eq][var][k](pts[p])).reshape(-1)
+                        if ckv.size == 1:
+                            ckv = _np.full(nn, float(ckv))
+                        A[rs, cs] += ckv[:, None] * Dmats[p][k]
+
+        # Continuity rows: u_j^(d) matches across each interior break.
+        # The grids are ascending, so the left piece's endpoint is its
+        # last collocation row and the right piece's is its first.
+        for (rr, j, d, bp, p_l, p_r) in c_rows:
+            A[rr, :] = 0.0
+            A[rr, j * Pn + p_l * nn: j * Pn + (p_l + 1) * nn] = \
+                Dmats[p_l][d][-1, :] if d > 0 else _np.eye(nn)[-1]
+            A[rr, j * Pn + p_r * nn: j * Pn + (p_r + 1) * nn] -= \
+                Dmats[p_r][d][0, :] if d > 0 else _np.eye(nn)[0]
+
+        # Boundary rows: probe bc_res with unit vectors over the endpoint
+        # pieces only (an lbc/rbc functional depends on its endpoint
+        # piece; anything more exotic fails the caller's affine check).
+        def _bc_rows_probe(bc_raw, x0, rows_idx, piece):
+            if not rows_idx:
+                return
+            # Scalar Dirichlet (the common case): the row is the unit
+            # endpoint-evaluation row of variable 0 — no probing needed.
+            if isinstance(bc_raw, (int, float)):
+                rr = rows_idx[0]
+                A[rr, :] = 0.0
+                pt = 0 if abs(x0 - bps[0]) <= abs(x0 - bps[-1]) else nn - 1
+                A[rr, 0 * Pn + piece * nn + pt] = 1.0
+                return
+            base = _np.asarray(bc_res(bc_raw, to_funs(_np.zeros(m * Pn)),
+                                      x0), dtype=float)
+            for rr in rows_idx:
+                A[rr, :] = 0.0
+            for var in range(m):
+                for i in range(nn):
+                    U_probe = _np.zeros(m * Pn)
+                    U_probe[var * Pn + piece * nn + i] = 1.0
+                    vals = _np.asarray(
+                        bc_res(bc_raw, to_funs(U_probe), x0), dtype=float)
+                    col = vals - base
+                    for ri, rr in enumerate(rows_idx):
+                        A[rr, var * Pn + piece * nn + i] = col[ri]
+
+        _bc_rows_probe(self._lbc_raw, bps[0], l_rows, 0)
+        _bc_rows_probe(self._rbc_raw, bps[-1], r_rows, P - 1)
+
+        return A, R0, fresh
+
     def _solve_piecewise(self, f=0.0, n: int | None = None,
                          max_iter: int = 40, extra_breaks=None):
+        """Adaptive piecewise solve: refine the per-piece resolution until
+        the solution's Chebyshev coefficients decay.  The fixed default
+        (n=32 per piece) silently under-resolved e.g. the ParameterODE
+        nearly-singular-coefficient problem at O(1) error; with the
+        direct linear assembly in :meth:`_piecewise_linear_matrix` each
+        refinement level costs one linear solve, so adapting is cheap.
+        Nonlinear problems (FD-Newton path) refine only to 64 to bound
+        the cost of the column-by-column Jacobian.
+        """
+        # Fresh coefficient extraction per solve: a reused id() after
+        # garbage collection must not resurrect a stale cache from a
+        # previous op assignment.
+        self._pw_lin_cache = None
+        if n is not None:
+            return self._solve_piecewise_at(
+                f, n=n, max_iter=max_iter, extra_breaks=extra_breaks)
+
+        from chebfunjax.utils.misc import standard_chop
+
+        def _happy(us) -> bool:
+            for u in us:
+                for piece in u.funs:
+                    coef = jnp.abs(jnp.asarray(piece.tech.coeffs))
+                    npts = coef.shape[0]
+                    if npts < 8:
+                        continue
+                    if int(standard_chop(coef, tol=1e-11)) >= npts - 1:
+                        return False
+            return True
+
+        sol = None
+        for nn in (32, 64, 128, 256, 512):
+            sol = self._solve_piecewise_at(
+                f, n=nn, max_iter=max_iter, extra_breaks=extra_breaks)
+            used_linear = getattr(self, "_pw_linear_used", False)
+            candidates = (list(sol) if isinstance(sol, SystemSolution)
+                          else [sol])
+            try:
+                if _happy(candidates):
+                    break
+            except Exception:
+                break
+            # FD-Newton refinement is O((mPn)^2) residual evaluations;
+            # cap it where MATLAB's default dimension also stops.
+            if not used_linear and nn >= 64:
+                break
+        return sol
+
+    def _solve_piecewise_at(self, f=0.0, n: int | None = None,
+                            max_iter: int = 40, extra_breaks=None):
         """Solve a BVP on a domain with interior breakpoints by piecewise
         collocation (MATLAB @chebop with a ``chebcolloc2`` discretisation on
         a multi-interval domain).
@@ -2178,6 +2391,51 @@ class Chebop:
             for i, v in enumerate(gen_res(us)):
                 R[g_slots[i]] = v
             return R
+
+        # ---- Linear fast path -------------------------------------------
+        # For a linear operator the residual is affine, R(U) = A U + R(0).
+        # Build A directly instead of column-by-column finite differences:
+        # the operator block is recovered with (order+1) op applications
+        # per variable via monomial probes (L[x^k/k!] = sum_{j<=k}
+        # c_j(x) x^{k-j}/(k-j)!, forward-substituted for the coefficient
+        # functions c_j), continuity rows are barycentric-endpoint rows of
+        # per-piece differentiation matrices, and boundary rows are probed
+        # only over the endpoint pieces.  Affineness is verified against
+        # residual() on a random vector; any mismatch (nonlinear op,
+        # nonlocal BC, ...) falls back to the damped FD-Newton below.
+        # Jump/general .bc problems keep the Newton path.
+        self._pw_linear_used = False
+        if not g_slots and self.init is None:
+            try:
+                lin = self._piecewise_linear_matrix(
+                    m, P, nn, Pn, bps, ints, xps, orders,
+                    to_funs, apply_op, bc_res, residual,
+                    l_rows, r_rows, c_rows, f_vals)
+            except Exception:
+                lin = None
+            if lin is not None:
+                A_lin, R0, fresh = lin
+                ok = True
+                if fresh:
+                    # Verify affineness once per extraction (each check
+                    # costs a full op application); refinement levels
+                    # reuse the validated coefficient functions.
+                    rng = _np.random.RandomState(0)
+                    U_t = rng.randn(m * Pn)
+                    R_t = residual(U_t)
+                    scale = max(1.0, float(_np.max(_np.abs(R_t))))
+                    ok = (_np.max(_np.abs(A_lin @ U_t + R0 - R_t))
+                          <= 1e-6 * scale)
+                    if not ok:
+                        self._pw_lin_cache = None
+                if ok:
+                    try:
+                        U_lin = _np.linalg.solve(A_lin, -R0)
+                        self._pw_linear_used = True
+                        us = to_funs(U_lin)
+                        return us[0] if m == 1 else SystemSolution(us)
+                    except _np.linalg.LinAlgError:
+                        pass
 
         # Initial iterate: user's N.init, else zero.
         U = _np.zeros(m * Pn)
