@@ -15,9 +15,9 @@ and statistical computations.
 | [How many local maxima? (replica)](RandomMaxima.md) | Faithful replica: maxima counts grow linearly with interval length. |
 | [Histograms (replica)](Histogram.md) | Faithful replica: bin integrals via cumsum; delta-train point histograms. |
 | [Resampling random variables (replica)](ResamplingRandomVariables.md) | Faithful replica: inverse-cdf sampling for von Mises and logit-normal. |
+| [The bivariate normal distribution (replica)](BivariateNormalDistribution.md) | Faithful replica: joint/marginal/conditional pdfs at machine precision. |
 | [Bayesian Gradebook](bayesian_gradebook.md) | Original: stats/BayesianGradebook Author(s): Nick Trefethen, September 2014 |
 | [Beta Distribution Exercise](beta_exercise.md) | Original: stats/BetaExercise Author(s): Nick Trefethen, September 2014 |
-| [Bivariate Normal Distribution](bivariate_normal.md) | Original: stats/BivariateNormalDistribution Author(s): Nick Trefethen, September 2014 |
 | [Exponential Distribution Exercises](exponential_exercises.md) | Original: stats/ExponentialExercises Author(s): Nick Trefethen, September 2014 |
 | [Generalized Polynomial Chaos](generalized_polynomial_chaos.md) | Original: stats/GeneralizedPolynomialChaos Author(s): Nick Trefethen, September 2014 |
 | [Kelly Criterion](kelly_criterion.md) | Original: stats/KellyCriterion Author(s): Nick Trefethen, September 2014 |
