@@ -702,6 +702,321 @@ def _divide_with_poles(num, den: "Chebfun", poles) -> "Chebfun":
     return Chebfun(funs=new_funs, domain=Domain(tuple(merged)))
 
 
+def _np_vals2coeffs2(v):
+    """2nd-kind Chebyshev values (ascending x) -> coefficients (numpy)."""
+    import numpy as _np
+    v = _np.asarray(v, dtype=float)
+    n = len(v)
+    if n <= 1:
+        return v.copy()
+    tmp = _np.concatenate([v[n - 1:0:-1], v[:n - 1]])
+    c = _np.real(_np.fft.ifft(tmp))
+    c = c[:n]
+    c[1:n - 1] *= 2.0
+    return c
+
+
+def _np_leg2cheb(cl):
+    """Legendre -> Chebyshev coefficients (numpy for small n; the
+    lax.scan transform for large n)."""
+    import numpy as _np
+    cl = _np.asarray(cl, dtype=float).ravel()
+    n = len(cl)
+    if n == 0:
+        return cl
+    if n > 256:
+        from chebfunjax.utils.transforms import leg2cheb as _l2c
+        return _np.asarray(_l2c(jnp.asarray(cl)))
+    tk = _np.cos(_np.pi * _np.arange(n - 1, -1, -1) / max(n - 1, 1))
+    vals = _np.polynomial.legendre.legval(tk, cl)
+    return _np_vals2coeffs2(_np.atleast_1d(vals))
+
+
+def _np_cheb2leg(cc):
+    """Chebyshev -> Legendre coefficients (numpy for small n; the
+    O(n^2) lax.scan transform for large n — numpy leggauss is an
+    O(n^3) eigensolve and hangs on unresolved 65537-point pieces)."""
+    import numpy as _np
+    cc = _np.asarray(cc, dtype=float).ravel()
+    n = len(cc)
+    if n <= 1:
+        return cc.copy()
+    if n > 256:
+        from chebfunjax.utils.transforms import cheb2leg as _c2l
+        return _np.asarray(_c2l(jnp.asarray(cc)))
+    xg, wg = _np.polynomial.legendre.leggauss(n)
+    fv = _np.polynomial.chebyshev.chebval(xg, cc)
+    P = _np.zeros((n, len(xg)))
+    P[0] = 1.0
+    P[1] = xg
+    for k in range(2, n):
+        P[k] = ((2 * k - 1) * xg * P[k - 1]
+                - (k - 1) * P[k - 2]) / k
+    scal = (2 * _np.arange(n) + 1) / 2.0
+    return scal * (P @ (wg * fv))
+
+
+def _clenshaw_legendre(x, alpha):
+    """Evaluate a Legendre series at points x (bndfun/conv.m)."""
+    import numpy as _np
+    n = len(alpha)
+    b_old = _np.zeros_like(x)
+    b_cur = _np.zeros_like(x)
+    for k in range(n - 1, 0, -1):
+        b_new = (alpha[k] + (2 * k + 1) / (k + 1) * x * b_cur
+                 - (k + 1) / (k + 2) * b_old)
+        b_old = b_cur
+        b_cur = b_new
+    return alpha[0] + x * b_cur - 0.5 * b_old
+
+
+def _easy_conv(alpha, beta):
+    """Legendre coefficients of the convolution of two Legendre series
+    on the two triangular pieces (bndfun/conv.m easyConv; Hale &
+    Townsend, Theorem 4.1)."""
+    import numpy as _np
+    alpha = _np.asarray(alpha, dtype=_np.float64).ravel()
+    beta = _np.asarray(beta, dtype=_np.float64).ravel()
+    if len(beta) > len(alpha):
+        alpha, beta = beta, alpha
+    MN = len(alpha) + len(beta)
+    alpha = _np.concatenate([alpha, _np.zeros(MN - len(alpha))])
+    # tridiagonal S (spdiags layout: band d, element row i col i+d = B[i])
+    S = _np.zeros((MN, MN))
+    sub = _np.concatenate([[1.0], 1.0 / (2 * _np.arange(1, MN) + 1)])
+    sup = -1.0 / (2 * _np.arange(0, MN) + 1)
+    for i in range(MN - 1):
+        S[i + 1, i] = sub[i]        # subdiagonal: B[i] at (i+1, i)
+        S[i, i + 1] = sup[i + 1]    # superdiagonal: B[i+1] at (i, i+1)
+    S[0, 0] = 1.0
+
+    def rec(S, alpha, beta, sgn):
+        N = len(beta)
+        scl = 1.0 / (2 * _np.arange(1, N + 1) - 1)
+        scl[1::2] = -scl[1::2]
+        vNew = S @ alpha
+        v = vNew.copy()
+        gamma = beta[0] * vNew
+        beta_scl = scl * beta
+        beta_scl[0] = 0.0
+        gamma[0] += vNew[:N] @ beta_scl
+        if N == 1:
+            return gamma
+        vNew = S @ v + sgn * v
+        vOld = v
+        v = vNew.copy()
+        vNew = vNew.copy()
+        vNew[0] = 0.0
+        gamma = gamma + beta[1] * vNew
+        beta_scl = -beta_scl * ((2 - 0.5) / (2 - 1.5))
+        beta_scl[1] = 0.0
+        gamma[1] += vNew[:N] @ beta_scl
+        for n in range(3, N + 1):
+            vNew = (2 * n - 3) * (S @ v) + vOld
+            vNew[:n - 1] = 0.0
+            gamma = gamma + vNew * beta[n - 1]
+            beta_scl = -beta_scl * ((n - 0.5) / (n - 1.5))
+            beta_scl[n - 1] = 0.0
+            gamma[n - 1] += vNew[:N] @ beta_scl
+            vOld = v
+            v = vNew
+        ag = _np.abs(gamma)
+        mg = ag.max() if ag.size else 0.0
+        if mg > 0:
+            nz = _np.where(ag > _np.finfo(float).eps * mg)[0]
+            gamma = gamma[:nz[-1] + 1] if nz.size else gamma[:1]
+        return gamma
+
+    gammaL = rec(S, alpha, beta, -1)
+    S2 = S.copy()
+    S2[0, 0] = -1.0
+    gammaR = rec(S2, -alpha, beta, 1)
+    return gammaL, gammaR
+
+
+def _chebval_interval(c, interval, x):
+    """Evaluate Chebyshev coeffs c on `interval` at physical points x."""
+    import numpy as _np
+    aa, bb = interval
+    t = (2.0 * _np.asarray(x, dtype=float) - (aa + bb)) / (bb - aa)
+    return _np.polynomial.chebyshev.chebval(t, _np.asarray(c))
+
+
+def _restrict_cheb_coeffs(c, src, dst, nout=None):
+    """Chebyshev coeffs of the restriction of (c on src) to dst."""
+    import numpy as _np
+    n = nout or max(len(c), 2)
+    tk = _np.cos(_np.pi * _np.arange(n - 1, -1, -1) / (n - 1))
+    xk = dst[0] + (dst[1] - dst[0]) * (tk + 1) / 2
+    vals = _chebval_interval(c, src, xk)
+    return _np_vals2coeffs2(_np.atleast_1d(vals))
+
+
+def _cheb1_vals2coeffs(v):
+    """First-kind Chebyshev values -> Chebyshev coefficients."""
+    import numpy as _np
+    v = _np.asarray(v, dtype=float)
+    n = len(v)
+    if n <= 1:
+        return v.copy()
+    # DCT-III inverse: c_k = (2/n) sum v_j cos(k (2j+1) pi / (2n)),
+    # with points ordered ascending (theta descending)
+    theta = (2 * _np.arange(n)[::-1] + 1) * _np.pi / (2 * n)
+    K = _np.arange(n)
+    C = _np.cos(_np.outer(K, theta))
+    c = (2.0 / n) * (C @ v)
+    c[0] *= 0.5
+    return c
+
+
+def _fun_conv_ht(fc, fint, gc, gint):
+    """Convolution of two single smooth pieces (Chebyshev coeffs on
+    intervals), returning [(interval, cheb_coeffs), ...].
+
+    Faithful port of the Hale-Townsend algorithm of @bndfun/conv.m
+    (patch decomposition; Legendre-coefficient triangle convolutions).
+    """
+    import numpy as _np
+
+    a, b = float(fint[0]), float(fint[1])
+    c, d = float(gint[0]), float(gint[1])
+    if (b - a) > (d - c):
+        return _fun_conv_ht(gc, gint, fc, fint)
+    fc = _np.asarray(fc, dtype=float).ravel()
+    gc = _np.asarray(gc, dtype=float).ravel()
+    if len(fc) + len(gc) > 8200:
+        import warnings as _w
+        _w.warn("conv: truncating an unresolved piece "
+                f"(lengths {len(fc)}, {len(gc)}) to 4096 "
+                "coefficients; the input was not fully resolved.",
+                stacklevel=3)
+        fc = fc[:4096]
+        gc = gc[:4096]
+    N = max(len(gc), 2)
+    numPatches = int(_np.floor((d - c) / (b - a)))
+    # first-kind Chebyshev grid on interior [b+c, a+d]
+    t1 = _np.cos((2 * _np.arange(N)[::-1] + 1) * _np.pi / (2 * N))
+    x = (b + c) + ((a + d) - (b + c)) * (t1 + 1) / 2
+    y = _np.zeros(N)
+
+    def _map(xv, aa, bb):
+        return (2.0 * _np.asarray(xv) - (aa + bb)) / (bb - aa)
+
+    def _trim(cv):
+        cv = _np.asarray(cv)
+        acv = _np.abs(cv)
+        m = acv.max() if acv.size else 0.0
+        if m == 0:
+            return cv[:1]
+        nz = _np.where(acv > 10 * _np.finfo(float).eps * m)[0]
+        return cv[:nz[-1] + 1] if nz.size else cv[:1]
+
+    f_leg = _np_cheb2leg(_trim(fc))
+    doms = c + (b - a) * _np.arange(numPatches + 1)
+    pieces = []
+    h_left = None
+    h_right = None
+    hLegR_last = None
+    for k in range(numPatches):
+        dk = (doms[k], doms[k + 1])
+        dk_left = a + dk[0]
+        dk_mid = a + dk[1]
+        dk_right = b + dk[1]
+        gk = _trim(_restrict_cheb_coeffs(gc, (c, d), dk))
+        gk_leg = _np_cheb2leg(gk)
+        hLegL, hLegR = _easy_conv(f_leg, gk_leg)
+        hLegR_last = hLegR
+        ind = (x >= dk_left) & (x < dk_mid)
+        if k == 0:
+            hL_cheb = _np_leg2cheb(hLegL)
+            h_left = ((dk_left, dk_mid), hL_cheb)
+        else:
+            z = _map(x[ind], dk_left, dk_mid)
+            y[ind] += _clenshaw_legendre(z, hLegL)
+        if k < numPatches - 1:
+            ind = (x >= dk_mid) & (x < dk_right)
+            z = _map(x[ind], dk_mid, dk_right)
+            y[ind] += _clenshaw_legendre(z, hLegR)
+    hs = max(abs(a), abs(b), abs(c), abs(d), 1.0)
+    if abs((b - a) - (d - c)) < 10 * _np.finfo(float).eps * hs:
+        hR_cheb = _np_leg2cheb(hLegR_last)
+        h_right = ((d + a, d + b), hR_cheb)
+        h_mid = None
+    else:
+        finish = a + c + numPatches * (b - a)
+        gk = _trim(_restrict_cheb_coeffs(gc, (c, d), (d - (b - a), d)))
+        gk_leg = _np_cheb2leg(gk)
+        hLegL, hLegR = _easy_conv(f_leg, gk_leg)
+        hR_cheb = _np_leg2cheb(hLegR)
+        h_right = ((d + a, d + b), hR_cheb)
+        remainderWidth = d + a - finish
+        domfk = (max(b - remainderWidth, a), b)
+        domgk = (max(finish - b, c), min(d + a - b, d))
+        if max(domfk[1] - domfk[0],
+               domgk[1] - domgk[0]) > _np.finfo(float).eps:
+            ind = x >= finish
+            z = _map(x[ind], d - b + 2 * a, d + a)
+            y[ind] = _clenshaw_legendre(z, hLegL)
+            fk = _trim(_restrict_cheb_coeffs(fc, (a, b), domfk))
+            fk_leg = _np_cheb2leg(fk)
+            gk2 = _trim(_restrict_cheb_coeffs(gc, (c, d), domgk))
+            gk2_leg = _np_cheb2leg(gk2)
+            _, hLegR2 = _easy_conv(fk_leg, gk2_leg)
+            z = _map(x[ind], finish, d + a)
+            y[ind] += (_clenshaw_legendre(z, hLegR2)
+                       * remainderWidth / (b - a))
+        y_cheb = _trim(_cheb1_vals2coeffs(y))
+        h_mid = ((b + c, a + d), y_cheb)
+    scale = (b - a) / 2.0
+    for piece in (h_left, h_mid, h_right):
+        if piece is not None:
+            pieces.append((piece[0], piece[1] * scale))
+    return pieces
+
+
+def _assemble_pieces(contribs, out_dom=None):
+    """Sum piecewise-polynomial contributions [(interval, coeffs)]
+    into a single Chebfun (exact polynomial resampling per cell)."""
+    import numpy as _np
+    tol0 = 1e-13
+    bps = set()
+    for (aa, bb), _cv in contribs:
+        bps.add(float(aa))
+        bps.add(float(bb))
+    if out_dom is not None:
+        bps.add(float(out_dom[0]))
+        bps.add(float(out_dom[1]))
+    bps = sorted(bps)
+    hs = max(abs(bps[0]), abs(bps[-1]), 1.0)
+    merged = [bps[0]]
+    for v in bps[1:]:
+        if v - merged[-1] > tol0 * hs:
+            merged.append(v)
+    funs = []
+    for aa, bb in zip(merged[:-1], merged[1:]):
+        nmax = 2
+        for (ca, cb), cv in contribs:
+            if ca <= aa + tol0 * hs and cb >= bb - tol0 * hs:
+                nmax = max(nmax, len(cv))
+        tk = _np.cos(_np.pi * _np.arange(nmax - 1, -1, -1)
+                     / (nmax - 1))
+        xk = aa + (bb - aa) * (tk + 1) / 2
+        vals = _np.zeros(nmax)
+        for (ca, cb), cv in contribs:
+            if ca <= aa + tol0 * hs and cb >= bb - tol0 * hs:
+                vals += _chebval_interval(cv, (ca, cb), xk)
+        cc = _np_vals2coeffs2(vals)
+        acc = _np.abs(cc)
+        mcc = acc.max() if acc.size else 0.0
+        if mcc > 0:
+            nz = _np.where(acc > 1e-15 * mcc)[0]
+            cc = cc[:nz[-1] + 1] if nz.size else cc[:1]
+        tech = Chebtech2.from_coeffs(jnp.asarray(cc))
+        funs.append(_Piece(tech=tech, interval=(float(aa), float(bb))))
+    dom = Domain(tuple(float(v) for v in merged))
+    return Chebfun(funs=funs, domain=dom)
+
+
 def _is_empty_operand(x) -> bool:
     """True if ``x`` is an empty Chebfun or an empty numeric array/list
     (MATLAB propagates emptiness through arithmetic: ``f + [] == []``)."""
@@ -4430,46 +4745,36 @@ class Chebfun(eqx.Module):
                         f(jnp.float64(t))))
             return sacc
 
-        # The smooth-part integrand f(t)g(x-t) vanishes identically when
-        # either smooth part is zero (pure Dirac trains): skip quadrature.
+        # Smooth part via the fast Hale-Townsend algorithm: convolve
+        # each pair of smooth pieces exactly in Legendre coefficient
+        # space (bndfun/conv.m), then add the delta-shift terms
+        # (a_i * g(x - u_i) etc.) as shifted polynomial pieces.
         _skip_quad = (float(self.vscale) == 0.0 or float(g.vscale) == 0.0)
-
-        def _conv_at(x_val: float) -> float:
-            """Evaluate convolution integral at a single point x."""
-            from scipy import integrate as _scint
-            A_lim = max(a, x_val - d)
-            B_lim = min(b, x_val - c)
-            if _skip_quad or A_lim >= B_lim:
-                return _delta_terms(x_val)
-            # Build integration sub-intervals from breakpoints of f and g
-            ends_g = x_val - g_bps  # maps g breakpoints to t-space
-            int_bps = _np.union1d(f_bps, ends_g)
-            int_bps = int_bps[(int_bps >= A_lim) & (int_bps <= B_lim)]
-            sub_dom = _np.unique(_np.concatenate([[A_lim], int_bps, [B_lim]]))
-            result = 0.0
-            x_jax = jnp.float64(x_val)
-            for j in range(len(sub_dom) - 1):
-                def integrand(t):
-                    t_arr = jnp.atleast_1d(jnp.asarray(t, dtype=jnp.float64))
-                    ft = f(t_arr)
-                    gt = g(x_jax - t_arr)
-                    return float((ft * gt)[0])
-                val, _ = _scint.quad(integrand, sub_dom[j], sub_dom[j + 1],
-                                     epsabs=1e-13, epsrel=1e-13, limit=100)
-                result += val
-            return result + _delta_terms(x_val)
-
-        conv_dom = Domain((float(dom_pts[0]), float(dom_pts[-1])))
-        if len(dom_pts) > 2:
-            conv_dom = Domain(tuple(float(p) for p in dom_pts))
-
-        h = Chebfun.from_function(
-            lambda x: jnp.array(
-                [_conv_at(float(xi)) for xi in jnp.atleast_1d(x)],
-                dtype=jnp.float64,
-            ),
-            conv_dom,
-        )
+        contribs = []
+        if not _skip_quad:
+            for pf in f.funs:
+                cf = _np.asarray(pf.tech.coeffs)
+                for pg in g.funs:
+                    cg = _np.asarray(pg.tech.coeffs)
+                    contribs.extend(_fun_conv_ht(
+                        cf, pf.interval, cg, pg.interval))
+        for loc, mag in f_deltas:
+            for pg in g.funs:
+                ia, ib = pg.interval
+                contribs.append(((ia + loc, ib + loc),
+                                 mag * _np.asarray(pg.tech.coeffs)))
+        for loc, mag in g_deltas:
+            for pf in f.funs:
+                ia, ib = pf.interval
+                contribs.append(((ia + loc, ib + loc),
+                                 mag * _np.asarray(pf.tech.coeffs)))
+        out_ab = (float(dom_pts[0]), float(dom_pts[-1]))
+        if contribs:
+            h = _assemble_pieces(contribs, out_dom=out_ab)
+        else:
+            h = Chebfun.from_function(
+                lambda x: jnp.zeros_like(jnp.asarray(x)),
+                Domain(out_ab))
         if out_deltas:
             h = Chebfun(funs=h.funs, domain=h.domain,
                         deltas=tuple(sorted(
