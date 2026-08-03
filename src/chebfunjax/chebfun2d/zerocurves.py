@@ -112,8 +112,22 @@ def _marching_squares(f, n: int):
     xa, xb, ya, yb = (float(v) for v in f.domain)
     x = np.linspace(xa, xb, n)
     y = np.linspace(ya, yb, n)
-    xx, yy = np.meshgrid(x, y, indexing="xy")
-    vals = np.asarray(f(jnp.asarray(xx), jnp.asarray(yy)), dtype=np.float64)
+    # Separable tensor-grid evaluation: vals = (C^T diag(d)) R with the
+    # rank-r slices evaluated once per 1D grid (numpy Clenshaw).  The
+    # generic pointwise __call__ evaluates every slice at all n^2 points
+    # through JIT — for a high-degree, high-rank chebfun2 (e.g. the
+    # OrderStars level-set function) that ran for many minutes.
+    import numpy.polynomial.chebyshev as _ncheb
+    tx = 2.0 * (x - xa) / (xb - xa) - 1.0
+    ty = 2.0 * (y - ya) / (yb - ya) - 1.0
+    piv = np.asarray(f.approx.pivots, dtype=np.float64)
+    C = np.stack([_ncheb.chebval(ty, np.asarray(c.coeffs,
+                                                dtype=np.float64))
+                  for c in f.approx.cols])            # (r, ny)
+    R = np.stack([_ncheb.chebval(tx, np.asarray(r.coeffs,
+                                                dtype=np.float64))
+                  for r in f.approx.rows])            # (r, nx)
+    vals = (C.T * piv) @ R                            # (ny, nx)
 
     contours = measure.find_contours(vals, 0.0)
     out = []

@@ -30,7 +30,7 @@ via spectral collocation. These examples cover the classical linear ODEs.
 | [Boundary layers and matched asymptotics (replica)](MatchedAsymp.md) | Faithful replica: singular perturbation vs matched-asymptotics model, O(sqrt(eps)) error. |
 | [Near-nonuniqueness in linear BVPs (replica)](NearNonuniqueness.md) | Faithful replica: near-zero eigenvalue, null function, WKB roots digit-for-digit. |
 | [Nonstandard boundary conditions (replica)](NonstandardBCs.md) | Faithful replica: mean/integral/interior-point/interior-derivative side conditions. |
-| [Order stars](order_stars.md) | Visualizes order stars for Pade approximants to the exponential function .... An order star for a rational approximan... |
+| [Order stars (replica)](OrderStars.md) | Faithful replica: 6-petal order star of the (2,3) Pade approximant via chebfun2 roots. |
 | [A parameter dependent ODE with breakpoints (replica)](ParameterODE.md) | Faithful replica: near-singular coefficient, breakpoint restores 1e-12 accuracy to gamma=6. |
 | [A periodic ODE system](periodic_system.md) | Solves two periodic first-order ODEs: - ... — stable, unique periodic solution |
 | [Piecewise operators demo](piecewise_demo.md) | Demonstrates Chebop for solving ... on ... with Dirichlet boundary conditions. The sign function |
