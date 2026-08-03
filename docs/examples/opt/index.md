@@ -15,3 +15,4 @@ on the derivative — no gradient descent needed.
 | [Rosenbrock revisited with chebfun2 (replica)](Rosenbrock2.md) | Faithful replica: one-call min2 + gradient critical points. |
 | [Constrained optimization (replica)](ConstrainedOptimization.md) | Faithful replica: indicator constraints + heart-region maximum to 15 digits. |
 | [The lowest position of a resting needle (replica)](Needle.md) | Faithful replica: nonsmooth resting-height landscape + simplex polish. |
+| [Extrema of complicated functions (replica)](ExtremeExtrema.md) | Faithful replica: global max through abs/min nonsmoothness, 13-15 digits — OPT CATEGORY COMPLETE. |
