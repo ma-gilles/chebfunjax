@@ -12,6 +12,7 @@ and statistical computations.
 | [Probability exercises: uniform distributions (replica)](UniformExercises.md) | Faithful replica: quartiles, chebfun2 root recovery, wheel of fortune — digit-for-digit. |
 | [Smooth random walk (replica)](SmoothRandomWalk.md) | Faithful replica: cumsum of complex randnfun approaching 2D Brownian motion. |
 | [Smoothies: nowhere-analytic functions (replica)](Smoothies.md) | Faithful replica: root-exponential coefficient decay; smoothie non-trig branch fixed. |
+| [How many local maxima? (replica)](RandomMaxima.md) | Faithful replica: maxima counts grow linearly with interval length. |
 | [Bayesian Gradebook](bayesian_gradebook.md) | Original: stats/BayesianGradebook Author(s): Nick Trefethen, September 2014 |
 | [Beta Distribution Exercise](beta_exercise.md) | Original: stats/BetaExercise Author(s): Nick Trefethen, September 2014 |
 | [Bivariate Normal Distribution](bivariate_normal.md) | Original: stats/BivariateNormalDistribution Author(s): Nick Trefethen, September 2014 |
@@ -23,7 +24,6 @@ and statistical computations.
 | [Maxwell Distribution Exercises](maxwell_exercises.md) | Original: stats/MaxwellExercises Author(s): Nick Trefethen, September 2014 |
 | [Mercer-Karhunen-Loeve Expansion](mercer_karhunen_loeve.md) | Original: stats/MercerKarhunenLoeve Author(s): Nick Trefethen, September 2014 |
 | [Probability Distributions](probability_distributions.md) | Original: stats/ProbabilityConvolution Author(s): Nick Trefethen, 2012 |
-| [Random Maxima](random_maxima.md) | Original: stats/RandomMaxima Author(s): Nick Trefethen, July 2012 |
 | [Random Polynomials](random_polynomials.md) | The distribution of roots of random polynomials is a beautiful subject connecting probability theory, complex analysi... |
 | [Random Surfaces](random_surf.md) | Original: stats/RandomSurf Author(s): Nick Trefethen, September 2014 |
 | [Resampling Random Variables](resampling_random_variables.md) | Original: stats/ResamplingRandomVariables Author(s): Nick Trefethen, July 2012 |
