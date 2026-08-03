@@ -12,7 +12,7 @@ areas, perimeters, and more — all computed to near machine precision.
 | [Lissajous curves (replica)](Lissajous.md) | Faithful replica: classic figures + random 6x6 garden. |
 | [Rose curves (replica)](RoseCurves.md) | Faithful replica: trig representation pi/2 advantage. |
 | [The perimeter of an ellipse (replica)](Ellipse.md) | Faithful replica: arc length digit-for-digit. |
+| [An ellipse rolling around another (replica)](Ellipses.md) | Faithful replica: arclength ODEs, closure time to 12 digits. |
 | [The volume of a heart (replica)](VolumeOfHeart.md) | Faithful replica: divergence-theorem volumes digit-for-digit (torus, heart, seashell). |
 | [Procrustes shape analysis (replica)](Procrustes.md) | Faithful replica: translation/scale/rotation-invariant shape distances. |
 | [Minimum distance between curves (replica)](Curves.md) | Faithful replica: chebfun2 distance surface + min2. |
-| [Ellipses Rolling](ellipses_rolling.md) | Original: geom/Ellipses Author(s): Alex Townsend, August 2011 |
