@@ -28,7 +28,7 @@ via spectral collocation. These examples cover the classical linear ODEs.
 | [A linear exponential initial-value problem (replica)](LinExpIVP.md) | Faithful replica: stiff IVP u' = -10000u via chebop, err 1.15e-11. |
 | [Linear sine/cosine initial-value problem (replica)](LinearIVP.md) | Faithful replica: u''+u=0 on [0,100], IVP via chebop backslash. |
 | [Matched asymptotics and boundary layers](matched_asymp.md) | Solves ... with ... for small .... As ..., the WKB/outer solution and the |
-| [Near-nonuniqueness and near-nonexistence](near_nonuniqueness.md) | Examines the BVP ... on ... with .... As ..., the problem approaches one |
+| [Near-nonuniqueness in linear BVPs (replica)](NearNonuniqueness.md) | Faithful replica: near-zero eigenvalue, null function, WKB roots digit-for-digit. |
 | [Nonstandard boundary conditions](nonstandard_bcs.md) | Solves BVPs with nonstandard boundary conditions, including: - A mean-zero condition: ... |
 | [Order stars](order_stars.md) | Visualizes order stars for Pade approximants to the exponential function .... An order star for a rational approximan... |
 | [A parameter-dependent ODE with breakpoints](parameter_ode.md) | Solves ... with ..., where ... is a parameter-dependent piecewise function. The exact solution is |
