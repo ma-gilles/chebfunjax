@@ -31,7 +31,7 @@ via spectral collocation. These examples cover the classical linear ODEs.
 | [Near-nonuniqueness in linear BVPs (replica)](NearNonuniqueness.md) | Faithful replica: near-zero eigenvalue, null function, WKB roots digit-for-digit. |
 | [Nonstandard boundary conditions](nonstandard_bcs.md) | Solves BVPs with nonstandard boundary conditions, including: - A mean-zero condition: ... |
 | [Order stars](order_stars.md) | Visualizes order stars for Pade approximants to the exponential function .... An order star for a rational approximan... |
-| [A parameter-dependent ODE with breakpoints](parameter_ode.md) | Solves ... with ..., where ... is a parameter-dependent piecewise function. The exact solution is |
+| [A parameter dependent ODE with breakpoints (replica)](ParameterODE.md) | Faithful replica: near-singular coefficient, breakpoint restores 1e-12 accuracy to gamma=6. |
 | [A periodic ODE system](periodic_system.md) | Solves two periodic first-order ODEs: - ... — stable, unique periodic solution |
 | [Piecewise operators demo](piecewise_demo.md) | Demonstrates Chebop for solving ... on ... with Dirichlet boundary conditions. The sign function |
 | [Poisson Equation](poisson_equation.md) | The 1D Poisson equation ... with Dirichlet boundary conditions ... is the simplest elliptic boundary value problem. Its |
