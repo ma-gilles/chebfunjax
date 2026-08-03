@@ -19,7 +19,7 @@ via spectral collocation. These examples cover the classical linear ODEs.
 | [Classification of linear dynamical systems](dynamical_systems.md) | Classifies 2D linear dynamical systems ... by the nature of their equilibrium at the origin: stable/unstable node, |
 | [Floquet theory of periodic linear systems](floquet.md) | Studies the Mathieu equation ..., a classic example in Floquet theory. For certain parameters ... the solutions |
 | [Fourier spectral collocation](fourier_collocation.md) | Solves the periodic ODE ... on ... using Fourier spectral collocation, enabled by setting ... in the Chebop. |
-| [Frozen coefficients do not determine stability](frozen_coeffs.md) | Illustrates that stability of a switched linear system cannot be determined from the stability of the individual froz... |
+| [Frozen coefficients do not determine stability (replica)](FrozenCoeffs.md) | Faithful replica: rotating 2x2 system, stable frozen eigenvalues yet growing spiral. |
 | [Jump conditions in BVPs](jump_conditions.md) | Solves a BVP with a jump discontinuity in the coefficient: |
 | [Jump conditions and Green functions](jump_green.md) | Constructs the Green's function for ... on ... with Dirichlet conditions. The exact Green's function is: |
 | [A continuous analogue of Krylov subspace methods for ODEs](krylov.md) | Demonstrates the spectral convergence of the Chebyshev pseudospectral method for solving ... on ... with Dirichlet bo... |
