@@ -7,10 +7,10 @@ and statistical computations.
 |---------|-------------|
 | [Central limit theorem (replica)](CentralLimitTheorem.md) | Faithful replica: convolution to Gaussian; exact binomial delta trains — digit-for-digit. |
 | [Convolutions of probability distributions (replica)](ProbabilityConvolution.md) | Faithful replica: normal/gamma/exponential closed-form checks at 1e-15. |
+| [Mean, median, mode (replica)](Expectations.md) | Faithful replica: moments, median via cumsum root, mode via max — 15 digits. |
 | [Bayesian Gradebook](bayesian_gradebook.md) | Original: stats/BayesianGradebook Author(s): Nick Trefethen, September 2014 |
 | [Beta Distribution Exercise](beta_exercise.md) | Original: stats/BetaExercise Author(s): Nick Trefethen, September 2014 |
 | [Bivariate Normal Distribution](bivariate_normal.md) | Original: stats/BivariateNormalDistribution Author(s): Nick Trefethen, September 2014 |
-| [Expectations of Distributions](expectations.md) | Original: stats/Expectations Author(s): Nick Trefethen, July 2012 |
 | [Exponential Distribution Exercises](exponential_exercises.md) | Original: stats/ExponentialExercises Author(s): Nick Trefethen, September 2014 |
 | [Generalized Polynomial Chaos](generalized_polynomial_chaos.md) | Original: stats/GeneralizedPolynomialChaos Author(s): Nick Trefethen, September 2014 |
 | [Histogram](histogram.md) | Original: stats/Histogram Author(s): Nick Trefethen, July 2012 |
