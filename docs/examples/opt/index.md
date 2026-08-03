@@ -10,4 +10,4 @@ on the derivative — no gradient descent needed.
 | [SIAM 100-digit challenge minimum (replica)](GlobalMinimum.md) | Faithful replica: rank 4, minimum to 4.4e-15 (beats published 4.5e-13). |
 | [Optimization over an integral (replica)](OptimInt.md) | Faithful replica: parametrized-integral chebfun; roots to 13 digits, max digit-for-digit. |
 | [The catenary by variational Newton (replica)](Catenary.md) | Faithful replica: chebop accessory-equation Newton — J sequence to 12-13 digits. |
-| [Constrained Extrema](constrained_extrema.md) | Finding the maximum or minimum of a function subject to equality constraints can be approached via Lagrange multiplie... |
+| [Constrained extrema via composition (replica)](ConstrainedExtrema.md) | Faithful replica: constrained optima digit-for-digit, no Lagrange multipliers. |
