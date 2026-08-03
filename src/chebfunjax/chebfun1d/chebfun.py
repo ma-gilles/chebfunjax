@@ -459,11 +459,12 @@ class _Piece(eqx.Module):
             new_tech = Singfun(tech_der.smoothPart * jnp.float64(scale),
                                tech_der.exponents)
             return _Piece(tech=new_tech, interval=(a, b))
-        # Scale the coefficients; rebuild with the SAME tech class — the
-        # previous hard-coded Chebtech2 reinterpreted Fourier coefficients
-        # as Chebyshev ones for trig pieces.
+        # Scale the coefficients; rebuild with the DERIVATIVE's tech class
+        # (not self's: a Singfun piece whose diff demoted to a smooth
+        # Chebtech2 must rebuild as Chebtech2), which also keeps trig
+        # pieces from reinterpreting Fourier coefficients as Chebyshev.
         scaled_coeffs = tech_der.coeffs * jnp.float64(scale)
-        new_tech = type(self.tech).from_coeffs(scaled_coeffs)
+        new_tech = type(tech_der).from_coeffs(scaled_coeffs)
         return _Piece(tech=new_tech, interval=(a, b))
 
     def cumsum(self) -> _Piece:
@@ -2064,6 +2065,17 @@ class Chebfun(eqx.Module):
         """
         if isinstance(exponent, Chebfun):
             return Chebfun._binary_op(self, exponent, lambda a, b: a ** b)
+        # A non-integer scalar power of a function with roots produces
+        # branch-point singularities: route through the singularity-aware
+        # path (MATLAB @chebfun/power.m columnPower general case) so e.g.
+        # (1+x)**0.3 yields a compact Singfun with exps [0.3, 0] instead
+        # of an unhappy 65537-point smooth representation.
+        try:
+            exp_f = float(exponent)
+        except (TypeError, ValueError):
+            exp_f = None
+        if exp_f is not None and exp_f != int(exp_f):
+            return self._root_power(exp_f, lambda v, _b=exp_f: v ** _b)
         new_funs = [
             piece._apply_unary(piece.tech ** exponent)
             for piece in self.funs
@@ -3110,8 +3122,11 @@ class Chebfun(eqx.Module):
 
         Parameters
         ----------
-        k : int, default 1
-            Order of differentiation.
+        k : int or float, default 1
+            Order of differentiation.  A non-integer order computes the
+            Riemann-Liouville fractional derivative (MATLAB
+            ``diff(f, alpha)`` semantics, dispatching to
+            :meth:`fracDiff`).
 
         Returns
         -------
@@ -3123,6 +3138,9 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/diff.m
         Chebfun commit: 7574c77
         """
+        if float(k) != int(k):
+            return self.fracDiff(float(k))
+        k = int(k)
         if k == 0:
             return self
         new_funs = [piece.diff(k) for piece in self.funs]
@@ -3266,13 +3284,22 @@ class Chebfun(eqx.Module):
             Chebfun(funs=new_funs, domain=self.domain), self.is_transposed)
         return self._attach_deltas(out, getattr(self, "deltas", ()))
 
-    def cumsum(self) -> Chebfun:
+    def cumsum(self, k: float = 1) -> Chebfun:
         """Antiderivative satisfying F(a) = 0 at the left endpoint.
 
         For a piecewise Chebfun, the antiderivative is computed on each piece
         and then shifted to ensure continuity across breakpoints.
 
         JIT-safe: yes for the per-piece computation.
+
+        Parameters
+        ----------
+        k : int or float, default 1
+            Order of integration.  An integer ``k`` applies ``cumsum``
+            *k* times; a non-integer order computes the
+            Riemann-Liouville fractional integral (MATLAB
+            ``cumsum(f, alpha)`` semantics, dispatching to
+            :meth:`fracInt`).
 
         Returns
         -------
@@ -3284,6 +3311,13 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/cumsum.m
         Chebfun commit: 7574c77
         """
+        if float(k) != int(k):
+            return self.fracInt(float(k))
+        if int(k) != 1:
+            out = self
+            for _ in range(int(k)):
+                out = out.cumsum()
+            return out
         if len(self.funs) == 1 and not self.deltas:
             return Chebfun._as_transposed(
                 Chebfun(funs=[self.funs[0].cumsum()], domain=self.domain),

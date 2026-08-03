@@ -3652,18 +3652,41 @@ class Chebop:
             except Exception:
                 g0_pt = 0.0
 
-            # Finite-difference Jacobian row
-            h = 1e-6
-            row = jnp.zeros(n, dtype=jnp.float64)
-            for j in range(n):
-                e_j = jnp.zeros(n, dtype=jnp.float64).at[j].set(h)
-                u_pert = Chebfun.from_values(e_j, dom_inner)
-                try:
-                    g_pert = bc_fn(u_pert)
-                    g_pert_pt = float(_safe_eval(g_pert, jnp.array(ep, dtype=jnp.float64)))
-                except Exception:
-                    g_pert_pt = g0_pt
-                row = row.at[j].set((g_pert_pt - g0_pt) / h)
+            def _probe_row(h: float) -> jnp.ndarray:
+                r = jnp.zeros(n, dtype=jnp.float64)
+                for j in range(n):
+                    e_j = jnp.zeros(n, dtype=jnp.float64).at[j].set(h)
+                    u_pert = Chebfun.from_values(e_j, dom_inner)
+                    try:
+                        g_pert = bc_fn(u_pert)
+                        g_pert_pt = float(_safe_eval(
+                            g_pert, jnp.array(ep, dtype=jnp.float64)))
+                    except Exception:
+                        g_pert_pt = g0_pt
+                    r = r.at[j].set((g_pert_pt - g0_pt) / h)
+                return r
+
+            # Probe with h=1 first: for a LINEAR functional (the common
+            # Neumann/Robin case) this is exact — no finite-difference
+            # cancellation, which at h=1e-6 leaves ~eps/h ≈ 1e-10 noise
+            # per entry and (via near-resonant modes) 1e-9-level BVP
+            # errors where MATLAB's AD-linearized BCs give 1e-14.
+            row = _probe_row(1.0)
+            # Linearity check on a combined direction: g(sum e_j) must
+            # equal g0 + sum(row).  Nonlinear BCs fail this and fall
+            # back to a small-h Jacobian at u=0.
+            try:
+                v = Chebfun.from_values(
+                    jnp.ones(n, dtype=jnp.float64), dom_inner)
+                g_v = float(_safe_eval(
+                    bc_fn(v), jnp.array(ep, dtype=jnp.float64)))
+                scale = max(1.0, float(jnp.max(jnp.abs(row))), abs(g0_pt))
+                is_linear = abs(g_v - g0_pt - float(jnp.sum(row))) \
+                    <= 1e-8 * scale * n
+            except Exception:
+                is_linear = False
+            if not is_linear:
+                row = _probe_row(1e-6)
             return row
 
         fb = FunctionalBlock(_fn, domain=domain)
