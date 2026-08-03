@@ -260,29 +260,71 @@ class Linop:
         )
         return _chebfun_from_values(u_vals, self.domain)
 
-    def _solve_at(self, n: int, f) -> jnp.ndarray:
-        """Solve at fixed discretization size n, return values at Cheb-2 pts."""
-        ChebColloc2Disc(n, self.domain)
-        # Compute physical Chebyshev-2 points on [a, b]
+    def _rect_projection(self, n: int) -> tuple[jnp.ndarray, jnp.ndarray]:
+        """Rectangularization operator for the Driscoll-Hale scheme.
+
+        Returns ``(P, x1)`` where ``P`` is the ``(n - n_bc, n)``
+        barycentric resampling matrix from the ``n`` Chebyshev 2nd-kind
+        points onto ``m = n - n_bc`` Chebyshev 1st-kind points (both on
+        the physical domain), and ``x1`` holds those ``m`` physical
+        1st-kind points.  The collocation equations are enforced at the
+        1st-kind points and the ``n_bc`` boundary rows are appended,
+        giving a square, well-conditioned system — row replacement at
+        2nd-kind points loses ~O(n^2) digits through the boundary rows.
+
+        Provenance
+        ----------
+        MATLAB source : @chebDiscretization/reduce.m,
+            @valsDiscretization/reduce.m (Driscoll & Hale,
+            "Rectangular spectral collocation", IMA J. Numer. Anal. 2016)
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.utils.interpolation import barymat
         a, b = self.domain
-        t_ref = chebpts(n, kind=2)  # reference [-1, 1]
-        x_pts = 0.5 * (b - a) * t_ref + 0.5 * (a + b)
-
-        # Build RHS
-        if callable(f):
-            rhs = jnp.asarray(f(x_pts), dtype=jnp.float64)
-        else:
-            rhs = jnp.full(n, float(f), dtype=jnp.float64)
-
-        # Assemble the square system
-        A = self._assemble(n)
-
-        # Replace last n_bc entries of rhs with BC values
         n_bc = len(self.bcs)
-        for i, val in enumerate(self.bc_values):
-            row_idx = n - n_bc + i
-            rhs = rhs.at[row_idx].set(float(val))
+        m = n - n_bc
+        t2 = chebpts(n, kind=2)
+        t1 = chebpts(m, kind=1)
+        P = barymat(t1, t2)
+        x1 = 0.5 * (b - a) * t1 + 0.5 * (a + b)
+        return P, x1
 
+    def _solve_at(self, n: int, f) -> jnp.ndarray:
+        """Solve at fixed discretization size n, return values at Cheb-2 pts.
+
+        Uses rectangular (Driscoll-Hale) collocation: the operator rows
+        are projected onto ``n - n_bc`` 1st-kind points and the boundary
+        rows appended, instead of overwriting operator rows in place.
+        """
+        disc = ChebColloc2Disc(n, self.domain)
+        n_bc = len(self.bcs)
+        if n_bc > n:
+            raise ValueError(
+                f"Linop._solve_at: more BCs ({n_bc}) than discretization "
+                f"points ({n}). Increase n."
+            )
+
+        A_op = self.L.matrix(disc)
+
+        if n_bc == 0:
+            a, b = self.domain
+            t_ref = chebpts(n, kind=2)
+            x_pts = 0.5 * (b - a) * t_ref + 0.5 * (a + b)
+            rhs = (jnp.asarray(f(x_pts), dtype=jnp.float64) if callable(f)
+                   else jnp.full(n, float(f), dtype=jnp.float64))
+            return jnp.linalg.solve(A_op, rhs)
+
+        P, x1 = self._rect_projection(n)
+        rows = [P @ A_op]
+        rhs_op = (jnp.asarray(f(x1), dtype=jnp.float64) if callable(f)
+                  else jnp.full(n - n_bc, float(f), dtype=jnp.float64))
+        bc_rows = jnp.stack([bc.matrix(disc) for bc in self.bcs])
+        A = jnp.concatenate([rows[0], bc_rows], axis=0)
+        rhs = jnp.concatenate([
+            rhs_op,
+            jnp.asarray([float(v) for v in self.bc_values],
+                        dtype=jnp.float64),
+        ])
         return jnp.linalg.solve(A, rhs)
 
     @staticmethod
@@ -365,19 +407,22 @@ class Linop:
         disc = ChebColloc2Disc(sz, self.domain)
 
         # Build operator matrix
-        A = self.L.matrix(disc)
+        A_op = self.L.matrix(disc)
 
         n_bc = len(self.bcs)
 
-        # Build identity (rhs of generalized eigenproblem)
-        B = jnp.eye(sz, dtype=jnp.float64)
-
-        # Replace last n_bc rows of A with BC rows; zero corresponding rows in B
-        for i, bc in enumerate(self.bcs):
-            row = bc.matrix(disc)          # shape (sz,)
-            row_idx = sz - n_bc + i
-            A = A.at[row_idx, :].set(row)
-            B = B.at[row_idx, :].set(0.0)  # deflate BC rows
+        if n_bc == 0:
+            A = A_op
+            B = jnp.eye(sz, dtype=jnp.float64)
+        else:
+            # Rectangular (Driscoll-Hale) pencil: project the operator
+            # AND the identity onto the m = sz - n_bc 1st-kind points,
+            # then append the BC rows to A (zero rows in B deflate them).
+            P, _ = self._rect_projection(sz)
+            bc_rows = jnp.stack([bc.matrix(disc) for bc in self.bcs])
+            A = jnp.concatenate([P @ A_op, bc_rows], axis=0)
+            B = jnp.concatenate(
+                [P, jnp.zeros((n_bc, sz), dtype=jnp.float64)], axis=0)
 
         # Solve generalized eigenproblem A v = lambda B v using dense eig.
         # Convert to standard form by solving B \ A where possible, but B
