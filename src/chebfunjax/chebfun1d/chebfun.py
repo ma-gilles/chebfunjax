@@ -1790,16 +1790,18 @@ class Chebfun(eqx.Module):
         error is introduced.
         """
         new_dom = Domain(tuple(float(b) for b in bps))
-        hscale = max(abs(float(self.domain.a)), abs(float(self.domain.b)), 1.0)
-        tol = 1e-12 * hscale
         new_funs = []
         for sub in new_dom.intervals:
-            mid = 0.5 * (float(sub.a) + float(sub.b))
-            piece = next(
-                p for p in self.funs
-                if float(p.interval[0]) - tol <= mid <= float(p.interval[1]) + tol
-            )
-            new_funs.append(piece.restrict(float(sub.a), float(sub.b)))
+            sa, sb = float(sub.a), float(sub.b)
+            # owner = the piece with maximal overlap: midpoint-with-
+            # tolerance selection could pick a piece the cell only
+            # touches at a rounded endpoint, whose restriction then
+            # degenerates to a zero-width reference interval.
+            piece = max(
+                self.funs,
+                key=lambda p: (min(float(p.interval[1]), sb)
+                               - max(float(p.interval[0]), sa)))
+            new_funs.append(piece.restrict(sa, sb))
         return Chebfun(funs=new_funs, domain=new_dom)
 
     @staticmethod
@@ -3983,7 +3985,13 @@ class Chebfun(eqx.Module):
             # Does this piece overlap [a, b]?
             lo = max(pa, a)
             hi = min(pb, b)
-            if lo >= hi - 100 * _EPS:
+            # skip zero-width overlaps, both absolutely and relative
+            # to the piece width: an overlap much narrower than the
+            # piece maps to a degenerate reference interval (observed
+            # as restrict([1.0, 1.0]) from a splitting sliver).
+            if (lo >= hi - 100 * _EPS
+                    or (math.isfinite(pa) and math.isfinite(pb)
+                        and hi - lo < 1e-13 * (pb - pa))):
                 continue  # No overlap or zero-width
             from chebfunjax.fun.unbndfun import Unbndfun
             if isinstance(piece, Unbndfun) or not (

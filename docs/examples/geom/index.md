@@ -7,6 +7,7 @@ areas, perimeters, and more — all computed to near machine precision.
 |---------|-------------|
 | [Areas and centroids (replica)](Area.md) | Faithful replica: Green's-theorem areas and centroids digit-for-digit. |
 | [Rounding corners by convolution (replica)](RoundingCorners.md) | Faithful replica: hat-kernel mollification of corners (fast conv). |
+| [The area between two circles (replica)](TwoCircles.md) | Faithful replica: lens area to 13 digits via splitting + restricted sums. |
 | [Constant Width Curves](constant_width.md) | Original: geom/ConstantWidth Author(s): Hrothgar, March 2014 |
 | [Distance between Curves](curves_distance.md) | Original: geom/Curves Author(s): Alex Townsend, August 2011 |
 | [Dual Curves](dual_curves.md) | Original: geom/DualCurves Author(s): Alex Townsend, August 2011 |
@@ -16,4 +17,3 @@ areas, perimeters, and more — all computed to near machine precision.
 | [Procrustes Shape Analysis](procrustes.md) | Original: geom/Procrustes Author(s): Alex Townsend, August 2011 |
 | [Rose Curves](rose_curves.md) | Original: geom/RoseCurves Author(s): Hrothgar, June 2014 |
 | [Sinai Billiards](sinai_billiards.md) | Original: geom/Sinai Author(s): Nick Trefethen, July 2012 |
-| [Two Circles](two_circles.md) | Original: geom/TwoCircles Author(s): Nick Trefethen, June 2012 |
