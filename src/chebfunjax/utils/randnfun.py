@@ -22,7 +22,8 @@ import jax.numpy as jnp
 __all__ = ["randnfun"]
 
 
-def randnfun(lam: float = 0.2, domain=(-1.0, 1.0), *, key=None):
+def randnfun(lam: float = 0.2, domain=(-1.0, 1.0), *, key=None,
+             big: bool = False, cmplx: bool = False):
     """Smooth random (band-limited) periodic function.
 
     Parameters
@@ -33,6 +34,11 @@ def randnfun(lam: float = 0.2, domain=(-1.0, 1.0), *, key=None):
         Interval.
     key : jax PRNGKey, optional
         Randomness source.  If None, a fixed key is used (deterministic).
+    big : bool, default False
+        MATLAB 'big': normalize by 1/sqrt(L) instead of unit pointwise
+        variance, the Fourier-Wiener scaling for random-walk integrals.
+    cmplx : bool, default False
+        MATLAB 'complex': complex-valued random function.
 
     Returns
     -------
@@ -45,12 +51,18 @@ def randnfun(lam: float = 0.2, domain=(-1.0, 1.0), *, key=None):
     m = max(1, int(jnp.floor(length / lam)))
     if key is None:
         key = jax.random.PRNGKey(0)
-    k1, k2 = jax.random.split(key)
+    k1, k2, k3, k4 = jax.random.split(key, 4)
     # real Fourier coefficients for cos/sin modes 1..m plus a mean term,
-    # normalized so E[f^2] ~ 1.
+    # normalized so E[f^2] ~ 1 (or by 1/sqrt(L) for 'big').
     acoef = jax.random.normal(k1, (m + 1,), dtype=jnp.float64)
     bcoef = jax.random.normal(k2, (m,), dtype=jnp.float64)
-    scale = 1.0 / jnp.sqrt(m + 0.5)
+    if cmplx:
+        acoef = (acoef + 1j * jax.random.normal(
+            k3, (m + 1,), dtype=jnp.float64)) / jnp.sqrt(2.0)
+        bcoef = (bcoef + 1j * jax.random.normal(
+            k4, (m,), dtype=jnp.float64)) / jnp.sqrt(2.0)
+    scale = (1.0 / jnp.sqrt(length) if big
+             else 1.0 / jnp.sqrt(m + 0.5))
     acoef = acoef * scale
     bcoef = bcoef * scale
     ks = jnp.arange(1, m + 1, dtype=jnp.float64)
