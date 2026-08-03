@@ -5,10 +5,10 @@ and statistical computations.
 
 | Example | Description |
 |---------|-------------|
+| [Central limit theorem (replica)](CentralLimitTheorem.md) | Faithful replica: convolution to Gaussian; exact binomial delta trains — digit-for-digit. |
 | [Bayesian Gradebook](bayesian_gradebook.md) | Original: stats/BayesianGradebook Author(s): Nick Trefethen, September 2014 |
 | [Beta Distribution Exercise](beta_exercise.md) | Original: stats/BetaExercise Author(s): Nick Trefethen, September 2014 |
 | [Bivariate Normal Distribution](bivariate_normal.md) | Original: stats/BivariateNormalDistribution Author(s): Nick Trefethen, September 2014 |
-| [Central Limit Theorem](central_limit_theorem.md) | Original: stats/CentralLimitTheorem Author(s): Nick Trefethen, July 2012 |
 | [Expectations of Distributions](expectations.md) | Original: stats/Expectations Author(s): Nick Trefethen, July 2012 |
 | [Exponential Distribution Exercises](exponential_exercises.md) | Original: stats/ExponentialExercises Author(s): Nick Trefethen, September 2014 |
 | [Generalized Polynomial Chaos](generalized_polynomial_chaos.md) | Original: stats/GeneralizedPolynomialChaos Author(s): Nick Trefethen, September 2014 |
