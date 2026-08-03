@@ -132,8 +132,8 @@ class TestOdeLinear:
         # returns None; completion is the assertion.
         _load("ode-linear", "wiki_ode_replica").run()
 
-    def test_linear_ivp_cosine(self):
-        assert _load("ode-linear", "linear_ivp_cosine").run()
+    def test_linear_ivp_replica(self):
+        _load("ode-linear", "linear_ivp_replica").run()
 
     def test_poisson_equation(self):
         assert _load("ode-linear", "poisson_equation").run()

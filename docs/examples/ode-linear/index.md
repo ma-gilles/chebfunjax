@@ -26,7 +26,7 @@ via spectral collocation. These examples cover the classical linear ODEs.
 | [Lane-Emden equation from astrophysics](lane_emden_linear.md) | Solves the Lane-Emden equation of stellar structure: |
 | [Lee and Greengard ODE examples](lee_greengard.md) | Reproduces three classic ODE examples from Lee and Greengard (1997): a viscous shock (solved via ...), an interior-la... |
 | [Linear exp initial-value problem](lin_exp_ivp.md) | Solves the stiff IVP ... with ... on the short interval .... The exact solution is .... |
-| [Linear IVP with Cosine Forcing](linear_ivp_cosine.md) | A first-order linear IVP: |
+| [Linear sine/cosine initial-value problem (replica)](LinearIVP.md) | Faithful replica: u''+u=0 on [0,100], IVP via chebop backslash. |
 | [Matched asymptotics and boundary layers](matched_asymp.md) | Solves ... with ... for small .... As ..., the WKB/outer solution and the |
 | [Near-nonuniqueness and near-nonexistence](near_nonuniqueness.md) | Examines the BVP ... on ... with .... As ..., the problem approaches one |
 | [Nonstandard boundary conditions](nonstandard_bcs.md) | Solves BVPs with nonstandard boundary conditions, including: - A mean-zero condition: ... |
