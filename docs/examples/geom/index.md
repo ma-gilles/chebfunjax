@@ -8,7 +8,7 @@ areas, perimeters, and more — all computed to near machine precision.
 | [Areas and centroids (replica)](Area.md) | Faithful replica: Green's-theorem areas and centroids digit-for-digit. |
 | [Rounding corners by convolution (replica)](RoundingCorners.md) | Faithful replica: hat-kernel mollification of corners (fast conv). |
 | [The area between two circles (replica)](TwoCircles.md) | Faithful replica: lens area to 13 digits via splitting + restricted sums. |
-| [Constant Width Curves](constant_width.md) | Original: geom/ConstantWidth Author(s): Hrothgar, March 2014 |
+| [A curve of constant width (replica)](ConstantWidth.md) | Faithful replica: Rabinowitz curve; perimeter matches Barbier's 18*pi (corrects published value). |
 | [Distance between Curves](curves_distance.md) | Original: geom/Curves Author(s): Alex Townsend, August 2011 |
 | [Dual Curves](dual_curves.md) | Original: geom/DualCurves Author(s): Alex Townsend, August 2011 |
 | [Ellipse Perimeter](ellipse.md) | Original: geom/Ellipse Author(s): Hale and Trefethen, December 2010 |
