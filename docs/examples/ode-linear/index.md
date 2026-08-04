@@ -32,7 +32,7 @@ via spectral collocation. These examples cover the classical linear ODEs.
 | [Nonstandard boundary conditions (replica)](NonstandardBCs.md) | Faithful replica: mean/integral/interior-point/interior-derivative side conditions. |
 | [Order stars (replica)](OrderStars.md) | Faithful replica: 6-petal order star of the (2,3) Pade approximant via chebfun2 roots. |
 | [A parameter dependent ODE with breakpoints (replica)](ParameterODE.md) | Faithful replica: near-singular coefficient, breakpoint restores 1e-12 accuracy to gamma=6. |
-| [A periodic ODE system](periodic_system.md) | Solves two periodic first-order ODEs: - ... — stable, unique periodic solution |
+| [Periodic ODE systems (replica)](PeriodicSystem.md) | Faithful replica: trig solve eps-exact + breakpoint wrap-row solve 9e-14. |
 | [Piecewise operators demo](piecewise_demo.md) | Demonstrates Chebop for solving ... on ... with Dirichlet boundary conditions. The sign function |
 | [Poisson Equation](poisson_equation.md) | The 1D Poisson equation ... with Dirichlet boundary conditions ... is the simplest elliptic boundary value problem. Its |
 | [Stability regions of ODE formulas (replica)](Regions.md) | Faithful replica: AB/RK/BDF stability boundaries as complex chebfuns. |

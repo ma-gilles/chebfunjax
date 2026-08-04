@@ -2038,6 +2038,38 @@ class Chebop:
             orders = [2] * m
         return orders
 
+    def _piecewise_eq_orders(self, m: int) -> "list[int]":
+        """Differential order of each EQUATION of the system operator.
+
+        Used to distribute the continuity/wrap condition rows across the
+        equation blocks in proportion to each equation's order — the
+        naive ``eq = c % m`` round-robin starves low-order equations of
+        collocation rows in mixed-order systems.
+        """
+        import inspect
+
+        sniffers = [_EqOrderSniffer({(i, 0)}) for i in range(m)]
+        x_sniff = _EqOrderSniffer()
+        try:
+            nargs = len(inspect.signature(self.op).parameters)
+        except (TypeError, ValueError):
+            nargs = m + 1
+        try:
+            out = (self.op(x_sniff, *sniffers) if nargs > m
+                   else self.op(*sniffers))
+            if not isinstance(out, (list, tuple)):
+                out = [out]
+            eq_orders = []
+            for o in out:
+                pairs = getattr(o, "pairs", frozenset())
+                eq_orders.append(max((k for _v, k in pairs),
+                                     default=0))
+            if len(eq_orders) == m:
+                return eq_orders
+        except Exception:
+            pass
+        return [2] * m
+
     def _detect_jump_breakpoints(self) -> list[float]:
         """Interior points a general ``.bc`` refers to via ``jump`` / one-sided
         evaluation.
@@ -2484,19 +2516,47 @@ class Chebop:
             return eq * Pn + p * nn + pt
 
         us_zero = to_funs(_np.zeros(m * Pn))
+        # Distribute condition rows across equation blocks in proportion
+        # to each equation's differential order: a first-order equation
+        # in a mixed-order system must not lose as many collocation rows
+        # as a second-order one (that starvation broke the periodic 2x2
+        # PeriodicSystem case).
+        eq_orders = (self._piecewise_eq_orders(m) if m > 1
+                     else [orders[0]])
+        eq_pool = [e for e in range(m)
+                   for _ in range(max(eq_orders[e], 1))]
+        if not eq_pool:
+            eq_pool = list(range(m))
+
+        def _pool_eq(c):
+            return eq_pool[c % len(eq_pool)]
+
+        # Balanced slot allocator: each (piece, equation) block gives up
+        # exactly eq_orders[e] collocation rows, taken alternately from
+        # its right and left ends.  _take(p, e, prefer) returns the next
+        # free point index in block (p, e), or None when the block has
+        # already surrendered its quota.
+        _quota = {(p_, e_): max(eq_orders[e_], 1)
+                  for p_ in range(P) for e_ in range(m)}
+        _off = {}
+
+        def _take(p_, e_, prefer_right):
+            if _quota[(p_, e_)] <= 0:
+                return None
+            _quota[(p_, e_)] -= 1
+            kr = _off.get((p_, e_, 'r'), 0)
+            kl = _off.get((p_, e_, 'l'), 0)
+            if prefer_right:
+                _off[(p_, e_, 'r')] = kr + 1
+                return nn - 1 - kr
+            _off[(p_, e_, 'l')] = kl + 1
+            return kl
+
         # Periodic problems on piecewise domains: the endpoint condition
         # slots hold the wrap-around rows u_j^(d)(a) = u_j^(d)(b),
         # d < order_j (MATLAB's periodic chebcolloc continuity).
         wrap_conds = []
         if getattr(self, "_periodic", False):
-            if m > 1:
-                # Mixed-order systems need per-equation row allocation
-                # (the eq = c % m heuristic starves low-order equations
-                # of collocation rows); tracked for the PeriodicSystem
-                # example's breakpoint case.
-                raise NotImplementedError(
-                    "periodic systems on piecewise domains are not "
-                    "supported yet")
             wrap_conds = [(j, d) for j in range(m)
                           for d in range(orders[j])]
             n_l = len(wrap_conds)
@@ -2504,11 +2564,34 @@ class Chebop:
         else:
             n_l = len(bc_res(self._lbc_raw, us_zero, bps[0]))
             n_r = len(bc_res(self._rbc_raw, us_zero, bps[-1]))
-        half = (n_l + 1) // 2
-        l_rows = ([row(i % m, 0, 0) for i in range(half)]
-                  + [row(i % m, P - 1, nn - 1)
-                     for i in range(half, n_l)]) if wrap_conds else             [row(i % m, 0, 0) for i in range(n_l)]
-        r_rows = [row(i % m, P - 1, nn - 1) for i in range(n_r)]
+        if wrap_conds:
+            # One wrap row per (var, deriv); alternate between the two
+            # end pieces (subject to each block's quota) so neither end
+            # is starved of collocation rows.
+            l_rows = []
+            for i in range(n_l):
+                e_ = _pool_eq(i)
+                ends = ((0, False), (P - 1, True)) if i % 2 == 0                     else ((P - 1, True), (0, False))
+                pt = _take(ends[0][0], e_, prefer_right=ends[0][1])
+                if pt is not None:
+                    l_rows.append(row(e_, ends[0][0], pt))
+                    continue
+                pt = _take(ends[1][0], e_, prefer_right=ends[1][1])
+                l_rows.append(row(e_, ends[1][0],
+                                  pt if pt is not None else 0))
+            r_rows = []
+        else:
+            l_rows = []
+            for i in range(n_l):
+                e_ = _pool_eq(i)
+                pt = _take(0, e_, prefer_right=False)
+                l_rows.append(row(e_, 0, 0 if pt is None else pt))
+            r_rows = []
+            for i in range(n_r):
+                e_ = _pool_eq(i)
+                pt = _take(P - 1, e_, prefer_right=True)
+                r_rows.append(row(e_, P - 1,
+                                  nn - 1 if pt is None else pt))
 
         # Continuity: derivatives 0..k_j-1 of each variable j at every
         # interior break.  Each condition takes one of the two collocation
@@ -2519,9 +2602,13 @@ class Chebop:
         g_slots = []
         for p in range(1, P):
             for c, (j, d) in enumerate(conds):
-                eq = c % m
-                rr = (row(eq, p - 1, nn - 1) if (c // m) % 2 == 0
-                      else row(eq, p, 0))
+                eq = _pool_eq(c)
+                pt = _take(p - 1, eq, prefer_right=True)
+                if pt is not None:
+                    rr = row(eq, p - 1, pt)
+                else:
+                    pt = _take(p, eq, prefer_right=False)
+                    rr = row(eq, p, 0 if pt is None else pt)
                 if p in jump_break_ps:
                     # A jump breakpoint: the .bc supplies the interface
                     # conditions, so this row slot is reserved for them.
@@ -2592,8 +2679,25 @@ class Chebop:
                     # breakpoint interior to piece ``p``, so ``o`` may carry
                     # more funs than the ``P`` solver pieces and positional
                     # indexing would read the wrong sub-interval.
-                    ov = (float(o) if isinstance(o, (int, float))
-                          else _np.asarray(o(jnp.asarray(xps[p]))))
+                    if isinstance(o, (int, float)):
+                        ov = _np.full(nn, float(o))
+                    else:
+                        ov = _np.asarray(o(jnp.asarray(xps[p])))
+                        # At interior duplicated nodes take THIS piece's
+                        # one-sided limit: __call__'s convention at a
+                        # breakpoint may return the other piece's value,
+                        # which desynchronizes the residual from the
+                        # direct assembly (its rows are per-piece).
+                        ov = _np.array(ov)
+                        try:
+                            if p > 0:
+                                ov[0] = float(_np.asarray(o(
+                                    jnp.asarray(xps[p][0]), "right")))
+                            if p < P - 1:
+                                ov[-1] = float(_np.asarray(o(
+                                    jnp.asarray(xps[p][-1]), "left")))
+                        except Exception:
+                            pass
                     if _np.iscomplexobj(ov) and not _np.iscomplexobj(R):
                         R = R.astype(_np.complex128)
                     R[sl] = ov
@@ -4626,6 +4730,55 @@ class _OrderSniffer:
 
     def __neg__(self):
         return self
+
+
+class _EqOrderSniffer:
+    """Deferred per-equation order sniffer.
+
+    Expressions carry the set of ``(var, order)`` pairs they depend on;
+    reading the pairs of each OUTPUT of a system operator gives that
+    equation's differential order in every variable (the shared-list
+    :class:`_SysOrderSniffer` cannot attribute orders to outputs since
+    it records at ``diff``-call time).
+    """
+
+    def __init__(self, pairs=frozenset()):
+        object.__setattr__(self, "pairs", frozenset(pairs))
+
+    def diff(self, k: int = 1):
+        return _EqOrderSniffer({(v, o + int(k)) for v, o in self.pairs})
+
+    def _comb(self, o):
+        pr = set(self.pairs)
+        if isinstance(o, _EqOrderSniffer):
+            pr |= o.pairs
+        return _EqOrderSniffer(pr)
+
+    def __add__(self, o):
+        return self._comb(o)
+
+    __radd__ = __sub__ = __rsub__ = __mul__ = __rmul__ = __add__
+    __truediv__ = __rtruediv__ = __pow__ = __rpow__ = __add__
+
+    def __neg__(self):
+        return self
+
+    def __abs__(self):
+        return self
+
+    def sum(self):
+        return self
+
+    def cumsum(self, *a):
+        return self
+
+    def __call__(self, *a, **k):
+        return self
+
+    def __getattr__(self, name):
+        def _fn(*a, **k):
+            return self
+        return _fn
 
 
 class _SysOrderSniffer:
