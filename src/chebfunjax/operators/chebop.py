@@ -404,6 +404,7 @@ class Chebop:
         max_iter: int = 15,
         newton_tol: float = 5e-13,
         discretization: str | None = None,
+        ivp_solver: str | None = None,
     ):
         if (discretization is not None
                 and str(discretization).lower() in ("chebcolloc2", "colloc2")
@@ -416,12 +417,88 @@ class Chebop:
                                               n_max=n_max, tol=tol)
             return self._simplify_solution(out)
         out = self._solve_impl(f, n=n, n_min=n_min, n_max=n_max, tol=tol,
-                               max_iter=max_iter, newton_tol=newton_tol)
+                               max_iter=max_iter, newton_tol=newton_tol,
+                               ivp_solver=ivp_solver)
         # MATLAB's linsolve/solvebvp returns SIMPLIFIED chebfuns; an
         # unchopped 1e-14 coefficient tail is amplified ~n^(2m) by
         # diff(m) in residual checks (test_promote_functional measured
         # 2e-9 from exactly this).
         return self._simplify_solution(out)
+
+    def quiver(self, xylim, ax=None, n_pts: int = 20, t=None,
+               **kwargs):
+        """Phase-plane direction field of a second-order chebop.
+
+        For ``N(u) = u'' - g(t, u, u')`` the plane is ``(u, v = u')``
+        and the field is ``(v, g)``; ``g`` is recovered from the
+        operator by the same affine-in-the-highest-derivative
+        extraction the IVP solver uses.
+
+        Parameters
+        ----------
+        xylim : sequence of 4 floats
+            ``[umin, umax, vmin, vmax]`` (MATLAB
+            ``quiver(N, [-2 2 -10 10])``).
+        ax : matplotlib Axes, optional
+        n_pts : int, default 20
+            Arrows per direction.
+        t : float, optional
+            Time at which to sample a non-autonomous operator
+            (default: the left endpoint of the domain).
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/quiver.m
+        Chebfun commit: 7574c77
+        """
+        import inspect
+
+        import matplotlib.pyplot as plt
+        import numpy as _np
+
+        if self._op_order() != 2:
+            raise ValueError(
+                "Chebop.quiver: the phase plane is defined for a "
+                "second-order operator")
+        t0 = float(self.domain[0] if t is None else t)
+        try:
+            nargs = len(inspect.signature(self.op).parameters)
+        except (TypeError, ValueError):
+            nargs = 2
+
+        def _op_at(uu, vv, ss):
+            tower = [jnp.asarray(float(uu)), jnp.asarray(float(vv)),
+                     jnp.asarray(float(ss))]
+            pr = _IVPProxy(tower)
+            targ = jnp.asarray(t0)
+            try:
+                out = self.op(targ, pr) if nargs > 1 else self.op(pr)
+            except AttributeError:
+                out = self.op(_TrigX(targ), pr)
+            if isinstance(out, _TrigX):
+                out = out.v
+            elif isinstance(out, _IVPProxy):
+                out = out._v
+            return float(_np.asarray(out))
+
+        umin, umax, vmin, vmax = (float(v) for v in xylim)
+        ug = _np.linspace(umin, umax, n_pts)
+        vg = _np.linspace(vmin, vmax, n_pts)
+        U, V = _np.meshgrid(ug, vg)
+        A = _np.zeros_like(U)
+        for i in range(U.shape[0]):
+            for j in range(U.shape[1]):
+                r0 = _op_at(U[i, j], V[i, j], 0.0)
+                r1 = _op_at(U[i, j], V[i, j], 1.0)
+                slope = r1 - r0
+                A[i, j] = (-r0 / slope) if slope != 0 else _np.nan
+        if ax is None:
+            _, ax = plt.subplots()
+        kwargs.setdefault("color", "b")
+        ax.quiver(U, V, V, A, **kwargs)
+        ax.set_xlim(umin, umax)
+        ax.set_ylim(vmin, vmax)
+        return ax
 
     def solvebvp(self, f=0.0, **kwargs):
         """Solve and also return the Newton convergence history.
@@ -453,6 +530,7 @@ class Chebop:
     def _solve_impl(
         self,
         f=0.0,
+        ivp_solver: str | None = None,
         n: int | None = None,
         n_min: int = 8,
         n_max: int = 2048,
@@ -621,7 +699,12 @@ class Chebop:
 
         # IVPs (all BCs at one endpoint) time-march like MATLAB (#24).
         # Fall back to collocation if the extraction fails.
-        if n is None and self._is_ivp():
+        # MATLAB cheboppref('ivpSolver'): the default marches an IVP in
+        # time, while @chebcolloc1/@chebcolloc2 solve it as a boundary
+        # value problem by collocation.
+        _colloc_ivp = (ivp_solver is not None
+                       and str(ivp_solver).lower().startswith("chebcolloc"))
+        if n is None and self._is_ivp() and not _colloc_ivp:
             try:
                 return self.solve_ivp(f)
             except Exception:
@@ -3645,6 +3728,12 @@ class Chebop:
         import numpy as _np
         if bc_raw is None:
             return None
+        if isinstance(bc_raw, (list, tuple)):
+            # MATLAB N.lbc = [u0; u0'; ...]: entry i prescribes the
+            # i-th derivative.  Without this the float() below raised,
+            # solve_ivp bailed out, and the caller silently fell back to
+            # collocation -- which for the van der Pol IVP diverged.
+            return [float(v) for v in bc_raw]
         if not callable(bc_raw):
             return [float(bc_raw)]           # scalar Dirichlet value
 
