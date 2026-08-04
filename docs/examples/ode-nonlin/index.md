@@ -27,7 +27,7 @@ physics and engineering.
 | [Logistic Equation](logistic_equation.md) | The logistic equation ... models population growth with a carrying capacity .... It has the exact solution: |
 | [Lorenz attractor](lorenz_attractor.md) | Numerically integrates the Lorenz system: |
 | [Lyapunov exponents (replica)](LyapunovExponents.md) | Faithful replica: Lorenz separation over 10 decades, exponent 0.930 vs published 0.934. |
-| [Modelling infectious disease outbreaks](modelling_diseases.md) | Simulates the SIR epidemic model: |
+| [Modelling diseases (replica)](ModellingDiseases.md) | Faithful replica: SIR model, peak 240 exact, crossover time to 11 digits. |
 | [Orbiting around fixed stars](orbits.md) | Computes planetary orbits around a fixed star using Newton's law of gravity. Different initial velocities yield circu... |
 | [Parameter-dependent ODEs: three examples](param_odes.md) | Demonstrates three ODE problems with parameters: 1. An eigenvalue-type boundary condition with an interior constraint |
 | [Nonlinear Pendulum](pendulum_equation.md) | The nonlinear pendulum equation ... describes the exact motion of a pendulum without the small-angle approximation. |
