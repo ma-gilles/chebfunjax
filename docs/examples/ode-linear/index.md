@@ -17,7 +17,7 @@ via spectral collocation. These examples cover the classical linear ODEs.
 | [Dawson's integral (replica)](DawsonIntegral.md) | Faithful replica: interior-point BC chebop, analytic cumsum construction (87+87 display parity), Weideman cef. |
 | [Delta functions and ODEs](delta_odes.md) | Explores delta-function forcing for ODEs. The solution to |
 | [Phase portraits of linear dynamical systems (replica)](DynamicalSystems.md) | Faithful replica: 10 phase portraits + trace-det diagram, eigen prints match. |
-| [Floquet theory of periodic linear systems](floquet.md) | Studies the Mathieu equation ..., a classic example in Floquet theory. For certain parameters ... the solutions |
+| [Floquet theory of periodic ODEs (replica)](Floquet.md) | Faithful replica: fundamental matrix, exponents/multipliers to 11 digits, periodic factor. |
 | [Fourier collocation for periodic ODEs (replica)](FourierCollocation.md) | Faithful replica: trig vs chebcolloc2-wrap solves, Hill discriminant to 9 digits. |
 | [Frozen coefficients do not determine stability (replica)](FrozenCoeffs.md) | Faithful replica: rotating 2x2 system, stable frozen eigenvalues yet growing spiral. |
 | [Jump conditions in BVPs](jump_conditions.md) | Solves a BVP with a jump discontinuity in the coefficient: |
