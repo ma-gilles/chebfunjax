@@ -26,7 +26,7 @@ physics and engineering.
 | [Logistic map and chaos (replica)](Logistic2.md) | Faithful replica: chebfun-composed logistic iterates, point values to 14 digits. |
 | [Logistic Equation](logistic_equation.md) | The logistic equation ... models population growth with a carrying capacity .... It has the exact solution: |
 | [Lorenz attractor](lorenz_attractor.md) | Numerically integrates the Lorenz system: |
-| [Lyapunov exponents of the Lorenz system](lyapunov_exponents.md) | Computes the maximal Lyapunov exponent ... of the Lorenz attractor via the renormalization method. Two nearby traject... |
+| [Lyapunov exponents (replica)](LyapunovExponents.md) | Faithful replica: Lorenz separation over 10 decades, exponent 0.930 vs published 0.934. |
 | [Modelling infectious disease outbreaks](modelling_diseases.md) | Simulates the SIR epidemic model: |
 | [Orbiting around fixed stars](orbits.md) | Computes planetary orbits around a fixed star using Newton's law of gravity. Different initial velocities yield circu... |
 | [Parameter-dependent ODEs: three examples](param_odes.md) | Demonstrates three ODE problems with parameters: 1. An eigenvalue-type boundary condition with an interior constraint |

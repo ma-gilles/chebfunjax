@@ -4421,17 +4421,22 @@ class Chebfun(eqx.Module):
         a = float(self.domain.a)
         b = float(self.domain.b)
         c_leg = _np.zeros(n + 1)
+        # One quadrature size for ALL pieces, and evaluate each PIECE
+        # rather than the whole chebfun: evaluating ``self`` inside the
+        # loop is O(pieces^2) and, with a different node count per
+        # piece, compiles a fresh kernel per piece (a few hundred
+        # pieces exhausted LLVM's section memory outright).
+        deg_max = max(int(piece.n) for piece in self.funs)
+        nq = max(4, (n + deg_max) // 2 + 2)
+        xq, wq = _legpts(nq)
+        xq = _np.asarray(xq, dtype=_np.float64)
+        wq = _np.asarray(wq, dtype=_np.float64)
         for piece in self.funs:
             pa, pb = float(piece.interval[0]), float(piece.interval[1])
-            deg = int(piece.n)
-            nq = max(4, (n + deg) // 2 + 2)
-            xq, wq = _legpts(nq)
-            xq = _np.asarray(xq, dtype=_np.float64)
-            wq = _np.asarray(wq, dtype=_np.float64)
             # physical nodes on the piece; weights scaled to xhat measure
             xp = 0.5 * (pb - pa) * xq + 0.5 * (pa + pb)
             w_hat = wq * (pb - pa) / (b - a)
-            fv = _np.asarray(self(jnp.asarray(xp)), dtype=_np.float64)
+            fv = _np.asarray(piece(jnp.asarray(xp)), dtype=_np.float64)
             xhat = 2.0 * (xp - a) / (b - a) - 1.0
             # Legendre-Vandermonde on xhat via the three-term recurrence
             P = _np.zeros((len(xhat), n + 1))
