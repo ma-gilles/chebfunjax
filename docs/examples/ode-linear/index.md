@@ -13,7 +13,7 @@ via spectral collocation. These examples cover the classical linear ODEs.
 | [A bouncing ball](bouncing_ball.md) | Simulates a bouncing ball subject to gravity. Between bounces, the trajectory is a parabola: .... At each bounce, |
 | [Boundary layer for advection-diffusion equation (replica)](BoundaryLayer.md) | Faithful replica: O(eps) layer, widths to 12-13 digits vs MATLAB. |
 | [Inserting breakpoints to resolve layers](breakpoints.md) | Demonstrates how Chebfun uses breakpoints to accurately represent rapidly-varying solutions to advection-diffusion pr... |
-| [Exponentials of linear operators via contour integration](contour_expm.md) | Computes the heat equation solution ... where ... is the Laplacian with Dirichlet boundary conditions. The operator e... |
+| [Exponentials of linear operators via contour integrals (replica)](ContourExpm.md) | Faithful replica: Talbot-contour quadrature, 64 complex Helmholtz solves. |
 | [Dawson's integral (replica)](DawsonIntegral.md) | Faithful replica: interior-point BC chebop, analytic cumsum construction (87+87 display parity), Weideman cef. |
 | [Delta functions and ODEs](delta_odes.md) | Explores delta-function forcing for ODEs. The solution to |
 | [Classification of linear dynamical systems](dynamical_systems.md) | Classifies 2D linear dynamical systems ... by the nature of their equilibrium at the origin: stable/unstable node, |

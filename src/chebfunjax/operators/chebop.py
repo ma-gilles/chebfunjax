@@ -520,8 +520,18 @@ class Chebop:
                     and any(all(abs(float(b) - e) > 1e-12 for e in _bps)
                             for b in o.domain.breakpoints)
                     for o in _out)
-                if _has_break:
-                    return self._solve_piecewise(f, n=n, max_iter=max_iter)
+                # A piecewise RHS (e.g. sign-function initial data in
+                # the ContourExpm heat solves) also demands a piecewise
+                # solution grid: sampling it on a smooth grid Gibbses.
+                _fbreaks = []
+                if hasattr(f, "domain"):
+                    _fbreaks = [float(b) for b in f.domain.breakpoints
+                                if all(abs(float(b) - e) > 1e-12
+                                       for e in _bps)]
+                if _has_break or _fbreaks:
+                    return self._solve_piecewise(
+                        f, n=n, max_iter=max_iter,
+                        cont_breaks=_fbreaks or None)
             except Exception:
                 pass
 
@@ -2122,6 +2132,10 @@ class Chebop:
                 if isinstance(o, (int, float)):
                     return (lambda x, _v=float(o):
                             _np.full(_np.shape(x), _v))
+                if isinstance(o, complex):
+                    return (lambda x, _v=o:
+                            _np.full(_np.shape(x), _v,
+                                     dtype=_np.complex128))
                 return lambda x, _o=o: _np.asarray(_o(jnp.asarray(x)))
 
             out0 = apply_op(to_funs(_np.zeros(m * Pn)))
@@ -2168,7 +2182,11 @@ class Chebop:
                 sl = slice(eq * Pn + p * nn, eq * Pn + (p + 1) * nn)
                 v0 = _np.asarray(op0_funs[eq](pts[p])).reshape(-1)
                 if v0.size == 1:
-                    v0 = _np.full(nn, float(v0))
+                    v0 = (_np.full(nn, complex(v0))
+                          if _np.iscomplexobj(v0)
+                          else _np.full(nn, float(v0)))
+                if _np.iscomplexobj(v0) and not _np.iscomplexobj(R0):
+                    R0 = R0.astype(_np.complex128)
                 R0[sl] = v0
         # Subtract the RHS exactly as residual() does.
         R0 = R0 - f_vals
@@ -2193,7 +2211,12 @@ class Chebop:
                         ckv = _np.asarray(
                             c_funs[eq][var][k](pts[p])).reshape(-1)
                         if ckv.size == 1:
-                            ckv = _np.full(nn, float(ckv))
+                            ckv = (_np.full(nn, complex(ckv))
+                                   if _np.iscomplexobj(ckv)
+                                   else _np.full(nn, float(ckv)))
+                        if (_np.iscomplexobj(ckv)
+                                and not _np.iscomplexobj(A)):
+                            A = A.astype(_np.complex128)
                         A[rs, cs] += ckv[:, None] * Dmats[p][k]
 
         # Continuity rows: u_j^(d) matches across each interior break.
@@ -2240,7 +2263,8 @@ class Chebop:
         return A, R0, fresh
 
     def _solve_piecewise(self, f=0.0, n: int | None = None,
-                         max_iter: int = 40, extra_breaks=None):
+                         max_iter: int = 40, extra_breaks=None,
+                         cont_breaks=None):
         """Adaptive piecewise solve: refine the per-piece resolution until
         the solution's Chebyshev coefficients decay.  The fixed default
         (n=32 per piece) silently under-resolved e.g. the ParameterODE
@@ -2256,7 +2280,8 @@ class Chebop:
         self._pw_lin_cache = None
         if n is not None:
             return self._solve_piecewise_at(
-                f, n=n, max_iter=max_iter, extra_breaks=extra_breaks)
+                f, n=n, max_iter=max_iter, extra_breaks=extra_breaks,
+                cont_breaks=cont_breaks)
 
         from chebfunjax.utils.misc import standard_chop
 
@@ -2274,7 +2299,8 @@ class Chebop:
         sol = None
         for nn in (32, 64, 128, 256, 512):
             sol = self._solve_piecewise_at(
-                f, n=nn, max_iter=max_iter, extra_breaks=extra_breaks)
+                f, n=nn, max_iter=max_iter, extra_breaks=extra_breaks,
+                cont_breaks=cont_breaks)
             used_linear = getattr(self, "_pw_linear_used", False)
             candidates = (list(sol) if isinstance(sol, SystemSolution)
                           else [sol])
@@ -2290,7 +2316,8 @@ class Chebop:
         return sol
 
     def _solve_piecewise_at(self, f=0.0, n: int | None = None,
-                            max_iter: int = 40, extra_breaks=None):
+                            max_iter: int = 40, extra_breaks=None,
+                            cont_breaks=None):
         """Solve a BVP on a domain with interior breakpoints by piecewise
         collocation (MATLAB @chebop with a ``chebcolloc2`` discretisation on
         a multi-interval domain).
@@ -2363,6 +2390,13 @@ class Chebop:
                 bps = sorted(set(bps) | _extra)
         except Exception:
             pass
+
+        # Breakpoints where the solution stays C^{k-1} but the RHS (or a
+        # coefficient) is only piecewise-smooth: add to the grid with the
+        # usual continuity rows.
+        for cb in [float(v) for v in (cont_breaks or [])]:
+            if all(abs(cb - e) > 1e-12 for e in bps):
+                bps = sorted(bps + [cb])
 
         # Interior breakpoints introduced by jump / one-sided conditions in a
         # general .bc.  At these the solution may be discontinuous, so the
@@ -2490,20 +2524,26 @@ class Chebop:
                 f"conditions ({n_g}) does not match the interface rows freed "
                 f"at the jump breakpoints ({len(g_slots)}).")
 
-        # RHS values laid out per equation / piece.
+        # RHS values laid out per equation / piece (complex-preserving).
         f_vals = _np.zeros(m * Pn)
         for eq in range(m):
             fi = f[eq] if isinstance(f, (list, tuple)) and eq < len(f) else (
                 f if not isinstance(f, (list, tuple)) else 0.0)
             for p in range(P):
                 sl = slice(eq * Pn + p * nn, eq * Pn + (p + 1) * nn)
-                f_vals[sl] = (float(fi) if isinstance(fi, (int, float))
-                              else _np.asarray(fi(jnp.asarray(xps[p]))))
+                fv = (float(fi) if isinstance(fi, (int, float))
+                      else _np.asarray(fi(jnp.asarray(xps[p]))))
+                if _np.iscomplexobj(fv) and not _np.iscomplexobj(f_vals):
+                    f_vals = f_vals.astype(_np.complex128)
+                f_vals[sl] = fv
 
         def residual(U):
             us = to_funs(U)
             out = apply_op(us)
-            R = _np.zeros(m * Pn)
+            R = _np.zeros(m * Pn,
+                          dtype=(_np.complex128
+                                 if _np.iscomplexobj(f_vals)
+                                 or _np.iscomplexobj(U) else _np.float64))
             for eq in range(m):
                 o = out[eq]
                 for p in range(P):
@@ -2514,8 +2554,11 @@ class Chebop:
                     # breakpoint interior to piece ``p``, so ``o`` may carry
                     # more funs than the ``P`` solver pieces and positional
                     # indexing would read the wrong sub-interval.
-                    R[sl] = (float(o) if isinstance(o, (int, float))
-                             else _np.asarray(o(jnp.asarray(xps[p]))))
+                    ov = (float(o) if isinstance(o, (int, float))
+                          else _np.asarray(o(jnp.asarray(xps[p]))))
+                    if _np.iscomplexobj(ov) and not _np.iscomplexobj(R):
+                        R = R.astype(_np.complex128)
+                    R[sl] = ov
             R = R - f_vals
             for i, v in enumerate(bc_res(self._lbc_raw, us, bps[0])):
                 R[l_rows[i]] = v
