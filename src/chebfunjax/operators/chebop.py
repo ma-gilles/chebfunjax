@@ -1216,10 +1216,57 @@ class Chebop:
                 vals -= float(f_of_t(tt))
             return vals
 
+        def _sub_f(vals, t):
+            if fvals is not None:
+                vals -= _np.array([
+                    float(v) if isinstance(v, (int, float))
+                    else float(v(jnp.asarray(t))) for v in fvals])
+            elif f_of_t is not None:
+                vals -= float(f_of_t(jnp.asarray(t)))
+            return vals
+
+        import inspect as _inspect
+        try:
+            _onargs = len(_inspect.signature(self.op).parameters)
+        except (TypeError, ValueError):
+            _onargs = m + 1
+
+        def op_at_fast(t, y):
+            """Scalar-proxy evaluation of the op: thousands of times
+            cheaper per time step than building constant chebfuns."""
+            towers = [
+                _IVPProxy([jnp.asarray(float(yj)), jnp.asarray(0.0)])
+                for yj in y]
+            targ = jnp.asarray(float(t))
+            try:
+                out = (self.op(targ, *towers) if _onargs > m
+                       else self.op(*towers))
+            except AttributeError:
+                out = self.op(_TrigX(targ), *towers)
+            if not isinstance(out, (list, tuple)):
+                out = [out]
+            vals = _np.array([
+                float(_np.asarray(o.v if isinstance(o, _TrigX)
+                                  else (o._v if isinstance(o, _IVPProxy)
+                                        else o)))
+                for o in out])
+            return _sub_f(vals, t)
+
+        # Use the scalar fast path when it reproduces the chebfun-based
+        # evaluation at a probe point; exotic ops fall back.
+        _yprobe = _np.linspace(0.3, 1.1, m)
+        try:
+            _fast_ok = bool(_np.allclose(
+                op_at_fast(t0, _yprobe), op_at(t0, _yprobe),
+                rtol=1e-9, atol=1e-9))
+        except Exception:
+            _fast_ok = False
+        op_eval = op_at_fast if _fast_ok else op_at
+
         # verify first-order explicit form: residual affine in y'
         # with unit coefficient => R(t, y, y') = y' + op_at-part
         def rhs(t, y):
-            return -op_at(t, y)
+            return -op_eval(t, y)
 
         # initial values: solve the affine bc residuals bc(y0) = 0
         def bc_res(y):
@@ -1246,16 +1293,62 @@ class Chebop:
         if not sol.success:
             raise RuntimeError(f"ivp system: {sol.message}")
 
-        # sample onto a Chebyshev grid and wrap each component
-        nn = 256
-        kk = _np.arange(nn)
-        xg = _np.cos(_np.pi * kk / (nn - 1))[::-1]
-        xp = a + (b - a) * (xg + 1.0) / 2.0
-        Y = sol.sol(xp)
-        return SystemSolution([
-            _chebfun_from_values(jnp.asarray(Y[i]), self.domain)
-            for i in range(m)
-        ])
+        # Build each component as a PIECEWISE chebfun on the solver's
+        # own time mesh (MATLAB @chebfun/constructODEsol).  A single
+        # global polynomial is accurate only relative to its global
+        # vscale, so a trajectory spanning many orders of magnitude
+        # (e.g. two Lorenz orbits separating from 1e-9) evaluates to
+        # cancellation noise early on; local pieces keep local accuracy.
+        from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+
+        ts = _np.asarray(sol.t, dtype=float)
+        if ts[0] > ts[-1]:
+            ts = ts[::-1]
+        ts = _np.unique(_np.clip(ts, min(a, b), max(a, b)))
+        # Group solver steps into pieces (a piece per step would give
+        # thousands of tiny funs); ~16 steps per piece keeps each fun
+        # low-degree while bounding their number.
+        step = max(1, int(_np.ceil(ts.size / 256.0)), 8)
+        idx = list(range(0, ts.size - 1, step))
+        breaks = [float(a)] + [float(ts[i]) for i in idx[1:]] + [float(b)]
+        breaks = sorted(set(breaks))
+        span = abs(float(b) - float(a))
+        breaks = [breaks[0]] + [
+            v for k, v in enumerate(breaks[1:], 1)
+            if v - breaks[k - 1] > 1e-13 * span]
+        if breaks[-1] != float(b):
+            breaks[-1] = float(b)
+
+        def _component(i):
+            def _ev(t, _i=i):
+                tt = _np.atleast_1d(_np.asarray(t, dtype=float))
+                vals = sol.sol(tt)[_i]
+                return jnp.asarray(
+                    vals.reshape(_np.shape(t)) if _np.ndim(t) else vals[0],
+                    dtype=jnp.float64)
+            return _ev
+
+        try:
+            out = []
+            for i in range(m):
+                ev = _component(i)
+                funs = [_Piece.from_function(ev, breaks[k], breaks[k + 1])
+                        for k in range(len(breaks) - 1)]
+                out.append(Chebfun(funs=funs,
+                                   domain=Domain(tuple(breaks))))
+            return SystemSolution(out)
+        except Exception:
+            # Fall back to a single global representation.
+            nn = int(min(8193, max(257, 4 * sol.t.size)))
+            kk = _np.arange(nn)
+            xg = _np.cos(_np.pi * kk / (nn - 1))[::-1]
+            xp = a + (b - a) * (xg + 1.0) / 2.0
+            Y = sol.sol(xp)
+            return SystemSolution([
+                _chebfun_from_values(
+                    jnp.asarray(Y[i]), self.domain).simplify()
+                for i in range(m)
+            ])
 
     def eigs_generalized(self, B: "Chebop", k: int = 6,
                          n: int = 96, sort: str = "SM"):
@@ -2604,8 +2697,16 @@ class Chebop:
         # PeriodicSystem case).
         eq_orders = (self._piecewise_eq_orders(m) if m > 1
                      else [orders[0]])
-        eq_pool = [e for e in range(m)
-                   for _ in range(max(eq_orders[e], 1))]
+        # Which equation block a condition is charged to.  With equal
+        # differential orders this is plain round-robin (each equation
+        # gives up the same number of rows); with MIXED orders the pool
+        # is weighted by order, since a first-order equation must not
+        # surrender as many collocation rows as a second-order one.
+        if len(set(eq_orders)) <= 1:
+            eq_pool = list(range(m))
+        else:
+            eq_pool = [e for e in range(m)
+                       for _ in range(max(eq_orders[e], 1))]
         if not eq_pool:
             eq_pool = list(range(m))
 
@@ -2613,25 +2714,47 @@ class Chebop:
             return eq_pool[c % len(eq_pool)]
 
         # Balanced slot allocator: each (piece, equation) block gives up
-        # exactly eq_orders[e] collocation rows, taken alternately from
-        # its right and left ends.  _take(p, e, prefer) returns the next
-        # free point index in block (p, e), or None when the block has
-        # already surrendered its quota.
+        # exactly eq_orders[e] collocation rows, taken from its ends.
+        # ``_take_row`` NEVER returns a row twice -- an earlier version
+        # fell back to a fixed index when a block was exhausted, which
+        # silently overwrote a previously placed condition (two
+        # continuity rows landed on the same row of the 2x2 piecewise
+        # system in test_nonlinSysDampingBreaks_C2, losing continuity).
         _quota = {(p_, e_): max(eq_orders[e_], 1)
                   for p_ in range(P) for e_ in range(m)}
-        _off = {}
+        _used = set()
 
-        def _take(p_, e_, prefer_right):
+        def _take_in(p_, e_, prefer_right):
+            """Absolute row index inside block (p_, e_), or None."""
             if _quota[(p_, e_)] <= 0:
                 return None
-            _quota[(p_, e_)] -= 1
-            kr = _off.get((p_, e_, 'r'), 0)
-            kl = _off.get((p_, e_, 'l'), 0)
-            if prefer_right:
-                _off[(p_, e_, 'r')] = kr + 1
-                return nn - 1 - kr
-            _off[(p_, e_, 'l')] = kl + 1
-            return kl
+            pts = (range(nn - 1, -1, -1) if prefer_right
+                   else range(nn))
+            for pt in pts:
+                rr = row(e_, p_, pt)
+                if rr not in _used:
+                    _used.add(rr)
+                    _quota[(p_, e_)] -= 1
+                    return rr
+            return None
+
+        def _take_row(p_, e_, prefer_right):
+            """Absolute row index, preferring block (p_, e_) and
+            falling back to any block that still has quota (the total
+            quota always equals the number of conditions)."""
+            rr = _take_in(p_, e_, prefer_right)
+            if rr is not None:
+                return rr
+            for cand in ([(p_, e) for e in range(m)]
+                         + [(p, e_) for p in range(P)]
+                         + [(p, e) for p in range(P)
+                            for e in range(m)]):
+                rr = _take_in(cand[0], cand[1], prefer_right)
+                if rr is not None:
+                    return rr
+            raise RuntimeError(
+                "chebop piecewise: no free condition row (conditions "
+                "exceed the available collocation rows)")
 
         # Periodic problems on piecewise domains: the endpoint condition
         # slots hold the wrap-around rows u_j^(d)(a) = u_j^(d)(b),
@@ -2647,32 +2770,19 @@ class Chebop:
             n_r = len(bc_res(self._rbc_raw, us_zero, bps[-1]))
         if wrap_conds:
             # One wrap row per (var, deriv); alternate between the two
-            # end pieces (subject to each block's quota) so neither end
-            # is starved of collocation rows.
+            # end pieces so neither end is starved of collocation rows.
             l_rows = []
             for i in range(n_l):
                 e_ = _pool_eq(i)
-                ends = ((0, False), (P - 1, True)) if i % 2 == 0                     else ((P - 1, True), (0, False))
-                pt = _take(ends[0][0], e_, prefer_right=ends[0][1])
-                if pt is not None:
-                    l_rows.append(row(e_, ends[0][0], pt))
-                    continue
-                pt = _take(ends[1][0], e_, prefer_right=ends[1][1])
-                l_rows.append(row(e_, ends[1][0],
-                                  pt if pt is not None else 0))
+                p_pref, pref_right = ((0, False) if i % 2 == 0
+                                      else (P - 1, True))
+                l_rows.append(_take_row(p_pref, e_, pref_right))
             r_rows = []
         else:
-            l_rows = []
-            for i in range(n_l):
-                e_ = _pool_eq(i)
-                pt = _take(0, e_, prefer_right=False)
-                l_rows.append(row(e_, 0, 0 if pt is None else pt))
-            r_rows = []
-            for i in range(n_r):
-                e_ = _pool_eq(i)
-                pt = _take(P - 1, e_, prefer_right=True)
-                r_rows.append(row(e_, P - 1,
-                                  nn - 1 if pt is None else pt))
+            l_rows = [_take_row(0, _pool_eq(i), False)
+                      for i in range(n_l)]
+            r_rows = [_take_row(P - 1, _pool_eq(i), True)
+                      for i in range(n_r)]
 
         # Continuity: derivatives 0..k_j-1 of each variable j at every
         # interior break.  Each condition takes one of the two collocation
@@ -2684,12 +2794,12 @@ class Chebop:
         for p in range(1, P):
             for c, (j, d) in enumerate(conds):
                 eq = _pool_eq(c)
-                pt = _take(p - 1, eq, prefer_right=True)
-                if pt is not None:
-                    rr = row(eq, p - 1, pt)
-                else:
-                    pt = _take(p, eq, prefer_right=False)
-                    rr = row(eq, p, 0 if pt is None else pt)
+                # Charge the condition to the left piece when it still
+                # has quota, otherwise the right piece (or any block
+                # with room) -- never reusing a row.
+                rr = _take_in(p - 1, eq, True)
+                if rr is None:
+                    rr = _take_row(p, eq, False)
                 if p in jump_break_ps:
                     # A jump breakpoint: the .bc supplies the interface
                     # conditions, so this row slot is reserved for them.

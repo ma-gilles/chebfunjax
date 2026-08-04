@@ -20,6 +20,9 @@ from __future__ import annotations
 
 import math
 
+# uses-numpy: the small dense least-squares solve that places the
+# inhomogeneity shift onto the quartic basis (4x5); host-side setup, not
+# JIT-compiled array code.
 import jax.numpy as jnp
 import numpy as np
 

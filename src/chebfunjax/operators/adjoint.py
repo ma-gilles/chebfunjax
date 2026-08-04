@@ -24,6 +24,9 @@ from __future__ import annotations
 
 import math
 
+# uses-numpy: small dense linear algebra (rref, QR null space, and the
+# boundary complementarity matrix) on matrices of size 2*diffOrder; these
+# are host-side setup, not JIT-compiled array code.
 import jax.numpy as jnp
 import numpy as np
 
