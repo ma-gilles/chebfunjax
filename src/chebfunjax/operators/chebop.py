@@ -1741,6 +1741,44 @@ class Chebop:
                 out = [out]
             return list(out)
 
+        import inspect as _inspect
+        try:
+            _gnargs = (len(_inspect.signature(self._bc_general).parameters)
+                       if self._bc_general is not None else 0)
+        except (TypeError, ValueError):
+            _gnargs = m + 1
+
+        def gen_list(us):
+            if self._bc_general is None:
+                return []
+            out = (self._bc_general(x_fun, *us) if _gnargs > m
+                   else self._bc_general(*us))
+            if not isinstance(out, (list, tuple)):
+                out = [out]
+            mid = 0.5 * (a + b)
+            vals = []
+            for o in out:
+                if isinstance(o, (int, float)):
+                    vals.append(float(o))
+                elif hasattr(o, "funs"):
+                    vals.append(float(_np.asarray(o(jnp.asarray(mid)))))
+                else:
+                    vals.append(float(_np.asarray(o).reshape(())))
+            return vals
+
+        n_g = len(gen_list(to_funs(_np.zeros(m * n))))
+        # General .bc rows take slots alternating inward from the two
+        # ends (rows not already claimed by lbc/rbc slots at 0, n-1).
+        g_slots = []
+        off_l, off_r = 1, 1
+        for i in range(n_g):
+            if i % 2 == 0:
+                g_slots.append((i % m) * n + n - 1 - off_r)
+                off_r += 1
+            else:
+                g_slots.append((i % m) * n + off_l)
+                off_l += 1
+
         def residual(U):
             us = to_funs(U)
             out = self._call_op(x_fun, us)
@@ -1754,6 +1792,8 @@ class Chebop:
                 R[(i % m) * n] = _eval_chebfun_at(g, a)
             for i, g in enumerate(bc_list(self._rbc_raw, us)):
                 R[(i % m) * n + n - 1] = _eval_chebfun_at(g, b)
+            for i, v in enumerate(gen_list(us)):
+                R[g_slots[i]] = v
             return R
 
         U = _np.zeros(m * n)
@@ -1762,6 +1802,7 @@ class Chebop:
                 else [self.init] * m
             U = _np.concatenate([
                 _np.asarray(gi(jnp.asarray(xp))) for gi in init])
+        import scipy.linalg as _sla
         R = residual(U)
         for _it in range(max_iter):
             nrm = _np.max(_np.abs(R))
@@ -1774,12 +1815,23 @@ class Chebop:
                 Up = U.copy()
                 Up[j] += h
                 J[:, j] = (residual(Up) - R) / h
-            step = _np.linalg.solve(J, R)
+            try:
+                lu = _sla.lu_factor(J)
+            except (ValueError, _np.linalg.LinAlgError):
+                break
+            step = _sla.lu_solve(lu, R)
+            nd = _np.linalg.norm(step)
+            # Affine-invariant (Deuflhard) damping: monotone decrease of
+            # the SIMPLIFIED Newton step keeps the iteration in the
+            # initial guess's basin (see _solve_periodic_nonlinear).
             lam = 1.0
+            Rn = R
             for _d in range(30):
                 Rn = residual(U - lam * step)
-                if _np.max(_np.abs(Rn)) < nrm or lam < 1e-4:
-                    break
+                if _np.all(_np.isfinite(Rn)):
+                    step_bar = _sla.lu_solve(lu, Rn)
+                    if _np.linalg.norm(step_bar) < nd or lam < 1e-6:
+                        break
                 lam *= 0.5
             U = U - lam * step
             R = Rn
