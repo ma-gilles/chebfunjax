@@ -889,7 +889,7 @@ class Chebop:
         zero = _chebfun_from_values(jnp.zeros(2), self.domain)
 
         def apply_op(us):
-            out = self.op(x_fun, *us)
+            out = self._call_op(x_fun, us)
             if not isinstance(out, (list, tuple)):
                 out = [out]
             return [zero + o if isinstance(o, (int, float)) else o
@@ -1000,7 +1000,7 @@ class Chebop:
         zero = _chebfun_from_values(jnp.zeros(2), self.domain)
 
         def apply_op(us):
-            out = self.op(x_fun, *us)
+            out = self._call_op(x_fun, us)
             if not isinstance(out, (list, tuple)):
                 out = [out]
             return [zero + o if isinstance(o, (int, float)) else o
@@ -1115,7 +1115,7 @@ class Chebop:
 
         def residual(U):
             us = to_funs(U)
-            out = self.op(x_fun, *us)
+            out = self._call_op(x_fun, us)
             if not isinstance(out, (list, tuple)):
                 out = [out]
             R = _np.concatenate([
@@ -1201,7 +1201,7 @@ class Chebop:
 
         def op_at(t, y):
             us = const_funs(y)
-            out = self.op(x_fun, *us)
+            out = self._call_op(x_fun, us)
             if not isinstance(out, (list, tuple)):
                 out = [out]
             tt = jnp.asarray(t)
@@ -1671,8 +1671,15 @@ class Chebop:
                 for _ in range(m)
             ]
 
+        import inspect as _inspect
+        try:
+            _nargs = len(_inspect.signature(self.op).parameters)
+        except (TypeError, ValueError):
+            _nargs = m + 1
+
         def ev(us):
-            out = self.op(x_fun, *us)
+            out = (self.op(x_fun, *us) if _nargs > m
+                   else self.op(*us))
             if not isinstance(out, (list, tuple)):
                 out = [out]
             return _np.concatenate([
@@ -1736,7 +1743,7 @@ class Chebop:
 
         def residual(U):
             us = to_funs(U)
-            out = self.op(x_fun, *us)
+            out = self._call_op(x_fun, us)
             if not isinstance(out, (list, tuple)):
                 out = [out]
             R = _np.concatenate([
@@ -1815,7 +1822,7 @@ class Chebop:
         zero = _chebfun_from_values(jnp.zeros(2), self.domain)
 
         def apply_op(us):
-            out = self.op(x_fun, *us)
+            out = self._call_op(x_fun, us)
             if not isinstance(out, (list, tuple)):
                 out = [out]
             out = list(out)
@@ -3639,6 +3646,18 @@ class Chebop:
             return SystemSolution(list(out)) \
                 if isinstance(out, (list, tuple)) else out
         return self._apply_op(x_fun, u)
+
+    def _call_op(self, x_fun, us):
+        """Call self.op with or without the leading x argument, matching
+        the op's arity (ops of one unknown may be written either as
+        lambda u: ... or lambda x, u: ...)."""
+        import inspect
+        try:
+            nargs = len(inspect.signature(self.op).parameters)
+        except (TypeError, ValueError):
+            nargs = len(us) + 1
+        return (self.op(x_fun, *us) if nargs > len(us)
+                else self.op(*us))
 
     def _apply_op(self, x_fun, u_fun):
         """Evaluate self.op(x_fun, u_fun) or self.op(u_fun).
