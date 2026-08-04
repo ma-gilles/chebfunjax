@@ -2838,11 +2838,114 @@ class Chebop:
         return self.solve(f)
 
     def __repr__(self) -> str:
-        a, b = self.domain
-        return (
-            f"Chebop(domain=({a}, {b}), lbc={self._lbc_raw!r}, "
-            f"rbc={self._rbc_raw!r})"
-        )
+        """MATLAB-style linear-operator display (@chebop/display).
+
+        Reproduces the published format::
+
+               Linear operator:
+                  u |--> diff(u,2)+u
+               operating on chebfun objects defined on:
+                  [-1,1]
+               with
+                left boundary condition(s):
+                  u = 0
+
+        The op string comes from ``_disp_op_str`` when set (e.g. by
+        :func:`~chebfunjax.operators.adjoint.adjoint`) or is recovered
+        from the lambda source with chebfun-method-to-MATLAB rewriting
+        (``u.diff(2)`` -> ``diff(u,2)``, ``*`` -> ``.*``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/display.m
+        Chebfun commit: 7574c77
+        """
+        import inspect
+        import re
+
+        a, b = (float(self.domain[0]), float(self.domain[-1]))
+
+        var = getattr(self, "_disp_var", None)
+        op_str = getattr(self, "_disp_op_str", None)
+        if op_str is None and self.op is not None:
+            try:
+                params = list(
+                    inspect.signature(self.op).parameters.keys())
+                var = params[-1]
+                src = inspect.getsource(self.op)
+                body = src.split(":", 1)[1]
+                # Cut at the first comma/paren at lambda-arg depth 0
+                # (the lambda is usually inline in a call).
+                depth = 0
+                out_chars = []
+                for ch in body:
+                    if ch in "([{":
+                        depth += 1
+                    elif ch in ")]}":
+                        if depth == 0:
+                            break
+                        depth -= 1
+                    elif ch == "," and depth == 0:
+                        break
+                    elif ch == "\n":
+                        break
+                    out_chars.append(ch)
+                body = "".join(out_chars).strip()
+                body = re.sub(r"(\w+)\.diff\((\d+)\)", r"diff(\1,\2)",
+                              body)
+                body = re.sub(r"(\w+)\.diff\(\)", r"diff(\1)", body)
+                body = re.sub(
+                    r"(\w+)\.(sin|cos|exp|tan|sinh|cosh|tanh|sqrt|log)"
+                    r"\(\)", r"\2(\1)", body)
+                body = body.replace(" ", "").replace("**", "^")
+                body = body.replace("*", ".*").replace("/", "./")
+                op_str = body
+            except Exception:
+                op_str = "<op>"
+        if var is None:
+            var = "u"
+
+        def _fmt_num(v):
+            fv = float(v)
+            return str(int(fv)) if fv == int(fv) else f"{fv:g}"
+
+        def _bc_lines(spec, disp_list):
+            if disp_list:
+                if len(disp_list) == 1:
+                    return [f"{disp_list[0]} = 0"]
+                return ["[" + ";".join(disp_list) + "] = 0"]
+            if spec is None:
+                return []
+            if isinstance(spec, (int, float)):
+                return [f"{var} = {_fmt_num(spec)}"]
+            if isinstance(spec, (list, tuple)):
+                primes = [var + "'" * i for i in range(len(spec))]
+                w = max(len(p) for p in primes)
+                return [f"{p:<{w}} = {_fmt_num(v)}"
+                        for p, v in zip(primes, spec)]
+            return [f"{var} = 0"]
+
+        def _dom_str(v):
+            fv = float(v)
+            return str(int(fv)) if fv == int(fv) else f"{fv:g}"
+
+        lines = ["   Linear operator:",
+                 f"      {var} |--> {op_str}",
+                 "   operating on chebfun objects defined on:",
+                 f"      [{_dom_str(a)},{_dom_str(b)}]"]
+        lbc = _bc_lines(self._lbc_raw, getattr(self, "_disp_lbc", None))
+        rbc = _bc_lines(self._rbc_raw, getattr(self, "_disp_rbc", None))
+        if lbc or rbc or getattr(self, "_periodic", False):
+            lines.append("   with")
+        if lbc:
+            lines.append("    left boundary condition(s):")
+            lines.extend(f"      {ln}" for ln in lbc)
+        if rbc:
+            lines.append("    right boundary condition(s):")
+            lines.extend(f"      {ln}" for ln in rbc)
+        if getattr(self, "_periodic", False):
+            lines.append("    periodic boundary conditions.")
+        return "\n".join(lines)
 
     # ------------------------------------------------------------------
     # Linearity detection

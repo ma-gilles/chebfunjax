@@ -5,7 +5,7 @@ via spectral collocation. These examples cover the classical linear ODEs.
 
 | Example | Description |
 |---------|-------------|
-| [Adjoint of a linear operator](adjoints.md) | For a linear operator ..., the adjoint ... satisfies .... This example numerically verifies the adjoint identity for ... |
+| [Adjoints of linear operators (replica)](Adjoints.md) | Faithful replica: adjoint() port, biorthogonality Gram diag digit-for-digit. |
 | [Advection-diffusion equation with a jump (replica)](AdvDiffJump.md) | Faithful replica: discontinuous advection coefficient auto-routes to piecewise solve, scipy-verified 1e-11. |
 | [Airy Equation](airy_equation.md) | The Airy equation ... is the simplest second-order ODE with a turning point. Its two independent solutions — ... and ... |
 | [Bessel Equation BVP](bessel_bvp.md) | Bessel's differential equation of order ...: |
