@@ -2124,7 +2124,8 @@ class Chebop:
     def _piecewise_linear_matrix(self, m, P, nn, Pn, bps, ints, xps,
                                  orders, to_funs, apply_op, bc_res,
                                  residual, l_rows, r_rows, c_rows,
-                                 f_vals, wrap_conds=None):
+                                 f_vals, wrap_conds=None,
+                                 use_cache=True):
         """Direct collocation matrix for a LINEAR piecewise problem.
 
         Returns ``(A, R0)`` with ``residual(U) == A @ U + R0`` for linear
@@ -2160,7 +2161,8 @@ class Chebop:
         # while re-evaluating the extracted coefficients is millisecs).
         cache_key = (m, tuple(bps), id(self.op),
                      id(self._lbc_raw), id(self._rbc_raw))
-        cache = getattr(self, "_pw_lin_cache", None)
+        cache = (getattr(self, "_pw_lin_cache", None)
+                 if use_cache else None)
         fresh = cache is None or cache.get("key") != cache_key
         if fresh:
             def _as_fun(o):
@@ -2204,7 +2206,8 @@ class Chebop:
                     c_funs[eq][var] = ck_list
             cache = {"key": cache_key, "c_funs": c_funs,
                      "op0_funs": op0_funs}
-            self._pw_lin_cache = cache
+            if use_cache:
+                self._pw_lin_cache = cache
 
         # R0 = residual at zero, built from the cached op0 (one op
         # application total, not one per refinement level): op rows are
@@ -2346,22 +2349,41 @@ class Chebop:
             return True
 
         sol = None
-        for nn in (32, 64, 128, 256, 512):
-            sol = self._solve_piecewise_at(
-                f, n=nn, max_iter=max_iter, extra_breaks=extra_breaks,
-                cont_breaks=cont_breaks)
-            used_linear = getattr(self, "_pw_linear_used", False)
-            candidates = (list(sol) if isinstance(sol, SystemSolution)
-                          else [sol])
-            try:
-                if _happy(candidates):
+        saved_init = self.init
+        try:
+            for nn in (32, 64, 128, 256, 512):
+                sol = self._solve_piecewise_at(
+                    f, n=nn, max_iter=max_iter,
+                    extra_breaks=extra_breaks,
+                    cont_breaks=cont_breaks)
+                # Seed the next refinement level with this solution
+                # (grid-continuation; restarting Newton from the line
+                # guess at every level rediscovers the wrong basin on
+                # hard nonlinear problems).
+                if not getattr(self, "_pw_linear_used", False):
+                    self.init = (list(sol)
+                                 if isinstance(sol, SystemSolution)
+                                 else sol)
+                used_linear = getattr(self, "_pw_linear_used", False)
+                candidates = (list(sol)
+                              if isinstance(sol, SystemSolution)
+                              else [sol])
+                try:
+                    if _happy(candidates):
+                        break
+                except Exception:
                     break
-            except Exception:
-                break
-            # FD-Newton refinement is O((mPn)^2) residual evaluations;
-            # cap it where MATLAB's default dimension also stops.
-            if not used_linear and nn >= 64:
-                break
+                # FD-Newton refinement is O((mPn)^2) residual
+                # evaluations; cap it where MATLAB's default dimension
+                # also stops.  The monomial-probe Jacobian escalates
+                # further at low cost.
+                fastjac = getattr(self, "_pw_fastjac_used", False)
+                if not used_linear and not fastjac and nn >= 64:
+                    break
+                if not used_linear and fastjac and nn >= 256:
+                    break
+        finally:
+            self.init = saved_init
         return sol
 
     def _solve_piecewise_at(self, f=0.0, n: int | None = None,
@@ -2801,18 +2823,62 @@ class Chebop:
             U = _np.concatenate(blocks)
 
         # Damped Newton (linear problems converge in a single full step).
+        self._pw_fastjac_used = False
+
+        def _fast_jacobian(U_k):
+            """Frechet-derivative matrix at U_k via monomial probes:
+            J w = (N(u_k + h w) - N(u_k))/h is LINEAR in w, so the same
+            coefficient extraction as the linear fast path assembles it
+            with (order+1)*m op applications instead of m*P*n finite-
+            difference columns."""
+            us_k = to_funs(U_k)
+            hh = 1e-7 * max(1.0, float(_np.max(_np.abs(U_k))))
+            out_base = apply_op(us_k)
+
+            def apply_op_lin(ws):
+                pert = [us_k[j] + hh * ws[j] for j in range(m)]
+                out_p = apply_op(pert)
+                return [(a - b) * (1.0 / hh)
+                        for a, b in zip(out_p, out_base)]
+
+            lin = self._piecewise_linear_matrix(
+                m, P, nn, Pn, bps, ints, xps, orders,
+                to_funs, apply_op_lin, bc_res, residual,
+                l_rows, r_rows, c_rows,
+                _np.zeros_like(f_vals), wrap_conds=wrap_conds,
+                use_cache=False)
+            return _np.asarray(lin[0])
+
         R = residual(U)
         Rn = R
         for _it in range(max_iter):
             nrm = _np.max(_np.abs(R))
             if nrm < 1e-12:
                 break
-            J = _np.zeros((m * Pn, m * Pn))
-            h = 1e-7 * max(1.0, _np.max(_np.abs(U)))
-            for jc in range(m * Pn):
-                Up = U.copy()
-                Up[jc] += h
-                J[:, jc] = (residual(Up) - R) / h
+            J = None
+            try:
+                J = _fast_jacobian(U)
+                # Directional sanity check against the true residual.
+                rng_j = _np.random.RandomState(1)
+                w_t = rng_j.randn(m * Pn)
+                h_t = 1e-6 * max(1.0, float(_np.max(_np.abs(U))))
+                d_true = (residual(U + h_t * w_t) - R) / h_t
+                d_lin = J @ w_t
+                scl = max(1.0, float(_np.max(_np.abs(d_true))))
+                if (float(_np.max(_np.abs(d_lin - d_true)))
+                        > 1e-3 * scl):
+                    J = None
+            except Exception:
+                J = None
+            if J is not None:
+                self._pw_fastjac_used = True
+            else:
+                J = _np.zeros((m * Pn, m * Pn))
+                h = 1e-7 * max(1.0, _np.max(_np.abs(U)))
+                for jc in range(m * Pn):
+                    Up = U.copy()
+                    Up[jc] += h
+                    J[:, jc] = (residual(Up) - R) / h
             try:
                 step = _np.linalg.solve(J, R)
             except _np.linalg.LinAlgError:
