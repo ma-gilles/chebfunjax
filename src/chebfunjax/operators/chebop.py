@@ -491,7 +491,10 @@ class Chebop:
         # unknown piece-by-piece and glue with continuity conditions at the
         # breaks.  Handles both scalar and system BVPs; single-interval
         # domains fall through to the established spectral paths unchanged.
-        if len(self.domain) > 2 and not getattr(self, "_periodic", False):
+        if len(self.domain) > 2:
+            # Periodic problems on piecewise domains solve with the
+            # piecewise collocation too — the endpoint slots carry
+            # wrap-around rows instead of lbc/rbc (PeriodicSystem).
             return self._solve_piecewise(f, n=n, max_iter=max_iter)
 
         # A discontinuous coefficient (e.g. ``(x>=0)*diff(u)``) injects
@@ -2089,7 +2092,7 @@ class Chebop:
     def _piecewise_linear_matrix(self, m, P, nn, Pn, bps, ints, xps,
                                  orders, to_funs, apply_op, bc_res,
                                  residual, l_rows, r_rows, c_rows,
-                                 f_vals):
+                                 f_vals, wrap_conds=None):
         """Direct collocation matrix for a LINEAR piecewise problem.
 
         Returns ``(A, R0)`` with ``residual(U) == A @ U + R0`` for linear
@@ -2191,10 +2194,13 @@ class Chebop:
         # Subtract the RHS exactly as residual() does.
         R0 = R0 - f_vals
         us_zero_l = to_funs(_np.zeros(m * Pn))
-        for i, v in enumerate(bc_res(self._lbc_raw, us_zero_l, bps[0])):
-            R0[l_rows[i]] = v
-        for i, v in enumerate(bc_res(self._rbc_raw, us_zero_l, bps[-1])):
-            R0[r_rows[i]] = v
+        if not wrap_conds:
+            for i, v in enumerate(bc_res(self._lbc_raw, us_zero_l,
+                                         bps[0])):
+                R0[l_rows[i]] = v
+            for i, v in enumerate(bc_res(self._rbc_raw, us_zero_l,
+                                         bps[-1])):
+                R0[r_rows[i]] = v
         for (rr, _j, _d, _bp, _pl, _pr) in c_rows:
             R0[rr] = 0.0
 
@@ -2257,8 +2263,19 @@ class Chebop:
                     for ri, rr in enumerate(rows_idx):
                         A[rr, var * Pn + piece * nn + i] = col[ri]
 
-        _bc_rows_probe(self._lbc_raw, bps[0], l_rows, 0)
-        _bc_rows_probe(self._rbc_raw, bps[-1], r_rows, P - 1)
+        if wrap_conds:
+            for i, (j, dd) in enumerate(wrap_conds):
+                rr = l_rows[i]
+                A[rr, :] = 0.0
+                A[rr, j * Pn + 0 * nn: j * Pn + 1 * nn] = \
+                    (Dmats[0][dd][0, :] if dd > 0 else _np.eye(nn)[0])
+                A[rr, j * Pn + (P - 1) * nn: j * Pn + P * nn] -= \
+                    (Dmats[P - 1][dd][-1, :] if dd > 0
+                     else _np.eye(nn)[-1])
+                R0[rr] = 0.0
+        else:
+            _bc_rows_probe(self._lbc_raw, bps[0], l_rows, 0)
+            _bc_rows_probe(self._rbc_raw, bps[-1], r_rows, P - 1)
 
         return A, R0, fresh
 
@@ -2467,9 +2484,30 @@ class Chebop:
             return eq * Pn + p * nn + pt
 
         us_zero = to_funs(_np.zeros(m * Pn))
-        n_l = len(bc_res(self._lbc_raw, us_zero, bps[0]))
-        n_r = len(bc_res(self._rbc_raw, us_zero, bps[-1]))
-        l_rows = [row(i % m, 0, 0) for i in range(n_l)]
+        # Periodic problems on piecewise domains: the endpoint condition
+        # slots hold the wrap-around rows u_j^(d)(a) = u_j^(d)(b),
+        # d < order_j (MATLAB's periodic chebcolloc continuity).
+        wrap_conds = []
+        if getattr(self, "_periodic", False):
+            if m > 1:
+                # Mixed-order systems need per-equation row allocation
+                # (the eq = c % m heuristic starves low-order equations
+                # of collocation rows); tracked for the PeriodicSystem
+                # example's breakpoint case.
+                raise NotImplementedError(
+                    "periodic systems on piecewise domains are not "
+                    "supported yet")
+            wrap_conds = [(j, d) for j in range(m)
+                          for d in range(orders[j])]
+            n_l = len(wrap_conds)
+            n_r = 0
+        else:
+            n_l = len(bc_res(self._lbc_raw, us_zero, bps[0]))
+            n_r = len(bc_res(self._rbc_raw, us_zero, bps[-1]))
+        half = (n_l + 1) // 2
+        l_rows = ([row(i % m, 0, 0) for i in range(half)]
+                  + [row(i % m, P - 1, nn - 1)
+                     for i in range(half, n_l)]) if wrap_conds else             [row(i % m, 0, 0) for i in range(n_l)]
         r_rows = [row(i % m, P - 1, nn - 1) for i in range(n_r)]
 
         # Continuity: derivatives 0..k_j-1 of each variable j at every
@@ -2560,10 +2598,22 @@ class Chebop:
                         R = R.astype(_np.complex128)
                     R[sl] = ov
             R = R - f_vals
-            for i, v in enumerate(bc_res(self._lbc_raw, us, bps[0])):
-                R[l_rows[i]] = v
-            for i, v in enumerate(bc_res(self._rbc_raw, us, bps[-1])):
-                R[r_rows[i]] = v
+            if wrap_conds:
+                for i, (j, dd) in enumerate(wrap_conds):
+                    ua = (us[j].funs[0].diff(dd)(jnp.asarray(bps[0]))
+                          if dd > 0 else
+                          us[j].funs[0](jnp.asarray(bps[0])))
+                    ub = (us[j].funs[-1].diff(dd)(jnp.asarray(bps[-1]))
+                          if dd > 0 else
+                          us[j].funs[-1](jnp.asarray(bps[-1])))
+                    R[l_rows[i]] = float(ua) - float(ub)
+            else:
+                for i, v in enumerate(bc_res(self._lbc_raw, us,
+                                             bps[0])):
+                    R[l_rows[i]] = v
+                for i, v in enumerate(bc_res(self._rbc_raw, us,
+                                             bps[-1])):
+                    R[r_rows[i]] = v
             for (rr, j, d, bp, p_l, p_r) in c_rows:
                 xb = jnp.asarray(bp)
                 left = us[j].funs[p_l].diff(d)(xb) if d > 0 \
@@ -2593,7 +2643,8 @@ class Chebop:
                 lin = self._piecewise_linear_matrix(
                     m, P, nn, Pn, bps, ints, xps, orders,
                     to_funs, apply_op, bc_res, residual,
-                    l_rows, r_rows, c_rows, f_vals)
+                    l_rows, r_rows, c_rows, f_vals,
+                    wrap_conds=wrap_conds)
             except Exception:
                 lin = None
             if lin is not None:

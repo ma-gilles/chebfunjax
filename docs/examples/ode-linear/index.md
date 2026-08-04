@@ -24,7 +24,7 @@ via spectral collocation. These examples cover the classical linear ODEs.
 | [Green's functions and jump conditions (replica)](JumpGreen.md) | Faithful replica: jump()/one-sided interior conditions, Green's function fan. |
 | [A continuous analogue of Krylov subspace methods for ODEs](krylov.md) | Demonstrates the spectral convergence of the Chebyshev pseudospectral method for solving ... on ... with Dirichlet bo... |
 | [Lane-Emden equation from astrophysics](lane_emden_linear.md) | Solves the Lane-Emden equation of stellar structure: |
-| [Lee and Greengard ODE examples](lee_greengard.md) | Reproduces three classic ODE examples from Lee and Greengard (1997): a viscous shock (solved via ...), an interior-la... |
+| [Lee & Greengard ODE test problems (replica)](LeeGreengardODEs.md) | Faithful replica: six stiff BVP stress tests (shock, Bessel nu=100, turning points, cusp). |
 | [A linear exponential initial-value problem (replica)](LinExpIVP.md) | Faithful replica: stiff IVP u' = -10000u via chebop, err 1.15e-11. |
 | [Linear sine/cosine initial-value problem (replica)](LinearIVP.md) | Faithful replica: u''+u=0 on [0,100], IVP via chebop backslash. |
 | [Boundary layers and matched asymptotics (replica)](MatchedAsymp.md) | Faithful replica: singular perturbation vs matched-asymptotics model, O(sqrt(eps)) error. |
