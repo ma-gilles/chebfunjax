@@ -36,7 +36,7 @@ via spectral collocation. These examples cover the classical linear ODEs.
 | [Piecewise operators demo](piecewise_demo.md) | Demonstrates Chebop for solving ... on ... with Dirichlet boundary conditions. The sign function |
 | [Poisson Equation](poisson_equation.md) | The 1D Poisson equation ... with Dirichlet boundary conditions ... is the simplest elliptic boundary value problem. Its |
 | [Stability regions of ODE formulas (replica)](Regions.md) | Faithful replica: AB/RK/BDF stability boundaries as complex chebfuns. |
-| [Resonance exploited by Carrier and Pearson's vandal](resonant_vandal.md) | Solves the harmonic oscillator BVP ... demonstrating resonance when the forcing frequency matches the |
+| [Resonant vandalism (replica)](ResonantVandal.md) | Faithful replica: resonant oscillator, breakaway time to 10 digits. |
 | [Diffmat, diffrow, intmat, introw, gridsample](spectral_disc.md) | Directly demonstrates Chebyshev differentiation matrices ..., ... and their properties. Verifies that ... and ... |
 | [Multiple BVP solutions by solving an IVP](two_sol_bvp.md) | The BVP ... with ... has multiple solutions. Different initial guesses for the shooting parameter ... converge to |
 | [Wikipedia ODE examples (replica)](WikiODE.md) | Faithful replica: the three Wikipedia linear ODE problems via chebop backslash, eps-level accuracy. |
