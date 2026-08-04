@@ -11,7 +11,7 @@ physics and engineering.
 | [Bloodhound supersonic car](bloodhound.md) | Models the acceleration of the Bloodhound SSC supersonic car: |
 | [Blowup equation (Frank-Kamenetskii)](blowup_fk.md) | Solves the Frank-Kamenetskii equation from combustion theory: |
 | [System of two nonlinear BVPs](bvp_system.md) | Solves the coupled nonlinear system: |
-| [The Carrier Equation](carrier_equation.md) | The Carrier equation is a nonlinear boundary value problem from Bender and Orszag [1]: |
+| [The Carrier equation (replica)](Carrier.md) | Faithful replica: three solution branches selected by the initial guess, with Newton convergence histories. |
 | [Phase portraits with chebop/quiver](chebop_quiver.md) | Draws phase portraits for four classic nonlinear ODE systems: van der Pol oscillator, Lotka-Volterra predator-prey, p... |
 | [Delay differential equations in Chebfun](delay_odes.md) | Solves delay differential equations (DDEs) including the pantograph equation |
 | [A droplet sitting on a surface](droplets.md) | Models a sessile droplet on a flat surface via the capillary equation. The droplet shape satisfies: |

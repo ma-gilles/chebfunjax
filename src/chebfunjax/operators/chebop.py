@@ -423,6 +423,24 @@ class Chebop:
         # 2e-9 from exactly this).
         return self._simplify_solution(out)
 
+    def solvebvp(self, f=0.0, **kwargs):
+        """Solve and also return the Newton convergence history.
+
+        MATLAB's ``[u, info] = solvebvp(N, rhs)``.  ``info`` is a dict
+        with ``normDelta`` — the norm of each accepted Newton update,
+        the sequence solvebvp's iteration display plots.  For a linear
+        problem (no Newton iteration) ``normDelta`` is empty.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/solvebvp.m
+        Chebfun commit: 7574c77
+        """
+        self._last_info = None
+        u = self.solve(f, **kwargs)
+        info = getattr(self, "_last_info", None) or {"normDelta": []}
+        return u, info
+
     @staticmethod
     def _simplify_solution(out):
         from chebfunjax.chebfun1d.chebfun import Chebfun
@@ -4379,6 +4397,8 @@ class Chebop:
         MATLAB source : @chebop/solvebvpNonlinear.m, @chebop/newtonBVP.m
         Chebfun commit: 7574c77
         """
+        import scipy.linalg as _sla
+
         from chebfunjax.chebfun1d.chebfun import Chebfun
         from chebfunjax.tech.chebtech import Chebtech2
 
@@ -4387,6 +4407,9 @@ class Chebop:
         rhs = _make_rhs_callable(f)
         bcs, bc_vals = self._parse_bcs()
         n_bc = len(bcs)
+        # Newton convergence history across all refinement levels
+        # (MATLAB info.normDelta).
+        info_delta: list[float] = []
 
         fixed_size = n is not None
         sz = int(n) if fixed_size else max(n_min, 16)
@@ -4431,12 +4454,19 @@ class Chebop:
             # materialization at n~1024 segfault XLA's CPU backend.
             u0_np = _np.asarray(u_vals, dtype=_np.float64)
 
+            run_delta: list[float] = []
+
             def _newton_run(damped):
-                """Run Newton from u0; return (u, r, Nu, ufun, converged)."""
+                """Run Newton from u0; return (u, r, Nu, ufun, converged).
+
+                Also records the norm of each accepted Newton update in
+                ``norm_delta`` (MATLAB ``info.normDelta``, the
+                convergence history plotted by solvebvp's display).
+                """
                 u_np = u0_np.copy()
                 r_np, Nu_v, ufun = _residual(u_np)
-                r_norm = float(_np.max(_np.abs(r_np)))
                 converged = False
+                norm_delta = []
                 for _it in range(max_iter):
                     J_mat = self._jacobian_matrix(
                         disc, x_fun, ufun, jnp.asarray(Nu_v)
@@ -4445,26 +4475,35 @@ class Chebop:
                     for i, bc in enumerate(bcs):
                         J_np[sz - n_bc + i, :] = _np.asarray(bc.matrix(disc))
                     try:
-                        delta = _np.linalg.solve(J_np, -r_np)
-                    except _np.linalg.LinAlgError:
+                        lu = _sla.lu_factor(J_np)
+                        delta = _sla.lu_solve(lu, -r_np)
+                    except (ValueError, _np.linalg.LinAlgError):
                         break
                     if not _np.all(_np.isfinite(delta)):
                         break
 
                     if damped:
-                        # Monotone backtracking on the residual norm
-                        # (MATLAB solvebvpNonlinear damps for global
-                        # convergence on stiff problems).
+                        # Affine-invariant (Deuflhard) damping: require
+                        # the SIMPLIFIED Newton step to shrink, reusing
+                        # the LU factorization.  Backtracking on the
+                        # RESIDUAL instead walks out of the initial
+                        # guess's basin toward whichever solution
+                        # happens to dominate globally -- the Carrier
+                        # equation's wigglier guess is supposed to
+                        # converge to its own multi-bump solution, and
+                        # residual-monotone damping diverged there.
+                        nd = _np.linalg.norm(delta)
                         lam_damp = 1.0
-                        for _ls in range(8):
+                        for _ls in range(25):
                             u_try = u_np + lam_damp * delta
                             r_try, Nu_try, ufun_try = _residual(u_try)
                             r_try_norm = float(_np.max(_np.abs(r_try)))
-                            if _np.isfinite(r_try_norm) and (
-                                r_try_norm <= (1.0 - 0.25 * lam_damp) * r_norm
-                                or r_try_norm < newton_tol
-                            ):
-                                break
+                            if _np.isfinite(r_try_norm):
+                                d_bar = _sla.lu_solve(lu, -r_try)
+                                if (_np.linalg.norm(d_bar) < nd
+                                        or r_try_norm < newton_tol
+                                        or lam_damp < 1e-6):
+                                    break
                             lam_damp *= 0.5
                     else:
                         lam_damp = 1.0
@@ -4475,25 +4514,54 @@ class Chebop:
                     if not _np.isfinite(r_try_norm):
                         break
                     u_np, r_np, Nu_v, ufun = u_try, r_try, Nu_try, ufun_try
-                    r_norm = r_try_norm
 
                     step_norm = float(_np.max(_np.abs(lam_damp * delta)))
+                    norm_delta.append(step_norm)
                     u_scale = max(1.0, float(_np.max(_np.abs(u_np))))
                     if step_norm < newton_tol * u_scale:
                         converged = True
                         break
+                run_delta.clear()
+                run_delta.extend(norm_delta)
                 return u_np, ufun, converged
 
             # Plain Newton first (the fast path, and what stiff-but-benign
             # problems like the van der Pol IVP-as-BVP need); fall back to
             # a damped run from the same start only if it diverges.
+            def _resid_norm(v):
+                """Collocation residual of an iterate (inf, if unusable)."""
+                if not _np.all(_np.isfinite(v)):
+                    return float("inf")
+                try:
+                    rv = _residual(v)[0]
+                except Exception:
+                    return float("inf")
+                rn = float(_np.max(_np.abs(rv)))
+                return rn if _np.isfinite(rn) else float("inf")
+
             u_np, u_fun, newton_converged = _newton_run(damped=False)
-            if not newton_converged and not _np.all(
-                _np.isfinite(u_np)
-            ) or (not newton_converged and float(
-                _np.max(_np.abs(u_np))
-            ) > 1e8):
-                u_np, u_fun, newton_converged = _newton_run(damped=True)
+            plain_delta = list(run_delta)
+            # ``converged`` alone is not trustworthy: the step test is
+            # RELATIVE (step < tol * max|u|), so a run that blows up to
+            # 1e12 accepts steps of order 0.5 and reports success.  Judge
+            # the iterate by its residual, and keep whichever run is
+            # actually better (the Carrier equation's wiggly initial
+            # guess diverged this way).
+            r_plain = _resid_norm(u_np)
+            scale = max(1.0, float(_np.max(_np.abs(u_np)))
+                        if _np.all(_np.isfinite(u_np)) else 1.0)
+            if (not newton_converged or r_plain > 1e-6 * scale
+                    or not _np.isfinite(r_plain)):
+                u_d, u_fun_d, conv_d = _newton_run(damped=True)
+                if _resid_norm(u_d) < r_plain:
+                    u_np, u_fun, newton_converged = u_d, u_fun_d, conv_d
+                else:
+                    run_delta.clear()
+                    run_delta.extend(plain_delta)
+            # The damped fallback restarts from the same guess, so its
+            # history replaces (not extends) the undamped attempt's.
+            info_delta.extend(run_delta)
+            self._last_info = {"normDelta": list(info_delta)}
 
             u_vals = jnp.asarray(u_np, dtype=jnp.float64)
 

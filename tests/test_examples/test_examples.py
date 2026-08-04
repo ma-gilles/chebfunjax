@@ -159,8 +159,10 @@ class TestOdeNonlin:
     def test_logistic_equation(self):
         assert _load("ode-nonlin", "logistic_equation").run()
 
-    def test_carrier_equation(self):
-        assert _load("ode-nonlin", "carrier_equation").run()
+    def test_carrier_replica(self):
+        # Faithful replica (2026-08): prints MATLAB-parity outputs and
+        # returns None; completion is the assertion.
+        _load("ode-nonlin", "carrier_replica").run()
 
     def test_pendulum_equation(self):
         assert _load("ode-nonlin", "pendulum_equation").run()
