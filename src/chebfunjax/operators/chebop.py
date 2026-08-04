@@ -4824,14 +4824,19 @@ class Chebop:
     def _callable_bc_to_functional(
         self, bc_fn, endpoint: float
     ) -> tuple[list[FunctionalBlock], list[float]]:
-        """Linearize a callable BC g(u) into a FunctionalBlock.
+        """Linearize a callable BC g(u) into FunctionalBlocks.
 
         Computes the Jacobian row of g evaluated at u=0 by finite differences.
+        A callable may return SEVERAL conditions (MATLAB
+        ``N.lbc = @(u) [u; diff(u,2)]`` imposes two); each component
+        becomes its own functional, otherwise a high-order problem is
+        silently left under-determined and its collocation matrix is
+        singular.
 
         Returns
         -------
-        blocks : list[FunctionalBlock] (length 1)
-        values : list[float] (length 1 — the g(0) value negated)
+        blocks : list[FunctionalBlock] (one per condition)
+        values : list[float] (the negated g(0) values)
         """
         from chebfunjax.chebfun1d.chebfun import Chebfun
 
@@ -4842,6 +4847,25 @@ class Chebop:
         # Evaluate g at zero
         zero_vals = jnp.zeros(8, dtype=jnp.float64)
         u0 = Chebfun.from_values(zero_vals, Domain(domain))
+
+        # Multi-condition callable: split into one sub-callable per
+        # component and linearize each independently.
+        try:
+            probe = bc_fn(u0)
+        except Exception:
+            probe = None
+        if isinstance(probe, (list, tuple)):
+            blocks: list[FunctionalBlock] = []
+            values: list[float] = []
+            for i in range(len(probe)):
+                def _component(u, _i=i, _fn=bc_fn):
+                    out = _fn(u)
+                    return out[_i]
+                blk, val = self._callable_bc_to_functional(
+                    _component, endpoint)
+                blocks.extend(blk)
+                values.extend(val)
+            return blocks, values
 
         # The BC value is -g(u0) (we enforce g(u) = 0, so rhs = -g(0))
         try:

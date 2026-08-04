@@ -19,7 +19,7 @@ physics and engineering.
 | [Four bugs on a rectangle](four_bugs.md) | Four bugs start at the corners of a ... rectangle. Each bug always moves directly toward the next bug (clockwise). Th... |
 | [Fourier collocation for nonlinear periodic ODEs (replica)](FourierCollocationNonLin.md) | Faithful replica: two Newton branches, second-solution length 81 exact. |
 | [A nonlinear system of Guckenheimer and Holmes](guckenheimer_holmes.md) | Studies a 3D nonlinear ODE system from Guckenheimer and Holmes that exhibits a heteroclinic cycle connecting three sa... |
-| [A third-order nonlinear BVP on the half-line](gulf_stream.md) | Solves the Falkner-Skan-type equation from oceanographic modeling: |
+| [A Gulf Stream model (replica)](GulfStream.md) | Faithful replica: 3rd-order nonlinear BVP with two left-end conditions; conserved quantity I = 1/2. |
 | [IVP capabilities](ivp_capabilities.md) | Demonstrates initial value problem capabilities for several classic systems: the van der Pol oscillator, Duffing osci... |
 | [Lane-Emden equation from astrophysics (nonlinear)](lane_emden_nonlin.md) | Solves the nonlinear Lane-Emden equation for polytropic indices ...: |
 | [Logistic map and chaos](logistic.md) | Explores the logistic map ... and its bifurcation diagram showing period-doubling cascades and the onset of chaos. |
