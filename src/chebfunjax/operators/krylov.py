@@ -23,7 +23,7 @@ import math
 import jax.numpy as jnp
 import numpy as np
 
-__all__ = ["pcg", "minres"]
+__all__ = ["pcg", "minres", "gmres"]
 
 
 def _ip(f, g):
@@ -110,7 +110,8 @@ def _setup(L, f, tol):
     return T, R1, Pi, g, z, c, a
 
 
-def pcg(L, f, tol: float = 1e-10, maxit: int = 100, u0=None):
+def pcg(L, f, tol: float = 1e-10, maxit: int = 100, u0=None,
+        full_output: bool = False):
     """Preconditioned conjugate gradients for a self-adjoint chebop.
 
     Solves ``L(u) = f`` with Dirichlet BCs, iterating directly on
@@ -127,8 +128,11 @@ def pcg(L, f, tol: float = 1e-10, maxit: int = 100, u0=None):
     r = g - Tu
     p = r
     normr = float(r.norm())
+    resvec = [normr]
     if normr <= tolf:
-        return R1(Pi(u)) + z
+        out = R1(Pi(u)) + z
+        return ((out, 0, normr / max(n2f, 1e-300), 0, resvec)
+                if full_output else out)
 
     umin, normrmin = u, normr
     stag = 0
@@ -141,11 +145,14 @@ def pcg(L, f, tol: float = 1e-10, maxit: int = 100, u0=None):
         if denom == 0 or not math.isfinite(denom):
             break
         alpha = rho / denom
-        u = u + alpha * p
-        r = r - alpha * Lp
+        # Simplify each iterate: MATLAB's chebfun arithmetic trims
+        # trailing coefficients automatically; without it the Krylov
+        # vectors' lengths accumulate and iterations crawl.
+        u = (u + alpha * p).simplify()
+        r = (r - alpha * Lp).simplify()
         rho_new = _ip(r, r)
         beta = rho_new / rho
-        p = r + beta * p
+        p = (r + beta * p).simplify()
         rho = rho_new
         if rho == 0 or not math.isfinite(rho):
             break
@@ -154,6 +161,7 @@ def pcg(L, f, tol: float = 1e-10, maxit: int = 100, u0=None):
         else:
             stag = 0
         normr = math.sqrt(max(rho, 0.0))
+        resvec.append(normr)
         if normr <= tolf or stag >= 3 or moresteps:
             r = g - T(u)
             normr_act = float(r.norm())
@@ -169,15 +177,20 @@ def pcg(L, f, tol: float = 1e-10, maxit: int = 100, u0=None):
             normrmin, umin = normr, u
         if stag >= 3:
             break
+    it = _ii
     if flag != 0:
         r_comp = g - T(umin)
         if float(r_comp.norm()) <= normr:
             u = umin
-    _ = n2f
-    return R1(u) + z
+            normr = float(r_comp.norm())
+    out = R1(u) + z
+    if full_output:
+        return out, flag, normr / max(n2f, 1e-300), it, resvec
+    return out
 
 
-def minres(L, f, tol: float = 1e-10, maxit: int = 100):
+def minres(L, f, tol: float = 1e-10, maxit: int = 100,
+           full_output: bool = False):
     """MINRES for a (possibly indefinite) self-adjoint chebop.
 
     Same preconditioning framework as :func:`pcg`; the Lanczos/Givens
@@ -185,12 +198,16 @@ def minres(L, f, tol: float = 1e-10, maxit: int = 100):
     """
     T, R1, Pi, g, z, _c, _a = _setup(L, f, tol)
 
+    n2f = float(f.norm())
     u = 0.0 * f
     tolg = tol * float(g.norm())
     r = g
     normr = float(r.norm())
+    resvec = [normr]
     if normr <= tolg:
-        return R1(Pi(u)) + z
+        out = R1(Pi(u)) + z
+        return ((out, 0, normr / max(n2f, 1e-300), 0, resvec)
+                if full_output else out)
 
     vold = r
     v = vold
@@ -228,19 +245,22 @@ def minres(L, f, tol: float = 1e-10, maxit: int = 100):
     u = u + (snprod * cs) * m
     snprod = snprod * sn
     normr = abs(snprod)
+    resvec.append(normr)
     if normr <= tolg:
-        return R1(Pi(u)) + z
+        out = R1(Pi(u)) + z
+        return ((out, 0, normr / max(n2f, 1e-300), 1, resvec)
+                if full_output else out)
 
     stag = 0
     for _ii in range(2, maxit + 1):
-        vv = v * (1.0 / beta)
+        vv = (v * (1.0 / beta)).simplify()
         v = T(vv)
         Amolder = Amold
         Amold = Am
         Am = v
         v = v - (beta / betaold) * volder
         alpha = _ip(vv, v)
-        v = v - (alpha / beta) * vold
+        v = (v - (alpha / beta) * vold).simplify()
         volder = vold
         vold = v
         betaold = beta
@@ -251,8 +271,8 @@ def minres(L, f, tol: float = 1e-10, maxit: int = 100):
         delta = cs * deltabar + sn * alpha
         molder = mold
         mold = m
-        m = vv - delta * mold - epsilon * molder
-        Am = Am - delta * Amold - epsilon * Amolder
+        m = (vv - delta * mold - epsilon * molder).simplify()
+        Am = (Am - delta * Amold - epsilon * Amolder).simplify()
         gammabar = sn * deltabar - cs * alpha
         epsilon = sn * beta
         deltabar = -cs * beta
@@ -261,9 +281,10 @@ def minres(L, f, tol: float = 1e-10, maxit: int = 100):
         Am = Am * (1.0 / gamma)
         cs = gammabar / gamma
         sn = beta / gamma
-        u = u + (snprod * cs) * m
+        u = (u + (snprod * cs) * m).simplify()
         snprod = snprod * sn
         normr = abs(snprod)
+        resvec.append(normr)
         if normr <= tolg:
             break
         if abs(snprod * cs) * float(m.norm()) \
@@ -273,4 +294,23 @@ def minres(L, f, tol: float = 1e-10, maxit: int = 100):
                 break
         else:
             stag = 0
+    out = R1(Pi(u)) + z
+    if full_output:
+        flag = 0 if normr <= tolg else 1
+        return out, flag, normr / max(n2f, 1e-300), _ii, resvec
+    return out
+
+
+def gmres(L, f, tol: float = 1e-10, maxit: int = 100):
+    """GMRES for a chebop via the same integral preconditioning.
+
+    Provenance
+    ----------
+    MATLAB source : @chebop/gmres.m
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.chebfun1d.chebfun import gmres as _cheb_gmres
+
+    T, R1, Pi, g, z, _c, _a = _setup(L, f, tol)
+    u, _flag = _cheb_gmres(T, g, tol=tol, maxiter=maxit)
     return R1(Pi(u)) + z

@@ -22,7 +22,7 @@ via spectral collocation. These examples cover the classical linear ODEs.
 | [Frozen coefficients do not determine stability (replica)](FrozenCoeffs.md) | Faithful replica: rotating 2x2 system, stable frozen eigenvalues yet growing spiral. |
 | [Jump conditions in BVPs](jump_conditions.md) | Solves a BVP with a jump discontinuity in the coefficient: |
 | [Green's functions and jump conditions (replica)](JumpGreen.md) | Faithful replica: jump()/one-sided interior conditions, Green's function fan. |
-| [A continuous analogue of Krylov subspace methods for ODEs](krylov.md) | Demonstrates the spectral convergence of the Chebyshev pseudospectral method for solving ... on ... with Dirichlet bo... |
+| [Krylov subspace methods for ODEs (replica)](Krylov.md) | Faithful replica: operator pcg/minres/gmres, eigs digit-for-digit, stiff case length 137 vs 139. |
 | [Lane-Emden equation from astrophysics](lane_emden_linear.md) | Solves the Lane-Emden equation of stellar structure: |
 | [Lee & Greengard ODE test problems (replica)](LeeGreengardODEs.md) | Faithful replica: six stiff BVP stress tests (shock, Bessel nu=100, turning points, cusp). |
 | [A linear exponential initial-value problem (replica)](LinExpIVP.md) | Faithful replica: stiff IVP u' = -10000u via chebop, err 1.15e-11. |
