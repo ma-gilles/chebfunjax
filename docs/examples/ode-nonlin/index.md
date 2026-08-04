@@ -17,7 +17,7 @@ physics and engineering.
 | [A droplet sitting on a surface](droplets.md) | Models a sessile droplet on a flat surface via the capillary equation. The droplet shape satisfies: |
 | [Exact Solutions from Bender & Orszag](exact_solutions_bender_orszag.md) | Bender & Orszag's Advanced Mathematical Methods for Scientists and Engineers contains many nonlinear ODEs with exact ... |
 | [Four bugs on a rectangle](four_bugs.md) | Four bugs start at the corners of a ... rectangle. Each bug always moves directly toward the next bug (clockwise). Th... |
-| [Nonlinear periodic ODE](fourier_nonlin.md) | Solves the nonlinear periodic ODE |
+| [Fourier collocation for nonlinear periodic ODEs (replica)](FourierCollocationNonLin.md) | Faithful replica: two Newton branches, second-solution length 81 exact. |
 | [A nonlinear system of Guckenheimer and Holmes](guckenheimer_holmes.md) | Studies a 3D nonlinear ODE system from Guckenheimer and Holmes that exhibits a heteroclinic cycle connecting three sa... |
 | [A third-order nonlinear BVP on the half-line](gulf_stream.md) | Solves the Falkner-Skan-type equation from oceanographic modeling: |
 | [IVP capabilities](ivp_capabilities.md) | Demonstrates initial value problem capabilities for several classic systems: the van der Pol oscillator, Duffing osci... |

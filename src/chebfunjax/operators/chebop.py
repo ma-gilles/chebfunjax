@@ -3285,12 +3285,15 @@ class Chebop:
         u_vals = None
         while True:
             x = a + L * _np.arange(N) / N          # equispaced, periodic
-            proxy = _FourierProxy(N, L, _np.eye(N), grid=x)
-            out = self._apply_op(jnp.asarray(x), proxy)
-            if not isinstance(out, _FourierProxy):
-                raise TypeError(
-                    "Chebop._solve_periodic: operator is not linear in u "
-                    "(nonlinear periodic problems are not supported).")
+            try:
+                proxy = _FourierProxy(N, L, _np.eye(N), grid=x)
+                out = self._apply_op(jnp.asarray(x), proxy)
+                if not isinstance(out, _FourierProxy):
+                    raise TypeError("nonlinear")
+            except (TypeError, AttributeError, ValueError):
+                # Nonlinear periodic operator: Newton on the grid.
+                return self._solve_periodic_nonlinear(
+                    f, n=n, n_max=n_max, tol=tol)
             A = out.mat
             rhs = rhs_at(x)
             u_vals = _np.linalg.solve(A, rhs)
@@ -3306,6 +3309,114 @@ class Chebop:
 
         # Build a trig Chebfun that interpolates the periodic samples.
         vals = jnp.asarray(u_vals, dtype=jnp.float64)
+        xs = jnp.asarray(x, dtype=jnp.float64)
+
+        def interp(t):
+            return _fourier_interp(xs, vals, jnp.asarray(t), a, L)
+
+        return chebfun(interp, domain=(a, b), trig=True)
+
+    def _solve_periodic_nonlinear(self, f=0.0, n=None,
+                                  n_max: int = 1024,
+                                  tol: float = 1e-10,
+                                  max_iter: int = 30):
+        """Nonlinear periodic BVP by damped Newton on the Fourier grid.
+
+        The operator is evaluated through the value-space
+        :class:`_TrigVals` proxy; the Jacobian is built column-by-column
+        by finite differences (each evaluation is an O(n^2) matvec
+        chain, cheap at the sizes involved), and levels are seeded with
+        the interpolated previous solution (grid continuation).
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/solvebvpNonlinear.m (trigcolloc branch)
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        a, b = self.domain
+        L = float(b - a)
+
+        def rhs_at(pts):
+            if callable(f):
+                return _np.asarray(f(jnp.asarray(pts)), dtype=float)
+            return _np.full(pts.shape, float(f))
+
+        def op_vals(U, N):
+            pr = _TrigVals(U, N, L)
+            xg = a + L * _np.arange(N) / N
+            out = self._apply_op(_TrigX(jnp.asarray(xg)), pr)
+            if isinstance(out, _TrigVals):
+                return _np.asarray(out.v, dtype=float)
+            return _np.asarray(out, dtype=float)
+
+        N = 32 if n is None else int(n)
+        U = None
+        x = None
+        while True:
+            x = a + L * _np.arange(N) / N
+            if U is None:
+                U = (_np.asarray(self.init(jnp.asarray(x)), dtype=float)
+                     if self.init is not None else _np.zeros(N))
+            import scipy.linalg as _sla
+            g = rhs_at(x)
+            R = op_vals(U, N) - g
+            for _it in range(max_iter):
+                nrm = _np.max(_np.abs(R))
+                if nrm < 1e-11:
+                    break
+                J = _np.zeros((N, N))
+                h = 1e-7 * max(1.0, _np.max(_np.abs(U)))
+                for jc in range(N):
+                    Up = U.copy()
+                    Up[jc] += h
+                    J[:, jc] = (op_vals(Up, N) - g - R) / h
+                try:
+                    lu = _sla.lu_factor(J)
+                except (ValueError, _np.linalg.LinAlgError):
+                    break
+                dU = _sla.lu_solve(lu, R)
+                nd = _np.linalg.norm(dU)
+                # Affine-invariant (Deuflhard) damping: require the
+                # SIMPLIFIED Newton step to shrink.  Residual-monotone
+                # backtracking pulls iterates out of the init's basin
+                # toward globally-dominant solutions — MATLAB's
+                # solvebvpNonlinear keeps the basin, and so does this.
+                lam = 1.0
+                Rn = R
+                for _d in range(25):
+                    Rn = op_vals(U - lam * dU, N) - g
+                    if not _np.all(_np.isfinite(Rn)):
+                        lam *= 0.5
+                        continue
+                    dU_bar = _sla.lu_solve(lu, Rn)
+                    if _np.linalg.norm(dU_bar) < nd or lam < 1e-8:
+                        break
+                    lam *= 0.5
+                U = U - lam * dU
+                if _np.max(_np.abs(Rn)) >= nrm * (1.0 - 1e-12) \
+                        and lam >= 1.0:
+                    R = Rn
+                    break
+                R = Rn
+            if n is not None:
+                break
+            coeffs = _np.fft.fft(U) / N
+            tail = _np.max(_np.abs(coeffs[N // 4: 3 * N // 4]))
+            scale = max(_np.max(_np.abs(coeffs)), 1e-14)
+            if tail / scale < tol or N >= n_max:
+                break
+            # interpolate onto the doubled grid (grid continuation)
+            vals = jnp.asarray(U, dtype=jnp.float64)
+            xs = jnp.asarray(x, dtype=jnp.float64)
+            N *= 2
+            x2 = a + L * _np.arange(N) / N
+            U = _np.asarray(_fourier_interp(
+                xs, vals, jnp.asarray(x2), a, L), dtype=float)
+
+        vals = jnp.asarray(U, dtype=jnp.float64)
         xs = jnp.asarray(x, dtype=jnp.float64)
 
         def interp(t):
@@ -4659,6 +4770,81 @@ def _fourier_diffmat(n: int, length: float, order: int):
     dft = _np.exp(-2j * _np.pi * _np.outer(j, j) / n)
     idft = _np.exp(2j * _np.pi * _np.outer(j, j) / n) / n
     return _np.real(idft @ (mult[:, None] * dft))
+
+
+class _TrigVals:
+    """Value-space proxy on the equispaced periodic grid.
+
+    Carries the grid VALUES of an expression; ``diff`` multiplies by the
+    Fourier differentiation matrix and elementwise functions apply
+    pointwise, so a NONLINEAR periodic operator can be evaluated on a
+    candidate solution vector (used by the periodic Newton iteration).
+    """
+
+    def __init__(self, v, n, length):
+        self.v = jnp.asarray(v, dtype=jnp.float64)
+        self.n = n
+        self.length = length
+
+    def _w(self, v):
+        return _TrigVals(v, self.n, self.length)
+
+    def diff(self, k: int = 1):
+        import numpy as _np
+        D = _np.asarray(_fourier_diffmat(self.n, self.length, k))
+        return self._w(jnp.asarray(D) @ self.v)
+
+    def cumsum(self):
+        raise TypeError("cumsum unsupported on the periodic grid proxy")
+
+    def sum(self):
+        return float(jnp.sum(self.v)) * (self.length / self.n)
+
+    def __call__(self, *a, **k):
+        raise TypeError("evaluation unsupported on the grid proxy")
+
+    def _c(self, o):
+        return o.v if isinstance(o, _TrigVals) else o
+
+    def __add__(self, o):
+        return self._w(self.v + self._c(o))
+
+    __radd__ = __add__
+
+    def __sub__(self, o):
+        return self._w(self.v - self._c(o))
+
+    def __rsub__(self, o):
+        return self._w(self._c(o) - self.v)
+
+    def __mul__(self, o):
+        return self._w(self.v * self._c(o))
+
+    __rmul__ = __mul__
+
+    def __truediv__(self, o):
+        return self._w(self.v / self._c(o))
+
+    def __rtruediv__(self, o):
+        return self._w(self._c(o) / self.v)
+
+    def __pow__(self, p):
+        return self._w(self.v ** p)
+
+    def __neg__(self):
+        return self._w(-self.v)
+
+    def __abs__(self):
+        return self._w(jnp.abs(self.v))
+
+    def __getattr__(self, name):
+        fn = getattr(jnp, name, None)
+        if fn is None:
+            raise AttributeError(name)
+
+        def _apply():
+            return self._w(fn(self.v))
+        return _apply
 
 
 class _FourierProxy:
