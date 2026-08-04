@@ -2775,8 +2775,19 @@ class Chebop:
                     except _np.linalg.LinAlgError:
                         pass
 
-        # Initial iterate: user's N.init, else zero.
+        # Initial iterate: user's N.init, else a boundary-condition
+        # satisfying straight line for scalar Dirichlet data (MATLAB's
+        # chebop default guess) — a zero start makes u*u'-type Newton
+        # iterations stall on a degenerate Jacobian — else zero.
         U = _np.zeros(m * Pn)
+        if (self.init is None and m == 1
+                and isinstance(self._lbc_raw, (int, float))
+                and isinstance(self._rbc_raw, (int, float))):
+            la, lb = float(self._lbc_raw), float(self._rbc_raw)
+            for p_ in range(P):
+                U[p_ * nn: (p_ + 1) * nn] = la + (lb - la) * (
+                    (_np.asarray(xps[p_]) - bps[0])
+                    / (bps[-1] - bps[0]))
         if self.init is not None:
             init = self.init if isinstance(self.init, (list, tuple)) \
                 else [self.init] * m
