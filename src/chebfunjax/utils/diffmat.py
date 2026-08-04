@@ -296,6 +296,21 @@ def diffmat(n: int, p: int = 1,
     --------
     cumsummat, intmat, diffrow, introw
     """
+    if isinstance(n, (tuple, list)):
+        # Rectangular discretization (MATLAB diffmat([m n], p, dom)):
+        # the p-th derivative of the degree n-1 interpolant through n
+        # Chebyshev points, resampled onto m Chebyshev points of the
+        # SAME kind (MATLAB's default; the Driscoll-Hale bvp mode maps
+        # to 1st-kind points instead and is what Linop uses internally).
+        from chebfunjax.utils.interpolation import barymat
+        m, ncols = int(n[0]), int(n[1])
+        D = diffmat(ncols, p, domain=domain, kind=kind)
+        if m == ncols:
+            return D
+        t_src = chebpts(ncols, kind=kind)
+        t_tgt = chebpts(m, kind=kind)
+        P = barymat(t_tgt, t_src)
+        return P @ D
     if n <= 0:
         return jnp.array([], dtype=jnp.float64).reshape(0, 0)
     if p < 0:
