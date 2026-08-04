@@ -3289,8 +3289,14 @@ class Chebop:
                 L[0] is NOT removed here; callers subtract ``op0``)."""
                 uf = Chebfun.from_values(jnp.asarray(vals, dtype=jnp.float64),
                                          dom)
-                return _np.asarray(_chebfun_to_values(
-                    self._apply_op(x_fun, uf), disc), dtype=_np.float64)
+                # Preserve complex outputs: a complex-shifted operator
+                # (e.g. Talbot-contour Helmholtz solves, zk complex) was
+                # previously silently real-cast to WRONG values.
+                out = _np.asarray(_chebfun_to_values(
+                    self._apply_op(x_fun, uf), disc))
+                if not _np.iscomplexobj(out):
+                    out = out.astype(_np.float64)
+                return out
 
             # Constant part L[0] (nonzero for affine operators).
             try:
@@ -3325,22 +3331,29 @@ class Chebop:
                                 (y ** (k - j))
                                 / (h ** j * factorial(k - j)))
                         coeffs.append(acc * (h ** k))
-                    A = _np.zeros((n, n), dtype=_np.float64)
+                    dt = _np.result_type(_np.float64,
+                                         *[c.dtype for c in coeffs])
+                    A = _np.zeros((n, n), dtype=dt)
                     for k in range(m + 1):
                         A = A + coeffs[k][:, None] * _np.asarray(
                             diffmat(n, k, domain=(a, b)))
                     if self._assembly_ok(A, op0, _op_at, y):
-                        return jnp.asarray(A, dtype=jnp.float64)
+                        return jnp.asarray(A)
                 except Exception:
                     pass
 
             # ---- Fallback: general column probe, eager per column. ----
-            A = _np.empty((n, n), dtype=_np.float64)
+            A = _np.empty((n, n),
+                          dtype=(_np.complex128 if _np.iscomplexobj(op0)
+                                 else _np.float64))
             for j in range(n):
                 e_j = _np.zeros(n)
                 e_j[j] = 1.0
-                A[:, j] = _op_at(e_j) - op0
-            return jnp.asarray(A, dtype=jnp.float64)
+                col = _op_at(e_j) - op0
+                if _np.iscomplexobj(col) and not _np.iscomplexobj(A):
+                    A = A.astype(_np.complex128)
+                A[:, j] = col
+            return jnp.asarray(A)
 
         return OperatorBlock(_op_fn, order=2, domain=domain)
 
@@ -4232,11 +4245,17 @@ def _chebfun_to_values(f, disc: ChebColloc2Disc) -> jnp.ndarray:
     """
     if isinstance(f, (int, float)):
         return jnp.full(disc.n, float(f), dtype=jnp.float64)
+    if isinstance(f, complex):
+        return jnp.full(disc.n, f, dtype=jnp.complex128)
     # Compute physical Chebyshev-2 points from the disc descriptor
     a, b = disc.domain
     t_ref = chebpts(disc.n, kind=2)
     x_pts = 0.5 * (b - a) * t_ref + 0.5 * (a + b)
-    return jnp.asarray(f(x_pts), dtype=jnp.float64)
+    vals = jnp.asarray(f(x_pts))
+    # Preserve complex operator outputs (complex-shifted problems).
+    if not jnp.iscomplexobj(vals):
+        vals = vals.astype(jnp.float64)
+    return vals
 
 
 # ============================================================================

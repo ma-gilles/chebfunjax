@@ -51,7 +51,10 @@ def _chebfun_from_values(values, domain: tuple[float, float]):
     """Wrap collocation values as a Chebfun (lazy import to avoid cycles)."""
     from chebfunjax.chebfun1d.chebfun import Chebfun
     dom = Domain(domain)
-    return Chebfun.from_values(jnp.asarray(values, dtype=jnp.float64), dom)
+    v = jnp.asarray(values)
+    if not jnp.iscomplexobj(v):
+        v = v.astype(jnp.float64)
+    return Chebfun.from_values(v, dom)
 
 
 def _chebfun_call(f, x):
@@ -249,7 +252,7 @@ class Linop:
             u_vals = self._solve_at(sz, f)
             # Check convergence via coefficient decay
             from chebfunjax.utils.transforms import vals2coeffs
-            coeffs = vals2coeffs(u_vals)
+            coeffs = jnp.abs(vals2coeffs(u_vals))
             if self._is_happy(coeffs, tol):
                 return _chebfun_from_values(u_vals, self.domain)
 
@@ -310,20 +313,30 @@ class Linop:
             a, b = self.domain
             t_ref = chebpts(n, kind=2)
             x_pts = 0.5 * (b - a) * t_ref + 0.5 * (a + b)
-            rhs = (jnp.asarray(f(x_pts), dtype=jnp.float64) if callable(f)
+            rhs = (jnp.asarray(f(x_pts)) if callable(f)
                    else jnp.full(n, float(f), dtype=jnp.float64))
+            if jnp.iscomplexobj(A_op) and not jnp.iscomplexobj(rhs):
+                rhs = rhs.astype(jnp.complex128)
             return jnp.linalg.solve(A_op, rhs)
 
         P, x1 = self._rect_projection(n)
         rows = [P @ A_op]
-        rhs_op = (jnp.asarray(f(x1), dtype=jnp.float64) if callable(f)
-                  else jnp.full(n - n_bc, float(f), dtype=jnp.float64))
+        if callable(f):
+            rhs_op = jnp.asarray(f(x1))
+            if not jnp.iscomplexobj(rhs_op):
+                rhs_op = rhs_op.astype(jnp.float64)
+        else:
+            rhs_op = jnp.full(n - n_bc, float(f), dtype=jnp.float64)
         bc_rows = jnp.stack([bc.matrix(disc) for bc in self.bcs])
-        A = jnp.concatenate([rows[0], bc_rows], axis=0)
+        bc_dtype = (jnp.complex128 if jnp.iscomplexobj(rows[0])
+                    else jnp.float64)
+        A = jnp.concatenate(
+            [rows[0], bc_rows.astype(bc_dtype)], axis=0)
         rhs = jnp.concatenate([
-            rhs_op,
-            jnp.asarray([float(v) for v in self.bc_values],
-                        dtype=jnp.float64),
+            rhs_op.astype(bc_dtype),
+            jnp.asarray([complex(v) if bc_dtype == jnp.complex128
+                         else float(v) for v in self.bc_values],
+                        dtype=bc_dtype),
         ])
         return jnp.linalg.solve(A, rhs)
 

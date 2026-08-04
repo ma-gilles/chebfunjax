@@ -1434,7 +1434,12 @@ class Chebfun(eqx.Module):
                 f"from_values only supports single-interval domains, "
                 f"but domain has {domain.n_intervals} intervals."
             )
-        values = jnp.asarray(values, dtype=jnp.float64)
+        # Preserve complex data (MATLAB chebfuns are natively complex);
+        # forcing float64 here silently discarded imaginary parts, e.g.
+        # solutions of complex-shifted operators.
+        values = jnp.asarray(values)
+        if not jnp.iscomplexobj(values):
+            values = values.astype(jnp.float64)
         piece = _Piece.from_values(values, domain.a, domain.b)
         return cls(funs=[piece], domain=domain)
 
