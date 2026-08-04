@@ -23,7 +23,7 @@ physics and engineering.
 | [IVP capabilities](ivp_capabilities.md) | Demonstrates initial value problem capabilities for several classic systems: the van der Pol oscillator, Duffing osci... |
 | [Lane-Emden equation from astrophysics (nonlinear)](lane_emden_nonlin.md) | Solves the nonlinear Lane-Emden equation for polytropic indices ...: |
 | [Logistic map and chaos](logistic.md) | Explores the logistic map ... and its bifurcation diagram showing period-doubling cascades and the onset of chaos. |
-| [The logistic map, again](logistic2.md) | Treats the logistic map iteration ... as a chebfun in ..., obtained by repeated composition. As ... grows, the functi... |
+| [Logistic map and chaos (replica)](Logistic2.md) | Faithful replica: chebfun-composed logistic iterates, point values to 14 digits. |
 | [Logistic Equation](logistic_equation.md) | The logistic equation ... models population growth with a carrying capacity .... It has the exact solution: |
 | [Lorenz attractor](lorenz_attractor.md) | Numerically integrates the Lorenz system: |
 | [Lyapunov exponents of the Lorenz system](lyapunov_exponents.md) | Computes the maximal Lyapunov exponent ... of the Lorenz attractor via the renormalization method. Two nearby traject... |
