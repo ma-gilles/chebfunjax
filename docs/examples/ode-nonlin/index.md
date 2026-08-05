@@ -24,13 +24,11 @@ physics and engineering.
 | [Lane-Emden equation from astrophysics (nonlinear)](lane_emden_nonlin.md) | Solves the nonlinear Lane-Emden equation for polytropic indices ...: |
 | [Logistic map and chaos (replica)](Logistic.md) | Faithful replica: chebfun iterates in the parameter r; lengths vs MATLAB R2025b, exposing three length bugs. |
 | [Logistic map and chaos (replica)](Logistic2.md) | Faithful replica: chebfun-composed logistic iterates, point values to 14 digits. |
-| [Logistic Equation](logistic_equation.md) | The logistic equation ... models population growth with a carrying capacity .... It has the exact solution: |
 | [Lorenz attractor](lorenz_attractor.md) | Numerically integrates the Lorenz system: |
 | [Lyapunov exponents (replica)](LyapunovExponents.md) | Faithful replica: Lorenz separation over 10 decades, exponent 0.930 vs published 0.934. |
 | [Modelling diseases (replica)](ModellingDiseases.md) | Faithful replica: SIR model, peak 240 exact, crossover time to 11 digits. |
 | [Orbiting around fixed masses (replica)](Orbits.md) | Faithful replica: complex-plane orbits via ode113; arc length and closest approach to 9-10 digits. |
 | [Parameter-dependent ODEs: three examples](param_odes.md) | Demonstrates three ODE problems with parameters: 1. An eigenvalue-type boundary condition with an interior constraint |
-| [Nonlinear Pendulum](pendulum_equation.md) | The nonlinear pendulum equation ... describes the exact motion of a pendulum without the small-angle approximation. |
 | [Picard iteration for ODE existence proof](picard.md) | Demonstrates Picard iteration for the IVP ..., .... Starting from ..., successive iterates ... |
 | [Half-wave rectifier](rectifier.md) | Simulates a stiff half-wave rectifier circuit with a diode: |
 | [Nonlinear ODE modeling solar magnetic fields](solar_fields.md) | Solves the nonlinear ODE arising in the modeling of force-free solar magnetic fields in a spherical geometry. The equ... |
