@@ -2419,7 +2419,14 @@ class Chebtech2(eqx.Module):
             return Chebtech2.empty()
         if isinstance(other, Chebtech2):
             hc = _coeff_multiply(self.coeffs, other.coeffs)
-            return Chebtech2.from_coeffs(hc, ishappy=self.ishappy and other.ishappy)
+            # MATLAB @chebtech/times.m simplifies the product (line 68).
+            # A product's coefficient tail is negligible far below the
+            # exact degree, so without this every length in the library
+            # grows as the exact product degree rather than the happy
+            # one -- ode-nonlin/Logistic prints length(x) at each step
+            # and ran 128, 256, 512 where MATLAB gives 108, 189, 339.
+            return Chebtech2.from_coeffs(
+                hc, ishappy=self.ishappy and other.ishappy).simplify()
         else:
             return Chebtech2.from_coeffs(
                 _collapse_if_zero(self.coeffs * _as_scalar(other)),
@@ -3853,7 +3860,14 @@ class Chebtech1(eqx.Module):
             return Chebtech1.empty()
         if isinstance(other, Chebtech1):
             hc = _coeff_multiply(self.coeffs, other.coeffs)
-            return Chebtech1.from_coeffs(hc, ishappy=self.ishappy and other.ishappy)
+            # MATLAB @chebtech/times.m simplifies the product (line 68).
+            # A product's coefficient tail is negligible far below the
+            # exact degree, so without this every length in the library
+            # grows as the exact product degree rather than the happy
+            # one -- ode-nonlin/Logistic prints length(x) at each step
+            # and ran 128, 256, 512 where MATLAB gives 108, 189, 339.
+            return Chebtech1.from_coeffs(
+                hc, ishappy=self.ishappy and other.ishappy).simplify()
         else:
             return Chebtech1.from_coeffs(
                 _collapse_if_zero(self.coeffs * _as_scalar(other)),
