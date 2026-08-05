@@ -456,26 +456,43 @@ class Chebop:
         # 2e-9 from exactly this).
         return self._simplify_solution(out)
 
-    def quiver(self, xylim, ax=None, n_pts: int = 20, t=None,
+    def quiver(self, xylim=(-1.0, 1.0, -1.0, 1.0), ax=None, *,
+               xpts: int = 20, ypts: int = 20, normalize: bool = False,
+               scale: float = 1.0, t=None, n_pts: "int | None" = None,
                **kwargs):
-        """Phase-plane direction field of a second-order chebop.
+        """Draw a phase plot diagram for an ODE specified by a chebop.
 
-        For ``N(u) = u'' - g(t, u, u')`` the plane is ``(u, v = u')``
-        and the field is ``(v, g)``; ``g`` is recovered from the
-        operator by the same affine-in-the-highest-derivative
-        extraction the IVP solver uses.
+        Three cases, as in MATLAB:
+
+        * a second-order scalar ``N(u) = u'' - g(t, u, u')`` gives the
+          phase plane ``(u, v = u')`` carrying the field ``(v, g)``;
+        * a coupled pair of first-order equations in ``u`` and ``v``
+          gives the plane ``(u, v)`` carrying ``(u', v')``;
+        * a first-order scalar gives a *slope field*: the plane is
+          ``(t, u)`` and the field is ``(1, u')``.
+
+        The highest derivative is recovered from the operator by the
+        same affine-in-the-highest-derivative extraction the IVP solver
+        uses. Phase portraits only make sense for autonomous systems, so
+        ``t = 0`` is used to evaluate unless ``t`` says otherwise.
 
         Parameters
         ----------
         xylim : sequence of 4 floats
-            ``[umin, umax, vmin, vmax]`` (MATLAB
-            ``quiver(N, [-2 2 -10 10])``).
+            ``[xmin, xmax, ymin, ymax]``; defaults to ``[-1 1 -1 1]``.
         ax : matplotlib Axes, optional
-        n_pts : int, default 20
-            Arrows per direction.
+        xpts, ypts : int, default 20
+            Grid resolution in each direction (MATLAB ``'xpts'``,
+            ``'ypts'``).
+        normalize : bool, default False
+            Scale every arrow to unit length (MATLAB ``'normalize'``).
+        scale : float, default 1.0
+            Stretch the auto-scaled arrows by this factor; ``0`` turns
+            the automatic scaling off (MATLAB ``'scale'``).
         t : float, optional
-            Time at which to sample a non-autonomous operator
-            (default: the left endpoint of the domain).
+            Time at which to sample a non-autonomous operator.
+        n_pts : int, optional
+            Deprecated alias setting both ``xpts`` and ``ypts``.
 
         Provenance
         ----------
@@ -486,21 +503,43 @@ class Chebop:
         import matplotlib.pyplot as plt
         import numpy as _np
 
-        if self._op_order() != 2:
-            raise ValueError(
-                "Chebop.quiver: the phase plane is defined for a "
-                "second-order operator")
-        t0 = float(self.domain[0] if t is None else t)
-        try:
-            nargs = _op_arity(self.op, 2)
-        except (TypeError, ValueError):
-            nargs = 2
+        if n_pts is not None:
+            xpts = ypts = int(n_pts)
 
-        def _op_at(uu, vv, ss):
-            tower = [jnp.asarray(float(uu)), jnp.asarray(float(vv)),
-                     jnp.asarray(float(ss))]
+        m = self._n_vars()
+        order = self._op_order() if m == 1 else 1
+        if m > 2:
+            raise ValueError(
+                "Chebop.quiver: the ODE must be a scalar first- or "
+                "second-order problem, or a system of two first-order "
+                f"equations; this one has {m} unknowns.")
+        if m == 1 and order > 2:
+            raise ValueError(
+                "Chebop.quiver: the ODE must be a scalar first- or "
+                "second-order problem, or a system of two first-order "
+                f"equations; this one has order {order}.")
+        if m == 2:
+            # MATLAB errors with tooHighOrder for a coupled system that
+            # is not first order in both unknowns.
+            sys_orders = self._piecewise_orders(2)
+            if max(sys_orders) > 1:
+                raise ValueError(
+                    "Chebop.quiver: the ODE must be a scalar first- or "
+                    "second-order problem, or a system of two "
+                    f"first-order equations; this system has orders "
+                    f"{sys_orders}.")
+
+        # MATLAB evaluates the first-order form at t = 0.
+        t0 = 0.0 if t is None else float(t)
+        slope_field = (m == 1 and order == 1)
+
+        def _scalar_at(state, ss):
+            """Residual of the scalar op with top derivative set to ss."""
+            tower = [jnp.asarray(float(q)) for q in state]
+            tower.append(jnp.asarray(float(ss)))
             pr = _IVPProxy(tower)
             targ = jnp.asarray(t0)
+            nargs = _op_arity(self.op, 2)
             try:
                 out = self.op(targ, pr) if nargs > 1 else self.op(pr)
             except AttributeError:
@@ -511,23 +550,79 @@ class Chebop:
                 out = out._v
             return float(_np.asarray(out))
 
-        umin, umax, vmin, vmax = (float(v) for v in xylim)
-        ug = _np.linspace(umin, umax, n_pts)
-        vg = _np.linspace(vmin, vmax, n_pts)
-        U, V = _np.meshgrid(ug, vg)
-        A = _np.zeros_like(U)
-        for i in range(U.shape[0]):
-            for j in range(U.shape[1]):
-                r0 = _op_at(U[i, j], V[i, j], 0.0)
-                r1 = _op_at(U[i, j], V[i, j], 1.0)
-                slope = r1 - r0
-                A[i, j] = (-r0 / slope) if slope != 0 else _np.nan
+        def _top(state):
+            """Solve residual(state, s) = 0 for the top derivative s."""
+            r0 = _scalar_at(state, 0.0)
+            r1 = _scalar_at(state, 1.0)
+            slope = r1 - r0
+            return (-r0 / slope) if slope != 0 else _np.nan
+
+        def _system_at(uu, vv):
+            """(u', v') for a coupled pair of first-order equations.
+
+            Equation k is affine in its own derivative, so probing that
+            derivative at 0 and 1 recovers it: u' = -r0 / (r1 - r0).
+            """
+            out = []
+            for k in range(2):
+                r = []
+                for s in (0.0, 1.0):
+                    pu = _IVPProxy([jnp.asarray(float(uu)),
+                                    jnp.asarray(s if k == 0 else 0.0)])
+                    pv = _IVPProxy([jnp.asarray(float(vv)),
+                                    jnp.asarray(s if k == 1 else 0.0)])
+                    res = self._call_op(jnp.asarray(t0), [pu, pv])
+                    rk = res[k]
+                    if isinstance(rk, _IVPProxy):
+                        rk = rk._v
+                    elif isinstance(rk, _TrigX):
+                        rk = rk.v
+                    r.append(float(_np.asarray(rk)))
+                slope = r[1] - r[0]
+                out.append((-r[0] / slope) if slope != 0 else _np.nan)
+            return out[0], out[1]
+
+        x0, x1, y0, y1 = (float(q) for q in xylim)
+        X, Y = _np.meshgrid(_np.linspace(x0, x1, xpts),
+                            _np.linspace(y0, y1, ypts))
+        U = _np.zeros_like(X)
+        V = _np.zeros_like(X)
+        for i in range(X.shape[0]):
+            for j in range(X.shape[1]):
+                if slope_field:
+                    # plane is (t, u): the field is (1, u')
+                    U[i, j] = 1.0
+                    V[i, j] = _top([Y[i, j]])
+                elif m == 2:
+                    U[i, j], V[i, j] = _system_at(X[i, j], Y[i, j])
+                else:
+                    U[i, j] = Y[i, j]
+                    V[i, j] = _top([X[i, j], Y[i, j]])
+
+        if normalize:
+            nrm = _np.hypot(U, V)
+            with _np.errstate(invalid="ignore", divide="ignore"):
+                U, V = U / nrm, V / nrm
+
         if ax is None:
             _, ax = plt.subplots()
-        kwargs.setdefault("color", "b")
-        ax.quiver(U, V, V, A, **kwargs)
-        ax.set_xlim(umin, umax)
-        ax.set_ylim(vmin, vmax)
+        kwargs.setdefault("color", "#0072BD")   # MATLAB ColorOrder(1,:)
+
+        # MATLAB's quiver(X, Y, U, V, S) fits the longest arrow inside one
+        # grid cell and then stretches every arrow by S; S = 0 disables the
+        # fitting and draws the raw vectors.  matplotlib's `scale` is the
+        # reciprocal: data units per unit arrow length.
+        nmax = float(_np.nanmax(_np.hypot(U, V))) if U.size else 0.0
+        if scale and nmax > 0:
+            dl = min((x1 - x0) / max(xpts - 1, 1),
+                     (y1 - y0) / max(ypts - 1, 1))
+            q = nmax / (float(scale) * dl) if dl > 0 else 1.0
+        else:
+            q = 1.0
+        ax.quiver(X, Y, U, V, angles="xy", scale_units="xy", scale=q,
+                  **kwargs)
+        ax.set_xlim(x0, x1)
+        ax.set_ylim(y0, y1)
         return ax
 
     def solvebvp(self, f=0.0, **kwargs):
@@ -3982,11 +4077,7 @@ class Chebop:
         """Call self.op with or without the leading x argument, matching
         the op's arity (ops of one unknown may be written either as
         lambda u: ... or lambda x, u: ...)."""
-        import inspect
-        try:
-            nargs = len(inspect.signature(self.op).parameters)
-        except (TypeError, ValueError):
-            nargs = len(us) + 1
+        nargs = _op_arity(self.op, len(us) + 1)
         return (self.op(x_fun, *us) if nargs > len(us)
                 else self.op(*us))
 
@@ -5430,6 +5521,27 @@ def _fourier_interp(nodes, vals, t, a: float, length: float):
 # ============================================================================
 
 
+_ARRAY_MARKERS = frozenset(
+    ("dtype", "shape", "ndim", "size", "__array__", "__array_struct__",
+     "__array_interface__"))
+
+# Elementwise operations an operator may apply to an unknown without
+# changing its differential order.  Deliberately an ALLOWLIST: a method
+# that is NOT here (cumsum, sum, an integral operator, ...) must make
+# _OrderSniffer bail, so _sniff_order returns None and the caller falls
+# back to the general column probe -- the only path that assembles a
+# nonlocal term correctly.  Absorbing everything would silently turn
+# ``u'' + cumsum(u)`` into a plain second-order differential operator.
+_ELEMENTWISE_NAMES = frozenset((
+    "sin", "cos", "tan", "asin", "acos", "atan", "arcsin", "arccos",
+    "arctan", "sinh", "cosh", "tanh", "asinh", "acosh", "atanh",
+    "arcsinh", "arccosh", "arctanh", "exp", "expm1", "exp2", "log",
+    "log1p", "log2", "log10", "sqrt", "cbrt", "abs", "sign", "erf",
+    "erfc", "real", "imag", "conj", "square", "reciprocal", "floor",
+    "ceil", "round", "power",
+))
+
+
 class _IVPProxy:
     """Proxy that behaves as u (= its 0-th derivative) in arithmetic and
     returns the j-th derivative from a supplied tower on ``diff(j)``.
@@ -5470,12 +5582,44 @@ class _IVPProxy:
     def __pow__(self, o):
         return self._v ** (o._v if isinstance(o, _IVPProxy) else o)
 
+    def __rpow__(self, o):
+        return (o._v if isinstance(o, _IVPProxy) else o) ** self._v
+
     def __neg__(self):
         return -self._v
 
+    def __abs__(self):
+        return abs(self._v)
+
+    def __getattr__(self, name):
+        """Elementwise chebfun methods (sin, cos, exp, ...) on the value.
+
+        Unlike the order sniffers, this proxy carries real values, so
+        ``u.sin()`` must evaluate; before this an operator as ordinary as
+        ``u.diff(2) + u.sin()`` -- the pendulum of ChebopQuiver -- raised
+        AttributeError from inside the right-hand-side extraction.
+        """
+        if name not in _ELEMENTWISE_NAMES:
+            raise AttributeError(name)
+        fn = getattr(jnp, name, None)
+        if fn is None:
+            raise AttributeError(name)
+
+        def _method(*a, **k):
+            return fn(self._v, *a, **k)
+
+        return _method
+
 
 class _OrderSniffer:
-    """Records the highest derivative order requested from an operator."""
+    """Records the highest derivative order requested from an operator.
+
+    Elementwise callables (``sin``, ``cos``, ``exp``, ...) are absorbed
+    via ``__getattr__`` and leave the recorded order unchanged, as in
+    :class:`_EqOrderSniffer` and :class:`_SysOrderSniffer`; without that
+    an operator as ordinary as ``u.diff(2) + u.sin()`` raised
+    AttributeError instead of reporting order 2.
+    """
 
     def __init__(self):
         self.order = 0
@@ -5488,10 +5632,25 @@ class _OrderSniffer:
         return self
 
     __radd__ = __sub__ = __rsub__ = __mul__ = __rmul__ = __add__
-    __truediv__ = __rtruediv__ = __pow__ = __rpow__ = __add__
+    __truediv__ = __rtruediv__ = __pow__ = __rpow__ = __matmul__ = __add__
 
     def __neg__(self):
         return self
+
+    def __abs__(self):
+        return self
+
+    def __getattr__(self, name):
+        # Only elementwise methods are absorbed; anything else (cumsum,
+        # sum, ...) raises so _sniff_order bails to the general probe.
+        # This also refuses the array protocol, which _TrigX and numpy
+        # probe before converting an operand.
+        if name not in _ELEMENTWISE_NAMES:
+            raise AttributeError(name)
+
+        def _fn(*a, **k):
+            return self
+        return _fn
 
 
 class _EqOrderSniffer:
@@ -5538,6 +5697,15 @@ class _EqOrderSniffer:
         return self
 
     def __getattr__(self, name):
+        # Never answer the array protocol. numpy probes for
+        # __array_struct__/__array__ before converting, and _TrigX
+        # treats anything carrying "dtype" as a plain array; faking
+        # either makes an array operand try to consume this object
+        # instead of deferring to its reflected operator.
+        if (name in _ARRAY_MARKERS
+                or (name.startswith("__") and name.endswith("__"))):
+            raise AttributeError(name)
+
         def _fn(*a, **k):
             return self
         return _fn
@@ -5593,6 +5761,14 @@ class _SysOrderSniffer:
 
     def __getattr__(self, name):
         if name in ("orders", "idx"):
+            raise AttributeError(name)
+        # Never answer the array protocol. numpy probes for
+        # __array_struct__/__array__ before converting, and _TrigX
+        # treats anything carrying "dtype" as a plain array; faking
+        # either makes an array operand try to consume this object
+        # instead of deferring to its reflected operator.
+        if (name in _ARRAY_MARKERS
+                or (name.startswith("__") and name.endswith("__"))):
             raise AttributeError(name)
 
         def _method(*a, **k):
@@ -5765,6 +5941,14 @@ class _LinopVar:
 
     def __getattr__(self, name):
         if name in ("jac", "domain"):
+            raise AttributeError(name)
+        # Never answer the array protocol. numpy probes for
+        # __array_struct__/__array__ before converting, and _TrigX
+        # treats anything carrying "dtype" as a plain array; faking
+        # either makes an array operand try to consume this object
+        # instead of deferring to its reflected operator.
+        if (name in _ARRAY_MARKERS
+                or (name.startswith("__") and name.endswith("__"))):
             raise AttributeError(name)
         # Any elementwise nonlinear method (sin, cos, exp, ...) applied to an
         # unknown makes the operator nonlinear -> not a linop.

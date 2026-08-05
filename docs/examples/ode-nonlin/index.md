@@ -12,7 +12,7 @@ physics and engineering.
 | [Blowup equation (Frank-Kamenetskii) (replica)](BlowupFK.md) | Faithful replica: five steady states matching the closed-form solution to 12 digits. |
 | [System of two nonlinear BVPs](bvp_system.md) | Solves the coupled nonlinear system: |
 | [The Carrier equation (replica)](Carrier.md) | Faithful replica: three solution branches selected by the initial guess, with Newton convergence histories. |
-| [Phase portraits with chebop/quiver](chebop_quiver.md) | Draws phase portraits for four classic nonlinear ODE systems: van der Pol oscillator, Lotka-Volterra predator-prey, p... |
+| [Phase portraits with chebop/quiver (replica)](ChebopQuiver.md) | Faithful replica: van der Pol, damped and undamped pendulum, Lotka-Volterra; quiver gains its system and slope-field cases. |
 | [Delay differential equations in Chebfun](delay_odes.md) | Solves delay differential equations (DDEs) including the pantograph equation |
 | [A droplet sitting on a surface](droplets.md) | Models a sessile droplet on a flat surface via the capillary equation. The droplet shape satisfies: |
 | [Exact Solutions from Bender & Orszag](exact_solutions_bender_orszag.md) | Bender & Orszag's Advanced Mathematical Methods for Scientists and Engineers contains many nonlinear ODEs with exact ... |
