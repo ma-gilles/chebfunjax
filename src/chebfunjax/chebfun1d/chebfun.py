@@ -4069,7 +4069,18 @@ class Chebfun(eqx.Module):
             raise ValueError(
                 f"Restriction [{a}, {b}] produced no pieces — check domain."
             )
-        return Chebfun(funs=new_funs, domain=new_domain)
+        # A polynomial restricted to a shorter interval is much smoother
+        # relative to that interval, so its Chebyshev series usually
+        # chops far earlier.  @chebtech/restrict.m does not simplify, but
+        # MATLAB's chebfun-level restriction does end up shortened, and
+        # length() is printed all over the examples catalog: on
+        # ode-nonlin/Logistic, restricting step 12 to [3.5, 4] gives 793
+        # in MATLAB R2025b where we kept the full 2236.
+        out = Chebfun(funs=new_funs, domain=new_domain)
+        try:
+            return out.simplify()
+        except Exception:
+            return out
 
     # ------------------------------------------------------------------
     # Quasimatrix linear algebra: qr, svd

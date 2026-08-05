@@ -22,7 +22,7 @@ physics and engineering.
 | [A Gulf Stream model (replica)](GulfStream.md) | Faithful replica: 3rd-order nonlinear BVP with two left-end conditions; conserved quantity I = 1/2. |
 | [IVP capabilities of chebop (replica)](IVPCapabilities.md) | Faithful replica: van der Pol marching (display parity), phase-plane direction field, forcing, collocation IVP solver. |
 | [Lane-Emden equation from astrophysics (nonlinear)](lane_emden_nonlin.md) | Solves the nonlinear Lane-Emden equation for polytropic indices ...: |
-| [Logistic map and chaos](logistic.md) | Explores the logistic map ... and its bifurcation diagram showing period-doubling cascades and the onset of chaos. |
+| [Logistic map and chaos (replica)](Logistic.md) | Faithful replica: chebfun iterates in the parameter r; lengths vs MATLAB R2025b, exposing three length bugs. |
 | [Logistic map and chaos (replica)](Logistic2.md) | Faithful replica: chebfun-composed logistic iterates, point values to 14 digits. |
 | [Logistic Equation](logistic_equation.md) | The logistic equation ... models population growth with a carrying capacity .... It has the exact solution: |
 | [Lorenz attractor](lorenz_attractor.md) | Numerically integrates the Lorenz system: |
