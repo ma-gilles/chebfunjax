@@ -84,9 +84,6 @@ def run():
     ax.grid(True)
     _save(fig)
 
-    print(f"distance to unit square at t=100: "
-          f"{abs(1 - abs(float(x(np.float64(100.0))))):.3e}")
-
 
 if __name__ == "__main__":
     run()

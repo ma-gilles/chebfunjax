@@ -9,7 +9,7 @@ physics and engineering.
 | [An Allen-Cahn equation with continuation](allen_cahn.md) | Solves the Allen-Cahn equation |
 | [The Blasius function (replica)](Blasius.md) | Faithful replica: wall shear to 5e-11, displacement constant matches, singularity failure reproduced. |
 | [Bloodhound supersonic car](bloodhound.md) | Models the acceleration of the Bloodhound SSC supersonic car: |
-| [Blowup equation (Frank-Kamenetskii)](blowup_fk.md) | Solves the Frank-Kamenetskii equation from combustion theory: |
+| [Blowup equation (Frank-Kamenetskii) (replica)](BlowupFK.md) | Faithful replica: five steady states matching the closed-form solution to 12 digits. |
 | [System of two nonlinear BVPs](bvp_system.md) | Solves the coupled nonlinear system: |
 | [The Carrier equation (replica)](Carrier.md) | Faithful replica: three solution branches selected by the initial guess, with Newton convergence histories. |
 | [Phase portraits with chebop/quiver](chebop_quiver.md) | Draws phase portraits for four classic nonlinear ODE systems: van der Pol oscillator, Lotka-Volterra predator-prey, p... |
@@ -34,7 +34,7 @@ physics and engineering.
 | [Picard iteration for ODE existence proof](picard.md) | Demonstrates Picard iteration for the IVP ..., .... Starting from ..., successive iterates ... |
 | [Half-wave rectifier](rectifier.md) | Simulates a stiff half-wave rectifier circuit with a diode: |
 | [Nonlinear ODE modeling solar magnetic fields](solar_fields.md) | Solves the nonlinear ODE arising in the modeling of force-free solar magnetic fields in a spherical geometry. The equ... |
-| [A square limit cycle](square_cycle.md) | A specially constructed 2D system exhibits a square limit cycle (due to Johnson and Tucker). The system has four sadd... |
+| [A square limit cycle (replica)](SquareCycle.md) | Faithful replica: heteroclinic cycle through four saddles; switching times match to plotting accuracy. |
 | [Three-body problem](three_body.md) | Integrates the Newtonian three-body problem for the famous figure-8 orbit discovered by Chenciner and Montgomery (200... |
 | [Pythagorean planets](three_planets.md) | Integrates the famous Pythagorean three-body problem: three masses in the ratio ... placed at the vertices of a 3-4-5... |
 | [Two electrons orbiting symmetrically about a nucleus](two_electrons.md) | Models two electrons in symmetric orbits around a proton, including the electron-electron repulsion and Coulomb attra... |

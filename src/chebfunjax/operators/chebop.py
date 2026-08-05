@@ -52,6 +52,28 @@ _MACHEPS = 2.220446049250313e-16
 IVP_ABSTOL = 1e5 * _MACHEPS
 IVP_RELTOL = 100.0 * _MACHEPS
 
+# MATLAB's cheboppref also carries ivpSolver (factory @chebfun.ode113).
+# ``Chebop.ivp_method`` is the equivalent knob; these are the MATLAB
+# names it accepts, mapped onto the closest scipy integrator, plus any
+# raw scipy method name.  SciPy has no variable-order Adams method, so
+# ode113 maps to DOP853 -- the same choice chebfunjax's own ode113
+# makes.  The default stays LSODA: it detects stiffness and switches to
+# BDF, so a stiff problem cannot grind an explicit method to a halt.
+IVP_METHODS = {
+    "ode113": "DOP853",   # MATLAB: variable-order Adams-Bashforth-Moulton
+    "ode45": "RK45",      # MATLAB: Dormand-Prince 5(4)
+    "ode15s": "BDF",      # MATLAB: variable-order stiff NDF/BDF
+}
+IVP_METHOD_DEFAULT = "LSODA"
+
+
+def _ivp_method(name) -> str:
+    """Resolve a MATLAB ``ivpSolver`` name to a scipy integrator."""
+    if name is None:
+        return IVP_METHOD_DEFAULT
+    key = str(name).strip()
+    return IVP_METHODS.get(key.lower(), key)
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -1413,7 +1435,8 @@ class Chebop:
             J[:, j] = bc_res(e) - r0
         y0 = _np.linalg.solve(J, -r0)
 
-        sol = _sivp(rhs, (t0, t1), y0, method="LSODA",
+        sol = _sivp(rhs, (t0, t1), y0,
+                    method=_ivp_method(getattr(self, "ivp_method", None)),
                     rtol=getattr(self, "ivp_reltol", IVP_RELTOL),
                     atol=getattr(self, "ivp_abstol", IVP_ABSTOL),
                     dense_output=True)
@@ -3915,7 +3938,9 @@ class Chebop:
         # LSODA switches between stiff/non-stiff automatically, so a
         # stiff problem cannot grind RK45 into a CI timeout.
         sol = _solve_ivp(rhs, [x0, x1], ic, dense_output=True,
-                         method="LSODA", rtol=rtol, atol=atol)
+                         method=_ivp_method(
+                             getattr(self, "ivp_method", None)),
+                         rtol=rtol, atol=atol)
         if not sol.success:
             raise RuntimeError(f"solve_ivp failed: {sol.message}")
 
