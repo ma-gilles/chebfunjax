@@ -451,7 +451,6 @@ class Chebop:
         MATLAB source : @chebop/quiver.m
         Chebfun commit: 7574c77
         """
-        import inspect
 
         import matplotlib.pyplot as plt
         import numpy as _np
@@ -462,7 +461,7 @@ class Chebop:
                 "second-order operator")
         t0 = float(self.domain[0] if t is None else t)
         try:
-            nargs = len(inspect.signature(self.op).parameters)
+            nargs = _op_arity(self.op, 2)
         except (TypeError, ValueError):
             nargs = 2
 
@@ -609,11 +608,10 @@ class Chebop:
         if (not getattr(self, "_periodic", False)
                 and self._n_vars() == 1 and self._bc_general is None):
             try:
-                import inspect as _inspect
 
                 from chebfunjax.chebfun1d.chebfun import Chebfun as _Cf
                 _dom = Domain(tuple(float(v) for v in self.domain))
-                _nargs = len(_inspect.signature(self.op).parameters)
+                _nargs = _op_arity(self.op, 2)
                 _probe = _Cf.identity(_dom)
                 _out = (self.op(_probe, _probe) if _nargs > 1
                         else self.op(_probe))
@@ -900,7 +898,6 @@ class Chebop:
         --------
         ChebMatrix, OperatorBlock
         """
-        import inspect
 
         from chebfunjax.operators.chebmatrix import ChebMatrix
 
@@ -920,10 +917,7 @@ class Chebop:
 
         from chebfunjax.chebfun1d.chebfun import Chebfun
         x_fun = Chebfun.identity(Domain(domain))
-        try:
-            nargs = len(inspect.signature(self.op).parameters)
-        except (TypeError, ValueError):
-            nargs = m + 1
+        nargs = _op_arity(self.op, m + 1)
         out = self.op(x_fun, *seeds) if nargs > m else self.op(*seeds)
 
         # Normalize the output into a list of equation rows.
@@ -1304,7 +1298,8 @@ class Chebop:
         x_fun = Chebfun.identity(Domain(self.domain))
         forward = self._lbc_raw is not None
         t0, t1 = (a, b) if forward else (b, a)
-        bc_raw = self._lbc_raw if forward else self._rbc_raw
+        bc_raw = _as_system_bc(
+            self._lbc_raw if forward else self._rbc_raw, m)
 
         def const_funs(y):
             return [_chebfun_from_values(
@@ -1948,6 +1943,7 @@ class Chebop:
             f_vals = _np.tile(_np.asarray(f(jnp.asarray(xp))), m)
 
         def bc_list(bc_raw, us):
+            bc_raw = _as_system_bc(bc_raw, m)
             if bc_raw is None:
                 return []
             out = bc_raw(*us)
@@ -2305,15 +2301,11 @@ class Chebop:
         MATLAB source : @linop/getDiffOrder.m
         Chebfun commit: 7574c77
         """
-        import inspect
 
         orders = [0] * m
         sniffers = [_SysOrderSniffer(orders, (i,)) for i in range(m)]
         x_sniff = _SysOrderSniffer(orders, ())
-        try:
-            nargs = len(inspect.signature(self.op).parameters)
-        except (TypeError, ValueError):
-            nargs = m + 1
+        nargs = _op_arity(self.op, m + 1)
         try:
             if nargs > m:
                 self.op(x_sniff, *sniffers)
@@ -2333,14 +2325,10 @@ class Chebop:
         naive ``eq = c % m`` round-robin starves low-order equations of
         collocation rows in mixed-order systems.
         """
-        import inspect
 
         sniffers = [_EqOrderSniffer({(i, 0)}) for i in range(m)]
         x_sniff = _EqOrderSniffer()
-        try:
-            nargs = len(inspect.signature(self.op).parameters)
-        except (TypeError, ValueError):
-            nargs = m + 1
+        nargs = _op_arity(self.op, m + 1)
         try:
             out = (self.op(x_sniff, *sniffers) if nargs > m
                    else self.op(*sniffers))
@@ -2712,7 +2700,6 @@ class Chebop:
             @chebop/solvebvpNonlinear.m
         Chebfun commit: 7574c77
         """
-        import inspect
 
         import numpy as _np
 
@@ -2795,10 +2782,7 @@ class Chebop:
                 us.append(Chebfun(funs=funs, domain=dom))
             return us
 
-        try:
-            nargs = len(inspect.signature(self.op).parameters)
-        except (TypeError, ValueError):
-            nargs = m + 1
+        nargs = _op_arity(self.op, m + 1)
 
         def apply_op(us):
             out = self.op(x_fun, *us) if nargs > m else self.op(*us)
@@ -2944,11 +2928,8 @@ class Chebop:
 
         # General .bc conditions (jump / one-sided) fill the reserved
         # interface rows at the jump breakpoints.
-        try:
-            gen_nargs = (len(inspect.signature(self._bc_general).parameters)
+        gen_nargs = (_op_arity(self._bc_general, m + 1)
                          if self._bc_general is not None else 0)
-        except (TypeError, ValueError):
-            gen_nargs = m + 1
 
         def gen_res(us):
             if self._bc_general is None:
@@ -3851,7 +3832,6 @@ class Chebop:
         MATLAB source : @chebop/solveivp.m (routing of one-sided BCs).
         Chebfun commit: 7574c77
         """
-        import inspect
 
         import numpy as _np
         from scipy.integrate import solve_ivp as _solve_ivp
@@ -3859,7 +3839,7 @@ class Chebop:
         from chebfunjax.chebfun1d.chebfun import chebfun
         a, b = self.domain
         k = self._op_order()
-        nargs = len(inspect.signature(self.op).parameters)
+        nargs = _op_arity(self.op, 2)
 
         def L(x, u):
             return self.op(x, u) if nargs == 2 else self.op(u)
@@ -3971,11 +3951,7 @@ class Chebop:
         with a thin wrapper that supports the chebfun-style elementwise
         methods while degrading to plain arrays in mixed arithmetic.
         """
-        import inspect
-        try:
-            n = len(inspect.signature(self.op).parameters)
-        except (TypeError, ValueError):
-            n = 2  # default: assume (x, u)
+        n = _op_arity(self.op, 2)  # default: assume (x, u)
 
         if n == 1:
             return self.op(u_fun)
@@ -5204,6 +5180,47 @@ def _fourier_diffmat(n: int, length: float, order: int):
     dft = _np.exp(-2j * _np.pi * _np.outer(j, j) / n)
     idft = _np.exp(2j * _np.pi * _np.outer(j, j) / n) / n
     return _np.real(idft @ (mult[:, None] * dft))
+
+
+def _as_system_bc(bc_raw, m: int):
+    """Normalize a system boundary-condition spec to a callable.
+
+    For a system, MATLAB's ``N.lbc = [.01; .02]`` prescribes one value
+    per UNKNOWN (x(0) = .01, y(0) = .02) -- unlike the scalar case,
+    where a list gives successive derivatives.  Returns ``bc_raw``
+    unchanged when it is already callable or not a plain list of
+    numbers.
+    """
+    if m < 2 or bc_raw is None or callable(bc_raw):
+        return bc_raw
+    if isinstance(bc_raw, (list, tuple)) and all(
+            isinstance(v, (int, float)) for v in bc_raw):
+        vals = [float(v) for v in bc_raw]
+
+        def _bc(*us, _v=tuple(vals)):
+            return [u - c for u, c in zip(us, _v)]
+        return _bc
+    return bc_raw
+
+
+def _op_arity(fn, default: int) -> int:
+    """Number of arguments an operator/BC callable really takes.
+
+    Counts only parameters WITHOUT defaults.  Capturing a loop variable
+    the idiomatic Python way -- ``lambda u, _A=A: ...`` -- would
+    otherwise look like a two-argument ``op(x, u)``, and the solver
+    would pass the independent variable in as the unknown.  Returns
+    ``default`` if the signature cannot be read (builtins, C callables).
+    """
+    import inspect
+    try:
+        params = inspect.signature(fn).parameters.values()
+    except (TypeError, ValueError):
+        return default
+    required = [q for q in params
+                if q.default is q.empty
+                and q.kind in (q.POSITIONAL_ONLY, q.POSITIONAL_OR_KEYWORD)]
+    return len(required) if required else default
 
 
 class _TrigVals:
