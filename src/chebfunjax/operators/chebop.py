@@ -1249,9 +1249,23 @@ class Chebop:
             J = _np.zeros((m * n, m * n))
             h = 1e-7 * max(1.0, _np.max(_np.abs(U)))
             for j in range(m * n):
+                # One-sided difference, flipping direction when the
+                # forward step leaves the operator's domain.  Perturbing
+                # an iterate that touches zero (Lane-Emden's u vanishes
+                # at the right end and is raised to the power 1.5) makes
+                # the probe negative and the operator undefined, which
+                # aborted the whole solve.
                 Up = U.copy()
                 Up[j] += h
-                J[:, j] = (residual(Up) - R) / h
+                try:
+                    J[:, j] = (residual(Up) - R) / h
+                except Exception:
+                    Um = U.copy()
+                    Um[j] -= h
+                    try:
+                        J[:, j] = (R - residual(Um)) / h
+                    except Exception:
+                        J[j, j] = 1.0
             step = _np.linalg.lstsq(J, R, rcond=None)[0]
             lam = 1.0
             for _d in range(30):
@@ -2024,10 +2038,24 @@ class Chebop:
             # Affine-invariant (Deuflhard) damping: monotone decrease of
             # the SIMPLIFIED Newton step keeps the iteration in the
             # initial guess's basin (see _solve_periodic_nonlinear).
+            def _safe_residual(v):
+                """residual(v), or +inf if evaluating it fails.
+
+                An overshooting Newton step can leave the region where
+                the operator is defined -- Lane-Emden's u**1.5 raises
+                once u dips below zero -- and that surfaces as an
+                EXCEPTION, not a non-finite value.  Reporting it as an
+                infinite residual lets the damping below reject the
+                step instead of aborting the solve."""
+                try:
+                    return residual(v)
+                except Exception:
+                    return _np.full(m * n, _np.inf)
+
             lam = 1.0
             Rn = R
             for _d in range(30):
-                Rn = residual(U - lam * step)
+                Rn = _safe_residual(U - lam * step)
                 if _np.all(_np.isfinite(Rn)):
                     step_bar = _sla.lu_solve(lu, Rn)
                     if _np.linalg.norm(step_bar) < nd or lam < 1e-6:
@@ -4618,7 +4646,15 @@ class Chebop:
                         lam_damp = 1.0
                         for _ls in range(25):
                             u_try = u_np + lam_damp * delta
-                            r_try, Nu_try, ufun_try = _residual(u_try)
+                            try:
+                                r_try, Nu_try, ufun_try = _residual(
+                                    u_try)
+                            except Exception:
+                                # Step left the operator's domain of
+                                # definition; treat as infinite
+                                # residual and halve the step.
+                                lam_damp *= 0.5
+                                continue
                             r_try_norm = float(_np.max(_np.abs(r_try)))
                             if _np.isfinite(r_try_norm):
                                 d_bar = _sla.lu_solve(lu, -r_try)
@@ -4630,7 +4666,10 @@ class Chebop:
                     else:
                         lam_damp = 1.0
                         u_try = u_np + delta
-                        r_try, Nu_try, ufun_try = _residual(u_try)
+                        try:
+                            r_try, Nu_try, ufun_try = _residual(u_try)
+                        except Exception:
+                            break
                         r_try_norm = float(_np.max(_np.abs(r_try)))
 
                     if not _np.isfinite(r_try_norm):

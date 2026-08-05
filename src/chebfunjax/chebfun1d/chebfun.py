@@ -2282,6 +2282,17 @@ class Chebfun(eqx.Module):
         import numpy as _np
 
         from chebfunjax.fun.singfun import Singfun
+        # The identically-zero function: 0**b = 0 for b > 0.  Falling
+        # through to the root-splitting path below would ask roots()
+        # for the roots of the zero function -- every point is one --
+        # which hangs.  (Operator probing evaluates ops on the zero
+        # function, so a fractional power in the op hit this.)
+        if b > 0:
+            try:
+                if float(self.norm(jnp.inf)) == 0.0:
+                    return self * 0.0
+            except Exception:
+                pass
         # No roots anywhere -> smooth composition (fast path, matches the
         # positive-function tests exactly).
         r = _np.asarray(self.roots(nojump=True), dtype=float).ravel()
