@@ -24,8 +24,16 @@ $\epsilon \to 0$:
      1.0e-05    0.000115147      2048         109.83
 ```
 
-(The `pos(max(u))` column matches the published values digit for
-digit; the lengths and timings are the adaptive solver's own.)
+The `pos(max(u))` column matches the published values digit for digit.
+The lengths do not, and the reason is worth stating rather than
+glossing: MATLAB reports 23, 59, 170, 488, 1495 here. Four of our five
+are exact powers of two, and `simplify()` cuts nothing from them, which
+means the Chebyshev coefficients have not decayed at the point our
+adaptive solve stops — the solution is accepted before it is *happy*,
+so the reported length is just the collocation size. MATLAB refines
+until the tail decays. This is an open gap in the adaptive BVP loop,
+distinct from the three arithmetic length bugs fixed for
+[Logistic](../ode-nonlin/Logistic.md); the timings are our own.
 
 ![Breakpoints figure 1](../../images/ode-linear/Breakpoints_repl_01.png)
 
