@@ -158,6 +158,22 @@ def _values_to_coeffs(v: jax.Array) -> jax.Array:
 # ============================================================================
 
 
+def _collapse_if_zero(coeffs: jax.Array) -> jax.Array:
+    """Return a single zero coefficient when the vertical scale is zero.
+
+    MATLAB @chebtech/mtimes.m does exactly this after scaling ("If the
+    vertical scale is zero, set the CHEBTECH to zero"), and
+    @chebtech/plus.m builds a length-1 zero when the sum cancels.
+    Without it ``0*r`` keeps its operand's length, and every downstream
+    length is wrong by that factor -- ode-nonlin/Logistic starts from
+    ``0.5 + 0*r`` and prints length(x) at each step, which came out 2x
+    MATLAB's 1, 2, 4, 8, ... all the way to 2^19.
+    """
+    if coeffs.size and not bool(jnp.any(coeffs != 0)):
+        return jnp.zeros((1,) + coeffs.shape[1:], dtype=coeffs.dtype)
+    return coeffs
+
+
 def _prolong_coeffs(coeffs: jax.Array, n: int) -> jax.Array:
     """Zero-pad or truncate Chebyshev coefficients to length *n*."""
     m = coeffs.shape[0]
@@ -2338,7 +2354,9 @@ class Chebtech2(eqx.Module):
             n = max(nf, ng)
             fc = _prolong_coeffs(self.coeffs, n)
             gc = _prolong_coeffs(other.coeffs, n)
-            return Chebtech2.from_coeffs(fc + gc, ishappy=self.ishappy and other.ishappy)
+            return Chebtech2.from_coeffs(
+                _collapse_if_zero(fc + gc),
+                ishappy=self.ishappy and other.ishappy)
         else:
             # Scalar addition: only the c_0 coefficient changes. Promote the
             # coefficient dtype first — scattering a complex scalar into a
@@ -2403,7 +2421,9 @@ class Chebtech2(eqx.Module):
             hc = _coeff_multiply(self.coeffs, other.coeffs)
             return Chebtech2.from_coeffs(hc, ishappy=self.ishappy and other.ishappy)
         else:
-            return Chebtech2.from_coeffs(self.coeffs * _as_scalar(other), ishappy=self.ishappy)
+            return Chebtech2.from_coeffs(
+                _collapse_if_zero(self.coeffs * _as_scalar(other)),
+                ishappy=self.ishappy)
 
     def __rmul__(self, other) -> "Chebtech2":
         return self.__mul__(other)
@@ -3772,7 +3792,9 @@ class Chebtech1(eqx.Module):
             n = max(self.n, other.n)
             fc = _prolong_coeffs(self.coeffs, n)
             gc = _prolong_coeffs(other.coeffs, n)
-            return Chebtech1.from_coeffs(fc + gc, ishappy=self.ishappy and other.ishappy)
+            return Chebtech1.from_coeffs(
+                _collapse_if_zero(fc + gc),
+                ishappy=self.ishappy and other.ishappy)
         else:
             # Scalar addition changes only c_0.  Promote the coefficient
             # dtype first — scattering a complex scalar into a float64
@@ -3833,7 +3855,9 @@ class Chebtech1(eqx.Module):
             hc = _coeff_multiply(self.coeffs, other.coeffs)
             return Chebtech1.from_coeffs(hc, ishappy=self.ishappy and other.ishappy)
         else:
-            return Chebtech1.from_coeffs(self.coeffs * _as_scalar(other), ishappy=self.ishappy)
+            return Chebtech1.from_coeffs(
+                _collapse_if_zero(self.coeffs * _as_scalar(other)),
+                ishappy=self.ishappy)
 
     def __rmul__(self, other) -> "Chebtech1":
         return self.__mul__(other)
