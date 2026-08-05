@@ -796,6 +796,16 @@ class Chebop:
                     return self._solve_ivp_system(f)
                 except Exception:
                     pass
+                # Not first order in every unknown (or complex state):
+                # reduce to first order and march, as MATLAB does via
+                # treeVar.toFirstOrder.  Only reached when the call
+                # above could not handle the problem, so nothing that
+                # already worked changes route.
+                try:
+                    if max(self._piecewise_orders(self._n_vars())) > 1:
+                        return self._solve_ivp_system_highorder(f)
+                except Exception:
+                    pass
             if self._system_is_linear():
                 return self._solve_linear_system(f, n=n)
             return self._solve_nonlinear_system(
@@ -1401,6 +1411,183 @@ class Chebop:
                     f"reached (residual {_np.max(_np.abs(R)):.2e})",
                     RuntimeWarning, stacklevel=2)
         return SystemSolution(to_funs(U))
+
+    def _solve_ivp_system_highorder(self, f=0.0):
+        """Time-march an IVP system whose equations are not all first order.
+
+        MATLAB reduces such a problem to first order with
+        ``treeVar.toFirstOrder`` and hands it to ``ode113``.  The same
+        reduction is done here: with orders ``k_i`` from
+        :meth:`_piecewise_orders`, the state is
+
+            Y = [u_1, u_1', ..., u_1^(k_1-1), u_2, ...],
+
+        and the top derivative of equation ``i`` is recovered by the
+        affine probe the scalar marcher already uses -- evaluate the
+        residual with that derivative set to 0 and to 1, then
+        ``u^(k) = -r0 / (r1 - r0)``.
+
+        Complex state is preserved throughout: ode-nonlin/ThreePlanets
+        and ThreeBodyProblem write the plane as one complex unknown per
+        body, and casting through ``float`` would silently drop the
+        imaginary part.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/solveivp.m, treeVar.toFirstOrder
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        from scipy.integrate import solve_ivp as _sivp
+
+        m = self._n_vars()
+        orders = self._piecewise_orders(m)
+        if min(orders) < 1:
+            raise ValueError(
+                "ivp system: every unknown must carry a derivative")
+        off = _np.cumsum([0] + list(orders))      # slice starts per var
+        ntot = int(off[-1])
+
+        a, b = self.domain
+        forward = self._lbc_raw is not None
+        t0, t1 = (a, b) if forward else (b, a)
+        bc_raw = _as_system_bc(
+            self._lbc_raw if forward else self._rbc_raw, m)
+        if bc_raw is None:
+            raise ValueError("ivp system: no initial conditions")
+
+        def _towers(Y, probe_var=None, probe_val=0.0):
+            """One _IVPProxy per unknown, carrying its derivative tower."""
+            us = []
+            for i in range(m):
+                tower = [jnp.asarray(Y[off[i] + j]) for j in range(orders[i])]
+                tower.append(jnp.asarray(
+                    probe_val if probe_var == i else 0.0))
+                us.append(_IVPProxy(tower))
+            return us
+
+        def _resid(Y, probe_var, probe_val, t):
+            out = self._call_op(jnp.asarray(t),
+                                _towers(Y, probe_var, probe_val))
+            if not isinstance(out, (list, tuple)):
+                out = [out]
+            vals = []
+            for o in out:
+                if isinstance(o, _IVPProxy):
+                    o = o._v
+                elif isinstance(o, _TrigX):
+                    o = o.v
+                vals.append(complex(_np.asarray(o)))
+            return _np.array(vals, dtype=complex)
+
+        def rhs(t, Y):
+            Y = _np.asarray(Y)
+            dY = _np.zeros(ntot, dtype=complex)
+            # each equation is affine in its own top derivative
+            for i in range(m):
+                r0 = _resid(Y, i, 0.0, t)[i]
+                r1 = _resid(Y, i, 1.0, t)[i]
+                slope = r1 - r0
+                top = (-r0 / slope) if slope != 0 else 0.0
+                for j in range(orders[i] - 1):
+                    dY[off[i] + j] = Y[off[i] + j + 1]
+                dY[off[i] + orders[i] - 1] = top
+            return dY
+
+        # Initial state from the affine boundary residuals.
+        def bc_res(Y):
+            out = bc_raw(*_towers(Y))
+            if not isinstance(out, (list, tuple)):
+                out = [out]
+            vals = []
+            for o in out:
+                if isinstance(o, _IVPProxy):
+                    o = o._v
+                elif isinstance(o, _TrigX):
+                    o = o.v
+                vals.append(complex(_np.asarray(o)))
+            return _np.array(vals, dtype=complex)
+
+        r0 = bc_res(_np.zeros(ntot, dtype=complex))
+        if len(r0) != ntot:
+            raise ValueError(
+                f"ivp system: got {len(r0)} conditions, need {ntot}")
+        J = _np.zeros((ntot, ntot), dtype=complex)
+        for j in range(ntot):
+            e = _np.zeros(ntot, dtype=complex)
+            e[j] = 1.0
+            J[:, j] = bc_res(e) - r0
+        Y0 = _np.linalg.solve(J, -r0)
+
+        is_complex = bool(_np.any(_np.abs(Y0.imag) > 0))
+
+        if is_complex:
+            # scipy integrates real systems; split into (re, im).
+            def rhs_r(t, Yr):
+                Y = Yr[:ntot] + 1j * Yr[ntot:]
+                d = rhs(t, Y)
+                return _np.concatenate([d.real, d.imag])
+
+            y0r = _np.concatenate([Y0.real, Y0.imag])
+            sol = _sivp(rhs_r, (t0, t1), y0r,
+                        method=_ivp_method(getattr(self, "ivp_method", None)),
+                        rtol=getattr(self, "ivp_reltol", IVP_RELTOL),
+                        atol=getattr(self, "ivp_abstol", IVP_ABSTOL),
+                        dense_output=True)
+        else:
+            def rhs_real(t, Y):
+                return rhs(t, Y.astype(complex)).real
+
+            sol = _sivp(rhs_real, (t0, t1), Y0.real,
+                        method=_ivp_method(getattr(self, "ivp_method", None)),
+                        rtol=getattr(self, "ivp_reltol", IVP_RELTOL),
+                        atol=getattr(self, "ivp_abstol", IVP_ABSTOL),
+                        dense_output=True)
+        if not sol.success:
+            raise RuntimeError(f"ivp system: {sol.message}")
+
+        # Build one chebfun per unknown on the solver's own time mesh,
+        # exactly as the first-order path does: a single global
+        # polynomial loses local accuracy on a trajectory spanning many
+        # orders of magnitude.
+        from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+
+        ts = _np.asarray(sol.t, dtype=float)
+        if ts[0] > ts[-1]:
+            ts = ts[::-1]
+        ts = _np.unique(_np.clip(ts, min(a, b), max(a, b)))
+        step = max(1, int(_np.ceil(ts.size / 256.0)), 8)
+        idx = list(range(0, ts.size - 1, step))
+        breaks = [float(a)] + [float(ts[i]) for i in idx[1:]] + [float(b)]
+        breaks = sorted(set(breaks))
+        span = abs(float(b) - float(a))
+        breaks = [breaks[0]] + [
+            v for kk, v in enumerate(breaks[1:], 1)
+            if v - breaks[kk - 1] > 1e-13 * span]
+        if breaks[-1] != float(b):
+            breaks[-1] = float(b)
+
+        dt = jnp.complex128 if is_complex else jnp.float64
+
+        def _component(i):
+            k = int(off[i])
+
+            def _ev(t, _k=k):
+                tt = _np.atleast_1d(_np.asarray(t, dtype=float))
+                Y = sol.sol(tt)
+                vals = (Y[_k] + 1j * Y[ntot + _k]) if is_complex else Y[_k]
+                return jnp.asarray(
+                    vals.reshape(_np.shape(t)) if _np.ndim(t) else vals[0],
+                    dtype=dt)
+            return _ev
+
+        outs = []
+        for i in range(m):
+            ev = _component(i)
+            funs = [_Piece.from_function(ev, breaks[k], breaks[k + 1])
+                    for k in range(len(breaks) - 1)]
+            outs.append(Chebfun(funs=funs, domain=Domain(tuple(breaks))))
+        return SystemSolution(outs)
 
     def _solve_ivp_system(self, f=0.0):
         """Time-march a first-order explicit IVP system (MATLAB

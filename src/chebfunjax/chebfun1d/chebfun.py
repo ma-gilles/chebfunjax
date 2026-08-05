@@ -3175,11 +3175,15 @@ class Chebfun(eqx.Module):
             dlist = []
             for i in range(len(self.funs) - 1):
                 loc = float(self.funs[i].interval[1])
-                left = float(self.funs[i](jnp.array(loc)))
-                right = float(self.funs[i + 1](jnp.array(loc)))
+                # complex() not float(): a piecewise COMPLEX chebfun --
+                # e.g. the per-body positions of ode-nonlin/ThreePlanets,
+                # marched onto the solver's mesh -- otherwise raises here
+                # the moment anything differentiates it.
+                left = complex(self.funs[i](jnp.array(loc)))
+                right = complex(self.funs[i + 1](jnp.array(loc)))
                 jump = right - left
                 if abs(jump) > 1e-11 * (abs(left) + abs(right) + 1.0):
-                    dlist.append((loc, jump))
+                    dlist.append((loc, jump if jump.imag else jump.real))
             deltas = tuple(dlist)
         return Chebfun._as_transposed(
             Chebfun(funs=new_funs, domain=self.domain, deltas=deltas),
