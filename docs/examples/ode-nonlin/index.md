@@ -28,7 +28,7 @@ physics and engineering.
 | [Lorenz attractor](lorenz_attractor.md) | Numerically integrates the Lorenz system: |
 | [Lyapunov exponents (replica)](LyapunovExponents.md) | Faithful replica: Lorenz separation over 10 decades, exponent 0.930 vs published 0.934. |
 | [Modelling diseases (replica)](ModellingDiseases.md) | Faithful replica: SIR model, peak 240 exact, crossover time to 11 digits. |
-| [Orbiting around fixed stars](orbits.md) | Computes planetary orbits around a fixed star using Newton's law of gravity. Different initial velocities yield circu... |
+| [Orbiting around fixed masses (replica)](Orbits.md) | Faithful replica: complex-plane orbits via ode113; arc length and closest approach to 9-10 digits. |
 | [Parameter-dependent ODEs: three examples](param_odes.md) | Demonstrates three ODE problems with parameters: 1. An eigenvalue-type boundary condition with an interior constraint |
 | [Nonlinear Pendulum](pendulum_equation.md) | The nonlinear pendulum equation ... describes the exact motion of a pendulum without the small-angle approximation. |
 | [Picard iteration for ODE existence proof](picard.md) | Demonstrates Picard iteration for the IVP ..., .... Starting from ..., successive iterates ... |

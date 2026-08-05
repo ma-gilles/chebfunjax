@@ -8207,14 +8207,22 @@ def _ode_solve(
 
     t0, tf = float(tspan[0]), float(tspan[1])
 
-    # Normalise initial state to a 1-D NumPy float64 vector
-    y0_np = _np.atleast_1d(_np.asarray(y0, dtype=_np.float64))
+    # Normalise the initial state to a 1-D NumPy vector, PRESERVING a
+    # complex dtype: planar problems are naturally posed in the complex
+    # plane (Orbits.m starts at -1+1i), and casting to float64 here
+    # silently dropped the imaginary part, sending the trajectory into
+    # the singularity at the origin.
+    y0_np = _np.atleast_1d(_np.asarray(y0))
+    if not _np.iscomplexobj(y0_np):
+        y0_np = y0_np.astype(_np.float64)
     scalar_out = y0_np.ndim == 1 and y0_np.shape[0] == 1
+    _cplx = bool(_np.iscomplexobj(y0_np))
 
     # Wrap odefun so it always receives/returns NumPy arrays
     def _rhs(t, y):
-        result = odefun(float(t), jnp.asarray(y, dtype=jnp.float64))
-        return _np.atleast_1d(_np.asarray(result, dtype=_np.float64))
+        result = odefun(float(t), jnp.asarray(y))
+        out = _np.atleast_1d(_np.asarray(result))
+        return out if _cplx else out.astype(_np.float64)
 
     # Call scipy solver with dense_output=True for interpolation
     sol = solve_ivp(
@@ -8245,12 +8253,22 @@ def _ode_solve(
             domain=(t0, tf),
         )
     else:
-        # Vector ODE — build one Chebfun per component, return list
-        # (MATLAB returns a quasimatrix; here we return a Python list)
-        raise NotImplementedError(
-            "ode45/ode113: vector ODEs (d > 1) are not yet supported. "
-            "Use scipy.integrate.solve_ivp directly for multi-component systems."
-        )
+        # Vector ODE — one Chebfun per component.  MATLAB returns a
+        # quasimatrix whose columns are indexed ``uv(:, k)``; here the
+        # return value is a list indexed ``uv[k]``.  Components may be
+        # complex (planar orbits are naturally posed in the complex
+        # plane), so the dtype follows the solution.
+        def _component(k):
+            def _ev(t, _k=k):
+                tt = _np.atleast_1d(_np.asarray(t, dtype=_np.float64))
+                vals = sol.sol(tt)[_k]          # type: ignore[union-attr]
+                out = (vals.reshape(_np.shape(t)) if _np.ndim(t)
+                       else vals[0])
+                return jnp.asarray(out)
+            return _ev
+
+        return [chebfun(_component(k), domain=(t0, tf))
+                for k in range(y0_np.shape[0])]
 
 
 # ============================================================================
