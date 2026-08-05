@@ -43,6 +43,15 @@ from chebfunjax.operators.blocks import (
 from chebfunjax.operators.linop import Linop
 from chebfunjax.utils.quadrature import chebpts
 
+# MATLAB @cheboppref factory defaults for the IVP time-marcher
+# (cheboppref.m: ivpAbsTol = 1e5*eps, ivpRelTol = 100*eps).  These set
+# the noise floor of a marched solution, so they are visible in any
+# example that integrates towards a fixed point -- ode-nonlin/SquareCycle
+# reports the distance to a limit cycle down to that floor.
+_MACHEPS = 2.220446049250313e-16
+IVP_ABSTOL = 1e5 * _MACHEPS
+IVP_RELTOL = 100.0 * _MACHEPS
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -1405,7 +1414,9 @@ class Chebop:
         y0 = _np.linalg.solve(J, -r0)
 
         sol = _sivp(rhs, (t0, t1), y0, method="LSODA",
-                    rtol=1e-11, atol=1e-12, dense_output=True)
+                    rtol=getattr(self, "ivp_reltol", IVP_RELTOL),
+                    atol=getattr(self, "ivp_abstol", IVP_ABSTOL),
+                    dense_output=True)
         if not sol.success:
             raise RuntimeError(f"ivp system: {sol.message}")
 
@@ -3816,7 +3827,8 @@ class Chebop:
         rhs = _make_rhs_callable(f)
         return linop.solve(rhs, n=n, n_min=n_min, n_max=n_max, tol=tol)
 
-    def solve_ivp(self, f=0.0, rtol: float = 1e-11, atol: float = 1e-12):
+    def solve_ivp(self, f=0.0, rtol: float | None = None,
+                  atol: float | None = None):
         """Solve an initial-value problem by time marching (task #24).
 
         Applicable when all boundary conditions sit at one endpoint.  The
@@ -3827,11 +3839,22 @@ class Chebop:
         ``scipy.integrate.solve_ivp`` (Dormand--Prince).  Returns the
         solution ``u`` as a Chebfun.  Implemented by Claude Opus 4.8.
 
+        ``rtol``/``atol`` default to MATLAB's ``cheboppref`` factory
+        values ``ivpRelTol = 100*eps`` and ``ivpAbsTol = 1e5*eps``; the
+        instance attributes ``ivp_reltol``/``ivp_abstol`` override them,
+        as setting the preference does in MATLAB.
+
         Provenance
         ----------
-        MATLAB source : @chebop/solveivp.m (routing of one-sided BCs).
+        MATLAB source : @chebop/solveivp.m (routing of one-sided BCs),
+            @cheboppref/cheboppref.m (ivpAbsTol, ivpRelTol defaults).
         Chebfun commit: 7574c77
         """
+
+        if rtol is None:
+            rtol = getattr(self, "ivp_reltol", IVP_RELTOL)
+        if atol is None:
+            atol = getattr(self, "ivp_abstol", IVP_ABSTOL)
 
         import numpy as _np
         from scipy.integrate import solve_ivp as _solve_ivp

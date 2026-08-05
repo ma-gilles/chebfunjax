@@ -46,7 +46,8 @@ def run():
     L.lbc = lambda u, v: [u, v - 1]
     u, v = L.solve(0.0)
 
-    fig, ax = arrowplot(u, v, n_arrows=10)
+    fig, ax = arrowplot(u, v, linewidth=5, markersize=30,
+                        ystretch=2)
     ax.grid(True)
     ax.set_aspect("equal")
     fig.set_facecolor("white")

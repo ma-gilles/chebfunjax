@@ -3051,22 +3051,46 @@ def arrowplot(
     g=None,
     ax=None,
     title: str = "",
-    color: str = CHEBFUN_BLUE,
-    n_pts: int = 400,
-    n_arrows: int = 12,
+    color=None,
+    n_pts: int = 2000,
+    multi: int = 1,
+    markersize: float = 6.0,
+    ystretch: float = 1.0,
+    n_arrows: "int | None" = None,
     **kw,
 ):
-    """Parametric curve plot with direction arrows.
+    """Chebfun plot with an arrowhead at the end.
+
+    ``arrowplot(f, g)``, for Chebfuns on a common domain, plots the curve
+    ``(f, g)`` in the plane with an arrowhead. ``arrowplot(f)`` for a
+    complex Chebfun plots ``(real(f), imag(f))``. Passing lists for ``f``
+    and ``g`` plots several curves, as a MATLAB quasimatrix does.
+
+    Arrowheads are placed at ``linspace(a, b, multi + 1)[1:]``, so the
+    default ``multi=1`` puts a single head at the end of the curve; the
+    direction comes from ``f'`` there.
 
     Parameters
     ----------
-    f : Chebfun  (x-component or complex Chebfun)
-    g : Chebfun or None  (y-component; if None treat f as complex)
-    ax : optional
+    f : Chebfun or list of Chebfun
+        x-component, or a complex Chebfun when ``g`` is None.
+    g : Chebfun, list of Chebfun, or None
+        y-component.
+    ax : matplotlib Axes, optional
     title : str
-    color : str
+    color : matplotlib color or list, optional
+        Defaults to the Chebfun colour cycle.
     n_pts : int
-    n_arrows : int
+        Points used to draw the curve itself.
+    multi : int
+        Number of arrowheads (MATLAB ``'multi', n``).
+    markersize : float
+        Arrowhead size in points (MATLAB ``'markersize'``, default 6).
+    ystretch : float
+        Multiplies the arrowhead's slope, for rescaled axes (MATLAB
+        ``'ystretch'``).
+    n_arrows : int, optional
+        Deprecated alias for ``multi``.
 
     Returns
     -------
@@ -3074,46 +3098,84 @@ def arrowplot(
 
     Provenance
     ----------
-    Inspired by MATLAB Chebfun arrowplot. See https://www.chebfun.org/
+    MATLAB source : @chebfun/arrowplot.m
+    Chebfun commit: 7574c77
     """
     import jax.numpy as jnp
+
+    if n_arrows is not None:
+        multi = int(n_arrows)
+    if multi < 1:
+        raise ValueError(f"arrowplot: multi must be >= 1, got {multi}.")
 
     if ax is None:
         fig, ax = plt.subplots(figsize=(5, 5))
     else:
         fig = ax.get_figure()
 
-    ts = _domain_points(f, n_pts)
-    fvals = np.array(f(jnp.array(ts)))
-
-    if g is not None:
-        xvals = fvals
-        yvals = np.array(g(jnp.array(ts)))
+    fs = list(f) if isinstance(f, (list, tuple)) else [f]
+    if g is None:
+        gs = [None] * len(fs)
+    elif isinstance(g, (list, tuple)):
+        gs = list(g)
     else:
-        xvals = np.real(fvals)
-        yvals = np.imag(fvals)
+        gs = [g]
+    if len(gs) != len(fs):
+        raise ValueError(
+            f"arrowplot: got {len(fs)} x-components but {len(gs)} "
+            f"y-components.")
 
-    ax.plot(xvals, yvals, color=color, linewidth=1.8, **kw)
+    if color is None:
+        cyc = [CHEBFUN_BLUE, CHEBFUN_RED, CHEBFUN_GREEN, CHEBFUN_ORANGE,
+               "#8B008B", "#008080"]
+        colors = [cyc[k % len(cyc)] for k in range(len(fs))]
+    elif isinstance(color, (list, tuple)) and not isinstance(color, str):
+        colors = list(color)
+    else:
+        colors = [color] * len(fs)
 
-    arrow_idx = np.linspace(n_pts // (n_arrows + 1),
-                            n_pts - n_pts // (n_arrows + 1),
-                            n_arrows, dtype=int)
-    for i in arrow_idx:
-        if i + 1 >= n_pts:
-            continue
-        dx = xvals[i + 1] - xvals[i]
-        dy = yvals[i + 1] - yvals[i]
-        ax.annotate(
-            "",
-            xy=(xvals[i] + dx * 0.01, yvals[i] + dy * 0.01),
-            xytext=(xvals[i], yvals[i]),
-            arrowprops=dict(arrowstyle="->", color=color, lw=1.2),
-        )
+    for fk, gk, ck in zip(fs, gs, colors):
+        ts = _domain_points(fk, n_pts)
+        fvals = np.asarray(fk(jnp.array(ts)))
+        if gk is not None:
+            xvals, yvals = np.real(fvals), np.asarray(gk(jnp.array(ts)))
+        else:
+            xvals, yvals = np.real(fvals), np.imag(fvals)
 
-    ax.set_aspect("equal")
-    _apply_style(ax, title=title, xlabel="Re", ylabel="Im")
+        ax.plot(xvals, yvals, color=ck, **kw)
+
+        # MATLAB evaluates f and f' at linspace(a, b, multi+1) minus the
+        # first point, so multi=1 gives one arrow at the right endpoint.
+        pts = np.linspace(float(ts[0]), float(ts[-1]), multi + 1)[1:]
+        fp = fk.diff()
+        gp = gk.diff() if gk is not None else None
+        for p in pts:
+            xp = float(np.real(np.asarray(fp(jnp.float64(p)))))
+            if gp is not None:
+                yp = float(np.asarray(gp(jnp.float64(p))))
+            else:
+                yp = float(np.imag(np.asarray(fp(jnp.float64(p)))))
+            nrm = np.hypot(xp, yp)
+            if nrm == 0.0:
+                continue                    # zero chebfun: no arrowhead
+            xp, yp = 0.001 * xp / nrm, 0.001 * yp / nrm
+            x0 = float(np.real(np.asarray(fk(jnp.float64(p)))))
+            y0 = (float(np.asarray(gk(jnp.float64(p)))) if gk is not None
+                  else float(np.imag(np.asarray(fk(jnp.float64(p))))))
+            ax.annotate(
+                "",
+                xy=(x0 + xp, y0 + ystretch * yp),
+                xytext=(x0, y0),
+                arrowprops=dict(
+                    arrowstyle=f"-|>,head_length={markersize / 2},"
+                               f"head_width={markersize / 4}",
+                    mutation_scale=1, color=ck, lw=kw.get("linewidth", 1.0),
+                    shrinkA=0, shrinkB=0),
+            )
+
+    if title:
+        ax.set_title(title)
     fig.set_facecolor("white")
-    fig.tight_layout()
     return fig, ax
 
 
