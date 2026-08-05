@@ -34,5 +34,5 @@ physics and engineering.
 | [Nonlinear ODE modeling solar magnetic fields](solar_fields.md) | Solves the nonlinear ODE arising in the modeling of force-free solar magnetic fields in a spherical geometry. The equ... |
 | [A square limit cycle (replica)](SquareCycle.md) | Faithful replica: heteroclinic cycle through four saddles; switching times match to plotting accuracy. |
 | [Three-body problem](three_body.md) | Integrates the Newtonian three-body problem for the famous figure-8 orbit discovered by Chenciner and Montgomery (200... |
-| [Pythagorean planets](three_planets.md) | Integrates the famous Pythagorean three-body problem: three masses in the ratio ... placed at the vertices of a 3-4-5... |
+| [Pythagorean planets (replica)](ThreePlanets.md) | Faithful replica: complex 3-body self-ionization at t~86; centre of mass conserved to 2.8e-13. |
 | [Two electrons orbiting symmetrically about a nucleus](two_electrons.md) | Models two electrons in symmetric orbits around a proton, including the electron-electron repulsion and Coulomb attra... |
