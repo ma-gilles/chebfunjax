@@ -508,12 +508,18 @@ class Chebop:
         the sequence solvebvp's iteration display plots.  For a linear
         problem (no Newton iteration) ``normDelta`` is empty.
 
+        MATLAB's ``solvebvp`` is the boundary-value solver: it
+        discretizes by collocation even when every condition sits at
+        one endpoint, where ``\\`` would time-march instead.  Pass
+        ``ivp_solver`` explicitly to override.
+
         Provenance
         ----------
         MATLAB source : @chebop/solvebvp.m
         Chebfun commit: 7574c77
         """
         self._last_info = None
+        kwargs.setdefault("ivp_solver", "chebcolloc2")
         u = self.solve(f, **kwargs)
         info = getattr(self, "_last_info", None) or {"normDelta": []}
         return u, info
@@ -4181,6 +4187,33 @@ class Chebop:
 
         # RHS callable
         rhs = _make_rhs_callable(f)
+
+        # The assembled matrix carries only the LINEAR part of the
+        # operator (its columns are op(e_k) - op(0)), so any constant
+        # term written inside op must move to the right-hand side:
+        # solving N(u) = f means L[u] = f - N(0).  Without this,
+        # Lane-Emden's x*u'' + 2u' + x = 0 (n = 0) was solved as
+        # L[u] = 0 and returned u == 1, which satisfies the boundary
+        # conditions and the truncated equation but not the real one.
+        try:
+            from chebfunjax.chebfun1d.chebfun import Chebfun
+            dom = Domain(self.domain)
+            zero_fun = Chebfun.from_values(
+                jnp.zeros(2, dtype=jnp.float64), dom)
+            op0 = self._apply_op(Chebfun.identity(dom), zero_fun)
+        except Exception:
+            op0 = None
+
+        if op0 is not None and not (
+                isinstance(op0, (int, float)) and float(op0) == 0.0):
+            def rhs_shifted(x, _r=rhs, _o=op0):
+                base = _r(x)
+                sub = (jnp.full_like(jnp.asarray(x, dtype=jnp.float64),
+                                     float(_o))
+                       if isinstance(_o, (int, float))
+                       else _o(jnp.asarray(x)))
+                return base - sub
+            rhs = rhs_shifted
 
         return linop.solve(rhs, n=n, n_min=n_min, n_max=n_max, tol=tol)
 
