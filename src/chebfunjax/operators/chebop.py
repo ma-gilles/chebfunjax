@@ -845,8 +845,26 @@ class Chebop:
         _colloc_ivp = (ivp_solver is not None
                        and str(ivp_solver).lower().startswith("chebcolloc"))
         if n is None and self._is_ivp() and not _colloc_ivp:
+            # solve_ivp works in float64, and it does expensive adaptive
+            # construction before it discovers a complex value, so check
+            # the conditions first rather than paying for the attempt.
+            _bcraw = (self._lbc_raw if self._lbc_raw is not None
+                      else self._rbc_raw)
+            _cplx = isinstance(_bcraw, (list, tuple)) and any(
+                isinstance(v, complex) and v.imag != 0 for v in _bcraw)
+            if not _cplx:
+                try:
+                    return self.solve_ivp(f)
+                except Exception:
+                    pass
+            # solve_ivp works in float64 throughout, so a COMPLEX scalar
+            # IVP (ode-nonlin/TwoElectrons writes the plane as a single
+            # complex z) raises out of it.  The system marcher already
+            # carries complex state and any derivative order, so reuse
+            # it with one unknown rather than duplicating that handling.
             try:
-                return self.solve_ivp(f)
+                out = self._solve_ivp_system_highorder(f)
+                return out[0] if len(out) == 1 else out
             except Exception:
                 pass
 
@@ -1455,6 +1473,18 @@ class Chebop:
             self._lbc_raw if forward else self._rbc_raw, m)
         if bc_raw is None:
             raise ValueError("ivp system: no initial conditions")
+        if isinstance(bc_raw, (list, tuple)) and m == 1:
+            # Scalar convention: entry j prescribes the j-th derivative
+            # (MATLAB N.lbc = [1i; V] for z(0) = 1i, z'(0) = V).  The
+            # system convention -- one value per unknown -- is handled
+            # by _as_system_bc above and only applies when m > 1.
+            _vals = [complex(v) for v in bc_raw]
+
+            def _scalar_bc(u, _v=tuple(_vals)):
+                return [(u.diff(j) if j else u) - c
+                        for j, c in enumerate(_v)]
+
+            bc_raw = _scalar_bc
 
         def _towers(Y, probe_var=None, probe_val=0.0):
             """One _IVPProxy per unknown, carrying its derivative tower."""

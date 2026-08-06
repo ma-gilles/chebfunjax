@@ -109,3 +109,43 @@ class TestRoutingIsUnchanged:
         u = N.solve(0.0)
         t = np.linspace(0, 2, 32)
         assert np.asarray(u(t)) == pytest.approx(np.sin(t), abs=1e-8)
+
+
+class TestScalarComplexIVP:
+    """A scalar complex IVP routes through the system marcher (m = 1).
+
+    ``_solve_ivp`` works in float64, so ode-nonlin/TwoElectrons -- which
+    writes the plane as a single complex z -- raised out of it after
+    doing full adaptive construction first.
+    """
+
+    def test_complex_initial_value_is_exact(self):
+        # z'' = -z with z(0) = 1i, z'(0) = 1  =>  z = i cos t + sin t
+        N = Chebop(lambda t, z: z.diff(2) + z, domain=(0, 3))
+        N.lbc = [1j, 1.0]
+        z = N.solve(0.0)
+        assert complex(z(np.float64(0.0))) == pytest.approx(1j, abs=1e-11)
+        t = np.linspace(0, 3, 48)
+        want = 1j * np.cos(t) + np.sin(t)
+        assert np.asarray(z(t)) == pytest.approx(want, abs=1e-8)
+
+    def test_list_bc_on_one_unknown_means_successive_derivatives(self):
+        # The scalar convention: entry j is the j-th derivative. The
+        # system convention (one value per unknown) must NOT be applied
+        # here -- conflating them silently sets the wrong initial state.
+        N = Chebop(lambda t, z: z.diff(2) + z, domain=(0, 2))
+        N.lbc = [2.0, -1.0]                     # z(0) = 2, z'(0) = -1
+        z = N.solve(0.0)
+        assert float(z(np.float64(0.0))) == pytest.approx(2.0, abs=1e-11)
+        assert float(z.diff()(np.float64(0.0))) == pytest.approx(
+            -1.0, abs=1e-8)
+
+    def test_complex_scalar_is_not_silently_realified(self):
+        # A float() cast anywhere on this path would drop Im and leave a
+        # plausible-looking real trajectory.
+        N = Chebop(lambda t, z: z.diff(2) + z, domain=(0, 2))
+        N.lbc = [1j, 0.0]
+        z = N.solve(0.0)
+        vals = np.asarray(z(np.linspace(0, 2, 16)))
+        assert np.max(np.abs(vals.imag)) > 0.5
+        assert np.max(np.abs(vals.real)) < 1e-8
