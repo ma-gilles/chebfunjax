@@ -24,7 +24,7 @@ physics and engineering.
 | [Lane-Emden equation from astrophysics (nonlinear)](lane_emden_nonlin.md) | Solves the nonlinear Lane-Emden equation for polytropic indices ...: |
 | [Logistic map and chaos (replica)](Logistic.md) | Faithful replica: chebfun iterates in the parameter r; lengths vs MATLAB R2025b, exposing three length bugs. |
 | [Logistic map and chaos (replica)](Logistic2.md) | Faithful replica: chebfun-composed logistic iterates, point values to 14 digits. |
-| [Lorenz attractor](lorenz_attractor.md) | Numerically integrates the Lorenz system: |
+| [The fractal structure of the Lorenz attractor (replica)](LorenzAttractor.md) | Faithful replica: complex-time pole tables to 4 decimals; ratinterp complex-pole fix. |
 | [Lyapunov exponents (replica)](LyapunovExponents.md) | Faithful replica: Lorenz separation over 10 decades, exponent 0.930 vs published 0.934. |
 | [Modelling diseases (replica)](ModellingDiseases.md) | Faithful replica: SIR model, peak 240 exact, crossover time to 11 digits. |
 | [Orbiting around fixed masses (replica)](Orbits.md) | Faithful replica: complex-plane orbits via ode113; arc length and closest approach to 9-10 digits. |
