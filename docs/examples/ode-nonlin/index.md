@@ -14,7 +14,7 @@ physics and engineering.
 | [The Carrier equation (replica)](Carrier.md) | Faithful replica: three solution branches selected by the initial guess, with Newton convergence histories. |
 | [Phase portraits with chebop/quiver (replica)](ChebopQuiver.md) | Faithful replica: van der Pol, damped and undamped pendulum, Lotka-Volterra; quiver gains its system and slope-field cases. |
 | [Delay differential equations in Chebfun](delay_odes.md) | Solves delay differential equations (DDEs) including the pantograph equation |
-| [A droplet sitting on a surface](droplets.md) | Models a sessile droplet on a flat surface via the capillary equation. The droplet shape satisfies: |
+| [A droplet sitting on a surface (replica)](Droplets.md) | Faithful replica: volume to 12 digits; unknown contact radius solved as a scalar parameter. |
 | [Exact Solutions from Bender & Orszag](exact_solutions_bender_orszag.md) | Bender & Orszag's Advanced Mathematical Methods for Scientists and Engineers contains many nonlinear ODEs with exact ... |
 | [Four bugs on a rectangle](four_bugs.md) | Four bugs start at the corners of a ... rectangle. Each bug always moves directly toward the next bug (clockwise). Th... |
 | [Fourier collocation for nonlinear periodic ODEs (replica)](FourierCollocationNonLin.md) | Faithful replica: two Newton branches, second-solution length 81 exact. |

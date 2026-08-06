@@ -2340,6 +2340,18 @@ class Chebop:
             out = self._call_op(x_fun, us)
             if not isinstance(out, (list, tuple)):
                 out = [out]
+            # An unknown scalar PARAMETER is a trailing argument for
+            # which the operator returns no equation (MATLAB @chebop:
+            # ode-nonlin/Droplets solves for the drop radius b at a
+            # prescribed volume).  _n_params detects it; square the
+            # system up here by carrying it as p' = 0 -- the constant
+            # unknown its own docstring describes -- pinned by the
+            # extra general boundary condition.  Without this the
+            # residual has one block per EQUATION while the RHS is
+            # sized by UNKNOWNS, and the two cannot be subtracted.
+            if len(out) < m:
+                out = list(out) + [us[j].diff()
+                                   for j in range(len(out), m)]
             R = _np.concatenate([
                 _np.full(n, float(o)) if isinstance(o, (int, float))
                 else _np.asarray(o(jnp.asarray(xp))) for o in out])
