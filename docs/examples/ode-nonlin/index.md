@@ -35,4 +35,4 @@ physics and engineering.
 | [A square limit cycle (replica)](SquareCycle.md) | Faithful replica: heteroclinic cycle through four saddles; switching times match to plotting accuracy. |
 | [Three-body problem](three_body.md) | Integrates the Newtonian three-body problem for the famous figure-8 orbit discovered by Chenciner and Montgomery (200... |
 | [Pythagorean planets (replica)](ThreePlanets.md) | Faithful replica: complex 3-body self-ionization at t~86; centre of mass conserved to 2.8e-13. |
-| [Two electrons orbiting symmetrically about a nucleus](two_electrons.md) | Models two electrons in symmetric orbits around a proton, including the electron-electron repulsion and Coulomb attra... |
+| [Two electrons orbiting symmetrically about a nucleus (replica)](TwoElectrons.md) | Faithful replica: all 7 published values reproduce; refined z(T) agrees at 1e-13. |
