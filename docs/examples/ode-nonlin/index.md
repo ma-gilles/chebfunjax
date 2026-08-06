@@ -10,7 +10,7 @@ physics and engineering.
 | [The Blasius function (replica)](Blasius.md) | Faithful replica: wall shear to 5e-11, displacement constant matches, singularity failure reproduced. |
 | [Bloodhound supersonic car](bloodhound.md) | Models the acceleration of the Bloodhound SSC supersonic car: |
 | [Blowup equation (Frank-Kamenetskii) (replica)](BlowupFK.md) | Faithful replica: five steady states matching the closed-form solution to 12 digits. |
-| [System of two nonlinear BVPs](bvp_system.md) | Solves the coupled nonlinear system: |
+| [System of two nonlinear BVPs (replica)](BVPSystem.md) | Faithful replica: Newton update history now reported for systems; 7-step quadratic convergence. |
 | [The Carrier equation (replica)](Carrier.md) | Faithful replica: three solution branches selected by the initial guess, with Newton convergence histories. |
 | [Phase portraits with chebop/quiver (replica)](ChebopQuiver.md) | Faithful replica: van der Pol, damped and undamped pendulum, Lotka-Volterra; quiver gains its system and slope-field cases. |
 | [Delay differential equations in Chebfun](delay_odes.md) | Solves delay differential equations (DDEs) including the pantograph equation |

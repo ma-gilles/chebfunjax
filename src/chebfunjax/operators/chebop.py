@@ -2359,6 +2359,11 @@ class Chebop:
             U = _np.concatenate([
                 _np.asarray(gi(jnp.asarray(xp))) for gi in init])
         import scipy.linalg as _sla
+        # MATLAB's [u, info] = solvebvp(N, rhs) reports info.normDelta,
+        # the norm of each accepted Newton update; ode-nonlin/BVPSystem
+        # plots it against the iteration number.  Only the scalar solver
+        # recorded it, so a SYSTEM came back with an empty history.
+        sys_delta: list[float] = []
         R = residual(U)
         for _it in range(max_iter):
             nrm = _np.max(_np.abs(R))
@@ -2405,6 +2410,29 @@ class Chebop:
                 lam *= 0.5
             U = U - lam * step
             R = Rn
+            # record the accepted update, as info.normDelta does.
+            # MATLAB reports the CHEBFUN norm of the update -- an L2
+            # function norm -- not the Euclidean norm of the discrete
+            # coefficient vector, which is larger by roughly sqrt(n)
+            # and so would put the whole curve above the published one.
+            try:
+                _du = to_funs(lam * step)
+                _nd = float(_np.sqrt(sum(
+                    float(_f.norm()) ** 2 for _f in _du)))
+            except Exception:
+                _nd = float(_np.linalg.norm(lam * step))
+            sys_delta.append(_nd)
+            self._last_info = {"normDelta": list(sys_delta)}
+            # Stop on a negligible update, as MATLAB does.  The residual
+            # test above compares max|R|, whose derivative rows carry an
+            # n^2 scaling and so can sit above 1e-11 long after the
+            # iterate has stopped moving -- ode-nonlin/BVPSystem then ran
+            # eight further iterations at machine-precision noise, which
+            # both wastes work and puts a tail on info.normDelta that
+            # MATLAB's plot does not have.
+            if sys_delta[-1] <= 1e-12 * max(1.0, float(
+                    _np.linalg.norm(U))):
+                break
         else:
             import warnings as _w
             _w.warn("chebop system Newton: max iterations reached "
