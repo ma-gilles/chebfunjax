@@ -656,8 +656,17 @@ def _qr_to_cheb_basis(a_hat, b_hat, R_qr, N1):
     b_cheb_full = np.linalg.solve(R_qr, b_pad)
 
     # Return only the significant coefficients
-    a_cheb = np.real(a_cheb_full[:na])
-    b_cheb = np.real(b_cheb_full[:nb])
+    # Keep the imaginary part when there is one: dropping it here made
+    # every complex-valued f come out with a real numerator.
+    a_cheb = a_cheb_full[:na]
+    b_cheb = b_cheb_full[:nb]
+    if not (np.iscomplexobj(a_hat) or np.iscomplexobj(b_hat)):
+        a_cheb = np.real(a_cheb)
+        b_cheb = np.real(b_cheb)
+    elif np.allclose(a_cheb.imag, 0, atol=1e-14) and np.allclose(
+            b_cheb.imag, 0, atol=1e-14):
+        a_cheb = np.real(a_cheb)
+        b_cheb = np.real(b_cheb)
 
     return a_cheb, b_cheb
 
@@ -759,6 +768,33 @@ def _compute_denominator_coeffs(Z, m, n, fEven, fOdd, N1, ts):
     return b, n
 
 
+def _c2v_any(c):
+    """coeffs2vals for real OR complex coefficients.
+
+    The transform is linear, so a complex series is handled exactly by
+    transforming its real and imaginary parts separately.  The jnp
+    routines take float64 only, and casting a complex series through
+    them silently discards Im -- which is what made ratinterp wrong for
+    every complex-valued f (ode-nonlin/ThreeBodyProblem).
+    """
+    c = np.asarray(c)
+    if np.iscomplexobj(c):
+        return (np.array(coeffs2vals(jnp.array(c.real, dtype=jnp.float64)))
+                + 1j * np.array(
+                    coeffs2vals(jnp.array(c.imag, dtype=jnp.float64))))
+    return np.array(coeffs2vals(jnp.array(c, dtype=jnp.float64)))
+
+
+def _v2c_any(v):
+    """vals2coeffs for real OR complex values (see :func:`_c2v_any`)."""
+    v = np.asarray(v)
+    if np.iscomplexobj(v):
+        return (np.array(vals2coeffs(jnp.array(v.real, dtype=jnp.float64)))
+                + 1j * np.array(
+                    vals2coeffs(jnp.array(v.imag, dtype=jnp.float64))))
+    return np.array(vals2coeffs(jnp.array(v, dtype=jnp.float64)))
+
+
 def _compute_numerator_coeffs(f, m, n, xi_type, Z, b, fEven, fOdd, N, N1,
                                R_qr=None, Q_qr=None):
     """Compute numerator Chebyshev coefficients a (or QR-basis coefficients
@@ -774,21 +810,19 @@ def _compute_numerator_coeffs(f, m, n, xi_type, Z, b, fEven, fOdd, N, N1,
             b_pad = np.zeros(N1, dtype=complex)
             b_pad[: len(b)] = b
             # Evaluate b polynomial at 1st-kind Chebyshev points then multiply by f
-            b_vals = _chebtech1_coeffs2vals_matrix(N1) @ np.real(b_pad)
-            a_vals = b_vals * np.real(f)
+            # keep b_pad and f complex: the matrix is real, so the
+            # product is exact for a complex operand
+            b_vals = _chebtech1_coeffs2vals_matrix(N1) @ b_pad
+            a_vals = b_vals * np.asarray(f)
             # Convert back to coefficients
             a = _chebtech1_vals2coeffs_matrix_apply(a_vals[:, None], N1).ravel()
             a = a[: m + 1]
         else:  # TYPE2
             b_pad = np.zeros(N1, dtype=complex)
             b_pad[: len(b)] = b
-            b_vals = np.array(
-                coeffs2vals(jnp.array(np.real(b_pad), dtype=jnp.float64))
-            )
-            a_vals = b_vals * np.real(f)
-            a = np.array(
-                vals2coeffs(jnp.array(a_vals, dtype=jnp.float64))
-            )
+            b_vals = _c2v_any(b_pad)
+            a_vals = b_vals * np.asarray(f)
+            a = _v2c_any(a_vals)
             a = a[: m + 1]
     else:
         # ARBITRARY nodes: Z = Q'.diag(f).Q  (QR basis)
@@ -828,7 +862,10 @@ def _trim_coeffs(a, b, tol, ts):
         at = np.array([0.0 + 0j])
         bt = np.array([1.0 + 0j])
 
-    return np.real(at), np.real(bt)
+    if (np.allclose(np.imag(at), 0, atol=1e-14)
+            and np.allclose(np.imag(bt), 0, atol=1e-14)):
+        return np.real(at), np.real(bt)
+    return at, bt
 
 
 def _construct_rat_approx(xi_type, R_qr, a, b, mu, nu, a_dom, b_dom):
