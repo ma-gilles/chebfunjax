@@ -149,3 +149,41 @@ class TestScalarComplexIVP:
         vals = np.asarray(z(np.linspace(0, 2, 16)))
         assert np.max(np.abs(vals.imag)) > 0.5
         assert np.max(np.abs(vals.real)) < 1e-8
+
+
+class TestDelayGuard:
+    """The marcher must not silently drop delayed terms.
+
+    Its RHS extraction sees only values at the current time, so a
+    pantograph term u(q*t) evaluated on the constant probe equals the
+    constant -- the march then solves the UNDELAYED equations with O(1)
+    error and no warning. A guard now detects nonlocal dependence and
+    the problem falls through to probe-based collocation.
+    """
+
+    def test_pantograph_system_solves_exactly(self):
+        # u' = sin(t) u(qt) + cos(t) v(qt) + g1, etc., exact (sin, cos)
+        from chebfunjax import chebfun
+        dom = (0.0, 1.0)
+        t = chebfun(lambda t: t, domain=dom)
+        q = 0.7
+        g1 = t.cos() - (q * t).cos() * t.cos() - (q * t).sin() * t.sin()
+        g2 = (q * t).sin() * t.cos() - (q * t).cos() * t.sin() - t.sin()
+        N = Chebop(lambda t, u, v: [
+            u.diff() - (t.sin() * u(q * t) + t.cos() * v(q * t)),
+            v.diff() - (-t.cos() * u(q * t) + t.sin() * v(q * t))],
+            domain=dom)
+        N.lbc = [0.0, 1.0]
+        u, v = N.solve([g1, g2])
+        tt = np.linspace(0, 1, 200)
+        assert np.asarray(u(tt)) == pytest.approx(np.sin(tt), abs=1e-9)
+        assert np.asarray(v(tt)) == pytest.approx(np.cos(tt), abs=1e-9)
+
+    def test_undelayed_systems_still_march(self):
+        # Lotka-Volterra must NOT trip the guard (pointwise op).
+        N = Chebop(lambda t, u, v: [u.diff() - u + u * v,
+                                    v.diff() + v - u * v], domain=(0, 4))
+        N.lbc = lambda u, v: [u - 0.5, v - 1]
+        u, v = N.solve(0.0)
+        assert float(u(np.float64(0.0))) == pytest.approx(0.5, abs=1e-9)
+        assert float(v(np.float64(0.0))) == pytest.approx(1.0, abs=1e-9)

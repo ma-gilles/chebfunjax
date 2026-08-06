@@ -1718,6 +1718,53 @@ class Chebop:
             _fast_ok = False
         op_eval = op_at_fast if _fast_ok else op_at
 
+        # DELAY GUARD.  The RHS extraction sees only VALUES at the
+        # current time, so a delayed or otherwise nonlocal term such as
+        # u(q*t) evaluated on the constant probe equals the constant --
+        # the marcher would silently solve the UNDELAYED equations
+        # (ode-nonlin/DelayDifferentialEquations' pantograph system came
+        # back with O(1) error and no warning).  Detector: shift every
+        # unknown by (t - t0), which preserves all values at t0 but
+        # changes every delayed value; for a pointwise explicit system
+        # the residual change at t0 is EXACTLY the derivative slope, so
+        # any deviation means nonlocal dependence -> raise, and the
+        # caller falls through to collocation, whose probe-based
+        # assembly evaluates the op on genuine chebfuns.
+        try:
+            tmid = 0.5 * (t0 + t1)
+            base = [_chebfun_from_values(
+                jnp.asarray([float(v), float(v)]), self.domain)
+                for v in _yprobe]
+            from chebfunjax.chebfun1d.chebfun import Chebfun as _CF
+            ident = _CF.identity(Domain(self.domain))
+            shift = [b + (ident - tmid) for b in base]
+
+            def _ev_at(us, t):
+                out = self._call_op(x_fun, us)
+                if not isinstance(out, (list, tuple)):
+                    out = [out]
+                tt = jnp.asarray(t)
+                return _np.array([
+                    float(o) if isinstance(o, (int, float))
+                    else float(o(tt)) for o in out])
+
+            d = _ev_at(shift, tmid) - _ev_at(base, tmid)
+            # each equation is affine in its own derivative with the
+            # slope the marcher itself extracts from the 0/1 probe; for
+            # the unit-coefficient form that slope is 1 per equation.
+            scale = max(1.0, float(_np.max(_np.abs(d))))
+            if not _np.all(_np.isfinite(d)):
+                raise ValueError("ivp system: non-finite delay probe")
+            # the unit derivative coefficient may be written +1 or -1
+            if float(_np.max(_np.abs(_np.abs(d) - 1.0))) > 1e-6 * scale:
+                raise ValueError(
+                    "ivp system: nonlocal (delayed) terms detected; "
+                    "marching would drop them")
+        except ValueError:
+            raise
+        except Exception:
+            pass
+
         # verify first-order explicit form: residual affine in y'
         # with unit coefficient => R(t, y, y') = y' + op_at-part
         def rhs(t, y):
@@ -2592,8 +2639,10 @@ class Chebop:
                     R[:, var * n + j] = col
             return list(R), list(-base_g)
 
-        rows_l, vals_l = bc_rows(self._lbc_raw, a)
-        rows_r, vals_r = bc_rows(self._rbc_raw, b)
+        # normalize the list-of-values system convention (one value per
+        # unknown) into a callable, as the marcher does
+        rows_l, vals_l = bc_rows(_as_system_bc(self._lbc_raw, m), a)
+        rows_r, vals_r = bc_rows(_as_system_bc(self._rbc_raw, m), b)
         rows_g, vals_g = general_rows()
 
         used_rows: set[int] = set()
