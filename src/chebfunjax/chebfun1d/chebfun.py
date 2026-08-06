@@ -1912,6 +1912,15 @@ class Chebfun(eqx.Module):
         out = Chebfun(funs=new_funs, domain=self.domain)
         return self._attach_deltas(out, getattr(self, "deltas", ()))
 
+    # numpy must not try to broadcast a Chebfun when it appears on the
+    # right of a numpy scalar.  Without this, `np.float64(2) - f` (and
+    # so any ported expression like `2*sin(psi) - b*U(1)`, since np.sin
+    # returns np.float64) raises "setting an array element with a
+    # sequence" instead of deferring to __rsub__.  Setting
+    # __array_ufunc__ to None makes numpy return NotImplemented, so
+    # Python falls back to this class's reflected operators.
+    __array_ufunc__ = None
+
     def __radd__(self, other) -> Chebfun:
         return self.__add__(other)
 
@@ -2008,9 +2017,17 @@ class Chebfun(eqx.Module):
                 "column * row (rank-1 outer product / Chebfun2) is not "
                 "supported in chebfunjax."
             )
-        # If other is not a scalar/array, defer to other's __rmul__
-        if not isinstance(other, (int, float, complex, jnp.ndarray, jax.Array)):
-            return NotImplemented
+        # If other is not a scalar/array, defer to other's __rmul__.
+        # np.float64 subclasses float and so passed already, but
+        # np.int64 and a 0-d np.ndarray did not, and with
+        # __array_ufunc__ = None numpy now hands those straight here --
+        # rejecting them turns `np.int64(2) * f` into a TypeError.
+        # Duck-typed so this module still imports no numpy.
+        if not isinstance(other, (int, float, complex, jnp.ndarray,
+                                  jax.Array)):
+            if not (hasattr(other, "dtype")
+                    and getattr(other, "ndim", None) == 0):
+                return NotImplemented
         new_funs = [
             piece._apply_unary(piece.tech * other)
             for piece in self.funs
