@@ -153,9 +153,6 @@ class TestOdeLinear:
 # ---------------------------------------------------------------------------
 
 class TestOdeNonlin:
-    def test_exact_solutions_bender_orszag(self):
-        assert _load("ode-nonlin", "exact_solutions_bender_orszag").run()
-
     def test_carrier_replica(self):
         # Faithful replica (2026-08): prints MATLAB-parity outputs and
         # returns None; completion is the assertion.

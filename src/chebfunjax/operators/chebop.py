@@ -4885,6 +4885,72 @@ class Chebop:
         return Chebfun.from_values(
             jnp.zeros(start_sz, dtype=jnp.float64), dom)
 
+    def _fitbc_init_vals(self, x_pts):
+        """MATLAB fitBCs-style default initial guess (scalar problems).
+
+        MATLAB's solvebvp starts Newton from a low-degree polynomial
+        satisfying the (linearized) boundary conditions, not from zero.
+        Starting from zero matters for operators with a u-multiplying
+        highest derivative: ode-nonlin/ExactSolns problem 3 is
+        y y'' = 2 (y')^2 with y(1) = 1, y(2) = 2, and at y == 0 every
+        Jacobian entry vanishes, so the Newton loop broke out of a
+        singular LU and silently returned the zero function -- which
+        satisfies the ODE but violates both boundary conditions.
+
+        Handles scalar and list-valued lbc/rbc (value = successive
+        derivatives), the forms whose conditions are known in closed
+        form; returns None -- meaning keep the zero default -- for
+        callable or general BCs.
+        """
+        import numpy as _np
+        from math import factorial
+
+        if self._bc_general is not None:
+            return None
+        a, b = self.domain
+        a, b = float(a), float(b)
+        conds = []
+
+        def add(raw, pt):
+            if raw is None:
+                return True
+            if isinstance(raw, bool):
+                return False
+            if isinstance(raw, (int, float)):
+                conds.append((pt, 0, float(raw)))
+                return True
+            if isinstance(raw, (list, tuple)) and all(
+                    isinstance(v, (int, float)) and not isinstance(v, bool)
+                    for v in raw):
+                for j, v in enumerate(raw):
+                    conds.append((pt, j, float(v)))
+                return True
+            return False
+
+        if not add(self._lbc_raw, a) or not add(self._rbc_raw, b):
+            return None
+        if not conds:
+            return None
+        k = len(conds)
+        mid, h = 0.5 * (a + b), 0.5 * (b - a)
+        A = _np.zeros((k, k))
+        rhs = _np.zeros(k)
+        for r, (pt, dord, val) in enumerate(conds):
+            sloc = (pt - mid) / h
+            for i in range(dord, k):
+                A[r, i] = (factorial(i) / factorial(i - dord)
+                           * sloc ** (i - dord) / h ** dord)
+            rhs[r] = val
+        try:
+            c = _np.linalg.solve(A, rhs)
+        except _np.linalg.LinAlgError:
+            return None
+        sp = (_np.asarray(x_pts, dtype=float) - mid) / h
+        vals = _np.zeros_like(sp)
+        for i in range(k):
+            vals += c[i] * sp ** i
+        return vals
+
     def _solve_nonlinear(
         self,
         f,
@@ -4955,7 +5021,11 @@ class Chebop:
                     dtype=jnp.float64,
                 )
             else:
-                u_vals = jnp.zeros(sz, dtype=jnp.float64)
+                # MATLAB fitBCs: default init satisfies the BCs.
+                _fit = self._fitbc_init_vals(x_pts)
+                u_vals = (jnp.asarray(_fit, dtype=jnp.float64)
+                          if _fit is not None
+                          else jnp.zeros(sz, dtype=jnp.float64))
 
             x_fun = Chebfun.identity(dom)
             import numpy as _np
