@@ -515,14 +515,24 @@ def ratinterp(
         # Poles: roots of denominator polynomial (in [-1,1] reference, then map)
         b_poly = np.zeros(nu + 1, dtype=complex)
         b_poly[:nu+1] = b_coeffs[:nu+1]
-        # b_coeffs in Chebyshev basis — find poles via eigenvalues
+        # b_coeffs in Chebyshev basis — find poles via eigenvalues.
+        # MATLAB uses roots(q, 'all'): EVERY root of the denominator,
+        # complex included.  A filter here kept only the real ones, so
+        # 1/(1 + 4x^2) came back with the correct type-(0,2) denominator
+        # and an EMPTY pole list (true poles +-0.5i) -- and every
+        # analyticity-structure example (ode-nonlin/LorenzAttractor's
+        # pole tables) returned nothing.
         poles_ref = _chebyshev_roots(b_poly)
-        poles_ref = poles_ref[np.abs(np.imag(poles_ref)) < 1e-10]
-        poles_ref = np.real(poles_ref)
+        if np.all(np.abs(np.imag(poles_ref)) < 1e-10):
+            poles_ref = np.real(poles_ref)
         poles = mid + hd * poles_ref
 
         t = max(tol, 1e-7)
-        residues = t * (r_handle(poles + t) - r_handle(poles - t)) / 2.0
+        try:
+            residues = t * (r_handle(poles + t)
+                            - r_handle(poles - t)) / 2.0
+        except Exception:
+            residues = np.full(len(poles), np.nan, dtype=complex)
     else:
         poles = np.array([])
         residues = np.array([])
