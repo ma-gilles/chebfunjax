@@ -18,7 +18,7 @@ physics and engineering.
 | [Exact Solutions from Bender & Orszag](exact_solutions_bender_orszag.md) | Bender & Orszag's Advanced Mathematical Methods for Scientists and Engineers contains many nonlinear ODEs with exact ... |
 | [Four bugs on a rectangle](four_bugs.md) | Four bugs start at the corners of a ... rectangle. Each bug always moves directly toward the next bug (clockwise). Th... |
 | [Fourier collocation for nonlinear periodic ODEs (replica)](FourierCollocationNonLin.md) | Faithful replica: two Newton branches, second-solution length 81 exact. |
-| [A nonlinear system of Guckenheimer and Holmes](guckenheimer_holmes.md) | Studies a 3D nonlinear ODE system from Guckenheimer and Holmes that exhibits a heteroclinic cycle connecting three sa... |
+| [A nonlinear system of Guckenheimer and Holmes (replica)](GuckenheimerHolmes.md) | Faithful replica: heteroclinic cycle, crossing-time gaps growing geometrically at ~1.33-1.38 per cycle. |
 | [A Gulf Stream model (replica)](GulfStream.md) | Faithful replica: 3rd-order nonlinear BVP with two left-end conditions; conserved quantity I = 1/2. |
 | [IVP capabilities of chebop (replica)](IVPCapabilities.md) | Faithful replica: van der Pol marching (display parity), phase-plane direction field, forcing, collocation IVP solver. |
 | [Lane-Emden equation from astrophysics (nonlinear)](lane_emden_nonlin.md) | Solves the nonlinear Lane-Emden equation for polytropic indices ...: |
