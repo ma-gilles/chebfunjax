@@ -452,3 +452,26 @@ def make_empty_aware(cls, names):
             return wrapper
 
         setattr(cls, _nm, _wrap(_orig))
+
+
+def op_arity(fn, default: int) -> int:
+    """Number of REQUIRED positional parameters of ``fn``.
+
+    Parameters with defaults are excluded: ``lambda u, _e=eps:`` is the
+    standard Python idiom for capturing a loop variable, and counting
+    ``_e`` makes a one-unknown operator look like ``op(x, u)`` -- the
+    solver then passes the independent variable (or a probe object) in
+    as the unknown and the captured constant receives the unknown.
+    Every arity decision on user callables must go through here
+    (ode-nonlin/BlowupFK and AllenCahn were both broken by raw
+    ``len(signature(op).parameters)`` counts).
+    """
+    import inspect
+    try:
+        params = inspect.signature(fn).parameters.values()
+    except (TypeError, ValueError):
+        return default
+    required = [q for q in params
+                if q.default is q.empty
+                and q.kind in (q.POSITIONAL_ONLY, q.POSITIONAL_OR_KEYWORD)]
+    return len(required) if required else default

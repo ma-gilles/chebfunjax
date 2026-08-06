@@ -59,7 +59,6 @@ def _extract_coeff_chebfuns(N, dor):
     Monomial probes L[x^k/k!] = sum_{j<=k} a_j x^{k-j}/(k-j)!,
     forward-substituted with chebfun arithmetic.
     """
-    import inspect
 
     from chebfunjax.chebfun1d.chebfun import Chebfun
     from chebfunjax.domain import Domain
@@ -67,7 +66,8 @@ def _extract_coeff_chebfuns(N, dor):
     a, b = (float(N.domain[0]), float(N.domain[-1]))
     dom = Domain((a, b))
     xf = Chebfun.identity(dom)
-    nargs = len(inspect.signature(N.op).parameters)
+    from chebfunjax.utils.misc import op_arity
+    nargs = op_arity(N.op, 2)
 
     def apply_op(u):
         return N.op(xf, u) if nargs > 1 else N.op(u)

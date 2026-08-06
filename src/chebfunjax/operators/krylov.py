@@ -37,7 +37,6 @@ def _ip(f, g):
 def _setup(L, f, tol):
     """Shared setup: coefficient mining, preconditioned operator T,
     and the inhomogeneity shift z (MATLAB pcg/minres preamble)."""
-    import inspect
 
     from chebfunjax.chebfun1d.chebfun import Chebfun
     from chebfunjax.domain import Domain
@@ -62,7 +61,8 @@ def _setup(L, f, tol):
                     "boundary conditions")
             right_bc = float(L._rbc_raw)
         op = L.op
-    nargs = len(inspect.signature(op).parameters)
+    from chebfunjax.utils.misc import op_arity
+    nargs = op_arity(op, 2)
     Lop = (lambda u: op(xf, u)) if nargs == 2 else op
 
     def R1(u):

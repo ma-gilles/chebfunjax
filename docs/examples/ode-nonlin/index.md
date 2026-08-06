@@ -6,7 +6,7 @@ physics and engineering.
 
 | Example | Description |
 |---------|-------------|
-| [An Allen-Cahn equation with continuation](allen_cahn.md) | Solves the Allen-Cahn equation |
+| [An Allen-Cahn equation with continuation (replica)](AllenCahn.md) | Faithful replica: continuation to eps = 0.003; nine-site arity-trap sweep. |
 | [The Blasius function (replica)](Blasius.md) | Faithful replica: wall shear to 5e-11, displacement constant matches, singularity failure reproduced. |
 | [Bloodhound supersonic car](bloodhound.md) | Models the acceleration of the Bloodhound SSC supersonic car: |
 | [Blowup equation (Frank-Kamenetskii) (replica)](BlowupFK.md) | Faithful replica: five steady states matching the closed-form solution to 12 digits. |

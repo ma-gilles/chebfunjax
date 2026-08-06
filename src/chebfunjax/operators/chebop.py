@@ -1684,11 +1684,7 @@ class Chebop:
                 vals -= float(f_of_t(jnp.asarray(t)))
             return vals
 
-        import inspect as _inspect
-        try:
-            _onargs = len(_inspect.signature(self.op).parameters)
-        except (TypeError, ValueError):
-            _onargs = m + 1
+        _onargs = _op_arity(self.op, m + 1)
 
         def op_at_fast(t, y):
             """Scalar-proxy evaluation of the op: thousands of times
@@ -2000,7 +1996,6 @@ class Chebop:
         MATLAB source : @linop/eigs.m (piecewise discretization setup)
         Chebfun commit: 7574c77
         """
-        import inspect
 
         from chebfunjax.chebfun1d.chebfun import Chebfun
         a, b = self.domain
@@ -2012,7 +2007,7 @@ class Chebop:
             if op is None:
                 continue
             try:
-                nargs = len(inspect.signature(op).parameters)
+                nargs = _op_arity(op, 2)
                 out = op(xf, probe) if nargs >= 2 else op(probe)
                 outs = out if isinstance(out, (list, tuple)) else [out]
                 for o in outs:
@@ -2064,7 +2059,6 @@ class Chebop:
         MATLAB source : @linop/eigs.m, @chebop/eigs.m (piecewise branch)
         Chebfun commit: 7574c77
         """
-        import inspect
 
         import numpy as _np
         import scipy.linalg as _sla
@@ -2078,11 +2072,7 @@ class Chebop:
                 f"differential order 1 or 2; got order {order}.")
 
         def _apply(op, u, dom, xf):
-            try:
-                nargs = len(inspect.signature(op).parameters)
-            except (TypeError, ValueError):
-                nargs = 2
-            return op(xf, u) if nargs >= 2 else op(u)
+            return op(xf, u) if _op_arity(op, 2) >= 2 else op(u)
 
         def assemble(m):
             P = len(bps) - 1
@@ -2226,11 +2216,7 @@ class Chebop:
                 for _ in range(m)
             ]
 
-        import inspect as _inspect
-        try:
-            _nargs = len(_inspect.signature(self.op).parameters)
-        except (TypeError, ValueError):
-            _nargs = m + 1
+        _nargs = _op_arity(self.op, m + 1)
 
         def ev(us):
             out = (self.op(x_fun, *us) if _nargs > m
@@ -2297,12 +2283,8 @@ class Chebop:
                 out = [out]
             return list(out)
 
-        import inspect as _inspect
-        try:
-            _gnargs = (len(_inspect.signature(self._bc_general).parameters)
-                       if self._bc_general is not None else 0)
-        except (TypeError, ValueError):
-            _gnargs = m + 1
+        _gnargs = (_op_arity(self._bc_general, m + 1)
+                   if self._bc_general is not None else 0)
 
         def gen_list(us):
             if self._bc_general is None:
@@ -2749,7 +2731,6 @@ class Chebop:
         """
         if self._bc_general is None:
             return []
-        import inspect
 
         from chebfunjax.chebfun1d.chebfun import (
             Chebfun,
@@ -2761,10 +2742,7 @@ class Chebop:
         dom0 = Domain(self.domain)
         xf = Chebfun.identity(dom0)
         us = [Chebfun.identity(dom0) for _ in range(m)]
-        try:
-            nargs = len(inspect.signature(self._bc_general).parameters)
-        except (TypeError, ValueError):
-            nargs = m + 1
+        nargs = _op_arity(self._bc_general, m + 1)
         a, b = self.domain
         start_side_eval_record()
         try:
@@ -3101,8 +3079,7 @@ class Chebop:
         # operator to a smooth probe over the current domain and unioning any
         # interior breakpoints of the output into ``bps``.
         try:
-            import inspect as _inspect
-            _nargs0 = len(_inspect.signature(self.op).parameters)
+            _nargs0 = _op_arity(self.op, m + 1)
             _dom0 = Domain(tuple(bps))
             _xf0 = Chebfun.identity(_dom0)
             _probe = [Chebfun.identity(_dom0) for _ in range(m)]
@@ -3772,8 +3749,12 @@ class Chebop:
         op_str = getattr(self, "_disp_op_str", None)
         if op_str is None and self.op is not None:
             try:
-                params = list(
-                    inspect.signature(self.op).parameters.keys())
+                params = [
+                    name for name, q in
+                    inspect.signature(self.op).parameters.items()
+                    if q.default is inspect.Parameter.empty
+                    and q.kind in (q.POSITIONAL_ONLY,
+                                   q.POSITIONAL_OR_KEYWORD)]
                 var = params[-1]
                 src = inspect.getsource(self.op)
                 body = src.split(":", 1)[1]
@@ -4104,11 +4085,15 @@ class Chebop:
         return (has_l and not has_r) or (has_r and not has_l)
 
     def _op_order(self) -> int:
-        import inspect
         sniff = _OrderSniffer()
         a, b = self.domain
         x = jnp.asarray(0.5 * (a + b))
-        nargs = len(inspect.signature(self.op).parameters)
+        # _op_arity, NOT len(signature.parameters): a default-argument
+        # capture such as ``lambda u, _e=eps:`` must count as arity 1,
+        # else the sniffer is passed as the captured constant and the
+        # operator's order is misread (ode-nonlin/AllenCahn's
+        # continuation loop returned garbage through exactly this).
+        nargs = _op_arity(self.op, 2)
         try:
             _ = self.op(x, sniff) if nargs == 2 else self.op(sniff)
         except AttributeError:
@@ -4902,8 +4887,9 @@ class Chebop:
         form; returns None -- meaning keep the zero default -- for
         callable or general BCs.
         """
-        import numpy as _np
         from math import factorial
+
+        import numpy as _np
 
         if self._bc_general is not None:
             return None
@@ -5670,23 +5656,9 @@ def _as_system_bc(bc_raw, m: int):
 
 
 def _op_arity(fn, default: int) -> int:
-    """Number of arguments an operator/BC callable really takes.
-
-    Counts only parameters WITHOUT defaults.  Capturing a loop variable
-    the idiomatic Python way -- ``lambda u, _A=A: ...`` -- would
-    otherwise look like a two-argument ``op(x, u)``, and the solver
-    would pass the independent variable in as the unknown.  Returns
-    ``default`` if the signature cannot be read (builtins, C callables).
-    """
-    import inspect
-    try:
-        params = inspect.signature(fn).parameters.values()
-    except (TypeError, ValueError):
-        return default
-    required = [q for q in params
-                if q.default is q.empty
-                and q.kind in (q.POSITIONAL_ONLY, q.POSITIONAL_OR_KEYWORD)]
-    return len(required) if required else default
+    """Required positional arity of a user callable (see utils.misc)."""
+    from chebfunjax.utils.misc import op_arity
+    return op_arity(fn, default)
 
 
 class _TrigVals:
@@ -6340,11 +6312,7 @@ def _make_deflated_op(orig_op, roots, p, alp, norm_type):
     returned callable always has an ``(x, u)`` signature; it dispatches on the
     original operator's arity to support both ``@(u)`` and ``@(x, u)`` forms.
     """
-    import inspect
-    try:
-        nargs = len(inspect.signature(orig_op).parameters)
-    except (TypeError, ValueError):
-        nargs = 2
+    nargs = _op_arity(orig_op, 2)
 
     def deflated_op(x, u):
         nu = orig_op(u) if nargs == 1 else orig_op(x, u)

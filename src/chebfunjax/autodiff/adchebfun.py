@@ -43,7 +43,6 @@ See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
-import inspect
 from typing import Callable
 
 import jax.numpy as jnp
@@ -522,10 +521,8 @@ def linearize_op(
     ad_u = ADChebfun(u0)
 
     # Call the operator
-    try:
-        nargs = len(inspect.signature(op).parameters)
-    except (TypeError, ValueError):
-        nargs = 2
+    from chebfunjax.utils.misc import op_arity
+    nargs = op_arity(op, 2)
 
     if nargs == 1:
         result_ad = op(ad_u)
@@ -591,10 +588,8 @@ def detect_linearity(
 
     ad_u = ADChebfun(u0)
 
-    try:
-        nargs = len(inspect.signature(op).parameters)
-    except (TypeError, ValueError):
-        nargs = 2
+    from chebfunjax.utils.misc import op_arity
+    nargs = op_arity(op, 2)
 
     if nargs == 1:
         result_ad = op(ad_u)

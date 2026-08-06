@@ -2027,6 +2027,7 @@ def chebfun2(
         try:
             sig_params = list(inspect.signature(f).parameters.values())
             n_pos = sum(p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD)
+                        and p.default is p.empty
                         for p in sig_params)
             has_var = any(p.kind == p.VAR_POSITIONAL for p in sig_params)
         except (TypeError, ValueError):

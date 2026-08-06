@@ -849,11 +849,11 @@ class Chebop2:
         MATLAB source : @chebop2/chebop2.m (constructor)
         Chebfun commit: 7574c77
         """
-        import inspect
 
         proxy = _Chebop2Proxy()
         try:
-            nparams = len(inspect.signature(self.op).parameters)
+            from chebfunjax.utils.misc import op_arity
+            nparams = op_arity(self.op, 3)
         except (ValueError, TypeError):
             nparams = 1
         if nparams >= 3:
@@ -1269,7 +1269,6 @@ class Chebop2:
         MATLAB source : @chebop2/constructBC.m
         Chebfun commit: 7574c77
         """
-        import inspect
 
         from chebfunjax.utils.transforms import vals2coeffs
 
@@ -1277,7 +1276,8 @@ class Chebop2:
         nargs = None
         if callable(bc_spec):
             try:
-                nargs = len(inspect.signature(bc_spec).parameters)
+                from chebfunjax.utils.misc import op_arity
+                nargs = op_arity(bc_spec, 1)
             except (ValueError, TypeError):
                 nargs = 1
 
