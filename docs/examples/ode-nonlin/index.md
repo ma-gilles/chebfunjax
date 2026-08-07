@@ -21,7 +21,7 @@ physics and engineering.
 | [A nonlinear system of Guckenheimer and Holmes (replica)](GuckenheimerHolmes.md) | Faithful replica: heteroclinic cycle, crossing-time gaps growing geometrically at ~1.33-1.38 per cycle. |
 | [A Gulf Stream model (replica)](GulfStream.md) | Faithful replica: 3rd-order nonlinear BVP with two left-end conditions; conserved quantity I = 1/2. |
 | [IVP capabilities of chebop (replica)](IVPCapabilities.md) | Faithful replica: van der Pol marching (display parity), phase-plane direction field, forcing, collocation IVP solver. |
-| [Lane-Emden equation from astrophysics (nonlinear)](lane_emden_nonlin.md) | Solves the nonlinear Lane-Emden equation for polytropic indices ...: |
+| [The Lane-Emden equation from astrophysics (partial replica)](LaneEmden.md) | Partial replica: n = 0, 1 exact to 6e-12; n >= 2 blocked on the ledgered singular-endpoint Jacobian defect. |
 | [Logistic map and chaos (replica)](Logistic.md) | Faithful replica: chebfun iterates in the parameter r; lengths vs MATLAB R2025b, exposing three length bugs. |
 | [Logistic map and chaos (replica)](Logistic2.md) | Faithful replica: chebfun-composed logistic iterates, point values to 14 digits. |
 | [The fractal structure of the Lorenz attractor (replica)](LorenzAttractor.md) | Faithful replica: complex-time pole tables to 4 decimals; ratinterp complex-pole fix. |
