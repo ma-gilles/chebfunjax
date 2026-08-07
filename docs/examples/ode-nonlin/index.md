@@ -13,7 +13,7 @@ physics and engineering.
 | [System of two nonlinear BVPs (replica)](BVPSystem.md) | Faithful replica: Newton update history now reported for systems; 7-step quadratic convergence. |
 | [The Carrier equation (replica)](Carrier.md) | Faithful replica: three solution branches selected by the initial guess, with Newton convergence histories. |
 | [Phase portraits with chebop/quiver (replica)](ChebopQuiver.md) | Faithful replica: van der Pol, damped and undamped pendulum, Lotka-Volterra; quiver gains its system and slope-field cases. |
-| [Delay differential equations in Chebfun](delay_odes.md) | Solves delay differential equations (DDEs) including the pantograph equation |
+| [Delay differential equations in Chebfun (replica)](DelayDifferentialEquations.md) | Faithful replica: 19 of 22 sections, hand-Newton matching MATLAB to 12 digits; 3 sections behind a ledgered performance wall. |
 | [A droplet sitting on a surface (replica)](Droplets.md) | Faithful replica: volume to 12 digits; unknown contact radius solved as a scalar parameter. |
 | [Exact solutions of nonlinear ODEs from Bender and Orszag (replica)](ExactSolns.md) | Faithful replica: four closed-form ODEs; BVP error 1.3e-15, default Newton guess now satisfies the BCs. |
 | [Four bugs on a rectangle](four_bugs.md) | Four bugs start at the corners of a ... rectangle. Each bug always moves directly toward the next bug (clockwise). Th... |
