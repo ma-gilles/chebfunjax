@@ -312,7 +312,10 @@ class Chebop:
         bc=None,
     ) -> None:
         self.op = op
-        self.domain: tuple[float, float] = tuple(float(v) for v in domain)
+        #: Full breakpoint list as passed by the user (MATLAB's
+        #: ``chebop([-N 0 N])`` form): the piecewise solver and the eigs
+        #: breakpoint detection both read interior points from here.
+        self.domain: tuple[float, ...] = tuple(float(v) for v in domain)
         self._lbc_raw = None
         self._rbc_raw = None
         self._bc_show = None
@@ -2045,8 +2048,15 @@ class Chebop:
         """
 
         from chebfunjax.chebfun1d.chebfun import Chebfun
-        a, b = self.domain
+        a, b = self.domain[0], self.domain[-1]
         bps = [float(a), float(b)]
+        # Interior breakpoints the user passed explicitly (MATLAB's
+        # ``chebop([-N 0 N])``) are always kept.
+        for bb in list(self.domain[1:-1]) + list(
+                getattr(B, "domain", ())[1:-1]):
+            bf = float(bb)
+            if a < bf < b and not any(abs(bf - e) <= 1e-12 for e in bps):
+                bps.append(bf)
         dom0 = Domain((a, b))
         xf = Chebfun.identity(dom0)
         probe = Chebfun.identity(dom0)
@@ -2080,6 +2090,20 @@ class Chebop:
                         dscale = max(abs(dl), abs(dr), 1.0)
                         if (abs(vl - vr) > 1e-7 * scale
                                 or abs(dl - dr) > 1e-6 * dscale):
+                            bps.append(bf)
+                            continue
+                        # C1-but-not-C2 outputs (a kinked coefficient probed
+                        # with the smooth identity, e.g. |x|*x) jump only in
+                        # the SECOND derivative; use a wider step so the
+                        # second difference is not cancellation noise.
+                        d2 = 1e-5 * (b0 - a0)
+                        cl = (float(o(jnp.asarray(bf - d2)))
+                              - 2 * float(o(jnp.asarray(bf - 2 * d2)))
+                              + float(o(jnp.asarray(bf - 3 * d2)))) / d2**2
+                        cr = (float(o(jnp.asarray(bf + 3 * d2)))
+                              - 2 * float(o(jnp.asarray(bf + 2 * d2)))
+                              + float(o(jnp.asarray(bf + d2)))) / d2**2
+                        if abs(cl - cr) > 1e-3 * max(abs(cl), abs(cr), 1.0):
                             bps.append(bf)
             except Exception:
                 pass
@@ -3652,14 +3676,486 @@ class Chebop:
         Chebfun commit: 7574c77
         """
         if getattr(self, "_periodic", False) and self._n_vars() < 2:
+            # A periodic operator with PIECEWISE coefficients (e.g. the
+            # Landscape example's square-well potential) cannot converge on
+            # the single trig grid -- MATLAB switches to piecewise Chebyshev
+            # collocation with periodicity constraint rows, and so do we.
+            import types as _types
+            _bks = self._generalized_breakpoints(
+                _types.SimpleNamespace(op=None))
+            if len(_bks) > 2:
+                return self._eigs_piecewise_std(
+                    _bks, k=k, n=n, sigma=sigma,
+                    return_eigenfunctions=return_eigenfunctions)
             return self._eigs_periodic(
                 k=k, n=n, sigma=sigma,
                 return_eigenfunctions=return_eigenfunctions)
         if self._n_vars() >= 2:
             return self._eigs_system(k=k, n=n or n_default)
+        # Discontinuous coefficients (e.g. an indicator-function potential)
+        # defeat a single global Chebyshev grid -- the eigenvalues stall at
+        # O(1e-2) accuracy from the Gibbs oscillations.  MATLAB breaks the
+        # domain at the coefficient jumps and collocates piece-by-piece; we
+        # mirror that when interior breakpoints are detected in the
+        # operator's output.
+        import types as _types
+        _bks = self._generalized_breakpoints(_types.SimpleNamespace(op=None))
+        # General .bc functionals (e.g. integral conditions like the Barber
+        # condition) are probed as constraint rows by the same dense path.
+        if len(_bks) > 2 or self._bc_general is not None:
+            return self._eigs_piecewise_std(
+                _bks, k=k, n=n, sigma=sigma,
+                return_eigenfunctions=return_eigenfunctions)
         linop = self._build_linop(value_shift=0.0)
         return linop.eigs(n=n, k=k, n_default=n_default, sigma=sigma,
                           return_eigenfunctions=return_eigenfunctions)
+
+    def null(self, n: int | None = None):
+        """Orthonormal basis for the nullspace of the linear operator.
+
+        MATLAB's ``null(L)``: functions ``v`` with ``L v = 0`` satisfying
+        any attached boundary conditions.  A differential operator of
+        order ``r`` with ``b`` boundary/side conditions has an
+        ``(r - b)``-dimensional nullspace.
+
+        The operator is collocated densely (BC and general constraint
+        rows replacing collocation rows exactly as in :meth:`eigs`); the
+        right singular vectors with negligible singular values span the
+        discrete nullspace.  The grid is doubled until the dimension
+        stabilises and the continuous residual ``||L v||`` is small.  The
+        returned chebfuns are L2-orthonormalized (``V' * V = I``), with
+        the MATLAB sign convention.
+
+        Returns
+        -------
+        list of Chebfun (possibly empty).
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/null.m, @linop/null.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        import scipy.linalg as _sla
+
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+
+        a, b = self.domain[0], self.domain[-1]
+        dom = Domain((a, b))
+        xf = Chebfun.identity(dom)
+        op_arity2 = _op_arity(self.op, 2) >= 2
+
+        def _apply(u):
+            return self.op(xf, u) if op_arity2 else self.op(u)
+
+        order = int(self._piecewise_orders(1)[0])
+
+        def solve_at(m):
+            kk = _np.arange(m)
+            X = a + (b - a) * (_np.cos(_np.pi * kk / (m - 1))[::-1] + 1) / 2
+
+            def basis(j):
+                v = _np.zeros(m)
+                v[j] = 1.0
+                return _chebfun_from_values(jnp.asarray(v), (a, b))
+
+            A = _np.zeros((m, m), dtype=complex)
+            for j in range(m):
+                A[:, j] = _np.asarray(
+                    _apply(basis(j))(jnp.asarray(X)), dtype=complex)
+            if _np.max(_np.abs(A.imag)) == 0.0:
+                A = A.real
+
+            def bc_rows(kind, xpt, idx):
+                if callable(kind):
+                    rows = None
+                    xe = jnp.asarray(float(xpt))
+                    for j in range(m):
+                        out = kind(basis(j))
+                        if not isinstance(out, (list, tuple)):
+                            out = [out]
+                        if rows is None:
+                            rows = _np.zeros((len(out), m))
+                        for i, o in enumerate(out):
+                            rows[i, j] = float(_np.real(_np.asarray(o(xe))))
+                    return rows
+                row = _np.zeros(m)
+                row[idx] = 1.0
+                return row[None, :]
+
+            crows = []
+            if self._lbc_raw is not None:
+                crows.extend(bc_rows(self._lbc_raw, a, 0))
+            if self._rbc_raw is not None:
+                crows.extend(bc_rows(self._rbc_raw, b, m - 1))
+            if self._bc_general is not None:
+                gbc = self._bc_general
+                g_arity = _op_arity(gbc, 2)
+                rows = None
+                for j in range(m):
+                    e = basis(j)
+                    out = gbc(xf, e) if g_arity >= 2 else gbc(e)
+                    if not isinstance(out, (list, tuple)):
+                        out = [out]
+                    if rows is None:
+                        rows = _np.zeros((len(out), m))
+                    for i, o in enumerate(out):
+                        rows[i, j] = float(_np.real(_np.asarray(o)))
+                crows.extend(rows)
+            # Eliminate the constraints EXACTLY (project onto the
+            # constraint nullspace) before looking for the operator's
+            # nullspace: MATLAB's null satisfies side conditions to
+            # machine precision while the ODE residual carries the
+            # discretization error, not the other way around.
+            if crows:
+                C = _np.asarray(crows, dtype=_np.float64)
+                _, _, Vhc = _sla.svd(C)
+                Nc = Vhc.conj().T[:, C.shape[0]:]
+            else:
+                Nc = _np.eye(m)
+            M = A @ Nc
+            _, s, Vh = _sla.svd(M)
+            smax = s[0] if len(s) else 1.0
+            dim = int(_np.sum(s <= 1e-10 * max(smax, 1e-300)))
+            if dim:
+                vecs = Nc @ Vh.conj().T[:, Vh.shape[0] - dim:]
+            else:
+                vecs = _np.zeros((m, 0))
+            return dim, vecs
+
+        m = int(n) if n is not None else 33
+        dim, vecs = solve_at(m)
+        if n is None:
+            for _ in range(3):
+                dim2, vecs2 = solve_at(2 * m - 1)
+                if dim2 == dim:
+                    vecs = vecs2
+                    m = 2 * m - 1
+                    break
+                dim, vecs, m = dim2, vecs2, 2 * m - 1
+
+        # To chebfuns, then continuous L2 orthonormalization (modified
+        # Gram-Schmidt) with the MATLAB sign convention.
+        x_sign = jnp.asarray(a + (b - a) * 0.500023981)
+        V = []
+        for j in range(vecs.shape[1]):
+            w = vecs[:, j]
+            if _np.max(_np.abs(w.imag)) < 1e-10 * max(
+                    float(_np.max(_np.abs(w))), 1e-300):
+                w = w.real
+            u = _chebfun_from_values(jnp.asarray(w), (a, b)).simplify()
+            for q in V:
+                u = u - q * float((q * u).sum())
+            nrm = float(u.norm(2))
+            if nrm > 1e-8:
+                u = u * (1.0 / nrm)
+                if float(jnp.real(u(x_sign))) < 0:
+                    u = -u
+                V.append(u)
+        return V
+
+    def _eigs_piecewise_std(self, bps: list[float], k: int = 6,
+                            n: int | None = None, sigma=None,
+                            return_eigenfunctions: bool = False):
+        """Standard eigenproblem ``L u = lambda u`` on a domain with
+        interior breakpoints (piecewise-coefficient operators).
+
+        Each unknown is represented by ``P`` Chebyshev pieces of ``m``
+        values.  The operator matrix is assembled block-column-wise by
+        probing per-piece delta bases; the boundary conditions and the
+        continuity of ``u`` and its derivatives ``0..order-1`` across every
+        interior break replace collocation rows (the corresponding rows of
+        the identity mass matrix are zeroed, so the constraint rows carry
+        no finite eigenvalues).  The per-piece resolution is doubled until
+        the selected eigenvalues stabilise, so smooth-per-piece problems
+        (e.g. square-well Schroedinger potentials) converge to full
+        precision exactly as MATLAB's adaptive discretization does.
+
+        Returns ``lam`` or ``(lam, funs)`` following :meth:`Linop.eigs`.
+
+        Provenance
+        ----------
+        MATLAB source : @linop/eigs.m, @chebop/eigs.m (piecewise branch)
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        import scipy.linalg as _sla
+
+        from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+
+        order = int(self._piecewise_orders(1)[0])
+        P = len(bps) - 1
+        ints = [(bps[p], bps[p + 1]) for p in range(P)]
+        dom = Domain(tuple(bps))
+        xf = Chebfun.identity(dom)
+        op_arity2 = _op_arity(self.op, 2) >= 2
+
+        def _apply(u):
+            return self.op(xf, u) if op_arity2 else self.op(u)
+
+        def assemble(m):
+            kk = _np.arange(m)
+            tref = _np.cos(_np.pi * kk / (m - 1))[::-1]
+            xps = [ints[p][0] + (ints[p][1] - ints[p][0]) * (tref + 1.0) / 2
+                   for p in range(P)]
+            Pn = P * m
+
+            def basis(p, j):
+                funs = []
+                for q in range(P):
+                    v = _np.zeros(m)
+                    if q == p:
+                        v[j] = 1.0
+                    funs.append(_Piece.from_values(
+                        jnp.asarray(v), ints[q][0], ints[q][1]))
+                return Chebfun(funs=funs, domain=dom)
+
+            def slow_column(p, j):
+                o = _apply(basis(p, j))
+                return _np.concatenate([
+                    _np.asarray(o(jnp.asarray(xps[q])), dtype=complex)
+                    for q in range(P)])
+
+            # FAST PATH: a differential operator with pointwise
+            # coefficients, op(u) = sum_i c_i(x) u^(i), is fully determined
+            # by its action on the monomials 1, x, ..., x^order.  Extract
+            # the c_i at the collocation points from order+1 probes and
+            # assemble block-diagonal differentiation matrices directly --
+            # O(P m^2) instead of O(P^2 m^2) chebfun operations.  One
+            # random delta-basis column is verified against the slow probe;
+            # nonlocal operators (integral terms, compositions) fail that
+            # check and fall back to full column probing.
+            import math as _math
+
+            from chebfunjax.utils.diffmat import diffmat as _diffmat
+            X = _np.concatenate(xps)
+            Am = None
+            try:
+                cvals = []
+                for j in range(order + 1):
+                    uj = (xf * 0 + 1.0) if j == 0 else xf**j
+                    ov = _np.asarray(
+                        _apply(uj)(jnp.asarray(X)), dtype=complex)
+                    v = ov.copy()
+                    for i in range(j):
+                        v -= (cvals[i] * (_math.factorial(j)
+                                          / _math.factorial(j - i))
+                              * X**(j - i))
+                    cvals.append(v / _math.factorial(j))
+                Af = _np.zeros((Pn, Pn), dtype=complex)
+                for p in range(P):
+                    sl = slice(p * m, (p + 1) * m)
+                    blk = _np.zeros((m, m), dtype=complex)
+                    for i in range(order + 1):
+                        Di = (_np.eye(m) if i == 0 else _np.asarray(
+                            _diffmat(m, i, domain=ints[p]),
+                            dtype=_np.float64))
+                        blk += cvals[i][sl][:, None] * Di
+                    Af[sl, sl] = blk
+                pv, jv = P // 2, m // 2
+                ref_col = slow_column(pv, jv)
+                # Piece-edge rows evaluate the (possibly discontinuous)
+                # output one-sidedly and are replaced by constraint rows
+                # anyway -- exclude them from the verification.
+                mask = _np.ones(Pn, dtype=bool)
+                for p in range(P):
+                    mask[p * m] = False
+                    mask[p * m + m - 1] = False
+                scale_c = max(float(_np.max(_np.abs(ref_col[mask]))), 1e-300)
+                if (float(_np.max(_np.abs(
+                        (Af[:, pv * m + jv] - ref_col)[mask])))
+                        < 1e-8 * scale_c):
+                    Am = Af
+            except Exception:
+                Am = None
+            if Am is None:
+                Am = _np.zeros((Pn, Pn), dtype=complex)
+                for p in range(P):
+                    for j in range(m):
+                        Am[:, p * m + j] = slow_column(p, j)
+            if _np.max(_np.abs(Am.imag)) == 0.0:
+                Am = Am.real
+            Bm = _np.eye(Pn, dtype=Am.dtype)
+
+            # Endpoint/derivative functional of piece p as a full row.
+            def frow(p, deriv, xpt):
+                r = _np.zeros(Pn)
+                for j in range(m):
+                    v = _np.zeros(m)
+                    v[j] = 1.0
+                    pc = _Piece.from_values(
+                        jnp.asarray(v), ints[p][0], ints[p][1])
+                    xj = jnp.asarray(xpt)
+                    val = pc.diff(deriv)(xj) if deriv > 0 else pc(xj)
+                    r[p * m + j] = float(val)
+                return r
+
+            def bc_rows(kind, p, xpt):
+                # Probe callable conditions (may return several, e.g.
+                # clamped @(u) [u; diff(u)]); scalars/None are Dirichlet.
+                if callable(kind):
+                    rows = None
+                    xe = jnp.asarray(float(xpt))
+                    for j in range(m):
+                        out = kind(basis(p, j))
+                        if not isinstance(out, (list, tuple)):
+                            out = [out]
+                        if rows is None:
+                            rows = _np.zeros((len(out), Pn))
+                        for i, o in enumerate(out):
+                            rows[i, p * m + j] = float(_np.real(
+                                _np.asarray(o(xe))))
+                    return rows
+                return frow(p, 0, xpt)[None, :]
+
+            constraints = []                 # (row_index, row_vector)
+            n_right = 0
+            if getattr(self, "_periodic", False):
+                # Periodicity rows u^(d)(a) = u^(d)(b), d = 0..order-1,
+                # in place of endpoint boundary conditions.
+                for dd in range(order):
+                    row = frow(0, dd, bps[0]) - frow(P - 1, dd, bps[-1])
+                    ridx = dd if dd == 0 else Pn - dd
+                    constraints.append((ridx, row))
+            if self._lbc_raw is not None:
+                rows = bc_rows(self._lbc_raw, 0, bps[0])
+                for i in range(rows.shape[0]):
+                    constraints.append((i, rows[i]))
+            if self._rbc_raw is not None:
+                rows = bc_rows(self._rbc_raw, P - 1, bps[-1])
+                for i in range(rows.shape[0]):
+                    constraints.append((Pn - 1 - i, rows[i]))
+                    n_right += 1
+            if self._bc_general is not None:
+                # Probe the general constraint functionals (integral
+                # conditions, interior-point conditions, ...) column by
+                # column: rows[i, col] = c_i(e_col).
+                gbc = self._bc_general
+                g_arity = _op_arity(gbc, 2)
+                rows = None
+                for p in range(P):
+                    for j in range(m):
+                        e = basis(p, j)
+                        out = gbc(xf, e) if g_arity >= 2 else gbc(e)
+                        if not isinstance(out, (list, tuple)):
+                            out = [out]
+                        if rows is None:
+                            rows = _np.zeros((len(out), Pn))
+                        for i, o in enumerate(out):
+                            rows[i, p * m + j] = float(_np.real(
+                                _np.asarray(o)))
+                for i in range(rows.shape[0]):
+                    constraints.append((Pn - 1 - n_right - i, rows[i]))
+            for p in range(1, P):
+                for d in range(order):
+                    row = frow(p - 1, d, bps[p]) - frow(p, d, bps[p])
+                    ridx = (p - 1) * m + (m - 1) if d == 0 else p * m + d - 1
+                    constraints.append((ridx, row))
+
+            for ridx, row in constraints:
+                Am[ridx, :] = row
+                Bm[ridx, :] = 0.0
+
+            lam, W = _sla.eig(Am, Bm)
+            fin = _np.isfinite(lam) & (_np.abs(lam) < 1e12)
+            return lam[fin], W[:, fin], xps
+
+        def sel_key(lams):
+            if sigma is None or sigma == "SM":
+                return _np.abs(lams)
+            if sigma == "LM":
+                return -_np.abs(lams)
+            if sigma == "LR":
+                return -_np.real(lams)
+            if sigma == "SR":
+                return _np.real(lams)
+            if sigma == "LI":
+                return -_np.imag(lams)
+            if sigma == "SI":
+                return _np.imag(lams)
+            if isinstance(sigma, (int, float, complex)):
+                return _np.abs(lams - sigma)
+            raise ValueError(
+                f"Chebop._eigs_piecewise_std: unrecognised sigma={sigma!r}.")
+
+        def resolved(m):
+            # Two-resolution agreement filter: modes of the m-grid that a
+            # finer grid reproduces are genuine; the FINE value is kept.
+            lam_c, _, _ = assemble(m)
+            lam_f, W_f, xps = assemble(m + 16)
+            keep, used = [], set()
+            for i in _np.argsort(sel_key(lam_c), kind="stable"):
+                d = _np.abs(lam_f - lam_c[i])
+                j = int(_np.argmin(d))
+                if d[j] < 1e-4 * max(1.0, abs(lam_c[i])) and j not in used:
+                    keep.append(j)
+                    used.add(j)
+                if len(keep) >= k:
+                    break
+            return lam_f[keep], W_f[:, keep], xps, m + 16
+
+        m = int(n) if n is not None else 48
+        lam_sel, W_sel, xps, m_used = resolved(m)
+        if n is None:
+            # Double the per-piece grid until the eigenvalues stabilise
+            # (per-mode RELATIVE agreement).  Refining past the dense-eig
+            # roundoff floor makes the values move APART again -- (m^2/L)^2
+            # differentiation-matrix norms amplify eps -- so when the
+            # disagreement grows instead of shrinking, keep the cleaner
+            # coarser values rather than the over-refined ones.
+            prev_d = None
+            for _ in range(3):
+                lam_new, W_new, xps_new, m_new = resolved(2 * m)
+                if len(lam_new) == len(lam_sel) and len(lam_new) > 0:
+                    ls = _np.sort_complex(_np.asarray(lam_sel))
+                    ln = _np.sort_complex(_np.asarray(lam_new))
+                    d = float(_np.max(
+                        _np.abs(ln - ls)
+                        / _np.maximum(1.0, _np.abs(ln))))
+                    if d < 1e-10:
+                        lam_sel, W_sel, xps, m_used = (
+                            lam_new, W_new, xps_new, m_new)
+                        break
+                    if prev_d is not None and d > 10 * prev_d:
+                        break     # roundoff divergence: keep coarser
+                    prev_d = d
+                m = 2 * m
+                lam_sel, W_sel, xps, m_used = (
+                    lam_new, W_new, xps_new, m_new)
+
+        order_idx = _np.argsort(sel_key(lam_sel), kind="stable")
+        lam_sel = lam_sel[order_idx]
+        W_sel = W_sel[:, order_idx]
+        if _np.max(_np.abs(_np.imag(lam_sel))) < 1e-8 * (
+                _np.max(_np.abs(_np.real(lam_sel))) + 1e-300):
+            lam_out = jnp.asarray(_np.real(lam_sel), dtype=jnp.float64)
+        else:
+            lam_out = jnp.asarray(lam_sel)
+        if not return_eigenfunctions:
+            return lam_out
+
+        # Eigenfunctions as piecewise chebfuns, unit L2 norm, MATLAB sign
+        # convention (real part positive just right of the midpoint).
+        a_dom, b_dom = float(bps[0]), float(bps[-1])
+        x_sign = jnp.asarray(a_dom + (b_dom - a_dom) * 0.500023981)
+        funs = []
+        m_fine = m_used
+        for jcol in range(W_sel.shape[1]):
+            w = W_sel[:, jcol]
+            if _np.max(_np.abs(w.imag)) < 1e-10 * _np.max(_np.abs(w)):
+                w = w.real
+            pieces = [_Piece.from_values(
+                jnp.asarray(w[p * m_fine:(p + 1) * m_fine]),
+                ints[p][0], ints[p][1]) for p in range(P)]
+            u = Chebfun(funs=pieces, domain=dom)
+            nrm = float(u.norm(2))
+            if nrm > 0:
+                u = u * (1.0 / nrm)
+            s = float(jnp.real(u(x_sign)))
+            if s < 0:
+                u = -u
+            funs.append(u)
+        return lam_out, funs
 
     def _eigs_periodic(self, k: int = 6, n: int | None = None,
                        sigma=None, return_eigenfunctions: bool = False):
