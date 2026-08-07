@@ -9,7 +9,7 @@ Chebfun computes these spectra via the `eigs` method.
 | [Eigenvalues of differential operators by contour integral projection](contour_proj_eig.md) | Computes eigenvalues of the Laplacian ... on ... with Dirichlet BCs. The exact eigenvalues are ... for ... |
 | [Double Well Potential](double_well.md) | The double well potential ... has two minima at .... In quantum mechanics, this leads to tunnel splitting: the lowest... |
 | [Frequencies of a circular drum](drum.md) | The axisymmetric vibrations of a circular drum satisfy the Bessel equation: |
-| [Eigenstates of the Schrodinger equation](eigenstates.md) | Computes quantum mechanical eigenstates for the time-independent Schrodinger equation: |
+| [Eigenstates of the Schroedinger equation (replica)](Eigenstates.md) | Faithful replica: nine potentials; harmonic-oscillator eigenvalues to 13 digits. |
 | [Periodic ODE eigenvalue problems](fourier_eigs.md) | Solves periodic Sturm-Liouville eigenvalue problems using Fourier spectral collocation: |
 | [Quantum Harmonic Oscillator](harmonic_oscillator.md) | The quantum harmonic oscillator is governed by the Schrödinger equation: |
 | [Landscape function and localization of eigenfunctions](landscape.md) | Demonstrates eigenfunction localization for the Schrodinger operator with a random piecewise-constant potential on .... |

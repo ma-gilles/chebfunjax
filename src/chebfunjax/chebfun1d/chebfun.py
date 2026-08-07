@@ -8816,86 +8816,49 @@ def quantumstates(
     Original authors: Nick Trefethen (January 2012), University of Oxford.
         Copyright 2017 by The University of Oxford and The Chebfun Developers.
     """
-    # uses-numpy: Chebyshev differentiation matrix and scipy.linalg.eigh
     import numpy as _np
-    from scipy.linalg import eigh as _eigh  # type: ignore[import]
 
-    a = float(V.domain.a)
-    b = float(V.domain.b)
+    from chebfunjax.operators.chebop import Chebop
 
-    # Grid size — must resolve the potential and have enough eigenvalue room.
-    # Nodes are Chebyshev-2 nodes in *ascending* order on [a, b].
-    n_grid = max(100, 4 * n)
-    N = n_grid - 1  # polynomial degree
+    a, b = float(V.domain.a), float(V.domain.b)
+    n_req = int(n)
 
-    # Chebyshev-2 nodes in ascending order: x_k = cos(pi*(N-k)/N), k=0..N
-    k = _np.arange(N + 1)
-    x_ref = _np.cos(_np.pi * (N - k) / N)          # ascending: -1 to 1
-    x_phys = 0.5 * (b - a) * x_ref + 0.5 * (a + b)  # ascending: a to b
+    def _solve(ngrid):
+        L = Chebop(lambda x_, u: -h**2 * u.diff(2) + V * u,
+                   domain=(a, b))
+        L.lbc = 0.0
+        L.rbc = 0.0
+        lam, funs = L.eigs(k=n_req, n=ngrid,
+                           return_eigenfunctions=True)
+        lam = _np.real(_np.asarray(lam))
+        order = _np.argsort(lam)
+        return lam[order], [funs[i] for i in order]
 
-    # Chebyshev differentiation matrix on [-1, 1] for *ascending* nodes.
-    # c_k: endpoint nodes get weight 2, interior nodes get weight 1,
-    # with alternating signs in ascending order: c_0 = 2*(-1)^0 = 2,
-    # c_N = 2*(-1)^N, c_k = (-1)^k for interior k.
-    c = _np.ones(N + 1)
-    c[0] = 2.0
-    c[-1] = 2.0
-    c *= (-1.0) ** k
+    # MATLAB's quantumstates delegates to eigs(L, n, 'sr') on the
+    # adaptive linop discretization.  The previous hand-rolled fixed
+    # 100-point grid here reached only ~5 digits where Chebop.eigs
+    # reaches ~1e-14 on the same problem; double the grid until the
+    # requested eigenvalues stabilise.
+    ngrid = max(128, 4 * n_req)
+    lam, funs = _solve(ngrid)
+    for _ in range(3):
+        lam2, funs2 = _solve(2 * ngrid)
+        scale = _np.maximum(_np.abs(lam2), 1.0)
+        done = float(_np.max(_np.abs(lam2 - lam) / scale)) < 1e-11
+        ngrid *= 2
+        lam, funs = lam2, funs2
+        if done:
+            break
 
-    Xm = _np.tile(x_ref, (N + 1, 1))
-    dX = Xm - Xm.T                          # dX[i,j] = x_i - x_j (ref)
-    D_ref = (c[:, None] / c[None, :]) / _np.where(_np.abs(dX) < 1e-15, 1.0, dX)
-    _np.fill_diagonal(D_ref, 0.0)
-    _np.fill_diagonal(D_ref, -D_ref.sum(axis=1))
+    out_funs = []
+    for f in funs:
+        nrm = float(f.norm())
+        if nrm > 1e-15:
+            f = f * (1.0 / nrm)
+        xs = jnp.linspace(a, b, 7)
+        v = _np.asarray(f(xs))
+        if v[int(_np.argmax(_np.abs(v)))] < 0:
+            f = -f
+        out_funs.append(f)
+    return jnp.asarray(lam, dtype=jnp.float64), out_funs
 
-    # Scale to physical domain [a, b]
-    scale = 2.0 / (b - a)
-    D1 = scale * D_ref
-    D2 = D1 @ D1  # second-derivative matrix on [a, b]
-
-    # Schrödinger operator on the interior nodes (index 1..N-1).
-    # Dirichlet BCs u(a)=u(b)=0 are imposed by restricting to interior nodes.
-    D2_int = D2[1:-1, 1:-1]                        # (N-1) × (N-1)
-    x_int = x_phys[1:-1]                           # interior physical nodes
-
-    # Potential values at interior nodes
-    V_vals = _np.asarray(V(jnp.array(x_int)), dtype=_np.float64)
-
-    # Schrödinger operator restricted to interior: L = -h² D2_int + diag(V)
-    L_int = -(h ** 2) * D2_int + _np.diag(V_vals)
-
-    # L_int is symmetric by construction (D2 of Chebfun spec collocation is
-    # symmetric up to floating-point error); symmetrise explicitly.
-    L_sym = 0.5 * (L_int + L_int.T)
-
-    # Solve the symmetric eigenvalue problem for the n smallest eigenvalues
-    n_int = L_sym.shape[0]
-    n_req = min(n, n_int)
-    evals_n, evecs_int = _eigh(L_sym, subset_by_index=[0, n_req - 1])
-
-    # Pad eigenvectors with zeros at boundary nodes
-    evecs_full = _np.zeros((n_grid, n_req))
-    evecs_full[1:-1, :] = evecs_int
-
-    # Build Chebfun for each eigenfunction via barycentric interpolation
-    # x_phys is in ascending order; jnp.interp needs ascending xp
-    efuns = []
-    for j in range(n_req):
-        v = evecs_full[:, j].copy()
-        # Normalise: discrete trapezoid rule as approximation to L2 norm
-        norm_v = _np.sqrt(_np.trapezoid(v ** 2, x_phys))
-        if norm_v > 1e-15:
-            v /= norm_v
-        # Make the dominant lobe positive (sign convention)
-        if v[_np.argmax(_np.abs(v))] < 0:
-            v = -v
-        x_p_jax = jnp.array(x_phys)
-        v_jax = jnp.array(v)
-        efuns.append(
-            chebfun(
-                lambda t, _xp=x_p_jax, _vj=v_jax: jnp.interp(t, _xp, _vj),
-                domain=(a, b),
-            )
-        )
-
-    return jnp.array(evals_n, dtype=jnp.float64), efuns
