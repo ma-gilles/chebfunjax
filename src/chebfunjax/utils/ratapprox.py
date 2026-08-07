@@ -610,8 +610,21 @@ def _chebtech2_coeffs2vals_matrix(N):
 
 
 def _chebtech2_vals2coeffs_matrix_apply(V, N):
-    """Apply vals2coeffs column-by-column to build Z."""
+    """Apply vals2coeffs column-by-column to build Z.
+
+    Z = vals2coeffs(diag(f) @ D) is complex whenever f is; taking
+    np.real here handed the denominator SVD only Re(f), which forces a
+    REAL denominator -- its roots then come in conjugate pairs even when
+    the true poles of a complex-valued f do not (ThreeBodyProblem's
+    poles were all conjugate-paired and 2-5% off).  The real path is
+    bit-identical.
+    """
     _, ncols = V.shape
+    if np.iscomplexobj(V):
+        result = np.zeros((N, ncols), dtype=complex)
+        for j in range(ncols):
+            result[:, j] = _v2c_any(V[:, j])
+        return result
     result = np.zeros((N, ncols))
     for j in range(ncols):
         result[:, j] = np.array(
@@ -913,7 +926,11 @@ def _eval_cheb_poly(coeffs, x):
     if n == 0:
         return np.zeros_like(x)
     if n == 1:
-        return np.full_like(x, coeffs[0])
+        # np.full_like inherits x's REAL dtype and silently drops the
+        # imaginary part of a complex constant -- every type-(0, nu)
+        # approximant to a complex function lost its numerator this way
+        # ((1+2i)/(x-1.2) came back as 1/(x-1.2), error 10).
+        return np.full(np.shape(x), coeffs[0])
     bk2 = np.zeros_like(x)
     bk1 = np.zeros_like(x)
     for k in range(n - 1, 0, -1):
