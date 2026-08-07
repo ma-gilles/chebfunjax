@@ -15,7 +15,7 @@ Chebfun computes these spectra via the `eigs` method.
 | [Landscape function and localization of eigenfunctions](landscape.md) | Demonstrates eigenfunction localization for the Schrodinger operator with a random piecewise-constant potential on .... |
 | [Laplacian Eigenvalues](laplacian_eigenvalues.md) | The eigenvalue problem ... on ... with Dirichlet boundary conditions ... has exact solutions: |
 | [Avoided crossings for ODE eigenvalues](level_repulsion.md) | Demonstrates level repulsion (avoided crossings) for eigenvalues of parameter-dependent differential operators. |
-| [The nullspace of a linear differential operator](null_space.md) | Computes the nullspace of differential operators by solving ... with minimal boundary conditions. Examples include: |
+| [The nullspace of a linear operator (replica)](NullSpace.md) | Faithful replica: Chebop.null with exotic integral conditions; minE/bc_star to 10-11 digits. |
 | [The nonlinear optical response of a simple molecule (replica)](OpticalResponse.md) | Faithful replica: alpha = -1/4 to 5e-11, beta = gamma = 0. |
 | [Orr-Sommerfeld eigenvalues](orr_sommerfeld.md) | Computes the eigenvalue spectrum of the Orr-Sommerfeld operator for plane Poiseuille flow. The fourth-order eigenvalu... |
 | [Polynomial eigenproblems with differential operators](poly_eig_diff.md) | Verifies that Bessel functions ... satisfy the polynomial ODE eigenvalue problem: |
