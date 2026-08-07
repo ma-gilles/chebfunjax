@@ -1952,18 +1952,36 @@ class Chebop:
                     if _np.max(_np.abs(rows.imag)) == 0.0:
                         rows = rows.real
                     return rows
-                row = _np.zeros(nn)
-                if kind in ("dirichlet", 0.0, None):
-                    row[idx] = 1.0
-                    return row[None, :]
-                if kind == "neumann":
+                def deriv_row(d):
+                    nonlocal Du
+                    if d == 0:
+                        r = _np.zeros(nn)
+                        r[idx] = 1.0
+                        return r
                     if Du is None:
                         Duloc = _np.zeros((nn, nn))
                         for j in range(nn):
                             Duloc[:, j] = _np.asarray(
                                 basis(j).diff()(jnp.asarray(xp)))
                         Du = Duloc
-                    return Du[idx][None, :]
+                    if d == 1:
+                        return Du[idx]
+                    r = _np.zeros(nn)
+                    for j in range(nn):
+                        r[j] = float(basis(j).diff(d)(
+                            jnp.asarray(float(endpoint_x))))
+                    return r
+
+                if kind in ("dirichlet", 0.0, None):
+                    return deriv_row(0)[None, :]
+                if kind == "neumann":
+                    return deriv_row(1)[None, :]
+                # MATLAB numeric-vector BC on a scalar unknown: successive
+                # derivative conditions u = u' = ... = 0 (the clamped
+                # [0; 0] of the Orr-Sommerfeld example).
+                if isinstance(kind, (list, tuple, _np.ndarray)):
+                    return _np.stack([deriv_row(d)
+                                      for d in range(len(kind))])
                 raise ValueError(f"unsupported bc {kind!r}")
 
             lb = self._lbc_raw

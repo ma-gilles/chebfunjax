@@ -165,17 +165,7 @@ class TestOdeNonlin:
 # ---------------------------------------------------------------------------
 
 class TestOdeEig:
-    def test_laplacian_eigenvalues(self):
-        assert _load("ode-eig", "laplacian_eigenvalues").run()
-
-    def test_harmonic_oscillator(self):
-        assert _load("ode-eig", "harmonic_oscillator").run()
-
-    def test_sturm_liouville(self):
-        assert _load("ode-eig", "sturm_liouville").run()
-
-    def test_double_well(self):
-        assert _load("ode-eig", "double_well").run()
+    pass  # replaced by faithful replicas (see docs/examples/ode-eig)
 
 
 # ---------------------------------------------------------------------------
