@@ -11,7 +11,7 @@ functions (`randnfun`), and their connections to stochastic differential equatio
 | [Phase-locking in a Duffing-type equation (replica)](PhaseLocking.md) | Faithful replica: 60 paths locking onto the sqrt(t) branches. |
 | [Pitchfork bifurcation triggered by noise (replica)](Pitchfork.md) | Faithful replica: swept pitchfork, branch endpoints at sqrt(c/2). |
 | [From random functions to SDEs (replica)](Random2SDE.md) | Faithful replica: smooth random walks, lambda = 0.001. |
-| [Random Trajectory on a Sphere](random_on_sphere.md) | Original MATLAB: ode-random/RandomOnASphere Author: Kevin Burrage and Nick Trefethen (May 2017) |
+| [Random trajectory on a sphere (replica)](RandomOnASphere.md) | Faithful replica: energy conserved to 5e-10 radius drift. |
 | [Linear ODEs with random switching (replica)](RandomSwitching.md) | Faithful replica: decay/grow/decay across the three switching rates. |
 | [Tunnelling (replica)](Tunnelling.md) | Faithful replica: bistable metastable switching; exponential noise sensitivity. |
 | [The white noise paradox (replica)](WhiteNoiseParadox.md) | Faithful replica: randnfun 'big' amplitude growth as lambda -> 0. |
