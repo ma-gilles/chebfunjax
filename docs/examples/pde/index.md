@@ -67,3 +67,4 @@ The complex Ginzburg-Landau equation `u_t = u + (1+ib)u_xx - (1+ic)
 | [Gray-Scott equations in 2D (replica)](GrayScott.md) | Faithful replica: rolls/spots; tilted-symmetry test 1.4% vs 70%. |
 | [Complex Ginzburg-Landau equation in 2D (replica)](GinzburgLandau.md) | Faithful replica: arm-for-arm spirals; diagonal symmetry preserved at t=48. |
 | [Time-dependent PDEs on a periodic interval with expm (replica)](FourierExpm.md) | Faithful replica: heat decay e^-9 to 7 digits; coherent convection. |
+| [Black-Scholes PDE using operator exponential (replica)](BSExponential.md) | Faithful replica: v(55) to 5 digits; piecewise-expm gap ledgered. |
