@@ -59,5 +59,5 @@ The complex Ginzburg-Landau equation `u_t = u + (1+ib)u_xx - (1+ic)
 
 | Example | Description |
 |---------|-------------|
-| [Coupled Reaction-Diffusion System](react_diff_sys.md) | Source: ... — Nick Hale, October 2010 Python: ... |
-| [SVD of Frequency Response Operator](svd_frequency_response.md) | Source: ... — Lieu & Jovanovic, January 2012 Python: ... |
+
+| [KdV solitons and non-solitons (replica)](KdV.md) | Faithful replica: 13-digit conserved quantities; 9-digit soliton amplitude. |
