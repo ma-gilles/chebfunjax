@@ -14,8 +14,8 @@ series in spherical coordinates `(λ, θ)` (longitude, colatitude).
 | [Poloidal-Toroidal Decomposition](pt_decomposition.md) | Original: sphere/PTDecomposition Author(s): Nicolas Boulle and Alex Townsend, May 2019 |
 | [Rayleigh Quotient on the Sphere](rayleigh_quotient.md) | Original: sphere/RayleighQuotientExample Author(s): Grady Wright, February 2017 |
 | [Solid Harmonics](solid_harmonics.md) | Original: sphere/SolidHarmonics Author(s): Nicolas Boulle and Alex Townsend, May 2019 |
-| [Parity Partitioning a Spherefun](spherefun_partition.md) | Original: sphere/SpherefunPartition Author(s): Behnam Hashemi, November 2016 |
 
 | [Spherical harmonics (replica)](SphericalHarmonics.md) | Faithful replica: eigen-identity exactly 0; projection error to 14 digits. |
 | [Rotating functions on the sphere (replica)](SpherefunRotate.md) | Faithful replica: ranks 29/74/139 vs published 29/74/141; shell-exact harmonics. |
 | [Heat equation on the unit sphere (replica)](SphereHeatConduction.md) | Faithful replica: BDF2 error to 10 digits; mean conserved exactly. |
+| [Parity partitioning a spherefun (replica)](SpherefunPartition.md) | Faithful replica: rank split 21 = 11 + 10 exact; sums identical. |

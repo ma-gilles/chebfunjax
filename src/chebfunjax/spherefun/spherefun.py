@@ -1152,6 +1152,40 @@ class Spherefun(eqx.Module):
         return Spherefun(cols=self.cols, rows=new_rows, pivots=self.pivots,
                          idx_plus=self.idx_plus, idx_minus=self.idx_minus)
 
+    def partition(self) -> tuple["Spherefun", "Spherefun"]:
+        r"""Parity partition ``f = fep + foa`` (MATLAB partition).
+
+        Splits the CDR decomposition into the even/:math:`\pi`-periodic
+        terms (``idx_plus``) and the odd/:math:`\pi`-anti-periodic terms
+        (``idx_minus``) tracked by the BMC constructor.  Returns
+        ``(fep, foa)`` with ``fep + foa == f`` exactly (the same column,
+        row, and pivot data, re-indexed).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/partition.m
+        Chebfun commit: 7574c77
+        """
+
+        def _sub(idx):
+            idx = list(idx)
+            if not idx:
+                zero = Spherefun.from_function(
+                    lambda lam, th: 0.0 * jnp.asarray(lam))
+                return zero
+            return Spherefun(
+                cols=[self.cols[i] for i in idx],
+                rows=[self.rows[i] for i in idx],
+                pivots=jnp.asarray(
+                    [float(self.pivots[i]) for i in idx]),
+                idx_plus=tuple(range(len(idx)))
+                if idx == list(self.idx_plus) else (),
+                idx_minus=() if idx == list(self.idx_plus)
+                else tuple(range(len(idx))),
+            )
+
+        return _sub(self.idx_plus), _sub(self.idx_minus)
+
     def rotate(self, phi: float = 0.0, theta: float = 0.0,
                psi: float = 0.0) -> "Spherefun":
         """Rotate by Euler angles (ZYZ convention, MATLAB rotate):
