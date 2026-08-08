@@ -760,7 +760,15 @@ class Chebop:
                     _fbreaks = [float(b) for b in f.domain.breakpoints
                                 if all(abs(float(b) - e) > 1e-12
                                        for e in _bps)]
-                if _has_break or _fbreaks:
+                # An IVP marches pointwise across coefficient/RHS
+                # breakpoints trivially -- routing it to the piecewise
+                # BVP Newton instead is both ~100x slower and fragile
+                # (ode-random/RandomSwitching's ~40-piece sign()
+                # coefficient did not converge there).  Let it fall
+                # through to the marcher; only genuine BVPs collocate
+                # piecewise.
+                if ((_has_break or _fbreaks) and not (
+                        n is None and self._is_ivp())):
                     return self._solve_piecewise(
                         f, n=n, max_iter=max_iter,
                         cont_breaks=_fbreaks or None)
@@ -4809,11 +4817,11 @@ class Chebop:
         def _op_at(x, y, s):
             tower = [jnp.asarray(v) for v in list(y) + [s]]
             try:
-                r = L(jnp.asarray(x), _IVPProxy(tower))
+                r = L(jnp.asarray(x), _IVPProxy(tower, x=x))
             except AttributeError:
                 # chebfun-style op (x.cos() ...): wrap the scalar x so
                 # the method chain works (see _TrigX / _apply_op).
-                r = L(_TrigX(jnp.asarray(x)), _IVPProxy(tower))
+                r = L(_TrigX(jnp.asarray(x)), _IVPProxy(tower, x=x))
             if isinstance(r, _TrigX):
                 r = r.v
             return float(_np.asarray(r))
@@ -6410,8 +6418,9 @@ class _IVPProxy:
     returns the j-th derivative from a supplied tower on ``diff(j)``.
     Used to extract the ODE right-hand side from a Chebop operator."""
 
-    def __init__(self, tower):
+    def __init__(self, tower, x=None):
         self._d = tower                       # [u, u', ..., u^(k-1), probe]
+        self._x = x                           # evaluation point (or None)
 
     @property
     def _v(self):
@@ -6426,12 +6435,16 @@ class _IVPProxy:
     # raw jax array after the multiplication and raised AttributeError
     # on ``.sin``, kicking the IVP out of the marcher into a global
     # Newton that diverged silently.
-    @staticmethod
-    def _unwrap(o):
+    def _unwrap(self, o):
         if isinstance(o, _IVPProxy):
             return o._v
         if isinstance(o, _TrigX):
             return o.v
+        # A chebfun COEFFICIENT (e.g. ``c*y`` with c = sign(randnfun))
+        # evaluates at the current marching point -- previously it fell
+        # into Chebfun arithmetic and the extraction produced garbage.
+        if self._x is not None and hasattr(o, "domain") and callable(o):
+            return jnp.asarray(o(jnp.asarray(self._x)))
         return o
 
     def __add__(self, o):
