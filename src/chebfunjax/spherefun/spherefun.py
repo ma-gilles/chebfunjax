@@ -1904,7 +1904,13 @@ class Spherefun(eqx.Module):
         fs = f if isinstance(f, Spherefun) else Spherefun.from_function(f)
         lmax = fs._bandwidth() + 1
         coeffs = _spherefun_sph_coeffs(fs, lmax)
-        K2 = float(K) ** 2
+        # K may be IMAGINARY (the BDF/heat-equation shifts use
+        # K = i*sqrt(3/(2*dt*alpha)), giving a negative real K^2);
+        # float(K) silently dropped the imaginary part and turned the
+        # screened solve into a singular K^2 = 0 Laplace solve.
+        K2 = complex(K) ** 2
+        if abs(K2.imag) < 1e-12 * max(1.0, abs(K2.real)):
+            K2 = K2.real
         coeff_map = {}
         for (l, mm), a in coeffs.items():
             den = K2 - l * (l + 1)
