@@ -16,6 +16,6 @@ series in spherical coordinates `(λ, θ)` (longitude, colatitude).
 | [Solid Harmonics](solid_harmonics.md) | Original: sphere/SolidHarmonics Author(s): Nicolas Boulle and Alex Townsend, May 2019 |
 | [Sphere Heat Conduction](sphere_heat_conduction.md) | Original: sphere/SphereHeatConduction Author(s): Alex Townsend and Grady Wright, May 2016 |
 | [Parity Partitioning a Spherefun](spherefun_partition.md) | Original: sphere/SpherefunPartition Author(s): Behnam Hashemi, November 2016 |
-| [Rotating Functions on the Sphere](spherefun_rotate.md) | Original: sphere/SpherefunRotate Author(s): Alex Townsend and Grady Wright, May 2017 |
 
 | [Spherical harmonics (replica)](SphericalHarmonics.md) | Faithful replica: eigen-identity exactly 0; projection error to 14 digits. |
+| [Rotating functions on the sphere (replica)](SpherefunRotate.md) | Faithful replica: ranks 29/74/139 vs published 29/74/141; shell-exact harmonics. |
