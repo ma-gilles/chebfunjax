@@ -6,7 +6,7 @@ functions (`randnfun`), and their connections to stochastic differential equatio
 | Example | Description |
 |---------|-------------|
 | [Collective Dynamics and Consensus](consensus.md) | Original MATLAB: ode-random/Consensus Author: Nick Trefethen (May 2017) |
-| [Geometric Brownian Motion](gbm.md) | Original MATLAB: ode-random/GBM Author: Nick Trefethen (May 2017) |
+| [Geometric Brownian motion (replica)](GBM.md) | Faithful replica: multiplicative noise, three drift regimes. |
 | [Random Level Hopping](level_hopping.md) | Original MATLAB: ode-random/LevelHopping Author: Nick Trefethen (May 2017) |
 | [Phase-Locking in a Duffing-Type Equation](phase_locking.md) | Original MATLAB: ode-random/PhaseLocking Author: Kevin Burrage and Nick Trefethen (May 2017) |
 | [Pitchfork bifurcation triggered by noise (replica)](Pitchfork.md) | Faithful replica: swept pitchfork, branch endpoints at sqrt(c/2). |
