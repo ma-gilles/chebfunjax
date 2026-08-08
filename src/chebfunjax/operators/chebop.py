@@ -4695,6 +4695,8 @@ class Chebop:
             for r in res:
                 if isinstance(r, _IVPProxy):
                     r = r._v
+                elif isinstance(r, _TrigX):
+                    r = r.v
                 out.append(float(_np.asarray(r)))
             return out
 
@@ -4807,15 +4809,14 @@ class Chebop:
         def _op_at(x, y, s):
             tower = [jnp.asarray(v) for v in list(y) + [s]]
             try:
-                return float(_np.asarray(
-                    L(jnp.asarray(x), _IVPProxy(tower))))
+                r = L(jnp.asarray(x), _IVPProxy(tower))
             except AttributeError:
                 # chebfun-style op (x.cos() ...): wrap the scalar x so
                 # the method chain works (see _TrigX / _apply_op).
                 r = L(_TrigX(jnp.asarray(x)), _IVPProxy(tower))
-                if isinstance(r, _TrigX):
-                    r = r.v
-                return float(_np.asarray(r))
+            if isinstance(r, _TrigX):
+                r = r.v
+            return float(_np.asarray(r))
 
         # Verify the operator is affine in the highest derivative before
         # trusting the extraction (Fable 5 audit: e.g. (u'')^2 would
@@ -6419,39 +6420,53 @@ class _IVPProxy:
     def diff(self, j: int = 1):
         return self._d[j]
 
+    # Arithmetic results are wrapped in _TrigX so method-style
+    # elementwise chains keep working on EXPRESSIONS of the unknown --
+    # ``(2*pi*y).sin()`` (ode-random/LevelHopping) previously became a
+    # raw jax array after the multiplication and raised AttributeError
+    # on ``.sin``, kicking the IVP out of the marcher into a global
+    # Newton that diverged silently.
+    @staticmethod
+    def _unwrap(o):
+        if isinstance(o, _IVPProxy):
+            return o._v
+        if isinstance(o, _TrigX):
+            return o.v
+        return o
+
     def __add__(self, o):
-        return self._v + (o._v if isinstance(o, _IVPProxy) else o)
+        return _TrigX(self._v + self._unwrap(o))
 
     __radd__ = __add__
 
     def __sub__(self, o):
-        return self._v - (o._v if isinstance(o, _IVPProxy) else o)
+        return _TrigX(self._v - self._unwrap(o))
 
     def __rsub__(self, o):
-        return (o._v if isinstance(o, _IVPProxy) else o) - self._v
+        return _TrigX(self._unwrap(o) - self._v)
 
     def __mul__(self, o):
-        return self._v * (o._v if isinstance(o, _IVPProxy) else o)
+        return _TrigX(self._v * self._unwrap(o))
 
     __rmul__ = __mul__
 
     def __truediv__(self, o):
-        return self._v / (o._v if isinstance(o, _IVPProxy) else o)
+        return _TrigX(self._v / self._unwrap(o))
 
     def __rtruediv__(self, o):
-        return (o._v if isinstance(o, _IVPProxy) else o) / self._v
+        return _TrigX(self._unwrap(o) / self._v)
 
     def __pow__(self, o):
-        return self._v ** (o._v if isinstance(o, _IVPProxy) else o)
+        return _TrigX(self._v ** self._unwrap(o))
 
     def __rpow__(self, o):
-        return (o._v if isinstance(o, _IVPProxy) else o) ** self._v
+        return _TrigX(self._unwrap(o) ** self._v)
 
     def __neg__(self):
-        return -self._v
+        return _TrigX(-self._v)
 
     def __abs__(self):
-        return abs(self._v)
+        return _TrigX(abs(self._v))
 
     def __getattr__(self, name):
         """Elementwise chebfun methods (sin, cos, exp, ...) on the value.

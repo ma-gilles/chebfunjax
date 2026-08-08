@@ -7,7 +7,7 @@ functions (`randnfun`), and their connections to stochastic differential equatio
 |---------|-------------|
 | [Collective dynamics and consensus (replica)](Consensus.md) | Faithful replica: random walks locking together under short-range attraction. |
 | [Geometric Brownian motion (replica)](GBM.md) | Faithful replica: multiplicative noise, three drift regimes. |
-| [Random Level Hopping](level_hopping.md) | Original MATLAB: ode-random/LevelHopping Author: Nick Trefethen (May 2017) |
+| [Random level hopping (replica)](LevelHopping.md) | Faithful replica: integer-level hopping; found+fixed a silent marcher fallback. |
 | [Phase-Locking in a Duffing-Type Equation](phase_locking.md) | Original MATLAB: ode-random/PhaseLocking Author: Kevin Burrage and Nick Trefethen (May 2017) |
 | [Pitchfork bifurcation triggered by noise (replica)](Pitchfork.md) | Faithful replica: swept pitchfork, branch endpoints at sqrt(c/2). |
 | [From random functions to SDEs (replica)](Random2SDE.md) | Faithful replica: smooth random walks, lambda = 0.001. |
