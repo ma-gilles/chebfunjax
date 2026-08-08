@@ -3655,12 +3655,71 @@ class Chebop:
         us = to_funs(U)
         return us[0] if m == 1 else SystemSolution(us)
 
-    def expm(self, t: float, u0, n: int = 128):
+    def expm(self, t, u0, n: int = 128):
         """exp(t*L) applied to u0 for the linearised operator.
 
-        See :meth:`Linop.expm`.
+        ``t`` may be a scalar or a sequence of times (MATLAB's
+        ``expm(L, t, u0)`` with a time vector); a sequence returns a
+        list of solutions.  Periodic operators (``L.bc = 'periodic'``,
+        e.g. the pde/FourierExpm heat and convection examples) are
+        propagated with the dense matrix exponential of the Fourier
+        collocation matrix; the results are trig chebfuns.
+
+        See :meth:`Linop.expm` for the Chebyshev branch.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/expm.m, @linop/expm.m
+        Chebfun commit: 7574c77
         """
-        return self._build_linop(value_shift=0.0).expm(t, u0, n=n)
+        ts = list(t) if isinstance(t, (list, tuple)) or (
+            hasattr(t, "ndim") and getattr(t, "ndim", 0) == 1) else None
+
+        if getattr(self, "_periodic", False):
+            import numpy as _np
+            import scipy.linalg as _sla
+
+            from chebfunjax.chebfun1d.chebfun import chebfun as _cfun
+            a, b = self.domain[0], self.domain[-1]
+            Lp = float(b - a)
+            N = int(n)
+            x = a + Lp * _np.arange(N) / N
+            proxy = _FourierProxy(N, Lp, _np.eye(N), grid=x)
+            out = self._apply_op(jnp.asarray(x), proxy)
+            if not isinstance(out, _FourierProxy):
+                raise TypeError("Chebop.expm: operator not linear in u.")
+            A = _np.asarray(out.mat)
+            v0 = _np.asarray(u0(jnp.asarray(x))) if callable(u0) \
+                else _np.asarray(u0, dtype=float)
+
+            def _prop(tv):
+                w = _sla.expm(float(tv) * A) @ v0
+                _is_real = _np.max(_np.abs(_np.imag(w))) < 1e-10 * max(
+                    1e-300, float(_np.max(_np.abs(w))))
+                # Trig-series evaluation of the grid data (np.interp
+                # linear interpolation loses ~4 digits at the peaks).
+                cw = _np.fft.fft(_np.asarray(w, dtype=complex)) / N
+                kw = _np.fft.fftfreq(N, d=1.0 / N)
+
+                def _f(xx, _c=cw, _k=kw, _real=_is_real):
+                    th = (2j * _np.pi / Lp) * (
+                        _np.asarray(xx, dtype=float) - a)
+                    vals = _np.exp(_np.outer(
+                        _np.atleast_1d(th), _k)) @ _c
+                    if _real:
+                        vals = _np.real(vals)
+                    return jnp.asarray(vals.reshape(_np.shape(xx))
+                                       if _np.ndim(xx) else vals[0])
+                return _cfun(_f, domain=(a, b), trig=True)
+
+            if ts is None:
+                return _prop(t)
+            return [_prop(tv) for tv in ts]
+
+        linop = self._build_linop(value_shift=0.0)
+        if ts is None:
+            return linop.expm(t, u0, n=n)
+        return [linop.expm(tv, u0, n=n) for tv in ts]
 
     def matrix(self, n: int):
         """The n x n discretization matrix with BC rows (MATLAB matrix(L,n))."""
