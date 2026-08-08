@@ -14,4 +14,4 @@ functions (`randnfun`), and their connections to stochastic differential equatio
 | [Random Trajectory on a Sphere](random_on_sphere.md) | Original MATLAB: ode-random/RandomOnASphere Author: Kevin Burrage and Nick Trefethen (May 2017) |
 | [Linear ODEs with Random Switching](random_switching.md) | Original MATLAB: ode-random/RandomSwitching Author: Nick Trefethen (May 2017) |
 | [Tunnelling Between Metastable States](tunnelling.md) | Original MATLAB: ode-random/Tunnelling Author: Nick Trefethen (May 2017) |
-| [The White Noise Paradox](white_noise_paradox.md) | Original MATLAB: ode-random/WhiteNoiseParadox Author: Nick Trefethen (May 2017) |
+| [The white noise paradox (replica)](WhiteNoiseParadox.md) | Faithful replica: randnfun 'big' amplitude growth as lambda -> 0. |
