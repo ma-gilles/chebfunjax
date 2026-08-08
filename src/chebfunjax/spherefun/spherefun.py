@@ -1621,7 +1621,17 @@ class Spherefun(eqx.Module):
                 return jnp.sqrt(2.0) * plm * jnp.sin(m * lam)
             return plm
 
-        return cls.from_function(ev)
+        # The degree is KNOWN, so size the first construction grid to
+        # resolve it.  From the adaptive default (grid 8, i.e. 16
+        # longitude points) any harmonic with m >= 13 aliased to a
+        # low-order mode with BOTH directions self-consistently aliased,
+        # and the constructor declared a wrong rank-1 function happy --
+        # e.g. sphharm(17,13) came back as a cos(3*lam) harmonic (its
+        # Laplacian identity failed by O(100) while orthonormality still
+        # held).  Sizing the start grid from l makes the first pass
+        # resolved; the general missing-sample-test gap in from_function
+        # is recorded in the audit ledger.
+        return cls.from_function(ev, start_grid=max(8, 2 * l + 4))
 
     def _bandwidth(self) -> int:
         """Estimate the spherical-harmonic degree that resolves ``self``.
