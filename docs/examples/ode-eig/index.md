@@ -11,12 +11,12 @@ Chebfun computes these spectra via the `eigs` method.
 | [Frequencies of a drum (replica)](Drum.md) | Faithful replica: J0 zeros to 1e-10; octave design astar to 10 digits. |
 | [Eigenstates of the Schroedinger equation (replica)](Eigenstates.md) | Faithful replica: nine potentials; harmonic-oscillator eigenvalues to 13 digits. |
 | [Periodic ODE eigenvalue problems (replica)](FourierEigs.md) | Faithful replica: -u''=lam u and Mathieu characteristic values to 1e-13. |
-| [Landscape function and localization of eigenfunctions](landscape.md) | Demonstrates eigenfunction localization for the Schrodinger operator with a random piecewise-constant potential on .... |
-| [Avoided crossings for ODE eigenvalues](level_repulsion.md) | Demonstrates level repulsion (avoided crossings) for eigenvalues of parameter-dependent differential operators. |
+| [Landscape function and localization of eigenfunctions (replica)](Landscape.md) | Faithful replica: same well-by-well localization; eigenvalues to 7 digits. |
+| [Avoided crossings for ODE eigenvalues (replica)](LevelRepulsionODE.md) | Faithful replica: 4th-order clamped operator; smooth repelling curves. |
 | [The nullspace of a linear operator (replica)](NullSpace.md) | Faithful replica: Chebop.null with exotic integral conditions; minE/bc_star to 10-11 digits. |
 | [The nonlinear optical response of a simple molecule (replica)](OpticalResponse.md) | Faithful replica: alpha = -1/4 to 5e-11, beta = gamma = 0. |
 | [Orr-Sommerfeld eigenvalues (replica)](OrrSommerfeld.md) | Faithful replica: lambda_r matches MATLAB R2025b at Re=2000 and the critical Re. |
-| [Eigenvalues of random operators](randfun_eig.md) | Demonstrates the circular law for random matrices and the semicircle law for symmetric random matrices. Also computes... |
+| [Eigenvalues of random operators (replica)](Randfuneig.md) | Faithful replica: circular law + Fredholm eig(chebfun2) samples. |
 | [Rayleigh quotient iteration for an operator (replica)](RayleighQuotient.md) | Faithful replica: MATLAB rng data inlined; iterates match digit-for-digit. |
 | [Model of a quantum dot array for solar energy (replica)](SolarQDA.md) | Faithful replica: all eight energies to 10-11 digits; delocalization figures. |
 | [Stability of a thermoelastic rod (replica)](ThermoelasticRod.md) | Faithful replica: Barber-condition eigenvalues to 10 digits; dstar = 1 to 1e-9. |
