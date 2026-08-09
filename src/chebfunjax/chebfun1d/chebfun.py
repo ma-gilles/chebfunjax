@@ -7513,6 +7513,7 @@ def chebfun(
 
     if isinstance(f, (int, float)) or (
         hasattr(f, "__float__") and not callable(f)
+        and getattr(f, "ndim", 0) == 0
     ):
         # Scalar constant
         c = float(f)
@@ -7524,6 +7525,12 @@ def chebfun(
         if arr.ndim == 0:
             c = float(arr)
             return Chebfun.from_function(lambda x: jnp.full_like(x, c), dom, n=n)
+        if arr.ndim == 1 and not callable(f) and not coeffs:
+            # MATLAB chebfun(a) with a data VECTOR: the polynomial
+            # interpolant through the values at 2nd-kind Chebyshev
+            # points (approx2/Gibbs2D builds its square wave this way).
+            return Chebfun.from_values(
+                jnp.asarray(arr, dtype=jnp.float64), dom)
     except Exception:
         pass
 

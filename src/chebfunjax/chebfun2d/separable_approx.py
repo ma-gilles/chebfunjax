@@ -334,6 +334,38 @@ def _is_happy(values: np.ndarray, tol: float) -> bool:
     return int(cutoff) < c.shape[0]
 
 
+def _trigpts_phys(n: int, a: float, b: float) -> np.ndarray:
+    """n equispaced points on [a, b) (trigtech grid, no right endpoint)."""
+    k = np.arange(n, dtype=np.float64)
+    return a + (b - a) * k / n
+
+
+def _is_happy_trig(values: np.ndarray, tol: float) -> bool:
+    """Check if values at equispaced points are resolved to tol as a
+    trig (Fourier) series: the high-wavenumber tail of the centered
+    coefficient vector must fall below the absolute tolerance.
+
+    Provenance
+    ----------
+    MATLAB source : @trigtech/classicCheck.m (simplified tail test)
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.tech.trigtech import trig_vals2coeffs
+
+    v = np.asarray(values, dtype=np.float64)
+    vscale = float(np.max(np.abs(v)))
+    if vscale == 0.0:
+        return True
+    n = v.shape[0]
+    if n < 8:
+        return False
+    c = np.abs(np.asarray(trig_vals2coeffs(jnp.asarray(v)))).ravel()
+    # centered ordering: high wavenumbers live at BOTH ends
+    band = max(1, n // 8)
+    tail = max(float(c[:band].max()), float(c[-band:].max()))
+    return tail <= max(tol, _EPS * vscale)
+
+
 # ============================================================================
 # Grid refinement (matches MATLAB gridRefine for chebtech2)
 # ============================================================================
@@ -413,6 +445,11 @@ class SeparableApprox(eqx.Module):
     rows: list  # list of Chebtech2 (row slices, functions of x)
     pivots: jax.Array  # shape (r,)
     domain: tuple = eqx.field(static=True)  # (xa, xb, ya, yb)
+    # Physical (x, y) pivot locations chosen by the GE construction
+    # (MATLAB f.pivotLocations); empty tuple when not applicable
+    # (e.g. arithmetic results).  Static so it does not affect pytree
+    # structure or JIT.
+    pivot_locations: tuple = eqx.field(static=True, default=())
 
     # ------------------------------------------------------------------
     # Construction
@@ -804,7 +841,11 @@ class SeparableApprox(eqx.Module):
             # Chop coefficients
             col_vscale = float(jnp.max(jnp.abs(col_v)))
             if col_vscale > 0:
-                col_rel_tol = max(tol * col_vscale / col_vscale, tol)
+                # Chop against the GLOBAL tolerance (MATLAB simplifies the
+                # quasimatrix slices relative to the chebfun2 vscale): late
+                # CDR slices are small residuals whose coefficients never
+                # decay to eps relative to themselves.
+                col_rel_tol = min(0.5, max(tol, abs_tol / col_vscale))
                 col_cutoff = standard_chop(col_c, col_rel_tol)
                 col_c = col_c[:col_cutoff]
             cols_list.append(Chebtech2.from_coeffs(col_c))
@@ -814,7 +855,7 @@ class SeparableApprox(eqx.Module):
             row_c = vals2coeffs(row_v)
             row_vscale = float(jnp.max(jnp.abs(row_v)))
             if row_vscale > 0:
-                row_rel_tol = max(tol * row_vscale / row_vscale, tol)
+                row_rel_tol = min(0.5, max(tol, abs_tol / row_vscale))
                 row_cutoff = standard_chop(row_c, row_rel_tol)
                 row_c = row_c[:row_cutoff]
             rows_list.append(Chebtech2.from_coeffs(row_c))
@@ -828,6 +869,10 @@ class SeparableApprox(eqx.Module):
             rows=rows_list,
             pivots=d_arr,
             domain=(xa, xb, ya, yb),
+            pivot_locations=tuple(
+                (float(piv_x_phys[j]), float(piv_y_phys[j]))
+                for j in range(r)
+            ),
         )
 
     # ------------------------------------------------------------------

@@ -421,6 +421,12 @@ class Chebfun2(eqx.Module):
         """Numerical rank of the low-rank approximation."""
         return self.approx.rank
 
+    @property
+    def pivot_locations(self) -> tuple:
+        """Physical (x, y) pivot locations from construction (MATLAB
+        ``f.pivotLocations``); empty for non-constructed results."""
+        return getattr(self.approx, "pivot_locations", ())
+
     def length(self) -> tuple[int, int]:
         """Polynomial lengths ``(m, n)`` in x and y (MATLAB length(f)).
 

@@ -112,9 +112,17 @@ class TestChebfunConstruction:
         npt.assert_allclose(np.array(x_id(xs)), np.array(xs), atol=1e-13)
 
     def test_invalid_f_type(self):
-        """chebfun with non-callable, non-scalar should raise TypeError."""
+        """chebfun with a non-numeric, non-callable should raise TypeError."""
         with pytest.raises(TypeError, match="Cannot construct"):
-            chebfun([1, 2, 3])
+            chebfun("not a function")
+
+    def test_vector_of_values(self):
+        """MATLAB chebfun(a) with a data vector: the interpolant through
+        the values at 2nd-kind Chebyshev points."""
+        f = chebfun([1.0, 2.0, 3.0])
+        # Values at the 3-point Chebyshev grid on [-1, 1]: -1, 0, 1.
+        xs = jnp.array([-1.0, 0.0, 1.0], dtype=jnp.float64)
+        npt.assert_allclose(np.array(f(xs)), [1.0, 2.0, 3.0], atol=1e-14)
 
     def test_invalid_domain(self):
         """chebfun with a degenerate domain should raise ValueError."""
