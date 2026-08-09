@@ -197,34 +197,6 @@ exp(-x^2-y^2): rank = 12
 
 ## Gallery
 
-Figures generated automatically from `examples/approx2/` and `examples/opt/`.
-
-### exp(x+y) surface
-
-![exp(x+y) surface](../images/approx2/smooth_functions_2d_exp.png)
-
-### cos(x+y²) contour
-
-![cos(x+y²) contour](../images/approx2/smooth_functions_2d_cos.png)
-
-### Franke's function
-
-![Franke's function](../images/approx2/smooth_functions_2d_franke.png)
-
-### Rank-1 and rank-2 functions
-
-![Rank of functions](../images/approx2/rank_of_functions.png)
-
-![Rank contour](../images/approx2/rank_of_functions_contour.png)
-
-### 2-D integration
-
-![Integration 2D](../images/approx2/integration_2d.png)
-
-### 2-D differentiation
-
-![Differentiation 2D](../images/approx2/differentiation_2d.png)
-
-### Global minimum in 2D
-
-![Global minimum 2D](../images/opt/global_minimum_2d.png)
+For worked 2D examples with figures, see the faithful replicas of the
+published chebfun.org approx2 examples in
+[docs/examples/approx2](approx2/index.md).

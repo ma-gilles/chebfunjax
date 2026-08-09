@@ -1393,6 +1393,8 @@ class Chebfun(eqx.Module):
         """
         if domain is None:
             domain = Domain((-1.0, 1.0))
+        elif not isinstance(domain, Domain):
+            domain = Domain(tuple(float(v) for v in domain))
         if domain.n_intervals != 1:
             raise ValueError(
                 f"from_coeffs only supports single-interval domains, "
@@ -1429,6 +1431,8 @@ class Chebfun(eqx.Module):
         """
         if domain is None:
             domain = Domain((-1.0, 1.0))
+        elif not isinstance(domain, Domain):
+            domain = Domain(tuple(float(v) for v in domain))
         if domain.n_intervals != 1:
             raise ValueError(
                 f"from_values only supports single-interval domains, "

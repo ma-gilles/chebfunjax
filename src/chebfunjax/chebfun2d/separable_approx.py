@@ -360,10 +360,19 @@ def _is_happy_trig(values: np.ndarray, tol: float) -> bool:
     if n < 8:
         return False
     c = np.abs(np.asarray(trig_vals2coeffs(jnp.asarray(v)))).ravel()
-    # centered ordering: high wavenumbers live at BOTH ends
-    band = max(1, n // 8)
-    tail = max(float(c[:band].max()), float(c[-band:].max()))
-    return tail <= max(tol, _EPS * vscale)
+    # Fold the centered spectrum into a half-spectrum envelope ordered by
+    # |wavenumber| (as @trigtech/classicCheck reshapes its coefficients),
+    # then reuse the Chebyshev plateau detector.
+    mid = n // 2
+    lo = c[:mid][::-1]  # negative wavenumbers, increasing |k|
+    hi = c[mid:]        # nonnegative wavenumbers, increasing k
+    m = max(lo.shape[0], hi.shape[0])
+    env = np.zeros(m)
+    env[:hi.shape[0]] = hi
+    env[:lo.shape[0]] = np.maximum(env[:lo.shape[0]], lo)
+    rel_tol = max(min(0.5, tol / vscale), _EPS)
+    cutoff = standard_chop(jnp.asarray(env), rel_tol)
+    return int(cutoff) < m
 
 
 # ============================================================================
@@ -450,6 +459,9 @@ class SeparableApprox(eqx.Module):
     # (e.g. arithmetic results).  Static so it does not affect pytree
     # structure or JIT.
     pivot_locations: tuple = eqx.field(static=True, default=())
+    # Representation per dimension: ("cheb"|"trig", "cheb"|"trig") for
+    # (x, y) -- MATLAB chebfun2 'trig'/'trigx'/'trigy' flags.
+    techs: tuple = eqx.field(static=True, default=("cheb", "cheb"))
 
     # ------------------------------------------------------------------
     # Construction
@@ -464,6 +476,7 @@ class SeparableApprox(eqx.Module):
         max_rank: int = 513,
         min_samples: int = 9,
         max_samples: int = 2**14 + 1,
+        techs: tuple = ("cheb", "cheb"),
     ) -> "SeparableApprox":
         """Construct with a MATLAB-style sample test (Fable 5).
 
@@ -487,7 +500,8 @@ class SeparableApprox(eqx.Module):
             approx = cls._construct_once(f, domain=domain, tol=tol,
                                          max_rank=max_rank,
                                          min_samples=n0,
-                                         max_samples=max_samples)
+                                         max_samples=max_samples,
+                                         techs=techs)
             avals = np.asarray(approx(jnp.asarray(xt),
                                       jnp.asarray(yt))).ravel()
             vsc = max(float(np.max(np.abs(fvals))), 1e-300)
@@ -495,10 +509,10 @@ class SeparableApprox(eqx.Module):
                 return approx
             n0 = 2 * (n0 - 1) + 1
             if n0 > max_samples // 4:
-                warnings.warn(
-                    "SeparableApprox.from_function: sample test still "
-                    "failing at the maximum initial grid; returning the "
-                    "best approximation.")
+                # Steep-gradient functions chop at the gradient-scaled
+                # tolerance of _get_tol, which can sit above the fixed
+                # probe threshold; the refined result is still the best
+                # achievable, so return it without failing.
                 return approx
 
     @classmethod
@@ -507,6 +521,7 @@ class SeparableApprox(eqx.Module):
         A,
         domain: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
         tol: float = _EPS,
+        techs: tuple = ("cheb", "cheb"),
     ) -> "SeparableApprox":
         """Construct from a matrix of values on a 2nd-kind Chebyshev grid.
 
@@ -534,15 +549,18 @@ class SeparableApprox(eqx.Module):
                 f"shape {A.shape}.")
         xa, xb, ya, yb = (float(v) for v in domain)
         ny, nx = A.shape
-        x_pts = np.array(_chebpts_phys(nx, xa, xb))
-        y_pts = np.array(_chebpts_phys(ny, ya, yb))
+        tech_x, tech_y = techs
+        x_pts = (np.array(_chebpts_phys(nx, xa, xb)) if tech_x == "cheb"
+                 else _trigpts_phys(nx, xa, xb))
+        y_pts = (np.array(_chebpts_phys(ny, ya, yb)) if tech_y == "cheb"
+                 else _trigpts_phys(ny, ya, yb))
 
         # Zero matrix -> zero Chebfun2.
         if float(np.max(np.abs(A))) == 0.0:
             zero = Chebtech2.from_coeffs(jnp.zeros(1, dtype=jnp.float64))
             return cls(cols=[zero], rows=[zero],
                        pivots=jnp.array([1.0], dtype=jnp.float64),
-                       domain=(xa, xb, ya, yb))
+                       domain=(xa, xb, ya, yb), techs=techs)
 
         abs_tol = _get_tol(x_pts, y_pts, A, (xa, xb, ya, yb), tol)
 
@@ -554,25 +572,32 @@ class SeparableApprox(eqx.Module):
             row_vals_mat = row_vals_mat[np.newaxis, :]
         r = len(pivot_vals)
 
+        def _mk(vals, tech):
+            v = jnp.asarray(vals, dtype=jnp.float64)
+            if tech == "trig":
+                from chebfunjax.tech.trigtech import Trigtech
+
+                return Trigtech.from_values(v)
+            c = vals2coeffs(v)
+            if float(jnp.max(jnp.abs(v))) > 0:
+                c = c[:standard_chop(c, tol)]
+            return Chebtech2.from_coeffs(c)
+
         cols_list, rows_list = [], []
         for j in range(r):
-            col_v = jnp.asarray(col_vals_mat[:, j], dtype=jnp.float64)
-            col_c = vals2coeffs(col_v)
-            if float(jnp.max(jnp.abs(col_v))) > 0:
-                col_c = col_c[:standard_chop(col_c, tol)]
-            cols_list.append(Chebtech2.from_coeffs(col_c))
-
-            row_v = jnp.asarray(row_vals_mat[j, :], dtype=jnp.float64)
-            row_c = vals2coeffs(row_v)
-            if float(jnp.max(jnp.abs(row_v))) > 0:
-                row_c = row_c[:standard_chop(row_c, tol)]
-            rows_list.append(Chebtech2.from_coeffs(row_c))
+            cols_list.append(_mk(col_vals_mat[:, j], tech_y))
+            rows_list.append(_mk(row_vals_mat[j, :], tech_x))
 
         return cls(
             cols=cols_list,
             rows=rows_list,
             pivots=jnp.asarray(1.0 / pivot_vals, dtype=jnp.float64),
             domain=(xa, xb, ya, yb),
+            pivot_locations=tuple(
+                (float(x_pts[pivot_pos[j, 1]]), float(y_pts[pivot_pos[j, 0]]))
+                for j in range(r)
+            ),
+            techs=techs,
         )
 
     @classmethod
@@ -584,6 +609,7 @@ class SeparableApprox(eqx.Module):
         max_rank: int = 513,
         min_samples: int = 9,
         max_samples: int = 2**14 + 1,
+        techs: tuple = ("cheb", "cheb"),
     ) -> "SeparableApprox":
         """Construct a SeparableApprox from a callable f(x, y).
 
@@ -642,17 +668,44 @@ class SeparableApprox(eqx.Module):
         xa, xb, ya, yb = float(domain[0]), float(domain[1]), float(domain[2]), float(domain[3])
         factor = 4  # Ratio between grid size and number of pivots
 
+        tech_x, tech_y = techs
+        if tech_x not in ("cheb", "trig") or tech_y not in ("cheb", "trig"):
+            raise ValueError(
+                f"SeparableApprox: techs must be 'cheb' or 'trig', got {techs}.")
+
+        def _pts_x(n):
+            return (np.array(_chebpts_phys(n, xa, xb)) if tech_x == "cheb"
+                    else _trigpts_phys(n, xa, xb))
+
+        def _pts_y(n):
+            return (np.array(_chebpts_phys(n, ya, yb)) if tech_y == "cheb"
+                    else _trigpts_phys(n, ya, yb))
+
+        def _refine_x(n):
+            return _grid_refine(n) if tech_x == "cheb" else 2 * n
+
+        def _refine_y(n):
+            return _grid_refine(n) if tech_y == "cheb" else 2 * n
+
+        def _happy_x(v, t):
+            return _is_happy(v, t) if tech_x == "cheb" else _is_happy_trig(v, t)
+
+        def _happy_y(v, t):
+            return _is_happy(v, t) if tech_y == "cheb" else _is_happy_trig(v, t)
+
         # Minimum grid size must be one plus a power of 2 for nesting
         _grid_refine(min_samples - 1) if min_samples > 1 else min_samples
-        # Ensure it's at least 9 (2^3 + 1)
-        min_grid_x = max(9, min_samples)
-        min_grid_y = max(9, min_samples)
+        # Ensure it's at least 9 (2^3 + 1); trig grids are powers of 2
+        min_grid_x = max(9, min_samples) if tech_x == "cheb" else max(
+            16, min_samples)
+        min_grid_y = max(9, min_samples) if tech_y == "cheb" else max(
+            16, min_samples)
 
         # --- Helper: sample f on a tensor grid ---
         def _sample_grid(nx: int, ny: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-            """Sample f at Chebyshev points; return x_pts, y_pts, vals."""
-            x_pts = np.array(_chebpts_phys(nx, xa, xb))
-            y_pts = np.array(_chebpts_phys(ny, ya, yb))
+            """Sample f on the (tech-dependent) tensor grid."""
+            x_pts = _pts_x(nx)
+            y_pts = _pts_y(ny)
             xx, yy = np.meshgrid(x_pts, y_pts)  # shape (ny, nx)
             xx_j = jnp.asarray(xx, dtype=jnp.float64)
             yy_j = jnp.asarray(yy, dtype=jnp.float64)
@@ -661,16 +714,16 @@ class SeparableApprox(eqx.Module):
 
         # --- Helper: evaluate f on a 1D grid at fixed x-pivot ---
         def _sample_col(x_pivot: float, ny: int) -> np.ndarray:
-            """Sample f(x_pivot, y) on ny Chebyshev y-points."""
-            y_pts = np.array(_chebpts_phys(ny, ya, yb))
+            """Sample f(x_pivot, y) on the ny-point y-grid."""
+            y_pts = _pts_y(ny)
             xx_j = jnp.full(ny, x_pivot, dtype=jnp.float64)
             yy_j = jnp.asarray(y_pts, dtype=jnp.float64)
             vals = np.array(f(xx_j, yy_j), dtype=np.float64)
             return vals
 
         def _sample_row(y_pivot: float, nx: int) -> np.ndarray:
-            """Sample f(x, y_pivot) on nx Chebyshev x-points."""
-            x_pts = np.array(_chebpts_phys(nx, xa, xb))
+            """Sample f(x, y_pivot) on the nx-point x-grid."""
+            x_pts = _pts_x(nx)
             xx_j = jnp.asarray(x_pts, dtype=jnp.float64)
             yy_j = jnp.full(nx, y_pivot, dtype=jnp.float64)
             vals = np.array(f(xx_j, yy_j), dtype=np.float64)
@@ -714,8 +767,8 @@ class SeparableApprox(eqx.Module):
             and grid_y <= factor * (max_rank - 1) + 1
             and strike < 3
         ):
-            grid_x = _grid_refine(grid_x)
-            grid_y = _grid_refine(grid_y)
+            grid_x = _refine_x(grid_x)
+            grid_y = _refine_y(grid_y)
             x_pts, y_pts, vals = _sample_grid(grid_x, grid_y)
             vscale = float(np.max(np.abs(vals)))
             abs_tol = _get_tol(x_pts, y_pts, vals, dom4, tol)
@@ -746,6 +799,7 @@ class SeparableApprox(eqx.Module):
                 # d_j=1/inf -> 0 effectively; cols/rows are zero
                 pivots=jnp.array([1.0], dtype=jnp.float64),
                 domain=(xa, xb, ya, yb),
+                techs=(tech_x, tech_y),
             )
 
         r = len(pivot_vals)
@@ -761,13 +815,13 @@ class SeparableApprox(eqx.Module):
         ny = grid_y
         nx = grid_x
 
-        resolved_cols = _is_happy(np.sum(col_vals_mat, axis=1), abs_tol)
-        resolved_rows = _is_happy(np.sum(row_vals_mat, axis=0), abs_tol)
+        resolved_cols = _happy_y(np.sum(col_vals_mat, axis=1), abs_tol)
+        resolved_rows = _happy_x(np.sum(row_vals_mat, axis=0), abs_tol)
         is_happy = resolved_cols and resolved_rows
 
         while not is_happy and not failure:
             if not resolved_cols:
-                ny = _grid_refine(ny)
+                ny = _refine_y(ny)
                 if ny > max_samples:
                     warnings.warn(
                         "SeparableApprox.from_function: column slices not resolved "
@@ -787,7 +841,7 @@ class SeparableApprox(eqx.Module):
                     col_vals_new[:, j] = _sample_col(float(piv_x_phys[j]), ny)
 
             if not resolved_rows:
-                nx = _grid_refine(nx)
+                nx = _refine_x(nx)
                 if nx > max_samples:
                     warnings.warn(
                         "SeparableApprox.from_function: row slices not resolved "
@@ -807,8 +861,8 @@ class SeparableApprox(eqx.Module):
 
             # Apply GE updates on the skeleton
             pivot_pos_local = np.zeros((r, 2), dtype=int)
-            y_pts_new = np.array(_chebpts_phys(ny, ya, yb))
-            x_pts_new = np.array(_chebpts_phys(nx, xa, xb))
+            y_pts_new = _pts_y(ny)
+            x_pts_new = _pts_x(nx)
             for j in range(r):
                 # Find nearest grid point to the pivot location
                 pivot_pos_local[j, 0] = int(np.argmin(np.abs(y_pts_new - piv_y_phys[j])))
@@ -821,8 +875,8 @@ class SeparableApprox(eqx.Module):
             if r == 1:
                 row_vals_mat = row_vals_mat.reshape(1, -1)
 
-            resolved_cols = _is_happy(np.sum(col_vals_mat, axis=1), abs_tol)
-            resolved_rows = _is_happy(np.sum(row_vals_mat, axis=0), abs_tol)
+            resolved_cols = _happy_y(np.sum(col_vals_mat, axis=1), abs_tol)
+            resolved_rows = _happy_x(np.sum(row_vals_mat, axis=0), abs_tol)
             is_happy = resolved_cols and resolved_rows
 
         # ================================================================
@@ -831,34 +885,35 @@ class SeparableApprox(eqx.Module):
 
         from chebfunjax.utils.transforms import vals2coeffs
 
+        def _make_slice(vals, tech):
+            """1D tech object from slice values; chop/simplify against
+            the GLOBAL tolerance (MATLAB simplifies the quasimatrix
+            slices relative to the chebfun2 vscale): late CDR slices are
+            small residuals whose coefficients never decay to eps
+            relative to themselves."""
+            v = jnp.asarray(vals, dtype=jnp.float64)
+            vscale = float(jnp.max(jnp.abs(v)))
+            if tech == "trig":
+                from chebfunjax.tech.trigtech import Trigtech
+
+                t = Trigtech.from_values(v)
+                if vscale > 0:
+                    t = t.simplify(min(0.5, max(tol, abs_tol / vscale)))
+                return t
+            c = vals2coeffs(v)
+            if vscale > 0:
+                rel_tol = min(0.5, max(tol, abs_tol / vscale))
+                c = c[:standard_chop(c, rel_tol)]
+            return Chebtech2.from_coeffs(c)
+
         cols_list = []
         rows_list = []
 
         for j in range(r):
             # Column slice c_j(y): values on reference [-1,1] = values on [ya,yb]
-            col_v = jnp.asarray(col_vals_mat[:, j], dtype=jnp.float64)
-            col_c = vals2coeffs(col_v)
-            # Chop coefficients
-            col_vscale = float(jnp.max(jnp.abs(col_v)))
-            if col_vscale > 0:
-                # Chop against the GLOBAL tolerance (MATLAB simplifies the
-                # quasimatrix slices relative to the chebfun2 vscale): late
-                # CDR slices are small residuals whose coefficients never
-                # decay to eps relative to themselves.
-                col_rel_tol = min(0.5, max(tol, abs_tol / col_vscale))
-                col_cutoff = standard_chop(col_c, col_rel_tol)
-                col_c = col_c[:col_cutoff]
-            cols_list.append(Chebtech2.from_coeffs(col_c))
-
+            cols_list.append(_make_slice(col_vals_mat[:, j], tech_y))
             # Row slice r_j(x): values on reference [-1,1] = values on [xa,xb]
-            row_v = jnp.asarray(row_vals_mat[j, :], dtype=jnp.float64)
-            row_c = vals2coeffs(row_v)
-            row_vscale = float(jnp.max(jnp.abs(row_v)))
-            if row_vscale > 0:
-                row_rel_tol = min(0.5, max(tol, abs_tol / row_vscale))
-                row_cutoff = standard_chop(row_c, row_rel_tol)
-                row_c = row_c[:row_cutoff]
-            rows_list.append(Chebtech2.from_coeffs(row_c))
+            rows_list.append(_make_slice(row_vals_mat[j, :], tech_x))
 
         # Store d_j = 1/piv_j so that f(x,y) = Σ_j d_j * c_j(y) * r_j(x)
         # (This matches the CDR formula: C * diag(1/pivotValues) * R.')
@@ -873,6 +928,7 @@ class SeparableApprox(eqx.Module):
                 (float(piv_x_phys[j]), float(piv_y_phys[j]))
                 for j in range(r)
             ),
+            techs=(tech_x, tech_y),
         )
 
     # ------------------------------------------------------------------

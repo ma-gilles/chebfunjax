@@ -40,17 +40,11 @@ EXAMPLES = [
     ("approx.orthogonal_polynomials",           "approx / orthogonal_polynomials"),
     ("approx.polynomial_convergence",           "approx / polynomial_convergence"),
     ("approx.weierstrass",                      "approx / weierstrass"),
-    # approx2
-    ("approx2.smooth_functions_2d",             "approx2 / smooth_functions_2d"),
-    ("approx2.rank_of_functions",               "approx2 / rank_of_functions"),
-    ("approx2.integration_2d",                  "approx2 / integration_2d"),
-    ("approx2.differentiation_2d",              "approx2 / differentiation_2d"),
     # NOTE: WeierstrassFunction, BestApprox, BestL1, GreedyInterp, AAASpline,
     # and EdgeDetection were previously listed here under approx2, but those
     # are 1D examples whose real files live in examples/approx/ (no approx2
     # file ever existed, so they were silently skipped). They are now picked
     # up automatically by auto-discovery under the `approx` category.
-    ("approx2.chebfun2_basics",                 "approx2 / chebfun2_basics"),
     # calc
     ("calc.definite_indefinite_integrals",      "calc / definite_indefinite_integrals"),
     ("calc.differentiation",                    "calc / differentiation"),

@@ -60,11 +60,6 @@ EXAMPLES = [
     ("ode-eig.harmonic_oscillator",         "ode-eig / harmonic_oscillator"),
     ("ode-eig.sturm_liouville",             "ode-eig / sturm_liouville"),
     ("ode-eig.double_well",                 "ode-eig / double_well"),
-    # approx2
-    ("approx2.smooth_functions_2d",         "approx2 / smooth_functions_2d"),
-    ("approx2.rank_of_functions",           "approx2 / rank_of_functions"),
-    ("approx2.integration_2d",              "approx2 / integration_2d"),
-    ("approx2.differentiation_2d",          "approx2 / differentiation_2d"),
     # opt
     ("opt.minimum_of_smooth_function",      "opt / minimum_of_smooth_function"),
     ("opt.catenary",                        "opt / catenary"),

@@ -151,6 +151,9 @@ class Chebfun2(eqx.Module):
         domain: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
         tol: Optional[float] = None,
         n: Optional[int] = None,
+        trig: bool = False,
+        trigx: bool = False,
+        trigy: bool = False,
     ) -> "Chebfun2":
         """Construct a Chebfun2 from a callable f(x, y).
 
@@ -170,7 +173,10 @@ class Chebfun2(eqx.Module):
         n : int, optional
             If given, use exactly n x n sampling points (non-adaptive in
             the grid size sense; rank is still determined adaptively).
-            Not yet implemented — raises ``NotImplementedError`` if given.
+        trig, trigx, trigy : bool, optional
+            MATLAB ``chebfun2(f, 'trig'/'trigx'/'trigy')``: represent the
+            function periodically (Fourier/trigtech slices) in both
+            directions, in x only, or in y only.
 
         Returns
         -------
@@ -224,6 +230,9 @@ class Chebfun2(eqx.Module):
         kwargs: dict = dict(domain=domain)
         if tol is not None:
             kwargs["tol"] = tol
+        if trig or trigx or trigy:
+            kwargs["techs"] = ("trig" if (trig or trigx) else "cheb",
+                               "trig" if (trig or trigy) else "cheb")
         # Complex-valued functions: the GE constructor real-casts, so
         # build real and imaginary parts separately and recombine
         # exactly (f = re + 1j*im).  Found in the Fable 5 audit: complex
@@ -246,12 +255,16 @@ class Chebfun2(eqx.Module):
         A,
         domain: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
         tol: Optional[float] = None,
+        trig: bool = False,
     ) -> "Chebfun2":
         """Construct a Chebfun2 from a matrix of values on a Chebyshev grid.
 
         ``A[j, i]`` are the values of the function at the tensor grid of
         2nd-kind Chebyshev points (``size(A, 2)`` in x, ``size(A, 1)`` in y).
-        MATLAB equivalent: ``chebfun2(A)`` with ``A`` a matrix.
+        MATLAB equivalent: ``chebfun2(A)`` with ``A`` a matrix.  With
+        ``trig=True`` (MATLAB ``chebfun2(A,'periodic')``/``'trig'``) the
+        values are data on a uniform grid over ``[xa, xb) x [ya, yb)``
+        and the result is the bivariate trigonometric interpolant.
 
         Provenance
         ----------
@@ -262,6 +275,8 @@ class Chebfun2(eqx.Module):
         kwargs: dict = dict(domain=domain)
         if tol is not None:
             kwargs["tol"] = tol
+        if trig:
+            kwargs["techs"] = ("trig", "trig")
         return cls(approx=SeparableApprox.from_values(A, **kwargs))
 
     @classmethod
@@ -768,11 +783,44 @@ class Chebfun2(eqx.Module):
             total = total + self.approx.pivots[j] * col_int * row_int
         return total
 
-    def svd(self) -> jax.Array:
-        r"""Singular values of the Chebfun2 (as a Hilbert-Schmidt kernel).
+    def integral2(self, c=None):
+        """Double integral of f over its domain or over the region
+        enclosed by a complex curve (MATLAB ``integral2(f)`` /
+        ``integral2(f, c)``).
+
+        With a closed complex-valued 1D Chebfun ``c`` parametrizing the
+        boundary, applies Green's theorem:
+        ``integral_Omega f dA = oint F(x(t), y(t)) y'(t) dt`` with
+        ``F = cumsum(f, dim=1)`` the indefinite x-integral.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/integral2.m
+        Chebfun commit: 7574c77
+        """
+        if c is None:
+            return self.sum2()
+        from chebfunjax.chebfun1d.chebfun import chebfun
+
+        F = self.cumsum(dim=2)  # indefinite integral in x
+        dc = c.diff()
+
+        def h(t):
+            z = c(t)
+            return F(jnp.real(z), jnp.imag(z)) * jnp.imag(dc(t))
+
+        a, b = float(c.domain.a), float(c.domain.b)
+        return chebfun(h, domain=(a, b)).sum()
+
+    def svd(self, full: bool = False):
+        r"""Singular values (and functions) of the Chebfun2 kernel.
 
         Returns the singular values of ``f`` in decreasing order.  The number
-        returned equals the rank of the low-rank representation.
+        returned equals the rank of the low-rank representation.  With
+        ``full=True`` (MATLAB ``[U, S, V] = svd(f)``) returns the tuple
+        ``(U, S, V)`` where ``U`` is a list of 1D Chebfuns of ``y``, ``V``
+        of ``x``, orthonormal in the physical L2 inner products, and
+        ``f = sum_j S[j] U[j](y) V[j](x)``.
 
         Algorithm (identical to MATLAB @separableApprox/svd.m)::
 
@@ -838,13 +886,34 @@ class Chebfun2(eqx.Module):
 
         wc_vc = _weighted_vals(ap.cols, col_scale)
         wr_vr = _weighted_vals(ap.rows, row_scale)
-        _, rc = _np.linalg.qr(wc_vc)              # economy QR
-        _, rr = _np.linalg.qr(wr_vr)
+        qc, rc = _np.linalg.qr(wc_vc)             # economy QR
+        qr_, rr = _np.linalg.qr(wr_vr)
         # Plain transpose (not conjugate): the reconstruction
         # f = sum_j d_j c_j(y) r_j(x) carries no conjugate on the rows.
         core = rc @ _np.diag(d) @ rr.T
-        sig = _np.linalg.svd(core, compute_uv=False)
-        return jnp.asarray(sig, dtype=jnp.float64)
+        if not full:
+            sig = _np.linalg.svd(core, compute_uv=False)
+            return jnp.asarray(sig, dtype=jnp.float64)
+
+        # MATLAB [U, S, V] = svd(f):  f = U * S * V'  with U a
+        # quasimatrix of functions of y and V of functions of x
+        # (f = C D R' and C = Q_C R_C, R = Q_R R_R).
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+
+        uc, sig, vct = _np.linalg.svd(core)
+        nyg = wc_vc.shape[0]
+        nxg = wr_vr.shape[0]
+        wy = _np.sqrt(_np.asarray(chebweights(nyg, kind=2), dtype=float)
+                      * col_scale)
+        wx = _np.sqrt(_np.asarray(chebweights(nxg, kind=2), dtype=float)
+                      * row_scale)
+        u_vals = (qc @ uc) / wy[:, None]
+        v_vals = (qr_ @ vct.T) / wx[:, None]
+        U = [Chebfun.from_values(jnp.asarray(u_vals[:, j]), (ya, yb))
+             for j in range(u_vals.shape[1])]
+        V = [Chebfun.from_values(jnp.asarray(v_vals[:, j]), (xa, xb))
+             for j in range(v_vals.shape[1])]
+        return U, jnp.asarray(sig, dtype=jnp.float64), V
 
     def norm(self, p: Union[int, float, str] = "fro") -> jax.Array:
         """Norm of f.

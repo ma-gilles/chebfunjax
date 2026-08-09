@@ -173,17 +173,7 @@ class TestOdeEig:
 # ---------------------------------------------------------------------------
 
 class TestApprox2:
-    def test_smooth_functions_2d(self):
-        assert _load("approx2", "smooth_functions_2d").run()
-
-    def test_rank_of_functions(self):
-        assert _load("approx2", "rank_of_functions").run()
-
-    def test_integration_2d(self):
-        assert _load("approx2", "integration_2d").run()
-
-    def test_differentiation_2d(self):
-        assert _load("approx2", "differentiation_2d").run()
+    pass  # replaced by faithful replicas (see docs/examples/approx2)
 
 
 # ---------------------------------------------------------------------------
