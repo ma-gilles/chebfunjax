@@ -107,10 +107,16 @@ def standard_chop(coeffs: jnp.ndarray, tol: float | None = None) -> int:
     # Ensure coeffs is a 1-D real array. The envelope is built from
     # magnitudes anyway (MATLAB standardChop), so complex coefficients are
     # reduced via abs() rather than a real-cast that drops imaginary parts.
-    coeffs = jnp.atleast_1d(jnp.asarray(coeffs))
-    if jnp.iscomplexobj(coeffs):
-        coeffs = jnp.abs(coeffs)
-    coeffs = coeffs.astype(jnp.float64).ravel()
+    # All array work is numpy: standard_chop is called *outside* JIT
+    # (adaptive construction is a Python loop) and eager jnp primitives
+    # compile one kernel per length -- a large compile tax across
+    # rootfinding and constructors.
+    import numpy as _np
+
+    coeffs = _np.atleast_1d(_np.asarray(coeffs))
+    if _np.iscomplexobj(coeffs):
+        coeffs = _np.abs(coeffs)
+    coeffs = coeffs.astype(_np.float64).ravel()
 
     n = coeffs.shape[0]
     cutoff = int(n)
@@ -123,24 +129,17 @@ def standard_chop(coeffs: jnp.ndarray, tol: float | None = None) -> int:
     # Step 1: Build the envelope — a monotonically non-increasing sequence
     #         normalised to begin at 1.
     # ------------------------------------------------------------------
-    b = jnp.abs(coeffs)
+    b = _np.abs(coeffs)
 
     # Reverse cumulative maximum: m[j] = max(|c_j|, |c_{j+1}|, ..., |c_{n-1}|).
     # Equivalent to MATLAB's cummax(..., 'reverse').
-    m = jnp.flip(jnp.maximum.accumulate(jnp.flip(b)))
+    m = _np.flip(_np.maximum.accumulate(_np.flip(b)))
 
     m0 = float(m[0])
     if m0 == 0.0:
         return 1
 
-    envelope = m / m0  # normalised, envelope[0] == 1
-
-    # Convert to Python (numpy) for the scan that uses Python control flow.
-    # This is fine because standard_chop is called *outside* JIT (adaptive
-    # construction is a Python loop).
-    import numpy as _np
-
-    envelope_np = _np.array(envelope, copy=True)
+    envelope_np = m / m0  # normalised, envelope[0] == 1
 
     # ------------------------------------------------------------------
     # Step 2: Scan for a plateau.

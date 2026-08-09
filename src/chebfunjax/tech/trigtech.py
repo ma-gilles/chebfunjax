@@ -546,6 +546,67 @@ def _trig_eval_complex(coeffs_cx: jax.Array, x: jax.Array) -> jax.Array:
         return prefactor * q + jnp.cos(n / 2 * jnp.pi * xE) * coeffs_cx[0]
 
 
+def _trig_eval_np(coeffs, x, is_real: bool = True):
+    """numpy mirror of :func:`_trig_eval` (kept in lockstep).
+
+    Same Horner schemes as ``_trig_eval_real``/``_trig_eval_complex``,
+    C-speed and free of JAX tracing.  Used for concrete inputs: every
+    distinctly-shaped Trigtech otherwise compiles its own XLA program,
+    and long chains of constructed objects (e.g. rank-100 spherefun
+    vorticity) exhaust the LLVM JIT code arena ("Unable to allocate
+    section memory").
+    """
+    x = np.asarray(x, dtype=np.float64)
+    scalar_input = x.ndim == 0
+    x1 = np.atleast_1d(x)
+    c = np.asarray(coeffs, dtype=np.complex128)
+    n = c.shape[0]
+    out_shape = x1.shape + c.shape[1:]
+    if n == 0:
+        res = np.zeros(out_shape,
+                       dtype=np.float64 if is_real else np.complex128)
+        return res[0] if scalar_input else res
+    if n == 1:
+        val = np.real(c[0]) if is_real else c[0]
+        res = np.broadcast_to(val, out_shape)
+        return res[0] if scalar_input else res
+
+    xE = x1.reshape(x1.shape + (1,) * (c.ndim - 1))
+    if is_real:
+        c0_idx = n // 2
+        c_slice = c[c0_idx::-1]
+        a = np.real(c_slice).copy()
+        b = np.imag(c_slice).copy()
+        if n % 2 == 0:
+            a[-1] = a[-1] / 2.0
+            b[-1] = 0.0
+        n_h = a.shape[0]
+        u = np.cos(np.pi * xE)
+        v = np.sin(np.pi * xE)
+        if n_h == 1:
+            res = np.broadcast_to(a[0], out_shape)
+            return res[0] if scalar_input else res
+        co = np.broadcast_to(a[n_h - 1], out_shape).astype(np.float64)
+        si = np.broadcast_to(b[n_h - 1], out_shape).astype(np.float64)
+        for k in range(n_h - 2, 0, -1):
+            temp = a[k] + u * co + v * si
+            si = b[k] + u * si - v * co
+            co = temp
+        res = a[0] + 2.0 * (u * co + v * si)
+    else:
+        z = np.exp(1j * np.pi * xE)
+        q = np.broadcast_to(c[n - 1], out_shape).astype(np.complex128)
+        for j in range(n - 2, 0, -1):
+            q = c[j] + z * q
+        if n % 2 == 1:
+            pref = np.exp(-1j * np.pi * ((n - 1) / 2) * xE)
+            res = pref * (c[0] + z * q)
+        else:
+            pref = np.exp(-1j * np.pi * (n / 2 - 1) * xE)
+            res = pref * q + np.cos(n / 2 * np.pi * xE) * c[0]
+    return res[0] if scalar_input else res
+
+
 # ============================================================================
 # Spectral differentiation (JIT-safe)
 # ============================================================================
@@ -1483,7 +1544,6 @@ class Trigtech(eqx.Module):
     # Evaluation
     # ------------------------------------------------------------------
 
-    @eqx.filter_jit
     def __call__(self, x: jax.Array) -> jax.Array:
         """Evaluate at point(s) x in [-1, 1].
 
@@ -1497,13 +1557,25 @@ class Trigtech(eqx.Module):
 
         Notes
         -----
-        JIT-safe: yes. vmap-safe: yes. grad-safe: yes.
+        JIT-safe: yes. vmap-safe: yes. grad-safe: yes.  Concrete inputs
+        (with concrete coefficients) run a numpy mirror of the same
+        Horner scheme -- every distinctly-shaped Trigtech otherwise
+        compiles its own XLA program, and object-heavy pipelines
+        exhaust the LLVM JIT code arena.
 
         Provenance
         ----------
         MATLAB source : @trigtech/feval.m, @trigtech/horner.m
         Chebfun commit: 7574c77
         """
+        if not isinstance(x, jax.core.Tracer) and \
+                not isinstance(self.coeffs, jax.core.Tracer):
+            return jnp.asarray(_trig_eval_np(self.coeffs, np.asarray(x),
+                                             is_real=self.is_real))
+        return self._call_traced(x)
+
+    @eqx.filter_jit
+    def _call_traced(self, x: jax.Array) -> jax.Array:
         x = jnp.asarray(x, dtype=jnp.float64)
         return _trig_eval(self.coeffs, x, is_real=self.is_real)
 

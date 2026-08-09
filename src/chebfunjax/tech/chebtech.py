@@ -13,6 +13,7 @@ from typing import Callable
 import equinox as eqx
 import jax
 import jax.numpy as jnp
+import numpy as np  # uses-numpy: concrete-input eval fast path
 
 from chebfunjax.utils.misc import standard_chop
 from chebfunjax.utils.quadrature import chebpts
@@ -1731,7 +1732,6 @@ class Chebtech2(eqx.Module):
     # Evaluation
     # ------------------------------------------------------------------
 
-    @eqx.filter_jit
     def __call__(self, x: jax.Array) -> jax.Array:
         """Evaluate the Chebyshev interpolant at point(s) x in [-1, 1].
 
@@ -1749,13 +1749,40 @@ class Chebtech2(eqx.Module):
 
         Notes
         -----
-        This method is JIT-safe, grad-safe, and vmap-safe.
+        This method is JIT-safe, grad-safe, and vmap-safe.  Concrete
+        inputs (with concrete coefficients) evaluate via numpy Clenshaw
+        (``np.polynomial.chebyshev.chebval``): the jitted path compiles
+        one XLA program per (coefficient length, point shape) pair, and
+        object-heavy pipelines -- rootfinding curve fits, adaptive
+        constructors -- otherwise accumulate thousands of compiles.
 
         Provenance
         ----------
         MATLAB source : @chebtech/clenshaw.m, @chebtech/feval.m
         Chebfun commit: 7574c77
         """
+        if not isinstance(x, jax.core.Tracer) and \
+                not isinstance(self.coeffs, jax.core.Tracer):
+            import numpy.polynomial.chebyshev as _ncheb
+
+            xn = np.asarray(x)
+            xn = xn.astype(np.complex128 if np.iscomplexobj(xn)
+                           else np.float64)
+            c = np.asarray(self.coeffs)
+            if c.shape[0] == 0:
+                return jnp.zeros(xn.shape + c.shape[1:],
+                                 dtype=c.dtype if c.size else np.float64)
+            val = _ncheb.chebval(xn, c, tensor=True)
+            # chebval returns c.shape[1:] + x.shape; the traced path
+            # returns x.shape + c.shape[1:].
+            if c.ndim > 1:
+                val = np.moveaxis(val, range(c.ndim - 1),
+                                  range(-(c.ndim - 1), 0))
+            return jnp.asarray(val)
+        return self._call_traced(x)
+
+    @eqx.filter_jit
+    def _call_traced(self, x: jax.Array) -> jax.Array:
         # Preserve a complex argument (MATLAB evaluates a real Chebyshev
         # series at complex points via Clenshaw with a complex recurrence);
         # everything else is promoted to float64.

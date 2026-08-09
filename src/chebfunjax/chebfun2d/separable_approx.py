@@ -935,8 +935,71 @@ class SeparableApprox(eqx.Module):
     # Evaluation (JIT-safe)
     # ------------------------------------------------------------------
 
-    @eqx.filter_jit
     def __call__(self, x: jax.Array, y: jax.Array) -> jax.Array:
+        """Evaluate f(x, y) using the low-rank representation.
+
+        Concrete inputs run a vectorised numpy Clenshaw over the stacked
+        rank slices: the jitted path compiles a fresh rank-sized XLA
+        program PER OBJECT, and object-heavy pipelines (rootfinding
+        Newton polish over dozens of derivative chebfun2s, spherefun
+        vorticity chains) exhaust the LLVM JIT code arena.  Tracers keep
+        the traceable path (JIT/vmap/grad-safe).
+        """
+        if not isinstance(x, jax.core.Tracer) and \
+                not isinstance(y, jax.core.Tracer) and \
+                not self._has_traced_leaves():
+            return self._eval_np(x, y)
+        return self._call_traced(x, y)
+
+    def _has_traced_leaves(self) -> bool:
+        """True when the object itself is being traced (e.g. under
+        jax.grad/vmap over the pytree): the numpy path cannot run."""
+        if isinstance(self.pivots, jax.core.Tracer):
+            return True
+        return any(isinstance(fn.coeffs, jax.core.Tracer)
+                   for fn in (*self.cols, *self.rows))
+
+    def _eval_np(self, x, y) -> jax.Array:
+        """numpy mirror of the CDR evaluation (kept in lockstep)."""
+        import numpy.polynomial.chebyshev as _ncheb
+
+        from chebfunjax.tech.trigtech import Trigtech, _trig_eval_np
+
+        xa, xb, ya, yb = self.domain
+        x = np.asarray(x, dtype=np.float64)
+        y = np.asarray(y, dtype=np.float64)
+        tx = (2.0 * x - (xa + xb)) / (xb - xa)
+        ty = (2.0 * y - (ya + yb)) / (yb - ya)
+        bshape = np.broadcast_shapes(x.shape, y.shape)
+        txf = np.broadcast_to(tx, bshape).ravel()
+        tyf = np.broadcast_to(ty, bshape).ravel()
+        piv = np.asarray(self.pivots, dtype=np.float64)
+
+        def _slice_vals(funs, t):
+            if all(isinstance(fn, Trigtech) for fn in funs):
+                rows = [np.asarray(_trig_eval_np(np.asarray(fn.coeffs), t,
+                                                 is_real=fn.is_real))
+                        for fn in funs]
+                return np.stack(rows)
+            # Chebtech slices: pad coefficients to a common length and
+            # evaluate all series in ONE vectorised Clenshaw.
+            coeffs = [np.asarray(fn.coeffs) for fn in funs]
+            nmax = max((c.shape[0] for c in coeffs), default=1)
+            dtype = np.result_type(np.float64, *coeffs) if coeffs \
+                else np.float64
+            C = np.zeros((nmax, len(funs)), dtype=dtype)
+            for j, cj in enumerate(coeffs):
+                C[: cj.shape[0], j] = cj
+            # chebval result shape = c.shape[1:] + x.shape = (r, m)
+            return _ncheb.chebval(t, C, tensor=True)
+
+        cv = _slice_vals(self.cols, tyf)
+        rv = _slice_vals(self.rows, txf)
+        vals = np.einsum("j,jm,jm->m", piv, cv, rv)
+        return jnp.asarray(vals.reshape(bshape))
+
+    @eqx.filter_jit
+    def _call_traced(self, x: jax.Array, y: jax.Array) -> jax.Array:
         """Evaluate f(x, y) using the low-rank representation.
 
         Computes  Σ_j d_j * c_j(y) * r_j(x)

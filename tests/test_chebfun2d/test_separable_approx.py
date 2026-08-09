@@ -187,7 +187,12 @@ class TestJAXContract:
         eager = f(x_val, y_val)
         jitted = eqx.filter_jit(f)(x_val, y_val)
 
-        npt.assert_allclose(np.array(jitted), np.array(eager), rtol=1e-15)
+        # Eager concrete evaluation runs the numpy Clenshaw mirror while
+        # the jitted path runs the traced XLA Clenshaw (2026-08 compile-
+        # storm fix); the two accumulate roundoff in different orders, so
+        # the contract is agreement to a few ulps, not bit-identity.
+        npt.assert_allclose(np.array(jitted), np.array(eager),
+                            rtol=1e-13, atol=1e-15)
 
     def test_vmap_evaluation(self):
         """vmap over batch of (x, y) pairs."""

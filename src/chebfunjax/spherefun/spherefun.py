@@ -933,7 +933,6 @@ class Spherefun(eqx.Module):
     # Evaluation (JIT-safe)
     # ------------------------------------------------------------------
 
-    @eqx.filter_jit
     def __call__(self, lam: jax.Array, theta: jax.Array) -> jax.Array:
         """Evaluate the Spherefun at spherical coordinates (lam, theta).
 
@@ -951,13 +950,29 @@ class Spherefun(eqx.Module):
 
         Notes
         -----
-        JIT-safe, vmap-safe, grad-safe.
+        JIT-safe, vmap-safe, grad-safe.  Concrete inputs run the rank
+        loop eagerly (each Trigtech slice then evaluates via its numpy
+        Horner mirror): the jitted path compiles a fresh rank-sized XLA
+        program PER SPHEREFUN OBJECT, and object-heavy chains (e.g. the
+        curl of a rank-50 gradient field) exhaust the LLVM JIT code
+        arena ("Unable to allocate section memory").
 
         Provenance
         ----------
         MATLAB source : @spherefun/feval.m
         Chebfun commit: 7574c77
         """
+        if not isinstance(lam, jax.core.Tracer) and \
+                not isinstance(theta, jax.core.Tracer) and \
+                not isinstance(self.pivots, jax.core.Tracer):
+            return self._eval_impl(lam, theta)
+        return self._call_traced(lam, theta)
+
+    @eqx.filter_jit
+    def _call_traced(self, lam: jax.Array, theta: jax.Array) -> jax.Array:
+        return self._eval_impl(lam, theta)
+
+    def _eval_impl(self, lam: jax.Array, theta: jax.Array) -> jax.Array:
         lam = jnp.asarray(lam, dtype=jnp.float64)
         theta = jnp.asarray(theta, dtype=jnp.float64)
 
@@ -2177,6 +2192,19 @@ def _sph_harmonic_eval_sum(coeff_map: dict, lmax: int,
     Y_lm(lam, theta)`` reconstruction, whose per-term recurrence restart
     drove the nested-composition compile blow-up.
     """
+    # Concrete inputs run a numpy mirror of the identical recurrence
+    # (same dispatch pattern as trig_vals2coeffs): the O(lmax^2)
+    # accumulation would otherwise build a giant traced expression at
+    # EVERY adaptive-constructor sample, and downstream arithmetic on
+    # such spherefuns compounds into fused XLA kernels the CPU JIT
+    # cannot compile ("Failed to materialize symbols" /
+    # "LLVM compilation error: Cannot allocate memory" on rank-100
+    # vorticity chains).  Tracers keep the traceable jnp path.
+    if not isinstance(lam, jax.core.Tracer) and \
+            not isinstance(theta, jax.core.Tracer):
+        return jnp.asarray(_sph_harmonic_eval_sum_np(
+            coeff_map, lmax, np.asarray(lam, dtype=np.float64),
+            np.asarray(theta, dtype=np.float64)))
     lam = jnp.asarray(lam, dtype=jnp.float64)
     theta = jnp.asarray(theta, dtype=jnp.float64)
     x = jnp.cos(theta)
@@ -2220,6 +2248,65 @@ def _sph_harmonic_eval_sum(coeff_map: dict, lmax: int,
                 p_prev, p_curr = p_curr, p_next
                 out = _accum(out, ll, p_curr)
     return out
+
+
+def _sph_harmonic_eval_sum_np(coeff_map: dict, lmax: int,
+                              lam: np.ndarray,
+                              theta: np.ndarray) -> np.ndarray:
+    """numpy mirror of :func:`_sph_harmonic_eval_sum` (kept in lockstep).
+
+    The associated-Legendre recurrence runs over ``l`` per ``m`` as in
+    the traced version, but the weighted accumulation is batched into a
+    single matmul per ``m`` (the coefficient tables are dense arrays,
+    skipping only all-zero orders), so the Python-level cost is O(lmax)
+    recurrence steps rather than O(lmax^2) dict-lookup adds.
+    """
+    x = np.cos(theta)
+    s = np.sqrt(np.maximum(1 - x**2, 0.0))
+    bshape = np.broadcast_shapes(lam.shape, theta.shape)
+    xb = np.broadcast_to(x, bshape).ravel()
+    sb = np.broadcast_to(s, bshape).ravel()
+    lamb = np.broadcast_to(lam, bshape).ravel()
+    out = np.zeros(xb.shape[0])
+
+    # Dense (lmax+1, lmax+1) coefficient tables ap[m, l], an[m, l].
+    ap = np.zeros((lmax + 1, lmax + 1))
+    an = np.zeros((lmax + 1, lmax + 1))
+    for (l, m), v in coeff_map.items():
+        if abs(m) <= lmax and l <= lmax:
+            if m >= 0:
+                ap[m, l] = v
+            else:
+                an[-m, l] = v
+
+    pmm = np.ones_like(xb) / np.sqrt(4 * np.pi)
+    for m in range(lmax + 1):
+        if m > 0:
+            pmm = -np.sqrt((2 * m + 1) / (2.0 * m)) * sb * pmm
+        if not (np.any(ap[m, m:]) or np.any(an[m, m:])):
+            continue
+        # Stack P_l^m for l = m..lmax via the standard recurrence.
+        nl = lmax + 1 - m
+        P = np.empty((nl, xb.shape[0]))
+        P[0] = pmm
+        if nl > 1:
+            P[1] = np.sqrt(2 * m + 3.0) * xb * pmm
+            for k in range(2, nl):
+                ll = m + k
+                a = np.sqrt((4.0 * ll * ll - 1) / (ll * ll - m * m))
+                b = np.sqrt(((ll - 1.0) ** 2 - m * m)
+                            / (4.0 * (ll - 1.0) ** 2 - 1))
+                P[k] = a * (xb * P[k - 1] - b * P[k - 2])
+        if m == 0:
+            out += ap[0, 0:] @ P
+        else:
+            cos_ml = np.sqrt(2.0) * np.cos(m * lamb)
+            sin_ml = np.sqrt(2.0) * np.sin(m * lamb)
+            if np.any(ap[m, m:]):
+                out += (ap[m, m:] @ P) * cos_ml
+            if np.any(an[m, m:]):
+                out += (an[m, m:] @ P) * sin_ml
+    return out.reshape(bshape)
 
 
 def _sph_harmonic_evaluators(lmax: int) -> dict:
@@ -2452,10 +2539,33 @@ def _spherefun_grad_harmonic(f: "Spherefun") -> tuple:
         # content at ~1e-14 would break the exact normal cancellation.
         coeff_map = {k: v for k, v in b.items() if abs(v) > 1e-15}
 
-        def ev(lam, theta, _cm=coeff_map):
+        cache: dict = {}
+
+        def ev(lam, theta, _cm=coeff_map, _cache=cache):
+            la = np.asarray(lam)
+            th = np.asarray(theta)
+            if not (isinstance(lam, jax.core.Tracer)
+                    or isinstance(theta, jax.core.Tracer)):
+                # The adaptive constructor re-samples the same nested
+                # tensor grids many times (phase-1 refinements, per-rank
+                # phase-2 slices); the O(lmax^2)-term harmonic sum makes
+                # those repeats the dominant cost, so memoize by grid
+                # content.
+                key = (la.shape, th.shape,
+                       hash(la.tobytes()), hash(th.tobytes()))
+                hit = _cache.get(key)
+                if hit is not None:
+                    return hit
+                val = _sph_harmonic_eval_sum(_cm, cap, la, th)
+                _cache[key] = val
+                return val
             return _sph_harmonic_eval_sum(_cm, cap, lam, theta)
 
-        comps.append(Spherefun.from_function(ev))
+        # The result's bandwidth is KNOWN (cap): start the constructor at
+        # a resolving grid so it converges in one pass instead of
+        # re-sampling the O(lmax^2) harmonic sum on every refinement.
+        comps.append(Spherefun.from_function(
+            ev, start_grid=max(8, 2 * cap + 4)))
     return tuple(comps)
 
 
