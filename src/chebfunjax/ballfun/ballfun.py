@@ -2489,7 +2489,10 @@ class Ballfun(eqx.Module):
             BC1 = _sample_boundary_coeffs(
                 lambda ll, tt: cval + 0.0 * ll, n, p)
 
-        CFS = _ballfun_helmholtz_spectral(Fc, float(K), BC1, isNeumann)
+        # K may be IMAGINARY (IMEX-BDF shifts use K = i*sqrt(1/(dt*D)),
+        # giving negative real K^2); keep it complex here and realify
+        # K^2 inside the spectral solver.
+        CFS = _ballfun_helmholtz_spectral(Fc, complex(K), BC1, isNeumann)
         return Ballfun.from_coeffs(
             jnp.asarray(CFS, dtype=jnp.complex128), is_real=bool(f_is_real))
 
@@ -2851,7 +2854,10 @@ def _ballfun_helmholtz_spectral(Fc: np.ndarray, K: float, BC1,
     )
 
     m, n, p = Fc.shape
-    K = float(K)
+    K = complex(K)
+    K2 = K ** 2
+    if abs(K2.imag) < 1e-12 * max(1.0, abs(K2.real)):
+        K2 = K2.real
 
     # The code is written with variables in order (r, theta, lambda).
     F = np.transpose(Fc, (0, 2, 1))  # permute [1 3 2] -> (m, p, n)
@@ -2873,9 +2879,9 @@ def _ballfun_helmholtz_spectral(Fc: np.ndarray, K: float, BC1,
     BC1m, BC2m, bc = _compute_boundary_rows(BC1, m, n, p, isNeumann)
 
     if abs(K) > 1:
-        Lr = Mr2 @ DC2 / K ** 2 + 2 * S12 @ Mr @ DC1 / K ** 2 + Mr2 @ S02
+        Lr = Mr2 @ DC2 / K2 + 2 * S12 @ Mr @ DC1 / K2 + Mr2 @ S02
     else:
-        Lr = Mr2 @ DC2 + 2 * S12 @ Mr @ DC1 + K * K * Mr2 @ S02
+        Lr = Mr2 @ DC2 + 2 * S12 @ Mr @ DC1 + K2 * Mr2 @ S02
 
     Lth = Msin2 @ DF2 + Mcossin @ DF1
 
@@ -2953,8 +2959,8 @@ def _ballfun_helmholtz_spectral(Fc: np.ndarray, K: float, BC1,
             A = Lth - (kk - n_dc) ** 2 * Ip
             ff = Mr2 @ S02 @ F[:, :, kk] @ Msin2.T
             if abs(K) > 1:
-                A = A / K ** 2
-                ff = ff / K ** 2
+                A = A / K2
+                ff = ff / K2
             ff = ff - c1 @ BCk @ A.T - c2 @ BCk @ Msin2.T
             X = _gen_sylv_reduced(AA_qz, CC_qz, Q_qz, Z_qz,
                                   Msin2, A, ff[:m - 2, :])
@@ -3041,10 +3047,13 @@ def _ballfun_poisson_evaluator(f, lmax: int, nr: int,
         if np.max(np.abs(flm)) < 1e-11 \
                 and abs(bc_modes[(l, m)]) < 1e-13:
             continue
+        K2m = complex(K) ** 2
+        if abs(K2m.imag) < 1e-12 * max(1.0, abs(K2m.real)):
+            K2m = K2m.real
         Lm = Drr + np.diag(2.0 / rs) @ Dr \
             - l * (l + 1) * np.diag(1.0 / rs ** 2) \
-            + (K * K) * np.eye(len(r))
-        A = Lm.astype(float).copy()
+            + K2m * np.eye(len(r))
+        A = Lm.astype(complex if np.iscomplexobj(Lm) else float).copy()
         rhs = flm.astype(float).copy()
         if neumann:
             A[0, :] = Dr[0, :]            # u'(1) = bc_lm  (Neumann data)
