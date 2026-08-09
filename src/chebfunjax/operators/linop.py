@@ -607,17 +607,41 @@ class Linop:
     def expm(self, t: float, u0, n: int = 128):
         """Apply the semigroup exp(t*L) to an initial function u0.
 
-        Restricts the discretized operator to the subspace satisfying the
-        (homogeneous) boundary conditions via a null-space basis, computes
-        the dense matrix exponential there, and propagates u0's values.
+        If ``u0`` carries interior breakpoints (MATLAB merges the operator
+        and initial-condition domains), the propagation uses piecewise
+        rectangular collocation: per-piece square blocks are projected onto
+        first-kind grids, continuity of ``u, ..., u^(order-1)`` is enforced
+        at the breaks alongside the boundary conditions, and the matrix
+        exponential is taken on the constrained subspace.  Otherwise the
+        operator is restricted to the single-interval subspace satisfying
+        the (homogeneous) boundary conditions via a null-space basis.
 
         Provenance
         ----------
-        MATLAB source : @linop/expm.m
+        MATLAB source : @linop/expm.m, @valsDiscretization/expm.m,
+                        @chebcolloc/reduce.m
         Chebfun commit: 7574c77
         """
         import numpy as np
         import scipy.linalg
+
+        a, b = self.domain
+        breaks = []
+        dom0 = getattr(u0, "domain", None)
+        for p in getattr(dom0, "breakpoints", ())[1:-1]:
+            p = float(p)
+            if a + 1e-14 * abs(b - a) < p < b - 1e-14 * abs(b - a):
+                breaks.append(p)
+        if breaks:
+            if all(getattr(bc, "loc", None) is not None for bc in self.bcs):
+                return self._expm_piecewise(t, u0, n, breaks)
+            warnings.warn(
+                "Linop.expm: initial condition has interior breakpoints "
+                "but a boundary condition carries no location metadata; "
+                "falling back to a single global grid (convergence may be "
+                "algebraic across the breakpoints).",
+                RuntimeWarning,
+            )
 
         disc = ChebColloc2Disc(n, self.domain)
         # RAW operator matrix — _assemble substitutes BC rows, which must
@@ -663,6 +687,167 @@ class Linop:
             E = scipy.linalg.expm(float(t) * A_red)
             u_t = Q @ (E @ (Q.T @ u0_vals))
         return _chebfun_from_values(jnp.asarray(u_t), self.domain)
+
+    def _expm_piecewise(self, t: float, u0, n: int, breaks: list[float]):
+        """Piecewise rectangular-collocation matrix exponential.
+
+        MATLAB's ``@linop/expm.m`` loop: solve on a coarse per-piece grid,
+        double the dimension until the propagated pieces' Chebyshev
+        coefficients decay to tolerance (``testConvergence``), capped at
+        the caller's ``n``.  Spectral accuracy is retained when ``u0`` is
+        smooth on each piece (e.g. the pde/BSExponential payoff with its
+        kink at the strike) — and stopping at the first resolved dimension
+        also avoids the roundoff amplification of needlessly fine
+        differentiation matrices.
+
+        Provenance
+        ----------
+        MATLAB source : @linop/expm.m, @valsDiscretization/expm.m,
+                        @chebcolloc/reduce.m
+        Chebfun commit: 7574c77
+        """
+        a, b = self.domain
+        doms = [a] + list(breaks) + [b]
+        pieces = list(zip(doms[:-1], doms[1:]))
+
+        cap = max(int(n), 32)
+        dims = [d for d in (32, 64, 128, 256, 512, 1024) if d <= cap]
+        if not dims:
+            dims = [cap]
+        # MATLAB removes dimensions below the initial condition's length.
+        funs0 = getattr(u0, "funs", None)
+        if funs0:
+            len0 = max(int(f.tech.coeffs.shape[0]) for f in funs0)
+            kept = [d for d in dims if d >= min(len0, dims[-1])]
+            if kept:
+                dims = kept
+            else:
+                dims = [dims[-1]]
+
+        u = None
+        for dim in dims:
+            u, resolved = self._expm_piecewise_at(t, u0, dim, doms, pieces)
+            if resolved:
+                break
+        else:
+            warnings.warn(
+                "Linop.expm: matrix exponential may not have converged.",
+                RuntimeWarning,
+            )
+        # The solution is smooth for t > 0; drop redundant breakpoints.
+        try:
+            u = u.merge()
+        except Exception:
+            pass
+        return u
+
+    def _expm_piecewise_at(self, t: float, u0, n: int, doms, pieces):
+        """One fixed-dimension piecewise expm solve; see _expm_piecewise.
+
+        Returns ``(u, resolved)`` where ``resolved`` reports whether every
+        propagated piece's Chebyshev coefficients decay below tolerance
+        (the MATLAB ``testConvergence`` happiness check).
+        """
+        import numpy as np
+        import scipy.linalg
+
+        from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+        from chebfunjax.utils.diffmat import diffmat
+        from chebfunjax.utils.interpolation import barymat
+
+        npc = len(pieces)
+        r = max(int(self.L.order), 1)
+        if n - r < 2:
+            raise ValueError(
+                f"Linop.expm: piecewise dimension n={n} too small for "
+                f"differential order {r}."
+            )
+        N = n * npc
+
+        # Square operator blocks, one per piece (the operator is local).
+        blocks = [np.asarray(self.L.matrix(ChebColloc2Disc(n, pc)))
+                  for pc in pieces]
+        dt = np.result_type(np.float64, *[blk.dtype for blk in blocks])
+        A = np.zeros((N, N), dtype=dt)
+        for k, blk in enumerate(blocks):
+            A[k * n:(k + 1) * n, k * n:(k + 1) * n] = blk
+
+        # Down-projection: n 2nd-kind values -> n - r 1st-kind values.
+        # Affine-invariant, so one reference matrix serves every piece.
+        x2 = chebpts(n, kind=2)
+        x1 = chebpts(n - r, kind=1)
+        P1 = np.asarray(barymat(x1, x2))
+        P = np.kron(np.eye(npc), P1)
+
+        # Constraint rows: BCs (placed in their owning piece) followed by
+        # continuity of u, u', ..., u^(r-1) at each interior break.
+        rows = []
+        for bc in self.bcs:
+            loc = float(bc.loc)
+            k = npc - 1
+            for i, (pa, pb) in enumerate(pieces):
+                if loc <= pb or i == npc - 1:
+                    k = i
+                    break
+            row = np.zeros(N, dtype=dt)
+            row[k * n:(k + 1) * n] = np.asarray(
+                bc.matrix(ChebColloc2Disc(n, pieces[k])))
+            rows.append(row)
+        for k in range(npc - 1):
+            for j in range(r):
+                row = np.zeros(N, dtype=dt)
+                if j == 0:
+                    row[k * n + n - 1] = 1.0
+                    row[(k + 1) * n] = -1.0
+                else:
+                    Dl = np.asarray(diffmat(n, j, domain=pieces[k]))
+                    Dr = np.asarray(diffmat(n, j, domain=pieces[k + 1]))
+                    row[k * n:(k + 1) * n] = Dl[-1, :]
+                    row[(k + 1) * n:(k + 2) * n] = -Dr[0, :]
+                rows.append(row)
+        B = np.vstack(rows)
+
+        # Lift reduced variables to the full grid consistently with B*u = 0.
+        M = np.vstack([B, P])
+        rhs = np.vstack([
+            np.zeros((B.shape[0], P.shape[0]), dtype=dt),
+            np.eye(P.shape[0], dtype=dt),
+        ])
+        if M.shape[0] == M.shape[1]:
+            Q = np.linalg.solve(M, rhs)
+        else:
+            Q = np.linalg.lstsq(M, rhs, rcond=None)[0]
+
+        E_red = scipy.linalg.expm(float(t) * (P @ A @ Q))
+        E = Q @ E_red @ P
+
+        # Sample u0 on each piece's physical 2nd-kind points and propagate.
+        t_ref = np.asarray(chebpts(n, kind=2))
+        v0 = np.concatenate([
+            np.asarray(_chebfun_call(
+                u0, jnp.asarray(0.5 * (pb - pa) * t_ref + 0.5 * (pa + pb))))
+            for (pa, pb) in pieces
+        ])
+        u_t = E @ v0
+
+        funs = [
+            _Piece.from_values(jnp.asarray(u_t[k * n:(k + 1) * n]), pa, pb)
+            for k, (pa, pb) in enumerate(pieces)
+        ]
+
+        # Happiness: the trailing eighth of each piece's Chebyshev
+        # coefficients must fall below tolerance relative to the scale.
+        vscale = max(float(np.max(np.abs(u_t))), 1e-300)
+        resolved = True
+        for f in funs:
+            c = np.abs(np.asarray(f.tech.coeffs))
+            tail = c[-max(3, n // 8):]
+            if np.max(tail) > 1e-10 * max(vscale, float(np.max(c))):
+                resolved = False
+                break
+
+        u = Chebfun(funs, Domain(tuple(doms))).simplify()
+        return u, resolved
 
     # ------------------------------------------------------------------
     # Operator: L \ f  (mldivide)

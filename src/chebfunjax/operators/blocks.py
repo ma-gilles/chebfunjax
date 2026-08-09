@@ -701,7 +701,11 @@ def eval_at(x: float, domain: _DomainT = _DEFAULT_DOMAIN) -> FunctionalBlock:
 
         return row
 
-    return FunctionalBlock(_fn, domain=dom)
+    fb = FunctionalBlock(_fn, domain=dom)
+    # Location metadata: lets piecewise discretizations (Linop.expm) place
+    # this row in the sub-interval that owns the evaluation point.
+    fb.loc = float(x)
+    return fb
 
 
 def sum_functional(domain: _DomainT = _DEFAULT_DOMAIN) -> FunctionalBlock:

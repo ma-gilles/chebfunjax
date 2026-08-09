@@ -29,17 +29,15 @@ The value of the option at $s = 55$, six months before maturity:
 
 ```text
 ans =
-   9.849784280206002
+   9.849887660863327
 ```
 
-MATLAB publishes `9.849887661936435` — 5-digit agreement. The payoff
-has a derivative kink at the strike $s = 50$: MATLAB's discretization
-carries a breakpoint there (its $w$ stays piecewise, with the
-published second-derivative jump $-2.4\times10^{-17}$ confirming the
-solution is actually smooth), while our `expm` collocates on a single
-global grid ($n = 700$), where the kink limits convergence to
-algebraic. A piecewise Chebyshev `expm` is the remaining gap,
-recorded in the audit ledger.
+MATLAB publishes `9.849887661936435` — 10-digit agreement. The payoff
+has a derivative kink at the strike $s = 50$, so `expm` propagates it
+on a piecewise Chebyshev discretization with a breakpoint there
+(rectangular collocation with continuity conditions at the break,
+dimension-adaptive as in MATLAB), keeping the convergence spectral on
+each smooth piece.
 
 ---
 

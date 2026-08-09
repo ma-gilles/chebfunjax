@@ -5152,7 +5152,16 @@ class Chebop:
                 A[:, j] = col
             return jnp.asarray(A)
 
-        return OperatorBlock(_op_fn, order=2, domain=domain)
+        # Record the true differential order (falls back to 2 when the
+        # sniffer cannot determine it) — piecewise discretizations use it
+        # for the projection/continuity count.
+        from chebfunjax.chebfun1d.chebfun import Chebfun as _Cf
+        try:
+            m0 = self._sniff_order(_Cf.identity(Domain(domain)), max_order)
+        except Exception:
+            m0 = None
+        return OperatorBlock(_op_fn, order=(m0 if m0 is not None else 2),
+                             domain=domain)
 
     def _sniff_order(self, x_fun, max_order: int):
         """Highest derivative order the operator applies to ``u``.
@@ -6145,6 +6154,7 @@ class Chebop:
             return row
 
         fb = FunctionalBlock(_fn, domain=domain)
+        fb.loc = float(endpoint)
         return [fb], [-g0_val]
 
 
@@ -6190,7 +6200,9 @@ def _derivative_eval_at(
         # Composed row: E @ D
         return E_row @ D_mat                            # (n,)
 
-    return FunctionalBlock(_fn, domain=domain)
+    fb = FunctionalBlock(_fn, domain=domain)
+    fb.loc = float(x)
+    return fb
 
 
 def _make_rhs_callable(f):
