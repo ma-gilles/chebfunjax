@@ -416,6 +416,15 @@ class Linop:
         --------
         solve
         """
+        if sigma is None:
+            # MATLAB automatic mode (@linop/eigs.m): find the "most
+            # interesting" eigenvalue -- solve at two coarse sizes,
+            # keep the values that converged between them, and target
+            # the one whose eigenfunction has the SMOOTHEST Chebyshev
+            # expansion (smallest coefficient 1-norm).  This differs
+            # from plain 'SM' on problems whose smallest-magnitude
+            # modes are rough (e.g. randfuneig level-repulsion runs).
+            sigma = self._auto_sigma()
         sz = n if n is not None else n_default
         disc = ChebColloc2Disc(sz, self.domain)
 
@@ -468,7 +477,7 @@ class Linop:
             key = -np.imag(lam_np)
         elif sigma == "SI":
             key = np.imag(lam_np)
-        elif isinstance(sigma, (int, float)):
+        elif isinstance(sigma, (int, float, complex)):
             key = np.abs(lam_np - sigma)
         else:
             raise ValueError(
@@ -522,6 +531,60 @@ class Linop:
                 u = -u
             funs.append(u)
         return lam_out, funs
+
+    def _auto_sigma(self):
+        """MATLAB @linop/eigs.m automatic sigma: solve at sizes 33 and
+        65, mark the eigenvalues that converged between the two, and
+        return the one whose eigenfunction is smoothest (smallest
+        Chebyshev-coefficient 1-norm).  Falls back to the least-changing
+        eigenvalue when nothing converged, and to 0 (nearest-zero) if
+        the probes fail outright.
+
+        Provenance
+        ----------
+        MATLAB source : @linop/eigs.m (automatic mode block)
+        Chebfun commit: 7574c77
+        """
+        import numpy as np
+
+        kk = 33
+        try:
+            lam1 = np.atleast_1d(np.asarray(
+                self.eigs(k=kk, n=33, sigma=0.0,
+                          return_eigenfunctions=False)))
+            lam2, funs2 = self.eigs(k=kk, n=65, sigma=0.0,
+                                    return_eigenfunctions=True)
+            lam2 = np.atleast_1d(np.asarray(lam2))
+        except Exception:
+            return 0.0
+        fin1 = np.isfinite(lam1)
+        fin2 = np.isfinite(lam2)
+        lam1 = lam1[fin1]
+        lam2 = lam2[fin2]
+        funs2 = [f for f, ok in zip(funs2, fin2) if ok]
+        if lam1.size == 0 or lam2.size == 0:
+            return 0.0
+
+        dif = lam1[None, :] - lam2[:, None]
+        delta = np.min(np.abs(dif), axis=0)       # per lam1 entry
+        big_del = delta > 1e-12 * np.max(np.abs(lam1))
+        lam1b = lam1.copy()
+        lam1b[big_del] = 0
+        scale = np.max(np.abs(lam1b)) if np.any(~big_del) else 0.0
+        big_del = big_del | (delta > 1e-3 * max(scale, 1e-300))
+
+        if np.all(big_del):
+            return complex(lam1[int(np.argmin(delta))])
+
+        # Smoothness: 1-norm of the Chebyshev coefficients of each
+        # 65-size eigenfunction, summed over pieces.
+        onenorm = np.empty(len(funs2))
+        for j, u in enumerate(funs2):
+            tot = 0.0
+            for piece in u.funs:
+                tot += float(np.sum(np.abs(np.asarray(piece.tech.coeffs))))
+            onenorm[j] = tot
+        return complex(lam2[int(np.argmin(onenorm))])
 
     def matrix(self, n: int) -> jnp.ndarray:
         """The n x n discretization matrix with BC rows imposed.

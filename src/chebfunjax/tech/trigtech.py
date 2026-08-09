@@ -876,6 +876,11 @@ def _alias_trigtech(coeffs: jax.Array, m: int) -> jax.Array:
     n = c.shape[0]
     cols = c.shape[1]
 
+    if m == n:
+        # Same length: identity (the fold-down path assumed m < n and
+        # produced empty accumulators for n == m == 1).
+        return orig
+
     if m > n:
         k = int(np.ceil((m - n) / 2))
         z = np.zeros((k, cols), dtype=c.dtype)

@@ -921,13 +921,47 @@ class Spherefun(eqx.Module):
             tol_abs,
         )
 
-        return cls(
+        result = cls(
             cols=cols_list,
             rows=rows_list,
             pivots=jnp.asarray(pivots_arr, dtype=jnp.float64),
             idx_plus=tuple(idx_plus),
             idx_minus=tuple(idx_minus),
         )
+
+        # Sample test (MATLAB constructor sampleTest analogue): on
+        # marginally-resolved functions the phase-2 GE replay can
+        # DIVERGE -- near-singular phase-1 pivots amplify slice values
+        # exponentially across the elimination, producing objects whose
+        # evaluations are astronomically wrong (observed: bounded
+        # samples <= 39 building a rank-91 object evaluating to 2e90).
+        # Probe off-grid points; on catastrophic mismatch restart the
+        # construction from a finer initial grid.
+        phi_gr = 0.6180339887498949
+        ts = np.arange(1, 25, dtype=float)
+        lam_t = -np.pi + 2 * np.pi * ((0.5 + phi_gr * ts) % 1.0)
+        th_t = np.pi * ((0.25 + phi_gr * ts * ts) % 1.0)
+        fv = np.asarray(f(jnp.asarray(lam_t), jnp.asarray(th_t))).ravel()
+        av = np.asarray(result(jnp.asarray(lam_t),
+                               jnp.asarray(th_t))).ravel()
+        fscale = max(float(np.max(np.abs(fv))), 1e-300)
+        if not np.all(np.isfinite(av)) or \
+                float(np.max(np.abs(av - fv))) > 1e-3 * fscale:
+            new_start = 2 * max(grid, 8)
+            if start_grid is None or new_start > int(start_grid):
+                if new_start <= max_sample // 4:
+                    return cls.from_function(
+                        f, tol=tol, max_rank=max_rank,
+                        max_sample=max_sample,
+                        min_abs_tol=min_abs_tol,
+                        start_grid=new_start)
+            warnings.warn(
+                "Spherefun.from_function: construction failed the "
+                "off-grid sample test (phase-2 divergence on a "
+                "marginally-resolved function); returning the best "
+                "approximation found.",
+                RuntimeWarning, stacklevel=2)
+        return result
 
     # ------------------------------------------------------------------
     # Evaluation (JIT-safe)
@@ -965,8 +999,81 @@ class Spherefun(eqx.Module):
         if not isinstance(lam, jax.core.Tracer) and \
                 not isinstance(theta, jax.core.Tracer) and \
                 not isinstance(self.pivots, jax.core.Tracer):
-            return self._eval_impl(lam, theta)
+            return self._eval_np(lam, theta)
         return self._call_traced(lam, theta)
+
+    def _eval_np(self, lam, theta) -> jax.Array:
+        """Concrete-input evaluation with ALL rank slices batched into a
+        single array-valued numpy Horner per direction.  The per-slice
+        loop cost ~7 ms x rank x calls (28k Trigtech evals = 194 s for
+        one rank-54 x rank-60 product re-approximation); batching makes
+        it one padded (n, r) Horner each way."""
+        from chebfunjax.tech.trigtech import _alias_trigtech, _trig_eval_np
+
+        if len(self.cols) == 0:
+            return self._eval_impl(lam, theta)
+        col_real = all(c.is_real for c in self.cols)
+        row_real = all(r.is_real for r in self.rows)
+        if (any(c.is_real != col_real for c in self.cols)
+                or any(r.is_real != row_real for r in self.rows)):
+            return self._eval_impl(lam, theta)
+
+        lam = np.asarray(lam, dtype=np.float64)
+        theta = np.asarray(theta, dtype=np.float64)
+        bshape = np.broadcast_shapes(lam.shape, theta.shape)
+
+        nc = max(int(np.asarray(c.coeffs).shape[0]) for c in self.cols)
+        nr = max(int(np.asarray(r.coeffs).shape[0]) for r in self.rows)
+        Cc = np.stack([np.asarray(_alias_trigtech(c.coeffs, nc))
+                       for c in self.cols], axis=1)          # (nc, r)
+        Rr = np.stack([np.asarray(_alias_trigtech(r.coeffs, nr))
+                       for r in self.rows], axis=1)          # (nr, r)
+        piv = 1.0 / np.asarray(self.pivots)
+
+        # Tensor-grid detection: the adaptive constructor samples on
+        # meshgrids (lam varying along one axis, theta along the other).
+        # Evaluating each direction ONCE on its 1D point set and
+        # combining with a rank-sized matmul turns an
+        # O(npts * rank * degree) sweep into
+        # O((nth + nlam) * rank * degree + npts * rank).
+        lb = np.broadcast_to(lam, bshape)
+        tb = np.broadcast_to(theta, bshape)
+        if len(bshape) == 2 and bshape[0] > 1 and bshape[1] > 1:
+            lam_axis1 = np.all(lb == lb[:1, :])   # lam constant down cols
+            th_axis0 = np.all(tb == tb[:, :1])    # theta constant across
+            if lam_axis1 and th_axis0:
+                cv = np.asarray(_trig_eval_np(Cc, tb[:, 0] / np.pi,
+                                              is_real=col_real))
+                rv = np.asarray(_trig_eval_np(Rr, lb[0, :] / np.pi,
+                                              is_real=row_real))
+                return jnp.asarray((cv * piv) @ rv.T)
+            lam_axis0 = np.all(lb == lb[:, :1])
+            th_axis1 = np.all(tb == tb[:1, :])
+            if lam_axis0 and th_axis1:
+                cv = np.asarray(_trig_eval_np(Cc, tb[0, :] / np.pi,
+                                              is_real=col_real))
+                rv = np.asarray(_trig_eval_np(Rr, lb[:, 0] / np.pi,
+                                              is_real=row_real))
+                return jnp.asarray(rv @ (cv * piv).T)
+
+        lr = (lb / np.pi).ravel()
+        tr = (tb / np.pi).ravel()
+        # Constant-coordinate lines (phase-2 slice sampling).
+        if lr.size > 1 and np.all(lr == lr[0]):
+            rv = np.asarray(_trig_eval_np(Rr, lr[:1], is_real=row_real))
+            cv = np.asarray(_trig_eval_np(Cc, tr, is_real=col_real))
+            vals = (cv * piv) @ rv[0]
+            return jnp.asarray(vals.reshape(bshape))
+        if tr.size > 1 and np.all(tr == tr[0]):
+            cv = np.asarray(_trig_eval_np(Cc, tr[:1], is_real=col_real))
+            rv = np.asarray(_trig_eval_np(Rr, lr, is_real=row_real))
+            vals = (rv * piv) @ cv[0]
+            return jnp.asarray(vals.reshape(bshape))
+
+        cv = np.asarray(_trig_eval_np(Cc, tr, is_real=col_real))
+        rv = np.asarray(_trig_eval_np(Rr, lr, is_real=row_real))
+        vals = (cv * rv) @ piv
+        return jnp.asarray(vals.reshape(bshape))
 
     @eqx.filter_jit
     def _call_traced(self, lam: jax.Array, theta: jax.Array) -> jax.Array:
@@ -2202,11 +2309,26 @@ def _sph_harmonic_eval_sum(coeff_map: dict, lmax: int,
     # vorticity chains).  Tracers keep the traceable jnp path.
     if not isinstance(lam, jax.core.Tracer) and \
             not isinstance(theta, jax.core.Tracer):
+        lam_c = np.asarray(lam, dtype=np.float64)
+        th_c = np.asarray(theta, dtype=np.float64)
+        # Glide fold: the spherefun constructor samples the DOUBLED
+        # theta range; the double-Fourier-sphere extension of a sphere
+        # function is f(lam + pi, -theta) for theta < 0 -- NOT the blind
+        # even reflection this sum would otherwise produce (odd-m
+        # harmonics differ in sign, corrupting BMC construction; the
+        # value-space diff of a gradient component ran away to 1e90
+        # rank-1 spherefuns through exactly this).
+        neg = th_c < 0
+        if np.any(neg):
+            lam_c = np.where(neg, lam_c + np.pi, lam_c)
+            th_c = np.where(neg, -th_c, th_c)
         return jnp.asarray(_sph_harmonic_eval_sum_np(
-            coeff_map, lmax, np.asarray(lam, dtype=np.float64),
-            np.asarray(theta, dtype=np.float64)))
+            coeff_map, lmax, lam_c, th_c))
     lam = jnp.asarray(lam, dtype=jnp.float64)
     theta = jnp.asarray(theta, dtype=jnp.float64)
+    neg = theta < 0
+    lam = jnp.where(neg, lam + jnp.pi, lam)
+    theta = jnp.where(neg, -theta, theta)
     x = jnp.cos(theta)
     s = jnp.sqrt(1 - x**2)
     out = jnp.zeros(jnp.broadcast_shapes(lam.shape, theta.shape),

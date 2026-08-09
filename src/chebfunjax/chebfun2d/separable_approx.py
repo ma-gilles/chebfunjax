@@ -961,10 +961,6 @@ class SeparableApprox(eqx.Module):
 
     def _eval_np(self, x, y) -> jax.Array:
         """numpy mirror of the CDR evaluation (kept in lockstep)."""
-        import numpy.polynomial.chebyshev as _ncheb
-
-        from chebfunjax.tech.trigtech import Trigtech, _trig_eval_np
-
         xa, xb, ya, yb = self.domain
         x = np.asarray(x, dtype=np.float64)
         y = np.asarray(y, dtype=np.float64)
@@ -975,28 +971,62 @@ class SeparableApprox(eqx.Module):
         tyf = np.broadcast_to(ty, bshape).ravel()
         piv = np.asarray(self.pivots, dtype=np.float64)
 
-        def _slice_vals(funs, t):
-            if all(isinstance(fn, Trigtech) for fn in funs):
-                rows = [np.asarray(_trig_eval_np(np.asarray(fn.coeffs), t,
-                                                 is_real=fn.is_real))
-                        for fn in funs]
-                return np.stack(rows)
-            # Chebtech slices: pad coefficients to a common length and
-            # evaluate all series in ONE vectorised Clenshaw.
-            coeffs = [np.asarray(fn.coeffs) for fn in funs]
-            nmax = max((c.shape[0] for c in coeffs), default=1)
-            dtype = np.result_type(np.float64, *coeffs) if coeffs \
-                else np.float64
-            C = np.zeros((nmax, len(funs)), dtype=dtype)
-            for j, cj in enumerate(coeffs):
-                C[: cj.shape[0], j] = cj
-            # chebval result shape = c.shape[1:] + x.shape = (r, m)
-            return _ncheb.chebval(t, C, tensor=True)
+        # Tensor-grid / constant-line detection (adaptive-constructor
+        # sampling patterns): evaluate each direction once on its 1D
+        # point set and combine with a rank matmul instead of sweeping
+        # all slices over every point (see Spherefun._eval_np).
+        txb = np.broadcast_to(tx, bshape)
+        tyb = np.broadcast_to(ty, bshape)
+        if len(bshape) == 2 and bshape[0] > 1 and bshape[1] > 1:
+            x_ax1 = np.all(txb == txb[:1, :])
+            y_ax0 = np.all(tyb == tyb[:, :1])
+            if x_ax1 and y_ax0:
+                cv = self._slice_vals_np(self.cols, tyb[:, 0])  # (r, ny)
+                rv = self._slice_vals_np(self.rows, txb[0, :])  # (r, nx)
+                return jnp.asarray((cv.T * piv) @ rv)
+            x_ax0 = np.all(txb == txb[:, :1])
+            y_ax1 = np.all(tyb == tyb[:1, :])
+            if x_ax0 and y_ax1:
+                cv = self._slice_vals_np(self.cols, tyb[0, :])
+                rv = self._slice_vals_np(self.rows, txb[:, 0])
+                return jnp.asarray((rv.T * piv) @ cv)
+        if txf.size > 1 and np.all(txf == txf[0]):
+            rv = self._slice_vals_np(self.rows, txf[:1])       # (r, 1)
+            cv = self._slice_vals_np(self.cols, tyf)           # (r, m)
+            return jnp.asarray(((cv.T * piv) @ rv[:, 0]).reshape(bshape))
+        if tyf.size > 1 and np.all(tyf == tyf[0]):
+            cv = self._slice_vals_np(self.cols, tyf[:1])
+            rv = self._slice_vals_np(self.rows, txf)
+            return jnp.asarray(((rv.T * piv) @ cv[:, 0]).reshape(bshape))
 
-        cv = _slice_vals(self.cols, tyf)
-        rv = _slice_vals(self.rows, txf)
+        cv = self._slice_vals_np(self.cols, tyf)
+        rv = self._slice_vals_np(self.rows, txf)
         vals = np.einsum("j,jm,jm->m", piv, cv, rv)
         return jnp.asarray(vals.reshape(bshape))
+
+    @staticmethod
+    def _slice_vals_np(funs, t):
+        """Values of all 1D slices at reference points ``t`` -> (r, m)."""
+        import numpy.polynomial.chebyshev as _ncheb
+
+        from chebfunjax.tech.trigtech import Trigtech, _trig_eval_np
+
+        if all(isinstance(fn, Trigtech) for fn in funs):
+            rows = [np.asarray(_trig_eval_np(np.asarray(fn.coeffs), t,
+                                             is_real=fn.is_real))
+                    for fn in funs]
+            return np.stack(rows)
+        # Chebtech slices: pad coefficients to a common length and
+        # evaluate all series in ONE vectorised Clenshaw.
+        coeffs = [np.asarray(fn.coeffs) for fn in funs]
+        nmax = max((c.shape[0] for c in coeffs), default=1)
+        dtype = np.result_type(np.float64, *coeffs) if coeffs \
+            else np.float64
+        C = np.zeros((nmax, len(funs)), dtype=dtype)
+        for j, cj in enumerate(coeffs):
+            C[: cj.shape[0], j] = cj
+        # chebval result shape = c.shape[1:] + x.shape = (r, m)
+        return _ncheb.chebval(t, C, tensor=True)
 
     @eqx.filter_jit
     def _call_traced(self, x: jax.Array, y: jax.Array) -> jax.Array:
