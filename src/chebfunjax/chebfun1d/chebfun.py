@@ -1541,6 +1541,36 @@ class Chebfun(eqx.Module):
                 result = result[0]
             return self._orient_values(result)
 
+        # Multi-piece, concrete input: bin the points to their pieces
+        # with searchsorted and evaluate each piece ONLY at its own
+        # points -- the masked full sweep below costs
+        # O(pieces x points x degree) and dominated many-piece chebfun
+        # evaluation.  Breakpoint points route to the RIGHT piece, the
+        # same winner as the masked sweep's last-write order.
+        if not isinstance(x, jax.core.Tracer) and \
+                not any(isinstance(p.tech.coeffs, jax.core.Tracer)
+                        for p in self.funs):
+            import numpy as _np
+
+            xn = _np.asarray(x)
+            xrn = _np.real(xn)
+            breaks = _np.array([p.interval[1] for p in self.funs[:-1]],
+                               dtype=_np.float64)
+            idx = _np.searchsorted(breaks, xrn, side="right")
+            cols_np = self.funs[0].tech.coeffs.shape[1:]
+            out_dtype = _np.complex128 if (
+                _np.iscomplexobj(xn)
+                or any(_np.iscomplexobj(_np.asarray(p.tech.coeffs))
+                       for p in self.funs)) else _np.float64
+            out_np = _np.empty(xn.shape + cols_np, dtype=out_dtype)
+            for i in _np.unique(idx):
+                sel = idx == i
+                out_np[sel] = _np.asarray(self.funs[int(i)](xn[sel]))
+            result = jnp.asarray(out_np)
+            if scalar_input:
+                result = result[0]
+            return self._orient_values(result)
+
         # Multi-piece: Python dispatch.  Piece selection uses real(x) so a
         # complex evaluation point is routed by its real part (MATLAB
         # xReal = real(x) in columnFeval).
@@ -8839,7 +8869,11 @@ def quantumstates(
                    domain=(a, b))
         L.lbc = 0.0
         L.rbc = 0.0
-        lam, funs = L.eigs(k=n_req, n=ngrid,
+        # MATLAB quantumstates.m: eigs(L, n, 'sr') -- explicit
+        # smallest-real targeting (the sigma=None default now runs the
+        # automatic smoothest-eigenvector mode, which can center the
+        # window mid-spectrum for narrow potentials).
+        lam, funs = L.eigs(k=n_req, n=ngrid, sigma="SR",
                            return_eigenfunctions=True)
         lam = _np.real(_np.asarray(lam))
         order = _np.argsort(lam)
