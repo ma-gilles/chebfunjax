@@ -1574,7 +1574,12 @@ class Trigtech(eqx.Module):
         Chebfun commit: 7574c77
         """
         if not isinstance(x, jax.core.Tracer) and \
-                not isinstance(self.coeffs, jax.core.Tracer):
+                not isinstance(self.coeffs, jax.core.Tracer) and \
+                self.coeffs.shape[0] <= 1024:
+            # The numpy Horner mirror loops once per coefficient in
+            # Python; past ~1k coefficients the XLA scan (compiled once
+            # per length) is far faster, and huge-length Trigtechs are
+            # rare enough not to threaten the JIT code arena.
             return jnp.asarray(_trig_eval_np(self.coeffs, np.asarray(x),
                                              is_real=self.is_real))
         return self._call_traced(x)

@@ -1762,7 +1762,12 @@ class Chebtech2(eqx.Module):
         Chebfun commit: 7574c77
         """
         if not isinstance(x, jax.core.Tracer) and \
-                not isinstance(self.coeffs, jax.core.Tracer):
+                not isinstance(self.coeffs, jax.core.Tracer) and \
+                self.coeffs.shape[0] <= 4096:
+            # chebval loops once per coefficient in Python; past a few
+            # thousand coefficients the compiled Clenshaw is faster, and
+            # huge-length Chebtechs are rare enough not to threaten the
+            # JIT code arena.
             import numpy.polynomial.chebyshev as _ncheb
 
             xn = np.asarray(x)
@@ -1772,6 +1777,19 @@ class Chebtech2(eqx.Module):
             if c.shape[0] == 0:
                 return jnp.zeros(xn.shape + c.shape[1:],
                                  dtype=c.dtype if c.size else np.float64)
+            if xn.ndim == 0 and c.ndim == 1 and c.shape[0] <= 4096:
+                # Scalar point, 1-D coefficients: Clenshaw with Python
+                # scalars.  chebval's per-coefficient numpy scalar ops
+                # cost ~0.13 ms for a length-40 series — the ODE marcher
+                # evaluates coefficient chebfuns one scalar at a time.
+                cl = c.tolist()
+                xf = complex(xn) if (np.iscomplexobj(xn)
+                                     or np.iscomplexobj(c)) else float(xn)
+                x2 = 2.0 * xf
+                b1 = b2 = 0.0
+                for ck in cl[:0:-1]:
+                    b1, b2 = x2 * b1 - b2 + ck, b1
+                return jnp.asarray(xf * b1 - b2 + cl[0])
             val = _ncheb.chebval(xn, c, tensor=True)
             # chebval returns c.shape[1:] + x.shape; the traced path
             # returns x.shape + c.shape[1:].

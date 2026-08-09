@@ -1523,36 +1523,47 @@ class Chebfun(eqx.Module):
         if side is not None:
             _record_side_eval(x)
             return self._feval_side(x, side)
-        # Preserve a complex argument (MATLAB feval evaluates a real Chebfun
-        # at complex points, routing pieces by real(x)); everything else is
-        # promoted to float64.
-        x = jnp.asarray(x)
-        if jnp.issubdtype(x.dtype, jnp.complexfloating):
-            x = x.astype(jnp.complex128)
-        else:
-            x = x.astype(jnp.float64)
-        scalar_input = x.ndim == 0
-        x = jnp.atleast_1d(x)
-
-        if len(self.funs) == 1:
-            # Fast path: single piece — fully JIT-able
-            result = self.funs[0](x)
-            if scalar_input:
-                result = result[0]
-            return self._orient_values(result)
-
-        # Multi-piece, concrete input: bin the points to their pieces
-        # with searchsorted and evaluate each piece ONLY at its own
-        # points -- the masked full sweep below costs
-        # O(pieces x points x degree) and dominated many-piece chebfun
-        # evaluation.  Breakpoint points route to the RIGHT piece, the
-        # same winner as the masked sweep's last-write order.
+        # Concrete input, concrete coefficients: stay in numpy end to end
+        # (dtype promotion, affine maps, piece binning).  The jitted path
+        # below pays per-call dispatch (~0.5 ms) that dominates ODE-marcher
+        # RHS evaluation of chebfun coefficients one scalar at a time.
         if not isinstance(x, jax.core.Tracer) and \
                 not any(isinstance(p.tech.coeffs, jax.core.Tracer)
                         for p in self.funs):
             import numpy as _np
 
             xn = _np.asarray(x)
+            xn = xn.astype(_np.complex128 if _np.iscomplexobj(xn)
+                           else _np.float64)
+            scalar_input = xn.ndim == 0
+
+            if len(self.funs) == 1:
+                p = self.funs[0]
+                a_, b_ = p.interval
+                if type(p) is _Piece and _np.isfinite(a_) \
+                        and _np.isfinite(b_):
+                    # A scalar point stays 0-d so the tech's scalar-
+                    # Clenshaw branch (Python-float recurrence) can
+                    # take it.  Only the plain bounded piece uses this
+                    # inline affine map — an Unbndfun piece owns its
+                    # (nonlinear, infinite-interval) map.
+                    result = jnp.asarray(
+                        p.tech((2.0 * xn - (a_ + b_)) / (b_ - a_)))
+                else:
+                    result = p(jnp.asarray(_np.atleast_1d(xn)))
+                    if scalar_input:
+                        result = result[0]
+                return self._orient_values(result)
+
+            xn = _np.atleast_1d(xn)
+
+            # Multi-piece: bin the points to their pieces with
+            # searchsorted and evaluate each piece ONLY at its own
+            # points -- the masked full sweep below costs
+            # O(pieces x points x degree) and dominated many-piece
+            # chebfun evaluation.  Breakpoint points route to the RIGHT
+            # piece, the same winner as the masked sweep's last-write
+            # order.
             xrn = _np.real(xn)
             breaks = _np.array([p.interval[1] for p in self.funs[:-1]],
                                dtype=_np.float64)
@@ -1565,8 +1576,35 @@ class Chebfun(eqx.Module):
             out_np = _np.empty(xn.shape + cols_np, dtype=out_dtype)
             for i in _np.unique(idx):
                 sel = idx == i
-                out_np[sel] = _np.asarray(self.funs[int(i)](xn[sel]))
+                p = self.funs[int(i)]
+                a_, b_ = p.interval
+                if type(p) is _Piece and _np.isfinite(a_) \
+                        and _np.isfinite(b_):
+                    tn = (2.0 * xn[sel] - (a_ + b_)) / (b_ - a_)
+                    out_np[sel] = _np.asarray(p.tech(tn))
+                else:
+                    # Unbndfun (or other) pieces own their map.
+                    out_np[sel] = _np.asarray(p(jnp.asarray(xn[sel])))
             result = jnp.asarray(out_np)
+            if scalar_input:
+                result = result[0]
+            return self._orient_values(result)
+
+        # Traced input (or traced coefficients): promote via jnp.
+        # Preserve a complex argument (MATLAB feval evaluates a real
+        # Chebfun at complex points, routing pieces by real(x));
+        # everything else is promoted to float64.
+        x = jnp.asarray(x)
+        if jnp.issubdtype(x.dtype, jnp.complexfloating):
+            x = x.astype(jnp.complex128)
+        else:
+            x = x.astype(jnp.float64)
+        scalar_input = x.ndim == 0
+        x = jnp.atleast_1d(x)
+
+        if len(self.funs) == 1:
+            # Single piece — fully JIT-able.
+            result = self.funs[0](x)
             if scalar_input:
                 result = result[0]
             return self._orient_values(result)
