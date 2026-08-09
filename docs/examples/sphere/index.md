@@ -6,7 +6,6 @@ series in spherical coordinates `(λ, θ)` (longitude, colatitude).
 | Example | Description |
 |---------|-------------|
 | [Atmospheric Temperature](atmospheric_temperature.md) | Original: sphere/AtmosphericTemperature Author(s): Alex Townsend and Grady Wright, May 2016 |
-| [Gravitational Attraction to a Sphere](gravity.md) | Original: sphere/Gravity Author(s): Nick Trefethen, May 2016 |
 | [Rayleigh Quotient on the Sphere](rayleigh_quotient.md) | Original: sphere/RayleighQuotientExample Author(s): Grady Wright, February 2017 |
 
 | [Spherical harmonics (replica)](SphericalHarmonics.md) | Faithful replica: eigen-identity exactly 0; projection error to 14 digits. |
@@ -19,3 +18,4 @@ series in spherical coordinates `(λ, θ)` (longitude, colatitude).
 | [Solid harmonics (replica)](SolidHarmonics.md) | Faithful replica: harmonic to 4e-14, orthonormal to 1e-16. |
 | [Poloidal-toroidal decomposition (replica)](PTDecomposition.md) | Faithful replica: div 1.3e-10, round-trip 1.2e-12. |
 | [Helmholtz decomposition in the ball (replica)](HelmholtzDecompositionBall.md) | Faithful replica: all four identity norms in class or better. |
+| [Gravitational force from a spherical shell (replica)](Gravity.md) | Faithful replica: Newton's theorem force to all 15 published digits. |
