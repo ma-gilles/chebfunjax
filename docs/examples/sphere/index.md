@@ -8,7 +8,6 @@ series in spherical coordinates `(λ, θ)` (longitude, colatitude).
 | [Atmospheric Temperature](atmospheric_temperature.md) | Original: sphere/AtmosphericTemperature Author(s): Alex Townsend and Grady Wright, May 2016 |
 | [Gravitational Attraction to a Sphere](gravity.md) | Original: sphere/Gravity Author(s): Nick Trefethen, May 2016 |
 | [Helmholtz-Hodge in the Ball](helmholtz_decomposition_ball.md) | Original: sphere/HelmholtzDecompositionBall Author(s): Nicolas Boulle and Alex Townsend, May 2019 |
-| [Poloidal-Toroidal Decomposition](pt_decomposition.md) | Original: sphere/PTDecomposition Author(s): Nicolas Boulle and Alex Townsend, May 2019 |
 | [Rayleigh Quotient on the Sphere](rayleigh_quotient.md) | Original: sphere/RayleighQuotientExample Author(s): Grady Wright, February 2017 |
 
 | [Spherical harmonics (replica)](SphericalHarmonics.md) | Faithful replica: eigen-identity exactly 0; projection error to 14 digits. |
@@ -19,3 +18,4 @@ series in spherical coordinates `(λ, θ)` (longitude, colatitude).
 | [The Laplace equation on the unit ball (replica)](LaplaceBall.md) | Honest partial: inner-mean identity exact; helmholtz mode defect ledgered. |
 | [Helmholtz-Hodge decomposition (replica)](HelmholtzDecomposition.md) | Faithful replica: decomposition residual 5.3e-13; DFS spectral calculus. |
 | [Solid harmonics (replica)](SolidHarmonics.md) | Faithful replica: harmonic to 4e-14, orthonormal to 1e-16. |
+| [Poloidal-toroidal decomposition (replica)](PTDecomposition.md) | Faithful replica: div 1.3e-10, round-trip 1.2e-12. |
