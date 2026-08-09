@@ -416,6 +416,26 @@ def pde15s(
         )
         full = np.asarray(sol.y, dtype=np.float64)
 
+    # A failed integration (stiff front, blow-up, tolerance failure)
+    # returns fewer columns than requested output times.  Silently
+    # returning the partial list made the CompactingColloids AJR
+    # equation look "solved" after 2/101 steps -- surface it loudly.
+    if full.shape[1] < len(t_arr):
+        import warnings as _warnings
+
+        reached = float(sol.t[-1]) if sol.t.size else float(t_arr[0])
+        _warnings.warn(
+            "pde15s: time integration stopped early at t="
+            f"{reached:.6g} of {float(t_arr[-1]):.6g} "
+            f"({full.shape[1]}/{len(t_arr)} output times; solver "
+            f"message: {getattr(sol, 'message', 'unknown')}). "
+            "Returning the completed steps only.  Consider a larger "
+            "n, looser rtol/atol, method='BDF', or a conservative "
+            "reformulation for stiff fronts.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+
     # ----------------------------------------------------------------
     # Reconstruct Chebfun at each output time
     # ----------------------------------------------------------------

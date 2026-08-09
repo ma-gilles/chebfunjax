@@ -2705,11 +2705,26 @@ def _resize_fourier2(mat: np.ndarray, n: int, p: int) -> np.ndarray:
 def _sample_boundary_coeffs(g, n: int, p: int) -> np.ndarray:
     """Sample boundary data ``g(lambda, theta)`` on the ``n x p`` trig grid
     and return its Fourier(lambda) x Fourier(theta) coefficients in the
-    ballfun (fftshift + even/odd fix) convention."""
+    ballfun (fftshift + even/odd fix) convention.
+
+    The theta grid is the DOUBLED grid over (-pi, pi); points with
+    ``theta < 0`` are sampled through the glide reflection
+    ``g(lambda + pi, -theta)`` -- the double-Fourier-sphere extension.
+    (MATLAB samples the handle blindly at negative theta, which is
+    correct for Cartesian-form handles -- x, y, z satisfy the glide
+    identity automatically -- but silently violates the BMC structure
+    for spherical-form handles with odd azimuthal content: a Y_4^1
+    Dirichlet solve lost 5 digits at the boundary before this fix.)
+    """
     lam = np.linspace(-np.pi, np.pi, n, endpoint=False)
     th = np.linspace(-np.pi, np.pi, p, endpoint=False)
     ll, tt = np.meshgrid(lam, th, indexing="ij")  # (n, p)
-    vals = np.asarray(g(jnp.asarray(ll), jnp.asarray(tt)), dtype=np.complex128)
+    neg = tt < 0
+    ll_s = np.where(neg, ll + np.pi, ll)
+    ll_s = np.where(ll_s >= np.pi, ll_s - 2 * np.pi, ll_s)
+    tt_s = np.where(neg, -tt, tt)
+    vals = np.asarray(g(jnp.asarray(ll_s), jnp.asarray(tt_s)),
+                      dtype=np.complex128)
     if vals.shape != (n, p):
         vals = np.broadcast_to(vals, (n, p)).astype(np.complex128).copy()
     # Angular transform only (m = 1 skips the radial Chebyshev step).

@@ -2166,6 +2166,15 @@ class Chebtech2(eqx.Module):
         """
         if isinstance(op, Chebtech2):
             # Compose two Chebtech2 objects: op(self(x))
+            if self.coeffs.ndim == 2 and op.coeffs.ndim == 2:
+                # MATLAB @chebtech/compose.m: composing two array-valued
+                # techs g(f) is unsupported ('CHEBTECH:compose:arrval').
+                # Previously this failed incidentally inside the traced
+                # evaluation; the numpy eval path broadcasts instead, so
+                # enforce the contract explicitly.
+                raise ValueError(
+                    "Chebtech2.compose: cannot compose two array-valued "
+                    "techs g(f) (MATLAB CHEBTECH:compose:arrval).")
             op_cheb = op
             composed_func = lambda x: op_cheb(self(x))  # noqa: E731
             min_n = max(self.n, op_cheb.n)

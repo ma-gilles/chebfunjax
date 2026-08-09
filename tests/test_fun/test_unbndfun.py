@@ -474,7 +474,10 @@ class TestUnbndfunCumsum:
         F = f.cumsum()
         xs = jnp.array([0.0, 1.0, 2.0, 3.0], dtype=jnp.float64)
         expected = 1.0 - np.exp(-np.array([0.0, 1.0, 2.0, 3.0]))
-        npt.assert_allclose(np.array(F(xs)), expected, rtol=1e-10)
+        # atol: F(0) is exactly 0 analytically; the numpy Clenshaw eval
+        # path lands one ulp away (2.2e-16), which rtol alone rejects.
+        npt.assert_allclose(np.array(F(xs)), expected, rtol=1e-10,
+                            atol=1e-14)
 
     def test_cumsum_preserves_domain(self):
         """cumsum() result has the same domain as the original."""

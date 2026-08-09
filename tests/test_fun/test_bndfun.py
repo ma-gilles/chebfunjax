@@ -489,8 +489,13 @@ class TestBndfunRoots:
         """minandmax returns consistent (min_val, min_pos, max_val, max_pos)."""
         f = Bndfun.from_function(jnp.sin, D_01PI)
         (min_val, min_pos), (max_val, max_pos) = f.minandmax()
-        npt.assert_allclose(float(f(min_pos)), float(min_val), rtol=1e-12)
-        npt.assert_allclose(float(f(max_pos)), float(max_val), rtol=1e-12)
+        # atol: the min of sin on [0, pi] is 0 at the endpoint; the two
+        # evaluation routes (minandmax internals vs __call__'s numpy
+        # Clenshaw) differ by an ulp there, which rtol alone rejects.
+        npt.assert_allclose(float(f(min_pos)), float(min_val),
+                            rtol=1e-12, atol=1e-14)
+        npt.assert_allclose(float(f(max_pos)), float(max_val),
+                            rtol=1e-12, atol=1e-14)
 
     def test_roots_in_domain(self):
         """All roots should lie in [a, b]."""

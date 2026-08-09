@@ -23,35 +23,33 @@ meanh =
 ```
 
 The Laplace problem is solved with the ballfun Helmholtz solver at
-$K = 0$ with Dirichlet data. The published identities:
+$K = 0$ with Dirichlet data. The published identities (all at
+MATLAB's published accuracy class — the solution matches the
+boundary data to 15 digits and the mean-value identities to 11+
+digits):
 
 ```text
 u(1,0,0) =
-  0.095979128539350        (h: 0.100371957804424)
+  0.100371957804424        (= h(1,0,0) to all digits)
 h(Oxford) =
   -0.800713386023068
 u(Oxford) =
-  -0.805854308162936
+  -0.800713386023069
 u(0,0,0) =
-  0.011762260462489        (meanh: 0.010799506002025)
+  0.010799506001987        (meanh: 0.010799506002025)
 mean2(uinner) =
   0.010799506002025        (= meanh exactly)
 ```
 
-The inner-sphere mean identity holds **exactly**, but the boundary
-and origin identities hold only to ~$5\times10^{-3}$ where MATLAB
-matches to 13 digits.
-
-> **A diagnosed open defect.** The gap is a mode-dependent accuracy
-> loss in the ballfun `helmholtz` $K = 0$ Dirichlet solve: most
-> single-harmonic boundary data solves to machine precision, but
-> specific modes (worst: $Y_4^1$, boundary error $5\times10^{-5}$ at
-> $m = 68$) lose accuracy, additively across the 1024-mode random
-> data. The minimal reproduction and the full mode table are recorded
-> in the audit ledger; this page should be revisited when the
-> spectral core's boundary-row treatment is fixed. The inner-sphere
-> field itself agrees with the exact $r^\ell$ harmonic extension to
-> $1.2\times10^{-3}$:
+(An earlier revision of this page documented a ~$5\times10^{-3}$
+boundary gap as an open defect. The root cause was the sampling of
+spherical-form boundary handles on the doubled theta grid without
+the double-Fourier-sphere glide reflection — odd azimuthal modes
+silently violated the BMC structure. `helmholtz` now applies the
+glide extension when sampling boundary handles, and every
+single-harmonic Dirichlet solve is machine-exact.) The inner-sphere
+field agrees with the exact $r^\ell$ harmonic extension to
+$4.5\times10^{-14}$:
 
 ![LaplaceBall figure 2](../../images/sphere/LaplaceBall_repl_02.png)
 
