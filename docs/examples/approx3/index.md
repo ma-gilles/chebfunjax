@@ -133,42 +133,6 @@ print(f.rank)  # (4, 3, 5)
 
 ---
 
-## Smooth 3D Function Approximation
-
-**Source:** `approx3/` — Nick Trefethen
-
-```python
-import jax.numpy as jnp
-from chebfunjax.chebfun3d.chebfun3 import chebfun3
-
-# exp(x+y+z) is rank-1 in Tucker format
-f = chebfun3(lambda x, y, z: jnp.exp(x + y + z))
-print(f.rank)   # (1, 1, 1)
-
-# Triple integral over [-1,1]^3
-integral = float(f.sum3())
-exact = float((jnp.exp(1.0) - jnp.exp(-1.0))**3)
-print(abs(integral - exact))   # < 1e-8
-```
-
-![3D smooth functions](../../images/approx3/smooth_functions_3d.png)
-
----
-
-## Flux Integrals and Vector Calculus in 3D
-
-**Source:** `approx3/FluxIntegral3D.m`, `approx3/GaussGreenStokes.m`
-
-The divergence theorem: `∫∫∫ div(F) dV = ∮∮ F · dS`.
-
-```python
-# div(F) = 3 => integral over [-1,1]^3 = 24
-div_g = chebfun3(lambda x, y, z: 3 * jnp.ones_like(x + y + z))
-print(float(div_g.sum3()))   # 24.0
-```
-
-![Flux integrals](../../images/approx3/flux_integral_3d.png)
-
 | Example | Description |
 |---------|-------------|
 | [Triple Integrals via Coordinate Transformations](ChangeVar3D.md) | This example uses mappings to compute integrals over non-rectangular three-dimensional volumes. We apply the change o... |
