@@ -1475,6 +1475,34 @@ class Spherefun(eqx.Module):
         return self._binary(other, lambda a, b: b - a)
 
     def __mul__(self, other):
+        # Exact CDR shortcuts (MATLAB @separableApprox/times.m): a
+        # scalar scales the pivots; a rank-1 operand multiplies into
+        # every slice of the other via exact dealiased Trigtech
+        # products.  Both avoid the adaptive re-approximation (and its
+        # marginal-resolution retry cost) entirely.
+        if not isinstance(other, Spherefun) and np.isscalar(other):
+            s = complex(other) if isinstance(other, complex) \
+                else float(other)
+            if s == 0:
+                return self._binary(other, lambda a, b: a * b)
+            return Spherefun(
+                cols=self.cols, rows=self.rows,
+                pivots=self.pivots / s,
+                idx_plus=self.idx_plus, idx_minus=self.idx_minus)
+        if isinstance(other, Spherefun) and not self.isempty() \
+                and not other.isempty():
+            # Only for WELL-RESOLVED operands: a marginal construction
+            # (slices at the max_sample runaway, e.g. from boundary-
+            # discontinuous input like cos(th)*sin(lam)) carries
+            # high-frequency junk that the exact product would preserve
+            # where re-approximation smooths it away.
+            def _healthy(s):
+                return all(t.n < 4096 for t in (*s.cols, *s.rows))
+            if _healthy(self) and _healthy(other):
+                if len(self.pivots) == 1:
+                    return _spherefun_mul_rank1(self, other)
+                if len(other.pivots) == 1:
+                    return _spherefun_mul_rank1(other, self)
         return self._binary(other, lambda a, b: a * b)
 
     __rmul__ = __mul__
@@ -2466,6 +2494,33 @@ def _spherefun_sph_coeffs(f: "Spherefun", lmax: int) -> dict:
             Y = np.asarray(Yall[(l, m)]).reshape(TH.shape)
             coeffs[(l, m)] = float(np.sum(F * Y * weight))
     return coeffs
+
+
+def _spherefun_mul_rank1(f1: "Spherefun", g: "Spherefun") -> "Spherefun":
+    """Exact product with a rank-1 factor (MATLAB
+    @separableApprox/times.m rank-1 branch): multiply f1's single
+    column/row slice into every slice of ``g`` with exact dealiased
+    Trigtech products; pivots multiply (evaluation is
+    ``sum_j (1/p_j) c_j r_j``, so ``1/p_h = (1/p_f)(1/p_g)``).  The
+    BMC parity classes compose: a 'plus' (even/pi-periodic) factor
+    preserves g's classes; a 'minus' factor swaps them.
+    """
+    cf = f1.cols[0]
+    rf = f1.rows[0]
+    new_cols = [(cf * c).simplify() for c in g.cols]
+    new_rows = [(rf * r).simplify() for r in g.rows]
+    p_h = np.asarray(f1.pivots)[0] * np.asarray(g.pivots)
+    f_minus = len(f1.idx_minus) > 0
+    if f_minus:
+        idx_plus = tuple(g.idx_minus)
+        idx_minus = tuple(g.idx_plus)
+    else:
+        idx_plus = tuple(g.idx_plus)
+        idx_minus = tuple(g.idx_minus)
+    return Spherefun(
+        cols=new_cols, rows=new_rows,
+        pivots=jnp.asarray(p_h),
+        idx_plus=idx_plus, idx_minus=idx_minus)
 
 
 def _spherefun_diff_cart(f: "Spherefun", dim: int) -> "Spherefun":
