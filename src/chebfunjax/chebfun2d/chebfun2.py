@@ -1255,9 +1255,11 @@ class Chebfun2(eqx.Module):
         return (-self) + other
 
     def __mul__(self, other) -> "Chebfun2":
-        """Scalar multiply scales the pivots (exact); f.*g re-approximates
-        the pointwise product with the constructor, exactly as MATLAB
-        @separableApprox/times.m does.
+        """Scalar multiply scales the pivots (exact); a rank-1 operand
+        multiplies into the other factor's slices exactly ("Grady's
+        faster times" in MATLAB @separableApprox/times.m); the general
+        f.*g re-approximates the pointwise product with the constructor,
+        exactly as MATLAB does.
 
         Provenance
         ----------
@@ -1272,6 +1274,11 @@ class Chebfun2(eqx.Module):
             return Chebfun2(approx=approx)
         if isinstance(other, Chebfun2):
             self._check_same_domain(other)
+            for one, many in ((self.approx, other.approx),
+                              (other.approx, self.approx)):
+                if len(one.cols) == 1 and _mul_healthy(one) \
+                        and _mul_healthy(many):
+                    return Chebfun2(approx=_mul_rank1(one, many))
             return Chebfun2.from_function(
                 lambda x, y: self(x, y) * other(x, y),
                 domain=self.approx.domain)
@@ -2113,6 +2120,45 @@ def chebfun2(
             def f(x, y):
                 return g(x + 1j * y)
     return Chebfun2.from_function(f, domain=domain, tol=tol, n=n)
+
+
+def _mul_healthy(a: SeparableApprox) -> bool:
+    """Operand sanity for the exact rank-1 product: bounded slice lengths
+    (a marginally-resolved operand at the sampling cap carries junk that
+    the exact product would preserve where re-approximation smooths it)."""
+    import numpy as _np
+    if not all(int(t.coeffs.shape[0]) < 4096 for t in a.cols) or \
+            not all(int(t.coeffs.shape[0]) < 4096 for t in a.rows):
+        return False
+    return bool(_np.all(_np.isfinite(_np.asarray(a.pivots))))
+
+
+def _mul_rank1(f1: SeparableApprox, g: SeparableApprox) -> SeparableApprox:
+    """Exact product of a rank-1 SeparableApprox with another one.
+
+    "Grady's faster times": with f = d1 * c1(y) r1(x), each slice of g is
+    multiplied by the corresponding rank-1 factor (dealiased Chebtech
+    products), the pivot magnitude split as sqrt(|d1|) between columns
+    and rows and its sign carried by the rows, so h keeps g's pivots.
+
+    Provenance
+    ----------
+    MATLAB source : @separableApprox/times.m ("Grady's faster times")
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+    d1 = complex(_np.asarray(f1.pivots).reshape(-1)[0])
+    sq = float(_np.sqrt(abs(d1)))                 # split |d1| symmetrically
+    sgn = d1 / abs(d1) if d1 != 0 else 0.0        # sign goes to the rows
+    if abs(sgn.imag) < 1e-15:
+        sgn = sgn.real
+    c1s = f1.cols[0] * sq
+    r1s = f1.rows[0] * (sq * sgn)
+    new_cols = [c1s * c for c in g.cols]
+    new_rows = [r1s * r for r in g.rows]
+    return SeparableApprox(cols=new_cols, rows=new_rows,
+                           pivots=jnp.asarray(g.pivots),
+                           domain=g.domain)
 
 
 # ============================================================================
