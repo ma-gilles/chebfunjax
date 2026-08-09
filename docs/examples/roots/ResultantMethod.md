@@ -39,12 +39,12 @@ r =
    0.000105 0.000526
 ```
 
-![ResultantMethod figure 4](../../images/roots/ResultantMethod_repl_05.png)
+![ResultantMethod figure 4](../../images/roots/ResultantMethod_repl_04.png)
 
 The resultant method confirms both solutions (MATLAB's resultant
 values match ours to display precision):
 
-![ResultantMethod figure 5](../../images/roots/ResultantMethod_repl_06.png)
+![ResultantMethod figure 5](../../images/roots/ResultantMethod_repl_05.png)
 
 ---
 

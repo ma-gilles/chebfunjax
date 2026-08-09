@@ -24,6 +24,3 @@ illustrate rootfinding in one dimension.
 | [The average degree reduction of subdivision, 2D (replica)](AverageDegreeReduction2D.md) | Faithful replica: tau = 0.52/0.7071 matching the theory; Elliott table digit-for-digit. |
 | [Computing common roots of two bivariate functions (replica)](BivariateRoots.md) | Faithful replica: Bezout + DLP linearization; truncation errors match published values. |
 | [Roots of a secular equation with poles (replica)](SecularRoots.md) | Faithful replica: pole-aware division (SingFun pieces), jump roots vs 'nojump' — digit-for-digit. |
-| [The mystery of Bernoulli polynomials](bernoulli_polynomials.md) | Bernoulli polynomials are a family of polynomials defined by the recurrence |
-| [Extrema and Roots](extrema_and_roots.md) | The extrema of a Chebfun ... are the roots of its derivative .... Chebfun computes both with spectral accuracy. |
-| [Polynomial Roots](polynomial_roots.md) | Chebfun finds roots by converting the Chebyshev expansion to a companion matrix and computing its eigenvalues. This i... |

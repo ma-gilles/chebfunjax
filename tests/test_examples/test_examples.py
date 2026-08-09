@@ -33,29 +33,7 @@ def _load(category: str, name: str):
 # ---------------------------------------------------------------------------
 
 class TestApprox:
-    def test_polynomial_approximation(self):
-        assert _load("approx", "polynomial_approximation").run()
-
-    def test_chebyshev_coefficients(self):
-        assert _load("approx", "chebyshev_coefficients").run()
-
-    def test_piecewise_smooth(self):
-        assert _load("approx", "piecewise_smooth").run()
-
-    def test_rational_like_convergence(self):
-        assert _load("approx", "rational_like_convergence").run()
-
-    def test_bessel_approximation(self):
-        assert _load("approx", "bessel_approximation").run()
-
-    def test_hermite_interpolation(self):
-        assert _load("approx", "hermite_interpolation").run()
-
-    def test_special_functions(self):
-        assert _load("approx", "special_functions").run()
-
-    def test_absolute_value_newton(self):
-        assert _load("approx", "absolute_value_newton").run()
+    pass  # inspired-by scripts removed; see faithful replicas
 
 
 # ---------------------------------------------------------------------------
@@ -63,20 +41,7 @@ class TestApprox:
 # ---------------------------------------------------------------------------
 
 class TestCalc:
-    def test_definite_indefinite_integrals(self):
-        assert _load("calc", "definite_indefinite_integrals").run()
-
-    def test_differentiation(self):
-        assert _load("calc", "differentiation").run()
-
-    def test_bird_flight_optimization(self):
-        assert _load("calc", "bird_flight_optimization").run()
-
-    def test_mean_value_theorem(self):
-        assert _load("calc", "mean_value_theorem").run()
-
-    def test_snells_law(self):
-        assert _load("calc", "snells_law").run()
+    pass  # inspired-by scripts removed; see faithful replicas
 
 
 # ---------------------------------------------------------------------------
@@ -94,11 +59,6 @@ class TestRoots:
     def test_newton_raphson_replica(self):
         _load("roots", "newton_raphson_replica").run()
 
-    def test_polynomial_roots(self):
-        assert _load("roots", "polynomial_roots").run()
-
-    def test_extrema_and_roots(self):
-        assert _load("roots", "extrema_and_roots").run()
 
     def test_white_curves_replica(self):
         _load("roots", "white_curves_replica").run()
@@ -109,17 +69,7 @@ class TestRoots:
 # ---------------------------------------------------------------------------
 
 class TestQuad:
-    def test_clenshaw_curtis(self):
-        assert _load("quad", "clenshaw_curtis").run()
-
-    def test_gauss_quadrature(self):
-        assert _load("quad", "gauss_quadrature").run()
-
-    def test_convergence_rates(self):
-        assert _load("quad", "convergence_rates").run()
-
-    def test_tricky_integrals(self):
-        assert _load("quad", "tricky_integrals").run()
+    pass  # inspired-by scripts removed; see faithful replicas
 
 
 # ---------------------------------------------------------------------------
@@ -135,17 +85,9 @@ class TestOdeLinear:
     def test_linear_ivp_replica(self):
         _load("ode-linear", "linear_ivp_replica").run()
 
-    def test_poisson_equation(self):
-        assert _load("ode-linear", "poisson_equation").run()
-
-    def test_airy_equation(self):
-        assert _load("ode-linear", "airy_equation").run()
 
     def test_boundary_layer_replica(self):
         _load("ode-linear", "boundary_layer_replica").run()
-
-    def test_bessel_bvp(self):
-        assert _load("ode-linear", "bessel_bvp").run()
 
 
 # ---------------------------------------------------------------------------
@@ -157,7 +99,6 @@ class TestOdeNonlin:
         # Faithful replica (2026-08): prints MATLAB-parity outputs and
         # returns None; completion is the assertion.
         _load("ode-nonlin", "carrier_replica").run()
-
 
 
 # ---------------------------------------------------------------------------
@@ -219,11 +160,7 @@ class TestLinalg:
 # ---------------------------------------------------------------------------
 
 class TestComplex:
-    def test_contour_integrals(self):
-        assert _load("complex", "contour_integrals").run()
-
-    def test_argument_principle(self):
-        assert _load("complex", "argument_principle").run()
+    pass  # inspired-by scripts removed; see faithful replicas
 
 
 # ---------------------------------------------------------------------------
@@ -231,8 +168,6 @@ class TestComplex:
 # ---------------------------------------------------------------------------
 
 class TestFourier:
-    def test_fourier_coefficients(self):
-        assert _load("fourier", "fourier_coefficients").run()
+    pass  # inspired-by scripts removed; see faithful replicas
 
-    def test_gibbs_phenomenon(self):
-        assert _load("fourier", "gibbs_phenomenon").run()
+

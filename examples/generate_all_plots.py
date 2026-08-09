@@ -32,38 +32,16 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
 
 EXAMPLES = [
     # approx
-    ("approx.polynomial_approximation",     "approx / polynomial_approximation"),
-    ("approx.chebyshev_coefficients",       "approx / chebyshev_coefficients"),
-    ("approx.piecewise_smooth",             "approx / piecewise_smooth"),
-    ("approx.rational_like_convergence",    "approx / rational_like_convergence"),
-    ("approx.bessel_approximation",         "approx / bessel_approximation"),
-    ("approx.hermite_interpolation",        "approx / hermite_interpolation"),
-    ("approx.special_functions",            "approx / special_functions"),
-    ("approx.absolute_value_newton",        "approx / absolute_value_newton"),
     # calc
-    ("calc.definite_indefinite_integrals",  "calc / definite_indefinite_integrals"),
-    ("calc.differentiation",                "calc / differentiation"),
-    ("calc.bird_flight_optimization",       "calc / bird_flight_optimization"),
-    ("calc.mean_value_theorem",             "calc / mean_value_theorem"),
-    ("calc.snells_law",                     "calc / snells_law"),
     # roots
     ("roots.bessel_roots",                  "roots / bessel_roots"),
     ("roots.newton_raphson",                "roots / newton_raphson"),
-    ("roots.polynomial_roots",              "roots / polynomial_roots"),
-    ("roots.extrema_and_roots",             "roots / extrema_and_roots"),
     ("roots.random_polynomials",            "roots / random_polynomials"),
     # quad
-    ("quad.clenshaw_curtis",                "quad / clenshaw_curtis"),
-    ("quad.gauss_quadrature",               "quad / gauss_quadrature"),
-    ("quad.convergence_rates",              "quad / convergence_rates"),
-    ("quad.tricky_integrals",               "quad / tricky_integrals"),
     # ode-linear
     ("ode-linear.wiki_odes",                "ode-linear / wiki_odes"),
     ("ode-linear.linear_ivp_cosine",        "ode-linear / linear_ivp_cosine"),
-    ("ode-linear.poisson_equation",         "ode-linear / poisson_equation"),
-    ("ode-linear.airy_equation",            "ode-linear / airy_equation"),
     ("ode-linear.boundary_layer",           "ode-linear / boundary_layer"),
-    ("ode-linear.bessel_bvp",               "ode-linear / bessel_bvp"),
     # ode-nonlin
     ("ode-nonlin.exact_solutions_bender_orszag", "ode-nonlin / exact_solutions_bender_orszag"),
     ("ode-nonlin.logistic_equation",             "ode-nonlin / logistic_equation"),
@@ -83,11 +61,7 @@ EXAMPLES = [
     ("linalg.resolvent_norm",               "linalg / resolvent_norm"),
     ("linalg.matrix_functions",             "linalg / matrix_functions"),
     # complex
-    ("complex.contour_integrals",           "complex / contour_integrals"),
-    ("complex.argument_principle",          "complex / argument_principle"),
     # fourier
-    ("fourier.fourier_coefficients",        "fourier / fourier_coefficients"),
-    ("fourier.gibbs_phenomenon",            "fourier / gibbs_phenomenon"),
 ]
 
 

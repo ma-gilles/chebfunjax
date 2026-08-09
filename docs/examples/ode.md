@@ -207,50 +207,11 @@ and `examples/ode-eig/`.
 
 ![Linear IVP cosine](../images/ode-linear/linear_ivp_cosine.png)
 
-### Poisson equation
-
-![Poisson equation](../images/ode-linear/poisson_equation.png)
-
-### Airy equation
-
-![Airy equation](../images/ode-linear/airy_equation.png)
-
 ### Boundary layer
 
 ![Boundary layer](../images/ode-linear/boundary_layer.png)
-
-### Bessel BVP
-
-![Bessel BVP](../images/ode-linear/bessel_bvp.png)
-
-### Logistic equation
-
-![Logistic equation](../images/ode-nonlin/logistic_equation.png)
 
 ### Carrier equation
 
 ![Carrier equation](../images/ode-nonlin/carrier_equation.png)
 
-### Pendulum equation
-
-![Pendulum](../images/ode-nonlin/pendulum_equation.png)
-
-### Nonlinear BVP (Bender & Orszag)
-
-![Bender-Orszag](../images/ode-nonlin/exact_solutions_bender_orszag.png)
-
-### Laplacian eigenvalues
-
-![Laplacian eigenvalues](../images/ode-eig/laplacian_eigenvalues.png)
-
-### Quantum harmonic oscillator
-
-![Harmonic oscillator](../images/ode-eig/harmonic_oscillator.png)
-
-### Sturm-Liouville
-
-![Sturm-Liouville](../images/ode-eig/sturm_liouville.png)
-
-### Double-well Schrödinger
-
-![Double well](../images/ode-eig/double_well.png)

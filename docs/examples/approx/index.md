@@ -62,17 +62,4 @@ classical families of special functions.
 | [Splines](Splines.md) | Chebfun has a ... command analogous to MATLAB's. It constructs a piecewise cubic polynomial that interpolates given d... |
 | [A Pathological Function of Weierstrass](WeierstrassFunction.md) | In 1872, Karl Weierstrass shocked the mathematical world by constructing |
 | [A Wiggly Function and Its Best Approximations](WigglyApprox.md) | The wiggly function ... on ... has frequency that increases with ...: while ... has frequency ..., the term |
-| [Absolute Value Approximations by Rationals](absolute_value_newton.md) | Peter Lax observed a beautiful approach to approximating ...: solve the equation ... by Newton's method starting from... |
-| [Approximating Bessel Functions](bessel_approximation.md) | Bessel functions ... are solutions of Bessel's differential equation. They are entire functions and their Chebyshev a... |
-| [Chebyshev Coefficient Decay](chebyshev_coefficients.md) | The rate at which Chebyshev coefficients ... decay encodes the smoothness of the function. For an analytic function w... |
-| [The Gamma Function and Its Poles](gamma_function.md) | This example displays some of chebfunjax's capabilities for functions with singularities, using the gamma function ..... |
-| [Hermite Interpolation](hermite_interpolation.md) | Hermite interpolation matches both the values and derivatives of a function at a set of nodes. It naturally produces ... |
-| [Lebesgue Functions and Lebesgue Constants](lebesgue_constants.md) | Suppose we have ... interpolation nodes ... in ... and want to interpolate a function ... at these points by a degree... |
-| [Orthogonal Polynomials via Gram-Schmidt](orthogonal_polynomials.md) | Orthogonal polynomials are polynomials that are orthogonal with respect to a weighted ... inner product: |
-| [Piecewise Smooth Functions](piecewise_smooth.md) | Functions with kinks or jump discontinuities require piecewise Chebyshev representations. Chebfun can handle these by... |
 | [Best Polynomial Approximation in the L1 Norm](polyfitL1.md) | A key property of L1 best approximants: the error is highly concentrated near the singularity (kink) of the function,... |
-| [Polynomial Approximation](polynomial_approximation.md) | Polynomial approximation is one of the most fundamental topics in numerical analysis. Chebfun uses Chebyshev interpol... |
-| [Chebyshev Interpolation of Oscillatory Entire Functions](polynomial_convergence.md) | In this example we explore the approximation properties of Chebyshev interpolation for entire functions — that is, fu... |
-| [Rational-Like Convergence](rational_like_convergence.md) | Functions with algebraic singularities (poles, branch points) near ... have Chebyshev coefficients that decay algebra... |
-| [Special Functions](special_functions.md) | Chebfun can approximate special functions (Airy, Bessel, gamma, etc.) by constructing Chebyshev interpolants via call... |
-| [A Pathological Function of Weierstrass](weierstrass.md) | In the late nineteenth century, Karl Weierstrass shocked the mathematical community by constructing a function that i... |

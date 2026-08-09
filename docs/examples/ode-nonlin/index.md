@@ -16,7 +16,6 @@ physics and engineering.
 | [Delay differential equations in Chebfun (replica)](DelayDifferentialEquations.md) | Faithful replica: 19 of 22 sections, hand-Newton matching MATLAB to 12 digits; 3 sections behind a ledgered performance wall. |
 | [A droplet sitting on a surface (replica)](Droplets.md) | Faithful replica: volume to 12 digits; unknown contact radius solved as a scalar parameter. |
 | [Exact solutions of nonlinear ODEs from Bender and Orszag (replica)](ExactSolns.md) | Faithful replica: four closed-form ODEs; BVP error 1.3e-15, default Newton guess now satisfies the BCs. |
-| [Four bugs on a rectangle](four_bugs.md) | Four bugs start at the corners of a ... rectangle. Each bug always moves directly toward the next bug (clockwise). Th... |
 | [Fourier collocation for nonlinear periodic ODEs (replica)](FourierCollocationNonLin.md) | Faithful replica: two Newton branches, second-solution length 81 exact. |
 | [A nonlinear system of Guckenheimer and Holmes (replica)](GuckenheimerHolmes.md) | Faithful replica: heteroclinic cycle, crossing-time gaps growing geometrically at ~1.33-1.38 per cycle. |
 | [A Gulf Stream model (replica)](GulfStream.md) | Faithful replica: 3rd-order nonlinear BVP with two left-end conditions; conserved quantity I = 1/2. |
@@ -28,10 +27,7 @@ physics and engineering.
 | [Lyapunov exponents (replica)](LyapunovExponents.md) | Faithful replica: Lorenz separation over 10 decades, exponent 0.930 vs published 0.934. |
 | [Modelling diseases (replica)](ModellingDiseases.md) | Faithful replica: SIR model, peak 240 exact, crossover time to 11 digits. |
 | [Orbiting around fixed masses (replica)](Orbits.md) | Faithful replica: complex-plane orbits via ode113; arc length and closest approach to 9-10 digits. |
-| [Parameter-dependent ODEs: three examples](param_odes.md) | Demonstrates three ODE problems with parameters: 1. An eigenvalue-type boundary condition with an interior constraint |
 | [Picard iteration for ODE existence proof (replica)](Picard.md) | Faithful replica: iterate error orders t^1..t^4 confirmed by fit; k=4 floor traced to the solver's residual. |
-| [Half-wave rectifier](rectifier.md) | Simulates a stiff half-wave rectifier circuit with a diode: |
-| [Nonlinear ODE modeling solar magnetic fields](solar_fields.md) | Solves the nonlinear ODE arising in the modeling of force-free solar magnetic fields in a spherical geometry. The equ... |
 | [A square limit cycle (replica)](SquareCycle.md) | Faithful replica: heteroclinic cycle through four saddles; switching times match to plotting accuracy. |
 | [The three-body problem (replica)](ThreeBodyProblem.md) | Faithful replica: figure-eight orbit; ratinterp type (151,8) and error matching MATLAB to 4 digits. |
 | [Pythagorean planets (replica)](ThreePlanets.md) | Faithful replica: complex 3-body self-ionization at t~86; centre of mass conserved to 2.8e-13. |

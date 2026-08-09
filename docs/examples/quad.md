@@ -46,43 +46,11 @@ print(f"int P_{n}^2 = {I:.10f}  exact: {2/(2*n+1):.10f}")
 
 | Example | Description |
 |---------|-------------|
-| [BatteryTest](quad/battery_test.md) | Kahaner battery of test integrands |
-| [SpikeIntegral](quad/spike_integral.md) | Spike function with Chebfun degree ~13000 |
-| [HermiteQuad](quad/hermite_quad.md) | Gauss-Hermite quadrature via Jacobi matrix eigenvalues |
-| [SymbolicNumeric](quad/symbolic_numeric.md) | Comparison of 8 symbolic and numerical integrals |
+| [SpikeIntegral](quad/SpikeIntegral.md) | Spike function with Chebfun degree ~13000 |
+| [HermiteQuad](quad/HermiteQuad.md) | Gauss-Hermite quadrature via Jacobi matrix eigenvalues |
+| [SymbolicNumeric](quad/SymbolicNumeric.md) | Comparison of 8 symbolic and numerical integrals |
 
 ---
 
 ## Gallery
 
-### Clenshaw-Curtis quadrature
-
-![Clenshaw-Curtis](../images/quad/clenshaw_curtis.png)
-
-### Gauss-Legendre nodes
-
-![Gauss quadrature](../images/quad/gauss_quadrature.png)
-
-### Convergence rates
-
-![Convergence rates](../images/quad/convergence_rates.png)
-
-### Tricky integrals
-
-![Tricky integrals](../images/quad/tricky_integrals.png)
-
-### Kahaner battery test
-
-![Battery test](../images/quad/battery_test.png)
-
-### Spike integral
-
-![Spike integral](../images/quad/spike_integral.png)
-
-### Hermite quadrature
-
-![Hermite quadrature](../images/quad/hermite_quad.png)
-
-### Symbolic-numeric comparison
-
-![Symbolic numeric](../images/quad/symbolic_numeric.png)
