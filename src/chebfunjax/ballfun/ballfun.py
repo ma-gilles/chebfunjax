@@ -2415,9 +2415,9 @@ class Ballfun(eqx.Module):
         MATLAB source : @ballfun/solharm.m
         Chebfun commit: 7574c77
         """
+        from chebfunjax.tech.trigtech import trig_vals2coeffs
         from chebfunjax.utils.quadrature import chebpts
         from chebfunjax.utils.transforms import vals2coeffs
-        from chebfunjax.tech.trigtech import trig_vals2coeffs
 
         am = abs(int(m))
         l = int(l)
