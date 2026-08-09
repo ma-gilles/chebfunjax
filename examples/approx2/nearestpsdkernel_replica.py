@@ -63,6 +63,7 @@ def nearest_psd(K):
     """PSD part of a symmetric chebfun2 (subfunction nearestPSD):
     KHat = U*diag(max(Lambda,0))*V', assembled directly as a CDR."""
     import jax.numpy as jnp
+
     from chebfunjax.chebfun2d.separable_approx import SeparableApprox
 
     xa, xb, ya, yb = K.domain

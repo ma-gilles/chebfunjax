@@ -24,8 +24,8 @@ import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-from chebfunjax.utils.random import randnfun2
 from chebfunjax.plotting import chebfun_style
+from chebfunjax.utils.random import randnfun2
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))

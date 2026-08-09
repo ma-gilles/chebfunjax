@@ -51,15 +51,10 @@ class TestSpherefunRoots:
         r = f.roots()
         assert float(np.max(np.abs(r[0][:, 1]))) < TOL
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="2*sinh(5xyz) vanishes on three INTERSECTING great circles "
-        "(x=0, y=0, z=0). Viewing the spherefun as a chebfun2 on the "
-        "(lambda, theta) rectangle and tracing its zero set gives ~1e-3 "
-        "residual near the axis crossings (worst contour 1.4e-3 vs the 1e-3 "
-        "MATLAB tolerance) -- the re-approximation error at the crossings on "
-        "the pole-singular rectangle is the limit. Simple (non-crossing) "
-        "contours are exact; see test_simple_contours. Not widened.")
+    # Formerly a strict xfail (worst contour 1.4e-3 vs the 1e-3 MATLAB
+    # tolerance): the 2026-08 SeparableApprox global-tolerance slice
+    # chop improved the chebfun2-view re-approximation at the great-
+    # circle crossings and the residual now clears the MATLAB bound.
     def test_sinh_residual(self):
         def fn(lam, th):
             x, y, z = _xyz(lam, th)

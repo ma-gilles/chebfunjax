@@ -43,10 +43,21 @@ class TestChebGallery2:
         f, fa = gallery2(name, return_handle=True)
         dom = _REGISTRY[name][1]
         # Self-imposed bound (no MATLAB-mirrored tolerance exists for
-        # gallery reconstruction).  Measured: airycomplex hits 8.8e-9 on
-        # CI BLAS (scipy complex Airy) vs ~1e-10 locally; 1e-7 keeps a
-        # 10x margin over the worst measured error.
-        assert _sample_err(f, fa, dom, seed=abs(hash(name)) % 2 ** 31) < 1e-7
+        # gallery reconstruction), made vscale-relative in 2026-08: the
+        # global-tolerance slice chop (matching MATLAB's quasimatrix
+        # simplify) makes absolute error scale with the entry's vscale.
+        # airycomplex has vscale 7.1e4; MATLAB R2025b's own chebfun2
+        # reconstructs it to 4.6e-8 ABSOLUTE (6.6e-13 relative), ours
+        # measures ~1.9e-7 (2.7e-12 relative).  1e5*eps*vscale gives
+        # ~8x margin there while keeping 1e-7 for O(1)-vscale entries.
+        import numpy as _np
+        rng = _np.random.default_rng(0)
+        xa, xb, ya, yb = dom
+        xs = rng.uniform(xa, xb, 64)
+        ys = rng.uniform(ya, yb, 64)
+        vscale = float(_np.max(_np.abs(_np.asarray(fa(xs, ys)))))
+        tol = max(1e-7, 1e5 * 2.22e-16 * vscale)
+        assert _sample_err(f, fa, dom, seed=abs(hash(name)) % 2 ** 31) < tol
 
     def test_no_arg_returns_random(self):
         f = gallery2()

@@ -3833,8 +3833,6 @@ class Chebop:
         def _apply(u):
             return self.op(xf, u) if op_arity2 else self.op(u)
 
-        order = int(self._piecewise_orders(1)[0])
-
         def solve_at(m):
             kk = _np.arange(m)
             X = a + (b - a) * (_np.cos(_np.pi * kk / (m - 1))[::-1] + 1) / 2
@@ -4198,14 +4196,14 @@ class Chebop:
                         _np.abs(ln - ls)
                         / _np.maximum(1.0, _np.abs(ln))))
                     if d < 1e-10:
-                        lam_sel, W_sel, xps, m_used = (
+                        lam_sel, W_sel, _, m_used = (
                             lam_new, W_new, xps_new, m_new)
                         break
                     if prev_d is not None and d > 10 * prev_d:
                         break     # roundoff divergence: keep coarser
                     prev_d = d
                 m = 2 * m
-                lam_sel, W_sel, xps, m_used = (
+                lam_sel, W_sel, _, m_used = (
                     lam_new, W_new, xps_new, m_new)
 
         order_idx = _np.argsort(sel_key(lam_sel), kind="stable")
