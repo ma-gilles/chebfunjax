@@ -12,7 +12,6 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import jax.numpy as jnp
-import pytest
 
 from chebfunjax.tech.trigtech import Trigtech
 
@@ -22,7 +21,9 @@ def _tt(f):
 
 
 def _isempty(f):
-    return f.n == 0
+    # Both empty forms: the field-less object-empty (Trigtech.empty())
+    # and a zero-length-coefficients tech.
+    return f.isempty() or f.n == 0
 
 
 class TestTrigtechIsempty:
@@ -34,14 +35,16 @@ class TestTrigtechIsempty:
         f = _tt(lambda x: jnp.sin(200 * jnp.pi * x))
         assert not _isempty(f)
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_array_nonempty(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        f = _tt(lambda x: jnp.stack(
+            [jnp.sin(200 * jnp.pi * x), jnp.cos(200 * jnp.pi * x)], axis=-1))
+        assert not _isempty(f)
 
-    @pytest.mark.xfail(reason="chebfunjax lacks horizontal concatenation of trigtechs")
     def test_concatenated_nonempty(self):
-        raise AssertionError("trigtech concatenation not implemented")
+        f = Trigtech.horzcat(_tt(lambda x: jnp.sin(200 * jnp.pi * x)),
+                             _tt(lambda x: jnp.sin(200 * jnp.pi * x)))
+        assert not _isempty(f)
 
-    @pytest.mark.xfail(reason="chebfunjax lacks horizontal concatenation of trigtechs")
     def test_concatenated_empty(self):
-        raise AssertionError("trigtech concatenation not implemented")
+        f = Trigtech.horzcat(Trigtech.empty(), Trigtech.empty())
+        assert _isempty(f)

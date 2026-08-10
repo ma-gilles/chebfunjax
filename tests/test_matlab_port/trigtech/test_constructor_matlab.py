@@ -61,13 +61,21 @@ class TestTrigtechConstructor:
         f = _tt(lambda x: jnp.where(x < -2, 1.0, 0.0))
         assert _ninf(f(XX)) < EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
-    def test_array_values_nested(self):
-        raise AssertionError("array-valued trigtech not implemented")
+    def _array_op(self, x):
+        return jnp.stack([jnp.exp(jnp.sin(jnp.pi * x)),
+                          jnp.sin(jnp.cos(4 * jnp.pi * x)),
+                          jnp.cos(jnp.pi * x)], axis=-1)
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
+    def test_array_values_nested(self):
+        g = _tt(self._array_op)
+        x = trigpts(g.n)
+        assert _ninf(self._array_op(x) - g.values) < 10 * g.vscale * EPS
+
     def test_array_values_resampling(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        # chebfunjax has a single construction path; mirror the array check.
+        g = _tt(self._array_op)
+        x = trigpts(g.n)
+        assert _ninf(self._array_op(x) - g.values) < 10 * g.vscale * EPS
 
     @pytest.mark.xfail(
         reason="chebfunjax from_function does not raise on NaN-valued input; it returns "

@@ -2111,6 +2111,10 @@ class Trigtech(eqx.Module):
         MATLAB source : @chebtech/plus.m (analogous)
         Chebfun commit: 7574c77
         """
+        if self.isempty() or (isinstance(other, Trigtech)
+                              and other.isempty()):
+            # MATLAB @trigtech/plus.m: empty argument -> empty result.
+            return Trigtech.empty()
         if isinstance(other, Trigtech):
             nf, ng = self.n, other.n
             n = max(nf, ng)
@@ -2160,12 +2164,17 @@ class Trigtech(eqx.Module):
         ----------
         MATLAB source : @chebtech/minus.m (analogous)
         """
+        if self.isempty() or (isinstance(other, Trigtech)
+                              and other.isempty()):
+            return Trigtech.empty()
         return self + (-other)
 
     def __rsub__(self, other) -> "Trigtech":
         return -(self - other)
 
     def __neg__(self) -> "Trigtech":
+        if self.isempty():
+            return Trigtech.empty()
         return Trigtech(coeffs=-self.coeffs, is_real=self.is_real, ishappy=self.ishappy)
 
     def __pos__(self) -> "Trigtech":
@@ -2178,6 +2187,10 @@ class Trigtech(eqx.Module):
         ----------
         MATLAB source : @chebtech/times.m (analogous)
         """
+        if self.isempty() or (isinstance(other, Trigtech)
+                              and other.isempty()):
+            # MATLAB @trigtech/times.m: empty argument -> empty result.
+            return Trigtech.empty()
         if isinstance(other, Trigtech):
             # Multiply in physical space to avoid aliasing
             n = self.n + other.n
@@ -2292,7 +2305,12 @@ class Trigtech(eqx.Module):
         MATLAB source : @trigtech/mtimes.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return Trigtech.empty()
         A = jnp.asarray(other)
+        if A.size == 0:
+            # MATLAB @trigtech/mtimes.m: f * [] is empty.
+            return Trigtech.empty()
         c = self.coeffs if self.coeffs.ndim == 2 else self.coeffs[:, None]
         return Trigtech(coeffs=c @ A.astype(jnp.complex128),
                         is_real=self.is_real and bool(jnp.isrealobj(A)),

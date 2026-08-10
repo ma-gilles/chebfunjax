@@ -63,7 +63,10 @@ class TestTrigtechAlias:
         op = lambda x: 1 + jnp.cos(3 * jnp.pi * x) + 1j * jnp.sin(2 * jnp.pi * x)
         assert _alias_by_interpolating(op, n) < _TOL
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     @pytest.mark.parametrize("n", [1, 2, 3, 7, 10, 12, 15])
     def test_alias_array_valued(self, n):
-        raise AssertionError("array-valued trigtech not implemented")
+        op = lambda x: jnp.stack(
+            [jnp.cos(jnp.pi * x),
+             jnp.sin(1 + jnp.cos(jnp.pi * x)),
+             jnp.exp(jnp.cos(jnp.pi * x))], axis=-1)
+        assert _alias_by_interpolating(op, n) < _TOL

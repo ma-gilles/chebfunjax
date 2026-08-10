@@ -74,9 +74,14 @@ class TestTrigtechMtimes:
         g = 0.0 * f
         assert bool(jnp.all(g.coeffs == 0))
 
-    @pytest.mark.xfail(reason="chebfunjax lacks empty-argument arithmetic")
     def test_empty_arguments(self):
-        raise AssertionError("empty trigtech arithmetic not implemented")
+        # MATLAB: isempty(f*[]) && isempty(2*g) && isempty(g*2) for empty g.
+        import numpy as np
+        f = _tt(lambda x: jnp.sin(10 * jnp.pi * x))
+        g = Trigtech.empty()
+        assert (f @ np.zeros((1, 0))).isempty()
+        assert (2.0 * g).isempty()
+        assert (g * 2.0).isempty()
 
     def test_array_scalar_mult_commutes(self):
         # pass(5): alpha*f == f*alpha for array-valued f.

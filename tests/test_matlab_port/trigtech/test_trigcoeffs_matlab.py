@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.tech.trigtech import Trigtech
 
@@ -95,17 +94,42 @@ class TestTrigtechTrigcoeffs:
         p = _trigcoeffs(f, 4)
         assert _ninf(p - jnp.array([1, 0, 2, 0])) < 10 * f.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
+    def _array_f(self):
+        return _tt(lambda x: jnp.stack(
+            [3 * jnp.ones_like(x),
+             1 + jnp.cos(jnp.pi * x),
+             1 + jnp.exp(2j * jnp.pi * x) + jnp.exp(-1j * jnp.pi * x)],
+            axis=-1))
+
     def test_array_default(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        f = self._array_f()
+        p = _trigcoeffs(f)
+        p_exact = jnp.array([[0, 0, 0],
+                             [0, 0.5, 1],
+                             [3, 1, 1],
+                             [0, 0.5, 0],
+                             [0, 0, 1]], dtype=jnp.complex128)
+        assert _ninf(p - p_exact) < 10 * f.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_array_pad(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        f = self._array_f()
+        p = _trigcoeffs(f, 7)
+        p_exact = jnp.array([[0, 0, 0],
+                             [0, 0, 0],
+                             [0, 0.5, 1],
+                             [3, 1, 1],
+                             [0, 0.5, 0],
+                             [0, 0, 1],
+                             [0, 0, 0]], dtype=jnp.complex128)
+        assert _ninf(p - p_exact) < 10 * f.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks array-valued (multi-column) trigtech")
     def test_array_truncate(self):
-        raise AssertionError("array-valued trigtech not implemented")
+        f = self._array_f()
+        p = _trigcoeffs(f, 3)
+        p_exact = jnp.array([[0, 0.5, 1],
+                             [3, 1, 1],
+                             [0, 0.5, 0]], dtype=jnp.complex128)
+        assert _ninf(p - p_exact) < 10 * f.vscale * EPS
 
     def test_zero_length(self):
         # trigcoeffs(f, 0) is empty.

@@ -119,9 +119,12 @@ class TestTrigtechTimes:
         h = g * f
         assert (not g.ishappy) and (not h.ishappy)
 
-    @pytest.mark.xfail(reason="chebfunjax lacks empty-argument arithmetic (raises IndexError)")
     def test_empty_arguments(self):
-        raise AssertionError("empty trigtech arithmetic not implemented")
+        f = Trigtech.empty()
+        g = _tt(lambda x: x)
+        assert (f * f).isempty()
+        assert (f * g).isempty()
+        assert (g * f).isempty()
 
     @pytest.mark.xfail(
         reason="chebfunjax __mul__ does not perform MATLAB's positivity adjustment; "

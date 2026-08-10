@@ -18,7 +18,6 @@ import warnings
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.tech.trigtech import Trigtech
 
@@ -92,9 +91,12 @@ class TestTrigtechMinus:
         h = g - f
         assert (not g.ishappy) and (not h.ishappy)
 
-    @pytest.mark.xfail(reason="chebfunjax lacks empty-argument arithmetic (raises IndexError)")
     def test_empty_arguments(self):
-        raise AssertionError("empty trigtech arithmetic not implemented")
+        f = Trigtech.empty()
+        g = _tt(lambda x: x)
+        assert (f - f).isempty()
+        assert (f - g).isempty()
+        assert (g - f).isempty()
 
     # FIXED (Fable 5): __sub__ with a complex scalar now clears
     # is_real, so pass(2:3) ports at MATLAB's tolerances.
