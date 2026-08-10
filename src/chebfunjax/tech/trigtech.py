@@ -2281,7 +2281,7 @@ class Trigtech(eqx.Module):
                 raise ValueError(
                     "Trigtech rdivide: matrix dimensions must agree "
                     "(divisor width must match the column count).")
-            if row.shape[0] and not bool(jnp.any(row)):
+            if row.shape[0] and not bool(jnp.any(row != 0)):
                 # MATLAB: division by an all-zero divisor gives the NaN
                 # trigtech (one NaN value row).
                 nan_c = jnp.full(
