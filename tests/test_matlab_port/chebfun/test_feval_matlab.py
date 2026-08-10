@@ -30,8 +30,29 @@ class TestChebfunFeval:
         assert np.asarray(fx).shape == (0,)
 
     def test_string_endpoint_syntax(self):
-        pytest.skip("chebfunjax feval has no 'left'/'start'/'-' string "
-                    "arguments")
+        # MATLAB pass(2,3): feval(f, 'left'/'start'/'-') and
+        # feval(f, 'right'/'end'/'+').
+        f = cj.chebfun(lambda x: jnp.asarray(erf(np.asarray(x))))
+        lvals = [float(f(s)) for s in ("left", "start", "-")]
+        rvals = [float(f(s)) for s in ("right", "end", "+")]
+        assert abs(lvals[0] - erf(-1.0)) < 10 * EPS * f.vscale
+        assert lvals[0] == lvals[1] == lvals[2]
+        assert abs(rvals[0] - erf(1.0)) < 10 * EPS * f.vscale
+        assert rvals[0] == rvals[1] == rvals[2]
+        with pytest.raises(ValueError):
+            f("middle")
+
+    def test_side_string_one_sided_limits(self):
+        # MATLAB pass(6,7): feval(f, x, 'left'/'-') and 'right'/'+' at a
+        # jump.  f = sign under splitting; x = [-0.5, 0, 0.5].
+        f = cj.chebfun(jnp.sign, domain=[-1.0, 1.0], splitting=True)
+        x = jnp.asarray([-0.5, 0.0, 0.5])
+        for s in ("left", "-"):
+            got = np.asarray(f(x, side=s))
+            assert np.allclose(got, [-1.0, -1.0, 1.0])
+        for s in ("right", "+"):
+            got = np.asarray(f(x, side=s))
+            assert np.allclose(got, [-1.0, 1.0, 1.0])
 
     def test_endpoint_values(self):
         f = cj.chebfun(lambda x: jnp.asarray(erf(np.asarray(x))))

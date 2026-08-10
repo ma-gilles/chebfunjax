@@ -109,11 +109,47 @@ class TestChebfunConstructorSingfun:
         assert err < tol
 
     def test_cell_array_operators(self):
-        # pass(12, 14): piecewise construction from a CELL ARRAY of operators
-        # ({op1, op2, op3}) with per-interval exps.  The factory accepts a
-        # single callable only.
-        pytest.skip("chebfun factory takes one callable, not a cell array of "
-                    "per-interval operators")
+        # pass(12): piecewise construction from a CELL ARRAY of operators
+        # {sin(x), 1/(1+x), x+1} on [-2 -1 0 1] with per-interval exps
+        # [0 0 -1 0 0 0] (a pole at the left end of the middle piece).
+        dom = [-2.0, -1.0, 0.0, 1.0]
+        ops = [lambda x: jnp.sin(x),
+               lambda x: 1.0 / (1.0 + x),
+               lambda x: x + 1.0]
+        ops_np = [np.sin, lambda x: 1.0 / (1.0 + x), lambda x: x + 1.0]
+        f = cj.chebfun(ops, domain=dom, exps=[0, 0, -1, 0, 0, 0])
+        rng = np.random.default_rng(6178)
+        for j in range(3):
+            a, b = dom[j], dom[j + 1]
+            x = (b - a) * rng.uniform(size=100) + a
+            ve = np.asarray(ops_np[j](x))
+            err = np.max(np.abs(np.asarray(f(jnp.asarray(x))) - ve))
+            assert err < 1e3 * EPS * np.max(np.abs(ve)), j
+
+    def test_cell_array_operators_blowup(self):
+        # pass(14): a cell array of operators with poles at interior
+        # breakpoints, resolved with 'blowup' autodetection.
+        dom = [-2.0, 0.0, 7.0]
+        op1 = lambda x: jnp.sin(x) / ((x - dom[0]) * (dom[1] - x))  # noqa: E731
+        op2 = lambda x: jnp.cos(x) / (  # noqa: E731
+            (x - dom[1]) ** 2 * (dom[2] - x))
+        n1 = lambda x: np.sin(x) / ((x - dom[0]) * (dom[1] - x))  # noqa: E731
+        n2 = lambda x: np.cos(x) / (  # noqa: E731
+            (x - dom[1]) ** 2 * (dom[2] - x))
+        f = cj.chebfun([op1, op2], domain=dom, blowup=1)
+        rng = np.random.default_rng(6178)
+        errs, scales = [], []
+        for a, b, ref in ((dom[0], dom[1], n1), (dom[1], dom[2], n2)):
+            x = (b - a) * rng.uniform(size=100) + a
+            ve = np.asarray(ref(x))
+            errs.append(np.max(np.abs(np.asarray(f(jnp.asarray(x))) - ve)))
+            scales.append(np.max(np.abs(ve)))
+        assert max(errs) < 1e2 * EPS * max(scales)
+
+    def test_cell_array_length_mismatch_raises(self):
+        # One operator per interval is required.
+        with pytest.raises(ValueError):
+            cj.chebfun([jnp.sin, jnp.cos], domain=[-1.0, 0.0, 0.5, 1.0])
 
     def test_exps_splitting_double_pole(self):
         # pass(13): sin(300x)/((x-a)(x-b)) with 'exps' [-1 -1] and

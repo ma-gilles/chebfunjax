@@ -90,8 +90,34 @@ class TestChebfunMat2cell:
         assert C[1].is_transposed and C[1].size(1) == 1
 
     def test_error_conditions(self):
-        # pass(k,13-17): mat2cell with invalid sizes raises.
-        pytest.skip("Chebfun.mat2cell() does not validate that sizes sum to n_columns")
+        # pass(k,13-17): mat2cell with invalid sizes raises
+        # (MATLAB 'CHEBFUN:CHEBFUN:mat2cell:size').
+        F = _F()
+        Ft = F.T
+        with pytest.raises(ValueError):
+            F.mat2cell("bad", [2, 1])
+        with pytest.raises(ValueError):
+            F.mat2cell(2, [2, 1])
+        with pytest.raises(ValueError):
+            F.mat2cell(1, [2, 2])
+        with pytest.raises(ValueError):
+            Ft.mat2cell([2, 1], 2)
+        with pytest.raises(ValueError):
+            Ft.mat2cell([2, 2], 1)
+        # The two-argument form validates the same way.
+        with pytest.raises(ValueError):
+            F.mat2cell([2, 2])
+
+    def test_three_argument_form(self):
+        # MATLAB mat2cell(F, 1, [1 2]) for a column chebfun and
+        # mat2cell(Ft, [1 2], 1) for a row chebfun.
+        F = _F()
+        C = F.mat2cell(1, [1, 2])
+        assert len(C) == 2 and C[0].n_columns == 1 and C[1].n_columns == 2
+        C = F.T.mat2cell([1, 2], 1)
+        assert len(C) == 2
+        assert C[0].is_transposed and C[0].size(1) == 1
+        assert C[1].is_transposed and C[1].size(1) == 2
 
     def test_unbounded(self):
         # pass(k,18): mat2cell(f, 1, [1 2]) on (-inf, -3*pi].

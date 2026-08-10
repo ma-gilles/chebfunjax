@@ -39,7 +39,28 @@ class TestChebfunExtractcolumns:
 
     def test_column_indexing(self):
         # pass(2): f(:, 1:2) via column indexing.
-        pytest.skip("Chebfun.__getitem__ does not support 2-D column indexing f[:, cols]")
+        f = cj.chebfun(lambda x: jnp.stack(
+            [jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1))
+        g = cj.chebfun(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)],
+                                           axis=-1))
+        h = f[:, 0:2]
+        assert h.n_columns == 2 and _normest(g - h) < EPS
+        # An explicit index list and a single column index work too.
+        assert _normest(g - f[:, [0, 1]]) < EPS
+        assert _normest(cj.chebfun(jnp.exp) - f[:, 2]) < EPS
+        assert _normest(cj.chebfun(jnp.exp) - f[2]) < EPS
+        with pytest.raises(IndexError):
+            f[:, 3]
+
+    def test_column_indexing_row_chebfun(self):
+        # For a row chebfun the roles of the two subscripts swap:
+        # f.'(rows, :) selects the same components.
+        f = cj.chebfun(lambda x: jnp.stack(
+            [jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1)).T
+        h = f[0:2, :]
+        assert h.is_transposed and h.size(1) == 2
+        with pytest.raises(IndexError):
+            f[:, 0:2]
 
     def test_extract_repeat_reorder(self):
         # pass(3): extractColumns(f, [1 1 3 2]) == [sin sin exp cos].

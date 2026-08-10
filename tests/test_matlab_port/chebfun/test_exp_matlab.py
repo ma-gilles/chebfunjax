@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 EPS = float(np.finfo(np.float64).eps)
 RNG = np.random.default_rng(7681)
@@ -48,4 +47,19 @@ class TestChebfunExp:
         assert float(jnp.max(err)) < 1e2 * g.vscale * EPS
 
     def test_expm1(self):
-        pytest.skip("chebfunjax Chebfun has no expm1")
+        # MATLAB test_exp.m loops expFunctions = {exp, expm1} over the same
+        # piecewise base at 1e2*vscale(g)*eps.
+        from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+        from chebfunjax.domain import Domain
+        ops = [lambda x: (x + 0.2) * jnp.sin(3 * x),
+               lambda x: -(x + 0.2) * jnp.sin(3 * x),
+               lambda x: (x + 0.2) * jnp.sin(3 * x)]
+        brks = [-1.0, -0.2, 0.1, 1.0]
+        funs = [_Piece.from_function(op, a, b)
+                for op, a, b in zip(ops, brks[:-1], brks[1:])]
+        f = Chebfun(funs=funs, domain=Domain(tuple(brks)))
+        g = f.expm1()
+        exact = jnp.expm1(base_op(XR))
+        mask = (jnp.abs(XR + 0.2) > 1e-6) & (jnp.abs(XR - 0.1) > 1e-6)
+        err = jnp.abs(g(XR) - exact)[mask]
+        assert float(jnp.max(err)) < 1e2 * max(g.vscale, 1.0) * EPS

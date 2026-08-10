@@ -8,12 +8,9 @@ gives an ``(n, m)`` coefficient matrix, so the 1st-kind smooth cases (MATLAB
 pass 1 and 2) are ported here directly (FIXED, Fable 5, Big-Three array-valued
 epic).
 
-Remaining skips (precise gaps, not array-valuedness):
-- 'kind', 2 variants (pass 3, 4, 7, 8): chebfunjax has no 2nd-kind Chebyshev
-  coefficient accessor.
-- piecewise ``abs(x)`` on ``[-1 0 1]`` (pass 5, 6): ``.coeffs`` is single-piece
-  only; there is no global-expansion coefficient accessor for a multi-piece
-  chebfun.
+All MATLAB cases are ported: ``Chebfun.chebpoly(n, kind)`` is the
+deprecated MATLAB accessor, forwarding to ``chebcoeffs`` and reversing +
+transposing the result, so it covers the 2nd-kind and piecewise cases too.
 
 Provenance
 ----------
@@ -24,7 +21,6 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import numpy as np
-import pytest
 from scipy.special import jv
 
 import chebfunjax as cj
@@ -56,15 +52,44 @@ class TestChebfunChebpoly:
         assert float(np.max(np.abs(c - _C_EXACT[:, None]))) < 1e2 * g.vscale * EPS
 
     def test_kind_2(self):
-        # pass(3, 4, 7, 8): chebpoly(..., 'kind', 2).
-        pytest.skip(
-            "chebfunjax has no 2nd-kind Chebyshev coefficient accessor "
-            "(only 1st-kind .coeffs)"
-        )
+        # pass(3, 4): chebpoly(f, 5, 'kind', 2) on cos(x), scalar and
+        # array-valued.  MATLAB's rev() reverses and transposes.
+        import jax.numpy as jnp
+
+        exact = np.array([2 * jv(1, 1), 0.0, -6 * jv(3, 1), 0.0,
+                          2 * (-235 * jv(1, 1) + 900 * jv(2, 1))])
+        f = cj.chebfun(jnp.cos)
+        c = np.asarray(f.chebpoly(5, kind=2))
+        assert c.shape == (5,)
+        assert float(np.max(np.abs(c - exact[::-1]))) < 1e3 * f.vscale * EPS
+
+        g = cj.chebfun(lambda x: jnp.stack([jnp.cos(x), jnp.cos(x)],
+                                           axis=-1))
+        c = np.asarray(g.chebpoly(5, kind=2))
+        assert c.shape == (2, 5)
+        assert float(np.max(np.abs(c - exact[::-1][None, :]))) \
+            < 1e3 * g.vscale * EPS
 
     def test_piecewise(self):
-        # pass(5, 6): chebpoly of piecewise abs(x) on [-1 0 1].
-        pytest.skip(
-            "chebfunjax .coeffs is single-piece; no global-expansion coefficient "
-            "accessor for a multi-piece chebfun"
-        )
+        # pass(5-8): chebpoly of piecewise abs(x) on [-1 0 1], both kinds
+        # and both scalar and array-valued.
+        import jax.numpy as jnp
+
+        exact1 = np.array([2 / np.pi, 0.0, 4 / (3 * np.pi), 0.0,
+                           -4 / (15 * np.pi), 0.0, 4 / (35 * np.pi)])
+        exact2 = np.array([4 / (3 * np.pi), 0.0, 4 / (5 * np.pi), 0.0,
+                           -4 / (21 * np.pi), 0.0, 4 / (45 * np.pi)])
+        f = cj.chebfun(jnp.abs, domain=[-1.0, 0.0, 1.0])
+        g = cj.chebfun(lambda x: jnp.stack([jnp.abs(x), jnp.abs(x)],
+                                           axis=-1), domain=[-1.0, 0.0, 1.0])
+        c = np.asarray(f.chebpoly(7))
+        assert float(np.max(np.abs(c - exact1[::-1]))) < 10 * f.vscale * EPS
+        c = np.asarray(g.chebpoly(7))
+        assert c.shape == (2, 7)
+        assert float(np.max(np.abs(c - exact1[::-1][None, :]))) \
+            < 10 * g.vscale * EPS
+        c = np.asarray(f.chebpoly(7, kind=2))
+        assert float(np.max(np.abs(c - exact2[::-1]))) < 1e2 * f.vscale * EPS
+        c = np.asarray(g.chebpoly(7, kind=2))
+        assert float(np.max(np.abs(c - exact2[::-1][None, :]))) \
+            < 1e2 * g.vscale * EPS

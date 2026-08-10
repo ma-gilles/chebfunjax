@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 import chebfunjax as cj
 
@@ -36,4 +35,18 @@ class TestChebfunRoots:
         assert float(np.max(np.abs(vals))) < 1e3 * EPS
 
     def test_jump_root_options(self):
-        pytest.skip("chebfunjax roots has no 'nojump'/'nozerofun' options")
+        # MATLAB pass(3, 4): 'nojump' suppresses sign changes across a
+        # jump and 'nozerofun' suppresses the midpoint root of an
+        # identically-zero piece.
+        Fs = cj.chebfun([-1.0, 2.0], domain=[-2.0, 0.0, 1.0])
+        Fh = cj.chebfun([-1.0, 0.0, 1.0], domain=[-2.0, -1.0, 0.0, 2.0])
+        assert len(np.asarray(Fs.roots(nojump=True))) == 0
+        assert len(np.asarray(Fh.roots(nojump=True, nozerofun=True))) == 0
+
+        rs = np.asarray(Fs.roots())
+        assert len(rs) == 1 and rs[0] == 0.0
+        rh = np.asarray(Fh.roots(nozerofun=True))
+        assert len(rh) == 2 and rh[0] == -1.0 and rh[1] == 0.0
+        # Without 'nozerofun' the zero piece contributes its midpoint.
+        rh_all = np.asarray(Fh.roots())
+        assert -0.5 in rh_all

@@ -23,8 +23,61 @@ EPS = float(np.finfo(np.float64).eps)
 
 class TestChebfunEq:
     def test_pointwise_eq_chebfun(self):
-        pytest.skip("chebfunjax has no pointwise == returning a logical "
-                    "chebfun")
+        # MATLAB pass(2): the crossing of sin(x) with sqrt(2)/2 shows up
+        # as a pointValue of 1 at the breakpoint pi/4.
+        f = cj.chebfun(jnp.sin, domain=[-1.0, -0.5, 0.0, 0.5, 1.0])
+        g = cj.chebfun(lambda x: 0 * x + float(np.sqrt(2) / 2))
+        h = f.logical_eq(g)
+        pv = np.asarray(h.point_values)
+        dom = np.asarray(list(h.domain.breakpoints))
+        ind = np.flatnonzero(pv == 1)
+        assert len(ind) == 1
+        assert abs(dom[ind][0] - np.pi / 4) < 10 * EPS
+
+    def test_eq_two_crossings(self):
+        # MATLAB pass(3, 6): exp(x) against its secant through +-0.5
+        # crosses at -0.5 and 0.5, both with and without pre-existing
+        # breakpoints there.
+        secant = lambda x: (np.exp(0.5) - np.exp(-0.5)) * (
+            x + 0.5) + np.exp(-0.5)  # noqa: E731
+        for dom in ([-1.0, 1.0], [-1.0, -0.5, 0.0, 0.5, 1.0]):
+            f = cj.chebfun(jnp.exp, domain=dom)
+            g = cj.chebfun(secant)
+            h = f.logical_eq(g)
+            pv = np.asarray(h.point_values)
+            bps = np.asarray(list(h.domain.breakpoints))
+            ind = np.flatnonzero(pv == 1)
+            assert float(np.max(np.abs(np.sort(bps[ind])
+                                       - np.array([-0.5, 0.5])))) < 10 * EPS
+
+    def test_eq_self_and_negation(self):
+        # MATLAB pass(4, 5): f == f is identically 1 on a single piece and
+        # f == -f is identically 0 on a single piece.
+        rng = np.random.default_rng(6178)
+        x = jnp.asarray(2 * rng.uniform(size=100) - 1)
+        f = cj.chebfun(jnp.exp)
+        h = f.logical_eq(f)
+        assert len(h.funs) == 1 and np.all(np.asarray(h(x)) == 1)
+        h = f.logical_eq(-f)
+        assert len(h.funs) == 1 and np.all(np.asarray(h(x)) == 0)
+
+    def test_eq_empty(self):
+        # MATLAB pass(1): the empty case propagates.
+        f = cj.chebfun(jnp.sin, domain=[-1.0, -0.5, 0.0, 0.5, 1.0])
+        g = cj.chebfun()
+        assert f.logical_eq(g).isempty()
+        assert g.logical_eq(f).isempty()
+
+    def test_eq_array_valued_raises(self):
+        # MATLAB pass(7, 8): 'CHEBFUN:CHEBFUN:eq:array'.
+        f = cj.chebfun(lambda x: jnp.stack(
+            [jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1),
+            domain=[-1.0, -0.5, 0.0, 0.5, 1.0])
+        g = cj.chebfun(jnp.exp)
+        with pytest.raises(ValueError):
+            f.logical_eq(g)
+        with pytest.raises(ValueError):
+            g.logical_eq(f)
 
     def test_equality_locations_via_roots(self):
         # MATLAB: sin(x) == sqrt(2)/2 has solutions where sin crosses

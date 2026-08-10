@@ -46,5 +46,22 @@ class TestChebfunLog:
         err = jnp.abs(g(XR) - exact)[mask]
         assert float(jnp.max(err)) < 1e2 * max(g.vscale, 1.0) * EPS
 
-    def test_log_variants(self):
-        pytest.skip("chebfunjax Chebfun has no log10/log1p/log2/reallog")
+    @pytest.mark.parametrize("meth,ref", [
+        ("log10", np.log10), ("log1p", np.log1p),
+        ("log2", np.log2), ("reallog", np.log)])
+    def test_log_variants(self, meth, ref):
+        # MATLAB test_log.m loops logFunctions = {log, log10, log1p, log2,
+        # reallog} over the same piecewise base, at 1e2*vscale(g)*eps.
+        f = _pw_base()
+        g = getattr(f, meth)()
+        exact = jnp.asarray(ref(np.asarray(base_op(XR))))
+        mask = (jnp.abs(XR + 0.2) > 1e-6) & (jnp.abs(XR - 0.1) > 1e-6)
+        err = jnp.abs(g(XR) - exact)[mask]
+        assert float(jnp.max(err)) < 1e2 * max(g.vscale, 1.0) * EPS
+
+    def test_reallog_complex_raises(self):
+        # MATLAB reallog.m errors 'CHEBFUN:CHEBFUN:reallog:complex'.
+        import chebfunjax as cj
+        f = cj.chebfun(lambda x: 2.0 + 1j * x)
+        with pytest.raises(ValueError):
+            f.reallog()

@@ -85,24 +85,54 @@ class TestChebfunAssigncolumns:
         assert float(jnp.max(jnp.abs(jnp.ravel(reduced(X)) - X))) < EPS
 
     def test_colon_selector(self):
-        # pass(k,6): assignColumns(f, ':', g).
-        pytest.skip("Chebfun.assign_columns() does not accept the ':' selector (pass an "
-                    "explicit column list)")
+        # pass(k,6): assignColumns(f, ':', g) matches the explicit list.
+        # g is built on its own breakpoints, which are unified by overlap.
+        g = cj.chebfun(lambda x: jnp.stack([x, x**2, x**3], axis=-1),
+                       domain=(-1.0, -0.5, 0.5, 1.0))
+        h = _f().assign_columns(":", g)
+        hc = _f().assign_columns([0, 1, 2], g)
+        exact = jnp.stack([X, X**2, X**3], axis=-1)
+        assert float(jnp.max(jnp.abs(h(X) - exact))) < 10 * h.vscale * EPS
+        assert float(jnp.max(jnp.abs(h(X) - hc(X)))) < 10 * h.vscale * EPS
 
     def test_constant_assignment(self):
-        # pass(k,7,8): assignColumns(f, [2 1], [-0.5 0.5]) assigns constant values.
-        pytest.skip("Chebfun.assign_columns() requires a Chebfun operand, not a numeric "
-                    "constant array")
+        # pass(k,7): assignColumns(f, [2 1], [-0.5 0.5]) assigns constants,
+        # so column 2 becomes -0.5 and column 1 becomes 0.5.
+        h = _f().assign_columns([1, 0], [-0.5, 0.5])
+        exact = jnp.stack([jnp.full_like(X, 0.5), jnp.full_like(X, -0.5),
+                           jnp.exp(X)], axis=-1)
+        assert float(jnp.max(jnp.abs(h(X) - exact))) < 10 * h.vscale * EPS
+
+    def test_constant_assignment_row_chebfun(self):
+        # pass(k,8): the same on the row (transposed) chebfun.
+        h = _f().T.assign_columns([1, 0], [-0.5, 0.5])
+        assert h.is_transposed
+        exact = jnp.stack([jnp.full_like(X, 0.5), jnp.full_like(X, -0.5),
+                           jnp.exp(X)], axis=-1).T
+        assert float(jnp.max(jnp.abs(h(X) - exact))) < 10 * h.vscale * EPS
 
     def test_error_conditions(self):
         # pass(k,9,10,11): numCols / domain mismatch raise.
-        pytest.skip("assign_columns raises on breakpoint mismatch but not with MATLAB's "
-                    "numCols/domain error identifiers")
+        g = cj.chebfun(lambda x: jnp.stack([x, x**2, x**3], axis=-1),
+                       domain=(-1.0, -0.5, 0.5, 1.0))
+        with pytest.raises(ValueError):   # orientation mismatch
+            _f().assign_columns([0, 1, 2], g.T)
+        with pytest.raises(ValueError):   # too few target columns
+            _f().assign_columns([0, 1], g)
+        g2 = cj.chebfun(lambda x: jnp.stack([x, x**2, x**3], axis=-1),
+                        domain=(0.0, 1.0))
+        with pytest.raises(ValueError):   # domain mismatch
+            _f().assign_columns([0, 1, 2], g2)
 
     def test_grow_beyond_dimension(self):
-        # pass(k,12): assignColumns(f, [1 2 4], g) grows to 4 columns.
-        pytest.skip("Chebfun.assign_columns() does not grow the column count beyond "
-                    "n_columns")
+        # pass(k,12): assignColumns(f, [1 2 4], g) grows f to 4 columns,
+        # leaving the untouched third column as exp.
+        g = cj.chebfun(lambda x: jnp.stack([x, x**2, x**3], axis=-1),
+                       domain=(-1.0, -0.5, 0.5, 1.0))
+        h = _f().assign_columns([0, 1, 3], g)
+        assert h.n_columns == 4
+        exact = jnp.stack([X, X**2, jnp.exp(X), X**3], axis=-1)
+        assert float(jnp.max(jnp.abs(h(X) - exact))) < 10 * h.vscale * EPS
 
     def test_unbounded(self):
         # pass(k,13): assignColumns(f, 2, g) on (-inf, -3*pi].

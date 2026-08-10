@@ -1520,6 +1520,17 @@ class Chebfun(eqx.Module):
         """
         if isinstance(x, Chebfun):
             return self.compose_chebfun(x)
+        if isinstance(x, str):
+            # MATLAB feval(f, 'left'/'start'/'-') and
+            # feval(f, 'right'/'end'/'+'): the value at an endpoint.
+            key = x.lower()
+            if key in ("left", "start", "-"):
+                return self(jnp.asarray(float(self.domain.a)))
+            if key in ("right", "end", "+"):
+                return self(jnp.asarray(float(self.domain.b)))
+            raise ValueError(
+                f"Chebfun evaluation point {x!r}: expected "
+                f"'left'/'start'/'-' or 'right'/'end'/'+'.")
         if side is not None:
             _record_side_eval(x)
             return self._feval_side(x, side)
@@ -2312,6 +2323,30 @@ class Chebfun(eqx.Module):
         """
         return self._apply_fun(jnp.exp)
 
+    def expm1(self) -> Chebfun:
+        """Compute ``exp(f) - 1`` accurately for small ``f``.
+
+        Returns
+        -------
+        Chebfun
+
+        Notes
+        -----
+        NOT JIT-safe (adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/expm1.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.exp, Chebfun.log1p
+        """
+        return self._apply_fun(jnp.expm1)
+
     def log(self) -> Chebfun:
         """Natural logarithm of the Chebfun.
 
@@ -2333,6 +2368,127 @@ class Chebfun(eqx.Module):
         Chebfun.exp, Chebfun.sqrt
         """
         return self._apply_fun(jnp.log)
+
+    def log10(self) -> Chebfun:
+        """Base-10 logarithm of the Chebfun.
+
+        Breakpoints are introduced at the interior roots of ``f`` before
+        composing, since ``log10`` is singular there.
+
+        Returns
+        -------
+        Chebfun
+
+        Notes
+        -----
+        NOT JIT-safe (adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/log10.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.log, Chebfun.log2
+        """
+        return self.addBreaksAtRoots()._apply_fun(jnp.log10)
+
+    def log2(self) -> Chebfun:
+        """Base-2 logarithm of the Chebfun.
+
+        Breakpoints are introduced at the interior roots of ``f`` before
+        composing, since ``log2`` is singular there.
+
+        Returns
+        -------
+        Chebfun
+
+        Notes
+        -----
+        NOT JIT-safe (adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/log2.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.log, Chebfun.log10
+        """
+        return self.addBreaksAtRoots()._apply_fun(jnp.log2)
+
+    def log1p(self) -> Chebfun:
+        """Compute ``log(1 + f)`` accurately for small ``f``.
+
+        Breakpoints are introduced at the interior roots of ``f + 1``
+        before composing (MATLAB ``addBreaks(f, getRootsForBreaks(f+1))``).
+
+        Returns
+        -------
+        Chebfun
+
+        Notes
+        -----
+        NOT JIT-safe (adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/log1p.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.log, Chebfun.expm1
+        """
+        import numpy as _np
+        r = _np.asarray((self + 1.0).roots(nojump=True), dtype=float).ravel()
+        a, b = float(self.domain.a), float(self.domain.b)
+        gap = 100 * float(_np.finfo(float).eps) * max(abs(a), abs(b), 1.0)
+        r = r[(r > a + gap) & (r < b - gap)]
+        base = self if len(r) == 0 else self.addBreaks(r)
+        return base._apply_fun(jnp.log1p)
+
+    def reallog(self) -> Chebfun:
+        """Real natural logarithm of the Chebfun.
+
+        Errors if ``f`` is complex-valued (MATLAB raises
+        ``CHEBFUN:CHEBFUN:reallog:complex``).
+
+        Returns
+        -------
+        Chebfun
+
+        Raises
+        ------
+        ValueError
+            If the Chebfun is not real-valued.
+
+        Notes
+        -----
+        NOT JIT-safe (adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/reallog.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.log, Chebfun.realsqrt
+        """
+        if not self.isreal():
+            raise ValueError("reallog produced complex result.")
+        return self.addBreaksAtRoots()._apply_fun(jnp.log)
 
     def sqrt(self) -> Chebfun:
         """Square root of the Chebfun.
@@ -2574,6 +2730,178 @@ class Chebfun(eqx.Module):
                 out = out.join(
                     chebfun(h, domain=(pts[i], pts[i + 1])))
             return out
+
+    @staticmethod
+    def _chebT2U(c):
+        """Convert first-kind (T) coefficients to second-kind (U) ones.
+
+        Runs the recurrence ``T_n = (U_n - U_{n-2})/2`` column-wise, so the
+        coefficient of ``U_n`` needs those of ``T_n`` and ``T_{n+2}``.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/chebTcoeffs2chebUcoeffs.m
+        Chebfun commit: 7574c77
+        """
+        c = jnp.asarray(c)
+        if c.shape[0] == 0:
+            return c
+        pad = jnp.zeros((2,) + c.shape[1:], dtype=c.dtype)
+        cu = jnp.concatenate([c, pad], axis=0)
+        cu = cu.at[0].set(2.0 * c[0])
+        return 0.5 * (cu[:-2] - cu[2:])
+
+    def chebcoeffs(self, n: int | None = None, kind: int = 1) -> jax.Array:
+        """Chebyshev expansion coefficients (MATLAB ``chebcoeffs``).
+
+        With no arguments this returns the coefficients of a single-piece
+        (global) Chebfun, so that ``f = a[0] T_0 + ... + a[N-1] T_{N-1}``
+        on the Chebfun's domain transplanted to ``[-1, 1]``.
+
+        Parameters
+        ----------
+        n : int or None, optional
+            Number of coefficients to return; the array is zero-padded or
+            truncated to this length.  ``n`` is REQUIRED for a piecewise
+            Chebfun, whose coefficients are then obtained from weighted
+            inner products rather than from a global expansion.
+        kind : {1, 2}, optional
+            ``1`` (default) expands in the Chebyshev polynomials of the
+            first kind ``T_k``; ``2`` expands in those of the second kind
+            ``U_k``.
+
+        Returns
+        -------
+        jax.Array, shape (n,) or (n, n_columns)
+
+        Raises
+        ------
+        ValueError
+            If ``n`` is missing for a piecewise Chebfun, if the domain is
+            unbounded, or if ``kind`` is not 1 or 2.
+
+        Notes
+        -----
+        For a piecewise Chebfun MATLAB evaluates
+        ``(2/pi) * innerProduct(f*w, T_k)`` with the Chebyshev weight
+        ``w``.  Substituting ``x = (a+b)/2 + (b-a)/2 cos(theta)`` turns
+        that singular integral into a smooth one over ``theta``, which is
+        evaluated here by Gauss-Legendre quadrature on each smooth
+        ``theta``-subinterval.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/chebcoeffs.m, @chebtech/chebcoeffs.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.legcoeffs, Chebfun.trigcoeffs
+        """
+        import numpy as _np
+        if kind not in (1, 2):
+            raise ValueError("chebcoeffs: 'kind' input must be 1 or 2.")
+        if self.isempty():
+            return jnp.zeros((0,), dtype=jnp.float64)
+        f = self if len(self.funs) == 1 else self.merge()
+        if n is None and len(f.funs) > 1:
+            raise ValueError(
+                "chebcoeffs: input N is required for piecewise Chebfun "
+                "objects.")
+        a, b = float(f.domain.a), float(f.domain.b)
+        if not (_np.isfinite(a) and _np.isfinite(b)):
+            raise ValueError(
+                "chebcoeffs: infinite intervals are not supported here.")
+
+        if len(f.funs) == 1:
+            if kind == 2:
+                # The U_n coefficient needs T_n and T_{n+2}, so ask for two
+                # extra first-kind coefficients before converting.
+                c = Chebfun._chebT2U(
+                    f.chebcoeffs(None if n is None else n + 2, 1))
+            else:
+                c = jnp.asarray(f.funs[0].tech.coeffs)
+            if n is not None:
+                m = int(c.shape[0])
+                if n > m:
+                    pad = jnp.zeros((n - m,) + c.shape[1:], dtype=c.dtype)
+                    c = jnp.concatenate([c, pad], axis=0)
+                c = c[:n]
+            return c
+
+        # Piecewise: weighted inner products.  With x = mid + half*cos(th)
+        # the first-kind integral is  (2/pi) * int_0^pi F(th) cos(k th) dth
+        # (the T_0 term is halved), and the second-kind one is
+        # (2/pi) * half^2 * int_0^pi F(th) sin((k+1) th) sin(th) dth.
+        from chebfunjax.utils.quadrature import legpts
+
+        mid, half = 0.5 * (a + b), 0.5 * (b - a)
+        n_cols = f.n_columns
+        # theta breakpoints: theta = arccos((x - mid)/half), decreasing in x.
+        xs = [float(p.interval[0]) for p in f.funs] + [b]
+        th = _np.arccos(
+            _np.clip((_np.asarray(xs) - mid) / half, -1.0, 1.0))[::-1]
+        out = _np.zeros((n, n_cols)) if n_cols > 1 else _np.zeros(n)
+        for i in range(len(th) - 1):
+            t0, t1 = float(th[i]), float(th[i + 1])
+            if t1 <= t0:
+                continue
+            piece = f.funs[len(th) - 2 - i]
+            deg = int(_np.asarray(piece.tech.coeffs).shape[0])
+            # The integrand is a trigonometric polynomial in theta of
+            # degree <= deg + n; Gauss-Legendre with this many nodes
+            # resolves it to machine precision.
+            nq = min(2 * (deg + n) + 20, 20000)
+            tq, wq = legpts(nq, (t0, t1))
+            tq = _np.asarray(tq)
+            wq = _np.asarray(wq)
+            fq = _np.asarray(f(jnp.asarray(mid + half * _np.cos(tq))))
+            kk = _np.arange(n)
+            if kind == 1:
+                basis = _np.cos(_np.outer(kk, tq))
+            else:
+                basis = (half ** 2) * _np.sin(_np.outer(kk + 1, tq)) \
+                    * _np.sin(tq)[None, :]
+            out = out + (basis * wq[None, :]) @ fq
+        if kind == 1:
+            out[0] = out[0] / 2.0
+        out = (2.0 / _np.pi) * out
+        return jnp.asarray(out, dtype=jnp.float64)
+
+    def chebpoly(self, n: int | None = None, kind: int = 1) -> jax.Array:
+        """Chebyshev coefficients, highest degree first (deprecated).
+
+        MATLAB keeps ``chebpoly`` only as a deprecated accessor for
+        :meth:`chebcoeffs`: the coefficients are reversed and transposed,
+        so a scalar-valued Chebfun gives a row of length ``n`` and an
+        array-valued one gives an ``(n_columns, n)`` matrix.
+
+        Parameters
+        ----------
+        n : int or None, optional
+            Number of coefficients; see :meth:`chebcoeffs`.
+        kind : {1, 2}, optional
+            Chebyshev polynomial kind; see :meth:`chebcoeffs`.
+
+        Returns
+        -------
+        jax.Array, shape (n,) or (n_columns, n)
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/chebpoly.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.chebcoeffs
+        """
+        c = self.chebcoeffs(n, kind)
+        return jnp.flip(c, axis=0).T
 
     def legcoeffs(self, n: int | None = None) -> jax.Array:
         """Legendre expansion coefficients of a single-piece chebfun
@@ -3001,19 +3329,106 @@ class Chebfun(eqx.Module):
     ge = gt
 
     def logical_eq(self, other) -> "Chebfun":
-        """Indicator of {f == g}: 1 if identically equal, else 0 a.e.
+        """Pointwise equality as a logical Chebfun (MATLAB ``f == g``).
+
+        Returns a piecewise-constant Chebfun that is 1 on any subinterval
+        where ``f`` and ``g`` agree identically and 0 elsewhere.  Isolated
+        crossings, where the two agree at a single point, show up in
+        :meth:`point_values` as a 1 at the corresponding breakpoint --
+        exactly how MATLAB records them.
+
+        Parameters
+        ----------
+        other : Chebfun or float
+            Right-hand side of the comparison.
+
+        Returns
+        -------
+        Chebfun
+            The logical Chebfun, carrying explicit ``pointValues``.
+
+        Raises
+        ------
+        ValueError
+            If either operand is array-valued (MATLAB raises
+            ``CHEBFUN:CHEBFUN:eq:array``).
+
+        Notes
+        -----
+        Follows MATLAB: ``h = sign(f - g)``, each FUN is replaced by the
+        constant 1 (if it was identically zero) or 0, the pointValues are
+        logically negated, and the result is merged.  As in MATLAB's
+        ``merge``, a breakpoint whose pointValue differs from the function
+        value on both sides is retained.
 
         Provenance
         ----------
         MATLAB source : @chebfun/eq.m
         Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.logical_ne, Chebfun.roots, Chebfun.sign
         """
-        diff = self - other if not isinstance(other, (int, float))             else self - float(other)
-        val = 1.0 if bool(diff.iszero()) else 0.0
-        a, b = float(self.domain.a), float(self.domain.b)
-        return Chebfun(funs=[_Piece.from_coeffs(
-            jnp.asarray([val], dtype=jnp.float64), a, b)],
-            domain=Domain((a, b)))
+        import numpy as _np
+        if self.isempty():
+            return self
+        if isinstance(other, Chebfun):
+            if other.isempty():
+                return other
+            if self.n_columns > 1 or other.n_columns > 1:
+                raise ValueError(
+                    "==  does not support array-valued Chebfun objects.")
+            diff = self - other
+        else:
+            if self.n_columns > 1:
+                raise ValueError(
+                    "==  does not support array-valued Chebfun objects.")
+            diff = self - float(other)
+
+        h = diff.sign()
+        bps = _np.asarray(list(h.domain.breakpoints), dtype=float)
+        # A FUN that sign() left identically zero means f == g there.
+        consts = []
+        for piece in h.funs:
+            mid = 0.5 * (float(piece.interval[0]) + float(piece.interval[1]))
+            consts.append(1.0 if abs(float(piece(jnp.asarray(mid))))
+                          < 0.5 else 0.0)
+        # pointValues: sign(f-g) vanishes exactly at the roots that sign()
+        # broke the domain at, and MATLAB negates it (~0 == 1).
+        r = _np.asarray(diff.roots(nojump=True), dtype=float).ravel()
+        htol = 1e6 * float(_np.finfo(float).eps) * max(
+            abs(float(self.domain.a)), abs(float(self.domain.b)), 1.0)
+        pv = _np.array([
+            1.0 if (r.size and _np.min(_np.abs(r - t)) <= htol) else 0.0
+            for t in bps])
+        # Points inside an identically-equal FUN are equal too.
+        for k, c in enumerate(consts):
+            if c == 1.0:
+                pv[k] = 1.0
+                pv[k + 1] = 1.0
+
+        # merge (MATLAB @chebfun/merge.m): drop an interior breakpoint when
+        # its pointValue matches the constant on at least one side.
+        keep_a, keep_c, keep_pv = [float(bps[0])], [consts[0]], [pv[0]]
+        for k in range(1, len(consts)):
+            same = consts[k] == keep_c[-1]
+            if same and pv[k] == consts[k]:
+                continue
+            keep_a.append(float(bps[k]))
+            keep_c.append(consts[k])
+            keep_pv.append(pv[k])
+        keep_a.append(float(bps[-1]))
+        keep_pv.append(pv[-1])
+
+        funs = [_Piece.from_coeffs(
+            jnp.asarray([c], dtype=jnp.float64), keep_a[k], keep_a[k + 1])
+            for k, c in enumerate(keep_c)]
+        out = Chebfun(funs=funs, domain=Domain(tuple(keep_a)))
+        return out.set_point_values(
+            jnp.asarray(_np.asarray(keep_pv), dtype=jnp.float64))
 
     def logical_ne(self, other) -> "Chebfun":
         """Indicator of {f ~= g} a.e. (MATLAB ne)."""
@@ -3610,7 +4025,8 @@ class Chebfun(eqx.Module):
 
     def roots(self, complex_roots: bool = False,
               all_roots: bool = False,
-              nojump: bool = False) -> jax.Array:
+              nojump: bool = False,
+              nozerofun: bool = False) -> jax.Array:
         """All roots of the Chebfun in its domain.
 
         With ``complex_roots=True`` returns the complex roots of the
@@ -3627,6 +4043,19 @@ class Chebfun(eqx.Module):
         be found independently by two adjacent pieces).
 
         NOT JIT-safe (variable output size, eigenvalue computation).
+
+        Parameters
+        ----------
+        complex_roots, all_roots : bool, optional
+            MATLAB's ``'complex'`` and ``'all'`` flags (see above).
+        nojump : bool, optional
+            MATLAB's ``'nojump'``: suppress the roots reported at
+            breakpoints where the Chebfun changes sign through a jump
+            discontinuity.
+        nozerofun : bool, optional
+            MATLAB's ``'nozerofun'``: suppress the single root reported at
+            the midpoint of any piece on which the Chebfun is identically
+            zero.
 
         Returns
         -------
@@ -3692,7 +4121,15 @@ class Chebfun(eqx.Module):
             return jnp.asarray(out)
 
         all_roots = []
+        zerotol = (max(float(self.vscale), 1.0)
+                   * float(_np.finfo(_np.float64).eps)) if nozerofun else 0.0
         for piece in self.funs:
+            if nozerofun:
+                # @chebfun/roots.m 'nozerofun': a FUN that is identically
+                # zero contributes no midpoint root.
+                pc = _np.asarray(piece.tech.coeffs)
+                if pc.size and float(_np.max(_np.abs(pc))) <= zerotol:
+                    continue
             r = piece.roots()
             if r.shape[0] > 0:
                 all_roots.append(r)
@@ -4447,22 +4884,57 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/subsref.m
         Chebfun commit: 7574c77
         """
-        n_cols = 1  # scalar Chebfun
+        import numpy as _np
+        n_cols = self.n_columns
+        if isinstance(idx, tuple):
+            # MATLAB f(:, cols) / f(rows, :): two-dimensional selection.
+            if len(idx) != 2:
+                raise IndexError(
+                    f"Chebfun indexing takes at most 2 subscripts, got "
+                    f"{len(idx)}.")
+            cont, cols = (idx[0], idx[1]) if not self.is_transposed \
+                else (idx[1], idx[0])
+            if not (isinstance(cont, slice)
+                    and cont == slice(None, None, None)):
+                raise IndexError(
+                    "Chebfun: the continuous dimension must be indexed "
+                    "with ':'.")
+            idx = cols
         if isinstance(idx, slice):
             start, stop, step = idx.indices(n_cols)
             cols = list(range(start, stop, step))
             if not cols:
                 raise IndexError("slice results in empty selection.")
-            return self  # single column — return self
+            if cols == list(range(n_cols)):
+                return self
+        elif isinstance(idx, (list, tuple, _np.ndarray, jax.Array)):
+            cols = [int(c) + (n_cols if int(c) < 0 else 0)
+                    for c in _np.asarray(idx).ravel()]
         else:
-            idx = int(idx)
-            if idx < 0:
-                idx = n_cols + idx
-            if idx != 0:
+            j = int(idx)
+            if j < 0:
+                j = n_cols + j
+            if not 0 <= j < n_cols:
                 raise IndexError(
-                    f"index {idx} is out of bounds for a scalar Chebfun (1 column)."
-                )
-            return self
+                    f"index {j} is out of bounds for a Chebfun with "
+                    f"{n_cols} column(s).")
+            if n_cols == 1:
+                return self
+            cols = j
+            return Chebfun._as_transposed(
+                self._columns_base().extract_columns(cols),
+                self.is_transposed)
+        for c in (cols if isinstance(cols, list) else [cols]):
+            if not 0 <= c < n_cols:
+                raise IndexError(
+                    f"index {c} is out of bounds for a Chebfun with "
+                    f"{n_cols} column(s).")
+        return Chebfun._as_transposed(
+            self._columns_base().extract_columns(cols), self.is_transposed)
+
+    def _columns_base(self) -> "Chebfun":
+        """The column-oriented view used by the column selectors."""
+        return self.transpose() if self.is_transposed else self
 
     # ------------------------------------------------------------------
     # V09 — Interpolation / fitting
@@ -4571,42 +5043,57 @@ class Chebfun(eqx.Module):
     def interp1(
         x: jax.Array,
         y: jax.Array,
+        method: "str | tuple | None" = None,
         domain: tuple[float, float] | None = None,
     ) -> Chebfun:
-        """Polynomial interpolant through data (x, y).
+        """Interpolant through data (x, y).
 
-        Builds a Chebfun by constructing the polynomial interpolant through
-        the data points ``(x[j], y[j])``.  The interpolation is performed
-        using barycentric weights, matching MATLAB Chebfun's ``interp1``
-        default ``'poly'`` method.
+        With the default ``'poly'`` method a single global polynomial
+        interpolant through the data points ``(x[j], y[j])`` is built using
+        barycentric weights.  With ``'linear'`` the result is instead the
+        piecewise-linear interpolant, one two-point piece per data
+        interval.
 
         Parameters
         ----------
         x : array_like, shape (n,)
-            Distinct, sorted interpolation sites.
-        y : array_like, shape (n,)
-            Function values at the sites.
+            Interpolation sites (sorted internally).
+        y : array_like, shape (n,) or (n, m)
+            Function values at the sites; columns are interpolated
+            independently.
+        method : {'poly', 'linear'} or None, optional
+            Interpolation method.  ``None`` (default) means ``'poly'``.  A
+            non-string value is taken as ``domain``, matching MATLAB's
+            ``interp1(x, y, dom)`` syntax.
         domain : (float, float) or None
             Domain for the resulting Chebfun.  Defaults to
-            ``(x[0], x[-1])``.
+            ``(x[0], x[-1])``; a narrower domain restricts the result.
 
         Returns
         -------
         Chebfun
-            The polynomial interpolant on ``domain``.
+            The interpolant on ``domain``.
 
         Notes
         -----
-        Uses barycentric Lagrange interpolation with second-kind barycentric
-        weights, which is numerically stable for any node distribution.
-        NOT JIT-safe (adaptive construction).
+        The polynomial method uses barycentric Lagrange interpolation with
+        second-kind barycentric weights, which is numerically stable for
+        any node distribution.  As in MATLAB, ``'linear'`` evaluation
+        outside ``[x[0], x[-1]]`` gives NaN.  NOT JIT-safe (adaptive
+        construction).
 
         Provenance
         ----------
-        MATLAB source : @chebfun/interp1.m (interp1Poly subfunction)
+        MATLAB source : @chebfun/interp1.m (interp1Poly, interp1Linear
+            subfunctions)
         Chebfun commit: 7574c77
         """
         import numpy as _np
+        if method is not None and not isinstance(method, str):
+            # MATLAB interp1(x, y, dom): a non-char third argument is the
+            # domain, not a method name.
+            method, domain = None, method
+        method = "poly" if method is None else str(method).lower()
         x = jnp.asarray(x, dtype=jnp.float64)
         y = jnp.asarray(y, dtype=jnp.float64)
         # Sort nodes
@@ -4617,6 +5104,11 @@ class Chebfun(eqx.Module):
         if domain is None:
             domain = (xa, xb)
         dom = Domain(domain)
+
+        if method == "linear":
+            return Chebfun._interp1_linear(x, y, domain)
+        if method != "poly":
+            raise ValueError(f"interp1: unknown method {method!r}.")
 
         # Compute second-kind barycentric weights (Chebyshev-like, safe for
         # arbitrary nodes via the standard alternating-sign formula)
@@ -4653,6 +5145,45 @@ class Chebfun(eqx.Module):
             return jnp.where(any_hit, hit_val, numer / denom)
 
         return Chebfun.from_function(interpolant, dom)
+
+    @staticmethod
+    def _interp1_linear(x, y, domain) -> Chebfun:
+        """Piecewise-linear interpolant through sorted data ``(x, y)``.
+
+        Breakpoints are the union of the data sites and the requested
+        domain endpoints; each interval carries a two-point (linear)
+        piece.  Points outside ``[x[0], x[-1]]`` evaluate to NaN, as in
+        MATLAB's built-in ``interp1``.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/interp1.m (interp1Linear subfunction)
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        x_np = _np.asarray(x, dtype=float)
+        y_np = _np.asarray(y, dtype=float)
+        dom_vals = [float(v) for v in domain]
+        # MATLAB builds on unique([dom; x]) and then restricts to dom;
+        # dropping the out-of-domain sites up front is equivalent and keeps
+        # every piece at its full two-point length.
+        lo, hi = dom_vals[0], dom_vals[-1]
+        breaks = _np.unique(_np.concatenate(
+            [_np.asarray([lo, hi]), x_np[(x_np >= lo) & (x_np <= hi)]]))
+
+        def op(t):
+            tn = _np.atleast_1d(_np.asarray(t, dtype=float))
+            outside = (tn < x_np[0]) | (tn > x_np[-1])
+            if y_np.ndim == 2:
+                cols = [_np.where(outside, _np.nan,
+                                  _np.interp(tn, x_np, y_np[:, j]))
+                        for j in range(y_np.shape[1])]
+                return jnp.asarray(_np.stack(cols, axis=-1))
+            return jnp.asarray(
+                _np.where(outside, _np.nan, _np.interp(tn, x_np, y_np)))
+
+        return Chebfun.from_function(
+            op, Domain(tuple(float(v) for v in breaks)), n=2)
 
     @staticmethod
     def spline(
@@ -5164,29 +5695,148 @@ class Chebfun(eqx.Module):
 
     def assign_columns(self, cols, g) -> "Chebfun":
         """Overwrite the 0-based columns ``cols`` with the columns of
-        ``g`` (MATLAB assignColumns); ``g=None`` deletes them.  ``g``
-        must share this Chebfun's breakpoints.
+        ``g`` (MATLAB ``assignColumns`` / ``f(:, cols) = g``).
+
+        Parameters
+        ----------
+        cols : int, sequence of int, or ``':'``
+            Target columns (rows, for a row Chebfun).  ``':'`` means all
+            of them.  Indices beyond the current column count grow the
+            Chebfun, the intervening columns being filled with zeros.
+        g : Chebfun, array_like, or None
+            Replacement columns.  A numeric operand is treated as an
+            array-valued constant Chebfun on this Chebfun's domain.
+            ``None`` deletes the selected columns.
+
+        Returns
+        -------
+        Chebfun
+
+        Raises
+        ------
+        ValueError
+            If the number of columns of ``g`` does not match the number
+            of selected columns (MATLAB
+            ``CHEBFUN:CHEBFUN:assignColumns:numCols``), or if the two
+            domains differ (``CHEBFUN:CHEBFUN:assignColumns:domain``).
+
+        Notes
+        -----
+        Differing interior breakpoints are unified with
+        :meth:`_overlap`, as MATLAB's ``overlap`` does.
 
         Provenance
         ----------
         MATLAB source : @chebfun/assignColumns.m
         Chebfun commit: 7574c77
-        """
-        if g is not None and tuple(g.domain.breakpoints) != tuple(
-                self.domain.breakpoints):
-            raise ValueError(
-                "assign_columns requires matching breakpoints")
-        new_funs = []
-        for k, piece in enumerate(self.funs):
-            gt = None if g is None else g.funs[k].tech
-            new_funs.append(piece.with_tech(
-                piece.tech.assign_columns(cols, gt)))
-        return Chebfun(funs=new_funs, domain=self.domain)
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
 
-    def mat2cell(self, sizes=None) -> list:
+        See Also
+        --------
+        Chebfun.extract_columns, Chebfun.mat2cell
+        """
+        import numpy as _np
+        n_cols = self.n_columns
+        if isinstance(cols, str):
+            if cols.strip() != ":":
+                raise ValueError(
+                    f"assign_columns: unknown column selector {cols!r}; "
+                    "use ':' or explicit indices.")
+            cols = list(range(n_cols))
+        idx = ([int(cols)] if isinstance(cols, (int, _np.integer))
+               else [int(c) for c in cols])
+
+        if g is None:
+            # Column deletion keeps the existing per-tech path.
+            new_funs = [piece.with_tech(piece.tech.assign_columns(cols, None))
+                        for piece in self.funs]
+            return Chebfun(funs=new_funs, domain=self.domain)
+
+        if not isinstance(g, Chebfun):
+            # Numeric operand: an array-valued constant on f's domain.
+            vals = _np.atleast_1d(_np.asarray(g, dtype=float)).ravel()
+            if len(vals) != len(idx):
+                raise ValueError(
+                    "assign_columns: subscripted assignment dimension "
+                    f"mismatch ({len(idx)} columns selected, {len(vals)} "
+                    "values given).")
+            cvals = jnp.asarray(vals, dtype=jnp.float64)
+
+            def _const_op(x, _v=cvals):
+                xa = jnp.atleast_1d(jnp.asarray(x, dtype=jnp.float64))
+                if _v.shape[0] == 1:
+                    return jnp.full(xa.shape, _v[0], dtype=jnp.float64)
+                return jnp.broadcast_to(_v, xa.shape + (_v.shape[0],))
+
+            # MATLAB transposes the numeric operand to match f's orientation.
+            g = Chebfun._as_transposed(
+                Chebfun.from_function(_const_op, self.domain, n=1),
+                self.is_transposed)
+
+        if self.is_transposed != g.is_transposed:
+            raise ValueError(
+                "assign_columns: subscripted assignment dimension mismatch "
+                "(operands have different orientations).")
+        if len(idx) != g.n_columns:
+            raise ValueError(
+                "assign_columns: subscripted assignment dimension mismatch "
+                f"({len(idx)} columns selected, {g.n_columns} supplied).")
+        htol = 1e-14 * max(abs(float(self.domain.a)),
+                           abs(float(self.domain.b)), 1.0)
+        if (abs(float(self.domain.a) - float(g.domain.a)) > htol
+                or abs(float(self.domain.b) - float(g.domain.b)) > htol):
+            raise ValueError(
+                "assign_columns: inconsistent domains; "
+                "domain(f) != domain(g).")
+
+        base = self
+        target = max(idx) + 1
+        if target > n_cols:
+            # MATLAB pads f with zero columns before assigning.
+            grown = []
+            for piece in base.funs:
+                t = piece.tech
+                c = t.coeffs if t.coeffs.ndim == 2 else t.coeffs[:, None]
+                pad = jnp.zeros((c.shape[0], target - n_cols), dtype=c.dtype)
+                grown.append(piece.with_tech(self._tech_with_coeffs(
+                    t, jnp.concatenate([c, pad], axis=1))))
+            base = Chebfun(funs=grown, domain=base.domain)
+            base = Chebfun._as_transposed(base, self.is_transposed)
+
+        f2, g2 = Chebfun._overlap(base, g)
+        new_funs = [piece.with_tech(
+            piece.tech.assign_columns(idx, g2.funs[k].tech))
+            for k, piece in enumerate(f2.funs)]
+        out = Chebfun(funs=new_funs, domain=f2.domain)
+        return Chebfun._as_transposed(out, self.is_transposed)
+
+    def mat2cell(self, sizes=None, n=None) -> list:
         """Split an array-valued Chebfun by column counts (MATLAB
-        ``mat2cell(f, 1, sizes)``).  An empty Chebfun returns a single-cell
-        list holding the empty Chebfun.
+        ``mat2cell(f, sizes)`` / ``mat2cell(f, 1, sizes)``).  An empty
+        Chebfun returns a single-cell list holding the empty Chebfun.
+
+        Parameters
+        ----------
+        sizes : sequence of int or None, optional
+            Component counts, which must sum to the number of columns
+            (rows, for a row Chebfun).  ``None`` splits into single
+            components.  In the three-argument MATLAB form this is ``M``.
+        n : sequence of int or None, optional
+            Present only for MATLAB's three-argument
+            ``mat2cell(F, M, N)`` form.  For a column Chebfun ``sizes``
+            must then be the scalar 1 and ``n`` carries the counts; for a
+            row Chebfun the roles are reversed.
+
+        Returns
+        -------
+        list of Chebfun
+
+        Raises
+        ------
+        ValueError
+            If the requested sizes do not sum to the number of components
+            (MATLAB ``CHEBFUN:CHEBFUN:mat2cell:size``).
 
         Provenance
         ----------
@@ -5200,9 +5850,42 @@ class Chebfun(eqx.Module):
         # each cell's size is (size(k), inf) rather than (inf, size(k)).
         row = self.is_transposed
         base = self.transpose() if row else self
+        n_cols = base.n_columns
+
+        def _as_sizes(v, what):
+            try:
+                seq = [int(t) for t in
+                       (v if hasattr(v, "__len__") else (v,))]
+            except (TypeError, ValueError):
+                raise ValueError(
+                    f"mat2cell: {what} must be numeric; got {v!r}."
+                ) from None
+            if any(t < 0 for t in seq):
+                raise ValueError(
+                    f"mat2cell: {what} must be non-negative.")
+            return seq
+
+        if n is not None:
+            # MATLAB mat2cell(F, M, N): the dimension that is not split
+            # must be the scalar 1.
+            m_seq = _as_sizes(sizes, "M")
+            n_seq = _as_sizes(n, "N")
+            free, fixed = (m_seq, n_seq) if row else (n_seq, m_seq)
+            if fixed != [1]:
+                raise ValueError(
+                    "mat2cell: input arguments, M and N, must sum to each "
+                    f"dimension of the input size, [1,{n_cols}].")
+            sizes = free
+        elif sizes is not None:
+            sizes = _as_sizes(sizes, "sizes")
+
         if sizes is None:
             # MATLAB mat2cell(F): split into single components (ones vector).
-            sizes = [1] * base.n_columns
+            sizes = [1] * n_cols
+        elif sum(sizes) != n_cols:
+            raise ValueError(
+                "mat2cell: input arguments, M and N, must sum to each "
+                f"dimension of the input size, [1,{n_cols}].")
         out = []
         j = 0
         for s in sizes:
@@ -5234,18 +5917,28 @@ class Chebfun(eqx.Module):
     # V11 — Special functions: Bessel, Airy, elliptic, erf family
     # ------------------------------------------------------------------
 
-    def besselj(self, nu: float) -> Chebfun:
+    def besselj(self, nu: float, scale: int = 0) -> Chebfun:
         r"""Bessel function of the first kind :math:`J_\nu(f(x))`.
 
         Parameters
         ----------
         nu : float
             Order (real).
+        scale : int, default 0
+            Scaling flag.  ``scale=0`` returns :math:`J_\nu(f)`;
+            ``scale=1`` returns :math:`J_\nu(f)\,e^{-|\mathrm{Im}\,f|}`,
+            which is bounded for large imaginary parts of ``f``.  For a
+            real-valued ``f`` the two agree exactly.
 
         Returns
         -------
         Chebfun
             Approximation to :math:`J_\nu(f(x))` on the same domain.
+
+        Raises
+        ------
+        ValueError
+            If ``nu`` is not real, or ``scale`` is not 0 or 1.
 
         Notes
         -----
@@ -5258,24 +5951,40 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/besselj.m
         Chebfun commit: 7574c77
         """
-        try:
-            # jax.scipy.special.bessel_jn requires non-negative integer order
-            n_int = int(round(nu))
-            if abs(nu - n_int) < 1e-12 and n_int >= 0:
-                return self._apply_fun(
-                    lambda x: jax.scipy.special.bessel_jn(x, n=n_int, maxiter=100)[-1]
-                    if hasattr(jax.scipy.special, "bessel_jn")
-                    else jnp.asarray(
-                        __import__("scipy").special.jv(nu, jnp.asarray(x)),
-                        dtype=jnp.float64,
-                    )
-                )
-        except Exception:
-            pass
+        if isinstance(nu, complex) and nu.imag != 0.0:
+            raise ValueError(
+                "besselj: the first argument must be real-valued.")
+        if scale not in (0, 1):
+            raise ValueError("besselj: scale must be 0 or 1.")
+        if scale == 1:
+            unscaled = self.besselj(nu, 0)
+            if self.isreal():
+                # exp(-|Im f|) == 1 identically.
+                return unscaled
+            scl = (-self.imag().abs()).exp()
+            return unscaled * scl
         import scipy.special as _ss
+        if self.isreal():
+            try:
+                # jax.scipy.special.bessel_jn requires non-negative integer
+                # order; it is the JIT/grad-friendly path for real input.
+                n_int = int(round(nu))
+                if abs(nu - n_int) < 1e-12 and n_int >= 0 and hasattr(
+                        jax.scipy.special, "bessel_jn"):
+                    return self._apply_fun(
+                        lambda x: jax.scipy.special.bessel_jn(
+                            x, n=n_int, maxiter=100)[-1])
+            except Exception:
+                pass
+            return self._apply_fun(
+                lambda x: jnp.asarray(_ss.jv(nu, jnp.asarray(x)),
+                                      dtype=jnp.float64))
+        # Complex-valued f: scipy.special.jv accepts complex arguments and
+        # the result must keep its imaginary part (MATLAB besselj supports
+        # complex CHEBFUN input).
         return self._apply_fun(
-            lambda x: jnp.asarray(_ss.jv(nu, jnp.asarray(x)), dtype=jnp.float64)
-        )
+            lambda x: jnp.asarray(_ss.jv(nu, jnp.asarray(x)),
+                                  dtype=jnp.complex128))
 
     def bessely(self, nu: float) -> Chebfun:
         r"""Bessel function of the second kind :math:`Y_\nu(f(x))`.
@@ -5832,6 +6541,70 @@ class Chebfun(eqx.Module):
         """
         return self._apply_fun(jax.scipy.special.erfinv)
 
+    def erfcx(self) -> Chebfun:
+        r"""Scaled complementary error function
+        :math:`\mathrm{erfcx}(f) = e^{f^2}\,\mathrm{erfc}(f)`.
+
+        Returns
+        -------
+        Chebfun
+
+        Notes
+        -----
+        Uses ``jax.scipy.special.erfcx``, which is accurate for large
+        arguments where ``exp(x**2)*erfc(x)`` would overflow.  NOT
+        JIT-safe (adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/erfcx.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.erf, Chebfun.erfc, Chebfun.erfcinv
+        """
+        return self._apply_fun(jax.scipy.special.erfcx)
+
+    def erfcinv(self) -> Chebfun:
+        r"""Inverse complementary error function
+        :math:`\mathrm{erfc}^{-1}(f)`.
+
+        Satisfies ``f = erfc(erfcinv(f))`` for ``0 <= f <= 2``; computed
+        as ``erfinv(1 - f)``.
+
+        Returns
+        -------
+        Chebfun
+
+        Raises
+        ------
+        ValueError
+            If the Chebfun is not real-valued (MATLAB raises
+            ``CHEBFUN:CHEBFUN:erfcinv:notreal``).
+
+        Notes
+        -----
+        NOT JIT-safe (adaptive construction).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/erfcinv.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun.erfinv, Chebfun.erfcx
+        """
+        if not self.isreal():
+            raise ValueError("erfcinv: input must be real.")
+        return self._apply_fun(
+            lambda x: jax.scipy.special.erfinv(1.0 - x))
+
     def gamma(self) -> Chebfun:
         r"""Gamma function :math:`\Gamma(f(x))`.
 
@@ -5874,7 +6647,8 @@ class Chebfun(eqx.Module):
     # ------------------------------------------------------------------
 
     def isnan(self) -> bool:
-        """True if any coefficient of any piece is NaN.
+        """True if any coefficient of any piece, or any explicit
+        ``pointValues`` entry, is NaN.
 
         Returns
         -------
@@ -5886,6 +6660,9 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         from chebfunjax.fun.singfun import Singfun
+        override = getattr(self, "_point_values", None)
+        if override is not None and bool(jnp.any(jnp.isnan(override))):
+            return True
         for piece in self.funs:
             tech = piece.tech
             coeffs = tech.smoothPart.coeffs if isinstance(tech, Singfun) \
@@ -7394,6 +8171,36 @@ def chebfun(
     if len(_dv) < 2 or len(set(_dv)) < len(_dv):
         raise ValueError(
             "chebfun: domain intervals must be of positive length")
+
+    # MATLAB chebfun({op1, op2, ...}, [d0 d1 ... dn]): a CELL ARRAY of
+    # per-interval operators (@chebfun/chebfun.m parseInputs).  Each entry
+    # is built on its own interval and the pieces are concatenated; any
+    # 'exps' vector is split per interval the same way.
+    if isinstance(f, (list, tuple)):
+        _elems = list(f)
+        _cellish = (
+            any(callable(t) for t in _elems)
+            or (len(_dv) > 2 and len(_elems) == len(_dv) - 1
+                and all(isinstance(t, (int, float)) for t in _elems)))
+        if _cellish:
+            if len(_elems) != len(_dv) - 1:
+                raise ValueError(
+                    "chebfun: a cell array of operators needs one entry per "
+                    f"interval; got {len(_elems)} for {len(_dv) - 1} "
+                    "intervals.")
+            _pairs = (_parse_exps(exps, len(_elems))
+                      if exps is not None else [None] * len(_elems))
+            _funs = []
+            for _k, _op in enumerate(_elems):
+                _sub = chebfun(
+                    _op, domain=(_dv[_k], _dv[_k + 1]), n=n, trig=trig,
+                    eps=eps, max_length=max_length, splitting=splitting,
+                    split_length=split_length,
+                    exps=(None if _pairs[_k] is None else _pairs[_k]),
+                    blowup=blowup, singType=singType, turbo=turbo,
+                    equi=equi, coeffs=coeffs, min_samples=min_samples)
+                _funs.extend(_sub.funs)
+            return Chebfun(funs=_funs, domain=Domain(tuple(_dv)))
 
     # Endpoint singularities (MATLAB 'exps'/'blowup' flags): each interval
     # becomes a Singfun piece s(x)*(1+x)^a*(1-x)^b (Fable 5, wiring the
