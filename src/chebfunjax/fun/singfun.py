@@ -23,6 +23,22 @@ _EPS = float(jnp.finfo(jnp.float64).eps)
 _EXP_TOL = 1e-11
 
 
+def _any_empty(*operands) -> bool:
+    """True if any operand is an empty Singfun or empty tech.
+
+    MATLAB @singfun arithmetic returns an empty SINGFUN whenever either
+    argument is empty; this mirrors that early return.
+    """
+    for s in operands:
+        if isinstance(s, Singfun):
+            if s.isempty():
+                return True
+        elif isinstance(s, (Chebtech1, Chebtech2)):
+            if s.isempty():
+                return True
+    return False
+
+
 def _demote_if_smooth(s):
     """Demote a smooth Singfun to its bare smooth part.
 
@@ -247,6 +263,55 @@ class Singfun(eqx.Module):
         """
         return cls(tech, exponents)
 
+    @classmethod
+    def empty(cls) -> "Singfun":
+        """The empty Singfun (MATLAB ``singfun()``): empty smooth part,
+        no singularities.  ``isempty()`` is True and arithmetic with it
+        propagates emptiness.
+
+        Provenance
+        ----------
+        MATLAB source : @singfun/singfun.m (nargin == 0), @singfun/isempty.m
+        Chebfun commit: 7574c77
+        """
+        return cls(Chebtech2.empty(), (0.0, 0.0))
+
+    @classmethod
+    def zeroSingFun(cls) -> "Singfun":
+        """The zero Singfun: zero smooth part, no singularities.
+
+        Provenance
+        ----------
+        MATLAB source : @singfun/zeroSingFun.m
+        Chebfun commit: 7574c77
+        """
+        return cls(
+            Chebtech2.from_coeffs(jnp.zeros(1, dtype=jnp.float64)),
+            (0.0, 0.0),
+        )
+
+    def isempty(self) -> bool:
+        """True when the smooth part is empty (MATLAB ``isempty``).
+
+        Provenance
+        ----------
+        MATLAB source : @singfun/isempty.m
+        Chebfun commit: 7574c77
+        """
+        return self.smoothPart.isempty()
+
+    def iszero(self) -> bool:
+        """True when the smooth part is identically zero (MATLAB ``iszero``).
+
+        Provenance
+        ----------
+        MATLAB source : @singfun/iszero.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return False
+        return bool(jnp.all(self.smoothPart.coeffs == 0))
+
     # ------------------------------------------------------------------
     # Evaluation
     # ------------------------------------------------------------------
@@ -337,6 +402,8 @@ class Singfun(eqx.Module):
         """
         if not isinstance(other, Singfun):
             return NotImplemented
+        if self.isempty() or other.isempty():
+            return self.isempty() and other.isempty()
         ea, eb = self.exponents, other.exponents
         if abs(ea[0] - eb[0]) > _EXP_TOL or abs(ea[1] - eb[1]) > _EXP_TOL:
             return False
@@ -379,6 +446,8 @@ class Singfun(eqx.Module):
         MATLAB source : @singfun/times.m
         Chebfun commit: 7574c77
         """
+        if _any_empty(self, other):
+            return Singfun.empty()
         if isinstance(other, Singfun):
             new_smoothPart = self.smoothPart * other.smoothPart
             new_exps = (
@@ -404,6 +473,8 @@ class Singfun(eqx.Module):
         MATLAB source : @singfun/rdivide.m
         Chebfun commit: 7574c77
         """
+        if _any_empty(self, other):
+            return Singfun.empty()
         if isinstance(other, Singfun):
             # If the divisor's smooth part vanishes at an endpoint, dividing
             # the smooth parts directly would create a new endpoint pole that
@@ -439,6 +510,8 @@ class Singfun(eqx.Module):
 
     def __rtruediv__(self, other) -> "Singfun":
         """scalar / Singfun."""
+        if _any_empty(self, other):
+            return Singfun.empty()
         new_smoothPart = other / self.smoothPart
         new_exps = (-self.exponents[0], -self.exponents[1])
         # MATLAB @singfun/rdivide canonicalises the reciprocal's exponents:
@@ -474,6 +547,8 @@ class Singfun(eqx.Module):
         # which takes ``new_a = min(exp, 0) = 0`` and silently collapses the
         # exponent — turning a one-coefficient singular function into a
         # 362-coefficient polynomial with ~5e-11 evaluation error.
+        if _any_empty(self, other):
+            return Singfun.empty()
         if not isinstance(other, (Singfun, Chebtech2)) and jnp.ndim(other) == 0:
             if other == 0:
                 return self
@@ -736,6 +811,8 @@ class Singfun(eqx.Module):
         MATLAB source : @singfun/flipud.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return Singfun.empty()
         a, b = self.exponents
         return Singfun(self.smoothPart.flipud(), (b, a))
 
@@ -751,6 +828,8 @@ class Singfun(eqx.Module):
         MATLAB source : @singfun/real.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return Singfun.empty()
         if self.issmooth:
             if jnp.iscomplexobj(self.smoothPart.coeffs):
                 return self.smoothPart.real()
@@ -765,6 +844,8 @@ class Singfun(eqx.Module):
         MATLAB source : @singfun/imag.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return Singfun.empty()
         if self.issmooth:
             return self.smoothPart.imag()
         return Singfun(self.smoothPart.imag(), self.exponents)
@@ -780,6 +861,8 @@ class Singfun(eqx.Module):
         MATLAB source : @singfun/fliplr.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return Singfun.empty()
         return Singfun(self.smoothPart.fliplr(), self.exponents)
 
     def conj(self):
@@ -790,6 +873,8 @@ class Singfun(eqx.Module):
         MATLAB source : @singfun/conj.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return Singfun.empty()
         if self.issmooth:
             if jnp.iscomplexobj(self.smoothPart.coeffs):
                 return self.smoothPart.conj()
@@ -1086,6 +1171,8 @@ class Singfun(eqx.Module):
         MATLAB source : @singfun/diff.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return Singfun.empty()
         if k == 0:
             return Singfun(self.smoothPart, self.exponents)
 

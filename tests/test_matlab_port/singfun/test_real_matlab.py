@@ -13,7 +13,6 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import jax.numpy as jnp
-import pytest
 
 from chebfunjax.fun.singfun import Singfun
 
@@ -26,7 +25,8 @@ def _sf(f, exps):
 
 class TestSingfunReal:
     def test_empty(self):
-        pytest.skip("chebfunjax has no empty Singfun representation")
+        f = Singfun.empty()
+        assert f.real().isempty()
 
     def test_imaginary_smooth_not_singfun(self):
         f = _sf(lambda x: 1j * jnp.sin(x), (0.0, 0.0))

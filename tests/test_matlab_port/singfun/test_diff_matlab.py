@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.fun.singfun import Singfun
 
@@ -41,8 +40,8 @@ def _ninf(a):
 
 class TestSingfunDiff:
     def test_empty(self):
-        # MATLAB: diff(singfun()) is empty. chebfunjax has no empty Singfun.
-        pytest.skip("chebfunjax has no empty Singfun representation")
+        # MATLAB: diff(singfun()) is empty.
+        assert Singfun.empty().diff().isempty()
 
     def test_smooth_returns_nonsingfun(self):
         f = _sf(lambda x: jnp.sin(x), (0.0, 0.0))

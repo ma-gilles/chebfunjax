@@ -16,9 +16,9 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.fun.singfun import Singfun
+from chebfunjax.tech.chebtech import Chebtech2
 
 EPS = float(np.finfo(np.float64).eps)
 
@@ -42,7 +42,11 @@ def _ninf(a):
 
 class TestSingfunTimes:
     def test_empty(self):
-        pytest.skip("chebfunjax has no empty Singfun representation")
+        f = Singfun.empty()
+        g = _sf(lambda x: 1.0 / (1 + x), (-1.0, 0.0))
+        assert (f * f).isempty()
+        assert (f * g).isempty()
+        assert (g * f).isempty()
 
     def test_smooth_times_smooth_not_singfun(self):
         f = _sf(lambda x: jnp.sin(x), (0.0, 0.0))
@@ -50,7 +54,11 @@ class TestSingfunTimes:
         assert not isinstance(f * g, Singfun)
 
     def test_smoothfun_times_singfun(self):
-        pytest.skip("chebfunjax has no separate smoothfun class / smoothfun*singfun")
+        # MATLAB: smoothfun .* (smooth) singfun isa smoothfun, both ways.
+        f = Chebtech2.from_function(lambda x: jnp.sin(x))
+        g = _sf(lambda x: jnp.cos(x), (0.0, 0.0))
+        assert isinstance(f * g, Chebtech2) and not isinstance(f * g, Singfun)
+        assert isinstance(g * f, Chebtech2) and not isinstance(g * f, Singfun)
 
     def test_two_poles_same_end(self):
         # (1+x)^p * (1+x)^q = (1+x)^(p+q) = 1/sqrt(1+x)

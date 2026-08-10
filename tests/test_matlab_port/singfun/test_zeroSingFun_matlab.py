@@ -1,8 +1,7 @@
 """Port of MATLAB Chebfun tests/singfun/test_zeroSingFun.m (Opus 4.8).
 
 MATLAB ``singfun.zeroSingFun()`` builds the canonical zero singfun (zero
-smooth part, no exponents).  chebfunjax has no ``zeroSingFun`` factory nor an
-``iszero`` predicate, so both assertions are skipped.
+smooth part, no exponents).
 
 Provenance
 ----------
@@ -12,12 +11,14 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-import pytest
+from chebfunjax.fun.singfun import Singfun
 
 
 class TestSingfunZeroSingFun:
     def test_no_exponents(self):
-        pytest.skip("chebfunjax has no singfun.zeroSingFun() factory")
+        f = Singfun.zeroSingFun()
+        assert not any(f.exponents)
 
     def test_trivial_smooth_part(self):
-        pytest.skip("chebfunjax has no singfun.zeroSingFun() factory / iszero")
+        f = Singfun.zeroSingFun()
+        assert f.iszero()

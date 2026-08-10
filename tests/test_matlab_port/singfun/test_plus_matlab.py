@@ -19,6 +19,7 @@ import numpy as np
 import pytest
 
 from chebfunjax.fun.singfun import Singfun
+from chebfunjax.tech.chebtech import Chebtech2
 
 EPS = float(np.finfo(np.float64).eps)
 
@@ -50,7 +51,11 @@ def _isequal(f, g):
 
 class TestSingfunPlus:
     def test_empty(self):
-        pytest.skip("chebfunjax has no empty Singfun representation")
+        f = Singfun.empty()
+        g = _sf(lambda x: 1.0 / (1 + x), (-1.0, 0.0))
+        assert (f + f).isempty()
+        assert (f + g).isempty()
+        assert (g + f).isempty()
 
     def test_smooth_plus_smooth_not_singfun(self):
         f = _sf(lambda x: jnp.sin(x), (0.0, 0.0))
@@ -58,7 +63,11 @@ class TestSingfunPlus:
         assert not isinstance(f + g, Singfun)
 
     def test_smoothfun_plus_singfun(self):
-        pytest.skip("chebfunjax has no separate smoothfun class")
+        # MATLAB: smoothfun + (smooth) singfun isa smoothfun, both ways.
+        f = Chebtech2.from_function(lambda x: jnp.sin(x))
+        g = _sf(lambda x: jnp.cos(x), (0.0, 0.0))
+        assert isinstance(f + g, Chebtech2) and not isinstance(f + g, Singfun)
+        assert isinstance(g + f, Chebtech2) and not isinstance(g + f, Singfun)
 
     def test_add_complex_scalar(self):
         alpha = -0.194758928283640 + 0.075474485412665j

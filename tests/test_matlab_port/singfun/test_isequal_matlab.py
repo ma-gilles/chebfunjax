@@ -17,7 +17,6 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import jax.numpy as jnp
-import pytest
 
 from chebfunjax.fun.singfun import Singfun
 
@@ -35,10 +34,10 @@ def _isequal(f, g):
 
 class TestSingfunIsequal:
     def test_empty_equal(self):
-        pytest.skip("chebfunjax has no empty Singfun representation")
+        assert Singfun.empty() == Singfun.empty()
 
     def test_zerosingfun_equal(self):
-        pytest.skip("chebfunjax has no zeroSingFun factory")
+        assert Singfun.zeroSingFun() == Singfun.zeroSingFun()
 
     def test_identical_nonzero_equal(self):
         f = _sf(lambda x: 1.0 / (1 + x), (-1.0, 0.0))

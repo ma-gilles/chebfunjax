@@ -1,10 +1,7 @@
 """Port of MATLAB Chebfun tests/singfun/test_isempty.m (Opus 4.8).
 
 MATLAB distinguishes an empty singfun (``singfun()``), a zero singfun
-(``singfun.zeroSingFun()``), and a non-empty singfun.  chebfunjax has neither
-an empty Singfun representation, a ``zeroSingFun`` factory, nor an ``isempty``
-method (a Singfun always wraps a non-empty smooth part), so every assertion is
-skipped.
+(``singfun.zeroSingFun()``), and a non-empty singfun.
 
 Provenance
 ----------
@@ -14,15 +11,24 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-import pytest
+import jax.numpy as jnp
+
+from chebfunjax.fun.singfun import Singfun
 
 
 class TestSingfunIsempty:
     def test_empty_is_empty(self):
-        pytest.skip("chebfunjax has no empty Singfun representation / isempty")
+        f = Singfun.empty()
+        assert f.isempty()
 
     def test_zerosingfun_not_empty(self):
-        pytest.skip("chebfunjax has no zeroSingFun factory / isempty")
+        f = Singfun.zeroSingFun()
+        assert not f.isempty()
 
     def test_nonzero_not_empty(self):
-        pytest.skip("chebfunjax has no isempty method (Singfun is never empty)")
+        f = Singfun.from_function(
+            lambda x: 1.0 / (1 + x), exponents=(-1.0, 0.0)
+        )
+        assert not f.isempty()
+        assert not f.iszero()
+        assert bool(jnp.isfinite(f.smoothPart(jnp.float64(0.0))))
