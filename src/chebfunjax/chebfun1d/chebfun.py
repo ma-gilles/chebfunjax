@@ -30,6 +30,17 @@ from chebfunjax.tech.chebtech import Chebtech2
 _EPS = float(jnp.finfo(jnp.float64).eps)
 
 
+def _delta_row(row):
+    """Normalize a ``deltas`` row to ``(loc, mag, order)``.
+
+    A 2-tuple is a plain Dirac impulse (order 0); a 3-tuple carries the
+    distributional-derivative order (MATLAB @deltafun deltaMag rows).
+    """
+    if len(row) == 2:
+        return float(row[0]), row[1], 0
+    return float(row[0]), row[1], int(row[2])
+
+
 # One-sided-evaluation recording: while a list is installed here, every
 # ``Chebfun(x, side)`` call (and hence every ``jump``) appends its evaluation
 # point ``x``, so a chebop can discover the interior breakpoints an interior
@@ -1954,15 +1965,23 @@ class Chebfun(eqx.Module):
     def _merge_deltas(d1, d2, s1: float = 1.0, s2: float = 1.0) -> tuple:
         """Combine two ``deltas`` tuples with scalar weights.
 
-        Coincident locations accumulate; zero magnitudes drop.  Mirrors
-        the delta bookkeeping of MATLAB @deltafun/plus.m.
+        Coincident (location, order) rows accumulate; zero magnitudes
+        drop.  Rows are ``(loc, mag)`` (a plain Dirac) or
+        ``(loc, mag, order)`` (the order-th distributional derivative,
+        MATLAB deltaMag row ``order + 1``).  Mirrors the delta
+        bookkeeping of MATLAB @deltafun/plus.m.
         """
         acc: dict = {}
         for scale, ds in ((s1, d1), (s2, d2)):
-            for loc, mag in ds:
-                key = float(loc)
-                acc[key] = acc.get(key, 0.0) + scale * float(mag)
-        return tuple(sorted((k, v) for k, v in acc.items() if v != 0.0))
+            for row in ds:
+                loc, mag, order = _delta_row(row)
+                key = (loc, order)
+                acc[key] = acc.get(key, 0.0 * mag) + scale * mag
+        out = []
+        for (loc, order), mag in acc.items():
+            if mag != 0.0:
+                out.append((loc, mag) if order == 0 else (loc, mag, order))
+        return tuple(sorted(out, key=lambda r: (r[0], _delta_row(r)[2])))
 
     def _attach_deltas(self, result: "Chebfun", deltas: tuple) -> "Chebfun":
         """Return ``result`` carrying ``deltas`` (no-op when empty)."""
@@ -2080,16 +2099,30 @@ class Chebfun(eqx.Module):
                 out = Chebfun._as_transposed(
                     Chebfun._binary_op(self, other, lambda a, b: a * b),
                     f_trans)
-                # Dirac deltas scale by the cofactor's value at their
-                # location: delta_u * g = g(u) * delta_u
-                # (@deltafun/times.m).
+                # Dirac deltas multiply by the cofactor via Leibniz
+                # (@deltafun/times.m funTimesDelta):
+                #   g(x) d^(k)(x-u) =
+                #     sum_j (-1)^(k-j) C(k,j) g^(k-j)(u) d^(j)(x-u).
                 ds = ()
+                from math import comb as _comb
                 for me, oth in ((self, other), (other, self)):
-                    for loc, mag in getattr(me, "deltas", ()):
-                        val = float(jnp.real(jnp.asarray(
-                            oth(jnp.float64(loc)))))
-                        ds = Chebfun._merge_deltas(
-                            ds, ((loc, mag * val),))
+                    rows = [_delta_row(r)
+                            for r in getattr(me, "deltas", ())]
+                    if not rows:
+                        continue
+                    kmax = max(o for _l, _m, o in rows)
+                    derivs = [oth]
+                    for _ in range(kmax):
+                        derivs.append(derivs[-1].diff())
+                    for loc, mag, order in rows:
+                        for j in range(order + 1):
+                            val = float(jnp.real(jnp.asarray(
+                                derivs[order - j](jnp.float64(loc)))))
+                            coeff = ((-1.0) ** (order - j)
+                                     * _comb(order, j) * mag * val)
+                            ds = Chebfun._merge_deltas(
+                                ds, ((loc, coeff) if j == 0
+                                     else (loc, coeff, j),))
                 return self._attach_deltas(out, ds)
             if f_trans and not g_trans:
                 # Row * column -> inner product scalar.  inner() conjugates
@@ -3668,12 +3701,19 @@ class Chebfun(eqx.Module):
         k = int(k)
         if k == 0:
             return self
+        if k > 1 and (len(self.funs) > 1 or self.deltas):
+            # Iterate so each stage's jump deltas are promoted to
+            # higher-order rows by the next stage (MATLAB @deltafun/diff).
+            out = self
+            for _ in range(int(k)):
+                out = out.diff(1)
+            return out
         new_funs = [piece.diff(k) for piece in self.funs]
         # (orientation is preserved below via _as_transposed)
         # Differentiating across a jump discontinuity produces a Dirac
-        # delta of magnitude equal to the jump (task #9, Opus 4.8).  We
-        # attach deltas only for the first derivative of a genuine jump;
-        # they are carried through and picked up by sum().
+        # delta of magnitude equal to the jump (task #9, Opus 4.8); a
+        # carried delta row is promoted to its distributional derivative
+        # (order + 1).
         deltas = ()
         if k == 1 and len(self.funs) > 1:
             dlist = []
@@ -3689,6 +3729,11 @@ class Chebfun(eqx.Module):
                 if abs(jump) > 1e-11 * (abs(left) + abs(right) + 1.0):
                     dlist.append((loc, jump if jump.imag else jump.real))
             deltas = tuple(dlist)
+        if k == 1 and self.deltas:
+            promoted = tuple(
+                (loc, mag, order + 1)
+                for loc, mag, order in map(_delta_row, self.deltas))
+            deltas = Chebfun._merge_deltas(deltas, promoted)
         return Chebfun._as_transposed(
             Chebfun(funs=new_funs, domain=self.domain, deltas=deltas),
             self.is_transposed)
@@ -3859,10 +3904,17 @@ class Chebfun(eqx.Module):
         # Dirac deltas carried on this Chebfun (e.g. from diff() across a
         # jump) integrate to Heaviside steps: a delta of magnitude ``m`` at
         # location ``loc`` adds ``m`` to the antiderivative for all x > loc.
+        # A derivative row integrates to the next-lower order delta.
         # MATLAB source: @deltafun/cumsum.m (deltas -> jumps in the funPart).
         delta_by_loc = {}
-        for loc, mag in self.deltas:
-            delta_by_loc[float(loc)] = delta_by_loc.get(float(loc), 0.0) + float(mag)
+        lowered = []
+        for row in self.deltas:
+            loc, mag, order = _delta_row(row)
+            if order == 0:
+                delta_by_loc[loc] = delta_by_loc.get(loc, 0.0) + mag
+            else:
+                lowered.append((loc, mag) if order == 1
+                               else (loc, mag, order - 1))
         new_pieces = []
         offset = None
         for piece in self.funs:
@@ -3885,7 +3937,8 @@ class Chebfun(eqx.Module):
                         offset = offset + mag
 
         return Chebfun._as_transposed(
-            Chebfun(funs=new_pieces, domain=self.domain), self.is_transposed)
+            Chebfun(funs=new_pieces, domain=self.domain,
+                    deltas=tuple(lowered)), self.is_transposed)
 
     def sum(self) -> jax.Array:
         r"""Definite integral over the full domain.
@@ -3906,9 +3959,12 @@ class Chebfun(eqx.Module):
         total = jnp.float64(0.0)
         for piece in self.funs:
             total = total + piece.sum()
-        # Dirac deltas contribute their magnitude to the integral (#9).
-        for _loc, _mag in getattr(self, "deltas", ()):
-            total = total + jnp.float64(_mag)
+        # Dirac deltas contribute their magnitude to the integral (#9);
+        # derivative rows integrate to zero over the whole domain.
+        for row in getattr(self, "deltas", ()):
+            _loc, _mag, _order = _delta_row(row)
+            if _order == 0:
+                total = total + jnp.float64(_mag)
         return total
 
     def inner(self, other: Chebfun) -> jax.Array:
@@ -3967,9 +4023,10 @@ class Chebfun(eqx.Module):
         _ds = getattr(self, "deltas", ())
         if _ds:
             import numpy as _np
-            mags = _np.asarray([m for _l, m in _ds], dtype=float)
+            rows = [_delta_row(r) for r in _ds]
             base = Chebfun(funs=self.funs, domain=self.domain)
-            if p == 1:
+            if p == 1 and all(o == 0 for _l, _m, o in rows):
+                mags = _np.asarray([m for _l, m, _o in rows], dtype=float)
                 return jnp.asarray(float(base.norm(1))
                                    + float(_np.sum(_np.abs(mags))))
             return jnp.asarray(_np.inf)
@@ -4415,10 +4472,11 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/min.m
         Chebfun commit: 7574c77
         """
-        # A negative Dirac delta makes the min infinite (@deltafun).
-        _ds = getattr(self, "deltas", ())
-        if _ds and any(m < 0 for _l, m in _ds):
-            loc = [_l for _l, m in _ds if m < 0][0]
+        # A negative Dirac delta (or any derivative row, unbounded both
+        # ways) makes the min infinite (@deltafun).
+        _ds = [_delta_row(r) for r in getattr(self, "deltas", ())]
+        if any(m < 0 or o > 0 for _l, m, o in _ds):
+            loc = [_l for _l, m, o in _ds if m < 0 or o > 0][0]
             return (float(loc), float("-inf"))
 
         if flag is not None:
@@ -4448,10 +4506,11 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/max.m
         Chebfun commit: 7574c77
         """
-        # A positive Dirac delta makes the max infinite (@deltafun).
-        _ds = getattr(self, "deltas", ())
-        if _ds and any(m > 0 for _l, m in _ds):
-            loc = [_l for _l, m in _ds if m > 0][0]
+        # A positive Dirac delta (or any derivative row, unbounded both
+        # ways) makes the max infinite (@deltafun).
+        _ds = [_delta_row(r) for r in getattr(self, "deltas", ())]
+        if any(m > 0 or o > 0 for _l, m, o in _ds):
+            loc = [_l for _l, m, o in _ds if m > 0 or o > 0][0]
             return (float(loc), float("+inf"))
 
         if flag is not None:
@@ -5422,10 +5481,12 @@ class Chebfun(eqx.Module):
         g_deltas = tuple(getattr(g, "deltas", ()))
         if f_deltas or g_deltas:
             extra_bps = []
-            for loc, _mag in f_deltas:
+            for row in f_deltas:
+                loc = _delta_row(row)[0]
                 extra_bps.extend([loc + c, loc + d])
                 extra_bps.extend((loc + _np.asarray(g_bps)).tolist())
-            for loc, _mag in g_deltas:
+            for row in g_deltas:
+                loc = _delta_row(row)[0]
                 extra_bps.extend([loc + a, loc + b])
                 extra_bps.extend((loc + _np.asarray(f_bps)).tolist())
             extra = _np.asarray(extra_bps, dtype=_np.float64)
@@ -5435,23 +5496,29 @@ class Chebfun(eqx.Module):
             keep = _np.concatenate([[True], _np.diff(dom_pts) > tol])
             dom_pts = dom_pts[keep]
         out_deltas: dict = {}
-        for lu, au in f_deltas:
-            for lv, bv in g_deltas:
-                key = float(lu + lv)
+        for fr in f_deltas:
+            lu, au, ku = _delta_row(fr)
+            for gr in g_deltas:
+                lv, bv, kv = _delta_row(gr)
+                key = (float(lu + lv), ku + kv)
                 out_deltas[key] = out_deltas.get(key, 0.0) + au * bv
 
         def _delta_terms(x_val: float) -> float:
             sacc = 0.0
-            for loc, mag in f_deltas:
+            for row in f_deltas:
+                loc, mag, kk = _delta_row(row)
                 t = x_val - loc
                 if c <= t <= d:
+                    gk = g if kk == 0 else g.diff(kk)
                     sacc += mag * float(_np.asarray(
-                        g(jnp.float64(t))))
-            for loc, mag in g_deltas:
+                        gk(jnp.float64(t))))
+            for row in g_deltas:
+                loc, mag, kk = _delta_row(row)
                 t = x_val - loc
                 if a <= t <= b:
+                    fk = f if kk == 0 else f.diff(kk)
                     sacc += mag * float(_np.asarray(
-                        f(jnp.float64(t))))
+                        fk(jnp.float64(t))))
             return sacc
 
         # Smooth part via the fast Hale-Townsend algorithm: convolve
@@ -5467,13 +5534,19 @@ class Chebfun(eqx.Module):
                     cg = _np.asarray(pg.tech.coeffs)
                     contribs.extend(_fun_conv_ht(
                         cf, pf.interval, cg, pg.interval))
-        for loc, mag in f_deltas:
-            for pg in g.funs:
+        # delta^(k)_u * g = mag * g^(k)(x - u): shift a copy of the
+        # k-th derivative (@deltafun/conv.m).
+        for row, hh in ((r, g) for r in f_deltas):
+            loc, mag, kk = _delta_row(row)
+            hk = hh if kk == 0 else hh.diff(kk)
+            for pg in hk.funs:
                 ia, ib = pg.interval
                 contribs.append(((ia + loc, ib + loc),
                                  mag * _np.asarray(pg.tech.coeffs)))
-        for loc, mag in g_deltas:
-            for pf in f.funs:
+        for row in g_deltas:
+            loc, mag, kk = _delta_row(row)
+            hk = f if kk == 0 else f.diff(kk)
+            for pf in hk.funs:
                 ia, ib = pf.interval
                 contribs.append(((ia + loc, ib + loc),
                                  mag * _np.asarray(pf.tech.coeffs)))
@@ -5487,7 +5560,8 @@ class Chebfun(eqx.Module):
         if out_deltas:
             h = Chebfun(funs=h.funs, domain=h.domain,
                         deltas=tuple(sorted(
-                            (k, v) for k, v in out_deltas.items()
+                            ((loc, v) if order == 0 else (loc, v, order))
+                            for (loc, order), v in out_deltas.items()
                             if v != 0.0)))
         return h
 
@@ -6216,8 +6290,11 @@ class Chebfun(eqx.Module):
         )
         return K, E
 
-    def dirac(self) -> "Chebfun":
+    def dirac(self, order: int = 0) -> "Chebfun":
         r"""Dirac delta distribution centred at the roots of the Chebfun.
+
+        With ``order > 0`` returns the order-th distributional
+        derivative, MATLAB ``dirac(f, n) = diff(dirac(f), n)``.
 
         Returns a Chebfun whose (distributional) value is a sum of Dirac
         deltas placed at each simple zero :math:`r_i` of ``self``, with
@@ -6253,6 +6330,12 @@ class Chebfun(eqx.Module):
         --------
         Chebfun.heaviside
         """
+        if order:
+            if int(order) != order or order < 0:
+                raise ValueError(
+                    "dirac: order of the derivative must be a "
+                    "non-negative integer.")
+            return self.dirac().diff(int(order))
         # uses-numpy: rootfinding and evaluation use NumPy arrays
         import numpy as _np
 
@@ -8077,6 +8160,7 @@ def chebfun(
     equi: bool = False,
     coeffs: bool = False,
     min_samples: int | None = None,
+    trunc: int | None = None,
 ) -> Chebfun:
     """Create a Chebfun from a callable, array of coefficients, or constant.
 
@@ -8102,6 +8186,10 @@ def chebfun(
     n : int or None, optional
         Fixed number of Chebyshev points per piece.  If ``None`` (default)
         adaptive construction is used.
+    trunc : int or None, optional
+        MATLAB ``chebfun(f, 'trig', 'trunc', N)``: truncate the Fourier
+        series to exactly ``N`` symmetric coefficients after (adaptive)
+        construction.  Requires ``trig=True``.
 
     Returns
     -------
@@ -8168,6 +8256,10 @@ def chebfun(
     _empty_dom = len(_dv) == 0
     if _empty_f or _empty_dom or n == 0:
         return Chebfun.empty()
+    if trunc is not None and not trig:
+        raise ValueError(
+            "chebfun: trunc is currently supported with trig=True only "
+            "(use chebcoeffs(n) for Chebyshev-series truncation).")
     if len(_dv) < 2 or len(set(_dv)) < len(_dv):
         raise ValueError(
             "chebfun: domain intervals must be of positive length")
@@ -8433,8 +8525,6 @@ def chebfun(
     if trig:
         from chebfunjax.tech.trigtech import Trigtech
 
-        if not callable(f):
-            raise ValueError("chebfun(..., trig=True) requires a callable.")
         dom_arr = tuple(float(v) for v in domain)
         if len(dom_arr) != 2:
             raise ValueError(
@@ -8442,10 +8532,26 @@ def chebfun(
             )
         a, b = dom_arr
 
+        if not callable(f):
+            # MATLAB chebfun(c, 'trig'): a (possibly complex) constant
+            # is the single zero-wavenumber Fourier coefficient.
+            c0 = complex(f)
+            tech = Trigtech(
+                coeffs=jnp.asarray([c0], dtype=jnp.complex128),
+                is_real=(c0.imag == 0.0), ishappy=True)
+            piece = _Piece(tech=tech, interval=(a, b))
+            return Chebfun(funs=[piece], domain=Domain((a, b)))
+
         def f_ref(x):
             return f(a + (b - a) * (x + 1.0) / 2.0)
 
         tech = Trigtech.from_function(f_ref, n=n)
+        if trunc is not None:
+            # MATLAB chebfun(f, 'trig', 'trunc', N): truncate the
+            # Fourier series to exactly N symmetric coefficients.
+            tech = Trigtech(
+                coeffs=tech.trigcoeffs(int(trunc)),
+                is_real=tech.is_real, ishappy=tech.ishappy)
         piece = _Piece(tech=tech, interval=(a, b))
         return Chebfun(funs=[piece], domain=Domain((a, b)))
 

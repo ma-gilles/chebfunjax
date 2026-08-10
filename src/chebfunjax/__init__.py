@@ -181,9 +181,10 @@ def ellipke(f: Chebfun):
     return f.ellipke()
 
 
-def dirac(f: Chebfun) -> Chebfun:
-    """Dirac delta at roots of f.  Equivalent to ``f.dirac()``."""
-    return f.dirac()
+def dirac(f: Chebfun, order: int = 0) -> Chebfun:
+    """Dirac delta at roots of f (or its order-th distributional
+    derivative).  Equivalent to ``f.dirac(order)``."""
+    return f.dirac(order)
 
 
 def unwrap(f: Chebfun, jump_tol=None) -> Chebfun:

@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.tech.trigtech import Trigtech
 
@@ -145,10 +144,20 @@ class TestTrigtechFeval:
         assert fx.shape == (2, 3, 3)
         assert _ninf(fx - fun(x2)) < 10 * f.vscale * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks the chebfun 'trig'/'trunc' construction path")
     def test_chebfun_trig_trunc(self):
-        raise AssertionError("chebfun trig/trunc not exercised here")
+        # pass(13): even truncated expansion of an array-valued complex
+        # trig chebfun evaluated at a scalar argument.
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        f_exact = lambda t: jnp.stack(
+            [jnp.exp(jnp.pi * 1j * t), jnp.exp(2 * jnp.pi * 1j * t)],
+            axis=-1)
+        f = chebfun(f_exact, trig=True, trunc=4)
+        t = jnp.asarray(0.5)
+        assert _ninf(f(t) - f_exact(t)) < 10 * EPS
 
-    @pytest.mark.xfail(reason="chebfunjax lacks the chebfun 'trig' constant construction path")
     def test_chebfun_trig_constant(self):
-        raise AssertionError("chebfun trig constant not exercised here")
+        # pass(14): constant complex trig chebfun at multiple points.
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        f = chebfun(1 + 1j, trig=True)
+        out = f(jnp.asarray([0.3, 0.4]))
+        assert _ninf(out - (1 + 1j)) < EPS

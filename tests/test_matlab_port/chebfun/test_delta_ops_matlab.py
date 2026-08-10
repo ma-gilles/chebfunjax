@@ -86,3 +86,59 @@ def test_delta_aware_extrema_and_norms():
     assert f.min()[1] == float("-inf")
     assert float(f.norm(1)) == pytest.approx(2.0 + 1.0 + 2.0, abs=1e-12)
     assert float(f.norm(2)) == float("inf")
+
+
+# ---------------------------------------------------------------------------
+# Derivative-order deltas (MATLAB dirac(f, n) = diff(dirac(f), n);
+# @deltafun deltaMag rows carry the distributional-derivative order).
+# ---------------------------------------------------------------------------
+
+
+def test_dirac_derivative_order():
+    x = cj.chebfun(lambda t: t, domain=[-1, 1])
+    dp = x.dirac(1)
+    assert dp.deltas == ((0.0, 1.0, 1),)
+    assert x.dirac(2).deltas == ((0.0, 1.0, 2),)
+    # diff promotes the order.
+    assert x.dirac().diff().deltas == ((0.0, 1.0, 1),)
+
+
+def test_delta_derivative_integrates_to_zero():
+    x = cj.chebfun(lambda t: t, domain=[-1, 1])
+    dp = x.dirac(1)
+    assert float(dp.sum()) == pytest.approx(0.0, abs=1e-14)
+    # cumsum lowers the order: int delta' = delta.
+    cd = dp.cumsum()
+    assert cd.deltas == ((0.0, 1.0),)
+    assert float(cd.sum()) == pytest.approx(1.0, abs=1e-12)
+
+
+def test_delta_derivative_product_leibniz():
+    # g(x) delta'(x) = g(0) delta' - g'(0) delta  (funTimesDelta).
+    x = cj.chebfun(lambda t: t, domain=[-1, 1])
+    g = cj.chebfun(lambda t: jnp.exp(t), domain=[-1, 1])
+    h = g * x.dirac(1)
+    rows = {(_r[0], _r[2] if len(_r) > 2 else 0): float(_r[1])
+            for _r in h.deltas}
+    assert rows[(0.0, 1)] == pytest.approx(1.0, rel=1e-12)
+    assert rows[(0.0, 0)] == pytest.approx(-1.0, rel=1e-12)
+    # int g delta' = -g'(0) = -1.
+    assert float(h.sum()) == pytest.approx(-1.0, rel=1e-12)
+
+
+def test_delta_derivative_conv_differentiates():
+    # (delta'_0 * g)(x) = g'(x)  (@deltafun/conv).
+    x = cj.chebfun(lambda t: t, domain=[-1, 1])
+    g = cj.chebfun(lambda t: jnp.exp(t), domain=[-1, 1])
+    c = x.dirac(1).conv(g)
+    assert float(np.asarray(c(jnp.asarray([0.5])))[0]) == pytest.approx(
+        float(np.exp(0.5)), rel=1e-12)
+
+
+def test_delta_derivative_unbounded_extrema():
+    # A derivative row is unbounded both ways; every norm is infinite.
+    x = cj.chebfun(lambda t: t, domain=[-1, 1])
+    dp = x.dirac(1)
+    assert dp.max()[1] == float("inf")
+    assert dp.min()[1] == float("-inf")
+    assert float(dp.norm(1)) == float("inf")
