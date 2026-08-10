@@ -1,4 +1,5 @@
-"""Port of MATLAB Chebfun tests/chebtech/test_cumsum.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/chebtech/test_cumsum.m (Opus 4.8; marker audit
+Fable 5).
 
 Self-validating: antiderivatives are compared against analytic exacts at the
 SAME tolerances MATLAB uses.  The MATLAB test loops ``for n = 1:2`` over
@@ -9,12 +10,15 @@ the exact one up to an additive constant, so their difference has small spread)
 together with ``abs(feval(F,-1)) < tol``.  We reproduce ``std`` with numpy's
 ``std(..., ddof=1)`` (MATLAB's default normalisation).
 
-Notes on gaps (see the report):
-* The ``sinh(t*z)`` sub-test (pass 4) is complex-valued -> Chebtech2 only.
-* The ``cos(1e4*x)`` sub-test (pass 3) is real but exceeds MATLAB's tight
-  ``5e4*vscale*eps`` bound: chebfunjax's antiderivative of this very-high-
-  frequency function is marginally (~1.1-3x) less accurate than MATLAB.
-* Array-valued assertion (pass 8) is skipped.
+Every MATLAB assertion (pass 1-8) is ported on BOTH tech kinds:
+
+* Array-valued techs are supported ((n, m) coefficient matrices), so the
+  array-valued assertion (pass 8) is a real test.
+* Complex-valued construction works on Chebtech1 as well as Chebtech2, so the
+  ``sinh(t*z)`` sub-test (pass 4) runs on both.
+
+The only remaining marker is a genuine accuracy floor on Chebtech1's
+pass(n, 3); its measured margin is recorded in the xfail reason below.
 
 Provenance
 ----------
@@ -73,10 +77,14 @@ class TestChebtechCumsum:
         pytest.param(
             Chebtech1,
             marks=pytest.mark.xfail(
-                reason="Chebtech1 antiderivative of cos(1e4*x): std of the "
-                "error marginally exceeds 5e4*vscale(F)*eps (platform-"
-                "marginal; Chebtech2 passes the bound -- re-measured "
-                "2026-07-30 after 4 consecutive CI xpasses)",
+                reason="Chebtech1 antiderivative of cos(1e4*x): "
+                "std(F - F_exact) = 2.5374e-15 vs 5e4*vscale(F)*eps = "
+                "1.4495e-15 -> ratio 1.751 (re-measured 2026-08-10). The "
+                "companion abs(F(-1)) check passes at 0.002x, and Chebtech2 "
+                "passes the std bound at 0.864x, so this is a genuine "
+                "float64 accuracy floor of the Chebtech1 (first-kind) "
+                "antiderivative on a very-high-frequency integrand, NOT an "
+                "array-valued or complex-data gap.",
                 strict=False,
             ),
         ),
@@ -90,8 +98,9 @@ class TestChebtechCumsum:
         assert _std(F(X) - F_ex(X)) < tol
         assert _at_m1(F) < tol
 
-    # pass(n, 4): sinh(t*z) is complex-valued -> Chebtech2 only.
-    @pytest.mark.parametrize("Tech", [Chebtech2])
+    # pass(n, 4): sinh(t*z) is complex-valued.  Both tech kinds handle complex
+    # data now, so this runs on Chebtech1 and Chebtech2 (MATLAB's n = 1:2).
+    @pytest.mark.parametrize("Tech", BOTH)
     def test_antideriv_sinh_complex(self, Tech):
         z = np.exp(2 * np.pi * 1j / 6)
         f = Tech.from_function(lambda t: jnp.sinh(t * z))

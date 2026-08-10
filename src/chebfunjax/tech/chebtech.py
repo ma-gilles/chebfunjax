@@ -48,6 +48,46 @@ def _as_scalar(v):
     return jnp.float64(v)
 
 
+def _expand_coeff_pair(fc: jax.Array, gc: jax.Array):
+    """Reshape a scalar-valued coefficient array to one column when the other
+    operand is array-valued.
+
+    MATLAB (R2016b+) applies implicit expansion in ``@chebtech/plus.m``, so an
+    ``n x m`` coefficient matrix plus an ``n x 1`` one broadcasts over the
+    columns.  chebfunjax stores scalar-valued techs with 1-D coefficients, so
+    the 1-D operand is reshaped to ``(n, 1)`` to reproduce that.
+    """
+    if fc.ndim == 1 and gc.ndim == 2:
+        return fc[:, None], gc
+    if fc.ndim == 2 and gc.ndim == 1:
+        return fc, gc[:, None]
+    return fc, gc
+
+
+def _check_rdivide_shape(coeffs: jax.Array, other) -> None:
+    """Raise MATLAB's ``rdivide:size`` for an incompatible numeric divisor.
+
+    MATLAB ``@chebtech/rdivide.m`` accepts only a scalar or a row vector whose
+    column count matches the tech's; a column vector (or a mismatched row) is
+    an error.  Without this check JAX would broadcast the divisor against the
+    coefficient rows and silently return a transposed result.
+    """
+    try:
+        arr = jnp.asarray(other)
+    except (TypeError, ValueError):
+        return
+    if arr.ndim == 0 or arr.size == 1:
+        return
+    ncols = coeffs.shape[1] if coeffs.ndim == 2 else 1
+    ok = (arr.ndim == 1 and arr.shape[0] == ncols) or (
+        arr.ndim == 2 and arr.shape[0] == 1 and arr.shape[1] == ncols)
+    if not ok:
+        raise ValueError(
+            "CHEBFUN:CHEBTECH:rdivide:size: matrix dimensions must agree; "
+            f"cannot divide a tech with {ncols} column(s) by an array of "
+            f"shape {tuple(arr.shape)}.")
+
+
 def _defers_binary(other) -> bool:
     """True when a tech binary op should defer to the other operand
     (Singfun wraps a tech and owns the mixed-operand arithmetic)."""
@@ -1573,6 +1613,7 @@ class Chebtech2(eqx.Module):
         turbo: bool = False,
         extrapolate: bool = False,
         start_pow2: int = 4,
+        check: str = "standard",
     ) -> "Chebtech2":
         """Construct a Chebtech2 from a callable.
 
@@ -1635,13 +1676,14 @@ class Chebtech2(eqx.Module):
             # the Bernstein ellipse is fixed from the adaptive length while the
             # number of computed coefficients is ``fixedLength`` (here ``n``)
             # or ``2*length`` otherwise.
-            plain = cls._adaptive_construct(f, maxpow2, tol=tol)
+            plain = cls._adaptive_construct(f, maxpow2, tol=tol,
+                                            check=check)
             num = n if n is not None else 2 * len(plain)
             c = _turbo_coeffs(f, plain.coeffs, num)
             return cls(coeffs=c, ishappy=plain.ishappy)
         if n is not None:
             return cls._fixed_construct(f, n, extrapolate=extrapolate)
-        return cls._adaptive_construct(f, maxpow2, tol=tol,
+        return cls._adaptive_construct(f, maxpow2, tol=tol, check=check,
                                        extrapolate=extrapolate,
                                        start_pow2=start_pow2)
 
@@ -1669,6 +1711,7 @@ class Chebtech2(eqx.Module):
         start_pow2: int = 4,
         tol: float | None = None,
         extrapolate: bool = False,
+        check: str = "standard",
     ) -> "Chebtech2":
         """Adaptive construction — Python-level loop, NOT JIT-safe.
 
@@ -1693,7 +1736,10 @@ class Chebtech2(eqx.Module):
             When True (MATLAB ``pref.extrapolate``), evaluate ``f`` only at the
             interior grid points and extrapolate the endpoint values, so ``f``
             is never sampled at ``x = +/-1``.
-        """
+        check : {'standard', 'strict', 'classic'}, default 'standard'
+            MATLAB ``pref.happinessCheck``: which convergence test
+            ``happiness_check`` applies during adaptive construction.
+        """""
         vscale = 0.0
         c = None
         for k in range(start_pow2, maxpow2 + 1):
@@ -1716,6 +1762,7 @@ class Chebtech2(eqx.Module):
                 op=f,
                 tol=tol,
                 vscale=vscale,
+                check=check,
             )
             if ishappy:
                 return cls(coeffs=c[:cutoff], ishappy=True)
@@ -2230,7 +2277,7 @@ class Chebtech2(eqx.Module):
     # Restriction
     # ------------------------------------------------------------------
 
-    def restrict(self, a: float, b: float) -> "Chebtech2":
+    def restrict(self, a, b: float | None = None):
         """Restrict this Chebtech2 to a sub-interval [a, b] of [-1, 1].
 
         Returns a new ``Chebtech2`` representing the same function on [a, b],
@@ -2285,6 +2332,19 @@ class Chebtech2(eqx.Module):
         --------
         compose, prolong
         """
+        if b is None or not isinstance(a, (int, float)):
+            # MATLAB restrict(f, s) with a breakpoint vector s: one tech per
+            # sub-interval, returned as a list when s has more than two
+            # entries (MATLAB returns a cell array there).
+            brk = [float(t) for t in jnp.asarray(a).reshape(-1)]
+            if len(brk) < 2:
+                raise ValueError(
+                    "CHEBFUN:CHEBTECH:restrict:badInterval: "
+                    "need at least two breakpoints.")
+            if len(brk) == 2:
+                return self.restrict(brk[0], brk[1])
+            return [self.restrict(brk[i], brk[i + 1])
+                    for i in range(len(brk) - 1)]
         a = float(a)
         b = float(b)
         if a < -1.0 - 10 * _EPS or b > 1.0 + 10 * _EPS or a >= b:
@@ -2408,6 +2468,7 @@ class Chebtech2(eqx.Module):
             n = max(nf, ng)
             fc = _prolong_coeffs(self.coeffs, n)
             gc = _prolong_coeffs(other.coeffs, n)
+            fc, gc = _expand_coeff_pair(fc, gc)
             return Chebtech2.from_coeffs(
                 _collapse_if_zero(fc + gc),
                 ishappy=self.ishappy and other.ishappy)
@@ -2417,6 +2478,11 @@ class Chebtech2(eqx.Module):
             # float64 buffer silently drops the imaginary part.
             s = _as_scalar(other)
             c = self.coeffs.astype(jnp.result_type(self.coeffs.dtype, s.dtype))
+            # MATLAB plus.m performs singleton expansion of f when the double
+            # is a row vector with more columns than f has.
+            ncols = s.shape[-1] if s.ndim else 1
+            if ncols > 1 and c.ndim == 1:
+                c = jnp.tile(c[:, None], (1, ncols))
             c = c.at[0].add(s)
             return Chebtech2.from_coeffs(c, ishappy=self.ishappy)
 
@@ -2501,8 +2567,16 @@ class Chebtech2(eqx.Module):
         if _is_empty_tech(self):
             return Chebtech2.empty()
         A = jnp.asarray(other)
+        scalar_valued = self.coeffs.ndim == 1
         c = self.coeffs if self.coeffs.ndim == 2 else self.coeffs[:, None]
-        return Chebtech2(coeffs=c @ A, ishappy=self.ishappy)
+        out = c @ A
+        # A scalar-valued tech times a 1x1 matrix stays scalar-valued, so the
+        # result keeps 1-D coefficients rather than becoming a 1-column
+        # array-valued tech (which would broadcast wrongly in arithmetic).
+        # A 1-D ``A`` already contracts to 1-D, matching MATLAB f*[a;b].
+        if scalar_valued and out.ndim == 2 and out.shape[1] == 1:
+            out = out[:, 0]
+        return Chebtech2(coeffs=out, ishappy=self.ishappy)
 
     def fliplr(self) -> "Chebtech2":
         """Reverse the column order of an array-valued tech (a no-op
@@ -2569,6 +2643,160 @@ class Chebtech2(eqx.Module):
         """
         return type(self)(coeffs=jnp.conj(self.coeffs),
                           ishappy=self.ishappy)
+
+    def qr(self, mode: str = "matrix", method: str = "built-in",
+           want_e: bool = False):
+        """QR factorisation ``f = Q R`` of an array-valued tech.
+
+        ``Q`` is a tech with the same number of columns as ``f`` whose
+        columns are orthonormal in the continuous L2 inner product on
+        [-1, 1]; ``R`` is ``m x m`` upper-triangular with a non-negative
+        diagonal.  A single-column tech is simply normalised.
+
+        Parameters
+        ----------
+        mode : {'matrix', 'vector'}, default 'matrix'
+            Form of the optional permutation output ``E``.
+        method : {'built-in', 'householder'}, default 'built-in'
+            'built-in' orthogonalises a Gauss-Legendre-weighted matrix of
+            nodal values with a dense QR; 'householder' uses Trefethen's
+            Householder triangularisation of a quasimatrix.
+        want_e : bool, default False
+            If True, also return ``E``.  Neither method pivots, so ``E``
+            is the identity (as a vector or a matrix, per ``mode``).
+
+        Returns
+        -------
+        (Q, R) or (Q, R, E)
+
+        NOT JIT-safe (dense linear algebra with data-dependent shapes).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/qr.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        Algorithm:
+            L. N. Trefethen, "Householder triangularization of a
+            quasimatrix", IMA J. Numer. Anal., 30(4):887-897, 2010.
+
+        See Also
+        --------
+        mldivide, mrdivide
+        """
+        return _tech_qr(self, mode=mode, method=method, want_e=want_e)
+
+    def mldivide(self, other) -> jax.Array:
+        """``A \\ B``: continuous-L2 least-squares solution of ``A X = B``.
+
+        Both operands must be techs of the same type.  Returns the numeric
+        coefficient matrix ``X`` (a vector when ``B`` has one column).
+
+        Parameters
+        ----------
+        other : Chebtech2
+            Right-hand side.
+
+        Returns
+        -------
+        jax.Array
+
+        NOT JIT-safe (calls :meth:`qr`).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/mldivide.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        qr, mrdivide
+        """
+        return _tech_mldivide(self, other)
+
+    def mrdivide(self, other):
+        """``A / B``: right matrix divide by a scalar or matrix.
+
+        Dividing by a scalar rescales the coefficients.  Dividing by a
+        matrix gives the continuous-L2 least-squares solution of
+        ``X B = A``.  ``mrdivide`` between two techs is an error (use
+        ``/`` elementwise division instead).
+
+        Parameters
+        ----------
+        other : float or jax.Array
+            Scalar or matrix divisor.
+
+        Returns
+        -------
+        Chebtech2
+
+        NOT JIT-safe (calls :meth:`qr`).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/mrdivide.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        qr, mldivide
+        """
+        return _tech_mrdivide(self, other)
+
+    @staticmethod
+    def rmrdivide(numeric, tech):
+        """``A / B`` with a numeric ``A`` and a tech ``B`` (least squares).
+
+        Parameters
+        ----------
+        numeric : float or jax.Array
+            Numerator.
+        tech : Chebtech2
+            Denominator.
+
+        Returns
+        -------
+        Chebtech2
+
+        NOT JIT-safe (calls :meth:`qr`).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/mrdivide.m (``double / chebtech`` branch)
+        Chebfun commit: 7574c77
+
+        See Also
+        --------
+        mrdivide, qr
+        """
+        return _tech_mrdivide(numeric, tech)
+
+    def isequal(self, other) -> bool:
+        """True when two techs have the same coefficient array.
+
+        Parameters
+        ----------
+        other : Chebtech2
+            Tech to compare against.
+
+        Returns
+        -------
+        bool
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/isequal.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        return _tech_isequal(self, other)
 
     def mat2cell(self, sizes) -> list:
         """Split an array-valued tech into a list of techs with the
@@ -2657,6 +2885,7 @@ class Chebtech2(eqx.Module):
             # silently under-resolves, e.g. 1/(1+25x^2) needs ~185 coeffs).
             return self.compose(lambda a, b: a / b, other)
         else:
+            _check_rdivide_shape(self.coeffs, other)
             return Chebtech2.from_coeffs(self.coeffs / _as_scalar(other), ishappy=self.ishappy)
 
     def __rtruediv__(self, other) -> "Chebtech2":
@@ -3474,6 +3703,7 @@ class Chebtech1(eqx.Module):
         n: int | None = None,
         maxpow2: int = 16,
         turbo: bool = False,
+        check: str = "standard",
     ) -> "Chebtech1":
         """Construct a Chebtech1 from a callable.
 
@@ -3505,13 +3735,13 @@ class Chebtech1(eqx.Module):
             # "Turbo" construction (see Chebtech2.from_function): the plain
             # construction is adaptive; only the number of computed
             # coefficients is fixed by ``n`` (fixedLength).
-            plain = cls._adaptive_construct(f, maxpow2)
+            plain = cls._adaptive_construct(f, maxpow2, check=check)
             num = n if n is not None else 2 * len(plain)
             c = _turbo_coeffs(f, plain.coeffs, num)
             return cls(coeffs=c, ishappy=plain.ishappy)
         if n is not None:
             return cls._fixed_construct(f, n)
-        return cls._adaptive_construct(f, maxpow2)
+        return cls._adaptive_construct(f, maxpow2, check=check)
 
     @classmethod
     def _fixed_construct(
@@ -3534,12 +3764,17 @@ class Chebtech1(eqx.Module):
         f: Callable[[jax.Array], jax.Array],
         maxpow2: int = 16,
         start_pow2: int = 4,
+        check: str = "standard",
     ) -> "Chebtech1":
         """Adaptive construction — Python-level loop, NOT JIT-safe.
 
         Evaluates f on grids of size 2^k for k = start_pow2, ..., maxpow2
         (note: 1st-kind grids have exactly 2^k points, not 2^k+1).
-        """
+
+        check : {'standard', 'strict', 'classic'}, default 'standard'
+            MATLAB ``pref.happinessCheck``: which convergence test
+            ``happiness_check`` applies during adaptive construction.
+        """""
         vscale = 0.0
         c = None
         for k in range(start_pow2, maxpow2 + 1):
@@ -3559,6 +3794,7 @@ class Chebtech1(eqx.Module):
                 values,
                 op=f,
                 vscale=vscale,
+                check=check,
             )
             if ishappy:
                 return cls(coeffs=c[:cutoff], ishappy=True)
@@ -3853,6 +4089,7 @@ class Chebtech1(eqx.Module):
             n = max(self.n, other.n)
             fc = _prolong_coeffs(self.coeffs, n)
             gc = _prolong_coeffs(other.coeffs, n)
+            fc, gc = _expand_coeff_pair(fc, gc)
             return Chebtech1.from_coeffs(
                 _collapse_if_zero(fc + gc),
                 ishappy=self.ishappy and other.ishappy)
@@ -3862,6 +4099,11 @@ class Chebtech1(eqx.Module):
             # buffer silently drops the imaginary part.
             s = _as_scalar(other)
             c = self.coeffs.astype(jnp.result_type(self.coeffs.dtype, s.dtype))
+            # MATLAB plus.m performs singleton expansion of f when the double
+            # is a row vector with more columns than f has.
+            ncols = s.shape[-1] if s.ndim else 1
+            if ncols > 1 and c.ndim == 1:
+                c = jnp.tile(c[:, None], (1, ncols))
             c = c.at[0].add(s)
             return Chebtech1.from_coeffs(c, ishappy=self.ishappy)
 
@@ -3942,8 +4184,16 @@ class Chebtech1(eqx.Module):
         if _is_empty_tech(self):
             return Chebtech1.empty()
         A = jnp.asarray(other)
+        scalar_valued = self.coeffs.ndim == 1
         c = self.coeffs if self.coeffs.ndim == 2 else self.coeffs[:, None]
-        return Chebtech1(coeffs=c @ A, ishappy=self.ishappy)
+        out = c @ A
+        # A scalar-valued tech times a 1x1 matrix stays scalar-valued, so the
+        # result keeps 1-D coefficients rather than becoming a 1-column
+        # array-valued tech (which would broadcast wrongly in arithmetic).
+        # A 1-D ``A`` already contracts to 1-D, matching MATLAB f*[a;b].
+        if scalar_valued and out.ndim == 2 and out.shape[1] == 1:
+            out = out[:, 0]
+        return Chebtech1(coeffs=out, ishappy=self.ishappy)
 
     def fliplr(self) -> "Chebtech1":
         """Reverse the column order of an array-valued tech (a no-op
@@ -3993,6 +4243,160 @@ class Chebtech1(eqx.Module):
         """
         return Chebtech2.assign_columns(self, cols, g)
 
+    def qr(self, mode: str = "matrix", method: str = "built-in",
+           want_e: bool = False):
+        """QR factorisation ``f = Q R`` of an array-valued tech.
+
+        ``Q`` is a tech with the same number of columns as ``f`` whose
+        columns are orthonormal in the continuous L2 inner product on
+        [-1, 1]; ``R`` is ``m x m`` upper-triangular with a non-negative
+        diagonal.  A single-column tech is simply normalised.
+
+        Parameters
+        ----------
+        mode : {'matrix', 'vector'}, default 'matrix'
+            Form of the optional permutation output ``E``.
+        method : {'built-in', 'householder'}, default 'built-in'
+            'built-in' orthogonalises a Gauss-Legendre-weighted matrix of
+            nodal values with a dense QR; 'householder' uses Trefethen's
+            Householder triangularisation of a quasimatrix.
+        want_e : bool, default False
+            If True, also return ``E``.  Neither method pivots, so ``E``
+            is the identity (as a vector or a matrix, per ``mode``).
+
+        Returns
+        -------
+        (Q, R) or (Q, R, E)
+
+        NOT JIT-safe (dense linear algebra with data-dependent shapes).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/qr.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        Algorithm:
+            L. N. Trefethen, "Householder triangularization of a
+            quasimatrix", IMA J. Numer. Anal., 30(4):887-897, 2010.
+
+        See Also
+        --------
+        mldivide, mrdivide
+        """
+        return _tech_qr(self, mode=mode, method=method, want_e=want_e)
+
+    def mldivide(self, other) -> jax.Array:
+        """``A \\ B``: continuous-L2 least-squares solution of ``A X = B``.
+
+        Both operands must be techs of the same type.  Returns the numeric
+        coefficient matrix ``X`` (a vector when ``B`` has one column).
+
+        Parameters
+        ----------
+        other : Chebtech1
+            Right-hand side.
+
+        Returns
+        -------
+        jax.Array
+
+        NOT JIT-safe (calls :meth:`qr`).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/mldivide.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        qr, mrdivide
+        """
+        return _tech_mldivide(self, other)
+
+    def mrdivide(self, other):
+        """``A / B``: right matrix divide by a scalar or matrix.
+
+        Dividing by a scalar rescales the coefficients.  Dividing by a
+        matrix gives the continuous-L2 least-squares solution of
+        ``X B = A``.  ``mrdivide`` between two techs is an error (use
+        ``/`` elementwise division instead).
+
+        Parameters
+        ----------
+        other : float or jax.Array
+            Scalar or matrix divisor.
+
+        Returns
+        -------
+        Chebtech1
+
+        NOT JIT-safe (calls :meth:`qr`).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/mrdivide.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        qr, mldivide
+        """
+        return _tech_mrdivide(self, other)
+
+    @staticmethod
+    def rmrdivide(numeric, tech):
+        """``A / B`` with a numeric ``A`` and a tech ``B`` (least squares).
+
+        Parameters
+        ----------
+        numeric : float or jax.Array
+            Numerator.
+        tech : Chebtech1
+            Denominator.
+
+        Returns
+        -------
+        Chebtech1
+
+        NOT JIT-safe (calls :meth:`qr`).
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/mrdivide.m (``double / chebtech`` branch)
+        Chebfun commit: 7574c77
+
+        See Also
+        --------
+        mrdivide, qr
+        """
+        return _tech_mrdivide(numeric, tech)
+
+    def isequal(self, other) -> bool:
+        """True when two techs have the same coefficient array.
+
+        Parameters
+        ----------
+        other : Chebtech1
+            Tech to compare against.
+
+        Returns
+        -------
+        bool
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/isequal.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        return _tech_isequal(self, other)
+
     def mat2cell(self, sizes) -> list:
         """Split an array-valued tech by column counts (MATLAB
         ``mat2cell(f, 1, sizes)``).
@@ -4041,6 +4445,7 @@ class Chebtech1(eqx.Module):
                 lambda x: _clenshaw(self.coeffs, x) / _clenshaw(other.coeffs, x)
             )
         else:
+            _check_rdivide_shape(self.coeffs, other)
             return Chebtech1.from_coeffs(self.coeffs / _as_scalar(other), ishappy=self.ishappy)
 
     def __rtruediv__(self, other) -> "Chebtech1":
@@ -4289,7 +4694,7 @@ class Chebtech1(eqx.Module):
             start_pow2=start_pow2,
         )
 
-    def restrict(self, a: float, b: float) -> "Chebtech1":
+    def restrict(self, a, b: float | None = None):
         """Restrict this Chebtech1 to a sub-interval [a, b] of [-1, 1].
 
         Returns a new Chebtech1 on [-1, 1] representing ``self`` on
@@ -4300,6 +4705,19 @@ class Chebtech1(eqx.Module):
         MATLAB source : @chebtech/restrict.m
         Chebfun commit: 7574c77
         """
+        if b is None or not isinstance(a, (int, float)):
+            # MATLAB restrict(f, s) with a breakpoint vector s: one tech per
+            # sub-interval, returned as a list when s has more than two
+            # entries (MATLAB returns a cell array there).
+            brk = [float(t) for t in jnp.asarray(a).reshape(-1)]
+            if len(brk) < 2:
+                raise ValueError(
+                    "CHEBFUN:CHEBTECH:restrict:badInterval: "
+                    "need at least two breakpoints.")
+            if len(brk) == 2:
+                return self.restrict(brk[0], brk[1])
+            return [self.restrict(brk[i], brk[i + 1])
+                    for i in range(len(brk) - 1)]
         a = float(a)
         b = float(b)
         if a < -1.0 - 10 * _EPS or b > 1.0 + 10 * _EPS or a >= b:
@@ -4448,3 +4866,224 @@ class Chebtech1(eqx.Module):
         Chebfun commit: 7574c77
         """
         return _chebT_to_chebU_coeffs(cT)
+
+
+# ============================================================================
+# QR factorisation and matrix division for array-valued techs
+# ============================================================================
+
+
+def _tech_kind(cls) -> int:
+    """1 for Chebtech1, 2 for Chebtech2."""
+    return 1 if cls.__name__ == "Chebtech1" else 2
+
+
+def _unit_sign(d: jax.Array) -> jax.Array:
+    """MATLAB ``sign`` on a (possibly complex) vector, mapping 0 to 1.
+
+    For real input this is ``+-1``; for complex input it is ``d/|d|``, the
+    unimodular phase, so that ``conj(s)*d = |d| >= 0``.
+    """
+    mag = jnp.abs(d)
+    return jnp.where(mag == 0, jnp.ones_like(d), d / jnp.where(mag == 0, 1.0, mag))
+
+
+def _tech_qr_builtin(f, want_e: bool, mode: str):
+    """Weighted (Gauss-Legendre) discrete QR — MATLAB's 'built-in' method."""
+    from chebfunjax.utils.interpolation import barymat
+    from chebfunjax.utils.quadrature import legpts
+
+    cls = type(f)
+    kind = _tech_kind(cls)
+    coeffs = f.coeffs if f.coeffs.ndim == 2 else f.coeffs[:, None]
+    n, m = coeffs.shape
+    if n < m:
+        coeffs = jnp.concatenate(
+            [coeffs, jnp.zeros((m - n, m), dtype=coeffs.dtype)], axis=0)
+        n = m
+
+    xc = chebpts(n, kind=kind)
+    vc = cls.barywts(n)
+    xl, wl, vl = legpts(n, bary=True)
+    sqrt_wl = jnp.sqrt(wl)
+    WP = sqrt_wl[:, None] * barymat(xl, xc, vc)
+    invWP = barymat(xc, xl, vl) * (1.0 / sqrt_wl)[None, :]
+
+    values = cls.coeffs2vals(coeffs)
+    Qd, R = jnp.linalg.qr(WP @ values, mode="reduced")
+
+    # Enforce diag(R) >= 0 while preserving Q @ R exactly.
+    s = _unit_sign(jnp.diagonal(R))
+    Qd = invWP @ (Qd * s[None, :])
+    R = jnp.conj(s)[:, None] * R
+
+    Q = cls(coeffs=cls.vals2coeffs(Qd), ishappy=f.ishappy)
+    if want_e:
+        return Q, R, _tech_qr_perm(m, mode)
+    return Q, R
+
+
+def _tech_qr_householder(f, want_e: bool, mode: str):
+    """Trefethen's Householder triangularisation of a quasimatrix."""
+    from chebfunjax.utils.misc import abstract_qr
+    from chebfunjax.utils.quadrature import chebweights
+
+    cls = type(f)
+    kind = _tech_kind(cls)
+    coeffs = f.coeffs if f.coeffs.ndim == 2 else f.coeffs[:, None]
+    n, m = coeffs.shape
+    tol = _EPS * f.vscale
+
+    new_n = 2 * max(n, m)
+    padded = jnp.concatenate(
+        [coeffs, jnp.zeros((new_n - n, m), dtype=coeffs.dtype)], axis=0) \
+        if new_n > n else coeffs[:new_n]
+    A = cls.coeffs2vals(padded)
+
+    x = chebpts(new_n, kind=kind)
+    w = chebweights(new_n, kind=kind)
+
+    def ip(u, v):
+        return jnp.sum(w * jnp.conj(u) * v)
+
+    # Legendre-Chebyshev-Vandermonde basis (three-term recurrence).
+    cols = [jnp.ones_like(x)]
+    if m > 1:
+        cols.append(x)
+    for k in range(3, m + 1):
+        cols.append(((2 * k - 3) * x * cols[k - 2]
+                     - (k - 2) * cols[k - 3]) / (k - 1))
+    E = jnp.stack(cols, axis=1)
+    E = E * jnp.sqrt((2.0 * jnp.arange(1, m + 1) - 1.0) / 2.0)[None, :]
+    E = E.astype(A.dtype)
+
+    Qd, R = abstract_qr(A, E, ip, lambda u: float(jnp.max(jnp.abs(u))), tol)
+    Q_coeffs = cls.vals2coeffs(jnp.asarray(Qd))[: new_n // 2]
+
+    Q = cls(coeffs=Q_coeffs, ishappy=f.ishappy)
+    if want_e:
+        return Q, jnp.asarray(R), _tech_qr_perm(m, mode)
+    return Q, jnp.asarray(R)
+
+
+def _tech_qr_perm(m: int, mode: str):
+    """The (identity) column permutation returned as a vector or matrix."""
+    if mode == "vector" or mode == 0:
+        return jnp.arange(m)
+    return jnp.eye(m, dtype=jnp.float64)
+
+
+def _tech_qr(f, mode: str = "matrix", method: str = "built-in",
+             want_e: bool = False):
+    """Shared implementation of MATLAB ``@chebtech/qr``."""
+    if _is_empty_tech(f):
+        return (f, jnp.zeros((0, 0)), jnp.zeros((0, 0))) if want_e \
+            else (f, jnp.zeros((0, 0)))
+
+    cls = type(f)
+    if f.coeffs.ndim == 1 or f.coeffs.shape[1] == 1:
+        # Single column: just normalise.
+        R = jnp.sqrt(jnp.reshape(jnp.asarray(f.inner(f)), ()))
+        Q = f / R
+        R = jnp.reshape(R, (1, 1))
+        if want_e:
+            return Q, R, _tech_qr_perm(1, mode)
+        return Q, R
+
+    if isinstance(method, str) and method.lower() == "householder":
+        return _tech_qr_householder(f, want_e, mode)
+    if isinstance(method, str) and method.lower() not in ("built-in", "builtin"):
+        raise ValueError(f"CHEBFUN:CHEBTECH:qr:method: unknown method {method!r}")
+    _ = cls
+    return _tech_qr_builtin(f, want_e, mode)
+
+
+def _collapse_single_column(tech):
+    """Return a scalar-valued tech when ``tech`` has exactly one column.
+
+    chebfunjax stores scalar-valued techs with 1-D coefficients, so a
+    one-column result of a matrix operation is collapsed back to that
+    form (the same convention as ``mat2cell``).
+    """
+    if tech.coeffs.ndim == 2 and tech.coeffs.shape[1] == 1:
+        return type(tech)(coeffs=tech.coeffs[:, 0], ishappy=tech.ishappy)
+    return tech
+
+
+def _tech_mldivide(A, B):
+    """Shared implementation of MATLAB ``@chebtech/mldivide``."""
+    if type(A) is not type(B) or not hasattr(B, "coeffs"):
+        raise ValueError(
+            "CHEBFUN:CHEBTECH:mldivide:chebtechMldivideUnknown: "
+            "arguments to chebtech mldivide must both be chebtech objects "
+            "of the same type.")
+    Q, R = _tech_qr(A, method="built-in")
+    ip = jnp.reshape(jnp.asarray(Q.inner(B)), (R.shape[0], -1))
+    X = jnp.linalg.solve(R, ip)
+    return X[:, 0] if X.shape[1] == 1 else X
+
+
+def _tech_mrdivide(A, B):
+    """Shared implementation of MATLAB ``@chebtech/mrdivide``."""
+    A_tech = hasattr(A, "coeffs") and hasattr(A, "ishappy")
+    B_tech = hasattr(B, "coeffs") and hasattr(B, "ishappy")
+
+    if A_tech and B_tech:
+        raise ValueError(
+            "CHEBFUN:CHEBTECH:mrdivide:chebtechDivChebtech: "
+            "use ./ to divide by a chebtech.")
+
+    if A_tech:
+        if isinstance(B, bool) or not isinstance(
+                B, (int, float, complex, jnp.ndarray, np.ndarray, list, tuple)):
+            raise ValueError(
+                "CHEBFUN:CHEBTECH:mrdivide:badArg: "
+                f"chebtech/{type(B).__name__} is not well-defined.")
+        Bd = jnp.asarray(B)
+        m = A.coeffs.shape[1] if A.coeffs.ndim == 2 else 1
+        b_cols = Bd.shape[-1] if Bd.ndim >= 1 else 1
+        if Bd.size > 1 and b_cols != m:
+            raise ValueError(
+                "CHEBFUN:CHEBTECH:mrdivide:size: matrix dimensions must agree.")
+        if not bool(jnp.any(Bd != 0)):
+            nan_row = jnp.full((1, m), jnp.nan, dtype=jnp.float64)
+            return type(A)(coeffs=nan_row[:, 0] if m == 1 else nan_row,
+                           ishappy=True)
+        if Bd.size == 1:
+            return A * (1.0 / jnp.reshape(Bd, ()))
+        Q, R = _tech_qr(A, method="built-in")
+        Bm = jnp.atleast_2d(Bd)
+        # R / B  ==  (B.' \ R.').'
+        Y = jnp.linalg.lstsq(Bm.T, R.T)[0].T
+        return _collapse_single_column(Q @ Y)
+
+    if B_tech:
+        if isinstance(A, bool) or not isinstance(
+                A, (int, float, complex, jnp.ndarray, np.ndarray, list, tuple)):
+            raise ValueError(
+                "CHEBFUN:CHEBTECH:mrdivide:badArg: "
+                f"{type(A).__name__}/chebtech is not well-defined.")
+        Am = jnp.atleast_2d(jnp.asarray(A))
+        m = B.coeffs.shape[1] if B.coeffs.ndim == 2 else 1
+        if Am.shape[-1] != m:
+            raise ValueError(
+                "CHEBFUN:CHEBTECH:mrdivide:size: matrix dimensions must agree.")
+        Q, R = _tech_qr(B, method="built-in")
+        # A / R  ==  (R.' \ A.').'
+        AR = jnp.linalg.lstsq(R.T, Am.T)[0].T
+        return _collapse_single_column(Q @ AR.T)
+
+    raise ValueError("CHEBFUN:CHEBTECH:mrdivide:badArg")
+
+
+def _tech_isequal(f, g) -> bool:
+    """Shared implementation of MATLAB ``@chebtech/isequal``."""
+    if type(f) is not type(g):
+        return False
+    if _is_empty_tech(f) or _is_empty_tech(g):
+        return _is_empty_tech(f) and _is_empty_tech(g)
+    cf = f.coeffs if f.coeffs.ndim == 2 else f.coeffs[:, None]
+    cg = g.coeffs if g.coeffs.ndim == 2 else g.coeffs[:, None]
+    if cf.shape != cg.shape:
+        return False
+    return bool(jnp.all(cf == cg))

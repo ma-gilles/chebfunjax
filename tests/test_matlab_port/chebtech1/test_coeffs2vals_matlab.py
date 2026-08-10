@@ -1,14 +1,12 @@
-"""Port of MATLAB Chebfun tests/chebtech1/test_coeffs2vals.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/chebtech1/test_coeffs2vals.m (Fable 5).
 
 Self-validating: each conversion is checked against the closed-form exact
 values at 1st-kind Chebyshev points at the SAME tolerance MATLAB uses
 (100*eps).
 
-The real scalar/vector branches map to ``Chebtech1.coeffs2vals`` and match
-the MATLAB exact values.  The imaginary/general complex branches FAIL
-because ``Chebtech1.coeffs2vals`` ends in ``jnp.real(...)`` and discards
-the imaginary part (verified) — those are xfailed.  Array-input and
-symmetry cases require array-valued techs (not implemented) — skipped.
+All 14 MATLAB assertions port: the real, imaginary and general complex
+branches, the 2-column array inputs, and the exact symmetry preservation of
+@chebtech1/coeffs2vals.m lines 75-77.  No gaps.
 
 Provenance
 ----------

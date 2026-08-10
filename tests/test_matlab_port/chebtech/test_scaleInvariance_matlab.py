@@ -8,9 +8,17 @@ i.e. the coefficient vectors are bit-identical.  We reproduce that exactly
 length here, so prolong is a no-op).
 
 The MATLAB test runs the same two checks twice, once with
-``pref.happinessCheck = 'classic'`` and once with ``'strict'``.  chebfunjax has
-no such pref, and the math is identical, so we port ONE faithful version
-(pass 1 & 2) and skip the strict-pref duplicates (pass 3 & 4).
+``pref.happinessCheck = 'classic'`` and once with ``'strict'``.  chebfunjax
+exposes that preference as ``from_function(..., check=...)``, so all four
+passes are ported with the same prefs MATLAB sets.
+
+Note: ``strictCheck`` requires every tail coefficient to fall below
+``eps*vscale`` with no length relaxation, which ``sin(10000*x)`` does not
+achieve at any grid size up to the maximum; construction therefore returns an
+unhappy maximum-length representation (as MATLAB's does).  Scale invariance
+still holds bit-exactly there, which is all passes 3-4 assert.
+
+No gaps: all four MATLAB passes are exercised.
 
 Provenance
 ----------
@@ -19,6 +27,8 @@ Chebfun commit: 7574c77
 """
 
 from __future__ import annotations
+
+import warnings
 
 import jax.numpy as jnp
 import pytest
@@ -50,29 +60,32 @@ class TestChebtechScaleInvariance:
     @pytest.mark.parametrize("Tech,kind", CASES)
     def test_multiply_by_scale(self, Tech, kind):
         # pass(n, 1): scale*chebtech(F) == chebtech(scale*F) in coeffs (exact).
-        f = Tech.from_function(_F)
-        f1 = Tech.from_function(lambda x: _F(x) * SCALE)
+        # MATLAB sets pref.happinessCheck = 'classic' for passes 1-2.
+        f = Tech.from_function(_F, check="classic")
+        f1 = Tech.from_function(lambda x: _F(x) * SCALE, check="classic")
         assert _aligned_diff(f.coeffs, f1.coeffs / SCALE) == 0.0
 
     @pytest.mark.parametrize("Tech,kind", CASES)
     def test_divide_by_scale(self, Tech, kind):
         # pass(n, 2): chebtech(F)/scale == chebtech(F/scale) in coeffs (exact).
-        f = Tech.from_function(_F)
-        f2 = Tech.from_function(lambda x: _F(x) / SCALE)
+        f = Tech.from_function(_F, check="classic")
+        f2 = Tech.from_function(lambda x: _F(x) / SCALE, check="classic")
         assert _aligned_diff(f.coeffs, f2.coeffs * SCALE) == 0.0
 
     @pytest.mark.parametrize("Tech,kind", CASES)
     def test_multiply_by_scale_strict_pref(self, Tech, kind):
-        # pass(n, 3): identical to pass(n, 1) but with happinessCheck='strict'.
-        pytest.skip(
-            "chebfunjax has no happinessCheck='strict' pref; identical math to "
-            "test_multiply_by_scale already ported"
-        )
+        # pass(n, 3): as pass(n, 1) but with happinessCheck = 'strict'.
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")  # strictCheck never converges here
+            f = Tech.from_function(_F, check="strict")
+            f1 = Tech.from_function(lambda x: SCALE * _F(x), check="strict")
+        assert _aligned_diff(f.coeffs, f1.coeffs / SCALE) == 0.0
 
     @pytest.mark.parametrize("Tech,kind", CASES)
     def test_divide_by_scale_strict_pref(self, Tech, kind):
-        # pass(n, 4): identical to pass(n, 2) but with happinessCheck='strict'.
-        pytest.skip(
-            "chebfunjax has no happinessCheck='strict' pref; identical math to "
-            "test_divide_by_scale already ported"
-        )
+        # pass(n, 4): as pass(n, 2) but with happinessCheck = 'strict'.
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")  # strictCheck never converges here
+            f = Tech.from_function(_F, check="strict")
+            f2 = Tech.from_function(lambda x: _F(x) / SCALE, check="strict")
+        assert _aligned_diff(f.coeffs, f2.coeffs * SCALE) == 0.0

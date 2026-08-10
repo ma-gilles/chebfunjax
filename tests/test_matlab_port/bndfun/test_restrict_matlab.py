@@ -4,7 +4,8 @@ Self-validating: restrictions are sampled on the sub-interval and compared to
 the original function at the SAME tolerance MATLAB uses.  chebfunjax's
 ``Bndfun.restrict(a, b)`` takes two scalar endpoints (a single sub-interval);
 MATLAB additionally supports restricting to a *partition* (returning a cell
-array of funs), which chebfunjax does not -- those assertions are xfail.
+array of funs); chebfunjax's Bndfun.restrict accepts a breakpoint
+vector and returns a list, so those assertions are ported for real.
 
 Provenance
 ----------
@@ -67,11 +68,6 @@ class TestBndfunRestrict:
         with pytest.raises(ValueError):
             f.restrict(-np.inf, 1.0)
 
-    @pytest.mark.xfail(
-        reason="chebfunjax Bndfun.restrict takes two scalar endpoints only; a "
-        "non-monotonic multi-breakpoint partition [-1 -0.25 0.3 0.1 1] cannot "
-        "be passed (no partition/cell-array restrict)."
-    )
     def test_restrict_nonmonotonic_partition_raises(self):
         f = _bf(jnp.sin)
         with pytest.raises(ValueError):
@@ -95,10 +91,6 @@ class TestBndfunRestrict:
         z = np.exp(2 * np.pi * 1j / 6)
         assert _spotcheck_restrict(lambda t: jnp.sinh(t * z), (-0.4, 1.0))
 
-    @pytest.mark.xfail(
-        reason="chebfunjax has no multi-interval (partition) restrict returning "
-        "a list of funs."
-    )
     def test_multi_subinterval_restriction(self):
         f = _bf(lambda x: jnp.sin(x) + jnp.sin(x ** 2))
         g = f.restrict([-1.7, 2.3, 6.8])  # noqa
@@ -109,10 +101,6 @@ class TestBndfunRestrict:
         err2 = _ninf((g[1] - h2)(jnp.asarray(xr + 4)))
         assert err1 < 1e3 * EPS and err2 < 1e3 * EPS
 
-    @pytest.mark.xfail(
-        reason="chebfunjax has no multi-interval (partition) restrict "
-        "returning a list of funs."
-    )
     def test_multi_subinterval_domains(self):
         f = _bf(lambda x: jnp.sin(x) + jnp.sin(x ** 2))
         g = f.restrict([2.0, 3.0, 5.0])  # noqa

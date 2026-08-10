@@ -1,4 +1,4 @@
-"""Port of MATLAB Chebfun tests/chebtech/test_bary.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/chebtech/test_bary.m (Fable 5).
 
 Tests the barycentric interpolation formula on Chebyshev grids.  The MATLAB
 test loops ``for n = 1:2`` over ``{chebtech1(), chebtech2()}``; the class's
@@ -8,8 +8,9 @@ weights explicitly: ``bary(y, f(xk), xk, bary_weights(xk))`` with ``xk`` the
 Chebyshev points of the appropriate kind (1st kind for Chebtech1, 2nd kind for
 Chebtech2).
 
-Notes on gaps (see the report):
-* The array-valued ``[fx fx]`` case (pass 2) is skipped — scalar-valued only.
+Both MATLAB assertions are ported at MATLAB's tolerance
+(``20*pref.chebfuneps``); ``bary`` handles ``(n, cols)`` data matrices, so
+the array-valued ``[fx fx]`` case (pass 2) ports directly.  No gaps.
 
 Provenance
 ----------
@@ -48,8 +49,6 @@ class TestChebtechBary:
         approx = bary(y, fx, xk, bary_weights(xk))
         assert float(jnp.linalg.norm(approx - fy)) < TOL
 
-    # FIXED (Fable 5, Big-Three array-valued epic): bary now handles
-    # (n, cols) data matrices, so pass(n, 2) ports directly.
     @pytest.mark.parametrize("Tech,kind", TECHS)
     def test_array_valued(self, Tech, kind):
         # pass(n, 2): bary(y, [fx fx]) == [fy fy]

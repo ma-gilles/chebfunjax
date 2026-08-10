@@ -16,7 +16,7 @@ import jax
 import jax.numpy as jnp
 
 from chebfunjax.domain import Domain
-from chebfunjax.fun.classicfun import _is_matrix_operand
+from chebfunjax.fun.classicfun import _fun_isequal, _is_matrix_operand
 from chebfunjax.tech.chebtech import Chebtech2
 
 # Machine epsilon for float64
@@ -365,6 +365,70 @@ class Unbndfun(eqx.Module):
         _validate_unbounded_domain(domain)
         mtype = _mapping_type(domain)
         return cls(onefun=tech, domain=domain, mapping_type=mtype)
+
+    # ------------------------------------------------------------------
+    # Splitting and comparison
+    # ------------------------------------------------------------------
+
+    def mat2cell(self, sizes=None) -> list:
+        """Split an array-valued Unbndfun into a list of Unbndfuns.
+
+        Delegates to the onefun's ``mat2cell`` and re-wraps each block in
+        this fun's unbounded domain, mirroring MATLAB ``mat2cell(f, 1, N)``.
+        A block of size 1 becomes a scalar-valued Unbndfun.
+
+        Parameters
+        ----------
+        sizes : sequence of int, optional
+            Column counts of the blocks, which must sum to the number of
+            columns of ``self``.  Defaults to one column per block.
+
+        Returns
+        -------
+        list of Unbndfun
+
+        Provenance
+        ----------
+        MATLAB source : @classicfun/mat2cell.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        isequal, restrict
+        """
+        if sizes is None:
+            coeffs = self.onefun.coeffs
+            ncols = coeffs.shape[1] if coeffs.ndim == 2 else 1
+            sizes = [1] * ncols
+        return [Unbndfun.from_chebtech(t, self.domain)
+                for t in self.onefun.mat2cell(sizes)]
+
+    def isequal(self, other) -> bool:
+        """True when two Unbndfuns have the same domain and equal onefuns.
+
+        Parameters
+        ----------
+        other : Unbndfun
+            Fun to compare against.
+
+        Returns
+        -------
+        bool
+
+        Provenance
+        ----------
+        MATLAB source : @classicfun/isequal.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        mat2cell
+        """
+        return _fun_isequal(self, other)
 
     # ------------------------------------------------------------------
     # Evaluation

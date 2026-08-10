@@ -1,9 +1,9 @@
-"""Port of MATLAB Chebfun tests/bndfun/test_poly.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/bndfun/test_poly.m (Opus 4.8; marker audit Fable 5).
 
 MATLAB ``poly(f)`` returns the monomial (power-basis) coefficients of the
-polynomial represented by the Bndfun.  chebfunjax has no ``poly`` method on
-Bndfun/Classicfun (nor a cheb2poly conversion exposed at the fun level), so
-every assertion here is xfail with that precise reason.
+polynomial represented by the Bndfun.  chebfunjax exposes this as
+``Classicfun.poly`` (inherited by ``Bndfun``), so every assertion here is
+ported at MATLAB's tolerances.
 
 Provenance
 ----------
@@ -21,11 +21,10 @@ from chebfunjax.fun.bndfun import Bndfun
 
 EPS = float(np.finfo(np.float64).eps)
 DOM = Domain((-2.0, 7.0))
-_POLY_MISSING = "chebfunjax has no Bndfun.poly() (power-basis coefficients)"
 
 
 def _bf(f, n=None):
-    # xfail cases pass a small fixed n so a non-converging build stays fast.
+    # A small fixed n keeps the construction fast.
     return Bndfun.from_function(f, DOM, n=n)
 
 

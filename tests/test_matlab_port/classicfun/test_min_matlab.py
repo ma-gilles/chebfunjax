@@ -1,9 +1,14 @@
-"""Port of MATLAB Chebfun tests/classicfun/test_min.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/classicfun/test_min.m (Fable 5).
 
 Self-validating: the global minimum (value and location) of a Bndfun is
 spot-checked against a known extreme value at the SAME tolerance MATLAB uses
 (2e3*vscale*eps).  Airy is evaluated with SciPy inside the constructor
 sampling (test-only).
+
+Scalar, array-valued, complex and complex-array-valued cases all port.
+
+Gap: pass(8), the blowup Unbndfun case, is xfailed -- Unbndfun.from_function
+has no ``exponents`` keyword, so the singular Unbndfun cannot be built.
 
 Provenance
 ----------
@@ -105,10 +110,11 @@ class TestClassicfunMin:
         assert np.max(np.abs(fx - exact)) < tol
 
     @pytest.mark.xfail(
-        reason="Unbndfun.min()/minandmax() now exist, but this test needs a "
-        "BLOWUP Unbndfun (exponents [0 -1], y=-Inf at the finite endpoint) "
-        "which chebfunjax's Unbndfun.from_function cannot construct (no "
-        "exponents/singular-Unbndfun support yet)."
+        reason="pass(8) needs a BLOWUP Unbndfun on [-Inf, -3*pi] built with "
+        "data.exponents = [0 -1] (y = -Inf at the finite endpoint).  "
+        "Unbndfun.from_function(f, domain, *, n) has no `exponents` keyword "
+        "-- only Bndfun.from_function does -- so the singular Unbndfun cannot "
+        "be constructed at all.  Blocked on singular-Unbndfun support."
     )
     def test_unbndfun_min(self):
         raise NotImplementedError("blowup Unbndfun min")

@@ -48,6 +48,27 @@ def _is_scalar_zero(other) -> bool:
     return arr.ndim == 0 and jnp.issubdtype(arr.dtype, jnp.number) and bool(arr == 0)
 
 
+def _fun_isequal(f, g) -> bool:
+    """Shared MATLAB ``@classicfun/isequal``: same domain and equal onefuns.
+
+    Used by both :class:`Classicfun` and :class:`~chebfunjax.fun.unbndfun.Unbndfun`,
+    which are separate class hierarchies but share the ``onefun``/``domain``
+    layout.  Funs of different classes are never equal.
+    """
+    if type(f) is not type(g):
+        return False
+    f_empty = f.isempty() if hasattr(f, "isempty") else False
+    g_empty = g.isempty() if hasattr(g, "isempty") else False
+    if f_empty or g_empty:
+        return f_empty and g_empty
+    if f.domain != g.domain:
+        return False
+    onefun_isequal = getattr(f.onefun, "isequal", None)
+    if onefun_isequal is None:
+        return f.onefun is g.onefun
+    return bool(onefun_isequal(g.onefun))
+
+
 def _cheb_to_poly(coeffs: jax.Array) -> jax.Array:
     """Chebyshev-T coefficients to monomial coefficients on [-1, 1].
 
@@ -696,6 +717,93 @@ class Classicfun(eqx.Module):
         new_coeffs = q_coeffs @ AR.T  # (n, p)
         return self._from_new_coeffs(new_coeffs)
 
+    def mrdivide(self, other) -> "Classicfun":
+        """``f / B``: right matrix divide by a scalar or numeric matrix.
+
+        A scalar divisor rescales the fun.  A matrix divisor gives the
+        continuous-L2 least-squares solution of ``X B = f``, computed by
+        delegating to the onefun's ``mrdivide`` exactly as MATLAB's
+        ``@bndfun/mrdivide.m`` does.  ``mrdivide`` between two funs is an
+        error; use ``/`` for pointwise division.
+
+        Parameters
+        ----------
+        other : float or jax.Array
+            Scalar or matrix divisor.  Its column count must match this
+            fun's unless it is a scalar.
+
+        Returns
+        -------
+        Classicfun
+
+        Raises
+        ------
+        ValueError
+            On a column-count mismatch (MATLAB ``mrdivide:size``), a
+            fun/fun divide (``mrdivide:bndfunDivBndfun``), or a
+            non-numeric divisor (``mrdivide:badArg``).
+
+        NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @bndfun/mrdivide.m, @chebtech/mrdivide.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        rmrdivide, mldivide, qr
+        """
+        if isinstance(other, Classicfun):
+            raise ValueError(
+                "CHEBFUN:BNDFUN:mrdivide:bndfunDivBndfun: "
+                "use ./ to divide a fun by a fun.")
+        if isinstance(other, bool) or not isinstance(
+                other, (int, float, complex, jnp.ndarray, list, tuple)) \
+                and not hasattr(other, "shape"):
+            raise ValueError(
+                "CHEBFUN:BNDFUN:mrdivide:badArg: "
+                f"fun/{type(other).__name__} is not well-defined.")
+        return self.__class__(self.onefun.mrdivide(other), self.domain)
+
+    @classmethod
+    def rmrdivide(cls, numeric, fun) -> "Classicfun":
+        """``A / f`` with a numeric ``A`` and a fun ``f`` (least squares).
+
+        Delegates to the onefun's ``rmrdivide`` and then applies MATLAB's
+        ``X = X / (0.5 * diff(domain))`` rescale, which moves the L2
+        orthogonality from [-1, 1] onto the fun's domain.
+
+        Parameters
+        ----------
+        numeric : float or jax.Array
+            Numerator; its column count must match ``fun``'s.
+        fun : Classicfun
+            Denominator.
+
+        Returns
+        -------
+        Classicfun
+
+        NOT JIT-safe.
+
+        Provenance
+        ----------
+        MATLAB source : @bndfun/mrdivide.m (``double / bndfun`` branch)
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        mrdivide, mldivide, qr
+        """
+        onefun = type(fun.onefun).rmrdivide(numeric, fun.onefun)
+        out = fun.__class__(onefun, fun.domain)
+        return out * (1.0 / float(fun.domain.map_derivative()))
+
     def _from_new_coeffs(self, coeffs: jax.Array) -> "Classicfun":
         """Wrap ``(n, p)`` onefun coefficients as a fun on this domain.
 
@@ -874,6 +982,85 @@ class Classicfun(eqx.Module):
             If [a, b] is not a sub-interval of the current domain.
         """
         ...
+
+    # ------------------------------------------------------------------
+    # Splitting and comparison
+    # ------------------------------------------------------------------
+
+    def mat2cell(self, sizes=None) -> list:
+        """Split an array-valued fun into a list of funs by column count.
+
+        Delegates to the onefun's ``mat2cell`` and re-wraps each block in
+        this fun's domain, mirroring MATLAB ``mat2cell(f, 1, N)``.  A block
+        of size 1 becomes a scalar-valued fun.
+
+        Parameters
+        ----------
+        sizes : sequence of int, optional
+            Column counts of the blocks, which must sum to the number of
+            columns of ``self``.  Defaults to one column per block.
+
+        Returns
+        -------
+        list of Classicfun
+            One fun per entry of ``sizes``.
+
+        Examples
+        --------
+        >>> import jax.numpy as jnp
+        >>> from chebfunjax.fun.bndfun import Bndfun
+        >>> from chebfunjax.domain import Domain
+        >>> d = Domain((-2.0, 7.0))
+        >>> f = Bndfun.from_function(
+        ...     lambda x: jnp.stack([jnp.sin(x), jnp.cos(x), x], -1), d)
+        >>> [g.onefun.coeffs.ndim for g in f.mat2cell([1, 2])]
+        [1, 2]
+
+        Provenance
+        ----------
+        MATLAB source : @classicfun/mat2cell.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        isequal, restrict
+        """
+        if self.isempty():
+            return [self]
+        if sizes is None:
+            coeffs = self.onefun.coeffs
+            ncols = coeffs.shape[1] if coeffs.ndim == 2 else 1
+            sizes = [1] * ncols
+        return [type(self).from_chebtech(t, self.domain)
+                for t in self.onefun.mat2cell(sizes)]
+
+    def isequal(self, other) -> bool:
+        """True when two funs have the same domain and equal onefuns.
+
+        Parameters
+        ----------
+        other : Classicfun
+            Fun to compare against.
+
+        Returns
+        -------
+        bool
+            True if both the domains and the underlying onefuns agree.
+
+        Provenance
+        ----------
+        MATLAB source : @classicfun/isequal.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        mat2cell
+        """
+        return _fun_isequal(self, other)
 
     # ------------------------------------------------------------------
     # Simplify

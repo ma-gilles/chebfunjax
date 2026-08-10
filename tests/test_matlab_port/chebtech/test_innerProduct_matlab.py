@@ -1,4 +1,5 @@
-"""Port of MATLAB Chebfun tests/chebtech/test_innerProduct.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/chebtech/test_innerProduct.m (Opus 4.8; marker
+audit Fable 5).
 
 Self-validating: inner products are checked against analytic exacts and known
 algebraic properties at the SAME tolerances MATLAB uses.  The MATLAB test loops
@@ -8,15 +9,19 @@ algebraic properties at the SAME tolerances MATLAB uses.  The MATLAB test loops
 chebfunjax ``f.inner(g)`` is the L2 inner product, conjugate-linear in ``f``
 (matching MATLAB's ``innerProduct``).
 
-Notes on gaps (see the report):
-* Sub-tests 5-8 involve complex-valued ``g``/``h`` -> Chebtech2 only.
-* Sub-test 9 (``isreal(<f,f>) && <f,f> >= 0``) additionally requires MATLAB's
-  ``isequal(f, g)`` "force the diagonal to abs(real)" branch (innerProduct.m
-  lines 37-41), which chebfunjax's ``inner`` lacks: for complex ``g``,
-  ``g.inner(g)`` carries a ~1e-18 imaginary residue, so a strict ``isreal``
-  check fails.  Ported as an xfail documenting that gap.
-* The array-valued exact-matrix case (pass 10) and the error-condition case
-  (pass 11) are skipped.
+Every MATLAB assertion (pass 1-11) is ported on BOTH tech kinds; there are no
+gaps:
+
+* Complex-valued construction works on Chebtech1 as well as Chebtech2, so
+  sub-tests 5-8 (complex ``g``/``h``) run on both.
+* Sub-test 9 (``isreal(<f,f>) && <f,f> >= 0``) passes because ``inner`` now
+  carries MATLAB's ``isequal(f, g)`` "force the diagonal to real, non-negative"
+  branch (innerProduct.m lines 37-41).
+* The array-valued exact-matrix case (pass 10) is a real test now that
+  ``inner`` returns the (m, m') pairwise column Gram matrix.
+* Sub-test 11 checks that ``<f, non-tech>`` errors.  chebfunjax has no MATLAB
+  error identifiers (``CHEBFUN:CHEBTECH:innerProduct:input``), so the ported
+  test asserts only that an exception is raised.
 
 Provenance
 ----------
@@ -84,8 +89,9 @@ class TestChebtechInnerProduct:
         )
         assert abs(complex(f.inner(g)) - exact) < max(tol_f, tol_g)
 
-    # pass(n, 5): conjugate-linearity in the first argument.  g is complex.
-    @pytest.mark.parametrize("Tech", [Chebtech2])
+    # pass(n, 5): conjugate-linearity in the first argument.  g is complex;
+    # both tech kinds handle complex data, so this runs on n = 1:2.
+    @pytest.mark.parametrize("Tech", BOTH)
     def test_conjugate_linearity(self, Tech):
         f = Tech.from_function(lambda x: jnp.exp(x) - 1)
         g = Tech.from_function(lambda x: 1.0 / (1 + 1j * x ** 2))
@@ -96,7 +102,7 @@ class TestChebtechInnerProduct:
         assert abs(ip1 - ip2) < max(tol_f, tol_g)
 
     # pass(n, 6): conjugate symmetry <g,h> == conj(<h,g>).  g, h complex.
-    @pytest.mark.parametrize("Tech", [Chebtech2])
+    @pytest.mark.parametrize("Tech", BOTH)
     def test_conjugate_symmetry(self, Tech):
         g = Tech.from_function(lambda x: 1.0 / (1 + 1j * x ** 2))
         h = Tech.from_function(lambda x: jnp.sinh(x * np.exp(np.pi * 1j / 6)))
@@ -107,7 +113,7 @@ class TestChebtechInnerProduct:
         )
 
     # pass(n, 7): additivity in the first argument.  g, h complex.
-    @pytest.mark.parametrize("Tech", [Chebtech2])
+    @pytest.mark.parametrize("Tech", BOTH)
     def test_additivity_first_arg(self, Tech):
         f = Tech.from_function(lambda x: jnp.exp(x) - 1)
         g = Tech.from_function(lambda x: 1.0 / (1 + 1j * x ** 2))
@@ -120,7 +126,7 @@ class TestChebtechInnerProduct:
         assert abs(ip1 - ip2) < max(tol_f, tol_g, tol_h)
 
     # pass(n, 8): additivity in the second argument.  g, h complex.
-    @pytest.mark.parametrize("Tech", [Chebtech2])
+    @pytest.mark.parametrize("Tech", BOTH)
     def test_additivity_second_arg(self, Tech):
         f = Tech.from_function(lambda x: jnp.exp(x) - 1)
         g = Tech.from_function(lambda x: 1.0 / (1 + 1j * x ** 2))
@@ -146,8 +152,7 @@ class TestChebtechInnerProduct:
         assert all(float(jnp.real(v)) >= 0.0 for v in n2vals)
 
     # FIXED (Fable 5, Big-Three array-valued epic): pass 10 ports now
-    # that inner returns the pairwise column Gram matrix.  pass 11 (the
-    # CHEBFUN:CHEBTECH:innerProduct:input error id) stays N/A.
+    # that inner returns the pairwise column Gram matrix.
     @pytest.mark.parametrize("Tech", BOTH)
     def test_array_valued_inner_product_matrix(self, Tech):
         from scipy.special import airy
@@ -165,6 +170,17 @@ class TestChebtechInnerProduct:
             [[0.663493666631241, 0.0, -0.135033172317858],
              [1.933421496200713, 1.365866063614065, 0.592109441404267]])
         assert np.max(np.abs(ip - exact)) < max(tol_f, tol_g)
+
+    @pytest.mark.parametrize("Tech", BOTH)
+    def test_inner_product_with_non_tech_errors(self, Tech):
+        # pass(n, 11): innerProduct(f, 2) must error.  MATLAB checks the id
+        # 'CHEBFUN:CHEBTECH:innerProduct:input'; chebfunjax has no MATLAB error
+        # identifiers, so we assert only that it raises (it currently surfaces
+        # as AttributeError from the missing .coeffs attribute).
+        f = Tech.from_function(
+            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1))
+        with pytest.raises(Exception):
+            f.inner(2)
 
 
 def test_chebtech1_rejects_complex():

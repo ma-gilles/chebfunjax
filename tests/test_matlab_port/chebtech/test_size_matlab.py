@@ -1,11 +1,11 @@
-"""Port of MATLAB Chebfun tests/chebtech/test_size.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/chebtech/test_size.m (Fable 5).
 
-chebfunjax Chebtech has no ``size()`` method returning ``[n, ncols]``
-(techs are scalar-valued, i.e. a single column).  The faithful scalar
-equivalent of ``size(f) == size(f.coeffs)`` is that the tech's length
-matches the number of coefficients (``f.n == f.coeffs.shape[0]``), and
-the ``fixedLength = 101`` case maps to constructing at fixed length 101.
-The array-valued (3-column) cases have no scalar analogue and are skipped.
+All three MATLAB assertions are ported, including the array-valued
+(3-column) ones: chebfunjax techs store ``(n, m)`` coefficient matrices.
+chebfunjax exposes no ``size()`` method returning ``[n, ncols]``; MATLAB's
+``size(f) == size(f.coeffs)`` is asserted directly against
+``f.coeffs.shape`` (with ``f.n``/``len(f)`` as the row count), and
+``pref.fixedLength = 101`` maps to the ``n=101`` constructor argument.
 
 Provenance
 ----------
@@ -29,8 +29,6 @@ class TestChebtechSize:
         assert f.n == f.coeffs.shape[0]
         assert len(f) == f.coeffs.shape[0]
 
-    # FIXED (Fable 5, Big-Three array-valued epic): pass(n, 2)-(3)
-    # port now that techs support (n, m) coefficient matrices.
     def test_size_array_valued(self, Tech):
         # pass(n,2): all(size(f) == size(f.coeffs)) for [sin cos 1i*exp]
         f = Tech.from_function(

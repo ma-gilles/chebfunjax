@@ -399,7 +399,10 @@ def abstract_qr(
             vq = complex(vq) if jnp.iscomplexobj(jnp.asarray(vq)) else float(vq)
             Q[:, j] = Q[:, j] - 2.0 * V[:, k] * vq
 
-    return jnp.asarray(Q, dtype=jnp.float64), jnp.asarray(R, dtype=jnp.float64)
+    # Preserve complexness: a real ``A`` still yields float64 output, but a
+    # complex quasimatrix must not have its imaginary part discarded.
+    out_dtype = jnp.complex128 if _np.iscomplexobj(A_work) else jnp.float64
+    return jnp.asarray(Q, dtype=out_dtype), jnp.asarray(R, dtype=out_dtype)
 
 
 def isSubset(A, B, tol: float = 0.0) -> bool:

@@ -3,8 +3,10 @@
 MATLAB ``trigcoeffs(f)`` returns the trigonometric (Fourier) coefficients of a
 chebtech.  chebfunjax now implements ``Chebtech{1,2}.trigcoeffs`` as a port of
 ``@chebtech/trigcoeffs.m`` (each Fourier mode is built as a tech of the same
-kind and integrated against ``f``), so the scalar assertions run; the
-array-valued assertions are skipped (chebfunjax Chebtech is scalar-valued).
+kind and integrated against ``f``), and array-valued techs landed in 2026-07,
+so every MATLAB assertion is ported at MATLAB's tolerances.
+
+No gaps: all twelve MATLAB passes are exercised.
 
 Provenance
 ----------
@@ -24,11 +26,17 @@ CASES = [(Chebtech1, 1), (Chebtech2, 2)]
 
 EPS = float(np.finfo(np.float64).eps)
 
-_SCALAR = "chebfunjax Chebtech is scalar-valued; no array-valued techs"
-
-
 def _ninf(a):
     return float(jnp.max(jnp.abs(jnp.asarray(a))))
+
+
+def _ARRAY_OP(x):
+    """MATLAB ``[3*ones(size(x)), 1+cos(pi*x), 1+exp(2i*pi*x)+exp(-1i*pi*x)]``."""
+    return jnp.stack(
+        [3 * jnp.ones_like(x) + 0j,
+         1 + jnp.cos(jnp.pi * x) + 0j,
+         1 + jnp.exp(2j * jnp.pi * x) + jnp.exp(-1j * jnp.pi * x)],
+        axis=-1)
 
 
 class TestChebtechTrigcoeffs:
@@ -100,17 +108,41 @@ class TestChebtechTrigcoeffs:
     @pytest.mark.parametrize("Tech,kind", CASES)
     def test_array_valued_len5(self, Tech, kind):
         # pass(n, 9)
-        pytest.skip(_SCALAR)
+        f = Tech.from_function(_ARRAY_OP)
+        p = f.trigcoeffs(5)
+        exact = jnp.array(
+            [[0, 0, 0],
+             [0, 0.5, 1],
+             [3, 1, 1],
+             [0, 0.5, 0],
+             [0, 0, 1]], dtype=jnp.complex128)
+        assert _ninf(p - exact) < 10 * f.vscale * EPS
 
     @pytest.mark.parametrize("Tech,kind", CASES)
     def test_array_valued_len7(self, Tech, kind):
         # pass(n, 10)
-        pytest.skip(_SCALAR)
+        f = Tech.from_function(_ARRAY_OP)
+        p = f.trigcoeffs(7)
+        exact = jnp.array(
+            [[0, 0, 0],
+             [0, 0, 0],
+             [0, 0.5, 1],
+             [3, 1, 1],
+             [0, 0.5, 0],
+             [0, 0, 1],
+             [0, 0, 0]], dtype=jnp.complex128)
+        assert _ninf(p - exact) < 10 * f.vscale * EPS
 
     @pytest.mark.parametrize("Tech,kind", CASES)
     def test_array_valued_len3(self, Tech, kind):
         # pass(n, 11)
-        pytest.skip(_SCALAR)
+        f = Tech.from_function(_ARRAY_OP)
+        p = f.trigcoeffs(3)
+        exact = jnp.array(
+            [[0, 0.5, 1],
+             [3, 1, 1],
+             [0, 0.5, 0]], dtype=jnp.complex128)
+        assert _ninf(p - exact) < 10 * f.vscale * EPS
 
     @pytest.mark.parametrize("Tech,kind", CASES)
     def test_array_valued_len0(self, Tech, kind):

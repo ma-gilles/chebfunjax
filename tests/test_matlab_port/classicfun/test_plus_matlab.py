@@ -1,9 +1,14 @@
-"""Port of MATLAB Chebfun tests/classicfun/test_plus.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/classicfun/test_plus.m (Fable 5).
 
 Self-validating: addition (fun+scalar, fun+fun) is checked against the
 analytic sum at the SAME tolerances MATLAB uses.  ``isequal`` is reproduced by
 comparing the underlying Chebyshev coefficients and domains (a faithful
 equivalent of @classicfun/isequal.m, which compares the onefun and the map).
+
+All 23 MATLAB assertions are covered: scalar, array-valued (3-column),
+complex, singular (exponents) and Unbndfun addition, plus MATLAB >= 9.1
+implicit expansion of an array-valued fun by a scalar-valued one (pass 18).
+No gaps.
 
 Provenance
 ----------
@@ -164,15 +169,26 @@ class TestClassicfunPlus:
         hexact = self._SCE(X) + self._CAS(X)
         assert _ninf(h1(X) - hexact) <= 100 * h1.vscale * EPS
 
-    def test_dimension_mismatch(self):
-        # pass(18): f(3-col) + g(scalar-col).  chebfunjax raises on this shape
-        # mismatch (old-MATLAB semantics); modern MATLAB (>=9.1) broadcasts
-        # column-vs-scalar instead, so chebfunjax's array-valued plus does NOT
-        # match the modern broadcast.  Kept skipped on that precise gap.
-        pytest.skip(
-            "chebfunjax raises on array + scalar-column addition (dimension "
-            "mismatch); modern MATLAB broadcasts instead"
-        )
+    def test_implicit_expansion(self):
+        # pass(18): f(3-col) + g(scalar-col).  On MATLAB >= 9.1 this succeeds
+        # via implicit expansion (pass(18) = true); only pre-9.1 MATLAB raised
+        # 'Matrix dimensions must agree.'.  chebfunjax broadcasts the same way.
+        f = _bf(self._SCE)
+        g = _bf(jnp.sin)
+        h = f + g
+        assert np.asarray(h(X)).shape == (X.shape[0], 3)
+        hexact = self._SCE(X) + jnp.sin(X)[:, None]
+        assert _ninf(h(X) - hexact) <= 100 * h.vscale * EPS
+        # Commutes, and the reversed order broadcasts identically.
+        assert _ninf((g + f)(X) - hexact) <= 100 * h.vscale * EPS
+
+    def test_column_count_mismatch_raises(self):
+        # Not a MATLAB assertion: a genuinely incompatible column count (3 + 2)
+        # is not broadcastable and must still be rejected.
+        f = _bf(self._SCE)
+        g = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1))
+        with pytest.raises((TypeError, ValueError)):
+            f + g
 
     # --- direct construction vs plus ----------------------------------
     def test_direct_construction(self):

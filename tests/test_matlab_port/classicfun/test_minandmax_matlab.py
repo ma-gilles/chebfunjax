@@ -1,9 +1,14 @@
-"""Port of MATLAB Chebfun tests/classicfun/test_minandmax.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/classicfun/test_minandmax.m (Fable 5).
 
 Self-validating: the simultaneous global min and max of a Bndfun are
 spot-checked against known extreme values at the SAME tolerances MATLAB uses
 (values within 100*eps, operator-at-position within 10*eps).  Airy is
 evaluated with SciPy inside the constructor sampling (test-only).
+
+Scalar, array-valued, complex-array-valued and Unbndfun cases all port.
+
+Gap: pass(8), the singular (blowup) Bndfun case, is xfailed -- Singfun's
+minandmax returns the smooth-part extremum rather than +Inf.
 
 Provenance
 ----------
@@ -117,10 +122,12 @@ class TestClassicfunMinAndMax:
         assert np.max(np.abs(vals_abs - ref_abs)) < 100 * f.vscale * EPS
 
     @pytest.mark.xfail(
-        reason="Singular Bndfun (exponents (-0.5,0)) now BUILDS, but "
-        "Singfun.minandmax ignores the algebraic blowup: for (x-a)^-0.5 "
-        "sin(x)^2 it returns the smooth-part max (~0.14) instead of MATLAB's "
-        "+Inf.  Needs @singfun/minandmax blowup handling (tech/Singfun layer)."
+        reason="pass(8): singular Bndfun (exponents (-0.5, 0)) BUILDS, but "
+        "Singfun.minandmax ignores the algebraic blowup.  Measured today for "
+        "op = (x+2)^-0.5 sin(x)^2 on [-2, 7]: min = 2.86e-16 (correct, MATLAB "
+        "expects 0) but max = 0.142576 -- the smooth-part maximum -- instead "
+        "of MATLAB's +Inf.  Needs @singfun/minandmax blowup handling in the "
+        "Singfun layer; not a tolerance issue."
     )
     def test_singular(self):
         pow_ = -0.5
@@ -131,12 +138,23 @@ class TestClassicfunMinAndMax:
         assert not np.isfinite(float(max_val))  # MATLAB: +Inf
 
     def test_complex_array_valued_2(self):
-        # MATLAB records the complex-array-valued minandmax assertion twice
-        # (identical); covered by test_complex_array_valued.
-        pytest.skip(
-            "duplicate of test_complex_array_valued (MATLAB records the same "
-            "assertion twice)"
+        # pass(9): MATLAB records the complex-array-valued assertion a second
+        # time, byte-for-byte identical to pass(7).  Ported verbatim rather
+        # than skipped, so the MATLAB assertion count is matched exactly.
+        fop = lambda x: jnp.stack(
+            [jnp.exp(jnp.sin(2 * x)), 1j * jnp.cos(20 * x)], axis=-1
         )
+        f = _bf(fop)
+        (cmn, _), (cmx, _) = f.minandmax()
+        vals_abs = np.abs(np.vstack([np.asarray(cmn), np.asarray(cmx)]))
+        f1 = _bf(lambda x: jnp.exp(jnp.sin(2 * x)))
+        f2 = _bf(lambda x: 1j * jnp.cos(20 * x))
+        (a1, _), (a2, _) = f1.minandmax()
+        (b1, _), (b2, _) = f2.minandmax()
+        ref_abs = np.abs(
+            np.array([[complex(a1), complex(b1)], [complex(a2), complex(b2)]])
+        )
+        assert np.max(np.abs(vals_abs - ref_abs)) < 100 * f.vscale * EPS
 
     def test_unbndfun(self):  # pass(10): (1-e^{-x^2})/x on (-inf, inf)
         f = Unbndfun.from_function(

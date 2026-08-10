@@ -1,4 +1,5 @@
-"""Port of MATLAB Chebfun tests/chebtech/test_compose.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/chebtech/test_compose.m (Opus 4.8; marker
+audit Fable 5).
 
 Self-validating: each composition is checked against the analytic composite
 at the SAME tolerance MATLAB uses (multiples of vscale(h)*eps).  The MATLAB
@@ -15,14 +16,19 @@ MATLAB mapping:
 - ``compose(f1, @plus, f2)``    -> ``f1.compose(op, f2)``          (op(f(x), g(x)))
 - ``compose(f, g)`` (g a tech)  -> ``f.compose(g)``               (g(f(x)))
 
-Array-valued composition (pass 2, 3, 4, 6, 8, 9) is now supported: Chebtech
-coefficients may be an (n, m) matrix (one function per column), and ``compose``
-acts column-wise (FIXED, Fable 5, Big-Three array-valued epic).
+Every MATLAB assertion (pass 1-11) is ported on BOTH tech kinds; there are no
+gaps:
 
-Gaps vs MATLAB (honest xfail/skip):
-- pass 11: binary compose of an array-valued f with a scalar-valued g does NOT
-  broadcast in chebfunjax (raises on shape mismatch); modern MATLAB broadcasts.
-  Kept skipped with a precise reason.
+- Array-valued composition (pass 2, 3, 4, 6, 8, 9) is supported: Chebtech
+  coefficients may be an (n, m) matrix (one function per column), and
+  ``compose`` acts column-wise.
+- pass 11: binary compose of an array-valued f with a scalar-valued g now
+  broadcasts, matching modern MATLAB (>= R2016b) semantics, i.e. the
+  non-error branch of the MATLAB test.
+- pass 10: composing two array-valued techs as g(f) is genuinely unsupported
+  and raises.  chebfunjax has no MATLAB error identifiers
+  (``CHEBFUN:CHEBTECH:compose:arrval``), so the ported test asserts only that
+  an exception is raised.
 
 Provenance
 ----------

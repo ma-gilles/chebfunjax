@@ -1,13 +1,13 @@
-"""Port of MATLAB Chebfun tests/chebtech/test_clenshaw.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/chebtech/test_clenshaw.m (Fable 5).
 
 Tests the Clenshaw evaluator directly.  MATLAB's static
 ``chebtech.clenshaw(x, c)`` maps to chebfunjax ``_clenshaw(c, x)`` (arguments
 are REVERSED).  This MATLAB test is NOT looped over the tech classes.
 
-Notes on gaps (see the report):
-* The array-of-columns coefficient cases (pass 3 and pass 5, where ``c`` is a
-  matrix) require array-valued coefficients; chebfunjax ``_clenshaw`` takes a
-  1-D coefficient vector only, so those are skipped.
+All five MATLAB assertions are ported at MATLAB's tolerance (``10*eps``),
+including the array-of-columns coefficient cases (pass 3 and pass 5):
+``_clenshaw`` broadcasts a trailing column axis, so a ``(n, m)``
+coefficient matrix evaluates to ``(len(x), m)`` values.  No gaps.
 
 Provenance
 ----------
@@ -44,8 +44,6 @@ class TestChebtechClenshaw:
         assert v.shape == (2,)
         assert bool(np.all(np.asarray(v) == np.sqrt(2.0)))
 
-    # FIXED (Fable 5, Big-Three array-valued epic): _clenshaw now
-    # broadcasts a trailing column axis, so pass 3 and 5 port directly.
     def test_row_vector_column_coeffs(self):
         # pass(3): c = [c, c, c] (matrix of columns) -> (2, 3) values.
         c = np.sqrt(2.0)

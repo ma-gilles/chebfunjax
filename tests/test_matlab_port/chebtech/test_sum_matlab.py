@@ -1,14 +1,21 @@
-"""Port of MATLAB Chebfun tests/chebtech/test_sum.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/chebtech/test_sum.m (Opus 4.8; marker audit
+Fable 5).
 
 Self-validating: definite integrals are compared against analytic exacts at
 the SAME tolerances MATLAB uses.  The MATLAB test loops ``for n = 1:2`` over
 ``{chebtech1(), chebtech2()}``; we parametrize over ``[Chebtech1, Chebtech2]``.
 
-Notes on gaps (see the report):
-* The ``sinh(t*z)`` sub-test (pass 4) is complex-valued -> Chebtech2 only.
-* The ``cos(1e4*x)`` relative-error sub-test (pass 3) passes for Chebtech2 but
-  slightly (~1.2x) exceeds MATLAB's ``1e6*vscale*eps`` bound for Chebtech1.
-* Array-valued and DIM-option assertions (pass 9-11) are skipped.
+Every MATLAB assertion (pass 1-11) is ported on BOTH tech kinds; there are no
+gaps:
+
+* Array-valued techs are supported ((n, m) coefficient matrices), so the
+  array-valued and DIM-option assertions (pass 9-11) are real tests.
+* Complex-valued construction works on Chebtech1 as well as Chebtech2
+  (vals2coeffs/coeffs2vals split complex data into re/im), so the
+  ``sinh(t*z)`` sub-test (pass 4) runs on both.
+* The ``cos(1e4*x)`` relative-error sub-test (pass 3) now meets MATLAB's
+  ``1e6*vscale*eps`` bound on both kinds (measured 0.64x on Chebtech1,
+  0.18x on Chebtech2).
 
 Provenance
 ----------
@@ -30,15 +37,11 @@ EPS = float(np.finfo(np.float64).eps)
 
 BOTH = [Chebtech1, Chebtech2]
 
-# pass(n, 3): cos(1e4*x) relative-error quadrature — Chebtech1 is marginally
-# (~1.2x) less accurate than MATLAB's 1e6*vscale*eps bound; Chebtech2 passes.
-SUM_COS_TECHS = [
-    # (Chebtech1 carried a non-strict xfail for a ~1.2x margin over
-    # MATLAB's 1e6*vscale*eps bound; it has passed 4 consecutive CI runs
-    # and locally -- removed 2026-07-30, restoring strict enforcement.)
-    Chebtech1,
-    Chebtech2,
-]
+# pass(n, 3): cos(1e4*x) relative-error quadrature.  Chebtech1 once carried a
+# non-strict xfail for a ~1.2x margin over MATLAB's 1e6*vscale*eps bound; that
+# was removed 2026-07-30 and re-measured 2026-08-10 at 0.64x (Chebtech1) and
+# 0.18x (Chebtech2), so both kinds are enforced strictly.
+SUM_COS_TECHS = [Chebtech1, Chebtech2]
 
 
 def _at(f, x):
@@ -65,8 +68,9 @@ class TestChebtechSum:
         exact = -6.112287777765043e-05
         assert abs(float(f.sum()) - exact) / abs(exact) < 1e6 * f.vscale * EPS
 
-    # pass(n, 4): sinh(t*z) is complex-valued -> Chebtech2 only.
-    @pytest.mark.parametrize("Tech", [Chebtech2])
+    # pass(n, 4): sinh(t*z) is complex-valued.  Both tech kinds handle complex
+    # data now, so this runs on Chebtech1 and Chebtech2 (MATLAB's n = 1:2).
+    @pytest.mark.parametrize("Tech", BOTH)
     def test_integral_sinh_complex_is_zero(self, Tech):
         z = np.exp(2 * np.pi * 1j / 6)
         f = Tech.from_function(lambda t: jnp.sinh(t * z))

@@ -1,10 +1,10 @@
-"""Port of MATLAB Chebfun tests/bndfun/test_mldivide.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/bndfun/test_mldivide.m (Opus 4.8; marker audit Fable 5).
 
 MATLAB ``f \\ g`` (mldivide) solves the least-squares problem for Bndfun
 quasimatrices: given array-valued Bndfuns, it returns the numeric matrix of
-coefficients that best expands ``g`` in the columns of ``f``.  chebfunjax has
-no ``mldivide``/backslash on Bndfun/Classicfun, so every assertion is xfail
-with that precise reason.  (Array-valued Bndfun itself now works.)
+coefficients that best expands ``g`` in the columns of ``f``.  chebfunjax
+exposes this as ``Classicfun.mldivide`` (inherited by ``Bndfun``), which uses
+the Bndfun QR, so every assertion is ported at MATLAB's tolerances.
 
 Provenance
 ----------
@@ -23,11 +23,10 @@ from chebfunjax.fun.bndfun import Bndfun
 
 TOL = 10 * float(np.finfo(np.float64).eps)
 DOM = Domain((-2.0, 7.0))
-_MLDIV_MISSING = "chebfunjax has no Bndfun mldivide (\\, least-squares) operator"
 
 
 def _bf(f, n=None):
-    # xfail cases pass a small fixed n so a non-converging build stays fast.
+    # A small fixed n keeps the construction fast.
     return Bndfun.from_function(f, DOM, n=n)
 
 

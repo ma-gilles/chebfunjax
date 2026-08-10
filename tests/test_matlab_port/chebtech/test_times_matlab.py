@@ -207,8 +207,16 @@ class TestChebtechTimes:
         assert _ninf(h(X) - exact) < 10 * EPS
 
     def test_array_valued_dim_mismatch(self, Tech):
-        # pass(n, 15): array-valued .* with mismatched columns -> dim2 error.
-        pytest.skip(_DIMERR)
+        # pass(n, 15): array-valued .* with mismatched columns raises.
+        # chebfunjax raises ValueError rather than carrying MATLAB's
+        # CHEBFUN:CHEBTECH:times:dim2 identifier.
+        f = Tech.from_function(
+            lambda x: jnp.stack(
+                [jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1))
+        g = Tech.from_function(
+            lambda x: jnp.stack([jnp.sinh(x), jnp.cosh(x)], axis=-1))
+        with pytest.raises((TypeError, ValueError)):
+            f * g
 
     # -- Specially handled cases (positivity adjustments). pass(n, 16:20). --
     def test_mult_complex_sinh_squared(self, Tech):

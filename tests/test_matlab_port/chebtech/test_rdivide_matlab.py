@@ -172,11 +172,16 @@ class TestChebtechRdivide:
 
     def test_div_by_column_matrix_error(self, Tech):
         # pass(n, 12): sin ./ [1; 2] -> rdivide:size error.
-        pytest.skip(_SIZEERR)
+        f = Tech.from_function(jnp.sin)
+        with pytest.raises(ValueError, match="rdivide:size"):
+            f / jnp.array([[1.0], [2.0]])
 
     def test_div_by_mismatched_row_matrix_error(self, Tech):
         # pass(n, 13): [sin cos] ./ [1 2 3] -> rdivide:size error.
-        pytest.skip(_SIZEERR)
+        f = Tech.from_function(
+            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1))
+        with pytest.raises(ValueError, match="rdivide:size"):
+            f / jnp.array([1.0, 2.0, 3.0])
 
     def test_div_by_scalar_matches_direct_construction(self, Tech):
         # pass(n, 14): coeffs of (sin ./ alpha) match direct construction.

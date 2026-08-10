@@ -1,4 +1,5 @@
-"""Port of MATLAB Chebfun tests/chebtech/test_diff.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/chebtech/test_diff.m (Opus 4.8; marker audit
+Fable 5).
 
 Self-validating: each operation is checked against an analytic exact at the
 SAME tolerance MATLAB uses (multiples of vscale*eps).  No .mat fixture needed.
@@ -6,12 +7,15 @@ SAME tolerance MATLAB uses (multiples of vscale*eps).  No .mat fixture needed.
 The MATLAB test loops ``for n = 1:2`` over ``{chebtech1(), chebtech2()}``; we
 parametrize each ported assertion over ``[Chebtech1, Chebtech2]``.
 
-Notes on gaps (see the report):
-* Array-valued / DIM-option assertions (pass 12-16) are skipped — chebfunjax
-  Chebtech is scalar-valued only.
-* The airy sub-test (pass 4) uses a complex-valued function; chebfunjax
-  Chebtech1 discards the imaginary part in its transforms, so that case is
-  ported over Chebtech2 only (see ``test_chebtech1_rejects_complex``).
+Every MATLAB assertion (pass 1-16) is ported on BOTH tech kinds:
+
+* Array-valued techs are supported ((n, m) coefficient matrices) and ``diff``
+  takes the DIM=2 option, so pass 12-16 are real tests.
+* Complex-valued construction works on Chebtech1 as well as Chebtech2, so the
+  airy sub-test (pass 4) runs on both.
+
+The only remaining marker is a genuine float64 accuracy floor on Chebtech1's
+pass(n, 1); its measured margin is recorded in ``_DIFF_EXP_C1_FLOOR``.
 
 Provenance
 ----------
@@ -45,11 +49,12 @@ BOTH = [Chebtech1, Chebtech2]
 # match MATLAB, so the residual is the eps-level construction tail amplified by
 # the derivative -- a genuine float64 coin-flip, not an algorithm gap.
 _DIFF_EXP_C1_FLOOR = (
-    "Chebtech1 diff(exp(x)-x): err 3.93e-14 vs 100*vscale*eps=3.78e-14 (1.04x). "
-    "Faithful @chebtech/diff.m recurrence + MATLAB-matched sine nodes; the "
-    "residual is the eps-level construction tail amplified by diff. quadfix's "
-    "node change (1c3fd5e) tipped it from 2.49e-14 (0.66x, pre-node). Genuine "
-    "float64 coin-flip; Chebtech2 still passes (1.24e-15)."
+    "Chebtech1 diff(exp(x)-x): err 3.9302e-14 vs 100*vscale(df)*eps=3.7775e-14 "
+    "-> ratio 1.040 (re-measured 2026-08-10). Faithful @chebtech/diff.m "
+    "recurrence + MATLAB-matched sine nodes; the residual is the eps-level "
+    "construction tail amplified by diff. quadfix's node change (1c3fd5e) "
+    "tipped it from 2.49e-14 (0.66x, pre-node). Genuine float64 coin-flip, NOT "
+    "an array-valued or algorithm gap; Chebtech2 passes at 0.838x."
 )
 EXP_TECHS = [
     pytest.param(
@@ -100,8 +105,9 @@ class TestChebtechDiff:
         err = _ninf(jnp.cos(X) - df(X))
         assert err < 100 * df.vscale * EPS
 
-    # pass(n, 4): complex-valued airy — Chebtech2 only (Chebtech1 drops imag).
-    @pytest.mark.parametrize("Tech", [Chebtech2])
+    # pass(n, 4): complex-valued airy.  Both tech kinds handle complex data
+    # now, so this runs on Chebtech1 and Chebtech2 (MATLAB's n = 1:2).
+    @pytest.mark.parametrize("Tech", BOTH)
     def test_spotcheck_airy_complex(self, Tech):
         z = np.exp(2 * np.pi * 1j / 3)
         f = Tech.from_function(lambda t: _airy_ai(z * t))

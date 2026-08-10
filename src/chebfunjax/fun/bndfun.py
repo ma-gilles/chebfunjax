@@ -183,8 +183,13 @@ class Bndfun(Classicfun):
     # Restriction to a sub-interval
     # ------------------------------------------------------------------
 
-    def restrict(self, a: float, b: float) -> "Bndfun":
+    def restrict(self, a, b: float | None = None):
         """Restrict this Bndfun to the sub-interval [a, b].
+
+        ``restrict(s)`` also accepts an increasing breakpoint vector ``s``:
+        with two entries it behaves like ``restrict(s[0], s[1])`` and returns
+        one Bndfun; with more it returns a LIST of Bndfuns, one per
+        sub-interval (MATLAB returns a cell array there).
 
         The function is re-represented on the sub-interval by evaluating the
         current Chebtech2 at Chebyshev points mapped from [a, b] into [-1, 1]
@@ -222,6 +227,21 @@ class Bndfun(Classicfun):
         """
         if self.isempty():
             return type(self).empty()
+        if b is None or not isinstance(a, (int, float)):
+            # MATLAB restrict(f, s) with a breakpoint vector.
+            brk = [float(t) for t in jnp.asarray(a).reshape(-1)]
+            if len(brk) < 2:
+                raise ValueError(
+                    "CHEBFUN:BNDFUN:restrict:badInterval: "
+                    "need at least two breakpoints.")
+            if any(brk[i + 1] <= brk[i] for i in range(len(brk) - 1)):
+                raise ValueError(
+                    "CHEBFUN:BNDFUN:restrict:badInterval: "
+                    "breakpoints must be strictly increasing.")
+            if len(brk) == 2:
+                return self.restrict(brk[0], brk[1])
+            return [self.restrict(brk[i], brk[i + 1])
+                    for i in range(len(brk) - 1)]
         a = float(a)
         b = float(b)
         self_a, self_b = self.domain.a, self.domain.b

@@ -231,9 +231,29 @@ class TestChebtechPlus:
         )
         assert _ninf(h(X) - exact) <= 1e4 * h.vscale * EPS
 
-    def test_dimension_mismatch_error(self, Tech):
-        # pass(n, 18): array-valued + scalar-valued -> dimension error.
-        pytest.skip(_DIMERR)
+    def test_implicit_expansion(self, Tech):
+        # pass(n, 18): array-valued + scalar-valued.  MATLAB < 9.1 raised
+        # MATLAB:dimagree; MATLAB >= 9.1 broadcasts and sets pass = true.
+        # chebfunjax follows the modern behaviour.
+        f = Tech.from_function(
+            lambda x: jnp.stack(
+                [jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1))
+        g = Tech.from_function(jnp.sin)
+        h = f + g
+        assert h.coeffs.shape[1] == 3
+        exact = jnp.stack(
+            [jnp.sin(X), jnp.cos(X), jnp.exp(X)], axis=-1) + jnp.sin(X)[:, None]
+        assert _ninf(h(X) - exact) <= 1e2 * h.vscale * EPS
+
+    def test_column_count_mismatch_raises(self, Tech):
+        # Column counts that genuinely disagree are still an error.
+        f = Tech.from_function(
+            lambda x: jnp.stack(
+                [jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1))
+        g = Tech.from_function(
+            lambda x: jnp.stack([jnp.sinh(x), jnp.cosh(x)], axis=-1))
+        with pytest.raises((TypeError, ValueError)):
+            f + g
 
     def test_plus_matches_direct_construction(self, Tech):
         # pass(n, 19): coeffs of (f + g) match direct construction, tol 10*eps.
@@ -275,9 +295,11 @@ class TestChebtechPlus:
         assert _ninf(g(X) - g_exact) < 10 * g.vscale * EPS
 
     def test_scalar_expansion_in_chebtech(self, Tech):
-        # pass(n, 23): sin(x) + [1 2 3] (scalar expanded to array-valued).
-        pytest.skip(
-            "scalar-valued Chebtech + row-vector [1 2 3] scalar-expansion is "
-            "unsupported: __add__ cannot broadcast an (m,) array against a "
-            "scalar-column (n,) coeff array — src gap, reported"
-        )
+        # pass(n, 23): sin(x) + [1 2 3] (scalar-valued tech expanded to
+        # array-valued), matching MATLAB plus.m's singleton expansion.
+        f = Tech.from_function(jnp.sin)
+        g = f + jnp.asarray([1.0, 2.0, 3.0])
+        g_exact = jnp.stack(
+            [1 + jnp.sin(X), 2 + jnp.sin(X), 3 + jnp.sin(X)], axis=-1)
+        assert g.coeffs.shape[1] == 3
+        assert _ninf(g(X) - g_exact) < 10 * g.vscale * EPS

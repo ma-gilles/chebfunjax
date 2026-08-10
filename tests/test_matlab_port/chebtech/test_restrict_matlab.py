@@ -1,4 +1,5 @@
-"""Port of MATLAB Chebfun tests/chebtech/test_restrict.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/chebtech/test_restrict.m (Opus 4.8; marker
+audit Fable 5).
 
 Self-validating: each restriction is checked against the analytic function
 on the sub-interval, remapped to [-1, 1], at the SAME tolerance MATLAB uses
@@ -9,13 +10,19 @@ on the sub-interval, remapped to [-1, 1], at the SAME tolerance MATLAB uses
 Chebtech1 and Chebtech2.  ``restrict(f, [a b])`` maps the sub-interval
 [a, b] onto [-1, 1] via ``t -> (2/(b-a))*(t-a) - 1``.
 
-Gaps vs MATLAB (honest xfail/skip):
-- Multi-breakpoint ``restrict(f, [a b c])`` returns a cell array; chebfunjax
-  ``restrict`` returns a single tech for one [a, b].
+Every MATLAB assertion (pass 1-11) is ported; there are no gaps:
 
-Array-valued restriction (pass 11) is now supported: Chebtech coefficients may
-be an (n, m) matrix (one function per column), and ``restrict`` acts
-column-wise (FIXED, Fable 5, Big-Three array-valued epic).
+* Breakpoint VECTORS are supported.  ``f.restrict([a, b, c, ...])`` returns a
+  LIST of techs, one per sub-interval (MATLAB returns a cell array);
+  ``f.restrict([a, b])`` and ``f.restrict(a, b)`` both return a single tech.
+  This covers pass 5 (non-monotone vector -> badInterval) and pass 10
+  (multi-subinterval output), which were previously skipped.
+* Array-valued restriction (pass 11) is supported: Chebtech coefficients may
+  be an (n, m) matrix (one function per column), and ``restrict`` acts
+  column-wise.
+* chebfunjax raises ``ValueError`` where MATLAB raises the identifier
+  ``CHEBFUN:CHEBTECH:restrict:badInterval``; chebfunjax has no MATLAB error
+  identifiers, so the ported tests assert the exception type only.
 
 Provenance
 ----------
@@ -79,10 +86,11 @@ class TestChebtechRestrict:
 
     def test_restrict_badinterval_nonmonotone(self, Tech):
         # pass(n, 5): restrict(f, [-1 -0.25 0.3 0.1 1]) -> badInterval.
-        pytest.skip(
-            "chebfunjax restrict takes a single (a, b); multi-breakpoint "
-            "interval vectors are unsupported"
-        )
+        # The vector is not increasing (0.3 > 0.1), which MATLAB rejects via
+        # any(diff(s) <= 0) in @chebtech/restrict.m.
+        f = Tech.from_function(lambda x: jnp.sin(x))
+        with pytest.raises(ValueError):
+            f.restrict([-1.0, -0.25, 0.3, 0.1, 1.0])
 
     def test_restrict_spotcheck_exp(self, Tech):
         # pass(n, 6): exp(x) - 1 on [-0.2, 0.1].
@@ -108,11 +116,32 @@ class TestChebtechRestrict:
         assert err < tol
 
     def test_restrict_multiple_subintervals(self, Tech):
-        # pass(n, 10): restrict(f, [a b c]) returns a cell of two techs.
-        pytest.skip(
-            "chebfunjax restrict returns one tech for a single [a, b]; "
-            "no multi-subinterval cell output"
-        )
+        # pass(n, 10), first assignment: restrict(f, [-0.7 0.3 0.8]) returns
+        # a cell of two techs matching the two pairwise restrictions.
+        f = Tech.from_function(lambda x: jnp.sin(x) + jnp.sin(x ** 2))
+        g = f.restrict([-0.7, 0.3, 0.8])
+        h1 = f.restrict(-0.7, 0.3)
+        h2 = f.restrict(0.3, 0.8)
+        assert len(g) == 2
+        x = jnp.asarray(np.linspace(-1.0, 1.0, 100))
+        tol = 10 * EPS
+        assert _ninf((g[0] - h1)(x)) < tol
+        assert _ninf((g[1] - h2)(x)) < tol
+
+    def test_restrict_multiple_subintervals_array_valued(self, Tech):
+        # pass(n, 10), second assignment (MATLAB overwrites the index):
+        # array-valued [sin cos] restricted over [-0.6 0.1 1].
+        f = Tech.from_function(
+            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1))
+        g = f.restrict([-0.6, 0.1, 1.0])
+        h1 = f.restrict(-0.6, 0.1)
+        h2 = f.restrict(0.1, 1.0)
+        assert len(g) == 2
+        assert g[0].coeffs.shape[1] == 2
+        x = jnp.asarray(np.linspace(-1.0, 1.0, 100))
+        tol = 10 * EPS
+        assert _ninf((g[0] - h1)(x)) < tol
+        assert _ninf((g[1] - h2)(x)) < tol
 
     def test_restrict_array_valued(self, Tech):
         # pass(n, 11): restrict of the array-valued [sin cos exp] on [-1, -0.7].

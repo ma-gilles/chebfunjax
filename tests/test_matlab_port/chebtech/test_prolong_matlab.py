@@ -1,13 +1,15 @@
-"""Port of MATLAB Chebfun tests/chebtech/test_prolong.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/chebtech/test_prolong.m (Opus 4.8; marker
+audit Fable 5).
 
 The MATLAB test loops ``for n = 1:2`` over ``{chebtech1(), chebtech2()}``; we
 parametrize over ``[Chebtech1, Chebtech2]``.
 
-Notes on gaps (see the report):
-* Every sub-test except pass 1 operates on array-valued techs
-  (``[F(x), -F(x)]``, and pass 7's ``v = [1 2 3]`` which MATLAB reads as three
-  constant columns, cf. ``repmat([1 2 3], 5, 1)``), which chebfunjax does not
-  implement.  Those are skipped.
+Every MATLAB assertion (pass 1-7) is ported on BOTH tech kinds; there are no
+gaps.  All sub-tests except pass 1 operate on array-valued techs
+(``[F(x), -F(x)]``, and pass 7's ``v = [1 2 3]`` which MATLAB reads as three
+constant columns, cf. ``repmat([1 2 3], 5, 1)``); chebfunjax Chebtech supports
+(n, m) coefficient matrices and ``prolong`` acts column-wise, so those are
+real tests.
 
 Provenance
 ----------

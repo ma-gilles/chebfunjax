@@ -1,10 +1,14 @@
-"""Port of MATLAB Chebfun tests/chebtech/test_simplify.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/chebtech/test_simplify.m (Opus 4.8; marker
+audit Fable 5).
 
 The MATLAB test loops ``for n = 1:2`` over ``{chebtech1(), chebtech2()}``; we
 parametrize over ``[Chebtech1, Chebtech2]``.
 
-Notes on gaps (see the report):
-* The array-valued sub-tests (pass 10-12) are skipped.
+Every MATLAB assertion (pass 1-14) is ported on BOTH tech kinds; there are no
+gaps.  Naming/API differences only:
+
+* Array-valued techs are supported ((n, m) coefficient matrices), so the
+  array-valued sub-tests (pass 10-12) are real tests.
 * ``iszero`` is not a chebfunjax method; we check ``max(|coeffs|) == 0``.
 * The unhappy ``sqrt(x)`` sub-test (pass 2) uses complex ``sqrt`` (matching
   MATLAB, where ``sqrt`` of a negative real is complex); either way it does not
