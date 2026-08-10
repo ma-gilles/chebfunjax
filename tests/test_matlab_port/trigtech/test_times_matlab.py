@@ -126,12 +126,13 @@ class TestTrigtechTimes:
         assert (f * g).isempty()
         assert (g * f).isempty()
 
-    @pytest.mark.xfail(
-        reason="chebfunjax __mul__ does not perform MATLAB's positivity adjustment; "
-        "(1+cos)^2 evaluates to a tiny negative value (~-4e-16) at its minimum"
-    )
     def test_positivity_nonnegative(self):
-        raise AssertionError("positivity adjustment not implemented")
+        # pass(19:20): (1 + cos(pi x)).^2 is nonnegative everywhere.
+        f = _tt(lambda x: 1 + jnp.cos(jnp.pi * x))
+        h = f * f
+        exact = (1 + jnp.cos(jnp.pi * X)) ** 2
+        assert _ninf(h(X) - exact) < 1e2 * h.vscale * EPS
+        assert bool(jnp.all(h(X) >= 0))
 
     def test_conj_product_norm(self):
         # pass(17): f .* conj(f) matches |f|^2.

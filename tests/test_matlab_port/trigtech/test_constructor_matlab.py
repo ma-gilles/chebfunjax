@@ -77,16 +77,12 @@ class TestTrigtechConstructor:
         x = trigpts(g.n)
         assert _ninf(self._array_op(x) - g.values) < 10 * g.vscale * EPS
 
-    @pytest.mark.xfail(
-        reason="chebfunjax from_function does not raise on NaN-valued input; it returns "
-        "an unhappy representation instead of erroring"
-    )
     def test_nan_raises(self):
-        raise AssertionError("NaN construction error not implemented")
+        # MATLAB @trigtech/populate.m errors on NaN-valued handles.
+        with pytest.raises(ValueError):
+            Trigtech.from_function(lambda x: jnp.sin(jnp.pi * x) + jnp.nan)
 
-    @pytest.mark.xfail(
-        reason="chebfunjax from_function does not raise on Inf-valued input; it returns "
-        "an unhappy representation instead of erroring"
-    )
     def test_inf_raises(self):
-        raise AssertionError("Inf construction error not implemented")
+        # MATLAB @trigtech/populate.m errors on Inf-valued handles.
+        with pytest.raises(ValueError):
+            Trigtech.from_function(lambda x: jnp.full_like(x, jnp.inf))

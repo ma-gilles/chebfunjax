@@ -169,11 +169,9 @@ class TestTrigtechMtimes:
         with pytest.raises(Exception):
             f @ g
 
-    @pytest.mark.xfail(
-        reason="chebfunjax has no MATLAB-style typed message for TRIGTECH*<unknown "
-        "type>; matmul against an unsupported operand simply raises TypeError"
-    )
     def test_error_unknown_type(self):
-        # pass(14): MATLAB emits a specific 'mtimes does not know how to multiply
-        # a TRIGTECH and a uint8' message; chebfunjax has no such typed message.
-        raise NotImplementedError("no typed mtimes message for unknown operands")
+        # pass(14): multiplying a TRIGTECH by an unsupported object raises
+        # a typed error naming the operand class.
+        f = _tt(lambda x: jnp.sin(jnp.pi * x))
+        with pytest.raises(TypeError, match="class object"):
+            _ = f @ object()

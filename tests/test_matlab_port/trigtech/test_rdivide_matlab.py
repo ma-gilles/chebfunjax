@@ -131,21 +131,20 @@ class TestTrigtechRdivide:
              jnp.sin(20 * jnp.pi * X) / BETA], axis=-1)
         assert _ninf(g(X) - exact) < 1e3 * EPS
 
-    @pytest.mark.xfail(
-        reason="isnan() now exists, but MATLAB divides VALUES by the row [alpha 0] "
-        "(the zero column's values become 0/0=NaN and Inf, whose transform is all-NaN "
-        "coeffs); chebfunjax rdivide divides COEFFS, so the zero column keeps Inf (not "
-        "all-NaN) coeffs and the per-column all(isnan(coeffs)) pattern differs"
-    )
     def test_array_division_by_row_with_zero(self):
-        raise AssertionError("value-space rdivide NaN-pattern not reproducible")
+        # pass(6): f ./ [alpha 0] — the nonzero column divides cleanly,
+        # the zero column becomes all-NaN coefficients.
+        f = _tt(lambda x: jnp.stack(
+            [jnp.sin(10 * jnp.pi * x), jnp.sin(20 * jnp.pi * x)], axis=-1))
+        g = f / jnp.array([ALPHA, 0.0])
+        assert not bool(jnp.any(jnp.isnan(g.coeffs[:, 0])))
+        assert bool(jnp.all(jnp.isnan(g.coeffs[:, 1])))
 
-    @pytest.mark.xfail(
-        reason="chebfunjax does not validate division by a column vector [1;2]; it silently "
-        "broadcasts instead of raising CHEBFUN:TRIGTECH:rdivide:size"
-    )
     def test_size_error_column_vector(self):
-        raise AssertionError("column-vector size check not implemented")
+        # pass(10): dividing by a column vector [1; 2] is a size error.
+        f = _tt(lambda x: jnp.sin(jnp.pi * x))
+        with pytest.raises(ValueError):
+            _ = f / jnp.array([[1.0], [2.0]])
 
     def test_size_error_row_mismatch(self):
         # pass(11): 2-column f ./ [1 2 3] is rejected with a dimension error.

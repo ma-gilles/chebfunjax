@@ -1468,6 +1468,16 @@ class Trigtech(eqx.Module):
         MATLAB source : @trigtech/trigtech.m, @trigtech/populate.m
         Chebfun commit: 7574c77
         """
+        # MATLAB @trigtech/populate.m probes the handle at a fixed
+        # pseudo-random point and refuses functions that evaluate to
+        # Inf or NaN (a trigtech is a smooth periodic representation).
+        pseudo_rand = 0.376989633393435
+        probe = jnp.asarray(
+            f(jnp.asarray([2.0 * pseudo_rand - 1.0], dtype=jnp.float64)))
+        if not bool(jnp.all(jnp.isfinite(probe))):
+            raise ValueError(
+                "Trigtech: cannot handle functions that evaluate to "
+                "Inf or NaN.")
         if n is not None:
             return cls._fixed_construct(f, n)
         return cls._adaptive_construct(f, maxpow2)
@@ -2209,7 +2219,27 @@ class Trigtech(eqx.Module):
                     gv = gv[:, None]
             pv = fv * gv
             c = trig_vals2coeffs(pv.astype(jnp.complex128))
-            return Trigtech(coeffs=c, is_real=new_is_real, ishappy=self.ishappy and other.ishappy)
+            h = Trigtech(coeffs=c, is_real=new_is_real,
+                         ishappy=self.ishappy and other.ishappy)
+            # MATLAB @trigtech/times.m: when the product is known
+            # nonnegative in advance (f.*f with real f, or f.*conj(f)),
+            # simplification roundoff may break positivity — enforce it
+            # by clamping the values through |.|.
+            same_shape = self.coeffs.shape == other.coeffs.shape
+            pos = same_shape and self.is_real and bool(
+                jnp.array_equal(self.coeffs, other.coeffs))
+            # f .* conj(f): for the symmetric odd-length layout the
+            # conjugate's coefficients are the reversed conjugates
+            # (even lengths carry an unpaired Nyquist mode — skip).
+            pos = pos or (same_shape and self.coeffs.shape[0] % 2 == 1
+                          and bool(jnp.array_equal(
+                              jnp.conj(self.coeffs[::-1]), other.coeffs)))
+            if pos:
+                hv = jnp.abs(trig_coeffs2vals(h.coeffs))
+                h = Trigtech(
+                    coeffs=trig_vals2coeffs(hv.astype(jnp.complex128)),
+                    is_real=True, ishappy=h.ishappy)
+            return h
         else:
             s = jnp.asarray(other, dtype=jnp.complex128)
             return Trigtech(
@@ -2236,12 +2266,44 @@ class Trigtech(eqx.Module):
                 / _trig_eval(other.coeffs, x, other.is_real)
             )
         else:
+            arr = jnp.asarray(other)
+            ncols = self.coeffs.shape[1] if self.coeffs.ndim == 2 else 1
+            # MATLAB @trigtech/rdivide.m size validation: a column-shaped
+            # divisor, or a row whose width mismatches the columns, is
+            # rejected ('Matrix dimensions must agree').
+            if arr.ndim >= 2 and arr.shape[0] > 1:
+                raise ValueError(
+                    "Trigtech rdivide: matrix dimensions must agree "
+                    "(divisor must be a scalar or a row of one entry "
+                    "per column).")
+            row = arr.reshape(-1)
+            if row.shape[0] > 1 and row.shape[0] != ncols:
+                raise ValueError(
+                    "Trigtech rdivide: matrix dimensions must agree "
+                    "(divisor width must match the column count).")
+            if row.shape[0] and not bool(jnp.any(row)):
+                # MATLAB: division by an all-zero divisor gives the NaN
+                # trigtech (one NaN value row).
+                nan_c = jnp.full(
+                    (1, ncols) if self.coeffs.ndim == 2 else (1,),
+                    jnp.nan, dtype=jnp.complex128)
+                return Trigtech(coeffs=nan_c, is_real=self.is_real,
+                                ishappy=True)
             # A complex divisor clears is_real (the imaginary part was
             # silently dropped before -- Fable 5, flip-roots audit).
-            s = jnp.asarray(other, dtype=jnp.complex128)
+            s = arr.astype(jnp.complex128)
             new_is_real = self.is_real and bool(
-                jnp.isrealobj(jnp.asarray(other))
-                or not jnp.any(jnp.imag(s)))
+                jnp.isrealobj(arr) or not jnp.any(jnp.imag(s)))
+            if row.shape[0] > 1:
+                # MATLAB divides the VALUES row-wise and sets the
+                # zero-divisor columns' values to NaN, whose transform
+                # is an all-NaN coefficient column.
+                q = self.coeffs / s.reshape(1, -1)
+                zero_cols = row == 0
+                if bool(jnp.any(zero_cols)):
+                    q = jnp.where(zero_cols[None, :], jnp.nan, q)
+                return Trigtech(coeffs=q, is_real=new_is_real,
+                                ishappy=self.ishappy)
             return Trigtech(
                 coeffs=self.coeffs / s,
                 is_real=new_is_real,
@@ -2307,7 +2369,18 @@ class Trigtech(eqx.Module):
         """
         if self.isempty():
             return Trigtech.empty()
-        A = jnp.asarray(other)
+        try:
+            A = jnp.asarray(other)
+        except (TypeError, ValueError) as exc:
+            # MATLAB @trigtech/mtimes.m: 'Use OP(f, c) to multiply a
+            # TRIGTECH by an object of class <cls>.'
+            raise TypeError(
+                "Trigtech mtimes: cannot multiply a Trigtech by an "
+                f"object of class {type(other).__name__}.") from exc
+        if not jnp.issubdtype(A.dtype, jnp.number):
+            raise TypeError(
+                "Trigtech mtimes: cannot multiply a Trigtech by an "
+                f"object of class {type(other).__name__}.")
         if A.size == 0:
             # MATLAB @trigtech/mtimes.m: f * [] is empty.
             return Trigtech.empty()
