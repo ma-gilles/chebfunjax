@@ -76,8 +76,9 @@ class TestChebfunSubspace:
         assert abs(subspace(A[0:3], A[3:4]) - PI / 2) < 10 * _vscale(A) * EPS
 
     def test_row_chebfuns(self):
-        # pass(6): subspace of transposed (row) chebfuns.
-        pytest.skip(
-            "chebfunjax has no row-chebfun transpose (A.'); subspace takes column "
-            "lists only"
-        )
+        # pass(6): subspace of transposed (row) chebfuns — At = A.',
+        # subspace(At(1:2,:), At(3:4,:)) == pi/2.
+        A = _basis()
+        At = [f.transpose() for f in A]
+        assert abs(subspace(At[0:2], At[2:4]) - PI / 2) \
+            < 10 * _vscale(A) * EPS

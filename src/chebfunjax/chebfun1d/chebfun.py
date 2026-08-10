@@ -4858,6 +4858,25 @@ class Chebfun(eqx.Module):
             raise ValueError("vertcat: input list is empty.")
         if len(chebfuns) == 1:
             return chebfuns[0]
+        # Row chebfuns (MATLAB [x.'; x.']): stacking transposed chebfuns
+        # on a SHARED domain builds an array-valued row chebfun; mixing
+        # a row with a column is an error (@chebfun/vertcat.m).
+        trans = [bool(getattr(f, "is_transposed", False)) for f in chebfuns]
+        if any(trans):
+            if not all(trans):
+                raise ValueError(
+                    "vertcat: cannot concatenate a column chebfun with "
+                    "a row chebfun.")
+            cols = [f.transpose() for f in chebfuns]
+            dom = cols[0].domain
+            for c in cols[1:]:
+                if (float(c.domain.a) != float(dom.a)
+                        or float(c.domain.b) != float(dom.b)):
+                    raise ValueError(
+                        "vertcat: row chebfuns must share a domain.")
+            arr = Chebfun.from_function(
+                lambda x: jnp.stack([c(x) for c in cols], axis=-1), dom)
+            return arr.transpose()
         # Validate contiguity and collect all pieces
         all_funs: list[_Piece] = []
         all_bps: list[float] = [chebfuns[0].domain.a]
@@ -9687,6 +9706,13 @@ def subspace(
 
     if not A or not B:
         raise ValueError("subspace: A and B must be non-empty lists of Chebfun.")
+
+    # Row chebfuns (MATLAB A.'): the principal angles between row spans
+    # equal those between the transposed column spans, so un-transpose.
+    A = [f.transpose() if getattr(f, "is_transposed", False) else f
+         for f in A]
+    B = [f.transpose() if getattr(f, "is_transposed", False) else f
+         for f in B]
 
     # Orthonormalise via continuous QR
     # Quasimatrix requires a Domain argument — extract from the first column

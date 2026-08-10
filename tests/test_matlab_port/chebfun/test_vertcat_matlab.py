@@ -3,10 +3,9 @@
 FIXED (Fable 5): [f; g] block concatenation via ChebMatrix.vertcat /
 horzcat (a 2-D block container with a ``.blocks`` cell array).
 
-MATLAB's pass(5,6) concatenate ROW chebfuns (x') into an array-valued
-chebfun and reject mixing a column with a row; chebfunjax chebfuns carry
-no row/column orientation flag, so those two orientation-dependent
-assertions are not applicable and are omitted (documented here).
+All seven MATLAB assertions port: pass(5,6) use the row/column
+orientation flag (is_transposed) — [x'; x'] builds an array-valued row
+chebfun and mixing orientations raises.
 
 Provenance
 ----------
@@ -50,6 +49,18 @@ class TestChebfunVertcat:
         assert f.size == (2, 2)
         assert isinstance(f.blocks[1][0], Chebfun)
         assert isinstance(f.blocks[0][1], Chebfun)
+
+        # pass(5): row chebfuns [x'; x'] -> array-valued chebfun with
+        # 2 columns.
+        xt = x.transpose()
+        f = Chebfun.vertcat([xt, xt])
+        assert isinstance(f, Chebfun)
+        assert f.n_columns == 2
+
+        # pass(6): mixing a column with a row is an error.
+        import pytest
+        with pytest.raises(ValueError):
+            Chebfun.vertcat([x, xt])
 
         # pass(7): [x; [0; 0]] -> 3x1 chebmatrix.
         f = ChebMatrix.vertcat(x, np.array([0.0, 0.0]))
