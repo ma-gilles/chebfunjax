@@ -160,7 +160,8 @@ class TestClassicfunMinAndMax:
         f = Unbndfun.from_function(
             lambda x: (1 - jnp.exp(-x ** 2)) / x, Domain((-INF, INF))
         )
-        (min_val, min_pos), (max_val, max_pos) = f.minandmax()
+        # Piece convention: POSITION first (matches Bndfun/Chebfun).
+        (min_pos, min_val), (max_pos, max_val) = f.minandmax()
         v = np.array([complex(min_val), complex(max_val)])
         p = np.array([float(min_pos), float(max_pos)])
         v_exact = np.array([-0.6381726863389515, 0.6381726863389515])
