@@ -10,7 +10,9 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="battery exercises abs/max3/mean/norm and other missing Chebfun3 methods")
+pytestmark = pytest.mark.skip(
+    reason="abs/max3/mean/norm all exist now; the battery's high-frequency members re-run the full 3D adaptive algorithm and blow the test timeout (perf, not capability)"
+)
 
 
 class TestChebfun3Battery:

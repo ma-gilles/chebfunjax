@@ -10,7 +10,9 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="Chebfun2 has no trig/periodic tech option")
+pytestmark = pytest.mark.skip(
+    reason="isPeriodicTech() exists on Chebfun2 but only the Chebyshev tech is reachable: the constructor has no 'trig' option to build a periodic Chebfun2 to test it against"
+)
 
 
 class TestChebfun2Isperiodictech:

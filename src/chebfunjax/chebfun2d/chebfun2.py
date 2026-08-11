@@ -457,12 +457,121 @@ class Chebfun2(eqx.Module):
         n = max(int(c.coeffs.shape[0]) for c in self.approx.cols)
         return int(m), int(n)
 
-    def chebpolyval2(self, m: Optional[int] = None, n: Optional[int] = None):
+    @staticmethod
+    def chebpts2(nx: int, ny: Optional[int] = None,
+                 domain: tuple = (-1.0, 1.0, -1.0, 1.0), kind: int = 2):
+        """Chebyshev tensor-product grid on a rectangle.
+
+        Parameters
+        ----------
+        nx : int
+            Number of points in the x-direction.
+        ny : int or None
+            Number of points in the y-direction; defaults to ``nx``.
+        domain : tuple, default (-1, 1, -1, 1)
+            ``(a, b, c, d)`` rectangle.
+        kind : {1, 2}, default 2
+            Chebyshev point kind.
+
+        Returns
+        -------
+        xx, yy : jax.Array, each shape (ny, nx)
+            Meshgrid of the tensor grid.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/chebpts2.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun2.coeffs2vals, Chebfun2.sample
+        """
+        from chebfunjax.utils.quadrature import chebpts_ab
+
+        if ny is None:
+            ny = nx
+        d = [float(v) for v in domain]
+        if len(d) != 4:
+            raise ValueError("chebpts2: unrecognised domain (need 4 values).")
+        x = chebpts_ab(nx, d[0], d[1], kind=kind)
+        y = chebpts_ab(ny, d[2], d[3], kind=kind)
+        return jnp.meshgrid(x, y)
+
+    @staticmethod
+    def coeffs2vals(C, d=None, R=None):
+        """Bivariate Chebyshev coefficients to values on the tensor grid.
+
+        ``V = Chebfun2.coeffs2vals(C)`` maps the coefficient matrix ``C``
+        (``C[i, j]`` multiplying ``T_i(y) T_j(x)``) to the values of that
+        expansion on the tensor Chebyshev grid of the same size.  The
+        three-argument form ``Chebfun2.coeffs2vals(C, d, R)`` transforms
+        the low-rank factors instead, leaving ``d`` untouched.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/coeffs2vals.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun2.vals2coeffs, Chebfun2.chebcoeffs2
+        """
+        from chebfunjax.utils.transforms import coeffs2vals
+
+        if d is None and R is None:
+            U = coeffs2vals(jnp.asarray(C))
+            return coeffs2vals(U.T).T
+        if d is None or R is None:
+            raise ValueError(
+                "coeffs2vals: pass either C alone or all of (C, d, R).")
+        return coeffs2vals(jnp.asarray(C)), d, coeffs2vals(jnp.asarray(R))
+
+    @staticmethod
+    def vals2coeffs(V, d=None, R=None):
+        """Values on the tensor Chebyshev grid to bivariate coefficients.
+
+        The inverse of :meth:`coeffs2vals`, with the same one- and
+        three-argument forms.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/vals2coeffs.m
+        Chebfun commit: 7574c77
+
+        See Also
+        --------
+        Chebfun2.coeffs2vals
+        """
+        from chebfunjax.utils.transforms import vals2coeffs
+
+        if d is None and R is None:
+            C = vals2coeffs(jnp.asarray(V))
+            return vals2coeffs(C.T).T
+        if d is None or R is None:
+            raise ValueError(
+                "vals2coeffs: pass either V alone or all of (V, d, R).")
+        return vals2coeffs(jnp.asarray(V)), d, vals2coeffs(jnp.asarray(R))
+
+    def chebpolyval2(self, m: Optional[int] = None, n: Optional[int] = None,
+                     low_rank: bool = False):
         """Values of f on an ``m`` (x) by ``n`` (y) tensor Chebyshev grid.
 
         With no arguments the grid size is ``length(f)``, so
         ``chebpolyval2(chebfun2(A))`` recovers ``A`` for a matrix ``A``.
         Returns the ``(n, m)`` matrix ``V[j, i] = f(x_i, y_j)``.
+
+        Parameters
+        ----------
+        m, n : int or None
+            Grid sizes in x and y; both default to ``length(f)``.
+        low_rank : bool, default False
+            If True, return the low-rank value factors ``(C, D, R)`` with
+            ``V = C @ D @ R.T`` (MATLAB's ``[U, D, V] = chebpolyval2(f)``).
 
         Provenance
         ----------
@@ -473,7 +582,16 @@ class Chebfun2(eqx.Module):
             lm, ln = self.length()
             m = lm if m is None else m
             n = ln if n is None else n
-        return self.sample(m, n)
+        if not low_rank:
+            return self.sample(m, n)
+        # MATLAB pads/truncates the column coefficients to n (the y-grid)
+        # and the row coefficients to m (the x-grid) before transforming.
+        cols_c, d, rows_c = self.coeffs2(low_rank=True)
+        cols_c = _resize_rows(cols_c, n)
+        rows_c = _resize_rows(rows_c, m)
+        C, D, R = Chebfun2.coeffs2vals(cols_c, jnp.diag(jnp.asarray(d)),
+                                       rows_c)
+        return C, D, R
 
     def _lowrank_coeffs(self):
         """Padded low-rank Chebyshev coefficient factors ``(C, d, R)``.
@@ -1523,6 +1641,216 @@ class Chebfun2(eqx.Module):
             lambda x, y: self(x, ya + yb - y),
             domain=self.approx.domain)
 
+    def transpose(self) -> "Chebfun2":
+        """Non-conjugate transpose ``f.'``: the function ``(x, y) -> f(y, x)``.
+
+        The low-rank factors already separate the two variables, so this
+        just swaps the column and row slices and swaps the two halves of
+        the domain -- no re-construction and no loss of accuracy.
+
+        Returns
+        -------
+        Chebfun2
+            Defined on ``(ya, yb, xa, xb)``.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/transpose.m,
+            @separableApprox/transpose.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun2.ctranspose, Chebfun2.fliplr, Chebfun2.flipud
+        """
+        if self.isempty():
+            return self
+        a = self.approx
+        xa, xb, ya, yb = a.domain
+        locs = tuple((py, px) for (px, py) in a.pivot_locations)
+        return Chebfun2(approx=SeparableApprox(
+            cols=list(a.rows), rows=list(a.cols), pivots=a.pivots,
+            domain=(ya, yb, xa, xb), pivot_locations=locs,
+            techs=(a.techs[1], a.techs[0])))
+
+    def ctranspose(self) -> "Chebfun2":
+        """Conjugate transpose ``f'``: ``(x, y) -> conj(f(y, x))``.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/ctranspose.m
+        Chebfun commit: 7574c77
+
+        See Also
+        --------
+        Chebfun2.transpose, Chebfun2.conj
+        """
+        if self.isempty():
+            return self
+        return self.transpose().conj()
+
+    @property
+    def T(self) -> "Chebfun2":
+        """Alias for :meth:`transpose` (MATLAB ``f.'``)."""
+        return self.transpose()
+
+    @property
+    def H(self) -> "Chebfun2":
+        """Alias for :meth:`ctranspose` (MATLAB ``f'``)."""
+        return self.ctranspose()
+
+    def biharmonic(self) -> "Chebfun2":
+        """Biharmonic operator applied to f.
+
+        Computes ``f_xxxx + f_yyyy + 2 f_xxyy``.
+
+        Returns
+        -------
+        Chebfun2
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/biharmonic.m,
+            @separableApprox/biharmonic.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun2.laplacian, Chebfun2.biharm
+        """
+        return (self.diff(dim=2, k=4) + self.diff(dim=1, k=4)
+                + 2 * self.diff(dim=1, k=2).diff(dim=2, k=2))
+
+    def biharm(self) -> "Chebfun2":
+        """Shorthand for :meth:`biharmonic`.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/biharm.m
+        Chebfun commit: 7574c77
+        """
+        return self.biharmonic()
+
+    def cdr(self):
+        """CDR decomposition ``f(x, y) = C(y) @ D @ R(x).T``.
+
+        Returns
+        -------
+        C : list of Chebfun
+            The ``r`` column slices, functions of ``y`` on ``[ya, yb]``
+            (MATLAB's inf-by-r quasimatrix ``C``).
+        D : jax.Array, shape (r, r)
+            Diagonal matrix of pivot weights.
+        R : list of Chebfun
+            The ``r`` row slices, functions of ``x`` on ``[xa, xb]``.
+
+        Notes
+        -----
+        MATLAB's single-output form ``d = cdr(f)`` returns just the pivot
+        vector; here that is ``jnp.diag(D)``, or equivalently
+        :attr:`Chebfun2.pivots`.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/cdr.m, @separableApprox/cdr.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun2.svd, Chebfun2.pivot_locations
+        """
+        from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+        from chebfunjax.domain import Domain
+
+        xa, xb, ya, yb = self.approx.domain
+
+        def _quasi(techs, a, b):
+            return [Chebfun(funs=[_Piece(tech=t, interval=(a, b))],
+                            domain=Domain((a, b))) for t in techs]
+
+        C = _quasi(self.approx.cols, ya, yb)
+        R = _quasi(self.approx.rows, xa, xb)
+        return C, jnp.diag(jnp.asarray(self.approx.pivots)), R
+
+    def integral(self, c=None):
+        """Definite integral of f, or its line integral along a curve.
+
+        Parameters
+        ----------
+        c : Chebfun or None
+            A real- or complex-valued 1D Chebfun parametrizing a curve.
+            ``None`` (the default) integrates over the whole rectangle,
+            i.e. :meth:`integral2`.
+
+        Returns
+        -------
+        jax.Array
+            ``integral2(f)`` when ``c`` is None, else
+            ``sum(f(c(t)) * |c'(t)|)`` over c's domain.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/integral.m,
+            @separableApprox/integral.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun2.integral2, Chebfun2.sum2
+        """
+        if c is None:
+            return self.integral2()
+        from chebfunjax.chebfun1d.chebfun import chebfun
+
+        a, b = float(c.domain.a), float(c.domain.b)
+        dc = c.diff()
+
+        def integrand(t):
+            z = c(t)
+            zr, zi = jnp.real(z), jnp.imag(z)
+            return self(zr, zi) * jnp.abs(dc(t))
+
+        return chebfun(integrand, domain=(a, b)).sum()
+
+    def vertcat(self, *others) -> "object":
+        """Stack Chebfun2s into a Chebfun2v (MATLAB ``[f; g]``).
+
+        Parameters
+        ----------
+        *others : Chebfun2
+            One or two further components sharing this Chebfun2's domain.
+
+        Returns
+        -------
+        Chebfun2 or Chebfun2v
+            ``self`` when called with no other components (MATLAB
+            ``vertcat(f) == f``), else the 2- or 3-component Chebfun2v.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/vertcat.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun2v
+        """
+        if not others:
+            return self
+        from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
+
+        return Chebfun2v([self.approx] + [g.approx for g in others])
+
     def minandmax2(self, ngrid: int | None = None, n_starts: int = 24):
         """Global minimum and maximum over the domain (MATLAB
         ``minandmax2``).
@@ -1878,10 +2206,57 @@ class Chebfun2(eqx.Module):
         vals = _np.real(vals)
         return (float(_np.min(vals)), float(_np.max(vals)))
 
-    def compose(self, op) -> "Chebfun2":
-        """Re-approximate op(f(x, y)) (MATLAB compose; Fable 5)."""
-        return Chebfun2.from_function(
-            lambda x, y: op(self(x, y)), domain=self.approx.domain)
+    def compose(self, op):
+        """Compose f with an outer function (MATLAB ``compose``).
+
+        Parameters
+        ----------
+        op : callable, Chebfun, Chebfun2 or Chebfun2v
+            The outer function ``g``, giving ``g(f(x, y))``.  A
+            scalar-valued operand produces a Chebfun2; an array-valued
+            Chebfun (several columns) or a Chebfun2v produces a Chebfun2v
+            with one component per column.  A Chebfun2 operand is applied
+            to the complex value ``f``, i.e. ``g(real f, imag f)``.
+
+        Returns
+        -------
+        Chebfun2 or Chebfun2v
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/compose.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun2.exp, Chebfun2.sin, Chebfun2v
+        """
+        dom = self.approx.domain
+        n_out = _compose_arity(op)
+        if n_out == 1:
+            return Chebfun2.from_function(
+                lambda x, y: op(self(x, y)), domain=dom)
+        from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
+
+        comps = [
+            Chebfun2.from_function(
+                (lambda x, y, _k=k: op(self(x, y))[..., _k]), domain=dom
+            ).approx
+            for k in range(n_out)
+        ]
+        return Chebfun2v(comps)
+
+    def isPeriodicTech(self) -> bool:
+        """True if f is represented in a periodic (trigonometric) basis.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/isPeriodicTech.m
+        Chebfun commit: 7574c77
+        """
+        return any(t == "trig" for t in self.approx.techs)
 
     def exp(self):
         return self.compose(jnp.exp)
@@ -1900,6 +2275,15 @@ class Chebfun2(eqx.Module):
 
     def tanh(self):
         return self.compose(jnp.tanh)
+
+    def cosh(self):
+        return self.compose(jnp.cosh)
+
+    def sinh(self):
+        return self.compose(jnp.sinh)
+
+    def tan(self):
+        return self.compose(jnp.tan)
 
     def abs(self):
         return self.compose(jnp.abs)
@@ -2120,6 +2504,35 @@ def chebfun2(
             def f(x, y):
                 return g(x + 1j * y)
     return Chebfun2.from_function(f, domain=domain, tol=tol, n=n)
+
+
+def _compose_arity(op) -> int:
+    """Number of components the outer function of ``compose`` produces.
+
+    A Chebfun2v contributes one component per field component and an
+    array-valued Chebfun one per column; everything else is scalar-valued
+    (a Chebfun2 operand consumes a complex argument but still returns one
+    value).
+    """
+    n = getattr(op, "n_components", None)
+    if n is not None:
+        return int(n)
+    if isinstance(op, Chebfun2):
+        return 1
+    n = getattr(op, "n_columns", None)
+    return int(n) if n is not None else 1
+
+
+def _resize_rows(M, n: int):
+    """Zero-pad or truncate a coefficient matrix to ``n`` rows."""
+    M = jnp.asarray(M)
+    m = int(M.shape[0])
+    if m == n:
+        return M
+    if m < n:
+        return jnp.concatenate(
+            [M, jnp.zeros((n - m,) + M.shape[1:], dtype=M.dtype)], axis=0)
+    return M[:n]
 
 
 def _mul_healthy(a: SeparableApprox) -> bool:

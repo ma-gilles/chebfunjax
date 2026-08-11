@@ -1584,6 +1584,160 @@ class Chebfun3(eqx.Module):
         """Tucker rank (rx, ry, rz) of the approximation."""
         return (len(self.cols), len(self.rows), len(self.tubes))
 
+    def length(self) -> tuple[int, int, int]:
+        """Polynomial degrees ``(m, n, p)`` of the Tucker factors.
+
+        Each entry is the longest coefficient vector among the factors of
+        that mode (MATLAB ``[m, n, p] = length(f)``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/length.m
+        Chebfun commit: 7574c77
+        """
+        def _len(techs):
+            return max((int(t.coeffs.shape[0]) for t in techs), default=0)
+
+        return (_len(self.cols), _len(self.rows), _len(self.tubes))
+
+    def tucker(self):
+        """Tucker (slice-Tucker) decomposition of f.
+
+        Returns
+        -------
+        core : jax.Array, shape (rx, ry, rz)
+            The core tensor.
+        cols, rows, tubes : list of Chebfun
+            The mode factors, as 1D Chebfuns on the corresponding
+            interval of the domain, so that
+            ``f = core x_1 cols(x) x_2 rows(y) x_3 tubes(z)``.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/tucker.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2023 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun3.hosvd, Chebfun3.core
+        """
+        from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+        from chebfunjax.domain import Domain
+
+        d = self.domain
+
+        def _quasi(techs, a, b):
+            return [Chebfun(funs=[_Piece(tech=t, interval=(a, b))],
+                            domain=Domain((a, b))) for t in techs]
+
+        return (self.core,
+                _quasi(self.cols, d[0], d[1]),
+                _quasi(self.rows, d[2], d[3]),
+                _quasi(self.tubes, d[4], d[5]))
+
+    def ndf(self) -> int:
+        """Number of degrees of freedom in the representation.
+
+        ``rx*m + ry*n + rz*p + rx*ry*rz`` for Tucker ranks
+        ``(rx, ry, rz)`` and degrees ``(m, n, p)``; 0 for the empty
+        Chebfun3.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/ndf.m
+        Chebfun commit: 7574c77
+
+        See Also
+        --------
+        Chebfun3.rank, Chebfun3.length
+        """
+        if self.isempty():
+            return 0
+        rx, ry, rz = self.rank
+        m, n, p = self.length()
+        return int(rx * m + ry * n + rz * p + rx * ry * rz)
+
+    def domainvolume(self) -> float:
+        """Volume of the domain box.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/domainvolume.m
+        Chebfun commit: 7574c77
+        """
+        d = self.domain
+        return float((d[1] - d[0]) * (d[3] - d[2]) * (d[5] - d[4]))
+
+    def vscale(self) -> float:
+        """Vertical scale: the largest ``|f|`` seen on the tensor grid.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/vscale.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return 0.0
+        m, n, p = (max(k, 2) for k in self.length())
+        return float(jnp.max(jnp.abs(self.sample(m, n, p))))
+
+    def fevalt(self, x, y, z) -> jax.Array:
+        """Evaluate f on the tensor grid formed by ``x``, ``y`` and ``z``.
+
+        Unlike ``f(x, y, z)``, which broadcasts its arguments pointwise,
+        this returns the full ``(len(x), len(y), len(z))`` array of values
+        at every combination (MATLAB ``fevalt``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/fevalt.m
+        Chebfun commit: 7574c77
+
+        See Also
+        --------
+        Chebfun3.sample, Chebfun3.__call__
+        """
+        xa = jnp.atleast_1d(jnp.asarray(x, dtype=jnp.float64))
+        ya = jnp.atleast_1d(jnp.asarray(y, dtype=jnp.float64))
+        za = jnp.atleast_1d(jnp.asarray(z, dtype=jnp.float64))
+        X, Y, Z = jnp.meshgrid(xa, ya, za, indexing="ij")
+        return self(X, Y, Z)
+
+    def biharmonic(self) -> "Chebfun3":
+        """Biharmonic operator applied to f.
+
+        Computes ``f_xxxx + f_yyyy + f_zzzz + 2(f_xxyy + f_xxzz + f_yyzz)``.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/biharmonic.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2023 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        Chebfun3.laplacian, Chebfun3.biharm
+        """
+        fxx = self.diff(dim=1, k=2)
+        fyy = self.diff(dim=2, k=2)
+        return (self.diff(dim=1, k=4) + self.diff(dim=2, k=4)
+                + self.diff(dim=3, k=4)
+                + 2 * (fxx.diff(dim=2, k=2) + fxx.diff(dim=3, k=2)
+                       + fyy.diff(dim=3, k=2)))
+
+    def biharm(self) -> "Chebfun3":
+        """Shorthand for :meth:`biharmonic`.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/biharm.m
+        Chebfun commit: 7574c77
+        """
+        return self.biharmonic()
+
     def fix_the_rank(self, fixed_rank) -> "Chebfun3":
         """Truncate (or zero-pad) the Tucker rank to ``fixed_rank``.
 
