@@ -23,8 +23,8 @@ import numpy as np
 
 import chebfunjax as cj
 from chebfunjax.operators import primitive_operators
-from chebfunjax.operators.blocks import eval_at, mult, sum_functional
 from chebfunjax.operators.blocklinop import linop
+from chebfunjax.operators.blocks import eval_at, mult, sum_functional
 from chebfunjax.operators.chebmatrix import ChebMatrix
 
 jax.config.update("jax_enable_x64", True)
