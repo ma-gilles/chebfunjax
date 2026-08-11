@@ -104,3 +104,62 @@ class TestWaterfall:
         plotting.waterfall(rows, ax=ax)
         _close(fig)
         del xs
+
+
+class TestQuiverFamilies:
+    def test_quiver_disk(self):
+        from chebfunjax.diskfun import Diskfun
+        from chebfunjax.diskfun.diskfunv import Diskfunv
+        fx = Diskfun.from_function(lambda th, r: -r * jnp.sin(th))
+        fy = Diskfun.from_function(lambda th, r: r * jnp.cos(th))
+        fv = Diskfunv(fx, fy)
+        fig = plt.figure()
+        ax = fig.add_subplot()
+        plotting.quiver_disk(fv, ax=ax)
+        _close(fig)
+
+    def test_quiver_sphere_and_gradient(self):
+        from chebfunjax.spherefun import Spherefun
+        f = Spherefun.from_function(
+            lambda lam, th: jnp.cos(lam) * jnp.sin(th))
+        fv = f.gradient()
+        fig = plt.figure()
+        ax = fig.add_subplot(projection="3d")
+        plotting.quiver_sphere(fv, ax=ax)
+        _close(fig)
+
+    def test_quiver_sphere_cartesian(self):
+        from chebfunjax.spherefun import Spherefun
+        fx = Spherefun.from_function(lambda lam, th: -jnp.sin(lam))
+        fy = Spherefun.from_function(lambda lam, th: jnp.cos(lam))
+        fz = Spherefun.from_function(lambda lam, th: 0.0 * lam)
+        fig = plt.figure()
+        ax = fig.add_subplot(projection="3d")
+        plotting.quiver_sphere_cartesian(fx, fy, fz, ax=ax)
+        _close(fig)
+
+
+class TestBallRenderers:
+    def _ball(self):
+        from chebfunjax.ballfun.ballfun import Ballfun
+        return Ballfun.from_function(
+            lambda x, y, z: 1.0 + 0.2 * x * y + 0.1 * z)
+
+    def test_plot_ball_slices(self):
+        bf = self._ball()
+        fig = plt.figure()
+        ax = fig.add_subplot(projection="3d")
+        plotting.plot_ball_slices(bf, ax=ax)
+        _close(fig)
+
+    def test_quiver_ball(self):
+        from chebfunjax.ballfun.ballfun import Ballfun
+        from chebfunjax.ballfun.ballfunv import Ballfunv
+        vx = Ballfun.from_function(lambda x, y, z: -y)
+        vy = Ballfun.from_function(lambda x, y, z: x)
+        vz = Ballfun.from_function(lambda x, y, z: 0.0 * z)
+        bfv = Ballfunv(vx, vy, vz)
+        fig = plt.figure()
+        ax = fig.add_subplot(projection="3d")
+        plotting.quiver_ball(bfv, ax=ax)
+        _close(fig)
