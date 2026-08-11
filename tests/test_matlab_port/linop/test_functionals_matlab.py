@@ -8,11 +8,32 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-import pytest
+import jax
+import jax.numpy as jnp
 
-pytestmark = pytest.mark.skip(reason="chebfunjax Linop is an internal scalar-collocation solver (eigs/expm/matrix/solve) without MATLAB's chebmatrix-block algebra; the public operator surface is tested via the chebop ports; linop eigs/expm are exercised by chebop eigs_basic/expm ports")
+import chebfunjax as cj
+from chebfunjax.operators.blocks import primitive_functionals
+from chebfunjax.operators.chebmatrix import ChebMatrix
+
+jax.config.update("jax_enable_x64", True)
+
+EPS = 2.220446049250313e-16
 
 
 class TestLinopFunctionals:
     def test_all_matlab_assertions(self):
-        raise NotImplementedError
+        d = (-1.0, 2.0)
+        x = cj.chebfun(lambda t: t, domain=d)
+        f = x.cos() / (1 + x ** 2)
+
+        z, e, s, dt = primitive_functionals(d)
+
+        A = ChebMatrix([[s - z], [-2 * dt(x ** 2)]])
+        Af = A * ChebMatrix([[f]])
+        assert abs(float(f.sum()) - float(Af[0])) < 100 * EPS
+        assert abs(-2 * float(f.inner(x ** 2)) - float(Af[1])) < 100 * EPS
+
+        A = ChebMatrix([[e(2.0)], [e(0.0)]])
+        Af = A * ChebMatrix([[f]])
+        assert abs(float(f(jnp.asarray(2.0))) - float(Af[0])) < 100 * EPS
+        assert abs(float(f(jnp.asarray(0.0))) - float(Af[1])) < 100 * EPS

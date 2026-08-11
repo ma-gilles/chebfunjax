@@ -10,9 +10,19 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.skip(reason="chebfunjax Linop is an internal scalar-collocation solver (eigs/expm/matrix/solve) without MATLAB's chebmatrix-block algebra; the public operator surface is tested via the chebop ports; linop eigs/expm are exercised by chebop eigs_basic/expm ports")
+pytestmark = pytest.mark.skip(
+    reason="All 40 assertions call linopAdjoint(L, 'bvp'|'periodic'), which "
+           "returns the adjoint linop together with the four side-condition "
+           "descriptors (op, bcOpL, bcOpR, bcOpM); pass 25-40 need it for "
+           "2x2 block systems ([D I; I D] and [D -D; I D]). chebfunjax has "
+           "only a scalar-chebop adjoint (src/chebfunjax/operators/"
+           "adjoint.py, covered by tests/test_operators/"
+           "test_adjoint_matlab.py): it takes a Chebop rather than a linop, "
+           "returns a Chebop rather than the 5-tuple, and does not handle "
+           "systems. Porting linopAdjoint onto BlockLinop unblocks this file "
+           "together with test_svds_matlab.py.")
 
 
-class TestLinopLinopadjoint:
+class TestLinopLinopAdjoint:
     def test_all_matlab_assertions(self):
         raise NotImplementedError

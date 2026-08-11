@@ -270,11 +270,173 @@ class ChebMatrix:
     def __add__(self, other) -> "ChebMatrix":
         return self._zip(other, lambda a, b: a + b)
 
+    def __radd__(self, other) -> "ChebMatrix":
+        return self._zip(other, lambda a, b: b + a)
+
     def __sub__(self, other) -> "ChebMatrix":
         return self._zip(other, lambda a, b: a - b)
 
+    def __rsub__(self, other) -> "ChebMatrix":
+        return self._zip(other, lambda a, b: b - a)
+
     def __neg__(self) -> "ChebMatrix":
         return self.cellfun(lambda a: -a)
+
+    # ------------------------------------------------------------------
+    # Block algebra (MATLAB @chebmatrix/mtimes, mpower, identity, iszero)
+    # ------------------------------------------------------------------
+
+    def __mul__(self, other):
+        """Block composition ``A*B``, scalar scaling, or application.
+
+        - ``A * c`` (scalar) scales every block.
+        - ``A * B`` (ChebMatrix) composes block-wise:
+          ``C[i][j] = sum_k A[i][k] * B[k][j]``.
+        - ``A * u`` where ``u`` is a list/ChebMatrix of Chebfuns and scalars
+          applies the operator, returning a ChebMatrix of the results.
+
+        Provenance
+        ----------
+        MATLAB source : @chebmatrix/mtimes.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(other, (int, float, complex)):
+            return self.cellfun(lambda blk: other * blk)
+
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        if isinstance(other, Chebfun) and self.ncols == 1:
+            other = ChebMatrix([[other]], domain=self.domain)
+        elif isinstance(other, (list, tuple)):
+            other = ChebMatrix([[it] for it in other], domain=self.domain)
+
+        if not isinstance(other, ChebMatrix):
+            return NotImplemented
+
+        if self.ncols != other.nrows:
+            raise ValueError(
+                "CHEBFUN:CHEBMATRIX:mtimes:dims -- operand inner dimensions "
+                f"must agree ({self.ncols} vs {other.nrows}).")
+
+        out: list[list] = []
+        for i in range(self.nrows):
+            row: list = []
+            for j in range(other.ncols):
+                acc = self.blocks[i][0] * other.blocks[0][j]
+                for k in range(1, self.ncols):
+                    acc = acc + self.blocks[i][k] * other.blocks[k][j]
+                row.append(acc)
+            out.append(row)
+        return ChebMatrix(out, domain=self.domain)
+
+    def __rmul__(self, other):
+        if isinstance(other, (int, float, complex)):
+            return self.cellfun(lambda blk: other * blk)
+        return NotImplemented
+
+    def __matmul__(self, other):
+        return self.__mul__(other)
+
+    def __pow__(self, k: int) -> "ChebMatrix":
+        """Repeated block composition ``A^k``.
+
+        Provenance
+        ----------
+        MATLAB source : @chebmatrix/mpower.m
+        Chebfun commit: 7574c77
+        """
+        if not (isinstance(k, int) and k >= 0):
+            raise ValueError(
+                f"ChebMatrix power must be a non-negative integer, got {k!r}.")
+        result = self.identity()
+        for _ in range(k):
+            result = result * self
+        return result
+
+    def is_fun_variable(self) -> list[bool]:
+        """For each block-row, whether the corresponding variable is a
+        function (``True``) or a scalar (``False``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebmatrix/isFunVariable.m
+        Chebfun commit: 7574c77
+        """
+        col_sizes = self.block_sizes()[0]
+        return [sz[1] == float("inf") for sz in col_sizes]
+
+    def identity(self) -> "ChebMatrix":
+        """Identity ChebMatrix matching this one's variable structure.
+
+        Provenance
+        ----------
+        MATLAB source : @chebmatrix/identity.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        from chebfunjax.operators.blocks import (
+            I,
+            _as_domain_obj,
+            zero_functional,
+            zeros_op,
+        )
+        if self.nrows != self.ncols:
+            raise ValueError(
+                "CHEBFUN:CHEBMATRIX:identity:notSquare -- ChebMatrix must "
+                "be square.")
+        isfun = self.is_fun_variable()
+        d = self.domain
+        n = self.nrows
+        out: list[list] = []
+        for i in range(n):
+            row: list = []
+            for j in range(n):
+                if i == j:
+                    row.append(I(d) if isfun[i] else 1.0)
+                elif isfun[i]:
+                    row.append(zeros_op(d) if isfun[j]
+                               else Chebfun.from_function(
+                                   lambda t: 0.0 * t,
+                                   domain=_as_domain_obj(d)))
+                else:
+                    row.append(zero_functional(d) if isfun[j] else 0.0)
+            out.append(row)
+        return ChebMatrix(out, domain=d)
+
+    def iszero(self):
+        """Matrix of zero-block flags (1 where the block is a zero block).
+
+        Provenance
+        ----------
+        MATLAB source : @chebmatrix/iszero.m
+        Chebfun commit: 7574c77
+        """
+        return [[1 if getattr(blk, "iszero", False) else 0 for blk in row]
+                for row in self.blocks]
+
+    def block_sizes(self):
+        """Per-block ``(rows, cols)`` sizes, with ``inf`` for function
+        dimensions (MATLAB ``blockSizes``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebmatrix/blockSizes.m
+        Chebfun commit: 7574c77
+        """
+        inf = float("inf")
+        out = []
+        for row in self.blocks:
+            srow = []
+            for blk in row:
+                if isinstance(blk, OperatorBlock):
+                    srow.append((inf, inf))
+                elif isinstance(blk, FunctionalBlock):
+                    srow.append((1.0, inf))
+                elif isinstance(blk, (int, float, complex)):
+                    srow.append((1.0, 1.0))
+                else:
+                    srow.append((inf, 1.0))
+            out.append(srow)
+        return out
 
     def times(self, other) -> "ChebMatrix":
         """Elementwise product (MATLAB times)."""
@@ -360,6 +522,7 @@ class ChebMatrix:
         """
         dom = domain if domain is not None else self.domain
         disc = ChebColloc2Disc(n, dom)
+        nn = disc.n
 
         # Determine total number of matrix rows and columns
         # by inspecting each block-row's type.
@@ -369,38 +532,32 @@ class ChebMatrix:
             if isinstance(block, FunctionalBlock):
                 row_sizes.append(1)
             elif isinstance(block, OperatorBlock):
-                row_sizes.append(n)
-            elif isinstance(block, (int, float)):
+                row_sizes.append(nn)
+            elif isinstance(block, (int, float, complex)):
                 # Scalar: assumed to be a scalar (functional-style row)
                 row_sizes.append(1)
             else:
-                raise TypeError(
-                    f"ChebMatrix: unsupported block type {type(block).__name__}."
-                )
-
-        sum(row_sizes)
-        self.ncols * n
+                # A Chebfun block maps a scalar to a function.
+                row_sizes.append(nn)
 
         # Build full matrix
         rows: list[jnp.ndarray] = []
-        for bi, (block_row, rsize) in enumerate(zip(self.blocks, row_sizes)):
+        for block_row, rsize in zip(self.blocks, row_sizes):
             col_parts: list[jnp.ndarray] = []
-            for bj, block in enumerate(block_row):
+            for block in block_row:
                 if isinstance(block, OperatorBlock):
-                    part = block.matrix(disc)  # shape (n, n)
+                    part = block.matrix(disc)  # shape (nn, nn)
                 elif isinstance(block, FunctionalBlock):
-                    row_vec = block.matrix(disc)   # shape (n,)
-                    part = row_vec[None, :]         # shape (1, n)
-                elif isinstance(block, (int, float)):
-                    c = float(block)
-                    if rsize == n:
-                        part = c * jnp.eye(n, dtype=jnp.float64)
-                    else:
-                        part = c * jnp.ones((1, n), dtype=jnp.float64)
+                    row_vec = block.matrix(disc)   # shape (nn,)
+                    part = row_vec[None, :]         # shape (1, nn)
+                elif isinstance(block, (int, float, complex)):
+                    c = block if isinstance(block, complex) else float(block)
+                    part = jnp.asarray([[c]]) * jnp.ones(
+                        (rsize, 1), dtype=jnp.float64)
                 else:
-                    raise TypeError(
-                        f"ChebMatrix: unsupported block type {type(block).__name__}."
-                    )
+                    vals = jnp.ravel(jnp.asarray(block(disc.points()),
+                                                 dtype=jnp.float64))
+                    part = vals[:, None] if rsize == nn else vals[None, :]
                 col_parts.append(part)
 
             # Concatenate column parts horizontally
@@ -409,6 +566,42 @@ class ChebMatrix:
 
         A = jnp.concatenate(rows, axis=0)
         return A, row_sizes
+
+    def dense(self, n, domain: _DomainT | None = None) -> jnp.ndarray:
+        """Discretize this ChebMatrix as an ordinary matrix.
+
+        Parameters
+        ----------
+        n : int or sequence of int
+            Collocation dimension; one entry per subinterval when the
+            domain has breakpoints.
+        domain : tuple of float or None
+            Override the domain (used to introduce breakpoints).
+
+        Returns
+        -------
+        jnp.ndarray
+            The assembled dense matrix.
+
+        Examples
+        --------
+        >>> from chebfunjax.operators.blocks import D, I
+        >>> A = ChebMatrix([[I((0.0, 1.0)), D((0.0, 1.0))]])
+        >>> A.dense(5).shape
+        (5, 10)
+
+        Provenance
+        ----------
+        MATLAB source : @chebmatrix/matrix.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+
+        See Also
+        --------
+        matrix
+        """
+        return self.matrix(n, domain=domain)[0]
 
     # ------------------------------------------------------------------
     # Convenience: solve BVP
@@ -536,9 +729,20 @@ class ChebMatrix:
 
 
 def _infer_domain(blocks: list[list[_Block]]) -> _DomainT:
-    """Try to infer the physical domain from the first block with a domain."""
+    """Infer the physical domain as the merge of every block's breakpoints."""
+    bps: set[float] = set()
+    ends: tuple[float, float] | None = None
     for row in blocks:
         for block in row:
-            if hasattr(block, "domain"):
-                return block.domain
-    return _DEFAULT_DOMAIN
+            dom = getattr(block, "domain", None)
+            if dom is None:
+                continue
+            if hasattr(dom, "breakpoints"):
+                dom = dom.breakpoints
+            vals = tuple(float(v) for v in dom)
+            bps.update(vals)
+            if ends is None:
+                ends = (vals[0], vals[-1])
+    if ends is None:
+        return _DEFAULT_DOMAIN
+    return tuple(sorted(v for v in bps if ends[0] <= v <= ends[1]))
