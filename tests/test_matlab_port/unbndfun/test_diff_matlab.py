@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.unbndfun import Unbndfun
@@ -59,11 +58,6 @@ class TestUnbndfunDiff:
         gexact = 2 * jnp.exp(-x ** 2) + (jnp.exp(-x ** 2) - 1) / x ** 2
         assert _ninf(g(x) - gexact) < 1e2 * EPS * g.vscale
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks singular/blowup Unbndfun: exponents [2 2] "
-        "(x^2*(1-exp(-x^2))) grows like x^2 at +-inf and cannot be "
-        "represented, so its derivative is unavailable."
-    )
     def test_first_derivative_blowup(self):
         f = _U(lambda x: x ** 2 * (1 - jnp.exp(-x ** 2)), (-INF, INF))
         g = f.diff()
@@ -96,10 +90,6 @@ class TestUnbndfunDiff:
         x = _pts((1, 1e2))
         assert _ninf(f(x) - op(x)) < 1e1 * EPS * f.vscale
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks singular/blowup Unbndfun: exponents [0 1] "
-        "(x*(5+exp(-x^3)) grows linearly at +inf)."
-    )
     def test_feval_blowup_right_inf(self):
         op = lambda x: x * (5 + jnp.exp(-x ** 3))
         f = _U(op, (1.0, INF))
@@ -131,13 +121,14 @@ class TestUnbndfunDiff:
         x = _pts((-1e6, -3 * np.pi))
         assert _ninf(f(x) - op(x)) < EPS * f.vscale
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks singular/blowup Unbndfun: exponents [0 -1] "
-        "with a pole at the finite endpoint."
-    )
     def test_feval_blowup_left_inf(self):
+        # MATLAB pass(14): exponents [0 -1] (pole at the finite right
+        # endpoint), sampled at interior points — MATLAB draws uniform
+        # random x in [-1e6, b), which excludes the pole itself; a
+        # linspace ENDING at b would evaluate 0*inf there.
         b = -3 * np.pi
         op = lambda x: x * (5 + jnp.exp(x ** 3)) / (b - x)
-        f = _U(op, (-INF, b))
-        x = _pts((-1e6, b))
+        f = Unbndfun.from_function(
+            op, Domain((-INF, b)), exps=(0.0, -1.0))
+        x = jnp.asarray(np.linspace(-1e6, b, 100, endpoint=False))
         assert _ninf(f(x) - op(x)) < 1e1 * EPS * f.vscale

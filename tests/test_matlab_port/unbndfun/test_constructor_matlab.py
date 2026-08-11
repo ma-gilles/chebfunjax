@@ -57,11 +57,6 @@ class TestUnbndfunConstructor:
         x = _pts((-1e2, 1e2))
         assert _ninf(f(x) - op(x)) < 1e1 * EPS * f.vscale
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks singular/blowup Unbndfun: exponents [2 2] with "
-        "pref.blowup (x^2*(1-exp(-x^2)) grows like x^2 at +-inf) is not "
-        "representable; Unbndfun.from_function has no 'exponents' path."
-    )
     def test_blowup_both_inf(self):
         op = lambda x: x ** 2 * (1 - jnp.exp(-x ** 2))
         f = _U(op, (-INF, INF))
@@ -93,10 +88,6 @@ class TestUnbndfunConstructor:
         x = _pts((1, 1e2))
         assert _ninf(f(x) - op(x)) < 1e1 * EPS * f.vscale
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks singular/blowup Unbndfun: exponents [0 1] with "
-        "x*(5+exp(-x^3)) grows linearly at +inf; no 'exponents' path."
-    )
     def test_blowup_right_inf(self):
         op = lambda x: x * (5 + jnp.exp(-x ** 3))
         f = _U(op, (1.0, INF))
@@ -128,15 +119,13 @@ class TestUnbndfunConstructor:
         x = _pts((-1e6, -3 * np.pi))
         assert _ninf(f(x) - op(x)) < 1e1 * EPS * f.vscale
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks singular/blowup Unbndfun: exponents [0 -1] with "
-        "a pole at the finite endpoint is not representable."
-    )
     def test_blowup_left_inf(self):
+        # MATLAB samples interior points; a linspace ENDING at b would
+        # evaluate the pole itself (0*inf).
         b = -3 * np.pi
         op = lambda x: x * (5 + jnp.exp(x ** 3)) / (b - x)
         f = _U(op, (-INF, b))
-        x = _pts((-1e6, b))
+        x = jnp.asarray(np.linspace(-1e6, b, 100, endpoint=False))
         assert _ninf(f(x) - op(x)) < 1e1 * EPS * f.vscale
 
     def test_array_valued_left_inf(self):

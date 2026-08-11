@@ -683,7 +683,9 @@ class TestUnbndfunExtrema:
         f = Unbndfun.from_function(
             lambda x: (1 - jnp.exp(-x ** 2)) / x, Domain((-inf, inf))
         )
-        (mn, mnp), (mx, mxp) = f.minandmax()
+        # Piece convention (matches Bndfun / Chebfun.minandmax):
+        # POSITION first, value second.
+        (mnp, mn), (mxp, mx) = f.minandmax()
         npt.assert_allclose(float(mn), -0.6381726863389515, atol=1e-12)
         npt.assert_allclose(float(mx), 0.6381726863389515, atol=1e-12)
         npt.assert_allclose(float(mnp), -1.120906422778534, atol=1e-11)

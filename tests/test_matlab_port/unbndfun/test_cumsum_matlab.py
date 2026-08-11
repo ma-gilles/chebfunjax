@@ -63,9 +63,12 @@ class TestUnbndfunCumsum:
         assert _ninf(g(x) - gexact) < 1e6 * EPS * g.vscale
 
     @pytest.mark.xfail(
-        reason="chebfunjax lacks singular/blowup Unbndfun: exponents [0 1] on "
-        "5*x (linear growth) plus reliance on get(g,'lval'); not "
-        "representable."
+        reason="_sing_cumsum's non-integrable (pole) branch returns a "
+        "wrong-shaped antiderivative for exponent -3 integrands (ratio "
+        "vs exact varies 3.1x..1.2x, not a constant offset); the "
+        "Hale-Olver pole path needs an audit against @singfun/cumsum.m "
+        "singIntegral. Construction/eval/sum/diff of the same blow-up "
+        "function are exact."
     )
     def test_cumsum_blowup_right_inf(self):
         f = _U(lambda x: 5 * x, (1.0, INF))

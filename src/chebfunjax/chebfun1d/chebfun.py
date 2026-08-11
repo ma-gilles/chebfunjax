@@ -8339,7 +8339,9 @@ def chebfun(
         piece = _Piece(tech=tech, interval=(a_c, b_c))
         return Chebfun(funs=[piece], domain=Domain((a_c, b_c)))
 
-    if exps is not None or blowup:
+    if (exps is not None or blowup) and all(
+            math.isfinite(v) for v in _dv):
+        # (unbounded domains carry exps through the Unbndfun branch below)
         if trig or n is not None:
             raise ValueError(
                 "chebfun: exps/blowup cannot be combined with trig/n")
@@ -8538,7 +8540,9 @@ def chebfun(
                 "Unbounded domains support a single interval only."
             )
         dom_u = Domain((_dom_arr[0], _dom_arr[1]))
-        fun_u = Unbndfun.from_function(f, domain=dom_u, n=n)
+        _exps_u = (None if exps is None
+                   else (float(exps[0]), float(exps[1])))
+        fun_u = Unbndfun.from_function(f, domain=dom_u, n=n, exps=_exps_u)
         return Chebfun(funs=[fun_u], domain=dom_u)
 
     if trig:

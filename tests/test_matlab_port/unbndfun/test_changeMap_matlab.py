@@ -74,12 +74,12 @@ class TestUnbndfunChangeMap:
         assert _ninf(f(jnp.asarray(x)) - g(jnp.asarray(x_new))) < EPS * f.vscale
 
     def test_blowup_left_inf(self):
-        # As above: MATLAB uses exponents [0 -1] (pole at the finite endpoint).
-        # chebfunjax cannot represent the pole, but the changeMap invariance
-        # f(x) == g(xNew) holds for the produced representation regardless.
+        # MATLAB uses exponents [0 -1] (pole at the finite endpoint) —
+        # now representable as a Singfun onefun; sample interior points
+        # (the pole itself evaluates to inf on both sides).
         dom, dom_new = (-INF, -3 * np.pi), (-INF, 200.0)
         b = dom[1]
-        x = np.linspace(-1e6, -3 * np.pi, 100)
+        x = np.linspace(-1e6, -3 * np.pi, 100, endpoint=False)
         x_new = dom_new[1] + x - dom[1]
         op = lambda t: t * (5 + jnp.exp(t ** 3)) / (b - t)
         f = _U(op, dom)

@@ -378,6 +378,20 @@ class Singfun(eqx.Module):
         return self.smoothPart.vscale
 
     @property
+    def ishappy(self) -> bool:
+        """Happiness of the smooth part (fun-level delegation)."""
+        return self.smoothPart.ishappy
+
+    @property
+    def values(self) -> jax.Array:
+        """Values of the SMOOTH PART at its Chebyshev grid.
+
+        The full singular function's endpoint values may be infinite; fun
+        wrappers that need f-values should evaluate ``self(x)`` instead.
+        """
+        return self.smoothPart.values
+
+    @property
     def issmooth(self) -> bool:
         """True if both exponents are (numerically) zero."""
         a, b = self.exponents
@@ -1728,6 +1742,14 @@ def _find_sing_order(op: Callable, sing_end: str) -> float:
     # Chebyshev series still converges without factoring them out).
     if sing_order >= 1.0:
         sing_order = 0.0
+    if sing_order == 0.0 and pole_bound > 0:
+        # The eps-scale samples can quantize onto a plateau when ``op``
+        # composes a nonlinear map whose endpoint offset cancels
+        # catastrophically (unbounded-domain maps: b - m(y) is a few
+        # ulps of b near y = 1), which makes the fractional fit read a
+        # constant.  The decade-scale integer-pole finder is immune —
+        # trust its verdict.
+        sing_order = -float(pole_bound)
     return sing_order
 
 

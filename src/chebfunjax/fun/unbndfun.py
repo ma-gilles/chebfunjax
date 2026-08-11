@@ -259,6 +259,7 @@ class Unbndfun(eqx.Module):
         domain: Domain,
         *,
         n: int | None = None,
+        exps: "tuple[float, float] | None" = None,
     ) -> "Unbndfun":
         """Construct an Unbndfun from a callable on an unbounded domain.
 
@@ -309,6 +310,29 @@ class Unbndfun(eqx.Module):
         a = domain.a
         b = domain.b
 
+        # Raw composed function (no sanitisation): the SINGFUN paths below
+        # need the true (possibly infinite) endpoint behaviour.
+        if mtype == "right_inf":
+            raw_f = lambda y: f(_forward_right(y, a))  # noqa: E731
+        elif mtype == "left_inf":
+            raw_f = lambda y: f(_forward_left(y, b))   # noqa: E731
+        else:
+            raw_f = lambda y: f(_forward_both(y))      # noqa: E731
+
+        if exps is not None:
+            # MATLAB chebfun(op, dom, 'exps', [ea eb]) on an unbounded
+            # domain: an exponent at an INFINITE endpoint is the growth
+            # power x^e as x -> +-inf, which the map m(y) ~ C/(1 -+ y)
+            # turns into a mapped-variable singularity of exponent -e;
+            # at a finite endpoint it is the usual algebraic exponent.
+            from chebfunjax.fun.singfun import Singfun, _demote_if_smooth
+            ea, eb = float(exps[0]), float(exps[1])
+            sa = -ea if mtype in ("left_inf", "both_inf") else ea
+            sb = -eb if mtype in ("right_inf", "both_inf") else eb
+            onefun = _demote_if_smooth(
+                Singfun.from_function(raw_f, exponents=(sa, sb), n=n))
+            return cls(onefun=onefun, domain=domain, mapping_type=mtype)
+
         # Build the composed function: evaluate f at the forward-mapped points.
         # At y=±1 the forward map sends points to ±∞, and f(±∞) may be NaN
         # in floating-point (e.g. x*exp(-x²) = ∞*0 = NaN at x=∞).
@@ -328,6 +352,19 @@ class Unbndfun(eqx.Module):
             )
 
         onefun = Chebtech2.from_function(mapped_f, n=n)
+        if n is None and not onefun.ishappy:
+            # The mapped function did not resolve as a smooth Chebtech —
+            # the function may grow algebraically at an infinite endpoint
+            # (e.g. x on [1, inf), mapped to ~30/(1-y)).  MATLAB's
+            # unbounded constructor falls through to a SINGFUN with
+            # automatically detected exponents.
+            from chebfunjax.fun.singfun import Singfun, _demote_if_smooth
+            try:
+                sing = _demote_if_smooth(Singfun.from_function(raw_f))
+            except Exception:
+                sing = None
+            if sing is not None and sing.ishappy:
+                return cls(onefun=sing, domain=domain, mapping_type=mtype)
         return cls(onefun=onefun, domain=domain, mapping_type=mtype)
 
     @classmethod
@@ -744,6 +781,22 @@ class Unbndfun(eqx.Module):
             if coeffs.ndim == 1:
                 return self
             return self.with_tech(Chebtech2.from_coeffs(jnp.cumsum(coeffs, axis=1)))
+        from chebfunjax.fun.singfun import Singfun as _Sf
+        if isinstance(self.onefun, _Sf):
+            sa, sb = self.onefun.exponents
+            sp = self.onefun.smoothPart
+            if self.mapping_type == "right_inf":
+                integ = _Sf(sp * 30.0, (sa, sb - 2.0))
+            elif self.mapping_type == "left_inf":
+                integ = _Sf(sp * 30.0, (sa - 2.0, sb))
+            else:
+                poly = Chebtech2.from_coeffs(
+                    jnp.asarray([7.5, 0.0, 2.5], dtype=jnp.float64))
+                integ = _Sf(sp * poly, (sa - 2.0, sb - 2.0))
+            F = integ.cumsum()
+            return Unbndfun(onefun=F, domain=self.domain,
+                            mapping_type=self.mapping_type)
+
         # Build onefun for the integrand: f(map(y)) * (dx/dy)
         # = self.onefun(y) * map_derivative(y).
         # At boundaries y=±1, map_derivative → ∞ while onefun → 0;
@@ -795,6 +848,67 @@ class Unbndfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         # Faithful port of MATLAB @unbndfun/sum.m + ``unbndfunIntegrand``:
+        # MATLAB @unbndfun/sum.m: a nonzero limit at an infinite endpoint
+        # means the integral diverges — return the signed infinity rather
+        # than quadraturing garbage (the round-off filter below otherwise
+        # turns sum(2, [-inf, b]) into a finite number).
+        from chebfunjax.fun.singfun import Singfun as _SfChk
+        _tol_end = 1e-8 * max(float(self.onefun.vscale), 1e-300)
+        _ends = []
+        if isinstance(self.onefun, _SfChk):
+            # Singular onefuns: convergence/divergence (signed infinity,
+            # inf-inf NaN) is decided exactly by the Jacobi-moment sum
+            # below after boundary-root absorption; a naive endpoint
+            # evaluation of smooth*weight would be 0*inf here.
+            pass
+        elif self.mapping_type in ("right_inf", "both_inf"):
+            _ends.append(float(jnp.real(jnp.atleast_1d(
+                self.onefun(jnp.float64(1.0)))[0])))
+        if not isinstance(self.onefun, _SfChk) and \
+                self.mapping_type in ("left_inf", "both_inf"):
+            _ends.append(float(jnp.real(jnp.atleast_1d(
+                self.onefun(jnp.float64(-1.0)))[0])))
+        _big = [e for e in _ends if abs(e) > _tol_end]
+        if _big:
+            if (len(_big) == 2
+                    and math.copysign(1.0, _big[0])
+                    != math.copysign(1.0, _big[1])):
+                # inf - inf (e.g. sum of x on (-inf, inf)): NaN.
+                return jnp.float64(math.nan)
+            return jnp.float64(math.copysign(math.inf, _big[0]))
+
+        from chebfunjax.fun.singfun import Singfun
+        if isinstance(self.onefun, Singfun):
+            # Exact: the map derivative is an algebraic factor —
+            # 30/(1-y)^2 (right), 30/(1+y)^2 (left), or
+            # 5(1+y^2)/((1+y)^2 (1-y)^2) (doubly infinite) — so the
+            # integrand is another SINGFUN with shifted exponents, and
+            # its Jacobi-moment sum handles convergence/divergence.
+            sa, sb = self.onefun.exponents
+            sp = self.onefun.smoothPart
+            if self.mapping_type == "right_inf":
+                integ = Singfun(sp * 30.0, (sa, sb - 2.0))
+            elif self.mapping_type == "left_inf":
+                integ = Singfun(sp * 30.0, (sa - 2.0, sb))
+            else:
+                poly = Chebtech2.from_coeffs(
+                    jnp.asarray([7.5, 0.0, 2.5], dtype=jnp.float64))
+                integ = Singfun(sp * poly, (sa - 2.0, sb - 2.0))
+            # A super-algebraically decaying function (e.g. sqrt(t)e^-t)
+            # carries its decay in the SMOOTH part; absorb just enough
+            # boundary roots into the exponents to lift them above -1 so
+            # the Jacobi-moment sum does not misread the map-derivative
+            # pole as divergence.  (Explicit multiplicities — the
+            # automatic extraction never terminates on exponentially
+            # flat smooth parts, whose deflated endpoint values stay
+            # below the growing tolerance indefinitely.)
+            ea_, eb_ = integ.exponents
+            ka = int(math.floor(-ea_)) if ea_ <= -1.0 else 0
+            kb = int(math.floor(-eb_)) if eb_ <= -1.0 else 0
+            if ka or kb:
+                integ = integ.extractBoundaryRoots((ka, kb))
+            return integ.sum()
+
         # construct a fixed-length CHEBTECH for the mapped integrand
         #   h(y) = filter(f(map(y))) * (dx/dy),
         # then integrate it with the tech's own coefficient sum.
@@ -839,6 +953,15 @@ class Unbndfun(eqx.Module):
         Construction is NOT JIT-safe.
         """
         self._check_domain(other)
+        # Multiply the onefuns (dealiased; works for smooth and singular
+        # representations alike) and reuse the divergence-aware sum.
+        # The former direct quadrature of f*g*(dx/dy) lost ~11 digits on
+        # slowly-decaying reciprocals (1/x . 2/x on (-inf, b]: 2e-4 vs
+        # 2e-14 through the product path).
+        return (self * other).sum()
+
+    def _inner_quadrature_unused(self, other) -> jax.Array:
+        """Retired direct-quadrature inner product (see inner())."""
 
         def integrand_fn(y: jax.Array) -> jax.Array:
             raw = self.onefun(y) * other.onefun(y) * self.map_derivative(y)
@@ -900,9 +1023,14 @@ class Unbndfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         (min_val, min_y), (max_val, max_y) = self.onefun.minandmax()
+        # Piece convention (Bndfun / Chebfun.minandmax): POSITION first.
+        # This previously returned (value, position), so every consumer
+        # of an unbounded piece read the position as the value — e.g.
+        # norm(f, inf) of a near-zero function on [1, inf) returned
+        # ~1.02 (an x-location) instead of ~2e-13.
         return (
-            (min_val, self.forward_map(min_y)),
-            (max_val, self.forward_map(max_y)),
+            (self.forward_map(min_y), min_val),
+            (self.forward_map(max_y), max_val),
         )
 
     def min(self) -> tuple[jax.Array, jax.Array]:
@@ -913,7 +1041,7 @@ class Unbndfun(eqx.Module):
         MATLAB source : @classicfun/min.m (shared by @unbndfun)
         Chebfun commit: 7574c77
         """
-        (min_val, min_pos), _ = self.minandmax()
+        (min_pos, min_val), _ = self.minandmax()
         return min_val, min_pos
 
     def max(self) -> tuple[jax.Array, jax.Array]:
@@ -924,7 +1052,7 @@ class Unbndfun(eqx.Module):
         MATLAB source : @classicfun/max.m (shared by @unbndfun)
         Chebfun commit: 7574c77
         """
-        _, (max_val, max_pos) = self.minandmax()
+        _, (max_pos, max_val) = self.minandmax()
         return max_val, max_pos
 
     # ------------------------------------------------------------------

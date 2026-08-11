@@ -36,30 +36,14 @@ class TestUnbndfunSum:
         f = _U(lambda x: x ** 2 * jnp.exp(-x ** 2), (-INF, INF))
         assert abs(float(f.sum()) - np.sqrt(np.pi) / 2) < 1e6 * EPS * f.vscale
 
-    @pytest.mark.xfail(
-        reason="chebfunjax numerical gap: (1-exp(-x^2))/x^2 decays like 1/x^2, "
-        "too slowly for the both_inf algebraic map (scale 5) to resolve; "
-        "Chebtech2 fails to converge and the integral is inaccurate. MATLAB "
-        "issues CHEBFUN:UNBNDFUN:sum:slowDecay and still meets tol; chebfunjax "
-        "does not."
-    )
     def test_slow_decay_inverse_square(self):
         f = _U(lambda x: (1 - jnp.exp(-x ** 2)) / x ** 2, (-INF, INF))
         assert abs(float(f.sum()) - 2 * np.sqrt(np.pi)) < 1e5 * EPS * f.vscale
 
-    @pytest.mark.xfail(
-        reason="chebfunjax has no divergent-integral detection nor blowup "
-        "(exponents [2 2]) representation: sum should be +Inf but chebfunjax "
-        "returns a finite Gauss-Legendre value."
-    )
     def test_divergent_blowup_returns_inf(self):
         f = _U(lambda x: x ** 2 * (1 - jnp.exp(-x ** 2)), (-INF, INF))
         assert float(f.sum()) == INF
 
-    @pytest.mark.xfail(
-        reason="chebfunjax has no blowup (exponents [1 1]) representation and no "
-        "NaN detection for the (Inf - Inf) principal-value integral of x."
-    )
     def test_odd_blowup_returns_nan(self):
         f = _U(lambda x: x, (-INF, INF))
         assert np.isnan(float(f.sum()))
@@ -83,10 +67,6 @@ class TestUnbndfunSum:
         f = _U(lambda x: 1.0 / x ** 2, (1.0, INF))
         assert abs(float(f.sum()) - 1.0) < 1e5 * EPS * f.vscale
 
-    @pytest.mark.xfail(
-        reason="chebfunjax has no divergent-integral detection nor blowup "
-        "(exponents [0 1]) representation: sum should be +Inf."
-    )
     def test_divergent_blowup_right_inf(self):
         f = _U(lambda x: x * (5 + jnp.exp(-x ** 3)), (1.0, INF))
         assert float(f.sum()) == INF
@@ -118,30 +98,30 @@ class TestUnbndfunSum:
         f = _U(lambda x: 1.0 / x ** 2, (-INF, -3 * np.pi))
         assert abs(float(f.sum()) - 1 / (3 * np.pi)) < 5e3 * EPS * f.vscale
 
-    @pytest.mark.xfail(
-        reason="chebfunjax has no divergent-integral detection: sum of a nonzero "
-        "constant over an infinite interval should be +Inf."
-    )
     def test_constant_returns_inf(self):
         f = _U(lambda x: 0 * x + 2, (-INF, -3 * np.pi))
         assert float(f.sum()) == INF
 
     # --- Chebfun with singular 'exps' (MATLAB pass 17-19) -------------
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks singfun 'exps' on a semi-infinite chebfun: "
-        "sqrt(t)/exp(t) on [0,inf] needs an endpoint exponent 0.5."
-    )
     def test_chebfun_sqrt_exp_single_piece(self):
-        raise NotImplementedError("chebfun with 'exps' on [0,inf]")
+        # chebfun(sqrt(t)*exp(-t), [0, inf], 'exps', [0.5 0]):
+        # integral = gamma(3/2) = sqrt(pi)/2.
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        f3 = chebfun(lambda t: jnp.sqrt(t) * jnp.exp(-t),
+                     domain=(0.0, INF), exps=(0.5, 0.0))
+        assert abs(float(f3.sum()) - np.sqrt(np.pi) / 2) < 1e-8
 
     @pytest.mark.xfail(
-        reason="chebfunjax lacks singfun 'exps' on a semi-infinite chebfun."
+        reason="piecewise-unbounded domains ([0, 1, inf]) are not "
+        "supported by the chebfun factory; the exps machinery itself "
+        "now exists (see test_chebfun_sqrt_exp_single_piece)."
     )
     def test_chebfun_sqrt_exp_split(self):
         raise NotImplementedError("chebfun with 'exps' on [0,1,inf]")
 
     @pytest.mark.xfail(
-        reason="chebfunjax lacks singfun 'exps' on a semi-infinite chebfun."
+        reason="pointValue reassignment (f(1) = f(1)) is not supported "
+        "on chebfuns; the exps machinery itself now exists."
     )
     def test_chebfun_sqrt_exp_reassigned(self):
         raise NotImplementedError("chebfun with 'exps' on [0,inf], f3(1)=f3(1)")

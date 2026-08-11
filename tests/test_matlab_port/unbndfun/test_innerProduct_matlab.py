@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.unbndfun import Unbndfun
@@ -34,10 +33,6 @@ class TestUnbndfunInnerProduct:
         tol = 2e7 * max(EPS * f.vscale, EPS * g.vscale)
         assert abs(float(f.inner(g)) - iexact) < tol
 
-    @pytest.mark.xfail(
-        reason="chebfunjax lacks singular/blowup Unbndfun: f = x on [1,inf) with "
-        "exponents [0 1] (linear growth) is not representable."
-    )
     def test_right_inf_blowup_factor(self):
         f = _U(lambda x: x, (1.0, INF))
         g = _U(lambda x: jnp.exp(-x), (1.0, INF))
@@ -45,12 +40,6 @@ class TestUnbndfunInnerProduct:
         tol = 2e8 * max(EPS * f.vscale, EPS * g.vscale)
         assert abs(float(f.inner(g)) - iexact) < tol
 
-    @pytest.mark.xfail(
-        reason="chebfunjax numerical gap: the integrand (1/x)(2/x)*dx/dy for the "
-        "inner product decays like 1/x^2 and does not vanish at the reference "
-        "endpoint, where 0*inf sanitisation to 0 corrupts the fixed-length "
-        "Chebtech2; the integral is off by ~1e-4 vs MATLAB's tol."
-    )
     def test_left_inf_reciprocal(self):
         f = _U(lambda x: 1.0 / x, (-INF, -3 * np.pi))
         g = _U(lambda x: 2.0 / x, (-INF, -3 * np.pi))

@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.fun.singfun import Singfun
 from chebfunjax.tech.chebtech import Chebtech2
@@ -114,7 +113,24 @@ class TestSingfunRdivide:
         assert tuple(h.exponents) == (0.5, 0.0)
 
     def test_division_as_differentiation(self):
-        pytest.skip("MATLAB case uses chebfun on the unbounded domain [1, Inf]")
+        # pass(12): on [1, Inf], diff(1/x) + (1/x)/x == 0.
+        import numpy as np
+
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        r = chebfun(lambda x: x, domain=(1.0, np.inf))
+        f = 1.0 / r
+        err = f.diff() + f / r
+        assert float(err.norm(np.inf)) < 1e3 * EPS * 30.0
 
     def test_division_as_negative_powers(self):
-        pytest.skip("MATLAB case uses chebfun on the unbounded domain [1, Inf]")
+        # pass(13-15): rdivide == power, rdivides == times, associativity.
+        import numpy as np
+
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        r = chebfun(lambda x: x, domain=(1.0, np.inf))
+        f = 1.0 / r - r ** -1
+        g = (1.0 / r) / r - r ** -2
+        h = 1.0 / (r ** 2) - (1.0 / r) ** 2
+        assert float(f.norm(np.inf)) < 30.0 * EPS
+        assert float(g.norm(np.inf)) < 30.0 * EPS
+        assert float(h.norm(np.inf)) < 1e2 * 30.0 * EPS
