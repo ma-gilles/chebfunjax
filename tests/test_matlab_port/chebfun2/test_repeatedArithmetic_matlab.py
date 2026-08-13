@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.chebfun2d.chebfun2 import Chebfun2
 
