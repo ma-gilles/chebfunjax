@@ -605,3 +605,44 @@ class TestParabolicSolve:
         uv = np.asarray(u(jnp.asarray(X.ravel()), jnp.asarray(Y.ravel())))
         vv = np.asarray(v(jnp.asarray(X.ravel()), jnp.asarray(Y.ravel())))
         assert np.max(np.abs(uv - vv)) < 1e-7
+
+
+class TestVariableCoefficientValidation:
+    """Manufactured-solution validation of the variable-coefficient
+    (CDR / ultraspherical) path and the two-argument Robin BC form.
+
+    Note the proxy convention: ``u.diff(a, b)`` is (y-order, x-order),
+    matching MATLAB's row-first ``diff`` dimension ordering.
+    """
+
+    def test_variable_coefficient_manufactured(self):
+        # (1 + x^2/4) u_yy + u_xx = f, exact u = (1-x^2)(1-y^2).
+        N = Chebop2(lambda x, y, u: (1.0 + x * x / 4.0) * u.diff(2, 0)
+                    + u.diff(0, 2))
+        N.lbc = 0.0
+        N.rbc = 0.0
+        N.dbc = 0.0
+        N.ubc = 0.0
+
+        def f(x, y):
+            return (1.0 + x * x / 4.0) * (-2.0 * (1 - x * x)) \
+                + (-2.0 * (1 - y * y))
+
+        u = N.solve(f)
+        for xv, yv in [(0.0, 0.0), (0.3, -0.4), (-0.7, 0.2)]:
+            want = (1 - xv ** 2) * (1 - yv ** 2)
+            got = float(u(jnp.asarray(xv), jnp.asarray(yv)))
+            assert abs(got - want) < 1e-11, (xv, yv, got, want)
+
+    def test_robin_bc_two_argument(self):
+        # Laplace, exact u = x; on the left edge u - u_n + 2 = 0
+        # (u(-1) = -1, u_x = 1).
+        N = Chebop2(lambda u: u.diff(2, 0) + u.diff(0, 2))
+        N.lbc = lambda y, u: u - u.diff() + 2.0
+        N.rbc = 1.0
+        N.dbc = lambda x: x
+        N.ubc = lambda x: x
+        u = N.solve(0.0)
+        for xv, yv in [(0.5, 0.0), (-0.5, 0.3), (0.0, -0.8)]:
+            assert abs(float(u(jnp.asarray(xv), jnp.asarray(yv))) - xv) \
+                < 1e-10

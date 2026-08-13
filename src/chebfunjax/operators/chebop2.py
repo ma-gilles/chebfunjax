@@ -1324,6 +1324,11 @@ class Chebop2:
                     bcvalue_cols.append(np.zeros(een, dtype=np.float64))
                 else:
                     fv = np.asarray(fj, dtype=np.complex128)
+                    if fv.ndim == 0:
+                        # A purely constant forcing (e.g. u - u' + 2 with
+                        # the zero probe) collapses to a scalar; broadcast
+                        # to the grid so the transform sees values.
+                        fv = np.full(een, complex(fv))
                     if np.max(np.abs(fv.imag)) < 1e-13 * max(np.max(np.abs(fv)), 1.0):
                         fv = fv.real
                     fc = np.array(vals2coeffs(jnp.asarray(fv)), dtype=fv.dtype)
