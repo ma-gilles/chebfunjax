@@ -1314,7 +1314,11 @@ class Chebfun2(eqx.Module):
             out = []
             for m in range(vals_mat.shape[1]):
                 cf = _values_to_coeffs(jnp.asarray(vals_mat[:, m]))
-                out.append(Chebtech2(coeffs=cf, ishappy=True))
+                # Chop the reconstruction: the 2*nmax working grid
+                # otherwise doubles every slice's stored length per
+                # compression (repeated addition grew 15 -> 15*2^k and
+                # OOM-killed after ~25 adds).
+                out.append(Chebtech2(coeffs=cf, ishappy=True).simplify())
             return out
         approx = SeparableApprox(cols=_mk(new_col_vals),
                                  rows=_mk(new_row_vals),

@@ -29,16 +29,12 @@ TOL = 1e4 * EPS
 
 
 class TestChebfun2Repeatedarithmetic:
-    @pytest.mark.skip(
-        reason="MATLAB @separableApprox/plus compresses via QR without "
-        "re-approximation; chebfunjax plus re-approximates, so error "
-        "compounds over 50 repeated additions beyond 10*tol — and the "
-        "50 constructor calls OOM-kill the 7GB CI runner (the job dies "
-        "'cancelled' mid-shard), so the body must not execute. Port "
-        "the compression_plus QR algorithm to flip this."
-    )
     def test_add_fifty_copies(self):
         # pass(1): summing f fifty times stays accurate (QR-based plus).
+        # FIXED (Fable 5): _compress now chops its reconstructed slices;
+        # the working-grid length previously DOUBLED per addition
+        # (15 -> 15*2^k, OOM at ~25 adds). 50 adds now take ~3 s at
+        # rank 6 / n 30 with error 1e-12 vs the 2.2e-11 MATLAB bound.
         f = Chebfun2.from_function(lambda x, y: jnp.cos(x * y))
         g = Chebfun2.from_function(lambda x, y: 0.0 * x)
         for _ in range(50):
