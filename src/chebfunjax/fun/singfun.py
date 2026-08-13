@@ -1885,7 +1885,13 @@ def _sing_cumsum(f: Singfun) -> Singfun:
     c_half = [cv * 0.5 for cv in c[1:]]  # c[1..N] / 2
 
     dd1 = [c_half[k - 1] / k for k in kk]
-    dd2 = [-c_half[k + 1] / kk[k - 1] for k in range(len(kk) - 2)]
+    # MATLAB: dd2 = -c(3:end)./kk(1:end-2), i.e. dd2(i) = -c(i+2)/i.
+    # The previous indexing read c one entry early AND (at the first
+    # element) divided by kk[-1] = N via Python wraparound — invisible
+    # for a pure pole (single c mode) but wrong for any varying smooth
+    # part, producing an antiderivative with a spurious extra
+    # (1+x)^(exp+1) component.
+    dd2 = [-c_half[j + 2] / (j + 1) for j in range(len(kk) - 2)]
 
     cc = [0.0] * (N + 1)
     for i, v in enumerate(dd1):

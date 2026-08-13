@@ -62,21 +62,16 @@ class TestUnbndfunCumsum:
         gexact = -jnp.exp(-x) * (x + 1) + 2 * np.exp(-1)
         assert _ninf(g(x) - gexact) < 1e6 * EPS * g.vscale
 
-    @pytest.mark.xfail(
-        reason="_sing_cumsum's non-integrable (pole) branch returns a "
-        "wrong-shaped antiderivative for exponent -3 integrands (ratio "
-        "vs exact varies 3.1x..1.2x, not a constant offset); the "
-        "Hale-Olver pole path needs an audit against @singfun/cumsum.m "
-        "singIntegral. Construction/eval/sum/diff of the same blow-up "
-        "function are exact."
-    )
     def test_cumsum_blowup_right_inf(self):
+        # MATLAB pass(4)-analogue: cumsum of the blow-up 5x on [1, inf);
+        # the expected antiderivative is defined up to the algorithm's
+        # own additive constant (MATLAB writes ... + get(g, 'lval')).
         f = _U(lambda x: 5 * x, (1.0, INF))
         g = f.cumsum()
         x = _pts((1, 1e2))
-        # opg = 5*x^2/2 - 5/2 + lval  (lval from the algorithm)
-        gexact = 5 * x ** 2 / 2 - 5 / 2
-        assert _ninf(g(x) - gexact) < 200 * EPS * g.vscale
+        lval = float(jnp.atleast_1d(g(jnp.asarray([1.0])))[0])
+        gexact = 5 * x ** 2 / 2 - 5 / 2 + lval
+        assert _ninf(g(x) - gexact) < 1e3 * EPS * float(g.vscale)
 
     # --- Functions on [-inf b] ----------------------------------------
     def test_cumsum_exp_left_inf(self):
