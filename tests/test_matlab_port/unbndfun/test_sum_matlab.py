@@ -119,9 +119,12 @@ class TestUnbndfunSum:
                      domain=(0.0, 1.0, INF), exps=(0.5, 0.0))
         assert abs(float(f3.sum()) - np.sqrt(np.pi) / 2) < 1e-10
 
-    @pytest.mark.xfail(
-        reason="pointValue reassignment (f(1) = f(1)) is not supported "
-        "on chebfuns; the exps machinery itself now exists."
-    )
     def test_chebfun_sqrt_exp_reassigned(self):
-        raise NotImplementedError("chebfun with 'exps' on [0,inf], f3(1)=f3(1)")
+        # MATLAB f3(1) = f3(1): pointValue reassignment introduces a
+        # breakpoint (define_point) without changing the integral.
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        f3 = chebfun(lambda t: jnp.sqrt(t) * jnp.exp(-t),
+                     domain=(0.0, INF), exps=(0.5, 0.0))
+        v1 = float(f3(jnp.asarray(1.0)))
+        g3 = f3.define_point(1.0, v1)
+        assert abs(float(g3.sum()) - np.sqrt(np.pi) / 2) < 1e-10

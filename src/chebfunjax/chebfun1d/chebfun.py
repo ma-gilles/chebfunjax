@@ -1283,6 +1283,87 @@ class Chebfun(eqx.Module):
         bps = _np.asarray(list(self.domain.breakpoints), dtype=float)
         return self(jnp.asarray(bps))
 
+    def define_point(self, s, v) -> "Chebfun":
+        """Assign function value(s) at point(s) (MATLAB ``f(s) = v``).
+
+        Introduces breakpoints at each ``s`` (splitting the containing
+        pieces; smooth pieces are restricted exactly) and records ``v``
+        in the ``pointValues`` metadata at those breakpoints.  Point
+        evaluation away from the assigned points is unchanged.
+
+        Parameters
+        ----------
+        s : float or sequence of float
+            Assignment point(s); must lie inside the domain.
+        v : float or sequence of float
+            Value(s); a scalar broadcasts over all points.
+
+        Returns
+        -------
+        Chebfun
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/definePoint.m (columnDefinePoint)
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        from chebfunjax.fun.unbndfun import Unbndfun as _Ub
+        s_arr = _np.atleast_1d(_np.asarray(s, dtype=_np.float64))
+        v_arr = _np.atleast_1d(_np.asarray(v, dtype=float))
+        if v_arr.size == 1:
+            v_arr = _np.full(s_arr.size, float(v_arr.reshape(-1)[0]))
+        if v_arr.size != s_arr.size:
+            raise ValueError(
+                "define_point: subscripted assignment dimension mismatch.")
+        a, b = float(self.domain.a), float(self.domain.b)
+        if _np.min(s_arr) < a or _np.max(s_arr) > b:
+            raise ValueError(
+                "define_point: cannot introduce points outside the domain.")
+
+        # Introduce the new breakpoints piece by piece.
+        new_funs: list = []
+        new_bps: list[float] = [float(self.domain.breakpoints[0])]
+        for p_ in self.funs:
+            pa, pb = float(p_.interval[0]) if hasattr(p_, "interval") \
+                else float(p_.domain.a), None
+            if hasattr(p_, "interval"):
+                pa, pb = float(p_.interval[0]), float(p_.interval[1])
+            else:
+                pa, pb = float(p_.domain.a), float(p_.domain.b)
+            cuts = sorted({float(t) for t in s_arr if pa < t < pb})
+            if not cuts:
+                new_funs.append(p_)
+                new_bps.append(pb)
+                continue
+            edges = [pa] + cuts + [pb]
+            if isinstance(p_, _Ub):
+                for rp in p_.restrict(tuple(edges)):
+                    if isinstance(rp, _Ub):
+                        new_funs.append(rp)
+                    else:
+                        # Bndfun -> _Piece (same Chebtech onefun + affine
+                        # interval protocol).
+                        new_funs.append(_Piece(
+                            tech=rp.onefun,
+                            interval=(float(rp.domain.a),
+                                      float(rp.domain.b))))
+            else:
+                for ea, eb in zip(edges[:-1], edges[1:]):
+                    new_funs.append(p_.restrict(ea, eb))
+            new_bps.extend(edges[1:])
+        out = Chebfun(funs=new_funs, domain=Domain(tuple(new_bps)),
+                      deltas=self.deltas)
+
+        # Record the assigned values in pointValues metadata.
+        pv = _np.asarray(out.point_values, dtype=float).copy()
+        bps = _np.asarray(new_bps, dtype=float)
+        for t, val in zip(s_arr, v_arr):
+            idx = int(_np.argmin(_np.abs(bps - t)))
+            pv[idx] = val
+        return out.set_point_values(jnp.asarray(pv))
+
     def set_point_values(self, values) -> "Chebfun":
         """Return a copy carrying explicit ``pointValues`` (MATLAB
         ``f.pointValues = values``).
