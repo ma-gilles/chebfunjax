@@ -8536,9 +8536,25 @@ def chebfun(
         if not callable(f):
             raise ValueError("Unbounded domains require a callable.")
         if len(_dom_arr) != 2:
-            raise ValueError(
-                "Unbounded domains support a single interval only."
-            )
+            # Piecewise-unbounded (MATLAB chebfun(op, [a b ... inf])):
+            # build the finite intervals through the ordinary factory and
+            # each infinite end piece as an Unbndfun, then assemble.
+            _n_int = len(_dom_arr) - 1
+            _pairs = (_parse_exps(exps, _n_int)
+                      if exps is not None else [None] * _n_int)
+            _funs: list = []
+            for _k in range(_n_int):
+                _a, _b = _dom_arr[_k], _dom_arr[_k + 1]
+                if math.isfinite(_a) and math.isfinite(_b):
+                    _sub = chebfun(f, domain=(_a, _b), n=n,
+                                   exps=_pairs[_k])
+                    _funs.extend(_sub.funs)
+                else:
+                    _funs.append(Unbndfun.from_function(
+                        f, domain=Domain((_a, _b)), n=n,
+                        exps=_pairs[_k]))
+            return Chebfun(funs=_funs,
+                           domain=Domain(tuple(_dom_arr)))
         dom_u = Domain((_dom_arr[0], _dom_arr[1]))
         _exps_u = (None if exps is None
                    else (float(exps[0]), float(exps[1])))

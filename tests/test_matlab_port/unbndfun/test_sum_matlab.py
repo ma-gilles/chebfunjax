@@ -111,13 +111,13 @@ class TestUnbndfunSum:
                      domain=(0.0, INF), exps=(0.5, 0.0))
         assert abs(float(f3.sum()) - np.sqrt(np.pi) / 2) < 1e-8
 
-    @pytest.mark.xfail(
-        reason="piecewise-unbounded domains ([0, 1, inf]) are not "
-        "supported by the chebfun factory; the exps machinery itself "
-        "now exists (see test_chebfun_sqrt_exp_single_piece)."
-    )
     def test_chebfun_sqrt_exp_split(self):
-        raise NotImplementedError("chebfun with 'exps' on [0,1,inf]")
+        # chebfun(sqrt(t)exp(-t), [0, 1, inf], 'exps', [0.5 0]): a mixed
+        # bounded+unbounded piecewise build; integral = gamma(3/2).
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        f3 = chebfun(lambda t: jnp.sqrt(t) * jnp.exp(-t),
+                     domain=(0.0, 1.0, INF), exps=(0.5, 0.0))
+        assert abs(float(f3.sum()) - np.sqrt(np.pi) / 2) < 1e-10
 
     @pytest.mark.xfail(
         reason="pointValue reassignment (f(1) = f(1)) is not supported "
