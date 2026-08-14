@@ -72,7 +72,9 @@ class TestChebfunAny:
                                 axis=-1),
             domain=(-1, 0, 1),
         )
-        assert list(np.asarray(g.T.any()).astype(int)) == [0, 1, 1]
+        # dim=2 on the row form maps to the per-component booleans
+        # (MATLAB pass(6); dim=1 would build the 0/1 chebfun instead).
+        assert list(np.asarray(g.T.any(2)).astype(int)) == [0, 1, 1]
 
     def test_pointvalues_nan(self):
         # pass(4): any(f, 1) still returns [1 0 1] after setting a pointValues
