@@ -340,6 +340,56 @@ class Chebfun2v(eqx.Module):
         new_comps = [_diff_separable(c, n=n, dim=dim) for c in self.components]
         return Chebfun2v(new_comps)
 
+    def ode45(self, tspan, y0, *, rtol: float = 1e-10,
+              atol: float = 1e-12):
+        """Solve the autonomous system ``du/dt = F(u1, u2)`` given by this
+        vector field (MATLAB ``[T, Y] = ode45(F, tspan, y0)``).
+
+        The first two state components feed the field's arguments; extra
+        components (e.g. MATLAB's ``1 + 0*h`` time-tracking trick) are
+        driven by the corresponding field components.  Returns ``(T, Y)``:
+        the identity time chebfun on ``[t0, tend]`` and the trajectory as
+        an array-valued chebfun (evaluate ``Y(t)``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/ode45.m
+        Chebfun commit: 7574c77
+        """
+        # uses-numpy: scipy time stepping on concrete samples
+        import numpy as _np
+        from scipy.integrate import solve_ivp
+
+        from chebfunjax.chebfun1d.chebfun import chebfun as _cfun
+
+        y0 = _np.asarray(y0, dtype=float).ravel()
+        ncomp = min(len(self.components), y0.size)
+
+        def rhs(t, u):
+            a = jnp.asarray(u[0])
+            b = jnp.asarray(u[1] if u.size > 1 else 0.0)
+            return [float(jnp.atleast_1d(
+                        self.components[j](a, b)).reshape(-1)[0])
+                    for j in range(ncomp)]
+
+        t0, tend = float(tspan[0]), float(tspan[-1])
+        sol = solve_ivp(rhs, (t0, tend), y0[:ncomp], dense_output=True,
+                        rtol=rtol, atol=atol, method="RK45")
+        if not sol.success:
+            raise RuntimeError(f"ode45: solver failed: {sol.message}")
+
+        dense = sol.sol
+
+        def traj(t):
+            tt = _np.atleast_1d(_np.asarray(t, dtype=float))
+            vals = dense(_np.clip(tt, t0, tend)).T  # (m, ncomp)
+            out = jnp.asarray(vals)
+            return out if _np.ndim(t) else out[0]
+
+        Y = _cfun(lambda t: traj(t), domain=(t0, tend))
+        T = _cfun(lambda t: t, domain=(t0, tend))
+        return T, Y
+
     def normal(self) -> "Chebfun2v":
         """Normal vector of the surface parametrized by F (MATLAB normal).
 

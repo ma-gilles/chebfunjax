@@ -48,14 +48,23 @@ class TestChebfunAny:
         )
         assert list(np.asarray(f.any()).astype(int)) == [0, 1, 1]
 
+    # Sub-second in isolation; the file's shared-fixture JAX warmup plus
+    # box contention has tripped 180-300 s per-test timeouts (same
+    # pattern as chebfun2's narrow-ridge test) — give it headroom.
+    @pytest.mark.timeout(880)
     def test_transpose_rows(self):
-        # pass(3, 6): any(f.', 2) on a row chebfun == [1 0 1].' / [0 1 1].'
-        # -- the per-component reduction is the same values as the column any.
+        # pass(6): any(f.', 2) on a row chebfun gives the per-component
+        # booleans (dim maps 2 -> 1 on the column form); pass(8):
+        # any(f.', 1) gives a transposed 0/1 chebfun.
         f = cj.chebfun(
             lambda x: jnp.stack([jnp.sin(x), 0 * x, jnp.exp(x)], axis=-1),
             domain=(-1, -0.5, 0, 0.5, 1),
         )
-        assert list(np.asarray(f.T.any()).astype(int)) == [1, 0, 1]
+        assert list(np.asarray(f.T.any(2)).astype(int)) == [1, 0, 1]
+        g = f.T.any(1)
+        assert g.is_transposed
+        xs = jnp.asarray(np.linspace(-0.9, 0.9, 9))
+        assert bool(np.all(np.asarray(g(xs)) == 1.0))
 
         hvsde = lambda x: 0.5 * (jnp.sign(x) + 1)
         g = cj.chebfun(
@@ -80,15 +89,29 @@ class TestChebfunAny:
         assert list(np.asarray(f.any()).astype(int)) == [1, 0, 1]
 
     def test_discrete_dimension(self):
-        # pass(7-11): any(f, 2) reduces across columns to a chebfun.
-        pytest.skip(
-            "Chebfun.any() has no dim-2 mode (a chebfun-valued reduction across "
-            "the discrete dimension); it reduces to a per-column boolean"
-        )
+        # pass(7): any(f, 2) of [sin, 0, exp] is the constant 1 chebfun.
+        f = cj.chebfun(lambda x: jnp.stack(
+            [jnp.sin(x), 0 * x, jnp.exp(x)], axis=-1))
+        g = f.any(2)
+        xs = jnp.asarray(np.linspace(-0.9, 0.9, 11))
+        assert len(g.funs) == 1
+        assert bool(np.all(np.asarray(g(xs)) == 1.0))
+
+        # pass(9): [sin, 0] gets a breakpoint at sin's root with an
+        # isolated 0 pointValue.
+        f2 = cj.chebfun(lambda x: jnp.stack(
+            [jnp.sin(x), 0 * x], axis=-1))
+        g2 = f2.any(2)
+        bps = [float(t) for t in g2.domain.breakpoints]
+        assert len(bps) == 3 and abs(bps[1]) < 1e-14
+        assert [int(v) for v in np.asarray(g2.point_values)] == [1, 0, 1]
+        assert bool(np.all(np.asarray(g2(xs)) == 1.0))
 
     def test_dim_error(self):
         # pass(12): any(f, 3) raises CHEBFUN:CHEBFUN:any:dim.
-        pytest.skip("Chebfun.any() takes no dim argument")
+        f = cj.chebfun(lambda x: jnp.sin(x))
+        with pytest.raises(ValueError):
+            f.any(3)
 
     def test_unbounded_zero(self):
         # pass(16): ~any(0*x) on the unbounded domain [1, inf).  A zero

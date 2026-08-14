@@ -4242,12 +4242,32 @@ class Chebfun(eqx.Module):
             # length (MATLAB @chebfun/roots.m convention).
             m = max(p.tech.coeffs.shape[1] for p in self.funs
                     if p.tech.coeffs.ndim == 2)
+            zerotol_c = (max(float(self.vscale), 1.0)
+                         * float(_np.finfo(_np.float64).eps)) \
+                if nozerofun else -1.0
             cols = []
             for j in range(m):
                 rj = []
                 for piece in self.funs:
-                    r = _np.asarray(piece.roots())
-                    col = r[:, j] if r.ndim == 2 else r
+                    pc = _np.asarray(piece.tech.coeffs)
+                    if pc.ndim == 2 and j < pc.shape[1]:
+                        if nozerofun and float(_np.max(
+                                _np.abs(pc[:, j]))) <= zerotol_c:
+                            # 'nozerofun': an identically-zero column
+                            # sends the subdivision rootfinder into an
+                            # every-point-is-a-root recursion (observed
+                            # as an XLA compile stall) — and it must be
+                            # skipped BEFORE the tech-level call, which
+                            # otherwise root-finds every column.
+                            continue
+                        ct = type(piece.tech)(
+                            coeffs=jnp.asarray(pc[:, j]))
+                        a_, b_ = piece.interval
+                        t_r = _np.asarray(ct.roots())
+                        col = a_ + (b_ - a_) * (t_r + 1.0) / 2.0
+                    else:
+                        r = _np.asarray(piece.roots())
+                        col = r[:, j] if r.ndim == 2 else r
                     rj.append(col[_np.isfinite(col)])
                 combined = (_np.sort(_np.concatenate(rj))
                             if rj else _np.zeros(0))
@@ -7056,20 +7076,36 @@ class Chebfun(eqx.Module):
         ]
         return Chebfun(funs=new_funs, domain=new_dom)
 
-    def any(self):
-        """True if the Chebfun is non-zero anywhere on its domain; a
-        per-column boolean row for array-valued input (MATLAB returns
-        a 1 x m logical).
+    def any(self, dim: int = 1):
+        """MATLAB ``any(f, dim)``.
+
+        ``dim=1`` (default): True if the Chebfun is non-zero anywhere on
+        its domain; a per-column boolean row for array-valued input
+        (MATLAB returns a 1 x m logical).  ``dim=2``: reduce ACROSS the
+        columns, returning a piecewise-constant 0/1 CHEBFUN that is 1
+        wherever any column is nonzero, with breakpoints at the columns'
+        roots and pointValues reduced by any() (isolated common zeros
+        become 0 pointValues).
 
         Returns
         -------
-        bool or jax.Array of bool, shape (m,)
+        bool or jax.Array of bool, shape (m,), or Chebfun (``dim=2``)
 
         Provenance
         ----------
         MATLAB source : @chebfun/any.m
         Chebfun commit: 7574c77
         """
+        if dim not in (1, 2):
+            raise ValueError("any: DIM input must be 1 or 2.")
+        tr = self.is_transposed
+        if tr:
+            # MATLAB: work on the column form, mapping 1 <-> 2.
+            return Chebfun._as_transposed(
+                self.transpose().any(2 if dim == 1 else 1), True) \
+                if dim == 1 else self.transpose().any(1)
+        if dim == 2:
+            return self._any_dim2()
         if self.isempty():
             return False
         if self.n_columns > 1:
@@ -7081,6 +7117,79 @@ class Chebfun(eqx.Module):
                 ]), axis=0)
             return jnp.asarray(col_max > _EPS)
         return self.vscale > _EPS
+
+    def _any_dim2(self) -> "Chebfun":
+        """any() across the columns (MATLAB @chebfun/any.m anyDim2)."""
+        import numpy as _np
+        if self.isempty():
+            return self
+        # Breakpoints at every column's roots isolate common zeros.
+        try:
+            # nozerofun: an identically-zero column has every point as a
+            # root — the subdivision rootfinder otherwise recurses into
+            # an XLA compile stall (MATLAB addBreaksAtRoots uses the
+            # same flag).
+            r = _np.sort(_np.unique(_np.real(_np.asarray(
+                self.roots(all_roots=False, nojump=True, nozerofun=True),
+                dtype=complex)).ravel()))
+        except Exception:
+            r = _np.zeros(0)
+        a, b = float(self.domain.a), float(self.domain.b)
+        r = r[(r > a + 1e-14) & (r < b - 1e-14)]
+        if r.size:
+            # Cluster near-identical roots (different columns report the
+            # same zero to within roundoff, e.g. 0 vs 1e-17).
+            htol = 1e-16 * max(abs(a), abs(b), 1.0) + 1e-16
+            keep = _np.concatenate([[True], _np.diff(r) > 1e3 * htol])
+            r = r[keep]
+        g = self
+        if r.size:
+            vals = _np.asarray(self(jnp.asarray(r)))
+            g = self.define_point(r, _np.zeros(r.size)) \
+                if vals.ndim == 1 else self.define_point(
+                    r, _np.zeros(r.size))
+        # Each smooth piece maps to the constant 1 if ANY column is not
+        # identically zero on it.
+        new_funs = []
+        for p_ in g.funs:
+            c = _np.asarray(p_.tech.coeffs)
+            nz = _np.max(_np.abs(c)) > 1e2 * _EPS * max(
+                float(self.vscale), 1e-300)
+            new_funs.append(_Piece(
+                tech=Chebtech2.from_coeffs(jnp.asarray(
+                    [1.0 if nz else 0.0])),
+                interval=(float(p_.interval[0]), float(p_.interval[1]))))
+        out = Chebfun(funs=new_funs, domain=g.domain)
+        # pointValues: any() across the columns of the ORIGINAL values.
+        bps = _np.asarray([float(t) for t in g.domain.breakpoints])
+        pv_src = _np.atleast_2d(_np.asarray(self(jnp.asarray(bps))))
+        if pv_src.shape[0] == 1 and pv_src.size == bps.size:
+            pv_src = pv_src.reshape(-1, 1)
+        tol = 1e2 * _EPS * max(float(self.vscale), 1e-300)
+        pv = (_np.abs(pv_src) > tol).any(axis=-1).astype(float)
+        out = out.set_point_values(jnp.asarray(pv))
+        # merge(): drop interior breakpoints where neighbours agree and
+        # the pointValue matches the shared constant.
+        keep_funs = [out.funs[0]]
+        keep_bps = [bps[0]]
+        keep_pv = [pv[0]]
+        for i in range(1, len(out.funs)):
+            prev, cur = keep_funs[-1], out.funs[i]
+            c_prev = float(_np.asarray(prev.tech.coeffs)[0])
+            c_cur = float(_np.asarray(cur.tech.coeffs)[0])
+            if c_prev == c_cur and pv[i] == c_prev:
+                keep_funs[-1] = _Piece(
+                    tech=prev.tech,
+                    interval=(float(prev.interval[0]),
+                              float(cur.interval[1])))
+            else:
+                keep_funs.append(cur)
+                keep_bps.append(bps[i])
+                keep_pv.append(pv[i])
+        keep_bps.append(bps[-1])
+        keep_pv.append(pv[-1])
+        out = Chebfun(funs=keep_funs, domain=Domain(tuple(keep_bps)))
+        return out.set_point_values(jnp.asarray(_np.asarray(keep_pv)))
 
     def all(self):
         """True if the Chebfun is non-zero *everywhere* on its domain;

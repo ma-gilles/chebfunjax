@@ -29,8 +29,14 @@ class TestChebfun2Interpaccuracy:
         assert abs(float(f(x, y) - g(x, y))) < 3000 * TOL
 
     def test_composition_construction(self):
-        pytest.skip("exp(pi*(x+y)) with chebfun2 identities requires "
-                    "composition ops on Chebfun2")
+        # pass(2): exp(pi*(x+y)) built from chebfun2 identities.
+        import numpy as np
+        x = Chebfun2.from_function(lambda x, y: x)
+        y = Chebfun2.from_function(lambda x, y: 0 * x + y)
+        f = (np.pi * (x + y)).exp()
+        xv, yv = jnp.asarray(0.995), jnp.asarray(0.99)
+        want = float(np.exp(np.pi * (0.995 + 0.99)))
+        assert abs(float(f(xv, yv)) - want) < 1e4 * TOL
 
     # ~300 s adaptive construction of the narrow ridge; headroom beyond
     # the local 300 s default so contention cannot flake it (CI's 900 s

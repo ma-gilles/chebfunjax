@@ -521,6 +521,7 @@ class Chebfun3(eqx.Module):
         tol: float = _EPS,
         max_rank: int = 128,
         min_samples: int = 17,
+        vectorize: bool = False,
         _restarts: int = 0,
         _r_init: tuple = (6, 6, 6),
         _n_init: tuple | None = None,
@@ -581,6 +582,14 @@ class Chebfun3(eqx.Module):
         Original authors: Copyright 2023 by The University of Oxford
             and The Chebfun Developers.
         """
+        if vectorize:
+            # MATLAB 'vectorize' flag: wrap a scalar-only handle so the
+            # tensor-grid sampler can call it with arrays.
+            f_scalar = f
+            f = jnp.vectorize(
+                lambda a, b, c: jnp.asarray(f_scalar(a, b, c),
+                                            dtype=jnp.float64))
+
         xa, xb = float(domain[0]), float(domain[1])
         ya, yb = float(domain[2]), float(domain[3])
         za, zb = float(domain[4]), float(domain[5])
@@ -2104,6 +2113,143 @@ class Chebfun3(eqx.Module):
         mu = float(self.mean3())
         var = (self - mu) * (self - mu)
         return jnp.sqrt(var.mean3())
+
+    @classmethod
+    def from_equidata(cls, T, domain=(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0),
+                      **kwargs) -> "Chebfun3":
+        """Construct from a tensor of EQUISPACED samples (MATLAB
+        ``chebfun3(T, dom, 'equi')``).
+
+        ``T[i, j, k] = f(x_i, y_j, z_k)`` on per-axis ``linspace`` grids
+        (ndgrid convention).  Each axis is resampled onto a Chebyshev
+        grid through the Floater-Hormann rational interpolant (the same
+        FUNQUI used by the 1-D 'equi' flag), the 3-D Chebyshev
+        coefficients are chopped, and the resulting polynomial handle
+        feeds the ordinary adaptive constructor.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/chebfun3.m ('equi' flag)
+        Chebfun commit: 7574c77
+        """
+        # uses-numpy: FH resampling and coefficient chopping
+        import numpy as _np
+
+        from chebfunjax.utils.interpolation import funqui
+        from chebfunjax.utils.quadrature import chebpts
+        from chebfunjax.utils.transforms import vals2coeffs
+
+        T = _np.asarray(T, dtype=float)
+        xa, xb, ya, yb, za, zb = [float(v) for v in domain]
+
+        def _resample_axis(V, axis):
+            n = V.shape[axis]
+            m = min(n, 65)
+            t = jnp.asarray(_np.asarray(chebpts(m)))
+            Vm = _np.moveaxis(V, axis, 0).reshape(V.shape[axis], -1)
+            h = funqui(jnp.asarray(Vm))
+            W = _np.asarray(h(t))
+            out_shape = (m,) + tuple(_np.delete(V.shape, axis))
+            W = W.reshape(out_shape)
+            return _np.moveaxis(W, 0, axis)
+
+        V = T
+        for ax in range(3):
+            V = _resample_axis(V, ax)
+
+        # 3-D Chebyshev coefficients: transform each axis, then chop.
+        C = V
+        for ax in range(3):
+            Cm = _np.moveaxis(C, ax, 0)
+            sh = Cm.shape
+            flat = Cm.reshape(sh[0], -1)
+            out = _np.column_stack([
+                _np.asarray(vals2coeffs(jnp.asarray(flat[:, j])))
+                for j in range(flat.shape[1])])
+            C = _np.moveaxis(out.reshape(sh), 0, ax)
+        tol_c = 1e2 * _np.finfo(float).eps * max(_np.max(_np.abs(C)), 1e-300)
+
+        def _cut(axis):
+            mags = _np.max(_np.abs(C), axis=tuple(
+                a for a in range(3) if a != axis))
+            nz = _np.where(mags > tol_c)[0]
+            return int(nz[-1]) + 1 if nz.size else 1
+
+        C = C[: _cut(0), : _cut(1), : _cut(2)]
+        Cj = jnp.asarray(C)
+
+        def handle(X, Y, Z, _C=Cj):
+            xr = (2.0 * X - (xa + xb)) / (xb - xa)
+            yr = (2.0 * Y - (ya + yb)) / (yb - ya)
+            zr = (2.0 * Z - (za + zb)) / (zb - za)
+            sh = jnp.shape(xr)
+            xf = jnp.reshape(xr, (-1,))
+            yf = jnp.reshape(yr, (-1,))
+            zf = jnp.reshape(zr, (-1,))
+
+            def cvan(t, n):
+                # Chebyshev-Vandermonde (p, n) via the recurrence.
+                cols = [jnp.ones_like(t)]
+                if n > 1:
+                    cols.append(t)
+                for _ in range(2, n):
+                    cols.append(2.0 * t * cols[-1] - cols[-2])
+                return jnp.stack(cols[:n], axis=-1)
+
+            Ax = cvan(xf, _C.shape[0])
+            Ay = cvan(yf, _C.shape[1])
+            Az = cvan(zf, _C.shape[2])
+            vals = jnp.einsum("pi,pj,pk,ijk->p", Ax, Ay, Az, _C)
+            return jnp.reshape(vals, sh)
+
+        return cls.from_function(handle, domain=domain, **kwargs)
+
+    @staticmethod
+    def root(f: "Chebfun3", g: "Chebfun3", h: "Chebfun3"):
+        """One common root of three chebfun3 objects (MATLAB root(f,g,h)).
+
+        Seeds Newton's method for the 3x3 system from the coarse-grid
+        minimizer of ``f^2 + g^2 + h^2``; the Jacobian uses the Tucker
+        partial derivatives.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/root.m
+        Chebfun commit: 7574c77
+        """
+        # uses-numpy: Newton iteration on concrete samples
+        import numpy as _np
+        xa, xb, ya, yb, za, zb = f.domain
+        n = 21
+        xs = _np.linspace(xa, xb, n)
+        ys = _np.linspace(ya, yb, n)
+        zs = _np.linspace(za, zb, n)
+        XX, YY, ZZ = _np.meshgrid(xs, ys, zs, indexing="ij")
+        Xj = jnp.asarray(XX.ravel())
+        Yj = jnp.asarray(YY.ravel())
+        Zj = jnp.asarray(ZZ.ravel())
+        val = (_np.asarray(f(Xj, Yj, Zj)) ** 2
+               + _np.asarray(g(Xj, Yj, Zj)) ** 2
+               + _np.asarray(h(Xj, Yj, Zj)) ** 2)
+        i0 = int(_np.argmin(val))
+        r = _np.array([XX.ravel()[i0], YY.ravel()[i0], ZZ.ravel()[i0]])
+
+        grads = [[q.diff(d, 1) for d in (1, 2, 3)] for q in (f, g, h)]
+        lo = _np.array([xa, ya, za])
+        hi = _np.array([xb, yb, zb])
+        for _ in range(50):
+            pt = [jnp.asarray(v) for v in r]
+            F = _np.array([float(q(*pt)) for q in (f, g, h)])
+            if _np.max(_np.abs(F)) < 1e-14:
+                break
+            J = _np.array([[float(gq(*pt)) for gq in row]
+                           for row in grads])
+            try:
+                step = _np.linalg.solve(J, F)
+            except _np.linalg.LinAlgError:
+                break
+            r = _np.clip(r - step, lo, hi)
+        return jnp.asarray(r)
 
     def norm(self) -> jax.Array:
         """L2 norm sqrt(int |f|^2) (MATLAB norm; Fable 5)."""

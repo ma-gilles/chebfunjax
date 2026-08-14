@@ -1326,6 +1326,72 @@ class Chebfun2(eqx.Module):
                                  domain=ap.domain)
         return Chebfun2(approx=approx)
 
+    def qr(self):
+        """QR factorization ``f = Q * R`` (MATLAAB [Q, R, E] = qr(f)).
+
+        Returns ``(Q, R, E)``: ``Q`` an array-valued Chebtech2 over the
+        y-direction whose columns are L2-orthonormal on ``[ya, yb]``,
+        ``R`` an array-valued Chebtech2 over the x-direction such that
+        ``f(x, y) = sum_j Q_j(y) R_j(x)``, and ``E`` the x pivot
+        locations from the GE construction (``R`` evaluated at ``E`` is
+        upper triangular).
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/qr.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        ap = self.approx
+        xa, xb, ya, yb = ap.domain
+        d = _np.asarray(ap.pivots, dtype=float)
+        sg = _np.where(d >= 0, 1.0, -1.0)
+        sq = _np.sqrt(_np.abs(d))
+        Cm = Chebtech2.cell2mat(
+            [c * float(sg[j] * sq[j]) for j, c in enumerate(ap.cols)])
+        Rm = Chebtech2.cell2mat(
+            [r * float(sq[j]) for j, r in enumerate(ap.rows)])
+        Qt, RC = Cm.qr()
+        # Tech-qr orthonormalizes in L2(-1, 1); rescale so Q is
+        # orthonormal on the physical y-interval.
+        yscl = _np.sqrt((yb - ya) / 2.0)
+        Qt = Qt @ jnp.asarray(_np.eye(len(ap.cols)) / yscl)
+        RC = _np.asarray(RC, dtype=float) * yscl
+        # R = RC * (rows-quasimatrix).' as an array-valued tech in x.
+        Rq = Rm @ jnp.asarray(RC.T)
+        E = _np.asarray([xy[0] for xy in ap.pivot_locations], dtype=float)
+        return Qt, Rq, E
+
+    def lu(self):
+        """LU factorization ``f = L * U`` (MATLAB [L, U, PivLoc] = lu(f)).
+
+        ``L`` is an array-valued Chebtech2 over y with unit values at
+        the pivot y-locations, ``U`` an array-valued Chebtech2 over x;
+        ``f(x, y) = sum_j L_j(y) U_j(x)``.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/lu.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        ap = self.approx
+        xa, xb, ya, yb = ap.domain
+        d = _np.asarray(ap.pivots, dtype=float)
+        piv = list(ap.pivot_locations)
+        # Map pivot y-locations to the reference interval of the cols.
+        yref = _np.asarray([
+            (2.0 * xy[1] - (ya + yb)) / (yb - ya) for xy in piv])
+        scl = _np.asarray([
+            float(jnp.atleast_1d(ap.cols[j](jnp.asarray(yref[j])))
+                  .reshape(-1)[0])
+            for j in range(len(ap.cols))])
+        L = Chebtech2.cell2mat(
+            [c * float(1.0 / scl[j]) for j, c in enumerate(ap.cols)])
+        U = Chebtech2.cell2mat(
+            [r * float(scl[j] * d[j]) for j, r in enumerate(ap.rows)])
+        return L, U, tuple(piv)
+
     def _check_same_domain(self, other: "Chebfun2") -> None:
         if tuple(self.approx.domain) != tuple(other.approx.domain):
             raise ValueError(

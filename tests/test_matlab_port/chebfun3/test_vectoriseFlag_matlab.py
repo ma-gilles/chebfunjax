@@ -8,11 +8,16 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-import pytest
+import numpy as np
 
-pytestmark = pytest.mark.skip(reason="Chebfun3 constructor has no 'vectorize' flag")
+from chebfunjax.chebfun3d.chebfun3 import Chebfun3
+
+EPS = float(np.finfo(np.float64).eps)
 
 
-class TestChebfun3Vectoriseflag:
-    def test_all_matlab_assertions(self):
-        raise NotImplementedError
+class TestChebfun3VectoriseFlag:
+    def test_vectorize_matches_plain(self):
+        # pass(1): the 'vectorize' wrapper reproduces the vectorised build.
+        f1 = Chebfun3.from_function(lambda x, y, z: x)
+        f2 = Chebfun3.from_function(lambda x, y, z: x, vectorize=True)
+        assert float((f1 - f2).norm()) < 10 * EPS
