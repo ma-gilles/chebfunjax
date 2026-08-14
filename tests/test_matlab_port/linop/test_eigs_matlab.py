@@ -17,7 +17,6 @@ import math
 import jax
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.operators.blocklinop import linop
 from chebfunjax.operators.blocks import D, eval_at
