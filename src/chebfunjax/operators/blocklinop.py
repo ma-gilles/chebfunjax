@@ -554,7 +554,8 @@ class BlockLinop:
         return bool(float(jnp.max(c[-tail:])) < tol * scale)
 
     def linsolve(self, f=0.0, n=None, tol: float = 1e-12,
-                 dom: _DomainT | None = None) -> ChebMatrix:
+                 dom: _DomainT | None = None,
+                 discretization: str = "chebcolloc2") -> ChebMatrix:
         """Solve ``L*u = f`` subject to the attached conditions.
 
         Parameters
@@ -579,6 +580,8 @@ class BlockLinop:
         MATLAB source : @linop/linsolve.m, @linop/mldivide.m
         Chebfun commit: 7574c77
         """
+        if discretization != "chebcolloc2":
+            return self._linsolve_altdisc(f, n, discretization)
         rhs = self._normalize_rhs(f)
         base_dom = tuple(float(v) for v in (dom if dom is not None
                                             else self.domain))
@@ -853,9 +856,77 @@ class BlockLinop:
     # Eigenvalues
     # ------------------------------------------------------------------
 
+    def _eigs_altdisc(self, k, sigma, n, discretization):
+        """Scalar eigenproblem under the ultraS / chebcolloc1 backends.
+
+        Provenance
+        ----------
+        MATLAB source : @linop/eigs.m with prefs.discretization
+        Chebfun commit: 7574c77
+        """
+        import numpy as np  # uses-numpy: dense generalized eigensolve
+        import scipy.linalg as sla
+
+        from chebfunjax.operators.altdisc import scalar_matrices
+        A, Bm, recover, _rhs = scalar_matrices(self, n, discretization)
+        lam = sla.eig(A, Bm, right=False)
+        finite = np.isfinite(lam) & (np.abs(lam) < 1e8)
+        lam = lam[finite]
+        if np.max(np.abs(lam.imag)) < 1e-8 * max(
+                np.max(np.abs(lam.real)), 1e-300):
+            lam = lam.real
+        if sigma is None or (isinstance(sigma, str)
+                             and sigma.upper() == "SM") or sigma == 0:
+            order = np.argsort(np.abs(lam))
+        else:
+            order = np.argsort(np.abs(lam - sigma))
+        lam = lam[order[:k]]
+        lam = np.sort_complex(lam.astype(complex)) if np.iscomplexobj(
+            lam) else np.sort(lam)
+        # Eigenvectors for the selected eigenvalues, one shifted solve
+        # each (inverse iteration on the discrete pencil).
+        vecs = []
+        for lv in lam:
+            M = A - lv * Bm
+            _u, _s, vh = np.linalg.svd(M)
+            v = vh[-1].conj()
+            f_ = recover(v)
+            nrm = float(f_.norm())
+            if nrm > 0:
+                f_ = f_ * (1.0 / nrm)
+            vecs.append(ChebMatrix([[f_]], domain=self.domain))
+        return jnp.asarray(lam), vecs
+
+    def _linsolve_altdisc(self, f, n, discretization):
+        """Scalar solve under the ultraS / chebcolloc1 backends.
+
+        Provenance
+        ----------
+        MATLAB source : @linop/linsolve.m with prefs.discretization
+        Chebfun commit: 7574c77
+        """
+        import numpy as np  # uses-numpy: dense solve
+
+        from chebfunjax.operators.altdisc import scalar_matrices
+        nn = int(n) if n is not None else 128
+        A, _Bm, recover, rhs_vec = scalar_matrices(self, nn,
+                                                   discretization)
+        entries = self._normalize_rhs(f)
+        entry = entries[0]
+
+        def fvals(pts):
+            if callable(entry):
+                return np.asarray(entry(jnp.asarray(pts)))
+            return np.full(len(pts), float(entry))
+
+        bvals = np.asarray([float(v) for _row, v in self.constraint])
+        b = np.concatenate([bvals, np.asarray(rhs_vec(fvals))])
+        v = np.linalg.solve(np.asarray(A), b)
+        return ChebMatrix([[recover(v)]], domain=self.domain)
+
     def eigs(self, k: int = 6, sigma=None, B: "BlockLinop | None" = None,
              n: int = 65, dom: _DomainT | None = None,
-             rayleigh: bool = False):
+             rayleigh: bool = False, discretization: str = "chebcolloc2"):
         """Eigenvalues and eigenfunctions of ``L`` (or of ``L*u = lam*B*u``).
 
         Parameters
@@ -887,6 +958,8 @@ class BlockLinop:
         Chebfun commit: 7574c77
         """
         import numpy as np  # uses-numpy: dense generalized eigensolve
+        if discretization != "chebcolloc2":
+            return self._eigs_altdisc(k, sigma, n, discretization)
         r_use = self.proj_order()
         if B is not None:
             r_b = (B.proj_order() if isinstance(B, BlockLinop)

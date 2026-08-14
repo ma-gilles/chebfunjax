@@ -80,9 +80,11 @@ class TestLinopLinearSystems:
             assert all(e < TOL for e in err), err
 
     @pytest.mark.skip(
-        reason="MATLAB's k = 2, 3, 5, 6 passes repeat the solve with the "
-               "ultraS and chebcolloc1 discretizations; chebfunjax's "
-               "BlockLinop only implements chebcolloc2 rectangular "
-               "collocation.")
+        reason="MATLAB's k = 2, 3, 5, 6 passes repeat the BLOCK-SYSTEM "
+               "solve under ultraS/chebcolloc1; chebfunjax implements "
+               "those discretizations for SCALAR linops only (see "
+               "operators/altdisc.py and the ported scalar sweep in "
+               "test_eigs_matlab.py) — block systems would need "
+               "symbolic operator blocks to re-discretize per backend.")
     def test_ultras_and_chebcolloc1(self):
         raise NotImplementedError
