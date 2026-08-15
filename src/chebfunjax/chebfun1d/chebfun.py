@@ -5896,7 +5896,7 @@ class Chebfun(eqx.Module):
         if prop in ("domain", "ends"):
             return tuple(float(v) for v in self.domain.breakpoints)
         if prop == "vscale":
-            return float(self.vscale())
+            return float(self.vscale)
         if prop == "hscale":
             return float(max(abs(float(self.domain.breakpoints[0])),
                              abs(float(self.domain.breakpoints[-1])),
