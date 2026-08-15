@@ -2087,6 +2087,14 @@ class Chebfun(eqx.Module):
             out = Chebfun._binary_op(self, other, lambda a, b: a + b)
             return self._attach_deltas(out, Chebfun._merge_deltas(
                 getattr(self, "deltas", ()), getattr(other, "deltas", ())))
+        if not isinstance(other, (int, float, complex, jnp.ndarray,
+                                  jax.Array)):
+            # Defer to the other type's reflected operator (e.g. a
+            # TreeVar recording a syntax tree) instead of crashing in
+            # the jnp coercion below.
+            if not (hasattr(other, "dtype")
+                    and getattr(other, "ndim", None) is not None):
+                return NotImplemented
         # scalar: delegate to each piece
         new_funs = [
             piece._apply_unary(piece.tech + other)
@@ -2122,6 +2130,12 @@ class Chebfun(eqx.Module):
             return self._attach_deltas(out, Chebfun._merge_deltas(
                 getattr(self, "deltas", ()), getattr(other, "deltas", ()),
                 1.0, -1.0))
+        if not isinstance(other, (int, float, complex, jnp.ndarray,
+                                  jax.Array)):
+            # Defer to the other type's reflected operator (see __add__).
+            if not (hasattr(other, "dtype")
+                    and getattr(other, "ndim", None) is not None):
+                return NotImplemented
         new_funs = [
             piece._apply_unary(piece.tech - other)
             for piece in self.funs
@@ -2261,6 +2275,12 @@ class Chebfun(eqx.Module):
             if poles.size:
                 return _divide_with_poles(self, other, poles)
             return Chebfun._binary_op(self, other, lambda a, b: a / b)
+        if not isinstance(other, (int, float, complex, jnp.ndarray,
+                                  jax.Array)):
+            # Defer to the other type's reflected operator (see __add__).
+            if not (hasattr(other, "dtype")
+                    and getattr(other, "ndim", None) is not None):
+                return NotImplemented
         new_funs = [
             piece._apply_unary(piece.tech / other)
             for piece in self.funs
@@ -8002,6 +8022,66 @@ def cell2quasi(cells):
     if not cells:
         raise ValueError("cell2quasi: empty input")
     return Quasimatrix(list(cells), cells[0].domain)
+
+
+_DEG2RAD = jnp.pi / 180.0
+
+# The remaining MATLAB elementary functions (@chebfun/<name>.m, commit
+# 7574c77): reciprocal/inverse trig and hyperbolic families plus the
+# degree-argument variants, all thin compositions like the explicit
+# sin/cos/... methods above.
+_EXTRA_ELEMENTWISE = {
+    "sec": lambda x: 1.0 / jnp.cos(x),
+    "csc": lambda x: 1.0 / jnp.sin(x),
+    "cot": lambda x: 1.0 / jnp.tan(x),
+    "sech": lambda x: 1.0 / jnp.cosh(x),
+    "csch": lambda x: 1.0 / jnp.sinh(x),
+    "coth": lambda x: 1.0 / jnp.tanh(x),
+    "asinh": jnp.arcsinh,
+    "acosh": jnp.arccosh,
+    "atanh": jnp.arctanh,
+    "asec": lambda x: jnp.arccos(1.0 / x),
+    "acsc": lambda x: jnp.arcsin(1.0 / x),
+    "acot": lambda x: jnp.arctan(1.0 / x),
+    "asech": lambda x: jnp.arccosh(1.0 / x),
+    "acsch": lambda x: jnp.arcsinh(1.0 / x),
+    "acoth": lambda x: jnp.arctanh(1.0 / x),
+    "sind": lambda x: jnp.sin(_DEG2RAD * x),
+    "cosd": lambda x: jnp.cos(_DEG2RAD * x),
+    "tand": lambda x: jnp.tan(_DEG2RAD * x),
+    "secd": lambda x: 1.0 / jnp.cos(_DEG2RAD * x),
+    "cscd": lambda x: 1.0 / jnp.sin(_DEG2RAD * x),
+    "cotd": lambda x: 1.0 / jnp.tan(_DEG2RAD * x),
+    "asind": lambda x: jnp.arcsin(x) / _DEG2RAD,
+    "acosd": lambda x: jnp.arccos(x) / _DEG2RAD,
+    "atand": lambda x: jnp.arctan(x) / _DEG2RAD,
+    "asecd": lambda x: jnp.arccos(1.0 / x) / _DEG2RAD,
+    "acscd": lambda x: jnp.arcsin(1.0 / x) / _DEG2RAD,
+    "acotd": lambda x: jnp.arctan(1.0 / x) / _DEG2RAD,
+    "pow2": lambda x: jnp.exp2(x),
+}
+
+
+def _install_extra_elementwise():
+    def make(name, fn):
+        def method(self):
+            return self._apply_fun(fn)
+        method.__name__ = name
+        method.__doc__ = (
+            f"Elementwise ``{name}`` of the Chebfun.\n\n"
+            "NOT JIT-safe (adaptive construction).\n\n"
+            "Provenance\n----------\n"
+            f"MATLAB source : @chebfun/{name}.m\n"
+            "Chebfun commit: 7574c77\n"
+            "Original authors: Copyright 2017 by The University of "
+            "Oxford\n    and The Chebfun Developers.\n")
+        return method
+    for name, fn in _EXTRA_ELEMENTWISE.items():
+        if not hasattr(Chebfun, name):
+            setattr(Chebfun, name, make(name, fn))
+
+
+_install_extra_elementwise()
 
 
 def overlap(f: Chebfun, g: Chebfun) -> tuple[Chebfun, Chebfun]:

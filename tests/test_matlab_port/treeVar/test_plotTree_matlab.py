@@ -8,11 +8,26 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-import pytest
+import matplotlib
 
-pytestmark = pytest.mark.skip(reason="chebfunjax has no treeVar (MATLAB's syntax-tree ODE parser for IVP routing); IVP detection uses the operator-proxy sniffer tested in test_operators")
+matplotlib.use("Agg")
+
+from chebfunjax.operators.treevar import TreeVar, plot_tree  # noqa: E402
 
 
-class TestTreevarPlottree:
-    def test_all_matlab_assertions(self):
-        raise NotImplementedError
+class TestTreevarPlotTree:
+    def test_basic_computation(self):
+        import matplotlib.pyplot as plt
+        u = TreeVar()
+        t = u.cos() + u.sin()
+        assert plot_tree(t.tree) is not None
+        assert t.plot() is not None
+        plt.close("all")
+
+    def test_with_differentiation(self):
+        import matplotlib.pyplot as plt
+        u = TreeVar()
+        s = 2 + u.diff(2)
+        assert plot_tree(s.tree) is not None
+        assert s.plot() is not None
+        plt.close("all")
