@@ -388,7 +388,8 @@ def _phase_two_disk(
         # Zero function
         zero_col = Chebtech2.from_coeffs(jnp.zeros(1, dtype=jnp.float64))
         zero_row = Trigtech.from_coeffs(jnp.zeros(1, dtype=jnp.complex128))
-        return [zero_col], [zero_row], np.array([1.0]), [0], []
+        return ([zero_col], [zero_row], np.array([1.0]), [0], [],
+                [(0.0, 1.0)])
 
     while not (happy_cols and happy_rows) and not failure:
         r_pts = _disk_col_pts(m_cur)
@@ -449,6 +450,7 @@ def _phase_two_disk(
         idx_plus_raw = []
         idx_minus_raw = []
         pivots_raw = np.zeros(total_rank)
+        locs_raw = [(0.0, 1.0)] * total_rank
 
         # Handle pole removal: fix the first row of new_rows_plus
         if remove_poles:
@@ -485,6 +487,9 @@ def _phase_two_disk(
                     idx_plus_raw.append(pivot_count + 1)
                     pivots_raw[pivot_count] = evm
                     pivots_raw[pivot_count + 1] = evp
+                locs_raw[pivot_count] = (float(col_pivots[ii]),
+                                         float(row_pivots[ii]))
+                locs_raw[pivot_count + 1] = locs_raw[pivot_count]
 
                 plus_count += 1
                 minus_count += 1
@@ -501,6 +506,8 @@ def _phase_two_disk(
 
                 idx_plus_raw.append(pivot_count)
                 pivots_raw[pivot_count] = evp
+                locs_raw[pivot_count] = (float(col_pivots[ii]),
+                                         float(row_pivots[ii]))
                 plus_count += 1
                 pivot_count += 1
 
@@ -515,6 +522,8 @@ def _phase_two_disk(
 
                 idx_minus_raw.append(pivot_count)
                 pivots_raw[pivot_count] = evm
+                locs_raw[pivot_count] = (float(col_pivots[ii]),
+                                         float(row_pivots[ii]))
                 minus_count += 1
                 pivot_count += 1
 
@@ -534,6 +543,7 @@ def _phase_two_disk(
         rows_plus_cur = rows_plus_cur[:plus_count, :]
         rows_minus_cur = rows_minus_cur[:minus_count, :]
         pivots_raw = pivots_raw[:pivot_count]
+        locs_raw = locs_raw[:pivot_count]
 
         cols_plus = cols_plus_cur
         cols_minus = cols_minus_cur
@@ -661,7 +671,8 @@ def _phase_two_disk(
             rc = _trig_prolong_coeffs(rc, n_keep)
         rows_list.append(Trigtech.from_coeffs(rc, is_real=True))
 
-    return cols_list, rows_list, pivots_raw, idx_plus_raw, idx_minus_raw
+    return (cols_list, rows_list, pivots_raw, idx_plus_raw,
+            idx_minus_raw, locs_raw)
 
 
 # ============================================================================
@@ -777,6 +788,31 @@ class Diskfun(eqx.Module):
     pivots: jax.Array  # shape (r,), pivot values d_j
     idx_plus: tuple = eqx.field(static=True)  # 0-based indices of plus terms
     idx_minus: tuple = eqx.field(static=True)  # 0-based indices of minus terms
+    # (theta, r) coordinates of the GE pivots (MATLAB pivotLocations)
+    # and whether a nonzero pole term was removed (MATLAB nonZeroPoles).
+    pivot_locations: tuple = eqx.field(static=True, default=())
+    nonzero_poles: bool = eqx.field(static=True, default=False)
+
+    @property
+    def pivot_values(self) -> jax.Array:
+        """The GE pivot values (MATLAB ``f.pivotValues``).
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/get.m ('pivotValues')
+        Chebfun commit: 7574c77
+        """
+        return self.pivots
+
+    def __len__(self) -> int:
+        """The rank of the representation (MATLAB ``length``).
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/length.m
+        Chebfun commit: 7574c77
+        """
+        return len(self.cols)
 
     # ------------------------------------------------------------------
     # Construction
@@ -908,7 +944,8 @@ class Diskfun(eqx.Module):
             # false-convergence, matching the Spherefun fix).
 
         # Phase 2: resolve slices
-        cols_list, rows_list, pivots_arr, idx_plus, idx_minus = _phase_two_disk(
+        (cols_list, rows_list, pivots_arr, idx_plus, idx_minus,
+         locs) = _phase_two_disk(
             f,
             pivot_indices,
             pivot_array,
@@ -926,6 +963,8 @@ class Diskfun(eqx.Module):
             pivots=jnp.asarray(pivots_arr, dtype=jnp.float64),
             idx_plus=tuple(idx_plus),
             idx_minus=tuple(idx_minus),
+            pivot_locations=tuple(locs),
+            nonzero_poles=bool(remove_poles),
         )
 
     # ------------------------------------------------------------------

@@ -154,12 +154,11 @@ class _RefMats:
                               for t in self.x2])
         self.R21 = np.vstack([_bary_eval_row(self.x2, self.w2, t)
                               for t in self.x1])
-        # Chebyshev-T coeffs -> cheb2 values, and its inverse.
-        eye = np.eye(n)
-        self.C = np.column_stack([
-            np.asarray(vals2coeffs(jnp.asarray(eye[:, j])))
-            for j in range(n)])
-        self.V = np.linalg.inv(self.C)
+        # Chebyshev-T coeffs -> cheb2 values (V[i,k] = T_k(x_i), i.e.
+        # cos(k*theta_i)), and its inverse.
+        th = np.arccos(np.clip(self.x2, -1.0, 1.0))
+        self.V = np.cos(np.outer(th, np.arange(n)))
+        self.C = np.linalg.inv(self.V)
 
     def proj1(self, red: int):
         """Barycentric down-projection: n cheb1 values -> n-red."""

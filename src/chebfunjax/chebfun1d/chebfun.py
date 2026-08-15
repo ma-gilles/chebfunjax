@@ -5876,6 +5876,113 @@ class Chebfun(eqx.Module):
         c = self.funs[0].tech.coeffs
         return int(c.shape[1]) if c.ndim == 2 else 1
 
+    def get(self, prop: str, simplevel: int = 2):
+        """MATLAB ``get()`` property interface.
+
+        Cells are represented as Python lists: ``simplevel=0`` returns a
+        list over columns of lists over pieces; ``simplevel=1`` a 2-D
+        list indexed ``[piece][column]`` (when every column has the same
+        number of pieces); ``simplevel=2`` simplifies further to a bare
+        array/value where MATLAB would return a numeric matrix.  Row
+        chebfuns transpose the result exactly as MATLAB does.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/get.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        if prop in ("domain", "ends"):
+            return tuple(float(v) for v in self.domain.breakpoints)
+        if prop == "vscale":
+            return float(self.vscale())
+        if prop == "hscale":
+            return float(max(abs(float(self.domain.breakpoints[0])),
+                             abs(float(self.domain.breakpoints[-1])),
+                             1.0))
+        if prop == "funs":
+            return list(self.funs)
+        if prop == "lval":
+            return self(jnp.asarray(
+                float(self.domain.breakpoints[0])))
+        if prop == "rval":
+            return self(jnp.asarray(
+                float(self.domain.breakpoints[-1])))
+        if prop == "deltas":
+            ds = sorted(getattr(self, "deltas", ()),
+                        key=lambda d: float(d[0]))
+            if not ds:
+                return jnp.zeros((2, 0), dtype=jnp.float64)
+            locs = jnp.asarray([float(d[0]) for d in ds])
+            mags = jnp.asarray([float(d[1]) for d in ds])
+            return jnp.stack([locs, mags])
+        if prop in ("coeffs", "values", "points", "exps", "exponents",
+                    "vscale-local", "lval-local", "rval-local"):
+            return self._get_local(prop, simplevel)
+        raise ValueError(
+            f"CHEBFUN:CHEBFUN:get:badProp -- '{prop}' is not a "
+            "recognized CHEBFUN property name.")
+
+    def _get_local(self, prop: str, simplevel: int):
+        """Per-piece properties with MATLAB get.m's cell simplification
+        rules (see :meth:`get`)."""
+        ncols = self.n_columns
+        exps_like = prop in ("exps", "exponents")
+
+        def leaf(piece, col):
+            tech = piece.tech
+            if exps_like:
+                e = getattr(tech, "exponents", None)
+                if e is None:
+                    e = getattr(piece, "exponents", (0.0, 0.0))
+                return jnp.asarray(
+                    [[float(e[0]), float(e[1])]], dtype=jnp.float64)
+            if prop == "vscale-local":
+                v = jnp.max(jnp.abs(jnp.asarray(tech.values)))
+                return jnp.asarray([[float(v)]])
+            if prop in ("lval-local", "rval-local"):
+                vals = jnp.asarray(tech.values)
+                if vals.ndim == 1:
+                    vals = vals[:, None]
+                row = vals[0] if prop == "lval-local" else vals[-1]
+                return jnp.asarray([[float(row[col])]])
+            arr = jnp.asarray(getattr(tech, prop) if prop != "points"
+                              else tech.points)
+            if arr.ndim == 1:
+                arr = arr[:, None]
+            if prop == "points":
+                return arr[:, :1]
+            return arr[:, col:col + 1]
+
+        # Level 0: list over columns of lists over pieces.
+        out0 = [[leaf(p, j) for p in self.funs] for j in range(ncols)]
+        if simplevel == 0:
+            return out0
+        # Level 1: 2-D list [piece][column] (uniform piece counts by
+        # construction for a single array-valued chebfun).
+        out1 = [[out0[j][k] for j in range(ncols)]
+                for k in range(len(self.funs))]
+        if simplevel == 1:
+            return (self._transpose_cell(out1)
+                    if self.is_transposed else out1)
+        # Level 2: try to collapse to a numeric matrix.
+        if exps_like and ncols == 1:
+            out = jnp.concatenate([c[0] for c in out1], axis=0)
+            return out.T if self.is_transposed else out
+        if len(self.funs) == 1:
+            rows = {int(c.shape[0]) for c in out1[0]}
+            if len(rows) == 1:
+                out = jnp.concatenate(out1[0], axis=1)
+                return out.T if self.is_transposed else out
+        return (self._transpose_cell(out1)
+                if self.is_transposed else out1)
+
+    @staticmethod
+    def _transpose_cell(cell):
+        return [[cell[k][j] for k in range(len(cell))]
+                for j in range(len(cell[0]))]
+
     @staticmethod
     def _tech_with_coeffs(tech, coeffs):
         """Rebuild a tech of the same class around new coefficients."""
@@ -8082,6 +8189,53 @@ def _install_extra_elementwise():
 
 
 _install_extra_elementwise()
+
+
+def get(f, prop: str, simplevel: int = 2):
+    """MATLAB ``get()`` for a Chebfun or a quasimatrix.
+
+    A quasimatrix is passed as a list of Chebfun columns (columns may
+    have different breakpoints).  Follows @chebfun/get.m's cell
+    simplification rules with Python lists as cells; see
+    :meth:`Chebfun.get`.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/get.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    """
+    if isinstance(f, Chebfun):
+        return f.get(prop, simplevel)
+    cols = list(f)
+    transposed = bool(getattr(cols[0], "is_transposed", False))
+    out0 = []
+    for c in cols:
+        base = c.transpose() if getattr(c, "is_transposed", False) \
+            else c
+        col_cells = base._get_local(prop, 0)
+        out0.append(col_cells[0])
+    if simplevel == 0:
+        return out0
+    counts = {len(entry) for entry in out0}
+    if len(counts) > 1:
+        return out0
+    nfuns = counts.pop()
+    out1 = [[out0[j][k] for j in range(len(cols))]
+            for k in range(nfuns)]
+    if simplevel == 1:
+        return Chebfun._transpose_cell(out1) if transposed else out1
+    exps_like = prop in ("exps", "exponents")
+    if exps_like and len(cols) == 1:
+        out = jnp.concatenate([row[0] for row in out1], axis=0)
+        return out.T if transposed else out
+    if nfuns == 1:
+        rows = {int(c.shape[0]) for c in out1[0]}
+        if len(rows) == 1:
+            out = jnp.concatenate(out1[0], axis=1)
+            return out.T if transposed else out
+    return Chebfun._transpose_cell(out1) if transposed else out1
 
 
 def overlap(f: Chebfun, g: Chebfun) -> tuple[Chebfun, Chebfun]:

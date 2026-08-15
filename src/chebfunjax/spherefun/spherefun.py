@@ -362,7 +362,8 @@ def _phase_two_sphere(
     if total_rank == 0:
         zero_col = Trigtech.from_coeffs(jnp.zeros(1, dtype=jnp.complex128))
         zero_row = Trigtech.from_coeffs(jnp.zeros(1, dtype=jnp.complex128))
-        return [zero_col], [zero_row], np.array([1.0]), [0], []
+        return ([zero_col], [zero_row], np.array([1.0]), [0], [],
+                [(0.0, 0.0)])
 
     happy_cols = False
     happy_rows = False
@@ -380,6 +381,7 @@ def _phase_two_sphere(
     idx_plus_raw = []
     idx_minus_raw = []
     pivots_raw = np.zeros(total_rank)
+    locs_raw = [(0.0, 0.0)] * total_rank
 
     while not (happy_cols and happy_rows) and not failure:
         th_pts = _sphere_col_pts(m_cur)  # shape (m_cur+1,) on [0, pi]
@@ -441,6 +443,7 @@ def _phase_two_sphere(
         idx_plus_raw = []
         idx_minus_raw = []
         pivots_raw = np.zeros(total_rank)
+        locs_raw = [(0.0, 0.0)] * total_rank
 
         for ii in range(rk):
             evp = float(pivot_array[ii, 0])
@@ -472,6 +475,9 @@ def _phase_two_sphere(
                     idx_plus_raw.append(pivot_count + 1)
                     pivots_raw[pivot_count] = evm
                     pivots_raw[pivot_count + 1] = evp
+                locs_raw[pivot_count] = (float(col_pivots[ii]),
+                                         float(row_pivots[ii]))
+                locs_raw[pivot_count + 1] = locs_raw[pivot_count]
 
                 plus_count += 1
                 minus_count += 1
@@ -488,6 +494,8 @@ def _phase_two_sphere(
 
                 idx_plus_raw.append(pivot_count)
                 pivots_raw[pivot_count] = evp
+                locs_raw[pivot_count] = (float(col_pivots[ii]),
+                                         float(row_pivots[ii]))
                 plus_count += 1
                 pivot_count += 1
 
@@ -502,6 +510,8 @@ def _phase_two_sphere(
 
                 idx_minus_raw.append(pivot_count)
                 pivots_raw[pivot_count] = evm
+                locs_raw[pivot_count] = (float(col_pivots[ii]),
+                                         float(row_pivots[ii]))
                 minus_count += 1
                 pivot_count += 1
 
@@ -523,6 +533,7 @@ def _phase_two_sphere(
         rows_plus = rows_plus_cur[:plus_count, :]
         rows_minus = rows_minus_cur[:minus_count, :]
         pivots_raw = pivots_raw[:pivot_count]
+        locs_raw = locs_raw[:pivot_count]
 
         # Happiness check for columns (Trigtech-style in theta)
         cp_arr = cols_plus if cols_plus.size > 0 else np.zeros((m_cur + 1, 0))
@@ -656,7 +667,8 @@ def _phase_two_sphere(
             rc = _trig_prolong_coeffs(rc, n_keep)
         rows_list.append(Trigtech.from_coeffs(rc, is_real=True))
 
-    return cols_list, rows_list, pivots_raw, idx_plus_raw, idx_minus_raw
+    return (cols_list, rows_list, pivots_raw, idx_plus_raw,
+            idx_minus_raw, locs_raw)
 
 
 # ============================================================================
@@ -760,6 +772,48 @@ class Spherefun(eqx.Module):
     pivots: jax.Array  # shape (r,)
     idx_plus: tuple = eqx.field(static=True)
     idx_minus: tuple = eqx.field(static=True)
+    # (lambda, theta) pivot coordinates (MATLAB pivotLocations) and
+    # whether a nonzero pole term was removed (MATLAB nonZeroPoles).
+    pivot_locations: tuple = eqx.field(static=True, default=())
+    nonzero_poles: bool = eqx.field(static=True, default=False)
+
+    @property
+    def pivot_values(self):
+        """The GE pivot values (MATLAB ``f.pivotValues``).
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/get.m ('pivotValues')
+        Chebfun commit: 7574c77
+        """
+        return self.pivots
+
+    def __len__(self) -> int:
+        """The rank of the representation (MATLAB ``length``).
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/length.m
+        Chebfun commit: 7574c77
+        """
+        return len(self.cols)
+
+    def cdr(self):
+        """CDR decomposition ``(C, D, R)`` with ``D = diag(1/pivots)``
+        (zero pivots map to 0), mirroring MATLAB's three-output
+        ``[C, D, R] = cdr(f)``.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/cdr.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        d = jnp.where(jnp.abs(self.pivots) > 0,
+                      1.0 / jnp.where(self.pivots == 0, 1.0,
+                                      self.pivots), 0.0)
+        return list(self.cols), jnp.diag(d), list(self.rows)
 
     # ------------------------------------------------------------------
     # Construction
@@ -909,7 +963,8 @@ class Spherefun(eqx.Module):
             # coarse-grid false-convergence described above).
 
         # Phase 2: resolve slices
-        cols_list, rows_list, pivots_arr, idx_plus, idx_minus = _phase_two_sphere(
+        (cols_list, rows_list, pivots_arr, idx_plus, idx_minus,
+         locs) = _phase_two_sphere(
             f,
             pivot_indices,
             pivot_array,
@@ -927,6 +982,8 @@ class Spherefun(eqx.Module):
             pivots=jnp.asarray(pivots_arr, dtype=jnp.float64),
             idx_plus=tuple(idx_plus),
             idx_minus=tuple(idx_minus),
+            pivot_locations=tuple(locs),
+            nonzero_poles=bool(remove_poles),
         )
 
         # Sample test (MATLAB constructor sampleTest analogue): on

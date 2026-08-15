@@ -1646,6 +1646,53 @@ class Chebfun3(eqx.Module):
                 _quasi(self.rows, d[2], d[3]),
                 _quasi(self.tubes, d[4], d[5]))
 
+    @staticmethod
+    def unfold(T, mode: int):
+        """Mode-``mode`` unfolding of a 3-D tensor (1-based mode, with
+        MATLAB's column-major ordering of the remaining modes).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/unfold.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2023 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        T = jnp.asarray(T)
+        m, n, p = T.shape
+        if mode == 1:
+            # M[i, j + n*k]: transpose to (i, k, j) and C-reshape.
+            return jnp.transpose(T, (0, 2, 1)).reshape(m, n * p)
+        if mode == 2:
+            # M[j, i + m*k].
+            return jnp.transpose(T, (1, 2, 0)).reshape(n, m * p)
+        if mode == 3:
+            # M[k, i + m*j].
+            return jnp.transpose(T, (2, 1, 0)).reshape(p, m * n)
+        raise ValueError("unfold: mode must be 1, 2 or 3.")
+
+    @staticmethod
+    def fold(M, dims, row_dim: int, col_dims=None):
+        """Inverse of :meth:`unfold`: fold matrix ``M`` back into a
+        tensor of shape ``dims`` with mode ``row_dim`` along the rows.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/fold.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2023 by The University of Oxford
+            and The Chebfun Developers.
+        """
+        M = jnp.asarray(M)
+        m, n, p = (int(dims[0]), int(dims[1]), int(dims[2]))
+        if row_dim == 1:
+            return jnp.transpose(M.reshape(m, p, n), (0, 2, 1))
+        if row_dim == 2:
+            return jnp.transpose(M.reshape(n, p, m), (2, 0, 1))
+        if row_dim == 3:
+            return jnp.transpose(M.reshape(p, n, m), (2, 1, 0))
+        raise ValueError("fold: row_dim must be 1, 2 or 3.")
+
     def ndf(self) -> int:
         """Number of degrees of freedom in the representation.
 
