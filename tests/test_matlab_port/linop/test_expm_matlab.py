@@ -89,10 +89,32 @@ class TestLinopExpm:
         assert float(abs((U0[1] - V[1]).norm())) < TOL
         assert [len(V[0]), len(V[1])] == [len(U0[0]), len(U0[1])]
 
-    @pytest.mark.skip(
-        reason="MATLAB err(3,:) through err(6,:) repeat the first two "
-               "propagations with the chebcolloc1 and ultraS "
-               "discretizations; chebfunjax's BlockLinop only implements "
-               "chebcolloc2 rectangular collocation.")
-    def test_ultras_and_chebcolloc1(self):
-        raise NotImplementedError
+    @pytest.mark.parametrize("disc", ["ultraS", "chebcolloc1"])
+    def test_ultras_and_chebcolloc1(self, disc):
+        # MATLAB err(3,:) through err(6,:): the first two propagations
+        # under ultraS and chebcolloc1.
+        d = (-math.pi, math.pi)
+        x = cj.chebfun(lambda t: t, domain=d)
+        Z, I, Dop, C, M = primitive_operators(d)
+        z, E, s, dt = primitive_functionals(d)
+
+        A = linop(Dop ** 2)
+        A = A.add_constraint(E(-math.pi), 0.0)
+        A = A.add_constraint(E(math.pi), 0.0)
+
+        u0 = (x.exp()).sin() * (math.pi ** 2 - x ** 2)
+        u = A.expm(0.02, u0, discretization=disc)
+        exact = -4.720369127510475
+        err = [abs(_at(u[0], math.pi / 2) - exact),
+               abs(_at(u[0], -math.pi)),
+               abs(_at(u[0], math.pi))]
+        assert all(e < TOL for e in err), err
+
+        u0 = cj.chebfun(lambda t: -abs(t) / math.pi + 1,
+                        domain=(-math.pi, 0.0, math.pi))
+        u = A.expm(0.01, u0, discretization=disc)
+        exact = 0.95545945604534127  # mathematica
+        err = [abs(_at(u[0], 0.1) - exact),
+               abs(_at(u[0], -math.pi)),
+               abs(_at(u[0], math.pi))]
+        assert all(e < TOL for e in err), err

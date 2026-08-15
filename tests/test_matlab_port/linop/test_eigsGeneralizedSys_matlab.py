@@ -76,10 +76,48 @@ class TestLinopEigsGeneralizedSys:
                            - (v1.diff() + v2) * lj).norm())))
         assert resid < 10 * TOL_FUNS, resid
 
-    @pytest.mark.skip(
-        reason="MATLAB err(1,1), err(1,2), err(1,5), err(1,6) repeat the "
-               "problem with the chebcolloc1 and ultraS discretizations; "
-               "chebfunjax's BlockLinop only implements chebcolloc2 "
-               "rectangular collocation.")
-    def test_ultras_and_chebcolloc1(self):
-        raise NotImplementedError
+    @pytest.mark.parametrize("disc", ["ultraS", "chebcolloc1"])
+    def test_ultras_and_chebcolloc1(self, disc):
+        # MATLAB err(1,1), err(1,2), err(1,5), err(1,6): the same
+        # generalized system under ultraS and chebcolloc1.
+        dom = (-1.0, 1.0)
+        diff_op = D(dom)
+        Id = I(dom)
+
+        def ev(t):
+            return eval_at(t, dom)
+
+        z = zero_functional(dom)
+
+        A = ChebMatrix([[diff_op ** 2, diff_op],
+                        [diff_op, diff_op ** 2]])
+        B = ChebMatrix([[Id, diff_op], [diff_op, Id]])
+        A = linop(A)
+        A = A.addbc([ev(-1.0), z]).addbc([ev(1.0), z])
+        A = A.addbc([z, ev(-1.0)]).addbc([z, ev(1.0)])
+        B = linop(B)
+
+        e_true = -1 + 1j * math.pi * np.array(
+            [-1, 1, -1, 1, -2, 2, -2, 2, -3, 3, -3, 3], dtype=float)
+
+        lam, V = A.eigs(12, 0, B=B, n=65, discretization=disc)
+        e = np.asarray(lam)
+
+        remaining = list(e)
+        worst = 0.0
+        for target in e_true:
+            k = int(np.argmin(np.abs(np.asarray(remaining) - target)))
+            worst = max(worst, float(abs(remaining.pop(k) - target)))
+        assert worst < 10 * TOL_VALS, worst
+
+        resid = 0.0
+        for j in range(12):
+            v1, v2 = V[j][0], V[j][1]
+            lj = complex(e[j])
+            resid = max(
+                resid,
+                float(abs((v1.diff(2) + v2.diff()
+                           - (v1 + v2.diff()) * lj).norm())),
+                float(abs((v1.diff() + v2.diff(2)
+                           - (v1.diff() + v2) * lj).norm())))
+        assert resid < 10 * TOL_FUNS, resid

@@ -670,7 +670,8 @@ class BlockLinop:
 
     def expm(self, t: float, u0, n=None,
              dom: _DomainT | None = None,
-             tol: float = 1e-12) -> ChebMatrix:
+             tol: float = 1e-12,
+             discretization: str = "chebcolloc2") -> ChebMatrix:
         """Propagate ``u0`` by the operator exponential ``exp(t*L)``.
 
         The side conditions attached to ``L`` are enforced homogeneously:
@@ -709,6 +710,8 @@ class BlockLinop:
         Original authors: Copyright 2017 by The University of Oxford
             and The Chebfun Developers.
         """
+        if discretization != "chebcolloc2":
+            return self._expm_altdisc(t, u0, n, discretization)
 
         entries = self._normalize_rhs(u0)
         base = tuple(float(v) for v in (dom if dom is not None
@@ -856,8 +859,8 @@ class BlockLinop:
     # Eigenvalues
     # ------------------------------------------------------------------
 
-    def _eigs_altdisc(self, k, sigma, n, discretization):
-        """Scalar eigenproblem under the ultraS / chebcolloc1 backends.
+    def _eigs_altdisc(self, k, sigma, n, discretization, B=None):
+        """Eigenproblem under the ultraS / chebcolloc1 backends.
 
         Provenance
         ----------
@@ -867,8 +870,17 @@ class BlockLinop:
         import numpy as np  # uses-numpy: dense generalized eigensolve
         import scipy.linalg as sla
 
-        from chebfunjax.operators.altdisc import scalar_matrices
-        A, Bm, recover, _rhs = scalar_matrices(self, n, discretization)
+        from chebfunjax.operators.altdisc import system_matrices
+        if B is not None and not isinstance(B, BlockLinop):
+            B = BlockLinop(B)
+        rmin = None
+        if B is not None:
+            rmin = [max((blk.order for blk in B.A.blocks[i]
+                         if isinstance(blk, OperatorBlock)), default=0)
+                    for i in range(B.nrows)]
+        sd = system_matrices(self, n, discretization,
+                             row_order_min=rmin)
+        A, Bm = sd.A, sd.mass(B)
         lam = sla.eig(A, Bm, right=False)
         finite = np.isfinite(lam) & (np.abs(lam) < 1e8)
         lam = lam[finite]
@@ -890,15 +902,18 @@ class BlockLinop:
             M = A - lv * Bm
             _u, _s, vh = np.linalg.svd(M)
             v = vh[-1].conj()
-            f_ = recover(v)
-            nrm = float(f_.norm())
+            entries = sd.recover(v)
+            nrm = max((float(e.norm()) for e in entries
+                       if hasattr(e, "norm")), default=1.0)
             if nrm > 0:
-                f_ = f_ * (1.0 / nrm)
-            vecs.append(ChebMatrix([[f_]], domain=self.domain))
+                entries = [e * (1.0 / nrm) if hasattr(e, "norm")
+                           else e / nrm for e in entries]
+            vecs.append(ChebMatrix([[e] for e in entries],
+                                   domain=self.domain))
         return jnp.asarray(lam), vecs
 
     def _linsolve_altdisc(self, f, n, discretization):
-        """Scalar solve under the ultraS / chebcolloc1 backends.
+        """Solve under the ultraS / chebcolloc1 backends.
 
         Provenance
         ----------
@@ -907,22 +922,66 @@ class BlockLinop:
         """
         import numpy as np  # uses-numpy: dense solve
 
-        from chebfunjax.operators.altdisc import scalar_matrices
+        from chebfunjax.operators.altdisc import system_matrices
         nn = int(n) if n is not None else 128
-        A, _Bm, recover, rhs_vec = scalar_matrices(self, nn,
-                                                   discretization)
         entries = self._normalize_rhs(f)
-        entry = entries[0]
+        use_dom = self._merged_domain(entries)
+        sd = system_matrices(self, nn, discretization, dom=use_dom)
+        b = sd.rhs(entries)
+        v = np.linalg.solve(np.asarray(sd.A), b)
+        return ChebMatrix([[u] for u in sd.recover(v)],
+                          domain=use_dom)
 
-        def fvals(pts):
-            if callable(entry):
-                return np.asarray(entry(jnp.asarray(pts)))
-            return np.full(len(pts), float(entry))
+    def _merged_domain(self, entries, dom=None):
+        """The operator domain enriched with the breakpoints of the
+        given functions (MATLAB ``domain.merge``)."""
+        base = tuple(float(v) for v in (dom if dom is not None
+                                        else self.domain))
+        merged = set(base)
+        for entry in entries:
+            edom = getattr(entry, "domain", None)
+            if edom is not None:
+                bps = (edom.breakpoints if hasattr(edom, "breakpoints")
+                       else edom)
+                merged.update(float(v) for v in bps)
+        return tuple(sorted(v for v in merged
+                            if base[0] <= v <= base[-1]))
 
-        bvals = np.asarray([float(v) for _row, v in self.constraint])
-        b = np.concatenate([bvals, np.asarray(rhs_vec(fvals))])
-        v = np.linalg.solve(np.asarray(A), b)
-        return ChebMatrix([[recover(v)]], domain=self.domain)
+    def _expm_altdisc(self, t, u0, n, discretization):
+        """Operator exponential under the ultraS / chebcolloc1 backends:
+        reduce with the side conditions, exponentiate the reduced
+        generator, and lift back (``u(t) = Q expm(t P A Q) P_s u0``).
+
+        Provenance
+        ----------
+        MATLAB source : @linop/expm.m with prefs.discretization
+        Chebfun commit: 7574c77
+        """
+        import numpy as np  # uses-numpy: dense expm
+        import scipy.linalg as sla
+
+        from chebfunjax.operators.altdisc import system_matrices
+        entries = self._normalize_rhs(u0)
+        use_dom = self._merged_domain(entries)
+        nn = int(n) if n is not None else 96
+        sd = system_matrices(self, nn, discretization, dom=use_dom)
+        ncon = sd.con_rows.shape[0]
+        T_A = np.asarray(sd.A)[ncon:]
+        T_S = np.asarray(sd.mass(None))[ncon:]
+        Bc = np.asarray(sd.con_rows)
+        width = T_A.shape[1]
+        nred = T_S.shape[0]
+        # Lift: full trial vector from reduced dof, satisfying Bc u = 0.
+        Q = np.linalg.solve(
+            np.vstack([Bc, T_S]),
+            np.vstack([np.zeros((ncon, nred)), np.eye(nred)]))
+        G = T_A @ Q
+        w0 = T_S @ sd.trial_vector(entries)
+        v_full = Q @ (sla.expm(t * G) @ w0)
+        if v_full.shape != (width,):
+            v_full = v_full.ravel()
+        return ChebMatrix([[u] for u in sd.recover(v_full)],
+                          domain=use_dom)
 
     def eigs(self, k: int = 6, sigma=None, B: "BlockLinop | None" = None,
              n: int = 65, dom: _DomainT | None = None,
@@ -959,7 +1018,7 @@ class BlockLinop:
         """
         import numpy as np  # uses-numpy: dense generalized eigensolve
         if discretization != "chebcolloc2":
-            return self._eigs_altdisc(k, sigma, n, discretization)
+            return self._eigs_altdisc(k, sigma, n, discretization, B=B)
         r_use = self.proj_order()
         if B is not None:
             r_b = (B.proj_order() if isinstance(B, BlockLinop)

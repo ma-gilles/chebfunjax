@@ -71,10 +71,48 @@ class TestLinopEigsGeneralized:
                 (1j * v.diff() - v.diff(2) * complex(lam[j])).norm())))
         assert resid < 10 * TOL_FUNS, resid
 
-    @pytest.mark.skip(
-        reason="MATLAB err(:,1), err(:,2), err(:,5), err(:,6) repeat the "
-               "problem with the chebcolloc1 and ultraS discretizations; "
-               "chebfunjax's BlockLinop only implements chebcolloc2 "
-               "rectangular collocation.")
-    def test_ultras_and_chebcolloc1(self):
-        raise NotImplementedError
+    @pytest.mark.parametrize("disc", ["ultraS", "chebcolloc1"])
+    def test_ultras_and_chebcolloc1(self, disc):
+        # MATLAB err(:,1), err(:,2), err(:,5), err(:,6): the same
+        # generalized problems under ultraS and chebcolloc1.
+        dom = (-1.0, 1.0)
+        diff_op = D(dom)
+
+        def ev(t):
+            return eval_at(t, dom)
+
+        A = linop(diff_op ** 2).addbc(ev(-1.0)).addbc(ev(1.0))
+        B = linop(1j * diff_op)
+        e_true = np.array([-3.0, -2.0, -1.0, 1.0, 2.0, 3.0])
+
+        lam, V = A.eigs(6, 0, B=B, n=65, discretization=disc)
+        e = np.asarray(lam) / math.pi
+        err = float(np.linalg.norm(np.sort(e.real) - e_true)
+                    + np.linalg.norm(e.imag))
+        assert err < 10 * TOL_VALS, err
+
+        resid = 0.0
+        for j in range(6):
+            v = V[j][0]
+            resid = max(resid, float(abs(
+                (v.diff(2) - (1j * v.diff())
+                 * complex(lam[j])).norm())))
+        assert resid < 10 * TOL_FUNS, resid
+
+        A = linop(diff_op ** 2)
+        B = linop(1j * diff_op).addbc(ev(-1.0)).addbc(ev(1.0))
+        e_true = np.arange(1.0, 7.0)
+
+        lam, V = B.eigs(6, 1, B=A, n=65, discretization=disc)
+        e = 1.0 / np.asarray(lam) / math.pi
+        err = float(np.linalg.norm(np.sort(e.real) - e_true)
+                    + np.linalg.norm(e.imag))
+        assert err < 10 * TOL_VALS, err
+
+        resid = 0.0
+        for j in range(6):
+            v = V[j][0]
+            resid = max(resid, float(abs(
+                (1j * v.diff() - v.diff(2)
+                 * complex(lam[j])).norm())))
+        assert resid < 10 * TOL_FUNS, resid

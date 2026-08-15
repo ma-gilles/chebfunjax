@@ -72,10 +72,36 @@ class TestLinopLinJump:
 
         assert all(v < TOL for v in err), err
 
-    @pytest.mark.skip(
-        reason="MATLAB's k = 2, 3 passes repeat the solve with the "
-               "chebcolloc1 and ultraS discretizations; chebfunjax's "
-               "BlockLinop only implements chebcolloc2 rectangular "
-               "collocation.")
-    def test_ultras_and_chebcolloc1(self):
-        raise NotImplementedError
+    @pytest.mark.parametrize("disc", ["ultraS", "chebcolloc1"])
+    def test_ultras_and_chebcolloc1(self, disc):
+        # MATLAB's k = 2, 3 passes: the same jump-condition system
+        # under ultraS and chebcolloc1.
+        dom = (0.0, 0.3, 1.0)
+        Z, I, Dop, C, M = primitive_operators(dom)
+        z, e, s, dt = primitive_functionals(dom)
+        j = jump_at(dom)
+
+        A = linop(ChebMatrix([[Dop ** 2, I], [-Dop, Dop ** 2 + I]]))
+        A = A.add_constraint([e(0.0), z], -1.0)
+        A = A.add_constraint([e(1.0), z], 0.0)
+        A = A.add_constraint([z, e(0.0)], 0.0)
+        A = A.add_constraint([z, e(1.0)], 1.0)
+        A = A.add_continuity([j(0.3, 1), z], 2.0)
+        A = A.add_continuity([z, j(0.3, 1)], 0.0)
+        A = A.add_continuity([j(0.3, 0), z], 0.0)
+        A = A.add_continuity([z, j(0.3, 0)], 1.0)
+
+        x = cj.chebfun(lambda t: t, domain=dom)
+        u = A.linsolve([x, 0 * x], n=64, discretization=disc)
+        u1, u2 = u[0], u[1]
+
+        err = []
+        J = jump_functional(0.3, dom, 0)
+        err.append(abs(float(J * u2) - 1.0))
+        err.append(abs(float(J * (Dop * u1)) - 2.0))
+        err.append(abs(float(u1(jnp.asarray(0.0))) + 1.0))
+        err.append(abs(float(u2(jnp.asarray(1.0))) - 1.0))
+        err.append(float(_strip_deltas(u1.diff(2) + u2 - x).norm()))
+        err.append(float(_strip_deltas(-u1.diff() + u2.diff(2)
+                                       + u2).norm()))
+        assert all(v < 1e-8 for v in err), err

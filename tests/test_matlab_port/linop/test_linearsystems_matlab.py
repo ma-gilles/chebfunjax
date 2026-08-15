@@ -79,12 +79,44 @@ class TestLinopLinearSystems:
 
             assert all(e < TOL for e in err), err
 
-    @pytest.mark.skip(
-        reason="MATLAB's k = 2, 3, 5, 6 passes repeat the BLOCK-SYSTEM "
-               "solve under ultraS/chebcolloc1; chebfunjax implements "
-               "those discretizations for SCALAR linops only (see "
-               "operators/altdisc.py and the ported scalar sweep in "
-               "test_eigs_matlab.py) — block systems would need "
-               "symbolic operator blocks to re-discretize per backend.")
-    def test_ultras_and_chebcolloc1(self):
-        raise NotImplementedError
+    @pytest.mark.parametrize("disc", ["ultraS", "chebcolloc1"])
+    def test_ultras_and_chebcolloc1(self, disc):
+        # MATLAB's k = 2, 3, 5, 6 passes: the same block-system solve
+        # under the ultraS and chebcolloc1 discretizations.
+        dom = (-1.0, 1.0)
+        Id = I(dom)
+        Dop = D(dom)
+        x = cj.chebfun(lambda t: t, domain=dom)
+        c = (x ** 2).sin()
+        C = mult(c)
+        El = eval_at(dom[0], dom)
+        Er = eval_at(dom[-1], dom)
+        z = zero_functional(dom)
+        zero = cj.chebfun(lambda t: jnp.zeros_like(t), domain=dom)
+
+        L = linop(ChebMatrix([
+            [Dop ** 2, -Id, x.sin()],
+            [C, Dop, zero],
+            [z, El, 4.0],
+        ]))
+        L = L.addbc([El, -Er, 0.0], 0.0)
+        L = L.addbc([sum_functional(dom), El, 0.0], 1.0)
+        L = L.addbc([Er * Dop, z, 0.0], 0.0)
+
+        for f in ([x - 1, zero, 1.0], [abs(x - 1), 0 * x, 1.0]):
+            w = L.linsolve(f, n=64, discretization=disc)
+            w1, w2, w3 = w[0], w[1], w[2]
+            f1 = f[0]
+
+            err = []
+            err.append(float((w1.diff(2) - w2 + x.sin() * w3
+                              - f1).norm()))
+            err.append(float((c * w1 + w2.diff()).norm()))
+            err.append(abs(float(w2(jnp.asarray(dom[0])))
+                           + 4 * w3 - 1.0))
+            err.append(abs(float(w1(jnp.asarray(dom[0])))
+                           - float(w2(jnp.asarray(dom[-1])))))
+            err.append(abs(float(w1.sum())
+                           + float(w2(jnp.asarray(dom[0]))) - 1.0))
+            err.append(abs(float(w1.diff()(jnp.asarray(dom[-1])))))
+            assert all(e < TOL for e in err), err

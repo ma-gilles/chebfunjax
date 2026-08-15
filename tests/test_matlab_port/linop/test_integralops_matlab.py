@@ -15,7 +15,6 @@ import math
 
 import jax
 import jax.numpy as jnp
-import pytest
 
 import chebfunjax as cj
 from chebfunjax.operators.blocklinop import linop
@@ -53,9 +52,27 @@ class TestLinopIntegralOps:
 
         assert all(e < TOL for e in err), err
 
-    @pytest.mark.skip(
-        reason="MATLAB's k = 2 pass repeats both solves with the chebcolloc1 "
-               "discretization; chebfunjax's BlockLinop only implements "
-               "chebcolloc2 rectangular collocation.")
     def test_chebcolloc1(self):
-        raise NotImplementedError
+        # MATLAB's k = 2 pass: both integral-operator solves under the
+        # chebcolloc1 discretization (the blocks are transferred
+        # exactly from their chebcolloc2 matrices).
+        err = []
+
+        d = (0.0, 1.0)
+        x = cj.chebfun(lambda t: t, domain=d)
+        F = fred_op(lambda a, b: jnp.sin(2 * jnp.pi * (a - b)), d)
+        A = linop(I(d) + F)
+        u = x * x.exp()
+        f = A * u
+        v = A.linsolve([f[0]], n=64, discretization="chebcolloc1")
+        err.append(float((u - v[0]).norm()))
+
+        d = (0.0, math.pi)
+        x = cj.chebfun(lambda t: t, domain=d)
+        V = volt_op(lambda a, b: a * b, d)
+        f = x ** 2 * x.cos() + (1 - x) * x.sin()
+        A = linop(I(d) - V)
+        u = A.linsolve([f], n=64, discretization="chebcolloc1")
+        err.append(float((u[0] - x.sin()).norm()))
+
+        assert all(e < TOL for e in err), err

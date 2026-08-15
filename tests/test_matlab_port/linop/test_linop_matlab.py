@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import jax
 import jax.numpy as jnp
-import pytest
 
 import chebfunjax as cj
 from chebfunjax.operators.blocklinop import linop
@@ -51,9 +50,29 @@ class TestLinopLinop:
 
         assert all(e < 1e-9 for e in err), err
 
-    @pytest.mark.skip(
-        reason="MATLAB's k = 2 pass repeats the solve with the ultraS "
-               "discretization; chebfunjax's BlockLinop only implements "
-               "chebcolloc2 rectangular collocation.")
     def test_ultras(self):
-        raise NotImplementedError
+        # MATLAB's k = 2 pass: the same first-order system under the
+        # ultraS discretization.
+        dom = (-2.0, 2.0)
+        Id = I(dom)
+        Dop = D(dom)
+        x = cj.chebfun(lambda t: t, domain=dom)
+
+        L = linop(ChebMatrix([[Dop, -Id], [Id, Dop]]))
+        f = [x, 0 * x]
+        El = eval_at(dom[0], dom)
+        Er = eval_at(dom[-1], dom)
+        L = L.addbc([El, -Er], 0.0)
+        L = L.addbc([sum_functional(dom), El], 1.0)
+
+        u = L.linsolve(f, n=64, discretization="ultraS")
+        u1, u2 = u[0], u[1]
+
+        err = []
+        err.append(float((u1.diff() - u2 - f[0]).norm()))
+        err.append(float((u1 + u2.diff()).norm()))
+        err.append(abs(float(u1(jnp.asarray(-2.0)))
+                       - float(u2(jnp.asarray(2.0)))))
+        err.append(abs(float(u1.sum())
+                       + float(u2(jnp.asarray(-2.0))) - 1.0))
+        assert all(e < 1e-9 for e in err), err

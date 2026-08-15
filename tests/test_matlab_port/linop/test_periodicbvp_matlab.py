@@ -93,13 +93,45 @@ class TestLinopPeriodicBvp:
 
             assert all(e < TOL for e in err), err
 
-    @pytest.mark.skip(
-        reason="MATLAB's k = 2, 3, 5, 6 passes repeat the solve with the "
-               "ultraS and chebcolloc1 discretizations; chebfunjax's "
-               "BlockLinop only implements chebcolloc2 rectangular "
-               "collocation.")
-    def test_ultras_and_chebcolloc1(self):
-        raise NotImplementedError
+    @pytest.mark.parametrize("disc", ["ultraS", "chebcolloc1"])
+    def test_ultras_and_chebcolloc1(self, disc):
+        # MATLAB's k = 2, 3, 5, 6 passes: the same periodic system
+        # under ultraS and chebcolloc1.
+        dom = (-math.pi, math.pi)
+        Z, I, Dop, C = primitive_operators(dom)[:4]
+        z, E, s = primitive_functionals(dom)[:3]
+        x = cj.chebfun(lambda t: t, domain=dom)
+        c = (x ** 2).sin()
+        C = mult(c)
+        El = E(dom[0])
+        zero = cj.chebfun(lambda t: jnp.zeros_like(t), domain=dom)
+
+        L = linop(ChebMatrix([
+            [Dop ** 2, -I, x.sin()],
+            [C, Dop, zero],
+            [zero_functional(dom), El, 4.0],
+        ]))
+        L = L.addbc("periodic")
+
+        for f in ([x.sin(), zero, 1.0], [abs(x.cos()), 0 * x, 1.0]):
+            w = L.linsolve(f, n=64, discretization=disc)
+            w1, w2, w3 = w[0], w[1], w[2]
+
+            err = []
+            res, delta = _smooth_part(w1.diff(2) - w2
+                                      + x.sin() * w3 - f[0])
+            err.append(float(res.norm()))
+            err.append(delta)
+            res, delta = _smooth_part(c * w1 + w2.diff())
+            err.append(float(res.norm()))
+            err.append(delta)
+            err.append(abs(float(w2(jnp.asarray(dom[0])))
+                           + 4 * w3 - 1.0))
+            Du = w1.diff()
+            for g in (w1, w2, Du):
+                err.append(abs(float(g(jnp.asarray(math.pi)))
+                               - float(g(jnp.asarray(-math.pi)))))
+            assert all(e < TOL for e in err), err
 
     @pytest.mark.skip(
         reason="MATLAB err(:,13) solves the same problem with the trigcolloc "

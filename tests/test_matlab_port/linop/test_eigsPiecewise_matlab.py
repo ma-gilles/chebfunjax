@@ -63,10 +63,41 @@ class TestLinopEigsPiecewise:
         assert err[0] < 1e-10, err
         assert err[1] < 5e-8, err
 
-    @pytest.mark.skip(
-        reason="MATLAB err(1), err(2), err(5), err(6) repeat the problem with "
-               "the chebcolloc1 and ultraS discretizations; chebfunjax's "
-               "BlockLinop only implements chebcolloc2 rectangular "
-               "collocation.")
-    def test_ultras_and_chebcolloc1(self):
-        raise NotImplementedError
+    @pytest.mark.parametrize("disc", ["ultraS", "chebcolloc1"])
+    def test_ultras_and_chebcolloc1(self, disc):
+        # MATLAB err(1), err(2), err(5), err(6): the same piecewise
+        # eigenproblem under ultraS and chebcolloc1.
+        d = (-5.0, 5.0)
+        x = cj.chebfun(lambda t: t, domain=d)
+        h = 0.1
+        a = 4.0
+        b = -1.0
+        c = 0.9
+
+        Z, I, diff_op, C, M = primitive_operators(d)
+        z, e, s, r = primitive_functionals(d)
+
+        op = -h * diff_op ** 2 + M(a * ((x - b).sign()
+                                        - (x - c).sign()))
+        L = linop(op).addbc(e(-5.0), 0.0).addbc(e(5.0), 0.0)
+
+        lam, V = L.eigs(6, n=65, discretization=disc)
+        vals = np.sort(np.asarray(lam).real)
+        assert float(np.max(np.abs(vals - V4_RESULTS))) < 1e-10
+
+        # The recovered eigenfunctions are continuous across the
+        # coefficient breakpoints only to solver accuracy, and
+        # chebfunjax's diff() turns those ~1e-12 jumps into Dirac
+        # deltas whose norm is infinite (MATLAB's diff does not).
+        # Strip the deltas but assert their magnitude at the same
+        # tolerance, so nothing is discarded silently.
+        resid = 0.0
+        for j in range(6):
+            v = V[j][0]
+            r = op * v - complex(lam[j]) * v
+            deltas = getattr(r, "deltas", ())
+            worst_delta = max((abs(complex(d[1])) for d in deltas),
+                              default=0.0)
+            r = cj.Chebfun(funs=r.funs, domain=r.domain)
+            resid = max(resid, float(abs(r.norm())), worst_delta)
+        assert resid < 5e-8, resid
