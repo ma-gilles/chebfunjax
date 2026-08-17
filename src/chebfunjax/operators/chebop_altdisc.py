@@ -106,16 +106,20 @@ def _frechet_blocks(N, U, f_list, dom, maxk=None):
     if maxk is None:
         maxk = [_MAXK] * m
     for j in range(m):
-        # Probe with monomials (forward differences -- the Jacobian
-        # only steers Newton, the residual is evaluated exactly), then
-        # forward-substitute the coefficients.
+        # Probe with monomials (central differences: the recovered
+        # coefficients are divided by h2^p, which amplifies forward-
+        # difference noise past the order-sniffing threshold on wide
+        # domains), then forward-substitute the coefficients.
         G = []
         for p in range(maxk[j] + 1):
             v = _mono(dom, p)
             Up = list(U)
+            Um = list(U)
             Up[j] = U[j] + _EPS_FD * v
+            Um[j] = U[j] - _EPS_FD * v
             Fp = _apply_op(N, Up)
-            G.append([(Fp[i] - base[i]) * (1.0 / _EPS_FD)
+            Fm = _apply_op(N, Um)
+            G.append([(Fp[i] - Fm[i]) * (0.5 / _EPS_FD)
                       for i in range(n_eq)])
         monos = [_mono(dom, p) for p in range(maxk[j] + 1)]
         for i in range(n_eq):
