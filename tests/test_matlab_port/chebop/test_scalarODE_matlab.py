@@ -35,5 +35,16 @@ class TestChebopScalarODE:
         res = u.diff(2)(xs) + jnp.sin(u(xs) - 0.2)
         assert float(jnp.max(jnp.abs(res))) < 1e3 * TOL
 
-    def test_other_discretizations(self):
-        pytest.skip("chebfunjax has a single collocation discretization")
+    @pytest.mark.parametrize("disc", ["ultraS", "chebcolloc1"])
+    def test_other_discretizations(self, disc):
+        # MATLAB solves the same BVP under ultraS and chebcolloc1.
+        N = Chebop(lambda x, u: u.diff(2) + (u - 0.2).sin(),
+                   domain=(0.0, float(np.pi)))
+        N.lbc = 2.0
+        N.rbc = 3.0
+        u = N.solve(0.0, n=64, discretization=disc)
+        assert abs(float(u(jnp.asarray(0.0))) - 2.0) < TOL
+        assert abs(float(u(jnp.asarray(float(np.pi)))) - 3.0) < TOL
+        xs = jnp.asarray(np.linspace(0.2, np.pi - 0.2, 30))
+        res = u.diff(2)(xs) + jnp.sin(u(xs) - 0.2)
+        assert float(jnp.max(jnp.abs(res))) < 1e3 * TOL

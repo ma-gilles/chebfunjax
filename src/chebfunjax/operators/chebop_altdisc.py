@@ -70,12 +70,12 @@ def _apply_op(N, U):
 
 
 def _vscale(f) -> float:
-    try:
-        return float(abs(f).max())
-    except Exception:
-        xs = jnp.linspace(float(f.domain.breakpoints[0]),
-                          float(f.domain.breakpoints[-1]), 65)
-        return float(jnp.max(jnp.abs(f(xs))))
+    # Sampled scale estimate.  Never use abs(f).max() here: abs() runs
+    # an adaptive construction with rootfinding, which explodes on the
+    # finite-difference-noise coefficients this module produces.
+    xs = jnp.linspace(float(f.domain.breakpoints[0]),
+                      float(f.domain.breakpoints[-1]), 65)
+    return float(jnp.max(jnp.abs(jnp.asarray(f(xs)))))
 
 
 def _res_norm(R, dom) -> float:
@@ -397,6 +397,11 @@ def solve_bvp_altdisc(N, f=0.0, discretization: str = "ultraS",
         b = sd.rhs([-r for r in R])
         v = np.linalg.solve(np.asarray(sd.A), b)
         dU = sd.recover(v)
+        # Negligible correction: the iterate is the fixed point of this
+        # discretization to rounding; stop before finite-difference
+        # noise in the correction pollutes the residual floor.
+        if max(_vscale(d) for d in dU) < 1e-12 * scale:
+            break
         lam = 1.0
         while lam > 1.0 / 64:
             trial = [U[j] + lam * dU[j] for j in range(m)]
@@ -413,11 +418,11 @@ def solve_bvp_altdisc(N, f=0.0, discretization: str = "ultraS",
         U = [(U[j] + lam * dU[j]).simplify()
              if hasattr(U[j] + lam * dU[j], "simplify")
              else U[j] + lam * dU[j] for j in range(m)]
-        if res_prev is not None and res_now > 0.7 * res_prev:
-            # Slow progress on the chord: refresh the Jacobian.
+        if res_prev is not None and res_now > 0.5 * res_prev:
+            # Slow progress on the chord: refresh the Jacobian at the
+            # new iterate rather than giving up -- near a solution the
+            # refreshed Newton step restores quadratic contraction.
             stale = True
-            if res_now > 0.99 * res_prev and res_now < 1e3 * tol:
-                break
         res_prev = res_now
     return U
 

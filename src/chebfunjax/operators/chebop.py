@@ -440,6 +440,15 @@ class Chebop:
         discretization: str | None = None,
         ivp_solver: str | None = None,
     ):
+        if discretization is not None and str(discretization) in (
+                "ultraS", "chebcolloc1"):
+            # MATLAB: prefs.discretization = @ultraS | @chebcolloc1.
+            from chebfunjax.operators.chebop_altdisc import (
+                solve_bvp_altdisc,
+            )
+            out = solve_bvp_altdisc(self, f, str(discretization), n=n,
+                                    tol=tol)
+            return out[0] if len(out) == 1 else out
         if (discretization is not None
                 and str(discretization).lower() in ("chebcolloc2", "colloc2")
                 and getattr(self, "_periodic", False)):
