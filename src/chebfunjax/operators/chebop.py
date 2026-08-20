@@ -418,6 +418,11 @@ class Chebop:
         elif isinstance(val, (int, float)):
             self._lbc_raw = val
             self._rbc_raw = val
+        elif isinstance(val, (list, tuple)):
+            # MATLAB N.bc = [v0 v1 ...]: the derivative ladder imposed
+            # at BOTH endpoints (tests/chebop/test_bcVectorInput.m).
+            self._lbc_raw = list(val)
+            self._rbc_raw = list(val)
         else:
             raise TypeError(
                 f"Chebop.bc must be a number, callable, or keyword string; "
@@ -4926,13 +4931,33 @@ class Chebop:
         if not sol.success:
             raise RuntimeError(f"solve_ivp failed: {sol.message}")
 
-        def u_eval(x):
+        def comp_eval(x, j):
             xn = _np.atleast_1d(_np.asarray(x, dtype=float))
-            vals = sol.sol(xn)[0]
+            vals = sol.sol(xn)[j]
             return jnp.asarray(vals.reshape(_np.shape(x)) if _np.ndim(x)
                                else vals[0], dtype=jnp.float64)
 
-        return chebfun(lambda x: u_eval(x), domain=(a, b))
+        # Build the trajectory as repeated ANTIDERIVATIVES of the
+        # marched highest-derivative state component, with the initial
+        # conditions entering as the exact integration constants.
+        # MATLAB's ode113 chebfun carries integrator-tolerance
+        # derivatives; differentiating a value-fit instead loses 2-3
+        # digits per order at the endpoints (the D^k endpoint rows
+        # amplify roundoff by (n^2 2/h)^k), which fails
+        # test_bcVectorInput's derivative ladders.
+        try:
+            m_ord = len(ic)
+            if m_ord > 1:
+                mesh = tuple(float(a + (b - a) * j / 16)
+                             for j in range(17))
+                u = chebfun(lambda x: comp_eval(x, m_ord - 1),
+                            domain=mesh)
+                for kk in range(m_ord - 2, -1, -1):
+                    u = float(ic[kk]) + u.cumsum()
+                return u
+        except Exception:
+            pass
+        return chebfun(lambda x: comp_eval(x, 0), domain=(a, b))
 
     def __call__(self, u):
         """Apply the operator to a chebfun (MATLAB N(u) / N*u).
