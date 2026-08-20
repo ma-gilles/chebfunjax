@@ -1876,7 +1876,8 @@ class Chebop:
             ])
 
     def eigs_generalized(self, B: "Chebop", k: int = 6,
-                         n: int = 96, sort: str = "SM"):
+                         n: int = 96, sort: str = "SM",
+                         discretization: str = "chebcolloc2"):
         """Generalized eigenvalue problem A u = lambda B u for two
         linear chebops (MATLAB eigs(A, B, k)).  Both operators are
         assembled by basis probing on the collocation grid (complex
@@ -1897,6 +1898,12 @@ class Chebop:
         MATLAB source : @chebop/eigs.m (generalized branch)
         Chebfun commit: 7574c77
         """
+        if discretization in ("ultraS", "chebcolloc1"):
+            from chebfunjax.operators.chebop_altdisc import (
+                eigs_generalized_altdisc,
+            )
+            return eigs_generalized_altdisc(self, B, k, n,
+                                            discretization, sort=sort)
         import numpy as _np
         import scipy.linalg as _sla
 

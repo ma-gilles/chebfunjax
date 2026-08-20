@@ -884,19 +884,38 @@ class BlockLinop:
         lam = sla.eig(A, Bm, right=False)
         finite = np.isfinite(lam) & (np.abs(lam) < 1e8)
         lam = lam[finite]
-        if np.max(np.abs(lam.imag)) < 1e-8 * max(
-                np.max(np.abs(lam.real)), 1e-300):
+        # Drop rounding-level imaginary parts only when EVERY eigenvalue
+        # is relatively real -- a global threshold scaled by the largest
+        # (often spurious ~1e8) mode silently realifies genuinely complex
+        # spectra like Orr-Sommerfeld's.
+        if np.all(np.abs(lam.imag)
+                  <= 1e-8 * (1.0 + np.abs(lam.real))):
             lam = lam.real
-        if sigma is None or (isinstance(sigma, str)
-                             and sigma.upper() == "SM") or sigma == 0:
+        if isinstance(sigma, str) and sigma.upper() == "LR":
+            order = np.argsort(-lam.real)
+        elif isinstance(sigma, str) and sigma.upper() == "SR":
+            order = np.argsort(lam.real)
+        elif isinstance(sigma, str) and sigma.upper() == "LM":
+            order = np.argsort(-np.abs(lam))
+        elif sigma is None or (isinstance(sigma, str)
+                               and sigma.upper() == "SM") or sigma == 0:
             order = np.argsort(np.abs(lam))
         else:
             order = np.argsort(np.abs(lam - sigma))
         lam = lam[order[:k]]
+        if isinstance(sigma, str) and sigma.upper() in ("LR", "SR"):
+            return jnp.asarray(lam), self._altdisc_vecs(lam, A, Bm, sd)
         lam = np.sort_complex(lam.astype(complex)) if np.iscomplexobj(
             lam) else np.sort(lam)
         # Eigenvectors for the selected eigenvalues, one shifted solve
         # each (inverse iteration on the discrete pencil).
+        return jnp.asarray(lam), self._altdisc_vecs(lam, A, Bm, sd)
+
+    def _altdisc_vecs(self, lam, A, Bm, sd):
+        """Eigenfunctions for the selected eigenvalues by SVD null
+        vectors of the shifted pencil (see :meth:`_eigs_altdisc`)."""
+        import numpy as np  # uses-numpy: dense SVD null vectors
+
         vecs = []
         for lv in lam:
             M = A - lv * Bm
@@ -910,7 +929,7 @@ class BlockLinop:
                            else e / nrm for e in entries]
             vecs.append(ChebMatrix([[e] for e in entries],
                                    domain=self.domain))
-        return jnp.asarray(lam), vecs
+        return vecs
 
     def _linsolve_altdisc(self, f, n, discretization):
         """Solve under the ultraS / chebcolloc1 backends.

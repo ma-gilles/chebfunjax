@@ -914,7 +914,9 @@ def _to_values(f, disc: "ChebColloc2Disc") -> Array:
     Chebfun commit: 7574c77
     """
     pts = disc.points()
-    vals = jnp.ravel(jnp.asarray(f(pts), dtype=jnp.float64))
+    raw = jnp.asarray(f(pts))
+    vals = jnp.ravel(raw if jnp.iscomplexobj(raw)
+                     else raw.astype(jnp.float64))
     offs = disc.offsets()
     for k in range(1, disc.num_intervals):
         idx = offs[k]
@@ -1095,7 +1097,9 @@ def diag(f, domain: _DomainT | None = None) -> OperatorBlock:
             pts = chebpts(disc.n, kind=2)
             a, b = disc.domain[0], disc.domain[-1]
             x_phys = 0.5 * (b - a) * pts + 0.5 * (a + b)
-            fvals = jnp.ravel(jnp.asarray(f(x_phys), dtype=jnp.float64))
+            raw = jnp.asarray(f(x_phys))
+            fvals = jnp.ravel(raw if jnp.iscomplexobj(raw)
+                              else raw.astype(jnp.float64))
         else:
             fvals = _to_values(f, disc)
         return jnp.diag(fvals)

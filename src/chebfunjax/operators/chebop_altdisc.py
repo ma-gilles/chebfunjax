@@ -440,7 +440,11 @@ def eigs_generalized_altdisc(N, B, k: int, n: int,
     MATLAB source : @chebop/eigs.m with prefs.discretization
     Chebfun commit: 7574c77
     """
+    import scipy.linalg as sla
+
+    from chebfunjax.operators.altdisc import system_matrices
     from chebfunjax.operators.blocklinop import linop as _mk_linop
+    from chebfunjax.operators.blocks import OperatorBlock
     from chebfunjax.operators.chebmatrix import ChebMatrix
 
     dom = tuple(float(v) for v in N.domain)
@@ -452,6 +456,34 @@ def eigs_generalized_altdisc(N, B, k: int, n: int,
         LA = LA.add_constraint(row_list, 0.0)
     blocksB, _RB, _vo = _frechet_blocks(B, U0, [0.0] * m, dom)
     LB = _mk_linop(ChebMatrix(blocksB))
-    lam, vecs = LA.eigs(k=k, sigma=sort, B=LB, n=n,
-                        discretization=discretization)
-    return vecs, lam
+    rmin = [max((blk.order for blk in LB.A.blocks[i]
+                 if isinstance(blk, OperatorBlock)), default=0)
+            for i in range(LB.nrows)]
+
+    def spectrum(nn):
+        sd = system_matrices(LA, nn, discretization,
+                             row_order_min=rmin)
+        lam = sla.eig(np.asarray(sd.A), np.asarray(sd.mass(LB)),
+                      right=False)
+        return lam[np.isfinite(lam) & (np.abs(lam) < 1e8)], sd
+
+    # Spurious-mode removal: keep only eigenvalues that reappear at a
+    # second resolution (the same two-resolution agreement filter the
+    # chebcolloc2 generalized path uses -- spurious barycentric modes
+    # move with n, physical ones do not).
+    lam1, sd1 = spectrum(n)
+    lam2, _sd2 = spectrum(max(48, (3 * n) // 4))
+    keep = np.asarray([np.min(np.abs(lam2 - lv))
+                       < 1e-3 * (1.0 + np.abs(lv)) for lv in lam1])
+    lam = lam1[keep]
+    if isinstance(sort, str) and sort.upper() == "LR":
+        order = np.argsort(-lam.real)
+    elif isinstance(sort, str) and sort.upper() == "SR":
+        order = np.argsort(lam.real)
+    else:
+        order = np.argsort(np.abs(lam))
+    lam = lam[order[:k]]
+    A1 = np.asarray(sd1.A)
+    B1 = np.asarray(sd1.mass(LB))
+    vecs = LA._altdisc_vecs(lam, A1, B1, sd1)
+    return vecs, jnp.asarray(lam)
