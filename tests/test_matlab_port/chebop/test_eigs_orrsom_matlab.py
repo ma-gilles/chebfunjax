@@ -20,9 +20,8 @@ from __future__ import annotations
 
 import warnings
 
-import pytest
-
 import numpy as np
+import pytest
 
 from chebfunjax.operators.chebop import Chebop
 

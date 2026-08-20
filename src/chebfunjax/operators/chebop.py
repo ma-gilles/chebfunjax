@@ -642,6 +642,22 @@ class Chebop:
         ax.set_ylim(y0, y1)
         return ax
 
+    @staticmethod
+    def vectorizeOp(fun):
+        """MATLAB ``chebop.vectorizeOp``: rewrite an anonymous
+        function's ``*``, ``/`` and ``^`` into their elementwise
+        forms.  Python chebfun operators are already elementwise
+        (``*`` is pointwise, ``**`` is power), so vectorization is
+        the identity here; the method exists so ported code and the
+        MATLAB test suite run unchanged.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/vectorizeOp.m
+        Chebfun commit: 7574c77
+        """
+        return fun
+
     def solvebvp(self, f=0.0, **kwargs):
         """Solve and also return the Newton convergence history.
 
