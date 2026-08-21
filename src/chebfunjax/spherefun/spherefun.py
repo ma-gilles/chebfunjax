@@ -798,6 +798,59 @@ class Spherefun(eqx.Module):
         """
         return len(self.cols)
 
+    def slice_theta(self, th):
+        """The trig chebfun ``lam -> f(lam, th)`` (MATLAB f(:, th)).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/subsref.m (colon slices)
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        from chebfunjax.chebfun1d.chebfun import chebfun as _cf
+        th = float(th)
+        return _cf(lambda lam: self(lam, jnp.full_like(
+            jnp.asarray(lam, dtype=jnp.float64), th)),
+            domain=(-float(_np.pi), float(_np.pi)), trig=True)
+
+    def slice_lambda(self, lam):
+        """The trig chebfun ``th -> f(lam, th)`` on [-pi, pi]
+        (MATLAB f(lam, :)).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/subsref.m (colon slices)
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        from chebfunjax.chebfun1d.chebfun import chebfun as _cf
+        lam = float(lam)
+
+        def ev(th):
+            t = jnp.asarray(th, dtype=jnp.float64)
+            tt = jnp.abs(t)
+            ll = jnp.where(t >= 0, lam,
+                           jnp.mod(lam + _np.pi + _np.pi,
+                                   2 * _np.pi) - _np.pi)
+            return self(ll, tt)
+
+        return _cf(ev, domain=(-float(_np.pi), float(_np.pi)),
+                   trig=True)
+
+    def slice_z(self, z):
+        """The trig chebfun ``lam -> f`` on the circle of constant
+        ``z = cos(theta)`` (MATLAB f(:, :, z)).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/subsref.m (colon slices)
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        return self.slice_theta(float(_np.arccos(float(z))))
+
     def cdr(self):
         """CDR decomposition ``(C, D, R)`` with ``D = diag(1/pivots)``
         (zero pivots map to 0), mirroring MATLAB's three-output

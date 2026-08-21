@@ -1118,6 +1118,45 @@ class Diskfun(eqx.Module):
     # Representation / low-rank accessors
     # ------------------------------------------------------------------
 
+    def slice_theta(self, th):
+        """The chebfun ``r -> f(th, r)`` on [0, 1] (MATLAB f(th, :)).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/subsref.m (colon slices)
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d.chebfun import chebfun as _cf
+        th = float(th)
+        return _cf(lambda r: self(jnp.full_like(
+            jnp.asarray(r, dtype=jnp.float64), th), r),
+            domain=(0.0, 1.0))
+
+    def slice_r(self, r):
+        """The trig chebfun ``th -> f(th, r)`` (MATLAB f(:, r)).
+        Negative radii follow the BMC identity
+        ``f(th, -r) = f(th + pi, r)``.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/subsref.m (colon slices)
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        from chebfunjax.chebfun1d.chebfun import chebfun as _cf
+        r = float(r)
+        shift = 0.0 if r >= 0 else float(_np.pi)
+        rr = abs(r)
+
+        def ev(th):
+            t = jnp.asarray(th, dtype=jnp.float64) + shift
+            t = jnp.mod(t + _np.pi, 2 * _np.pi) - _np.pi
+            return self(t, jnp.full_like(t, rr))
+
+        return _cf(ev, domain=(-float(_np.pi), float(_np.pi)),
+                   trig=True)
+
     def cdr(self):
         """CDR (column-diagonal-row) decomposition of the Diskfun.
 
