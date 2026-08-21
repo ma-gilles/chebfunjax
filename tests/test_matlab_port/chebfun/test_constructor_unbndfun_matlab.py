@@ -19,7 +19,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 import chebfunjax as cj
 
@@ -62,8 +61,16 @@ class TestChebfunConstructorUnbndfunBoth:
 
     def test_blowup_exps(self):
         # pass(4): x^2 (1-exp(-x^2)) with 'exps' [2 2] -- endpoint blow-up.
-        pytest.skip("chebfunjax has no SingFun 'exps' support on unbounded "
-                    "domains (blow-up at +-inf)")
+        rng = np.random.RandomState(6178)
+        x = jnp.asarray(-100 + 200 * rng.rand(100))
+
+        def op(t):
+            return t ** 2 * (1 - jnp.exp(-t ** 2))
+
+        f = cj.chebfun(op, domain=(-np.inf, np.inf), exps=(2.0, 2.0))
+        err = float(jnp.max(jnp.abs(jnp.asarray(f(x)) - op(x))))
+        vs = float(jnp.max(jnp.abs(op(x))))
+        assert err < 1e5 * 2.2e-16 * vs
 
 
 class TestChebfunConstructorUnbndfunRight:
@@ -94,8 +101,16 @@ class TestChebfunConstructorUnbndfunRight:
 
     def test_blowup_exps(self):
         # pass(9): x (5+exp(-x^3)) with 'exps' [0 1].
-        pytest.skip("chebfunjax has no SingFun 'exps' support on unbounded "
-                    "domains")
+        rng = np.random.RandomState(6178)
+        x = jnp.asarray(1 + 99 * rng.rand(100))
+
+        def op(t):
+            return t * (5 + jnp.exp(-t ** 3))
+
+        f = cj.chebfun(op, domain=(1.0, np.inf), exps=(0.0, 1.0))
+        err = float(jnp.max(jnp.abs(jnp.asarray(f(x)) - op(x))))
+        vs = float(jnp.max(jnp.abs(op(x))))
+        assert err < 1e2 * 2.2e-16 * vs
 
 
 class TestChebfunConstructorUnbndfunLeft:
@@ -126,8 +141,17 @@ class TestChebfunConstructorUnbndfunLeft:
 
     def test_blowup_exps(self):
         # pass(14): x (5+exp(x^3))/(b-x) with 'exps' [0 -1].
-        pytest.skip("chebfunjax has no SingFun 'exps' support on unbounded "
-                    "domains")
+        b = -3 * np.pi
+        rng = np.random.RandomState(6178)
+        x = jnp.asarray(b - 1e2 * rng.rand(100) - 1e-2)
+
+        def op(t):
+            return t * (5 + jnp.exp(t ** 3)) / (b - t)
+
+        f = cj.chebfun(op, domain=(-np.inf, b), exps=(0.0, -1.0))
+        err = float(jnp.max(jnp.abs(jnp.asarray(f(x)) - op(x))))
+        vs = float(jnp.max(jnp.abs(op(x))))
+        assert err < 1e3 * 2.2e-16 * vs
 
     def test_array_valued(self):
         # pass(15): [exp(x) x exp(x) (1-exp(x))/x].
