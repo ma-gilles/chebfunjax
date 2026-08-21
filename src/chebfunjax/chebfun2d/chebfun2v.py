@@ -117,6 +117,7 @@ class Chebfun2v(eqx.Module):
         *fns: Callable,
         domain: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
         tol: float = 2.220446049250313e-16,
+        vectorize: bool = False,
     ) -> "Chebfun2v":
         """Construct from 2 or 3 function handles.
 
@@ -145,6 +146,18 @@ class Chebfun2v(eqx.Module):
         """
         if len(fns) < 2 or len(fns) > 3:
             raise ValueError(f"Chebfun2v.from_functions requires 2 or 3 callables, got {len(fns)}.")
+        if vectorize:
+            # MATLAB 'vectorize' flag: wrap scalar-only handles with an
+            # UNtraced numpy loop (see chebfun3, same rationale).
+            import numpy as _onp
+
+            def _wrap(fn):
+                vec = _onp.vectorize(
+                    lambda a, b: float(fn(a, b)))
+                return lambda a, b: jnp.asarray(
+                    vec(_onp.asarray(a), _onp.asarray(b)),
+                    dtype=jnp.float64)
+            fns = tuple(_wrap(f) for f in fns)
         # Route through Chebfun2.from_function, which splits complex
         # handles into re + 1j*im exactly; calling SeparableApprox
         # directly silently dropped imaginary parts (audit 2026-07-31).
@@ -152,6 +165,110 @@ class Chebfun2v(eqx.Module):
         comps = [Chebfun2.from_function(f, domain=domain, tol=tol).approx
                  for f in fns]
         return cls(comps)
+
+    @classmethod
+    def empty(cls) -> "Chebfun2v":
+        """The empty Chebfun2v (MATLAB ``chebfun2v()``): no components;
+        operations return empty results instead of raising.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/chebfun2v.m (empty constructor)
+        Chebfun commit: 7574c77
+        """
+        obj = cls.__new__(cls)
+        object.__setattr__(obj, "components", ())
+        return obj
+
+    def isempty(self) -> bool:
+        """True for the empty Chebfun2v (MATLAB isempty).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/isempty.m
+        Chebfun commit: 7574c77
+        """
+        return len(self.components) == 0
+
+    def is_periodic_tech(self) -> bool:
+        """Whether every component is represented by a trigonometric
+        tech (MATLAB ``isPeriodicTech``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/isPeriodicTech.m
+        Chebfun commit: 7574c77
+        """
+        def trig(c):
+            techs = (list(getattr(c, "cols", []))
+                     + list(getattr(c, "rows", [])))
+            return techs and all("trig" in type(t).__name__.lower()
+                                 for t in techs)
+        return bool(self.components) and all(
+            trig(c) for c in self.components)
+
+    def transpose(self) -> "Chebfun2v":
+        """MATLAB ``F.'``: the row form (chebfunjax keeps the same
+        components; orientation only affects display).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/transpose.m
+        Chebfun commit: 7574c77
+        """
+        return self
+
+    def ctranspose(self) -> "Chebfun2v":
+        """MATLAB ``F'``: conjugate transpose.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/ctranspose.m
+        Chebfun commit: 7574c77
+        """
+        return self.conj().transpose()
+
+    def __pow__(self, k) -> "Chebfun2v":
+        """Componentwise power (MATLAB ``F.^k``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/power.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return self
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        out = []
+        for c in self.components:
+            f2 = Chebfun2(approx=c)
+            out.append((f2 ** k).approx)
+        return type(self)(out)
+
+    def quiver3(self, **kwargs):
+        """3-D quiver plot of a 3-component field on the plane
+        (MATLAB ``quiver3``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/quiver3.m
+        Chebfun commit: 7574c77
+        """
+        import matplotlib.pyplot as plt
+        import numpy as _onp
+        dom = self.components[0].domain
+        xs = _onp.linspace(float(dom[0]), float(dom[1]), 12)
+        ys = _onp.linspace(float(dom[2]), float(dom[3]), 12)
+        X, Y = _onp.meshgrid(xs, ys)
+        Xj, Yj = jnp.asarray(X), jnp.asarray(Y)
+        U = _onp.asarray(self.components[0](Xj, Yj))
+        V = _onp.asarray(self.components[1](Xj, Yj))
+        W = (_onp.asarray(self.components[2](Xj, Yj))
+             if len(self.components) > 2 else _onp.zeros_like(U))
+        fig = plt.figure()
+        ax = fig.add_subplot(projection="3d")
+        ax.quiver(X, Y, _onp.zeros_like(X), U, V, W, length=0.1)
+        return ax
 
     # ------------------------------------------------------------------
     # Properties
@@ -190,6 +307,8 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/feval.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return jnp.zeros((0,))
         vals = jnp.stack([c(x, y) for c in self.components], axis=-1)
         return vals
 
@@ -225,6 +344,8 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/plus.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return self
         if isinstance(other, (int, float)):
             new_comps = [_add_scalar_separable(c, float(other)) for c in self.components]
             return Chebfun2v(new_comps)
@@ -251,6 +372,8 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/minus.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return self
         if isinstance(other, Chebfun2v):
             return self.__add__(other.__neg__())
         return self.__add__(-other)
@@ -266,6 +389,8 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/times.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return self
         if isinstance(other, (int, float, complex)):
             # complex scalars keep complex pivots (MATLAB 1i*F)
             s = complex(other) if isinstance(other, complex) \
@@ -437,18 +562,24 @@ class Chebfun2v(eqx.Module):
     def real(self) -> "Chebfun2v":
         """Real part, component-wise (MATLAB @chebfun2v/real.m).
         Added by Claude Fable 5."""
+        if self.isempty():
+            return self
         from chebfunjax.chebfun2d.chebfun2 import Chebfun2
         return Chebfun2v([
             Chebfun2(approx=c).real().approx for c in self.components])
 
     def imag(self) -> "Chebfun2v":
         """Imaginary part, component-wise (MATLAB @chebfun2v/imag.m)."""
+        if self.isempty():
+            return self
         from chebfunjax.chebfun2d.chebfun2 import Chebfun2
         return Chebfun2v([
             Chebfun2(approx=c).imag().approx for c in self.components])
 
     def conj(self) -> "Chebfun2v":
         """Complex conjugate, component-wise (MATLAB conj.m)."""
+        if self.isempty():
+            return self
         from chebfunjax.chebfun2d.chebfun2 import Chebfun2
         return Chebfun2v([
             Chebfun2(approx=c).conj().approx for c in self.components])
@@ -478,6 +609,8 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/divergence.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return self
         # df1/dx (dim=2 means x-derivative)
         df1_dx = _diff_separable(self.components[0], n=1, dim=2)
         # dg/dy (dim=1 means y-derivative)
@@ -550,6 +683,8 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/curl.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return self
         if self.n_components == 2:
             # 2D scalar curl: g_x - f_y
             dg_dx = _diff_separable(self.components[1], n=1, dim=2)
@@ -615,6 +750,8 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/dot.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return self
         if other.n_components != self.n_components:
             raise ValueError(
                 f"Cannot compute dot product of Chebfun2v with "
@@ -652,6 +789,8 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/cross.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return self
         nF = self.n_components
         nG = other.n_components
         if nF != nG:
@@ -735,6 +874,8 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/laplacian.m (lap.m)
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return self
         from chebfunjax.chebfun2d.chebfun2 import Chebfun2
         new = [
             (Chebfun2(approx=c.diff(1, 2))
@@ -784,6 +925,8 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/norm.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return 0.0
         total = 0.0
         for c in self.components:
             # ||f_j||^2 = integral |f_j|^2, computed EXACTLY from the CDR
@@ -823,6 +966,8 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/roots.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return []
         from chebfunjax.chebfun2d.chebfun2 import Chebfun2
         f = Chebfun2(approx=self.components[0])
         g = Chebfun2(approx=self.components[1])
