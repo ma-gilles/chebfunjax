@@ -326,6 +326,16 @@ class ChebMatrix:
                     acc = acc + self.blocks[i][k] * other.blocks[k][j]
                 row.append(acc)
             out.append(row)
+        if all(isinstance(blk, (int, float, complex))
+               or (hasattr(blk, "ndim")
+                   and getattr(blk, "ndim", 1) == 0)
+               for row in out for blk in row):
+            # MATLAB: chebmatrix operations resulting only in doubles
+            # return a normal matrix (tests/chebmatrix/
+            # test_matrixOutput.m).
+            return jnp.asarray([[complex(blk) if isinstance(
+                blk, complex) else float(blk) for blk in row]
+                for row in out])
         return ChebMatrix(out, domain=self.domain)
 
     def __rmul__(self, other):
@@ -363,6 +373,47 @@ class ChebMatrix:
         """
         col_sizes = self.block_sizes()[0]
         return [sz[1] == float("inf") for sz in col_sizes]
+
+    @property
+    def is_not_diff_or_int(self):
+        """Per-block flags: True where the block involves no
+        differentiation or integration (MATLAB ``isNotDiffOrInt``).
+        Chebfun and scalar blocks are multiplication-like, hence True;
+        operator/functional blocks carry the flag through their algebra.
+
+        Provenance
+        ----------
+        MATLAB source : @chebmatrix/chebmatrix.m (isNotDiffOrInt)
+        Chebfun commit: 7574c77
+        """
+        return [[bool(getattr(blk, "isnotdiffint", True))
+                 for blk in row] for row in self.blocks]
+
+    def change_tech(self, tech) -> "ChebMatrix":
+        """Convert every chebfun block to the given tech
+        ('trigtech' or 'chebtech2'); scalars pass through, and blocks
+        already carrying the target tech are returned unchanged.
+
+        Provenance
+        ----------
+        MATLAB source : @chebmatrix/changeTech.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        from chebfunjax.chebfun1d.chebfun import chebfun as _cf
+        name = getattr(tech, "__name__", str(tech)).lower()
+        want_trig = "trig" in name
+
+        def conv(blk):
+            if not isinstance(blk, Chebfun):
+                return blk
+            cur = type(blk.funs[0].tech).__name__.lower()
+            if ("trig" in cur) == want_trig:
+                return blk
+            dom = tuple(float(v) for v in blk.domain.breakpoints)
+            return _cf(lambda x: blk(x), domain=dom, trig=want_trig)
+
+        return self.cellfun(conv)
 
     def identity(self) -> "ChebMatrix":
         """Identity ChebMatrix matching this one's variable structure.
@@ -711,6 +762,132 @@ class ChebMatrix:
     # ------------------------------------------------------------------
     # Dunder
     # ------------------------------------------------------------------
+
+    def _plot_impl(self, coeffs: bool):
+        import matplotlib.pyplot as plt
+
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        m, n = self.size
+        fig, axes = plt.subplots(m, n, squeeze=False)
+        for i in range(m):
+            for j in range(n):
+                ax = axes[i][j]
+                blk = self.blocks[i][j]
+                if isinstance(blk, Chebfun):
+                    a, b = (float(blk.domain.breakpoints[0]),
+                            float(blk.domain.breakpoints[-1]))
+                    xs = jnp.linspace(a, b, 200)
+                    if coeffs:
+                        c = jnp.abs(jnp.ravel(jnp.asarray(
+                            blk.funs[0].tech.coeffs))) + 1e-300
+                        ax.semilogy(jnp.arange(c.size), c, ".")
+                    else:
+                        ax.plot(xs, jnp.asarray(blk(xs)))
+                elif isinstance(blk, (int, float, complex)):
+                    ax.text(0.5, 0.5, str(blk), ha="center",
+                            va="center")
+                    ax.set_axis_off()
+                else:
+                    # Operator/functional block: show its 10-point
+                    # discretization matrix (MATLAB draws blocks by
+                    # their realizations).
+                    M = jnp.atleast_2d(jnp.asarray(blk.matrix(10)))
+                    ax.imshow(jnp.abs(M), aspect="auto")
+        return fig
+
+    def plot(self, *args, **kwargs):
+        """Plot every block on a subplot grid (chebfun blocks as line
+        plots, operator blocks by their discretization matrices,
+        scalars as text).
+
+        Provenance
+        ----------
+        MATLAB source : @chebmatrix/plot.m
+        Chebfun commit: 7574c77
+        """
+        return self._plot_impl(coeffs=False)
+
+    def plotcoeffs(self, *args, **kwargs):
+        """Coefficient plots of the chebfun blocks (MATLAB
+        ``plotcoeffs``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebmatrix/plotcoeffs.m
+        Chebfun commit: 7574c77
+        """
+        return self._plot_impl(coeffs=True)
+
+    def _log_plot_guard(self, name: str):
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        for row in self.blocks:
+            for blk in row:
+                if not isinstance(blk, (Chebfun, int, float, complex)):
+                    raise ValueError(
+                        f"{name} plot of infinite blocks is not "
+                        "supported.")
+
+    def loglog(self, *args, **kwargs):
+        """MATLAB ``loglog`` of a chebmatrix; raises for operator
+        (infinite) blocks exactly as MATLAB does.
+
+        Provenance
+        ----------
+        MATLAB source : @chebmatrix/loglog.m
+        Chebfun commit: 7574c77
+        """
+        self._log_plot_guard("loglog")
+        return self._plot_impl(coeffs=False)
+
+    def semilogx(self, *args, **kwargs):
+        """MATLAB ``semilogx`` of a chebmatrix (see :meth:`loglog`).
+
+        Provenance
+        ----------
+        MATLAB source : @chebmatrix/semilogx.m
+        Chebfun commit: 7574c77
+        """
+        self._log_plot_guard("semilogx")
+        return self._plot_impl(coeffs=False)
+
+    def waterfall(self, t=None, **kwargs):
+        """Waterfall plot of a chebmatrix of chebfun snapshots.
+
+        Provenance
+        ----------
+        MATLAB source : @chebmatrix/waterfall.m
+        Chebfun commit: 7574c77
+        """
+        import matplotlib.pyplot as plt
+        import numpy as _onp  # uses-numpy: concrete plotting grids
+
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        funs = [blk for row in self.blocks for blk in row
+                if isinstance(blk, Chebfun)]
+        if not funs:
+            raise ValueError("waterfall: no chebfun blocks.")
+        a, b = (float(funs[0].domain.breakpoints[0]),
+                float(funs[0].domain.breakpoints[-1]))
+        xs = _onp.linspace(a, b, 200)
+        ts = (_onp.arange(len(funs), dtype=float) if t is None
+              else _onp.asarray(t, dtype=float))
+        X, T = _onp.meshgrid(xs, ts)
+        Z = _onp.vstack([_onp.asarray(f(jnp.asarray(xs)))
+                         for f in funs])
+        fig = plt.figure()
+        ax = fig.add_subplot(projection="3d")
+        surf_kw = {}
+        lw = kwargs.get("LineWidth", kwargs.get("linewidth"))
+        if lw is not None:
+            surf_kw["linewidth"] = float(lw)
+        fc = kwargs.get("FaceColor", kwargs.get("facecolor"))
+        if fc is not None:
+            surf_kw["color"] = fc
+        fa = kwargs.get("FaceAlpha", kwargs.get("alpha"))
+        if fa is not None:
+            surf_kw["alpha"] = float(fa)
+        ax.plot_surface(X, T, Z, **surf_kw)
+        return ax
 
     def __repr__(self) -> str:
         block_types = []
