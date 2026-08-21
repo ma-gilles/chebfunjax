@@ -584,11 +584,17 @@ class Chebfun3(eqx.Module):
         """
         if vectorize:
             # MATLAB 'vectorize' flag: wrap a scalar-only handle so the
-            # tensor-grid sampler can call it with arrays.
+            # tensor-grid sampler can call it with arrays.  The wrap
+            # must stay UNtraced (numpy loop, not jnp.vectorize/vmap):
+            # scalar-only handles may call plain-Python/numpy math that
+            # cannot run under a JAX tracer.
+            import numpy as _onp
             f_scalar = f
-            f = jnp.vectorize(
-                lambda a, b, c: jnp.asarray(f_scalar(a, b, c),
-                                            dtype=jnp.float64))
+            _vec = _onp.vectorize(
+                lambda a, b, c: float(f_scalar(a, b, c)))
+            f = lambda a, b, c: jnp.asarray(  # noqa: E731
+                _vec(_onp.asarray(a), _onp.asarray(b),
+                     _onp.asarray(c)), dtype=jnp.float64)
 
         xa, xb = float(domain[0]), float(domain[1])
         ya, yb = float(domain[2]), float(domain[3])

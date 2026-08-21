@@ -2510,6 +2510,27 @@ def chebfun2(
     tol: Optional[float] = None,
     n: Optional[int] = None,
 ) -> Chebfun2:
+    """Construct a Chebfun2 from a callable or a MATLAB expression
+    string (``chebfun2('cos(x) + sin(x.*y)')``); see
+    :func:`_chebfun2_impl` for the full parameter list.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun2/chebfun2.m (str2op string constructor)
+    Chebfun commit: 7574c77
+    """
+    if isinstance(f, str):
+        from chebfunjax.utils.matlab_expr import matlab_expression
+        f = matlab_expression(f, ("x", "y"))
+    return _chebfun2_impl(f, domain=domain, tol=tol, n=n)
+
+
+def _chebfun2_impl(
+    f: Callable[[jax.Array, jax.Array], jax.Array],
+    domain: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
+    tol: Optional[float] = None,
+    n: Optional[int] = None,
+) -> Chebfun2:
     """Construct a Chebfun2 representing a bivariate smooth function.
 
     This is the primary factory function for creating Chebfun2 objects.
