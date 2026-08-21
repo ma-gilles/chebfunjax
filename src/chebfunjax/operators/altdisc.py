@@ -310,10 +310,11 @@ class SystemDisc:
 
     def __init__(self, L, n: int, discretization: str, dom=None,
                  row_order_min=None):
-        if discretization not in ("ultraS", "chebcolloc1"):
+        if discretization not in ("ultraS", "chebcolloc1",
+                                  "trigcolloc"):
             raise ValueError(
                 f"Unknown discretization {discretization!r}; expected "
-                "'ultraS' or 'chebcolloc1'.")
+                "'ultraS', 'chebcolloc1' or 'trigcolloc'.")
         self.disc = discretization
         self.n = n = int(n)
         dom = tuple(float(v) for v in (L.domain if dom is None else dom))
@@ -337,6 +338,42 @@ class SystemDisc:
             if row_order_min is not None:
                 d = max(d, int(row_order_min[i]))
             self.row_order.append(d)
+
+        if discretization == "trigcolloc":
+            # Periodicity is implicit in the Fourier basis: the wrap
+            # rows addbc('periodic') added are dropped and no rows are
+            # reduced (MATLAB @trigcolloc).
+            if len(dom) != 2:
+                raise NotImplementedError(
+                    "trigcolloc supports a single periodic interval.")
+            if not getattr(L, "periodic", False) and (
+                    L2.continuity or L2.constraint):
+                raise NotImplementedError(
+                    "trigcolloc supports periodic problems only.")
+            self.row_order = [0] * L2.nrows
+            from chebfunjax.discretization.trigcolloc import TrigColloc
+            self.tc = TrigColloc(n, (dom[0], dom[1]))
+            ncon = 0
+            nfrow = sum(1 for f in self.funcrow if f)
+            cols = sum(n if isfun[j] else 1 for j in range(L2.ncols))
+            rows = nfrow + sum(n for i in range(L2.nrows)
+                               if not self.funcrow[i])
+            if rows != cols:
+                raise ValueError(
+                    "CHEBFUN:LINOP:linsolve:notSquare -- trigcolloc "
+                    f"matrix is {rows}x{cols}.")
+            self.col_off = []
+            off = 0
+            for j in range(L2.ncols):
+                self.col_off.append(off)
+                off += n if isfun[j] else 1
+            self.ncols_total = off
+            self._disc2 = ChebColloc2Disc(n, dom)
+            self.con_rows = np.zeros((0, off))
+            self.con_vals = []
+            self.A = np.vstack([self._equation_rows_trig(
+                L2.A.blocks[i], i) for i in range(L2.nrows)])
+            return
 
         # Row reduction: d_i rows per interval per operator row; the
         # side conditions must exactly fill the removed rows.
@@ -452,6 +489,58 @@ class SystemDisc:
             [p.astype(complex) if any(np.iscomplexobj(q) for q in parts)
              else p for p in parts], axis=1)
 
+    def _equation_rows_trig(self, row, i: int) -> np.ndarray:
+        """One block-row under trigcolloc: native Fourier
+        differentiation matrices with the recovered differential-form
+        coefficients evaluated on the equispaced grid; functional rows
+        transfer through trig interpolation to the chebcolloc2 grid.
+
+        Provenance
+        ----------
+        MATLAB source : @trigcolloc/trigcolloc.m
+        Chebfun commit: 7574c77
+        """
+        n, ref, tc = self.n, self.ref, self.tc
+        a, b = self.dom[0], self.dom[-1]
+        if self.funcrow[i]:
+            x2_phys = np.asarray(self._disc2.points())
+            Bt2 = np.asarray(tc.eval_matrix(jnp.asarray(x2_phys)))
+            parts = []
+            for j, blk in enumerate(row):
+                if isinstance(blk, FunctionalBlock):
+                    rv = np.asarray(blk.matrix(self._disc2),
+                                    dtype=float)
+                    parts.append(rv @ Bt2)
+                else:
+                    parts.append(np.asarray([float(blk)]))
+            return np.concatenate(parts)[None, :]
+        pts = np.asarray(tc.points())
+        yref = (2.0 * pts - (a + b)) / (b - a)
+        parts = []
+        for j, blk in enumerate(row):
+            if isinstance(blk, OperatorBlock):
+                coeff_vals, _M2 = _differential_form(blk, (a, b), ref)
+                if coeff_vals is None:
+                    raise NotImplementedError(
+                        "trigcolloc: block is not a differential "
+                        "operator.")
+                A = np.zeros((n, n))
+                for k, cv in enumerate(coeff_vals):
+                    if np.max(np.abs(cv)) == 0:
+                        continue
+                    c_t = np.asarray(vals2coeffs(jnp.asarray(cv)))
+                    ck = np.polynomial.chebyshev.chebval(yref, c_t)
+                    Dk = (np.asarray(tc.diffmat(k)) if k
+                          else np.eye(n))
+                    A = A + ck[:, None] * Dk
+                parts.append(A)
+            else:
+                fv = (np.asarray(blk(jnp.asarray(pts))).ravel()
+                      if callable(blk)
+                      else np.full(n, float(blk)))
+                parts.append(fv[:, None])
+        return np.concatenate(parts, axis=1)
+
     # -- right-hand side and recovery ----------------------------------
 
     def rhs(self, entries) -> np.ndarray:
@@ -467,6 +556,13 @@ class SystemDisc:
                 segs.append(np.asarray([float(entry)]))
                 continue
             red = self.row_order[i]
+            if self.disc == "trigcolloc":
+                pts = np.asarray(self.tc.points())
+                fv = (np.asarray(entry(jnp.asarray(pts))).ravel()
+                      if callable(entry)
+                      else np.full(self.n, float(entry)))
+                segs.append(fv)
+                continue
             for k in range(self.K):
                 a, b = self.dom[k], self.dom[k + 1]
                 if self.disc == "ultraS":
@@ -582,6 +678,19 @@ class SystemDisc:
                 val = v[off]
                 out.append(complex(val) if np.iscomplexobj(v)
                            else float(np.real(val)))
+                continue
+            if self.disc == "trigcolloc":
+                # TrigColloc and Trigtech share the equispaced grid
+                # starting at the left endpoint, so the value vector
+                # IS the tech's data (machine-exact interpolation).
+                from chebfunjax.tech.trigtech import Trigtech
+                seg = jnp.asarray(np.asarray(v[off: off + n]))
+                tech = Trigtech.from_values(seg)
+                pc = _piece_from_values(jnp.zeros(4), self.dom[0],
+                                        self.dom[-1])
+                piece = type(pc)(tech=tech,
+                                 interval=(self.dom[0], self.dom[-1]))
+                out.append(_chebfun_from_pieces([piece], self.dom))
                 continue
             pieces = []
             for k in range(K):

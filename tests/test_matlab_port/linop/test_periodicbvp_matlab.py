@@ -133,10 +133,22 @@ class TestLinopPeriodicBvp:
                                - float(g(jnp.asarray(-math.pi)))))
             assert all(e < TOL for e in err), err
 
-    @pytest.mark.skip(
-        reason="MATLAB err(:,13) solves the same problem with the trigcolloc "
-               "discretization; chebfunjax's BlockLinop has no Fourier "
-               "(trigcolloc) discretization -- periodic problems are handled "
-               "by explicit periodic side conditions instead.")
     def test_trigcolloc(self):
-        raise NotImplementedError
+        # MATLAB err(:,13): the smooth-periodic scalar problem
+        # u'' + (1+sin 2x) u' + (1+cos x) u = cos x on [0, 2pi]
+        # under the Fourier (trigcolloc) discretization.
+        dom = (0.0, 2 * math.pi)
+        Dop = primitive_operators(dom)[2]
+        D2 = Dop ** 2
+        a1 = cj.chebfun(lambda x: 1 + jnp.sin(2 * x), domain=dom)
+        a0 = cj.chebfun(lambda x: 1 + jnp.cos(x), domain=dom)
+        L = linop(D2 + mult(a1) * Dop + mult(a0))
+        f = cj.chebfun(lambda x: jnp.cos(x), domain=dom)
+        u = L.linsolve([f], n=64, discretization="trigcolloc")[0]
+        res = u.diff(2) + a1 * u.diff() + a0 * u - f
+        assert float(res.norm()) < TOL
+        assert abs(float(u(jnp.asarray(2 * math.pi)))
+                   - float(u(jnp.asarray(0.0)))) < TOL
+        du = u.diff()
+        assert abs(float(du(jnp.asarray(2 * math.pi)))
+                   - float(du(jnp.asarray(0.0)))) < TOL
