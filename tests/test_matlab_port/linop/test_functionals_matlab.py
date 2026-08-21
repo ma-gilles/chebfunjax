@@ -30,10 +30,10 @@ class TestLinopFunctionals:
 
         A = ChebMatrix([[s - z], [-2 * dt(x ** 2)]])
         Af = A * ChebMatrix([[f]])
-        assert abs(float(f.sum()) - float(Af[0])) < 100 * EPS
-        assert abs(-2 * float(f.inner(x ** 2)) - float(Af[1])) < 100 * EPS
+        assert abs(float(f.sum()) - float(Af[0, 0])) < 100 * EPS
+        assert abs(-2 * float(f.inner(x ** 2)) - float(Af[1, 0])) < 100 * EPS
 
         A = ChebMatrix([[e(2.0)], [e(0.0)]])
         Af = A * ChebMatrix([[f]])
-        assert abs(float(f(jnp.asarray(2.0))) - float(Af[0])) < 100 * EPS
-        assert abs(float(f(jnp.asarray(0.0))) - float(Af[1])) < 100 * EPS
+        assert abs(float(f(jnp.asarray(2.0))) - float(Af[0, 0])) < 100 * EPS
+        assert abs(float(f(jnp.asarray(0.0))) - float(Af[1, 0])) < 100 * EPS

@@ -128,3 +128,50 @@ def test_chebfun_get_and_fold():
     assert M.shape == (3, 8)
     back = Chebfun3.fold(M, (2, 3, 4), 2, (1, 3))
     assert float(jnp.max(jnp.abs(back - T))) == 0.0
+
+
+def test_chebpref_and_matlab_expr_smoke():
+    from chebfunjax.chebpref import ChebfunPref, ChebopPref
+    from chebfunjax.utils.matlab_expr import matlab_expression
+    p = ChebfunPref({"splitting": True, "testPref": "t"})
+    assert p.splitting and p.testPref == "t"
+    assert ChebfunPref.mergeTechPrefs(p, {"testPref": "q"}) \
+        .testPref == "q"
+    q = ChebopPref()
+    q.plotting = "on"
+    assert q.plotting == "on" and q.discretization == "chebcolloc2"
+    fn = matlab_expression("cos(x) + sin(x.*y)", ("x", "y"))
+    assert abs(float(fn(jnp.asarray(0.3), jnp.asarray(0.4)))
+               - (np.cos(0.3) + np.sin(0.12))) < 1e-15
+
+
+def test_slices_and_chebmatrix_plots_smoke():
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    from chebfunjax.diskfun.diskfun import Diskfun
+    from chebfunjax.spherefun.spherefun import Spherefun
+    f = Spherefun.from_function(
+        lambda lam, th: jnp.cos(th) + jnp.sin(lam) * jnp.sin(th))
+    sl = f.slice_theta(0.7)
+    assert abs(float(sl(jnp.asarray(0.2)))
+               - (np.cos(0.7) + np.sin(0.2) * np.sin(0.7))) < 1e-10
+    _ = f.slice_lambda(0.3)
+    _ = f.slice_z(0.5)
+    g = Diskfun.from_function(lambda t, r: r * jnp.cos(t))
+    assert abs(float(g.slice_r(0.5)(jnp.asarray(0.1)))
+               - 0.5 * np.cos(0.1)) < 1e-10
+    _ = g.slice_theta(0.1)
+    assert g.nonzero_poles is not None and len(g) >= 1
+    _ = g.pivot_values, g.pivot_locations
+
+    x = cj.chebfun(lambda t: t)
+    M = ChebMatrix([[x], [x ** 2], [1.0]])
+    assert M.plot() is not None
+    assert M.plotcoeffs() is not None
+    Q = ChebMatrix([[x.sin(), (2 * x).sin()]])
+    assert Q.waterfall() is not None
+    assert M.change_tech("chebtech2")[0, 0] is x
+    assert M.is_not_diff_or_int == [[True], [True], [True]]
+    plt.close("all")
