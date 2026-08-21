@@ -245,6 +245,61 @@ class Chebfun2v(eqx.Module):
             out.append((f2 ** k).approx)
         return type(self)(out)
 
+    def coeffs2(self, m=None, n=None):
+        """Per-component 2-D Chebyshev coefficient matrices (MATLAB
+        ``coeffs2``); optional common size (m, n).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/coeffs2.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        return tuple(Chebfun2(approx=c).coeffs2(m, n)
+                     for c in self.components)
+
+    @classmethod
+    def coeffs2chebfun2v(cls, *coeff_mats,
+                         domain=(-1.0, 1.0, -1.0, 1.0)) -> "Chebfun2v":
+        """Assemble a Chebfun2v from per-component coefficient
+        matrices (MATLAB ``chebfun2v.coeffs2chebfun2v``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/coeffs2chebfun2v.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        comps = [Chebfun2.from_coeffs(C, domain=domain).approx
+                 for C in coeff_mats]
+        return cls(comps)
+
+    @staticmethod
+    def coeffs2vals(*coeff_mats):
+        """Per-component coeffs -> values (MATLAB
+        ``chebfun2v.coeffs2vals``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/coeffs2vals.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        return tuple(Chebfun2.coeffs2vals(C) for C in coeff_mats)
+
+    @staticmethod
+    def vals2coeffs(*val_mats):
+        """Per-component values -> coeffs (MATLAB
+        ``chebfun2v.vals2coeffs``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2v/vals2coeffs.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        return tuple(Chebfun2.vals2coeffs(V) for V in val_mats)
+
     def quiver3(self, **kwargs):
         """3-D quiver plot of a 3-component field on the plane
         (MATLAB ``quiver3``).

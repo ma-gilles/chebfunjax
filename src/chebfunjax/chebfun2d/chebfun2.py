@@ -250,6 +250,21 @@ class Chebfun2(eqx.Module):
         return cls(approx=approx)
 
     @classmethod
+    def from_coeffs(cls, C, domain=(-1.0, 1.0, -1.0, 1.0),
+                    **kwargs) -> "Chebfun2":
+        """Construct from a 2-D Chebyshev coefficient matrix (MATLAB
+        ``chebfun2(C, 'coeffs')``): ``C[j, k]`` multiplies
+        ``T_j(y) T_k(x)``.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/chebfun2.m ('coeffs' flag)
+        Chebfun commit: 7574c77
+        """
+        V = cls.coeffs2vals(jnp.asarray(C, dtype=jnp.float64))
+        return cls.from_values(jnp.asarray(V), domain=domain, **kwargs)
+
+    @classmethod
     def from_values(
         cls,
         A,
