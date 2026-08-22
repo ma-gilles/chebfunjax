@@ -533,6 +533,57 @@ class Spherefunv(eqx.Module):
         v = Spherefun.poisson(self.vorticity())
         return u, v
 
+    def coeffs2(self, m=None, n=None):
+        """Per-component 2-D Fourier coefficient matrices (MATLAB
+        ``coeffs2``).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/coeffs2.m
+        Chebfun commit: 7574c77
+        """
+        return tuple(c.coeffs2(m, n) for c in self.components)
+
+    @classmethod
+    def coeffs2spherefunv(cls, *coeff_mats) -> "Spherefunv":
+        """Assemble a Spherefunv from per-component coefficient
+        matrices (MATLAB ``spherefunv.coeffs2spherefunv``).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/coeffs2spherefunv.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.spherefun.spherefun import Spherefun
+        return cls(*[Spherefun.coeffs2spherefun(X)
+                     for X in coeff_mats])
+
+    @staticmethod
+    def coeffs2vals(*coeff_mats):
+        """Per-component coeffs -> values (MATLAB
+        ``spherefunv.coeffs2vals``).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/coeffs2vals.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.spherefun.spherefun import Spherefun
+        return tuple(Spherefun.coeffs2vals(X) for X in coeff_mats)
+
+    @staticmethod
+    def vals2coeffs(*val_mats):
+        """Per-component values -> coeffs (MATLAB
+        ``spherefunv.vals2coeffs``).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/vals2coeffs.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.spherefun.spherefun import Spherefun
+        return tuple(Spherefun.vals2coeffs(V) for V in val_mats)
+
     def quiver3(self, **kwargs):
         """3-D quiver of the field on the sphere surface (MATLAB
         ``quiver3``).

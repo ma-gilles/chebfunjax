@@ -851,6 +851,115 @@ class Spherefun(eqx.Module):
         import numpy as _np
         return self.slice_theta(float(_np.arccos(float(z))))
 
+    def _center_pad(C, target):
+        """Center-pad/truncate trig coefficient columns to length
+        ``target`` (coefficients are wave-number centered)."""
+        cur = C.shape[0]
+        if cur == target:
+            return C
+        if cur < target:
+            lo = (target - cur) // 2
+            hi = target - cur - lo
+            return jnp.concatenate([
+                jnp.zeros((lo, C.shape[1]), dtype=C.dtype), C,
+                jnp.zeros((hi, C.shape[1]), dtype=C.dtype)])
+        lo = (cur - target) // 2
+        return C[lo:lo + target]
+
+    def coeffs2(self, m=None, n=None):
+        """The 2-D Fourier coefficient matrix of the (doubled) sphere
+        representation, optionally sized m x n (MATLAB ``coeffs2``).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/coeffs2.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.tech.trigtech import trig_vals2coeffs
+        if m is not None and n is None:
+            n = m
+        cc = [jnp.ravel(jnp.asarray(trig_vals2coeffs(
+            jnp.asarray(c.values)))) for c in self.cols]
+        rr = [jnp.ravel(jnp.asarray(trig_vals2coeffs(
+            jnp.asarray(r.values)))) for r in self.rows]
+        mc = max(c.shape[0] for c in cc)
+        nr = max(r.shape[0] for r in rr)
+        C = Spherefun._center_pad(
+            jnp.stack([jnp.concatenate([c, jnp.zeros(mc - c.shape[0],
+                       dtype=c.dtype)]) if c.shape[0] < mc else c
+                       for c in [Spherefun._center_pad(
+                           ci[:, None], mc)[:, 0] for ci in cc]],
+                      axis=1), mc if m is None else m)
+        R = Spherefun._center_pad(
+            jnp.stack([Spherefun._center_pad(ri[:, None], nr)[:, 0]
+                       for ri in rr], axis=1),
+            nr if n is None else n)
+        d = jnp.where(jnp.abs(self.pivots) > 0,
+                      1.0 / jnp.where(self.pivots == 0, 1.0,
+                                      self.pivots), 0.0)
+        return C @ jnp.diag(d.astype(C.dtype)) @ R.T
+
+    @staticmethod
+    def coeffs2spherefun(X) -> "Spherefun":
+        """Build a Spherefun from a 2-D Fourier coefficient matrix
+        (MATLAB ``spherefun.coeffs2spherefun``).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/coeffs2spherefun.m
+        Chebfun commit: 7574c77
+        """
+        X = jnp.asarray(X)
+        mth, nlam = X.shape
+        kth = jnp.arange(mth) - mth // 2
+        klam = jnp.arange(nlam) - nlam // 2
+
+        def f(lam, th):
+            Eth = jnp.exp(1j * jnp.tensordot(
+                jnp.asarray(th), kth, axes=0))
+            El = jnp.exp(1j * jnp.tensordot(
+                jnp.asarray(lam), klam, axes=0))
+            return jnp.real(jnp.einsum("...j,jk,...k->...",
+                                       Eth, X.astype(jnp.complex128),
+                                       El))
+
+        return Spherefun.from_function(f)
+
+    @staticmethod
+    def coeffs2vals(X):
+        """2-D Fourier coefficients -> values on the equispaced
+        lat-lon grid (MATLAB ``spherefun.coeffs2vals``).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/coeffs2vals.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.tech.trigtech import trig_coeffs2vals
+        X = jnp.asarray(X, dtype=jnp.complex128)
+        V = jnp.stack([jnp.ravel(jnp.asarray(trig_coeffs2vals(
+            X[:, j]))) for j in range(X.shape[1])], axis=1)
+        W = jnp.stack([jnp.ravel(jnp.asarray(trig_coeffs2vals(
+            V[i, :]))) for i in range(V.shape[0])], axis=0)
+        return W
+
+    @staticmethod
+    def vals2coeffs(V):
+        """Inverse of :meth:`coeffs2vals`.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/vals2coeffs.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.tech.trigtech import trig_vals2coeffs
+        V = jnp.asarray(V, dtype=jnp.complex128)
+        W = jnp.stack([jnp.ravel(jnp.asarray(trig_vals2coeffs(
+            V[i, :]))) for i in range(V.shape[0])], axis=0)
+        C = jnp.stack([jnp.ravel(jnp.asarray(trig_vals2coeffs(
+            W[:, j]))) for j in range(W.shape[1])], axis=1)
+        return C
+
     def cdr(self):
         """CDR decomposition ``(C, D, R)`` with ``D = diag(1/pivots)``
         (zero pivots map to 0), mirroring MATLAB's three-output
