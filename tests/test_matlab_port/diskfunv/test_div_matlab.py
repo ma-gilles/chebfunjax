@@ -1,5 +1,9 @@
 """Port of MATLAB Chebfun tests/diskfunv/test_div.m (Fable 5).
 
+MATLAB constructs from cartesian @(x,y) handles; the chebfunjax
+Diskfun samples in polar (theta, r), so handles convert via
+x = r cos(theta), y = r sin(theta).
+
 Provenance
 ----------
 MATLAB source : tests/diskfunv/test_div.m
@@ -8,24 +12,46 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
+import jax
 import jax.numpy as jnp
+import numpy as np
 
+from chebfunjax.diskfun.diskfun import Diskfun
 from chebfunjax.diskfun.diskfunv import Diskfunv
 
-T0, R0 = jnp.asarray(0.6), jnp.asarray(0.7)
-X0 = float(R0 * jnp.cos(T0))
-Y0 = float(R0 * jnp.sin(T0))
+jax.config.update("jax_enable_x64", True)
+
+TOL = 1e3 * 2.220446049250313e-16
+
+
+def _dsk(fc):
+    def f(t, r):
+        return fc(r * jnp.cos(t), r * jnp.sin(t))
+    return Diskfun.from_function(f)
+
+
+def _norm_inf(g, n=25):
+    ts = jnp.linspace(-np.pi + 1e-6, np.pi - 1e-6, n)
+    rs = jnp.linspace(1e-3, 1.0 - 1e-6, n)
+    T, R = jnp.meshgrid(ts, rs)
+    return float(jnp.max(jnp.abs(jnp.asarray(g(T, R)))))
+
+
+def _vnorm(F, n=25):
+    return max(_norm_inf(c, n) for c in F.components)
+
+
 
 
 class TestDiskfunvDiv:
-    def test_rotation_field_divergence_free(self):
-        F = Diskfunv.from_functions(lambda t, r: -r * jnp.sin(t),
-                                    lambda t, r: r * jnp.cos(t))
-        assert abs(float(F.div()(T0, R0))) < 1e-10
-
-    def test_polynomial_field(self):
-        # FIXED with the diskfun radial-fit repair (Fable 5 audit).
-        F = Diskfunv.from_functions(
-            lambda t, r: (r * jnp.cos(t)) ** 2,
-            lambda t, r: r ** 2 * jnp.cos(t) * jnp.sin(t))
-        assert abs(float(F.div()(T0, R0)) - 3 * X0) < 1e-8
+    def test_all_matlab_assertions(self):
+        assert Diskfunv.empty().div().isempty()  # pass(1)
+        F = Diskfunv(_dsk(lambda x, y: jnp.cos(x)),
+                     _dsk(lambda x, y: jnp.sin(y)))
+        ident = F.components[0].diffx() + F.components[1].diffy()
+        assert _norm_inf(ident - F.div()) < 1e5 * TOL  # pass(2)
+        z = _dsk(lambda x, y: 0 * x)
+        assert _norm_inf(Diskfunv(z, z).div()) < TOL  # pass(3)
+        f = _dsk(lambda x, y: jnp.cos(x * y))
+        assert _norm_inf(f.laplacian()
+                         - f.gradient().div()) < 1e6 * TOL  # 4

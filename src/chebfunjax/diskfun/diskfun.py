@@ -279,10 +279,16 @@ def _phase_one_disk(
     # Adjust pivot indices: add 1 to row indices to account for removed origin
     pivot_indices[:, 0] += 1
 
-    # Prepend pole pivot if needed
+    # Prepend pole pivot if needed.  MATLAB stores ROW_VAL (the max
+    # column inf-norm used to zero the pole, an O(1) quantity) as the
+    # pole pivot -- NOT the mean pole value, which can be ~1e-13
+    # rounding noise for a function that merely fails the pole-row
+    # constancy test.  Storing the tiny mean made (a) the constructor's
+    # "0 + noise" strike test abort at rank 3, and (b) every downstream
+    # CDR consumer see a spurious near-zero pivot (Fable 5 audit).
     if remove_poles:
         pivot_indices = np.vstack([[0, pole_col], pivot_indices])
-        pivot_array = np.vstack([[pole_val, 0.0], pivot_array])
+        pivot_array = np.vstack([[row_val, 0.0], pivot_array])
 
     return pivot_indices, pivot_array, remove_poles, is_happy
 
@@ -302,8 +308,15 @@ def _phase_two_disk(
     max_sample: int,
     remove_poles: bool,
     tol: float,
+    fixed: bool = False,
 ) -> tuple[list, list, np.ndarray, list, list]:
     """Resolve column (Chebtech2) and row (Trigtech) slices adaptively.
+
+    With ``fixed=True`` the slices are extracted in a single pass at the
+    given grid with no happiness-driven refinement -- the values-matrix
+    construction mode (MATLAB ``diskfun(V)``/constructFromDouble), used
+    when ``f`` is an exact finite series already resolved at that grid.
+    The trailing coefficient chop still trims rounding-noise tails.
 
     Evaluates f along the skeleton slices at increasing resolution until the
     Chebyshev/Fourier coefficients are resolved.  Uses the same 2x2 GE
@@ -582,6 +595,11 @@ def _phase_two_disk(
         )
         row_vals_doubled = np.concatenate([rp_sum, rm_sum])
         happy_rows = _is_happy_trig(row_vals_doubled, tol)
+
+        if fixed:
+            # Values-matrix mode: accept the single-pass slices.
+            happy_cols = True
+            happy_rows = True
 
         # Adaptively refine
         if not happy_cols:
@@ -934,7 +952,14 @@ class Diskfun(eqx.Module):
             # r = 0 spuriously triggered pole removal, seeding pivot 0 with a
             # ~1e-13 value that tripped this test).  Accumulating strikes
             # instead lets the grid refine until the true rank appears.
-            if max(abs(pivot_array[0, 0]), abs(pivot_array[0, 1])) < 1e4 * tol:
+            # MATLAB compares pivotArray(1, :) against 1e4 * the GRID
+            # tolerance (getTol), not the user tolerance.  When
+            # remove_poles is set, row 0 is the pole entry whose pivot
+            # is the O(1) ROW_VAL (see _phase_one_disk), so a spurious
+            # ~1e-13 pole mean can no longer trip this detector and
+            # abort construction at rank 3 (Fable 5 audit).
+            if max(abs(pivot_array[0, 0]), abs(pivot_array[0, 1])) \
+                    < 1e4 * tol_abs:
                 strike += 1
 
             if happy_rank:
@@ -1786,8 +1811,27 @@ class Diskfun(eqx.Module):
     # Plotting
     # ------------------------------------------------------------------
 
-    def plot(self, **kwargs):
-        """Plot this Diskfun on the unit disk (calls :func:`chebfunjax.plotting.plot_disk`)."""
+    def plot(self, fmt=None, **kwargs):
+        """Plot this Diskfun on the unit disk (calls
+        :func:`chebfunjax.plotting.plot_disk`).
+
+        ``plot(f, S)`` with a linespec string S plots the pivot
+        locations used in the construction of f instead (MATLAB
+        @diskfun/plot.m).
+        """
+        if isinstance(fmt, str) and fmt != "zebra":
+            import matplotlib.pyplot as plt
+            fig, ax = plt.subplots(figsize=(4.5, 4.5))
+            locs = list(self.pivot_locations)
+            th = np.array([p[0] for p in locs], dtype=float)
+            rr = np.array([p[1] for p in locs], dtype=float)
+            ax.plot(rr * np.cos(th), rr * np.sin(th), fmt)
+            tb = np.linspace(0.0, 2.0 * np.pi, 300)
+            ax.plot(np.cos(tb), np.sin(tb), "k-", linewidth=0.8)
+            ax.set_aspect("equal")
+            ax.set_xlim(-1.0, 1.0)
+            ax.set_ylim(-1.0, 1.0)
+            return fig, ax
         from chebfunjax.plotting import plot_disk
         return plot_disk(self, **kwargs)
 
@@ -1801,6 +1845,18 @@ class Diskfun(eqx.Module):
         from chebfunjax.plotting import contour_disk
         return contour_disk(self, **kwargs)
 
+    def contour3(self, levels: int = 10, **kwargs):
+        """3-D contour plot: contour curves at their function height
+        (calls :func:`chebfunjax.plotting.contour3_disk`).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/contour3.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.plotting import contour3_disk
+        return contour3_disk(self, levels=levels, **kwargs)
+
     # ------------------------------------------------------------------
     # Arithmetic + composition via constructor re-approximation
     # (MATLAB @diskfun semantics; added by Claude Fable 5 -- Diskfun
@@ -1808,9 +1864,36 @@ class Diskfun(eqx.Module):
     # ------------------------------------------------------------------
 
     def norm(self) -> jax.Array:
-        """L2 norm over the disk: sqrt(int |f|^2 dA) (Fable 5)."""
-        f2 = Diskfun.from_function(lambda t, r: self(t, r) ** 2)
-        return jnp.sqrt(jnp.abs(f2.sum()))
+        """L2 norm over the disk: sqrt(int |f|^2 dA) (Fable 5).
+
+        Computed by direct Clenshaw-Curtis(r) x trapezoid(theta)
+        quadrature of f^2 at the resolution of the representation
+        (spectrally exact for the finite series).  Re-approximating f^2
+        through the adaptive constructor -- the previous route -- hands
+        the constructor pure rounding noise whenever f is a
+        structurally-cancelling difference (norm(f - g) checks), which
+        made it grind through noise ranks and return garbage.
+        """
+        if len(self.cols) == 0:
+            return jnp.asarray(0.0, dtype=jnp.float64)
+        from chebfunjax.utils.quadrature import chebpts, chebweights
+        ncol = max(int(np.asarray(c.coeffs).ravel().shape[0])
+                   for c in self.cols)
+        nrow = max(int(np.asarray(r.coeffs).ravel().shape[0])
+                   for r in self.rows)
+        nr = 2 * ncol + 16
+        mth = 2 * nrow + 16
+        xr = np.array(chebpts(nr))          # [-1, 1]
+        wr = np.array(chebweights(nr))
+        r_pts = (xr + 1.0) / 2.0            # [0, 1]
+        w_r = wr / 2.0
+        th = np.linspace(-np.pi, np.pi, mth, endpoint=False)
+        TH, RR = np.meshgrid(th, r_pts)
+        V = np.asarray(self(jnp.asarray(TH), jnp.asarray(RR)),
+                       dtype=float)
+        val = float(np.sum((V ** 2) * (r_pts * w_r)[:, None])
+                    * (2.0 * np.pi / mth))
+        return jnp.sqrt(jnp.abs(jnp.asarray(val, dtype=jnp.float64)))
 
     def mean(self) -> jax.Array:
         """Mean value over the disk (integral / pi)."""
@@ -2642,131 +2725,219 @@ def _integrate_cheb_times_r(coeffs: jax.Array) -> jax.Array:
 
 
 def _diskfun_reconstruct(f: "Diskfun", kind: str) -> "Diskfun":
-    """Spectral Cartesian derivative / Laplacian of a Diskfun (Opus 4.8).
+    """Spectral Cartesian derivative / Laplacian of a Diskfun.
 
-    ``kind`` is ``"x"``, ``"y"`` or ``"laplacian"``.  The relevant
-    combination of radial/angular derivatives is evaluated at interior
-    Chebyshev(r) x uniform(theta) nodes (never at r = 0, so the 1/r and
-    1/r^2 factors stay finite), then fit to a smooth Fourier(theta) x
-    Chebyshev(r) modal expansion and reconstructed with
-    ``Diskfun.from_function``.
+    ``kind`` is ``"x"``, ``"y"`` or ``"laplacian"``.  Faithful port of
+    MATLAB @diskfun/diff.m: the polar chain rule is applied entirely in
+    coefficient space.  In particular the 1/r factor is applied by
+    solving a banded Chebyshev multiplication-by-r system on even-length
+    column coefficients (``ultraS.multmat(n, [0;1], 0) \\ coeffs`` in
+    MATLAB) -- never by pointwise division, which amplifies GE
+    cancellation noise near r = 0 into O(1e-2) global errors for
+    nonzero-pole inputs (Fable 5 audit finding).
 
-    Verified against exact harmonic polynomials and MATLAB @diskfun.
+    The Laplacian follows MATLAB @diskfun/laplacian.m:
+    ``diff(f,1,2) + diff(f,2,2)``.
+    """
+    if kind == "laplacian":
+        return (_diskfun_onediff(_diskfun_onediff(f, 1), 1)
+                + _diskfun_onediff(_diskfun_onediff(f, 2), 2))
+    if kind == "x":
+        return _diskfun_onediff(f, 1)
+    if kind == "y":
+        return _diskfun_onediff(f, 2)
+    raise ValueError(f"unknown kind {kind!r}")
+
+
+def _diskfun_onediff(f: "Diskfun", dim: int) -> "Diskfun":
+    """One Cartesian derivative of a Diskfun (MATLAB diff.m onediff).
+
+    Works on the CDR decomposition at the coefficient level:
+
+    - radial derivative: Chebyshev differentiation of the column coeffs
+      (columns live natively on the doubled radial domain r in [-1,1]);
+    - angular derivative: ``i k`` scaling of the row Fourier coeffs;
+    - multiplication by cos/sin(theta): wavenumber shifts;
+    - division by r: solve of the (even-size, nonsingular) Chebyshev
+      multiplication-by-r matrix, exactly as MATLAB's
+      ``Mn \\ ctechs.coeffs``.
+
+    The two resulting low-rank pieces are summed pointwise (spectral
+    evaluation of the coefficient series -- smooth, no 1/r anywhere)
+    and rebuilt with the adaptive constructor, mirroring MATLAB's
+    ``diskfun(sample(f1) + sample(f2))``.
+
+    Provenance
+    ----------
+    MATLAB source : @diskfun/diff.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
     """
     cols = f.cols
     rows = f.rows
-    piv = np.asarray(f.pivots)
-    cols_d = [c.diff() for c in cols]
-    cols_dd = [c.diff().diff() for c in cols]
-    rows_d = [r.diff() for r in rows]
-    rows_dd = [r.diff().diff() for r in rows]
-    inv_pi = 1.0 / np.pi
+    piv = np.asarray(f.pivots, dtype=float)
+    if len(cols) == 0:
+        return Diskfun.empty()
+    # Skip noise pivots: a ~eps GE pivot gives a ~1/eps weight on a junk
+    # slice whose value contribution is below roundoff but whose
+    # derivatives are O(1/eps) rough (Fable 5 audit).  EXCEPT the pole
+    # term (index 0 when nonzero_poles): its row is the SAME tiny
+    # constant as its pivot, so the term col0 * row0 / piv0 = col0 * 1
+    # is O(1) -- dropping it loses an O(1) radial component (this broke
+    # second derivatives by O(1) in the audit).
+    pole_j = 0 if f.nonzero_poles else -1
+    piv_floor = 1e-12 * float(np.max(np.abs(piv)))
+    keep = [j for j in range(len(cols))
+            if j == pole_j or abs(float(piv[j])) >= piv_floor]
+    if not keep:
+        return Diskfun.empty()
+    nk = len(keep)
 
-    ncol = max(c.coeffs.shape[0] for c in cols)
-    nrow = max(r.coeffs.shape[0] for r in rows)
-    nr = ncol + 6
-    nth = nrow + 8
+    # Radial (Chebyshev, ascending T_k) coefficients, CDR weights folded
+    # in.  Even length + 2 headroom, per MATLAB ("do everything with
+    # even length columns so no special modifications are required for
+    # dividing by the rho series expansion" -- even size makes the
+    # multiplication-by-r matrix nonsingular).
+    ncol = max(np.asarray(cols[j].coeffs).ravel().shape[0] for j in keep)
+    n = ncol + (ncol % 2) + 2
+    C = np.zeros((n, nk))
+    for i, j in enumerate(keep):
+        c = np.real(np.asarray(cols[j].coeffs)).ravel()
+        C[: c.size, i] = c / float(piv[j])
 
-    # interior radial nodes: s = 2r-1 at Chebyshev-Gauss points of
-    # order nr, so the radial fit below is a well-conditioned square
-    # solve (essentially exact) instead of an ill-conditioned lstsq.
-    # (The previous |cos| nodes gave the fit ~1e-11 noise, which sent
-    # the downstream constructor's GE down a noise-pivot path and
-    # produced degenerate results -- the actual root cause of the
-    # diffx/diffy/laplacian corruption found in the Fable 5 audit.)
-    k = np.arange(nr)
-    s_gauss = np.cos(np.pi * (k + 0.5) / nr)
-    r_nodes = (s_gauss + 1.0) / 2.0    # in (0, 1), never 0
-    # theta samples on [0, 2*pi) so the standard FFT mode convention
-    # applies directly (no phase offset); the reconstruction below uses
-    # the actual theta, which is periodic, so any eval range is fine.
-    th_nodes = np.linspace(0.0, 2.0 * np.pi, nth, endpoint=False)
-    TH, RR = np.meshgrid(th_nodes, r_nodes, indexing="ij")
-    thj = jnp.asarray(TH.ravel())
-    rj = jnp.asarray(RR.ravel())
-    tr = thj / np.pi
+    # Angular (Fourier, ascending wavenumber) coefficients on a common
+    # symmetric range -Km..Km with one extra wavenumber of headroom for
+    # the sin/cos shifts.
+    Km = 1
+    rcoef = []
+    for j in keep:
+        c = np.asarray(rows[j].coeffs).ravel()
+        m0 = c.size
+        k0 = -((m0 - 1) // 2) if (m0 % 2) else -(m0 // 2)
+        rcoef.append((c, k0))
+        Km = max(Km, abs(k0) + 1, abs(k0 + m0 - 1) + 1)
+    m = 2 * Km + 1
+    R = np.zeros((m, nk), dtype=complex)
+    for i, (c, k0) in enumerate(rcoef):
+        R[k0 + Km : k0 + Km + c.size, i] = c
+    ks = np.arange(-Km, Km + 1)
 
-    frr = np.zeros(TH.size)
-    fr = np.zeros(TH.size)
-    ftt = np.zeros(TH.size)
-    fr_only = np.zeros(TH.size)   # d/dr (for x/y)
-    fth = np.zeros(TH.size)       # d/dtheta (for x/y)
-    piv_floor = 1e-12 * float(np.max(np.abs(piv))) if piv.size else 0.0
-    for j in range(len(cols)):
-        # Skip noise pivots: a ~eps GE pivot gives a ~1/eps weight on a
-        # junk slice whose value contribution is below roundoff but
-        # whose DERIVATIVES are O(1/eps) rough -- one such term in a
-        # first-derivative diskfun corrupted every second Cartesian
-        # derivative by ~3e-2 (Fable 5 audit).
-        if abs(float(piv[j])) < piv_floor:
-            continue
-        w = float(1.0 / piv[j])
-        rowv = np.asarray(jnp.real(rows[j](tr)))
-        rowdv = np.asarray(jnp.real(rows_d[j](tr))) * inv_pi
-        rowddv = np.asarray(jnp.real(rows_dd[j](tr))) * inv_pi * inv_pi
-        colv = np.asarray(jnp.real(cols[j](rj)))
-        coldv = np.asarray(jnp.real(cols_d[j](rj)))
-        colddv = np.asarray(jnp.real(cols_dd[j](rj)))
-        frr += w * colddv * rowv
-        fr += w * coldv * rowv
-        ftt += w * colv * rowddv
-        fr_only += w * coldv * rowv
-        fth += w * colv * rowdv
+    # d/dr of the columns (native domain [-1, 1], no scaling).
+    dC = np.zeros_like(C)
+    for i in range(nk):
+        d = np.polynomial.chebyshev.chebder(C[:, i])
+        dC[: d.size, i] = d
 
-    Rr = np.asarray(RR.ravel())
-    if kind == "laplacian":
-        V = frr + fr / Rr + ftt / Rr ** 2
-    elif kind == "x":
-        V = np.cos(TH.ravel()) * fr_only \
-            - np.sin(TH.ravel()) / Rr * fth
-    elif kind == "y":
-        V = np.sin(TH.ravel()) * fr_only \
-            + np.cos(TH.ravel()) / Rr * fth
-    else:
-        raise ValueError(f"unknown kind {kind!r}")
-    V = V.reshape(TH.shape)
+    # (1/r) * columns: solve the Chebyshev multiplication-by-r system.
+    # (M a)_0 = a_1/2, (M a)_1 = a_0 + a_2/2, (M a)_k = (a_{k-1}+a_{k+1})/2.
+    Mx = np.zeros((n, n))
+    for k in range(n):
+        if k >= 1:
+            Mx[k, k - 1] = 1.0 if k == 1 else 0.5
+        if k + 1 < n:
+            Mx[k, k + 1] = 0.5
+    rinv = np.linalg.solve(Mx, C)
 
-    # angular FFT -> true complex Fourier coefficients c_m of
-    # e^{i m theta} (theta sampled on [0, 2*pi), so no phase offset).
-    Fhat = np.fft.rfft(V, axis=0) / nth
-    mmax = Fhat.shape[0]
-    # radial fit: Chebyshev in s = 2r - 1
-    deg = nr - 1
-    s_nodes = 2.0 * r_nodes - 1.0
-    vand = np.polynomial.chebyshev.chebvander(s_nodes, deg)
-    coefs = np.linalg.solve(vand, Fhat.T)  # (deg+1, mmax), exact
+    # d/dtheta of the rows.
+    dRdth = (1j * ks)[:, None] * R
 
+    def _mcos(A):
+        # cos(theta) * sum c_k e^{ik theta}: c_k <- (c_{k-1} + c_{k+1})/2
+        B = np.zeros_like(A)
+        B[1:, :] += 0.5 * A[:-1, :]
+        B[:-1, :] += 0.5 * A[1:, :]
+        return B
+
+    def _msin(A):
+        # sin(theta) * sum c_k e^{ik theta}: c_k <- (c_{k-1} - c_{k+1})/(2i)
+        B = np.zeros_like(A)
+        B[1:, :] += -0.5j * A[:-1, :]
+        B[:-1, :] += 0.5j * A[1:, :]
+        return B
+
+    if dim == 1:      # d/dx = cos(th) d/dr - sin(th)/r d/dth
+        C1, R1 = rinv, -_msin(dRdth)
+        C2, R2 = dC, _mcos(R)
+    else:             # d/dy = sin(th) d/dr + cos(th)/r d/dth
+        C1, R1 = rinv, _mcos(dRdth)
+        C2, R2 = dC, _msin(R)
+
+    # Pole cleanup: a disk function is single-valued at the origin, so
+    # any theta-VARYING component of the series at r = 0 is pure
+    # rounding error (~eps amplified by the 1/pivot CDR weights, i.e.
+    # ~1e-11).  Left in place it makes the constructor's pole row
+    # non-constant, spuriously triggering pole removal with a tiny
+    # pivot; GE then collapses the rank and the result is off by ~1e-2
+    # (Fable 5 audit).  Subtract that component (a function of theta
+    # only, so the correction is ~1e-11 uniformly -- harmless).
+    Tv0 = np.polynomial.chebyshev.chebvander(np.array([0.0]), n - 1)[0]
+    pc = R1 @ (Tv0 @ C1) + R2 @ (Tv0 @ C2)   # trig coeffs of f(theta, 0)
+    pc[Km] = 0.0                              # keep the true (mean) pole value
 
     def ev(theta, r):
         theta = np.asarray(theta, dtype=float)
         r = np.asarray(r, dtype=float)
         shape = np.broadcast(theta, r).shape
-        theta = np.broadcast_to(theta, shape).copy()
-        r = np.broadcast_to(r, shape).copy()
-        # Diskfun.from_function samples the DOUBLED disk (r < 0); the
-        # radial Chebyshev fit is only valid on r in [0, 1], so map
-        # (theta, -r) -> (theta + pi, r) (the BMC identity).  Without
-        # this the fit EXTRAPOLATED for r < 0 and the constructor
-        # ingested garbage on half the grid -- the root cause of the
-        # diffx/diffy/laplacian mode corruption found in the Fable 5
-        # audit.
-        neg = r < 0
-        r = np.abs(r)
-        theta = np.where(neg, theta + np.pi, theta)
-        s = np.clip(2.0 * r - 1.0, -1.0, 1.0).ravel()
-        vd = np.polynomial.chebyshev.chebvander(s, deg)
-        modes = vd @ coefs  # (npts, mmax) complex
-        out = np.zeros(s.shape)
-        th_flat = theta.ravel()
-        for m in range(mmax):
-            fac = 1.0 if m == 0 else 2.0
-            out = out + fac * np.real(modes[:, m] * np.exp(1j * m * th_flat))
-        return jnp.asarray(out.reshape(shape), dtype=jnp.float64)
+        th = np.broadcast_to(theta, shape).ravel()
+        rr = np.clip(np.broadcast_to(r, shape).ravel(), -1.0, 1.0)
+        # The constructor samples the doubled disk (r < 0); the column
+        # series live natively on [-1, 1], so negative r evaluates
+        # directly -- no BMC remapping needed.
+        Tv = np.polynomial.chebyshev.chebvander(rr, n - 1)   # (npts, n)
+        E = np.exp(1j * np.outer(th, ks))                    # (npts, m)
+        vals = np.real(np.sum((Tv @ C1) * (E @ R1), axis=1)
+                       + np.sum((Tv @ C2) * (E @ R2), axis=1)
+                       - E @ pc)
+        return jnp.asarray(vals.reshape(shape), dtype=jnp.float64)
 
+    # Fixed-size construction, mirroring MATLAB's
+    # ``diskfun(sample(f1, m, n/2+1) + sample(f2, m, n/2+1))``: the
+    # derivative is an EXACT finite Chebyshev x Fourier series, so one
+    # phase-one GE pass on a grid that resolves it (factor = 0: no
+    # width bound, no refinement loop) is both exact and fast.  Running
+    # the adaptive constructor instead made phase one chase the ~1e-11
+    # noise rank of iterated-derivative series through endless grid
+    # doublings (a single second-derivative construction timed out at
+    # 25 min in the Fable 5 audit).
+    gsz = 8
+    need = max(n + 2, m // 2 + 2)
+    while gsz < need:
+        gsz *= 2
+    r_pts = _disk_col_pts(gsz)
+    th_pts = _disk_row_pts(gsz)
+    th2d, r2d = np.meshgrid(th_pts, r_pts)
+    F = np.asarray(ev(th2d, r2d), dtype=np.float64)
+    tol_abs, vscale = _get_tol(F, 2.0 * np.pi / (2 * gsz), 1.0 / gsz, _EPS)
+    # The ev series carries an ABSOLUTE rounding floor of ~eps times the
+    # sum of per-term amplitudes (the 1/pivot CDR weights amplify eps
+    # before the products cancel).  GE must not eliminate below that
+    # floor: with tol at machine level an iterated derivative's ~1e-9
+    # noise floor turned into hundreds of junk ranks (rank 512, NaN
+    # pivots -- Fable 5 audit).
+    amp = 0.0
+    for i in range(nk):
+        amp += (np.max(np.abs(C1[:, i])) * np.max(np.abs(R1[:, i]))
+                + np.max(np.abs(C2[:, i])) * np.max(np.abs(R2[:, i])))
+    tol_use = max(tol_abs, _EPS * float(amp))
+    pivot_indices, pivot_array, remove_poles, _happy = _phase_one_disk(
+        F, tol_use, 100.0, 0.0)
     import warnings as _warnings
     with _warnings.catch_warnings():
         _warnings.simplefilter("ignore")
-        return Diskfun.from_function(lambda t, r: ev(t, r))
+        (cols_list, rows_list, pivots_arr, idx_plus, idx_minus,
+         locs) = _phase_two_disk(
+            ev, pivot_indices, pivot_array, gsz, gsz, vscale,
+            2 ** 14, remove_poles, tol_use, fixed=True)
+    return Diskfun(
+        cols=cols_list,
+        rows=rows_list,
+        pivots=jnp.asarray(pivots_arr, dtype=jnp.float64),
+        idx_plus=tuple(idx_plus),
+        idx_minus=tuple(idx_minus),
+        pivot_locations=tuple(locs),
+        nonzero_poles=bool(remove_poles),
+    )
 
 
 def _cheb_diff_matrix(n: int) -> tuple:

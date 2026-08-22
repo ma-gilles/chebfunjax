@@ -22,6 +22,11 @@ import jax.numpy as jnp
 from chebfunjax.diskfun.diskfun import Diskfun
 
 
+def _empty_diskfun():
+    from chebfunjax.diskfun.diskfun import Diskfun
+    return Diskfun.empty()
+
+
 class Diskfunv(eqx.Module):
     """Vector field on the unit disk with 2 scalar Diskfun components.
 
@@ -146,12 +151,14 @@ class Diskfunv(eqx.Module):
         Diskfun
             Scalar dot product.
         """
+        if self.isempty():
+            return _empty_diskfun()
         f1, g1 = self.components
         f2, g2 = other.components
-        # Build dot product as a new Diskfun via lambda
-        return Diskfun.from_function(
-            lambda th, r: f1(th, r) * f2(th, r) + g1(th, r) * g2(th, r)
-        )
+        # Products need reconstruction (nonlinear), but the sum is
+        # structural so a pointwise-cancelling dot product (orthogonal
+        # fields) never hands the constructor pure noise.
+        return f1 * f2 + g1 * g2
 
     def div(self) -> Diskfun:
         r"""Divergence :math:`\\nabla \\cdot (f, g) = f_x + g_y`.
@@ -164,12 +171,14 @@ class Diskfunv(eqx.Module):
         MATLAB source : @diskfunv/div.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return _empty_diskfun()
         f, g = self.components
-        fx = f.diffx()
-        gy = g.diffy()
-        return Diskfun.from_function(
-            lambda th, r: fx(th, r) + gy(th, r)
-        )
+        # Structural sum (Diskfun plus concatenates low-rank terms),
+        # matching MATLAB diff(f,1) + diff(g,2).  Reconstructing the sum
+        # through the adaptive constructor NaN'd on near-zero results
+        # (e.g. div of a curl field is 0 + noise).
+        return f.diffx() + g.diffy()
 
     divergence = div
 
@@ -183,12 +192,13 @@ class Diskfunv(eqx.Module):
         MATLAB source : @diskfunv/curl.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return _empty_diskfun()
         f, g = self.components
-        gx = g.diffx()
-        fy = f.diffy()
-        return Diskfun.from_function(
-            lambda th, r: gx(th, r) - fy(th, r)
-        )
+        # Structural difference, matching MATLAB diff(g,1) - diff(f,2):
+        # curl of a gradient is 0 + noise, which the adaptive
+        # constructor cannot be handed (rank-512 NaN blowup).
+        return g.diffx() - f.diffy()
 
     def norm(self) -> Diskfun:
         """Pointwise Euclidean norm: sqrt(f^2 + g^2).
@@ -198,6 +208,8 @@ class Diskfunv(eqx.Module):
         Diskfun
             Scalar norm field.
         """
+        if self.isempty():
+            return _empty_diskfun()
         f, g = self.components
         return Diskfun.from_function(
             lambda th, r: jnp.sqrt(f(th, r) ** 2 + g(th, r) ** 2)
@@ -224,13 +236,17 @@ class Diskfunv(eqx.Module):
     # ------------------------------------------------------------------
 
     def __add__(self, other: "Diskfunv") -> "Diskfunv":
-        """Componentwise addition."""
+        """Componentwise addition.
+
+        Structural (Diskfun plus concatenates low-rank terms), matching
+        MATLAB @diskfunv/plus.m -> @diskfun/plus.m.  Reconstructing the
+        sum through the adaptive constructor is both slow and unsafe:
+        for near-zero results (u + v - w tests) the constructor is
+        handed pure rounding noise, which it cannot resolve.
+        """
         f1, g1 = self.components
         f2, g2 = other.components
-        return Diskfunv(
-            Diskfun.from_function(lambda th, r: f1(th, r) + f2(th, r)),
-            Diskfun.from_function(lambda th, r: g1(th, r) + g2(th, r)),
-        )
+        return Diskfunv(f1 + f2, g1 + g2)
 
     def times(self, other) -> "Diskfunv":
         """Componentwise product with another Diskfunv, or scaling by
@@ -256,14 +272,24 @@ class Diskfunv(eqx.Module):
         """
         return Diskfunv(*[a ** n for a in self.components])
 
+    def __matmul__(self, other):
+        """``u' * v``: row times column contracts to the dot product
+        (MATLAB mtimes).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/mtimes.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(other, Diskfunv):
+            return self.dot(other)
+        return self.__mul__(other)
+
     def __mul__(self, scalar: float) -> "Diskfunv":
-        """Scalar multiplication (componentwise)."""
+        """Scalar multiplication (componentwise, structural)."""
         f, g = self.components
         s = float(scalar)
-        return Diskfunv(
-            Diskfun.from_function(lambda th, r: s * f(th, r)),
-            Diskfun.from_function(lambda th, r: s * g(th, r)),
-        )
+        return Diskfunv(f * s, g * s)
 
     def __rmul__(self, scalar: float) -> "Diskfunv":
         """Right scalar multiplication."""

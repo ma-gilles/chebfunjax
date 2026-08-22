@@ -1,7 +1,8 @@
-"""Port of MATLAB Chebfun tests/diskfunv/test_times_divide.m
-(Fable 5).
+"""Port of MATLAB Chebfun tests/diskfunv/test_times_divide.m (Fable 5).
 
-FIXED: Diskfunv times/power added in the Fable 5 audit.
+MATLAB constructs from cartesian @(x,y) handles; the chebfunjax
+Diskfun samples in polar (theta, r), so handles convert via
+x = r cos(theta), y = r sin(theta).
 
 Provenance
 ----------
@@ -11,41 +12,43 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
+import jax
 import jax.numpy as jnp
 import numpy as np
 
 from chebfunjax.diskfun.diskfun import Diskfun
 from chebfunjax.diskfun.diskfunv import Diskfunv
 
-THS = jnp.asarray(np.linspace(-np.pi, np.pi, 9))
-RS = jnp.asarray(np.linspace(0.0, 1.0, 7))
-TT, RR = jnp.meshgrid(THS, RS, indexing="ij")
+jax.config.update("jax_enable_x64", True)
+
+TOL = 1e3 * 2.220446049250313e-16
 
 
-def _v():
-    return Diskfunv(
-        Diskfun.from_function(
-            lambda t, r: r * jnp.cos(t)),
-        Diskfun.from_function(lambda t, r: r ** 2))
+def _dsk(fc):
+    def f(t, r):
+        return fc(r * jnp.cos(t), r * jnp.sin(t))
+    return Diskfun.from_function(f)
+
+
+def _norm_inf(g, n=25):
+    ts = jnp.linspace(-np.pi + 1e-6, np.pi - 1e-6, n)
+    rs = jnp.linspace(1e-3, 1.0 - 1e-6, n)
+    T, R = jnp.meshgrid(ts, rs)
+    return float(jnp.max(jnp.abs(jnp.asarray(g(T, R)))))
+
+
+def _vnorm(F, n=25):
+    return max(_norm_inf(c, n) for c in F.components)
+
+
 
 
 class TestDiskfunvTimesDivide:
-    def test_times_scalar_field_componentwise(self):
-        v = _v()
-        # scalar
-        w2 = v.times(2.0)
-        f2, _ = w2(TT, RR)
-        fv, _ = v(TT, RR)
-        assert float(jnp.max(jnp.abs(f2 - 2 * fv))) < 1e-11
-        # scalar Diskfun field
-        s = Diskfun.from_function(lambda t, r: 1.0 + r * jnp.sin(t))
-        ws = v.times(s)
-        fs, _ = ws(TT, RR)
-        assert float(jnp.max(jnp.abs(
-            fs - fv * s(TT, RR)))) < 1e-9
-        # componentwise square == power(2)
-        wsq = v.times(v)
-        fq, gq = wsq(TT, RR)
-        fp, gp = v.power(2)(TT, RR)
-        assert float(jnp.max(jnp.abs(fq - fp))) < 1e-9
-        assert float(jnp.max(jnp.abs(gq - gp))) < 1e-9
+    def test_all_matlab_assertions(self):
+        f = _dsk(lambda x, y: jnp.sin(y) + jnp.cos(2 * x * y))
+        F = Diskfunv(f, f)
+        G = Diskfunv(2 * f, 2 * f)
+        H = Diskfunv(f * 0.5, f * 0.5)
+        assert _vnorm(2 * F - G) < TOL
+        assert _vnorm(F * 2 - G) < TOL
+        assert _vnorm(F * 0.5 - H) < TOL
