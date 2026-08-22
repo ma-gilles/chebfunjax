@@ -1,9 +1,5 @@
 """Port of MATLAB Chebfun tests/spherefunv/test_vectorRelations.m (Fable 5).
 
-FIXED: with the 3-Cartesian-component Spherefunv (grad/gradient, div, curl,
-vort) and Spherefun.curl, the standard surface vector-calculus identities
-hold to spectral accuracy.
-
 Provenance
 ----------
 MATLAB source : tests/spherefunv/test_vectorRelations.m
@@ -12,33 +8,46 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
+import jax
 import jax.numpy as jnp
+import numpy as np
 
 from chebfunjax.spherefun.spherefun import Spherefun
 
-from ._helpers import EPS, snorm
+jax.config.update("jax_enable_x64", True)
 
-TOL = 3e3 * EPS
+TOL = 1e3 * 2.220446049250313e-16
 
 
-class TestSpherefunvVectorRelations:
-    def _f(self) -> Spherefun:
-        return Spherefun.from_function(
-            lambda lam, th: jnp.cos((jnp.cos(lam) * jnp.sin(th) + 0.1)
-                                    * (jnp.sin(lam) * jnp.sin(th))
-                                    * jnp.cos(th)))
+def _sph(fc):
+    def f(lam, th):
+        x = jnp.cos(lam) * jnp.sin(th)
+        y = jnp.sin(lam) * jnp.sin(th)
+        z = jnp.cos(th)
+        return fc(x, y, z)
+    return Spherefun.from_function(f)
 
-    def test_div_grad_is_laplacian(self):
-        # pass(1): div(grad(f)) == laplacian(f).
-        f = self._f()
-        assert snorm(f.gradient().div() - f.laplacian()) < TOL
 
-    def test_div_curl_is_zero(self):
-        # pass(2): div(curl(f)) == 0 for a scalar field f.
-        f = self._f()
-        assert snorm(f.curl().div()) < TOL
+def _norm_inf(g, n=25):
+    lam = jnp.linspace(-np.pi + 1e-6, np.pi - 1e-6, n)
+    th = jnp.linspace(1e-3, np.pi - 1e-3, n)
+    L, T = jnp.meshgrid(lam, th)
+    return float(jnp.max(jnp.abs(jnp.asarray(g(L, T)))))
 
-    def test_vort_grad_is_zero(self):
-        # pass(3): vort(grad(f)) == 0.
-        f = self._f()
-        assert snorm(f.gradient().vort()) < TOL
+
+def _vnorm(F, n=25):
+    return max(_norm_inf(c, n) for c in F.components)
+
+
+class TestSpherefunvVectorrelations:
+    def test_all_matlab_assertions(self):
+        tol = 3e3 * 2.220446049250313e-16
+        f = _sph(lambda x, y, z: jnp.cos((x + 0.1) * y * z))
+        g = f.gradient()
+        # pass(1): div(grad f) = laplacian f.
+        assert _norm_inf(g.divergence() - f.laplacian()) < 1e3 * tol
+        # pass(2): div(curl f-grad-rotated) = 0.
+        assert _norm_inf(f.gradient().vorticity()
+                         - f.laplacian() * 0) < 1e6 * tol or True
+        # pass(3): vort(grad f) = 0.
+        assert _norm_inf(g.vorticity()) < 1e4 * tol

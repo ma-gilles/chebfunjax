@@ -417,6 +417,126 @@ class Spherefunv(eqx.Module):
     # Plotting
     # ------------------------------------------------------------------
 
+    @property
+    def size(self):
+        """MATLAB ``size``: ``(3, inf, inf)`` for the three-component
+        field.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/size.m
+        Chebfun commit: 7574c77
+        """
+        import math
+        return (len(self.components), math.inf, math.inf)
+
+    def minandmax2est(self, N: int = 33):
+        """Estimated per-component [min max ...] range vector on an
+        N x N sample grid (MATLAB ``minandmax2est``).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/minandmax2est.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _onp
+        lam = _onp.linspace(-_onp.pi, _onp.pi, N)
+        th = _onp.linspace(0.0, _onp.pi, N)
+        L, T = _onp.meshgrid(lam, th)
+        out = []
+        for c in self.components:
+            V = _onp.asarray(c(jnp.asarray(L), jnp.asarray(T)))
+            out.extend([float(V.min()), float(V.max())])
+        return out
+
+    def transpose(self) -> "Spherefunv":
+        """MATLAB ``F.'`` (orientation only).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/transpose.m
+        Chebfun commit: 7574c77
+        """
+        return self
+
+    def ctranspose(self) -> "Spherefunv":
+        """MATLAB ``F'``.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/ctranspose.m
+        Chebfun commit: 7574c77
+        """
+        return self.conj().transpose()
+
+    def compose(self, g):
+        """Composition ``g(F)`` with a Chebfun3 (-> Spherefun) or
+        Chebfun3v (-> Spherefunv); the range of F lies on the unit
+        sphere inside g's domain.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/compose.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.spherefun.spherefun import Spherefun
+        fx, fy, fz = self.components
+
+        def sph_of(gg):
+            def h(lam, th):
+                return gg(fx(lam, th), fy(lam, th), fz(lam, th))
+            return Spherefun.from_function(h)
+
+        if hasattr(g, "components"):
+            return type(self)(*[sph_of(c) for c in g.components])
+        return sph_of(g)
+
+    def helmholtzdecomp(self):
+        """Helmholtz decomposition of a TANGENT field:
+        ``f = grad(u) + curl(v)`` with ``u = poisson(div f)`` and
+        ``v = poisson(vort f)`` (MATLAB ``helmholtzdecomp``).  Returns
+        ``(u, v)``; empty inputs give empty outputs.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/helmholtzdecomp.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.spherefun.spherefun import Spherefun
+        if self.isempty():
+            return None, None
+        u = Spherefun.poisson(self.divergence())
+        v = Spherefun.poisson(self.vorticity())
+        return u, v
+
+    def quiver3(self, **kwargs):
+        """3-D quiver of the field on the sphere surface (MATLAB
+        ``quiver3``).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/quiver3.m
+        Chebfun commit: 7574c77
+        """
+        import matplotlib.pyplot as plt
+        import numpy as _onp
+        lam = _onp.linspace(-_onp.pi, _onp.pi, 16)
+        th = _onp.linspace(0.05, _onp.pi - 0.05, 12)
+        L, T = _onp.meshgrid(lam, th)
+        X = _onp.cos(L) * _onp.sin(T)
+        Y = _onp.sin(L) * _onp.sin(T)
+        Z = _onp.cos(T)
+        U = _onp.asarray(self.components[0](jnp.asarray(L),
+                                            jnp.asarray(T)))
+        V = _onp.asarray(self.components[1](jnp.asarray(L),
+                                            jnp.asarray(T)))
+        W = _onp.asarray(self.components[2](jnp.asarray(L),
+                                            jnp.asarray(T)))
+        fig = plt.figure()
+        ax = fig.add_subplot(projection="3d")
+        ax.quiver(X, Y, Z, U, V, W, length=0.15)
+        return ax
+
     def plot(self, **kwargs):
         """Quiver plot of this vector field on the sphere (calls :func:`chebfunjax.plotting.quiver_sphere`)."""
         from chebfunjax.plotting import quiver_sphere
