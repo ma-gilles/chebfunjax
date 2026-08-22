@@ -3890,3 +3890,179 @@ def contour3_disk(fd, ax=None, levels: int = 10, n_pts: int = 200,
     ax.set_xlim(-1.0, 1.0)
     ax.set_ylim(-1.0, 1.0)
     return fig, ax
+
+
+def slice_chebfun3(f3, xslices=None, yslices=None, zslices=None,
+                   ax=None, n_pts: int = 101, cmap=None, alpha: float = 0.9,
+                   **kw):
+    """Orthogonal slice-plane plot of a Chebfun3 (MATLAB @chebfun3/slice.m,
+    'noslider' variant -- there is no interactive slider headlessly).
+
+    Default slice positions are the midpoints of the domain box.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun3/slice.m
+    Chebfun commit: 7574c77
+    """
+    cmap_obj = _coerce_cmap(cmap)
+    xa, xb, ya, yb, za, zb = (float(v) for v in f3.domain)
+    if xslices is None:
+        xslices = [0.5 * (xa + xb)]
+    if yslices is None:
+        yslices = [0.5 * (ya + yb)]
+    if zslices is None:
+        zslices = [0.5 * (za + zb)]
+    xslices = np.atleast_1d(np.asarray(xslices, dtype=float))
+    yslices = np.atleast_1d(np.asarray(yslices, dtype=float))
+    zslices = np.atleast_1d(np.asarray(zslices, dtype=float))
+
+    if ax is None:
+        fig = plt.figure(figsize=(6.1, 4.6))
+        ax = fig.add_subplot(projection="3d")
+    else:
+        fig = ax.get_figure()
+
+    # Common normalization across all slices.
+    vals_all = []
+    grids = []
+    u = np.linspace(0.0, 1.0, n_pts)
+    for xs in xslices:
+        Y, Z = np.meshgrid(ya + (yb - ya) * u, za + (zb - za) * u)
+        X = np.full_like(Y, xs)
+        V = np.asarray(f3(jnp.asarray(X), jnp.asarray(Y), jnp.asarray(Z)),
+                       dtype=float)
+        vals_all.append(V); grids.append((X, Y, Z, V))
+    for ys in yslices:
+        X, Z = np.meshgrid(xa + (xb - xa) * u, za + (zb - za) * u)
+        Y = np.full_like(X, ys)
+        V = np.asarray(f3(jnp.asarray(X), jnp.asarray(Y), jnp.asarray(Z)),
+                       dtype=float)
+        vals_all.append(V); grids.append((X, Y, Z, V))
+    for zs in zslices:
+        X, Y = np.meshgrid(xa + (xb - xa) * u, ya + (yb - ya) * u)
+        Z = np.full_like(X, zs)
+        V = np.asarray(f3(jnp.asarray(X), jnp.asarray(Y), jnp.asarray(Z)),
+                       dtype=float)
+        vals_all.append(V); grids.append((X, Y, Z, V))
+    norm = _normalize_values(np.concatenate([v.ravel() for v in vals_all]))
+    for X, Y, Z, V in grids:
+        ax.plot_surface(X, Y, Z, facecolors=cmap_obj(norm(V)),
+                        rstride=1, cstride=1, linewidth=0,
+                        antialiased=False, shade=False, alpha=alpha, **kw)
+    ax.set_xlim(xa, xb)
+    ax.set_ylim(ya, yb)
+    ax.set_zlim(za, zb)
+    return fig, ax
+
+
+def scan_chebfun3(f3, dim: int = 1, hold: bool = False, ax=None,
+                  n_frames: int = 5, n_pts: int = 81, **kw):
+    """Scan plot of a Chebfun3: a sequence of slices moving through the
+    domain along dimension ``dim`` (MATLAB @chebfun3/scan.m; the
+    animation renders as superimposed frames headlessly).
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun3/scan.m
+    Chebfun commit: 7574c77
+    """
+    xa, xb, ya, yb, za, zb = (float(v) for v in f3.domain)
+    lo, hi = ((xa, xb), (ya, yb), (za, zb))[dim - 1]
+    frames = np.linspace(lo, hi, n_frames + 2)[1:-1]
+    fig = None
+    for i, s in enumerate(frames):
+        kwargs = {("xslices", "yslices", "zslices")[dim - 1]: [float(s)]}
+        if hold and fig is not None:
+            slice_chebfun3(f3, ax=ax, n_pts=n_pts, **kwargs, **kw)
+        else:
+            fig, ax = slice_chebfun3(f3, n_pts=n_pts, **kwargs, **kw)
+        if not hold and i < len(frames) - 1:
+            plt.close(fig)
+    return fig, ax
+
+
+def isosurface_chebfun3(f3, levels=None, ax=None, n_pts: int = 51,
+                        cmap=None, alpha: float = 0.8, **kw):
+    """Isosurface plot of a Chebfun3 via marching cubes (MATLAB
+    @chebfun3/isosurface.m, 'noslider' variant).
+
+    ``levels`` may be a scalar or a sequence; the default is the
+    midpoint between the sampled min and max.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun3/isosurface.m
+    Chebfun commit: 7574c77
+    """
+    from skimage import measure
+    from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
+    cmap_obj = _coerce_cmap(cmap)
+    xa, xb, ya, yb, za, zb = (float(v) for v in f3.domain)
+    u = np.linspace(0.0, 1.0, n_pts)
+    X, Y, Z = np.meshgrid(xa + (xb - xa) * u, ya + (yb - ya) * u,
+                          za + (zb - za) * u, indexing="ij")
+    V = np.asarray(f3(jnp.asarray(X), jnp.asarray(Y), jnp.asarray(Z)),
+                   dtype=float)
+    vmin, vmax = float(V.min()), float(V.max())
+    if levels is None:
+        levels = [0.5 * (vmin + vmax)]
+    levels = np.atleast_1d(np.asarray(levels, dtype=float))
+
+    if ax is None:
+        fig = plt.figure(figsize=(6.1, 4.6))
+        ax = fig.add_subplot(projection="3d")
+    else:
+        fig = ax.get_figure()
+    span = max(vmax - vmin, np.finfo(float).tiny)
+    spacing = ((xb - xa) / (n_pts - 1), (yb - ya) / (n_pts - 1),
+               (zb - za) / (n_pts - 1))
+    for lev in levels:
+        lv = min(max(float(lev), vmin + 1e-12 * span), vmax - 1e-12 * span)
+        try:
+            verts, faces, _, _ = measure.marching_cubes(
+                V, level=lv, spacing=spacing)
+        except (ValueError, RuntimeError):
+            continue
+        verts = verts + np.array([xa, ya, za])
+        mesh = Poly3DCollection(verts[faces], alpha=alpha)
+        mesh.set_facecolor(cmap_obj((lv - vmin) / span))
+        ax.add_collection3d(mesh)
+    ax.set_xlim(xa, xb)
+    ax.set_ylim(ya, yb)
+    ax.set_zlim(za, zb)
+    return fig, ax
+
+
+def waterfall_chebfun2(f2, fmt=None, ax=None, n_lines: int = 20,
+                       n_pts: int = 121, **kw):
+    """Waterfall plot of a Chebfun2: 3-D line traces of the surface
+    along constant-y sections (MATLAB @separableApprox/waterfall.m).
+
+    Provenance
+    ----------
+    MATLAB source : @separableApprox/waterfall.m
+    Chebfun commit: 7574c77
+    """
+    try:
+        x0, x1, y0, y1 = f2.domain
+    except Exception:
+        x0, x1, y0, y1 = -1.0, 1.0, -1.0, 1.0
+    xs = np.linspace(float(x0), float(x1), n_pts)
+    ys = np.linspace(float(y0), float(y1), n_lines)
+    if ax is None:
+        fig = plt.figure(figsize=(6.1, 4.0))
+        ax = fig.add_subplot(projection="3d")
+    else:
+        fig = ax.get_figure()
+    for yv in ys:
+        XX, YY = np.meshgrid(xs, [yv])
+        Z = _eval_2d_vectorized(f2, XX, YY).ravel()
+        if fmt:
+            ax.plot(xs, np.full_like(xs, yv), Z, fmt, **kw)
+        else:
+            ax.plot(xs, np.full_like(xs, yv), Z, color=CHEBFUN_BLUE, **kw)
+    ax.set_xlim(float(x0), float(x1))
+    ax.set_ylim(float(y0), float(y1))
+    return fig, ax

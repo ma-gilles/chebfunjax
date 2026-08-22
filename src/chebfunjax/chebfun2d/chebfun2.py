@@ -2484,6 +2484,18 @@ class Chebfun2(eqx.Module):
         from chebfunjax.plotting import surf
         return surf(self, **kwargs)
 
+    def waterfall(self, fmt=None, **kwargs):
+        """Waterfall line plot (calls
+        :func:`chebfunjax.plotting.waterfall_chebfun2`).
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/waterfall.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.plotting import waterfall_chebfun2
+        return waterfall_chebfun2(self, fmt=fmt, **kwargs)
+
     def contour(self, **kwargs):
         """Contour plot of this Chebfun2 (calls :func:`chebfunjax.plotting.contour`)."""
         from chebfunjax.plotting import contour

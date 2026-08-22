@@ -2785,6 +2785,43 @@ class Chebfun3(eqx.Module):
         from chebfunjax.plotting import surf_chebfun3
         return surf_chebfun3(self, **kwargs)
 
+    def slice(self, xslices=None, yslices=None, zslices=None, **kwargs):
+        """Orthogonal slice planes (calls
+        :func:`chebfunjax.plotting.slice_chebfun3`).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/slice.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.plotting import slice_chebfun3
+        return slice_chebfun3(self, xslices=xslices, yslices=yslices,
+                              zslices=zslices, **kwargs)
+
+    def scan(self, dim: int = 1, hold: bool = False, **kwargs):
+        """Scanning slice plot along dimension ``dim`` (calls
+        :func:`chebfunjax.plotting.scan_chebfun3`).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/scan.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.plotting import scan_chebfun3
+        return scan_chebfun3(self, dim=dim, hold=hold, **kwargs)
+
+    def isosurface(self, levels=None, **kwargs):
+        """Isosurface plot (calls
+        :func:`chebfunjax.plotting.isosurface_chebfun3`).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/isosurface.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.plotting import isosurface_chebfun3
+        return isosurface_chebfun3(self, levels=levels, **kwargs)
+
     # ------------------------------------------------------------------
     # Representation
     # ------------------------------------------------------------------
