@@ -622,6 +622,8 @@ def plotcoeffs(
 
 def surf(
     f2,
+    g2=None,
+    h2=None,
     ax=None,
     title: str = "",
     n_pts: int = 100,
@@ -667,6 +669,37 @@ def surf(
     fig, ax = _setup_3d_axes(ax, None, elev=30, azim=-127.5,
                              figsize=(6.1, 2.58))
 
+    if g2 is not None and h2 is not None:
+        # Parametric surface surf(x, y, f): coordinates from the three
+        # chebfun2s (MATLAB @separableApprox/surf.m).
+        Xp = _eval_2d_vectorized(f2, XX, YY)
+        Yp = _eval_2d_vectorized(g2, XX, YY)
+        Zp = _eval_2d_vectorized(h2, XX, YY)
+        ax.plot_surface(Xp, Yp, Zp, cmap=cmap,
+                        rstride=1, cstride=1,
+                        linewidth=0, antialiased=True,
+                        shade=True, **kw)
+        _set_unit_ticks(ax, domain=(x0, x1, y0, y1))
+        if title:
+            ax.set_title(title, fontsize=10, pad=0)
+        fig.tight_layout(pad=0.5)
+        return fig, ax
+    if g2 is not None:
+        # surf(f, g): height from f, colouring from g (MATLAB).
+        CC = _eval_2d_vectorized(g2, XX, YY)
+        cmap_obj2 = _coerce_cmap(cmap)
+        norm = _normalize_values(CC)
+        ax.plot_surface(XX, YY, ZZ,
+                        facecolors=cmap_obj2(norm(CC)),
+                        rstride=1, cstride=1,
+                        linewidth=0, antialiased=True,
+                        shade=False, **kw)
+        _set_unit_ticks(ax, domain=(x0, x1, y0, y1))
+        if title:
+            ax.set_title(title, fontsize=10, pad=0)
+        fig.tight_layout(pad=0.5)
+        return fig, ax
+
     ax.plot_surface(XX, YY, ZZ, cmap=cmap,
                     rstride=1, cstride=1,
                     linewidth=0, antialiased=True,
@@ -695,9 +728,16 @@ def contour(
     line_color=None,
     colorbar: bool = False,
     figsize: tuple = (6.1, 2.58),
+    pivots=None,
+    xx=None,
+    yy=None,
     **kw,
 ) -> tuple[plt.Figure, plt.Axes]:
     """Contour plot of a Chebfun2 (MATLAB Chebfun style).
+
+    ``pivots`` takes a MATLAB linespec and overlays the GE pivot
+    locations (MATLAB ``contour(f, 'pivots', S)``); ``xx``/``yy`` give
+    an explicit evaluation grid (MATLAB ``contour(xx, yy, f)``).
 
     Draws contour lines (optionally over filled bands) using the parula
     colormap and unit-domain ticks.
@@ -731,14 +771,24 @@ def contour(
     """
     cmap_obj = _coerce_cmap(cmap)
 
+    # MATLAB convention: contour(f, [v v]) draws the single level v.
+    if not np.isscalar(levels):
+        _lv = np.atleast_1d(np.asarray(levels, dtype=float))
+        if _lv.size == 2 and _lv[0] == _lv[1]:
+            levels = [float(_lv[0])]
+
     try:
         x0, x1, y0, y1 = f2.domain
     except Exception:
         x0, x1, y0, y1 = -1.0, 1.0, -1.0, 1.0
 
-    xs = np.linspace(float(x0), float(x1), n_pts)
-    ys = np.linspace(float(y0), float(y1), n_pts)
-    XX, YY = np.meshgrid(xs, ys, indexing="xy")
+    if xx is not None and yy is not None:
+        XX = np.asarray(xx, dtype=float)
+        YY = np.asarray(yy, dtype=float)
+    else:
+        xs = np.linspace(float(x0), float(x1), n_pts)
+        ys = np.linspace(float(y0), float(y1), n_pts)
+        XX, YY = np.meshgrid(xs, ys, indexing="xy")
     ZZ = _eval_2d_vectorized(f2, XX, YY)
 
     if ax is None:
@@ -748,13 +798,30 @@ def contour(
 
     cf = None
     if filled:
-        cf = ax.contourf(XX, YY, ZZ, levels=levels, cmap=cmap_obj, **kw)
+        lv_f = levels
+        if not np.isscalar(lv_f):
+            lv_arr = np.atleast_1d(np.asarray(lv_f, dtype=float))
+            if lv_arr.size == 1:
+                # matplotlib needs >= 2 levels for filled contours; fill
+                # the region above the single MATLAB level.
+                top = float(np.nanmax(ZZ))
+                lv_f = [float(lv_arr[0]),
+                        max(top, float(lv_arr[0]) + 1e-12)]
+        cf = ax.contourf(XX, YY, ZZ, levels=lv_f, cmap=cmap_obj, **kw)
     if line_color is None:
         ax.contour(XX, YY, ZZ, levels=levels, cmap=cmap_obj,
                    linewidths=0.8, **kw)
     else:
         ax.contour(XX, YY, ZZ, levels=levels, colors=line_color,
                    linewidths=0.5, **kw)
+
+    if pivots is not None:
+        locs = np.asarray([(float(p[0]), float(p[1]))
+                           for p in getattr(f2, "pivot_locations", ())],
+                          dtype=float)
+        if locs.size:
+            fmt_p = pivots if isinstance(pivots, str) else "r."
+            ax.plot(locs[:, 0], locs[:, 1], fmt_p)
 
     has_colorbar = colorbar and cf is not None
     if has_colorbar:
@@ -902,6 +969,9 @@ def plot_disk(
         zmin = float(ZZ.min())
         ax.plot(np.cos(theta_bdy), np.sin(theta_bdy),
                 zs=zmin, zdir="z", color="k", linewidth=0.6, alpha=0.5)
+        # MATLAB axis: exactly the unit square in x and y.
+        ax.set_xlim(-1.0, 1.0)
+        ax.set_ylim(-1.0, 1.0)
     else:
         # 2D flat mode
         if ax is None:
@@ -913,6 +983,8 @@ def plot_disk(
         _draw_disk_boundary(ax, linewidth=0.8)
         ax.set_aspect("equal")
         _set_unit_ticks(ax, domain=(-1, 1, -1, 1))
+        ax.set_xlim(-1.0, 1.0)
+        ax.set_ylim(-1.0, 1.0)
 
     _apply_style(ax, title=title, grid=False)
     fig.set_facecolor("white")
@@ -1149,6 +1221,7 @@ def contour_sphere(
     levels: int = 12,
     sphere_color=None,
     cmap=None,
+    fmt=None,
     **kw,
 ) -> tuple[plt.Figure, Any]:
     """Contour plot of a Spherefun on the unit sphere (MATLAB @spherefun/contour.m).
@@ -1169,6 +1242,11 @@ def contour_sphere(
     -------
     fig, ax
     """
+    # MATLAB convention: contour(f, [v v]) draws the single level v.
+    if not np.isscalar(levels):
+        lv = np.atleast_1d(np.asarray(levels, dtype=float))
+        if lv.size == 2 and lv[0] == lv[1]:
+            levels = [float(lv[0])]
     import jax.numpy as jnp
 
     cmap_obj = _coerce_cmap(cmap)
@@ -1226,7 +1304,13 @@ def contour_sphere(
         xv = np.sin(th_c) * np.cos(lam_c)
         yv = np.sin(th_c) * np.sin(lam_c)
         zv = np.cos(th_c)
-        # Color from level
+        # Color from level (or a fixed linespec colour when given)
+        if fmt is not None:
+            clr = next((ch for ch in fmt if ch in "bgrcmykw"), "k")
+            lstyle = next((ls for ls in ("--", "-.", ":", "-")
+                           if ls in fmt), "-")
+            ax.plot(xv, yv, zv, color=clr, linestyle=lstyle, linewidth=1.0)
+            continue
         if len(level_list) > 1:
             idx = np.argmin(np.abs(lev_val - level_list))
             clr = clrmap[idx, :3]
@@ -1578,6 +1662,7 @@ def contour_disk(
     n_pts: int = 200,
     levels: int = 12,
     cmap=None,
+    fmt=None,
     **kw,
 ) -> tuple[plt.Figure, plt.Axes]:
     """Contour plot of a Diskfun on the unit disk (MATLAB @diskfun/contour.m).
@@ -1598,6 +1683,11 @@ def contour_disk(
     -------
     fig, ax
     """
+    # MATLAB convention: contour(f, [v v]) draws the single level v.
+    if not np.isscalar(levels):
+        lv = np.atleast_1d(np.asarray(levels, dtype=float))
+        if lv.size == 2 and lv[0] == lv[1]:
+            levels = [float(lv[0])]
     import jax.numpy as jnp
 
     cmap_obj = _coerce_cmap(cmap)
@@ -1619,13 +1709,20 @@ def contour_disk(
     else:
         fig = ax.get_figure()
 
-    ax.contour(XX, YY, vals, levels=levels, cmap=cmap_obj, **kw)
+    if fmt is not None:
+        colors = next((ch for ch in fmt if ch in "bgrcmykw"), "k")
+        lstyle = next((ls for ls in ("--", "-.", ":", "-") if ls in fmt),
+                      "-")
+        ax.contour(XX, YY, vals, levels=levels, colors=colors,
+                   linestyles=lstyle, **kw)
+    else:
+        ax.contour(XX, YY, vals, levels=levels, cmap=cmap_obj, **kw)
 
     _draw_disk_boundary(ax, linewidth=0.3)
 
     ax.set_aspect('equal')
-    ax.set_xlim(-1.1, 1.1)
-    ax.set_ylim(-1.1, 1.1)
+    ax.set_xlim(-1.0, 1.0)
+    ax.set_ylim(-1.0, 1.0)
     _apply_style(ax, title=title, grid=False)
     fig.set_facecolor("white")
     fig.tight_layout(pad=0.5)
@@ -2199,8 +2296,8 @@ def isosurface_ball(
     zs = np.outer(np.ones_like(u), np.cos(v))
     ax.plot_wireframe(xs, ys, zs, color="gray", alpha=0.08, linewidth=0.3)
 
-    ax.set_xlim(-1.1, 1.1)
-    ax.set_ylim(-1.1, 1.1)
+    ax.set_xlim(-1.0, 1.0)
+    ax.set_ylim(-1.0, 1.0)
     ax.set_zlim(-1.1, 1.1)
 
     if title:
@@ -3722,4 +3819,74 @@ def comet3(f, g=None, h=None, ax=None, numpts: int = 501, **kw):
             _sample_pieces(_cheb_cols(g)[0], numpts),
             _sample_pieces(_cheb_cols(h)[0], numpts)):
         ax.plot(xv, yv, zv, **kw)
+    return fig, ax
+
+
+def contour3_disk(fd, ax=None, levels: int = 10, n_pts: int = 200,
+                  pivots=None, xx=None, yy=None, **kw):
+    """3-D contour plot of a Diskfun: contour curves drawn at their
+    function height above the unit disk (MATLAB @diskfun/contour3.m).
+
+    ``pivots`` overlays the construction pivot locations with the given
+    linespec; ``xx``/``yy`` give an explicit Cartesian evaluation grid.
+
+    Provenance
+    ----------
+    MATLAB source : @diskfun/contour3.m
+    Chebfun commit: 7574c77
+    """
+    if not np.isscalar(levels):
+        lv = np.atleast_1d(np.asarray(levels, dtype=float))
+        if lv.size == 2 and lv[0] == lv[1]:
+            levels = [float(lv[0])]
+    if xx is not None and yy is not None:
+        XX = np.asarray(xx, dtype=float)
+        YY = np.asarray(yy, dtype=float)
+    else:
+        g = np.linspace(-1.0, 1.0, n_pts)
+        XX, YY = np.meshgrid(g, g)
+    RR = np.hypot(XX, YY)
+    TT = np.arctan2(YY, XX)
+    Rc = np.clip(RR, 0.0, 1.0)
+    ZZ = np.asarray(fd(jnp.asarray(TT), jnp.asarray(Rc)), dtype=float)
+    ZZ = np.where(RR <= 1.0, ZZ, np.nan)
+
+    # Extract 2-D contour paths, then draw each at its level height.
+    ftmp, axtmp = plt.subplots()
+    cs = axtmp.contour(XX, YY, ZZ, levels=levels)
+    paths = []
+    for i, segs in enumerate(cs.allsegs):
+        lev = cs.levels[i] if i < len(cs.levels) else cs.levels[-1]
+        for seg in segs:
+            if len(seg) > 1:
+                paths.append((lev, seg))
+    plt.close(ftmp)
+
+    if ax is None:
+        fig = plt.figure(figsize=(6.1, 4.0))
+        ax = fig.add_subplot(projection="3d")
+    else:
+        fig = ax.get_figure()
+    cmap_obj = _coerce_cmap(None)
+    lvs = cs.levels
+    span = (lvs[-1] - lvs[0]) if len(lvs) > 1 and lvs[-1] > lvs[0] else 1.0
+    for lev, seg in paths:
+        c = cmap_obj((lev - lvs[0]) / span)
+        ax.plot(seg[:, 0], seg[:, 1], zs=lev, zdir="z", color=c, **kw)
+    tb = np.linspace(0, 2 * np.pi, 300)
+    ax.plot(np.cos(tb), np.sin(tb), zs=0.0, zdir="z",
+            color="k", linewidth=0.6, alpha=0.5)
+    if pivots is not None:
+        locs = np.asarray([(float(p[0]), float(p[1]))
+                           for p in getattr(fd, "pivot_locations", ())],
+                          dtype=float)
+        if locs.size:
+            fmt_p = pivots if isinstance(pivots, str) else "r."
+            px = locs[:, 1] * np.cos(locs[:, 0])
+            py = locs[:, 1] * np.sin(locs[:, 0])
+            pz = np.asarray(fd(jnp.asarray(locs[:, 0]),
+                               jnp.asarray(locs[:, 1])), dtype=float)
+            ax.plot(px, py, pz, fmt_p)
+    ax.set_xlim(-1.0, 1.0)
+    ax.set_ylim(-1.0, 1.0)
     return fig, ax

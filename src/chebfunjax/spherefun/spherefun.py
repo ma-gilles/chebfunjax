@@ -1443,8 +1443,30 @@ class Spherefun(eqx.Module):
     # Plotting
     # ------------------------------------------------------------------
 
-    def plot(self, **kwargs):
-        """Plot this Spherefun on the sphere (calls :func:`chebfunjax.plotting.plot_sphere`)."""
+    def plot(self, fmt=None, **kwargs):
+        """Plot this Spherefun on the sphere (calls
+        :func:`chebfunjax.plotting.plot_sphere`).
+
+        ``plot(f, S)`` with a linespec string S plots the pivot
+        locations used in the construction of f instead (MATLAB
+        @spherefun/plot.m).
+        """
+        if isinstance(fmt, str):
+            import matplotlib.pyplot as plt
+            import numpy as _np
+            fig = plt.figure(figsize=(4.5, 4.5))
+            ax = fig.add_subplot(projection="3d")
+            locs = list(self.pivot_locations)
+            lam = _np.array([p[0] for p in locs], dtype=float)
+            th = _np.array([p[1] for p in locs], dtype=float)
+            x = _np.cos(lam) * _np.sin(th)
+            y = _np.sin(lam) * _np.sin(th)
+            z = _np.cos(th)
+            ax.plot(x, y, z, fmt)
+            ax.set_xlim(-1.0, 1.0)
+            ax.set_ylim(-1.0, 1.0)
+            ax.set_zlim(-1.0, 1.0)
+            return fig, ax
         from chebfunjax.plotting import plot_sphere
         return plot_sphere(self, **kwargs)
 
@@ -1457,6 +1479,18 @@ class Spherefun(eqx.Module):
         """Contour plot on the sphere (calls :func:`chebfunjax.plotting.contour_sphere`)."""
         from chebfunjax.plotting import contour_sphere
         return contour_sphere(self, **kwargs)
+
+    def contour3(self, levels: int = 10, n_pts: int = 200, **kwargs):
+        """3-D contour plot on the sphere: same as :meth:`contour`
+        (contours are already drawn on the 3-D sphere surface).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/contour3.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.plotting import contour_sphere
+        return contour_sphere(self, levels=levels, n_pts=n_pts, **kwargs)
 
     # ------------------------------------------------------------------
     # Arithmetic + composition via constructor re-approximation
