@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import jax
 import jax.numpy as jnp
-
 import matplotlib
 
 matplotlib.use("Agg")

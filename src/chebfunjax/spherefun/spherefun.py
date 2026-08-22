@@ -1435,6 +1435,179 @@ class Spherefun(eqx.Module):
         """Total number of terms in the low-rank decomposition."""
         return len(self.cols)
 
+    def length(self) -> tuple[int, int]:  # noqa: D401
+        """(m, n): angular (lambda, rows) and colatitude (theta, cols)
+        resolution of the representation (MATLAB [m, n] = length(f)).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/length.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty() or len(self.cols) == 0:
+            return (0, 0)
+        m = max(int(np.asarray(r.coeffs).ravel().shape[0])
+                for r in self.rows)
+        n = max(int(np.asarray(c.coeffs).ravel().shape[0])
+                for c in self.cols)
+        return (m, n)
+
+    def fevalm(self, lam, th) -> jax.Array:
+        """Evaluate on the tensor grid of 1D arrays ``lam`` (longitude)
+        and ``th`` (colatitude): returns the ``(len(th), len(lam))``
+        matrix of values (MATLAB fevalm).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/fevalm.m, @separableApprox/fevalm.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty() or len(self.cols) == 0:
+            return jnp.zeros((0, 0), dtype=jnp.float64)
+        lam = jnp.atleast_1d(jnp.asarray(lam, dtype=jnp.float64)).ravel()
+        th = jnp.atleast_1d(jnp.asarray(th, dtype=jnp.float64)).ravel()
+        L, T = jnp.meshgrid(lam, th)
+        return self(L, T)
+
+    def sample(self, m: int | None = None, n: int | None = None) -> jax.Array:
+        """Values on an m (longitude) x n (colatitude) tensor grid:
+        lam = trigpts(m, [-pi, pi]), th = linspace(0, pi, n); returns
+        an (n, m) matrix (MATLAB sample).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/sample.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.utils.quadrature import trigpts
+        if m is None or n is None:
+            m0, n0 = self.length()
+            m = m0 if m is None else m
+            n = n0 if n is None else n
+        lam = np.pi * np.array(trigpts(int(m))[0])
+        th = np.linspace(0.0, np.pi, int(n))
+        return self.fevalm(jnp.asarray(lam), jnp.asarray(th))
+
+    def sample_cdr(self, m: int, n: int):
+        """(U, D, V) sampled low-rank factors with
+        ``U @ D @ V.T == sample(m, n)`` (MATLAB [U, D, V] = sample(f)).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/sample.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.tech.trigtech import _trig_eval_np
+        from chebfunjax.utils.quadrature import trigpts
+        lam = np.pi * np.array(trigpts(int(m))[0])
+        th = np.linspace(0.0, np.pi, int(n))
+        U = np.column_stack(
+            [np.real(np.asarray(_trig_eval_np(
+                np.asarray(c.coeffs)[:, None], th / np.pi,
+                is_real=c.is_real))).ravel()
+             for c in self.cols])
+        V = np.column_stack(
+            [np.real(np.asarray(_trig_eval_np(
+                np.asarray(r.coeffs)[:, None], lam / np.pi,
+                is_real=r.is_real))).ravel()
+             for r in self.rows])
+        D = np.diag(1.0 / np.asarray(self.pivots, dtype=float))
+        return (jnp.asarray(U, dtype=jnp.float64),
+                jnp.asarray(D, dtype=jnp.float64),
+                jnp.asarray(V, dtype=jnp.float64))
+
+    def minandmax2est(self, n: int = 33) -> jax.Array:
+        """Estimated [min, max] over the sphere from an n x n sample
+        (MATLAB minandmax2est).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/minandmax2est.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty() or len(self.cols) == 0:
+            return jnp.zeros((2,), dtype=jnp.float64)
+        vals = self.sample(n, n).reshape(-1)
+        return jnp.array([jnp.min(vals), jnp.max(vals)],
+                         dtype=jnp.float64)
+
+    def cosh(self):
+        """Hyperbolic cosine, re-approximated (MATLAB cosh)."""
+        return self._reapprox(jnp.cosh)
+
+    def sinh(self):
+        """Hyperbolic sine, re-approximated (MATLAB sinh)."""
+        return self._reapprox(jnp.sinh)
+
+    def tanh(self):
+        """Hyperbolic tangent, re-approximated (MATLAB tanh)."""
+        return self._reapprox(jnp.tanh)
+
+    def biharm(self) -> "Spherefun":
+        """Biharmonic operator: laplacian applied twice (MATLAB
+        @spherefun/biharm.m).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/biharm.m
+        Chebfun commit: 7574c77
+        """
+        return self.laplacian().laplacian()
+
+    @staticmethod
+    def vertcat(*args) -> "Spherefun":
+        """Vertical concatenation: three Spherefuns make a Spherefunv
+        (MATLAB ``[f; g; h]``); one argument returns itself; any other
+        count is an error.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/vertcat.m
+        Chebfun commit: 7574c77
+        """
+        if len(args) == 1:
+            return args[0]
+        if len(args) == 3:
+            from chebfunjax.spherefun.spherefunv import Spherefunv
+            return Spherefunv(*args)
+        raise ValueError(
+            "Can only vertically concatenate three Spherefun objects.")
+
+    @staticmethod
+    def combine(g: "Spherefun", h: "Spherefun") -> "Spherefun":
+        """Combine an even/pi-periodic Spherefun with an odd/
+        anti-periodic one without re-running the constructor (MATLAB
+        combine; inverse of :meth:`partition`).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/combine.m
+        Chebfun commit: 7574c77
+        """
+        if not isinstance(g, Spherefun) or not isinstance(h, Spherefun):
+            raise TypeError(
+                "Spherefun.combine: inputs must be Spherefun objects.")
+        if g.isempty() or len(g.cols) == 0:
+            return h
+        if h.isempty() or len(h.cols) == 0:
+            return g
+        if (len(g.idx_plus) > 0 and len(g.idx_minus) > 0) or \
+                (len(h.idx_plus) > 0 and len(h.idx_minus) > 0):
+            raise ValueError(
+                "Spherefun.combine: inputs must have a single parity; "
+                "use g + h instead.")
+        ng = len(g.cols)
+        cols = list(g.cols) + list(h.cols)
+        rows = list(g.rows) + list(h.rows)
+        piv = jnp.concatenate([jnp.asarray(g.pivots),
+                               jnp.asarray(h.pivots)])
+        idx_p = tuple(g.idx_plus) + tuple(i + ng for i in h.idx_plus)
+        idx_m = tuple(g.idx_minus) + tuple(i + ng for i in h.idx_minus)
+        locs = tuple(g.pivot_locations) + tuple(h.pivot_locations)
+        return Spherefun(cols=cols, rows=rows, pivots=piv,
+                         idx_plus=idx_p, idx_minus=idx_m,
+                         pivot_locations=locs)
+
     # ------------------------------------------------------------------
     # Representation
     # ------------------------------------------------------------------
@@ -1541,13 +1714,15 @@ class Spherefun(eqx.Module):
         MATLAB source : @spherefun/partition.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return Spherefun.empty(), Spherefun.empty()
 
         def _sub(idx):
             idx = list(idx)
             if not idx:
-                zero = Spherefun.from_function(
-                    lambda lam, th: 0.0 * jnp.asarray(lam))
-                return zero
+                # MATLAB returns an EMPTY spherefun for a missing
+                # parity, not a rank-1 zero function.
+                return Spherefun.empty()
             return Spherefun(
                 cols=[self.cols[i] for i in idx],
                 rows=[self.rows[i] for i in idx],
@@ -1621,10 +1796,31 @@ class Spherefun(eqx.Module):
         return f2._shift_lambda(phi)
 
     def norm(self) -> jax.Array:
-        """L2 norm over the sphere: sqrt(int |f|^2 dOmega) (Fable 5)."""
-        f2 = Spherefun.from_function(
-            lambda lam, th: self(lam, th) ** 2)
-        return jnp.sqrt(jnp.abs(f2.sum()))
+        """L2 norm over the sphere: sqrt(int |f|^2 dOmega) (Fable 5).
+
+        Computed by direct Clenshaw-Curtis(theta, weight sin theta) x
+        trapezoid(lambda) quadrature of f^2 at the resolution of the
+        representation (spectrally exact for the finite series) -- the
+        previous adaptive re-approximation of f^2 handed the
+        constructor pure rounding noise whenever f was a structurally
+        cancelling difference (norm(f - g) checks).
+        """
+        if self.isempty() or len(self.cols) == 0:
+            return jnp.asarray(0.0, dtype=jnp.float64)
+        from chebfunjax.utils.quadrature import chebpts, chebweights
+        m, n = self.length()
+        nth = 2 * n + 16
+        mlam = 2 * m + 16
+        x = np.array(chebpts(nth))
+        w = np.array(chebweights(nth))
+        th = (x + 1.0) * (np.pi / 2.0)
+        w_th = w * (np.pi / 2.0)
+        lam = np.linspace(-np.pi, np.pi, mlam, endpoint=False)
+        V = np.asarray(self.fevalm(jnp.asarray(lam), jnp.asarray(th)),
+                       dtype=float)
+        val = float(np.sum((V ** 2) * (np.sin(th) * w_th)[:, None])
+                    * (2.0 * np.pi / mlam))
+        return jnp.sqrt(jnp.abs(jnp.asarray(val, dtype=jnp.float64)))
 
     def _reapprox(self, op2) -> "Spherefun":
         return Spherefun.from_function(
@@ -1767,10 +1963,38 @@ class Spherefun(eqx.Module):
         return self._reapprox(lambda v: -v)
 
     def __pow__(self, p):
+        if isinstance(p, Spherefun):
+            return Spherefun.from_function(
+                lambda lam, th: self(lam, th) ** p(lam, th))
         return self._reapprox(lambda v: v ** p)
 
     def compose(self, op):
-        """Re-approximate op(f) (MATLAB compose)."""
+        """Re-approximate op(f) (MATLAB compose).
+
+        ``op`` may be a plain callable or Chebfun (g(f)), a list/tuple
+        of three of them (quasimatrix G -> Spherefunv), a Chebfun2
+        (g(f, 0), MATLAB's real/imag split for real f), or a Chebfun2v
+        (componentwise -> Spherefunv).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/compose.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        if isinstance(op, (list, tuple)):
+            from chebfunjax.spherefun.spherefunv import Spherefunv
+            return Spherefunv(*[self.compose(c) for c in op])
+        try:
+            from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
+            if isinstance(op, Chebfun2v):
+                from chebfunjax.spherefun.spherefunv import Spherefunv
+                return Spherefunv(*[self.compose(c)
+                                    for c in op.components])
+        except ImportError:
+            pass
+        if isinstance(op, Chebfun2):
+            return self._reapprox(lambda v: op(v, 0.0 * v))
         return self._reapprox(op)
 
     def exp(self):

@@ -14,15 +14,14 @@ from __future__ import annotations
 
 import jax
 import jax.numpy as jnp
-
 import matplotlib
 
 matplotlib.use("Agg")
 
 import chebfunjax as cj
+import chebfunjax.plotting as P
 from chebfunjax.chebfun1d.chebfun import Chebfun
 from chebfunjax.domain import Domain
-import chebfunjax.plotting as P
 
 jax.config.update("jax_enable_x64", True)
 

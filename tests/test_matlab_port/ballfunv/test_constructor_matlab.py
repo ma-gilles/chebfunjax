@@ -13,7 +13,6 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import jax
-import jax.numpy as jnp
 import numpy as np
 
 from chebfunjax.ballfun.ballfun import Ballfun

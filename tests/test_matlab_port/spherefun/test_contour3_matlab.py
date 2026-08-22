@@ -12,7 +12,6 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import jax
-
 import matplotlib
 
 matplotlib.use("Agg")

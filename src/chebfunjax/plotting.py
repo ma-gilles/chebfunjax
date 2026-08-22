@@ -33,8 +33,8 @@ import matplotlib as mpl
 # display available.
 if matplotlib.get_backend().lower() == "agg" and not os.environ.get("DISPLAY"):
     pass  # already headless — keep whatever backend is active
-import matplotlib.pyplot as plt
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np  # uses-numpy: matplotlib rendering interop (host-side, never in JIT paths)
 from matplotlib.colors import LightSource, Normalize
 
@@ -3603,7 +3603,6 @@ def matlab_plot(*args, ax=None, numpts: int = 2001, interval=None,
     MATLAB source : @chebfun/plot.m
     Chebfun commit: 7574c77
     """
-    hold = ax is not None
     if ax is None:
         fig, ax = plt.subplots(figsize=(6, 3.5))
         entry_lims = None
@@ -3932,19 +3931,22 @@ def slice_chebfun3(f3, xslices=None, yslices=None, zslices=None,
         X = np.full_like(Y, xs)
         V = np.asarray(f3(jnp.asarray(X), jnp.asarray(Y), jnp.asarray(Z)),
                        dtype=float)
-        vals_all.append(V); grids.append((X, Y, Z, V))
+        vals_all.append(V)
+        grids.append((X, Y, Z, V))
     for ys in yslices:
         X, Z = np.meshgrid(xa + (xb - xa) * u, za + (zb - za) * u)
         Y = np.full_like(X, ys)
         V = np.asarray(f3(jnp.asarray(X), jnp.asarray(Y), jnp.asarray(Z)),
                        dtype=float)
-        vals_all.append(V); grids.append((X, Y, Z, V))
+        vals_all.append(V)
+        grids.append((X, Y, Z, V))
     for zs in zslices:
         X, Y = np.meshgrid(xa + (xb - xa) * u, ya + (yb - ya) * u)
         Z = np.full_like(X, zs)
         V = np.asarray(f3(jnp.asarray(X), jnp.asarray(Y), jnp.asarray(Z)),
                        dtype=float)
-        vals_all.append(V); grids.append((X, Y, Z, V))
+        vals_all.append(V)
+        grids.append((X, Y, Z, V))
     norm = _normalize_values(np.concatenate([v.ravel() for v in vals_all]))
     for X, Y, Z, V in grids:
         ax.plot_surface(X, Y, Z, facecolors=cmap_obj(norm(V)),
@@ -3995,8 +3997,8 @@ def isosurface_chebfun3(f3, levels=None, ax=None, n_pts: int = 51,
     MATLAB source : @chebfun3/isosurface.m
     Chebfun commit: 7574c77
     """
-    from skimage import measure
     from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+    from skimage import measure
 
     cmap_obj = _coerce_cmap(cmap)
     xa, xb, ya, yb, za, zb = (float(v) for v in f3.domain)

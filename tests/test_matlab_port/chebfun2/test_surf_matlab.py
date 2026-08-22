@@ -14,13 +14,12 @@ from __future__ import annotations
 
 import jax
 import jax.numpy as jnp
-
 import matplotlib
 
 matplotlib.use("Agg")
 
-from chebfunjax.chebfun2d.chebfun2 import Chebfun2
 import chebfunjax.plotting as P
+from chebfunjax.chebfun2d.chebfun2 import Chebfun2
 
 jax.config.update("jax_enable_x64", True)
 
