@@ -2334,6 +2334,51 @@ class Diskfun(eqx.Module):
             f = f.diffx() if dim == 1 else f.diffy()
         return f
 
+    def conj(self) -> "Diskfun":
+        """Complex conjugate; chebfunjax diskfuns carry real data, so
+        this is the identity (MATLAB conj).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/conj.m
+        Chebfun commit: 7574c77
+        """
+        return self
+
+    def gradient(self):
+        """The gradient field ``(f_x, f_y)`` as a Diskfunv (MATLAB
+        ``grad``/``gradient``).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/gradient.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.diskfun.diskfunv import Diskfunv
+        return Diskfunv(self.diffx(), self.diffy())
+
+    def grad(self):
+        """Alias of :meth:`gradient` (MATLAB ``grad``).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/grad.m
+        Chebfun commit: 7574c77
+        """
+        return self.gradient()
+
+    def curl_scalar(self):
+        """The rotated gradient ``(f_y, -f_x)`` — MATLAB's ``curl`` of
+        a scalar diskfun (a divergence-free field).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/curl.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.diskfun.diskfunv import Diskfunv
+        return Diskfunv(self.diffy(), -self.diffx())
+
     def laplacian(self) -> "Diskfun":
         r"""Laplacian :math:`\\nabla^2 f = f_{xx} + f_{yy}` on the disk.
 
@@ -2646,7 +2691,15 @@ def _diskfun_reconstruct(f: "Diskfun", kind: str) -> "Diskfun":
     ftt = np.zeros(TH.size)
     fr_only = np.zeros(TH.size)   # d/dr (for x/y)
     fth = np.zeros(TH.size)       # d/dtheta (for x/y)
+    piv_floor = 1e-12 * float(np.max(np.abs(piv))) if piv.size else 0.0
     for j in range(len(cols)):
+        # Skip noise pivots: a ~eps GE pivot gives a ~1/eps weight on a
+        # junk slice whose value contribution is below roundoff but
+        # whose DERIVATIVES are O(1/eps) rough -- one such term in a
+        # first-derivative diskfun corrupted every second Cartesian
+        # derivative by ~3e-2 (Fable 5 audit).
+        if abs(float(piv[j])) < piv_floor:
+            continue
         w = float(1.0 / piv[j])
         rowv = np.asarray(jnp.real(rows[j](tr)))
         rowdv = np.asarray(jnp.real(rows_d[j](tr))) * inv_pi

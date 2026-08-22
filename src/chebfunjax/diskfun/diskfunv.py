@@ -281,6 +281,199 @@ class Diskfunv(eqx.Module):
     # Plotting
     # ------------------------------------------------------------------
 
+    @property
+    def size(self):
+        """MATLAB ``size``: ``(2, inf, inf)``, transposed
+        ``(inf, inf, 2)``.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/size.m
+        Chebfun commit: 7574c77
+        """
+        import math
+        if getattr(self, "_row", False):
+            return (math.inf, math.inf, len(self.components))
+        return (len(self.components), math.inf, math.inf)
+
+    def transpose(self) -> "Diskfunv":
+        """MATLAB ``F.'`` (row form; components unchanged).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/transpose.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return self
+        out = type(self)(*self.components)
+        object.__setattr__(out, "_row",
+                           not getattr(self, "_row", False))
+        return out
+
+    def ctranspose(self) -> "Diskfunv":
+        """MATLAB ``F'`` (empty in, empty out).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/ctranspose.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return self
+        return self.conj().transpose()
+
+    def conj(self) -> "Diskfunv":
+        """Componentwise conjugate (MATLAB conj).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/conj.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return self
+        return type(self)(*[c.conj() if hasattr(c, "conj") else c
+                            for c in self.components])
+
+    def real(self) -> "Diskfunv":
+        """Componentwise real part.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/real.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return self
+        return type(self)(*[c.real() if hasattr(c, "real") else c
+                            for c in self.components])
+
+    def imag(self) -> "Diskfunv":
+        """Componentwise imaginary part.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/imag.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return self
+        return type(self)(*[c.imag() if hasattr(c, "imag")
+                            else c * 0.0 for c in self.components])
+
+    def vscale(self) -> float:
+        """The largest component vertical scale (MATLAB vscale).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/vscale.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _onp
+        worst = 0.0
+        for c in self.components:
+            t = _onp.linspace(-_onp.pi, _onp.pi, 33)
+            r = _onp.linspace(0.0, 1.0, 17)
+            T, R = _onp.meshgrid(t, r)
+            worst = max(worst, float(_onp.max(_onp.abs(_onp.asarray(
+                c(jnp.asarray(T), jnp.asarray(R)))))))
+        return worst
+
+    def diffx(self, k: int = 1) -> "Diskfunv":
+        """Componentwise d/dx (MATLAB diffx).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/diffx.m
+        Chebfun commit: 7574c77
+        """
+        out = self
+        for _ in range(k):
+            out = type(self)(*[c.diffx() for c in out.components])
+        return out
+
+    def diffy(self, k: int = 1) -> "Diskfunv":
+        """Componentwise d/dy (MATLAB diffy).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/diffy.m
+        Chebfun commit: 7574c77
+        """
+        out = self
+        for _ in range(k):
+            out = type(self)(*[c.diffy() for c in out.components])
+        return out
+
+    def jacobian(self):
+        """The Jacobian determinant ``Fx(1) Fy(2) - Fy(1) Fx(2)``
+        (MATLAB jacobian); empty in, empty Diskfun-slot out.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/jacobian.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            from chebfunjax.diskfun.diskfun import Diskfun
+            return Diskfun.empty()
+        Fx = self.diffx()
+        Fy = self.diffy()
+        return (Fx.components[0] * Fy.components[1]
+                - Fy.components[0] * Fx.components[1])
+
+    def divgrad(self):
+        """``d2F1/dx2 + d2F2/dy2`` (MATLAB divgrad).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/divgrad.m
+        Chebfun commit: 7574c77
+        """
+        return (self.components[0].diffx().diffx()
+                + self.components[1].diffy().diffy())
+
+    def cross(self, other: "Diskfunv"):
+        """2-D cross product ``F1 G2 - F2 G1`` (a scalar Diskfun);
+        empty in, empty out.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/cross.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty() or other.isempty():
+            return self if self.isempty() else other
+        return (self.components[0] * other.components[1]
+                - self.components[1] * other.components[0])
+
+    def compose(self, g):
+        """Composition ``g(F)`` with a Chebfun2 (-> Diskfun) or
+        Chebfun2v (-> Diskfunv).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/compose.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        from chebfunjax.diskfun.diskfun import Diskfun
+        f1, f2 = self.components
+
+        def disk_of(gg):
+            g2 = gg if callable(gg) and not hasattr(gg, "approx")                 else Chebfun2(approx=getattr(gg, "approx", gg))                 if not isinstance(gg, Chebfun2) else gg
+
+            def h(t, r):
+                return g2(f1(t, r), f2(t, r))
+            return Diskfun.from_function(h)
+
+        if hasattr(g, "components"):
+            return type(self)(*[
+                disk_of(Chebfun2(approx=c) if not hasattr(c, "domain")
+                        else c) for c in g.components])
+        return disk_of(g)
+
     def plot(self, **kwargs):
         """Quiver plot on the disk (calls :func:`chebfunjax.plotting.quiver_disk`)."""
         from chebfunjax.plotting import quiver_disk
