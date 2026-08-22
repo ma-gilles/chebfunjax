@@ -62,6 +62,23 @@ class Ballfunv(eqx.Module):
         """
         return getattr(self, "_is_empty_object", False)
 
+    @property
+    def size(self):
+        """3 x 3 array whose rows are the coefficient-tensor sizes of
+        the three components (MATLAB @ballfunv/size).
+
+        Empty Ballfunv returns an empty array, mirroring MATLAB's ``[]``.
+
+        Provenance
+        ----------
+        MATLAB source : @ballfunv/size.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        if self.isempty():
+            return _np.zeros((0, 0))
+        return _np.array([list(c.size) for c in self.components])
+
     components: list  # [f, g, h]
 
     def __init__(self, f: Ballfun, g: Ballfun, h: Ballfun) -> None:

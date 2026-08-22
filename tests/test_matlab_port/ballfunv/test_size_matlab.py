@@ -8,11 +8,21 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-import pytest
+import jax
+import numpy as np
 
-pytestmark = pytest.mark.skip(reason="ballfunv feature 'size' not implemented (MATLAB-specific accessor or missing op)")
+from chebfunjax.ballfun.ballfun import Ballfun
+from chebfunjax.ballfun.ballfunv import Ballfunv
+
+jax.config.update("jax_enable_x64", True)
 
 
 class TestBallfunvSize:
     def test_all_matlab_assertions(self):
-        raise NotImplementedError
+        # Example 1
+        Vx = Ballfun.from_function(lambda x, y, z: 1.0 + 0 * x)
+        Vy = Ballfun.from_function(lambda x, y, z: 1.0 + 0 * x)
+        Vz = Ballfun.from_function(lambda x, y, z: x)
+        S = np.array([[1, 1, 1], [1, 1, 1], [2, 3, 3]])
+        V = Ballfunv(Vx, Vy, Vz)
+        assert np.array_equal(S, V.size)  # pass(1)

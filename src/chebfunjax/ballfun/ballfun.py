@@ -1036,11 +1036,14 @@ class Ballfun(eqx.Module):
             cfs = cfs[:, :, mid_p - half_th : mid_p + c_th - half_th]
 
         cfs_jax = jnp.asarray(cfs, dtype=jnp.complex128)
+        # MATLAB @ballfun/constructor.m ends with f = simplify(f), which
+        # compresses the coefficient-tensor dimensions to their minimal
+        # resolved sizes (a constant is 1x1x1, x is 2x3x3, ...).
         return cls(
             coeffs=cfs_jax,
             is_real=bool(is_real),
             domain=(0.0, 1.0, -float(np.pi), float(np.pi), 0.0, float(np.pi)),
-        )
+        ).simplify()
 
     @classmethod
     def from_coeffs(cls, coeffs: jax.Array, *, is_real: bool = True) -> "Ballfun":
@@ -1078,6 +1081,190 @@ class Ballfun(eqx.Module):
     def shape(self) -> tuple[int, int, int]:
         """Shape of the coefficient tensor (m, n, p)."""
         return tuple(self.coeffs.shape)
+
+    @property
+    def size(self) -> tuple[int, ...]:
+        """Size (m, n, p) of the coefficient tensor (MATLAB size).
+
+        Empty Ballfun returns an empty tuple, mirroring MATLAB's ``[]``.
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/size.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return ()
+        s = tuple(self.coeffs.shape)
+        if len(s) == 2:
+            s = s + (1,)
+        return s
+
+    def coeffs3(self, m: int | None = None, n: int | None = None,
+                p: int | None = None):
+        """Trivariate CFF expansion coefficients, optionally aliased to
+        an (m, n, p) tensor (MATLAB coeffs3).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/coeffs3.m
+        Chebfun commit: 7574c77
+        """
+        if m is None:
+            return self.coeffs
+        if n is None:
+            n = m
+            p = m
+        elif p is None:
+            p = n
+        from chebfunjax.tech.chebtech import Chebtech2
+        from chebfunjax.tech.trigtech import Trigtech
+
+        F = np.array(self.coeffs)
+        mf, nf, pf = F.shape
+        # Alias each theta-slice: trig in lambda (dim 1), Chebyshev in r
+        # (dim 0), then trig in theta (dim 2), exactly as MATLAB.
+        G = np.zeros((m, n, pf), dtype=complex)
+        for k in range(pf):
+            sl = np.empty((mf, n), dtype=complex)
+            for i in range(mf):
+                sl[i, :] = np.array(
+                    Trigtech.alias(jnp.asarray(F[i, :, k]), n))
+            for j in range(n):
+                G[:, j, k] = np.array(
+                    Chebtech2.alias(jnp.asarray(sl[:, j]), m))
+        C = np.zeros((m, n, p), dtype=complex)
+        for i in range(m):
+            for j in range(n):
+                C[i, j, :] = np.array(
+                    Trigtech.alias(jnp.asarray(G[i, j, :]), p))
+        return jnp.asarray(C, dtype=jnp.complex128)
+
+    @property
+    def vscale(self) -> float:
+        """Vertical scale: max abs value on a coarse 65^3 CFF grid
+        (MATLAB vscale).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/vscale.m
+        Chebfun commit: 7574c77
+        """
+        V = _coeffs2vals_3d(np.array(self.coeffs3(65, 65, 65)))
+        return float(np.max(np.abs(V)))
+
+    def sample(self, m: int | None = None, n: int | None = None,
+               p: int | None = None) -> jax.Array:
+        """Values of f on an m x n x p CFF tensor grid (MATLAB sample):
+        r = positive half of chebpts(2m-1), lambda = pi*trigpts(n),
+        theta = pi*linspace(0, 1, p).
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/sample.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.utils.quadrature import chebpts, trigpts
+        if m is None:
+            m, n, p = self.size
+        r = np.array(chebpts(2 * m - 1))[m - 1:]
+        lam = np.pi * np.array(trigpts(n)[0])
+        th = np.pi * np.linspace(0.0, 1.0, p)
+        return self.fevalm(jnp.asarray(r), jnp.asarray(lam),
+                           jnp.asarray(th))
+
+    @staticmethod
+    def vals2coeffs(X) -> jax.Array:
+        """CFF values -> coefficients transform (MATLAB
+        ballfun.vals2coeffs).  Accepts 1D/2D/3D arrays; trailing
+        singleton dimensions are treated as size-1 grid directions.
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/vals2coeffs.m
+        Chebfun commit: 7574c77
+        """
+        V = np.asarray(X)
+        shape = V.shape
+        while V.ndim < 3:
+            V = V[..., None]
+        C = _vals2coeffs_3d(
+            V.astype(np.float64 if np.isrealobj(V) else np.complex128))
+        return jnp.asarray(C.reshape(shape), dtype=jnp.complex128)
+
+    @staticmethod
+    def coeffs2vals(C) -> jax.Array:
+        """CFF coefficients -> values transform (MATLAB
+        ballfun.coeffs2vals).  Accepts 1D/2D/3D arrays.
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/coeffs2vals.m
+        Chebfun commit: 7574c77
+        """
+        Cc = np.asarray(C, dtype=complex)
+        shape = Cc.shape
+        while Cc.ndim < 3:
+            Cc = Cc[..., None]
+        V = _coeffs2vals_3d(Cc)
+        return jnp.asarray(V.reshape(shape), dtype=jnp.complex128)
+
+    @classmethod
+    def from_values(cls, values) -> "Ballfun":
+        """Construct a Ballfun from values on the CFF tensor grid.
+
+        Mirrors ``ballfun(V)`` with a numeric m x n x p array ``V`` of
+        samples on the Chebyshev(r) x Fourier(lambda) x Fourier(theta)
+        doubled-sphere grid: values are transformed to coefficients with
+        the standard vals2coeffs pipeline.
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/ballfun.m  (numeric input branch)
+        Chebfun commit: 7574c77
+        """
+        vals = np.asarray(values)
+        if vals.ndim == 2:
+            vals = vals[:, :, None]
+        m, n, p = vals.shape
+        if n % 2 != 0:
+            raise ValueError(
+                "When constructing from values the number of columns "
+                "must be even.")
+        if p < 2:
+            raise ValueError(
+                "When constructing from values the number of tubes must "
+                "be greater than 2.")
+        # Values live on the HALF grid; double in r and theta and impose
+        # the BMC-III structure before transforming (MATLAB
+        # constructFromDouble -> ImposeBMC -> vals2coeffs).
+        is_real = bool(np.isrealobj(vals))
+        g = vals[:, : n // 2 + 1, :].astype(np.complex128)
+        h = vals[:, list(range(n // 2, n)) + [0], :].astype(np.complex128)
+        doubled, _ = _impose_bmc(g, h)
+        cfs = _vals2coeffs_3d(doubled)
+        return cls.from_coeffs(jnp.asarray(cfs), is_real=is_real)
+
+    @staticmethod
+    def vertcat(*args) -> "Ballfun":
+        """Vertical concatenation: three Ballfuns make a Ballfunv
+        (MATLAB ``[f; g; h]``); one argument returns itself.
+
+        Provenance
+        ----------
+        MATLAB source : @ballfun/vertcat.m
+        Chebfun commit: 7574c77
+        """
+        if len(args) == 1:
+            return args[0]
+        if len(args) == 3:
+            if not all(isinstance(a, Ballfun) for a in args):
+                raise TypeError(
+                    "Only BALLFUN objects are valid to concatenate.")
+            from chebfunjax.ballfun.ballfunv import Ballfunv
+            return Ballfunv(*args)
+        raise ValueError(
+            "Can only vertically concatenate three BALLFUN objects.")
 
     def __len__(self) -> int:
         """Total number of coefficients."""
@@ -1325,10 +1512,13 @@ class Ballfun(eqx.Module):
                     c = jnp.concatenate(
                         [c, jnp.zeros((target_m - cm, cn, cp), dtype=c.dtype)], axis=0
                     )
-                # Pad n (insert zeros symmetrically in Fourier)
+                # Pad n (align the k = 0 Fourier mode: it sits at index
+                # size//2 for BOTH parities, so the left pad is the
+                # difference of the two k=0 positions -- dn//2 misaligns
+                # odd-length inputs, e.g. simplify-trimmed tensors)
                 if cn < target_n:
                     dn = target_n - cn
-                    left = dn // 2
+                    left = target_n // 2 - cn // 2
                     right = dn - left
                     c = jnp.concatenate(
                         [
@@ -1346,7 +1536,7 @@ class Ballfun(eqx.Module):
                 cp_new = c.shape[2]
                 if cp_new < target_p:
                     dp = target_p - cp_new
-                    low = dp // 2
+                    low = target_p // 2 - cp_new // 2
                     high = dp - low
                     c = jnp.concatenate(
                         [
@@ -1446,9 +1636,11 @@ class Ballfun(eqx.Module):
             def _pad_np(c: np.ndarray, tm: int, tn: int, tp: int) -> np.ndarray:
                 cm, cn, cp = c.shape
                 out = np.zeros((tm, tn, tp), dtype=complex)
+                # Align the k = 0 Fourier mode (index size//2 for both
+                # parities); (tn-cn)//2 misaligns odd-length inputs.
                 r_start = 0
-                n_start = (tn - cn) // 2
-                p_start = (tp - cp) // 2
+                n_start = tn // 2 - cn // 2
+                p_start = tp // 2 - cp // 2
                 out[r_start : r_start + cm, n_start : n_start + cn, p_start : p_start + cp] = c
                 return out
 
@@ -1936,7 +2128,12 @@ class Ballfun(eqx.Module):
                     ((0, 0), (1, 1), (1, 1)))
         D = jnp.conj(C)
         for ax in (1, 2):
-            D = jnp.roll(jnp.flip(D, axis=ax), 1, axis=ax)
+            # Reflect k -> -k about the k = 0 mode at index size//2.
+            # A plain flip does this exactly for ODD axes; even axes
+            # (k = -size/2 .. size/2-1) need the extra roll by 1.
+            D = jnp.flip(D, axis=ax)
+            if D.shape[ax] % 2 == 0:
+                D = jnp.roll(D, 1, axis=ax)
         return C, D
 
     def real(self) -> "Ballfun":
@@ -2107,19 +2304,60 @@ class Ballfun(eqx.Module):
         MATLAB source : @ballfun/simplify.m
         Chebfun commit: 7574c77
         """
-        if tol is None:
-            tol = _EPS
+        if self.isempty():
+            return self
         cfs = np.array(self.coeffs)
         vscale = float(np.max(np.abs(cfs)))
         if vscale == 0.0:
             return self
-        threshold = tol * vscale
-        # Keep coefficients above threshold
-        mask = np.abs(cfs) < threshold
-        cfs_clean = cfs.copy()
-        cfs_clean[mask] = 0.0
+
+        # MATLAB compresses the DIMENSIONS of the coefficient tensor:
+        # collapse to a max-abs profile along each dimension, run the
+        # corresponding tech's chop on it, and trim.  The global value
+        # scale enters through the tolerance so that slices that are
+        # small relative to the whole function chop more aggressively
+        # (MATLAB passes data.vscale = max(1, max|vals|) to
+        # happinessCheck).
+        from chebfunjax.tech.chebtech import Chebtech2
+        from chebfunjax.tech.trigtech import Trigtech
+
+        vals = _coeffs2vals_3d(cfs)
+        vscl = max(1.0, float(np.max(np.abs(vals))))
+        base = _EPS if tol is None else float(tol)
+
+        def _slice_tol(profile):
+            scl = float(np.max(profile))
+            if scl == 0.0:
+                return None
+            return min(0.5, base * max(1.0, vscl / scl))
+
+        r_cfs = np.max(np.abs(cfs), axis=(1, 2))
+        l_cfs = np.max(np.abs(cfs), axis=(0, 2))
+        t_cfs = np.max(np.abs(cfs), axis=(0, 1))
+
+        # Radial (Chebyshev): trim trailing coefficients.
+        rt = Chebtech2.from_coeffs(jnp.asarray(r_cfs, dtype=jnp.float64))
+        cutoff_r = rt.simplify(_slice_tol(r_cfs)).coeffs.shape[0]
+        cfs = cfs[: min(cutoff_r, cfs.shape[0]), :, :]
+
+        # Fourier dims: trim symmetrically about the zero mode, exactly
+        # as MATLAB slices mid-floor(c/2) : mid+c-floor(c/2)-1.
+        def _trig_window(profile, size):
+            lt = Trigtech.from_coeffs(
+                jnp.asarray(profile, dtype=jnp.complex128))
+            width = lt.simplify(_slice_tol(profile)).coeffs.shape[0]
+            width = min(width, size)
+            mid = size // 2
+            lo = mid - width // 2
+            return lo, lo + width
+
+        lo, hi = _trig_window(l_cfs, cfs.shape[1])
+        cfs = cfs[:, lo:hi, :]
+        lo, hi = _trig_window(t_cfs, cfs.shape[2])
+        cfs = cfs[:, :, lo:hi]
+
         return Ballfun(
-            coeffs=jnp.asarray(cfs_clean, dtype=jnp.complex128),
+            coeffs=jnp.asarray(cfs, dtype=jnp.complex128),
             is_real=self.is_real,
             domain=self.domain,
         )
