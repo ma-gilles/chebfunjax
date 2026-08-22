@@ -34,6 +34,7 @@ import matplotlib as mpl
 if matplotlib.get_backend().lower() == "agg" and not os.environ.get("DISPLAY"):
     pass  # already headless — keep whatever backend is active
 import matplotlib.pyplot as plt
+import jax.numpy as jnp
 import numpy as np  # uses-numpy: matplotlib rendering interop (host-side, never in JIT paths)
 from matplotlib.colors import LightSource, Normalize
 
@@ -547,6 +548,8 @@ def plotcoeffs(
     title: str = "Chebyshev coefficients",
     color: str = CHEBFUN_BLUE,
     envelope: bool = True,
+    loglog: bool = False,
+    fmt: Optional[str] = None,
     **kw,
 ) -> tuple[plt.Figure, plt.Axes]:
     """Semilogy plot of |Chebyshev coefficients| of *f*.
@@ -577,10 +580,29 @@ def plotcoeffs(
     else:
         fig = ax.get_figure()
 
-    coeffs = np.abs(np.array(f.coeffs))
+    # Array-valued chebfun / quasimatrix (list of columns) and piecewise
+    # chebfuns: plot each column / smooth piece (MATLAB overlays them).
+    cols = _cheb_cols(f) if not hasattr(f, "funs") else [f]
+    series = []
+    for c in (cols or [f]):
+        funs = getattr(c, "funs", None)
+        if funs is not None and len(funs) > 1:
+            series.extend(np.abs(np.asarray(p.tech.coeffs)) for p in funs)
+        else:
+            series.append(np.abs(np.array(c.coeffs)))
+    plot_fn = ax.loglog if loglog else ax.semilogy
+    for s in series[1:]:
+        if fmt:
+            plot_fn(np.arange(len(s)), s, fmt, **kw)
+        else:
+            plot_fn(np.arange(len(s)), s, ".", markersize=4, **kw)
+    coeffs = series[0]
     ns = np.arange(len(coeffs))
 
-    ax.semilogy(ns, coeffs, ".", color=color, markersize=4, **kw)
+    if fmt:
+        plot_fn(ns, coeffs, fmt, color=color, **kw)
+    else:
+        plot_fn(ns, coeffs, ".", color=color, markersize=4, **kw)
 
     if envelope and len(coeffs) > 2:
         # Running maximum from right (decaying coefficients show machine eps level)
@@ -2796,6 +2818,7 @@ def plot_dispatch(obj, *args, **kwargs):
 
 def waterfall(
     f_list,
+    t=None,
     ax=None,
     title: str = "",
     xlabel: str = "x",
@@ -2841,12 +2864,20 @@ def waterfall(
     else:
         fig = ax.get_figure()
 
-    t_vals = np.linspace(0.0, 1.0, len(f_list))
+    if t is not None:
+        t_vals = np.asarray(t, dtype=float)
+    else:
+        t_vals = np.linspace(0.0, 1.0, len(f_list))
+    # Accept (and ignore) MATLAB surface-style options that have no
+    # line-plot counterpart, e.g. FaceAlpha/FaceColor.
+    kw = {k: v for k, v in kw.items()
+          if k.lower() not in ("facealpha", "facecolor", "edgecolor")}
+    lw = kw.pop("linewidth", kw.pop("LineWidth", 1.4))
     for i, f in enumerate(f_list):
         xs = _domain_points(f, n_pts)
         ys = np.array(f(jnp.array(xs)))
         ax.plot(xs, ys, zs=t_vals[i], zdir="y", color=color, alpha=alpha,
-                linewidth=1.4, **kw)
+                linewidth=lw, **kw)
 
     if title:
         ax.set_title(title, fontsize=11)
@@ -3234,4 +3265,461 @@ def chebpolyplot(
     ax.legend(fontsize=8)
     fig.set_facecolor("white")
     fig.tight_layout()
+    return fig, ax
+
+
+# ---------------------------------------------------------------------------
+# MATLAB-style plot dispatchers (@chebfun/plot.m, plot3.m, surf.m, mesh.m)
+# ---------------------------------------------------------------------------
+
+def _cheb_cols(obj):
+    """Columns of a Chebfun-like object: Chebfun -> [f]; Quasimatrix ->
+    list of its column chebfuns; anything else -> None."""
+    from chebfunjax.chebfun1d.chebfun import Chebfun
+    if isinstance(obj, Chebfun):
+        return [obj]
+    cols = getattr(obj, "columns", None)
+    if cols is None:
+        cols = getattr(obj, "cols", None)
+        if cols is not None and not all(
+                hasattr(c, "funs") for c in cols):
+            cols = None
+    if cols is not None:
+        return list(cols)
+    if isinstance(obj, (list, tuple)) and obj and all(
+            isinstance(c, Chebfun) for c in obj):
+        return list(obj)
+    return None
+
+
+def _sample_pieces(f, numpts: int = 2001, interval=None):
+    """Sample a (possibly piecewise / unbounded / singular) Chebfun.
+
+    Returns a list of (x, y) numpy arrays, one per smooth piece, with
+    infinite endpoints clipped to a finite window and singular endpoints
+    approached from the interior (MATLAB plots blow-ups the same way).
+    """
+    out = []
+    for p in f.funs:
+        a, b = float(p.interval[0]), float(p.interval[1])
+        if interval is not None:
+            lo, hi = float(interval[0]), float(interval[1])
+            a, b = max(a, lo), min(b, hi)
+            if a >= b:
+                continue
+        if not np.isfinite(a):
+            a = min(-10.0, b - 10.0) if np.isfinite(b) else -10.0
+        if not np.isfinite(b):
+            b = max(10.0, a + 10.0)
+        pad = 1e-8 * max(1.0, abs(b - a))
+        n = max(16, numpts // max(1, len(f.funs)))
+        x = np.linspace(a + pad, b - pad, n)
+        with np.errstate(all="ignore"):
+            y = np.asarray(f(jnp.asarray(x)))
+        out.append((x, y))
+    return out
+
+
+def _plot_curve(ax, xs, ys, fmt, kw):
+    """ax.plot with an optional MATLAB linespec (matplotlib-compatible)."""
+    if fmt:
+        ax.plot(xs, ys, fmt, **kw)
+    else:
+        ax.plot(xs, ys, **kw)
+
+
+def _sing_ylim(ys, exps):
+    """MATLAB @singfun/plotData getYLimits: y-limits from the standard
+    deviation of the values away from the singular endpoint(s).
+
+    Provenance
+    ----------
+    MATLAB source : @singfun/plotData.m  (getYLimits subfunction)
+    Chebfun commit: 7574c77
+    """
+    v = ys[np.isfinite(ys)]
+    n = v.size
+    if n == 0:
+        return None
+    mask = np.ones(n, dtype=bool)
+    if exps[0] < 0:
+        scl = min(-0.2 * exps[0], 0.5)
+        mask[: max(int(np.ceil(scl * n)), 5)] = False
+    if exps[1] < 0:
+        scl = min(-0.2 * exps[1], 0.5)
+        k = max(int(np.ceil(scl * n)), 5)
+        mask[n - k:] = False
+    m = v[mask]
+    if m.size == 0:
+        return None
+    sd = float(np.std(m, ddof=1)) if m.size > 1 else 0.0
+    bot = max(float(v.min()), float(m.min()) - sd)
+    top = min(float(v.max()), float(m.max()) + sd)
+    return bot, top
+
+
+def _function_lims(f, numpts=2001, interval=None):
+    """(xLim, yLim, default_ylim) for one chebfun, per MATLAB plotData:
+    the x-limits are the (windowed) domain -- unbounded endpoints are
+    clipped to a width-10 window; smooth pieces contribute their actual
+    value range to yLim with the default flag kept, while singular
+    (exps < 0) pieces contribute the std-based getYLimits suggestion
+    and unset defaultYLim.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/plotData.m, @bndfun/plotData.m,
+        @unbndfun/plotData.m, @singfun/plotData.m
+    Chebfun commit: 7574c77
+    """
+    xlim = [np.inf, -np.inf]
+    ylim = [np.inf, -np.inf]
+    default_ylim = True
+    a0 = float(f.domain.a)
+    b0 = float(f.domain.b)
+    window = 10.0
+    if not np.isfinite(a0) and not np.isfinite(b0):
+        wlo, whi = -window, window
+    elif not np.isfinite(a0):
+        wlo, whi = b0 - window, b0
+    elif not np.isfinite(b0):
+        wlo, whi = a0, a0 + window
+    else:
+        wlo, whi = a0, b0
+    for p in f.funs:
+        a, b = float(p.interval[0]), float(p.interval[1])
+        a = wlo if not np.isfinite(a) else max(a, wlo)
+        b = whi if not np.isfinite(b) else min(b, whi)
+        if b <= a:
+            continue
+        exps = getattr(p.tech, "exponents", None)
+        pad = 1e-8 * max(1.0, abs(b - a))
+        x = np.linspace(a + pad, b - pad, 1001)
+        with np.errstate(all="ignore"):
+            y = np.asarray(f(jnp.asarray(x)), dtype=float)
+        if exps is not None and (float(exps[0]) < 0 or float(exps[1]) < 0):
+            yl = _sing_ylim(y, (float(exps[0]), float(exps[1])))
+            if yl is not None:
+                default_ylim = False
+                ylim[0] = min(ylim[0], yl[0])
+                ylim[1] = max(ylim[1], yl[1])
+        else:
+            yf = y[np.isfinite(y)]
+            if yf.size:
+                ylim[0] = min(ylim[0], float(yf.min()))
+                ylim[1] = max(ylim[1], float(yf.max()))
+        xlim[0] = min(xlim[0], a)
+        xlim[1] = max(xlim[1], b)
+    if interval is not None:
+        xlim = [float(interval[0]), float(interval[1])]
+    return xlim, ylim, default_ylim
+
+
+def _apply_matlab_lims(ax, xlim, ylim, default_ylim, entry_lims):
+    """Apply MATLAB @chebfun/plot.m axis-limit policy:
+
+    - x-limits are always set (unioned with the ENTRY limits when
+      holding -- ``entry_lims`` is (xlim, ylim, ymanual) captured
+      before this call plotted anything, or None when not holding);
+    - y-limits are set only when a blow-up suggested them, or when
+      holding onto axes whose y-limits were already set manually --
+      otherwise matplotlib's auto mode is left in charge.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/plot.m
+    Chebfun commit: 7574c77
+    """
+    hold = entry_lims is not None
+    ymanual_prev = entry_lims[2] if hold else False
+    if hold:
+        cx, cy, _ = entry_lims
+        xlim = [min(cx[0], xlim[0]), max(cx[1], xlim[1])]
+        ylim = [min(cy[0], ylim[0]), max(cy[1], ylim[1])]
+    if np.isfinite(xlim[0]) and np.isfinite(xlim[1]) and xlim[1] > xlim[0]:
+        ax.set_xlim(xlim)
+    if (not default_ylim or (hold and ymanual_prev)) \
+            and np.isfinite(ylim[0]) and np.isfinite(ylim[1]) \
+            and ylim[1] > ylim[0]:
+        ax.set_ylim(ylim)
+
+
+def _draw_jumplines(ax, f, jumpline, kw):
+    if jumpline is None or jumpline == "none":
+        return
+    style_kw = dict(kw)
+    fmt = None
+    if isinstance(jumpline, str):
+        fmt = jumpline
+    elif isinstance(jumpline, dict):
+        style_kw.update({k.lower(): v for k, v in jumpline.items()})
+    elif isinstance(jumpline, (list, tuple)):
+        it = iter(jumpline)
+        for k in it:
+            style_kw[str(k).lower()] = next(it)
+    style_kw = {("linestyle" if k in ("linestyle", "lines") else k): v
+                for k, v in style_kw.items()}
+    breaks = [float(p.interval[1]) for p in f.funs[:-1]]
+    eps_ = 1e-10
+    for xb in breaks:
+        try:
+            yl = float(f(jnp.asarray(xb - eps_)))
+            yr = float(f(jnp.asarray(xb + eps_)))
+        except Exception:
+            continue
+        if fmt:
+            ax.plot([xb, xb], [yl, yr], fmt, **style_kw)
+        else:
+            style_kw.setdefault("linestyle", ":")
+            ax.plot([xb, xb], [yl, yr], **style_kw)
+
+
+def _draw_deltas(ax, f, deltaline, kw):
+    deltas = getattr(f, "deltas", ()) or ()
+    if not deltas:
+        return
+    fmt = deltaline if isinstance(deltaline, str) else None
+    for d in deltas:
+        loc, mag = float(d[0]), float(d[1])
+        if fmt:
+            ax.plot([loc, loc], [0.0, mag], fmt, **kw)
+        else:
+            ax.plot([loc, loc], [0.0, mag], "-", **kw)
+        marker = "^" if mag >= 0 else "v"
+        ax.plot([loc], [mag], marker, **kw)
+
+
+def matlab_plot(*args, ax=None, numpts: int = 2001, interval=None,
+                jumpline=None, deltaline=None, **kw):
+    """MATLAB @chebfun/plot.m argument-stream plotting.
+
+    Supports the argument forms exercised by tests/chebfun/test_plot.m:
+    ``plot(f)``, ``plot(f, style)``, ``plot(f, g[, style])`` (parametric),
+    ``plot(f, [a b])`` (interval shorthand), mixes of quasimatrices and
+    scalar chebfuns (columns broadcast), discrete data groups
+    ``plot(x, y, style)``, complex chebfuns (real vs imag), and the
+    ``numpts`` / ``interval`` / ``jumpline`` / ``deltaline`` options
+    (passed as Python keywords).
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/plot.m
+    Chebfun commit: 7574c77
+    """
+    hold = ax is not None
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(6, 3.5))
+        entry_lims = None
+    else:
+        fig = ax.get_figure()
+        # MATLAB stores the current limits (and the ylim mode) on ENTRY,
+        # before any new data lands on the axes -- the hold-union must
+        # not see the raw values of curves plotted by this very call
+        # (a blow-up's ~1e6 samples would swamp the union).
+        entry_lims = (tuple(ax.get_xlim()), tuple(ax.get_ylim()),
+                      not ax.get_autoscaley_on())
+
+    agg_x = [np.inf, -np.inf]
+    agg_y = [np.inf, -np.inf]
+    agg_default = True
+    saw_plain = False
+
+    items = list(args)
+    i = 0
+    while i < len(items):
+        obj = items[i]
+        cols = _cheb_cols(obj)
+        if cols is not None:
+            ycols = None
+            fmt = None
+            j = i + 1
+            if j < len(items):
+                nxt = _cheb_cols(items[j])
+                if nxt is not None:
+                    ycols = nxt
+                    j += 1
+                elif isinstance(items[j], (list, tuple, np.ndarray)) \
+                        and np.asarray(items[j]).size == 2 \
+                        and not isinstance(items[j], str):
+                    interval = np.asarray(items[j], dtype=float)
+                    j += 1
+            if j < len(items) and isinstance(items[j], str):
+                fmt = items[j]
+                j += 1
+            if ycols is None:
+                for f in cols:
+                    was_complex = False
+                    for xs, ys in _sample_pieces(f, numpts, interval):
+                        if np.iscomplexobj(ys):
+                            was_complex = True
+                            _plot_curve(ax, ys.real, ys.imag, fmt, kw)
+                        else:
+                            _plot_curve(ax, xs, ys, fmt, kw)
+                    _draw_jumplines(ax, f, jumpline, kw)
+                    _draw_deltas(ax, f, deltaline, kw)
+                    if not was_complex:
+                        saw_plain = True
+                        fx, fy, fd = _function_lims(f, numpts, interval)
+                        agg_x = [min(agg_x[0], fx[0]), max(agg_x[1], fx[1])]
+                        agg_y = [min(agg_y[0], fy[0]),
+                                 max(agg_y[1], fy[1])]
+                        agg_default = agg_default and fd
+            else:
+                nx, ny = len(cols), len(ycols)
+                npairs = max(nx, ny)
+                for k in range(npairs):
+                    fx = cols[k % nx]
+                    fy = ycols[k % ny]
+                    for (xs, xv), (_, yv) in zip(
+                            _sample_pieces(fx, numpts, interval),
+                            _sample_pieces(fy, numpts, interval)):
+                        _plot_curve(ax, xv, yv, fmt, kw)
+            i = j
+        else:
+            # Discrete data group: x, y[, style]
+            xd = np.asarray(obj, dtype=float)
+            yd = np.asarray(items[i + 1])
+            fmt = None
+            j = i + 2
+            if j < len(items) and isinstance(items[j], str):
+                fmt = items[j]
+                j += 1
+            _plot_curve(ax, xd, yd, fmt, kw)
+            i = j
+    if saw_plain:
+        _apply_matlab_lims(ax, agg_x, agg_y, agg_default, entry_lims)
+    return fig, ax
+
+
+def matlab_plot3(*args, ax=None, numpts: int = 2001, jumpline=None, **kw):
+    """MATLAB @chebfun/plot3.m: 3-D parametric curves of chebfun triples,
+    with quasimatrix columns broadcast.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/plot3.m
+    Chebfun commit: 7574c77
+    """
+    triple = []
+    fmt = None
+    for obj in args:
+        cols = _cheb_cols(obj)
+        if cols is not None and len(triple) < 3:
+            triple.append(cols)
+        elif isinstance(obj, str) and fmt is None:
+            fmt = obj
+    if len(triple) != 3:
+        raise ValueError("plot3 requires three chebfun arguments")
+    if ax is None:
+        fig = plt.figure(figsize=(6, 4.5))
+        ax = fig.add_subplot(projection="3d")
+    else:
+        fig = ax.get_figure()
+    ncols = max(len(c) for c in triple)
+    for k in range(ncols):
+        fx = triple[0][k % len(triple[0])]
+        fy = triple[1][k % len(triple[1])]
+        fz = triple[2][k % len(triple[2])]
+        for (t, xv), (_, yv), (_, zv) in zip(
+                _sample_pieces(fx, numpts), _sample_pieces(fy, numpts),
+                _sample_pieces(fz, numpts)):
+            if fmt:
+                ax.plot(xv, yv, zv, fmt, **kw)
+            else:
+                ax.plot(xv, yv, zv, **kw)
+    return fig, ax
+
+
+def matlab_surf_quasi(F, ax=None, mode: str = "surf", numpts: int = 201,
+                      **kw):
+    """MATLAB @chebfun/surf.m family for array-valued chebfuns /
+    quasimatrices: surface z = F_j(x) over (x, column index j).
+    ``mode`` selects 'surf', 'surfc', or 'mesh' ('surface' is a wrapper
+    for 'surf', as in MATLAB).
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/surf.m, @chebfun/mesh.m, @chebfun/surfc.m
+    Chebfun commit: 7574c77
+    """
+    cols = _cheb_cols(F)
+    if cols is None:
+        raise TypeError("surf expects an array-valued chebfun/quasimatrix")
+    dom = cols[0].domain
+    a, b = float(dom.a), float(dom.b)
+    x = np.linspace(a + 1e-9, b - 1e-9, numpts)
+    Z = np.vstack([np.asarray(c(jnp.asarray(x))) for c in cols])
+    X, Y = np.meshgrid(x, np.arange(1, len(cols) + 1))
+    if ax is None:
+        fig = plt.figure(figsize=(6, 4.5))
+        ax = fig.add_subplot(projection="3d")
+    else:
+        fig = ax.get_figure()
+    if mode == "mesh":
+        ax.plot_wireframe(X, Y, np.real(Z), **kw)
+    else:
+        ax.plot_surface(X, Y, np.real(Z), **kw)
+        if mode == "surfc":
+            try:
+                ax.contour(X, Y, np.real(Z),
+                           offset=float(np.real(Z).min()) - 0.5)
+            except Exception:
+                pass
+    return fig, ax
+
+
+def comet(f, g=None, ax=None, numpts: int = 501, **kw):
+    """MATLAB @chebfun/comet.m: animated trace of a curve.  Headless
+    (Agg) rendering draws the full trace in one shot; with an
+    interactive backend the curve is drawn progressively.
+
+    ``comet(f)`` traces y = f(x); ``comet(f, g)`` traces the parametric
+    curve (f(t), g(t)).
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/comet.m
+    Chebfun commit: 7574c77
+    """
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(6, 3.5))
+    else:
+        fig = ax.get_figure()
+    fs = _cheb_cols(f)[0]
+    if g is None:
+        pts = [(xs, ys) for xs, ys in _sample_pieces(fs, numpts)]
+    else:
+        gs = _cheb_cols(g)[0]
+        pts = [(xv, yv) for (_, xv), (_, yv) in zip(
+            _sample_pieces(fs, numpts), _sample_pieces(gs, numpts))]
+    for xs, ys in pts:
+        ax.plot(xs, ys, **kw)
+    return fig, ax
+
+
+def comet3(f, g=None, h=None, ax=None, numpts: int = 501, **kw):
+    """MATLAB @chebfun/comet3.m: animated 3-D trace.  ``comet3(f, g, h)``
+    traces (f, g, h); ``comet3(F)`` with a three-column array-valued
+    chebfun / quasimatrix traces its columns.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/comet3.m
+    Chebfun commit: 7574c77
+    """
+    if g is None:
+        cols = _cheb_cols(f)
+        if cols is None or len(cols) < 3:
+            raise ValueError("comet3 requires three curves")
+        f, g, h = cols[0], cols[1], cols[2]
+    if ax is None:
+        fig = plt.figure(figsize=(6, 4.5))
+        ax = fig.add_subplot(projection="3d")
+    else:
+        fig = ax.get_figure()
+    for (t, xv), (_, yv), (_, zv) in zip(
+            _sample_pieces(_cheb_cols(f)[0], numpts),
+            _sample_pieces(_cheb_cols(g)[0], numpts),
+            _sample_pieces(_cheb_cols(h)[0], numpts)):
+        ax.plot(xv, yv, zv, **kw)
     return fig, ax
