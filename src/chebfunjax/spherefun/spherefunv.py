@@ -396,6 +396,19 @@ class Spherefunv(eqx.Module):
         """
         return all(c.iszero() for c in self.components)
 
+    def __matmul__(self, other):
+        """``u' * v``: a row field times a column field contracts to
+        the dot product (MATLAB mtimes).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/mtimes.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(other, Spherefunv):
+            return self.dot(other)
+        return self.__mul__(other)
+
     def __mul__(self, scalar: float) -> "Spherefunv":
         """Scalar multiplication (componentwise)."""
         s = float(scalar)
@@ -428,6 +441,8 @@ class Spherefunv(eqx.Module):
         Chebfun commit: 7574c77
         """
         import math
+        if getattr(self, "_row", False):
+            return (math.inf, math.inf, len(self.components))
         return (len(self.components), math.inf, math.inf)
 
     def minandmax2est(self, N: int = 33):
@@ -450,23 +465,32 @@ class Spherefunv(eqx.Module):
         return out
 
     def transpose(self) -> "Spherefunv":
-        """MATLAB ``F.'`` (orientation only).
+        """MATLAB ``F.'``: the row form (components unchanged; size
+        reports the transposed ordering and ``row * col`` contracts to
+        the dot product).
 
         Provenance
         ----------
         MATLAB source : @spherefunv/transpose.m
         Chebfun commit: 7574c77
         """
-        return self
+        if self.isempty():
+            return self
+        out = type(self)(*self.components)
+        object.__setattr__(out, "_row",
+                           not getattr(self, "_row", False))
+        return out
 
     def ctranspose(self) -> "Spherefunv":
-        """MATLAB ``F'``.
+        """MATLAB ``F'`` (empty in, empty out).
 
         Provenance
         ----------
         MATLAB source : @spherefunv/ctranspose.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return self
         return self.conj().transpose()
 
     def compose(self, g):
