@@ -4975,7 +4975,7 @@ class Chebop:
             pass
         return chebfun(lambda x: comp_eval(x, 0), domain=(a, b))
 
-    def __call__(self, u):
+    def __call__(self, u, *more):
         """Apply the operator to a chebfun (MATLAB N(u) / N*u).
 
         An integer argument realizes the dense collocation (differentiation)
@@ -4989,6 +4989,8 @@ class Chebop:
         Chebfun commit: 7574c77
         """
         import numbers
+        if more:
+            return self.feval(u, *more)
         if isinstance(u, numbers.Integral) and not isinstance(u, bool):
             return self.matrix(int(u))
         from chebfunjax.chebfun1d.chebfun import Chebfun
@@ -4996,7 +4998,8 @@ class Chebop:
         if isinstance(u, (list, tuple)) or (
                 self._n_vars() >= 2 and hasattr(u, "__getitem__")
                 and not isinstance(u, Chebfun)):
-            out = self.op(x_fun, *list(u))
+            us = list(u)
+            out = self._call_op(x_fun, us)
             return SystemSolution(list(out)) \
                 if isinstance(out, (list, tuple)) else out
         return self._apply_op(x_fun, u)
@@ -6018,6 +6021,143 @@ class Chebop:
     # ------------------------------------------------------------------
     # BC parsing
     # ------------------------------------------------------------------
+
+    # ------------------------------------------------------------------
+    # Direct application and arithmetic (MATLAB feval/mtimes/plus/...)
+    # ------------------------------------------------------------------
+
+    def _op_nargs(self) -> int:
+        import inspect
+        try:
+            return len(inspect.signature(self.op).parameters)
+        except (TypeError, ValueError):
+            return 1
+
+    def feval(self, *args):
+        """Apply the operator to chebfun argument(s): ``N(u)``,
+        ``N(x, u)``, ``N(u1, ..., uk)`` or a list of components
+        (MATLAB @chebop/feval.m).  The independent variable is supplied
+        automatically when the op takes it and it is not given.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/feval.m
+        Chebfun commit: 7574c77
+        """
+        if len(args) == 1:
+            return self.__call__(args[0])
+        n = self._op_nargs()
+        flat = []
+        for a in args:
+            if isinstance(a, (list, tuple)):
+                flat.extend(a)
+            else:
+                flat.append(a)
+        if len(flat) == n:
+            return self.op(*flat)
+        if len(flat) == n - 1:
+            from chebfunjax.chebfun1d.chebfun import Chebfun
+            xfun = Chebfun.identity(Domain(self.domain))
+            return self.op(xfun, *flat)
+        raise TypeError(
+            f"chebop feval: operator takes {n} argument(s); "
+            f"got {len(flat)}.")
+
+    @staticmethod
+    def _map_out(fn, val):
+        """Apply ``fn`` to an op output, distributing over the
+        components of a system (list/tuple) output."""
+        if isinstance(val, (list, tuple)):
+            return [fn(c) for c in val]
+        return fn(val)
+
+    def _combined(self, fn0):
+        """New Chebop applying ``fn0`` to this op's output (same
+        signature, domain, and boundary conditions)."""
+        def fn(v):
+            return Chebop._map_out(fn0, v)
+        out = Chebop(None, domain=self.domain)
+        out.__dict__.update(
+            {k: v for k, v in self.__dict__.items() if k != "op"})
+        n = self._op_nargs()
+        if n == 1:
+            out.op = lambda u: fn(self.op(u))
+        elif n == 2:
+            out.op = lambda x, u: fn(self.op(x, u))
+        elif n == 3:
+            out.op = lambda x, u, v: fn(self.op(x, u, v))
+        else:
+            out.op = lambda x, u, v, w: fn(self.op(x, u, v, w))
+        return out
+
+    def _zipped(self, other, fn0):
+        def fn(a, b):
+            if isinstance(a, (list, tuple)):
+                return [fn0(x, y) for x, y in zip(a, b)]
+            return fn0(a, b)
+        if self._op_nargs() != other._op_nargs():
+            raise TypeError(
+                "chebop arithmetic: operators must take the same "
+                "arguments.")
+        out = Chebop(None, domain=self.domain)
+        out.__dict__.update(
+            {k: v for k, v in self.__dict__.items() if k != "op"})
+        n = self._op_nargs()
+        if n == 1:
+            out.op = lambda u: fn(self.op(u), other.op(u))
+        elif n == 2:
+            out.op = lambda x, u: fn(self.op(x, u), other.op(x, u))
+        elif n == 3:
+            out.op = lambda x, u, v: fn(self.op(x, u, v),
+                                        other.op(x, u, v))
+        else:
+            out.op = lambda x, u, v, w: fn(self.op(x, u, v, w),
+                                           other.op(x, u, v, w))
+        return out
+
+    def __add__(self, other):
+        """N + M (MATLAB @chebop/plus.m)."""
+        if isinstance(other, Chebop):
+            return self._zipped(other, lambda a, b: a + b)
+        return self._combined(lambda a: a + other)
+
+    __radd__ = __add__
+
+    def __sub__(self, other):
+        """N - M (MATLAB @chebop/minus.m)."""
+        if isinstance(other, Chebop):
+            return self._zipped(other, lambda a, b: a - b)
+        return self._combined(lambda a: a - other)
+
+    def __neg__(self):
+        """-N (MATLAB @chebop/uminus.m)."""
+        return self._combined(lambda a: -a)
+
+    def __mul__(self, other):
+        """``N*u`` applies the operator; ``N*a`` with a scalar scales
+        it (MATLAB @chebop/mtimes.m).  ``N*N`` is an error, as in
+        MATLAB."""
+        if isinstance(other, Chebop):
+            raise TypeError("chebop*chebop composition is not defined.")
+        if isinstance(other, (int, float, complex)):
+            return self._combined(lambda a, c=other: c * a)
+        return self.feval(other)
+
+    def __rmul__(self, other):
+        if isinstance(other, (int, float, complex)):
+            return self._combined(lambda a, c=other: c * a)
+        raise TypeError(
+            "chebop mtimes: left operand must be a scalar.")
+
+    def eye(self) -> "Chebop":
+        """Identity operator on the same domain (MATLAB eye(N)).
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/eye.m
+        Chebfun commit: 7574c77
+        """
+        return Chebop(lambda u: u, domain=self.domain)
 
     def _parse_bcs(self) -> tuple[list[FunctionalBlock], list[float]]:
         """Parse lbc and rbc into FunctionalBlock objects and values.
