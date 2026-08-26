@@ -1,312 +1,348 @@
 # Chapter 20: Ballfun
 
-*Based on [Chebfun Guide Chapter 20](https://www.chebfun.org/docs/guide/guide20.html)*
-
-Ballfun is the chebfunjax module for computing with functions on the unit ball $B = \{(x,y,z) : x^2 + y^2 + z^2 \le 1\}$. It uses a Chebyshev-Fourier-Fourier (CFF) spectral expansion with the BMC-III structure to handle the coordinate singularities at the origin and the poles.
+*Based on [Chebfun Guide Chapter 20](https://www.chebfun.org/docs/guide/guide20.html) by Nicolas Boulle and Alex Townsend (May 2019).*
 
 ## 20.1 Introduction
 
-A `Ballfun` represents a smooth function on the unit ball using spherical coordinates $(r, \lambda, \theta)$:
-- $r \in [0, 1]$: radial variable
-- $\lambda \in [-\pi, \pi]$: azimuthal angle (longitude)
-- $\theta \in [0, \pi]$: polar angle (colatitude)
+Ballfun is the chebfunjax module for computing with functions on the unit ball $B = \{(x,y,z) : x^2 + y^2 + z^2 \le 1\}$. A `Ballfun` uses a Chebyshev–Fourier–Fourier (CFF) spectral expansion in spherical coordinates $(r, \lambda, \theta)$ — radius $r\in[0,1]$, azimuth $\lambda\in[-\pi,\pi]$, colatitude $\theta\in[0,\pi]$ — with the BMC-III "double Fourier sphere" structure handling the coordinate singularities at the origin and the poles. The Cartesian coordinates are
+$$x = r\cos\lambda\sin\theta, \quad y = r\sin\lambda\sin\theta, \quad z = r\cos\theta.$$
 
-The Cartesian coordinates are:
-$$x = r\cos\lambda\sin\theta, \quad y = r\sin\lambda\sin\theta, \quad z = r\cos\theta$$
+A ballfun is constructed from a function of Cartesian variables:
 
 ```python
 import jax.numpy as jnp
-import numpy as np
-from chebfunjax.ballfun.ballfun import Ballfun
+from chebfunjax.ballfun import Ballfun, Ballfunv
 
-# A function in Cartesian coordinates
-f = Ballfun.from_function(lambda x, y, z: x**2 + y**2 + z**2)
-print(f)  # Ballfun(shape=(m, n, p), ...)
+f = Ballfun.from_function(lambda x, y, z: jnp.cos(x * y))
+f.plot()
 ```
 
 ![](../images/guide/guide20_01.png)
 
-
-### Spherical coordinate input
-
-Set `spherical=True` to pass a function of $(r, \lambda, \theta)$:
+The same function can be supplied in spherical coordinates with `spherical=True`:
 
 ```python
 g = Ballfun.from_function(
-    lambda r, lam, th: r**2,
-    spherical=True,
-)
-print(g)
+    lambda r, lam, th: jnp.cos(r**2 * jnp.cos(lam) * jnp.sin(lam)
+                               * jnp.sin(th)**2),
+    spherical=True)
+(f - g).norm()   # 0
+```
+
+The size of the coefficient tensor is `f.size` — for this function
+$(21, 41, 37)$ coefficients in $(r, \lambda, \theta)$, exactly MATLAB's
+display. `plotcoeffs` shows the decay of the CFF coefficients:
+
+```python
+from chebfunjax.plotting import plotcoeffs_ballfun
+plotcoeffs_ballfun(f)
 ```
 
 ![](../images/guide/guide20_02.png)
 
+## 20.2 Visualizing ballfuns
 
-## 20.2 The CFF Representation
-
-Internally, `Ballfun` stores a 3D tensor of Chebyshev-Fourier-Fourier coefficients:
-
-$$f(r, \lambda, \theta) = \sum_{j,k,l} c_{j,k,l}\, T_j(r)\, e^{ik\lambda}\, e^{il\theta}$$
-
-The coefficient tensor `coeffs` has shape $(m, n, p)$:
-- Axis 0 (size $m$, odd): Chebyshev coefficients in $r$ on the doubled-up interval $[-1, 1]$
-- Axis 1 (size $n$, even): Fourier coefficients in $\lambda$
-- Axis 2 (size $p$, even $\ge 4$): Fourier coefficients in $\theta$
+`plot` renders the standard MATLAB ballfun view: the equatorial disk, an
+inner $r=\tfrac12$ sphere, and two meridian half-planes:
 
 ```python
-print(f"Coefficient shape: {f.shape}")
-print(f"Is real-valued: {f.is_real}")
+f = cheb.galleryball("moire")
+f.plot()
 ```
 
 ![](../images/guide/guide20_03.png)
 
-
-### BMC-III structure
-
-The function is "doubled up" in both $r$ and $\theta$ to maintain smoothness:
-- $r$ is extended from $[0, 1]$ to $[-1, 1]$ via an odd extension
-- $\theta$ is extended from $[0, \pi]$ to $[-\pi, \pi]$ via an even extension
-
-The resulting tensor has Block Mirror-Centrosymmetric (BMC-III) structure that encodes regularity conditions:
-- $f(r=0, \ldots)$ is constant (no angular dependence at the origin)
-- $f(\ldots, \theta=0)$ and $f(\ldots, \theta=\pi)$ are constant in $\lambda$ (poles are regular)
-
-## 20.3 Evaluation
-
-`Ballfun` provides two evaluation modes.
-
-### Tensor-product evaluation: fevalm
-
-The `fevalm` method evaluates on a tensor-product grid in spherical coordinates:
+Slices are themselves objects from the other chebfunjax geometries. The
+$z=0$ slice `f(:, :, 0)` is a **diskfun** (rank 41 in MATLAB's display):
 
 ```python
-# Evaluate on a grid of (r, lambda, theta) values
-rs = jnp.linspace(0, 1, 10)
-lams = jnp.linspace(-jnp.pi, jnp.pi, 20)
-ths = jnp.linspace(0, jnp.pi, 15)
-
-vals = f.fevalm(rs, lams, ths)  # shape (10, 20, 15)
+fdisk = f.diskfun(z=0.0)
+fdisk.plot()
 ```
 
 ![](../images/guide/guide20_04.png)
 
-
-### Pointwise evaluation
-
-The `__call__` method evaluates at individual Cartesian coordinate points:
+and the restriction to the unit sphere `f(1, :, :)` is a **spherefun**
+(rank 87):
 
 ```python
-# Evaluate at a single Cartesian point
-val = f(0.5, 0.3, 0.1)
-print(val)  # x^2 + y^2 + z^2 = 0.25 + 0.09 + 0.01 = 0.35
+fsphere = f.to_spherefun(1.0)
+fsphere.plot()
 ```
 
 ![](../images/guide/guide20_05.png)
 
+## 20.3 Basic operations
 
-Both evaluation modes are JIT-compiled and compatible with `jax.vmap` and `jax.grad`.
-
-## 20.4 Construction
-
-### Adaptive construction
-
-By default, `Ballfun.from_function` adaptively refines the grid until the spectral coefficients decay below machine precision:
+Ballfuns support the usual pointwise arithmetic:
 
 ```python
-# Adaptive construction (default)
-f = Ballfun.from_function(lambda x, y, z: jnp.exp(-(x**2 + y**2 + z**2)))
-print(f"Shape: {f.shape}")
+f = Ballfun.from_function(lambda x, y, z: jnp.sin(x**2 + z**2) + jnp.cos(y)**2)
+g = Ballfun.from_function(lambda x, y, z: jnp.sin(x * z) + jnp.cos(z)**3)
+# 2x2 panel: f, g, f + g, f .* g
 ```
 
 ![](../images/guide/guide20_06.png)
 
-
-### Fixed-size construction
-
-You can specify the grid size directly:
-
-```python
-# Fixed grid size
-f = Ballfun.from_function(
-    lambda x, y, z: x**2 + y**2,
-    fixed_size=(11, 8, 8),
-)
-print(f"Shape: {f.shape}")  # (11, 8, 8) after parity adjustment
-```
-
-### From coefficients
-
-You can also construct a `Ballfun` directly from CFF coefficients:
-
-```python
-# Create from known coefficients
-coeffs = jnp.zeros((5, 4, 4), dtype=jnp.complex128)
-coeffs = coeffs.at[0, 2, 2].set(1.0)  # a specific harmonic mode
-f = Ballfun.from_coeffs(coeffs, is_real=True)
-```
-
-## 20.5 Integration
-
-The `sum()` (or equivalently `integral()`) method computes the volume integral over the unit ball with the appropriate Jacobian:
-
-$$\texttt{f.sum()} = \int_0^1 \int_{-\pi}^{\pi} \int_0^{\pi} f(r, \lambda, \theta)\, r^2 \sin\theta\, d\theta\, d\lambda\, dr$$
-
-```python
-# Integral of 1 over the unit ball = 4*pi/3
-one = Ballfun.from_function(lambda x, y, z: jnp.ones_like(x))
-print(one.sum())  # ~ 4.18879... = 4*pi/3
-
-# Integral of r^2 = x^2 + y^2 + z^2
-r2 = Ballfun.from_function(lambda x, y, z: x**2 + y**2 + z**2)
-print(r2.sum())  # = 4*pi/5 * integral_0^1 r^4 dr = 4*pi/5
-```
-
-The integration algorithm works by:
-1. Extracting the DC (zeroth) Fourier mode in $\lambda$
-2. Multiplying by the Jacobian factors ($r^2$ in Chebyshev space, $\sin\theta$ in Fourier space) via spectral multiplication matrices
-3. Integrating the resulting Chebyshev and Fourier coefficients analytically
-
-## 20.6 Arithmetic
-
-`Ballfun` supports standard arithmetic operations:
+`sum3` integrates over the ball. For $f = x^2$, $\iiint_B x^2\,dV = 4\pi/15$
+to machine precision:
 
 ```python
 f = Ballfun.from_function(lambda x, y, z: x**2)
-g = Ballfun.from_function(lambda x, y, z: y**2)
-
-# Addition and subtraction
-h = f + g  # x^2 + y^2
-h = f - g  # x^2 - y^2
-
-# Scalar multiplication and division
-h = 2.0 * f      # 2*x^2
-h = f / 3.0       # x^2/3
-
-# Negation
-h = -f            # -x^2
+f.sum3()            # 0.837758040957278
+f.sum3() - 4 * jnp.pi / 15   # 0
 ```
 
-When adding or multiplying two `Ballfun` objects, the coefficient tensors are padded to compatible sizes.
-
-## 20.7 Simplification
-
-The `simplify()` method removes negligible coefficients:
+`sum(f, dim)` integrates over one variable. Integrating $x^2$ over $r$
+gives a **spherefun** (rank 1):
 
 ```python
-f = Ballfun.from_function(lambda x, y, z: x**2 + y**2 + z**2)
-print(f"Before: {f.shape}")
-
-f_simple = f.simplify()
-print(f"After:  {f_simple.shape}")
-
-# With custom tolerance
-f_coarse = f.simplify(tol=1e-8)
-print(f"Coarse: {f_coarse.shape}")
+sumf = f.sum(1)
+sumf.plot()
 ```
 
-## 20.7b Calculus: diff, grad, laplacian
+![](../images/guide/guide20_07.png)
 
-Cartesian partial derivatives are computed spectrally on the CFF
-coefficient tensor (chain rule through the spherical variables, with
-multiplication operators for $r$, $\sin\lambda$, $\cos\lambda$,
-$\sin\theta$, $\cos\theta$):
+while integrating over $\lambda$ gives a **diskfun** on the meridional
+half-plane:
+
+```python
+sumf = f.sum(2)
+sumf.plot()
+```
+
+![](../images/guide/guide20_08.png)
+
+`sum2` integrates over two variables and returns a 1-D chebfun. For
+$f = y$, integrating over $(r, \theta)$ leaves a trig chebfun in
+$\lambda$:
+
+```python
+f = Ballfun.from_function(lambda x, y, z: y)
+sum2f = f.sum2((1, 3))
+sum2f.plot()
+```
+
+![](../images/guide/guide20_09.png)
+
+`rotate` applies a rigid rotation in the ZYZ Euler convention:
+
+```python
+f = Ballfun.from_function(lambda x, y, z: jnp.sin(50 * z) - x**2)
+g = f.rotate(-jnp.pi / 4, jnp.pi / 2, jnp.pi / 8)
+```
+
+![](../images/guide/guide20_10.png)
+
+Cartesian derivatives are computed with `diff` — here
+$\partial_x \cos(xy) = -y\sin(xy)$ to $3.2\times 10^{-14}$:
 
 ```python
 f = Ballfun.from_function(lambda x, y, z: jnp.cos(x * y))
-g = f.diff(1)          # df/dx; dims 1,2,3 = x,y,z, optional order k
-fx, fy, fz = f.grad()  # all three partials
-lap = f.laplacian()    # f_xx + f_yy + f_zz
+g = f.diff(1)
+exact = Ballfun.from_function(lambda x, y, z: -y * jnp.sin(x * y))
+(g - exact).norm()   # 3.2e-14
+g.plot()
 ```
 
-The result of `diff` is another `Ballfun`. For example,
-$\partial_x \cos(xy) = -y\sin(xy)$, and the computed derivative
-matches that exact function to machine precision; the Laplacian of
-$x^2+y^2+z^2$ evaluates to exactly 6. These operators are pinned
-against MATLAB values in `tests/test_ballfun/test_ballfun_calculus_matlab.py`.
+![](../images/guide/guide20_11.png)
 
-## 20.8 Vector-Valued Functions: Ballfunv
-
-The `Ballfunv` class represents 3-component vector fields on the ball:
+and `laplacian` gives $\nabla^2 f$:
 
 ```python
-from chebfunjax.ballfun.ballfunv import Ballfunv
-
-# A vector field F = (f, g, h)
-F = Ballfunv.from_functions(
-    lambda x, y, z: -y,    # f component
-    lambda x, y, z: x,     # g component
-    lambda x, y, z: jnp.zeros_like(x),  # h component
-)
-print(F)
+f = Ballfun.from_function(lambda x, y, z: jnp.cos(x * y) + jnp.sin(z))
+f.laplacian().plot()
 ```
 
-### Evaluation
+![](../images/guide/guide20_12.png)
+
+## 20.4 Helmholtz solver
+
+`helmholtz` solves $\nabla^2 u + K^2 u = f$ with Dirichlet boundary
+data. With $u_{\rm exact} = \cos(x^2)$ and $K = 2$ the solver reaches
+$1.5\times 10^{-13}$:
 
 ```python
-vals = F(0.5, 0.3, 0.1)  # returns (f_val, g_val, h_val)
-```
-
-### Operations
-
-`Ballfunv` supports:
-
-- **Dot product**: `F.dot(G)` returns a `Ballfun` (scalar)
-- **Cross product**: `F.cross(G)` returns a `Ballfunv`
-- **Norm**: `F.norm()` returns a `Ballfun` (pointwise magnitude)
-- **Arithmetic**: `F + G`, `F - G`, `c * F`, `-F`
-
-```python
-# Verify F dot F = x^2 + y^2
-F_dot_F = F.dot(F)
-# At (0.5, 0.3, 0.1): (-0.3)^2 + (0.5)^2 = 0.34
-print(F_dot_F(0.5, 0.3, 0.1))
-```
-
-### Cross product
-
-```python
-G = Ballfunv.from_functions(
-    lambda x, y, z: jnp.zeros_like(x),
-    lambda x, y, z: jnp.zeros_like(x),
-    lambda x, y, z: jnp.ones_like(x),
-)
-
-# F x G where F = (-y, x, 0), G = (0, 0, 1)
-# = (x*1 - 0, 0 - (-y)*1, 0) = (x, y, 0)
-H = F.cross(G)
-print(H(0.5, 0.3, 0.1))
-```
-
-## 20.9 Solid Harmonics
-
-The solid harmonics are polynomial solutions to Laplace's equation on the ball. They have the form $r^l Y_l^m(\lambda, \theta)$ where $Y_l^m$ are the spherical harmonics. These can be constructed as `Ballfun` objects:
-
-```python
-# Solid harmonic: r^2 * Y_2^0(lambda, theta), with
-# Y_2^0 = (1/4)*sqrt(5/pi) * (3*cos^2(theta) - 1)
 f = Ballfun.from_function(
-    lambda r, lam, th: r**2 * 0.25 * jnp.sqrt(5 / jnp.pi)
-        * (3 * jnp.cos(th)**2 - 1),
-    spherical=True,
-)
+    lambda x, y, z: -2 * (2 * x**2 * jnp.cos(x**2) + jnp.sin(x**2))
+    + 4 * jnp.cos(x**2))
+bc = lambda lam, th: jnp.cos(jnp.sin(th)**2 * jnp.cos(lam)**2)
+u = Ballfun.helmholtz(f, 2.0, bc, 50, 50, 50)
+u.plot()
 ```
 
-## 20.10 Adaptive Construction Details
+![](../images/guide/guide20_13.png)
 
-The adaptive construction algorithm starts with a small grid $(m, n, p) = (9, 4, 4)$ and doubles the grid sizes until the spectral coefficients in all three directions are resolved:
+Neumann conditions are also supported ($u_{\rm exact} = \sin(y^2)$,
+$K = 0$; the three Cartesian derivatives match to
+$3.5\times 10^{-14}$):
 
-1. **Evaluate** the function on the BMC-III doubled-up grid
-2. **Transform** to CFF coefficient space via DCT (radial) and FFT (angular)
-3. **Check resolution** in each direction using `standard_chop` on the projected coefficient magnitudes
-4. **Refine** any unresolved direction by doubling its grid size
-5. **Repeat** until all directions are resolved or `max_sample` is exceeded
+```python
+f = Ballfun.from_function(
+    lambda x, y, z: 2 * jnp.cos(y**2) - 4 * y**2 * jnp.sin(y**2))
+bc = lambda lam, th: (2 * (jnp.sin(th) * jnp.sin(lam))**2
+                      * jnp.cos((jnp.sin(th) * jnp.sin(lam))**2))
+u = Ballfun.helmholtz(f, 0.0, bc, 50, 50, 50, "neumann")
+u.plot()
+```
 
-The final coefficient tensor is chopped to the resolved sizes to minimize storage.
+![](../images/guide/guide20_14.png)
 
-## 20.11 References
+## 20.5 Solid harmonics
 
-1. N. Boulle and A. Townsend, "Computing with functions on the ball", *SIAM J. Sci. Comput.*, 2019.
+The solid harmonics $R_\ell^m = r^\ell Y_\ell^m$ are harmonic
+polynomials — `Ballfun.solharm(4, -2)` satisfies
+$\|\nabla^2 R_4^{-2}\| \approx 1.9\times 10^{-14}$ and the family is
+orthonormal over the ball:
 
-2. A. Townsend, H. Wilber, and G. Wright, "Computing with functions on spherical and polar geometries I: The sphere", *SIAM J. Sci. Comput.*, 38(4), C403--C425, 2016.
+```python
+R = Ballfun.solharm(4, -2)
+R.plot()
+```
 
-3. A. Townsend, H. Wilber, and G. Wright, "Computing with functions on spherical and polar geometries II: The disk", *SIAM J. Sci. Comput.*, 39(5), C238--C262, 2017.
+![](../images/guide/guide20_15.png)
+
+```python
+R40 = Ballfun.solharm(4, 0)
+(R * R.conj()).sum3()     # 1
+(R40 * R40.conj()).sum3() # 1
+(R * R40.conj()).sum3()   # ~1e-17
+```
+
+The first few solid harmonics, $\ell = 0{:}3$, $m = 0{:}\ell$:
+
+![](../images/guide/guide20_16.png)
+
+## 20.6 Vector calculus with Ballfunv
+
+A `Ballfunv` is a vector field on the ball with three ballfun
+components:
+
+```python
+Vx = Ballfun.from_function(lambda x, y, z: x * y)
+Vy = Ballfun.from_function(lambda x, y, z: jnp.sin(x * z))
+Vz = Ballfun.from_function(lambda x, y, z: jnp.sin(y))
+V = Ballfunv(Vx, Vy, Vz)
+V.quiver()
+```
+
+![](../images/guide/guide20_17.png)
+
+`curl` and `div` behave as expected:
+
+```python
+W = V.curl()
+W.quiver()
+f = V.div()
+f.plot()
+```
+
+![](../images/guide/guide20_18.png)
+
+The classical identities hold to rounding:
+$\|\nabla\times\nabla f\| \approx 1.5\times 10^{-12}$ and
+$\nabla\cdot(\nabla\times V) \approx 10^{-8}$:
+
+```python
+f = Ballfun.from_function(lambda x, y, z: jnp.cos(x * z))
+Ballfunv(*f.grad()).curl().norm()   # ~1.5e-12
+V.curl().div().norm()               # ~1.1e-8
+```
+
+## 20.7 Poloidal-toroidal decomposition
+
+Any divergence-free field can be written as
+$w = \nabla\times\nabla\times(\mathbf r P) + \nabla\times(\mathbf r T)$.
+`PT2ballfunv` builds such a field from its scalars:
+
+```python
+Pw = Ballfun.from_function(lambda x, y, z: jnp.cos(x * y))
+Tw = Ballfun.from_function(lambda x, y, z: jnp.sin(y * z))
+w = Ballfunv.PT2ballfunv(Pw, Tw)
+w.quiver()
+w.div().norm()   # ~4e-10
+```
+
+![](../images/guide/guide20_19.png)
+
+and `PTdecomposition` recovers the scalars:
+
+```python
+Pw2, Tw2 = w.PTdecomposition()
+```
+
+![](../images/guide/guide20_20.png)
+
+The poloidal and toroidal components themselves:
+
+![](../images/guide/guide20_21.png)
+
+Reconstruction round-trips to $1.3\times 10^{-12}$:
+
+```python
+v = Ballfunv.PT2ballfunv(Pw2, Tw2)
+(w - v).norm()   # ~1.3e-12
+```
+
+## 20.8 Helmholtz-Hodge decomposition
+
+Every vector field on the ball splits as
+$v = \nabla f + \nabla\times\psi + \nabla\varphi$ with $f$ vanishing on
+the boundary, $\psi$ divergence-free, and $\varphi$ harmonic:
+
+```python
+v = Ballfunv.from_functions(
+    lambda x, y, z: jnp.cos(x * y) * z,
+    lambda x, y, z: jnp.sin(x * z),
+    lambda x, y, z: y * z)
+v.quiver()
+```
+
+![](../images/guide/guide20_22.png)
+
+```python
+f, Ppsi, Tpsi, phi = v.HelmholtzDecomposition(nargout=4)
+```
+
+The curl-free component $\nabla f$ (with
+$\|\nabla\times\nabla f\| \approx 2\times 10^{-13}$):
+
+```python
+Ballfunv(*f.grad()).quiver()
+```
+
+![](../images/guide/guide20_23.png)
+
+The harmonic component $\nabla\varphi$ (with
+$\|\nabla^2 \nabla\varphi\| \approx 2\times 10^{-9}$):
+
+```python
+Ballfunv(*phi.grad()).quiver()
+```
+
+![](../images/guide/guide20_24.png)
+
+The divergence-free component $\nabla\times\psi$ (with
+$\|\nabla\cdot\nabla\times\psi\| \approx 4\times 10^{-11}$):
+
+```python
+psi = Ballfunv.PT2ballfunv(Ppsi, Tpsi)
+psi.curl().quiver()
+```
+
+![](../images/guide/guide20_25.png)
+
+All four fields together — the decomposition reassembles the input to
+$4.5\times 10^{-12}$:
+
+```python
+w = Ballfunv(*f.grad()) + psi.curl() + Ballfunv(*phi.grad())
+(v - w).norm()   # ~4.5e-12
+```
+
+![](../images/guide/guide20_26.png)
+
+## References
+
+- N. Boulle and A. Townsend, *Computing with functions in the ball*, SIAM J. Sci. Comput. 42 (2020), C169–C191.
+- Chebfun Guide, [Chapter 20: Ballfun](https://www.chebfun.org/docs/guide/guide20.html).
