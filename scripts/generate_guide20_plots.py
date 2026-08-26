@@ -326,14 +326,25 @@ def fig03(moire):
 def fig04(moire):
     """f(:,:,0) -> diskfun (z=0 slice), flat 2D disk plot."""
     # z=0 <=> colatitude pi/2; disk polar coords (theta_disk, r_disk).
+    # Collapse the fixed colatitude theta = pi/2 ONCE: contracting the
+    # full CFF tensor per evaluation point (npts * m*n*p flops) stalled
+    # for days on the high-frequency moire ball.
+    C = np.asarray(moire.coeffs)
+    m, n, p_ = C.shape
+    kt = np.arange(-(p_ // 2), -(p_ // 2) + p_)
+    C2 = C @ np.exp(1j * kt * (np.pi / 2))          # (m, n)
+    kl = np.arange(-(n // 2), -(n // 2) + n)
+
     def _slice_z0(th, r):
         th_np = np.asarray(th, dtype=float)
         r_np = np.asarray(r, dtype=float)
         shp = np.broadcast(th_np, r_np).shape
         th_f = np.broadcast_to(th_np, shp).ravel()
         r_f = np.broadcast_to(r_np, shp).ravel()
-        vals = _ballfun_pointwise(moire, r_f, th_f,
-                                  np.full(r_f.shape, np.pi / 2))
+        Tr = np.cos(np.outer(np.arccos(np.clip(r_f, -1, 1)),
+                             np.arange(m)))
+        El = np.exp(1j * np.outer(th_f, kl))
+        vals = np.real(np.einsum('qi,ij,qj->q', Tr, C2, El))
         return jnp.asarray(vals.reshape(shp))
 
     # Render directly from the ballfun values on the display grid: the
