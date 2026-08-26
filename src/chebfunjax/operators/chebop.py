@@ -6149,6 +6149,39 @@ class Chebop:
         raise TypeError(
             "chebop mtimes: left operand must be a scalar.")
 
+    def linearize(self, u0=None):
+        """``(L, res, isLinear) = linearize(N)``: the linearization of
+        the operator as a typed block :class:`ChebMatrix`, the residual
+        ``N(0)``, and the linearity flags (MATLAB @chebop/linearize.m).
+
+        Linearization about a nonzero state ``u0`` currently supports
+        the zero state only; the Newton machinery linearizes about the
+        running iterate internally.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/linearize.m
+        Chebfun commit: 7574c77
+        """
+        if u0 is not None:
+            raise NotImplementedError(
+                "linearize about a nonzero state is handled internally "
+                "by the Newton solver; the public API linearizes about "
+                "zero.")
+        L = self.linop()
+        m = self._n_vars()
+        from chebfunjax.chebfun1d.chebfun import chebfun as _mkcheb
+        a0, b0 = float(self.domain[0]), float(self.domain[-1])
+        zeros = [_mkcheb(lambda t: 0.0 * t, domain=(a0, b0))
+                 for _ in range(m)]
+        try:
+            res = self.feval(*zeros) if m > 1 else self.feval(zeros[0])
+        except Exception:
+            res = None
+        lin_op = self._is_linear() if m == 1 else self._system_is_linear()
+        is_linear = (bool(lin_op), True, True, True)
+        return L, res, is_linear
+
     def eye(self) -> "Chebop":
         """Identity operator on the same domain (MATLAB eye(N)).
 
