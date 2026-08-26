@@ -175,3 +175,51 @@ def test_slices_and_chebmatrix_plots_smoke():
     assert M.change_tech("chebtech2")[0, 0] is x
     assert M.is_not_diff_or_int == [[True], [True], [True]]
     plt.close("all")
+
+
+def test_chebop_altdisc_nonlinear_and_systems():
+    """Nonlinear chord-Newton path + system solve under each
+    discretization (coverage for the Frechet/bc-collection code)."""
+    from chebfunjax.operators.chebop import Chebop
+    from chebfunjax.operators.chebop_altdisc import solve_bvp_altdisc
+
+    # Nonlinear scalar BVP: u'' + sin(u) = 0, u(0)=0, u(1)=0.5.
+    N = Chebop(lambda x, u: u.diff(2) + u.sin(), domain=(0.0, 1.0))
+    N.lbc = 0.0
+    N.rbc = 0.5
+    for disc in ("ultraS", "chebcolloc1"):
+        u = solve_bvp_altdisc(N, 0.0, disc, n=48)[0]
+        # residual check at interior points
+        res = u.diff(2) + u.sin()
+        xs = jnp.linspace(0.05, 0.95, 9)
+        assert float(jnp.max(jnp.abs(jnp.asarray(res(xs))))) < 1e-6
+        assert abs(float(u(jnp.asarray(0.0)))) < 1e-8
+        assert abs(float(u(jnp.asarray(1.0))) - 0.5) < 1e-8
+
+    # 2x2 first-order linear system: u' = v, v' = -u with u(0)=0, v(0)=1.
+    N = Chebop(lambda x, u, v: [u.diff() - v, v.diff() + u],
+               domain=(0.0, 1.0))
+    N.lbc = lambda u, v: [u, v - 1.0]
+    for disc in ("ultraS", "chebcolloc1"):
+        U = solve_bvp_altdisc(N, [0.0, 0.0], disc, n=48)
+        xs = jnp.linspace(0.0, 1.0, 7)
+        assert float(jnp.max(jnp.abs(
+            jnp.asarray(U[0](xs)) - jnp.sin(xs)))) < 1e-7
+        assert float(jnp.max(jnp.abs(
+            jnp.asarray(U[1](xs)) - jnp.cos(xs)))) < 1e-7
+
+
+def test_chebop_altdisc_generalized_eigs():
+    """Generalized eigenproblem u'' = lambda*u under ultraS."""
+    from chebfunjax.operators.chebop import Chebop
+    from chebfunjax.operators.chebop_altdisc import eigs_generalized_altdisc
+
+    N = Chebop(lambda x, u: u.diff(2), domain=(0.0, np.pi))
+    N.lbc = 0.0
+    N.rbc = 0.0
+    B = Chebop(lambda x, u: u, domain=(0.0, np.pi))
+    for disc in ("ultraS", "chebcolloc1"):
+        V, lam = eigs_generalized_altdisc(N, B, 3, 48, disc, sort="SM")
+        lam = np.sort(np.abs(np.asarray(lam)))[:3]
+        # eigenvalues of u'' = lam*u with Dirichlet: -k^2
+        assert np.allclose(lam, [1.0, 4.0, 9.0], atol=1e-5)
