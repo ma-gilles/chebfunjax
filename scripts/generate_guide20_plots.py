@@ -336,13 +336,16 @@ def fig04(moire):
                                   np.full(r_f.shape, np.pi / 2))
         return jnp.asarray(vals.reshape(shp))
 
-    fdisk = Diskfun.from_function(_slice_z0)
+    # Render directly from the ballfun values on the display grid: the
+    # moire z=0 slice is a rank-~41 high-frequency field, and routing it
+    # through the adaptive Diskfun constructor with pointwise ball
+    # evaluations stalled for days (Fable 5 audit).
     fig, ax = plt.subplots(figsize=(6.0, 2.7))
     nθ, nr = 400, 200
     th = np.linspace(-np.pi, np.pi, nθ)
     rr = np.linspace(0, 1, nr)
     TT, RR = np.meshgrid(th, rr, indexing='ij')
-    ZZ = np.asarray(fdisk(jnp.asarray(TT.ravel()), jnp.asarray(RR.ravel()))).reshape(TT.shape)
+    ZZ = np.asarray(_slice_z0(TT.ravel(), RR.ravel())).reshape(TT.shape)
     XX, YY = RR * np.cos(TT), RR * np.sin(TT)
     ax.pcolormesh(XX, YY, ZZ, cmap=PARULA, shading='gouraud')
     t = np.linspace(0, 2 * np.pi, 300)
@@ -414,6 +417,20 @@ def fig08():
     ax.tick_params(labelsize=8)
     fig.tight_layout(pad=0.3)
     _save(fig, 8, "sum(f,2) diskfun")
+
+
+def fig09():
+    """sum2(f,[1,3]), f=y -> trig chebfun in lambda."""
+    f = Ballfun.from_function(lambda x, y, z: y)
+    line = f.sum2((1, 3))
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    xs = np.linspace(-np.pi, np.pi, 600)
+    ax.plot(xs, np.asarray(line(jnp.asarray(xs))), color='#0072BD', lw=1.4)
+    ax.set_xlim(-np.pi, np.pi)
+    ax.tick_params(labelsize=8)
+    ax.grid(True, alpha=0.25, lw=0.4)
+    fig.tight_layout(pad=0.3)
+    _save(fig, 9, "sum2(f,[1,3]) trig chebfun")
 
 
 def fig09():
@@ -597,28 +614,32 @@ def fig22():
     _save(fig, 22, "Helmholtz-Hodge input field v")
 
 
-def fig23_26_blocked():
-    """Figures 23-26 need HelmholtzDecomposition (a global PDE solve), which
-    the library does not provide and autodiff cannot supply.  We emit an
-    honest chebfunjax quiver of the input field v as a stand-in so no
-    placeholder remains, but these do NOT reproduce the reference
-    components.  See the report."""
+def fig23_26():
+    """Helmholtz-Hodge decomposition via ballfunv.HelmholtzDecomposition."""
     v = _hodge_field()
-    for idx, ttl in [(23, 'Curl-free component of v'),
-                     (24, 'Harmonic component of v'),
-                     (25, 'Divergence-free component of v')]:
-        fig, ax = _quiver_fig(v, title=ttl)
-        _save(fig, idx, "BLOCKED: HelmholtzDecomposition missing (shows v)")
-    # fig 26: 2x2, only the "Vector field" panel is faithful
+    f, Ppsi, Tpsi, phi = v.HelmholtzDecomposition(nargout=4)
+    gradf = Ballfunv(*f.grad())
+    gradphi = Ballfunv(*phi.grad())
+    psi = Ballfunv.PT2ballfunv(Ppsi, Tpsi)
+    curlpsi = psi.curl()
+    fig, ax = _quiver_fig(gradf, title='Curl-free component of v')
+    _save(fig, 23, "quiver(grad f)")
+    fig, ax = _quiver_fig(gradphi, title='Harmonic component of v')
+    _save(fig, 24, "quiver(grad phi)")
+    fig, ax = _quiver_fig(curlpsi, title='Divergence-free component of v')
+    _save(fig, 25, "quiver(curl psi)")
     fig = plt.figure(figsize=(6.0, 2.7))
-    for k, ttl in enumerate(['Vector field', 'Curl-free', 'Divergence-free', 'Harmonic']):
+    for k, (W, ttl) in enumerate([(v, 'Vector field'),
+                                  (gradf, 'Curl-free'),
+                                  (curlpsi, 'Divergence-free'),
+                                  (gradphi, 'Harmonic')]):
         ax = fig.add_subplot(2, 2, k + 1, projection='3d')
-        quiver_ball(v, ax=ax)
+        quiver_ball(W, ax=ax)
         ax.view_init(elev=ELEV, azim=AZIM)
         ax.set_title(ttl, fontsize=8, pad=-1)
     fig.subplots_adjust(left=0.02, right=0.98, top=0.93, bottom=0.02,
                         wspace=0.05, hspace=0.25)
-    _save(fig, 26, "BLOCKED: only 'Vector field' panel faithful")
+    _save(fig, 26, "Helmholtz-Hodge 2x2")
 
 
 def main():
@@ -647,7 +668,7 @@ def main():
     fig20()
     fig21()
     fig22()
-    fig23_26_blocked()
+    fig23_26()
     print("Guide 20: done.")
 
 

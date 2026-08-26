@@ -219,7 +219,7 @@ class SystemSolution(list):
 
 
 def _op_from_string(expr: str):
-    """Compile a MATLAB chebop operator STRING like ``'u\`\`+sin(u)'``
+    r"""Compile a MATLAB chebop operator STRING like ``'u\`\`+sin(u)'``
     into an op lambda: backticks mark derivatives, elementwise MATLAB
     operators are translated, and math functions dispatch to chebfun
     methods (MATLAB @chebop/chebop.m string constructor).
