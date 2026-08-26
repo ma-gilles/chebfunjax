@@ -218,6 +218,48 @@ class SystemSolution(list):
 # ===========================================================================
 
 
+def _op_from_string(expr: str):
+    """Compile a MATLAB chebop operator STRING like ``'u\`\`+sin(u)'``
+    into an op lambda: backticks mark derivatives, elementwise MATLAB
+    operators are translated, and math functions dispatch to chebfun
+    methods (MATLAB @chebop/chebop.m string constructor).
+
+    Provenance
+    ----------
+    MATLAB source : @chebop/chebop.m  (string parsing), vectorize.m
+    Chebfun commit: 7574c77
+    """
+    import re
+    s = expr.replace(".*", "*").replace("./", "/")
+    s = s.replace(".^", "**").replace("^", "**")
+    s = re.sub(r"([a-zA-Z_]\w*)(`+)",
+               lambda m: f"diff({m.group(1)},{len(m.group(2))})", s)
+
+    def _mk(name):
+        def _f(v, *a):
+            fn = getattr(v, name, None)
+            if fn is not None:
+                return fn(*a)
+            return getattr(jnp, name)(v, *a)
+        return _f
+
+    ns = {"diff": lambda v, k=1: v.diff(k),
+          "cumsum": lambda v: v.cumsum(),
+          "sum": lambda v: v.sum(),
+          "pi": 3.141592653589793}
+    for name in ("sin", "cos", "tan", "exp", "log", "sqrt", "abs",
+                 "sinh", "cosh", "tanh", "sign"):
+        ns[name] = _mk(name)
+    names = set(re.findall(r"[a-zA-Z_]\w*", s))
+    unknowns = [v for v in ("u", "v", "w", "y") if v in names]
+    if not unknowns:
+        raise ValueError(f"chebop string '{expr}': no unknown found.")
+    args = (["x"] if "x" in names else []) + unknowns
+    ns["__builtins__"] = {}
+    return eval(  # noqa: S307 -- restricted namespace, math only
+        f"lambda {', '.join(args)}: {s}", ns)
+
+
 class Chebop:
     """User-facing operator constructor for ODEs and BVPs.
 
@@ -311,6 +353,8 @@ class Chebop:
         rbc=None,
         bc=None,
     ) -> None:
+        if isinstance(op, str):
+            op = _op_from_string(op)
         self.op = op
         #: Full breakpoint list as passed by the user (MATLAB's
         #: ``chebop([-N 0 N])`` form): the piecewise solver and the eigs
