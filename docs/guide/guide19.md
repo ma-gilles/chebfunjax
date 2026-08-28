@@ -1,315 +1,180 @@
 # Chapter 19: SPIN, SPIN2, SPIN3 and SPINSPHERE for Stiff PDEs
 
-*Based on [Chebfun Guide Chapter 19](https://www.chebfun.org/docs/guide/guide19.html)*
-
-The `spin` module in chebfunjax provides exponential time-differencing integrators for stiff semilinear PDEs in 1D, 2D, 3D, and on the sphere. The name "SPIN" stands for "Stiff PDE INtegrator."
+*Based on [Chebfun Guide Chapter 19](https://www.chebfun.org/docs/guide/guide19.html) by Hadrien Montanelli.*
 
 ## 19.1 Introduction
 
-Many important PDEs have the form
-
-$$u_t = S(u) = Lu + N(u)$$
-
-where $L$ is a constant-coefficient linear differential operator and $N$ is a nonlinear operator. Examples include:
-
-| PDE | Equation | Stiff term |
-|-----|----------|------------|
-| Allen-Cahn | $u_t = \epsilon u_{xx} + u - u^3$ | $\epsilon u_{xx}$ |
-| KdV | $u_t = -u_{xxx} - \tfrac{1}{2}(u^2)_x$ | $-u_{xxx}$ |
-| NLS | $u_t = i u_{xx} + i\|u\|^2 u$ | $iu_{xx}$ |
-| Kuramoto-Sivashinsky | $u_t = -u_{xx} - u_{xxxx} - \tfrac{1}{2}(u^2)_x$ | $-u_{xxxx}$ |
-
-These equations are stiff because $L$ has eigenvalues that scale as high powers of the wavenumber $k$. The `spin` solvers combine Fourier spectral discretization in space with the ETDRK4 (exponential time-differencing Runge-Kutta, order 4) scheme in time.
-
-The four solver functions are:
-
-| Solver | Domain | Module |
-|--------|--------|--------|
-| `spin` | 1D periodic interval | `chebfunjax.spin` |
-| `spin2` | 2D periodic rectangle | `chebfunjax.spin` |
-| `spin3` | 3D periodic cuboid | `chebfunjax.spin` |
-| `spinsphere` | Unit sphere | `chebfunjax.spin` |
+The `spin` family solves stiff, periodic, time-dependent PDEs
+$u_t = \mathcal{L}u + \mathcal{N}(u)$ — a linear (stiff, constant-coefficient) part $\mathcal{L}$ plus a nonlinear part $\mathcal{N}$ — with Fourier spectral discretization in space and exponential integrators (ETDRK4) in time. `spin` works in 1D, `spin2`/`spin3` in 2D/3D, and `spinsphere` on the sphere.
 
 ## 19.2 Computations in 1D with spin
 
-### Built-in examples
-
-The simplest way to use `spin` is with a built-in PDE name:
+Well-known equations are available as presets. The KdV equation
+$u_t = -u u_x - u_{xxx}$ with two-soliton initial data:
 
 ```python
-from chebfunjax.spin import spin, SpinOp
+from chebfunjax.spin import SpinOp, spin
 
-# Solve the KdV equation (two-soliton interaction)
-x, t, u = spin('KdV', N=512, dt=3e-6)
-print(f"Final time: {t}")
-print(f"Grid size: {len(x)}")
+S = SpinOp("kdv")
+u = spin(S, 256, 1e-6)
+u.plot()
 ```
 
 ![](../images/guide/guide19_01.png)
 
-
-Available built-in 1D PDEs:
-
-| Name | PDE | Domain |
-|------|-----|--------|
-| `'AC'` | Allen-Cahn: $u_t = 5 \times 10^{-3} u_{xx} + u - u^3$ | $[0, 2\pi]$ |
-| `'KdV'` | Korteweg-de Vries: $u_t = -u_{xxx} - \tfrac{1}{2}(u^2)_x$ | $[-\pi, \pi]$ |
-| `'NLS'` | Nonlinear Schrodinger: $u_t = iu_{xx} + i\|u\|^2 u$ | $[-\pi, \pi]$ |
-| `'KS'` | Kuramoto-Sivashinsky: $u_t = -u_{xx} - u_{xxxx} - \tfrac{1}{2}(u^2)_x$ | $[0, 32\pi]$ |
-
-### Return values
-
-`spin` returns:
-- `x`: spatial grid points, shape `(N,)`
-- `t`: final time reached (float)
-- `u_final`: solution values at the final time, shape `(N,)`
+The preset carries the domain, the initial condition, and the two
+operator parts (`lin`, `nonlin`). The Allen–Cahn equation
+$u_t = 5\times 10^{-3}u_{xx} + u - u^3$ over its default time span:
 
 ```python
-x, t, u = spin('AC', N=256, dt=0.1)
-
-# Plot the result (using matplotlib)
-import matplotlib.pyplot as plt
-plt.plot(x, u)
-plt.title(f'Allen-Cahn at t = {t}')
-plt.show()
+S = SpinOp("ac")
+u = spin(S, 256, 1e-1)
+u.plot()
 ```
 
 ![](../images/guide/guide19_02.png)
 
-
-### Custom SpinOp
-
-For PDEs not in the built-in catalogue, create a `SpinOp` directly:
+Extending the time interval to $t=100$ shows the metastable fronts:
 
 ```python
-import jax.numpy as jnp
-
-# Viscous Burgers equation: u_t = nu*u_xx - 0.5*(u^2)_x
-nu = 1e-3
-op = SpinOp(
-    lin_coeff=lambda k: nu * (1j * k)**2,       # nu * d^2/dx^2
-    nonlin_vals=lambda u: -0.5 * u**2,           # -0.5 * u^2
-    nonlin_diff_order=1,                          # differentiate once
-    domain=(-1.0, 1.0),
-    tspan=(0.0, 20.0),
-    u0=lambda x: (1 - x**2) * jnp.exp(-30 * (x + 0.5)**2),
-    is_real=True,
-)
-
-x, t, u = spin(op, N=512, dt=5e-3)
+S.tspan = (0.0, 100.0)
+u = spin(S, 256, 1e-1)
+u.plot()
 ```
 
 ![](../images/guide/guide19_03.png)
 
-
-The key parameters of `SpinOp`:
-
-- **`lin_coeff`**: A function of the wavenumber array `k` that returns the diagonal of the linear operator in Fourier space. For example, $\nu \partial^2/\partial x^2$ has eigenvalues $\nu (ik)^2 = -\nu k^2$.
-
-- **`nonlin_vals`**: A function that evaluates the nonlinear part in physical (value) space. For Burgers, the nonlinearity is $-\tfrac{1}{2} u^2$ (before differentiation).
-
-- **`nonlin_diff_order`**: The number of spatial derivatives to apply to the nonlinear term in Fourier space. For $-\tfrac{1}{2}(u^2)_x$, set this to 1 so that the Fourier coefficients are multiplied by $(ik)$.
-
-- **`is_real`**: Set `True` for real-valued PDEs (imaginary parts are discarded).
-
-### Dealiasing
-
-By default, the 2/3-rule dealiasing is applied at each step (zeroing the top third of Fourier modes). This can be disabled:
+The initial condition can be replaced by any (periodic) chebfun:
 
 ```python
-x, t, u = spin('KdV', N=512, dt=3e-6, dealias=False)
+import jax.numpy as jnp
+import chebfunjax as cj
+S.init = cj.chebfun(lambda x: -1 + 4*jnp.exp(-19*(x - jnp.pi)**2),
+                    domain=(0.0, 2*jnp.pi), trig=True)
+u = spin(S, 256, 1e-1)
+u.plot()
 ```
 
 ![](../images/guide/guide19_04.png)
 
-
-### Verbose output
-
-Set `verbose=True` to print progress every 10% of the integration:
+A vector `tspan` returns the solution at each of those times:
 
 ```python
-x, t, u = spin('KS', N=256, dt=1e-2, verbose=True)
+S.tspan = tuple(range(0, 31))
+U = spin(S, 256, 1e-1)
+U[1].plot()
 ```
 
 ![](../images/guide/guide19_05.png)
 
-
-## 19.3 The ETDRK4 Scheme
-
-The solver uses the ETDRK4 scheme (Cox and Matthews, 2002; Kassam and Trefethen, 2005). In Fourier space, the PDE becomes the system of ODEs
-
-$$\hat{u}_t = L \hat{u} + \hat{N}(u)$$
-
-where $L$ is diagonal (the Fourier eigenvalues of the linear operator) and $\hat{N}$ is the Fourier transform of the nonlinear term.
-
-The four ETDRK4 stages are:
-
-$$a = e^{\Delta t/2 \cdot L}\, \hat{u}_n$$
-$$b = e^{\Delta t/2 \cdot L}\, \hat{u}_n + \psi_{1,2}\, \hat{N}(a)$$
-$$c = e^{\Delta t \cdot L}\, \hat{u}_n + 2\psi_{1,2}\, \hat{N}(b)$$
-$$\hat{u}_{n+1} = e^{\Delta t \cdot L}\, \hat{u}_n + B_2\, \hat{N}(a) + B_3\, \hat{N}(b) + B_4\, \hat{N}(c)$$
-
-where $\psi_{1,2} = \frac{\Delta t}{2}\, \varphi_1(\frac{\Delta t}{2} L)$ and the $B$ coefficients involve the $\varphi$-functions $\varphi_2$ and $\varphi_3$.
-
-The $\varphi$-functions are evaluated stably via contour integration on small circles of radius 1 in the complex plane (Kassam and Trefethen, 2005), avoiding the cancellation issues of direct formulas.
-
-## 19.4 Computations in 2D with spin2
-
-The `spin2` function solves 2D periodic PDEs on rectangles:
+and `waterfall` shows the whole evolution:
 
 ```python
-from chebfunjax.spin import spin2, SpinOp2
-
-# Ginzburg-Landau equation in 2D
-# u_t = Delta(u) + u - (1 + 1.5i)*u*|u|^2
-xx, yy, t, u = spin2('GL', N=64, dt=5e-3)
-print(f"Grid shape: {xx.shape}")
-print(f"Final time: {t}")
+from chebfunjax.plotting import waterfall
+waterfall(U)
 ```
 
 ![](../images/guide/guide19_06.png)
 
-
-Available built-in 2D PDEs:
-
-| Name | PDE |
-|------|-----|
-| `'AC2'` | Allen-Cahn 2D: $u_t = 5 \times 10^{-3} \Delta u + u - u^3$ |
-| `'GL'` | Ginzburg-Landau: $u_t = \Delta u + u - (1+1.5i)u\|u\|^2$ |
-| `'GS'` | Gray-Scott (2-component): reaction-diffusion stripes |
-| `'SH'` | Swift-Hohenberg: $u_t = -2\Delta u - \Delta^2 u - 0.9u - u^3$ |
-
-### Custom SpinOp2
-
-For 2D PDEs, the linear operator must be an isotropic polynomial in the Laplacian:
-
-$$L = A\, \Delta + B\, \Delta^2 + C\, \Delta^3 + D\, \Delta^4 + E\, \Delta^5$$
+A custom operator is set up by giving the domain, time span, and the
+two parts directly:
 
 ```python
-# Swift-Hohenberg: L = -2*Delta - Delta^2
-# N(u) = -0.9*u - u^3
-op = SpinOp2(
-    lin_coeffs=(-2.0, -1.0, 0.0, 0.0, 0.0),  # (A, B, C, D, E)
-    nonlin_vals=lambda u: -0.9 * u - u**3,
-    n_vars=1,
-    domain=(0.0, 20.0, 0.0, 20.0),
-    tspan=(0.0, 100.0),
-    u0=lambda x, y: jnp.cos(x / 16) * jnp.sin(y / 16),
-    is_real=True,
-)
-
-xx, yy, t, u = spin2(op, N=64, dt=1e-2)
+S = SpinOp(domain=(0.0, 5.0), tspan=(0.0, 10.0))
+S.lin = lambda u: 0.3 * u.diff(2)
+S.nonlin = lambda u: u**2 - 1
+S.init = cj.chebfun(jnp.cos, domain=(0.0, 5.0))
 ```
 
-### Multi-component PDEs
+## 19.3 Computations in 2D and 3D with spin2 and spin3
 
-The Gray-Scott equations have two components. For multi-component PDEs, pass lists of `lin_coeffs`, `nonlin_vals`, and `u0`:
+The 2D Ginzburg–Landau equation
+$u_t = \Delta u + u - (1+1.5i)u|u|^2$ develops spiral waves; four
+snapshots at $t = 0, 10, 20, 30$:
 
 ```python
-op = SpinOp2.from_name('GS')
-xx, yy, t, u = spin2(op, N=64, dt=1e-1)
-# u is a list of two (N, N) arrays: [u_component, v_component]
+from chebfunjax.spin import SpinOp2, spin2
+
+S = SpinOp2("gl")
+S.tspan = (0.0, 10.0, 20.0, 30.0)
+U = spin2(S, 100, 2e-1)
+for u in U:
+    u.real().plot()
 ```
 
-## 19.5 Computations in 3D with spin3
+![](../images/guide/guide19_07.png)
 
-The `spin3` function solves 3D periodic PDEs:
+![](../images/guide/guide19_08.png)
+
+![](../images/guide/guide19_09.png)
+
+![](../images/guide/guide19_10.png)
+
+## 19.4 Computations on the sphere with spinsphere
+
+`spinsphere` uses the double-Fourier-sphere method with implicit-explicit
+time-stepping. The Allen–Cahn preset's initial condition:
 
 ```python
-from chebfunjax.spin import spin3, SpinOp3
+from chebfunjax.operators.spinopsphere import Spinopsphere, spinsphere
 
-# 3D Ginzburg-Landau
-grids, t, u = spin3('GL', N=32, dt=1e-1)
-xx, yy, zz = grids
-print(f"Grid shape: {xx.shape}")
+S = Spinopsphere("ac")
+S.init.plot()
 ```
 
-Available built-in 3D PDEs:
+![](../images/guide/guide19_11.png)
 
-| Name | PDE |
-|------|-----|
-| `'GL'` | Ginzburg-Landau: $u_t = \Delta u + u - (1+1.5i)u\|u\|^2$ |
-| `'SH'` | Swift-Hohenberg: $u_t = -2\Delta u - \Delta^2 u - 0.9u - u^3$ |
-| `'AC'` | Allen-Cahn: $u_t = \epsilon \Delta u + u - u^3$ |
-
-### Custom SpinOp3
+and the solution at $t = 2, 5, 10$:
 
 ```python
-# Allen-Cahn in 3D with custom parameters
-op = SpinOp3(
-    lin_scales=(5e-3,),
-    lin_ops=('lap',),
-    nonlin_vals=lambda u: u - u**3,
-    domain=(0.0, 2*jnp.pi, 0.0, 2*jnp.pi, 0.0, 2*jnp.pi),
-    tspan=(0.0, 100.0),
-    u0=lambda x, y, z: jnp.tanh(jnp.sin(x) * jnp.cos(y) * jnp.sin(z)),
-    is_real=True,
-)
-
-grids, t, u = spin3(op, N=32, dt=5e-2)
+S.tspan = (0.0, 2.0, 5.0, 10.0)
+U = spinsphere(S, 128, 1e-1)
 ```
 
-## 19.6 Computations on the Sphere with spinsphere
+![](../images/guide/guide19_12.png)
 
-The `spinsphere` function solves PDEs on the unit sphere using the doubled Fourier sphere (DFS) method:
+![](../images/guide/guide19_13.png)
+
+![](../images/guide/guide19_14.png)
+
+The Ginzburg–Landau equation on the sphere at $t = 0, 10, 20, 30$:
 
 ```python
-from chebfunjax.spin import spinsphere, SpinOpSphere
-
-# Allen-Cahn on the sphere
-grids, t, u = spinsphere('AC', N=32, dt=5e-3)
-ll, tt = grids  # longitude, doubled colatitude
-print(f"Grid shape: {ll.shape}")
-print(f"Final time: {t}")
+S = Spinopsphere("gl")
+S.tspan = (0.0, 10.0, 20.0, 30.0)
+U = spinsphere(S, 128, 1e-1)
 ```
 
-Available built-in sphere PDEs:
+![](../images/guide/guide19_15.png)
 
-| Name | PDE |
-|------|-----|
-| `'AC'` | Allen-Cahn: $u_t = 10^{-2}\, \Delta_S u + u - u^3$ |
-| `'GL'` | Ginzburg-Landau: $u_t = 10^{-3}\, \Delta_S u + u - (1+1.5i)u\|u\|^2$ |
-| `'NLS'` | Nonlinear Schrodinger: $u_t = i\, \Delta_S u + i\|u\|^2 u$ |
+![](../images/guide/guide19_16.png)
 
-Here $\Delta_S$ is the Laplace-Beltrami operator on the sphere.
+![](../images/guide/guide19_17.png)
 
-### Custom SpinOpSphere
+![](../images/guide/guide19_18.png)
+
+## 19.5 Managing preferences
+
+Time-stepping options are passed as keyword arguments (MATLAB's
+`spinpref` objects map to keywords):
 
 ```python
-# Diffusion-reaction on the sphere
-op = SpinOpSphere(
-    lin_scale=0.01,  # coefficient of the Laplace-Beltrami operator
-    nonlin_vals=lambda u: u - u**3,
-    tspan=(0.0, 50.0),
-    u0=lambda lam, th: jnp.cos(3 * lam) * jnp.sin(th)**3,
-    is_real=True,
-)
-
-grids, t, u = spinsphere(op, N=64, dt=1e-2)
+u = spin(S, 256, 1e-2)          # defaults: ETDRK4, no live plotting
+u = spin2(S, 128, 1e-1)
 ```
 
-The Laplace-Beltrami operator on the sphere in the DFS representation is NOT diagonal in Fourier space (it is block-tridiagonal). The `spinsphere` solver handles this by computing matrix exponentials block-by-block.
+Chebfun additionally offers alternative schemes (`'exprk5s8'`,
+multistep starters, ...) through `spinpref`; chebfunjax's spin family
+uses ETDRK4 (1D/2D/3D) and IMEX-BDF4/LIRK4 (sphere), chosen from the
+linear part.
 
-## 19.7 Solver Options
+## 19.6 A quick note on history
 
-All four solvers accept common keyword arguments:
+Exponential integrators for stiff PDEs have a long history — see the
+references in the Chebfun guide chapter, and Montanelli & Bootland
+(2020) for the comparison study underlying `spin`'s defaults.
 
-- **`N`**: Number of Fourier modes (per direction). Larger $N$ gives better spatial resolution.
-- **`dt`**: Time-step. Smaller $dt$ gives better temporal accuracy but costs more.
-- **`dealias`**: Apply 2/3-rule dealiasing (default `True`).
-- **`M`**: Number of contour points for $\varphi$-function evaluation (default 32).
-- **`verbose`**: Print progress (default `False`).
+## References
 
-## 19.8 A Note on History
-
-Exponential integrators for ODEs trace back to Hersch (1958) and Certaine (1960). Cox and Matthews (2002) introduced the ETDRK4 scheme for stiff PDEs. Kassam and Trefethen (2005) improved its numerical stability using contour integral evaluation of the $\varphi$-functions. Montanelli and Bootland (2017) extended the approach to 2D, 3D, and spherical domains and implemented the MATLAB Chebfun `spin` package.
-
-## 19.9 References
-
-1. S. M. Cox and P. C. Matthews, "Exponential time differencing for stiff systems", *J. Comput. Phys.*, 176, 430--455, 2002.
-
-2. A.-K. Kassam and L. N. Trefethen, "Fourth-order time-stepping for stiff PDEs", *SIAM J. Sci. Comput.*, 26(4), 1214--1233, 2005.
-
-3. H. Montanelli and N. Bootland, "Solving periodic semilinear stiff PDEs in 1D, 2D and 3D with exponential integrators", *Math. Comp.*, 89, 1493--1524, 2020.
-
-4. M. Hochbruck and A. Ostermann, "Exponential integrators", *Acta Numer.*, 19, 209--286, 2010.
+- H. Montanelli and N. Bootland, *Solving periodic semilinear stiff PDEs in 1D, 2D and 3D with exponential integrators*, Math. Comput. Simul. 178 (2020).
+- Chebfun Guide, [Chapter 19](https://www.chebfun.org/docs/guide/guide19.html).

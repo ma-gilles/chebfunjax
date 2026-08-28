@@ -1,209 +1,267 @@
 # Chapter 17: Spherefun
 
-*Based on [Chebfun Guide Chapter 17](https://www.chebfun.org/docs/guide/guide17.html)*
-
-Spherefun is the chebfunjax module for computing with functions on the surface of the unit sphere $S^2 = \{(x,y,z) : x^2 + y^2 + z^2 = 1\}$. It uses a low-rank Fourier-Fourier representation with the BMC-I (block mirror-centrosymmetric) structure to maintain spectral accuracy while handling the coordinate singularities at the poles.
+*Based on [Chebfun Guide Chapter 17](https://www.chebfun.org/docs/guide/guide17.html) by Alex Townsend, Heather Wilber, and Grady Wright.*
 
 ## 17.1 Introduction
 
-A `Spherefun` approximates a function $f(\lambda, \theta)$ on the unit sphere, where $\lambda \in [-\pi, \pi]$ is the longitude (azimuth) and $\theta \in [0, \pi]$ is the colatitude (polar angle, measured from the north pole). The Cartesian coordinates are:
-
-$$x = \cos\lambda\, \sin\theta, \quad y = \sin\lambda\, \sin\theta, \quad z = \cos\theta$$
+Spherefun is the part of chebfunjax for computing with functions on the surface of the unit sphere. A `Spherefun` is constructed from a function of Cartesian variables $(x, y, z)$ restricted to the sphere:
 
 ```python
 import jax.numpy as jnp
-import numpy as np
 from chebfunjax.spherefun import Spherefun
 
-# A spherical harmonic Y_1^0 = cos(theta)
-f = Spherefun.from_function(lambda lam, theta: jnp.cos(theta))
-print(f)  # Spherefun(rank=..., n_plus=..., n_minus=...)
+def sf(fn3):
+    return Spherefun.from_function(
+        lambda l, t: fn3(jnp.cos(l) * jnp.sin(t),
+                         jnp.sin(l) * jnp.sin(t), jnp.cos(t)))
+
+f = sf(lambda x, y, z: 1.0 / (1 + (x + 1/jnp.sqrt(2.0))**2 + z**2))
+f.plot()
 ```
 
 ![](../images/guide/guide17_01.png)
 
-
-### Cartesian functions on the sphere
-
-To approximate a function given in Cartesian form, convert coordinates inside the lambda:
+The same function can be given directly in spherical coordinates $(\lambda, \theta)$ — longitude $\lambda\in[-\pi,\pi]$ and colatitude $\theta\in[0,\pi]$, with $x=\cos\lambda\sin\theta$, $y=\sin\lambda\sin\theta$, $z=\cos\theta$:
 
 ```python
-# f(x, y, z) = x*y on the sphere
 g = Spherefun.from_function(
-    lambda lam, theta: jnp.cos(lam) * jnp.sin(theta) * jnp.sin(lam) * jnp.sin(theta))
+    lambda lam, th: 1.0 / (1 + (jnp.cos(lam)*jnp.sin(th) + 1/jnp.sqrt(2.0))**2
+                           + jnp.cos(th)**2))
+(f - g).norm()   # 0
+f.rank           # 21, as in MATLAB's display
+```
+
+Evaluation works in either coordinate system, and restricting one variable gives a periodic 1-D chebfun. The equatorial slice `f(:, pi/2)`:
+
+```python
+feq = f.slice_theta(jnp.pi / 2)
 ```
 
 ![](../images/guide/guide17_02.png)
 
-
-## 17.2 Evaluation
-
-A `Spherefun` is callable with arguments $(\lambda, \theta)$:
+and the slice through $z = 0.25$:
 
 ```python
-# Evaluate at the equator (theta = pi/2) at longitude lambda = 0
-val = f(0.0, jnp.pi / 2)
-print(val)  # cos(pi/2) ~ 0
-
-# Evaluate at the north pole
-print(f(0.0, 0.0))  # cos(0) = 1
-
-# Vectorized evaluation
-lams = jnp.linspace(-jnp.pi, jnp.pi, 50)
-thetas = jnp.full(50, jnp.pi / 2)
-vals = f(lams, thetas)
+fz = f.slice_z(0.25)
 ```
 
 ![](../images/guide/guide17_03.png)
 
+## 17.2 Basic operations
 
-Evaluation is JIT-compiled, vmap-safe, and grad-safe.
-
-## 17.3 Integration
-
-The `sum()` method computes the surface integral with the standard area element $\sin\theta\, d\theta\, d\lambda$:
-
-$$\texttt{f.sum()} = \int_{-\pi}^{\pi} \int_0^{\pi} f(\lambda, \theta)\, \sin\theta\, d\theta\, d\lambda$$
+Integration (`sum2`), means, and global optima are spectrally accurate. For a polynomial with $\iint f\,dS = 216\pi/35$:
 
 ```python
-# Integral of 1 over the sphere = 4*pi
-one = Spherefun.from_function(lambda lam, theta: jnp.ones_like(theta))
-print(one.sum())  # ~ 12.566370614... = 4*pi
+f = sf(lambda x, y, z: 1 + x + y**2 + x**2*y + x**4 + y**5 + (x*y*z)**2)
+f.sum2()                          # 19.388114662154155
+abs(f.sum2() - 216*jnp.pi/35)     # 3.6e-15
+f.mean2()                         # 1.542857142857143 = 54/35
+```
 
-# Integral of cos(theta) over the sphere = 0 (odd symmetry)
-f = Spherefun.from_function(lambda lam, theta: jnp.cos(theta))
-print(f.sum())  # ~ 0
+```python
+f = sf(lambda x, y, z: 2 * jnp.sinh(5 * x * y * z))
+f.max2()   # 2.235548406627322 = 2 sinh(5*3^(-3/2))
+f.min2()   # -2.235548406627322
+```
+
+`roots` computes zero contours; here the level set $f = 1/2$ overlaid on $f$:
+
+```python
+r = (f - 0.5).roots()
+f.plot()   # + the curves r
 ```
 
 ![](../images/guide/guide17_04.png)
 
-
-Only the "plus" terms (in the BMC-I decomposition) contribute to the integral. For each plus term:
-
-$$\int\!\!\int f\, \sin\theta\, d\theta\, d\lambda = \sum_{j \in \text{plus}} \frac{1}{d_j} \left(\int_0^{\pi} c_j(\theta)\, \sin\theta\, d\theta\right) \left(\int_{-\pi}^{\pi} \text{row}_j(\lambda)\, d\lambda\right)$$
-
-## 17.4 The BMC-I Structure
-
-The key idea behind `Spherefun` is the *doubled Fourier sphere* (DFS) method. A function $f(\lambda, \theta)$ on the sphere is extended to a periodic function on $[-\pi, \pi]^2$ by exploiting the identity:
-
-$$f(\lambda + \pi, \pi - \theta) = f(\lambda, \theta)$$
-
-This doubled function has BMC-I structure, which splits into plus and minus components under the $\pi$-shift in longitude:
-
-$$F_+(\lambda, \theta) = \tfrac{1}{2}[f(\lambda + \pi, \theta) + f(\lambda, \theta)]$$
-$$F_-(\lambda, \theta) = \tfrac{1}{2}[f(\lambda + \pi, \theta) - f(\lambda, \theta)]$$
-
-The construction uses GE with 2x2 block pivoting on these components, with automatic pole removal at $\theta = 0$ and $\theta = \pi$.
-
-## 17.5 Low-Rank Representation
-
-The internal representation is:
-
-$$f(\lambda, \theta) \approx \sum_j \frac{1}{d_j}\, c_j(\theta)\, \text{row}_j(\lambda)$$
-
-where:
-- $c_j(\theta)$ are `Trigtech` objects (trigonometric polynomials on the doubled domain $[-\pi, \pi]$)
-- $\text{row}_j(\lambda)$ are `Trigtech` objects (trigonometric polynomials on $[-\pi, \pi]$)
-- $d_j$ are scalar pivot values
+`contour` draws contour levels on the sphere:
 
 ```python
-# Low-rank function
-f = Spherefun.from_function(lambda lam, theta: jnp.cos(theta))
-print(f.rank)  # very small rank
-
-# Higher-rank function
-g = Spherefun.from_function(
-    lambda lam, theta: jnp.exp(-10 * (jnp.cos(lam) * jnp.sin(theta))**2))
-print(g.rank)
+f.contour(levels=jnp.arange(-2, 2.25, 0.25))
 ```
 
 ![](../images/guide/guide17_05.png)
 
-
-## 17.6 Spherical Harmonics
-
-The spherical harmonics $Y_l^m(\lambda, \theta)$ are the eigenfunctions of the Laplace-Beltrami operator on the sphere. They are built directly with `Spherefun.sphharm`:
+and `Spherefun.plotEarth` overlays the continents:
 
 ```python
-# Y_2^1 spherical harmonic (real, orthonormal)
-Y21 = Spherefun.sphharm(2, 1)
-print(Y21.rank)
+f.contour(levels=jnp.arange(-2, 2.25, 0.25))
+Spherefun.plotEarth("k-")
 ```
 
-These satisfy $\Delta_S Y_l^m = -l(l+1) Y_l^m$ where $\Delta_S$ is the Laplace-Beltrami operator. We can verify this with the library Laplacian:
+![](../images/guide/guide17_06.png)
+
+Derivatives are *tangential* (surface) derivatives. The $x$- and $z$-components of the surface gradient:
 
 ```python
-lap = Y21.laplacian()
-ratio = lap(0.5, 1.2) / Y21(0.5, 1.2)
-print(ratio)   # -6.0  (= -l(l+1) with l=2)
+f.diff(1).plot()
 ```
 
-## 17.7 Calculus on the Sphere
-
-`Spherefun` supports the surface differential operators. The surface gradient returns a three-component Cartesian `Spherefunv`, and the surface Laplacian (Laplace-Beltrami operator) returns a `Spherefun`:
+![](../images/guide/guide17_07.png)
 
 ```python
-f = Spherefun.sphharm(3, 2)
-
-# surface Laplacian
-lap = f.laplacian()          # == -12 * f  (l=3)
-
-# surface gradient (Cartesian components)
-gx, gy, gz = f.grad()
+f.diff(3).plot()
 ```
 
-The Poisson equation $\Delta_S u = f$ (with $\int_{S^2} u = \text{const}$ fixing the nullspace) is solved by projecting onto spherical harmonics:
+![](../images/guide/guide17_08.png)
+
+and the surface Laplacian:
 
 ```python
-# solve Laplacian(u) = -6 Y_2^1  ->  u = Y_2^1
-rhs = Spherefun.from_function(
-    lambda lam, th: -6.0 * Spherefun.sphharm(2, 1)(lam, th))
-u = Spherefun.poisson(rhs, const=0.0)
-print(u(0.5, 1.2))           # == Y_2^1(0.5, 1.2)
+f.laplacian().plot()
 ```
 
-## 17.8 Vector-Valued Functions: Spherefunv
+![](../images/guide/guide17_09.png)
 
-The `Spherefunv` class represents 2-component vector fields on the sphere:
+Pointwise arithmetic behaves as expected. With
+$g = 2\cos(10\cos(\lambda - 0.25)\cos\lambda(\sin\theta\cos\theta)^2)$:
+
+![](../images/guide/guide17_10.png)
+
+![](../images/guide/guide17_11.png)
+
+![](../images/guide/guide17_12.png)
+
+![](../images/guide/guide17_13.png)
+
+## 17.3 Low rank function approximation
+
+Spherefun represents functions in low-rank form using a structure-preserving Gaussian elimination on the doubled sphere. For $f = \cos(\cosh(5xz) - 10y)$ (rank 39):
 
 ```python
-from chebfunjax.spherefun import Spherefunv
-
-# Two components
-f_comp = Spherefun.from_function(lambda lam, theta: jnp.cos(theta))
-g_comp = Spherefun.from_function(lambda lam, theta: jnp.sin(lam))
-F = Spherefunv(f_comp, g_comp)
-print(F)
+f = sf(lambda x, y, z: jnp.cos(jnp.cosh(5*x*z) - 10*y))
+f.plot()
 ```
 
-`Spherefunv` supports:
-- Evaluation: `F(lam, theta)` returns a tuple `(f_val, g_val)`
-- Dot product: `F.dot(G)` returns a `Spherefun`
-- Norm: `F.norm()` returns a `Spherefun`
-- Arithmetic: `F + G`, `F - G`, `c * F`
+![](../images/guide/guide17_14.png)
 
-## 17.9 Construction Details
+`plot(f, '.-')` shows the GE skeleton — the pivot locations and slices used in the construction:
 
-The `Spherefun.from_function` constructor follows the same two-phase algorithm as `Diskfun`, adapted for spherical geometry:
+```python
+f.plot(".-")
+```
 
-1. **Phase 1**: Sample on a doubled-up colatitude-longitude grid, split into BMC-I plus/minus blocks, and perform GE with block pivoting. The pole rows ($\theta = 0$ and $\theta = \pi$) are removed before rank determination and handled via a separate pole-removal step.
+![](../images/guide/guide17_15.png)
 
-2. **Phase 2**: Evaluate skeleton slices at increasing resolution until Fourier coefficients decay below tolerance.
+`plotcoeffs` shows the decay of the Fourier coefficients:
 
-The algorithm avoids the artificial oversampling near the poles that plagues naive tensor-product methods on the sphere.
+![](../images/guide/guide17_16.png)
 
-## 17.10 Coordinate Conventions
+and `coeffs2` gives the full bivariate Fourier coefficient matrix:
 
-The chebfunjax `Spherefun` follows the MATLAB Chebfun convention:
-- $\lambda$ (first argument) is the longitude in $[-\pi, \pi]$
-- $\theta$ (second argument) is the colatitude in $[0, \pi]$, measured from the north pole
+```python
+X = f.coeffs2()
+```
 
-This matches the standard physics convention. Note that some references use $\phi$ for longitude and $\theta$ for colatitude, while others reverse them.
+![](../images/guide/guide17_17.png)
 
-## 17.11 References
+Low-rank sampling touches far fewer points than a full tensor grid:
 
-1. A. Townsend, H. Wilber, and G. Wright, "Computing with functions on spherical and polar geometries I: The sphere", *SIAM J. Sci. Comput.*, 38(4), C403--C425, 2016.
+![](../images/guide/guide17_18.png)
 
-2. H. Wilber, "Computing numerically with functions on the sphere and disk", PhD thesis, Boise State University, 2016.
+![](../images/guide/guide17_19.png)
 
-3. A. Townsend and L. N. Trefethen, "An extension of Chebfun to two dimensions", *SIAM J. Sci. Comput.*, 35(6), C495--C518, 2013.
+A fixed-rank approximation is obtained by capping the constructor's rank; `norm(f - f18)` is about $6.6\times 10^{-4}$:
+
+```python
+f18 = Spherefun.from_function(
+    lambda l, t: jnp.cos(jnp.cosh(5*jnp.cos(l)*jnp.sin(t)*jnp.cos(t))
+                         - 10*jnp.sin(l)*jnp.sin(t)), max_rank=18)
+f18.plot()
+```
+
+![](../images/guide/guide17_20.png)
+
+Loosening the tolerance (`tol=1e-8`, MATLAB's `'eps'` flag) similarly compresses the representation.
+
+## 17.4 Spherical harmonics
+
+`Spherefun.sphharm(l, m)` builds the real spherical harmonic $Y_\ell^m$, an eigenfunction of the surface Laplacian: $\Delta Y_6^{-3} = -42\,Y_6^{-3}$ exactly.
+
+```python
+Y = Spherefun.sphharm(6, -3)
+(-42.0 * Y).plot()
+```
+
+![](../images/guide/guide17_21.png)
+
+```python
+Y.laplacian().plot()
+(Y - (-1.0/42.0) * Y.laplacian()).norm()   # ~0
+```
+
+![](../images/guide/guide17_22.png)
+
+## 17.5 Poisson equation
+
+`Spherefun.poisson` is a fast solver for $\Delta u = f$ on the sphere. With a spherical-harmonic forcing the solution is exact; here a high-frequency example on a $1000\times 1000$ grid:
+
+```python
+f = sf(lambda x, y, z: jnp.sin(100 * x * y * z))
+u = Spherefun.poisson(f, 1.0, 1000, 1000)
+u.plot()
+```
+
+![](../images/guide/guide17_23.png)
+
+## 17.6 Filtering
+
+`randnfunsphere` produces smooth random fields, shown here in the black-and-white `'zebra'` style:
+
+```python
+from chebfunjax.utils.random import randnfunsphere
+f = randnfunsphere(0.1)
+f.plot("zebra")
+```
+
+![](../images/guide/guide17_24.png)
+
+and `gaussfilt` applies Gaussian smoothing:
+
+```python
+ff = f.gaussfilt(0.05)
+ff.plot("zebra")
+```
+
+![](../images/guide/guide17_25.png)
+
+## 17.7 Vector-valued functions: Spherefunv
+
+A `Spherefunv` holds a tangential vector field. The surface gradient of a spherical-harmonic combination, drawn over the function:
+
+```python
+f = Spherefun.sphharm(6, 0) + jnp.sqrt(14.0/11.0) * Spherefun.sphharm(6, 5)
+g = f.grad()
+f.plot()
+g.quiver()
+```
+
+![](../images/guide/guide17_26.png)
+
+The (rotated-gradient) `curl` of a stream function gives a divergence-free field — here the Rossby–Haurwitz stream function:
+
+```python
+psi = Spherefun.from_function(
+    lambda lam, th: -jnp.cos(th)
+    + jnp.cos(th) * jnp.sin(th)**4 * jnp.cos(4*lam))
+u = psi.curl()
+psi.plot()
+u.quiver()
+```
+
+![](../images/guide/guide17_27.png)
+
+Its `vorticity` (with the velocity field overlaid); `div(u)` vanishes identically:
+
+```python
+omega = u.vorticity()
+omega.plot()
+u.quiver()
+u.div().norm()   # ~0
+```
+
+![](../images/guide/guide17_28.png)
+
+## References
+
+- A. Townsend, H. Wilber, and G. Wright, *Computing with functions in spherical and polar geometries I. The sphere*, SIAM J. Sci. Comput. 38 (2016), C403–C425.
+- Chebfun Guide, [Chapter 17: Spherefun](https://www.chebfun.org/docs/guide/guide17.html).

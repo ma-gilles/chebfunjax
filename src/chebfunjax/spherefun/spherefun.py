@@ -1516,6 +1516,16 @@ class Spherefun(eqx.Module):
                 jnp.asarray(D, dtype=jnp.float64),
                 jnp.asarray(V, dtype=jnp.float64))
 
+    def mean2(self) -> jax.Array:
+        """Mean value over the sphere: sum2(f) / (4*pi) (MATLAB mean2).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/mean2.m
+        Chebfun commit: 7574c77
+        """
+        return self.sum2() / (4.0 * jnp.pi)
+
     def minandmax2est(self, n: int = 33) -> jax.Array:
         """Estimated [min, max] over the sphere from an n x n sample
         (MATLAB minandmax2est).
