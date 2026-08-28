@@ -6295,10 +6295,8 @@ class Chebop:
         Chebfun commit: 7574c77
         """
         if u0 is not None:
-            raise NotImplementedError(
-                "linearize about a nonzero state is handled internally "
-                "by the Newton solver; the public API linearizes about "
-                "zero.")
+            from chebfunjax.operators.chebop_altdisc import linearize_about
+            return linearize_about(self, u0)
         L = self.linop()
         m = self._n_vars()
         from chebfunjax.chebfun1d.chebfun import chebfun as _mkcheb

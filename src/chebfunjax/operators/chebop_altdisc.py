@@ -487,3 +487,60 @@ def eigs_generalized_altdisc(N, B, k: int, n: int,
     B1 = np.asarray(sd1.mass(LB))
     vecs = LA._altdisc_vecs(lam, A1, B1, sd1)
     return vecs, jnp.asarray(lam)
+
+
+class LinearizedChebop:
+    """The Frechet derivative of a chebop about a state ``U``, ready to
+    solve ``J du = r`` (MATLAB ``linearize(N, u)`` followed by
+    ``mldivide``).  Assembled once on the requested discretization; each
+    ``solve`` is a dense linear solve with homogeneous linearized
+    boundary conditions.
+
+    Provenance
+    ----------
+    MATLAB source : @chebop/linearize.m, @linop/mldivide.m
+    Chebfun commit: 7574c77
+    """
+
+    def __init__(self, N, U, discretization: str = "ultraS",
+                 n: int = 257):
+        from chebfunjax.operators.altdisc import system_matrices
+        from chebfunjax.operators.blocklinop import linop as _mk_linop
+        from chebfunjax.operators.chebmatrix import ChebMatrix
+
+        dom = tuple(float(v) for v in N.domain)
+        m = N._n_vars()
+        if not isinstance(U, (list, tuple)):
+            U = [U]
+        U = list(U) + [_zero_fun(dom)] * (m - len(U))
+        f_list = [0.0] * m
+        blocks, _R, var_orders = _frechet_blocks(N, U, f_list, dom)
+        L = _mk_linop(ChebMatrix(blocks))
+        bc_rows = _collect_bcs(N, U, var_orders, dom)
+        for row_list, _val in bc_rows:
+            L = L.add_constraint(row_list, 0.0)
+        self._sd = system_matrices(L, int(n), discretization)
+        self._n_cont = len(self._sd.L.continuity)
+        self._n_bc = len(bc_rows)
+        self._m = m
+        self._dom = dom
+
+    def solve(self, r):
+        """Solve ``J du = r`` with homogeneous linearized BCs."""
+        rs = list(r) if isinstance(r, (list, tuple)) else [r]
+        rs = [(_zero_fun(self._dom) + float(v))
+              if isinstance(v, (int, float)) else v for v in rs]
+        self._sd.con_vals = [0.0] * (self._n_cont + self._n_bc)
+        b = self._sd.rhs(rs)
+        v = np.linalg.solve(np.asarray(self._sd.A), b)
+        dU = self._sd.recover(v)
+        return dU[0] if self._m == 1 else dU
+
+    def __truediv__(self, r):
+        return self.solve(r)
+
+
+def linearize_about(N, U, discretization: str = "ultraS", n: int = 257):
+    """MATLAB ``linearize(N, u)``: the Frechet derivative about ``u`` as
+    a solvable :class:`LinearizedChebop`."""
+    return LinearizedChebop(N, U, discretization, n)
