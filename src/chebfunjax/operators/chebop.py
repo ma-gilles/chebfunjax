@@ -212,6 +212,21 @@ class SystemSolution(list):
     def blocks(self):
         return list(self)
 
+    def deal(self):
+        """Per-component SIMPLIFIED chebfuns (MATLAB deal(uv) /
+        multi-output [u, v] = N\\f, where each unknown is simplified
+        independently rather than kept on the common solve grid).
+
+        Provenance
+        ----------
+        MATLAB source : @chebmatrix/deal.m, @chebop/mldivide.m
+        Chebfun commit: 7574c77
+        """
+        out = []
+        for c in self:
+            out.append(c.simplify() if hasattr(c, "simplify") else c)
+        return tuple(out)
+
 
 # ===========================================================================
 # Chebop
@@ -766,7 +781,13 @@ class Chebop:
         if isinstance(out, Chebfun):
             return out.simplify()
         if isinstance(out, (list, tuple)):
-            return type(out)(Chebop._simplify_solution(v) for v in out)
+            # A system solution (chebmatrix role) simplifies to a COMMON
+            # discretization: components are trimmed together, not
+            # independently (independent simplification is the
+            # multi-output deal() semantics -- MATLAB
+            # test_multOutputs_simplify).
+            simped = [Chebop._simplify_solution(v) for v in out]
+            return type(out)(_commonize_system(simped))
         return out
 
     def _solve_impl(
@@ -1779,7 +1800,7 @@ class Chebop:
             funs = [_Piece.from_function(ev, breaks[k], breaks[k + 1])
                     for k in range(len(breaks) - 1)]
             outs.append(Chebfun(funs=funs, domain=Domain(tuple(breaks))))
-        return SystemSolution(outs)
+        return SystemSolution(_commonize_system(outs))
 
     def _solve_ivp_system(self, f=0.0):
         """Time-march a first-order explicit IVP system (MATLAB
@@ -2003,7 +2024,7 @@ class Chebop:
                         for k in range(len(breaks) - 1)]
                 out.append(Chebfun(funs=funs,
                                    domain=Domain(tuple(breaks))))
-            return SystemSolution(out)
+            return SystemSolution(_commonize_system(out))
         except Exception:
             # Fall back to a single global representation.
             nn = int(min(8193, max(257, 4 * sol.t.size)))
@@ -6311,6 +6332,39 @@ class Chebop:
         is_linear = (bool(lin_op), True, True, True)
         return L, res, is_linear
 
+    def solve_with_info(self, f=0.0, **kw):
+        """``[u, info] = N \\ f``: solve and return (solution, info)
+        with the MATLAB info-struct role played by a dict carrying the
+        linearity flag and the final residual estimate.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/mldivide.m (multiple outputs),
+            @chebop/solvebvp.m (info struct)
+        Chebfun commit: 7574c77
+        """
+        sol = self.solve(f, **kw)
+        try:
+            comps = list(sol) if isinstance(sol, (list, tuple)) else [sol]
+            res = self.feval(*comps) if len(comps) > 1 \
+                else self.feval(comps[0])
+            rs = res if isinstance(res, (list, tuple)) else [res]
+            fs = list(f) if isinstance(f, (list, tuple)) else [f] * len(rs)
+            import numpy as _np
+            a, b = float(self.domain[0]), float(self.domain[-1])
+            xs = jnp.linspace(a + 1e-9, b - 1e-9, 21)
+            err = 0.0
+            for r, ff in zip(rs, fs):
+                fv = ff(xs) if callable(ff) else ff
+                err = max(err, float(_np.max(_np.abs(
+                    _np.asarray(r(xs)) - _np.asarray(fv)))))
+        except Exception:
+            err = float("nan")
+        info = {"isLinear": bool(self._is_linear() if self._n_vars() == 1
+                                 else self._system_is_linear()),
+                "error": err}
+        return sol, info
+
     def eye(self) -> "Chebop":
         """Identity operator on the same domain (MATLAB eye(N)).
 
@@ -6653,6 +6707,40 @@ def _as_system_bc(bc_raw, m: int):
             return [u - c for u, c in zip(us, _v)]
         return _bc
     return bc_raw
+
+
+def _commonize_system(outs):
+    """Prolong marched system components to a shared per-piece length so
+    the chebmatrix-style solution has one discretization (MATLAB
+    @chebop/mldivide.m: components share the solve grid; per-component
+    simplification only happens on multi-output deal).
+    """
+    try:
+        from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+        if len(outs) < 2:
+            return outs
+        npieces = {len(u.funs) for u in outs}
+        if len(npieces) != 1:
+            return outs
+        n_p = npieces.pop()
+        for k in range(n_p):
+            ivs = {tuple(map(float, u.funs[k].interval)) for u in outs}
+            if len(ivs) != 1:
+                return outs
+        new = []
+        for u in outs:
+            funs = []
+            for k in range(n_p):
+                mlen = max(v.funs[k].tech.coeffs.shape[0] for v in outs)
+                t = u.funs[k].tech
+                if t.coeffs.shape[0] < mlen and hasattr(t, "prolong"):
+                    t = t.prolong(mlen)
+                funs.append(_Piece(tech=t, interval=u.funs[k].interval))
+            new.append(Chebfun(funs=funs, domain=u.domain,
+                               deltas=getattr(u, "deltas", ())))
+        return new
+    except Exception:
+        return outs
 
 
 def _op_arity(fn, default: int) -> int:
