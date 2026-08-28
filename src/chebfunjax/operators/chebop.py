@@ -233,6 +233,31 @@ class SystemSolution(list):
 # ===========================================================================
 
 
+def _validate_chebop_domain(domain):
+    """Reject malformed chebop domains: at least two strictly
+    increasing numeric endpoints (MATLAB CHEBOP:CHEBOP:domain /
+    CHEBOP:SET:domain).
+
+    Provenance
+    ----------
+    MATLAB source : @chebop/chebop.m (domain parsing)
+    Chebfun commit: 7574c77
+    """
+    try:
+        vals = [float(v) for v in tuple(domain)]
+    except (TypeError, ValueError) as e:
+        raise ValueError(f"chebop: invalid domain {domain!r}") from e
+    if len(vals) < 2:
+        raise ValueError(
+            f"chebop: domain must have at least two endpoints, "
+            f"got {domain!r}")
+    for lo, hi in zip(vals[:-1], vals[1:]):
+        if not hi > lo:
+            raise ValueError(
+                f"chebop: domain endpoints must increase, got {domain!r}")
+    return tuple(vals)
+
+
 def _op_from_string(expr: str):
     r"""Compile a MATLAB chebop operator STRING like ``'u\`\`+sin(u)'``
     into an op lambda: backticks mark derivatives, elementwise MATLAB
@@ -371,10 +396,11 @@ class Chebop:
         if isinstance(op, str):
             op = _op_from_string(op)
         self.op = op
+        domain = _validate_chebop_domain(domain)
         #: Full breakpoint list as passed by the user (MATLAB's
         #: ``chebop([-N 0 N])`` form): the piecewise solver and the eigs
         #: breakpoint detection both read interior points from here.
-        self.domain: tuple[float, ...] = tuple(float(v) for v in domain)
+        self._domain: tuple[float, ...] = tuple(float(v) for v in domain)
         self._lbc_raw = None
         self._rbc_raw = None
         self._bc_show = None
@@ -406,6 +432,16 @@ class Chebop:
     # ------------------------------------------------------------------
     # BC setters (properties for MATLAB-style assignment)
     # ------------------------------------------------------------------
+
+    @property
+    def domain(self):
+        """Solution interval (tuple of breakpoints); validated on
+        assignment (MATLAB CHEBOP:SET:domain)."""
+        return self._domain
+
+    @domain.setter
+    def domain(self, val):
+        self._domain = _validate_chebop_domain(val)
 
     @property
     def lbc(self):
