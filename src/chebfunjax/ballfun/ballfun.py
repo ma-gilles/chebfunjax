@@ -1928,13 +1928,26 @@ class Ballfun(eqx.Module):
                 _mk_theta_trig_eval(A), Domain((-np.pi, np.pi)))
 
         # (1, 3): integrate over r (with r^2) and theta (with sin) -> trig
-        # Chebfun in lambda.
-        F = (_mult_r2_matrix(m) @ F.reshape(m, -1)).reshape(m, n, p)
-        F = (F.reshape(-1, p) @ _mult_sin_matrix(p).T).reshape(m, n, p)
-        Kc = _int_cheb_weights(m)
-        Ct = _int_fourier_weights(p, np.pi)
-        # A[k] = Kc @ F[:, k, :] @ Ct  for each lambda mode k.
-        A = np.real(np.einsum("i,ikj,j->k", Kc, F, Ct))  # (n,) Fourier in lambda
+        # Chebfun in lambda.  The tensor stores the BMC-III DOUBLED
+        # function (r in [-1,1], theta the full circle), so the
+        # quadrature must run over the PHYSICAL half-domain r in [0,1],
+        # theta in [0,pi]: full-domain coefficient weights cancel
+        # BMC-odd integrands (f = y summed to ~1e-17 instead of
+        # (pi/8) sin(lambda) -- Fable 5 guide20 fig09 audit).
+        idx = np.arange(m)
+        xg, wg = np.polynomial.legendre.leggauss(m + 8)
+        rg = 0.5 * (xg + 1.0)
+        wgr = 0.5 * wg
+        Tg = np.cos(np.outer(np.arccos(np.clip(rg, -1.0, 1.0)), idx))
+        Wr2 = (wgr * rg ** 2) @ Tg                       # int_0^1 T_i r^2 dr
+        kt = np.arange(-(p // 2), -(p // 2) + p)
+        Wth = np.empty(p, dtype=complex)
+        for j, k in enumerate(kt):
+            if abs(k) == 1:
+                Wth[j] = 1j * np.sign(k) * np.pi / 2.0
+            else:
+                Wth[j] = (1.0 + np.cos(np.pi * k)) / (1.0 - k * k)
+        A = np.einsum("i,ikj,j->k", Wr2, F, Wth)         # (n,) Fourier in lambda
         return Chebfun.from_function(
             _mk_theta_trig_eval(A), Domain((-np.pi, np.pi)))
 
