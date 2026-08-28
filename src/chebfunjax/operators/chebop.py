@@ -397,9 +397,43 @@ class Chebop:
         """Left boundary condition (scalar, callable, or None)."""
         return self._lbc_raw
 
+    @staticmethod
+    def _translate_bc_keywords(val):
+        """MATLAB bc keyword forms: 'dirichlet' -> u = 0, 'neumann' ->
+        u' = 0, and lists mixing values with keywords positionally
+        ({1, 'neumann'} = u = 1, u' = 0) (MATLAB @chebop/parseBC.m).
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/parseBC.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(val, str):
+            key = val.lower()
+            if key == "dirichlet":
+                return 0.0
+            if key == "neumann":
+                return lambda u: u.diff()
+            raise ValueError(
+                f"Unknown bc keyword {val!r}: expected 'dirichlet' or "
+                "'neumann'.")
+        if isinstance(val, (list, tuple)) and any(
+                isinstance(v, str) for v in val):
+            out = []
+            for v in val:
+                if isinstance(v, str):
+                    k = v.lower()
+                    if k not in ("dirichlet", "neumann"):
+                        raise ValueError(f"Unknown bc keyword {v!r}.")
+                    out.append(0.0)
+                else:
+                    out.append(float(v))
+            return out
+        return val
+
     @lbc.setter
     def lbc(self, val):
-        self._lbc_raw = val
+        self._lbc_raw = self._translate_bc_keywords(val)
 
     @property
     def rbc(self):
@@ -408,7 +442,7 @@ class Chebop:
 
     @rbc.setter
     def rbc(self, val):
-        self._rbc_raw = val
+        self._rbc_raw = self._translate_bc_keywords(val)
 
     @property
     def bc(self):
