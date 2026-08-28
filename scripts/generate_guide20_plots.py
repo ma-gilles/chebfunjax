@@ -44,7 +44,6 @@ import jax
 import jax.numpy as jnp
 from scipy.special import j0, jn_zeros, sph_harm_y
 
-import chebfunjax as cj
 from chebfunjax.ballfun import Ballfun, Ballfunv
 from chebfunjax.diskfun import Diskfun
 from chebfunjax.plotting import (
@@ -442,19 +441,6 @@ def fig09():
     ax.grid(True, alpha=0.25, lw=0.4)
     fig.tight_layout(pad=0.3)
     _save(fig, 9, "sum2(f,[1,3]) trig chebfun")
-
-
-def fig09():
-    """sum2(f,[1,3]), f=y -> chebfun (pi/8) sin(lambda) on [-pi,pi]."""
-    s = cj.chebfun(lambda lam: (jnp.pi / 8.0) * jnp.sin(lam), domain=[-jnp.pi, jnp.pi])
-    fig, ax = s.plot(n_pts=800)
-    ax.set_xlim(-np.pi, np.pi)
-    ax.set_ylim(-0.4, 0.4)
-    ax.set_xticks([-3, -2, -1, 0, 1, 2, 3])
-    ax.set_yticks([-0.4, -0.2, 0, 0.2, 0.4])
-    save_chebfun_figure(fig, os.path.join(OUT, 'guide20_09.png'), size=REF_SIZE)
-    plt.close(fig)
-    print("  guide20_09.png  sum2 -> chebfun sin(lambda)")
 
 
 def _rotation_zyz(alpha, beta, gamma):
