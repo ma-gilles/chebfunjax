@@ -1588,6 +1588,14 @@ class Chebop:
         a, b = self.domain
         forward = self._lbc_raw is not None
         t0, t1 = (a, b) if forward else (b, a)
+
+        f_list = list(f) if isinstance(f, (list, tuple)) else [f] * m
+
+        def _fval(i, t):
+            fi = f_list[i % len(f_list)]
+            if callable(fi):
+                return complex(_np.asarray(fi(jnp.asarray(t))))
+            return complex(fi)
         bc_raw = _as_system_bc(
             self._lbc_raw if forward else self._rbc_raw, m)
         if bc_raw is None:
@@ -1637,7 +1645,11 @@ class Chebop:
                 r0 = _resid(Y, i, 0.0, t)[i]
                 r1 = _resid(Y, i, 1.0, t)[i]
                 slope = r1 - r0
-                top = (-r0 / slope) if slope != 0 else 0.0
+                # Solve op_i = f_i for the top derivative (the rhs was
+                # previously dropped: nonzero forcing solved op_i = 0
+                # -- Fable 5 initialConditions audit).
+                top = (((_fval(i, t) - r0) / slope)
+                       if slope != 0 else 0.0)
                 for j in range(orders[i] - 1):
                     dY[off[i] + j] = Y[off[i] + j + 1]
                 dY[off[i] + orders[i] - 1] = top
@@ -1730,8 +1742,39 @@ class Chebop:
                     dtype=dt)
             return _ev
 
+        def _state(idx):
+            def _ev(t, _k=int(idx)):
+                tt = _np.atleast_1d(_np.asarray(t, dtype=float))
+                Y = sol.sol(tt)
+                vals = (Y[_k] + 1j * Y[ntot + _k]) if is_complex \
+                    else Y[_k]
+                return jnp.asarray(
+                    vals.reshape(_np.shape(t)) if _np.ndim(t) else vals[0],
+                    dtype=dt)
+            return _ev
+
         outs = []
         for i in range(m):
+            oi = int(orders[i])
+            if oi > 1 and not is_complex:
+                # Rebuild from the marched TOP derivative by repeated
+                # antidifferentiation with the exact initial values as
+                # integration constants: differentiating a value-fit
+                # instead loses (n^2 2/h)^k eps per order, which showed
+                # as ~1e-4 errors in u''(t0) (Fable 5 audit).
+                ev = _state(off[i] + oi - 1)
+                funs = [_Piece.from_function(ev, breaks[k], breaks[k + 1])
+                        for k in range(len(breaks) - 1)]
+                u = Chebfun(funs=funs, domain=Domain(tuple(breaks)))
+                for j in range(oi - 2, -1, -1):
+                    cs = u.cumsum()
+                    c0 = float(_np.real(Y0[off[i] + j]))
+                    if forward:
+                        u = c0 + cs
+                    else:
+                        u = c0 + cs - float(cs(jnp.asarray(float(b))))
+                outs.append(u)
+                continue
             ev = _component(i)
             funs = [_Piece.from_function(ev, breaks[k], breaks[k + 1])
                     for k in range(len(breaks) - 1)]
@@ -5047,7 +5090,17 @@ class Chebop:
                 u = chebfun(lambda x: comp_eval(x, m_ord - 1),
                             domain=mesh)
                 for kk in range(m_ord - 2, -1, -1):
-                    u = float(ic[kk]) + u.cumsum()
+                    # cumsum antidifferentiates from the LEFT endpoint;
+                    # a final-value problem (rbc) must anchor its
+                    # integration constants at the RIGHT endpoint
+                    # instead (Fable 5 audit: the rbc condition list
+                    # [u-.5, u'-1.3] came back with u(b) off by 1.3).
+                    cs = u.cumsum()
+                    if left:
+                        u = float(ic[kk]) + cs
+                    else:
+                        u = float(ic[kk]) + cs - float(
+                            cs(jnp.asarray(float(b))))
                 return u
         except Exception:
             pass
