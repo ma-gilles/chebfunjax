@@ -6401,6 +6401,39 @@ class Chebop:
                 "error": err}
         return sol, info
 
+    def pcg(self, f, tol: float = 1e-10, maxit: int = 100):
+        """Function-space preconditioned CG solve (MATLAB pcg(N, f)).
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/pcg.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.operators.krylov import pcg as _pcg
+        return _pcg(self, f, tol=tol, maxit=maxit)
+
+    def minres(self, f, tol: float = 1e-10, maxit: int = 100):
+        """Function-space MINRES solve (MATLAB minres(N, f)).
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/minres.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.operators.krylov import minres as _minres
+        return _minres(self, f, tol=tol, maxit=maxit)
+
+    def gmres(self, f, tol: float = 1e-10, maxit: int = 60):
+        """Function-space GMRES solve (MATLAB gmres(N, f)).
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/gmres.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.operators.krylov import gmres as _gmres
+        return _gmres(self, f, tol=tol, maxit=maxit)
+
     def eye(self) -> "Chebop":
         """Identity operator on the same domain (MATLAB eye(N)).
 

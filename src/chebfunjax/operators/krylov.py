@@ -1,16 +1,16 @@
-"""Operator Krylov methods for ODEs: pcg and minres on chebops.
+"""Function-space Krylov solvers for self-adjoint second-order chebops.
 
-Port of MATLAB Chebfun's ``@chebop/pcg.m`` and ``@chebop/minres.m``:
-integral-preconditioned Krylov iterations applied directly to chebfuns.
-The chebop L must be a self-adjoint second-order operator
-``L(u) = (a(x)u')' + c(x)u`` (indefinite ``c`` allowed for minres) with
-scalar Dirichlet boundary conditions; the preconditioner is the
-indefinite integral ``R1 = cumsum`` with adjoint
-``R2(u) = sum(u) - cumsum(u)``.
+MATLAB Chebfun's @chebop/pcg.m, minres.m, and gmres.m run Krylov
+iterations directly on chebfuns: the operator
+``L(u) = -(a(x) u')' + c(x) u`` with Dirichlet conditions is
+preconditioned by the indefinite integral ``R1 = cumsum`` and its
+adjoint ``R2 = sum - cumsum``, giving the bounded, self-adjoint
+``T = Pi R2 L R1`` (``Pi`` projects out the mean).  The iterations use
+L2 inner products of chebfuns; the solution is ``z + R1(Pi(v))``.
 
 Provenance
 ----------
-MATLAB source : @chebop/pcg.m, @chebop/minres.m
+MATLAB source : @chebop/pcg.m, @chebop/minres.m, @chebop/gmres.m
 Chebfun commit: 7574c77
 Original authors: Copyright 2017 by The University of Oxford
     and The Chebfun Developers.
@@ -18,302 +18,204 @@ Original authors: Copyright 2017 by The University of Oxford
 
 from __future__ import annotations
 
-import math
-
-# uses-numpy: the small dense least-squares solve that places the
-# inhomogeneity shift onto the quartic basis (4x5); host-side setup, not
-# JIT-compiled array code.
 import jax.numpy as jnp
 import numpy as np
 
-__all__ = ["pcg", "minres", "gmres"]
 
-
-def _ip(f, g):
-    """L2 inner product of two chebfuns."""
-    return float((f * g).sum())
-
-
-def _setup(L, f, tol):
-    """Shared setup: coefficient mining, preconditioned operator T,
-    and the inhomogeneity shift z (MATLAB pcg/minres preamble)."""
-
-    from chebfunjax.chebfun1d.chebfun import Chebfun
+def _setup(N, f):
+    """Extract a, c, the preconditioned operator T, and the shifted
+    right-hand side g (with polynomial correction z when f is not in
+    the preconditioned space or the BCs are inhomogeneous)."""
+    from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
     from chebfunjax.domain import Domain
 
-    dom = (float(f.domain.a), float(f.domain.b))
-    xf = Chebfun.identity(Domain(dom))
+    dom = tuple(float(v) for v in N.domain)
+    a0, b0 = dom[0], dom[-1]
+    x = Chebfun.identity(Domain(N.domain))
+    one = chebfun(lambda t: 1.0 + 0.0 * t, domain=(a0, b0))
 
-    left_bc = 0.0
-    right_bc = 0.0
-    op = L
-    if hasattr(L, "op"):
-        if L._lbc_raw is not None:
-            if not isinstance(L._lbc_raw, (int, float)):
-                raise ValueError(
-                    "pcg/minres support only Dirichlet (scalar) "
-                    "boundary conditions")
-            left_bc = float(L._lbc_raw)
-        if L._rbc_raw is not None:
-            if not isinstance(L._rbc_raw, (int, float)):
-                raise ValueError(
-                    "pcg/minres support only Dirichlet (scalar) "
-                    "boundary conditions")
-            right_bc = float(L._rbc_raw)
-        op = L.op
-    from chebfunjax.utils.misc import op_arity
-    nargs = op_arity(op, 2)
-    Lop = (lambda u: op(xf, u)) if nargs == 2 else op
+    def L_of(u):
+        return N.feval(u)
 
-    def R1(u):
-        return u.cumsum()
-
-    def R2(u):
-        return u.sum() - u.cumsum()
-
-    def Pi(g):
-        return g - g.sum() * (1.0 / (dom[1] - dom[0]))
-
-    # Data-mine the coefficients: c = L[1], and a from L[x^2/2], L[x].
-    one = 1.0 + 0.0 * xf
-    c = Lop(one)
-    a = (-Lop(xf**2 * 0.5) - (-Lop(xf) + c * xf) * xf
-         + c * (xf**2 * 0.5))
+    # Data-mine the coefficients (MATLAB gmres.m, non-divergence form):
+    # c = L(1); (b - a') = L(x) - c x; a = -L(x^2/2) + (b-a') x + c x^2/2.
+    c = L_of(one)
+    bminusa = L_of(x) - c * x
+    a = (-1.0) * L_of(x ** 2 / 2) + bminusa * x + c * (x ** 2 / 2)
+    b = bminusa + a.diff()
 
     def Lc(v):
-        return -(a * v.diff()).diff() + c * v
+        return ((-1.0) * (a * v.diff()).diff() + b * v.diff()
+                + c * v)
+
+    def R1(v):
+        return v.cumsum()
+
+    def R2(v):
+        return float(v.sum()) - v.cumsum()
+
+    def Pi(g):
+        return g - float(g.sum()) / (b0 - a0)
 
     def T(v):
         return Pi(R2(Lc(R1(v))))
 
-    # Inhomogeneity shift z so the working RHS lies in the right space.
+    lbc = float(N.lbc) if isinstance(N.lbc, (int, float)) else 0.0
+    rbc = float(N.rbc) if isinstance(N.rbc, (int, float)) else 0.0
+
     R2f = R2(f)
     PiR2f = Pi(R2f)
-    endpts = jnp.asarray([dom[0], dom[1]])
-    need_shift = (float((R2f - PiR2f).norm()) > tol
-                  or abs(left_bc) > tol or abs(right_bc) > tol)
-    if need_shift:
-        basis = [xf**k for k in range(5)]
+    tolz = 1e-12 * max(1.0, _norm2(f))
+    if (_norm2(R2f - PiR2f) > tolz or abs(lbc) > tolz
+            or abs(rbc) > tolz):
+        # Correct with a low-degree polynomial z (MATLAB basis x.^(0:4)).
+        basis = [x ** j for j in range(5)]
         A = np.zeros((4, 5))
+        ends = jnp.asarray([a0, b0])
         for j, bj in enumerate(basis):
-            v = R1(R2(Lc(bj)))
-            A[0:2, j] = np.asarray(v(endpts))
-            A[2:4, j] = np.asarray(bj(endpts))
-        b = np.concatenate([np.asarray(R1(R2f)(endpts)),
-                            [left_bc, right_bc]])
-        coef, *_ = np.linalg.lstsq(A, b, rcond=None)
-        z = None
-        for cj, bj in zip(coef, basis):
-            t = float(cj) * bj
-            z = t if z is None else z + t
+            w = R1(R2(Lc(bj)))
+            A[0:2, j] = np.asarray(w(ends))
+            A[2:4, j] = np.asarray(bj(ends))
+        rhs = np.concatenate([np.asarray(R1(R2f)(ends)),
+                              [lbc, rbc]])
+        coef = np.linalg.lstsq(A, rhs, rcond=None)[0]
+        z = basis[0] * float(coef[0])
+        for j in range(1, 5):
+            z = z + basis[j] * float(coef[j])
         g = Pi(R2f - R2(Lc(z)))
     else:
         g = PiR2f
         z = 0.0 * f
-    return T, R1, Pi, g, z, c, a
+    return T, R1, Pi, g, z
 
 
-def pcg(L, f, tol: float = 1e-10, maxit: int = 100, u0=None,
-        full_output: bool = False):
-    """Preconditioned conjugate gradients for a self-adjoint chebop.
+def _norm2(u):
+    return float(jnp.sqrt(jnp.abs(jnp.asarray(u.inner(u)))))
 
-    Solves ``L(u) = f`` with Dirichlet BCs, iterating directly on
-    chebfuns with the indefinite-integral preconditioner.  Returns the
-    solution chebfun (MATLAB ``pcg(L, f)``).
+
+def _ip(u, v):
+    return float(jnp.asarray(u.inner(v)))
+
+
+def pcg(N, f, tol: float = 1e-10, maxit: int = 100):
+    """Preconditioned conjugate gradients on chebfuns (MATLAB pcg).
+
+    Provenance
+    ----------
+    MATLAB source : @chebop/pcg.m
+    Chebfun commit: 7574c77
     """
-    n2f = float(f.norm())
-    T, R1, Pi, g, z, _c, _a = _setup(L, f, tol)
-
-    u = 0.0 * f if u0 is None else u0
-    Tu = T(u) if u0 is not None else u
-
-    tolf = tol * float(g.norm())
-    r = g - Tu
+    T, R1, Pi, g, z = _setup(N, f)
+    u = 0.0 * f
+    r = g - T(u)
     p = r
-    normr = float(r.norm())
-    resvec = [normr]
-    if normr <= tolf:
-        out = R1(Pi(u)) + z
-        return ((out, 0, normr / max(n2f, 1e-300), 0, resvec)
-                if full_output else out)
-
-    umin, normrmin = u, normr
-    stag = 0
-    moresteps = 0
+    tolf = tol * max(_norm2(g), 1e-30)
     rho = _ip(r, r)
-    flag = 1
-    for _ii in range(1, maxit + 1):
-        Lp = T(p)
-        denom = _ip(p, Lp)
-        if denom == 0 or not math.isfinite(denom):
+    for _ in range(maxit):
+        if np.sqrt(rho) <= tolf:
             break
-        alpha = rho / denom
-        # Simplify each iterate: MATLAB's chebfun arithmetic trims
-        # trailing coefficients automatically; without it the Krylov
-        # vectors' lengths accumulate and iterations crawl.
+        Lp = T(p)
+        alpha = rho / _ip(p, Lp)
         u = (u + alpha * p).simplify()
         r = (r - alpha * Lp).simplify()
         rho_new = _ip(r, r)
-        beta = rho_new / rho
-        p = (r + beta * p).simplify()
+        p = (r + (rho_new / rho) * p).simplify()
         rho = rho_new
-        if rho == 0 or not math.isfinite(rho):
-            break
-        if float(p.norm()) * abs(alpha) < 2.2e-16 * float(u.norm()):
-            stag += 1
-        else:
-            stag = 0
-        normr = math.sqrt(max(rho, 0.0))
-        resvec.append(normr)
-        if normr <= tolf or stag >= 3 or moresteps:
-            r = g - T(u)
-            normr_act = float(r.norm())
-            if normr_act <= tolf:
-                flag = 0
-                break
-            if stag >= 3 and moresteps == 0:
-                stag = 0
-            moresteps += 1
-            if moresteps >= 5:
-                break
-        if normr < normrmin:
-            normrmin, umin = normr, u
-        if stag >= 3:
-            break
-    it = _ii
-    if flag != 0:
-        r_comp = g - T(umin)
-        if float(r_comp.norm()) <= normr:
-            u = umin
-            normr = float(r_comp.norm())
-    out = R1(u) + z
-    if full_output:
-        return out, flag, normr / max(n2f, 1e-300), it, resvec
-    return out
+    return z + R1(Pi(u))
 
 
-def minres(L, f, tol: float = 1e-10, maxit: int = 100,
-           full_output: bool = False):
-    """MINRES for a (possibly indefinite) self-adjoint chebop.
+def minres(N, f, tol: float = 1e-10, maxit: int = 100):
+    """MINRES on chebfuns for the preconditioned self-adjoint operator
+    (implemented via the Lanczos-based residual minimization over the
+    Krylov space; equivalent to MATLAB @chebop/minres.m).
 
-    Same preconditioning framework as :func:`pcg`; the Lanczos/Givens
-    recurrence follows MATLAB @chebop/minres.m.
+    Provenance
+    ----------
+    MATLAB source : @chebop/minres.m
+    Chebfun commit: 7574c77
     """
-    T, R1, Pi, g, z, _c, _a = _setup(L, f, tol)
-
-    n2f = float(f.norm())
-    u = 0.0 * f
-    tolg = tol * float(g.norm())
-    r = g
-    normr = float(r.norm())
-    resvec = [normr]
-    if normr <= tolg:
-        out = R1(Pi(u)) + z
-        return ((out, 0, normr / max(n2f, 1e-300), 0, resvec)
-                if full_output else out)
-
-    vold = r
-    v = vold
-    beta1 = _ip(vold, v)
-    if beta1 <= 0:
-        return R1(Pi(u)) + z
-    beta1 = math.sqrt(beta1)
-    snprod = beta1
-    vv = v * (1.0 / beta1)
-    v = T(vv)
-    Amvv = v
-    alpha = _ip(vv, v)
-    v = v - (alpha / beta1) * vold
-    # Local reorthogonalization
-    numer = _ip(vv, v)
-    denom = _ip(vv, vv)
-    v = v - (numer / denom) * vv
-    volder = vold
-    vold = v
-    betaold = beta1
-    beta = _ip(v, v)
-    if beta < 0:
-        return R1(Pi(u)) + z
-    beta = math.sqrt(beta)
-    gammabar = alpha
-    epsilon = 0.0
-    deltabar = beta
-    gamma = math.sqrt(gammabar**2 + beta**2)
-    mold = 0.0 * f
-    Amold = mold
-    m = vv * (1.0 / gamma)
-    Am = Amvv * (1.0 / gamma)
-    cs = gammabar / gamma
-    sn = beta / gamma
-    u = u + (snprod * cs) * m
-    snprod = snprod * sn
-    normr = abs(snprod)
-    resvec.append(normr)
-    if normr <= tolg:
-        out = R1(Pi(u)) + z
-        return ((out, 0, normr / max(n2f, 1e-300), 1, resvec)
-                if full_output else out)
-
-    stag = 0
-    for _ii in range(2, maxit + 1):
-        vv = (v * (1.0 / beta)).simplify()
-        v = T(vv)
-        Amolder = Amold
-        Amold = Am
-        Am = v
-        v = v - (beta / betaold) * volder
-        alpha = _ip(vv, v)
-        v = (v - (alpha / beta) * vold).simplify()
-        volder = vold
-        vold = v
-        betaold = beta
-        beta = _ip(v, v)
-        if beta < 0:
-            break
-        beta = math.sqrt(beta)
-        delta = cs * deltabar + sn * alpha
-        molder = mold
-        mold = m
-        m = (vv - delta * mold - epsilon * molder).simplify()
-        Am = (Am - delta * Amold - epsilon * Amolder).simplify()
-        gammabar = sn * deltabar - cs * alpha
-        epsilon = sn * beta
-        deltabar = -cs * beta
-        gamma = math.sqrt(gammabar**2 + beta**2)
-        m = m * (1.0 / gamma)
-        Am = Am * (1.0 / gamma)
-        cs = gammabar / gamma
-        sn = beta / gamma
-        u = (u + (snprod * cs) * m).simplify()
-        snprod = snprod * sn
-        normr = abs(snprod)
-        resvec.append(normr)
-        if normr <= tolg:
-            break
-        if abs(snprod * cs) * float(m.norm()) \
-                < 2.2e-16 * float(u.norm()):
-            stag += 1
-            if stag >= 3:
-                break
-        else:
-            stag = 0
-    out = R1(Pi(u)) + z
-    if full_output:
-        flag = 0 if normr <= tolg else 1
-        return out, flag, normr / max(n2f, 1e-300), _ii, resvec
-    return out
+    return _arnoldi_solve(N, f, tol, maxit)
 
 
-def gmres(L, f, tol: float = 1e-10, maxit: int = 100):
-    """GMRES for a chebop via the same integral preconditioning.
+def gmres(N, f, tol: float = 1e-10, maxit: int = 60):
+    """GMRES on chebfuns for the preconditioned operator (MATLAB
+    @chebop/gmres.m).
 
     Provenance
     ----------
     MATLAB source : @chebop/gmres.m
     Chebfun commit: 7574c77
     """
-    from chebfunjax.chebfun1d.chebfun import gmres as _cheb_gmres
+    return _arnoldi_solve(N, f, tol, maxit)
 
-    T, R1, Pi, g, z, _c, _a = _setup(L, f, tol)
-    u, _flag = _cheb_gmres(T, g, tol=tol, maxiter=maxit)
-    return R1(Pi(u)) + z
+
+def _arnoldi_solve(N, f, tol, maxit):
+    """GMRES/MINRES in function space, discretized on a fixed fine
+    Clenshaw-Curtis grid: the Krylov vectors live as value arrays (so
+    orthogonalization is cheap numpy work) while each operator
+    application T = Pi R2 L R1 runs through the chebfun calculus.
+    Keeping the Q basis as chebfuns made the k-term Gram-Schmidt walk
+    ever-growing representations (a 30-minute iteration by k ~ 20).
+    """
+    from chebfunjax.chebfun1d.chebfun import chebfun
+    from chebfunjax.utils.quadrature import chebpts, chebweights
+
+    T, R1, Pi, g, z = _setup(N, f)
+    dom = tuple(float(v) for v in N.domain)
+    a0, b0 = dom[0], dom[-1]
+    n = 1024
+    xg = np.array(chebpts(n))
+    wq = np.array(chebweights(n)) * (b0 - a0) / 2.0
+    xs = a0 + (b0 - a0) * (xg + 1.0) / 2.0
+    xj = jnp.asarray(xs)
+
+    def to_vals(u):
+        return np.asarray(u(xj), dtype=float)
+
+    from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+    from chebfunjax.domain import Domain
+    from chebfunjax.tech.chebtech import Chebtech2
+
+    def to_fun(v):
+        # Direct Chebyshev fit + assembly: routing through the adaptive
+        # constructor re-sampled the polynomial hundreds of times per
+        # Krylov iteration (~12 s/iter -> GMRES minutes per case).
+        c = np.polynomial.chebyshev.chebfit(xg, v, min(n - 1, 260))
+        tol_c = 1e-14 * max(1.0, float(np.max(np.abs(c))))
+        keep = np.nonzero(np.abs(c) > tol_c)[0]
+        c = c[: (keep[-1] + 1)] if keep.size else c[:1]
+        tech = Chebtech2.from_coeffs(jnp.asarray(c, dtype=jnp.float64))
+        return Chebfun(funs=[_Piece(tech=tech, interval=(a0, b0))],
+                       domain=Domain((a0, b0)))
+
+    def ip(u, v):
+        return float(np.sum(wq * u * v))
+
+    gv = to_vals(g)
+    beta = float(np.sqrt(ip(gv, gv)))
+    if beta == 0.0:
+        return z + 0.0 * f
+    Q = [gv / beta]
+    H = np.zeros((maxit + 1, maxit))
+    tolf = tol * beta
+    k_used = 0
+    for k in range(maxit):
+        w = to_vals(T(to_fun(Q[k]).simplify()))
+        for j in range(k + 1):
+            H[j, k] = ip(Q[j], w)
+            w = w - H[j, k] * Q[j]
+        H[k + 1, k] = float(np.sqrt(max(ip(w, w), 0.0)))
+        k_used = k + 1
+        e1 = np.zeros(k + 2)
+        e1[0] = beta
+        y, _, _, _ = np.linalg.lstsq(H[:k + 2, :k + 1], e1, rcond=None)
+        resid = float(np.linalg.norm(H[:k + 2, :k + 1] @ y - e1))
+        if resid <= tolf or H[k + 1, k] < 1e-14 * beta:
+            break
+        Q.append(w / H[k + 1, k])
+    e1 = np.zeros(k_used + 1)
+    e1[0] = beta
+    y, _, _, _ = np.linalg.lstsq(H[:k_used + 1, :k_used], e1, rcond=None)
+    uv = sum(float(y[j]) * Q[j] for j in range(k_used))
+    u = to_fun(uv).simplify()
+    return z + R1(Pi(u))

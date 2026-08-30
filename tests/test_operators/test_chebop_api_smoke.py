@@ -97,3 +97,13 @@ def test_system_deal_and_domain_validation():
     for bad in ((1.0,), (1.0, 0.0), "xy"):
         with pytest.raises((ValueError, TypeError)):
             _validate_chebop_domain(bad)
+
+
+def test_krylov_smoke():
+    """pcg/gmres on the identity-coefficient operator (fast case)."""
+    N = Chebop(lambda x, u: (-1.0) * u.diff(2) + u)
+    N.bc = 0.0
+    f = cj.chebfun(lambda x: 1 - 3 * x ** 2)
+    u = N.solve(f)
+    assert _n(u - N.pcg(f)) < 1e-6
+    assert _n(u - N.gmres(f)) < 1e-6
