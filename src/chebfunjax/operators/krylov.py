@@ -157,7 +157,6 @@ def _arnoldi_solve(N, f, tol, maxit):
     Keeping the Q basis as chebfuns made the k-term Gram-Schmidt walk
     ever-growing representations (a 30-minute iteration by k ~ 20).
     """
-    from chebfunjax.chebfun1d.chebfun import chebfun
     from chebfunjax.utils.quadrature import chebpts, chebweights
 
     T, R1, Pi, g, z = _setup(N, f)
