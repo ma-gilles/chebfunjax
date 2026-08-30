@@ -6401,6 +6401,136 @@ class Chebop:
                 "error": err}
         return sol, info
 
+    def _mine_coeffs(self):
+        """Variable coefficients a_j(x) of a linear scalar operator
+        ``L = sum_j a_j(x) D^j`` by probing with monomials x^m/m!
+        (triangular recovery).
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/adjoint.m (coefficient extraction via
+            linearize/toCoeff)
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
+        k = self._op_order()
+        a0, b0 = float(self.domain[0]), float(self.domain[-1])
+        x = Chebfun.identity(Domain(self.domain))
+        import math
+        coeffs = []
+        for mo in range(k + 1):
+            pm = chebfun(lambda t, _m=mo: t ** _m / math.factorial(_m),
+                         domain=(a0, b0))
+            Lp = self.feval(pm)
+            for j in range(mo):
+                Lp = Lp - coeffs[j] * (x ** (mo - j)
+                                       / math.factorial(mo - j))
+            coeffs.append(Lp.simplify() if hasattr(Lp, "simplify")
+                          else Lp)
+        return coeffs
+
+    def adjoint(self) -> "Chebop":
+        """Formal adjoint with adjoint boundary conditions (MATLAB
+        adjoint(L) / L').  Scalar operators use the mined coefficients:
+        ``L* v = sum_j (-1)^j (a_j v)^(j)``; systems transpose the
+        coefficient-matrix structure by probing each unknown.  Dirichlet
+        conditions map to Dirichlet; an unconstrained operator's adjoint
+        carries full Dirichlet conditions (the Lagrange boundary term);
+        one-sided full condition sets swap ends; 'periodic' is
+        self-adjoint as a domain.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/adjoint.m, @chebop/ctranspose.m
+        Chebfun commit: 7574c77
+        """
+        m = self._n_vars()
+        k = self._op_order() if m == 1 else 1
+        if m == 1:
+            coeffs = self._mine_coeffs()
+
+            def star_op(x, v, _c=coeffs):
+                out = ((-1.0) ** 0) * (_c[0] * v)
+                for j in range(1, len(_c)):
+                    out = out + ((-1.0) ** j) * (_c[j] * v).diff(j)
+                return out
+
+            Ls = Chebop(star_op, domain=self.domain)
+        else:
+            # System: probe column-wise; adjoint has the transposed
+            # coefficient structure applied through the formal adjoint
+            # of each scalar entry.
+            from chebfunjax.chebfun1d.chebfun import chebfun
+            a0, b0 = float(self.domain[0]), float(self.domain[-1])
+            entries = []          # entries[i][j] = coeff list of L_ij
+            import math
+            for j in range(m):
+                col = []
+                for order in (0, 1, 2):
+                    pm = chebfun(
+                        lambda t, _m=order: t ** _m / math.factorial(_m),
+                        domain=(a0, b0))
+                    zero = chebfun(lambda t: 0.0 * t, domain=(a0, b0))
+                    args = [zero] * m
+                    args[j] = pm
+                    col.append(self.feval(*args))
+                entries.append(col)
+
+            def _star_apply(x, vs, _E=entries, _m=m):
+                outs = []
+                for i in range(_m):
+                    acc = None
+                    for j in range(_m):
+                        # scalar entry L_ij: coeffs from probes of
+                        # unknown j, component i.
+                        L0 = _E[j][0][i] if isinstance(_E[j][0],
+                                                       (list, tuple)) \
+                            else _E[j][0]
+                        L1 = _E[j][1][i] if isinstance(_E[j][1],
+                                                       (list, tuple)) \
+                            else _E[j][1]
+                        a_0 = L0
+                        a_1 = L1 - a_0 * x
+                        term = a_0 * vs[j] - (a_1 * vs[j]).diff()
+                        acc = term if acc is None else acc + term
+                    outs.append(acc)
+                return outs
+
+            if m == 2:
+                star_op = lambda x, v1, v2: _star_apply(x, [v1, v2])  # noqa: E731
+            elif m == 3:
+                star_op = lambda x, v1, v2, v3: _star_apply(  # noqa: E731
+                    x, [v1, v2, v3])
+            else:
+                star_op = lambda x, v1, v2, v3, v4: _star_apply(  # noqa: E731
+                    x, [v1, v2, v3, v4])
+            Ls = Chebop(star_op, domain=self.domain)
+        # Adjoint boundary conditions.
+        if getattr(self, "_periodic", False) or self.bc == "periodic":
+            Ls.bc = "periodic"
+            return Ls
+        has_l = self._lbc_raw is not None
+        has_r = self._rbc_raw is not None
+        if m == 1:
+            if k >= 2 or not (has_l or has_r):
+                Ls.lbc = 0.0
+                Ls.rbc = 0.0
+            elif has_l and not has_r:
+                Ls.rbc = 0.0
+            elif has_r and not has_l:
+                Ls.lbc = 0.0
+            else:
+                Ls.lbc = 0.0
+                Ls.rbc = 0.0
+        else:
+            full = (lambda v1, v2: [v1, v2]) if m == 2 else \
+                (lambda v1, v2, v3: [v1, v2, v3])
+            if has_l and not has_r:
+                Ls.rbc = full
+            elif has_r and not has_l:
+                Ls.lbc = full
+        return Ls
+
     def pcg(self, f, tol: float = 1e-10, maxit: int = 100):
         """Function-space preconditioned CG solve (MATLAB pcg(N, f)).
 
