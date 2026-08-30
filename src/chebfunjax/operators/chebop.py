@@ -6531,6 +6531,79 @@ class Chebop:
                 Ls.lbc = full
         return Ls
 
+    def null(self, discretization: str = "ultraS", n: int = 128,
+             tol: float | None = None):
+        """Orthonormal basis of the operator's null space, respecting
+        any (homogenized) boundary conditions (MATLAB null(N)).
+
+        The operator plus bc rows is discretized (ultraS or
+        chebcolloc1); right singular vectors with negligible singular
+        values are recovered as chebfuns and L2-orthonormalized.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/null.m, @linop/null.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        from chebfunjax.operators.chebop_altdisc import LinearizedChebop
+        m = self._n_vars()
+        from chebfunjax.chebfun1d.chebfun import chebfun as _mk
+        a0, b0 = float(self.domain[0]), float(self.domain[-1])
+        zeros = [_mk(lambda t: 0.0 * t, domain=(a0, b0))
+                 for _ in range(m)]
+        from chebfunjax.operators.altdisc import system_matrices
+        from chebfunjax.operators.blocklinop import linop as _mk_linop
+        from chebfunjax.operators.chebmatrix import ChebMatrix
+        from chebfunjax.operators.chebop_altdisc import (
+            _collect_bcs, _frechet_blocks)
+        dom = tuple(float(v) for v in self.domain)
+        blocks, _R, var_orders = _frechet_blocks(
+            self, zeros, [0.0] * m, dom)
+        L = _mk_linop(ChebMatrix(blocks))
+        for row_list, _val in _collect_bcs(self, zeros, var_orders, dom):
+            L = L.add_constraint(row_list, 0.0)
+        sd = system_matrices(L, int(n), discretization,
+                             allow_rectangular=True)
+        class _J:  # minimal recover carrier
+            pass
+        J = _J(); J._sd = sd
+        A = _np.asarray(sd.A)
+        _u, sv, vt = _np.linalg.svd(A)
+        smax = sv[0] if sv.size else 1.0
+        if tol is None:
+            # Standard numerical-rank tolerance (MATLAB null/rank).
+            tol = max(A.shape) * _np.finfo(float).eps
+        null_idx = _np.nonzero(sv < tol * smax)[0]
+        # Null space = rows of vt past the numerical rank: tiny singular
+        # values plus the rectangular column deficit.
+        rank_cut = min(A.shape) - null_idx.size
+        vecs = vt[rank_cut:].T
+        funs = []
+        for j in range(vecs.shape[1]):
+            rec = J._sd.recover(vecs[:, j])
+            funs.append(rec[0] if m == 1 else rec)
+        # L2 Gram-Schmidt on (system) chebfun columns.
+        def ip(u, v):
+            if m == 1:
+                return float(jnp.asarray(u.inner(v)))
+            return sum(float(jnp.asarray(a.inner(b)))
+                       for a, b in zip(u, v))
+
+        ortho = []
+        for f in funs:
+            for q in ortho:
+                c = ip(q, f)
+                f = (f - c * q) if m == 1 else [
+                    a - c * b for a, b in zip(f, q)]
+            nrm = _np.sqrt(max(ip(f, f), 0.0))
+            if nrm > 1e-10:
+                f = f * (1.0 / nrm) if m == 1 else [
+                    a * (1.0 / nrm) for a in f]
+                ortho.append(f)
+        return ortho
+
     def pcg(self, f, tol: float = 1e-10, maxit: int = 100):
         """Function-space preconditioned CG solve (MATLAB pcg(N, f)).
 

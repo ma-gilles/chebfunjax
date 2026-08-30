@@ -309,7 +309,7 @@ class SystemDisc:
     """
 
     def __init__(self, L, n: int, discretization: str, dom=None,
-                 row_order_min=None):
+                 row_order_min=None, allow_rectangular: bool = False):
         if discretization not in ("ultraS", "chebcolloc1",
                                   "trigcolloc"):
             raise ValueError(
@@ -384,7 +384,7 @@ class SystemDisc:
         rows = ncon + nfrow + sum(K * (n - self.row_order[i])
                                   for i in range(L2.nrows)
                                   if not self.funcrow[i])
-        if rows != cols:
+        if rows != cols and not allow_rectangular:
             raise ValueError(
                 "CHEBFUN:LINOP:linsolve:notSquare -- the operator does "
                 f"not have the correct number of side conditions "
@@ -709,7 +709,8 @@ class SystemDisc:
 
 
 def system_matrices(L, n: int, discretization: str,
-                    dom=None, row_order_min=None) -> SystemDisc:
+                    dom=None, row_order_min=None,
+                    allow_rectangular: bool = False) -> SystemDisc:
     """Discretize a BlockLinop under ultraS or chebcolloc1.
 
     Provenance
@@ -719,4 +720,4 @@ def system_matrices(L, n: int, discretization: str,
     Chebfun commit: 7574c77
     """
     return SystemDisc(L, n, discretization, dom=dom,
-                      row_order_min=row_order_min)
+                      row_order_min=row_order_min, allow_rectangular=allow_rectangular)
