@@ -401,6 +401,10 @@ class Chebop:
         #: ``chebop([-N 0 N])`` form): the piecewise solver and the eigs
         #: breakpoint detection both read interior points from here.
         self._domain: tuple[float, ...] = tuple(float(v) for v in domain)
+        #: MATLAB N.maxnorm: halt IVP time marching when any watched
+        #: solution component reaches this norm; the remainder of the
+        #: interval is filled with NaN (@chebfun/constructODEsol.m).
+        self.maxnorm = None
         self._lbc_raw = None
         self._rbc_raw = None
         self._bc_show = None
@@ -815,7 +819,9 @@ class Chebop:
     def _simplify_solution(out):
         from chebfunjax.chebfun1d.chebfun import Chebfun
         if isinstance(out, Chebfun):
-            return out.simplify()
+            # A blowup solution (maxnorm event) carries a NaN padding
+            # piece; simplify would mangle it.
+            return out if out.isnan() else out.simplify()
         if isinstance(out, (list, tuple)):
             # A system solution (chebmatrix role) simplifies to a COMMON
             # discretization: components are trimmed together, not
@@ -823,6 +829,8 @@ class Chebop:
             # multi-output deal() semantics -- MATLAB
             # test_multOutputs_simplify).
             simped = [Chebop._simplify_solution(v) for v in out]
+            if any(isinstance(v, Chebfun) and v.isnan() for v in simped):
+                return type(out)(simped)
             return type(out)(_commonize_system(simped))
         return out
 
@@ -2009,13 +2017,34 @@ class Chebop:
             J[:, j] = bc_res(e) - r0
         y0 = _np.linalg.solve(J, -r0)
 
+        # Blowup guard (MATLAB N.maxnorm, one entry per unknown).
+        mn = getattr(self, "maxnorm", None)
+        events = None
+        if mn is not None:
+            mvals = [float(v) for v in
+                     (mn if isinstance(mn, (list, tuple)) else [mn] * m)]
+            events = []
+            for iv, mv in enumerate(mvals[:m]):
+                def _ev(t, y, _i=iv, _m=mv):
+                    return abs(y[_i]) - _m
+                _ev.terminal = True
+                events.append(_ev)
+
         sol = _sivp(rhs, (t0, t1), y0,
                     method=_ivp_method(getattr(self, "ivp_method", None)),
                     rtol=getattr(self, "ivp_reltol", IVP_RELTOL),
                     atol=getattr(self, "ivp_abstol", IVP_ABSTOL),
-                    dense_output=True)
+                    dense_output=True, events=events)
         if not sol.success:
             raise RuntimeError(f"ivp system: {sol.message}")
+        t_stop = float(sol.t[-1])
+        blew_up = (events is not None and sol.status == 1
+                   and abs(t_stop - t1) > 1e-13 * abs(b - a))
+        # The dense interpolant is only valid on the marched span; on a
+        # blowup the pieces stop at the event time and the remainder is
+        # NaN (MATLAB @chebfun/constructODEsol.m).
+        a_eff = float(min(t0, t_stop))
+        b_eff = float(max(t0, t_stop))
 
         # Build each component as a PIECEWISE chebfun on the solver's
         # own time mesh (MATLAB @chebfun/constructODEsol).  A single
@@ -2034,14 +2063,14 @@ class Chebop:
         # low-degree while bounding their number.
         step = max(1, int(_np.ceil(ts.size / 256.0)), 8)
         idx = list(range(0, ts.size - 1, step))
-        breaks = [float(a)] + [float(ts[i]) for i in idx[1:]] + [float(b)]
+        breaks = [a_eff] + [float(ts[i]) for i in idx[1:]] + [b_eff]
         breaks = sorted(set(breaks))
         span = abs(float(b) - float(a))
         breaks = [breaks[0]] + [
             v for k, v in enumerate(breaks[1:], 1)
             if v - breaks[k - 1] > 1e-13 * span]
-        if breaks[-1] != float(b):
-            breaks[-1] = float(b)
+        if breaks[-1] != b_eff:
+            breaks[-1] = b_eff
 
         def _component(i):
             def _ev(t, _i=i):
@@ -2052,15 +2081,33 @@ class Chebop:
                     dtype=jnp.float64)
             return _ev
 
+        def _pad_nan_sys(comp):
+            if not blew_up:
+                return comp
+            forward_march = t1 >= t0
+            gap = (b_eff, float(b)) if forward_march \
+                else (float(a), a_eff)
+            nanf = _chebfun_from_values(
+                jnp.asarray([jnp.nan, jnp.nan]), gap)
+            bps = tuple(float(v) for v in comp.domain.breakpoints)
+            if forward_march:
+                funs = list(comp.funs) + list(nanf.funs)
+                bps = bps + (float(b),)
+            else:
+                funs = list(nanf.funs) + list(comp.funs)
+                bps = (float(a),) + bps
+            return Chebfun(funs=funs, domain=Domain(bps))
+
         try:
             out = []
             for i in range(m):
                 ev = _component(i)
                 funs = [_Piece.from_function(ev, breaks[k], breaks[k + 1])
                         for k in range(len(breaks) - 1)]
-                out.append(Chebfun(funs=funs,
-                                   domain=Domain(tuple(breaks))))
-            return SystemSolution(_commonize_system(out))
+                out.append(_pad_nan_sys(Chebfun(
+                    funs=funs, domain=Domain(tuple(breaks)))))
+            return SystemSolution(
+                out if blew_up else _commonize_system(out))
         except Exception:
             # Fall back to a single global representation.
             nn = int(min(8193, max(257, 4 * sol.t.size)))
@@ -5046,14 +5093,48 @@ class Chebop:
             ukk = (fval(x) - lower) / ak
             return list(y[1:]) + [ukk]
 
+        # Blowup guard (MATLAB N.maxnorm -> odeset Events): terminate
+        # the march when |u| reaches the requested norm.
+        mn = getattr(self, "maxnorm", None)
+        events = None
+        if mn is not None:
+            mval = float(mn[0] if isinstance(mn, (list, tuple)) else mn)
+
+            def _blowup(t, y, _m=mval):
+                return abs(y[0]) - _m
+            _blowup.terminal = True
+            events = [_blowup]
+
         # LSODA switches between stiff/non-stiff automatically, so a
         # stiff problem cannot grind RK45 into a CI timeout.
         sol = _solve_ivp(rhs, [x0, x1], ic, dense_output=True,
                          method=_ivp_method(
                              getattr(self, "ivp_method", None)),
-                         rtol=rtol, atol=atol)
+                         rtol=rtol, atol=atol, events=events)
         if not sol.success:
             raise RuntimeError(f"solve_ivp failed: {sol.message}")
+        t_end = float(sol.t[-1])
+        blew_up = (events is not None and sol.status == 1
+                   and abs(t_end - x1) > 1e-13 * abs(b - a))
+        lo, hi = (x0, t_end) if left else (t_end, x0)
+
+        def _pad_nan(u_sol):
+            """join(solution, NaN chebfun) on the un-marched remainder
+            (MATLAB @chebfun/constructODEsol.m blowup branch)."""
+            if not blew_up:
+                return u_sol
+            from chebfunjax.chebfun1d.chebfun import Chebfun as _CF
+            gap = (hi, float(b)) if left else (float(a), lo)
+            nanf = _chebfun_from_values(
+                jnp.asarray([jnp.nan, jnp.nan]), gap)
+            bps = tuple(float(v) for v in u_sol.domain.breakpoints)
+            if left:
+                funs = list(u_sol.funs) + list(nanf.funs)
+                bps = bps + (float(b),)
+            else:
+                funs = list(nanf.funs) + list(u_sol.funs)
+                bps = (float(a),) + bps
+            return _CF(funs=funs, domain=Domain(bps))
 
         def comp_eval(x, j):
             xn = _np.atleast_1d(_np.asarray(x, dtype=float))
@@ -5072,7 +5153,7 @@ class Chebop:
         try:
             m_ord = len(ic)
             if m_ord > 1:
-                mesh = tuple(float(a + (b - a) * j / 16)
+                mesh = tuple(float(lo + (hi - lo) * j / 16)
                              for j in range(17))
                 u = chebfun(lambda x: comp_eval(x, m_ord - 1),
                             domain=mesh)
@@ -5087,11 +5168,12 @@ class Chebop:
                         u = float(ic[kk]) + cs
                     else:
                         u = float(ic[kk]) + cs - float(
-                            cs(jnp.asarray(float(b))))
-                return u
+                            cs(jnp.asarray(float(hi))))
+                return _pad_nan(u)
         except Exception:
             pass
-        return chebfun(lambda x: comp_eval(x, 0), domain=(a, b))
+        return _pad_nan(
+            chebfun(lambda x: comp_eval(x, 0), domain=(lo, hi)))
 
     def __call__(self, u, *more):
         """Apply the operator to a chebfun (MATLAB N(u) / N*u).
@@ -5955,8 +6037,11 @@ class Chebop:
             r_plain = _resid_norm(u_np)
             scale = max(1.0, float(_np.max(_np.abs(u_np)))
                         if _np.all(_np.isfinite(u_np)) else 1.0)
-            if (not newton_converged or r_plain > 1e-6 * scale
+            if getattr(self, "damping", True) and (
+                    not newton_converged or r_plain > 1e-6 * scale
                     or not _np.isfinite(r_plain)):
+                # MATLAB pref.damping = 0 turns the damped fallback off
+                # (test_undampedNewton); N.damping = False mirrors it.
                 u_d, u_fun_d, conv_d = _newton_run(damped=True)
                 if _resid_norm(u_d) < r_plain:
                     u_np, u_fun, newton_converged = u_d, u_fun_d, conv_d

@@ -116,3 +116,18 @@ def test_svds_smoke():
     s = np.diag(np.asarray(S))
     assert np.max(np.abs(s - np.array([2.0, 1.0, 0.0]))) < 1e-7
     assert _n(N(V[0]) - float(s[0]) * U[0], (0.0, float(np.pi))) < 1e-6
+
+
+def test_maxnorm_blowup_and_determine_discretization_smoke():
+    """maxnorm event halts the march (u' = u^2 blows up); NaN padding
+    and NaN-aware inf-norm; 'values' keyword dispatch."""
+    from chebfunjax.chebpref import ChebopPref
+    N = Chebop(lambda t, y: y.diff() - y * y, domain=(0.0, 3.0))
+    N.lbc = 1.0
+    N.maxnorm = 5.0
+    y = N.solve(0.0)
+    assert y.isnan()
+    assert abs(float(y.norm(jnp.inf)) - 5.0) < 0.05
+    N2 = Chebop(lambda u: u.diff(2), domain=(0.0, 1.0))
+    out = N2.determine_discretization(2, ChebopPref())
+    assert out.discretization == "chebcolloc2"

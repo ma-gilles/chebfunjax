@@ -4421,6 +4421,11 @@ class Chebfun(eqx.Module):
         global_max_key = float("-inf")
 
         for piece in self.funs:
+            if bool(jnp.all(jnp.isnan(piece.tech.coeffs))):
+                # MATLAB max/min ignore NaN: the NaN padding after a
+                # chebop maxnorm blowup must not poison the extrema
+                # (and rootfinding on NaN coefficients would crash).
+                continue
             (x_min, f_min), (x_max, f_max) = piece.minandmax()
             k_min = abs(f_min) if isinstance(f_min, complex) or \
                 jnp.iscomplexobj(jnp.asarray(f_min)) else f_min
