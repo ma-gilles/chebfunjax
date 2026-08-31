@@ -19,7 +19,7 @@ Original authors: Copyright 2017 by The University of Oxford
 from __future__ import annotations
 
 import jax.numpy as jnp
-import numpy as np
+import numpy as np  # uses-numpy: Arnoldi orthogonalization on fixed value grids (host-side, non-JIT)
 
 
 def _setup(N, f):

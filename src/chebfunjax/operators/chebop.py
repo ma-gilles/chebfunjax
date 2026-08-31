@@ -4010,25 +4010,15 @@ class Chebop:
         return linop.eigs(n=n, k=k, n_default=n_default, sigma=sigma,
                           return_eigenfunctions=return_eigenfunctions)
 
-    def null(self, n: int | None = None):
-        """Orthonormal basis for the nullspace of the linear operator.
+    def null(self, discretization: str = "ultraS", n: int = 128,
+             tol: float | None = None):
+        """Orthonormal basis of the operator's null space, respecting
+        any (homogenized) boundary conditions (MATLAB null(N)).
 
-        MATLAB's ``null(L)``: functions ``v`` with ``L v = 0`` satisfying
-        any attached boundary conditions.  A differential operator of
-        order ``r`` with ``b`` boundary/side conditions has an
-        ``(r - b)``-dimensional nullspace.
-
-        The operator is collocated densely (BC and general constraint
-        rows replacing collocation rows exactly as in :meth:`eigs`); the
-        right singular vectors with negligible singular values span the
-        discrete nullspace.  The grid is doubled until the dimension
-        stabilises and the continuous residual ``||L v||`` is small.  The
-        returned chebfuns are L2-orthonormalized (``V' * V = I``), with
-        the MATLAB sign convention.
-
-        Returns
-        -------
-        list of Chebfun (possibly empty).
+        The operator plus bc rows is discretized (ultraS or
+        chebcolloc1); right singular vectors past the numerical rank
+        (relative tolerance max(shape)*eps) are recovered as chebfuns
+        and L2-orthonormalized.
 
         Provenance
         ----------
@@ -4036,121 +4026,61 @@ class Chebop:
         Chebfun commit: 7574c77
         """
         import numpy as _np
-        import scipy.linalg as _sla
 
-        from chebfunjax.chebfun1d.chebfun import Chebfun
-
-        a, b = self.domain[0], self.domain[-1]
-        dom = Domain((a, b))
-        xf = Chebfun.identity(dom)
-        op_arity2 = _op_arity(self.op, 2) >= 2
-
-        def _apply(u):
-            return self.op(xf, u) if op_arity2 else self.op(u)
-
-        def solve_at(m):
-            kk = _np.arange(m)
-            X = a + (b - a) * (_np.cos(_np.pi * kk / (m - 1))[::-1] + 1) / 2
-
-            def basis(j):
-                v = _np.zeros(m)
-                v[j] = 1.0
-                return _chebfun_from_values(jnp.asarray(v), (a, b))
-
-            A = _np.zeros((m, m), dtype=complex)
-            for j in range(m):
-                A[:, j] = _np.asarray(
-                    _apply(basis(j))(jnp.asarray(X)), dtype=complex)
-            if _np.max(_np.abs(A.imag)) == 0.0:
-                A = A.real
-
-            def bc_rows(kind, xpt, idx):
-                if callable(kind):
-                    rows = None
-                    xe = jnp.asarray(float(xpt))
-                    for j in range(m):
-                        out = kind(basis(j))
-                        if not isinstance(out, (list, tuple)):
-                            out = [out]
-                        if rows is None:
-                            rows = _np.zeros((len(out), m))
-                        for i, o in enumerate(out):
-                            rows[i, j] = float(_np.real(_np.asarray(o(xe))))
-                    return rows
-                row = _np.zeros(m)
-                row[idx] = 1.0
-                return row[None, :]
-
-            crows = []
-            if self._lbc_raw is not None:
-                crows.extend(bc_rows(self._lbc_raw, a, 0))
-            if self._rbc_raw is not None:
-                crows.extend(bc_rows(self._rbc_raw, b, m - 1))
-            if self._bc_general is not None:
-                gbc = self._bc_general
-                g_arity = _op_arity(gbc, 2)
-                rows = None
-                for j in range(m):
-                    e = basis(j)
-                    out = gbc(xf, e) if g_arity >= 2 else gbc(e)
-                    if not isinstance(out, (list, tuple)):
-                        out = [out]
-                    if rows is None:
-                        rows = _np.zeros((len(out), m))
-                    for i, o in enumerate(out):
-                        rows[i, j] = float(_np.real(_np.asarray(o)))
-                crows.extend(rows)
-            # Eliminate the constraints EXACTLY (project onto the
-            # constraint nullspace) before looking for the operator's
-            # nullspace: MATLAB's null satisfies side conditions to
-            # machine precision while the ODE residual carries the
-            # discretization error, not the other way around.
-            if crows:
-                C = _np.asarray(crows, dtype=_np.float64)
-                _, _, Vhc = _sla.svd(C)
-                Nc = Vhc.conj().T[:, C.shape[0]:]
-            else:
-                Nc = _np.eye(m)
-            M = A @ Nc
-            _, s, Vh = _sla.svd(M)
-            smax = s[0] if len(s) else 1.0
-            dim = int(_np.sum(s <= 1e-10 * max(smax, 1e-300)))
-            if dim:
-                vecs = Nc @ Vh.conj().T[:, Vh.shape[0] - dim:]
-            else:
-                vecs = _np.zeros((m, 0))
-            return dim, vecs
-
-        m = int(n) if n is not None else 33
-        dim, vecs = solve_at(m)
-        if n is None:
-            for _ in range(3):
-                dim2, vecs2 = solve_at(2 * m - 1)
-                if dim2 == dim:
-                    vecs = vecs2
-                    m = 2 * m - 1
-                    break
-                dim, vecs, m = dim2, vecs2, 2 * m - 1
-
-        # To chebfuns, then continuous L2 orthonormalization (modified
-        # Gram-Schmidt) with the MATLAB sign convention.
-        x_sign = jnp.asarray(a + (b - a) * 0.500023981)
-        V = []
+        m = self._n_vars()
+        from chebfunjax.chebfun1d.chebfun import chebfun as _mk
+        a0, b0 = float(self.domain[0]), float(self.domain[-1])
+        zeros = [_mk(lambda t: 0.0 * t, domain=(a0, b0))
+                 for _ in range(m)]
+        from chebfunjax.operators.altdisc import system_matrices
+        from chebfunjax.operators.blocklinop import linop as _mk_linop
+        from chebfunjax.operators.chebmatrix import ChebMatrix
+        from chebfunjax.operators.chebop_altdisc import _collect_bcs, _frechet_blocks
+        dom = tuple(float(v) for v in self.domain)
+        try:
+            blocks, _R, var_orders = _frechet_blocks(
+                self, zeros, [0.0] * m, dom)
+            L = _mk_linop(ChebMatrix(blocks))
+            for row_list, _val in _collect_bcs(self, zeros, var_orders,
+                                               dom):
+                L = L.add_constraint(row_list, 0.0)
+        except NotImplementedError:
+            # Side conditions the block linearizer cannot express
+            # (e.g. integral constraints): dense collocation fallback.
+            return self._null_dense()
+        sd = system_matrices(L, int(n), discretization,
+                             allow_rectangular=True)
+        A = _np.asarray(sd.A)
+        _u, sv, vt = _np.linalg.svd(A)
+        smax = sv[0] if sv.size else 1.0
+        if tol is None:
+            tol = max(A.shape) * _np.finfo(float).eps
+        null_idx = _np.nonzero(sv < tol * smax)[0]
+        rank_cut = min(A.shape) - null_idx.size
+        vecs = vt[rank_cut:].T
+        funs = []
         for j in range(vecs.shape[1]):
-            w = vecs[:, j]
-            if _np.max(_np.abs(w.imag)) < 1e-10 * max(
-                    float(_np.max(_np.abs(w))), 1e-300):
-                w = w.real
-            u = _chebfun_from_values(jnp.asarray(w), (a, b)).simplify()
-            for q in V:
-                u = u - q * float((q * u).sum())
-            nrm = float(u.norm(2))
-            if nrm > 1e-8:
-                u = u * (1.0 / nrm)
-                if float(jnp.real(u(x_sign))) < 0:
-                    u = -u
-                V.append(u)
-        return V
+            rec = sd.recover(vecs[:, j])
+            funs.append(rec[0] if m == 1 else rec)
+
+        def ip(u, v):
+            if m == 1:
+                return float(jnp.asarray(u.inner(v)))
+            return sum(float(jnp.asarray(a.inner(b)))
+                       for a, b in zip(u, v))
+
+        ortho = []
+        for f in funs:
+            for q in ortho:
+                c = ip(q, f)
+                f = (f - c * q) if m == 1 else [
+                    a - c * b for a, b in zip(f, q)]
+            nrm = _np.sqrt(max(ip(f, f), 0.0))
+            if nrm > 1e-10:
+                f = f * (1.0 / nrm) if m == 1 else [
+                    a * (1.0 / nrm) for a in f]
+                ortho.append(f)
+        return ortho
 
     def _eigs_piecewise_std(self, bps: list[float], k: int = 6,
                             n: int | None = None, sigma=None,
@@ -6531,14 +6461,26 @@ class Chebop:
                 Ls.lbc = full
         return Ls
 
-    def null(self, discretization: str = "ultraS", n: int = 128,
-             tol: float | None = None):
-        """Orthonormal basis of the operator's null space, respecting
-        any (homogenized) boundary conditions (MATLAB null(N)).
+    def _null_dense(self, n: int | None = None):
+        """Dense-collocation nullspace fallback (handles arbitrary
+        callable side conditions, e.g. integral constraints).
 
-        The operator plus bc rows is discretized (ultraS or
-        chebcolloc1); right singular vectors with negligible singular
-        values are recovered as chebfuns and L2-orthonormalized.
+        MATLAB's ``null(L)``: functions ``v`` with ``L v = 0`` satisfying
+        any attached boundary conditions.  A differential operator of
+        order ``r`` with ``b`` boundary/side conditions has an
+        ``(r - b)``-dimensional nullspace.
+
+        The operator is collocated densely (BC and general constraint
+        rows replacing collocation rows exactly as in :meth:`eigs`); the
+        right singular vectors with negligible singular values span the
+        discrete nullspace.  The grid is doubled until the dimension
+        stabilises and the continuous residual ``||L v||`` is small.  The
+        returned chebfuns are L2-orthonormalized (``V' * V = I``), with
+        the MATLAB sign convention.
+
+        Returns
+        -------
+        list of Chebfun (possibly empty).
 
         Provenance
         ----------
@@ -6546,63 +6488,261 @@ class Chebop:
         Chebfun commit: 7574c77
         """
         import numpy as _np
+        import scipy.linalg as _sla
 
-        from chebfunjax.operators.chebop_altdisc import LinearizedChebop
-        m = self._n_vars()
-        from chebfunjax.chebfun1d.chebfun import chebfun as _mk
-        a0, b0 = float(self.domain[0]), float(self.domain[-1])
-        zeros = [_mk(lambda t: 0.0 * t, domain=(a0, b0))
-                 for _ in range(m)]
-        from chebfunjax.operators.altdisc import system_matrices
-        from chebfunjax.operators.blocklinop import linop as _mk_linop
-        from chebfunjax.operators.chebmatrix import ChebMatrix
-        from chebfunjax.operators.chebop_altdisc import (
-            _collect_bcs, _frechet_blocks)
-        dom = tuple(float(v) for v in self.domain)
-        blocks, _R, var_orders = _frechet_blocks(
-            self, zeros, [0.0] * m, dom)
-        L = _mk_linop(ChebMatrix(blocks))
-        for row_list, _val in _collect_bcs(self, zeros, var_orders, dom):
-            L = L.add_constraint(row_list, 0.0)
-        sd = system_matrices(L, int(n), discretization,
-                             allow_rectangular=True)
-        class _J:  # minimal recover carrier
-            pass
-        J = _J(); J._sd = sd
-        A = _np.asarray(sd.A)
-        _u, sv, vt = _np.linalg.svd(A)
-        smax = sv[0] if sv.size else 1.0
-        if tol is None:
-            # Standard numerical-rank tolerance (MATLAB null/rank).
-            tol = max(A.shape) * _np.finfo(float).eps
-        null_idx = _np.nonzero(sv < tol * smax)[0]
-        # Null space = rows of vt past the numerical rank: tiny singular
-        # values plus the rectangular column deficit.
-        rank_cut = min(A.shape) - null_idx.size
-        vecs = vt[rank_cut:].T
-        funs = []
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+
+        a, b = self.domain[0], self.domain[-1]
+        dom = Domain((a, b))
+        xf = Chebfun.identity(dom)
+        op_arity2 = _op_arity(self.op, 2) >= 2
+
+        def _apply(u):
+            return self.op(xf, u) if op_arity2 else self.op(u)
+
+        def solve_at(m):
+            kk = _np.arange(m)
+            X = a + (b - a) * (_np.cos(_np.pi * kk / (m - 1))[::-1] + 1) / 2
+
+            def basis(j):
+                v = _np.zeros(m)
+                v[j] = 1.0
+                return _chebfun_from_values(jnp.asarray(v), (a, b))
+
+            A = _np.zeros((m, m), dtype=complex)
+            for j in range(m):
+                A[:, j] = _np.asarray(
+                    _apply(basis(j))(jnp.asarray(X)), dtype=complex)
+            if _np.max(_np.abs(A.imag)) == 0.0:
+                A = A.real
+
+            def bc_rows(kind, xpt, idx):
+                if callable(kind):
+                    rows = None
+                    xe = jnp.asarray(float(xpt))
+                    for j in range(m):
+                        out = kind(basis(j))
+                        if not isinstance(out, (list, tuple)):
+                            out = [out]
+                        if rows is None:
+                            rows = _np.zeros((len(out), m))
+                        for i, o in enumerate(out):
+                            rows[i, j] = float(_np.real(_np.asarray(o(xe))))
+                    return rows
+                row = _np.zeros(m)
+                row[idx] = 1.0
+                return row[None, :]
+
+            crows = []
+            if self._lbc_raw is not None:
+                crows.extend(bc_rows(self._lbc_raw, a, 0))
+            if self._rbc_raw is not None:
+                crows.extend(bc_rows(self._rbc_raw, b, m - 1))
+            if self._bc_general is not None:
+                gbc = self._bc_general
+                g_arity = _op_arity(gbc, 2)
+                rows = None
+                for j in range(m):
+                    e = basis(j)
+                    out = gbc(xf, e) if g_arity >= 2 else gbc(e)
+                    if not isinstance(out, (list, tuple)):
+                        out = [out]
+                    if rows is None:
+                        rows = _np.zeros((len(out), m))
+                    for i, o in enumerate(out):
+                        rows[i, j] = float(_np.real(_np.asarray(o)))
+                crows.extend(rows)
+            # Eliminate the constraints EXACTLY (project onto the
+            # constraint nullspace) before looking for the operator's
+            # nullspace: MATLAB's null satisfies side conditions to
+            # machine precision while the ODE residual carries the
+            # discretization error, not the other way around.
+            if crows:
+                C = _np.asarray(crows, dtype=_np.float64)
+                _, _, Vhc = _sla.svd(C)
+                Nc = Vhc.conj().T[:, C.shape[0]:]
+            else:
+                Nc = _np.eye(m)
+            M = A @ Nc
+            _, s, Vh = _sla.svd(M)
+            smax = s[0] if len(s) else 1.0
+            dim = int(_np.sum(s <= 1e-10 * max(smax, 1e-300)))
+            if dim:
+                vecs = Nc @ Vh.conj().T[:, Vh.shape[0] - dim:]
+            else:
+                vecs = _np.zeros((m, 0))
+            return dim, vecs
+
+        m = int(n) if n is not None else 33
+        dim, vecs = solve_at(m)
+        if n is None:
+            for _ in range(3):
+                dim2, vecs2 = solve_at(2 * m - 1)
+                if dim2 == dim:
+                    vecs = vecs2
+                    m = 2 * m - 1
+                    break
+                dim, vecs, m = dim2, vecs2, 2 * m - 1
+
+        # To chebfuns, then continuous L2 orthonormalization (modified
+        # Gram-Schmidt) with the MATLAB sign convention.
+        x_sign = jnp.asarray(a + (b - a) * 0.500023981)
+        V = []
         for j in range(vecs.shape[1]):
-            rec = J._sd.recover(vecs[:, j])
-            funs.append(rec[0] if m == 1 else rec)
-        # L2 Gram-Schmidt on (system) chebfun columns.
-        def ip(u, v):
-            if m == 1:
-                return float(jnp.asarray(u.inner(v)))
-            return sum(float(jnp.asarray(a.inner(b)))
-                       for a, b in zip(u, v))
+            w = vecs[:, j]
+            if _np.max(_np.abs(w.imag)) < 1e-10 * max(
+                    float(_np.max(_np.abs(w))), 1e-300):
+                w = w.real
+            u = _chebfun_from_values(jnp.asarray(w), (a, b)).simplify()
+            for q in V:
+                u = u - q * float((q * u).sum())
+            nrm = float(u.norm(2))
+            if nrm > 1e-8:
+                u = u * (1.0 / nrm)
+                if float(jnp.real(u(x_sign))) < 0:
+                    u = -u
+                V.append(u)
+        return V
 
-        ortho = []
-        for f in funs:
-            for q in ortho:
-                c = ip(q, f)
-                f = (f - c * q) if m == 1 else [
-                    a - c * b for a, b in zip(f, q)]
-            nrm = _np.sqrt(max(ip(f, f), 0.0))
-            if nrm > 1e-10:
-                f = f * (1.0 / nrm) if m == 1 else [
-                    a * (1.0 / nrm) for a in f]
-                ortho.append(f)
-        return ortho
+    def svds(self, k: int = 6, n: int = 64, tol: float = 1e-9):
+        """Selected singular values/functions of a linear chebop
+        (MATLAB svds(N, k)): the k singular values with the least
+        oscillatory singular functions, returned as ``(U, S, V)`` with
+        ``U``, ``V`` lists of chebfuns and ``S`` a diagonal matrix so
+        that ``N(V[j]) = S[j, j] * U[j]``.
+
+        Follows MATLAB: form the super-operator ``[[0, A*], [A, 0]]``
+        with the adjoint's boundary conditions on the left-singular
+        variable, solve the eigenproblem near 0 (eigenvalues are
+        ``+/- s``), keep the nonnegative branch sorted descending.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/svds.m, @linop/svds.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        if self._n_vars() != 1:
+            raise NotImplementedError(
+                "svds: only scalar operators are supported.")
+        if self._bc_general is not None:
+            raise NotImplementedError(
+                "svds: general (non lbc/rbc) constraints are not "
+                "supported.")
+        Astar = self.adjoint()
+        a0, b0 = float(self.domain[0]), float(self.domain[-1])
+        A_ar = _op_arity(self.op, 2) >= 2
+        As_ar = _op_arity(Astar.op, 2) >= 2
+
+        def sup_op(x, v, u):
+            return [Astar.op(x, u) if As_ar else Astar.op(u),
+                    self.op(x, v) if A_ar else self.op(v)]
+
+        sup = Chebop(sup_op, domain=(a0, b0))
+
+        def _as_fn(raw):
+            if raw is None:
+                return None
+            if callable(raw):
+                return raw
+            if isinstance(raw, (list, tuple)):
+                vals = [float(t) for t in raw]
+                return lambda w, _v=vals: [
+                    w.diff(i) - vi if i else w - vi
+                    for i, vi in enumerate(_v)]
+            return lambda w, _v=float(raw): w - _v
+
+        def _combine(raw_v, raw_u):
+            fv, fu = _as_fn(raw_v), _as_fn(raw_u)
+            if fv is None and fu is None:
+                return None
+
+            def bc(v, u):
+                out = []
+                for fn, w in ((fv, v), (fu, u)):
+                    if fn is None:
+                        continue
+                    r = fn(w)
+                    out.extend(r if isinstance(r, (list, tuple))
+                               else [r])
+                return out
+            return bc
+
+        sup.lbc = _combine(self._lbc_raw, Astar._lbc_raw)
+        sup.rbc = _combine(self._rbc_raw, Astar._rbc_raw)
+
+        zero = _chebfun_from_values(jnp.zeros(2), (a0, b0))
+        from chebfunjax.chebfun1d.chebfun import Chebfun as _CF
+        x_id = _CF.identity(Domain((a0, b0)))
+
+        def n_rows(raw):
+            if raw is None:
+                return 0
+            fn = _as_fn(raw)
+            out = fn(zero)
+            return len(out) if isinstance(out, (list, tuple)) else 1
+
+        nc = n_rows(self._lbc_raw) + n_rows(self._rbc_raw)
+        dor = self._op_order()
+        nul_a = dor - nc
+        nsvals = 2 + 2 * k - abs(nul_a)
+        V_sys, lam = sup._eigs_system(k=nsvals, n=n)
+        vals = _np.array(_np.real(_np.asarray(lam)))
+        vmax = _np.max(_np.abs(vals)) if vals.size else 1.0
+        vals[_np.abs(vals) < tol * max(vmax, 1e-300)] = 0.0
+        nonneg = [i for i in range(len(vals)) if vals[i] >= 0.0]
+        nonneg.sort(key=lambda i: vals[i])
+        idx = nonneg[:k][::-1]
+        sings, U, V = [], [], []
+        for i in idx:
+            vfun, ufun = V_sys[i][0], V_sys[i][1]
+            for f, dest in ((vfun, V), (ufun, U)):
+                nrm = float(f.norm(2))
+                dest.append(f * (1.0 / nrm) if nrm > tol else f)
+            # Rayleigh-quotient refinement (MATLAB eigs 'rayleigh'):
+            # the discrete eigenvalue carries the collocation error,
+            # while <u, L v> with normalized singular functions is
+            # accurate to the residual squared.
+            lv = self.op(x_id, V[-1]) if A_ar else self.op(V[-1])
+            sings.append(float(jnp.real(jnp.asarray(U[-1].inner(lv)))))
+        S = jnp.diag(jnp.asarray(sings, dtype=jnp.float64))
+        return U, S, V
+
+    def determine_discretization(self, length_dom: int, pref):
+        """Resolve the ``'values'``/``'coeffs'`` discretization keywords
+        to a concrete discretization for this chebop (MATLAB
+        determineDiscretization(N, lengthDom, pref)): periodic problems
+        without breakpoints get ``trigcolloc``/``trigspec``; everything
+        else gets ``chebcolloc2``/``ultraS``.  Concrete names pass
+        through, except the trig discretizations error on breakpoints.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop/determineDiscretization.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebpref import ChebopPref
+        out = ChebopPref(pref)
+        disc = out.discretization
+        key = disc.lower() if isinstance(disc, str) else disc
+        is_per = self._periodic and int(length_dom) < 3
+        if key == "values":
+            out.discretization = "trigcolloc" if is_per else "chebcolloc2"
+        elif key == "coeffs":
+            out.discretization = "trigspec" if is_per else "ultraS"
+        elif key in ("trigcolloc", "trigspec"):
+            if int(length_dom) > 2:
+                raise ValueError(
+                    "CHEBFUN:CHEBOP:solvebvp:breakpointsInDomain -- "
+                    "periodic problems with breakpoints cannot use "
+                    "trigcolloc/trigspec; choose chebcolloc1/2 or "
+                    "ultraS.")
+        elif key not in ("chebcolloc1", "chebcolloc2", "ultraS".lower()):
+            raise ValueError(
+                "CHEBFUN:CHEBOP:solvebvp:determineDiscretization -- "
+                "PREF.DISCRETIZATION should be VALUES or COEFFS.")
+        return out
 
     def pcg(self, f, tol: float = 1e-10, maxit: int = 100):
         """Function-space preconditioned CG solve (MATLAB pcg(N, f)).

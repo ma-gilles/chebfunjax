@@ -107,3 +107,12 @@ def test_krylov_smoke():
     u = N.solve(f)
     assert _n(u - N.pcg(f)) < 1e-6
     assert _n(u - N.gmres(f)) < 1e-6
+
+
+def test_svds_smoke():
+    """svds of d/dx on [0, pi]: singular values 2, 1, 0."""
+    N = Chebop(lambda x, u: u.diff(), domain=(0.0, float(np.pi)))
+    U, S, V = N.svds(3, n=48)
+    s = np.diag(np.asarray(S))
+    assert np.max(np.abs(s - np.array([2.0, 1.0, 0.0]))) < 1e-7
+    assert _n(N(V[0]) - float(s[0]) * U[0], (0.0, float(np.pi))) < 1e-6

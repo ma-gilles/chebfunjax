@@ -139,7 +139,7 @@ def test_chebpref_and_matlab_expr_smoke():
         .testPref == "q"
     q = ChebopPref()
     q.plotting = "on"
-    assert q.plotting == "on" and q.discretization == "chebcolloc2"
+    assert q.plotting == "on" and q.discretization == "values"
     fn = matlab_expression("cos(x) + sin(x.*y)", ("x", "y"))
     assert abs(float(fn(jnp.asarray(0.3), jnp.asarray(0.4)))
                - (np.cos(0.3) + np.sin(0.12))) < 1e-15

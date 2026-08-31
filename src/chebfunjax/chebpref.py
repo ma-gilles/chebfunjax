@@ -232,7 +232,7 @@ class ChebopPref(ChebfunPref):
     def __init__(self, src=None, **kwargs):
         super().__init__(src, **kwargs)
         top = self.__dict__["_top"]
-        for k, v in (("discretization", "chebcolloc2"),
+        for k, v in (("discretization", "values"),
                      ("bvpTol", 1e-10), ("ivpAbsTol", 1e5 * _EPS),
                      ("ivpRelTol", 100 * _EPS), ("damping", True),
                      ("maxIter", 25), ("plotting", "off"),
