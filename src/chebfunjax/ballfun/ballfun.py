@@ -44,6 +44,12 @@ import jax.numpy as jnp
 import numpy as np
 
 from chebfunjax.utils.misc import standard_chop
+
+
+def _matlab_trig_count(cutoff: int) -> int:
+    """MATLAB trigtech standardCheck cutoff -> number of Fourier modes
+    kept: ``2*floor(cutoff/2) + 1`` (an even chop cutoff rounds UP)."""
+    return cutoff + 1 if cutoff % 2 == 0 else cutoff
 from chebfunjax.utils.quadrature import chebpts
 
 # Machine epsilon for float64.
@@ -416,7 +422,6 @@ def _ballfun_happiness(
     from chebfunjax.tech.chebtech import Chebtech2, _coeffs_to_values
     from chebfunjax.tech.trigtech import (
         Trigtech,
-        _chop_cutoff_to_ncoeffs,
         trig_coeffs2vals,
     )
 
@@ -452,14 +457,12 @@ def _ballfun_happiness(
     )
 
     c_r = max(int(c_r), 1)
-    c_lam = _chop_cutoff_to_ncoeffs(int(l_cut), n) if l_happy else n
-    c_th = _chop_cutoff_to_ncoeffs(int(t_cut), p) if t_happy else p
-    c_lam = max(c_lam, 2)
-    if c_lam % 2 != 0:
-        c_lam += 1
-    c_th = max(c_th, 4)
-    if c_th % 2 != 0:
-        c_th += 1
+    # MATLAB @trigtech/standardCheck: the kept count is the chop cutoff
+    # rounded UP to odd (2*floor(c/2)+1), never down.
+    # (MATLAB ballfunHappiness returns these raw cutoffs; only the
+    # sampling GRIDS take the even parity, see the constructor.)
+    c_lam = min(_matlab_trig_count(int(l_cut)), n) if l_happy else n
+    c_th = min(_matlab_trig_count(int(t_cut)), p) if t_happy else p
 
     # Suggest new grid sizes. MATLAB (@ballfun/constructor.m,
     # ballfunHappiness): a RESOLVED direction keeps its current grid size —
@@ -1010,15 +1013,17 @@ class Ballfun(eqx.Module):
                 n = new_n
                 p = new_p
 
-        # Final evaluation at correct grid
+        # Final evaluation at correct grid (MATLAB constructor.m: the
+        # evaluation grid takes the parity of the sampling grids -- r odd,
+        # lambda/theta even -- but the coefficient tensor is then sliced
+        # to the happiness cutoffs themselves, which are ODD for the
+        # Fourier directions).
         c_r, c_lam, c_th = cutoffs if not failure else (m, n, p)
+        g_r = c_r + 1 - c_r % 2  # odd
+        g_lam = c_lam + c_lam % 2  # even
+        g_th = max(4, c_th + c_th % 2)  # even >= 4
 
-        # Enforce parity constraints on cutoffs
-        c_r = c_r + 1 - c_r % 2  # odd
-        c_lam = c_lam + c_lam % 2  # even
-        c_th = max(4, c_th + c_th % 2)  # even >= 4
-
-        vals_final, is_real = _evaluate_on_grid(op, c_r, c_lam, c_th, is_spherical=spherical)
+        vals_final, is_real = _evaluate_on_grid(op, g_r, g_lam, g_th, is_spherical=spherical)
         cfs = _vals2coeffs_3d(vals_final)
 
         # Chop to resolved sizes
@@ -2332,7 +2337,6 @@ class Ballfun(eqx.Module):
         # (MATLAB passes data.vscale = max(1, max|vals|) to
         # happinessCheck).
         from chebfunjax.tech.chebtech import Chebtech2
-        from chebfunjax.tech.trigtech import Trigtech
 
         vals = _coeffs2vals_3d(cfs)
         vscl = max(1.0, float(np.max(np.abs(vals))))
@@ -2356,9 +2360,19 @@ class Ballfun(eqx.Module):
         # Fourier dims: trim symmetrically about the zero mode, exactly
         # as MATLAB slices mid-floor(c/2) : mid+c-floor(c/2)-1.
         def _trig_window(profile, size):
-            lt = Trigtech.from_coeffs(
-                jnp.asarray(profile, dtype=jnp.complex128))
-            width = lt.simplify(_slice_tol(profile)).coeffs.shape[0]
+            # MATLAB: [resolved, cutoff] = happinessCheck(trigtech(profile))
+            # (standardCheck: standardChop on the paired magnitudes, the
+            # count rounded UP to odd, 2*floor(c/2)+1) and the centred
+            # slice only when resolved.
+            from chebfunjax.tech.trigtech import _trig_chop_cutoff
+            tol_p = _slice_tol(profile)
+            if tol_p is None:
+                return 0, size
+            cutoff, _ = _trig_chop_cutoff(
+                jnp.asarray(profile, dtype=jnp.complex128), tol_p)
+            if not cutoff < size:
+                return 0, size
+            width = cutoff + 1 if cutoff % 2 == 0 else cutoff
             width = min(width, size)
             mid = size // 2
             lo = mid - width // 2
