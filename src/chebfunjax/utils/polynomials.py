@@ -739,3 +739,71 @@ def lagpoly_chebfun(n: int, alp: float = 0.0,
 
     return Chebfun.from_function(
         f, Domain((float(domain[0]), float(domain[1]))))
+
+
+def chebpolyval(p, x):
+    """Evaluate a Chebyshev series given with the HIGHEST degree first
+    (MATLAB ``chebpolyval(p, x)``): ``p[0] T_n + ... + p[n] T_0`` at
+    numeric ``x`` (Clenshaw), or at a Chebfun ``x`` (composition; one
+    output column per column of ``p``).
+
+    Provenance
+    ----------
+    MATLAB source : chebpolyval.m
+    Chebfun commit: 7574c77
+    """
+    P = jnp.asarray(p, dtype=jnp.float64)
+    if P.ndim == 1:
+        P = P[:, None]
+    P = P[::-1, :]  # ascending degree
+
+    def _clenshaw(c, t):
+        bk1 = jnp.zeros_like(t)
+        bk2 = jnp.zeros_like(t)
+        for k in range(c.shape[0] - 1, 0, -1):
+            bk1, bk2 = c[k] + 2.0 * t * bk1 - bk2, bk1
+        return c[0] + t * bk1 - bk2
+
+    if hasattr(x, "funs"):
+        cols = []
+        for j in range(P.shape[1]):
+            c = P[:, j]
+            cols.append(x._apply_fun(lambda t, _c=c: _clenshaw(_c, t)))
+        if len(cols) == 1:
+            return cols[0]
+        return cols
+    xv = jnp.asarray(x, dtype=jnp.float64)
+    out = jnp.stack([_clenshaw(P[:, j], xv) for j in range(P.shape[1])],
+                    axis=-1)
+    return out[..., 0] if P.shape[1] == 1 else out
+
+
+def chebpolyvalm(p, A):
+    """Evaluate a Chebyshev series (highest degree first) at a square
+    matrix ``A`` by the matrix Clenshaw recurrence (MATLAB
+    ``chebpolyvalm(p, A)``).
+
+    Provenance
+    ----------
+    MATLAB source : chebpolyvalm.m
+    Chebfun commit: 7574c77
+    """
+    A = jnp.asarray(A)
+    if A.ndim != 2 or A.shape[0] != A.shape[1]:
+        raise ValueError("CHEBFUN:chebpolyvalm:square: Matrix must be "
+                         "square")
+    P = jnp.asarray(p)
+    if P.ndim != 1 and min(P.shape) != 1:
+        raise ValueError("CHEBFUN:chebpolyvalm:vector: P must be a vector.")
+    c = P.ravel()[::-1]
+    c = c.at[0].set(2.0 * c[0])
+    m = A.shape[0]
+    I = jnp.eye(m, dtype=jnp.result_type(A, c))
+    B_old = jnp.zeros((m, m), dtype=I.dtype)
+    B = jnp.zeros((m, m), dtype=I.dtype)
+    B_new = B
+    for k in range(c.shape[0] - 1, -1, -1):
+        B_old = B
+        B = B_new
+        B_new = c[k] * I + 2.0 * A @ B - B_old
+    return 0.5 * (B_new - B_old)

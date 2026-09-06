@@ -117,6 +117,8 @@ class _Piece(eqx.Module):
         tol: float | None = None,
         turbo: bool = False,
         start_pow2: int = 4,
+        extrapolate: bool = False,
+        vscale: float = 0.0,
     ) -> _Piece:
         """Build a piece from a callable on [a, b].
 
@@ -144,7 +146,8 @@ class _Piece(eqx.Module):
 
         tech = Chebtech2.from_function(f_ref, n=n, maxpow2=maxpow2, tol=tol,
                                        start_pow2=start_pow2,
-                                       turbo=turbo)
+                                       turbo=turbo, extrapolate=extrapolate,
+                                       vscale=vscale)
         return cls(tech=tech, interval=(a, b))
 
     @classmethod
@@ -277,6 +280,9 @@ class _Piece(eqx.Module):
         # A complex-dtype piece with identically-zero imaginary part
         # (e.g. one straight horizontal scribble stroke) is displayed as
         # real by MATLAB; take the real part so float() accepts the dtype.
+        if jnp.ndim(vals) == 2:
+            # Array-valued piece: display the first column's endpoints.
+            vals = vals[:, 0]
         v0, v1 = complex(vals[0]), complex(vals[-1])
         if v0.imag == 0 and v1.imag == 0:
             return (v0.real, v1.real)
@@ -1194,6 +1200,9 @@ class Chebfun(eqx.Module):
         Chebfun.ctranspose
         """
         new = Chebfun(funs=self.funs, domain=self.domain, deltas=self.deltas)
+        _pv = getattr(self, "_point_values", None)
+        if _pv is not None:
+            object.__setattr__(new, "_point_values", _pv)
         return Chebfun._as_transposed(new, not self.is_transposed)
 
     @property
@@ -1311,12 +1320,28 @@ class Chebfun(eqx.Module):
 
         from chebfunjax.fun.unbndfun import Unbndfun as _Ub
         s_arr = _np.atleast_1d(_np.asarray(s, dtype=_np.float64))
-        v_arr = _np.atleast_1d(_np.asarray(v, dtype=float))
-        if v_arr.size == 1:
-            v_arr = _np.full(s_arr.size, float(v_arr.reshape(-1)[0]))
-        if v_arr.size != s_arr.size:
+        v_arr = _np.asarray(v, dtype=float)
+        ncols = self.n_columns
+        if v_arr.size == 0:
             raise ValueError(
-                "define_point: subscripted assignment dimension mismatch.")
+                "CHEBFUN:CHEBFUN:definePoint:columnDefinePoint:conversion: "
+                "Cannot assign empty values to points.")
+        # MATLAB columnDefinePoint value-shape rules: a scalar fills
+        # every point and column; a row of numCols values is repeated
+        # for every point; for a scalar-valued chebfun a vector matches
+        # the points one-to-one; otherwise numel(s) x numCols is required.
+        if v_arr.size == 1:
+            v_arr = _np.full((s_arr.size, ncols), float(v_arr.reshape(-1)[0]))
+        elif v_arr.ndim == 1 and ncols > 1 and v_arr.size == ncols:
+            v_arr = _np.tile(v_arr[None, :], (s_arr.size, 1))
+        elif ncols == 1 and v_arr.size == s_arr.size:
+            v_arr = v_arr.reshape(-1, 1)
+        elif v_arr.ndim == 2 and v_arr.shape == (s_arr.size, ncols):
+            pass
+        else:
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:definePoint:columnDefinePoint:dimensions: "
+                "Subscripted assignment dimension mismatch.")
         a, b = float(self.domain.a), float(self.domain.b)
         if _np.min(s_arr) < a or _np.max(s_arr) > b:
             raise ValueError(
@@ -1356,12 +1381,23 @@ class Chebfun(eqx.Module):
         out = Chebfun(funs=new_funs, domain=Domain(tuple(new_bps)),
                       deltas=self.deltas)
 
-        # Record the assigned values in pointValues metadata.
+        # Record the assigned values in pointValues metadata (existing
+        # overrides at untouched breakpoints are kept).
         pv = _np.asarray(out.point_values, dtype=float).copy()
+        # MATLAB keeps f.pointValues at the untouched breakpoints (restrict
+        # copies them); re-evaluating the split pieces there could differ
+        # in the last bits (an Unbndfun at +/-inf).
+        oldv = _np.asarray(self.point_values, dtype=float)
+        old_bps = _np.asarray(list(self.domain.breakpoints), dtype=float)
+        for k, t in enumerate(old_bps):
+            j = int(_np.argmin(_np.abs(_np.asarray(new_bps) - t)))
+            pv[j] = oldv[k]
         bps = _np.asarray(new_bps, dtype=float)
+        if pv.ndim == 1 and ncols > 1:
+            pv = pv[:, None]
         for t, val in zip(s_arr, v_arr):
             idx = int(_np.argmin(_np.abs(bps - t)))
-            pv[idx] = val
+            pv[idx] = val if pv.ndim == 2 else float(val[0])
         return out.set_point_values(jnp.asarray(pv))
 
     def set_point_values(self, values) -> "Chebfun":
@@ -1397,9 +1433,402 @@ class Chebfun(eqx.Module):
         default (endpoint feval) is recomputed from ``result`` on demand.
         """
         override = getattr(self, "_point_values", None)
-        if override is not None:
+        if override is None:
+            return result
+        import numpy as _np
+        old_bps = [float(v) for v in self.domain.breakpoints]
+        new_bps = [float(v) for v in result.domain.breakpoints]
+        if old_bps == new_bps:
             object.__setattr__(result, "_point_values", op(override))
+            return result
+        # The op introduced breakpoints (sign/abs at roots): keep the
+        # mapped values at the old breakpoints, the result's own values
+        # at the new ones.
+        pv = _np.array(result.point_values)
+        mapped = _np.asarray(op(override))
+        if _np.iscomplexobj(mapped) and not _np.iscomplexobj(pv):
+            pv = pv.astype(_np.complex128)
+        for k, t in enumerate(old_bps):
+            if t in new_bps:
+                pv[new_bps.index(t)] = mapped[k]
+        object.__setattr__(result, "_point_values", jnp.asarray(pv))
         return result
+
+    def _restrict_breaks(self, pts) -> "Chebfun":
+        """MATLAB ``restrict(f, [s1 s2 ... sk])``: the restriction to
+        ``[s1, sk]`` with breakpoints introduced at every ``s_j``."""
+        pts = [float(v) for v in pts]
+        funs: list = []
+        bps: list[float] = [pts[0]]
+        for a_, b_ in zip(pts[:-1], pts[1:]):
+            sub = self.restrict(a_, b_)
+            funs.extend(sub.funs)
+            bps.extend(float(v) for v in sub.domain.breakpoints[1:])
+        return Chebfun(funs=funs, domain=Domain(tuple(bps)))
+
+    def define_interval(self, sub_int, g) -> "Chebfun":
+        """Redefine ``f`` on a subinterval (MATLAB ``f{a, b} = g`` /
+        ``defineInterval``).
+
+        ``g`` may be a Chebfun (restricted to ``sub_int``), a number or
+        vector of numbers (one constant per column), or ``None``/empty,
+        which REMOVES the subinterval and closes the gap by shifting the
+        right part left.  A subinterval outside the current domain
+        extends it, padding any gap with zero.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/defineInterval.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        sub = [float(v) for v in sub_int]
+        if any(b_ - a_ <= 0 for a_, b_ in zip(sub[:-1], sub[1:])):
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:defineInterval:invalidDomain: "
+                "Not a valid domain.")
+        ncols = self.n_columns if not self.isempty() else None
+        remove = g is None or (
+            not isinstance(g, Chebfun) and hasattr(g, "__len__")
+            and len(_np.ravel(_np.asarray(g, dtype=object))) == 0)
+        if not remove:
+            if isinstance(g, Chebfun):
+                g = g._restrict_breaks(sub)
+            else:
+                vals = _np.atleast_1d(_np.asarray(g, dtype=float)).ravel()
+                if vals.size == 1 and ncols is not None and ncols > 1:
+                    vals = _np.full(ncols, float(vals[0]))
+                if vals.size == 1:
+                    c0 = float(vals[0])
+                    g = chebfun(lambda x, _c=c0: jnp.full_like(x, _c),
+                                domain=tuple(sub))
+                else:
+                    cv = [float(v) for v in vals]
+                    g = chebfun(
+                        lambda x, _cv=cv: jnp.stack(
+                            [jnp.full_like(x, c) for c in _cv], axis=-1),
+                        domain=tuple(sub))
+        if self.isempty():
+            return g if not remove else self
+        if not remove and g.n_columns != ncols:
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:defineInterval:numCols: Dimensions of "
+                "matrices being concatenated are not consistent.")
+
+        bp = [float(v) for v in self.domain.breakpoints]
+        fa, fb = bp[0], bp[-1]
+        if not remove:
+            gb = [float(v) for v in g.domain.breakpoints]
+            if sub[-1] < fa:
+                # Extension to the left (zero padding over the gap).
+                funs = list(g.funs)
+                dom = list(gb)
+                if gb[-1] < fa:
+                    pad = chebfun(lambda x: jnp.zeros_like(x),
+                                  domain=(gb[-1], fa))
+                    funs.extend(pad.funs)
+                    dom.append(fa)
+                funs.extend(self.funs)
+                dom.extend(bp[1:])
+                return Chebfun(funs=funs, domain=Domain(tuple(dom)))
+            if sub[0] > fb:
+                funs = list(self.funs)
+                dom = list(bp)
+                if fb < gb[0]:
+                    pad = chebfun(lambda x: jnp.zeros_like(x),
+                                  domain=(fb, gb[0]))
+                    funs.extend(pad.funs)
+                    dom.append(gb[0])
+                funs.extend(g.funs)
+                dom.extend(gb[1:] if dom[-1] == gb[0] else gb)
+                return Chebfun(funs=funs, domain=Domain(tuple(dom)))
+            funs, dom = [], []
+            if sub[0] > fa:
+                left = self.restrict(fa, sub[0])
+                funs.extend(left.funs)
+                dom.extend(float(v) for v in left.domain.breakpoints[:-1])
+            funs.extend(g.funs)
+            dom.extend(gb)
+            if sub[-1] < fb:
+                right = self.restrict(sub[-1], fb)
+                funs.extend(right.funs)
+                dom.extend(float(v) for v in right.domain.breakpoints[1:])
+            return Chebfun(funs=funs, domain=Domain(tuple(dom)))
+
+        # Removal of a subinterval.
+        if sub[-1] < fa or sub[0] > fb:
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:defineInterval:badremoveinterval: "
+                "Interval to be removed is outside the domain.")
+        left = self.restrict(fa, sub[0]) if sub[0] > fa else None
+        right = self.restrict(sub[-1], fb) if sub[-1] < fb else None
+        if right is None:
+            return left if left is not None else Chebfun.empty()
+        if left is None:
+            return right
+        lb = [float(v) for v in left.domain.breakpoints]
+        rb = [float(v) for v in right.domain.breakpoints]
+        shift = lb[-1] - rb[0]
+        new_ends = [v + shift for v in rb]
+        shifted = [
+            _Piece(tech=p.tech, interval=(new_ends[k], new_ends[k + 1]))
+            for k, p in enumerate(right.funs)
+        ]
+        return Chebfun(funs=list(left.funs) + shifted,
+                       domain=Domain(tuple(lb[:-1] + new_ends)))
+
+    def find(self, return_cols: bool = False):
+        """Locations where a logical Chebfun is nonzero (MATLAB ``find``).
+
+        The nonzero set of a logical Chebfun (e.g. ``f == 1/2``) must be a
+        finite set of breakpoints, recorded in ``point_values``; otherwise
+        ``CHEBFUN:CHEBFUN:find:infset`` is raised.  For an array-valued
+        Chebfun ``return_cols=True`` is required (MATLAB's two-output
+        form) and ``(x, col)`` is returned with 0-based column indices.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/find.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        if self.isempty():
+            e = jnp.asarray([], dtype=jnp.float64)
+            return (e, e) if return_cols else e
+        ncols = self.n_columns
+        if ncols > 1 and not return_cols:
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:find:arrout: Use two output arguments "
+                "for array-valued CHEBFUN objects.")
+        pv_all = _np.asarray(self.point_values, dtype=float)
+        if pv_all.ndim == 1:
+            pv_all = pv_all[:, None]
+        bps = _np.asarray(list(self.domain.breakpoints), dtype=float)
+        xs, cols = [], []
+        for j in range(ncols):
+            for piece in self.funs:
+                c = _np.asarray(piece.tech.coeffs)
+                cj = c[:, j] if c.ndim == 2 else c
+                if _np.any(cj != 0):
+                    raise ValueError(
+                        "CHEBFUN:CHEBFUN:find:infset: Nonzero locations "
+                        "are not a finite set.")
+            xnew = bps[pv_all[:, j] != 0]
+            xs.extend(float(v) for v in xnew)
+            cols.extend([j] * xnew.size)
+        x = jnp.asarray(xs, dtype=jnp.float64)
+        if return_cols:
+            return x, jnp.asarray(cols, dtype=jnp.int64)
+        return x
+
+    def points(self) -> jax.Array:
+        """The grid points underlying each piece (MATLAB ``f.points``):
+        Chebyshev points of the piece's kind (or equispaced points for
+        a trig piece) mapped to the piece's interval, concatenated.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/subsref.m (points), @chebtech/points.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.tech.chebtech import Chebtech1
+        from chebfunjax.tech.trigtech import Trigtech
+        from chebfunjax.utils.quadrature import chebpts
+        out = []
+        for piece in self.funs:
+            a_, b_ = float(piece.interval[0]), float(piece.interval[1])
+            n_ = int(piece.tech.coeffs.shape[0])
+            if isinstance(piece.tech, Trigtech):
+                y = -1.0 + 2.0 * jnp.arange(n_, dtype=jnp.float64) / n_
+            elif isinstance(piece.tech, Chebtech1):
+                y = chebpts(n_, kind=1)
+            else:
+                y = chebpts(n_, kind=2)
+            out.append(a_ + (b_ - a_) * (y + 1.0) / 2.0)
+        return jnp.concatenate(out) if out else jnp.asarray([])
+
+    def range(self, dim: int | None = None):
+        """``max - min`` of the Chebfun (MATLAB ``range``).
+
+        Along the continuous dimension (the default for a column
+        Chebfun) the result is a number, or one number per column; along
+        the discrete dimension of an array-valued Chebfun it is the
+        pointwise range across the columns, a Chebfun.  ``dim >= 3``
+        gives the zero Chebfun.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/range.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return jnp.asarray([], dtype=jnp.float64)
+        ncols = self.n_columns
+        if dim is None:
+            dim = 1 if ncols > 1 else (2 if self.is_transposed else 1)
+        if dim >= 3:
+            return 0.0 * self
+        along_x = (dim == 1) != self.is_transposed
+        if along_x:
+            (_xmin, fmin), (_xmax, fmax) = self.minandmax()
+            r = jnp.asarray(fmax) - jnp.asarray(fmin)
+            return r if ncols > 1 else float(r)
+        if ncols == 1:
+            return 0.0 * self
+        cols = [self.extract_columns(j) for j in range(ncols)]
+        mx, mn = cols[0], cols[0]
+        for c in cols[1:]:
+            mx = mx.maximum(c)
+            mn = mn.minimum(c)
+        out = mx - mn
+        return out.transpose() if self.is_transposed else out
+
+    def truncate(self, n: int) -> "Chebfun":
+        """Truncate to ``n`` terms of the underlying series (MATLAB
+        ``truncate``): the first ``n`` Chebyshev coefficients (computed
+        by projection for a piecewise Chebfun) or, for a trig Chebfun,
+        the ``n`` central Fourier coefficients; the result is a global
+        polynomial / trigonometric polynomial on the same domain.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/truncate.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.tech.trigtech import Trigtech
+        bp = [float(v) for v in self.domain.breakpoints]
+        a_, b_ = bp[0], bp[-1]
+        if isinstance(self.funs[0].tech, Trigtech):
+            c = self.trigcoeffs(int(n))
+            return chebfun(c, domain=(a_, b_), coeffs=True, trig=True)
+        c = self.chebcoeffs(int(n))
+        return chebfun(c, domain=(a_, b_), coeffs=True)
+
+    def ultracoeffs(self, *args) -> jax.Array:
+        """Ultraspherical (Gegenbauer) expansion coefficients (MATLAB
+        ``ultracoeffs(f, lam)`` or ``ultracoeffs(f, n, lam)``): the
+        coefficients of ``f`` in the polynomials ``C^{(lam)}_k``,
+        obtained from the Jacobi coefficients with
+        ``alpha = beta = lam - 1/2`` and the standard rescaling.
+
+        Provenance
+        ----------
+        MATLAB source : ultracoeffs.m
+        Chebfun commit: 7574c77
+        """
+        from jax.scipy.special import gammaln
+        if len(args) == 1:
+            n, lam = None, float(args[0])
+        elif len(args) == 2:
+            n, lam = args
+            lam = float(lam)
+        else:
+            raise TypeError("ultracoeffs(f, lam) or ultracoeffs(f, n, lam)")
+        if lam <= 0:
+            raise ValueError(
+                "CHEBFUN:chebfun:ultrapoly:invalidLam: Ultraspherical "
+                "polynomials are not defined for lambda <= 0.")
+        if lam == 0.5:
+            return self.legcoeffs(n)
+        if lam == 1.0:
+            return self.chebcoeffs(n, kind=2)
+        ab = lam - 0.5
+        c = self.jaccoeffs(n, ab, ab)
+        N = int(c.shape[0]) - 1
+        nn = jnp.arange(N + 1, dtype=jnp.float64)
+        scl = (jnp.exp(gammaln(2 * lam) - gammaln(lam + 0.5))
+               * jnp.exp(gammaln(lam + 0.5 + nn) - gammaln(2 * lam + nn)))
+        return (scl[:, None] * c) if c.ndim == 2 else scl * c
+
+    def heaviside(self) -> "Chebfun":
+        """Heaviside step of the Chebfun, ``0.5 * (sign(f) + 1)``
+        (MATLAB ``heaviside``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/heaviside.m
+        Chebfun commit: 7574c77
+        """
+        return 0.5 * (self.sign() + 1.0)
+
+    def remove_deltas(self) -> "Chebfun":
+        """Strip every Dirac-delta component, keeping the smooth part
+        (MATLAB ``removeDeltas``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/removeDeltas.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.fun.deltafun import Deltafun
+        funs = []
+        for piece in self.funs:
+            t = piece.tech
+            if isinstance(t, Deltafun):
+                t = t.funPart if hasattr(t, "funPart") else t
+                piece = piece.with_tech(t) if hasattr(piece, "with_tech") \
+                    else _Piece(tech=t, interval=piece.interval)
+            funs.append(piece)
+        out = Chebfun(funs=funs, domain=self.domain, deltas=())
+        if self.is_transposed:
+            object.__setattr__(out, "_is_transposed", True)
+        return out
+
+    def change_tech(self, tech) -> "Chebfun":
+        """Rebuild ``f`` with a different underlying representation
+        (MATLAB ``changeTech``): ``'trig'``/``'trigtech'`` for the
+        Fourier basis, ``'chebtech2'`` / ``'chebtech1'`` for Chebyshev
+        points of the second / first kind (a tech class is accepted
+        too).  Returns ``f`` itself when it already uses ``tech``.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/changeTech.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.tech.chebtech import Chebtech1
+        from chebfunjax.tech.trigtech import Trigtech
+        if self.isempty():
+            return self
+        if isinstance(tech, type):
+            key = tech.__name__.lower()
+        else:
+            key = str(tech).lower().lstrip("@")
+        if key in ("trig", "trigtech", "periodic"):
+            target = Trigtech
+        elif key in ("chebtech1", "1", "1st"):
+            target = Chebtech1
+        elif key in ("chebtech", "chebtech2", "2", "2nd"):
+            target = Chebtech2
+        else:
+            raise ValueError(f"change_tech: unknown tech {tech!r}")
+        cur = type(self.funs[0].tech)
+        if cur is target:
+            return self
+        bp = tuple(float(v) for v in self.domain.breakpoints)
+        if target is Trigtech:
+            return chebfun(lambda x: self(x), domain=(bp[0], bp[-1]),
+                           trig=True)
+        return chebfun(lambda x: self(x), domain=bp,
+                       chebkind=1 if target is Chebtech1 else 2)
+
+    @property
+    def end(self):
+        """The value at the right endpoint (MATLAB ``f(end)``): a number
+        for a scalar Chebfun, one number per column otherwise.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/end.m, @chebfun/subsref.m
+        Chebfun commit: 7574c77
+        """
+        b_ = float(self.domain.breakpoints[-1])
+        out = self(jnp.asarray(b_, dtype=jnp.float64))
+        if jnp.ndim(out) != 0:
+            return out
+        return complex(out) if jnp.iscomplexobj(out) else float(out)
 
     # ------------------------------------------------------------------
     # Factory class methods
@@ -1415,6 +1844,8 @@ class Chebfun(eqx.Module):
         maxpow2: int = 16,
         tol: float | None = None,
         turbo: bool = False,
+        extrapolate: bool = False,
+        start_pow2: int = 4,
     ) -> Chebfun:
         """Construct a Chebfun from a callable on a given domain.
 
@@ -1450,7 +1881,9 @@ class Chebfun(eqx.Module):
         for sub in domain.intervals:
             piece = _Piece.from_function(f, sub.a, sub.b, n=n,
                                          maxpow2=maxpow2, tol=tol,
-                                         turbo=turbo)
+                                         turbo=turbo,
+                                         extrapolate=extrapolate,
+                                         start_pow2=start_pow2)
             funs.append(piece)
         return cls(funs=funs, domain=domain)
 
@@ -1612,6 +2045,38 @@ class Chebfun(eqx.Module):
         """
         if isinstance(x, Chebfun):
             return self.compose_chebfun(x)
+        # MATLAB deltafun/feval: the value AT a (zeroth-order) delta
+        # location is +-inf (sign of the magnitude); one-sided limits
+        # ignore the delta.
+        if self.deltas and side is None and not isinstance(x, jax.core.Tracer):
+            import numpy as _np
+            xq = x
+            if isinstance(x, str):
+                xq = (float(self.domain.a) if x.lower() == "left"
+                      else float(self.domain.b))
+            base = Chebfun(funs=self.funs, domain=self.domain, deltas=())
+            _pv = getattr(self, "_point_values", None)
+            if _pv is not None:
+                object.__setattr__(base, "_point_values", _pv)
+            res = _np.array(base(xq))
+            xn = _np.asarray(xq, dtype=float)
+            for row in self.deltas:
+                loc, mag, order = _delta_row(row)
+                if order != 0:
+                    continue
+                mg = _np.asarray(mag)
+                if mg.ndim > 0:
+                    mg = mg.reshape(-1)[0]
+                if mg == 0:
+                    continue
+                mask = xn == float(loc)
+                if _np.any(mask):
+                    val = _np.inf * _np.sign(float(_np.real(mg)))
+                    if xn.ndim == 0:
+                        res[...] = val
+                    else:
+                        res[mask] = val
+            return jnp.asarray(res)
         if isinstance(x, str):
             # MATLAB feval(f, 'left'/'start'/'-') and
             # feval(f, 'right'/'end'/'+'): the value at an endpoint.
@@ -1626,6 +2091,28 @@ class Chebfun(eqx.Module):
         if side is not None:
             _record_side_eval(x)
             return self._feval_side(x, side)
+        # MATLAB feval returns the stored pointValues AT the breakpoints
+        # (definePoint / f(s) = v); away from them the pieces are used.
+        _pv = getattr(self, "_point_values", None)
+        if _pv is not None and not isinstance(x, jax.core.Tracer):
+            import numpy as _np
+            base = Chebfun(funs=self.funs, domain=self.domain,
+                           deltas=self.deltas)
+            res = _np.array(base(x))
+            xn = _np.asarray(x)
+            pvn = _np.asarray(_pv)
+            if pvn.ndim == 1 and res.ndim == xn.ndim + 1:
+                pvn = pvn[:, None]
+            if _np.iscomplexobj(pvn) and not _np.iscomplexobj(res):
+                res = res.astype(_np.complex128)
+            for k, t in enumerate(self.domain.breakpoints):
+                mask = xn == float(t)
+                if _np.any(mask):
+                    if xn.ndim == 0:
+                        res[...] = pvn[k]
+                    else:
+                        res[mask] = pvn[k]
+            return self._orient_values(jnp.asarray(res))
         # Concrete input, concrete coefficients: stay in numpy end to end
         # (dtype promotion, affine maps, piece binning).  The jitted path
         # below pays per-call dispatch (~0.5 ms) that dominates ODE-marcher
@@ -2035,12 +2522,27 @@ class Chebfun(eqx.Module):
         ``op`` must be a method name (str) on ``Chebtech2`` accepting one
         Chebtech2 argument, or a callable ``op(tech_a, tech_b) -> Chebtech2``.
         """
+        f0, g0 = f, g
         f, g = Chebfun._overlap(f, g)
         new_funs = [
             pf.with_tech(op(*_cast_tech_pair(pf.tech, pg.tech)))
             for pf, pg in zip(f.funs, g.funs)
         ]
-        return Chebfun(funs=new_funs, domain=f.domain)
+        out = Chebfun(funs=new_funs, domain=f.domain)
+        # MATLAB: pointValues of a binary operation are the operation
+        # applied to the operands' pointValues (feval at a breakpoint
+        # returns the stored value, e.g. sign(x)(0) = 0).
+        if (getattr(f0, "_point_values", None) is not None
+                or getattr(g0, "_point_values", None) is not None):
+            try:
+                bps = jnp.asarray([float(v) for v in out.domain.breakpoints])
+                pv = op(f0(bps), g0(bps))
+                if getattr(pv, "shape", None) is not None \
+                        and pv.shape[0] == bps.shape[0]:
+                    object.__setattr__(out, "_point_values", jnp.asarray(pv))
+            except Exception:
+                pass
+        return out
 
     @staticmethod
     def _merge_deltas(d1, d2, s1: float = 1.0, s2: float = 1.0) -> tuple:
@@ -2059,8 +2561,12 @@ class Chebfun(eqx.Module):
                 key = (loc, order)
                 acc[key] = acc.get(key, 0.0 * mag) + scale * mag
         out = []
+        # MATLAB @deltafun/simplify: magnitudes below deltaTol (1e-9) are
+        # rounding residue of cancelled deltas and are dropped.
+        from chebfunjax.chebpref import ChebfunPref
+        _dtol = float(ChebfunPref().deltaPrefs.deltaTol)
         for (loc, order), mag in acc.items():
-            if mag != 0.0:
+            if abs(mag) > _dtol:
                 out.append((loc, mag) if order == 0 else (loc, mag, order))
         return tuple(sorted(out, key=lambda r: (r[0], _delta_row(r)[2])))
 
@@ -2068,8 +2574,12 @@ class Chebfun(eqx.Module):
         """Return ``result`` carrying ``deltas`` (no-op when empty)."""
         if not deltas:
             return result
-        return Chebfun(funs=result.funs, domain=result.domain,
-                       deltas=deltas)
+        out = Chebfun(funs=result.funs, domain=result.domain,
+                      deltas=deltas)
+        pv = getattr(result, "_point_values", None)
+        if pv is not None:
+            object.__setattr__(out, "_point_values", pv)
+        return out
 
     def __add__(self, other) -> Chebfun:
         """Add two Chebfuns or a Chebfun and a scalar.
@@ -2101,6 +2611,7 @@ class Chebfun(eqx.Module):
             for piece in self.funs
         ]
         out = Chebfun(funs=new_funs, domain=self.domain)
+        out = self._propagate_point_values(out, lambda v, _o=other: v + _o)
         return self._attach_deltas(out, getattr(self, "deltas", ()))
 
     # numpy must not try to broadcast a Chebfun when it appears on the
@@ -2245,6 +2756,7 @@ class Chebfun(eqx.Module):
         ]
         out = Chebfun._as_transposed(
             Chebfun(funs=new_funs, domain=self.domain), self.is_transposed)
+        out = self._propagate_point_values(out, lambda v, _o=other: v * _o)
         # Scalar scaling also scales any Dirac deltas (@deltafun/mtimes.m).
         ds = getattr(self, "deltas", ())
         if ds:
@@ -2290,6 +2802,14 @@ class Chebfun(eqx.Module):
     def __rtruediv__(self, other) -> Chebfun:
         """scalar / Chebfun (MATLAB rdivide: denominator roots become
         poles represented by SingFun pieces with negative exponents)."""
+        try:
+            _is_zero = float(self.norm(jnp.inf)) == 0.0
+        except Exception:
+            _is_zero = False
+        if _is_zero:
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:rdivide:columnRdivide:divisionByZeroChebfun: "
+                "Division by zero chebfun.")
         poles = _real_simple_roots(self)
         if poles.size:
             return _divide_with_poles(other, self, poles)
@@ -2666,12 +3186,19 @@ class Chebfun(eqx.Module):
         # for the roots of the zero function -- every point is one --
         # which hangs.  (Operator probing evaluates ops on the zero
         # function, so a fractional power in the op hit this.)
-        if b > 0:
-            try:
-                if float(self.norm(jnp.inf)) == 0.0:
-                    return self * 0.0
-            except Exception:
-                pass
+        try:
+            _is_zero = float(self.norm(jnp.inf)) == 0.0
+        except Exception:
+            _is_zero = False
+        if _is_zero and b > 0:
+            return self * 0.0
+        if _is_zero and b < 0:
+            # 0**b is Inf everywhere: MATLAB's constructor cannot
+            # extrapolate a grid with no finite sample (chebop's
+            # linearize maps this to invalidInitialGuess).
+            raise ValueError(
+                "CHEBFUN:CHEBTECH:extrapolate:nansInfs: "
+                "Too many NaNs/Infs to handle.")
         # No roots anywhere -> smooth composition (fast path, matches the
         # positive-function tests exactly).
         r = _np.asarray(self.roots(nojump=True), dtype=float).ravel()
@@ -3147,10 +3674,16 @@ class Chebfun(eqx.Module):
         """
         return jnp.sqrt(self.var())
 
-    def merge(self) -> "Chebfun":
+    def merge(self, index=None, *, maxpow2: int | None = None) -> "Chebfun":
         """Remove unnecessary interior breakpoints (MATLAB merge):
         re-approximate globally and keep the merged representation if
         it matches the piecewise one.
+
+        ``index`` restricts the attempt to the given interior breakpoint
+        LOCATIONS (MATLAB ``merge(f, index)``; the constructor merges only
+        the breakpoints it introduced itself).  ``maxpow2`` caps the
+        merged piece at ``2**maxpow2 + 1`` points (MATLAB caps at
+        ``splitLength`` under splitting).
 
         Provenance
         ----------
@@ -3163,17 +3696,27 @@ class Chebfun(eqx.Module):
         if len(self.funs) == 1:
             return self
         a, b = float(self.domain.a), float(self.domain.b)
-        # fast path: a single global piece
-        with _w.catch_warnings():
-            _w.simplefilter("ignore")
-            cand = Chebfun.from_function(
-                lambda x: self(x), Domain((a, b)))
-        xs = jnp.asarray(_np.linspace(a + 1e-9 * (b - a),
-                                      b - 1e-9 * (b - a), 201))
-        err = float(jnp.max(jnp.abs(cand(xs) - self(xs))))
+        _mp2 = 16 if maxpow2 is None else int(maxpow2)
+        _allowed = None
+        if index is not None:
+            _allowed = [float(v) for v in index]
         tol = 1e3 * float(_np.finfo(float).eps) * max(self.vscale, 1.0)
-        if err < tol and cand.funs[0].tech.ishappy:
-            return cand
+        _all_interior = [float(v) for v in self.domain.breakpoints[1:-1]]
+        # fast path: a single global piece (only when every interior
+        # breakpoint is up for removal)
+        if _allowed is None or all(
+                any(abs(t - u) <= 1e-14 * max(abs(t), 1.0) for u in _allowed)
+                for t in _all_interior):
+            with _w.catch_warnings():
+                _w.simplefilter("ignore")
+                cand = Chebfun.from_function(
+                    lambda x: self(x), Domain((a, b)), maxpow2=_mp2,
+                    extrapolate=maxpow2 is not None)
+            xs = jnp.asarray(_np.linspace(a + 1e-9 * (b - a),
+                                          b - 1e-9 * (b - a), 201))
+            err = float(jnp.max(jnp.abs(cand(xs) - self(xs))))
+            if err < tol and cand.funs[0].tech.ishappy:
+                return cand
         # MATLAB merge.m removes breakpoints ONE AT A TIME: each
         # interior breakpoint is dropped if the union of its two
         # neighbouring pieces re-approximates happily (true jumps and
@@ -3190,10 +3733,17 @@ class Chebfun(eqx.Module):
                     continue
                 aa = float(p.interval[0])
                 bb = float(q.interval[1])
+                _bp = float(p.interval[1])
+                if _allowed is not None and not any(
+                        abs(_bp - u) <= 1e-14 * max(abs(_bp), 1.0)
+                        for u in _allowed):
+                    continue
                 with _w.catch_warnings():
                     _w.simplefilter("ignore")
                     trial = _Piece.from_function(
-                        lambda x: self(x), aa, bb, maxpow2=10)
+                        lambda x: self(x), aa, bb,
+                        maxpow2=min(10, _mp2) if maxpow2 is None else _mp2,
+                        extrapolate=maxpow2 is not None)
                 if not getattr(trial.tech, "ishappy", False):
                     continue
                 t = _np.linspace(aa + 1e-9 * (bb - aa),
@@ -3614,7 +4164,17 @@ class Chebfun(eqx.Module):
         --------
         Chebfun.abs, Chebfun.roots
         """
-        return self._propagate_point_values(self._sign_core(), jnp.sign)
+        out = self._sign_core()
+        # MATLAB @chebfun/sign.m: the point values of sign(f) are
+        # sign(f(breakpoints)), so a root that becomes a breakpoint has
+        # value 0 there (not a one-sided limit).
+        bps = jnp.asarray([float(v) for v in out.domain.breakpoints])
+        try:
+            pv = jnp.sign(jnp.real(self(bps)))
+            object.__setattr__(out, "_point_values", pv)
+        except Exception:
+            out = self._propagate_point_values(out, jnp.sign)
+        return out
 
     def _sign_core(self) -> Chebfun:
         """Root-splitting ``sign(f)`` without pointValues propagation."""
@@ -3827,7 +4387,12 @@ class Chebfun(eqx.Module):
                 left = complex(self.funs[i](jnp.array(loc)))
                 right = complex(self.funs[i + 1](jnp.array(loc)))
                 jump = right - left
-                if abs(jump) > 1e-11 * (abs(left) + abs(right) + 1.0):
+                # MATLAB @chebfun/diff.m getDeltaMag: a jump below
+                # pref.deltaPrefs.deltaTol (1e-9, absolute) is rounding
+                # residue at the breakpoint, not a delta.
+                from chebfunjax.chebpref import ChebfunPref as _CP
+                _dtol = float(_CP().deltaPrefs.deltaTol)
+                if abs(jump) > _dtol:
                     dlist.append((loc, jump if jump.imag else jump.real))
             deltas = tuple(dlist)
         if k == 1 and self.deltas:
@@ -4016,9 +4581,20 @@ class Chebfun(eqx.Module):
             else:
                 lowered.append((loc, mag) if order == 1
                                else (loc, mag, order - 1))
+        # An order-0 delta INSIDE a piece must become a breakpoint so the
+        # Heaviside step can be represented (MATLAB @deltafun/cumsum.m).
+        base = self
+        if delta_by_loc:
+            _bps = [float(v) for v in self.domain.breakpoints]
+            _extra = [loc for loc in delta_by_loc
+                      if _bps[0] < loc < _bps[-1]
+                      and min(abs(loc - t) for t in _bps)
+                      > 1e-10 * (abs(loc) + 1.0)]
+            if _extra:
+                base = self._restrict_breaks(sorted(set(_bps) | set(_extra)))
         new_pieces = []
         offset = None
-        for piece in self.funs:
+        for piece in base.funs:
             piece_cs = piece.cumsum()
             # piece_cs has F_piece(a_piece) = 0 by construction
             # Shift by offset to achieve continuity
@@ -4038,7 +4614,7 @@ class Chebfun(eqx.Module):
                         offset = offset + mag
 
         return Chebfun._as_transposed(
-            Chebfun(funs=new_pieces, domain=self.domain,
+            Chebfun(funs=new_pieces, domain=base.domain,
                     deltas=tuple(lowered)), self.is_transposed)
 
     def sum(self) -> jax.Array:
@@ -4784,18 +5360,11 @@ class Chebfun(eqx.Module):
             raise ValueError(
                 f"Restriction [{a}, {b}] produced no pieces — check domain."
             )
-        # A polynomial restricted to a shorter interval is much smoother
-        # relative to that interval, so its Chebyshev series usually
-        # chops far earlier.  @chebtech/restrict.m does not simplify, but
-        # MATLAB's chebfun-level restriction does end up shortened, and
-        # length() is printed all over the examples catalog: on
-        # ode-nonlin/Logistic, restricting step 12 to [3.5, 4] gives 793
-        # in MATLAB R2025b where we kept the full 2236.
-        out = Chebfun(funs=new_funs, domain=new_domain)
-        try:
-            return out.simplify()
-        except Exception:
-            return out
+        # MATLAB @chebfun/restrict.m / @chebtech/restrict.m: the restricted
+        # pieces keep the original length (no simplify) -- verified in
+        # MATLAB R2025b: restrict(legpoly(1:100), [-1 -0.2 0.3 1]) has
+        # lengths [101 101 101].
+        return Chebfun(funs=new_funs, domain=new_domain)
 
     # ------------------------------------------------------------------
     # Quasimatrix linear algebra: qr, svd
@@ -6017,7 +6586,13 @@ class Chebfun(eqx.Module):
                 block = block[:, 0]
             new_funs.append(piece.with_tech(
                 self._tech_with_coeffs(t, block)))
-        return Chebfun(funs=new_funs, domain=self.domain)
+        out = Chebfun(funs=new_funs, domain=self.domain)
+        _pv = getattr(self, "_point_values", None)
+        if _pv is not None and jnp.ndim(_pv) == 2:
+            _sl = _pv[:, jnp.asarray(idx)]
+            object.__setattr__(out, "_point_values",
+                               _sl[:, 0] if single else _sl)
+        return out
 
     def assign_columns(self, cols, g) -> "Chebfun":
         """Overwrite the 0-based columns ``cols`` with the columns of
@@ -8143,6 +8718,7 @@ _DEG2RAD = jnp.pi / 180.0
 # degree-argument variants, all thin compositions like the explicit
 # sin/cos/... methods above.
 _EXTRA_ELEMENTWISE = {
+    "tan": jnp.tan,
     "sec": lambda x: 1.0 / jnp.cos(x),
     "csc": lambda x: 1.0 / jnp.sin(x),
     "cot": lambda x: 1.0 / jnp.tan(x),
@@ -8177,7 +8753,16 @@ _EXTRA_ELEMENTWISE = {
 def _install_extra_elementwise():
     def make(name, fn):
         def method(self):
-            return self._apply_fun(fn)
+            # MATLAB's acosh/asec/acoth/... of a real argument outside
+            # the real domain return COMPLEX values; NumPy-style NaNs
+            # would instead poison the construction.
+            def op(x):
+                y = fn(x)
+                if (not jnp.iscomplexobj(x)
+                        and bool(jnp.any(jnp.isnan(y)))):
+                    y = fn(jnp.asarray(x, dtype=jnp.complex128))
+                return y
+            return self._apply_fun(op)
         method.__name__ = name
         method.__doc__ = (
             f"Elementwise ``{name}`` of the Chebfun.\n\n"
@@ -8549,7 +9134,8 @@ def _find_blowup(op, a: float, b: float, vscale: float):
 
 
 def _build_exps_piece(op, a: float, b: float, el, er, stl, str_,
-                      turbo: bool = False, maxpow2: int = 16) -> _Piece:
+                      turbo: bool = False, maxpow2: int = 16,
+                      tech_cls=None) -> _Piece:
     """Build one Chebfun piece on ``[a, b]`` honouring endpoint exponents.
 
     ``op`` is the physical function on ``[a, b]``.  Each exponent is either
@@ -8587,11 +9173,12 @@ def _build_exps_piece(op, a: float, b: float, el, er, stl, str_,
     if abs(el) < 1e-14 and abs(er) < 1e-14:
         return _Piece.from_function(op, a, b, turbo=turbo, maxpow2=maxpow2)
     sf = Singfun.from_function(_full, exponents=(el, er), turbo=turbo,
+                               tech_cls=tech_cls,
                                maxpow2=maxpow2)
     return _Piece(tech=sf, interval=(float(a), float(b)))
 
 
-def chebfun(
+def _chebfun_build(
     f=None,
     *,
     domain=(-1.0, 1.0),
@@ -8599,18 +9186,37 @@ def chebfun(
     trig: bool = False,
     eps: float | None = None,
     max_length: int | None = None,
-    splitting: bool = False,
+    splitting: "bool | None" = None,
     split_length: int | None = None,
     exps: tuple[float, float] | None = None,
-    blowup: bool | int = False,
+    blowup: "bool | int | None" = None,
     singType: "list | tuple | None" = None,
     turbo: bool = False,
     equi: bool = False,
     coeffs: bool = False,
     min_samples: int | None = None,
     trunc: int | None = None,
+    periodic: bool = False,
+    chebkind: "int | str | None" = None,
+    doubleLength: bool = False,
+    vectorize: bool = False,
+    tech=None,
+    extrapolate: bool = False,
+    split_max_length: int | None = None,
+    resampling: bool = False,
 ) -> Chebfun:
     """Create a Chebfun from a callable, array of coefficients, or constant.
+
+    MATLAB flag equivalents: ``periodic=True`` is ``'periodic'`` (an
+    alias of ``trig``); ``chebkind=1`` builds on Chebyshev points of the
+    first kind (``'chebkind', 1``); ``doubleLength=True`` samples on
+    ``2N - 1`` points where ``N`` is the length the adaptive constructor
+    would choose (``'doubleLength'``); ``vectorize=True`` wraps a
+    scalar-only callable so it is evaluated pointwise (``'vectorize'``);
+    ``tech`` names the representation (``'chebtech1'``, ``'chebtech2'``,
+    ``'trigtech'``).  A STRING ``f`` such as ``'sin(x)'`` or
+    ``'exp(sin(t))'`` is parsed as a MATLAB expression of its single
+    variable (``chebfun('x')``).
 
     This is the primary construction entry point. It mimics MATLAB's
     ``chebfun(...)`` syntax.
@@ -8689,6 +9295,120 @@ def chebfun(
     # Empty chebfun (MATLAB chebfun(), chebfun([]), chebfun([], dom),
     # chebfun(@sin, 0)): no data / a zero-length domain -> the empty object.
     import numpy as _np
+
+    # Session defaults (MATLAB chebfunpref / the splitting() and blowup()
+    # toggles) apply when the flags are not given explicitly.
+    if splitting is None or blowup is None:
+        from chebfunjax.chebpref import ChebfunPref as _CP
+        _pref = _CP()
+        if splitting is None:
+            splitting = bool(_pref.splitting)
+        if blowup is None:
+            if not _pref.blowup:
+                blowup = False
+            else:
+                blowup = 1 if str(
+                    _pref.blowupPrefs.defaultSingType).lower() == "pole" \
+                    else 2
+    # --- MATLAB flag aliases ('periodic', 'tech', 'chebkind', strings,
+    #     'vectorize', 'doubleLength'); see @chebfun/chebfun.m parseInputs.
+    if tech is not None:
+        _tkey = (tech.__name__ if isinstance(tech, type)
+                 else str(tech)).lower().lstrip("@")
+        if _tkey in ("trigtech", "trig", "periodic"):
+            periodic = True
+        elif _tkey in ("chebtech1",):
+            chebkind = 1
+        elif _tkey in ("chebtech", "chebtech2"):
+            chebkind = chebkind or 2
+        else:
+            raise ValueError(f"chebfun: unknown tech {tech!r}")
+    if periodic:
+        if hasattr(domain, "__len__") and len(domain) > 2:
+            raise ValueError(
+                "CHEBFUN:parseInputs:periodic: 'periodic' construction "
+                "does not support domains with breakpoints.")
+        trig = True
+    if chebkind is not None:
+        _ck = str(chebkind).lower()
+        chebkind = 1 if _ck in ("1", "1st", "first") else 2
+        if coeffs:
+            raise ValueError(
+                " 'coeffs' and 'chebkind' should not be specified "
+                "simultaneously.")
+    if isinstance(f, str):
+        f = _string_op(f)
+    elif isinstance(f, (list, tuple)) and f and all(
+            isinstance(t, str) for t in f):
+        f = [_string_op(t) for t in f]
+    elif isinstance(f, (list, tuple)) and f and all(
+            hasattr(t, "tech") and hasattr(t, "interval") for t in f):
+        # MATLAB chebfun(f.funs): assemble a cell array of FUNs.
+        _bps = [float(f[0].interval[0])] + [float(t.interval[1]) for t in f]
+        return Chebfun(funs=list(f), domain=Domain(tuple(_bps)))
+    if isinstance(f, Chebfun):
+        # MATLAB chebfun(g): rebuild g by sampling (its pieces merge); a
+        # given domain restricts, else g's own endpoints are kept.
+        _fb = [float(v) for v in f.domain.breakpoints]
+        if tuple(float(v) for v in domain) == (-1.0, 1.0) and \
+                (_fb[0], _fb[-1]) != (-1.0, 1.0):
+            domain = (_fb[0], _fb[-1])
+        from chebfunjax.tech.trigtech import Trigtech
+        _dom_pts = [float(v) for v in (domain if hasattr(domain, "__len__")
+                                       else (domain,))]
+        if isinstance(f.funs[0].tech, Trigtech) and len(_dom_pts) > 2:
+            # MATLAB chebfun(f, [a b c]) with a periodic f: the result is
+            # a piecewise (chebtech) chebfun on the given breakpoints.
+            _g = f
+
+            def f(x, _g=_g):
+                return _g(x)
+            trig = False
+        elif isinstance(f.funs[0].tech, Trigtech) and not trig:
+            trig = True
+    if vectorize and callable(f):
+        f = _vectorize_op(f)
+    elif callable(f) and not isinstance(f, Chebfun):
+        f = _vector_check(f)
+    if doubleLength:
+        if splitting:
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:parseInputs:doubleLengthSplitting: "
+                "doubleLength not supported with splitting on.")
+        if hasattr(domain, "__len__") and len(domain) > 2:
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:parseInputs:doubleLengthBreakpoints: "
+                "doubleLength not supported on domains with breakpoints.")
+        _kw = dict(domain=domain, trig=trig, eps=eps,
+                   max_length=max_length, exps=exps, blowup=blowup,
+                   singType=singType, turbo=turbo, equi=equi,
+                   min_samples=min_samples, chebkind=chebkind)
+        if coeffs:
+            _c = jnp.asarray(f)
+            _pad = jnp.zeros((2 * int(_c.shape[0]) - 1,) + tuple(
+                _c.shape[1:]), dtype=_c.dtype)
+            return chebfun(_pad.at[:_c.shape[0]].set(_c), coeffs=True,
+                           **_kw)
+        _g = chebfun(f, n=n, **_kw)
+        _N = 2 * len(_g) - 1
+        _op = f if callable(f) else (lambda x, _g=_g: _g(x))
+        return chebfun(_op, n=_N, **_kw)
+    if chebkind == 1 and exps is None and not blowup and (callable(f) or (
+            not coeffs and hasattr(f, "__len__"))):
+        from chebfunjax.tech.chebtech import Chebtech1
+        _dk = [float(v) for v in (domain if hasattr(domain, "__len__")
+                                  else (domain,))]
+        _pieces = []
+        for _a, _b in zip(_dk[:-1], _dk[1:]):
+            if callable(f):
+                _t = Chebtech1.from_function(
+                    lambda y, _f=f, _a=_a, _b=_b:
+                        _f(_a + (_b - _a) * (y + 1.0) / 2.0), n=n)
+            else:
+                _t = Chebtech1.from_values(
+                    jnp.asarray(f, dtype=jnp.float64))
+            _pieces.append(_Piece(tech=_t, interval=(_a, _b)))
+        return Chebfun(funs=_pieces, domain=Domain(tuple(_dk)))
     _empty_f = f is None or (
         not callable(f) and hasattr(f, "__len__")
         and len(_np.ravel(_np.asarray(f, dtype=object))) == 0)
@@ -8705,9 +9425,14 @@ def chebfun(
     if _empty_f or _empty_dom or n == 0:
         return Chebfun.empty()
     if trunc is not None and not trig:
-        raise ValueError(
-            "chebfun: trunc is currently supported with trig=True only "
-            "(use chebcoeffs(n) for Chebyshev-series truncation).")
+        # MATLAB chebfun(f, 'trunc', N): build (possibly with splitting)
+        # and keep the first N Chebyshev coefficients.
+        _g = chebfun(f, domain=domain, n=n, eps=eps, max_length=max_length,
+                     splitting=splitting, split_length=split_length,
+                     exps=exps, blowup=blowup, singType=singType,
+                     turbo=turbo, equi=equi, coeffs=coeffs,
+                     min_samples=min_samples)
+        return _g.truncate(int(trunc))
     if len(_dv) < 2 or len(set(_dv)) < len(_dv):
         raise ValueError(
             "chebfun: domain intervals must be of positive length")
@@ -8721,7 +9446,21 @@ def chebfun(
         _cellish = (
             any(callable(t) for t in _elems)
             or (len(_dv) > 2 and len(_elems) == len(_dv) - 1
-                and all(isinstance(t, (int, float)) for t in _elems)))
+                and all(isinstance(t, (int, float))
+                        or (hasattr(t, "__len__") and not isinstance(t, str))
+                        for t in _elems)))
+        if _cellish:
+            def _cell_entry(t):
+                if callable(t):
+                    return _vector_check(t)
+                if isinstance(t, (int, float)):
+                    return t
+                _v = jnp.asarray(t, dtype=jnp.float64).ravel()
+                if _v.shape[0] == 1:
+                    return float(_v[0])
+                return lambda x, _v=_v: jnp.broadcast_to(
+                    _v[None, :], (jnp.shape(x)[0], _v.shape[0]))
+            _elems = [_cell_entry(t) for t in _elems]
         if _cellish:
             if len(_elems) != len(_dv) - 1:
                 raise ValueError(
@@ -8768,6 +9507,8 @@ def chebfun(
         piece = _Piece(tech=tech, interval=(a_c, b_c))
         return Chebfun(funs=[piece], domain=Domain((a_c, b_c)))
 
+    from chebfunjax.tech.chebtech import Chebtech1 as _CT1
+    _tech_cls = _CT1 if chebkind == 1 else None
     if (exps is not None or blowup) and all(
             math.isfinite(v) for v in _dv):
         # (unbounded domains carry exps through the Unbndfun branch below)
@@ -8797,7 +9538,7 @@ def chebfun(
             _build_exps_piece(f, dom_vals[j], dom_vals[j + 1],
                               pairs[j][0], pairs[j][1],
                               stypes[j][0], stypes[j][1], turbo=turbo,
-                              maxpow2=_mp2)
+                              maxpow2=_mp2, tech_cls=_tech_cls)
             for j in range(n_int)
         ]
         # With 'splitting' on, unhappy pieces are split at detected
@@ -8865,10 +9606,10 @@ def chebfun(
                 stl, str_k = stypes[k]
                 left = _build_exps_piece(f, a_, edge, el, mid_l,
                                          stl, str_k, turbo=turbo,
-                                         maxpow2=_mp2)
+                                         maxpow2=_mp2, tech_cls=_tech_cls)
                 right = _build_exps_piece(f, edge, b_, mid_r, er,
                                           stl, str_k, turbo=turbo,
-                                          maxpow2=_mp2)
+                                          maxpow2=_mp2, tech_cls=_tech_cls)
                 funs[k:k + 1] = [left, right]
                 pairs[k:k + 1] = [(el, mid_l), (mid_r, er)]
                 stypes[k:k + 1] = [(stl, str_k), (stl, str_k)]
@@ -8898,12 +9639,25 @@ def chebfun(
                 "(MATLAB CHEBFUN:CHEBFUN:parseInputs:equi).")
         from chebfunjax.utils.interpolation import funqui
 
-        handle = funqui(jnp.asarray(f))
+        _fe = jnp.asarray(f, dtype=jnp.float64)
         _de = [float(v) for v in (domain if hasattr(domain, "__len__")
                                   else (domain,))]
         if len(_de) < 2:
             _de = [-1.0, 1.0]
         a_e, b_e = _de[0], _de[-1]
+        if trig:
+            # Periodic equispaced data IS a trigonometric interpolant.
+            from chebfunjax.tech.trigtech import Trigtech
+            _tt = Trigtech.from_values(_fe)
+            return Chebfun(funs=[_Piece(tech=_tt, interval=(a_e, b_e))],
+                           domain=Domain((a_e, b_e)))
+        if _fe.ndim == 2:
+            _hs = [funqui(_fe[:, j]) for j in range(_fe.shape[1])]
+
+            def handle(t, _hs=_hs):
+                return jnp.stack([h(t) for h in _hs], axis=-1)
+        else:
+            handle = funqui(_fe)
         if (a_e, b_e) == (-1.0, 1.0):
             op_e = handle
         else:
@@ -8946,12 +9700,14 @@ def chebfun(
         if arr.ndim == 0:
             c = float(arr)
             return Chebfun.from_function(lambda x: jnp.full_like(x, c), dom, n=n)
-        if arr.ndim == 1 and not callable(f) and not coeffs:
-            # MATLAB chebfun(a) with a data VECTOR: the polynomial
-            # interpolant through the values at 2nd-kind Chebyshev
-            # points (approx2/Gibbs2D builds its square wave this way).
-            return Chebfun.from_values(
-                jnp.asarray(arr, dtype=jnp.float64), dom)
+        if arr.ndim in (1, 2) and not callable(f) and not coeffs \
+                and not trig:
+            # MATLAB chebfun(a) with a data VECTOR (or matrix: one column
+            # per function): the polynomial interpolant through the values
+            # at 2nd-kind Chebyshev points (approx2/Gibbs2D builds its
+            # square wave this way).
+            _dt = jnp.complex128 if jnp.iscomplexobj(arr) else jnp.float64
+            return Chebfun.from_values(jnp.asarray(arr, dtype=_dt), dom)
     except Exception:
         pass
 
@@ -8987,6 +9743,73 @@ def chebfun(
         dom_u = Domain((_dom_arr[0], _dom_arr[1]))
         _exps_u = (None if exps is None
                    else (float(exps[0]), float(exps[1])))
+        if splitting and n is None:
+            # MATLAB @chebfun/constructor.m with splitting on an
+            # unbounded domain: edges are detected in the MAPPED variable
+            # y in [-1, 1] (detectEdge composes the op with the map and
+            # compensates the growth exponents); the interior pieces
+            # become bounded funs and only the two tails stay unbounded,
+            # each then resolved to full relative precision.
+            _probe = Unbndfun.from_function(f, domain=dom_u, n=None,
+                                            exps=_exps_u)
+            _a_u, _b_u = _dom_arr[0], _dom_arr[1]
+            _el = 0.0 if _exps_u is None else _exps_u[0]
+            _er = 0.0 if _exps_u is None else _exps_u[1]
+
+            def _op_y(y, _p=_probe):
+                yy = jnp.asarray(y)
+                val = f(_p.forward_map(yy))
+                if _el or _er:
+                    val = val * ((yy + 1.0) ** _el * (1.0 - yy) ** _er)
+                return val
+            _eps_y = 1e-3
+            _ybrk = _split_breakpoints(_op_y, -1.0 + _eps_y, 1.0 - _eps_y,
+                                       _maxpow2, split_pow2=8, tol=_tol)
+            _ybrk = sorted(float(t) for t in _ybrk
+                           if -1.0 + _eps_y < float(t) < 1.0 - _eps_y)
+            if _ybrk:
+                _xbrk = [float(_probe.forward_map(jnp.asarray(t)))
+                         for t in _ybrk]
+                _funs: list = []
+                _bps: list = []
+                if math.isfinite(_a_u):
+                    _bps.append(_a_u)
+                    _left = _a_u
+                else:
+                    _funs.append(Unbndfun.from_function(
+                        f, domain=Domain((_a_u, _xbrk[0])), n=None,
+                        exps=(None if _exps_u is None else (_el, 0.0))))
+                    _bps.extend([_a_u, _xbrk[0]])
+                    _left = _xbrk[0]
+                    _xbrk = _xbrk[1:]
+                if math.isfinite(_b_u):
+                    _inner = _xbrk
+                    _right_tail = None
+                else:
+                    _inner = _xbrk[:-1] if _xbrk else []
+                    _right_tail = _xbrk[-1] if _xbrk else _left
+                _pts = [_left] + _inner + ([_right_tail]
+                                          if _right_tail is not None
+                                          else [_b_u])
+                for _xa, _xb in zip(_pts[:-1], _pts[1:]):
+                    if _xb - _xa <= 0:
+                        continue
+                    _sub = _construct_with_splitting(
+                        f, float(_xa), float(_xb), _maxpow2, tol=_tol,
+                        turbo=turbo, min_samples=min_samples,
+                        split_length=split_length,
+                        split_max_length=split_max_length)
+                    _funs.extend(_sub.funs)
+                    _bps.extend(float(v)
+                                for v in _sub.domain.breakpoints[1:])
+                if _right_tail is not None:
+                    _funs.append(Unbndfun.from_function(
+                        f, domain=Domain((_right_tail, _b_u)), n=None,
+                        exps=(None if _exps_u is None else (0.0, _er))))
+                    _bps.append(_b_u)
+                _bps = sorted(set(_bps))
+                return Chebfun(funs=_funs, domain=Domain(tuple(_bps)))
+            return Chebfun(funs=[_probe], domain=dom_u)
         fun_u = Unbndfun.from_function(f, domain=dom_u, n=n, exps=_exps_u)
         return Chebfun(funs=[fun_u], domain=dom_u)
 
@@ -9000,6 +9823,13 @@ def chebfun(
             )
         a, b = dom_arr
 
+        if not callable(f) and jnp.ndim(f) >= 1 and jnp.size(f) > 1:
+            # MATLAB chebfun(v, 'trig'): values on the equispaced trig
+            # grid (one column per function).
+            _tv = jnp.asarray(f)
+            tech = Trigtech.from_values(_tv)
+            piece = _Piece(tech=tech, interval=(a, b))
+            return Chebfun(funs=[piece], domain=Domain((a, b)))
         if not callable(f):
             # MATLAB chebfun(c, 'trig'): a (possibly complex) constant
             # is the single zero-wavenumber Fourier coefficient.
@@ -9025,19 +9855,586 @@ def chebfun(
 
     if callable(f):
         if splitting and n is None:
+            if len(dom_seq) > 2:
+                # User breakpoints are kept (MATLAB constructs each
+                # given interval separately under splitting).
+                _funs = []
+                for _a, _b in zip(dom_seq[:-1], dom_seq[1:]):
+                    _funs.extend(_construct_with_splitting(
+                        f, float(_a), float(_b), _maxpow2, tol=_tol,
+                        turbo=turbo, min_samples=min_samples,
+                        split_length=split_length,
+                        split_max_length=split_max_length).funs)
+                _bps = [float(_funs[0].interval[0])] + [
+                    float(pc.interval[1]) for pc in _funs]
+                return Chebfun(funs=_funs, domain=Domain(tuple(_bps)))
             return _construct_with_splitting(f, float(dom_seq[0]),
                                              float(dom_seq[-1]),
                                              _maxpow2, tol=_tol, turbo=turbo,
                                              min_samples=min_samples,
-                                             split_length=split_length)
+                                             split_length=split_length,
+                                             split_max_length=split_max_length)
+        # MATLAB 'minSamples': the first adaptive grid has at least that
+        # many points (a narrow spike missed by the 17-point grid is
+        # caught by the 33-point one).
+        _sp2 = (max(4, int(math.ceil(math.log2(max(int(min_samples) - 1,
+                                                    2)))))
+                if min_samples else 4)
         return Chebfun.from_function(f, dom, n=n, maxpow2=_maxpow2,
-                                     tol=_tol, turbo=turbo)
+                                     tol=_tol, turbo=turbo,
+                                     extrapolate=extrapolate,
+                                     start_pow2=_sp2)
 
     raise TypeError(
         f"Cannot construct a Chebfun from f of type {type(f).__name__}. "
         f"Pass a callable (e.g. jnp.sin), a scalar, or use "
         f"Chebfun.from_coeffs / Chebfun.from_values."
     )
+
+
+def _bvp_solve(method: str, odefun, bcfun, solinit, params=None,
+               options=None):
+    """Shared driver for :func:`bvp4c` / :func:`bvp5c` (MATLAB
+    @chebfun/bvp4c.m, bvp5c.m): the initial guess is an array-valued
+    Chebfun sampled on a mesh, the two-point BVP is solved by
+    ``scipy.integrate.solve_bvp`` and the dense collocation solution is
+    resampled into an array-valued Chebfun.  ``options`` is a dict with
+    MATLAB ``odeset`` keys (``RelTol``/``AbsTol``)."""
+    import numpy as _np
+    from scipy.integrate import solve_bvp  # type: ignore[import]
+
+    bp = [float(v) for v in solinit.domain.breakpoints]
+    a_, b_ = bp[0], bp[-1]
+    ncomp = solinit.n_columns
+    n_mesh = max(64, 4 * len(solinit))
+    x_mesh = _np.linspace(a_, b_, n_mesh)
+    y_init = _np.atleast_2d(_np.asarray(
+        solinit(jnp.asarray(x_mesh)), dtype=float))
+    if y_init.shape[0] != ncomp:
+        y_init = y_init.T
+    p0 = None if params is None else _np.atleast_1d(
+        _np.asarray(params, dtype=float))
+
+    def _fun(x, y, *p):
+        cols = []
+        for i in range(x.shape[0]):
+            args = (x[i], jnp.asarray(y[:, i])) + tuple(
+                (float(v) for v in p[0]) if p else ())
+            cols.append(_np.asarray(odefun(*args), dtype=float).ravel())
+        return _np.stack(cols, axis=1)
+
+    def _bc(ya, yb, *p):
+        args = (jnp.asarray(ya), jnp.asarray(yb)) + tuple(
+            (float(v) for v in p[0]) if p else ())
+        return _np.asarray(bcfun(*args), dtype=float).ravel()
+
+    opts = dict(options or {})
+    tol = float(opts.get("RelTol", opts.get("rtol",
+                                            1e-3 if method == "bvp4c"
+                                            else 1e-6)))
+    sol = solve_bvp(_fun, _bc, x_mesh, y_init, p=p0, tol=tol,
+                    max_nodes=100000)
+    if not sol.success:
+        raise RuntimeError(f"{method}: {sol.message}")
+
+    def _ev(x):
+        xx = _np.atleast_1d(_np.asarray(x, dtype=float))
+        vals = sol.sol(xx).T
+        if ncomp == 1:
+            vals = vals[:, 0]
+        return jnp.asarray(vals.reshape(
+            (_np.shape(x) + ((ncomp,) if ncomp > 1 else ()))))
+    y = chebfun(_ev, domain=(a_, b_))
+    if params is None:
+        return y
+    return y, jnp.asarray(sol.p)
+
+
+def bvp4c(odefun, bcfun, solinit, params=None, options=None):
+    """Solve a two-point BVP from a Chebfun initial guess (MATLAB
+    ``bvp4c(odefun, bcfun, y0, [params], [opts])``); returns the
+    solution as an array-valued Chebfun (and the parameters when unknown
+    parameters are supplied).
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/bvp4c.m
+    Chebfun commit: 7574c77
+    """
+    return _bvp_solve("bvp4c", odefun, bcfun, solinit, params, options)
+
+
+def bvp5c(odefun, bcfun, solinit, params=None, options=None):
+    """Solve a two-point BVP from a Chebfun initial guess with the
+    higher-accuracy defaults of MATLAB's ``bvp5c``.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/bvp5c.m
+    Chebfun commit: 7574c77
+    """
+    return _bvp_solve("bvp5c", odefun, bcfun, solinit, params, options)
+
+
+def _string_op(expr: str):
+    """MATLAB ``chebfun('sin(x)')``: compile an expression string of a
+    single variable (any identifier that is not a known function name;
+    ``x`` when the expression has none) into a vectorized callable."""
+    import re
+
+    from chebfunjax.utils.matlab_expr import _FUNS, matlab_expression
+    names = [t for t in re.findall(r"[A-Za-z_]\w*", expr)
+             if t not in _FUNS]
+    names = [t for t in names if not re.fullmatch(r"\d.*", t)]
+    var = names[0] if names else "x"
+    op = matlab_expression(expr, (var,))
+
+    def _f(x, _op=op):
+        return jnp.asarray(_op(x)) + 0.0 * x
+    return _f
+
+
+def _vector_check(f):
+    """MATLAB @chebfun/vectorCheck: make an operator's output conform to
+    the sample grid -- a scalar (``@(x) 1``) or a constant row
+    (``@(x) [1 2 3]``) is broadcast over the points, a transposed
+    array-valued output is transposed back, and an operator that cannot
+    take a vector at all is evaluated pointwise."""
+    # The layout is decided ONCE, from the first call with at least three
+    # points (a 2 x 2 output cannot be told from its transpose), and then
+    # applied consistently -- the adaptive constructor's first grid has
+    # 17 points, the endpoint check only two.
+    mode: dict = {}
+
+    def _f(x):
+        try:
+            out = jnp.asarray(f(x))
+        except Exception:
+            return _vectorize_op(f)(x)
+        if jnp.ndim(x) == 0:
+            return out
+        m = int(jnp.shape(x)[0])
+        if "kind" not in mode and (m >= 3 or out.ndim == 0
+                                   or (out.ndim == 1 and out.shape[0] != m)):
+            if out.ndim == 0:
+                mode["kind"] = "scalar"
+            elif out.ndim == 1 and out.shape[0] != m:
+                mode["kind"] = "row"
+            elif out.ndim == 2 and out.shape[0] != m and out.shape[1] == m:
+                mode["kind"] = "transposed"
+            else:
+                mode["kind"] = "plain"
+        kind = mode.get("kind", "plain")
+        if kind == "scalar" or out.ndim == 0:
+            return jnp.full((m,), out)
+        if kind == "row":
+            return jnp.broadcast_to(out[None, :], (m, out.shape[0]))
+        if kind == "transposed" and out.ndim == 2:
+            return out.T
+        return out
+    return _f
+
+
+def _vectorize_op(f):
+    """MATLAB 'vectorize' flag: evaluate a scalar-only callable pointwise."""
+    import numpy as _np
+
+    def _f(x):
+        xa = _np.asarray(x)
+        vals = [f(jnp.asarray(float(v))) for v in xa.ravel()]
+        arr = jnp.asarray(_np.asarray([_np.asarray(v) for v in vals]))
+        return arr.reshape(xa.shape + arr.shape[1:])
+    return _f
+
+
+def chebpoly(n, domain=(-1.0, 1.0), kind: int = 1) -> Chebfun:
+    """Chebyshev polynomial(s) ``T_n`` (``kind=1``) or ``U_n`` (``kind=2``)
+    as a Chebfun on ``domain`` (MATLAB ``chebpoly(N, D, KIND)``); a
+    vector ``n`` gives an array-valued Chebfun with one column per
+    degree.  (The coefficient-vector version lives in
+    :mod:`chebfunjax.utils.polynomials`.)
+
+    Provenance
+    ----------
+    MATLAB source : chebpoly.m
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+
+    from chebfunjax.utils.polynomials import chebpoly as _cheb_coeffs
+    ns = _np.atleast_1d(_np.asarray(n, dtype=int)).ravel()
+    if _np.any(ns < 0):
+        raise ValueError("CHEBFUN:chebpoly:integern: The first argument "
+                         "must be a vector of nonnegative integers.")
+    if kind not in (1, 2):
+        raise ValueError("CHEBFUN:chebpoly:kind: CHEBPOLY(N, KIND) only "
+                         "supports KIND = 1 or KIND = 2.")
+    dv = [float(v) for v in domain]
+    if any(not math.isfinite(v) for v in dv):
+        raise ValueError("CHEBFUN:chebpoly:infdomain: Chebyshev "
+                         "polynomials are not defined over an unbounded "
+                         "domain.")
+    N = int(ns.max()) + 1
+    C = _np.zeros((N, ns.size))
+    for j, k in enumerate(ns):
+        c = _np.asarray(_cheb_coeffs(int(k), kind))
+        C[:c.shape[0], j] = c
+    coeffs = jnp.asarray(C[:, 0] if ns.size == 1 else C)
+    f = chebfun(coeffs, domain=(dv[0], dv[-1]), coeffs=True)
+    if len(dv) > 2:
+        f = f._restrict_breaks(dv)
+    return f
+
+
+def legpoly(n, domain=(-1.0, 1.0), normalize=False) -> Chebfun:
+    """Legendre polynomial(s) ``P_n`` as a Chebfun on ``domain`` (MATLAB
+    ``legpoly(N, D, 'norm')``); a vector ``n`` gives an array-valued
+    Chebfun.  With ``normalize`` the columns are orthonormal on the
+    domain.
+
+    Provenance
+    ----------
+    MATLAB source : legpoly.m
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+
+    from chebfunjax.utils.polynomials import legpoly as _leg_coeffs
+    if isinstance(domain, str):
+        normalize, domain = domain, (-1.0, 1.0)
+    if isinstance(normalize, str):
+        normalize = normalize.lower().startswith("norm")
+    ns = _np.atleast_1d(_np.asarray(n, dtype=int)).ravel()
+    dv = [float(v) for v in domain]
+    if any(not math.isfinite(v) for v in dv):
+        raise ValueError("CHEBFUN:legpoly:infdomain: Legendre polynomials "
+                         "are not defined over an unbounded domain.")
+    N = int(ns.max()) + 1
+    nmax = int(ns.max())
+    # MATLAB legpoly.m method selection: method 3 (leg2cheb) for
+    # nMax > 1000, falling back to the recurrence (method 1) when many
+    # degrees are requested; method 2 (weighted QR on a Chebyshev grid of
+    # twice the size) otherwise.
+    if nmax <= 1000:
+        # MATLAB legpoly.m method 2: weighted QR of the Chebyshev
+        # Vandermonde matrix on a Chebyshev grid of twice the size.
+        from chebfunjax.utils.quadrature import chebweights
+        pts = 2 * N
+        w = _np.asarray(chebweights(pts, kind=2), dtype=float)
+        theta = _np.pi * _np.arange(pts - 1, -1, -1) / (pts - 1)
+        A = _np.cos(_np.outer(theta, _np.arange(nmax + 1)))
+        Q, _R = _np.linalg.qr(_np.sqrt(w)[:, None] * A)
+        P = Q / _np.sqrt(w)[:, None]
+        if normalize:
+            PP = P[:, ns] * (_np.sqrt(2.0 / (dv[-1] - dv[0]))
+                             * _np.sign(P[-1, ns]))
+        else:
+            PP = P[:, ns] * (1.0 / P[-1, ns])
+        from chebfunjax.tech.chebtech import Chebtech2
+        C = _np.asarray(Chebtech2.vals2coeffs(jnp.asarray(PP)))[:N, :]
+        coeffs = jnp.asarray(C[:, 0] if ns.size == 1 else C)
+        f = chebfun(coeffs, domain=(dv[0], dv[-1]), coeffs=True)
+    elif ns.size > nmax / 5:
+        # MATLAB legpoly.m method 1: the three-term recurrence evaluated
+        # at nmax+1 Chebyshev points (accurate to ~1e-13 at degree 1000
+        # where the leg2cheb transform is only ~1e-12).
+        from chebfunjax.utils.quadrature import chebpts
+        x = _np.asarray(chebpts(N, kind=2), dtype=float)
+        want = {int(k): j for j, k in enumerate(ns)}
+        V = _np.zeros((N, ns.size))
+        L0 = _np.ones_like(x)
+        L1 = x.copy()
+        for k in range(0, nmax + 1):
+            if k in want:
+                scl = (_np.sqrt((2 * k + 1) / (dv[-1] - dv[0]))
+                       if normalize else 1.0)
+                V[:, want[k]] = L0 * scl
+            L0, L1 = L1, ((2 * k + 3) * x * L1 - (k + 1) * L0) / (k + 2)
+        vals = jnp.asarray(V[:, 0] if ns.size == 1 else V)
+        f = chebfun(vals, domain=(dv[0], dv[-1]))
+    else:
+        C = _np.zeros((N, ns.size))
+        for j, k in enumerate(ns):
+            c = _np.asarray(_leg_coeffs(int(k)))
+            if normalize:
+                c = c * _np.sqrt((2 * k + 1) / (dv[-1] - dv[0]))
+            C[:c.shape[0], j] = c
+        coeffs = jnp.asarray(C[:, 0] if ns.size == 1 else C)
+        f = chebfun(coeffs, domain=(dv[0], dv[-1]), coeffs=True)
+    if len(dv) > 2:
+        f = f._restrict_breaks(dv)
+    return f
+
+
+def poly(v, domain=(-1.0, 1.0)):
+    """Monic polynomial with the given roots as a Chebfun (MATLAB
+    ``poly(v, domain)``): the roots are Leja-ordered and the product
+    formed on ``chebpts(N+1)``.  A matrix of roots gives one column per
+    root vector (a list of Chebfuns).
+
+    Provenance
+    ----------
+    MATLAB source : @domain/poly.m
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+
+    from chebfunjax.utils.quadrature import chebpts
+    V = _np.asarray(v, dtype=complex if _np.iscomplexobj(v) else float)
+    dv = [float(domain[0]), float(domain[-1])]
+    if V.ndim == 2 and min(V.shape) > 1:
+        return [poly(V[:, k], domain) for k in range(V.shape[1])]
+    V = V.reshape(-1)
+    N = V.size
+    V = V[~_np.isinf(V)]
+    if _np.any(_np.isnan(V)):
+        return chebfun(lambda x: jnp.full_like(x, jnp.nan), domain=tuple(dv))
+    if N == 0:
+        return Chebfun.empty() if hasattr(Chebfun, "empty") else \
+            chebfun(lambda x: 0.0 * x, domain=tuple(dv))
+    # Leja ordering of the roots (MATLAB poly.m)
+    vv = list(V)
+    j = int(_np.argmax(_np.abs(vv)))
+    z = [vv.pop(j)]
+    for _k in range(1, N):
+        if not vv:
+            break
+        P = [_np.prod([zz - vl for zz in z]) for vl in vv]
+        j = int(_np.argmax(_np.abs(P)))
+        z.append(vv.pop(j))
+    x = _np.asarray(chebpts(N + 1, dv[0], dv[1]) if False else
+                    dv[0] + (dv[1] - dv[0]) * (_np.asarray(chebpts(N + 1)) + 1) / 2)
+    pvals = _np.ones(N + 1, dtype=complex if _np.iscomplexobj(V) else float)
+    for zk in z:
+        pvals = pvals * (x - zk)
+    return chebfun(jnp.asarray(pvals), domain=tuple(dv))
+
+
+def polyfit(x, y, n: int, domain=(-1.0, 1.0)):
+    """Least-squares polynomial of degree ``n`` through the data
+    ``(x, y)`` as a Chebfun on ``domain`` (MATLAB ``polyfit(x, y, n,
+    domain)``): the Chebyshev-basis Vandermonde system is solved in the
+    least-squares sense.
+
+    Provenance
+    ----------
+    MATLAB source : @domain/polyfit.m
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+    x = _np.asarray(x, dtype=float).reshape(-1)
+    y = _np.asarray(y, dtype=float)
+    if y.ndim == 1:
+        y = y.reshape(-1, 1)
+    if y.shape[0] != x.shape[0]:
+        if y.shape[1] == x.shape[0]:
+            y = y.T
+        else:
+            raise ValueError("CHEBFUN:DOMAIN:polyfit:xIn: X and Y vectors "
+                             "must be the same size.")
+    a, b = float(domain[0]), float(domain[-1])
+    xm = 2 * (x - a) / (b - a) - 1
+    T = _np.zeros((x.size, n + 1))
+    T[:, 0] = 1.0
+    if n >= 1:
+        T[:, 1] = xm
+    for k in range(2, n + 1):
+        T[:, k] = 2 * xm * T[:, k - 1] - T[:, k - 2]
+    if T.shape[0] >= T.shape[1]:
+        c = _np.linalg.lstsq(T, y, rcond=None)[0]
+    else:
+        # MATLAB's backslash on an underdetermined system: the basic
+        # solution from a column-pivoted QR (at most m nonzero
+        # coefficients), not the minimum-norm one.
+        import scipy.linalg as _sla
+        Q, R, piv = _sla.qr(T, mode="economic", pivoting=True)
+        m = T.shape[0]
+        c = _np.zeros((T.shape[1], y.shape[1]))
+        c[piv[:m], :] = _sla.solve_triangular(R[:, :m], Q.T @ y)
+    coeffs = jnp.asarray(c[:, 0] if c.shape[1] == 1 else c)
+    return chebfun(coeffs, domain=(a, b), coeffs=True)
+
+
+def chebvar(*names, domain=(-1.0, 1.0)):
+    """Identity chebfuns on ``domain`` (MATLAB ``chebvar x y [a b]``):
+    one Chebfun per requested name, returned as a tuple (a single
+    Chebfun for one name).
+
+    Provenance
+    ----------
+    MATLAB source : chebvar.m
+    Chebfun commit: 7574c77
+    """
+    names = [t for t in names if isinstance(t, str)] or ["x"]
+    xs = tuple(chebfun(lambda t: t, domain=tuple(float(v) for v in domain))
+               for _ in names)
+    return xs[0] if len(xs) == 1 else xs
+
+
+def polyval(p, x):
+    """Evaluate a polynomial with coefficients ``p`` (highest degree
+    first, MATLAB order) at a Chebfun ``x`` by Horner's rule (MATLAB
+    ``polyval(p, x)``).  A coefficient MATRIX evaluates one polynomial
+    per column and returns a list of Chebfuns; a list/quasimatrix ``x``
+    evaluates the polynomial at each column.  Both at once is an error.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/polyval.m
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+
+    P = _np.asarray(p, dtype=float)
+    if P.ndim == 1:
+        P = P[:, None]
+    xs = [x] if isinstance(x, Chebfun) else list(x)
+    if P.shape[1] > 1 and len(xs) > 1:
+        raise ValueError(
+            "CHEBFUN:CHEBFUN:polyval:dimMismatch: Input P must be a column "
+            "vector or X must be a scalar-valued CHEBFUN.")
+    outs = []
+    for col in range(P.shape[1]):
+        for xk in xs:
+            y = 0.0 * xk + float(P[0, col])
+            for j in range(1, P.shape[0]):
+                y = y * xk + float(P[j, col])
+            outs.append(y)
+    return outs[0] if len(outs) == 1 else outs
+
+
+def _hscale(f: Chebfun) -> float:
+    bp = [float(v) for v in f.domain.breakpoints]
+    h = max(abs(bp[0]), abs(bp[-1]))
+    return h if math.isfinite(h) and h > 0 else 1.0
+
+
+def tweak_domain(f: Chebfun, g=None, tol: float | None = None,
+                 side: int = 0):
+    """Nudge nearly-coincident breakpoints of ``f`` and ``g`` onto each
+    other (MATLAB ``tweakDomain``): breakpoints that differ by less than
+    ``tol`` (default ``2e-15 * hscale``) are replaced by their average
+    (``side = 0``), by ``f``'s value (``side < 0``) or ``g``'s
+    (``side > 0``), rounded to an integer when within ``tol`` of one.
+    Breakpoints adjacent to intervals shorter than ``2*tol`` are left
+    alone.  ``g`` may also be a domain (sequence of breakpoints).
+
+    Returns ``(f, g, loc_f, loc_g)`` with the 0-based indices of the
+    breakpoints that moved.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/tweakDomain.m
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+
+    if g is None:
+        return f, g, [], []
+    dom_given = not isinstance(g, Chebfun)
+    if dom_given:
+        g_dom = _np.unique(_np.asarray(g, dtype=float))
+        if g_dom.size < 2:
+            return f, g, [], []
+        if tol is None:
+            hsg = float(_np.max(_np.abs(g_dom[[0, -1]])))
+            if not _np.isfinite(hsg):
+                hsg = 1.0
+            tol = 1e-15 * max(_hscale(f), hsg)
+        f_dom = _np.asarray(list(f.domain.breakpoints), dtype=float)
+    else:
+        if tol is None:
+            tol = 2e-15 * max(_hscale(f), _hscale(g))
+        f_dom = _np.asarray(list(f.domain.breakpoints), dtype=float)
+        g_dom = _np.asarray(list(g.domain.breakpoints), dtype=float)
+
+    f_work, g_work = f_dom.copy(), g_dom.copy()
+    tiny_f = _np.diff(f_dom) < 2 * tol
+    f_work[_np.concatenate([tiny_f, [False]])
+           | _np.concatenate([[False], tiny_f])] = _np.nan
+    tiny_g = _np.diff(g_dom) < 2 * tol
+    g_work[_np.concatenate([tiny_g, [False]])
+           | _np.concatenate([[False], tiny_g])] = _np.nan
+    dd = _np.abs(f_work[:, None] - g_work[None, :])
+    idx = (dd > 0) & (dd < tol)
+    loc_f = _np.any(idx, axis=1)
+    loc_g = _np.any(idx, axis=0)
+    if side == 0:
+        new_breaks = (f_dom[loc_f] + g_dom[loc_g]) / 2.0
+    elif side < 0:
+        new_breaks = f_dom[loc_f]
+    else:
+        new_breaks = g_dom[loc_g]
+    rnd = _np.abs(_np.round(new_breaks) - new_breaks) < tol
+    new_breaks[rnd] = _np.round(new_breaks[rnd])
+    f_new = f_dom.copy()
+    f_new[loc_f] = new_breaks
+    g_new = g_dom.copy()
+    g_new[loc_g] = new_breaks
+
+    def _rebuild(h: Chebfun, dom_new):
+        funs = [
+            _Piece(tech=p.tech, interval=(float(dom_new[k]),
+                                          float(dom_new[k + 1])))
+            if hasattr(p, "interval") else p
+            for k, p in enumerate(h.funs)
+        ]
+        out = Chebfun(funs=funs, domain=Domain(tuple(float(v)
+                                                     for v in dom_new)),
+                      deltas=h.deltas)
+        if h.is_transposed:
+            object.__setattr__(out, "_is_transposed", True)
+        return out
+
+    f_out = _rebuild(f, f_new) if _np.any(loc_f) else f
+    if dom_given:
+        g_out = g_new
+    else:
+        g_out = _rebuild(g, g_new) if _np.any(loc_g) else g
+    return (f_out, g_out, [int(i) for i in _np.flatnonzero(loc_f)],
+            [int(i) for i in _np.flatnonzero(loc_g)])
+
+
+def chebfun(f=None, *, domain=(-1.0, 1.0), **kwargs) -> Chebfun:
+    """Create a Chebfun (MATLAB ``chebfun(...)``); see
+    :func:`_chebfun_build` for every flag.
+
+    As in MATLAB's constructor, a Chebfun built from an operator records
+    ``op(breakpoints)`` as its ``pointValues`` (@chebfun/constructor.m,
+    ``getValuesAtBreakpoints``), so evaluation exactly AT a breakpoint
+    returns the operator's own value there (``sign(0) = 0``,
+    ``sin(pi*1)`` at ``x = 1``).
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/chebfun.m, @chebfun/constructor.m
+    Chebfun commit: 7574c77
+    """
+    out = _chebfun_build(f, domain=domain, **kwargs)
+    if (callable(f) or isinstance(f, str)) and not isinstance(f, Chebfun) \
+            and not out.isempty() \
+            and getattr(out, "_point_values", None) is None:
+        try:
+            import numpy as _np
+            op = _string_op(f) if isinstance(f, str) else _vector_check(f)
+            bps = _np.asarray(list(out.domain.breakpoints), dtype=float)
+            finite = _np.isfinite(bps)
+            pv = _np.array(out.point_values)
+            if _np.any(finite):
+                vals = _np.asarray(op(jnp.asarray(bps[finite])))
+                if _np.iscomplexobj(vals) and not _np.iscomplexobj(pv):
+                    pv = pv.astype(_np.complex128)
+                if vals.shape == pv[finite].shape and \
+                        bool(_np.all(_np.isfinite(vals))):
+                    pv[finite] = vals
+                    out = out.set_point_values(jnp.asarray(pv))
+        except Exception:
+            pass
+    return out
+
+
+chebfun.__doc__ = (chebfun.__doc__ or "") + "\n\n" + (
+    _chebfun_build.__doc__ or "")
 
 
 # Attach factory classmethods to `chebfun` callable so users can write
@@ -9198,6 +10595,22 @@ def ode113(
                       rtol=rtol, atol=atol, dense_n=dense_n, **kwargs)
 
 
+def ode15s(odefun, tspan, y0, *, rtol: float = 1e-3, atol: float = 1e-6,
+           dense_n: int | None = None, **kwargs) -> "Chebfun":
+    """Solve a (possibly stiff) IVP and return a Chebfun (MATLAB
+    ``chebfun.ode15s``): SciPy's variable-order ``BDF`` method, the
+    analogue of MATLAB's NDF-based ode15s.  Default tolerances follow
+    MATLAB's ``odeset`` (RelTol 1e-3, AbsTol 1e-6).
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/ode15s.m, @chebfun/constructODEsol.m
+    Chebfun commit: 7574c77
+    """
+    return _ode_solve("BDF", odefun, tspan, y0,
+                      rtol=rtol, atol=atol, dense_n=dense_n, **kwargs)
+
+
 # ---------------------------------------------------------------------------
 # Private implementation shared by ode45 / ode113
 # ---------------------------------------------------------------------------
@@ -9263,9 +10676,10 @@ def _two_arg_extremum(f: "Chebfun", other, pick):
 
 def _split_breakpoints(f, a: float, b: float, maxpow2: int,
                        depth: int = 0, max_depth: int = 45,
-                       min_w: float = 1e-10,
+                       min_w: "float | None" = None,
                        split_pow2: int = 8,
-                       tol=None) -> list:
+                       tol=None, vscale: float = 0.0,
+                       budget: "dict | None" = None) -> list:
     """Recursively find interior breakpoints for splitting-on (Opus 4.8).
 
     Detection is capped at 2^12 points: a piece containing a
@@ -9282,6 +10696,11 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
     # (e.g. sqrt(4-(x-1)^2), which is ~2*sqrt(1+x) at x=-1) thrash: every
     # detection and edge-bisection construction ran to thousands of points and
     # the recursion hung for minutes.  MATLAB source: @chebfunpref splitLength.
+    if min_w is None:
+        # MATLAB keeps subdividing a sad piece down to the scale of the
+        # domain's floating-point resolution (1e-14 * hscale); a fixed
+        # 1e-10 floor left sqrt(1-x) slivers 1e-6 in error near x = 1.
+        min_w = 1e-14 * max(abs(a), abs(b), 1.0)
     det = min(maxpow2, split_pow2)
     with _warnings.catch_warnings():
         _warnings.simplefilter("ignore")
@@ -9289,7 +10708,21 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
         # eps level, machine-precision happiness would never be reached
         # and the recursion would grind to min_w on every subinterval
         p = _Piece.from_function(f, a + 1e-9 * (b - a), b - 1e-9 * (b - a),
-                                 maxpow2=det, tol=tol)
+                                 maxpow2=det, tol=tol, vscale=vscale)
+    if budget is not None:
+        # MATLAB constructor.m: splitting stops once the total length of
+        # all current pieces (a sad piece counting splitLength) reaches
+        # splitMaxLength; the remaining sad pieces are accepted
+        # unresolved (with a warning).  ``used`` tracks that total: a
+        # happy piece replaces its splitLength estimate by its length,
+        # a split adds one more splitLength piece.
+        _sl = 2 ** split_pow2 + 1
+        if p.ishappy:
+            budget["used"] += int(p.n) - _sl
+        elif budget["used"] >= budget["max"]:
+            return []
+        else:
+            budget["used"] += _sl
     if p.ishappy or (b - a) < min_w or depth > max_depth:
         return []
     # Locate the singularity with the MATLAB detectEdge derivative-growth
@@ -9301,7 +10734,10 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
     # and the still-unhappy pieces cascaded into hundreds of splits.
     e = _detect_edge_matlab(f, a, b)
     if e is None:
-        e = _split_edge_fd(f, a, b)
+        # MATLAB @chebfun/constructor.m: no edge detected -> bisect.
+        # (A finite-difference edge heuristic used here before found
+        # spurious edges everywhere on |x|^5 -- 247 pieces.)
+        e = 0.5 * (a + b)
     w = b - a
     htol = 1e-12 * max(abs(a), abs(b), 1.0)
     if e <= a + htol:
@@ -9315,10 +10751,10 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
     elif not (a < e < b):
         e = 0.5 * (a + b)
     return (_split_breakpoints(f, a, e, maxpow2, depth + 1, max_depth,
-                               min_w, split_pow2, tol)
+                               min_w, split_pow2, tol, vscale, budget)
             + [e]
             + _split_breakpoints(f, e, b, maxpow2, depth + 1, max_depth,
-                                 min_w, split_pow2, tol))
+                                 min_w, split_pow2, tol, vscale, budget))
 
 
 def _detect_edge_matlab(f, a: float, b: float,
@@ -9501,20 +10937,57 @@ def _split_edge_fd(f, a: float, b: float, n: int = 17) -> float:
 def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                               tol=None, turbo: bool = False,
                               min_samples: "int | None" = None,
-                              split_length: "int | None" = None):
+                              split_length: "int | None" = None,
+                              split_max_length: "int | None" = None):
     """Build a piecewise Chebfun, auto-detecting breakpoints (Opus 4.8, #12).
 
     Each piece is constructed on a slightly-shrunk interval so that at a
     jump the piece captures the one-sided limit (not the ambiguous value
     exactly at the breakpoint, e.g. sign(0)=0).
     """
+    if turbo:
+        # MATLAB 'turbo' (techPrefs.useTurbo) with splitting on: the
+        # subdivision is decided at ordinary accuracy and every final
+        # piece is then rebuilt with the turbo (double-length)
+        # coefficients on its own interval.
+        plain = _construct_with_splitting(
+            f, a, b, maxpow2, tol=tol, turbo=False,
+            min_samples=min_samples, split_length=split_length, split_max_length=split_max_length)
+        funs = []
+        for pc in plain.funs:
+            pa, pb = float(pc.interval[0]), float(pc.interval[1])
+            try:
+                # extrapolate: like the plain pieces, never sample the
+                # ambiguous breakpoint value itself (sign(0) = 0).
+                funs.append(_Piece.from_function(f, pa, pb, turbo=True,
+                                                 extrapolate=True))
+            except Exception:
+                funs.append(pc)
+        return Chebfun(funs=funs, domain=plain.domain)
     import math as _math0
     import warnings as _warnings
     split_pow2 = (8 if split_length is None
                   else max(4, int(_math0.ceil(_math0.log2(
                       max(int(split_length) - 1, 2))))))
+    # MATLAB @chebfun/constructor.m keeps a running GLOBAL vscale and
+    # hands it to every piece (data.vscale): a sliver next to a
+    # singularity (sqrt(1-x) near 1, values ~1e-5) is then resolved to
+    # eps * 1, not eps * 1e-5 -- the latter is below the rounding of
+    # 1 - x and can never be reached, so the recursion split forever.
+    import numpy as _np0
+    _xs0 = _np0.linspace(a, b, 257)[1:-1]
+    with _np0.errstate(all="ignore"):
+        try:
+            _ys0 = _np0.abs(_np0.asarray(f(jnp.asarray(_xs0)), dtype=float))
+        except Exception:
+            _ys0 = _np0.asarray([])
+    _ys0 = _ys0[_np0.isfinite(_ys0)] if _ys0.size else _ys0
+    vscale_g = float(_np0.max(_ys0)) if _ys0.size else 0.0
+    _budget = {"used": 2 ** split_pow2 + 1,
+               "max": (6000 if split_max_length is None
+                       else int(split_max_length))}
     brks = _split_breakpoints(f, a, b, maxpow2, split_pow2=split_pow2,
-                              tol=tol)
+                              tol=tol, vscale=vscale_g, budget=_budget)
     # Always keep the true domain endpoints a and b; merge only INTERIOR
     # breakpoints, and drop any interior point that lands within the merge
     # tolerance of EITHER neighbour (previously a geometric peel breakpoint a
@@ -9541,16 +11014,17 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
         # into bisection; the value error it induces is O(1e-11 * |f'|)
         # at two samples only (geometry is exact).  Sharper edge
         # refinement is a ledgered improvement.
-        _w = bi - ai
-        eps_l = 1e-11 * _w if i > 0 else 0.0
-        eps_r = 1e-11 * _w if i < len(cleaned) - 2 else 0.0
+        # A piece touching an interior breakpoint must not sample the
+        # ambiguous jump value there (sign(0) = 0): MATLAB's constructor
+        # evaluates only the interior nodes and EXTRAPOLATES the endpoint
+        # values (pref.extrapolate).  Nudging the sample points inward
+        # instead (an earlier approach) mis-assigned the values to the
+        # unnudged nodes and left every such piece with an O(1e-11 |f'|)
+        # endpoint error (|x| evaluated to 9e-13 at 0).
+        _xtrap = (i > 0) or (i < len(cleaned) - 2)
 
-        def f_ref(t, _a=ai, _b=bi, _el=eps_l, _er=eps_r):
+        def f_ref(t, _a=ai, _b=bi):
             x = 0.5 * (_b - _a) * t + 0.5 * (_a + _b)
-            # turbo evaluates on a complex (Bernstein-ellipse) contour;
-            # the endpoint nudge only applies to real sample points.
-            if not jnp.iscomplexobj(x):
-                x = jnp.clip(x, _a + _el, _b - _er)
             return f(x)
 
         # Splitting-mode pieces are capped at MATLAB's splitLength (2**8 + 1
@@ -9569,7 +11043,9 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
             _warnings.simplefilter("ignore")
             tech = Chebtech2.from_function(f_ref, maxpow2=piece_maxpow2,
                                            start_pow2=_sp2,
-                                           tol=tol, turbo=turbo)
+                                           tol=tol, turbo=turbo,
+                                           extrapolate=_xtrap,
+                                           vscale=vscale_g)
         funs.append(_Piece(tech=tech, interval=(float(ai), float(bi))))
 
     # MATLAB's constructor keeps splitting any still-sad piece (at a
@@ -9579,7 +11055,8 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
     def _sad(pc):
         return not bool(getattr(pc.tech, "ishappy", True))
 
-    SPLIT_MAX_LENGTH = 6000
+    SPLIT_MAX_LENGTH = (6000 if split_max_length is None
+                        else int(split_max_length))
     guard = 0
     while (any(_sad(pc) for pc in funs)
            and sum(pc.n for pc in funs) < SPLIT_MAX_LENGTH
@@ -9590,7 +11067,7 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                   for pc in funs]
         k = int(_np.argmax(_np.asarray(widths)))
         a_k, b_k = funs[k].interval
-        edge = _split_edge_fd(f, a_k, b_k)
+        edge = _detect_edge_matlab(f, a_k, b_k)
         okw = 4 * _np.spacing(max(abs(a_k), abs(b_k), 1e-300))
         if (edge is None or not (a_k < edge < b_k)
                 or edge - a_k < okw or b_k - edge < okw):
@@ -9603,7 +11080,8 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                 _warnings.simplefilter("ignore")
                 halves.append(_Piece.from_function(
                     f, aa, bb, maxpow2=piece_maxpow2, tol=tol,
-                    turbo=turbo, start_pow2=_sp2))
+                    turbo=turbo, start_pow2=_sp2, extrapolate=True,
+                    vscale=vscale_g))
         funs[k:k + 1] = halves
     # A still-sad piece narrower than the edge locator's resolution is
     # an unresolvable-kink sliver; its adaptive coefficients can be
@@ -9618,6 +11096,14 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
         if (b_k - a_k) >= 1e-8 * hscale:
             continue
         import numpy as _np
+        # A merely UNRESOLVED sliver (sqrt(1-x) on [1-1e-14, 1]) keeps
+        # its full-length interpolant, as MATLAB does (accepted with a
+        # 'notResolved' warning); only a sliver whose adaptive
+        # coefficients blew up (the noise-kink case) is replaced.
+        _cs = _np.asarray(pc.tech.coeffs)
+        if _np.all(_np.isfinite(_cs)) and \
+                float(_np.max(_np.abs(_cs))) <= 1e2 * max(vscale_g, 1.0):
+            continue
         tq = _np.cos(_np.pi * _np.arange(8, dtype=float) / 7)[::-1]
         xq = 0.5 * (b_k - a_k) * (0.98 * tq) + 0.5 * (a_k + b_k)
         with _warnings.catch_warnings():
@@ -9628,8 +11114,18 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
             tech=Chebtech2.from_values(jnp.asarray(vals)),
             interval=(a_k, b_k))
     bps2 = [funs[0].interval[0]] + [pc.interval[1] for pc in funs]
-    return Chebfun(funs=funs, domain=Domain(tuple(float(v)
-                                                  for v in bps2)))
+    out = Chebfun(funs=funs, domain=Domain(tuple(float(v)
+                                                 for v in bps2)))
+    # MATLAB @chebfun/chebfun.m: "Remove unnecessary breaks (but not
+    # those that were given)" -- merge the breakpoints splitting
+    # introduced, capped at splitLength (a jump sitting exactly on a
+    # piece endpoint is detected AT that endpoint and moved inward by
+    # w/100; the merge removes that spurious neighbour again).
+    if len(out.funs) > 1:
+        with _warnings.catch_warnings():
+            _warnings.simplefilter("ignore")
+            out = out.merge(index=bps2[1:-1], maxpow2=split_pow2)
+    return out
 
 
 def _integer_step(f: "Chebfun", op, half_offset: bool = False):
@@ -9749,10 +11245,12 @@ def _ode_solve(
         # dense output via the adaptive chebfun factory.
         # The dense solution ``sol.sol`` is a continuous interpolant from
         # solve_ivp; we pass it directly as the function to approximate.
+        # A complex state (u' = i*u) must keep its imaginary part.
+        _sdt = jnp.complex128 if _cplx else jnp.float64
         return chebfun(
             lambda t: jnp.asarray(sol.sol(  # type: ignore[union-attr]
                 _np.atleast_1d(_np.asarray(t, dtype=_np.float64))
-            )[0], dtype=jnp.float64),
+            )[0], dtype=_sdt),
             domain=(t0, tf),
         )
     else:
@@ -10290,36 +11788,25 @@ def quantumstates(
     a, b = float(V.domain.a), float(V.domain.b)
     n_req = int(n)
 
-    def _solve(ngrid):
-        L = Chebop(lambda x_, u: -h**2 * u.diff(2) + V * u,
-                   domain=(a, b))
+    from chebfunjax.tech.trigtech import Trigtech
+    _periodic = isinstance(V.funs[0].tech, Trigtech)
+
+    L = Chebop(lambda x_, u: -h**2 * u.diff(2) + V * u, domain=(a, b))
+    if _periodic:
+        # MATLAB: a periodic (trig) potential gives periodic eigenstates.
+        L.bc = "periodic"
+    else:
         L.lbc = 0.0
         L.rbc = 0.0
-        # MATLAB quantumstates.m: eigs(L, n, 'sr') -- explicit
-        # smallest-real targeting (the sigma=None default now runs the
-        # automatic smoothest-eigenvector mode, which can center the
-        # window mid-spectrum for narrow potentials).
-        lam, funs = L.eigs(k=n_req, n=ngrid, sigma="SR",
-                           return_eigenfunctions=True)
-        lam = _np.real(_np.asarray(lam))
-        order = _np.argsort(lam)
-        return lam[order], [funs[i] for i in order]
-
-    # MATLAB's quantumstates delegates to eigs(L, n, 'sr') on the
-    # adaptive linop discretization.  The previous hand-rolled fixed
-    # 100-point grid here reached only ~5 digits where Chebop.eigs
-    # reaches ~1e-14 on the same problem; double the grid until the
-    # requested eigenvalues stabilise.
-    ngrid = max(128, 4 * n_req)
-    lam, funs = _solve(ngrid)
-    for _ in range(3):
-        lam2, funs2 = _solve(2 * ngrid)
-        scale = _np.maximum(_np.abs(lam2), 1.0)
-        done = float(_np.max(_np.abs(lam2 - lam) / scale)) < 1e-11
-        ngrid *= 2
-        lam, funs = lam2, funs2
-        if done:
-            break
+    # MATLAB quantumstates.m: [U, D] = eigs(L, n, 'sr') on the adaptive
+    # linop discretisation (a fixed-grid solve leaves O(1e-9) derivative
+    # jumps at breakpoints of V, which diff() then turns into deltas).
+    _out = L.eigs(k=n_req, sigma="SR", return_eigenfunctions=True)
+    # (the periodic path returns MATLAB's [V, D] order)
+    lam, funs = (_out[1], _out[0]) if isinstance(_out[0], list) else _out
+    lam = _np.real(_np.asarray(lam))
+    order = _np.argsort(lam)
+    lam, funs = lam[order], [funs[i] for i in order]
 
     out_funs = []
     for f in funs:

@@ -96,11 +96,11 @@ class TestSpherefunvAlgebra:
 
     def test_norm_three_component(self):
         f = Spherefunv(_const(1.0), _const(0.0), _const(0.0))
-        npt.assert_allclose(float(f.norm()(*PT)), 1.0, atol=1e-9)
+        npt.assert_allclose(float(f.magnitude()(*PT)), 1.0, atol=1e-9)
 
     def test_norm_two_component(self):
         f = Spherefunv(_const(3.0), _const(4.0))
-        npt.assert_allclose(float(f.norm()(*PT)), 5.0, atol=1e-9)
+        npt.assert_allclose(float(f.magnitude()(*PT)), 5.0, atol=1e-9)
 
     def test_times_vector(self):
         p = _ex().times(_ex())  # componentwise square

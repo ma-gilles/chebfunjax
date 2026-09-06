@@ -1103,9 +1103,15 @@ def trigratinterp(
     # ------------------------------------------------------------------
     # 5.  Run the trig rational interpolation algorithm
     # ------------------------------------------------------------------
-    ac, bc, n_eff = _trig_rat_interp(
-        fvals, m, n, th, a_dom, b_dom, fEven, fOdd, tol > 0, True, ts
-    )
+    # MATLAB trigratinterp.m: nodes sorted and mapped to the standard
+    # period [-1, 1]; the linear algebra (SVD of [P, -D*Q] in the
+    # sine/cosine basis) is the same for equispaced and arbitrary nodes.
+    order = np.argsort(th)
+    th_s = 2.0 * (th[order] - 0.5 * (a_dom + b_dom)) / period
+    fvals = fvals[order]
+    interpolation_flag = (NN == 2 * (m + n) + 1)
+    ac, bc, _sv = _trig_rat_interp_svd(
+        fvals, m, n, th_s, tol > 0, interpolation_flag, ts)
 
     mu = (len(ac) - 1) // 2
     nu = (len(bc) - 1) // 2
@@ -1117,11 +1123,13 @@ def trigratinterp(
 
     # Normalize if pure polynomial (n=0 case)
     if n == 0 or nu == 0:
-        q_val = _eval_trig_poly(bc, np.array([0.5 * (a_dom + b_dom)]), a_dom, b_dom)
-        if q_val != 0:
-            r_old = r_handle
-            def r_handle(x, _qv=q_val):
-                return r_old(x) / _qv
+        # MATLAB: p = p./q; q = q./q -- normalise the constant denominator
+        # to one (the ratio r is unchanged).
+        q0 = complex(bc[(len(bc) - 1) // 2]) if len(bc) else 1.0
+        if q0 != 0:
+            ac = ac / q0
+            bc = bc / q0
+            r_handle = _construct_trig_rat_approx(ac, bc, a_dom, b_dom, ts)
 
     # ------------------------------------------------------------------
     # 7.  Poles and residues
@@ -1158,6 +1166,88 @@ def _trig_check_symmetries(f, ts):
             fEven = np.linalg.norm(fl - fr, np.inf) < ts
             fOdd = np.linalg.norm(fl + fr, np.inf) < ts
     return fEven, fOdd
+
+
+def _trig_sincos_matrices(th, m, n, T=2.0):
+    """MATLAB construct_matrices: [1, sin(2pi j th/T), cos(2pi j th/T)]."""
+    P = np.zeros((len(th), 2 * m + 1))
+    Q = np.zeros((len(th), 2 * n + 1))
+    P[:, 0] = 1.0
+    for j in range(1, m + 1):
+        P[:, 2 * j - 1] = np.sin(2 * j * np.pi / T * th)
+        P[:, 2 * j] = np.cos(2 * j * np.pi / T * th)
+    Q[:, 0] = 1.0
+    for j in range(1, n + 1):
+        Q[:, 2 * j - 1] = np.sin(2 * j * np.pi / T * th)
+        Q[:, 2 * j] = np.cos(2 * j * np.pi / T * th)
+    return P, Q
+
+
+def _sincos_to_exponential(a):
+    """MATLAB sincosine_to_exponential: [a0, s1, c1, s2, c2, ...] ->
+    exponential coefficients for k = -m..m."""
+    a = np.asarray(a, dtype=complex).ravel()
+    tmp = (a[2::2] - 1j * a[1::2]) / 2.0
+    return np.concatenate([np.conj(tmp)[::-1], a[:1], tmp])
+
+
+def _chop_trig_coeffs(a, tol):
+    """MATLAB chopCoeffs: drop symmetric trailing coefficients below tol."""
+    a = np.asarray(a)
+    n = len(a)
+    if n <= 1:
+        return a
+    mid = (n - 1) // 2
+    aa = (np.abs(a[mid:]) + np.abs(a[mid::-1])) / 2.0
+    big = np.flatnonzero(np.abs(aa) > tol)
+    if big.size == 0:
+        return a[mid:mid + 1]
+    idx = int(big[-1]) + 1
+    return a[mid - idx + 1:mid + idx]
+
+
+def _trig_rat_interp_svd(fk, m, n, th, robustness_flag, interpolation_flag,
+                         tol):
+    """Faithful port of MATLAB trig_rat_interp: the null vector of the
+    row-scaled system ``[P, -diag(f) Q]`` gives numerator/denominator
+    sine-cosine coefficients; with robustness the denominator degree is
+    reduced while the system has more than one negligible singular value.
+    (MATLAB resets the symmetry flags to false inside this routine.)
+
+    Provenance
+    ----------
+    MATLAB source : trigratinterp.m (trig_rat_interp, construct_matrices,
+        getCoeffs, chopCoeffs, sincosine_to_exponential)
+    Chebfun commit: 7574c77
+    """
+    fk = np.asarray(fk, dtype=complex).ravel()
+    th = np.asarray(th, dtype=float).ravel()
+    while True:
+        P, Q = _trig_sincos_matrices(th, m, n, 2.0)
+        D = np.diag(fk)
+        sys_mat = np.hstack([P, -D @ Q])
+        sys_mat = np.diag(1.0 / np.maximum(np.abs(fk), 1.0)) @ sys_mat
+        _U, S, Vh = np.linalg.svd(sys_mat, full_matrices=True)
+        V = Vh.conj().T
+        v = V[:, -1]
+        a = v[:2 * m + 1]
+        b = v[2 * m + 1:]
+        ac = _chop_trig_coeffs(_sincos_to_exponential(a), tol)
+        bc = _chop_trig_coeffs(_sincos_to_exponential(b), tol)
+        s = S
+        m = min((len(ac) - 1) // 2, m)
+        big = np.flatnonzero(np.abs(s) > tol)
+        n_big = int(big[-1]) + 1 if big.size else 0
+        n_small = len(s) - n_big
+        if n_small < 2 or not robustness_flag:
+            break
+        reduction = n_small // 2
+        if reduction == 0:
+            break
+        n_new = n - reduction
+        if n_new >= 0:
+            n = n_new
+    return ac, bc, s
 
 
 def _trig_rat_interp(fk, m, n, th, a_dom, b_dom, fEven, fOdd, robustness, interpolation, ts):
@@ -1326,7 +1416,10 @@ def _eval_trig_poly(coeffs, x, a_dom, b_dom):
     result = np.zeros_like(x, dtype=complex)
     for j in range(n_coeffs):
         k = j - mu  # Fourier frequency
-        result = result + coeffs[j] * np.exp(1j * 2 * np.pi * k * (x - a_dom) / period)
+        # Standard-period variable (MATLAB: x mapped to [-1, 1] about
+        # the midpoint), matching the trigtech coefficient convention.
+        xs = 2.0 * (x - 0.5 * (a_dom + b_dom)) / period
+        result = result + coeffs[j] * np.exp(1j * np.pi * k * xs)
 
     return np.real(result)
 
@@ -1349,7 +1442,8 @@ def _find_trig_poles(bc, a_dom, b_dom):
 
     z_roots = np.roots(poly_coeffs)
     # Map back to x: z = e^{i*2*pi*(x-a)/period} => x = a + period*log(z)/(2*pi*i)
-    x_poles = a_dom + period * np.log(z_roots) / (2j * np.pi)
+    x_poles = (0.5 * (a_dom + b_dom)
+               + period * np.log(z_roots) / (2j * np.pi))
     # Keep only real poles (within the period)
     real_poles = x_poles[np.abs(np.imag(x_poles)) < 1e-8]
     real_poles = np.real(real_poles)

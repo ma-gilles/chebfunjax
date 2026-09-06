@@ -75,7 +75,7 @@ class TestDiskfunvVsMatlab:
 
     def test_norm_pointwise(self):
         # Diskfunv.norm() returns the pointwise magnitude field sqrt(f^2+g^2).
-        n = _N().norm()
+        n = _N().magnitude()
         npt.assert_allclose(np.asarray(n(_T, _R)), _REF["norm_eval"],
                             rtol=RTOL, atol=1e-12)
 

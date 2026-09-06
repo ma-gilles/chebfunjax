@@ -47,6 +47,11 @@ from chebfunjax.utils.quadrature import chebpts
 # Lazy import to avoid circular dependency with chebfun1d
 # ---------------------------------------------------------------------------
 
+# MATLAB valsDiscretization.dimensionValues(cheboppref): 2.^[5:9, 9.5:.5:12]
+_EIGS_DIM_LADDER = (32, 64, 128, 256, 512, 724, 1024, 1448, 2048, 2896,
+                    4096)
+
+
 def _chebfun_from_values(values, domain: tuple[float, float]):
     """Wrap collocation values as a Chebfun (lazy import to avoid cycles)."""
     from chebfunjax.chebfun1d.chebfun import Chebfun
@@ -363,6 +368,7 @@ class Linop:
         n_default: int = 64,
         sigma: float | str | None = None,
         return_eigenfunctions: bool = False,
+        _raw: bool = False,
     ):
         """Compute eigenvalues of the constrained operator.
 
@@ -425,7 +431,34 @@ class Linop:
             # from plain 'SM' on problems whose smallest-magnitude
             # modes are rough (e.g. randfuneig level-repulsion runs).
             sigma = self._auto_sigma()
-        sz = n if n is not None else n_default
+        if n is None:
+            # MATLAB @linop/eigs.m: walk the discretisation ladder
+            # (cheboppref minDimension 32 .. maxDimension 4096) until the
+            # weighted sum of the k eigenvectors passes the chebtech
+            # happiness check at bvpTol (5e-13).
+            import numpy as np
+
+            from chebfunjax.tech.chebtech import Chebtech2
+            k_coeff = 1.0 / (2.0 * np.arange(1, k + 1))
+            dim_used = _EIGS_DIM_LADDER[-1]
+            for dim in _EIGS_DIM_LADDER:
+                lam_d, V_d = self.eigs(n=int(dim), k=k, sigma=sigma,
+                                       _raw=True)
+                dim_used = int(dim)
+                if V_d.shape[1] == 0:
+                    break
+                w = V_d @ k_coeff[:V_d.shape[1]]
+                if np.max(np.abs(np.imag(w))) < 1e-10 * np.max(np.abs(w)):
+                    w = np.real(w)
+                v = jnp.asarray(w)
+                c = Chebtech2.vals2coeffs(v)
+                ok, _cut = Chebtech2.happiness_check(
+                    c, v, tol=5e-13, vscale=0.0)
+                if bool(ok):
+                    break
+            return self.eigs(n=dim_used, k=k, sigma=sigma,
+                             return_eigenfunctions=return_eigenfunctions)
+        sz = n
         disc = ChebColloc2Disc(sz, self.domain)
 
         # Build operator matrix
@@ -507,6 +540,8 @@ class Linop:
         else:
             lam_out = jnp.array(lam_sel, dtype=jnp.complex128)
 
+        if _raw:
+            return lam_out, V_all[:, selected]
         if not return_eigenfunctions:
             return lam_out
 

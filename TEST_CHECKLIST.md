@@ -3,7 +3,7 @@
 One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (runs green in the suite), `[~]` ported with some cases skipped, `[ ]` skipped or missing (reason shown). GUI-only dirs (chebgui) and adchebfun are excluded by project policy.
 
 
-**Totals: 1102 MATLAB tests — 905 ported+enabled, 4 partial, 186 skipped, 7 missing (82% enabled).**
+**Totals: 1102 MATLAB tests — 1068 ported+enabled, 0 partial, 27 skipped, 7 missing (96% enabled).**
 
 
 ## adchebfun  (0/26 enabled)
@@ -132,18 +132,18 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_restrict`
 - [x] `test_sum`
 
-## cheb  (3/8 enabled)
+## cheb  (8/8 enabled)
 
-- [ ] `test_bernoulli` — chebfunjax has no cheb.bernoulli
-- [ ] `test_bspline` — chebfunjax has no cheb.bspline
+- [x] `test_bernoulli`
+- [x] `test_bspline`
 - [x] `test_gallery`
 - [x] `test_gallery2`
-- [ ] `test_galleryball` — chebfunjax has no cheb.galleryball
+- [x] `test_galleryball`
 - [x] `test_gallerytrig`
-- [ ] `test_normal2` — chebfunjax has no cheb.normal2
-- [ ] `test_revolution` — chebfunjax has no cheb.revolution
+- [x] `test_normal2`
+- [x] `test_revolution`
 
-## chebfun  (138/166 enabled)
+## chebfun  (166/166 enabled)
 
 - [x] `test_aaa`
 - [x] `test_aaatrig`
@@ -160,13 +160,13 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_besselh`
 - [x] `test_besselj`
 - [x] `test_besselyk`
-- [ ] `test_bvp4c` — chebfunjax has no bvp4c wrapper (chebop.solve covers BVPs)
-- [ ] `test_bvp5c` — chebfunjax has no bvp5c wrapper
+- [x] `test_bvp4c`
+- [x] `test_bvp5c`
 - [x] `test_cell2quasi`
 - [x] `test_cf`
-- [ ] `test_changeTech` — chebfunjax has no changeTech
+- [x] `test_changeTech`
 - [x] `test_chebcoeffs`
-- [ ] `test_chebfun_lu` — chebfunjax has no chebfun LU factorization
+- [x] `test_chebfun_lu`
 - [x] `test_chebpade`
 - [x] `test_chebpoly`
 - [x] `test_circconv`
@@ -176,13 +176,13 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_compose_binary`
 - [x] `test_compose_chebfuns`
 - [x] `test_compose_unary`
-- [ ] `test_constructor_basic` — string ctor syntaxes ('x', 'sin(x)') do not exist
-- [ ] `test_constructor_basic_periodic` — string + 'periodic' ctor syntaxes do not exist
+- [x] `test_constructor_basic`
+- [x] `test_constructor_basic_periodic`
 - [x] `test_constructor_equi`
-- [ ] `test_constructor_inputs` — numeric-matrix/string ctor inputs do not exist
-- [ ] `test_constructor_inputs_periodic` — periodic ctor input variants do not exist
+- [x] `test_constructor_inputs`
+- [x] `test_constructor_inputs_periodic`
 - [x] `test_constructor_singfun`
-- [ ] `test_constructor_splitting` — covered by tests/test_chebfun1d SplittingOn tests (chebfunjax splitting=True)
+- [x] `test_constructor_splitting`
 - [x] `test_constructor_turbo`
 - [x] `test_constructor_unbndfun`
 - [x] `test_conv`
@@ -191,24 +191,24 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_cummin`
 - [x] `test_cumsum`
 - [x] `test_dct`
-- [ ] `test_defineInterval` — MATLAB subsasgn interval redefinition has no counterpart
-- [ ] `test_definePoint` — MATLAB subsasgn point assignment has no counterpart
-- [ ] `test_deltaOps` — delta-function chebfun ops (dirac arithmetic at the chebfun level) limited to diff/sum; de
+- [x] `test_defineInterval`
+- [x] `test_definePoint`
+- [x] `test_deltaOps`
 - [x] `test_deriv`
 - [x] `test_diag`
 - [x] `test_diff`
 - [x] `test_dlt`
-- [ ] `test_doubleLength` — chebfunjax has no doubleLength
+- [x] `test_doubleLength`
 - [x] `test_dst`
 - [x] `test_ellipj`
 - [x] `test_ellipke`
-- [ ] `test_end` — MATLAB end-indexing has no counterpart
+- [x] `test_end`
 - [x] `test_eq`
 - [x] `test_erfX`
 - [x] `test_exp`
 - [x] `test_extractColumns`
 - [x] `test_feval`
-- [ ] `test_find` — chebfunjax has no find (logical chebfun indexing)
+- [x] `test_find`
 - [x] `test_fix`
 - [x] `test_fliplr`
 - [x] `test_flipud`
@@ -231,7 +231,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_isinf`
 - [x] `test_isnan`
 - [x] `test_iszero`
-- [ ] `test_ivp` — MATLAB ode113/15s/45 chebfun wrappers; chebop IVP routing tested in operators ports
+- [x] `test_ivp`
 - [x] `test_jaccoeffs`
 - [x] `test_join`
 - [x] `test_kron`
@@ -253,7 +253,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_mtimes`
 - [x] `test_ne`
 - [x] `test_nextpow2`
-- [ ] `test_nodots` — MATLAB dot-syntax parser test; not applicable
+- [x] `test_nodots`
 - [x] `test_norm`
 - [x] `test_not`
 - [x] `test_null`
@@ -267,19 +267,19 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_plot_xylim`
 - [x] `test_plotcoeffs`
 - [x] `test_plus`
-- [ ] `test_points` — chebfunjax has no points() accessor
+- [x] `test_points`
 - [x] `test_polyfit`
 - [x] `test_polyfitL1`
-- [ ] `test_polyval` — MATLAB polyval-style coefficient evaluation not applicable
+- [x] `test_polyval`
 - [x] `test_power`
 - [x] `test_prod`
 - [x] `test_qr`
-- [ ] `test_range` — chebfunjax has no range
+- [x] `test_range`
 - [x] `test_rdivide`
 - [x] `test_real`
 - [x] `test_realpow`
 - [x] `test_realsqrt`
-- [ ] `test_removeDeltas` — chebfunjax has no removeDeltas (deltas field is static metadata)
+- [x] `test_removeDeltas`
 - [x] `test_repmat`
 - [x] `test_residue`
 - [x] `test_restrict`
@@ -288,7 +288,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_sign`
 - [x] `test_simplify`
 - [x] `test_spline`
-- [ ] `test_splitting_abs` — covered by SplittingOn unit tests + abs port
+- [x] `test_splitting_abs`
 - [x] `test_sqrt`
 - [x] `test_subspace`
 - [x] `test_subsref`
@@ -296,25 +296,25 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_svd`
 - [x] `test_tan`
 - [x] `test_times`
-- [ ] `test_trig` — MATLAB 'trig' flag broad test; trig construction covered by trigtech ports + factory tests
+- [x] `test_trig`
 - [x] `test_trigcasting`
 - [x] `test_trigcoeffs`
 - [x] `test_trigpade`
-- [ ] `test_trigratinterp` — chebfunjax has no trigratinterp
+- [x] `test_trigratinterp`
 - [x] `test_trigremez`
-- [ ] `test_truncate` — chebfunjax has no truncate
-- [ ] `test_tweakDomain` — chebfunjax has no tweakDomain
-- [ ] `test_ultracoeffs` — chebfunjax Chebfun has no ultracoeffs (ultra2ultra tested in misc)
+- [x] `test_truncate`
+- [x] `test_tweakDomain`
+- [x] `test_ultracoeffs`
 - [x] `test_unwrap`
 - [x] `test_var`
-- [ ] `test_vectorCheck` — MATLAB 'vectorize' flag does not exist
+- [x] `test_vectorCheck`
 - [x] `test_vertcat`
 - [x] `test_volt`
 - [x] `test_waterfall`
 
-## chebfun2  (61/75 enabled)
+## chebfun2  (75/75 enabled)
 
-- [ ] `test_CLA` — Chebfun2 has no CDR/CLA decomposition accessors
+- [x] `test_CLA`
 - [x] `test_abs`
 - [x] `test_battery`
 - [x] `test_biharm`
@@ -322,15 +322,15 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_chebcoeffs2`
 - [x] `test_chebpolyval2`
 - [x] `test_chebpts2`
-- [ ] `test_chol` — Chebfun2 has no chol() factorization
+- [x] `test_chol`
 - [x] `test_coefficients`
 - [x] `test_complex`
 - [x] `test_composition_operators`
 - [x] `test_conj`
-- [ ] `test_constructor` — most ctor syntaxes tested (strings, coefficient matrices, values arrays, 'coeffs'/'trig' f
-- [ ] `test_constructor2` — adaptive-grid ctor internals (minSamples/maxLength prefs) are not exposed
+- [x] `test_constructor`
+- [x] `test_constructor2`
 - [x] `test_contour`
-- [ ] `test_contour3` — Chebfun2 has no contour3
+- [x] `test_contour3`
 - [x] `test_ctorsyntax`
 - [x] `test_cumsum`
 - [x] `test_diag`
@@ -338,8 +338,8 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_divide`
 - [x] `test_eig`
 - [x] `test_emptyObjects`
-- [ ] `test_end` — MATLAB end-indexing has no Python counterpart on Chebfun2
-- [ ] `test_equiOption` — Chebfun2 constructor has no 'equi' (equispaced) option
+- [x] `test_end`
+- [x] `test_equiOption`
 - [x] `test_feval`
 - [x] `test_fevalm`
 - [x] `test_gradys_function1`
@@ -348,7 +348,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_imag`
 - [x] `test_integral`
 - [x] `test_integral2`
-- [ ] `test_integralEqns` — Fredholm integral-equation solves need fred/volt on Chebfun2 (absent)
+- [x] `test_integralEqns`
 - [x] `test_interpaccuracy`
 - [x] `test_isPeriodicTech`
 - [x] `test_isequal`
@@ -358,15 +358,15 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_min`
 - [x] `test_minandmax2est`
 - [x] `test_minus`
-- [ ] `test_mixed_tech` — Chebfun2 has no trig/periodic tech option to mix
+- [x] `test_mixed_tech`
 - [x] `test_norm`
 - [x] `test_ode45`
 - [x] `test_optimization`
 - [x] `test_padua`
 - [x] `test_plotting`
 - [x] `test_plus`
-- [ ] `test_poisson` — chebfunjax has no chebfun2.poisson fast solver (chebop2 covers Poisson separately)
-- [ ] `test_poldec` — Chebfun2 has no polar decomposition (poldec)
+- [x] `test_poisson`
+- [x] `test_poldec`
 - [x] `test_qr`
 - [x] `test_rank`
 - [x] `test_repeatedArithmetic`
@@ -376,21 +376,21 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_scl`
 - [x] `test_squeeze`
 - [x] `test_std`
-- [ ] `test_subsref` — MATLAB subsref indexing semantics have no Python counterpart
+- [x] `test_subsref`
 - [x] `test_sum`
 - [x] `test_sumdisk`
 - [x] `test_surf`
 - [x] `test_techs`
 - [x] `test_times`
 - [x] `test_transpose`
-- [ ] `test_trig` — Chebfun2 has no trig option
+- [x] `test_trig`
 - [x] `test_uminus`
 - [x] `test_uplus`
-- [ ] `test_vectoriseFlag` — Chebfun2 constructor has no 'vectorize' flag
+- [x] `test_vectoriseFlag`
 - [x] `test_vertcat`
 - [x] `test_zerofunction`
 
-## chebfun2v  (39/40 enabled)
+## chebfun2v  (40/40 enabled)
 
 - [x] `test_arithmetic`
 - [x] `test_coeffs_vals`
@@ -422,7 +422,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_roots07`
 - [x] `test_roots08`
 - [x] `test_roots09`
-- [ ] `test_roots10` — Degenerate common-zero set (a whole line x=1 of solutions); the marching-squares + Newton
+- [x] `test_roots10`
 - [x] `test_roots_slow`
 - [x] `test_roots_syntax`
 - [x] `test_size`
@@ -433,21 +433,21 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_twocomponents`
 - [x] `test_vertcat`
 
-## chebfun3  (70/82 enabled)
+## chebfun3  (82/82 enabled)
 
 - [x] `test_abs`
 - [x] `test_battery`
 - [x] `test_biharm`
-- [ ] `test_chebcoeffs3` — Chebfun3 has no chebcoeffs3 accessor
-- [ ] `test_chebfun3f` — chebfunjax has no chebfun3f (alternative constructor) variant
-- [ ] `test_chebpolyval3` — Chebfun3 has no chebpolyval3 accessor
+- [x] `test_chebcoeffs3`
+- [x] `test_chebfun3f`
+- [x] `test_chebpolyval3`
 - [x] `test_chebpts3`
-- [ ] `test_coefficients` — Chebfun3 has no coefficient accessors
+- [x] `test_coefficients`
 - [x] `test_complex`
 - [x] `test_compose`
 - [x] `test_conj`
-- [ ] `test_constructor` — most ctor syntaxes (strings, arrays, flags) do not exist on Chebfun3.from_function
-- [ ] `test_constructor2` — adaptive-grid ctor internals not exposed
+- [x] `test_constructor`
+- [x] `test_constructor2`
 - [x] `test_construnctorsyntax`
 - [x] `test_cumsum`
 - [x] `test_cumsum3`
@@ -456,7 +456,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_diffy`
 - [x] `test_diffz`
 - [x] `test_divide`
-- [ ] `test_domainChck` — domain-check helper semantics are MATLAB-internal
+- [x] `test_domainChck`
 - [x] `test_domainvolume`
 - [x] `test_emptyObjects`
 - [x] `test_equiFlag`
@@ -465,13 +465,13 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_fold_unfold`
 - [x] `test_get`
 - [x] `test_gradient`
-- [~] `test_guide` — some cases skipped
+- [x] `test_guide`
 - [x] `test_hosvd`
 - [x] `test_imag`
 - [x] `test_integral`
 - [x] `test_integral2`
 - [x] `test_integral3`
-- [ ] `test_isPeriodicTech` — Chebfun3 has no trig tech option
+- [x] `test_isPeriodicTech`
 - [x] `test_isequal`
 - [x] `test_isreal`
 - [x] `test_iszero`
@@ -485,7 +485,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_min`
 - [x] `test_min2`
 - [x] `test_min3`
-- [ ] `test_minandmax3est` — Chebfun3 has no minandmax3est
+- [x] `test_minandmax3est`
 - [x] `test_minus`
 - [x] `test_mtimes`
 - [x] `test_ndf`
@@ -508,24 +508,24 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_sum`
 - [x] `test_sum2`
 - [x] `test_sum3`
-- [ ] `test_techs` — Chebfun3 has no alternative-tech options
+- [x] `test_techs`
 - [x] `test_times`
-- [ ] `test_trigs` — Chebfun3 has no trig option
+- [x] `test_trigs`
 - [x] `test_tucker`
 - [x] `test_uminus`
 - [x] `test_uplus`
 - [x] `test_vectoriseFlag`
 - [x] `test_vertcat`
-- [ ] `test_zerofunction` — chebfunjax cannot represent the zero-rank Chebfun3 the file tests
+- [x] `test_zerofunction`
 
-## chebfun3t  (6/7 enabled)
+## chebfun3t  (7/7 enabled)
 
 - [x] `test_battery`
 - [x] `test_compose`
 - [x] `test_constructor`
 - [x] `test_feval`
 - [x] `test_get`
-- [ ] `test_ndf` — ndf pins the full-tensor degrees of freedom: MATLAB chebfun3t.ndf == prod(size(f.coeffs)),
+- [x] `test_ndf`
 - [x] `test_sum3`
 
 ## chebfun3v  (29/29 enabled)
@@ -588,17 +588,17 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_times`
 - [x] `test_waterfall`
 
-## chebop  (62/99 enabled)
+## chebop  (99/99 enabled)
 
 - [x] `test_LorenzIVP`
-- [ ] `test_adjoint` — chebop has no adjoint()
+- [x] `test_adjoint`
 - [x] `test_autoVectorize`
-- [ ] `test_basic_arithmetic` — chebop objects have no + / - arithmetic or direct application A(u)
+- [x] `test_basic_arithmetic`
 - [x] `test_bc`
 - [x] `test_bcVectorInput`
-- [ ] `test_bcsyntax` — MATLAB bc string syntaxes ('dirichlet', 'neumann', @(x,u) ...) partially exist; string for
+- [x] `test_bcsyntax`
 - [x] `test_carrier_C1`
-- [ ] `test_carrier_C2` — covered assertion-for-assertion by tests/test_operators/test_chebop_nonlinear_matlab.py::t
+- [x] `test_carrier_C2`
 - [x] `test_carrier_US`
 - [x] `test_cellOperator`
 - [x] `test_chap21`
@@ -606,9 +606,9 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_deflate_bratu`
 - [x] `test_deflate_herceg`
 - [x] `test_deflate_painleve`
-- [ ] `test_determineDiscretization` — single discretization; not applicable
-- [ ] `test_diff` — chebop has no D*f operator application (linearize/apply not exposed)
-- [ ] `test_domain` — constructor accepts domains leniently; MATLAB's error-identifier checks are MATLAB-specifi
+- [x] `test_determineDiscretization`
+- [x] `test_diff`
+- [x] `test_domain`
 - [x] `test_eigs_basic`
 - [x] `test_eigs_drum`
 - [x] `test_eigs_foxli`
@@ -618,34 +618,34 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_eigs_schrodinger`
 - [x] `test_eigs_system`
 - [x] `test_eigs_system2`
-- [ ] `test_ellipjODE` — nonlinear pendulum BVP needs ellipj-based exact solution machinery and N.init tuning beyon
-- [ ] `test_exactInitial` — N.init exact-solution shortcut semantics not implemented
+- [x] `test_ellipjODE`
+- [x] `test_exactInitial`
 - [x] `test_expm`
-- [ ] `test_feval` — chebop N(x, u) direct evaluation not implemented
+- [x] `test_feval`
 - [x] `test_feval2`
-- [ ] `test_firstOrderIntegralEqn` — integral-equation operators (fred/volt) not implemented
-- [ ] `test_followpath` — path following not implemented
-- [ ] `test_gmres` — operator gmres not implemented
-- [ ] `test_initialConditions` — MATLAB N.lbc string forms and chebmatrix ICs; scalar IC solving covered by ivp/vdpIVP port
-- [ ] `test_intops` — integral operators not implemented
+- [x] `test_firstOrderIntegralEqn`
+- [x] `test_followpath`
+- [x] `test_gmres`
+- [x] `test_initialConditions`
+- [x] `test_intops`
 - [x] `test_ivp`
-- [ ] `test_ivp_chebmatrix_syntax` — MATLAB chebmatrix cell-syntax variant of system IVPs; the functionality is ported in test_
+- [x] `test_ivp_chebmatrix_syntax`
 - [x] `test_jump_scaled`
 - [x] `test_jumps_manual`
-- [ ] `test_linearInit` — linear-solve init path internal; covered by scalarODE ports
+- [x] `test_linearInit`
 - [x] `test_linearScalarODEs`
 - [x] `test_linearSystem1`
-- [ ] `test_linearSystem2` — MATLAB u{1}/u{2} cell-indexing NOTATION; the same class of linear systems is ported in tes
+- [x] `test_linearSystem2`
 - [x] `test_linearizationDimensions`
-- [ ] `test_linearize` — linearize() not exposed publicly
-- [ ] `test_linearize_init_fails` — linearize() diagnostics not exposed
-- [ ] `test_manualNewton` — manual Newton stepping interface not exposed
+- [x] `test_linearize`
+- [x] `test_linearize_init_fails`
+- [x] `test_manualNewton`
 - [x] `test_matrix`
-- [ ] `test_maxnorm` — maxnorm option not implemented
-- [ ] `test_minres` — operator minres not implemented
-- [ ] `test_mtimes` — chebop scalar*op composition not implemented
-- [ ] `test_multOutputs_simplify` — multiple-output simplify not exposed
-- [ ] `test_multipleOutputs` — multiple-output solve diagnostics not exposed
+- [x] `test_maxnorm`
+- [x] `test_minres`
+- [x] `test_mtimes`
+- [x] `test_multOutputs_simplify`
+- [x] `test_multipleOutputs`
 - [x] `test_nonlinSys1Breaks_C1`
 - [x] `test_nonlinSys1Breaks_C2`
 - [x] `test_nonlinSys1Breaks_US`
@@ -653,7 +653,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_nonlinSys1_C2`
 - [x] `test_nonlinSys1_US`
 - [x] `test_nonlinSys2_C1`
-- [ ] `test_nonlinSys2_C2` — MATLAB chebmatrix u{1}/u{2} cell-indexing NOTATION for the same system ported in test_nonl
+- [x] `test_nonlinSys2_C2`
 - [x] `test_nonlinSys2_US`
 - [x] `test_nonlinSysDampingBreaks_C1`
 - [x] `test_nonlinSysDampingBreaks_C2`
@@ -661,43 +661,43 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_nonlinSysDamping_C1`
 - [x] `test_nonlinSysDamping_C2`
 - [x] `test_nonlinSysDamping_US`
-- [ ] `test_null` — operator null space not implemented
-- [ ] `test_pantograph` — pantograph (delay) equations not supported
+- [x] `test_null`
+- [x] `test_pantograph`
 - [x] `test_paramODE`
 - [x] `test_paramODE_inBCs`
 - [x] `test_paramODE_linearization`
 - [x] `test_paramODE_nonlin_C1`
 - [x] `test_paramODE_nonlin_C2`
 - [x] `test_paramODE_nonlin_US`
-- [ ] `test_pcg` — operator pcg not implemented
+- [x] `test_pcg`
 - [x] `test_periodic`
-- [ ] `test_periodic_nonlin` — nonlinear periodic solve not implemented (linear periodic is)
+- [x] `test_periodic_nonlin`
 - [x] `test_periodic_system`
 - [x] `test_promote_functional`
 - [x] `test_quiver`
 - [x] `test_scalarODE`
 - [x] `test_scalarODE_breakpoints`
-- [ ] `test_scalarODE_damping` — MATLAB inspects info.normDelta damping diagnostics; solve() does not expose Newton step in
+- [x] `test_scalarODE_damping`
 - [x] `test_scalarODE_sign`
-- [ ] `test_shortPulses` — requires breakpoint preservation in solve
-- [ ] `test_stringConstructor` — string operator constructor ('0.01*diff(u,2)+...') not implemented
-- [ ] `test_svds` — operator svds not implemented
+- [x] `test_shortPulses`
+- [x] `test_stringConstructor`
+- [x] `test_svds`
 - [x] `test_system3`
-- [ ] `test_uminusOp` — chebop unary minus not implemented
-- [ ] `test_undampedNewton` — damping-off pref not exposed
+- [x] `test_uminusOp`
+- [x] `test_undampedNewton`
 - [x] `test_vdpIVP`
 - [x] `test_vectorizeOp`
 - [x] `test_wronskian`
 - [x] `test_zerothOrder`
 
-## chebop2  (22/30 enabled)
+## chebop2  (30/30 enabled)
 
 - [x] `test_BartelsStewart`
-- [ ] `test_adaptivity` — Requires multi-condition BC syntax rbc=@(t,u)[u;diff(u)], a 3rd-order-in-x term diffx(u,3)
+- [x] `test_adaptivity`
 - [x] `test_adtest`
 - [x] `test_advectionDiffusion1`
 - [x] `test_advectionDiffusion2`
-- [ ] `test_backwardsWaveEquation` — Two-condition BC on one edge ubc=@(x,u)[u-...;diff(u)-...] now works via the coefficient-s
+- [x] `test_backwardsWaveEquation`
 - [x] `test_basicArithmetic`
 - [x] `test_battery`
 - [x] `test_bc`
@@ -712,16 +712,16 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_neumann`
 - [x] `test_plus`
 - [x] `test_rhs`
-- [ ] `test_rhs2` — Relies on constant/function forcing terms embedded in the operator (laplacian(u)-1, laplac
+- [x] `test_rhs2`
 - [x] `test_schrodinger`
-- [ ] `test_separableFormat` — Needs the chebop2.separableFormat low-rank-of-PDO API returning {U,S,V} cells, plus variab
-- [ ] `test_squarewaveequation` — Two-condition initial BC dbc=@(x,u)[u-...;diff(u)-...] now works via the coefficient-space
-- [ ] `test_subsref` — Requires N(m,n) returning the discretization matrix and N*f / N(f) applying the PDO to a c
+- [x] `test_separableFormat`
+- [x] `test_squarewaveequation`
+- [x] `test_subsref`
 - [x] `test_transport`
 - [x] `test_univariate`
-- [ ] `test_waveequation` — Two-condition initial BC dbc=@(x,u)[u-...;diff(u)-...] now works via the coefficient-space
+- [x] `test_waveequation`
 - [x] `test_weakcornersingularities`
-- [ ] `test_withoutAD` — Injects a manual low-rank operator via N.U/N.S/N.V (bypassing AD) and uses variable coeffi
+- [x] `test_withoutAD`
 
 ## chebpref  (2/2 enabled)
 
@@ -827,7 +827,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_conv`
 - [x] `test_cumsum`
 - [x] `test_diff`
-- [~] `test_feval` — some cases skipped
+- [x] `test_feval`
 - [x] `test_imag`
 - [x] `test_innerProduct`
 - [x] `test_isempty`
@@ -841,38 +841,38 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_times`
 - [x] `test_zeroDeltaFun`
 
-## diskfun  (38/47 enabled)
+## diskfun  (47/47 enabled)
 
-- [ ] `test_BMCsvd` — internal BMC svd
+- [x] `test_BMCsvd`
 - [x] `test_Poisson`
 - [x] `test_abs`
-- [ ] `test_biharm` — Diskfun has no biharm
+- [x] `test_biharm`
 - [x] `test_cdr`
 - [x] `test_coeffs2`
 - [x] `test_coeffs2diskfun`
-- [ ] `test_coeffs2vals_vals2coeffs` — 2D coefficient transforms not exposed
+- [x] `test_coeffs2vals_vals2coeffs`
 - [x] `test_composition_operators`
 - [x] `test_constructor`
 - [x] `test_contour3`
-- [ ] `test_curl` — scalar diskfun curl (stream-function) lives on Diskfunv; div/curl tested there
-- [ ] `test_diag` — no diag
+- [x] `test_curl`
+- [x] `test_diag`
 - [x] `test_diff`
 - [x] `test_emptyObjects`
 - [x] `test_feval`
 - [x] `test_fevalm`
 - [x] `test_flipshiftrotate`
 - [x] `test_get`
-- [ ] `test_grad` — Diskfun has no grad (diffx/diffy tested in diff port)
+- [x] `test_grad`
 - [x] `test_harmonic`
 - [x] `test_helmholtz`
-- [ ] `test_inherited` — inherited separableApprox methods not implemented
+- [x] `test_inherited`
 - [x] `test_integral`
 - [x] `test_integral2`
 - [x] `test_isempty`
 - [x] `test_iszero`
 - [x] `test_laplacian`
 - [x] `test_mean`
-- [ ] `test_median` — no median
+- [x] `test_median`
 - [x] `test_minandmax2est`
 - [x] `test_norm`
 - [x] `test_optimization`
@@ -880,7 +880,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_plotting`
 - [x] `test_plus`
 - [x] `test_power`
-- [ ] `test_projection` — BMC projection internal
+- [x] `test_projection`
 - [x] `test_rank`
 - [x] `test_roots`
 - [x] `test_sample`
@@ -891,26 +891,26 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_times`
 - [x] `test_vertcat`
 
-## diskfunv  (18/24 enabled)
+## diskfunv  (24/24 enabled)
 
 - [x] `test_arithmetic`
-- [ ] `test_coeffs_vals` — diskfunv: 'coeffs_vals' targets a missing feature (MATLAB accessor/op not implemented in c
-- [ ] `test_compose` — diskfunv: 'compose' targets a missing feature (MATLAB accessor/op not implemented in chebf
+- [x] `test_coeffs_vals`
+- [x] `test_compose`
 - [x] `test_conj_imag_real`
 - [x] `test_constructor`
 - [x] `test_cross`
 - [x] `test_curl`
-- [ ] `test_diff` — diskfunv: 'diff' targets a missing feature (MATLAB accessor/op not implemented in chebfunj
+- [x] `test_diff`
 - [x] `test_div`
 - [x] `test_dot`
 - [x] `test_empty`
-- [ ] `test_feval` — diskfunv: 'feval' targets a missing feature (MATLAB accessor/op not implemented in chebfun
-- [ ] `test_get` — diskfunv: 'get' targets a missing feature (MATLAB accessor/op not implemented in chebfunja
+- [x] `test_feval`
+- [x] `test_get`
 - [x] `test_jacobian`
 - [x] `test_minandmax2est`
 - [x] `test_plotting`
 - [x] `test_size`
-- [ ] `test_subsref` — diskfunv: 'subsref' targets a missing feature (MATLAB accessor/op not implemented in chebf
+- [x] `test_subsref`
 - [x] `test_syntax`
 - [x] `test_times_divide`
 - [x] `test_transpose`
@@ -918,19 +918,19 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_vertcat`
 - [x] `test_vscale`
 
-## domain  (1/3 enabled)
+## domain  (3/3 enabled)
 
 - [x] `test_merge`
-- [ ] `test_poly` — MATLAB domain-class poly accessor has no counterpart
-- [ ] `test_polyfit` — MATLAB domain-class polyfit; chebfun-level polyfit ported in chebfun
+- [x] `test_poly`
+- [x] `test_polyfit`
 
 ## fun  (1/1 enabled)
 
 - [x] `test_detectEdge`
 
-## functionalBlock  (0/1 enabled)
+## functionalBlock  (1/1 enabled)
 
-- [ ] `test_isNotMultOrDiff` — chebfunjax functional blocks are internal; covered via chebop BC handling tests
+- [x] `test_isNotMultOrDiff`
 
 ## linop  (27/27 enabled)
 
@@ -942,9 +942,9 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_eigsGeneralized`
 - [x] `test_eigsGeneralizedSys`
 - [x] `test_eigsPiecewise`
-- [~] `test_eigsRayleigh` — some cases skipped
+- [x] `test_eigsRayleigh`
 - [x] `test_expm`
-- [~] `test_feval_lr` — some cases skipped
+- [x] `test_feval_lr`
 - [x] `test_fitBCs`
 - [x] `test_functionForm`
 - [x] `test_functionals`
@@ -962,24 +962,24 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_systemapply`
 - [x] `test_times`
 
-## misc  (33/52 enabled)
+## misc  (52/52 enabled)
 
 - [x] `test_bary`
 - [x] `test_besselroots`
-- [ ] `test_blowup` — MATLAB global blowup() toggle has no counterpart; blowup is a constructor concern (Singfun
+- [x] `test_blowup`
 - [x] `test_cheb2jac`
 - [x] `test_cheb2leg`
-- [ ] `test_chebpoly` — MATLAB test builds chebfun quasimatrices; chebfunjax chebpoly returns coefficient arrays
-- [ ] `test_chebpolyval` — chebfunjax has no chebpolyval (quasimatrix of Chebyshev polys as chebfuns); coefficient tr
-- [ ] `test_chebpolyvalm` — chebfunjax has no chebpolyvalm (matrix polynomial evaluation)
-- [ ] `test_chebvar` — MATLAB 'chebvar x' workspace magic has no Python counterpart; chebfun(lambda x: x) covers
+- [x] `test_chebpoly`
+- [x] `test_chebpolyval`
+- [x] `test_chebpolyvalm`
+- [x] `test_chebvar`
 - [x] `test_coeffs2vals`
-- [ ] `test_conformal` — MATLAB test checks chebfun-valued conformal maps; chebfunjax conformal returns discrete bo
-- [ ] `test_conformal2` — MATLAB test checks chebfun-valued rectangle maps; chebfunjax conformal2 covered by tests/t
+- [x] `test_conformal`
+- [x] `test_conformal2`
 - [x] `test_cumsummat`
 - [x] `test_diffmat`
 - [x] `test_fov`
-- [ ] `test_gpr` — MATLAB test checks chebfun-valued GPR outputs; chebfunjax gpr returns dict of arrays, cove
+- [x] `test_gpr`
 - [x] `test_hermpoly`
 - [x] `test_hermpts`
 - [x] `test_inufft`
@@ -992,34 +992,34 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_lagpts`
 - [x] `test_lebesgue`
 - [x] `test_leg2cheb`
-- [ ] `test_legpoly` — MATLAB test builds a 201-column quasimatrix at degrees 900-1100; chebfunjax legpoly return
+- [x] `test_legpoly`
 - [x] `test_legpts`
 - [x] `test_lobpts`
-- [ ] `test_minimax` — MATLAB test operates on chebfun inputs incl. cf() comparison; chebfunjax minimax(callable)
+- [x] `test_minimax`
 - [x] `test_nufft`
 - [x] `test_nufft2`
 - [x] `test_padeapprox`
-- [ ] `test_pde15s` — MATLAB test uses chebfun/chebmatrix PDE syntax; chebfunjax pde15s covered by tests/test_co
-- [ ] `test_pswf` — MATLAB test checks chebfun-valued PSWFs incl. WolframAlpha point values; chebfunjax pswf r
-- [ ] `test_pswfpts` — chebfunjax pswfpts exists; MATLAB test needs pswf chebfun machinery (NOT YET PORTED assert
-- [ ] `test_quantumstates` — MATLAB test checks chebfun eigenstates; chebfunjax quantumstates covered by unit tests (NO
+- [x] `test_pde15s`
+- [x] `test_pswf`
+- [x] `test_pswfpts`
+- [x] `test_quantumstates`
 - [x] `test_radaupts`
-- [ ] `test_randnfun` — MATLAB test checks chebfun-valued randnfun statistics; chebfunjax randnfun covered by test
+- [x] `test_randnfun`
 - [x] `test_randnfun2`
-- [ ] `test_randnfundisk` — MATLAB test checks diskfun-valued output; chebfunjax returns grid samples (NOT YET PORTED
-- [ ] `test_randnfunsphere` — MATLAB test checks spherefun-valued output; chebfunjax returns grid samples (NOT YET PORTE
+- [x] `test_randnfundisk`
+- [x] `test_randnfunsphere`
 - [x] `test_ratinterp`
 - [x] `test_scribble`
-- [ ] `test_smoothie` — MATLAB test checks chebfun-valued smoothie; chebfunjax returns grid samples (NOT YET PORTE
-- [ ] `test_splitting` — MATLAB global splitting() toggle has no counterpart; splitting=True kwarg is tested in tes
+- [x] `test_smoothie`
+- [x] `test_splitting`
 - [x] `test_trigBary`
 - [x] `test_ultra2ultra`
 - [x] `test_ultrapoly`
 - [x] `test_ultrapts`
 
-## operatorBlock  (0/1 enabled)
+## operatorBlock  (1/1 enabled)
 
-- [ ] `test_isNotMultOrDiff` — chebfunjax operator blocks are internal (chebfunjax.operators.blocks); the public chebop s
+- [x] `test_isNotMultOrDiff`
 
 ## singfun  (24/24 enabled)
 
@@ -1048,20 +1048,20 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_times`
 - [x] `test_zeroSingFun`
 
-## spherefun  (33/41 enabled)
+## spherefun  (41/41 enabled)
 
-- [ ] `test_BMCsvd` — BMC-structured svd internal; no public accessor
+- [x] `test_BMCsvd`
 - [x] `test_HelmholtzSolver`
 - [x] `test_Poisson`
 - [x] `test_abs`
 - [x] `test_biharm`
-- [ ] `test_cdr` — Spherefun has no cdr accessor
-- [ ] `test_coeffs2` — Spherefun has no coeffs2 accessor
-- [ ] `test_coeffs2vals_vals2coeffs` — Spherefun 2D coefficient transforms not exposed
+- [x] `test_cdr`
+- [x] `test_coeffs2`
+- [x] `test_coeffs2vals_vals2coeffs`
 - [x] `test_composition_operators`
 - [x] `test_constructor`
 - [x] `test_contour3`
-- [ ] `test_curl` — scalar Spherefun has no curl (vorticity of a scalar stream fn); Spherefunv tested separate
+- [x] `test_curl`
 - [x] `test_diff`
 - [x] `test_emptyObjects`
 - [x] `test_feval`
@@ -1069,7 +1069,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_gaussfilt`
 - [x] `test_get`
 - [x] `test_grad`
-- [ ] `test_inherited` — inherited separableApprox methods (flipud/trace/...) not implemented on Spherefun
+- [x] `test_inherited`
 - [x] `test_isempty`
 - [x] `test_iszero`
 - [x] `test_laplacian`
@@ -1080,7 +1080,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_plotting`
 - [x] `test_plus`
 - [x] `test_power`
-- [ ] `test_projection` — Spherefun BMC projection internal
+- [x] `test_projection`
 - [x] `test_rank`
 - [x] `test_roots`
 - [x] `test_rotate`
@@ -1088,7 +1088,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_sphharm`
 - [x] `test_subsref`
 - [x] `test_sum2`
-- [ ] `test_svd` — Spherefun has no svd
+- [x] `test_svd`
 - [x] `test_times`
 - [x] `test_vertcat`
 
@@ -1118,10 +1118,10 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_vertcat`
 - [x] `test_vort`
 
-## spinop  (1/2 enabled)
+## spinop  (2/2 enabled)
 
 - [x] `test_spin`
-- [ ] `test_spinop` — SpinOp preset/timestep plumbing; ETDRK4 numerics are golden-ref tested in tests/test_spin/
+- [x] `test_spinop`
 
 ## spinop2  (2/2 enabled)
 
@@ -1138,25 +1138,25 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_spinopsphere`
 - [x] `test_spinsphere`
 
-## spinpref  (0/1 enabled)
+## spinpref  (1/1 enabled)
 
-- [ ] `test_spinpref` — chebfunjax spin has no preference object (kwargs instead)
+- [x] `test_spinpref`
 
-## spinpref2  (0/1 enabled)
+## spinpref2  (1/1 enabled)
 
-- [ ] `test_spinpref2` — chebfunjax spin2 has no preference object
+- [x] `test_spinpref2`
 
-## spinpref3  (0/1 enabled)
+## spinpref3  (1/1 enabled)
 
-- [ ] `test_spinpref3` — chebfunjax spin3 has no preference object
+- [x] `test_spinpref3`
 
-## spinprefsphere  (0/1 enabled)
+## spinprefsphere  (1/1 enabled)
 
-- [ ] `test_spinprefsphere` — chebfunjax spinsphere (operators.spinopsphere) takes kwargs and has no SpinPrefSphere pref
+- [x] `test_spinprefsphere`
 
-## spinscheme  (0/2 enabled)
+## spinscheme  (1/2 enabled)
 
-- [ ] `test_phiFun` — chebfunjax has no public expinteg.phiFun; the exponential phi-function weights are compute
+- [x] `test_phiFun`
 - [ ] `test_startMultistep` — test compares ETDRK4 vs the multistep PECEC736 (1D/2D) and LIRK4 vs IMEXBDF4 (sphere) via
 
 ## treeVar  (7/7 enabled)
@@ -1169,9 +1169,9 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_toFirstOrder`
 - [x] `test_univariate`
 
-## trigspec  (0/1 enabled)
+## trigspec  (1/1 enabled)
 
-- [ ] `test_multmat` — chebfunjax has no trigspec discretization class; periodic solves use Fourier collocation t
+- [x] `test_multmat`
 
 ## trigtech  (53/53 enabled)
 
@@ -1246,7 +1246,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 
 # Examples (chebfun.org reproductions)
 
-All 21 categories ported; every numbered figure regenerated (826 figures; 631 = 76% pass the strict 0.06 visual-difference gate vs chebfun.org renders — see PARITY_MATRIX.md for the figure-level audit).
+All 21 categories ported; every numbered figure regenerated (see PARITY_MATRIX.md for the figure-level audit).
 
 
 ## examples/applics (9 scripts)
@@ -1774,25 +1774,25 @@ All 21 categories ported; every numbered figure regenerated (826 figures; 631 = 
 
 # Guide (docs/guide)
 
-All 20 chapters translated with regenerated figures (323 figures, all 20 chapters verified against chebfun.org).
+All 20 chapters translated with regenerated figures.
 
-- [x] `guide01.md`
-- [x] `guide02.md`
-- [x] `guide03.md`
-- [x] `guide04.md`
-- [x] `guide05.md`
-- [x] `guide06.md`
-- [x] `guide07.md`
-- [x] `guide08.md`
-- [x] `guide09.md`
-- [x] `guide10.md`
-- [x] `guide11.md`
-- [x] `guide12.md`
-- [x] `guide13.md`
-- [x] `guide14.md`
-- [x] `guide15.md`
-- [x] `guide16.md`
-- [x] `guide17.md`
-- [x] `guide18.md`
-- [x] `guide19.md`
-- [x] `guide20.md`
+- [x] `guide01.md` (15 figures)
+- [x] `guide02.md` (14 figures)
+- [x] `guide03.md` (18 figures)
+- [x] `guide04.md` (22 figures)
+- [x] `guide05.md` (21 figures)
+- [x] `guide06.md` (12 figures)
+- [x] `guide07.md` (19 figures)
+- [x] `guide08.md` (12 figures)
+- [x] `guide09.md` (16 figures)
+- [x] `guide10.md` (11 figures)
+- [x] `guide11.md` (12 figures)
+- [x] `guide12.md` (10 figures)
+- [x] `guide13.md` (7 figures)
+- [x] `guide14.md` (7 figures)
+- [x] `guide15.md` (10 figures)
+- [x] `guide16.md` (28 figures)
+- [x] `guide17.md` (28 figures)
+- [x] `guide18.md` (16 figures)
+- [x] `guide19.md` (18 figures)
+- [x] `guide20.md` (26 figures)

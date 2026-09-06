@@ -8,11 +8,23 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-import pytest
+import jax
+import jax.numpy as jnp
+import numpy as np
 
-pytestmark = pytest.mark.skip(reason="Degenerate common-zero set (a whole line x=1 of solutions); the marching-squares + Newton finder targets isolated zeros. Isolated-zero correctness covered by test_roots01/02/03/06/07.")
+from chebfunjax.chebfun2d.chebfun2 import chebfun2
+from chebfunjax.chebpref import ChebfunPref
+
+jax.config.update("jax_enable_x64", True)
+
+pi = np.pi
 
 
 class TestChebfun2vRoots10:
     def test_all_matlab_assertions(self):
-        raise NotImplementedError
+        tol = 1e3 * ChebfunPref().cheb2Prefs.chebfun2eps
+        f = chebfun2(lambda x, y: (x - 1) * (jnp.cos(x * y ** 2) + 2))
+        g = chebfun2(lambda x, y: jnp.sin(8 * pi * y) * (jnp.cos(x * y) + 2))
+        r2 = np.asarray(f.roots(g, method="resultant")).reshape(-1, 2)
+        assert np.linalg.norm(np.sort(r2[:, 0]) - 1) < tol                   # pass(1)
+        assert np.linalg.norm(np.sort(r2[:, 1]) - np.linspace(-1, 1, 17)) < tol  # pass(2)

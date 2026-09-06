@@ -1596,7 +1596,10 @@ class Chebfun3(eqx.Module):
 
     @property
     def rank(self) -> tuple[int, int, int]:
-        """Tucker rank (rx, ry, rz) of the approximation."""
+        """Tucker rank (rx, ry, rz) of the approximation (all zero for
+        the zero function, as in MATLAB)."""
+        if self.iszero():
+            return (0, 0, 0)
         return (len(self.cols), len(self.rows), len(self.tubes))
 
     def length(self) -> tuple[int, int, int]:
@@ -1614,6 +1617,239 @@ class Chebfun3(eqx.Module):
             return max((int(t.coeffs.shape[0]) for t in techs), default=0)
 
         return (_len(self.cols), _len(self.rows), _len(self.tubes))
+
+    # ------------------------------------------------------------------
+    # Coefficient / value tensors (MATLAB chebcoeffs3, coeffs3,
+    # chebpolyval3, vals2coeffs, coeffs2vals, txm)
+    # ------------------------------------------------------------------
+    @staticmethod
+    def txm(T, M, mode: int):
+        """Tensor-times-matrix along ``mode`` (1, 2 or 3; MATLAB
+        ``chebfun3.txm``): contracts dimension ``mode`` of ``T`` with the
+        columns of ``M`` (``M`` is ``(new_size, old_size)``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/txm.m
+        Chebfun commit: 7574c77
+        """
+        T = jnp.asarray(T)
+        M = jnp.asarray(M)
+        ax = int(mode) - 1
+        return jnp.moveaxis(jnp.tensordot(M, T, axes=([1], [ax])), 0, ax)
+
+    @staticmethod
+    def vals2coeffs(V):
+        """Chebyshev coefficients of a tensor of values on the tensor
+        2nd-kind grid (MATLAB ``chebfun3.vals2coeffs``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/vals2coeffs.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.utils.transforms import vals2coeffs as _v2c
+        V = jnp.asarray(V, dtype=jnp.float64)
+        for ax in range(3):
+            V = jnp.moveaxis(V, ax, 0)
+            V = _v2c(V.reshape(V.shape[0], -1)).reshape(V.shape)
+            V = jnp.moveaxis(V, 0, ax)
+        return V
+
+    @staticmethod
+    def coeffs2vals(C):
+        """Values on the tensor Chebyshev grid from a coefficient tensor
+        (MATLAB ``chebfun3.coeffs2vals``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/coeffs2vals.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.utils.transforms import coeffs2vals as _c2v
+        C = jnp.asarray(C, dtype=jnp.float64)
+        for ax in range(3):
+            C = jnp.moveaxis(C, ax, 0)
+            C = _c2v(C.reshape(C.shape[0], -1)).reshape(C.shape)
+            C = jnp.moveaxis(C, 0, ax)
+        return C
+
+    def _factor_coeff_matrices(self):
+        def _mat(techs):
+            n = max(int(t.coeffs.shape[0]) for t in techs)
+            cols = []
+            for t in techs:
+                c = jnp.asarray(t.coeffs, dtype=jnp.float64)
+                cols.append(jnp.concatenate(
+                    [c, jnp.zeros(n - c.shape[0], dtype=jnp.float64)]))
+            return jnp.stack(cols, axis=1)
+        return (_mat(self.cols), _mat(self.rows), _mat(self.tubes))
+
+    def chebcoeffs3(self, low_rank: bool = False):
+        """Tensor of trivariate Chebyshev coefficients ``X[i, j, k]``
+        multiplying ``T_i(x) T_j(y) T_k(z)`` (MATLAB ``chebcoeffs3``);
+        with ``low_rank=True`` returns the Tucker form ``(core,
+        cols_coeffs, rows_coeffs, tubes_coeffs)``.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/chebcoeffs3.m
+        Chebfun commit: 7574c77
+        """
+        A, B, C = self._factor_coeff_matrices()
+        if low_rank:
+            return self.core, A, B, C
+        X = Chebfun3.txm(self.core, A, 1)
+        X = Chebfun3.txm(X, B, 2)
+        return Chebfun3.txm(X, C, 3)
+
+    def coeffs3(self, low_rank: bool = False):
+        """Alias of :meth:`chebcoeffs3` (MATLAB ``coeffs3``)."""
+        return self.chebcoeffs3(low_rank=low_rank)
+
+    def chebpolyval3(self):
+        """Values on the tensor Chebyshev grid of the representation's
+        length (MATLAB ``chebpolyval3``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/chebpolyval3.m
+        Chebfun commit: 7574c77
+        """
+        return Chebfun3.coeffs2vals(self.chebcoeffs3())
+
+    @classmethod
+    def from_coeffs(cls, C, domain=(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0),
+                    tol: float = _EPS) -> "Chebfun3":
+        """Construct from a coefficient tensor ``C[i, j, k]`` (MATLAB
+        ``chebfun3(C, 'coeffs')``) by a Tucker (HOSVD) compression.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/chebfun3.m ('coeffs' flag)
+        Chebfun commit: 7574c77
+        """
+        C = np.asarray(C, dtype=float)
+        if C.ndim < 3:
+            C = C.reshape(C.shape + (1,) * (3 - C.ndim))
+        factors = []
+        core = C
+        scale = max(float(np.max(np.abs(C))), 1.0)
+        for ax in range(3):
+            unf = np.moveaxis(C, ax, 0).reshape(C.shape[ax], -1)
+            U, sv, _ = np.linalg.svd(unf, full_matrices=False)
+            keep = int(np.sum(sv > 10 * np.finfo(float).eps * scale))
+            keep = max(keep, 1)
+            factors.append(U[:, :keep])
+        for ax, U in enumerate(factors):
+            core = np.asarray(cls.txm(core, U.T, ax + 1))
+        techs = [[Chebtech2.from_coeffs(jnp.asarray(U[:, j]))
+                  for j in range(U.shape[1])] for U in factors]
+        return cls(cols=techs[0], rows=techs[1], tubes=techs[2],
+                   core=jnp.asarray(core),
+                   domain=tuple(float(v) for v in domain))
+
+    @classmethod
+    def from_values(cls, V, domain=(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0),
+                    tol: float = _EPS) -> "Chebfun3":
+        """Construct from a tensor of values on the tensor 2nd-kind
+        Chebyshev grid (MATLAB ``chebfun3(A)``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/chebfun3.m (numeric input)
+        Chebfun commit: 7574c77
+        """
+        V = np.asarray(V, dtype=float)
+        if V.ndim < 3:
+            V = V.reshape(V.shape + (1,) * (3 - V.ndim))
+        return cls.from_coeffs(cls.vals2coeffs(jnp.asarray(V)), domain=domain,
+                               tol=tol)
+
+    @property
+    def cols_quasi(self):
+        from chebfunjax.chebfun1d.linalg import Quasimatrix
+        _core, C, _R, _T = self.tucker()
+        return Quasimatrix(C, C[0].domain)
+
+    @property
+    def rows_quasi(self):
+        from chebfunjax.chebfun1d.linalg import Quasimatrix
+        _core, _C, R, _T = self.tucker()
+        return Quasimatrix(R, R[0].domain)
+
+    @property
+    def tubes_quasi(self):
+        from chebfunjax.chebfun1d.linalg import Quasimatrix
+        _core, _C, _R, T = self.tucker()
+        return Quasimatrix(T, T[0].domain)
+
+    def isPeriodicTech(self) -> bool:
+        """True when the factors are trigonometric (MATLAB
+        ``isPeriodicTech``)."""
+        from chebfunjax.tech.trigtech import Trigtech
+        return bool(self.cols) and all(
+            isinstance(t, Trigtech) for t in self.cols + self.rows + self.tubes)
+
+    def minandmax3est(self, N: int = 33):
+        """Estimated global minimum and maximum from samples on an
+        ``N x N x N`` tensor grid (MATLAB ``minandmax3est``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/minandmax3est.m
+        Chebfun commit: 7574c77
+        """
+        xa, xb, ya, yb, za, zb = self.domain
+        x = np.linspace(xa, xb, N)
+        y = np.linspace(ya, yb, N)
+        z = np.linspace(za, zb, N)
+        X, Y, Z = np.meshgrid(x, y, z, indexing="ij")
+        vals = np.asarray(self(jnp.asarray(X), jnp.asarray(Y),
+                               jnp.asarray(Z)))
+        return jnp.asarray([float(vals.min()), float(vals.max())])
+
+    def tand(self):
+        """Elementwise tangent in degrees (MATLAB ``tand``)."""
+        return self.compose(lambda t: jnp.tan(jnp.pi / 180.0 * t))
+
+    def tan(self):
+        """Elementwise tangent (MATLAB ``tan``)."""
+        return self.compose(jnp.tan)
+
+    def cosh(self):
+        """Elementwise hyperbolic cosine (MATLAB ``cosh``)."""
+        return self.compose(jnp.cosh)
+
+    def sinh(self):
+        """Elementwise hyperbolic sine (MATLAB ``sinh``)."""
+        return self.compose(jnp.sinh)
+
+    def change_tech(self, tech) -> "Chebfun3":
+        """Re-represent every factor with another tech (``'trigtech'``,
+        ``'chebtech1'``, ``'chebtech2'``) -- MATLAB's ``pref.tech`` /
+        ``'trig'`` flag for chebfun3 (the factors of a smooth periodic
+        function are periodic, so resampling them is exact to rounding).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3/chebfun3.m ('trig' flag, pref.tech)
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.tech.chebtech import Chebtech1
+        from chebfunjax.tech.trigtech import Trigtech
+        key = (tech.__name__ if isinstance(tech, type) else str(tech)).lower()
+
+        def _conv(t):
+            if key in ("trig", "trigtech", "periodic"):
+                return Trigtech.from_function(lambda s, _t=t: _t(s))
+            if key in ("chebtech1", "1", "1st"):
+                return Chebtech1.from_function(lambda s, _t=t: _t(s))
+            return t
+        return Chebfun3(cols=[_conv(t) for t in self.cols],
+                        rows=[_conv(t) for t in self.rows],
+                        tubes=[_conv(t) for t in self.tubes],
+                        core=self.core, domain=self.domain)
 
     def tucker(self):
         """Tucker (slice-Tucker) decomposition of f.
@@ -2854,7 +3090,7 @@ class Chebfun3(eqx.Module):
 
 
 def chebfun3(
-    f: Callable[[jax.Array, jax.Array, jax.Array], jax.Array],
+    f,
     domain: tuple[float, float, float, float, float, float] = (
         -1.0, 1.0, -1.0, 1.0, -1.0, 1.0,
     ),
@@ -2862,6 +3098,16 @@ def chebfun3(
     max_rank: int = 128,
     min_samples: int = 9,
     rank=None,
+    *,
+    coeffs: bool = False,
+    trig: bool = False,
+    periodic: bool = False,
+    tech=None,
+    vectorize: bool = False,
+    equi: bool = False,
+    eps: float | None = None,
+    fiberDim: int | None = None,
+    chebfun3f: bool = False,
 ) -> Chebfun3:
     """Construct a Chebfun3 approximation of a trivariate function.
 
@@ -2904,17 +3150,129 @@ def chebfun3(
     --------
     Chebfun3, Chebfun3.from_function
     """
-    g = Chebfun3.from_function(
-        f,
-        domain=domain,
-        tol=tol,
-        max_rank=max_rank,
-        min_samples=min_samples,
-    )
-    # chebfun3(f, 'rank', [t1 t2 t3]): construct fully, then fix the rank.
+    dv = tuple(float(v) for v in domain)
+    if eps is not None:
+        tol = float(eps)
+    if equi:
+        raise ValueError("CHEBFUN:CHEBFUN3:constructor:equi: The EQUI flag "
+                         "is valid only when constructing from numeric "
+                         "data")
+    if isinstance(f, str):
+        import re
+
+        from chebfunjax.utils.matlab_expr import _FUNS, matlab_expression
+        names = []
+        for t in re.findall(r"[A-Za-z_]\w*", f):
+            if t not in _FUNS and not re.fullmatch(r"\d.*", t) \
+                    and t not in names:
+                names.append(t)
+        # MATLAB str2op: one unknown -> x; otherwise the names are the
+        # first three variables in order x, y, z.
+        order = ["x", "y", "z"]
+        var_map = {t: t for t in names if t in order}
+        others = [t for t in names if t not in order]
+        free = [v for v in order if v not in var_map.values()]
+        for t, v in zip(others, free):
+            var_map[t] = v
+        expr = re.sub(r"[A-Za-z_]\w*",
+                      lambda m: var_map.get(m.group(0), m.group(0)), f)
+        _op = matlab_expression(expr, ("x", "y", "z"))
+        def f(x, y, z, _op=_op):
+            return jnp.asarray(_op(x, y, z)) + 0.0 * x
+    if isinstance(f, Chebfun3):
+        _g = f
+        def f(x, y, z, _g=_g):
+            return _g(x, y, z)
+    if not callable(f):
+        arr = np.asarray(f, dtype=float)
+        if arr.ndim == 0 or arr.size == 1:
+            c0 = float(arr.reshape(-1)[0])
+            if coeffs:
+                return Chebfun3.from_coeffs(jnp.asarray([[[c0]]]), domain=dv)
+            return Chebfun3.from_function(
+                lambda x, y, z, _c=c0: jnp.full_like(x, _c), domain=dv,
+                tol=tol)
+        if coeffs:
+            return Chebfun3.from_coeffs(jnp.asarray(arr), domain=dv)
+        return Chebfun3.from_values(jnp.asarray(arr), domain=dv)
+    # 'chebfun3f' selects the (default) three-phase Tucker constructor.
+    del chebfun3f
+    if fiberDim is not None and int(fiberDim) in (2, 3):
+        # MATLAB 'fiberDim', k: separate variable k first in Phase 1.
+        # Realised by constructing the permuted function with that
+        # variable in the first slot and permuting the result back.
+        k = int(fiberDim)
+        order = [k - 1] + [j for j in range(3) if j != k - 1]
+        inv = [order.index(j) for j in range(3)]
+        pd = tuple(v for j in order for v in (dv[2 * j], dv[2 * j + 1]))
+
+        def _fp(a, b, c, _f=f, _order=order):
+            args = [None, None, None]
+            for slot, var in zip((a, b, c), _order):
+                args[var] = slot
+            return _f(*args)
+        g = Chebfun3.from_function(
+            _fp, domain=pd, tol=tol, max_rank=max_rank,
+            min_samples=min_samples, vectorize=vectorize)
+        g = g.permute(inv)
+    else:
+        g = Chebfun3.from_function(
+            f,
+            domain=dv,
+            tol=tol,
+            max_rank=max_rank,
+            min_samples=min_samples,
+            vectorize=vectorize,
+        )
     if rank is not None:
         g = g.fix_the_rank(rank)
+    if trig or periodic:
+        g = g.change_tech("trigtech")
+    elif tech is not None:
+        g = g.change_tech(tech)
     return g
+
+
+def outer_prod(f, g, h) -> Chebfun3:
+    """Outer product ``f(x) g(y) h(z)`` of three Chebfuns as a Chebfun3
+    (MATLAB ``outerProd(f, g, h)``).  Each factor must be a single-piece
+    Chebfun; the domain is the product of the three intervals.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/outerProd.m
+    Chebfun commit: 7574c77
+    """
+    def _tech(u):
+        if len(u.funs) != 1:
+            raise ValueError("outer_prod: factors must be single-piece "
+                             "chebfuns")
+        return u.funs[0].tech
+    dom = []
+    for u in (f, g, h):
+        bp = [float(v) for v in u.domain.breakpoints]
+        dom += [bp[0], bp[-1]]
+    return Chebfun3(cols=[_tech(f)], rows=[_tech(g)], tubes=[_tech(h)],
+                    core=jnp.ones((1, 1, 1), dtype=jnp.float64),
+                    domain=tuple(dom))
+
+
+Chebfun3.outer_prod = staticmethod(outer_prod)
+
+
+def domainCheck(f, g, tol: float = 1e-12) -> bool:
+    """True when two Chebfun3 objects share a domain (MATLAB
+    ``domainCheck``).
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun3/domainCheck.m
+    Chebfun commit: 7574c77
+    """
+    a = np.asarray(f.domain, dtype=float)
+    b = np.asarray(g.domain, dtype=float)
+    hs = max(float(np.max(np.abs(a))), 1.0)
+    return bool(a.shape == b.shape and np.all(np.abs(a - b) <= tol * hs))
 
 
 from chebfunjax.utils.misc import make_empty_aware  # noqa: E402

@@ -522,6 +522,7 @@ class SeparableApprox(eqx.Module):
         domain: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
         tol: float = _EPS,
         techs: tuple = ("cheb", "cheb"),
+        chop: bool = True,
     ) -> "SeparableApprox":
         """Construct from a matrix of values on a 2nd-kind Chebyshev grid.
 
@@ -542,7 +543,8 @@ class SeparableApprox(eqx.Module):
         """
         from chebfunjax.utils.transforms import vals2coeffs
 
-        A = np.asarray(A, dtype=np.float64)
+        A = np.asarray(A, dtype=(np.complex128 if np.iscomplexobj(A)
+                                 else np.float64))
         if A.ndim != 2:
             raise ValueError(
                 f"SeparableApprox.from_values: A must be a 2-D matrix, got "
@@ -573,13 +575,17 @@ class SeparableApprox(eqx.Module):
         r = len(pivot_vals)
 
         def _mk(vals, tech):
-            v = jnp.asarray(vals, dtype=jnp.float64)
+            is_c = np.iscomplexobj(vals)
+            v = jnp.asarray(vals, dtype=jnp.complex128 if is_c else jnp.float64)
             if tech == "trig":
                 from chebfunjax.tech.trigtech import Trigtech
 
                 return Trigtech.from_values(v)
-            c = vals2coeffs(v)
-            if float(jnp.max(jnp.abs(v))) > 0:
+            if is_c:
+                c = vals2coeffs(jnp.real(v)) + 1j * vals2coeffs(jnp.imag(v))
+            else:
+                c = vals2coeffs(v)
+            if chop and float(jnp.max(jnp.abs(v))) > 0:
                 c = c[:standard_chop(c, tol)]
             return Chebtech2.from_coeffs(c)
 
@@ -710,6 +716,10 @@ class SeparableApprox(eqx.Module):
             xx_j = jnp.asarray(xx, dtype=jnp.float64)
             yy_j = jnp.asarray(yy, dtype=jnp.float64)
             vals = np.array(f(xx_j, yy_j), dtype=np.float64)
+            if vals.shape != xx.shape:
+                # MATLAB: a handle returning a scalar/short array on the
+                # tensor grid is treated as vectorised over the grid.
+                vals = np.broadcast_to(vals, xx.shape).copy()
             return x_pts, y_pts, vals
 
         # --- Helper: evaluate f on a 1D grid at fixed x-pivot ---
@@ -969,7 +979,9 @@ class SeparableApprox(eqx.Module):
         bshape = np.broadcast_shapes(x.shape, y.shape)
         txf = np.broadcast_to(tx, bshape).ravel()
         tyf = np.broadcast_to(ty, bshape).ravel()
-        piv = np.asarray(self.pivots, dtype=np.float64)
+        piv = np.asarray(self.pivots)
+        piv = piv.astype(np.complex128 if np.iscomplexobj(piv)
+                         else np.float64)
 
         # Tensor-grid / constant-line detection (adaptive-constructor
         # sampling patterns): evaluate each direction once on its 1D

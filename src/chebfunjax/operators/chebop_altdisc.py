@@ -504,7 +504,6 @@ class LinearizedChebop:
 
     def __init__(self, N, U, discretization: str = "ultraS",
                  n: int = 257):
-        from chebfunjax.operators.altdisc import system_matrices
         from chebfunjax.operators.blocklinop import linop as _mk_linop
         from chebfunjax.operators.chebmatrix import ChebMatrix
 
@@ -515,18 +514,88 @@ class LinearizedChebop:
         U = list(U) + [_zero_fun(dom)] * (m - len(U))
         f_list = [0.0] * m
         blocks, _R, var_orders = _frechet_blocks(N, U, f_list, dom)
-        L = _mk_linop(ChebMatrix(blocks))
-        bc_rows = _collect_bcs(N, U, var_orders, dom)
-        for row_list, _val in bc_rows:
-            L = L.add_constraint(row_list, 0.0)
-        self._sd = system_matrices(L, int(n), discretization)
-        self._n_cont = len(self._sd.L.continuity)
-        self._n_bc = len(bc_rows)
+        self._L = _mk_linop(ChebMatrix(blocks))
         self._m = m
         self._dom = dom
+        self._raw_blocks = blocks
+        self._var_orders = var_orders
+        self._N = N
+        self._U = U
+        self._n = int(n)
+        self._disc = discretization
+        self._sd = None  # solvable system assembled lazily (needs BCs)
+
+    def _assemble(self):
+        if self._sd is not None:
+            return
+        from chebfunjax.operators.altdisc import system_matrices
+        L = self._L
+        bc_rows = _collect_bcs(self._N, self._U, self._var_orders,
+                               self._dom)
+        for row_list, _val in bc_rows:
+            L = L.add_constraint(row_list, 0.0)
+        self._sd = system_matrices(L, self._n, self._disc)
+        self._n_cont = len(self._sd.L.continuity)
+        self._n_bc = len(bc_rows)
+
+    @property
+    def blocks(self):
+        """Typed block matrix of the linearization (MATLAB
+        ``L.blocks``): an operator block per (equation, unknown), except
+        that a *parameter* unknown -- never differentiated or integrated
+        anywhere while some other unknown is -- collapses to the
+        coefficient Chebfun of that unknown (MATLAB's ``isParam``
+        bookkeeping in @chebop/linearize.m)."""
+        n_eq = len(self._raw_blocks)
+        m = self._m
+        any_diff = any(o > 0 for o in self._var_orders)
+        ones = _mono(self._dom, 0)
+        out = [[None] * m for _ in range(n_eq)]
+        for i in range(n_eq):
+            for j in range(m):
+                blk = self._raw_blocks[i][j]
+                scalar_param = isinstance(self._U[j], (int, float)) \
+                    and not hasattr(self._U[j], "funs")
+                cl = getattr(blk, "coeff_list", None)
+                if scalar_param:
+                    # A scalar parameter has no derivatives: the block is
+                    # the coefficient chebfun L(1) (MATLAB linearize with
+                    # a numeric entry in the initial guess).
+                    try:
+                        out[i][j] = blk.apply(ones)
+                    except Exception:
+                        out[i][j] = blk
+                elif any_diff and self._var_orders[j] == 0 \
+                        and callable(cl):
+                    try:
+                        out[i][j] = cl()[0]
+                    except Exception:
+                        out[i][j] = blk
+                else:
+                    out[i][j] = blk
+        return out
+
+    def apply(self, v):
+        """Apply the Frechet derivative to ``v`` (MATLAB ``L*v``)."""
+        vs = list(v) if isinstance(v, (list, tuple)) else [v]
+        vs = [(_zero_fun(self._dom) + float(x))
+              if isinstance(x, (int, float)) else x for x in vs]
+        res = self._L * vs
+        vals = [res[i][0] if isinstance(res[i], (list, tuple))
+                else res[i] for i in range(len(self._raw_blocks))] \
+            if isinstance(res, (list, tuple)) else res
+        try:
+            cols = [vals[i] for i in range(len(self._raw_blocks))]
+        except Exception:
+            cols = list(vals)
+        return cols[0] if len(cols) == 1 else cols
+
+    def __mul__(self, v):
+        return self.apply(v)
 
     def solve(self, r):
         """Solve ``J du = r`` with homogeneous linearized BCs."""
+        self._assemble()
         rs = list(r) if isinstance(r, (list, tuple)) else [r]
         rs = [(_zero_fun(self._dom) + float(v))
               if isinstance(v, (int, float)) else v for v in rs]

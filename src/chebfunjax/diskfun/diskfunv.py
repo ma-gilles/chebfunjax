@@ -151,7 +151,7 @@ class Diskfunv(eqx.Module):
         Diskfun
             Scalar dot product.
         """
-        if self.isempty():
+        if self.isempty() or other.isempty():
             return _empty_diskfun()
         f1, g1 = self.components
         f2, g2 = other.components
@@ -200,14 +200,25 @@ class Diskfunv(eqx.Module):
         # constructor cannot be handed (rank-512 NaN blowup).
         return g.diffx() - f.diffy()
 
-    def norm(self) -> Diskfun:
-        """Pointwise Euclidean norm: sqrt(f^2 + g^2).
+    def norm(self):
+        """Global norm ``sqrt(sum(svd(F1).^2) + sum(svd(F2).^2))``
+        (MATLAB @diskfunv/norm.m); the pointwise magnitude field is
+        :meth:`magnitude`.
 
-        Returns
-        -------
-        Diskfun
-            Scalar norm field.
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/norm.m
+        Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return jnp.zeros((0,), dtype=jnp.float64)
+        f, g = self.components
+        v = float(jnp.sum(jnp.asarray(f.svd()) ** 2)) + \
+            float(jnp.sum(jnp.asarray(g.svd()) ** 2))
+        return jnp.asarray(v ** 0.5, dtype=jnp.float64)
+
+    def magnitude(self) -> Diskfun:
+        """Pointwise magnitude ``sqrt(F1^2 + F2^2)`` as a Diskfun."""
         if self.isempty():
             return _empty_diskfun()
         f, g = self.components
@@ -285,7 +296,14 @@ class Diskfunv(eqx.Module):
             return self.dot(other)
         return self.__mul__(other)
 
-    def __mul__(self, scalar: float) -> "Diskfunv":
+    def __mul__(self, scalar) -> "Diskfunv":
+        if isinstance(scalar, Diskfunv):
+            if self.is_transposed:
+                return self.dot(scalar)      # MATLAB u' * v
+            return self.times(scalar)
+        return self._scale(scalar)
+
+    def _scale(self, scalar: float) -> "Diskfunv":
         """Scalar multiplication (componentwise, structural)."""
         f, g = self.components
         s = float(scalar)
@@ -406,6 +424,100 @@ class Diskfunv(eqx.Module):
                 c(jnp.asarray(T), jnp.asarray(R)))))))
         return worst
 
+    # ------------------------------------------------------------------
+    # MATLAB diskfunv accessors / coefficient utilities (Fable 5)
+    # ------------------------------------------------------------------
+    @property
+    def n_components(self) -> int:
+        """Number of components (MATLAB ``F.nComponents``)."""
+        return 0 if self.isempty() else len(self.components)
+
+    @property
+    def is_transposed(self) -> bool:
+        """MATLAB ``F.isTransposed`` (row form after ``F.'``)."""
+        return bool(getattr(self, "_row", False))
+
+    @property
+    def T(self) -> "Diskfunv":
+        return self.transpose()
+
+    def coeffs2(self, m: int | None = None, n: int | None = None):
+        """Coefficient matrices of the two components, ``(X, Y)``
+        (MATLAB ``[X, Y] = coeffs2(F, m, n)``).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/coeffs2.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return ()
+        f1, f2 = self.components
+        return f1.coeffs2(m, n), f2.coeffs2(m, n)
+
+    @staticmethod
+    def coeffs2diskfunv(X, Y) -> "Diskfunv":
+        """Diskfunv with component coefficient matrices ``X`` and ``Y``
+        (MATLAB ``diskfunv.coeffs2diskfunv``).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/coeffs2diskfunv.m
+        Chebfun commit: 7574c77
+        """
+        return Diskfunv(Diskfun.coeffs2diskfun(X), Diskfun.coeffs2diskfun(Y))
+
+    @staticmethod
+    def coeffs2vals(U, V):
+        """Componentwise ``diskfun.coeffs2vals`` (MATLAB
+        ``diskfunv.coeffs2vals``)."""
+        return Diskfun.coeffs2vals(U), Diskfun.coeffs2vals(V)
+
+    @staticmethod
+    def vals2coeffs(U, V):
+        """Componentwise ``diskfun.vals2coeffs`` (MATLAB
+        ``diskfunv.vals2coeffs``)."""
+        return Diskfun.vals2coeffs(U), Diskfun.vals2coeffs(V)
+
+    def feval(self, x, y, coords: str = "cart"):
+        """Evaluate both components at the points, returned as a
+        ``(2, N)`` array (MATLAB ``feval(F, x, y)`` / ``F(x, y)``;
+        ``coords='polar'`` takes ``(theta, r)``).  Cartesian points off
+        the unit disk raise ``CHEBFUN:DISKFUN:FEVAL:pointsNotOnDisk``.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/feval.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return jnp.zeros((0,), dtype=jnp.float64)
+        x = jnp.atleast_1d(jnp.asarray(x, dtype=jnp.float64)).ravel()
+        y = jnp.atleast_1d(jnp.asarray(y, dtype=jnp.float64)).ravel()
+        if coords.lower() == "polar":
+            vals = [c(x, y) for c in self.components]
+        else:
+            vals = [c.feval_cart(x, y) for c in self.components]
+        return jnp.stack([jnp.reshape(v, (-1,)) for v in vals], axis=0)
+
+    def diff(self, dim: int = 1, k: int = 1) -> "Diskfunv":
+        """Componentwise ``diff(F, dim, k)``: ``dim=1`` is d/dx, ``dim=2``
+        is d/dy, ``k`` times (MATLAB @diskfunv/diff.m).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfunv/diff.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return self
+        if dim == 1:
+            return self.diffx(k)
+        if dim == 2:
+            return self.diffy(k)
+        raise ValueError("DISKFUNV:DIFF:DIM: Unrecognized coordinate "
+                         "dimension.")
+
     def diffx(self, k: int = 1) -> "Diskfunv":
         """Componentwise d/dx (MATLAB diffx).
 
@@ -414,6 +526,8 @@ class Diskfunv(eqx.Module):
         MATLAB source : @diskfunv/diffx.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return self
         out = self
         for _ in range(k):
             out = type(self)(*[c.diffx() for c in out.components])
@@ -427,6 +541,8 @@ class Diskfunv(eqx.Module):
         MATLAB source : @diskfunv/diffy.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return self
         out = self
         for _ in range(k):
             out = type(self)(*[c.diffy() for c in out.components])

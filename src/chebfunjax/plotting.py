@@ -4068,3 +4068,71 @@ def waterfall_chebfun2(f2, fmt=None, ax=None, n_lines: int = 20,
     ax.set_xlim(float(x0), float(x1))
     ax.set_ylim(float(y0), float(y1))
     return fig, ax
+
+
+def contour3(f2, *args, ax=None, levels=10, n_pts: int = 150, cmap=None,
+             pivots=None, xx=None, yy=None, figsize: tuple = (6.1, 4.0),
+             **kw):
+    """3-D contour plot of a Chebfun2 (MATLAB ``contour3(f)``): the level
+    curves drawn at their heights.  Accepts MATLAB's forms ``contour3(f,
+    N)``, ``contour3(f, [v v])``, ``contour3(f, 'numpts', N)``,
+    ``contour3(f, 'pivots', S)`` and ``contour3(xx, yy, f)``.
+
+    Provenance
+    ----------
+    MATLAB source : @separableApprox/contour3.m
+    Chebfun commit: 7574c77
+    """
+    # MATLAB argument forms: (xx, yy, f) or (f, levels|options...)
+    if not hasattr(f2, "approx") and len(args) >= 2 and hasattr(args[1],
+                                                                 "approx"):
+        xx, yy, f2 = f2, args[0], args[1]
+        args = args[2:]
+    args = list(args)
+    while args:
+        a = args.pop(0)
+        if isinstance(a, str):
+            key = a.lower()
+            if key == "numpts" and args:
+                n_pts = int(args.pop(0))
+            elif key == "pivots" and args:
+                pivots = args.pop(0)
+            else:
+                raise ValueError(f"contour3: unrecognised option {a!r}")
+        else:
+            levels = a
+    cmap_obj = _coerce_cmap(cmap)
+    if not np.isscalar(levels):
+        _lv = np.atleast_1d(np.asarray(levels, dtype=float))
+        if _lv.size == 2 and _lv[0] == _lv[1]:
+            levels = [float(_lv[0])]
+    x0, x1, y0, y1 = f2.domain
+    if xx is not None and yy is not None:
+        XX = np.asarray(xx, dtype=float)
+        YY = np.asarray(yy, dtype=float)
+    else:
+        xs = np.linspace(float(x0), float(x1), n_pts)
+        ys = np.linspace(float(y0), float(y1), n_pts)
+        XX, YY = np.meshgrid(xs, ys, indexing="xy")
+    ZZ = _eval_2d_vectorized(f2, XX, YY)
+    if ax is None:
+        fig = plt.figure(figsize=figsize)
+        ax = fig.add_subplot(111, projection="3d")
+    else:
+        fig = ax.get_figure()
+    ax.contour(XX, YY, ZZ, levels=levels, cmap=cmap_obj, **kw)
+    if pivots is not None:
+        try:
+            P = np.asarray(f2.pivot_locations, dtype=float)
+            if P.size:
+                zp = _eval_2d_vectorized(f2, P[:, 0], P[:, 1])
+                spec = pivots if isinstance(pivots, str) else "r."
+                _mk = "".join(ch for ch in spec if ch in ".ox+*sd^v<>ph")
+                _col = next((ch for ch in spec if ch in "rgbcmykw"), "r")
+                ax.plot(P[:, 0], P[:, 1], np.asarray(zp), (_mk or ".") ,
+                        color=_col, linestyle="-" if "-" in spec else "none")
+        except Exception:
+            pass
+    ax.set_xlim(float(x0), float(x1))
+    ax.set_ylim(float(y0), float(y1))
+    return fig, ax

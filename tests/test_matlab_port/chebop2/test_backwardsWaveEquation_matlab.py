@@ -1,18 +1,41 @@
-"""Port of MATLAB Chebfun tests/chebop2/test_backwardsWaveEquation.m (Fable 5).
+"""Port of MATLAB Chebfun tests/chebop2/test_backwardsWaveEquation.m
+(Fable 5).
 
 Provenance
 ----------
 MATLAB source : tests/chebop2/test_backwardsWaveEquation.m
 Chebfun commit: 7574c77
+
+MATLAB ``diff(u, k, 1)`` (k-th derivative in y = t) is the proxy's
+``u.diff(k, 0)``; ``diff(u, k, 2)`` is ``u.diff(0, k)``.
 """
 
 from __future__ import annotations
 
-import pytest
+import jax
+import jax.numpy as jnp
+import numpy as np
 
-pytestmark = pytest.mark.skip(reason="Two-condition BC on one edge ubc=@(x,u)[u-...;diff(u)-...] now works via the coefficient-space path, but this single case solves to 2.40e-13 vs its 10*100*eps=2.22e-13 tolerance -- a 1.08x margin, below the 2x needed for CI's BLAS. Same conditioning limitation as the wave family on the wide [-pi,pi] domain (see test_waveequation).")
+from chebfunjax.chebfun2d.chebfun2 import chebfun2
+from chebfunjax.chebpref import ChebfunPref
+from chebfunjax.operators.chebop2 import Chebop2
+
+jax.config.update("jax_enable_x64", True)
+
+pi = np.pi
 
 
-class TestChebop2Backwardswaveequation:
+class TestChebop2BackwardsWaveEquation:
     def test_all_matlab_assertions(self):
-        raise NotImplementedError
+        tol = 100 * ChebfunPref().cheb2Prefs.chebfun2eps
+        d = (-pi, pi, 0, 1)
+        exact = chebfun2(lambda x, t: jnp.sin(x + t), domain=d)
+        N = Chebop2(lambda u: u.diff(2, 0) - u.diff(0, 2), domain=d)
+        N.lbc = lambda t: jnp.sin(-pi + t)
+        N.rbc = lambda t: jnp.sin(pi + t)
+        N.ubc = lambda x, u: [u - jnp.sin(x + 1), u.diff(1) - jnp.cos(x + 1)]
+        u = N.solve(0.0)
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        if not isinstance(u, Chebfun2):
+            u = Chebfun2(approx=u)
+        assert float((u - exact).norm()) < 10 * tol                          # pass(1)

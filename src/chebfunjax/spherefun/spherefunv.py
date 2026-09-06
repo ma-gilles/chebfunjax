@@ -206,12 +206,26 @@ class Spherefunv(eqx.Module):
             a1 * b2 - a2 * b1,
         )
 
-    def norm(self) -> Spherefun:
-        """Pointwise Euclidean magnitude ``sqrt(sum_j f_j^2)`` as a Spherefun.
+    def norm(self):
+        """Global norm ``sqrt(sum_j norm(F_j, 2)^2)`` (MATLAB
+        @spherefunv/norm.m); the pointwise magnitude field is
+        :meth:`magnitude`.
 
-        Note: chebfunjax returns the pointwise magnitude field (a Spherefun),
-        not MATLAB's scalar Frobenius norm.
+        Provenance
+        ----------
+        MATLAB source : @spherefunv/norm.m
+        Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return jnp.zeros((0,), dtype=jnp.float64)
+        v = 0.0
+        for c in self.components:
+            v += float(c.norm()) ** 2
+        return jnp.asarray(v ** 0.5, dtype=jnp.float64)
+
+    def magnitude(self) -> Spherefun:
+        """Pointwise magnitude ``sqrt(F1^2 + F2^2 + F3^2)`` as a
+        Spherefun."""
         comps = self.components
         return Spherefun.from_function(
             lambda lam, th: jnp.sqrt(

@@ -477,7 +477,7 @@ def _sph_harm_sum(
         for m_idx, m_val in enumerate(m_vals):
             # lpmv(m, l, x) = P_l^m(x) (unnormalized)
             # normalized: sqrt((2l+1)/(4pi) * (l-m)!/(l+m)!) * P_l^m
-            norm = np.sqrt((2 * l_deg + 1) / (4 * np.pi)
+            norm = np.sqrt((2 * l_deg + 1) / 2.0
                            * math.factorial(l_deg - m_val)
                            / math.factorial(l_deg + m_val))
             G[m_idx, :] = norm * lpmv(m_val, l_deg, cos_theta)
@@ -526,7 +526,7 @@ def _sph_harm_sum_fixed_deg(
 
     G = np.zeros((l_deg + 1, len(theta)))
     for m_idx, m_val in enumerate(m_vals):
-        norm = np.sqrt((2 * l_deg + 1) / (4 * np.pi)
+        norm = np.sqrt((2 * l_deg + 1) / 2.0
                        * math.factorial(l_deg - m_val)
                        / math.factorial(l_deg + m_val))
         G[m_idx, :] = norm * lpmv(m_val, l_deg, cos_theta)

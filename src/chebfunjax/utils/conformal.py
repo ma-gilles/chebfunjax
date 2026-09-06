@@ -100,6 +100,12 @@ def conformal(
     --------
     aaa
     """
+    if hasattr(boundary_pts, "funs"):
+        # MATLAB: C is a (periodic) chebfun tracing the boundary; sample
+        # it at equispaced parameter values.
+        _bp = [float(v) for v in boundary_pts.domain.breakpoints]
+        _t = _bp[0] + (_bp[-1] - _bp[0]) * np.arange(1000) / 1000.0
+        boundary_pts = np.asarray(boundary_pts(jnp.asarray(_t)))
     Z_np = np.array(boundary_pts, dtype=complex).ravel()
     ctr_c = complex(ctr)
     scl = np.max(np.abs(Z_np - ctr_c))

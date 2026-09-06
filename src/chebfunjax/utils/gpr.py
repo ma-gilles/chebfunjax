@@ -146,8 +146,11 @@ def gpr(
             else:
                 search_lo = period / (2.0 * np.pi * max(n, 1))
                 search_hi = 10.0 / np.pi * period
+            # MATLAB gpr.m: logML is evaluated with the UNSCALED data
+            # and sigma = max|y| (the scaled y would make the data term
+            # vanish against the log-determinant term).
             length_scale = _optimise_length_scale(
-                x, y / scaling, sigma_val, sigma_y, trig, period,
+                x, y, sigma_val, sigma_y, trig, period,
                 search_lo, search_hi,
             )
     length_scale = float(length_scale)
@@ -185,6 +188,18 @@ def gpr(
     # --- posterior mean on grid ---
     Ks = _kernel(x_grid, x, sigma_val, length_scale, sigma_y, trig, period)
     mean = scaling * (Ks @ alpha)
+    # Callables of the posterior (MATLAB returns chebfuns built from
+    # these): mean and variance at arbitrary points.
+    def mean_fn(xe, _alpha=alpha, _scaling=scaling):
+        xe = np.atleast_1d(np.asarray(xe, dtype=float))
+        Ke = _kernel(xe, x, sigma_val, length_scale, sigma_y, trig, period)
+        return _scaling * (Ke @ _alpha)
+
+    def variance_fn(xe, _L=L):
+        xe = np.atleast_1d(np.asarray(xe, dtype=float))
+        Ke = _kernel(xe, x, sigma_val, length_scale, sigma_y, trig, period)
+        ve = np.linalg.solve(_L, Ke.T)
+        return np.maximum(sigma_val ** 2 - np.sum(ve ** 2, axis=0), 0.0)
 
     # --- posterior variance on grid ---
     Kss_diag = sigma_val ** 2 * np.ones(M)  # diagonal of K(x_grid, x_grid)
@@ -209,7 +224,45 @@ def gpr(
         "samples": samples,
         "length_scale": length_scale,
         "sigma": sigma_val,
+        "mean_fn": mean_fn,
+        "variance_fn": variance_fn,
+        "domain": (a, b),
     }
+
+
+def gpr_chebfun(x, y, **kwargs):
+    """MATLAB-style ``[f, fvar, fsamples] = gpr(x, y, ...)``: the
+    posterior mean and variance as chebfuns on the domain and the
+    sample paths as an array-valued chebfun (``None`` without
+    ``n_samples``).  Keyword arguments as for :func:`gpr`.
+
+    Provenance
+    ----------
+    MATLAB source : gpr.m
+    Chebfun commit: 7574c77
+    """
+    import jax.numpy as jnp
+
+    from chebfunjax.chebfun1d.chebfun import chebfun
+    res = gpr(x, y, **kwargs)
+    a, b = res["domain"]
+    trig = bool(kwargs.get("trig", False))
+    if "mean_fn" not in res:
+        f = chebfun(lambda t: jnp.zeros_like(t), domain=(a, b))
+        fvar = chebfun(lambda t: jnp.full_like(t, res["sigma"] ** 2),
+                       domain=(a, b))
+        return f, fvar, None
+    f = chebfun(lambda t: jnp.asarray(res["mean_fn"](np.asarray(t))),
+                domain=(a, b), trig=trig)
+    fvar = chebfun(lambda t: jnp.asarray(res["variance_fn"](np.asarray(t))),
+                   domain=(a, b), trig=trig)
+    fsamples = None
+    if res["samples"] is not None:
+        # Sample paths are known on the equispaced grid: interpolate
+        # them (MATLAB builds the samples from the same grid).
+        fsamples = chebfun(jnp.asarray(res["samples"]), domain=(a, b),
+                           equi=True)
+    return f, fvar, fsamples
 
 
 # ===========================================================================
@@ -280,7 +333,10 @@ def _optimise_length_scale(
     """Find the length scale that maximises the log marginal likelihood."""
     if len(x) == 0:
         return (lo + hi) / 2.0
-    ells = np.logspace(np.log10(max(lo, 1e-10)), np.log10(max(hi, lo * 2)), n_grid)
+    # No absolute floor: MATLAB searches [domSize/(2 pi n), 10 domSize/pi]
+    # whatever the scale of the data (x ~ 1e-100 must work).
+    lo = max(lo, np.finfo(float).tiny)
+    ells = np.logspace(np.log10(lo), np.log10(max(hi, lo * 2)), n_grid)
     lmls = np.array([
         _log_marginal_likelihood(e, x, yn, sigma, sigma_y, trig, period)
         for e in ells

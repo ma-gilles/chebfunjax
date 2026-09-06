@@ -19,7 +19,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.chebfun3d.chebfun3 import Chebfun3
 
@@ -77,10 +76,13 @@ class TestChebfun3Guide:
         exact = -np.sqrt(1.0 + L**2) / L
         assert abs(I - exact) < TOL
 
-    @pytest.mark.skip(reason="'trig' Chebfun3 constructor flag (MATLAB "
-                      "pass 10) -- chebfunjax Chebfun3 has no trig tech")
     def test_pass10_trig_ctor(self):
-        raise NotImplementedError
+        from chebfunjax.chebfun3d.chebfun3 import chebfun3
+        ff = lambda x, y, z: jnp.tanh(3 * jnp.sin(x)) - jnp.sin(y + 0.5) ** 2 + jnp.cos(6 * z)  # noqa: E731
+        dom = (-np.pi, np.pi, -np.pi, np.pi, -np.pi, np.pi)
+        m, n, p = chebfun3(ff, dom, trig=True).length()
+        mc, nc, pc = chebfun3(ff, dom).length()
+        assert m <= mc and n <= nc and p <= pc                               # pass(10)
 
     def test_pass11to19_hosvd(self):
         f = Chebfun3.from_function(

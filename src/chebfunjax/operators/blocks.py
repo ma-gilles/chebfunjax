@@ -1179,7 +1179,13 @@ def eval_at(x: float, domain: _DomainT = _DEFAULT_DOMAIN,
         row = jnp.zeros(disc.n, dtype=jnp.float64)
         return row.at[off:off + nk].set(sub)
 
-    fb = FunctionalBlock(_fn, domain=dom, isnotdiffint=True)
+    def _apply(u, _x=float(x), _d=dirn):
+        # MATLAB feval functional: no direction -> the chebfun's stored
+        # point value at a breakpoint; otherwise the one-sided limit.
+        if _d == 0:
+            return u(jnp.asarray(_x))
+        return u(jnp.asarray(_x), "left" if _d < 0 else "right")
+    fb = FunctionalBlock(_fn, domain=dom, isnotdiffint=True, apply_fn=_apply)
     # Location metadata: lets piecewise discretizations (Linop.expm) place
     # this row in the sub-interval that owns the evaluation point.
     fb.loc = float(x)

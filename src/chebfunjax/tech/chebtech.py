@@ -1614,6 +1614,7 @@ class Chebtech2(eqx.Module):
         extrapolate: bool = False,
         start_pow2: int = 4,
         check: str = "standard",
+        vscale: float = 0.0,
     ) -> "Chebtech2":
         """Construct a Chebtech2 from a callable.
 
@@ -1677,13 +1678,16 @@ class Chebtech2(eqx.Module):
             # number of computed coefficients is ``fixedLength`` (here ``n``)
             # or ``2*length`` otherwise.
             plain = cls._adaptive_construct(f, maxpow2, tol=tol,
-                                            check=check)
+                                            check=check, vscale=vscale,
+                                            extrapolate=extrapolate,
+                                            start_pow2=start_pow2)
             num = n if n is not None else 2 * len(plain)
             c = _turbo_coeffs(f, plain.coeffs, num)
             return cls(coeffs=c, ishappy=plain.ishappy)
         if n is not None:
             return cls._fixed_construct(f, n, extrapolate=extrapolate)
         return cls._adaptive_construct(f, maxpow2, tol=tol, check=check,
+                                       vscale=vscale,
                                        extrapolate=extrapolate,
                                        start_pow2=start_pow2)
 
@@ -1712,6 +1716,7 @@ class Chebtech2(eqx.Module):
         tol: float | None = None,
         extrapolate: bool = False,
         check: str = "standard",
+        vscale: float = 0.0,
     ) -> "Chebtech2":
         """Adaptive construction — Python-level loop, NOT JIT-safe.
 
@@ -1740,7 +1745,10 @@ class Chebtech2(eqx.Module):
             MATLAB ``pref.happinessCheck``: which convergence test
             ``happiness_check`` applies during adaptive construction.
         """""
-        vscale = 0.0
+        # MATLAB passes the running GLOBAL vscale of a piecewise
+        # construction into every piece (data.vscale), so a tiny piece is
+        # judged against the whole function's scale.
+        vscale = float(vscale)
         c = None
         for k in range(start_pow2, maxpow2 + 1):
             n = 2**k + 1

@@ -243,3 +243,65 @@ class ChebopPref(ChebfunPref):
             for k in src:
                 if k in top and k not in _factory_top():
                     top[k] = src[k]
+
+
+# ---------------------------------------------------------------------------
+# Deprecated global toggles (MATLAB splitting.m / blowup.m)
+# ---------------------------------------------------------------------------
+
+def splitting(state=None) -> str:
+    """Query or set the session default ``splitting`` preference (MATLAB
+    ``splitting()`` / ``splitting('on'|'off')``).  Returns the state in
+    force BEFORE the call, ``'on'`` or ``'off'``.
+
+    Provenance
+    ----------
+    MATLAB source : splitting.m
+    Chebfun commit: 7574c77
+    """
+    old = "on" if bool(ChebfunPref().splitting) else "off"
+    if state is not None:
+        key = str(state).lower()
+        if key not in ("on", "off"):
+            raise ValueError("splitting: state must be 'on' or 'off'.")
+        ChebfunPref.setDefaults("splitting", key == "on")
+    return old
+
+
+def blowup(state=None) -> int:
+    """Query or set the session default ``blowup`` preference (MATLAB
+    ``blowup()``): ``0``/``'off'`` disables singularity detection,
+    ``1``/``'on'`` detects poles (``defaultSingType = 'pole'``), ``2``
+    detects general branch singularities (``'sing'``).  Returns the
+    mode in force BEFORE the call.
+
+    Provenance
+    ----------
+    MATLAB source : blowup.m
+    Chebfun commit: 7574c77
+    """
+    p = ChebfunPref()
+    if not p.blowup:
+        old = 0
+    else:
+        old = 1 if str(p.blowupPrefs.defaultSingType).lower() == "pole" \
+            else 2
+    if state is not None:
+        if isinstance(state, str):
+            key = state.lower()
+            mode = {"off": 0, "on": 1}.get(key)
+            if mode is None:
+                raise ValueError("blowup: state must be 'on', 'off', 0, 1 "
+                                 "or 2.")
+        else:
+            mode = int(state)
+            if mode not in (0, 1, 2):
+                raise ValueError("blowup: mode must be 0, 1 or 2.")
+        q = ChebfunPref()
+        q.blowup = mode != 0
+        if mode == 1:
+            q.blowupPrefs.defaultSingType = "pole"
+        elif mode == 2:
+            q.blowupPrefs.defaultSingType = "sing"
+        ChebfunPref.setDefaults(q)
+    return old

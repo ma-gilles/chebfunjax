@@ -579,12 +579,11 @@ def resultant_common_zeros(f, g):
 
     # Scale to O(1) for conditioning.
     def _scale(h):
-        gx = np.linspace(xa, xb, 17)
-        gy = np.linspace(ya, yb, 17)
-        xx, yy = np.meshgrid(gx, gy)
-        s = float(np.max(np.abs(
-            np.asarray(h(jnp.asarray(xx), jnp.asarray(yy))))))
-        return s if s > 0 else 1.0
+        # MATLAB: f = f/abs(f.pivotValues(1)) -- the first (largest) GE
+        # pivot; chebfunjax stores pivots = 1/pivotValues.
+        piv = np.asarray(h.approx.pivots, dtype=float).ravel()
+        s = 1.0 / abs(float(piv[0])) if piv.size and piv[0] != 0 else 1.0
+        return s if np.isfinite(s) and s > 0 else 1.0
 
     sf, sg = _scale(f), _scale(g)
 

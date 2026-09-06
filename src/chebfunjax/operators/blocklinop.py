@@ -1037,7 +1037,11 @@ class BlockLinop:
         """
         import numpy as np  # uses-numpy: dense generalized eigensolve
         if discretization != "chebcolloc2":
-            return self._eigs_altdisc(k, sigma, n, discretization, B=B)
+            lam_a, funs_a = self._eigs_altdisc(k, sigma, n, discretization,
+                                               B=B)
+            if rayleigh:
+                lam_a, funs_a = self._rayleigh_qi(jnp.asarray(lam_a), funs_a, B)
+            return jnp.asarray(lam_a), funs_a
         r_use = self.proj_order()
         if B is not None:
             r_b = (B.proj_order() if isinstance(B, BlockLinop)

@@ -1228,6 +1228,33 @@ class Unbndfun(eqx.Module):
         """Absolute value (NOT JIT-safe)."""
         return Unbndfun(abs(self.onefun), self.domain, self.mapping_type)
 
+    def abs(self) -> "Unbndfun":
+        """Absolute value (method form used by the chebfun layer)."""
+        return self.__abs__()
+
+    def endpoint_values(self) -> tuple:
+        """Values at the two ends (limits at an infinite endpoint)."""
+        v = self.onefun(jnp.asarray([-1.0, 1.0]))
+        return (v[0], v[1])
+
+    def _apply_fun(self, op) -> "Unbndfun":
+        """Compose with a pointwise ``op`` by adaptive reconstruction on
+        the same unbounded domain (piece-protocol hook mirroring
+        ``_Piece._apply_fun``; MATLAB @unbndfun/compose.m)."""
+        return Unbndfun.from_function(lambda x: op(self(x)), self.domain)
+
+    def roots(self, *args, **kwargs) -> jax.Array:
+        """Roots on the unbounded domain: the onefun's roots in [-1, 1]
+        pushed through the nonlinear forward map (NOT JIT-safe).
+
+        Provenance
+        ----------
+        MATLAB source : @unbndfun/roots.m
+        Chebfun commit: 7574c77
+        """
+        r = self.onefun.roots(*args, **kwargs)
+        return self.forward_map(jnp.asarray(r))
+
     # ------------------------------------------------------------------
     # Display
     # ------------------------------------------------------------------

@@ -34,6 +34,28 @@ __all__ = ["Spinop", "spin"]
 # the time-stepping loop below and the spinop port test.
 
 
+# MATLAB @spinop/spinop.m preset operators (func2str form), used by
+# ``Spinop.lin_str`` / ``Spinop.nonlin_str`` and by :meth:`Spinop.lin`.
+_LIN_STRINGS = {
+    "AC": "@(u)5e-3*diff(u,2)",
+    "BURG": "@(u)1e-3*diff(u,2)",
+    "CH": "@(u)-1e-2*(diff(u,2)+1e-3*diff(u,4))",
+    "KDV": "@(u)-diff(u,3)",
+    "KS": "@(u)-diff(u,2)-diff(u,4)",
+    "NIKO": "@(u).1*diff(u,2)+diff(u,4)+diff(u,6)",
+    "NLS": "@(u)1i*diff(u,2)",
+}
+_NONLIN_STRINGS = {
+    "AC": "@(u)u-u.^3",
+    "BURG": "@(u)-.5*diff(u.^2)",
+    "CH": "@(u)1e-2*diff(u.^3,2)",
+    "KDV": "@(u)-.5*diff(u.^2)",
+    "KS": "@(u)-.5*diff(u.^2)",
+    "NIKO": "@(u)-.5*diff(u.^2)",
+    "NLS": "@(u)1i*abs(u).^2.*u",
+}
+
+
 class Spinop:
     """Semilinear PDE specification u_t = L u + N(u) on a periodic
     domain.
@@ -56,7 +78,11 @@ class Spinop:
     def __init__(self, pdechar: str | None = None, *, domain=None,
                  tspan=None, lin_symbol=None, nonlin=None,
                  init=None):
+        self.preset = None
+        self.lin_str = None
+        self.nonlin_str = None
         if pdechar is not None:
+            self.preset = pdechar
             self._preset(pdechar)
             return
         self.domain = tuple(float(v) for v in domain)
@@ -64,6 +90,26 @@ class Spinop:
         self.lin_symbol = lin_symbol
         self.nonlin = nonlin
         self.init = init
+
+    def lin(self, u):
+        """The linear part applied to a (periodic) Chebfun -- MATLAB
+        ``S.lin(u)`` -- for the named presets."""
+        name = (self.preset or "").upper()
+        if name == "AC":
+            return 5e-3 * u.diff(2)
+        if name == "BURG":
+            return 1e-3 * u.diff(2)
+        if name == "CH":
+            return -1e-2 * (u.diff(2) + 1e-3 * u.diff(4))
+        if name == "KDV":
+            return -u.diff(3)
+        if name == "KS":
+            return -u.diff(2) - u.diff(4)
+        if name == "NIKO":
+            return 0.1 * u.diff(2) + u.diff(4) + u.diff(6)
+        if name == "NLS":
+            return 1j * u.diff(2)
+        raise ValueError("Spinop.lin: no preset linear operator")
 
     def _preset(self, name: str) -> None:
         name = name.upper()
@@ -108,8 +154,35 @@ class Spinop:
             self.init = lambda x: (
                 3 * A ** 2 / np.cosh(0.5 * A * (x + 2)) ** 2
                 + 3 * B ** 2 / np.cosh(0.5 * B * (x + 1)) ** 2)
+        elif name == "KS":
+            # Kuramoto-Sivashinsky: u_t = -u_xx - u_xxxx - (u^2/2)_x on [0, 32pi]
+            self.domain = (0.0, 32.0 * np.pi)
+            self.tspan = (0.0, 300.0)
+            self.lin_symbol = lambda om: om ** 2 - om ** 4
+            self.nonlin = lambda v, om, dx: -0.5 * dx(v ** 2, 1)
+            self.init = lambda x: np.cos(x / 16) * (1 + np.sin(x / 16))
+        elif name == "NIKO":
+            # Nikolaevskiy: u_t = .1 u_xx + u_xxxx + u_xxxxxx - (u^2/2)_x
+            self.domain = (0.0, 32.0 * np.pi)
+            self.tspan = (0.0, 300.0)
+            self.lin_symbol = lambda om: -0.1 * om ** 2 + om ** 4 - om ** 6
+            self.nonlin = lambda v, om, dx: -0.5 * dx(v ** 2, 1)
+            self.init = lambda x: np.cos(x / 16) * (1 + np.sin(x / 16))
+        elif name == "NLS":
+            # Nonlinear Schroedinger: u_t = i u_xx + i |u|^2 u on [-pi, pi]
+            self.domain = (-np.pi, np.pi)
+            self.tspan = (0.0, 20.0)
+            self.lin_symbol = lambda om: -1j * om ** 2
+            self.nonlin = lambda v, om, dx: 1j * np.abs(v) ** 2 * v
+            A = 2.0
+            B = 1.0
+            self.init = lambda x: ((2 * B ** 2 / (2 + A ** 2 * np.cos(B * x)
+                                                 / (2 * B ** 2)))
+                                   * (1 + 0j) - 1.0)
         else:
             raise ValueError(f"unknown spinop preset {name!r}")
+        self.lin_str = _LIN_STRINGS.get(name)
+        self.nonlin_str = _NONLIN_STRINGS.get(name)
 
 
 def spin(S: Spinop, n: int, dt: float):

@@ -9,7 +9,6 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import jax.numpy as jnp
-import pytest
 
 from chebfunjax.chebfun2d import chebfun2
 
@@ -20,9 +19,7 @@ from ._helpers import TOL, match_points
 # cross-check is genuinely slow: the ms pass takes ~40 s and the resultant pass
 # ~200 s locally (single-threaded CPU), too close to the 300 s per-test cap for
 # the default suite.  Remove the skip to run it manually.
-pytestmark = pytest.mark.skip(
-    reason="Both methods agree (errx=4.8e-16, erry=4.3e-16) but the resultant "
-           "cross-check runs ~250s, too close to the 300s per-test cap.")
+# (skip removed: the resultant scaling now follows MATLAB, f/abs(pivotValues(1)))
 
 
 class TestChebfun2vRootsSlow:

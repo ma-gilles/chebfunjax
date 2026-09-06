@@ -216,7 +216,20 @@ class Chebfun2v(eqx.Module):
         MATLAB source : @chebfun2v/transpose.m
         Chebfun commit: 7574c77
         """
-        return self
+        if self.isempty():
+            return self
+        out = type(self)(list(self.components))
+        object.__setattr__(out, "_row", not getattr(self, "_row", False))
+        return out
+
+    @property
+    def T(self) -> "Chebfun2v":
+        return self.transpose()
+
+    @property
+    def is_transposed(self) -> bool:
+        """MATLAB ``F.isTransposed``."""
+        return bool(getattr(self, "_row", False))
 
     def ctranspose(self) -> "Chebfun2v":
         """MATLAB ``F'``: conjugate transpose.
@@ -446,6 +459,8 @@ class Chebfun2v(eqx.Module):
         """
         if self.isempty():
             return self
+        if isinstance(other, Chebfun2v) and self.is_transposed:
+            return self.dot(other)          # MATLAB F' * G
         if isinstance(other, (int, float, complex)):
             # complex scalars keep complex pivots (MATLAB 1i*F)
             s = complex(other) if isinstance(other, complex) \

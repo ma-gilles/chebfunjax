@@ -8,11 +8,23 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-import pytest
+import jax
+import numpy as np
 
-pytestmark = pytest.mark.skip(reason="MATLAB test checks spherefun-valued output; chebfunjax returns grid samples (NOT YET PORTED assertion-for-assertion)")
+from chebfunjax.chebfun1d.randfuns import randnfunsphere
+
+jax.config.update("jax_enable_x64", True)
 
 
 class TestMiscRandnfunsphere:
     def test_all_matlab_assertions(self):
-        raise NotImplementedError
+        np.random.seed(0)
+        f = randnfunsphere(.2)
+        assert abs(float((f ** 2).mean2()) - 1) < .1                # pass(1)
+        assert abs(float(f.mean2())) < .1                           # pass(2)
+        f = randnfunsphere(1e6)
+        assert float(f.diff().norm("fro")) < 1e-4                   # pass(3)
+        f = randnfunsphere(3.1)
+        assert f.rank == 4                                        # pass(4)
+        f = randnfunsphere(3.1, "mono")
+        assert f.rank == 3                                        # pass(5)

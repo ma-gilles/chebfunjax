@@ -154,6 +154,7 @@ class Singfun(eqx.Module):
         n: int | None = None,
         turbo: bool = False,
         maxpow2: int = 16,
+        tech_cls=None,
     ) -> "Singfun":
         """Construct a Singfun from a callable and (optionally) known exponents.
 
@@ -234,7 +235,8 @@ class Singfun(eqx.Module):
         # T-series coefficients, so the result transfers directly.
         t1 = Chebtech1.from_function(smooth_f, n=n, turbo=turbo,
                                      maxpow2=maxpow2)
-        tech = Chebtech2.from_coeffs(t1.coeffs)
+        # MATLAB pref.tech = @chebtech1 keeps the first-kind smooth part.
+        tech = t1 if tech_cls is Chebtech1 else Chebtech2.from_coeffs(t1.coeffs)
         # from_coeffs defaults to happy; keep the adaptive verdict so
         # unresolved singular pieces are visible to the splitting loop.
         if not getattr(t1, "ishappy", True):

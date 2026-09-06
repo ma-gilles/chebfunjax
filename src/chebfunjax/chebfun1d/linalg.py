@@ -40,6 +40,58 @@ _EPS = float(jnp.finfo(jnp.float64).eps)
 # ============================================================================
 
 
+def lu(A):
+    """LU factorization of a quasimatrix by Gaussian elimination with
+    complete pivoting on the continuous variable (MATLAB ``lu(A)``).
+
+    Returns ``(L, U, p)``: ``L`` is a quasimatrix with the same number
+    of columns as ``A`` (unit values at the pivot locations, ``L(p, :)``
+    lower-triangular), ``U`` an upper-triangular matrix and ``p`` the
+    pivot locations, so that ``A = L * U``.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/lu.m
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+
+    cols = list(A.cols) if isinstance(A, Quasimatrix) else list(A)
+    if not cols:
+        return [], jnp.zeros((0, 0)), jnp.zeros((0,))
+    if getattr(cols[0], "is_transposed", False):
+        raise ValueError(
+            "CHEBFUN:CHEBFUN:lu:sizes: CHEBFUN LU works only for column "
+            "CHEBFUN objects.")
+    dom = cols[0].domain
+    n = len(cols)
+    U = _np.zeros((n, n))
+    p = _np.full(n, _np.nan)
+    L: list = []
+    cur = cols
+    for j in range(n):
+        Acol = cur[j]
+        (xmin, fmin), (xmax, fmax) = Acol.minandmax()
+        vals = _np.asarray([float(fmin), float(fmax)])
+        poss = _np.asarray([float(xmin), float(xmax)])
+        pos = float(poss[int(_np.argmax(_np.abs(vals)))])
+        mx = float(Acol(jnp.asarray(pos)))
+        Arow = _np.asarray([float(c(jnp.asarray(pos))) for c in cur])
+        if _np.any(p[:j] == pos):
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:lu:pivot: Duplicated pivot location, "
+                "likely due to ill-conditioning.")
+        U[j, :] = Arow
+        # MATLAB: L = Acol / mx;  A = A - Acol * Arow / mx  (this exact
+        # operation order keeps the stored point values at the pivots
+        # cancelling to rounding).
+        L.append(Acol / mx)
+        cur = [c - (Acol * float(Arow[k])) / mx for k, c in enumerate(cur)]
+        p[j] = pos
+    U = _np.triu(U)
+    return Quasimatrix(L, dom), jnp.asarray(U), jnp.asarray(p)
+
+
 class Quasimatrix:
     """A quasimatrix: a finite collection of Chebfun columns on a shared domain.
 
@@ -82,11 +134,6 @@ class Quasimatrix:
         if len(cols) == 0:
             raise ValueError(
                 "Quasimatrix must have at least one column."
-            )
-        if domain.n_intervals != 1:
-            raise ValueError(
-                f"Quasimatrix only supports single-interval domains, "
-                f"got domain with {domain.n_intervals} intervals."
             )
         for i, col in enumerate(cols):
             if col.domain != domain:
@@ -228,6 +275,26 @@ class Quasimatrix:
         cols = list(other.cols) if isinstance(other, Quasimatrix) \
             else [other]
         return Quasimatrix(list(self.cols) + cols, self.domain)
+
+    def range(self, dim: int = 1):
+        """``max - min`` of each column (``dim = 1``, an array) or the
+        pointwise range across the columns (``dim = 2``, a Chebfun);
+        MATLAB ``range(f, dim)`` for a quasimatrix.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/range.m
+        Chebfun commit: 7574c77
+        """
+        if dim >= 3:
+            return self._map(lambda c: 0.0 * c)
+        if dim == 1:
+            return jnp.asarray([float(c.range()) for c in self.cols])
+        mx, mn = self.cols[0], self.cols[0]
+        for c in self.cols[1:]:
+            mx = mx.maximum(c)
+            mn = mn.minimum(c)
+        return mx - mn
 
     def diff(self, k: int = 1) -> "Quasimatrix":
         return self._map(lambda c: c.diff(k))

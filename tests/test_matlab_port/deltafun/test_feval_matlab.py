@@ -18,7 +18,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
@@ -61,11 +60,22 @@ class TestDeltafunFeval:
         vals = np.array(d(jnp.asarray(x)))
         assert np.all(np.isinf(vals))
 
-    @pytest.mark.skip(
-        reason="pass(4)-(15) require chebfun-level dirac()/heaviside() and "
-        "directional feval (feval(d,'left'/'right'), feval(d,x,'left')), which "
-        "are not part of the fun/deltafun layer"
-    )
     def test_chebfun_level_dirac_heaviside_directional(self):
         # pass(4)-(15): dirac(x-1), diff(heaviside(x)), 'left'/'right' evaluation
-        pass
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        x = chebfun(lambda t: t)
+        d = (x - 1).dirac()
+        assert np.isinf(float(d(1.0)))                                       # pass(4)
+        val = float((-d)(1.0))
+        assert np.isinf(val) and val < 0                                     # pass(5)
+        assert np.isinf(float(d("right")))                                   # pass(6)
+        assert float(d("left")) == 0                                         # pass(7)
+        assert float(d(1.0, "left")) == 0                                    # pass(8)
+        assert float(d(0.0, "left")) == 0                                    # pass(9)
+        assert float(d(0.0, "right")) == 0                                   # pass(10)
+        d = x.heaviside().diff()
+        assert np.isinf(float(d(0.0)))                                       # pass(11)
+        assert float(d("right")) == 0                                        # pass(12)
+        assert float(d("left")) == 0                                         # pass(13)
+        assert float(d(0.0, "left")) == 0                                    # pass(14)
+        assert float(d(0.0, "right")) == 0                                   # pass(15)

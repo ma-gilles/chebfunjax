@@ -15,7 +15,6 @@ import math
 
 import jax
 import numpy as np
-import pytest
 
 from chebfunjax.operators.blocklinop import linop
 from chebfunjax.operators.blocks import D, eval_at
@@ -48,9 +47,22 @@ class TestLinopEigsRayleigh:
 
         assert all(x < TOL for x in err), err
 
-    @pytest.mark.skip(
-        reason="MATLAB err(3)-err(6) repeat the problem with the ultraS and "
-               "chebcolloc1 discretizations; chebfunjax's BlockLinop only "
-               "implements chebcolloc2 rectangular collocation.")
     def test_ultras_and_chebcolloc1(self):
-        raise NotImplementedError
+        # MATLAB err(3)-err(6): the same problem under the ultraS and
+        # chebcolloc1 discretizations with Rayleigh-quotient refinement.
+        dom = (-math.pi / 2, math.pi / 2)
+        D2 = D(dom, 2)
+        L = linop(D2).addbc(eval_at(dom[0], dom), 0.0)
+        L = L.addbc(eval_at(dom[-1], dom), 0.0)
+        e_true = -np.arange(1, 7)[::-1].astype(float) ** 2
+        for disc, sigma in (("ultraS", 0.0), ("chebcolloc1", None)):
+            lam, V = L.eigs(6, sigma=sigma, n=65, rayleigh=True,
+                            discretization=disc)
+            e = np.sort(np.asarray(lam).real)
+            assert float(np.max(np.abs(e - e_true))) < TOL, disc
+            resid = 0.0
+            for j in range(6):
+                v = V[j][0]
+                resid = max(resid, float(abs((D2 * v - complex(lam[j]) * v)
+                                             .norm())))
+            assert resid < TOL, disc

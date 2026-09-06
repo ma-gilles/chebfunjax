@@ -110,8 +110,11 @@ def _marching_squares(f, n: int):
     from skimage import measure
 
     xa, xb, ya, yb = (float(v) for v in f.domain)
-    x = np.linspace(xa, xb, n)
-    y = np.linspace(ya, yb, n)
+    # Interior grid, as MATLAB (x(1) = []; x(end) = []): a function
+    # vanishing identically along a boundary line (a spherefun's pole
+    # rows) would otherwise spawn spurious contours there.
+    x = np.linspace(xa, xb, n + 2)[1:-1]
+    y = np.linspace(ya, yb, n + 2)[1:-1]
     # Separable tensor-grid evaluation: vals = (C^T diag(d)) R with the
     # rank-r slices evaluated once per 1D grid (numpy Clenshaw).  The
     # generic pointwise __call__ evaluates every slice at all n^2 points
@@ -231,6 +234,9 @@ def _polish_endpoints(f, fx, fy, dc, dom, tol):
     return dc
 
 
+_MAX_FIT = None  # cap on polyline points fitted per curve (None: no cap, as MATLAB)
+
+
 def _fit_curve(f, fx, fy, pts, scl, vscale, dom, snap_tol):
     """Refine a polyline into an accurate complex Chebfun zero curve.
 
@@ -251,8 +257,8 @@ def _fit_curve(f, fx, fy, pts, scl, vscale, dom, snap_tol):
     # Cap the number of fit points: the fine grid gives an accurate
     # polyline, but fitting a Chebfun through >~few-hundred points is both
     # slow and over-resolved.  Downsample uniformly along the polyline.
-    max_fit = 600
-    if data.shape[0] > max_fit:
+    max_fit = _MAX_FIT
+    if max_fit is not None and data.shape[0] > max_fit:
         idx = np.linspace(0, data.shape[0] - 1, max_fit).round().astype(int)
         data = data[idx]
     npts = data.shape[0]

@@ -223,6 +223,9 @@ def minimax(
     --------
     aaa, chebpts, bary, bary_weights
     """
+    if isinstance(f, str):
+        from chebfunjax.utils.matlab_expr import matlab_expression
+        f = matlab_expression(f, ("x",))
     if rational:
         denom_deg = n if denom is None else int(denom)
         if n < 0 or denom_deg < 0:

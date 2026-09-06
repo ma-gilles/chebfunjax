@@ -175,8 +175,9 @@ def _phase_one_sphere(
     m, n2 = F.shape
     n = n2 // 2
 
-    # The effective rank bound accounts for doubling in theta
-    minsize = min(2 * m - 2, n)
+    # MATLAB PhaseOne: minSize = min(2*m-2, n) with n = size(F, 2), the
+    # FULL (doubled-lambda) column count.
+    minsize = min(2 * m - 2, n2)
     width = minsize / factor if factor > 0 else np.inf
 
     C = F[:, :n]
@@ -641,7 +642,9 @@ def _phase_two_sphere(
     # Build Trigtech objects for cols and rows
     cols_list = []
     rows_list = []
-
+    # MATLAB simplify(g, pseudoLevel): chop relative to the GLOBAL scale.
+    vs_cols = float(np.max(np.abs(cols_full))) if cols_full.size else 0.0
+    vs_rows = float(np.max(np.abs(rows_full))) if rows_full.size else 0.0
     for j in range(total):
         # Column: trigtech on doubled theta domain (length 2*m points)
         cv = jnp.asarray(cols_full[:, j], dtype=jnp.float64)
@@ -649,7 +652,7 @@ def _phase_two_sphere(
         cv_scale = float(jnp.max(jnp.abs(cv)))
         if cv_scale > 0:
             chop_in = _trig_abs_coeffs_for_chop(cc)
-            chop_rel = max(_EPS, tol / cv_scale)
+            chop_rel = max(_EPS, _EPS * vs_cols / cv_scale)
             cutoff_exp = standard_chop(chop_in.astype(jnp.float64), chop_rel)
             n_keep = _chop_cutoff_to_ncoeffs(int(cutoff_exp), cc.shape[0])
             cc = _trig_prolong_coeffs(cc, n_keep)
@@ -661,7 +664,7 @@ def _phase_two_sphere(
         rv_scale = float(jnp.max(jnp.abs(rv)))
         if rv_scale > 0:
             chop_in = _trig_abs_coeffs_for_chop(rc)
-            chop_rel = max(_EPS, tol / rv_scale)
+            chop_rel = max(_EPS, _EPS * vs_rows / rv_scale)
             cutoff_exp = standard_chop(chop_in.astype(jnp.float64), chop_rel)
             n_keep = _chop_cutoff_to_ncoeffs(int(cutoff_exp), rc.shape[0])
             rc = _trig_prolong_coeffs(rc, n_keep)
@@ -868,36 +871,34 @@ class Spherefun(eqx.Module):
 
     def coeffs2(self, m=None, n=None):
         """The 2-D Fourier coefficient matrix of the (doubled) sphere
-        representation, optionally sized m x n (MATLAB ``coeffs2``).
+        representation ``U * D * R.'`` (MATLAB ``coeffs2``); with sizes
+        the factor coefficients are ALIASED to ``n`` (theta) and ``m``
+        (lambda) modes as ``trigtech.alias`` does.
 
         Provenance
         ----------
         MATLAB source : @spherefun/coeffs2.m
         Chebfun commit: 7574c77
         """
-        from chebfunjax.tech.trigtech import trig_vals2coeffs
+        from chebfunjax.tech.trigtech import _alias_trigtech, _trig_prolong_coeffs
+        if self.isempty() or len(self.cols) == 0:
+            return jnp.zeros((0, 0), dtype=jnp.complex128)
         if m is not None and n is None:
             n = m
-        cc = [jnp.ravel(jnp.asarray(trig_vals2coeffs(
-            jnp.asarray(c.values)))) for c in self.cols]
-        rr = [jnp.ravel(jnp.asarray(trig_vals2coeffs(
-            jnp.asarray(r.values)))) for r in self.rows]
-        mc = max(c.shape[0] for c in cc)
-        nr = max(r.shape[0] for r in rr)
-        C = Spherefun._center_pad(
-            jnp.stack([jnp.concatenate([c, jnp.zeros(mc - c.shape[0],
-                       dtype=c.dtype)]) if c.shape[0] < mc else c
-                       for c in [Spherefun._center_pad(
-                           ci[:, None], mc)[:, 0] for ci in cc]],
-                      axis=1), mc if m is None else m)
-        R = Spherefun._center_pad(
-            jnp.stack([Spherefun._center_pad(ri[:, None], nr)[:, 0]
-                       for ri in rr], axis=1),
-            nr if n is None else n)
+        cc = [jnp.asarray(c.coeffs, dtype=jnp.complex128) for c in self.cols]
+        rr = [jnp.asarray(r.coeffs, dtype=jnp.complex128) for r in self.rows]
+        if m is None:
+            mc = max(c.shape[0] for c in cc)
+            nr = max(r.shape[0] for r in rr)
+            U = jnp.stack([_trig_prolong_coeffs(c, mc) for c in cc], axis=1)
+            R = jnp.stack([_trig_prolong_coeffs(r, nr) for r in rr], axis=1)
+        else:
+            U = jnp.stack([_alias_trigtech(c, int(n)) for c in cc], axis=1)
+            R = jnp.stack([_alias_trigtech(r, int(m)) for r in rr], axis=1)
         d = jnp.where(jnp.abs(self.pivots) > 0,
                       1.0 / jnp.where(self.pivots == 0, 1.0,
                                       self.pivots), 0.0)
-        return C @ jnp.diag(d.astype(C.dtype)) @ R.T
+        return U @ jnp.diag(d.astype(U.dtype)) @ R.T
 
     @staticmethod
     def coeffs2spherefun(X) -> "Spherefun":
@@ -1164,8 +1165,11 @@ class Spherefun(eqx.Module):
         av = np.asarray(result(jnp.asarray(lam_t),
                                jnp.asarray(th_t))).ravel()
         fscale = max(float(np.max(np.abs(fv))), 1e-300)
+        # MATLAB @spherefun/sampleTest.m: max|f - g| <= 100*tol at the
+        # scattered points (tol = the construction tolerance).
+        _stol = 100.0 * max(float(tol_abs), _EPS * fscale)
         if not np.all(np.isfinite(av)) or \
-                float(np.max(np.abs(av - fv))) > 1e-3 * fscale:
+                float(np.max(np.abs(av - fv))) > _stol:
             new_start = 2 * max(grid, 8)
             if start_grid is None or new_start > int(start_grid):
                 if new_start <= max_sample // 4:
@@ -1180,7 +1184,46 @@ class Spherefun(eqx.Module):
                 "marginally-resolved function); returning the best "
                 "approximation found.",
                 RuntimeWarning, stacklevel=2)
-        return result
+        # MATLAB @spherefun/constructor.m: simplify, then project onto the
+        # exact BMC-I symmetry.
+        return result.simplify()._prune_zero_terms().projectOntoBMCI()
+
+    def _prune_zero_terms(self) -> "Spherefun":
+        """Drop CDR terms whose column or row simplified to exactly zero
+        (a noise-level pivot accepted by the GE); keeps the parity
+        bookkeeping and the pole term."""
+        if self.isempty() or len(self.cols) == 0:
+            return self
+        keep = [j for j in range(len(self.cols))
+                if float(np.max(np.abs(np.asarray(self.cols[j].values)))) > 0.0
+                and float(np.max(np.abs(np.asarray(self.rows[j].values)))) > 0.0]
+        if len(keep) == len(self.cols):
+            return self
+        if not keep:
+            return self
+        idx_plus = tuple(keep.index(j) for j in self.idx_plus if j in keep)
+        idx_minus = tuple(keep.index(j) for j in self.idx_minus if j in keep)
+        pole_kept = (self.nonzero_poles and len(self.idx_plus) > 0
+                     and int(self.idx_plus[0]) in keep)
+        locs = tuple(self.pivot_locations[j] for j in keep) \
+            if len(self.pivot_locations) == len(self.cols) else ()
+        return Spherefun(cols=[self.cols[j] for j in keep],
+                  rows=[self.rows[j] for j in keep],
+                  pivots=jnp.asarray([float(self.pivots[j]) for j in keep],
+                                     dtype=jnp.float64),
+                  idx_plus=idx_plus, idx_minus=idx_minus,
+                  pivot_locations=locs, nonzero_poles=bool(pole_kept))
+
+    def simplify(self, tol: float | None = None) -> "Spherefun":
+        """Chop the column and row slices (MATLAB ``simplify``)."""
+        if self.isempty() or len(self.cols) == 0:
+            return self
+        cols = _simplify_global_sphere(list(self.cols), tol)
+        rows = _simplify_global_sphere(list(self.rows), tol)
+        return Spherefun(cols=cols, rows=rows, pivots=self.pivots,
+                         idx_plus=self.idx_plus, idx_minus=self.idx_minus,
+                         pivot_locations=self.pivot_locations,
+                         nonzero_poles=self.nonzero_poles)
 
     # ------------------------------------------------------------------
     # Evaluation (JIT-safe)
@@ -1708,7 +1751,9 @@ class Spherefun(eqx.Module):
             new_rows.append(Trigtech.from_coeffs(
                 c * jnp.exp(-1j * k * a), is_real=r.is_real))
         return Spherefun(cols=self.cols, rows=new_rows, pivots=self.pivots,
-                         idx_plus=self.idx_plus, idx_minus=self.idx_minus)
+                         idx_plus=self.idx_plus, idx_minus=self.idx_minus,
+                         pivot_locations=self.pivot_locations,
+                         nonzero_poles=self.nonzero_poles)
 
     def partition(self) -> tuple["Spherefun", "Spherefun"]:
         r"""Parity partition ``f = fep + foa`` (MATLAB partition).
@@ -1742,6 +1787,8 @@ class Spherefun(eqx.Module):
                 if idx == list(self.idx_plus) else (),
                 idx_minus=() if idx == list(self.idx_plus)
                 else tuple(range(len(idx))),
+                nonzero_poles=bool(self.nonzero_poles and len(self.idx_plus) > 0
+                                   and int(self.idx_plus[0]) in [int(v) for v in idx]),
             )
 
         return _sub(self.idx_plus), _sub(self.idx_minus)
@@ -1805,8 +1852,348 @@ class Spherefun(eqx.Module):
         # Final Rz factor, exact.
         return f2._shift_lambda(phi)
 
-    def norm(self) -> jax.Array:
+    # ------------------------------------------------------------------
+    # MATLAB spherefun(DOUBLE): construction from a matrix of samples
+    # ------------------------------------------------------------------
+    @classmethod
+    def from_values(cls, F, tol: float | None = None,
+                    alpha: float = 100.0) -> "Spherefun":
+        """Construct from an ``n x m`` matrix of samples on the lat-lon
+        grid ``lam = trigpts(m, [-pi, pi])`` (columns, ``m`` even) and
+        ``th = linspace(0, pi, n)`` (rows), MATLAB ``spherefun(F)``:
+        a full (non-adaptive) BMC-I Gaussian elimination on the doubled
+        matrix followed by the projection onto BMC-I symmetry.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/constructor.m (constructFromDouble,
+            PhaseOne with factor = 0)
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.tech.trigtech import Trigtech
+        F = np.array(F, dtype=float)
+        if F.ndim < 2:
+            F = F.reshape(-1, 1)
+        if F.size == 1:
+            c0 = float(F.reshape(-1)[0])
+            return cls.from_function(lambda lam, th: c0 + 0.0 * lam)
+        n, m = F.shape
+        if m % 2 != 0:
+            raise ValueError("SPHEREFUN:CONSTRUCTOR:VALUES: When "
+                             "constructing from values the number of "
+                             "columns must be even.")
+        if tol is None:
+            tol = _get_tol_sphere(F, 2 * np.pi / m, np.pi / max(n - 1, 1),
+                                  _EPS)[0]
+        (piv_idx, piv_arr, remove_pole, cols, pivots, rows, idx_plus,
+         idx_minus) = _phase_one_matrix_sphere(F, tol, alpha)
+        if cols.shape[1] == 0:
+            return cls.from_function(lambda lam, th: 0.0 * lam)
+        col_techs = [Trigtech.from_values(jnp.asarray(cols[:, j]))
+                     for j in range(cols.shape[1])]
+        row_techs = [Trigtech.from_values(jnp.asarray(rows[:, j]))
+                     for j in range(rows.shape[1])]
+        if np.all(pivots == 0):
+            pivots = np.full_like(pivots, np.inf)
+        lam = -np.pi + 2 * np.pi * np.arange(m) / m
+        th = np.linspace(0.0, np.pi, n)
+        locs = []
+        if remove_pole:
+            locs.append((float(lam[0]), 0.0))
+        for j, k in piv_idx:
+            locs.append((float(lam[k]), float(th[j])))
+        g = cls(cols=col_techs, rows=row_techs,
+                pivots=jnp.asarray(pivots, dtype=jnp.float64),
+                idx_plus=tuple(int(i) for i in idx_plus),
+                idx_minus=tuple(int(i) for i in idx_minus),
+                pivot_locations=tuple(locs[:len(pivots)]),
+                nonzero_poles=bool(remove_pole))
+        # MATLAB constructor.m ends with simplify(g, chebfuneps) for
+        # every input kind, matrices included.
+        return g.simplify()._prune_zero_terms().projectOntoBMCI()
+
+    def projectOntoBMCI(self) -> "Spherefun":
+        """Project the column/row slices onto BMC-I symmetry (even/pi-
+        periodic plus part, odd/pi-antiperiodic minus part, zero at the
+        poles for the non-pole plus terms) -- MATLAB
+        ``projectOntoBMCI``.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/projectOntoBMCI.m
+        Chebfun commit: 7574c77
+        """
+        cols = list(self.cols)
+        rows = list(self.rows)
+        plus = list(self.idx_plus)
+        minus = list(self.idx_minus)
+        # Each slice is projected at its own length (padding every slice
+        # to the longest one would re-expand chopped slices).
+        for jj, i in enumerate(plus):
+            X = _stack_trig_coeffs([cols[i]])
+            if self.nonzero_poles and jj == 0:
+                X = _bmc1_even_cols(X, True)
+            else:
+                X = _bmc1_even_cols(X, False)
+            cols[i] = _trigtech_from_coeffs_real(X[:, 0])
+            R = _zero_trig_modes(_stack_trig_coeffs([rows[i]]), odd=True)
+            rows[i] = _trigtech_from_coeffs_real(R[:, 0])
+        for i in minus:
+            X = _bmc1_odd_cols(_stack_trig_coeffs([cols[i]]))
+            cols[i] = _trigtech_from_coeffs_real(X[:, 0])
+            R = _zero_trig_modes(_stack_trig_coeffs([rows[i]]), odd=False)
+            rows[i] = _trigtech_from_coeffs_real(R[:, 0])
+        return Spherefun(cols=cols, rows=rows, pivots=self.pivots,
+                         idx_plus=self.idx_plus, idx_minus=self.idx_minus,
+                         pivot_locations=self.pivot_locations,
+                         nonzero_poles=self.nonzero_poles)
+
+    def with_parity_indices(self, idx_plus, idx_minus) -> "Spherefun":
+        """Copy with the BMC parity index sets replaced (MATLAB
+        ``f.idxPlus = ...; f.idxMinus = ...``)."""
+        return Spherefun(cols=list(self.cols), rows=list(self.rows),
+                         pivots=self.pivots,
+                         idx_plus=tuple(int(i) for i in idx_plus),
+                         idx_minus=tuple(int(i) for i in idx_minus),
+                         pivot_locations=self.pivot_locations,
+                         nonzero_poles=self.nonzero_poles)
+
+    # ------------------------------------------------------------------
+    # SVD (MATLAB @separableApprox/svd, @spherefun/BMCsvd)
+    # ------------------------------------------------------------------
+    def _cdr_quadrature(self, idx=None):
+        """Values of the column and row slices on trapezoid grids fine
+        enough to integrate products exactly, with the quadrature
+        weights (L2 on [-pi, pi] in each variable, as MATLAB's
+        quasimatrix QR)."""
+        from chebfunjax.tech.trigtech import _trig_eval_np
+        idx = list(range(len(self.cols))) if idx is None else list(idx)
+        cols = [self.cols[i] for i in idx]
+        rows = [self.rows[i] for i in idx]
+        nc = max(int(np.asarray(c.coeffs).shape[0]) for c in cols)
+        nr = max(int(np.asarray(r.coeffs).shape[0]) for r in rows)
+        nqc = 2 * nc + 2
+        nqr = 2 * nr + 2
+        xc = -1.0 + 2.0 * np.arange(nqc) / nqc
+        xr = -1.0 + 2.0 * np.arange(nqr) / nqr
+        C = np.column_stack([np.real(np.asarray(_trig_eval_np(
+            np.asarray(c.coeffs)[:, None], xc, is_real=c.is_real))).ravel()
+            for c in cols])
+        R = np.column_stack([np.real(np.asarray(_trig_eval_np(
+            np.asarray(r.coeffs)[:, None], xr, is_real=r.is_real))).ravel()
+            for r in rows])
+        wc = np.full(nqc, 2 * np.pi / nqc)
+        wr = np.full(nqr, 2 * np.pi / nqr)
+        d = np.asarray(self.pivots, dtype=float)[idx]
+        D = np.diag(np.where(np.abs(d) > 0, 1.0 / np.where(d == 0, 1, d),
+                             0.0))
+        return C, wc, xc, R, wr, xr, D
+
+    def _svd_block(self, idx, weighted: bool = False):
+        C, wc, xc, R, wr, xr, D = self._cdr_quadrature(idx)
+        if weighted:
+            # MATLAB @spherefun/svd.m sphereQR: Legendre points on
+            # [0, pi] with the sin(theta) surface weight.
+            from chebfunjax.tech.trigtech import _trig_eval_np
+            from chebfunjax.utils.quadrature import legpts
+            cols = [self.cols[i] for i in idx]
+            nc = max(int(np.asarray(c.coeffs).shape[0]) for c in cols) + 9
+            xg, wg = legpts(nc, (0.0, np.pi))
+            xc = np.asarray(xg)
+            wc = np.asarray(wg) * np.sin(xc)
+            C = np.column_stack([np.real(np.asarray(_trig_eval_np(
+                np.asarray(c.coeffs)[:, None], xc / np.pi,
+                is_real=c.is_real))).ravel() for c in cols])
+        Qc, Rc = np.linalg.qr(np.sqrt(wc)[:, None] * C)
+        Qr, Rr = np.linalg.qr(np.sqrt(wr)[:, None] * R)
+        U, s, Vt = np.linalg.svd(Rc @ D @ Rr.T)
+        Uv = (Qc @ U) / np.sqrt(wc)[:, None]
+        Vv = (Qr @ Vt.T) / np.sqrt(wr)[:, None]
+        return s, Uv, xc, Vv, xr
+
+    def svd(self, return_uv: bool = False):
+        """Singular values of the spherefun in the surface L2 inner
+        product (MATLAB ``svd(f)``: the column slices are orthogonalised
+        on [0, pi] with the sin(theta) weight, the rows on [-pi, pi]).
+        With ``return_uv`` returns ``(U, s, V)``.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/svd.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty() or len(self.cols) == 0:
+            return jnp.zeros((0,), dtype=jnp.float64)
+        piv = np.asarray(self.pivots, dtype=float)
+        if not np.any(np.isfinite(piv)) or np.all(1.0 / piv == 0):
+            return jnp.asarray([0.0], dtype=jnp.float64)
+        s, Uv, xc, Vv, xr = self._svd_block(range(len(self.cols)),
+                                            weighted=True)
+        if not return_uv:
+            return jnp.asarray(s, dtype=jnp.float64)
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        from chebfunjax.chebfun1d.linalg import Quasimatrix
+        Ufuns = [chebfun(lambda t, _j=j: jnp.asarray(np.interp(
+            np.asarray(t), xc, Uv[:, _j])), domain=(0.0, np.pi))
+            for j in range(Uv.shape[1])]
+        return (Quasimatrix(Ufuns, Ufuns[0].domain), jnp.asarray(s),
+                _trig_quasimatrix(Vv))
+
+    def BMCsvd(self, return_uv: bool = False):
+        """Singular values respecting the BMC-I block structure: the SVD
+        is computed separately for the plus and minus parts and the
+        values merged in descending order (MATLAB ``BMCsvd``).
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/BMCsvd.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty() or len(self.cols) == 0:
+            return jnp.zeros((0,), dtype=jnp.float64)
+        piv = np.asarray(self.pivots, dtype=float)
+        if not np.any(np.isfinite(piv)):
+            return jnp.asarray([0.0], dtype=jnp.float64)
+        parts = []
+        for idx in (self.idx_plus, self.idx_minus):
+            if len(idx) == 0:
+                continue
+            parts.append(self._svd_block(idx))
+        s = np.concatenate([p[0] for p in parts])
+        order = np.argsort(-s, kind="stable")
+        if not return_uv:
+            return jnp.asarray(s[order], dtype=jnp.float64)
+        Us = [p[1] for p in parts]
+        Vs = [p[3] for p in parts]
+        nq_c = max(u.shape[0] for u in Us)
+        nq_r = max(v.shape[0] for v in Vs)
+        Ucat = np.column_stack([_trig_resample(u, nq_c) for u in Us])
+        Vcat = np.column_stack([_trig_resample(v, nq_r) for v in Vs])
+        return (_trig_quasimatrix(Ucat[:, order]), jnp.asarray(s[order]),
+                _trig_quasimatrix(Vcat[:, order]))
+
+    # ------------------------------------------------------------------
+    # Inherited separableApprox methods
+    # ------------------------------------------------------------------
+    def diag(self, c: float = 0.0):
+        """The diagonal ``f(x, x + c)`` as a Chebfun on the (largest)
+        interval where it is defined (MATLAB separableApprox ``diag``:
+        ``lam = x``, ``theta = x + c`` on the colatitude domain
+        ``[-pi, pi] x [0, pi]``).
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/diag.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d.chebfun import chebfun as _cf
+        c = float(c)
+        a = max(-np.pi, 0.0 - c)
+        b = min(np.pi, np.pi - c)
+        return _cf(lambda x: self(x, x + c), domain=(a, b))
+
+    def transpose(self) -> "Spherefun":
+        """Swap the roles of the two variables (MATLAB ``transpose``)."""
+        locs = tuple((b, a) for a, b in self.pivot_locations)
+        return Spherefun(cols=list(self.rows), rows=list(self.cols),
+                         pivots=self.pivots, idx_plus=self.idx_plus,
+                         idx_minus=self.idx_minus, pivot_locations=locs,
+                         nonzero_poles=self.nonzero_poles)
+
+    def ctranspose(self) -> "Spherefun":
+        """Conjugate transpose (MATLAB ``f'``)."""
+        return self.transpose().conj()
+
+    @property
+    def T(self) -> "Spherefun":
+        return self.transpose()
+
+    def _flip_slices(self, which: str) -> "Spherefun":
+        cols = list(self.cols)
+        rows = list(self.rows)
+        if which == "cols":
+            cols = [_trig_flip(t) for t in cols]
+        else:
+            rows = [_trig_flip(t) for t in rows]
+        return Spherefun(cols=cols, rows=rows, pivots=self.pivots,
+                         idx_plus=self.idx_plus, idx_minus=self.idx_minus,
+                         pivot_locations=self.pivot_locations,
+                         nonzero_poles=self.nonzero_poles)
+
+    def fliplr(self) -> "Spherefun":
+        """``f(-lam, theta)`` (MATLAB ``fliplr``: flips the rows)."""
+        return self._flip_slices("rows")
+
+    def flipud(self) -> "Spherefun":
+        """``f(lam, -theta)`` (MATLAB ``flipud``: flips the columns)."""
+        return self._flip_slices("cols")
+
+    def flipdim(self, dim: int) -> "Spherefun":
+        """``flipud`` for ``dim == 1``, ``fliplr`` for ``dim == 2``."""
+        if dim == 1:
+            return self.flipud()
+        if dim == 2:
+            return self.fliplr()
+        raise ValueError("CHEBFUN:SEPARABLEAPPROX:flipdim:badDim2: "
+                         "Dimension not recognised.")
+
+    def tan(self):
+        """Tangent, re-approximated (MATLAB tan)."""
+        return self._reapprox(jnp.tan)
+
+    def tand(self):
+        """Tangent in degrees, re-approximated (MATLAB tand)."""
+        return self._reapprox(lambda t: jnp.tan(jnp.pi / 180.0 * t))
+
+    def log(self):
+        """Natural logarithm, re-approximated (MATLAB log)."""
+        return self._reapprox(jnp.log)
+
+    def uminus(self):
+        return -self
+
+    def uplus(self):
+        return self
+
+    def __pos__(self):
+        return self
+
+    def isequal(self, other) -> bool:
+        """True when the two representations are identical: same slice
+        coefficients and pivot values (MATLAB separableApprox
+        ``isequal``).
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/isequal.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty() or other.isempty():
+            return bool(self.isempty() and other.isempty())
+        if len(self.cols) != len(other.cols):
+            return False
+        if not np.array_equal(np.asarray(self.pivots),
+                              np.asarray(other.pivots)):
+            return False
+        for a, b in zip(list(self.cols) + list(self.rows),
+                        list(other.cols) + list(other.rows)):
+            ca, cb = np.asarray(a.coeffs), np.asarray(b.coeffs)
+            if ca.shape != cb.shape or not np.array_equal(ca, cb):
+                return False
+        return True
+
+    def size(self, dim: int | None = None):
+        """``(inf, inf)`` (MATLAB separableApprox ``size``)."""
+        if dim is None:
+            return (np.inf, np.inf)
+        if dim in (1, 2):
+            return np.inf
+        raise ValueError("CHEBFUN:SEPARABLEAPPROX:size:outputs")
+
+    def norm(self, p=2) -> jax.Array:
         """L2 norm over the sphere: sqrt(int |f|^2 dOmega) (Fable 5).
+        ``p`` may be ``2`` or ``'fro'`` (identical for a spherefun, as
+        in MATLAB); other norms are not implemented.
 
         Computed by direct Clenshaw-Curtis(theta, weight sin theta) x
         trapezoid(lambda) quadrature of f^2 at the resolution of the
@@ -1815,8 +2202,19 @@ class Spherefun(eqx.Module):
         constructor pure rounding noise whenever f was a structurally
         cancelling difference (norm(f - g) checks).
         """
+        if isinstance(p, str) and p.lower() in ("inf", "max"):
+            Y, _X = self.minandmax2()
+            return jnp.max(jnp.abs(jnp.asarray(Y)))
+        if not (p == 2 or (isinstance(p, str) and p.lower() == "fro")):
+            raise NotImplementedError(
+                "CHEBFUN:SPHEREFUN:norm: only the 2/'fro'/'inf' norms are "
+                "implemented")
         if self.isempty() or len(self.cols) == 0:
             return jnp.asarray(0.0, dtype=jnp.float64)
+        # MATLAB @spherefun/norm.m: sqrt(sum(svd(f).^2)) with the
+        # sin(theta)-weighted (surface) SVD.
+        s = np.asarray(self.svd())
+        return jnp.asarray(np.sqrt(np.sum(s ** 2)), dtype=jnp.float64)
         from chebfunjax.utils.quadrature import chebpts, chebweights
         m, n = self.length()
         nth = 2 * n + 16
@@ -1915,19 +2313,193 @@ class Spherefun(eqx.Module):
         """
         return all(bool(jnp.all(c.coeffs == 0.0)) for c in self.cols)
 
+
+    # ------------------------------------------------------------------
+    # MATLAB @spherefun/plus.m: block-wise compression plus
+    # ------------------------------------------------------------------
+    def _normalize_poles(self) -> "Spherefun":
+        """Bring the representation into MATLAB's BMC-I pole form: the
+        constant values at the two poles are carried by ONE plus term
+        with a constant row (the constructor's removePole step), so that
+        every other plus column vanishes at the poles.  Structural
+        products (``f * g``) do not keep that form; this rebuilds it
+        algebraically: with ``cP(theta) = f(lam0, theta)`` the remainder
+        ``f - cP (x) 1`` vanishes at both poles for every lam."""
+        from chebfunjax.tech.trigtech import Trigtech, _trig_eval_np
+        if self.isempty() or len(self.cols) == 0 or self.nonzero_poles:
+            return self
+        plus = list(self.idx_plus)
+        if not plus:
+            return self
+        piv = np.asarray(self.pivots, dtype=float)
+        # pole values of the plus columns (theta = 0 and theta = pi)
+        pv_max = 0.0
+        vs = 0.0
+        for j in plus:
+            c = self.cols[j]
+            v = np.real(np.asarray(_trig_eval_np(np.asarray(c.coeffs)[:, None],
+                                                 np.array([0.0, 1.0]),
+                                                 is_real=c.is_real))).ravel()
+            pv_max = max(pv_max, float(np.max(np.abs(v))) / max(abs(piv[j]), 1e-300))
+            vs = max(vs, float(np.max(np.abs(np.asarray(c.values)))) / max(abs(piv[j]), 1e-300))
+        if pv_max <= 1e-13 * max(vs, 1e-300):
+            return self
+        # cP(theta) = f(lam0, theta) with lam0 = 0 (x = 0 on the row grid)
+        nq = 2 * max(int(np.asarray(self.cols[j].coeffs).shape[0]) for j in plus) + 2
+        xs = -1.0 + 2.0 * np.arange(nq) / nq
+        cP = np.zeros(nq)
+        for j in plus:
+            c, r = self.cols[j], self.rows[j]
+            rv = float(np.real(np.asarray(_trig_eval_np(np.asarray(r.coeffs)[:, None],
+                                                        np.array([0.0]),
+                                                        is_real=r.is_real))).ravel()[0])
+            cv = np.real(np.asarray(_trig_eval_np(np.asarray(c.coeffs)[:, None], xs,
+                                                  is_real=c.is_real))).ravel()
+            cP += cv * rv / piv[j]
+        pole_col = Trigtech.from_values(jnp.asarray(cP))
+        pole_row = Trigtech.from_values(jnp.ones(2, dtype=jnp.float64))
+        neg_row = Trigtech.from_values(-jnp.ones(2, dtype=jnp.float64))
+        cols = [pole_col] + [self.cols[j] for j in plus] + [pole_col] + \
+            [self.cols[j] for j in self.idx_minus]
+        rows = [pole_row] + [self.rows[j] for j in plus] + [neg_row] + \
+            [self.rows[j] for j in self.idx_minus]
+        pivs = [1.0] + [float(piv[j]) for j in plus] + [1.0] + \
+            [float(piv[j]) for j in self.idx_minus]
+        n_plus = 2 + len(plus)
+        return Spherefun(cols=cols, rows=rows,
+                         pivots=jnp.asarray(pivs, dtype=jnp.float64),
+                         idx_plus=tuple(range(n_plus)),
+                         idx_minus=tuple(range(n_plus, len(cols))),
+                         pivot_locations=(), nonzero_poles=True)
+
+    def _extract_pole(self):
+        """Split off the pole term (first plus term when nonzero_poles):
+        returns (rest, pole) with ``pole`` None when absent."""
+        if not self.nonzero_poles or len(self.idx_plus) == 0:
+            return self, None
+        j = int(self.idx_plus[0])
+        keep = [k for k in range(len(self.cols)) if k != j]
+        pole = (self.cols[j], self.rows[j], float(self.pivots[j]))
+        rest = Spherefun(
+            cols=[self.cols[k] for k in keep], rows=[self.rows[k] for k in keep],
+            pivots=jnp.asarray([float(self.pivots[k]) for k in keep],
+                               dtype=jnp.float64),
+            idx_plus=tuple(keep.index(k) for k in self.idx_plus if k != j),
+            idx_minus=tuple(keep.index(k) for k in self.idx_minus),
+            nonzero_poles=False)
+        return rest, pole
+
+    def _compression_plus(self, other: "Spherefun") -> "Spherefun":
+        """``self + other`` by MATLAB's compression_plus per BMC parity
+        block, with the pole terms combined as in ``addPoles``.
+
+        Provenance
+        ----------
+        MATLAB source : @spherefun/plus.m, @separableApprox/plus.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.tech.trigtech import Trigtech
+        from chebfunjax.utils.bmc_plus import block_vscale, compress_block, techs_from_values
+        f, fpole = self._normalize_poles()._extract_pole()
+        g, gpole = other._normalize_poles()._extract_pole()
+
+        def _block(a, idx_a, b, idx_b):
+            cols = [a.cols[i] for i in idx_a] + [b.cols[i] for i in idx_b]
+            rows = [a.rows[i] for i in idx_a] + [b.rows[i] for i in idx_b]
+            piv = [float(a.pivots[i]) for i in idx_a] + \
+                  [float(b.pivots[i]) for i in idx_b]
+            if not cols:
+                return [], [], []
+            va = block_vscale([a.cols[i] for i in idx_a],
+                              [a.rows[i] for i in idx_a],
+                              [float(a.pivots[i]) for i in idx_a], "trig")
+            vb = block_vscale([b.cols[i] for i in idx_b],
+                              [b.rows[i] for i in idx_b],
+                              [float(b.pivots[i]) for i in idx_b], "trig")
+            vscl = 2.0 * max(va, vb)
+            out = compress_block(cols, rows, piv, "trig", vscl)
+            if out is None:
+                return [], [], []
+            C, R, newpiv = out
+            nc = max(int(np.asarray(t.coeffs).shape[0]) for t in cols)
+            nr = max(int(np.asarray(t.coeffs).shape[0]) for t in rows)
+            # MATLAB compression_plus does NOT simplify: Qcols*U keeps the
+            # quasimatrix QR length (the longest operand slice).
+            return (techs_from_values(C, "trig", nc),
+                    techs_from_values(R, "trig", nr),
+                    list(newpiv))
+        pc, pr, pp = _block(f, f.idx_plus, g, g.idx_plus)
+        mc, mr, mp = _block(f, f.idx_minus, g, g.idx_minus)
+        # addPoles: both pole terms have a constant row; merge into one.
+        pole_cols, pole_rows, pole_piv = [], [], []
+        nonzero_poles = False
+        if fpole is not None or gpole is not None:
+            col_vals = None
+            for pole in (fpole, gpole):
+                if pole is None:
+                    continue
+                c, r, pv = pole
+                rmean = float(np.real(np.asarray(r.coeffs).ravel()[
+                    np.asarray(r.coeffs).ravel().size // 2]))
+                n_c = int(np.asarray(c.coeffs).shape[0])
+                nq = max(n_c, 2) * 2
+                from chebfunjax.utils.bmc_plus import _trig_values
+                V, _w = _trig_values([c], nq)
+                contrib = (rmean / pv) * V[:, 0]
+                if col_vals is None:
+                    col_vals = contrib
+                elif contrib.shape[0] == col_vals.shape[0]:
+                    col_vals = col_vals + contrib
+                else:
+                    m = max(contrib.shape[0], col_vals.shape[0])
+                    V1, _ = _trig_values(techs_from_values(col_vals[:, None], "trig"), m)
+                    V2, _ = _trig_values(techs_from_values(contrib[:, None], "trig"), m)
+                    col_vals = V1[:, 0] + V2[:, 0]
+            scales = [np.max(np.abs(np.asarray(t.values)))
+                      for t in (self.cols + other.cols)]
+            tol = 10 * _EPS * max(scales) if scales else 10 * _EPS
+            if np.max(np.abs(col_vals)) > tol:
+                pole_cols = _simplify_global_sphere(
+                    techs_from_values(col_vals[:, None], "trig"))
+                pole_rows = [Trigtech.from_values(jnp.ones(2, dtype=jnp.float64))]
+                pole_piv = [1.0]
+                endv = np.asarray(pole_cols[0](jnp.asarray([-1.0, 0.0]))).ravel()
+                nonzero_poles = bool(np.max(np.abs(endv)) > tol)
+        cols = pole_cols + pc + mc
+        rows = pole_rows + pr + mr
+        piv = pole_piv + pp + mp
+        if not cols:
+            return Spherefun.from_function(lambda lam, th: 0.0 * lam)
+        n_plus = len(pole_cols) + len(pc)
+        h = Spherefun(cols=cols, rows=rows,
+                      pivots=jnp.asarray(piv, dtype=jnp.float64),
+                      idx_plus=tuple(range(n_plus)),
+                      idx_minus=tuple(range(n_plus, len(cols))),
+                      pivot_locations=(), nonzero_poles=nonzero_poles)
+        return h.projectOntoBMCI()
+
     def __add__(self, other):
         if isinstance(other, Spherefun):
-            if other._is_exact_zero():
+            if other._is_exact_zero() or other.iszero():
                 return self
-            if self._is_exact_zero():
+            if self._is_exact_zero() or self.iszero():
                 return other
+            return self._compression_plus(other)
+        if np.isscalar(other) and not isinstance(other, Spherefun):
+            c = other
+            const = Spherefun.from_function(lambda lam, th: c + 0.0 * lam)
+            return self._compression_plus(const)
         return self._binary(other, lambda a, b: a + b)
 
     __radd__ = __add__
 
     def __sub__(self, other):
-        if isinstance(other, Spherefun) and other._is_exact_zero():
-            return self
+        if isinstance(other, Spherefun):
+            if other._is_exact_zero():
+                return self
+            return self.__add__(other * (-1.0))
+        if np.isscalar(other):
+            return self.__add__(-other)
         return self._binary(other, lambda a, b: a - b)
 
     def __rsub__(self, other):
@@ -1947,7 +2519,9 @@ class Spherefun(eqx.Module):
             return Spherefun(
                 cols=self.cols, rows=self.rows,
                 pivots=self.pivots / s,
-                idx_plus=self.idx_plus, idx_minus=self.idx_minus)
+                idx_plus=self.idx_plus, idx_minus=self.idx_minus,
+                pivot_locations=self.pivot_locations,
+                nonzero_poles=self.nonzero_poles)
         if isinstance(other, Spherefun) and not self.isempty() \
                 and not other.isempty():
             # Only for WELL-RESOLVED operands: a marginal construction
@@ -2359,34 +2933,29 @@ class Spherefun(eqx.Module):
             raise ValueError("dim must be 1 (x), 2 (y), or 3 (z)")
         f = self
         for _ in range(int(k)):
-            f = _spherefun_diff_cart(f, dim)
+            f = _spherefun_onediff(f, dim)
         return f
 
     def grad(self) -> tuple:
         r"""Surface gradient in Cartesian components.
 
         Returns ``(fx, fy, fz)``, the three tangential Cartesian
-        derivatives of ``self`` (each a Spherefun).  Computed in the
-        spherical-harmonic basis (see :func:`_spherefun_grad_harmonic`),
-        so the components are exactly tangential
-        (``x*fx + y*fy + z*fz == 0`` to machine precision).  Verified via
-        ``div(grad f) == laplacian f`` to ~1e-13.
+        derivatives ``diff(f, 1), diff(f, 2), diff(f, 3)`` of ``self``
+        (each a Spherefun), exactly as MATLAB's gradient.m.
 
         Provenance
         ----------
         MATLAB source : @spherefun/gradient.m
         Chebfun commit: 7574c77
         """
-        return _spherefun_grad_harmonic(self)
+        return (self.diff(1), self.diff(2), self.diff(3))
 
     def gradient(self) -> "Spherefunv":
         r"""Surface gradient as a :class:`Spherefunv`.
 
         Returns the SPHEREFUNV ``(fx, fy, fz)`` of tangential Cartesian
-        derivatives — the vector-field form of :meth:`grad`.  Uses the
-        exactly-tangential spherical-harmonic-basis surface gradient
-        (:func:`_spherefun_grad_harmonic`), so ``normal(grad f) == 0`` to
-        machine precision.
+        derivatives ``diff(f, 1), diff(f, 2), diff(f, 3)`` -- the
+        vector-field form of :meth:`grad` (MATLAB gradient.m).
 
         Provenance
         ----------
@@ -2399,7 +2968,7 @@ class Spherefun(eqx.Module):
 
         if self.isempty():
             return Spherefunv.empty()
-        return Spherefunv(*_spherefun_grad_harmonic(self))
+        return Spherefunv(self.diff(1), self.diff(2), self.diff(3))
 
     def curl(self) -> "Spherefunv":
         r"""Surface curl of a scalar field: ``curl(f) = N x grad(f)``.
@@ -3010,6 +3579,110 @@ def _spherefun_mul_rank1(f1: "Spherefun", g: "Spherefun") -> "Spherefun":
         idx_plus=idx_plus, idx_minus=idx_minus)
 
 
+def _spherefun_onediff(f: "Spherefun", dim: int) -> "Spherefun":
+    """One tangential Cartesian derivative of a Spherefun (MATLAB
+    @spherefun/diff.m ``onediff``), on the CDR coefficients:
+
+    - theta/lambda derivatives: ``i k`` scaling of the Fourier coeffs;
+    - multiplication by cos/sin: wavenumber shifts (``Mcos``/``Msin``);
+    - division by sin(theta): solve of the even-size (nonsingular)
+      multiplication-by-sin matrix, exactly ``Msinn \\ C_cfs``;
+    - the two rank-r pieces are SAMPLED on the ``(n/2+1) x m`` lat-lon
+      grid and the result rebuilt with ``spherefun(sample(f1) +
+      sample(f2))`` (constructFromDouble); the z-derivative modifies the
+      columns in place.
+
+    Provenance
+    ----------
+    MATLAB source : @spherefun/diff.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford
+        and The Chebfun Developers.
+    """
+    from chebfunjax.tech.trigtech import Trigtech
+    if len(f.cols) == 0:
+        return Spherefun.empty()
+    f = f.simplify()
+    cols, rows = f.cols, f.rows
+    piv = np.asarray(f.pivots, dtype=float)
+    r = len(cols)
+
+    def _stack_even(techs, extra):
+        # common EVEN length with headroom; modes -N/2 .. N/2-1
+        nmax = max(int(np.asarray(t.coeffs).shape[0]) for t in techs)
+        N = nmax + (nmax % 2) + extra
+        X = np.zeros((N, len(techs)), dtype=complex)
+        for j, t in enumerate(techs):
+            c = np.asarray(t.coeffs, dtype=complex).ravel()
+            m0 = c.size
+            k0 = -((m0 - 1) // 2) if (m0 % 2) else -(m0 // 2)
+            X[k0 + N // 2: k0 + N // 2 + m0, j] = c
+        return X, np.arange(-(N // 2), N // 2)
+
+    C, kc = _stack_even(cols, 2)
+    R, kr = _stack_even(rows, 2 if dim != 3 else 0)
+    n, m = C.shape[0], R.shape[0]
+    dC = (1j * kc)[:, None] * C            # d/dtheta
+    dR = (1j * kr)[:, None] * R            # d/dlambda
+    # A constant row (the pole term) has an exactly zero derivative in
+    # MATLAB; FFT rounding leaves ~1e-17 in the other modes which the
+    # 1/sin(theta) solve of the pole column amplifies.  Clean it.
+    for j in range(r):
+        col = np.abs(R[:, j]).copy()
+        c0 = col[m // 2]
+        col[m // 2] = 0.0
+        if np.max(col) <= 1e-13 * max(c0, 1e-300):
+            dR[:, j] = 0.0
+
+    def _mcos(A):
+        B = np.zeros_like(A)
+        B[1:, :] += 0.5 * A[:-1, :]
+        B[:-1, :] += 0.5 * A[1:, :]
+        return B
+
+    def _msin(A):
+        B = np.zeros_like(A)
+        B[1:, :] += -0.5j * A[:-1, :]
+        B[:-1, :] += 0.5j * A[1:, :]
+        return B
+
+    if dim == 3:
+        C1 = -_msin(dC)
+        # values on the n-point theta grid of [-pi, pi] (exact for n modes)
+        xs = -1.0 + 2.0 * np.arange(n) / n
+        E = np.exp(1j * np.pi * np.outer(xs, kc))
+        V = np.real(E @ C1)
+        new_cols = [Trigtech.from_values(jnp.asarray(V[:, j])) for j in range(r)]
+        return Spherefun(cols=new_cols, rows=list(rows), pivots=f.pivots,
+                         idx_plus=f.idx_plus, idx_minus=f.idx_minus,
+                         pivot_locations=f.pivot_locations,
+                         nonzero_poles=f.nonzero_poles)
+
+    Msin = np.zeros((n, n), dtype=complex)
+    for k in range(n):
+        if k >= 1:
+            Msin[k, k - 1] = -0.5j
+        if k + 1 < n:
+            Msin[k, k + 1] = 0.5j
+    Cs = np.linalg.solve(Msin, C)          # C / sin(theta)
+    if dim == 1:      # d/dx = -sin(lam)/sin(th) d/dlam + cos(lam) cos(th) d/dth
+        C1, R1 = Cs, -_msin(dR)
+        C2, R2 = _mcos(dC), _mcos(R)
+    else:             # d/dy =  cos(lam)/sin(th) d/dlam + sin(lam) cos(th) d/dth
+        C1, R1 = Cs, _mcos(dR)
+        C2, R2 = _mcos(dC), _msin(R)
+    m_even = m + (m % 2)
+    n_th = n // 2 + 1
+    th_pts = np.linspace(0.0, np.pi, n_th)
+    lam_pts = -np.pi + 2 * np.pi * np.arange(m_even) / m_even
+    Eth = np.exp(1j * np.outer(th_pts, kc))        # (n_th, n)
+    El = np.exp(1j * np.outer(lam_pts, kr))        # (m_even, m)
+    dinv = np.where(np.abs(piv) > 0, 1.0 / np.where(piv == 0, 1.0, piv), 0.0)
+    F = np.real(((Eth @ C1) * dinv) @ (El @ R1).T
+                + ((Eth @ C2) * dinv) @ (El @ R2).T)
+    return Spherefun.from_values(F)
+
+
 def _spherefun_diff_cart(f: "Spherefun", dim: int) -> "Spherefun":
     """One tangential Cartesian derivative of a Spherefun (Opus 4.8).
 
@@ -3236,3 +3909,267 @@ def _spherefun_grad_harmonic(f: "Spherefun") -> tuple:
 from chebfunjax.utils.misc import make_empty_aware  # noqa: E402
 
 make_empty_aware(Spherefun, ['__add__', '__radd__', '__sub__', '__rsub__', '__mul__', '__rmul__', '__truediv__', '__pow__', '__neg__', 'sum', 'sum2', 'mean', 'norm', 'rotate', 'gaussfilt', 'laplacian', 'compose', 'exp', 'sin', 'cos', 'sqrt'])
+
+
+# ----------------------------------------------------------------------
+# Helpers for spherefun(DOUBLE), projectOntoBMCI and the SVDs (Fable 5)
+# ----------------------------------------------------------------------
+def _check_pole(val, tol):
+    """MATLAB checkPole: the mean of a pole row and whether it is
+    constant to within the tolerance."""
+    pole = float(np.mean(val))
+    stddev = float(np.std(val, ddof=1)) if val.size > 1 else 0.0
+    const = (stddev <= 1e8 * tol) or (stddev < _EPS)
+    return pole, const
+
+
+def _phase_one_matrix_sphere(F, tol, alpha):
+    """MATLAB @spherefun/constructor.m PhaseOne(F, tol, alpha, 0) with
+    the (nargout > 4) column/row/pivot outputs: the full BMC-I Gaussian
+    elimination on a sample matrix (no width restriction).
+
+    Returns (pivot_indices [0-based (theta_row, lam_col) into the
+    interior/half grids], pivot_array, remove_pole, cols (2m-2 x r),
+    pivots (r,), rows (n x r), idx_plus, idx_minus) -- all 0-based.
+    """
+    m, n = F.shape
+    if m <= 1:
+        raise ValueError("CHEBFUN:SPHEREFUN:constructor:poleSamples")
+    half = n // 2
+    if m == 2:
+        cols = np.zeros((2, 1))
+        cols[:, 0] = F[:, 0]
+        return (np.zeros((1, 2), dtype=int), np.array([[1.0, 0.0]]), True,
+                cols, np.array([1.0]), np.ones((n, 1)), [0], [])
+    C = F[:, :half]
+    B = F[:, half:]
+    Fp = 0.5 * (B + C)
+    Fm = 0.5 * (B - C)
+    pole1, _ = _check_pole(Fp[0, :], tol)
+    pole2, _ = _check_pole(Fp[m - 1, :], tol)
+    cols_plus, rows_plus, idx_plus = [], [], []
+    cols_minus, rows_minus, idx_minus = [], [], []
+    rank_count = 0
+    remove_pole = False
+    col_pole = row_pole = None
+    row_val = 0.0
+    if abs(pole1) > tol or abs(pole2) > tol:
+        colmax = np.max(np.abs(Fp), axis=0)
+        pole_col = int(np.argmax(colmax))
+        row_val = float(colmax[pole_col])
+        row_pole = row_val * np.ones(half)
+        col_pole = Fp[:, pole_col].copy()
+        Fp = Fp - np.outer(col_pole, row_pole / row_val)
+        remove_pole = True
+        rank_count += 1
+    Fp = Fp[1:m - 1, :].copy()
+    Fm = Fm[1:m - 1, :].copy()
+    pivot_indices = []
+    pivot_array = []
+
+    def _argmax(A):
+        if A.size == 0:
+            return 0.0, (0, 0)
+        idx = int(np.argmax(np.abs(A.T)))        # column-major like MATLAB
+        k, j = divmod(idx, A.shape[0])
+        return float(np.abs(A[j, k])), (j, k)
+
+    maxp, ip = _argmax(Fp)
+    maxm, im = _argmax(Fm)
+    if maxp == 0 and maxm == 0 and not remove_pole:
+        return (np.zeros((1, 2), dtype=int), np.array([[0.0, 0.0]]), False,
+                np.zeros((2 * m - 2, 1)), np.array([np.inf]),
+                np.zeros((n, 1)), [0], [])
+    min_size = min(2 * m - 2, n)
+    while max(maxp, maxm) > tol and rank_count < min_size:
+        j, k = ip if maxp >= maxm else im
+        evp = float(Fp[j, k])
+        evm = float(Fm[j, k])
+        absevp, absevm = abs(evp), abs(evm)
+        pivot_indices.append((j, k))
+        if max(absevp, absevm) <= alpha * min(absevp, absevm):
+            cp = Fp[:, k].copy()
+            rp = Fp[j, :].copy()
+            Fp = Fp - np.outer(cp, rp / evp)
+            cm = Fm[:, k].copy()
+            rm = Fm[j, :].copy()
+            Fm = Fm - np.outer(cm, rm / evm)
+            cols_plus.append(cp)
+            rows_plus.append(rp)
+            cols_minus.append(cm)
+            rows_minus.append(rm)
+            if absevp >= absevm:
+                idx_plus.append(rank_count)
+                idx_minus.append(rank_count + 1)
+            else:
+                idx_minus.append(rank_count)
+                idx_plus.append(rank_count + 1)
+            rank_count += 2
+            pivot_array.append((evp, evm))
+            maxp, ip = _argmax(Fp)
+            maxm, im = _argmax(Fm)
+        elif absevp > absevm:
+            cp = Fp[:, k].copy()
+            rp = Fp[j, :].copy()
+            Fp = Fp - np.outer(cp, rp / evp)
+            cols_plus.append(cp)
+            rows_plus.append(rp)
+            idx_plus.append(rank_count)
+            rank_count += 1
+            pivot_array.append((evp, 0.0))
+            maxp, ip = _argmax(Fp)
+        else:
+            cm = Fm[:, k].copy()
+            rm = Fm[j, :].copy()
+            Fm = Fm - np.outer(cm, rm / evm)
+            cols_minus.append(cm)
+            rows_minus.append(rm)
+            idx_minus.append(rank_count)
+            rank_count += 1
+            pivot_array.append((0.0, evm))
+            maxm, im = _argmax(Fm)
+    cols = np.zeros((2 * m - 2, rank_count))
+    rows = np.zeros((n, rank_count))
+    pivots = np.zeros(rank_count)
+    piv_arr = np.array(pivot_array).reshape(-1, 2)
+    if cols_plus:
+        CP = np.column_stack(cols_plus)
+        RP = np.array(rows_plus)                     # (kplus, half)
+        cols[m:2 * m - 2, idx_plus] = CP
+        cols[1:m - 1, idx_plus] = CP[::-1, :]
+        rows[:, idx_plus] = np.concatenate([RP, RP], axis=1).T
+        pivots[idx_plus] = piv_arr[piv_arr[:, 0] != 0, 0]
+    if cols_minus:
+        CM = np.column_stack(cols_minus)
+        RM = np.array(rows_minus)
+        cols[m:2 * m - 2, idx_minus] = CM
+        cols[1:m - 1, idx_minus] = -CM[::-1, :]
+        rows[:, idx_minus] = np.concatenate([-RM, RM], axis=1).T
+        pivots[idx_minus] = piv_arr[piv_arr[:, 1] != 0, 1]
+    if remove_pole:
+        cols[:, 0] = np.concatenate([col_pole[::-1], col_pole[1:m - 1]])
+        rows[:, 0] = np.concatenate([row_pole, row_pole])
+        pivots[0] = row_val
+        idx_plus = [0] + idx_plus
+    return (np.array(pivot_indices, dtype=int).reshape(-1, 2) + [1, 0],
+            piv_arr, remove_pole, cols, pivots, rows, idx_plus, idx_minus)
+
+
+def _stack_trig_coeffs(techs):
+    """Common-length (centred) coefficient matrix of a list of
+    Trigtechs, one column each."""
+    n = max(int(np.asarray(t.coeffs).shape[0]) for t in techs)
+    n_odd = n if n % 2 == 1 else n + 1
+    out = np.zeros((n_odd, len(techs)), dtype=complex)
+    for j, t in enumerate(techs):
+        c = np.asarray(t.coeffs, dtype=complex)
+        k = c.shape[0]
+        if k % 2 == 0:
+            # MATLAB even-length trigtech: modes -k/2..k/2-1; split the
+            # -k/2 mode symmetrically so the vector is centred.
+            c = np.concatenate([0.5 * c[:1], c[1:], 0.5 * c[:1]])
+            k += 1
+        off = (n_odd - k) // 2
+        out[off:off + k, j] = c
+    return out
+
+
+def _trigtech_from_coeffs_real(c):
+    """MATLAB real(trigtech({'', X})): the Trigtech with the given
+    (centred, odd-length) coefficients, real part taken in value space."""
+    from chebfunjax.tech.trigtech import Trigtech, trig_coeffs2vals
+    c = np.asarray(c, dtype=complex)
+    v = np.real(np.asarray(trig_coeffs2vals(jnp.asarray(c))))
+    return Trigtech.from_values(jnp.asarray(v))
+
+
+def _bmc1_even_cols(X, nonzero_poles):
+    """MATLAB projectOntoEvenBMCI on the column-coefficient matrix X
+    (odd length m: modes -(m-1)/2..(m-1)/2)."""
+    X = np.array(X, dtype=complex)
+    m, n = X.shape
+    even_modes = list(range(n))
+    if nonzero_poles:
+        C = 0.5 * (X[:, 0] - X[::-1, 0])
+        X[:, 0] = X[:, 0] - C
+        even_modes = list(range(1, n))
+    if even_modes:
+        Xe = X[:, even_modes]
+        C = 0.5 * (Xe - Xe[::-1, :])
+        Xe = Xe - C
+        Xe[0::2, :] = Xe[0::2, :] - (2.0 / (m + 1)) * np.sum(Xe[0::2, :],
+                                                          axis=0)
+        if m > 1:
+            Xe[1::2, :] = Xe[1::2, :] - (2.0 / (m - 1)) * np.sum(Xe[1::2, :],
+                                                              axis=0)
+        X[:, even_modes] = Xe
+    return X
+
+
+def _bmc1_odd_cols(X):
+    """MATLAB projectOntoOddBMCI on the column-coefficient matrix."""
+    X = np.array(X, dtype=complex)
+    C = 0.5 * (X + X[::-1, :])
+    return X - C
+
+
+def _zero_trig_modes(R, odd: bool):
+    """Zero the odd (``odd=True``) or even wavenumber rows of a centred
+    coefficient matrix (MATLAB projectOnto*BMCI row projections)."""
+    R = np.array(R, dtype=complex)
+    n = R.shape[0]
+    zero_mode = n // 2
+    k = np.arange(n) - zero_mode
+    if odd:
+        R[k % 2 == 1, :] = 0.0
+    else:
+        R[k % 2 == 0, :] = 0.0
+    return R
+
+
+def _trig_flip(t):
+    """The Trigtech of ``x -> f(-x)``."""
+    from chebfunjax.tech.trigtech import Trigtech, trig_coeffs2vals
+    v = np.asarray(trig_coeffs2vals(jnp.asarray(t.coeffs)))
+    if t.is_real:
+        v = np.real(v)
+    return Trigtech.from_values(jnp.asarray(np.roll(v[::-1], 1)))
+
+
+def _trig_resample(V, nq):
+    """Resample columns of trapezoid-grid values to nq points."""
+    from chebfunjax.tech.trigtech import Trigtech, _trig_eval_np
+    if V.shape[0] == nq:
+        return V
+    x = -1.0 + 2.0 * np.arange(nq) / nq
+    out = np.zeros((nq, V.shape[1]))
+    for j in range(V.shape[1]):
+        t = Trigtech.from_values(jnp.asarray(V[:, j]))
+        out[:, j] = np.real(np.asarray(_trig_eval_np(
+            np.asarray(t.coeffs)[:, None], x, is_real=True))).ravel()
+    return out
+
+
+def _trig_quasimatrix(V):
+    """Quasimatrix of periodic Chebfuns on [-pi, pi] from trapezoid-grid
+    values (one column each)."""
+    from chebfunjax.chebfun1d.chebfun import chebfun
+    from chebfunjax.chebfun1d.linalg import Quasimatrix
+    fs = [chebfun(jnp.asarray(V[:, j]), domain=(-np.pi, np.pi), trig=True)
+          for j in range(V.shape[1])]
+    return Quasimatrix(fs, fs[0].domain)
+
+
+def _simplify_global_sphere(techs, tol=None):
+    """Chop each slice relative to the global vertical scale of the
+    quasimatrix (MATLAB ``simplify(f.cols, pseudoLevel)``)."""
+    base = _EPS if tol is None else float(tol)
+    scales = [float(jnp.max(jnp.abs(jnp.asarray(t.values)))) for t in techs]
+    vs = max(scales) if scales else 0.0
+    out = []
+    for t, sc in zip(techs, scales):
+        if sc == 0.0 or vs == 0.0:
+            out.append(t.simplify(base))
+        else:
+            out.append(t.simplify(min(0.5, max(base, base * vs / sc))))
+    return out

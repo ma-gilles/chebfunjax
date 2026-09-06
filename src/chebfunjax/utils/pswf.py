@@ -27,6 +27,7 @@ def pswf(
     N: int | np.ndarray,
     c: float,
     domain: tuple[float, float] = (-1.0, 1.0),
+    output: str = "values",
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Prolate spheroidal wave functions.
 
@@ -91,6 +92,20 @@ def pswf(
         raise ValueError("c must be a positive scalar.")
 
     V, lam_all = _build_legendre_coeffs(N_arr, float(c))
+    if str(output).lower().startswith("cheb"):
+        # MATLAB default output: a chebfun (quasimatrix) built from the
+        # Legendre coefficients, and the eigenvalue(s).
+        import jax.numpy as jnp
+
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        from chebfunjax.utils.transforms import leg2cheb
+        _a, _b = float(domain[0]), float(domain[1])
+        cols = np.stack([np.asarray(leg2cheb(jnp.asarray(V[:, j])))
+                         for j in range(V.shape[1])], axis=1)
+        coeffs = jnp.asarray(cols[:, 0] if cols.shape[1] == 1 else cols)
+        P = chebfun(coeffs, domain=(_a, _b), coeffs=True)
+        lam_out = lam_all[0] if cols.shape[1] == 1 else lam_all
+        return P, lam_out
 
     # Evaluate on a fine grid via Clenshaw recurrence
     a_dom, b_dom = float(domain[0]), float(domain[1])
@@ -395,24 +410,20 @@ def _pswf_ggq_step(
 
         try:
             # Solve A @ [w_1, dx_1, w_2, dx_2, ...] = S
-            sol = np.linalg.solve(A, S)
+            sol = np.linalg.solve(A.T, S)   # MATLAB w = S / A
         except np.linalg.LinAlgError:
             break
 
         # sol[2k] = weight for node k, sol[2k+1] = Newton correction for x[k]
-        w_iter = sol[0::2]
-        dx = sol[1::2] / (np.abs(w_iter) + 1e-300)
+        dx = sol[1::2] / sol[0::2]          # dx = w(2:2:end) ./ w(1:2:end)
         x = x + dx
         if np.linalg.norm(dx, np.inf) < 1e-12:
             break
 
-    # Final weights from N-point quadrature system
-    Pvals = _legpolyval(V[:, :N], x)  # use first N PSWFs, shape (N, N)
-    S_N = 2.0 * V[0, :N]
-    try:
-        w = np.linalg.solve(Pvals.T, S_N)
-    except np.linalg.LinAlgError:
-        w = np.linalg.lstsq(Pvals.T, S_N, rcond=None)[0]
+    # MATLAB w = S / legpolyval(V, x): least-squares row solve against all
+    # 2N PSWFs (the Gauss rule integrates them exactly).
+    Pvals = _legpolyval(V, x)          # (N, 2N)
+    w = np.linalg.lstsq(Pvals.T, S, rcond=None)[0]
 
     return x, w
 

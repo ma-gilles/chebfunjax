@@ -306,6 +306,13 @@ def trigremez(f, m: int, n: int | None = None, max_iter: int = 40,
         yy = np.linspace(-np.pi, np.pi, max(4000, 40 * N),
                          endpoint=False)
         ee = f_ref(yy) - p_ref(yy)
+        if float(np.max(np.abs(ee))) <= 1e-13 * normf:
+            # f is itself a trigonometric polynomial of degree <= m:
+            # the interpolant reproduces it and the error curve has no
+            # sign structure to alternate on.
+            best = (pk.copy(), xk.copy(), abs(h),
+                    float(np.max(np.abs(ee))))
+            break
 
         # candidate extrema: sign changes of the discrete derivative
         de = np.diff(ee)
@@ -314,9 +321,18 @@ def trigremez(f, m: int, n: int | None = None, max_iter: int = 40,
         er = ee[idx]
 
         # keep alternating signs, largest magnitude per run
+        # Alternation set.  An extremum where the error is at rounding
+        # level (|e| <= 1e-13 ||f||) counts as a zero-sign point: at the
+        # equispaced starting reference of a function whose maxima sit
+        # exactly on it, the error there is +-1 ulp and its sign is not
+        # information (MATLAB's chebfun-based error curve gives exact 0).
+        _lvl = 1e-13 * normf
+
+        def _sgn(v):
+            return 0.0 if abs(v) <= _lvl else float(np.sign(v))
         s_pts, s_val = [rr[0]], [er[0]]
         for r_i, e_i in zip(rr[1:], er[1:]):
-            if np.sign(e_i) == np.sign(s_val[-1]):
+            if _sgn(e_i) == _sgn(s_val[-1]):
                 if abs(e_i) > abs(s_val[-1]):
                     s_pts[-1], s_val[-1] = r_i, e_i
             else:
@@ -408,9 +424,18 @@ def _trigremez_rational(f, m, n, max_iter, tol, a, b,
             rr.append(yy[i] + shift * hgrid)
         rr = np.asarray(rr)
         er = f_ref(rr) - r_ref(rr)
+        # Alternation set.  An extremum where the error is at rounding
+        # level (|e| <= 1e-13 ||f||) counts as a zero-sign point: at the
+        # equispaced starting reference of a function whose maxima sit
+        # exactly on it, the error there is +-1 ulp and its sign is not
+        # information (MATLAB's chebfun-based error curve gives exact 0).
+        _lvl = 1e-13 * normf
+
+        def _sgn(v):
+            return 0.0 if abs(v) <= _lvl else float(np.sign(v))
         s_pts, s_val = [rr[0]], [er[0]]
         for r_i, e_i in zip(rr[1:], er[1:]):
-            if np.sign(e_i) == np.sign(s_val[-1]):
+            if _sgn(e_i) == _sgn(s_val[-1]):
                 if abs(e_i) > abs(s_val[-1]):
                     s_pts[-1], s_val[-1] = r_i, e_i
             else:

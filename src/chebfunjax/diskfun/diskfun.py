@@ -169,7 +169,8 @@ def _phase_one_disk(
     """
     m, n2 = F.shape
     n = n2 // 2
-    minsize = min(m, n)
+    # MATLAB PhaseOne: minSize = min(m, n) with n = size(F, 2) (full count).
+    minsize = min(m, n2)
     width = minsize / factor if factor > 0 else np.inf
 
     # Split into plus/minus blocks
@@ -662,14 +663,20 @@ def _phase_two_disk(
     # Build Chebtech2 (for r on [-1,1] — the doubled domain) and Trigtech objects
     cols_list = []
     rows_list = []
-
+    # MATLAB simplify(g, pseudoLevel): every slice is chopped relative to
+    # the GLOBAL vertical scale of the quasimatrix, so small-pivot slices
+    # collapse to their true length instead of keeping the noise floor.
+    vs_cols = float(np.max(np.abs(cols_full))) if cols_full.size else 0.0
+    vs_rows = float(np.max(np.abs(rows_full))) if rows_full.size else 0.0
     for j in range(total):
-        # Column: values on doubled [-1, 1] Chebyshev grid
         cv = jnp.asarray(cols_full[:, j], dtype=jnp.float64)
         cc = vals2coeffs(cv)
         cv_scale = float(jnp.max(jnp.abs(cv)))
         if cv_scale > 0:
-            cutoff = standard_chop(cc, max(_EPS, tol / cv_scale))
+            # MATLAB: chebfun(cols) keeps the sampled resolution and the
+            # constructor ends with simplify(g, pseudoLevel = eps); chopping
+            # at the (looser) construction tolerance here loses ~1e-14.
+            cutoff = standard_chop(cc, max(_EPS, _EPS * vs_cols / cv_scale))
             cc = cc[:cutoff]
         cols_list.append(Chebtech2.from_coeffs(cc))
 
@@ -681,7 +688,7 @@ def _phase_two_disk(
             from chebfunjax.tech.trigtech import _chop_cutoff_to_ncoeffs, _trig_abs_coeffs_for_chop
 
             chop_in = _trig_abs_coeffs_for_chop(rc)
-            chop_rel = max(_EPS, tol / rv_scale)
+            chop_rel = max(_EPS, _EPS * vs_rows / rv_scale)
             cutoff_exp = standard_chop(chop_in.astype(jnp.float64), chop_rel)
             n_keep = _chop_cutoff_to_ncoeffs(int(cutoff_exp), rc.shape[0])
             from chebfunjax.tech.trigtech import _trig_prolong_coeffs
@@ -843,6 +850,7 @@ class Diskfun(eqx.Module):
         tol: float = _EPS,
         max_rank: int = 512,
         max_sample: int = 2**14,
+            start_grid: int | None = None,
     ) -> "Diskfun":
         """Construct a Diskfun from a callable.
 
@@ -883,7 +891,7 @@ class Diskfun(eqx.Module):
         Algorithm: Townsend, Wilber, Wright, SISC 39(5) 2017.
         """
         alpha = 100.0  # coupling parameter
-        min_sample = 4
+        min_sample = 4 if start_grid is None else max(4, int(start_grid) // 2)
         factor = 8.0  # rank bound = min(m, n) / factor
         pseudo_level = _EPS
 
@@ -982,7 +990,7 @@ class Diskfun(eqx.Module):
             tol_abs,
         )
 
-        return cls(
+        g = cls(
             cols=cols_list,
             rows=rows_list,
             pivots=jnp.asarray(pivots_arr, dtype=jnp.float64),
@@ -991,6 +999,66 @@ class Diskfun(eqx.Module):
             pivot_locations=tuple(locs),
             nonzero_poles=bool(remove_poles),
         )
+        # MATLAB @diskfun/constructor.m sampleTest: evaluate off-grid
+        # (Halton-like scattered points); on failure restart with a
+        # doubled minimum sample (the phase-one GE can be "happy" on a
+        # coarse grid for a function whose true rank is higher).
+        phi_gr = 0.6180339887498949
+        ts = np.arange(1, 101, dtype=float)
+        th_t = -np.pi + 2 * np.pi * ((0.5 + phi_gr * ts) % 1.0)
+        r_t = (0.25 + phi_gr * ts * ts) % 1.0
+        fv = np.asarray(f(jnp.asarray(th_t), jnp.asarray(r_t))).ravel()
+        gv = np.asarray(g(jnp.asarray(th_t), jnp.asarray(r_t))).ravel()
+        fscale = max(float(np.max(np.abs(fv))), float(vscale), 1e-300)
+        if (not np.all(np.isfinite(gv))
+                or float(np.max(np.abs(gv - fv))) > 100 * max(tol_abs, _EPS * fscale)):
+            new_start = 2 * max(grid, 8)
+            if (start_grid is None or new_start > int(start_grid)) \
+                    and new_start <= max_sample // 4:
+                return cls.from_function(
+                    f, tol=tol, max_rank=max_rank, max_sample=max_sample,
+                    start_grid=new_start)
+        # MATLAB @diskfun/constructor.m: simplify the slices, then
+        # project onto the exact BMC-II symmetry (plus columns vanish at
+        # the origin exactly -- what keeps diff's division by r clean).
+        return g.simplify(pseudo_level)._prune_zero_terms().projectOntoBMCII()
+
+    def _prune_zero_terms(self) -> "Diskfun":
+        """Drop CDR terms whose column or row simplified to exactly zero
+        (a noise-level pivot accepted by the GE); keeps the parity
+        bookkeeping and the pole term."""
+        if self.isempty() or len(self.cols) == 0:
+            return self
+        keep = [j for j in range(len(self.cols))
+                if float(np.max(np.abs(np.asarray(self.cols[j].values)))) > 0.0
+                and float(np.max(np.abs(np.asarray(self.rows[j].values)))) > 0.0]
+        if len(keep) == len(self.cols):
+            return self
+        if not keep:
+            return self
+        idx_plus = tuple(keep.index(j) for j in self.idx_plus if j in keep)
+        idx_minus = tuple(keep.index(j) for j in self.idx_minus if j in keep)
+        pole_kept = (self.nonzero_poles and len(self.idx_plus) > 0
+                     and int(self.idx_plus[0]) in keep)
+        locs = tuple(self.pivot_locations[j] for j in keep) \
+            if len(self.pivot_locations) == len(self.cols) else ()
+        return Diskfun(cols=[self.cols[j] for j in keep],
+                  rows=[self.rows[j] for j in keep],
+                  pivots=jnp.asarray([float(self.pivots[j]) for j in keep],
+                                     dtype=jnp.float64),
+                  idx_plus=idx_plus, idx_minus=idx_minus,
+                  pivot_locations=locs, nonzero_poles=bool(pole_kept))
+
+    def simplify(self, tol: float | None = None) -> "Diskfun":
+        """Chop the column and row slices (MATLAB ``simplify``)."""
+        if self.isempty() or len(self.cols) == 0:
+            return self
+        cols = _simplify_global(list(self.cols), tol)
+        rows = _simplify_global(list(self.rows), tol)
+        return Diskfun(cols=cols, rows=rows, pivots=self.pivots,
+                       idx_plus=self.idx_plus, idx_minus=self.idx_minus,
+                       pivot_locations=self.pivot_locations,
+                       nonzero_poles=self.nonzero_poles)
 
     # ------------------------------------------------------------------
     # Evaluation (JIT-safe)
@@ -1045,6 +1113,17 @@ class Diskfun(eqx.Module):
     # ------------------------------------------------------------------
     # Integration
     # ------------------------------------------------------------------
+
+    def mean2(self) -> jax.Array:
+        """Mean value over the disk, ``sum2(f) / pi`` (MATLAB ``mean2``,
+        @separableApprox/mean2.m).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/mean2.m
+        Chebfun commit: 7574c77
+        """
+        return self.sum2() / jnp.pi
 
     def sum2(self) -> jax.Array:
         """MATLAB-parity alias for :meth:`sum` (integral over the disk).
@@ -1573,6 +1652,8 @@ class Diskfun(eqx.Module):
             pivots=jnp.asarray([self.pivots[j] for j in idx], dtype=jnp.float64),
             idx_plus=tuple(new_plus),
             idx_minus=tuple(new_minus),
+            nonzero_poles=bool(self.nonzero_poles and len(self.idx_plus) > 0
+                               and int(self.idx_plus[0]) in idx),
         )
 
     def partition(self) -> tuple["Diskfun", "Diskfun"]:
@@ -1656,6 +1737,8 @@ class Diskfun(eqx.Module):
             pivots=jnp.asarray(pivots, dtype=jnp.float64),
             idx_plus=tuple(new_plus),
             idx_minus=tuple(new_minus),
+            nonzero_poles=bool(getattr(g, "nonzero_poles", False)
+                               or getattr(h, "nonzero_poles", False)),
         )
 
     @staticmethod
@@ -1863,17 +1946,412 @@ class Diskfun(eqx.Module):
     # previously had NO arithmetic).
     # ------------------------------------------------------------------
 
-    def norm(self) -> jax.Array:
-        """L2 norm over the disk: sqrt(int |f|^2 dA) (Fable 5).
+    # ------------------------------------------------------------------
+    # MATLAB diskfun(DOUBLE): construction from a matrix of samples
+    # ------------------------------------------------------------------
+    @classmethod
+    def from_values(cls, F, tol: float | None = None,
+                    alpha: float = 100.0) -> "Diskfun":
+        """Construct from an ``n x m`` matrix of samples on the polar grid
+        ``theta = trigpts(m, [-pi, pi])`` (columns, ``m`` even) and the
+        radial points ``r = chebpts(2n-1)[n-1:]`` (rows, ``r = 0`` first),
+        MATLAB ``diskfun(F)``: a full BMC-II Gaussian elimination on the
+        doubled matrix followed by the projection onto BMC-II symmetry.
 
-        Computed by direct Clenshaw-Curtis(r) x trapezoid(theta)
-        quadrature of f^2 at the resolution of the representation
-        (spectrally exact for the finite series).  Re-approximating f^2
-        through the adaptive constructor -- the previous route -- hands
-        the constructor pure rounding noise whenever f is a
-        structurally-cancelling difference (norm(f - g) checks), which
-        made it grind through noise ranks and return garbage.
+        Provenance
+        ----------
+        MATLAB source : @diskfun/constructor.m (constructFromDouble,
+            PhaseOne with factor = 0)
+        Chebfun commit: 7574c77
         """
+        F = np.array(F, dtype=float)
+        if F.ndim < 2:
+            F = F.reshape(-1, 1)
+        if F.size == 1:
+            c0 = float(F.reshape(-1)[0])
+            return cls.from_function(lambda t, r: c0 + 0.0 * t)
+        n, m = F.shape
+        if m % 2 != 0:
+            raise ValueError("DISKFUN:CONSTRUCTOR:VALUES: When constructing "
+                             "from values the number of columns must be "
+                             "even.")
+        if tol is None:
+            tol = _get_tol(F, 2 * np.pi / m, np.pi / max(n - 1, 1), _EPS)[0]
+        (piv_idx, piv_arr, remove_pole, cols, pivots, rows, idx_plus,
+         idx_minus) = _phase_one_matrix_disk(F, tol, alpha)
+        if cols.shape[1] == 0:
+            return cls.from_function(lambda t, r: 0.0 * t)
+        col_techs = [Chebtech2.from_values(jnp.asarray(cols[:, j]))
+                     for j in range(cols.shape[1])]
+        row_techs = [Trigtech.from_values(jnp.asarray(rows[:, j]))
+                     for j in range(rows.shape[1])]
+        if np.all(pivots == 0):
+            pivots = np.full_like(pivots, np.inf)
+        th = -np.pi + 2 * np.pi * np.arange(m) / m
+        rr = np.cos(np.pi * np.arange(2 * n - 2, -1, -1) / (2 * n - 2))[n - 1:]
+        locs = []
+        if remove_pole:
+            locs.append((float(th[0]), 0.0))
+        for j, k in piv_idx:
+            locs.append((float(th[k]), float(rr[j])))
+        g = cls(cols=col_techs, rows=row_techs,
+                pivots=jnp.asarray(pivots, dtype=jnp.float64),
+                idx_plus=tuple(int(i) for i in idx_plus),
+                idx_minus=tuple(int(i) for i in idx_minus),
+                pivot_locations=tuple(locs[:len(pivots)]),
+                nonzero_poles=bool(remove_pole))
+        # MATLAB constructor.m ends with simplify(g, pseudoLevel) for
+        # every input kind, matrices included.
+        return g.simplify()._prune_zero_terms().projectOntoBMCII()
+
+    def projectOntoBMCII(self) -> "Diskfun":
+        """Project the column/row slices onto BMC-II symmetry (even in
+        ``r`` and pi-periodic for the plus part, odd and pi-antiperiodic
+        for the minus part; non-pole plus columns vanish at the origin)
+        -- MATLAB ``projectOntoBMCII``.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/projectOntoBMCII.m
+        Chebfun commit: 7574c77
+        """
+        cols = list(self.cols)
+        rows = list(self.rows)
+        plus = list(self.idx_plus)
+        minus = list(self.idx_minus)
+        # Each slice is projected at its own length (padding every slice
+        # to the longest one would re-expand chopped slices).
+        for jj, i in enumerate(plus):
+            X = _stack_cheb_coeffs([cols[i]])
+            # MATLAB projectOntoEvenBMCII: the first plus column is the
+            # pole term and keeps its value at the origin.
+            X = _bmc2_even_cols(X) if jj == 0 else _bmc2_even_cols(
+                np.concatenate([np.zeros_like(X), X], axis=1))[:, 1:]
+            cols[i] = Chebtech2.from_coeffs(jnp.asarray(X[:, 0]))
+            R = _zero_trig_modes_disk(_stack_trig_coeffs_disk([rows[i]]),
+                                      odd=True)
+            rows[i] = _trigtech_from_coeffs_real_disk(R[:, 0])
+        for i in minus:
+            X = _bmc2_odd_cols(_stack_cheb_coeffs([cols[i]]))
+            cols[i] = Chebtech2.from_coeffs(jnp.asarray(X[:, 0]))
+            R = _zero_trig_modes_disk(_stack_trig_coeffs_disk([rows[i]]),
+                                      odd=False)
+            rows[i] = _trigtech_from_coeffs_real_disk(R[:, 0])
+        return Diskfun(cols=cols, rows=rows, pivots=self.pivots,
+                       idx_plus=self.idx_plus, idx_minus=self.idx_minus,
+                       pivot_locations=self.pivot_locations,
+                       nonzero_poles=self.nonzero_poles)
+
+    def with_parity_indices(self, idx_plus, idx_minus) -> "Diskfun":
+        """Copy with the BMC parity index sets replaced (MATLAB
+        ``f.idxPlus = ...; f.idxMinus = ...``)."""
+        return Diskfun(cols=list(self.cols), rows=list(self.rows),
+                       pivots=self.pivots,
+                       idx_plus=tuple(int(i) for i in idx_plus),
+                       idx_minus=tuple(int(i) for i in idx_minus),
+                       pivot_locations=self.pivot_locations,
+                       nonzero_poles=self.nonzero_poles)
+
+    # ------------------------------------------------------------------
+    # BMCsvd (MATLAB @diskfun/BMCsvd): unweighted L2 on the doubled domain
+    # ------------------------------------------------------------------
+    def _svd_block_bmc(self, idx):
+        from chebfunjax.tech.trigtech import _trig_eval_np
+        from chebfunjax.utils.quadrature import chebpts, chebweights
+        idx = list(idx)
+        cols = [self.cols[i] for i in idx]
+        rows = [self.rows[i] for i in idx]
+        nc = max(int(np.asarray(c.coeffs).shape[0]) for c in cols)
+        nr = max(int(np.asarray(r.coeffs).shape[0]) for r in rows)
+        nqc = 2 * nc + 3
+        nqr = 2 * nr + 2
+        xc = np.asarray(chebpts(nqc, kind=2))
+        wc = np.asarray(chebweights(nqc, kind=2))
+        C = np.column_stack([np.asarray(c(jnp.asarray(xc))).ravel()
+                             for c in cols])
+        xr = -1.0 + 2.0 * np.arange(nqr) / nqr
+        wr = np.full(nqr, 2 * np.pi / nqr)
+        R = np.column_stack([np.real(np.asarray(_trig_eval_np(
+            np.asarray(r.coeffs)[:, None], xr, is_real=r.is_real))).ravel()
+            for r in rows])
+        d = np.asarray(self.pivots, dtype=float)[idx]
+        D = np.diag(np.where(np.abs(d) > 0, 1.0 / np.where(d == 0, 1, d),
+                             0.0))
+        Qc, Rc = np.linalg.qr(np.sqrt(wc)[:, None] * C)
+        Qr, Rr = np.linalg.qr(np.sqrt(wr)[:, None] * R)
+        U, s, Vt = np.linalg.svd(Rc @ D @ Rr.T)
+        Uv = (Qc @ U) / np.sqrt(wc)[:, None]
+        Vv = (Qr @ Vt.T) / np.sqrt(wr)[:, None]
+        return s, Uv, xc, Vv, xr
+
+    def BMCsvd(self, return_uv: bool = False):
+        """Singular values respecting the BMC-II block structure: the SVD
+        (L2 on ``[-1, 1] x [-pi, pi]`` of the doubled representation) is
+        computed separately for the plus and minus parts and merged in
+        descending order (MATLAB ``BMCsvd``).  With ``return_uv`` the
+        quasimatrices ``U`` (Chebfuns on [-1, 1]) and ``V`` (periodic
+        Chebfuns on [-pi, pi]) are returned as ``(U, s, V)``.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/BMCsvd.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty() or len(self.cols) == 0:
+            return jnp.zeros((0,), dtype=jnp.float64)
+        piv = np.asarray(self.pivots, dtype=float)
+        if not np.any(np.isfinite(piv)):
+            return jnp.asarray([0.0], dtype=jnp.float64)
+        parts = []
+        for idx in (self.idx_plus, self.idx_minus):
+            if len(idx) == 0:
+                continue
+            parts.append(self._svd_block_bmc(idx))
+        s = np.concatenate([p[0] for p in parts])
+        order = np.argsort(-s, kind="stable")
+        if not return_uv:
+            return jnp.asarray(s[order], dtype=jnp.float64)
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        from chebfunjax.chebfun1d.linalg import Quasimatrix
+        Ufuns, Vfuns = [], []
+        for s_k, Uv, xc, Vv, xr in parts:
+            for j in range(Uv.shape[1]):
+                Ufuns.append(chebfun(jnp.asarray(Uv[:, j]),
+                                     domain=(-1.0, 1.0)))
+                Vfuns.append(chebfun(jnp.asarray(Vv[:, j]),
+                                     domain=(-np.pi, np.pi), trig=True))
+        Ufuns = [Ufuns[i] for i in order]
+        Vfuns = [Vfuns[i] for i in order]
+        return (Quasimatrix(Ufuns, Ufuns[0].domain), jnp.asarray(s[order]),
+                Quasimatrix(Vfuns, Vfuns[0].domain))
+
+    # ------------------------------------------------------------------
+    # Inherited separableApprox methods
+    # ------------------------------------------------------------------
+    def median(self, dim: int = 1):
+        """Median along one variable of a ``2049 x 2049`` sample of the
+        function, returned as a Chebfun on the other variable's interval
+        (MATLAB separableApprox ``median``; ``dim=1`` medians over ``r``
+        and returns a function of theta on ``[-pi, pi]``).
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/median.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        if self.isempty():
+            return None
+        grid = 2049
+        vals = np.asarray(self.sample(grid, grid))
+        mX = np.median(vals, axis=0 if dim == 1 else 1).ravel()
+        interval = (-np.pi, np.pi) if dim == 1 else (0.0, 1.0)
+        g = chebfun(jnp.asarray(mX), domain=interval)
+        return g.simplify()
+
+    def diag(self, c=None):
+        """The radial slice ``r -> f(c, r)`` on ``[-1, 1]`` (doubled
+        polar coordinates), MATLAB ``diag(f, c)``; ``c`` defaults to
+        ``pi/4`` and must satisfy ``|c| < pi``.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/diag.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        from chebfunjax.tech.trigtech import _trig_eval_np
+        if self.isempty():
+            return chebfun(0.0)
+        if c is None:
+            c = np.pi / 4
+        c = float(c)
+        if abs(c) >= np.pi:
+            raise ValueError("CHEBFUN:DISKFUN:diag:angleOutOfRange: "
+                             "Diagonal parameter must be between -pi and "
+                             "pi.")
+        d = np.asarray(self.pivots, dtype=float)
+        dinv = np.where(np.abs(d) > 0, 1.0 / np.where(d == 0, 1, d), 0.0)
+        rv = np.array([np.real(np.asarray(_trig_eval_np(
+            np.asarray(r.coeffs)[:, None], np.array([c / np.pi]),
+            is_real=r.is_real))).ravel()[0] for r in self.rows])
+        w = dinv * rv
+
+        def _slice(r):
+            r = jnp.asarray(r, dtype=jnp.float64)
+            out = jnp.zeros_like(r)
+            for j, col in enumerate(self.cols):
+                if w[j] != 0:
+                    out = out + float(w[j]) * jnp.real(col(r))
+            return out
+        return chebfun(_slice, domain=(-1.0, 1.0))
+
+    def curl(self):
+        """Curl of the scalar field as a vector field (MATLAB ``curl``
+        of a diskfun): ``(f_y, -f_x)``."""
+        return self.curl_scalar()
+
+    def biharm(self) -> "Diskfun":
+        """Biharmonic operator ``laplacian(laplacian(f))`` (MATLAB
+        @diskfun/biharm.m).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/biharm.m
+        Chebfun commit: 7574c77
+        """
+        return self.laplacian().laplacian()
+
+    def tan(self):
+        """Tangent, re-approximated (MATLAB tan)."""
+        return self._reapprox(jnp.tan)
+
+    def tand(self):
+        """Tangent in degrees, re-approximated (MATLAB tand)."""
+        return self._reapprox(lambda t: jnp.tan(jnp.pi / 180.0 * t))
+
+    def log(self):
+        """Natural logarithm, re-approximated (MATLAB log)."""
+        return self._reapprox(jnp.log)
+
+    def tanh(self):
+        """Hyperbolic tangent, re-approximated (MATLAB tanh)."""
+        return self._reapprox(jnp.tanh)
+
+    def uminus(self):
+        return -self
+
+    def uplus(self):
+        return self
+
+    def __pos__(self):
+        return self
+
+    def isequal(self, other) -> bool:
+        """True when the two representations are identical: same slice
+        coefficients and pivot values (MATLAB separableApprox
+        ``isequal``).
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/isequal.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty() or other.isempty():
+            return bool(self.isempty() and other.isempty())
+        if len(self.cols) != len(other.cols):
+            return False
+        if not np.array_equal(np.asarray(self.pivots),
+                              np.asarray(other.pivots)):
+            return False
+        for a, b in zip(list(self.cols) + list(self.rows),
+                        list(other.cols) + list(other.rows)):
+            ca, cb = np.asarray(a.coeffs), np.asarray(b.coeffs)
+            if ca.shape != cb.shape or not np.array_equal(ca, cb):
+                return False
+        return True
+
+    def size(self, dim: int | None = None):
+        """``(inf, inf)`` (MATLAB separableApprox ``size``)."""
+        if dim is None:
+            return (np.inf, np.inf)
+        if dim in (1, 2):
+            return np.inf
+        raise ValueError("CHEBFUN:SEPARABLEAPPROX:size:outputs")
+
+    def feval_cart(self, x, y):
+        """Evaluate at Cartesian points ``(x, y)`` on the unit disk
+        (MATLAB ``feval(f, x, y)`` default coordinates); points outside
+        the disk raise ``CHEBFUN:DISKFUN:FEVAL:pointsNotOnDisk``.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/feval.m
+        Chebfun commit: 7574c77
+        """
+        x = jnp.asarray(x, dtype=jnp.float64)
+        y = jnp.asarray(y, dtype=jnp.float64)
+        r = jnp.sqrt(x ** 2 + y ** 2)
+        if bool(jnp.any(r > 1 + 1e-8)):
+            raise ValueError("CHEBFUN:DISKFUN:FEVAL:pointsNotOnDisk: The "
+                             "specified points are not on the unit disk.")
+        th = jnp.arctan2(y, x)
+        return self(th, jnp.minimum(r, 1.0))
+
+    @staticmethod
+    def coeffs2vals(U, S=None, V=None):
+        """Chebyshev (rows, ``r``) x Fourier (columns, ``theta``)
+        coefficients -> values on the doubled polar grid (MATLAB
+        ``diskfun.coeffs2vals``); with three arguments converts the CDR
+        factor coefficients ``(U, S, V)`` separately.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/coeffs2vals.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.tech.trigtech import trig_coeffs2vals
+        from chebfunjax.utils.transforms import coeffs2vals as _c2v
+        U = jnp.asarray(U)
+        if S is not None:
+            Uc = jnp.stack([_c2v(jnp.real(U[:, j])) for j in range(U.shape[1])], axis=1)
+            V = jnp.asarray(V, dtype=jnp.complex128)
+            Vc = jnp.stack([jnp.ravel(trig_coeffs2vals(V[:, j]))
+                            for j in range(V.shape[1])], axis=1)
+            return Uc, S, Vc
+        W = jnp.stack([_c2v(jnp.real(U[:, j])) + 1j * _c2v(jnp.imag(U[:, j]))
+                       for j in range(U.shape[1])], axis=1)
+        W = jnp.stack([jnp.ravel(trig_coeffs2vals(W[i, :].astype(jnp.complex128)))
+                       for i in range(W.shape[0])], axis=0)
+        return jnp.real(W)
+
+    @staticmethod
+    def vals2coeffs(U, S=None, V=None):
+        """Inverse of :meth:`coeffs2vals` (MATLAB ``diskfun.vals2coeffs``).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/vals2coeffs.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.tech.trigtech import trig_vals2coeffs
+        from chebfunjax.utils.transforms import vals2coeffs as _v2c
+        U = jnp.asarray(U)
+        if S is not None:
+            Uc = jnp.stack([_v2c(jnp.real(U[:, j])) for j in range(U.shape[1])], axis=1)
+            V = jnp.asarray(V, dtype=jnp.complex128)
+            Vc = jnp.stack([jnp.ravel(trig_vals2coeffs(V[:, j]))
+                            for j in range(V.shape[1])], axis=1)
+            return Uc, S, Vc
+        W = jnp.stack([_v2c(jnp.real(U[:, j])) + 1j * _v2c(jnp.imag(U[:, j]))
+                       for j in range(U.shape[1])], axis=1)
+        W = jnp.stack([jnp.ravel(trig_vals2coeffs(W[i, :].astype(jnp.complex128)))
+                       for i in range(W.shape[0])], axis=0)
+        return W
+
+    def isreal(self) -> bool:
+        """True when all slices are real-valued (MATLAB isreal)."""
+        return all(bool(jnp.all(jnp.isreal(jnp.asarray(c.coeffs))))
+                   for c in self.cols) and all(
+            bool(getattr(r, "is_real", True)) for r in self.rows)
+
+    def norm(self, p=2) -> jax.Array:
+        """Norm of the diskfun: ``p = 2``/``'fro'`` is
+        ``sqrt(sum(svd(f).^2))`` (the L2 norm on the disk), ``'inf'``
+        the maximum absolute value (MATLAB @diskfun/norm.m).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/norm.m
+        Chebfun commit: 7574c77
+        """
+        if isinstance(p, str) and p.lower() in ("inf", "max"):
+            Y, _X = self.minandmax2()
+            return jnp.max(jnp.abs(jnp.asarray(Y)))
+        if not (p == 2 or (isinstance(p, str) and p.lower() == "fro")):
+            raise NotImplementedError(
+                "CHEBFUN:DISKFUN:norm: only the 2/'fro'/'inf' norms are "
+                "implemented")
         if len(self.cols) == 0:
             return jnp.asarray(0.0, dtype=jnp.float64)
         from chebfunjax.utils.quadrature import chebpts, chebweights
@@ -1920,7 +2398,9 @@ class Diskfun(eqx.Module):
         piv = jnp.asarray(self.pivots) / c
         return Diskfun(cols=list(self.cols), rows=list(self.rows),
                        pivots=piv, idx_plus=tuple(self.idx_plus),
-                       idx_minus=tuple(self.idx_minus))
+                       idx_minus=tuple(self.idx_minus),
+                       pivot_locations=self.pivot_locations,
+                       nonzero_poles=self.nonzero_poles)
 
     def _structural_plus(self, other, sign: float) -> "Diskfun":
         # Structural sum (@diskfun/plus.m): concatenate low-rank terms;
@@ -1938,21 +2418,184 @@ class Diskfun(eqx.Module):
         return Diskfun(cols=cols, rows=rows, pivots=piv,
                        idx_plus=idx_p, idx_minus=idx_m)
 
+
+    # ------------------------------------------------------------------
+    # MATLAB @diskfun/plus.m: block-wise compression plus
+    # ------------------------------------------------------------------
+    def _normalize_poles(self) -> "Diskfun":
+        """MATLAB BMC-II pole form: the value at the origin is carried by
+        one plus term with a constant row so every other plus column
+        vanishes at r = 0 (the constructor's removePoles step), rebuilt
+        algebraically for structural products: with ``cP(r) = f(th0,
+        r)`` the remainder ``f - cP (x) 1`` vanishes at the origin."""
+        from chebfunjax.tech.trigtech import Trigtech, _trig_eval_np
+        if self.isempty() or len(self.cols) == 0 or self.nonzero_poles:
+            return self
+        plus = list(self.idx_plus)
+        if not plus:
+            return self
+        piv = np.asarray(self.pivots, dtype=float)
+        pv_max = 0.0
+        vs = 0.0
+        for j in plus:
+            c = self.cols[j]
+            v0 = float(np.abs(np.asarray(c(jnp.asarray(0.0)))))
+            pv_max = max(pv_max, v0 / max(abs(piv[j]), 1e-300))
+            vs = max(vs, float(np.max(np.abs(np.asarray(c.values)))) / max(abs(piv[j]), 1e-300))
+        if pv_max <= 1e-13 * max(vs, 1e-300):
+            return self
+        from chebfunjax.utils.quadrature import chebpts
+        nq = 2 * max(int(np.asarray(self.cols[j].coeffs).shape[0]) for j in plus) + 3
+        xs = jnp.asarray(chebpts(nq, kind=2))
+        cP = np.zeros(nq)
+        for j in plus:
+            c, r = self.cols[j], self.rows[j]
+            rv = float(np.real(np.asarray(_trig_eval_np(np.asarray(r.coeffs)[:, None],
+                                                        np.array([0.0]),
+                                                        is_real=r.is_real))).ravel()[0])
+            cP += np.asarray(c(xs)).ravel() * rv / piv[j]
+        pole_col = Chebtech2.from_values(jnp.asarray(cP))
+        pole_row = Trigtech.from_values(jnp.ones(2, dtype=jnp.float64))
+        neg_row = Trigtech.from_values(-jnp.ones(2, dtype=jnp.float64))
+        cols = [pole_col] + [self.cols[j] for j in plus] + [pole_col] + \
+            [self.cols[j] for j in self.idx_minus]
+        rows = [pole_row] + [self.rows[j] for j in plus] + [neg_row] + \
+            [self.rows[j] for j in self.idx_minus]
+        pivs = [1.0] + [float(piv[j]) for j in plus] + [1.0] + \
+            [float(piv[j]) for j in self.idx_minus]
+        n_plus = 2 + len(plus)
+        return Diskfun(cols=cols, rows=rows,
+                       pivots=jnp.asarray(pivs, dtype=jnp.float64),
+                       idx_plus=tuple(range(n_plus)),
+                       idx_minus=tuple(range(n_plus, len(cols))),
+                       nonzero_poles=True)
+
+    def _extract_pole(self):
+        if not self.nonzero_poles or len(self.idx_plus) == 0:
+            return self, None
+        j = int(self.idx_plus[0])
+        keep = [k for k in range(len(self.cols)) if k != j]
+        pole = (self.cols[j], self.rows[j], float(self.pivots[j]))
+        rest = Diskfun(
+            cols=[self.cols[k] for k in keep], rows=[self.rows[k] for k in keep],
+            pivots=jnp.asarray([float(self.pivots[k]) for k in keep],
+                               dtype=jnp.float64),
+            idx_plus=tuple(keep.index(k) for k in self.idx_plus if k != j),
+            idx_minus=tuple(keep.index(k) for k in self.idx_minus),
+            nonzero_poles=False)
+        return rest, pole
+
+    def _compression_plus(self, other: "Diskfun") -> "Diskfun":
+        """``self + other`` by MATLAB's compression_plus per BMC parity
+        block, with the pole (origin) terms combined as in ``addPoles``.
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/plus.m, @separableApprox/plus.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.utils.bmc_plus import (
+            _cheb_values,
+            block_vscale,
+            compress_block,
+            techs_from_values,
+        )
+        f, fpole = self._normalize_poles()._extract_pole()
+        g, gpole = other._normalize_poles()._extract_pole()
+
+        def _block(a, idx_a, b, idx_b):
+            cols = [a.cols[i] for i in idx_a] + [b.cols[i] for i in idx_b]
+            rows = [a.rows[i] for i in idx_a] + [b.rows[i] for i in idx_b]
+            piv = [float(a.pivots[i]) for i in idx_a] + \
+                  [float(b.pivots[i]) for i in idx_b]
+            if not cols:
+                return [], [], []
+            va = block_vscale([a.cols[i] for i in idx_a],
+                              [a.rows[i] for i in idx_a],
+                              [float(a.pivots[i]) for i in idx_a], "cheb")
+            vb = block_vscale([b.cols[i] for i in idx_b],
+                              [b.rows[i] for i in idx_b],
+                              [float(b.pivots[i]) for i in idx_b], "cheb")
+            vscl = 2.0 * max(va, vb)
+            out = compress_block(cols, rows, piv, "cheb", vscl)
+            if out is None:
+                return [], [], []
+            C, R, newpiv = out
+            nc = max(int(np.asarray(t.coeffs).shape[0]) for t in cols)
+            nr = max(int(np.asarray(t.coeffs).shape[0]) for t in rows)
+            # MATLAB compression_plus does NOT simplify: Qcols*U keeps the
+            # quasimatrix QR length (the longest operand slice).
+            return (techs_from_values(C, "cheb", nc),
+                    techs_from_values(R, "trig", nr),
+                    list(newpiv))
+        pc, pr, pp = _block(f, f.idx_plus, g, g.idx_plus)
+        mc, mr, mp = _block(f, f.idx_minus, g, g.idx_minus)
+        pole_cols, pole_rows, pole_piv = [], [], []
+        nonzero_poles = False
+        if fpole is not None or gpole is not None:
+            nq = 0
+            parts = []
+            for pole in (fpole, gpole):
+                if pole is None:
+                    continue
+                c, r, pv = pole
+                rc = np.asarray(r.coeffs).ravel()
+                rmean = float(np.real(rc[rc.size // 2]))
+                parts.append((c, rmean / pv))
+                nq = max(nq, 2 * int(np.asarray(c.coeffs).shape[0]) + 3)
+            col_vals = None
+            for c, w in parts:
+                V, _ = _cheb_values([c], nq)
+                col_vals = w * V[:, 0] if col_vals is None else col_vals + w * V[:, 0]
+            scales = [float(np.max(np.abs(np.asarray(t.values))))
+                      for t in (self.cols + other.cols)]
+            tol = _EPS * max(scales) if scales else _EPS
+            if np.max(np.abs(col_vals)) > tol:
+                pole_cols = _simplify_global(techs_from_values(col_vals[:, None], "cheb"))
+                pole_rows = [Trigtech.from_values(jnp.ones(2, dtype=jnp.float64))]
+                pole_piv = [1.0]
+                v0 = float(np.abs(np.asarray(pole_cols[0](jnp.asarray(0.0)))))
+                nonzero_poles = bool(v0 > tol)
+        cols = pole_cols + pc + mc
+        rows = pole_rows + pr + mr
+        piv = pole_piv + pp + mp
+        if not cols:
+            return Diskfun.from_function(lambda t, r: 0.0 * t)
+        n_plus = len(pole_cols) + len(pc)
+        h = Diskfun(cols=cols, rows=rows,
+                    pivots=jnp.asarray(piv, dtype=jnp.float64),
+                    idx_plus=tuple(range(n_plus)),
+                    idx_minus=tuple(range(n_plus, len(cols))),
+                    nonzero_poles=nonzero_poles)
+        return h.projectOntoBMCII()
+
     def __add__(self, other):
         if isinstance(other, Diskfun):
-            return self._structural_plus(other, 1.0)
+            if other.isempty() or other.iszero():
+                return self
+            if self.isempty() or self.iszero():
+                return other
+            return self._compression_plus(other)
+        if np.isscalar(other):
+            c = other
+            const = Diskfun.from_function(lambda t, r: c + 0.0 * t)
+            return self._compression_plus(const)
         return self._binary(other, lambda a, b: a + b)
 
     __radd__ = __add__
 
     def __sub__(self, other):
         if isinstance(other, Diskfun):
-            return self._structural_plus(other, -1.0)
+            return self.__add__(other._scale(-1.0))
+        if np.isscalar(other):
+            return self.__add__(-other)
         return self._binary(other, lambda a, b: a - b)
 
     def __rsub__(self, other):
         if isinstance(other, Diskfun):
-            return other._structural_plus(self, -1.0)
+            return other.__add__(self._scale(-1.0))
+        if np.isscalar(other):
+            return self._scale(-1.0).__add__(other)
         return self._binary(other, lambda a, b: b - a)
 
     def __mul__(self, other):
@@ -1969,7 +2612,7 @@ class Diskfun(eqx.Module):
         return self._binary(other, lambda a, b: a / b)
 
     def __neg__(self):
-        return self._reapprox(lambda v: -v)
+        return self._scale(-1.0)
 
     def __pow__(self, p):
         """Pointwise power ``f .^ p`` (MATLAB @diskfun/power).
@@ -2149,6 +2792,8 @@ class Diskfun(eqx.Module):
             pivots=self.pivots,
             idx_plus=self.idx_plus,
             idx_minus=self.idx_minus,
+            pivot_locations=self.pivot_locations,
+            nonzero_poles=self.nonzero_poles,
         )
 
     def fliplr(self) -> "Diskfun":
@@ -2438,6 +3083,8 @@ class Diskfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         from chebfunjax.diskfun.diskfunv import Diskfunv
+        if self.isempty():
+            return Diskfunv.empty()
         return Diskfunv(self.diffx(), self.diffy())
 
     def grad(self):
@@ -2774,11 +3421,12 @@ def _diskfun_onediff(f: "Diskfun", dim: int) -> "Diskfun":
     Original authors: Copyright 2017 by The University of Oxford
         and The Chebfun Developers.
     """
+    if len(f.cols) == 0:
+        return Diskfun.empty()
+    f = f.simplify()
     cols = f.cols
     rows = f.rows
     piv = np.asarray(f.pivots, dtype=float)
-    if len(cols) == 0:
-        return Diskfun.empty()
     # Skip noise pivots: a ~eps GE pivot gives a ~1/eps weight on a junk
     # slice whose value contribution is below roundoff but whose
     # derivatives are O(1/eps) rough (Fable 5 audit).  EXCEPT the pole
@@ -2786,12 +3434,11 @@ def _diskfun_onediff(f: "Diskfun", dim: int) -> "Diskfun":
     # constant as its pivot, so the term col0 * row0 / piv0 = col0 * 1
     # is O(1) -- dropping it loses an O(1) radial component (this broke
     # second derivatives by O(1) in the audit).
-    pole_j = 0 if f.nonzero_poles else -1
-    piv_floor = 1e-12 * float(np.max(np.abs(piv)))
-    keep = [j for j in range(len(cols))
-            if j == pole_j or abs(float(piv[j])) >= piv_floor]
-    if not keep:
-        return Diskfun.empty()
+    # MATLAB onediff works on [C, ~, R] = cdr(f) and keeps the pivots on
+    # the object: the columns are NOT scaled by 1/pivot (that scaling
+    # amplifies the small-pivot terms and the sampled sum then cancels
+    # catastrophically).
+    keep = list(range(len(cols)))
     nk = len(keep)
 
     # Radial (Chebyshev, ascending T_k) coefficients, CDR weights folded
@@ -2804,7 +3451,7 @@ def _diskfun_onediff(f: "Diskfun", dim: int) -> "Diskfun":
     C = np.zeros((n, nk))
     for i, j in enumerate(keep):
         c = np.real(np.asarray(cols[j].coeffs)).ravel()
-        C[: c.size, i] = c / float(piv[j])
+        C[: c.size, i] = c
 
     # Angular (Fourier, ascending wavenumber) coefficients on a common
     # symmetric range -Km..Km with one extra wavenumber of headroom for
@@ -2841,6 +3488,16 @@ def _diskfun_onediff(f: "Diskfun", dim: int) -> "Diskfun":
 
     # d/dtheta of the rows.
     dRdth = (1j * ks)[:, None] * R
+    # A constant row (the pole term) has an exactly zero angular
+    # derivative in MATLAB (rows(:,1) = [rowPole rowPole]); FFT rounding
+    # leaves ~1e-17 in the other modes here, which the 1/r solve of the
+    # non-vanishing pole column amplifies to ~1e-8.  Clean it.
+    for i in range(nk):
+        col = R[:, i]
+        nonzero_mode = np.abs(col).copy()
+        nonzero_mode[Km] = 0.0
+        if np.max(nonzero_mode) <= 1e-13 * max(np.abs(col[Km]), 1e-300):
+            dRdth[:, i] = 0.0
 
     def _mcos(A):
         # cos(theta) * sum c_k e^{ik theta}: c_k <- (c_{k-1} + c_{k+1})/2
@@ -2871,73 +3528,22 @@ def _diskfun_onediff(f: "Diskfun", dim: int) -> "Diskfun":
     # pivot; GE then collapses the rank and the result is off by ~1e-2
     # (Fable 5 audit).  Subtract that component (a function of theta
     # only, so the correction is ~1e-11 uniformly -- harmless).
-    Tv0 = np.polynomial.chebyshev.chebvander(np.array([0.0]), n - 1)[0]
-    pc = R1 @ (Tv0 @ C1) + R2 @ (Tv0 @ C2)   # trig coeffs of f(theta, 0)
-    pc[Km] = 0.0                              # keep the true (mean) pole value
-
-    def ev(theta, r):
-        theta = np.asarray(theta, dtype=float)
-        r = np.asarray(r, dtype=float)
-        shape = np.broadcast(theta, r).shape
-        th = np.broadcast_to(theta, shape).ravel()
-        rr = np.clip(np.broadcast_to(r, shape).ravel(), -1.0, 1.0)
-        # The constructor samples the doubled disk (r < 0); the column
-        # series live natively on [-1, 1], so negative r evaluates
-        # directly -- no BMC remapping needed.
-        Tv = np.polynomial.chebyshev.chebvander(rr, n - 1)   # (npts, n)
-        E = np.exp(1j * np.outer(th, ks))                    # (npts, m)
-        vals = np.real(np.sum((Tv @ C1) * (E @ R1), axis=1)
-                       + np.sum((Tv @ C2) * (E @ R2), axis=1)
-                       - E @ pc)
-        return jnp.asarray(vals.reshape(shape), dtype=jnp.float64)
-
-    # Fixed-size construction, mirroring MATLAB's
-    # ``diskfun(sample(f1, m, n/2+1) + sample(f2, m, n/2+1))``: the
-    # derivative is an EXACT finite Chebyshev x Fourier series, so one
-    # phase-one GE pass on a grid that resolves it (factor = 0: no
-    # width bound, no refinement loop) is both exact and fast.  Running
-    # the adaptive constructor instead made phase one chase the ~1e-11
-    # noise rank of iterated-derivative series through endless grid
-    # doublings (a single second-derivative construction timed out at
-    # 25 min in the Fable 5 audit).
-    gsz = 8
-    need = max(n + 2, m // 2 + 2)
-    while gsz < need:
-        gsz *= 2
-    r_pts = _disk_col_pts(gsz)
-    th_pts = _disk_row_pts(gsz)
-    th2d, r2d = np.meshgrid(th_pts, r_pts)
-    F = np.asarray(ev(th2d, r2d), dtype=np.float64)
-    tol_abs, vscale = _get_tol(F, 2.0 * np.pi / (2 * gsz), 1.0 / gsz, _EPS)
-    # The ev series carries an ABSOLUTE rounding floor of ~eps times the
-    # sum of per-term amplitudes (the 1/pivot CDR weights amplify eps
-    # before the products cancel).  GE must not eliminate below that
-    # floor: with tol at machine level an iterated derivative's ~1e-9
-    # noise floor turned into hundreds of junk ranks (rank 512, NaN
-    # pivots -- Fable 5 audit).
-    amp = 0.0
-    for i in range(nk):
-        amp += (np.max(np.abs(C1[:, i])) * np.max(np.abs(R1[:, i]))
-                + np.max(np.abs(C2[:, i])) * np.max(np.abs(R2[:, i])))
-    tol_use = max(tol_abs, _EPS * float(amp))
-    pivot_indices, pivot_array, remove_poles, _happy = _phase_one_disk(
-        F, tol_use, 100.0, 0.0)
-    import warnings as _warnings
-    with _warnings.catch_warnings():
-        _warnings.simplefilter("ignore")
-        (cols_list, rows_list, pivots_arr, idx_plus, idx_minus,
-         locs) = _phase_two_disk(
-            ev, pivot_indices, pivot_array, gsz, gsz, vscale,
-            2 ** 14, remove_poles, tol_use, fixed=True)
-    return Diskfun(
-        cols=cols_list,
-        rows=rows_list,
-        pivots=jnp.asarray(pivots_arr, dtype=jnp.float64),
-        idx_plus=tuple(idx_plus),
-        idx_minus=tuple(idx_minus),
-        pivot_locations=tuple(locs),
-        nonzero_poles=bool(remove_poles),
-    )
+    # MATLAB @diskfun/diff.m: f = diskfun(sample(f1, m, n/2+1) +
+    # sample(f2, m, n/2+1)) -- the two coefficient-space pieces are
+    # SAMPLED on the (m x n/2+1) polar grid and the result rebuilt from
+    # that matrix (constructFromDouble: full GE + BMC-II projection), so
+    # the derivative keeps machine precision (an adaptive
+    # re-approximation of the sum loses ~1e-13).
+    m_even = m + (m % 2)
+    n_r = n // 2 + 1
+    th_pts = -np.pi + 2 * np.pi * np.arange(m_even) / m_even
+    r_pts = np.cos(np.pi * np.arange(n, -1, -1) / n)[n // 2:]
+    Tv = np.polynomial.chebyshev.chebvander(r_pts, n - 1)      # (n_r, n)
+    E = np.exp(1j * np.outer(th_pts, ks))                       # (m_even, m)
+    dinv = np.where(np.abs(piv) > 0, 1.0 / np.where(piv == 0, 1.0, piv), 0.0)
+    F = np.real(((Tv @ C1) * dinv) @ (E @ R1).T + ((Tv @ C2) * dinv) @ (E @ R2).T)
+    assert F.shape == (n_r, m_even)
+    return Diskfun.from_values(F)
 
 
 def _cheb_diff_matrix(n: int) -> tuple:
@@ -3036,3 +3642,219 @@ def _diskfun_poisson(f, n: int, K: float = 0.0, bc=None) -> "Diskfun":
 from chebfunjax.utils.misc import make_empty_aware  # noqa: E402
 
 make_empty_aware(Diskfun, ['__add__', '__radd__', '__sub__', '__rsub__', '__mul__', '__rmul__', '__truediv__', '__pow__', '__neg__', 'sum', 'sum2', 'mean', 'norm', 'laplacian', 'diffx', 'diffy', 'compose', 'exp', 'sin', 'cos', 'sqrt'])
+
+
+# ----------------------------------------------------------------------
+# Helpers for diskfun(DOUBLE), projectOntoBMCII and BMCsvd (Fable 5)
+# ----------------------------------------------------------------------
+def _check_pole_disk(val, tol):
+    """MATLAB checkPole: mean of the origin row."""
+    return float(np.mean(val))
+
+
+def _phase_one_matrix_disk(F, tol, alpha):
+    """MATLAB @diskfun/constructor.m PhaseOne(F, tol, alpha, 0) with the
+    (nargout > 4) outputs: full BMC-II Gaussian elimination on a sample
+    matrix ``F`` (``m`` radial rows with ``r = 0`` first, ``n`` angular
+    columns).  Returns (pivot_indices [(r_row, theta_col) 0-based into
+    the r > 0 rows / half grid], pivot_array, remove_pole, cols (2m-1 x
+    rank), pivots, rows (n x rank), idx_plus, idx_minus)."""
+    m, n = F.shape
+    half = n // 2
+    if m == 1:
+        cols = np.zeros((1, 1))
+        cols[0, 0] = F[0, 0]
+        return (np.zeros((1, 2), dtype=int), np.array([[1.0, 0.0]]), True,
+                cols, np.array([1.0]), np.ones((n, 1)), [0], [])
+    C = F[:, :half]
+    B = F[:, half:]
+    Fp = 0.5 * (B + C)
+    Fm = 0.5 * (B - C)
+    pole1 = _check_pole_disk(Fp[0, :], tol)
+    cols_plus, rows_plus, idx_plus = [], [], []
+    cols_minus, rows_minus, idx_minus = [], [], []
+    rank_count = 0
+    remove_pole = False
+    col_pole = row_pole = None
+    row_val = 0.0
+    if abs(pole1) > tol:
+        colmax = np.max(np.abs(Fp), axis=0)
+        pole_col = int(np.argmax(colmax))
+        row_val = float(colmax[pole_col])
+        row_pole = row_val * np.ones(half)
+        col_pole = Fp[:, pole_col].copy()
+        Fp = Fp - np.outer(col_pole, row_pole / row_val)
+        remove_pole = True
+        rank_count += 1
+    Fp = Fp[1:m, :].copy()
+    Fm = Fm[1:m, :].copy()
+    pivot_indices = []
+    pivot_array = []
+
+    def _argmax(A):
+        if A.size == 0:
+            return 0.0, (0, 0)
+        idx = int(np.argmax(np.abs(A.T)))
+        k, j = divmod(idx, A.shape[0])
+        return float(np.abs(A[j, k])), (j, k)
+
+    maxp, ip = _argmax(Fp)
+    maxm, im = _argmax(Fm)
+    if maxp == 0 and maxm == 0 and not remove_pole:
+        return (np.zeros((1, 2), dtype=int), np.array([[0.0, 0.0]]), False,
+                np.zeros((2 * m - 1, 1)), np.array([np.inf]),
+                np.zeros((n, 1)), [0], [])
+    min_size = min(m, n)
+    while max(maxp, maxm) > tol and rank_count < min_size:
+        j, k = ip if maxp >= maxm else im
+        evp = float(Fp[j, k])
+        evm = float(Fm[j, k])
+        absevp, absevm = abs(evp), abs(evm)
+        pivot_indices.append((j, k))
+        if max(absevp, absevm) <= alpha * min(absevp, absevm):
+            cp = Fp[:, k].copy()
+            rp = Fp[j, :].copy()
+            Fp = Fp - np.outer(cp, rp / evp)
+            cm = Fm[:, k].copy()
+            rm = Fm[j, :].copy()
+            Fm = Fm - np.outer(cm, rm / evm)
+            cols_plus.append(cp)
+            rows_plus.append(rp)
+            cols_minus.append(cm)
+            rows_minus.append(rm)
+            if absevp >= absevm:
+                idx_plus.append(rank_count)
+                idx_minus.append(rank_count + 1)
+            else:
+                idx_minus.append(rank_count)
+                idx_plus.append(rank_count + 1)
+            rank_count += 2
+            pivot_array.append((evp, evm))
+            maxp, ip = _argmax(Fp)
+            maxm, im = _argmax(Fm)
+        elif absevp > absevm:
+            cp = Fp[:, k].copy()
+            rp = Fp[j, :].copy()
+            Fp = Fp - np.outer(cp, rp / evp)
+            cols_plus.append(cp)
+            rows_plus.append(rp)
+            idx_plus.append(rank_count)
+            rank_count += 1
+            pivot_array.append((evp, 0.0))
+            maxp, ip = _argmax(Fp)
+        else:
+            cm = Fm[:, k].copy()
+            rm = Fm[j, :].copy()
+            Fm = Fm - np.outer(cm, rm / evm)
+            cols_minus.append(cm)
+            rows_minus.append(rm)
+            idx_minus.append(rank_count)
+            rank_count += 1
+            pivot_array.append((0.0, evm))
+            maxm, im = _argmax(Fm)
+    cols = np.zeros((2 * m - 1, rank_count))
+    rows = np.zeros((n, rank_count))
+    pivots = np.zeros(rank_count)
+    piv_arr = np.array(pivot_array).reshape(-1, 2)
+    if cols_plus:
+        CP = np.column_stack(cols_plus)              # (m-1, kplus)
+        RP = np.array(rows_plus)
+        cols[m:2 * m - 1, idx_plus] = CP
+        cols[0:m - 1, idx_plus] = CP[::-1, :]
+        rows[:, idx_plus] = np.concatenate([RP, RP], axis=1).T
+        pivots[idx_plus] = piv_arr[piv_arr[:, 0] != 0, 0]
+    if cols_minus:
+        CM = np.column_stack(cols_minus)
+        RM = np.array(rows_minus)
+        cols[m:2 * m - 1, idx_minus] = CM
+        cols[0:m - 1, idx_minus] = -CM[::-1, :]
+        rows[:, idx_minus] = np.concatenate([-RM, RM], axis=1).T
+        pivots[idx_minus] = piv_arr[piv_arr[:, 1] != 0, 1]
+    if remove_pole:
+        cols[:, 0] = np.concatenate([col_pole[::-1], col_pole[1:m]])
+        rows[:, 0] = np.concatenate([row_pole, row_pole])
+        pivots[0] = row_val
+        idx_plus = [0] + idx_plus
+    return (np.array(pivot_indices, dtype=int).reshape(-1, 2) + [1, 0],
+            piv_arr, remove_pole, cols, pivots, rows, idx_plus, idx_minus)
+
+
+def _stack_cheb_coeffs(techs):
+    n = max(int(np.asarray(t.coeffs).shape[0]) for t in techs)
+    out = np.zeros((n, len(techs)))
+    for j, t in enumerate(techs):
+        c = np.asarray(t.coeffs, dtype=float)
+        out[:c.shape[0], j] = c
+    return out
+
+
+def _bmc2_even_cols(X):
+    """MATLAB projectOntoEvenBMCII on the Chebyshev column coefficients:
+    zero the odd-degree coefficients and make every column but the
+    first vanish at r = 0."""
+    X = np.array(X, dtype=float)
+    m, n = X.shape
+    X[1::2, :] = 0.0
+    if n > 1:
+        even = np.arange(0, m, 2)
+        Xe = X[even, 1:]
+        factor = (np.sum(Xe[0::2, :], axis=0) - np.sum(Xe[1::2, :], axis=0)) \
+            / len(even)
+        signs = (-1.0) ** (np.arange(2, len(even) + 2))
+        X[np.ix_(even, np.arange(1, n))] = Xe + np.outer(signs, factor)
+    return X
+
+
+def _bmc2_odd_cols(X):
+    """MATLAB projectOntoOddBMCII: zero the even-degree coefficients."""
+    X = np.array(X, dtype=float)
+    X[0::2, :] = 0.0
+    return X
+
+
+def _stack_trig_coeffs_disk(techs):
+    n = max(int(np.asarray(t.coeffs).shape[0]) for t in techs)
+    n_odd = n if n % 2 == 1 else n + 1
+    out = np.zeros((n_odd, len(techs)), dtype=complex)
+    for j, t in enumerate(techs):
+        c = np.asarray(t.coeffs, dtype=complex)
+        k = c.shape[0]
+        if k % 2 == 0:
+            c = np.concatenate([0.5 * c[:1], c[1:], 0.5 * c[:1]])
+            k += 1
+        off = (n_odd - k) // 2
+        out[off:off + k, j] = c
+    return out
+
+
+def _zero_trig_modes_disk(R, odd: bool):
+    R = np.array(R, dtype=complex)
+    n = R.shape[0]
+    k = np.arange(n) - n // 2
+    if odd:
+        R[k % 2 == 1, :] = 0.0
+    else:
+        R[k % 2 == 0, :] = 0.0
+    return R
+
+
+def _trigtech_from_coeffs_real_disk(c):
+    from chebfunjax.tech.trigtech import trig_coeffs2vals
+    c = np.asarray(c, dtype=complex)
+    v = np.real(np.asarray(trig_coeffs2vals(jnp.asarray(c))))
+    return Trigtech.from_values(jnp.asarray(v))
+
+
+def _simplify_global(techs, tol=None):
+    """Chop each slice relative to the global vertical scale of the
+    quasimatrix (MATLAB ``simplify(f.cols, pseudoLevel)``)."""
+    base = _EPS if tol is None else float(tol)
+    scales = [float(jnp.max(jnp.abs(jnp.asarray(t.values)))) for t in techs]
+    vs = max(scales) if scales else 0.0
+    out = []
+    for t, sc in zip(techs, scales):
+        if sc == 0.0 or vs == 0.0:
+            out.append(t.simplify(base))
+        else:
+            out.append(t.simplify(min(0.5, max(base, base * vs / sc))))
+    return out

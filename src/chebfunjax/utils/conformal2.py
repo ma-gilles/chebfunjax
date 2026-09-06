@@ -103,6 +103,16 @@ def conformal2(
     --------
     conformal
     """
+    if hasattr(Z1, "funs") or hasattr(Z2, "funs"):
+        import jax.numpy as jnp
+
+        def _sample(C):
+            if not hasattr(C, "funs"):
+                return C
+            bp = [float(v) for v in C.domain.breakpoints]
+            t = bp[0] + (bp[-1] - bp[0]) * np.arange(1000) / 1000.0
+            return np.asarray(C(jnp.asarray(t)))
+        Z1, Z2 = _sample(Z1), _sample(Z2)
     Z1 = np.asarray(Z1, dtype=complex).ravel()
     Z2 = np.asarray(Z2, dtype=complex).ravel()
 

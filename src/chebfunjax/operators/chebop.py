@@ -80,8 +80,16 @@ def _ivp_method(name) -> str:
 
 
 def _chebfun_from_values(values, domain: tuple[float, float]):
-    """Wrap collocation values as a Chebfun."""
+    """Wrap collocation values as a Chebfun.  On a breakpoint domain
+    the values define the interpolant on the outer interval, which is
+    then re-sampled onto the piecewise domain."""
     from chebfunjax.chebfun1d.chebfun import Chebfun
+    if len(domain) > 2:
+        from chebfunjax.chebfun1d.chebfun import chebfun as _mkcheb
+        a0, b0 = float(domain[0]), float(domain[-1])
+        g = Chebfun.from_values(jnp.asarray(values, dtype=jnp.float64),
+                                Domain((a0, b0)))
+        return _mkcheb(lambda t: g(t), domain=tuple(domain))
     dom = Domain(domain)
     return Chebfun.from_values(jnp.asarray(values, dtype=jnp.float64), dom)
 
@@ -258,6 +266,72 @@ def _validate_chebop_domain(domain):
     return tuple(vals)
 
 
+def _cellify(fn, with_x: bool, domain, nargs: int | None = None):
+    """MATLAB chebmatrix ``{}`` syntax: an op or bc written on ONE
+    indexable argument (``u{1}`` -> ``u[0]`` in the Python port).
+    Probe the callable with an index recorder; a recorded access means
+    cell style, and the callable is expanded to the fixed-arity
+    multi-unknown form the rest of chebop dispatches on.  Returns
+    ``(callable, n_unknowns)`` with ``n_unknowns = 0`` when the
+    callable is not cell-style.
+
+    Provenance
+    ----------
+    MATLAB source : @chebop/parseBC.m, @chebop/linearize.m
+        (CHEBMATRIX syntax handling)
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.chebfun1d.chebfun import Chebfun
+    a0, b0 = float(domain[0]), float(domain[-1])
+    zero = _chebfun_from_values(jnp.zeros(2), (a0, b0))
+    rec = {"mx": -1}
+
+    class _Probe:
+        def __getitem__(self, i):
+            rec["mx"] = max(rec["mx"], int(i))
+            return zero
+
+    try:
+        if with_x:
+            fn(Chebfun.identity(Domain((a0, b0))), _Probe())
+        else:
+            fn(_Probe())
+    except Exception:
+        return fn, 0
+    m = rec["mx"] + 1
+    if m < 1:
+        return fn, 0
+    # A bc may index only a subset of the unknowns (lbc = @(u) u{1}-1
+    # on a 3-var system); the expanded form must still accept every
+    # unknown, so the caller passes the system arity explicitly.
+    if nargs is not None:
+        m = max(m, int(nargs))
+    if with_x:
+        table = {
+            1: lambda x, a1: fn(x, [a1]),
+            2: lambda x, a1, a2: fn(x, [a1, a2]),
+            3: lambda x, a1, a2, a3: fn(x, [a1, a2, a3]),
+            4: lambda x, a1, a2, a3, a4: fn(x, [a1, a2, a3, a4]),
+            5: lambda x, a1, a2, a3, a4, a5: fn(
+                x, [a1, a2, a3, a4, a5]),
+            6: lambda x, a1, a2, a3, a4, a5, a6: fn(
+                x, [a1, a2, a3, a4, a5, a6]),
+        }
+    else:
+        table = {
+            1: lambda a1: fn([a1]),
+            2: lambda a1, a2: fn([a1, a2]),
+            3: lambda a1, a2, a3: fn([a1, a2, a3]),
+            4: lambda a1, a2, a3, a4: fn([a1, a2, a3, a4]),
+            5: lambda a1, a2, a3, a4, a5: fn([a1, a2, a3, a4, a5]),
+            6: lambda a1, a2, a3, a4, a5, a6: fn(
+                [a1, a2, a3, a4, a5, a6]),
+        }
+    if m not in table:
+        return fn, 0
+    return table[m], m
+
+
 def _op_from_string(expr: str):
     r"""Compile a MATLAB chebop operator STRING like ``'u\`\`+sin(u)'``
     into an op lambda: backticks mark derivatives, elementwise MATLAB
@@ -298,6 +372,10 @@ def _op_from_string(expr: str):
     ns["__builtins__"] = {}
     return eval(  # noqa: S307 -- restricted namespace, math only
         f"lambda {', '.join(args)}: {s}", ns)
+
+
+class _SkipDelayProbe(Exception):
+    """Internal: the delay-detection probe could not be evaluated."""
 
 
 class Chebop:
@@ -401,6 +479,9 @@ class Chebop:
         #: ``chebop([-N 0 N])`` form): the piecewise solver and the eigs
         #: breakpoint detection both read interior points from here.
         self._domain: tuple[float, ...] = tuple(float(v) for v in domain)
+        if self.op is not None and not isinstance(self.op, str) \
+                and _op_arity(self.op, 2) == 2:
+            self.op, _cell_m = _cellify(self.op, True, self._domain)
         #: MATLAB N.maxnorm: halt IVP time marching when any watched
         #: solution component reaches this norm; the remainder of the
         #: interval is filled with NaN (@chebfun/constructODEsol.m).
@@ -488,7 +569,14 @@ class Chebop:
 
     @lbc.setter
     def lbc(self, val):
-        self._lbc_raw = self._translate_bc_keywords(val)
+        val = self._translate_bc_keywords(val)
+        if callable(val) and _op_arity(val, 1) == 1:
+            try:
+                nv = self._n_vars() if self.op is not None else None
+            except Exception:
+                nv = None
+            val, _ = _cellify(val, False, self._domain, nargs=nv)
+        self._lbc_raw = val
 
     @property
     def rbc(self):
@@ -497,7 +585,14 @@ class Chebop:
 
     @rbc.setter
     def rbc(self, val):
-        self._rbc_raw = self._translate_bc_keywords(val)
+        val = self._translate_bc_keywords(val)
+        if callable(val) and _op_arity(val, 1) == 1:
+            try:
+                nv = self._n_vars() if self.op is not None else None
+            except Exception:
+                nv = None
+            val, _ = _cellify(val, False, self._domain, nargs=nv)
+        self._rbc_raw = val
 
     @property
     def bc(self):
@@ -977,7 +1072,10 @@ class Chebop:
                 and (self._lbc_raw is None) != (self._rbc_raw is None)
             ):
                 try:
-                    return self._solve_ivp_system(f)
+                    _sol = self._solve_ivp_system(f)
+                    if self._n_vars() == 1:
+                        _sol = self._polish_marched_scalar(_sol, f)
+                    return _sol
                 except Exception:
                     pass
                 # Not first order in every unknown (or complex state):
@@ -1015,10 +1113,35 @@ class Chebop:
         # general-constraint row placement.  A single-block system reduces to
         # the scalar collocation matrix; unwrap to a plain Chebfun.
         if self._bc_general is not None:
-            if self._system_is_linear():
+            try:
+                _lin_sys = (self._is_linear() if self._n_vars() == 1
+                            else self._system_is_linear())
+            except ValueError as exc:
+                if ("nansInfs" in str(exc) or "NaN" in str(exc)
+                        or "divisionByZero" in str(exc)):
+                    raise ValueError(
+                        "CHEBFUN:CHEBOP:linearize:invalidInitialGuess: "
+                        "the operator cannot be evaluated at the initial "
+                        "guess (non-finite residual); supply N.init.") from exc
+                raise
+            if _lin_sys:
                 sol = self._solve_linear_system(f, n=n)
             else:
-                sol = self._solve_nonlinear_system(f, n=n, max_iter=max_iter)
+                try:
+                    sol = self._solve_nonlinear_system(
+                        f, n=n, max_iter=max_iter)
+                except ValueError as exc:
+                    # The operator could not be evaluated at the initial
+                    # guess (sqrt(u), 1/u about u = 0): MATLAB's
+                    # linearize:invalidInitialGuess.
+                    if ("nansInfs" in str(exc) or "NaN" in str(exc)
+                        or "divisionByZero" in str(exc)):
+                        raise ValueError(
+                            "CHEBFUN:CHEBOP:linearize:invalidInitialGuess: "
+                            "the operator cannot be evaluated at the "
+                            "initial guess (non-finite residual); supply "
+                            "N.init.") from exc
+                    raise
             return sol[0] if len(sol) == 1 else sol
 
         # IVPs (all BCs at one endpoint) time-march like MATLAB (#24).
@@ -1038,7 +1161,8 @@ class Chebop:
                 isinstance(v, complex) and v.imag != 0 for v in _bcraw)
             if not _cplx:
                 try:
-                    return self.solve_ivp(f)
+                    _sol = self.solve_ivp(f)
+                    return self._polish_marched_scalar(_sol, f)
                 except Exception:
                     pass
             # solve_ivp works in float64 throughout, so a COMPLEX scalar
@@ -1280,9 +1404,13 @@ class Chebop:
         def _is_diffint(blk):
             return blk is not None and getattr(blk, "order", 0) != 0
 
-        any_diffint = any(_is_diffint(blk) for row in rows for blk in row)
+        dords = [list(eq.dord) if isinstance(eq, _LinopVar) else [0] * m
+                 for eq in equations]
+        any_diffint = any(_is_diffint(blk) for row in rows for blk in row) \
+            or any(d > 0 for dd in dords for d in dd)
         is_param = [
             any_diffint and not any(_is_diffint(row[j]) for row in rows)
+            and not any(dd[j] > 0 for dd in dords)
             for j in range(m)
         ]
 
@@ -1320,7 +1448,7 @@ class Chebop:
 
         from chebfunjax.chebfun1d.chebfun import Chebfun
         m = self._n_vars()
-        a, b = self.domain
+        a, b = float(self.domain[0]), float(self.domain[-1])
         kk = _np.arange(n)
         xg = _np.cos(_np.pi * kk / (n - 1))[::-1]
         xp = a + (b - a) * (xg + 1.0) / 2.0
@@ -1431,7 +1559,7 @@ class Chebop:
 
         from chebfunjax.chebfun1d.chebfun import Chebfun
         m = self._n_vars()
-        a, b = self.domain
+        a, b = float(self.domain[0]), float(self.domain[-1])
         kk = _np.arange(n)
         xg = _np.cos(_np.pi * kk / (n - 1))[::-1]
         xp = a + (b - a) * (xg + 1.0) / 2.0
@@ -1525,7 +1653,7 @@ class Chebop:
         from chebfunjax.tech.trigtech import Trigtech
 
         m = self._n_vars()
-        a, b = self.domain
+        a, b = float(self.domain[0]), float(self.domain[-1])
         if n is None:
             n = 64
         L = b - a
@@ -1650,7 +1778,7 @@ class Chebop:
         off = _np.cumsum([0] + list(orders))      # slice starts per var
         ntot = int(off[-1])
 
-        a, b = self.domain
+        a, b = float(self.domain[0]), float(self.domain[-1])
         forward = self._lbc_raw is not None
         t0, t1 = (a, b) if forward else (b, a)
 
@@ -1846,6 +1974,59 @@ class Chebop:
             outs.append(Chebfun(funs=funs, domain=Domain(tuple(breaks))))
         return SystemSolution(_commonize_system(outs))
 
+    def _polish_marched_scalar(self, sol, f):
+        """Newton-polish a marched scalar IVP solution.  The ODE
+        integrator's dense output is accurate to ~atol (1e5 eps) between
+        steps, which leaves a ~1e-9 residual in u' once fitted; MATLAB's
+        ode113 dense output is smoother and its tests demand 1e-10.
+        A few Newton corrections with the Frechet derivative about the
+        marched solution (linearize(N, u) \\ residual, homogeneous
+        linearized BCs) restore machine-precision residuals.  Only
+        single-piece (smooth) marched solutions are polished."""
+        import numpy as _np
+
+        from chebfunjax.operators.chebop_altdisc import linearize_about
+        try:
+            u = sol[0] if not hasattr(sol, "funs") else sol
+            if len(self.domain) > 2:
+                return sol
+            a0, b0 = float(self.domain[0]), float(self.domain[-1])
+            xs = jnp.linspace(a0, b0, 257)[1:-1]
+            from chebfunjax.chebfun1d.chebfun import Chebfun
+            x_fun = Chebfun.identity(Domain(self.domain))
+
+            def _resid(w):
+                Nw = self._apply_op(x_fun, w)
+                return Nw - (f if callable(f) else float(f))
+
+            def _rn(r):
+                return float(_np.max(_np.abs(
+                    _np.asarray(r(xs), dtype=float))))
+
+            r = _resid(u)
+            r0 = _rn(r)
+            best, best_r = u, r0
+            L = sum(int(_np.asarray(pc.tech.coeffs).shape[0])
+                    for pc in u.funs)
+            n = int(min(max(2 * L + 16, 64), 512))
+            for _ in range(3):
+                J = linearize_about(self, best, "ultraS", n)
+                du = J.solve(-1.0 * r)
+                v = best + du
+                rv = _resid(v)
+                rvn = _rn(rv)
+                if not (rvn < best_r):
+                    break
+                best, best_r, r = v, rvn, rv
+                if best_r < 1e-13 * max(1.0, float(v.vscale)):
+                    break
+            if best is not u:
+                return (type(sol)([best]) if not hasattr(sol, "funs")
+                        else best)
+        except Exception:
+            pass
+        return sol
+
     def _solve_ivp_system(self, f=0.0):
         """Time-march a first-order explicit IVP system (MATLAB
         routes these to ode113): equations of the form
@@ -1864,7 +2045,7 @@ class Chebop:
 
         from chebfunjax.chebfun1d.chebfun import Chebfun
         m = self._n_vars()
-        a, b = self.domain
+        a, b = float(self.domain[0]), float(self.domain[-1])
         x_fun = Chebfun.identity(Domain(self.domain))
         forward = self._lbc_raw is not None
         t0, t1 = (a, b) if forward else (b, a)
@@ -1964,7 +2145,11 @@ class Chebop:
                 for v in _yprobe]
             from chebfunjax.chebfun1d.chebfun import Chebfun as _CF
             ident = _CF.identity(Domain(self.domain))
-            shift = [b + (ident - tmid) for b in base]
+            # Small shift: a unit shift can leave the domain of
+            # definition of the operator (sqrt(u), log(u), ...), whose
+            # evaluation error must not be mistaken for a delay.
+            _eps_shift = 1e-3
+            shift = [b + _eps_shift * (ident - tmid) for b in base]
 
             def _ev_at(us, t):
                 out = self._call_op(x_fun, us)
@@ -1975,7 +2160,12 @@ class Chebop:
                     float(o) if isinstance(o, (int, float))
                     else float(o(tt)) for o in out])
 
-            d = _ev_at(shift, tmid) - _ev_at(base, tmid)
+            try:
+                d = (_ev_at(shift, tmid) - _ev_at(base, tmid)) / _eps_shift
+            except Exception:
+                d = None   # cannot probe: assume a local operator
+            if d is None:
+                raise _SkipDelayProbe()
             # each equation is affine in its own derivative with the
             # slope the marcher itself extracts from the 0/1 probe; for
             # the unit-coefficient form that slope is 1 per equation.
@@ -1987,6 +2177,8 @@ class Chebop:
                 raise ValueError(
                     "ivp system: nonlocal (delayed) terms detected; "
                     "marching would drop them")
+        except _SkipDelayProbe:
+            pass
         except ValueError:
             raise
         except Exception:
@@ -2000,6 +2192,14 @@ class Chebop:
         # initial values: solve the affine bc residuals bc(y0) = 0
         def bc_res(y):
             us = const_funs(y)
+            if not callable(bc_raw):
+                # Numeric initial values (N.lbc = 1 or [1; 3; 4]):
+                # residual u_i(t0) - value_i.
+                vals = (list(bc_raw) if isinstance(bc_raw, (list, tuple))
+                        else [bc_raw])
+                return _np.array([
+                    _eval_chebfun_at(u, t0) - float(v)
+                    for u, v in zip(us, vals)])
             out = bc_raw(*us)
             if not isinstance(out, (list, tuple)):
                 out = [out]
@@ -2104,6 +2304,23 @@ class Chebop:
                 ev = _component(i)
                 funs = [_Piece.from_function(ev, breaks[k], breaks[k + 1])
                         for k in range(len(breaks) - 1)]
+                # MATLAB's ODE-based IVP solution reproduces the initial
+                # state exactly; the dense interpolant of the marched
+                # piece carries ~atol noise, so pin the endpoint value by
+                # shifting that piece's constant coefficient.
+                try:
+                    fwd = t1 >= t0
+                    kp = 0 if fwd else -1
+                    pc = funs[kp]
+                    d = float(_np.asarray(pc.tech(jnp.asarray(
+                        -1.0 if fwd else 1.0)))) - float(y0[i])
+                    if _np.isfinite(d) and d != 0.0:
+                        cf = jnp.asarray(pc.tech.coeffs)
+                        cf = cf.at[0].add(-d)
+                        funs[kp] = _Piece(tech=type(pc.tech).from_coeffs(cf),
+                                          interval=pc.interval)
+                except Exception:
+                    pass
                 out.append(_pad_nan_sys(Chebfun(
                     funs=funs, domain=Domain(tuple(breaks)))))
             return SystemSolution(
@@ -2172,7 +2389,7 @@ class Chebop:
 
         def assemble(nn):
             from chebfunjax.chebfun1d.chebfun import Chebfun
-            a, b = self.domain
+            a, b = float(self.domain[0]), float(self.domain[-1])
             kk = _np.arange(nn)
             xg = _np.cos(_np.pi * kk / (nn - 1))[::-1]
             xp = a + (b - a) * (xg + 1.0) / 2.0
@@ -2562,7 +2779,7 @@ class Chebop:
 
         from chebfunjax.chebfun1d.chebfun import Chebfun
         m = self._n_vars()
-        a, b = self.domain
+        a, b = float(self.domain[0]), float(self.domain[-1])
         x_fun = Chebfun.identity(Domain(self.domain))
         rng = _np.random.default_rng(7)
         xs = jnp.asarray(a + (b - a) * rng.random(7))
@@ -2594,6 +2811,58 @@ class Chebop:
         return bool(_np.max(_np.abs(lhs - rhs)) < 1e-9 * scale)
 
     def _solve_nonlinear_system(self, f=0.0, n: int | None = None,
+                                max_iter: int = 30, **kw):
+        """Adaptive wrapper (MATLAB solvebvpNonlinear): solve on n = 48
+        and double until every component is resolved AND the continuous
+        residual on a finer grid is small.  A coarse grid can converge
+        to a spurious discrete solution with a decaying coefficient tail
+        (Carrier, eps = 0.01, at n = 48: residual 0.12), so both checks
+        are required; the refinement restarts from N.init."""
+        import numpy as _np
+        if n is not None:
+            return self._solve_nonlinear_system_fixed(
+                f, n=n, max_iter=max_iter, **kw)
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+        a0, b0 = float(self.domain[0]), float(self.domain[-1])
+        x_fun = Chebfun.identity(Domain(self.domain))
+        last = None
+        for nn in (48, 96, 192, 384, 768):
+            sol = self._solve_nonlinear_system_fixed(
+                f, n=nn, max_iter=max_iter, **kw)
+            last = sol
+            try:
+                comps = list(sol)
+                ok = True
+                for c in comps:
+                    cs = c.simplify() if hasattr(c, "simplify") else c
+                    L = max(int(_np.asarray(pc.tech.coeffs).shape[0])
+                            for pc in cs.funs)
+                    if L >= nn - 2:
+                        ok = False
+                        break
+                if ok:
+                    xf = jnp.linspace(a0, b0, 4 * nn + 1)[1:-1]
+                    out = self._call_op(x_fun, comps)
+                    out = list(out) if isinstance(out, (list, tuple)) \
+                        else [out]
+                    fl = list(f) if isinstance(f, (list, tuple)) \
+                        else [f] * len(out)
+                    for r_i, f_i in zip(out, fl):
+                        rhs = (_np.asarray(f_i(xf), dtype=float)
+                               if callable(f_i) else float(f_i))
+                        rv = _np.asarray(r_i(xf), dtype=float) - rhs
+                        nscale = max(1.0, float(_np.max(_np.abs(
+                            _np.asarray(r_i(xf), dtype=float)))))
+                        if _np.max(_np.abs(rv)) > 1e-6 * nscale:
+                            ok = False
+                            break
+                if ok:
+                    return sol
+            except Exception:
+                return sol
+        return last
+
+    def _solve_nonlinear_system_fixed(self, f=0.0, n: int | None = None,
                                 max_iter: int = 25):
         """Newton iteration for nonlinear systems: at each iterate the
         residual Jacobian is assembled by finite-difference probing of
@@ -2609,7 +2878,7 @@ class Chebop:
 
         from chebfunjax.chebfun1d.chebfun import Chebfun
         m = self._n_vars()
-        a, b = self.domain
+        a, b = float(self.domain[0]), float(self.domain[-1])
         if n is None:
             n = 48
         k = _np.arange(n)
@@ -2711,6 +2980,24 @@ class Chebop:
                 else [self.init] * m
             U = _np.concatenate([
                 _np.asarray(gi(jnp.asarray(xp))) for gi in init])
+        # MATLAB @chebop/linearize.m: the operator must be linearizable
+        # at the initial guess.  The finite-difference Jacobian below
+        # never notices sqrt(u) or 1/u about u = 0 (it only samples at
+        # u = h), so probe the symbolic linearization once, as MATLAB's
+        # ADCHEBFUN evaluation does, and map its failure to
+        # linearize:invalidInitialGuess.
+        if m == 1:
+            try:
+                from chebfunjax.autodiff.adchebfun import linearize_op
+                linearize_op(self.op, to_funs(U)[0], domain=(a, b))
+            except ValueError as exc:
+                if "nansInfs" in str(exc) or "divisionByZero" in str(exc):
+                    raise ValueError(
+                        "CHEBFUN:CHEBOP:linearize:invalidInitialGuess: "
+                        "the operator cannot be linearized at the initial "
+                        "guess; supply N.init.") from exc
+            except Exception:
+                pass
         import scipy.linalg as _sla
         # MATLAB's [u, info] = solvebvp(N, rhs) reports info.normDelta,
         # the norm of each accepted Newton update; ode-nonlin/BVPSystem
@@ -2794,6 +3081,35 @@ class Chebop:
         return SystemSolution(to_funs(U))
 
     def _solve_linear_system(self, f=0.0, n: int | None = None):
+        """Adaptive wrapper (MATLAB solvebvpLinear): solve on n = 33 and
+        double until every component is resolved (coefficient tail
+        chopped well below n), then return that solution.  Solving at a
+        needlessly large fixed n costs boundary-derivative accuracy:
+        the collocation error grows like n^2 eps and its derivative like
+        n^4 eps (2.5e-9 at n = 64 vs 1e-10 tolerance)."""
+        import numpy as _np
+        if n is not None:
+            return self._solve_linear_system_fixed(f, n)
+        last = None
+        for nn in (33, 65, 129, 257, 513):
+            sol = self._solve_linear_system_fixed(f, nn)
+            last = sol
+            try:
+                ok = True
+                for c in list(sol):
+                    cs = c.simplify() if hasattr(c, "simplify") else c
+                    L = max(int(_np.asarray(pc.tech.coeffs).shape[0])
+                            for pc in cs.funs)
+                    if L >= nn - 2:
+                        ok = False
+                        break
+                if ok:
+                    return sol
+            except Exception:
+                return sol
+        return last
+
+    def _solve_linear_system_fixed(self, f=0.0, n: int | None = None):
         """Solve a LINEAR system of coupled ODEs by block collocation
         (MATLAB solvebvpLinear for chebmatrix operators).
 
@@ -2814,7 +3130,7 @@ class Chebop:
         import numpy as _np
 
         m = self._n_vars()
-        a, b = self.domain
+        a, b = float(self.domain[0]), float(self.domain[-1])
         if n is None:
             n = 64
         k = _np.arange(n)
@@ -3104,7 +3420,7 @@ class Chebop:
         xf = Chebfun.identity(dom0)
         us = [Chebfun.identity(dom0) for _ in range(m)]
         nargs = _op_arity(self._bc_general, m + 1)
-        a, b = self.domain
+        a, b = float(self.domain[0]), float(self.domain[-1])
         start_side_eval_record()
         try:
             if nargs > m:
@@ -4369,35 +4685,31 @@ class Chebop:
                     break
             return lam_f[keep], W_f[:, keep], xps, m + 16
 
-        m = int(n) if n is not None else 48
-        lam_sel, W_sel, xps, m_used = resolved(m)
-        if n is None:
-            # Double the per-piece grid until the eigenvalues stabilise
-            # (per-mode RELATIVE agreement).  Refining past the dense-eig
-            # roundoff floor makes the values move APART again -- (m^2/L)^2
-            # differentiation-matrix norms amplify eps -- so when the
-            # disagreement grows instead of shrinking, keep the cleaner
-            # coarser values rather than the over-refined ones.
-            prev_d = None
-            for _ in range(3):
-                lam_new, W_new, xps_new, m_new = resolved(2 * m)
-                if len(lam_new) == len(lam_sel) and len(lam_new) > 0:
-                    ls = _np.sort_complex(_np.asarray(lam_sel))
-                    ln = _np.sort_complex(_np.asarray(lam_new))
-                    d = float(_np.max(
-                        _np.abs(ln - ls)
-                        / _np.maximum(1.0, _np.abs(ln))))
-                    if d < 1e-10:
-                        lam_sel, W_sel, _, m_used = (
-                            lam_new, W_new, xps_new, m_new)
-                        break
-                    if prev_d is not None and d > 10 * prev_d:
-                        break     # roundoff divergence: keep coarser
-                    prev_d = d
-                m = 2 * m
-                lam_sel, W_sel, _, m_used = (
-                    lam_new, W_new, xps_new, m_new)
-
+        if n is not None:
+            lam_sel, W_sel, xps, m_used = resolved(int(n))
+        else:
+            # MATLAB @linop/eigs.m: walk the discretisation ladder until
+            # the weighted sum of the k eigenvectors is resolved on every
+            # interval (chebtech happiness check at bvpTol = 5e-13).
+            from chebfunjax.operators.linop import _EIGS_DIM_LADDER
+            from chebfunjax.tech.chebtech import Chebtech2
+            for dim in _EIGS_DIM_LADDER:
+                lam_sel, W_sel, xps, m_used = resolved(int(dim))
+                if W_sel.shape[1] == 0:
+                    continue
+                kk = W_sel.shape[1]
+                w = W_sel @ (1.0 / (2.0 * _np.arange(1, kk + 1)))
+                if _np.max(_np.abs(w.imag)) < 1e-10 * _np.max(_np.abs(w)):
+                    w = w.real
+                happy = True
+                for p in range(P):
+                    v = jnp.asarray(w[p * m_used:(p + 1) * m_used])
+                    c = Chebtech2.vals2coeffs(v)
+                    ok, _cut = Chebtech2.happiness_check(
+                        c, v, tol=5e-13, vscale=0.0)
+                    happy = happy and bool(ok)
+                if happy:
+                    break
         order_idx = _np.argsort(sel_key(lam_sel), kind="stable")
         lam_sel = lam_sel[order_idx]
         W_sel = W_sel[:, order_idx]
@@ -4463,7 +4775,7 @@ class Chebop:
         import numpy as _np
 
         from chebfunjax.chebfun1d.chebfun import chebfun
-        a, b = self.domain
+        a, b = float(self.domain[0]), float(self.domain[-1])
         Lp = float(b - a)
         N = 64 if n is None else int(n)
         x = a + Lp * _np.arange(N) / N
@@ -4676,7 +4988,7 @@ class Chebop:
         try:
             from chebfunjax.autodiff.adchebfun import detect_linearity
             from chebfunjax.chebfun1d.chebfun import chebfun as _chebfun
-            a, b = self.domain
+            a, b = float(self.domain[0]), float(self.domain[-1])
             u_probe = _chebfun(
                 lambda x: jnp.sin(jnp.pi * (x - a) / (b - a)),
                 domain=self.domain,
@@ -4704,7 +5016,7 @@ class Chebop:
         """
         from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
         dom = Domain(self.domain)
-        a, b = self.domain
+        a, b = float(self.domain[0]), float(self.domain[-1])
         # chebfun() factory expects a sequence for domain, not a Domain object
         dom_tup = (a, b)
 
@@ -4720,16 +5032,22 @@ class Chebop:
         except Exception:
             return False
 
-        # Evaluate at a test point
-        mid = 0.5 * (a + b)
-        x_mid = jnp.array(mid, dtype=jnp.float64)
+        # Evaluate at several interior points: a single midpoint probe
+        # can sit exactly where a nonlinear term vanishes (the pantograph
+        # u(0.5*u') has u'(mid) = 0 for the sine probe, so it looked
+        # linear and the linear solver spent 400 s probing basis
+        # columns).
+        import numpy as _np
+        xs = jnp.asarray(a + (b - a) * _np.asarray(
+            [0.13, 0.29, 0.5, 0.71, 0.87]), dtype=jnp.float64)
 
-        v0 = float(_safe_eval(op0, x_mid))
-        v1 = float(_safe_eval(op1, x_mid))
-        v2 = float(_safe_eval(op2, x_mid))
+        v0 = _np.asarray([float(_safe_eval(op0, xi)) for xi in xs])
+        v1 = _np.asarray([float(_safe_eval(op1, xi)) for xi in xs])
+        v2 = _np.asarray([float(_safe_eval(op2, xi)) for xi in xs])
 
-        diff = abs(v2 - v0 - 2.0 * (v1 - v0))
-        scale = max(abs(v0), abs(v1), abs(v2), 1e-10)
+        diff = float(_np.max(_np.abs(v2 - v0 - 2.0 * (v1 - v0))))
+        scale = max(float(_np.max(_np.abs(v0))), float(_np.max(_np.abs(v1))),
+                    float(_np.max(_np.abs(v2))), 1e-10)
         return diff / scale < 1e-6
 
     def _solve_periodic(self, f=0.0, n=None, n_max: int = 2048,
@@ -4745,7 +5063,7 @@ class Chebop:
         import numpy as _np
 
         from chebfunjax.chebfun1d.chebfun import chebfun
-        a, b = self.domain
+        a, b = float(self.domain[0]), float(self.domain[-1])
         L = float(b - a)
 
         def rhs_at(pts):
@@ -4808,7 +5126,7 @@ class Chebop:
         import numpy as _np
 
         from chebfunjax.chebfun1d.chebfun import chebfun
-        a, b = self.domain
+        a, b = float(self.domain[0]), float(self.domain[-1])
         L = float(b - a)
 
         def rhs_at(pts):
@@ -4906,7 +5224,7 @@ class Chebop:
 
     def _op_order(self) -> int:
         sniff = _OrderSniffer()
-        a, b = self.domain
+        a, b = float(self.domain[0]), float(self.domain[-1])
         x = jnp.asarray(0.5 * (a + b))
         # _op_arity, NOT len(signature.parameters): a default-argument
         # capture such as ``lambda u, _e=eps:`` must count as arity 1,
@@ -5042,7 +5360,7 @@ class Chebop:
         from scipy.integrate import solve_ivp as _solve_ivp
 
         from chebfunjax.chebfun1d.chebfun import chebfun
-        a, b = self.domain
+        a, b = float(self.domain[0]), float(self.domain[-1])
         k = self._op_order()
         nargs = _op_arity(self.op, 2)
 
@@ -5105,18 +5423,48 @@ class Chebop:
             _blowup.terminal = True
             events = [_blowup]
 
+        # Restart the integrator at interior breakpoints of the domain
+        # and of the rhs (MATLAB ivpRestartSolver, default on): the
+        # adaptive stepper otherwise walks straight over short forcing
+        # pulses (chebfun #1512, test_shortPulses).
+        bset = set(float(v) for v in self._domain[1:-1])
+        if hasattr(f, "domain"):
+            try:
+                bset.update(float(v)
+                            for v in f.domain.breakpoints[1:-1])
+            except Exception:
+                pass
+        bps = sorted(v for v in bset if min(a, b) < v < max(a, b))
+        if not getattr(self, "ivp_restart_solver", True):
+            bps = []
+        seg_edges = [x0] + (bps if left else bps[::-1]) + [x1]
+
         # LSODA switches between stiff/non-stiff automatically, so a
         # stiff problem cannot grind RK45 into a CI timeout.
-        sol = _solve_ivp(rhs, [x0, x1], ic, dense_output=True,
-                         method=_ivp_method(
-                             getattr(self, "ivp_method", None)),
-                         rtol=rtol, atol=atol, events=events)
-        if not sol.success:
-            raise RuntimeError(f"solve_ivp failed: {sol.message}")
-        t_end = float(sol.t[-1])
-        blew_up = (events is not None and sol.status == 1
+        segs = []
+        y_cur = list(ic)
+        ev_status = 0
+        for s0, s1 in zip(seg_edges[:-1], seg_edges[1:]):
+            sol = _solve_ivp(rhs, [s0, s1], y_cur, dense_output=True,
+                             method=_ivp_method(
+                                 getattr(self, "ivp_method", None)),
+                             rtol=rtol, atol=atol, events=events)
+            if not sol.success:
+                raise RuntimeError(f"solve_ivp failed: {sol.message}")
+            segs.append(sol)
+            y_cur = [float(v) for v in sol.y[:, -1]]
+            if events is not None and sol.status == 1:
+                ev_status = 1
+                break
+        t_end = float(segs[-1].t[-1])
+        blew_up = (ev_status == 1
                    and abs(t_end - x1) > 1e-13 * abs(b - a))
         lo, hi = (x0, t_end) if left else (t_end, x0)
+        seg_tab = sorted(
+            ((min(float(sg.t[0]), float(sg.t[-1])),
+              max(float(sg.t[0]), float(sg.t[-1])), sg) for sg in segs),
+            key=lambda r: r[0])
+        seg_los = [r[0] for r in seg_tab]
 
         def _pad_nan(u_sol):
             """join(solution, NaN chebfun) on the un-marched remainder
@@ -5138,9 +5486,19 @@ class Chebop:
 
         def comp_eval(x, j):
             xn = _np.atleast_1d(_np.asarray(x, dtype=float))
-            vals = sol.sol(xn)[j]
-            return jnp.asarray(vals.reshape(_np.shape(x)) if _np.ndim(x)
-                               else vals[0], dtype=jnp.float64)
+            out = _np.empty(xn.shape, dtype=float)
+            ks = _np.clip(
+                _np.searchsorted(seg_los, xn, side="right") - 1,
+                0, len(seg_tab) - 1)
+            for si in range(len(seg_tab)):
+                sel = ks == si
+                if not _np.any(sel):
+                    continue
+                lo_s, hi_s, s_sol = seg_tab[si]
+                xq = _np.clip(xn[sel], lo_s, hi_s)
+                out[sel] = s_sol.sol(xq)[j]
+            return jnp.asarray(out.reshape(_np.shape(x)) if _np.ndim(x)
+                               else out[0], dtype=jnp.float64)
 
         # Build the trajectory as repeated ANTIDERIVATIVES of the
         # marched highest-derivative state component, with the initial
@@ -5153,8 +5511,9 @@ class Chebop:
         try:
             m_ord = len(ic)
             if m_ord > 1:
-                mesh = tuple(float(lo + (hi - lo) * j / 16)
-                             for j in range(17))
+                mesh = tuple(sorted(set(
+                    [float(lo + (hi - lo) * j / 16) for j in range(17)]
+                    + [v for v in bps if lo < v < hi])))
                 u = chebfun(lambda x: comp_eval(x, m_ord - 1),
                             domain=mesh)
                 for kk in range(m_ord - 2, -1, -1):
@@ -5172,8 +5531,9 @@ class Chebop:
                 return _pad_nan(u)
         except Exception:
             pass
+        dom_out = tuple([lo] + [v for v in bps if lo < v < hi] + [hi])
         return _pad_nan(
-            chebfun(lambda x: comp_eval(x, 0), domain=(lo, hi)))
+            chebfun(lambda x: comp_eval(x, 0), domain=dom_out))
 
     def __call__(self, u, *more):
         """Apply the operator to a chebfun (MATLAB N(u) / N*u).
@@ -5262,8 +5622,6 @@ class Chebop:
         -------
         Linop
         """
-        a, b = self.domain
-
         # Case 1: op is already an OperatorBlock
         if isinstance(self.op, OperatorBlock):
             op_block = self.op
@@ -5515,7 +5873,7 @@ class Chebop:
         scalar endpoint gives a constant; callable (e.g. Neumann) endpoints
         fall back to zero.
         """
-        a, b = self.domain
+        a, b = float(self.domain[0]), float(self.domain[-1])
         la = self._lbc_raw if isinstance(self._lbc_raw, (int, float)) else None
         lb = self._rbc_raw if isinstance(self._rbc_raw, (int, float)) else None
         if la is not None and lb is not None:
@@ -5617,7 +5975,7 @@ class Chebop:
         """
         import numpy as _np
         roots = self._deflation[1]
-        a, b = self.domain
+        a, b = float(self.domain[0]), float(self.domain[-1])
         t_ref = chebpts(32, kind=2)
         x_pts = 0.5 * (b - a) * t_ref + 0.5 * (a + b)
         vals = _np.concatenate([
@@ -5678,7 +6036,7 @@ class Chebop:
         from chebfunjax.chebfun1d.chebfun import Chebfun
         from chebfunjax.tech.chebtech import Chebtech2
 
-        a, b = self.domain
+        a, b = float(self.domain[0]), float(self.domain[-1])
         dom = Domain(self.domain)
         rhs = _make_rhs_callable(f)
         bcs, bc_vals = self._parse_bcs()
@@ -5791,7 +6149,7 @@ class Chebop:
 
         if self._bc_general is not None:
             return None
-        a, b = self.domain
+        a, b = float(self.domain[0]), float(self.domain[-1])
         a, b = float(a), float(b)
         conds = []
 
@@ -5874,7 +6232,7 @@ class Chebop:
         from chebfunjax.chebfun1d.chebfun import Chebfun
         from chebfunjax.tech.chebtech import Chebtech2
 
-        a, b = self.domain
+        a, b = float(self.domain[0]), float(self.domain[-1])
         dom = Domain(self.domain)
         rhs = _make_rhs_callable(f)
         bcs, bc_vals = self._parse_bcs()
@@ -5886,6 +6244,7 @@ class Chebop:
         fixed_size = n is not None
         sz = int(n) if fixed_size else max(n_min, 16)
         u_fun_prev = None
+        spurious = False
         correction_norm = float("inf")
 
         while True:
@@ -5913,6 +6272,43 @@ class Chebop:
 
             x_fun = Chebfun.identity(dom)
             import numpy as _np
+
+            # MATLAB @chebop/solvebvp.m linearizes N about N.init -- or
+            # the ZERO function when none is given -- before fitBCs
+            # builds the boundary-condition-satisfying start, so the
+            # operator must be linearizable there: sqrt(u) or 1/u about
+            # u = 0 raise linearize:invalidInitialGuess even though the
+            # fitted guess would have been fine.
+            if u_fun_prev is None:
+                try:
+                    _u_init = Chebfun.from_values(
+                        jnp.asarray(u_vals, dtype=jnp.float64)
+                        if self.init is not None
+                        else jnp.zeros(sz, dtype=jnp.float64), dom)
+                    _Nu0 = self._apply_op(x_fun, _u_init)
+                    _ok = bool(_np.all(_np.isfinite(_np.asarray(
+                        _chebfun_to_values(_Nu0, disc)))))
+                except (ValueError, FloatingPointError):
+                    _ok = False
+                if _ok:
+                    # Finite values are not enough: sqrt(u) is finite at
+                    # u = 0 but its Frechet derivative is not.
+                    try:
+                        from chebfunjax.autodiff.adchebfun import (
+                            linearize_op,
+                        )
+                        linearize_op(self.op, _u_init, domain=(a, b))
+                    except ValueError as exc:
+                        if ("nansInfs" in str(exc)
+                                or "divisionByZero" in str(exc)):
+                            _ok = False
+                    except Exception:
+                        pass
+                if not _ok:
+                    raise ValueError(
+                        "CHEBFUN:CHEBOP:linearize:invalidInitialGuess: "
+                        "the operator cannot be evaluated at the initial "
+                        "guess (non-finite residual); supply N.init.")
 
             def _residual(uv):
                 """Collocation residual with BC rows replaced by BC errors."""
@@ -6056,6 +6452,7 @@ class Chebop:
             u_vals = jnp.asarray(u_np, dtype=jnp.float64)
 
             finite = bool(jnp.isfinite(u_vals).all())
+            spurious = False
             if finite:
                 u_fun = Chebfun.from_values(u_vals, dom)
                 tech = u_fun.funs[0].tech
@@ -6064,6 +6461,36 @@ class Chebop:
                 )
             else:
                 resolved = False
+
+            _guard_resid = None
+            if newton_converged and resolved and not fixed_size:
+                # A coarse collocation grid can converge to a SPURIOUS
+                # discrete solution whose coefficient tail still decays
+                # (Carrier, eps = 0.01: n = 48 "resolved" with a
+                # continuous residual of 0.12).  MATLAB's adaptive linop
+                # solves inside each Newton step never land there; we
+                # verify the continuous residual on a finer grid before
+                # accepting the size.
+                try:
+                    a0, b0 = float(self.domain[0]), float(self.domain[-1])
+                    xf = jnp.linspace(a0, b0, 4 * sz + 1)[1:-1]
+                    Nu_c = self._apply_op(x_fun, u_fun)
+                    rhs_c = (_np.asarray(f(xf), dtype=float)
+                             if callable(f) else float(f))
+                    rc = _np.asarray(Nu_c(xf), dtype=float) - rhs_c
+                    nscale = max(1.0, float(_np.max(_np.abs(
+                        _np.asarray(Nu_c(xf), dtype=float)))))
+                    _guard_resid = float(_np.max(_np.abs(rc)))
+                    if _guard_resid > 1e-6 * nscale:
+                        resolved = False
+                        spurious = True
+                except Exception:
+                    pass
+            # Diagnostics (MATLAB info-style): per-size trace.
+            self._last_info.setdefault("size_trace", []).append(
+                {"n": int(sz), "converged": bool(newton_converged),
+                 "resolved": bool(resolved), "spurious": bool(spurious),
+                 "guard_resid": _guard_resid})
 
             if newton_converged and resolved:
                 return u_fun
@@ -6089,7 +6516,9 @@ class Chebop:
                 )
 
             # Refine and warm-start (drop a diverged iterate).
-            u_fun_prev = u_fun if finite else None
+            # A spurious coarse solution must not warm-start the finer
+            # grid (Newton then stalls in its basin); restart from N.init.
+            u_fun_prev = u_fun if (finite and not spurious) else None
             sz = 2 * sz
 
     def _jacobian_matrix(self, disc, x_fun, u_fun, Nu_vals):
@@ -6888,7 +7317,7 @@ class Chebop:
         bcs: list[FunctionalBlock] = []
         bc_vals: list[float] = []
 
-        a, b = self.domain
+        a, b = float(self.domain[0]), float(self.domain[-1])
 
         # Left BC
         if self._lbc_raw is not None:
@@ -7688,6 +8117,10 @@ class _SysOrderSniffer:
 def _chebfun_ones(domain: tuple[float, float]):
     """Return the constant Chebfun ``f(x) = 1`` on domain."""
     from chebfunjax.chebfun1d.chebfun import Chebfun
+    if len(domain) > 2:
+        # Piecewise (breakpoint) domain: from_values is single-interval.
+        from chebfunjax.chebfun1d.chebfun import chebfun as _mkcheb
+        return _mkcheb(lambda t: 1.0 + 0.0 * t, domain=tuple(domain))
     return Chebfun.from_values(jnp.ones(2, dtype=jnp.float64), Domain(domain))
 
 
@@ -7756,11 +8189,19 @@ class _LinopVar:
     Chebfun commit: 7574c77
     """
 
-    __slots__ = ("jac", "domain")
+    __slots__ = ("jac", "domain", "dord")
 
-    def __init__(self, jac, domain):
+    def __init__(self, jac, domain, dord=None):
         self.jac = jac
         self.domain = domain
+        # Structural "was this unknown ever differentiated/integrated"
+        # bookkeeping (MATLAB adchebfun isNotDiffOrInt), kept even when
+        # the numeric block vanishes (products about the zero state).
+        self.dord = list(dord) if dord is not None else [0] * len(jac)
+
+    @staticmethod
+    def _max_dord(a, b):
+        return [max(x, y) for x, y in zip(a, b)]
 
     # -- additive structure: block-wise combination of Jacobian rows --------
 
@@ -7768,7 +8209,7 @@ class _LinopVar:
         if isinstance(other, _LinopVar):
             return _LinopVar(
                 [_op_add(a, b) for a, b in zip(self.jac, other.jac)],
-                self.domain)
+                self.domain, self._max_dord(self.dord, other.dord))
         # Adding a constant / x-only chebfun is affine: Jacobian unchanged.
         return self
 
@@ -7778,7 +8219,7 @@ class _LinopVar:
         if isinstance(other, _LinopVar):
             return _LinopVar(
                 [_op_sub(a, b) for a, b in zip(self.jac, other.jac)],
-                self.domain)
+                self.domain, self._max_dord(self.dord, other.dord))
         return self
 
     def __rsub__(self, other):
@@ -7787,7 +8228,8 @@ class _LinopVar:
 
     def __neg__(self):
         return _LinopVar(
-            [None if a is None else -a for a in self.jac], self.domain)
+            [None if a is None else -a for a in self.jac], self.domain,
+            self.dord)
 
     def __pos__(self):
         return self
@@ -7802,14 +8244,23 @@ class _LinopVar:
         if isinstance(other, (int, float)):
             c = float(other)
             return _LinopVar(
-                [None if a is None else c * a for a in self.jac], self.domain)
+                [None if a is None else c * a for a in self.jac], self.domain,
+                self.dord)
         # Chebfun (variable) coefficient: pre-compose with multiplication.
         from chebfunjax.operators.blocks import diag
         M = diag(other, self.domain)
         return _LinopVar(
-            [None if a is None else M * a for a in self.jac], self.domain)
+            [None if a is None else M * a for a in self.jac], self.domain,
+            self.dord)
 
     def __mul__(self, other):
+        if isinstance(other, _LinopVar):
+            # Product of two unknowns linearized about the ZERO state:
+            # d(u v) = u0 dv + v0 du = 0 (MATLAB linearize(N) with no
+            # initial guess).  Both unknowns keep a (zero) slot so that
+            # a later diff() still marks them as differentiated -- the
+            # structural isParam bookkeeping MATLAB's adchebfun keeps.
+            return self._scale(0.0) + other._scale(0.0)
         return self._scale(other)
 
     __rmul__ = __mul__
@@ -7825,11 +8276,33 @@ class _LinopVar:
 
     # -- differential / integral operators ----------------------------------
 
+    def __pow__(self, p):
+        # Linearization about zero: d/du (u^p) = p u^(p-1) -> the
+        # identity for p == 1 and zero otherwise (MATLAB linearize of a
+        # nonlinear power at the zero state).
+        try:
+            pv = float(p)
+        except (TypeError, ValueError):
+            return NotImplemented
+        if pv == 1.0:
+            return self
+        return self._scale(0.0)
+
+    def __rpow__(self, c):
+        # d/du (c^u) at u = 0 is log(c).
+        import math as _m
+        try:
+            return self._scale(_m.log(float(c)))
+        except (TypeError, ValueError):
+            return NotImplemented
+
     def diff(self, k: int = 1):
         from chebfunjax.operators.blocks import D
         Dk = D(self.domain, order=int(k))
         return _LinopVar(
-            [None if a is None else Dk * a for a in self.jac], self.domain)
+            [None if a is None else Dk * a for a in self.jac], self.domain,
+            [d + int(k) if a is not None else d
+             for a, d in zip(self.jac, self.dord)])
 
     def cumsum(self):
         def _cumsum_fn(disc: ChebColloc2Disc):
@@ -7838,12 +8311,14 @@ class _LinopVar:
 
         C = OperatorBlock(_cumsum_fn, order=-1, domain=self.domain)
         return _LinopVar(
-            [None if a is None else C * a for a in self.jac], self.domain)
+            [None if a is None else C * a for a in self.jac], self.domain,
+            [d + 1 if a is not None else d
+             for a, d in zip(self.jac, self.dord)])
 
     sum = cumsum
 
     def __getattr__(self, name):
-        if name in ("jac", "domain"):
+        if name in ("jac", "domain", "dord"):
             raise AttributeError(name)
         # Never answer the array protocol. numpy probes for
         # __array_struct__/__array__ before converting, and _TrigX

@@ -92,6 +92,36 @@ class Chebfun3T(eqx.Module):
     # ------------------------------------------------------------------
 
     @classmethod
+    def empty(cls) -> "Chebfun3T":
+        """The empty chebfun3t (MATLAB ``chebfun3t()``)."""
+        return cls(core=jnp.zeros((0, 0, 0), dtype=jnp.float64), cols=[],
+                   rows=[], tubes=[], domain=(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0))
+
+    def isempty(self) -> bool:
+        return len(self.cols) == 0
+
+    @property
+    def coeffs(self) -> jax.Array:
+        """Full tensor of trivariate Chebyshev coefficients (MATLAB
+        chebfun3t stores the dense ``m x n x p`` tensor ``f.coeffs``)."""
+        if self.isempty():
+            return jnp.zeros((0, 0, 0), dtype=jnp.float64)
+        return self.to_chebfun3().chebcoeffs3()
+
+    def ndf(self) -> int:
+        """Number of degrees of freedom, ``numel(f.coeffs)`` (MATLAB
+        ``ndf``).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun3t/ndf.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty():
+            return 0
+        return int(np.prod(self.coeffs.shape))
+
+    @classmethod
     def from_chebfun3(cls, f: Chebfun3) -> "Chebfun3T":
         """Extract the Tucker decomposition data from a Chebfun3.
 
@@ -383,7 +413,8 @@ class Chebfun3T(eqx.Module):
 # ============================================================================
 
 
-def chebfun3t(f_or_chebfun3, domain=(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0), **kwargs):
+def chebfun3t(f_or_chebfun3=None, domain=(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0),
+              **kwargs):
     """Construct a Chebfun3T from a function or an existing Chebfun3.
 
     Parameters
@@ -416,6 +447,8 @@ def chebfun3t(f_or_chebfun3, domain=(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0), **kwargs)
     MATLAB source : @chebfun3t/chebfun3t.m
     Chebfun commit: 7574c77
     """
+    if f_or_chebfun3 is None:
+        return Chebfun3T.empty()
     if isinstance(f_or_chebfun3, Chebfun3):
         return Chebfun3T.from_chebfun3(f_or_chebfun3)
     else:

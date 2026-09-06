@@ -11,7 +11,6 @@ from __future__ import annotations
 import math
 
 import jax
-import pytest
 
 import chebfunjax as cj
 from chebfunjax.operators.blocks import D, eval_at
@@ -44,13 +43,6 @@ class TestLinopFevalLr:
 
         assert all(e < TOL for e in err), err
 
-    @pytest.mark.skip(
-        reason="MATLAB err(1) evaluates s = cos(x+pi/4).*sign(x)+.5 at the "
-               "breakpoint x=0 with no direction, which returns the stored "
-               "point value; chebfunjax's Chebfun.sign does not propagate "
-               "point values (sign(x).point_values is [-1, 1, 1] instead of "
-               "[-1, 0, 1]), so s(0) is the right-hand limit, not the mean. "
-               "Fix belongs in src/chebfunjax/chebfun1d/chebfun.py (sign).")
     def test_undirected_eval_at_breakpoint(self):
         d = (-1.0, 0.0, 1.0)
         x = cj.chebfun(lambda t: t, domain=d)

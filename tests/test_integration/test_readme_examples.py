@@ -272,7 +272,7 @@ class TestDiskfunv:
             lambda th, r: r * jnp.cos(th),
             lambda th, r: r * jnp.sin(th),
         )
-        n = v.norm()
+        n = v.magnitude()   # pointwise |v| (norm() is MATLAB's scalar norm)
         # Evaluate at a non-trivial point
         th = jnp.array(1.2)
         r = jnp.array(0.6)
@@ -356,7 +356,7 @@ class TestSpherefunv:
             lambda lam, th: jnp.cos(lam) * jnp.sin(th),
             lambda lam, th: jnp.sin(lam) * jnp.sin(th),
         )
-        n = v.norm()
+        n = v.magnitude()   # pointwise |v| (norm() is MATLAB's scalar norm)
         assert isinstance(n, Spherefun)
 
     def test_scalar_mul(self):

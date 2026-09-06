@@ -250,6 +250,28 @@ class Chebfun2(eqx.Module):
         return cls(approx=approx)
 
     @classmethod
+    def from_trig_coeffs(cls, C, domain=(-1.0, 1.0, -1.0, 1.0),
+                         **kwargs) -> "Chebfun2":
+        """Construct from a bivariate Fourier coefficient matrix (MATLAB
+        ``chebfun2(C, 'coeffs', 'trig')``): ``C[j, k]`` multiplies
+        ``exp(i pi j' y) exp(i pi k' x)`` with the wavenumbers centred
+        (``j' = j - (m-1)//2`` etc.).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/chebfun2.m ('coeffs' + 'trig' flags)
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.tech.trigtech import Trigtech
+        Cc = jnp.asarray(C, dtype=jnp.complex128)
+        V = Trigtech.coeffs2vals(Cc)
+        V = Trigtech.coeffs2vals(V.T).T
+        if bool(jnp.max(jnp.abs(jnp.imag(V))) <= 1e-13 * max(
+                1.0, float(jnp.max(jnp.abs(V))))):
+            V = jnp.real(V)
+        return cls.from_values(V, domain=domain, trig=True, **kwargs)
+
+    @classmethod
     def from_coeffs(cls, C, domain=(-1.0, 1.0, -1.0, 1.0),
                     **kwargs) -> "Chebfun2":
         """Construct from a 2-D Chebyshev coefficient matrix (MATLAB
@@ -271,6 +293,7 @@ class Chebfun2(eqx.Module):
         domain: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
         tol: Optional[float] = None,
         trig: bool = False,
+        chop: bool = True,
     ) -> "Chebfun2":
         """Construct a Chebfun2 from a matrix of values on a Chebyshev grid.
 
@@ -292,7 +315,7 @@ class Chebfun2(eqx.Module):
             kwargs["tol"] = tol
         if trig:
             kwargs["techs"] = ("trig", "trig")
-        return cls(approx=SeparableApprox.from_values(A, **kwargs))
+        return cls(approx=SeparableApprox.from_values(A, chop=chop, **kwargs))
 
     @classmethod
     def from_padua(
@@ -383,8 +406,138 @@ class Chebfun2(eqx.Module):
     # Evaluation (JIT-safe)
     # ------------------------------------------------------------------
 
+    def __call__(self, x, y=None):
+        """Evaluate ``f(x, y)`` / ``f(z)`` (see :meth:`_eval_xy`), or take
+        a SLICE (MATLAB subsref): ``f(":", y0)`` is the row chebfun
+        ``x -> f(x, y0)`` (a row per value of ``y0``, transposed), ``f(x0,
+        ":")`` the column chebfun ``y -> f(x0, y)``, ``f(":", ":")`` is
+        ``f`` itself, and ``"end"`` denotes the right/top endpoint.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/subsref.m, @separableApprox/feval.m
+        Chebfun commit: 7574c77
+        """
+        xa, xb, ya, yb = self.approx.domain
+        # Compositions (MATLAB @chebfun2/compose.m via subsref): f(c1, c2)
+        # with chebfuns, f(z) with a complex chebfun, f(F) with a
+        # Chebfun2v / complex Chebfun2, f(g1, g2) with Chebfun2s, and the
+        # Chebfun3 / Chebfun3v forms.
+        if hasattr(x, "funs") and (y is None or hasattr(y, "funs")):
+            from chebfunjax.chebfun1d.chebfun import chebfun
+            if y is None:
+                if getattr(x, "n_columns", 1) == 2:
+                    c1, c2 = x.extract_columns(0), x.extract_columns(1)
+                    return chebfun(lambda t: self._eval_xy(c1(t), c2(t)),
+                                   domain=tuple(float(v) for v in
+                                                x.domain.breakpoints))
+                return self.on_curve(x)
+            return chebfun(lambda t: self._eval_xy(x(t), y(t)),
+                           domain=tuple(float(v) for v in
+                                        x.domain.breakpoints))
+        if isinstance(x, Chebfun2) and (y is None or isinstance(y, Chebfun2)):
+            if y is None:
+                g = x
+                return Chebfun2.from_function(
+                    lambda s, t: self._eval_xy(jnp.real(g._eval_xy(s, t)),
+                                               jnp.imag(g._eval_xy(s, t))),
+                    domain=g.approx.domain)
+            return Chebfun2.from_function(
+                lambda s, t: self._eval_xy(x._eval_xy(s, t), y._eval_xy(s, t)),
+                domain=x.approx.domain)
+        if y is None and type(x).__name__ == "Chebfun2v":
+            F1, F2 = x.components[0], x.components[1]
+            _dom2 = getattr(F1, "domain", None)
+            if _dom2 is None:
+                _dom2 = F1.approx.domain
+            return Chebfun2.from_function(
+                lambda s, t: self._eval_xy(F1(s, t), F2(s, t)),
+                domain=tuple(float(v) for v in _dom2))
+        _c3 = type(x).__name__
+        if _c3 in ("Chebfun3", "Chebfun3v") or (
+                y is not None and type(y).__name__ == "Chebfun3"):
+            from chebfunjax.chebfun3d.chebfun3 import Chebfun3
+            if _c3 == "Chebfun3v":
+                F1, F2 = x.components[0], x.components[1]
+                return Chebfun3.from_function(
+                    lambda s, t, r: self._eval_xy(F1(s, t, r), F2(s, t, r)),
+                    domain=F1.domain)
+            if y is None:
+                g = x
+                return Chebfun3.from_function(
+                    lambda s, t, r: self._eval_xy(jnp.real(g(s, t, r)),
+                                                  jnp.imag(g(s, t, r))),
+                    domain=g.domain)
+            return Chebfun3.from_function(
+                lambda s, t, r: self._eval_xy(x(s, t, r), y(s, t, r)),
+                domain=x.domain)
+
+        def _is_colon(v):
+            return isinstance(v, slice) or (isinstance(v, str)
+                                            and v.strip() == ":")
+
+        def _end(v, hi):
+            return hi if (isinstance(v, str) and v.strip().lower() == "end") \
+                else v
+        if y is not None:
+            x = _end(x, xb)
+            y = _end(y, yb)
+            cx, cy = _is_colon(x), _is_colon(y)
+            if cx and cy:
+                return self
+            if cx or cy:
+                from chebfunjax.chebfun1d.chebfun import chebfun
+                if cx:
+                    ys = jnp.atleast_1d(jnp.asarray(y, dtype=jnp.float64))
+                    if ys.shape[0] == 1:
+                        g = chebfun(lambda t, _y=ys[0]: self._eval_xy(t, _y),
+                                    domain=(xa, xb))
+                    else:
+                        g = chebfun(lambda t, _ys=ys: jnp.stack(
+                            [self._eval_xy(t, _y) for _y in _ys], axis=-1),
+                            domain=(xa, xb))
+                    return g.transpose()
+                xs = jnp.atleast_1d(jnp.asarray(x, dtype=jnp.float64))
+                if xs.shape[0] == 1:
+                    return chebfun(lambda t, _x=xs[0]: self._eval_xy(_x, t),
+                                   domain=(ya, yb))
+                return chebfun(lambda t, _xs=xs: jnp.stack(
+                    [self._eval_xy(_x, t) for _x in _xs], axis=-1),
+                    domain=(ya, yb))
+            return self._eval_concrete(x, y)
+        if isinstance(x, str) and x.strip().lower() == "end":
+            return self._eval_xy(xb, yb)
+        return self._eval_concrete(x, None)
+
+    def _eval_concrete(self, x, y):
+        """Numeric evaluation: concrete inputs go straight to the
+        SeparableApprox numpy path (which detects meshgrid/tensor inputs
+        and evaluates the slices once per unique abscissa, MATLAB
+        feval's tensor-grid branch); tracers use the jitted path."""
+        if y is None:
+            z = jnp.asarray(x)
+            if not isinstance(z, jax.core.Tracer):
+                return self.approx(jnp.real(z), jnp.imag(z))
+            return self._eval_xy(x)
+        if (not isinstance(x, jax.core.Tracer)
+                and not isinstance(y, jax.core.Tracer)):
+            xa_ = jnp.asarray(x)
+            ya_ = jnp.asarray(y)
+            if (xa_.ndim <= 1 and ya_.ndim <= 1
+                    and not jnp.iscomplexobj(xa_) and not jnp.iscomplexobj(ya_)
+                    and not jnp.iscomplexobj(self.approx.pivots)):
+                # Point lists: the jitted path (bit-identical to a jitted
+                # caller); tensor grids and complex data take the numpy
+                # path with its meshgrid detection.
+                return self._eval_xy(xa_, ya_)
+            return self.approx(xa_.astype(jnp.float64)
+                               if not jnp.iscomplexobj(xa_) else xa_,
+                               ya_.astype(jnp.float64)
+                               if not jnp.iscomplexobj(ya_) else ya_)
+        return self._eval_xy(x, y)
+
     @eqx.filter_jit
-    def __call__(self, x: jax.Array, y: jax.Array | None = None) -> jax.Array:
+    def _eval_xy(self, x: jax.Array, y: jax.Array | None = None) -> jax.Array:
         """Evaluate f(x, y), or f(z) with z = x + iy.
 
         Parameters
@@ -1235,6 +1388,14 @@ class Chebfun2(eqx.Module):
             common_zeros,
             zero_curves,
         )
+        if g is None and not self._is_real():
+            # MATLAB: complex-valued f -> common zeros of real and
+            # imaginary parts, returned as complex points x + i y.
+            r = jnp.asarray(self.real().roots(self.imag(), method=method))
+            if r.size == 0:
+                return jnp.zeros((0,), dtype=jnp.complex128)
+            r = jnp.reshape(r, (-1, 2))
+            return r[:, 0] + 1j * r[:, 1]
         if g is not None:
             other = g.approx if isinstance(g, Chebfun2) else g
             other = Chebfun2(approx=other)
@@ -1262,13 +1423,25 @@ class Chebfun2(eqx.Module):
 
     def _const_like(self, c) -> "Chebfun2":
         """Rank-1 constant Chebfun2 with this function's domain."""
-        one = Chebtech2(coeffs=jnp.ones(1, dtype=jnp.float64), ishappy=True)
+        from chebfunjax.tech.trigtech import Trigtech
+        if self.approx.cols and all(isinstance(t, Trigtech)
+                                    for t in self.approx.cols):
+            # MATLAB: a constant added to a periodic chebfun2 keeps the
+            # trigtech representation.
+            one_c = Trigtech.from_values(jnp.ones(1, dtype=jnp.float64))
+        else:
+            one_c = Chebtech2(coeffs=jnp.ones(1, dtype=jnp.float64), ishappy=True)
+        if self.approx.rows and all(isinstance(t, Trigtech)
+                                    for t in self.approx.rows):
+            one_r = Trigtech.from_values(jnp.ones(1, dtype=jnp.float64))
+        else:
+            one_r = Chebtech2(coeffs=jnp.ones(1, dtype=jnp.float64), ishappy=True)
         approx = SeparableApprox(
-            cols=[one], rows=[one], pivots=jnp.asarray([c]),
+            cols=[one_c], rows=[one_r], pivots=jnp.asarray([c]),
             domain=self.approx.domain)
         return Chebfun2(approx=approx)
 
-    def _compress(self) -> "Chebfun2":
+    def _compress(self, vscl: float | None = None) -> "Chebfun2":
         """Recompress the low-rank representation (MATLAB compression).
 
         Orthonormalizes the column and row quasimatrices by a
@@ -1288,28 +1461,59 @@ class Chebfun2(eqx.Module):
         if r <= 1:
             return self
 
+        from chebfunjax.tech.trigtech import Trigtech, _trig_eval_np
+
         def _vals(funs):
             # common grid of 2*nmax points: CC quadrature is then exact
-            # for pairwise products of the underlying polynomials
-            n = 2 * max(int(f.n) for f in funs)
+            # for pairwise products of the underlying polynomials; for
+            # Trigtech slices an equispaced grid with the trapezoid rule
+            # (exact for products of trigonometric polynomials).
+            is_trig = all(isinstance(f, Trigtech) for f in funs)
+            if not is_trig and any(isinstance(f, Trigtech) for f in funs):
+                # Mixed techs (MATLAB horzcat of a trig and a cheb
+                # quasimatrix converts to chebtech): re-expand the trig
+                # slices in Chebyshev polynomials.
+                def _as_cheb(_f):
+                    def _ev(t):
+                        v = jnp.asarray(_trig_eval_np(
+                            _np.asarray(_f.coeffs)[:, None], _np.asarray(t),
+                            is_real=_f.is_real)).reshape(_np.shape(t))
+                        return jnp.real(v) if _f.is_real else v
+                    return Chebtech2.from_function(_ev)
+                funs = [_as_cheb(f) if isinstance(f, Trigtech) else f
+                        for f in funs]
+            n = 2 * max(int(_np.asarray(f.coeffs).shape[0]) for f in funs)
+            if is_trig:
+                x = -1.0 + 2.0 * _np.arange(n) / n
+                cols = [_np.asarray(_trig_eval_np(
+                    _np.asarray(f.coeffs)[:, None], x,
+                    is_real=f.is_real)).ravel() for f in funs]
+                if all(f.is_real for f in funs):
+                    cols = [_np.real(c) for c in cols]
+                return n, _np.stack(cols, axis=1), _np.full(n, 2.0 / n), True
             cols = []
             for f in funs:
                 c = _np.zeros(n, dtype=_np.asarray(f.coeffs).dtype)
                 c[: int(f.n)] = _np.asarray(f.coeffs)
                 cols.append(_np.asarray(_coeffs_to_values(jnp.asarray(c))))
-            return n, _np.stack(cols, axis=1)
-
-        nc, vc = _vals(ap.cols)
-        nr, vr = _vals(ap.rows)
-        wc = _np.sqrt(_np.asarray(chebweights(nc, kind=2), dtype=float))
-        wr = _np.sqrt(_np.asarray(chebweights(nr, kind=2), dtype=float))
+            return (n, _np.stack(cols, axis=1),
+                    _np.asarray(chebweights(n, kind=2), dtype=float), False)
+        nc, vc, wc2, trig_c = _vals(ap.cols)
+        nr, vr, wr2, trig_r = _vals(ap.rows)
+        wc = _np.sqrt(wc2)
+        wr = _np.sqrt(wr2)
         qc, rc = _np.linalg.qr(wc[:, None] * vc)      # economy QR
         qr_, rr_ = _np.linalg.qr(wr[:, None] * vr)
         d = _np.asarray(ap.pivots)
         core = rc @ _np.diag(d) @ rr_.T               # plain transpose:
         # the reconstruction f = sum_j d_j c_j(y) r_j(x) has no conjugate
         u, sig, wh = _np.linalg.svd(core, full_matrices=False)
+        # MATLAB compression_plus: drop singular values below
+        # 10*eps*vscl with vscl = 2*max(vscale(f), vscale(g)) (so f - f
+        # and f - c for a constant f compress to the exact zero).
         scale = float(sig[0]) if sig.size else 0.0
+        if vscl is not None:
+            scale = float(vscl)
         keep = sig > 10 * _np.finfo(float).eps * max(scale, 1e-300)
         if not bool(_np.any(keep)):
             zero = Chebtech2(coeffs=jnp.zeros(1, dtype=jnp.float64),
@@ -1325,9 +1529,13 @@ class Chebfun2(eqx.Module):
         new_row_vals = (qr_ / wr[:, None]) @ w.conj()
         from chebfunjax.tech.chebtech import _values_to_coeffs
 
-        def _mk(vals_mat):
+        def _mk(vals_mat, is_trig):
             out = []
             for m in range(vals_mat.shape[1]):
+                if is_trig:
+                    out.append(Trigtech.from_values(
+                        jnp.asarray(vals_mat[:, m])).simplify())
+                    continue
                 cf = _values_to_coeffs(jnp.asarray(vals_mat[:, m]))
                 # Chop the reconstruction: the 2*nmax working grid
                 # otherwise doubles every slice's stored length per
@@ -1335,10 +1543,12 @@ class Chebfun2(eqx.Module):
                 # OOM-killed after ~25 adds).
                 out.append(Chebtech2(coeffs=cf, ishappy=True).simplify())
             return out
-        approx = SeparableApprox(cols=_mk(new_col_vals),
-                                 rows=_mk(new_row_vals),
+        approx = SeparableApprox(cols=_mk(new_col_vals, trig_c),
+                                 rows=_mk(new_row_vals, trig_r),
                                  pivots=jnp.asarray(sig),
-                                 domain=ap.domain)
+                                 domain=ap.domain,
+                                 techs=("trig" if trig_c else "cheb",
+                                        "trig" if trig_r else "cheb"))
         return Chebfun2(approx=approx)
 
     def qr(self):
@@ -1440,7 +1650,11 @@ class Chebfun2(eqx.Module):
                     [jnp.atleast_1d(self.approx.pivots),
                      jnp.atleast_1d(other.approx.pivots)]),
                 domain=self.approx.domain)
-            return Chebfun2(approx=approx)._compress()
+            try:
+                vscl = 2.0 * max(float(self.vscale()), float(other.vscale()))
+            except Exception:
+                vscl = None
+            return Chebfun2(approx=approx)._compress(vscl=vscl)
         if isinstance(other, (int, float, complex)):
             return self + self._const_like(other)
         return NotImplemented
@@ -1484,7 +1698,8 @@ class Chebfun2(eqx.Module):
                     return Chebfun2(approx=_mul_rank1(one, many))
             return Chebfun2.from_function(
                 lambda x, y: self(x, y) * other(x, y),
-                domain=self.approx.domain)
+                domain=self.approx.domain,
+                trig=self.isPeriodicTech() and other.isPeriodicTech())
         return NotImplemented
 
     __rmul__ = __mul__
@@ -1496,12 +1711,14 @@ class Chebfun2(eqx.Module):
             self._check_same_domain(other)
             return Chebfun2.from_function(
                 lambda x, y: self(x, y) / other(x, y),
-                domain=self.approx.domain)
+                domain=self.approx.domain,
+                trig=self.isPeriodicTech() and other.isPeriodicTech())
         return NotImplemented
 
     def __rtruediv__(self, other) -> "Chebfun2":
         return Chebfun2.from_function(
-            lambda x, y: other / self(x, y), domain=self.approx.domain)
+            lambda x, y: other / self(x, y), domain=self.approx.domain,
+            trig=self.isPeriodicTech())
 
     def cumsum(self, dim: int = 1) -> "Chebfun2":
         """Indefinite integral over y (dim=1, default) or x (dim=2),
@@ -1717,14 +1934,14 @@ class Chebfun2(eqx.Module):
         xa, xb, ya, yb = self.approx.domain
         return Chebfun2.from_function(
             lambda x, y: self(xa + xb - x, y),
-            domain=self.approx.domain)
+            domain=self.approx.domain, trig=self.isPeriodicTech())
 
     def flipud(self) -> "Chebfun2":
         """f(x, -y) about the horizontal midline (MATLAB flipud)."""
         xa, xb, ya, yb = self.approx.domain
         return Chebfun2.from_function(
             lambda x, y: self(x, ya + yb - y),
-            domain=self.approx.domain)
+            domain=self.approx.domain, trig=self.isPeriodicTech())
 
     def transpose(self) -> "Chebfun2":
         """Non-conjugate transpose ``f.'``: the function ``(x, y) -> f(y, x)``.
@@ -1819,6 +2036,200 @@ class Chebfun2(eqx.Module):
         Chebfun commit: 7574c77
         """
         return self.biharmonic()
+
+    @property
+    def cols(self):
+        """The column slices ``c_j(y)`` as a Quasimatrix (MATLAB
+        ``f.cols``)."""
+        from chebfunjax.chebfun1d.linalg import Quasimatrix
+        C, _D, _R = self.cdr()
+        return Quasimatrix(C, C[0].domain)
+
+    @property
+    def rows(self):
+        """The row slices ``r_j(x)`` as a Quasimatrix (MATLAB ``f.rows``)."""
+        from chebfunjax.chebfun1d.linalg import Quasimatrix
+        _C, _D, R = self.cdr()
+        return Quasimatrix(R, R[0].domain)
+
+    @property
+    def pivots(self) -> jax.Array:
+        """Pivot values ``d_j`` of the CDR representation (MATLAB
+        ``pivots(f)``)."""
+        return jnp.asarray(self.approx.pivots)
+
+    @classmethod
+    def from_cdr(cls, C, D, R, domain=None) -> "Chebfun2":
+        """Assemble ``f(x, y) = sum_j D[j] C_j(y) R_j(x)`` from lists (or
+        Quasimatrices) of single-piece column and row chebfuns and the
+        pivot vector (or diagonal matrix) ``D``.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/chebfun2.m (cols/rows/pivotValues fields)
+        Chebfun commit: 7574c77
+        """
+        C = list(getattr(C, "cols", C))
+        R = list(getattr(R, "cols", R))
+        Dm = jnp.asarray(D, dtype=jnp.float64)
+        d = jnp.diag(Dm) if Dm.ndim == 2 else Dm.reshape(-1)
+        if domain is None:
+            ya, yb = (float(v) for v in
+                      (C[0].domain.breakpoints[0], C[0].domain.breakpoints[-1]))
+            xa, xb = (float(v) for v in
+                      (R[0].domain.breakpoints[0], R[0].domain.breakpoints[-1]))
+            domain = (xa, xb, ya, yb)
+        from chebfunjax.tech.trigtech import Trigtech
+        cols = [c.funs[0].tech for c in C]
+        rows = [r.funs[0].tech for r in R]
+        techs = ("trig" if cols and all(isinstance(t, Trigtech) for t in cols) else "cheb",
+                 "trig" if rows and all(isinstance(t, Trigtech) for t in rows) else "cheb")
+        approx = SeparableApprox(cols=cols, rows=rows, pivots=d,
+                                 domain=tuple(float(v) for v in domain),
+                                 techs=techs)
+        return cls(approx=approx)
+
+    def chol(self, lower: bool = False):
+        """Cholesky-like factorisation of a symmetric nonnegative definite
+        Chebfun2 (MATLAB ``chol``): ``f(x, y) = sum_j R_j(y) R_j(x)`` with
+        ``R_j = sqrt(d_j) r_j`` returned as a Quasimatrix (the rows of
+        MATLAB's ``R``; ``lower=True`` gives the columns ``C``).
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/chol.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        from chebfunjax.chebfun1d.linalg import Quasimatrix
+        xa, xb, ya, yb = self.approx.domain
+        if (xa, xb) != (ya, yb):
+            raise ValueError("CHEBFUN:SEPARABLEAPPROX:chol:domain: "
+                             "SEPARABLEAPPROX is not on a square domain.")
+        piv = _np.asarray(self.approx.pivot_locations, dtype=float)
+        d = _np.asarray(self.approx.pivots, dtype=float)
+        k = d.size
+        if piv.size:
+            off = _np.flatnonzero(piv[:, 0] != piv[:, 1])
+            if off.size:
+                k = min(k, int(off[0]))
+        neg = _np.flatnonzero(d < 0)
+        if neg.size:
+            k = min(k, int(neg[0]))
+        if k < d.size:
+            raise ValueError("CHEBFUN:SEPARABLEAPPROX:chol:definite: "
+                             "SEPARABLEAPPROX is not nonnegative definite.")
+        r = (xb - xa) / 2 * 0.0192475 + (xa + xb) / 2
+        sidx = (yb - ya) / 2 * (-0.34756987) + (ya + yb) / 2
+        if abs(float(self._eval_xy(r, sidx)) - float(self._eval_xy(sidx, r))) \
+                >= 1e2 * _np.finfo(float).eps * max(1.0, float(self.vscale())):
+            raise ValueError("CHEBFUN:SEPARABLEAPPROX:chol:symmetric: "
+                             "The SEPARABLEAPPROX must be a symmetric "
+                             "function.")
+        C, _D, R = self.cdr()
+        sq = _np.sqrt(d[:k])
+        if lower:
+            return Quasimatrix([C[j] * float(sq[j]) for j in range(k)],
+                               C[0].domain)
+        return Quasimatrix([R[j] * float(sq[j]) for j in range(k)],
+                           R[0].domain)
+
+    def mtimes(self, other):
+        """Operator product of two Chebfun2 kernels (MATLAB ``f * g`` for
+        separableApprox objects): ``(f*g)(x, y) = int f(x, s) g(s, y) ds``,
+        i.e. ``C_f D_f (R_f' C_g) D_g R_g'`` in CDR form.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/mtimes.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+
+        from chebfunjax.chebfun1d.linalg import Quasimatrix
+        if not isinstance(other, Chebfun2):
+            return self * other
+        Cf, Df, Rf = self.cdr()
+        Cg, Dg, Rg = other.cdr()
+        M = _np.asarray([[float(r.inner(c)) for c in Cg] for r in Rf])
+        K = _np.asarray(Df) @ M @ _np.asarray(Dg)
+        newC = Quasimatrix(Cf, Cf[0].domain) @ K
+        xa, xb, _ya, _yb = other.approx.domain
+        _xa, _xb, ya, yb = self.approx.domain
+        return Chebfun2.from_cdr(newC.cols, jnp.ones(len(newC.cols)), Rg,
+                                 (xa, xb, ya, yb))
+
+    def __matmul__(self, other):
+        return self.mtimes(other)
+
+    def poldec(self):
+        """Polar decomposition ``f = U * H`` (MATLAB ``poldec``): with
+        ``f = u S v'`` the SVD, ``U = u v'`` (partial isometry) and
+        ``H = v S v'`` (symmetric nonnegative definite).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/poldec.m
+        Chebfun commit: 7574c77
+        """
+        u, S, v = self.svd(full=True)
+        S = jnp.asarray(S)
+        s = jnp.diag(S) if S.ndim == 2 else S
+        U = Chebfun2.from_cdr(u, jnp.ones_like(s), v, self.approx.domain)
+        xa, xb, _ya, _yb = self.approx.domain
+        H = Chebfun2.from_cdr(v, s, v, (xa, xb, xa, xb))
+        return U, H
+
+    def fred(self, v):
+        """Fredholm integral operator applied to ``v`` (MATLAB
+        ``fred(K, v)``): ``(K v)(x) = int K(x, y) v(y) dy`` over the
+        y-domain of the kernel, returned as a row chebfun.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/fred.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        xa, xb, ya, yb = self.approx.domain
+        if callable(v) and not hasattr(v, "funs"):
+            v = chebfun(v, domain=(ya, yb))
+        C, D, R = self.cdr()
+        d = jnp.diag(jnp.asarray(D))
+        out = 0.0 * R[0]
+        for j in range(len(C)):
+            out = out + R[j] * (float(d[j]) * float(C[j].inner(v)))
+        return out.transpose()
+
+    def volt(self, v):
+        """Volterra integral operator applied to ``v`` (MATLAB
+        ``volt(K, v)``): ``(K v)(x) = int_a^x K(x, y) v(y) dy`` as a row
+        chebfun.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/volt.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        xa, xb, ya, yb = self.approx.domain
+        if callable(v) and not hasattr(v, "funs"):
+            v = chebfun(v, domain=(ya, yb))
+        C, D, R = self.cdr()
+        d = jnp.diag(jnp.asarray(D))
+        out = chebfun(lambda t: jnp.zeros_like(t), domain=(xa, xb))
+        for j in range(len(C) - 1, -1, -1):
+            CC = (v * C[j]).cumsum()
+            # The Volterra kernel's y-integral runs to x: evaluate the
+            # antiderivative as a function of x (same interval).
+            CCx = chebfun(lambda t, _g=CC: _g(t), domain=(xa, xb))
+            out = out + CCx * (R[j] * float(d[j]))
+        return out.transpose()
+
+    def tand(self):
+        """Elementwise tangent in degrees (MATLAB ``tand``)."""
+        return self.compose(lambda t: jnp.tan(jnp.pi / 180.0 * t))
 
     def cdr(self):
         """CDR decomposition ``f(x, y) = C(y) @ D @ R(x).T``.
@@ -2322,7 +2733,8 @@ class Chebfun2(eqx.Module):
         n_out = _compose_arity(op)
         if n_out == 1:
             return Chebfun2.from_function(
-                lambda x, y: op(self(x, y)), domain=dom)
+                lambda x, y: op(self(x, y)), domain=dom,
+                trig=self.isPeriodicTech())
         from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
 
         comps = [
@@ -2456,7 +2868,7 @@ class Chebfun2(eqx.Module):
                 domain=self.approx.domain)
         return Chebfun2.from_function(
             lambda x, y: op(self(x, y)),
-            domain=self.approx.domain)
+            domain=self.approx.domain, trig=self.isPeriodicTech())
 
     def conj(self) -> "Chebfun2":
         """Complex conjugate.
@@ -2468,11 +2880,12 @@ class Chebfun2(eqx.Module):
         """
         return Chebfun2.from_function(
             lambda x, y: jnp.conj(self(x, y)),
-            domain=self.approx.domain)
+            domain=self.approx.domain, trig=self.isPeriodicTech())
 
     def __pow__(self, p) -> "Chebfun2":
         return Chebfun2.from_function(
-            lambda x, y: self(x, y) ** p, domain=self.approx.domain)
+            lambda x, y: self(x, y) ** p, domain=self.approx.domain,
+            trig=self.isPeriodicTech())
 
     def plot(self, **kwargs):
         """Surface plot of this Chebfun2 (calls :func:`chebfunjax.plotting.surf`)."""
@@ -2535,7 +2948,22 @@ def chebfun2(
     f: Callable[[jax.Array, jax.Array], jax.Array],
     domain: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
     tol: Optional[float] = None,
-    n: Optional[int] = None,
+    n=None,
+    *,
+    coeffs: bool = False,
+    trig: bool = False,
+    equi: bool = False,
+    vectorize: bool = False,
+    rank: Optional[int] = None,
+    periodic: bool = False,
+    trigx: bool = False,
+    trigy: bool = False,
+    periodicx: bool = False,
+    periodicy: bool = False,
+    equix: bool = False,
+    equiy: bool = False,
+    coeffsx: bool = False,
+    coeffsy: bool = False,
 ) -> Chebfun2:
     """Construct a Chebfun2 from a callable or a MATLAB expression
     string (``chebfun2('cos(x) + sin(x.*y)')``); see
@@ -2546,10 +2974,226 @@ def chebfun2(
     MATLAB source : @chebfun2/chebfun2.m (str2op string constructor)
     Chebfun commit: 7574c77
     """
+    import numpy as _np
+    if periodic:
+        trig = True
+    trigx = trigx or periodicx or trig
+    trigy = trigy or periodicy or trig
+    equix = equix or equi
+    equiy = equiy or equi
+    coeffsx = coeffsx or coeffs
+    coeffsy = coeffsy or coeffs
+    # 'coeffs' + 'trig' (both axes) is the uniform Fourier-coefficient
+    # constructor; only per-axis mixtures take the matrix path.
+    _mixed = (trigx != trigy) or (equix != equiy) or (coeffsx != coeffsy) \
+        or (trigx and equix) or (trigx and coeffsx and not (trig and coeffs))
     if isinstance(f, str):
         from chebfunjax.utils.matlab_expr import matlab_expression
-        f = matlab_expression(f, ("x", "y"))
+        _op = matlab_expression(f, ("x", "y"))
+
+        def f(x, y, _op=_op):
+            return jnp.asarray(_op(x, y)) + 0.0 * x
+    # MATLAB chebfun2(g, ...): re-approximate an existing Chebfun2.
+    if isinstance(f, Chebfun2):
+        _g = f
+
+        def f(x, y, _g=_g):
+            return _g._eval_xy(x, y)
+    if (equix or equiy) and callable(f):
+        raise ValueError("CHEBFUN:CHEBFUN2:constructor:equi: The EQUI flag "
+                         "is valid only when constructing from numeric "
+                         "data")
+    dv = tuple(float(v) for v in domain)
+    if vectorize and callable(f) and not isinstance(f, Chebfun2):
+        # A single-argument (complex) handle keeps its meaning under
+        # 'vectorize': detect the arity BEFORE wrapping.
+        import inspect as _inspect
+        try:
+            _params = list(_inspect.signature(f).parameters.values())
+            _npos = sum(pp.kind in (pp.POSITIONAL_ONLY,
+                                    pp.POSITIONAL_OR_KEYWORD)
+                        and pp.default is pp.empty for pp in _params)
+        except (TypeError, ValueError):
+            _npos = 2
+        if _npos == 1:
+            _f1 = f
+
+            def f(x, y, _g=_f1):
+                return _g(x + 1j * y)
+    if vectorize and callable(f):
+        _f0 = f
+
+        def f(x, y, _f0=_f0):
+            xa = _np.asarray(x)
+            ya_ = _np.asarray(y)
+            xb, yb = _np.broadcast_arrays(xa, ya_)
+            out = [_f0(jnp.asarray(xv), jnp.asarray(yv))
+                   for xv, yv in zip(xb.ravel(), yb.ravel())]
+            return jnp.asarray(_np.asarray(out)).reshape(xb.shape)
+    if not callable(f) and _mixed:
+        arr = _np.asarray(f)
+        if arr.ndim == 1:
+            arr = arr.reshape(-1, 1)
+        return _chebfun2_from_matrix(arr, dv,
+                                     ("trig" if trigx else "equi" if equix
+                                      else "coeffs" if coeffsx else "cheb"),
+                                     ("trig" if trigy else "equi" if equiy
+                                      else "coeffs" if coeffsy else "cheb"))
+    if not callable(f):
+        arr = _np.asarray(f)
+        if arr.ndim == 0 or arr.size == 1:
+            c0 = float(arr.reshape(-1)[0])
+            if coeffs:
+                return Chebfun2.from_coeffs(jnp.asarray([[c0]]), domain=dv)
+            return _chebfun2_impl(lambda x, y, _c=c0: jnp.full_like(x, _c),
+                                  domain=dv, tol=tol)
+        if coeffs:
+            if trig:
+                return Chebfun2.from_trig_coeffs(jnp.asarray(arr), domain=dv)
+            return Chebfun2.from_coeffs(jnp.asarray(arr), domain=dv)
+        if equi:
+            return _chebfun2_from_equi(arr, dv)
+        if arr.ndim == 1:
+            # MATLAB chebfun2(v): a column vector is constant in x, a
+            # row vector constant in y.
+            arr = arr.reshape(-1, 1)
+        kw = {} if tol is None else {"tol": tol}
+        return Chebfun2.from_values(jnp.asarray(arr), domain=dv, trig=trig,
+                                    **kw)
+    # Fixed sizes (m, n) and/or a rank cap.
+    sizes = None
+    if n is not None and _np.ndim(n) > 0:
+        sizes = tuple(int(v) for v in _np.ravel(_np.asarray(n)))
+        n = None
+    if sizes is not None or rank is not None:
+        return _chebfun2_fixed(f, dv, sizes, rank, tol, trig)
+    if trigx or trigy:
+        return Chebfun2.from_function(f, domain=dv, tol=tol,
+                                      trig=(trigx and trigy),
+                                      trigx=trigx, trigy=trigy)
     return _chebfun2_impl(f, domain=domain, tol=tol, n=n)
+
+
+def _chebfun2_from_matrix(A, dv, xkind: str, ykind: str):
+    """MATLAB chebfun2(A, dom, flags) with per-axis data kinds: ``A[j, i]``
+    is the sample at ``(x_i, y_j)`` where the x-grid is Chebyshev,
+    equispaced or the trig grid (``'cheb'``, ``'equi'``, ``'trig'``), or
+    the data are Chebyshev coefficients along that axis (``'coeffs'``).
+    Coefficient axes are converted to values, GE with complete pivoting
+    (MATLAB completeACA) splits the matrix into slices, and each slice is
+    built with that axis's tech."""
+    import numpy as _np
+
+    from chebfunjax.chebfun1d.chebfun import chebfun
+    from chebfunjax.utils.transforms import coeffs2vals
+    A = _np.array(A, dtype=complex if _np.iscomplexobj(A) else float)
+    if ykind == "coeffs":
+        A = _np.asarray(coeffs2vals(jnp.asarray(A)))
+        ykind = "cheb"
+    if xkind == "coeffs":
+        A = _np.asarray(coeffs2vals(jnp.asarray(A.T))).T
+        xkind = "cheb"
+    xa, xb, ya, yb = dv
+    R = A.copy()
+    tol_abs = 1e2 * _np.finfo(float).eps * max(float(_np.max(_np.abs(A))), 1.0)
+    piv_vals, colvals, rowvals = [], [], []
+    for _ in range(min(A.shape)):
+        idx = int(_np.argmax(_np.abs(R)))
+        i, j = _np.unravel_index(idx, R.shape)
+        pv = R[i, j]
+        if abs(pv) <= tol_abs:
+            break
+        piv_vals.append(pv)
+        colvals.append(R[:, j].copy())
+        rowvals.append(R[i, :].copy())
+        R = R - _np.outer(R[:, j], R[i, :]) / pv
+    if not piv_vals:
+        return _chebfun2_impl(lambda x, y: jnp.zeros_like(x), domain=dv)
+
+    def _slices(vals, a, b, kind):
+        V = jnp.asarray(_np.stack(vals, axis=1))
+        if kind == "trig":
+            q = chebfun(V, domain=(a, b), trig=True)
+        elif kind == "equi":
+            q = chebfun(V, domain=(a, b), equi=True)
+        else:
+            q = chebfun(V, domain=(a, b))
+        return [q.extract_columns(k) for k in range(len(vals))]
+    cols = _slices(colvals, ya, yb, ykind)
+    rows = _slices(rowvals, xa, xb, xkind)
+    return Chebfun2.from_cdr(cols, jnp.asarray(1.0 / _np.asarray(piv_vals)),
+                             rows, dv)
+
+
+def _chebfun2_fixed(f, dv, sizes, rank, tol, trig):
+    """MATLAB chebfun2(f, [m n]) / chebfun2(f, r) / chebfun2(f, r, [m n]):
+    fixed sampling sizes (``m`` in x, ``n`` in y) and/or a rank cap."""
+    import numpy as _np
+    if sizes is None:
+        # MATLAB chebfun2(f, r): construct fully, then fixTheRank.
+        g = Chebfun2.from_function(f, domain=dv,
+                                   **({} if tol is None else {"tol": tol}),
+                                   trig=trig)
+        if g.rank > int(rank):
+            g = Chebfun2(approx=SeparableApprox(
+                cols=g.approx.cols[:int(rank)],
+                rows=g.approx.rows[:int(rank)],
+                pivots=jnp.asarray(g.approx.pivots)[:int(rank)],
+                domain=g.approx.domain))
+        return g
+    m, nn = sizes
+    xa, xb, ya, yb = dv
+    tx = _np.cos(_np.pi * _np.arange(m - 1, -1, -1) / max(m - 1, 1))
+    ty = _np.cos(_np.pi * _np.arange(nn - 1, -1, -1) / max(nn - 1, 1))
+    xg = xa + (xb - xa) * (tx + 1) / 2
+    yg = ya + (yb - ya) * (ty + 1) / 2
+    X, Y = _np.meshgrid(xg, yg)
+    V = _np.asarray(f(jnp.asarray(X), jnp.asarray(Y)))
+    # MATLAB chebfun2(f, [m n]): the slices keep the requested lengths.
+    g = Chebfun2.from_values(jnp.asarray(V), domain=dv, chop=False,
+                             **({} if tol is None else {"tol": tol}))
+    if rank is not None and g.rank > int(rank):
+        g = Chebfun2(approx=SeparableApprox(
+            cols=g.approx.cols[:int(rank)], rows=g.approx.rows[:int(rank)],
+            pivots=jnp.asarray(g.approx.pivots)[:int(rank)],
+            domain=g.approx.domain))
+    return g
+
+
+def _chebfun2_from_equi(A, dv):
+    """MATLAB chebfun2(A, dom, 'equi'): data on an equispaced tensor
+    grid -> complete-pivoting ACA on the matrix, then equispaced
+    (Floater-Hormann) chebfuns for the row and column slices."""
+    import numpy as _np
+
+    from chebfunjax.chebfun1d.chebfun import chebfun
+    A = _np.array(A, dtype=float)
+    xa, xb, ya, yb = dv
+    ny, nx = A.shape
+    tol_abs = 1e2 * _np.finfo(float).eps * max(float(_np.max(_np.abs(A))),
+                                                1.0)
+    R = A.copy()
+    piv_vals, colvals, rowvals = [], [], []
+    for _ in range(min(nx, ny)):
+        idx = int(_np.argmax(_np.abs(R)))
+        i, j = _np.unravel_index(idx, R.shape)
+        pv = R[i, j]
+        if abs(pv) <= tol_abs:
+            break
+        piv_vals.append(pv)
+        colvals.append(R[:, j].copy())
+        rowvals.append(R[i, :].copy())
+        R = R - _np.outer(R[:, j], R[i, :]) / pv
+    if not piv_vals:
+        return _chebfun2_impl(lambda x, y: jnp.zeros_like(x), domain=dv)
+    C = chebfun(jnp.asarray(_np.stack(colvals, axis=1)), domain=(ya, yb),
+                equi=True)
+    Rw = chebfun(jnp.asarray(_np.stack(rowvals, axis=1)), domain=(xa, xb),
+                 equi=True)
+    cols = [C.extract_columns(k) for k in range(len(piv_vals))]
+    rows = [Rw.extract_columns(k) for k in range(len(piv_vals))]
+    return Chebfun2.from_cdr(cols, jnp.asarray(1.0 / _np.asarray(piv_vals)),
+                             rows, dv)
 
 
 def _chebfun2_impl(
@@ -2622,6 +3266,355 @@ def _chebfun2_impl(
             def f(x, y):
                 return g(x + 1j * y)
     return Chebfun2.from_function(f, domain=domain, tol=tol, n=n)
+
+
+def _cheb2leg_mat(N: int):
+    """MATLAB poisson.m cheb2leg_mat: dense Chebyshev->Legendre matrix."""
+    import numpy as _np
+    vals = _np.zeros(2 * N + 2)
+    vals[0] = _np.sqrt(_np.pi)
+    vals[1] = 2 / vals[0]
+    for i in range(2, 2 * (N - 1) + 1, 2):
+        vals[i] = vals[i - 2] * (1 - 1 / i)
+        vals[i + 1] = vals[i - 1] * (1 - 1 / (i + 1))
+    L = _np.zeros((N, N))
+    for j in range(N):
+        for k in range(j + 2, N, 2):
+            L[j, k] = (-k * (j + .5) * (vals[k - j - 2] / (k - j))
+                       * (vals[k + j - 1] / (j + k + 1)))
+    c = _np.sqrt(_np.pi) / 2
+    for j in range(1, N):
+        L[j, j] = c / vals[2 * j]
+    L[0, 0] = 1.0
+    return L
+
+
+def _leg2cheb_mat(N: int):
+    """MATLAB poisson.m leg2cheb_mat: dense Legendre->Chebyshev matrix."""
+    import numpy as _np
+    vals = _np.zeros(2 * N + 2)
+    vals[0] = _np.sqrt(_np.pi)
+    vals[1] = 2 / vals[0]
+    for i in range(2, 2 * (N - 1) + 1, 2):
+        vals[i] = vals[i - 2] * (1 - 1 / i)
+        vals[i + 1] = vals[i - 1] * (1 - 1 / (i + 1))
+    M = _np.zeros((N, N))
+    for j in range(N):
+        for k in range(j, N, 2):
+            M[j, k] = 2 / _np.pi * vals[k - j] * vals[k + j]
+    M[0, :] = .5 * M[0, :]
+    return M
+
+
+def _leg2ultra_mat(n: int):
+    """MATLAB poisson.m leg2ultra_mat (Legendre -> C^(3/2), lam = 1/2)."""
+    import numpy as _np
+    lam = 0.5
+    dg = lam / (lam + _np.arange(2, n))
+    v = _np.concatenate([[1.0, lam / (lam + 1)], dg])[:n]
+    w = _np.concatenate([[0.0, 0.0], -dg])[:n]
+    S = _np.diag(v)
+    for i in range(n - 2):
+        S[i, i + 2] = w[i + 2]
+    return S
+
+
+def _ultra1mx2leg_mat(n: int):
+    """MATLAB poisson.m ultra1mx2leg_mat."""
+    import numpy as _np
+    jj = _np.arange(1, n + 1)
+    diag_vals = jj * (jj + 1) / 2.0 / (jj + 0.5)
+    S = _np.diag(diag_vals)
+    D = _np.eye(n)
+    for i in range(2, n):
+        D[i, i - 2] = -1.0
+    return D @ S
+
+
+def _cheb2ultra(X):
+    import numpy as _np
+    X = _np.asarray(X, dtype=float)
+    m = X.shape[0]
+    return _leg2ultra_mat(m) @ (_cheb2leg_mat(m) @ X)
+
+
+def _ultra1mx2cheb(X):
+    import numpy as _np
+    X = _np.asarray(X, dtype=float)
+    m = X.shape[0]
+    return _leg2cheb_mat(m) @ (_ultra1mx2leg_mat(m) @ X)
+
+
+def adi_shifts(a: float, b: float, c: float, d: float, tol: float):
+    """Optimal ADI shifts for real intervals ``[a, b]`` and ``[c, d]``
+    (MATLAB ``chebop2.adiShifts``, Zolotarev numbers via elliptic
+    functions).
+
+    Provenance
+    ----------
+    MATLAB source : @chebop2/adiShifts.m
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+    from scipy.special import ellipj, ellipk
+    gam = (c - a) * (d - b) / (c - b) / (d - a)
+    alp = -1 + 2 * gam + 2 * _np.sqrt(gam ** 2 - gam)
+    A = _np.linalg.det(_np.array([[-a * alp, a, 1], [-b, b, 1], [c, c, 1]]))
+    B = _np.linalg.det(_np.array([[-a * alp, -alp, a], [-b, -1, b],
+                                  [c, 1, c]]))
+    C = _np.linalg.det(_np.array([[-alp, a, 1], [-1, b, 1], [1, c, 1]]))
+    D = _np.linalg.det(_np.array([[-a * alp, -alp, 1], [-b, -1, 1],
+                                  [c, 1, 1]]))
+
+    def T(z):
+        return (A * z + B) / (C * z + D)
+    J = int(_np.ceil(_np.log(16 * gam) * _np.log(4 / tol) / _np.pi ** 2))
+    if alp > 1e7:
+        K = (2 * _np.log(2) + _np.log(alp)) + (
+            -1 + 2 * _np.log(2) + _np.log(alp)) / alp ** 2 / 4
+        m1 = 1 / alp ** 2
+        u = (_np.arange(J) + 0.5) * K / J
+        dn = (1 / _np.cosh(u) + .25 * m1 * (_np.sinh(u) * _np.cosh(u) + u)
+              * _np.tanh(u) / _np.cosh(u))
+    else:
+        mpar = 1 - 1 / alp ** 2
+        K = ellipk(mpar)
+        _sn, _cn, dn, _ph = ellipj((_np.arange(J) + 0.5) * K / J, mpar)
+    return T(-alp * dn), T(alp * dn)
+
+
+def adi(A, B, F, p, q):
+    """ADI solve of ``A X - X B = F`` (MATLAB ``chebop2.adi``).
+
+    Provenance
+    ----------
+    MATLAB source : @chebop2/adi.m
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+    A = _np.asarray(A, dtype=float)
+    B = _np.asarray(B, dtype=float)
+    F = _np.asarray(F, dtype=float)
+    m, n = A.shape[0], B.shape[0]
+    X = _np.zeros((m, n))
+    Im, In = _np.eye(m), _np.eye(n)
+    for pj, qj in zip(p, q):
+        X = _np.linalg.solve((B + qj * In).T, (F - (A + qj * Im) @ X).T).T
+        X = _np.linalg.solve(A + pj * Im, F - X @ (B + pj * In))
+    return X
+
+
+def fadi(A, B, M, N, p, q):
+    """Factored ADI for ``A X - X B = M N'`` (MATLAB ``chebop2.fadi``):
+    returns ``(UX, DX, VX)`` with ``X = UX DX VX'``.
+
+    Provenance
+    ----------
+    MATLAB source : @chebop2/fadi.m
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+    A = _np.asarray(A, dtype=float)
+    B = _np.asarray(B, dtype=float)
+    M = _np.asarray(M, dtype=float)
+    N = _np.asarray(N, dtype=float)
+    m, rho = M.shape
+    n = N.shape[0]
+    J = len(p)
+    UX = _np.zeros((m, rho * J))
+    VX = _np.zeros((n, rho * J))
+    DX = _np.diag(_np.kron(_np.asarray(q) - _np.asarray(p), _np.ones(rho)))
+    Im, In = _np.eye(m), _np.eye(n)
+    UX[:, :rho] = _np.linalg.solve(A + p[0] * Im, M)
+    VX[:, :rho] = _np.linalg.solve(B + q[0] * In, N)
+    for j in range(J - 1):
+        UX[:, (j + 1) * rho:(j + 2) * rho] = (A + q[j] * Im) @ _np.linalg.solve(
+            A + p[j + 1] * Im, UX[:, j * rho:(j + 1) * rho])
+        VX[:, (j + 1) * rho:(j + 2) * rho] = (B + p[j] * In) @ _np.linalg.solve(
+            B + q[j + 1] * In, VX[:, j * rho:(j + 1) * rho])
+    return UX, DX, VX
+
+
+def poisson(f, g=0.0, m=None, n=None, method: str = ""):
+    """Fast Poisson solver ``lap(u) = f`` on a rectangle with Dirichlet
+    data ``g`` (MATLAB ``chebfun2.poisson``).
+
+    ``poisson(f)`` / ``poisson(f, g)`` solve with the chebop2 Laplacian;
+    ``poisson(f, g, m, n, method)`` uses the ultraspherical spectral
+    discretisation of size ``m x n`` solved by ``'adi'``, ``'fadi'`` or
+    ``'bartelsStewart'`` (default: ADI or FADI chosen by the rank of the
+    right-hand side).
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun2/poisson.m
+    Chebfun commit: 7574c77
+    """
+    import numpy as _np
+    dom = f.approx.domain
+    xa, xb, ya, yb = dom
+    scl_x = (2 / (xb - xa)) ** 2
+    scl_y = (2 / (yb - ya)) ** 2
+    if m is None:
+        from chebfunjax.operators.chebop2 import Chebop2
+        N = Chebop2(lambda u: u.diff(2, 0) + u.diff(0, 2), domain=dom)
+        if not isinstance(g, Chebfun2):
+            gg = g
+            if callable(g):
+                gg = chebfun2(g, domain=dom)
+            g = gg
+        if isinstance(g, Chebfun2):
+            N.lbc = g(xa, ":")
+            N.rbc = g(xb, ":")
+            N.dbc = g(":", ya).transpose()
+            N.ubc = g(":", yb).transpose()
+        else:
+            N.bc = float(g)
+        u = N.solve(f)
+        if not isinstance(u, Chebfun2):
+            u = Chebfun2(approx=u)
+        return u
+    if n is None:
+        n = m
+    tol = float(_np.finfo(float).eps)
+    Cf, Df, Rf = f.coeffs2(m, n, low_rank=True)
+    Cf = _np.asarray(Cf)
+    Rf = _np.asarray(Rf)
+    Df = _np.diag(_np.asarray(Df))
+    if callable(g) and not isinstance(g, Chebfun2):
+        g = chebfun2(g, domain=dom)
+    elif not isinstance(g, Chebfun2):
+        g = chebfun2(lambda x, y, _c=float(g): jnp.full_like(x, _c),
+                     domain=dom)
+    if tuple(g.approx.domain) != tuple(dom):
+        raise ValueError("CHEBFUN2:POISSON:BC: Dirichlet data should be on "
+                         "the same domain as F.")
+    lapg = g.laplacian()
+    if not lapg.iszero() if hasattr(lapg, "iszero") else True:
+        Cg, Dg, Rg = lapg.coeffs2(m, n, low_rank=True)
+        Cg = _np.asarray(Cg)
+        Rg = _np.asarray(Rg)
+        Dg = _np.diag(_np.asarray(Dg))
+        Cf = _np.hstack([Cf, Cg])
+        Z = _np.zeros((Df.shape[0], Dg.shape[0]))
+        Df = _np.block([[Df, Z], [Z.T, -Dg]])
+        Rf = _np.hstack([Rf, Rg])
+    Cf = _cheb2ultra(Cf)
+    Rf = _cheb2ultra(Rf)
+
+    def _T(nn, scl):
+        jj = _np.arange(nn, dtype=float)
+        dsub = -1 / (2 * (jj + 1.5)) * (jj + 1) * (jj + 2) * 0.5 / (0.5 + jj + 2)
+        dsup = -1 / (2 * (jj + 1.5)) * (jj + 1) * (jj + 2) * 0.5 / (0.5 + jj)
+        d = -dsub - dsup
+        Mn = _np.diag(d)
+        for i in range(nn - 2):
+            Mn[i + 2, i] = dsub[i]
+            Mn[i, i + 2] = dsup[i + 2]
+        invD = _np.diag(-1 / (jj * (jj + 3) + 2))
+        return scl * invD @ Mn, invD
+    Tn, invDn = _T(n, scl_y)
+    Tm, invDm = _T(m, scl_x)
+    Cf = invDm @ Cf
+    Rf = invDn @ Rf
+    key = method.lower()
+    if key == "bartelsstewart":
+        from chebfunjax.operators.chebop2 import bartels_stewart
+        X = _np.asarray(bartels_stewart(Tm, _np.eye(n), _np.eye(m), Tn,
+                                        Cf @ Df @ Rf.T))
+        X = _ultra1mx2cheb(_ultra1mx2cheb(X).T).T
+        u = Chebfun2.from_coeffs(jnp.asarray(X), domain=dom)
+    elif key in ("adi", "fadi", ""):
+        a = -4 / _np.pi ** 2 * scl_y
+        b = -39 * n ** -4 * scl_y
+        c = 39 * m ** -4 * scl_x
+        d = 4 / _np.pi ** 2 * scl_x
+        p, q = adi_shifts(a, b, c, d, tol)
+        if key == "":
+            rho = Cf.shape[1]
+            key = "adi" if min(m, n) < rho * len(p) / 2 else "fadi"
+        if key == "adi":
+            X = adi(Tm, -Tn.T, Cf @ Df @ Rf.T, p, q)
+            X = _ultra1mx2cheb(_ultra1mx2cheb(X).T).T
+            u = Chebfun2.from_coeffs(jnp.asarray(X), domain=dom)
+        else:
+            UX, DX, VX = fadi(Tm, -Tn, Cf @ Df, Rf, p, q)
+            UX = _ultra1mx2cheb(UX)
+            VX = _ultra1mx2cheb(VX)
+            from chebfunjax.chebfun1d.chebfun import chebfun
+            C = [chebfun(jnp.asarray(UX[:, j]), domain=(ya, yb), coeffs=True)
+                 for j in range(UX.shape[1])]
+            R = [chebfun(jnp.asarray(VX[:, j]), domain=(xa, xb), coeffs=True)
+                 for j in range(VX.shape[1])]
+            u = Chebfun2.from_cdr(C, jnp.asarray(_np.diag(DX)), R, dom)
+    else:
+        raise ValueError("CHEBFUN2:POISSON:SOLVER: Method supplied to "
+                         "chebfun2.poisson() is not recognized.")
+    return u + g
+
+
+Chebfun2.poisson = staticmethod(poisson)
+
+
+def fred(K, v):
+    """MATLAB ``fred(K, v)``: apply the Fredholm operator with kernel ``K``
+    (a Chebfun2) to ``v``; with a kernel HANDLE ``K(s, t)`` and a domain
+    ``v`` it returns the Fredholm integral operator as a Chebop on that
+    domain (``(K u)(x) = int K(x, y) u(y) dy`` by Clenshaw-Curtis
+    quadrature of the kernel samples).
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun2/fred.m, fred.m
+    Chebfun commit: 7574c77
+    """
+    if isinstance(K, Chebfun2):
+        return K.fred(v)
+    return _integral_chebop(K, v, volterra=False)
+
+
+def volt(K, v):
+    """MATLAB ``volt(K, v)``: Volterra operator with kernel ``K`` applied
+    to ``v``; a kernel handle plus a domain gives the operator as a
+    Chebop.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun2/volt.m, volt.m
+    Chebfun commit: 7574c77
+    """
+    if isinstance(K, Chebfun2):
+        return K.volt(v)
+    return _integral_chebop(K, v, volterra=True)
+
+
+def _integral_chebop(K, dom, volterra: bool):
+    import numpy as _np
+
+    from chebfunjax.chebfun1d.chebfun import chebfun
+    from chebfunjax.operators.chebop import Chebop
+    from chebfunjax.utils.quadrature import chebpts, chebweights
+    dv = [float(t) for t in (dom.breakpoints if hasattr(dom, "breakpoints")
+                             else dom)]
+    a, b = dv[0], dv[-1]
+
+    def _apply(x, u):
+        nq = max(2 * len(u) + 16, 64)
+        t = _np.asarray(chebpts(nq, kind=2))
+        yq = a + (b - a) * (t + 1.0) / 2.0
+        w = _np.asarray(chebweights(nq)) * (b - a) / 2.0
+        uq = _np.asarray(u(jnp.asarray(yq)))
+
+        def _g(xx):
+            xx = _np.atleast_1d(_np.asarray(xx, dtype=float))
+            Kmat = _np.asarray(K(jnp.asarray(xx)[:, None],
+                                 jnp.asarray(yq)[None, :]))
+            if volterra:
+                Kmat = _np.where(yq[None, :] <= xx[:, None], Kmat, 0.0)
+            return jnp.asarray(Kmat @ (w * uq))
+        return chebfun(_g, domain=(a, b))
+    N = Chebop(_apply, domain=(a, b))
+    return N
 
 
 def _compose_arity(op) -> int:

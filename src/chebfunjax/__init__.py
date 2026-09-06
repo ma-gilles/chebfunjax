@@ -187,6 +187,12 @@ def dirac(f: Chebfun, order: int = 0) -> Chebfun:
     return f.dirac(order)
 
 
+def heaviside(f: Chebfun) -> Chebfun:
+    """Heaviside step ``0.5*(sign(f) + 1)``.  Equivalent to
+    ``f.heaviside()``."""
+    return f.heaviside()
+
+
 def unwrap(f: Chebfun, jump_tol=None) -> Chebfun:
     """Phase-unwrap f.  Equivalent to ``f.unwrap(jump_tol)``."""
     return f.unwrap(jump_tol)
@@ -264,6 +270,7 @@ __all__ = [
     "besselk",
     "ellipke",
     "dirac",
+    "heaviside",
     "unwrap",
     "iszero",
     "innerProduct",

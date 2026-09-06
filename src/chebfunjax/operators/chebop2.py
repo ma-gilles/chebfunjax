@@ -738,6 +738,13 @@ class Chebop2:
         self._var_terms: dict | None = None
         self._xorder: int = 0
         self._yorder: int = 0
+        self._forcing = 0.0
+        # MATLAB N.U / N.S / N.V: an explicitly given separable format
+        # (rows of U index the y-derivative order, rows of V the
+        # x-derivative order; entries are scalars or Chebfuns).
+        self._U = None
+        self._S = None
+        self._V = None
         if op is not None:
             self._extract_coeffs()
 
@@ -821,6 +828,14 @@ class Chebop2:
             self._extract_coeffs()
         return self._yorder
 
+    @xorder.setter
+    def xorder(self, val):
+        self._xorder = int(val)
+
+    @yorder.setter
+    def yorder(self, val):
+        self._yorder = int(val)
+
     @property
     def bc(self):
         """Read lbc (write sets all four BCs simultaneously)."""
@@ -871,6 +886,7 @@ class Chebop2:
             )
 
         # Variable-coefficient operator: any term coefficient is a _Coord.
+        self._forcing = getattr(result, "_forcing", 0.0)
         if any(isinstance(c, _Coord) for c in result._terms.values()):
             terms = {key: c for key, c in result._terms.items()
                      if isinstance(c, _Coord) or c != 0.0}
@@ -901,6 +917,8 @@ class Chebop2:
         n_min: int = 9,
         n_max: int = 513,
         tol: float = 1e-10,
+        nx=None,
+        ny=None,
     ):
         """Solve the PDE ``L[u] = f`` with the attached boundary conditions.
 
@@ -937,13 +955,24 @@ class Chebop2:
         MATLAB source : @chebop2/solvepde.m, @chebop2/denseSolve.m
         Chebfun commit: 7574c77
         """
-        if self.op is None:
+        if self.op is None and self._U is None:
             raise RuntimeError(
                 "Chebop2.solve: operator is not set. "
                 "Assign N.op = lambda u: ... before solving."
             )
-        if self._coeffs is None and self._var_terms is None:
+        if self._coeffs is None and self._var_terms is None \
+                and self._U is None:
             self._extract_coeffs()
+        f = self._with_forcing(f)
+        # MATLAB mldivide(N, f, nx, ny): fixed discretisation sizes (inf =
+        # adaptive in that direction).
+        nx_f = None if nx is None or nx == float("inf") else int(nx)
+        ny_f = None if ny is None or ny == float("inf") else int(ny)
+        if nx_f is not None or ny_f is not None:
+            if nx_f is not None and ny_f is not None:
+                return self._wrap_coeffs(self._coeff_solve(f, ny_f, nx_f))
+            return self._wrap_coeffs(self._adaptive_coeff_solve(
+                f, n_min, n_max, fix_m=ny_f, fix_n=nx_f))
 
         # Prefer the coefficient-space (ultraspherical) solver -- MATLAB's
         # actual method -- which reaches ~eps accuracy.  Fall back to the
@@ -1236,7 +1265,8 @@ class Chebop2:
         raises inside :meth:`_coeff_solve` and triggers the value-space
         fallback, so this predicate only needs to avoid the obvious misfits.
         """
-        if self._coeffs is None and self._var_terms is None:
+        if self._coeffs is None and self._var_terms is None \
+                and self._U is None:
             return False
         # Need a positive order in a direction before we can impose BCs there.
         has_x_bc = (self._lbc is not None) or (self._rbc is not None)
@@ -1377,6 +1407,9 @@ class Chebop2:
         xa, xb, ya, yb = self.domain
         xorder = self._xorder
         yorder = self._yorder
+
+        if self._U is not None:
+            return self._terms_from_usv(m, n)
 
         if self._var_terms is None:
             # Constant coefficients: SVD of A.' (rows=x, cols=y).
@@ -1550,7 +1583,9 @@ class Chebop2:
         X = _impose_boundary_conditions(X, bb, gg, Px, Py, m, n)
         return X
 
-    def _adaptive_coeff_solve(self, f, n_min: int, n_max: int) -> np.ndarray:
+    def _adaptive_coeff_solve(self, f, n_min: int, n_max: int,
+                              fix_m: int | None = None,
+                              fix_n: int | None = None) -> np.ndarray:
         """Adaptively resolve the coefficient-space solution (MATLAB solvepde).
 
         Starts on an ``n_min x n_min`` grid and checks resolution independently
@@ -1577,7 +1612,8 @@ class Chebop2:
         # these problems stop (advection-dominated cases reach ~1e-7 accuracy
         # near grid 257, well inside their MATLAB tolerances).
         tol = 1e-13
-        m = n = n_min
+        m = n_min if fix_m is None else int(fix_m)
+        n = n_min if fix_n is None else int(fix_n)
         X = None
         resolved = False
         for _ in range(40):
@@ -1585,6 +1621,10 @@ class Chebop2:
             old_m, old_n = m, n
             res_y, m = _resolve_dir(X, 0, old_m, tol)
             res_x, n = _resolve_dir(X, 1, old_n, tol)
+            if fix_m is not None:
+                res_y, m = True, int(fix_m)
+            if fix_n is not None:
+                res_x, n = True, int(fix_n)
             # updateTolerance: relax on large grids (weak corner singularities
             # / algebraically-converging space-time tails).
             if max(m, n) > 250:
@@ -1681,6 +1721,248 @@ class Chebop2:
             domain=(xa, xb, ya, yb),
         )
 
+    # ------------------------------------------------------------------
+    # MATLAB conveniences: forcing terms, N(m, n), N(f) / N * f,
+    # N.U / N.S / N.V, separableFormat (Fable 5)
+    # ------------------------------------------------------------------
+    def _with_forcing(self, f):
+        """Right-hand side minus the operator's forcing term."""
+        forcing = getattr(self, "_forcing", 0.0)
+        if not isinstance(forcing, _Coord) and forcing == 0:
+            return f
+
+        def _ev(g, X, Y):
+            if isinstance(g, _Coord):
+                return g.fn(X, Y)
+            if callable(g):
+                return g(X, Y)
+            return g
+        return lambda X, Y: _ev(f, X, Y) - _ev(forcing, X, Y) + 0.0 * X
+
+    @property
+    def U(self):
+        return self._U
+
+    @U.setter
+    def U(self, val):
+        self._U = None if val is None else [list(r) for r in val]
+
+    @property
+    def S(self):
+        return self._S
+
+    @S.setter
+    def S(self, val):
+        self._S = None if val is None else np.asarray(val)
+
+    @property
+    def V(self):
+        return self._V
+
+    @V.setter
+    def V(self, val):
+        self._V = None if val is None else [list(r) for r in val]
+
+    def _terms_from_usv(self, m: int, n: int) -> list:
+        """Separable terms from an explicit ``U, S, V`` format (MATLAB
+        chebop2 without AD): rows of ``U`` index the y-derivative order,
+        rows of ``V`` the x-derivative order, entries scalars or Chebfuns
+        (variable coefficients in that variable)."""
+        xa, xb, ya, yb = self.domain
+        xorder, yorder = self._xorder, self._yorder
+        S = np.asarray(self._S)
+        rk = S.shape[0] if S.ndim == 2 else S.size
+
+        def _coef_vec(entry):
+            if hasattr(entry, "funs"):
+                return np.asarray(entry.funs[0].tech.coeffs).ravel()
+            return entry
+
+        def _block(col, size, order, dom):
+            M = None
+            for k, entry in enumerate(col):
+                if not hasattr(entry, "funs") and entry == 0:
+                    continue
+                Mk = _unconstrained_matrix_equation(
+                    _deriv_col(k, _coef_vec(entry)), size, order, dom)
+                M = Mk if M is None else M + Mk
+            if M is None:
+                M = 0.0 * _unconstrained_matrix_equation(
+                    _deriv_col(0, 1.0), size, order, dom)
+            return M
+        CC = []
+        for r in range(rk):
+            s_r = S[r, r] if S.ndim == 2 else S[r]
+            LEFT = _block([row[r] for row in self._U], m, yorder, (ya, yb))
+            RIGHT = _block([row[r] for row in self._V], n, xorder, (xa, xb))
+            CC.append([s_r * LEFT, RIGHT])
+        return CC
+
+    def matrix(self, m: int, n: int | None = None) -> np.ndarray:
+        """The ``m*n x m*n`` discretisation matrix of the PDO (MATLAB
+        ``N(m, n)`` / ``N(n)``): the Kronecker sum of the separable
+        terms' 1-D ultraspherical matrices.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop2/subsref.m, @chebop2/discretize.m
+        Chebfun commit: 7574c77
+        """
+        if n is None:
+            n = m
+        if self._coeffs is None and self._var_terms is None \
+                and self._U is None:
+            self._extract_coeffs()
+        A = None
+        for LEFT, RIGHT in self._build_separable_terms(int(m), int(n)):
+            K = np.kron(np.asarray(LEFT), np.asarray(RIGHT))
+            A = K if A is None else A + K
+        return A
+
+    def apply(self, f):
+        """Apply the PDO to a Chebfun2 (MATLAB ``N(f)`` / ``N * f``); the
+        boundary conditions are not involved."""
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2, chebfun2
+        if self.op is None:
+            raise RuntimeError("Chebop2.apply: operator is not set.")
+        if not isinstance(f, Chebfun2):
+            f = Chebfun2(approx=f)
+        u = _Chebfun2Adapter(f)
+        try:
+            from chebfunjax.utils.misc import op_arity
+            nparams = op_arity(self.op, 3)
+        except (ValueError, TypeError):
+            nparams = 1
+        if nparams >= 3:
+            dom = tuple(float(v) for v in f.domain)
+            x2 = chebfun2(lambda x, y: x + 0.0 * y, domain=dom)
+            y2 = chebfun2(lambda x, y: y + 0.0 * x, domain=dom)
+            out = self.op(x2, y2, u)
+        else:
+            out = self.op(u)
+        return out.f if isinstance(out, _Chebfun2Adapter) else out
+
+    def __call__(self, *args):
+        """``N(m, n)`` / ``N(n)`` -> discretisation matrix; ``N(f)`` ->
+        the PDO applied to a Chebfun2 (MATLAB subsref)."""
+        if len(args) == 1 and not isinstance(args[0], (int, np.integer)):
+            return self.apply(args[0])
+        return self.matrix(*[int(a) for a in args])
+
+    def __mul__(self, other):
+        if hasattr(other, "approx") or hasattr(other, "cols"):
+            return self.apply(other)
+        return NotImplemented
+
+    def coeffs_cell(self):
+        """The PDO coefficients as a ``(yorder+1) x (xorder+1)`` list
+        (MATLAB ``N.coeffs`` layout, ``A{j, k}`` multiplying
+        ``d^(j-1)/dy d^(k-1)/dx``): scalars, or Chebfun2 objects for
+        variable coefficients."""
+        from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+        if self._coeffs is None and self._var_terms is None:
+            self._extract_coeffs()
+        yo, xo = self._yorder, self._xorder
+        A = [[0.0 for _ in range(xo + 1)] for _ in range(yo + 1)]
+        if self._var_terms is None:
+            for j in range(yo + 1):
+                for k in range(xo + 1):
+                    A[j][k] = self._coeffs[j, k]
+            return A
+        for (j, k), c in self._var_terms.items():
+            if isinstance(c, _Coord):
+                A[j][k] = Chebfun2.from_function(
+                    lambda X, Y, _fn=c.fn: _fn(X, Y) + 0.0 * X,
+                    domain=self.domain)
+            else:
+                A[j][k] = c
+        return A
+
+    @staticmethod
+    def separable_format(N):
+        """Low-rank (separable) format of the PDO (MATLAB
+        ``chebop2.separableFormat``): returns ``(cellU, S, cellV)`` with
+        ``cellU[j][r]`` a Chebfun in y (coefficient of the j-th
+        y-derivative in term r), ``cellV[k][r]`` a Chebfun in x, and
+        ``S`` the diagonal weights, so that the coefficient of
+        ``d^j/dy d^k/dx`` is ``sum_r cellU[j][r](y) S[r, r] cellV[k][r](x)``.
+
+        Provenance
+        ----------
+        MATLAB source : @chebop2/separableFormat.m
+        Chebfun commit: 7574c77
+        """
+        from numpy.polynomial import chebyshev as _Ch
+
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        from chebfunjax.utils.quadrature import chebpts as _chebpts
+        from chebfunjax.utils.transforms import vals2coeffs as _v2c
+        A = N.coeffs_cell()
+        xo, yo = N._xorder, N._yorder
+        xa, xb, ya, yb = N.domain
+        n = 10
+        for row in A:
+            for c in row:
+                if hasattr(c, "length"):
+                    ly, lx = (int(v) for v in c.length())
+                    n = max(lx, ly, n) + 1
+        x = np.asarray(_chebpts(xo + 1))
+        y = np.asarray(_chebpts(yo + 1))
+        s_ = 0.5 * (xb - xa) * (np.asarray(_chebpts(n)) + 1) + xa
+        t_ = 0.5 * (yb - ya) * (np.asarray(_chebpts(n)) + 1) + ya
+        xx, ss, yy, tt = np.meshgrid(x, s_, y, t_, indexing="ij")
+        H = np.zeros(xx.shape, dtype=complex)
+        newx, newy = np.meshgrid(s_, t_)
+        for j in range(yo + 1):
+            for k in range(xo + 1):
+                c = A[j][k]
+                if hasattr(c, "length"):
+                    v = np.asarray(c(jnp.asarray(newx), jnp.asarray(newy))).T
+                    H = H + v[None, :, None, :] * xx ** k * yy ** j
+                elif c != 0:
+                    H = H + c * xx ** k * yy ** j
+        Amat = H.reshape(n * (xo + 1), n * (yo + 1), order="F")
+        if np.max(np.abs(Amat.imag)) == 0:
+            Amat = Amat.real
+        U, sv, Vh = np.linalg.svd(Amat)
+        V = Vh.conj().T
+        rk = int(np.max(np.nonzero(np.abs(sv) / sv[0] > 1000 * _EPS)[0])) + 1
+        S = np.diag(sv[:rk])
+        U = U[:, :rk]
+        V = V[:, :rk]
+
+        def _convert(order):
+            # row k: monomial coefficients (lowest power first) of T_k
+            M = np.zeros((order + 1, order + 1))
+            for k in range(order + 1):
+                pk = _Ch.cheb2poly(np.eye(order + 1)[k])
+                M[k, :len(pk)] = pk
+            return M
+        convertx = _convert(xo)
+        converty = _convert(yo)
+
+        def _v2c2(M):
+            M = np.asarray(M)
+            out = np.stack([np.asarray(_v2c(jnp.asarray(M[:, j])))
+                            for j in range(M.shape[1])], axis=1)
+            out = np.stack([np.asarray(_v2c(jnp.asarray(out[i, :])))
+                            for i in range(out.shape[0])], axis=0)
+            return out
+        cellU = [[None] * rk for _ in range(yo + 1)]
+        cellV = [[None] * rk for _ in range(xo + 1)]
+        for jj in range(rk):
+            f1 = _v2c2(U[:, jj].reshape((xo + 1, n), order="F"))
+            f1 = f1.T @ convertx
+            for kk in range(xo + 1):
+                cellV[kk][jj] = chebfun(jnp.asarray(f1[:, kk]),
+                                        domain=(xa, xb), coeffs=True)
+            f2 = _v2c2(np.conj(V[:, jj]).reshape((yo + 1, n), order="F"))
+            f2 = f2.T @ converty
+            for kk in range(yo + 1):
+                cellU[kk][jj] = chebfun(jnp.asarray(f2[:, kk]),
+                                        domain=(ya, yb), coeffs=True)
+        return cellU, S, cellV
+
     def __repr__(self) -> str:
         xa, xb, ya, yb = self.domain
         n_bcs = sum(
@@ -1697,6 +1979,60 @@ class Chebop2:
 # ===========================================================================
 # _Chebop2Proxy — symbolic proxy for extracting PDE operator coefficients
 # ===========================================================================
+
+
+class _Chebfun2Adapter:
+    """Wraps a Chebfun2 so an operator lambda written for the symbolic
+    proxy (``u.diff(j, k)``, ``laplacian(u)``, ``u.diffx(k)`` ...) can be
+    applied to an actual function (MATLAB ``N(f)`` / ``N * f``)."""
+
+    def __init__(self, f):
+        self.f = f
+
+    @staticmethod
+    def _unwrap(o):
+        return o.f if isinstance(o, _Chebfun2Adapter) else o
+
+    def diff(self, yorder: int = 0, xorder: int = 0):
+        g = self.f
+        if yorder:
+            g = g.diff(1, int(yorder))
+        if xorder:
+            g = g.diff(2, int(xorder))
+        return _Chebfun2Adapter(g)
+
+    def diffx(self, k: int = 1):
+        return _Chebfun2Adapter(self.f.diff(2, int(k)))
+
+    def diffy(self, k: int = 1):
+        return _Chebfun2Adapter(self.f.diff(1, int(k)))
+
+    def laplacian(self):
+        return _Chebfun2Adapter(self.f.laplacian())
+
+    lap = laplacian
+
+    def __add__(self, other):
+        return _Chebfun2Adapter(self.f + self._unwrap(other))
+
+    __radd__ = __add__
+
+    def __sub__(self, other):
+        return _Chebfun2Adapter(self.f - self._unwrap(other))
+
+    def __rsub__(self, other):
+        return _Chebfun2Adapter(self._unwrap(other) - self.f)
+
+    def __mul__(self, other):
+        return _Chebfun2Adapter(self.f * self._unwrap(other))
+
+    __rmul__ = __mul__
+
+    def __neg__(self):
+        return _Chebfun2Adapter(-self.f)
+
+    def __truediv__(self, other):
+        return _Chebfun2Adapter(self.f / self._unwrap(other))
 
 
 class _Coord:
@@ -1725,16 +2061,22 @@ class _Coord:
         return lambda X, Y, _v=v: _v
 
     def __add__(self, other):
+        if isinstance(other, _Chebop2Proxy):
+            return other.__add__(self)
         f, g = self.fn, _Coord._as_fn(other)
         return _Coord(lambda X, Y: f(X, Y) + g(X, Y))
 
     __radd__ = __add__
 
     def __sub__(self, other):
+        if isinstance(other, _Chebop2Proxy):
+            return other.__neg__().__add__(self)
         f, g = self.fn, _Coord._as_fn(other)
         return _Coord(lambda X, Y: f(X, Y) - g(X, Y))
 
     def __rsub__(self, other):
+        if isinstance(other, _Chebop2Proxy):
+            return other.__add__(-self)
         f, g = self.fn, _Coord._as_fn(other)
         return _Coord(lambda X, Y: g(X, Y) - f(X, Y))
 
@@ -1810,37 +2152,51 @@ class _Chebop2Proxy:
     Chebfun commit: 7574c77
     """
 
-    def __init__(self, terms: dict | None = None) -> None:
+    def __init__(self, terms: dict | None = None, forcing=0.0) -> None:
         self._terms: dict[tuple[int, int], float] = (
             terms if terms is not None else {(0, 0): 1.0}
         )
+        # MATLAB chebop2: a term of the operator that does not involve u
+        # (``laplacian(u) - 1``, ``- sin(x)``) is a forcing term moved to
+        # the right-hand side (N \ f solves L u = f - forcing).
+        self._forcing = forcing
 
     def diff(self, yorder: int = 0, xorder: int = 0) -> "_Chebop2Proxy":
-        """Return the (yorder, xorder) partial derivative of this proxy."""
         new_terms: dict[tuple[int, int], float] = {}
         for (j, k), c in self._terms.items():
             key = (j + yorder, k + xorder)
             new_terms[key] = _coeff_add(new_terms[key], c) if key in new_terms else c
-        return _Chebop2Proxy(new_terms)
+        return _Chebop2Proxy(new_terms, 0.0)
+
+    def diffx(self, k: int = 1) -> "_Chebop2Proxy":
+        return self.diff(0, int(k))
+
+    def diffy(self, k: int = 1) -> "_Chebop2Proxy":
+        return self.diff(int(k), 0)
+
+    def laplacian(self) -> "_Chebop2Proxy":
+        return self.diff(2, 0) + self.diff(0, 2)
+
+    lap = laplacian
 
     def __add__(self, other) -> "_Chebop2Proxy":
-        if isinstance(other, (int, float)):
-            new_terms = dict(self._terms)
-            new_terms[(0, 0)] = _coeff_add(new_terms.get((0, 0), 0.0), float(other))
-            return _Chebop2Proxy(new_terms)
+        if isinstance(other, (int, float, complex, _Coord)):
+            return _Chebop2Proxy(dict(self._terms),
+                                 _coeff_add(self._forcing, other))
         if isinstance(other, _Chebop2Proxy):
             new_terms = dict(self._terms)
             for key, c in other._terms.items():
                 new_terms[key] = _coeff_add(new_terms[key], c) if key in new_terms else c
-            return _Chebop2Proxy(new_terms)
+            return _Chebop2Proxy(new_terms,
+                                 _coeff_add(self._forcing, other._forcing))
         return NotImplemented
 
     def __radd__(self, other) -> "_Chebop2Proxy":
         return self.__add__(other)
 
     def __sub__(self, other) -> "_Chebop2Proxy":
-        if isinstance(other, (int, float)):
-            return self.__add__(-float(other))
+        if isinstance(other, (int, float, complex, _Coord)):
+            return self.__add__(_coeff_mul(other, -1.0))
         if isinstance(other, _Chebop2Proxy):
             return self.__add__(other.__neg__())
         return NotImplemented
@@ -1851,10 +2207,12 @@ class _Chebop2Proxy:
     def __mul__(self, other) -> "_Chebop2Proxy":
         if isinstance(other, (int, float, complex)):
             return _Chebop2Proxy(
-                {key: _coeff_mul(val, other) for key, val in self._terms.items()})
+                {key: _coeff_mul(val, other) for key, val in self._terms.items()},
+                _coeff_mul(self._forcing, other))
         if isinstance(other, _Coord):
             return _Chebop2Proxy(
-                {key: _coeff_mul(other, val) for key, val in self._terms.items()})
+                {key: _coeff_mul(other, val) for key, val in self._terms.items()},
+                _coeff_mul(other, self._forcing))
         return NotImplemented
 
     def __rmul__(self, other) -> "_Chebop2Proxy":
@@ -1862,7 +2220,8 @@ class _Chebop2Proxy:
 
     def __neg__(self) -> "_Chebop2Proxy":
         return _Chebop2Proxy(
-            {key: _coeff_mul(val, -1.0) for key, val in self._terms.items()})
+            {key: _coeff_mul(val, -1.0) for key, val in self._terms.items()},
+            _coeff_mul(self._forcing, -1.0))
 
     def __truediv__(self, other) -> "_Chebop2Proxy":
         if isinstance(other, (int, float, complex)):

@@ -33,6 +33,11 @@ def matlab_expression(expr: str, var_names: tuple[str, ...]):
     s = s.replace(".^", "**").replace("^", "**")
     ns = {"__builtins__": {}}
     ns.update(_FUNS)
-    fn = eval(  # noqa: S307 -- restricted namespace, math only
-        f"lambda {', '.join(var_names)}: {s}", ns)
+    try:
+        fn = eval(  # noqa: S307 -- restricted namespace, math only
+            f"lambda {', '.join(var_names)}: {s}", ns)
+    except SyntaxError as exc:
+        raise TypeError(
+            f"Cannot construct a chebfun from the string {expr!r}: not a "
+            "valid MATLAB expression.") from exc
     return fn
