@@ -203,6 +203,9 @@ class Spinop3:
         self._nonlin_vals = None
         self._is_real = None
         self._n_vars = 1
+        self._lin_handle = None
+        self._nonlin_handle = None
+        self._init_value = None
         if arg is None:
             return
         if isinstance(arg, str):
@@ -223,6 +226,94 @@ class Spinop3:
             self.domain = tuple(float(v) for v in arg)
             if tspan is not None:
                 self.tspan = tuple(float(v) for v in tspan)
+
+
+    # ------------------------------------------------------------------
+    # MATLAB-style operator handles: S.lin = '@(u,v) [lap(u); 10*lap(v)]'
+    # ------------------------------------------------------------------
+    @property
+    def lin(self):
+        """Linear part (a :class:`FuncHandle`; assign a MATLAB anonymous
+        function string to define a custom operator)."""
+        return self._lin_handle
+
+    @lin.setter
+    def lin(self, value):
+        if value is None or isinstance(value, FuncHandle):
+            self._lin_handle = value
+            return
+        if isinstance(value, str):
+            from chebfunjax.operators.spinop_parse import (
+                func2str_text,
+                parse_lin_handle,
+            )
+            names, coeffs = parse_lin_handle(value)
+            self._lin_handle = FuncHandle(None, func2str_text(value))
+            self._set_lin_coeffs(coeffs)
+            self._n_vars = len(coeffs)
+            self._is_real = all(complex(c).imag == 0.0
+                                for row in coeffs for c in row)
+            return
+        raise TypeError(
+            "S.lin must be a MATLAB anonymous-function string such as "
+            "'@(u) lap(u) - biharm(u)' or '@(u,v) [lap(u); 10*lap(v)]'.")
+
+    @property
+    def nonlin(self):
+        """Nonlinear part (a :class:`FuncHandle`; assign a MATLAB string
+        such as ``'@(u) u - u.^3'`` or a Python callable of the values)."""
+        return self._nonlin_handle
+
+    @nonlin.setter
+    def nonlin(self, value):
+        if value is None or isinstance(value, FuncHandle):
+            self._nonlin_handle = value
+            return
+        if isinstance(value, str):
+            from chebfunjax.operators.spinop_parse import (
+                func2str_text,
+                parse_nonlin_handle,
+            )
+            names, fns = parse_nonlin_handle(value)
+            self._nonlin_vals = fns[0] if len(fns) == 1 else list(fns)
+            self._nonlin_handle = FuncHandle(
+                fns[0] if len(fns) == 1 else (lambda *a: tuple(f(*a) for f in fns)),
+                func2str_text(value))
+            return
+        if callable(value):
+            self._nonlin_vals = value
+            self._nonlin_handle = FuncHandle(value, "@(u)<python callable>")
+            return
+        if isinstance(value, (list, tuple)) and all(callable(f) for f in value):
+            self._nonlin_vals = list(value)
+            self._nonlin_handle = FuncHandle(
+                lambda *a: tuple(f(*a) for f in value), "@(u,...)<python callables>")
+            return
+        raise TypeError("S.nonlin must be a MATLAB string, a callable or a "
+                        "list of callables.")
+
+    @property
+    def init(self):
+        """Initial condition: a callable of the grid (or a list of them
+        for a system)."""
+        return self._init_value
+
+    @init.setter
+    def init(self, value):
+        self._init_value = value
+
+    def _set_lin_coeffs(self, coeffs):
+        ops = ("lap", "biharm", "triharm", "quadharm", "quintharm")
+        scales, names = [], []
+        for row in coeffs:
+            sc = tuple(c for c in row if c != 0) or (0.0,)
+            nm = tuple(o for c, o in zip(row, ops) if c != 0) or ("lap",)
+            scales.append(sc)
+            names.append(nm)
+        if len(coeffs) == 1:
+            self._lin_scales, self._lin_ops = scales[0], names[0]
+        else:
+            self._lin_scales, self._lin_ops = scales, names
 
     @property
     def numVars(self) -> int:
@@ -334,7 +425,7 @@ def spin3(S: Spinop3, N: int, dt: float, *args, **kwargs):
         domain=tuple(float(v) for v in S.domain),
         tspan=tuple(float(v) for v in S.tspan),
         u0=S.init,
-        is_real=S._is_real,
+        is_real=bool(S._is_real) and _init_is_real(S.init, S.domain),
     )
     from chebfunjax.operators.spinop import _parse_scheme
     _da = kwargs.get("dealias", True)
@@ -351,6 +442,9 @@ def spin3(S: Spinop3, N: int, dt: float, *args, **kwargs):
     # condition -- MATLAB's is not.)
     return _make_trig_interp(np.transpose(np.asarray(u_final), (1, 0, 2)),
                              [(ax, bx), (ay, by), (az, bz)])
+
+
+from chebfunjax.operators.spinop2 import _init_is_real  # noqa: E402
 
 
 def _spin3_system(S: "Spinop3", N: int, dt: float, scheme, dealias: bool,

@@ -214,6 +214,9 @@ class Spinop2:
         self._nonlin_vals = None
         self._n_vars = 1
         self._is_real = None
+        self._lin_handle = None
+        self._nonlin_handle = None
+        self._init_value = None
         if arg is None:
             return
         if isinstance(arg, str):
@@ -233,6 +236,85 @@ class Spinop2:
             self.domain = tuple(float(v) for v in arg)
             if tspan is not None:
                 self.tspan = tuple(float(v) for v in tspan)
+
+
+    # ------------------------------------------------------------------
+    # MATLAB-style operator handles: S.lin = '@(u,v) [lap(u); 10*lap(v)]'
+    # ------------------------------------------------------------------
+    @property
+    def lin(self):
+        """Linear part (a :class:`FuncHandle`; assign a MATLAB anonymous
+        function string to define a custom operator)."""
+        return self._lin_handle
+
+    @lin.setter
+    def lin(self, value):
+        if value is None or isinstance(value, FuncHandle):
+            self._lin_handle = value
+            return
+        if isinstance(value, str):
+            from chebfunjax.operators.spinop_parse import (
+                func2str_text,
+                parse_lin_handle,
+            )
+            names, coeffs = parse_lin_handle(value)
+            self._lin_handle = FuncHandle(None, func2str_text(value))
+            self._set_lin_coeffs(coeffs)
+            self._n_vars = len(coeffs)
+            self._is_real = all(complex(c).imag == 0.0
+                                for row in coeffs for c in row)
+            return
+        raise TypeError(
+            "S.lin must be a MATLAB anonymous-function string such as "
+            "'@(u) lap(u) - biharm(u)' or '@(u,v) [lap(u); 10*lap(v)]'.")
+
+    @property
+    def nonlin(self):
+        """Nonlinear part (a :class:`FuncHandle`; assign a MATLAB string
+        such as ``'@(u) u - u.^3'`` or a Python callable of the values)."""
+        return self._nonlin_handle
+
+    @nonlin.setter
+    def nonlin(self, value):
+        if value is None or isinstance(value, FuncHandle):
+            self._nonlin_handle = value
+            return
+        if isinstance(value, str):
+            from chebfunjax.operators.spinop_parse import (
+                func2str_text,
+                parse_nonlin_handle,
+            )
+            names, fns = parse_nonlin_handle(value)
+            self._nonlin_vals = fns[0] if len(fns) == 1 else list(fns)
+            self._nonlin_handle = FuncHandle(
+                fns[0] if len(fns) == 1 else (lambda *a: tuple(f(*a) for f in fns)),
+                func2str_text(value))
+            return
+        if callable(value):
+            self._nonlin_vals = value
+            self._nonlin_handle = FuncHandle(value, "@(u)<python callable>")
+            return
+        if isinstance(value, (list, tuple)) and all(callable(f) for f in value):
+            self._nonlin_vals = list(value)
+            self._nonlin_handle = FuncHandle(
+                lambda *a: tuple(f(*a) for f in value), "@(u,...)<python callables>")
+            return
+        raise TypeError("S.nonlin must be a MATLAB string, a callable or a "
+                        "list of callables.")
+
+    @property
+    def init(self):
+        """Initial condition: a callable of the grid (or a list of them
+        for a system)."""
+        return self._init_value
+
+    @init.setter
+    def init(self, value):
+        self._init_value = value
+
+    def _set_lin_coeffs(self, coeffs):
+        self._lin_coeffs = tuple(coeffs[0]) if len(coeffs) == 1 else [
+            tuple(c) for c in coeffs]
 
     @property
     def numVars(self) -> int:
@@ -332,7 +414,7 @@ def spin2(S: Spinop2, N: int, dt: float, *args, **kwargs):
         domain=tuple(float(v) for v in S.domain),
         tspan=tuple(float(v) for v in S.tspan),
         u0=S.init,
-        is_real=S._is_real,
+        is_real=bool(S._is_real) and _init_is_real(S.init, S.domain),
     )
     from chebfunjax.operators.spinop import _parse_scheme
     # MATLAB spinpref2 defaults: dealias 'off'; chebfunjax's ETDRK4 path
@@ -368,3 +450,20 @@ class _TrigInterpVector:
 
     def __iter__(self):
         return iter(self.components)
+
+
+def _init_is_real(init, domain) -> bool:
+    """True when the initial condition(s) evaluate real at the domain
+    centre (a real operator with a complex initial condition keeps a
+    complex solution)."""
+    mids = [0.5 * (float(domain[2 * k]) + float(domain[2 * k + 1]))
+            for k in range(len(domain) // 2)]
+    fns = init if isinstance(init, (list, tuple)) else [init]
+    for f in fns:
+        try:
+            v = np.asarray(f(*[jnp.asarray(m) for m in mids]))
+        except Exception:
+            return True
+        if np.iscomplexobj(v) and np.any(np.imag(v) != 0.0):
+            return False
+    return True
