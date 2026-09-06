@@ -185,7 +185,22 @@ class Spinop:
         self.nonlin_str = _NONLIN_STRINGS.get(name)
 
 
-def spin(S: Spinop, n: int, dt: float):
+def _parse_scheme(args, kwargs, scheme):
+    """MATLAB-style trailing ('plot', 'off', 'scheme', name) pairs or the
+    ``scheme=`` keyword; plotting options are accepted and ignored."""
+    if scheme is not None:
+        return str(scheme).lower()
+    if "scheme" in kwargs and kwargs["scheme"] is not None:
+        return str(kwargs["scheme"]).lower()
+    a = list(args)
+    for i in range(len(a) - 1):
+        if isinstance(a[i], str) and a[i].lower() == "scheme":
+            return str(a[i + 1]).lower()
+    return None
+
+
+def spin(S: Spinop, n: int, dt: float, *args, scheme: str | None = None,
+         M: int = 32, **kwargs):
     """Solve the Spinop's PDE with ETDRK4 on an n-point Fourier grid
     (MATLAB spin(S, N, dt, 'plot', 'off')): returns a trig chebfun
     of the solution at tspan(end).
@@ -216,16 +231,25 @@ def spin(S: Spinop, n: int, dt: float):
     E2 = np.exp(dt * L / 2.0)
 
     # contour-integral phi weights (Kassam-Trefethen)
-    M = 32
-    r = np.exp(1j * np.pi * (np.arange(1, M + 1) - 0.5) / M)
+    # MATLAB @spinoperator/computeLR: upper half circle + real parts for
+    # a real operator, the FULL circle with complex coefficients for a
+    # complex one (KdV's i*om^3; the real-part shortcut of Kassam &
+    # Trefethen's kdv.m is a 1e-5 relative error at |dt L| ~ 0.2).
+    _is_real_L = bool(np.all(np.imag(L) == 0.0))
+    if _is_real_L:
+        r = np.exp(1j * np.pi * (np.arange(1, M + 1) - 0.5) / M)
+        _part = np.real
+    else:
+        r = np.exp(2j * np.pi * (np.arange(1, M + 1) - 0.5) / M)
+        _part = lambda z: z  # noqa: E731
     LR = dt * L[:, None] + r[None, :]
-    Q = dt * np.real(np.mean((np.exp(LR / 2) - 1) / LR, axis=1))
-    f1 = dt * np.real(np.mean(
+    Q = dt * _part(np.mean((np.exp(LR / 2) - 1) / LR, axis=1))
+    f1 = dt * _part(np.mean(
         (-4 - LR + np.exp(LR) * (4 - 3 * LR + LR ** 2)) / LR ** 3,
         axis=1))
-    f2 = dt * np.real(np.mean(
+    f2 = dt * _part(np.mean(
         (2 + LR + np.exp(LR) * (-2 + LR)) / LR ** 3, axis=1))
-    f3 = dt * np.real(np.mean(
+    f3 = dt * _part(np.mean(
         (-4 - 3 * LR - LR ** 2 + np.exp(LR) * (4 - LR)) / LR ** 3,
         axis=1))
 
@@ -241,6 +265,31 @@ def spin(S: Spinop, n: int, dt: float):
 
     t0, t1 = S.tspan
     nsteps = int(round((t1 - t0) / dt))
+    # MATLAB spin(S, N, dt, 'scheme', name): any expinteg scheme through
+    # the generic engine (@expinteg/{computeCoeffs,oneStep,startMultistep});
+    # the default ETDRK4 keeps the dedicated loop below.
+    _scheme = _parse_scheme(args, kwargs, scheme)
+    if _scheme is not None and _scheme != "etdrk4":
+        from chebfunjax.operators.expinteg_engine import Expinteg, integrate
+        K = Expinteg(_scheme)
+        is_real = bool(np.all(np.imag(L) == 0.0))
+        Nc = dealias.astype(float)
+
+        def _Nv(vals):
+            return S.nonlin(np.real(vals), om, dx_op)
+
+        def _c2v(c):
+            return np.real(np.fft.ifft(c))
+
+        def _v2c(vals):
+            return np.fft.fft(vals)
+
+        def _post(vh):
+            return np.fft.fft(np.real(np.fft.ifft(vh)))
+
+        v = integrate(K, dt, np.real(L) if is_real else L, M, is_real, Nc,
+                      _Nv, _c2v, _v2c, 1, v, nsteps, post=_post)
+        nsteps = 0
     for _ in range(nsteps):
         Nv = Nhat(v)
         av = E2 * v + Q * Nv

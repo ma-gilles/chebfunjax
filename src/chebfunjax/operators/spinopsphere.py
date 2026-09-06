@@ -411,6 +411,14 @@ def spinsphere(S: Spinopsphere, N: int, dt: float, *args, **kwargs):
 
     A = complex(S.lin_scale)
     is_real = A.imag == 0.0
+    # MATLAB solvepde: IMEX-BDF4 for a real operator, LIRK4 otherwise,
+    # unless spinsphere(..., 'scheme', name) picks one explicitly.
+    from chebfunjax.operators.spinop import _parse_scheme
+    _scheme = _parse_scheme(args, kwargs, None)
+    if _scheme is not None:
+        if _scheme not in ("imexbdf4", "lirk4"):
+            raise ValueError("Use IMEX schemes with SPINSPHERE. See HELP/IMEX.")
+        is_real = _scheme == "imexbdf4"
     nonlin = S.nonlin
     t0, tf = S.tspan
     nsteps = int(round((tf - t0) / dt))

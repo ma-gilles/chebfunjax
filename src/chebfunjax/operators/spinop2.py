@@ -86,8 +86,86 @@ def _preset(pdechar: str):
             (1.0, 0.0, 0.0, 0.0, 0.0),  # lin_coeffs (A*lap)
             nonlin_vals, 1, False,
         )
+    if key in ("GS", "GSSPOTS"):
+        # Gray-Scott: u_t = 2e-5 lap(u) + F(1-u) - u v^2,
+        #             v_t = 1e-5 lap(v) - (F+K) v + u v^2 on [0,1]^2.
+        F, K = (0.030, 0.057) if key == "GS" else (0.026, 0.059)
+        G = 1.0
+        lin = FuncHandle(None, "@(u,v)[2e-5*lap(u);1e-5*lap(v)]")
+        nonlin = FuncHandle(
+            lambda u, v: (F * (1 - u) - u * v ** 2, -(F + K) * v + u * v ** 2),
+            "@(u,v)[F*(1-u)-u.*v.^2;-(F+K)*v+u.*v.^2]",
+        )
+
+        def n1(u, v):
+            return F * (1.0 - u) - u * v ** 2
+
+        def n2(u, v):
+            return -(F + K) * v + u * v ** 2
+
+        def u01(x, y):
+            return 1.0 - jnp.exp(-100.0 * ((x - G / 2.05) ** 2
+                                           + (y - G / 2.05) ** 2))
+
+        def u02(x, y):
+            return jnp.exp(-100.0 * ((x - G / 2) ** 2 + 2 * (y - G / 2) ** 2))
+
+        return (
+            (0.0, G, 0.0, G), (0.0, 5000.0), lin, nonlin, [u01, u02],
+            [(2e-5, 0.0, 0.0, 0.0, 0.0), (1e-5, 0.0, 0.0, 0.0, 0.0)],
+            [n1, n2], 2, True,
+        )
+    if key == "SCHNAK":
+        # Schnakenberg: u_t = lap(u) + 3(.1 - u + u^2 v),
+        #               v_t = 10 lap(v) + 3(.9 - u^2 v) on [0,50]^2.
+        G = 50.0
+        lin = FuncHandle(None, "@(u,v)[lap(u);10*lap(v)]")
+        nonlin = FuncHandle(
+            lambda u, v: (3 * (.1 - u + u ** 2 * v), 3 * (.9 - u ** 2 * v)),
+            "@(u,v)[3*(.1-u+u.^2.*v);3*(.9-u.^2.*v)]",
+        )
+
+        def n1(u, v):
+            return 3.0 * (0.1 - u + u ** 2 * v)
+
+        def n2(u, v):
+            return 3.0 * (0.9 - u ** 2 * v)
+
+        def u01(x, y):
+            return 1.0 - jnp.exp(-2.0 * ((x - G / 2.15) ** 2
+                                         + (y - G / 2.15) ** 2))
+
+        def u02(x, y):
+            return (0.9 / (0.1 + 0.9) ** 2
+                    + jnp.exp(-2.0 * ((x - G / 2) ** 2 + 2 * (y - G / 2) ** 2)))
+
+        return (
+            (0.0, G, 0.0, G), (0.0, 500.0), lin, nonlin, [u01, u02],
+            [(1.0, 0.0, 0.0, 0.0, 0.0), (10.0, 0.0, 0.0, 0.0, 0.0)],
+            [n1, n2], 2, True,
+        )
+    if key == "SH":
+        # Swift-Hohenberg: u_t = -2 lap(u) - biharm(u) - .9 u - u^3 on [0,50]^2.
+        G = 50.0
+        dom = (0.0, G, 0.0, G)
+        lin = FuncHandle(None, "@(u)-2*lap(u)-biharm(u)")
+        nonlin = FuncHandle(lambda u: -.9 * u - u ** 3, "@(u)-.9*u-u.^3")
+
+        def nonlin_vals(u):
+            return -0.9 * u - u ** 3
+
+        from chebfunjax.utils.random import randnfun2
+        f0 = randnfun2(4.0, dom, trig=True)
+        gx, gy = jnp.meshgrid(jnp.linspace(0.0, G, 201), jnp.linspace(0.0, G, 201))
+        scale = float(jnp.max(jnp.abs(f0(gx, gy))))
+
+        def u0(x, y):
+            return f0(x, y) / scale
+
+        return (dom, (0.0, 800.0), lin, nonlin, u0,
+                (-2.0, -1.0, 0.0, 0.0, 0.0), nonlin_vals, 1, True)
     raise ValueError(
-        f"Unrecognized PDE {pdechar!r}. Options: GL.")
+        f"Unrecognized PDE {pdechar!r}. Options: GL, GS, GSspots, Schnak, SH.")
 
 
 # ---------------------------------------------------------------------------
@@ -256,6 +334,37 @@ def spin2(S: Spinop2, N: int, dt: float, *args, **kwargs):
         u0=S.init,
         is_real=S._is_real,
     )
-    _xx, _yy, _t, u_final = _core_spin2(core, N, dt)
+    from chebfunjax.operators.spinop import _parse_scheme
+    # MATLAB spinpref2 defaults: dealias 'off'; chebfunjax's ETDRK4 path
+    # dealiases by default (stability of the stiff presets) -- pass
+    # dealias=False for MATLAB's default behaviour.
+    _da = kwargs.get("dealias", True)
+    _al = list(args)
+    for i in range(len(_al) - 1):
+        if isinstance(_al[i], str) and _al[i].lower() == "dealias":
+            _da = str(_al[i + 1]).lower() in ("on", "true", "1")
+    _xx, _yy, _t, u_final = _core_spin2(core, N, dt, dealias=bool(_da),
+                                        scheme=_parse_scheme(args, kwargs, None))
     ax, bx, ay, by = core.domain
+    if isinstance(u_final, (list, tuple)):
+        # MATLAB returns the chebmatrix [u; v]: a vector of interpolants.
+        return _TrigInterpVector([_make_trig_interp(v, [(ax, bx), (ay, by)])
+                                  for v in u_final])
     return _make_trig_interp(u_final, [(ax, bx), (ay, by)])
+
+
+class _TrigInterpVector:
+    """System solution of spin2 (MATLAB chebmatrix ``[u; v]``): the
+    per-unknown periodic interpolants in ``components``."""
+
+    def __init__(self, components):
+        self.components = list(components)
+
+    def __len__(self):
+        return len(self.components)
+
+    def __getitem__(self, k):
+        return self.components[k]
+
+    def __iter__(self):
+        return iter(self.components)

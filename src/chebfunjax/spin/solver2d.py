@@ -330,6 +330,7 @@ def spin2(
     dealias: bool = True,
     M: int = 32,
     verbose: bool = False,
+    scheme: Optional[str] = None,
 ) -> Tuple[np.ndarray, np.ndarray, float, object]:
     """Solve a 2D periodic semilinear PDE via ETDRK4.
 
@@ -447,6 +448,10 @@ def spin2(
 
     # ---- Dealiasing mask ----
     dmask = _dealias_mask_2d(N) if dealias else None
+    # ---- Any other expinteg scheme: generic engine (MATLAB 'scheme') ----
+    if scheme is not None and str(scheme).lower() != "etdrk4":
+        return _spin2_generic_scheme(op, N, dt, str(scheme).lower(), dmask,
+                                     M, xx, yy, nsteps, t0)
 
     # ================================================================
     # Scalar PDE
@@ -546,3 +551,60 @@ def spin2(
         u_finals.append(u_val)
 
     return xx, yy, t, u_finals
+
+
+def _spin2_generic_scheme(op, N, dt, scheme, dmask, M, xx, yy, nsteps, t0):
+    """2D stepping with any expinteg scheme (MATLAB spin2(..., 'scheme',
+    name)) through :mod:`chebfunjax.operators.expinteg_engine`: the
+    unknowns' coefficient blocks are stacked along the first axis
+    ``(nVars*N, N)`` exactly as in @expinteg/oneStep.m."""
+    from chebfunjax.operators.expinteg_engine import Expinteg, integrate
+
+    ax, bx, ay, by = op.domain
+    n_vars = op.n_vars
+    lin_coeffs = [op.lin_coeffs] if n_vars == 1 else list(op.lin_coeffs)
+    L = np.concatenate([np.asarray(build_linear_eigenvalues_2d(
+        lin_coeffs[i], N, (ax, bx, ay, by)), dtype=complex)
+        for i in range(n_vars)], axis=0)
+    is_real = bool(np.allclose(np.imag(L), 0.0))
+    if is_real:
+        L = np.real(L)
+    # Dealiasing convention of the ETDRK4 paths above: the mask is applied
+    # to the new state after each step (and to u0), not to the nonlinear
+    # coefficients, so the schemes agree to rounding.
+    mask = np.ones((N, N)) if dmask is None else dmask.astype(float)
+    Nc = np.ones((n_vars * N, N))
+    mask_full = np.concatenate([mask] * n_vars, axis=0)
+    u0s = [op.u0] if n_vars == 1 else list(op.u0)
+    u0 = np.concatenate([np.asarray(np.fft.fft2(np.asarray(
+        u0s[i](xx, yy), dtype=complex)), dtype=complex) for i in range(n_vars)],
+        axis=0)
+    if dmask is not None:
+        u0 = u0 * mask_full
+    nonlin = op.nonlin_vals
+
+    def _c2v(c):
+        return np.fft.ifft2(c)
+
+    def _v2c(v):
+        return np.fft.fft2(v)
+
+    def _Nv(vals):
+        if n_vars == 1:
+            return np.asarray(nonlin(vals))
+        parts = [vals[k * N:(k + 1) * N] for k in range(n_vars)]
+        return np.concatenate([np.asarray(nonlin[k](*parts))
+                               for k in range(n_vars)], axis=0)
+
+    K = Expinteg(scheme)
+    post = (lambda u: u * mask_full) if dmask is not None else None
+    u = integrate(K, dt, L, M, is_real, Nc, _Nv, _c2v, _v2c, n_vars, u0,
+                  nsteps, post=post)
+    t = float(t0) + nsteps * dt
+    outs = []
+    for k in range(n_vars):
+        val = np.fft.ifft2(u[k * N:(k + 1) * N])
+        outs.append(np.real(val) if op.is_real else val)
+    if n_vars == 1:
+        return xx, yy, t, outs[0]
+    return xx, yy, t, outs

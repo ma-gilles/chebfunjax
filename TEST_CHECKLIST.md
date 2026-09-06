@@ -3,7 +3,7 @@
 One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (runs green in the suite), `[~]` ported with some cases skipped, `[ ]` skipped or missing (reason shown). GUI-only dirs (chebgui) and adchebfun are excluded by project policy.
 
 
-**Totals: 1102 MATLAB tests — 1068 ported+enabled, 0 partial, 27 skipped, 7 missing (96% enabled).**
+**Totals: 1102 MATLAB tests — 1069 ported+enabled, 0 partial, 26 skipped, 7 missing (97% enabled).**
 
 
 ## adchebfun  (0/26 enabled)
@@ -1154,10 +1154,10 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 
 - [x] `test_spinprefsphere`
 
-## spinscheme  (1/2 enabled)
+## spinscheme  (2/2 enabled)
 
 - [x] `test_phiFun`
-- [ ] `test_startMultistep` — test compares ETDRK4 vs the multistep PECEC736 (1D/2D) and LIRK4 vs IMEXBDF4 (sphere) via
+- [x] `test_startMultistep`
 
 ## treeVar  (7/7 enabled)
 
