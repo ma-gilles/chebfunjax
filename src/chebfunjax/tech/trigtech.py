@@ -1793,10 +1793,15 @@ class Trigtech(eqx.Module):
         cutoff, chop_len = _trig_chop_cutoff(c_noisy, tol)
         cutoff = min(cutoff, chop_len)
 
-        n_keep = _chop_cutoff_to_ncoeffs(cutoff, N)
-        n_keep = min(n_keep, nold)
-        if n_keep % 2 == 0:
-            n_keep = max(1, n_keep - 1)
+        # MATLAB: cutoff = min(cutoff, nold); an even cutoff keeps
+        # cutoff/2 + 1 modes on each side (length cutoff + 1), an odd one
+        # (cutoff - 1)/2 + 1 (length cutoff).  In particular an
+        # unchoppable EVEN-length tech becomes the odd length nold + 1
+        # with its Nyquist coefficient split over +-N/2 -- never nold - 1,
+        # which silently dropped the Nyquist mode (spin's KdV output).
+        cutoff = min(cutoff, nold)
+        n_keep = cutoff + 1 if cutoff % 2 == 0 else cutoff
+        n_keep = max(1, n_keep)
 
         new_coeffs = _trig_prolong_coeffs(self.coeffs, n_keep)
         return Trigtech(coeffs=new_coeffs, is_real=self.is_real, ishappy=self.ishappy)

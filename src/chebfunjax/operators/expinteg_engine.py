@@ -178,59 +178,12 @@ def compute_coeffs(K: Expinteg, dt: float, L: np.ndarray, M: int,
         v = psi_eval(l, c, LR, shape)
         return np.real(v) if is_real else v
 
-    if name == "etdrk2":
-        C[:] = [0.0, 1.0]
-        p1, p2 = phi(1), phi(2)
-        A[1][0] = p1
-        B[0] = p1 - p2
-        B[1] = p2
-    elif name == "etdrk4":
-        C[:] = [0.0, 0.5, 0.5, 1.0]
-        p1, p2, p3 = phi(1), phi(2), phi(3)
-        ps12 = psi(1, C[1])
-        A[2][1] = ps12
-        A[3][2] = 2.0 * ps12
-        B[1] = 2 * p2 - 4 * p3
-        B[2] = 2 * p2 - 4 * p3
-        B[3] = -p2 + 4 * p3
-        phis = {1: p1}
-        psis = {(1, 2): ps12, (1, 3): psi(1, C[2]), (1, 4): psi(1, C[3])}
-        _missing(A, B, U, V, s, q, phis, psis)
-        return _finish(dt, L, C, A, B, U, V, s)
-    elif name == "pecec736":
-        C[:] = [0.0, 1.0, 1.0]
-        p = {l: phi(l) for l in range(1, 8)}
-        A[2][1] = (p[2] / 6 + 137 / 180 * p[3] + 15 / 8 * p[4]
-                   + 17 / 6 * p[5] + 5 / 2 * p[6] + p[7])
-        B[2] = (p[2] / 6 + 137 / 180 * p[3] + 15 / 8 * p[4]
-                + 17 / 6 * p[5] + 5 / 2 * p[6] + p[7])
-        U[1][0] = -5 * p[2] - 77 / 6 * p[3] - 71 / 4 * p[4] - 14 * p[5] - 5 * p[6]
-        U[1][1] = 5 * p[2] + 107 / 6 * p[3] + 59 / 2 * p[4] + 26 * p[5] + 10 * p[6]
-        U[1][2] = -10 / 3 * p[2] - 13 * p[3] - 49 / 2 * p[4] - 24 * p[5] - 10 * p[6]
-        U[1][3] = 5 / 4 * p[2] + 61 / 12 * p[3] + 41 / 4 * p[4] + 11 * p[5] + 5 * p[6]
-        U[1][4] = -p[2] / 5 - 5 / 6 * p[3] - 7 / 4 * p[4] - 2 * p[5] - p[6]
-        U[2][0] = (-5 / 2 * p[2] - 17 / 12 * p[3] + 83 / 8 * p[4] + 57 / 2 * p[5]
-                   + 65 / 2 * p[6] + 15 * p[7])
-        U[2][1] = (5 / 3 * p[2] + 47 / 18 * p[3] - 8 * p[4] - 92 / 3 * p[5]
-                   - 40 * p[6] - 20 * p[7])
-        U[2][2] = (-5 / 6 * p[2] - 19 / 12 * p[3] + 29 / 8 * p[4] + 37 / 2 * p[5]
-                   + 55 / 2 * p[6] + 15 * p[7])
-        U[2][3] = (p[2] / 4 + 31 / 60 * p[3] - p[4] - 6 * p[5] - 10 * p[6]
-                   - 6 * p[7])
-        U[2][4] = (-p[2] / 30 - 13 / 180 * p[3] + p[4] / 8 + 5 / 6 * p[5]
-                   + 3 / 2 * p[6] + p[7])
-        V[0] = U[2][0]
-        V[1] = U[2][1]
-        V[2] = U[2][2]
-        V[3] = U[2][3]
-        V[4] = U[2][4]
-        phis = {1: p[1]}
-        psis = {(1, 2): psi(1, C[1]), (1, 3): psi(1, C[2])}
-        _missing(A, B, U, V, s, q, phis, psis)
-        return _finish(dt, L, C, A, B, U, V, s)
-    else:
-        raise NotImplementedError(
-            f"expinteg scheme '{name}' coefficient table not ported yet.")
+    from chebfunjax.operators.expinteg_tables import fill_tables
+    p, ps = fill_tables(name, C, A, B, U, V, phi, psi)
+    # MATLAB: computeMissingCoeffs for every scheme except the Lawson
+    # pair and ETDRK2 (their first-stage weights are given explicitly).
+    if name not in ("lawson4", "ablawson4", "etdrk2"):
+        _missing(A, B, U, V, s, q, p, ps)
     return _finish(dt, L, C, A, B, U, V, s)
 
 

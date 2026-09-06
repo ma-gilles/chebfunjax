@@ -492,6 +492,7 @@ def spin3(
     dealias: bool = True,
     M: int = 32,
     verbose: bool = False,
+    scheme: Optional[str] = None,
 ) -> Tuple[tuple, float, np.ndarray]:
     """Solve a 3-D periodic semilinear PDE via ETDRK4.
 
@@ -594,7 +595,28 @@ def spin3(
 
     # ---- Dealiasing mask ----
     dmask = op.dealias_mask(N) if dealias else None
-
+    # ---- Any other expinteg scheme: generic engine (MATLAB 'scheme') ----
+    if scheme is not None and str(scheme).lower() != "etdrk4":
+        from chebfunjax.operators.expinteg_engine import Expinteg, integrate
+        nsteps = int(round((tf - t0) / dt))
+        L = np.asarray(L_tensor, dtype=complex)
+        is_real = bool(np.allclose(np.imag(L), 0.0))
+        if is_real:
+            L = np.real(L)
+        u0 = np.asarray(np.fft.fftn(u0_vals), dtype=complex)
+        mask = None if dmask is None else np.asarray(dmask, dtype=float)
+        if mask is not None:
+            u0 = u0 * mask
+        Nc = np.ones_like(L, dtype=float)
+        nonlin = op.nonlin_vals
+        post = (lambda u: u * mask) if mask is not None else None
+        u = integrate(Expinteg(str(scheme).lower()), dt, L, M, is_real, Nc,
+                      lambda v: np.asarray(nonlin(v)), np.fft.ifftn,
+                      np.fft.fftn, 1, u0, nsteps, post=post)
+        u_final = np.fft.ifftn(u)
+        if op.is_real:
+            u_final = np.real(u_final)
+        return (xx, yy, zz), t0 + nsteps * dt, u_final
     # ---- Initial Fourier coefficients ----
     u_hat = jnp.fft.fftn(u0_vals)
     if dealias and dmask is not None:

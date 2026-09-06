@@ -218,15 +218,29 @@ def spin(S: Spinop, n: int, dt: float, *args, scheme: str | None = None,
     k = np.fft.fftfreq(n, d=1.0 / n)          # integer wavenumbers
     om = 2.0 * np.pi * k / P                  # angular wavenumbers
 
+    # MATLAB trigtech convention for even n: the Nyquist mode (k = -n/2)
+    # has ZERO odd-order derivative (its sawtooth is real), so the odd
+    # part of every differential symbol vanishes there.
+    _nyq = n // 2 if n % 2 == 0 else None
+
     def dx_op(vals, order):
-        return np.real(np.fft.ifft(
-            (1j * om) ** order * np.fft.fft(vals)))
+        fac = (1j * om) ** order
+        if _nyq is not None and order % 2 == 1:
+            fac = fac.copy()
+            fac[_nyq] = 0.0
+        return np.real(np.fft.ifft(fac * np.fft.fft(vals)))
 
     u0 = S.init(x) if callable(S.init) else np.asarray(
         S.init(jnp.asarray(x)))
     v = np.fft.fft(np.asarray(u0, dtype=float))
 
-    L = S.lin_symbol(om).astype(complex)
+    L = np.asarray(S.lin_symbol(om)).astype(complex)
+    if _nyq is not None:
+        # even part of the symbol at the Nyquist mode (see dx_op)
+        L_even = 0.5 * (np.asarray(S.lin_symbol(om)).astype(complex)
+                        + np.asarray(S.lin_symbol(-om)).astype(complex))
+        L = L.copy()
+        L[_nyq] = L_even[_nyq]
     E = np.exp(dt * L)
     E2 = np.exp(dt * L / 2.0)
 
@@ -256,7 +270,15 @@ def spin(S: Spinop, n: int, dt: float, *args, scheme: str | None = None,
     # 2/3-rule dealiasing mask (MATLAB spin dealiases the
     # nonlinear evaluation; without it stiff nonlinearities like
     # Cahn-Hilliard's (u^3)_xx alias and blow up)
-    dealias = np.abs(k) < n / 3.0
+    # MATLAB spinpref default: dealias 'off'; chebfunjax dealiases by
+    # default (stability of the stiff presets) -- spin(..., 'dealias',
+    # 'off') / dealias=False gives MATLAB's default behaviour.
+    _da = kwargs.get("dealias", True)
+    _al = list(args)
+    for _i in range(len(_al) - 1):
+        if isinstance(_al[_i], str) and _al[_i].lower() == "dealias":
+            _da = str(_al[_i + 1]).lower() in ("on", "true", "1")
+    dealias = (np.abs(k) < n / 3.0) if _da else np.ones(n, dtype=bool)
 
     def Nhat(vhat):
         vals = np.real(np.fft.ifft(vhat))

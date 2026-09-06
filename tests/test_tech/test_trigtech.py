@@ -559,6 +559,24 @@ class TestSimplify:
             np.array(f(x)), np.array(jnp.real(g(x))), atol=1e-12
         )
 
+    def test_simplify_keeps_nyquist_mode_of_even_length(self):
+        """MATLAB simplify.m: an unchoppable EVEN-length trigtech becomes
+        the odd length n+1 (Nyquist coefficient split over +-N/2), never
+        n-1 -- that silently dropped the Nyquist mode (spin's KdV
+        output lost its highest mode, a 2e-4 error against MATLAB)."""
+        n = 128
+        xr = -1.0 + 2.0 * np.arange(n) / n
+        vals = (1.0 + 0.5 * np.cos(np.pi * 3 * xr)
+                + 0.3 * np.cos(np.pi * (n // 2) * xr))
+        f = Trigtech.from_values(jnp.asarray(vals))
+        g = f.simplify()
+        assert g.n == n + 1
+        npt.assert_allclose(np.real(np.asarray(g(jnp.asarray(xr)))), vals,
+                            atol=1e-13)
+        # a resolved smooth function still chops to its odd length
+        h = Trigtech.from_values(jnp.asarray(1.0 + 0.5 * np.cos(np.pi * 3 * xr)))
+        assert h.simplify().n == 7
+
     def test_simplify_unhappy_unchanged(self):
         """simplify of an unhappy Trigtech returns self."""
         with pytest.warns(UserWarning):

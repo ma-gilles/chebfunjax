@@ -258,6 +258,13 @@ def spin3(S: Spinop3, N: int, dt: float, *args, **kwargs):
         u0=S.init,
         is_real=S._is_real,
     )
-    _grids, _t, u_final = _core_spin3(core, N, dt)
+    from chebfunjax.operators.spinop import _parse_scheme
+    _da = kwargs.get("dealias", True)
+    _al = list(args)
+    for i in range(len(_al) - 1):
+        if isinstance(_al[i], str) and _al[i].lower() == "dealias":
+            _da = str(_al[i + 1]).lower() in ("on", "true", "1")
+    _grids, _t, u_final = _core_spin3(core, N, dt, dealias=bool(_da),
+                                      scheme=_parse_scheme(args, kwargs, None))
     ax, bx, ay, by, az, bz = core.domain
     return _make_trig_interp(u_final, [(ax, bx), (ay, by), (az, bz)])
