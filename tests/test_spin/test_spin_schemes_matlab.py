@@ -23,6 +23,7 @@ import scipy.io
 
 from chebfunjax.operators.spinop import Spinop, spin
 from chebfunjax.operators.spinop2 import Spinop2, spin2
+from chebfunjax.operators.spinop3 import Spinop3, spin3
 
 jax.config.update("jax_enable_x64", True)
 
@@ -68,3 +69,52 @@ def test_gray_scott_scheme_matches_matlab(k):
         r = ref[:, 2 * k + c].reshape(m, m, order="F")
         v = np.asarray(u.components[c](XX, YY))
         assert np.max(np.abs(v - r)) / np.max(np.abs(r)) < 1e-10
+
+
+_SPIN3_SCHEMES = [str(s).strip() for s in _REF["spin3_schemes"]]
+_SPIN3_ONESTEP = [k for k, s in enumerate(_SPIN3_SCHEMES)
+                  if s in ("etdrk4", "krogstad")]
+
+
+@pytest.mark.parametrize("case", ["GS", "SCHNAK"])
+@pytest.mark.parametrize("k", _SPIN3_ONESTEP,
+                         ids=[_SPIN3_SCHEMES[k] for k in _SPIN3_ONESTEP])
+def test_spin3_system_matches_matlab(case, k):
+    """3-D systems against MATLAB (one-step schemes).  MATLAB's 3-D
+    multistep schemes disagree with its own one-step schemes by ~1e-2
+    (7574c77), so only the latter are pinned to MATLAB."""
+    N = int(_REF["spin3_N"])
+    nsteps = int(_REF["spin3_nsteps"])
+    dt = float(_REF["spin3_gs_dt" if case == "GS" else "spin3_schnak_dt"])
+    S = Spinop3(case)
+    S.tspan = (0.0, nsteps * dt)
+    u = spin3(S, N, dt, "plot", "off", "dealias", "off",
+              scheme=_SPIN3_SCHEMES[k])
+    G = float(S.domain[1])
+    g = jnp.asarray(np.arange(0, N, 2) / N * G)
+    XX, YY, ZZ = jnp.meshgrid(g, g, g)                # MATLAB meshgrid (xy)
+    m = len(g)
+    ref = np.asarray(_REF["spin3_gs_uv_sub2" if case == "GS"
+                          else "spin3_schnak_uv_sub2"])
+    for c in range(2):
+        r = ref[:, 2 * k + c].reshape(m, m, m, order="F")
+        v = np.asarray(u.components[c](XX, YY, ZZ))
+        assert np.max(np.abs(v - r)) / np.max(np.abs(r)) < 1e-11
+
+
+def test_spin3_multistep_consistent_with_etdrk4():
+    """PECEC736 vs ETDRK4 in 3-D (a 7th- vs 4th-order scheme at a small
+    step agree to the ETDRK4 error); MATLAB's own 3-D multistep does
+    not, so this is pinned as self-consistency."""
+    S = Spinop3("SCHNAK")
+    dt = 1e-3
+    N = 16
+    S.tspan = (0.0, 5 * dt)
+    u = spin3(S, N, dt, "dealias", "off", scheme="etdrk4")
+    v = spin3(S, N, dt, "dealias", "off", scheme="pecec736")
+    g = jnp.asarray(np.arange(0, N, 2) / N * float(S.domain[1]))
+    XX, YY, ZZ = jnp.meshgrid(g, g, g)
+    for c in range(2):
+        a = np.asarray(u.components[c](XX, YY, ZZ))
+        b = np.asarray(v.components[c](XX, YY, ZZ))
+        assert np.max(np.abs(a - b)) / np.max(np.abs(a)) < 1e-9

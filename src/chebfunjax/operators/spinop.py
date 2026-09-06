@@ -201,9 +201,16 @@ def _parse_scheme(args, kwargs, scheme):
 
 def spin(S: Spinop, n: int, dt: float, *args, scheme: str | None = None,
          M: int = 32, **kwargs):
-    """Solve the Spinop's PDE with ETDRK4 on an n-point Fourier grid
-    (MATLAB spin(S, N, dt, 'plot', 'off')): returns a trig chebfun
-    of the solution at tspan(end).
+    """Solve the Spinop's PDE on an n-point Fourier grid (MATLAB
+    ``spin(S, N, dt, 'plot', 'off')``): returns a trig chebfun of the
+    solution at ``tspan(end)``.
+
+    Options (MATLAB trailing pairs or keywords): ``scheme=`` any
+    expinteg scheme name (default ETDRK4; e.g. ``'pecec736'``,
+    ``'krogstad'``, ``'abnorsett4'``, see
+    :mod:`chebfunjax.operators.expinteg_engine`), ``dealias=`` the
+    2/3-rule projection (chebfunjax default on; MATLAB's default is
+    ``'off'``), ``M`` contour points for the phi functions.
 
     Provenance
     ----------

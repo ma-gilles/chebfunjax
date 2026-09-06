@@ -38,6 +38,31 @@ for k = 1:numel(gs_schemes)
     v1 = feval(c{1}, xx, yy); v2 = feval(c{2}, xx, yy);
     gs_uv_sub4(:, 2*k-1) = v1(:); gs_uv_sub4(:, 2*k) = v2(:);
 end
+% 3-D systems (spinop3 'GS' and 'SCHNAK'), N = 16, every 2nd grid point.
+% NOTE (MATLAB 7574c77): the multistep schemes (pecec736, ...) disagree
+% with every one-step scheme by ~1e-2 in 3-D, while chebfunjax's 3-D
+% multistep agrees with ETDRK4 to ~1e-10, so the test pins only the
+% one-step schemes to MATLAB.
+spin3_schemes = {'etdrk4', 'pecec736', 'krogstad'};
+spin3_N = 16; spin3_nsteps = 5; spin3_gs_dt = 1e-1; spin3_schnak_dt = 1e-3;
+cases = {'GS', spin3_gs_dt; 'SCHNAK', spin3_schnak_dt};
+for c = 1:2
+    S3 = spinop3(cases{c, 1}); dt3 = cases{c, 2};
+    S3.tspan = [0 spin3_nsteps*dt3]; G = S3.domain(2);
+    [xx, yy, zz] = meshgrid(trigpts(spin3_N, [0 G]), trigpts(spin3_N, [0 G]), ...
+        trigpts(spin3_N, [0 G]));
+    xx = xx(1:2:end, 1:2:end, 1:2:end); yy = yy(1:2:end, 1:2:end, 1:2:end);
+    zz = zz(1:2:end, 1:2:end, 1:2:end);
+    M = zeros(numel(xx), 2*numel(spin3_schemes));
+    for k = 1:numel(spin3_schemes)
+        u = spin3(S3, spin3_N, dt3, 'plot', 'off', 'scheme', spin3_schemes{k});
+        b = u.blocks;
+        v1 = feval(b{1}, xx, yy, zz); v2 = feval(b{2}, xx, yy, zz);
+        M(:, 2*k-1) = v1(:); M(:, 2*k) = v2(:);
+    end
+    if c == 1, spin3_gs_uv_sub2 = M; else, spin3_schnak_uv_sub2 = M; end
+end
 save('tests/references/spin_schemes.mat', 'kdv_schemes', 'kdv_u', 'kdv_N', ...
     'kdv_dt', 'kdv_nsteps', 'gs_schemes', 'gs_uv_sub4', 'gs_N', 'gs_dt', ...
-    'gs_nsteps');
+    'gs_nsteps', 'spin3_schemes', 'spin3_N', 'spin3_nsteps', 'spin3_gs_dt', ...
+    'spin3_schnak_dt', 'spin3_gs_uv_sub2', 'spin3_schnak_uv_sub2');
