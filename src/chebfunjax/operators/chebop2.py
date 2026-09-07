@@ -83,12 +83,42 @@ def _cheb2_pts_np(n: int, domain: tuple[float, float]) -> np.ndarray:
 # ===========================================================================
 
 
+def _qz_split(A, C):
+    """QZ of a pencil whose even and odd rows/columns decouple (MATLAB
+    ``qzsplit``/``reform`` in bartelsStewart.m): factor the two parity
+    sub-pencils and reassemble in scipy's ``A = Q P Z^T`` convention."""
+    import scipy.linalg
+    A = np.asarray(A)
+    C = np.asarray(C)
+    n = A.shape[0]
+    A1, C1 = A[0::2, 0::2], C[0::2, 0::2]
+    A2, C2 = A[1::2, 1::2], C[1::2, 1::2]
+    P1, S1, Q1, Z1 = scipy.linalg.qz(A1, C1, output="real")
+    P2, S2, Q2, Z2 = scipy.linalg.qz(A2, C2, output="real")
+    h1 = P1.shape[0]
+    P = np.zeros((n, n))
+    S = np.zeros((n, n))
+    Q = np.zeros((n, n))
+    Z = np.zeros((n, n))
+    P[:h1, :h1] = P1
+    P[h1:, h1:] = P2
+    S[:h1, :h1] = S1
+    S[h1:, h1:] = S2
+    Q[0::2, :h1] = Q1
+    Q[1::2, h1:] = Q2
+    Z[0::2, :h1] = Z1
+    Z[1::2, h1:] = Z2
+    return P, S, Q, Z
+
+
 def bartels_stewart(
     A: np.ndarray,
     B: np.ndarray,
     C: np.ndarray,
     D: np.ndarray,
     E: np.ndarray,
+    xsplit: bool = False,
+    ysplit: bool = False,
 ) -> np.ndarray:
     """Solve the generalized Sylvester equation ``A X B^T + C X D^T = E``.
 
@@ -141,12 +171,18 @@ def bartels_stewart(
     # Q1, Z1).  P and S are quasi-triangular; do NOT force them upper triangular
     # -- the column recursion below solves full m x m systems with them, so
     # zeroing their 2x2-block subdiagonals corrupts the transformed pencil.
-    P, S, Q1, Z1 = scipy.linalg.qz(A, C, output="real")
+    if ysplit:
+        P, S, Q1, Z1 = _qz_split(A, C)
+    else:
+        P, S, Q1, Z1 = scipy.linalg.qz(A, C, output="real")
 
     # QZ decomposition of (D, B): D = Q2 T Z2^T, B = Q2 R Z2^T.  T is (quasi-)
     # upper triangular and R is upper triangular, which is what enables the
     # column-by-column back-substitution over the right pencil.
-    T, R, Q2, Z2 = scipy.linalg.qz(D, B, output="real")
+    if xsplit:
+        T, R, Q2, Z2 = _qz_split(D, B)
+    else:
+        T, R, Q2, Z2 = scipy.linalg.qz(D, B, output="real")
 
     # With Y = Z1^T X Z2 the equation reduces to P Y R^T + S Y T^T = F where the
     # transformed RHS is F = Q1^T E Q2 (the solution is recovered as
@@ -260,6 +296,28 @@ def _cheb_coeffs_1d(fn, n: int, dom: tuple[float, float]) -> np.ndarray:
     """
     from chebfunjax.utils.transforms import vals2coeffs
     a, b = dom
+    # MATLAB constructBC: bcArg = chebfun(bc, dom); resize(bcArg.coeffs, n)
+    # -- the ADAPTIVE expansion truncated/padded to n (an n-point
+    # interpolant instead carries ~2x the aliasing error into the
+    # boundary rows of the solution).
+    try:
+        from chebfunjax.tech.chebtech import Chebtech2
+
+        def _mapped(t):
+            v = fn(0.5 * (b - a) * t + 0.5 * (a + b))
+            return jnp.broadcast_to(jnp.asarray(v), jnp.shape(t))
+
+        tech = Chebtech2.from_function(_mapped)
+        c = np.asarray(tech.coeffs)
+        if tech.ishappy and np.all(np.isfinite(c)):
+            if np.iscomplexobj(c) and np.max(np.abs(c.imag)) < 1e-13 * max(np.max(np.abs(c)), 1.0):
+                c = c.real
+            out = np.zeros(n, dtype=c.dtype)
+            L = min(n, c.shape[0])
+            out[:L] = c[:L]
+            return out
+    except Exception:
+        pass
     t = np.array(chebpts(n, kind=2), dtype=np.float64)
     pts = 0.5 * (b - a) * t + 0.5 * (a + b)
     vals = np.asarray(fn(jnp.asarray(pts, dtype=jnp.float64)), dtype=np.complex128)
@@ -482,7 +540,7 @@ def _impose_boundary_conditions(X, bb, gg, Px, Py, m, n):
     return X
 
 
-def _reduced_solve(CC, rhs, rk):
+def _reduced_solve(CC, rhs, rk, xsplit: bool = False, ysplit: bool = False):
     """Solve the reduced matrix equation ``sum_j CC[j][0] X CC[j][1].' = rhs``.
 
     Rank 1 is a pair of triangular-free solves; rank 2 (real) uses the
@@ -503,7 +561,49 @@ def _reduced_solve(CC, rhs, rk):
         return np.linalg.solve(B, Y.T).T
 
     if rk == 2 and not complex_sys:
-        return bartels_stewart(CC[0][0], CC[0][1], CC[1][0], CC[1][1], rhs)
+        A, B, C, D = CC[0][0], CC[0][1], CC[1][0], CC[1][1]
+        # MATLAB denseSolve: parity-split Bartels-Stewart when the operator
+        # decouples even/odd modes (MATLAB's unsplit path is lyap(C\\A, ...);
+        # scipy's Schur solve on C^{-1}A was 200x LESS accurate here, so the
+        # generalized Bartels-Stewart is kept for the unsplit case).
+        def _refine(X):
+            # One step of iterative refinement: the boundary rows are
+            # recovered from the interior through derivative functionals
+            # (weights ~k^2), which amplify the last bits of solver
+            # noise; a residual correction takes the interior to ~eps.
+            R = rhs - (A @ X @ B.T + C @ X @ D.T)
+            if np.all(np.isfinite(R)) and np.linalg.norm(R) > 0:
+                dX = bartels_stewart(A, B, C, D, R, xsplit, ysplit)
+                if np.all(np.isfinite(dX)):
+                    return X + dX
+            return X
+
+        if xsplit or ysplit:
+            return _refine(bartels_stewart(A, B, C, D, rhs, xsplit, ysplit))
+        X_bs = _refine(bartels_stewart(A, B, C, D, rhs))
+        # MATLAB's unsplit path is lyap(C\\A, (B\\D).', -(B\\(C\\RHS).').')
+        # -- a Schur Sylvester solve after inverting the y-block C and the
+        # x-block B.  Its accuracy hinges on which of the two (equal-
+        # singular-value) terms LAPACK put second; invert the better
+        # conditioned pair and keep the answer only if its residual beats
+        # Bartels-Stewart's.
+        try:
+            import scipy.linalg
+            if np.linalg.cond(C) > np.linalg.cond(A):
+                A, B, C, D = C, D, A, B
+            Am = np.linalg.solve(C, A)
+            Bm = np.linalg.solve(B, D).T
+            Q = np.linalg.solve(B, np.linalg.solve(C, rhs).T).T
+            X_ly = scipy.linalg.solve_sylvester(Am, Bm, Q)
+
+            def _res(X):
+                return np.linalg.norm(A @ X @ B.T + C @ X @ D.T - rhs)
+
+            if np.all(np.isfinite(X_ly)) and _res(X_ly) < _res(X_bs):
+                return _refine(X_ly)
+        except Exception:
+            pass
+        return X_bs
 
     # Rank >= 2: dense Kronecker solve (also the complex rank-2 path).
     p = CC[0][0].shape[0]
@@ -1300,7 +1400,6 @@ class Chebop2:
         Chebfun commit: 7574c77
         """
 
-        from chebfunjax.utils.transforms import vals2coeffs
 
         # Determine the callable arity (Dirichlet=1 arg, Neumann/Robin=2 args).
         nargs = None
@@ -1353,15 +1452,14 @@ class Chebop2:
                 if isinstance(fj, _BCZeroProxy):
                     bcvalue_cols.append(np.zeros(een, dtype=np.float64))
                 else:
-                    fv = np.asarray(fj, dtype=np.complex128)
-                    if fv.ndim == 0:
-                        # A purely constant forcing (e.g. u - u' + 2 with
-                        # the zero probe) collapses to a scalar; broadcast
-                        # to the grid so the transform sees values.
-                        fv = np.full(een, complex(fv))
-                    if np.max(np.abs(fv.imag)) < 1e-13 * max(np.max(np.abs(fv)), 1.0):
-                        fv = fv.real
-                    fc = np.array(vals2coeffs(jnp.asarray(fv)), dtype=fv.dtype)
+                    # MATLAB: cg = g.coeffs (adaptive chebfun of the forcing)
+                    def _forcing(t, _jj=jj):
+                        r = bc_spec(t, _BCZeroProxy())
+                        r = list(r) if isinstance(r, (list, tuple)) else [r]
+                        v = r[_jj]
+                        return jnp.zeros_like(jnp.asarray(t)) if isinstance(
+                            v, _BCZeroProxy) else jnp.asarray(v)
+                    fc = _cheb_coeffs_1d(_forcing, een, dom)
                     col = np.zeros(een, dtype=fc.dtype)
                     L = min(een, len(fc))
                     col[:L] = -fc[:L]
@@ -1574,8 +1672,19 @@ class Chebop2:
             CC[jj][1] = CC[jj][1][:nn, xorder:n - df2]
         rhs = E[:mm, :nn]
 
+        # ---- parity splitting (MATLAB discretize: xsplit/ysplit) ----
+        xsplit = ysplit = False
+        if self._var_terms is None and self._U is None:
+            A0 = np.asarray(self._coeffs)           # rows: y-orders, cols: x-orders
+            tol0 = 10.0 * _EPS * max(1.0, float(np.max(np.abs(A0))))
+            ysplit = bool(min(np.linalg.norm(A0[0::2, :]), np.linalg.norm(A0[1::2, :])) < tol0)
+            xsplit = bool(min(np.linalg.norm(A0[:, 0::2]), np.linalg.norm(A0[:, 1::2])) < tol0)
+        # MATLAB denseSolve: no splitting with several conditions on an edge
+        for arr in (bcLeft, bcRight, bcUp, bcDown):
+            if arr is not None and getattr(arr, "ndim", 1) == 2 and min(arr.shape) > 1:
+                xsplit = ysplit = False
         # ---- solve the reduced (generalized Sylvester / Kronecker) system ----
-        X = _reduced_solve(CC, rhs, rk)
+        X = _reduced_solve(CC, rhs, rk, xsplit, ysplit)
 
         # ---- re-impose the boundary rows ----
         bb = [bcLeft, bcRight, bcUp, bcDown]

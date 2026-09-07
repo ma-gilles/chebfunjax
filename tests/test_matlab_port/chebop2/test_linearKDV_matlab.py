@@ -20,12 +20,12 @@ from chebfunjax.operators.chebop2 import Chebop2, diffx, diffy
 _EPS = float(np.finfo(np.float64).eps)
 
 
-def _maxerr(u, exact, d, npts=50):
-    xs = np.linspace(d[0], d[1], npts)
-    ys = np.linspace(d[2], d[3], npts)
-    X, Y = np.meshgrid(xs, ys)
-    uv = np.asarray(u(jnp.asarray(X.ravel()), jnp.asarray(Y.ravel())))
-    return float(np.max(np.abs(uv - exact(X.ravel(), Y.ravel()))))
+def _norm_err(u, exact, d):
+    """MATLAB ``norm(u - exact)``: the 2-norm of the chebfun2 difference."""
+    from chebfunjax.chebfun2d.chebfun2 import Chebfun2, chebfun2
+    U = u if isinstance(u, Chebfun2) else Chebfun2(approx=u)
+    E = chebfun2(lambda x, t: jnp.exp(-t) * jnp.exp(x), domain=d)
+    return float((U - E).norm())
 
 
 class TestChebop2LinearKDV:
@@ -40,7 +40,7 @@ class TestChebop2LinearKDV:
         N.rbc = lambda t, u: [u - np.exp(-t) * np.exp(1.0),
                               u.diff(1) - np.exp(-t) * np.exp(1.0)]
         N.lbc = lambda t: np.exp(-t) * np.exp(-1.0)
-        assert _maxerr(N.solve(0.0), exact, d) < tol
+        assert _norm_err(N.solve(0.0), exact, d) < tol
 
         # pass(2): Neumann lbc.
         N = Chebop2(lambda u: diffy(u) + diffx(u, 3), domain=d)
@@ -48,7 +48,7 @@ class TestChebop2LinearKDV:
         N.rbc = lambda t, u: [u - np.exp(-t) * np.exp(1.0),
                               u.diff(1) - np.exp(-t) * np.exp(1.0)]
         N.lbc = lambda t, u: u.diff(1) - np.exp(-t) * np.exp(-1.0)
-        assert _maxerr(N.solve(0.0), exact, d) < 2.0 * tol
+        assert _norm_err(N.solve(0.0), exact, d) < 2.0 * tol
 
         # pass(3): second-derivative condition on the right edge.
         N = Chebop2(lambda u: diffy(u) + diffx(u, 3), domain=d)
@@ -56,7 +56,7 @@ class TestChebop2LinearKDV:
         N.rbc = lambda t, u: [u - np.exp(-t) * np.exp(1.0),
                               u.diff(2) - np.exp(-t) * np.exp(1.0)]
         N.lbc = lambda t, u: u.diff(1) - np.exp(-t) * np.exp(-1.0)
-        assert _maxerr(N.solve(0.0), exact, d) < 300.0 * tol
+        assert _norm_err(N.solve(0.0), exact, d) < 300.0 * tol
 
         # pass(4): Dirichlet lbc with the second-derivative right condition.
         N = Chebop2(lambda u: diffy(u) + diffx(u, 3), domain=d)
@@ -64,4 +64,4 @@ class TestChebop2LinearKDV:
         N.rbc = lambda t, u: [u - np.exp(-t) * np.exp(1.0),
                               u.diff(2) - np.exp(-t) * np.exp(1.0)]
         N.lbc = lambda t, u: u - np.exp(-t) * np.exp(-1.0)
-        assert _maxerr(N.solve(0.0), exact, d) < 100.0 * tol
+        assert _norm_err(N.solve(0.0), exact, d) < 100.0 * tol
