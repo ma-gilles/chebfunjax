@@ -2211,9 +2211,29 @@ class Trigtech(eqx.Module):
             n = self.n + other.n
             if n % 2 == 0:
                 n += 1
-            x = trigpts(n)
-            fv = _trig_eval(self.coeffs, x, self.is_real)
-            gv = _trig_eval(other.coeffs, x, other.is_real)
+            # MATLAB @trigtech/times.m: prolong both to the n-point grid
+            # and multiply the values.  Zero-padding the coefficients and
+            # an FFT (host fast path) replaces the former jitted Horner
+            # evaluation at trigpts(n), which compiled once per length
+            # pair (1869 XLA compiles in one spherefunv Helmholtz
+            # decomposition -- 40 s and a runner-killing memory growth).
+            same_shape = self.coeffs.shape == other.coeffs.shape
+            pos = same_shape and self.is_real and bool(
+                jnp.array_equal(self.coeffs, other.coeffs))
+            if pos:
+                # f .* f with real f: exact grid evaluation keeps the
+                # squared values (and the interpolant at f's roots)
+                # nonnegative to the last bit.
+                x = trigpts(n)
+                fv = _trig_eval(self.coeffs, x, self.is_real)
+                gv = fv
+            else:
+                fv = trig_coeffs2vals(_trig_prolong_coeffs(self.coeffs, n))
+                gv = trig_coeffs2vals(_trig_prolong_coeffs(other.coeffs, n))
+                if self.is_real:
+                    fv = jnp.real(fv)
+                if other.is_real:
+                    gv = jnp.real(gv)
             new_is_real = self.is_real and other.is_real
             # scalar-column * array-valued broadcasts via a trailing
             # column axis (MATLAB @chebtech/times.m semantics)
@@ -2230,9 +2250,6 @@ class Trigtech(eqx.Module):
             # nonnegative in advance (f.*f with real f, or f.*conj(f)),
             # simplification roundoff may break positivity — enforce it
             # by clamping the values through |.|.
-            same_shape = self.coeffs.shape == other.coeffs.shape
-            pos = same_shape and self.is_real and bool(
-                jnp.array_equal(self.coeffs, other.coeffs))
             # f .* conj(f): for the symmetric odd-length layout the
             # conjugate's coefficients are the reversed conjugates
             # (even lengths carry an unpaired Nyquist mode — skip).

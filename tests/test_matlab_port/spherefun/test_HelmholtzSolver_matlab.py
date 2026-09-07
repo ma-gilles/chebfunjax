@@ -1,8 +1,4 @@
-"""Port of MATLAB Chebfun tests/spherefun/test_HelmholtzSolver.m
-(Fable 5).
-
-FIXED: spherefun.helmholtz added in the Fable 5 audit (spectral
-spherical-harmonic solve).
+"""Port of MATLAB Chebfun tests/spherefun/test_HelmholtzSolver.m (Fable 5).
 
 Provenance
 ----------
@@ -12,25 +8,21 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
-import jax.numpy as jnp
-import numpy as np
+import jax
+import pytest
 
 from chebfunjax.spherefun.spherefun import Spherefun
 
-TOL = 1e-10
-LAMS = jnp.asarray(np.linspace(-3, 3, 11))
-THS = jnp.asarray(np.linspace(0.1, 3.0, 11))
-LL, TT = jnp.meshgrid(LAMS, THS, indexing="ij")
+jax.config.update("jax_enable_x64", True)
 
 
-class TestSpherefunHelmholtz:
-    def test_sphharm_eigenfunctions(self):
+class TestSpherefunHelmholtzSolver:
+    @pytest.mark.parametrize("m,n", [(60, 40), (61, 41), (62, 42), (63, 43)])
+    def test_sphharm_eigenfunctions(self, m, n):
+        tol = 1e-10
         K = 100.1
         for L in range(4):
             for M in range(L + 1):
                 f = Spherefun.sphharm(L, M)
-                u = Spherefun.helmholtz(
-                    lambda lam, th: (K ** 2 - L * (L + 1))
-                    * f(lam, th), K)
-                assert float(jnp.max(jnp.abs(
-                    u(LL, TT) - f(LL, TT)))) < 100 * TOL, (L, M)
+                u = Spherefun.helmholtz((K ** 2 - L * (L + 1)) * f, K, m, n)
+                assert float((u - f).norm(2)) < 100 * tol, (L, M)

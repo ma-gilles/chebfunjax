@@ -2998,108 +2998,160 @@ class Spherefun(eqx.Module):
         return Spherefunv(gx, gy, gz)
 
     def laplacian(self) -> "Spherefun":
-        r"""Laplace-Beltrami operator on the sphere.
-
-        Returns the surface Laplacian :math:`\\Delta_{S^2} f`.  Computed
-        spectrally: :math:`f` is projected onto the real spherical
-        harmonics :math:`Y_l^m`, each coefficient is scaled by the exact
-        eigenvalue :math:`-l(l+1)`, and the result is reconstructed.  For
-        a band-limited ``f`` this is exact to quadrature accuracy; the
-        identity :math:`\\Delta Y_l^m = -l(l+1) Y_l^m` holds to ~1e-13.
-
-        Implemented and verified by Claude Opus 4.8.  (An earlier
-        BMC-coefficient-space attempt by Claude Fable 5 was reverted for
-        failing this identity; this spectral route is diagonal in the
-        harmonic basis and therefore provably correct.)
-
-        Returns
-        -------
-        Spherefun
+        r"""Laplace-Beltrami operator on the sphere (MATLAB laplacian.m):
+        ``f_xx + f_yy + f_zz`` with the three second tangential Cartesian
+        derivatives (:meth:`diff`) sampled on a common even grid and the
+        sum rebuilt with the constructor.
 
         Provenance
         ----------
-        MATLAB source : @spherefun/laplacian.m (result-equivalent; the
-        implementation strategy differs — see the note above).
+        MATLAB source : @spherefun/laplacian.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford and
+            The Chebfun Developers.
+        """
+        if self.isempty() or len(self.cols) == 0:
+            return self
+        parts = [self.diff(1, 2), self.diff(2, 2), self.diff(3, 2)]
+
+        def _len(g):
+            # MATLAB [m, n] = length(f): m = row (longitude) length,
+            # n = column (doubled colatitude) length -- then
+            # sample(f, m, n/2) is m longitude x n/2 colatitude points.
+            if len(g.cols) == 0:
+                return 1, 1
+            return (max(int(np.asarray(r.coeffs).shape[0]) for r in g.rows),
+                    max(int(np.asarray(c.coeffs).shape[0]) for c in g.cols))
+
+        lens = [_len(g) for g in parts]
+        m = max(mm for mm, _ in lens)
+        n = max(nn for _, nn in lens)
+        m = m + (m % 2)
+        n = n + (n % 2)
+        n_th = max(n // 2, 2)
+        F = None
+        for g in parts:
+            V = np.asarray(g.sample(m, n_th))
+            F = V if F is None else F + V
+        return Spherefun.from_values(F)
+
+    def vscale(self) -> float:
+        """Vertical scale: the largest absolute sampled value (MATLAB
+        ``vscale``).
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/vscale.m
         Chebfun commit: 7574c77
         """
-        lmax = self._bandwidth() + 1
-        coeffs = _spherefun_sph_coeffs(self, lmax)
-        coeff_map = {(l, m): -l * (l + 1) * coeffs[(l, m)]
-                     for (l, m) in coeffs
-                     if abs(l * (l + 1) * coeffs[(l, m)]) > 1e-13}
-
-        def ev(lam, theta):
-            return _sph_harmonic_eval_sum(coeff_map, lmax, lam, theta)
-
-        return Spherefun.from_function(ev)
+        if self.isempty() or len(self.cols) == 0:
+            return 0.0
+        V = np.asarray(Spherefun.coeffs2vals(self.coeffs2()))
+        return float(np.max(np.abs(V)))
 
     @staticmethod
-    def poisson(f, const: float = 0.0,
-                lmax: int | None = None) -> "Spherefun":
-        r"""Solve the Poisson equation :math:`\\Delta u = f` on the sphere.
+    def poisson(f, const: float = 0.0, m: int | None = None,
+                n: int | None = None, lmax: int | None = None) -> "Spherefun":
+        r"""Solve the Poisson equation :math:`\Delta u = f` on the sphere
+        (MATLAB ``spherefun.poisson(f, const, m, n)``).
 
-        The right-hand side ``f`` (a Spherefun or a callable
-        ``f(lam, theta)``) must have zero mean over the sphere — the
-        solvability (compatibility) condition.  The solution's mean value
-        is set to ``const``.
+        ``f`` is a Spherefun, a callable ``f(lam, theta)`` or a
+        coefficient matrix; the discretisation uses ``m`` Fourier modes in
+        latitude and ``n`` in longitude (``n = m`` by default; both
+        default to the size of ``f`` when omitted).  The right-hand side
+        must have zero mean for a solution to exist: its mean is removed
+        (with a warning when it exceeds ``1e5 * vscale * eps``) and the
+        solution's mean is set to ``const``.  ``lmax`` (legacy keyword) is
+        accepted as a bandwidth and mapped to ``m = n = 2*lmax + 2``.
 
-        Spectral solve: with :math:`f = \\sum a_{lm} Y_l^m`, the solution
-        is :math:`u = \\sum_{l>0} \\frac{a_{lm}}{-l(l+1)} Y_l^m + const`.
-
-        Implemented and verified by Claude Opus 4.8 (round-trips
-        ``poisson(laplacian(u)) == u`` to ~1e-12).
-
-        Parameters
-        ----------
-        f : Spherefun or callable
-            Right-hand side (zero-mean).
-        const : float, default 0.0
-            Prescribed mean value of the solution.
-        lmax : int, optional
-            Spherical-harmonic bandwidth (inferred from ``f`` if omitted).
-
-        Returns
-        -------
-        Spherefun
+        The solve is MATLAB's Fourier--Fourier method on the doubled-up
+        sphere: multiply through by :math:`\sin^2\theta`, solve one
+        banded system per longitudinal wavenumber and impose the mean
+        condition on the zero mode.
 
         Provenance
         ----------
-        MATLAB source : @spherefun/poisson.m (result-equivalent; the
-        original uses a banded Fourier--Fourier matrix solve).
+        MATLAB source : @spherefun/poisson.m, @trigspec/diffmat.m
         Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford and
+            The Chebfun Developers.
         """
+        import warnings as _warnings
+
+        from chebfunjax.tech.trigtech import trig_vals2coeffs
+
+        if lmax is not None and m is None:
+            m = 2 * int(lmax) + 2
         if isinstance(f, Spherefun):
             fs = f
+        elif callable(f):
+            fs = None
         else:
-            fs = Spherefun.from_function(f)
-        if lmax is None:
-            lmax = fs._bandwidth() + 1
-        coeffs = _spherefun_sph_coeffs(fs, lmax)
-        # Warn (not raise) if the compatibility condition is violated.
-        mean_term = abs(coeffs.get((0, 0), 0.0))
-        # mean value of a real SH expansion is a_{00} * Y_0^0 = a_{00} /
-        # sqrt(4 pi); set it to `const`.
-        y00 = 1.0 / jnp.sqrt(4 * jnp.pi)
-        const_coeff = float(const) / float(y00)
-        coeff_map = {(0, 0): const_coeff}
-        for (l, m), a in coeffs.items():
-            if l == 0:
+            fs = None
+        if m is None:
+            if fs is None and not callable(f):
+                F0 = np.asarray(f)
+                m, n = F0.shape
+            elif fs is not None:
+                mc = max(int(np.asarray(c.coeffs).shape[0]) for c in fs.cols)
+                nr = max(int(np.asarray(r.coeffs).shape[0]) for r in fs.rows)
+                m = max(4, mc + (mc % 2))
+                n = max(4, nr + (nr % 2))
+            else:
+                m = n = 64
+        m = int(m)
+        n = int(m) if n is None else int(n)
+        m = max(4, m + (m % 2))
+        n = max(4, n)
+
+        DF1m, DF2m, DF2n, Mcossin, Msin2, en, floorm = \
+            _sphere_fourier_operators(m, n)
+        Im = np.eye(m)
+        scl = np.diag(DF2n)
+        eps2 = 2.220446049250313e-16
+        if fs is not None:
+            tol = 1e5 * float(fs.vscale()) * eps2
+            F = np.asarray(fs.coeffs2(n, m), dtype=complex)
+        elif callable(f):
+            lam0 = -np.pi + 2 * np.pi * np.arange(n) / n
+            th0 = -np.pi + 2 * np.pi * np.arange(m) / m
+            LL, TT = np.meshgrid(lam0, th0)
+            F = np.asarray(f(jnp.asarray(LL), jnp.asarray(TT)), dtype=complex)
+            tol = 1e5 * float(np.max(np.abs(F))) * eps2
+            F = np.asarray(trig_vals2coeffs(jnp.asarray(F)))
+            F = np.asarray(trig_vals2coeffs(jnp.asarray(F.T))).T
+        else:
+            tol = 1e5 * eps2
+            F = np.asarray(f, dtype=complex)
+        k0 = n // 2                      # zero longitudinal mode (0-based)
+        meanF = en @ F[:, k0] / en[floorm]
+        if abs(meanF) > tol:
+            _warnings.warn(
+                "CHEBFUN:SPHEREFUN:POISSON:meanRHS: The integral of the right "
+                "hand side may not be zero, which is required for there to "
+                "exist a solution to the Poisson equation. Subtracting the "
+                "mean off the right hand side now.")
+        F = F.copy()
+        F[floorm, k0] = F[floorm, k0] - meanF
+        F = Msin2 @ F
+        CFS = np.zeros((m, n), dtype=complex)
+        L = Msin2 @ DF2m + Mcossin @ DF1m
+        for k in range(n):
+            if k == k0:
                 continue
-            val = a / (-l * (l + 1))
-            if abs(val) > 1e-13:
-                coeff_map[(l, m)] = val
-
-        def ev(lam, theta):
-            return _sph_harmonic_eval_sum(coeff_map, lmax, lam, theta)
-
-        _ = mean_term  # available for a compatibility check if desired
-        return Spherefun.from_function(ev)
+            CFS[:, k] = np.linalg.solve(L + scl[k] * Im, F[:, k])
+        ii = [i for i in range(m) if i != floorm]
+        A = np.vstack([en[None, :], L[ii, :]])
+        b = np.concatenate([[0.0], F[ii, k0]])
+        CFS[:, k0] = np.linalg.solve(A, b)
+        u = Spherefun.coeffs2spherefun(jnp.asarray(CFS))
+        return u + const if const != 0 else u
 
     def gaussfilt(self, sig: float = np.pi / 180.0) -> "Spherefun":
         r"""Gaussian low-pass filter on the sphere (MATLAB gaussfilt):
         one backward-Euler step of the heat equation to time
-        ``t = 0.5 sig^2``, i.e. each spherical-harmonic coefficient is
-        multiplied by :math:`1/(1 + t\, l(l+1))`.
+        ``t = 0.5 sig^2``, i.e. the Helmholtz solve
+        ``helmholtz(-f/t, i/sqrt(t), m, n)`` at the size of ``f``.
 
         Provenance
         ----------
@@ -3107,64 +3159,94 @@ class Spherefun(eqx.Module):
         Chebfun commit: 7574c77
         """
         dt = 0.5 * float(sig) ** 2
-        lmax = self._bandwidth() + 1
-        coeffs = _spherefun_sph_coeffs(self, lmax)
-        coeff_map = {(l, m): a / (1.0 + dt * l * (l + 1))
-                     for (l, m), a in coeffs.items() if abs(a) > 1e-14}
-
-        def ev(lam, theta):
-            return _sph_harmonic_eval_sum(coeff_map, lmax, lam, theta)
-
-        return Spherefun.from_function(ev)
+        if self.isempty() or len(self.cols) == 0:
+            return self
+        # MATLAB: [n, m] = length(f) (columns, rows); helmholtz(..., m, n)
+        n = max(int(np.asarray(c.coeffs).shape[0]) for c in self.cols)
+        m = max(int(np.asarray(r.coeffs).shape[0]) for r in self.rows)
+        K = np.sqrt(1.0 / dt) * 1j
+        return Spherefun.helmholtz(self * (-1.0 / dt), K, m, n)
 
     @staticmethod
-    def helmholtz(f, K: float, m: int | None = None,
+    def helmholtz(f, K, m: int | None = None,
                   n: int | None = None) -> "Spherefun":
-        r"""Solve the Helmholtz equation
-        :math:`\Delta u + K^2 u = f` on the sphere (MATLAB
-        spherefun.helmholtz).
+        r"""Solve the Helmholtz equation :math:`\Delta u + K^2 u = f` on
+        the sphere (MATLAB ``spherefun.helmholtz(f, K, m, n)``).
 
-        Spectral solve: with :math:`f = \sum a_{lm} Y_l^m`, the
-        solution is :math:`u = \sum a_{lm}/(K^2 - l(l+1)) Y_l^m`.
-        ``K^2`` must not equal an eigenvalue ``l(l+1)``.
-
-        Parameters
-        ----------
-        f : Spherefun or callable
-        K : float
-        m, n : int, optional
-            Grid sizes, accepted for MATLAB signature compatibility
-            (the spectral solve infers the bandwidth from ``f``).
+        MATLAB's Fourier--Fourier method on the doubled-up sphere with
+        ``m`` modes in latitude and ``n`` in longitude (``n = m``; both
+        default to the size of ``f``): multiply through by
+        :math:`\sin^2\theta`, solve one banded system per longitudinal
+        wavenumber, and pin the zero mode with the integral condition.
+        ``K`` may be complex (the imaginary shifts of the BDF/heat
+        steps).  ``K = 0`` falls back to :meth:`poisson`; a real ``K``
+        with ``K^2 = l(l+1)`` is an eigenvalue and raises.
 
         Provenance
         ----------
-        MATLAB source : @spherefun/helmholtz.m (result-equivalent).
+        MATLAB source : @spherefun/helmholtz.m
         Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford and
+            The Chebfun Developers.
         """
-        fs = f if isinstance(f, Spherefun) else Spherefun.from_function(f)
-        lmax = fs._bandwidth() + 1
-        coeffs = _spherefun_sph_coeffs(fs, lmax)
-        # K may be IMAGINARY (the BDF/heat-equation shifts use
-        # K = i*sqrt(3/(2*dt*alpha)), giving a negative real K^2);
-        # float(K) silently dropped the imaginary part and turned the
-        # screened solve into a singular K^2 = 0 Laplace solve.
+        from chebfunjax.tech.trigtech import trig_vals2coeffs
+
         K2 = complex(K) ** 2
         if abs(K2.imag) < 1e-12 * max(1.0, abs(K2.real)):
             K2 = K2.real
-        coeff_map = {}
-        for (l, mm), a in coeffs.items():
-            den = K2 - l * (l + 1)
-            if abs(den) < 1e-8:
+        if K2 == 0:
+            return Spherefun.poisson(f, 0.0, m, n)
+        if isinstance(K2, float) and K2 > 0:
+            # K = sqrt(l(l+1)) for an integer l?
+            ell = (-1 + np.sqrt(1 + 4 * K2)) / 2
+            if abs(ell - round(ell)) < 1e-13:
                 raise ValueError(
-                    f"helmholtz: K^2 = {K2} is (near) the eigenvalue "
-                    f"l(l+1) = {l * (l + 1)}")
-            if abs(a) > 1e-13:
-                coeff_map[(l, mm)] = a / den
-
-        def ev(lam, theta):
-            return _sph_harmonic_eval_sum(coeff_map, lmax, lam, theta)
-
-        return Spherefun.from_function(ev)
+                    "SPHEREFUN:HELMHOLTZ:EIGENVALUE: There are infinitely "
+                    "many solutions since K is an eigenvalue of the Helmholtz "
+                    "operator.")
+        fs = f if isinstance(f, Spherefun) else None
+        if m is None:
+            if fs is None:
+                fs = Spherefun.from_function(f)
+            mc = max(int(np.asarray(c.coeffs).shape[0]) for c in fs.cols)
+            nr = max(int(np.asarray(r.coeffs).shape[0]) for r in fs.rows)
+            m, n = max(4, mc + (mc % 2)), max(4, nr + (nr % 2))
+        m = int(m)
+        n = int(m) if n is None else int(n)
+        if m <= 0 or n <= 0:
+            raise ValueError("CHEBFUN:SPHEREFUN:HELMHOLTZ:badInput: "
+                             "Discretization sizes should be positive numbers")
+        if m == 1 and n == 1:
+            fs = fs if fs is not None else Spherefun.from_function(f)
+            return fs * 0.0 + float(np.real(fs.mean2())) / K2
+        m = m + (m % 2)
+        ops = _sphere_fourier_operators(m, n)
+        DF1m, DF2m, DF2n, Mcossin, Msin2, en, floorm = ops
+        Im = np.eye(m)
+        if fs is not None:
+            F = np.asarray(fs.coeffs2(n, m), dtype=complex)
+        else:
+            lam0 = -np.pi + 2 * np.pi * np.arange(n) / n
+            th0 = -np.pi + 2 * np.pi * np.arange(m) / m
+            LL, TT = np.meshgrid(lam0, th0)
+            F = np.asarray(f(jnp.asarray(LL), jnp.asarray(TT)), dtype=complex)
+            F = np.asarray(trig_vals2coeffs(jnp.asarray(F)))
+            F = np.asarray(trig_vals2coeffs(jnp.asarray(F.T))).T
+        k0 = n // 2
+        int_const = en @ F[:, k0] / K2
+        F = Msin2 @ F / K2
+        CFS = np.zeros((m, n), dtype=complex)
+        L = (Msin2 @ DF2m + Mcossin @ DF1m) / K2 + Msin2
+        scl = np.diag(DF2n) / K2
+        for k in range(n):
+            if k == k0:
+                continue
+            CFS[:, k] = np.linalg.solve(L + scl[k] * Im, F[:, k])
+        ii = [i for i in range(m) if i != floorm]
+        A = np.vstack([en[None, :], L[ii, :]])
+        b = np.concatenate([[int_const], F[ii, k0]])
+        CFS[:, k0] = np.linalg.solve(A, b)
+        return Spherefun.coeffs2spherefun(jnp.asarray(CFS))
 
     def __repr__(self) -> str:
         """Compact display.
@@ -4173,3 +4255,50 @@ def _simplify_global_sphere(techs, tol=None):
         else:
             out.append(t.simplify(min(0.5, max(base, base * vs / sc))))
     return out
+
+
+def _sphere_fourier_operators(m: int, n: int):
+    """Operators of MATLAB's spherefun poisson/helmholtz solves on the
+    doubled-up sphere: trigspec differentiation matrices (the odd-order
+    Nyquist flag as in @trigspec/diffmat.m), the multiplication matrices
+    by sin(theta)cos(theta) and sin(theta)^2, the integration weights
+    ``en`` of the latitude modes (zeroed at the +-1 modes) and the index
+    of the zero mode.
+
+    Provenance
+    ----------
+    MATLAB source : @spherefun/poisson.m, @trigspec/{diffmat,multmat}.m
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.operators.trigspec import multmat
+    from chebfunjax.tech.trigtech import Trigtech
+
+    def _diffmat(N, order, flag=False):
+        if N % 2 == 0:
+            if order % 2 == 1:
+                k = np.concatenate([[0.0], np.arange(-N / 2 + 1, N / 2)])
+                D = np.diag((1j * k) ** order)
+                if flag:
+                    D[0, 0] = (-1j * N / 2) ** order
+            else:
+                k = np.arange(-N / 2, N / 2)
+                D = np.diag((1j * k) ** order)
+        else:
+            k = np.arange(-(N - 1) / 2, (N - 1) / 2 + 1)
+            D = np.diag((1j * k) ** order)
+        return D
+
+    DF1m = _diffmat(m, 1, True)
+    DF2m = _diffmat(m, 2)
+    DF2n = _diffmat(n, 2)
+    cs = Trigtech.from_function(lambda t: jnp.sin(jnp.pi * t) * jnp.cos(jnp.pi * t))
+    Mcossin = np.asarray(multmat(m, cs.coeffs))
+    s2 = Trigtech.from_function(lambda t: jnp.sin(jnp.pi * t) ** 2)
+    Msin2 = np.asarray(multmat(m, s2.coeffs))
+    floorm = m // 2
+    mm = np.arange(-floorm, -(-m // 2))
+    with np.errstate(divide="ignore", invalid="ignore"):
+        en = 2 * np.pi * (1 + np.exp(1j * np.pi * mm)) / (1 - mm ** 2)
+    en[floorm - 1] = 0.0
+    en[floorm + 1] = 0.0
+    return DF1m, DF2m, DF2n, Mcossin, Msin2, en, floorm
