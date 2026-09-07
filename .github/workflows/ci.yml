@@ -166,6 +166,8 @@ jobs:
           - name: operators
             paths: >-
               tests/test_matlab_port/chebop
+          - name: operators-2
+            paths: >-
               tests/test_matlab_port/chebop2
               tests/test_matlab_port/linop
               tests/test_matlab_port/chebmatrix
