@@ -4392,7 +4392,11 @@ class Chebfun(eqx.Module):
                 # residue at the breakpoint, not a delta.
                 from chebfunjax.chebpref import ChebfunPref as _CP
                 _dtol = float(_CP().deltaPrefs.deltaTol)
-                if abs(jump) > _dtol:
+                # max(|re|, |im|) rather than abs(): Python's complex
+                # abs (hypot) overflows for ~1e308 parts (gamma's poles,
+                # approx/GammaFun); MATLAB's abs(jmp) > deltaTol simply
+                # yields an Inf-magnitude delta.
+                if max(abs(jump.real), abs(jump.imag)) > _dtol:
                     dlist.append((loc, jump if jump.imag else jump.real))
             deltas = tuple(dlist)
         if k == 1 and self.deltas:

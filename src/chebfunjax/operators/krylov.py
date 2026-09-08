@@ -97,7 +97,7 @@ def _ip(u, v):
     return float(jnp.asarray(u.inner(v)))
 
 
-def pcg(N, f, tol: float = 1e-10, maxit: int = 100):
+def pcg(N, f, tol: float = 1e-10, maxit: int = 100, full_output: bool = False):
     """Preconditioned conjugate gradients on chebfuns (MATLAB pcg).
 
     Provenance
@@ -109,10 +109,15 @@ def pcg(N, f, tol: float = 1e-10, maxit: int = 100):
     u = 0.0 * f
     r = g - T(u)
     p = r
-    tolf = tol * max(_norm2(g), 1e-30)
+    g_norm = max(_norm2(g), 1e-30)
+    tolf = tol * g_norm
     rho = _ip(r, r)
+    resvec = [float(np.sqrt(rho))]
+    it = 0
+    flag = 1
     for _ in range(maxit):
         if np.sqrt(rho) <= tolf:
+            flag = 0
             break
         Lp = T(p)
         alpha = rho / _ip(p, Lp)
@@ -121,10 +126,18 @@ def pcg(N, f, tol: float = 1e-10, maxit: int = 100):
         rho_new = _ip(r, r)
         p = (r + (rho_new / rho) * p).simplify()
         rho = rho_new
-    return z + R1(Pi(u))
+        it += 1
+        resvec.append(float(np.sqrt(rho)))
+    else:
+        flag = 0 if np.sqrt(rho) <= tolf else 1
+    sol = z + R1(Pi(u))
+    if full_output:
+        # MATLAB [u, flag, relres, iter, resvec] = pcg(...)
+        return sol, flag, resvec[-1] / g_norm, it, np.asarray(resvec)
+    return sol
 
 
-def minres(N, f, tol: float = 1e-10, maxit: int = 100):
+def minres(N, f, tol: float = 1e-10, maxit: int = 100, full_output: bool = False):
     """MINRES on chebfuns for the preconditioned self-adjoint operator
     (implemented via the Lanczos-based residual minimization over the
     Krylov space; equivalent to MATLAB @chebop/minres.m).
@@ -134,10 +147,10 @@ def minres(N, f, tol: float = 1e-10, maxit: int = 100):
     MATLAB source : @chebop/minres.m
     Chebfun commit: 7574c77
     """
-    return _arnoldi_solve(N, f, tol, maxit)
+    return _arnoldi_solve(N, f, tol, maxit, full_output)
 
 
-def gmres(N, f, tol: float = 1e-10, maxit: int = 60):
+def gmres(N, f, tol: float = 1e-10, maxit: int = 60, full_output: bool = False):
     """GMRES on chebfuns for the preconditioned operator (MATLAB
     @chebop/gmres.m).
 
@@ -146,10 +159,10 @@ def gmres(N, f, tol: float = 1e-10, maxit: int = 60):
     MATLAB source : @chebop/gmres.m
     Chebfun commit: 7574c77
     """
-    return _arnoldi_solve(N, f, tol, maxit)
+    return _arnoldi_solve(N, f, tol, maxit, full_output)
 
 
-def _arnoldi_solve(N, f, tol, maxit):
+def _arnoldi_solve(N, f, tol, maxit, full_output=False):
     """GMRES/MINRES in function space, discretized on a fixed fine
     Clenshaw-Curtis grid: the Krylov vectors live as value arrays (so
     orthogonalization is cheap numpy work) while each operator
@@ -193,11 +206,14 @@ def _arnoldi_solve(N, f, tol, maxit):
     gv = to_vals(g)
     beta = float(np.sqrt(ip(gv, gv)))
     if beta == 0.0:
-        return z + 0.0 * f
+        sol = z + 0.0 * f
+        return (sol, 0, 0.0, 0, np.zeros(1)) if full_output else sol
     Q = [gv / beta]
     H = np.zeros((maxit + 1, maxit))
     tolf = tol * beta
     k_used = 0
+    resvec = [beta]
+    flag = 1
     for k in range(maxit):
         w = to_vals(T(to_fun(Q[k]).simplify()))
         for j in range(k + 1):
@@ -209,7 +225,9 @@ def _arnoldi_solve(N, f, tol, maxit):
         e1[0] = beta
         y, _, _, _ = np.linalg.lstsq(H[:k + 2, :k + 1], e1, rcond=None)
         resid = float(np.linalg.norm(H[:k + 2, :k + 1] @ y - e1))
+        resvec.append(resid)
         if resid <= tolf or H[k + 1, k] < 1e-14 * beta:
+            flag = 0
             break
         Q.append(w / H[k + 1, k])
     e1 = np.zeros(k_used + 1)
@@ -217,4 +235,8 @@ def _arnoldi_solve(N, f, tol, maxit):
     y, _, _, _ = np.linalg.lstsq(H[:k_used + 1, :k_used], e1, rcond=None)
     uv = sum(float(y[j]) * Q[j] for j in range(k_used))
     u = to_fun(uv).simplify()
-    return z + R1(Pi(u))
+    sol = z + R1(Pi(u))
+    if full_output:
+        # MATLAB [u, flag, relres, iter, resvec] = gmres/minres(...)
+        return sol, flag, resvec[-1] / beta, k_used, np.asarray(resvec)
+    return sol
