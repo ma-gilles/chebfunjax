@@ -27,9 +27,9 @@ from matplotlib.colors import ListedColormap
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import save_chebfun_figure as _savefig
 from chebfunjax.spherefun.spherefun import Spherefun
 from chebfunjax.utils.random import randnfun2
-from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))

@@ -10740,7 +10740,8 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
                        min_w: "float | None" = None,
                        split_pow2: int = 8,
                        tol=None, vscale: float = 0.0,
-                       budget: "dict | None" = None) -> list:
+                       budget: "dict | None" = None,
+                       hscale: "float | None" = None) -> list:
     """Recursively find interior breakpoints for splitting-on (Opus 4.8).
 
     Detection is capped at 2^12 points: a piece containing a
@@ -10757,19 +10758,26 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
     # (e.g. sqrt(4-(x-1)^2), which is ~2*sqrt(1+x) at x=-1) thrash: every
     # detection and edge-bisection construction ran to thousands of points and
     # the recursion hung for minutes.  MATLAB source: @chebfunpref splitLength.
+    # MATLAB data.hscale = norm(dom, inf) of the WHOLE construction domain,
+    # threaded unchanged through every split (detectEdge's thresholds and
+    # the 1e-14*hscale endpoint rule use it).
+    if hscale is None:
+        hscale = max(abs(a), abs(b), 1.0)
     if min_w is None:
         # MATLAB keeps subdividing a sad piece down to the scale of the
         # domain's floating-point resolution (1e-14 * hscale); a fixed
         # 1e-10 floor left sqrt(1-x) slivers 1e-6 in error near x = 1.
-        min_w = 1e-14 * max(abs(a), abs(b), 1.0)
+        min_w = 1e-14 * hscale
     det = min(maxpow2, split_pow2)
     with _warnings.catch_warnings():
         _warnings.simplefilter("ignore")
         # thread the caller's eps into detection: with noisy data at the
         # eps level, machine-precision happiness would never be reached
         # and the recursion would grind to min_w on every subinterval
-        p = _Piece.from_function(f, a + 1e-9 * (b - a), b - 1e-9 * (b - a),
-                                 maxpow2=det, tol=tol, vscale=vscale)
+        # MATLAB constructorSplit sets pref.techPrefs.extrapolate = true:
+        # the piece is built on [a, b] itself, never sampling the ends.
+        p = _Piece.from_function(f, a, b, maxpow2=det, tol=tol,
+                                 vscale=vscale, extrapolate=True)
     if budget is not None:
         # MATLAB constructor.m: splitting stops once the total length of
         # all current pieces (a sad piece counting splitLength) reaches
@@ -10793,14 +10801,15 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
     # enough for the neighbouring cubic pieces to be happy at 1e-15 --
     # the previous first/second-difference scan put such edges ~3e-4 off
     # and the still-unhappy pieces cascaded into hundreds of splits.
-    e = _detect_edge_matlab(f, a, b)
+    e = _detect_edge_matlab(f, a, b, vscale=max(float(vscale), float(p.vscale)),
+                            hscale=hscale)
     if e is None:
         # MATLAB @chebfun/constructor.m: no edge detected -> bisect.
         # (A finite-difference edge heuristic used here before found
         # spurious edges everywhere on |x|^5 -- 247 pieces.)
         e = 0.5 * (a + b)
     w = b - a
-    htol = 1e-12 * max(abs(a), abs(b), 1.0)
+    htol = 1e-14 * hscale
     if e <= a + htol:
         # Singularity on the LEFT boundary (e.g. the sqrt branch point of
         # sqrt(4-(x-1)^2) at x=-1).  MATLAB detectEdge moves a boundary edge in
@@ -10812,14 +10821,15 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
     elif not (a < e < b):
         e = 0.5 * (a + b)
     return (_split_breakpoints(f, a, e, maxpow2, depth + 1, max_depth,
-                               min_w, split_pow2, tol, vscale, budget)
+                               min_w, split_pow2, tol, vscale, budget, hscale)
             + [e]
             + _split_breakpoints(f, e, b, maxpow2, depth + 1, max_depth,
-                                 min_w, split_pow2, tol, vscale, budget))
+                                 min_w, split_pow2, tol, vscale, budget, hscale))
 
 
 def _detect_edge_matlab(f, a: float, b: float,
-                        vscale: "float | None" = None) -> "float | None":
+                        vscale: "float | None" = None,
+                        hscale: "float | None" = None) -> "float | None":
     """Faithful port of MATLAB @fun/detectEdge (detectedgeMain).
 
     Tests finite differences of orders 1..4 on successively refined
@@ -10843,7 +10853,8 @@ def _detect_edge_matlab(f, a: float, b: float,
     import numpy as _np
 
     eps = _np.finfo(float).eps
-    hscale = max(abs(a), abs(b), 1.0)
+    if hscale is None:
+        hscale = max(abs(a), abs(b), 1.0)
 
     def op(x):
         # keep complex values complex: MATLAB detectEdge measures
@@ -10876,7 +10887,7 @@ def _detect_edge_matlab(f, a: float, b: float,
                 na[j] = xx[ind - 1]
             if ind < len(xx) - 2:
                 nb[j] = xx[ind + 1]
-        if dx ** num_ders <= _np.finfo(float).tiny:
+        if dx ** num_ders <= 5e-324:          # eps(0)
             max_der = max_der + _np.inf
         else:
             max_der = max_der / dx ** _np.arange(1, num_ders + 1)

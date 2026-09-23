@@ -26,10 +26,10 @@ from chebfunjax.chebfun1d.chebfun import Chebfun
 from chebfunjax.domain import Domain
 from chebfunjax.operators.chebop import Chebop
 from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import save_chebfun_figure as _savefig
 from chebfunjax.utils.diffmat import diffmat, diffrow, introw
 from chebfunjax.utils.misc import gridsample
 from chebfunjax.utils.quadrature import chebpts
-from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))

@@ -30,8 +30,8 @@ import jax.numpy as jnp
 
 from chebfunjax.chebfun2d.chebfun2 import Chebfun2
 from chebfunjax.plotting import chebfun_style
-from chebfunjax.utils.random import randnfun2
 from chebfunjax.plotting import save_chebfun_figure as _savefig
+from chebfunjax.utils.random import randnfun2
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))

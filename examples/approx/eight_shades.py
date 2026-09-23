@@ -23,11 +23,11 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import save_chebfun_figure as _savefig
 from chebfunjax.utils.cfpade import cf, chebpade
 from chebfunjax.utils.minimax import minimax
 from chebfunjax.utils.ratapprox import ratinterp
 from chebfunjax.utils.trigrational import trigremez
-from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -85,7 +85,7 @@ def run():
 
     cferr = float(np.max(np.abs(np.asarray(p3(jnp.asarray(XS))) - p4v)))
     print("CFerror =")
-    print(f"     {cferr:.15e}")
+    print(f"   {cferr:.4e}")
 
     # 2. Trigonometric approximations
     fig, axes = plt.subplots(2, 2, figsize=(9.6, 6.0))

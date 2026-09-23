@@ -24,8 +24,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 from chebfunjax.chebfun2d.chebfun2 import Chebfun2
 from chebfunjax.chebfun2d.padua import paduapts
 from chebfunjax.plotting import chebfun_style
-from chebfunjax.utils.quadrature import chebpts
 from chebfunjax.plotting import save_chebfun_figure as _savefig
+from chebfunjax.utils.quadrature import chebpts
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))

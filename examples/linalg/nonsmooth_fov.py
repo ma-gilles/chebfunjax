@@ -27,8 +27,8 @@ import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style, plotregion
 from chebfunjax.chebfun1d.fov import fov  # noqa: E402
+from chebfunjax.plotting import chebfun_style, plotregion
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 from chebfunjax.utils.aaa import aaa
 

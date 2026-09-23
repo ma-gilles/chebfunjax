@@ -32,8 +32,8 @@ from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
 from chebfunjax.domain import Domain
 from chebfunjax.operators.chebop import Chebop
 from chebfunjax.plotting import chebfun_style
-from chebfunjax.tech.trigtech import Trigtech
 from chebfunjax.plotting import save_chebfun_figure as _savefig
+from chebfunjax.tech.trigtech import Trigtech
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))

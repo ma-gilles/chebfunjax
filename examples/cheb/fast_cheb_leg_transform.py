@@ -26,8 +26,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
-from chebfunjax.utils.transforms import cheb2leg
 from chebfunjax.plotting import save_chebfun_figure as _savefig
+from chebfunjax.utils.transforms import cheb2leg
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -86,6 +86,7 @@ def run():
 
     # --- Fast evaluation of Legendre expansions ---
     import time
+
     from scipy.sparse import diags as _diags
     from scipy.sparse.linalg import spsolve as _spsolve
 

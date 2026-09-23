@@ -21,8 +21,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
-from chebfunjax.utils.polynomials import chebpoly, legpoly
 from chebfunjax.plotting import save_chebfun_figure as _savefig
+from chebfunjax.utils.polynomials import chebpoly, legpoly
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))

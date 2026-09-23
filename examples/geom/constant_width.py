@@ -85,14 +85,9 @@ def run():
     print("ans =")
     print(f"     {poly(10.0):g}")
 
-    # perimeter = arc length of the boundary chebfun(s)
-    per = 0.0
-    for c in curves:
-        dc = c.diff()
-        bps = [float(v) for v in c.domain.breakpoints]
-        t = np.linspace(bps[0], bps[-1], 4000)
-        v = np.abs(np.asarray(dc(t)))
-        per += np.trapezoid(v, t)
+    # perimeter = norm(diff(r),1): the arc length of the zero curve.
+    # (Barbier: a curve of constant width 18 has perimeter 18*pi.)
+    per = sum(float(c.diff().norm(1)) for c in curves)
     print("perimeter =")
     print(f"  {per:.15f}")
     print("time_for_this_example =")

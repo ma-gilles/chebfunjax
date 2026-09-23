@@ -32,8 +32,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 from numpy.polynomial.legendre import leggauss
 
 from chebfunjax.plotting import chebfun_style
-from chebfunjax.spherefun.spherefun import Spherefun, _real_ylm_values, _sph_harmonic_eval_sum
 from chebfunjax.plotting import save_chebfun_figure as _savefig
+from chebfunjax.spherefun.spherefun import Spherefun, _real_ylm_values, _sph_harmonic_eval_sum
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))

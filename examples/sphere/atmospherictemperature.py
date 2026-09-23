@@ -20,9 +20,11 @@ import urllib.request
 import warnings
 
 import matplotlib.pyplot as plt
+
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'src'))
-from chebfunjax.plotting import save_chebfun_figure as _savefig
 import numpy as np
+
+from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 

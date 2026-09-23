@@ -22,8 +22,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
-from chebfunjax.utils.fov import fov
 from chebfunjax.plotting import save_chebfun_figure as _savefig
+from chebfunjax.utils.fov import fov
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))

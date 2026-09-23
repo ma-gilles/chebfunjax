@@ -26,10 +26,10 @@ import jax.numpy as jnp
 from chebfunjax import chebfun, volt
 from chebfunjax.operators.chebop import Chebop
 from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import save_chebfun_figure as _savefig
 from chebfunjax.utils.diffmat import cumsummat, diffmat
 from chebfunjax.utils.interpolation import barymat
 from chebfunjax.utils.quadrature import chebpts as _chebpts_ref
-from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 
 def chebpts_dom(n, dom):
