@@ -1794,24 +1794,19 @@ class Spherefun(eqx.Module):
         return _sub(self.idx_plus), _sub(self.idx_minus)
 
     def rotate(self, phi: float = 0.0, theta: float = 0.0,
-               psi: float = 0.0) -> "Spherefun":
-        """Rotate by Euler angles (ZYZ convention, MATLAB rotate):
-        the rotation is Rz(phi) @ Ry(theta) @ Rz(psi), and
-        ``f.rotate(a, b, c).rotate(-c, -b, -a)`` recovers ``f``.
+               psi: float = 0.0, method: str = "nufft") -> "Spherefun":
+        """Rotate by Euler angles in MATLAB's ZXZ convention.
 
-        The two Rz factors are applied EXACTLY in coefficient space
-        (longitude phase shifts); only the Ry factor is re-approximated.
-        MATLAB resamples the full composite -- the decomposition here is
-        the same map with strictly less resampling noise.
-
-        The Ry resampling evaluates ``f1`` through :meth:`fast_sphere_eval`
-        (the 2D-NUFFT ``fastSphereEval``) rather than the Horner scheme, and
-        samples on a fixed grid sized to ``f1``'s bandlimit (``start_grid``) --
-        the rotation of a bandlimited function stays bandlimited, so this grid
-        recovers it spectrally on the first pass instead of chasing sub-ulp
-        Horner noise through adaptive refinement.  Together these reach
-        MATLAB's ``10*eps`` round-trip bound with margin (see
-        ``@spherefun/rotate.m``, which uses ``method='nufft'`` by default).
+        ``g(x) = f(R x)`` with ``R = B C D``, ``D`` and ``B`` rotations
+        about z by ``phi`` and ``psi`` and ``C`` a rotation about x by
+        ``theta``; ``f.rotate(a, b, c).rotate(-c, -b, -a)`` recovers ``f``.
+        As in MATLAB, ``f`` is sampled at the rotated points of an
+        ``ceil(n/2)+2`` by ``n`` lat-lon grid (``n`` the larger of ``f``'s
+        lengths, rounded up to even), with ``method='nufft'`` (the 2-D
+        NUFFT ``fastSphereEval``, default) or ``'feval'``, rebuilt with
+        ``spherefun(DOUBLE)`` and simplified.  (An earlier version used
+        ZYZ angles and adaptive resampling, which gave a different
+        rotation and took over an hour at degree 209.)
 
         Provenance
         ----------
@@ -1821,36 +1816,34 @@ class Spherefun(eqx.Module):
         import numpy as _np
 
         from chebfunjax.spherefun.fast_sphere_eval import fast_sphere_eval
+        from chebfunjax.utils.quadrature import trigpts
+        m, n = self.length()
+        n = max(int(m), int(n))
+        m = n + n % 2
+        n = int(_np.ceil(n / 2)) + 2
+        lam, th = _np.meshgrid(_np.asarray(trigpts(m, (-_np.pi, _np.pi))[0]),
+                               _np.linspace(0, _np.pi, n))
+        lam[0, :] = 0
+        lam[-1, :] = 0
+        X = _np.stack([_np.cos(lam) * _np.sin(th), _np.sin(lam) * _np.sin(th),
+                       _np.cos(th)])
 
-        if theta == 0.0:
-            # Pure z-rotation: f(Rz(phi+psi)^T x) exactly.
-            return self._shift_lambda(phi + psi)
-
-        f1 = self._shift_lambda(psi)
-        cb, sb = _np.cos(theta), _np.sin(theta)
-        Ry = _np.array([[cb, 0, sb], [0, 1, 0], [-sb, 0, cb]])
-
-        # Bandlimit grid: the rotation of a degree-l bandlimited function is of
-        # degree l, so sampling at f1's bandlimit resolves g on the first pass
-        # (MATLAB @spherefun/rotate.m: ``n = max(m, n)``).
-        start_grid = 2 * f1._bandwidth() + 2
-
-        def g(lam, th):
-            lam = _np.asarray(lam, dtype=_np.float64)
-            th = _np.asarray(th, dtype=_np.float64)
-            x = _np.cos(lam) * _np.sin(th)
-            y = _np.sin(lam) * _np.sin(th)
-            z = _np.cos(th)
-            xp = Ry[0, 0] * x + Ry[1, 0] * y + Ry[2, 0] * z
-            yp = Ry[0, 1] * x + Ry[1, 1] * y + Ry[2, 1] * z
-            zp = Ry[0, 2] * x + Ry[1, 2] * y + Ry[2, 2] * z
-            return fast_sphere_eval(
-                f1, _np.arctan2(yp, xp),
-                _np.arccos(_np.clip(zp, -1.0, 1.0)))
-
-        f2 = Spherefun.from_function(g, start_grid=start_grid)
-        # Final Rz factor, exact.
-        return f2._shift_lambda(phi)
+        def _rz(a):
+            return _np.array([[_np.cos(a), _np.sin(a), 0],
+                              [-_np.sin(a), _np.cos(a), 0], [0, 0, 1]])
+        C = _np.array([[1, 0, 0], [0, _np.cos(theta), _np.sin(theta)],
+                       [0, -_np.sin(theta), _np.cos(theta)]])
+        R = _rz(psi) @ C @ _rz(phi)
+        U = _np.tensordot(R, X, 1)
+        lr = _np.arctan2(U[1], U[0]).ravel()
+        tr = _np.arccos(_np.clip(U[2], -1.0, 1.0)).ravel()
+        if str(method).lower() == "nufft":
+            g = _np.real(_np.asarray(fast_sphere_eval(self, lr, tr)))
+        elif str(method).lower() == "feval":
+            g = _np.asarray(self(jnp.asarray(lr), jnp.asarray(tr)))
+        else:
+            raise ValueError("Unrecognized algorithm.")
+        return Spherefun.from_values(g.reshape(lam.shape)).simplify()
 
     # ------------------------------------------------------------------
     # MATLAB spherefun(DOUBLE): construction from a matrix of samples

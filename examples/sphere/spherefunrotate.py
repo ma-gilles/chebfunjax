@@ -17,7 +17,6 @@ import sys
 import time
 import warnings
 
-import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import Normalize
@@ -29,9 +28,7 @@ from scipy.special import sph_harm_y_all
 
 from chebfunjax.plotting import PARULA, chebfun_style
 from chebfunjax.plotting import save_chebfun_figure as _savefig
-from chebfunjax.spherefun.fast_sphere_eval import fast_sphere_eval
 from chebfunjax.spherefun.spherefun import Spherefun, _real_ylm_values
-from chebfunjax.utils.quadrature import trigpts
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -103,45 +100,6 @@ def _randnfunsphere(lam, rng):
     return Spherefun.from_values(F), deg
 
 
-def _rotate(f, phi, theta=0.0, psi=0.0, method="nufft"):
-    """MATLAB @spherefun/rotate.m: sample f at the rotated points of a
-    lat-lon grid resolving f, R = B*C*D with the ZXZ Euler matrices, and
-    rebuild with spherefun(DOUBLE) (``Spherefun.from_values``).
-
-    ``Spherefun.rotate`` in chebfunjax rotates about the y-axis for the
-    middle angle (ZYZ), not MATLAB's x-axis (ZXZ), and does not finish a
-    degree-209 rotation within an hour, so this example uses the
-    MATLAB construction built from the library's pieces.
-    ``method='nufft'`` evaluates with ``fast_sphere_eval`` (the 2D NUFFT,
-    MATLAB's default); ``'feval'`` uses direct evaluation.
-    """
-    m, n = f.length()
-    n = max(m, n)
-    m = n + n % 2
-    n = int(np.ceil(n / 2)) + 2
-    lam, th = np.meshgrid(np.asarray(trigpts(m, (-np.pi, np.pi))[0]),
-                          np.linspace(0, np.pi, n))
-    lam[0, :] = 0
-    lam[-1, :] = 0
-    X = np.stack([np.cos(lam) * np.sin(th), np.sin(lam) * np.sin(th),
-                  np.cos(th)])
-
-    def Rz(a):
-        return np.array([[np.cos(a), np.sin(a), 0],
-                         [-np.sin(a), np.cos(a), 0], [0, 0, 1]])
-    C = np.array([[1, 0, 0], [0, np.cos(theta), np.sin(theta)],
-                  [0, -np.sin(theta), np.cos(theta)]])
-    R = Rz(psi) @ C @ Rz(phi)
-    U = np.tensordot(R, X, 1)
-    lr = np.arctan2(U[1], U[0]).ravel()
-    tr = np.arccos(np.clip(U[2], -1, 1)).ravel()
-    if method == "nufft":
-        g = np.real(np.asarray(fast_sphere_eval(f, lr, tr)))
-    else:
-        g = np.asarray(f(jnp.asarray(lr), jnp.asarray(tr)))
-    return Spherefun.from_values(g.reshape(lam.shape)).simplify()
-
-
 def run():
     os.makedirs(_IMG, exist_ok=True)
     warnings.filterwarnings("ignore")
@@ -150,7 +108,7 @@ def run():
     f = Spherefun.from_function(
         lambda lam, th: np.cos(50 * np.cos(th))
         + (np.cos(lam) * np.sin(th))**2)
-    g = _rotate(f, -np.pi / 4, np.pi / 2, np.pi / 8)
+    g = f.rotate(-np.pi / 4, np.pi / 2, np.pi / 8)
     _panel([(f, "Original"), (g, "Rotated")],
            "SpherefunRotate_01.png")
 
@@ -166,15 +124,15 @@ def run():
             50 * (np.cos(lam) * np.sin(th))
             * (np.sin(lam) * np.sin(th) - 0.5)))
     _panel([(f2, "Original"),
-            (_rotate(f2, np.pi / 4, 0, 0), r"Rotated $\phi=\pi/4$"),
-            (_rotate(f2, 0, np.pi / 4, 0), r"Rotated $\theta=\pi/4$"),
-            (_rotate(f2, np.pi / 4, 0, np.pi / 4),
+            (f2.rotate(np.pi / 4, 0, 0), r"Rotated $\phi=\pi/4$"),
+            (f2.rotate(0, np.pi / 4, 0), r"Rotated $\theta=\pi/4$"),
+            (f2.rotate(np.pi / 4, 0, np.pi / 4),
              r"Rotated $\phi=\psi=\pi/4$")],
            "SpherefunRotate_03.png")
 
     # Rotating Y_10^3 keeps the coefficients in the degree-10 shell.
     Y103 = Spherefun.sphharm(10, 3)
-    g3 = _rotate(Y103, np.pi / 4, np.pi / 3, -np.pi / 8)
+    g3 = Y103.rotate(np.pi / 4, np.pi / 3, -np.pi / 8)
     N = 12
     nq = 48
     xg, wg = leggauss(nq)
@@ -230,10 +188,10 @@ def run():
     f6, _ = _randnfunsphere(0.03, np.random.default_rng(0))
     _panel([(f6, "Random function")], "SpherefunRotate_05.png", n=450)
     t0 = time.perf_counter()
-    _rotate(f6, np.pi / 3, np.pi / 2, 0.5, "feval")
+    f6.rotate(np.pi / 3, np.pi / 2, 0.5, "feval")
     t_feval = time.perf_counter() - t0
     t0 = time.perf_counter()
-    h6 = _rotate(f6, np.pi / 3, np.pi / 2, 0.5)
+    h6 = f6.rotate(np.pi / 3, np.pi / 2, 0.5)
     t_nufft = time.perf_counter() - t0
     print(f"NUFFT speed-up factor = {t_feval / t_nufft:.1f}")
     _panel([(h6, "Rotated random function")], "SpherefunRotate_06.png",
@@ -246,10 +204,10 @@ def run():
             * (np.sin(lam) * np.sin(th))))
     print("ans =")
     print(f"    {f4.rank}")
-    g4 = _rotate(f4, 0.01, 0.01, 0.01)
+    g4 = f4.rotate(0.01, 0.01, 0.01)
     print("ans =")
     print(f"    {g4.rank}")
-    g5 = _rotate(f4, np.pi / 4, -np.pi / 3, -np.pi / 8)
+    g5 = f4.rotate(np.pi / 4, -np.pi / 3, -np.pi / 8)
     print("ans =")
     print(f"   {g5.rank}")
 
@@ -261,7 +219,7 @@ def run():
             + (np.sin(lam) * np.sin(th) - cntr[1])**2
             + np.cos(th)**2)))
     alp = np.linspace(0, 2 * np.pi, 101)
-    rk = [_rotate(f5, 0, a, 0).rank for a in alp]
+    rk = [f5.rotate(0, a, 0).rank for a in alp]
     FIG[0] += 1
     fig, ax = plt.subplots(figsize=(6.0, 2.69))
     ax.plot(alp, rk, 'x-', lw=2)

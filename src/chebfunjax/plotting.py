@@ -107,7 +107,8 @@ def save_chebfun_figure(fig, path, size=(600, 270)):
     """
     w, h = size
     dpi = 100.0
-    fig.set_size_inches(w / dpi, h / dpi)
+    # +1e-6 px: the canvas is int(inches * dpi) and 2.53 * 100 = 252.999...
+    fig.set_size_inches((w + 1e-6) / dpi, (h + 1e-6) / dpi)
     # rc 'savefig.bbox: tight' would rescale the canvas even when
     # bbox_inches is not passed — force it off for the exact-size export.
     with mpl.rc_context({"savefig.bbox": None}):

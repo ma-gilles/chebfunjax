@@ -65,7 +65,7 @@ def _save(fig):
     FIG[0] += 1
     fig.set_facecolor("white")
     _savefig(fig, os.path.join(_IMG, f"LaplaceBall_{FIG[0]:02d}.png"),
-             size=(600, 253.4))  # 2.53 in * 100 dpi floors to 252 px
+             size=(600, 253))
     plt.close(fig)
 
 

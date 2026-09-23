@@ -40,7 +40,7 @@ def _save(fig):
     fig.set_facecolor("white")
     _savefig(fig, os.path.join(
         _IMG, f"HelmholtzDecompositionBall_{FIG[0]:02d}.png"),
-        size=(600, 253.4))  # 2.53 in * 100 dpi floors to 252 px
+        size=(600, 253))
     plt.close(fig)
 
 

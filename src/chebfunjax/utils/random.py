@@ -448,6 +448,15 @@ def randnfunsphere(
     return jnp.array(F, dtype=jnp.float64)
 
 
+def _norm_legendre(l_deg: int, m: int, theta: np.ndarray) -> np.ndarray:
+    """``sqrt((2l+1)/2 * (l-m)!/(l+m)!) * P_l^m(cos theta)`` (Condon-Shortley
+    phase), evaluated stably as ``sqrt(2 pi) Re Y_l^m(theta, 0)``: the
+    factorial / unnormalized ``lpmv`` form overflows beyond degree ~85
+    (randnfunsphere(0.03) in the SpherefunRotate example needs ~210)."""
+    from scipy.special import sph_harm_y
+    return np.sqrt(2.0 * np.pi) * np.real(sph_harm_y(l_deg, m, np.asarray(theta), 0.0))
+
+
 def _sph_harm_sum(
     lam: np.ndarray,
     theta: np.ndarray,
@@ -455,9 +464,7 @@ def _sph_harm_sum(
     coeffs: np.ndarray,
 ) -> np.ndarray:
     """Sum of spherical harmonics up to degree deg over a tensor grid."""
-    from scipy.special import lpmv
 
-    cos_theta = np.cos(theta)  # (n_theta,)
     F = np.zeros((len(theta), len(lam)), dtype=np.float64)
 
     c_idx = 0
@@ -472,15 +479,10 @@ def _sph_harm_sum(
         a = ((-1.0) ** m_vals) / np.sqrt((1.0 + (m_vals == 0).astype(float)) * np.pi)
 
         # Associated Legendre: G[m, theta]
-        import math
         G = np.zeros((l_deg + 1, len(theta)))
         for m_idx, m_val in enumerate(m_vals):
-            # lpmv(m, l, x) = P_l^m(x) (unnormalized)
             # normalized: sqrt((2l+1)/(4pi) * (l-m)!/(l+m)!) * P_l^m
-            norm = np.sqrt((2 * l_deg + 1) / 2.0
-                           * math.factorial(l_deg - m_val)
-                           / math.factorial(l_deg + m_val))
-            G[m_idx, :] = norm * lpmv(m_val, l_deg, cos_theta)
+            G[m_idx, :] = _norm_legendre(l_deg, int(m_val), theta)
 
         # Extract coefficients for this degree
         n_this = 2 * l_deg + 1
@@ -514,11 +516,8 @@ def _sph_harm_sum_fixed_deg(
     coeffs: np.ndarray,
 ) -> np.ndarray:
     """Sum of spherical harmonics of a single fixed degree."""
-    import math
 
-    from scipy.special import lpmv
 
-    cos_theta = np.cos(theta)
     F = np.zeros((len(theta), len(lam)), dtype=np.float64)
 
     m_vals = np.arange(l_deg + 1)
@@ -526,10 +525,7 @@ def _sph_harm_sum_fixed_deg(
 
     G = np.zeros((l_deg + 1, len(theta)))
     for m_idx, m_val in enumerate(m_vals):
-        norm = np.sqrt((2 * l_deg + 1) / 2.0
-                       * math.factorial(l_deg - m_val)
-                       / math.factorial(l_deg + m_val))
-        G[m_idx, :] = norm * lpmv(m_val, l_deg, cos_theta)
+        G[m_idx, :] = _norm_legendre(l_deg, int(m_val), theta)
 
     Gp = G
     Gn = G[1:, :]
