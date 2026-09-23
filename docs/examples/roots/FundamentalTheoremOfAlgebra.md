@@ -1,49 +1,110 @@
 # Does a chebfun of degree n have n roots?
 
-*Alex Townsend, October 2011*
+*Alex Townsend, October 2013*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/roots/FundamentalTheoremOfAlgebra.html)
 
-(Chebfun example roots/FundamentalTheoremOfAlgebra.m)
+Python translation: [`examples/roots/fundamental_theorem_of_algebra.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/roots/fundamental_theorem_of_algebra.py)
 
-The Fundamental Theorem of Algebra says a degree-$n$ polynomial has
-exactly $n$ roots in the complex plane.  A chebfun of degree $n$ is a
-polynomial, so `roots(f, 'all')` should find all $n$ of them.  For a
-chebfun made from random Chebyshev-point values:
+```matlab
+LW = 'linewidth'; lw = 2;
+MS = 'markersize'; ms = 20;
+FS = 'fontsize'; fs = 16;
+```
+
+## The fundamental theorem of algebra
+
+The fundamental theorem of algebra states that every polynomial of degree exactly $n$ with real or complex coefficients has exactly $n$ roots, counted with multiplicity. A chebfun of length $n+1$ is a polynomial of degree $n$ (assuming its leading coefficient is nonzero), so mathematically has exactly $n$ roots. For example,
+
+```matlab
+n = 100;
+f = chebfun(rand(n+1,1));      % This chebfun is of degree 100
+r = roots(f,'all');            % Compute all its roots
+fprintf('This chebfun of degree %u has %u roots\n',length(f)-1,length(r))
+```
 
 ```text
 This chebfun of degree 100 has 100 roots
-```
-
-For $e^{-10x}$, which has no roots at all as a function, the chebfun
-still has (nearly) as many roots as its degree — they simply lie
-outside the Chebfun ellipse where the chebfun has no accuracy:
-
-![FundamentalTheoremOfAlgebra figure 1](../../images/roots/FundamentalTheoremOfAlgebra_repl_01.png)
-
-A polynomial with 72 equispaced real roots in $[0,1]$
-($f(x) = \prod_k (x - k/71)$, a Wilkinson-style example) pushes the
-representation to its limits — the function values between roots vary
-over dozens of orders of magnitude:
-
-![FundamentalTheoremOfAlgebra_repl figure 2](../../images/roots/FundamentalTheoremOfAlgebra_repl_02.png)
-
-```text
 No. of real roots = 97
 No. of complex (and real) roots = 72
-ans =
-     4.865993121288420e-47
 ```
 
-The real-root count exceeds 72: the recursive subdivided rootfinder
-picks up spurious roots in the middle of the interval, where $|f|$ is
-below the noise floor of the global representation.  This is faithful
-behavior — running the identical code in MATLAB R2025b today gives 92
-real roots and the same 72 for `'all'` (the page's original published
-value of 73 dates from an older Chebfun); the residual norm 4.9e-47
-matches MATLAB's 1.2e-47 in scale.
+Great! At first it seems that the roots command in Chebfun is consistent with the fundamental theorem of algebra. We now give examples to the contrary.
+
+## Fewer roots than expected
+
+Sometimes the Chebfun `roots(...,'all')` command returns fewer than $n$ roots for a chebfun of degree $n$. For example,
+
+```matlab
+f = chebfun(@(x) exp(-10*x));                    % A chebfun of exp(-10x)
+r = roots(f,'all');                              % Compute all its roots
+plot([-1 1]+eps*1i,'k-','linewidth',3), hold on  % Plot
+plot(r,'.r',MS,ms), plotregion(f,LW,lw)
+xlabel('Re',FS,fs), ylabel('Im',FS,fs)
+legend('[-1,1]','Computed roots','Chebfun ellipse')
+title(sprintf('Degree %u with %u roots\n',length(f)-1,length(r)),FS,fs), hold off
+```
+
+![FundamentalTheoremOfAlgebra figure 01](../../images/roots/FundamentalTheoremOfAlgebra_01.png)
+
+What's going on? The roots command in Chebfun is based on the colleague matrix [3]. The construction of this matrix requires a nonzero leading coefficient of the underlying Chebyshev expansion. In practice, we often chop small leading coefficients to prevent numerical issues. The consequence is that the chebfun is reduced in degree and therefore, fewer roots are computed. The importance of this step, which is closely related to removing large roots near infinity, has been debated several times in the Chebfun team. The jury is still out. Note that the roots that are removed are not expected to be of interest in Chebfun because they are nearly infinite.
+
+## More roots than expected
+
+The Chebfun roots command can also return more roots than the degree of the chebfun. For example, consider the Wilkinson polynomial of degree 71:
+
+```matlab
+n = 71; xx = (0:n)/n;
+f = chebfun(@(x) prod(x - xx),[0 1],'vectorize');
+r = roots(f);
+plot([0 1]+eps*1i,'k-','linewidth',3), hold on
+plot(r+eps*1i,'.r',MS,ms), plotregion(f,LW,lw)
+xlabel('Re',FS,fs), ylabel('Im',FS,fs)
+legend('[0,1]','Computed roots','Chebfun ellipse')
+title(sprintf('Degree %u with %u roots\n',length(f)-1,length(r)),FS,fs), hold off
+```
+
+![FundamentalTheoremOfAlgebra figure 02](../../images/roots/FundamentalTheoremOfAlgebra_02.png)
+
+More startling, we get fewer roots if we supply the `'all'` flag:
+
+```matlab
+rreal = roots(f); rall = roots(f,'all');
+fprintf('No. of real roots = %u\n',length(rreal));
+fprintf('No. of complex (and real) roots = %u\n',length(rall));
+```
+
+```text
+(no matching output)
+```
+
+What's going on? When we only ask for real roots the underlying algorithm uses 1D subdivision if the chebfun is of degree $50$ or more [1,2]. However, this subdivision process can, on rare examples (as above), lead to more solutions. The Wilkinson polynomial has an extreme scaling, and in the middle of the interval the polynomial is relatively below machine precision. On subdivision, subdomains near the middle of the interval contain little information about the original polynomial and roots generated by rounding errors are computed. However, these solutions are correct in the sense that the residual is small:
+
+```matlab
+norm(f(r))
+```
+
+```text
+ans =
+     2.169521087785627e-47
+```
+
+Alternatively, when we supply the `'all'` flag an eigenvalue problem is constructed (without subdivision) and extra solutions are never introduced in practice.
+
+## Conclusion
+
+At the edge of machine precision, apparent anomalies between the degree and the number of roots of a chebfun are never too far away. These effects highlight the challenges of computing in a system that must constantly make decisions about what quantities are effectively zero. It's just worth keeping in mind that a chebfun of degree $n$ does not always have $n$ roots.
+
+## Acknowledgements
+
+I'm grateful to Yuji Nakatsukasa and Vanni Noferini for showing me that the `roots` command returned more solutions than expected for the Wilkinson polynomial of degree $71$.
+
+## References
+
+1. Z. Battles and L. N. Trefethen, An extension of MATLAB to continuous functions and operators, *SIAM Journal on Scientific Computing*, 25 (2004), pp. 1743--1770.
+2. J. P. Boyd, Computing zeros on a real interval through Chebyshev expansion and polynomial rootfinding, *SIAM Journal on Numerical Analysis*, 40 (2002), pp. 1666--1682.
+3. L. N. Trefethen, *Approximation Theory and Approximation Practice*, SIAM, 2013.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

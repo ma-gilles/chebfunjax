@@ -44,9 +44,9 @@ print(float((lap_computed - lap_exact).norm()))   # < 1e-6
 
 *No examples yet.*
 
-## Replicated chebfun.org examples
+## chebfun.org examples
 
 | Example | Description |
 |---------|-------------|
-| [Phase portraits and trajectories](AutonomousSystems.md) | Faithful replica: SHO, pendulum, and Duffing phase portraits with RK45 trajectories and roots() critical points. |
-| [Checking vector calculus](CheckingVectorCalculus.md) | Faithful replica: parallelogram law, gradient theorem, closed-curve integrals, and curl(grad)=0 — all at machine zero. |
+| [Phase portraits and trajectories](AutonomousSystems.md) | translation: SHO, pendulum, and Duffing phase portraits with RK45 trajectories and roots() critical points. |
+| [Checking vector calculus](CheckingVectorCalculus.md) | translation: parallelogram law, gradient theorem, closed-curve integrals, and curl(grad)=0 — all at machine zero. |

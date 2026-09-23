@@ -1,46 +1,101 @@
-# The low-rank structure of a sum of bump functions
+# Adding together bump functions
+
+*Alex Townsend, March 2013*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx2/BumpFunction.html)
 
-(Chebfun example approx2/BumpFunction.m)
+Python translation: [`examples/approx2/bumpfunction.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx2/bumpfunction.py)
 
-A sum of 100 Gaussian bumps
-$\sum_j e^{-\gamma((x-x_j)^2 + (y-y_j)^2)}$ with random centers
-$(x_j, y_j)$ in $[-1,1]^2$ and $\gamma = 100$ has numerical rank far
-below 100 — the example's point about low-rank structure in smooth
-2D functions. (Bump centers use a seeded numpy stream; MATLAB's
-`rng(1)` values are not reproducible outside MATLAB, and the rank
-and decay behavior are the sample-robust content.)
+## Adding bumps
 
-Growth of the sum at $n = 1, 5, 50, 100$ bumps:
+A Gaussian bump is a rank-1 function because it is separable, i.e., it can be written as a product of two univariate functions [2]:
 
-![BumpFunction figure 1](../../images/approx2/BumpFunction_repl_01.png)
+$$ e^{-\gamma(x^2+y^2)} = e^{-\gamma x^2}e^{-\gamma y^2}. $$
 
-The rank of the 100-bump function (MATLAB publishes 56 for its
-sample; the value is sample-dependent):
+To illustrate Chebfun2, we can shift these Gaussian bump functions to arbitrary locations and add them together. In this experiment we add up $100$ of them:
+
+```matlab
+FS = 'FontSize'; fs = 16;
+gam = 100; j = 1;
+f = chebfun2(0);
+rng(1)
+for n = 1:100
+    x0 = 2*rand-1; y0 = 2*rand-1;
+    df = chebfun2(@(x,y) exp(-gam*((x-x0).^2+(y-y0).^2)));
+    f = f + df;
+    if n==1 || n==5 || n==50 || n==100
+        subplot(2,2,j), plot(f), title(sprintf('n = %u',n),FS,fs), j=j+1;
+        zlim([0,5])
+    end
+end
+```
+
+![BumpFunction figure 01](../../images/approx2/BumpFunction_01.png)
+
+## The surprise
+
+Generically, the sum of $100$ rank 1 functions is a rank $100$ function. However, in this case the numerical rank is significantly less than the mathematical rank:
+
+```matlab
+fprintf('Rank of function is %u\n',rank(f))
+```
 
 ```text
 Rank of function is 54
 ```
 
-The singular values decay geometrically:
+## Why the surprise?
 
-![BumpFunction figure 2](../../images/approx2/BumpFunction_repl_02.png)
+If you write the bivariate function in terms of its singular value decomposition [2]
 
-A cross-section along $y = \pi/12$ and the maximum in the
-$y$-direction:
+$$ f(x,y) \approx \sum_k \sigma_k \phi_k(x) \psi_k(y), $$
 
-![BumpFunction figure 3](../../images/approx2/BumpFunction_repl_03.png)
-![BumpFunction figure 4](../../images/approx2/BumpFunction_repl_04.png)
+the singular values decay supergeometrically. This phenomenon is exploited in the Fast Gauss Transform [1]. Here is a plot showing the supergeometric decay:
 
-The global maximum of our sample:
-
-```text
-max2: 2.524604 at (0.9809, -0.4756)
+```matlab
+clf, semilogy(svd(f))
+title('Decay of singular values of f',FS,fs),legend('SVD')
+xlabel('Index',FS,fs),ylabel('Magnitude',FS,fs)
 ```
+
+![BumpFunction figure 02](../../images/approx2/BumpFunction_02.png)
+
+## Playing around
+
+Once we have a function we can also see what it looks like along a cross- section (like along $y=\pi/12$), which is represented by a smooth chebfun:
+
+```matlab
+plot(f(:,pi/12)), title('Cross-section along y=\pi/12',FS,fs)
+```
+
+![BumpFunction figure 03](../../images/approx2/BumpFunction_03.png)
+
+Or, we can calculate its maximum along each column, a function which is represented by a piecewise smooth chebfun with several points of discontinuity of its slope:
+
+```matlab
+plot(max(f)), title('Maximum in the y-direction',FS,fs)
+xlabel('x',FS,fs), ylabel('Maximum',FS,fs)
+```
+
+![BumpFunction figure 04](../../images/approx2/BumpFunction_04.png)
+
+## Global maximum
+
+We can also compute its global maximum, shown below as a black dot:
+
+```matlab
+[m,X] = max2(f);
+plot(f), hold on, plot3(X(1),X(2),m,'k.','MarkerSize',30), zlim([0,5])
+title('Global maximum of f',FS,fs)
+```
+
+![BumpFunction figure 05](../../images/approx2/BumpFunction_05.png)
+
+## References
+
+1. L. Greengard and J. Strain, The fast Gauss transform, *SIAM Journal on Scientific Computing*, 12 (1991), pp. 79-94.
+2. A. Townsend and L. N. Trefethen, An extension of Chebfun to two dimensions, *SIAM Journal on Scientific Computing*, 35 (2013), C495-C518.
 
 ---
 
-*Replica script: [`examples/approx2/bumpfunction_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx2/bumpfunction_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

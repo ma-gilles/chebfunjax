@@ -1,32 +1,24 @@
 # The gamma function and its poles
 
-*Nick Hale, December 2009 (revised June 2019 by Nick Trefethen)*
+*Nick Hale, December 2009*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/GammaFun.html)
 
-(Chebfun example approx/GammaFun.m)
+Python translation: [`examples/approx/gamma_fun.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/gamma_fun.py)
 
-This example displays some of Chebfun's capabilities for unbounded
-functions by exploring the gamma function $\Gamma(x)$ on the interval
-$[-4,4]$.
+[revised June 2019 by Nick Trefethen]
 
-The gamma function has simple poles at the negative integers and zero.
-Chebfun can determine the locations and orders of these poles if it is
-called with the `blowup` and `splitting` flags on.  The exponents of the
-output indicate that each pole is simple, that is, it has a singularity
-of type $x^{-1}$:
+This example displays some of Chebfun's capabilities for unbounded functions by exploring the gamma function $\Gamma(x)$ on the interval $[-4,4]$.
 
-```python
-import numpy as np
-import jax.numpy as jnp
-from scipy.special import gamma
-import chebfunjax as cj
+The gamma function has simple poles at the negative integers and zero. Chebfun can determine the locations and orders of these poles if it is called with the `'blowup'` and `'splitting'` flags on. The `'exponents'` field of the output indicates that each pole is simple, that is, it has a singularity of type $x^{-1}$.
 
-gam_op = lambda x: jnp.asarray(gamma(np.asarray(x)))
-gam = cj.chebfun(gam_op, domain=[-4.0, 4.0], blowup=True, splitting=True)
-gam
+```matlab
+gam = chebfun('gamma(x)',[-4 4],'blowup','on','splitting','on')
+plot(gam), grid on
+title('Gamma function')
 ```
-```
+
+```text
 gam =
    chebfun column (5 smooth pieces)
        interval       length     endpoint values   endpoint exponents
@@ -38,20 +30,17 @@ gam =
 vertical scale = Inf    Total length = 109
 ```
 
-(MATLAB's published display shows the same five pieces with the same
-exponents — including the amusing `-2.2e-308` breakpoint from automatic
-pole detection — with lengths 20/25/24/20/26.)
+![GammaFun figure 01](../../images/approx/GammaFun_01.png)
 
-![GammaFun figure 1](../../images/approx/GammaFun_repl_01.png)
+Alternatively, and always a better idea when the information is available, one can instruct Chebfun what poles to put where:
 
-Alternatively, and always a better idea when the information is
-available, one can instruct Chebfun what poles to put where:
-
-```python
-gam = cj.chebfun(gam_op, domain=[-4.0, -3.0, -2.0, -1.0, 0.0, 4.0],
-                 exps=[-1, -1, -1, -1, -1, -1, -1, -1, -1, 0])
+```matlab
+gam = chebfun('gamma(x)',[-4 -3 -2 -1 0 4],'exps',[-1 -1 -1 -1 -1 0])
+plot(gam), grid on
+title('Gamma function again')
 ```
-```
+
+```text
 gam =
    chebfun column (5 smooth pieces)
        interval       length     endpoint values   endpoint exponents
@@ -63,34 +52,58 @@ gam =
 vertical scale = Inf    Total length = 111
 ```
 
-![GammaFun figure 2](../../images/approx/GammaFun_repl_02.png)
+![GammaFun figure 02](../../images/approx/GammaFun_02.png)
 
-We can now treat $\Gamma(x)$ like any other chebfun.  For example, we
-can find its reciprocal $1/\Gamma(x)$, compute the square root
-$|\Gamma(x)|^{1/2}$, and plot these functions:
+We can now treat $\Gamma(x)$ like any other chebfun. For example, we can:
 
-```python
-gam_i = 1.0/gam
-absgam = gam.abs()
-sqrtgam = absgam.sqrt().real()
+(1) Find its reciprocal $1/\Gamma(x)$:
+
+```matlab
+gam_i = 1/gam;
 ```
 
-![GammaFun figure 3](../../images/approx/GammaFun_repl_03.png)
+(2) Compute the square root $|\Gamma(x)|^{1/2}$:
 
-Plot the critical points:
-
-```python
-r, _ = gam.minandmax('local')      # and likewise for gam_i, sqrtgam
+```matlab
+absgam = abs(gam);
+sqrtgam = real(sqrt(absgam));
 ```
 
-![GammaFun figure 4](../../images/approx/GammaFun_repl_04.png)
+(3) Plot these functions:
 
-Compute some integrals:
+```matlab
+plot([gam gam_i sqrtgam]), grid on
+legend('\Gamma(x)', '1/\Gamma(x)', 'sqrt(|\Gamma(x)|)',...
+   'location','southeast')
+title('Various related functions')
+```
 
-```python
-gam.sum(), absgam.sum(), sqrtgam.sum()
+![GammaFun figure 03](../../images/approx/GammaFun_03.png)
+
+(4) Plot the critical points:
+
+```matlab
+hold on
+[y r] = minandmax(gam,'local');
+[yi ri] = minandmax(gam_i,'local');
+[ys rs] = minandmax(sqrtgam,'local');
+
+plot(r,gam(r),'.k',ri,gam_i(ri),'.k', ...
+    rs,sqrtgam(rs),'.k','markersize',10), hold off
+title('Critical points')
 ```
+
+![GammaFun figure 04](../../images/approx/GammaFun_04.png)
+
+(5) Compute some integrals:
+
+```matlab
+sum(gam)
+sum(absgam)
+sum(sqrtgam)
 ```
+
+```text
 ans =
    NaN
 ans =
@@ -99,13 +112,8 @@ ans =
   14.043323986892393
 ```
 
-(The finite integral matches the published MATLAB value in all 16
-digits.)
-
-Do you understand why these results come out not-a-number, infinite,
-and finite?
+Do you understand why these results come out not-a-number, infinite, and finite?
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

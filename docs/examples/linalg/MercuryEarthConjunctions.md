@@ -1,44 +1,53 @@
-# Mercury-Earth conjunctions via determinants
+# Mercury-Earth conjunctions
 
-*Nikhil Chaudhary, June 2014*
+*Tonatiuh Sanchez-Vizuet and Matthew Moye, June 2012*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/linalg/MercuryEarthConjunctions.html)
 
-(Chebfun example linalg/MercuryEarthConjunctions.m)
+Python translation: [`examples/linalg/mercury_earth_conjunctions.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/linalg/mercury_earth_conjunctions.py)
 
-A conjunction occurs when Mercury, Earth and the Sun are collinear —
-that is, when the determinant of the 2x2 matrix whose rows are the
-two heliocentric position vectors vanishes.  With elliptical-orbit
-approximations for both planets, the determinant becomes a chebfun of
-time and its roots are the conjunction times:
+In an example in [1] the positions of Earth and Mercury are given, relative to the sun at one foci of their elliptical orbits at $(0,0)$, by the parametric equations
 
-```python
-f = chebfun(lambda t: det(M(t)), domain=(0, 600))
-z = f.roots()
+$$ x_M(t) = -11.9084+57.9117\cos(2\pi t/87.97), $$
+
+$$ y_M(t) = 56.6741\sin(2\pi t/87.97), $$
+
+$$ x_E(t) = -2.4987+149.6041\cos(2\pi t/365.25), $$
+
+$$ y_E(t) = 149.5832\sin(2\pi t/365.25). $$
+
+Conjunctions occur when Mercury is in a straight line configuration with the Earth and the Sun. A solution for the times of conjunctions can then be determined by the zeros of the cross product of the planets' position vectors on a time interval.
+
+```matlab
+M = @(t) [-11.9084 + 57.9117 * cos(2*pi*t/87.97),...
+           56.6741 * sin(2*pi*t/87.97);
+          -2.4987 + 149.6041 * cos(2*pi*t/365.25),...
+           149.5832 * sin(2*pi*t/365.25)];
+
+f = chebfun(@(t) det(M(t)),[0 600],'vectorize');
 ```
 
-![MercuryEarthConjunctions figure 1](../../images/linalg/MercuryEarthConjunctions_repl_01.png)
+The roots of the determinant give the days at which a conjunction occurs.
 
-```text
-first conjunction times (days):
-   0.000000
-   61.749083
-   112.475730
-   174.347590
-   234.681810
-   285.568125
-   348.553584
-   408.632295
-   459.986275
-   523.013648
+```matlab
+z = roots(f);
 ```
 
-The alternation of inferior and superior conjunctions is visible in
-the sight-line diagram:
+To get a visual interpretation of the roots, one can plot the determinant and then plot *zeros* all at value $0$. The following figure depicts the times of the first ten conjunctions.
 
-![MercuryEarthConjunctions figure 2](../../images/linalg/MercuryEarthConjunctions_repl_02.png)
+```matlab
+figure
+plot(f,'linewidth',1.6), hold on, grid on
+plot(z(1:10),0,'.r','markersize',20)
+xlabel('Time (days)')
+```
+
+![MercuryEarthConjunctions figure 01](../../images/linalg/MercuryEarthConjunctions_01.png)
+
+## References
+
+1. Charles F. Van Loan, *Introduction to Scientific Computing*, Prentice-Hall, 1997, p. 274.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

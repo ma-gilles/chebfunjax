@@ -4,34 +4,63 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/cheb/Convergence.html)
 
-(Chebfun example cheb/Convergence.m)
+Python translation: [`examples/cheb/convergence.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/cheb/convergence.py)
 
-The smoother a function, the faster its approximants converge.  For
-functions of fractional smoothness the convergence rate is algebraic
-with a fractional exponent.  Here is the interpolation error for
-$f(x) = |x|^\pi$, converging at the rate $n^{-\pi}$:
+[revised July 2019]
 
-```python
-import jax.numpy as jnp
-import chebfunjax as cj
+The smoother a function, the faster its approximants converge. Here we approximate by interpolation in Chebyshev points in the usual Chebfun fashion. In analyzing convergence, commonly one considers functions that are $k$ times differentiable for some integer $k$. For example, Theorem 7.2 of [1] asserts that the accuracy will be $O(n^{-1})$ for interpolation of $f(x) = |x|$ on $[-1,1]$, $O(n^{-2})$ for interpolation of $f(x) = x|x|$, and so on. Here, however, we look at two examples of functions where $k$ is not an integer.
 
-f = lambda x: jnp.abs(x)**jnp.pi
-for n in nn:
-    fn = cj.chebfun(f, n=n)
-    # err = norm(f - fn, inf)
+## Fractional Power Example
+
+First we consider the function $|x|^\pi$.
+
+```matlab
+MS = 'MarkerSize';
+x = chebfun('x');
+nn = 2*round(2.^(0:.5:7));
+ee = 0*nn;
+f = abs(x)^pi;
+warning off
+for j = 1:length(nn)
+   fn = chebfun(f,nn(j)); ee(j) = norm(f-fn,inf);
+end
+warning on
+loglog(nn,nn.^-pi,'r'), hold on, grid on
+loglog(nn,ee,'.',MS,14), hold off
+xlabel('no. of interpolation points'), ylabel('max Error')
+text(10,1e-4,'n^{-\pi}')
+title('Convergence for fractional differentiable function')
 ```
 
-![Convergence figure 1](../../images/cheb/Convergence_repl_01.png)
+![Convergence figure 01](../../images/cheb/Convergence_01.png)
 
-And for $f(x) = \sin(|x|^{x+5.5})$, whose smoothness at $x=0$ gives
-the rate $n^{-5.5}$:
+The fractional differentiability of $f$ clearly explains the convergence rate.
 
-![Convergence figure 2](../../images/cheb/Convergence_repl_02.png)
+## Trigonometric Example
 
-In both cases the dots track the red reference-rate lines, matching the
-published figures.
+Next we replace $|x|^\pi$ by $\sin(|x|^{x+5.5})$.
+
+```matlab
+f = sin(abs(x)^(x+5.5));
+for j = 1:length(nn)
+   fn = chebfun(f,nn(j)); ee(j) = norm(f-fn,inf);
+end
+loglog(nn,nn.^-5.5,'r'), hold on, grid on
+loglog(nn,ee,'.',MS,14),
+xlabel('no. of interpolation points'), ylabel('max Error')
+text(10,3e-8,'n^{-5.5}')
+title('Convergence for a trigonometric function')
+hold off
+```
+
+![Convergence figure 02](../../images/cheb/Convergence_02.png)
+
+Again the fractional differentiability determines the convergence rate.
+
+## References
+
+1. L. N. Trefethen, *Approximation Theory and Approximation Practice*, SIAM, 2013.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

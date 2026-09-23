@@ -1,79 +1,116 @@
-# Conformal maps to an annulus
+# Doubly-connected conformal mapping
 
-*Nick Trefethen, March 2020*
+*Nick Trefethen, August 2021*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/complex/ConformalMapping2.html)
 
-(Chebfun example complex/ConformalMapping2.m)
+Python translation: [`examples/complex/conformal_mapping2.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/complex/conformal_mapping2.py)
 
-By the Riemann mapping theorem, a simply-connected region can be
-mapped conformally to the unit disk.  A doubly-connected region can be
-mapped to a circular annulus $\rho < |w| < 1$, but the conformal
-modulus $\rho$ is not known in advance: it is determined as part of
-the computation.  The `conformal2` command handles this.  Here is an
-ellipse-in-ellipse example:
+For a couple of years Chebfun has had a command `conformal` for computing a conformal map of a smooth simply connected region onto the unit disk, and now there is a companion command `conformal2` for mapping a smooth doubly-connected region onto a circular annulus. The conformal modulus, which is the ratio of the inner to outer radii of the annulus, is determined in the process.
 
-```python
-ellipse = circle.real + 0.6j*circle.imag
-C1 = 3*ellipse - 1
-C2 = exp(0.5j)*ellipse
-f, finv, rho, pol, polinv = conformal2(C1, C2)
+For example, here we map a region $\Omega$ bounded by two ellipses to the annulus $A_\rho$ with $\rho \approx 0.409705$.
+
+```matlab
+circle = chebfun('exp(1i*pi*t)','trig');
+ellipse = real(circle) + .6i*imag(circle);
+C1 = 3*ellipse - 1; C2 = exp(.5i)*ellipse;
+tic, [f, finv, rho] = conformal2(C1,C2,'plots'); toc
+rho
 ```
 
-![ConformalMapping2 figure 1](../../images/complex/ConformalMapping2_repl_01.png)
-
 ```text
+Elapsed time is 0.620762 seconds.
 rho =
    0.409705344072606
 ```
 
-Tightening the tolerance to 1e-12 confirms the modulus (MATLAB gets
-0.409705344001634 — identical to all 15 digits):
+![ConformalMapping2 figure 01](../../images/complex/ConformalMapping2_01.png)
 
-![ConformalMapping2 figure 2](../../images/complex/ConformalMapping2_repl_02.png)
+Here we do it again but to 12-digit accuracy instead of the default 6 digits:
 
-```text
-rho =
-   0.409705344001634
+```matlab
+tic, [f, finv, rho] = conformal2(C1,C2,'plots','tol',1e-12); toc
+rho
 ```
 
-The maps are rational functions, so they are fast and accurately
-inverses of each other:
+```text
+Elapsed time is 0.620762 seconds.
+rho =
+   0.409705344072606
+```
+
+![ConformalMapping2 figure 02](../../images/complex/ConformalMapping2_02.png)
+
+As with the simply-connected `conformal`, the red dots show poles associated with the numerical representations of these maps. The objects `f` and `finv` are function handles corresponding to AAA rational approximations of the maps from $\Omega$ to $A_\rho$ and from $A_\rho$ to $\Omega$, respectively. The accuracy in much of the domain is actually better than 12 digits, as we verify by mapping the points $1, i$ back and forth:
+
+```matlab
+z = [1 1i];
+finv(f(z))
+```
 
 ```text
 ans =
   1.000000000000033 + 0.000000000000001i
   -0.000000000000004 + 1.000000000000002i
-```
-
-A million points map back and forth in a fraction of a second:
-
-```text
-Elapsed time is 0.376741 seconds.
-```
-
-Here are wavy boundaries (MATLAB: rho = 0.515907564661642; ours
-agrees to 9 digits):
-
-![ConformalMapping2 figure 3](../../images/complex/ConformalMapping2_repl_03.png)
-
-```text
+Elapsed time is 0.203315 seconds.
+Elapsed time is 1.171481 seconds.
 rho =
    0.515907564248333
+Elapsed time is 0.271928 seconds.
+rho =
+   0.506114112299069
 ```
 
-The boundaries can come from anywhere — here the outer boundary is
-the zero contour of the chebfun2 $x^8+y^8-1/2$ (MATLAB:
-rho = 0.506114112297563; ours agrees to 11 digits):
+These rational representations are fantastically efficient. We can map a million points back and forth in 1 second.
 
-![ConformalMapping2 figure 4](../../images/complex/ConformalMapping2_repl_04.png)
+```matlab
+z = 1 + .1*rand(1e6,1) + .1i*rand(1e6,1);
+tic, finv(f(z)); toc
+```
 
 ```text
-rho =
-   0.506114112299566
+
 ```
+
+Here is a wigglier example.
+
+```matlab
+circle = chebfun('exp(1i*pi*t)','trig');
+C1 = circle*chebfun('2+.1*cos(8*pi*t)','trig');
+C2 = circle*chebfun('1+.1*cos(5*pi*t)','trig');
+tic, [f, finv, rho] = conformal2(C1,C2,'plots'); toc
+rho
+```
+
+```text
+
+```
+
+![ConformalMapping2 figure 03](../../images/complex/ConformalMapping2_03.png)
+
+Here is a "hyperellipse" enclosing a disk. Note how we define the hyperellipse via a level curve of a chebfun2.
+
+```matlab
+F = chebfun2(@(x,y) x.^8 + y.^8);
+C1 = roots(F-.5); C2 = .5*circle;
+tic, [f, finv, rho] = conformal2(C1,C2,'plots'); toc
+rho
+```
+
+```text
+
+```
+
+![ConformalMapping2 figure 04](../../images/complex/ConformalMapping2_04.png)
+
+The algorithm used by `conformal2` consists of solving a Laplace problem (computing a Green's function) by Laurent expansion with least-squares collocation on the boundary, as described in [2]. A key part of this is the use of Vandermonde with Arnoldi orthogonalization [1], which is available with the Chebfun commands `VAorthog` and `VAeval`. (The latter is actually not needed for this application because the AAA rational functions do the evaluation instead.)
+
+Both `conformal` and `conformal2` are restricted in their applicability to smooth domains. As described in [2], related algorithms have been developed for regions with corners, but these are not currently available in Chebfun.
+
+[1] P. D. Brubeck, Y. Nakatsukasa, and L. N. Trefethen, Vandermonde with Arnoldi, *SIAM Review* 63 (2021), 405-415.
+
+[2] L. N. Trefethen, Numerical conformal mapping with rational functions, *Computational Methods and Function Theory* (2020), 1-19.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

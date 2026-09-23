@@ -4,35 +4,58 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/calc/MeanValueTheorem.html)
 
-(Chebfun example calc/MeanValueTheorem.m)
+Python translation: [`examples/calc/mean_value_theorem.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/calc/mean_value_theorem.py)
 
-The Mean Value Theorem states that for a function $f$ continuous on
-$[a,b]$ and differentiable on $(a,b)$, there is a point $c \in (a,b)$
-where the tangent is parallel to the chord:
+The Mean Value Theorem states that for an arc between two endpoints, there is at least one point at which the tangent to the arc is parallel to the secant through the endpoints. More specifically, if a function $f$ is continuous on the closed interval $[a, b]$ $(a < b)$ and it is differentiable on the open interval $(a, b)$, then there exists a point $c \in (a, b)$ such that
 
-$$ f'(c) = \frac{f(b) - f(a)}{b - a}. $$
+$$ f^{\prime}(c) = \frac{f(b) - f(a)}{b-a}. $$
 
-With chebfunjax such points are found directly, by computing the roots
-of $f' - s$ where $s$ is the chord slope.  Take the cubic
-$f(x) = (x-1)(x-2)(x-3)$ on $[-6, 6]$:
+Here is an example, where we try to locate a suitable point $c$. Let's consider $f(x) = (x-1)(x-2)(x-3)$ on the interval $[-6, 6]$.
 
-```python
-import jax.numpy as jnp
-import numpy as np
-import chebfunjax as cj
-
-a, b = -6, 6
-f = cj.chebfun(lambda x: (x - 1) * (x - 2) * (x - 3), domain=[a, b])
-sl = (f(b) - f(a)) / (b - a)
-c = (f.diff() - sl).roots()
+```matlab
+a = -6;
+b = 6;
+dom = [a b];
+x = chebfun('x', dom);
+f = (x-1)*(x-2)*(x-3);
 ```
+
+We calculate the slope of the secant:
+
+```matlab
+sl = (f(b) - f(a))/(b - a);
 ```
+
+We calculate the derivative of $f$:
+
+```matlab
+fprime = diff(f);
+```
+
+Now we compute the value of $c$.
+
+```matlab
+c = roots(fprime - sl)
+```
+
+```text
 c =
     -2
     6
 ```
 
-The point $c = -2$ lies in the interior; the tangent there is parallel
-to the chord:
+Two roots are returned. We keep the first one and ignore the other as it lies at an endpoint of the interval. The following plot visualizes this example: the tangent line at $c$ (red) is parallel to the secant (black, dashed).
 
-![](../../images/calc/MeanValueTheorem_repl_01.png)
+```matlab
+plot(f), hold on
+plot([a b], [f(a) f(b)], '--k')
+plot(c(1), f(c(1)),'.r')
+L = 2;
+plot([c(1)-L c(1)+L],[f(c(1))-L*sl f(c(1))+L*sl], 'r')
+```
+
+![MeanValueTheorem figure 01](../../images/calc/MeanValueTheorem_01.png)
+
+---
+
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

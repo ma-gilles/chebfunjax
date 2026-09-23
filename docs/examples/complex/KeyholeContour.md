@@ -4,58 +4,80 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/complex/KeyholeContour.html)
 
-(Chebfun example complex/KeyholeContour.m)
+Python translation: [`examples/complex/keyhole_contour.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/complex/keyhole_contour.py)
 
-Chebfun is able to represent complex functions of a real variable,
-which lends itself very well to computing paths and path integrals in
-the complex plane.  In this brief example we demonstrate this by
-integrating the function
+[revised June 2019]
 
-$$ f(x) = \log(x)\tanh(x) $$
+Chebfun is able to represent complex functions of a real variable, which lends itself very well to computing paths and path integrals in the complex plane. In this brief example we demonstrate this by integrating the function
 
-around a "keyhole" contour which avoids the branch cut on the negative
-real axis.
-
-With $r$, $R$, and $e$ the inner and outer radii and the width of the
-key, the contour is built from four pieces — two line segments and two
-circular arcs, the arcs parametrized as $c_2\,c_3^s/c_2^s$ with
-*separate* principal logarithms, which sends them the long way around
-through the positive real axis:
-
-```python
-import numpy as np
-import jax.numpy as jnp
-import chebfunjax as cj
-
-r, R, e = 0.2, 2.0, 0.1
-c = [-R+e*1j, -r+e*1j, -r-e*1j, -R-e*1j]
-# top: c1 + s(c2-c1);  inner arc: c2 exp(s(Log c3 - Log c2))
-# bottom: c3 + s(c4-c3);  outer arc: c4 exp(s(Log c1 - Log c4))
+```matlab
+f = @(x) log(x)*tanh(x);
 ```
 
-![KeyholeContour figure 1](../../images/complex/KeyholeContour_repl_01.png)
+around a 'keyhole' contour which avoids the branch cut on the negative real axis.
 
-Now to integrate around the contour, we parametrise by a real variable
-and integrate $f(z(t))\,z'(t)$:
+We'll first define our keyhole. Let $r$, $R$, and $e$ be the inner and outer radii and the width of the key respectively:
 
-```python
-f = lambda z: jnp.log(z)*jnp.tanh(z)
-I = sum(cj.chebfun(lambda s: f(z(s))*dz(s), domain=(0.0, 1.0)).sum()
-        for z, dz in segments)
+```matlab
+r = 0.2;   R = 2;   e = 0.1;
 ```
+
+Construct the contour:
+
+```matlab
+s = chebfun('s',[0 1]);                 % dummy variable
+c = [-R+e*1i -r+e*1i -r-e*1i -R-e*1i];
+z = join( c(1) + s*(c(2)-c(1)), ...     % top of the keyhole
+          c(2)*c(3)^s/c(2)^s,   ...     % inner circle
+          c(3) + s*(c(4)-c(3)), ...     % bottom of the keyhole
+          c(4)*c(1)^s/c(4)^s);          % outer circle
 ```
+
+Plot the contour and the branch cut of the function $f$:
+
+```matlab
+figure('position', [0 0 500 400])
+plot(z), axis equal, title('A keyhole contour in the complex plane');
+hold on, plot([-2.6 0],[0 0],'-r'); hold off, xlim([-2.6 2.6])
+```
+
+![KeyholeContour figure 01](../../images/complex/KeyholeContour_01.png)
+
+Now to integrate around the contour, we parametrise by a real variable, say $t$ (which here is done implicitly by the Chebfun representation), and integrate the function $f(z(t)) z'(t)$ with respect to $t$.
+
+In Chebfun, this is easy:
+
+```matlab
+I = sum(f(z)*diff(z))
+```
+
+```text
 I =
-  -0.000000000000001 + 5.674755637702226i
+  -0.000000000000001 + 5.674755637702228i
+```
+
+For the function we chose above, one can compute this integral exactly.
+
+```matlab
+Iexact = 4i*pi*log(pi/2)
+```
+
+```text
 Iexact =
   0.000000000000000 + 5.674755637702224i
-error =
-     2.782942414004489e-15
 ```
 
-(The published MATLAB run has error `1.33e-14`; this replica lands even
-closer to the exact value $4i\pi\log(\pi/2)$.)
+How does this compare with our computation?
+
+```matlab
+error = abs(I - Iexact)
+```
+
+```text
+error =
+     4.539650895000687e-15
+```
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

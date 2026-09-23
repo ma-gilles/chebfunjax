@@ -1,46 +1,51 @@
 # Advection-diffusion equation with a jump
 
-*Nick Hale, November 2014*
+*Nick Trefethen, November 2010*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-linear/AdvDiffJump.html)
 
-(Chebfun example ode-linear/AdvDiffJump.m)
+Python translation: [`examples/ode-linear/adv_diff_jump.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-linear/adv_diff_jump.py)
 
-Consider the steady advection-diffusion equation
+The solution to the advection-diffusion problem
 
-$$ 0.2 u'' + b(x)\,u' = -1, \qquad u(-10) = u(10) = 0. $$
+$$ 0.2u'' + u' = -1, ~~ u(-10) = u(10) = 1 $$
 
-With constant advection $b = 1$ the solution rises linearly from the
-right and drops through an $O(\epsilon)$ boundary layer at the left:
+has a boundary layer at the left:
 
-```python
-N = Chebop(lambda x, u: 0.2*u.diff(2) + u.diff(), domain=(-10, 10))
-N.bc = 'dirichlet'
-u = N.solve(-1.0)
+```matlab
+LW = 'linewidth'; lw = 2; FS = 'fontsize'; fs = 8;
+N = chebop(-10,10);
+N.op = @(u) 0.2*diff(u,2) + diff(u);
+N.bc = 'dirichlet';
+u = N\-1;
+plot(u,LW,lw), grid on
+axis([-10.1 10 0 20])
 ```
 
-![AdvDiffJump figure 1](../../images/ode-linear/AdvDiffJump_repl_01.png)
+![AdvDiffJump figure 01](../../images/ode-linear/AdvDiffJump_01.png)
 
-Now switch the advection off on the left half:
-$b(x) = \mathbb{1}_{x \ge 0}$. The discontinuous coefficient injects a
-breakpoint at $x = 0$, and the solve routes through the piecewise
-discretization automatically:
+Suppose the advection is only turned on on the right half of the domain?
 
-```python
-N = Chebop(lambda x, u: 0.2*u.diff(2) + (x >= 0)*u.diff(), domain=(-10, 10))
+```matlab
+figure
+N.op = @(x,u) 0.2*diff(u,2) + (x>=0).*diff(u);
+N.bc = 'dirichlet';
+v = N\-1;
+plot(v,'r',LW,lw), grid on
+axis([-10.1 10 0 75])
 ```
 
-![AdvDiffJump figure 2](../../images/ode-linear/AdvDiffJump_repl_02.png)
+![AdvDiffJump figure 02](../../images/ode-linear/AdvDiffJump_02.png)
 
-On the pure-diffusion left half the solution is a large parabolic arc
-joined with $C^1$ continuity to the advection-dominated right half
-($v(0) = 14.5098039215687$, verified against scipy `solve_bvp` at
-`tol=1e-10` to 1e-11). Overlaying both solutions:
+For fun we can plot both solutions on the same axis.
 
-![AdvDiffJump figure 3](../../images/ode-linear/AdvDiffJump_repl_03.png)
+```matlab
+plot(u,'b',v,'--r',LW,lw), grid on
+axis([-10.1 10 0 75])
+```
+
+![AdvDiffJump figure 03](../../images/ode-linear/AdvDiffJump_03.png)
 
 ---
 
-*Replica script: [`examples/ode-linear/adv_diff_jump_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-linear/adv_diff_jump_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

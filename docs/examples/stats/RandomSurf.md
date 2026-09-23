@@ -1,31 +1,74 @@
-# A random surface on a disk
+# Random surfaces
 
-*Nick Trefethen and Grady Wright, April 2017*
+*Nick Trefethen, May 2019*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/stats/RandomSurf.html)
 
-(Chebfun example stats/RandomSurf.m)
+Python translation: [`examples/stats/random_surf.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/stats/random_surf.py)
 
-A smooth band-limited random function on the unit disk
-(`randnfundisk` with wavelength 0.1) added to the paraboloid
-$2 - 4r^2$.  The zebra plot shows the sign structure — a white
-plateau where the paraboloid dominates, dissolving into speckle where
-the random field competes:
+Here is a smooth random function on the unit disk,
 
-![RandomSurf figure 1](../../images/stats/RandomSurf_repl_01.png)
+```matlab
+rng(1), random = randnfundisk(0.1);
+```
 
-The contour plot:
+and here is a paraboloid on the same domain,
 
-![RandomSurf figure 2](../../images/stats/RandomSurf_repl_02.png)
+```matlab
+paraboloid = diskfun(@(theta,r) 2-4*r.^2,'polar');
+```
 
-And the surface:
+If we plot the sum of the two in zebra mode, we get an interesting picture:
 
-![RandomSurf figure 3](../../images/stats/RandomSurf_repl_03.png)
+```matlab
+f = random + paraboloid;
+plot(f,'zebra'), axis equal off
+```
 
-(`randn` draws are not reproducible across systems; the surface is
-our own draw from the same family.)
+![RandomSurf figure 01](../../images/stats/RandomSurf_01.png)
+
+Of course zebra mode isn't the only way to plot a function. Here is a contour plot:
+
+```matlab
+contour(f), colorbar, colormap('default'), axis off
+```
+
+![RandomSurf figure 02](../../images/stats/RandomSurf_02.png)
+
+And here is a surface plot:
+
+```matlab
+surf(f), zlim([-10 10])
+camlight, camlight
+view(0,60), axis off
+```
+
+![RandomSurf figure 03](../../images/stats/RandomSurf_03.png)
+
+The smooth random functions produced by `randnfundisk` are defined by finite Fourier series with random coefficients; see [7]. As discussed in Section 7 of that paper, random surfaces have been studied since Longuet-Higgins in 1957 [8], and application areas include oceanography [8], biology [10], cosmology [2,6,9], condensed matter physics [5], and the melting of the Arctic [4]. There is also interest among pure mathematicians [1] and other theoretical physicists [3]. Chebfun's smooth random functions are examples of Gaussian random fields [9].
+
+Our choice in this example to show random functions on a disk is arbitrary. Good times can also be had with `randnfun`, `randnfun2`, and `randnfunsphere`.
+
+[1] R. J. Adler and J. E. Taylor, *Random Fields and Geometry,* Springer, 2009.
+
+[2] J. M. Bardeen, J. R. Bond, N. Kaiser, and A. S. Szalay, The statistics of peaks of Gaussian random fields, Astrophys. J. 304 (1986), 15--61.
+
+[3] E. Bogomolny and C. Schmit, Random wavefunctions and percolation, J. Phys. A 40 (2007), 14033--14043.
+
+[4] B. Bowen, C. Strong, and K. M. Golden, Modeling the fractal geometry of Arctic melt pounds using the level sets of random surface, J. Fractal Geom. 5 (2018), 121--142.
+
+[5] A. J. Bray and D. S. Dean, Statistics of critical points of Gaussian fields on large-dimensional spaces, Phys. Rev. Lett. 98 (2007), art. 150201.
+
+[6] R. Easther, A. H. Guth, and A. Masoumi, Counting vacua in random landscapes, arXiv:1612.05224 (2016).
+
+[7] S. Filip, A. Javeed, and L. N. Trefethen, Smooth random functions, random ODEs, and Gaussian processes, SIAM Rev. 61 (2019), 185--205.
+
+[8] M. S. Longuet-Higgins, The statistical analysis of a random, moving surface, Phil. Trans. Roy. Soc. Lond. A 429 (1957), 321--387.
+
+[9] J. Peacock, *Cosmological Physics*, Cambridge, 1999.
+
+[10] A. Swishchuk and J. Wu, *Evolution of Biological Systems in Random Media*, Springer, 2013.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

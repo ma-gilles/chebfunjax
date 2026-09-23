@@ -1,11 +1,26 @@
 # The AAA algorithm for system identification
 
+*Stefano Costa, August 2021*
+
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/applics/Bode2tf.html)
 
-(Chebfun example applics/Bode2tf.m — Stefano Costa, August 2021)
+Python translation: [`examples/applics/bode2tf.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/applics/bode2tf.py)
 
-The AAA algorithm identifies LTI system parameters — poles, zeros,
-DC gain — from Bode plots. Consider the 4th order system with
+The AAA algorithm provides a natural way to identify LTI (linear time-invariant) system parameters such as poles, zeros and DC gain from Bode plots. For example, consider the 4th order system $$ G(s) = 2\frac{(1+105s)(1+\frac{1.4}{0.05}s+\frac{1}{0.05^2}s^2)}{(1+100s)(1+\frac{1.4}{0.04}s+\frac{1}{0.04^2}s^2)(1+s)} $$
+
+```matlab
+Nc = [8.4e4 6.68e3 2.66e2 2];             % numerator coefficients
+Dc = [6.25e4 6.6625e4 4.26e3 1.36e2 1];   % denominator coefficients
+N = @(s) Nc*s.^[3:-1:0]';
+D = @(s) Dc*s.^[4:-1:0]';
+G = @(s) N(s(:))./D(s(:));                % system transfer function
+```
+
+for which we have the following:
+
+```matlab
+pol = roots(Dc), zer = roots(Nc), DCgain = abs(G(0))
+```
 
 ```text
 pol =
@@ -21,16 +36,32 @@ DCgain =
      2
 ```
 
-Bode plots of magnitude and phase over $10^{-4}\le\omega\le 10^2$:
+Let's sample some values in the frequency range $10^{-4}\leq \omega \leq 10^2$, and draw the Bode plots of magnitude and phase:
 
-![Bode2tf figure 1](../../images/applics/Bode2tf_repl_01.png)
+```matlab
+w = logspace(-4,2,3000);
+mag = abs(G(i*w)); ph = -angle(G(i*w));
+LW = 'linewidth'; LO = 'location'; SW = 'southwest';
+subplot(211), semilogx(w,20*log10(mag),'b-'), grid on
+title('Magnitude (dB)')
+subplot(212), semilogx(w,ph*180/pi,'b-'), grid on
+title('Phase (degrees)')
+```
 
-AAA approximation of the mirrored complex signal recovers the
-parameters (all matching the published values to 12+ digits; note
-the mirrored signal with negated phase continues to $G(-s)$, so the
-identified system parameters are the negatives of the fit's — we
-verified in R2025b that MATLAB's `H` likewise has its actual poles
-at $+1$ etc. while printing $-1$):
+![Bode2tf figure 01](../../images/applics/Bode2tf_01.png)
+
+Given magnitude and phase, an approximation $H(s)$ for $G(s)$ is readily obtained by AAA approximation of the complex signal. Samples are mirrored in order to enforce symmetry.
+
+```matlab
+wA = [-fliplr(w) w]; magA = [fliplr(mag) mag]; phA = [-fliplr(ph) ph];
+GA = magA.*exp(i*phA);            % complex signal
+[H,polA,resA,zerA] = aaa(GA,i*wA);
+polA, zerA, DCgainA = abs(H(0))   % relevant parameters
+subplot(211), hold on, semilogx(w,20*log10(abs(H(i*w))),'k--')
+legend('G(s)','AAA',LO,SW)
+subplot(212), hold on, semilogx(w,angle(H(i*w))*180/pi,'k--')
+legend('G(s)','AAA',LO,SW)
+```
 
 ```text
 polA =
@@ -46,10 +77,14 @@ DCgainA =
    1.999999999999999
 ```
 
-![Bode2tf figure 2](../../images/applics/Bode2tf_repl_02.png)
+![Bode2tf figure 02](../../images/applics/Bode2tf_02.png)
 
-$H(s)$ shows negligible errors in initial data (published
-`4.88e-15` / `2.57e-15`):
+Also, $H(s)$ shows negligible errors in initial data:
+
+```matlab
+err_mag = norm(mag-abs(H(i*w)),inf)
+err_ph = norm(ph-angle(H(i*w)),inf)
+```
 
 ```text
 err_mag =
@@ -58,8 +93,12 @@ err_ph =
      2.518167965814833e-15
 ```
 
-Recomputing poles through real polynomial coefficients keeps them in
-complex conjugate pairs:
+The following means of recomputing poles will play a key role in what follows. In the case when they aren't computed in complex conjugate pairs, which is a necessary condition for $H(s)$ to represent a physical model, we discard the imaginary parts of the corresponding polynomials and extract the new roots (poles). Here, poles and zeros do match:
+
+```matlab
+[NcA,DcA] = residue(resA,polA,[]);
+polA = roots(real(DcA)), zerA = roots(real(NcA))
+```
 
 ```text
 polA =
@@ -67,13 +106,30 @@ polA =
  -0.027999999999988 + 0.028565713714142i
  -0.027999999999988 - 0.028565713714142i
  -0.010000000000029 + 0.000000000000000i
+zerA =
+ -0.034999999999996 + 0.035707142142673i
+ -0.034999999999996 - 0.035707142142673i
+ -0.009523809523836 + 0.000000000000000i
 ```
 
-## Reduced order models
+Now let's complicate things a little bit. A reduced order approximation, useful in applications to simplify analysis and control design, is obtained by calling the AAA algorithm with a low degree. 20 Lawson iterations under the hood place our scarce resource (poles) at best, though not necessarily in complex conjugate pairs, hence we force a recomputation, and eventually solve a least-squares problem. This idea is a variant of the AAA-LS method introduced in [1].
 
-A degree-2 AAA-LS reduction (published `zerAr = -0.294963170363907`,
-`polAr = -0.798508392918573, -0.035811189966051`,
-`DCgainAr = 2.036869044252427` — all matched to 12-14 digits):
+Going back to our approximation problem, with a 2nd order reduction we expect two real distinct poles for the reduced $H_r(s)$. Note that in this case a straightforward zero-pole (over)simplification, leaving with $1/(1+s)$, wouldn't really be acceptable, and AAA-LS finds a decent compromise:
+
+```matlab
+[~,polAr] = aaa(GA,i*wA,'degree',2);
+polAr = roots(real(poly(polAr)));   % pole recomputation
+d = min(abs(i*wA(:)-polAr.'),[],1);
+Q = d./(i*wA(:)-polAr.');
+c = Q\GA.';                         % solve LS problem, new residues c
+Hr = @(s) [d./(s(:)-polAr.')]*c;
+[NAr] = residue(c,polAr,[]);
+zerAr = roots(real(NAr)), polAr, DCgainAr = abs(Hr(0))
+subplot(211), semilogx(w,20*log10(abs(Hr(i*w))),'c-'), hold off
+legend('G(s)','AAA','reduced order AAA',LO,SW)
+subplot(212), semilogx(w,angle(Hr(i*w))*180/pi,'c-'), hold off
+legend('G(s)','AAA','reduced order AAA',LO,SW)
+```
 
 ```text
 zerAr =
@@ -85,45 +141,71 @@ DCgainAr =
    2.036869044252420
 ```
 
-![Bode2tf figure 3](../../images/applics/Bode2tf_repl_03.png)
+![Bode2tf figure 03](../../images/applics/Bode2tf_03.png)
 
-## Noisy data
+To see how good AAA-LS actually is, consider the scalar example with noise found in [2], i.e. $$ f(s) = (s-1)/(s^2+s+2). $$ The function is sampled at 500 logarithmically spaced points in the interval [0.1,10], and then normally distributed noise with a standard deviation of $10^{-2}$ is added:
 
-The scalar example $f(s) = (s-1)/(s^2+s+2)$ sampled at 500 points
-with $10^{-2}$ Gaussian noise added to magnitude and phase (seeded
-numpy noise; MATLAB's randn stream is not reproducible):
+```matlab
+Nc = [1 -1]; Dc = [1 1 2];
+N = @(s) Nc*s.^[1 0]';
+D = @(s) Dc*s.^[2 1 0]';
+f = @(s) N(s(:))./D(s(:));
+w = logspace(-1,1,500); mag = abs(f(i*w)); ph = -angle(f(i*w));
+mag = mag+0.01*randn(1,length(mag)); ph = ph+0.01*randn(1,length(ph));
+subplot(211), semilogx(w,20*log10(mag),'r-'), grid on
+title('Magnitude (dB)')
+subplot(212), semilogx(w,ph*180/pi,'r-'), grid on
+title('Phase (degrees)')
+```
 
-![Bode2tf figure 4](../../images/applics/Bode2tf_repl_04.png)
+![Bode2tf figure 04](../../images/applics/Bode2tf_04.png)
 
-A degree-2 AAA-LS approximant with 30 Lawson iterations filters the
-noise:
+We compute a rational approximant of degree only 2 using the above method. The AAA-LS approximant shows no significant deviations from the measurements, at least in the eyeball norm. This time the number of Lawson iterations is increased, to enhance their filtering effect:
 
-![Bode2tf figure 5](../../images/applics/Bode2tf_repl_05.png)
+```matlab
+wn = [-fliplr(w) w]; magn = [fliplr(mag) mag]; phn = [-fliplr(ph) ph];
+fn = magn.*exp(i*phn);
+[~,poln] = aaa(fn,i*wn,'degree',2,'lawson',30);
+poln(find(real(poln)>0)) ~= -1;   % force system stability
+poln = roots(real(poly(poln)));
+dn = min(abs(i*wn(:)-poln.'),[],1);
+Qn = dn./(i*wn(:)-poln.');
+cn = Qn\fn.';
+Hn = @(s) [dn./(s(:)-poln.')]*cn;
+subplot(211), hold on, semilogx(w,20*log10(abs(Hn(i*w))),'b-'), hold off
+legend('Noisy data','AAA approximant',LO,SW)
+subplot(212), hold on, semilogx(w,angle(Hn(i*w))*180/pi,'b-'), hold off
+legend('Noisy data','AAA approximant',LO,SW)
+```
 
-The denominator coefficients approximate the true $[1, 1, 2]$
-(published `[1.000 1.0014 1.9984]` for MATLAB's noise draw):
+![Bode2tf figure 05](../../images/applics/Bode2tf_05.png)
+
+The poles are decently approximated, even in these perturbed conditions, as shown by the coefficients of the denominator:
+
+```matlab
+Dcn = poly(poln)
+```
 
 ```text
 Dcn =
    1.000000000000000   0.985275415369363   1.973982807942559
 ```
 
-And the approximant estimates the additive noise itself:
+The AAA-LS approximant effectively estimates the additive noise rather accurately, both in magnitude and in phase:
 
-![Bode2tf figure 6](../../images/applics/Bode2tf_repl_06.png)
+```matlab
+subplot(211), loglog(w,abs(mag(:)-abs(Hn(i*w))),'r-',LW,.5), grid on
+title('Estimated noise in magnitude'), axis([min(w) max(w) 1e-5 1e-1]);
+subplot(212), loglog(w,abs(ph(:)-angle(Hn(i*w))),'r-',LW,.5), grid on
+title('Estimated noise in phase'), axis([min(w) max(w) 1e-5 1e-1]);
+```
 
-## References
+![Bode2tf figure 06](../../images/applics/Bode2tf_06.png)
 
-1. S. Costa and L. N. Trefethen, AAA-least squares rational
-   approximation and solution of Laplace problems, _Proceedings of
-   the 8ECM_, 2021.
+[1] S. Costa and L. N. Trefethen, AAA-least squares rational approximation and solution of Laplace problems, Proceedings of the 8ECM, 2021.
 
-2. I. V. Gosea and S. Güttel, Algorithms for the rational
-   approximation of matrix-valued functions, arXiv:2003.06410v2,
-   2021.
+[2] I. V. Gosea and S. Güttel, Algorithms for the rational approximation of matrix-valued functions, arXiv:2003.06410v2, 2021.
 
 ---
 
-*Replica script: [`examples/applics/bode2tf_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/applics/bode2tf_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

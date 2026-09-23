@@ -4,37 +4,55 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-random/RandomOnASphere.html)
 
-(Chebfun example ode-random/RandomOnASphere.m)
+Python translation: [`examples/ode-random/randomonasphere.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-random/randomonasphere.py)
 
-For skew-symmetric matrices $A, B, C$ (rotations about the three
-axes), the random linear system
+Suppose $A$, $B$, and $C$ are the matrices
 
-$$ \frac{du}{dt} = fAu + gBu + hCu $$
+```matlab
+A = [0 1 0; -1 0 0; 0 0 0], B = [0 0 1; 0 0 0; -1 0 0], C = [0 0 0; 0 0 1; 0 -1 0]
+```
 
-with independent smooth random coefficients conserves energy, so the
-trajectory $u = (x, y, z)$ wanders forever on the unit sphere. On
-$[0, 100]$ with $\lambda = 0.5$:
+```text
+lambda=0.5: (50s) radius drift 7.72e-10
+lambda=0.125: (226s) radius drift 9.35e-05
+```
 
-![RandomOnASphere figure 1](../../images/ode-random/RandomOnASphere_repl_01.png)
+and we consider the random ODE $du/dt = fAu + gBu + hBu$ where $f$, $g$, and $h$ are random functions. Since the matrices are skew-symmetric, energy will be conserved. So we'll get a trajectory $u(t) = (x(t),y(t),z(t))^T$ that wanders around on a sphere. As usual in 3D, it helps a lot if you see a moving picture, which is what you get if you run this as an m-file.
 
-The energy conservation is verified to **radius drift
-$5.4\times10^{-10}$** over the whole trajectory.
+```matlab
+tic, dom = [0 100]; lambda = 0.5; brown = [.5 .25 .12];
+rng(0), u0 = randn(3,1); u0 = u0/norm(u0);
+L = chebop(dom); L.lbc = @(x,y,z) [x-u0(1); y-u0(2); z-u0(3)];
+f = randnfun(lambda,dom); g = randnfun(lambda,dom); h = randnfun(lambda,dom);
+L.op = @(t,x,y,z) [diff(x)-f*y-g*z; diff(y)+f*x-h*z; diff(z)+g*x+h*y];
+LW = 'linewidth';
+[x,y,z] = L\0; plot3(x,y,z,'color',brown,LW,4), axis equal off, toc
+for j = 1:720, camorbit(.5,0), drawnow, end
+```
 
-With $\lambda$ cut by a factor of 4 the path is correspondingly
-rougher; like the MATLAB original — which loosens
-`cheboppref` tolerances to $10^{-6}$ for this panel because "12-digit
-accuracy is a waste here" — this run uses `ivp_reltol = 1e-6`
-(radius drift $1.2\times10^{-4}$, consistent with that tolerance):
+```text
+lambda=0.5: (50s) radius drift 7.72e-10
+```
 
-![RandomOnASphere figure 2](../../images/ode-random/RandomOnASphere_repl_02.png)
+![RandomOnASphere figure 01](../../images/ode-random/RandomOnASphere_01.png)
 
-*(Sample paths use JAX keys — MATLAB's `rng(0)` stream is not
-reproducible. Coefficients are evaluated pointwise through
-precomputed trig series — the identical operator, 28x faster than
-per-step chebfun evaluation in the marcher.)*
+Here we repeat everything with the value of $\lambda$ cut by a factor of 4. This would make the run 4 times slower or so, but 12-digit accuracy is a waste here, so we loosen the tolerance.
+
+```matlab
+tic, lambda = lambda/4; cheboppref.setDefaults('ivpAbsTol',1e-6,'ivpRelTol',1e-6)
+f = randnfun(lambda,dom); g = randnfun(lambda,dom); h = randnfun(lambda,dom);
+L.op = @(t,x,y,z) [diff(x)-f*y-g*z; diff(y)+f*x-h*z; diff(z)+g*x+h*y];
+[x,y,z] = L\0; plot3(x,y,z,'color',brown,LW,3), axis equal off, toc
+for j = 1:720, camorbit(.5,0), drawnow, end
+cheboppref.setDefaults('factory')
+```
+
+```text
+lambda=0.5: (50s) radius drift 7.72e-10
+```
+
+![RandomOnASphere figure 02](../../images/ode-random/RandomOnASphere_02.png)
 
 ---
 
-*Replica script: [`examples/ode-random/randomonasphere_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-random/randomonasphere_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

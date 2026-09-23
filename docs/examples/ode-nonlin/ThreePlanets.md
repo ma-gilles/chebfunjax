@@ -4,112 +4,109 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-nonlin/ThreePlanets.html)
 
-(Chebfun example ode-nonlin/ThreePlanets.m)
+Python translation: [`examples/ode-nonlin/three_planets.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/three_planets.py)
 
-When three or more bodies interact gravitationally according to Newton's
-laws, the resulting orbits can be wonderfully complicated. This example
-explores a special case in which the initial configuration has the three
-planets stationary at the positions of a 3-4-5 right triangle, attracting
-each other with pairwise $1/r^2$ forces.
+```matlab
+function threePlanets()
+```
 
-Complex arithmetic is used for brevity, so each body is a single complex
-unknown. We solve over a time interval of length 100, and the solution
-reveals a beautiful property: the orbit is chaotic for $t < t_c \approx
-86$, but at $t = t_c$ the system *self-ionizes*. After this point one
-planet goes off in one direction and the other two go off as a pair in
-the opposite direction. Such a thing could never happen with just two
-planets, but with three it is possible: energy and momentum are
-conserved. Thus this dynamical system illustrates the phenomenon of
-*transient chaos*.
+When three or more bodies interact gravitationally according to Newton's laws, the resulting orbits can be wonderfully complicated. This example explores a special case in which the initial configuration has the three planets stationary at the positions of a 3-4-5 right triangle and the planets attract each other with pairwise $1/r^2$ forces.
 
-Here is the initial condition:
+To solve the problem, we use Chebfun's backslash command in the standard manner (which invokes the MATLAB `ode113` command to do the time-stepping). Complex arithmetic is used for brevity. We solve the problem over a time interval of length 100, and the solution reveals a beautiful property: the orbit is chaotic for $t < t_c \approx 86$, but then at time $t = t_c$ the system "self-ionizes". After this point one planet goes off in one direction and the other two go off as a pair in the opposite direction. Such a thing could never happen with just two planets, but with three it is possible: energy and momentum are conserved. Thus this dynamical system illustrates the phenomenon of *transient chaos*.
 
-![ThreePlanets figure 1](../../images/ode-nonlin/ThreePlanets_repl_01.png)
+This Example is modeled after the code `planets.m` in [1]. The second author first heard of the example from Oxford's astrophysicist James Binney.
 
-Now we solve the problem to time $t = 100$:
+To have some fun with this problem, it's nice to plot the configurations on a black background with a collection of "stars" at random locations. The code `plotframe` does this. Here is our initial condition:
 
-```python
-def planetfun(t, x, y, z):
-    forceYX = (y - x)/abs(y - x)**3
-    forceZX = (z - x)/abs(z - x)**3
-    forceZY = (z - y)/abs(z - y)**3
-    return [x.diff(2) - forceYX - forceZX,
-            y.diff(2) + forceYX - forceZY,
-            z.diff(2) + forceZX + forceZY]
+```matlab
+x0 = 0; y0 = 3; z0 = 4i;
+MS = 'markersize'; FS = 'fontsize';
+plotframe(x0,y0,z0)
+title('t = 0',FS,18)
+```
 
-N = Chebop(planetfun, domain=(0, 100))
-N.lbc = lambda x, y, z: [x - x0, y - y0, z - z0,
-                         x.diff(), y.diff(), z.diff()]
-x, y, z = N.solve(0)
+![ThreePlanets figure 01](../../images/ode-nonlin/ThreePlanets_01.png)
+
+Now we solve the problem to time $t=100$:
+
+```matlab
+tmax = 100; dom = [0 tmax];
+N = chebop(@planetfun, dom);
+N.lbc = @(x,y,z) [x-x0; y-y0; z-z0; diff(x); diff(y); diff(z)];
+[x,y,z] = N\0;
+```
+
+```text
+t =   0:  x =  0.000000+0.000000j  y =  3.000000+0.000000j  z =  0.000000+4.000000j
 ```
 
 Here is a typical configuration for $t < t_c$:
 
-![ThreePlanets figure 2](../../images/ode-nonlin/ThreePlanets_repl_02.png)
+```matlab
+t = 50;
+plotframe(x(t),y(t),z(t))
+title(['t = ' num2str(t) ],FS,18)
+```
+
+![ThreePlanets figure 02](../../images/ode-nonlin/ThreePlanets_02.png)
 
 Here is how it looks at the critical moment:
 
-![ThreePlanets figure 3](../../images/ode-nonlin/ThreePlanets_repl_03.png)
-
-Of course, this problem really looks best as a movie. The final frame
-shows the system after it has split into two subsystems, drifting apart
-forever:
-
-![ThreePlanets figure 4](../../images/ode-nonlin/ThreePlanets_repl_04.png)
-
-The self-ionization is unmistakable in the positions. Through $t = 86$
-the three bodies stay within a couple of units of each other; by $t =
-100$ the yellow planet has left towards the upper left while red and
-green depart together towards the lower right, matching the published
-final frame:
-
-```text
-t =   0:  x =  0.000000+0.000000j  y =  3.000000+0.000000j  z =  0.000000+4.000000j
-t =  50:  x =  0.773937+1.383275j  y =  1.220696+0.261181j  z =  1.005367+2.355544j
-t =  86:  x =  1.063295+1.245819j  y =  2.340751+2.054387j  z = -0.404045+0.699795j
-t = 100:  x =  5.255711-0.545739j  y = -7.410319+5.759570j  z =  5.154608-1.213831j
+```matlab
+t = 86;
+plotframe(x(t),y(t),z(t))
+title(['t = ' num2str(t) ],FS,18)
 ```
 
-Because the orbit is chaotic before $t_c$, individual positions cannot
-agree with MATLAB's digit for digit over this interval — but the
-conserved quantities can, and they are the sharp test here. The three
-masses are equal and released from rest, so the centre of mass cannot
-move and the total momentum must stay zero:
+![ThreePlanets figure 03](../../images/ode-nonlin/ThreePlanets_03.png)
 
-```text
-centre of mass at t=0   : 1.000000000000+1.333333333333j
-centre of mass at t=100: 1.000000000000+1.333333333333j
-drift                   : 2.834e-13
+Of course, this problem really looks best in the form of movie! To see the movie, you can execute this M-file. The final frame shows the system after it has split into two subsystems, drifting apart forever.
+
+```matlab
+dt = .4; tmax = 100;
+for t = 0:dt:tmax
+    plotframe(x(t),y(t),z(t))
+    title(sprintf('t = %3.0f',t),FS,18),
+    drawnow, pause(0.1)
+end
 ```
 
-> **Implementation note.** This example needed a solver path we did not
-> have. MATLAB reduces a system that is not first order to first order
-> with `treeVar.toFirstOrder` and marches it with `ode113`; our system
-> marcher recovered the right-hand side by evaluating the operator on
-> *constant* chebfuns, which makes every derivative vanish, so three
-> coupled second-order equations fell through to collocation and ground
-> to a halt — a fifth of this interval did not finish in 900 seconds.
-> The state now carries each unknown's derivative tower, and stays
-> complex end to end: the previous path cast through `float`, which
-> would have discarded the imaginary part of every position. Writing
-> the invariant tests then turned up a second gap — `diff` could not
-> differentiate a piecewise complex chebfun at all.
->
-> One difference from the published page: its output carries the warning
-> `Function not resolved using 65537 pts`, because MATLAB represents each
-> trajectory as a single global polynomial. We build each body on the
-> solver's own time mesh instead, so the pieces stay low degree
-> (lengths 3943, 3856, 3741) and no such warning arises. The published
-> figures also show no stars; the code plots 250 of them, but they are
-> lost in that page's downscaled renders.
+![ThreePlanets figure 04](../../images/ode-nonlin/ThreePlanets_04.png)
 
 ## References
 
-1. L. N. Trefethen, Ten digit algorithms, unpublished essay,
-   <https://people.maths.ox.ac.uk/trefethen/tda.html>, 2005.
+1. L.N. Trefethen, Ten digit algorithms, unpublished essay, https://people.maths.ox.ac.uk/trefethen/tda.html, 2005.
+
+```matlab
+function plotframe(x,y,z)
+rng(0);
+MS = 'markersize';
+% Set the mood by plotting some "stars":
+fill(20*[-1 1 1 -1 -1],20*[-1 -1 1 1 -1],'k')
+hold on, grid on, axis([1.27*[-6.3 4.7] -3.5 7.5])
+xStars = 15*rand(250,1)-8; yStars = 11*rand(250,1)-3.5;
+plot(xStars,yStars,'.w',MS,4);
+% Locate the three planets.
+xh = plot(real(x),imag(x),'.r',MS,35);
+yh = plot(real(y),imag(y),'.y',MS,35);
+zh = plot(real(z),imag(z),'.g',MS,35);
+axis off, hold off
+end
+
+function out = planetfun(t, x, y, z)
+forceYX = (y - x)./abs(y - x).^3;
+forceZX = (z - x)./abs(z - x).^3;
+forceZY = (z - y)./abs(z - y).^3;
+out = [diff(x, 2) - forceYX - forceZX;
+    diff(y, 2) + forceYX - forceZY;
+    diff(z, 2) + forceZX + forceZY];
+end
+```
+
+```matlab
+end
+```
 
 ---
 
-*Replica script: [`examples/ode-nonlin/three_planets_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/three_planets_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

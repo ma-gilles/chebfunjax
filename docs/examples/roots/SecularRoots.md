@@ -4,52 +4,72 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/roots/SecularRoots.html)
 
-(Chebfun example roots/SecularRoots.m)
+Python translation: [`examples/roots/secular_roots.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/roots/secular_roots.py)
 
-A *secular equation* is a rational function of the form
+Sometimes one needs to find the roots of a rational function expressed in partial fraction form, like this:
 
-$$ f(x) = 1 + \sum_{k=1}^{n} \frac{a_k}{d_k - x}, $$
+$$ r(x) = 1 + \sum_{j=0}^N \frac{a_j}{b_j-x} . $$
 
-which arises for example in eigenvalue updating problems.  Chebfun
-operator arithmetic builds this function directly — the division by a
-chebfun with roots automatically inserts breakpoints at the poles
-$x = 1, 2, 3, 4$ and represents each piece as a SingFun with exponent
-$-1$ at the singular ends:
+For example, a "secular equation" of this kind arises in numerical linear algebra as part of the divide and conquer algorithm for computing eigenvalues of symmetric matrices (see [1] and p. 231 of [2]). If the coefficients $a_j$ are positive and the poles $b_j$ are distinct, then $r$ must switch from $+\infty$ to $-\infty$ as $x$ passes through each pole, and it follows that $r$ has exactly $N-1$ real zeros lying between the poles and also one more real zero lying to the right of all the poles.
 
-```python
-x = chebfun(lambda t: t, domain=(-5, 10))
-f = 1 + 1/(1-x) + 1/(2-x) + 1/(3-x) + 1/(4-x)
+Here is an example with $N=4$:
+
+```matlab
+x = chebfun('x',[-5 10]);
+for j = 1:4
+  f = 1 + 1./(1-x) + 1./(2-x) + 1./(3-x) + 1./(4-x);
+end
+hold off, plot(f,'linewidth',2), grid on
 ```
 
-`roots` includes the four points where $f$ passes through $\pm\infty$
-(sign changes through a jump):
+![SecularRoots figure 01](../../images/roots/SecularRoots_01.png)
+
+Chebfun can compute the roots:
+
+```matlab
+format long, format compact
+r = roots(f)
+```
 
 ```text
 r =
    1.000000000000000
-   1.296089645312118
+   1.296089645312119
    2.000000000000000
    2.392275290272984
    3.000000000000000
    3.507748705363648
    4.000000000000000
-   6.803886359051249
+   6.803886359051253
 ```
 
-With the `'nojump'` flag only the genuine roots remain — all four
-digit-for-digit with the published MATLAB values:
+Notice that the result is 8 numbers, including the poles as well as the roots. This is because Chebfun's convention is to regard a function as having a root at any point where it crosses between positive and negative values. If we don't want roots of that kind, we can execute instead
+
+```matlab
+r = roots(f,'nojump')
+```
 
 ```text
 r =
-   1.296089645312118
+   1.296089645312119
    2.392275290272984
    3.507748705363648
-   6.803886359051249
+   6.803886359051253
 ```
 
-![SecularRoots figure 1](../../images/roots/SecularRoots_repl_01.png)
+Let us add the roots to the plot.
+
+```matlab
+hold on, plot(r,f(r),'.r','markersize',24)
+```
+
+![SecularRoots figure 02](../../images/roots/SecularRoots_02.png)
+
+## References
+
+1. J. J. M. Cuppen, A divide and conquer method for the symmetric tridiagonal eigenproblem, Numerische Mathematik 36 (1980/81), 177-195.
+2. L. N. Trefethen and D. Bau, III, Numerical Linear Algebra, SIAM, 1997.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

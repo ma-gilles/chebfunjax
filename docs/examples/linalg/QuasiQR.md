@@ -1,38 +1,60 @@
-# QR factorization of a quasimatrix
+# Backward stability of quasimatrix QR factorization
 
-*Nick Trefethen, June 2019*
+*Nick Hale and Nick Trefethen, March 2022*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/linalg/QuasiQR.html)
 
-(Chebfun example linalg/QuasiQR.m)
+Python translation: [`examples/linalg/quasi_qr.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/linalg/quasi_qr.py)
 
-Here is a quasimatrix whose ten columns are the ill-conditioned
-family $1/(1 + k(x-0.1)^2)$, $k = 1,\dots,10$:
+Wilkinson invented backward error analysis to explain the behavior of matrix algorithms. Here is a nice example of how his ideas apply also to the continuous analogue, namely quasimatrix algorithms.
 
-![QuasiQR figure 1](../../images/linalg/QuasiQR_repl_01.png)
+We start from a quasimatrix whose columns are Runge functions with varying scale parameters. A call to `plotcoeffs` shows that that each column is resolved by an exponentially decreasing Chebyshev series.
+
+```matlab
+x = chebfun('x');
+A = 1/(1 + (1:10).*(x-.1)^2);
+plotcoeffs(A), title A
+```
+
+![QuasiQR figure 01](../../images/linalg/QuasiQR_01.png)
+
+This quasimatrix is highly ill-conditioned, as we can see by computing its condition number:
+
+```matlab
+cond(A)
+```
 
 ```text
 ans =
-     8.080635798306969e+09
+     8.080635919919465e+09
 ```
 
-(MATLAB: 8.080637999e+09 — agreement to 7 digits in a
-condition number of $10^{10}$.)  The continuous Householder QR
-factorization produces orthonormal columns whose Chebyshev
-coefficients decay progressively more slowly:
+What's interesting now is to compute the quasimatrix QR factorization of $A$ and to look at the Chebyshev coefficients of the columns of $Q$:
 
-![QuasiQR figure 2](../../images/linalg/QuasiQR_repl_02.png)
+```matlab
+[Q,R] = qr(A);
+plotcoeffs(Q), title Q
+```
 
-The factorization is accurate to machine precision:
+![QuasiQR figure 02](../../images/linalg/QuasiQR_02.png)
+
+Rounding errors are affecting these results fundamentally. The first column of $Q$ has a Chebyshev series that converges down to machine precision, but with each successive column, about one more digit is lost. Mathematically, all these columns should be smooth, so clearly rounding errors have messed things up. The computed $Q$ probably matches the mathematical ideal to about 6 digits, not 16.
+
+But here comes Wilkinson. Wilkinson's startling discovery was that even though $Q$ is far from accurate, and so is $R$, the errors in these two objects are "diabolically correlated" so that when you take the product, it matches $A$ to full precision:
+
+```matlab
+norm(A-Q*R)
+```
 
 ```text
 ans =
-     1.425041903471602e-15
+     1.624470620832953e-15
 ```
 
-(MATLAB: 2.77e-15.)
+As he would have put it, though $Q$ and $R$ are far from the correct factors of $A$, they are the exactly (or almost exactly) correct factors of a slightly perturbed matrix.
+
+To learn more, see Lecture 16 of Trefethen and Bau, *Numerical Linear Algebra*, SIAM 1997 and 2022.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

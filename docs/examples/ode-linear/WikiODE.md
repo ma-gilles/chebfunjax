@@ -4,70 +4,195 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-linear/WikiODE.html)
 
-(Chebfun example ode-linear/WikiODE.m)
+Python translation: [`examples/ode-linear/wiki_ode.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-linear/wiki_ode.py)
 
-Here, we solve three simple linear problems considered in the Wikipedia
-article on ODEs [1]. The problems are solved in the order they appear in
-the article, with boundary conditions imposed to make the solutions
-unique.
+Here, we solve three simple linear problems considered in the Wikipedia article on ODEs [1]. The problems are solved in the order they appear in the article, with boundary conditions imposed to make the solutions unique.
 
 ## Problem 1: Second-order problem
 
-$$ L(y) = y'' - 4y' + 5y = 0, \quad
-y(-1) = e^{-2}\cos(-1), ~~ y(1) = e^2\cos(1). $$
+$$ L(y) = y'' - 4y' + 5y = 0, \quad y(-1) = e^{-2} \cos(-1) , ~~ y(1) = e^2\cos(1). $$
 
-The problem has Dirichlet boundary conditions, and the analytic solution
-is $y = e^{2x}\cos x$. How close is the computed solution to the true
-solution? (Published: `1.393596354406182e-13` — same eps-level order.)
+Begin by defining the domain $d$, chebfun variable $x$ and operator $N$.
+
+```matlab
+d = [-1 1];
+x = chebfun('x',d);
+N = chebop(d);
+```
+
+The problem has Dirichlet boundary conditions.
+
+```matlab
+N.lbc = exp(-2)*cos(-1);
+N.rbc = exp(2)*cos(1);
+```
+
+Define the linear operator.
+
+```matlab
+N.op = @(y) diff(y,2) - 4*diff(y,1) + 5*y;
+```
+
+Define the right-hand side of the ODE.
+
+```matlab
+rhs = 0;
+```
+
+Solve the ODE using backslash.
+
+```matlab
+y = N\rhs;
+```
+
+Analytic solution.
+
+```matlab
+y_exact = exp(2*x)*cos(x);
+```
+
+How close is the computed solution to the true solution?
+
+```matlab
+norm(y-y_exact)
+```
 
 ```text
 ans =
-     2.374165803093863e-12
+     9.388216433131806e-12
 ```
 
-![WikiODE figure 1](../../images/ode-linear/WikiODE_repl_01.png)
+Plot the computed solution.
 
-## Problem 2: First-order problem with a Robin condition
+```matlab
+plot(y), grid on
+```
 
-$$ L(y) = y'' + \pi^2 y = 0, \quad y(-1) = -1, ~~ y'(1) = -\pi, $$
+![WikiODE figure 01](../../images/ode-linear/WikiODE_01.png)
 
-with analytic solution $y = \cos(\pi x) + \sin(\pi x)$:
+## Problem 2: Simple harmonic oscillator
+
+$$ L(y) = y'' + \pi^2 y = 0, \qquad y(-1) = -1, ~~ y'(1) = -\pi. $$
+
+```matlab
+d = [-1 1];
+x = chebfun('x',d);
+N = chebop(d);
+N.op = @(y) diff(y,2) + pi^2*y;
+```
+
+This problem has a Dirichlet boundary condition on the left,
+
+```matlab
+N.lbc = -1;
+```
+
+and a Neumann condition on the right.
+
+```matlab
+N.rbc = @(u) diff(u) + pi;
+```
+
+Define the right-hand side of the ODE.
+
+```matlab
+rhs = 0;
+```
+
+Solve the ODE using backslash.
+
+```matlab
+y = N\rhs;
+```
+
+Analytic solution.
+
+```matlab
+y_exact = cos(pi*x)+sin(pi*x);
+```
+
+How close is the computed solution to the true solution?
+
+```matlab
+norm(y-y_exact)
+```
 
 ```text
 ans =
-     1.214856573575345e-12
+     4.057216976353058e-13
 ```
 
-(The published page shows `2.470505881658372e-14`; both are eps-level
-residuals of this near-resonant problem — $\pi^2$ is a Dirichlet
-eigenvalue of $-d^2/dx^2$, which amplifies rounding in the linear
-solve. chebfunjax uses the same rectangular Driscoll-Hale collocation
-as MATLAB; the remaining factor traces to the adaptive resolution
-choice.)
+Plot the computed solution.
 
-![WikiODE figure 2](../../images/ode-linear/WikiODE_repl_02.png)
+```matlab
+plot(y), grid on
+```
 
-## Problem 3: First-order IVP
+![WikiODE figure 02](../../images/ode-linear/WikiODE_02.png)
 
-$$ L(y) = y' + 3y = 2, \quad y(0) = 2, $$
+## Problem 3: First-order problem
 
-with analytic solution $y = 2/3 + (4/3)e^{-3x}$:
+$$ L(y) = y' + 3y = 2 \qquad y(0) = 2 . $$
+
+```matlab
+d = [0 1];
+x = chebfun('x',d);
+N = chebop(d);
+```
+
+First-order problems require only one boundary condition.
+
+```matlab
+N.lbc = 2;
+```
+
+Define the linear operator.
+
+```matlab
+N.op = @(y) diff(y) + 3*y - 2;
+```
+
+Define the right-hand side of the ODE.
+
+```matlab
+rhs = 0;
+```
+
+Solve the ODE using backslash.
+
+```matlab
+y = N\rhs;
+```
+
+Analytic solution, usually found with integrating factors.
+
+```matlab
+y_exact = 2/3 + 4/3*exp(-3*x);
+```
+
+How close is the computed solution to the true solution?
+
+```matlab
+norm(y-y_exact)
+```
 
 ```text
 ans =
-     6.134764014336427e-12
+     2.854619845707265e-12
 ```
 
-(Published: `2.987830876459629e-12` — same order.)
+Plot the computed solution
 
-![WikiODE figure 3](../../images/ode-linear/WikiODE_repl_03.png)
+```matlab
+plot(y), grid on
+```
+
+![WikiODE figure 03](../../images/ode-linear/WikiODE_03.png)
 
 ## References
 
-1. http://en.wikipedia.org/wiki/Ordinary_differential_equation
+1. [http://en.wikipedia.org/wiki/Linear_differential_equation](http://en.wikipedia.org/wiki/Linear_differential_equation).
 
 ---
 
-*Replica script: [`examples/ode-linear/wiki_ode_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-linear/wiki_ode_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

@@ -10,7 +10,6 @@ classical families of special functions.
 |---------|-------------|
 | [AAA Rational Approximation](AAAApprox.md) | Chebfun has a number of methods for rational approximation of a function on an interval. Version 5.6.0 introduced the... |
 | [AAA Approximation of a Spline](AAASpline.md) | When AAA approximates a spline function, its poles cluster exponentially near the nodes of non-analytic behaviour — t... |
-| [Rootfinding with the AAA Algorithm](AAAZeros.md) | The AAA algorithm returns not only function values but also explicit zeros and poles of the rational approximant. For... |
 | [Absolute Value Approximations by Rationals](AbsoluteValue.md) | Peter Lax observed that one can approximate ... by applying Newton's method to the equation ..., starting from .... T... |
 | [Absolute Value Approximations by Rationals II](AbsoluteValueScaled.md) | This follows up the AbsoluteValue example. The key idea is to use the identity ... combined with the scaled Newton it... |
 | [Accuracy of Chebyshev Coefficients via Aliasing](AliasingCoefficients.md) | The Chebyshev coefficients of a degree-... polynomial interpolant ... of a function ... are related to the exact coef... |

@@ -1,43 +1,71 @@
 # Random ponds in a 2D landscape
 
+*Nick Trefethen, May 2017*
+
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx2/RandomPonds.html)
 
-(Chebfun example approx2/RandomPonds.m — Nick Trefethen, May 2017)
+Python translation: [`examples/approx2/randomponds.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx2/randomponds.py)
 
-Suppose $f$ is a 2D random function defining a "random landscape",
-filled with water up to a level $h$. The water collects into random
-ponds — an interpretation from Ken Golden of the University of Utah
-[1]. (Draws use a seeded numpy stream; MATLAB's rng state is not
-reproducible outside MATLAB.)
+Suppose $f$ is a 2D random function defining a "random landscape", which is filled with water up to a level $h$. The water collects into random ponds, an interpretation I learned about from Ken Golden of the University of Utah [1].
 
-For $h = -1$:
+Here is an illustration for $h=-1$.
 
-![RandomPonds figure 1](../../images/approx2/RandomPonds_repl_01.png)
+```matlab
+blueblack = [.6 .6 1; 0 0 0];
+CO = 'color';
+h = -1;
+dom = [-2 2 -1 1];
+f = randnfun2(0.3,dom);
+plot(f-h, 'zebra'), axis equal off, colormap(blueblack)
+title(['h = ' num2str(h)])
+```
 
-If $h$ is lower, the ponds are smaller and more separated:
+![RandomPonds figure 01](../../images/approx2/RandomPonds_01.png)
 
-![RandomPonds figure 2](../../images/approx2/RandomPonds_repl_02.png)
+Of course, the mathematics depends on one's notion of a random function, and Chebfun makes a particular choice defined by certain random Fourier coefficients.
 
-As $h$ gets bigger, the ponds grow and connect into a giant body of
-water — related to percolation theory:
+If $h$ is lower, the ponds are smaller and more separated.
 
-![RandomPonds figure 3](../../images/approx2/RandomPonds_repl_03.png)
-![RandomPonds figure 4](../../images/approx2/RandomPonds_repl_04.png)
-![RandomPonds figure 5](../../images/approx2/RandomPonds_repl_05.png)
+```matlab
+h = -2;
+plot(f-h, 'zebra'), axis equal off, colormap(blueblack)
+title(['h = ' num2str(h)])
+```
 
-We can also let $h$ vary across the domain; the result is
-reminiscent of an engraving by Escher:
+![RandomPonds figure 02](../../images/approx2/RandomPonds_02.png)
 
-![RandomPonds figure 6](../../images/approx2/RandomPonds_repl_06.png)
+As $h$ gets bigger, the ponds grow and connect into a giant body of water. This is related to the subject of percolation theory.
 
-## Reference
+```matlab
+for h = 0:2
+   plot(f-h, 'zebra'), axis equal off, colormap(blueblack)
+   title(['h = ' num2str(h)])
+   snapnow
+end
+```
 
-1. B. Bowen, C. Strong, and K. M. Golden, Modeling the fractal
-   geometry of Arctic melt ponds using the level sets of random
-   surfaces, _Journal of Fractal Geometry_, 5.2 (2018), 121-142.
+![RandomPonds figure 03](../../images/approx2/RandomPonds_03.png)
+
+![RandomPonds figure 04](../../images/approx2/RandomPonds_04.png)
+
+![RandomPonds figure 05](../../images/approx2/RandomPonds_05.png)
+
+We can also let $h$ vary across the domain. The resulting image is reminiscent of an engraving by Escher.
+
+```matlab
+dom = [-3 3 -1 1];
+f = randnfun2(.1, dom);
+h = chebfun2(@(x,y) x, dom);
+plot(f-h, 'zebra'), axis equal off, colormap(blueblack)
+title('varying h')
+```
+
+![RandomPonds figure 06](../../images/approx2/RandomPonds_06.png)
+
+Reference:
+
+[1] B. Bowen, C. Strong, and K. M. Golden, Modeling the fractal geometry of Arctic melt ponds using the level sets of random surfaces, *Journal of Fractal Geometry*, 5.2 (2018), 121--142.
 
 ---
 
-*Replica script: [`examples/approx2/randomponds_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx2/randomponds_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

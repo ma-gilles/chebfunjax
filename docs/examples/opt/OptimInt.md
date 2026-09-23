@@ -1,16 +1,40 @@
-# Optimization over an integral
+# Optimization of a parameterised integral
 
-*Nick Trefethen, October 2010*
+*Nick Hale, October 2011*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/opt/OptimInt.html)
 
-(Chebfun example opt/OptimInt.m)
+Python translation: [`examples/opt/optim_int.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/opt/optim_int.py)
 
-Consider $I(a) = \int_{-1}^1 [\sin x + \sin(a x^2)]\,dx$ as a
-function of the parameter $a$ on $[0, 100]$.  (The integral has the
-closed form $2\sqrt{\pi/2a}\,S(\sqrt{2a/\pi})$ with $S$ the
-Fresnel integral, used here so the chebfun of $I$ is exact.)  Where
-does $I(a) = 1$?
+This example shows how easy it is to solve one of the example problems from the Oxford MSc in Mathematical Modelling and Scientific Computing week 0 MATLAB 'Crash Course' using Chebfun. (And also how easy it is to make a Chebfun Example!).
+
+**Problem.** For what values of $a$ does
+
+$$ I(a) = \int_{-1}^1 \sin(x) + \sin(a x^2) dx = 1 ? $$
+
+**Solution.** Define the integrand as a function of $x$ and $a$.
+
+```matlab
+F = @(x,a) sin(x) + sin(a*x.^2);
+```
+
+For a given $a$, we can compute the integral using Chebfun's `sum` command.
+
+```matlab
+I = @(a) sum(chebfun(@(x) F(x,a)));
+```
+
+We compute a chebfun of this result, for $a$ ranging from $0$ to $100$.
+
+```matlab
+Ia = chebfun(@(a) I(a),[0 100]);
+```
+
+We use Chebfun's `roots` command to find where $I(a)=1$.
+
+```matlab
+r = roots(Ia-1)
+```
 
 ```text
 r =
@@ -18,7 +42,22 @@ r =
    3.199526913460069
 ```
 
-And $I(a) = 1/4$ has six solutions:
+We plot this, to make sure it looks sensible.
+
+```matlab
+plot(Ia), hold on, grid on
+axis([0 35 0 1.2]), set(gca,'ytick',0:.25:1)
+plot(r,Ia(r),'.r');
+```
+
+![OptimInt figure 01](../../images/opt/OptimInt_01.png)
+
+Since we have $I(a)$ as a chebfun, we can do other things, like find where $I(a) = 0.25$
+
+```matlab
+r = roots(Ia-0.25)
+plot(r,Ia(r),'.k'), hold off
+```
 
 ```text
 r =
@@ -30,28 +69,31 @@ r =
   29.291546747613690
 ```
 
-![OptimInt figure 1](../../images/opt/OptimInt_repl_01.png)
+![OptimInt figure 02](../../images/opt/OptimInt_02.png)
 
-The maximum (digit-for-digit with MATLAB):
+or the value of $a$ which maximises $I(a)$
+
+```matlab
+m = max(Ia)
+```
 
 ```text
 m =
    1.056688680049085
 ```
 
-The local minima of $I$ are asymptotically $2\pi$ apart; the sample
-standard deviation of their spacings is tiny:
+or the standard deviation of the gaps between the local minima for $a\in [0,100]$.
+
+```matlab
+[y x] = min(Ia,'local');
+f = std(diff(x(2:end-1)))
+```
 
 ```text
 f =
    0.005171642455007
 ```
 
-(MATLAB's published value is 0.0090 from its adaptively-constructed
-$I$; our exact-Fresnel representation gives 0.0052 — either way, the
-spacings 6.264-6.281 are nearly constant at $2\pi = 6.2832$.)
-
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

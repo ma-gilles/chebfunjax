@@ -1,36 +1,35 @@
-# A linear exponential initial-value problem
+# Linear exp initial-value problem
 
-*Nick Trefethen and Tom Maerz, September 2010*
+*Tom Maerz, October 2010*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-linear/LinExpIVP.html)
 
-(Chebfun example ode-linear/LinExpIVP.m)
+Python translation: [`examples/ode-linear/lin_exp_ivp.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-linear/lin_exp_ivp.py)
 
-We take the world's simplest ODE initial-value problem,
+This is an elementary example to illustrate how one might use Chebfun to solve a very simple ODE initial-value problem. We take the scalar test problem
 
-$$ u' = \lambda u, \qquad u(0) = 1, $$
+$$ u' - \lambda u = 0 ,~~~ u(0) = 1,~ \lambda = -10000 $$
 
-with $\lambda = -10000$, on the interval $[0, 0.005]$. The solution is
-$e^{\lambda x}$, decaying from 1 to $e^{-50} \approx 1.9\times
-10^{-22}$:
+on the interval $[0,.005]$. The solution is $\exp(\lambda x)$.
 
-```python
-L = Chebop(lambda x, u: u.diff(1) + 10000*u, domain=(0, 0.005))
-L.lbc = lambda u: u - 1
-u = L.solve(0.0)
+```matlab
+d = [0,.005];                       % domain
+x = chebfun('x',d);                 % x variable
+L = chebop(d);                      % operator
+lambda = -10000;                    % specifying parameter lambda
+L.op = @(u) diff(u,1) - lambda*u;   % linear operator defining the ODE
+L.lbc = @(u) u-1;                   % imposing Dirichlet boundary condition
+u = L\0;                            % solve the problem
+plot(u,'linewidth',1.6)             % plot the solution
+err = norm(u-exp(lambda*x),inf);    % measure the error
+FS = 'fontsize';
+xlabel('x',FS,12)
+ylabel('exp(x)',FS,12)
+title(sprintf('Solution of IVP for exp(x) -- error = %7.2e',err),FS,14)
 ```
 
-```text
-error = 1.15e-11
-```
-
-(The published figure bakes its error into the title at a comparable
-1e-11 level.)
-
-![LinExpIVP figure 1](../../images/ode-linear/LinExpIVP_repl_01.png)
+![LinExpIVP figure 01](../../images/ode-linear/LinExpIVP_01.png)
 
 ---
 
-*Replica script: [`examples/ode-linear/lin_exp_ivp_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-linear/lin_exp_ivp_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

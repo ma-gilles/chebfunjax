@@ -5,7 +5,7 @@
 [Original MATLAB Chebfun example source](https://github.com/chebfun/examples/blob/master/approx/AbsoluteValueScaled.m)
 (this example is in the Chebfun examples repository but is not on the
 published chebfun.org site, so there are no published reference outputs;
-values below are computed by this replica)
+values below are computed by this translation)
 
 (Chebfun example approx/AbsoluteValueScaled.m)
 
@@ -30,7 +30,7 @@ for k in range(kmax + 1):
     r = (r**2 + x**2) / (2*r)
 ```
 
-![AbsoluteValueScaled figure 1](../../images/approx/AbsoluteValueScaled_repl_01.png)
+![AbsoluteValueScaled figure 1](../../images/approx/AbsoluteValueScaled_01.png)
 
 The main issue here is that the error is large near the origin, given
 that the optimal type $(2^k,2^k)$ rational approximants to $|x|$ achieve
@@ -50,7 +50,7 @@ As above, after $k$ steps we have a type $(2^k,2^k)$ rational function
 that approximates $|x|$:
 
 ```python
-# The intermediate iterates have a pole at x = 0, so this replica
+# The intermediate iterates have a pole at x = 0, so this translation
 # evaluates the recurrence pointwise (mathematically identical to the
 # MATLAB chebfun arithmetic).
 b = 1e-3
@@ -63,7 +63,7 @@ for k in range(kmax + 1):
 rs_vals = xs / rv       # approximant to abs(x) via abs(x) = x/sign(x)
 ```
 
-![AbsoluteValueScaled figure 2](../../images/approx/AbsoluteValueScaled_repl_02.png)
+![AbsoluteValueScaled figure 2](../../images/approx/AbsoluteValueScaled_02.png)
 
 Now the error is uniformly small across the interval $[-1,1]$ (max
 error 1.62e-05 versus 1.56e-02 for plain Newton at $k=5$).  In fact,
@@ -79,7 +79,7 @@ The asymmetry, also observed in the example approx/AbsoluteValue, seems
 more pronounced in the red plot.  This is due to rounding errors: to
 observe this, let's see the plots for varying $k$:
 
-![AbsoluteValueScaled figure 3](../../images/approx/AbsoluteValueScaled_repl_03.png)
+![AbsoluteValueScaled figure 3](../../images/approx/AbsoluteValueScaled_03.png)
 
 Clearly for $k\leq 3$ the error is symmetric about the imaginary axis,
 exhibiting a near-equioscillating property.  It is still curious that in
@@ -108,5 +108,5 @@ value than the machine precision $10^{-16}$.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
+*Computed with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
 example copyright The University of Oxford and The Chebfun Developers.*

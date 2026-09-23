@@ -33,7 +33,7 @@ def _load(category: str, name: str):
 # ---------------------------------------------------------------------------
 
 class TestApprox:
-    pass  # inspired-by scripts removed; see faithful replicas
+    pass  # inspired-by scripts removed; see faithful translations
 
 
 # ---------------------------------------------------------------------------
@@ -41,7 +41,7 @@ class TestApprox:
 # ---------------------------------------------------------------------------
 
 class TestCalc:
-    pass  # inspired-by scripts removed; see faithful replicas
+    pass  # inspired-by scripts removed; see faithful translations
 
 
 # ---------------------------------------------------------------------------
@@ -50,18 +50,18 @@ class TestCalc:
 
 class TestRoots:
     # bessel_roots / newton_raphson / random_polynomials were replaced
-    # by the faithful *_replica.py scripts (2026-08); their run()
+    # by the faithful *.py scripts (2026-08); their run()
     # prints the MATLAB-parity outputs and returns None, so these
     # tests assert completion rather than a return value.
-    def test_bessel_roots_replica(self):
-        _load("roots", "bessel_roots_replica").run()
+    def test_bessel_roots(self):
+        _load("roots", "bessel_roots").run()
 
-    def test_newton_raphson_replica(self):
-        _load("roots", "newton_raphson_replica").run()
+    def test_newton_raphson(self):
+        _load("roots", "newton_raphson").run()
 
 
-    def test_white_curves_replica(self):
-        _load("roots", "white_curves_replica").run()
+    def test_white_curves(self):
+        _load("roots", "white_curves").run()
 
 
 # ---------------------------------------------------------------------------
@@ -69,7 +69,7 @@ class TestRoots:
 # ---------------------------------------------------------------------------
 
 class TestQuad:
-    pass  # inspired-by scripts removed; see faithful replicas
+    pass  # inspired-by scripts removed; see faithful translations
 
 
 # ---------------------------------------------------------------------------
@@ -77,17 +77,17 @@ class TestQuad:
 # ---------------------------------------------------------------------------
 
 class TestOdeLinear:
-    def test_wiki_ode_replica(self):
+    def test_wiki_ode(self):
         # Faithful replica (2026-08): prints MATLAB-parity outputs and
         # returns None; completion is the assertion.
-        _load("ode-linear", "wiki_ode_replica").run()
+        _load("ode-linear", "wiki_ode").run()
 
-    def test_linear_ivp_replica(self):
-        _load("ode-linear", "linear_ivp_replica").run()
+    def test_linear_ivp(self):
+        _load("ode-linear", "linear_ivp").run()
 
 
-    def test_boundary_layer_replica(self):
-        _load("ode-linear", "boundary_layer_replica").run()
+    def test_boundary_layer(self):
+        _load("ode-linear", "boundary_layer").run()
 
 
 # ---------------------------------------------------------------------------
@@ -95,10 +95,10 @@ class TestOdeLinear:
 # ---------------------------------------------------------------------------
 
 class TestOdeNonlin:
-    def test_carrier_replica(self):
+    def test_carrier(self):
         # Faithful replica (2026-08): prints MATLAB-parity outputs and
         # returns None; completion is the assertion.
-        _load("ode-nonlin", "carrier_replica").run()
+        _load("ode-nonlin", "carrier").run()
 
 
 # ---------------------------------------------------------------------------
@@ -106,7 +106,7 @@ class TestOdeNonlin:
 # ---------------------------------------------------------------------------
 
 class TestOdeEig:
-    pass  # replaced by faithful replicas (see docs/examples/ode-eig)
+    pass  # replaced by faithful translations (see docs/examples/ode-eig)
 
 
 # ---------------------------------------------------------------------------
@@ -114,7 +114,7 @@ class TestOdeEig:
 # ---------------------------------------------------------------------------
 
 class TestApprox2:
-    pass  # replaced by faithful replicas (see docs/examples/approx2)
+    pass  # replaced by faithful translations (see docs/examples/approx2)
 
 
 # ---------------------------------------------------------------------------
@@ -122,17 +122,17 @@ class TestApprox2:
 # ---------------------------------------------------------------------------
 
 class TestOpt:
-    # 2026-08: inspired-by scripts replaced by faithful *_replica.py
+    # 2026-08: inspired-by scripts replaced by faithful *.py
     # (replicas print parity outputs and return None; completion is
     # the assertion).
-    def test_mercury_earth_replica(self):
-        _load("opt", "mercury_earth_replica").run()
+    def test_mercury_earth(self):
+        _load("opt", "mercury_earth").run()
 
-    def test_catenary_replica(self):
-        _load("opt", "catenary_replica").run()
+    def test_catenary(self):
+        _load("opt", "catenary").run()
 
-    def test_global_minimum_replica(self):
-        _load("opt", "global_minimum_replica").run()
+    def test_global_minimum(self):
+        _load("opt", "global_minimum").run()
 
 
 # ---------------------------------------------------------------------------
@@ -141,18 +141,18 @@ class TestOpt:
 
 class TestLinalg:
     # 2026-08: the inspired-by scripts were replaced by faithful
-    # *_replica.py scripts (chebfun_inner_products / inner_products /
+    # *.py scripts (chebfun_inner_products / inner_products /
     # matrix_functions cited nonexistent chebfun.org originals and
     # were removed).  Replicas print parity outputs and return None,
     # so these tests assert completion.
-    def test_cond_nos_replica(self):
-        _load("linalg", "cond_nos_replica").run()
+    def test_cond_nos(self):
+        _load("linalg", "cond_nos").run()
 
-    def test_nonnormal_quiz_replica(self):
-        _load("linalg", "nonnormal_quiz_replica").run()
+    def test_nonnormal_quiz(self):
+        _load("linalg", "nonnormal_quiz").run()
 
-    def test_mercury_earth_conjunctions_replica(self):
-        _load("linalg", "mercury_earth_conjunctions_replica").run()
+    def test_mercury_earth_conjunctions(self):
+        _load("linalg", "mercury_earth_conjunctions").run()
 
 
 # ---------------------------------------------------------------------------
@@ -160,7 +160,7 @@ class TestLinalg:
 # ---------------------------------------------------------------------------
 
 class TestComplex:
-    pass  # inspired-by scripts removed; see faithful replicas
+    pass  # inspired-by scripts removed; see faithful translations
 
 
 # ---------------------------------------------------------------------------
@@ -168,6 +168,6 @@ class TestComplex:
 # ---------------------------------------------------------------------------
 
 class TestFourier:
-    pass  # inspired-by scripts removed; see faithful replicas
+    pass  # inspired-by scripts removed; see faithful translations
 
 

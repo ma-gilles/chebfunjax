@@ -1,57 +1,123 @@
 # The fast discrete Legendre transform
 
-*Nick Hale and Alex Townsend, March 2015*
+*Nick Hale and Alex Townsend, April 2015*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/cheb/FastDLT.html)
 
-(Chebfun example cheb/FastDLT.m)
+Python translation: [`examples/cheb/fast_dlt.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/cheb/fast_dlt.py)
 
-The discrete Legendre transform (DLT) converts Legendre coefficients to
-values at Legendre points, the analogue for Legendre expansions of what
-the DCT does for Chebyshev.  A size-$10^4$ transform takes under a
-second:
+## The forward transform
 
-```python
-import numpy as np
-import jax.numpy as jnp
-from chebfunjax.utils.transforms import legcoeffs2legvals, legvals2legcoeffs
+The discrete (or finite) Legendre transform (DLT) evaluates a Legendre series expansion at Legendre nodes on $[-1,1]$, i.e.,
 
-c = jnp.asarray(np.random.randn(10**4))
-legcoeffs2legvals(c)
+$$ f(x_k^{leg}) = \sum_{n=0}^{N-1} c_n^{leg} P_n( x_k^{leg} ), \qquad 0\leq k\leq N-1.$$
+
+This is an awkward task because the Legendre nodes are non-uniform and the Legendre polynomials have no explicit closed-form expression. Therefore, FFT-based algorithms do not immediately apply, and until recently, the transform required $O(N^2)$ operations. (See [3] for one of the earliest fast DLT algorithms.)
+
+In [2] we describe an algorithm to compute the transform in $O(N(\log N)^2/\log\log N)$ operations, which is implemented in the command `legcoeffs2legvals` in Chebfun, which is part of a suite of 12 codes with hopefully self-explanatory names `legcoeffs2chebcoeffs`, `chebcoeffs2legvals`, etc. (The actual implementation of `legcoeffs2legvals` is in `chebfun.dlt`, which the user can also call if preferred.) This allows us to compute the transform when $N$ is 10000 or 100000, or a million. Here it is in action:
+
+```matlab
+FS = 'FontSize'; LW = 'LineWidth';
+c = randn( 1e4, 1);
+tic, legcoeffs2legvals( c ); toc
 ```
+
+```text
+Elapsed time is 0.640855 seconds.
 ```
-Elapsed time is 0.929961 seconds.
+
+The transform computed above is still based on the FFT, but with a handful of tricks and approximations to make it applicable to the DLT. Two main facts are exploited.
+
+## A Legendre polynomial can be related to a cosine
+
+An asymptotic expansion of a Legendre polynomial of high degree shows that $P_n$ is not too far away from a cosine (after a change of variables and scaling). The precise statement is, as $n\rightarrow\infty$,
+
+$$ \sqrt{\sin(\theta)}P_n(\cos(\theta)) \sim \cos( (n+1/2)\theta + (n-1/4)\pi ). $$
+
+A signal processing engineer would verify this as follows:
+
+```matlab
+P = legpoly(1e4);                                  % Legendre polynomial
+theta = linspace(0, 2*pi, 4e4);                    % time samples
+modifiedSignal = sqrt(sin(theta)).*P(cos(theta));  % modify signal
+modes = abs( fft( modifiedSignal ) );              % amplitude
+plot( modes(1:2e4), LW, 2 ),                       % freq-domain plot
+xlabel('Frequency bins', FS, 14)
+ylabel('Magitude', FS, 14)
+title('Frequency analysis of modified Legendre polynomial', FS, 10)
+set(gca, FS, 14)
 ```
 
-(Published: 0.53 s with MATLAB's asymptotics-based fast transform.)
+![FastDLT figure 01](../../images/cheb/FastDLT_01.png)
 
-One ingredient of the fast DLT is that a Legendre polynomial, after
-multiplication by $\sqrt{\sin\theta}$ in angle space, is nearly a pure
-sinusoid — its frequency content concentrates at wavenumber $N$:
+The engineer would go on to say that since only a handful of modes near 1e4 are excited, the signal $\sqrt{\sin(\theta)}P_n(\cos(\theta))$ can be well-approximated by a handful of sinusoidal waves.
 
-![FastDLT figure 1](../../images/cheb/FastDLT_repl_01.png)
+## Legendre nodes are nearly uniform on the unit circle
 
-Another is that Legendre points are extremely close to Chebyshev points
-of the first kind — within $0.83845/N$ in angle:
+Another fact is that Legendre nodes are well-approximated by Chebyshev nodes (Chebyshev points of the first kind), as we can see below:
 
-![FastDLT figure 2](../../images/cheb/FastDLT_repl_02.png)
+```matlab
+NN = floor(logspace(1, 4, 50));
+for N = NN
+    t_leg = acos(legpts( N ));
+    t_cheb = acos(chebpts( N, 1));
+    maxDiff(N) = norm( t_leg - t_cheb, inf );
+end
 
-Finally the roundtrip DLT/IDLT test on a Runge-type function:
-
+loglog( NN, maxDiff(NN), '-', LW, 2 ), hold on
+loglog( NN, 0.83845./NN, '--', LW, 2); hold off
+legend('||x^{leg} - x^{cheb}||_\infty', 'Theoretical bound')
+xlabel('N', FS, 14), ylabel('Max abs diff', FS, 14), grid on
 ```
-Elapsed time is 0.322347 seconds.
+
+![FastDLT figure 02](../../images/cheb/FastDLT_02.png)
+
+These two facts mean that the DLT can be carefully related to a handful of discrete cosine transforms, allowing it be calculated via the FFT, requiring $O(N(\log N)^2/\log\log N)$ operations. The odd-looking complexity comes about because of a balancing of computational costs, see [1].
+
+## The inverse transform
+
+The inverse discrete Legendre transform `legvals2legcoeffs` takes samples of a function from Legendre nodes and computes the associated Legendre expansion coefficients. (The implementation happens in the code `cheb.idlt`.)
+
+```matlab
+f = chebfun( @(x) 1./(1 + 10000*x.^2) );
+c_leg = legcoeffs(f);
+tic, f_leg = legcoeffs2legvals( c_leg ); toc
+backToTheCoeffs = legvals2legcoeffs( f_leg );
+norm( backToTheCoeffs - c_leg, inf )
+```
+
+```text
+Elapsed time is 0.640855 seconds.
+Elapsed time is 0.235776 seconds.
 ans =
-     2.211592377883219e-15
 ```
 
-(Published roundtrip error: `1.96e-13`; ours is tighter.)
+The IDLT can be related to a (transposed) DLT by a discrete orthogonality relation. It has the same $O(N(\log N)^2/\log\log N)$ complexity.
+
+DLT and IDLT complete the Chebyshev--Legendre cycle: (In the diagram below we give the Chebfun commands that compute each particular transform.)
+
+```
+                  -->-->-- coeffs2vals() -->-->--
+     CHEBCOEFFS   --<--<-- vals2coeffs() --<--<--   CHEBVALUES
+       ^  |
+       |  |
+       |  v
+     cheb2leg()
+     leg2cheb()
+       |  |
+       |  |
+     LEGCOEFFS       -->-->-- dlt()  -->-->--       LEGVALUES
+                     --<--<-- idlt() --<--<--
+```
+
+One can now move freely between Chebyshev and Legendre modes and values with fast algorithms in Chebfun. Hooray!
 
 ## References
 
-1. N. Hale and A. Townsend, A fast FFT-based discrete Legendre
-   transform, _IMA J. Numer. Anal._, 36 (2016), 1670-1684.
+1. N. Hale and A. Townsend, A fast, simple, and stable Chebyshev--Legendre transform using an asymptotic formula, *SIAM J. Sci. Comput.*, 36 (2014), A148--A167.
+2. N. Hale and A. Townsend, A fast FFT-based discrete Legendre transform, in preparation.
+3. D. Potts, Fast algorithms for discrete polynomial transforms on arbitrary grids, *Lin. Alg. and Applics.*, 336 (2003), 353--370.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

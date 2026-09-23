@@ -1,102 +1,134 @@
 # Low-rank approximation and localized singularities
 
+*Nick Trefethen, April 2016*
+
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx2/Localization.html)
 
-(Chebfun example approx2/Localization.m — Nick Trefethen, April 2016)
+Python translation: [`examples/approx2/localization.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx2/localization.py)
 
-A companion to [Low-rank approximation and alignment with
-axes](Alignment.md): Chebfun2's low-rank algorithms can also take
-advantage of localized (near-)singularities.
+## 1. Introduction
 
-## Complex singularity near the middle of the domain
+This example is a companion to "Low-rank approximation and alignment with axes" [3]. Here, we look at another property of a function that the low-rank algorithms of Chebfun2 and Chebfun3 can take advantage of: localized singularities or near-singularities. Again the presentation follows the discussion of [2].
 
-A bivariate Runge function with a broad spike, approximated with
-`eps = 1e-10`, gets modest data compression (MATLAB publishes
-`r = 7`, `m = 28`, `n = 27`):
+## 2. Complex singularity near the middle of the domain
+
+For example, here is a bivariate Runge function with a broad spike, which we approximate to about ten digits. The rank is a bit smaller than the length, so we are getting some data compression.
+
+```matlab
+ep = 1e-10;
+f = chebfun2(@(x,y) 1./(1+(x-.2).^2+(y-.5).^2),'eps',ep);
+r = rank(f), [m,n] = length(f)
+```
 
 ```text
 r =
     7
 m =
-    33
+    28
 n =
     27
 ```
 
-Changing $1$ to $0.001$ in the denominator makes the spike much more
-localized, and the difference between rank and length becomes
-dramatic (MATLAB: `r = 14`, `m = 666`, `n = 640`; the lengths differ
-because the slice chop at `eps` $=10^{-10}$ is not bit-identical,
-but the compression ratio is the same story):
+If we change $1$ to $0.001$ in the denominator, the spike becomes much more localized. Now there is a dramatic difference between the rank and the length, showing excellent compression.
+
+```matlab
+f = chebfun2(@(x,y) 1./(0.001+(x-.2).^2+(y-.5).^2),'eps',ep);
+r = rank(f), [m,n] = length(f)
+```
 
 ```text
 r =
     14
 m =
-    540
-n =
-    478
+    666
 ```
 
-Each red circle shows a pivot chosen by Chebfun2's Gaussian
-elimination with complete pivoting — 14 pivots, exactly as
-published, clustered around the spike at $(0.2, 0.5)$:
+Let's make a plot. Each red circle shows a pivot value chosen by Chebfun2's approximation to Gaussian elimination with complete pivoting, in which at each step, a rank-1 cross is subtracted corresponding to the largest function value still remaining. For a full explanation, see [1].
+
+```matlab
+p = f.pivotValues; a = f.pivotLocations;
+x = a(:,1); y = a(:,2); n = length(p)
+x = x(1:n); y = y(1:n);
+for j = 1:n
+  plot([-1 1],y(j)*[1 1],'-k'), hold on
+  plot(x(j)*[1 1],[-1 1],'-k')
+end
+plot(x,y,'or')
+set(gca,'xtick',[-1 0.2 1],'ytick',[-1 0.5 1])
+axis([-1 1 -1 1]), axis square, hold off
+```
 
 ```text
+n =
+    640
 n =
     14
 ```
 
-![Localization figure 1](../../images/approx2/Localization_repl_01.png)
+![Localization figure 01](../../images/approx2/Localization_01.png)
 
-## Real singularity outside a corner of the domain
+## 3. Real singularity outside a corner of the domain
 
-With a singularity outside the domain near the corner $(-1,-1)$ but
-not very close, there is not much compression (MATLAB: `r = 14`,
-`m = n = 34`):
+Here is another example. This time, the singularity is located outside the domain, near one corner. When the singularity is not very close to the corner, there is not much compression:
+
+```matlab
+g = chebfun2(@(x,y) 1./((x+1.2).^2 + (y+1.2).^2),'eps',ep);
+r = rank(g), [m,n] = length(g)
+```
 
 ```text
 r =
     14
 m =
-    32
+    34
 n =
-    32
+    34
 ```
 
-Changing 1.2 to 1.02 makes the compression striking (MATLAB
-publishes `r = 17`, `m = n = 103`; our constructor resolves it with
-`r = 14`, `m = n = 79` at the same tolerance — the last few pivots
-at $10^{-10}$ are chop-sensitive, and the compression is equally
-striking):
+Changing 1.2 to 1.02 makes the compression striking:
+
+```matlab
+g = chebfun2(@(x,y) 1./((x+1.02).^2 + (y+1.02).^2),'eps',ep);
+r = rank(g), [m,n] = length(g)
+```
 
 ```text
 r =
-    14
+    17
 m =
-    79
-n =
-    79
-n =
-    14
+    112
 ```
 
-![Localization figure 2](../../images/approx2/Localization_repl_02.png)
+Here is the analogous picture:
+
+```matlab
+p = g.pivotValues; a = g.pivotLocations;
+x = a(:,1); y = a(:,2); n = length(p)
+x = x(1:n); y = y(1:n);
+for j = 1:n
+  plot([-1 1],y(j)*[1 1],'-k'), hold on
+  plot(x(j)*[1 1],[-1 1],'-k')
+end
+plot(x,y,'or')
+set(gca,'xtick',[-1 0.2 1],'ytick',[-1 0.5 1])
+axis([-1 1 -1 1]), axis square, hold off
+```
+
+```text
+n =
+    112
+n =
+    17
+```
+
+![Localization figure 02](../../images/approx2/Localization_02.png)
 
 ## References
 
-1. A. Townsend and L. N. Trefethen, An extension of Chebfun to two
-   dimensions, _SIAM Journal on Scientific Computing_, 35 (2013),
-   C495-C518.
-
-2. L. N. Trefethen, Cubature, approximation, and isotropy in the
-   hypercube, manuscript, March 2016.
-
-3. L. N. Trefethen, Low-rank approximation and alignment with axes,
-   Chebfun example, 2016.
+1. A. Townsend and L. N. Trefethen, An extension of Chebfun to two dimensions, *SIAM Journal on Scientific Computing*, 35 (2013), C495-C518.
+2. L. N. Trefethen, Cubature, approximation, and isotropy in the hypercube, manuscript, March 2016.
+3. L. N. Trefethen, Low-rank approximation and alignment with axes, Chebfun example, [http://www.chebfun.org/examples/approx2/Alignment.html](Alignment.md).
 
 ---
 
-*Replica script: [`examples/approx2/localization_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx2/localization_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

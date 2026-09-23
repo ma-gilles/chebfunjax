@@ -4,34 +4,32 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-linear/LinearIVP.html)
 
-(Chebfun example ode-linear/LinearIVP.m)
+Python translation: [`examples/ode-linear/linear_ivp.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-linear/linear_ivp.py)
 
-This is an elementary example to illustrate how one might use Chebfun to
-solve an ODE initial-value problem. We take the world's second-simplest
-such problem,
+This is an elementary example to illustrate how one might use Chebfun to solve an ODE initial-value problem. We take the world's second-simplest such problem,
 
-$$ u'' + u = 0, \qquad u(0) = 1, ~ u'(0) = 0 $$
+$$ u''+ u = 0 , ~~~~ u(0) = 1, ~ u'(0) = 0 $$
 
 on the interval $[0,100]$. The solution is $\cos(x)$.
 
-```python
-L = Chebop(lambda x, u: u.diff(2) + u, domain=(0, 100))
-L.lbc = lambda u: [u - 1, u.diff()]   # Dirichlet and Neumann BCs at x=0
-u = L.solve(0.0)
+```matlab
+d = [0,100];                  % domain
+x = chebfun('x',d);           % x variable
+L = chebop(d);                % name of operator
+L.op = @(u) diff(u,2) + u;    % linear operator defining the ODE
+L.lbc = @(u) [u-1;diff(u)];   % imposing Dirichlet and Neumann BCs
+u = L\0;                      % solve the problem
+plot(u,'linewidth',1.6)       % plot the solution
+err = norm(u-cos(x),inf);     % measure the error
+FS = 'fontsize';
+xlabel('x',FS,12)
+ylabel('cos(x)',FS,12)
+title(sprintf('Solution of IVP for cos(x) -- error = %7.2e',err),FS,14)
+ylim([-2 2])
 ```
 
-```text
-error = 2.58e-10
-```
-
-![LinearIVP figure 1](../../images/ode-linear/LinearIVP_repl_01.png)
-
-(The published figure bakes its error value into the title; both are at
-the ~1e-10 level typical of marching this oscillatory IVP over 16
-periods.)
+![LinearIVP figure 01](../../images/ode-linear/LinearIVP_01.png)
 
 ---
 
-*Replica script: [`examples/ode-linear/linear_ivp_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-linear/linear_ivp_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

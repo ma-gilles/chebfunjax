@@ -4,36 +4,63 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-random/PhaseLocking.html)
 
-(Chebfun example ode-random/PhaseLocking.m)
+Python translation: [`examples/ode-random/phaselocking.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-random/phaselocking.py)
 
-Consider the bistable equation
+Consider the bistable equation $y' = ty - y^3 + f$, where $f$ is a random term of fixed amplitude. The fixed points of the deterministic part of the equation, locally at a time $t$, are $\pm |t|^{1/2}$. For small $t$, noise easily crosses this gap, but as $t$ gets larger any trajectory eventually settles down to a choice that is (almost surely) fixed forever. First we use $\lambda = 0.2$.
 
-$$ y' = ty - y^3 + f, \qquad y(0) = 0, $$
+```matlab
+tic, dom = [0 6]; N = chebop(dom); rng(0)
+N.lbc = 0; N.op = @(t,y) diff(y) - t*y + y^3;
+for k = 1:6
+  f = randnfun(0.2,dom,'big');
+  y = N\f; plot(y), hold on
+end
+xlabel('t'), ylabel('y')
+title('lambda = 0.2, 6 paths'), toc
+```
 
-with $f$ a random term of fixed amplitude. The local fixed points
-$\pm\sqrt{t}$ of the deterministic part separate as $t$ grows: for
-small $t$ noise crosses the gap easily, but eventually every
-trajectory settles onto a choice that is (almost surely) fixed
-forever. Six paths with $\lambda = 0.2$:
+```text
+(output not captured for this page yet)
+```
 
-![PhaseLocking figure 1](../../images/ode-random/PhaseLocking_repl_01.png)
+![PhaseLocking figure 01](../../images/ode-random/PhaseLocking_01.png)
 
-The same with $\lambda = 0.05$:
+Here's the same computation with $\lambda = 0.05$.
 
-![PhaseLocking figure 2](../../images/ode-random/PhaseLocking_repl_02.png)
+```matlab
+tic, clf
+for k = 1:6
+  f = randnfun(0.05,dom,'big');
+  y = N\f; plot(y), hold on
+end
+xlabel('t'), ylabel('y')
+title('lambda = 0.05, 6 paths'), toc
+```
 
-And a much bigger sample — sixty paths splitting onto the two
-branches of the parabola $\pm\sqrt{t}$:
+```text
+(output not captured for this page yet)
+```
 
-![PhaseLocking figure 3](../../images/ode-random/PhaseLocking_repl_03.png)
+![PhaseLocking figure 02](../../images/ode-random/PhaseLocking_02.png)
 
-*(Sample paths use JAX keys — MATLAB's `rng(0)` stream is not
-reproducible. Panel times 42 s / 71 s / 656 s vs MATLAB's published
-5.9 s / 6.4 s / 63 s — the same 10x per-trajectory ratio as the rest
-of the category.)*
+Here's a much bigger sample.
+
+```matlab
+tic, clf
+for k = 1:60
+  f = randnfun(0.05,dom,'big');
+  y = N\f; plot(y), hold on
+end
+xlabel('t'), ylabel('y')
+title('lambda = 0.05, 60 paths'), toc
+```
+
+```text
+(output not captured for this page yet)
+```
+
+![PhaseLocking figure 03](../../images/ode-random/PhaseLocking_03.png)
 
 ---
 
-*Replica script: [`examples/ode-random/phaselocking_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-random/phaselocking_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

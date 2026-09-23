@@ -4,64 +4,130 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-eig/Drum.html)
 
-(Chebfun example ode-eig/Drum.m)
+Python translation: [`examples/ode-eig/drum.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-eig/drum.py)
 
-The axisymmetric vibrations of a circular drum obey
+```matlab
+function Drum
+```
 
-$$ u''(r) + r^{-1}u'(r) = -\omega^2 u(r), \qquad u'(0)=0,\ u(1)=0. $$
+The axisymmetric harmonic vibrations of a circular drum can be described by the ODE
 
-Multiplying through by $r$ gives the generalized problem
-$Au = \lambda Bu$, solved with `eigs_generalized`. The $\omega$ values
-are zeros of $J_0$:
+$$ u''(r) + r^{-1} u'(r) = -\omega^2 u(r),~~ u'(0)=1, u(1)=0, $$
+
+where $r$ is the radial coordinate and $\omega$ is the frequency of vibration. Only discrete positive values of $\omega$ are possible, corresponding to the eigenvalues of the differential equation.
+
+We multiply the ODE through by $r$ to avoid a potential division by zero. This creates a generalized problem in the form $Au = \lambda Bu$.
+
+```matlab
+r = chebfun('r',[0,1]);
+A = chebop(0,1);
+A.op = @(r,u) r*diff(u,2) + diff(u);
+A.lbc = 'neumann'; A.rbc = 'dirichlet';
+B = chebop(0,1);
+B.op = @(r,u) r*u;
+```
+
+Then we find the eigenvalues with `eigs`. It turns out that the $\omega$ values are also zeros of the Bessel function $J_0$, which gives a way to valudate the results.
+
+```matlab
+[V,D] = eigs(A,B);
+[omega,ii] = sort(sqrt(-diag(D)));
+omega
+V = [V{:,ii'}];
+err = omega - sort(roots( besselj(0,chebfun('r',[0 20])) ))
+```
 
 ```text
 omega =
-  2.404825557759977
-  5.520078110238842
-  8.653727912896324
-  11.791534439039447
-  14.930917708481189
-  18.071063967905658
+  2.404825557741682
+  5.520078110269334
+  8.653727912918198
+  11.791534439033873
+  14.930917708483037
+  18.071063967912391
 err =
-   6.421e-11
-   -4.747e-11
-   -1.469e-11
-   2.517e-11
-   -6.604e-12
-   -5.265e-12
+   4.592e-11
+   -1.698e-11
+   7.189e-12
+   1.959e-11
+   -4.757e-12
+   1.467e-12
 ```
 
-MATLAB publishes `2.404825557946273, 5.520078110504802, ...` (agreeing
-to $2.7\times10^{-10}$), with errors versus the Bessel roots of up to
-$2.5\times10^{-10}$ — ours are up to four times *smaller*.
+We also get the eigenfunctions, which gives a way to visualize deflections of the drums for pure frequencies.
 
-The drum deflections for pure frequencies:
+```matlab
+V = V*diag(sign(V(0,:)));  % ensure V(0,k) > 0
+[rr,tt] = meshgrid(linspace(0,1,40),linspace(0,2*pi,60));
+for k = 1:4,
+  subplot(2,2,k), mesh(rr.*cos(tt),rr.*sin(tt),repmat(V(rr(1,:),k),60,1))
+  zlim([-1 3]),caxis([-3 3]), view(-33,20), axis off
+end
+```
 
-![Drum figure 1](../../images/ode-eig/Drum_repl_01.png)
+![Drum figure 01](../../images/ode-eig/Drum_01.png)
 
-## Designing a perfect octave
+If the drum instead has a variable density given by $\rho(r)$, the right- hand side of the original ODE becomes $-\omega^2\rho u$. In general, the connection to Bessel functions is broken, but we will not miss a beat using `eigs`.
 
-Constant density gives $\omega_2/\omega_1 = 2.2954$. Searching among
-densities $\rho(r) = 1 - a\sin(\pi r)$ with a chebfun of the
-eigenvalue ratio over $a \in [0.5, 1]$:
+Constant density gives $\omega_2/\omega_1 = 2.2954$. Let's design a density so that $\omega_2/\omega_1 = 2$, a perfect octave. We will search among density functions of the form
 
-![Drum figure 2](../../images/ode-eig/Drum_repl_02.png)
+$$ \rho(r) = 1 - a\sin(\pi r). $$
+
+Here is a function that returns the ratio for any $a$.
+
+```matlab
+function ratio = evratio(a)
+  rho = 1 - a*sin(pi*r);
+  B.op = @(r,u) r*rho*u;
+  [V,D] = eigs(A,B,2,0);
+  [omega,ii] = sort(sqrt(-diag(D)));
+  V = [V{:,ii'}];
+  ratio = omega(2)/omega(1);
+end
+```
+
+Now, we create a chebfun to hit the target.
+
+```matlab
+ratfun = chebfun(@evratio,[0.5,1]);
+astar = find(ratfun==2)
+clf, plot(ratfun), title('Eigenvalue ratio'), xlabel('a')
+set(gca,'xtick',[0.5,astar,1],'ytick',[2],'xgrid','on','ygrid','on')
+```
 
 ```text
 astar =
-   0.812158808315378
-residual =
-    5.490141674613369e-11
+   0.812158808349846
 ```
 
-MATLAB: `astar = 0.812158808552563` (10-digit agreement), residual
-`-3.6e-12` — both at the rootfinding tolerance. The designed drum's
-first two modes:
+![Drum figure 02](../../images/ode-eig/Drum_02.png)
 
-![Drum figure 3](../../images/ode-eig/Drum_repl_03.png)
+We compute the ratio at `astar` to verify the answer, and plot the eigenfunctions.
+
+```matlab
+residual = evratio(astar) - 2
+subplot(1,2,1), surfl(rr.*cos(tt),rr.*sin(tt),repmat(-V(rr(1,:),1),60,1))
+shading interp, lighting phong, title('First mode')
+subplot(1,2,2), surfl(rr.*cos(tt),rr.*sin(tt),repmat(-V(rr(1,:),2),60,1))
+shading interp, lighting phong, title('Second mode')
+colormap copper
+```
+
+```text
+residual =
+    3.693578776164941e-11
+```
+
+![Drum figure 03](../../images/ode-eig/Drum_03.png)
+
+```matlab
+end
+```
+
+```text
+
+```
 
 ---
 
-*Replica script: [`examples/ode-eig/drum_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-eig/drum_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

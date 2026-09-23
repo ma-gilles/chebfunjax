@@ -1,6 +1,6 @@
 # 2D Approximation (Chebfun2)
 
-Faithful replicas of the published
+translations of the published
 [chebfun.org approx2 examples](https://www.chebfun.org/examples/approx2/).
 Chebfun2 extends the Chebfun philosophy to functions of two variables
 on rectangles, using a low-rank (Gaussian elimination) representation.

@@ -1,100 +1,123 @@
-# Best polynomial approximation in the L1 norm
+# Best polynomial approximation in the L^1 norm
 
 *Yuji Nakatsukasa and Alex Townsend, July 2019*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/BestL1.html)
 
-(Chebfun example approx/BestL1.m)
+Python translation: [`examples/approx/best_l1.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/best_l1.py)
 
 ## Polynomial approximation in the $L^\infty$ norm
 
-Given a continuous real-valued function $f$ on $[a,b]$, finding the
-best polynomial approximant to $f$ in the $L^\infty$-norm is the
-minimax approximation problem.  Let's revisit
-[approx/ResolutionWiggly](ResolutionWiggly.md) and compute a best
-polynomial approximant of degree 100:
+Given a continuous real-valued function $f$ on $[a,b]$, finding the best polynomial approximant $p_\infty$ to $f$ in the $L^\infty$-norm $\mbox{min}_{p\in\mathcal{P}_n}|f-p|_{L^{\infty}}$ is known as the minimax (or sometimes Chebyshev) approximation problem. These approximations can be computed by the Chebfun `minimax` command. Let's revisit the Chebfun example [https://www.chebfun.org/examples/approx/ResolutionWiggly.html](ResolutionWiggly.md) and compute a best polynomial approximant of degree 100:
 
-```python
-import jax.numpy as jnp
-import chebfunjax as cj
-from chebfunjax.utils.minimax import minimax
-
-fop = lambda x: jnp.sin(x)**2 + jnp.sin(x**2)
-f = cj.chebfun(fop, domain=(0.0, 14.0))
-res = minimax(fop, 100, domain=(0.0, 14.0), tol=1e-8)
+```matlab
+dom = [0 14]; deg = 100;
+f = chebfun(@(x) sin(x)^2 + sin(x^2), dom);
+pinf = minimax(f, deg, 'tol', 1e-8);
+plot([f pinf]), ylim([-3 3]), grid on
+title('f and Linfty approximant')
 ```
 
-![BestL1 figure 1](../../images/approx/BestL1_repl_01.png)
+![BestL1 figure 01](../../images/approx/BestL1_01.png)
 
-The error $f-p_\infty$ exhibits the beautiful equioscillation
-phenomenon:
+The error $f-p_\infty$ exhibits the beautiful equioscillation phenomenon:
 
-![BestL1 figure 2](../../images/approx/BestL1_repl_02.png)
+```matlab
+plot(f-pinf,'k'), ylim([-3 3]), grid on
+title('error of Linfty approximant')
+```
+
+![BestL1 figure 02](../../images/approx/BestL1_02.png)
 
 ## Polynomial approximation in the $L^2$ norm
 
-The best polynomial approximant in the $L^2$-norm is the orthogonal
-projection, via `polyfit`:
+The best polynomial approximant to $f$ in the $L^2$-norm is easier to compute as it is the orthogonal projection of $f$ onto the space of polynomials of degree $n$. In Chebfun, one can use the `polyfit` command:
 
-![BestL1 figure 3](../../images/approx/BestL1_repl_03.png)
+```matlab
+p2 = polyfit(f, deg);
+plot([f p2]), ylim([-3 3]), grid on
+title('f and L2 approximant')
+```
 
-The error curve is strikingly different — slightly larger at its
-largest, but not by much:
+![BestL1 figure 03](../../images/approx/BestL1_03.png)
 
-![BestL1 figure 4](../../images/approx/BestL1_repl_04.png)
+The error curve is strikingly different. Of course it is slightly larger at its largest, but not by much.
+
+```matlab
+plot(f-p2,'k'), ylim([-3 3]), grid on
+title('error of L2 approximant')
+```
+
+![BestL1 figure 04](../../images/approx/BestL1_04.png)
 
 ## Polynomial approximation in the $L^1$ norm
 
-The `polyfitL1` command computes best polynomial approximants in the
-$L^1$-norm (see Pinkus [2] for a survey; Watson's Newton-based
-algorithm [4] underlies the computation).  Compressed sensing has made
-the $L^1$ norm an important tool as it promotes sparsity in the
-residual:
+Recently, we added a Chebfun `polyfitL1` command to compute best polynomial approximants in the $L^1$-norm. (See the book by Pinkus for a survey of this subject [2].) Compressed sensing has made the $L^1$ norm an important tool in signal processing as it can promote sparsity in the solution or residual. A Newton-based algorithm proposed by Watson [4] is known to converge, under some assumptions, and this is the basis of `polyfitL1`.
 
-```python
-p1 = f.polyfitL1(100)
+```matlab
+p1 = polyfitL1(f, deg);
+plot([f p1]), ylim([-3 3]), grid on
+title('f and L1 approximant')
 ```
 
-![BestL1 figure 5](../../images/approx/BestL1_repl_05.png)
+![BestL1 figure 05](../../images/approx/BestL1_05.png)
 
-![BestL1 figure 6](../../images/approx/BestL1_repl_06.png)
+Here is the error curve for our example. At first glance it looks like the $L^2$ case, but it is more strongly localized.
 
-## A function with a singularity
+```matlab
+plot(f-p1,'k'), ylim([-3 3]), grid on
+title('error of L1 approximant')
+```
 
-The differences become dramatic for $f = |x-1/4|$ at degree 80.  The
-$L^\infty$ error equioscillates globally:
+![BestL1 figure 06](../../images/approx/BestL1_06.png)
 
-![BestL1 figure 7](../../images/approx/BestL1_repl_07.png)
+## Another example
 
-The $L^2$ error is spread out too:
+Let's do another example, following the example of Myth 3 of [3], the approximation of $|x-1/4|$ on $[-1,1]$ by a polynomial of degree $80$. This time we just plot the errors:
 
-![BestL1 figure 8](../../images/approx/BestL1_repl_08.png)
+```matlab
+x = chebfun('x'); f = abs(x-1/4);
+deg = 80;
+pinf = minimax(f, deg);
+plot(f-pinf,'k'), ylim(1e-2*[-1 1]), grid on
+title('Linf error'), snapnow
+p2 = polyfit(f, deg);
+plot(f-p2,'k'), ylim(1e-2*[-1 1]), grid on
+title('L2 error'), snapnow
+p1 = polyfitL1(f, deg);
+plot(f-p1,'k'), ylim(1e-2*[-1 1]), grid on
+title('L1 error')
+```
 
-But the $L^1$ error is *localized*: large only in a small neighborhood
-of the singular point $x=1/4$,
+![BestL1 figure 07](../../images/approx/BestL1_07.png)
 
-![BestL1 figure 9](../../images/approx/BestL1_repl_09.png)
+![BestL1 figure 08](../../images/approx/BestL1_08.png)
 
-and tiny everywhere else, as the closeup shows:
+![BestL1 figure 09](../../images/approx/BestL1_09.png)
 
-![BestL1 figure 10](../../images/approx/BestL1_repl_10.png)
+Again, we see that the best $L^1$ polynomial approximant has a far more localized error. This is a typical phenomenon that is explained in~[1]. To see more, we zoom the y axis by a factor of 100. There is much to be learned here!
 
-This error localization is the subject of [1].
+```matlab
+ylim(1e-4*[-1 1])
+title('closeup')
+```
+
+![BestL1 figure 10](../../images/approx/BestL1_10.png)
+
+## A word on the algorithm for `polyfitL1`
+
+In [1], it is recommended that Watson's algorithm should be used in conjunction with linear programming problems and a refinement step. These additional algorithmic details can significantly speed up the computation. However, MATLAB's linear programming commands are in a toolbox, so we have avoided these steps in keeping with the Chebfun policy of just relying on core MATLAB.
 
 ## References
 
-1. Y. Nakatsukasa and A. Townsend, Error localization of best $L_1$
-   polynomial approximants, arXiv:1902.02664.
+[1] Y. Nakatsukasa and A. Townsend, Error localization of best L1 polynomial approximants, SIAM J. Numer. Anal., 59 (2021), 314--333.
 
-2. A. Pinkus, _On L1-Approximation_, Cambridge University Press, 1989.
+[2] A. M. Pinkus, *On L1-approximation*, Cambridge University Press, 1989.
 
-3. L. N. Trefethen, _Approximation Theory and Approximation Practice_,
-   SIAM, 2013.
+[3] L. N. Trefethen, Six myths of polynomial interpolation and quadrature, appendix of *Approximation Theory and Approximation Practice, extended edition*, SIAM, 2019.
 
-4. G. A. Watson, An algorithm for linear $L_1$ approximation of
-   continuous functions, _IMA J. Numer. Anal._, 1 (1981), 157-167.
+[4] G. A. Watson. An algorithm for linear L1 approximation of continuous functions, *IMA J. Numer. Anal.*, 1 (1981), 157--167.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

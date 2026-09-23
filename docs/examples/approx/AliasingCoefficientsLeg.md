@@ -4,75 +4,92 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/AliasingCoefficientsLeg.html)
 
-(Chebfun example approx/AliasingCoefficientsLeg.m)
+Python translation: [`examples/approx/aliasing_coefficients_leg.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/aliasing_coefficients_leg.py)
 
-This is the Legendre analogue of
-[approx/AliasingCoefficients](AliasingCoefficients.md): the Legendre
-coefficients of a low-degree Legendre (Gauss-points) interpolant of $f$
-err by aliased tails of the full Legendre expansion.
+## 1. One dimension
 
-Here is the experiment for an analytic function.  We compute the
-Legendre coefficients of $f$ via `cheb2leg`, and the Legendre
-coefficients of the degree $k-1$ interpolant at Gauss-Legendre points
-via `legvals2legcoeffs`:
+This is a follow-up example of approx/AliasingCoefficients [1], to explore the accuracy in the Legendre coefficients instead of Chebyshev. A convenient way to obtain the Legendre coefficients of a Chebfun is to use cheb2leg, which implements the algorithm in [2]. cheb2leg converts the coefficients $\hat c_i$ in a Chebyshev expansion $$ p(x)=\sum_{i=0}^n \hat c_iT_i(x) $$ into a Legendre expansion $$ p(x)=\sum_{i=0}^n \hat d_iP_i(x) $$ where $P_i(x)$ is the Legendre polynomial of degree $i$. Also useful is the legvals2legcoeffs command, described in [3], which converts a vector of values at Legendre points into a vector of Legendre coefficients of the polynomial interpolant at the Legendre points.
 
-```python
-import numpy as np
-import jax.numpy as jnp
-import chebfunjax as cj
-from chebfunjax.utils.quadrature import legpts
-from chebfunjax.utils.transforms import cheb2leg, legvals2legcoeffs
+Let's examine the difference between the Legendre coefficients of $f$, and those of its low-degree Legendre interpolant, i.e, the degree $k$ polynomial interpolant at the roots of the $(k+1)$th Legendre polynomial $P_{k+1}$. Let's first try an analytic function $f$.
 
-fori = lambda x: jnp.log(jnp.sin(10*x) + 2)
-f = cj.chebfun(fori)
-fc = np.asarray(cheb2leg(f.coeffs))
-k = round(len(f)/3)
-s, _ = legpts(k)                     # Gauss-Legendre points
-pc = np.asarray(legvals2legcoeffs(fori(jnp.asarray(np.asarray(s)))))
-# semilogy of |fc|, |pc|, and |pc - fc[:k]| + eps
+```matlab
+clear, close all
+LW = 'linewidth'; MS = 'markersize'; FS = 'fontsize';
+CO = 'color'; green = [0 .7 0];
+lw = 2; ms = 10; fs = 16;
+
+fori = @(x) log(sin(10*x)+2);
+
+f = chebfun(fori);
+fc = cheb2leg(f.coeffs);
+
+k = round(length(f)/3); % length=degree+1 of interpolant
+s = legpts(k); % Legendre points
+pc = legvals2legcoeffs(fori(s));
+
+semilogy(abs(fc),'.',CO,green,LW,lw,MS,ms),hold on
+plot(abs(pc),'b.',LW,lw,MS,ms)
+plot(0:length(pc)-1,abs(pc-fc(1:length(pc)))+eps,'.r',LW,lw,MS,ms)
+
+h_legend = legend('f','p','f-p');
+set(h_legend,FS,fs)
 ```
 
-![AliasingCoefficientsLeg figure 1](../../images/approx/AliasingCoefficientsLeg_repl_01.png)
+![AliasingCoefficientsLeg figure 01](../../images/approx/AliasingCoefficientsLeg_01.png)
 
-As in the Chebyshev case, the coefficient error (red) grows
-geometrically with the degree.  Note that unlike Chebyshev
-interpolation, there is no exceptionally accurate final coefficient —
-that phenomenon is peculiar to the Chebyshev aliasing pattern.
+The green and blue dots show the absolute values of the Legendre coefficients for $f$ and the interpolant $p$. We focus on the red dots, showing the error in Legendre coefficients. We see that just as in the previous example (Chebyshev coefficients via Chebyshev interpolation), the error in Legendre coefficients grows geometrically with the degree. However, the exceptional accuracy in the last coefficient is now lost, and $\hat d_n$ has one of the worst absolute errors among the $\hat d_i$.
 
-Now the non-analytic function $|x-\tfrac12|^3$:
+Now let's repeat the computation with a non-analytic function.
 
-```python
-fori = lambda x: jnp.abs((x - 0.5)**3)
-f = cj.chebfun(fori)
-fc = np.asarray(cheb2leg(f.coeffs))
-k = round(len(f)/5)
-s, _ = legpts(k)
-pc = np.asarray(legvals2legcoeffs(fori(jnp.asarray(np.asarray(s)))))
+```matlab
+fori = @(x)abs((x-0.5).^3); % twice differentiable but not analytic
+
+f = chebfun(fori);
+fc = cheb2leg(f.coeffs);
+
+k = round(length(f)/5);
+s = legpts(k);
+pc = legvals2legcoeffs(fori(s));
+
+clf
+semilogy(abs(fc),'.',CO,green,LW,lw,MS,ms),hold on
+plot(abs(pc),'b.',LW,lw,MS,ms)
+plot(0:k-1,abs(pc(1:k)-fc(1:k))+eps,'.r',LW,lw,MS,ms),hold on
+
+h_legend = legend('f','p','f-p');
+set(h_legend,FS,fs),shg
 ```
 
-![AliasingCoefficientsLeg figure 2](../../images/approx/AliasingCoefficientsLeg_repl_02.png)
+![AliasingCoefficientsLeg figure 02](../../images/approx/AliasingCoefficientsLeg_02.png)
 
-Finally the two-dimensional experiment.  We compute the bivariate
-Legendre coefficients of $f(x,y) = \sin(x+y)+\cos(x-y)$ by applying
-`cheb2leg` along both dimensions of the chebfun2 coefficients, and
-compare with the coefficients of the degree $[5,5]$ interpolant on the
-$6\times 6$ Gauss-Legendre grid:
+While qualitatively the same observation holds, note that the red plots do not resemble a mirrored version of the green, as was in the Chebyshev case.
 
-```python
-fori = lambda x, y: jnp.sin(x + y) + jnp.cos(x - y)
-f = cj.chebfun2(fori)
-C = np.real(np.asarray(f.chebcoeffs2()))
-# cheb2leg along both dimensions -> bivariate Legendre coefficients fcl
-k = 6
-s, _ = legpts(k)
-XX, YY = np.meshgrid(np.asarray(s), np.asarray(s))
-vals = np.asarray(fori(jnp.asarray(XX), jnp.asarray(YY)))
-# legvals2legcoeffs along both dimensions -> ptc
-abs(fcl[:6, :6] - ptc)
+## 2. Two dimensions
+
+As before, let's try an analogous experiment in Chebfun2. To obtain an accurate bivariate Legendre expansion we form a chebfun2 and convert its Chebyshev coefficients into Legendre coefficients by applying cheb2leg from both sides (left and right). To obtain a bivariate polynomial interpolant at the Legendre grid, we convert from values at Legendre grid points to bivariate Legendre coefficients, again using the legvals2legcoeffs command.
+
+```matlab
+fori = @(x,y)(sin(x+y)+cos(x-y));
+
+f = chebfun2(@(x,y)fori(x,y));
+fc = cheb2leg(cheb2leg(chebcoeffs2(f))')'; % Legendre coefficients
+
+k = 6;
+s = legpts(k);
+xx = [];yy = [];
+for ii = 1:k;
+xx = [xx;s']; yy = [yy s]; % Legendre grid
+end
+
+ptc = legvals2legcoeffs(legvals2legcoeffs(fori(xx,yy))')'; % values at Legendre grid
+
+format short e
+abs(fc(1:k,1:k)-ptc)
 ```
-```
+
+```text
 ans =
-   1.2749e-12   2.2176e-11   6.2811e-10   1.4621e-08   2.9536e-07   5.1823e-06
+   1.2745e-12   2.2175e-11   6.2811e-10   1.4621e-08   2.9536e-07   5.1823e-06
    2.2176e-11   4.9091e-11   6.6573e-10   1.5701e-08   3.1713e-07   5.5643e-06
    6.2811e-10   6.6573e-10   4.6288e-10   5.3426e-09   1.0888e-07   1.9102e-06
    1.4621e-08   1.5701e-08   5.3426e-09   2.1910e-09   2.1971e-08   3.8829e-07
@@ -80,21 +97,16 @@ ans =
    5.1823e-06   5.5643e-06   1.9102e-06   3.8829e-07   5.5679e-08   1.2579e-08
 ```
 
-(34 of the 36 entries match the published MATLAB output digit-for-digit;
-the two entries at $10^{-12}$ and $10^{-11}$ in the first column differ
-only in the last displayed digit — sub-eps rounding noise.)
-
-Looking horizontally or vertically, the low-degree coefficients are more
-accurate than the higher-degree ones, reflecting the aliasing of the
-geometrically decaying tail — but without the exceptional corner
-accuracy of the Chebyshev case.
+As in the one-dimensional case the leading coefficient has the highest accuracy. While there is no "very accurate lower-right corner", we see some accuracy improvement in the last row and column, with the lower-right element $d_{k,k}$ (corresponding to $P_k(x)P_k(y)$) being more accurate than the rest (though not as much as in the Chebyshev case). We suspect that this is because the terms that get aliased to $P_i(x)P_j(y)$ with large $i,j$ are small to begin with: for example, we typically have $|d_{k+1,k}|\ll |d_{k+1,1}|$.
 
 ## References
 
-1. L. N. Trefethen, _Approximation Theory and Approximation Practice_,
-   SIAM, 2013.
+[1] [http://www.chebfun.org/examples/approx/AliasingCoefficients.html](AliasingCoefficients.md)
+
+[2] N. Hale and A. Townsend, A fast, simple, and stable Chebyshev--Legendre transform using an asymptotic formula, SISC, 36 (2014), pp. A148-A167
+
+[3] N. Hale and A. Townsend, A fast FFT-based discrete Legendre transform, to appear in IMA Numer. Anal.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

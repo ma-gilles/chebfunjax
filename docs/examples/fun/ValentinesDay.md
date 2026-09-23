@@ -1,15 +1,33 @@
-# Happy Valentine's Day
+# Happy Valentines Day!
 
-*Nick Hale, February 2012*
+*Anonymous, February 2012*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/fun/ValentinesDay.html)
 
-(Chebfun example fun/ValentinesDay.m)
+Python translation: [`examples/fun/valentines_day.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/fun/valentines_day.py)
 
-The classic heart curve, with its area by Green's theorem exactly
-$180\pi$ — digit-for-digit with MATLAB including the error:
+Happy Valentine's Day to all Chebfun users!
 
-![ValentinesDay figure 1](../../images/fun/ValentinesDay_repl_01.png)
+```matlab
+t = chebfun('t',[-pi pi]);
+x = 16*sin(t).^3;
+y = 13*cos(t)-5*cos(2*t)-2*cos(3*t)-1*cos(4*t);
+fill(x,y,'.-r'); axis equal
+hold on
+plot(12.5*scribble('Happy Valentine''s Day!'),'k')
+hold off
+axis equal off
+```
+
+![ValentinesDay figure 01](../../images/fun/ValentinesDay_01.png)
+
+This 'heart curve' can be found on Wolfram's MathWorld site [1], where its area is computed. We do the same, and compare the result:
+
+```matlab
+z = x+1i*y;
+A = abs(sum(x.*diff(y)))
+err = A - 180*pi
+```
 
 ```text
 A =
@@ -18,25 +36,51 @@ err =
      1.136868377216160e-13
 ```
 
-The cardioid has area exactly $3\pi/2$:
+Here are some more heart curves that can be found in [1]:
 
-![ValentinesDay figure 2](../../images/fun/ValentinesDay_repl_02.png)
+Heart eqn 1
+
+```matlab
+t = chebfun('t',[-pi pi]);
+r = 1-sin(t);
+[x1 y1] = pol2cart(t,r);
+plot(x1,y1,'.-r')
+axis equal off
+A1 = abs(sum(x1.*diff(y1)))
+err = A1-3*pi/2 % Note, this is A2 on [1]!
+```
 
 ```text
 A1 =
    4.712388980384691
+err =
+    8.881784197001252e-16
 ```
 
-And a lumpier heart whose $|\cos t|$ kink needs splitting:
+![ValentinesDay figure 02](../../images/fun/ValentinesDay_02.png)
 
-![ValentinesDay figure 3](../../images/fun/ValentinesDay_repl_03.png)
+Heart eqn 5
+
+```matlab
+t = chebfun('t',[-pi pi]);
+r = 2 - 2*sin(t)+sin(t).*sqrt(abs(cos(t))+.1)./(sin(t)+1.4);
+[x5 y5] = pol2cart(t,r);
+plot(x5,y5,'.-r')
+axis equal off
+A5 = abs(sum(x5.*diff(y5))) % Note, different from [1] was we include .1 in sqrt
+```
 
 ```text
 A5 =
-  11.645555308722225
+  11.645555308722976
 ```
+
+![ValentinesDay figure 03](../../images/fun/ValentinesDay_03.png)
+
+## References
+
+1. [http://mathworld.wolfram.com/HeartCurve.html](http://mathworld.wolfram.com/HeartCurve.html)
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

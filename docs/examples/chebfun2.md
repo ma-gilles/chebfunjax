@@ -197,6 +197,6 @@ exp(-x^2-y^2): rank = 12
 
 ## Gallery
 
-For worked 2D examples with figures, see the faithful replicas of the
+For worked 2D examples with figures, see the translations of the
 published chebfun.org approx2 examples in
 [docs/examples/approx2](approx2/index.md).

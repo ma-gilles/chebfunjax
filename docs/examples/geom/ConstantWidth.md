@@ -1,31 +1,65 @@
-# A curve of constant width that is not a circle
+# Polynomial level curve of constant width
 
-*Nick Trefethen, February 2020*
+*Nick Trefethen, May 2022*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/geom/ConstantWidth.html)
 
-(Chebfun example geom/ConstantWidth.m)
+Python translation: [`examples/geom/constant_width.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/geom/constant_width.py)
 
-Stanley Rabinowitz found a degree-8 algebraic curve of constant
-width — like a Reuleaux triangle but smooth and non-circular.  Its
-boundary is the zero contour of a chebfun2:
+A *Mathematics Today* column by Alan Champneys [2] describes a fascinating example that can be found in Wikipedia [4] and goes back to a paper by Rabinowitz [3]; see also [1]. Here is a bivariate polynomial $p(x,y)$:
 
-![ConstantWidth figure 1](../../images/geom/ConstantWidth_repl_01.png)
+```matlab
+tic
+r2 = @(x,y) x.^2 + y.^2; xy = @(x,y) x.^2 - 3*y.^2;
+p = @(x,y) r2(x,y).^4 - 45*r2(x,y).^3 - 41283*r2(x,y).^2 + ...
+    7950960*r2(x,y) + 16*xy(x,y).^3 + 48*r2(x,y).*xy(x,y).^2 + ...
+    x.*xy(x,y).*(16*r2(x,y).^2 - 5544*r2(x,y) + 266382) - 373248000;
+```
 
-The width is 18 in every direction:
+The result is that the zero set of $p$ has constant width in the complex plane! -- like the British 50p coin. Let's verify this in Chebfun. Here's the domain, computed with the Chebfun2 `roots` command:
+
+```matlab
+pc = chebfun2(p,[-11 11 -11 11]);
+r = roots(pc);
+copper = [.722 .451 .20];
+fill(real(r),imag(r),copper)
+axis(12*[-1 1 -1 1]), axis square, grid on
+```
+
+![ConstantWidth figure 01](../../images/geom/ConstantWidth_01.png)
+
+We compute its width measured in 5 different directions, and they agree to 5 digits, which is not bad considering the size of the coefficients.
+
+```matlab
+disp('theta/pi     width')
+for theta = pi*(0:4)/5;
+   a = exp(1i*theta);
+   width = max(real(a*r)) - min(real(a*r));
+   fprintf('%8.5f %12.8f\n',theta/pi,width)
+end
+```
 
 ```text
 theta/pi     width
- 0.00000  17.99992994
- 0.20000  17.99999696
- 0.40000  17.99999735
- 0.60000  17.99999213
- 0.80000  18.00000637
+ 0.00000  18.00001253
+ 0.20000  18.00001834
+ 0.40000  18.00001510
+ 0.60000  17.99999227
+ 0.80000  18.00009582
 ```
 
-(MATLAB's published widths are 18.0003-18.0007 — both runs are
-limited by the contour-tracing accuracy.)  The univariate restriction
-has exact integer roots:
+The exact result should be 18, as can be verified by setting $y=0$, in which case the polynomial reduces to
+
+```matlab
+p = @(x) x^8 + 16*x^7 + 19*x^6 - 5544*x^5 - 41283*x^4 + 266382*x^3 + 7950960*x^2 - 373248000;
+```
+
+We confirm that this is zero at $x=-8$ and $x=10$:
+
+```matlab
+p(-8)
+p(10)
+```
 
 ```text
 ans =
@@ -34,20 +68,34 @@ ans =
      0
 ```
 
-The perimeter:
+Just for fun let's compute the perimeter of the coin, presumably also accurate to about 5 digits:
+
+```matlab
+perimeter = norm(diff(r),1)
+```
 
 ```text
 perimeter =
-  56.548665961455377
+  56.643168581959856
 ```
 
-> **Note.** By Barbier's theorem every curve of constant width $w$
-> has perimeter exactly $\pi w = 18\pi = 56.5487$; our value
-> matches to six digits, while the published MATLAB perimeter
-> 57.179 is 1.1% off (its `norm(diff(r),1)` was computed on a less
-> accurate contour representation).
+```matlab
+time_for_this_example = toc
+```
+
+```text
+time_for_this_example =
+   4.617890
+```
+
+[1] M. Bardet and T. Bayen, On the degree of the polynomial defining a planar algebraic curves of constant width, arXiv:1312.4358v1, 2013.
+
+[2] A. Champneys, Westward Ho! Musing on mathematics and mechanics, *Mathematics Today*, April 2022, 56--59.
+
+[3] S. Rabinowitz, A polynomial curve of constant width, *Missouri Journal of Mathematical Sciences* 9 (1997), 23--27.
+
+[4] Wikipedia, "Curve of constant width".
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

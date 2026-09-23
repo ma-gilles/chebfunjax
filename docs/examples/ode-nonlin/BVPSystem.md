@@ -4,92 +4,94 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-nonlin/BVPSystem.html)
 
-(Chebfun example ode-nonlin/BVPSystem.m)
+Python translation: [`examples/ode-nonlin/bvp_system.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/bvp_system.py)
 
 ## System of equations
 
-Here is a system of two coupled nonlinear ODEs on the interval
-$[-1,1]$, with boundary conditions:
+Here is a system of two coupled nonlinear ODEs on the interval $[-1,1]$, with boundary conditions.
 
 $$ u'' - \sin(v) = 0, $$
 
 $$ v'' + \cos(u) = 0, $$
 
-$$ u(-1) = 1, \quad v'(-1) = 0, \quad u'(1) = 0, \quad v(1) = 0. $$
+$$ u(-1) = 1, ~~ v'(-1) = 0, ~~ u'(1) = 0, ~~ v(1) = 0. $$
 
 ## Solution using multiple variables `u` and `v`
 
-One way to solve a problem like this is to work with multiple
-variables, solving for two chebfuns $u$ and $v$, setting up the problem
-with functions that take two chebfuns as input and return two as
-output:
+One way you can solve a problem like this with Chebfun is to work with multiple variables, solving for two chebfuns $u$ and $v$. Here we do this, setting up the problem using anonymous functions that take two chebfuns as input and return a chebmatrix of two chebfuns as output:
 
-```python
-N = Chebop(lambda x, u, v: [u.diff(2) - v.sin(), v.diff(2) + u.cos()],
-           domain=(-1, 1))
-N.lbc = lambda u, v: [u - 1, v.diff()]
-N.rbc = lambda u, v: [v, u.diff()]
-(u, v), info = N.solvebvp([0, 0])
-nrmduvec = info["normDelta"]
+```matlab
+N = chebop(-1, 1);
+x = chebfun('x');
+N.op = @(x,u,v)[ diff(u,2) - sin(v); diff(v,2) + cos(u)];
+N.lbc = @(u,v)[ u-1; diff(v)];
+N.rbc =  @(u,v)[ v; diff(u)];
+N.init = [0*x; 0*x];
+[sol,info] = N\[0; 0];
+nrmduvec = info.normDelta;
 ```
 
-We can now plot the solution components $u$ and $v$, alongside the norm
-of the Newton update at each iteration:
+We extract the functions from the solution using the curly braces notation of chebmatrices and plot them:
 
-![BVPSystem figure 1](../../images/ode-nonlin/BVPSystem_repl_01.png)
-
-The boundary conditions are met to rounding:
-
-```text
-u(-1) = 1.000000000000000   (exact 1)
-v(1)  = 4.441e-16           (exact 0)
-u'(1) = -1.907e-14          (exact 0)
-v'(-1)= -2.147e-14          (exact 0)
+```matlab
+LW = 'linewidth'; FS = 'fontsize';
+u = sol{1}; v = sol{2};
+figure, subplot(1,2,1), plot(u, LW, 2)
+hold on, plot(v,'--r', LW, 2), hold off
+title('u and v vs. x', FS, 10), legend('u', 'v')
+box on, grid on
+xlabel('x', FS, 10), ylabel('u(x) and v(x)', FS, 10)
+subplot(1,2,2), semilogy(nrmduvec, '-*', LW, 2)
+title('Norm of update vs. iteration no.', FS, 10)
+box on, grid on
+xlabel('iteration no.', FS, 10), ylabel('norm of update', FS, 10)
 ```
 
-and the Newton iteration converges quadratically in seven steps, as in
-the published figure:
+![BVPSystem figure 01](../../images/ode-nonlin/BVPSystem_01.png)
 
-```text
-2.318430e+00
-6.874518e-01
-1.654200e-01
-9.248700e-03
-3.461500e-05
-3.944700e-10
-1.624586e-15
+## Solution using a single indexed variable `u`
+
+Another way to solve the same problem is to work with a single chebmatrix variable `u` that has two components, `u{1}` and `u{2}`.
+
+$$ (u_1)'' - \sin(u_2) = 0, $$
+
+$$ (u_2)'' + \cos(u_1) = 0, $$
+
+$$ u_1(-1) = 1, ~~ (u_2)'(-1) = 0, ~~ (u_1)'(1) = 0, ~~ u_2(1) = 0. $$
+
+```matlab
+N = chebop(-1, 1);
+x = chebfun('x');
+N.op = @(x,u) [ diff(u{1},2) - sin(u{2}); diff(u{2},2) + cos(u{1}) ];
+N.lbc = @(u)[ u{1} - 1; diff(u{2}) ];
+N.rbc =  @(u)[ u{2}; diff(u{1}) ];
+N.init = [0*x; 0*x];
 ```
 
-## Solution using a single indexed variable
+The solution process is the same as before.
 
-Another way to solve the same problem is to work with a single variable
-of two components, `u{1}` and `u{2}` — in MATLAB a chebmatrix. The
-solution comes back the same way, so indexing the returned pair
-reproduces it:
+```matlab
+[u,info] = N\[0; 0];
+nrmduvec = info.normDelta;
+```
 
-![BVPSystem figure 2](../../images/ode-nonlin/BVPSystem_repl_02.png)
+The components of the solution, as in the problem definition, are again accessed via the curly braces notation of chebmatrices.
 
-The two formulations agree exactly (maximum difference $0$), as they
-must: they are the same discretization written two ways.
+```matlab
+clf
+subplot(1,2,1), plot(u{1}, LW, 2), hold on
+plot(u{2}, '--r', LW, 2), hold off
+title('u_1(x) and u_2(x) vs. x', FS, 10), legend('u_1', 'u_2')
+box on, grid on
+xlabel('x', FS, 10), ylabel('u_1(x) and u_2(x)', FS, 10)
+subplot(1,2,2), semilogy(nrmduvec, '-*', LW, 2)
+title('Norm of update vs. iteration no.', FS, 10)
+box on, grid on
+xlabel('iteration no.', FS, 10), ylabel('norm of update', FS, 10)
+```
 
-> **Implementation note.** This page needed two fixes to the nonlinear
-> *system* solver. `info.normDelta` was empty for systems — only the
-> scalar path ever recorded it — so the right-hand figure had nothing to
-> plot. And the iteration's only stopping test compared `max|R|` on the
-> residual, whose derivative rows carry an $n^2$ scaling and can sit
-> above the threshold long after the iterate stops moving; the solve ran
-> fifteen iterations here, the last eight at machine-precision noise.
-> Adding MATLAB's update-norm stop removes them, which speeds up every
-> nonlinear system solve, not just this one.
->
-> The reported norm also had to change. MATLAB gives the *chebfun* norm
-> of the update, an $L^2$ function norm; we were reporting the Euclidean
-> norm of the discrete coefficient vector, larger by roughly $\sqrt{n}$
-> — with $n = 22$ our first value was $11.5$ against the published
-> $\approx 2$.
+![BVPSystem figure 02](../../images/ode-nonlin/BVPSystem_02.png)
 
 ---
 
-*Replica script: [`examples/ode-nonlin/bvp_system_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/bvp_system_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

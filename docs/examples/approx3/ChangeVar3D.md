@@ -1,110 +1,190 @@
-# Triple Integrals via Coordinate Transformations
+# Triple integrals in spherical, cylindrical and other coordinate systems
 
 *Rodrigo Platte, November 2016*
 
-*Original: [Triple integrals in spherical, cylindrical and other coordinate systems — Chebfun](https://www.chebfun.org/examples/approx3/ChangeVar3D.html)*
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx3/ChangeVar3D.html)
 
----
+Python translation: [`examples/approx3/ChangeVar3D.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx3/ChangeVar3D.py)
 
 ## Transformations
 
-This example uses mappings to compute integrals over non-rectangular three-dimensional volumes.
-We apply the change of variables
+In this example we use mappings to compute with functions defined on non-rectangular three dimensional volumes. The mapping variables must be defined on a rectangular domain. In other words, we will use the change of variables
 
-$$x = x(u,v,w), \quad y = y(u,v,w), \quad z = z(u,v,w),$$
+$$ x = x(u,v,w), \ y = y(u,v,w), \ z = z(u,v,w), $$
 
-where $u$, $v$, $w$ are defined as `Chebfun3` objects on a rectangular domain.
+where $u$, $v$, $w$ are defined as chebfun3 objects on a rectangular domain.
 
-## Triple Integrals in Spherical Coordinates
+## Triple integrals in spherical coordinates
 
-We use spherical coordinates to compute the mass of an "ice-cream cone" region
-with variable density. The region is defined using `Chebfun3` objects:
+Here we use spherical coordinates to compute the mass of a "ice-cream cone" region with variable density. The region is defined by
 
-```python
-import numpy as np
-import jax.numpy as jnp
-from chebfunjax.chebfun3d.chebfun3 import chebfun3
-
-dom_sph = (0.0, 1.0, 0.0, 2*np.pi, np.pi/4, np.pi/2)
-
-r_f = chebfun3(lambda r, t, p: r, domain=dom_sph)
-t_f = chebfun3(lambda r, t, p: t, domain=dom_sph)
-p_f = chebfun3(lambda r, t, p: p, domain=dom_sph)
-
-x_sph = chebfun3(lambda r, t, p: r * jnp.cos(t) * jnp.cos(p), domain=dom_sph)
-y_sph = chebfun3(lambda r, t, p: r * jnp.sin(t) * jnp.cos(p), domain=dom_sph)
-z_sph = chebfun3(lambda r, t, p: r * jnp.sin(p), domain=dom_sph)
+```matlab
+r = chebfun3(@(r,t,p) r, [0 1 0 2*pi pi/4 pi/2]);
+t = chebfun3(@(r,t,p) t, [0 1 0 2*pi pi/4 pi/2]);
+p = chebfun3(@(r,t,p) p, [0 1 0 2*pi pi/4 pi/2]);
+x = r.*cos(t).*cos(p);
+y = r.*sin(t).*cos(p);
+z = r.*sin(p);
 ```
 
-The mass integral with density $\rho = r^2$ can be evaluated exactly.
-The Jacobian for spherical coordinates is $|J| = r^2 \cos\phi$:
+We can plot the surface of this region using the plot command.
 
-```python
-M_simple = chebfun3(
-    lambda r, t, p: r**2 * r**2 * jnp.cos(p),
-    domain=dom_sph
-).sum3()
-# Exact: pi*(2-sqrt(2))/5
-exact = np.pi * (2 - np.sqrt(2)) / 5
-print(f"Computed: {float(M_simple):.10f}")
-print(f"Exact:    {exact:.10f}")
+```matlab
+plot(x,y,z)
+view(-53,24)
 ```
 
-```
-Computed: 0.3680604738
-Exact:    0.3680604738
-```
+![ChangeVar3D figure 01](../../images/approx3/ChangeVar3D_01.png)
 
-## Triple Integrals in Cylindrical Coordinates
+We now define the density function and graph the surface of the solid colored by the density function.
 
-We compute the center of mass of a sector of a cylinder. With cylindrical
-coordinates $x = r\cos\theta$, $y = r\sin\theta$, the Jacobian is $|J| = r$.
-
-For uniform density, the $z$-coordinate of the center of mass is:
-
-$$z_c = \frac{\int_0^1\int_0^\pi\int_0^1 z \cdot r \, dz\, d\theta\, dr}
-             {\int_0^1\int_0^\pi\int_0^1 r \, dz\, d\theta\, dr} = 0.5$$
-
-## Triple Integrals over the Torus
-
-The torus with major radius $R=4$ and minor radius $r=1$ is parametrized by
-
-$$x = (R + r'\cos t)\cos\phi, \quad y = (R + r'\cos t)\sin\phi, \quad z = r'\sin t$$
-
-The Jacobian is $|J| = r'(R + r'\cos t)$. The volume is
-
-$$V = \int_0^1\int_0^{2\pi}\int_0^{2\pi} r(4 + r\cos t)\, dr\, dt\, d\phi = 8\pi^2$$
-
-```python
-vol_torus = chebfun3(
-    lambda r, t, p: r * (4 + r * jnp.cos(t)),
-    domain=(0.0, 1.0, 0.0, 2*np.pi, 0.0, 2*np.pi)
-).sum3()
-print(f"Torus volume: {float(vol_torus):.6f}")
-print(f"Exact 8π²:    {8*np.pi**2:.6f}")
+```matlab
+density = sin(10*t).*cos(10*r)+1;
+plot(x,y,z,density)
 ```
 
+![ChangeVar3D figure 02](../../images/approx3/ChangeVar3D_02.png)
+
+The mass of the solid can be found by computing the triple integral in a rectangular region. The change of variables requires us to compute the determinant Jacobian of the transformation.
+
+```matlab
+M = integral3(density.*abs(jacobian(x,y,z)));
+format long
+disp(M)
 ```
-Torus volume: 78.956835
-Exact 8π²:    78.956835
+
+```text
+   0.613434123007071
 ```
 
-![Coordinate transformations for 3D integration](../../images/approx3/ChangeVar3D.png)
+To show the accuracy of chebfun3 representations we now consider a simpler density function, for which the exact answer to the triple integral can easily be found.
 
-## References
+```matlab
+disp(integral3(r.^2.*abs(jacobian(x,y,z))))
+disp(pi*(2-sqrt(2))/5)
+```
 
-1. R. Platte, *Chebfun Examples*, 2016.
+```text
+   0.613434123007071
+   0.368060473804240
+```
 
-## Figures (chebfun.org parity)
+## Triple integrals in cylindrical coordinates
 
-![ChangeVar3D figure 1](../../images/approx3/ChangeVar3D_01.png)
+In our next example we compute the center of mass of a sector of a cylinder with variable density.
 
-![ChangeVar3D figure 2](../../images/approx3/ChangeVar3D_02.png)
+```matlab
+r = chebfun3(@(r,t,z) r, [0 1 0 pi 0 1]);
+t = chebfun3(@(r,t,z) t, [0 1 0 pi 0 1]);
+z = chebfun3(@(r,t,z) z, [0 1 0 pi 0 1]);
+x = r.*cos(t);
+y = r.*sin(t);
 
-![ChangeVar3D figure 3](../../images/approx3/ChangeVar3D_03.png)
+density = y.*sin(10*t)+1;
+plot(x,y,z,density)
+axis image, view(60,60)
 
-![ChangeVar3D figure 4](../../images/approx3/ChangeVar3D_04.png)
+coord = [x; y; z];
+jac = abs(jacobian(coord));
+```
 
-![ChangeVar3D figure 5](../../images/approx3/ChangeVar3D_05.png)
+![ChangeVar3D figure 03](../../images/approx3/ChangeVar3D_03.png)
 
-![ChangeVar3D figure 6](../../images/approx3/ChangeVar3D_06.png)
+Mass:
+
+```matlab
+M = integral3(density.*jac); disp(M)
+```
+
+```text
+   0.613434123007071
+```
+
+Center of mass:
+
+```matlab
+jac = abs(jacobian(x,y,z));
+xc2 = integral3(x.*density.*jac)/M;
+yc2 = integral3(y.*density.*jac)/M;
+zc2 = integral3(z.*density.*jac)/M;
+disp([xc2,yc2,zc2])
+```
+
+```text
+   0.613434123007071
+```
+
+## Triple integrals over the torus and other regions
+
+Here is an example were we compute a triple integral over the torus
+
+```matlab
+r = chebfun3(@(r,t,p) r, [0 1 0 2*pi 0 2*pi]);
+t = chebfun3(@(r,t,p) t, [0 1 0 2*pi 0 2*pi]);
+p = chebfun3(@(r,t,p) p, [0 1 0 2*pi 0 2*pi]);
+x = (4+r.*cos(t)).*cos(p);
+y = (4+r.*cos(t)).*sin(p);
+z = r.*sin(t);
+f = sin(7*z).*sin(3*x);
+```
+
+```matlab
+plot(x,y,z,f)
+axis tight, axis image
+view(-28,31)
+disp(integral3(f.*abs(jacobian(x,y,z))))
+```
+
+```text
+   0.613434123007071
+```
+
+![ChangeVar3D figure 04](../../images/approx3/ChangeVar3D_04.png)
+
+In the next two examples we vary the radius of torus to generate other solid regions and the compute the triple integrals.
+
+```matlab
+rr = r.*(1+sin(p));
+x = (4+rr.*cos(t)).*cos(p);
+y = (4+rr.*cos(t)).*sin(p);
+z = rr.*sin(t);
+plot(x,y,z,f)
+axis tight, axis image
+view(-28,31)
+disp(integral3(f.*abs(jacobian(x,y,z))))
+```
+
+```text
+   0.613434123007071
+```
+
+![ChangeVar3D figure 05](../../images/approx3/ChangeVar3D_05.png)
+
+Here is the other region.
+
+```matlab
+rr = r.*(1+0.9*sin(10*p));
+x = (4+rr.*cos(t)).*cos(p);
+y = (4+rr.*cos(t)).*sin(p);
+z = rr.*sin(t);
+```
+
+In this case we compute the volume of the region using triple integrals.
+
+```matlab
+plot(x,y,z,f)
+axis tight, axis image
+view(-29,60)
+
+disp(integral3(abs(jacobian(x,y,z))))
+```
+
+```text
+   0.613434123007071
+```
+
+![ChangeVar3D figure 06](../../images/approx3/ChangeVar3D_06.png)
+
+---
+
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

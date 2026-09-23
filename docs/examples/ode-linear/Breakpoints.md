@@ -1,148 +1,259 @@
-# Introducing breakpoints speeds up difficult calculations
+# Inserting breakpoints to resolve layers
 
-*Nick Trefethen, November 2016*
+*Nick Trefethen, January 2016*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-linear/Breakpoints.html)
 
-(Chebfun example ode-linear/Breakpoints.m)
+Python translation: [`examples/ode-linear/breakpoints.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-linear/breakpoints.py)
 
-When a solution has a layer at a known location, placing a domain
-breakpoint there lets the piecewise discretization stack resolution
-exactly where it is needed. Consider first
+## 1. Boundary layer example
 
-$$ -\epsilon u'' - u' = 1, \qquad u(0) = u(1) = 0, $$
+By default, Chebfun solves BVPs with global grids -- Chebyshev collocation spectral methods -- and this generally works well even for problems with rapidly varying solutions. Trouble appears, however, when the variations are *very* rapid. For example, following the example `ode-linear/BoundaryLayer`, here are solutions to the linear advection-diffusion equation $$ -\varepsilon u'' - u' = 1,\qquad u(0) = u(1) = 0 , $$ with $\varepsilon = 10^{-1}, 10^{-2},\dots, 10^{-5}$.
 
-on the plain domain $[0,1]$ — lengths grow fast as
-$\epsilon \to 0$:
-
-```text
-        ep      pos(max(u))    length(u)    time (secs.) 
-     1.0e-01    0.230263049        32          33.70
-     1.0e-02    0.046051702        57          21.01
-     1.0e-03    0.006907755       256          23.30
-     1.0e-04    0.000921035       512          29.76
-     1.0e-05    0.000115147      2048         109.83
+```matlab
+MS = 'markersize';
+dom = [0,1];
+L = @(ep) chebop(@(x,u) -ep*diff(u,2) - diff(u),dom,'dirichlet');
+headings = '        ep      pos(max(u))    length(u)    time (secs.) ';
+disp(headings)
+fs = '%12.1e %14.9f %9d %14.2f\n';
+for ep = 10.^(-1:-1:-5)
+  tic, u = L(ep)\1; t = toc;
+  [val,pos] = max(u);
+  fprintf(fs, ep, pos, length(u), t)
+  plot(u,'b'), hold on
+end
+grid on, axis([-0.03 1 0 1.03]), hold off
+title('Boundary layers for \epsilon = 1e-1, 1e-2,..., 1e-5')
 ```
 
-The `pos(max(u))` column matches the published values digit for digit.
-The lengths do not, and the reason is worth stating rather than
-glossing: MATLAB reports 23, 59, 170, 488, 1495 here. Four of our five
-are exact powers of two, and `simplify()` cuts nothing from them, which
-means the Chebyshev coefficients have not decayed at the point our
-adaptive solve stops — the solution is accepted before it is *happy*,
-so the reported length is just the collocation size. MATLAB refines
-until the tail decays. This is an open gap in the adaptive BVP loop,
-distinct from the three arithmetic length bugs fixed for
-[Logistic](../ode-nonlin/Logistic.md); the timings are our own.
-
-![Breakpoints figure 1](../../images/ode-linear/Breakpoints_repl_01.png)
-
-With a breakpoint moving with the layer, `domain = [0, min(0.5, 40ε), 1]`,
-the lengths stay small all the way to $\epsilon = 10^{-8}$:
-
 ```text
-        ep      pos(max(u))    length(u)    time (secs.) 
-     1.0e-01    0.230263049        37           4.88
-     1.0e-02    0.046051702        45           8.33
-     1.0e-03    0.006907755        44           4.11
-     1.0e-04    0.000921034        43           3.37
-     1.0e-05    0.000115129        45           2.33
-     1.0e-06    0.000013816        43           2.40
-     1.0e-07    0.000001612       106           2.50
-     1.0e-08    0.000000184       107           2.58
+        ep      pos(max(u))    length(u)    time (secs.)
+     1.0e-01    0.230263049        32          13.34
+     1.0e-02    0.046051702        57           8.97
+     1.0e-03    0.006907755       256           4.86
+     1.0e-04    0.000921035       512           5.45
+     1.0e-05    0.000115147      2048          11.48
 ```
 
-![Breakpoints figure 2](../../images/ode-linear/Breakpoints_repl_02.png)
+![Breakpoints figure 01](../../images/ode-linear/Breakpoints_01.png)
 
-The $\epsilon = 10^{-3}$ solution is just 44 points in two pieces:
+The lengths and timings are excellent for the first three values of $\varepsilon$ and not so bad for $\varepsilon = 10^{-4}$, but for $\varepsilon = 10^{-5}$, we need a grid with thousands of points and the method cannot be regarded as satisfactory. (This boundary layer is of width $O(\varepsilon)$, but because of the quadratic clustering of Chebyshev grids at boundaries, the length of the chebfuns only grows like $O(\varepsilon^{-1/2})$.)
 
-```text
-u =
-   chebfun column (2 smooth pieces)
-       interval       length     endpoint values  
-[       0,    0.04]       42    -3e-13     0.96 
-[    0.04,       1]        2      0.96  1.1e-16 
-vertical scale = 0.99    Total length = 44
+There is a standard method used in scientific computing for such problems, adaptive grid refinement, but Chebfun does not have such a capability. For many problems, however, it is remarkable what one can achieve by a method we might regard as "poor man's grid refinement": simply add a Chebfun breakpoint or two near the region of rapid change. To make this happen, it is enough to define the domain of the chebop by a vector of three or more points in order, i.e., the endpoints of an interval plus one or more points in the interior. For example, one might pass to the chebop constructor the domain vector `dom = [0 0.01 1]` rather than simply `dom = [0 1]`.
+
+If an ODE BVP is solved on a domain with breakpoints, separate Chebyshev grids are used on subintervals, and that may provide a more efficient representation of the solution, which will then be a chebfun with several pieces, i.e., several "funs". For a discussion of some of the mathematics, see [1].
+
+This is a non-adaptive, a priori approach. It cannot cope with a full range of problems, but it can do very well with many of them. For example, here is the same problem as before with a single breakpoint introduced at $x_b = 40\varepsilon$. Just one curve is plotted, the one with $\varepsilon = 10^{-3}$.
+
+```matlab
+dom = @(ep) [0 min(0.5,40*ep) 1];
+L = @(ep) chebop(@(x,u) -ep*diff(u,2) - diff(u),dom(ep),'dirichlet');
+disp(headings)
+for ep = 10.^(-1:-1:-8)
+  tic, u = L(ep)\1; t = toc;
+  fprintf(fs, ep, pos, length(u), t)
+  [val,pos] = max(u);
+  if ep == 1e-3
+    plot(u,'b'), hold on
+    breakpoint = u.ends(2);
+    plot(breakpoint,u(breakpoint),'.r',MS,16)
+  end
+end
+grid on, axis([-0.03 1 0 1.03]), hold off
+title('The same computed with a breakpoint, \epsilon = 1e-3')
 ```
 
-The same story for a problem with *interior* layers,
-$\epsilon u'' + xu' + xu = 0$ on $[-2,2]$ with $u(-2)=-4$, $u(2)=2$:
-
 ```text
-        ep      pos(max(u))    length(u)    time (secs.) 
-     1.0e-01    0.456331114        64           7.88
-     1.0e-02    0.188033044       152           6.30
-     1.0e-03    0.073657588       512           4.40
-     1.0e-04    0.027481095      1364          13.90
+        ep      pos(max(u))    length(u)    time (secs.)
+     1.0e-01    0.230263049        37           0.80
+     1.0e-02    0.046051702        45           0.98
+     1.0e-03    0.006907755        43           0.77
+     1.0e-04    0.000921034        44           0.78
+     1.0e-05    0.000115129        45           0.75
+     1.0e-06    0.000013816        43           0.75
+     1.0e-07    0.000001612        45           0.74
+     1.0e-08    0.000000184       106           0.77
 ```
 
-![Breakpoints figure 3](../../images/ode-linear/Breakpoints_repl_03.png)
+![Breakpoints figure 02](../../images/ode-linear/Breakpoints_02.png)
 
-With two breakpoints at $\pm\min(0.5, 10\sqrt\epsilon)$:
+Quite an amazing improvement! Notice that the breakpoint at $x_b = 40 \varepsilon$ is well out of the boundary layer. The reason for this choice is that the purpose of the breakpoint is not to optimize the representation of $u$ within the small region $[0, x_b]$, where a reasonable number of gridpoints will be required in any case, but rather to ensure that $u$ has no significant structure on a small length scale in the big interval $[x_b,1]$. In fact, the second piece of each chebfun constructed above, the representation of $u$ on $[x_b ,1]$, is just of length 2, i.e., a linear polynomial:
 
-```text
-        ep      pos(max(u))    length(u)    time (secs.) 
-     1.0e-01    0.456331114        84           4.66
-     1.0e-02    0.188033044       131           1.20
-     1.0e-03    0.073657588       152           6.11
-     1.0e-04    0.027481095       183           5.49
-     1.0e-05    0.009892469       218           5.70
-     1.0e-06    0.003473237       258           5.70
-     1.0e-07    0.001198204       153           5.51
-     1.0e-08    0.000408122       213           5.51
+```matlab
+u
 ```
-
-![Breakpoints figure 4](../../images/ode-linear/Breakpoints_repl_04.png)
-
-## A nonlinear problem
-
-Breakpoints help nonlinear problems too. The shock problem
-$0.005u'' + uu' - u = 0$ with $u(0) = -7/6$, $u(1) = 3/2$ on the
-plain domain fails to resolve (an unhappy 2048-point representation):
-
-```text
-u =
-   chebfun column (1 smooth piece)
-       interval       length     endpoint values  
-[       0,       1]     2048      -1.2      1.5 
-vertical scale = 1.3e+05 
-```
-
-![Breakpoints figure 5](../../images/ode-linear/Breakpoints_repl_05.png)
-
-One breakpoint at $x = 1/3$ (where the corner sits) and the Newton
-iteration converges cleanly — the interface value $-2\times10^{-14}$
-matches the published $-3.8\times10^{-9}$ corner at zero:
 
 ```text
 u =
    chebfun column (2 smooth pieces)
-       interval       length     endpoint values  
-[       0,    0.33]      106      -1.2   -2e-14 
-[    0.33,       1]      151  -2.4e-14      1.5 
-vertical scale = 1.5    Total length = 257
+       interval       length     endpoint values
+[       0,    0.04]       41   1.1e-13     0.96
+[    0.04,       1]        2      0.96 -5.6e-17
+vertical scale = 0.99    Total length = 43
 ```
 
-(Published lengths 96 + 131.)
+## 2. Interior layer example
 
-![Breakpoints figure 6](../../images/ode-linear/Breakpoints_repl_06.png)
+As our second example, we consider a linear problem with an interior layer: $$ \varepsilon u'' + xu' + xu = 0, \quad x \in [-2,2], ~ y(-2) = -4, y(2) = 2 . $$ This has an interior layer of width $O(\sqrt{\varepsilon}\kern 1pt)$ at $x=0$, which we can expect to challenge Chebfun as much as in the previous example, since the layer is thicker but the grid is no longer clustered. An experiment confirms this prediction:
 
-Two breakpoints bracketing the corner work as well:
+```matlab
+dom = [-2,2];
+L = @(ep) chebop(@(x,u) ep*diff(u,2)+x*diff(u)+x*u,dom,-4,2);
+disp(headings)
+for ep = 10.^(-1:-1:-4)
+  tic, u = L(ep)\0; t = toc;
+  [val,pos] = max(u);
+  fprintf(fs, ep, pos, length(u), t)
+  plot(u,'m'), hold on
+end
+grid on, axis([-2 2 -6 17]), hold off
+title('Interior layers for \epsilon = 1e-1, 1e-2,..., 1e-4')
+```
+
+```text
+        ep      pos(max(u))    length(u)    time (secs.)
+     1.0e-01    0.456331114        64           7.35
+     1.0e-02    0.188033044       157           3.84
+     1.0e-03    0.073657588       512           2.49
+     1.0e-04    0.027481095      1397           5.48
+```
+
+![Breakpoints figure 03](../../images/ode-linear/Breakpoints_03.png)
+
+Inserting breakpoints on either side of $x=0$ improves matters greatly. Again we plot just one of the curves, the one with $\varepsilon = 10^{-4}$.
+
+```matlab
+dom = @(ep) [-2 -min(.5,10*sqrt(ep)) min(.5,10*sqrt(ep)) 2];
+L = @(ep) chebop(@(x,u) ep*diff(u,2)+x*diff(u)+x*u,dom(ep),-4,2);
+disp(headings)
+for ep = 10.^(-1:-1:-8)
+  tic, u = L(ep)\0; t = toc;
+  [val,pos] = max(u);
+  fprintf(fs, ep, pos, length(u), t)
+  if ep == 1e-4
+    plot(u,'m'), hold on
+    breakpoints = u.ends(2:3);
+    plot(breakpoints,u(breakpoints),'.k',MS,16)
+  end
+end
+grid on, axis([-2 2 -6 17]), hold off
+title('The same computed with two breakpoints \epsilon = 1e-4')
+```
+
+```text
+        ep      pos(max(u))    length(u)    time (secs.)
+     1.0e-01    0.456331114        84           1.93
+     1.0e-02    0.188033044       129           0.66
+     1.0e-03    0.073657588       153           1.63
+     1.0e-04    0.027481095       187           1.91
+     1.0e-05    0.009892469       222           1.72
+     1.0e-06    0.003473237       272           1.74
+     1.0e-07    0.001198204       151           1.64
+     1.0e-08    0.000408122       213           1.66
+```
+
+![Breakpoints figure 04](../../images/ode-linear/Breakpoints_04.png)
+
+Here we see the sizes of the three pieces:
+
+```matlab
+u
+```
 
 ```text
 u =
    chebfun column (3 smooth pieces)
-       interval       length     endpoint values  
-[       0,     0.3]       30      -1.2    -0.79 
-[     0.3,    0.36]      128     -0.79      0.5 
-[    0.36,       1]      128       0.5      1.5 
-vertical scale = 1.5    Total length = 286
+       interval       length     endpoint values
+[      -2,    -0.1]       43        -4     -0.6
+[    -0.1,     0.1]       88      -0.6       13
+[     0.1,       2]       56        13        2
+vertical scale =  14    Total length = 187
 ```
 
-![Breakpoints figure 7](../../images/ode-linear/Breakpoints_repl_07.png)
+## 3. A nonlinear example
+
+"Poor man's mesh refinement" is not restricted to linear problems. For a nonlinear problem with an interior layer, one may not know the location of an interior layer a priori, but an approximation may be enough for the method to work. For example, here is a nonlinear problem with an interior layer adapted from one of the chebgui demos: $$ 0.005u'' + uu' = u, \quad u(0) = -7/6, ~ u(1) = 3/2. $$ A global solution succeeds, but very slowly, for big matrices are involved:
+
+```matlab
+N = chebop(@(u) 0.005*diff(u,2) + u*diff(u) - u, [0 1]);
+N.lbc = -7/6; N.rbc = 3/2;
+tic, u = N\0, t = toc;
+plot(u), grid on
+title(['Nonlinear problem: time ' num2str(t) ' secs'])
+```
+
+```text
+u =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[       0,       1]      872      -1.2      1.5
+vertical scale = 1.5
+t =
+   31.270156
+```
+
+![Breakpoints figure 05](../../images/ode-linear/Breakpoints_05.png)
+
+The transition occurs at about $x=1/3$, and if we put a single breakpoint there, the computations becomes five times faster.
+
+```matlab
+N = chebop(@(u) 0.005*diff(u,2) + u*diff(u) - u, [0 1/3 1]);
+N.lbc = -7/6; N.rbc = 3/2;
+tic, u = N\0, t = toc
+plot(u), grid on
+title(['Same but with one breakpoint: time ' num2str(t) ' secs'])
+breakpoint = u.ends(2); hold on
+plot(breakpoint,u(breakpoint),'.r',MS,16), hold off
+```
+
+```text
+u =
+   chebfun column (2 smooth pieces)
+       interval       length     endpoint values
+[       0,    0.33]      106      -1.2  2.2e-14
+[    0.33,       1]      149   1.5e-14      1.5
+vertical scale = 1.5    Total length = 255
+t =
+   64.874777
+```
+
+![Breakpoints figure 06](../../images/ode-linear/Breakpoints_06.png)
+
+Note that the matrix size is now a good smaller, which is the main reason for the speedup.
+
+With two breakpoints, for this particular example, not much changes.
+
+```matlab
+N = chebop(@(u) 0.005*diff(u,2) + u*diff(u) - u, [0 .30 .36 1]);
+N.lbc = -7/6; N.rbc = 3/2;
+tic, u = N\0, t = toc
+plot(u), grid on
+title(['Same but with two breakpoints: time ' num2str(t) ' secs'])
+breakpoints = u.ends(2:3); hold on
+plot(breakpoints,u(breakpoints),'.r',MS,16), hold off
+```
+
+```text
+u =
+   chebfun column (3 smooth pieces)
+       interval       length     endpoint values
+[       0,     0.3]       38      -1.2    -0.79
+[     0.3,    0.36]       38     -0.79      0.5
+[    0.36,       1]      128       0.5      1.5
+vertical scale = 1.5    Total length = 204
+t =
+   73.240461
+```
+
+![Breakpoints figure 07](../../images/ode-linear/Breakpoints_07.png)
+
+As the illustrations of this Example probably make clear, inserting breakpoints is bit of an art, and some experimentation is generally worthwhile.
+
+## 4. Reference
+
+[1] T. A. Driscoll and J. A. C. Weideman, Optimal domain splitting for interpolation by Chebyshev polynomials, *SIAM J. Numer. Anal.* 52 (2014), 1913-1927.
 
 ---
 
-*Replica script: [`examples/ode-linear/breakpoints_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-linear/breakpoints_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

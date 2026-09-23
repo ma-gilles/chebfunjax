@@ -1,14 +1,20 @@
 # Low-rank compression of square and round pegs
 
+*Nick Trefethen, June 2016*
+
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx2/Pegs.html)
 
-(Chebfun example approx2/Pegs.m — Nick Trefethen, June 2016)
+Python translation: [`examples/approx2/pegs.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx2/pegs.py)
 
-A companion to [Low-rank approximation and alignment with
-axes](Alignment.md), looking at three functions from `cheb.gallery2`.
+## 1. Three example functions
 
-The "tilted peg" — a smoothed characteristic function of a tilted
-square — has rank 100 (matching MATLAB exactly):
+A recent example called "Low-rank approximation and alignment with axes" explored the phenomenon that the alignment of a function $f(x,y)$ with the $x$ and $y$ axes may greatly affect the rank of its representation in Chebfun2. Here we look at three more examples from `cheb.gallery2`.
+
+Here's the "tilted peg" example.
+
+```matlab
+[f,fa] = cheb.gallery2('tiltedpeg'); fa
+```
 
 ```text
 fa =
@@ -16,9 +22,26 @@ fa =
 rank 100
 ```
 
-![Pegs figure 1](../../images/approx2/Pegs_repl_01.png)
+A plot shows this this is a somewhat smoothed version of the characteristic function of a tilted square:
 
-If the peg is aligned with the axes it is separable, hence rank 1:
+```matlab
+levels = .1:.2:.9;
+contourf(f,levels), axis equal
+set(gca,'xtick',-1:1,'ytick',-1:1)
+FS = 'fontsize';
+text(-.9,.8,['rank ' int2str(rank(f))],FS,18)
+```
+
+![Pegs figure 01](../../images/approx2/Pegs_01.png)
+
+If the peg is aligned with the axes it is a separable function, hence of rank 1:
+
+```matlab
+[f,fa] = cheb.gallery2('squarepeg'); fa
+contourf(f,levels), axis equal
+set(gca,'xtick',-1:1,'ytick',-1:1)
+text(-.9,.8,['rank ' int2str(rank(f))],FS,18)
+```
 
 ```text
 fa =
@@ -26,36 +49,42 @@ fa =
 rank 1
 ```
 
-![Pegs figure 2](../../images/approx2/Pegs_repl_02.png)
+![Pegs figure 02](../../images/approx2/Pegs_02.png)
 
-A round peg has an in-between rank (MATLAB computes 45; our
-constructor 48 — the last few pivots at machine tolerance are
-chop-sensitive):
+A round peg has an in-between rank:
+
+```matlab
+[f,fa] = cheb.gallery2('roundpeg'); fa
+contourf(f,levels), axis equal
+set(gca,'xtick',-1:1,'ytick',-1:1)
+text(-.9,.8,['rank ' int2str(rank(f))],FS,18)
+```
 
 ```text
 fa =
     @(x,y)1./(1+((2*x).^2+(2*y).^2).^10)
-rank 48
+rank 45
 ```
 
-![Pegs figure 3](../../images/approx2/Pegs_repl_03.png)
+![Pegs figure 03](../../images/approx2/Pegs_03.png)
 
-As the original discusses, these functions are motivated by the
-rational filter $b(z) = 1/(1+z^n)$ of Austin, Kravanja & Trefethen;
-in the Diskfun gallery the situation reverses (the round peg has
-rank 1 there, and translation rather than tilting matters).
+## 2. Discussion
 
-## References
+The functions shown here were motivated by the rational filter function $b(z) = 1/(1+z^n)$ for a single complex variable discussed in [1] and illustrated in Figure 1.2 of that paper. The label $b$ marks the link of this function to the Butterworth filter of electrical engineering.
 
-1. A. P. Austin, P. Kravanja, and L. N. Trefethen, Numerical
-   algorithms based on analytic function values at roots of unity,
-   _SIAM J. Numer. Anal._ 52 (2014), 1795-1821.
+Analogous examples to those shown here are in the Diskfun gallery collection. There, the round peg has rank 1 whereas the square peg does not. Tilting does not matter. Translation does matter, however: if a round peg is moved away from the origin, its rank goes up.
 
-2. L. N. Trefethen, Cubature, approximation, and isotropy in the
-   hypercube, _SIAM Review_, 39 (2017), 469-491.
+For a general discussion of issues of grid alignment and rank-compression, see [4], where references can be found to more technical works in this area by many authors.
+
+When one considers examples like those shown here it is natural to wonder, couldn't Chebfun2 take advantage of these effects to represent functions more efficiently? The tilted peg, in particular, cries out for some kind of tilted representation. Our current view of this matter is that it is hard to achieve such an effect for general-purpose computation with functions as in Chebfun2. In higher dimensions, on the other hand, the potential gains becomes more crucial, and there is certainly interest in many corners of science, engineering, and data science in representations that exploit special structure of functions in a more targeted way. For two very different examples with this flavour, see [2] and [3].
+
+## 3. References
+
+1. A. P. Austin, P. Kravanja, and L. N. Trefethen, Numerical algorithms based on analytic function values at roots of unity, *SIAM J. Numer. Anal.* 52 (2014), 1795-1821.
+2. P. G. Constantine, *Active Subspaces: Emerging Ideas for Dimension Reduction in Parameter Studies,* SIAM, 2015.
+3. F. J. Herrmann and G. Hennenfent, Non-parameter seismic data recovery with curvelet frames, *Geophysical Journal International*, 173 (2008), 233--248.
+4. L. N. Trefethen, Cubature, approximation, and isotropy in the hypercube, *SIAM Review*, 39 (2017), 469--491.
 
 ---
 
-*Replica script: [`examples/approx2/pegs_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx2/pegs_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

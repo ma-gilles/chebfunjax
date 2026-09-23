@@ -4,39 +4,57 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-random/Tunnelling.html)
 
-(Chebfun example ode-random/Tunnelling.m)
+Python translation: [`examples/ode-random/tunnelling.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-random/tunnelling.py)
 
-A bistable equation with additive smooth random noise,
+Here is a bistable equation with additive noise: $$ y' = y - y^3 + f, $$ where $f$ is a random term of fixed amplitude. There is an unstable fixed point of the deterministic part of the equation at $y=0$ and stable fixed points at $y = \pm 1$, which tend to attract solutions. The noise moves solutions around. Here for example are six trajectories.
 
-$$ y' = y - y^3 + f, \qquad y(0) = 0, \qquad
-f = 0.45\,\texttt{randnfun}(0.5, \texttt{'big'}), $$
+```matlab
+dom = [0 30]; N = chebop(dom); rng(4)
+N.lbc = 0; N.op = @(t,y) diff(y) - y + y^3;
+lambda = 0.5;
+for k = 1:6
+  f = 0.45*randnfun(lambda,dom,'big');
+  y = N\f; plot(y), hold on
+end
+xlabel('t'), ylabel('y'), hold off
+title('Bistability')
+ylim([-1.7 1.7]), grid on, drawnow
+```
 
-has stable fixed points at $y = \pm1$ that attract solutions while
-the noise moves them around. Six trajectories:
+```text
+six trajectories done
+long trajectory done
+done
+```
 
-![Tunnelling figure 1](../../images/ode-random/Tunnelling_repl_01.png)
+![Tunnelling figure 01](../../images/ode-random/Tunnelling_01.png)
 
-These fates are not permanent: with probability 1 a random
-fluctuation eventually switches the trajectory to the other state,
-infinitely often as $t \to \infty$. An illustrative trajectory on
-$[0, 800]$:
+With the choices of parameters we have just used, it is clear that there is a tendency for trajectories to settle down near $+1$ or $-1$. However, these fates are not permanent. Eventually a random fluctuation will switch the trajectory to the other state, and with probability 1, this will happen infinitely often as $t\to\infty$. Here is an illustrative trajectory over the interval $t\in [0,800]$.
 
-![Tunnelling figure 2](../../images/ode-random/Tunnelling_repl_02.png)
+```matlab
+dom = [0 800]; N.domain = dom;
+f = 0.45*randnfun(lambda,dom,'big');
+LW = 'linewidth';
+y = N\f; plot(y,LW,.5)
+xlabel('t'), ylabel('y')
+ylim([-1.7 1.7]), grid on
+title('Tunnelling')
+```
 
-Small differences in parameters have exponential effects on
-tunnelling rates. Rerunning the same noise sample scaled from $0.45$
-to $0.60$:
+![Tunnelling figure 02](../../images/ode-random/Tunnelling_02.png)
 
-![Tunnelling figure 3](../../images/ode-random/Tunnelling_repl_03.png)
+What we are seeing here is the tunnelling effect so famous in quantum mechanics, which is associated for example with the decay of radioactive atoms. Here as in that example, small differences in parameters can have exponential effects on tunnelling rates. If we move the stable states further apart, or equivalently reduce the noise amplitude, then the metastable state will survive much longer. Conversely if we move the stable states closer together, or equivalently increase the noise amplitude, then the metastable states will not survive as long. Here for example we rerun the last experiment but with the noise coefficient increased from $0.45$ to $0.60$.
 
-*(Sample paths use JAX keys — MATLAB's `rng(4)` stream is not
-reproducible. This pair illustrates the exponential sensitivity
-especially starkly: at amplitude 0.45 this particular sample never
-switches within $[0,800]$, while the identical path scaled to 0.60
-tunnels four times.)*
+```matlab
+f = (0.60/0.45)*f;
+y = N\f; plot(y,LW,.5)
+xlabel('t'), ylabel('y')
+ylim([-1.7 1.7]), grid on
+title('Larger noise means faster tunnelling')
+```
+
+![Tunnelling figure 03](../../images/ode-random/Tunnelling_03.png)
 
 ---
 
-*Replica script: [`examples/ode-random/tunnelling_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-random/tunnelling_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

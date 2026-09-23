@@ -4,70 +4,57 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/LebesgueConst.html)
 
-(Chebfun example approx/LebesgueConst.m)
+Python translation: [`examples/approx/lebesgue_const.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/lebesgue_const.py)
 
-Lebesgue constants are a standard notion of approximation theory.
-Suppose we have $n+1$ points $x_j$ in an interval $[a,b]$ with
-associated data values $f_j$ with $|f_j| \leq 1$, and we interpolate
-this data by a polynomial $p(x)$ of degree $n$.  What's the maximum
-possible value of $|p(x)|$ at each point $x$?  This function of $x$ is
-called the Lebesgue function for the given grid.  The Lebesgue constant
-is the maximum of $L(x)$ over the interval.  Equivalently, it is the
-$\infty$-norm of the linear operator mapping data to interpolant on the
-given grid and interval.
+Lebesgue constants are a standard notion of approximation theory. Suppose we have $n+1$ points $x_j$ in an interval $[a,b]$ with associated data values $f_j$ with $|f_j| \leq 1$, and we interpolate this data by a polynomial $p(x)$ of degree $n$. What's the maximum possible value of $|p(x)|$ at each point $x$? This function of $x$ is called the Lebesgue function for the given grid. The Lebesgue constant is the the maximum of $L(x)$ over the interval. Equivalently, it is the $\infty$-norm of the linear operator mapping data to interpolant on the given grid and interval.
 
-Chebfun has a command `lebesgue` for working with these notions.  For
-example, here are the Lebesgue functions and constants for 10 Chebyshev
-points and 10 equispaced points in $[-1,1]$:
+Chebfun has a command `lebesgue` for working with these notions. For example, here are the Lebesgue functions and constants for 10 Chebyshev points and 10 equispaced points in $[-1,1]$:
 
-```python
-import numpy as np
-from chebfunjax.utils.lebesgue import lebesgue_function, lebesgue_constant
-from chebfunjax.utils.quadrature import chebpts
-
-t, lam = lebesgue_function(np.asarray(chebpts(10)))
-Lambda = lebesgue_constant(np.asarray(chebpts(10)))   # 2.36
-Lambda_eq = lebesgue_constant(np.linspace(-1, 1, 10)) # 17.85
+```matlab
+FS = 'fontsize'; LW = 'linewidth';
+[Lfun,Lambda] = lebesgue(chebpts(10));
+subplot(2,1,1), plot(Lfun,LW,1.6), grid on
+title(sprintf('10 Chebyshev points    Lambda = %3.2f',Lambda),FS,14)
+[Lfun,Lambda] = lebesgue(linspace(-1,1,10));
+subplot(2,1,2), plot(Lfun,LW,1.6), grid on
+title(sprintf('10 equispaced points    Lambda = %4.2f',Lambda),FS,14)
 ```
 
-![LebesgueConst figure 1](../../images/approx/LebesgueConst_repl_01.png)
+![LebesgueConst figure 01](../../images/approx/LebesgueConst_01.png)
 
-If we increase 10 to 40, we need to switch to a semilogy plot to see
-the results:
+If we increase 10 to 40, we need to switch to a semilogy plot to see the results:
 
-![LebesgueConst figure 2](../../images/approx/LebesgueConst_repl_02.png)
-
-This picture confirms the well-known fact (the Runge phenomenon) that
-polynomial interpolation in equispaced points is terribly
-ill-conditioned.  In fact it is known that as $n$ increases to
-infinity, the Lebesgue constant for $n$ Chebyshev points is asymptotic
-to $(2/\pi)\log(n)$ whereas for $n$ equispaced points it is
-$2^n/(e\, n \log(n))$.
-
-Here are results for 10 and 30 random points in $[-1,1]$.  The reason
-for shrinking the number from 40 to 30 is that for larger values than
-this, difficulties arise caused by rounding errors since the Lebesgue
-function is bigger than the inverse of machine epsilon:
-
-```python
-rs = np.random.RandomState(5489)   # MATLAB rng(0) = MT default init 5489
-nodes10 = 2*rs.random_sample(10) - 1
-nodes30 = 2*rs.random_sample(30) - 1
+```matlab
+[Lfun,Lambda] = lebesgue(chebpts(40));
+subplot(2,1,1), semilogy(Lfun,LW,1.6), grid on
+title(sprintf('40 Chebyshev points    Lambda = %3.2f',Lambda),FS,14)
+[Lfun,Lambda] = lebesgue(linspace(-1,1,40));
+subplot(2,1,2), semilogy(Lfun,LW,1.6), grid on
+title(sprintf('40 equispaced points    Lambda = %5.2e',Lambda),FS,14)
 ```
 
-![LebesgueConst figure 3](../../images/approx/LebesgueConst_repl_03.png)
+![LebesgueConst figure 02](../../images/approx/LebesgueConst_02.png)
 
-(All four deterministic constants match the published figure titles —
-2.36, 17.85, 3.29, 2.42e+09 — and with the bit-identical MATLAB random
-stream the random-node constants reproduce as well: 3.03e+04 and
-1.00e+09.)
+This picture confirms the well-known fact (the Runge phenomenon) that polynomial interpolation in equispaced points is terribly ill-conditioned. In fact it is known that as $n$ increases to infinity, the Lebesgue constant for $n$ Chebyshev points is asymptotic to $(2/\pi)\log(n)$ whereas for $n$ equispaced points it is $2^n/(e n \log(n))$.
+
+Here are results for 10 and 30 random points in $[-1,1]$. The reason for shrinking the number from 40 to 30 is that for larger values than this, difficulties arise caused by rounding errors since the Lebesgue function is bigger than the inverse of machine epsilon.
+
+```matlab
+rng('default'), rng(0)
+[Lfun,Lambda] = lebesgue(2*rand(10,1)-1);
+subplot(2,1,1), semilogy(Lfun,LW,1.6), grid on
+title(sprintf('10 random points    Lambda = %5.2e',Lambda),FS,14)
+[Lfun,Lambda] = lebesgue(2*rand(30,1)-1);
+subplot(2,1,2), semilogy(Lfun,LW,1.6), grid on
+title(sprintf('30 random points    Lambda = %5.2e',Lambda),FS,14)
+```
+
+![LebesgueConst figure 03](../../images/approx/LebesgueConst_03.png)
 
 ## References
 
-1. L. N. Trefethen, _Approximation Theory and Approximation Practice_,
-   SIAM, 2013.
+1. L. N. Trefethen, *Approximation Theory and Approximation Practice*, SIAM, 2013.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

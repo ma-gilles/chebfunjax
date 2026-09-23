@@ -1,49 +1,100 @@
 # Crouzeix's conjecture
 
-*Nick Trefethen, August 2017*
+*Nick Trefethen and Michael Overton, October 2013*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/linalg/Crouzeix.html)
 
-(Chebfun example linalg/Crouzeix.m)
+Python translation: [`examples/linalg/crouzeix.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/linalg/crouzeix.py)
 
-Crouzeix's conjecture asserts that for any matrix $A$ and polynomial
-$p$,
+```matlab
+function Crouzeix
+```
 
-$$ \|p(A)\| \le 2 \max_{z \in W(A)} |p(z)|, $$
+Crouzeix's conjecture is a fascinating open problem in matrix theory, which bounds the size of a function of a matrix, $p(A)$. See [1].
 
-where $W(A)$ is the field of values.  (Crouzeix and Palencia proved
-the bound with constant $1+\sqrt{2}$.)  Here is the field of values
-and spectrum of a rotated Grcar matrix:
+Let $p$ be an analytic function, and in fact, it is enough to suppose $p$ is a polynomial. Let $A$ be a square matrix, and let $|\cdot|$ be the 2-norm on matrices. Crouzeix's conjecture is the inequality $$ |p(A)| \le 2|p|_{W(A)} $$ where $ |p(A)|_{W(A)} $ denotes the maximum of $|p(z)|$ where $z$ ranges over the *field of values* (or *numerical range*) of $A$. $W(A)$ is defined as the set of Rayleigh quotients associated with $A$, and there is a Chebfun command `fov` to compute it. This is a nonempty, bounded, convex set in the complex plane that contains the eigenvalues of $A$. For more about $W(A)$, see the Chebfun Example [linalg/FieldOfValues](FieldOfValues.md).
 
-![Crouzeix figure 1](../../images/linalg/Crouzeix_repl_01.png)
+For example, here are the eigenvalues and field of values of the "Grcar matrix" of dimension $30$, rotated (for no particular reason) by multiplication by $\exp(1.4i)$.
 
-The *Crouzeix ratio* $\|p(A)\| / \max_{W(A)}|p|$ is computed with a
-chebfun of the boundary curve.  For the 2x2 Jordan block with
-$p(z) = z$, the ratio achieves the conjectured bound exactly:
+```matlab
+A = exp(1.4i)*gallery('grcar',30);
+plot(eig(A),'.k','markersize',16)
+hold on, plot(fov(A),'m','linewidth',1.6)
+hold off, axis equal, axis off
+```
+
+![Crouzeix figure 01](../../images/linalg/Crouzeix_01.png)
+
+Intriguingly, the inequality of Crouzeix's conjecture has been established with a weaker constant [2]: $$ |p(A)| \le 11.08 |p|_{W(A)}. $$ Thus the challenge is to improve $11.08$ to $2$. This is the best possible constant, as we shall see in a moment.
+
+It is known that Crouzeix's inequality holds in all kinds of special cases, including if $A$ has dimension $2$, if $A^2=0$, if $A^3=0$ and $d=3$ (Crouzeix 2012), if $W(A)$ is a disk (Badea 2004 based on work of von Neumann 1951 and Okubo and Ando 1975), if $p(z)=z^n$ (Berger 1965) and 1967, Pearcy 1966). or if $A$ is normal (in which case the constant $2$ can be improved to $1$ and the inequality is an equality). The case of matrices of dimension $3$ is open but has been explored so thoroughly numerically that if Crouzeix's conjecture is false, it is highly likely that the first counterexample is of dimension $4$ or higher.
+
+Given a matrix $A$ and a polynomial $p$, let $c(A,p)$ be the "Crouzeix ratio" $|p(A)|/|p|_{W(A)}$. We can compute this in a single line of Chebfun!
+
+```matlab
+c = @(A,a) norm(polyvalm(a, A)) / norm(polyvalc(a, fov(A)), inf);
+```
+
+Here $a$ is a vector of coefficients of $p$, ordered from highest to lowest degree in Matlab's usual fashion, and polyvalc is a function that evaluates a polynomial of a chebfun. (We should probably replace this with an overload of polyval for chebfuns.)
+
+```matlab
+function pf = polyvalc(a,f)  % evaluate polynomial of chebfun f
+    pf = a(end)*f.^0;
+    for k = 1:length(a)-1
+        pf = pf + a(end-k)*f.^k;
+    end
+end
+```
+
+For example, here is an example that shows that the constant $2$ is best possible, namely $p(A) = A$ where $A$ is a Jordan block of dimension 2:
+
+```matlab
+A = [0 1 ; 0 0];
+a = [1 0];
+c(A,a)
+```
 
 ```text
 ans =
    2.000000000000000
 ```
 
-For a random matrix and random quartic (our own `randn` draw;
-MATLAB's gives 1.1918 — both comfortably below 2):
+Here is a random matrix of dimension 20 with a random polynomial of degree 4:
+
+```matlab
+rng('default'), A = randn(20)/sqrt(20);
+a = randn(5, 1);
+c(A,a)
+```
 
 ```text
 ans =
    0.975514906758401
 ```
 
-And for a *normal* matrix the ratio is exactly 1:
+Here is the same polynomial with the matrix B defined as a diagonal matrix, hence normal, with the same eigenvalues as A. In this case the Crouzeix ratio must be $1$.
+
+```matlab
+B = diag(eig(A));
+c(B,a)
+```
 
 ```text
 ans =
    1.000000000000000
 ```
 
-(The first and third values are digit-for-digit with MATLAB.)
+We have done experiments with an optimization code to try to find counterexamples to Crouzeix conjecture for matrices of various dimensions, and so far, we have found no counterexamples.
+
+```matlab
+end
+```
+
+## References
+
+1. M. Crouzeix, Bounds for analytical functions of matrices, *Integral Equations and Operator Theory*, 48 (2004), 461-477.
+2. M. Crouzeix, Numerical range and functional calculus in Hilbert space, *Journal of Functional Analysis*, 244 (2007), 668-690.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

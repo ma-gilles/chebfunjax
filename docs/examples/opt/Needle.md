@@ -1,42 +1,119 @@
-# The lowest position of a resting needle
+# Needle on a corrugated surface
 
-*Nick Trefethen, October 2012*
+*Nick Trefethen and Hrothgar, December 2013*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/opt/Needle.html)
 
-(Chebfun example opt/Needle.m)
+Python translation: [`examples/opt/needle.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/opt/needle.py)
 
-A needle of length 1 rests on the bumpy landscape
-$h(s) = 0.1s^2 + 0.1\sin 6s + 0.03\sin 12s$.  For a horizontal
-position $x$ and inclination $\theta$, the resting height is the
-maximum of $h$ minus the needle line over the needle's span:
-
-![Needle figure 1](../../images/opt/Needle_repl_01.png)
-
-![Needle figure 2](../../images/opt/Needle_repl_02.png)
-
-The resting-height landscape over $(x, \theta)$ — a nonsmooth
-surface, since the supporting contact point jumps:
-
-![Needle figure 3](../../images/opt/Needle_repl_03.png)
-
-![Needle figure 4](../../images/opt/Needle_repl_04.png)
-
-Nelder-Mead polish from the promising corner gives the needle's
-lowest resting position:
-
-```text
-yval =
-   0.076897720345079
+```matlab
+function needle()
 ```
 
-(MATLAB: 0.076897745875264 — the objective is nonsmooth at the
-optimum where the needle switches support points, and the two
-simplex searches settle 2.6e-8 apart.)
+The final problem for Oxford's Numerical Analysis Problem Solving Squad this year was the following: A needle of length $1$ rests on a surface defined by the height function $$ h(x) = 0.1 x^2 + 0.1\sin(6x) + 0.03\sin(12x). $$ What is the lowest possible height of the centre of the needle?
 
-![Needle figure 5](../../images/opt/Needle_repl_05.png)
+Let's begin with a picture:
+
+```matlab
+LW = 'linewidth'; FS = 'fontsize'; MS = 'markersize';
+s = chebfun('s',[-4 4]);
+h = .1*s.^2 + .1*sin(6*s)+.03*sin(12*s);
+close all, plot(h,LW,1), axis equal, axis([-4 4 -.4 2])
+```
+
+![Needle figure 01](../../images/opt/Needle_01.png)
+
+We see immediately that the optimal position of the center of the needle, call it $x$, will lie in $[-2,2]$. Actually it's pretty clear it will lie in $[-1,1]$.
+
+This is obviously an optimization problem, but exactly how should we formulate it? One interpretation is that it is a problem of *semiinfinite programming*, because it mixes an objective function to minimize with a continuum of constraints. Presumably there are methods that could be used to solve it in this framework.
+
+Here in the Oxford Numerical Analysis Group, when we hear the word "continuum", we think Chebfun. Suppose we specify two variables: $x$, the horizontal position of the center of the needle, and $\theta$, its angle counterclockwise from the horizontal. Given $x$ and $\theta$, we then ask how low the needle can lie. Let
+
+$$ y(x,\theta) $$
+
+be its minimal height, given that it does not cut below the surface. Then $y(x,\theta)$ is just a maximum of a continuous function over an interval, which we can compute with Chebfun like this:
+
+```matlab
+function y = minfun(x,theta)
+r = .5*cos(theta); hx = h{x-r,x+r};
+needle = chebfun(@(s) tan(theta)*(s-x),[x-r x+r]);
+y = max(hx - needle);
+end
+```
+
+And here is a function for plotting a particular configuration:
+
+```matlab
+function plotneedle(x,theta)
+y = minfun(x,theta);
+r = .5*cos(theta); hx = h{x-r,x+r};
+needle = chebfun(@(s) y+tan(theta)*(s-x),[x-r x+r]);
+hold off, plot(h,'b',needle,'k',LW,1)
+axis equal, axis([-4 4 -.4 2])
+end
+```
+
+For example, here are needle positions for $(x,\theta) = (-.6, -.2)$ and $(x,\theta) = (1.7, 1)$.
+
+```matlab
+subplot(2,1,1)
+plotneedle(-0.6,-0.2), title('needle with (x,theta) = (-0.6, -0.2)',FS,14)
+subplot(2,1,2)
+plotneedle(1.7,1), title('needle with (x,theta) = (1.7, 1)',FS,14)
+```
+
+![Needle figure 02](../../images/opt/Needle_02.png)
+
+Now we just have to minimize over $x$ and $\theta$. Let's first do that over a wide range.
+
+```matlab
+npts = 25;
+tic, x = linspace(-2,2,npts); theta = linspace(-1.5,1.5,npts);
+[xx,thth] = meshgrid(x,theta); yy = 0*xx;
+for k = 1:length(x)
+  for j = 1:length(theta)
+    yy(j,k) = minfun(xx(j,k), thth(j,k));
+  end
+end
+xxp = linspace(-2,2,100); ttp = linspace(-1.5,1.5,100)';
+yyp = interp2(xx,thth,yy,xxp,ttp,'cubic');
+close, contour(xxp,ttp,yyp,80), grid on, xlabel('x',FS,14), ylabel('theta',FS,14)
+colorbar, title(['min value on grid: ' num2str(min(yy(:)))],FS,14), toc
+```
+
+```text
+Elapsed time is 0.175286 seconds.
+```
+
+![Needle figure 03](../../images/opt/Needle_03.png)
+
+In this picture we see that there are two promising regions: one with $(x,\theta) \approx (-.5, -.4)$, and one with $(x,\theta) \approx (.5, -.2)$. The central white regions have an interesting interpretation: if the needle is balanced on top of a mountain, then moving it left or right, or tilting it, doesn't have much effect.
+
+Zooming in confirms this picture:
+
+```matlab
+tic, x = linspace(-0.8,0.6,npts); theta = linspace(-0.5,0,npts);
+[xx,thth] = meshgrid(x,theta); yy = 0*xx;
+for k = 1:length(x)
+  for j = 1:length(theta)
+    yy(j,k) = minfun(xx(j,k), thth(j,k));
+  end
+end
+xxp = linspace(-0.8,0.6,100); ttp = linspace(-0.5,0,100)';
+yyp = interp2(xx,thth,yy,xxp,ttp,'cubic');
+levels = 0.06:.003:0.12;
+close, contour(xxp,ttp,yyp,levels), grid on, xlabel('x',FS,14), ylabel('theta',FS,14)
+title(['min value on grid: ' num2str(min(min(yy)))],FS,14), toc
+```
+
+```text
+Elapsed time is 0.175286 seconds.
+```
+
+![Needle figure 04](../../images/opt/Needle_04.png)
+
+The winner seems to be the region on the right. From here the right thing to do is call a bivariate optimization routine. In basic MATLAB the simplest one is the direct search code . This requires the input to be a single vector, so we'll need a wrapper: function y = minfunwrapper(xvec) y = minfun(xvec(1), xvec(2)); end Here goes. opts = optimset('tolx',1e-14,'display','off'); guess = [.41, -0.2]; tic, [xvec,yval] = fminsearch(@minfunwrapper,guess,opts); toc Elapsed time is 8.119365 seconds. So it would seem that to 10 digits or more, the minimal height is around yval yval = 0.076897745875264 Here is a closeup of the solution: plotneedle(xvec(1),xvec(2)), hold on axis equal, axis([-2 2 -.4 1.2]) plot(xvec(1),yval,'.k',MS,12), grid on ![Needle figure 05](../../images/opt/Needle_05.png) end © Copyright 2025 the University of Oxford and the Chebfun Developers.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

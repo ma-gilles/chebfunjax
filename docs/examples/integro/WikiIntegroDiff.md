@@ -4,43 +4,76 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/integro/WikiIntegroDiff.html)
 
-(Chebfun example integro/WikiIntegroDiff.m)
+Python translation: [`examples/integro/wiki_integro_diff.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/integro/wiki_integro_diff.py)
 
-Here, we solve a first order linear integro-differential equation
-considered in the Wikipedia article [1]:
+Here, we solve a first order linear integro-differential equation considered in the Wikipedia article [1]:
 
-$$ u'(x) + 2u(x) + 5\int_0^x u(t)\,dt = 1~(x\ge 0), \qquad = 0~(x<0) $$
+$$ u'(x) + 2u(x) + 5\int_0^x u(t) dt = 1~ (x\ge 0), ~~ = 0~ (x<0) $$
 
-with $u(0)=0$. The problem has a single Dirichlet boundary condition at
-$x=0$, and the operator is defined using Chebfun's overloaded `diff` and
-`cumsum` commands:
+with $u(0)=0$.
 
-```python
-N = Chebop(lambda x, u: u.diff() + 2*u + 5*u.cumsum(), domain=(0, 5))
-N.lbc = 0
-u = N.solve(1.0)
+Begin by defining the domain $d$, chebfun variable $x$ and operator $N$.
+
+```matlab
+d = [0 5];
+x = chebfun('x',d);
+N = chebop(d);
 ```
 
-The analytic solution is $u(x) = \frac{1}{2}e^{-x}\sin(2x)$. How close is
-the computed solution to the true solution?
+The problem has a single Dirichlet boundary condition at $x=0$.
+
+```matlab
+N.lbc = 0;
+```
+
+Define the operator using Chebfun's overloaded `diff` and `cumsum` commands.
+
+```matlab
+N.op = @(u) diff(u) + 2*u + 5*cumsum(u);
+```
+
+Set the right-hand side of the integro-differential equation.
+
+```matlab
+rhs = 1;
+```
+
+Solve the IDE using backslash.
+
+```matlab
+u = N\rhs;
+```
+
+Here is the analytic solution:
+
+```matlab
+u_exact = 0.5*exp(-x)*sin(2*x);
+```
+
+How close is the computed solution to the true solution?
+
+```matlab
+accuracy = norm(u-u_exact)
+```
 
 ```text
 accuracy =
-     3.244328780466792e-16
+     3.827463008856287e-16
 ```
 
-(The published page shows `2.655275752894818e-16`; both are eps-level
-norms of the same quantity, differing only in the last-digit rounding of
-the linear-algebra path.)
+Plot the computed solution
 
-![WikiIntegroDiff figure 1](../../images/integro/WikiIntegroDiff_repl_01.png)
+```matlab
+plot(u), grid on
+title('Solution of integro-differential equation')
+```
+
+![WikiIntegroDiff figure 01](../../images/integro/WikiIntegroDiff_01.png)
 
 ## References
 
-1. http://en.wikipedia.org/wiki/Integro-differential_equation
+1. [http://en.wikipedia.org/wiki/Integro-differential_equation](http://en.wikipedia.org/wiki/Integro-differential_equation)
 
 ---
 
-*Replica script: [`examples/integro/wiki_integro_diff_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/integro/wiki_integro_diff_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

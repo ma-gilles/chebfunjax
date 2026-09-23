@@ -1,67 +1,68 @@
 # An Allen-Cahn equation with continuation
 
+*Nick Trefethen, November 2010*
+
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-nonlin/AllenCahn.html)
 
-(Chebfun example ode-nonlin/AllenCahn.m)
+Python translation: [`examples/ode-nonlin/allen_cahn.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/allen_cahn.py)
 
-The steady Allen-Cahn problem
+The Allen-Cahn equation is a reaction-diffusion that arises in material science:
 
-$$ \varepsilon u'' + u - u^3 = \sin(x), \qquad u(0) = 1, \; u(10) = -1 $$
+$$ u_{tt} = \varepsilon u'' +u-u^3, $$
 
-develops interior layers of width $O(\sqrt{\varepsilon})$ as
-$\varepsilon \to 0$. Solving directly at small $\varepsilon$ is hard;
-the classical remedy is *continuation* — solve at $\varepsilon = 2$,
-then walk $\varepsilon$ down through
-$1, 0.5, 0.2, 0.1, 0.03, 0.01, 0.003$, each solve starting from the
-previous solution:
+where $\varepsilon$ is a small parameter. Here as an ODE boundary-value problem we shall consider a steady-state version of this problem on the interval $[0,10]$ with a sinusoidal forcing term:
 
-```python
-N = Chebop(lambda u: eps*u.diff(2) + u - u**3, (0, 10), 1, -1)
-u = N.solve(f)                     # eps = 2, from the default guess
-for eps in (1, .5, .2, .1, .03, .01, .003):
-    N = Chebop(lambda u, _e=eps: _e*u.diff(2) + u - u**3, (0, 10), 1, -1)
-    N.init = u                     # continuation
-    u = N.solve(f)
+$$ \varepsilon u'' + u - u^3 = \sin(x),\qquad u(0) = 1,~~ u(10) = -1. $$
+
+If we try a very small value of $\varepsilon$ without a well-chosen initial guess, Chebfun will not converge. Instead let's begin by solving the problem with the rather large value $\varepsilon = 2$.
+
+```matlab
+Eps = 2;
+dom = [0, 10];
+x = chebfun('x', dom);
+f = sin(x);
+cheboppref.setDefaults('plotting', 0.01)
+N = chebop(@(u) Eps*diff(u,2) + u - u.^3,dom, 1, -1);
+tic, u = N\f; t = toc;
+
+LW = 'linewidth'; lw = 1.6; FS = 'fontsize'; fs = 14;
+close, plot(u,LW,lw)
+s = 'Eps = %5.1e    length(u) = %d    time = %3.1f secs';
+title(sprintf(s,Eps,length(u),t),FS,fs)
 ```
 
-![AllenCahn figure 1](../../images/ode-nonlin/AllenCahn_repl_01.png)
-![AllenCahn figure 2](../../images/ode-nonlin/AllenCahn_repl_02.png)
-![AllenCahn figure 3](../../images/ode-nonlin/AllenCahn_repl_03.png)
-![AllenCahn figure 4](../../images/ode-nonlin/AllenCahn_repl_04.png)
-![AllenCahn figure 5](../../images/ode-nonlin/AllenCahn_repl_05.png)
-![AllenCahn figure 6](../../images/ode-nonlin/AllenCahn_repl_06.png)
-![AllenCahn figure 7](../../images/ode-nonlin/AllenCahn_repl_07.png)
-![AllenCahn figure 8](../../images/ode-nonlin/AllenCahn_repl_08.png)
+![AllenCahn figure 01](../../images/ode-nonlin/AllenCahn_01.png)
 
-The lengths grow as the layers sharpen — 80, 109, 149, 217, 294, 491,
-819, 1418 — the expected $O(\varepsilon^{-1/2})$ pattern (MATLAB's
-figure titles show the same growth, e.g. 421 at
-$\varepsilon = 3\times 10^{-2}$ against our 491).
+We now progressively reduce $\varepsilon$ to get sharper and sharper solutions. We use a simple continuation method, in which the initial guess for each iteration is the previous solution. For each value of $\varepsilon$, the solution for the previous value of $\varepsilon$ is a good initial guess of the new solution, so we can turn off damping for the Newton iteration:
 
-At $\varepsilon = 0.003$ the residual of our solution is
-$4.2\times 10^{-8}$ with both boundary conditions exact. The interfaces
-at $x \approx 0.1, 3.1, 6.2$ match the published figure; near the right
-boundary the two computations part company — ours carries a full
-interface pair near $x \approx 9.2$ where MATLAB's solution has only a
-sub-critical bump. Both are genuine steady states: at small
-$\varepsilon$ this equation has many, and which one a Newton
-continuation lands on depends on the details of the iteration, as with
-the branch selection in [Carrier](Carrier.md).
+```matlab
+cheboppref.setDefaults('damping', 0)
+Epsvec = [1 .5 .2 .1 .03 .01 .003];
+for j = 1:length(Epsvec)
+  close all
+  Eps = Epsvec(j);
+  N = chebop(@(u) Eps*diff(u,2)+u-u.^3,dom,1,-1);
+  N.init = u;
+  tic, u = N\f; t = toc;
+  close, plot(u,LW,lw)
+  title(sprintf(s,Eps,length(u),t),FS,fs), snapnow
+end
+```
 
-> **Implementation note.** This page initially produced garbage —
-> length stuck at 32, amplitude $\sim 400$, residual $1.05$ — and the
-> cause was the arity trap found on
-> [BlowupFK](BlowupFK.md), still open in *nine more places*: the
-> continuation loop's `lambda u, _e=eps:` was miscounted as a
-> two-argument `op(x, u)` by, among others, the operator-order sniffer
-> and the automatic-differentiation linearization, so the Jacobian was
-> built with the unknown and the captured constant swapped. Arity
-> detection is now centralized in one helper that counts only required
-> positional parameters, and every consumer in the library routes
-> through it.
+![AllenCahn figure 02](../../images/ode-nonlin/AllenCahn_02.png)
+
+![AllenCahn figure 03](../../images/ode-nonlin/AllenCahn_03.png)
+
+![AllenCahn figure 04](../../images/ode-nonlin/AllenCahn_04.png)
+
+![AllenCahn figure 05](../../images/ode-nonlin/AllenCahn_05.png)
+
+![AllenCahn figure 06](../../images/ode-nonlin/AllenCahn_06.png)
+
+![AllenCahn figure 07](../../images/ode-nonlin/AllenCahn_07.png)
+
+![AllenCahn figure 08](../../images/ode-nonlin/AllenCahn_08.png)
 
 ---
 
-*Replica script: [`examples/ode-nonlin/allen_cahn_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/allen_cahn_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

@@ -1,103 +1,107 @@
-# Low-Rank Representation of Wagon's Function
+# Low-rank representation of Wagon's function
 
 *Behnam Hashemi, July 2016*
 
-*Original: [Low-rank representation of Wagon's function — Chebfun](https://www.chebfun.org/examples/approx3/Wagon.html)*
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx3/Wagon.html)
 
----
+Python translation: [`examples/approx3/Wagon.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx3/Wagon.py)
 
-## Wagon's Function
+Stan Wagon [1] suggested the problem of finding the global minimum of the following 3D function
 
-Stan Wagon [1] suggested the problem of finding the global minimum of the
-three-dimensional function
-
-$$f(x,y,z) = e^{\sin(50x)} + \sin(60e^y)\sin(60z)
-+ \sin(70\sin x)\cos(10z) + \sin(\sin(80y))
-- \sin(10(x+z)) + \tfrac{x^2+y^2+z^2}{4}.$$
-
-Despite its apparent complexity, this function has a surprisingly low
-Tucker rank:
-
-```python
-import jax.numpy as jnp
-from chebfunjax.chebfun3d.chebfun3 import chebfun3
-
-f = chebfun3(lambda x, y, z:
-    jnp.exp(jnp.sin(50*x))
-    + jnp.sin(60*jnp.exp(y)) * jnp.sin(60*z)
-    + jnp.sin(70*jnp.sin(x)) * jnp.cos(10*z)
-    + jnp.sin(jnp.sin(80*y))
-    - jnp.sin(10*(x+z))
-    + (x**2 + y**2 + z**2) / 4
-)
-print(f.rank)  # (4, 3, 5)
+```matlab
+ff = @(x,y,z) exp(sin(50*x)) + sin(60*exp(y)).*sin(60*z) + ...
+    sin(70*sin(x)).*cos(10*z) + sin(sin(80*y)) - sin(10*(x+z)) ...
+    +(x.^2+y.^2+z.^2)/4;
+f = chebfun3(ff)
 ```
 
-The Tucker rank $(4, 3, 5)$ is tiny: we need only 4 column fibers,
-3 row fibers, and 5 tube fibers to represent $f$ to machine precision.
-
-## Global Minimum
-
-Wagon's function achieves its global minimum around $f \approx -2.72$:
-
-```python
-import numpy as np
-
-n_grid = 50
-xs = np.linspace(-1, 1, n_grid)
-XX, YY, ZZ = np.meshgrid(xs, xs, xs, indexing="ij")
-vals = np.array(f(XX, YY, ZZ))
-idx = np.unravel_index(np.argmin(vals), vals.shape)
-x0, y0, z0 = xs[idx[0]], xs[idx[1]], xs[idx[2]]
-print(f"min ≈ f({x0:.3f}, {y0:.3f}, {z0:.3f}) = {vals[idx]:.6f}")
+```text
+f =
+   chebfun3 object
+   cols: Inf x 4 chebfun
+   rows: Inf x 3 chebfun
+  tubes: Inf x 5 chebfun
+   core: 4 x 3 x 5
+ length: 705, 1025, 129
+ domain: [-1, 1] x [-1, 1] x [-1, 1]
+ vertical scale = 6.9
 ```
 
-```
-min ≈ f(-0.388, 0.061, -0.020) = -2.722852
-```
+An alternative way of constucting $f$ is to call f = cheb.gallery3('wagon'). The minimization problem is easy to solve in Chebfun3 [2].
 
-## Tucker Factor Fibers
-
-The Tucker representation exposes the underlying structure.
-The **columns** $f_1(x), \ldots, f_4(x)$ are the $x$-direction fibers,
-each a smooth univariate function requiring hundreds of Chebyshev coefficients:
-
-```python
-import jax.numpy as jnp
-t_ref = jnp.linspace(-1, 1, 200)
-for i, col in enumerate(f.cols):
-    n_coeffs = len(col.coeffs)
-    print(f"col[{i}]: {n_coeffs} Chebyshev coefficients")
+```matlab
+tic, min3_f = min3(f), toc
 ```
 
-```
-col[0]: 705 Chebyshev coefficients
-col[1]: 705 Chebyshev coefficients
-col[2]: 705 Chebyshev coefficients
-col[3]: 705 Chebyshev coefficients
+```text
+min3_f =
+  -3.328338345663263
 ```
 
-This highlights an important distinction: the **rank** of a function
-can be small (4, 3, 5 here) while its **1D complexity** is high
-(each fiber needs ~705 Chebyshev terms).
+Here we are interested in the Tucker representation of this function. As we see in the above display, $f$ has numerical trilinear rank (4, 3, 5) which means that we need 4 columns, 3 rows and 5 tubes to represent it roughly to machine epsilon (the default value of chebfun3eps). We first plot the four columns:
 
-![Wagon's function Tucker factor fibers and coefficient decay](../../images/approx3/Wagon.png)
+```matlab
+x = chebfun('x'); one = 1 + 0*x;
+[r1, r2, r3] = rank(f);
+
+for j = 1:r1
+    plot3(j*one,x,f.cols(:,j),'linewidth',1.6), hold on
+end
+title('columns'), axis tight, box on, view([-26 44]), hold off
+```
+
+![Wagon figure 01](../../images/approx3/Wagon_01.png)
+
+Here is a plot of its three rows:
+
+```matlab
+for j = 1:r2
+    plot3(j*one,x,f.rows(:,j),'linewidth',1.6), hold on
+end
+title('rows'), box on, view([-39 43]), hold off
+```
+
+![Wagon figure 02](../../images/approx3/Wagon_02.png)
+
+The five tubes of the function look like the following.
+
+```matlab
+for j = 1:r3
+    plot3(j*one,x,f.tubes(:,j),'linewidth',1.6), hold on
+end
+title('tubes'), axis tight, box on, view([-40 68])
+```
+
+![Wagon figure 03](../../images/approx3/Wagon_03.png)
+
+The last one is not actually close to a constant in a relative sense. Here are its values at $z=-1$ and $z = -0.2$.
+
+```matlab
+format short, f.tubes(-1, end), f.tubes(-0.2, end),
+```
+
+```text
+ans =
+    -43.1187
+ans =
+   69.7391
+```
+
+We should make two comments about these images. The first concerns the difference between the *ranks* of a multivariate function, which in this case are very small (just $4, 3, 5$), and the complexities of its univariate pieces, which in this case are *not* so small. The columns, rows, and tubes we have displayed require Chebyshev series of considerable length to be represented. For example, here are the absolute values of the coefficients of the the Chebyshev series for the first of the tubes:
+
+```matlab
+clf, plotcoeffs(f.tubes(:,1))
+```
+
+![Wagon figure 04](../../images/approx3/Wagon_04.png)
+
+What's going on here is that Wagon's function is of low rank for algebraic reasons, not because it is in every sense very simple. And this brings us to our second comment. If you draw plots like those we have shown here for an arbitrary function, you may find that they look very different and not very interesting -- most of the curves will seem to be zero. That's because for most functions, the mathematical rank is infinite and it's only the numerical rank which is finite. In such cases there will be a decaying series of "pivots" involved in the Chebfun3 representation. If you plot the associated columns/rows/tubes as we have done, you will find they are on all different scales going down to 1e-15. To get interesting plots you will have to rescale the curves individually.
 
 ## References
 
-1. F. Bornemann, D. Laurie, S. Wagon, and J. Waldvogel,
-   *The SIAM 100-Digit Challenge: a Study in High-Accuracy Numerical Computing*,
-   SIAM, 2004.
+1. F. Bornemann, D. Laurie, S. Wagon, and J. Waldvogel, *The SIAM 100-Digit Challenge: a Study in High-Accuracy Numerical Computing*, SIAM, 2004.
+2. B. Hashemi, L. N. Trefethen, Chebfun in three dimensions, submitted, 2016.
 
-2. B. Hashemi, L. N. Trefethen, Chebfun in three dimensions,
-   *SIAM J. Sci. Comput.* 39 (2017), C341–C363.
+---
 
-## Figures (chebfun.org parity)
-
-![Wagon figure 1](../../images/approx3/Wagon_01.png)
-
-![Wagon figure 2](../../images/approx3/Wagon_02.png)
-
-![Wagon figure 3](../../images/approx3/Wagon_03.png)
-
-![Wagon figure 4](../../images/approx3/Wagon_04.png)
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

@@ -1,86 +1,182 @@
-# Eight shades of rational approximation
+# Eight Shades of Rational Approximation
 
 *Mohsin Javed and Nick Trefethen, January 2016*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/EightShades.html)
 
-(Chebfun example approx/EightShades.m)
+Python translation: [`examples/approx/eight_shades.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/eight_shades.py)
 
 ## 1. Introduction
 
-Our aim is to give a broad view of some practical methods of
-approximation of functions on an interval.  In a word, the "eight
-shades" come about as follows: four types of approximation for
-nonperiodic functions (Chebyshev), and their analogues for periodic
-functions (trigonometric) — and each of these in polynomial and in
-rational form.  The four types are *interpolation* (minimal number of
-data points), *projection* (infinitely many data points), *minimax*
-(best supremum-norm), and *CF* (Caratheodory-Fejer near-best).
+This example is a work in progress, not yet complete.
+
+Our aim is to give a broad view of some practical methods of approximation of functions on an interval and of Chebfun's capabilities in these areas, not all of which are developed yet. As time goes by, this Example will probably evolve with new capabilities being described and new references given.
+
+In a word, the "eight shades" come about as follows. We will discuss four types of approximation for nonperiodic functions (Chebyshev), and then their analogues for periodic functions (trigonometric). Actually, each "four" is really a "four-and-a-half", since there is a least-squares option that inhabits the spectrum between the two extremes of interpolation (minimal number of data points) and projection (infinitely many data points).
+
+And if you like it's not just eight or ten shades but sixteen or twenty! -- because for clarity, we begin by describing the better-known and better-developed polynomial special cases, i.e., type $(m,n)$ rational approximations with $n=0$.
 
 ## 2. Polynomial approximation
 
-Here are the four polynomial approximants of degree $m=8$ to a Gaussian
-bump $f(x) = e^{-50(x-0.1)^2}$:
+If $f$ is a continuous function on $[-1,1]$, four interesting methods of approximation of $f$ by a degree $m$ polynomial are as follows. These approximants can all be computed in Chebfun, and the mathematics is presented in *Approximation Theory and Approximation Practice* (ATAP) [1].
 
-```python
-import jax.numpy as jnp
-import chebfunjax as cj
-from chebfunjax.utils.cfpade import cf
-from chebfunjax.utils.minimax import minimax
+*P1. Chebyshev interpolation* (`chebfun` with `m+1` specified, *ATAP* chap 4)
 
-fop = lambda x: jnp.exp(-50*(x - 0.1)**2)
-p1 = cj.chebfun(fop, n=9)                        # interpolation
-# p2: truncation of the Chebyshev series          projection
-p3 = minimax(fop, 8)                             # minimax
-p4 = cf(cj.chebfun(fop), 8)                      # CF
+*P2. Chebyshev projection* (`chebfun` with `'trunc'` option, *ATAP* chap 4)
+
+*P3. Minimax approximation* (`remez`, *ATAP* chap 10)
+
+*P4. CF approximation* (`cf`, *ATAP* chap 20)
+
+For example, here are degree 8 approximations of these kinds to $f(x) = \exp(-50(x-0.1)^2)$.
+
+```matlab
+f = chebfun(@(x) exp(-50*(x-.1).^2),'trig'); m = 8;
+FS = 'FontSize';
+p1 = chebfun(f,m+1); subplot(2,2,1), yl = [-.5 1.2];
+plot(f,'k',p1,'r'), ylim(yl), text(-.93,.9,'interpolation',FS,10)
+p2 = chebfun(f,'trunc',m+1); subplot(2,2,2)
+plot(f,'k',p2,'r'), ylim(yl), text(-.93,.9,'projection',FS,10)
+p3 = remez(f,m); subplot(2,2,3)
+plot(f,'k',p3,'r'), ylim(yl), text(-.93,.9,'minimax',FS,10)
+p4 = cf(f,m); subplot(2,2,4)
+plot(f,'k',p4,'r'), ylim(yl), text(-.93,.9,'CF',FS,10)
 ```
 
-![EightShades figure 1](../../images/approx/EightShades_repl_01.png)
+![EightShades figure 01](../../images/approx/EightShades_01.png)
 
-The CF approximation is extremely close to minimax:
+These curves show some properties that are typical of such approximations. One is that the differences between them are not very great. Another (for smooth functions $f$, at least) is that the minimax and CF approximations, though mathematically distinct, are for practical purposes indisinguishable. We can quantify this effect for the present example by measuring the maximal difference between the two:
 
+```matlab
+CFerror = norm(p3-p4,inf)
 ```
+
+```text
 CFerror =
-     1.140049701846557e-04
+     1.140049701848778e-04
 ```
 
-(Published: `1.140034870100448e-04` — agreeing to five significant
-digits.)
+Methods P1 and P2 represent two ends of a spectrum. In between, there is a method we could label P1.5:
 
-## 3. Trigonometric approximation
+*P1.5. Chebyshev least-squares* (`ratinterp`, *ATAP* chap 26)
 
-The same four shades in the periodic world, using trig interpolation,
-trig-series truncation, and `trigremez` (periodic CF is not available,
-as in the published example):
+The idea here is to determine a polynomial $p$ of the specified degree $m$ that is the least-squares approximation to $f$ on the $K$-point Chebyshev grid, where $K$ satisfies $m+1 \le K < \infty$. For $K=m+1$, this is the same as Chebyshev interpolation, and in the limit $K \to \infty$ the discrete least-squares problem becoming a continuous least-squares problem with the Chebyshev weight, i.e., Chebyshev projection. Chebfun has no special code for computing Chebyshev least-squares approximation polynomials; the code `ratinterp` and the *ATAP* chapter cited above both apply more generally to the rational case.
 
-![EightShades figure 2](../../images/approx/EightShades_repl_02.png)
+## 3. Trigonometric polynomial approximation
+
+The four methods of polynomial approximation have trigonometric analogues for periodic functions. Our favorite starting reference on this material is [2]. At present, Chebfun has a `trigremez` command for trigonometric minimax approximation, but not yet a `trigcf` command. A `triginterp` command for the least-squares case is under development but not yet in the development or master branches of Chebfun.
+
+*TP1. Trigonometric interpolation* (`chebfun` with `'trig'` specified, [2])
+
+*TP2. Trigonometric projection* (`chebfun` with `'trunc'` and `'trig'`, [2])
+
+*TP3. Minimax trigonometric approximation* (`trigremez`)
+
+*TP4. Fourier-CF approximation* (`trigcf`, not yet available)
+
+Again, TP1 and TP2 represent two ends of a spectrum:
+
+*TP1.5. Trigonometric least-squares* (`triginterp`, in a branch)
+
+```matlab
+clf
+t1 = chebfun(f,m+1,'trig'); subplot(2,2,1)
+plot(f,'k',t1,'b'), ylim(yl), text(-.93,.9,'interpolation',FS,10)
+t2 = chebfun(f,'trunc',m+1,'trig'); subplot(2,2,2)
+plot(f,'k',t2,'b'), ylim(yl), text(-.93,.9,'projection',FS,10)
+t3 = trigremez(f,m/2); subplot(2,2,3)
+plot(f,'k',t3,'b'), ylim(yl), text(-.93,.9,'minimax',FS,10)
+subplot(2,2,4)
+text(-.93,.9,'CF',FS,10)
+text(-.5,.2,'(not yet available)',FS,10), axis([-1 1 yl])
+set(gca,'xtick',[],'ytick',[])
+```
+
+```text
+
+```
+
+![EightShades figure 02](../../images/approx/EightShades_02.png)
 
 ## 4. Rational approximation
 
-Now the rational versions of type $(3,3)$: `ratinterp`
-(interpolation), `chebpade` (projection), rational `minimax`, and
-rational `cf`:
+Discussion to be added here.
 
-![EightShades figure 3](../../images/approx/EightShades_repl_03.png)
+*R1. Rational interpolation* (`ratinterp`, chap 27 of *ATAP*)
+
+*R2. Chebyshev-Pade approximation* (`chebpade`)
+
+*R3. Minimax rational approximation* (`remez`, chap 24 of *ATAP*)
+
+*R4. CF rational approximation* (`cf`, chap 20 of *ATAP*)
+
+and
+
+*R1.5. Rational least-squares* (`ratinterp`, chap 27 of *ATAP*)
+
+```matlab
+clf
+m = 3; n = 3;
+[p,q] = ratinterp(f,m,n); r1 = p./q; subplot(2,2,1), yl = [-.5 1.2];
+plot(f,'k',r1,'r'), ylim(yl), text(-.93,.9,'interpolation',FS,10)
+[p,q] = chebpade(f,m,n); r2 = p./q; subplot(2,2,2)
+plot(f,'k',r2,'r'), ylim(yl), text(-.93,.9,'projection',FS,10)
+[p,q] = remez(f,m,n); r3 = p./q; subplot(2,2,3)
+plot(f,'k',r3,'r'), ylim(yl), text(-.93,.9,'minimax',FS,10)
+[p,q] = cf(f,m,n); r4 = p./q; subplot(2,2,4)
+plot(f,'k',r4,'r'), ylim(yl), text(-.93,.9,'CF',FS,10)
+```
+
+```text
+
+```
+
+![EightShades figure 03](../../images/approx/EightShades_03.png)
 
 ## 5. Trigonometric rational approximation
 
-As in the published example, the periodic rational four are marked "not
-yet available" (chebfunjax does have `trigpade` and rational
-`trigremez` for other uses, but the example's taxonomy panels are kept
-faithful):
+Discussion to be added here.
 
-![EightShades figure 4](../../images/approx/EightShades_repl_04.png)
+*TR1. Trigonometric rational interpolation* (`triginterp`, in a branch)
 
-## References
+*TR2. Fourier-Pade approximation* (`trigpade`, in a branch)
 
-1. L. N. Trefethen, _Approximation Theory and Approximation Practice_,
-   SIAM, 2013.
+*TR3. Minimax trigonometric rational approx* (`trigremez`, not yet available)
 
-2. M. Javed, _Algorithms for Trigonometric Polynomial and Rational
-   Approximation_, DPhil thesis, University of Oxford, 2016.
+*TR4. Fourier-CF rational approximation* (`trigcf`, not yet available)
+
+and
+
+*TR1.5. Trigonometric rational least-squares* (`triginterp`, in a branch)
+
+```matlab
+clf
+subplot(2,2,1)
+text(-.93,.9,'interpolation',FS,10)
+text(-.5,.2,'(not yet available)',FS,10), axis([-1 1 yl])
+set(gca,'xtick',[],'ytick',[])
+subplot(2,2,2)
+text(-.93,.9,'projection',FS,10)
+text(-.5,.2,'(not yet available)',FS,10), axis([-1 1 yl])
+set(gca,'xtick',[],'ytick',[])
+subplot(2,2,3)
+text(-.93,.9,'minimax',FS,10)
+text(-.5,.2,'(not yet available)',FS,10), axis([-1 1 yl])
+set(gca,'xtick',[],'ytick',[])
+subplot(2,2,4)
+text(-.93,.9,'CF',FS,10)
+text(-.5,.2,'(not yet available)',FS,10), axis([-1 1 yl])
+set(gca,'xtick',[],'ytick',[])
+```
+
+![EightShades figure 04](../../images/approx/EightShades_04.png)
+
+## 6. References
+
+[1] L. N. Trefethen, *Approximation Theory and Approximation Practice*, SIAM, 2013.
+
+[2] G. B. Wright, M. Javed, H. Montanelli and L. N. Trefethen, Extension of Chebfun to periodic functions, *SIAM J. Sci. Comp.*, 2016.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

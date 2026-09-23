@@ -4,78 +4,73 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/Checkmark.html)
 
-(Chebfun example approx/Checkmark.m)
+Python translation: [`examples/approx/checkmark.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/checkmark.py)
 
-A paper has appeared as arXiv:2102.09502v1 by P. D. Dragnev, A. R.
-Legg, and R. Orive, called "On the best uniform polynomial
-approximation to the checkmark function."  The problem considered in
-this paper is degree $n$ best polynomial approximation of the function
-$f(x) = |x-\alpha|$ on $[-1,1]$.  The authors ask, how does the error
-$E_n(\alpha)$ depend on $\alpha$?
+A paper has appeared as arXiv:2102.09502v1 by P. D. Dragnev, A. R. Legg, and R. Orive, called "On the best uniform polynomial approximation to the checkmark function." The problem considered in this paper is degree $n$ best polynomial approximation of the function $f(x) = |x-\alpha|$ on $[-1,1]$. The authors ask, how does the error $E_n(\alpha)$ depend on $\alpha$?
 
-With Chebfun we can compute $E_n(\alpha)$ in a few lines of code.  We
-do this here for $n = 1, 2, \dots, 7$:
+With Chebfun we can compute $E_n(\alpha)$ in a few lines of code. We do this here for $n = 1, 2, \dots , 7$.
 
-```python
-import numpy as np
-import jax.numpy as jnp
-import chebfunjax as cj
-from chebfunjax.utils.minimax import minimax
-
-def e_of(a, n):
-    return minimax(lambda x: jnp.abs(x - a), n, breakpoints=[a]).err
-
-# E_n as a chebfun in alpha on [0,1], mirrored to [-1,1] by symmetry
+```matlab
+tic
+x = chebfun('x');
+f = @(a) abs(x-a);
+p = @(a,n) minimax(f(a),n);
+e = @(a,n) norm(p(a,n)-f(a),inf);
+chebfuneps 1e-6, splitting on
+E = [];
+for n = 1:7
+   en = chebfun(@(a) e(a,n),[0,1]);
+   en = newDomain(join(flipud(en),en),[-1 1]);
+   E = [E en];
+end
+chebfuneps factory, splitting off
 ```
 
-Here is a plot for $n = 2$ and $3$, which matches Figure 1 of the
-paper:
+Here is a plot for $n = 2$ and $3$, which matches Figure 1 of the paper.
 
-![Checkmark figure 1](../../images/approx/Checkmark_repl_01.png)
-
-As a numerical check, let us look at the breakpoints in the curve for
-$n=3$:
-
-```
-val =
-   0.000000000001291
-   0.076342252520879
-   0.076342252520879
-   0.000000000001291
-pos =
-  -1.000000000000000
-  -0.480475217254546
-  0.480475217254546
-  1.000000000000000
+```matlab
+red = [.9 0 0]; blue = [0 0 .9];
+ax = axes; ax.ColorOrder = [red; blue]; hold on
+plot(E(:,2:3)), grid on
+xlabel('\alpha'), ylabel('E_n(\alpha)')
+title('n = 2 and 3')
 ```
 
-The published MATLAB run prints local minima at $\pm 0.487848$ with
-value $0.0765831$, and then remarks: *"Higher precision calculation
-suggests that they lie near $\pm 0.4804754$ and with an error of about
-$0.0763434$."*  This replica computes exactly those high-precision
-values directly (the interior minimum is refined by scalar minimization
-of $E_3$; a linear-programming cross-check certifies
-$E_3(0.480475) \in [0.0763435, 0.0763456]$, confirming that the
-published coarse-tolerance figures — including MATLAB's slightly
-negative endpoint "minima" — are $10^{-4}$-level artifacts of the
-`chebfuneps 1e-6` construction).
+![Checkmark figure 01](../../images/approx/Checkmark_01.png)
 
-Here we plot all seven curves to match Figure 2 of Dragnev, et al.:
+As a numerical check, let us look at the breakpoints in the curve for $n=3$:
 
-![Checkmark figure 2](../../images/approx/Checkmark_repl_02.png)
+```matlab
+[val,pos] = min(E(:,3),'local')
+```
 
-Unfortunately, although all this is very compact and natural for
-Chebfun, it is quite slow, because of the need to sample a function
-that itself can only be evaluated slowly with the `minimax` command.
-This replica takes about 158 seconds (published: 122 seconds).
+```text
+(output not captured for this page yet)
+```
 
-## References
+Higher precision calculation suggests that they lie near $\pm 0.4804754$ and with an error of about $0.0763434$.
 
-1. P. D. Dragnev, A. R. Legg, and R. Orive, On the best uniform
-   polynomial approximation to the checkmark function,
-   arXiv:2102.09502.
+Here we plot all seven curves to match Figure 2 of Dragnev, et al.
+
+```matlab
+close, ax = axes; ax.ColorOrder = [blue; red]; hold on
+plot(E), grid on
+xlabel('\alpha'), ylabel('E_n(\alpha)')
+title('n = 1,2,...,7'), ylim([0 .5]), hold off
+```
+
+![Checkmark figure 02](../../images/approx/Checkmark_02.png)
+
+Unfortunately, although all this is very compact and natural for Chebfun, it is quite slow, because of the need to sample a function with "splitting on" that itself can only be evaluated slowly with the `minimax` command. This is why the Chebfun tolerance was loosened above to 1e-6. Here is the time required for this example:
+
+```matlab
+toc
+```
+
+```text
+(output not captured for this page yet)
+```
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

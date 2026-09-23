@@ -1,67 +1,155 @@
-# Computing complex roots with contour integrals
+# Roots of a complex function via Cauchy integrals
 
-*Nick Trefethen, December 2011*
+*Nick Trefethen, September 2011*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/roots/ComplexRoots.html)
 
-(Chebfun example roots/ComplexRoots.m)
+Python translation: [`examples/roots/complex_roots.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/roots/complex_roots.py)
 
-If $f$ is analytic in and near the unit disk, the number of its roots
-inside the disk and their locations can be computed from contour
-integrals over the unit circle, following Delves and Lyness (1967):
+```matlab
+function ComplexRoots
+```
 
-$$ s_k = \frac{1}{2\pi i}\oint z^k \frac{f'(z)}{f(z)}\,dz. $$
+Poles and zeros of complex functions can be located by the evaluation of contour integrals, as mentioned in [Chapter 5](https://www.chebfun.org/docs/guide/guide5.html) of the [Chebfun Guide](https://www.chebfun.org/docs/guide/). For example, suppose we have a function like this one with a single root $s_1$ in the unit disk:
 
-With `z = chebfun(exp(1i*pi*t))`, these integrals are one-liners.
-For $f(z) = (z - 0.5i)e^z$ the first moment recovers the root:
+```matlab
+ff = @(z) (z-0.5i).*exp(z);
+```
+
+We can find the root as the value of a contour integral around the unit circle: $$ s = \frac{1}{2i\pi} \int z \frac{f'(z)}{f(z)} dz. $$
+
+Since Chebfun works with real independent variables, we parametrize the unit circle by a real variable $t$ on $[-1,1]$:
+
+```matlab
+z = chebfun('exp(1i*pi*t)');
+```
+
+which gives us $$ s_1 = \frac{1}{2i\pi} \int z \frac{(df/dt)(dt/dz)}{f} \frac{dz}{dt} dt $$ $$ \phantom{s_1} = \frac{1}{2i\pi} \int z \frac{(df/dt)}{f} dt. $$
+
+So here is the Chebfun evaluation:
+
+```matlab
+f = ff(z);
+s1 = sum(z.*diff(f)./f)/(2i*pi)
+```
 
 ```text
 s1 =
- -0.000000000000000 + 0.499999999999999i
+ -0.000000000000001 + 0.499999999999999i
 ```
 
-For $f(z) = \cosh(\pi z)$, which has roots $\pm 0.5i$:
+There is nothing in this computation that depends on the use of the unit disk. Other contours are equally tracatable in Chebfun, as illustrated in the Example [complex/KeyholeContour](../complex/KeyholeContour.md) and in [Chapter 5](https://www.chebfun.org/docs/guide/guide5.html) of the Chebfun Guide.
+
+This method of finding a single root goes back at least to McCune in 1966 [4]. In practice we would often want to be able to find multiple roots, and a generalized algorithm for this case was published by Delves and Lyness in 1967 [2], with mathematical origins as far back as Jackson in 1917 [3]. For a discussion of all kinds of related algorithms, see [1]. The idea here is that if $f$ has more than one root in the unit disk, then the value $s$ above comes out as the sum of all these roots. Similarly
+
+$$ s_2 = \frac{1}{2i\pi} \int z^2 \frac{f'(z)}{f(z)} dz $$
+
+is the sum of the squares of the roots, the analogous formula for $s_3$ with a factor $z^3$ gives the sum of the cubes, and so on. And a count of the number of roots is given by
+
+$$ s_0 = \frac{1}{2i\pi} \int \frac{f'(z)}{f(z)} dz $$
+
+(this is basically the argument principle). So for example we can count the number of roots of $\cosh(\pi z)$ in the unit disk like this:
+
+```matlab
+ff = @(z) cosh(pi*z);
+f = ff(z);
+s0 = sum(diff(f)./f)/(2i*pi)
+```
 
 ```text
 s0 =
   2.000000000000000 - 0.000000000000000i
+```
+
+Here are the sum of the roots and the sum of their squares:
+
+```matlab
+s1 = sum(z.*diff(f)./f)/(2i*pi)
+s2 = sum(z.^2.*diff(f)./f)/(2i*pi)
+```
+
+```text
 s1 =
-      6.445011620003604e-16 + 2.580114553362148e-16i
+      5.067007036652413e-16 + 3.432133891937207e-16i
 s2 =
- -0.500000000000000 - 0.000000000000000i
+ -0.499999999999999 - 0.000000000000000i
+```
+
+corresponding to roots at $\pm 0.5i$. We can find these numbers systematically by noting that the monic polynomial $p(z)$ with these roots has coefficients $c_0 = (s_1^2-s_2)/2$, $c_1=-s_1$, $c_2=1$. So here is a calculation of the two roots in the unit disk of $\cosh(\pi z)$:
+
+```matlab
+p = [1 -s1 (s1^2-s2)/2];
+roots(p)
+```
+
+```text
 ans =
  0.000000000000000 + 0.500000000000000i
  0.000000000000000 - 0.500000000000000i
 ```
 
-Packaging the idea as a `roots3` function that constructs the cubic
-whose roots are the three roots inside the disk, applied to
-$f(z) = \cosh(e^z)(z-0.3)(1+4z^2)$:
+Generalization to higher numbers of roots can be done via Newton's identities. We don't pursue the general case here but instead write a code that finds three roots of an analytic function in the unit disk:
+
+```matlab
+function r = roots3(ff)    % find 3 roots of ff in unit disk
+z = chebfun('exp(1i*pi*t)');
+f = ff(z);
+s0 = sum(diff(f)./f)/(2i*pi);
+s1 = sum(z.*diff(f)./f)/(2i*pi);
+s2 = sum(z.^2.*diff(f)./f)/(2i*pi);
+s3 = sum(z.^3.*diff(f)./f)/(2i*pi);
+p = [1 -s1 (s1^2-s2)/2 -(s1^3-3*s1*s2+2*s3)/6];
+r = roots(p);
+end
+```
+
+Here is an example, this time with a phase portrait to visually verify the roots:
+
+```matlab
+ff = @(z) cosh(exp(z)).*(z-.3).*(1+4*z.^2);
+roots3(ff)
+plot(chebfun2(ff)), hold on
+plot(z, 'k-'), axis equal
+```
 
 ```text
 ans =
- -0.000000000000001 + 0.500000000000000i
- -0.000000000000000 - 0.500000000000001i
- 0.300000000000002 + 0.000000000000001i
+ -0.000000000000001 + 0.499999999999999i
+ 0.000000000000000 - 0.500000000000000i
+ 0.300000000000001 + 0.000000000000001i
 ```
 
-![ComplexRoots figure 1](../../images/roots/ComplexRoots_repl_01.png)
+![ComplexRoots figure 01](../../images/roots/ComplexRoots_01.png)
 
-And to $f(z) = (z^3 - 1/8)e^{(-1-2i)z}$, whose roots are the cube
-roots of $1/8$:
+Here is another:
+
+```matlab
+ff = @(z) (z.^3-1/8).*exp((-1-2i)*z);
+roots3(ff)
+plot(chebfun2(ff)), hold on
+plot(z, 'k-'), axis equal
+```
 
 ```text
 ans =
- -0.250000000000004 + 0.433012701892219i
- -0.249999999999999 - 0.433012701892220i
- 0.499999999999999 + 0.000000000000004i
+ -0.249999999999999 + 0.433012701892219i
+ -0.249999999999998 - 0.433012701892218i
+ 0.500000000000000 + 0.000000000000001i
 ```
 
-![ComplexRoots figure 2](../../images/roots/ComplexRoots_repl_02.png)
+![ComplexRoots figure 02](../../images/roots/ComplexRoots_02.png)
 
-(All values match the published MATLAB outputs to 14-15 digits.)
+```matlab
+end
+```
+
+## References
+
+1. A. P. Austin, P. Kravanja and L. N. Trefethen, Numerical algorithms based on analytic function values at roots of unity, SIAM Journal on Numerical Analysis, to appear.
+2. L. M. Delves and J. N. Lyness, A numerical method for lcoating the zeros of an analytic function, Mathematics of Computation 21 (1967), 543-560.
+3. D. Jackson, Roots and singular points of analytic functions, Annals of Matheamtics 19 (1917), 142-151.
+4. J. E. McCune, Exact inversion of dispersion relations, Physics of Fluids 9 (1966), 2082-2084.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

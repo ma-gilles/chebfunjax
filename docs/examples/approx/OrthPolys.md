@@ -4,70 +4,112 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/OrthPolys.html)
 
-(Chebfun example approx/OrthPolys.m)
+Python translation: [`examples/approx/orth_polys.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/orth_polys.py)
 
-*Orthogonal* polynomials are, as the name suggests, polynomials which
-are orthogonal to each other in some weighted $L^2$ inner product,
-i.e.,
-
-$$ \int_a^b w(x)P_j(x)P_k(x)\, dx = \langle P_j, P_k \rangle = 0 $$
-
-for all $j\ne k$.  If we normalise so that
-$\langle P_j, P_j \rangle = 1$, the polynomials are *orthonormal*.
-
-Chebfun has commands built-in for some of the standard orthogonal
-polynomials (`legpoly`, `chebpoly`, etc.), computed via recurrence
-relations.  However, sometimes we wish to construct orthogonal
-polynomials with non-standard weight functions, and orthogonalisation
-via the Gram-Schmidt (Stieltjes) process is one method of doing so.
-
-Here we construct the first six orthonormal polynomials for the weight
-$w = e^{\pi x}$ on $[-1,1]$:
-
-```python
-import numpy as np
-import jax.numpy as jnp
-import chebfunjax as cj
-
-def orth_poly(w, N):
-    x = cj.chebfun(lambda t: t)
-    P = [cj.chebfun(lambda t: 1.0/np.sqrt(float(w.sum())) + 0*t)]
-    for k in range(N):
-        pk1 = x * P[k]
-        for j in range(k + 1):
-            C = float((w * (x * P[k]) * P[j]).sum())
-            pk1 = pk1 - C * P[j]
-        P.append(pk1 * (1.0/np.sqrt(float((w * pk1**2).sum()))))
-    return P
-
-w = cj.chebfun(lambda t: jnp.exp(jnp.pi * t))
-P = orth_poly(w, 5)
+```matlab
+function OrthPolys
 ```
 
-![OrthPolys figure 1](../../images/approx/OrthPolys_repl_01.png)
+*Orthogonal* polynomials are, as the name suggests, polynomials which are orthogonal to each other in some weighted $L^2$ inner product, i.e.,
 
-We verify orthonormality by computing the Gram matrix:
+$$ \int_a^b |w(x)P_j(x)P_k(x) dx = \langle P_j, P_k \rangle = 0 $$
+
+for all $j\ne k$. If we normalise so that $\langle P_j, P_j \rangle = 1$, the polynomials are *orthonormal*.
+
+Chebfun has commands built-in for some of the standard orthogonal polynomials. Here is a table of the polynomial, the weight function, the standard domain $[a,b]$, and the Chebfun routine name.
 
 ```
+    Name       |      w(x)      |   domain   | Chebfun routine
+----------------------------------------------------------------
+   Legendre    |        1       |   [-1 1]   |  legpoly(N)
+Chebyshev(1st) |  1/sqrt(1-x^2) |   [-1 1]   |  chebcoeffs(N)
+Chebyshev(2nd) |   sqrt(1-x^2)  |   [-1 1]   |  chebcoeffs(N,2)
+   Laguerre    |     exp(-x)    |   [0 inf]  |  lagpoly(N)
+   Hermite     |    exp(-x^2)   | [-inf inf] |  hermpoly(N)
+```
+
+For each of these examples, there are readily derived recurrence relations which allow fast computation of the polynomials, and Chebfun exploits these. However, sometimes we wish to construct orthogonal polynomials with non-standard weight functions, and orthogonalisation via the Gram-Schmidt process is one method of doing so.
+
+The process (sometimes referred to as the *Stieltjes process*) iteratively constructs the next degree polynomial by removing the components in the directions of the previous ones. The formula is
+
+$$ P_{k+1} = x^{k+1}-\sum\langle x^{k+1},P_j\rangle/\langle P_j,P_j \rangle P_j. $$
+
+In practice one usually replaces $x^{k+1}$ by $x P_k(x)$ or the Chebyshev polynomial $T_{k+1}(x)$ to improve stability.
+
+The short code below demonstrates these ideas by computing the first $5$ orthonormal polynomials with respect to the weight function $w = e^{\pi x}$.
+
+```matlab
+x = chebfun('x',[-1 1]);
+w = exp(pi*x);
+N = 5;
+P = OrthPoly(w,N);
+
+    function P = OrthPoly(w,N)
+        if isnumeric(w), w = chebfun(w,[-1 1]); end
+        d = w.ends;                     % the domain
+        x = chebfun('x',d);             % linear chebfun
+        P = chebfun(1./sqrt(sum(w)),d); % the constant (normalised)
+        for k = 1:N;
+            xk = x.*P(:,k);
+            P(:,k+1) = xk;
+            for j = 1:k       % Subtract out the components
+                C = sum(w.*xk.*P(:,j));
+                P(:,k+1) = P(:,k+1) - C*P(:,j);
+            end
+            P(:,k+1) = P(:,k+1)./sqrt(sum(w.*P(:,k+1).^2)); % normalise
+        end
+    end
+```
+
+We can now plot these polynomials
+
+```matlab
+LW = 'linewidth'; lw = 1.6; FS = 'fontsize';
+plot(P,LW,lw)
+title('Orthogonal polynomials on [-1,1] wrt w = exp(pi*x)',FS,12);
+```
+
+![OrthPolys figure 01](../../images/approx/OrthPolys_01.png)
+
+and confirm that they are orthogonal
+
+```matlab
+W = repmat(w,1,N+1);
+I = P'*(W.*P);
+err = norm(I-eye(N+1))
+```
+
+```text
 err =
      2.220645841662927e-14
 ```
 
-(Published: `3.898e-14`.)
+One useful application of orthogonal polynomials is to find best polynomial approximations in weighted weighted $L^2$ inner-product space associated with $w(x)$, with
 
-One useful application of orthogonal polynomials is weighted
-least-squares approximation: expanding $|x|$ in the new basis gives the
-best approximation in the weighted $L^2$ norm, which is drawn toward
-the right of the interval where the weight $e^{\pi x}$ is large:
+$$ P^*_n = \sum \langle f, P_j \rangle P_j . $$
 
-```python
-f = cj.chebfun(lambda t: jnp.abs(t), domain=[-1.0, 0.0, 1.0])
-alpha = [float((w * p * f).sum()) for p in P]
+Here we do this with $w$ as above and approximate $f(x) = |x|$.
+
+```matlab
+f = abs(x);
+alpha = zeros(N+1,1);
+for k = 0:N
+    alpha(k+1) = sum(w.*P(:,k+1).*f);
+end
+P_star = P*alpha;
+
+plot(f,'b',P_star,'--r',LW,lw)
+title('Least-squares approximation to |x| wrt w = exp(pi*x)',FS,12);
 ```
 
-![OrthPolys figure 2](../../images/approx/OrthPolys_repl_02.png)
+![OrthPolys figure 02](../../images/approx/OrthPolys_02.png)
+
+Notice that the approximation is much closer for larger $x$, as $w(x) = \exp(\pi x)$ gives more weight to the error introduced there.
+
+```matlab
+end
+```
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

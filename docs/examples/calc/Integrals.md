@@ -1,78 +1,104 @@
 # Definite and indefinite integrals
 
-*Nick Trefethen*
+*Nick Trefethen, October 2012*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/calc/Integrals.html)
 
-(Chebfun example calc/Integrals.m)
+Python translation: [`examples/calc/integrals.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/calc/integrals.py)
 
-Here is a piecewise-constant function obtained by rounding
-$2\cos(x)$ on $[0, 10]$:
+Suppose we have a function, like this one:
 
-```python
-import jax.numpy as jnp
-import chebfunjax as cj
-
-f = cj.chebfun(lambda t: 2 * jnp.cos(t), domain=[0, 10]).round()
+```matlab
+x = chebfun('x',[0 10]);
+f = round(2*cos(x));
+plot(f), ylim(2.5*[-1 1])
 ```
 
-![](../../images/calc/Integrals_repl_01.png)
+![Integrals figure 01](../../images/calc/Integrals_01.png)
 
-Its definite integral over the whole interval, and over $[3, 4]$:
+The Chebfun command `sum` returns the definite integral over the prescribed interval, which is just a number:
 
-```python
-f.sum()
-f.restrict(3, 4).sum()
+```matlab
+format long, sum(f)
 ```
-```
+
+```text
 ans =
   -1.150444078461235
+```
+
+You can also calculate the definite interval over a subinterval by giving two additional arguments, like this:
+
+```matlab
+sum(f,3,4)
+```
+
+```text
 ans =
   -1.864326901403211
 ```
 
-The indefinite integral `g = cumsum(f)` satisfies
-$g(4) - g(3) = \int_3^4 f$:
+To compute an indefinite integral, use the Chebfun command `cumsum`. This returns a chebfun defined over the given interval:
 
-![](../../images/calc/Integrals_repl_02.png)
-
+```matlab
+g = cumsum(f);
+plot(g,'m')
 ```
+
+![Integrals figure 02](../../images/calc/Integrals_02.png)
+
+Thus another way to compute the integral over a subinterval would be to take the difference of two values of the cumsum:
+
+```matlab
+g(4) - g(3)
+```
+
+```text
 ans =
   -1.864326901403210
 ```
 
-The fundamental theorem of calculus: differentiating the indefinite
-integral recovers the function exactly,
+As always in calculus, when working with indefinite integrals you must be careful to remember the arbitrary constant that may be added. Thus for example, if you integrate $f$ and then differentiate it, you get $f$ back again:
 
-```python
-(g.diff() - f).norm()
+```matlab
+norm( diff(cumsum(f)) - f )
 ```
-```
+
+```text
 ans =
      0
 ```
 
-The reverse composition is subtler: `diff(f)` of a function with jumps
-produces Dirac deltas at the jump locations, and `cumsum` integrates
-them back into the jumps — but the constant $f(0)$ is lost:
+If you differentiate $f$ and then integrate it, on the other hand, you get something different:
 
-```python
-(f.diff().cumsum() - f).norm()
+```matlab
+norm( cumsum(diff(f)) - f )
 ```
-```
+
+```text
 ans =
    6.324555320336759
 ```
 
-![](../../images/calc/Integrals_repl_03.png)
+Plotting the two instantly alerts us that we forgot to add back in the value at the left endpoint, namely $f(0) = 2$:
 
-The missing piece is exactly $f(0) = 2$ (note
-$2\sqrt{10} = 6.3245\ldots$); adding it recovers $f$ exactly:
+```matlab
+plot(f,'b',cumsum(diff(f)),'r')
+```
 
-```python
-(f(0) + f.diff().cumsum() - f).norm()
+![Integrals figure 03](../../images/calc/Integrals_03.png)
+
+Sure enough, adding this number makes the two functions agree:
+
+```matlab
+norm( f(0)+cumsum(diff(f)) - f)
 ```
-```
+
+```text
 ans =
      0
 ```
+
+---
+
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

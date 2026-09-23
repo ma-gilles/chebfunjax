@@ -4,55 +4,78 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/pde/Kuramoto.html)
 
-(Chebfun Example pde/Kuramoto.m)
+Python translation: [`examples/pde/kuramoto.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/pde/kuramoto.py)
 
 ## 1. A symmetric solution
 
-The Kuramoto–Sivashinsky equation mixes nonlinear convection,
-fourth-order diffusion, and second-order *backward* diffusion,
+The Kuramoto-Sivashinsky equation mixes a nonlinear convective term, fourth-order diffusion, and second-order *backward* diffusion, $$ u_t = -({1\over 2}u^2)_x - u_{xx} - u_{xxxx}. $$ Its solutions have the remarkable property of being (provably) chaotic. For example, here is a calculation up to $t=100$ on $[-100,100]$ with an initial condition featuring two exponential bumps using `spin` [1]. At $t=100$, we see a waveform whose details are essentially random though the general picture is dominated by oscillations with a wavelength of about $9$.
 
-$$ u_t = -(\tfrac12 u^2)_x - u_{xx} - u_{xxxx}, $$
+```matlab
+tic, dom = [-100 100]; x = chebfun('x',dom); tspan = [0 100 200];
+S = spinop(dom,tspan);
+S.lin = @(u) - diff(u,2) - diff(u,4);
+S.nonlin = @(u) -.5*diff(u.^2); % spin cannot parse "u.*diff(u)"
+S.init = exp(-((x+50)/10).^2) + exp(-((x-50)/10).^2);
+tic, u = spin(S,800,.025,'plot','off'); t = toc;
+plot(S.init), hold on, plot(u{2}), ylim([-4 4]), hold off
+FS = 'fontsize'; text(42,3.4,'t=0 and t=100',FS,12)
+```
 
-and its solutions are provably chaotic. On $[-100,100]$ with two
-Gaussian bumps ($N = 800$, $\Delta t = 0.025$, spin/ETDRK4, no
-dealiasing):
+![Kuramoto figure 01](../../images/pde/Kuramoto_01.png)
 
-![Kuramoto figure 1](../../images/pde/Kuramoto_repl_01.png)
+At time $t=200$ it looks like this, different in detail, but qualitatively the same. The general shape will persist forever, with the details constantly changing.
 
-At $t = 100$ our waveform matches the published one
-**crest-for-crest** — on a chaotic PDE this only happens when the
-discrete trajectory is numerically identical to MATLAB's. The
-dominant wavelength is $2\sqrt2\,\pi \approx 8.89$, the most
-amplified mode of the linearization.
+```matlab
+plot(S.init), hold on, plot(u{3}), ylim([-4 4]), hold off
+text(42,3.4,'t=0 and t=200',FS,12)
+```
 
-At $t = 200$:
+![Kuramoto figure 02](../../images/pde/Kuramoto_02.png)
 
-![Kuramoto figure 2](../../images/pde/Kuramoto_repl_02.png)
-
-Here the details differ from the published figure while the
-qualitative picture is the same — precisely the example's own point
-("different in detail, but qualitatively the same"): by 8000 steps a
-chaotic flow amplifies last-bit rounding differences (BLAS summation
-order) to $O(1)$, so even two MATLAB builds would disagree in detail.
+By looking at the dispersion relation for the linear part of the equation, one can explain why the characteristic wavelength is about 9 [2]. In fact, the wave number $k$ most amplified by the linear terms in the equation is $k = 1/\sqrt 2$, which corresponds to a wavelength of $2\sqrt 2 \pi \approx 8.89$.
 
 ## 2. A nonsymmetric solution
 
-Moving the second Gaussian from $x = 50$ to $49.9$
-($\Delta t = 0.05$) breaks the symmetry — slightly visible at
-$t = 100$, gone completely by $t = 200$:
+A hallmark of chaos is sensitive dependence on initial conditions. To illustrate this, let us run the same experiment as before, but with the symmetry ever so slightly broken by moving the second Gaussian from $x=50$ to $x=49.9$. At $t=100$, one can see that the solution is slightly different from what it was before, and the symmetry in the solution is broken.
 
-![Kuramoto figure 3](../../images/pde/Kuramoto_repl_03.png)
-![Kuramoto figure 4](../../images/pde/Kuramoto_repl_04.png)
+```matlab
+S.init = exp(-((x+50)/10).^2) + exp(-((x-49.9)/10).^2);
+tic, u = spin(S,800,.05,'plot','off'); t = toc;
+plot(S.init), hold on, plot(u{2}), ylim([-4 4]), hold off
+text(42,3.4,'t=0 and t=100',FS,12)
+```
+
+![Kuramoto figure 03](../../images/pde/Kuramoto_03.png)
+
+At time $t=200$, all trace of symmetry is gone.
+
+```matlab
+plot(S.init), hold on, plot(u{3}), ylim([-4 4]), hold off
+text(42,3.4,'t=0 and t=200',FS,12)
+```
+
+![Kuramoto figure 04](../../images/pde/Kuramoto_04.png)
+
+Here is the total time for this example:
+
+```matlab
+time_elapsed_in_seconds = toc
+```
 
 ```text
 time_elapsed_in_seconds =
-  4.108243
+  4.731886
+(whole example: 15.1s)
 ```
 
-(MATLAB publishes 4.88 s — for once, comparable.)
+One can get a qualitatively correct picture faster, with coarse gridding in both time and space, but we chose large $N$ and small $dt$ so that the wave forms would be truly correct at $t=200$.
+
+## 3. References
+
+[1] H. Montanelli and N. Bootland, *Solving periodic semilinear stiff PDEs in 1D, 2D and 3D with exponential integrators*, submitted, 2016.
+
+[2] L. N. Trefethen and K. Embree, editors, article on "The Kuramoto-Sivashinsky equation", *The (Unfinished) PDE Coffee Table Book*, `https://people.maths.ox.ac.uk/trefethen/pdectb.html`.
 
 ---
 
-*Replica script: [`examples/pde/kuramoto_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/pde/kuramoto_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

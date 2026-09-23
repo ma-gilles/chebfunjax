@@ -4,42 +4,52 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-random/Random2SDE.html)
 
-(Chebfun example ode-random/Random2SDE.m)
+Python translation: [`examples/ode-random/random2sde.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-random/random2sde.py)
 
-Smooth random functions (`randnfun` and its cousins) are band-limited
-functions with independent random Fourier coefficients and minimal
-wavelength $\lambda$. They make sample paths of *random ODEs* easy to
-compute; as $\lambda \to 0$ these approach stochastic DEs in their
-Stratonovich (not Itô) formulation. For ODE studies one always passes
-`'big'`, which scales by $(\lambda/2)^{-1/2}$ — the scaling needed
-for random ODEs to approximate SDEs.
+The new Chebfun release v5.7.0 brings with it a new set of capabilities: smooth random functions. The commands are `randnfun`, `randnfun2`, `randnfunsphere`, and `randnfundisk`. (There is not yet a `randnfun3`.) Each of these returns a band-limited function defined by a Fourier series with independent random coefficients; a parameter $\lambda$ specifies the minimal wavelength. For information about the mathematics, see [1] and also chapter 12 of [2].
 
-The simplest example: $u' = f$, whose solution is the indefinite
-integral of $f$ — a "smooth random walk". Three sample paths with
-$\lambda = 0.001$ on $[0, 1]$:
-
-```python
-u = randnfun(0.001, (0.0, 1.0), big=True, key=...)
-w = u.cumsum()
+```matlab
+help randnfun
 ```
 
-![Random2SDE figure 1](../../images/ode-random/Random2SDE_repl_01.png)
+```text
+(no matching output)
+```
 
-To the eye these look like true Brownian motion — for finite
-$\lambda$, with no mathematical technicalities to worry about; a
-stochastic analyst would write the same equation as $dX_t = dW_t$.
+These commands make it easy to compute sample paths of random ODEs in Chebfun, that is, of ODEs defined by smooth random coefficients. As $\lambda \to 0$, we approach the limit of stochastic DEs (SDEs) in their Stratonovich (as opposed to Itô) formulation. Thus Chebfun provides an easy window into the phenomena that make SDEs so fascinating and so important. Note that what Chebfun solves is a random ODE (based on band-limited randomness), not an SDE (based on band-unlimited randomness, i.e., white noise, a notion made precise through the formulation of a Wiener process, also known as Brownian motion). In the limit $\lambda\to 0$ they are the same (though Chebfun becomes quite an inefficient tool if you try to get too close to that limit).
+
+For ODE-related studies, one should always call `randnfun` and its cousins with the flag `'big'`. This multiplies the random function by $(\lambda/2)^{-1/2}$, meaning that its amplitude grows without bound as $\lambda\to 0$. This is what is needed for random ODEs to approximate SDEs.
+
+Here we give just the simplest example. If $f$ is a normalized random function, then the equation $$ u' = f $$ has the indefinite integral of $f$ as its solution. We call this a "smooth random walk". If $\lambda$ is small enough, it looks to the eye like true Brownian motion, and as $\lambda \to 0$, that is what it approaches. For finite $\lambda$ there are no mathematical technicalities to worry about; it is simply an ODE. Precise statements about the limit $\lambda\to 0$ require care, however, and stochastic analysts would write the equation above in a very different form, $$ dX_t = d W_t. $$
+
+Here are three smooth random walk sample paths for $t\in [0,1]$ with $u(0) = 0$ and $\lambda = 0.001$.
+
+```matlab
+tic
+rng(0)
+u = randnfun(0.001,[0 1],3,'big');
+plot(cumsum(u))
+grid on, ylim([-2 2])
+xlabel t, ylabel u
+```
+
+![Random2SDE figure 01](../../images/ode-random/Random2SDE_01.png)
+
+```matlab
+total_time_in_seconds = toc
+```
 
 ```text
 total_time_in_seconds =
-  22.344840
+  16.446952
 ```
 
-(MATLAB publishes 8.07 s. Sample paths use JAX keys — MATLAB's
-`rng(0)` stream is not reproducible — so these are different samples
-of the same law.)
+References:
+
+[1] S. Filip, A. Javeed, and L. N. Trefethen, Smooth random functions, random ODEs, and Gaussian processes, *SIAM Review*, 61 (2019), 185--205.
+
+[2] L. N. Trefethen, *Approximation Theory and Approximation Practice, Extended Edition*, SIAM, 2019.
 
 ---
 
-*Replica script: [`examples/ode-random/random2sde_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-random/random2sde_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

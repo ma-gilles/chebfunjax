@@ -1,101 +1,185 @@
-# The Theorems of Gauss, Green, and Stokes
+# The theorems of Gauss, Green and Stokes
 
 *Olivier Sète, June 2016*
 
-*Original: [The theorems of Gauss, Green and Stokes — Chebfun](https://www.chebfun.org/examples/approx3/GaussGreenStokes.html)*
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx3/GaussGreenStokes.html)
+
+Python translation: [`examples/approx3/GaussGreenStokes.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx3/GaussGreenStokes.py)
+
+In this example we illustrate Gauss's theorem, Green's identities, and Stokes' theorem in Chebfun3.
+
+## 1. Gauss's theorem
+
+Gauss's theorem, also known as the divergence theorem, asserts that the integral of the sources of a vector field in a domain $K$ is equal to the flux of the vector field through the boundary: $$ \int_K \mbox{div}(\vec{v}) \, dV = \int_{\partial K} \vec{v} \cdot \vec{dS}. $$ Here $\vec{dS}$ is the vectorial surface element given by $\vec{dS} = \vec{n} dS$, where $\vec{n}$ is the outward normal vector to the surface $\partial K$ and $dS$ is the surface element.
+
+Let us consider a simple 3D vector field $\vec{v}$ on the cube $K = [-1, 1]^3$:
+
+```matlab
+cheb.xyz;
+v1 = x.^2-y; v2 = y.^2; v3 = z;
+v = [ v1 ; v2 ; v3 ];
+```
+
+Here we have built $\vec{v}$ by stacking three Chebfun3 objects one over another, beginning with the command `cheb.xyz` to generate chebfun3 objects `x`, `y`, and `z` corresponding to the functions $x$, $y$, and $z$. Alternatively we could pass three function handles directly to the Chebfun3v constructor; see the example for Stokes' Theorem below.
+
+The left-hand side of the identity of Gauss's theorem, the integral of the divergence, can be computed in Chebfun3 like this, nicely matching the exact value 8:
+
+```matlab
+format long
+I1 = sum3(div(v))
+```
+
+```text
+I1 =
+   7.999999999999992
+```
+
+For the right-hand side we need the flux integral over the boundary of the cube, which consists of six surfaces. The outward normal vectors on the sides ${ \pm 1 } \times [-1, 1]^2$ are $\pm [1; 0; 0]$. Thus we have to integrate $\vec{v}(\pm 1, y, z) \cdot [\pm 1; 0; 0] = \pm v_1(\pm 1, y, z)$ over these sides of the cube. The restrictions $v_1(\pm 1,:,:)$ are represented as chebfun2 objects. Treating the other two pairs of sides similarly, we compute a result again with excellent accuracy:
+
+```matlab
+I2 = sum2(v1(1,:,:)) - sum2(v1(-1,:,:)) + ...
+     sum2(v2(:,1,:)) - sum2(v2(:,-1,:)) + ...
+     sum2(v3(:,:,1)) - sum2(v3(:,:,-1))
+```
+
+```text
+I2 =
+     7.99999999999999
+```
+
+## 2. Green's identities
+
+The first Green identity is an analogue of integration by parts in higher dimensions: $$ \int_K ( f \Delta g + \nabla f \cdot \nabla g ) \, dV = \int_{\partial K} f \nabla g \cdot \vec{dS}. $$ This is a corollary of the Gauss's theorem (set $\vec{v} = f \nabla g$). The second Green identity is $$ \int_K (f \Delta g - (\Delta f) g ) \, dV = \int_{\partial K} ( f \nabla g - g \nabla f ) \cdot \vec{dS}. $$ In both formulas $f$ and $g$ are scalar functions on $K$. To illustrate both formulas in Chebfun3, let us consider the functions
+
+```matlab
+f = 1 + x.*exp(y+z);
+g = x.^2 + y.^2 + z.^2;
+isosurface(g,1.3,'r'), axis equal, grid on
+```
+
+![GaussGreenStokes figure 01](../../images/approx3/GaussGreenStokes_01.png)
+
+The Laplacian and gradient of $f$ can be computed with `lap(f)` and `grad(f)`. We evaluate the two sides of the first Green identity in the same way as for the Gauss's theorem above. The exact value $48$ is matched closely by the integral over the cube,
+
+```matlab
+I3 = sum3(f .* lap(g) + dot(grad(f), grad(g)))
+```
+
+```text
+I3 =
+  47.999999999999964
+```
+
+The flux integral also agrees:
+
+```matlab
+v = f * grad(g);
+v1 = v(1); v2 = v(2); v3 = v(3);
+I4 = sum2(v1(1,:,:)) - sum2(v1(-1,:,:)) + ...
+     sum2(v2(:,1,:)) - sum2(v2(:,-1,:)) + ...
+     sum2(v3(:,:,1)) - sum2(v3(:,:,-1))
+```
+
+```text
+I4 =
+  47.999999999999901
+```
+
+For the second Green formula the exact value of the integrals is again $48$. We compute
+
+```matlab
+I5 = sum3(f .* lap(g) - lap(f) .* g)
+```
+
+```text
+I5 =
+  47.999999999999872
+```
+
+and
+
+```matlab
+v = f * grad(g) - g * grad(f);
+v1 = v(1); v2 = v(2); v3 = v(3);
+I6 = sum2(v1(1,:,:)) - sum2(v1(-1,:,:)) + ...
+     sum2(v2(:,1,:)) - sum2(v2(:,-1,:)) + ...
+     sum2(v3(:,:,1)) - sum2(v3(:,:,-1))
+```
+
+```text
+I6 =
+  47.999999999999915
+```
+
+## 3. Stokes' Theorem
+
+Stokes' Theorem in its classical formulation takes the form $$ \int_S \mbox{curl}(\vec{v}) \cdot \vec{dS} = \int_{\partial S} \vec{v} \cdot \vec{ds}. $$ Here, the vectorial line element $\vec{ds}$ is $\vec{ds} = \vec{t} ds$, where $\vec{t}$ is the tangential vector and $ds$ is the scalar line element. As an easy example we consider the surface given by the unit disk in the $x$ - $y$ plane, which can be parametrised by
+
+```matlab
+S = chebfun2v(@(rho,phi) rho.*cos(phi), @(rho,phi) rho.*sin(phi), ...
+    @(rho,phi) 0, [0, 1, 0, 2*pi]);
+surf(S)
+```
+
+![GaussGreenStokes figure 02](../../images/approx3/GaussGreenStokes_02.png)
+
+We consider again the vector field $\vec{v}$ from the beginning, which we now construct by passing three function handles to the Chebfun3v constructor:
+
+```matlab
+v = chebfun3v(@(x,y,z) x.^2 - y, @(x,y,z) y.^2, @(x,y,z) z);
+quiver3(v)
+```
+
+![GaussGreenStokes figure 03](../../images/approx3/GaussGreenStokes_03.png)
+
+The curl of $\vec{v}$ is computed by
+
+```matlab
+curlv = curl(v);
+quiver3(curlv)
+```
+
+![GaussGreenStokes figure 04](../../images/approx3/GaussGreenStokes_04.png)
+
+Note how the curl of $\vec{v}$ points up, just through the surface we are considering. The flux integral then is
+
+```matlab
+I7 = integral2(curlv, S)
+```
+
+```text
+I7 =
+   3.141592653589798
+```
+
+The exact value is $\pi$,
+
+```matlab
+pi
+```
+
+```text
+ans =
+   3.141592653589793
+```
+
+To compute the line integral over the boundary of the surface, we first parametrize the circle by
+
+```matlab
+gamma = chebfun(@(t) [cos(t), sin(t), 0*t], [0, 2*pi]);
+```
+
+Then the line integral is
+
+```matlab
+I8 = integral(v, gamma)
+```
+
+```text
+I8 =
+   3.141592653589793
+```
 
 ---
 
-## Gauss's (Divergence) Theorem
-
-Gauss's theorem asserts that the integral of the sources of a vector field
-in a domain $K$ equals the flux through its boundary $\partial K$:
-
-$$\int_K \mathrm{div}(\vec{v})\, dV = \int_{\partial K} \vec{v}\cdot \vec{dS}.$$
-
-Consider $\vec{v} = (x^2 - y,\ y^2,\ z)$ on the cube $K = [-1,1]^3$.
-The divergence is $\mathrm{div}(\vec{v}) = 2x + 2y + 1$, and by symmetry
-the $2x$ and $2y$ terms integrate to zero:
-
-```python
-from chebfunjax.chebfun3d.chebfun3 import chebfun3
-
-div_v = chebfun3(lambda x, y, z: 2*x + 2*y + 1)
-I1 = float(div_v.sum3())
-print(f"∫∫∫ div(v) dV = {I1:.10f}")  # 8.0 exactly
-```
-
-```
-∫∫∫ div(v) dV = 8.0000000000
-```
-
-The surface integral over the 6 faces of the cube also gives 8:
-
-```python
-import numpy as np
-
-# z-faces contribute 4 each (v3=z at z=±1 gives ±1, integrated = 4 each)
-I_zp = 4.0   # int v3(x,y,+1) dx dy = int 1 dx dy = 4
-I_zm = 4.0   # -int v3(x,y,-1) dx dy = -(-4) = 4 ... wait: -(−1)*4=4
-I2 = 0 + 0 + I_zp + I_zm  # x and y faces cancel
-# I2 = 8 ✓
-```
-
-## Green's Identities
-
-The first Green identity reads
-
-$$\int_K (f\,\Delta g + \nabla f \cdot \nabla g)\, dV
-= \int_{\partial K} f\,\nabla g \cdot \vec{dS}.$$
-
-For $f = 1 + xe^{y+z}$ and $g = x^2 + y^2 + z^2$, we have $\Delta g = 6$,
-so the volume integral gives exactly 48:
-
-```python
-import jax.numpy as jnp
-
-f_lap_g = chebfun3(lambda x, y, z: (1 + x * jnp.exp(y+z)) * 6)
-gradf_gradg = chebfun3(
-    lambda x, y, z: 2*x*jnp.exp(y+z) + 2*y*x*jnp.exp(y+z) + 2*z*x*jnp.exp(y+z)
-)
-I3 = float(f_lap_g.sum3()) + float(gradf_gradg.sum3())
-print(f"First Green identity: {I3:.6f}")  # 48.0
-```
-
-## Stokes' Theorem
-
-Stokes' theorem for the unit disk $S$ in the $z=0$ plane:
-
-$$\int_S \mathrm{curl}(\vec{v})\cdot\vec{dS} = \int_{\partial S}\vec{v}\cdot\vec{ds}.$$
-
-For $\vec{v} = (x^2-y, y^2, z)$, the $z$-component of the curl is
-$\partial_x(y^2) - \partial_y(x^2-y) = 0 + 1 = 1$.
-The flux of $\mathrm{curl}(\vec{v})$ through the disk is $\int_{\text{disk}} 1\, dA = \pi$.
-
-The line integral along the boundary circle $\gamma(t) = (\cos t, \sin t, 0)$:
-
-```python
-t_line = np.linspace(0, 2*np.pi, 10000)
-integrand = (
-    (np.cos(t_line)**2 - np.sin(t_line)) * (-np.sin(t_line))
-    + np.sin(t_line)**2 * np.cos(t_line)
-)
-I8 = float(np.trapezoid(integrand, t_line))
-print(f"Line integral = {I8:.8f}")  # pi = 3.14159265
-```
-
-```
-Line integral = 3.14159265
-```
-
-![Gauss, Green, and Stokes theorems](../../images/approx3/GaussGreenStokes.png)
-
-## Figures (chebfun.org parity)
-
-![GaussGreenStokes figure 1](../../images/approx3/GaussGreenStokes_01.png)
-
-![GaussGreenStokes figure 2](../../images/approx3/GaussGreenStokes_02.png)
-
-![GaussGreenStokes figure 3](../../images/approx3/GaussGreenStokes_03.png)
-
-![GaussGreenStokes figure 4](../../images/approx3/GaussGreenStokes_04.png)
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

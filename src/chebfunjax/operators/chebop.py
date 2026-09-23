@@ -2805,8 +2805,16 @@ class Chebop:
 
         u1, u2 = mk(1), mk(2)
         z = [u * 0.0 for u in u1]
-        lhs = ev([p + q for p, q in zip(u1, u2)])
-        rhs = ev(u1) + ev(u2) - ev(z)
+        try:
+            lhs = ev([p + q for p, q in zip(u1, u2)])
+            rhs = ev(u1) + ev(u2) - ev(z)
+        except (ValueError, FloatingPointError, ZeroDivisionError):
+            # The op cannot be evaluated at the random signed probes
+            # (u^1.5, sqrt(u), log(u) ...): a linear operator always can,
+            # so the system is nonlinear (Lane-Emden white-dwarf system).
+            return False
+        if not (_np.all(_np.isfinite(lhs)) and _np.all(_np.isfinite(rhs))):
+            return False
         scale = max(_np.max(_np.abs(lhs)), 1.0)
         return bool(_np.max(_np.abs(lhs - rhs)) < 1e-9 * scale)
 
@@ -2965,6 +2973,11 @@ class Chebop:
             R = _np.concatenate([
                 _np.full(n, float(o)) if isinstance(o, (int, float))
                 else _np.asarray(o(jnp.asarray(xp))) for o in out])
+            # A real system whose op leaves the real line off the solution
+            # (u**1.5 of an iterate dipping below 0, which MATLAB's power
+            # makes complex): Newton works with the real residual.
+            if _np.iscomplexobj(R) and not _np.iscomplexobj(U):
+                R = _np.real(R)
             R = R - f_vals
             for i, g in enumerate(bc_list(self._lbc_raw, us)):
                 R[(i % m) * n] = _eval_chebfun_at(g, a)
@@ -2978,8 +2991,11 @@ class Chebop:
         if self.init is not None:
             init = self.init if isinstance(self.init, (list, tuple)) \
                 else [self.init] * m
+            # A numeric entry (N.init = [cos(pi/2*x); pi]) is the initial
+            # value of a scalar unknown: a constant function here.
             U = _np.concatenate([
-                _np.asarray(gi(jnp.asarray(xp))) for gi in init])
+                _np.full(n, float(gi)) if isinstance(gi, (int, float))
+                else _np.asarray(gi(jnp.asarray(xp))) for gi in init])
         # MATLAB @chebop/linearize.m: the operator must be linearizable
         # at the initial guess.  The finite-difference Jacobian below
         # never notices sqrt(u) or 1/u about u = 0 (it only samples at
@@ -3015,7 +3031,14 @@ class Chebop:
             for j in range(m * n):
                 Up = U.copy()
                 Up[j] += h
-                J[:, j] = (residual(Up) - R) / h
+                try:
+                    J[:, j] = (residual(Up) - R) / h
+                except (ValueError, FloatingPointError):
+                    # The forward probe left the op's domain (u**1.5 at a
+                    # root of u): use the backward difference instead.
+                    Um = U.copy()
+                    Um[j] -= h
+                    J[:, j] = (R - residual(Um)) / h
             try:
                 lu = _sla.lu_factor(J)
             except (ValueError, _np.linalg.LinAlgError):
@@ -5905,14 +5928,17 @@ class Chebop:
         dom = Domain(disc.domain)
         sz = disc.n
         n_bc = len(bcs)
+        # BC functionals are linear and fixed for this discretization:
+        # build their rows once (probing them per residual dominated the
+        # Newton cost).
+        bc_rows = [_np.asarray(bc.matrix(disc)) for bc in bcs]
 
         def _residual(uv):
             ufun = Chebfun.from_values(jnp.asarray(uv, dtype=jnp.float64), dom)
             Nu_fun = self._apply_op(x_fun, ufun)
             Nu_v = _np.array(_chebfun_to_values(Nu_fun, disc))
             rv = Nu_v - _np.asarray(f_vals)
-            for i, (bc, bc_val) in enumerate(zip(bcs, bc_vals)):
-                bc_row = _np.asarray(bc.matrix(disc))
+            for i, (bc_row, bc_val) in enumerate(zip(bc_rows, bc_vals)):
                 rv[sz - n_bc + i] = float(bc_row @ uv) - float(bc_val)
             return rv, Nu_v, ufun
 
@@ -5923,8 +5949,8 @@ class Chebop:
         for _it in range(max_iter):
             J_mat = self._jacobian_matrix(disc, x_fun, ufun, jnp.asarray(Nu_v))
             J_np = _np.array(J_mat)
-            for i, bc in enumerate(bcs):
-                J_np[sz - n_bc + i, :] = _np.asarray(bc.matrix(disc))
+            for i, bc_row in enumerate(bc_rows):
+                J_np[sz - n_bc + i, :] = bc_row
             try:
                 delta = _np.linalg.solve(J_np, -r_np)
             except _np.linalg.LinAlgError:
@@ -6310,14 +6336,30 @@ class Chebop:
                         "the operator cannot be evaluated at the initial "
                         "guess (non-finite residual); supply N.init.")
 
+            bc_rows = [_np.asarray(bc.matrix(disc)) for bc in bcs]
+            # Rectangular (Driscoll-Hale) collocation, as MATLAB's
+            # chebcolloc2 reduce: the operator rows are projected onto
+            # sz - n_bc first-kind points and the BC rows appended.
+            # Overwriting the last operator rows instead keeps the ODE
+            # enforced AT the boundary, which for singular problems
+            # (x u'' + 2 u' + ... at x = 0 is 2 u'(0), duplicating the BC
+            # u'(0) = 0) made the Jacobian singular and Newton diverge
+            # (ode-nonlin/LaneEmden).
+            _proj = None
+            if len(self.domain) == 2 and 0 < n_bc < sz:
+                from chebfunjax.utils.interpolation import barymat
+                _proj = _np.asarray(barymat(chebpts(sz - n_bc, kind=1),
+                                            chebpts(sz, kind=2)))
+
             def _residual(uv):
                 """Collocation residual with BC rows replaced by BC errors."""
                 ufun = Chebfun.from_values(jnp.asarray(uv, dtype=jnp.float64), dom)
                 Nu_fun = self._apply_op(x_fun, ufun)
                 Nu_v = _np.asarray(_chebfun_to_values(Nu_fun, disc))
                 rv = Nu_v - _np.asarray(f_vals)
-                for i, (bc, bc_val) in enumerate(zip(bcs, bc_vals)):
-                    bc_row = _np.asarray(bc.matrix(disc))
+                if _proj is not None:
+                    rv = _np.concatenate([_proj @ rv, _np.zeros(n_bc)])
+                for i, (bc_row, bc_val) in enumerate(zip(bc_rows, bc_vals)):
                     rv[sz - n_bc + i] = float(bc_row @ uv) - float(bc_val)
                 return rv, Nu_v, ufun
 
@@ -6344,8 +6386,11 @@ class Chebop:
                         disc, x_fun, ufun, jnp.asarray(Nu_v)
                     )
                     J_np = _np.array(J_mat)  # copy: jax buffers read-only
-                    for i, bc in enumerate(bcs):
-                        J_np[sz - n_bc + i, :] = _np.asarray(bc.matrix(disc))
+                    if _proj is not None:
+                        J_np = _np.vstack([_proj @ J_np,
+                                           _np.zeros((n_bc, sz))])
+                    for i, bc_row in enumerate(bc_rows):
+                        J_np[sz - n_bc + i, :] = bc_row
                     try:
                         lu = _sla.lu_factor(J_np)
                         delta = _sla.lu_solve(lu, -r_np)

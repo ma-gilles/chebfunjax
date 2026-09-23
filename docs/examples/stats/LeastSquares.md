@@ -1,24 +1,38 @@
-# Discrete and continuous least squares
+# Least-squares data fitting and polyfit
 
-*Alex Townsend, March 2013*
+*Nick Trefethen, October 2011*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/stats/LeastSquares.html)
 
-(Chebfun example stats/LeastSquares.m)
+Python translation: [`examples/stats/least_squares.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/stats/least_squares.py)
 
-`polyfit` fits noisy samples of the Runge function by a degree-10
-polynomial in the least-squares sense:
+In MATLAB, a standard command for least-squares fitting by a polynomial to a set of discrete data points is `polyfit`. The polynomial returned by `polyfit` is represented in MATLAB's usual manner by a vector of coefficients in the monomial basis.
 
-![LeastSquares figure 1](../../images/stats/LeastSquares_repl_01.png)
+In Chebfun, there is an overloaded `polyfit` command in the domain class that does the same thing, except that the polynomial is returned as a chebfun rather than a coefficient vector. Here is an example:
 
-The continuous analogue fits a piecewise-smooth chebfun by its best
-degree-10 polynomial in $L^2$:
+```matlab
+npts = 100;
+x = linspace(-1,1,npts);
+y = 1./(1+25*x.^2) + 1e-1*randn(1,npts);
+f = polyfit(x,y,10,domain(-1,1));
+plot(x,y,'xk','markersize',12)
+hold on, plot(f,'r')
+title('Discrete polynomial least-squares fit')
+```
 
-![LeastSquares figure 2](../../images/stats/LeastSquares_repl_02.png)
+![LeastSquares figure 01](../../images/stats/LeastSquares_01.png)
 
-(The noise draw is our own; the constructions replicate.)
+Chebfun also has a `polyfit` command in the chebfun class, and this is for continuous rather than discrete polynomial least-squares fitting. For example, here is a least-squares fit to a jagged function:
+
+```matlab
+f = chebfun('abs(x+.2)-.5*sign(x-.5) ','splitting','on');
+r = polyfit(f,10);
+hold off, plot(f,'k',r,'r')
+title('Continuous polynomial least-squares fit')
+```
+
+![LeastSquares figure 02](../../images/stats/LeastSquares_02.png)
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

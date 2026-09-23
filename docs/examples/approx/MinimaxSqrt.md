@@ -4,73 +4,180 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/MinimaxSqrt.html)
 
-(Chebfun example approx/MinimaxSqrt.m)
+Python translation: [`examples/approx/minimax_sqrt.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/minimax_sqrt.py)
 
-Rational functions outperform polynomials for approximating functions
-with (near-)singularities.  The absolute value function is a typical
-example, for which polynomials converge only algebraically $O(1/n)$
-whereas rationals root-exponentially $O(\exp(-\pi\sqrt{n}))$.
+Rational functions outperform polynomials for approximating functions with (near-)singularities. The absolute value function is a typical example, for which polynomials converge only algebraically $O(1/n)$ whereas rationals root-exponentially $O(\exp(-\pi\sqrt{n}))$.
 
-A closely related function is the square root.  When we work on the
-interval $[a,1]$ for $0<a<1$, $\sqrt{x}$ is analytic on the interval,
-so both polynomials and rational functions converge exponentially.
-Indeed for $a$ close to $1$ we don't see much difference.  We compute
-the best polynomial and rational approximants using `minimax`:
+A closely related function is the square root. When we work on the interval $[a,1]$ for $0<a<1$, $\sqrt{x}$ is analytic on the interval, so both polynomials and rational functions would converge exponentially. Indeed for $a$ close to $1$ we don't see much difference. We compute the best polynomial and rational approximants using `minimax`.
 
-```python
-import jax.numpy as jnp
-from chebfunjax.utils.minimax import minimax
+```matlab
+a = 0.8;
+x = chebfun('x',[a 1]); f = sqrt(x);
+ns = 2:2:8;
+perrs = []; rerrs = [];
+for n = ns
+  [p,perr] = minimax(f,n);
+  perrs = [perrs perr];
+  [p,q,r,rerr] = minimax(f,n/2,n/2);
+  rerrs = [rerrs rerr];
+end
 
-for n in (2, 4, 6, 8):
-    perr = minimax(lambda x: jnp.sqrt(x), n, domain=(a, 1.0)).err
-    rerr = minimax(lambda x: jnp.sqrt(x), n//2, rational=True,
-                   denom=n//2, domain=(a, 1.0)).err
+semilogy(ns,perrs,'b*-'), hold on
+text(ns(end)+.25,perrs(end),['poly a=',num2str(a)],'color','b')
+semilogy(ns,rerrs,'r*-'), grid on
+text(ns(end)+.25,rerrs(end),['rat a=',num2str(a)],'color','r')
+xlim([0 ns(end)+2]), title(['sqrt(x) on [a,1], a = ',num2str(a)])
+xlabel DOF
 ```
 
-![MinimaxSqrt figure 1](../../images/approx/MinimaxSqrt_repl_01.png)
+![MinimaxSqrt figure 01](../../images/approx/MinimaxSqrt_01.png)
 
-As we shrink $a$, the difference in convergence gets pronounced.  While
-the convergence is still exponential in all cases, polynomials struggle
-more as $a\rightarrow 0$ as the singularity gets closer to the domain.
-We first take $a=0.1$:
+As we shrink $a$, the difference in convergence gets pronounced. While the convergence is still exponential in all cases, polynomials struggle more as $a\rightarrow 0$ as the singularity gets closer to the domain. Let's vary the value of $a$. We first take $a=0.1$:
 
-![MinimaxSqrt figure 2](../../images/approx/MinimaxSqrt_repl_02.png)
+```matlab
+a = 0.1; x = chebfun('x',[a 1]); f = sqrt(x);
+perrs = []; rerrs = [];
+for n = ns
+[p,perr] = minimax(f,n);
+perrs = [perrs perr];
+[p,q,r,rerr] = minimax(f,n/2,n/2);
+rerrs = [rerrs rerr];
+end
+
+hold off, semilogy(ns,perrs,'b*-'), hold on
+text(ns(end)+.25,perrs(end),['poly a=',num2str(a)],'color','b')
+semilogy(ns,rerrs,'r*-'), grid on
+text(ns(end)+.25,rerrs(end),['rat a=',num2str(a)],'color','r')
+xlim([0 ns(end)+2]), title(['sqrt(x) on [a,1], a = ',num2str(a)]), xlabel DOF
+```
+
+![MinimaxSqrt figure 02](../../images/approx/MinimaxSqrt_02.png)
 
 Now $a=10^{-3}$:
 
-![MinimaxSqrt figure 3](../../images/approx/MinimaxSqrt_repl_03.png)
+```matlab
+a = 1e-3;
+f = chebfun(@(x)sqrt(x),[a,1]);
+ns = 2:2:20;
+perrs = []; rerrs = [];
+for n = ns
+  [p,perr] = minimax(f,n);
+  perrs = [perrs perr];
+  [p,q,r,rerr] = minimax(f,n/2,n/2,'silent');
+  rerrs = [rerrs rerr];
+end
+
+hold off, semilogy(ns,perrs,'b*-'), hold on
+text(ns(end)+.5,perrs(end),['poly a=',num2str(a)],'color','b')
+semilogy(ns,rerrs,'r*-'), grid on
+text(ns(end)+.5,rerrs(end),['rat a=',num2str(a)],'color','r')
+xlim([0 ns(end)+7]), title(['sqrt(x) on [a,1], a = ',num2str(a)]), xlabel DOF
+```
+
+![MinimaxSqrt figure 03](../../images/approx/MinimaxSqrt_03.png)
 
 Finally, $a=10^{-5}$:
 
-![MinimaxSqrt figure 4](../../images/approx/MinimaxSqrt_repl_04.png)
+```matlab
+a = 1e-5;
+f = chebfun(@(x)sqrt(x),[a,1],'splitting','on');
+ns = 2:2:20;
+perrs = []; rerrs = [];
+for n = ns
+  [p,perr] = minimax(f,n);
+  perrs = [perrs perr];
+  [p,q,r,rerr] = minimax(f,n/2,n/2,'silent');
+  rerrs = [rerrs rerr];
+end
 
-We see that the difference is widening: both errors increase as
-$a\rightarrow 0$, but polynomials suffer much more.
+hold off, semilogy(ns,perrs,'b*-'), hold on
+text(ns(end)+.5,perrs(end),['poly a=',num2str(a)],'color','b')
+semilogy(ns,rerrs,'r*-'), grid on
+text(ns(end)+.5,rerrs(end),['rat a=',num2str(a)],'color','r')
+xlim([0 ns(end)+7]), title(['sqrt(x) on [a,1], a = ',num2str(a)]), xlabel DOF
+```
 
-We now superimpose the plot with $a=0$, taking the whole interval
-$[0,1]$.  We recover the algebraic (poly) and root-exponential (rat)
-convergence as opposed to exponential (admittedly rational minimax
-struggles a bit here: please note that this is a very hard problem!):
+```text
+a=0.8: poly 1.079e-13  rat 2.195e-13
+a=0.1: poly 4.322e-05  rat 4.699e-08
+```
 
-![MinimaxSqrt figure 5](../../images/approx/MinimaxSqrt_repl_05.png)
+![MinimaxSqrt figure 04](../../images/approx/MinimaxSqrt_04.png)
 
-Let's now do the same experiment with the $p$th root, with $p=5$.  The
-situation is qualitatively the same (regardless of $p$):
+We see that the difference is widening: both errors increase as $a\rightarrow 0$, but polynomials suffer much more.
 
-![MinimaxSqrt figure 6](../../images/approx/MinimaxSqrt_repl_06.png)
+We now superimpose the plot with $a=0$, taking the whole interval $[0,1]$. We recover the algebraic (poly) and root-exponential (rat) convergence as opposed to exponential (admittedly rational-minimax struggles a bit here: please note that this is a very hard problem!).
 
-(Terminal errors at DOF 20: sqrt — poly 5.98e-03 / rat 1.13e-07 at
-$a=10^{-5}$, poly 7.00e-03 / rat 4.88e-06 at $a=0$; fifth root — poly
-4.31e-02 / rat 3.64e-07 at $a=10^{-5}$.  As in the published MATLAB
-run, some high-degree singular-endpoint Remez iterations do not fully
-converge and their warnings are suppressed.)
+```matlab
+a = 0;
+f = chebfun(@(x)sqrt(x),[a,1],'splitting','on');
+ns = 2:2:20;
+perrs = []; rerrs = [];
+for n = ns
+  [p,perr] = minimax(f,n);
+  perrs = [perrs perr];
+  [p,q,r,rerr] = minimax(f,n/2,n/2,'silent');
+  rerrs = [rerrs rerr];
+end
 
-## References
+semilogy(ns,perrs,'bo--')
+text(ns(end)+.5,perrs(end)*1.3,['poly a=',num2str(a)],'color','b')
+semilogy(ns,rerrs,'ro--'), grid on
+text(ns(end)+.5,rerrs(end),['rat a=',num2str(a)],'color','r')
+xlim([0 ns(end)+7]), title(['sqrt(x) on [a,1], a = ',num2str(a)]), xlabel DOF
+```
 
-1. L. N. Trefethen, _Approximation Theory and Approximation Practice,
-   Extended Edition_, SIAM, 2019.
+```text
+a=0.8: poly 1.079e-13  rat 2.195e-13
+a=0.1: poly 4.322e-05  rat 4.699e-08
+a=0.001: poly 1.537e-03  rat 3.573e-10
+a=1e-05: poly 5.979e-03  rat 1.125e-07
+```
+
+![MinimaxSqrt figure 05](../../images/approx/MinimaxSqrt_05.png)
+
+Let's now do the same experiment with the pth root, with $p=5$. The situation qualitatively the same (regardless of $p$).
+
+```matlab
+hold off
+as = [1e-5 0];
+ns = 2:2:20;
+pstyle = {'b*-','bo--'}; rstyle = {'r*-','ro--'};
+it = 0;
+for a = as
+  it = it+1; perrs = []; rerrs = [];
+  f = chebfun(@(x)x.^(1/5),[a,1],'splitting','on');
+  for n = ns
+    [p,perr] = minimax(f,n);
+    perrs = [perrs perr];
+  end
+
+  for n = ns
+    [p,q,r,rerr] = minimax(f,n/2,n/2,'silent');
+    rerrs = [rerrs rerr];
+  end
+
+  semilogy(ns,perrs,pstyle{it}), hold on
+  text(ns(end)+.2,perrs(end),['poly a=',num2str(a)],'color','b')
+  semilogy(ns,rerrs,rstyle{it}), grid on
+  text(ns(end)+.2,rerrs(end),['rat a=',num2str(a)],'color','r')
+  xlim([0 ns(end)+7]), xlabel DOF
+  title(['fifth root of x on [a,1], a = 0 and 1e-5'])
+end
+```
+
+```text
+a=0.8: poly 1.079e-13  rat 2.195e-13
+a=0.1: poly 4.322e-05  rat 4.699e-08
+a=0.001: poly 1.537e-03  rat 3.573e-10
+a=1e-05: poly 5.979e-03  rat 1.125e-07
+a=0: poly 7.001e-03  rat 4.876e-06
+p=5 a=1e-05: poly 4.307e-02  rat 3.644e-07
+p=5 a=0.0: poly 8.318e-02  rat 3.838e-04
+```
+
+![MinimaxSqrt figure 06](../../images/approx/MinimaxSqrt_06.png)
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

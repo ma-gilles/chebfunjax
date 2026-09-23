@@ -1,96 +1,123 @@
-# Finding a Trivariate Basis of Rank-One Functions
+# Finding a trivariate basis of rank-one functions
 
 *Yuji Nakatsukasa, June 2016*
 
-*Original: [Finding a trivariate basis of rank-one functions — Chebfun](https://www.chebfun.org/examples/approx3/FindingRankOne.html)*
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx3/FindingRankOne.html)
+
+Python translation: [`examples/approx3/FindingRankOne.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx3/FindingRankOne.py)
+
+## 1. Rank-one trivariate functions
+
+When a chebfun3 is constructed for a rank-one function $f(x,y,z) = f_x(x)f_y(y)f_z(z)$, Chebfun is able to detect its numerical rank for efficient storage and subsequent computation.
+
+```matlab
+f = chebfun3(@(x,y,z) sin(x).*cos(y).*exp(z));
+rank(f)
+```
+
+```text
+rank(f) = 1
+rank(fhat) = 3
+```
+
+A sum of $k\ (\geq 2)$ rank-one functions is usually of rank $k$ (Tucker rank; note that for rank-one functions, the Tucker and CP ranks are the same). For example,
+
+```matlab
+g = chebfun3(@(x,y,z) cos(x).*exp(y).*sin(z));
+h = chebfun3(@(x,y,z) exp(x).*sin(y).*cos(z));
+fhat = f+(g+h)/10;
+rank(fhat)
+```
+
+```text
+rank(f) = 1
+rank(fhat) = 3
+```
+
+## 2. Finding a basis of rank-one functions
+
+Now consider the following problem. Given the rank-three function $\hat f$ along with the rank-one functions $g$ and $h$, we would like to find (or "recover") the function $f$ such that
+
+(i) $f$ is rank one, and
+
+(ii) $\hat f,g,h$ and $f,g,h$ span the same subspace.
+
+Put another way, we are looking for a basis consisting of rank-one functions for the subspace spanned by $\hat f,g,h$. This is a higher-order and continuous analogue of the problem considered in [1] (and simplified to the rank-one case). A convenient way to obtain a rank-one function close to $\hat f$ is to do
+
+```matlab
+ftmp = chebfun3(@(x,y,z) fhat(x,y,z),'rank',[1 1 1]);
+```
+
+(An alternative approach is to do simplify(fhat,'rank',1e0), which is slightly different but gives a similar outcome below) Note that ftmp, although rank-one, does not lie in the span of $\hat f,g,h$, violating (ii). Indeed it is not close to the desired $f$:
+
+```matlab
+scale = f(1,1,1)/ftmp(1,1,1); % scalar scaling
+norm(f-ftmp*scale)
+```
+
+```text
+rank(f) = 1
+rank(fhat) = 3
+```
+
+Here is a simple algorithm, analogous to that in [2], that correctly finds the function $f$. It is based on alternating projection between rank-one functions and the subspace of trivariate functions spanned by $\hat f,g,h$.
+
+```matlab
+MS = 'Markersize'; ms = 18;LW = 'linewidth';
+LW = 'linewidth'; MS = 'markersize'; FS = 'fontsize';
+TEX = 'interpreter';tex = 'latex';
+lw = 2; ms = 12; fs = 14; ffs = 12;
+
+n = length(f);
+G = reshape(sample(g,n,n,n),[n^3,1]); % form vectors of values at Chebyshev tensor grid
+H = reshape(sample(h,n,n,n),[n^3,1]);
+F = reshape(sample(fhat,n,n,n),[n^3,1]);
+[Q,~] = qr([G H F],0);                % Q is the subspace spanned by $fhat,g,h$
+
+clf, hold on
+for it = 1:10
+    Ftmp = reshape(sample(ftmp,n,n,n),[n^3,1]);
+    Ftmp = Q*(Q'*Ftmp);               % projection onto subspace
+    ftmp = chebfun3(reshape(Ftmp,n,n,n),'rank',[1 1 1]); % proj onto rank-1 funs
+   %ftmp = simplify(chebfun3(reshape(Ftmp,n,n,n)),'rank',1e0); % alternative to above
+    scale = f(1,1,1)/ftmp(1,1,1);     % scalar scaling
+    err(it) = norm(f-ftmp*scale);
+    e = abs(f.cols-ftmp.cols*scale);
+    semilogy(e,LW,lw)
+    text(1.05,e(end),['it=',int2str(it)])
+end
+ylim([1e-10 1])
+xlabel('x',FS,fs)
+ylabel('error',FS,fs)
+```
+
+![FindingRankOne figure 01](../../images/approx3/FindingRankOne_01.png)
+
+The figure shows the $x$-component $|\hat f_x(x)-f_x(x)|$ of the error in $\hat f$, which is apparently converging to 0. Here is a 3-D plot of the error.
+
+```matlab
+hold off
+plot(f-ftmp*scale)
+```
+
+![FindingRankOne figure 02](../../images/approx3/FindingRankOne_02.png)
+
+The last plots suggest linear convergence of $\hat f$ to $f$ in the whole unit cube. Indeed, it is known [1] that under mild assumptions and with an initial guess close to an intersection point, alternating projections converges linearly to the intersection. For this example; the convergence of $|f-\hat f|$ is convincingly linear.
+
+```matlab
+semilogy(err,'-o',LW,lw)
+xlabel('iteration',FS,fs)
+ylabel('error $\|f-\hat f\|$',TEX,tex,FS,fs)
+```
+
+![FindingRankOne figure 03](../../images/approx3/FindingRankOne_03.png)
+
+## 3. References
+
+[1] D. Drusvyatskiy, A. D. Ioffe, and A. D. Lewis, Transversality and alternating projections for nonconvex sets, *Found. Comput. Math.* 15 (2015), 1637-1651.
+
+[2] Y. Nakatsukasa, T. Soma, and A. Uschmajew, Finding a low-rank basis in a matrix subspace, *Mathematical Programming*, to appear.
 
 ---
 
-## Rank-One Trivariate Functions
-
-A function $f(x,y,z) = f_x(x) f_y(y) f_z(z)$ is called **rank one** in
-Tucker format. When a Chebfun3 is constructed from such a function,
-it is detected automatically:
-
-```python
-from chebfunjax.chebfun3d.chebfun3 import chebfun3
-import jax.numpy as jnp
-
-f = chebfun3(lambda x, y, z: jnp.sin(x) * jnp.cos(y) * jnp.exp(z))
-g = chebfun3(lambda x, y, z: jnp.cos(x) * jnp.exp(y) * jnp.sin(z))
-h = chebfun3(lambda x, y, z: jnp.exp(x) * jnp.sin(y) * jnp.cos(z))
-
-print(f"f rank: {f.rank}")  # (1, 1, 1)
-print(f"g rank: {g.rank}")  # (1, 1, 1)
-print(f"h rank: {h.rank}")  # (1, 1, 1)
-```
-
-A sum of $k \geq 2$ rank-one functions is typically of Tucker rank $k$:
-
-```python
-fhat = chebfun3(
-    lambda x, y, z: (
-        jnp.sin(x)*jnp.cos(y)*jnp.exp(z)
-        + (jnp.cos(x)*jnp.exp(y)*jnp.sin(z)
-           + jnp.exp(x)*jnp.sin(y)*jnp.cos(z)) / 10
-    )
-)
-print(f"fhat rank: {fhat.rank}")  # (3, 3, 3)
-```
-
-## Finding a Basis of Rank-One Functions
-
-Given the rank-3 function $\hat f = f + (g+h)/10$ along with known rank-one
-functions $g$ and $h$, we want to recover $f$ such that:
-
-(i) $f$ is rank one, and
-(ii) $\hat f, g, h$ and $f, g, h$ span the same subspace.
-
-This is a higher-order continuous analogue of a problem from matrix subspace
-analysis [1].
-
-The algorithm uses **alternating projections** between:
-- The subspace $\text{span}\{\hat f, g, h\}$ (sampled on a grid), and
-- The set of rank-one functions (via truncated SVD).
-
-```python
-import numpy as np
-
-n = 10  # grid size
-# Sample on Chebyshev grid and form the subspace basis Q
-k_arr = np.arange(n)
-t = -np.cos(k_arr * np.pi / (n-1))
-XX, YY, ZZ = np.meshgrid(t, t, t, indexing="ij")
-
-G_vec = np.array(g(XX, YY, ZZ)).reshape(-1)
-H_vec = np.array(h(XX, YY, ZZ)).reshape(-1)
-F_hat_vec = np.array(fhat(XX, YY, ZZ)).reshape(-1)
-
-Q, _ = np.linalg.qr(np.column_stack([G_vec, H_vec, F_hat_vec]))
-
-# Alternating projection iterations
-Fcur = F_hat_vec.copy()
-for it in range(8):
-    Fcur = Q @ (Q.T @ Fcur)           # project onto subspace
-    Fmat = Fcur.reshape(n, n*n)
-    U, s, Vt = np.linalg.svd(Fmat, full_matrices=False)
-    Fcur = s[0] * np.outer(U[:,0], Vt[0,:]).reshape(-1)  # rank-1 approx
-```
-
-![Alternating projections to find rank-one functions](../../images/approx3/FindingRankOne.png)
-
-## References
-
-1. D. Drusvyatskiy, A. D. Ioffe, and A. D. Lewis, Transversality and alternating
-   projections for nonconvex sets, *Found. Comput. Math.* 15 (2015), 1637–1651.
-
-2. Y. Nakatsukasa, T. Soma, and A. Uschmajew, Finding a low-rank basis in a
-   matrix subspace, *Mathematical Programming* (2017).
-
-## Figures (chebfun.org parity)
-
-![FindingRankOne figure 1](../../images/approx3/FindingRankOne_01.png)
-
-![FindingRankOne figure 2](../../images/approx3/FindingRankOne_02.png)
-
-![FindingRankOne figure 3](../../images/approx3/FindingRankOne_03.png)
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

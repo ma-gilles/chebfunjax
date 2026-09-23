@@ -1,51 +1,71 @@
-# A bound for entire functions
+# Convergence bounds for entire functions
 
-*Nick Trefethen, April 2017*
+*Nick Trefethen, April 2016*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/EntireBound.html)
 
-(Chebfun example approx/EntireBound.m)
+Python translation: [`examples/approx/entire_bound.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/entire_bound.py)
 
-If $f$ is analytic in the closed Bernstein $\rho$-ellipse with
-$|f|\le M$ there, its degree-$n$ Chebyshev interpolants satisfy
+## 1. Introduction
 
-$$ \|f - p_n\| \leq \frac{4M\rho^{-n}}{\rho - 1}. $$
+If $f$ is an analytic function on $[-1,1]$, its Chebyshev interpolants $p_n$ converge at least geometrically as the degree $n$ increases, i.e., at the rate $O(\rho^{-n})$ for some $\rho>1$. If $f$ is entire, the convergence is faster than geometric, namely $O(\rho^{-n})$ for *any* $\rho>1$, though with worse constants in the big O as $\rho$ increases. Here we show how this works for two examples.
 
-For an *entire* function, this bound holds for every $\rho > 1$
-simultaneously, and the lower envelope over $\rho$ tracks the actual
-super-geometric convergence.  Here is the experiment for $e^x$ with
-$\rho = 2, 4, 8, 16, 32$:
+The mathematics originates with Sergey Bernstein around 1912 and is described in Chapter 8 of [1]. Specifically, if $f$ is analytic on $[-1,1]$, then it can be analytically continued to some neighborhood of $[-1,1]$ in the complex plane. The neighborhoods of special interest for polynomial approximations are Bernstein ellipses, i.e., regions bounded by ellipses with foci at $1$ and $-1$. The parameter $\rho$ for such an ellipse is the sum of its semimajor plus semiminor axis lengths, a number that approaches $\infty$ as the ellipse widens out to include the whole complex plane and approaches $1$ as it shrinks to the interval $[-1,1]$. Now suppose that $f$ is analytic and satisfies $|f(x)|\le M$ in the Bernstein $\rho$-ellipse for some numbers $\rho>1$ and $M$. According to Theorem 8.1 of [1], the Chebyshev coefficients of $f$ satisfy $$ |a_k| \le 2 M \rho^{-k}. $$ According to Theorem 8.3, the Chebyshev interpolants (i.e., polynomial interpolants in Chebyshev points of Chebfun's usual second kind) satisfy $$ | f - p_n |_\infty \le {4 M \rho^{-n}\over \rho - 1}. $$
 
-```python
-import jax.numpy as jnp
-import chebfunjax as cj
+## 2. The exponential function
 
-fexact = cj.chebfun(lambda x: jnp.exp(x))
-for n in range(len(fexact) - 1):
-    fn = cj.chebfun(lambda x: jnp.exp(x), n=n+1)
-    # err = norm(fn - fexact, inf); bound = 4*M*rho^-n/(rho-1)
+Let us see this bound in action for the entire function $f(x) = e^x$. Any $\rho$ is allowed, but $M$ must grow with $\rho$. Since the rightmost point of the $\rho$-ellipse is the point $x = (\rho + \rho^{-1})/2$, we can take $$ M = \exp((\rho + \rho^{-1})/2). $$ Here are the Chebyshev coefficients of $f$ together with some straight lines above them corresponding to Bernstein bounds for $\rho = 2,4,8,16,32$.
+
+```matlab
+ff = @(x) exp(x);
+fexact = chebfun(ff); nmax = length(fexact)-2;
+nvec = 0:nmax; errvec = [];
+for n = nvec
+  fn = chebfun(ff,n+1);
+  err = norm(fn-fexact,inf); errvec = [errvec err];
+end
+semilogy(nvec,errvec,'.','markersize',18)
+xlabel('degree n'), ylabel error, title('exp(x)'), hold on
+for rho = [2 4 8 16 32]
+  M = exp((rho+1/rho)/2);
+  bound = 4*M*rho.^-nvec/(rho-1);
+  semilogy(nvec,bound,'-k')
+  text(1.01*nmax,bound(end),['\rho=' int2str(rho)])
+end
+axis([0 nmax 1e-16 1e3]), grid on, hold off
 ```
 
-![EntireBound figure 1](../../images/approx/EntireBound_repl_01.png)
+![EntireBound figure 01](../../images/approx/EntireBound_01.png)
 
-The dots (interpolation errors) hug the lower envelope of the bound
-family.  The same experiment for the oscillatory entire function
-$\cos(100x)$, with $\rho = 1.5, 2, 3, 3.5$ and
-$M = \cosh(100(\rho-1/\rho)/2)$:
+## 3. The function cos(100x)
 
-![EntireBound figure 2](../../images/approx/EntireBound_repl_02.png)
+Now we try another entire function whose convergence curve is more interesting, $f(x) = \cos(100x)$. Since the topmost point of the $\rho$-ellipse is $x = i (\rho - \rho^{-1})/2$, we can take $$ M = \cosh(100(\rho - \rho^{-1})/2). $$ Here are the Chebyshev coefficients of $f$ together with some lines corresponding to $\rho = 1.5, 2, 3, 3.5$.
 
-Convergence sets in only around degree $n \approx 100$ (the function
-needs about one point per wavelength), after which it is extremely
-fast — and again the envelope of the Bernstein bounds explains the
-curve.
+```matlab
+ff = @(x) cos(100*x);
+fexact = chebfun(ff); nmax = length(fexact)-2;
+nvec = 0:nmax; errvec = [];
+for n = nvec
+  fn = chebfun(ff,n+1);
+  err = norm(fn-fexact,inf); errvec = [errvec err];
+end
+semilogy(nvec,errvec,'.','markersize',12)
+xlabel('degree n'), ylabel error, title('cos(100x)'), hold on
+for rho = [1.5 2 3 3.5]
+  M = cosh(100*(rho-1/rho)/2);
+  bound = 4*M*rho.^-nvec/(rho-1);
+  semilogy(nvec,bound,'-k')
+  text(1.01*nmax,bound(end),['\rho=' num2str(rho)])
+end
+axis([0 nmax 1e-16 1e3]), grid on, hold off
+```
 
-## References
+![EntireBound figure 02](../../images/approx/EntireBound_02.png)
 
-1. L. N. Trefethen, _Approximation Theory and Approximation Practice,
-   Extended Edition_, SIAM, 2019.
+## 4. Reference
+
+1. L.N. Trefethen, *Approximation Theory and Approximation Practice*, SIAM, 2013.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

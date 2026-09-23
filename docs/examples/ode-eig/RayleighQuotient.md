@@ -1,22 +1,40 @@
 # Rayleigh quotient iteration for an operator
 
-*Nick Hale and Yuji Nakatsukasa, March 2017 (revised July 2019)*
+*Nick Hale and Yuji Nakatsukasa, March 2017*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-eig/RayleighQuotient.html)
 
-(Chebfun example ode-eig/RayleighQuotient.m)
+Python translation: [`examples/ode-eig/rayleighquotient.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-eig/rayleighquotient.py)
 
-Rayleigh quotient iteration — shift-invert power steps with the
-Rayleigh quotient as the shift — converges cubically for symmetric
-problems and quadratically otherwise; the two-sided variant (using the
-adjoint) restores cubic convergence. All random data (matrices and
-`randnfun` initial guesses) is MATLAB's `rng(10)` stream, dumped and
-inlined, so the printed iterates match the published ones digit for
-digit.
+[revised July 2019]
 
-## Matrices
+## 1. Symmetric matrix
 
-Symmetric $10\times10$ (cubic — converged in 4 steps):
+The Rayleigh quotient iteration (RQI) is a well-known algorithm for computing an eigenpair of a matrix $A$ (symmetric or nonsymmetric). Using an approximate $\tilde\lambda$ and approximate eigenvector $\tilde x$ (normalized by $|\tilde x|_2=1$), it updates the approximate eigenvector via one step of the shifted-and-inverted power method, $\tilde x:=(A-\tilde\lambda I)^{-1}\tilde x$, which is computed by solving a linear system (then normalized again). The approximate eigenvalue is then updated via the Rayleigh quotient $\tilde\lambda = \tilde x^\ast A\tilde x$. Under mild assumptions, by repeating the process, $\tilde x$ converges to an eigenvector, usually to the one corresponding to the eigenvalue that the initial $\tilde\lambda$ is closest to. The convergence of RQI is known to be asymptotically cubic when $A$ is symmetric [1, Sec. 4.6], and otherwise quadratic.
+
+Here is an example showing cubic convergence for a random symmetric $10\times 10$ matrix. (Note that we sacrifice some efficiency in computing $Au$ in the residual computation for the sake of clarity. This could easily be avoided.)
+
+```matlab
+rng(10)                                      % choose a random number seed
+tol = 1e-10;
+n = 10;
+A = randn(n); A = A'+A;                      % symmetric matrix
+I = eye(size(A));                            % identity
+
+% Initial guesses:
+disp('lam:')
+lam = A(end,end); disp(lam)                  % seek eigenvalue near lam
+u = rand(n,1);  u = u/norm(u);               % random guess
+res = norm(A*u - lam*u)/norm(A*u);           % initial residual
+
+% Rayleigh quotient iteration:
+while ( res(end) > tol )
+    u = (A - lam*I)\u; u = u/norm(u);        % core RQI
+    lam = u'*A*u; disp(lam)                  % update Rayleigh quotient
+    res = [res; norm(A*u-lam*u)/norm(A*u)];  % store residual
+end
+res
+```
 
 ```text
 lam:
@@ -25,53 +43,259 @@ lam:
    3.125420718374709
    3.125374676595397
    3.125374676595200
+res =
+   1.344387798598789
+   0.115727317111612
+   0.002003341134186
+   0.000000120617185
+   0.000000000000000
 ```
 
-*(Identical to the published sequence through the 15th digit.)* The
-nonsymmetric case takes 8 quadratic steps to
-`1.697010850611261 - 0.550367641360019i`, and the two-sided iteration
-recovers cubic convergence to `-0.087102840853371` in 4 — every
-iterate and every residual matching the published output.
+## 2. Nonsymmetric matrix
 
-![RayleighQuotient figure 1](../../images/ode-eig/RayleighQuotient_repl_01.png)
+Next let's try a nonsymmetric matrix. The convergence becomes quadratic.
 
-## Chebops
+```matlab
+A = randn(n);                                 % nonsymmetric matrix
+% Initial guesses:
+disp('lam:')
+lam = A(end,end); disp(lam)                   % seek eigenvalue near lam
+u = rand(n,1)+1i*randn(n,1); u = u/norm(u);   % random guess (eigval can be complex)
+res2 = norm(A*u - lam*u)/norm(A*u);           % initial residual
 
-For $Au = -u''$ with Dirichlet conditions on $[-\pi/2,\pi/2]$, the RQI
-code is almost identical — `(A - lam*I)\u` becomes a chebop solve:
+% Rayleigh quotient iteration:
+while ( res2(end) > tol )
+    u = (A - lam*I)\u; u = u/norm(u);         % core RQI
+    lam = u'*A*u; disp(lam)                   % update Rayleigh quotient
+    res2 = [res2; norm(A*u-lam*u)/norm(A*u)]; % store residual
+end
+res2
+```
+
+```text
+lam:
+   1.785889266762552
+  2.021616884981403 -0.231437575180488i
+  2.118743460513858 -0.308381176533420i
+  1.940945639350538 -0.233833273033300i
+  1.836420738756690 -0.642458568707738i
+  1.713769481147874 -0.535336402530415i
+  1.696773164190598 -0.550612434587373i
+  1.697010825604450 -0.550367696353313i
+  1.697010850611261 -0.550367641360019i
+res2 =
+   1.093386529852612
+   0.424830253546250
+   0.313795660072704
+   0.251117255218225
+   0.129079816016665
+   0.018778041801314
+   0.000415793642172
+   0.000000135578118
+   0.000000000000007
+```
+
+We can recover the cubic convergence by using the (conjugate) transpose and running a two-sided Rayleigh quotient iteration. Note that the algorithm is equivalent to RQI when $A$ is symmetric.
+
+```matlab
+A = randn(n);                                 % nonsymmetric matrix
+% Initial guesses:
+disp('lam:')
+lam = A(end,end); disp(lam)                   % seek eigenvalue near lam
+u = rand(n,1)+1i*randn(n,1); u = u/norm(u);   % random guess for right evec
+v = rand(n,1);  v = v/norm(v);                % random guess for left evec
+res3 = norm(A*u - lam*u)/norm(A*u);           % initial residual
+
+% two-sided Rayleigh quotient iteration:
+while ( res3(end) > tol )
+    u = (A -lam*I)\u; u = u/norm(u);          % core RQI
+    v = (A'-lam*I)\v; v = v/norm(v);          % core RQI for left eigvec
+    lam = (v'*A*u)/(v'*u); disp(lam)          % update Rayleigh quotient
+    res3 = [res3; norm(A*u-lam*u)/norm(A*u)]; % store residual
+end
+res3
+
+% Plot convergence rates:
+semilogy(res, 'b-o'), hold on
+text(length(res) + .1, res(end), 'symm', 'color', 'b')
+semilogy(res2, 'r--x' )
+text(length(res2) - .9, res2(end-1), 'nonsymm', 'color', 'r')
+semilogy(res3, 'm--^' )
+text(length(res3) - .9, res3(end-1), 'nonsymm two-sided', 'color', 'r')
+xlabel('iteration'), ylabel('residual')
+grid on, hold off
+```
+
+```text
+lam:
+   0.459491896221264
+  -0.242061077964719 -0.007101891420724i
+  -0.087077709512509 -0.001270998241703i
+  -0.087102839794190 +0.000000000316964i
+   -0.087102840853371
+res3 =
+   1.039645661623953
+   1.251077983073277
+   0.626721111466231
+   0.000847923046512
+   0.000000000001225
+```
+
+![RayleighQuotient figure 01](../../images/ode-eig/RayleighQuotient_01.png)
+
+## 3. Selfadjoint linear operator
+
+Now we explore the use of RQI for a linear operator represented by a chebop. Let us consider the selfadjoint operator $Au = -u''$ with selfadjoint Dirichlet boundary conditions $u(-\pi/2) = u(\pi/2) = 0$. As an initial guess we use a random function generated by the randnfun command. Note that the code for the RQI is almost identical to the matrix case above! (This is enabled by a Chebfun feature that allows additions of chebops, along with eye(A) for the identity operator on the domain of A.)
+
+```matlab
+dom = [-pi/2, pi/2];
+A = chebop(@(u) -diff(u, 2), dom, 0);       % self-adjoint operator
+I = eye(A);                                 % identity on dom; equivalent
+                                            % to I = chebop(@(u)u,dom)
+
+% Initial guesses:
+disp('lam:')
+lam = 3.8; disp(lam)                        % seek eigenvalue near lam
+u = randnfun(.1, dom);  u = u/norm(u);      % random guess for eigenfunction
+res = norm(A*u-lam*u)/norm(A*u);            % initial residual
+
+% Rayleigh quotient iteration:
+while ( res(end) > tol )
+    u = (A-lam*I)\u; u = u/norm(u);         % core RQI
+    lam = u'*A*u; disp(lam)                 % update Rayleigh quotient
+    res = [res; norm(A*u-lam*u)/norm(A*u)]; % store residual
+end
+```
 
 ```text
 lam:
    3.800000000000000
-   4.296285626613152
-   4.000206922868336
-   3.999999999998058
-   3.999999999999980
+   4.296285626621077
+   4.000206922875521
+   3.999999999998078
+   3.999999999999944
 ```
 
-(published: `4.296285626621022, 4.000206922867877,
-3.999999999996782, 4` — 9–12 digits per iterate). The
-non-selfadjoint $Au = -u'' + u' + u$ converges quadratically to
-$\lambda = 2.25$ exactly as published, and the two-sided iteration
-with `adjoint(A)` restores cubic convergence:
+From the residual output, we can guess that the convergence is cubic (it is actually too fast to verify).
+
+```matlab
+res
+```
+
+```text
+res =
+   0.998606307083000
+   0.840368825544069
+   0.021040776167804
+   0.000001071842410
+   0.000000000000365
+```
+
+## 4. Non-selfadjoint linear operator
+
+Now consider the non-selfadjoint operator $Au = -u'' + u' + u$, again with zero Dirichlet boundary conditions:
+
+```matlab
+dom = [-pi/2, pi/2];
+x = chebfun('x',dom);
+A = chebop(@(x,u) -diff(u,2) + diff(u) + u, dom, 0);
+I = eye(A);
+
+% Initial guesses:
+disp('lam:')
+lam = 1; disp(lam)
+u = randnfun(.1, dom); u = u/norm(u);
+res2 = norm(A*u-lam*u)/norm(A*u);             % initial residual
+
+% Rayleigh quotient iteration:
+while ( res2(end) > tol)
+    u = (A-lam*I)\u; u = u/norm(u);           % core RQI
+    lam = u'*A*u; disp(lam)                   % update Rayleigh quotient
+    res2 = [res2; norm(A*u-lam*u)/norm(A*u)]; % store residual
+end
+```
 
 ```text
 lam:
    1.000000000000000
-   2.366600934050413
-   2.250150291473662
-   2.250000000000312
-   2.249999999999999
+   2.148562930032497
+   2.238352474117575
+   2.249952642120696
+   2.249999999241388
+   2.249999999999957
 ```
 
-(published: `2.366600934214430, 2.250150291437780,
-2.249999999999692, 2.249999999999999`.)
+From the residual output, we can see that here the convergence is quadratic:
 
-![RayleighQuotient figure 2](../../images/ode-eig/RayleighQuotient_repl_02.png)
+```matlab
+res2
+```
+
+```text
+res2 =
+   0.999611595070082
+   0.958331443918952
+   0.008897567922462
+   0.000035578579649
+   0.000000000575786
+   0.000000000000285
+```
+
+As before, let's try to improve the convergence to cubic. This involves the adjoint, which plays the role of the conjugate transpose in the matrix case.
+
+```matlab
+% Initial guesses:
+disp('lam:')
+lam = 1; disp(lam)
+u = randnfun(.1, dom); u = u/norm(u);         % random guess for right eigfunc
+v = randnfun(.1, dom); v = v/norm(v);         % random guess for left eigfunc
+res3 = norm(A*u-lam*u) / norm(A*u);
+
+% Rayleigh quotient iteration:
+while ( res3(end) > tol)
+    u = (A -lam*I)\u; u = u/norm(u);          % core RQI
+    v = (A'-lam*I)\v; v = v/norm(v);          % adjoint RQI
+    lam = v'*(A*u)/(v'*u); disp(lam)          % update Rayleigh quotient
+    res3 = [res3; norm(A*u-lam*u)/norm(A*u)]; % store residual
+end
+
+res3
+```
+
+```text
+lam:
+   1.000000000000000
+   2.366600934089595
+   2.250150291419807
+   2.250000000000487
+   2.249999999999928
+res3 =
+   0.999549699255865
+   0.980162497602925
+   0.012462711435248
+   0.000000200023797
+   0.000000000000249
+```
+
+RQI appears to have computed eigenpairs for both operators, selfadjoint and non-selfadjoint. Now let's examine the convergence rates by plotting the residual convergence.
+
+```matlab
+semilogy(res, 'b-o'), hold on
+text(length(res) + .1, res(end), 'selfadj', 'color', 'b')
+semilogy(res2, 'r--x' )
+text(length(res2) - .9, res2(end-1), 'non-selfadj', 'color', 'r')
+semilogy(res3, 'm--^' )
+text(length(res3) - .9, res3(end-1), 'non-selfadj two-sided', 'color', 'm')
+xlabel('iteration'), ylabel('residual')
+grid on
+```
+
+![RayleighQuotient figure 02](../../images/ode-eig/RayleighQuotient_02.png)
+
+## 5. References
+
+1. B. N. Parlett, *The Symmetric Eigenvalue Problem*, SIAM, 1996.
 
 ---
 
-*Replica script: [`examples/ode-eig/rayleighquotient_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-eig/rayleighquotient_replica.py)
-(data: `_rayleighquotient_data.py`).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

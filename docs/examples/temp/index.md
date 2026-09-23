@@ -1,6 +1,6 @@
 # Temp examples
 
-Faithful replicas of the published
+translations of the published
 [chebfun.org temp examples](https://www.chebfun.org/examples/temp/)
 (the category chebfun.org uses for examples awaiting a final home).
 The published FracCalc and FracCalc2 pages are replicated in

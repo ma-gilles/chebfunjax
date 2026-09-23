@@ -4,34 +4,81 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/fun/ValentinesDay2.html)
 
-(Chebfun2 example fun/ValentinesDay2.m)
+Python translation: [`examples/fun/valentines_day2.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/fun/valentines_day2.py)
 
-Happy Valentines day to all Chebfun2 users! The original example is a
-"love movie": a parametric heart surface
+Happy Valentines day to all Chebfun2 users! Copy and paste this M-file into your Matlab to watch the love movie.
 
-$$X = \sin(\pi t)\cos(\theta/2), \quad Y = 0.7\sin(\pi t)\sin(\theta/2),$$
-$$Z = (t-1)\frac{-49+50t+30t\cos\theta+\cos 2\theta}{-25+\cos^2\theta},$$
-
-on $(t,\theta) \in [0,1]\times[0,4\pi]$, colored by
-$C = \sin(10X)\cos((Y-0.1)^2)+(Z+1)$ with the `hot` colormap, with the
-scribbled greeting `scribble('Happy Valentines Day!')` wrapped around its
-waist via
-
-```python
-plot3(1.1*cos(2.5*real(S+1)), 0.8*sin(2.5*real(S+1)), 1.5*imag(S)-1.05)
+```matlab
+d = [0 1 0 4*pi];
+t = chebfun2(@(t,th) t, d);
+th = chebfun2(@(t,th) th, d);
 ```
 
-The published page has no printed output; its figure is the initial
-`view(180, 6)` frame of the rotation loop, replicated here:
+Parametric surface:
 
-![ValentinesDay2 figure 1](../../images/fun/ValentinesDay2_repl_01.png)
+```matlab
+X = sin(pi*t).*cos(th/2);
+Y = 0.7*sin(pi*t).*sin(th/2);
+Z = (t-1).*(-49+50*t+30*t.*cos(th)+cos(2*th))./(-25+(cos(th)).^2);
+```
 
-(The original then spins the camera through `view(180*ta, 6)` for
-`ta = linspace(-1.25, 3, 500)` — a movie, which a static page cannot
-show; the published HTML likewise shows only this single frame.)
+Color scheme:
+
+```matlab
+C = sin(10*X).*cos((Y-.1).^2)+(Z+1);
+
+% Message:
+S = scribble('Happy Valentines Day!');
+```
+
+Generate surface:
+
+```matlab
+surf(X, Y, Z, C), hold on
+% Add text:
+plot3(1.1*cos(2.5*real(S+1)), 0.8*sin(real(2.5*(S+1))),...
+    1.5*imag(S)-1.05, 'k', 'jumpline', '', 'linewidth', 2), hold off
+% Make it pretty:
+axis tight off image
+colormap hot
+set(gcf, 'color', 'w')
+view(180, 6)
+
+% Rotate:
+% M = [];
+TA = linspace(-1.25, 3, 500);
+for ta = TA
+    view(180*ta, 6)
+    axis([-1.1 1.1 -1.1 1.1 -2 .1333])
+    drawnow
+%     M = [M getframe()];
+end
+```
+
+![ValentinesDay2 figure 01](../../images/fun/ValentinesDay2_01.png)
+
+If you would like to save this love movie to a GIF file then uncomment the lines below (and the lines beginning M = ...) and run the example.
+
+```matlab
+% % Save to .gif:
+% [ignored, idx] = min(abs(TA-.75));
+% for j = 1:idx-1
+%     im = frame2im(M(j));
+%     [imind, cm] = rgb2ind(im, 16);
+%     if ( j == 1 )
+%         imwrite(imind, cm, 'ValentinesDay.gif', 'gif', ...
+%             'Loopcount', inf, 'DelayTime', 1e-5);
+%     else
+%         imwrite(imind, cm, 'ValentinesDay.gif', 'gif', ...
+%             'WriteMode', 'append', 'DelayTime', 1e-5);
+%     end
+% end
+```
+
+Reference
+
+1. Anonymous, 14th February 2013, Chebfun Example [fun/ValentinesDay](ValentinesDay.md)
 
 ---
 
-*Replica script: [`examples/fun/valentines_day2_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/fun/valentines_day2_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

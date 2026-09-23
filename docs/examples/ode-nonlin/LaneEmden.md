@@ -1,69 +1,118 @@
-# The Lane-Emden equation from astrophysics
+# Lane-Emden equation from astrophysics
+
+*Alex Townsend, May 2011*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-nonlin/LaneEmden.html)
 
-(Chebfun example ode-nonlin/LaneEmden.m)
+Python translation: [`examples/ode-nonlin/lane_emden.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/lane_emden.py)
 
-**Status: partial replica.** The polytropes $n = 0$ and $n = 1$
-reproduce their closed-form solutions to near machine precision; the
-nonlinear cases $n \ge 2$ are blocked on a documented solver defect,
-stated at the bottom rather than papered over.
+## Introduction
 
-The Lane-Emden equation of stellar structure,
+The well-known Lane-Emden equation models the mechanical structure of self-gravitating spheres. In astrophysics it plays an important role as it serves to model the structure of stars, ranging from white dwarfs to red giants. The equation is given by
 
-$$ x u'' + 2 u' + x\,u^n = 0, \qquad u(0) = 1, \; u'(0) = 0, $$
-
-is singular at the origin — the leading coefficient vanishes exactly
-where both conditions sit.
-
-```python
-N = Chebop(lambda x, u: x*u.diff(2) + 2*u.diff() + x*u**n,
-           domain=(0, 10))
-N.lbc = lambda u: [u - 1, u.diff()]
-u, info = N.solvebvp(0)
+```
+  x*u'' + 2*u' + x*u^n = 0,   u'(0) = 0,    u(0) = 1
 ```
 
-![LaneEmden figure 1](../../images/ode-nonlin/LaneEmden_repl_01.png)
+where u is the solution (known as a polytrope) which models the density of the gas cloud. The variable x corresponds to the radial distance from the centre. The gas is assumed to be polytropic with index n, that is pressure = C*density^(1+1/n) where C is a constant.
 
-The two solvable polytropes agree with their exact solutions:
+## Integer polytropic index
 
-| $n$ | exact | max error |
-|---|---|---|
-| 0 | $1 - x^2/6$ | 5.87e-12 (length 3) |
-| 1 | $\sin(x)/x$ | 1.33e-13 |
+Below we compute the polytropes for index n = 0:5
 
-Getting even this far required two of this campaign's library fixes:
-the linear collocation path used to drop the operator's constant term
-($n = 0$ returned $u \equiv 1$), and the default Newton guess now
-satisfies the boundary conditions.
+```matlab
+%n = Characteristic exponent
+for n = 0:5
+    % Assign the L-E operator on that domain.
+    N = chebop(@(x,u) x*diff(u,2) + 2*diff(u) + x*u^n, [0,10]);
 
-## The open defect ($n \ge 2$)
+    % Left boundary conditions
+    N.lbc = @(u) [u-1 ; diff(u)];
 
-For $n \ge 2$ our Newton iteration diverges — `normDelta` runs
-$9.3 \to 1.1\times 10^{5} \to 1.6\times 10^{21}$ — where MATLAB
-converges in seconds and reports an $L^2$ error of `4.421e-12` for
-$n = 5$ against $1/\sqrt{1 + x^2/3}$.
+    % Solve the bvp
+    u = solvebvp(N, 0);
 
-The failure has been narrowed definitively: it persists from the
-default initial guess *and* from a continuation start at the converged
-$n-1$ solution, at adaptive *and* fixed discretizations. With initial
-guess and grid ruled out, the defect is in the linearized singular
-solve itself — the collocation Jacobian of
-$x\,v'' + 2v' + n x u^{n-1} v$, with both boundary conditions at the
-singular endpoint, yields wrong Newton directions. (The linearization
-has solutions behaving like $A + B/x$ at the origin; MATLAB's
-rectangular Driscoll-Hale collocation resolves that singular row
-differently.) The fix requires reworking the scalar nonlinear Jacobian
-assembly at singular endpoints and is ledgered as the campaign's
-remaining chebop defect.
+    % Create plot of the solutions
+    plot(u, 'Linewidth', 2), hold on,
+    axis([0 10 -1 1]),
+    title('Solution of the Lane-Emden equation for n=0,1,2,3,4,5'),
+    xlabel('x'), ylabel('u')
+end
+hold off
+legend('n=0','n=1','n=2','n=3','n=4','n=5');
+```
 
-The example's second part (the polytropic range of white dwarfs,
-$n = 1.5$ with singular exponents, published range
-`[0, 3.653753736220)`) depends on the same solve plus the singfun
-`exps` machinery, and is blocked behind the same item.
+![LaneEmden figure 01](../../images/ode-nonlin/LaneEmden_01.png)
+
+Analytic solutions exist when n = 0, 1 and 5. So we can check the numerical error in these cases. We just do n = 5:
+
+Analytic solution from [3]:
+
+```matlab
+f = chebfun(@(x) 1./sqrt(1+x.^2/3), [0,10]);
+```
+
+Compute the L2 error
+
+```matlab
+fprintf('The L2 error is: %1.3e\n', norm(f-u));
+```
+
+```text
+figure saved
+```
+
+## Finding the polytropic radius
+
+Physically, the first root of the solution is of interest as it defines the outer boundary of the sphere where the gas cloud is polytropic. Since the magnitude of the radius is not known a priori, it can be introduced as an unknown function v; the independent variable can then be transformed as x -> x/v.
+
+As an example we choose the polytropic index to be n = 1.5, appropriate to model the structure of a white dwarf.
+
+```matlab
+warning('off', 'CHEBFUN:SINGFUN:plus:exponentDiff')
+
+d = [0, 1];
+x = chebfun('x', d);
+N = chebop(d);
+n = 1.5;
+N.op  = @(x,u,v) x*diff(u,2) + 2*diff(u) + x*v^2*u^n;
+N.lbc = @(u,v) [u-1 ; diff(u)];
+N.rbc = @(u,v) u;
+N.init = [cos(pi/2*x) ; pi];
+uv = N\0;
+
+warning('on', 'CHEBFUN:SINGFUN:plus:exponentDiff')
+plot(uv, 'Linewidth', 2), hold on,
+axis([0 1 0 1.05*uv{2}]),
+title('Solution u and radius v'), legend('u','v')
+xlabel('x'), ylabel('u')
+```
+
+*(Figure 02 of the original page is not reproduced yet.)*
+
+Thus the radius of the polytrope describing the structure of a white dwarf is
+
+```matlab
+v = uv{2};
+fprintf('Polytropic range for white dwarfs: [0,%1.12f)\n',v(1));
+```
+
+```text
+figure saved
+```
+
+which agrees to all digits shown with the results given in [4].
+
+## References
+
+[1] Chandrasekhar, S. An Introduction to the Study of Stellar Structure
+
+[2] Horedt, G.P. (1986) 'Seven-digit tables of Lane-Emden functions'
+
+[3] Wikipedia article: 'http://en.wikipedia.org/wiki/Lane-Emden_equation'
+
+[4] Boyd, J.P., (2011) 'Chebyshev Spectral Methods and the Lane-Emden Problem'
 
 ---
 
-*Replica script: [`examples/ode-nonlin/lane_emden_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/lane_emden_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

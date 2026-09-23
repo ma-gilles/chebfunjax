@@ -1,36 +1,86 @@
-# Transient growth in linear systems
+# Transient growth
 
-*Nick Trefethen, May 2011*
+*Nick Trefethen, July 2011*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/linalg/TransientGrowth.html)
 
-(Chebfun example linalg/TransientGrowth.m)
+Python translation: [`examples/linalg/transient_growth.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/linalg/transient_growth.py)
 
-This 7x7 matrix, from a laser-physics application of Kestutis
-Staliunas, is stable: every eigenvalue has real part $-1$.  Yet
-$\|e^{tA}\|$ grows enormously before decaying — the hallmark of
-nonnormal transient growth:
+If $A$ is a matrix whose eigenvalues are in the open left half of the complex plane, then the corresponding dynamical system defined by the equation $\frac{du}{dt} = Au$ is asymptotically stable, with all solutions decaying to zero as $t \to \infty$. Since the solution is $u(t) = e^{tA} u(0)$, another way to say this is that the quantity $| e^{tA} |$ decays to zero as $t \to \infty$.
 
-```python
-e = chebfun(lambda t: norm(expm(t*A)), domain=(0, 2.5),
-            splitting=True)
+Along the way, however, there may be transient growth, and this is important, for example, in some problems in fluid mechanics. A recent paper by Whidborne and Amar [2] considers the following matrix taken from an earlier paper by Plitschke and Wirth:
+
+```matlab
+tic
+A = [-1 0 0 0 0 0 -625; 0 -1 -30 400 0 0 250; -2 0 -1 0 0 0 30;
+     5 -1 5 -1 0 0 200; 11 1 25 -10 -1 1 -200;
+     200 0 0 -150 -100 -1 -1000; 1 0 0 0 0 0 -1]
 ```
-
-![TransientGrowth figure 1](../../images/linalg/TransientGrowth_repl_01.png)
-
-The energy is the square of the amplitude:
-
-![TransientGrowth figure 2](../../images/linalg/TransientGrowth_repl_02.png)
 
 ```text
+A =
+       -1      0      0      0      0      0   -625
+        0     -1    -30    400      0      0    250
+       -2      0     -1      0      0      0     30
+        5     -1      5     -1      0      0    200
+       11      1     25    -10     -1      1   -200
+      200      0      0   -150   -100     -1  -1000
+        1      0      0      0      0      0     -1
 Maximum energy = 358147.98785177
+Elapsed time is 51.365562 seconds.
 ```
 
-(MATLAB: 358147.98785176 — agreement to the last printed digit.)  An
-initially unit-energy state can be amplified by a factor of over
-350,000 before the eventual exponential decay takes hold.
+Here (adapted from [linalg/NonnormalQuiz](NonnormalQuiz.md)) is a code to compute and plot $| e^{tA} |$ as a function of $t$:
+
+```matlab
+e = chebfun(@(t) norm(expm(t*A)),[0 2.5],'vectorize','splitting','on');
+LW = 'linewidth'; FS = 'fontsize'; plot(e,'b',LW,2)
+xlabel('t',FS,14), ylabel('||e^{tA}||',FS,14)
+title('amplitude',FS,16)
+```
+
+```text
+
+```
+
+![TransientGrowth figure 01](../../images/linalg/TransientGrowth_01.png)
+
+Actually Whidborne and Amar plot the square of this function. The following figure matches their Figure 1.
+
+```matlab
+e2 = e.^2;
+plot(e2,'b',LW,2)
+xlabel('t',FS,14), ylabel('||e^{tA}||^2',FS,14)
+title('energy',FS,16)
+```
+
+![TransientGrowth figure 02](../../images/linalg/TransientGrowth_02.png)
+
+They are interested in calculating the maximum energy:
+
+```matlab
+fprintf('Maximum energy = %15.8f\n',max(e2))
+```
+
+```text
+
+```
+
+Here's the time for this Example:
+
+```matlab
+toc
+```
+
+```text
+
+```
+
+## References
+
+1. L. N. Trefethen and M. Embree, *Spectra and Pseudospectra: The Behavior of Nonnormal Matrices and Operators*, Princeton U. Press, 2005.
+2. J. F. Whidborne and N. Amar, Computing the maximum transient energy growth, *BIT Numerical Mathematics*, 51 (2011), 447-457.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

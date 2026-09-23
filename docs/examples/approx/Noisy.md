@@ -1,35 +1,36 @@
-# Chebfuns of noisy functions
+# Noisy functions in Chebfun
 
-*Nick Trefethen, July 2014*
+*Nick Trefethen, December 2015*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/Noisy.html)
 
-(Chebfun example approx/Noisy.m)
+Python translation: [`examples/approx/noisy.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/noisy.py)
 
-Suppose we want to work with a function contaminated by noise,
+Suppose a function has some noise. What's the best way to make a chebfun of it?
 
-$$ f(x) = \tanh(8(x-\tfrac12)) + 10^{-6} \times \hbox{noise}. $$
+For example, consider $$ f(x) = \tanh(8(x-{\textstyle{1\over 2}})) + 10^{-6} \times \hbox{noise}. $$ We can manufacture such a function in a convenient deterministic way like this:
 
-We can manufacture such a function in a convenient deterministic way,
-with pseudo-noise depending on the sample index:
-
-```python
-import jax.numpy as jnp
-import chebfunjax as cj
-
-def ff(x):
-    idx = jnp.arange(1, x.shape[0] + 1, dtype=jnp.float64)
-    return jnp.tanh(8*(x - 0.5)) + 1e-6*jnp.sin(idx**2)
+```matlab
+ff = @(x) tanh(8*(x-.5)) + 1e-6*sin((1:length(x))'.^2);
 ```
 
-If you try to make a chebfun of `ff`, there is no convergence.
-However, since we know the scale of the noise, it is easy enough to get
-the right effect by adjusting the `eps` parameter:
+If you try to make a chebfun of `ff`, there is no convergence:
 
-```python
-f = cj.chebfun(ff, eps=1e-6)
+```matlab
+f = chebfun(ff);
 ```
+
+```text
+(no matching output)
 ```
+
+However, since we know the scale of the noise, it is easy enough to get the right effect by adjusting the Chebfun `eps` parameter:
+
+```matlab
+f = chebfun(ff,'eps',1e-6)
+```
+
+```text
 f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
@@ -37,52 +38,104 @@ f =
 vertical scale =   1
 ```
 
-(Published length: 65.)  How did we do?  One way to see is to construct
-a chebfun `f2` of twice this degree.  Here are the Chebyshev
-coefficients of that function (black dots) superimposed on those of
-`f` (blue circles).  The match is very satisfactory:
+How did we do? Well, one way to see is to construct a chebfun `f2` of twice this degree. Here are the Chebyshev coefficients of that function (black dots) superimposed on the those of `f` (blue circles). The match is very satisfactory.
 
-![Noisy figure 1](../../images/approx/Noisy_repl_01.png)
+```matlab
+MS = 'markersize';
+plotcoeffs(f,'ob',MS,7), ylim([1e-10 10]), hold on
+f2 = chebfun(ff,'eps',1e-6,'doublelength');
+plotcoeffs(f2,'.k',MS,10), hold off
+```
 
-Now, how important was it that we got the amplitude of the noise just
-right?  Let's repeat the experiment, but with `eps` increased to
-$10^{-3}$.  As you'd expect, there is a loss of accuracy (length 32,
-matching the published 32):
+![Noisy figure 01](../../images/approx/Noisy_01.png)
 
-![Noisy figure 2](../../images/approx/Noisy_repl_02.png)
+Now, how important was it that we got the amplitude of the noise just right? Let's repeat the experiment, but with `eps` increased to $10^{-3}$. As you'd expect, there is a loss of accuracy.
 
-And here we are with `eps` tightened to $10^{-9}$ — the constructor is
-pretty flexible about settling for a bit less accuracy than you hoped
-for (length 68; published 65):
+```matlab
+f = chebfun(ff,'eps',1e-3)
+plotcoeffs(f,'ob',MS,7), ylim([1e-10 10]), hold on
+plotcoeffs(f2,'.k',MS,10), hold off
+```
 
-![Noisy figure 3](../../images/approx/Noisy_repl_03.png)
+```text
+f =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[      -1,       1]       32        -1        1
+vertical scale =   1
+```
 
-Just for fun let's illustrate what Chebfun achieves by being not
-completely flexible.  Here is a function that is not random, but again
-has a plateau in its Chebyshev series down at the level of $10^{-6}$:
+![Noisy figure 02](../../images/approx/Noisy_02.png)
 
-$$ g(x) = \tanh(8(x-\tfrac12)) + 10^{-6} \sin(200\exp(x)). $$
+And here we are with `eps` tightened to $10^{-9}$:
 
-A default construction resolves it fully:
+```matlab
+f = chebfun(ff,'eps',1e-9)
+plotcoeffs(f,'ob',MS,7), ylim([1e-10 10]), hold on
+plotcoeffs(f2,'.k',MS,10), hold off
+```
 
-![Noisy figure 4](../../images/approx/Noisy_repl_04.png)
+```text
+f =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[      -1,       1]       68        -1        1
+vertical scale =   1
+eps=1e-06: len 70
+eps=1e-09: len 65
+eps=1e-12: len 348
+```
 
-If we construct a chebfun with `eps` equal to $10^{-6}$, the plateau is
-treated as noise and chopped off:
+![Noisy figure 03](../../images/approx/Noisy_03.png)
 
-![Noisy figure 5](../../images/approx/Noisy_repl_05.png)
+This shows that the Chebfun constructor (the code `standardChop`) is pretty flexible about settling for a bit less accuracy than you hoped for. It's not completely flexible, though, and if we tighten `eps` by a further factor of 1000, there is nonconvergence again:
+
+```matlab
+f = chebfun(ff,'eps',1e-12);
+```
+
+```text
+
+```
+
+Just for fun let's illustrate what Chebfun achieves by being not completely flexible. Here is a function that is not random, but again has a plateau in its Chebyshev series down at the level of $10^{-6}$: $$ g(x) = \tanh(8(x-{\textstyle{1\over 2}})) + 10^{-6} \sin(200\exp(x)). $$
+
+```matlab
+gg = @(x) tanh(8*(x-.5)) + 1e-6*sin(200*exp(x));
+g = chebfun(gg);
+plotcoeffs(g,'ob',MS,4), ylim([1e-18 1e2])
+```
+
+![Noisy figure 04](../../images/approx/Noisy_04.png)
+
+If we construct a chebfun with `eps` equal to $10^{-6}$, the plateau is treated as noise and chopped off:
+
+```matlab
+g = chebfun(gg,'eps',1e-6); plotcoeffs(g,'ob',MS,4), ylim([1e-18 1e2])
+```
+
+![Noisy figure 05](../../images/approx/Noisy_05.png)
 
 With `eps` equal to $10^{-9}$, the plateau is still treated as noise:
 
-![Noisy figure 6](../../images/approx/Noisy_repl_06.png)
+```matlab
+g = chebfun(gg,'eps',1e-9); plotcoeffs(g,'ob',MS,4), ylim([1e-18 1e2])
+```
 
-With `eps` set to $10^{-12}$, however, Chebfun is unsatisfied with the
-short series, looks further, and resolves the smooth "noise" completely
-(length 348):
+![Noisy figure 06](../../images/approx/Noisy_06.png)
 
-![Noisy figure 7](../../images/approx/Noisy_repl_07.png)
+With `eps` set to $10^{-12}$, however, Chebfun is unsatisfied with the series of length 70, looks further, and correctly captures the low-amplitude component.
+
+```matlab
+g = chebfun(gg,'eps',1e-12); plotcoeffs(g,'ob',MS,4), ylim([1e-18 1e2])
+```
+
+![Noisy figure 07](../../images/approx/Noisy_07.png)
+
+Reference:
+
+J. L. Aurentz and L. N. Trefethen, "Chopping a Chebyshev series", [http://arxiv.org/abs/1512.01803](http://arxiv.org/abs/1512.01803), December 2015.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

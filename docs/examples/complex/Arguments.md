@@ -1,57 +1,101 @@
-# Phase and argument of complex functions
+# angle, unwrap, and branches of complex chebfuns
 
 *Nick Trefethen, May 2011*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/complex/Arguments.html)
 
-(Chebfun example complex/Arguments.m)
+Python translation: [`examples/complex/arguments.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/complex/arguments.py)
 
-The `angle` command returns the principal argument in $(-\pi,\pi]$:
+A complex number $z$ has a modulus or absolute value in $[0,\infty)$, which MATLAB computes with `abs(z)`, and an argument in $(-\pi,\pi]$, which MATLAB computes with `angle(z)`. For example:
 
+```matlab
+angle(1)
 ```
+
+```text
 ans =
      0
+```
+
+```matlab
+angle(-1)
+```
+
+```text
 ans =
    3.141592653589793
+```
+
+```matlab
+angle(-1-.01i)
+```
+
+```text
 ans =
   -3.131592986903128
 ```
 
-(Digit-for-digit with the published output — note the jump from $+\pi$
-to nearly $-\pi$ for a point just below the negative real axis.)
+Chebfun overloads the `angle` command in the obvious fashion, analogously to `ceil`, `floor`, and `round`. For example, here is a spiral in the complex plane:
 
-Consider the spiral $f(t) = t e^{it}$ on $[1, 20]$:
-
-![Arguments figure 1](../../images/complex/Arguments_repl_01.png)
-
-Its principal argument jumps every time the spiral crosses the negative
-real axis:
-
-![Arguments figure 2](../../images/complex/Arguments_repl_02.png)
-
-The cure is `unwrap`, which adds multiples of $2\pi$ to make the
-argument continuous:
-
+```matlab
+LW = 'linewidth'; lw = 1.6; FS = 'fontsize'; fs = 14;
+t = chebfun('t',[1 20]);
+f = t.*exp(1i*t);
+plot(f,LW,lw), axis equal
+title('f(t) in complex plane',FS,fs)
 ```
+
+![Arguments figure 01](../../images/complex/Arguments_01.png)
+
+And here is its angle:
+
+```matlab
+plot(angle(f),'m',LW,lw)
+xlabel t, ylabel angle(f(t))
+```
+
+![Arguments figure 02](../../images/complex/Arguments_02.png)
+
+Often one would prefer to define a continuous argument, and for this purpose MATLAB has the command `unwrap`. For example:
+
+```matlab
+unwrap(angle([-1 -1-.01i]))
+```
+
+```text
 ans =
    3.141592653589793   3.151592320276458
 ```
 
-![Arguments figure 3](../../images/complex/Arguments_repl_03.png)
+If we apply the Chebfun overload, we get a continuous argument for that spiral that makes more sense:
 
-Why does this matter?  Consider computing $\sqrt{f(t)}$.  With the
-principal branch, the square root inherits the argument jumps and the
-curve is broken:
+```matlab
+plot(unwrap(angle(f)),'m',LW,lw), ylim([-1 21])
+xlabel t, ylabel argument
+```
 
-![Arguments figure 4](../../images/complex/Arguments_repl_04.png)
+![Arguments figure 03](../../images/complex/Arguments_03.png)
 
-But with the unwrapped argument,
-$g = \sqrt{|f|}\, e^{i\,\mathrm{arg}(f)/2}$ is a smooth spiral —
-one of the two continuous square-root branches:
+An important area of application of these commands is to functions in the complex plane, where keeping track of branch cuts is often a headache. For example, suppose we want to take the square root of that function $f$. The result is not very useful. (For the moment we have to construct the function again with `splitting on` to make this experiment work, though in principle Chebfun should be clever enough to introduce a breakpoint without splitting on.)
 
-![Arguments figure 5](../../images/complex/Arguments_repl_05.png)
+```matlab
+g = chebfun('sqrt(t.*exp(1i*t))',[1 20],'splitting','on');
+plot(g,LW,lw), axis(5*[-1 1 -1 1]), axis square
+title('sqrt(f(t)) in complex plane',FS,fs)
+```
+
+![Arguments figure 04](../../images/complex/Arguments_04.png)
+
+We can get the right effect with `unwrap`:
+
+```matlab
+g = sqrt(abs(f)).*exp(.5i*unwrap(angle(f)));
+plot(g,LW,lw), axis(5*[-1 1 -1 1]), axis square
+title('sqrt(f(t)) in complex plane',FS,fs)
+```
+
+![Arguments figure 05](../../images/complex/Arguments_05.png)
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

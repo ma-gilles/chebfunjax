@@ -4,48 +4,87 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/veccalc/AutonomousSystems.html)
 
-(Chebfun example veccalc/AutonomousSystems.m)
+Python translation: [`examples/veccalc/autonomous_systems.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/veccalc/autonomous_systems.py)
 
-A chebfun2v is a natural representation of the right-hand side of an
-autonomous system $\dot{x} = F_1(x,y),\ \dot{y} = F_2(x,y)$: the phase
-portrait is drawn with `quiver` and trajectories are computed by RK45
-integration of the field.  First, the simple harmonic oscillator
-$\ddot{x} = -\omega^2 x$:
+## Autonomous systems
 
-```python
-import jax.numpy as jnp
-import numpy as np
-from scipy.integrate import solve_ivp
-from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
+An autonomous system is a system of ordinary differential equations which does not explicitly depend on the independent variable. Such a system can be written in the form $dy(t)/dt = f(y(t))$ where $y(t)$ takes values in $R^n$. In this example we restrict ourselves to $n = 2$ so that we can plot the phase plane (vector field) and trajectory of $y(t)$ given initial conditions using Chebfun2.
 
-w = 2
-F = Chebfun2v.from_functions(lambda x, y: y, lambda x, y: -w**2 * x,
-                             domain=(-1, 1, -3, 3))
+## Simple harmonic oscillator
+
+We start by looking at the familiar simple harmonic oscillator.
+
+```matlab
+phasedom = [-1 1 -3 3]; w = 2;                   % phase plane domain
+F = chebfun2v(@(x,y)y,@(x,y)-w.^2.*x, phasedom);
+for ic = .1:.2:1                                 % initial conditions
+    [t, y] = ode45(F,[0 4],[ic,0]);              % solve autonomous system
+    plot(y,'r'), hold on                         % plot trajectory
+end
+quiver(F,'b'), hold on, FS = 'fontsize';
+title('The simple harmonic oscillator',FS,14), hold off
 ```
 
-![](../../images/veccalc/AutonomousSystems_repl_01.png)
+![AutonomousSystems figure 01](../../images/veccalc/AutonomousSystems_01.png)
 
-The nonlinear pendulum $\ddot{x} = -\sin(x)/4$ shows the classic "eye":
+The chebfun2v `F` is a vector field, and the overloaded `ode45` command is used to compute its trajectories. Each trajectory is represented by a complex valued chebfun `y` parameterised by the real time variable $t$.
 
-![](../../images/veccalc/AutonomousSystems_repl_02.png)
+## Nonlinear pendulum
 
-The damped Duffing oscillator
-$\ddot{x} = -\delta \dot{x} - \beta x - \alpha x^3$ spirals into one of
-its stable equilibria.  The critical points are the roots of the vector
-field, computed with `roots`:
+Here is another familiar phase plane with slightly more interesting trajectories:
 
-```python
-d, a, b = 0.04, 1, -0.75
-F = Chebfun2v.from_functions(
-    lambda x, y: y, lambda x, y: -d*y - b*x - a*x**3,
-    domain=(-2, 2, -2, 2))
-r = F.roots()
+```matlab
+phasedom = [-4 4 -2 2];                          % phase plane domain
+F = chebfun2v(@(x,y)y,@(x,y)-sin(x)/4,phasedom);
+for ic = .5:.5:3                                 % initial conditions
+    [t y] = ode45(F,[0 40],[ic,0]);              % solve autonomous system
+    plot(y,'r'), hold on                         % plot trajectory
+end
+quiver(F,'b'), axis equal                        % vector field
+title('The eye of a nonlinear pendulum',FS,14), hold off
 ```
+
+![AutonomousSystems figure 02](../../images/veccalc/AutonomousSystems_02.png)
+
+## Duffing oscillator
+
+The Duffing oscillator is a nonlinear second order differential equation that models a damped oscillator. It has three critical points, two stable and one unstable. Here is the phase portrait with a carefully selected trajectory:
+
+```matlab
+d = 0.04; a=1; b=-.75;
+F = chebfun2v(@(x,y)y, @(x,y)-d*y - b*x - a*x.^3, [-2 2 -2 2]);
+[t y] = ode45(F,[0 40],[0,.5]);
+plot(y,'r'), hold on
+quiver(F,'b'), axis equal
+title('The Duffing oscillator',FS,14)
 ```
+
+![AutonomousSystems figure 03](../../images/veccalc/AutonomousSystems_03.png)
+
+The critical points can be located using the `roots` command:
+
+```matlab
+r = roots(F)       % Find critical points and display them.
+plot(r(:,1),r(:,2),'k.','markersize',25)
+```
+
+```text
 r =
   -0.866025403784439                   0
    0.000000000000000                   0
    0.866025403784439                   0
 ```
 
-![](../../images/veccalc/AutonomousSystems_repl_03.png)
+*(Figure 04 of the original page is not reproduced yet.)*
+
+## More information
+
+Some of the code found in this Example can also be found in [1] along with additional information about autonomous systems in Chebfun2.
+
+## References
+
+1. A. Townsend and L. N. Trefethen, An extension of Chebfun to two dimensions, *SIAM Journal on Scientific Computing*, 35 (2013), C495-C518.
+
+---
+
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

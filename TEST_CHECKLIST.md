@@ -1252,142 +1252,94 @@ All 21 categories ported; every numbered figure regenerated (see PARITY_MATRIX.m
 ## examples/applics (9 scripts)
 
 - [x] `__init__.py`
-- [x] `blackscholes2d_replica.py`
-- [x] `bode2tf_replica.py`
-- [x] `europeancall_replica.py`
-- [x] `europeanoptions_replica.py`
-- [x] `gompertz_replica.py`
-- [x] `greeks_replica.py`
-- [x] `step2tf_replica.py`
-- [x] `vanillaoptions_replica.py`
+- [x] `blackscholes2d.py`
+- [x] `bode2tf.py`
+- [x] `europeancall.py`
+- [x] `europeanoptions.py`
+- [x] `gompertz.py`
+- [x] `greeks.py`
+- [x] `step2tf.py`
+- [x] `vanillaoptions.py`
 
-## examples/approx (103 scripts)
+## examples/approx (55 scripts)
 
-- [x] `AAAApprox.py`
-- [x] `AAASpline.py`
-- [x] `AAAZeros.py`
-- [x] `AbsoluteValue.py`
-- [x] `AbsoluteValueScaled.py`
-- [x] `AliasingCoefficients.py`
-- [x] `AliasingCoefficientsLeg.py`
-- [x] `BSplineConv.py`
-- [x] `BernsteinPolys.py`
-- [x] `BestApprox.py`
-- [x] `BestL1.py`
-- [x] `BestL2Approximation.py`
-- [x] `CF30.py`
 - [x] `ChebfunFFT.py`
-- [x] `Checkmark.py`
 - [x] `CommunicationSystem.py`
-- [x] `DivergentSeries.py`
-- [x] `EdgeDetection.py`
-- [x] `EightShades.py`
-- [x] `Entire.py`
-- [x] `EntireBound.py`
-- [x] `EquispacedData.py`
-- [x] `FermiDirac.py`
-- [x] `FiltersCF.py`
-- [x] `Galleries.py`
-- [x] `GammaFun.py`
-- [x] `GreedyInterp.py`
-- [x] `Halphen.py`
 - [x] `HermiteBasis.py`
-- [x] `Inpainting1D.py`
 - [x] `InteractiveInterp.py`
-- [x] `LebesgueConst.py`
-- [x] `Local.py`
-- [x] `MinimaxSqrt.py`
-- [x] `NearestOrthFun.py`
-- [x] `Noisy.py`
-- [x] `NoisyNonsmooth.py`
-- [x] `OddEven.py`
-- [x] `OrthPolys.py`
 - [x] `OrthPolysLanczos.py`
-- [x] `OscError.py`
-- [x] `Prolate.py`
-- [x] `PthComposite.py`
-- [x] `Pushnitski.py`
-- [x] `RationalAbsx.py`
-- [x] `RationalInterp.py`
-- [x] `Rationalxn.py`
-- [x] `ResolutionWiggly.py`
 - [x] `RestrictedDenominatorApproximations.py`
-- [x] `ScalingAndSquaring.py`
-- [x] `SmoothCompact.py`
-- [x] `Splines.py`
-- [x] `WeierstrassFunction.py`
-- [x] `WigglyApprox.py`
 - [x] `__init__.py`
-- [x] `aaa_approx_replica.py`
-- [x] `aaa_spline_replica.py`
-- [x] `absolute_value_replica.py`
-- [x] `absolute_value_scaled_replica.py`
-- [x] `aliasing_coefficients_leg_replica.py`
-- [x] `aliasing_coefficients_replica.py`
-- [x] `bernstein_polys_replica.py`
-- [x] `best_approx_replica.py`
-- [x] `best_l1_replica.py`
-- [x] `best_l2_approximation_replica.py`
-- [x] `bspline_conv_replica.py`
-- [x] `cf30_replica.py`
-- [x] `checkmark_replica.py`
-- [x] `divergent_series_replica.py`
-- [x] `edge_detection_replica.py`
-- [x] `eight_shades_replica.py`
-- [x] `entire_bound_replica.py`
-- [x] `entire_replica.py`
-- [x] `equispaced_data_replica.py`
-- [x] `fermi_dirac_replica.py`
-- [x] `filters_cf_replica.py`
-- [x] `galleries_replica.py`
-- [x] `gamma_fun_replica.py`
-- [x] `greedy_interp_replica.py`
-- [x] `halphen_replica.py`
-- [x] `inpainting1d_replica.py`
-- [x] `lebesgue_const_replica.py`
-- [x] `local_replica.py`
-- [x] `minimax_sqrt_replica.py`
-- [x] `nearest_orth_fun_replica.py`
-- [x] `noisy_nonsmooth_replica.py`
-- [x] `noisy_replica.py`
-- [x] `odd_even_replica.py`
-- [x] `orth_polys_replica.py`
-- [x] `osc_error_replica.py`
+- [x] `aaa_approx.py`
+- [x] `aaa_spline.py`
+- [x] `absolute_value.py`
+- [x] `absolute_value_scaled.py`
+- [x] `aliasing_coefficients.py`
+- [x] `aliasing_coefficients_leg.py`
+- [x] `bernstein_polys.py`
+- [x] `best_approx.py`
+- [x] `best_l1.py`
+- [x] `best_l2_approximation.py`
+- [x] `bspline_conv.py`
+- [x] `cf30.py`
+- [x] `checkmark.py`
+- [x] `divergent_series.py`
+- [x] `edge_detection.py`
+- [x] `eight_shades.py`
+- [x] `entire.py`
+- [x] `entire_bound.py`
+- [x] `equispaced_data.py`
+- [x] `fermi_dirac.py`
+- [x] `filters_cf.py`
+- [x] `galleries.py`
+- [x] `gamma_fun.py`
+- [x] `greedy_interp.py`
+- [x] `halphen.py`
+- [x] `inpainting1d.py`
+- [x] `lebesgue_const.py`
+- [x] `local.py`
+- [x] `minimax_sqrt.py`
+- [x] `nearest_orth_fun.py`
+- [x] `noisy.py`
+- [x] `noisy_nonsmooth.py`
+- [x] `odd_even.py`
+- [x] `orth_polys.py`
+- [x] `osc_error.py`
 - [x] `polyfitL1.py`
-- [x] `prolate_replica.py`
-- [x] `pth_composite_replica.py`
-- [x] `pushnitski_replica.py`
-- [x] `rational_absx_replica.py`
-- [x] `rational_interp_replica.py`
-- [x] `rationalxn_replica.py`
-- [x] `resolution_wiggly_replica.py`
-- [x] `scaling_and_squaring_replica.py`
-- [x] `smooth_compact_replica.py`
-- [x] `splines_replica.py`
-- [x] `weierstrass_function_replica.py`
-- [x] `wiggly_approx_replica.py`
+- [x] `prolate.py`
+- [x] `pth_composite.py`
+- [x] `pushnitski.py`
+- [x] `rational_absx.py`
+- [x] `rational_interp.py`
+- [x] `rationalxn.py`
+- [x] `resolution_wiggly.py`
+- [x] `scaling_and_squaring.py`
+- [x] `smooth_compact.py`
+- [x] `splines.py`
+- [x] `weierstrass_function.py`
+- [x] `wiggly_approx.py`
 
 ## examples/approx2 (19 scripts)
 
 - [x] `__init__.py`
-- [x] `alignment_replica.py`
-- [x] `belyaev_replica.py`
-- [x] `bumpfunction_replica.py`
+- [x] `alignment.py`
+- [x] `belyaev.py`
+- [x] `bumpfunction.py`
 - [x] `continuous_skeletonization_study.py`
-- [x] `gibbs2d_replica.py`
-- [x] `hosepipe_replica.py`
-- [x] `localization_replica.py`
-- [x] `maxtrace_replica.py`
-- [x] `nearestpsdkernel_replica.py`
-- [x] `other2ddomains_replica.py`
-- [x] `paduapoints_replica.py`
-- [x] `pegs_replica.py`
+- [x] `gibbs2d.py`
+- [x] `hosepipe.py`
+- [x] `localization.py`
+- [x] `maxtrace.py`
+- [x] `nearestpsdkernel.py`
+- [x] `other2ddomains.py`
+- [x] `paduapoints.py`
+- [x] `pegs.py`
 - [x] `polyfitL1.py`
-- [x] `prettyfunctions_replica.py`
-- [x] `random2d_replica.py`
-- [x] `randomponds_replica.py`
-- [x] `tucker_replica.py`
-- [x] `zebra_replica.py`
+- [x] `prettyfunctions.py`
+- [x] `random2d.py`
+- [x] `randomponds.py`
+- [x] `tucker.py`
+- [x] `zebra.py`
 
 ## examples/approx2_new (5 scripts)
 
@@ -1415,67 +1367,67 @@ All 21 categories ported; every numbered figure regenerated (see PARITY_MATRIX.m
 ## examples/calc (7 scripts)
 
 - [x] `__init__.py`
-- [x] `delta_derivs_replica.py`
-- [x] `for_the_birds_replica.py`
-- [x] `integrals_replica.py`
-- [x] `mean_value_theorem_replica.py`
-- [x] `snells_law_replica.py`
-- [x] `surface_revolution_replica.py`
+- [x] `delta_derivs.py`
+- [x] `for_the_birds.py`
+- [x] `integrals.py`
+- [x] `mean_value_theorem.py`
+- [x] `snells_law.py`
+- [x] `surface_revolution.py`
 
 ## examples/cheb (12 scripts)
 
 - [x] `__init__.py`
-- [x] `cheb_explain_replica.py`
-- [x] `cheb_polys_higham_replica.py`
+- [x] `cheb_explain.py`
+- [x] `cheb_polys_higham.py`
 - [x] `chebyshev_coefficients.py`
-- [x] `chebyshev_coeffs_replica.py`
-- [x] `convergence_replica.py`
-- [x] `doublelength_flag_replica.py`
-- [x] `exact_cheb_coeffs_replica.py`
-- [x] `fast_cheb_leg_transform_replica.py`
-- [x] `fast_dlt_replica.py`
+- [x] `chebyshev_coeffs.py`
+- [x] `convergence.py`
+- [x] `doublelength_flag.py`
+- [x] `exact_cheb_coeffs.py`
+- [x] `fast_cheb_leg_transform.py`
+- [x] `fast_dlt.py`
 - [x] `fast_transforms.py`
-- [x] `turbo_replica.py`
+- [x] `turbo.py`
 
 ## examples/complex (21 scripts)
 
 - [x] `__init__.py`
-- [x] `analytic_continuation_replica.py`
-- [x] `arguments_replica.py`
-- [x] `closed_contours_replica.py`
-- [x] `complex_arc_length_replica.py`
-- [x] `complex_minimax_replica.py`
-- [x] `conformal_l_replica.py`
-- [x] `conformal_mapping2_replica.py`
-- [x] `conformal_mapping_replica.py`
-- [x] `conformal_square_replica.py`
-- [x] `conformal_vis_replica.py`
-- [x] `hyperfuns_replica.py`
-- [x] `keyhole_ablowitz_fokas_replica.py`
-- [x] `keyhole_contour_replica.py`
-- [x] `phase_portraits_replica.py`
-- [x] `phaseplot_command_replica.py`
-- [x] `portraits_with_poles_replica.py`
-- [x] `rational_harmonic_replica.py`
-- [x] `rouche_theorem_replica.py`
-- [x] `singularities_replica.py`
-- [x] `zeta_zeros_replica.py`
+- [x] `analytic_continuation.py`
+- [x] `arguments.py`
+- [x] `closed_contours.py`
+- [x] `complex_arc_length.py`
+- [x] `complex_minimax.py`
+- [x] `conformal_l.py`
+- [x] `conformal_mapping.py`
+- [x] `conformal_mapping2.py`
+- [x] `conformal_square.py`
+- [x] `conformal_vis.py`
+- [x] `hyperfuns.py`
+- [x] `keyhole_ablowitz_fokas.py`
+- [x] `keyhole_contour.py`
+- [x] `phase_portraits.py`
+- [x] `phaseplot_command.py`
+- [x] `portraits_with_poles.py`
+- [x] `rational_harmonic.py`
+- [x] `rouche_theorem.py`
+- [x] `singularities.py`
+- [x] `zeta_zeros.py`
 
 ## examples/disk (4 scripts)
 
 - [x] `__init__.py`
 - [x] `disk_functions.py`
-- [x] `eigenfunctions_replica.py`
-- [x] `heat_eqn_replica.py`
+- [x] `eigenfunctions.py`
+- [x] `heat_eqn.py`
 
 ## examples/fourier (6 scripts)
 
 - [x] `__init__.py`
-- [x] `best_trig_approx_replica.py`
-- [x] `fejer_jackson_replica.py`
+- [x] `best_trig_approx.py`
+- [x] `fejer_jackson.py`
 - [x] `fourier_based_chebfuns.py`
-- [x] `fourier_coefficients_replica.py`
-- [x] `trig_cf_replica.py`
+- [x] `fourier_coefficients.py`
+- [x] `trig_cf.py`
 
 ## examples/fourier_new (2 scripts)
 
@@ -1485,62 +1437,61 @@ All 21 categories ported; every numbered figure regenerated (see PARITY_MATRIX.m
 ## examples/fun (9 scripts)
 
 - [x] `__init__.py`
-- [x] `birthday_odds_replica.py`
-- [x] `birthday_replica.py`
-- [x] `encryption_replica.py`
+- [x] `birthday.py`
+- [x] `birthday_odds.py`
+- [x] `encryption.py`
 - [x] `fun_examples.py`
-- [x] `hello_world_replica.py`
-- [x] `valentines_day2_replica.py`
-- [x] `valentines_day_replica.py`
-- [x] `writing_3d_replica.py`
+- [x] `hello_world.py`
+- [x] `valentines_day.py`
+- [x] `valentines_day2.py`
+- [x] `writing_3d.py`
 
-## examples/geom (15 scripts)
+## examples/geom (14 scripts)
 
 - [x] `__init__.py`
-- [x] `area_replica.py`
-- [x] `constant_width_replica.py`
+- [x] `area.py`
+- [x] `constant_width.py`
+- [x] `curves.py`
 - [x] `curves_and_lengths.py`
-- [x] `curves_replica.py`
-- [x] `ellipse_replica.py`
-- [x] `ellipses_replica.py`
-- [x] `lissajous_replica.py`
+- [x] `ellipse.py`
+- [x] `ellipses.py`
+- [x] `lissajous.py`
 - [x] `parametric_surfaces.py`
-- [x] `parametric_surfaces_replica.py`
-- [x] `procrustes_replica.py`
-- [x] `rose_curves_replica.py`
-- [x] `rounding_corners_replica.py`
-- [x] `two_circles_replica.py`
-- [x] `volume_of_heart_replica.py`
+- [x] `procrustes.py`
+- [x] `rose_curves.py`
+- [x] `rounding_corners.py`
+- [x] `two_circles.py`
+- [x] `volume_of_heart.py`
 
 ## examples/integro (5 scripts)
 
 - [x] `__init__.py`
-- [x] `fox_li_replica.py`
-- [x] `frac_calc2_replica.py`
-- [x] `frac_calc_replica.py`
-- [x] `wiki_integro_diff_replica.py`
+- [x] `fox_li.py`
+- [x] `frac_calc.py`
+- [x] `frac_calc2.py`
+- [x] `wiki_integro_diff.py`
 
 ## examples/linalg (19 scripts)
 
 - [x] `__init__.py`
-- [x] `analytic_svd_replica.py`
-- [x] `cond_nos_replica.py`
-- [x] `cond_vandermonde_replica.py`
-- [x] `constrained_least_squares_replica.py`
-- [x] `crossings_analyticity_replica.py`
-- [x] `crouzeix_replica.py`
-- [x] `eig_landscapes_replica.py`
-- [x] `eigs_via_det_replica.py`
-- [x] `field_of_values_replica.py`
-- [x] `level_repulsion_replica.py`
-- [x] `mercury_earth_conjunctions_replica.py`
-- [x] `nonnormal_quiz_replica.py`
-- [x] `nonsmooth_fov_replica.py`
-- [x] `quasi_qr_replica.py`
-- [x] `resolvent_norm_replica.py`
-- [x] `sor_replica.py`
-- [x] `transient_growth_replica.py`
-- [x] `vandermonde_arnoldi_replica.py`
+- [x] `analytic_svd.py`
+- [x] `cond_nos.py`
+- [x] `cond_vandermonde.py`
+- [x] `constrained_least_squares.py`
+- [x] `crossings_analyticity.py`
+- [x] `crouzeix.py`
+- [x] `eig_landscapes.py`
+- [x] `eigs_via_det.py`
+- [x] `field_of_values.py`
+- [x] `level_repulsion.py`
+- [x] `mercury_earth_conjunctions.py`
+- [x] `nonnormal_quiz.py`
+- [x] `nonsmooth_fov.py`
+- [x] `quasi_qr.py`
+- [x] `resolvent_norm.py`
+- [x] `sor.py`
+- [x] `transient_growth.py`
+- [x] `vandermonde_arnoldi.py`
 
 ## examples/linalg_new (3 scripts)
 
@@ -1552,110 +1503,110 @@ All 21 categories ported; every numbered figure regenerated (see PARITY_MATRIX.m
 
 - [x] `__init__.py`
 - [x] `_rayleighquotient_data.py`
-- [x] `continuouswilkinson_replica.py`
-- [x] `contourprojeig_replica.py`
-- [x] `doublewell_replica.py`
-- [x] `drum_replica.py`
-- [x] `eigenstates_replica.py`
-- [x] `fouriereigs_replica.py`
-- [x] `landscape_replica.py`
-- [x] `levelrepulsionode_replica.py`
-- [x] `nullspace_replica.py`
-- [x] `opticalresponse_replica.py`
-- [x] `orrsommerfeld_replica.py`
-- [x] `randfuneig_replica.py`
-- [x] `rayleighquotient_replica.py`
-- [x] `solarqda_replica.py`
-- [x] `thermoelasticrod_replica.py`
-- [x] `wavedecay_replica.py`
+- [x] `continuouswilkinson.py`
+- [x] `contourprojeig.py`
+- [x] `doublewell.py`
+- [x] `drum.py`
+- [x] `eigenstates.py`
+- [x] `fouriereigs.py`
+- [x] `landscape.py`
+- [x] `levelrepulsionode.py`
+- [x] `nullspace.py`
+- [x] `opticalresponse.py`
+- [x] `orrsommerfeld.py`
+- [x] `randfuneig.py`
+- [x] `rayleighquotient.py`
+- [x] `solarqda.py`
+- [x] `thermoelasticrod.py`
+- [x] `wavedecay.py`
 
 ## examples/ode-linear (26 scripts)
 
 - [x] `__init__.py`
-- [x] `adjoints_replica.py`
-- [x] `adv_diff_jump_replica.py`
-- [x] `boundary_layer_replica.py`
-- [x] `breakpoints_replica.py`
-- [x] `contour_expm_replica.py`
-- [x] `dawson_integral_replica.py`
-- [x] `dynamical_systems_replica.py`
-- [x] `floquet_replica.py`
-- [x] `fourier_collocation_replica.py`
-- [x] `frozen_coeffs_replica.py`
-- [x] `jump_green_replica.py`
-- [x] `krylov_replica.py`
-- [x] `lee_greengard_replica.py`
-- [x] `lin_exp_ivp_replica.py`
-- [x] `linear_ivp_replica.py`
-- [x] `matched_asymp_replica.py`
-- [x] `near_nonuniqueness_replica.py`
-- [x] `nonstandard_bcs_replica.py`
-- [x] `order_stars_replica.py`
-- [x] `parameter_ode_replica.py`
-- [x] `periodic_system_replica.py`
-- [x] `regions_replica.py`
-- [x] `resonant_vandal_replica.py`
-- [x] `spectral_disc_replica.py`
-- [x] `wiki_ode_replica.py`
+- [x] `adjoints.py`
+- [x] `adv_diff_jump.py`
+- [x] `boundary_layer.py`
+- [x] `breakpoints.py`
+- [x] `contour_expm.py`
+- [x] `dawson_integral.py`
+- [x] `dynamical_systems.py`
+- [x] `floquet.py`
+- [x] `fourier_collocation.py`
+- [x] `frozen_coeffs.py`
+- [x] `jump_green.py`
+- [x] `krylov.py`
+- [x] `lee_greengard.py`
+- [x] `lin_exp_ivp.py`
+- [x] `linear_ivp.py`
+- [x] `matched_asymp.py`
+- [x] `near_nonuniqueness.py`
+- [x] `nonstandard_bcs.py`
+- [x] `order_stars.py`
+- [x] `parameter_ode.py`
+- [x] `periodic_system.py`
+- [x] `regions.py`
+- [x] `resonant_vandal.py`
+- [x] `spectral_disc.py`
+- [x] `wiki_ode.py`
 
 ## examples/ode-nonlin (27 scripts)
 
 - [x] `__init__.py`
-- [x] `allen_cahn_replica.py`
-- [x] `blasius_replica.py`
-- [x] `bloodhound_replica.py`
-- [x] `blowup_fk_replica.py`
-- [x] `bvp_system_replica.py`
-- [x] `carrier_replica.py`
-- [x] `chebop_quiver_replica.py`
-- [x] `delay_differential_equations_replica.py`
-- [x] `droplets_replica.py`
-- [x] `exact_solns_replica.py`
-- [x] `fourier_collocation_nonlin_replica.py`
-- [x] `guckenheimer_holmes_replica.py`
-- [x] `gulf_stream_replica.py`
-- [x] `ivp_capabilities_replica.py`
-- [x] `lane_emden_replica.py`
-- [x] `logistic2_replica.py`
-- [x] `logistic_replica.py`
-- [x] `lorenz_attractor_replica.py`
-- [x] `lyapunov_exponents_replica.py`
-- [x] `modelling_diseases_replica.py`
-- [x] `orbits_replica.py`
-- [x] `picard_replica.py`
-- [x] `square_cycle_replica.py`
-- [x] `three_body_problem_replica.py`
-- [x] `three_planets_replica.py`
-- [x] `two_electrons_replica.py`
+- [x] `allen_cahn.py`
+- [x] `blasius.py`
+- [x] `bloodhound.py`
+- [x] `blowup_fk.py`
+- [x] `bvp_system.py`
+- [x] `carrier.py`
+- [x] `chebop_quiver.py`
+- [x] `delay_differential_equations.py`
+- [x] `droplets.py`
+- [x] `exact_solns.py`
+- [x] `fourier_collocation_nonlin.py`
+- [x] `guckenheimer_holmes.py`
+- [x] `gulf_stream.py`
+- [x] `ivp_capabilities.py`
+- [x] `lane_emden.py`
+- [x] `logistic.py`
+- [x] `logistic2.py`
+- [x] `lorenz_attractor.py`
+- [x] `lyapunov_exponents.py`
+- [x] `modelling_diseases.py`
+- [x] `orbits.py`
+- [x] `picard.py`
+- [x] `square_cycle.py`
+- [x] `three_body_problem.py`
+- [x] `three_planets.py`
+- [x] `two_electrons.py`
 
 ## examples/ode-random (11 scripts)
 
 - [x] `__init__.py`
-- [x] `consensus_replica.py`
-- [x] `gbm_replica.py`
-- [x] `levelhopping_replica.py`
-- [x] `phaselocking_replica.py`
-- [x] `pitchfork_replica.py`
-- [x] `random2sde_replica.py`
-- [x] `randomonasphere_replica.py`
-- [x] `randomswitching_replica.py`
-- [x] `tunnelling_replica.py`
-- [x] `whitenoiseparadox_replica.py`
+- [x] `consensus.py`
+- [x] `gbm.py`
+- [x] `levelhopping.py`
+- [x] `phaselocking.py`
+- [x] `pitchfork.py`
+- [x] `random2sde.py`
+- [x] `randomonasphere.py`
+- [x] `randomswitching.py`
+- [x] `tunnelling.py`
+- [x] `whitenoiseparadox.py`
 
 ## examples/opt (12 scripts)
 
 - [x] `__init__.py`
-- [x] `catenary_replica.py`
-- [x] `constrained_extrema_replica.py`
-- [x] `constrained_optimization_replica.py`
-- [x] `dixon_szego_replica.py`
-- [x] `extreme_extrema_replica.py`
-- [x] `global_minimum_replica.py`
-- [x] `mercury_earth_replica.py`
-- [x] `needle_replica.py`
-- [x] `optim_int_replica.py`
-- [x] `rosenbrock2_replica.py`
-- [x] `rosenbrock_replica.py`
+- [x] `catenary.py`
+- [x] `constrained_extrema.py`
+- [x] `constrained_optimization.py`
+- [x] `dixon_szego.py`
+- [x] `extreme_extrema.py`
+- [x] `global_minimum.py`
+- [x] `mercury_earth.py`
+- [x] `needle.py`
+- [x] `optim_int.py`
+- [x] `rosenbrock.py`
+- [x] `rosenbrock2.py`
 
 ## examples/opt_new (3 scripts)
 
@@ -1666,16 +1617,16 @@ All 21 categories ported; every numbered figure regenerated (see PARITY_MATRIX.m
 ## examples/pde (11 scripts)
 
 - [x] `__init__.py`
-- [x] `bsexponential_replica.py`
-- [x] `erosion_replica.py`
-- [x] `fourierexpm_replica.py`
-- [x] `ginzburglandau_replica.py`
-- [x] `grayscott_replica.py`
-- [x] `kdv_replica.py`
-- [x] `kswave_replica.py`
-- [x] `kuramoto_replica.py`
-- [x] `swifthohenberg_replica.py`
-- [x] `trapezoideigs_replica.py`
+- [x] `bsexponential.py`
+- [x] `erosion.py`
+- [x] `fourierexpm.py`
+- [x] `ginzburglandau.py`
+- [x] `grayscott.py`
+- [x] `kdv.py`
+- [x] `kswave.py`
+- [x] `kuramoto.py`
+- [x] `swifthohenberg.py`
+- [x] `trapezoideigs.py`
 
 ## examples/pde_new (4 scripts)
 
@@ -1687,88 +1638,88 @@ All 21 categories ported; every numbered figure regenerated (see PARITY_MATRIX.m
 ## examples/quad (9 scripts)
 
 - [x] `__init__.py`
-- [x] `gauss_clen_curt_replica.py`
-- [x] `hermite_quad_replica.py`
-- [x] `quadrature_convergence_replica.py`
-- [x] `spike_integral_replica.py`
-- [x] `sumdisk_demo_replica.py`
-- [x] `symbolic_numeric_replica.py`
-- [x] `tjtkdisk_replica.py`
-- [x] `tricky_replica.py`
+- [x] `gauss_clen_curt.py`
+- [x] `hermite_quad.py`
+- [x] `quadrature_convergence.py`
+- [x] `spike_integral.py`
+- [x] `sumdisk_demo.py`
+- [x] `symbolic_numeric.py`
+- [x] `tjtkdisk.py`
+- [x] `tricky.py`
 
 ## examples/roots (19 scripts)
 
 - [x] `__init__.py`
-- [x] `aaa_zeros_replica.py`
-- [x] `average_degree_reduction_1d_replica.py`
-- [x] `average_degree_reduction_2d_replica.py`
-- [x] `bessel_roots_replica.py`
-- [x] `bivariate_roots_replica.py`
-- [x] `complex_roots_replica.py`
-- [x] `fundamental_theorem_of_algebra_replica.py`
-- [x] `marching_squares_replica.py`
-- [x] `newton_raphson_replica.py`
-- [x] `random_polynomials_replica.py`
-- [x] `random_polys_replica.py`
-- [x] `resultant_method_replica.py`
-- [x] `roots_near_axis_replica.py`
-- [x] `roots_speed_replica.py`
-- [x] `secular_roots_replica.py`
-- [x] `subramanian_replica.py`
-- [x] `tiger_replica.py`
-- [x] `white_curves_replica.py`
+- [x] `aaa_zeros.py`
+- [x] `average_degree_reduction_1d.py`
+- [x] `average_degree_reduction_2d.py`
+- [x] `bessel_roots.py`
+- [x] `bivariate_roots.py`
+- [x] `complex_roots.py`
+- [x] `fundamental_theorem_of_algebra.py`
+- [x] `marching_squares.py`
+- [x] `newton_raphson.py`
+- [x] `random_polynomials.py`
+- [x] `random_polys.py`
+- [x] `resultant_method.py`
+- [x] `roots_near_axis.py`
+- [x] `roots_speed.py`
+- [x] `secular_roots.py`
+- [x] `subramanian.py`
+- [x] `tiger.py`
+- [x] `white_curves.py`
 
 ## examples/sphere (16 scripts)
 
 - [x] `__init__.py`
-- [x] `advectiondiffusion_replica.py`
-- [x] `atmospherictemperature_replica.py`
-- [x] `gravity_replica.py`
-- [x] `helmholtzdecomposition_replica.py`
-- [x] `helmholtzdecompositionball_replica.py`
-- [x] `laplaceball_replica.py`
-- [x] `ptdecomposition_replica.py`
-- [x] `rayleighquotientexample_replica.py`
-- [x] `solidharmonics_replica.py`
+- [x] `advectiondiffusion.py`
+- [x] `atmospherictemperature.py`
+- [x] `gravity.py`
+- [x] `helmholtzdecomposition.py`
+- [x] `helmholtzdecompositionball.py`
+- [x] `laplaceball.py`
+- [x] `ptdecomposition.py`
+- [x] `rayleighquotientexample.py`
+- [x] `solidharmonics.py`
 - [x] `sphere_operations.py`
-- [x] `spherefunpartition_replica.py`
-- [x] `spherefunrotate_replica.py`
-- [x] `sphereheatconduction_replica.py`
+- [x] `spherefunpartition.py`
+- [x] `spherefunrotate.py`
+- [x] `sphereheatconduction.py`
 - [x] `spherical_harmonics.py`
-- [x] `sphericalharmonics_replica.py`
+- [x] `sphericalharmonics.py`
 
 ## examples/stats (17 scripts)
 
 - [x] `__init__.py`
-- [x] `bayesian_gradebook_replica.py`
-- [x] `bivariate_normal_distribution_replica.py`
-- [x] `central_limit_theorem_replica.py`
-- [x] `expectations_replica.py`
-- [x] `histogram_replica.py`
-- [x] `least_squares_replica.py`
-- [x] `mercer_karhunen_loeve_replica.py`
-- [x] `normal_exercises_replica.py`
-- [x] `probability_convolution_replica.py`
-- [x] `random_maxima_replica.py`
-- [x] `random_polynomials_replica.py`
-- [x] `random_surf_replica.py`
-- [x] `resampling_random_variables_replica.py`
-- [x] `smooth_random_walk_replica.py`
-- [x] `smoothies_replica.py`
-- [x] `uniform_exercises_replica.py`
+- [x] `bayesian_gradebook.py`
+- [x] `bivariate_normal_distribution.py`
+- [x] `central_limit_theorem.py`
+- [x] `expectations.py`
+- [x] `histogram.py`
+- [x] `least_squares.py`
+- [x] `mercer_karhunen_loeve.py`
+- [x] `normal_exercises.py`
+- [x] `probability_convolution.py`
+- [x] `random_maxima.py`
+- [x] `random_polynomials.py`
+- [x] `random_surf.py`
+- [x] `resampling_random_variables.py`
+- [x] `smooth_random_walk.py`
+- [x] `smoothies.py`
+- [x] `uniform_exercises.py`
 
 ## examples/temp (4 scripts)
 
 - [x] `__init__.py`
-- [x] `binousshaikhbellagi_replica.py`
-- [x] `compactingcolloids_replica.py`
-- [x] `taylorstheorem_replica.py`
+- [x] `binousshaikhbellagi.py`
+- [x] `compactingcolloids.py`
+- [x] `taylorstheorem.py`
 
 ## examples/veccalc (4 scripts)
 
 - [x] `__init__.py`
-- [x] `autonomous_systems_replica.py`
-- [x] `checking_vector_calculus_replica.py`
+- [x] `autonomous_systems.py`
+- [x] `checking_vector_calculus.py`
 - [x] `vector_calculus.py`
 
 

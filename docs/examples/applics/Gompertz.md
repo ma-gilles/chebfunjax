@@ -1,53 +1,79 @@
 # Exponential, logistic, and Gompertz growth
 
+*Toby Driscoll, June 15, 2015*
+
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/applics/Gompertz.html)
 
-(Chebfun example applics/Gompertz.m — Toby Driscoll, June 15, 2015)
+Python translation: [`examples/applics/gompertz.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/applics/gompertz.py)
 
-If the per-capita growth rate of a population is held constant,
-exponential growth results. Solving the chebop IVP
-$P' = 0.5P$, $P(0) = 0.2$ on $[0, 25]$:
+If the per-capita growth rate of a population is held constant, exponential growth of the population results.
 
-![Gompertz figure 1](../../images/applics/Gompertz_repl_01.png)
-
-The result is unbounded growth, which is not biologically realistic.
-The *logistic model* decreases the per-capita rate linearly to zero
-as $P$ approaches the carrying capacity (here 6):
-
-![Gompertz figure 2](../../images/applics/Gompertz_repl_02.png)
-
-The *Gompertz model* instead uses a logarithmic rate, which shuts
-down growth more rapidly until $P$ nears the carrying capacity:
-
-![Gompertz figure 3](../../images/applics/Gompertz_repl_03.png)
-
-The solutions reflect this difference:
-
-![Gompertz figure 4](../../images/applics/Gompertz_repl_04.png)
-
-Solution accuracy (the exponential case has the analytic solution
-$0.2e^{0.5t}$, matched to 9 digits at $t=25$; both limited models
-approach the carrying capacity 6):
-
-```text
-exponential P(25) = 53667.457336  (exact 53667.4573042)
-logistic P(25) = 5.99957865114
-Gompertz P(25) = 5.50444713908
+```matlab
+exponentialPCRate = @(P) 0.5;
+N = chebop( @(t,P) diff(P) - P.*exponentialPCRate(P), [0 25] );
+N.lbc = 0.2;
+exponentialResult = N\0;
+plot( exponentialResult )
+xlabel('t'), ylabel('P(t)'), title('Exponential growth')
 ```
 
-The Gompertz model has been recognized for some time as a reasonable
-model for some tumors [1-2].
+![Gompertz figure 01](../../images/applics/Gompertz_01.png)
 
-## References
+The result is unbounded growth, which is not biologically realistic. A common way to remedy this defect is the *logistic model*. In this model, the per capita growth rate decreases linearly to zero as the population $P$ approaches a fixed value, known as the *carrying capacity*. For example, a carrying capacity of $P=6$ is imposed through
 
-1. Laird, A. K. Dynamics of growth in tumors and in normal
-   organisms. Natl. Cancer Inst. Monogr. 30: 15-28, 1969.
+```matlab
+logisticPCRate = @(P) 0.5*(6-P)/5.8;
+```
 
-2. Winsor, C. P. The Gompertz curve as a growth curve. Proc. Natl.
-   Acad. Sci. USA 18: 1-7, 1932.
+Here is the resulting growth.
+
+```matlab
+N = chebop( @(t,P) diff(P) - P.*logisticPCRate(P), [0 25] );
+N.lbc = 0.2;
+logisticResult = N\0;
+plot( [exponentialResult, logisticResult] )
+ylim([0 8])
+xlabel('t'), ylabel('P(t)'), legend('exp','logistic')
+```
+
+![Gompertz figure 02](../../images/applics/Gompertz_02.png)
+
+The logistic model is appealingly simple and adequate for some situations, but it is far too generic to capture other phenomena. Another way to limit growth is the *Gompertz model*, in which, for example,
+
+```matlab
+GompertzPCRate = @(P) 0.5*log(6./P)/log(6/0.2);
+```
+
+Compared to the logistic model, the Gompertz model shuts down growth more rapidly until $P$ gets close to the carrying capacity.
+
+```matlab
+plot( chebfun(logisticPCRate,[0.2 6]) ), hold on
+plot( chebfun(GompertzPCRate,[0.2 6]) )
+xlabel('P'), ylabel('P''/P')
+```
+
+![Gompertz figure 03](../../images/applics/Gompertz_03.png)
+
+The solutions reflect this difference, of course.
+
+```matlab
+N = chebop( @(t,P) diff(P) - P.*GompertzPCRate(P), [0 25] );
+N.lbc = 0.2;
+GompertzResult = N\0;
+clf, plot( [exponentialResult, logisticResult, GompertzResult] )
+ylim([0 8])
+xlabel('t'), ylabel('P(t)'), legend('exp','logistic','Gompertz')
+```
+
+![Gompertz figure 04](../../images/applics/Gompertz_04.png)
+
+The Gompertz model has been recognized for some time as a reasonable model for some tumors [1-2]. However, it too is considered inadequate for many realistic uses. At least some of the attention paid to the logistic and Gompertz models has to be attributed to the fact that they have analytic solutions.
+
+References:
+
+1. Laird, A. K. Dynamics of growih in tumors and in normal organisms. Nati. Cancer Inst. Monogr. 30: 15-28, 1969.
+2. Winsor, C. P. The Gompertz curve as a growih curve. Proc. Natl. Acad. Sci. USA 18: 1-7, 1932.
 
 ---
 
-*Replica script: [`examples/applics/gompertz_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/applics/gompertz_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

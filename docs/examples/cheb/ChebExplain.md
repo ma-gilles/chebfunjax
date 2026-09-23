@@ -1,48 +1,86 @@
-# Explaining chebfun construction
+# The explain command for Chebfun geeks
 
-*Nick Trefethen, March 2017*
+*Jared Aurentz and Nick Trefethen, June 2016*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/cheb/ChebExplain.html)
 
-(Chebfun example cheb/ChebExplain.m)
+Python translation: [`examples/cheb/cheb_explain.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/cheb/cheb_explain.py)
 
-The `explain` tool annotates the constructor's decisions: which grids
-it sampled, where it chopped the series, and what tolerance it worked
-to.  This replica draws the chopped coefficients (blue) over a
-doublelength construction (grey) with the working tolerance marked
-(red dashed).
+## 1. Circles, dots, dashed line, and envelope
 
-Scaling doesn't matter — the constructor works relative to the vertical
-scale:
+Since the release of Version 5.3 in 2015, Chebfun has constructed chebfuns by a process encoded in `standardChop.m`, which implements an algorithm described in [1]. If you want to see the details for a particular function, the new `explain` command can help. For example, here is an explanation of the chebfun of the function $f(x) = 10000e^x$ on $[-1,1]$:
 
-![ChebExplain figure 1](../../images/cheb/ChebExplain_repl_01.png)
-
-A Gaussian bump is easy:
-
-![ChebExplain figure 2](../../images/cheb/ChebExplain_repl_02.png)
-
-A Runge-type function needs a longer series:
-
-![ChebExplain figure 3](../../images/cheb/ChebExplain_repl_03.png)
-
-A tiny hidden oscillation at $10^{-8}$ is resolved, since it lies above
-machine precision relative to the scale:
-
-![ChebExplain figure 4](../../images/cheb/ChebExplain_repl_04.png)
-
-At $10^{-12}$... also resolved — but at $10^{-16}$ it would vanish into
-the rounding plateau:
-
-![ChebExplain figure 5](../../images/cheb/ChebExplain_repl_05.png)
-
-Non-smooth functions like $|x|^3$ produce long algebraically decaying
-series:
-
-![ChebExplain figure 6](../../images/cheb/ChebExplain_repl_06.png)
-
-One can also construct at a fixed length:
-
+```matlab
+explain('100000*exp(x)')
 ```
+
+![ChebExplain figure 01](../../images/cheb/ChebExplain_01.png)
+
+The three most basic features of the plot are as follows.
+
+*Red circles:* Chebyshev coefficients of the constructed chebfun for $f$, of degree 14 in this case. (Throughout this discussion, when we speak of coefficients or other numbers, we mean their absolute values.)
+
+*Black dots:* Chebyshev coefficients of $f$ on the finest grid that the constructor sampled during the construction process. In this example there are 33 of these (the last one off-scale, below the plot). In general this number will be one of $17, 33, 65,\dots, 65537$.
+
+*Horizontal black dashed line:* tolerance used for this chebfun construction. This level is equal to the scale of the function (maximum of the Chebyshev coefficients) times a number `tol`. In a Chebfun computation, `tol` is set to the Chebfun `chebfuneps` parameter, whose factory value is machine epsilon, $2^{-52}$, about $10^{-16}$. In `explain`, `tol` is set to machine epsilon by default, and we will show later on how the user can override this choice.
+
+*Green envelope:* this is a monotonically nonincreasing curve showing, at each index, the maximum of this and all subsequent coefficients. Chebfun's construction decisions are based entirely on this envelope. Two functions that have different Chebyshev coefficients but the same envelope will be chopped at exactly the same point.
+
+## 2. PlateauPoint and tilted line
+
+Two finer points of the `explain` plot are the black square box, which marks the index we call `PlateauPoint`, and the tilted magenta line. To explain these it is helpful to look at another example:
+
+```matlab
+explain('exp(-(x-.5)^2)')
+```
+
+![ChebExplain figure 02](../../images/cheb/ChebExplain_02.png)
+
+First, a couple of notes about cosmetic items. The string input to `explain` can use symbols like `*` and `^` rather than their pointwise analogues `.*` and `.^`. This is made possible by a call in `explain` to the MATLAB `vectorize` command, and it helps to make the printed label at the upper-right of each plot come out as closely as possible to mathematical notation. The code also applies various other formatting adjustments to tidy up that label. For example, note that the `*` for multiplication that defined our first function did not appear in its label in the plot.
+
+Now, back to the construction process. The `standardChop` algorithm has three main steps. Step 1 calculates the monotonic envelope of the Chebyshev coefficients. The main feature of the algorithm is the separation into a Step 2, which decides that *this series is good enough to be chopped to make a chebfun* (if not, we have to sample on a finer grid), and Step 3, which decides *exactly where we will chop this series*.
+
+A series is good enough to be chopped if it contains a "plateau" of coefficients at approximately the level of `tol`. The precise decision here, however, is subtle. Any plateau lower than $tol^{2/3}$ might be good enough, but if it's as high as $tol^{2/3}$ it has to be perfectly flat, whereas if it's all the way down at $tol$, it does not have to be flat. In the figure, the black box shows that at index $k=22$, the algorithm has decided that this series is good enough to be chopped. In the end, though, the last Chebyshev coefficient retained is not $k=22$ but $k=24$. In Step 3, the algorithm has judged that coefficients $k=23$ and $k=24$ also contain useful information. To make this judgement, it "holds up a tilted ruler" to the data, and chops the series just before the first point where the green envelope and the magenta ruler touch.
+
+Here is another example, a Runge function with a large parameter.
+
+```matlab
+explain('1/(1+1000*x^2)')
+```
+
+![ChebExplain figure 03](../../images/cheb/ChebExplain_03.png)
+
+Here we illustrate that a long plateau at level $10^{-8}$ is too high to be accepted; Chebfun insists on capturing it:
+
+```matlab
+explain('exp(x) + 1e-8*cos(99*x)')
+```
+
+![ChebExplain figure 04](../../images/cheb/ChebExplain_04.png)
+
+If the plateau is lower down, Chebfun chops before it:
+
+```matlab
+explain('exp(x) + 1e-12*cos(99*x)')
+```
+
+![ChebExplain figure 05](../../images/cheb/ChebExplain_05.png)
+
+Sometimes Chebfun chooses to chop a series before `plateauPoint`. One sees this most often with non-analytic functions whos series converge slowly:
+
+```matlab
+explain('abs(x)^3')
+```
+
+![ChebExplain figure 06](../../images/cheb/ChebExplain_06.png)
+
+Here the constructor has decided that doubling the length of the series to get one more digit is not worthwhile. One can always override that decision with a command like this:
+
+```matlab
+f = chebfun('abs(x).^3',3000)
+```
+
+```text
 f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
@@ -50,23 +88,45 @@ f =
 vertical scale =   1
 ```
 
-A rapid oscillation hidden at the $10^{-8}$ level cannot be resolved at
-machine precision (the constructor warns), but with `eps = 1e-8` the
-oscillation is treated as noise and a length-10 chebfun results:
+## 3. Adjusting the tolerance
 
+For working with noisy data, and also for computations in two and especially three dimensions, it is often desirable to loosen the tolerance. For example, Chebfun cannot capture this function:
+
+```matlab
+f = chebfun('exp(x) + 1e-8*cos(99999*x)')
 ```
+
+```text
+(no matching output)
+```
+
+With a looser tolerance it has no trouble:
+
+```matlab
+f = chebfun('exp(x) + 1e-8*cos(99999*x)','eps',1e-8)
+```
+
+```text
 f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
 [      -1,       1]       10      0.37      2.7
 vertical scale = 2.7
+explain('exp(x) + 1e-8*cos(99999*x)', 1e-08): len 10
 ```
 
-(Digit-for-digit with the published output.)
+Here we use `explain` with a second tolerance parameter to see how the length was determined:
 
-![ChebExplain figure 7](../../images/cheb/ChebExplain_repl_07.png)
+```matlab
+explain('exp(x) + 1e-8*cos(99999*x)',1e-8)
+```
+
+![ChebExplain figure 07](../../images/cheb/ChebExplain_07.png)
+
+## 4. Reference
+
+1. J. L. Aurentz and L. N. Trefethen, Chopping a Chebyshev series, *ACM Transactions on Mathematical Software*, 43 (2017), 33:1--21.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

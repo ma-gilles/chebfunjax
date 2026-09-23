@@ -4,42 +4,59 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-random/Pitchfork.html)
 
-(Chebfun example ode-random/Bifurcation.m)
+Python translation: [`examples/ode-random/pitchfork.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-random/pitchfork.py)
 
-The ODE $y'' = 2cy - 4y^3$ undergoes a pitchfork bifurcation at
-$c = 0$: for $c < 0$ only $y = 0$ is a (stable) real fixed point;
-for $c > 0$ it turns unstable and $y = \pm\sqrt{c/2}$ emerge. Sweep
-the coefficient slowly through zero,
+The second-order ODE $$ y'' = 2\kern .3pt cy - 4y^3 $$ has fixed points $y=0$, $y = \sqrt{c/2}$ and $y = -\sqrt{c/2}$. For $c<0$, only the first of these is real, and it is a stable fixed point. As $c$ passes through zero to values $c>0$, the other two fixed points emerge, and now $y=0$ is unstable and the other two are stable. This is a pitchfork bifurcation.
 
-$$ y'' = 2c(t)y - 4y^3 + 0.003f(t), \quad c(t) = -1 + t/300,
-\quad t \in [0, 600], $$
+One way to see the bifurcation in a single ODE computation is to consider a time-dependent problem with a coefficient $c(t)$ that slowly increases through zero, like this: $$ y'' = 2\kern .3pt c(t)y - 4y^3, ~~~ c(t) = -1+t/300, ~~ t \in [0, 600]. $$ If the initial condition is $y(0) = 0$, then the solution is $y(t)=0$ for all $t$ --- the solution never notices the instability.
 
-with $y(0) = y'(0) = 0$. Without noise the solution rides the
-unstable branch forever (dashed); with noise it deviates at random
-onto one branch or the other:
+However, suppose we add noise in the form of a random function of small amplitude, like this: $$ y'' = 2\kern .3pt c(t)y - 4y^3 + 0.003f(t), ~~~ c(t) = -1+t/300, ~~ t \in [0, 600]. $$ Now the solution will, at random, deviate to one or the other branch of the pitchfork. Here we show three solutions: two with noise, and one without (the dashed middle line).
 
-![Pitchfork figure 1](../../images/ode-random/Pitchfork_repl_01.png)
+```matlab
+tic
+rng(0), lambda = 2;
+N = chebop(0,600); N.lbc = [0;0];
+N.op = @(t,y) diff(y,2) - 2*(-1+t/300)*y + 4*y^3;
+FS = 'fontsize'; LW = 'linewidth'; lw = 2.5;
+y1 = N\0; plot(y1,'--k',LW,lw), hold on
+f1 = 0.003*randnfun([0 600],lambda,'norm');
+y2 = N\f1; plot(y2,'b',LW,lw),
+f2 = 0.003*randnfun([0 600],lambda,'norm');
+y3 = N\f2; plot(y3,'r',LW,lw), hold off
+xlabel('t',FS,32), ylabel('y',FS,32)
+title('Pitchfork',FS,32)
+axis([0 600 -.8 .8]), grid on
+```
 
-The solutions display big oscillations; a damping term $0.2y'$
-changes this a good deal:
+![Pitchfork figure 01](../../images/ode-random/Pitchfork_01.png)
 
-![Pitchfork figure 2](../../images/ode-random/Pitchfork_repl_02.png)
+Note that the solutions display big oscillations. Adding a damping term $0.2y'$ to the equation changes this a good deal.
 
-*(Sample paths use JAX keys — MATLAB's `rng(0)` stream is not
-reproducible. Like the original — which notes "we flipped the sign on
-one of them" — one noise sample's sign is flipped so the figure shows
-both branches. Branch endpoints: $\pm0.67/0.69$ undamped,
-$\pm0.70/0.71$ damped, hugging $\sqrt{c(600)/2} = 0.707$.)*
+```matlab
+N.op = @(t,y) diff(y,2) - 2*(-1+t/300)*y + 4*y^3 + 0.2*diff(y);
+plot(y1,'--k',LW,lw), hold on
+y2 = N\(-f1); plot(y2,'b',LW,lw),
+y3 = N\f2; plot(y3,'r',LW,lw), hold off
+xlabel('t',FS,32), ylabel('y',FS,32)
+title('Pitchfork with damping',FS,32)
+axis([0 600 -.8 .8]), grid on
+```
+
+![Pitchfork figure 02](../../images/ode-random/Pitchfork_02.png)
+
+When we first tried this, both branches went negative. So we flipped the sign on one of them.
+
+This example has connections with the example "Phase-locking in a Duffing-type equation", though that involves a first-order ODE.
+
+```matlab
+total_time_in_seconds = toc
+```
 
 ```text
 total_time_in_seconds =
-  97.475829
+  710.581667
 ```
-
-(MATLAB publishes 26.5 s.)
 
 ---
 
-*Replica script: [`examples/ode-random/pitchfork_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-random/pitchfork_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

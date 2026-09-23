@@ -4,51 +4,100 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-random/RandomSwitching.html)
 
-(Chebfun example ode-random/RandomSwitching.m)
+Python translation: [`examples/ode-random/randomswitching.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-random/randomswitching.py)
 
 ## 1. The simplest scalar example
 
-Switching randomly between $y' = y$ and $y' = -y$ by the sign of a
-random function produces the large amplitude swings familiar from
-geometric Brownian motion:
+Suppose you have a time-dependent ODE whose coefficients switch randomly between two different values. Interesting effects can arise. The most natural switching rule might involve a Poisson process, but another approach is to switch according to the sign of a function produced by the Chebfun `randnfun` command.
 
-![RandomSwitching figure 1](../../images/ode-random/RandomSwitching_repl_01.png)
+The simplest scalar example would be to switch randomly between $y' = y$ and $y' = -y$. Here is an illustration, showing the large swings of amplitude familiar in stochastic analysis in the related problem known as geometric Brownian motion. On a log scale, this process has no bias upward or downward. On a linear scale it's a bit subtler -- again there is no bias in the sense that for large values of $t$, $y(t)$ is as likely to be $<1$ as $>1$. The expected values of $y(t)$ or of $y(t)^2$, however, diverge to $\infty$ as $t\to\infty$.
+
+```matlab
+rng(0), dom = [0 40]; LW = 'linewidth'; tic
+L = chebop(dom); L.lbc = 1;
+c = sign(randnfun(1,dom));
+L.op = @(t,y) diff(y) - c*y;
+y = L\0; plot(y,LW,4), grid on
+```
+
+![RandomSwitching figure 01](../../images/ode-random/RandomSwitching_01.png)
 
 ## 2. A matrix example of Lawley, Mattingly, and Reed
 
-Switching between $y' = Ay$ and $y' = By$ with
+More remarkable behavior appears when we move from scalars to matrices. Suppose $y(t)$ is a 2-vector for each $t$ and it evolves with random switching between $y'= Ay$ and $y' = By$, with
 
-$$ A = \begin{pmatrix}-1&5\\0&-1\end{pmatrix}, \qquad
-B = \begin{pmatrix}-1&0\\-5&-1\end{pmatrix}, $$
+```matlab
+A = [-1 5; 0 -1], B = [-1 0; -5 -1]
+```
 
-both with eigenvalues $-1$ (individually stable). Slow switching
-($\lambda = 3$): the individual behaviors dominate and solutions
-decay:
+```text
+(output not captured for this page yet)
+```
 
-![RandomSwitching figure 2](../../images/ode-random/RandomSwitching_repl_02.png)
+Note that both matrices have eigenvalues $-1$, in the left half-plane. This means that each matrix individually is stable, and if the random switching is slow, the process will be dominated by the matrices' individual behaviors, and solutions will decay. Here for example is a run with the switching parameter set to the large value $\lambda = 3$, shown on both linear and log scales.
 
-Faster switching ($\lambda = 1$): net **growth** — the transient
-amplification of the switches compounds (our sample reaches
-$\|u,v\|^2 \sim 10^7$; a cheap pre-screen showed *every one* of 12
-sampled keys grows, $10^6$–$10^{14}$):
+```matlab
+L = chebop(dom); L.lbc = @(u,v) [u-1; v-1];
+L.maxnorm = 200*[1; 1];
+lambda = 3;
+f = 5*(1+sign(randnfun(lambda,dom)))/2;
+L.op = @(t,u,v) [diff(u) + u - f*v; diff(v) + v + (5-f)*u];
+[u,v] = L\0;
+subplot(2,1,1), plot(u,LW,4), hold on, plot(v,LW,4), hold off, grid on
+title('u and v on linear scale'), ylim([-3 3])
+subplot(2,1,2), semilogy(u^2+v^2,'k',LW,4), grid on, ylim([1e-8 1e8])
+title('norm of (u,v) on log scale'), ylim([1e-5 1e2])
+set(gca,'ytick',10.^[-4:2:4])
+```
 
-![RandomSwitching figure 3](../../images/ode-random/RandomSwitching_repl_03.png)
+![RandomSwitching figure 02](../../images/ode-random/RandomSwitching_02.png)
 
-Still faster ($\lambda = 1/3$): decay once more — in this limit the
-*average* of $A$ and $B$ rules, and it is stable. MATLAB R2025b's own
-`rng(1)` sample decays to $9\times10^{-21}$, the same class as all
-twelve of ours:
+With faster switching, however, there can be net amplification over time, as we see here with an experiment with $\lambda = 1$.
 
-![RandomSwitching figure 4](../../images/ode-random/RandomSwitching_repl_04.png)
+```matlab
+lambda = 1;
+f = 5*(1+sign(randnfun(lambda,dom)))/2;
+L.op = @(t,u,v) [diff(u) + u - f*v; diff(v) + v + (5-f)*u];
+[u,v] = L\0;
+subplot(2,1,1), plot(u,LW,3), hold on, plot(v,LW,3), hold off, grid on
+title('u and v on linear scale'), ylim([-300 300])
+subplot(2,1,2), semilogy(u^2+v^2,'k',LW,3), grid on, ylim([1e-8 1e8])
+title('norm of (u,v) on log scale'), ylim([1e-1 1e6])
+set(gca,'ytick',10.^[-4:2:4])
+```
 
-*(Sample paths use JAX keys, pre-screened so each panel shows the
-regime the example describes; the $\lambda = 3$ regime does admit
-occasional growing samples. Coefficients are evaluated pointwise
-through the sign's breakpoints — mathematically identical to
-MATLAB's `f*v`, and the marching is done at `ivp_reltol = 1e-8`.)*
+![RandomSwitching figure 03](../../images/ode-random/RandomSwitching_03.png)
+
+With still faster switching, solutions may decay once more. In this limit it is the average of the two matrices $A$ and $B$ that matters, which is stable. Here we show the effect with $\lambda = 1/3$.
+
+```matlab
+lambda = 1/3;
+f = 5*(1+sign(randnfun(lambda,dom)))/2;
+L.op = @(t,u,v) [diff(u) + u - f*v; diff(v) + v + (5-f)*u];
+[u,v] = L\0;
+subplot(2,1,1), plot(u,LW,2.5), hold on, plot(v,LW,2.5), hold off, grid on
+title('u and v on linear scale'), ylim([-3 3])
+subplot(2,1,2), semilogy(u^2+v^2,'k',LW,2.5), grid on, ylim([1e-8 1e8])
+title('norm of (u,v) on log scale'), ylim([1e-8 1e2])
+set(gca,'ytick',10.^[-8:4:4])
+```
+
+![RandomSwitching figure 04](../../images/ode-random/RandomSwitching_04.png)
+
+For mathematical details of this fascinating effect see [1].
+
+```matlab
+total_time_in_seconds = toc
+```
+
+```text
+(output not captured for this page yet)
+```
+
+## 3. Reference
+
+[1] S. D. Lawley, J. C. Mattingly, and M. C. Reed, Sensitivity to switching rates in stochastically switched PDEs, *Commun. Math. Sci.*, 12 (2014), 1343-1352.
 
 ---
 
-*Replica script: [`examples/ode-random/randomswitching_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-random/randomswitching_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

@@ -4,52 +4,67 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/Local.html)
 
-(Chebfun example approx/Local.m)
+Python translation: [`examples/approx/local.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/local.py)
 
-Sometimes a function $f$ is more complex in some regions than others.
-Maryna Kachanovska of the Max Planck Institute in Leipzig suggests the
-following question about a function $f$ defined on an interval: at each
-point $x$, how high a degree polynomial do you need to approximate $f$
-to a specified accuracy $\varepsilon$ in $[x-d,x+d]$, where $d$ is a
-small number?
+Sometimes a function $f$ is more complex in some regions than others. Maryna Kachanovska of the Max Planck Institute in Leipzig suggests the following question about a function $f$ defined on an interval: at each point $x$, how high a degree polynomial do you need to approximate $f$ to a specified accuracy $\varepsilon$ in $[x-d,x+d]$, where $d$ is a small number?
 
-It is easy to compute an answer to such a question with Chebfun by
-constructing restrictions to subintervals at loosened tolerance.  For
-example, here's a function that's quite wiggly in two regions:
+It is easy to compute an answer to such a question with Chebfun, using the syntax `f{x-d,x+d}` to focus on subintervals. For example, here's a function that's quite wiggly in two regions:
 
-```python
-import numpy as np
-import jax.numpy as jnp
-import chebfunjax as cj
-
-f = cj.chebfun(lambda x: jnp.sin(x/(1.02 + jnp.cos(5*x))))
-
-# scan: length of chebfun of f on [x-d, x+d] at eps = 1e-6
-w = cj.chebfun(lambda t: f(t), domain=(xj - d, xj + d), eps=1e-6)
+```matlab
+x = chebfun('x');
+f = sin(x./(1.02+cos(5*x)));
 ```
 
-![Local figure 1](../../images/approx/Local_repl_01.png)
+Let's scan it from left to right, measuring what length of chebfun is needed for a representation to accuracy $10^{-6}$ on intervals of length $0.2$:
 
-Here is another complicated function — the solution of the oscillatory
-boundary-value problem $0.01u'' + x\cos(x)\,u = 1$, $u(\pm 10)=0$ —
-and its scan:
+```matlab
+function Scan(f,ep,d)
+  % First, plot the function f:
+  FS = 'fontsize'; LW = 'linewidth';
+  subplot(2,1,1), plot(f,LW,1.4)
+  title('f',FS,14)
+  % Next, scan its complexity and make a plot:
+  [a,b] = domain(f);
+  np = round((b-a)/d);
+  xx = linspace(a+d,b-d,np-1);
+  chebfunpref.setDefaults('eps',ep);
+  ll = 0*xx;
+  for j = 1:length(xx)
+     ll(j) = length(f{xx(j)-.999999*d,xx(j)+.999999*d});
+  end
+  subplot(2,1,2), plot(xx,ll,'.-k',LW,1.2)
+  xlim([a b])
+  title('Local complexity of f',FS,14)
+  chebfunpref.setDefaults('factory');
+end
 
-```python
-from chebfunjax.operators.chebop import Chebop
-N = Chebop(lambda x, u: 0.01*u.diff(2) + (x*x.cos())*u,
-           domain=(-10.0, 10.0), bc=0.0)
-u = N.solve(1.0)
+Scan(f,1e-6,.04)
 ```
 
-![Local figure 2](../../images/approx/Local_repl_02.png)
+![Local figure 01](../../images/approx/Local_01.png)
 
-This last plot seems surprising — why does the complexity go up at the
-right endpoint?  On closer examination we find that the boundary
-condition has introduced a blip there:
+Here is another complicated function and its scan:
 
-![Local figure 3](../../images/approx/Local_repl_03.png)
+```matlab
+u = @(ep) chebop(@(x,u) ep*diff(u,2)+x.*cos(x).*u,[-10,10],0)\1;
+f = u(.01);
+Scan(f,1e-6,.2)
+```
+
+![Local figure 02](../../images/approx/Local_02.png)
+
+This last plot seems surprising -- why does the complexity go up at the right endpoint? On closer examination we find that the boundary condition has introduced a blip there:
+
+```matlab
+Scan(f{8,10},1e-6,.2)
+```
+
+![Local figure 03](../../images/approx/Local_03.png)
+
+```matlab
+end
+```
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

@@ -1,59 +1,84 @@
-# Lyapunov exponents
+# Lyapunov exponent of the Lorenz system
 
-*Nick Trefethen, May 2016*
+*Hrothgar, January 2015*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-nonlin/LyapunovExponents.html)
 
-(Chebfun example ode-nonlin/LyapunovExponents.m)
+Python translation: [`examples/ode-nonlin/lyapunov_exponents.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/lyapunov_exponents.py)
 
-A dynamical system is chaotic when nearby trajectories separate
-exponentially. The rate of that separation is the leading *Lyapunov
-exponent*. Here two Lorenz trajectories are launched from initial
-conditions differing by just $\epsilon = 10^{-9}$ in the $z$
-component:
+Lyapunov exponents are characteristic quantities of dynamical systems. For a continuous-time dynamical system, the maximal Lyapunov exponent is defined as follows [1]. Consider a trajectory $\mathbf{x}(t)$, $t\geq0$ in phase space and a nearby trajectory $\mathbf{x}(t) + \delta(t)$, where $\delta(t)$ is a vector with infinitesimal initial length. As the system evolves, track how $\delta(t)$ changes. The *maximal Lyapunov exponent* of the system is the number $\lambda$, if it exists, such that $$ | \delta(t) | \approx | \delta(0) | e^{\lambda t}. $$
 
-```python
-N = Chebop(lambda t, x, y, z: [
-    x.diff() - 10*(y - x),
-    y.diff() - 28*x + y + x*z,
-    z.diff() + 8*z/3 - x*y], domain=(0, 30))
-N.lbc = lambda x, y, z: [x + 2, y + 3, z - 14]        # 1st trajectory
-N.lbc = lambda x, y, z: [x + 2, y + 3, z - 14 + ep]   # 2nd trajectory
+The reason we've used the word "maximal" is that dynamical systems don't just have a single Lyapunov exponent. Rather, every dynamical system has a spectrum of Lyapunov exponents, one for each dimension of its phase space. Like the largest eigenvalue of a matrix, the largest Lyapunov exponent is responsible for the dominant behavior of a system.
+
+Negative Lyapunov exponents are associated with dissipative systems; Lyapunov exponents equal to zero are associated with conservative systems; and positive Lyapunov exponents are associated with chaotic systems (provided the system has an attractor).
+
+Let's estimate the maximal Lyapunov exponent of the Lorenz system, which is known to be chaotic. We will solve for two nearby trajectories on a reasonably large time interval, say $t\in[0,30]$. Here are the equations governing the system:
+
+```matlab
+dom = [0,30];
+N = chebop(@(t,x,y,z) [ diff(x) - 10*(y - x);
+                        diff(y) - 28*x + y + x*z;
+                        diff(z) + 8*z/3 - x*y ], dom);
 ```
 
-Their separation
-$d = \sqrt{|x_1-x_2|^2 + |y_1-y_2|^2 + |z_1-z_2|^2}$ climbs from
-$10^{-9}$ through ten orders of magnitude before saturating at the
-diameter of the attractor:
+Now we solve for two trajectories that have a small initial separation, say $10^{-9}$.
 
-![LyapunovExponents figure 1](../../images/ode-nonlin/LyapunovExponents_repl_01.png)
+```matlab
+ep = 1e-9;
+N.lbc = @(x,y,z) [x+2; y+3; z-14];
+[x1,y1,z1] = N\0;         % Components of 1st trajectory
+N.lbc = @(x,y,z) [x+2; y+3; z-14+ep];
+[x2,y2,z2] = N\0;         % Components of 2nd trajectory
+```
 
-Fitting a straight line to $\log d$ over $[0, 25]$ — the range where
-the growth is still exponential — gives the leading Lyapunov exponent:
+Now we find the distance between trajectories using the distance formula. This distance, which is a function of time, is plotted using a log scale on the y-axis.
+
+```matlab
+d = sqrt(abs(x1-x2)^2 + abs(y1-y2)^2 + abs(z1-z2)^2);
+semilogy(d)
+xlabel('time')
+title('magnitude of separation of nearby Lorenz trajectories')
+```
+
+![LyapunovExponents figure 01](../../images/ode-nonlin/LyapunovExponents_01.png)
+
+The log of the distance between trajectories is well approximated by a straight line with positive slope, so it seems the Lorenz system has a positive Lyapunov exponent.
+
+Notice, however, that the positive slope only holds up for the first 25 time units or so. After that, the curve levels off. That is because all trajectories of the Lorenz system wind up in its strange attractor: since trajectories are bounded, they can only get so far apart.
+
+The slope of the line can be computed by finding a linear fit to the log of `d`. We'll only use the first 25 time units, the range where the separation increases exponentially.
+
+```matlab
+logd = log(d{0, 25});
+logd2 = polyfit(logd, 1);
+slope = logd2(1) - logd2(0)
+```
 
 ```text
 slope =
-   0.930193063032704
+   0.933272994705106
 ```
 
-(Published: `0.934100195835882`. The Lorenz system is chaotic, so the
-two trajectories themselves are integrator-dependent — chebfunjax
-marches with LSODA where MATLAB uses `ode113`. The exponent agrees to
-0.4%, and both bracket the accepted value $\approx 0.906$ for this
-finite-time estimate.)
+And here it is for comparison to the previous plot:
 
-> **Implementation notes.** Two things this example demands of the
-> library. First, IVP-system solutions are built *piecewise on the
-> solver's own time mesh* (as MATLAB's `constructODEsol` does): a single
-> global polynomial is accurate only relative to its global vertical
-> scale, so a separation spanning twenty-one orders of magnitude
-> evaluates to pure cancellation noise near $t = 0$. Second, the
-> replica squares the differences directly — for real chebfuns
-> $|f|^2 = f^2$, and `abs` would root-find on several-thousand-degree
-> functions to place its breakpoints.
+```matlab
+hold on
+x = chebfun('x', [0 dom(2)]);
+semilogy(.8e-9 * exp(slope*x), 'k--')
+legend('dist(traj_1, traj_2)', sprintf('exp(%1.2f x)', slope), ...
+    'location', 'northwest')
+```
+
+![LyapunovExponents figure 02](../../images/ode-nonlin/LyapunovExponents_02.png)
+
+This approximation isn't bad at all -- the maximal Lyapunov exponent for the Lorenz system is known to be about $0.9056$ [3]. To calculate it more accurately we could average over many trajectories. It is remarkable that this characteristic quantity of the most famous chaotic system is known to only a few decimal places; it is indicative of the difficulty in analyzing complex behavior.
+
+## References
+
+1. Strogatz, Steven H. *Nonlinear dynamics and chaos: with applications to physics, biology and chemistry.* Perseus publishing, 2001.
+2. Seydel, Rudiger. *Practical bifurcation and stability analysis.* Springer, 2010.
+3. Viswanath, Divakar. *Lyapunov exponents from random Fibonacci sequences to the Lorenz equations.* Doctoral dissertation. Cornell University, 1998.
 
 ---
 
-*Replica script: [`examples/ode-nonlin/lyapunov_exponents_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/lyapunov_exponents_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

@@ -1,6 +1,6 @@
 # Applications (applics)
 
-Faithful replicas of the published
+translations of the published
 [chebfun.org applics examples](https://www.chebfun.org/examples/applics/).
 
 | Example | Description |

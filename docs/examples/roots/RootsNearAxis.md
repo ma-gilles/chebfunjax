@@ -4,44 +4,55 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/roots/RootsNearAxis.html)
 
-(Chebfun example roots/RootsNearAxis.m)
+Python translation: [`examples/roots/roots_near_axis.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/roots/roots_near_axis.py)
 
 Here's a wiggly chebfun defined on $[0,30]$:
 
-```python
-f = chebfun(lambda x: 3 + sin(x) + sin(pi*x), domain=(0, 30))
+```matlab
+x = chebfun('x',[0 30]);
+f = 3 + sin(x) + sin(pi*x);
+plot(f)
 ```
 
-![RootsNearAxis figure 1](../../images/roots/RootsNearAxis_repl_01.png)
+![RootsNearAxis figure 01](../../images/roots/RootsNearAxis_01.png)
 
 The chebfun has no roots on the interval:
+
+```matlab
+roots(f)
+```
 
 ```text
 ans =
   0x1 empty double column vector
 ```
 
-It has some roots near the interval in the complex plane, however, and
-the chebfun will have some accuracy for these complex values.  We can
-get an idea of the relevant region with `plotregion`, which plots the
-"Chebfun ellipse" for `f`:
+It has some roots near the interval in the complex plane, however, and the chebfun will have some accuracy for these complex values. We can get an idea of the relevant region with `plotregion`, which plots the "Chebfun ellipse" for `f`:
 
-![RootsNearAxis figure 2](../../images/roots/RootsNearAxis_repl_02.png)
-
-The number of digits of accuracy of the chebfun can be expected to
-reduce smoothly from 15 or so along the interval down to 0 on the
-ellipse.  This provides an easy way to calculate roots of functions in
-the complex plane near the interval of definition, using `roots` with
-the flag `'complex'`:
-
-```python
-r = f.roots(complex_roots=True)
+```matlab
+clf, plotregion(f), grid on
+xlim([-5 35]), axis equal
+hold on, plot(x,0*x,'k')
 ```
 
-![RootsNearAxis figure 3](../../images/roots/RootsNearAxis_repl_03.png)
+![RootsNearAxis figure 02](../../images/roots/RootsNearAxis_02.png)
 
-Notice that the number of roots is less than the polynomial degree of
-the chebfun:
+The number of digits of accuracy of the chebfun can be expected to reduce smoothly from 15 or so along the interval down to 0 on the ellipse.
+
+This provides an easy way to calculate roots of functions in the complex plane near the interval of definition, using `roots` with the flag `'complex'`:
+
+```matlab
+r = roots(f,'complex'); plot(r,'.r','markersize',12)
+```
+
+![RootsNearAxis figure 03](../../images/roots/RootsNearAxis_03.png)
+
+Notice that the number of roots is less than the polynomial degree of the chebfun:
+
+```matlab
+number_of_roots = length(r)
+degree = length(f)-1
+```
 
 ```text
 number_of_roots =
@@ -50,17 +61,20 @@ degree =
     85
 ```
 
-That's because there are quite a few additional roots of the chebfun
-that have nothing to do with roots of the underlying function.  We can
-see them with the flag `'all'`:
+That's because there are quite a few additional roots of the chebfun that have nothing to do with roots of the underlying function. We can see them with the flag `'all'`:
 
-![RootsNearAxis figure 4](../../images/roots/RootsNearAxis_repl_04.png)
+```matlab
+plot(roots(f,'all'),'or'), axis auto, axis equal
+```
 
-For more details about computations like these, see Section 3.6 of the
-*Chebfun Guide*, and for more on the mathematics, Chapters 8 and 18 of
-Trefethen, *Approximation Theory and Approximation Practice*.
+![RootsNearAxis figure 04](../../images/roots/RootsNearAxis_04.png)
+
+For more details about computations like these, see Section 3.6 of the *Chebfun Guide*, and for more on the mathematics, see Chapters 8 and 18 of [1].
+
+## References
+
+1. L. N. Trefethen, *Approximation Theory and Approximation Practice, Extended Edition*, SIAM, 2019.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

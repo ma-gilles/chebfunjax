@@ -4,72 +4,114 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-eig/ThermoelasticRod.html)
 
-(Chebfun example ode-eig/ThermoelasticRod.m)
+Python translation: [`examples/ode-eig/thermoelasticrod.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-eig/thermoelasticrod.py)
 
-A thermoelastic rod is fixed to a wall at one end and may expand to
-contact a wall at the other. Barber's boundary condition models the
-transition between thermal insulation and perfect contact. The
-stability eigenvalue problem is
+Suppose a thermoelastic rod is fixed to a wall at one end and may expand to make contact with a wall at the other end. J. R. Barber [1] proposed a boundary condition that models a physically realistic transition between thermal insulation, when far from contact, and perfect thermal contact.
 
-$$ \phi'' = \lambda\phi, \qquad 0 < x < 1, $$
+Linear stability analysis suggests a change from stable to unstable behavior as the temperature difference between the walls increases. The eigenvalue problem governing the stability of the perturbation $\phi(x)$ is nondimensionally
 
-$$ \phi(0) = 0, \qquad \phi'(1) + \phi(1) = 4\delta \int_0^1 \phi\,dx, $$
+$$ \phi''(x) = \lambda \phi(x),\qquad 0 < x < 1, $$
 
-whose integral term is just another linear boundary condition from the
-Chebfun point of view — `Chebop.eigs` probes the general `.bc`
-functional into a constraint row.
+$$ \phi(0) = 0,~~ \phi'(1) + \phi(1) = 4 \delta\int_0^1\phi(x) dx , $$
 
-## A stable and an unstable case
+where the value of $\delta$ is a function of the thermal gradient. The transition from stable to unstable happens at $\delta=1$. The presence of the integral of $\phi$ in the boundary condition makes the problem unusual from a classical standpoint, but from the Chebfun point of view it's just another linear boundary condition.
 
-$\delta = 0.96$ (stable — all eigenvalues negative):
+First, we solve the eigenvalue problem in a stable case.
+
+```matlab
+N = chebop( @(x,u) diff(u,2), [0 1] );    % operator on 0<x<1
+N.lbc = 0;              % fixed end
+delta = 0.96;           % stable choice
+N.bc = @(x,u) feval(diff(u),1) + u(1) - 4*delta*sum(u);  % Barber condition
+[Vs,Ls] = eigs(N,4,0);  % eigenmodes closest to zero
+```
+
+The eigenvalues are all negative, indicating stability:
+
+```matlab
+format long
+diag(Ls)
+```
 
 ```text
 ans =
-  -1.234915472723403  (x 1e2)
-  -0.626486098334564  (x 1e2)
-  -0.251462532660753  (x 1e2)
-  -0.001601435701604  (x 1e2)
+  -1.234915472724549  (x 1e2)
+  -0.626486098335068  (x 1e2)
+  -0.251462532662628  (x 1e2)
+  -0.001601435706437  (x 1e2)
 ```
 
-$\delta = 1.02$ (unstable — the top eigenvalue crosses zero):
+Here is what happens in a slightly unstable case:
+
+```matlab
+delta = 1.02;  % unstable choice
+N.bc = @(x,u) feval(diff(u),1) + u(1) - 4*delta*sum(u);  % Barber condition
+[Vu,Lu] = eigs(N,4,0);
+diag(Lu)
+```
 
 ```text
 ans =
-  -1.235278901227933  (x 1e2)
-  -0.625884455969491  (x 1e2)
-  -0.252000055361314  (x 1e2)
-   0.000799646113604  (x 1e2)
+  -1.235278901225335  (x 1e2)
+  -0.625884455972551  (x 1e2)
+  -0.252000055361275  (x 1e2)
+  0.000799646107565  (x 1e2)
 ```
 
-MATLAB publishes `-1.234915472724630, -0.626486098335608,
--0.251462532662759, -0.001601435706946` and `-1.235278901227600,
--0.625884455974818, -0.252000055363520, 0.000799646105231` — 10–11
-digit agreement on all eight values.
+Here we see the perturbation which is least stable in the first case, or unstable in the second case.
 
-The least stable / unstable perturbations:
+```matlab
+LW = 'linewidth'; MS = 'markersize';
+subplot(1,2,1)
+plot(Vs(:,4),LW,1.6)
+title(sprintf('Stable, \\lambda = %.3f',Ls(4,4)))
+subplot(1,2,2)
+plot(Vu(:,4),LW,1.6)
+title(sprintf('Unstable, \\lambda = %.3f',Lu(4,4)))
+```
 
-![ThermoelasticRod figure 1](../../images/ode-eig/ThermoelasticRod_repl_01.png)
+![ThermoelasticRod figure 01](../../images/ode-eig/ThermoelasticRod_01.png)
 
-## Locating the transition by rootfinding
+The solutions above look linear, but they do have significant Chebyshev coefficients out to degree 8.
 
-Parameterizing the maximum eigenvalue as a chebfun in $\delta$ over
-$[0.5, 2]$ with `eps=1e-11` (each sample an `eigs` solve):
+Without knowing the transition value $\delta=1$ in advance, we could locate it through a simple Chebfun rootfinding search. First, we parameterize the boundary conditions and the maximum real eigenvalue.
+
+```matlab
+BC = @(delta) @(x,u) [u(0); feval(diff(u),1) + u(1) - 4*delta*sum(u)];
+maxlam = @(delta) eigs( chebop(@(x,u)diff(u,2),[0 1],BC(delta)), 1, 0 );
+```
+
+Then, we construct a chebfun for the maximum $\lambda$. A polynomial of degree 10 captures the behavior of the maximum eigenvalue to about 11 digits.
+
+```matlab
+stability = chebfun(maxlam,[0.5,2],'eps',1e-11,'vectorize')
+```
 
 ```text
 stability =
-<Chebfun [0.5, 2.0], length 9>
-dstar =
-   0.999999999134813
+<Chebfun [0.5, 2.0], length 11>
 ```
 
-MATLAB gets length 11 and `dstar = 1.000000000023135`; both runs place
-the stability transition at $\delta = 1$ to about $10^{-9}$ — the
-accuracy class of the `eps=1e-11` construction.
+Finally, the transition in stability occurs when the eigenvalue passes through zero.
 
-![ThermoelasticRod figure 2](../../images/ode-eig/ThermoelasticRod_repl_02.png)
+```matlab
+dstar = find(stability==0)
+clf, plot(stability,LW,1.6), hold on, plot(dstar,0,'ro',MS,16)
+xlabel('\delta'), ylabel('max \lambda'), grid on
+```
+
+```text
+dstar =
+   1.000000000002016
+```
+
+![ThermoelasticRod figure 02](../../images/ode-eig/ThermoelasticRod_02.png)
+
+## References
+
+1. J. R. Barber, "Contact problems involving a cooled punch," *Journal of Elasticity*, 8 (1978), 409-423.
+2. J. A. Pelesko, "Nonlinear stability, thermoelastic contact, and the Barber condition", *Journal of Applied Mechanics*, 68 (2001), 28-33.
 
 ---
 
-*Replica script: [`examples/ode-eig/thermoelasticrod_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-eig/thermoelasticrod_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

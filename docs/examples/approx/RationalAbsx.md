@@ -1,52 +1,57 @@
-# Rational minimax approximation of |x|
+# Rational approximation of abs(x) with minimax
 
-*Nick Trefethen, March 2017*
+*Silviu Filip, Yuji Nakatsukasa, and Nick Trefethen, May 2017*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/RationalAbsx.html)
 
-(Chebfun example approx/RationalAbsx.m)
+Python translation: [`examples/approx/rational_absx.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/rational_absx.py)
 
-One of the celebrated problems of approximation theory is the rational
-minimax approximation of $|x|$ on $[-1,1]$: by a theorem of Stahl the
-type $(n,n)$ error decreases root-exponentially, like
-$8e^{-\pi\sqrt{n}}$.  Computing these approximants numerically is
-notoriously hard because the equioscillation points cluster
-exponentially near $x=0$.
+Rational functions are powerful because they can approximate functions closely near singularities, but the same power makes them difficult to work with. If you represent a rational function in the obvious way as a polynomial quotient $r = p/q$, then in interesting cases $p$ and $q$ will vary by many orders of magnitude over the region of interest. This can make computation in floating point arithmetic effectively impossible.
 
-The published example computes the type $(80,80)$ approximant in 21.6
-seconds using the adaptive-barycentric `minimax` algorithm of Filip,
-Nakatsukasa, Trefethen, and Beckermann [1], with maximum error near
-$10^{-11}$.  chebfunjax's rational Remez currently converges up to type
-$(30,30)$ for this function (a ledgered gap — the extreme-degree cases
-need the adaptive barycentric representation), which is what is shown
-here:
+A solution to this problem is to represent $r$ in barycentric form instead, $r = N/D$, where $N$ and $D$ are partial fractions based on certain adaptively selected support points. This idea led to the Chebfun `aaa` algorithm a few months ago [2], and now it has further led to an improvement in our capabilities for rational best approximation on an interval. The old `remez` code has been replaced by a new and much more powerful `minimax` command [1]. We believe this is the most powerful implementation of the Remez algorithm ever produced.
 
-```python
-from chebfunjax.utils.minimax import minimax
-r = minimax(lambda x: jnp.abs(x), 30, rational=True, denom=30,
-            breakpoints=[0.0])
-```
-```
-type (30,30) error: 2.173884e-07
+As a famous example in this area, let us consider type $(n,n)$ rational approximation of $|x|$ on $[-1,1]$ for various $n$. Up to 2016, Chebfun's `remez` code was only able to go up to $(8,8)$. For example, on p. 192 of [3], a plot is presented of errors up to type $(50,50)$, but they are taken from a table rather than computed on the fly.
+
+Now, by contrast, here we go to type $(80,80)$. Chebfun has to work a bit, but the computation is successful.
+
+```matlab
+x = chebfun('x'); f = abs(x);
+tic, [p,q,r] = minimax(f,80,80,'silent'); toc
+xx = linspace(-1,1,3000).^3;
+LW = 'linewidth'; FS = 'fontsize';
+plot(xx,f(xx)-r(xx),LW,3)
+grid on, ylim(1e-11*[-1 1])
+title('error curve for type (80,80) approximation',FS,36)
 ```
 
-Here is the error curve, plotted against $x^{1/3}$-graded coordinates
-so that the exponentially clustered equioscillation is visible:
+```text
+Elapsed time is 2.429866 seconds.
+```
 
-![RationalAbsx figure 1](../../images/approx/RationalAbsx_repl_01.png)
+![RationalAbsx figure 01](../../images/approx/RationalAbsx_01.png)
 
-And on a semilogx scale, showing the equioscillation stretching over
-many orders of magnitude of $x$:
+Computing such an approximations in ordinary 16-digit arithmetic, so far as we know, is unprecedented. Varga, Carpenter, and Ruttan computed these approximations in the 1990s using 200-digit extended precision [4].
 
-![RationalAbsx figure 2](../../images/approx/RationalAbsx_repl_02.png)
+The difficulty lies with the exponentially clustered equioscillation points (and poles along the imaginary axis, clustering near $x=0$). This clustering makes a $p/q$ representation out of the question. To show the exponential effect, we can plot the right half of the error curve on a semilogx scale:
+
+```matlab
+xx = logspace(-14,0,5000);
+semilogx(xx,f(xx)-r(xx),LW,3)
+grid on, axis([1e-14 1 -1e-11 1e-11])
+title('semilogx scale',FS,36)
+```
+
+![RationalAbsx figure 02](../../images/approx/RationalAbsx_02.png)
+
+Floating-point computing with rational functions like this has been effectively impossible in the past; we seem to be entering a new era.
 
 ## References
 
-1. S. Filip, Y. Nakatsukasa, L. N. Trefethen, and B. Beckermann,
-   Rational minimax approximation via adaptive barycentric
-   representations, _SIAM J. Sci. Comput._, 40 (2018), A2427-A2455.
+1. B. Beckermann, S.-I. Filip, Y. Nakatsukasa, and L. N. Trefethen, Rational minimax approximation via adaptive barycentric representations, to appear.
+2. Y. Nakatsukasa, O. Sete, and L. N. Trefethen, The AAA algorithm for rational approximation, arXiv 2016:1612.00337.
+3. L. N. Trefethen, *Approximation Theory and Approximation Practice*, SIAM, 2013.
+4. R. S. Varga, A. Ruttan, and A. D. Carpenter, Numerical results on best uniform rational approximation of $|x|$ on $[-1,+1]$. *Mathematics of the USSR-Sbornik* 74 (1993), 271.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

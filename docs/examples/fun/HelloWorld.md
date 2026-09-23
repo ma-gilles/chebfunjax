@@ -1,37 +1,87 @@
-# Hello World, in low rank
+# Hello World
 
 *Alex Townsend, March 2013*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/fun/HelloWorld.html)
 
-(Chebfun example fun/HelloWorld.m)
+Python translation: [`examples/fun/hello_world.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/fun/hello_world.py)
 
-The words HELLO WORLD as a 15x40 zero-one matrix of exactly rank 10:
+In any programming language printing "Hello World" is always a first example. Here we display "Hello" using Chebfun2. Can you adapt it to display "Hello World" instead?
 
-![HelloWorld figure 1](../../images/fun/HelloWorld_repl_01.png)
+Here is a matrix that encodes the word "Hello", from Exercise 9.3 of [1].
+
+```matlab
+A=zeros(15,40);
+A(2:9,2:3)=1; A(5:6,4:5)=1;A(2:9,6:7)=1; A(3:10,10:11)=1;
+A(3:4,10:15)=1; A(6:7,10:15)=1; A(9:10,10:15)=1; A(4:11,18:19)=1;
+A(10:11,18:24)=1; A(5:12,26:27)=1; A(11:12,26:31)=1;
+A(6:13,34:35)=1; A(6:13,38:39)=1; A(6:7,36:37)=1; A(12:13,36:37)=1;
+spy(A)
+```
+
+![HelloWorld figure 01](../../images/fun/HelloWorld_01.png)
+
+The matrix is of size $15\times 40$ and hence of rank at most 15. Actually it is of rank 10 because there are five zero rows:
+
+```matlab
+rank(A)
+```
 
 ```text
 ans =
     10
 ```
 
-A chebfun2 built from the matrix interpolates it to machine
-precision:
+## Constructing a chebfun2 from discrete data
+
+Usually Chebfun2 is passed a function of two variables, but it can also deal with discrete data such as a matrix, with syntax such as `chebfun2(A)`. The matrix $A$, of size $m\times n$, is assumed to contain data values of a function sampled on an $m\times n$ Chebyshev tensor grid, and the resulting chebfun2 interpolates $A$. For example:
+
+```matlab
+f = chebfun2(A);           % chebfun2
+X = chebpolyval2(f);       % evaluate on a grid
+norm(A - X)                % interpolation error
+```
 
 ```text
 ans =
-     6.506937707541133e-14
+     3.981414379038289e-14
 ```
 
-Truncating the rank shows the words emerging:
+## Saying Hello
 
-![HelloWorld figure 2](../../images/fun/HelloWorld_repl_02.png)
+We can also pass the Chebfun2 constructor an integer $k$ so that the resulting chebfun2 is of rank exactly $k$. Here is one way to say "Hello":
 
-![HelloWorld figure 4](../../images/fun/HelloWorld_repl_04.png)
+```matlab
+m = 200;
+x = linspace(-1,1,m);
+[xx yy]=meshgrid(x);
+[ss tt]=chebfun2.chebpts2(m);
 
-![HelloWorld figure 6](../../images/fun/HelloWorld_repl_06.png)
+B = flipud(A);             % flip because of matrix indexing
+for k = [1 3 5 7 10]
+    f = chebfun2(B,k);
+    X = f(ss,tt);
+    contour(xx,yy,X,.1:.1:.99), axis off
+    title(sprintf('Rank %u',k),'fontsize',16)
+    pause(.1)
+    snapnow
+end
+```
+
+![HelloWorld figure 02](../../images/fun/HelloWorld_02.png)
+
+![HelloWorld figure 03](../../images/fun/HelloWorld_03.png)
+
+![HelloWorld figure 04](../../images/fun/HelloWorld_04.png)
+
+![HelloWorld figure 05](../../images/fun/HelloWorld_05.png)
+
+![HelloWorld figure 06](../../images/fun/HelloWorld_06.png)
+
+## References
+
+1. L. N. Trefethen and D. Bau III, *Numerical Linear Algebra*, SIAM, 1997.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

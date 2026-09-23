@@ -4,76 +4,190 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-nonlin/ExactSolns.html)
 
-(Chebfun example ode-nonlin/ExactSolns.m)
+Python translation: [`examples/ode-nonlin/exact_solns.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/exact_solns.py)
 
-Chapter 1 of the textbook by Bender and Orszag [1] contains an intense
-review of a number of methods for solving ODEs exactly. Here are some
-examples illustrating techniques presented in that chapter. In each case
-we solve an ODE and compare with the exact solution. For simplicity we
-pose all the equations on the domain $[1,2]$.
+Chapter 1 of the textbook by Bender and Orszag [1] contains an intense review of a number of methods for solving ODEs exactly. Here are some examples illustrating techniques presented in that chapter. In each case we solve an ODE with Chebfun and compare with the exact solution. For simplicity we pose all the equations on the domain $[1,2]$:
 
-## Example 1: separation of variables (I)
+```matlab
+d = [1 2];
+x = chebfun('x',d);
+N = chebop(d);
+```
 
-$$ x y' = y^2 - 2y + 1, \qquad y(1) = 0,
-   \qquad y_{\mathrm{exact}} = 1 - \frac{1}{1 + \log x}. $$
+## Example 1: Separation of variables (I)
 
-![ExactSolns figure 1](../../images/ode-nonlin/ExactSolns_repl_01.png)
+Consider first the problem
 
-## Example 2: separation of variables (II)
+$$ xy' = y^2 - 2y + 1,\qquad y(1) = 0. $$
 
-$$ y' = \sin y, \qquad y(1) = \frac{\pi}{2},
-   \qquad y_{\mathrm{exact}} = 2\tan^{-1}\!\bigl(e^{x-1}\bigr). $$
+We can separate variables to get
 
-![ExactSolns figure 2](../../images/ode-nonlin/ExactSolns_repl_02.png)
+$$ {dy\over (1-y)^2} = {dx\over x}, $$
 
-## Example 3: order reduction
+which can be integrated to give the exact solution
 
-$$ y y'' = 2 (y')^2, \qquad y(1) = 1, \; y(2) = 2,
-   \qquad y_{\mathrm{exact}} = \frac{2}{3 - x}. $$
+$$ y = 1 - {1\over C+\log(x)} $$
 
-![ExactSolns figure 3](../../images/ode-nonlin/ExactSolns_repl_03.png)
+for some constant $C$. For the given boundary condition the constant is $C=1$, so we have
 
-## Example 4: an equidimensional equation
+```matlab
+exact = 1 - 1./(1+log(x));
+```
 
-$$ y' = \frac{y}{x} + \frac{x}{y}, \qquad y(1) = 1,
-   \qquad y_{\mathrm{exact}} = x\sqrt{1 + 2\log x}. $$
+A Chebfun solution goes like this:
 
-![ExactSolns figure 4](../../images/ode-nonlin/ExactSolns_repl_04.png)
+```matlab
+N.op = @(y) x.*diff(y) - y.^2 + 2*y;
+N.lbc = 0;
+y = N\1;
+err = norm(y-exact,inf);
+```
 
-## The errors, against MATLAB's
+Here is a plot of the solution, using `'.-'` to show the grid needed to resolve the solution.
 
-| problem | chebfunjax | published |
-|---|---|---|
-| 1: $xy' = y^2 - 2y + 1$ | 4.28e-11 | 5.91e-13 |
-| 2: $y' = \sin y$ | 1.22e-10 | 7.28e-12 |
-| 3: $yy'' = 2(y')^2$ | **1.33e-15** | 2.44e-15 |
-| 4: $y' = y/x + x/y$ | 1.16e-10 | 4.11e-12 |
+```matlab
+LW = 'linewidth'; FS = 'fontsize'; MS = 'markersize';
+plot(y,'.-',LW,1,MS,18), grid on
+title(sprintf('xy'' = y^2-2y+1     Error = %6.2e',err),FS,14)
+```
 
-Problem 3 — the boundary-value problem — reaches full precision,
-slightly better than the published figure. The three marched
-initial-value problems land one to two orders above MATLAB, the same
-solver accuracy floor measured quantitatively on
-[Picard](Picard.md), where the reference solution's residual stalls
-near $3.6\times 10^{-9}$ regardless of the requested tolerance.
+![ExactSolns figure 01](../../images/ode-nonlin/ExactSolns_01.png)
 
-> **Implementation note.** Problem 3 initially returned $y \equiv 0$ —
-> a function that satisfies the ODE but violates *both* boundary
-> conditions. The default Newton initial guess was the zero function, at
-> which every Jacobian entry of $yy'' - 2(y')^2$ vanishes; the singular
-> solve broke out silently and returned the unchanged iterate. MATLAB
-> never sees this because `solvebvp` starts from a low-degree polynomial
-> satisfying the boundary conditions (its `fitBCs`), here the line
-> through $(1,1)$ and $(2,2)$. The default initial guess now does the
-> same for scalar and list-valued boundary conditions, which takes this
-> problem from an error of $2$ to $1.3\times 10^{-15}$.
+## Example 2: Separation of variables (II)
+
+As another example, consider
+
+$$ y' = \sin(y),\qquad y(1) = {\pi\over 2}. $$
+
+Separating variables now gives
+
+$$ {dy\over \sin(y)} = dx, $$
+
+which implies
+
+$$ \log(\tan({y\over 2}) = x + C, $$
+
+which leads to
+
+$$ y = 2 \tan^{-1}(C\exp(x)) $$
+
+for some constant $C$. We can satisfy the boundary condition with $C=1/e$, so the exact solution is
+
+```matlab
+exact = 2*atan(exp(x-1));
+```
+
+A Chebfun solution is as follows:
+
+```matlab
+N.op = @(y) diff(y) - sin(y);
+N.lbc = pi/2;
+y = N\0;
+err = norm(y-exact,inf);
+```
+
+Here is a plot:
+
+```matlab
+plot(y,'.-',LW,1,MS,18), grid on
+title(sprintf('y'' = sin(y)     Error = %6.2e',err),FS,14)
+```
+
+![ExactSolns figure 02](../../images/ode-nonlin/ExactSolns_02.png)
+
+## Example 3: Order reduction for an autonomous equation
+
+Consider the autonomous problem
+
+$$ yy' = 2(y')^2,\qquad y(1) = 1,~~ y(2) = 2, $$
+
+where we think of $y$ as a function of $x$, i.e., $y' = dy/dx$. Now introduce the new variable $u = y'$, which we think of as a function of $y$, i.e., $u' = du/dy$. The equation becomes a new equation in $u$ and $y$ of first order,
+
+$$ yuu' = 2u^2. $$
+
+Separating variables gives $u'/u = 2/y$, which leads to $\log(u) = 2\log(y)+C$ for some constant $C$, i.e., $u = Cy^2$, i.e.
+
+$$ y' = Cy^2. $$
+
+Separating variables again and integrating gives
+
+$$ y = {1\over Cx+D} $$
+
+for constants $C$ and $D$. We can satisfy the boundary conditions with $D=3/2$, $C=-1/2$, giving the exact solution
+
+```matlab
+exact = 2./(3-x);
+```
+
+A Chebfun solution is as follows:
+
+```matlab
+N.op = @(y) y.*diff(y,2) - 2*diff(y).^2;
+N.lbc = 1; N.rbc = 2;
+y = N\0;
+err = norm(y-exact,inf);
+```
+
+Here is a plot:
+
+```matlab
+plot(y,'.-',LW,1,MS,18), grid on
+title(sprintf('yy'''' = 2(y'')^2     Error = %6.2e',err),FS,14)
+```
+
+![ExactSolns figure 03](../../images/ode-nonlin/ExactSolns_03.png)
+
+## Example 4: Bernoulli equation
+
+An equation of the form $y' = a(x)y +b(x)y^p$, known as a *Bernoulli equation*, can be made linear by the change of variables $u=y^{1-p}$. Consider for example the problem
+
+$$ y' = {y\over x} + {x \over y}, \qquad y(1) = 1. $$
+
+Setting $u=y^2$ reduces the problem to
+
+$$ u'/2 = u/x + x. $$
+
+Multiplying by the integrating factor $x^{-2}$ gives
+
+$$ {u'\over x^2} - {2u\over x^3} = {2\over x}, $$
+
+that is,
+
+$$ \left({u\over x^2}\right)' = {2\over x}, $$
+
+which can be integrated to give
+
+$$ y = x(C+2\log(x))^{1/2}. $$
+
+For our boundary conditions the solution is accordingly
+
+```matlab
+exact = x.*sqrt(1+2*log(x));
+```
+
+For a Chebfun solution, we get an error message if we specify no initial guess as the default guess of the zero function causes division by zero. Accordingly here is a solution in which an initial guess is specified.
+
+```matlab
+N.op = @(y) diff(y) - y./x - x./y;
+N.lbc = 1; N.rbc = [];
+N.init = 1;
+y = N\0;
+err = norm(y-exact,inf);
+```
+
+And here's the plot:
+
+```matlab
+plot(y,'.-',LW,1,MS,18), grid on
+title(sprintf('y'' = y/x + x/y     Error = %6.2e',err),FS,14)
+```
+
+![ExactSolns figure 04](../../images/ode-nonlin/ExactSolns_04.png)
 
 ## References
 
-1. C. M. Bender and S. A. Orszag, *Advanced Mathematical Methods for
-   Scientists and Engineers*, McGraw-Hill, 1978.
+1. C. Bender and S. A. Orszag, *Advanced Mathematical Methods for Scientists and Engineers*, McGraw-Hill, 1978.
 
 ---
 
-*Replica script: [`examples/ode-nonlin/exact_solns_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/exact_solns_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

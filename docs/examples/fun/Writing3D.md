@@ -1,25 +1,59 @@
-# Writing messages in 3D
+# Writing a message in 3D
 
 *Nick Trefethen, November 2010*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/fun/Writing3D.html)
 
-(Chebfun example fun/Writing3D.m)
+Python translation: [`examples/fun/writing_3d.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/fun/writing_3d.py)
 
-`scribble` text is a complex chebfun, so it can be transformed at
-will — flat:
+The `scribble` command produces a chebfun defined on the domain $[-1,1]$ that takes piecewise linear complex values. For example:
 
-![Writing3D figure 1](../../images/fun/Writing3D_repl_01.png)
+```matlab
+s = scribble('There is no fun like chebfun.');
+LW = 'linewidth';
+plot(s,'r',LW,2.0)
+xlim(1.05*[-1 1]), axis equal, drawnow
+```
 
-bent along a sine wave in 3D:
+![Writing3D figure 01](../../images/fun/Writing3D_01.png)
 
-![Writing3D figure 2](../../images/fun/Writing3D_repl_02.png)
+The use of complex variables is just a convenience. We could produce the same result with real and imaginary parts. Note that we include `'jumpline','.'` to prevent the inclusion of dotted lines connecting one component to the next. (Chebfun has different defaults for plotting gaps in real and complex functions.)
 
-or wrapped around a cylinder:
+```matlab
+rs = real(s); is = imag(s);
+plot(rs,is,'m',LW,2.0,'jumpline','none')
+xlim(1.05*[-1 1]), axis equal, drawnow
+```
 
-![Writing3D figure 3](../../images/fun/Writing3D_repl_03.png)
+![Writing3D figure 02](../../images/fun/Writing3D_02.png)
+
+It's a small step from here to plotting in 3D with the `plot3` command. Here's an example
+
+```matlab
+plot3(rs,sin(6*rs),is,'b',LW,2.0,'jumpline','none')
+axis equal, view(-1.5,6), drawnow
+```
+
+![Writing3D figure 03](../../images/fun/Writing3D_03.png)
+
+Here is a longer message composed by the British poet Kate McLoughlin. If you execute or publish this m-file, you will see the message circle around.
+
+```matlab
+s = 6*scribble(['There is no fun like chebfun.  ' ...
+                'Try it and you''ll see.  ' ...
+                'It does your calculation, ' ...
+                'and makes a cup of tea!']);
+rs = real(s);
+set(gcf, 'position', [0 0 600 450])
+plot3(cos(rs),sin(rs),imag(s)+.05*rs,LW,2,'jumpline','none')
+axis([-1 1 -1 1 -1 1]), axis off
+set(gca,'cameraviewanglemode','manual')
+view(-540,20), pause(1)
+for j = 1:360, camorbit(2,0), drawnow, end
+```
+
+![Writing3D figure 04](../../images/fun/Writing3D_04.png)
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

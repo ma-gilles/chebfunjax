@@ -1,20 +1,43 @@
-# Phase portraits of linear dynamical systems
+# Classification of linear dynamical systems
 
-*Grady Wright, October 2014*
+*Georges Klein, March 2013*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-linear/DynamicalSystems.html)
 
-(Chebfun example ode-linear/DynamicalSystems.m)
+Python translation: [`examples/ode-linear/dynamical_systems.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-linear/dynamical_systems.py)
 
-The behavior of the linear dynamical system $u' = Au$ near the origin
-is classified by the eigenvalues of $A$. Each portrait below shows the
-vector field (`quiver`) with `ode45` trajectories from several initial
-conditions; the printed eigenvalues/eigenvectors match the published
-page (complex conjugate pairs listed in MATLAB's order).
+A linear dynamical system in $\mathbf{R}^2$ can be written as
 
-## The origin is an unstable fixed point
+$$ x'(t) = A x(t), \qquad x(0) = x_0, $$
 
-$A = \begin{pmatrix}2 & -2\\ 0 & 1\end{pmatrix}$ — both eigenvalues positive: trajectories leave the origin.
+where $A$ is a $2\times 2$ matrix. If $\lambda_1$ and $\lambda_2$ are the eigenvalues of $A$ (assuming that $A$ is diagonalizable) with eigenvectors $v_1$ and $v_2$, then the solution is given by
+
+$$ x(t) = \alpha_1 e^{\lambda_1 t} v_1 + \alpha_2 e^{\lambda_2 t} v_2. $$
+
+The solution thus depends heavily on the eigenvalues and eigenvectors of $A$; see also [1] and [2]. If both eigenvalues have positive real part, then the solution must diverge. The following code uses Chebfun2 first to plot the phase plane, then to plot some individual trajectories. In Chebfun2, the phase plane is given by a chebfun2v object and the trajectories can be computed with `ode45`. In each plot, the initial value of each solution is marked with a dot.
+
+```matlab
+LW = 'linewidth'; FS = 'fontsize'; MS = 'markersize';
+g = chebfun2v(@(x,y) x, @(x,y) y);        % identity chebfun2v
+A = [2 -2;0 1]; [EV, EW] = eig(A);        % matrix of the system and eigenvalues
+G = A*g; T = [0 3];                       % phase plane and time interval
+fprintf('eigenvalues of A:\n'), disp(diag(EW)')
+fprintf('eigenvectors of A:\n'), disp(EV)
+figure('position', [0 0 500 400])
+quiver(G,'b',LW,2), hold on, axis equal
+initvals = [.1 .05; -.1 -.05; -.1,-.05; -.1,0; .1,0];
+for k = 1:size(initvals,1)
+    [~, y] = ode45(G,T,initvals(k,:));
+    plot(y,'r',LW,2), plot(y(0),'r.',MS,20)
+end
+initvals = [.1 .1; -.1 -.1];
+for k = 1:size(initvals,1)
+    [~, y] = ode45(G,2*T/3,initvals(k,:));
+    plot(y,'r',LW,2), plot(y(0),'r.',MS,20)
+end
+plot(0,0,'k.',MS,20), hold off
+title('The origin is an unstable fixed point',FS,14)
+```
 
 ```text
 eigenvalues of A:
@@ -24,11 +47,24 @@ eigenvectors of A:
    0.000000000000000   0.447213595499958
 ```
 
-![DynamicalSystems figure 1](../../images/ode-linear/DynamicalSystems_repl_01.png)
+![DynamicalSystems figure 01](../../images/ode-linear/DynamicalSystems_01.png)
 
-## The origin is a stable fixed point
+Since at least one of the eigenvalues has positive real part, the phase portrait has an unstable fixed point at the origin. If both eigenvalues have nonpositive real part, then the solution can not grow infinitely large in absolute value. The origin is here a stable fixed point, and all trajectories approach that point.
 
-$A = \begin{pmatrix}-1 & 3\\ 0 & -3\end{pmatrix}$ — both eigenvalues negative: all trajectories decay.
+```matlab
+A = [-1 3; 0 -3]; [EV, EW] = eig(A);
+fprintf('eigenvalues of A:\n'), disp(diag(EW)')
+fprintf('eigenvectors of A:\n'), disp(EV)
+G = A*g; T = [0 6];
+quiver(G,'b',LW,2), hold on, axis equal
+initvals = [1 -2/3; -1 2/3; .5 -1; -.5 1; 1 0; -1 0];
+for k = 1:size(initvals,1)
+    [~, y] = ode45(G,T,initvals(k,:));
+    plot(y,'r',LW,2), plot(y(0),'r.',MS,20)
+end
+plot(0,0,'k.',MS,20), hold off
+title('The origin is a stable fixed point',FS,14)
+```
 
 ```text
 eigenvalues of A:
@@ -38,11 +74,24 @@ eigenvectors of A:
    0.000000000000000   0.554700196225229
 ```
 
-![DynamicalSystems figure 2](../../images/ode-linear/DynamicalSystems_repl_02.png)
+![DynamicalSystems figure 02](../../images/ode-linear/DynamicalSystems_02.png)
 
-## The origin is a center
+When both eigenvalues are imaginary, the phase portrait has a center.
 
-$A = \begin{pmatrix}2 & -2\\ 3 & -2\end{pmatrix}$ — purely imaginary eigenvalues $\pm i\sqrt 2$: closed orbits.
+```matlab
+A = [2 -2;3 -2]; [EV, EW] = eig(A);
+fprintf('eigenvalues of A:\n'), disp(diag(EW)')
+fprintf('eigenvectors of A:\n'), disp(EV)
+G = A*g; T = [0 5];
+quiver(G,'b',LW,2), hold on, axis equal
+initvals = [.2 0; .5 0];
+for k = 1:size(initvals,1)
+    [~, y] = ode45(G,T,initvals(k,:));
+    plot(y,'r',LW,2), plot(y(0),'r.',MS,20)
+end
+plot(0,0,'k.',MS,20), hold off
+title('The origin is a center',FS,14)
+```
 
 ```text
 eigenvalues of A:
@@ -59,17 +108,46 @@ eigenvectors of A:
   0.774596669241483 + 0.000000000000000i
 ```
 
-![DynamicalSystems figure 3](../../images/ode-linear/DynamicalSystems_repl_03.png)
+![DynamicalSystems figure 03](../../images/ode-linear/DynamicalSystems_03.png)
 
-## The trace-determinant diagram
+Of course, not every matrix has only real or imaginary eigenvalues. Assuming the entries of $A$ are real, the remaining cases of complex eigenvalues are most conveniently described by the trace $\mathrm{tr}(A) = \lambda_1 + \lambda_2 =: \tau$ and the determinant $\mathrm{det}(A) = \lambda_1 \lambda_2 =: \Delta$ of the matrix $A$, since the eigenvalues of are given by
 
-The stability classification in the det(A)-tr(A) plane, lettered with `scribble` and the parabola $\mathrm{tr}^2 = 4\det$:
+$$ \lambda_{1,2} = \frac12(\tau \pm \sqrt{\tau^2 - 4\Delta}). $$
 
-![DynamicalSystems figure 4](../../images/ode-linear/DynamicalSystems_repl_04.png)
+All cases can be summarized in the following picture, where the parabola is defined by $\tau^2 - 4\Delta = 0$.
 
-## The origin is an unstable spiral
+```matlab
+s1 = .3*scribble('stable'); s2 = .3*scribble('unstable');
+s3 = .3*scribble('saddles'); s4 = .3*scribble('spirals');
+rt = chebfun('2*sqrt(x)',[0 1],'splitting','on');
+plot([-1 1],[0 0],LW,1.6), hold on
+plot([0 0],[-2 2],LW,1.6),
+plot([rt -rt],'b',LW,1.6),
+labels = [s3 - .5+1i; s3 - .5-1i; s2 + .4+1.8i; s1 + .4-1.8i; ...
+    s2 + .6+.8i; s4 + .6+.6i; s1 + .6-.6i; s4 + .6-.8i];
+plot(labels,LW,1)
+title('Stability of linear dynamical systems',FS,14)
+xlabel('det(A)',FS,14), ylabel('tr(A)',FS,14), hold off
+```
 
-$A = \begin{pmatrix}2 & -2\\ 8 & 1\end{pmatrix}$ — complex eigenvalues with positive real part.
+![DynamicalSystems figure 04](../../images/ode-linear/DynamicalSystems_04.png)
+
+So far we have seen systems with a stable and an unstable fixed point, and one with a center, which occurred since the corresponding matrix $A$ has zero trace and positive determinant. This is the borderline between stable and unstable spirals. Here is a system with an unstable spiral, which corresponds to $A$ having positive trace $\tau$ and positive determinant $\Delta$ with $\tau < 2\sqrt{\Delta}$.
+
+```matlab
+A = [2 -2;8 1]; [EV, EW] = eig(A);
+fprintf('eigenvalues of A:\n'), disp(diag(EW)')
+fprintf('eigenvectors of A:\n'), disp(EV)
+G = A*g; T = [0 2];
+quiver(G,'b',LW,2), hold on, axis equal
+initvals = [.1 .1; -.1 -.1; .1 -.1; -.1 .1];
+for k = 1:size(initvals,1)
+    [~, y] = ode45(G,T,initvals(k,:));
+    plot(y,'r',LW,2), plot(y(0),'r.',MS,20)
+end
+plot(0,0,'k.',MS,20), hold off
+title('The origin is an unstable spiral',FS,14)
+```
 
 ```text
 eigenvalues of A:
@@ -86,11 +164,24 @@ eigenvectors of A:
   0.894427190999916 + 0.000000000000000i
 ```
 
-![DynamicalSystems figure 5](../../images/ode-linear/DynamicalSystems_repl_05.png)
+![DynamicalSystems figure 05](../../images/ode-linear/DynamicalSystems_05.png)
 
-## The origin is a stable spiral
+A system with a stable spiral, which corresponds to $A$ having negative trace $\tau$ and positive determinant $\Delta$ with $\tau > -2\sqrt{\Delta}$:
 
-$A = \begin{pmatrix}-0.5 & -2\\ 2 & -0.2\end{pmatrix}$ — complex eigenvalues with negative real part.
+```matlab
+A = [-.5 -2;2 -.2]; [EV, EW] = eig(A);
+fprintf('eigenvalues of A:\n'), disp(diag(EW)')
+fprintf('eigenvectors of A:\n'), disp(EV)
+G = A*g; T = [0 10];
+quiver(G,'b',LW,2), hold on, axis equal
+initvals = [0 1; 1 0; 0 -1; -1 0];
+for k = 1:size(initvals,1)
+    [~, y] = ode45(G,T,initvals(k,:));
+    plot(y,'r',LW,2), plot(y(0),'r.',MS,20)
+end
+plot(0,0,'k.',MS,20), hold off
+title('The origin is a stable spiral',FS,14)
+```
 
 ```text
 eigenvalues of A:
@@ -107,11 +198,25 @@ eigenvectors of A:
   0.053033008588991 + 0.705115238808523i
 ```
 
-![DynamicalSystems figure 6](../../images/ode-linear/DynamicalSystems_repl_06.png)
+![DynamicalSystems figure 06](../../images/ode-linear/DynamicalSystems_06.png)
 
-## The origin is a saddle point
+A system with a saddle, which corresponds to $A$ having negative determinant:
 
-$A = \begin{pmatrix}1 & 1\\ 4 & -2\end{pmatrix}$ — eigenvalues of opposite sign; the black lines mark the eigendirections.
+```matlab
+A = [1 1; 4 -2]; [EV, EW] = eig(A);
+fprintf('eigenvalues of A:\n'), disp(diag(EW)')
+fprintf('eigenvectors of A:\n'), disp(EV)
+G = A*g; T = [0 2];
+quiver(G,'b',LW,2), hold on, axis equal
+initvals = [-.1 1; -.5 1; .1 -1; .6 -1];
+for k = 1:size(initvals,1)
+    [~, y] = ode45(G,T,initvals(k,:));
+    plot(y,'r',LW,2), plot(y(0),'r.',MS,20)
+end
+plot(.275*[-1, 1],[1.1 -1.1],'k',LW,2)
+plot([-1.1 1.1],[-1.1 1.1],'k',LW,2), hold off
+title('The origin is a saddle point',FS,14)
+```
 
 ```text
 eigenvalues of A:
@@ -121,11 +226,24 @@ eigenvectors of A:
    0.707106781186547   0.970142500145332
 ```
 
-![DynamicalSystems figure 7](../../images/ode-linear/DynamicalSystems_repl_07.png)
+![DynamicalSystems figure 07](../../images/ode-linear/DynamicalSystems_07.png)
 
-## A line of stable fixed points
+A system with a line of stable fixed points, which corresponds to $A$ having negative trace and zero determinant:
 
-$A = \begin{pmatrix}1 & 1\\ -2 & -2\end{pmatrix}$ — a zero eigenvalue: every point of the null line is fixed.
+```matlab
+A = [1 1; -2 -2]; [EV, EW] = eig(A);
+fprintf('eigenvalues of A:\n'), disp(diag(EW)')
+fprintf('eigenvectors of A:\n'), disp(EV)
+G = A*g; T = [0 2];
+quiver(G,'b',LW,2), hold on, axis equal
+initvals = [-.6 1; -.2 1; .2 1; .7 -1; .3 -1; -.1 -1];
+for k = 1:size(initvals,1)
+    [~, y] = ode45(G,T,initvals(k,:));
+    plot(y,'r',LW,2), plot(y(0),'r.',MS,20)
+end
+plot([-1 1],[1 -1],'k-',LW,2), hold off
+title('A line of stable fixed points',FS,14)
+```
 
 ```text
 eigenvalues of A:
@@ -135,11 +253,29 @@ eigenvectors of A:
   -0.707106781186547   0.894427190999916
 ```
 
-![DynamicalSystems figure 8](../../images/ode-linear/DynamicalSystems_repl_08.png)
+![DynamicalSystems figure 08](../../images/ode-linear/DynamicalSystems_08.png)
 
-## A line of unstable fixed points
+A system with a line of unstable fixed points, which corresponds to $A$ having positive trace and zero determinant:
 
-$A = \begin{pmatrix}1 & 2\\ 1 & 2\end{pmatrix}$ — zero and positive eigenvalues.
+```matlab
+A = [1 2; 1 2]; [EV, EW] = eig(A);
+fprintf('eigenvalues of A:\n'), disp(diag(EW)')
+fprintf('eigenvectors of A:\n'), disp(EV)
+G = A*g; T = [0 2];
+quiver(G,'b',LW,2), hold on, axis equal
+initvals = [0 .05; -.5 .3; -1 .55; 1 -.55; 0 -.05; .5 -.3];
+for k = 1:size(initvals,1)
+    [~, y] = ode45(G,T,initvals(k,:));
+    plot(y,'r',LW,2), plot(y(0),'r.',MS,20)
+end
+initvals = [-.5 .2; .5 -.2];
+for k = 1:size(initvals,1)
+    [~, y] = ode45(G,T/2,initvals(k,:));
+    plot(y,'r',LW,2), plot(y(0),'r.',MS,20)
+end
+plot([-1 1],[.5 -.5],'k',LW,2), hold off
+title('A line of unstable fixed points',FS,14)
+```
 
 ```text
 eigenvalues of A:
@@ -149,11 +285,24 @@ eigenvectors of A:
    0.447213595499958  -0.707106781186548
 ```
 
-![DynamicalSystems figure 9](../../images/ode-linear/DynamicalSystems_repl_09.png)
+![DynamicalSystems figure 09](../../images/ode-linear/DynamicalSystems_09.png)
 
-## A stable node with collinear eigendirections
+A system with a stable node and collinear eigendirections, which corresponds to $A$ having negative trace $\tau$ and positive determinant $\Delta$ with $\tau = -2\sqrt{\Delta}$, so that both eigenvalues are equal:
 
-$A = \begin{pmatrix}1 & 4\\ -1 & -3\end{pmatrix}$ — a defective matrix: repeated eigenvalue $-1$, one eigendirection.
+```matlab
+A = [1 4;-1 -3]; [EV, EW] = eig(A);
+fprintf('eigenvalues of A:\n'), disp(diag(EW)')
+fprintf('eigenvectors of A:\n'), disp(EV)
+G = A*g; T = [0 4];
+quiver(G,'b',LW,2), hold on, axis equal
+initvals = [-1 .5; 1 -.5; -.9 1; -.5 1; .9 -1; .5 -1; 1 -.75; -1 .75];
+for k = 1:size(initvals,1)
+    [~, y] = ode45(G,T,initvals(k,:));
+    plot(y,'r',LW,2), plot(y(0),'r.',MS,20)
+end
+plot(0,0,'k.',MS,20), hold off
+title('A stable node and collinear eigendirections',FS,14)
+```
 
 ```text
 eigenvalues of A:
@@ -163,11 +312,24 @@ eigenvectors of A:
   -0.447213595499958   0.447213595499958
 ```
 
-![DynamicalSystems figure 10](../../images/ode-linear/DynamicalSystems_repl_10.png)
+![DynamicalSystems figure 10](../../images/ode-linear/DynamicalSystems_10.png)
 
-## An unstable node with collinear eigendirections
+A system with an unstable node and collinear eigendirections, which corresponds to $A$ having positive trace $\tau$ and positive determinant $\Delta$ with $\tau = 2\sqrt{\Delta}$, so that both eigenvalues are equal:
 
-$A = \begin{pmatrix}-1 & 5/2\\ -5/2 & 4\end{pmatrix}$ — repeated eigenvalue $3/2$. (numpy resolves the defective pair as exactly 1.5, 1.5 where MATLAB prints 1.500000024, 1.499999976 — both are the same defective matrix seen through different eig algorithms.)
+```matlab
+A = [-1 5/2;-5/2 4]; [EV, EW] = eig(A);
+fprintf('eigenvalues of A:\n'), disp(diag(EW)')
+fprintf('eigenvectors of A:\n'), disp(EV)
+G = A*g; T = [0 2];
+quiver(G,'b',LW,2), hold on, axis equal
+initvals = [.1 .1; -.1 -.1; .5 .35; .1 -.1; -.1 .1; -.5 -.35];
+for k = 1:size(initvals,1)
+    [~, y] = ode45(G,T,initvals(k,:));
+    plot(y,'r',LW,2), plot(y(0),'r.',MS,20)
+end
+plot(0,0,'k.',MS,20), hold off
+title('An unstable node and collinear eigendirections',FS,14)
+```
 
 ```text
 eigenvalues of A:
@@ -177,10 +339,13 @@ eigenvectors of A:
    0.707106784518548  -0.707106777854546
 ```
 
-![DynamicalSystems figure 11](../../images/ode-linear/DynamicalSystems_repl_11.png)
+![DynamicalSystems figure 11](../../images/ode-linear/DynamicalSystems_11.png)
+
+## References
+
+1. R. Abraham and J. E. Marsden, *Foundations of Mechanics*, Benjamin-Cummings, 1978.
+2. S. H. Strogatz, *Nonlinear Dynamics and Chaos*, Addison-Wesley, 1994.
 
 ---
 
-*Replica script: [`examples/ode-linear/dynamical_systems_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-linear/dynamical_systems_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

@@ -1,86 +1,219 @@
-# Loosening the Chebfun3 Tolerance
+# Loosening the Chebfun3 tolerance
 
 *Nick Trefethen, June 2016*
 
-*Original: [Loosening the Chebfun3 tolerance — Chebfun](https://www.chebfun.org/examples/approx3/Tolerance.html)*
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx3/Tolerance.html)
+
+Python translation: [`examples/approx3/Tolerance.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx3/Tolerance.py)
+
+## 1. Tolerances in Chebfun
+
+Chebfun's default tolerance is machine precision in 1D, 2D, and 3D:
+
+```matlab
+chebfuneps
+chebfun2eps
+chebfun3eps
+```
+
+```text
+ans =
+     2.220446049250313e-16
+ans =
+     2.220446049250313e-16
+ans =
+     2.220446049250313e-16
+```
+
+In 1D, there is usually not much to be gained by loosening the tolerance (unless you are working with noisy functions), and we have long recommended that users leave `chebfuneps` at its factory value. (There is an FAQ question at `www.chebfun.org` on this topic.) In 2D and especially 3D, however, loosening the tolerance is often worthwhile. This is discussed in Section 18.10 of the *Chebfun Guide*.
+
+The reason the default tolerance is machine precision is that accurate results are often easily achievable. For example, suppose we want to compute the triple integral $$ I = \int_{-1}^1 \int_{-1}^1 \int_{-1}^1 \exp(\sin(xyz + \exp(xyz))) dz dy dx . $$ We could do it like this,
+
+```matlab
+tic
+f = chebfun3(@(x,y,z) exp(sin(x.*y.*z + exp(x.*y.*z))));
+format long
+I = sum3(f)
+toc
+```
+
+```text
+I =
+  17.885693411606852
+Elapsed time is 6.133717 seconds.
+```
+
+We could also do it like this:
+
+```matlab
+tic
+cheb.xyz
+f = exp(sin(x.*y.*z + exp(x.*y.*z)));
+I = sum3(f)
+toc
+```
+
+```text
+I =
+  17.885693411606852
+Elapsed time is 27.919012 seconds.
+```
+
+These results are quite satisfactory, because this chebfun3 is of only medium complexity:
+
+```matlab
+f
+[m,n,p] = length(f)
+```
+
+```text
+f =
+   chebfun3 object
+   cols: [Inf x 25 chebfun]
+   rows: [Inf x 25 chebfun]
+  tubes: [Inf x 25 chebfun]
+   core: [25 x 25 x 25 double]
+ domain: [-1, 1] x [-1, 1] x [-1, 1]
+ vertical scale = 2.7
+m =
+    91
+n =
+    91
+p =
+    91
+```
+
+## 2. Slowdown for complicated functions
+
+On the other hand, if we make the function more complicated, things slow down:
+
+```matlab
+tic
+g = chebfun3(@(x,y,z) exp(sin(10*x.*y.*z + exp(x.*y.*z))));
+I = sum3(g)
+toc
+```
+
+```text
+I =
+  13.580020953068953
+Elapsed time is 11.720950 seconds.
+```
+
+Here are the parameters of the more complicated function:
+
+```matlab
+g
+[m,n,p] = length(g)
+```
+
+```text
+g =
+   chebfun3 object
+   cols: [Inf x 67 chebfun]
+   rows: [Inf x 67 chebfun]
+  tubes: [Inf x 67 chebfun]
+   core: [67 x 67 x 67 double]
+ domain: [-1, 1] x [-1, 1] x [-1, 1]
+ vertical scale = 2.7
+m =
+    257
+n =
+    257
+p =
+    257
+```
+
+## 3. Speedup if the tolerance is loosened
+
+A considerable speedup can often be achieved by working with a looser tolerance. One way to construct the chebfun3 with tolerance $10^{-8}$ is like this:
+
+```matlab
+tic
+g = chebfun3(@(x,y,z) exp(sin(10*x.*y.*z + exp(x.*y.*z))),'eps',1e-8);
+I = sum3(g)
+toc
+```
+
+```text
+I =
+  13.580021064911215
+Elapsed time is 6.702252 seconds.
+```
+
+Note that the value of $I$ agrees with the previous result to quite a few digits. Here is the newly constructed chebfun3:
+
+```matlab
+g
+[m,n,p] = length(g)
+```
+
+```text
+g =
+   chebfun3 object
+   cols: [Inf x 37 chebfun]
+   rows: [Inf x 37 chebfun]
+  tubes: [Inf x 37 chebfun]
+   core: [37 x 37 x 37 double]
+ domain: [-1, 1] x [-1, 1] x [-1, 1]
+ vertical scale = 2.7
+m =
+    129
+n =
+    129
+p =
+    129
+```
+
+Sometimes one wants to loosen the tolerance globally, e.g. if there will be further computations, like this:
+
+```matlab
+chebfun3eps 1e-8
+tic
+cheb.xyz
+g = exp(sin(10*x.*y.*z + exp(x.*y.*z)));
+I = sum3(g)
+toc
+```
+
+```text
+I =
+  13.580021064911215
+Elapsed time is 6.775263 seconds.
+```
+
+Let's try just four digits:
+
+```matlab
+chebfun3eps 1e-4
+tic
+g = exp(sin(10*x.*y.*z + exp(x.*y.*z)));
+I = sum3(g)
+toc
+```
+
+```text
+I =
+  13.523280550591474
+Elapsed time is 3.846092 seconds.
+```
+
+The computed integral still has several correct digits.
+
+Here are the Chebyshev coefficients of the rows of $g$. The columns and tubes are similar.
+
+```matlab
+plotcoeffs(g.rows), ylim([3e-6 10])
+```
+
+![Tolerance figure 01](../../images/approx3/Tolerance_01.png)
+
+As good citizens, we now return the tolerance to its factory value:
+
+```matlab
+chebfun3eps factory
+```
 
 ---
 
-## Tolerances in Chebfun3
-
-Chebfun3's default tolerance is machine precision (~2.2e-16). In 3D,
-however, the Tucker construction can be slow for complicated functions,
-and often a looser tolerance is entirely adequate.
-
-## Machine Precision: Simple Function
-
-For a function of moderate complexity,
-$f(x,y,z) = e^{\sin(xyz + e^{xyz})}$,
-machine precision is fast to achieve:
-
-```python
-import time
-import jax.numpy as jnp
-from chebfunjax.chebfun3d.chebfun3 import chebfun3
-
-t0 = time.time()
-f = chebfun3(lambda x, y, z: jnp.exp(jnp.sin(x*y*z + jnp.exp(x*y*z))))
-print(f"rank={f.rank}, I={float(f.sum3()):.8f}, time={time.time()-t0:.2f}s")
-```
-
-```
-rank=(25, 25, 25), I=17.88569341, time=5.8s
-```
-
-## Loosening the Tolerance for Complicated Functions
-
-For a more complex function $g(x,y,z) = e^{\sin(10xyz + e^{xyz})}$,
-using tol=1e-8 instead of machine precision gives a significant speedup
-with negligible loss of accuracy:
-
-```python
-# Machine precision:
-g_full = chebfun3(lambda x, y, z: jnp.exp(jnp.sin(10*x*y*z + jnp.exp(x*y*z))))
-# rank=(68,67,67), I=13.58002095, time=11.9s
-
-# Tolerance 1e-8:
-g_loose = chebfun3(
-    lambda x, y, z: jnp.exp(jnp.sin(10*x*y*z + jnp.exp(x*y*z))),
-    tol=1e-8
-)
-# rank=(37,36,37), I=13.58002099, error=3.9e-08, time=6.0s
-```
-
-The Tucker rank drops from 68 to 37, and the error in the integral is
-only $3.9 \times 10^{-8}$.
-
-## Effect on Tucker Rank and Accuracy
-
-| Tolerance | Tucker rank | Integral $I$ | Error |
-|-----------|-------------|--------------|-------|
-| machine   | (68,67,67)  | 13.58002095  | —     |
-| 1e-8      | (37,36,37)  | 13.58002099  | 3.9e-8|
-| 1e-6      | (26,26,26)  | 13.58004156  | 2.1e-5|
-| 1e-4      | (15,16,16)  | 13.54858267  | 3.1e-2|
-
-```python
-for tol in [1e-8, 1e-6, 1e-4]:
-    g = chebfun3(
-        lambda x, y, z, _t=tol: jnp.exp(jnp.sin(10*x*y*z + jnp.exp(x*y*z))),
-        tol=tol
-    )
-    print(f"tol={tol:.0e}: rank={g.rank}, I={float(g.sum3()):.6f}")
-```
-
-## Coefficient Decay
-
-The Chebyshev coefficients of each Tucker fiber decay rapidly,
-confirming that the approximation is well-resolved:
-
-```python
-# Access first column fiber's Chebyshev coefficients
-col0_coeffs = abs(f.cols[0].coeffs)
-# Coefficients decrease from O(1) to machine precision
-```
-
-![Effect of tolerance on Chebfun3 construction](../../images/approx3/Tolerance.png)
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

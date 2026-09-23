@@ -4,64 +4,201 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/pde/GinzburgLandau.html)
 
-(Chebfun Example pde/GinzburgLandau.m)
+Python translation: [`examples/pde/ginzburglandau.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/pde/ginzburglandau.py)
 
-The complex Ginzburg–Landau equation,
+## 1. Preloaded examples in spin2
 
-$$ u_t = \Delta u + u - (1+1.5i)\,u|u|^2, $$
+Chebfun's `spin2` and `spinop2` codes, like `spin` and `spinop` in 1D, include a number of preloaded examples, which you can find out about by typing `help spin2` or `help spinop2`. One of the options is `spin2('gl')` for the 2D Complex Ginzburg-Landau equation. What is this equation?
 
-is a scalar PDE in a complex variable, much used in the study of
-chaotic processes in fluid mechanics.
+To find out, you can type
+
+```matlab
+S = spinop2('gl')
+```
+
+```text
+(no matching output)
+```
+
+From here we see that the version of the equation in Chebfun is $$ u_t = \Delta u + u - (1+1.5i)u |u|^2 . $$ Thus we have a scalar PDE involving a complex variable. This equation has been used by a number of authors in the study of chaotic processes arising in fluid mechanics and other areas [1,2].
+
+Using the above as a model, let us set up our own complex Ginzburg-Landau calculation as follows.
+
+```matlab
+dom = 50*[-1 1 -1 1];
+tspan = [0 16];
+S = spinop2(dom,tspan);
+S.lin = @(u) lap(u);
+S.nonlin = @(u) u - (1+1.5i)*u.*(abs(u).^2);
+```
 
 ## 2. Non-chaotic solutions
 
-On $[-50,50]^2$ with $u_0 = (ix+y)e^{-0.03(x^2+y^2)}$
-($N = 80$, $\Delta t = 1/20$), 16 time units give a pretty spiral —
-ours matches the published one **arm-for-arm** (same chirality, same
-number of turns):
+For our first initial condition, suppose we take the complex function $$ u_0(x,y) = (ix+y) \exp(-0.03(x^2+y^2)). $$ We let 16 time units time elapse and find a pretty spiral:
 
-![GinzburgLandau figure 1](../../images/pde/GinzburgLandau_repl_01.png)
+```matlab
+x = chebfun2(@(x,y) x,dom); y = chebfun2(@(x,y) y,dom);
+u1 = (1i*x+y).*exp(-.03*(x.^2+y.^2)); S.init = u1;
+npts = 80; dt = 4/npts; tic
+u = spin2(S,npts,dt,'plot','off');
+plot(real(u)), view(0,90), axis equal, axis off
+```
 
-The analogous real initial condition $(x+y)e^{-0.03(x^2+y^2)}$:
+![GinzburgLandau figure 01](../../images/pde/GinzburgLandau_01.png)
 
-![GinzburgLandau figure 2](../../images/pde/GinzburgLandau_repl_02.png)
+Here is the analogous experiment with the real initial condition $$ u_0(x,y) = (x+y) \exp(-0.03(x^2+y^2)). $$
+
+```matlab
+u2 = (x+y).*exp(-.03*(x.^2+y.^2)); S.init = u2;
+u = spin2(S,npts,dt,'plot','off');
+plot(real(u)), view(0,90), axis equal, axis off
+```
+
+![GinzburgLandau figure 02](../../images/pde/GinzburgLandau_02.png)
+
+Time for the first pair of computations:
+
+```matlab
+time_in_seconds = toc
+```
+
+```text
+time_in_seconds =
+   2.226370573
+```
 
 ## 3. Beginnings of chaos
 
-At $t = 48$ the function values pass across the periodic boundary:
-remnants of the spiral in the middle, more complicated behavior in
-the corners; for the real initial condition the diagonal line of
-symmetry is preserved — quantitatively:
+Spin computations always live on periodic domains. We now extend these two computations to $t=48$, time enough for the function values to pass across the boundary and come in the other side. Here is the first computation.
+
+```matlab
+tspan = [0 48];
+S = spinop2(dom,tspan);
+S.lin = @(u) lap(u);
+S.nonlin = @(u) u - (1+1.5i)*u.*(abs(u).^2);
+S.init = u1; tic
+u = spin2(S,npts,dt,'plot','off');
+plot(real(u)), view(0,90), axis equal, axis off
+```
+
+![GinzburgLandau figure 03](../../images/pde/GinzburgLandau_03.png)
+
+The picture reveals the remnants of the spiral in the middle but some more complicated behavior in the corners. Experiments on a finer mesh show that this picture is correct. The structures have somewhat of a random appearance, but they are not random.
+
+Now we run the second function to $t=48$. This image is also correct. Note the preservation of the diagonal line of symmetry.
+
+```matlab
+S.init = u2;
+u = spin2(S,npts,dt,'plot','off');
+plot(real(u)), view(0,90), axis equal, axis off
+```
+
+![GinzburgLandau figure 04](../../images/pde/GinzburgLandau_04.png)
+
+Time for this second round of computations:
+
+```matlab
+time_in_seconds = toc
+```
 
 ```text
+time_in_seconds =
+   4.878408432
 diagonal symmetry error at t=48: 7.84e-03
 ```
 
-![GinzburgLandau figure 3](../../images/pde/GinzburgLandau_repl_03.png)
-![GinzburgLandau figure 4](../../images/pde/GinzburgLandau_repl_04.png)
-
 ## 4. Chaos
 
-At $t = 96$ (second image at $N = 128$ — plausible but, as the
-example notes, not converged; the symmetry line is lost):
+Let's go now to $t=96$. Experiments with different grids confirm that this first image is correct.
 
-![GinzburgLandau figure 5](../../images/pde/GinzburgLandau_repl_05.png)
-![GinzburgLandau figure 6](../../images/pde/GinzburgLandau_repl_06.png)
+```matlab
+tic, tspan = [0 96];
+S = spinop2(dom,tspan);
+S.lin = @(u) lap(u);
+S.nonlin = @(u) u - (1+1.5i)*u.*(abs(u).^2);
+S.init = u1;
+tic, u = spin2(S,npts,dt,'plot','off');
+plot(real(u)), view(0,90), axis equal, axis off
+```
+
+![GinzburgLandau figure 05](../../images/pde/GinzburgLandau_05.png)
+
+With the second function, we refine the grid enough to get a plausible picture, but it is not in fact converged. So this image is perhaps physically correct, but not mathematically correct. Note that the symmetry line has been lost.
+
+```matlab
+npts = 128; dt = 4/npts; tic
+S.init = u2;
+u = spin2(S,npts,dt,'plot','off');
+plot(real(u)), view(0,90), axis equal, axis off
+```
+
+![GinzburgLandau figure 06](../../images/pde/GinzburgLandau_06.png)
+
+Time for the third round of computations:
+
+```matlab
+time_in_seconds = toc
+```
+
+```text
+time_in_seconds =
+   17.323754549
+```
 
 ## 5. A bigger canvas
 
-Two spirals on $[-100,100]^2$ at $t = 30$, then $t = 60$ (of
-questionable accuracy), and the psychedelic phase portrait:
+Let's double the size of the domain and the number of grid points in each direction. Here's the solution at $t=30$.
 
-![GinzburgLandau figure 7](../../images/pde/GinzburgLandau_repl_07.png)
-![GinzburgLandau figure 8](../../images/pde/GinzburgLandau_repl_08.png)
-![GinzburgLandau figure 9](../../images/pde/GinzburgLandau_repl_09.png)
+```matlab
+dom = 100*[-1 1 -1 1];
+tspan = [0 30 60];
+S = spinop2(dom,tspan);
+S.lin = @(u) lap(u);
+S.nonlin = @(u) u - (1+1.5i)*u.*(abs(u).^2);
+x = chebfun2(@(x,y) x,dom); y = chebfun2(@(x,y) y,dom);
+u1 = (1i*(x-8)+(y-2)).*exp(-.03*((x-8).^2+(y-2).^2)) + ...
+     ((x+8)-(y+2)).*exp(-.03*((x+8).^2+(y+2).^2));
+S.init = u1;
+npts = 128; dt = 8/npts; tic
+u = spin2(S,npts,dt,'plot','off');
+plot(real(u{2})), view(0,90), axis equal, axis off
+```
 
-Total times: 2.4 s + 4.5 s + 15.8 s + 4.2 s (MATLAB publishes
-1.6 / 3.9 / 15.2 / 8.8 s — comparable throughout).
+![GinzburgLandau figure 07](../../images/pde/GinzburgLandau_07.png)
+
+And at $t=60$, of questionable accuracy:
+
+```matlab
+plot(real(u{3})), view(0,90), axis equal, axis off
+```
+
+![GinzburgLandau figure 08](../../images/pde/GinzburgLandau_08.png)
+
+To close a psychedelic note here is a phase portrait, obtained by plotting $u$ rather than its real part.
+
+```matlab
+plot(u{3})
+```
+
+![GinzburgLandau figure 09](../../images/pde/GinzburgLandau_09.png)
+
+Time for the big canvas computation:
+
+```matlab
+time_in_seconds = toc
+```
+
+```text
+time_in_seconds =
+   4.192276239
+```
+
+## 6. References
+
+[1] H. Montanelli and N. Bootland, *Solving periodic semilinear stiff PDEs in 1D, 2D and 3D with exponential integrators*, submitted, 2016.
+
+[2] L. N. Trefethen and K. Embree, editors, *The (Unfinished) PDE Coffee Table Book*, `https://people.maths.ox.ac.uk/trefethen/pdectb.html`.
 
 ---
 
-*Replica script: [`examples/pde/ginzburglandau_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/pde/ginzburglandau_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

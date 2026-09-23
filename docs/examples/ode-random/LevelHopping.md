@@ -4,42 +4,42 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-random/LevelHopping.html)
 
-(Chebfun example ode-random/LevelHopping.m)
+Python translation: [`examples/ode-random/levelhopping.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-random/levelhopping.py)
 
-The equation $y' = -2\sin(2\pi y)$ has stable fixed points at the
-integers. Adding noise,
+The equation $y' = -2\sin(2\pi y)$ has stable fixed points when $y$ is an integer. Let us add some noise, so that we have $$ y' = -2\sin(2\pi y) + f, $$ where $f$ is a random function. This gives us a process that hops from one fixed point to another. We illustrate first for $t\in [0,100]$ with $\lambda = 0.4$.
 
-$$ y' = -2\sin(2\pi y) + f, $$
+```matlab
+rng(0), dom = [0 100]; tic
+N = chebop(dom);
+lambda = 0.4; f = randnfun(lambda,dom,'norm');
+N.op = @(y) diff(y) + 2*sin(2*pi*y); N.lbc = 0;
+LW = 'linewidth'; FS = 'fontsize';
+y = N\f; plot(y,LW,2), grid on
+xlabel('t',FS,32), ylabel('y',FS,32)
+```
 
-gives a process that hops from one fixed point to another. On
-$[0, 100]$ with $\lambda = 0.4$:
+![LevelHopping figure 01](../../images/ode-random/LevelHopping_01.png)
 
-![LevelHopping figure 1](../../images/ode-random/LevelHopping_repl_01.png)
+Here we cut $\lambda$ in half.
 
-With $\lambda$ cut in half:
+```matlab
+lambda = lambda/2;
+f = randnfun(lambda,dom,'norm');
+y = N\f; plot(y,LW,1), grid on
+xlabel('t',FS,32), ylabel('y',FS,32)
+```
 
-![LevelHopping figure 2](../../images/ode-random/LevelHopping_repl_02.png)
+![LevelHopping figure 02](../../images/ode-random/LevelHopping_02.png)
 
-*(Sample paths use JAX keys — MATLAB's `rng(0)` stream is not
-reproducible; these samples visit levels 0–6 and 0–7 respectively.)*
+```matlab
+total_time_in_seconds = toc
+```
 
 ```text
 total_time_in_seconds =
-  134.397342
+  456.596930
 ```
-
-(MATLAB publishes 20.9 s.)
-
-> **A solver bug this page found.** `(2*np.pi*y).sin()` inside the
-> operator drove the first run to $y \sim 10^{17}$ *silently*: the IVP
-> marcher's right-hand-side proxy lost its method-chain wrapper under
-> arithmetic, raised `AttributeError`, and the solve fell back to a
-> global Newton that diverged without warning. The proxy arithmetic
-> now stays closed under the elementwise-method wrapper, and this page
-> marches in seconds.
 
 ---
 
-*Replica script: [`examples/ode-random/levelhopping_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-random/levelhopping_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

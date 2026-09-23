@@ -1,79 +1,253 @@
 # Pricing other European Options: Puts, Digitals, Powers
 
+*Ricardo Pachon, December 2014*
+
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/applics/EuropeanOptions.html)
 
-(Chebfun example applics/EuropeanOptions.m — Ricardo Pachon, December
-2014)
+Python translation: [`examples/applics/europeanoptions.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/applics/europeanoptions.py)
 
-The payoff-distribution pricing method of
-[Pricing of a European Call option](EuropeanCall.md) applied to
-three more contracts, with the lognormal density chebfun on
-$[0, 10000]$ ($S_0 = 100$, $\sigma = 0.45$, $r = 0.01$, $T = 0.5$):
+In a previous Chebfun example we presented a methodology for the calculation of a call option (see the example "Pricing a European Call Option"). In this example we study further this method by applying it to other contracts: the put option, the digital option, and the power option. Since we already explained in some detail its conceptual framework, we mainly focus on the implementation aspect, highlighting the most relevant features for each contract.
 
-![EuropeanOptions figure 1](../../images/applics/EuropeanOptions_repl_01.png)
+Throughout this example we assume the underlying asset is governed by a geometric Brownian motion (GBM) process. We start by defining the price of the asset at time $t=0$, $S_0$, its volatility $\sigma$ and the risk-free interest rate $r$. We also construct a chebfun for the probability density function (PDF) of the asset distribution at expiring time $T$.
+
+```matlab
+S0 = 100;
+vol = 0.45;
+r = 0.01;
+T = 0.5;
+maxS = 10000;
+lognHnd = @(S) exp( - ( log(S/S0) - (r-0.5*vol^2)*T ).^2./(2*vol^2*T) ) ./ ...
+    (vol*S*sqrt(2*pi*T));
+lognPDF = chebfun(@(S) lognHnd(S), [0 maxS]);
+lognCDF = cumsum(lognPDF);
+LW = 'linewidth';
+INT = 'interval';
+FS = 'fontsize'; fs = 14;
+plot(lognPDF,LW,1.6,'k',INT,[0 200]);
+ylim([0 0.015])
+xlabel('S_T',FS,fs), set(gca,FS,fs)
+set(gca,'YTick',0:0.003:0.015), grid on,
+```
+
+![EuropeanOptions figure 01](../../images/applics/EuropeanOptions_01.png)
 
 ## European Put Option
 
-Payoff $\max(0, K-S)$ with $K = 150$:
+The payoff of a put option is given by $V(S_T) = \max(0,K-S)$, where $K$ is the strike.
 
-![EuropeanOptions figure 2](../../images/applics/EuropeanOptions_repl_02.png)
+```matlab
+K = 150;
+T = 0.5;
+maxSplot = 250;
+maxV = K;
+put = chebfun(@(S) max(0,K-S), [0 K maxSplot]);
 
-The OOM region is $[K,\infty)$, with probability (published
-`0.078148029367942`, matched to 14 digits):
+plot(put,LW,1.6,'k','interval',[0 maxSplot]),
+xlabel('S',FS,fs)
+ylabel('V(S)',FS,fs); set(gca,FS,fs);
+ylim([-10 K])
+```
+
+![EuropeanOptions figure 02](../../images/applics/EuropeanOptions_02.png)
+
+For a put option the out-of-the-money (OOM) region is $[K,\infty)$, and the probability of expiring there is
+
+```matlab
+probOOM = 1-lognCDF(K)
+```
 
 ```text
 probOOM =
-   0.078148029367944
+   0.078148029367943
+approx = 51.166911483849582
 ```
 
-The payoff PDF is a Dirac at 0 plus the transformed ITM density
-$f(K-y)$ on $[0, K]$; its expected value prices the put (published
-`51.166911483849546`):
+As we have seen in our previous example, the contribution of the OOM region to the payoff PDF is a Dirac delta with weight equal to the probability of expiring OOM and located at zero (the constant OOM payoff).
 
-![EuropeanOptions figure 3](../../images/applics/EuropeanOptions_repl_03.png)
+```matlab
+x = chebfun('x',[0 maxV]);
+OOM = 2*probOOM*dirac(x);
+```
+
+The contribution of the in-the-money (ITM) region, $S\in[0,K]$, to the payoff distribution can be calculated by the simple rule
+
+\begin{equation} g(y) = f(x(y)) \Bigl|\frac{dx}{dy}\Bigr|, \label{eq1} \end{equation}
+
+where $g$ is the contribution to the payoff PDF, $x$ is the asset distribution, and $y$ is the function of the ITM payoff, i.e., $y(x) = K - x$. We construct a chebfun for the ITM contribution, but define it on $[0,K]$ as the range of the payoff is $[0,K]$, attaining the maximum at $S = 0$.
+
+```matlab
+ITM = chebfun(@(S) lognHnd (K-S)*(1), [0 maxV]);
+```
+
+The discounted PDF of the payoff is the sum of both components, multiplied by the term $exp(-rT)$. Its expected value is the price of the put option.
+
+```matlab
+payoffPDF = exp(-r*T) * ( OOM + ITM );
+approx = sum(x.*payoffPDF);
+payoffPDF_area = area(payoffPDF{0,maxV});
+set(payoffPDF_area,'FaceColor',[0.3 0.9 0.4]), axis auto
+hold on,
+plot(payoffPDF,LW,1.6,'k','deltaline','r'), grid on
+xlabel('e^{-rT}V(S_T)',FS,fs)
+xlim([-10 K]), ylim([0 0.08])
+plot([approx approx],[0 0.025],'b--',LW,1.6), hold off
+disp(['approx = ', num2str(approx,'%10.15f')])
+```
 
 ```text
-approx = 51.166911483849582
+(no matching output)
+```
+
+![EuropeanOptions figure 03](../../images/applics/EuropeanOptions_03.png)
+
+An analytical expression for the price of a put option is given by the following Black-Scholes formula (the price of a call with the same parameters can be obtained by change the value $W=-1$ to $W=1$):
+
+```matlab
+d1 = (log(S0./K) + (r+0.5*vol.^2).*T)./(vol.*sqrt(T));
+d2 = d1 - vol.*sqrt(T);
+W = -1;
+exact = W.*( S0 .* normcdf(W.* d1) - K .* normcdf(W.* d2) .* exp(-r .* T) );
+disp(['exact  = ', num2str(exact,'%10.15f')])
+disp(['approx = ', num2str(approx,'%10.15f')])
+```
+
+```text
 exact  = 51.166911483849546
+approx = 51.166911483849582
+approx = 0.440783414443269
 ```
 
 ## Digital Options
 
-The digital (cash-or-nothing) call pays 1 if $S_T > K$ ($K = 100$):
+The next option we consider is the European digital (also called binary or cash-or-nothing option) which can be of type call or put.
 
-![EuropeanOptions figure 4](../../images/applics/EuropeanOptions_repl_04.png)
+The digital call with strike $K$ has the payoff $V(S_T) = 1$ if $S_T>K$ and $V(S_T) = 0$ otherwise.
 
-Its payoff PDF is two Dirac deltas; the price is the discounted ITM
-probability (published `0.440783414443267` / exact
-`0.440783414443270`):
+```matlab
+K = 100;
+T = 0.5;
+maxSplot = 200;
+S = chebfun('S',[0 maxSplot]);
+digital = heaviside(S-K);
+LW = 'linewidth';
+FS = 'fontsize'; fs = 14;
+plot(digital,LW,1.6,'k'),
+xlabel('S',FS,fs)
+ylabel('V(S)',FS,fs); set(gca,FS,fs);
+ylim([-.1 1.1])
+```
 
-![EuropeanOptions figure 5](../../images/applics/EuropeanOptions_repl_05.png)
+![EuropeanOptions figure 04](../../images/applics/EuropeanOptions_04.png)
+
+Since the payoff is a piecewise constant function, the PDF of the digital option correspond to two Dirac deltas and the price is the expected value.
+
+```matlab
+maxV = 1;
+probOOM = lognCDF(K);
+probITM = 1 - probOOM;
+x = chebfun('x',[0 maxV]);
+OOM = 2*probOOM*dirac(x);
+ITM = 2*probITM*dirac(x-1);
+payoffPDF = exp(-r*T) * ( OOM + ITM );
+approx = sum(x.*payoffPDF);
+plot(OOM,LW,1.6,'r'), hold on
+plot(ITM,LW,1.6,'g'), grid on,
+xlabel('e^{-rT}V(S_T)',FS,fs)
+xlim([-0.5 1.5])
+plot([approx approx],[0 0.3],'b--',LW,1.6), hold off
+disp(['approx = ', num2str(approx,'%10.15f')])
+```
 
 ```text
-approx = 0.440783414443268
+(no matching output)
+```
+
+![EuropeanOptions figure 05](../../images/applics/EuropeanOptions_05.png)
+
+The price of a European digital call has a closed-form solution which we use to compare the accuracy of our approximation:
+
+```matlab
+d1 = (log(S0./K) + (r+0.5*vol.^2).*T)./(vol.*sqrt(T));
+d2 = d1 - vol.*sqrt(T);
+W = 1;
+exact = normcdf(W.*d2)*exp(-r*T);
+disp(['exact  = ', num2str(exact,'%10.15f')])
+disp(['approx = ', num2str(approx,'%10.15f')])
+```
+
+```text
 exact  = 0.440783414443270
+approx = 0.440783414443269
+approx = 1.078491451154440
+exact  = 1.078491451154440
+approx = 1.078491451154440
 ```
 
 ## Power Options
 
-The power call pays $\max(0, S_T^\alpha - K)$ — here $\alpha = 1/2$,
-$K = 9.1$:
+The last contract we present in this example is the European power option which, as the digital option, can be of call or put type. The payoff of the power call with parameter $\alpha$ is $V(S_T) = max(0,S_T^\alpha - K)$, where $\alpha>0$ and $K$ is the strike.
 
-![EuropeanOptions figure 6](../../images/applics/EuropeanOptions_repl_06.png)
+We show the calculation for a choice of $\alpha<1$. In this case the OOM region is $S\in[0,K^{1/\alpha}]$.
 
-The ITM density follows from $g(y) = f(x(y))|dx/dy|$ with
-$x = (y+K)^{1/\alpha}$ (published `1.078491451154445`, exact
-`1.078491451154441` — ours lands on the exact value to all digits):
+```matlab
+K = 9.1;
+alpha = 0.5; alphainv = 1/alpha;
+T = 0.5;
+maxS = 1000;
+pow = chebfun(@(S) max(0,S.^alpha - K), [0 K^alphainv maxS]);
+plot(pow,LW,1.6,'k'),
+xlabel('S',FS,fs)
+ylabel('V(S)',FS,fs); set(gca,FS,fs);
+```
 
-![EuropeanOptions figure 7](../../images/applics/EuropeanOptions_repl_07.png)
+![EuropeanOptions figure 06](../../images/applics/EuropeanOptions_06.png)
+
+The following block of code performs all the steps we have discussed before but for a power call. Notice how the ITM chebfun is constructed following formula (\ref{eq1}), with $y(x) = x^\alpha - K$.
+
+```matlab
+probOOM = lognCDF(K^alphainv);
+maxV = 50;
+x = chebfun('x',[0 maxV]);
+OOM = 2*probOOM*dirac(x);
+ITM = chebfun(@(S) lognHnd((S+K).^alphainv).*abs(alphainv*(S+K).^(alphainv-1)),[0 maxV]);
+payoffPDF = exp(-r*T) * ( OOM + ITM );
+approx = sum(x.*payoffPDF);
+payoffPDF_area = area(payoffPDF{0,maxV});
+set(payoffPDF_area,'FaceColor',[0.3 0.9 0.4]), axis auto
+hold on,
+plot(payoffPDF,LW,1.6,'k','deltaline','r'), grid on
+xlabel('e^{-rT}V(S_T)',FS,fs)
+xlim([-.5 10])
+plot([approx approx],[0 0.3],'b--',LW,1.6), hold off
+disp(['approx = ', num2str(approx,'%10.15f')])
+```
 
 ```text
-approx = 1.078491451154440
-exact  = 1.078491451154440
+
 ```
+
+![EuropeanOptions figure 07](../../images/applics/EuropeanOptions_07.png)
+
+It is difficult to assess whether power options are traded more or less than digitals, but certainly they are found less regularly in the literature. The analytical formula of a power option can be found in Question 2.32 of [1], while [2] reviews some of its applications.
+
+```matlab
+d1 = (log(S0./K^alphainv) + (r+(alpha-0.5)*vol.^2).*T)./(vol.*sqrt(T));
+d2 = d1 - alpha*vol.*sqrt(T);
+m = (r+0.5*alpha*vol^2)*(alpha-1);
+exact = S0^alpha * exp(m*T) * normcdf(d1) - exp(-r*T)*K*normcdf(d2);
+disp(['exact  = ', num2str(exact,'%10.15f')])
+disp(['approx = ', num2str(approx,'%10.15f')])
+```
+
+```text
+
+```
+
+## References
+
+1. T.F. Crack, *Heard on the Street: Quantitative Questions from Wall Street Job Interviews*, Timothy Crack; Revised 15th Ed edition, 2014.
+2. R.G. Tompkins, "Power options: hedging nonlinear risks", *Journal of Risk* 2 (Winter 1999/2000), 29--45.
 
 ---
 
-*Replica script: [`examples/applics/europeanoptions_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/applics/europeanoptions_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

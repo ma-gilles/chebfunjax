@@ -1,46 +1,124 @@
 # Gauss and Clenshaw-Curtis quadrature
 
-*Nick Trefethen*
+*Nick Trefethen, September 2010*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/quad/GaussClenCurt.html)
 
-(Chebfun example quad/GaussClenCurt.m)
+Python translation: [`examples/quad/gauss_clen_curt.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/quad/gauss_clen_curt.py)
 
-Take a wiggly function on $[-1, 1]$:
+Suppose you have a function $f$ on an interval:
 
-```python
-import jax.numpy as jnp
-import chebfunjax as cj
-
-f = lambda x: x * jnp.sin(2 * jnp.exp(2 * jnp.sin(2 * jnp.exp(2 * x))))
-fc = cj.chebfun(f)
+```matlab
+x = chebfun('x');
+f = @(x) x.*sin(2*exp(2*sin(2*exp(2*x))));
+fc = chebfun(f);
+LW = 'linewidth'; FS = 'fontsize'; MS = 'markersize';
+figure, plot(fc,LW,1.2)
+title('Function f',FS,16)
 ```
 
-![](../../images/quad/GaussClenCurt_repl_01.png)
+![GaussClenCurt figure 01](../../images/quad/GaussClenCurt_01.png)
 
-Chebfun's `sum`, Clenshaw-Curtis at the chebfun's own length, and
-Gauss quadrature all give the same integral:
+In Chebfun you would normally compute the integral like this:
 
-```python
-Ichebfun = fc.sum()
+```matlab
+format long
+Ichebfun = sum(fc)
 ```
-```
+
+```text
 Ichebfun =
    0.336732834781728
+```
+
+Chebfun's method is Clenshaw-Curtis quadrature, i.e., the integration of the polynomial representing $f$ by interpolation or piecewise interpolation in Chebyshev points. Here is the number of quadrature points:
+
+```matlab
+Npts = length(fc)
+```
+
+```text
 Npts =
    652
+```
+
+If we wanted, we could also perform the integration by explicitly extracting the Clenshaw-Curtis nodes and weights, like this:
+
+```matlab
+[s,w] = chebpts(Npts);
+Iclenshawcurtis = w*f(s)
+```
+
+```text
 Iclenshawcurtis =
    0.336732834781728
+```
+
+Or we could try Gauss quadrature with the same number of points and weights.
+
+```matlab
+[s,w] = legpts(Npts);
+Igauss = w*f(s)
+```
+
+```text
 Igauss =
    0.336732834781727
 ```
 
-(The published chebfun length is 659; ours is 652 — the standardChop
-scheme difference documented in the audit ledger.  The integrals agree
-with the published values to all digits.)
+Though this value of `Npts` is in the hundreds, Chebfun can handle values in the millions without difficulty. This is achieved by the algorithm of Hale and Townsend [1]. See the Example [quad/GaussQuad](https://www.chebfun.org/examples/quad/GaussQuad.html).
 
-Sweeping the number of points shows the classical picture: Gauss
-converges about twice as fast per point, but Clenshaw-Curtis is not
-far behind in practice:
+Let's take a look at the accuracy as a function of `Npts`. Gauss quadrature converges geometrically, since $f$ is analytic ([1], Theorem 19.3).
 
-![](../../images/quad/GaussClenCurt_repl_02.png)
+```matlab
+figure, tic, err = [];
+NN = 10:10:500;
+for Npts = NN
+  [s,w] = legpts(Npts);
+  Igauss = w*f(s);
+  err = [err abs(Igauss-Ichebfun)];
+end
+semilogy(NN,err,'.-',LW,1,MS,16), grid on
+ylim([1e-18 1])
+xlabel('Npts',FS,12), ylabel('Error',FS,12)
+title('Gauss quadrature convergence',FS,16), toc
+```
+
+```text
+
+```
+
+![GaussClenCurt figure 02](../../images/quad/GaussClenCurt_02.png)
+
+Let's add another curve to the plot for Clenshaw-Curtis:
+
+```matlab
+hold on, tic, err = [];
+for Npts = NN
+  [s,w] = chebpts(Npts);
+  Iclenshawcurtis = w*f(s);
+  err = [err abs(Iclenshawcurtis-Ichebfun)];
+end
+semilogy(NN,err,'.-r',LW,1,MS,16)
+title('Gauss and Clenshaw-Curtis',FS,16)
+legend('Gauss','Clenshaw-Curtis','location','southwest'), toc
+```
+
+```text
+
+```
+
+![GaussClenCurt figure 03](../../images/quad/GaussClenCurt_03.png)
+
+Clenshaw-Curtis quadrature also converges geometrically for analytic functions ([1], Theorem 19.3). In some circumstances Gauss converges up to twice as fast as C-C, with respect to `Npts`, but as this example suggests, the two formulas are often closer than that. The computer time is often faster with C-C. For details of the comparison, see [2], [4], and Chapter 19 of [3].
+
+## References
+
+1. N. Hale and A. Townsend, Fast and accurate computation of Gauss-Legendre and Gauss-Jacobi quadrature nodes and weights, SIAM Journal on Scientific Computing, 35 (2013), A652-A672.
+2. L. N. Trefethen, Is Gauss quadrature better than Clenshaw-Curtis?, SIAM Review 50 (2008), 67-87.
+3. L. N. Trefethen, Approximation Theory and Approximation Practice, SIAM, 2013.
+4. J. A. C. Weideman and L. N. Trefethen, The kink phenomenon in Fejer and Clenshaw-Curtis quadrature, Numerische Mathematik, 107 (2007), 707-727.
+
+---
+
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

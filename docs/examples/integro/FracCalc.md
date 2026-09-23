@@ -4,34 +4,47 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/integro/FracCalc.html)
 
-(Chebfun example integro/FracCalc.m)
+Python translation: [`examples/integro/frac_calc.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/integro/frac_calc.py)
 
-We're all familiar with the standard definitions of differentiation and
-integration we learned in high school and at university. For example,
-here is the function $x$ on the interval $[0,4]$ along with its
-derivative $x' = 1$ and antiderivative $\int x = x^2/2$:
+We're all familiar with the standard definitions of differentiation and integration we learnt in high-school and at undergraduate level. For example, here is the function $x$ on the interval [0,4] along with its derivative (the constant function, $1$) and antiderivative ($x^2/2$).
 
-![FracCalc figure 1](../../images/integro/FracCalc_repl_01.png)
-
-A natural question one might then ask is "what lies between?", i.e.,
-does there exist some kind of *half-derivative* operator
-$\mathcal{D}^{1/2}$ such that
-$\mathcal{D}^{1/2}\mathcal{D}^{1/2} f = df/dx$? Chebfun computes the
-(Riemann-Liouville) half-derivative when `diff` is passed the
-non-integer order 0.5:
-
-```python
-xp05 = x.diff(0.5)
+```matlab
+x = chebfun('x', [0, 4]);
+LW = 'LineWidth'; lw = 1.2; FS = 'FontSize'; fs = 10;
+h1 = plot(x, '-', diff(x), '-', cumsum(x), '-', LW, lw);
+legend('x', 'x''', 'x^2/2','location','northwest')
+axis([0 4 0 4]), xlabel('x', FS, fs)
+title('The function ''x'' with its derivative and antiderivative', FS, fs)
 ```
 
-![FracCalc figure 2](../../images/integro/FracCalc_repl_02.png)
+![FracCalc figure 01](../../images/integro/FracCalc_01.png)
 
-The half-derivative of $x$ is known in closed form:
-$2\sqrt{x/\pi}$, i.e. a square-root singularity representable with
-`exps=[0.5, 0]`:
+## Half-derivative
 
-```python
-f = chebfun(lambda x: 2*jnp.sqrt(x/jnp.pi), domain=(0, 4), exps=[0.5, 0])
+A natural question one might ask is whether there exists, say, a 'half-derivative' operator ${\cal H}$, such that ${\cal H}^2(f) = df(x)/dx$.
+
+It turns out that through a generalisation of the Cauchy formula for repeated integration we can define precisely such an operator as a "Riemann-Liouville derivative" [1].
+
+We omit here any rigorous definition of these operators, but instead demonstrate their behaviour when applied to some simple functions $f$, as well as Chebfun's ability to compute them.
+
+Continuing where we left off above, we might ask what is the half-derivative of the function $f(x) = x$. In Chebfun this is easily computed via
+
+```matlab
+xp05 = diff(x, 0.5);
+hold on, h2 = plot(xp05, '-', LW, lw); axis([0, 4, 0, 4]),
+leg1 = legend([h1; h2],'x', 'x''', 'x^2/2', 'd^{1/2}x / dx^{1/2}','location','northwest');
+xlabel('x',FS,fs)
+title('The function ''x'' and its half-derivative',FS,fs)
+```
+
+![FracCalc figure 02](../../images/integro/FracCalc_02.png)
+
+Notice here that the second argument passed to `diff`, which for standard calculus is a positive integer specifying the number of times to differentiate the chebfun, indicates that we wish to compute the half-derivative of $x$.
+
+The plot of this half-derivative may look familiar, and in fact one can show that the half derivative of $x$ is precisely $2\sqrt{x/\pi}$, which we can verify:
+
+```matlab
+f = chebfun(@(x) 2*sqrt(x/pi), [0, 4], 'exps', [0.5, 0]);
 norm(f - xp05, inf)
 ```
 
@@ -40,37 +53,91 @@ ans =
    inf
 ```
 
-> **Published-page correction.** The 2010 page (Chebfun v4) printed
-> `4.440892098500626e-16` here. Running the identical code in current
-> MATLAB Chebfun (R2025b, commit 7574c77) also gives `Inf` — the
-> difference of the two singular representations carries a residual
-> exponent $-1/2$ whose eps-scale smooth part makes the sup-norm
-> infinite (`minandmax` gives `[-4.44e-16, Inf]`). chebfunjax matches
-> current MATLAB exactly; the two functions agree to machine precision
-> at every interior point.
+## Fractional differentiation
 
-Fractional derivatives $\mathcal{D}^a x$ for $a = 0, 0.1, \dots, 1$
-interpolate continuously between $x$ and $x' = 1$:
+The Riemann-Liouville derivative definition above applies not only to half-powers, but to $d^a/dx^a$ for any $a > 0$.
 
-![FracCalc figure 3](../../images/integro/FracCalc_repl_03.png)
+Below we demonstrate the $a$ th derivative of $x$ for $a = 0.1, 0.2,\dots, 1$.
 
-The same works for other functions: fractional derivatives of
-$\sin(x)$ on $[0, 20]$ (orders $\sqrt{2}(0,2,\dots,10)/17$) shift the
-phase continuously toward the cosine:
+```matlab
+close
+u = x;
+for alpha = 0.1:.1:1
+    u = [ u, diff(u(:,1), alpha) ];
+    plot(u, LW, lw), drawnow
+end
+title('Fractional derivatives of x', FS, fs)
+xlabel('x', FS, fs); ylabel('d^a x / d x ^a', FS, fs)
+legend(num2str((0:.1:1)'),'location','northwest')
+```
 
-![FracCalc figure 4](../../images/integro/FracCalc_repl_04.png)
+![FracCalc figure 03](../../images/integro/FracCalc_03.png)
 
-Fractional *integrals* work the same way through `cumsum(f, alpha)`.
-Here are the half-integrals of $x^k$ for $k = 1, \dots, 10$ on $[0,1]$:
+Of course, these generalised derivatives can be applied to more complicated functions than simply the independent variable $x$. Here we demonstrate the behaviour of varying irrational derivatives of the trigonometric function $\sin(x)$.
 
-![FracCalc figure 5](../../images/integro/FracCalc_repl_05.png)
+```matlab
+close
+u = chebfun('sin(x)', [0, 20]);
+for alpha = sqrt(2)*(2:2:10)/17
+    u = [ u, diff(u(:,1), alpha) ];
+    plot(u, LW, lw), ylim(1.2*[-1, 1]), drawnow,
+end
+title('Fractional derivatives of sin(x)', FS, fs)
+xlabel('x', FS, fs); ylabel('d^a sin(x) / d x ^a', FS, fs)
+legend(num2str(sqrt(2)*(0:2:10)'/17))
+```
 
-and the fractional integrals of $e^x - 1$ of orders $0, 0.1, \dots, 1$:
+![FracCalc figure 04](../../images/integro/FracCalc_04.png)
 
-![FracCalc figure 6](../../images/integro/FracCalc_repl_06.png)
+Far away from the left-hand boundary these derivatives are essentially shifts of $x$ to $x + a\pi/2$ (which is consistent with the case of $a$ being an integer), but near $x = 0$ the boundary effects are more interesting.
+
+```matlab
+axis([-0.5, pi, 0.0, 1.01])
+```
+
+![FracCalc figure 05](../../images/integro/FracCalc_05.png)
+
+## Fractional integration
+
+The definition of the Riemann-Liouville derivative can also be extended to fractional integration (in fact it is sometimes referred to as the Riemann-Liouville 'differintegral' [2]). Chebfun can also handle these types of operators, here extending the definition of `cumsum` to allow non-integer degree.
+
+```matlab
+close
+x = chebfun('x', [0, 1]);
+u =  cumsum(x.^(1:10), 0.5);
+plot(u, LW, lw),
+title('Half-integrals of x^k for k = 1, ..., 10', FS, fs)
+xlabel('x', FS, fs);
+legend(num2str((1:10)'),'location','northwest')
+```
+
+![FracCalc figure 06](../../images/integro/FracCalc_06.png)
+
+Here's another example:
+
+```matlab
+close
+u = chebfun('exp(x)-1', [0, 1]);
+for alpha = 0.1:.1:1
+    u = [ u, cumsum(u(:,1), alpha) ];
+    plot(u, LW, lw), drawnow
+end
+title('Fractional integrals of exp(x)-1', FS, fs)
+xlabel('x', FS, fs);
+legend(num2str((0:.1:1)'),'location','northwest')
+```
+
+![FracCalc figure 07](../../images/integro/FracCalc_07.png)
+
+## Fractional differential equations
+
+Unfortunately there is not yet any functionality for fractional calculus chebop operators in Chebfun.
+
+## References
+
+1. Lizorkin, P.I. (2001), "Fractional integration and differentiation", [http://eom.springer.de/f/f041230.htm](http://eom.springer.de/f/f041230.htm)
+2. [http://en.wikipedia.org/wiki/Riemann-Liouville_differintegral](http://en.wikipedia.org/wiki/Riemann-Liouville_differintegral)
 
 ---
 
-*Replica script: [`examples/integro/frac_calc_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/integro/frac_calc_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

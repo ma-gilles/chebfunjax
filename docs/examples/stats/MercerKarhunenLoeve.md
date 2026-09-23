@@ -4,63 +4,167 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/stats/MercerKarhunenLoeve.html)
 
-(Chebfun example stats/MercerKarhunenLoeve.m)
+Python translation: [`examples/stats/mercer_karhunen_loeve.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/stats/mercer_karhunen_loeve.py)
 
-The covariance kernel $K(s,t) = e^{-|s-t|}$ of an
-Ornstein-Uhlenbeck process has a Mercer eigen-decomposition, computed
-here by Nystrom discretization of the Fredholm operator:
+```matlab
+plotopt = {'linewidth',2,'markersize',12};
+```
 
-![MercerKarhunenLoeve figure 1](../../images/stats/MercerKarhunenLoeve_repl_01.png)
+Mercer's theorem is a continuous analog of the singular-value or eigenvalue decomposition of a symmetric positive definite matrix. One of its main applications is to find convenient ways to express stochastic processes, via the Karhunen-Loeve expansion [1].
 
-The eigenfunctions are orthonormal:
+## Mercer's theorem
+
+Suppose $K(s,t)$ is a symmetric (that is, $K(t,s)=K(s,t)$), continuous, and nonnegative definite kernel function on $[a,b]\times [a,b]$. Mercer's theorem asserts that there is an orthonormal set of eigenfunctions $\psi_j(x)$ and eigenvalues $\lambda_j$ such that
+
+$$ K(s,t) = \sum_j^\infty \lambda_j \psi_j(s) \psi_j(t), $$
+
+where the values and functions satisfy the integral eigenvalue equation
+
+$$ \lambda_j \psi_j(s) = \int_a^b K(s,t) \psi_j(t). $$
+
+For example, suppose we have an exponentially decaying kernel:
+
+```matlab
+K = @(s,t) exp(-abs(s-t));
+```
+
+We can create the integral operator and find the leading terms of its Mercer decomposition numerically.
+
+```matlab
+F = chebop(@(u) fred(K, u));
+[Psi,Lambda] = eigs(F,20,'lm');
+Psi = chebfun(Psi);
+[lambda,idx] = sort(diag(Lambda),'descend');
+Psi = Psi(:,idx);
+```
+
+```matlab
+plot(Psi(:,[1 2 5 10]),plotopt{:})
+title('First four Mercer eigenfunctions')
+xlabel('x')
+ylabel('\Psi(x)')
+```
+
+![MercerKarhunenLoeve figure 01](../../images/stats/MercerKarhunenLoeve_01.png)
+
+The eigenfunctions returned by `eigs` are orthonormal.
+
+```matlab
+format short
+Psi(:,1:6)'*Psi(:,1:6)
+```
 
 ```text
 ans =
       1.0000   -0.0000    0.0000    0.0000   -0.0000   -0.0000
      -0.0000    1.0000   -0.0000    0.0000    0.0000    0.0000
-      ...
+      0.0000   -0.0000    1.0000   -0.0000    0.0000    0.0000
+      0.0000    0.0000   -0.0000    1.0000    0.0000   -0.0000
+     -0.0000    0.0000    0.0000    0.0000    1.0000   -0.0000
+     -0.0000    0.0000   -0.0000   -0.0000   -0.0000    1.0000
 ```
 
-and Mercer's theorem $K(x,x) = \sum \lambda_n \Psi_n(x)^2 = 1$
-holds up to the 20-mode truncation (0.9792 at $x=0$, 0.9826 at
-$x=0.95$; MATLAB: 0.9799, 0.9825).  The eigenvalues decay
-algebraically:
+The truncation of the Mercer sum does lead to an underestimate of the values of the kernel $K(s,t)$. For our example, we should get $K(s,s)=1$, but we get noticeably less.
 
-![MercerKarhunenLoeve figure 2](../../images/stats/MercerKarhunenLoeve_repl_02.png)
+```matlab
+Psi(0,:)*diag(lambda)*Psi(0,:)'
+Psi(0.95,:)*diag(lambda)*Psi(0.95,:)'
+```
+
+```text
+ans =
+    0.9792
+ans =
+    0.9826
+```
+
+In fact, the eigenvalues decrease only like $O(n^{-2})$, which makes the pointwise convergence in the number of terms rather slow.
+
+```matlab
+loglog(lambda,'.',plotopt{:}), axis tight
+xlabel('n')
+ylabel('| \lambda_n |')
+```
+
+![MercerKarhunenLoeve figure 02](../../images/stats/MercerKarhunenLoeve_02.png)
+
+## Karhunen-Loeve expansion
+
+Now suppose that $X(t,\omega)$ is a stochastic process for $t$ in some interval $[a,b]$ and $\omega$ in some probability space. The process is often characterized by its mean, $\mu(t)$, and its covariance, $K(s,t)$, the expected value of $(X(s)-\mu(s))(X(t)-\mu(t))$. Using Mercer's theorem on $K$, we can express the process by the K-L expansion
+
+$$ X(t,\omega) = \mu(t) + \sum_j^\infty \sqrt(\lambda_j) \psi_j(t) Z_j(\omega), $$
+
+where $\lambda_j$ and $\psi_j$ are Mercer eigenmodes for $K$, and the $Z_j$ are uncorrelated and of unit variance.
+
+K-L is a generalization of the singular value decomposition of a matrix, which can be written as a sum of outer products of vectors. The covariance $K$ plays the role of the Gram matrix inner products (in probability) of "columns" of the process for different values of $s$ and $t$. A number of SVD results have K-L analogs, most notably that the best approximation of the process results from truncating the expansion, if the eigenvalues are arranged in nonincreasing order.
+
+Because the $Z_j$ in the expansion are uncorrelated, the variance of $X$ is just the sum of the eigenvalues. This is the trace of $K$, which is the integral of $K(s,s)$; in this case, the result is $2$. But we can also calculate the variance in a truncation of the expansion by summing only some of the eigenvalues. For example, suppose the process $X$ has the exponential covariance in $K$ above. The eigenvalues show that $95\%$ of the variance in the process is captured by the first $10$ K-L modes:
+
+```matlab
+captured = sum(lambda(1:10)) / 2
+```
 
 ```text
 captured =
     0.9577
 ```
 
-Ten modes capture 95.8% of the variance (MATLAB: 0.9579).  The
-Karhunen-Loeve expansion simulates realizations of the process:
+We can find realizations of $X$ by selecting the random parameters $Z_j$ in the expansion.
 
-![MercerKarhunenLoeve figure 3](../../images/stats/MercerKarhunenLoeve_repl_03.png)
+```matlab
+Z = randn(10,400);
+L = diag( sqrt(lambda(1:10)) );
+X = Psi(:,1:10)*(L*Z);
+plot(X(:,1:40))
+mu = sum(X,2)/400;
+hold on, plot(mu,'k',plotopt{:})
+title('Random realizations, and the mean')
+```
 
-and the empirical covariance of 400 realizations matches the kernel:
+![MercerKarhunenLoeve figure 03](../../images/stats/MercerKarhunenLoeve_03.png)
 
-![MercerKarhunenLoeve figure 4](../../images/stats/MercerKarhunenLoeve_repl_04.png)
+We should get roughly the original covariance function back. (We'll discretize the computation for speed.)
 
-With the faster-decaying correlation $e^{-4|s-t|}$ ten modes capture
-less of the variance:
+```matlab
+points = (-1:.05:1)';
+[S,T] = meshgrid(points);
+C = cov( X(points,:)' );  % covariance at discrete locations
+clf, mesh(S,T,C)
+hold on, plot3(S,T,K(S,T),'k.',plotopt{:})
+```
+
+![MercerKarhunenLoeve figure 04](../../images/stats/MercerKarhunenLoeve_04.png)
+
+If we shorten the correlation length of the process relative to the domain (i.e., more randomness), the amount of variance captured by the first $10$ modes will decrease.
+
+```matlab
+K = @(s,t) exp(-4*abs(s-t));     % decrease correlation faster, then...
+F = chebop(@(u) fred(K, u) );
+lambdaShort = sort( eigs(F,24,'lm'), 'descend' );
+```
+
+```matlab
+clf
+loglog(lambda,'b.',plotopt{:})
+hold on
+loglog(lambdaShort,'r.',plotopt{:}), axis tight
+xlabel('n')
+ylabel('| \lambda_n |')
+
+captured = sum(lambdaShort(1:10)) / 2    % ... a smaller fraction is captured
+```
 
 ```text
 captured =
     0.8357
 ```
 
-> **Note.** The published MATLAB value here is 0.6744, but a
-> convergence study (Gauss-Legendre Nystrom at n = 100, 400, 1600
-> all give 0.8352-0.8373, with the trace identity
-> $\sum\lambda_n/2 = 1$ exact) shows the true ten-mode capture is
-> 0.835; the published figure under-resolves this less-smooth
-> kernel.  The qualitative conclusion — faster-decaying correlation
-> needs more modes — is unchanged.
+![MercerKarhunenLoeve figure 05](../../images/stats/MercerKarhunenLoeve_05.png)
 
-![MercerKarhunenLoeve figure 5](../../images/stats/MercerKarhunenLoeve_repl_05.png)
+## References
+
+1. D. Xu, *Numerical Methods for Stochastic Computations*, Princeton University Press, 2010.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

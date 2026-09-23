@@ -1,36 +1,77 @@
 # The white curves of Ortiz and Rivlin
 
-*Nick Trefethen, November 2010*
+*Stefan Guettel, November 2011*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/roots/WhiteCurves.html)
 
-(Chebfun example roots/WhiteCurves.m)
+Python translation: [`examples/roots/white_curves.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/roots/white_curves.py)
 
-In their 1983 article "Another look at the Chebyshev polynomials",
-Ortiz and Rivlin noticed that when the first thirty Chebyshev
-polynomials are plotted together, curious white curves appear in the
-picture:
+In their 1983 article "Another look at the Chebyshev polynomials" [1], E. L. Ortiz and T. J. Rivlin considered the graph of 30 Chebyshev polynomials $T_j(x)$, noticing the appearance of what they called "white curves":
 
-![WhiteCurves figure 1](../../images/roots/WhiteCurves_repl_01.png)
+```matlab
+set(gcf, 'position', [0 0 600 420])
+plot(chebpoly(1:30), 'b-'), hold on
+axis([-1 1 -1 1])
+```
 
-They showed the white curves are described by the condition
-$T_{n-m}(x) = T_2(y)$: for each fixed difference $j = n - m$, the
-points where consecutive-index curves nearly intersect line up.
-Superimposing the roots of $T_j(x) - T_2(y)$ for $j = 1,\dots,4$ in
-red:
+![WhiteCurves figure 01](../../images/roots/WhiteCurves_01.png)
 
-![WhiteCurves figure 2](../../images/roots/WhiteCurves_repl_02.png)
+The white curves are regions in the graph with exceptionally many intersection points of Chebyshev polynomials. Ortiz and Rivlin show that if $0 < m \leq n$ and $T_m(x) = T_n(x) = y$, then
 
-The same phenomenon appears for Legendre polynomials, once each
-$P_n$ is scaled by its envelope $(\pi n/2)^{1/2}(1-x^2)^{1/4}$:
+$$ (1 - T_{n-m}(x)) (T_2(y) - T_{n-m}(x)) = 0. $$
 
-![WhiteCurves figure 3](../../images/roots/WhiteCurves_repl_03.png)
+Hence the interior intersection points of Chebyshev polynomials must lie on the curve $(x,y)$ satisfying $T_2(y) = T_{n-m}(x)$. Smaller numbers $n-m$ correspond to smaller numbers of intersection points. Here are the intersection points obtained with $n-m \leq 4$, obtained with Chebfun's rootfinding capability:
 
-And the corresponding white curves $P_j(x) = P_2(y)$:
+```matlab
+T_2 = chebpoly(2);
+for j = 1:4,        % j = n-m
+    T_j = chebpoly(j);
+    for y = linspace(-1,1,200),
+        x = roots(T_j - T_2(y));
+        plot(x,y,'r.')
+    end
+end
+axis([-1 1 -1 1])
+```
 
-![WhiteCurves figure 4](../../images/roots/WhiteCurves_repl_04.png)
+![WhiteCurves figure 02](../../images/roots/WhiteCurves_02.png)
+
+Ortiz and Rivlin also noted that the phenomenon of white curves appears for other orthogonal polynomials as well. For example, let's take the Legendre polynomials and plot them with some appropriate reweighting:
+
+```matlab
+clf, hold on
+x = chebfun('x');
+for j = 1:30,
+    L = legpoly(j);
+    q = (pi*j/2)^.5*(1-x.^2).^.25;
+    plot(L.*q, 'color', [.6 .4 0])
+end
+axis([-1 1 -1 1])
+```
+
+![WhiteCurves figure 03](../../images/roots/WhiteCurves_03.png)
+
+It is easy to compute the points $(x,y)$ satisfying $L_2(y) = L_j(x)$ just as before. They have no particular meaning in this case, but they appear as a nice pattern:
+
+```matlab
+clf, hold on
+L_2 = legpoly(2);
+for j = 1:4,        % j = n-m
+    L_j = legpoly(j);
+    for y = linspace(-1,1,200),
+        x = roots(L_j - L_2(y));
+        if(~isempty(x)), plot(x,y,'r.'), end
+    end
+end
+axis([-1 1 -1 1])
+```
+
+![WhiteCurves figure 04](../../images/roots/WhiteCurves_04.png)
+
+## References
+
+1. E. L. Ortiz and T. J. Rivlin, Another look at the Chebyshev polynomials, *American Mathematical Monthly*, 90 (1983), 3-10.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

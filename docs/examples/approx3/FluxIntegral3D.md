@@ -1,90 +1,83 @@
-# Flux Integrals over Parametric Surfaces
+# Integration of a chebfun3v over a 2D surface
 
 *Olivier Sète, June 2016*
 
-*Original: [Integration of a chebfun3v over a 2D surface — Chebfun](https://www.chebfun.org/examples/approx3/FluxIntegral3D.html)*
+[Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx3/FluxIntegral3D.html)
+
+Python translation: [`examples/approx3/FluxIntegral3D.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx3/FluxIntegral3D.py)
+
+In this example we illustrate the computation of the flux of a vector field through a 2D surface in 3D space with the `integral2` command.
+
+Assume we have a surface given by a parametrization $S = S(u,v)$ defined on $D = [a,b] \times [c,d]$, represented by a 3-component chebfun2v (i.e., each point in the 2D domain $D$ is mapped to a point in 3D).
+
+Let $F(x,y,z) = [F_1(x,y,z); F_2(x,y,z); F_3(x,y,z)]$ be a vector field defined over a box containing the surface (i.e., $S(D)$). We can then compute its flux through the surface by the flux integral $$\int_S F \cdot \vec{dS} = \int_D F(S(u,v)) \cdot \left( \frac{\partial S}{\partial u}(u,v) \times \frac{\partial S}{\partial v}(u,v) \right) \, dudv. $$ When $F$ is represented as a chebfun3v object, this integral can be computed with `integral2`.
+
+Let us consider the vector field $F$:
+
+```matlab
+format long
+dom = [-5, 5, -5, 5, -1, 1];
+F = chebfun3v(@(x,y,z) x+y, @(x,y,z) x.*z + y, @(x,y,z) z, dom);
+```
+
+As our first example, let us consider the rippled disk parametrized by
+
+```matlab
+S = chebfun2v(@(r, t) r .* cos(t), @(r, t) r.*sin(t), @(r, t) cos(5*r), ...
+    [0, 5, 0, 2*pi]);
+surf(S), axis equal
+```
+
+![FluxIntegral3D figure 01](../../images/approx3/FluxIntegral3D_01.png)
+
+To compute the flux of $F$ through $S$ we simply type
+
+```matlab
+integral2(F, S)
+```
+
+```text
+integral2(F, S) [rippled disk] = -1.581991782367625e+02
+integral2(F, S) [lower hemisphere] = -6.283185307179586
+```
+
+As a second example, we take $S$ to be the lower half of the unit sphere, parametrized by
+
+```matlab
+S = chebfun2v(@(phi, theta) sin(theta) .* cos(phi), ...
+    @(phi, theta) sin(theta) .* sin(phi), @(phi, theta) cos(theta), ...
+    [0, 2*pi, pi/2, pi]);
+surf(S), axis equal
+```
+
+![FluxIntegral3D figure 02](../../images/approx3/FluxIntegral3D_02.png)
+
+The flux of $F$ through this "bowl" is
+
+```matlab
+integral2(F, S)
+```
+
+```text
+integral2(F, S) [rippled disk] = -1.581991782367625e+02
+integral2(F, S) [lower hemisphere] = -6.283185307179586
+```
+
+This matches nicely the exact value $-2\pi$
+
+```matlab
+-2*pi
+```
+
+```text
+integral2(F, S) [rippled disk] = -1.581991782367625e+02
+integral2(F, S) [lower hemisphere] = -6.283185307179586
+```
+
+We can also integrate a scalar function $f = f(x,y,z)$ over a surface with the following surface integral: $$\int_S f \, dS = \int_D f(S(u,v)) \left\Vert \frac{\partial S}{\partial u}(u,v) \times \frac{\partial S}{\partial v}(u,v) \right\Vert \, dudv. $$ Note the difference to the flux integral: here we take the norm of the cross product. When $f$ is represented by a chebfun3 object, this integral can be computed with `integral2`.
+
+Of course we can also integrate over curves in Chebfun3. This is done with `integral`. See [http://www.chebfun.org/examples/approx3/LineIntegral3D.html](LineIntegral3D.md) for integration of a scalar function over a curve and [http://www.chebfun.org/examples/approx3/GaussGreenStokes.html](GaussGreenStokes.md) for integrals of vector fields along a curve.
 
 ---
 
-## Flux Integrals
-
-Given a vector field $F(x,y,z) = [F_1, F_2, F_3]$ and a surface
-$S = S(u,v)$ parametrized over $D = [a,b]\times[c,d]$, the flux integral is
-
-$$\int_S F \cdot \vec{dS} = \int_D F(S(u,v)) \cdot
-\left(\frac{\partial S}{\partial u} \times \frac{\partial S}{\partial v}\right) \, du\, dv.$$
-
-In chebfunjax, we compute this numerically by evaluating the integrand
-on a fine grid using the `Chebfun3` representation of $F$.
-
-## Example: Rippled Disk
-
-Consider the vector field $F(x,y,z) = (x+y,\ xz+y,\ z)$ and the
-rippled disk $S(r,\theta) = (r\cos\theta,\ r\sin\theta,\ \cos(5r))$
-for $r \in [0,5]$, $\theta \in [0, 2\pi]$:
-
-```python
-import numpy as np
-import jax.numpy as jnp
-from chebfunjax.chebfun3d.chebfun3 import chebfun3
-
-F1 = lambda x, y, z: x + y
-F2 = lambda x, y, z: x*z + y
-F3 = lambda x, y, z: z
-
-# Rippled disk parametrization
-Sx = lambda r, t: r * np.cos(t)
-Sy = lambda r, t: r * np.sin(t)
-Sz = lambda r, t: np.cos(5*r)
-```
-
-## Example: Lower Hemisphere
-
-For the lower half of the unit sphere
-$S(\phi, \theta) = (\sin\theta\cos\phi, \sin\theta\sin\phi, \cos\theta)$
-with $\theta \in [\pi/2, \pi]$, the flux of $F$ equals $-2\pi$ exactly:
-
-```python
-Sx2 = lambda phi, theta: np.sin(theta) * np.cos(phi)
-Sy2 = lambda phi, theta: np.sin(theta) * np.sin(phi)
-Sz2 = lambda phi, theta: np.cos(theta)
-
-# Computed flux ≈ -6.283153
-# Exact: -2*pi = -6.283185
-```
-
-## Divergence Theorem Verification
-
-The divergence theorem states
-$$\int_K \mathrm{div}(F)\, dV = \oint_{\partial K} F \cdot \vec{dS}.$$
-
-For $F = (x,y,z)$, $\mathrm{div}(F) = 3$, so the total flux through the unit sphere
-equals $3 \cdot \frac{4\pi}{3} = 4\pi$. We verify via a Chebfun3 triple integral
-using spherical coordinates:
-
-```python
-# Jacobian of spherical coords: r^2 * sin(theta)
-div_F_ball = chebfun3(
-    lambda r, t, p: 3 * r**2 * jnp.sin(t),
-    domain=(0, 1, 0, np.pi, 0, 2*np.pi)
-)
-print(float(div_F_ball.sum3()))  # 12.566371 = 4*pi
-```
-
-```
-12.566371
-```
-
-![Flux integrals over parametric surfaces](../../images/approx3/FluxIntegral3D.png)
-
-## See Also
-
-- [LineIntegral3D](LineIntegral3D.md) — integration over curves
-- [GaussGreenStokes](GaussGreenStokes.md) — divergence theorem, Green's identities, Stokes' theorem
-- [SurfaceIntegral3D](SurfaceIntegral3D.md) — scalar surface integrals
-
-## Figures (chebfun.org parity)
-
-![FluxIntegral3D figure 1](../../images/approx3/FluxIntegral3D_01.png)
-
-![FluxIntegral3D figure 2](../../images/approx3/FluxIntegral3D_02.png)
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

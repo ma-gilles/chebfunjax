@@ -4,87 +4,120 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/OddEven.html)
 
-(Chebfun example approx/OddEven.m)
+Python translation: [`examples/approx/odd_even.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/odd_even.py)
 
-To find the best (minimax) approximation of a function $f$, can you
-find best approximations to the even part and the odd part, and add
-them together?
+To find the best (minimax) approximation of a function $f$, can you find best approximations to the even part and the odd part, and add them together?
 
-Such additivity would certainly apply for a linear approximation
-process such as interpolation in Chebyshev points.  Since best
-approximation is nonlinear, however, one would expect that the
-additivity would fail.  This is indeed the case, as we can easily show
-with an example.  Here is a Gaussian defined on $[-1,1]$ and its best
-approximant of degree $0$, with its error:
+Such additivity would certainly apply for a linear approximation process such as interpolation in Chebyshev points. Since best approximation is nonlinear, however, one would expect that the additivity would fail. This is indeed the case, as we can easily show with an example. Here is a Gaussian defined on $[-1,1]$ and its best approximant of degree $0$:
 
-```python
-import numpy as np
-import jax.numpy as jnp
-import chebfunjax as cj
-from chebfunjax.utils.minimax import minimax
-
-f = lambda x: jnp.exp(-150*(x - 0.5)**2)
-res = minimax(f, 0)          # err = 0.4999999992
+```matlab
+f = chebfun(@(x) exp(-150*(x-.5)^2));
+[p,err] = minimax(f,0);
+CO = 'color'; green = [0 .7 0]; ax = [-1 1 -1.2 1.2];
+plot(f,'b',p,'r'), axis(ax)
+grid on, title('f and its best approximation')
 ```
 
-![OddEven figure 1](../../images/approx/OddEven_repl_01.png)
+![OddEven figure 01](../../images/approx/OddEven_01.png)
 
-Here is the even part of $f$ and its best approximant
-(err $= 0.25$):
+The error looks like this:
 
-```python
-feven = lambda x: (f(x) + f(-x))/2
-res_e = minimax(feven, 0)
+```matlab
+plot(p-f,CO,green), grid on
+title(['error = ' num2str(err)]), axis(ax)
 ```
 
-![OddEven figure 2](../../images/approx/OddEven_repl_02.png)
+![OddEven figure 02](../../images/approx/OddEven_02.png)
 
-Here is the odd part of $f$ and its best approximant, namely the zero
-function (err $= 0.5$):
+Here is the even part of $f$ and its best approximant:
 
-```python
-fodd = lambda x: (f(x) - f(-x))/2
-res_o = minimax(fodd, 0)
+```matlab
+x = chebfun('x');
+feven = (f(x) + f(-x))/2; [peven,erreven] = minimax(feven,0);
+subplot(2,2,1), plot(feven,'b',peven,'r'), axis(ax)
+grid on, title('Approximation of the even part')
+subplot(2,2,2), plot(peven-feven,CO,green), grid on
+title(['error = ' num2str(erreven)]), axis(ax)
 ```
 
-![OddEven figure 3](../../images/approx/OddEven_repl_03.png)
+![OddEven figure 03](../../images/approx/OddEven_03.png)
 
-Now, if we add up the even approximation and the odd approximation, how
-does the combination do?  We see that the error is greater than before
-(errsum $= 0.74999$):
+Here is the odd part of $f$ and its best approximant, namely the zero function.
 
-![OddEven figure 4](../../images/approx/OddEven_repl_04.png)
-
-Here is a second example, but with approximations of degree 1.  To
-ensure there are enough oscillation points to make the best
-approximations elegant, we upgrade our camel from dromedary to
-bactrian:
-
-```python
-f = lambda x: jnp.exp(-300*(x - 0.25)**2) + jnp.exp(-300*(x - 0.75)**2)
-res = minimax(f, 1)          # err = 0.4999999990
+```matlab
+fodd = (f(x) - f(-x))/2; [podd,errodd] = minimax(fodd,0);
+subplot(2,2,1), plot(fodd,'b',podd,'r'), axis(ax)
+grid on, title('Approximation of the odd part')
+subplot(2,2,2), plot(podd-fodd,CO,green)
+grid on, title(['error = ' num2str(errodd)]), axis(ax)
 ```
 
-![OddEven figure 5](../../images/approx/OddEven_repl_05.png)
+![OddEven figure 04](../../images/approx/OddEven_04.png)
 
-The even part and its best approximant now look like this
-(err $= 0.25$),
+Now, if we add up the even approximation and the odd approximation, how does the combination do? We see that the error is greater than before.
 
-![OddEven figure 6](../../images/approx/OddEven_repl_06.png)
+```matlab
+psum = peven + podd;
+errsum = norm(f-psum,inf);
+subplot(2,2,1), plot(f,'b',psum,'r'), axis(ax)
+grid on, title('combined')
+subplot(2,2,2), plot(psum-f,CO,green), grid on
+title(['error = ' num2str(errsum)]), axis(ax)
+```
 
-and the odd part and its best approximation look like this
-(err $= 0.40000$; the published MATLAB run reports $0.40021$ — this
-replica's Remez iteration converges to a marginally tighter
-equioscillation),
+![OddEven figure 05](../../images/approx/OddEven_05.png)
 
-![OddEven figure 7](../../images/approx/OddEven_repl_07.png)
+Here is a second example, but with approximations of degree 1. To ensure there are enough oscillation points to make the best approximations elegant, we upgrade our camel from dromedary to bactrian:
 
-Again, the sum of the two is not as good an approximation
-(errsum $= 0.65011$; published $0.65021$):
+```matlab
+f = chebfun(@(x) exp(-300*(x-.25)^2) + exp(-300*(x-.75)^2));
+[p,err] = minimax(f,1);
+subplot(2,2,1), plot(f,'b',p,'r')
+grid on, title('f and its best approximation'), axis(ax)
+subplot(2,2,2), plot(p-f,CO,green), grid on
+title(['error = ' num2str(err)]), axis(ax)
+```
 
-![OddEven figure 8](../../images/approx/OddEven_repl_08.png)
+![OddEven figure 06](../../images/approx/OddEven_06.png)
+
+The even part and its best approximant now look like this,
+
+```matlab
+feven = (f(x) + f(-x))/2; [peven,erreven] = minimax(feven,1);
+subplot(2,2,1), plot(feven,'b',peven,'r')
+grid on, title('Approximation of the even part'), axis(ax)
+subplot(2,2,2), plot(peven-feven,CO,green), grid on
+title(['error = ' num2str(erreven)]), axis(ax)
+```
+
+![OddEven figure 07](../../images/approx/OddEven_07.png)
+
+and the odd part and its best approximation look like this,
+
+```matlab
+fodd = (f(x) - f(-x))/2; [podd,errodd] = minimax(fodd,1);
+subplot(2,2,1), plot(fodd,'b',podd,'r')
+grid on, title('Approximation of the odd part'), axis(ax)
+subplot(2,2,2), plot(podd-fodd,CO,green), grid on
+title(['error = ' num2str(errodd)]), axis(ax)
+```
+
+![OddEven figure 08](../../images/approx/OddEven_08.png)
+
+Again, the sum of the two is not as good an approximation.
+
+```matlab
+psum = peven + podd; errsum = norm(f-psum,inf);
+subplot(2,2,1), plot(f,'b',psum,'r')
+grid on, title('combined'), axis(ax)
+subplot(2,2,2), plot(psum-f,CO,green), grid on
+title(['error = ' num2str(errsum)]), axis(ax)
+```
+
+![OddEven figure 09](../../images/approx/OddEven_09.png)
+
+The reader may enjoy exploring other functions $f$ with the code given here. If $f$ is neither even nor odd, you will probably find as we have that some optimality is lost when the even and odd parts are separated.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

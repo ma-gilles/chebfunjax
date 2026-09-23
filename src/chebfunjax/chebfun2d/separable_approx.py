@@ -380,6 +380,138 @@ def _is_happy_trig(values: np.ndarray, tol: float) -> bool:
 # ============================================================================
 
 
+def _halton_1d(count: int, base: int) -> np.ndarray:
+    """First ``count`` points (indices 1..count) of the van der Corput
+    sequence in ``base``: the columns of MATLAB's ``halton`` in
+    @separableApprox/sampleTest.m (Grady Wright's construction, which
+    enumerates the radical inverses of 1, 2, ... in order)."""
+    out = np.zeros(count, dtype=np.float64)
+    for idx in range(count):
+        frac, denom, q = 0.0, 1.0, idx + 1
+        while q > 0:
+            denom /= base
+            q, rem = divmod(q, base)
+            frac += rem * denom
+        out[idx] = frac
+    return out
+
+
+def _trig_fold(c_abs: np.ndarray) -> np.ndarray:
+    """MATLAB @trigtech standardCheck/simplify coefficient folding: the
+    centred spectrum (wavenumber ``k = j - n//2`` at index ``j``) becomes
+    ``[|c_0|, s_1, s_1, s_2, s_2, ...]`` with ``s_k = |c_k| + |c_-k|``
+    (``|c_{-n/2}|`` alone for even ``n``)."""
+    n = c_abs.shape[0]
+    h = n // 2
+    if n % 2 == 0:
+        pos = c_abs[h + 1:]
+        neg = c_abs[1:h][::-1]
+        folded = np.concatenate(([c_abs[h]], pos + neg, [c_abs[0]]))
+    else:
+        pos = c_abs[h + 1:]
+        neg = c_abs[:h][::-1]
+        folded = np.concatenate(([c_abs[h]], pos + neg))
+    return np.concatenate(([folded[0]], np.repeat(folded[1:], 2)))
+
+
+def _std_check_cheb(values: np.ndarray, rel_tol: float, hscale: float,
+                    vscale: float) -> bool:
+    """MATLAB @chebtech/standardCheck on one slice: ``standardChop`` with
+    ``tol = relTol * max(hscale, vscale / vscale_slice)``."""
+    from chebfunjax.utils.transforms import vals2coeffs
+
+    v = np.asarray(values, dtype=np.float64)
+    n = v.shape[0]
+    vscale_f = float(np.max(np.abs(v)))
+    if vscale_f == 0.0:
+        return True
+    tolk = rel_tol * max(hscale, vscale / vscale_f)
+    c = vals2coeffs(jnp.asarray(v))
+    return int(standard_chop(c, tolk)) < n
+
+
+def _std_check_trig(values: np.ndarray, rel_tol: float, vscale: float) -> bool:
+    """MATLAB @trigtech/standardCheck on one slice: ``standardChop`` of the
+    folded spectrum with ``tol = relTol * vscale / vscale_slice``."""
+    from chebfunjax.tech.trigtech import trig_vals2coeffs
+
+    v = np.asarray(values, dtype=np.float64)
+    n = v.shape[0]
+    vscale_f = float(np.max(np.abs(v)))
+    if vscale_f == 0.0:
+        return True
+    tolk = rel_tol * vscale / vscale_f
+    c = np.abs(np.asarray(trig_vals2coeffs(jnp.asarray(v)))).ravel()
+    return int(standard_chop(jnp.asarray(_trig_fold(c)), tolk)) < n
+
+
+def _matlab_round(x: float) -> int:
+    return int(np.floor(x + 0.5))
+
+
+def _simplify_cheb_slices(vals: np.ndarray, rel_tol: float) -> list:
+    """MATLAB ``simplify(f.cols, relTol, 'globaltol')`` for the value
+    matrix ``vals`` (one slice per column): every slice is chopped to the
+    same length, the largest ``standardChop`` cutoff over the slices with
+    ``tol_j = relTol * max_j vscale_j / vscale_j``, computed on the
+    coefficients zero-padded to ``max(17, round(1.25 n + 5))`` and passed
+    once through values (@chebtech/simplify.m)."""
+    from chebfunjax.utils.transforms import coeffs2vals, vals2coeffs
+
+    V = np.asarray(vals, dtype=np.float64)
+    nold, r = V.shape
+    C = np.asarray(vals2coeffs(jnp.asarray(V)))
+    vsc = np.max(np.abs(V), axis=0)
+    vmax = float(np.max(vsc)) if r else 0.0
+    N = max(17, _matlab_round(nold * 1.25 + 5))
+    Cp = np.zeros((N, r), dtype=C.dtype)
+    Cp[:nold] = C
+    C2 = np.asarray(vals2coeffs(coeffs2vals(jnp.asarray(Cp))))
+    cutoff = 1
+    for j in range(r):
+        if vsc[j] == 0.0:
+            continue
+        cutoff = max(cutoff, int(standard_chop(jnp.asarray(C2[:, j]),
+                                               rel_tol * vmax / float(vsc[j]))))
+    cutoff = min(cutoff, nold)
+    return [Chebtech2.from_coeffs(jnp.asarray(C[:cutoff, j])) for j in range(r)]
+
+
+def _simplify_trig_slices(vals: np.ndarray, rel_tol: float) -> list:
+    """MATLAB ``simplify(f.cols, relTol, 'globaltol')`` for trig slices
+    (@trigtech/simplify.m): one common cutoff from the folded spectra of
+    the prolonged coefficients, ``tol_j = relTol * max_j vscale_j /
+    vscale_j``."""
+    from chebfunjax.tech.trigtech import Trigtech
+
+    V = np.asarray(vals, dtype=np.float64)
+    nold, r = V.shape
+    vsc = np.max(np.abs(V), axis=0)
+    vmax = float(np.max(vsc)) if r else 0.0
+    N = max(17, _matlab_round(nold * 1.25 + 5))
+    techs = [Trigtech.from_values(jnp.asarray(V[:, j])).prolong(N) for j in range(r)]
+    cutoff = 1
+    n = N
+    for j in range(r):
+        if vsc[j] == 0.0:
+            continue
+        c = np.abs(np.asarray(techs[j].coeffs))[::-1]
+        c = np.asarray(Trigtech.vals2coeffs(Trigtech.coeffs2vals(jnp.asarray(c))))
+        c = np.abs(c)[::-1]
+        cutoff = max(cutoff, int(standard_chop(jnp.asarray(_trig_fold(c)),
+                                               rel_tol * vmax / float(vsc[j]))))
+    cutoff = min(cutoff, nold)
+    cutoff = cutoff // 2 + 1 if cutoff % 2 == 0 else (cutoff - 1) // 2 + 1
+    out = []
+    for j in range(r):
+        c = np.asarray(techs[j].coeffs)
+        if n % 2 == 0:
+            c = np.concatenate(([0.5 * c[0]], c[1:], [0.5 * c[0]]))
+        mid = (c.shape[0] + 1) // 2 - 1
+        out.append(Trigtech.from_coeffs(jnp.asarray(c[mid - cutoff + 1:mid + cutoff])))
+    return out
+
+
 def _grid_refine(n: int) -> int:
     """Return the next grid size for adaptive refinement (Chebtech2 strategy).
 
@@ -478,41 +610,47 @@ class SeparableApprox(eqx.Module):
         max_samples: int = 2**14 + 1,
         techs: tuple = ("cheb", "cheb"),
     ) -> "SeparableApprox":
-        """Construct with a MATLAB-style sample test (Fable 5).
+        """Construct with MATLAB's sample test.
 
-        Runs the two-phase construction, then evaluates f at off-grid
-        points; if the approximation misses them (phase-1 ACA accepted a
-        too-coarse grid, e.g. a compactly supported bump on a large
-        domain sampled 9x9), the construction restarts with a denser
-        initial grid.  Mirrors sampleTest in @chebfun2/constructor.m.
+        Runs the two-phase construction, then evaluates f at the first
+        100 points of the 2-D Halton sequence (bases 2 and 3) scaled to
+        the domain; if the approximation misses any of them by more than
+        ``100 * absTol`` (the gradient-scaled tolerance of ``getTol`` on
+        the final phase-1 grid), the construction restarts with the
+        initial grid refined once (MATLAB ``minSample = gridRefine(...)``).
+        A fixed ``1e3 * vscale * eps`` probe was used before: steep
+        functions on large domains (the Greeks example's payoff density
+        on [0, 5000]) can never meet it, so the constructor escalated to a
+        2049^2 grid and returned a rank-8 fit where MATLAB stops at 33^2
+        with rank 7.
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/sampleTest.m (halton subfunction),
+            @chebfun2/constructor.m (sampleTest branch)
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford
+            and The Chebfun Developers.
         """
         xa, xb, ya, yb = (float(v) for v in domain)
-        # deterministic low-discrepancy test points (golden-ratio lattice)
-        phi = 0.6180339887498949
-        ts = np.arange(1, 33, dtype=float)
-        xt = xa + (xb - xa) * ((0.5 + phi * ts) % 1.0)
-        yt = ya + (yb - ya) * ((0.5 + phi * ts * ts) % 1.0)
+        xt = xa + (xb - xa) * _halton_1d(100, 2)
+        yt = ya + (yb - ya) * _halton_1d(100, 3)
         xtj = jnp.asarray(xt)[:, None]
         ytj = jnp.asarray(yt)[:, None]
         fvals = np.asarray(jnp.asarray(f(xtj, ytj))).ravel()
         n0 = min_samples
         while True:
-            approx = cls._construct_once(f, domain=domain, tol=tol,
-                                         max_rank=max_rank,
-                                         min_samples=n0,
-                                         max_samples=max_samples,
-                                         techs=techs)
+            approx, abs_tol = cls._construct_once(f, domain=domain, tol=tol,
+                                                  max_rank=max_rank,
+                                                  min_samples=n0,
+                                                  max_samples=max_samples,
+                                                  techs=techs)
             avals = np.asarray(approx(jnp.asarray(xt),
                                       jnp.asarray(yt))).ravel()
-            vsc = max(float(np.max(np.abs(fvals))), 1e-300)
-            if np.max(np.abs(avals - fvals)) <= 1e3 * vsc * max(tol, _EPS):
+            if np.max(np.abs(avals - fvals)) <= 100.0 * abs_tol:
                 return approx
             n0 = 2 * (n0 - 1) + 1
             if n0 > max_samples // 4:
-                # Steep-gradient functions chop at the gradient-scaled
-                # tolerance of _get_tol, which can sit above the fixed
-                # probe threshold; the refined result is still the best
-                # achievable, so return it without failing.
                 return approx
 
     @classmethod
@@ -693,11 +831,19 @@ class SeparableApprox(eqx.Module):
         def _refine_y(n):
             return _grid_refine(n) if tech_y == "cheb" else 2 * n
 
-        def _happy_x(v, t):
-            return _is_happy(v, t) if tech_x == "cheb" else _is_happy_trig(v, t)
+        # MATLAB happinessCheck(colTech, [], sum(colVals, 2), colData, prefy)
+        # with colData.hscale = norm(dom(3:4), inf), colData.vscale = the
+        # phase-1 grid vscale and prefy.chebfuneps = relTol (getTol).
+        hscale_x = max(abs(xa), abs(xb))
+        hscale_y = max(abs(ya), abs(yb))
 
-        def _happy_y(v, t):
-            return _is_happy(v, t) if tech_y == "cheb" else _is_happy_trig(v, t)
+        def _happy_x(v):
+            return (_std_check_cheb(v, rel_tol, hscale_x, vscale) if tech_x == "cheb"
+                    else _std_check_trig(v, rel_tol, vscale))
+
+        def _happy_y(v):
+            return (_std_check_cheb(v, rel_tol, hscale_y, vscale) if tech_y == "cheb"
+                    else _std_check_trig(v, rel_tol, vscale))
 
         # Minimum grid size must be one plus a power of 2 for nesting
         _grid_refine(min_samples - 1) if min_samples > 1 else min_samples
@@ -761,6 +907,7 @@ class SeparableApprox(eqx.Module):
         # 2D tolerance (getTol from @chebfun2/constructor.m)
         dom4 = (xa, xb, ya, yb)
         abs_tol = _get_tol(x_pts, y_pts, vals, dom4, tol)
+        rel_tol = max(vals.shape) ** (2.0 / 3.0) * tol
 
         pivot_vals, pivot_pos, row_vals_mat, col_vals_mat, ifail = _complete_aca(
             vals, abs_tol, factor
@@ -782,6 +929,7 @@ class SeparableApprox(eqx.Module):
             x_pts, y_pts, vals = _sample_grid(grid_x, grid_y)
             vscale = float(np.max(np.abs(vals)))
             abs_tol = _get_tol(x_pts, y_pts, vals, dom4, tol)
+            rel_tol = max(vals.shape) ** (2.0 / 3.0) * tol
             pivot_vals, pivot_pos, row_vals_mat, col_vals_mat, ifail = _complete_aca(
                 vals, abs_tol, factor
             )
@@ -810,7 +958,7 @@ class SeparableApprox(eqx.Module):
                 pivots=jnp.array([1.0], dtype=jnp.float64),
                 domain=(xa, xb, ya, yb),
                 techs=(tech_x, tech_y),
-            )
+            ), abs_tol
 
         r = len(pivot_vals)
 
@@ -825,8 +973,8 @@ class SeparableApprox(eqx.Module):
         ny = grid_y
         nx = grid_x
 
-        resolved_cols = _happy_y(np.sum(col_vals_mat, axis=1), abs_tol)
-        resolved_rows = _happy_x(np.sum(row_vals_mat, axis=0), abs_tol)
+        resolved_cols = _happy_y(np.sum(col_vals_mat, axis=1))
+        resolved_rows = _happy_x(np.sum(row_vals_mat, axis=0))
         is_happy = resolved_cols and resolved_rows
 
         while not is_happy and not failure:
@@ -885,45 +1033,26 @@ class SeparableApprox(eqx.Module):
             if r == 1:
                 row_vals_mat = row_vals_mat.reshape(1, -1)
 
-            resolved_cols = _happy_y(np.sum(col_vals_mat, axis=1), abs_tol)
-            resolved_rows = _happy_x(np.sum(row_vals_mat, axis=0), abs_tol)
+            resolved_cols = _happy_y(np.sum(col_vals_mat, axis=1))
+            resolved_rows = _happy_x(np.sum(row_vals_mat, axis=0))
             is_happy = resolved_cols and resolved_rows
 
         # ================================================================
         # Build Chebtech2 objects for each column and row slice
         # ================================================================
 
-        from chebfunjax.utils.transforms import vals2coeffs
-
-        def _make_slice(vals, tech):
-            """1D tech object from slice values; chop/simplify against
-            the GLOBAL tolerance (MATLAB simplifies the quasimatrix
-            slices relative to the chebfun2 vscale): late CDR slices are
-            small residuals whose coefficients never decay to eps
-            relative to themselves."""
-            v = jnp.asarray(vals, dtype=jnp.float64)
-            vscale = float(jnp.max(jnp.abs(v)))
-            if tech == "trig":
-                from chebfunjax.tech.trigtech import Trigtech
-
-                t = Trigtech.from_values(v)
-                if vscale > 0:
-                    t = t.simplify(min(0.5, max(tol, abs_tol / vscale)))
-                return t
-            c = vals2coeffs(v)
-            if vscale > 0:
-                rel_tol = min(0.5, max(tol, abs_tol / vscale))
-                c = c[:standard_chop(c, rel_tol)]
-            return Chebtech2.from_coeffs(c)
-
-        cols_list = []
-        rows_list = []
-
-        for j in range(r):
-            # Column slice c_j(y): values on reference [-1,1] = values on [ya,yb]
-            cols_list.append(_make_slice(col_vals_mat[:, j], tech_y))
-            # Row slice r_j(x): values on reference [-1,1] = values on [xa,xb]
-            rows_list.append(_make_slice(row_vals_mat[j, :], tech_x))
+        # MATLAB: g.cols = chebfun(colVals, ...); g.rows = chebfun(rowVals.',
+        # ...); g = simplify(g, mineps) with mineps = relTol ('globaltol'):
+        # every slice is chopped to a common length relative to the largest
+        # slice.
+        if tech_y == "cheb":
+            cols_list = _simplify_cheb_slices(col_vals_mat, rel_tol)
+        else:
+            cols_list = _simplify_trig_slices(col_vals_mat, rel_tol)
+        if tech_x == "cheb":
+            rows_list = _simplify_cheb_slices(row_vals_mat.T, rel_tol)
+        else:
+            rows_list = _simplify_trig_slices(row_vals_mat.T, rel_tol)
 
         # Store d_j = 1/piv_j so that f(x,y) = Σ_j d_j * c_j(y) * r_j(x)
         # (This matches the CDR formula: C * diag(1/pivotValues) * R.')
@@ -939,7 +1068,7 @@ class SeparableApprox(eqx.Module):
                 for j in range(r)
             ),
             techs=(tech_x, tech_y),
-        )
+        ), abs_tol
 
     # ------------------------------------------------------------------
     # Evaluation (JIT-safe)

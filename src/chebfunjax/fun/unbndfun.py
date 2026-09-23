@@ -1232,10 +1232,13 @@ class Unbndfun(eqx.Module):
         """Absolute value (method form used by the chebfun layer)."""
         return self.__abs__()
 
+    @property
     def endpoint_values(self) -> tuple:
-        """Values at the two ends (limits at an infinite endpoint)."""
+        """Values at the two ends (limits at an infinite endpoint); a
+        property, like ``_Piece.endpoint_values``, so the chebfun display
+        (MATLAB @chebfun/display) works on unbounded pieces."""
         v = self.onefun(jnp.asarray([-1.0, 1.0]))
-        return (v[0], v[1])
+        return (float(jnp.real(v[0])), float(jnp.real(v[1])))
 
     def _apply_fun(self, op) -> "Unbndfun":
         """Compose with a pointwise ``op`` by adaptive reconstruction on

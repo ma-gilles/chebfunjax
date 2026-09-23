@@ -1,72 +1,113 @@
-# The Carrier equation
+# Carrier equation
 
-*Nick Trefethen and Asgeir Birkisson, October 2010*
+*Asgeir Birkisson, October 2010*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-nonlin/Carrier.html)
 
-(Chebfun example ode-nonlin/Carrier.m)
+Python translation: [`examples/ode-nonlin/carrier.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/carrier.py)
 
-Carrier's boundary-layer problem
+## 1. The original problem
 
-$$ 0.01\,u'' + 2(1-x^2)u + u^2 = 1, \qquad u(-1) = u(1) = 0, $$
+The Carrier equation can be found in Section 9.7 of the well-known textbook of Bender & Orszag [1], and is given as follows:
 
-is a favourite test problem because it has *many* solutions. Which one
-Newton converges to is decided entirely by the initial guess. Starting
-from $u_0 = 2(x^2-1)$:
+$$ \varepsilon u'' + 2(1-x^2)u + u^2 = 1,\qquad u(-1) = 0,~~ u(1) = 0. $$
 
-```python
-N = Chebop(lambda x, u: 0.01*u.diff(2) + 2*(1-x**2)*u + u**2, domain=(-1, 1))
-N.bc = 0
-N.init = 2*(x**2 - 1)
-u, info = N.solvebvp(1)
+This is a nonlinear ODE boundary-value problem with multiple solutions. We can find a solution with Chebfun (taking $\varepsilon=0.01$) as follows. We set up the operator and boundary conditions:
+
+```matlab
+N = chebop(-1,1);
+N.op = @(x,u) 0.01*diff(u,2) + 2*(1-x.^2).*u + u.^2;
+N.bc = 'dirichlet';
 ```
 
-![Carrier figure 1](../../images/ode-nonlin/Carrier_repl_01.png)
+And we set an initial guess:
+
+```matlab
+x = chebfun('x');
+N.init = 2*(x.^2-1);
+```
+
+We now solve the problem using the nonlinear backslash operator. By calling `\` with two output arguments, we also get the norms of the updates at each iteration returned in a vector. Before solving the problem, we set the `cheboppref` field `'display'` to be `'iter'` in order to display information about the solution process. We then plot the solution and the norm of the updates:
+
+```matlab
+cheboppref.setDefaults('display','iter')
+[u,info] = solvebvp(N,1);
+nrmdu = info.normDelta;
+LW = 'linewidth'; MS = 'markersize'; FS = 'fontsize';
+subplot(1,2,1), plot(u,LW,1.6), title('Solution',FS,14)
+subplot(1,2,2), semilogy(nrmdu,'.-r',LW,1.6,MS,16), title('Convergence',FS,14)
+xlim([1 length(nrmdu)]), grid on
+```
+
+```text
+(no matching output)
+```
+
+![Carrier figure 01](../../images/ode-nonlin/Carrier_01.png)
+
+The solution has been obtained to high accuracy:
+
+```matlab
+accuracy = norm(N(u)-1)
+```
 
 ```text
 accuracy =
-     1.441122393235306e-13
+     1.697578982713647e-13
 ```
 
-(Published: `8.463254780629571e-14`.)
+Running from a different initial guess gives a different solution:
 
-A wigglier initial guess, $2(x^2-1)\bigl(1 - 2/(1+20x^2)\bigr)$, lands
-in a different basin and converges to a solution with three interior
-peaks:
-
-![Carrier figure 2](../../images/ode-nonlin/Carrier_repl_02.png)
+```matlab
+N.init = 2*(x.^2-1).*(1-2./(1+20*x.^2));
+cheboppref.setDefaults('display','off')
+[u,info] = solvebvp(N,1);
+nrmdu = info.normDelta;
+subplot(1,2,1), plot(u,LW,1.6), title('Solution',FS,14)
+subplot(1,2,2), semilogy(nrmdu,'.-r',LW,1.6,MS,16), title('Convergence',FS,14)
+xlim([1 length(nrmdu)]), grid on
+accuracy = norm(N(u)-1)
+```
 
 ```text
 accuracy =
-     5.241821856022795e-12
+     5.637000431799776e-12
 ```
 
-(Published: `3.126829037542067e-10`.)
+![Carrier figure 02](../../images/ode-nonlin/Carrier_02.png)
 
-The same equation with a Dirichlet condition on the left and a Robin
-condition $u' + u = 0$ on the right:
+## 2. Alternative boundary conditions
 
-![Carrier figure 3](../../images/ode-nonlin/Carrier_repl_03.png)
+If we want to change the boundary-value problem above to impose different boundary conditions, we can reuse the chebop created and only change the relevant fields. For example, suppose we want to solve the same equation with the new boundary conditions
+
+$$ u(-1) = 1,~~ u'(1) + u(1) = 0. $$
+
+We can execute the following commands:
+
+```matlab
+N.lbc = 1;
+N.rbc = @(u) diff(u) + u;
+[u,info] = solvebvp(N,1);
+nrmdu = info.normDelta;
+subplot(1,2,1), plot(u,LW,1.6), title('Solution',FS,14)
+subplot(1,2,2), semilogy(nrmdu,'.-r',LW,1.6,MS,16), title('Convergence',FS,14)
+xlim([1 length(nrmdu)]), grid on
+accuracy = norm(N(u)-1)
+```
 
 ```text
 accuracy =
-     2.966253385557802e-12
+     8.919502395923242e-12
 ```
 
-(Published: `3.111051709972451e-10`.)
+![Carrier figure 03](../../images/ode-nonlin/Carrier_03.png)
 
-> **Convergence plots.** `solvebvp` returns `info['normDelta']`, the
-> norm of each accepted Newton update — MATLAB's `[u, info] =
-> solvebvp(N, rhs)`. chebfunjax refines the discretization by *restarting*
-> Newton at each level, warm-started from the previous solution, so the
-> accumulated history shows a small jump at each refinement rather than
-> the single monotone descent of the published figure. The history is
-> the true sequence of updates performed; the first level alone runs
-> 9.94e-01 → 8.94e-14 in six steps, against MATLAB's display starting
-> at 9.78e-01.
+This example can also be found among the scalar boundary-value problem demos in Chebgui.
+
+## References
+
+1. C. Bender and S. A. Orzsag, *Advanced Mathematical Methods for Scientists and Engineers*, McGraw-Hill, 1978 (Section 9.7).
 
 ---
 
-*Replica script: [`examples/ode-nonlin/carrier_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/carrier_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

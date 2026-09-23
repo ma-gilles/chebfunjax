@@ -4,159 +4,250 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/quad/Tricky.html)
 
-(Chebfun example quad/Tricky.m)
+Python translation: [`examples/quad/tricky.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/quad/tricky.py)
 
 ## 0. Introduction
 
-FJ gave a talk at ENS Lyon today with a number of examples in it that
-intrigued LNT.  Here we play with some of those examples in Chebfun.
-Now Chebfun is just numerical, with no guarantees of accuracy, which
-means it is not a competitor for FJ's Arb method of rigorous quadrature
-[1].  The point of this example is only to see how Chebfun does,
-unrigorously in floating point arithmetic, on some challenging examples
-people have cooked up over the years.
+FJ gave a talk at ENS Lyon today with a number of examples in it that intrigued LNT. Here we play with some of those examples in Chebfun. Now Chebfun is just numerical, with no guarantees of accuracy, which means it is not a competitor for FJ's Arb method of rigorous quadrature [1]. The point of this example is only to see how Chebfun does, unrigorously in floating point arithmetic, on some challenging examples people have cooked up over the years.
 
-The published MATLAB run finds a highly accurate answer in all but one
-example; its Example 3 loses ten digits.  This replica reproduces every
-integral, and — notably — does *not* lose accuracy on Example 3.
+We find that in all but one of these examples, Chebfun very nicely gets a highly accurate answer. Example 3, however, shows difficulties with a function with a lot of discontinuities.
 
 ## 1. Three spikes
 
-From Cranley & Patterson (1971) and the Kahaner battery; see also
-[quad/SpikeIntegral](SpikeIntegral.md):
+This problem comes from R. Cranley and T. N. L. Patterson, On the automatic numerical evaluation of definite integrals, The Computer Journal 14 (1971), 189-198. It also appeared in D. K. Kahaner, Comparison of numerical quadrature formulas, in J. R. Rice, ed., Mathematical Software, Academic Press, 1971, 229-259. See also the earlier Chebfun example www.chebfun.org/examples/quad/SpikeIntegral.html.
 
+```matlab
+format long
+ff = @(x) 1/cosh(10*(x-.2))^2 + 1/cosh(100*(x-.4))^4 + 1/cosh(1000*(x-.6))^6;
+Iexact = 0.210802735500549277
+tic, f = chebfun(ff,[0 1]), I = sum(f); toc
+plot(f)
 ```
+
+```text
 Iexact =
    0.210802735500549
 I =
    0.210802735500549
+[sin(x+exp(x))]
+```
+
+*(Figure 01 of the original page is not reproduced yet.)*
+
+Note that turning on splitting doesn't make much difference to speed.
+
+```matlab
+tic, f = chebfun(ff,[0 1],'splitting','on'), I = sum(f); toc
+```
+
+```text
+(no matching output)
 ```
 
 ## 2. Violent oscillation
 
-$\int_0^8 \sin(x+e^x)\,dx$, from Rump's *Verification methods* (2010):
+This problem comes from S. M. Rump, Verification methods: rigorous results using floating-point arithmetic, Acta Numerica, 19 (2010), 287-449. It is also discussed in W. Tucker, Validated Numerics: A Short Introduction to Rigorous Computations, Princeton U. Press, 2011.
 
+```matlab
+ff = @(x) sin(x+exp(x));
+Iexact = 0.34740017265724780787
+tic, f = chebfun(ff,[0 8]), I = sum(f), toc
+plot(f)
 ```
+
+```text
 Iexact =
    0.347400172657248
 I =
    0.347400172657248
+[sawtooth-modulated]
 ```
 
-(The published MATLAB value is `0.347400172657246`; this replica's
-answer agrees with the exact value in all 15 digits.)
+*(Figure 02 of the original page is not reproduced yet.)*
 
 ## 3. Violent oscillation with 2979 discontinuities
 
-$\int_0^8 (e^x-\lfloor e^x\rfloor)\sin(x+e^x)\,dx$.  This is where the
-published MATLAB run fails: it reports `I = 0.087881488553783` against
-the exact `0.098651704478365` — an error of $10^{-2}$ — and after
-raising `splitMaxLength` to $10^6$ it still gets only 6 digits after
-72 seconds, prompting the authors to remark "for it to lose ten digits
-of accuracy looks like a bug somewhere."
+If we try this with default parameters, we get a warning related to Chebfun's default preference values splitMaxLength = 6000.
 
-This replica constructs the integrand on the 2979 known breakpoints
-$\log 2, \log 3, \dots$ (obtained from `floor` of the exponential
-chebfun) and obtains
-
+```matlab
+ff = @(x) (exp(x)-floor(exp(x)))*sin(x+exp(x));
+Iexact = 0.098651704478365206119
+tic, f = chebfun(ff,[0 8],'splitting','on'); I = sum(f), toc
 ```
+
+```text
 Iexact =
    0.098651704478365
 I =
    0.098651704393442
+[erf layer]
 ```
 
-— accurate to $8.5\times 10^{-11}$, ten digits better than the
-published MATLAB result.
+By increasing splitMaxLength greatly, we can get an answer but it's outrageously slow *and* it's only accurate to 6 digits. Specifically, the commands
+
+I = sum(chebfun(ff,[0 8],'splitting','on','splitMaxLength',1e6))give the result I = 0.0986522613... after 72 seconds. We are well aware that Chebfun is slow for problems with many discontinuities, but for it to lose ten digits of accuracy looks like a bug somewhere. (I have confirmed by adding up the pieces by hand that the ``exact'' answer is correct.)
+
+It would be good to investigate why this integral is giving such trouble.
 
 ## 4. Error function
 
-From Silviu Filip: $\int_{-1}^1 e^{-x}\,\mathrm{erf}(\sqrt{1250}x+1.5)\,dx$:
+This problem comes from Silviu Filip.
 
+```matlab
+ff = @(x) exp(-x)*erf(sqrt(1250)*x+1.5);
+Iexact = NaN
+tic, f = chebfun(ff), I = sum(f), toc
+plot(f)
 ```
+
+```text
+Iexact =
+   NaN
 I =
    -0.999065350291922
+[airy on [0,inf)]
 ```
 
-(Digit-for-digit with the published value.)
+*(Figure 03 of the original page is not reproduced yet.)*
 
 ## 5. Airy function
 
-From FJ: $\int_0^\infty \mathrm{Ai}(x)\,dx$ on the unbounded domain,
+This problem comes from FJ.
 
+```matlab
+ff = @(x) exp(-x)*airy(-x);
+Iexact = 0.378751605379086535
+tic, f = chebfun(ff,[0 inf]), I = sum(f), toc
+plot(f)
 ```
+
+```text
 Iexact =
    0.378751605379087
 I =
-   0.378751605379087
-```
-
-and on the truncated interval $[0,40]$:
-
-```
-I =
    0.378751605379086
+[airy on [0,40]]
+```
+
+*(Figure 04 of the original page is not reproduced yet.)*
+
+We compare this with the result on a sufficiently large finite interval:
+
+```matlab
+tic, f = chebfun(ff,[0 40]), I = sum(f), toc
+```
+
+```text
+(no matching output)
 ```
 
 ## 6. Absolute value of polynomial
 
-Helfgott's MathOverflow integral
-$\int_0^1 |(x^4+10x^3+19x^2-6x-6)|\,e^x dx$:
+This problem was posed by Harald Helfgott on MathOverflow, [https://mathoverflow.net/questions/123677/rigorous-numerical-integration](https://mathoverflow.net/questions/123677/rigorous-numerical-integration). See also A. Mahboubi, G. Melquiond, and T. Sibut-Pinote, Formally verified approximations of definite integrals, International Conference on Interactive Theorem Proving, Spring, 2016, 274-289.
 
+```matlab
+ff = @(x) abs(x^4+10*x^3+19*x^2-6*x-6)*exp(x);
+Iexact = 11.1473105500571397339
+tic, f = chebfun(ff,[0 1],'splitting','on'), I = sum(f), toc
+plot(f)
 ```
+
+```text
 Iexact =
-  11.147310550057140
+   0.378751605379087
 I =
-  11.147310550057584
+   0.378751605379086
+[|quartic| e^x]
 ```
 
-(Published: `11.147310550057142`.)
+*(Figure 05 of the original page is not reproduced yet.)*
 
 ## 7. A ceiling function
 
-Gauss's schoolboy sum as an integral,
-$\int_0^{10} \lceil x \rceil\, x\, dx$-type representation:
+This is an integral representation of the triangular sum that Gauss famously figured out as a schoolboy. See B. Hayes, Gauss's day of reckoning, American Scientist 94 (2006), 200-205.
 
+```matlab
+ff = @(x) ceil(x);
+Iexact = 5050
+tic, f = chebfun(ff,[0 100],'splitting','on'); I = sum(f), toc
+plot(f)
 ```
+
+```text
 Iexact =
-        5050
+   11.147310550057140
 I =
-        5050
+   11.147310550057142
+[ceil]
 ```
+
+*(Figure 06 of the original page is not reproduced yet.)*
 
 ## 8. Another non-smooth function
 
-```
-Iexact =
-  -0.142818642026328
-I =
-  -0.142818642026306
+```matlab
+ff = @(x) (x-floor(x)-1/2)*max(sin(x),cos(x));
+Iexact = -0.14281864202632808376
+tic, f = chebfun(ff,[0 10],'splitting','on'); I = sum(f), toc
+plot(f)
 ```
 
-(Published: `-0.142818642026329`.)
+```text
+Iexact =
+   5050.000000000000000
+I =
+   5050.000000000000000
+[sawtooth*max]
+```
+
+*(Figure 07 of the original page is not reproduced yet.)*
 
 ## 9. From Brisebarre and Joldes
 
-$\int_0^3 \sin(10^5 x^4)$-type wild oscillation (Chen 2006; Joldes's
-thesis), requiring a representation of enormous length:
+This example comes from Mioara Joldes, Rigorous Polynomial Approximations and Applications, PhD thesis, ENS Lyon, 2011. The source of the integral is C.-Y. Chen, Computing interval enclosures for definite integrals by application of triple adaptive strategies, Computing, 78 (2006), 81-99. It requires a Chebfun of length more than a million.
 
+```matlab
+ff = @(x) sin((0.001+(1-x)^2)^(-3/2));
+Iexact = 0.74997436852719477011
+tic, f = chebfun(ff,[0 3],'maxLength',1e7), I = sum(f), toc
+plot(f)
 ```
+
+```text
+Iexact =
+   -0.142818642026328
+```
+
+*(Figure 08 of the original page is not reproduced yet.)*
+
+It is interesting to note the near-zero region near x=1 here. That's incorrect, but has negligible effect on the integral.
+
+Splitting on is hard work too, but at least it eventually gets the right answer, and this time with a more convincing plot.
+
+```matlab
+tic, f = chebfun(ff,[0 3],'splitting','on','splitMaxLength',1e6);
+I = sum(f), toc
+plot(f)
+```
+
+```text
+I =
+   -0.142818642026328
+[wild oscillation]
 Iexact =
    0.749974368527195
 I =
-   0.749974368527170
+   0.749717113597802
 ```
 
-(Published: `0.749974368527190` global / `0.749974368527184` with
-splitting.)
+*(Figure 09 of the original page is not reproduced yet.)*
 
 ## Reference
 
-[1] F. Johansson, Numerical integration in arbitrary-precision ball
-arithmetic, arXiv:1802.07942 and _International Congress on
-Mathematical Software_, Springer, Cham, 2018.
+Not much has been done on rigorous extended precision arithmetic, but FJ's Arb library is a contribution in this area:
+
+[1] F. Johansson, Numerical integration in arbitrary-precision ball arithmetic, arXiv:1802.07942 and *International Congress on Mathematical Software*, Springer, Cham, 2018.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

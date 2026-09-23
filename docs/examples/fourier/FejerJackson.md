@@ -4,51 +4,87 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/fourier/FejerJackson.html)
 
-(Chebfun example fourier/FejerJackson.m)
+Python translation: [`examples/fourier/fejer_jackson.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/fourier/fejer_jackson.py)
 
-The Fejer-Jackson inequality asserts that the partial sums of the
-Fourier series of the sawtooth function,
+The Fejer-jackson inequality concerns the sums $$ f_n(t) = \sum_{k=1}^n {\sin(k t)\over k}, \quad x \in (0,\pi) . $$ In Chebfun, we can compute $f_n$ like this:
 
-$$ f_n(x) = \sum_{k=1}^{n} \frac{\sin(kx)}{k}, $$
-
-are positive for $x \in (0, \pi)$.  We can verify this in chebfunjax by
-constructing the partial sums and computing their minima.  Here is
-$f_{32}$, whose minimum on $[0,\pi]$ is zero (attained at the
-endpoints) and whose maximum overshoots $\pi/2$ — the Gibbs phenomenon:
-
-```python
-import jax.numpy as jnp
-import numpy as np
-import chebfunjax as cj
-
-def fnx(n):
-    ks = jnp.arange(n, 0, -1, dtype=jnp.float64)
-    def op(x):
-        xx = jnp.atleast_1d(jnp.asarray(x, dtype=jnp.float64))
-        return jnp.sum(jnp.sin(xx[..., None] * ks) / ks, axis=-1)
-    return op
-
-fn = lambda n: cj.chebfun(fnx(n), domain=[0.0, np.pi])
-f32 = fn(32)
+```matlab
+fnx = @(n,x) sum(sin((n:-1:1)*x)./(n:-1:1));
+fn = @(n) chebfun(@(x) fnx(n,x),[0 pi],'vectorize');
 ```
 
-![](../../images/fourier/FejerJackson_repl_01.png)
+Here for example is the case $n=32$:
 
-With larger $n$ the overshoot approaches the Gibbs-Wilbraham constant
-$\int_0^\pi \frac{\sin t}{t}\, dt = 1.8519\ldots$:
+```matlab
+XT = 'xtick'; XL = 'xticklabel'; YT = 'ytick';
+YL = 'yticklabel'; FS = 'fontsize'; LW = 'linewidth';
+MS = 'markersize'; ax = [-.1 3.3 0 2];
+f32 = fn(32); plot(f32,LW,1.6), axis(ax), grid on
+set(gca,XT,pi*(0:.5:1),XL,{'0','\pi/2','\pi'})
+set(gca,YT,pi*(0:.25:.5),YL,{'0','\pi/4','\pi/2'})
+ss = 'Min and max of f%d:  %9.6f, %9.6f';
+title(sprintf(ss,32,minandmax(f32)),FS,12)
+```
 
-![](../../images/fourier/FejerJackson_repl_02.png)
+![FejerJackson figure 01](../../images/fourier/FejerJackson_01.png)
 
-For $n = 512$, zooming in near $x = 0$:
+Here is $n=128$.
 
-![](../../images/fourier/FejerJackson_repl_03.png)
+```matlab
+f128 = fn(128); plot(f128,LW,1), axis(ax), grid on
+set(gca,XT,pi*(0:.5:1),XL,{'0','\pi/2','\pi'})
+set(gca,YT,pi*(0:.25:.5),YL,{'0','\pi/4','\pi/2'})
+title(sprintf(ss,128,minandmax(f128)),FS,12)
+```
 
-The lengths of the chebfun representations grow linearly with $n$:
+![FejerJackson figure 02](../../images/fourier/FejerJackson_02.png)
 
-![](../../images/fourier/FejerJackson_repl_04.png)
+And here is $n=512$, now with the plot showing just a closeup near $x=0$.
 
-A trig representation on $[0, 2\pi]$ captures $f_n$ with exactly
-$2n+1$ Fourier modes, while the Chebyshev representation needs about
-$\pi/2$ points per wavelength:
+```matlab
+f512 = fn(512); plot(f512{0,0.2},LW,1), axis([0 .2 0 2]), grid on
+set(gca,YT,pi*(0:.25:.5),YL,{'0','\pi/4','\pi/2'})
+title(sprintf(ss,512,minandmax(f512)),FS,12)
+```
 
-![](../../images/fourier/FejerJackson_repl_05.png)
+![FejerJackson figure 03](../../images/fourier/FejerJackson_03.png)
+
+The oscillations don't go away: this is the Gibbs phenomenon.
+
+The Fejer-Jackson inequality asserts that for every $n\ge 1$, $f_n(x) > 0$ for all $x\in (0,\pi)$. This was conjectured by Fejer in 1910 and subsequently proved by various people including Jackson, Gronwall, Landau, Turan, and Fejer himself. I learned of the matter this past April from Dick Askey, who has been interested in sharpenings of the inequality.
+
+It is interesting to look at this function from the Chebfun point of view. The functions above construct $f_n$ as an algebraic polynomial, nonperiodic, represented by Chebyshev coefficients. Here is a plot of length as a function of $n$, showing a linear relationship with a proportionality constant of $\pi/2$.
+
+```matlab
+nn = 10:10:500; ln = [];
+for n = nn
+  ln = [ln length(fn(n))];
+end
+plot(nn,ln,'.',MS,14)
+title('Length of chebfuns',FS,12)
+xlabel('n',FS,10), ylabel('length(fn(n))',FS,10)
+```
+
+![FejerJackson figure 04](../../images/fourier/FejerJackson_04.png)
+
+Since these are trigonometric functions, an alternative would be to construct them as trig chebfuns, though now the domain would have to be $[0, 2\pi]$. This is slightly less efficient as now the proportionality constant is $2$:
+
+```matlab
+fntrig = @(n) chebfun(@(x) fnx(n,x),[0 2*pi],'trig','vectorize');
+lntrig = [];
+for n = nn
+  lntrig = [lntrig length(fntrig(n))];
+end
+hold on, plot(nn,lntrig,'or',MS,6), hold off
+title('Length of chebfuns, both cheb and trig',FS,12)
+xlabel('n',FS,10), ylabel('length(fn(n))',FS,10)
+legend('cheb','trig','location','northwest')
+```
+
+![FejerJackson figure 05](../../images/fourier/FejerJackson_05.png)
+
+Of course, algebraically the trigonometric approximations are exactly the partial sums in the definition of $f_n$, and they could be constructed that way explicitly rather than using the general trigfun constructor as above.
+
+---
+
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

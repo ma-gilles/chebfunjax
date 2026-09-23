@@ -1,62 +1,98 @@
-# Orbiting around fixed masses
+# Orbiting around fixed stars
 
-*Nick Trefethen, May 2011*
+*Nick Trefethen, November 2011*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-nonlin/Orbits.html)
 
-(Chebfun example ode-nonlin/Orbits.m)
+Python translation: [`examples/ode-nonlin/orbits.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/orbits.py)
 
-Planar orbits are naturally posed in the complex plane: a body at
-position $u(t) \in \mathbb{C}$ attracted to a fixed mass at the origin
-obeys
+Suppose a "star" of unit mass is fixed at the origin in the $x$-$y$ plane, and a planet, also of unit mass, moves around it according to Newton's laws with gravitational constant $1$. To be specific, let's suppose the planet starts at $(-1,1)$ heading east with speed $v=1$. What does the trajectory look like?
 
-$$ u'' = -\frac{u}{|u|^3}, $$
+Here is a code to solve this problem using Chebfun's `ode113` command, and complex arithmetic for simplicity. We track the orbit for $23$ time units and see that it is an ellipse.
 
-integrated here with `ode113` from $u(0) = -1 + i$ and $u'(0) = v$.
-The dots mark integer times:
+```matlab
+tmax = 23; d = [0 tmax];
+LW = 'linewidth'; MS = 'markersize';
+opts = odeset('abstol',1e-10,'reltol',1e-10);
+fun = @(t,u) [u(2); -u(1)./abs(u(1)).^3];
+u0 = -1+1i;
+v = 1;
+uv = chebfun.ode113(fun,d,[u0; v],opts); uv = uv(:,1);
+hold off, plot(0,0,'.r','markersize',24), hold on
+plot(uv,LW,1.6), axis equal, grid on, shg
+plot(uv(0:tmax),'.k',MS,16)
+```
 
-![Orbits figure 1](../../images/ode-nonlin/Orbits_repl_01.png)
+![Orbits figure 01](../../images/ode-nonlin/Orbits_01.png)
 
-Varying the initial speed $v = 0.5, 0.75, 1, 1.5, 2$ traces a family
-of ellipses, parabolas and hyperbolas:
+If we want the initial speed $v$ to be a parameter, we can make an anonymous function:
 
-![Orbits figure 2](../../images/ode-nonlin/Orbits_repl_02.png)
+```matlab
+u = @(v) chebfun.ode113(fun,d,[u0; v],opts);
+```
 
-With *two* fixed masses, at $0$ and $1$,
+Here are the orbits for $v = 0.5,\ 0.75,\ 1,\ 1.5,\ 2$. This kind of thing is familiar from introductory physics: every orbit is an ellipse, a parabola, or a hyperbola.
 
-$$ u'' = -\frac{u}{|u|^3} - \frac{u-1}{|u-1|^3}, $$
+```matlab
+hold off, plot(0,0,'.r','markersize',24), hold on
+for v = [.5 .75 1 1.5 2]
+     uv = u(v); uv = uv(:,1); plot(uv,LW,1.6)
+     plot(uv(0:tmax),'.k',MS,16)
+end
+axis([-3 3 -3 3]), axis square, grid on, shg
+```
 
-the motion is far richer. At $v = 1$:
+![Orbits figure 02](../../images/ode-nonlin/Orbits_02.png)
 
-![Orbits figure 3](../../images/ode-nonlin/Orbits_repl_03.png)
+More unusual behavior comes about if we imagine two or more fixed "stars". Orbits can now be bounded without being periodic. For example, suppose we have one star at $(0,0)$ and another at $(1,0)$, with the planet feeling a gravitational tug from each. Here is an orbit over $10$ time units starting with $v=1$:
 
-and at $v = 0.9$ the body swings very close past the left mass:
+```matlab
+fun = @(t,u) [u(2); -u(1)./abs(u(1)).^3-(u(1)-1)./abs(u(1)-1).^3];
+tmax = 10; d = [0 tmax];
+u = @(v) chebfun.ode113(fun,d,[u0; v],opts);
+v = 1; uv = u(v); uv = uv(:,1);
+hold off, plot([0 1],[0 0],'.r','markersize',24), hold on
+plot(uv,LW,1.6), axis equal, grid on, shg
+plot(uv(0:tmax),'.k',MS,16)
+```
 
-![Orbits figure 4](../../images/ode-nonlin/Orbits_repl_04.png)
+![Orbits figure 03](../../images/ode-nonlin/Orbits_03.png)
 
-The arc length of that orbit and its closest approach to a mass:
+Here is what happens when the initial speed is reduced to $0.9$:
+
+```matlab
+v = 0.9; uv = u(v); uv = uv(:,1);
+hold off, plot([0 1],[0 0],'.r','markersize',24), hold on
+plot(uv,LW,1.6), axis equal, grid on, shg
+plot(uv(0:tmax),'.k',MS,16)
+```
+
+![Orbits figure 04](../../images/ode-nonlin/Orbits_04.png)
+
+How long is the trajectory?
+
+```matlab
+orbit_length = norm(diff(uv),1)
+```
 
 ```text
 orbit_length =
   10.646554656349863
-closeness =
-   0.062124928789848
 ```
 
-(Published: `10.646554662628876` and `0.062124928768419` — nine and
-ten digits of agreement respectively, which is about as much as a
-near-singular passage of this kind preserves.)
+How close does it come to the origin?
 
-> **Implementation note.** Two gaps in the ODE solvers had to be closed
-> for this page. Vector-valued problems were unimplemented — `ode45` and
-> `ode113` now return one chebfun per component, indexed `uv[k]` where
-> MATLAB writes `uv(:,k)`. And a complex initial state was silently cast
-> to `float64`, discarding the imaginary part: the orbit then started
-> from the wrong point and fell into the singularity, reported only as
-> an opaque step-size failure.
+```matlab
+closeness = min(abs(uv))
+```
+
+```text
+closeness =
+   0.062124928789857
+```
+
+Variations on these themes are infinite!
 
 ---
 
-*Replica script: [`examples/ode-nonlin/orbits_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/orbits_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

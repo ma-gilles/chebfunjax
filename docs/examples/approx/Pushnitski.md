@@ -4,70 +4,91 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/Pushnitski.html)
 
-(Chebfun example approx/Pushnitski.m)
+Python translation: [`examples/approx/pushnitski.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/pushnitski.py)
 
-The function $|x|$ can be approximated with accuracy $O(1/n)$ by degree
-$n$ polynomials on $[-1,1]$ but accuracy $O(\exp(-C\sqrt n))$ by type
-$(n,n)$ rationals.  In a lecture at Oxford on 8 November, Alexander
-Pushnitski presented some striking theorems concerning much more
-difficult functions involving $1/\log x$.  Roughly speaking polynomials
-can achieve accuracy $1/\log n$ whereas rationals are closer to $1/n$.
+The function $|x|$ can be approximated with accuracy $O(1/n)$ by degree $n$ polynomials on $[-1,1]$ but accuracy $O(\exp-C\sqrt n)$ by type $(n,n)$ rationals. In a lecture at Oxford on 8 November, Alexander Pushnitski presented some striking theorems concerning much more difficult functions involving $1/\log x$. Roughly speaking polynomials can achieve accuracy $1/\log n$ whereas rationals are closer to $1/n$.
 
-As a concrete example, consider the function that takes the value $0$
-for $x\in [-.1,0]$ and $-1/\log x$ for $x\in [0,.1]$:
+As a concrete example, consider the function that takes the value $0$ for $x\in [-.1,0]$ and $-1/\log x$ for $x\in [0,.1]$, we construct $f$ with splitting, we get this image:
 
-```python
-import numpy as np
-import jax.numpy as jnp
-import chebfunjax as cj
-
-def fop(x):
-    ax = jnp.where(x > 0, x, 1e-300)
-    return jnp.where(x > 0, -1.0/jnp.log(ax), 0.0)
-
-f = cj.chebfun(fop, domain=[-0.1, 0.0, 0.1])
+```matlab
+f = chebfun('-heaviside(x)./log(x)',[-.1,.1],'splitting','on');
+LW = 'linewidth'; MS = 'markersize';
+plot(f,'k',LW,2), ylim([-.2 .5]), grid on
 ```
 
-![Pushnitski figure 1](../../images/approx/Pushnitski_repl_01.png)
+![Pushnitski figure 01](../../images/approx/Pushnitski_01.png)
 
-The function is so steep that it is nearly a step at $x=0$.  We know
-that the Chebyshev coefficients of a function with a jump discontinuity
-decrease at the rate $O(1/n)$.  This function is almost a step
-discontinuity, and the Chebyshev coefficients decrease almost as
-slowly, at a rate roughly $O(1/n\log n)$:
+The function is so steep that Chebfun thinks it actually has a jump at $x=0$, hence the gap in the plot.
 
-```python
-f1000 = cj.chebfun(fop, domain=(-0.1, 0.1), n=1000)
+We know that the Chebyshev coefficients of a function with a jump discontinuity decrease at the rate $O(1/n)$. This function is almost a step discontinuity, and the Chebyshev coefficients decrease almost as slowly, at a rate (to be confirmed) $O(1/n\log n)$:
+
+```matlab
+f1000 = chebfun('-heaviside(x)./log(x)',[-.1,.1],1000);
+plotcoeffs(f1000,'loglog'), xlim([0 500]), grid on
 ```
 
-![Pushnitski figure 2](../../images/approx/Pushnitski_repl_02.png)
+![Pushnitski figure 02](../../images/approx/Pushnitski_02.png)
 
-Here are some polynomial approximations to $f$ (degrees 4, 8, 12, 16):
+Here are some polynomial approximations to $f$.
 
-![Pushnitski figure 3](../../images/approx/Pushnitski_repl_03.png)
+```matlab
+tic
+f = chebfun({0,'-1./log(x)'},[-.1 0 .1],1000);
+LW = 'linewidth'; MS = 'markersize';
+for m = 1:4
+  p = remez(f,4*m);
+  subplot(2,2,m), plot(f-p), grid on
+  title(['degree ' int2str(2*m)])
+end
+toc
+```
 
-These converge very slowly, and that could easily be proved.  For $p$
-to approximate $f$ to accuracy $\epsilon$, its derivative would have to
-be of size at least $\exp(C/\epsilon)$.  From Markov's inequality it
-will follow that $\epsilon$ can decrease no faster than approximately
-$O(1/\log n)$ as $n\to\infty$.
+```text
+Elapsed time is 9.330206 seconds.
+```
 
-Here are some rational approximations (types $(0,0)$ through $(3,3)$).
-The convergence is probably $O(1/n)$, but we are far from seeing that:
+![Pushnitski figure 03](../../images/approx/Pushnitski_03.png)
 
-![Pushnitski figure 4](../../images/approx/Pushnitski_repl_04.png)
+These converge very slowly, and that could easily be proved. For $p$ to approximate $f$ to accuracy $\epsilon$, its derivative would have to be of size at least $\exp(C/\epsilon)$. From Markov's inequality it will follow that $\epsilon$ can decrease no faster than approximately $O(1/\log n)$ as $n\to infty$ (to be confirmed).
 
-What about CF (=AAK) approximation, which as it happens is the method
-used by Pushnitski for his proofs?  It gets in the ballpark:
+Here are some rational approximations. The convergence is probably $O(1/n)$, but we are far from seeing that.
 
-![Pushnitski figure 5](../../images/approx/Pushnitski_repl_05.png)
+```matlab
+tic
+for m = 1:4
+  [p,q] = remez(f,m-1,m-1);
+  subplot(2,2,m), plot(f-p./q), grid on
+  title(['type (' int2str(m-1) ',' int2str(m-1) ')'])
+end
+toc
+```
 
-## References
+```text
+Elapsed time is 9.330206 seconds.
+Elapsed time is 4.141269 seconds.
+Elapsed time is 26.005137 seconds.
+```
 
-1. A. Pushnitski and D. Yafaev, Best rational approximation of functions
-   with logarithmic singularities, _Constructive Approximation_, 2016.
+![Pushnitski figure 04](../../images/approx/Pushnitski_04.png)
+
+What about CF (=AAK) approximation, which as it happens is the method used by Pushnitsky for his proofs? It gets in the ballpark:
+
+```matlab
+tic
+for m = 1:4
+  [p,q] = cf(f,m-1,m-1,4000);
+  subplot(2,2,m), plot(f-p./q), grid on
+  title(['type (' int2str(m-1) ',' int2str(m-1) ')'])
+end
+toc
+```
+
+```text
+Elapsed time is 9.330206 seconds.
+```
+
+![Pushnitski figure 05](../../images/approx/Pushnitski_05.png)
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

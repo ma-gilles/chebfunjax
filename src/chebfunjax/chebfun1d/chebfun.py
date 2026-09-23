@@ -320,6 +320,16 @@ class _Piece(eqx.Module):
         # the piece is the piece itself, so clamping is the correct guard.
         t_a = min(1.0, max(-1.0, (2.0 * a - (pa + pb)) / (pb - pa)))
         t_b = min(1.0, max(-1.0, (2.0 * b - (pa + pb)) / (pb - pa)))
+        # A sub-interval that reaches the piece's own endpoint must map
+        # EXACTLY onto +/-1: @singfun/restrict keeps the endpoint exponent
+        # only when s(end) == 1 (s(1) == -1), and the affine map above can
+        # round 7.0 -> 0.9999999999999999, which silently rebuilt the
+        # singular tail as a 65537-point smooth piece (innerProduct test).
+        _htol = 4.0 * _EPS * max(abs(pa), abs(pb), 1.0)
+        if abs(a - pa) <= _htol:
+            t_a = -1.0
+        if abs(b - pb) <= _htol:
+            t_b = 1.0
         from chebfunjax.fun.singfun import Singfun
         if isinstance(self.tech, Singfun):
             # @singfun/restrict takes a subinterval SEQUENCE.
@@ -3220,11 +3230,34 @@ class Chebfun(eqx.Module):
         new_funs = []
         for p in fbr.funs:
             tech = p.tech
+            # A piece on which a real f is negative: MATLAB's power takes
+            # the principal branch, (-a)^b = a^b exp(i pi b), so the
+            # result is complex rather than NaN (chebop Newton iterates
+            # of u^1.5 dip below zero near a root of u -- Lane-Emden).
+            _neg = False
+            if not jnp.iscomplexobj(getattr(tech, "coeffs", jnp.zeros(1))):
+                try:
+                    _mid = 0.5 * (p.interval[0] + p.interval[1])
+                    _neg = float(_np.real(_np.asarray(
+                        p(jnp.asarray(_mid))))) < 0
+                except Exception:
+                    _neg = False
+            if _neg:
+                tech = -tech
             if isinstance(tech, Singfun):
                 sf = tech ** b
             else:
                 sf = (Singfun.from_chebtech(tech, (0.0, 0.0))
                       .extractBoundaryRoots() ** b).simplifyExponents()
+            if _neg:
+                _ph = complex(_np.exp(1j * _np.pi * b))
+                if all(abs(e) < 1e-14 for e in sf.exponents):
+                    new_funs.append(_Piece.from_function(
+                        lambda x, _p=p: _ph * smooth_op(-_p(x)),
+                        p.interval[0], p.interval[1]))
+                else:
+                    new_funs.append(_Piece(tech=sf * _ph, interval=p.interval))
+                continue
             # A piece with no boundary roots collapses to trivial exponents;
             # keep it smooth to avoid needless Singfun overhead downstream.
             if all(abs(e) < 1e-14 for e in sf.exponents):
@@ -5068,7 +5101,10 @@ class Chebfun(eqx.Module):
         df = self.diff()
         a = float(self.domain.a)
         b = float(self.domain.b)
-        r = _np.asarray(df.roots(nojump=True)).ravel()
+        # MATLAB roots(df) with the default jump detection: a breakpoint
+        # where f' changes sign through a jump (a kink of f) is a local
+        # extremum too (Checkmark example: min(E_3, 'local') at alpha = 0).
+        r = _np.asarray(df.roots()).ravel()
         r = _np.real(r[_np.abs(_np.imag(r)) < 1e-12]) \
             if _np.iscomplexobj(r) else r
         r = r[(r > a + 1e-12) & (r < b - 1e-12)]
@@ -5093,7 +5129,11 @@ class Chebfun(eqx.Module):
         b = float(self.domain.b)
         xj = jnp.asarray(x, dtype=jnp.float64)
         d1 = _np.asarray(df(xj)).real
-        d2 = _np.asarray(d2f(xj)).real
+        # MATLAB feval(diff(f, 2), x) at a breakpoint returns the
+        # pointValue there, the average of the left and right limits
+        # (@chebfun/getValuesAtBreakpoints).
+        d2 = 0.5 * (_np.asarray(d2f(xj, "left")).real
+                    + _np.asarray(d2f(xj, "right")).real)
         dfvs = float(df.vscale)
         eps = float(_np.finfo(_np.float64).eps)
         keep = _np.zeros(len(x), dtype=bool)
@@ -7731,15 +7771,13 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/angle.m
         Chebfun commit: 7574c77
         """
-        f = self
-        new_funs = [
-            _Piece.from_function(
-                lambda x, _f=f: jnp.angle(_f(x)),
-                float(p.interval[0]), float(p.interval[1]),
-            )
-            for p in self.funs
-        ]
-        return Chebfun(funs=new_funs, domain=self.domain)
+        # MATLAB: angle(f) = atan2(imag(f), real(f)), which introduces
+        # breakpoints where the curve crosses the negative real axis (the
+        # branch cut of atan2) so that unwrap() can remove the 2*pi jumps
+        # (NonsmoothFOV example: a = 2*pi + unwrap(angle(c))).
+        if not jnp.iscomplexobj(self.funs[0].tech.coeffs):
+            return atan2(self * 0.0, self)
+        return atan2(self.imag(), self.real())
 
     def logical(self) -> Chebfun:
         """Convert to a logical (0/1) Chebfun.
@@ -9537,7 +9575,11 @@ def _chebfun_build(
         # Under splitting, cap per-piece construction length (MATLAB
         # pref.splitPrefs.splitLength) so unresolved pieces fail fast and
         # the total-length budget below is meaningful.
-        _mp2 = 8 if splitting else 16
+        # MATLAB nested refinement doubles 17, 33, 65, 129, ... and gives
+        # up once the next grid would exceed maxLength (= splitLength 160
+        # under splitting), so the largest grid tried is 129 = 2^7 + 1.
+        _mp2 = (16 if not splitting else
+                int(math.floor(math.log2(max((split_length or 160) - 1, 2)))))
         funs = [
             _build_exps_piece(f, dom_vals[j], dom_vals[j + 1],
                               pairs[j][0], pairs[j][1],
@@ -9580,8 +9622,8 @@ def _chebfun_build(
                 # A finite vscale estimate from interior samples:
                 xs = _np.linspace(a_, b_, 130)[1:-1]
                 with _np.errstate(all="ignore"):
-                    ys = _np.abs(_np.asarray(comp(jnp.asarray(xs)),
-                                             dtype=float))
+                    ys = _np.abs(_np.asarray(
+                        comp(jnp.asarray(xs)))).astype(float)
                 ys = ys[_np.isfinite(ys)]
                 vsc = float(_np.median(ys)) if ys.size else 1.0
                 def _edge_ok(e, _a=a_, _b=b_):
@@ -9596,9 +9638,24 @@ def _chebfun_build(
                 # detectEdge midpoint fallback).  A spurious edge from
                 # one detector (e.g. a steep-oscillation gradient
                 # landing at an endpoint) falls through to the next.
-                edge = _find_blowup(comp, a_, b_, max(vsc, 1e-300))
+                # @fun/detectEdge.m: an edge within 1e-14*hscale of a
+                # finite endpoint is moved diff(dom)/100 inside it, so a
+                # known endpoint singularity is never stranded in a
+                # sliver-adjacent exponent-free piece.
+                _htol = 1e-14 * max(abs(float(dom_vals[0])),
+                                    abs(float(dom_vals[-1])), 1.0)
+
+                def _snap(e, _a=a_, _b=b_, _h=_htol):
+                    if e is None:
+                        return e
+                    if abs(e - _a) <= _h:
+                        return _a + (_b - _a) / 100
+                    if abs(_b - e) <= _h:
+                        return _b - (_b - _a) / 100
+                    return e
+                edge = _snap(_find_blowup(comp, a_, b_, max(vsc, 1e-300)))
                 if not _edge_ok(edge):
-                    edge = _split_edge_fd(comp, a_, b_)
+                    edge = _snap(_split_edge_fd(comp, a_, b_))
                 if not _edge_ok(edge):
                     edge = 0.5 * (a_ + b_)
                 if not _edge_ok(edge):
@@ -9627,7 +9684,7 @@ def _chebfun_build(
     if max_length is None:
         _maxpow2 = 16
     else:
-        _maxpow2 = max(4, int(math.ceil(math.log2(max(int(max_length) - 1, 2)))))
+        _maxpow2 = max(4, int(math.floor(math.log2(max(int(max_length) - 1, 2)))))
 
     # --- 'equi' flag: data sampled on an equispaced grid ---
     # The values are interpreted as coming from linspace(a, b, N); a
@@ -10970,8 +11027,10 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
         return Chebfun(funs=funs, domain=plain.domain)
     import math as _math0
     import warnings as _warnings
-    split_pow2 = (8 if split_length is None
-                  else max(4, int(_math0.ceil(_math0.log2(
+    # Largest nested grid 2^k + 1 not exceeding splitLength (MATLAB
+    # @chebtech2/refine.m gives up when 2n - 1 > maxLength): 129 for 160.
+    split_pow2 = (7 if split_length is None
+                  else max(4, int(_math0.floor(_math0.log2(
                       max(int(split_length) - 1, 2))))))
     # MATLAB @chebfun/constructor.m keeps a running GLOBAL vscale and
     # hands it to every piece (data.vscale): a sliver next to a
@@ -10979,10 +11038,10 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
     # eps * 1, not eps * 1e-5 -- the latter is below the rounding of
     # 1 - x and can never be reached, so the recursion split forever.
     import numpy as _np0
-    _xs0 = _np0.linspace(a, b, 257)[1:-1]
+    _xs0 = _np0.linspace(a, b, 67)[1:-1]
     with _np0.errstate(all="ignore"):
         try:
-            _ys0 = _np0.abs(_np0.asarray(f(jnp.asarray(_xs0)), dtype=float))
+            _ys0 = _np0.abs(_np0.asarray(f(jnp.asarray(_xs0)))).astype(float)
         except Exception:
             _ys0 = _np0.asarray([])
     _ys0 = _ys0[_np0.isfinite(_ys0)] if _ys0.size else _ys0

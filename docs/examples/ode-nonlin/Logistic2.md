@@ -1,54 +1,125 @@
-# Logistic map and chaos
+# The logistic map, again
 
-*Nick Trefethen, August 2013*
+*Nick Trefethen and Michal Konecny, August 2014*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-nonlin/Logistic2.html)
 
-(Chebfun example ode-nonlin/Logistic2.m)
+Python translation: [`examples/ode-nonlin/logistic2.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/logistic2.py)
 
-Iterates of the logistic map $x \mapsto rx(1-x)$ can be composed as
-chebfuns; the polynomial degree doubles with each iteration and the
-plots reveal the onset of chaos. Ten iterations at $r = 3.75$ (chaotic)
-and $r = 3.25$ (period-2):
+## 1. Chaos
 
-![Logistic2 figure 1](../../images/ode-nonlin/Logistic2_repl_01.png)
+The logistic map is the iteration
 
-![Logistic2 figure 2](../../images/ode-nonlin/Logistic2_repl_02.png)
+$$ x_{n+1} = r x_n (1-x_n), $$
 
-Twenty iterations at $r = 3.25$ on $[0.02, 0.98]$ — almost all initial
-points have settled onto the period-2 cycle, with values matching the
-published page to the last digits:
+where $r$ is a parameter in the interval $[0,4]$. An earlier Example called "The logistic map and chaos" looked at the behavior of this function for fixed $x_0$ as a function of $r$. Here we do the reverse: fix $r$ and vary $x_0$. The situation was considered previously in [1].
 
-![Logistic2 figure 3](../../images/ode-nonlin/Logistic2_repl_03.png)
+The interesting behavior happens for $r\in [3,4]$ -- the famous phenomenon of period doubling to chaos. Let's begin with the chaos, which you see, for example, for $r=3.75$. Here is what happens after ten iterations of the map:
+
+```matlab
+tic
+r = 3.75; x0 = chebfun('x',[0 1]);
+n = 10; x = x0;
+for k = 1:n, x = r*x.*(1-x); end
+LW = 'linewidth'; FS = 'fontsize';
+plot(x,LW,1)
+ss = sprintf('r=%4.2f     n=%d     length(x)=%d', r, n, length(x));
+title(ss,FS,12), axis([0 1 0 1])
+```
+
+![Logistic2 figure 01](../../images/ode-nonlin/Logistic2_01.png)
+
+Note that the length of the chebfun is slightly less than the mathematically exact value of $1025$. This appears to be due to an aliasing phenomenon, but we won't explore that here.
+
+## 2. Period 2
+
+Here is the same plot except for $r=3.25$, where this dynamical system is of period 2:
+
+```matlab
+r = 3.25; x = x0;
+for k = 1:n, x = r*x.*(1-x); end
+plot(x,LW,1)
+ss = sprintf('r=%4.2f     n=%d     length(x)=%d', r, n, length(x));
+title(ss,FS,12), axis([0 1 0 1])
+```
+
+![Logistic2 figure 02](../../images/ode-nonlin/Logistic2_02.png)
+
+One can see that $x$ takes essentially just 2 values. If we truncate the interval a little bit to avoid the complexity at the edges, then Chebfun can take 20 steps without difficulty:
+
+```matlab
+n = 20;
+x0 = chebfun('x',[.02 .98]);
+x = x0;
+for k = 1:n, x = r*x.*(1-x); end
+plot(x,LW,1)
+ss = sprintf('r=%4.2f     n=%d     length(x)=%d', r, n, length(x));
+title(ss,FS,12), axis([0 1 0 1])
+```
+
+![Logistic2 figure 03](../../images/ode-nonlin/Logistic2_03.png)
+
+Here are the two limiting values:
+
+```matlab
+x(0.5), x(0.8)
+```
 
 ```text
 ans =
-   0.495265168245477
+   0.495265168245476
+```
+
+Can you compute these analytically, or semi-analytically using Chebfun `roots`?
+
+## 3. Period 4
+
+For $r=3.5$, the system has period 4:
+
+```matlab
+r = 3.5; x = x0;
+for k = 1:n, x = r*x.*(1-x); end
+plot(x,LW,1)
+ss = sprintf('r=%4.2f     n=%d     length(x)=%d', r, n, length(x));
+title(ss,FS,12), axis([0 1 0 1])
+```
+
+![Logistic2 figure 04](../../images/ode-nonlin/Logistic2_04.png)
+
+Here are the four limiting values, which again you may be able to compute with `roots`:
+
+```matlab
+x(0.5), x(0.62), x(0.77), x(0.83)
+```
+
+```text
 ans =
    0.812427139446846
+ans =
+   0.500884210318972
+ans =
+   0.382819683208548
+ans =
+   0.874997263532759
+ans =
+   0.826940706746708
+Elapsed time is 24.649926 seconds.
 ```
 
-At $r = 3.5$ the attractor is a period-4 cycle:
+Time for this example:
 
-![Logistic2 figure 4](../../images/ode-nonlin/Logistic2_repl_04.png)
+```matlab
+toc
+```
 
 ```text
-ans =
-   0.500884210318981
-ans =
-   0.382819683208549
-ans =
-   0.874997263532757
-ans =
-   0.826940706746712
+
 ```
 
-(Published: `0.495265168245476 / 0.812427139446847 / 0.500884210318974
-/ 0.382819683208548 / 0.874997263532759 / 0.826940706746710` —
-13-14-digit agreement, pure floating-point composition either way.)
+## Reference
+
+1. R. B. Platte and L. N. Trefethen, Chebfun: A new kind of numerical computing, in A. D. Fitt, et al., *Progress in Industrial Mathematics at ECMI 2008,* Springer, 2010.
 
 ---
 
-*Replica script: [`examples/ode-nonlin/logistic2_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-nonlin/logistic2_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

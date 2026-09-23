@@ -4,74 +4,96 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/BestApprox.html)
 
-(Chebfun example approx/BestApprox.m)
+Python translation: [`examples/approx/best_approx.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/best_approx.py)
 
-Chebfun's `remez` command (nowadays `minimax`) can compute best
-(minimax) polynomial and rational approximations of a chebfun.  Here for
-example is the error curve for the degree 16 best polynomial
-approximation of $f(x) = |x-\tfrac12|$ on $[-1,1]$.  It equioscillates
-between $16+2 = 18$ alternating extremes:
+## 1. Polynomial minimax approximation
 
-```python
-import numpy as np
-import jax.numpy as jnp
-import chebfunjax as cj
-from chebfunjax.utils.minimax import minimax
+Chebfun's `remez` command, written originally by Pachon and more recently improved by Filip and Nakatsukasa in 2017, can compute best (i.e. infinity-norm or minimax) approximations of a real function on a real interval. For example, here is an absolute value function on $[-1,1]$ and its best approximation by a polynomial of degree $16$: We plot the error curve, with 22 points of equioscillation:
 
-f = lambda x: jnp.abs(x - 0.5)
-res = minimax(f, 16)                    # err = 0.016104921604673
-p = cj.chebfun(jnp.asarray(res.coeffs), coeffs=True)
+```matlab
+x = chebfun('x');
+f = abs(x-0.5);
+[p,err] = remez(f,16);
+LW = 'linewidth'; FS = 'fontsize'; fs = 14;
+figure, plot(f-p,LW,1.6), hold on
+plot([-1 1],err*[1 1],'--k',LW,1)
+plot([-1 1],-err*[1 1],'--k',LW,1)
+ylim([-.03 .03])
+title('Degree 16 polynomial error curve',FS,fs)
 ```
 
-![BestApprox figure 1](../../images/approx/BestApprox_repl_01.png)
+![BestApprox figure 01](../../images/approx/BestApprox_01.png)
 
-Since $f$ is not smooth, polynomial approximations can achieve only
-algebraic convergence: the error decreases as $O(n^{-1})$.  Rational
-approximations do much better.  Here is the error curve for the type
-$(8,8)$ best rational approximation, with error $7.93\times 10^{-4}$ —
-twenty times smaller than the polynomial with the same number of
-parameters:
+## 2. Rational minimax approximation
 
-```python
-r88 = minimax(f, 8, rational=True, denom=8)   # err = 7.929870786e-04
+Chebfun can compute rational approximations too. For example, here is the error curve for type $(8,8)$ best rational approximation of the same function `f`; we choose $(8,8)$ so that the number of degrees of freedom is the same as before. Note that the error is much smaller. Again there are 22 points of equioscillation, but this time, they are more closely clustered near the singularity.
+
+```matlab
+[p,q,rh,err] = remez(f,8,8);
+hold off, plot(f-p/q,LW,1.6), hold on
+plot([-1 1],err*[1 1],'--k',LW,1)
+plot([-1 1],-err*[1 1],'--k',LW,1)
+ylim([-.003 .003])
+title('Type (8,8) rational error curve',FS,fs)
 ```
 
-![BestApprox figure 2](../../images/approx/BestApprox_repl_02.png)
+![BestApprox figure 02](../../images/approx/BestApprox_02.png)
 
-Notice how the equioscillation points cluster near the singularity at
-$x = 1/2$.  Increasing to type $(16,16)$, the error drops to
-$2.04\times 10^{-5}$:
+For an introduction to the theory of these approximations, see Chapters 10 and 24 of [3].
 
-```python
-r16 = minimax(f, 16, rational=True, denom=16)  # err = 2.040896901e-05
+## 3. Function handles vs. quotients of polynomials
+
+In the example just shown we used `p/q` to compute the rational function $r$. Mathematically this is correct, but computationally it quickly fails with more difficult problems. In such cases it is necessary to use the third argument returned by `remez`, `rh`, a function handle connected with a barycentric representation. For example, here we carry the same approximation to type $(16,16)$.
+
+```matlab
+[p,q,rh,err] = remez(f,16,16);
+xx = linspace(-1,1,3000);
+hold off, plot(xx,f(xx)-rh(xx),LW,1.6), hold on
+plot([-1 1],err*[1 1],'--k',LW,1)
+plot([-1 1],-err*[1 1],'--k',LW,1)
+title('Type (16,16) rational error curve',FS,fs)
+axis([-1 1 -4e-5 4e-5])
 ```
 
-![BestApprox figure 3](../../images/approx/BestApprox_repl_03.png)
+```text
+poly err =
+   0.016107079270634
+```
 
-The error is now graphically indistinguishable from zero over most of
-the interval; the equioscillation happens in a narrow region around the
-singularity.  We zoom in:
+![BestApprox figure 03](../../images/approx/BestApprox_03.png)
 
-![BestApprox figure 4](../../images/approx/BestApprox_repl_04.png)
+Here we zoom by a factor of 20 near the singularity.
 
-And closer still:
+```matlab
+a = .45; b = .55; xx = linspace(a,b,3000);
+hold off, plot(xx,f(xx)-rh(xx),LW,1.6), hold on
+plot([a b],err*[1 1],'--k',LW,1)
+plot([a b],-err*[1 1],'--k',LW,1)
+title('Zoom near singularity',FS,fs)
+axis([a b -4e-5 4e-5])
+```
 
-![BestApprox figure 5](../../images/approx/BestApprox_repl_05.png)
+![BestApprox figure 04](../../images/approx/BestApprox_04.png)
 
-This exponential clustering of the equioscillation extremes near the
-singularity is characteristic of rational best approximation of
-functions with branch points; the error decreases root-exponentially,
-$O(\exp(-\pi\sqrt{n}))$, by a theorem of Stahl.
+Here we zoom by another factor of 20. There are 34 extreme points all together.
 
-## References
+```matlab
+a = .4975; b = .5025; xx = linspace(a,b,3000);
+hold off, plot(xx,f(xx)-rh(xx),LW,1.6), hold on
+plot([a b],err*[1 1],'--k',LW,1)
+plot([a b],-err*[1 1],'--k',LW,1)
+title('Closer zoom',FS,fs)
+axis([a b -4e-5 4e-5])
+```
 
-1. L. N. Trefethen, _Approximation Theory and Approximation Practice_,
-   SIAM, 2013.
+![BestApprox figure 05](../../images/approx/BestApprox_05.png)
 
-2. H. Stahl, Best rational approximation of real functions,
-   _Sbornik: Mathematics_, 76 (1993).
+## 4. References
+
+1. B. Beckermann, S. Filip, Y. Nakatsukasa, and L. N. Trefethen, paper in preparation.
+2. R. Pachon and L. N. Trefethen, Barycentric-Remez algorithms for best polynomial approximation in the chebfun system, *BIT Numerical Mathematics*, 49 (2009), 721-741.
+3. L. N. Trefethen, *Approximation Theory and Approximation Practice*, SIAM, 2013.
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

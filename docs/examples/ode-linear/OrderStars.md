@@ -1,41 +1,52 @@
-# Order stars
+# Order Stars
 
-*Nick Trefethen, December 2011*
+*Nick Trefethen, July 2014*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-linear/OrderStars.html)
 
-(Chebfun example ode-linear/OrderStars.m)
+Python translation: [`examples/ode-linear/order_stars.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-linear/order_stars.py)
 
-Order stars, introduced by Wanner, Hairer, and Norsett in 1978,
-resolved several long-standing conjectures about the stability of
-numerical methods for ODEs. The order star of an approximation
-$r(z) \approx e^z$ is the region of the complex plane where
-$|r(z)e^{-z}| > 1$; where $r$ matches $e^z$ to order $p$, exactly
-$p+1$ petals meet at the origin.
+Order stars are a beautiful idea of complex analysis that resolved several open conjectures when they were introduced in 1978 by Wanner, Hairer, and Norsett [1,2,3]. Chebfun is not really a very good tool for illustrating them, since there are poles involved that must be smashed away, but let us give it a go.
 
-Here is the order star of the type $(2,3)$ Padé approximant, computed
-from the Taylor coefficients of $e^z$:
+Let $R(z)$ be a function of the complex variable $z$. The *order star* of $R$ is the region bounded by the curve(s) in the plane satisfying the condition
 
-```python
-c = 1/factorial(arange(19))
-r = padeapprox(c, 2, 3)[0]
-smash = lambda f: tanh(abs(f)**2)/tanh(1)     # soften for chebfun2
-f = chebfun2(lambda z: smash(r(z)*exp(-z)), domain=(-6, 6, -6, 6))
-star = (f - 1).roots()
+$$ | e^{-z} R(z)| = 1 . $$
+
+For example, here is a function handle for the type $(2,3)$ Pade approximant of $e^z$:
+
+```matlab
+c = 1./factorial(0:18);
+r = padeapprox(c,2,3);
 ```
 
-(The `smash` transformation maps the boundary $|re^{-z}| = 1$ to the
-level set $f = 1$ while keeping the function bounded, exactly as on the
-published page.)
+We can use this mollifying function to turn poles into constants while preserving the absolute value $f=1$:
 
-![OrderStars figure 1](../../images/ode-linear/OrderStars_repl_01.png)
+```matlab
+smash = @(f) tanh(abs(f).^2)/tanh(1);
+```
 
-The star has $2 + 3 + 1 = 6$ petals meeting at the origin, reflecting
-the order of approximation, and the boundary tracks the imaginary axis
-far from the origin.
+Now we can plot the order star like this:
+
+```matlab
+d = 6*[-1 1 -1 1];
+f = chebfun2(@(z) smash(r(z).*exp(-z)),d);
+star = roots(f-1);
+plot(star,'k','linewidth',1.6)
+axis(d), axis square
+```
+
+![OrderStars figure 01](../../images/ode-linear/OrderStars_01.png)
+
+Such figures reveal important properties of the function $R$. For example, the meeting of 12 sectors at the origin reflects the 6th-order agreement of the Pade approximant with $e^z$,
+
+$$ e^z - R(z) = O(z^6). $$
+
+## References
+
+1. E. Hairer and G. Wanner, *Solving Ordinary Differential Equations II*, 2nd revised ed., Springer, 1996.
+2. A. Iserles and S. P. Norsett, *Order Stars*, Chapman and Hall, 1991.
+3. G. Wanner, E. Hairer, and S. P. Norsett, Order stars and stability theorems, *BIT*, 18 (1978), 475-489.
 
 ---
 
-*Replica script: [`examples/ode-linear/order_stars_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-linear/order_stars_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

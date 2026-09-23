@@ -1,40 +1,82 @@
-# Eigenvalue near-crossings and analyticity
+# Analyticity at eigenvalue near-crossings
 
-*Nick Trefethen, June 2021*
+*Nick Trefethen, November 2017*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/linalg/CrossingsAnalyticity.html)
 
-(Chebfun example linalg/CrossingsAnalyticity.m)
+Python translation: [`examples/linalg/crossings_analyticity.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/linalg/crossings_analyticity.py)
 
-Two eigenvalue curves of the symmetric family $(1-t)A + tB$ approach
-each other closely but do not cross:
+In the example "Eigenvalue Level Repulsion" of 2010, we considered morphing one real symmetric matrix into another,
 
-![CrossingsAnalyticity figure 1](../../images/linalg/CrossingsAnalyticity_repl_01.png)
+$$ A(t) = (1-t)A + tB , \quad t \in [0, 1]. $$
 
-Each curve is analytic in $t$ — but only in a narrow strip around the
-real axis, as the rapid variation of the derivatives suggests:
+Generically there will be no double eigenvalues for any $t$, though some may come close. Here are the bottom two eigenvalues from that example as functions of $t$:
 
-![CrossingsAnalyticity figure 2](../../images/linalg/CrossingsAnalyticity_repl_02.png)
+```matlab
+rng(1), n = 10;
+A = randn(n); A = A+A'; B = randn(n); B = B+B';
+ek = @(e,k) e(k);            % returns kth element of the vector e
+eigA = @(A) sort(eig(A));    % returns sorted eigenvalues of the matrix A
+eigk = @(A,k) ek(eigA(A),k); % returns kth eigenvalue of the matrix A
+d = [0 1]; t = chebfun('t',d); E = chebfun;
+for k = 1:n
+   E(:,k) = chebfun(@(t) eigk((1-t)*A+t*B,k),d);
+end
+E1 = E(:,1); E2 = E(:,2);
 
-The poles of an AAA approximant reveal the complex singularities:
-they cluster toward the real axis near the near-crossings, marking a
-narrow strip of analyticity:
+figure, plot([E1; E2]), grid on
+title('Near-crossing of two eigenvalues');
+xlabel('t')
+```
 
-![CrossingsAnalyticity figure 3](../../images/linalg/CrossingsAnalyticity_repl_03.png)
+![CrossingsAnalyticity figure 01](../../images/linalg/CrossingsAnalyticity_01.png)
 
-Symmetric functions of the eigenvalues, by contrast, are analytic in
-a much wider region.  The sum of the two curves is smooth:
+Antoine Levitt of the École des Ponts has alerted me to a phenomenon that physicists know but numerical analysts may not be so well aware of. Numerical analysts know that eigenvalues of real symmetric matrices are well-conditioned, with condition number $1$ in the 2-norm. It's the *eigenvectors*, we are taught, that grow ill-behaved as two eigenvalues come close together.
 
-![CrossingsAnalyticity figure 4](../../images/linalg/CrossingsAnalyticity_repl_04.png)
+But in fact, the eigenvalues misbehave too, even though they are analytic functions and even though their condition number, if that's all you look at, is irreproachable. One way to see this is simply to plot the derivatives of these two eigenvalue functions as a function of the parameter $t$:
 
-and its AAA poles stay far from the interval:
+```matlab
+plot(diff([E1; E2]))
+title('derivatives of the eigenvalue functions')
+```
 
-![CrossingsAnalyticity figure 5](../../images/linalg/CrossingsAnalyticity_repl_05.png)
+![CrossingsAnalyticity figure 02](../../images/linalg/CrossingsAnalyticity_02.png)
 
-(`rng(1)` `randn` draws are not reproducible across systems; the
-analyticity structure is our own draw of the same family.)
+Higher derivatives will be worse.
+
+More interesting to fans of complex analysis is the behavior in the complex plane. Here we use AAA approximation to find a rational function that closely matches one of the eigenvalue functions. We plot poles as red dots, and this reveals that the region of analyticity around the real axis is very narrow. (The actual singularity is probably a square root branch point; the rational approximation introduces a string of poles along a branch cut.)
+
+```matlab
+X = linspace(0,1,1000);
+[r,pol] = aaa(E1,X);
+plot(pol,'.r','markersize',12), grid on
+axis([0 1 -.2 .2])
+title('narrow strip of analyticity')
+```
+
+![CrossingsAnalyticity figure 03](../../images/linalg/CrossingsAnalyticity_03.png)
+
+On the other hand Levitt points out that the sum of the two nearly-colliding eigenvalues will be much better behaved, a phenomenon that he and others exploit in computational physics. Here is that sum:
+
+```matlab
+Esum = E1 + E2;
+plot(Esum)
+title('sum of the two eigenvalues')
+```
+
+![CrossingsAnalyticity figure 04](../../images/linalg/CrossingsAnalyticity_04.png)
+
+And here are the poles of the AAA approximant:
+
+```matlab
+[r,pol] = aaa(Esum(X),X);
+plot(pol,'.r','markersize',14), grid on
+axis([0 1 -.2 .2])
+title('for the sum, a wider strip of analyticity')
+```
+
+![CrossingsAnalyticity figure 05](../../images/linalg/CrossingsAnalyticity_05.png)
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

@@ -4,57 +4,66 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/approx/EquispacedData.html)
 
-(Chebfun example approx/EquispacedData.m)
+Python translation: [`examples/approx/equispaced_data.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/equispaced_data.py)
 
 ## 1. Introduction
 
-For good reasons of approximation theory, Chebfun relies on polynomial
-interpolation in Chebyshev points, which are unequally spaced, to
-represent nonperiodic functions.  However, many people want to work
-with equispaced data.  Chebfun can do a pretty good job with this
-thanks to the `'equi'` flag introduced by Georges Klein in 2011.
+For good reasons of approximation theory, Chebfun relies on polynomial interpolation in Chebyshev points, which are unequally spaced, to represent nonperiodic functions. However, many people want to work with equispaced data, and we are often asked, how can we do this in Chebfun?
+
+Chebfun can do a pretty good job with this thanks to the `'equi'` flag introduced by Georges Klein in 2011.
 
 ## 2. Example without noise
 
-Suppose we want to work with the function $e^x\cos(10x)\tanh(4x)$, but
-all we know of it is samples at 40 equispaced points in $[-1,1]$.  We
-can construct a chebfun from this data as follows:
+Suppose we want to work with the function $e^x\cos(10x)\tanh(4x)$, but all we know of it is samples at 40 equispaced points in $[-1,1]$. We can construct a Chebfun from this data as follows. Note the `'equi'` flag.
 
-```python
-import numpy as np
-import jax.numpy as jnp
-import chebfunjax as cj
-
-ff = lambda x: np.exp(x)*np.cos(10*x)*np.tanh(4*x)
-grid = np.linspace(-1, 1, 40)
-data = ff(grid)
-f = cj.chebfun(jnp.asarray(data), equi=True)
+```matlab
+ff = @(x) exp(x).*cos(10*x).*tanh(4*x);
+grid = linspace(-1,1,40)';
+data = ff(grid);
+f = chebfun(data,'equi');
 ```
 
-![EquispacedData figure 1](../../images/approx/EquispacedData_repl_01.png)
+The plot looks good!
 
-The plot looks good!  The error is encouragingly small:
-
+```matlab
+LW = 'linewidth'; FS = 'fontsize'; MS = 'markersize'; purple = [.8 0 1];
+plot(f,LW,1), hold on, plot(grid,data,'.k',MS,8), hold off
+title('chebfun constructed from 40 equispaced data values',FS,10)
 ```
+
+![EquispacedData figure 01](../../images/approx/EquispacedData_01.png)
+
+The error is encouragingly small. It would be bigger with fewer data points, smaller with more.
+
+```matlab
+fexact = chebfun(ff);
+error = norm(f-fexact,inf)
+```
+
+```text
 error =
-     3.537098105960607e-06
+     3.537098105913785e-06
 ```
 
-(Published: `3.537098266021654e-06` — matching to 7 significant
-digits.)  For comparison, this is what we get with polynomial
-interpolation of the same data.  Of course, any Chebfun user knows that
-polynomial interpolation in equispaced points is a bad idea (the Runge
-phenomenon):
+For comparison, this is what we get with polynomial interpolation of the same data. Of course, any Chebfun user knows that polynomial interpolation in equispaced points is a bad idea (the Runge phenomenon).
 
-![EquispacedData figure 2](../../images/approx/EquispacedData_repl_02.png)
-
-So what is this very nice chebfun obtained with the `'equi'` flag?  The
-answer is that it is a polynomial approximant, but not simply the
-polynomial interpolant — Chebfun first constructs a Floater-Hormann
-rational interpolant [1] with adaptively chosen order, then approximates
-it by a polynomial chebfun.  In fact it has a higher degree than 40:
-
+```matlab
+runge = chebfun.interp1(grid,data);
+plot(runge,'r',LW,1)
+hold on, plot(grid,data,'.k',MS,8), hold off
 ```
+
+![EquispacedData figure 02](../../images/approx/EquispacedData_02.png)
+
+So what is this very nice chebfun obtained with the `'equi'` flag, and how has Chebfun computed it?
+
+The answer is that it is a polynomial approximant, but not simply the polynomial interpolant. In fact it has a higher degree than 40:
+
+```matlab
+f
+```
+
+```text
 f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
@@ -62,50 +71,95 @@ f =
 vertical scale = 2.6
 ```
 
-(Published length: 99.)  Here is a plot of its Chebyshev coefficients:
+To construct this function, Chebfun has first constructed a rational function $g$ known as a Floater-Hormann interpolant [1] that has good properties with equispaced data, and it has picked the order of this approximation in an adaptive fashion. Then, since Chebfun works with polynomials rather than rational functions, it has approximated $g$ by a chebfun $f$ of the usual polynomial kind.
 
-![EquispacedData figure 3](../../images/approx/EquispacedData_repl_03.png)
+Here is a plot of the Chebyshev coefficients of $f$:
 
-Note that about half of them are below the level of the accuracy of the
-approximation.  We could throw them away (`error50 = 3.506e-06`):
+```matlab
+plotcoeffs(f,'color',purple), axis([0 100 1e-16 10])
+title('Chebyshev coefficients',FS,10)
+```
 
-![EquispacedData figure 4](../../images/approx/EquispacedData_repl_04.png)
+![EquispacedData figure 03](../../images/approx/EquispacedData_03.png)
 
-Another approach would be to construct the original chebfun with a
-loosened value of `eps` (`errorloose = 3.522e-06`):
+Note that about half of them are below the level of the accuracy of the approximation, so they can't be contributing much. We could throw them away like this:
 
-![EquispacedData figure 5](../../images/approx/EquispacedData_repl_05.png)
+```matlab
+f50 = chebfun(f,51);
+error50 = norm(f50-fexact,inf)
+plotcoeffs(f50,'color',purple), axis([0 100 1e-16 10])
+title('Chebyshev coefficients up to degree 50',FS,10)
+```
+
+```text
+error50 =
+     3.505780727361734e-06
+```
+
+![EquispacedData figure 04](../../images/approx/EquispacedData_04.png)
+
+Another approach would be construct the original chebfun with a loosened value of `eps`:
+
+```matlab
+floose = chebfun(data,'equi','eps',1e-6);
+errorloose = norm(floose-fexact,inf)
+plotcoeffs(floose,'color',purple), axis([0 100 1e-16 10])
+title('Chebyshev coefficients with loosened tolerance',FS,10)
+```
+
+```text
+errorloose =
+     3.522255555236694e-06
+eps=0.01: length 24
+eps=0.03: length 24
+```
+
+![EquispacedData figure 05](../../images/approx/EquispacedData_05.png)
 
 ## 3. Example with noise
 
-What about a function with noise?  Let's add random perturbations of
-size $10^{-1}$ to the data (MATLAB's `randn` stream is not reproducible
-outside MATLAB, so the noise realization differs).  Here is what we get
-with `eps = 1e-2`:
+What about a function with noise? Let's add random perturbations of size $10^{-1}$ to the data:
 
-![EquispacedData figure 6](../../images/approx/EquispacedData_repl_06.png)
+```matlab
+rng('default'); rng(0)
+data = data + 1e-1*randn(size(data));
+```
 
-And here is the same experiment but with `eps` three times as large:
+Here is what we get if we construct a equispaced chebfun with `eps = 1e-2`:
 
-![EquispacedData figure 7](../../images/approx/EquispacedData_repl_07.png)
+```matlab
+ep = 1e-2;
+f = chebfun(data,'equi','eps',ep);
+plot(f,LW,1), hold on, plot(grid,data,'.k',MS,8), hold off
+s = sprintf('noisy data with ''equi'', eps = 1e-2: length(f) = %d',length(f));
+title(s,FS,12)
+```
+
+![EquispacedData figure 06](../../images/approx/EquispacedData_06.png)
+
+And here is the same experiment but with `eps` three times as large.:
+
+```matlab
+ep = 3e-2;
+f = chebfun(data,'equi','eps',ep);
+plot(f,LW,1), hold on, plot(grid,data,'.k',MS,8), hold off
+s = sprintf('noisy data with ''equi'', eps = 3e-2: length(f) = %d',length(f));
+title(s,FS,12)
+```
+
+![EquispacedData figure 07](../../images/approx/EquispacedData_07.png)
 
 ## 4. Discussion
 
-What's nice about these `'equi'` approximations is that, as usual with
-chebfuns, they are globally smooth functions, and can be
-differentiated, for example, without any anomalies arising.  In some
-applications this is very appealing.
+What's nice about these `'equi'` approximations is that, as usual with chebfuns, they are globally smooth functions, and can be differentiated, for example, without any anomalies arising. In some applications this is very appealing.
+
+Another globally smooth way to deal with equispaced data, besides the Floater-Hormann approach, is to use so-called *Gregory interpolants* [2]. This idea, however, has not been implemented in Chebfun.
 
 ## References
 
-1. M. S. Floater and K. Hormann, Barycentric rational interpolation
-   with no poles and high rates of approximation, _Numer. Math._, 107
-   (2007), 315-331.
-
-2. M. Javed and L. N. Trefethen, Euler-Maclaurin and Gregory
-   interpolants, _Numer. Math._, 132 (2016), 201-216.
+1. M. S. Floater and K. Hormann, Barycentric rational interpolation with no poles and high rates of approximation, *Numerische Mathematik* 107 (2007), 315--331.
+2. M. Javed and L. N. Trefethen, Euler-Maclaurin and Gregory interpolants, *Numerische Mathematik* (2015).
 
 ---
 
-*Replicated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); original
-example copyright The University of Oxford and The Chebfun Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

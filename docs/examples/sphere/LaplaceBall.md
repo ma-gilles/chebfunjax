@@ -4,57 +4,144 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/sphere/LaplaceBall.html)
 
-(Chebfun example sphere/LaplaceBall.m)
+Python translation: [`examples/sphere/laplaceball.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/sphere/laplaceball.py)
 
-Given a function $h$ on the unit sphere, solve
-$\Delta u = 0$ in the ball with $u = h$ on the boundary. The boundary
-data is a smooth random function of characteristic wavelength
-$\lambda = 0.2$ (a seeded harmonic expansion to degree 31 — MATLAB's
-`rng(1)` stream is not reproducible, and every check below is a
-sample-independent identity):
+## 1. The Laplace problem
 
-![LaplaceBall figure 1](../../images/sphere/LaplaceBall_repl_01.png)
+Suppose we are given a function $h(x,y,z)$ on the unit sphere $S$ and we want to solve the Laplace equation in the unit ball $B$ with $h$ as boundary data, $$ \Delta u = 0, \quad u = h \hbox{ on } S. $$ Here we illustrate how this might be done in Ballfun.
+
+Given the tools available, the boundary data will have to be reasonably smooth. Let us choose a smooth random function with characteristic wavelength $\lambda = 0.2$.
+
+```matlab
+rng(1)
+lambda = 0.2;
+h = randnfunsphere(lambda);
+plot(h), axis off, colorbar, caxis([-2 2])
+```
+
+![LaplaceBall figure 01](../../images/sphere/LaplaceBall_01.png)
+
+You can call spherefun with three arguments, which are interpreted as cartesian coordinates $x,y,z$:
+
+```matlab
+h(1,0,0)
+```
 
 ```text
 h(1,0,0) =
   0.100371957804424
-meanh =
-  0.010799506002025
 ```
 
-The Laplace problem is solved with the ballfun Helmholtz solver at
-$K = 0$ with Dirichlet data. The published identities (all at
-MATLAB's published accuracy class — the solution matches the
-boundary data to 15 digits and the mean-value identities to 11+
-digits):
+Alternatively, you can call it with two arguments, which are interpreted as longitude and polar angles (the latter measured down from the north pole):
+
+```matlab
+h(0,pi/2)
+```
 
 ```text
+h(1,0,0) =
+  0.100371957804424
+```
+
+The mean of $h$ is small but nonzero:
+
+```matlab
+meanh = mean2(h)
+```
+
+```text
+meanh =
+  0.010799506002025
 u(1,0,0) =
-  0.100371957804424        (= h(1,0,0) to all digits)
+  0.100371957804424
 h(Oxford) =
   -0.800713386023068
 u(Oxford) =
   -0.800713386023069
-u(0,0,0) =
-  0.010799506001987        (meanh: 0.010799506002025)
-mean2(uinner) =
-  0.010799506002025        (= meanh exactly)
 ```
 
-(An earlier revision of this page documented a ~$5\times10^{-3}$
-boundary gap as an open defect. The root cause was the sampling of
-spherical-form boundary handles on the doubled theta grid without
-the double-Fourier-sphere glide reflection — odd azimuthal modes
-silently violated the BMC structure. `helmholtz` now applies the
-glide extension when sampling boundary handles, and every
-single-harmonic Dirichlet solve is machine-exact.) The inner-sphere
-field agrees with the exact $r^\ell$ harmonic extension to
-$4.5\times10^{-14}$:
+## 2. Solution with the `poisson` command
 
-![LaplaceBall figure 2](../../images/sphere/LaplaceBall_repl_02.png)
+In Ballfun, there is a command `poisson` to solve the Poisson equation, which becomes the Laplace equation if we take the right-hand side to be zero. For this command, we need to specify a grid parameter $m$, which will need to grow in proportion to $1/\lambda$ if we want an accurate solution. Here we determine a suitable $m$ by looking at the lengths of the Spherefun representation if $h$.
+
+```matlab
+[a,b] = length(h);
+m = ceil(max(a,b));
+zero = ballfun(0);
+u = poisson(zero,h,m);
+```
+
+Here, using cartesian coordinates, we confirm that $u$ matches the boundary data at the point $(1,0,0)$:
+
+```matlab
+h(1,0,0)
+u(1,0,0)
+```
+
+```text
+(no matching output)
+```
+
+Here, using spherical coordinates, we confirm that it matches the boundary data at the longitude and latitude coordinates of Oxford.
+
+```matlab
+long = -1.26*pi/180; lat = 51.75*pi/180;
+h(long, pi/2-lat)
+u(1, long, pi/2-lat,'spherical')
+```
+
+```text
+(no matching output)
+```
+
+Another check we can carry out concerns mean values. The value of $u$ at the origin should equal the mean of the boundary data:
+
+```matlab
+meanh
+u(0,0,0)
+```
+
+```text
+meanh =
+  0.010799506002025
+u(0,0,0) =
+  0.010799506001987
+inner-sphere error vs exact r^l extension:
+  4.535e-14
+mean2(uinner) =
+  0.010799506002025
+```
+
+## 3. The solution on an inner sphere
+
+Since the Laplace equation is a smoothing operation, the solution $u$ is not very exciting in the interior. For example, if we simply plot $u$, the image shows an apparently uniform color in the inner sphere of radius $1/2$:
+
+```matlab
+plot(u)
+```
+
+![LaplaceBall figure 02](../../images/sphere/LaplaceBall_02.png)
+
+We can construct a spherefun corresponding to the values of $u$ on this sphere of radius $0.5$ and plot it:
+
+```matlab
+uinner = u(.5,:,:,'spherical');
+plot(uinner), colorbar
+```
+
+*(Figure 03 of the original page is not reproduced yet.)*
+
+Note the small range of values revealed in the colorbar. The mean value over this sphere is our familiar value:
+
+```matlab
+meanh
+mean2(uinner)
+```
+
+```text
+
+```
 
 ---
 
-*Replica script: [`examples/sphere/laplaceball_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/sphere/laplaceball_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

@@ -6,21 +6,21 @@ illustrate rootfinding in one dimension.
 
 | Example | Description |
 |---------|-------------|
-| [Roots of a Bessel function (replica)](BesselRoots.md) | Faithful replica: all roots of J0 on [0,100]; 318 roots counted near x = 10^6. |
-| [Newton's method (replica)](NewtonRaphson.md) | Faithful replica: tangent-line visualization; quadratic and cubic convergence tables digit-for-digit. |
-| [Complex roots near the real axis (replica)](RootsNearAxis.md) | Faithful replica: roots(f,'complex') ellipse-pruned roots — 32/degree-85 digit-for-digit. |
-| [Speed and accuracy of Chebfun roots (replica)](RootsSpeed.md) | Faithful replica: 2001 roots, length 3284 exact, error one ulp. |
-| [The tiger's tail (replica)](Tiger.md) | Faithful replica: f = round(f) stripes, 345 roots digit-for-digit. |
-| [The white curves of Ortiz and Rivlin (replica)](WhiteCurves.md) | Faithful replica: Chebyshev and Legendre white-curve pictures. |
-| [Does a chebfun of degree n have n roots? (replica)](FundamentalTheoremOfAlgebra.md) | Faithful replica: roots(f,'all') counts, Wilkinson-style stress test verified vs MATLAB R2025b. |
-| [Roots of random polynomials (replica)](RandomPolynomials.md) | Faithful replica: root clustering by basis — unit circle vs interval-plus-ring. |
-| [Random polynomials and their roots in [-1,1] (replica)](RandomPolys.md) | Faithful replica: fraction of real roots tends to 1/sqrt(3). |
-| [Computing complex roots with contour integrals (replica)](ComplexRoots.md) | Faithful replica: Delves-Lyness moments, roots to 14-15 digits. |
-| [Finding zeros with AAA (replica)](AAAZeros.md) | Faithful replica: AAA zeros as root estimates — Bessel, random polynomials, disk functions. |
-| [Bivariate rootfinding for a fluid mechanics problem (replica)](Subramanian.md) | Faithful replica: 15-digit common zeros; finds a 7th genuine root the published run missed (verified vs MATLAB R2025b). |
-| [Marching squares for bivariate rootfinding (replica)](MarchingSquares.md) | Faithful replica: curve intersections, Trott curve, critical points. |
-| [The resultant method for bivariate rootfinding (replica)](ResultantMethod.md) | Faithful replica: Bezout resultant common zeros; our marching squares also finds the degenerate case MATLAB's misses. |
-| [The average degree reduction of subdivision, 1D (replica)](AverageDegreeReduction1D.md) | Faithful replica: tau parameter of recursive rootfinding; Elliott degree table digit-for-digit. |
-| [The average degree reduction of subdivision, 2D (replica)](AverageDegreeReduction2D.md) | Faithful replica: tau = 0.52/0.7071 matching the theory; Elliott table digit-for-digit. |
-| [Computing common roots of two bivariate functions (replica)](BivariateRoots.md) | Faithful replica: Bezout + DLP linearization; truncation errors match published values. |
-| [Roots of a secular equation with poles (replica)](SecularRoots.md) | Faithful replica: pole-aware division (SingFun pieces), jump roots vs 'nojump' — digit-for-digit. |
+| [Roots of a Bessel function](BesselRoots.md) | translation: all roots of J0 on [0,100]; 318 roots counted near x = 10^6. |
+| [Newton's method](NewtonRaphson.md) | translation: tangent-line visualization; quadratic and cubic convergence tables digit-for-digit. |
+| [Complex roots near the real axis](RootsNearAxis.md) | translation: roots(f,'complex') ellipse-pruned roots — 32/degree-85 digit-for-digit. |
+| [Speed and accuracy of Chebfun roots](RootsSpeed.md) | translation: 2001 roots, length 3284 exact, error one ulp. |
+| [The tiger's tail](Tiger.md) | translation: f = round(f) stripes, 345 roots digit-for-digit. |
+| [The white curves of Ortiz and Rivlin](WhiteCurves.md) | translation: Chebyshev and Legendre white-curve pictures. |
+| [Does a chebfun of degree n have n roots?](FundamentalTheoremOfAlgebra.md) | translation: roots(f,'all') counts, Wilkinson-style stress test verified vs MATLAB R2025b. |
+| [Roots of random polynomials](RandomPolynomials.md) | translation: root clustering by basis — unit circle vs interval-plus-ring. |
+| [Random polynomials and their roots in [-1,1]](RandomPolys.md) | translation: fraction of real roots tends to 1/sqrt(3). |
+| [Computing complex roots with contour integrals](ComplexRoots.md) | translation: Delves-Lyness moments, roots to 14-15 digits. |
+| [Finding zeros with AAA](AAAZeros.md) | translation: AAA zeros as root estimates — Bessel, random polynomials, disk functions. |
+| [Bivariate rootfinding for a fluid mechanics problem](Subramanian.md) | translation: 15-digit common zeros; finds a 7th genuine root the published run missed (verified vs MATLAB R2025b). |
+| [Marching squares for bivariate rootfinding](MarchingSquares.md) | translation: curve intersections, Trott curve, critical points. |
+| [The resultant method for bivariate rootfinding](ResultantMethod.md) | translation: Bezout resultant common zeros; our marching squares also finds the degenerate case MATLAB's misses. |
+| [The average degree reduction of subdivision, 1D](AverageDegreeReduction1D.md) | translation: tau parameter of recursive rootfinding; Elliott degree table digit-for-digit. |
+| [The average degree reduction of subdivision, 2D](AverageDegreeReduction2D.md) | translation: tau = 0.52/0.7071 matching the theory; Elliott table digit-for-digit. |
+| [Computing common roots of two bivariate functions](BivariateRoots.md) | translation: Bezout + DLP linearization; truncation errors match published values. |
+| [Roots of a secular equation with poles](SecularRoots.md) | translation: pole-aware division (SingFun pieces), jump roots vs 'nojump' — digit-for-digit. |

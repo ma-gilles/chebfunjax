@@ -4,73 +4,145 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-linear/DawsonIntegral.html)
 
-(Chebfun example ode-linear/DawsonIntegral.m)
+Python translation: [`examples/ode-linear/dawson_integral.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-linear/dawson_integral.py)
 
 Here is a simple linear ODE boundary value problem:
 
-$$ \frac{dF}{dx} + 2xF = 1, \qquad F(0) = 0. $$
+$$ {dF\over dx} + 2xF = 1, \qquad F(0) = 0. $$
 
-Chebfun can crack this problem in a few lines. Instead of a boundary
-condition, we specify an interior point condition:
+Chebfun can crack this problem in a few lines. Instead of a boundary condition, we will specify an interior point condition.
 
-```python
-L = Chebop(lambda x, f: f.diff(1) + 2*x*f, domain=(-5, 5))
-L.bc = lambda x, f: f(0.0)
-f = L.solve(1.0)
+```matlab
+function DawsonIntegral
+```
+
+```matlab
+tic
+W = 5; H = 0.8;
+L = chebop(-W,W);
+L.op = @(x,f) diff(f,1) + 2*x*f;    % ODE
+L.bc = @(x,f) f(0);                 % interior point condition
+f = L\1;
+toc
+plot(f), axis([-W W -H H]), hold on, grid on
 ```
 
 ```text
-Elapsed time is 15.546456 seconds.
+Elapsed time is 9.670916 seconds.
 ```
 
-(Published: 1.07 s — the general interior-point condition takes the
-column-probe path in chebfunjax; timing is machine- and path-dependent.)
-
-![DawsonIntegral figure 1](../../images/ode-linear/DawsonIntegral_repl_01.png)
+![DawsonIntegral figure 01](../../images/ode-linear/DawsonIntegral_01.png)
 
 The problem can be solved analytically:
-$F(x) = e^{-x^2}\int_0^x e^{t^2}\,dt$ — Dawson's integral, with its
-dipole structure about the origin. It can be assembled directly with
-`cumsum`, extended to $[-5,0]$ by odd symmetry with
-`flipud`/`new_domain`, and glued with `join`/`merge`:
 
-```python
-fr = (-x**2).exp() * ((x**2).exp()).cumsum()      # right of x=0
-fl = (-fr.flipud()).new_domain((-5.0, 0.0))       # left of x=0
-f = fl.join(fr).merge()
+$$ F(x) = e^{-x^2} \int_0^x e^{t^2} dt. $$
+
+Users with access to the MATLAB Symbolic Toolbox could also solve it with the following code:
+
+```
+y = sym('y');
+f(y) = sym('f(y)');
+f = dsolve(diff(f) + 2*y*f == 1, f(0) == 0);
+pretty(f);
+```
+
+Equation (2) is known as Dawson's integral or Dawson's function, featuring a dipole structure about the origin. With the Symbolic Toolbox, you could plot the exact solution like this:
+
+```
+fexact = chebfun(@(x) mfun('dawson', x), [-W W]);
+plot(fexact, '-.r'), hold off
+```
+
+On my machine, running the last few lines takes about 0.13 seconds.
+
+It's tempting to evaluate Dawson's integral directly using Chebfun.
+
+```matlab
+tic
+x = chebfun('x',[0,W]);
+fr = exp(-x^2)*cumsum(exp(x^2));     % right of x=0
+fl = newDomain(-flipud(fr),[-W 0]);  % left of x=0
+f = join(fl,fr);                     % must be an easier way to do this!
+f = merge(f)
+plot(f), grid on
 ```
 
 ```text
 f =
    chebfun column (2 smooth pieces)
-       interval       length     endpoint values  
-[      -5,       0]       87      -0.1 -6.6e-07 
-[       0,       5]       87   6.6e-07      0.1 
+       interval       length     endpoint values
+[      -5,       0]       87      -0.1 -6.6e-07
+[       0,       5]       87   6.6e-07      0.1
 vertical scale = 0.54    Total length = 174
+Elapsed time is 0.042971 seconds.
 ```
 
-(Published: identical structure and lengths — 87 + 87 = 174, vertical
-scale 0.54; the interior endpoint values `±6.2e-07` are eps-scale
-`cumsum` artifacts and differ only in that noise.)
+![DawsonIntegral figure 02](../../images/ode-linear/DawsonIntegral_02.png)
 
-![DawsonIntegral figure 2](../../images/ode-linear/DawsonIntegral_repl_02.png)
+How big is the discrepancy between $F$ and $f$? You can find out by running these three lines:
 
-Finally, the fastest method: Weideman's 1994 rational approximation of
-the complex error function $w(z)$, with $N = 36$ terms:
+```
+semilogy(abs(f-fexact));
+title('error when we evaluate F directly');
+grid on, hold off
+```
+
+If you do, you'll find that the accuracy is only about 5 digits. It's not difficult to understand the low accuracy if we notice that Dawson's integral as shown in Equation (2) is a product of type $0 \cdot \infty$ as $x$ diverges away from the origin. A standard way to compute Dawson's integral is given in *Numerical Recipes* [1], where the integral is evaluated using its Maclaurin series [2,3] near the origin and Rybicki's exponentially accurate approximation [4] otherwise. It's likely that MATLAB's built-in routine adopts this algorithm.
+
+An elegant way to evaluate Dawson's integral as well as several others in the complex error function family has been proposed by Weideman [5]. Here we borrow Weideman's eight-line MATLAB code (very slightly modified) to calculate the integral.
+
+```matlab
+N = 36;
+tic
+f = chebfun(@(x) real(sqrt(pi)*(cef(x,N)-exp(-x^2))/2i), [-W W]);
+toc
+```
 
 ```text
-Elapsed time is 0.295044 seconds.
+
 ```
 
-![DawsonIntegral figure 3](../../images/ode-linear/DawsonIntegral_repl_03.png)
+If you have the Symbolic Toolbox...
+
+```
+semilogy(abs(f-fexact)), grid on
+```
+
+```matlab
+function w = cef(z,N)      % Weideman's complex error function routine
+  M = 2*N;  M2 = 2*M;  k = (-M+1:1:M-1)';      % M2 = no. of sampling points.
+  L = sqrt(N/sqrt(2));                         % Optimal choice of L.
+  theta = k*pi/M; t = L*tan(theta/2);          % Define variables theta and t.
+  f = exp(-t.^2).*(L^2+t.^2); f = [0; f];      % Function to be transformed.
+  a = real(fft(fftshift(f)))/M2;               % Coefficients of transform.
+  a = flipud(a(2:N+1));                        % Reorder coefficients.
+  Z = (L+1i*z)./(L-1i*z); p = polyval(a,Z);    % Polynomial evaluation.
+  w = 2*p./(L-1i*z).^2+(1/sqrt(pi))./(L-1i*z); % Evaluate w(z).
+end
+```
+
+Weideman's algorithm takes advantage of a slick rational expansion which approximates the Faddeeva function
+
+$$ w(x) = e^{-x^2}+\frac{2i}{\sqrt{\pi}}e^{-x^2}\int_0^x e^{t^2} dt $$
+
+uniformly accurately in the complex plane with only a small number of terms (denoted by $N$ in the code above). With $N = 36$, Dawson's integral is computed accurately within roundoff and it's done roughly ten times faster than the MATLAB Symbolic Toolbox built-in function. Amazing, isn't it? Should we suggest to MathWorks that they rewrite their Dawson function after an 18-year delay?
+
+```matlab
+end
+```
+
+```text
+
+```
 
 ## References
 
-1. J. A. C. Weideman, "Computation of the complex error function",
-   SIAM Journal on Numerical Analysis, 31 (1994), 1497-1518.
+1. W. H. Press, S. A. Teukolsky, W. T. Vetterling, and B. P. Flannery, *Numerical Recipes. The Art of Scientific Computing*. Third edition. Cambridge University Press, Cambridge, 2007.
+2. G. B. Rybicki, Dawson's integral and the sampling theorem. *Computers in Physics*, vol. 3 (1989), no. 2, pp. 85-87.
+3. [http://en.wikipedia.org/wiki/Dawson_function](http://en.wikipedia.org/wiki/Dawson_function)
+4. W. J. Cody, K. A. Pociorek, and H. C. Thatcher, Chebyshev approximations for Dawson's integral. *Mathematics of Computation*, vol. 24 (1970), pp. 171-178.
+5. J. A. C. Weideman, Computation of the complex error function. *SIAM Journal on Numerical Analysis*, 31 (1994), no. 5, 1497-1518.
 
 ---
 
-*Replica script: [`examples/ode-linear/dawson_integral_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-linear/dawson_integral_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

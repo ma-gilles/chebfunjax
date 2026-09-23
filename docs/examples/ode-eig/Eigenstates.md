@@ -1,83 +1,195 @@
-# Eigenstates of the Schroedinger equation
+# Eigenstates of the Schrödinger equation
 
 *Nick Trefethen, January 2012*
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-eig/Eigenstates.html)
 
-(Chebfun example ode-eig/Eigenstates.m)
+Python translation: [`examples/ode-eig/eigenstates.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-eig/eigenstates.py)
 
-`quantumstates` computes and plots eigenstates of the time-independent
-Schroedinger operator
+Chebfun is very good at solving eigenvalue problems in one dimension defined by smooth or piecewise-smooth coefficients. An important example of such problems is the determination of eigenstates of the Schrödinger operator, which correspond to energy levels of quantum systems. There is a special Chebfun command, `quantumstates`, for computing and plotting such functions.
 
-$$ L u = -h^2 u'' + V(x)\,u, $$
+The Schrödinger eigenvalue problem solved by `quantumstates` takes the form
 
-with each eigenfunction drawn at the height of its energy level. The
-default is ten states with $h = 0.1$.
+$$ L u = \lambda u, $$
 
-## The harmonic oscillator
+where $\lambda$ is the eigenvalue, $u(x)$ is the eigenfunction defined on a finite interval with zero boundary conditions, and $L$ is the linear operator defined by
 
-```python
-x = chebfun(lambda x: x, domain=(-3, 3))
-V = x**2
-lam, funs = quantumstates(V)
+$$ L u(x) = -h^2 u''(x) + V(x) u(x). $$
+
+Here $h$ is a small positive parameter with default value $h=0.1$ and $V(x)$ is a potential function. The `quantumstates` command assumes that $V$ is a Chebfun, whose domain defines the interval the problem is posed on.
+
+Here is a famous example, the harmonic oscillator, with $V(x)=x^2$. All our plots make use of a standard convention: each eigenfunction is plotted raised by a distance equal to its eigenvalue $\lambda$, so that one can see the eigenvalue by looking at the height. Note that the first eigenfunction is of one sign, the second has one zero, the third has two zeros, and so on.
+
+```matlab
+tic
+x = chebfun('x',[-3,3]);
+V = x^2;
+quantumstates(V)
 ```
-
-![Eigenstates figure 1](../../images/ode-eig/Eigenstates_repl_01.png)
-
-The eigenvalues are $h\,(2k+1)$ exactly, and come out that way:
 
 ```text
 ans =
-   0.099999999999974
-   0.300000000000026
-   0.500000000000047
-   0.700000000000080
-   0.900000000000085
-   1.100000000000099
-   1.300000000000129
-   1.500000000000139
-   1.700000000000173
-   1.900000000000208
+   0.099999999999967
+   0.299999999999970
+   0.499999999999935
+   0.699999999999899
+   0.899999999999931
+   1.099999999999822
+   1.299999999999891
+   1.499999999999849
+   1.699999999999751
+   1.899999999999858
+Elapsed time is 82.138344 seconds.
 ```
 
-against MATLAB's `0.099999999999985, 0.300000000000002, ...` —
-thirteen digits on both sides of the comparison.
+![Eigenstates figure 01](../../images/ode-eig/Eigenstates_01.png)
 
-More states, a smaller $h$, or both:
+Note that the eigenvalues take the regularly spaced values $h[1, 3, 5, \dots]$. The `quantumstates` command permits various outputs including just eigenvalues or eigenvalues and eigenfunctions, and it is also possible to suppress the plot with the string `noplot`; see the help text. For the rest of this Example, however, we shall just look at plots and suppress all output with a semicolon.
 
-![Eigenstates figure 2](../../images/ode-eig/Eigenstates_repl_02.png)
-![Eigenstates figure 3](../../images/ode-eig/Eigenstates_repl_03.png)
-![Eigenstates figure 4](../../images/ode-eig/Eigenstates_repl_04.png)
+Suppose we want $60$ eigenstates instead of the default number $10$. Here is the result:
 
-## Square wells and other potentials
+```matlab
+quantumstates(V,60);
+```
 
-A deep square well confines the low states almost completely:
+```text
+ans =
+   0.099999999999967
+```
 
-![Eigenstates figure 5](../../images/ode-eig/Eigenstates_repl_05.png)
+![Eigenstates figure 02](../../images/ode-eig/Eigenstates_02.png)
 
-a shallow one lets the higher states spill over the top:
+Note that the potential now looks like a parabola that meets vertical walls at $x=-3$ and $x=3$, for this is the effect of the Dirichlet boundary condition. To get $60$ genuine states of the harmonic oscillator, we could increase the interval from $[-3,3]$ to $[-L,L]$ with, say, $L=8$. (The accuracy improves exponentially as $L$ increases.)
 
-![Eigenstates figure 6](../../images/ode-eig/Eigenstates_repl_06.png)
+Or suppose we want eigenstates for $h=0.01$ instead of $h=1$:
 
-and non-smooth potentials pose no difficulty:
+```matlab
+quantumstates(V,0.01);
+```
 
-![Eigenstates figure 7](../../images/ode-eig/Eigenstates_repl_07.png)
-![Eigenstates figure 8](../../images/ode-eig/Eigenstates_repl_08.png)
+```text
+ans =
+   0.099999999999967
+```
 
-An off-centre barrier splits states into near-degenerate pairs:
+![Eigenstates figure 03](../../images/ode-eig/Eigenstates_03.png)
 
-![Eigenstates figure 9](../../images/ode-eig/Eigenstates_repl_09.png)
+When `quantumstates` is given two arguments like this, it takes the second to be $h$ if it is not an integer, and the number of eigenstates if it is an integer. To specify both, put them in this order:
 
-> **Implementation note.** `quantumstates` previously hand-rolled a
-> fixed 100-point collocation and reached only five digits on the
-> harmonic oscillator. MATLAB's version simply builds a chebop and
-> calls `eigs` — and our `Chebop.eigs` already reaches $10^{-14}$ on
-> this problem at $n = 96$. `quantumstates` now delegates the same way,
-> doubling the grid until the requested eigenvalues stabilise, which is
-> where the thirteen digits above come from.
+```matlab
+quantumstates(V,20,0.5);
+```
+
+```text
+ans =
+   0.099999999999967
+```
+
+![Eigenstates figure 04](../../images/ode-eig/Eigenstates_04.png)
+
+Here is an effectively infinite square well. The eigenvalues are spaced quadratically.
+
+```matlab
+V = 10 - 10*(abs(x)<1);
+quantumstates(V);
+```
+
+```text
+ans =
+   0.099999999999967
+```
+
+![Eigenstates figure 05](../../images/ode-eig/Eigenstates_05.png)
+
+Here is a finite square well:
+
+```matlab
+V = 1 - (abs(x)<1);
+quantumstates(V,20);
+```
+
+```text
+ans =
+   0.099999999999967
+```
+
+![Eigenstates figure 06](../../images/ode-eig/Eigenstates_06.png)
+
+Since we are working on a finite interval $[-L,L]$, the spectrum is discrete both below and above the level $1$, but the spacing will get closer as $L$ is increased, and it is easy to imagine that for $L=\infty$, one gets a continuum of eigenvalues above $1$ -- more precisely, a *continuous spectrum.* The discrete eigenfunctions below level $1$ are called bound states, whereas the states above level $1$ (in the limit $L=\infty$) are continuous states.
+
+Here is an absolute value potential,
+
+```matlab
+quantumstates(abs(x));
+```
+
+```text
+ans =
+   0.099999999999967
+```
+
+![Eigenstates figure 07](../../images/ode-eig/Eigenstates_07.png)
+
+and here is a square root function:
+
+```matlab
+quantumstates(sqrt(abs(x)+.1));
+```
+
+```text
+ans =
+   0.099999999999967
+```
+
+![Eigenstates figure 08](../../images/ode-eig/Eigenstates_08.png)
+
+Here is a double well potential, with the barrier in the middle slightly off-center to break the symmetry:
+
+```matlab
+V = 0.5*(abs(x-.5)<.5);
+quantumstates(V,18);
+```
+
+```text
+ans =
+   0.099999999999967
+```
+
+![Eigenstates figure 09](../../images/ode-eig/Eigenstates_09.png)
+
+Note that each lower eigenfunction is localized on one or the other side of the barrier, whereas the higher eigenfunctions are not localized. Inside the barrier, the eigenfunction is nonzero -- this is quantum tunnelling -- but its amplitude decreases exponentially with distance inside the barrier.
+
+Here is an analogous problem with a smooth potential:
+
+```matlab
+V = 0.5*exp(-2*(x-.5)^2);
+quantumstates(V,18);
+```
+
+```text
+ans =
+   0.099999999999967
+```
+
+![Eigenstates figure 10](../../images/ode-eig/Eigenstates_10.png)
+
+Here is the total time for this Example:
+
+```matlab
+toc
+```
+
+```text
+ans =
+```
+
+One can learn about the physics of these quantum mechanical problems in innumerable books and other sources. One reference we have consulted is the textbook by Robinett [1]. See also chapter 6 of [2].
+
+## References
+
+1. Richard W. Robinett, *Quantum Mechanics*, 2nd ed., Oxford University Press, 2006.
+2. L. N. Trefethen, A. Birkisson, and T. A. Driscoll, *Exploring ODEs*, SIAM, 2018; freely available at `people.maths.ox.ac.uk/trefethen/ExplODE/`.
 
 ---
 
-*Replica script: [`examples/ode-eig/eigenstates_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-eig/eigenstates_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*

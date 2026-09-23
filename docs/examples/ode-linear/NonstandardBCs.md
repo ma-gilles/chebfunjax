@@ -4,73 +4,181 @@
 
 [Original MATLAB Chebfun example](https://www.chebfun.org/examples/ode-linear/NonstandardBCs.html)
 
-(Chebfun example ode-linear/NonstandardBCs.m)
+Python translation: [`examples/ode-linear/nonstandard_bcs.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-linear/nonstandard_bcs.py)
 
-Chebop supports side conditions that are not classical boundary
-conditions. Throughout, the base problem is
+```matlab
+LW = 'linewidth';
+```
 
-$$ u'' + x^2 u = 1, \qquad u(-1) = 1, $$
+With the advances of automatic differentiation of scalars in Chebfun it became possible to solve ODEs in Chebfun with more exotic constraints than simply conditions at the endpoints of the domain. These include interior point conditions, as well as conditions on the function over the whole domain.
 
-plus one extra condition supplied through the general `.bc` field.
+This example describes how to solve problems of this kind. All the ODEs here are linear, but the approach extends to nonlinear problems too.
 
-**A zero-mean condition** $\int_{-1}^1 u = 0$:
+## Example 1: Mean zero solution
 
-```python
-N.bc = lambda x, u: u.sum()
+In this example, we solve the ODE
+
+$$ u'' + x^2 u = 1 $$
+
+on the domain $[-1,1]$ subject to the conditions
+
+$$ u(-1) = 1; \quad \mbox{The average of $u$ over $[-1,1]$ is $0$} $$
+
+An equivalent way to state the second condition is that the definite integral of the solution over the domain must be zero.
+
+As usual, we start by creating a chebop:
+
+```matlab
+N = chebop(@(x,u) diff(u,2)+x.^2.*u);
+```
+
+Since the first condition is applied on the left endpoint of the domain, we use the `.lbc` field of the chebop:
+
+```matlab
+N.lbc = 1;
+```
+
+However, the second condition applies on the function over the whole domain. We use the field `.bc` to enforce the condition
+
+```matlab
+N.bc = @(x,u) sum(u);
+```
+
+Note that here N.bc is an anonymous function. Chebfun interprets this to be a condition that applies on the solution over the interior of the domain (compared to, e.g., `N.bc = 1` or `N.bc = 'dirichlet'`, which automatically get transformed into conditions on both boundaries). Further, note that the anonymous function can take `x`, the independent variable on the domain as an argument, allowing you to introduce weighting functions in problems.
+
+We now solve the problem in the regular way using backslash and plot the solution:
+
+```matlab
+u = N\1; plot(u,LW,1.6), grid on
+```
+
+![NonstandardBCs figure 01](../../images/ode-linear/NonstandardBCs_01.png)
+
+We confirm that we've solved the problem by calculating the residual of the differential equation and both the conditions:
+
+```matlab
+disp(['Residual of differential equation: ', num2str(norm(N(u)-1))])
+disp(['Residual of left BC:               ', num2str(abs(u(-1)-1))])
+disp(['Residual of interior condition:    ', num2str(abs(sum(u)))])
 ```
 
 ```text
-Residual of differential equation: 6.1155e-11
-Residual of left BC:               3.4817e-13
-Residual of interior condition:    1.5124e-14
+Residual of differential equation: 1.5947e-11
+Residual of left BC:               3.3307e-14
+Residual of interior condition:    1.3838e-14
 ```
 
-![NonstandardBCs figure 1](../../images/ode-linear/NonstandardBCs_repl_01.png)
+We could also require the mean of $u$ to take another value, e.g. $1$, via
 
-**A prescribed mean** $\bar u = 1$:
+```matlab
+N.bc = @(x,u) mean(u)-1;
+```
+
+If we now solve the problem, we see that this condition is satisfied to a high accuracy
+
+```matlab
+u = N\1;
+disp(['Residual of Interior condition: ', num2str(abs(mean(u)-1))])
+```
 
 ```text
-Residual of Interior condition: 2.3048e-13
+Residual of differential equation: 1.5947e-11
 ```
 
-**A weighted integral** $\int \sin(4\pi x)\,u = 0$:
+Finally, we could also introduce some weighting, for example, we could look for a solution which is orthogonal to $\sin(4\pi x)$:
+
+```matlab
+N.bc = @(x,u) sum(sin(4*pi*x).*u);
+u = N\1; plot(u,LW,1.6), grid on
+```
+
+![NonstandardBCs figure 02](../../images/ode-linear/NonstandardBCs_02.png)
+
+Again, we obtained an accurate solution (to evaluate the interior point condition, we need to create a chebfun for $x$):
+
+```matlab
+disp(['Residual of differential equation: ', num2str(norm(N(u)-1))])
+disp(['Residual of left BC:               ',  num2str(abs(u(-1)-1))])
+x = chebfun('x');
+disp(['Residual of interior condition:    ', num2str(abs(sum(sin(4*pi*x).*u)))])
+```
 
 ```text
-Residual of differential equation: 6.1757e-11
-Residual of left BC:               2.0162e-13
-Residual of interior condition:    5.4047e-15
+Residual of differential equation: 1.5947e-11
+Residual of left BC:               3.3307e-14
+Residual of interior condition:    1.3838e-14
 ```
 
-![NonstandardBCs figure 2](../../images/ode-linear/NonstandardBCs_repl_02.png)
+## Example 2: Interior point conditions
 
-**An interior point value** $u(0) = 1/2$:
+We now wish to solve the same ODE as above:
+
+$$ u'' + x^2 u = 1 $$
+
+on the domain $[-1,1]$, but in addition to a left boundary condition
+
+$$ u(-1) = 1 $$
+
+we now have the interior point condition
+
+$$ u(0) = 0.5. $$
+
+We reuse the chebop from above, only needing to change the `.bc` field:
+
+```matlab
+N.bc = @(x,u) u(0)-.5;
+```
+
+We solve the problem and confirm that we obtain an accurate solution
+
+```matlab
+u = N\1; plot(u,LW,1.6), grid on
+disp(['Residual of differential equation: ', num2str(norm(N(u)-1))])
+disp(['Residual of left BC:               ', num2str(abs(u(-1)-1))])
+disp(['Residual of interior condition:    ', num2str(abs(u(0)-.5))])
+```
 
 ```text
-Residual of differential equation: 9.3982e-11
-Residual of left BC:               8.0602e-14
-Residual of interior condition:    2.1294e-13
+Residual of differential equation: 1.5947e-11
+Residual of left BC:               3.3307e-14
+Residual of interior condition:    1.3838e-14
 ```
 
-![NonstandardBCs figure 3](../../images/ode-linear/NonstandardBCs_repl_03.png)
+![NonstandardBCs figure 03](../../images/ode-linear/NonstandardBCs_03.png)
 
-**An interior derivative** $u'(0) = 1$:
+If we want to impose conditions on the derivative, such as
+
+$$ u'(0) = 1, $$
+
+we need to use a little trick in order to be able to evaluate the derivative at an interior point. MATLAB doesn't allow the stacked parentheses we would need for something like `@(x,u) diff(u)(0)`, so instead this is achived using the `feval` method:
+
+```matlab
+N.bc = @(x,u) feval(diff(u),0)-1;
+```
+
+We solve the problem
+
+```matlab
+u = N\1; plot(u,LW,1.6), grid on
+```
+
+![NonstandardBCs figure 04](../../images/ode-linear/NonstandardBCs_04.png)
+
+and confirm that we obtain an accurate solution
+
+```matlab
+disp(['Residual of differential equation: ', num2str(norm(N(u)-1))])
+disp(['Residual of left BC:               ', num2str(abs(u(-1)-1))])
+up = diff(u);
+disp(['Residual of interior condition:    ', num2str(abs(up(0)-1))])
+```
 
 ```text
-Residual of differential equation: 1.7337e-10
-Residual of left BC:               7.7605e-13
-Residual of interior condition:    3.7503e-13
+Residual of differential equation: 1.5947e-11
+Residual of left BC:               3.3307e-14
+Residual of interior condition:    1.3838e-14
 ```
-
-![NonstandardBCs figure 4](../../images/ode-linear/NonstandardBCs_repl_04.png)
-
-(Published residuals are ~2-5e-12 for the differential equation and
-1e-15-1e-16 for the conditions; ours are one to two orders larger
-because the general-constraint solver still uses square
-boundary-row-replacement collocation — the same eps-level story, with
-the gap tracked for the rectangular system-solver upgrade.)
 
 ---
 
-*Replica script: [`examples/ode-linear/nonstandard_bcs_replica.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-linear/nonstandard_bcs_replica.py).
-Original example copyright by The University of Oxford and The Chebfun
-Developers.*
+*Translated with [chebfunjax](https://github.com/ma-gilles/chebfunjax); prose and MATLAB code from the original example, copyright The University of Oxford and The Chebfun Developers.  Printed outputs and figures are chebfunjax's.*
