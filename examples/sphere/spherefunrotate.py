@@ -1,6 +1,6 @@
 """Rotating functions on the sphere.
 
-Faithful replica of sphere/SpherefunRotate.m by Alex Townsend and
+Translation of sphere/SpherefunRotate.m by Alex Townsend and
 Grady Wright (May 2017): the rotate command with ZXZ Euler angles --
 integral preservation, the four-angle panel, rotation of a spherical
 harmonic Y_10^3 whose coefficients stay in the degree-10 shell, and
@@ -14,17 +14,24 @@ import matplotlib
 matplotlib.use("Agg")
 import os
 import sys
+import time
 import warnings
 
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.colors import Normalize
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from numpy.polynomial.legendre import leggauss
+from scipy.special import sph_harm_y_all
 
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import PARULA, chebfun_style
+from chebfunjax.plotting import save_chebfun_figure as _savefig
+from chebfunjax.spherefun.fast_sphere_eval import fast_sphere_eval
 from chebfunjax.spherefun.spherefun import Spherefun, _real_ylm_values
+from chebfunjax.utils.quadrature import trigpts
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -35,7 +42,7 @@ FIG = [0]
 def _panel(fs_titles, fname, n=200):
     FIG[0] += 1
     k = len(fs_titles)
-    ncols = 2
+    ncols = min(k, 2)
     nrows = (k + 1) // 2
     lam = np.linspace(-np.pi, np.pi, n)
     th = np.linspace(0, np.pi, n)
@@ -45,19 +52,94 @@ def _panel(fs_titles, fname, n=200):
     for i, (F, ttl) in enumerate(fs_titles):
         V = np.asarray(F(L.ravel(), T.ravel())).reshape(L.shape)
         ax = fig.add_subplot(nrows, ncols, i + 1, projection="3d")
-        vmax = max(np.max(np.abs(V)), 1e-300)
-        ax.plot_surface(X, Y, Z, facecolors=plt.cm.viridis(
-            (V + vmax) / (2 * vmax)), rstride=1, cstride=1,
-            linewidth=0, antialiased=False)
+        ax.plot_surface(X, Y, Z, facecolors=PARULA(
+            Normalize(V.min(), V.max())(V)), rstride=1, cstride=1,
+            linewidth=0, antialiased=False, shade=False)
         ax.set_box_aspect((1, 1, 1))
+        ax.view_init(elev=30, azim=-127.5)      # MATLAB view(3)
         ax.set_axis_off()
-        ax.set_title(ttl, fontsize=15)
+        ax.set_title(ttl, fontsize=11, pad=0)
     fig.set_facecolor("white")
     fig.tight_layout()
-    fig.savefig(os.path.join(_IMG,
-                             f"SpherefunRotate_repl_{FIG[0]:02d}.png"),
-                dpi=140, bbox_inches="tight")
+    _savefig(fig, os.path.join(_IMG,
+                             f"SpherefunRotate_{FIG[0]:02d}.png"),
+             size=(600, 269))
     plt.close(fig)
+
+
+def _randnfunsphere(lam, rng):
+    """randnfunsphere(lam): random combination of the orthonormal real
+    spherical harmonics up to degree floor(2*pi/lam), coefficients
+    randn * sqrt(4*pi/(deg+1)^2) (MATLAB randnfunsphere.m).
+
+    The library's randnfunsphere normalizes P_l^m with factorials and
+    overflows beyond degree ~85, so the harmonics come from scipy's
+    stable ``sph_harm_y_all``.  The function is sampled on a lat-lon grid
+    that resolves degree ``deg`` exactly and built with
+    ``Spherefun.from_values`` (MATLAB ``spherefun(F)``); adaptive
+    construction of a degree-209 random function takes hours.
+    """
+    deg = int(np.floor(2 * np.pi / lam))
+    c = rng.standard_normal((deg + 1) ** 2)
+    c *= np.sqrt(4 * np.pi / c.size)
+    Cc = np.zeros((deg + 1, deg + 1))      # cos(m lam) coefficient of (l, m)
+    Cs = np.zeros((deg + 1, deg))          # sin(m lam), m = 1..deg
+    k = 0
+    for el in range(deg + 1):
+        cl = c[k:k + 2 * el + 1]           # m = -l..l
+        Cc[el, :el + 1] = cl[el:]
+        Cs[el, :el] = cl[:el][::-1]
+        k += 2 * el + 1
+    M, N = 2 * deg + 4, deg + 3
+    lamg = -np.pi + 2 * np.pi * np.arange(M) / M
+    thg = np.linspace(0, np.pi, N)
+    P = np.real(sph_harm_y_all(deg, deg, thg, 0 * thg))[:, :deg + 1, :]
+    A = np.einsum("lm,lmp->mp", Cc, P)
+    A[1:] *= np.sqrt(2)
+    B = np.sqrt(2) * np.einsum("lm,lmp->mp", Cs, P[:, 1:, :])
+    m = np.arange(deg + 1)
+    F = (A.T @ np.cos(np.outer(m, lamg))
+         + B.T @ np.sin(np.outer(m[1:], lamg)))
+    return Spherefun.from_values(F), deg
+
+
+def _rotate(f, phi, theta=0.0, psi=0.0, method="nufft"):
+    """MATLAB @spherefun/rotate.m: sample f at the rotated points of a
+    lat-lon grid resolving f, R = B*C*D with the ZXZ Euler matrices, and
+    rebuild with spherefun(DOUBLE) (``Spherefun.from_values``).
+
+    ``Spherefun.rotate`` in chebfunjax rotates about the y-axis for the
+    middle angle (ZYZ), not MATLAB's x-axis (ZXZ), and does not finish a
+    degree-209 rotation within an hour, so this example uses the
+    MATLAB construction built from the library's pieces.
+    ``method='nufft'`` evaluates with ``fast_sphere_eval`` (the 2D NUFFT,
+    MATLAB's default); ``'feval'`` uses direct evaluation.
+    """
+    m, n = f.length()
+    n = max(m, n)
+    m = n + n % 2
+    n = int(np.ceil(n / 2)) + 2
+    lam, th = np.meshgrid(np.asarray(trigpts(m, (-np.pi, np.pi))[0]),
+                          np.linspace(0, np.pi, n))
+    lam[0, :] = 0
+    lam[-1, :] = 0
+    X = np.stack([np.cos(lam) * np.sin(th), np.sin(lam) * np.sin(th),
+                  np.cos(th)])
+
+    def Rz(a):
+        return np.array([[np.cos(a), np.sin(a), 0],
+                         [-np.sin(a), np.cos(a), 0], [0, 0, 1]])
+    C = np.array([[1, 0, 0], [0, np.cos(theta), np.sin(theta)],
+                  [0, -np.sin(theta), np.cos(theta)]])
+    R = Rz(psi) @ C @ Rz(phi)
+    U = np.tensordot(R, X, 1)
+    lr = np.arctan2(U[1], U[0]).ravel()
+    tr = np.arccos(np.clip(U[2], -1, 1)).ravel()
+    if method == "nufft":
+        g = np.real(np.asarray(fast_sphere_eval(f, lr, tr)))
+    else:
+        g = np.asarray(f(jnp.asarray(lr), jnp.asarray(tr)))
+    return Spherefun.from_values(g.reshape(lam.shape)).simplify()
 
 
 def run():
@@ -68,12 +150,12 @@ def run():
     f = Spherefun.from_function(
         lambda lam, th: np.cos(50 * np.cos(th))
         + (np.cos(lam) * np.sin(th))**2)
-    g = f.rotate(-np.pi / 4, np.pi / 2, np.pi / 8)
+    g = _rotate(f, -np.pi / 4, np.pi / 2, np.pi / 8)
     _panel([(f, "Original"), (g, "Rotated")],
-           "SpherefunRotate_repl_01.png")
+           "SpherefunRotate_01.png")
 
     h = f + g
-    _panel([(h, "")], "SpherefunRotate_repl_02.png")
+    _panel([(h, "")], "SpherefunRotate_02.png")
 
     print("ans =")
     print(f"     {abs(float(f.sum2()) - float(g.sum2())):.15e}")
@@ -84,15 +166,15 @@ def run():
             50 * (np.cos(lam) * np.sin(th))
             * (np.sin(lam) * np.sin(th) - 0.5)))
     _panel([(f2, "Original"),
-            (f2.rotate(np.pi / 4, 0, 0), r"Rotated $\phi=\pi/4$"),
-            (f2.rotate(0, np.pi / 4, 0), r"Rotated $\theta=\pi/4$"),
-            (f2.rotate(np.pi / 4, 0, np.pi / 4),
+            (_rotate(f2, np.pi / 4, 0, 0), r"Rotated $\phi=\pi/4$"),
+            (_rotate(f2, 0, np.pi / 4, 0), r"Rotated $\theta=\pi/4$"),
+            (_rotate(f2, np.pi / 4, 0, np.pi / 4),
              r"Rotated $\phi=\psi=\pi/4$")],
-           "SpherefunRotate_repl_03.png")
+           "SpherefunRotate_03.png")
 
     # Rotating Y_10^3 keeps the coefficients in the degree-10 shell.
     Y103 = Spherefun.sphharm(10, 3)
-    g3 = Y103.rotate(np.pi / 4, np.pi / 3, -np.pi / 8)
+    g3 = _rotate(Y103, np.pi / 4, np.pi / 3, -np.pi / 8)
     N = 12
     nq = 48
     xg, wg = leggauss(nq)
@@ -126,8 +208,8 @@ def run():
     ax.set_title("Spherical harmonic coefficients")
     fig.set_facecolor("white")
     fig.tight_layout()
-    fig.savefig(os.path.join(_IMG, "SpherefunRotate_repl_04.png"),
-                dpi=150, bbox_inches="tight")
+    _savefig(fig, os.path.join(_IMG, f"SpherefunRotate_{FIG[0]:02d}.png"),
+             size=(600, 269))
     plt.close(fig)
 
     # Reconstruct from the degree-10 shell only.
@@ -143,6 +225,20 @@ def run():
     print("ans =")
     print(f"     {float((hrec - g3).norm()):.15e}")
 
+    # The NUFFT-based rotate versus naive evaluation ('feval') for a
+    # random function with wavelength 0.03 (degree 209).
+    f6, _ = _randnfunsphere(0.03, np.random.default_rng(0))
+    _panel([(f6, "Random function")], "SpherefunRotate_05.png", n=450)
+    t0 = time.perf_counter()
+    _rotate(f6, np.pi / 3, np.pi / 2, 0.5, "feval")
+    t_feval = time.perf_counter() - t0
+    t0 = time.perf_counter()
+    h6 = _rotate(f6, np.pi / 3, np.pi / 2, 0.5)
+    t_nufft = time.perf_counter() - t0
+    print(f"NUFFT speed-up factor = {t_feval / t_nufft:.1f}")
+    _panel([(h6, "Rotated random function")], "SpherefunRotate_06.png",
+           n=450)
+
     # Rank growth of rotated high-rank functions.
     f4 = Spherefun.from_function(
         lambda lam, th: np.cos(
@@ -150,10 +246,10 @@ def run():
             * (np.sin(lam) * np.sin(th))))
     print("ans =")
     print(f"    {f4.rank}")
-    g4 = f4.rotate(0.01, 0.01, 0.01)
+    g4 = _rotate(f4, 0.01, 0.01, 0.01)
     print("ans =")
     print(f"    {g4.rank}")
-    g5 = f4.rotate(np.pi / 4, -np.pi / 3, -np.pi / 8)
+    g5 = _rotate(f4, np.pi / 4, -np.pi / 3, -np.pi / 8)
     print("ans =")
     print(f"   {g5.rank}")
 
@@ -165,20 +261,18 @@ def run():
             + (np.sin(lam) * np.sin(th) - cntr[1])**2
             + np.cos(th)**2)))
     alp = np.linspace(0, 2 * np.pi, 101)
-    rk = [f5.rotate(0, a, 0).rank for a in alp]
+    rk = [_rotate(f5, 0, a, 0).rank for a in alp]
     FIG[0] += 1
-    fig, ax = plt.subplots(figsize=(8.4, 4.4))
-    ax.plot(alp, rk, '.-', lw=1.2)
-    ax.set_xlabel(r"$\theta$")
-    ax.set_ylabel("rank")
-    ax.grid(True)
+    fig, ax = plt.subplots(figsize=(6.0, 2.69))
+    ax.plot(alp, rk, 'x-', lw=2)
+    ax.set_xlabel("Rotation angle")
+    ax.set_ylabel("Rank")
+    ax.set_title("Rank of the rotation of a Gaussian")
     fig.set_facecolor("white")
     fig.tight_layout()
-    fig.savefig(os.path.join(_IMG, "SpherefunRotate_repl_05.png"),
-                dpi=150, bbox_inches="tight")
+    _savefig(fig, os.path.join(_IMG, f"SpherefunRotate_{FIG[0]:02d}.png"),
+             size=(600, 269))
     plt.close(fig)
-    print("rank sweep: min", min(rk), "max", max(rk), flush=True)
-
 
 if __name__ == "__main__":
     run()

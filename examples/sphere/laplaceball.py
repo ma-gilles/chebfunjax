@@ -1,6 +1,6 @@
 """The Laplace equation on the unit ball.
 
-Faithful replica of sphere/LaplaceBall.m by Nick Trefethen (June
+Translation of sphere/LaplaceBall.m by Nick Trefethen (June
 2019): solve lap(u) = 0 in the ball with smooth random boundary data
 h (characteristic wavelength lambda = 0.2), via the ballfun Helmholtz
 solver with K = 0 and Dirichlet data.  The checks are the published
@@ -24,11 +24,14 @@ import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.cm import ScalarMappable
+from matplotlib.colors import Normalize
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from chebfunjax.ballfun.ballfun import Ballfun
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import PARULA, chebfun_style, plot_ball_slices
+from chebfunjax.plotting import save_chebfun_figure as _savefig
 from chebfunjax.spherefun.spherefun import _real_ylm_values
 
 chebfun_style()
@@ -58,34 +61,43 @@ def h_eval(lam, th, r_scale=None):
     return out
 
 
-def _plot_fn(F, clim=None, n=220):
+def _save(fig):
     FIG[0] += 1
+    fig.set_facecolor("white")
+    _savefig(fig, os.path.join(_IMG, f"LaplaceBall_{FIG[0]:02d}.png"),
+             size=(600, 253.4))  # 2.53 in * 100 dpi floors to 252 px
+    plt.close(fig)
+
+
+def _plot_fn(F, clim=None, n=200, axis_off=False):
+    """plot(F) of a function on the sphere, with a colorbar."""
     lam = np.linspace(-np.pi, np.pi, n)
     th = np.linspace(0, np.pi, n)
     L, T = np.meshgrid(lam, th)
     V = np.asarray(F(L.ravel(), T.ravel())).reshape(L.shape)
-    fig, ax = plt.subplots(figsize=(7.0, 5.4),
-                           subplot_kw={"projection": "3d"})
+    fig = plt.figure(figsize=(6.0, 2.53))
+    ax = fig.add_axes([0.1, 0.0, 0.65, 1.0], projection="3d")
     X, Y, Z = (np.cos(L) * np.sin(T), np.sin(L) * np.sin(T), np.cos(T))
-    lo, hi = clim if clim else (V.min(), V.max())
-    W = np.clip((V - lo) / (hi - lo + 1e-300), 0, 1)
-    ax.plot_surface(X, Y, Z, facecolors=plt.cm.viridis(W), rstride=1,
-                    cstride=1, linewidth=0, antialiased=False)
+    norm = Normalize(*(clim if clim else (V.min(), V.max())))
+    ax.plot_surface(X, Y, Z, facecolors=PARULA(norm(V)), rstride=1,
+                    cstride=1, linewidth=0, antialiased=False, shade=False)
     ax.set_box_aspect((1, 1, 1))
-    ax.set_axis_off()
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    fig.savefig(os.path.join(
-        _IMG, f"LaplaceBall_repl_{FIG[0]:02d}.png"),
-        dpi=140, bbox_inches="tight")
-    plt.close(fig)
+    ax.set_xticks([-1, 0, 1])
+    ax.set_yticks([-1, 0, 1])
+    ax.set_zticks([-1, 0, 1])
+    ax.view_init(elev=30, azim=-127.5)      # MATLAB view(3)
+    if axis_off:
+        ax.set_axis_off()
+    cax = fig.add_axes([0.84, 0.12, 0.025, 0.8])
+    fig.colorbar(ScalarMappable(norm=norm, cmap=PARULA), cax=cax)
+    _save(fig)
 
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
     warnings.filterwarnings("ignore")
 
-    _plot_fn(h_eval, clim=(-2, 2))
+    _plot_fn(h_eval, clim=(-2, 2), axis_off=True)
 
     # Evaluations of the boundary data (cartesian and spherical forms).
     print("h(1,0,0) =")
@@ -117,6 +129,12 @@ def run():
     print(f"  {meanh:.15f}")
     print("u(0,0,0) =")
     print(f"  {float(u(1e-14, 0.0, np.pi / 2)):.15f}")
+
+    # plot(u): the solution looks uniform in the interior.
+    fig = plt.figure(figsize=(6.0, 2.53))
+    ax = fig.add_subplot(111, projection="3d")
+    plot_ball_slices(u, ax=ax, azim=-127.5)
+    _save(fig)
 
     # The solution on the inner sphere r = 1/2.
     _plot_fn(lambda lam, th: np.asarray(
