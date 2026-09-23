@@ -57,10 +57,6 @@ def _ap(x, s):
     return 4 * s * (2 * x - 1)
 
 
-def _uexact(x, s):
-    return np.log(_a(x, s)) / (8 * s)
-
-
 def _solve(s, dom):
     N = Chebop(lambda x, u: _a(x, s) * u.diff(2) + _ap(x, s) * u.diff(),
                domain=dom)
@@ -73,9 +69,7 @@ def _resid_err(u, s, dom):
     xf = Chebfun.identity(Domain(tuple(float(v) for v in dom)))
     res = float((_a(xf, s) * u.diff(2) + _ap(xf, s) * u.diff()
                  - 1).norm())
-    t = np.linspace(1e-6, 1 - 1e-6, 2001)
-    err = float(np.max(np.abs(np.asarray(u(jnp.asarray(t)))
-                              - _uexact(t, s))))
+    err = float((u - _a(xf, s).log() / (8 * s)).norm())
     return res, err
 
 
@@ -99,7 +93,6 @@ def run():
         r, e = _resid_err(u, s, (0, 1))
         res.append(r)
         err.append(e)
-        print(f"gamma = {g}: residual = {r:.3e}   error = {e:.3e}")
 
     fig, ax = plt.subplots(figsize=(9.0, 4.6))
     ax.semilogy(range(1, 4), res, '-*m', lw=1.6)
@@ -129,7 +122,6 @@ def run():
         _save(fig)
         _, e = _resid_err(u, s, (0, 0.5, 1))
         err.append(e)
-        print(f"gamma = {g}: error = {e:.3e}   length = {len(u)}")
 
     fig, ax = plt.subplots(figsize=(9.0, 4.6))
     ax.semilogy(range(1, 8), err, '-*r', lw=1.6)

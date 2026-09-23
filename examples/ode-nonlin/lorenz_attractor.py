@@ -21,6 +21,9 @@ import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
+import jax.numpy as jnp
+
+import chebfunjax as cj
 from chebfunjax import ratinterp
 from chebfunjax.chebfun1d.chebfun import ode113
 from chebfunjax.plotting import chebfun_style
@@ -43,12 +46,22 @@ def _save(fig):
     plt.close(fig)
 
 
-def _rat_eval(a, b, z):
-    """p(z)/q(z) on complex z from Chebyshev coefficients on D."""
-    mid, h = 0.5 * (D[0] + D[1]), 0.5 * (D[1] - D[0])
-    s = (np.asarray(z) - mid) / h
-    from numpy.polynomial import chebyshev as C
-    return C.chebval(s, np.asarray(a)) / C.chebval(s, np.asarray(b))
+def _msort(z):
+    """MATLAB sort of a complex vector: by modulus, then by angle."""
+    z = np.asarray(z, dtype=complex)
+    return z[np.lexsort((np.angle(z), np.abs(z)))]
+
+
+def _c(z):
+    """One MATLAB ``format short`` complex entry."""
+    sg = '-' if z.imag < 0 else '+'
+    return f"{z.real:9.4f} {sg} {abs(z.imag):6.4f}i"
+
+
+def _rat(a, b):
+    """Numerator and denominator chebfuns [p, q] of ratinterp on D."""
+    return (cj.chebfun(jnp.asarray(a), coeffs=True, domain=list(D)),
+            cj.chebfun(jnp.asarray(b), coeffs=True, domain=list(D)))
 
 
 def run():
@@ -69,7 +82,8 @@ def run():
     fig = plt.figure(figsize=(7.6, 6.2))
     ax = fig.add_subplot(projection="3d")
     ax.plot(np.asarray(u1(t)), np.asarray(u2(t)), np.asarray(u3(t)),
-            lw=1.0)
+            lw=1.6)
+    ax.grid(True)
     ax.view_init(elev=20, azim=20 - 90)
     ax.set_xlim(-20, 20)
     ax.set_ylim(-40, 40)
@@ -83,7 +97,7 @@ def run():
     # the components as scalar functions of t
     fig, ax = plt.subplots(figsize=(9.0, 4.6))
     for f in (u1, u2, u3):
-        ax.plot(t, np.asarray(f(t)), lw=1.2)
+        ax.plot(t, np.asarray(f(t)), lw=1.6)
     ax.grid(True)
     ax.set_xlabel("t")
     ax.set_ylabel("x(t), y(t), z(t)")
@@ -91,60 +105,61 @@ def run():
                  fontsize=14)
     _save(fig)
 
-    # rational approximants and their poles
     rats = []
     for f, m, NN in ((u1, 221, 444), (u2, 241, 484), (u3, 236, 473)):
         rh, a, b, mu, nu, poles, res = ratinterp(
             f, m, 40, NN, None, 1e-12, domain=D)
-        rats.append((a, b, np.asarray(poles)))
+        rats.append((*_rat(a, b), _msort(poles)))
 
     xx = np.linspace(-0.5, 5.5, 200)
     yy = np.linspace(-0.5, 0.5, 200)
     XX, YY = np.meshgrid(xx, yy)
-    zz = XX + 1j * YY
-    fig, axes = plt.subplots(3, 1, figsize=(8.6, 7.4))
-    for k, (a, b, poles) in enumerate(rats):
+    z = (XX + 1j * YY).ravel()
+    fig, axes = plt.subplots(3, 1)
+    for k, (p, q, poles) in enumerate(rats):
         ax = axes[k]
-        ax.contour(xx, yy, np.abs(_rat_eval(a, b, zz)),
-                   levels=np.arange(0, 151, 5))
+        rz = np.abs(np.asarray(p(z)) / np.asarray(q(z))).reshape(XX.shape)
+        ax.contour(xx, yy, rz, levels=np.arange(0, 151, 5))
         ax.grid(True)
         ax.set_title(f"r{k + 1}(t)")
-        ax.plot(poles.real, poles.imag, "xk", markersize=9)
+        ax.plot(poles.real, poles.imag, "xk", markersize=16 * 0.6, mew=1.6)
         ax.plot([0, 5], [0, 0], "k", lw=1.6)
     _save(fig)
 
-    # the pole table: the three components agree on the singularities
-    p1, p2, p3 = (np.sort_complex(p[np.argsort(np.abs(p.imag))][:10])
-                  for p in (r[2] for r in rats))
-    diff = np.sort(np.max(np.abs(
-        np.array([p1 - p2, p1 - p3, p2 - p3])), axis=0))
+    # format short
+    poles1, poles2, poles3 = (r[2] for r in rats)
+    diffpoles = np.sort(np.column_stack([np.abs(poles1 - poles2),
+                                         np.abs(poles1 - poles3),
+                                         np.abs(poles2 - poles3)]), axis=0)
     print("   poles in x         poles in y         poles in z"
           "         max. difference")
-    for k in range(10):
-        print(f"   {p1[k].real:6.4f} {p1[k].imag:+.4f}i"
-              f"   {p2[k].real:6.4f} {p2[k].imag:+.4f}i"
-              f"   {p3[k].real:6.4f} {p3[k].imag:+.4f}i"
-              f"   {diff[k]:6.4f}")
-    print()
-    print("half differences:")
-    print(np.round(0.5 * diff, 4))
+    for row in zip(poles1, poles2, poles3, diffpoles[:, 0]):
+        print("".join(_c(complex(v)) for v in row))
 
-    # with tol = 0: all 40 poles, spurious ones included
+    print("ans =")
+    v = 0.5 * diffpoles[:, 0]
+    for c0 in range(0, len(v), 7):
+        c1 = min(c0 + 7, len(v))
+        print(f"  Columns {c0 + 1} through {c1}" if c1 - c0 > 1
+              else f"  Column {c1}")
+        print("".join(f"{x:10.4f}" for x in v[c0:c1]))
+
     rh, a, b, mu, nu, poles, res = ratinterp(
         u1, 221, 40, 444, None, 0.0, domain=D)
-    pol = np.asarray(poles)
-    pol = pol[np.argsort(pol.real)]
-    print("\npoles (tol = 0, first 20):")
-    for z in pol[:20]:
-        print(f"   {z.real:7.4f} {z.imag:+.4f}i")
+    p, q = _rat(a, b)
+    poles = _msort(poles)
+    print("poles =")
+    for zp in poles:
+        print(_c(complex(zp)))
 
-    fig, ax = plt.subplots(figsize=(8.6, 3.4))
-    ax.plot(pol.real, pol.imag, "xk", markersize=9)
-    ax.plot([0, 5], [0, 0], "k", lw=1.6)
-    ax.set_xlim(-0.5, 5.5)
-    ax.set_ylim(-0.5, 0.5)
+    fig, ax = plt.subplots()
+    ax.plot(poles.real, poles.imag, 'or', ms=8 * 0.6, mfc='r')
     ax.grid(True)
-    ax.set_title("poles with tol = 0: spurious poles appear on the axis")
+    ax.set_xlabel('Re(t)')
+    ax.set_ylabel('Im(t)')
+    zr = np.asarray(p.roots(complex_roots=True))
+    ax.plot(zr.real, np.zeros(len(zr)), 'ok', ms=12 * 0.6, mfc='none')
+    ax.set_title('Poles and Zeros of the Rational Interpolant', fontsize=14)
     _save(fig)
 
 

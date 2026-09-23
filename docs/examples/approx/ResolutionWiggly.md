@@ -37,9 +37,6 @@ nphalf = round(np/2)
 ```text
 nphalf =
     98
-interp err   = 2.1653
-leastsq err  = 1.1305
-best err     = 1.0000
 ```
 
 Here is what happens with interpolation:

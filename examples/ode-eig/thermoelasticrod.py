@@ -28,7 +28,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from chebfunjax.chebfun1d.chebfun import chebfun
 from chebfunjax.operators.chebop import Chebop
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
@@ -55,23 +55,23 @@ def run():
     # Stable case: all eigenvalues negative.
     Ls, Vs = _solve(0.96)
     print("ans =")
+    print("   1.0e+02 *")
     for v in Ls:
-        print(f"  {v/100:.15f}  (x 1e2)")
+        print(f"{v / 100:20.15f}")
 
     # Slightly unstable case.
     Lu, Vu = _solve(1.02)
     print("ans =")
+    print("   1.0e+02 *")
     for v in Lu:
-        print(f"  {v/100:.15f}  (x 1e2)")
+        print(f"{v / 100:20.15f}")
 
     # Least stable / unstable perturbation.
-    xx = np.linspace(0, 1, 1000)
-    fig, axes = plt.subplots(1, 2, figsize=(9.0, 4.2))
+    fig, axes = plt.subplots(1, 2, figsize=(6.0, 2.7))
     for ax, (lam, V, ttl) in zip(
             axes, [(Ls, Vs, "Stable"), (Lu, Vu, "Unstable")]):
-        ax.plot(xx, np.asarray(V[3](xx)), lw=1.6)
+        matlab_plot(V[3], ax=ax, lw=1.6)
         ax.set_title(f"{ttl}, $\\lambda$ = {lam[3]:.3f}")
-        ax.grid(True)
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, "ThermoelasticRod_01.png"), size=(600, 270))
@@ -87,15 +87,14 @@ def run():
                             dtype=np.float64),
         domain=(0.5, 2.0), eps=1e-11)
     print("stability =")
-    print(stability)
+    print(repr(stability))
     dstar = float(np.asarray((stability).roots())[0])
     print("dstar =")
     print(f"   {dstar:.15f}")
 
-    fig, ax = plt.subplots(figsize=(8.6, 4.8))
-    xx = np.linspace(0.5, 2.0, 1000)
-    ax.plot(xx, np.asarray(stability(xx)), lw=1.6)
-    ax.plot([dstar], [0.0], "ro", markersize=10)
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    matlab_plot(stability, ax=ax, lw=1.6)
+    ax.plot([dstar], [0.0], "ro", markersize=10, mfc="none")
     ax.set_xlabel("$\\delta$")
     ax.set_ylabel("max $\\lambda$")
     ax.grid(True)

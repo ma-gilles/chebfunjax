@@ -73,7 +73,6 @@ def run():
     for i, a in enumerate((0.8, 0.1)):
         p, r = _errs(a, ns_small)
         _figure(a, ns_small, p, r, f"MinimaxSqrt_{i+1:02d}.png")
-        print(f"a={a}: poly {p[-1]:.3e}  rat {r[-1]:.3e}")
 
     ns_big = np.arange(2, 21, 2)
     data = {}
@@ -81,11 +80,9 @@ def run():
         p, r = _errs(a, ns_big)
         data[a] = (p, r)
         _figure(a, ns_big, p, r, f"MinimaxSqrt_{i+3:02d}.png")
-        print(f"a={a}: poly {p[-1]:.3e}  rat {r[-1]:.3e}")
 
     # a = 0: genuinely singular endpoint
     p0, r0 = _errs(0.0, ns_big)
-    print(f"a=0: poly {p0[-1]:.3e}  rat {r0[-1]:.3e}")
     fig, ax = plt.subplots(figsize=(8.8, 4.6))
     p5, r5 = data[1e-5]
     ax.semilogy(ns_big, p5, 'b*-', lw=1.2)
@@ -93,12 +90,12 @@ def run():
     ax.semilogy(ns_big, p0, 'bo--', lw=1.2)
     ax.semilogy(ns_big, r0, 'ro--', lw=1.2)
     ax.text(ns_big[-1] + 0.5, p5[-1], "poly a=1e-05", color='b')
-    ax.text(ns_big[-1] + 0.5, r5[-1] * 2, "rat a=1e-05", color='r')
+    ax.text(ns_big[-1] + 0.5, r5[-1], "rat a=1e-05", color='r')
     ax.text(ns_big[-1] + 0.5, p0[-1] * 1.3, "poly a=0", color='b')
     ax.text(ns_big[-1] + 0.5, r0[-1], "rat a=0", color='r')
     ax.grid(True)
     ax.set_xlim(0, ns_big[-1] + 7)
-    ax.set_title("sqrt(x) on [a,1], a = 1e-5 and 0", fontsize=12)
+    ax.set_title("sqrt(x) on [a,1], a = 0", fontsize=12)
     ax.set_xlabel("DOF")
     fig.set_facecolor("white")
     fig.tight_layout()
@@ -129,7 +126,6 @@ def run():
         ax.text(ns_big[-1] + 0.2, perrs[-1], f"poly a={a:g}", color='b')
         ax.semilogy(ns_big, rerrs, rs_, lw=1.2)
         ax.text(ns_big[-1] + 0.2, rerrs[-1], f"rat a={a:g}", color='r')
-        print(f"p=5 a={a}: poly {perrs[-1]:.3e}  rat {rerrs[-1]:.3e}")
     ax.grid(True)
     ax.set_xlim(0, ns_big[-1] + 7)
     ax.set_xlabel("DOF")

@@ -12,6 +12,7 @@ import matplotlib
 matplotlib.use("Agg")
 import os
 import sys
+import time
 import warnings
 from math import lcm
 
@@ -37,7 +38,7 @@ def _save(fig):
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(
-        _IMG, f"RoseCurves_{FIG[0]:02d}.png"))
+        _IMG, f"RoseCurves_{FIG[0]:02d}.png"), size=(680, 680))
     plt.close(fig)
 
 
@@ -61,17 +62,30 @@ def run():
     print("ans =")
     print(f"   {np.pi/2:.15f}")
 
-    fig, ax = plt.subplots(figsize=(10.2, 10.2))
-    for mm in range(1, 7):
-        for nn in range(1, 7):
-            fr = rose(mm, nn)
-            L = 2 * np.pi * lcm(mm, nn)
-            t = np.linspace(0, L, max(600, 200 * lcm(mm, nn)))
-            z = np.asarray(fr(t)) + (2.5 * mm - 2.5j * nn)
-            ax.plot(z.real, z.imag, 'k-', lw=0.8)
-    ax.set_aspect("equal")
-    ax.set_axis_off()
+    # figure('position', [0 0 680 680])
+    fig, ax = plt.subplots(figsize=(6.8, 6.8))
+    _roses(ax, 6, 1.0)
     _save(fig)
+
+    t0 = time.time()
+    fig, ax = plt.subplots(figsize=(6.8, 6.8))
+    _roses(ax, 12, 0.8)
+    _save(fig)
+    time_ = time.time() - t0
+    print("time =")
+    print(f"   {time_:.15f}")
+
+
+def _roses(ax, N, lw):
+    for m in range(1, N + 1):
+        for n in range(1, N + 1):
+            f = rose(m, n)
+            offset = 2.5 * m - 2.5j * n
+            (f + offset).plot(ax=ax, color='k', linewidth=lw * 0.75,
+                              n_pts=max(600, 200 * lcm(m, n)))
+    ax.set_aspect("equal")
+    ax.autoscale(tight=True)
+    ax.set_axis_off()
 
 
 if __name__ == "__main__":

@@ -46,12 +46,7 @@ norm(vn)
 
 ```text
 ans =
-     2.283886958130491e-18
-t=0 plotted (0s)
-t=5 plotted (33s)
-t=10 plotted (50s)
-t=15 plotted (67s)
-done (67s)
+     0.000000000000000e+00
 ```
 
 ## Vizualisation of functions

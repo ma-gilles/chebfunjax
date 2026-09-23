@@ -89,7 +89,6 @@ def run():
         print(f"fraction of roots in [-1,1]: {ratio:g}")
     print("ans =")
     print(f"   {np.mean(data):.15f}")
-    print(f"(theoretical limit 1/sqrt(3) = {1/np.sqrt(3):.15f})")
 
 
 if __name__ == "__main__":

@@ -1,186 +1,87 @@
 """Hello 3D World — Chebfun3 from discrete data.
 
-Constructs a 3D Chebfun3 from a discrete binary tensor encoding "HELLO" text,
-demonstrating how Chebfun3 can be built from array data (equispaced grid).
+Translation of approx3/Hello3.m by Olivier Sète (June 2016): a binary
+40x40x40 tensor spelling "HELLO" becomes a chebfun3 through the 'equi'
+constructor, and its isosurfaces at 0.5 and -0.1 show the letters and
+the interpolant's Gibbs ripples.
 
-Original MATLAB Chebfun: approx3/Hello3.m by Olivier Sète, June 2016.
-See https://www.chebfun.org/examples/approx3/Hello3.html
+Original: https://www.chebfun.org/examples/approx3/Hello3.html
 Copyright 2016 by The University of Oxford and The Chebfun Developers.
 """
-
 import matplotlib
 
 matplotlib.use("Agg")
 import os
+import sys
 
 import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.colors import LightSource
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
-from chebfunjax.plotting import chebfun_style
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+
+from chebfunjax.chebfun3d.chebfun3 import Chebfun3
+from chebfunjax.plotting import chebfun_style, isosurface_chebfun3
+from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
-
-import jax.numpy as jnp
-import numpy as np
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
-
-from chebfunjax.chebfun3d.chebfun3 import chebfun3
-
 _HERE = os.path.dirname(os.path.abspath(__file__))
-_IMG_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(_HERE)), "docs", "images", "approx3"
-)
-os.makedirs(_IMG_DIR, exist_ok=True)
+_IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'approx3')
 
-def build_hello_tensor():
-    """Build the 40x40x40 HELLO binary tensor (from MATLAB example)."""
-    A = np.zeros((15, 40))
-    # H
-    A[2:9, 2:4] = 1
-    A[5:7, 4:6] = 1
-    A[2:9, 6:8] = 1
-    # E
-    A[3:10, 10:12] = 1
-    A[3:5, 10:16] = 1
-    A[6:8, 10:16] = 1
-    A[9:11, 10:16] = 1
-    # L
-    A[4:11, 18:20] = 1
-    A[10:12, 18:25] = 1
-    # L
-    A[5:12, 26:28] = 1
-    A[11:13, 26:32] = 1
-    # O
-    A[6:13, 34:36] = 1
-    A[6:13, 38:40] = 1
-    A[6:8, 36:38] = 1
-    A[12:14, 36:38] = 1
+# MATLAB view([-2.5, -1, 0.4]) as matplotlib (elev, azim) in degrees.
+_ELEV = float(np.degrees(np.arctan2(0.4, np.hypot(-2.5, -1))))
+_AZIM = float(np.degrees(np.arctan2(-2.5, 1))) - 90
 
-    # Pad to 40x40
-    A_padded = np.zeros((40, 40))
-    A_padded[14:29, :] = A
-    A_padded = np.fliplr(np.flipud(A_padded))
 
-    # Add third dimension (extrude in k direction)
-    B = np.zeros((40, 40, 40))
-    for k in range(17, 21):
-        B[k, :, :] = A_padded
-
-    return B
-
-def run():
-    print("=" * 60)
-    print("Hello 3D World (Hello3)")
-    print("=" * 60)
-
-    # ------------------------------------------------------------------
-    # Build the HELLO tensor
-    # ------------------------------------------------------------------
-    B = build_hello_tensor()
-    print(f"\nHELLO tensor: shape = {B.shape}")
-    print(f"  Non-zero entries: {np.sum(B > 0)}")
-    print(f"  Total entries: {B.size}")
-
-    # ------------------------------------------------------------------
-    # Construct Chebfun3 from the tensor via interpolation on equispaced grid
-    # The tensor B[i,j,k] gives values at equispaced points in [-1,1]^3
-    # We construct f as a Chebfun3 by interpolating B
-    # ------------------------------------------------------------------
-    n = B.shape[0]  # 40
-    xs = np.linspace(-1, 1, n)
-
-    # We use a low-rank approximation of the tensor by constructing f
-    # from function values on the Chebyshev grid
-    # For the "equi" flag in MATLAB, we just map the tensor indices to [-1,1]
-    # and construct the Chebfun3 from the resulting function
-    X_grid, Y_grid, Z_grid = np.meshgrid(xs, xs, xs, indexing="ij")
-
-    # Extract a slice through the middle to verify
-    mid = n // 2
-    slice_xy = B[17, :, :]  # The "letter" slice (corresponds to k≈18-21)
-    print(f"\nMiddle slice (k=17): max={slice_xy.max():.1f}, "
-          f"nonzeros={np.sum(slice_xy > 0)}")
-
-    # Construct a simplified Chebfun3 that captures the HELLO structure
-    # We interpolate the 3D tensor B using Chebfun3
-    # Since B has mostly 0s and 1s, we construct via a regularized version
-    # Note: constructing from 40^3 data would be expensive; we use a coarser grid
-    n_coarse = 20
-    xs_c = np.linspace(-1, 1, n_coarse)
-    # Downsample B to coarse grid
-    idx = np.round(np.linspace(0, n - 1, n_coarse)).astype(int)
-    B_coarse = B[np.ix_(idx, idx, idx)]
-
-    # Construct f from tensor values at equispaced points via Chebfun3
-    # (equispaced interpolation via barycentric formula)
-    # For simplicity, we sample B and construct Chebfun3 from function handle
-    from scipy.interpolate import RegularGridInterpolator
-    interp = RegularGridInterpolator((xs, xs, xs), B, method="linear",
-                                     bounds_error=False, fill_value=0.0)
-
-    def hello_func(x, y, z):
-        pts = np.stack([np.array(x).ravel(),
-                        np.array(y).ravel(),
-                        np.array(z).ravel()], axis=-1)
-        return interp(pts).reshape(np.array(x).shape)
-
-    print("\nConstructing Chebfun3 from HELLO tensor (tol=1e-3)...")
-    f = chebfun3(hello_func, tol=1e-3)
-    print(f"  Tucker rank: {f.rank}")
-
-    # Check: f should be near 1 inside the letters and near 0 outside
-    val_inside = float(f(jnp.array(0.0), jnp.array(0.0), jnp.array(0.05)))
-    print(f"  f(0, 0, 0.05) (inside slab) ≈ {val_inside:.4f}")
-
-    val_outside = float(f(jnp.array(-0.9), jnp.array(-0.9), jnp.array(0.9)))
-    print(f"  f(-0.9,-0.9, 0.9) (outside) ≈ {val_outside:.4f}")
-
-    # ------------------------------------------------------------------
-    # Plot: isosurface (shown as dense scatter plot)
-    # ------------------------------------------------------------------
-    from chebfunjax.plotting import PARULA, _setup_3d_axes
-
-    fig = plt.figure(figsize=(14, 4))
-
-    # Plot 1: The HELLO tensor slice
-    ax1 = fig.add_subplot(131)
-    ax1.imshow(B[18, :, :].T, cmap=PARULA, origin="lower",
-               extent=[-1, 1, -1, 1], aspect="equal")
-    ax1.set_title("HELLO tensor slice (k=18)", fontsize=10)
-
-    # Plot 2: 3D scatter of nonzero entries
-    ax2 = fig.add_subplot(132, projection="3d")
-    _setup_3d_axes(ax2, fig, elev=20, azim=-100)
-    nz = np.argwhere(B > 0.5)
-    xyz_nz = (nz / (n - 1)) * 2 - 1
-    ax2.scatter(xyz_nz[:, 0], xyz_nz[:, 1], xyz_nz[:, 2],
-                c=PARULA(np.linspace(0.3, 0.7, len(xyz_nz))),
-                alpha=0.3, s=2)
-    ax2.set_title("HELLO tensor\n3D binary voxels", fontsize=10, pad=0)
-
-    # Plot 3: Chebfun3 reconstruction slice
-    ax3 = fig.add_subplot(133)
-    x_plot = np.linspace(-1, 1, 100)
-    y_plot = np.linspace(-1, 1, 100)
-    X_p, Y_p = np.meshgrid(x_plot, y_plot)
-    z_val = 0.05
-    Z_p = np.full_like(X_p, z_val)
-    vals = np.array(f(jnp.array(X_p), jnp.array(Y_p), jnp.array(Z_p)))
-    cs = ax3.contourf(X_p, Y_p, vals, levels=20, cmap=PARULA)
-    ax3.contour(X_p, Y_p, vals, levels=20, colors="k", linewidths=0.3,
-                alpha=0.4)
-    ax3.set_title(f"Chebfun3 reconstruction at z={z_val}", fontsize=10)
-    ax3.set_aspect("equal")
-    fig.colorbar(cs, ax=ax3, fraction=0.046, pad=0.04)
-
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    fig.savefig(
-        os.path.join(_IMG_DIR, "Hello3.png"), dpi=150, bbox_inches="tight"
-    )
+def _iso(f, level, k):
+    fig = plt.figure(figsize=(6.0, 2.7))
+    # A square 3-D box as wide as the 600x270 canvas (axis equal/off).
+    ax = fig.add_axes([0, -0.6, 1, 2.2], projection="3d")
+    isosurface_chebfun3(f, level, ax=ax, n_pts=81, alpha=1.0)
+    # camlight: re-add the triangulation with Gouraud-like face shading
+    # lit from the camera direction; axis equal hugs the surface.
+    mesh = ax.collections[-1]
+    tri = np.asarray(mesh._vec[:3]).T.reshape(-1, 3, 3)
+    mesh.remove()
+    ax.add_collection3d(Poly3DCollection(
+        tri, shade=True, facecolors="#2BB7A0", linewidths=0,
+        lightsource=LightSource(azdeg=_AZIM + 60, altdeg=_ELEV + 30)))
+    lo, hi = tri.reshape(-1, 3).min(0), tri.reshape(-1, 3).max(0)
+    ax.set_xlim(lo[0], hi[0])
+    ax.set_ylim(lo[1], hi[1])
+    ax.set_zlim(lo[2], hi[2])
+    ax.set_box_aspect(tuple(hi - lo), zoom=0.8)
+    ax.view_init(elev=_ELEV, azim=_AZIM)
+    ax.set_axis_off()
+    _savefig(fig, os.path.join(_IMG, f"Hello3_{k:02d}.png"))
     plt.close(fig)
 
-    print("\nAll assertions passed.")
-    return True
+
+def run():
+    os.makedirs(_IMG, exist_ok=True)
+
+    # The letters (MATLAB 1-based ranges a:b become a-1:b).
+    A = np.zeros((15, 40))
+    A[1:9, 1:3] = 1; A[4:6, 3:5] = 1; A[1:9, 5:7] = 1; A[2:10, 9:11] = 1
+    A[2:4, 9:15] = 1; A[5:7, 9:15] = 1; A[8:10, 9:15] = 1; A[3:11, 17:19] = 1
+    A[9:11, 17:24] = 1; A[4:12, 25:27] = 1; A[10:12, 25:31] = 1
+    A[5:13, 33:35] = 1; A[5:13, 37:39] = 1; A[5:7, 35:37] = 1
+    A[11:13, 35:37] = 1
+
+    A = np.vstack([np.zeros((14, 40)), A, np.zeros((11, 40))])
+    A = np.fliplr(np.flipud(A))
+    B = np.zeros((40, 40, 40))
+    for k in range(17, 21):
+        B[k, :, :] = A
+
+    f = Chebfun3.from_equidata(B)          # chebfun3(B, 'equi')
+
+    f = f.permute([1, 3, 2])
+    _iso(f, 0.5, 1)
+
+    _iso(f, -0.1, 2)
+
 
 if __name__ == "__main__":
     run()

@@ -69,7 +69,12 @@ w
 ```
 
 ```text
-
+w =
+   chebfun column (2 smooth pieces)
+       interval       length     endpoint values
+[       0,      50]       29   2.3e-11      -43
+[      50,   5e+02]       64       -43  4.9e-15
+vertical scale =  49    Total length = 93
 ```
 
 However, the solution is actually smooth.
@@ -80,7 +85,8 @@ jump2 = wss(50+100*eps) - wss(50-100*eps)
 ```
 
 ```text
-
+jump2 =
+    -5.317025080636695e-09
 ```
 
 ---

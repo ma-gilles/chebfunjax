@@ -76,7 +76,7 @@ def run():
     plt.close(fig)
 
     print("lamabs =")
-    for v in lam10[:14]:
+    for v in lam10:
         print(f"   {v:.15f}")
 
     # Eigenfunctions of the c = 4 pi kernel
@@ -108,7 +108,6 @@ def run():
     for ax, (n_, c_) in zip(axes, ((10, 200), (50, 200))):
         x_grid, P, _ = pswf(n_, c_)
         ax.plot(np.asarray(x_grid), np.asarray(P).ravel(), lw=1)
-        ax.set_title(f"pswf({n_}, {c_})", fontsize=11)
         ax.grid(True)
     fig.set_facecolor("white")
     fig.tight_layout()

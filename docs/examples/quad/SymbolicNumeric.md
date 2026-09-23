@@ -88,8 +88,6 @@ gi =
        interval       length     endpoint values
 [      -1,       1]       26   5.8e-17     0.49
 vertical scale = 0.49
-ans =
-   0.490519781481421
 ```
 
 ![SymbolicNumeric figure 02](../../images/quad/SymbolicNumeric_02.png)

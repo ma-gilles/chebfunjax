@@ -44,7 +44,7 @@ def plotframe(x, y, z, title):
     x_stars = 15 * rs.rand(250) - 8
     y_stars = 11 * rs.rand(250) - 3.5
 
-    fig, ax = plt.subplots(figsize=(7.6, 5.4))
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
     ax.set_facecolor("k")
     ax.fill(20 * np.array([-1, 1, 1, -1, -1]),
             20 * np.array([-1, -1, 1, 1, -1]), "k")
@@ -87,21 +87,12 @@ def run():
         tt = np.float64(t)
         return (complex(x(tt)), complex(y(tt)), complex(z(tt)))
 
-    for t in (50, 86, tmax):
-        xx, yy, zz = at(t)
-        plotframe(xx, yy, zz, f"t = {t}")
+    for t in (50, 86):
+        plotframe(*at(t), f"t = {t}")
 
-    # The invariants: equal masses released from rest, so the centre of
-    # mass cannot move and the total momentum stays zero.
-    for t in (0, 50, 86, tmax):
-        xx, yy, zz = at(t)
-        print(f"t = {t:3d}:  x = {xx:>19.6f}  y = {yy:>19.6f}  "
-              f"z = {zz:>19.6f}")
-    c0 = sum(at(0)) / 3.0
-    c1 = sum(at(tmax)) / 3.0
-    print(f"centre of mass at t=0   : {c0:.12f}")
-    print(f"centre of mass at t={tmax}: {c1:.12f}")
-    print(f"drift                   : {abs(c1 - c0):.3e}")
+    # The animation loop over 0:dt:tmax ends on the t = 100 frame.
+    t = tmax
+    plotframe(*at(t), f"t = {t:3.0f}")
 
 
 if __name__ == "__main__":

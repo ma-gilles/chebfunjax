@@ -44,45 +44,39 @@ def run():
     os.makedirs(_IMG, exist_ok=True)
 
     fig, axes = plt.subplots(2, 1, figsize=(8.8, 5.6))
-    L1 = _panel(axes[0], chebpts(10),
-                lambda L: f"10 Chebyshev points    Lambda = {L:3.2f}")
-    L2 = _panel(axes[1], np.linspace(-1, 1, 10),
-                lambda L: f"10 equispaced points    Lambda = {L:4.2f}")
+    _panel(axes[0], chebpts(10),
+           lambda L: f"10 Chebyshev points    Lambda = {L:3.2f}")
+    _panel(axes[1], np.linspace(-1, 1, 10),
+           lambda L: f"10 equispaced points    Lambda = {L:4.2f}")
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, "LebesgueConst_01.png"), size=(610, 276))
     plt.close(fig)
-    print(f"cheb10 Lambda = {L1:.6f}")
-    print(f"equi10 Lambda = {L2:.6f}")
 
     fig, axes = plt.subplots(2, 1, figsize=(8.8, 5.6))
-    L3 = _panel(axes[0], chebpts(40),
-                lambda L: f"40 Chebyshev points    Lambda = {L:3.2f}",
-                log=True)
-    L4 = _panel(axes[1], np.linspace(-1, 1, 40),
-                lambda L: f"40 equispaced points    Lambda = {L:5.2e}",
-                log=True)
+    _panel(axes[0], chebpts(40),
+           lambda L: f"40 Chebyshev points    Lambda = {L:3.2f}",
+           log=True)
+    _panel(axes[1], np.linspace(-1, 1, 40),
+           lambda L: f"40 equispaced points    Lambda = {L:5.2e}",
+           log=True)
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, "LebesgueConst_02.png"), size=(610, 276))
     plt.close(fig)
-    print(f"cheb40 Lambda = {L3:.6f}")
-    print(f"equi40 Lambda = {L4:.6e}")
 
     rs = np.random.RandomState(5489)   # MATLAB rng(0) == MT default init 5489
     fig, axes = plt.subplots(2, 1, figsize=(8.8, 5.6))
-    L5 = _panel(axes[0], 2 * rs.random_sample(10) - 1,
-                lambda L: f"10 random points    Lambda = {L:5.2e}",
-                log=True)
-    L6 = _panel(axes[1], 2 * rs.random_sample(30) - 1,
-                lambda L: f"30 random points    Lambda = {L:5.2e}",
-                log=True)
+    _panel(axes[0], 2 * rs.random_sample(10) - 1,
+           lambda L: f"10 random points    Lambda = {L:5.2e}",
+           log=True)
+    _panel(axes[1], 2 * rs.random_sample(30) - 1,
+           lambda L: f"30 random points    Lambda = {L:5.2e}",
+           log=True)
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, "LebesgueConst_03.png"), size=(610, 276))
     plt.close(fig)
-    print(f"rand10 Lambda = {L5:.6e}")
-    print(f"rand30 Lambda = {L6:.6e}")
 
 
 if __name__ == "__main__":

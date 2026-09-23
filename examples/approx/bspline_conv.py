@@ -59,8 +59,6 @@ def run():
         pts = np.concatenate([pts - 0.5, [np.max(pts) + 0.5]])
         _plot(B, np.sort(pts), f"B-spline of order {n}",
               f"BSplineConv_{n+1:02d}.png")
-        print(f"order {n}: support [{float(B.domain.a):g}, "
-              f"{float(B.domain.b):g}], sum = {float(B.sum()):.15f}")
 
 
 if __name__ == "__main__":

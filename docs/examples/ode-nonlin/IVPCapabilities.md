@@ -34,7 +34,7 @@ tic, u = N\0; toc
 ```
 
 ```text
-Elapsed time is 149.680590 seconds.
+Elapsed time is 166.651309 seconds.
 ```
 
 The output from an IVP solution is, of course, a chebfun:
@@ -120,7 +120,7 @@ cheboppref.setDefaults('factory');
 ```
 
 ```text
-Elapsed time is 25.458930 seconds.
+Elapsed time is 28.381862 seconds.
 ```
 
 ![IVPCapabilities figure 04](../../images/ode-nonlin/IVPCapabilities_04.png)

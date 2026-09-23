@@ -138,7 +138,10 @@ belief = bayes(scores);
 
 ```text
 scores =
-  0.850000000000000  0.970000000000000  0.920000000000000  0.960000000000000
+  Columns 1 through 3
+   0.850000000000000   0.970000000000000   0.920000000000000
+  Column 4
+   0.960000000000000
 Method          m-3    m-2    m-1      m
 ------------------------------------------------
 Traditional    0.850  0.910  0.913  0.925
@@ -178,7 +181,10 @@ belief = bayes(scores);
 
 ```text
 scores =
-  0.720000000000000  0.970000000000000  0.920000000000000  0.960000000000000
+  Columns 1 through 3
+   0.720000000000000   0.970000000000000   0.920000000000000
+  Column 4
+   0.960000000000000
 ```
 
 The Bayes method suggests that a small adjustment might be justified. The first score, by itself, isn't all that unlikely from someone of considerably higher ability. Interestingly, the standard deviation suggests we have just as much confidence in this case as with the more reliable good student.

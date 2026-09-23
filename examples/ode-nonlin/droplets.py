@@ -97,7 +97,7 @@ def run():
 
     print(f"Elapsed time is {time.time() - t_start:.6f} seconds.")
     print("ans =")
-    print(f"   {len(R):5d}{len(U):6d}{len(Psi):6d}")
+    print("".join(f"{n:6d}" for n in (len(R), len(U), len(Psi))))
 
     # The drop volume, from the shape at the contact line.
     vol = np.pi * b * (2 * np.sin(Psib) - b * float(U(np.float64(1.0))))
@@ -116,15 +116,9 @@ def run():
     N.init = [bg * t, bg * (-2 + (t * Psib).cos()), t * Psib,
               2 * bg + 0 * t, bg + 0 * t]
     R, U, Psi, ell, bb = N.solve(0.0)
-    b_val = float(bb(np.float64(0.0)))
     _draw(R, U, "prescribed volume",
           (np.floor(np.asarray(R(np.linspace(-1, 1, 3000))).min()),
            np.ceil(np.asarray(R(np.linspace(-1, 1, 3000))).max())))
-
-    got = np.pi * b_val * (2 * np.sin(Psib)
-                           - b_val * float(U(np.float64(1.0))))
-    print(f"contact radius b = {b_val:.12f}")
-    print(f"recovered volume = {got:.12f}   (prescribed {v0})")
 
 
 if __name__ == "__main__":

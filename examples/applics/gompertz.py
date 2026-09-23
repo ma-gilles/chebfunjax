@@ -16,13 +16,15 @@ import os
 import sys
 import warnings
 
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
+from chebfunjax import chebfun
 from chebfunjax.operators.chebop import Chebop
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
@@ -32,6 +34,7 @@ _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'applics')
 
 def _save(fig, k):
     fig.set_facecolor("white")
+    fig.set_size_inches(6.0, 2.7)
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, f"Gompertz_{k:02d}.png"))
     plt.close(fig)
@@ -72,10 +75,11 @@ def run():
     _save(fig, 2)
 
     # Per-capita growth rates of the two limited models.
-    Ps = np.linspace(0.2, 6, 400)
     fig, ax = plt.subplots(figsize=(8.0, 4.6))
-    ax.plot(Ps, 0.5 * (6 - Ps) / 5.8, lw=1.6)
-    ax.plot(Ps, 0.5 * np.log(6 / Ps) / np.log(6 / 0.2), lw=1.6)
+    matlab_plot(chebfun(lambda P: 0.5 * (6 - P) / 5.8, domain=[0.2, 6]),
+                ax=ax)
+    matlab_plot(chebfun(lambda P: 0.5 * jnp.log(6 / P) / np.log(6 / 0.2),
+                        domain=[0.2, 6]), ax=ax)
     ax.set_xlabel("P")
     ax.set_ylabel("P'/P")
     ax.grid(True)
@@ -98,17 +102,6 @@ def run():
     ax.legend()
     ax.grid(True)
     _save(fig, 4)
-
-    for name, sol, ref in [
-        ("exponential P(25)", expo, 0.2 * np.exp(0.5 * 25)),
-        ("logistic P(25)", logi, None),
-        ("Gompertz P(25)", gomp, None),
-    ]:
-        v = float(sol(np.array([25.0]))[0])
-        line = f"{name} = {v:.12g}"
-        if ref is not None:
-            line += f"  (exact {ref:.12g})"
-        print(line)
 
 
 if __name__ == "__main__":

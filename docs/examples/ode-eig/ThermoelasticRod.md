@@ -35,10 +35,11 @@ diag(Ls)
 
 ```text
 ans =
-  -1.234915472724549  (x 1e2)
-  -0.626486098335068  (x 1e2)
-  -0.251462532662628  (x 1e2)
-  -0.001601435706437  (x 1e2)
+   1.0e+02 *
+  -1.234915472724549
+  -0.626486098335068
+  -0.251462532662628
+  -0.001601435706437
 ```
 
 Here is what happens in a slightly unstable case:
@@ -52,10 +53,11 @@ diag(Lu)
 
 ```text
 ans =
-  -1.235278901225335  (x 1e2)
-  -0.625884455972551  (x 1e2)
-  -0.252000055361275  (x 1e2)
-  0.000799646107565  (x 1e2)
+   1.0e+02 *
+  -1.235278901225335
+  -0.625884455972551
+  -0.252000055361275
+   0.000799646107565
 ```
 
 Here we see the perturbation which is least stable in the first case, or unstable in the second case.
@@ -89,7 +91,10 @@ stability = chebfun(maxlam,[0.5,2],'eps',1e-11,'vectorize')
 
 ```text
 stability =
-<Chebfun [0.5, 2.0], length 11>
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[     0.5,       2]       11        -2      3.9
+vertical scale = 3.9
 ```
 
 Finally, the transition in stability occurs when the eigenvalue passes through zero.

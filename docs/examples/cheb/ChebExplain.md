@@ -106,9 +106,13 @@ f = chebfun('exp(x) + 1e-8*cos(99999*x)','eps',1e-8)
 f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
+[      -1,       1]    65537      0.37      2.7
+vertical scale = 2.7
+f =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
 [      -1,       1]       10      0.37      2.7
 vertical scale = 2.7
-explain('exp(x) + 1e-8*cos(99999*x)', 1e-08): len 10
 ```
 
 Here we use `explain` with a second tolerance parameter to see how the length was determined:

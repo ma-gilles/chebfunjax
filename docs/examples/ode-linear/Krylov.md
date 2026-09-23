@@ -35,6 +35,7 @@ error = norm( x_cg - x_exact )
 ```
 
 ```text
+pcg converged at iteration 50 to a solution with relative residual 1.3e-13.
 error =
      2.854238962252348e-14
 ```
@@ -84,10 +85,8 @@ tic, u_cg = pcg(L, f); toc
 ```
 
 ```text
-Elapsed time is 457.756860 seconds.
-Elapsed time is 188.483059 seconds.
-cg-vs-colloc =
-     5.228e-06
+Elapsed time is 453.751593 seconds.
+Elapsed time is 192.784355 seconds.
 ```
 
 ## Operator CG for self-adjoint differential operators with +ve eigenvalues
@@ -125,12 +124,12 @@ eigs( L )
 
 ```text
 ans =
-  -77.793390
-  -60.521582
-  -38.314972
-  -11.173560
-   20.902654
-   57.913670
+ -77.793390097548510
+ -60.521582395643058
+ -38.314972493190041
+ -11.173560390193407
+  20.902653913346931
+  57.913670417433053
 ```
 
 The following code calls the operator MINRES method to solve
@@ -153,7 +152,7 @@ set(gca, 'fontsize', 16)
 
 ```text
 error =
-     1.564178284399422e-03
+     1.105295660185468e-03
 ```
 
 ![Krylov figure 01](../../images/ode-linear/Krylov_01.png)
@@ -173,7 +172,7 @@ error = norm( u_colloc - u_gmres )
 
 ```text
 error =
-     2.457462039347712e-14
+     1.469740224607657e-12
 ```
 
 ## Operator preconditioning
@@ -211,9 +210,14 @@ u_minres =
        interval       length     endpoint values
 [      -1,       1]      137  -9.4e-16 -3.6e-16
 vertical scale =   1
-flag = 0   iter = 558
+flag =
+     0
+relres =
+     8.684357357266332e-14
+iter =
+   558
 error =
-     1.214e-11
+     1.213894572721258e-11
 ```
 
 ![Krylov figure 02](../../images/ode-linear/Krylov_02.png)
@@ -250,7 +254,7 @@ set(gca, 'fontsize', 16)
 
 ```text
 relative_residual =
-     4.934021306850214e-02
+     inf
 ```
 
 ![Krylov figure 03](../../images/ode-linear/Krylov_03.png)

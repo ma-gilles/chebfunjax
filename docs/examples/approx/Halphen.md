@@ -31,8 +31,6 @@ halphen_const = 9.289025491920818918755449435951
 ```text
 halphen_const =
    9.289025491920819
-h =
-   9.2890254919208
 ```
 
 This result comes from a sequence of contributions between 1969 and 2002 by, among others, Cody, Meinardus and Varga; Newman; Trefethen and Gutknecht; Carpenter, Ruttan and Varga; Magnus; Gonchar and Rakhmanov; and Aptekarev. For a discussion, see Chapter 25 of [5].

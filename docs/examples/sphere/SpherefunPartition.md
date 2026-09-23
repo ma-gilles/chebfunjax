@@ -15,10 +15,10 @@ contour(f, 'color','k'),
 ```
 
 ```text
-f rank: 23
-fep rank: 12
-foa rank: 11
-err =
+f =
+   spherefun object
+       domain        rank    vertical scale
+     unit sphere      23          1.6
 ```
 
 ![SpherefunPartition figure 01](../../images/sphere/SpherefunPartition_01.png)
@@ -36,9 +36,14 @@ title('odd/anti-periodic part'), axis off, axis off, hold off
 ```
 
 ```text
-f rank: 23
-fep rank: 12
-foa rank: 11
+fep =
+   spherefun object
+       domain        rank    vertical scale
+     unit sphere      12          1.2
+foa =
+   spherefun object
+       domain        rank    vertical scale
+     unit sphere      11          0.94
 err =
      0
 ```

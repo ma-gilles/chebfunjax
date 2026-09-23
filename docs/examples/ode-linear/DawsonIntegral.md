@@ -28,7 +28,7 @@ plot(f), axis([-W W -H H]), hold on, grid on
 ```
 
 ```text
-Elapsed time is 9.670916 seconds.
+Elapsed time is 9.529283 seconds.
 ```
 
 ![DawsonIntegral figure 01](../../images/ode-linear/DawsonIntegral_01.png)
@@ -98,7 +98,7 @@ toc
 ```
 
 ```text
-Elapsed time is 0.042971 seconds.
+Elapsed time is 0.040412 seconds.
 ```
 
 If you have the Symbolic Toolbox...

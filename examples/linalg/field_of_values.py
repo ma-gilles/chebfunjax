@@ -16,16 +16,17 @@ Copyright by The University of Oxford and The Chebfun Developers.
 import matplotlib
 
 matplotlib.use("Agg")
+import inspect
 import os
 import sys
 
-import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
+import chebfunjax.chebfun1d.fov as fov_module
+from chebfunjax.chebfun1d.fov import fov
 from chebfunjax.plotting import chebfun_style
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
@@ -36,23 +37,9 @@ _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'linalg')
 FIG = [0]
 
 
-def _fov_point(A, theta_arr):
-    theta_arr = np.atleast_1d(np.asarray(theta_arr, dtype=float))
-    out = np.empty(theta_arr.shape, dtype=complex)
-    for i, th in enumerate(theta_arr.ravel()):
-        r = np.exp(1j * th)
-        H = (r * A + np.conj(r) * A.conj().T) / 2
-        w, V = np.linalg.eigh(H)
-        v = V[:, -1]
-        out.ravel()[i] = (v.conj() @ A @ v) / (v.conj() @ v)
-    return out.reshape(theta_arr.shape)
-
-
-def _fov_chebfun(A, splitting=False):
-    op = lambda t: jnp.asarray(_fov_point(A, np.asarray(t)))  # noqa: E731
-    f = cj.chebfun(op, domain=(0.0, 2 * np.pi),
-                   splitting=splitting)
-    return f.merge() if splitting else f
+def _num(v):
+    """MATLAB format-long display of a real scalar."""
+    return f"{int(v):6d}" if float(v) == int(v) else f"   {v:.15f}"
 
 
 def _save(fig, close=True):
@@ -92,7 +79,7 @@ def run():
 
     rs = np.random.RandomState(1)
     A = rs.randn(20, 20)
-    FA = _fov_chebfun(A)
+    FA = fov(A)
     eigsA = np.linalg.eigvals(A)
     fig, ax = _plot_fov(FA, eigsA)
     _save(fig, close=False)
@@ -102,7 +89,7 @@ def run():
     print("alpha =")
     print(f"   {float(alpha):.15f}")
     print("maxtheta =")
-    print(f"     {float(maxtheta):.6g}")
+    print(_num(float(maxtheta)))
     zmax = complex(np.asarray(FA(float(maxtheta))))
     ax.plot(zmax.real, zmax.imag, '.r', ms=18)
     _save(fig)
@@ -112,7 +99,7 @@ def run():
     print(f"   {alpha2:.15f}")
 
     B = np.diag(eigsA)
-    FB = _fov_chebfun(B, splitting=True)
+    FB = fov(B)
     fig, ax = _plot_fov(FB, eigsA)
     reB = FB.real()
     mth, _ = reB.max()
@@ -120,7 +107,7 @@ def run():
     ax.plot(zb.real, zb.imag, '.r', ms=18)
     _save(fig)
     print("FB =")
-    print(repr(FB)[:800])
+    print(repr(FB))
 
     C = np.array([[0, 3, 0, 0],
                   [-3, 0, 0, 0],
@@ -128,11 +115,13 @@ def run():
                   [0, 0, 1, 1]], dtype=float)
     print("C =")
     for row in C:
-        print("  " + "".join(f"{int(v):6d}" for v in row))
-    FC = _fov_chebfun(C, splitting=True)
+        print("".join(f"{int(v):6d}" for v in row))
+    FC = fov(C)
     eigsC = np.linalg.eigvals(C)
     fig, ax = _plot_fov(FC, eigsC, axis_lim=[-4, 4, -4, 4])
     _save(fig)
+
+    print(inspect.getsource(fov_module))
 
 
 if __name__ == "__main__":

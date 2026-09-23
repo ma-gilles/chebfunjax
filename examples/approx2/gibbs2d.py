@@ -31,9 +31,9 @@ _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'approx2')
 FIG = [0]
 
 
-def _surf(fn, zlim=(-.2, 1.5), n=240):
+def _surf(fn, zlim=(-.2, 1.5), n=240, dom=(-1, 1)):
     FIG[0] += 1
-    g = np.linspace(-1, 1, n)
+    g = np.linspace(dom[0], dom[1], n)
     X, Y = np.meshgrid(g, g)
     Z = fn(X, Y)
     fig, ax = plt.subplots(figsize=(7.2, 5.4),
@@ -66,41 +66,6 @@ def _contour(fn, n=400):
     plt.close(fig)
 
 
-def _trig_interp2(A):
-    """2D trig interpolant of uniform-grid values on [-1, 1)."""
-    n = A.shape[0]
-    C = np.fft.fft2(A) / A.size
-    k = np.fft.fftfreq(n, d=1.0 / n)
-
-    def ev(x, y):
-        Ex = np.exp(1j * np.pi * np.outer(np.asarray(x).ravel() + 1, k))
-        Ey = np.exp(1j * np.pi * np.outer(np.asarray(y).ravel() + 1, k))
-        return np.real(np.einsum("pk,kl,pl->p", Ey, C, Ex)
-                       ).reshape(np.shape(x))
-    return ev
-
-
-def _extreme(fn, kind, n=1600):
-    from scipy.optimize import minimize
-    g = np.linspace(-1, 1, n)
-    X, Y = np.meshgrid(g, g)
-    Z = fn(X, Y)
-    if kind == "max":
-        i = np.unravel_index(np.argmax(Z), Z.shape)
-    else:
-        i = np.unravel_index(np.argmin(Z), Z.shape)
-    sgn = -1.0 if kind == "max" else 1.0
-
-    def obj(v):
-        z = fn(np.array([[v[0]]]), np.array([[v[1]]]))
-        return sgn * float(np.ravel(z)[0])
-
-    res = minimize(obj, [X[i], Y[i]], method="Nelder-Mead",
-                   options={"xatol": 1e-13, "fatol": 1e-14,
-                            "maxiter": 4000})
-    return sgn * float(res.fun)
-
-
 def run():
     os.makedirs(_IMG, exist_ok=True)
     warnings.filterwarnings("ignore")
@@ -123,37 +88,29 @@ def run():
     print(f"   {float(m1):.15f}")
 
     # Zoom near a corner of the block (MATLAB plot(p{0,.5,0,.5})).
-    FIG[0] += 1
-    gz = np.linspace(0, .5, 240)
-    XZ, YZ = np.meshgrid(gz, gz)
-    ZZ = np.asarray(p(XZ, YZ))
-    fig, ax = plt.subplots(figsize=(7.2, 5.4),
-                           subplot_kw={"projection": "3d"})
-    ax.plot_surface(XZ, YZ, ZZ, cmap="viridis", rstride=1, cstride=1,
-                    linewidth=0)
-    ax.view_init(50, -20)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, f"Gibbs2D_{FIG[0]:02d}.png"))
-    plt.close(fig)
+    pzoom = p.restrict((0, .5, 0, .5))
+    _surf(lambda X, Y: np.asarray(pzoom(X, Y)), dom=(0, .5))
 
     mn, _ = p.min2()
     print("ans =")
     print(f"  {float(mn):.15f}")
 
     # Periodic interpolant of the same data.
-    t = _trig_interp2(A)
-    _surf(t)
-    _contour(t)
+    t = Chebfun2.from_values(A, trig=True)
+    _surf(lambda X, Y: np.asarray(t(X, Y)))
+    _contour(lambda X, Y: np.asarray(t(X, Y)))
+    mt, _ = t.max2()
+    mnt, _ = t.min2()
     print("ans =")
-    print(f"   {_extreme(t, 'max'):.15f}")
+    print(f"   {float(mt):.15f}")
     print("ans =")
-    print(f"  {_extreme(t, 'min'):.15f}")
+    print(f"  {float(mnt):.15f}")
 
     # Triangular block: same Gibbs, full matrix rank.
     A2 = np.tril(A)
     p2 = Chebfun2.from_values(A2)
-    _surf(lambda X, Y: np.asarray(p2(X, Y)))
+    p2z = p2.restrict((-.5, .5, -.5, .5))
+    _surf(lambda X, Y: np.asarray(p2z(X, Y)), dom=(-.5, .5))
     m2b, _ = p2.max2()
     mnb, _ = p2.min2()
     print("ans =")
@@ -163,12 +120,9 @@ def run():
     _contour(lambda X, Y: np.asarray(p2(X, Y)))
 
     # Ranks: block data is rank 1; triangular block is full rank.
-    print("ans =")
-    print(f"     {p.rank}")
-    print("ans =")
-    print(f"     {p2.rank}")
-    print("ans =")
-    print(f"    {np.linalg.matrix_rank(A2)}")
+    for r in (p.rank, t.rank, p2.rank, np.linalg.matrix_rank(A2)):
+        print("ans =")
+        print(f"{r:6d}")
     # spy(A2), axis([36 65 36 65])
     FIG[0] += 1
     fig, ax = plt.subplots(figsize=(6.0, 5.6))

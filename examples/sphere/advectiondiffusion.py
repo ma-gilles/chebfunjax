@@ -18,7 +18,6 @@ import matplotlib
 matplotlib.use("Agg")
 import os
 import sys
-import time
 import warnings
 
 import jax.numpy as jnp
@@ -34,6 +33,7 @@ from chebfunjax.ballfun.ballfun import Ballfun
 from chebfunjax.ballfun.ballfunv import Ballfunv
 from chebfunjax.plotting import PARULA, chebfun_style, plot_ball_slices, quiver_ball
 from chebfunjax.plotting import save_chebfun_figure as _savefig
+from chebfunjax.spherefun.spherefunv import Spherefunv
 from chebfunjax.utils.quadrature import chebpts
 
 chebfun_style()
@@ -151,20 +151,13 @@ def run():
     print("ans =")
     print(f"     {float(v.div().norm()):.15e}")
 
-    # No-slip: v . n on the boundary r = 1.
-    lam = np.linspace(-np.pi, np.pi, 181)
-    th = np.linspace(0, np.pi, 91)
-    L, T = np.meshgrid(lam, th)
-    x = np.cos(L) * np.sin(T)
-    y = np.sin(L) * np.sin(T)
-    z = np.cos(T)
-    r1 = np.ones_like(L)
+    # vn = dot(v(1,:,:,'spherical'), spherefunv.unormal); norm(vn)
     vx, vy, vz = v.components
-    vn = (np.asarray(vx(r1, L, T)) * x
-          + np.asarray(vy(r1, L, T)) * y
-          + np.asarray(vz(r1, L, T)) * z)
+    vs = Spherefunv(vx.to_spherefun(1.0), vy.to_spherefun(1.0),
+                    vz.to_spherefun(1.0))
+    vn = vs.dot(Spherefunv.unormal())
     print("ans =")
-    print(f"     {np.max(np.abs(vn)):.15e}")
+    print(f"     {float(vn.norm()):.15e}")
 
     # Initial condition and its visualization.
     c = Ballfun.from_function(
@@ -188,12 +181,9 @@ def run():
     dt = 0.1
     K = 1j * np.sqrt(1 / (dt * D))
     nsteps = int(np.ceil(15 / dt))
-    t0 = time.time()
     for n in range(nsteps + 1):
         if n % 50 == 0:
             _slice_plot(c, f"Time {n * dt:g}")
-            print(f"t={n * dt:g} plotted ({time.time()-t0:.0f}s)",
-                  flush=True)
         gx, gy, gz = c.grad()
         rhs = K**2 * c + v.dot(Ballfunv(gx, gy, gz)) * (1 / D)
         # Per-step simplification chops the roundoff-seeded parasitic
@@ -202,7 +192,6 @@ def run():
         # pipeline simplifies adaptively and is stable the same way.
         c = Ballfun.helmholtz(rhs, K, lambda lam_, th_: 0.0, 100,
                               bc_type="neumann").simplify()
-    print(f"done ({time.time()-t0:.0f}s)")
 
 
 if __name__ == "__main__":

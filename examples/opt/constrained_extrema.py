@@ -11,6 +11,7 @@ Copyright by The University of Oxford and The Chebfun Developers.
 import matplotlib
 
 matplotlib.use("Agg")
+import math
 import os
 import sys
 import warnings
@@ -22,7 +23,10 @@ import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
+from chebfunjax.chebfun3d.chebfun3 import chebfun3
+from chebfunjax.plotting import chebfun_style, contour, surf
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 from chebfunjax.utils.gallery2 import gallery2
 
@@ -35,97 +39,140 @@ FIG = [0]
 
 def _save(fig):
     FIG[0] += 1
-    fig.set_facecolor("white")
-    fig.tight_layout()
     _savefig(fig, os.path.join(
-        _IMG, f"ConstrainedExtrema_{FIG[0]:02d}.png"))
+        _IMG, f"ConstrainedExtrema_{FIG[0]:02d}.png"), size=(600, 268))
     plt.close(fig)
+
+
+# --- MATLAB 'format long' display -------------------------------------
+
+def _disp(name, M):
+    """MATLAB format-long display of a real scalar/vector/matrix."""
+    M = np.atleast_2d(np.asarray(M, dtype=float))
+    print(f"{name} =")
+    if np.all(M == np.round(M)):
+        for row in M:
+            print("".join(f"{int(v):6d}" for v in row))
+        return
+    if M.size == 1 and not 1e-3 <= abs(M[0, 0]) < 100:
+        print(f"{M[0, 0]:26.15e}")
+        return
+    big = float(np.max(np.abs(M)))
+    if big < 1e-3:
+        e = math.floor(math.log10(big)) + 1
+        print(f"   1.0e{e:+03d} *")
+        M = M / 10.0**e
+    for row in M:
+        print("".join(f"{'0':>20}" if v == 0 else f"{v:20.15f}" for v in row))
+
+
+def _col(v):
+    return np.asarray(v, dtype=float).reshape(-1, 1)
 
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
     warnings.filterwarnings("ignore")
 
-    # extrema of x^2 - y^2 on the unit circle
+    # Extrema of x^2 - y^2 on the unit circle
+    f = cj.chebfun(lambda t: jnp.stack([jnp.cos(t), jnp.sin(t)], -1),
+                   domain=(0.0, 2 * np.pi))
     g = cj.chebfun2(lambda x, y: x**2 - y**2)
-    h = cj.chebfun(lambda t: jnp.asarray(
-        g(jnp.cos(t), jnp.sin(t))), domain=(0.0, 2 * np.pi))
-    poss, vals = h.minandmax(flag="local")
-    poss, vals = np.asarray(poss), np.asarray(vals)
-    print("Y =")
-    for v in vals:
-        print(f"   {v:.15f}")
-    print("X =")
-    for p in poss:
-        print(f"   {p:.15f}")
-    print("X (on circle) =")
-    for p in poss:
-        print(f"   {np.cos(p):>18.15f}   {np.sin(p):>18.15f}")
+    h = g(f)
+    print("h =")
+    print(repr(h))
 
-    # the SIAM 100-digit challenge function on the circle
-    gch = gallery2("challenge")
-    h2 = cj.chebfun(lambda t: jnp.asarray(
-        gch(jnp.cos(t), jnp.sin(t))), domain=(0.0, 2 * np.pi))
-    pmin, vmin = h2.min()
-    pmax, vmax = h2.max()
-    print("Y =")
-    print(f"  {float(vmin):.15f}")
-    print(f"   {float(vmax):.15f}")
-    print("Xh =")
-    print(f"   {float(pmin):.15f}")
-    print(f"   {float(pmax):.15f}")
-    print("X =")
-    for p in (float(pmin), float(pmax)):
-        print(f"   {np.cos(p):>18.15f}   {np.sin(p):>18.15f}")
+    X, Y = h.minandmax(flag="local")
+    _disp("Y", _col(Y))
+    _disp("X", _col(X))
 
-    xs = np.linspace(-1, 1, 240)
-    X, Y = np.meshgrid(xs, xs)
-    fig, ax = plt.subplots(figsize=(8.0, 6.8))
-    Z = np.asarray(gch(jnp.asarray(X), jnp.asarray(Y)))
-    ax.contourf(X, Y, Z, 4)
-    th = np.linspace(0, 2 * np.pi, 400)
-    ax.plot(np.cos(th), np.sin(th), 'k-', lw=3)
-    for p, lab in ((float(pmin), "min"), (float(pmax), "max")):
-        ax.plot(np.cos(p), np.sin(p), 'ko', ms=9)
-        ax.text(np.cos(p), np.sin(p), "  " + lab, color='w',
-                fontweight='bold', fontsize=16)
+    X = f(jnp.asarray(X))
+    _disp("X", X)
+
+    # The SIAM 100-digit challenge function on the circle
+    g = gallery2("challenge")
+    h = g(f)
+    (xmin, ymin), (xmax, ymax) = h.minandmax()
+    Y = _col([ymin, ymax])
+    Xh = _col([xmin, xmax])
+    _disp("Y", Y)
+    _disp("Xh", Xh)
+
+    X = np.asarray(f(jnp.asarray(Xh[:, 0])))
+    _disp("X", X)
+
+    fig, ax = contour(g, levels=4, filled=True, line_color="k")
+    th = np.linspace(0, 2 * np.pi, 1000)
+    ax.plot(np.cos(th), np.sin(th), "k-", lw=2)
+    ax.plot(X[:, 0], X[:, 1], "ko", mfc="k", ms=4)
+    for (px, py), lab in zip(X, ("min", "max")):
+        ax.text(px, py, "  " + lab, color="w", fontweight="bold",
+                fontsize=12, va="center")
     ax.set_aspect("equal")
     _save(fig)
 
-    ts = np.linspace(0, 2 * np.pi, 700)
-    fig, ax = plt.subplots(figsize=(9.0, 4.6))
-    ax.plot(ts, np.asarray(h2(ts)), lw=1.4)
-    ax.plot([float(pmin), float(pmax)],
-            [float(vmin), float(vmax)], 'ko', mfc='k')
-    ax.grid(True)
+    fig, ax = plt.subplots()
+    tt = np.linspace(0, 2 * np.pi, 8000)
+    ax.plot(tt, np.asarray(h(jnp.asarray(tt))), lw=0.8)
+    ax.plot(Xh[:, 0], Y[:, 0], "ko", mfc="k", ms=4)
     _save(fig)
 
-    # extrema of x+y+z on the surface (x, y, x^3+y^2)
-    hsurf = cj.chebfun2(lambda x, y: x + y + (x**3 + y**2))
-    (vmin2, vmax2), locs = hsurf.minandmax2()
-    print("Y =")
-    print(f"  {float(vmin2):.15f}   {float(vmax2):.15f}")
-    print("X =")
-    for k in range(2):
-        xk, yk = float(locs[k][0]), float(locs[k][1])
-        print(f"  {xk:>18.15f} {yk:>18.15f} "
-              f"{xk**3 + yk**2:>18.15f}")
+    # Extrema of x + y + z on the surface z = x^3 + y^2
+    g = chebfun3(lambda x, y, z: x + y + z, domain=(-2, 2, -2, 2, -2, 2))
 
-    # extrema of x^3 + cos(5x) - y^2 on a rotated square
-    def fmap(x, y):
-        return x - y, x + y
+    f = Chebfun2v.from_functions(lambda x, y: x, lambda x, y: y,
+                                 lambda x, y: x**3 + y**2)
+    # @chebfun2v/surf.m is surf(f(:,1), f(:,2), f(:,3))
+    fig, ax = surf(*[Chebfun2(approx=c) for c in f.components])
+    _save(fig)
 
-    gsq = cj.chebfun2(
-        lambda x, y: (x - y)**3 + jnp.cos(5 * (x - y))
-        - (x + y)**2, domain=(-0.5, 0.5, -0.5, 0.5))
-    (vmin3, vmax3), locs3 = gsq.minandmax2()
-    print("Y =")
-    print(f"  {float(vmin3):.15f}   {float(vmax3):.15f}")
-    print("Xmin/Xmax (in x-y coords) =")
-    for k in range(2):
-        u, v = float(locs3[k][0]), float(locs3[k][1])
-        a, b = fmap(u, v)
-        print(f"  {a:>18.15f} {b:>18.15f}")
+    # h = g(f): chebfun3 composed with a 3-component chebfun2v
+    h = Chebfun2.from_function(lambda x, y: g(*[f(x, y)[..., k]
+                                                for k in range(3)]),
+                               domain=f.domain)
+    (Ymin, Ymax), X = h.minandmax2()
+    X = np.asarray(X, dtype=float)
+    _disp("Y", [[Ymin, Ymax]])
+    _disp("X", X)
+
+    Xmin = np.asarray(f(X[0, 0], X[0, 1]))
+    Xmax = np.asarray(f(X[1, 0], X[1, 1]))
+    _disp("Xmin", _col(Xmin))
+    _disp("Xmax", _col(Xmax))
+
+    _disp("ans", g(Xmin[0], Xmin[1], Xmin[2]))
+    _disp("ans", g(Xmax[0], Xmax[1], Xmax[2]))
+
+    # Extrema of x^3 + cos(5x) - y^2 on a rotated square
+    f = Chebfun2v.from_functions(lambda x, y: x - y, lambda x, y: x + y,
+                                 domain=(-1 / 2, 1 / 2, -1 / 2, 1 / 2))
+
+    t = cj.chebfun(lambda t: t)
+    bdry = (t - 1j).join(1 + 1j * t, 1j - t, -1 - 1j * t) / 2
+    # fbdry = f(bdry): the chebfun2v on the complex boundary curve
+    fbdry = cj.chebfun(
+        lambda s: f(jnp.real(bdry(s)), jnp.imag(bdry(s))),
+        domain=tuple(float(v) for v in bdry.domain.breakpoints))
+    ss = np.linspace(float(bdry.domain.a), float(bdry.domain.b), 2000)
+    vals = np.asarray(fbdry(jnp.asarray(ss)))
+    fig, ax = plt.subplots()
+    ax.plot(vals[:, 0], vals[:, 1], lw=0.8)
+    ax.axis("equal")
+    _save(fig)
+
+    g = cj.chebfun2(lambda x, y: x**3 + jnp.cos(5 * x) - y**2)
+    h = g(f)
+    fig, ax = surf(h)
+    (Ymin, Ymax), X = h.minandmax2()
+    X = np.asarray(X, dtype=float)
+    _disp("Y", [[Ymin, Ymax]])
+    _disp("X", X)
+    _save(fig)
+
+    Xmin = np.asarray(f(X[0, 0], X[0, 1]))
+    Xmax = np.asarray(f(X[1, 0], X[1, 1]))
+    _disp("Xmin", _col(Xmin))
+    _disp("Xmax", _col(Xmax))
 
 
 if __name__ == "__main__":

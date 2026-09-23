@@ -59,9 +59,9 @@ theoretical = pi/2
 
 ```text
 ratio =
-   1.688525
+   1.688524590163935
 theoretical =
-   1.570796
+   1.570796326794897
 ```
 
 Trying to construct a trigfun from a non-periodic or non-smooth function will typically result in a warning being issued and an "unhappy" trigfun, as illustrated for the unit step function below:
@@ -130,16 +130,16 @@ rootsf
 
 ```text
 maxf =
-   0.261594
+   0.261594155955765
 minf =
-  -0.500000
+  -0.500000000000000
 rootsf =
-  -3.009212
-  -2.090420
-  -1.051172
-  -0.132380
-   0.779312
-   2.362280
+  -3.009212218006481
+  -2.090420462897022
+  -1.051172190692771
+  -0.132380435583313
+   0.779312428506054
+   2.362280225083739
 ```
 
 These can be visualized as
@@ -170,7 +170,7 @@ intf = sum(f)
 
 ```text
 intf =
-  -0.074011
+  -0.074010812957416
 ```
 
 Complex-valued trigfuns are also possible. For example:
@@ -199,7 +199,7 @@ area_heart = abs(sum(real(f)*diff(imag(f))))
 
 ```text
 area_heart =
-  565.486678
+     5.654866776461624e+02
 ```
 
 According to [1], the true area enclosed is $180\pi$. The relative error in the computation above is then

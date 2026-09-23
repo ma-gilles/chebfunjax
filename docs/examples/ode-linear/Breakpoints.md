@@ -29,11 +29,11 @@ title('Boundary layers for \epsilon = 1e-1, 1e-2,..., 1e-5')
 
 ```text
         ep      pos(max(u))    length(u)    time (secs.)
-     1.0e-01    0.230263049        32          13.34
-     1.0e-02    0.046051702        57           8.97
-     1.0e-03    0.006907755       256           4.86
-     1.0e-04    0.000921035       512           5.45
-     1.0e-05    0.000115147      2048          11.48
+     1.0e-01    0.230263049        32          13.22
+     1.0e-02    0.046051702        57           8.73
+     1.0e-03    0.006907755       256           4.94
+     1.0e-04    0.000921035       512           5.52
+     1.0e-05    0.000115147      2048          11.64
 ```
 
 ![Breakpoints figure 01](../../images/ode-linear/Breakpoints_01.png)
@@ -66,14 +66,14 @@ title('The same computed with a breakpoint, \epsilon = 1e-3')
 
 ```text
         ep      pos(max(u))    length(u)    time (secs.)
-     1.0e-01    0.230263049        37           0.80
-     1.0e-02    0.046051702        45           0.98
-     1.0e-03    0.006907755        43           0.77
-     1.0e-04    0.000921034        44           0.78
-     1.0e-05    0.000115129        45           0.75
-     1.0e-06    0.000013816        43           0.75
-     1.0e-07    0.000001612        45           0.74
-     1.0e-08    0.000000184       106           0.77
+     1.0e-01    0.000115147        37           1.02
+     1.0e-02    0.230263049        45           1.07
+     1.0e-03    0.046051702        43           0.84
+     1.0e-04    0.006907755        44           0.85
+     1.0e-05    0.000921034        45           0.82
+     1.0e-06    0.000115129        43           0.83
+     1.0e-07    0.000013816        45           0.78
+     1.0e-08    0.000001612       106           0.92
 ```
 
 ![Breakpoints figure 02](../../images/ode-linear/Breakpoints_02.png)
@@ -88,9 +88,9 @@ u
 u =
    chebfun column (2 smooth pieces)
        interval       length     endpoint values
-[       0,    0.04]       41   1.1e-13     0.96
-[    0.04,       1]        2      0.96 -5.6e-17
-vertical scale = 0.99    Total length = 43
+[       0,   4e-07]       42   3.7e-08        1
+[   4e-07,       1]       64         1  3.1e-16
+vertical scale =   1    Total length = 106
 ```
 
 ## 2. Interior layer example
@@ -113,10 +113,10 @@ title('Interior layers for \epsilon = 1e-1, 1e-2,..., 1e-4')
 
 ```text
         ep      pos(max(u))    length(u)    time (secs.)
-     1.0e-01    0.456331114        64           7.35
-     1.0e-02    0.188033044       157           3.84
-     1.0e-03    0.073657588       512           2.49
-     1.0e-04    0.027481095      1397           5.48
+     1.0e-01    0.456331114        64          11.80
+     1.0e-02    0.188033044       157           4.46
+     1.0e-03    0.073657588       512           2.68
+     1.0e-04    0.027481095      1397           5.47
 ```
 
 ![Breakpoints figure 03](../../images/ode-linear/Breakpoints_03.png)
@@ -143,14 +143,14 @@ title('The same computed with two breakpoints \epsilon = 1e-4')
 
 ```text
         ep      pos(max(u))    length(u)    time (secs.)
-     1.0e-01    0.456331114        84           1.93
+     1.0e-01    0.456331114        84           1.66
      1.0e-02    0.188033044       129           0.66
-     1.0e-03    0.073657588       153           1.63
-     1.0e-04    0.027481095       187           1.91
-     1.0e-05    0.009892469       222           1.72
-     1.0e-06    0.003473237       272           1.74
-     1.0e-07    0.001198204       151           1.64
-     1.0e-08    0.000408122       213           1.66
+     1.0e-03    0.073657588       153           1.56
+     1.0e-04    0.027481095       187           1.52
+     1.0e-05    0.009892469       222           1.51
+     1.0e-06    0.003473237       272           1.52
+     1.0e-07    0.001198204       151           1.49
+     1.0e-08    0.000408122       213           1.93
 ```
 
 ![Breakpoints figure 04](../../images/ode-linear/Breakpoints_04.png)
@@ -165,10 +165,10 @@ u
 u =
    chebfun column (3 smooth pieces)
        interval       length     endpoint values
-[      -2,    -0.1]       43        -4     -0.6
-[    -0.1,     0.1]       88      -0.6       13
-[     0.1,       2]       56        13        2
-vertical scale =  14    Total length = 187
+[      -2,  -0.001]       11        -4    -0.54
+[  -0.001,   0.001]       74     -0.54       15
+[   0.001,       2]      128        15        2
+vertical scale =  15    Total length = 213
 ```
 
 ## 3. A nonlinear example
@@ -187,10 +187,8 @@ title(['Nonlinear problem: time ' num2str(t) ' secs'])
 u =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
-[       0,       1]      872      -1.2      1.5
+[       0,       1]      862      -1.2      1.5
 vertical scale = 1.5
-t =
-   31.270156
 ```
 
 ![Breakpoints figure 05](../../images/ode-linear/Breakpoints_05.png)
@@ -215,7 +213,7 @@ u =
 [    0.33,       1]      149   1.5e-14      1.5
 vertical scale = 1.5    Total length = 255
 t =
-   64.874777
+  57.403378009796143
 ```
 
 ![Breakpoints figure 06](../../images/ode-linear/Breakpoints_06.png)
@@ -243,7 +241,7 @@ u =
 [    0.36,       1]      128       0.5      1.5
 vertical scale = 1.5    Total length = 204
 t =
-   73.240461
+  71.505528211593628
 ```
 
 ![Breakpoints figure 07](../../images/ode-linear/Breakpoints_07.png)

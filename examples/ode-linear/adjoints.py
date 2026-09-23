@@ -52,7 +52,8 @@ def run():
     lhs = float((v * u.diff()).sum())
     rhs = float((Ls.op(x, v) * u).sum())
     print("ans =")
-    print(f"   {abs(lhs - rhs):.4g}")
+    r = abs(lhs - rhs)
+    print(f"   {r:.4e}" if r else "     0")
 
     # Self-adjoint: u'' + u with Dirichlet conditions
     L = Chebop(lambda x, u: u.diff(2) + u, domain=(-1, 1))
@@ -93,7 +94,8 @@ def run():
     lhs = float((v * (x * u.diff(2))).sum())
     rhs = float((Ls.op(x, v) * u).sum())
     print("ans =")
-    print(f"   {abs(lhs - rhs):.4e}")
+    r = abs(lhs - rhs)
+    print(f"   {r:.4e}" if r else "     0")
 
     # Nonnormal operator: eigenvalues and biorthogonality
     L = Chebop(lambda x, u: u.diff(2) - 20 * u.diff() + u,
@@ -118,8 +120,13 @@ def run():
         for j in range(6):
             G[i, j] = float((Vs[i] * V[j]).sum())
     print("ans =")
-    with np.printoptions(precision=4, suppress=False):
-        print(G)
+    # MATLAB format short: a common scale factor, then %10.4f entries.
+    G = np.real(np.asarray(G))
+    e = int(np.floor(np.log10(np.max(np.abs(G)))))
+    e = e + 1 if e < 0 else e
+    print(f"   1.0e{e:+03d} *")
+    for row in G / 10.0 ** e:
+        print("".join(f"{v:10.4f}" for v in row))
 
     fig, ax = plt.subplots(figsize=(9.0, 4.8))
     t = np.linspace(-1, 1, 1000)

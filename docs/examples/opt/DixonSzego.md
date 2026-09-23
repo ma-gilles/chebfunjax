@@ -42,7 +42,7 @@ plot(minx,miny,'.k',MS,20)
 minf =
   -1.031628453489877
 minx =
-  -0.089842014349932
+  -0.089842013100318
 ```
 
 ![DixonSzego figure 02](../../images/opt/DixonSzego_02.png)
@@ -62,13 +62,13 @@ toc
 minf =
   -1.031628453489880
 miny =
-   0.712656403097035
-Elapsed time is 5.068586 seconds.
+   0.712656403020741
+Elapsed time is 10.704986 seconds.
 minf =
   -1.031628453489878
 minx =
-  0.089842013100321   -0.712656403020740
-Elapsed time is 1.572724 seconds.
+   0.089842013100321  -0.712656403020740
+Elapsed time is 1.715555 seconds.
 ```
 
 And here is a plot. Chebfun2 has made an arbitrary choice between the two equal global minima.

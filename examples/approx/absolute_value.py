@@ -42,8 +42,7 @@ def _newton_grid(x, r, fname, label):
         ax.grid(True)
         err = float((r - x.abs()).norm(np.inf))
         n = len(r)
-        print(f"k={k}: error={err:4.1e}   {label} = {n}")
-        ax.set_title(f"error={err:4.1e}   {label} = {n}", fontsize=12)
+        ax.set_title(f"error={err:4.1e}   {label}{n}", fontsize=12)
         r = (r**2 + x**2) / (2 * r)
     fig.set_facecolor("white")
     fig.tight_layout()
@@ -74,21 +73,18 @@ def run():
     # Newton iteration for r^2 = x^2, no breakpoint
     x = cj.chebfun(lambda t: t)
     r = cj.chebfun(lambda t: 1.0 + 0 * t)
-    print("-- no breakpoint --")
-    _newton_grid(x, r, "AbsoluteValue_01.png", "len")
+    _newton_grid(x, r, "AbsoluteValue_01.png", "len=")
 
     # With a breakpoint at x = 0 the lengths stay modest
     x = cj.chebfun(lambda t: t, domain=[-1.0, 0.0, 1.0])
     r = cj.chebfun(lambda t: 1.0 + 0 * t, domain=[-1.0, 0.0, 1.0])
-    print("-- breakpoint at 0 --")
-    r = _newton_grid(x, r, "AbsoluteValue_02.png", "length")
+    r = _newton_grid(x, r, "AbsoluteValue_02.png", "length = ")
 
     # Error after six steps
     _error_plot(x, r, "AbsoluteValue_03.png")
 
     # Six more steps
-    print("-- six more steps --")
-    r = _newton_grid(x, r, "AbsoluteValue_04.png", "length")
+    r = _newton_grid(x, r, "AbsoluteValue_04.png", "length = ")
 
     # Error after twelve steps
     _error_plot(x, r, "AbsoluteValue_05.png")

@@ -72,7 +72,6 @@ mean(data)
 ```text
 ans =
    0.570200000000000
-(theoretical limit 1/sqrt(3) = 0.577350269189626)
 ```
 
 One could vary these experiments in all kinds of ways, for example defining random polynomials via Chebyshev or more generally Jacobi expansions or by interpolation of random data in Chebyshev or other points. Such more general problems have been treated recently in [2].

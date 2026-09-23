@@ -27,9 +27,7 @@ norm(L(v))
 
 ```text
 ans =
-     0.0000e+00
-<Chebfun [-1.0, 1.0], length 2>
-<Chebfun [-1.0, 1.0], length 3>
+     0
 ```
 
 Supposing we didn't know this, we could compute a basis for the nullspace with the `null` method:
@@ -43,7 +41,15 @@ norm(L(V))
 ```
 
 ```text
-(no matching output)
+V =
+   chebfun column1 (1 smooth piece)
+       interval       length     endpoint values
+[      -1,       1]        2       1.3     -1.1
+vertical scale = 1.3
+   chebfun column2 (1 smooth piece)
+       interval       length     endpoint values
+[      -1,       1]        3      0.57     0.84
+vertical scale = 0.84
 ```
 
 ![NullSpace figure 01](../../images/ode-eig/NullSpace_01.png)
@@ -58,8 +64,12 @@ subspace(v, V)
 
 ```text
 ans =
-[[1.00000000e+00 5.94348087e-17]
- [5.94348087e-17 1.00000000e+00]]
+   1.000000000000000   0.000000000000000
+   0.000000000000000   1.000000000000000
+ans =
+     1.683151518751667e-13
+ans =
+     2.494695367373348e-14
 ```
 
 ## 2. Incomplete boundary conditions
@@ -83,7 +93,20 @@ norm(L(V))
 ```
 
 ```text
-(no matching output)
+V =
+   chebfun column1 (1 smooth piece)
+       interval       length     endpoint values
+[    -3.1,     3.1]       41    -0.044      1.3
+vertical scale = 1.3
+   chebfun column2 (1 smooth piece)
+       interval       length     endpoint values
+[    -3.1,     3.1]       42       1.8    0.067
+vertical scale = 1.8
+ans =
+   1.000000000000000  -0.000000000000000
+  -0.000000000000000   1.000000000000000
+ans =
+     1.437867407068610e-10
 ```
 
 ![NullSpace figure 02](../../images/ode-eig/NullSpace_02.png)
@@ -100,7 +123,11 @@ norm(L(v))
 ```
 
 ```text
-(no matching output)
+v =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[    -3.1,     3.1]       41   1.4e-17      1.3
+vertical scale = 1.3
 ```
 
 ![NullSpace figure 03](../../images/ode-eig/NullSpace_03.png)
@@ -113,22 +140,11 @@ v(-pi)
 
 ```text
 ans =
-     1.6832e-13
-ans (subspace angle) =
-     2.4947e-14
-<Chebfun [-3.141592653589793, 3.141592653589793], length 41>
-<Chebfun [-3.141592653589793, 3.141592653589793], length 42>
+   1.000000000000000
 ans =
-[[1.00000000e+00 5.97931711e-17]
- [5.97931711e-17 1.00000000e+00]]
+     1.320931260704616e-10
 ans =
-     1.2700e-10
-<Chebfun [-3.141592653589793, 3.141592653589793], length 41>
-ans = [[1.]]
-ans =
-     1.3209e-10
-v(-pi) =
-     0.0000e+00
+     0
 ```
 
 ## 3. An application
@@ -165,7 +181,11 @@ minE =
    4.121950420615068
 c_star =
    3.143771420955451
-<Chebfun [-3.141592653589793, 3.141592653589793], length 42>
+u_star =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[    -3.1,     3.1]       42     1e-14        4
+vertical scale =   4
 ```
 
 ![NullSpace figure 06](../../images/ode-eig/NullSpace_06.png)
@@ -179,8 +199,6 @@ bc_star = u_star(pi)
 ```text
 bc_star =
    3.989391428265411
-<Chebfun [-1.0, 1.0], length 29>
-<Chebfun [-1.0, 1.0], length 32>
 ```
 
 ## 4. Exotic constraints
@@ -208,7 +226,15 @@ V'*V
 ```
 
 ```text
-(no matching output)
+V =
+   chebfun column1 (1 smooth piece)
+       interval       length     endpoint values
+[      -1,       1]       29      -1.3     0.94
+vertical scale = 1.3
+   chebfun column2 (1 smooth piece)
+       interval       length     endpoint values
+[      -1,       1]       32      0.28     -0.8
+vertical scale = 1.1
 ```
 
 ![NullSpace figure 07](../../images/ode-eig/NullSpace_07.png)
@@ -220,12 +246,13 @@ norm(L(V), 1)
 
 ```text
 ans =
-[[ 1.00000000e+00 -1.64312379e-16]
- [-1.64312379e-16  1.00000000e+00]]
-ans (sum(V) - V(0,:)) =
-['-7.938e-14', '1.243e-13']
-ans (norm(L(V),1)) =
-     2.0767e-08
+   1.000000000000001  -0.000000000000000
+  -0.000000000000000   1.000000000000000
+ans =
+   1.0e-12 *
+  -0.079380946260699   0.124344978758018
+ans =
+     2.076715816152300e-08
 ```
 
 ## 5. References

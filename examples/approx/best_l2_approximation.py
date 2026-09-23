@@ -15,13 +15,13 @@ import os
 import sys
 import time
 
-import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
+from chebfunjax.chebfun1d.chebfun import legpoly
 from chebfunjax.plotting import chebfun_style
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 from chebfunjax.utils.transforms import cheb2leg, leg2cheb
@@ -30,15 +30,38 @@ chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'approx')
 
-XS = np.linspace(-1, 1, 3000)
+LW = 1.6
+FS = 16
+
+# Output of MATLAB's `help chebfun/polyfit` as shown on the page.
+POLYFIT_HELP = """\
+ POLYFIT   Fit polynomial to a CHEBFUN.
+    F = POLYFIT(Y, N) returns a CHEBFUN F corresponding to the polynomial of
+    degree N that fits the CHEBFUN Y in the least-squares sense.
+
+    If Y is a global polynomial of degree n then this code has an O(n (log n)^2)
+    complexity. If Y is piecewise polynomial then it has an O(n^2) complexity.
+
+    F = POLYFIT(X, Y, N, D), where D is a DOMAIN object, returns a CHEBFUN F on
+    the domain D which corresponds to the polynomial of degree N that fits the
+    data (X, Y) in the least-squares sense. X should be a real-valued column
+    vector and Y should be a matrix with size(Y,1) = size(X,1).
+
+    F = POLYFIT(Y, N) where Y is represented as a periodic TRIGFUN object
+    returns the degree N trigonometric polynomial fit of length 2N+1.
+
+    Note CHEBFUN/POLYFIT does not not support more than one output argument in
+    the way that MATLAB/POLYFIT does.
+
+  See also INTERP1.
+"""
 
 
-def _plot_pair(fv, pv, title, fname):
-    fig, ax = plt.subplots(figsize=(8.8, 4.2))
-    ax.plot(XS, fv, lw=1.6)
-    ax.plot(XS, pv, 'r', lw=1.6)
-    ax.set_title(title, fontsize=13)
-    fig.set_facecolor("white")
+def _plot_pair(f, pn, title, fname, fs):
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    f.plot(ax=ax, linewidth=LW)
+    pn.plot(ax=ax, color="r", linewidth=LW)
+    ax.set_title(title, fontsize=0.75 * fs)
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, fname))
     plt.close(fig)
@@ -47,61 +70,62 @@ def _plot_pair(fv, pv, title, fname):
 def run():
     os.makedirs(_IMG, exist_ok=True)
 
-    # Best L2 approx of |x| of degree 5 via global Legendre projection
-    f = cj.chebfun(lambda t: jnp.abs(t), domain=[-1.0, 0.0, 1.0])
-    pn = f.polyfit(5)
-    _plot_pair(np.asarray(f(jnp.asarray(XS))),
-               np.asarray(pn(jnp.asarray(XS))),
-               r"Best $L^2$ approximation to $|x|$ of degree 5",
-               "BestL2Approximation_01.png")
+    # help chebfun/polyfit
+    print(POLYFIT_HELP, end="")
 
-    # Runge function via cheb2leg truncation
+    # Best L2 approximation to |x| of degree 5 from the normalized
+    # Legendre-Vandermonde quasimatrix: cleg = P'*f, pn = P*cleg.
+    n = 5
+    x = cj.chebfun(lambda t: t)
+    f = cj.abs(x)
+    P = legpoly(np.arange(n + 1), (-1.0, 1.0), 'norm')
+    cleg = P.H * f
+    # P*cleg (quasimatrix times vector): combine the columns.
+    pn = cj.chebfun((P.coeffs @ cleg).ravel(), coeffs=True)
+    _plot_pair(f, pn, r"Best $L^2$ approximation to $|x|$ of degree 5",
+               "BestL2Approximation_01.png", 16)
+
+    # Runge function via cheb2leg truncation.
     n = 10
-    fr = cj.chebfun(lambda t: 1.0 / (1 + 25 * t**2))
-    cleg = np.asarray(cheb2leg(fr.coeffs))[:n + 1]
-    ccheb = leg2cheb(jnp.asarray(cleg))
-    pn = cj.chebfun(jnp.asarray(ccheb), coeffs=True)
-    _plot_pair(np.asarray(fr(jnp.asarray(XS))),
-               np.asarray(pn(jnp.asarray(XS))),
-               r"Best $L^2$ approx to Runge function of degree 10",
-               "BestL2Approximation_02.png")
+    f = 1 / (1 + 25 * x**2)
+    ccheb = f.coeffs
+    cleg = cheb2leg(ccheb)
+    cleg = cleg[:n + 1]
+    ccheb = leg2cheb(cleg)
+    pn = cj.chebfun(ccheb, coeffs=True)
+    _plot_pair(f, pn, r"Best $L^2$ approx to Runge function of degree 10",
+               "BestL2Approximation_02.png", 14)
 
-    # Same thing via polyfit
-    pn2 = fr.polyfit(n)
-    _plot_pair(np.asarray(fr(jnp.asarray(XS))),
-               np.asarray(pn2(jnp.asarray(XS))),
-               r"Best $L^2$ approx to Runge function of degree 10",
-               "BestL2Approximation_03.png")
+    # The same thing with polyfit.
+    pn = f.polyfit(n)
+    _plot_pair(f, pn, r"Best $L^2$ approx to Runge function of degree 10",
+               "BestL2Approximation_03.png", 14)
 
-    # Large-degree fit of a sharp Runge function.  MATLAB does
-    # 1/(1+1e6 x^2) (chebfun length ~37000) at n = 1e4 in 1.5 s with
-    # its fast cheb2leg; our transforms are O(n^2) (ledgered gap), so
-    # this translation uses 1/(1+1e4 x^2) (length ~3700) at n = 2000.
-    nbig = 2000
-    fs = cj.chebfun(lambda t: 1.0 / (1 + 1e4 * t**2))
+    # A large-degree fit of a sharper Runge function.
+    n = 10000
+    f = 1 / (1 + 1e6 * x**2)
     t0 = time.time()
-    pn = fs.polyfit(nbig)
+    pn = f.polyfit(n)
     t = time.time() - t0
-    print(f"L^2 error is {float((fs - pn).norm(2)):.3e}")
-    print(f"L^2 approximation of degree {nbig} in t = {t:.3f}")
+    print(f"L^2 error is {float((f - pn).norm()):1.3e}")
+    print(f"L^2 approximation of degree {n} in t = {t:1.3f}")
 
-    # Convergence for |x|: rate n^{-3/2}
+    # Convergence for |x|: rate n^{-3/2}.
+    f = cj.abs(x)
     nn = 10 ** np.arange(0, 4)
-    errs = []
-    for n_ in nn:
-        p_ = f.polyfit(int(n_))
-        errs.append(float((f - p_).norm(2)))
-    fig, ax = plt.subplots(figsize=(8.8, 4.4))
-    ax.loglog(nn, errs, 'k.-', lw=1.6, ms=18)
-    ax.loglog(nn, nn.astype(float) ** (-1.5), 'k--', lw=1.6)
-    ax.set_xlabel("n")
-    ax.set_ylabel(r"$\|f - p_n\|_2$")
-    ax.grid(True)
-    fig.set_facecolor("white")
+    err = [float((f - f.polyfit(int(k))).norm()) for k in nn]
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    ax.loglog(nn, err, 'k.-', lw=LW, ms=10,
+              label=r"$\|\ |x| - p_n\ \|_2$")
+    ax.loglog(nn, nn.astype(float) ** (-1.5), 'k--', lw=LW,
+              label=r"$n^{-3/2}$")
+    ax.legend()
+    ax.set_xlabel("n", fontsize=0.75 * FS)
+    ax.set_ylabel(r"$\|\ |x| - p_n\ \|_2$", fontsize=0.75 * FS)
+    ax.set_title(r"Convergence of $\|\ |x| - p_n\ \|_2$", fontsize=0.75 * FS)
     fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "BestL2Approximation_04.png"), size=(600, 270))
+    _savefig(fig, os.path.join(_IMG, "BestL2Approximation_04.png"))
     plt.close(fig)
-    print("errs:", ["%.3e" % e for e in errs])
 
 
 if __name__ == "__main__":

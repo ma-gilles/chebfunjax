@@ -94,9 +94,6 @@ def _panel(lam, key0, lw, fname, tol=None):
     tt = np.linspace(*DOM, 12000)
     xx, yy, zz = (np.asarray(x(tt)), np.asarray(y(tt)),
                   np.asarray(z(tt)))
-    r = np.sqrt(xx**2 + yy**2 + zz**2)
-    print(f"lambda={lam}: ({time.time()-t0:.0f}s) "
-          f"radius drift {np.max(np.abs(r - 1)):.2e}", flush=True)
 
     fig = plt.figure(figsize=(7.6, 7.2))
     ax = fig.add_subplot(projection="3d")
@@ -105,13 +102,21 @@ def _panel(lam, key0, lw, fname, tol=None):
     ax.set_axis_off()
     fig.set_facecolor("white")
     fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, fname))
+    _savefig(fig, os.path.join(_IMG, fname), size=(600, 269))
     plt.close(fig)
+    print(f"Elapsed time is {time.time() - t0:.6f} seconds.", flush=True)
 
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
     warnings.filterwarnings("ignore")
+    A = np.array([[0, 1, 0], [-1, 0, 0], [0, 0, 0]])
+    B = np.array([[0, 0, 1], [0, 0, 0], [-1, 0, 0]])
+    C = np.array([[0, 0, 0], [0, 0, 1], [0, -1, 0]])
+    for name, M in (("A", A), ("B", B), ("C", C)):
+        print(f"{name} =")
+        for row in M:
+            print("".join(f"{v:6d}" for v in row))
     _panel(0.5, 10, 1.4, "RandomOnASphere_01.png")
     _panel(0.125, 20, 1.0, "RandomOnASphere_02.png", tol=1e-6)
 

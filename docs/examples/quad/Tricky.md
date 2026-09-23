@@ -43,7 +43,7 @@ f =
        interval       length     endpoint values
 [       0,       1]    14160     0.071  4.5e-07
 vertical scale = 1.1
-Elapsed time is 12.916849 seconds.
+Elapsed time is 8.968066 seconds.
 f =
    chebfun column (7 smooth pieces)
        interval       length     endpoint values
@@ -55,9 +55,7 @@ f =
 [     0.6,    0.62]       76    0.0055  0.00081
 [    0.62,       1]       23   0.00081  4.5e-07
 vertical scale = 1.1    Total length = 395
-Elapsed time is 9.617399 seconds.
-I =
-   0.210802735500549
+Elapsed time is 7.940559 seconds.
 ```
 
 ## 2. Violent oscillation
@@ -81,7 +79,7 @@ f =
 vertical scale =   1
 I =
    0.347400172657248
-Elapsed time is 1.290239 seconds.
+Elapsed time is 0.908811 seconds.
 ```
 
 ![Tricky figure 02](../../images/quad/Tricky_02.png)
@@ -100,8 +98,8 @@ tic, f = chebfun(ff,[0 8],'splitting','on'); I = sum(f), toc
 Iexact =
    0.098651704478365
 I =
-   0.115837672268151
-Elapsed time is 901.831269 seconds.
+   0.167437287128485
+Elapsed time is 478.073997 seconds.
 ```
 
 By increasing splitMaxLength greatly, we can get an answer but it's outrageously slow *and* it's only accurate to 6 digits. Specifically, the commands
@@ -131,7 +129,7 @@ f =
 vertical scale = 2.7
 I =
   -0.999065350291922
-Elapsed time is 1.247971 seconds.
+Elapsed time is 1.069864 seconds.
 ```
 
 ![Tricky figure 03](../../images/quad/Tricky_03.png)
@@ -168,7 +166,7 @@ f =
 vertical scale = 0.36
 I =
    0.378751605379086
-Elapsed time is 2.172053 seconds.
+Elapsed time is 1.953673 seconds.
 f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
@@ -176,7 +174,7 @@ f =
 vertical scale = 0.36
 I =
    0.378751605379086
-Elapsed time is 0.436495 seconds.
+Elapsed time is 0.579687 seconds.
 ```
 
 ## 6. Absolute value of polynomial
@@ -201,7 +199,7 @@ f =
 vertical scale =  49    Total length = 25
 I =
   11.147310550057142
-Elapsed time is 1.261886 seconds.
+Elapsed time is 0.904852 seconds.
 ```
 
 ![Tricky figure 05](../../images/quad/Tricky_05.png)
@@ -222,7 +220,7 @@ Iexact =
         5050
 I =
         5050
-Elapsed time is 6.215895 seconds.
+Elapsed time is 6.316139 seconds.
 ```
 
 ![Tricky figure 06](../../images/quad/Tricky_06.png)
@@ -241,7 +239,7 @@ Iexact =
   -0.142818642026328
 I =
   -0.142818642026332
-Elapsed time is 2.432148 seconds.
+Elapsed time is 2.355577 seconds.
 ```
 
 ![Tricky figure 07](../../images/quad/Tricky_07.png)
@@ -282,10 +280,10 @@ plot(f)
 ```text
 I =
    0.749974368527183
-Elapsed time is 11.605024 seconds.
+Elapsed time is 8.753611 seconds.
 I =
    0.749974368527192
-Elapsed time is 216.682760 seconds.
+Elapsed time is 211.706808 seconds.
 ```
 
 ![Tricky figure 09](../../images/quad/Tricky_09.png)

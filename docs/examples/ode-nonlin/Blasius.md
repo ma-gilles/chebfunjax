@@ -52,9 +52,10 @@ bc_residuals = bc(0,u)     % Residuals of boundary conditions
 op_residual =
      4.510332583906023e-10
 bc_residuals =
-  -1.776357e-15
-  3.108624e-15
-  -3.462786e-13
+   1.0e-13 *
+  -0.017763568394003
+   0.031086244689504
+  -3.462785613805863
 ```
 
 One quantity of interest is the second derivative of the solution $u$ at the origin. The exact value to sixteen decimal places is supplied by Boyd [1]. Let's test Chebfun's accuracy for this quantity.
@@ -103,12 +104,14 @@ coeffs(end:-1:end-5)'
 
 ```text
 ans =
-  -0.000000000000002
-   0.000000000000003
-   0.166028668116722
-  -0.000000000109674
-   0.000000001429651
-  -0.000459436109385
+  -0.000000000000586
+   0.000000000127034
+   0.166028663522975
+   0.000000066104530
+  -0.000000507105967
+  -0.000457023555236
+Please try supplying a better initial guess via the .init field
+of the chebop.
 v =
    chebfun column (1 smooth piece)
        interval       length     endpoint values

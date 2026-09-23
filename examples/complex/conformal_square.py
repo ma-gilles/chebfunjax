@@ -4,13 +4,13 @@ Translation of complex/ConformalSquare.m by Toby Driscoll
 (January 2013): the Schwarz-Christoffel map of the unit disk to a
 square, built up by integrating f'(z) along rays and circles.
 
-The main ray map w = cumsum(fprime(z)) uses chebfun cumsum with
-splitting (like MATLAB, whose published output shows an unresolved
-65537-point final piece; ours resolves the corner value to 2e-8).
-The four rays that terminate at prevertices and the boundary circle
-have inverse-square-root singularities (MATLAB handles them with
-SINGFUN, printing accuracy warnings); here they are integrated with a
-smoothstep substitution that regularizes the endpoints exactly.
+MATLAB's chebfun power of a complex chebfun (``columnPower``) first adds
+breakpoints at the roots of its imaginary part and then raises each
+piece to the power; ``fprime`` below does exactly that with chebfunjax
+calls, because ``Chebfun.__pow__`` of a complex chebfun with a boundary
+root raises (``Singfun.extractBoundaryRoots`` casts complex coefficients
+to float).  The pieces ending at a prevertex are unresolved
+65537-point pieces, as in the published output.
 
 Original: https://www.chebfun.org/examples/complex/ConformalSquare.html
 Copyright by The University of Oxford and The Chebfun Developers.
@@ -20,6 +20,7 @@ import matplotlib
 matplotlib.use("Agg")
 import os
 import sys
+import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -39,24 +40,13 @@ FIG = [0]
 
 
 def fprime(z):
-    return ((1 - z / ZPRE[0]) * (1 - z / ZPRE[1])
-            * (1 - z / ZPRE[2]) * (1 - z / ZPRE[3])) ** (-0.5)
-
-
-def _cumquad(h, a, b, n=4001):
-    """Cumulative integral of h over [a, b] with a smoothstep
-    substitution u = a + (b-a)(3x^2 - 2x^3), which regularizes
-    inverse-square-root endpoint singularities exactly."""
-    x = np.linspace(0.0, 1.0, n)
-    u = a + (b - a) * (3 * x**2 - 2 * x**3)
-    du = (b - a) * 6 * x * (1 - x)
-    with np.errstate(all="ignore"):
-        v = h(u) * du
-    v = np.where(np.isfinite(v), v, 0.0)
-    dx = x[1] - x[0]
-    cum = np.concatenate([[0.0 + 0j],
-                          np.cumsum((v[1:] + v[:-1]) / 2) * dx])
-    return u, cum
+    P = ((1 - z / ZPRE[0]) * (1 - z / ZPRE[1])
+         * (1 - z / ZPRE[2]) * (1 - z / ZPRE[3]))
+    a, b = float(P.domain.breakpoints[0]), float(P.domain.breakpoints[-1])
+    r = np.asarray(P.imag().roots()).ravel()
+    r = r[(r > a + 1e-12) & (r < b - 1e-12)] if P.imag().norm() > 0 else []
+    return cj.chebfun(lambda x: P(x) ** (-0.5),
+                      domain=[a, *sorted(float(v) for v in r), b])
 
 
 def _snapshot(fig):
@@ -76,17 +66,16 @@ def _plot_cf(ax, cf, n=400, **kw):
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
+    warnings.simplefilter("ignore")
 
-    z = cj.chebfun(lambda x: x.astype(complex), domain=(0.0, 1.0))
-    g = cj.chebfun(lambda x: fprime(x.astype(complex)),
-                   domain=(0.0, 1.0), splitting=True)
-    w = g.cumsum()
+    z = cj.chebfun('z', domain=(0.0, 1.0))
+    w = fprime(z).cumsum()
     print("w =")
     print(repr(w))
 
+    zcirc = (1j * cj.chebfun('t', domain=(0.0, 2 * np.pi))).exp()
     fig, (axL, axR) = plt.subplots(1, 2, figsize=(10.6, 5.2))
-    th = np.linspace(0, 2 * np.pi, 400)
-    axL.plot(np.cos(th), np.sin(th), 'k', lw=2)
+    _plot_cf(axL, zcirc, color='k', lw=2)
     axL.plot(ZPRE.real, ZPRE.imag, 'r.', ms=14)
     axL.set_aspect("equal")
     axL.axis(list(1.05 * np.array([-1, 1, -1, 1])))
@@ -100,18 +89,11 @@ def run():
     fig.set_facecolor("white")
     _snapshot(fig)
 
-    # rays from the origin; singular directions via substitution
     for t in np.linspace(0, 2 * np.pi, 33):
         e = np.exp(1j * t)
+        zt = cj.chebfun('r', domain=(0.0, 1.0)) * e
         axL.plot(zr * np.cos(t), zr * np.sin(t), 'b', lw=1.5)
-        if np.min(np.abs(e - ZPRE)) < 1e-9:
-            _, cum = _cumquad(lambda s: fprime(s * e) * e, 0.0, 1.0)
-            axR.plot(cum.real, cum.imag, 'b', lw=1.5)
-        else:
-            gt = cj.chebfun(
-                lambda r, _e=e: fprime(r.astype(complex) * _e) * _e,
-                domain=(0.0, 1.0))
-            _plot_cf(axR, gt.cumsum(), color='b', lw=1.5)
+        _plot_cf(axR, (fprime(zt) * e).cumsum(), color='b', lw=1.5)
     _snapshot(fig)
 
     w1 = complex(np.asarray(w(1.0)))
@@ -120,33 +102,17 @@ def run():
     axR.plot(corners.real[:4], corners.imag[:4], 'r.', ms=14)
     _snapshot(fig)
 
-    # images of circles of different radii (all smooth)
     for r in [0.5, 0.6, 0.7, 0.8, 0.9, 0.97]:
-        axL.plot(r * np.cos(th), r * np.sin(th), 'b', lw=1.5)
-        gt = cj.chebfun(
-            lambda t_, _r=r: fprime(_r * np.exp(1j * t_))
-            * 1j * _r * np.exp(1j * t_),
-            domain=(0.0, 2 * np.pi))
-        F = gt.cumsum() + complex(np.asarray(w(r)))
-        _plot_cf(axR, F, color='b', lw=1.5)
+        zr_ = r * zcirc
+        f = (fprime(zr_) * zr_.diff()).cumsum() + complex(np.asarray(w(r)))
+        _plot_cf(axL, zr_, color='b', lw=1.5)
+        _plot_cf(axR, f, color='b', lw=1.5)
     _snapshot(fig)
 
-    # the boundary itself: square-root singularities at the prevertices
-    segs = []
-    start = w1
-    for k in range(4):
-        a, b = k * np.pi / 2, (k + 1) * np.pi / 2
-        _, cum = _cumquad(
-            lambda p: fprime(np.exp(1j * p)) * 1j * np.exp(1j * p),
-            a, b)
-        segs.append(start + cum)
-        start = segs[-1][-1]
-    curve = np.concatenate(segs)
-    axR.plot(curve.real, curve.imag, 'k', lw=2)
+    f = (fprime(zcirc) * zcirc.diff()).cumsum() + w1
+    _plot_cf(axR, f, color='k', lw=2)
     _snapshot(fig)
     plt.close(fig)
-    print(f"corner value w(1) = {w1.real:.8f} "
-          f"(exact lemniscatic value 1.31102878)")
 
 
 if __name__ == "__main__":

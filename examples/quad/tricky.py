@@ -104,7 +104,6 @@ def run():
     tic(); f = cj.chebfun(ff, domain=[0, 1]); show("f", f); I = float(f.sum()); toc()
     plot(f)
     tic(); f = cj.chebfun(ff, domain=[0, 1], splitting=True); show("f", f); I = float(f.sum()); toc()
-    show("I", I)
 
     # Oscillation.
     def ff(x):
@@ -172,7 +171,6 @@ def run():
     tic(); f = cj.chebfun(ff, domain=[0, 3], splitting=True, split_max_length=int(1e6))
     show("I", float(f.sum())); toc()
     plot(f)
-    return True
 
 
 if __name__ == "__main__":

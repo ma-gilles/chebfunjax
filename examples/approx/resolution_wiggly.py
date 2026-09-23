@@ -33,10 +33,13 @@ XS = np.linspace(0, 14, 4000)
 
 
 def _plot(curves, title, fname, ylim=(-2.5, 2.5)):
-    fig, ax = plt.subplots(figsize=(8.8, 4.0))
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
     for ys, color in curves:
         ax.plot(XS, ys, color, lw=1.2)
-    ax.set_ylim(*ylim)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
+    else:
+        ax.set_xlim(0, 14)
     ax.set_title(title, fontsize=12)
     fig.set_facecolor("white")
     fig.tight_layout()
@@ -67,7 +70,7 @@ def run():
           "ResolutionWiggly_02.png")
     _plot([(fv - pv, 'k')],
           "error of interpolant of half the degree",
-          "ResolutionWiggly_03.png")
+          "ResolutionWiggly_03.png", ylim=None)
 
     # Least-squares approximant of half the degree
     pleastsq = f.polyfit(nphalf - 1)
@@ -91,10 +94,6 @@ def run():
     _plot([(fv - bv, 'k')],
           "error of best approximant of half the degree",
           "ResolutionWiggly_07.png")
-
-    print(f"interp err   = {np.max(np.abs(fv - pv)):.4f}")
-    print(f"leastsq err  = {np.max(np.abs(fv - lv)):.4f}")
-    print(f"best err     = {np.max(np.abs(fv - bv)):.4f}")
 
 
 if __name__ == "__main__":

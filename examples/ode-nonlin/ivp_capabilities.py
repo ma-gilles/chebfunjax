@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.operators.chebop import Chebop
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
@@ -55,37 +55,33 @@ def run():
     u = N.solve(0.0)
     print(f"Elapsed time is {time.time() - t0:.6f} seconds.")
 
-    tt = np.linspace(0, 50, 6000)
     breaks = [float(v) for v in u.domain.breakpoints][1:-1]
-    fig, ax = plt.subplots(figsize=(9.4, 4.8))
-    ax.plot(tt, np.asarray(u(tt)), lw=1.2)
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    matlab_plot(u, ax=ax, lw=1.2, color="#0072BD")
     if breaks:
         ax.plot(breaks, np.asarray(u(jnp.asarray(breaks))), 'k.',
                 ms=10)
     ax.set_title("Van der Pol oscillator")
-    ax.grid(True)
     _save(fig)
 
     print("u =")
     print(repr(u))
 
     # Phase plane and limit cycle over the direction field
-    fig, ax = plt.subplots(figsize=(7.6, 6.4))
-    ax.plot(np.asarray(u(tt)), np.asarray(u.diff()(tt)), 'm', lw=1.2)
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    matlab_plot(u, u.diff(), 'm', ax=ax, lw=1.2)
     N.quiver([-2, 2, -10, 10], ax=ax, n_pts=20)
     ax.set_title("Phase plane and limit cycle")
-    ax.grid(True)
     _save(fig)
 
     # Forced van der Pol
-    f = cj.chebfun(lambda t: 5 * jnp.sin(5 * t), domain=(0, 50))
+    t = cj.chebfun(lambda t: t, domain=(0, 50))
+    f = 5 * (5 * t).sin()
     u_forced = N.solve(f)
-    fig, ax = plt.subplots(figsize=(7.6, 6.4))
-    ax.plot(np.asarray(u_forced(tt)),
-            np.asarray(u_forced.diff()(tt)), 'm', lw=1.2)
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    matlab_plot(u_forced, u_forced.diff(), 'm', ax=ax, lw=1.2)
     ax.set_title("Van der Pol oscillator with a nonzero forcing "
                  "function")
-    ax.grid(True)
     _save(fig)
 
     # The same IVP solved by collocation rather than marching
@@ -96,10 +92,8 @@ def run():
     t0 = time.time()
     u2 = N2.solve(0.0, ivp_solver="chebcolloc2")
     print(f"Elapsed time is {time.time() - t0:.6f} seconds.")
-    t2 = np.linspace(0, 4, 1200)
-    fig, ax = plt.subplots(figsize=(9.0, 4.6))
-    ax.plot(t2, np.asarray(u2(t2)), lw=1.2)
-    ax.grid(True)
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    matlab_plot(u2, ax=ax, lw=1.2)
     _save(fig)
 
 

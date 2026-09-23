@@ -68,8 +68,7 @@ tic, f = chebfun3(ff,'classic'); toc
 ```
 
 ```text
-============================================================
-Chebfun3 construction timing and Tucker ranks
+Elapsed time is 21.661277 seconds.
 ```
 
 ## References

@@ -48,6 +48,11 @@ def _save(fig):
     plt.close(fig)
 
 
+def _f(v):
+    """One entry of a format-long column (width 20, exact zero as 0)."""
+    return f"{v:20.15f}" if v != 0 else f"{0:20d}"
+
+
 def run():
     os.makedirs(_IMG, exist_ok=True)
     t0 = time.time()
@@ -71,7 +76,7 @@ def run():
     e_exact = np.sort(e[np.abs(e) <= 1])
     print("e_exact =")
     for v in e_exact:
-        print(f"  {v:>19.15f}")
+        print(_f(v))
 
     op = lambda x: jnp.asarray(fdet(np.asarray(x)))  # noqa: E731
     c = cj.chebfun(op, domain=(-1.0, 1.0))
@@ -86,7 +91,7 @@ def run():
     e_inexact = np.asarray(c.roots())
     print("         exact              inexact            difference")
     for u, v in zip(e_exact, e_inexact):
-        print(f"  {u:>19.15f} {v:>19.15f} {u - v:>19.15f}")
+        print(_f(u) + _f(v) + _f(u - v))
 
     fig, ax = plt.subplots(figsize=(9.0, 4.6))
     with np.errstate(all="ignore"):
@@ -109,10 +114,10 @@ def run():
 
     e_inexact2 = np.asarray(c_neg.roots())
     print("         exact              inexact            difference")
-    print(f"ans =\n    {len(e_exact_neg)}     1")
-    print(f"ans =\n    {len(e_inexact2)}     1")
+    print(f"ans =\n{len(e_exact_neg):6d}{1:6d}")
+    print(f"ans =\n{len(e_inexact2):6d}{1:6d}")
     for u, v in zip(e_exact_neg, e_inexact2):
-        print(f"  {u:>19.15f} {v:>19.15f} {u - v:>19.15f}")
+        print(_f(u) + _f(v) + _f(u - v))
 
     c2 = cj.chebfun(lambda x: jnp.sign(jnp.asarray(fdet(
         np.asarray(x)))), domain=(-1.0, 1.0), splitting=True,
@@ -126,10 +131,10 @@ def run():
     _save(fig)
 
     print("         exact        via edge detection      difference")
-    print(f"ans =\n    {len(e_exact)}     1")
-    print(f"ans =\n    {len(e_edge)}     1")
+    print(f"ans =\n{len(e_exact):6d}{1:6d}")
+    print(f"ans =\n{len(e_edge):6d}{1:6d}")
     for u, v in zip(e_exact, e_edge):
-        print(f"  {u:>19.15f} {v:>19.15f} {u - v:>19.15f}")
+        print(_f(u) + _f(v) + _f(u - v))
     print(f"Elapsed time is {time.time()-t0:.6f} seconds.")
 
 

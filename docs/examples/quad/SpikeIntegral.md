@@ -25,8 +25,11 @@ title('Spike function','FontSize',14)
 ```
 
 ```text
-length =
-   14073
+ff =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[       0,       1]    14073     0.071  4.5e-07
+vertical scale = 1.1
 ```
 
 ![SpikeIntegral figure 01](../../images/quad/SpikeIntegral_01.png)
@@ -52,10 +55,7 @@ toc
 ```text
 ans =
    0.211717021214835
-splitting pieces =
-   11
-splitting sum (KNOWN DEFECT, see ledger) =
-   0.211717021214835
+Elapsed time is 0.787752 seconds.
 ```
 
 Now the degree of that polynomial was forced to be extraordinarily high in order to resolve the narrowest spike. A much more compressed representation of $f$ can be attained by constructing the chebfun piecewise, using "splitting on". As of December 2015, if this is done with default parameters, Chebfun fails to detect the narrowest spike:
@@ -67,7 +67,17 @@ title('Unresolved spike function with splitting on','FontSize',14)
 ```
 
 ```text
-
+ff =
+   chebfun column (7 smooth pieces)
+       interval       length     endpoint values
+[       0,    0.38]       74     0.071     0.11
+[    0.38,    0.44]       90      0.11    0.034
+[    0.44,    0.59]       43     0.034   0.0015
+[    0.59,     0.6]       30    0.0015   0.0015
+[     0.6,     0.6]       59    0.0015   0.0055
+[     0.6,    0.62]       76    0.0055  0.00081
+[    0.62,       1]       18   0.00081  4.5e-07
+vertical scale = 1.1    Total length = 390
 ```
 
 ![SpikeIntegral figure 03](../../images/quad/SpikeIntegral_03.png)
@@ -81,7 +91,21 @@ title('Resolved spike function with splitting on','FontSize',14)
 ```
 
 ```text
-
+ff =
+   chebfun column (11 smooth pieces)
+       interval       length     endpoint values
+[       0,    0.38]       75     0.071     0.11
+[    0.38,    0.44]       90      0.11    0.034
+[    0.44,    0.59]       45     0.034   0.0015
+[    0.59,     0.6]       30    0.0015   0.0015
+[     0.6,     0.6]       59    0.0015   0.0055
+[     0.6,    0.61]       46    0.0055   0.0011
+[    0.61,    0.78]       18    0.0011  3.6e-05
+[    0.78,     0.8]       49   3.6e-05  2.6e-05
+[     0.8,     0.8]       58   2.6e-05     0.11
+[     0.8,    0.81]       68      0.11  1.9e-05
+[    0.81,       1]       16   1.9e-05  4.5e-07
+vertical scale = 1.1    Total length = 554
 ```
 
 ![SpikeIntegral figure 04](../../images/quad/SpikeIntegral_04.png)
@@ -96,7 +120,9 @@ toc
 ```
 
 ```text
-
+ans =
+   0.211717021214835
+Elapsed time is 3.956940 seconds.
 ```
 
 ## References

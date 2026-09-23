@@ -30,14 +30,14 @@ XS = np.linspace(0, 1, 4000)
 
 
 def _errplot(fvals, rvals, title, fname, scale=1.0):
-    fig, ax = plt.subplots(figsize=(8.8, 4.2))
+    fig, ax = plt.subplots(figsize=(6.0, 2.53))
     ax.plot(XS, scale * (fvals - rvals), lw=1.3)
     ax.grid(True)
     ax.set_ylim(-0.02, 0.02)
-    ax.set_title(title, fontsize=12)
+    ax.set_title(title, fontsize=10)
     fig.set_facecolor("white")
     fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, fname))
+    _savefig(fig, os.path.join(_IMG, fname), size=(600, 253))
     plt.close(fig)
 
 

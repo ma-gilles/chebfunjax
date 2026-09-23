@@ -13,6 +13,7 @@ Copyright by The University of Oxford and The Chebfun Developers.
 import matplotlib
 
 matplotlib.use("Agg")
+import math
 import os
 import sys
 import warnings
@@ -31,120 +32,163 @@ chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'ode-eig')
 FIG = [0]
+LW = 1.6
 
 
-def _plot(fs, fname_extra=None, dashed=None):
-    FIG[0] += 1
-    fig, ax = plt.subplots(figsize=(8.6, 4.6))
-    a = float(fs[0].domain.a)
-    b = float(fs[0].domain.b)
-    xx = np.linspace(a, b, 2000)
-    for f in fs:
-        ax.plot(xx, np.asarray(f(xx)).real, lw=1.6)
-    if dashed is not None:
-        ax.plot(xx, np.asarray(dashed(xx)).real, 'r--', lw=1.6)
-    ax.grid(True)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, f"NullSpace_{FIG[0]:02d}.png"))
-    plt.close(fig)
+# --- MATLAB 'format long' / chebfun display ---------------------------
+
+def _num(x):
+    """One MATLAB format-long scalar field."""
+    if x == int(x) and abs(x) < 1e9:
+        return f"{int(x):6d}"
+    if 1e-3 <= abs(x) < 100:
+        return f"{x:20.15f}"
+    return f"{x:26.15e}"
+
+
+def _disp_scalar(name, x):
+    print(f"{name} =")
+    print(_num(float(x)))
+
+
+def _disp_matrix(name, M):
+    """MATLAB format-long display of a real matrix (common scale factor
+    when every entry is tiny)."""
+    M = np.atleast_2d(np.asarray(M, dtype=float))
+    print(f"{name} =")
+    big = float(np.max(np.abs(M)))
+    if np.all(M == np.round(M)):
+        for row in M:
+            print("".join(f"{int(v):6d}" for v in row))
+        return
+    if 0 < big < 1e-3:
+        e = math.floor(math.log10(big)) + 1
+        print(f"   1.0e{e:+03d} *")
+        M = M / 10.0**e
+    for row in M:
+        print("".join(f"{'0':>20}" if v == 0 else f"{v:20.15f}" for v in row))
+
+
+def _disp_quasi(name, cols):
+    """MATLAB display of a chebfun quasimatrix (@chebfun/disp.m)."""
+    print(f"{name} =")
+    if len(cols) == 1:
+        print(repr(cols[0]))
+        return
+    for k, f in enumerate(cols, 1):
+        print(repr(f).replace("chebfun column (", f"chebfun column{k} (", 1))
 
 
 def _gram(V):
-    return np.array([[float((a * b).sum()) for b in V] for a in V])
+    """V'*V for a quasimatrix."""
+    return [[float(f.inner(g)) for g in V] for f in V]
+
+
+def _fro(V):
+    """norm(V) of a quasimatrix (MATLAB's default 'fro' norm)."""
+    return math.sqrt(sum(float(f.norm()) ** 2 for f in V))
+
+
+# --- plotting --------------------------------------------------------
+
+def _plot(ax, f, style="-", **kw):
+    a, b = float(f.domain.a), float(f.domain.b)
+    xx = np.linspace(a, b, 2000)
+    ax.plot(xx, np.asarray(f(xx)).real, style, lw=LW, **kw)
+
+
+def _save(fig):
+    FIG[0] += 1
+    _savefig(fig, os.path.join(_IMG, f"NullSpace_{FIG[0]:02d}.png"))
+    plt.close(fig)
 
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
     warnings.filterwarnings("ignore")
 
-    # 1. Simple example: L = d^2/dx^2 on [-1, 1].
+    # 1. Simple example #1
     L = Chebop(lambda u: u.diff(2))
-    one = chebfun(lambda t: 0 * t + 1.0)
-    x = chebfun(lambda t: t)
-    v = [one, x]
-    print("ans =")
-    print(f"     {max(float(L(f).norm(2)) for f in v):.4e}")
+    v = [chebfun(lambda t: 0 * t + 1.0), chebfun(lambda t: t)]
+    _disp_scalar("ans", _fro([L(f) for f in v]))
 
     V = L.null()
+    _disp_quasi("V", V)
+    fig, ax = plt.subplots()
     for f in V:
-        print(f)
-    _plot(V)
-    print("ans =")
-    print(_gram(V))
-    print("ans =")
-    print(f"     {max(float(L(f).norm(2)) for f in V):.4e}")
+        _plot(ax, f)
+    _save(fig)
+    _disp_matrix("ans", _gram(V))
+    _disp_scalar("ans", _fro([L(f) for f in V]))
 
-    print("ans (subspace angle) =")
-    print(f"     {float(subspace(v, V)):.4e}")
+    _disp_scalar("ans", subspace(v, V))
 
-    # 2. Incomplete boundary conditions on [-pi, pi].
+    # 2. Incomplete boundary conditions
     dom = (-np.pi, np.pi)
-    L = Chebop(lambda x_, u: (u.diff(2) + 0.1 * x_ * (1 - x_**2) * u.diff()
-                              + x_.sin() * u), domain=dom)
+    L = Chebop(lambda x, u: (u.diff(2) + .1 * x * (1 - x**2) * u.diff()
+                             + x.sin() * u), domain=dom)
     V = L.null()
+    _disp_quasi("V", V)
+    fig, ax = plt.subplots()
     for f in V:
-        print(f)
-    _plot(V)
-    print("ans =")
-    print(_gram(V))
-    print("ans =")
-    print(f"     {max(float(L(f).norm(2)) for f in V):.4e}")
+        _plot(ax, f)
+    _save(fig)
+    _disp_matrix("ans", _gram(V))
+    _disp_scalar("ans", _fro([L(f) for f in V]))
 
     L.lbc = 0.0
-    Vn = L.null()
-    vfun = Vn[0]
-    print(vfun)
-    _plot(Vn)
-    print("ans =", _gram(Vn))
-    print("ans =")
-    print(f"     {float(L(vfun).norm(2)):.4e}")
-    print("v(-pi) =")
-    print(f"     {float(vfun(-np.pi)):.4e}")
+    L.rbc = None
+    v = L.null()
+    _disp_quasi("v", v)
+    fig, ax = plt.subplots()
+    _plot(ax, v[0])
+    FIG[0] += 1
+    _savefig(fig, os.path.join(_IMG, f"NullSpace_{FIG[0]:02d}.png"))
+    _disp_matrix("ans", _gram(v))
+    _disp_scalar("ans", _fro([L(f) for f in v]))
+    v = v[0]
 
-    # 3. Application: minimal-norm inhomogeneous Dirichlet condition.
+    _disp_scalar("ans", v(-np.pi))
+
+    # 3. An application
     L.rbc = 0.0
     u = L.solve(1.0)
-    _plot(Vn, dashed=u)
+    _plot(ax, u, "--r")        # hold on, onto the previous figure
+    _save(fig)
 
-    def Efun(c):
-        c = np.atleast_1d(np.asarray(c, dtype=float))
-        return np.array([float((u + float(ci) * vfun).norm(2))
-                         for ci in c])
+    E = chebfun(lambda c: (u + c * v).norm(2), domain=(-10.0, 10.0),
+                vectorize=True, splitting=True)
+    fig, ax = plt.subplots()
+    _plot(ax, E)
+    _save(fig)
 
-    E = chebfun(Efun, domain=(-10.0, 10.0), splitting=True)
-    _plot([E])
+    c_star, minE = E.min()
+    _disp_scalar("minE", minE)
+    _disp_scalar("c_star", c_star)
+    u_star = u + float(c_star) * v
+    _disp_quasi("u_star", [u_star])
+    fig, ax = plt.subplots()
+    _plot(ax, u_star)
+    _save(fig)
 
-    xmin, minE = None, None
-    xs, ys = E.min("local")
-    xs, ys = np.atleast_1d(np.asarray(xs)), np.atleast_1d(np.asarray(ys))
-    j = int(np.argmin(ys))
-    c_star, minE = float(xs[j]), float(ys[j])
-    print("minE =")
-    print(f"   {minE:.15f}")
-    print("c_star =")
-    print(f"   {c_star:.15f}")
-    u_star = u + c_star * vfun
-    print(u_star)
-    _plot([u_star])
+    bc_star = u_star(np.pi)
+    _disp_scalar("bc_star", bc_star)
 
-    print("bc_star =")
-    print(f"   {float(u_star(np.pi)):.15f}")
-
-    # 4. Exotic constraints: int(u) = u(0) on a 3rd-order operator.
-    L = Chebop(lambda x_, u: 0.1 * u.diff(3) + x_.sin() * u.diff(2) + u,
-               domain=(-1, 1))
-    L.bc = lambda x_, u: u.sum() - u(0.0)
+    # 4. Exotic constraints
+    dom = (-1.0, 1.0)
+    L = Chebop(lambda x, u: .1 * u.diff(3) + x.sin() * u.diff(2) + u,
+               domain=dom)
+    L.bc = lambda x, u: u.sum() - u(0.0)
     V = L.null()
+    _disp_quasi("V", V)
+    fig, ax = plt.subplots()
     for f in V:
-        print(f)
-    _plot(V)
-    print("ans =")
-    print(_gram(V))
-    print("ans (sum(V) - V(0,:)) =")
-    print([f"{float(f.sum()) - float(f(0.0)):.3e}" for f in V])
-    print("ans (norm(L(V),1)) =")
-    print(f"     {max(float(L(f).norm(1)) for f in V):.4e}")
+        _plot(ax, f)
+    _save(fig)
+    _disp_matrix("ans", _gram(V))
+
+    _disp_matrix("ans", [[float(f.sum()) - float(f(0.0)) for f in V]])
+    _disp_scalar("ans", max(float(L(f).norm(1)) for f in V))
 
 
 if __name__ == "__main__":

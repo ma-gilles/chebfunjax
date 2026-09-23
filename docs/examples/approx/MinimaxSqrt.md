@@ -98,8 +98,7 @@ xlim([0 ns(end)+7]), title(['sqrt(x) on [a,1], a = ',num2str(a)]), xlabel DOF
 ```
 
 ```text
-a=0.8: poly 1.079e-13  rat 2.195e-13
-a=0.1: poly 4.322e-05  rat 4.699e-08
+
 ```
 
 ![MinimaxSqrt figure 04](../../images/approx/MinimaxSqrt_04.png)
@@ -128,10 +127,7 @@ xlim([0 ns(end)+7]), title(['sqrt(x) on [a,1], a = ',num2str(a)]), xlabel DOF
 ```
 
 ```text
-a=0.8: poly 1.079e-13  rat 2.195e-13
-a=0.1: poly 4.322e-05  rat 4.699e-08
-a=0.001: poly 1.537e-03  rat 3.573e-10
-a=1e-05: poly 5.979e-03  rat 1.125e-07
+
 ```
 
 ![MinimaxSqrt figure 05](../../images/approx/MinimaxSqrt_05.png)
@@ -167,13 +163,7 @@ end
 ```
 
 ```text
-a=0.8: poly 1.079e-13  rat 2.195e-13
-a=0.1: poly 4.322e-05  rat 4.699e-08
-a=0.001: poly 1.537e-03  rat 3.573e-10
-a=1e-05: poly 5.979e-03  rat 1.125e-07
-a=0: poly 7.001e-03  rat 4.876e-06
-p=5 a=1e-05: poly 4.307e-02  rat 3.644e-07
-p=5 a=0.0: poly 8.318e-02  rat 3.838e-04
+
 ```
 
 ![MinimaxSqrt figure 06](../../images/approx/MinimaxSqrt_06.png)

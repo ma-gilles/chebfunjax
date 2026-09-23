@@ -56,8 +56,7 @@ axis([-1 1 -4e-5 4e-5])
 ```
 
 ```text
-poly err =
-   0.016107079270634
+
 ```
 
 ![BestApprox figure 03](../../images/approx/BestApprox_03.png)

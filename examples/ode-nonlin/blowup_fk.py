@@ -46,7 +46,6 @@ def run():
         umax = float(u.max()[1])
         ax.plot(t, np.asarray(u(t)), color=(0.6, 0, 0.5), lw=2)
         ax.text(-0.1, umax + 0.04, f"A = {A:g}", fontsize=14)
-        print(f"A = {A:g}: max(u) = {umax:.12f}")
     ax.axis([-1, 1, 0, 1.2])
     ax.grid(True)
     ax.set_title("Frank-Kamenetskii blowup equation", fontsize=14)

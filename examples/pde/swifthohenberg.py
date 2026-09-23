@@ -5,12 +5,10 @@ Translation of pde/SwiftHohenberg.m by Hadrien Montanelli (May
 
     u_t = r u - (1 + Lap)^2 u + g u^2 - u^3
 
-solved with spin2/ETDRK4.  Section 1 runs the preloaded 'sh' demo
-(r = 0.1, g = 0, random init) to t = 1200 (convection rolls); section
-2 uses a deterministic sine + five-Gaussian init on [0, 20pi]^2 to
-produce spots (r = 0.01, g = 1), spirals (r = 0.7, g = 1), and
-stripes (r = 0.1, g = 0), plus the published resolution-refinement
-error check.
+solved with spin2/ETDRK4: the preloaded 'sh' demo (convection rolls),
+then a sine + five-Gaussian initial condition on [0, 20pi]^2 giving
+spots (r = 0.01, g = 1), spirals (r = 0.7, g = 1) and stripes
+(r = 0.1, g = 0), with a resolution-refinement error check.
 
 Original: https://www.chebfun.org/examples/pde/SwiftHohenberg.html
 Copyright by The University of Oxford and The Chebfun Developers.
@@ -22,16 +20,16 @@ import os
 import sys
 import warnings
 
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-from chebfunjax.plotting import chebfun_style
+from chebfunjax import chebfun2
+from chebfunjax.operators.spinop2 import Spinop2, func2str, spin2
+from chebfunjax.plotting import PARULA, chebfun_style
 from chebfunjax.plotting import save_chebfun_figure as _savefig
-from chebfunjax.spin.solver2d import spin2
-from chebfunjax.spin.spinop2 import SpinOp2
-from chebfunjax.utils.random import randnfun2
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -39,17 +37,42 @@ _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'pde')
 FIG = [0]
 
 
-def _plot(U, dom):
+def _mat(v):
+    return "[" + " ".join(f"{float(t):g}" for t in v) + "]"
+
+
+def _disp_spinop2(S):
+    """MATLAB's property display of a spinop2."""
+    print("  spinop2 with properties:\n")
+    print(f"     domain: {_mat(S.domain)}")
+    print("       init: [InfxInf chebfun2]")
+    print(f"        lin: {func2str(S.lin)}")
+    print(f"     nonlin: {func2str(S.nonlin)}")
+    print(f"      tspan: {_mat(S.tspan)}")
+    print(f"    numVars: {S.numVars}")
+
+
+def _trig2(u, dom):
+    """The chebfun2(..., 'trig') spin2 returns (reshapeData.m)."""
+    return chebfun2(lambda x, y: jnp.real(jnp.asarray(u(np.asarray(x),
+                                                        np.asarray(y)))),
+                    domain=dom, trig=True)
+
+
+def _plot(u, dom):
+    """plot(u), view(0,90), axis equal, axis off."""
     FIG[0] += 1
-    fig, ax = plt.subplots(figsize=(6.8, 6.4))
-    ax.imshow(np.asarray(U).T, origin="lower", cmap="viridis",
-              extent=(dom[0], dom[1], dom[2], dom[3]))
+    xs = np.linspace(dom[0], dom[1], 300)
+    ys = np.linspace(dom[2], dom[3], 300)
+    X, Y = np.meshgrid(xs, ys)
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    ax.pcolormesh(X, Y, np.real(np.asarray(u(X, Y))), cmap=PARULA,
+                  shading="gouraud")
     ax.set_aspect("equal")
     ax.set_axis_off()
     fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG,
-                             f"SwiftHohenberg_{FIG[0]:02d}.png"))
+    fig.tight_layout(pad=0.2)
+    _savefig(fig, os.path.join(_IMG, f"SwiftHohenberg_{FIG[0]:02d}.png"))
     plt.close(fig)
 
 
@@ -57,76 +80,59 @@ def run():
     os.makedirs(_IMG, exist_ok=True)
     warnings.filterwarnings("ignore")
 
-    # 1. The preloaded demo (r = 0.1, g = 0, random init) to t = 1200.
-    # MATLAB's preloaded 'sh': u0 = randnfun2(4, dom, 'trig')
-    # NORMALIZED to inf-norm 1 -- without the normalization the
-    # explicit u^3 step is unstable at dt = 1 (u0 ~ +-3 -> u^3 ~ 30).
-    dom = (0.0, 50.0, 0.0, 50.0)
-    f0 = randnfun2(4.0, dom, seed=7, trig=True)
-    xg = np.linspace(0, 50, 256, endpoint=False)
-    Xg, Yg = np.meshgrid(xg, xg, indexing="ij")
-    nrm = np.max(np.abs(np.asarray(f0(Xg, Yg))))
-    op = SpinOp2(lin_coeffs=(-2.0, -1.0, 0.0, 0.0, 0.0),
-                 nonlin_vals=lambda u: -0.9 * u - u**3,
-                 n_vars=1, domain=dom, tspan=(0.0, 1200.0),
-                 u0=lambda x, y: np.asarray(f0(x, y)) / nrm)
-    x, y, t, U = spin2(op, 128, 1.0, dealias=False)
-    _plot(U, dom)
-    print("demo done", flush=True)
+    S = Spinop2("sh")
+    print("S = ")
+    _disp_spinop2(S)
+    print()
 
-    # 2. Spots, spirals, stripes on [0, 20pi]^2.
-    P = 20 * np.pi
-    dom = (0.0, P, 0.0, P)
+    S.tspan = (0.0, 1200.0)
+    N = 128
+    dt = 1
+    u = spin2(S, N, dt, "plot", "off", dealias=False)
+    u = _trig2(u, S.domain)
+    _plot(u, S.domain)
 
-    def u0(x, y):
-        g = (np.cos(x) + np.sin(2 * x) + np.sin(y)
-             + np.cos(2 * y)) / 20
-        for cx, cy in [(5, 5), (5, 15), (15, 15), (15, 5), (10, 10)]:
-            g = g + np.exp(-((x - cx * np.pi)**2 + (y - cy * np.pi)**2))
-        return g
+    print("u =")
+    print(u.disp())
 
-    def sh_op(r, g, t1):
-        return SpinOp2(lin_coeffs=(-2.0, -1.0, 0.0, 0.0, 0.0),
-                       nonlin_vals=lambda u:
-                       (-1 + r) * u + g * u**2 - u**3,
-                       n_vars=1, domain=dom, tspan=(0.0, t1), u0=u0)
+    dom = (0.0, 20 * np.pi, 0.0, 20 * np.pi)
+    tspan = (0.0, 200.0)
+    S = Spinop2(dom, tspan)
+    S.lin = "@(u) -2*lap(u) - biharm(u)"
+    r, g = 1e-2, 1
 
-    # initial condition
-    xg = np.linspace(0, P, 400)
-    X, Y = np.meshgrid(xg, xg, indexing="ij")
-    _plot(u0(X, Y), dom)
+    def nonlin(r, g):
+        return lambda u: (-1 + r) * u + g * u**2 - u**3
+    S.nonlin = nonlin(r, g)
 
-    # spots (r = 0.01, g = 1)
-    x, y, t, U = spin2(sh_op(1e-2, 1.0, 200.0), 96, 2e-1, dealias=False)
-    _plot(U, dom)
-    print("spots done", flush=True)
+    pi = np.pi
+    u0 = 1 / 20 * chebfun2(lambda x, y: jnp.cos(x) + jnp.sin(2 * x)
+                           + jnp.sin(y) + jnp.cos(2 * y), domain=dom, trig=True)
+    for cx, cy in [(5, 5), (5, 15), (15, 15), (15, 5), (10, 10)]:
+        u0 = u0 + chebfun2(lambda x, y, cx=cx, cy=cy: jnp.exp(
+            -((x - cx * pi)**2 + (y - cy * pi)**2)), domain=dom, trig=True)
+    S.init = u0
 
-    # refinement check
-    x2, y2, t2, V = spin2(sh_op(1e-2, 1.0, 200.0), 128, 1e-1,
-                          dealias=False)
+    _plot(S.init, dom)
 
-    def _spectral_interp(W, M):
-        n = W.shape[0]
-        c = np.fft.fftshift(np.fft.fft2(W)) / n**2
-        C = np.zeros((M, M), dtype=complex)
-        s0 = (M - n) // 2
-        C[s0:s0 + n, s0:s0 + n] = c
-        return np.real(np.fft.ifft2(np.fft.ifftshift(C))) * M**2
+    u = spin2(S, 96, 2e-1, "plot", "off", dealias=False)
+    _plot(u, dom)
 
-    err = (np.linalg.norm(_spectral_interp(U, 128) - V)
-           / np.linalg.norm(V))
-    print(f"Relative error: {err:1.2e}")
+    v = spin2(S, 128, 1e-1, "plot", "off", dealias=False)
+    u2, v2 = _trig2(u, dom), _trig2(v, dom)
+    error = float((u2 - v2).norm()) / float(v2.norm())
+    print(f"Relative error: {error:1.2e}")
 
-    # spirals (r = 0.7, g = 1)
-    x, y, t, U = spin2(sh_op(7e-1, 1.0, 200.0), 96, 2e-1, dealias=False)
-    _plot(U, dom)
-    print("spirals done", flush=True)
+    r, g = 7e-1, 1
+    S.nonlin = nonlin(r, g)
+    u = spin2(S, 96, 2e-1, "plot", "off", dealias=False)
+    _plot(u, dom)
 
-    # stripes (r = 0.1, g = 0)
-    x, y, t, U = spin2(sh_op(1e-1, 0.0, 200.0), 100, 2e-1,
-                       dealias=False)
-    _plot(U, dom)
-    print("stripes done", flush=True)
+    S.tspan = (0.0, 200.0)
+    r, g = 1e-1, 0
+    S.nonlin = nonlin(r, g)
+    u = spin2(S, 100, 2e-1, "plot", "off", dealias=False)
+    _plot(u, dom)
 
 
 if __name__ == "__main__":

@@ -49,11 +49,7 @@ disp([g(.1) 1-g(-.1)])
 ```
 
 ```text
-0.011607316445305   0.025671586349827
-L=10, n=10: err = 4.459e-08  (4.3 s)
-L=100, n=15: err = 3.869e-07  (2.3 s)
-L=1000, n=20: err = 2.136e-06  (2.4 s)
-L=1000, n=30: err = 6.759e-10  (3.0 s)
+   0.011607316445305   0.025671586349827
 ```
 
 To approximate $g$ by a rational function of type $(n,n)$, we can use the Chebfun `minimax` command. (Another possibility is `cf`, at least for smaller values of $L$.) Here is a little code that does this.
@@ -85,7 +81,7 @@ tic, fermi(10,10), toc
 ```
 
 ```text
-
+Elapsed time is 4.571910 seconds.
 ```
 
 ![FermiDirac figure 03](../../images/approx/FermiDirac_03.png)
@@ -97,7 +93,9 @@ tic, fermi(100,15), toc
 ```
 
 ```text
-
+Elapsed time is 3.166278 seconds.
+Elapsed time is 2.470717 seconds.
+Elapsed time is 3.168322 seconds.
 ```
 
 ![FermiDirac figure 04](../../images/approx/FermiDirac_04.png)

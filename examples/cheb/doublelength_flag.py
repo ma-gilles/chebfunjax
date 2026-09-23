@@ -28,28 +28,40 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'cheb')
 
 
-def _pair_plot(f, f2, fname, dots=True, trig=False):
-    fig, ax = plt.subplots(figsize=(8.8, 4.4))
+def _coeffs(g, trig):
+    """(index, |coefficient|) as MATLAB plotcoeffs shows them."""
+    c = np.abs(np.asarray(g.coeffs))
+    if trig:
+        n = len(c)                        # wave numbers -(n-1)/2 .. (n-1)/2
+        return np.arange(n) - (n - 1) // 2, c
+    return np.arange(len(c)), c
 
-    def coeffs_idx(g):
-        c = np.abs(np.asarray(g.coeffs)) + 1e-30
-        if trig:
-            n = len(c)
-            k = np.arange(n) - n // 2
-            return np.abs(k), c
-        return np.arange(len(c)), c
 
-    k2, c2 = coeffs_idx(f2)
-    k1, c1 = coeffs_idx(f)
-    if dots:
-        ax.semilogy(k2, c2, '.', ms=7)
-        ax.semilogy(k1, c1, 'or', ms=5, mfc='none')
-    else:
-        ax.semilogy(k2, c2, lw=1)
-        ax.semilogy(k1, c1, 'r', lw=1)
-    ax.grid(True)
-    ax.set_xlabel("degree" if not trig else "wave number")
-    ax.set_ylabel("magnitude of coefficient")
+def _pair_plot(f, f2, fname, fmt2, fmt1, trig=False):
+    """plotcoeffs(f2,fmt2), hold on, plotcoeffs(f,fmt1), hold off."""
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    for g, fmt in ((f2, fmt2), (f, fmt1)):
+        k, c = _coeffs(g, trig)
+        kw = dict(color='r') if 'r' in fmt else {}
+        if fmt.strip('r') == 'o':
+            kw.update(marker='o', ms=10, mfc='none', mew=1.5, ls='none')
+        elif fmt.strip('r') == '.':
+            kw.update(marker='.', ms=(6 if trig else 7), ls='none')
+        else:
+            kw.update(lw=1.6)
+        if not fmt.strip('r') and g is f2:
+            kw.update(marker='.', ms=3, ls='none')
+        ax.semilogy(k, c, **kw)
+    ax.set_ylim(1e-20, 1)
+    ax.set_yticks([1e-20, 1e-15, 1e-10, 1e-5, 1])
+    if trig:
+        n = (len(f2.coeffs) - 1) // 2
+        ax.set_xlim(-n, n)
+    ax.grid(True, which='major', alpha=0.5)
+    ax.grid(True, which='minor', ls='--', alpha=0.2)
+    ax.set_xlabel("Wave number" if trig else "Degree of Chebyshev polynomial")
+    ax.set_ylabel("Magnitude of coefficient")
+    ax.set_title("Fourier coefficients" if trig else "Chebyshev coefficients")
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, fname))
@@ -59,25 +71,20 @@ def _pair_plot(f, f2, fname, dots=True, trig=False):
 def run():
     os.makedirs(_IMG, exist_ok=True)
 
-    # doublelength emulated by fixed-length construction at 2*len
-    f = cj.chebfun(lambda x: jnp.exp(x))
-    f2 = cj.chebfun(lambda x: jnp.exp(x), n=2 * len(f))
-    _pair_plot(f, f2, "DoublelengthFlag_01.png")
-    print(f"exp: len {len(f)} -> {len(f2)}")
+    # 'doublelength' (MATLAB @chebfun/chebfun.m): construct adaptively, then
+    # again at the fixed length 2*length(f)-1.
+    f = cj.chebfun('exp(x)')
+    f2 = cj.chebfun('exp(x)', n=2 * len(f) - 1)
+    _pair_plot(f, f2, "DoublelengthFlag_01.png", '.', 'or')
 
-    g = cj.chebfun(lambda x: jnp.sin(x) + jnp.sin(x**2),
-                   domain=(0.0, 10.0))
-    g2 = cj.chebfun(lambda x: jnp.sin(x) + jnp.sin(x**2),
-                    domain=(0.0, 10.0), n=2 * len(g))
-    _pair_plot(g, g2, "DoublelengthFlag_02.png", dots=False)
-    print(f"wiggly: len {len(g)} -> {len(g2)}")
+    f = cj.chebfun('sin(x)+sin(x^2)', domain=[0, 10])
+    f2 = cj.chebfun('sin(x)+sin(x^2)', domain=[0, 10], n=2 * len(f) - 1)
+    _pair_plot(f, f2, "DoublelengthFlag_02.png", '', 'r')
 
     ff = lambda t: 1.0 / (2 - jnp.cos(17 * (t - 1)))  # noqa: E731
-    h = cj.chebfun(ff, domain=(-np.pi, np.pi), trig=True)
-    h2 = cj.chebfun(ff, domain=(-np.pi, np.pi), trig=True,
-                    n=2 * len(h) + 1)
-    _pair_plot(h, h2, "DoublelengthFlag_03.png", trig=True)
-    print(f"trig: len {len(h)} -> {len(h2)}")
+    f = cj.chebfun(ff, domain=[-np.pi, np.pi], trig=True)
+    f2 = cj.chebfun(ff, domain=[-np.pi, np.pi], trig=True, n=2 * len(f) - 1)
+    _pair_plot(f, f2, "DoublelengthFlag_03.png", '.', '.r', trig=True)
 
 
 if __name__ == "__main__":

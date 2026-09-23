@@ -91,9 +91,14 @@ toc
 ```text
 chebPrice =
    chebfun3 object
- rank (Tucker): 5 x 10 x 7
+   cols: Inf x 5  chebfun
+   rows: Inf x 10 chebfun
+  tubes: Inf x 7  chebfun
+   core: 5 x 10 x 7
+ length: 17, 33, 23
  domain: [0.3, 2] x [0.3, 2] x [-0.9, 0.9]
-Elapsed time is 9.825322 seconds.
+ vertical scale = 0.19
+Elapsed time is 11.105882 seconds.
 ```
 
 Let's plot the function at three slices $T = 2$, $K = 0.3$, and $\rho = -0.9$:
@@ -138,9 +143,9 @@ err = max(abs(err(:)))
 
 ```text
 time_price =
-    1.7972
+    1.8891
 time_ChebPrice =
-    0.2017
+    0.2168
 err =
    5.8801e-04
 ```

@@ -74,6 +74,36 @@ lamabs =
    0.447213591475760
    0.447213536213558
    0.447212874319477
+   0.447205819592720
+   0.447140718685384
+   0.446624285236960
+   0.443213867583940
+   0.425860481402394
+   0.367273374313751
+   0.254897683754369
+   0.136684719715981
+   0.060203829356335
+   0.023513932948771
+   0.008484914561718
+   0.002878036011984
+   0.000925347073737
+   0.000283486403501
+   0.000083064239738
+   0.000023347453013
+   0.000006310580416
+   0.000001643585463
+   0.000000413220904
+   0.000000100442857
+   0.000000023637297
+   0.000000005392072
+   0.000000001193679
+   0.000000000256710
+   0.000000000053682
+   0.000000000010925
+   0.000000000002165
+   0.000000000000418
+   0.000000000000078
+   0.000000000000015
 ```
 
 In words, the set of functions in $[-1,1]$ that are bandlimited to wave numbers $[-c,c\kern .7pt ]$ has numerical dimension approximately $2c/\pi$. This discovery is due to David Slepian, Henry Pollak, and Henry Landau at Bell Labs in the late 1950s [1,2,3]. With the discrete matrix $A$, we were implicitly looking at *periodic* functions on $[-1,1]$ bandlimited to $[-c, c\kern .7pt]$. With the continuous function $K(x,t)$, we are looking at *nonperiodic* functions on the same interval, bandlimited in the same way. The numerical rank discovery tells us that this space of nonperiodic functions, though infinitely bigger than the space of periodic functions algebraically, is only slightly bigger numerically.

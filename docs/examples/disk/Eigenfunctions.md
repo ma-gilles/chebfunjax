@@ -27,7 +27,9 @@ In Diskfun, we can construct these functions using `diskfun.harmonic`. The param
 
 ```text
 u42 =
-Diskfun(rank=1, n_plus=1, n_minus=0)
+     diskfun object
+       domain        rank    vertical scale
+      unit disk        1          1.4
 ```
 
 ![Eigenfunctions figure 01](../../images/disk/Eigenfunctions_01.png)
@@ -42,7 +44,7 @@ norm( lap(u42)+(lam)^2*u42 )
 
 ```text
 ans =
-     1.615251494144722e-10
+     1.297685076991720e-11
 ```
 
 Harmonics with the parameter $m=0$ correspond to displacements in the vibrating drum problem where the drum is struck exactly in the center. This creates vibrational patterns that are radially symmetric.
@@ -118,7 +120,7 @@ int3 = sum2(u03.*u03)
 
 ```text
 int1 =
-     -1.840701997332679e-16
+    -1.840701997332679e-16
 int2 =
     -1.677797217971637e-17
 int3 =

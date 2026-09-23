@@ -26,7 +26,7 @@ import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from chebfunjax.chebfun1d.chebfun import chebfun, quantumstates
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
@@ -36,27 +36,38 @@ _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'ode-eig')
 FIG = [0]
 
 
-def _draw(V, evals, efuns, title=""):
-    """MATLAB quantumstates-style plot: V plus states at their levels."""
+def _draw(V, d, U, n=10, h=0.1):
+    """The plot drawn by MATLAB @chebfun/quantumstates.m."""
     FIG[0] += 1
-    a, b = float(V.domain.a), float(V.domain.b)
-    xx = np.linspace(a, b, 2000)
-    fig, ax = plt.subplots(figsize=(8.6, 5.2))
-    ax.plot(xx, np.asarray(V(xx)), "k", lw=1.6)
-    lam = np.asarray(evals, dtype=float)
-    gap = np.min(np.diff(lam)) if len(lam) > 1 else 1.0
-    sc = 0.4 * max(gap, 1e-8)
-    for lv, f in zip(lam, efuns):
-        vals = np.asarray(f(xx))
-        vals = vals / max(np.max(np.abs(vals)), 1e-300)
-        ax.plot(xx, lv + sc * vals, lw=1.0)
-        ax.plot([a, b], [lv, lv], color="0.8", lw=0.5, zorder=0)
-    ax.set_xlim(a, b)
-    lo = min(0.0, float(np.min(np.asarray(V(xx)))))
-    ax.set_ylim(lo - 0.05 * abs(lam[-1]), lam[-1] + 6 * sc)
-    ax.grid(True)
-    if title:
-        ax.set_title(title)
+    xmin, xmax = float(V.domain.a), float(V.domain.b)
+    fig, ax = plt.subplots()
+    lw = 1
+    jl = {'linestyle': '-', 'color': 'k'}
+    matlab_plot(V, 'k', ax=ax, linewidth=lw, jumpline=jl)
+    ax.set_title(f"h = {h:4g}      {n} eigenstates", fontsize=12)
+    d = np.asarray(d, dtype=float)
+    xx = np.linspace(xmin, xmax, 2001)
+    Vv = np.asarray(V(xx))
+    ymax = d.max()
+    ymin = float(V.min()[1])            # min returns (x, f(x))
+    ydiff = ymax - ymin
+    ymax = ymax + .2 * ydiff
+    Vxmin, Vxmax = float(V(xmin)), float(V(xmax))
+    dx = .05 * (xmax - xmin)
+    dy = .25 * ydiff / max(5, n)
+    for j, u in enumerate(U):
+        w = dy * u / float(u.norm())       # eigs returns L2-normalized modes
+        (_, lo), (_, hi) = w.minandmax()
+        if float(hi) < -float(lo):
+            w = -w
+        matlab_plot(w + float(d[j]), ax=ax, linewidth=lw,
+                    color=f"C{j % 7}")
+    ax.plot(xx, Vv, 'k', lw=lw)
+    for xe, Ve in ((xmin, Vxmin), (xmax, Vxmax)):
+        if ymax > Ve:
+            ax.plot([xe, xe], [ymax, Ve], 'k', lw=lw)
+    matlab_plot(V, 'k', ax=ax, linewidth=lw, jumpline=jl)
+    ax.axis([xmin - dx, xmax + dx, ymin - dy, ymax])
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, f"Eigenstates_{FIG[0]:02d}.png"))
@@ -68,50 +79,41 @@ def run():
     warnings.filterwarnings("ignore")
     t_start = time.time()
     x = chebfun(lambda x: x, domain=(-3.0, 3.0))
-
-    # harmonic oscillator, default 10 states, h = 0.1
     V = x**2
+
+    # quantumstates(V) with no semicolon displays ans = d
     lam, funs = quantumstates(V)
-    _draw(V, lam, funs, "harmonic oscillator")
+    _draw(V, lam, funs)
     print("ans =")
     for v in np.asarray(lam):
         print(f"   {v:.15f}")
 
-    # more states
-    lam, funs = quantumstates(V, n=60)
-    _draw(V, lam, funs, "60 states")
+    for n, h in ((60, 0.1), (10, 0.01), (20, 0.5)):
+        lam, funs = quantumstates(V, n=n, h=h)
+        _draw(V, lam, funs, n, h)
 
-    # smaller h
-    lam, funs = quantumstates(V, h=0.01)
-    _draw(V, lam, funs, "h = 0.01")
-
-    # both
-    lam, funs = quantumstates(V, n=20, h=0.5)
-    _draw(V, lam, funs, "n = 20, h = 0.5")
-
-    # deep square well
     V = 10 - 10 * (abs(x) < 1)
     lam, funs = quantumstates(V)
-    _draw(V, lam, funs, "deep square well")
+    _draw(V, lam, funs)
 
-    # shallower square well
-    V = 1 - 1 * (abs(x) < 1)
+    V = 1 - (abs(x) < 1)
     lam, funs = quantumstates(V, n=20)
-    _draw(V, lam, funs, "shallow square well")
+    _draw(V, lam, funs, 20)
 
-    # absolute value
     lam, funs = quantumstates(abs(x))
-    _draw(abs(x), lam, funs, "V = |x|")
+    _draw(abs(x), lam, funs)
 
-    # square root
-    V = (abs(x) + 0.1).sqrt()
+    V = (abs(x) + .1).sqrt()
     lam, funs = quantumstates(V)
-    _draw(V, lam, funs, "V = sqrt(|x| + 0.1)")
+    _draw(V, lam, funs)
 
-    # off-centre barrier
-    V = 0.5 * (abs(x - 0.5) < 0.5)
+    V = 0.5 * (abs(x - .5) < .5)
     lam, funs = quantumstates(V, n=18)
-    _draw(V, lam, funs, "off-centre barrier")
+    _draw(V, lam, funs, 18)
+
+    V = 0.5 * (-2 * (x - .5)**2).exp()
+    lam, funs = quantumstates(V, n=18)
+    _draw(V, lam, funs, 18)
 
     print(f"Elapsed time is {time.time() - t_start:.6f} seconds.")
 

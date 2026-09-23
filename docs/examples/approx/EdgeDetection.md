@@ -50,17 +50,17 @@ ans =
   -0.300000000000000
   -0.200000000000000
   -0.100000000000000
-  0.000000000000000
-  0.100000000000000
-  0.200000000000000
-  0.300000000000000
-  0.400000000000000
-  0.500000000000000
-  0.600000000000000
-  0.700000000000000
-  0.800000000000000
-  0.900000000000000
-  1.000000000000000
+   0.000000000000000
+   0.100000000000000
+   0.200000000000000
+   0.300000000000000
+   0.400000000000000
+   0.500000000000000
+   0.600000000000000
+   0.700000000000000
+   0.800000000000000
+   0.900000000000000
+   1.000000000000000
 ```
 
 The actual errors in the breakpoints are on the order of machine epsilon:
@@ -72,7 +72,7 @@ maxerr = norm(domain(f)-true_edges,inf)
 
 ```text
 maxerr =
-     6.661338147750939e-16
+     4.440892098500626e-16
 ```
 
 Now in this example we didn't really need the edge detector; indeed we could construct the chebfun by telling it where to put the breakpoints.
@@ -84,7 +84,7 @@ norm(f-f2)
 
 ```text
 ans =
-     1.932825707900333e-14
+     4.488987552579720e-15
 ```
 
 For a more genuine illustration of edge detection in action we want a function whose edge locations are not simple to work out mathematically. Such an example is provided by the spectral abscissa (largest eigenvalue real part) of a matrix $A = (1-t)B + tC$, where $B$ and $C$ are fixed matrices and $t$ is a parameter. We mark the breakpoints with red dots.

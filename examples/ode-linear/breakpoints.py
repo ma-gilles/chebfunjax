@@ -36,6 +36,43 @@ HEAD = "        ep      pos(max(u))    length(u)    time (secs.) "
 FS = "%12.1e %14.9f %9d %14.2f"
 
 
+def _mnum(v):
+    """MATLAB ``format long`` display of a real scalar (value line)."""
+    v = float(v)
+    if v == int(v) and abs(v) < 1e9:
+        return f"{int(v):6d}"
+    if 1e-3 <= abs(v) < 100:
+        return f"{v:.15f}".rjust(20)
+    return f"{v:.15e}".rjust(26)
+
+
+def _mcol(vals):
+    """MATLAB ``format long`` display lines of a real column vector."""
+    vals = [float(v) for v in vals]
+    if all(v == int(v) for v in vals):
+        return [f"{int(v):6d}" for v in vals]
+    m = max(abs(v) for v in vals)
+    if 1e-3 <= m < 100:
+        return [f"{v:.15f}".rjust(20) for v in vals]
+    e = int(np.floor(np.log10(m))) + (1 if m < 1e-3 else 0)
+    return [f"   1.0e{e:+03d} *"] + [f"{v / 10.0**e:.15f}".rjust(20)
+                                    for v in vals]
+
+
+def _mdisp(name, v):
+    """Print ``name = v`` as MATLAB does (scalar or column vector)."""
+    print(f"{name} =")
+    if np.ndim(v) == 0:
+        print(_mnum(v))
+    else:
+        print("\n".join(_mcol(np.ravel(v))))
+
+
+def _num2str(v):
+    """MATLAB num2str of a positive scalar."""
+    return f"{v:.{max(1, int(np.floor(np.log10(abs(v)))) + 5)}g}"
+
+
 def _save(fig):
     FIG[0] += 1
     fig.set_facecolor("white")
@@ -76,7 +113,10 @@ def run():
     ax.set_title(r"Boundary layers for $\epsilon$ = 1e-1, ..., 1e-5")
     _save(fig)
 
-    # Problem A with a moving breakpoint, ep down to 1e-8
+    # Problem A with a moving breakpoint, ep down to 1e-8.  As in the
+    # MATLAB code, fprintf runs before [val,pos] = max(u), so each row
+    # shows the previous solution's pos.
+    pos = _pos_max(u)
     print(HEAD, flush=True)
     fig, ax = plt.subplots(figsize=(9.0, 5.0))
     for k in range(1, 9):
@@ -85,19 +125,19 @@ def run():
         t0 = time.time()
         u = LA(ep, dom).solve(1.0)
         el = time.time() - t0
-        print(FS % (ep, _pos_max(u), len(u), el), flush=True)
+        print(FS % (ep, pos, len(u), el), flush=True)
+        pos = _pos_max(u)
         if k == 3:
             ax.plot(tt, np.asarray(u(tt)), 'b', lw=1.2)
             bp = dom[1]
             ax.plot(bp, float(u(jnp.asarray(bp))), '.r', ms=12)
-            u_show = u
     ax.grid(True)
     ax.axis([-0.03, 1, 0, 1.03])
     ax.set_title(r"The same computed with a breakpoint, "
                  r"$\epsilon$ = 1e-3")
     _save(fig)
     print("u =")
-    print(repr(u_show))
+    print(repr(u))
 
     # Problem B: interior layers, plain [-2,2]
     def LB(ep, dom):
@@ -137,21 +177,20 @@ def run():
             ax.plot(t2, np.asarray(u(t2)), 'm', lw=1.2)
             for bp in (-d, d):
                 ax.plot(bp, float(u(jnp.asarray(bp))), '.k', ms=12)
-            u_show = u
     ax.grid(True)
     ax.axis([-2, 2, -6, 17])
     ax.set_title(r"The same computed with two breakpoints, "
                  r"$\epsilon$ = 1e-4")
     _save(fig)
     print("u =")
-    print(repr(u_show))
+    print(repr(u))
 
     # Nonlinear problem with 0, 1, 2 breakpoints
-    for doms, title in (
+    for k, (doms, title) in enumerate((
         ((0.0, 1.0), "Nonlinear problem"),
         ((0.0, 1 / 3, 1.0), "Same but with one breakpoint"),
         ((0.0, 0.30, 0.36, 1.0), "Same but with two breakpoints"),
-    ):
+    )):
         N = Chebop(lambda u: 0.005 * u.diff(2) + u * u.diff() - u,
                    domain=doms)
         N.lbc = -7.0 / 6
@@ -161,14 +200,14 @@ def run():
         el = time.time() - t0
         print("u =")
         print(repr(u))
-        print("t =")
-        print(f"   {el:.6f}")
+        if k > 0:
+            _mdisp("t", el)
         fig, ax = plt.subplots(figsize=(9.0, 5.0))
         ax.plot(tt, np.asarray(u(tt)), lw=1.4)
         for bp in doms[1:-1]:
             ax.plot(bp, float(u(jnp.asarray(bp))), '.r', ms=12)
         ax.grid(True)
-        ax.set_title(f"{title}: time {el:.2f} secs")
+        ax.set_title(f"{title}: time {_num2str(el)} secs")
         _save(fig)
 
 

@@ -44,21 +44,22 @@ def _save(fig, stem=None):
 
 def _pair_plots(f, p, err, dom, stem_base, deg):
     xs = np.linspace(dom[0], dom[1], 3000)
-    fig, ax = plt.subplots(figsize=(6.5, 4))
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
     ax.plot(xs, np.asarray(f(jnp.asarray(xs))), "k", lw=1.0)
     ax.plot(xs, np.asarray(p(jnp.asarray(xs))), "r", lw=1.2)
+    ax.set_xlim(dom[0], dom[1])
     ax.set_title("Function (black) and best trigonometric "
                  "approximation (red)")
     _save(fig, stem_base + "a")
-    fig, ax = plt.subplots(figsize=(6.5, 4))
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
     e = np.asarray(f(jnp.asarray(xs))) - np.asarray(p(jnp.asarray(xs)))
-    ax.plot(xs, e, lw=1.0)
-    ax.plot([dom[0], dom[1]], [err, err], "--k", lw=1.0)
-    ax.plot([dom[0], dom[1]], [-err, -err], "--k", lw=1.0)
+    ax.plot(xs, e, lw=1.5)
+    ax.plot([-np.pi, np.pi], [err, err], "--k", lw=1.5)
+    ax.plot([-np.pi, np.pi], [-err, -err], "--k", lw=1.5)
+    ax.set_xlim(dom[0], dom[1])
     ax.set_ylim(-5 * err, 5 * err)
     ax.set_title(f"Degree {deg} trigonometric error curve")
     _save(fig, stem_base + "b")
-    print(f"deg {deg}: err = {err:.15f}")
 
 
 def run():
@@ -98,13 +99,13 @@ def run():
                     domain=[-np.pi, np.pi], trig=True)
     p4, *_ = cj.trigremez(f4, 40)
     xs = np.linspace(-np.pi, np.pi, 4000)
-    fig, ax = plt.subplots(figsize=(6.5, 4))
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
     ax.plot(xs, np.asarray(f4(jnp.asarray(xs))) - np.asarray(p4(jnp.asarray(xs))),
             lw=1.0)
+    ax.set_xlim(-np.pi, np.pi)
     ax.set_ylim(-1, 1)
     ax.set_title("Almost sinusoidal error curve")
     _save(fig)
-    return True
 
 
 if __name__ == "__main__":

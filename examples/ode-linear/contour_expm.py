@@ -93,7 +93,6 @@ def run():
             term = sol * complex(np.exp(zk[k] * Tf[m]) * dzk[k])
             acc = term if acc is None else acc + term
         ufs.append((acc * (2 / 1j)).real())
-        print(f"Tf = {Tf[m]}: done", flush=True)
 
     fig, ax = plt.subplots(figsize=(9.0, 4.8))
     ax.plot(t, np.asarray(u0(t)), 'k', lw=2, label="Initial Data")

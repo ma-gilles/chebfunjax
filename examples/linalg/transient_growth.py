@@ -46,9 +46,13 @@ def run():
     warnings.filterwarnings("ignore")
     t0 = time.time()
 
+    # MATLAB's display of A (format long, 7 columns wrap at 6).
     print("A =")
-    for row in A:
-        print("  " + "".join(f"{int(v):7d}" for v in row))
+    for j0, j1, head in ((0, 6, "  Columns 1 through 6"),
+                         (6, 7, "  Column 7")):
+        print(head)
+        for row in A:
+            print("".join(f"{int(v):12d}" for v in row[j0:j1]))
 
     def op(t_arr):
         t_arr = np.atleast_1d(np.asarray(t_arr, dtype=float))
@@ -60,22 +64,22 @@ def run():
     e = cj.chebfun(lambda t: jnp.asarray(op(np.asarray(t))),
                    domain=(0.0, 2.5), splitting=True)
     xs = np.linspace(0, 2.5, 900)
-    fig, ax = plt.subplots(figsize=(9.0, 4.8))
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
     ax.plot(xs, np.asarray(e(xs)), 'b', lw=2)
-    ax.set_xlabel("t", fontsize=14)
-    ax.set_ylabel(r"$\|e^{tA}\|$", fontsize=14)
-    ax.set_title("amplitude", fontsize=16)
+    ax.set_xlabel("t", fontsize=10.5)
+    ax.set_ylabel(r"$\|e^{tA}\|$", fontsize=10.5)
+    ax.set_title("amplitude", fontsize=12)
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, "TransientGrowth_01.png"))
     plt.close(fig)
 
     e2 = e ** 2
-    fig, ax = plt.subplots(figsize=(9.0, 4.8))
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
     ax.plot(xs, np.asarray(e2(xs)), 'b', lw=2)
-    ax.set_xlabel("t", fontsize=14)
-    ax.set_ylabel(r"$\|e^{tA}\|^2$", fontsize=14)
-    ax.set_title("energy", fontsize=16)
+    ax.set_xlabel("t", fontsize=10.5)
+    ax.set_ylabel(r"$\|e^{tA}\|^2$", fontsize=10.5)
+    ax.set_title("energy", fontsize=12)
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, "TransientGrowth_02.png"))

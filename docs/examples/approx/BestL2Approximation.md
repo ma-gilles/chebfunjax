@@ -25,9 +25,25 @@ help chebfun/polyfit
 ```
 
 ```text
-L^2 error is 2.546e-10
-L^2 approximation of degree 2000 in t = 1.375
-errs: ['4.082e-01', '1.674e-02', '6.371e-04', '2.056e-05']
+ POLYFIT   Fit polynomial to a CHEBFUN.
+    F = POLYFIT(Y, N) returns a CHEBFUN F corresponding to the polynomial of
+    degree N that fits the CHEBFUN Y in the least-squares sense.
+
+    If Y is a global polynomial of degree n then this code has an O(n (log n)^2)
+    complexity. If Y is piecewise polynomial then it has an O(n^2) complexity.
+
+    F = POLYFIT(X, Y, N, D), where D is a DOMAIN object, returns a CHEBFUN F on
+    the domain D which corresponds to the polynomial of degree N that fits the
+    data (X, Y) in the least-squares sense. X should be a real-valued column
+    vector and Y should be a matrix with size(Y,1) = size(X,1).
+
+    F = POLYFIT(Y, N) where Y is represented as a periodic TRIGFUN object
+    returns the degree N trigonometric polynomial fit of length 2N+1.
+
+    Note CHEBFUN/POLYFIT does not not support more than one output argument in
+    the way that MATLAB/POLYFIT does.
+
+  See also INTERP1.
 ```
 
 The coefficients of $p_n$ in the Legendre basis can be computed by truncating the Legendre expansion for $f$ after $n+1$ terms. For example,
@@ -89,8 +105,8 @@ fprintf('L^2 approximation of degree %u in t = %1.3f\n',n,t)
 ```
 
 ```text
-L^2 error is 2.546e-10
-L^2 approximation of degree 2000 in t = 1.375
+L^2 error is 1.797e-06
+L^2 approximation of degree 10000 in t = 10.321
 ```
 
 ## Piecewise smooth functions

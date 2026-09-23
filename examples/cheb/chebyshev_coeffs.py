@@ -33,8 +33,10 @@ def _print_coeffs(a, label=None):
     if label:
         print(label)
     print("a =")
-    for v in np.asarray(a):
-        print(f"  {v:.15f}" if v < 0 else f"   {v:.15f}")
+    strs = [f"{v:.15f}" for v in np.asarray(a)]
+    w = max(20, max(len(t) for t in strs) + 2)   # MATLAB format long
+    for t in strs:
+        print(t.rjust(w))
 
 
 def _coeffplot(f, title, fname, ylim):
@@ -69,15 +71,13 @@ def run():
     _coeffplot(g, "Chebyshev coefficients of exp(x)/(1+10000x^2)",
                "ChebyshevCoeffs_02.png", (1e-18, 1))
 
-    # sign(x): the exact Chebyshev series has a_k = 4/(pi k) (-1)^((k-1)/2)
-    # for odd k; truncate to 10 terms (MATLAB chebfun(f,'trunc',10)).
-    a = np.zeros(10)
-    for k in range(1, 10, 2):
-        a[k] = 4 / (np.pi * k) * (-1.0) ** ((k - 1) // 2)
-    _print_coeffs(a)
-    ptr = cj.chebfun(jnp.asarray(a), coeffs=True)
-    pin = cj.chebfun(lambda t: jnp.sign(t), n=10,
-                     domain=(-1.0, 1.0))
+    # sign(x) and its truncated Chebyshev series, chebfun(f,'trunc',10)
+    f = x.sign()
+    # MATLAB turns splitting on for 'trunc' (chebfun.m parseInputs);
+    # chebfunjax does not, so pass it explicitly.
+    ptr = cj.chebfun(f, trunc=10, splitting=True)
+    _print_coeffs(ptr.coeffs)
+    pin = cj.chebfun(f, n=10)
     xs = np.linspace(-1, 1, 3000)
     fig, ax = plt.subplots(figsize=(8.8, 4.4))
     sgn = np.sign(xs)

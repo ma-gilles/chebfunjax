@@ -14,14 +14,13 @@ matplotlib.use("Agg")
 import os
 import sys
 
-import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
@@ -40,7 +39,7 @@ def run():
     err = np.array([.5, .0668, 7.36e-3, 7.99e-4, 8.65e-5, 9.35e-6,
                     1.01e-6, 1.09e-7, 1.17e-8, 1.26e-9, 1.36e-10])
     model = 2 * halphen_const**(-n - 0.5)
-    fig, ax = plt.subplots(figsize=(8.8, 4.4))
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
     ax.semilogy(n, model, '-b', lw=1.2)
     ax.semilogy(n, err, '.k', ms=14)
     ax.grid(True)
@@ -64,12 +63,9 @@ def run():
 
     roots = np.atleast_1d(np.asarray((f - 1.0 / 8).roots()))
     h = 1.0 / float(roots[0])
-    print("h =")
-    print(f"   {h:.13f}")
 
-    xs = np.linspace(1.0 / 12, 1.0 / 6, 800)
-    fig, ax = plt.subplots(figsize=(8.8, 4.4))
-    ax.plot(1.0 / xs, np.asarray(f(jnp.asarray(xs))), lw=1.3)
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    matlab_plot(1 / s, f, ax=ax)
     ax.plot([h], [1.0 / 8], '.r', ms=24)
     ax.grid(True)
     ax.set_title("Halphen's constant", fontsize=12)

@@ -39,6 +39,38 @@ D = (0.0, 500.0)
 SIGMA, R = 0.45, 0.03
 
 
+def _mnum(v):
+    """MATLAB ``format long`` display of a real scalar (value line)."""
+    v = float(v)
+    if v == int(v) and abs(v) < 1e9:
+        return f"{int(v):6d}"
+    if 1e-3 <= abs(v) < 100:
+        return f"{v:.15f}".rjust(20)
+    return f"{v:.15e}".rjust(26)
+
+
+def _mcol(vals):
+    """MATLAB ``format long`` display lines of a real column vector."""
+    vals = [float(v) for v in vals]
+    if all(v == int(v) for v in vals):
+        return [f"{int(v):6d}" for v in vals]
+    m = max(abs(v) for v in vals)
+    if 1e-3 <= m < 100:
+        return [f"{v:.15f}".rjust(20) for v in vals]
+    e = int(np.floor(np.log10(m))) + (1 if m < 1e-3 else 0)
+    return [f"   1.0e{e:+03d} *"] + [f"{v / 10.0**e:.15f}".rjust(20)
+                                    for v in vals]
+
+
+def _mdisp(name, v):
+    """Print ``name = v`` as MATLAB does (scalar or column vector)."""
+    print(f"{name} =")
+    if np.ndim(v) == 0:
+        print(_mnum(v))
+    else:
+        print("\n".join(_mcol(np.ravel(v))))
+
+
 def run():
     os.makedirs(_IMG, exist_ok=True)
     warnings.filterwarnings("ignore")
@@ -61,7 +93,6 @@ def run():
     ax.plot(xx, np.asarray(vT(xx)), lw=2)
     ax.set_ylim(-0.5, 14)
     ax.set_xlim(40, 60)
-    ax.grid(True)
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, "BSExponential_01.png"))
@@ -75,8 +106,15 @@ def run():
     plt.close(fig)
 
     # Value of the option at s = 55, six months before maturity.
-    print("ans =")
-    print(f"   {v55:.15f}")
+    _mdisp("ans", v55)
+    print("w =")
+    print(repr(w))
+
+    # The second derivative is continuous across the strike s = 50.
+    eps = float(np.finfo(float).eps)
+    wss = w.diff(2)
+    jump2 = float(wss(50 + 100 * eps)) - float(wss(50 - 100 * eps))
+    _mdisp("jump2", jump2)
 
 
 if __name__ == "__main__":

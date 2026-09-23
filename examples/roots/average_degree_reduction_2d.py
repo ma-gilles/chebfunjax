@@ -34,19 +34,12 @@ FIG = [0]
 
 
 def _coeff_len(g):
-    """Effective column degree: last column with mass above tol.
-
-    The published MATLAB code applies find(...,'last') to the
-    rot90'd matrix, which literally counts trailing *negligible*
-    columns — a representation-slack number that varies between
-    implementations and contradicts the example's own prose (it
-    predicts tau ~ 1/2 and ~ 1/sqrt(2)).  We compute the intended
-    effective degree; see the page note.
-    """
-    X = np.asarray(g.coeffs2())
-    colmax = np.max(np.abs(X), axis=0)
-    idx = np.where(colmax >= TOL)[0]
-    return (idx[-1] + 1) if idx.size else 1
+    """MATLAB ``find(max(abs(rot90(X,2))) < tol, 1, 'last')`` on
+    ``X = chebcoeffs2(g)``: the (1-based) last column of the doubly
+    reversed coefficient matrix whose maximum is below tol."""
+    X = np.rot90(np.asarray(g.chebcoeffs2()), 2)
+    idx = np.where(np.max(np.abs(X), axis=0) < TOL)[0]
+    return int(idx[-1] + 1) if idx.size else 0
 
 
 def compute_tau(op, N):
@@ -66,7 +59,7 @@ def compute_tau(op, N):
 
 def subdivision_diagram(op):
     FIG[0] += 1
-    fig, axes = plt.subplots(2, 2, figsize=(8.6, 8.0))
+    fig, axes = plt.subplots(2, 2, figsize=(6.0, 4.8))
     for levels in range(4):
         fs = round(14 - 2.5 * levels)
         ax = axes.ravel()[levels]
@@ -89,7 +82,7 @@ def subdivision_diagram(op):
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(
-        _IMG, f"AverageDegreeReduction2D_{FIG[0]:02d}.png"))
+        _IMG, f"AverageDegreeReduction2D_{FIG[0]:02d}.png"), size=(600, 480))
     plt.close(fig)
 
 
@@ -106,11 +99,13 @@ def run():
     op = lambda x, y: jnp.sin(M * (x - y))  # noqa: E731
     compute_tau(op, 2)
     subdivision_diagram(op)
-    g = cj.chebfun2(op)
-    m, n = np.asarray(g.coeffs2()).shape
+    m, n = cj.chebfun2(op).length()
     vals = max(m, n) / 2.0 ** np.arange(0, 2, 0.5)
     print("ans =")
-    print("  " + "  ".join(f"{v:.15f}" for v in vals))
+    print("  Columns 1 through 3")
+    print("".join(f"{v:20.15f}" for v in vals[:3]))
+    print("  Column 4")
+    print(f"{vals[3]:20.15f}")
 
     a, b = 1, 100
     op = lambda x, y: 1.0 / ((b - a) / 2 * ((x + 1) + (y + 1))  # noqa: E731
@@ -127,7 +122,7 @@ def run():
             / np.log(B + np.sqrt(B**2 - 1)))))
     print("ans =")
     for v in m:
-        print(f"   {v}")
+        print(f"{v:6d}")
 
 
 if __name__ == "__main__":

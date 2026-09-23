@@ -35,18 +35,18 @@ EP = 1e-10
 def _report(F):
     m, n = F.length()
     print("r =")
-    print(f"    {int(F.rank)}")
+    print(f"{int(F.rank):6d}")
     print("m =")
-    print(f"    {m}")
+    print(f"{m:6d}")
     print("n =")
-    print(f"    {n}")
+    print(f"{n:6d}")
 
 
 def _pivot_plot(F, k, xticks, yticks):
     piv = np.array(F.pivot_locations)
     n = piv.shape[0]
     print("n =")
-    print(f"    {n}")
+    print(f"{n:6d}")
     fig, ax = plt.subplots(figsize=(6.4, 6.4))
     for (px, py) in piv:
         ax.plot([-1, 1], [py, py], '-k', lw=0.8)

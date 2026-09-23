@@ -33,7 +33,7 @@ compute_tau(f, 2)          % Expected to be approximately 1/2
 ```
 
 ```text
-Tau = 0.52129
+Tau = 0.04601
 ```
 
 The parameter $\tau$ in this case is equal to $1/2$ because the number of oscillations of $f(x,y)$ in a rectangular domain $[a,b]\times[c,d]$ is directly proportional to $(b-a)(d-c)$. Moreover, the number of oscillations determines the number of points required to resolve the function. Therefore, each subdivision (in the $x$ or $y$ direction) halves the numerical degree of the polynomial interpolant and $\tau \approx 1/2$.
@@ -59,7 +59,7 @@ compute_tau(f, 2)          % Expected to be approximately 1/sqrt(2) = 0.707
 ```
 
 ```text
-Tau = 0.70711
+Tau = 0.80364
 ```
 
 The average $\tau$ parameter can be explained since all the oscillations of $f$ occur along diagonals, i.e., $y=-x$ (rather than in the coordinate directions). Two subdivisions, one in the $x$ and one in the $y$ direction are required to halve the length of the diagonal lines and hence, $\tau^2 \approx 1/2$ and $\tau = 1/\sqrt{2}$.
@@ -81,7 +81,10 @@ max(m,n)./2.^(0:.5:1.5)
 
 ```text
 ans =
-  51.000000000000000  36.062445840513924  25.500000000000000  18.031222920256962
+  Columns 1 through 3
+  51.000000000000000  36.062445840513924  25.500000000000000
+  Column 4
+  18.031222920256962
 ```
 
 ## Symmetric Cauchy function
@@ -114,9 +117,9 @@ m.'
 ```text
 ans =
    121
-   86
-   62
-   52
+    86
+    62
+    52
 ```
 
 ## Conclusion

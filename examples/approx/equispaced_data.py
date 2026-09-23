@@ -87,9 +87,8 @@ def run():
     print(repr(f))
     _coeffplot(f, "Chebyshev coefficients", "EquispacedData_03.png")
 
-    # Truncate to degree 50
-    c = np.asarray(f.coeffs)[:51]
-    f50 = cj.chebfun(jnp.asarray(c), coeffs=True)
+    # Interpolate f in 51 Chebyshev points (degree 50)
+    f50 = cj.chebfun(f, n=51)
     print("error50 =")
     print(f"     {float((f50 - fexact).norm(np.inf)):.15e}")
     _coeffplot(f50, "Chebyshev coefficients up to degree 50",
@@ -106,13 +105,12 @@ def run():
     # phenomenon, not the digits, is what replicates here)
     rs = np.random.RandomState(5489)
     noisy = data + 1e-1 * rs.standard_normal(data.shape)
-    for ep, fn in ((1e-2, "EquispacedData_06.png"),
-                   (3e-2, "EquispacedData_07.png")):
+    for ep, lab, fn in ((1e-2, "1e-2", "EquispacedData_06.png"),
+                        (3e-2, "3e-2", "EquispacedData_07.png")):
         fn_ = cj.chebfun(jnp.asarray(noisy), equi=True, eps=ep)
         _dataplot(fn_, grid, noisy,
-                  f"noisy data with 'equi', eps = {ep:g}: "
+                  f"noisy data with 'equi', eps = {lab}: "
                   f"length(f) = {len(fn_)}", fn)
-        print(f"eps={ep:g}: length {len(fn_)}")
 
 
 if __name__ == "__main__":

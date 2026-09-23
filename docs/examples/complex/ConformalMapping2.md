@@ -19,7 +19,7 @@ rho
 ```
 
 ```text
-Elapsed time is 0.620762 seconds.
+Elapsed time is 0.630258 seconds.
 rho =
    0.409705344072606
 ```
@@ -34,7 +34,7 @@ rho
 ```
 
 ```text
-Elapsed time is 3.447691 seconds.
+Elapsed time is 3.936808 seconds.
 rho =
    0.409705344001634
 ```
@@ -50,8 +50,10 @@ finv(f(z))
 
 ```text
 ans =
+  Column 1
   1.000000000000033 + 0.000000000000001i
-  -0.000000000000004 + 1.000000000000002i
+  Column 2
+ -0.000000000000004 + 1.000000000000002i
 ```
 
 These rational representations are fantastically efficient. We can map a million points back and forth in 1 second.
@@ -62,7 +64,7 @@ tic, finv(f(z)); toc
 ```
 
 ```text
-Elapsed time is 0.203315 seconds.
+Elapsed time is 0.190954 seconds.
 ```
 
 Here is a wigglier example.
@@ -76,7 +78,7 @@ rho
 ```
 
 ```text
-Elapsed time is 1.171481 seconds.
+Elapsed time is 1.296915 seconds.
 rho =
    0.515907564248333
 ```
@@ -93,7 +95,7 @@ rho
 ```
 
 ```text
-Elapsed time is 0.271928 seconds.
+Elapsed time is 0.284303 seconds.
 rho =
    0.506114112299069
 ```

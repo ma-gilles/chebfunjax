@@ -40,19 +40,24 @@ def gg(x):
 
 
 def _coeffplot(f, fname, ref=None, ylim=(1e-10, 10), ms=7):
-    c = np.abs(np.asarray(f.coeffs)) + 1e-30
-    fig, ax = plt.subplots(figsize=(8.8, 4.4))
-    ax.semilogy(np.arange(len(c)), c, 'ob', ms=ms, mfc='none')
+    # plotcoeffs(f, 'ob', MS, ms), ylim(...) [, hold on, plotcoeffs(f2, '.k')]
+    c = np.abs(np.asarray(f.coeffs))
+    fig, ax = plt.subplots(figsize=(5.98, 2.73))
+    ax.semilogy(np.arange(len(c)), c, 'o', color='b', ms=ms / 1.5,
+                mfc='none')
+    n = len(c)
     if ref is not None:
-        cr = np.abs(np.asarray(ref.coeffs)) + 1e-30
-        ax.semilogy(np.arange(len(cr)), cr, '.k', ms=10)
+        cr = np.abs(np.asarray(ref.coeffs))
+        ax.semilogy(np.arange(len(cr)), cr, '.k', ms=ms / 1.5)
+        n = max(n, len(cr))
+    ax.set_xlim(0, n - 1)
     ax.set_ylim(*ylim)
     ax.grid(True)
-    ax.set_xlabel("degree of Chebyshev polynomial")
-    ax.set_ylabel("magnitude of coefficient")
-    fig.set_facecolor("white")
+    ax.set_title("Chebyshev coefficients")
+    ax.set_xlabel("Degree of Chebyshev polynomial")
+    ax.set_ylabel("Magnitude of coefficient")
     fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, fname))
+    _savefig(fig, os.path.join(_IMG, fname), size=(598, 273))
     plt.close(fig)
 
 
@@ -62,9 +67,9 @@ def run():
     # Default construction fails to resolve the noise:
     with warnings.catch_warnings(record=True) as rec:
         warnings.simplefilter("always")
-        cj.chebfun(ff, max_length=2**16)
+        cj.chebfun(ff, max_length=2**16 + 1)
     if rec:
-        print("Warning:", str(rec[-1].message)[:60])
+        print("Warning:", str(rec[-1].message))
 
     # eps 1e-6 succeeds:
     f = cj.chebfun(ff, eps=1e-6)
@@ -82,9 +87,9 @@ def run():
 
     with warnings.catch_warnings(record=True) as rec:
         warnings.simplefilter("always")
-        cj.chebfun(ff, eps=1e-12, max_length=2**16)
+        cj.chebfun(ff, eps=1e-12, max_length=2**16 + 1)
     if rec:
-        print("Warning:", str(rec[-1].message)[:60])
+        print("Warning:", str(rec[-1].message))
 
     # Smooth deterministic 'noise': plain construction resolves it fully
     g = cj.chebfun(gg)
@@ -93,7 +98,6 @@ def run():
                   (1e-12, "Noisy_07.png")):
         gge = cj.chebfun(gg, eps=e)
         _coeffplot(gge, fn, ylim=(1e-18, 1e2), ms=4)
-        print(f"eps={e:g}: len {len(gge)}")
 
 
 if __name__ == "__main__":

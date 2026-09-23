@@ -56,48 +56,36 @@ def run():
     nrmduvec = info["normDelta"]
 
     x = np.linspace(-1, 1, 2000)
-    fig, axes = plt.subplots(1, 2, figsize=(9.6, 4.2))
+    fig, axes = plt.subplots(1, 2, figsize=(6.0, 2.7))
     axes[0].plot(x, np.asarray(u(x)), lw=2, label="u")
     axes[0].plot(x, np.asarray(v(x)), "--r", lw=2, label="v")
-    axes[0].set_title("u and v vs. x", fontsize=10)
+    axes[0].set_title("u and v vs. x", fontsize=8)
     axes[0].legend()
     axes[0].grid(True)
-    axes[0].set_xlabel("x", fontsize=10)
-    axes[0].set_ylabel("u(x) and v(x)", fontsize=10)
+    axes[0].set_xlabel("x", fontsize=8)
+    axes[0].set_ylabel("u(x) and v(x)", fontsize=8)
     axes[1].semilogy(np.arange(1, len(nrmduvec) + 1), nrmduvec, "-*", lw=2)
-    axes[1].set_title("Norm of update vs. iteration no.", fontsize=10)
+    axes[1].set_title("Norm of update vs. iteration no.", fontsize=8)
     axes[1].grid(True)
-    axes[1].set_xlabel("iteration no.", fontsize=10)
-    axes[1].set_ylabel("norm of update", fontsize=10)
+    axes[1].set_xlabel("iteration no.", fontsize=8)
+    axes[1].set_ylabel("norm of update", fontsize=8)
     _save(fig)
 
-    print("normDelta =")
-    for d in nrmduvec:
-        print(f"  {d:.6e}")
-    print(f"u(-1) = {float(u(np.float64(-1.0))):.15f}   (exact 1)")
-    print(f"v(1)  = {float(v(np.float64(1.0))):.3e}   (exact 0)")
-    print(f"u'(1) = {float(u.diff()(np.float64(1.0))):.3e}   (exact 0)")
-    print(f"v'(-1)= {float(v.diff()(np.float64(-1.0))):.3e}   (exact 0)")
-
-    # --- The same problem as one indexed variable --------------------
-    # MATLAB writes N.op = @(x,u) [diff(u{1},2) - sin(u{2}); ...], a
-    # single chebmatrix unknown. The solution components come back the
-    # same way, so indexing the returned pair reproduces u{1}, u{2}.
-    sol = _problem().solve([0.0, 0.0])
-    u1, u2 = sol[0], sol[1]
-    fig, ax = plt.subplots(figsize=(7.2, 4.6))
-    ax.plot(x, np.asarray(u1(x)), lw=2, label="$u_1$")
-    ax.plot(x, np.asarray(u2(x)), "--r", lw=2, label="$u_2$")
-    ax.set_title("$u_1(x)$ and $u_2(x)$ vs. x", fontsize=10)
+    # --- The same problem with one indexed (chebmatrix) variable -----
+    N = Chebop(lambda x, u: [u[0].diff(2) - u[1].sin(),
+                             u[1].diff(2) + u[0].cos()], domain=(-1, 1))
+    N.lbc = lambda u: [u[0] - 1, u[1].diff()]
+    N.rbc = lambda u: [u[1], u[0].diff()]
+    u = N.solve([0.0, 0.0])
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    ax.plot(x, np.asarray(u[0](x)), lw=2, label="$u_1$")
+    ax.plot(x, np.asarray(u[1](x)), "--r", lw=2, label="$u_2$")
+    ax.set_title("$u_1(x)$ and $u_2(x)$ vs. x", fontsize=8)
     ax.legend()
     ax.grid(True)
-    ax.set_xlabel("x", fontsize=10)
-    ax.set_ylabel("$u_1(x)$ and $u_2(x)$", fontsize=10)
+    ax.set_xlabel("x", fontsize=8)
+    ax.set_ylabel("$u_1(x)$ and $u_2(x)$", fontsize=8)
     _save(fig)
-
-    d = max(float(np.max(np.abs(np.asarray(u1(x)) - np.asarray(u(x))))),
-            float(np.max(np.abs(np.asarray(u2(x)) - np.asarray(v(x))))))
-    print(f"max difference between the two formulations: {d:.3e}")
 
 
 if __name__ == "__main__":

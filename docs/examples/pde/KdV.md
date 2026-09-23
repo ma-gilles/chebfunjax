@@ -40,7 +40,7 @@ time_in_seconds
 
 ```text
 time_in_seconds =
-   3.684419394
+   4.455497026443481
 ```
 
 ## 2. Amplitude and speed
@@ -76,7 +76,7 @@ final_amplitude = val
 
 ```text
 final_amplitude =
-     1.874048195184031e+03
+     1.874048195184015e+03
 ```
 
 What about the speed? According to the theory of the KdV equation, this should be
@@ -98,11 +98,7 @@ observed_speed = (pos-3)/tmax
 
 ```text
 observed_speed =
-     6.248377333333334e+02
-conserved1: u = -4.547473508865e-14   u0 = 1.776356839400e-14
-conserved2: u = 7.833213357987e+04   u0 = 7.833213358222e+04
-conserved3: u = -2.349964008126e+05   u0 = -2.349964007467e+05
-conserved4: u = 6.512069540200e+08   u0 = 6.512069540223e+08
+     6.248377327122623e+02
 ```
 
 ## 3. Non-soliton solutions
@@ -148,7 +144,12 @@ conserved1(u), conserved1(u0)
 ```
 
 ```text
-
+conserved1 =
+    @(u)sum(u)
+ans =
+    -5.151434834260726e-13
+ans =
+    -5.545364921819660e-13
 ```
 
 Another conserved quantity is $u^2$:
@@ -159,7 +160,12 @@ conserved2(u), conserved2(u0)
 ```
 
 ```text
-
+conserved2 =
+    @(u)sum(u.^2)
+ans =
+     7.833213357987469e+04
+ans =
+     7.833213358221861e+04
 ```
 
 In fact, as a completely integrable system, the KdV equation has an infinite set of conserved quantities [3,4]. Another one is $u^3/3 - (u_x)^2$:
@@ -170,7 +176,12 @@ conserved3(u), conserved3(u0)
 ```
 
 ```text
-
+conserved3 =
+    @(u)sum(u.^3/3-diff(u).^2)
+ans =
+    -2.349964008126367e+05
+ans =
+    -2.349964007466668e+05
 ```
 
 Another is $u^4/4 - 3u(u_x)^2 + (9/5)(u_{xx})^2$:
@@ -181,7 +192,12 @@ conserved4(u), conserved4(u0)
 ```
 
 ```text
-
+conserved4 =
+    @(u)sum(u.^4/4-3*u.*diff(u).^2+(9/5)*diff(u,2).^2)
+ans =
+     6.512069540200238e+08
+ans =
+     6.512069540223114e+08
 ```
 
 And so on in an infinite sequence.

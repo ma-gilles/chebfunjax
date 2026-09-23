@@ -15,10 +15,15 @@ S = spinop('ks')
 ```
 
 ```text
-crest gaps: mean 7.994 std 0.035 (X = 8)
-crest gaps: mean 7.725 std 1.694 (X = 7)
-crest gaps: mean 10.007 std 0.147 (X = 10)
-crest gaps: mean 10.480 std 1.616 (X = 11)
+S =
+  spinop with properties:
+
+     domain: [0 1.005309649148734e+02]
+       init: [Inf×1 chebfun]
+        lin: @(u)-diff(u,2)-diff(u,4)
+     nonlin: @(u)-.5*diff(u.^2)
+      tspan: [0 300]
+    numVars: 1
 ```
 
 The KS equation also has traveling wave solutions, however, and some of them are stable. A recent contribution in this area is by Blake Barker and coauthors [1]. For example, suppose we look for a solution with period $X=8$ on a domain of length $20X$. In the figure below, the first panel shows the the initial condition $U(x) = 2\exp(\sin(2\pi x/X)).$ The second panel shows the traveling wave that results after 100 time units. The third panel shows the latter function perturbed by a random function. Finally we run for 100 more time units from this perturbed state, and find that the regular wave form is restored.

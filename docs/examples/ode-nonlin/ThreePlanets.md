@@ -37,7 +37,7 @@ N.lbc = @(x,y,z) [x-x0; y-y0; z-z0; diff(x); diff(y); diff(z)];
 ```
 
 ```text
-t =   0:  x =  0.000000+0.000000j  y =  3.000000+0.000000j  z =  0.000000+4.000000j
+
 ```
 
 Here is a typical configuration for $t < t_c$:

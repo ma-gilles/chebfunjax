@@ -35,6 +35,38 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'ode-eig')
 
 
+def _mnum(v):
+    """MATLAB ``format long`` display of a real scalar (value line)."""
+    v = float(v)
+    if v == int(v) and abs(v) < 1e9:
+        return f"{int(v):6d}"
+    if 1e-3 <= abs(v) < 100:
+        return f"{v:.15f}".rjust(20)
+    return f"{v:.15e}".rjust(26)
+
+
+def _mcol(vals):
+    """MATLAB ``format long`` display lines of a real column vector."""
+    vals = [float(v) for v in vals]
+    if all(v == int(v) for v in vals):
+        return [f"{int(v):6d}" for v in vals]
+    m = max(abs(v) for v in vals)
+    if 1e-3 <= m < 100:
+        return [f"{v:.15f}".rjust(20) for v in vals]
+    e = int(np.floor(np.log10(m))) + (1 if m < 1e-3 else 0)
+    return [f"   1.0e{e:+03d} *"] + [f"{v / 10.0**e:.15f}".rjust(20)
+                                    for v in vals]
+
+
+def _mdisp(name, v):
+    """Print ``name = v`` as MATLAB does (scalar or column vector)."""
+    print(f"{name} =")
+    if np.ndim(v) == 0:
+        print(_mnum(v))
+    else:
+        print("\n".join(_mcol(np.ravel(v))))
+
+
 def _pencil():
     A = Chebop(lambda r, u: r * u.diff(2) + u.diff(), domain=(0, 1))
     A.lbc = "neumann"
@@ -67,14 +99,10 @@ def run():
 
     # Constant density: omegas are the zeros of J_0.
     omega, V = _solve()
-    print("omega =")
-    for w in omega:
-        print(f"  {w:.15f}")
+    _mdisp("omega", omega)
     x20 = chebfun(lambda t: t, domain=(0.0, 20.0))
     jroots = np.sort(np.asarray(x20.besselj(0).roots()))
-    print("err =")
-    for e in omega - jroots[:6]:
-        print(f"   {e:.3e}")
+    _mdisp("err", omega - jroots[:6])
 
     # Drum deflections for pure frequencies.
     rr, tt = np.meshgrid(np.linspace(0, 1, 40), np.linspace(0, 2 * np.pi, 60))
@@ -108,8 +136,7 @@ def run():
                             dtype=np.float64),
         domain=(0.5, 1.0), eps=1e-11)
     astar = float(np.asarray((ratfun - 2.0).roots())[0])
-    print("astar =")
-    print(f"   {astar:.15f}")
+    _mdisp("astar", astar)
 
     fig, ax = plt.subplots(figsize=(8.6, 4.8))
     aa = np.linspace(0.5, 1, 500)
@@ -125,8 +152,7 @@ def run():
     plt.close(fig)
 
     residual = evratio(astar) - 2
-    print("residual =")
-    print(f"    {residual:.15e}")
+    _mdisp("residual", residual)
 
     # Eigenfunctions of the designed drum.
     _, V2 = _solve(lambda r: 1 - astar * (np.pi * r).sin(), k=2)

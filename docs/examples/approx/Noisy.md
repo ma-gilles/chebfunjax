@@ -77,9 +77,6 @@ f =
        interval       length     endpoint values
 [      -1,       1]       68        -1        1
 vertical scale =   1
-eps=1e-06: len 70
-eps=1e-09: len 65
-eps=1e-12: len 348
 ```
 
 ![Noisy figure 03](../../images/approx/Noisy_03.png)

@@ -13,8 +13,18 @@ A = [0 1 0; -1 0 0; 0 0 0], B = [0 0 1; 0 0 0; -1 0 0], C = [0 0 0; 0 0 1; 0 -1 
 ```
 
 ```text
-lambda=0.5: (50s) radius drift 7.72e-10
-lambda=0.125: (226s) radius drift 9.35e-05
+A =
+     0     1     0
+    -1     0     0
+     0     0     0
+B =
+     0     0     1
+     0     0     0
+    -1     0     0
+C =
+     0     0     0
+     0     0     1
+     0    -1     0
 ```
 
 and we consider the random ODE $du/dt = fAu + gBu + hBu$ where $f$, $g$, and $h$ are random functions. Since the matrices are skew-symmetric, energy will be conserved. So we'll get a trajectory $u(t) = (x(t),y(t),z(t))^T$ that wanders around on a sphere. As usual in 3D, it helps a lot if you see a moving picture, which is what you get if you run this as an m-file.
@@ -31,7 +41,7 @@ for j = 1:720, camorbit(.5,0), drawnow, end
 ```
 
 ```text
-lambda=0.5: (50s) radius drift 7.72e-10
+Elapsed time is 50.499355 seconds.
 ```
 
 ![RandomOnASphere figure 01](../../images/ode-random/RandomOnASphere_01.png)
@@ -48,7 +58,7 @@ cheboppref.setDefaults('factory')
 ```
 
 ```text
-lambda=0.5: (50s) radius drift 7.72e-10
+Elapsed time is 306.337018 seconds.
 ```
 
 ![RandomOnASphere figure 02](../../images/ode-random/RandomOnASphere_02.png)

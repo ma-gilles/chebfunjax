@@ -16,11 +16,13 @@ import sys
 import time
 import warnings
 
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
+import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 from chebfunjax.spin.solver import spin
@@ -37,112 +39,97 @@ N, DT = 800, 5e-6
 FIG = [0]
 
 
-def _kdv(u0):
+def _kdv(init):
+    """u = spin(S, N, dt): the final time as a trig chebfun."""
     op = SpinOp(lin_coeff=lambda k: -(1j * k) ** 3,
                 nonlin_vals=lambda u: -0.5 * u**2,
                 nonlin_diff_order=1,
-                domain=DOM, tspan=(0.0, TMAX), u0=u0)
-    # MATLAB spin's default has NO dealiasing; with our dealias=True
-    # default the sharp soliton's peak lands 10 digits away from the
-    # published amplitude instead of matching it.
-    return spin(op, N, DT, dealias=False)
+                domain=DOM, tspan=(0.0, TMAX),
+                u0=lambda x: np.asarray(init(jnp.asarray(x))))
+    # MATLAB spin's default has NO dealiasing.
+    _x, _t, u = spin(op, N, DT, dealias=False)
+    return cj.chebfun(jnp.asarray(u), domain=DOM, trig=True)
 
 
-def _trig_interp(u, xf):
-    """Evaluate the trig interpolant of grid values u at points xf."""
-    c = np.fft.fft(u) / len(u)
-    k = np.fft.fftfreq(len(u), d=1.0 / len(u))
-    L = DOM[1] - DOM[0]
-    ph = np.exp(2j * np.pi * np.outer(xf - DOM[0], k) / L)
-    return (ph @ c).real
-
-
-def _plot(x, u0v, uv):
+def _plot(u0, u, labels=()):
+    """plot(S.init), hold on, plot(u), hold off [, text(...)]"""
     FIG[0] += 1
-    fig, ax = plt.subplots(figsize=(8.8, 4.4))
-    ax.plot(x, u0v, lw=1.4)
-    ax.plot(x, uv, lw=1.4)
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    u0.plot(ax=ax, linewidth=1.5, n_pts=4000)
+    u.plot(ax=ax, color="C1", linewidth=1.5, n_pts=4000)
+    for xt, yt, txt in labels:
+        ax.text(xt, yt, txt)
     ax.set_xlim(*DOM)
-    ax.grid(True)
-    fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, f"KdV_{FIG[0]:02d}.png"))
     plt.close(fig)
 
 
+def _long(v):
+    """A non-integer scalar in MATLAB format long (e-notation)."""
+    return f"{v:26.15e}"
+
+
 def run():
     os.makedirs(_IMG, exist_ok=True)
     warnings.filterwarnings("ignore")
+    x = cj.chebfun(lambda t: t, domain=DOM)
 
-    # 1. Two solitons: the taller overtakes the slower.
-    def u0_two(x):
-        return (3 * A**2 / np.cosh(.5 * A * (x - 3))**2
-                + 3 * B**2 / np.cosh(.5 * B * (x - 4))**2)
-
+    # Two solitons: the taller overtakes the slower.
+    init = 3 * A**2 * (.5 * A * (x - 3)).sech()**2 \
+        + 3 * B**2 * (.5 * B * (x - 4)).sech()**2
     t0 = time.time()
-    x, t, u = _kdv(u0_two)
+    u = _kdv(init)
+    time_in_seconds = time.time() - t0
+    _plot(init, u, ((4.4, 1300, 't = 0'), (13.5, 1300, 't = 0.0156')))
     print("time_in_seconds =")
-    print(f"   {time.time() - t0:.9f}")
-    _plot(x, u0_two(x), u)
+    print(f"   {time_in_seconds:.15f}")
 
-    # 2. Amplitude and speed of a single soliton.
-    def u0_one(x):
-        return 3 * A**2 / np.cosh(.5 * A * (x - 3))**2
-
-    x, t, u = _kdv(u0_one)
-    _plot(x, u0_one(x), u)
+    # Amplitude and speed of a single soliton.
+    init = 3 * A**2 * (.5 * A * (x - 3)).sech()**2
+    u = _kdv(init)
+    _plot(init, u, ((3.4, 1300, 't = 0'), (13.2, 1300, 't = 0.0156')))
     print("initial_amplitude =")
     print(f"        {3 * A**2:.0f}")
-    xf = np.linspace(*DOM, 200001)
-    uf = _trig_interp(u, xf)
-    pos0 = xf[np.argmax(uf)]
-    xz = np.linspace(pos0 - 2e-4, pos0 + 2e-4, 40001)
-    uz = _trig_interp(u, xz)
-    val, pos = np.max(uz), xz[np.argmax(uz)]
+    pos, val = u.max()
     print("final_amplitude =")
-    print(f"     {val:.15e}")
+    print(_long(float(val)))
     print("predicted_speed =")
     print(f"   {A**2:.0f}")
     print("observed_speed =")
-    print(f"     {(pos - 3) / TMAX:.15e}")
+    print(_long((float(pos) - 3) / TMAX))
 
-    # 3. Non-soliton solutions.
-    def u0_wide(x):
-        return 3 * A**2 / np.cosh(.35 * A * (x - 3))**2
+    # Non-soliton solutions.
+    init = 3 * A**2 * (.35 * A * (x - 3)).sech()**2
+    u = _kdv(init)
+    _plot(init, u)
 
-    x, t, u = _kdv(u0_wide)
-    _plot(x, u0_wide(x), u)
+    init = 3 * A**2 * ((.05 * A * (x - 3)).sech()**2
+                       + (.05 * A * (x - 23)).sech()**2)
+    u = _kdv(init)
+    _plot(init, u)
 
-    def u0_train(x):
-        return 3 * A**2 * (1 / np.cosh(.05 * A * (x - 3))**2
-                           + 1 / np.cosh(.05 * A * (x - 23))**2)
+    init = 500 * (x - 12) * (-(x - 12)**2).exp()
+    u = _kdv(init)
+    _plot(init, u)
 
-    x, t, u = _kdv(u0_train)
-    _plot(x, u0_train(x), u)
-
-    def u0_rand(x):
-        return 500 * (x - 12) * np.exp(-(x - 12)**2)
-
-    x, t, u = _kdv(u0_rand)
-    _plot(x, u0_rand(x), u)
-
-    # 4. Conservation laws (trapezoid = exact for periodic grids).
-    L = DOM[1] - DOM[0]
-    h = L / N
-    k = np.fft.fftfreq(N, d=1.0 / N) * 2 * np.pi / L
-
-    def deriv(v, order=1):
-        return np.real(np.fft.ifft((1j * k) ** order * np.fft.fft(v)))
-
-    u0v = u0_rand(x)
-    for name, fn in [
-        ("conserved1", lambda v: h * np.sum(v)),
-        ("conserved2", lambda v: h * np.sum(v**2)),
-        ("conserved3", lambda v: h * np.sum(v**3 / 3 - deriv(v)**2)),
-        ("conserved4", lambda v: h * np.sum(
-            v**4 / 4 - 3 * v * deriv(v)**2 + 9 / 5 * deriv(v, 2)**2)),
-    ]:
-        print(f"{name}: u = {fn(u):.12e}   u0 = {fn(u0v):.12e}")
+    # Conserved quantities.
+    u0 = init
+    for name, text, fn in (
+        ("conserved1", "@(u)sum(u)", lambda v: v.sum()),
+        ("conserved2", "@(u)sum(u.^2)", lambda v: (v**2).sum()),
+        ("conserved3", "@(u)sum(u.^3/3-diff(u).^2)",
+         lambda v: (v**3 / 3 - v.diff()**2).sum()),
+        ("conserved4", "@(u)sum(u.^4/4-3*u.*diff(u).^2+(9/5)*diff(u,2).^2)",
+         lambda v: (v**4 / 4 - 3 * v * v.diff()**2
+                    + (9 / 5) * v.diff(2)**2).sum()),
+    ):
+        print(f"{name} = ")
+        print(f"    {text}")
+        print("ans =")
+        print(_long(float(fn(u))))
+        print("ans =")
+        print(_long(float(fn(u0))))
 
 
 if __name__ == "__main__":

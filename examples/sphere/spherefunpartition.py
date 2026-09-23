@@ -40,7 +40,7 @@ def _plot_sf(F, title="", n=220, ax=None, fig=None):
     vmax = max(np.max(np.abs(V)), 1e-300)
     ax.plot_surface(X, Y, Z, facecolors=plt.cm.viridis(
         (V + vmax) / (2 * vmax)), rstride=1, cstride=1, linewidth=0,
-        antialiased=False)
+        antialiased=False, shade=False)
     ax.set_box_aspect((1, 1, 1))
     ax.set_axis_off()
     if title:
@@ -56,6 +56,13 @@ def _save(fig, name):
     plt.close(fig)
 
 
+def _disp(F):
+    """MATLAB @spherefun/disp."""
+    return ("   spherefun object\n"
+            "       domain        rank    vertical scale\n"
+            "     unit sphere  %6i          %3.2g" % (int(F.rank), F.vscale()))
+
+
 def run():
     os.makedirs(_IMG, exist_ok=True)
     warnings.filterwarnings("ignore")
@@ -65,19 +72,22 @@ def run():
                       * (np.sin(lam) * np.sin(th)) * np.cos(th))
         * np.cos(np.cos(lam) * np.sin(th)
                  - np.sin(lam) * np.sin(th) + 2 * np.cos(th)))
-    print("f rank:", f.rank)
-    fig = plt.figure(figsize=(6.6, 6.2))
+    print("f =")
+    print(_disp(f))
+    fig = plt.figure(figsize=(6.0, 2.7))
     ax = fig.add_subplot(projection="3d")
     _plot_sf(f, ax=ax, fig=fig)
     _save(fig, "01")
 
     fep, foa = f.partition()
-    print("fep rank:", fep.rank)
-    print("foa rank:", foa.rank)
+    print("fep =")
+    print(_disp(fep))
+    print("foa =")
+    print(_disp(foa))
     print("err =")
     print(f"     {float((fep + foa - f).norm()):g}")
 
-    fig = plt.figure(figsize=(10.6, 5.0))
+    fig = plt.figure(figsize=(6.0, 2.7))
     ax = fig.add_subplot(1, 2, 1, projection="3d")
     _plot_sf(fep, "even/periodic part", ax=ax, fig=fig)
     ax = fig.add_subplot(1, 2, 2, projection="3d")
@@ -85,31 +95,33 @@ def run():
     _save(fig, "02")
 
     # Columns and rows of the two parts carry the parities.
+    Ce, _D, Rp = fep.cdr()
+    Co, _D, Ra = foa.cdr()
     th = np.linspace(-np.pi, np.pi, 1200)
-    fig, ax = plt.subplots(figsize=(8.4, 4.2))
-    for c in fep.cols:
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    for c in Ce:
         ax.plot(th, np.asarray(c(th)), lw=1.0)
     ax.grid(True)
     ax.set_title("Columns of the even part of f")
     _save(fig, "03")
 
     lamg = np.linspace(-np.pi, np.pi, 1200)
-    fig, ax = plt.subplots(figsize=(8.4, 4.2))
-    for r in fep.rows:
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    for r in Rp:
         ax.plot(lamg, np.asarray(r(lamg)), lw=1.0)
     ax.grid(True)
     ax.set_title(r"Rows of the $\pi$-periodic part of f")
     _save(fig, "04")
 
-    fig, ax = plt.subplots(figsize=(8.4, 4.2))
-    for c in foa.cols:
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    for c in Co:
         ax.plot(th, np.asarray(c(th)), lw=1.0)
     ax.grid(True)
     ax.set_title("Columns of the odd part of f")
     _save(fig, "05")
 
-    fig, ax = plt.subplots(figsize=(8.4, 4.2))
-    for r in foa.rows:
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    for r in Ra:
         ax.plot(lamg, np.asarray(r(lamg)), lw=1.0)
     ax.grid(True)
     ax.set_title(r"Rows of the $\pi$-anti-periodic part of f")

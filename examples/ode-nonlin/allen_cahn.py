@@ -46,13 +46,10 @@ def _save_solution(u, eps, secs):
     ax.plot(xx, np.asarray(u(xx)), lw=1.6)
     ax.set_title(f"Eps = {eps:5.1e}    length(u) = {len(u)}"
                  f"    time = {secs:3.1f} secs", fontsize=14)
-    ax.grid(True)
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, f"AllenCahn_{FIG[0]:02d}.png"))
     plt.close(fig)
-    print(f"Eps = {eps:7.3g}   length(u) = {len(u):4d}   "
-          f"time = {secs:5.1f}s", flush=True)
 
 
 def run():

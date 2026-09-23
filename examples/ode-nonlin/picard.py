@@ -66,7 +66,7 @@ def run():
     for block, ylim in ((range(0, 5), (-3, 10)),
                         (range(5, 10), (0, 7)),
                         (range(10, 15), (1, 6))):
-        fig, ax = plt.subplots(figsize=(7.2, 5.0))
+        fig, ax = plt.subplots(figsize=(6.0, 2.7))
         for k in block:
             vals = np.asarray(u(tt))
             ax.plot(tt, vals, color="b")
@@ -84,15 +84,11 @@ def run():
     u = u0 + 0 * t
     tl = np.logspace(-2, np.log10(d), 600)
     ex_l = np.asarray(uexact(tl))
-    fig, ax = plt.subplots(figsize=(7.2, 5.0))
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
     for k in range(5):
         err = np.abs(np.asarray(u(tl)) - ex_l)
         ax.loglog(tl, err, color="k")
         ax.text(8.7, err[0], f"$k = {k}$")
-        # slope of the error on the small-t end gives the order
-        lo = (tl > 1.2e-2) & (tl < 1e-1)
-        slope = np.polyfit(np.log(tl[lo]), np.log(err[lo]), 1)[0]
-        print(f"k = {k}: error ~ t^{slope:.3f}   (expect t^{k + 1})")
         u = u0 + f(u, t).cumsum()
     ax.set_xlabel("t")
     ax.set_ylabel("error")

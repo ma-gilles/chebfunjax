@@ -102,9 +102,11 @@ def run():
     z = np.array([1.0, 1j])
     z2 = np.asarray(finv(f(jnp.asarray(z))))
     print("ans =")
-    for v in z2:
+    for k, v in enumerate(z2):
         sign = "+" if v.imag >= 0 else "-"
-        print(f"  {v.real:.15f} {sign} {abs(v.imag):.15f}i")
+        lead = "  " if v.real >= 0 else " -"
+        print(f"  Column {k + 1}")
+        print(f"{lead}{abs(v.real):.15f} {sign} {abs(v.imag):.15f}i")
 
     rs = np.random.RandomState(5489)
     z = 1 + 0.1 * rs.random_sample(10**6) \

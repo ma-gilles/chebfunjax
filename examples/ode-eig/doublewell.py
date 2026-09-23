@@ -81,24 +81,37 @@ def run():
 
     # quantumstates exploration of max(|x|, 1-3|x|).
     x = chebfun(lambda t: t, domain=(-3.0, 3.0))
+    print("x =")
+    print(repr(x))
     absx = abs(x)
-    W = absx.maximum(1 - 3 * absx)
-    lam, funs = quantumstates(W)
+    V = absx.maximum(1 - 3 * absx)
+    lam, funs = quantumstates(V)
     lam = np.asarray(lam)
+    print("ans =")
+    for v in lam:
+        print(f"   {v:.15f}")
 
-    fig, ax = plt.subplots(figsize=(8.6, 5.2))
-    xx = np.linspace(-3, 3, 2000)
-    ax.plot(xx, np.asarray(W(xx)), "k", lw=1.6)
-    gap = np.min(np.diff(lam)) if len(lam) > 1 else 1.0
-    sc = 0.4 * max(gap, 1e-8)
-    for lv, f in zip(lam, funs):
-        vals = np.asarray(f(xx))
-        vals = vals / max(np.max(np.abs(vals)), 1e-300)
-        ax.plot(xx, lv + sc * vals, lw=1.0)
-        ax.plot([-3, 3], [lv, lv], color="0.8", lw=0.5, zorder=0)
-    ax.set_xlim(-3, 3)
-    ax.set_ylim(-0.05 * lam[-1], lam[-1] + 6 * sc)
-    ax.grid(True)
+    # The quantumstates plot (@chebfun/quantumstates.m): V in black, each
+    # eigenfunction scaled by dy and lifted by its eigenvalue.
+    h, n = 0.1, len(lam)
+    xmin, xmax = -3.0, 3.0
+    xx = np.linspace(xmin, xmax, 2000)
+    Vx = np.asarray(V(xx))
+    ymin = float(V.min()[1])
+    ymax = lam.max()
+    ydiff = ymax - ymin
+    ymax = ymax + .2 * ydiff
+    dx = .05 * (xmax - xmin)
+    dy = .25 * ydiff / max(5, n)
+    fig, ax = plt.subplots(figsize=(8.8, 4.0))
+    for j, f in enumerate(funs):
+        w = dy * np.asarray(f(xx))
+        if w.max() < -w.min():
+            w = -w
+        ax.plot(xx, w + lam[j], lw=1)
+    ax.plot(xx, Vx, "k", lw=1)
+    ax.axis([xmin - dx, xmax + dx, ymin - dy, ymax])
+    ax.set_title(f"h = {h:4g}      {n} eigenstates", fontsize=12)
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, "DoubleWell_03.png"), size=(600, 270))

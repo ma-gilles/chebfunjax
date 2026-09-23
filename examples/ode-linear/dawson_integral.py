@@ -36,18 +36,6 @@ chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'ode-linear')
 
-FIG = [0]
-
-
-def _save(fig):
-    FIG[0] += 1
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(
-        _IMG, f"DawsonIntegral_{FIG[0]:02d}.png"))
-    plt.close(fig)
-
-
 def _cef(z, N):
     """Weideman's complex error function routine (numpy port)."""
     M = 2 * N
@@ -78,12 +66,14 @@ def run():
     f = L.solve(1.0)
     print(f"Elapsed time is {time.time() - t0:.6f} seconds.")
 
+    # plot(f), axis([-W W -H H]), hold on, grid on
     tt = np.linspace(-W, W, 1200)
-    fig, ax = plt.subplots(figsize=(9.0, 4.8))
-    ax.plot(tt, np.asarray(f(tt)), lw=1.6)
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    ax.plot(tt, np.asarray(f(tt)), lw=1.5)
     ax.axis([-W, W, -H, H])
     ax.grid(True)
-    _save(fig)
+    fig.tight_layout()
+    _savefig(fig, os.path.join(_IMG, "DawsonIntegral_01.png"))
 
     # Analytic construction: F = exp(-x^2) cumsum(exp(x^2)) on [0, W],
     # extended to [-W, 0] by odd symmetry.
@@ -95,27 +85,20 @@ def run():
     print("f =")
     print(repr(f2))
 
-    fig, ax = plt.subplots(figsize=(9.0, 4.8))
-    ax.plot(tt, np.asarray(f2(tt)), lw=1.6)
-    ax.axis([-W, W, -H, H])
-    ax.grid(True)
-    _save(fig)
+    # plot(f), grid on  (still holding the first plot)
+    ax.plot(tt, np.asarray(f2(tt)), lw=1.5)
+    _savefig(fig, os.path.join(_IMG, "DawsonIntegral_02.png"))
+    plt.close(fig)
 
     # Weideman's rational approximation of the complex error function
     N = 36
     t0 = time.time()
-    f3 = cj.chebfun(
+    f = cj.chebfun(
         lambda t: jnp.asarray(np.real(
             np.sqrt(np.pi) * (_cef(np.asarray(t), N)
                               - np.exp(-np.asarray(t)**2)) / 2j)),
         domain=(-W, W))
     print(f"Elapsed time is {time.time() - t0:.6f} seconds.")
-
-    fig, ax = plt.subplots(figsize=(9.0, 4.8))
-    ax.plot(tt, np.asarray(f3(tt)), lw=1.6)
-    ax.axis([-W, W, -H, H])
-    ax.grid(True)
-    _save(fig)
 
 
 if __name__ == "__main__":

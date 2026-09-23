@@ -17,18 +17,18 @@ import sys
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.special import jv
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.diskfun.diskfun import Diskfun
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import _coerce_cmap, chebfun_style, plot_disk
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'disk')
+FIG = [0]
 
 
 def _release():
@@ -42,23 +42,62 @@ def _release():
     gc.collect()
 
 
-def _surf(u, title, stem):
-    th = np.linspace(-np.pi, np.pi, 120)
-    r = np.linspace(0, 1, 60)
-    T, R = np.meshgrid(th, r)
-    V = np.asarray(u(jnp.asarray(T.ravel()),
-                     jnp.asarray(R.ravel()))).reshape(T.shape)
-    X, Y = R * np.cos(T), R * np.sin(T)
-    fig = plt.figure(figsize=(5.2, 4.4))
-    ax = fig.add_subplot(projection="3d")
-    ax.plot_surface(X, Y, np.real(V), cmap="viridis", linewidth=0)
-    ax.set_axis_off()
-    ax.set_title(title)
+def _save(fig):
+    FIG[0] += 1
     fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, stem + ".png"))
+    _savefig(fig, os.path.join(_IMG, f"Eigenfunctions_{FIG[0]:02d}.png"))
     plt.close(fig)
     _release()
+
+
+def _plot(ax, u, title, view=(0, 90), colorbar=False):
+    """plot(u), axis off, view(az,el), title(...): the diskfun surface,
+    seen from above by default (MATLAB @diskfun/plot.m ends with view(2))."""
+    plot_disk(u, ax=ax, n_theta=161, n_r=60)
+    for ln in list(ax.lines):             # no base circle in MATLAB's plot
+        ln.remove()
+    az, el = view
+    ax.view_init(elev=el, azim=az - 90)     # MATLAB azimuth -> matplotlib
+    ax.set_axis_off()
+    ax.set_title(f"${title}$" if "_" in title else title)   # TeX subscripts
+    if colorbar:
+        th = np.linspace(-np.pi, np.pi, 161)
+        r = np.linspace(0, 1, 60)
+        T, R = np.meshgrid(th, r)
+        V = np.asarray(u(jnp.asarray(T.ravel()), jnp.asarray(R.ravel())))
+        sm = plt.cm.ScalarMappable(cmap=_coerce_cmap(None),
+                                   norm=plt.Normalize(V.min(), V.max()))
+        ax.get_figure().colorbar(sm, ax=ax, shrink=0.8)
+
+
+def _pair(left, right):
+    fig = plt.figure()
+    for i, args in enumerate((left, right)):
+        ax = fig.add_subplot(1, 2, i + 1, projection="3d")
+        _plot(ax, *args)
+    _save(fig)
+
+
+def _single(u, title, colorbar=False):
+    fig = plt.figure()
+    ax = fig.add_subplot(projection="3d")
+    _plot(ax, u, title, colorbar=colorbar)
+    _save(fig)
+
+
+def _disp(name, v):
+    """MATLAB ``format long`` display of a real scalar."""
+    print(f"{name} =")
+    if v != 0 and not 1e-3 <= abs(v) < 1e3:
+        print(f"{v:26.15e}")
+    else:
+        print(f"{v:20.15f}")
+
+
+def _bessel_roots(L, a, b):
+    """roots(chebfun(@(x) besselj(L,x), [a b]))."""
+    x = cj.chebfun('x', domain=[a, b])
+    return np.asarray(x.besselj(L).roots())
 
 
 def run():
@@ -66,104 +105,123 @@ def run():
 
     u42 = Diskfun.harmonic(4, 2)
     print("u42 =")
-    print(repr(u42))
-    _surf(u42, r"$u_{4,2}$", "Eigenfunctions_01")
+    print(u42.disp())
+    _single(u42, "u_{4,2}")
 
-    lam = float(np.asarray(cj.chebfun(
-        lambda x: jnp.asarray(jv(4, np.asarray(x))),
-        domain=[10, 13]).roots())[0])
-    resid = u42.lap() + u42 * (lam ** 2)
-    th = np.linspace(-np.pi, np.pi, 400)
-    r = np.linspace(0, 1, 100)
-    T, R = np.meshgrid(th, r)
-    rv = np.asarray(resid(jnp.asarray(T.ravel()),
-                          jnp.asarray(R.ravel())))
-    print("ans =")
-    print(f"     {float(np.max(np.abs(rv))):.15e}")
+    lam = float(_bessel_roots(4, 10, 13)[0])
+    _disp("ans", float((u42.lap() + lam**2 * u42).norm()))
 
-    for (Lm, n), stem in [((0, 1), "02"), ((0, 2), "03"),
-                          ((0, 3), "04"), ((0, 4), "05"),
-                          ((-2, 1), "06"), ((-3, 2), "07"),
-                          ((3, 3), "08"), ((11, 7), "09")]:
-        _surf(Diskfun.harmonic(Lm, n),
-              rf"$u_{{{Lm},{n}}}$", f"Eigenfunctions_{stem}")
+    a, b = -100.4, 51.6
+    u01 = Diskfun.harmonic(0, 1)
+    u02 = Diskfun.harmonic(0, 2)
+    _pair((u01, "u_{0,1}", (a, b)), (u02, "u_{0,2}", (a, b)))
+    u03 = Diskfun.harmonic(0, 3)
+    u04 = Diskfun.harmonic(0, 4)
+    _pair((u03, "u_{0,3}", (a, b)), (u04, "u_{0,4}", (a, b)))
+
+    v21 = Diskfun.harmonic(-2, 1)
+    v22 = Diskfun.harmonic(-3, 2)
+    _pair((v21, "v_{2,1}", (-99.5, 60.3)), (v22, "v_{2,2}", (-1.1e2, 75)))
+    u33 = Diskfun.harmonic(3, 3)
+    u117 = Diskfun.harmonic(11, 7)
+    _pair((u33, "u_{3,3}"), (u117, "u_{11,7}"))
 
     uN21 = Diskfun.harmonic(2, 1, "neumann")
     uN34 = Diskfun.harmonic(3, 4, "neumann")
-    _surf(uN21, "u21 with Neumann bc", "Eigenfunctions_10")
-    _surf(uN34, "u34 with Neumann bc", "Eigenfunctions_11")
+    _pair((uN21, "u21 with Neumann bc", (-1.2e2, 50)),
+          (uN34, "u34 with Neumann bc", (a, b)))
 
-    u01 = Diskfun.harmonic(0, 1)
-    u02 = Diskfun.harmonic(0, 2)
-    u03 = Diskfun.harmonic(0, 3)
-    v22 = Diskfun.harmonic(-3, 2)
-    u117 = Diskfun.harmonic(11, 7)
-    print("int1 =")
-    print(f"     {float((u01 * u02).sum2()):.15e}")
-    print("int2 =")
-    print(f"    {float((v22 * u117).sum2()):.15e}")
-    print("int3 =")
-    print(f"   {float((u03 * u03).sum2()):.15f}")
+    _disp("int1", float((u01 * u02).sum2()))
+    _disp("int2", float((v22 * u117).sum2()))
+    _disp("int3", float((u03 * u03).sum2()))
 
-    # -- Eigenfunction expansion of a smooth function -----------------
+    # diskfun(@(x,y) ...): Cartesian input, x = r cos(t), y = r sin(t).
     f = Diskfun.from_function(
         lambda t, r: 20 * (1 - r ** 2) ** 2
         * jnp.exp(-6 * (r * jnp.cos(t) + 0.25) ** 2
                   - 6 * (r * jnp.sin(t) - 0.2) ** 2))
+    _single(f, "f", colorbar=True)
+
     N = NN = 7
     rows = []
     for m in range(0, N + 1):
         for n in range(1, NN + 1):
-            reps = 1 if m == 0 else 2
-            for j in range(1, reps + 1):
-                sgn = (-1) ** j
-                H = Diskfun.harmonic(sgn * m, n)
-                rows.append((float((f * H).sum2()), sgn * m, n))
+            for j in range(1, 2 + int(m != 0)):
+                H = Diskfun.harmonic((-1) ** j * m, n)
+                rows.append((float((f * H).sum2()), (-1) ** j * m, n))
                 if len(rows) % 10 == 0:
                     _release()
     coeffs = np.array(rows)
 
-    fig = plt.figure(figsize=(6.0, 4.6))
+    # stem3(coeffs(:,2),coeffs(:,3),abs(coeffs(:,1)),'filled'), log z
+    fig = plt.figure()
     ax = fig.add_subplot(projection="3d")
-    ax.stem(coeffs[:, 1], coeffs[:, 2], np.abs(coeffs[:, 0]))
-    ax.set_zscale("log") if hasattr(ax, "set_zscale") else None
-    ax.set_xlabel("m")
-    ax.set_ylabel("n")
-    ax.set_zlabel("abs. value of coeffs")
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "Eigenfunctions_12.png"))
-    plt.close(fig)
+    zc = np.log10(np.abs(coeffs[:, 0]))
+    zb = np.floor(zc.min())
+    for xm, yn, z in zip(coeffs[:, 1], coeffs[:, 2], zc):
+        ax.plot([xm, xm], [yn, yn], [zb, z], color='#0072BD', lw=0.8)
+    ax.scatter(coeffs[:, 1], coeffs[:, 2], zc, color='#0072BD', s=12,
+               depthshade=False)
+    zt = np.arange(zb, np.ceil(zc.max()) + 1, 5)
+    ax.set_zticks(zt)
+    ax.set_zticklabels([f"$10^{{{int(t)}}}$" for t in zt])
+    ax.view_init(elev=38, azim=1.205e2 - 90)
+    ax.set_xlabel('m')
+    ax.set_ylabel('n')
+    ax.set_zlabel('abs. value of coeffs')
+    _save(fig)
 
-    sel = coeffs[(np.abs(coeffs[:, 1]) < 6) & (np.abs(coeffs[:, 2]) < 6)]
+    coeffs = coeffs[(np.abs(coeffs[:, 1]) < 6) & (np.abs(coeffs[:, 2]) < 6)]
     fproj = None
-    for k, (c, m, n) in enumerate(sel):
-        H = Diskfun.harmonic(int(m), int(n))
-        term = H * float(c)
+    for k, (c, m, n) in enumerate(coeffs):
+        term = float(c) * Diskfun.harmonic(int(m), int(n))
         fproj = term if fproj is None else fproj + term
         if k % 10 == 9:
             _release()
-    diff = f - fproj
-    dv = np.asarray(diff(jnp.asarray(T.ravel()),
-                         jnp.asarray(R.ravel()))).reshape(T.shape)
-    # L2 norm by tensor Gauss quadrature (Diskfun.norm-of-difference
-    # NaN bug ledgered)
-    from numpy.polynomial.legendre import leggauss
-    xg, wg = leggauss(80)
-    rq = 0.5 * (xg + 1.0)
-    wq = 0.5 * wg
-    thq = np.linspace(-np.pi, np.pi, 360, endpoint=False)
-    Tq, Rq = np.meshgrid(thq, rq)
-    d2 = np.abs(np.asarray(diff(jnp.asarray(Tq.ravel()),
-                                jnp.asarray(Rq.ravel()))
-                           ).reshape(Tq.shape)) ** 2
-    errf = float(np.sqrt((2 * np.pi / len(thq))
-                         * float(wq @ (d2 * Rq).sum(axis=1))))
-    print("errf =")
-    print(f"   {errf:.15f}")
 
-    _surf(fproj, "f (projection)", "Eigenfunctions_13")
-    _surf(f, "f", "Eigenfunctions_14")
+    _disp("errf", float((f - fproj).norm()))
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 2, 1, projection="3d")
+    _plot(ax, fproj, "f", colorbar=True)
+    ax = fig.add_subplot(1, 2, 2, projection="3d")
+    _plot(ax, f - fproj, "f: error", colorbar=True)
+    _save(fig)
+
+    coeffs = coeffs[(np.abs(coeffs[:, 1]) < 4) & (np.abs(coeffs[:, 2]) < 4)]
+    csz = len(coeffs)
+    NN = N = 3
+
+    broots = np.zeros((csz, 3))
+    Jzero = _bessel_roots(0, np.sqrt((3 / 4)**2 * np.pi**2), NN * np.pi)
+    broots[:NN] = np.column_stack([Jzero, np.zeros(NN), np.arange(1, NN + 1)])
+    k = NN
+    for L in range(1, N + 1):
+        Jzero = _bessel_roots(L, np.sqrt((3 / 4)**2 * np.pi**2 + L**2),
+                              (NN + L / 2) * np.pi)
+        broots[k:k + 2 * NN:2] = np.column_stack(
+            [Jzero, -L * np.ones(NN), np.arange(1, NN + 1)])
+        broots[k + 1:k + 2 * NN + 1:2] = np.column_stack(
+            [Jzero, L * np.ones(NN), np.arange(1, NN + 1)])
+        k += 2 * NN
+
+    # The MATLAB loop never resets T, so u{i} = sum_{i'<=i} sum_k
+    # cos(broots(k)*tm(i'))*H_k; accumulate the cosine weights per mode
+    # (same sum, one diskfun per harmonic) for the snapshots shown.
+    tm = np.linspace(0, 4, 41)
+    H = [c * Diskfun.harmonic(int(m), int(n)) for c, m, n in coeffs]
+    _release()
+
+    def snapshot(i):          # MATLAB u{i}, 1-based
+        w = np.cos(np.outer(tm[:i], broots[:, 0])).sum(axis=0)
+        T = None
+        for wk, Hk in zip(w, H):
+            T = float(wk) * Hk if T is None else T + float(wk) * Hk
+        return T
+
+    # (the animation loop over u{j} is overwritten by the subplots below)
+    _pair((snapshot(5), "t=.4"), (snapshot(13), "t=1.2"))
+    _pair((snapshot(15), "t=1.4"), (snapshot(25), "t=2.4"))
     return True
 
 

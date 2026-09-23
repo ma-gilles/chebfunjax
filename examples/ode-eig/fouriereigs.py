@@ -34,12 +34,11 @@ _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'ode-eig')
 
 
 def _plot(V, fname):
-    fig, ax = plt.subplots(figsize=(8.6, 4.8))
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
     xx = np.linspace(0, 2 * np.pi, 2000)
     for v in V:
-        ax.plot(xx, np.asarray(v(xx)).real, lw=2)
+        ax.plot(xx, np.asarray(v(xx)).real, lw=1.5)
     ax.set_xlim(0, 2 * np.pi)
-    ax.grid(True)
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, fname))
@@ -63,8 +62,10 @@ def run():
     print(f"     {np.max(np.abs(np.sort(lam) - Dexact)):.15e}")
 
     # The eigenfunctions are periodic ...
+    # V{1:end}
     for v in V:
-        print(v)
+        print("ans =")
+        print(repr(v))
 
     # ... and satisfy the ODE to high precision.
     res = max(float((L(v) - float(el) * v).norm(np.inf))
@@ -87,8 +88,10 @@ def run():
     print("ans =")
     print(f"     {np.max(np.abs(np.sort(lam) - Dwolfram)):.15e}")
 
+    # V{1:end}
     for v in V:
-        print(v)
+        print("ans =")
+        print(repr(v))
 
     res = max(float((L(v) - float(el) * v).norm(np.inf))
               for el, v in zip(lam, V))

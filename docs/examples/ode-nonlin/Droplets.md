@@ -65,7 +65,7 @@ toc
 ```
 
 ```text
-Elapsed time is 621.601025 seconds.
+Elapsed time is 646.014035 seconds.
 ```
 
 and here are the lengths of the computed functions $R$, $U$, and $\Psi$:
@@ -76,7 +76,7 @@ and here are the lengths of the computed functions $R$, $U$, and $\Psi$:
 
 ```text
 ans =
-      51    51    51
+    51    51    51
 ```
 
 All this can be done more efficiently by bypassing Chebfun overhead, using spectral methods more carefully as described in [3].
@@ -95,8 +95,6 @@ pi*b*(2*sin(Psib)-b*U(1))
 ```text
 ans =
   62.621687652006749
-contact radius b = 1.111692423027
-recovered volume = 10.000000000000   (prescribed 10.0)
 ```
 
 We can also use this formula to build an equation that must be solved in the boundary conditions, while we add the radius $b$ to the list of parameters.

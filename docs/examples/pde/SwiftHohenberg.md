@@ -15,8 +15,15 @@ S = spinop2('sh')
 ```
 
 ```text
-demo done
-spots done
+S =
+  spinop2 with properties:
+
+     domain: [0 50 0 50]
+       init: [InfxInf chebfun2]
+        lin: @(u)-2*lap(u)-biharm(u)
+     nonlin: @(u)-.9*u-u.^3
+      tspan: [0 800]
+    numVars: 1
 ```
 
 From here we see that the version of the equation in Chebfun is $$ u_t = ru - (1 + \Delta)^2u + gu^2 - u^3, $$ with $r = 0.1$ and $g=0$. This equation was derived by Swift and Hohenberg in 1977 to study thermal fluctuations on a fluid near the Rayleigh-Benard convective instability [1]. The function $u$ is the temperature field in a plane horizontal layer of fluid heated from below. The parameter $r$ measures how far the temperature is above the minimum temperature required for convection: for $r<0$, the heating is too small to cause convection, while for $r>0$, convection occurs. The parameter $g$ controls the strength of the quadratic nonlinearity. The Swift-Hohenberg equation is an example of a PDE that exhibits pattern formation, including stripes, spots and spirals.
@@ -39,8 +46,11 @@ u
 ```
 
 ```text
-demo done
-spots done
+u =
+   chebfun2 object  (trig)
+       domain                 rank       corner values
+[   0,  50] x [   0,  50]       81     [-0.11 -0.11 -0.11 -0.11]
+vertical scale = 0.43
 ```
 
 We will discover what effect $r$ and $g$ have on the resulting patterns during our investigations below.
@@ -99,8 +109,6 @@ fprintf('Relative error: %1.2e\n', error)
 
 ```text
 Relative error: 3.63e-04
-spirals done
-stripes done
 ```
 
 For the same value of $g=1$ but with $r=0.7$, we get spirals:

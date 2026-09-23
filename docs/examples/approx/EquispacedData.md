@@ -93,7 +93,7 @@ title('Chebyshev coefficients up to degree 50',FS,10)
 
 ```text
 error50 =
-     3.505780727361734e-06
+     3.526801903754929e-06
 ```
 
 ![EquispacedData figure 04](../../images/approx/EquispacedData_04.png)
@@ -110,8 +110,6 @@ title('Chebyshev coefficients with loosened tolerance',FS,10)
 ```text
 errorloose =
      3.522255555236694e-06
-eps=0.01: length 24
-eps=0.03: length 24
 ```
 
 ![EquispacedData figure 05](../../images/approx/EquispacedData_05.png)

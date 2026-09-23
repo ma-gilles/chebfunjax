@@ -52,7 +52,7 @@ disp(diag(D)), toc
    2.174488704535170
    2.533176594994981
    2.924094539795404
-Elapsed time is 12.672871 seconds.
+Elapsed time is 13.458893 seconds.
 ```
 
 Physicists like to plot the eigenmodes shifted up by an amount equal to the eigenvalue:
@@ -79,19 +79,22 @@ quantumstates(V)
 ```
 
 ```text
-   0.091480998228519
-   0.116757122004885
-   0.363909308597349
-   0.463167687391686
-   0.808941736699276
-   1.021145960786894
-   1.390812031498551
-   1.652575851343460
-   1.871230031211016
-   2.174488704535170
-   2.533176594994981
-   2.924094539795404
-Elapsed time is 12.672871 seconds.
+x =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[      -3,       3]        2        -3        3
+vertical scale =   3
+ans =
+   0.519275627846653
+   0.568122999836146
+   0.857289324399585
+   0.936834938830695
+   1.137321404211674
+   1.238731857338259
+   1.395322337058939
+   1.505801742484373
+   1.638922632403128
+   1.750303602923925
 ```
 
 ![DoubleWell figure 03](../../images/ode-eig/DoubleWell_03.png)

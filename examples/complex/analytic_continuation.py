@@ -22,7 +22,7 @@ import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, plotregion
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 from chebfunjax.utils.ratapprox import ratinterp
 
@@ -37,64 +37,81 @@ LEV1 = np.arange(0.25, 2.01, 0.25)
 LEV2 = 10.0 ** np.arange(1, 20, 2)
 
 
-def _contours(F, fname, ellipse_rho=None):
-    fig, ax = plt.subplots(figsize=(7.0, 7.0))
+def _contours(ax, F):
+    """contour(x,y,abs(F),lev1,'k'), hold on, contour(x,y,abs(F),lev2,'r')"""
     with np.errstate(all="ignore"):
-        A = np.abs(F)
-    ax.contour(X, X, A, levels=LEV1, colors='k', linewidths=0.8)
-    ax.contour(X, X, A, levels=LEV2, colors='r', linewidths=0.8)
-    if ellipse_rho is not None:
-        t = np.linspace(0, 2 * np.pi, 400)
-        w = ellipse_rho * np.exp(1j * t)
-        e = (w + 1 / w) / 2
-        ax.plot(e.real, e.imag, 'b', lw=1.6)
-    ax.axis([-6, 6, -6, 6])
+        A = np.abs(np.asarray(F))
+    ax.contour(X, X, A, levels=LEV1, colors='k', linewidths=0.6)
+    ax.contour(X, X, A, levels=LEV2, colors='r', linewidths=0.6)
+
+
+def _square(fig, ax, fname):
+    """axis(6*[-1 1 -1 1]), axis square, then save."""
+    ax.set_xlim(-6, 6)
+    ax.set_ylim(-6, 6)
     ax.set_aspect("equal")
-    fig.set_facecolor("white")
+    ax.set_title("")
+    ax.set_xlabel("")
+    ax.set_ylabel("")
+    ax.grid(False)
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, fname))
     plt.close(fig)
 
 
+def _cplx(v):
+    """One entry of MATLAB's format-long complex matrix display."""
+    re = float(np.real(v)) + 0.0
+    im = float(np.imag(v))
+    return f"{re:19.15f} {'-' if im < 0 else '+'}{abs(im):18.15f}i"
+
+
 def run():
     os.makedirs(_IMG, exist_ok=True)
 
-    f = lambda z: np.tanh(z)  # noqa: E731
-    _contours(f(ZZ), "AnalyticContinuation_01.png")
+    def f(z):
+        return jnp.tanh(z)
 
-    p = cj.chebfun(lambda z: jnp.tanh(z))
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    _contours(ax, f(jnp.asarray(ZZ)))
+    _square(fig, ax, "AnalyticContinuation_01.png")
+
+    z = cj.chebfun(lambda t: t)
+    p = cj.tanh(z)   # p = f(z)
     print("ans =")
     print(f"    {len(p)}")
 
-    # Chebfun-ellipse parameter from the coefficient decay
-    c = np.abs(np.asarray(p.coeffs))
-    n = len(c)
-    rho = np.exp(-np.polyfit(np.arange(n), np.log(c + 1e-300), 1)[0])
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    plotregion(p, ax=ax)
+    _square(fig, ax, "AnalyticContinuation_02.png")
 
-    pp = np.asarray(p(jnp.asarray(ZZ)))
-    _contours(pp, "AnalyticContinuation_02.png", ellipse_rho=rho)
+    pp = p(jnp.asarray(ZZ))
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    _contours(ax, pp)
+    plotregion(p, ax=ax)
+    _square(fig, ax, "AnalyticContinuation_03.png")
 
-    # rational interpolant reaches much further.  The returned handle
-    # and pole list are real-line oriented, so evaluate p/q and find
-    # the full complex pole set from the coefficient vectors directly.
-    from numpy.polynomial import chebyshev as C
-    rh, a, b, mu, nu, _poles_real, res = ratinterp(
-        lambda x: jnp.tanh(x), 7, 8)
-    a = np.asarray(a)
-    b = np.asarray(b)
-    with np.errstate(all="ignore"):
-        rr = C.chebval(ZZ, a) / C.chebval(ZZ, b)
-    _contours(rr, "AnalyticContinuation_03.png")
+    # [p,q,r,mu,nu,poles] = ratinterp(f,7,8); rr = r(zz)
+    _r, a, b, mu, nu, _poles, _res = ratinterp(f, 7, 8)
+    pn = cj.chebfun(jnp.asarray(a), coeffs=True)
+    qn = cj.chebfun(jnp.asarray(b), coeffs=True)
+    rr = pn(jnp.asarray(ZZ)) / qn(jnp.asarray(ZZ))
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    _contours(ax, rr)
+    _square(fig, ax, "AnalyticContinuation_04.png")
 
+    # poles = roots(q, 'all')
+    poles = np.asarray(qn.roots(all_roots=True))
     exact = 0.5j * np.pi * np.arange(-7, 8, 2)
-    poles = np.asarray(C.chebroots(b), dtype=complex)
+
+    def mat_sort(v):
+        return sorted(v, key=lambda w: (abs(w), np.angle(w)))
+
     print("   Exact     rational approx")
-    for e, q in zip(sorted(exact, key=lambda v: (abs(v.imag), v.imag)),
-                    sorted(poles, key=lambda v: (abs(v.imag), v.imag))):
-        print(f"  {e.real:.15f} {'+' if e.imag>=0 else '-'} "
-              f"{abs(e.imag):.15f}i   "
-              f"{q.real:.15f} {'+' if q.imag>=0 else '-'} "
-              f"{abs(q.imag):.15f}i")
+    for j, col in enumerate((mat_sort(exact), mat_sort(poles)), start=1):
+        print(f"  Column {j}")
+        for v in col:
+            print(_cplx(v))
 
 
 if __name__ == "__main__":

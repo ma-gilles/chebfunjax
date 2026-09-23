@@ -21,7 +21,7 @@ import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
@@ -30,14 +30,14 @@ _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'approx')
 
 
 def _coeffplot(f, title, fname):
-    fig, ax = plt.subplots(figsize=(8.8, 4.2))
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
     for piece in f.funs:
         c = np.abs(np.asarray(piece.coeffs)) + 1e-30
         ax.semilogy(np.arange(len(c)), c, '.-', lw=1, ms=8)
     ax.grid(True)
     ax.set_title(title, fontsize=12)
-    ax.set_xlabel("degree of Chebyshev polynomial")
-    ax.set_ylabel("magnitude of coefficient")
+    ax.set_xlabel("Degree of Chebyshev polynomial")
+    ax.set_ylabel("Magnitude of coefficient")
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, fname))
@@ -57,9 +57,8 @@ def run():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         f = cj.chebfun(ff, splitting=True, eps=1e-8)
-    xs = np.linspace(-1, 1, 3000)
-    fig, ax = plt.subplots(figsize=(8.8, 4.2))
-    ax.plot(xs, np.asarray(f(jnp.asarray(xs))), 'm', lw=1.6)
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    matlab_plot(f, 'm', ax=ax, lw=1.6, jumpline=':')
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, "NoisyNonsmooth_01.png"), size=(600, 270))
@@ -74,8 +73,10 @@ def run():
     # Eigenvalue max of a matrix pencil: kinks at eigenvalue crossings
     A = np.array([[1, 2, 0], [0, 2, 1], [1, 0, 2]], dtype=float)
     B = np.array([[1, 1, 0], [1, -1, 1], [-1, 1, 1]], dtype=float)
-    print("A ="); print(A.astype(int))
-    print("B ="); print(B.astype(int))
+    for name, M in (("A", A), ("B", B)):
+        print(f"{name} =")
+        for row in M.astype(int):
+            print("".join(f"{v:6d}" for v in row))
 
     def gg(t):
         arr = np.atleast_1d(np.asarray(t, dtype=np.float64))
@@ -87,9 +88,8 @@ def run():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         g = cj.chebfun(gg, domain=(0.0, 1.0), splitting=True, eps=1e-8)
-    ts = np.linspace(0, 1, 2000)
-    fig, ax = plt.subplots(figsize=(8.8, 4.2))
-    ax.plot(ts, np.asarray(g(jnp.asarray(ts))), 'm', lw=1.6)
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    matlab_plot(g, 'm', ax=ax, lw=1.6, jumpline=':')
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, "NoisyNonsmooth_03.png"), size=(600, 270))
@@ -97,7 +97,7 @@ def run():
 
     print("ans =")
     for b in g.domain.breakpoints:
-        print(f"   {float(b):.15f}")
+        print(f"{'0':>20}" if float(b) == 0 else f"{float(b):20.15f}")
     _coeffplot(g, "Chebyshev coefficients", "NoisyNonsmooth_04.png")
 
 

@@ -53,8 +53,6 @@ def scan(f, dom, ep, d, fname):
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, fname))
     plt.close(fig)
-    print(f"{fname}: max local length {int(np.max(ll))}, "
-          f"min {int(np.min(ll))}")
 
 
 def run():

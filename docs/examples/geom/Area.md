@@ -32,7 +32,16 @@ y
 ```
 
 ```text
-epicycloid x: length 53, y: length 52
+x =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[       0,     6.3]       53         6        6
+vertical scale = 7.4
+y =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[       0,     6.3]       52   3.1e-15 -2.7e-15
+vertical scale =   8
 ```
 
 With the following formula we can compute the area enclosed by the curve $(x,y)$:
@@ -77,9 +86,8 @@ A = sum(real(z).*diff(imag(z)));
 
 ```text
 ans =
-   3.141592653589794
+   3.141592653589795
    3.141592653589793
-centroid = 0.500000 + 0.500000i
 ```
 
 We can compute and plot the centroid (or center of mass) of this region as follows:

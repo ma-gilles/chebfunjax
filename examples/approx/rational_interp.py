@@ -13,7 +13,6 @@ import matplotlib
 matplotlib.use("Agg")
 import os
 import sys
-import warnings
 
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
@@ -70,13 +69,13 @@ def run():
     with np.errstate(divide="ignore", invalid="ignore"):
         axes[0].plot(XS, np.asarray(rh(XS)), lw=1.6)
     xx = np.asarray(chebpts(7))
-    axes[0].plot(xx, np.asarray(f(jnp.asarray(xx))), '.k', ms=12)
+    axes[0].plot(xx, np.asarray(f(jnp.asarray(xx))), '.k', ms=7)
     axes[0].set_title("Type (3,3) rational interpolant to cos(e^x) "
                       "in 7 Chebyshev points", fontsize=11)
     rh, *_ = ratinterp(lambda x: f(x), 3, 3, 15)
-    axes[1].plot(XS, np.asarray(rh(XS)), 'm', lw=1.6)
+    axes[1].plot(XS, np.asarray(rh(XS)), color='#FF00FF', lw=1.6)
     xx = np.asarray(chebpts(16))
-    axes[1].plot(xx, np.asarray(f(jnp.asarray(xx))), '.k', ms=12)
+    axes[1].plot(xx, np.asarray(f(jnp.asarray(xx))), '.k', ms=7)
     axes[1].set_title("Type (3,3) least-squares approximant to cos(e^x) "
                       "in 16 Chebyshev points", fontsize=11)
     fig.set_facecolor("white")
@@ -85,54 +84,62 @@ def run():
     plt.close(fig)
 
     # exp(x): robust vs non-robust type (8,8)
-    fe = lambda x: jnp.exp(jnp.asarray(x))  # noqa: E731
+    fe = cj.chebfun('x').exp()
     fig, axes = plt.subplots(2, 1, figsize=(8.8, 6.0))
     rh_rob, a, b, mu, nu, *_ = ratinterp(fe, 8, 8)
-    axes[0].plot(XS, np.asarray(rh_rob(XS)), 'm', lw=1.6)
+    axes[0].plot(XS, np.asarray(rh_rob(XS)), color='#FF00FF', lw=1.6)
     xx = np.asarray(chebpts(17))
-    axes[0].plot(xx, np.exp(xx), '.k', ms=12)
-    axes[0].set_title("robust", fontsize=11)
+    axes[0].plot(xx, np.exp(xx), '.k', ms=7)
     rh0, a0, b0, *_ = ratinterp(fe, 8, 8, None, None, 0.0)
     with np.errstate(divide="ignore", invalid="ignore"):
         axes[1].plot(XS, np.asarray(rh0(XS)), lw=1.6)
-    axes[1].plot(xx, np.exp(xx), '.k', ms=12)
-    axes[1].set_title("non-robust (tol = 0)", fontsize=11)
+    axes[1].plot(xx, np.exp(xx), '.k', ms=7)
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, "RationalInterp_03.png"), size=(600, 270))
     plt.close(fig)
 
-    def _real_roots(c):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            r = np.polynomial.chebyshev.chebroots(np.asarray(c))
-        r = r[np.abs(r.imag) < 1e-8].real
-        return np.sort(r[(r > -1) & (r < 1)])
+    # format long; spurious_zeros = roots(p), spurious_poles = roots(q)
+    p0 = cj.chebfun(jnp.asarray(a0), coeffs=True)
+    q0 = cj.chebfun(jnp.asarray(b0), coeffs=True)
+    sz = np.asarray(p0.roots())
+    sp = np.asarray(q0.roots())
+    _disp("spurious_zeros", sz)
+    _disp("spurious_poles", sp)
+    _disp("separation", sp - sz)
 
-    sz = _real_roots(a0)
-    sp = _real_roots(b0)
-    print("spurious_zeros =")
-    for v in sz:
-        print(f"  {v:.15f}")
-    print("spurious_poles =")
-    for v in sp:
-        print(f"  {v:.15f}")
-    if len(sz) == len(sp):
-        print("separation =")
-        for v in (sp - sz):
-            print(f"   {v:.3e}")
+    # [p,q,rh,mu,nu] = ratinterp(f,8,8)
+    p = cj.chebfun(jnp.asarray(a), coeffs=True)
+    q = cj.chebfun(jnp.asarray(b), coeffs=True)
+    _disp("degree_of_p", mu)
+    _disp("spurious_zeros", np.asarray(p.roots()))
+    _disp("degree_of_q", nu)
+    _disp("spurious_poles", np.asarray(q.roots()))
 
-    print("degree_of_p =")
-    print(f"     {mu}")
-    print("spurious_zeros =")
-    print("   " + (", ".join(f"{v:.15f}" for v in _real_roots(a))
-                   or "Empty matrix: 0-by-1"))
-    print("degree_of_q =")
-    print(f"     {nu}")
-    print("spurious_poles =")
-    print("   " + (", ".join(f"{v:.15f}" for v in _real_roots(b))
-                   or "Empty matrix: 0-by-1"))
 
+def _disp(name, v):
+    """MATLAB ``format long`` display of a scalar or real column vector."""
+    print(f"{name} =")
+    v = np.atleast_1d(np.asarray(v, dtype=float))
+    if v.size == 0:
+        print("   Empty matrix: 0-by-1")
+        return
+    if np.all(v == np.round(v)):
+        w = len(str(int(np.max(np.abs(v))))) + (1 if np.any(v < 0) else 0)
+        for x in v:
+            print(f"{int(x):>{max(6, w + 3)}d}")
+        return
+    m = np.max(np.abs(v))
+    if v.size == 1 and not 1e-3 <= m < 1e3:
+        print(f"{v[0]:25.15e}")
+        return
+    e = 0 if 1e-3 <= m < 1e3 else int(np.floor(np.log10(m)))
+    e += 1 if e < 0 else 0          # MATLAB: small entries scale to [0.1, 1)
+    if e:
+        print(f"   1.0e{e:+03d} *")
+        v = v / 10.0**e
+    for x in v:
+        print("                   0" if x == 0 else f"{x:20.15f}")
 
 if __name__ == "__main__":
     run()

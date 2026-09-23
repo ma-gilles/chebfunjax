@@ -76,14 +76,16 @@ def run():
     _show("f_cheby", f_cheby)
 
     print("ratio =")
-    print(f"   {len(f_cheby) / len(f):.6f}")
+    print(f"   {len(f_cheby) / len(f):.15f}")
     print("theoretical =")
-    print(f"   {np.pi / 2:.6f}")
+    print(f"   {np.pi / 2:.15f}")
 
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
+    with warnings.catch_warnings(record=True) as rec:
+        warnings.simplefilter("always")
         f_step = cj.chebfun(
             lambda x: 0.5 * (1.0 + jnp.sign(x)), domain=dom, trig=True)
+    for w in rec:
+        print("Warning:", str(w.message))
     _show("f", f_step)
     fig, ax = plt.subplots(figsize=(6.5, 4))
     ax.plot(xs, np.asarray(f_step(jnp.asarray(xs))), "b", lw=0.7)
@@ -106,12 +108,12 @@ def run():
     (xminf, minf), (xmaxf, maxf) = f.minandmax()
     rootsf = np.sort(np.asarray(f.roots()))
     print("maxf =")
-    print(f"   {maxf:.6f}")
+    print(f"   {float(maxf):.15f}")
     print("minf =")
-    print(f"  {minf:.6f}")
+    print(f"  {float(minf):.15f}")
     print("rootsf =")
     for r in rootsf:
-        print(f"  {r: .6f}")
+        print(f"  {r: .15f}")
 
     fig, ax = plt.subplots(figsize=(6.5, 4))
     ax.plot(xs, fx, "b", label="f")
@@ -127,7 +129,7 @@ def run():
     _save(fig, "FourierBasedChebfuns_06")
 
     print("intf =")
-    print(f"  {float(f.sum()):.6f}")
+    print(f"  {float(f.sum()):.15f}")
 
     # -- Complex-valued trigfuns: the heart curve --------------------
     fh = cj.chebfun(
@@ -143,10 +145,11 @@ def run():
 
     area_heart = abs(float((fh.real() * fh.imag().diff()).sum()))
     print("area_heart =")
-    print(f"  {area_heart:.6f}")
+    print(f"     {area_heart:.15e}")
     err = (area_heart - 180 * np.pi) / (180 * np.pi)
     print("err =")
-    print(f"    {err:.15e}")
+    print(("     " if err > 0 else "    ") + f"{err:.15e}" if err
+          else "     0")
 
     # -- circconv + construction from values -------------------------
     rng = np.random.RandomState(0)

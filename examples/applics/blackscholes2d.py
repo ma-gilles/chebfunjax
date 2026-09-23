@@ -40,6 +40,23 @@ SIG1, SIG2 = 0.3, 0.3
 DOM = (0.3, 2.0, 0.3, 2.0, -0.9, 0.9)
 
 
+def _disp_chebfun3(f):
+    """MATLAB @chebfun3/disp."""
+    r1, r2, r3 = f.rank
+    m, n, p = f.length()
+    w = max(len(str(r)) for r in (r1, r2, r3))
+    dom = ", ".join(f"{v:.3g}" for v in f.domain).split(", ")
+    print("   chebfun3 object ")
+    print(f"   cols: Inf x {r1:<{w}d} chebfun")
+    print(f"   rows: Inf x {r2:<{w}d} chebfun")
+    print(f"  tubes: Inf x {r3:<{w}d} chebfun")
+    print(f"   core: {r1} x {r2} x {r3}")
+    print(f" length: {m}, {n}, {p}")
+    print(f" domain: [{dom[0]}, {dom[1]}] x [{dom[2]}, {dom[3]}] x "
+          f"[{dom[4]}, {dom[5]}]")
+    print(f" vertical scale = {f.vscale():.2g}")
+
+
 def run():
     os.makedirs(_IMG, exist_ok=True)
     warnings.filterwarnings("ignore")
@@ -69,42 +86,16 @@ def run():
     chebPrice = chebfun3(
         lambda T, K, rho: np.vectorize(price)(T, K, rho),
         domain=DOM, tol=1e-5)
-    rk = chebPrice.rank
-    m, n, p = (int(v) for v in rk) if hasattr(rk, "__len__") else (0, 0, 0)
     print("chebPrice =")
-    print("   chebfun3 object")
-    print(f" rank (Tucker): {m} x {n} x {p}")
-    print(" domain: [0.3, 2] x [0.3, 2] x [-0.9, 0.9]")
+    _disp_chebfun3(chebPrice)
     print(f"Elapsed time is {time.time() - t0:.6f} seconds.")
 
-    # Slice plot at T = 2, K = 0.3, rho = -0.9.
-    fig = plt.figure(figsize=(8.4, 6.4))
-    ax = fig.add_subplot(projection="3d")
-    n2 = 60
-    Ts = np.linspace(DOM[0], DOM[1], n2)
-    Ks = np.linspace(DOM[2], DOM[3], n2)
-    Rs = np.linspace(DOM[4], DOM[5], n2)
-    # T = 2 face
-    KK, RR = np.meshgrid(Ks, Rs)
-    V = np.asarray(chebPrice(np.full_like(KK, 2.0), KK, RR))
-    ax.plot_surface(np.full_like(KK, 2.0), KK, RR, facecolors=plt.cm.viridis(
-        (V - V.min()) / max(float(np.ptp(V)), 1e-30)), shade=False)
-    # K = 0.3 face
-    TT, RR = np.meshgrid(Ts, Rs)
-    V = np.asarray(chebPrice(TT, np.full_like(TT, 0.3), RR))
-    ax.plot_surface(TT, np.full_like(TT, 0.3), RR, facecolors=plt.cm.viridis(
-        (V - V.min()) / max(float(np.ptp(V)), 1e-30)), shade=False)
-    # rho = -0.9 face
-    TT, KK = np.meshgrid(Ts, Ks)
-    V = np.asarray(chebPrice(TT, KK, np.full_like(TT, -0.9)))
-    ax.plot_surface(TT, KK, np.full_like(TT, -0.9),
-                    facecolors=plt.cm.viridis(
-                        (V - V.min()) / max(float(np.ptp(V)), 1e-30)), shade=False)
+    # slice(chebPrice, 2, 0.3, -0.9); campos([-10 10 10])
+    fig, ax = chebPrice.slice(2.0, 0.3, -0.9)
+    ax.view_init(elev=35, azim=142)
     ax.set_xlabel('T')
     ax.set_ylabel('K')
     ax.set_zlabel(r'$\rho$')
-    fig.set_facecolor("white")
-    fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, "BlackScholes2D_01.png"))
     plt.close(fig)
 

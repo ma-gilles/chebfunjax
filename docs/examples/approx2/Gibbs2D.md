@@ -93,7 +93,7 @@ max2(t), min2(t)
 
 ```text
 ans =
-   1.316297664943336
+   1.316297664943330
 ```
 
 ## 3. A triangular island
@@ -152,7 +152,9 @@ rank(A2)
 ans =
      1
 ans =
-     22
+     1
+ans =
+    22
 ans =
     22
 ```

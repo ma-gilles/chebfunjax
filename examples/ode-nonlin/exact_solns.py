@@ -24,6 +24,7 @@ from chebfunjax import chebfun
 from chebfunjax.operators.chebop import Chebop
 from chebfunjax.plotting import chebfun_style
 from chebfunjax.plotting import save_chebfun_figure as _savefig
+from chebfunjax.utils.quadrature import chebpts_ab
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -42,14 +43,19 @@ def _save(fig):
 
 
 def _show(y, exact, title):
+    """err = norm(y-exact,inf); plot(y,'.-'), grid on, title(...)"""
+    err = float((y - exact).norm(np.inf))
     xx = np.linspace(*D, 2000)
-    err = float(np.max(np.abs(np.asarray(y(xx)) - exact(xx))))
-    fig, ax = plt.subplots(figsize=(8.4, 4.4))
-    ax.plot(xx, np.asarray(y(xx)), ".-", lw=1, markevery=100, markersize=8)
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    ax.plot(xx, np.asarray(y(xx)), "-", lw=1)
+    # '.-' marks the Chebyshev points of y
+    n = len(y)
+    xk = np.asarray(chebpts_ab(n, *D))
+    ax.plot(xk, np.asarray(y(xk)), ".", color="C0", ms=9)
+    ax.set_xlim(*D)
     ax.grid(True)
-    ax.set_title(f"{title}     Error = {err:6.2e}", fontsize=14)
+    ax.set_title(f"{title}     Error = {err:6.2e}", fontsize=10.5)
     _save(fig)
-    print(f"{title:24s} Error = {err:6.2e}")
 
 
 def run():
@@ -61,27 +67,27 @@ def run():
     N = Chebop(lambda x_, y: x_ * y.diff() - y**2 + 2 * y, domain=D)
     N.lbc = 0.0
     y = N.solve(1.0)
-    _show(y, lambda t: 1 - 1 / (1 + np.log(t)), "xy' = y^2-2y+1")
+    _show(y, 1 - 1 / (1 + x.log()), "xy' = y^2-2y+1")
 
     # Example 2: separation of variables (II)
     N = Chebop(lambda x_, y: y.diff() - y.sin(), domain=D)
     N.lbc = np.pi / 2
     y = N.solve(0.0)
-    _show(y, lambda t: 2 * np.arctan(np.exp(t - 1)), "y' = sin(y)")
+    _show(y, 2 * (x - 1).exp().atan(), "y' = sin(y)")
 
     # Example 3: order reduction
     N = Chebop(lambda x_, y: y * y.diff(2) - 2 * y.diff()**2, domain=D)
     N.lbc = 1.0
     N.rbc = 2.0
     y = N.solve(0.0)
-    _show(y, lambda t: 2 / (3 - t), "yy'' = 2(y')^2")
+    _show(y, 2 / (3 - x), "yy'' = 2(y')^2")
 
     # Example 4: an equidimensional-in-y equation
     N = Chebop(lambda x_, y: y.diff() - y / x_ - x_ / y, domain=D)
     N.lbc = 1.0
     N.init = 1 + 0 * x
     y = N.solve(0.0)
-    _show(y, lambda t: t * np.sqrt(1 + 2 * np.log(t)), "y' = y/x + x/y")
+    _show(y, x * (1 + 2 * x.log()).sqrt(), "y' = y/x + x/y")
 
 
 if __name__ == "__main__":

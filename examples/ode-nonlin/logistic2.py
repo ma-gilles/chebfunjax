@@ -42,7 +42,6 @@ def _plot(x, r, n):
     ax.set_title(f"r={r:4.2f}     n={n}     length(x)={len(x)}",
                  fontsize=12)
     ax.axis([0, 1, 0, 1])
-    ax.grid(True)
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(

@@ -52,8 +52,6 @@ def run():
 
     # Degree 16 polynomial minimax
     res = minimax(f, 16)
-    print("poly err =")
-    print(f"   {res.err:.15f}")
     p_cf = cj.chebfun(jnp.asarray(res.coeffs), coeffs=True)
     _errplot(f, lambda x: np.asarray(p_cf(jnp.asarray(x))), res.err,
              (-1, 1), (-0.03, 0.03),
@@ -62,16 +60,16 @@ def run():
 
     # Type (8,8) rational minimax
     r88 = minimax(f, 8, rational=True, denom=8)
-    print("rat88 err =")
-    print(f"   {r88.err:.15e}")
     _errplot(f, r88.r, r88.err, (-1, 1), (-0.003, 0.003),
              "Type (8,8) rational error curve",
              "BestApprox_02.png")
 
     # Type (16,16) rational minimax
+    # MATLAB's remez first tries a CF-based trial interpolant here and prints
+    # "Trial interpolant too far from optimal... Trying AAA-Lawson-based
+    # initialization..."; chebfunjax's minimax starts from the AAA-Lawson
+    # reference directly, so there is no such message.
     r16 = minimax(f, 16, rational=True, denom=16)
-    print("rat1616 err =")
-    print(f"   {r16.err:.15e}")
     _errplot(f, r16.r, r16.err, (-1, 1), (-4e-5, 4e-5),
              "Type (16,16) rational error curve",
              "BestApprox_03.png")

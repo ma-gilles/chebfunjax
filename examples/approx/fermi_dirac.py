@@ -24,6 +24,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 from chebfunjax.plotting import chebfun_style
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 from chebfunjax.utils.minimax import minimax
+from chebfunjax.utils.quadrature import chebpts_ab
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -42,7 +43,8 @@ def fermi(L, n, fname):
         r = minimax(g, n, rational=True, denom=n)
     err = r.err
     poles = np.asarray(r.poles)
-    ss = np.linspace(-0.9995, 0.9995, 4001)
+    ss = np.concatenate([np.asarray(chebpts_ab(1000, -1.0, 0.0)),
+                         np.asarray(chebpts_ab(1000, 0.0, 1.0))])
     ev = np.asarray(r.r(ss)) - np.asarray(g(jnp.asarray(ss)))
     fig = plt.figure(figsize=(9.6, 6.4))
     ax = fig.add_subplot(2, 1, 1)
@@ -69,8 +71,7 @@ def fermi(L, n, fname):
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, fname))
     plt.close(fig)
-    print(f"L={L}, n={n}: err = {err:.3e}  "
-          f"({time.time()-t0:.1f} s)")
+    print(f"Elapsed time is {time.time()-t0:.6f} seconds.")
 
 
 def run():
@@ -103,7 +104,7 @@ def run():
 
     v1 = float(g(jnp.asarray(0.1)))
     v2 = 1.0 - float(g(jnp.asarray(-0.1)))
-    print(f"{v1:.15f}   {v2:.15f}")
+    print(f"   {v1:.15f}   {v2:.15f}")
 
     fermi(10, 10, "FermiDirac_03.png")
     fermi(100, 15, "FermiDirac_04.png")

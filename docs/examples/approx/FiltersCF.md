@@ -37,9 +37,7 @@ toc
 ```
 
 ```text
-Elapsed time is 0.826034 seconds.
-mollified m=100: max|f2-p| = 6.92e-02
-mollified m=200: max|f2-p| = 8.33e-03
+Elapsed time is 0.631572 seconds.
 ```
 
 In practice, filter specifications usually have "don't care" regions between pass and stop bands. Here to give an idea of the possibilities we make $f$ a little smoother by convolving it with a narrow hat function. Now degrees $100$ and $200$ give good filters:

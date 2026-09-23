@@ -21,13 +21,31 @@ import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.chebfun1d.fov import fov
+from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
-from chebfunjax.utils.fov import fov
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'approx')
+
+
+# One colour per chebfun, dotted jump lines (MATLAB @chebfun/plot).
+_PW = dict(color="#0072BD", jumpline=":")
+
+
+def _save(fig, k):
+    fig.set_facecolor("white")
+    fig.set_size_inches(6.0, 2.7)
+    fig.tight_layout()
+    _savefig(fig, os.path.join(_IMG, f"EdgeDetection_{k:02d}.png"))
+    plt.close(fig)
+
+
+def _col(v):
+    """MATLAB format-long display of a column vector."""
+    for e in v:
+        print(f"{e:20.15f}")
 
 
 def run():
@@ -40,32 +58,25 @@ def run():
     d = np.sort(rs.standard_normal(20)) + 1j * rs.standard_normal(20)
     A = np.diag(d).astype(complex)
     A[:10, :10] += np.diag(np.ones(9), 1)
-    W, _ = fov(A)
-    fig, ax = plt.subplots(figsize=(7.6, 5.2))
-    ax.plot(np.real(W), np.imag(W), 'k', lw=1.1)
-    ax.plot(d.real, d.imag, '.r', ms=12)
+    W, W2, _ = fov(A, line_segments=True)
+    fig, ax = plt.subplots()
+    matlab_plot(W, 'k', ax=ax)
+    matlab_plot(W2, 'k', ax=ax)
+    ax.plot(d.real, d.imag, '.r', ms=10)
     ax.set_axis_off()
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "EdgeDetection_01.png"), size=(600, 270))
-    plt.close(fig)
+    _save(fig, 1)
 
     # The 21 kinks of |exp(x) sin(10 pi x)|, found by splitting on
     f = cj.chebfun(lambda x: jnp.abs(jnp.exp(x) * jnp.sin(10 * jnp.pi * x)),
                    splitting=True)
-    xs = np.linspace(-1, 1, 4000)
-    fig, ax = plt.subplots(figsize=(8.8, 4.2))
-    ax.plot(xs, np.asarray(f(jnp.asarray(xs))), lw=1.2)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "EdgeDetection_02.png"), size=(600, 270))
-    plt.close(fig)
+    fig, ax = plt.subplots()
+    matlab_plot(f, ax=ax, **_PW)
+    _save(fig, 2)
 
-    ends = np.array(sorted(float(b) for b in f.domain.breakpoints))
+    ends = np.array([float(b) for b in f.domain.breakpoints])
     print("ans =")
-    for e in ends:
-        print(f"  {e:.15f}")
-    true_edges = np.arange(-1, 1.05, 0.1)
+    _col(ends)
+    true_edges = np.arange(-10, 11) / 10
     maxerr = float(np.max(np.abs(ends - true_edges)))
     print("maxerr =")
     print(f"     {maxerr:.15e}")
@@ -88,50 +99,31 @@ def run():
         return jnp.asarray(out, dtype=jnp.float64).reshape(arr.shape)
 
     g = cj.chebfun(abscissa_vals, domain=(0.0, 1.0), splitting=True)
-    brk = np.array(sorted(float(b) for b in g.domain.breakpoints))[1:-1]
+    brk = np.array([float(b) for b in g.domain.breakpoints])[1:-1]
+    fig, ax = plt.subplots()
+    matlab_plot(g, ax=ax, **_PW)
+    ax.grid(True)
     print("breakpts =")
-    for e in brk:
-        print(f"   {e:.15f}")
+    _col(brk)
+    ax.plot(brk, np.asarray(g(jnp.asarray(brk))), '.r', ms=10)
+    _save(fig, 3)
 
-    fig, ax = plt.subplots(figsize=(8.8, 4.2))
-    ts = np.linspace(0, 1, 1500)
-    ax.plot(ts, np.asarray(g(jnp.asarray(ts))), lw=1.3)
-    ax.plot(brk, np.asarray(g(jnp.asarray(brk))), '.r', ms=12)
+    fig, ax = plt.subplots()
+    matlab_plot(g.diff(), ax=ax, **_PW)
     ax.grid(True)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "EdgeDetection_03.png"), size=(600, 270))
-    plt.close(fig)
-
-    fig, ax = plt.subplots(figsize=(8.8, 4.2))
-    gd = g.diff()
-    for lo, hi in zip(list(g.domain.breakpoints)[:-1],
-                      list(g.domain.breakpoints)[1:]):
-        tt = np.linspace(float(lo) + 1e-9, float(hi) - 1e-9, 200)
-        ax.plot(tt, np.asarray(gd(jnp.asarray(tt))), 'b', lw=1.1)
-    ax.grid(True)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "EdgeDetection_04.png"), size=(600, 270))
-    plt.close(fig)
+    _save(fig, 4)
 
     # Larger splitLength: only the genuine kinks survive
     g2 = cj.chebfun(abscissa_vals, domain=(0.0, 1.0), splitting=True,
                     split_length=1000)
-    brk2 = np.array(sorted(float(b) for b in g2.domain.breakpoints))[1:-1]
-    print("breakpts2 =")
-    for e in brk2:
-        print(f"   {e:.15f}")
-
-    fig, ax = plt.subplots(figsize=(8.8, 4.2))
-    ax.plot(ts, np.asarray(g2(jnp.asarray(ts))), lw=1.3)
-    if len(brk2):
-        ax.plot(brk2, np.asarray(g2(jnp.asarray(brk2))), '.r', ms=12)
+    brk2 = np.array([float(b) for b in g2.domain.breakpoints])[1:-1]
+    fig, ax = plt.subplots()
+    matlab_plot(g2, ax=ax, **_PW)
     ax.grid(True)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "EdgeDetection_05.png"), size=(600, 270))
-    plt.close(fig)
+    print("breakpts2 =")
+    _col(brk2)
+    ax.plot(brk2, np.asarray(g2(jnp.asarray(brk2))), '.r', ms=10)
+    _save(fig, 5)
 
 
 if __name__ == "__main__":

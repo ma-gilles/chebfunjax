@@ -112,11 +112,15 @@ separation = spurious_poles - spurious_zeros
 
 ```text
 spurious_zeros =
-  -0.843334014020242
+  -0.422423715992551
+   0.506570089757298
 spurious_poles =
-  -0.843334014020242
+  -0.422423715992552
+   0.506570089757299
 separation =
-   1.110e-16
+   1.0e-15 *
+  -0.666133814775094
+   0.111022302462516
 ```
 
 The computation of the first panel, by contrast, had no spurious poles. To achieve this, `ratinterp` actually returned an approximation of type less than the allowed $(8,8)$, as we can see like this:

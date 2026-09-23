@@ -27,7 +27,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
 from chebfunjax.operators.chebop import Chebop
 from chebfunjax.operators.krylov import gmres, minres, pcg
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
@@ -42,139 +42,144 @@ def _save(fig):
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(
-        _IMG, f"Krylov_{FIG[0]:02d}.png"))
+        _IMG, f"Krylov_{FIG[0]:02d}.png"), size=(600, 269))
     plt.close(fig)
+
+
+def _long(name, v):
+    """MATLAB format-long display of a scalar."""
+    print(f"{name} =")
+    print(f"     {v:.15e}")
+
+
+def _matrix_pcg(A, b, tol, maxit):
+    """MATLAB pcg for a matrix, with its convergence message."""
+    its = [0]
+
+    def count(_xk):
+        its[0] += 1
+    x, _info = spla.cg(A, b, rtol=tol, maxiter=maxit, callback=count)
+    relres = np.linalg.norm(b - A @ x) / np.linalg.norm(b)
+    print(f"pcg converged at iteration {its[0]} to a solution with "
+          f"relative residual {relres:.2g}.")
+    return x
 
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
     warnings.filterwarnings("ignore")
-    x = cj.chebfun(lambda t: t, domain=(-1, 1))
 
-    # 1. Matrix CG warm-up
     n = 100
-    h = 2.0 / (n + 1)
+    h = 2 / (n + 1)
     e = np.ones(n)
-    A = -(1 / h**2) * sp.diags([e, -2 * e, e], [-1, 0, 1],
-                               shape=(n, n)).tocsr()
+    A = -1 / h**2 * sp.diags([e, -2 * e, e], [-1, 0, 1], shape=(n, n)).tocsr()
     b = np.ones(n)
-    x_cg, _info = spla.cg(A, b, rtol=1e-12, maxiter=100)
+
+    x_cg = _matrix_pcg(A, b, 1e-12, 100)
     x_exact = spla.spsolve(A, b)
-    print("error =")
-    print(f"     {np.linalg.norm(x_cg - x_exact):.15e}")
+    _long("error", np.linalg.norm(x_cg - x_exact))
 
-    # 2. The collocation matrix is far from symmetric
     L = Chebop(lambda u: -u.diff(2), domain=(-1, 1))
     L.bc = 0
-    An = np.asarray(L.matrix(n))
-    print("ans =")
-    print(f"     {np.linalg.norm(An - An.T, 'fro'):.15e}")
+    A = np.asarray(L.matrix(n))
 
-    # 3. Variable coefficients: colloc vs operator pcg
+    _long("ans", np.linalg.norm(A - A.T, "fro"))
+
+    x = cj.chebfun(lambda t: t)
     f = 1 / (1 + x**2)
-    Lv = Chebop(lambda u: -((2 + (70 * np.pi * x).cos())
-                            * u.diff()).diff() + (1 + x**12) * u,
-                domain=(-1, 1))
-    Lv.lbc = 3
-    Lv.rbc = -5
+    L = Chebop(lambda u: -((2 + (70 * np.pi * x).cos()) * u.diff()).diff()
+               + (1 + x**12) * u, domain=(-1, 1))
+    L.lbc = 3
+    L.rbc = -5
     t0 = time.time()
-    u_colloc = Lv.solve(f)
+    u_colloc = L.solve(f)                                    # noqa: F841
     print(f"Elapsed time is {time.time() - t0:.6f} seconds.")
     t0 = time.time()
-    u_cg = pcg(Lv, f)
+    u_cg = pcg(L, f)                                         # noqa: F841
     print(f"Elapsed time is {time.time() - t0:.6f} seconds.")
-    print("cg-vs-colloc =")
-    print(f"     {float((u_cg - u_colloc).norm()):.3e}")
 
-    # 4. pcg accuracy on the Poisson problem
     L = Chebop(lambda u: -u.diff(2), domain=(-1, 1))
     L.bc = 0
-    f1 = cj.chebfun(lambda t: jnp.ones_like(t), domain=(-1, 1))
-    u_cg = pcg(L, f1)
-    Lb = Chebop(lambda u: -u.diff(2), domain=(-1, 1))
-    Lb.bc = 0
-    print("error =")
-    print(f"     {float((u_cg - Lb.solve(f1)).norm()):.15e}")
+    f = cj.chebfun(1.0)
+    u_cg = pcg(L, f)
+    _long("error", float((u_cg - L.solve(f)).norm()))  # error in CG solution
 
-    # 5. An indefinite operator: eigenvalues straddle zero
-    Le = Chebop(lambda u: -u.diff(2) - 100 * u, domain=(-1, 1))
-    Le.bc = 0
-    lam = np.sort(np.real(np.asarray(Le.eigs(k=6, sigma="SM"))))
+    L = Chebop(lambda u: -u.diff(2) - 100 * u, domain=(-1, 1))
+    L.bc = 0
+    lam = np.sort(np.real(np.asarray(L.eigs(sigma=0))))  # MATLAB default
     print("ans =")
     for v in lam:
-        print(f" {v:11.6f}")
+        print(f"{v:20.15f}")
 
-    # 6. minres on the indefinite operator
-    fs = (13 * np.pi * abs(x)).sin()
-    u_minres = minres(Le, fs, tol=1e-10, maxit=200)
-    Le2 = Chebop(lambda u: -u.diff(2) - 100 * u, domain=(-1, 1))
-    Le2.bc = 0
-    u_col = Le2.solve(fs)
-    print("error =")
-    print(f"     {float((u_minres - u_col).norm()):.15e}")
-    fig, ax = plt.subplots(figsize=(9.0, 4.8))
-    t = np.linspace(-1, 1, 1200)
-    ax.plot(t, np.asarray(u_minres(t)), lw=2)
-    ax.set_xlabel("x")
-    ax.set_ylabel("u(x)")
-    ax.grid(True)
+    f = (13 * np.pi * x.abs()).sin()
+    u_minres = minres(L, f)
+    u_colloc = L.solve(f)
+    _long("error", float((u_minres - u_colloc).norm()))
+
+    # Plot:
+    fig, ax = plt.subplots(figsize=(6.0, 2.69))
+    matlab_plot(u_minres, ax=ax, lw=2)
+    ax.set_xlabel("x", fontsize=16)
+    ax.set_ylabel("u(x)", fontsize=16)
+    ax.tick_params(labelsize=16)
     _save(fig)
 
-    # 7. gmres
-    L = Chebop(lambda u: -u.diff(2), domain=(-1, 1))
+    L = Chebop(lambda u: -u.diff(2) + u.diff(1) + u, domain=(-1, 1))
     L.bc = 0
-    u_gmres = gmres(L, f1)
-    print("error =")
-    print(f"     {float((u_gmres - Lb.solve(f1)).norm()):.15e}")
+    f = cj.chebfun(1.0)
+    u_gmres = gmres(L, f)
+    u_colloc = L.solve(f)
+    _long("error", float((u_colloc - u_gmres).norm()))
 
-    # 8. minres with a rough manufactured solution
-    Lr = Chebop(lambda u: -((2 + (21 * np.pi * x).cos())
-                            * u.diff()).diff() + u / (1 + x**2),
-                domain=(-1, 1))
-    Lr.bc = 0
+    L = Chebop(lambda u: -((2 + (21 * np.pi * x).cos()) * u.diff(1)).diff(1)
+               + u / (1 + x**2), domain=(-1, 1))
+    L.bc = 0
     u_exact = (40 * np.pi * x).sin()
-    fr = (-((2 + (21 * np.pi * x).cos()) * u_exact.diff()).diff()
-          + u_exact / (1 + x**2))
-    u_minres, flag, relres, it, resvec = minres(
-        Lr, fr, tol=1e-10, maxit=300, full_output=True)
-    print("error =")
-    print(f"     {float((u_exact - u_minres).norm()):.15e}")
-    fig, ax = plt.subplots(figsize=(9.0, 4.8))
+    f = L(u_exact)
+    u_minres, flag, relres, it, resvec = minres(L, f, full_output=True)
+    _long("error", float((u_exact - u_minres).norm()))
+
+    # Plot:
+    fig, ax = plt.subplots(figsize=(6.0, 2.69))
     rv = np.asarray(resvec)
-    ax.semilogy(np.arange(rv.size), rv / rv[0], lw=2)
-    ax.set_xlabel("Iteration count")
-    ax.set_ylabel("Relative residual")
-    ax.set_title("Convergence of the operator MINRES method")
-    ax.grid(True)
+    ax.semilogy(np.arange(1, rv.size + 1), rv / rv[0], lw=2)
+    ax.set_xlabel("Iteration count", fontsize=16)
+    ax.set_ylabel("Relative residual", fontsize=16)
+    ax.set_title("Convergence of the operator MINRES method", fontsize=16)
+    ax.tick_params(labelsize=16)
     _save(fig)
 
-    # 9. A stiff problem with tight tolerance
-    Ls = Chebop(lambda u: -1e-5 * u.diff(2) + u, domain=(-1, 1))
-    Ls.bc = 0
-    u_p, flag, relres, it, _rv = pcg(Ls, f1, tol=1e-13, maxit=1000,
-                                     full_output=True)
+    L = Chebop(lambda u: -1e-5 * u.diff(2) + u, domain=(-1, 1))
+    L.bc = 0
+    f = cj.chebfun(1.0)
+    u_minres, flag, relres, it, _ = pcg(L, f, 1e-13, 1000, full_output=True)
     print("u_minres =")
-    print(repr(u_p))
-    print(f"flag = {flag}   iter = {it}")
-    Ls2 = Chebop(lambda u: -1e-5 * u.diff(2) + u, domain=(-1, 1))
-    Ls2.bc = 0
-    print("error =")
-    print(f"     {float((u_p - Ls2.solve(f1)).norm()):.3e}")
+    print(repr(u_minres))
+    print("flag =")
+    print(f"{flag:6d}")
+    _long("relres", relres)
+    print("iter =")
+    print(f"{it:6d}")
+    u_colloc = L.solve(f)
+    _long("error", float((u_minres - u_colloc).norm()))
 
-    # 10. Piecewise-smooth coefficients
-    a = 2 + (5 * np.pi * x).cos().sign()
-    c = -abs(x)
-    Lp = Chebop(lambda u: -(a * u.diff()).diff() + c * u,
-                domain=(-1, 1))
-    Lp.bc = 2
-    fp = -1e2 * (3 * np.pi * x).sin()
-    u_p, _fl, relres, _it, _rv = minres(Lp, fp, tol=1e-10,
-                                        maxit=300, full_output=True)
-    print("relative_residual =")
-    print(f"     {relres:.15e}")
-    fig, ax = plt.subplots(figsize=(9.0, 4.8))
-    ax.plot(t, np.asarray(u_p(t)), lw=2)
-    ax.grid(True)
+    a = cj.chebfun(lambda t: 2 + jnp.sign(jnp.cos(5 * t * np.pi)),
+                   splitting=True)
+    c = cj.chebfun(lambda t: -jnp.abs(t), splitting=True)
+    L = Chebop(lambda u: -(a * u.diff()).diff() + c * u, domain=(-1, 1))
+    L.bc = 2
+    f = -1e2 * (3 * np.pi * x).sin()
+    u_minres = minres(L, f)
+    _long("relative_residual",
+          float((L(u_minres) - f).norm()) / float(f.norm()))
+
+    fig, ax = plt.subplots(figsize=(6.0, 2.69))
+    matlab_plot(a, ax=ax, lw=2, color="#0072BD", jumpline=":")
+    matlab_plot(u_minres, ax=ax, lw=2, color="#D95319")
+    lines = ax.get_lines()
+    ax.legend([lines[0], lines[-1]],
+              ["Variable coefficient a(x)", "Solution u(x)"], fontsize=16)
+    ax.tick_params(labelsize=16)
     _save(fig)
 
 

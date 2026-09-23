@@ -19,6 +19,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
+import chebfunjax as cj
 from chebfunjax.chebfun1d.chebfun import Chebfun
 from chebfunjax.plotting import chebfun_style
 from chebfunjax.plotting import save_chebfun_figure as _savefig
@@ -29,65 +30,68 @@ chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'approx')
 
-XS = np.linspace(-1, 1, 20001)
+
+def _norm_inf(g):
+    """[maxval, maxpos] = norm(g, inf)."""
+    (xmin, vmin), (xmax, vmax) = g.minandmax()
+    if abs(float(vmin)) > abs(float(vmax)):
+        return abs(float(vmin)), float(xmin)
+    return abs(float(vmax)), float(xmax)
+
+
+def _num2str(v):
+    return f"{v:.{max(int(np.floor(np.log10(abs(v)))) + 5, 5)}g}"
 
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
 
-    fv = np.abs(XS)
+    x = cj.chebfun(lambda t: t)
+    f = cj.abs(x)
+
     s = []
-    maxpos = 0.0     # norm(|x|, inf) attained at x = +-1; MATLAB gets +-1
-    maxval = 1.0
-    maxpos = 1.0
+    maxval, maxpos = _norm_inf(f)
     fignum = 0
     for n in range(0, 129):
         s.append(maxpos)
-        p = Chebfun.interp1(jnp.asarray(np.asarray(s, dtype=np.float64)),
-                            jnp.asarray(np.abs(np.asarray(s))),
-                            domain=(-1.0, 1.0))
-        ev = fv - np.asarray(p(jnp.asarray(XS)))
-        i = int(np.argmax(np.abs(ev)))
-        maxval = abs(ev[i])
-        maxpos = XS[i]
-        if n <= 4 or (n >= 5 and np.log2(n) == round(np.log2(n))):
+        sv = jnp.asarray(s)
+        p = Chebfun.interp1(sv, f(sv), domain=(-1.0, 1.0))
+        err = f - p
+        maxval, maxpos = _norm_inf(err)
+        if n <= 4 or np.log2(n) == round(np.log2(n)):
             fignum += 1
-            fig, ax = plt.subplots(figsize=(8.8, 3.6))
-            ax.plot(XS, ev, lw=2)
+            fig, ax = plt.subplots(figsize=(6.0, 2.7))
+            err.plot(ax=ax, linewidth=2, n_pts=4000)
             ax.set_ylim(-1.2 * maxval, 1.2 * maxval)
             ax.grid(True)
-            ax.plot([maxpos], [ev[i]], '.r', ms=18)
-            ax.set_title(f"n = {n}    error = {maxval:.5g}", fontsize=13)
-            fig.set_facecolor("white")
+            ax.plot([maxpos], [float(err(maxpos))], '.r', ms=12)
+            ax.set_title(f"n = {n}    error = {_num2str(maxval)}",
+                         fontsize=10.5)
             fig.tight_layout()
             _savefig(fig, os.path.join(
                 _IMG, f"GreedyInterp_{fignum:02d}.png"))
             plt.close(fig)
-            print(f"n = {n}   error = {maxval:.6g}")
 
+    # The greedy points (black) against Chebyshev points (red).
     s = np.asarray(s)
-    fig, ax = plt.subplots(figsize=(8.8, 4.2))
-    ax.plot(np.sort(s), '.k', ms=8)
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    ax.plot(np.arange(1, len(s) + 1), np.sort(s), '.k', ms=6)
     scheb = np.asarray(chebpts(len(s)))
-    ax.plot(scheb, 'or', ms=4, mfc='none')
+    ax.plot(np.arange(1, len(s) + 1), scheb, 'or', ms=6, mfc='none')
     ax.set_ylim(-1.02, 1.02)
-    fig.set_facecolor("white")
     fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, f"GreedyInterp_{fignum+1:02d}.png"))
+    _savefig(fig, os.path.join(_IMG, f"GreedyInterp_{fignum + 1:02d}.png"))
     plt.close(fig)
 
-    fig, ax = plt.subplots(figsize=(8.8, 4.2))
+    # Lebesgue functions of the greedy and Chebyshev points.
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
     t1, l1 = lebesgue_function(s, n_eval=8001)
     t2, l2 = lebesgue_function(scheb, n_eval=8001)
-    ax.semilogy(t1, l1, 'k', lw=1.4)
-    ax.semilogy(t2, l2, 'r', lw=1.4)
-    ax.grid(True)
-    fig.set_facecolor("white")
+    ax.semilogy(t1, l1, 'k', lw=1.0)
+    ax.semilogy(t2, l2, 'r', lw=1.0)
     fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, f"GreedyInterp_{fignum+2:02d}.png"))
+    _savefig(fig, os.path.join(_IMG, f"GreedyInterp_{fignum + 2:02d}.png"))
     plt.close(fig)
-    print(f"greedy Lebesgue max: {np.max(l1):.4g}")
-    print(f"cheb   Lebesgue max: {np.max(l2):.4g}")
 
 
 if __name__ == "__main__":

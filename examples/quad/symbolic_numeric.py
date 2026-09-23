@@ -63,8 +63,6 @@ def run():
     print(repr(gi))
     _plot(gi, (0.7, 0, 0.7), "not symbolically integrable",
           "SymbolicNumeric_02")
-    print("ans =")
-    print(f"   {float(g.sum()):.15f}")
     return True
 
 

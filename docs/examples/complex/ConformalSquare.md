@@ -35,65 +35,12 @@ w = cumsum( fprime(z) )
 
 ```text
 w =
-   chebfun column (55 smooth pieces)
+   chebfun column (3 smooth pieces)
        interval       length     endpoint values
-[       0,    0.74]       32     complex values
-[    0.74,    0.99]       85     complex values
-[    0.99,       1]       29     complex values
-[       1,       1]       72     complex values
-[       1,       1]       17     complex values
-[       1,       1]       85     complex values
-[       1,       1]       14     complex values
-[       1,       1]       14     complex values
-[       1,       1]       10     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        4     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]      130     complex values
-[       1,       1]        9     complex values
-[       1,       1]      130     complex values
-[       1,       1]      130     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]      130     complex values
-[       1,       1]        9     complex values
-[       1,       1]      130     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]      130     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]        9     complex values
-[       1,       1]      130     complex values
-vertical scale = 1.3    Total length = 1614
-corner value w(1) = 1.31102831 (exact lemniscatic value 1.31102878)
+[       0,    0.25]       14     complex values
+[    0.25,    0.88]       42     complex values
+[    0.88,       1]    65538     complex values
+vertical scale = 1.3    Total length = 65594
 ```
 
 In fact, the resulting expression is essentially real.

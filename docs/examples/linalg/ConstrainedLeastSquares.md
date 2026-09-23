@@ -90,7 +90,7 @@ err = norm(A.'-Q*R*U) + norm(B.'-Q*S) + norm(Q*Q'-I) + norm(U*U'-I)
 
 ```text
 err =
-   2.0263e-15
+   1.8025e-15
 ```
 
 Now that we have the GQR factorisation, it is straightforward to solve the constrained least squares problem using the approach described in [4]. We implement this in lsqcon() below.
@@ -175,9 +175,7 @@ subplot(1,2,1), spy(R), title('R'), subplot(1,2,2), spy(S), title('S')
 
 ```text
 err =
-   4.8619e-15
-interp constraint residual =
-   1.9915e-16
+   2.5263e-15
 ```
 
 ![ConstrainedLeastSquares figure 02](../../images/linalg/ConstrainedLeastSquares_02.png)
@@ -210,7 +208,7 @@ err = sum(ffit3)
 
 ```text
 err =
-   3.9018e-16
+   4.0502e-16
 ```
 
 ```matlab
@@ -251,7 +249,7 @@ err = sqrt(sum(ffit2).^2 + sum(f([-1;1]) - ffit2([-1;1])).^2)
 
 ```text
 err =
-   2.7697e-15
+   3.8287e-15
 ```
 
 ```matlab
@@ -300,7 +298,7 @@ err = norm(c2 - c3)
 
 ```text
 err =
-   7.2829e-14
+   5.4113e-14
 ```
 
 ## References

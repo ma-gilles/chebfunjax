@@ -19,13 +19,22 @@ A = [-1 0 0 0 0 0 -625; 0 -1 -30 400 0 0 250; -2 0 -1 0 0 0 30;
 
 ```text
 A =
-       -1      0      0      0      0      0   -625
-        0     -1    -30    400      0      0    250
-       -2      0     -1      0      0      0     30
-        5     -1      5     -1      0      0    200
-       11      1     25    -10     -1      1   -200
-      200      0      0   -150   -100     -1  -1000
-        1      0      0      0      0      0     -1
+  Columns 1 through 6
+          -1           0           0           0           0           0
+           0          -1         -30         400           0           0
+          -2           0          -1           0           0           0
+           5          -1           5          -1           0           0
+          11           1          25         -10          -1           1
+         200           0           0        -150        -100          -1
+           1           0           0           0           0           0
+  Column 7
+        -625
+         250
+          30
+         200
+        -200
+       -1000
+          -1
 ```
 
 Here (adapted from [linalg/NonnormalQuiz](NonnormalQuiz.md)) is a code to compute and plot $| e^{tA} |$ as a function of $t$:
@@ -67,7 +76,7 @@ toc
 ```
 
 ```text
-Elapsed time is 51.365562 seconds.
+Elapsed time is 54.072340 seconds.
 ```
 
 ## References

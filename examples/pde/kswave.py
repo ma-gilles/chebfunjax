@@ -26,10 +26,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import jax
 
-from chebfunjax.plotting import chebfun_style
+import chebfunjax as cj
+from chebfunjax.operators.spinop import Spinop, spin
+from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
-from chebfunjax.spin.solver import spin
-from chebfunjax.spin.spinop import SpinOp
 from chebfunjax.utils.randnfun import randnfun
 
 chebfun_style()
@@ -38,105 +38,105 @@ _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'pde')
 
 NPTS, DT = 256, 0.02
 FIG = [0]
+LW = 4 * 0.6
 
 
-def _run(dom, u0_vals_fn, lin):
-    op = SpinOp(lin_coeff=lin, nonlin_vals=lambda u: -0.5 * u**2,
-                nonlin_diff_order=1, domain=dom, tspan=(0.0, 100.0),
-                u0=u0_vals_fn)
-    return spin(op, NPTS, DT, dealias=False)
-
-
-def _crest_gaps(x, u, X, red=False):
-    """Distances between successive local maxima of the trig interpolant."""
-    N = len(u)
-    up = np.fft.irfft(np.fft.rfft(u), 16 * N) * 16
-    xp = np.linspace(x[0], x[0] + (x[-1] - x[0]) * N / (N - 1), 16 * N,
-                     endpoint=False)
-    i = np.where((up[1:-1] > up[:-2]) & (up[1:-1] >= up[2:])
-                 & (up[1:-1] > 0.5))[0] + 1
-    # merge plateau duplicates
-    pos = []
-    for j in i:
-        if not pos or xp[j] - pos[-1] > 1.0:
-            pos.append(xp[j])
-    d = np.diff(pos)
+def _save(fig):
     FIG[0] += 1
-    fig, ax = plt.subplots(figsize=(8.6, 3.6))
-    ax.plot([0, len(d) - 1], [X, X], 'k', lw=0.7)
-    ax.plot(range(1, len(d) - 1), d[1:-1], '.',
-            markersize=14, color=('r' if red else (0, 0, 0.6)))
+    fig.set_facecolor("white")
+    fig.tight_layout(h_pad=0.3)
+    _savefig(fig, os.path.join(_IMG, f"KSWave_{FIG[0]:02d}.png"),
+             size=(600, 269))
+    plt.close(fig)
+
+
+def _num(v):
+    return f"{int(v)}" if float(v) == int(v) else f"{v:.15e}"
+
+
+def _disp_spinop(S):
+    """MATLAB display of a spinop object."""
+    print("S = ")
+    print("  spinop with properties:")
+    print()
+    a, b = S.domain
+    print(f"     domain: [{_num(a)} {_num(b)}]")
+    print("       init: [Inf×1 chebfun]")
+    print(f"        lin: {S.lin_str}")
+    print(f"     nonlin: {S.nonlin_str}")
+    print(f"      tspan: [{_num(S.tspan[0])} {_num(S.tspan[1])}]")
+    print("    numVars: 1")
+
+
+def _panel(ax, f, color, text, X=None, ty=6.6, yt=(0, 5), xt=False):
+    matlab_plot(f, color, ax=ax, linewidth=LW)
+    ax.set_ylim(-3, 9)
+    ax.grid(True)
+    ax.text(5, ty, text, fontsize=26 * 0.35)
+    if X is not None:
+        ax.text(10 * X, ty, f"X = {X}", fontsize=26 * 0.35)
+    if not xt:
+        ax.set_xticks([])
+    if yt is not None:
+        ax.set_yticks(list(yt))
+
+
+def _experiment(S, X, key, red_final=False, ty=6.6, pert_yt=(0, 5)):
+    """The four-panel cell: initial condition, spin, perturb, spin."""
+    S.domain = (0.0, 20.0 * X)
+    S.init = cj.chebfun(lambda x: 2 * np.exp(np.sin(2 * np.pi * x / X)),
+                        domain=list(S.domain), trig=True)
+    fig, axes = plt.subplots(4, 1)
+    _panel(axes[0], S.init, 'k', 'initial condition', X, ty)
+    u = spin(S, NPTS, DT, 'plot', 'off', dealias=False)
+    _panel(axes[1], u, 'C0', 'after 100 time units', ty=ty)
+    S.init = u + .1 * randnfun(2.0, S.domain, key=jax.random.PRNGKey(key))
+    _panel(axes[2], S.init, 'k', 'perturbation', ty=ty, yt=pert_yt)
+    u = spin(S, NPTS, DT, 'plot', 'off', dealias=False)
+    _panel(axes[3], u, 'r' if red_final else 'C0',
+           'after 100 more time units', ty=ty, xt=True)
+    _save(fig)
+    return u
+
+
+def _crests(u, X, red=False):
+    """[a,b] = max(u,'local'); d = diff(b)'; and its plot."""
+    b, _ = u.max('local')
+    d = np.diff(np.asarray(b))
+    fig, ax = plt.subplots()
+    ax.plot([0, len(d) - 1], [X, X], 'k', lw=.7)
+    ax.plot(np.arange(1, len(d) - 1), d[1:-1], '.', markersize=32 * 0.35,
+            color=('r' if red else (0, 0, .6)))
     ax.set_xticks([])
     ax.grid(True)
-    ax.set_ylim(0, 15)
-    ax.set_xlim(0, len(d) - 1)
-    ax.set_title("distances between successive wave crests")
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, f"KSWave_{FIG[0]:02d}.png"))
-    plt.close(fig)
-    print(f"crest gaps: mean {np.mean(d[1:-1]):.3f} "
-          f"std {np.std(d[1:-1]):.3f} (X = {X})", flush=True)
-
-
-def _experiment(X, lin_fn, key, red_final=False):
-    dom = (0.0, 20.0 * X)
-
-    def u0(x):
-        return 2 * np.exp(np.sin(2 * np.pi * x / X))
-
-    x, _, u1 = _run(dom, u0, lin_fn)
-    pert = 0.1 * np.asarray(
-        randnfun(2.0, dom, key=jax.random.PRNGKey(key))(x))
-    up = u1 + pert
-    x, _, u2 = _run(dom, lambda xx: up, lin_fn)
-
-    FIG[0] += 1
-    fig, axes = plt.subplots(4, 1, figsize=(9.4, 8.0))
-    for ax, (vals, ttl, col) in zip(axes, [
-            (u0(x), f"initial condition        X = {X}", 'k'),
-            (u1, "after 100 time units", 'C0'),
-            (up, "perturbation", 'k'),
-            (u2, "after 100 more time units",
-             'r' if red_final else 'C0')]):
-        ax.plot(x, vals, color=col, lw=2)
-        ax.set_ylim(-3, 9)
-        ax.grid(True)
-        ax.set_xlim(*dom)
-        ax.text(5, 6.6, ttl, fontsize=14)
-        ax.set_yticks([0, 5])
-    for ax in axes[:-1]:
-        ax.set_xticks([])
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, f"KSWave_{FIG[0]:02d}.png"))
-    plt.close(fig)
-    return x, u2
+    ax.axis([0, len(d) - 1, 0, 15])
+    ax.set_title('distances between successive wave crests')
+    _save(fig)
 
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
     warnings.filterwarnings("ignore")
 
-    ks = lambda xi: xi**2 - xi**4                      # noqa: E731
+    S = Spinop('ks')
+    _disp_spinop(S)
 
-    # 1. KS: X = 8 stable...
-    x, u = _experiment(8, ks, 80)
-    _crest_gaps(x, u, 8)
+    S.tspan = (0.0, 100.0)
+    u = _experiment(S, 8, 80)
+    _crests(u, 8)
 
-    # ... X = 7 unstable.
-    x, u = _experiment(7, ks, 70, red_final=True)
-    _crest_gaps(x, u, 7, red=True)
+    u = _experiment(S, 7, 70, red_final=True)
+    _crests(u, 7, red=True)
 
-    # 2. Generalized KS: delta = 0.8, eps = 0.6.
+    # S.lin = @(u) delta*(-diff(u,2)-diff(u,4)) - ep*diff(u,3)
     delta, ep = 0.8, 0.6
-    gks = lambda xi: delta * (xi**2 - xi**4) + ep * 1j * xi**3  # noqa: E731
+    S.lin_symbol = lambda om: delta * (om**2 - om**4) + ep * 1j * om**3
 
-    x, u = _experiment(10, gks, 100)
-    _crest_gaps(x, u, 10)
+    u = _experiment(S, 10, 100, ty=7.2, pert_yt=None)
+    _crests(u, 10)
 
-    x, u = _experiment(11, gks, 110, red_final=True)
-    _crest_gaps(x, u, 11, red=True)
+    u = _experiment(S, 11, 110, red_final=True, ty=7.2)
+    _crests(u, 11, red=True)
 
 
 if __name__ == "__main__":

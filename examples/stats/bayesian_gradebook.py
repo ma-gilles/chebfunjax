@@ -18,12 +18,11 @@ import warnings
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.special import erf
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
@@ -59,14 +58,19 @@ def phi(mu, sigma):
 
 
 def qfun(sigma):
-    """q(theta) = int_0^1 phi(x; theta, sigma) dx, closed form."""
-    def q(t):
-        t = np.asarray(t, dtype=float)
-        return (sigma * np.sqrt(np.pi / 2)
-                * (erf((1 - t) / (sigma * np.sqrt(2)))
-                   + erf(t / (sigma * np.sqrt(2)))))
-    return cj.chebfun(lambda t: jnp.asarray(q(np.asarray(t))),
-                      domain=(0.0, 1.0))
+    """q = chebfun(@(theta) sum(phi(theta, sigma)), [0 1], 'vectorize')."""
+    return cj.chebfun(
+        lambda t: jnp.asarray([float(phi(float(v), sigma).sum())
+                               for v in np.atleast_1d(t)]),
+        domain=(0.0, 1.0))
+
+
+def _row_long(v):
+    """MATLAB format-long display of a 4-vector (80-column wrap)."""
+    print("  Columns 1 through 3")
+    print("".join(f"{t:20.15f}" for t in v[:3]))
+    print("  Column 4")
+    print(f"{v[3]:20.15f}")
 
 
 def bayes(scores, prior, sigma, q):
@@ -98,13 +102,10 @@ def bayes(scores, prior, sigma, q):
 
 def _plot_belief(belief):
     FIG[0] += 1
-    xs = np.linspace(0, 1, 500)
-    fig, ax = plt.subplots(figsize=(9.0, 4.8))
-    for b in belief:
-        ax.plot(xs, np.asarray(b(xs)), lw=1.6)
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    matlab_plot(belief, ax=ax, lw=2)
     ax.set_xlabel(r"$\theta$")
     ax.set_ylabel(r"$P(\theta|x)$")
-    ax.grid(True)
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(
@@ -118,10 +119,8 @@ def run():
 
     prior = phi(0.7, 0.3)
     prior = prior * (1.0 / float(prior.sum()))
-    xs = np.linspace(0, 1, 500)
-    fig, ax = plt.subplots(figsize=(9.0, 4.6))
-    ax.plot(xs, np.asarray(prior(xs)), lw=2)
-    ax.grid(True)
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    matlab_plot(prior, ax=ax, lw=2)
     _save(fig)
 
     sigma = 0.06
@@ -133,19 +132,18 @@ def run():
 
     scores2 = 0.3 + scores
     print("scores =")
-    print("  " + "  ".join(f"{v:.15f}" for v in scores2))
+    _row_long(scores2)
     belief = bayes(scores2, prior, sigma, q)
     _plot_belief(belief)
 
-    fig, ax = plt.subplots(figsize=(9.0, 4.6))
-    ax.plot(xs, 1.0 / np.asarray(q(xs)), lw=2)
-    ax.grid(True)
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    matlab_plot(1 / q, ax=ax, lw=2)
     _save(fig)
 
     scores3 = scores2.copy()
     scores3[0] = 0.72
     print("scores =")
-    print("  " + "  ".join(f"{v:.15f}" for v in scores3))
+    _row_long(scores3)
     bayes(scores3, prior, sigma, q)
 
     sigma = 0.15
