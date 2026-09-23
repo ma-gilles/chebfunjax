@@ -113,7 +113,7 @@ C =
        0     0     1     1
 ```
 
-*(Figure 04 of the original page is not reproduced yet.)*
+![FieldOfValues figure 04](../../images/linalg/FieldOfValues_04.png)
 
 Here is a listing of FOV. Note that the numerical computations are carried out in just about 10 lines of code.
 

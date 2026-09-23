@@ -64,21 +64,21 @@ format short
 
 ```text
 Q =
-     -0.5774   -0.4082   -0.7071
-     -0.5774   -0.4082    0.7071
-     -0.5774    0.8165    0.0000
+   -0.5774   -0.4082   -0.7071
+   -0.5774   -0.4082    0.7071
+   -0.5774    0.8165    0.0000
 U =
-     -0.5602    0.0809    0.0809   -0.8204
-     -0.2000   -0.6928   -0.6928    0.0000
-     -0.0000    0.7071   -0.7071    0.0000
+   -0.5602    0.0809    0.0809   -0.8204
+   -0.2000   -0.6928   -0.6928    0.0000
+   -0.0000    0.7071   -0.7071         0
 R =
-      2.1112    2.7464   -1.6330
-      0.0000    0.0000   -1.1547
-      0.0000    0.0000    2.0000
+    2.1112    2.7464   -1.6330
+         0    0.0000   -1.1547
+         0         0    2.0000
 S =
-     -1.7321   -0.5774
-      0.0000   -1.6330
-     -0.0000   -0.0000
+   -1.7321   -0.5774
+         0   -1.6330
+         0         0
 ```
 
 We validate the factorisation:
@@ -90,7 +90,7 @@ err = norm(A.'-Q*R*U) + norm(B.'-Q*S) + norm(Q*Q'-I) + norm(U*U'-I)
 
 ```text
 err =
-   1.7906e-15
+   2.0263e-15
 ```
 
 Now that we have the GQR factorisation, it is straightforward to solve the constrained least squares problem using the approach described in [4]. We implement this in lsqcon() below.
@@ -122,7 +122,7 @@ x = lsqcon(A, b, B, d)
 ```text
 x =
     5.7500
-    -0.2500
+   -0.2500
     1.5000
 ```
 
@@ -133,7 +133,10 @@ sol = [46, -2, 12]'/8
 ```
 
 ```text
-(no matching output)
+sol =
+    5.7500
+   -0.2500
+    1.5000
 ```
 
 We have matched these to around machine precision:
@@ -144,9 +147,7 @@ err = norm(x - sol)
 
 ```text
 err =
-   1.1444e-15
-interp constraint residual =
-   1.9915e-16
+   1.1657e-15
 ```
 
 ## Continuous LSE
@@ -174,7 +175,9 @@ subplot(1,2,1), spy(R), title('R'), subplot(1,2,2), spy(S), title('S')
 
 ```text
 err =
-   3.9018e-16
+   4.8619e-15
+interp constraint residual =
+   1.9915e-16
 ```
 
 ![ConstrainedLeastSquares figure 02](../../images/linalg/ConstrainedLeastSquares_02.png)
@@ -207,7 +210,7 @@ err = sum(ffit3)
 
 ```text
 err =
-   2.7697e-15
+   3.9018e-16
 ```
 
 ```matlab
@@ -226,7 +229,7 @@ A = exp(-5*(x-(-3:3)/3).^2);
 plot(A)
 ```
 
-*(Figure 05 of the original page is not reproduced yet.)*
+![ConstrainedLeastSquares figure 05](../../images/linalg/ConstrainedLeastSquares_05.png)
 
 Solve unconstrained least squares problems:
 
@@ -247,7 +250,8 @@ err = sqrt(sum(ffit2).^2 + sum(f([-1;1]) - ffit2([-1;1])).^2)
 ```
 
 ```text
-
+err =
+   2.7697e-15
 ```
 
 ```matlab
@@ -256,7 +260,7 @@ plot(f, '-', ffit, '-', ffit2, '-');
 legend('f', 'ffit', 'ffit2')
 ```
 
-*(Figure 06 of the original page is not reproduced yet.)*
+![ConstrainedLeastSquares figure 06](../../images/linalg/ConstrainedLeastSquares_06.png)
 
 ## Alternatives
 
@@ -295,7 +299,8 @@ err = norm(c2 - c3)
 ```
 
 ```text
-
+err =
+   7.2829e-14
 ```
 
 ## References

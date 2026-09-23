@@ -31,7 +31,7 @@ f =
    chebfun2 object
        domain                 rank       corner values
 [  -1,   1] x [  -1,   1]        1     [9.1e-13 9.1e-13 9.1e-13 9.1e-13]
-vertical scale = 1
+vertical scale =   1
 ```
 
 Since $f$ is a symmetric rank 1 function, it only makes sense to solve (1) for $k = 1$. We plot the 2D function $f$
@@ -98,7 +98,7 @@ f =
    chebfun2 object
        domain                 rank       corner values
 [  -1,   1] x [  -1,   1]       29     [0.0032 0.0032 0.0032 0.0032]
-vertical scale = 1
+vertical scale =   1
 ff =
     @(x,y)1./(1+1e3*((x.^2-.25).^2.*(y.^2-.25).^2))
 ```
@@ -126,7 +126,7 @@ view([-37 59]), hold off, box on
 f =
    chebfun2 object
        domain                 rank       corner values
-[  -1,   1] x [  -1,   1]       11     [1.5 1.5 1.5 1.5]
+[  -1,   1] x [  -1,   1]       11     [ 1.5  1.5  1.5  1.5]
 vertical scale = 1.5
 ```
 

@@ -2318,7 +2318,7 @@ def plot_ball_slices(
     title: str = "",
     cmap=None,
     elev: float = 30,
-    azim: float = -37.5,
+    azim: float = -127.5,
     style: str = "ball",
     **kw,
 ) -> tuple[plt.Figure, Any]:
@@ -2337,7 +2337,7 @@ def plot_ball_slices(
     title : str
     cmap : colormap, optional (default: parula)
     elev, azim : float
-        Camera view angles. Default is MATLAB's view(3): elev=30, azim=-37.5.
+        Camera view angles. Default is MATLAB's view(3): elev=30, azim=-127.5 (MATLAB az = -37.5 is matplotlib azim = az - 90).
 
     Returns
     -------

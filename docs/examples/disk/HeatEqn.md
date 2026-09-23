@@ -78,7 +78,8 @@ norm(u-utrue)
 ```
 
 ```text
-(output not captured for this page yet)
+ans =
+     5.393434227117192e-06
 ```
 
 The Helmholtz solver used in Diskfun achieves optimal computational complexity (see [5]), but it also returns the solution as a diskfun at at an additional computational cost. In practice, this is unnecessary, and one can easily modify the solver and gain considerable efficiency by working directly with the 2D Chebyshev-Fourier coefficient matrices associated with the solution at each timestep [5].
@@ -160,7 +161,8 @@ u = diskfun.poisson(diskfun(@(x,y) 0*x), g, m,m)
 ```
 
 ```text
-(output not captured for this page yet)
+u =
+Diskfun(rank=31, n_plus=16, n_minus=15)
 ```
 
 The steady-state solution satisfies the maximum principle: once $u$ is constant in $t$, the maximum value of $u$ will occur on the boundary of the disk and therefore must agree with the maximum value of $g$. We plot the steady state solution and verify this fact below.
@@ -182,7 +184,10 @@ mxg = [maxg locmaxg ]                            %maximum of u0 on boundary
 ```
 
 ```text
-(output not captured for this page yet)
+mxu =
+  30.036677407858765   1.570010535735969
+mxg =
+  30.036677407858566   1.570857463287601
 ```
 
 The value of the steady state solution at $r=0$ is equal to the average temperature on the boundary by the Poisson integral formula [Ch. 4, 1]. We check this property here, finding that at least in this respect, the numerical solution is highly accurate.
@@ -196,7 +201,7 @@ norm(mean(g)-u(0,0))
 ```
 
 ```text
-(output not captured for this page yet)
+
 ```
 
 *(Figure 13 of the original page is not reproduced yet.)*

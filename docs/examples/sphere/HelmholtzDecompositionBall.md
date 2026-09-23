@@ -36,7 +36,7 @@ f = poisson(div(v), @(lam,th)0, 50);
 quiver( grad( f ) ), title('curl-free component of v')
 ```
 
-*(Figure 02 of the original page is not reproduced yet.)*
+![HelmholtzDecompositionBall figure 02](../../images/sphere/HelmholtzDecompositionBall_02.png)
 
 We confirm that this component is curl-free:
 
@@ -46,7 +46,7 @@ norm( curl( grad( f ) ) )
 
 ```text
 ans =
-     1.985190254383998e-14
+     2.407264639229143e-13
 ```
 
 ## Computing the harmonic component
@@ -60,7 +60,7 @@ phi = helmholtz(ballfun(0), 0, bc, 50, 'neumann');
 quiver( grad( phi ) ), title('harmonic component of v')
 ```
 
-*(Figure 03 of the original page is not reproduced yet.)*
+![HelmholtzDecompositionBall figure 03](../../images/sphere/HelmholtzDecompositionBall_03.png)
 
 We check the harmonicity of this component:
 
@@ -70,7 +70,7 @@ norm( laplacian( grad( phi ) ) )
 
 ```text
 ans =
-     1.471906077202453e-10
+     1.778481202902816e-09
 ```
 
 ## Computing the divergence-free component
@@ -91,7 +91,7 @@ psi = ballfunv.PT2ballfunv(Ppsi,Tpsi);
 quiver( curl( psi ) ), title('divergence-free component of v')
 ```
 
-*(Figure 04 of the original page is not reproduced yet.)*
+![HelmholtzDecompositionBall figure 04](../../images/sphere/HelmholtzDecompositionBall_04.png)
 
 By vector identities this component is divergence-free:
 
@@ -101,7 +101,7 @@ norm( div( curl( psi ) ) )
 
 ```text
 ans =
-     2.430096792605463e-10
+     6.877238154824579e-10
 ```
 
 ## Visualizing the decomposition
@@ -119,7 +119,7 @@ subplot(2,2,4)
 quiver( grad(phi) ,'numpts',20), title('harmonic')
 ```
 
-*(Figure 05 of the original page is not reproduced yet.)*
+![HelmholtzDecompositionBall figure 05](../../images/sphere/HelmholtzDecompositionBall_05.png)
 
 As a sanity check we confirm that the decomposition has been successful:
 
@@ -130,7 +130,7 @@ norm( v - w )
 
 ```text
 ans =
-     8.912576914419053e-12
+     2.676519485882618e-11
 ```
 
 ## The `HelmholtzDecomposition` command

@@ -31,7 +31,7 @@ f = tangent( f );
 quiver3( f ), view([-36 8])
 ```
 
-*(Figure 02 of the original page is not reproduced yet.)*
+![HelmholtzDecomposition figure 02](../../images/sphere/HelmholtzDecomposition_02.png)
 
 ## 2. Computing the curl-free component
 
@@ -46,7 +46,7 @@ title('Curl-free component of f')
 view([-36 8]), hold off
 ```
 
-*(Figure 03 of the original page is not reproduced yet.)*
+![HelmholtzDecomposition figure 03](../../images/sphere/HelmholtzDecomposition_03.png)
 
 We confirm that this component is curl-free:
 
@@ -56,7 +56,7 @@ norm( vorticity( gradient( phi ) ) )
 
 ```text
 ans =
-     5.951273454754645e-11
+     1.598954012993872e-13
 ```
 
 ## 3. Computing the divergence-free component
@@ -71,7 +71,7 @@ title('Divergence-free component of f')
 view([-36 8]), hold off
 ```
 
-*(Figure 04 of the original page is not reproduced yet.)*
+![HelmholtzDecomposition figure 04](../../images/sphere/HelmholtzDecomposition_04.png)
 
 By vector identities this component is divergence-free:
 
@@ -81,7 +81,7 @@ norm( divergence( curl( psi ) ) )
 
 ```text
 ans =
-     8.869210989836967e-12
+     5.074643081092225e-13
 ```
 
 ## 4. Plotting the decomposition
@@ -97,7 +97,7 @@ subplot(1,3,3)
 quiver3( f ), title('Tangent vector field'), view([-36 8])
 ```
 
-*(Figure 05 of the original page is not reproduced yet.)*
+![HelmholtzDecomposition figure 05](../../images/sphere/HelmholtzDecomposition_05.png)
 
 As a sanity check we confirm that the decomposition has been successful:
 
@@ -108,7 +108,7 @@ norm( f - h )
 
 ```text
 ans =
-     5.310743841526201e-13
+     3.374888542670938e-13
 ```
 
 ## 5. The helmholtzdecomp command
@@ -124,7 +124,7 @@ title('f (arrows), \phi (blue), and \psi (red)')
 view([-36 8])
 ```
 
-*(Figure 06 of the original page is not reproduced yet.)*
+![HelmholtzDecomposition figure 06](../../images/sphere/HelmholtzDecomposition_06.png)
 
 ## 6. References
 

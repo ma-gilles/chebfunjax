@@ -62,7 +62,7 @@ axis([-1,1,-1,1]), axis equal, hold off
 ```
 
 ```text
-Elapsed time is 4.138888 seconds.
+Elapsed time is 3.492090 seconds.
 ```
 
 ![ResultantMethod figure 02](../../images/roots/ResultantMethod_02.png)
@@ -85,7 +85,7 @@ axis([-1,1,-1,1]), axis equal, hold off
 ```
 
 ```text
-Elapsed time is 4.138888 seconds.
+Elapsed time is 3.492090 seconds.
 ```
 
 ![ResultantMethod figure 03](../../images/roots/ResultantMethod_03.png)
@@ -98,8 +98,8 @@ max( norm(f(r(:,1),r(:,2))), norm(g(r(:,1),r(:,2))))
 
 ```text
 ans =
-     1.522423928639026e-15
-Elapsed time is 5.194017 seconds.
+     4.867772626288999e-15
+Elapsed time is 5.473028 seconds.
 ```
 
 For this example the exact solutions can be derived and the computed solutions checked to be very accurate.
@@ -143,9 +143,8 @@ title('Marching Squares misses a solution',FS,fs)
 
 ```text
 r =
-   0.000095 -0.000476
-   0.000105 0.000526
-[resultant finds 2 solutions]
+   0.0001   -0.0005
+   0.0001   0.0005
 ```
 
 ![ResultantMethod figure 05](../../images/roots/ResultantMethod_05.png)
@@ -160,7 +159,7 @@ plot(r(:,1), r(:,2), 'k.', MS, ms), axis(d)
 title('Resultant method finds the solution',FS,fs)
 ```
 
-*(Figure 06 of the original page is not reproduced yet.)*
+![ResultantMethod figure 06](../../images/roots/ResultantMethod_06.png)
 
 ## References
 

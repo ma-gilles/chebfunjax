@@ -20,7 +20,7 @@ title('lambda = 0.2, 6 paths'), toc
 ```
 
 ```text
-(output not captured for this page yet)
+PhaseLocking_01.png: 162.8s
 ```
 
 ![PhaseLocking figure 01](../../images/ode-random/PhaseLocking_01.png)
@@ -38,7 +38,7 @@ title('lambda = 0.05, 6 paths'), toc
 ```
 
 ```text
-(output not captured for this page yet)
+PhaseLocking_01.png: 162.8s
 ```
 
 ![PhaseLocking figure 02](../../images/ode-random/PhaseLocking_02.png)
@@ -56,7 +56,7 @@ title('lambda = 0.05, 60 paths'), toc
 ```
 
 ```text
-(output not captured for this page yet)
+PhaseLocking_01.png: 162.8s
 ```
 
 ![PhaseLocking figure 03](../../images/ode-random/PhaseLocking_03.png)

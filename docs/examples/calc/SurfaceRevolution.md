@@ -104,7 +104,7 @@ zG =
    2.891592653589793
 ```
 
-*(Figure 06 of the original page is not reproduced yet.)*
+![SurfaceRevolution figure 06](../../images/calc/SurfaceRevolution_06.png)
 
 Finally we compute the moment of inertia, assuming that the object is homogeneous with density $1$,
 
@@ -137,7 +137,7 @@ plot3(fls(.4)/2*cos(theta),fls(.4)/2*sin(theta),.17*ones(size(theta)),'r.')
 plot3(fls(.4)/2*cos(theta),fls(.4)/2*sin(theta),-.17*ones(size(theta)),'y.')
 ```
 
-*(Figure 07 of the original page is not reproduced yet.)*
+![SurfaceRevolution figure 07](../../images/calc/SurfaceRevolution_07.png)
 
 ---
 

@@ -34,7 +34,7 @@ norm(div(v))
 
 ```text
 ans =
-     5.4268e-30
+     5.426822023371551e-30
 ```
 
 The vector field $v$ also satisfies the no-slip boundary condition $v\cdot\vec{n}=0$, as shown by the following command:
@@ -46,12 +46,12 @@ norm(vn)
 
 ```text
 ans =
-     2.2839e-18
+     2.283886958130491e-18
 t=0 plotted (0s)
-t=5 plotted (30s)
-t=10 plotted (47s)
-t=15 plotted (65s)
-done (65s)
+t=5 plotted (33s)
+t=10 plotted (50s)
+t=15 plotted (67s)
+done (67s)
 ```
 
 ## Vizualisation of functions
@@ -115,7 +115,7 @@ end
 
 ![AdvectionDiffusion figure 05](../../images/sphere/AdvectionDiffusion_05.png)
 
-*(Figure 06 of the original page is not reproduced yet.)*
+![AdvectionDiffusion figure 06](../../images/sphere/AdvectionDiffusion_06.png)
 
 ---
 

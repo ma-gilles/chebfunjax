@@ -101,7 +101,7 @@ max_boundary = max(objective(constrain));
 max_overall = max(max_inside, max_boundary)
 ```
 
-*(Figure 05 of the original page is not reproduced yet.)*
+![ConstrainedOptimization figure 05](../../images/opt/ConstrainedOptimization_05.png)
 
 The maximum occurs inside the heart. Let's plot it:
 
@@ -111,7 +111,7 @@ plot( r(loc,1), r(loc,2), 'r.', MS, 40)
 title(sprintf('Overall maximum = %1.3f', max_overall), FS, fs)
 ```
 
-*(Figure 06 of the original page is not reproduced yet.)*
+![ConstrainedOptimization figure 06](../../images/opt/ConstrainedOptimization_06.png)
 
 ## Humble comment
 

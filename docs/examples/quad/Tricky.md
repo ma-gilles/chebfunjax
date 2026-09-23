@@ -27,12 +27,9 @@ plot(f)
 ```text
 Iexact =
    0.210802735500549
-I =
-   0.210802735500549
-[sin(x+exp(x))]
 ```
 
-*(Figure 01 of the original page is not reproduced yet.)*
+![Tricky figure 01](../../images/quad/Tricky_01.png)
 
 Note that turning on splitting doesn't make much difference to speed.
 
@@ -41,7 +38,26 @@ tic, f = chebfun(ff,[0 1],'splitting','on'), I = sum(f); toc
 ```
 
 ```text
-(no matching output)
+f =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[       0,       1]    14160     0.071  4.5e-07
+vertical scale = 1.1
+Elapsed time is 12.916849 seconds.
+f =
+   chebfun column (7 smooth pieces)
+       interval       length     endpoint values
+[       0,    0.38]       75     0.071     0.11
+[    0.38,    0.44]       90      0.11    0.034
+[    0.44,    0.59]       42     0.034   0.0015
+[    0.59,     0.6]       30    0.0015   0.0015
+[     0.6,     0.6]       59    0.0015   0.0055
+[     0.6,    0.62]       76    0.0055  0.00081
+[    0.62,       1]       23   0.00081  4.5e-07
+vertical scale = 1.1    Total length = 395
+Elapsed time is 9.617399 seconds.
+I =
+   0.210802735500549
 ```
 
 ## 2. Violent oscillation
@@ -58,12 +74,17 @@ plot(f)
 ```text
 Iexact =
    0.347400172657248
+f =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[       0,       8]     3796      0.84    -0.96
+vertical scale =   1
 I =
    0.347400172657248
-[sawtooth-modulated]
+Elapsed time is 1.290239 seconds.
 ```
 
-*(Figure 02 of the original page is not reproduced yet.)*
+![Tricky figure 02](../../images/quad/Tricky_02.png)
 
 ## 3. Violent oscillation with 2979 discontinuities
 
@@ -79,8 +100,8 @@ tic, f = chebfun(ff,[0 8],'splitting','on'); I = sum(f), toc
 Iexact =
    0.098651704478365
 I =
-   0.098651704393442
-[erf layer]
+   0.115837672268151
+Elapsed time is 901.831269 seconds.
 ```
 
 By increasing splitMaxLength greatly, we can get an answer but it's outrageously slow *and* it's only accurate to 6 digits. Specifically, the commands
@@ -103,12 +124,17 @@ plot(f)
 ```text
 Iexact =
    NaN
+f =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[      -1,       1]      389      -2.7     0.37
+vertical scale = 2.7
 I =
-   -0.999065350291922
-[airy on [0,inf)]
+  -0.999065350291922
+Elapsed time is 1.247971 seconds.
 ```
 
-*(Figure 03 of the original page is not reproduced yet.)*
+![Tricky figure 03](../../images/quad/Tricky_03.png)
 
 ## 5. Airy function
 
@@ -124,12 +150,9 @@ plot(f)
 ```text
 Iexact =
    0.378751605379087
-I =
-   0.378751605379086
-[airy on [0,40]]
 ```
 
-*(Figure 04 of the original page is not reproduced yet.)*
+![Tricky figure 04](../../images/quad/Tricky_04.png)
 
 We compare this with the result on a sufficiently large finite interval:
 
@@ -138,7 +161,22 @@ tic, f = chebfun(ff,[0 40]), I = sum(f), toc
 ```
 
 ```text
-(no matching output)
+f =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[       0,     Inf]      438      0.36 -1.4e-17
+vertical scale = 0.36
+I =
+   0.378751605379086
+Elapsed time is 2.172053 seconds.
+f =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[       0,      40]      121      0.36        0
+vertical scale = 0.36
+I =
+   0.378751605379086
+Elapsed time is 0.436495 seconds.
 ```
 
 ## 6. Absolute value of polynomial
@@ -154,13 +192,19 @@ plot(f)
 
 ```text
 Iexact =
-   0.378751605379087
+  11.147310550057140
+f =
+   chebfun column (2 smooth pieces)
+       interval       length     endpoint values
+[       0,    0.62]       14         6  1.8e-15
+[    0.62,       1]       11   1.9e-14       49
+vertical scale =  49    Total length = 25
 I =
-   0.378751605379086
-[|quartic| e^x]
+  11.147310550057142
+Elapsed time is 1.261886 seconds.
 ```
 
-*(Figure 05 of the original page is not reproduced yet.)*
+![Tricky figure 05](../../images/quad/Tricky_05.png)
 
 ## 7. A ceiling function
 
@@ -175,13 +219,13 @@ plot(f)
 
 ```text
 Iexact =
-   11.147310550057140
+        5050
 I =
-   11.147310550057142
-[ceil]
+        5050
+Elapsed time is 6.215895 seconds.
 ```
 
-*(Figure 06 of the original page is not reproduced yet.)*
+![Tricky figure 06](../../images/quad/Tricky_06.png)
 
 ## 8. Another non-smooth function
 
@@ -194,13 +238,13 @@ plot(f)
 
 ```text
 Iexact =
-   5050.000000000000000
+  -0.142818642026328
 I =
-   5050.000000000000000
-[sawtooth*max]
+  -0.142818642026332
+Elapsed time is 2.432148 seconds.
 ```
 
-*(Figure 07 of the original page is not reproduced yet.)*
+![Tricky figure 07](../../images/quad/Tricky_07.png)
 
 ## 9. From Brisebarre and Joldes
 
@@ -215,10 +259,15 @@ plot(f)
 
 ```text
 Iexact =
-   -0.142818642026328
+   0.749974368527195
+f =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[       0,       3]   1240175      0.84     0.12
+vertical scale =   1
 ```
 
-*(Figure 08 of the original page is not reproduced yet.)*
+![Tricky figure 08](../../images/quad/Tricky_08.png)
 
 It is interesting to note the near-zero region near x=1 here. That's incorrect, but has negligible effect on the integral.
 
@@ -232,15 +281,14 @@ plot(f)
 
 ```text
 I =
-   -0.142818642026328
-[wild oscillation]
-Iexact =
-   0.749974368527195
+   0.749974368527183
+Elapsed time is 11.605024 seconds.
 I =
-   0.749717113597802
+   0.749974368527192
+Elapsed time is 216.682760 seconds.
 ```
 
-*(Figure 09 of the original page is not reproduced yet.)*
+![Tricky figure 09](../../images/quad/Tricky_09.png)
 
 ## Reference
 

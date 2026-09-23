@@ -53,7 +53,7 @@ CFerror = norm(p3-p4,inf)
 
 ```text
 CFerror =
-     1.140049701848778e-04
+   1.1400e-04
 ```
 
 Methods P1 and P2 represent two ends of a spectrum. In between, there is a method we could label P1.5:

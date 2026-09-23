@@ -129,7 +129,7 @@ uinner = u(.5,:,:,'spherical');
 plot(uinner), colorbar
 ```
 
-*(Figure 03 of the original page is not reproduced yet.)*
+![LaplaceBall figure 03](../../images/sphere/LaplaceBall_03.png)
 
 Note the small range of values revealed in the colorbar. The mean value over this sphere is our familiar value:
 

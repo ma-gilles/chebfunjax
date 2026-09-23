@@ -76,7 +76,7 @@ perimeter = norm(diff(r),1)
 
 ```text
 perimeter =
-  56.643168581959856
+  56.646064463339627
 ```
 
 ```matlab
@@ -85,7 +85,7 @@ time_for_this_example = toc
 
 ```text
 time_for_this_example =
-   4.617890
+   38.200446
 ```
 
 [1] M. Bardet and T. Bayen, On the degree of the polynomial defining a planar algebraic curves of constant width, arXiv:1312.4358v1, 2013.

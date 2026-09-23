@@ -31,7 +31,10 @@ A = [-1 5; 0 -1], B = [-1 0; -5 -1]
 ```
 
 ```text
-(output not captured for this page yet)
+scalar done (10827s)
+lambda=3: max norm^2 = 7.16e+00 (23s)
+lambda=1: max norm^2 = 5.62e+07 (23s)
+lambda=0.333: max norm^2 = 1.48e+01 (96s)
 ```
 
 Note that both matrices have eigenvalues $-1$, in the left half-plane. This means that each matrix individually is stable, and if the random switching is slow, the process will be dominated by the matrices' individual behaviors, and solutions will decay. Here for example is a run with the switching parameter set to the large value $\lambda = 3$, shown on both linear and log scales.
@@ -91,7 +94,8 @@ total_time_in_seconds = toc
 ```
 
 ```text
-(output not captured for this page yet)
+total_time_in_seconds =
+  10968.975042
 ```
 
 ## 3. Reference

@@ -44,7 +44,7 @@ lambda1
 
 ```text
 lambda1 =
-   10.949909253775569
+   7.982732868198188
 ```
 
 We can verify the result against MATLAB's `eig` function:
@@ -56,7 +56,7 @@ error = abs(lambdaA(1)-lambda1)
 
 ```text
 error =
-     1.776356839400250e-15
+     7.105427357601002e-15
 ```
 
 The entries of the corresponding eigenvector, $x_1$, are given by the Cartesian coordinates of the location of $\lambda_1$.
@@ -83,7 +83,7 @@ plot3(xp(t),yp(t),zp(t),'r-',LW,lw)
 plot3(x1(1),x1(2),x1(3),'r.',MS,ms), hold off
 ```
 
-*(Figure 03 of the original page is not reproduced yet.)*
+![RayleighQuotientExample figure 03](../../images/sphere/RayleighQuotientExample_03.png)
 
 Let $f$ be equal to the value of $q$ on this great circle.
 
@@ -92,7 +92,7 @@ f = chebfun(@(t) feval(q,xp(t),yp(t),zp(t)),[-pi pi],'trig');
 plot(f,LW,lw)
 ```
 
-*(Figure 04 of the original page is not reproduced yet.)*
+![RayleighQuotientExample figure 04](../../images/sphere/RayleighQuotientExample_04.png)
 
 The maximum value of $f$ on this great circle gives the next largest eigenvalue $\lambda_2$.
 
@@ -105,9 +105,9 @@ error = abs(lambdaA(2)-lambda2)
 
 ```text
 lambda2 =
-   -1.672143774672077
+   0.036664858944934
 error =
-     3.552713678800501e-15
+     7.632783294297951e-17
 ```
 
 According to the maximum principle theorem, the smallest eigenvalue, $\lambda_3$, is then given as the value of $q$ at the vector orthogonal to $x_2$ on the great circle. This is simply the value of $f$ shifted by $\pi/2$ from the location of $\lambda_2$ on the great circle.
@@ -121,9 +121,9 @@ error = abs(lambdaA(3)-lambda3)
 
 ```text
 lambda3 =
-  -16.490767815700611
+  -7.428107401152658
 error =
-     7.105427357601002e-15
+     4.440892098500626e-15
 ```
 
 Here are the eigenvectors and locations of the values of the eigenvalues of $A$, together with a plot of $q$.
@@ -136,7 +136,7 @@ plot3(X(:,1),X(:,2),X(:,3),'r.-',LW,lw,MS,ms)
 axis([-1 1 -1 1 -1 1]), alpha(0.8), hold off
 ```
 
-*(Figure 05 of the original page is not reproduced yet.)*
+![RayleighQuotientExample figure 05](../../images/sphere/RayleighQuotientExample_05.png)
 
 ## 4. Eigenvalues and the vanishing gradient of $q$
 
@@ -150,7 +150,7 @@ contour(Gq(3),[0 0],'m-'),
 plot3(X(:,1),X(:,2),X(:,3),'r.-',LW,lw,MS,ms), hold off
 ```
 
-*(Figure 06 of the original page is not reproduced yet.)*
+![RayleighQuotientExample figure 06](../../images/sphere/RayleighQuotientExample_06.png)
 
 ## 7. References
 

@@ -109,7 +109,7 @@ for pos = 1:n
 end
 ```
 
-*(Figure 03 of the original page is not reproduced yet.)*
+![AnalyticSVD figure 03](../../images/linalg/AnalyticSVD_03.png)
 
 ## 4. Making the singular vectors smooth
 
@@ -142,7 +142,7 @@ for pos = 1:n
 end
 ```
 
-*(Figure 04 of the original page is not reproduced yet.)*
+![AnalyticSVD figure 04](../../images/linalg/AnalyticSVD_04.png)
 
 ## 5. Eliminating the unnecessary breakpoints
 
@@ -163,7 +163,7 @@ for pos = [1 n]
 end
 ```
 
-*(Figure 05 of the original page is not reproduced yet.)*
+![AnalyticSVD figure 05](../../images/linalg/AnalyticSVD_05.png)
 
 And we are finally happy! Nonetheless, one should not assume that computing an analytic SVD is always this simple: we have avoided the difficult case where multiple singular values are present, in which case the singular vectors need to be chosen very carefully. Nearly-multiple singular values can be equally challenging to deal with numerically. See [1] for an algorithm that addresses these issues, which still seems to be a state-of-the-art reference on computing an analytic SVD.
 
@@ -175,7 +175,7 @@ time_in_seconds = toc
 
 ```text
 time_in_seconds =
-     6.920790195e+00
+     1.049717607498169e+02
 ```
 
 ## 6. References

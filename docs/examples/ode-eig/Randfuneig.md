@@ -79,7 +79,7 @@ axis equal off
 ```
 
 ```text
-(output not captured for this page yet)
+Number of nonzero eigenvalues: 416
 ```
 
 ![Randfuneig figure 04](../../images/ode-eig/Randfuneig_04.png)
@@ -113,7 +113,7 @@ axis equal off
 ```
 
 ```text
-(output not captured for this page yet)
+Number of nonzero eigenvalues: 416
 ```
 
 ![Randfuneig figure 05](../../images/ode-eig/Randfuneig_05.png)

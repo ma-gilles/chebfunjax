@@ -18,9 +18,9 @@ f = chebfun2(@(x,y) sin(cos(x.^2)+10*sin(y.^2))-y.*cos(x),[-5 5 -5 5])
 f =
    chebfun2 object
        domain                 rank       corner values
-[  -5,   5] x [  -5,   5]        3     [1.1 1.1 -1.7 -1.7]
-vertical scale = 6
-Elapsed time is 40.443872 seconds.
+[  -5,   5] x [  -5,   5]        3     [ 1.1  1.1 -1.7 -1.7]
+vertical scale =   6
+Elapsed time is 41.323542 seconds.
 ```
 
 The `roots` command finds the elegant zero set.
@@ -70,7 +70,7 @@ length(c)
 ```text
 ans =
         16133
-Elapsed time is 0.108637 seconds.
+Elapsed time is 0.109241 seconds.
 ```
 
 Though Chebfun2 roots can sometimes get outstanding accuracy, that has not happened in this case. To get an idea of the accuracy, suppose we find the 79 points corresponding to these curves at the arbitrary sample point $s=0.5$ and then evaluate $f$ at these 79 points. In principle the result should be a vector of 79 numbers close to machine epsilon, give or take a few powers of 10 since $f$ has large derivatives, but in fact, many of the numbers are much bigger than that:

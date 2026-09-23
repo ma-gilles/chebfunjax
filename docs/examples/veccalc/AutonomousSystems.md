@@ -75,7 +75,7 @@ r =
    0.866025403784439                   0
 ```
 
-*(Figure 04 of the original page is not reproduced yet.)*
+![AutonomousSystems figure 04](../../images/veccalc/AutonomousSystems_04.png)
 
 ## More information
 

@@ -208,8 +208,6 @@ VolBox = lx*ly*lz
 ```text
 VolBox =
    5.973333333333333
-ans =
-   0.368155389092554
 ```
 
 ## Volume of a seashell
@@ -228,7 +226,7 @@ surf(x,y,z), camlight
 view(160,10), axis equal, box on
 ```
 
-*(Figure 06 of the original page is not reproduced yet.)*
+![VolumeOfHeart figure 06](../../images/geom/VolumeOfHeart_06.png)
 
 Notice that in this case the parametrization gives an open surface at $y=0$ (corresponding to $u=2\pi$). As can be seen below, however, there is no flux across the open part of the seashell, as the vector filed $[0,0,z]$ is parallel to it.
 
@@ -239,7 +237,7 @@ quiver3(x,y,z,F,'g',lw,2);
 hold off
 ```
 
-*(Figure 07 of the original page is not reproduced yet.)*
+![VolumeOfHeart figure 07](../../images/geom/VolumeOfHeart_07.png)
 
 As in the previous examples, therefore, the net flux across this surface gives the volume of the seashell.
 

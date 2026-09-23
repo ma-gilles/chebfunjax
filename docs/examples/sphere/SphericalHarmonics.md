@@ -54,6 +54,11 @@ sum2(Y17.*Y17)
 ```text
 ans =
      1.743556719322296e-16
+ans =
+   1.000000000000000
+ans =
+   1.000000000000001
+harmonic table done
 ```
 
 Spherical harmonics become increasing oscillatory as their degree increases, similarly to trigonometric polynomials. Here is a plot of the real spherical harmonics $Y_{\ell}^{m}$, with $\ell=0,\ldots,4$ and $0\leq m \leq \ell$, illustrating this behavior. Black contour lines have been included indicating the zero curves of each spherical harmonic, which highlights their transition from positive to negative values.
@@ -88,7 +93,10 @@ clf, plot(f), title('A Gaussian on the sphere'), colorbar, axis off
 ```
 
 ```text
-(no matching output)
+f =
+   spherefun object
+       domain        rank    vertical scale
+     unit sphere      23          1
 ```
 
 ![SphericalHarmonics figure 03](../../images/sphere/SphericalHarmonics_03.png)
@@ -145,7 +153,7 @@ norm(f-fproj)
 
 ```text
 ans =
-   1.000000000000000
+   0.038297655789218
 ```
 
 ![SphericalHarmonics figure 06](../../images/sphere/SphericalHarmonics_06.png)
@@ -173,7 +181,7 @@ set(gca,'ZScale','log'), set(gca,'Xdir','reverse'), view([-13 18])
 xlabel('$\ell$','Interpreter','Latex'), ylabel('m'), zlabel('|coeffs|')
 ```
 
-*(Figure 07 of the original page is not reproduced yet.)*
+![SphericalHarmonics figure 07](../../images/sphere/SphericalHarmonics_07.png)
 
 Moreover, we can check the accuracy of the computed spherical harmonic coefficients by using the Legendre expansion for $\psi$ in (3). The coefficients in this expansion are computed in [6] and are given by $$ a_{\ell} = \frac{\sqrt{\pi}}{2}\sigma e^{-\sigma^2/2}(2\ell+1)I_{\ell+1/2}(2/\sigma^2), $$ where $I_{\nu}$ denotes the modified Bessel function of the first kind of order $\nu$. The maximum error in the computed spherical harmonic coefficients of the Gaussian in Section 3 is then
 
@@ -193,9 +201,7 @@ max(abs(coeffs(:,1)-coeffsExact))
 
 ```text
 ans =
-   1.000000000000001
-harmonic table done
-first coefficient: 0.141796308070472
+     4.440892098500626e-16
 ```
 
 ## 5. The Addition Theorem
@@ -215,7 +221,7 @@ lhs = 4*pi/(2*l+1)*lhs;
 plot(lhs), colorbar, axis off
 ```
 
-*(Figure 08 of the original page is not reproduced yet.)*
+![SphericalHarmonics figure 08](../../images/sphere/SphericalHarmonics_08.png)
 
 The right-hand side can be constructed using `legpoly`:
 
@@ -226,7 +232,7 @@ rhs = spherefun(@(x,y,z) feval(p15,t(x,y,z)));
 plot(rhs), colorbar, axis off
 ```
 
-*(Figure 09 of the original page is not reproduced yet.)*
+![SphericalHarmonics figure 09](../../images/sphere/SphericalHarmonics_09.png)
 
 Is the theorem correct? At least in this case, yes!
 
@@ -236,7 +242,7 @@ norm(lhs-rhs)
 
 ```text
 ans =
-     3.829765578921802e-02
+     3.881861008792081e-15
 ```
 
 ## 6. Platonic solids
@@ -248,7 +254,7 @@ Y = spherefun.sphharm(3,2);
 plot(Y), hold on, contour(Y,[0.1 0.1],'k-'), axis off, hold off
 ```
 
-*(Figure 10 of the original page is not reproduced yet.)*
+![SphericalHarmonics figure 10](../../images/sphere/SphericalHarmonics_10.png)
 
 The combination with octahedral symmetry is given by
 
@@ -257,7 +263,7 @@ Y = spherefun.sphharm(4,0) + sqrt(5/7)*spherefun.sphharm(4,4);
 plot(Y), hold on, contour(Y,[0 0],'k-'), axis off, hold off
 ```
 
-*(Figure 11 of the original page is not reproduced yet.)*
+![SphericalHarmonics figure 11](../../images/sphere/SphericalHarmonics_11.png)
 
 And the combination with icosahedral symmetry is given by
 
@@ -266,7 +272,7 @@ Y = spherefun.sphharm(6,0) + sqrt(14/11)*spherefun.sphharm(6,5);
 plot(Y), hold on, contour(Y,[0 0],'k-'), axis off, hold off
 ```
 
-*(Figure 12 of the original page is not reproduced yet.)*
+![SphericalHarmonics figure 12](../../images/sphere/SphericalHarmonics_12.png)
 
 ## References
 

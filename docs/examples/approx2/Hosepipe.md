@@ -32,8 +32,8 @@ F, G, H
 F =
    chebfun2 object  (trig in y)
        domain                 rank       corner values
-[  -1,   1] x [  -1,   1]        1     [-2 2 -2 2]
-vertical scale = 2
+[  -1,   1] x [  -1,   1]        1     [  -2    2   -2    2]
+vertical scale =   2
 G =
    chebfun2 object  (trig in y)
        domain                 rank       corner values
@@ -43,8 +43,7 @@ H =
    chebfun2 object  (trig in y)
        domain                 rank       corner values
 [  -1,   1] x [  -1,   1]        1     [-8.1e-17 -8.1e-17 3.5e-17 3.5e-17]
-vertical scale = 0.54
-Fc rank: 20 length: (95, 1195)
+vertical scale = 0.5
 ```
 
 The `F` chebfun2 is trivial, but `G` is interesting. The command `plotcoeffs` shows how it mixes different representations in the two directions. The `H` chebfun2 looks much the same.

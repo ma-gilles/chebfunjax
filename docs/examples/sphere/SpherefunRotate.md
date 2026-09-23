@@ -39,7 +39,7 @@ abs( sum2(f) - sum2(g) )
 
 ```text
 ans =
-     1.776356839400250e-15
+     4.440892098500626e-15
 ```
 
 ## Euler angles
@@ -115,7 +115,8 @@ norm(h - g)
 
 ```text
 ans =
-     8.550766403119787e-15
+     2.112993924947252e-14
+NUFFT speed-up factor = 16.7
 ```
 
 ## An alternative rotate algorithm based on the 2D NUFFT
@@ -148,7 +149,7 @@ plot( h ), title('Rotated random function',FS,fs), axis off
 (no matching output)
 ```
 
-*(Figure 06 of the original page is not reproduced yet.)*
+![SpherefunRotate figure 06](../../images/sphere/SpherefunRotate_06.png)
 
 We hope that this speed-up allows for successful applications of the `rotate` command.
 
@@ -175,7 +176,7 @@ rank(g)
 
 ```text
 ans =
-    72
+    74
 ```
 
 In particular, there is no mathematical relationship between the rank of the original function and its rotation. This means that the `rotate` command cannot take advantage of the low rank structure of a function. Here, is a rotation that increases the rank by about a factor of $5$:
@@ -187,8 +188,7 @@ rank(g)
 
 ```text
 ans =
-   138
-rank sweep: min 23 max 25
+   140
 ```
 
 As a final example to show how the rank can change as the function is rotated, we consider a Gaussian function restricted to the sphere. We start with the Gaussian slightly offset from the $y$-axis and then rotate it over the $x$-axis and track how the rank changes.
@@ -205,7 +205,7 @@ plot(alp,rk,'x-','LineWidth',2), xlabel('Rotation angle',FS,fs)
 ylabel('Rank'), title('Rank of the rotation of a Gaussian',FS,fs)
 ```
 
-*(Figure 07 of the original page is not reproduced yet.)*
+![SpherefunRotate figure 07](../../images/sphere/SpherefunRotate_07.png)
 
 As the Gaussian approaches the north and south poles (at rotation angles of $\pi/2$ and $3\pi/2$, respectively) we see that the rank decreases substantially. If we had not offset the Gaussian from the $y$-axis then the rank would have been exactly 1 at north and south poles since the Gaussian reduces to $\exp(-20(1\pm z))$ there.
 

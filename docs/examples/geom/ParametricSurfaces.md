@@ -113,7 +113,7 @@ z = 0.5*v.*sin(u/2);
 surf(x,y,z), camlight, axis equal, box on
 ```
 
-*(Figure 10 of the original page is not reproduced yet.)*
+![ParametricSurfaces figure 10](../../images/geom/ParametricSurfaces_10.png)
 
 What happens if we try to plot normal vectors to this surface? We can compute a normal vector field to this surface using the command NORMAL, which take a position vector as input.
 
@@ -125,7 +125,7 @@ quiver3(x,y,z,n,2,'k','numpts',8)
 axis tight
 ```
 
-*(Figure 11 of the original page is not reproduced yet.)*
+![ParametricSurfaces figure 11](../../images/geom/ParametricSurfaces_11.png)
 
 The normal, as computed, is clearly not continuous on this surface. The normal vector field computed above is $ru$ x $rv$. Both $ru$ and $rv$ are parallel to the surface. We illustrate this below
 
@@ -138,7 +138,7 @@ view(-80,65);
 hold off
 ```
 
-*(Figure 12 of the original page is not reproduced yet.)*
+![ParametricSurfaces figure 12](../../images/geom/ParametricSurfaces_12.png)
 
 We can verify that $ru$ and $rv$ are orthogonal, in this case, by taking their inner product.
 
@@ -148,7 +148,7 @@ norm(ru'*rv,inf)
 
 ```text
 ans =
-     1.318389841742373e-16
+     1.067627446394461e-14
 ```
 
 Finally, we take advantage of this orthogonality and project an arbitrary vector field $V$ onto the Moebius surface. In the figure below, the field `PV` is tangent to the surface.
@@ -164,7 +164,7 @@ quiver3(x,y,z,PV,2,'k','numpts',30)
 hold off
 ```
 
-*(Figure 13 of the original page is not reproduced yet.)*
+![ParametricSurfaces figure 13](../../images/geom/ParametricSurfaces_13.png)
 
 Our final example is the Klein Bottle, see [3], which is also non-orientable. A plot of the "figure 8" immersion (Klein bagel) of the Klein bottle is below.
 
@@ -178,7 +178,7 @@ z=sin(u/2).*sin(v)+cos(u/2).*sin(2*v);
 surf(x,y,z,'FaceAlpha',.6), camlight left, colormap(hot), axis tight equal off
 ```
 
-*(Figure 14 of the original page is not reproduced yet.)*
+![ParametricSurfaces figure 14](../../images/geom/ParametricSurfaces_14.png)
 
 And here are the top and side views.
 
@@ -186,13 +186,13 @@ And here are the top and side views.
 view(0,90)
 ```
 
-*(Figure 15 of the original page is not reproduced yet.)*
+![ParametricSurfaces figure 15](../../images/geom/ParametricSurfaces_15.png)
 
 ```matlab
 view(90,0)
 ```
 
-*(Figure 16 of the original page is not reproduced yet.)*
+![ParametricSurfaces figure 16](../../images/geom/ParametricSurfaces_16.png)
 
 Here is the more complicated version found by Robert Israel of the parameterization of the 3-dimensional immersion of the bottle itself.
 
@@ -209,7 +209,7 @@ z = (2/15)*(3+5*cos(u).*sin(u)).*sin(v);
 surf(x,y,z,'FaceAlpha',.5), camlight left, axis tight equal off
 ```
 
-*(Figure 17 of the original page is not reproduced yet.)*
+![ParametricSurfaces figure 17](../../images/geom/ParametricSurfaces_17.png)
 
 A normal vector field on this surface can now be obtained using Chebfun2 with a simple command.
 
@@ -219,7 +219,7 @@ quiver3(x,y,z,-normal([x;y;z]),2,'k')
 hold off
 ```
 
-*(Figure 18 of the original page is not reproduced yet.)*
+![ParametricSurfaces figure 18](../../images/geom/ParametricSurfaces_18.png)
 
 ## References
 

@@ -92,12 +92,12 @@ subplot(1,2,2), contourf(KHat), axis equal, title('Nearest PSD kernel')
 K =
    chebfun2 object
        domain                 rank       corner values
-[  -1,   1] x [  -1,   1]       20     [1.8 3.7e-17 3.7e-17 0.0026]
-vertical scale = 4.1
+[  -1,   1] x [  -1,   1]       20     [ 1.8 3.7e-17 3.7e-17 0.0026]
+vertical scale =   4
 KHat =
    chebfun2 object
        domain                 rank       corner values
-[  -1,   1] x [  -1,   1]       20     [1.8 3e-16 -4.7e-17 0.0026]
+[  -1,   1] x [  -1,   1]       20     [ 1.8 3e-16 -4.7e-17 0.0026]
 vertical scale = 4.1
 ```
 
@@ -143,12 +143,12 @@ K =
    chebfun2 object
        domain                 rank       corner values
 [  -1,   1] x [  -1,   1]       20     [1.3e-10 1.1e-16 2.6e-17 0.00028]
-vertical scale = 2
+vertical scale =   2
 KHat =
    chebfun2 object
        domain                 rank       corner values
-[  -1,   1] x [  -1,   1]       10     [0.4 -1.1e-06 -1.1e-06 0.00028]
-vertical scale = 2
+[  -1,   1] x [  -1,   1]       10     [ 0.4 -1.1e-06 -1.1e-06 0.00028]
+vertical scale =   2
 ```
 
 ![NearestPSDKernel figure 04](../../images/approx2/NearestPSDKernel_04.png)
@@ -167,7 +167,7 @@ K =
    chebfun2 object
        domain                 rank       corner values
 [  -1,   1] x [  -1,   1]       29     [0.0032 0.0032 0.0032 0.0032]
-vertical scale = 1
+vertical scale =   1
 KHat =
    chebfun2 object
        domain                 rank       corner values
