@@ -4137,3 +4137,25 @@ def contour3(f2, *args, ax=None, levels=10, n_pts: int = 150, cmap=None,
     ax.set_xlim(float(x0), float(x1))
     ax.set_ylim(float(y0), float(y1))
     return fig, ax
+
+
+def plot_earth(ax, linespec: str = "k-", **kw):
+    """Draw the Earth's coastlines on a 3-D unit-sphere axes (MATLAB
+    ``spherefun.plotEarth``), using Chebfun's ``CoastData.mat``.
+
+    The MATLAB version also paints an opaque white sphere when ``hold`` is
+    off; here the caller has usually drawn the surface already, so only
+    the coastline polyline is added (pass it after ``plot_sphere``).
+
+    Provenance
+    ----------
+    MATLAB source : @spherefun/plotEarth.m, CoastData.mat
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford and The
+        Chebfun Developers.
+    """
+    from scipy.io import loadmat
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data",
+                        "CoastData.mat")
+    coast = np.asarray(loadmat(path)["coast"], dtype=float)
+    return ax.plot(coast[:, 0], coast[:, 1], coast[:, 2], linespec, **kw)

@@ -938,11 +938,10 @@ class Spherefun(eqx.Module):
         """
         from chebfunjax.tech.trigtech import trig_coeffs2vals
         X = jnp.asarray(X, dtype=jnp.complex128)
-        V = jnp.stack([jnp.ravel(jnp.asarray(trig_coeffs2vals(
-            X[:, j]))) for j in range(X.shape[1])], axis=1)
-        W = jnp.stack([jnp.ravel(jnp.asarray(trig_coeffs2vals(
-            V[i, :]))) for i in range(V.shape[0])], axis=0)
-        return W
+        # trig_coeffs2vals transforms column-wise; a per-column Python loop
+        # stacked ~1000 arrays and XLA spent minutes compiling the stack.
+        V = jnp.asarray(trig_coeffs2vals(X))
+        return jnp.asarray(trig_coeffs2vals(V.T)).T
 
     @staticmethod
     def vals2coeffs(V):
@@ -955,11 +954,8 @@ class Spherefun(eqx.Module):
         """
         from chebfunjax.tech.trigtech import trig_vals2coeffs
         V = jnp.asarray(V, dtype=jnp.complex128)
-        W = jnp.stack([jnp.ravel(jnp.asarray(trig_vals2coeffs(
-            V[i, :]))) for i in range(V.shape[0])], axis=0)
-        C = jnp.stack([jnp.ravel(jnp.asarray(trig_vals2coeffs(
-            W[:, j]))) for j in range(W.shape[1])], axis=1)
-        return C
+        W = jnp.asarray(trig_vals2coeffs(V.T)).T
+        return jnp.asarray(trig_vals2coeffs(W))
 
     def cdr(self):
         """CDR decomposition ``(C, D, R)`` with ``D = diag(1/pivots)``
