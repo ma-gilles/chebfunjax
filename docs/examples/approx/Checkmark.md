@@ -45,7 +45,17 @@ As a numerical check, let us look at the breakpoints in the curve for $n=3$:
 ```
 
 ```text
-(output not captured for this page yet)
+val =
+   0.000036146809168
+   0.076206552737356
+   0.076453927642803
+   0.000036146809168
+pos =
+  -1.000000000000000
+  -0.482150171265481
+  0.482150171265481
+  1.000000000000000
+Elapsed time is 1127.907309 seconds.
 ```
 
 Higher precision calculation suggests that they lie near $\pm 0.4804754$ and with an error of about $0.0763434$.
@@ -68,7 +78,7 @@ toc
 ```
 
 ```text
-(output not captured for this page yet)
+
 ```
 
 ---
