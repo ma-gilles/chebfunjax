@@ -105,8 +105,8 @@ r = roots( f, g )
 
 ```text
 r =
-   -1.000000000000000   3.000000000000000
-    3.000000000000000  -1.000000000000000
+  -1.000000000000000   3.000000000000000
+   3.000000000000000  -1.000000000000000
 ```
 
 We then get two pairs of values for $a$ and $b$. Since $a < b$, we can easily make the right choice of the $(a,b)$ pair and discard the other one. As we can see $a = -1$ and $b = 3$ are the correct choices.
@@ -166,7 +166,8 @@ b = @(a) 2-a
 ```
 
 ```text
-(no matching output)
+b =
+    @(a)2-a
 ```
 
 By $variance = (b-a)^2/12 = 4/3$, we can try $a$ in the interval $[-5,5]$ to see if we get a root for the function $g$ defined as:
@@ -179,7 +180,7 @@ aa = roots(g)
 ```text
 aa =
   -1.000000000000000
-  3.000000000000000
+   3.000000000000000
 ```
 
 As before, we can see $a = -1$ and $b = 3$ are the correct choices.
@@ -190,7 +191,10 @@ b = aa(2)
 ```
 
 ```text
-(no matching output)
+a =
+  -1.000000000000000
+b =
+   3.000000000000000
 ```
 
 Let us plot $f$ on the interval $[-5,5]$, the two roots $a$ and $b$:
@@ -225,7 +229,9 @@ ab = roots(meanab-1, varab-4/3)
 ```
 
 ```text
-(no matching output)
+ab =
+  -0.999999999999999   3.000000000000001
+   2.999999999999999  -1.000000000000001
 ```
 
 As there are two pairs of $a$ and $b$ listed in `ab`, we need to identify the correct pair:
@@ -236,7 +242,10 @@ b = ab(1, 1)
 ```
 
 ```text
-(no matching output)
+a =
+   3.000000000000001
+b =
+  -0.999999999999999
 ```
 
 ## 4. Application adapted from Example 12, page 107

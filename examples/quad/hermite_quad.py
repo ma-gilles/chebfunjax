@@ -14,6 +14,7 @@ import matplotlib
 matplotlib.use("Agg")
 import os
 import sys
+import time
 
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
@@ -60,22 +61,28 @@ def run():
     plt.close(fig)
 
     print("    n        error")
-    gnp = lambda x: np.exp(-x ** 2) * np.cos(x)
     for n in range(3, 25, 3):
         h = (-1 + np.sqrt(8 * np.pi * n)) / (2 * n)
         d = (n - 1) * h / 2
-        sg = np.linspace(-d, d, n)
-        print(f"{n:3d} {float(np.sum(h * gnp(sg))) - exact:19.15f}")
+        sg = jnp.linspace(-d, d, n)
+        In = float(jnp.sum(h * g(sg)))              # trapezoidal sum
+        print(f"{n:3d} {In - exact:19.15f}")
 
-    # MATLAB computes hermpts(100000) in ~0.05 s via asymptotic methods;
-    # our hermpts is Golub-Welsch (O(n^2) eigenvalue) -- the asymptotic
-    # fast path is a ledgered feature gap.  The tail-fraction phenomenon
-    # is scale-invariant, shown here at n = 2000.
-    n = 2000
-    s, _ = (np.asarray(v) for v in hermpts(n))
-    tail = s[np.exp(-s ** 2) < np.finfo(float).eps]
+    # tic, [s,w] = hermpts(n); toc  for n = 1000, 10000, 100000.
+    # Our hermpts is Golub-Welsch only (dense O(n^3) eigh); Chebfun's
+    # GLR/ASY fast paths for large n are a library gap, so n = 100000
+    # (an 80 GB dense Jacobi matrix) is not attempted.
+    for n in (1000, 10000):
+        t0 = time.perf_counter()
+        s, w = hermpts(n)
+        s.block_until_ready()
+        print(f"Elapsed time is {time.perf_counter() - t0:.6f} seconds.")
+
+    n = 10000
+    s = np.asarray(s)                               # s = hermpts(n)
+    tail_points = s[np.exp(-s ** 2) < np.finfo(float).eps]
     print("ratio =")
-    print(f"    {len(tail) / n:.4f}")
+    print(f"    {len(tail_points) / n:.4f}")
     return True
 
 

@@ -17,7 +17,15 @@ S = spinop2('gl')
 ```
 
 ```text
-(no matching output)
+S =
+  spinop2 with properties:
+
+     domain: [0 100 0 100]
+       init: [InfxInf chebfun2]
+        lin: @(u)lap(u)
+     nonlin: @(u)u-(1+1.5i)*u.*(abs(u).^2)
+      tspan: [0 100]
+    numVars: 1
 ```
 
 From here we see that the version of the equation in Chebfun is $$ u_t = \Delta u + u - (1+1.5i)u |u|^2 . $$ Thus we have a scalar PDE involving a complex variable. This equation has been used by a number of authors in the study of chaotic processes arising in fluid mechanics and other areas [1,2].
@@ -64,7 +72,7 @@ time_in_seconds = toc
 
 ```text
 time_in_seconds =
-   2.226370573
+  18.333291047951207
 ```
 
 ## 3. Beginnings of chaos
@@ -103,8 +111,7 @@ time_in_seconds = toc
 
 ```text
 time_in_seconds =
-   4.878408432
-diagonal symmetry error at t=48: 7.84e-03
+  15.312884354032576
 ```
 
 ## 4. Chaos
@@ -142,7 +149,7 @@ time_in_seconds = toc
 
 ```text
 time_in_seconds =
-   17.323754549
+  21.205988133093342
 ```
 
 ## 5. A bigger canvas
@@ -190,7 +197,7 @@ time_in_seconds = toc
 
 ```text
 time_in_seconds =
-   4.192276239
+  17.804129149066284
 ```
 
 ## 6. References

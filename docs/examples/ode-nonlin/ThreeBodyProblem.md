@@ -65,7 +65,11 @@ v = u(:,3)
 ```
 
 ```text
-v = chebfun, length 314, complex values, interval [0, 4*pi]
+v =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[       0,      13]      314     complex values
+vertical scale = 1.1
 ```
 
 We can compute a rational interpolant for $v$ using the robust rational interpolation and least squares algorithm described in [2], which is implemented by Chebfun in the function `ratinterp`. Then we can consider this rational interpolant as an analytic continuation of the underlying function and analyse its singularities.
@@ -85,8 +89,6 @@ mu =
    151
 nu =
      8
-max|rh - v| =
-     4.862342669632491e-10
 ```
 
 We can see that the robustness of the algorithm reduces the degree of the denominator drastically. We still have a good error estimate on the real interval:
@@ -96,7 +98,8 @@ max(abs(rh(linspace(0,4*pi,100)) - v(linspace(0,4*pi,100))))
 ```
 
 ```text
-(no matching output)
+ans =
+     4.862342669632491e-10
 ```
 
 ## Analysis of Singularities
@@ -109,17 +112,14 @@ poles
 
 ```text
 poles =
-   2.409093 +1.034708i
-   2.409093 -1.034708i
-   4.234350 +0.000000i
-   5.000020 +0.000000i
-   7.563330 +0.000000i
-   8.336956 +0.000000i
-   10.148989 -1.032891i
-   10.148989 +1.032891i
-real(poles)*3/pi =
-   [2.3005 2.3005 4.0435 4.7747 7.2224 7.9612 9.6916 9.6916]
-tol=0: mu=157 nu=156 npoles=156
+  2.092570920546209 - 0.539609377394787i
+  2.905666313550595 + 1.939406712644067i
+  4.188723686254765 - 0.551329210447226i
+  5.233719115245835 + 0.551709444215918i
+  7.332669101295847 + 0.551706215495063i
+  8.377645864077575 - 0.551342052456708i
+  9.646039132041848 + 1.937659805836405i
+ 10.473785828863722 - 0.539652909815184i
 ```
 
 A straightforward analysis considering the symmetries of the system (communicated to me by Viswanath) shows that if the solution that $v$ is approximating has any complex singularities, the real parts may only take the values $(\pi/3)[1,2,4,5]~(\mbox{mod}\ 2\pi)$.
@@ -129,7 +129,15 @@ real(poles)*3/pi
 ```
 
 ```text
-
+ans =
+   1.998258034651722
+   2.774706940663093
+   3.999936479481308
+   4.997833607675494
+   7.002183201170639
+   8.000062504447913
+   9.211288854733894
+  10.001728725297033
 ```
 
 We have found poles with real parts approximately $(\pi/3)[2,4,5,7,8,10]$, which agrees with the analysis. We do appear to have missed one singularity at $\pi/3$ and $11\pi/3$, but it is typical to expect only the singularities near the centre of the interval to be found. We have also found two additional poles. A plot shows that these are further from the real line.

@@ -21,7 +21,7 @@ import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
@@ -29,75 +29,96 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'complex')
 
 
+def _save(fig, k):
+    fig.set_facecolor("white")
+    fig.tight_layout()
+    _savefig(fig, os.path.join(_IMG, f"ComplexArcLength_{k:02d}.png"),
+             size=(600, 270))
+
+
+def _show_row(name, v, per_line=3):
+    """MATLAB format long display of a row vector, split into columns."""
+    print(f"{name} =")
+    v = list(v)
+    for i in range(0, len(v), per_line):
+        j = min(i + per_line, len(v))
+        print(f"  Columns {i + 1} through {j}" if j - i > 1
+              else f"  Column {j}")
+        print("".join(f"{x:20.15f}" for x in v[i:j]))
+
+
 def run():
     os.makedirs(_IMG, exist_ok=True)
 
-    r, R, e = 0.2, 2.0, 0.1
-    c = [complex(-R, e), complex(-r, e), complex(-r, -e),
-         complex(-R, -e)]
-    w2 = np.log(c[2]) - np.log(c[1])
-    w4 = np.log(c[0]) - np.log(c[3])
-    segs = [
-        cj.chebfun(lambda t: c[0] + t * (c[1] - c[0]),
-                   domain=(0.0, 1.0)),
-        cj.chebfun(lambda t: c[1] * jnp.exp(t * w2),
-                   domain=(0.0, 1.0)),
-        cj.chebfun(lambda t: c[2] + t * (c[3] - c[2]),
-                   domain=(0.0, 1.0)),
-        cj.chebfun(lambda t: c[3] * jnp.exp(t * w4),
-                   domain=(0.0, 1.0)),
-    ]
+    r, R, e = 0.2, 2, 0.1
+    t = cj.chebfun('t', domain=[0, 1])                      # parameter
+    c = [-R + e * 1j, -r + e * 1j, -r - e * 1j, -R - e * 1j]
 
-    ss = np.linspace(0, 1, 500)
-    fig, ax = plt.subplots(figsize=(7.6, 5.6))
-    for z in segs:
-        zv = np.asarray(z(jnp.asarray(ss)))
-        ax.plot(zv.real, zv.imag, 'C0', lw=1.6)
+    def cpow(a):
+        # a.^t for a complex scalar a (our Chebfun has no __rpow__)
+        return cj.exp(t * np.log(a))
+
+    z = (c[0] + t * (c[1] - c[0])).join(                  # top of the keyhole
+        c[1] * cpow(c[2]) / cpow(c[1]),                    # inner circle
+        c[2] + t * (c[3] - c[2]),                          # bottom of the keyhole
+        c[3] * cpow(c[0]) / cpow(c[3]))                    # outer circle
+    lw = 1.6
+    fig, ax = plt.subplots()
+    # one chebfun, one colour (matlab_plot cycles colours per piece of a
+    # complex piecewise chebfun)
+    matlab_plot(z, ax=ax, lw=lw, color="C0")
     ax.set_aspect("equal")
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "ComplexArcLength_01.png"), size=(600, 270))
+    _save(fig, 1)
     plt.close(fig)
 
-    lengths = [z.arc_length() for z in segs]
+    L = z.arc_length()
     print("L =")
-    print(f"  {sum(lengths):.15f}")
-    print("L (per piece) =")
-    print("   " + "   ".join(f"{v:.15f}" for v in lengths))
+    print(f"{L:20.15f}")
 
-    # A flower curve, and N equal-arclength points on it
-    s_fun = lambda t: (jnp.exp(1j * 2 * jnp.pi * t)  # noqa: E731
-                       * (0.5 * jnp.sin(8 * jnp.pi * t) ** 2 + 0.5))
-    s = cj.chebfun(s_fun, domain=(0.0, 1.0))
+    z = [c[0] + t * (c[1] - c[0]),                         # Top of the keyhole
+         c[1] * cpow(c[2]) / cpow(c[1]),                   # Inner circle
+         c[2] + t * (c[3] - c[2]),                         # Bottom of the keyhole
+         c[3] * cpow(c[0]) / cpow(c[3])]                   # Outer circle
+    L = [zk.arc_length() for zk in z]
+    _show_row("L", L)
+
+    t = cj.chebfun('t', domain=[0, 1])
+    s = cj.exp(1j * 2 * np.pi * t) * (0.5 * cj.sin(8 * np.pi * t) ** 2 + 0.5)
+    fig, ax = plt.subplots()
+    matlab_plot(s, ax=ax, lw=lw)
+    ax.set_aspect("equal")
+    _save(fig, 2)
+
     L = s.arc_length()
     print("L =")
-    print(f"   {L:.15f}")
+    print(f"{L:20.15f}")
 
     N = 64
     h = L / N
-    t0 = time.time()
-    # cumulative arclength: chebfun integral of |s'(t)|
-    sp = s.diff()
-    speed = cj.chebfun(lambda t: jnp.abs(sp(t)), domain=(0.0, 1.0))
-    cum = speed.cumsum()
-    T = [0.0]
-    for k in range(1, N):
-        rts = np.atleast_1d(np.asarray((cum - k * h).roots()))
-        T.append(float(rts[0]))
-    print(f"Elapsed time is {time.time()-t0:.6f} seconds.")
+    T = np.zeros(N)
 
-    P = np.asarray(s(jnp.asarray(np.asarray(T))))
-    ts = np.linspace(0, 1, 3000)
-    sv = np.asarray(s(jnp.asarray(ts)))
-    fig, ax = plt.subplots(figsize=(7.6, 6.8))
-    ax.plot(sv.real, sv.imag, lw=1.6)
-    ax.plot(P.real, P.imag, '.r', ms=12)
-    ax.set_aspect("equal")
-    ax.set_title(f"{N} points equally spaced by arc length",
-                 fontsize=12)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, "ComplexArcLength_02.png"), size=(600, 270))
+    t0 = time.perf_counter()
+    len_ = abs(s.diff()).cumsum()
+    for k in range(1, N):
+        T[k] = float((len_ - k * h).roots()[0])
+    print(f"Elapsed time is {time.perf_counter() - t0:.6f} seconds.")
+
+    P = np.asarray(s(jnp.asarray(T)))
+    # MS = 16: MATLAB draws '.' at about a third of MarkerSize,
+    # matplotlib at about half, hence 12
+    ax.plot(P.real, P.imag, ".r", markersize=12)
+    _save(fig, 3)
+
+    print("ans =")
+    print(f"{len(len_):12d}")
+
+    t0 = time.perf_counter()
+    g = len_.inv()
+    print(f"Elapsed time is {time.perf_counter() - t0:.6f} seconds.")
+
+    Q = np.asarray(s(g(jnp.arange(N) * h)))
+    ax.plot(Q.real, Q.imag, "ok", markersize=8, markerfacecolor="none")
+    _save(fig, 4)
     plt.close(fig)
 
 

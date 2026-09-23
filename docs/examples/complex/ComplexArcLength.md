@@ -32,9 +32,7 @@ L = arcLength(z)
 
 ```text
 L =
-  17.179598985403501
-L (per piece) =
-   1.800000000000000   1.197613431941936   1.800000000000000   12.381985553461565
+  17.179598985403484
 ```
 
 If the length of each patch is what you want to know, then you can make the input a quasimatrix whose columns are the different pieces.
@@ -49,7 +47,10 @@ L = arcLength(z)
 
 ```text
 L =
-   9.634012138198035
+  Columns 1 through 3
+   1.800000000000000   1.197613431941934   1.800000000000000
+  Column 4
+  12.381985553461551
 ```
 
 ## 2. Equidistributing points along a contour
@@ -71,7 +72,8 @@ L = arcLength(s)
 ```
 
 ```text
-(no matching output)
+L =
+   9.634012138198033
 ```
 
 Suppose, for example, that we want to equidistribute 64 points.
@@ -94,7 +96,7 @@ toc
 ```
 
 ```text
-Elapsed time is 53.411926 seconds.
+Elapsed time is 85.348594 seconds.
 ```
 
 Now that we have the coordinates of the points, and let's mark them on the curve.
@@ -114,7 +116,8 @@ length(len)
 ```
 
 ```text
-
+ans =
+        2762
 ```
 
 A better approach is not to solve our own rootfinding problems but to first invert `len` with the Chebfun command `inv`:
@@ -124,7 +127,7 @@ tic, g = inv(len); toc
 ```
 
 ```text
-
+Elapsed time is 2018.385789 seconds.
 ```
 
 Here we put circles around the dots to confirm that we have the same result as before:

@@ -22,16 +22,16 @@ import sys
 import time
 import warnings
 
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-from matplotlib.colors import hsv_to_rgb
-
-from chebfunjax.plotting import chebfun_style
+import chebfunjax as cj
+from chebfunjax.plotting import chebfun_style, phaseplot, surf
 from chebfunjax.plotting import save_chebfun_figure as _savefig
-from chebfunjax.spin.solver2d import spin2
+from chebfunjax.spin.solver2d import spin2 as _spin2
 from chebfunjax.spin.spinop2 import SpinOp2
 
 chebfun_style()
@@ -39,99 +39,152 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'pde')
 FIG = [0]
 
+# S = spinop2('gl'): MATLAB's display of the built-in operator.  Our
+# SpinOp2 has no MATLAB-style display; the text is Chebfun's.
+S_GL_DISPLAY = """\
+  spinop2 with properties:
 
-def _gl(dom, t1, u0, npts, dt):
-    op = SpinOp2(lin_coeffs=(1.0, 0, 0, 0, 0),
-                 nonlin_vals=lambda u: u - (1 + 1.5j) * u * np.abs(u)**2,
-                 n_vars=1, domain=dom, tspan=(0.0, t1), u0=u0,
-                 is_real=False)
-    return spin2(op, npts, dt, dealias=False)
+     domain: [0 100 0 100]
+       init: [InfxInf chebfun2]
+        lin: @(u)lap(u)
+     nonlin: @(u)u-(1+1.5i)*u.*(abs(u).^2)
+      tspan: [0 100]
+    numVars: 1
+"""
 
 
-def _plot(U, dom, phase=False):
+def spinop2(dom, tspan):
+    """spinop2(dom, tspan) with S.lin = @(u) lap(u) and
+    S.nonlin = @(u) u - (1+1.5i)*u.*(abs(u).^2)."""
+    return SpinOp2(lin_coeffs=(1.0, 0.0, 0.0, 0.0, 0.0),
+                   nonlin_vals=lambda u: u - (1 + 1.5j) * u * jnp.abs(u) ** 2,
+                   n_vars=1, domain=dom, tspan=tspan, u0=None, is_real=False)
+
+
+def _values2chebfun2(U, dom):
+    """chebfun2(vals, dom, 'trig') for the complex solution values.
+
+    cj.chebfun2 of a COMPLEX value matrix with trig=True returns wrong
+    values, so the real and imaginary parts are built separately."""
+    V = np.asarray(U).T                      # rows = y, as MATLAB
+    return (cj.chebfun2(V.real, domain=dom, trig=True)
+            + 1j * cj.chebfun2(V.imag, domain=dom, trig=True))
+
+
+def spin2(S, npts, dt):
+    """u = spin2(S, npts, dt, 'plot', 'off').  For tspan = [t0 t1 ... tk]
+    returns the list of chebfun2s at t0, t1, ..., tk (MATLAB's u{j})."""
+    ts = [float(v) for v in S.tspan]
+    out = [S.u0]
+    for a, b in zip(ts[:-1], ts[1:]):
+        op = SpinOp2(S.lin_coeffs, S.nonlin_vals, 1, S.domain, (a, b),
+                     out[-1], is_real=False)
+        _, _, _, U = _spin2(op, npts, dt, dealias=False)
+        out.append(_values2chebfun2(U, S.domain))
+    return out[-1] if len(ts) == 2 else out
+
+
+def _plot(u):
+    """plot(u), view(0,90), axis equal, axis off."""
     FIG[0] += 1
-    fig, ax = plt.subplots(figsize=(6.8, 6.4))
-    U = np.asarray(U)
-    if phase:
-        h = (np.angle(U) + np.pi) / (2 * np.pi)
-        v = np.abs(U) / max(np.abs(U).max(), 1e-300)
-        rgb = hsv_to_rgb(np.stack(
-            [h.T, np.ones_like(h.T), np.clip(v.T, 0, 1)], axis=-1))
-        ax.imshow(rgb, origin="lower",
-                  extent=(dom[0], dom[1], dom[2], dom[3]))
-    else:
-        ax.imshow(U.real.T, origin="lower", cmap="viridis",
-                  extent=(dom[0], dom[1], dom[2], dom[3]))
-    ax.set_aspect("equal")
+    fig, ax = surf(u, n_pts=200)
+    ax.view_init(elev=90, azim=-90)
+    ax.set_box_aspect((1, 1, 1e-3))
     ax.set_axis_off()
     fig.set_facecolor("white")
-    fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG,
-                             f"GinzburgLandau_{FIG[0]:02d}.png"))
+    _savefig(fig, os.path.join(_IMG, f"GinzburgLandau_{FIG[0]:02d}.png"))
     plt.close(fig)
+
+
+def _plot_phase(u):
+    """plot(u) for a complex chebfun2: phase portrait of angle(-u)."""
+    FIG[0] += 1
+    dom = [float(v) for v in u.domain]
+    fig, ax = phaseplot(lambda z: -np.asarray(u(jnp.asarray(z.real),
+                                                 jnp.asarray(z.imag))),
+                        region=dom, n_pts=500)
+    ax.set_axis_off()
+    fig.set_facecolor("white")
+    _savefig(fig, os.path.join(_IMG, f"GinzburgLandau_{FIG[0]:02d}.png"))
+    plt.close(fig)
+
+
+def _toc(t0):
+    print("time_in_seconds =")
+    print(f"{time.perf_counter() - t0:20.15f}", flush=True)
 
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
     warnings.filterwarnings("ignore")
+
+    S = SpinOp2.from_name('gl')
+    print("S = ")
+    print(S_GL_DISPLAY, flush=True)
+
     dom = (-50.0, 50.0, -50.0, 50.0)
+    tspan = (0.0, 16.0)
+    S = spinop2(dom, tspan)
 
-    def u1(x, y):
-        return (1j * x + y) * np.exp(-.03 * (x**2 + y**2))
+    x = cj.chebfun2(lambda x, y: x, domain=dom)
+    y = cj.chebfun2(lambda x, y: y, domain=dom)
+    u1 = (1j * x + y) * cj.exp(-.03 * (x ** 2 + y ** 2))
+    S.u0 = u1
+    npts = 80
+    dt = 4 / npts
+    t0 = time.perf_counter()
+    u = spin2(S, npts, dt)
+    _plot(u.real())
 
-    def u2(x, y):
-        return (x + y + 0j) * np.exp(-.03 * (x**2 + y**2))
+    u2 = (x + y) * cj.exp(-.03 * (x ** 2 + y ** 2))
+    S.u0 = u2
+    u = spin2(S, npts, dt)
+    _plot(u.real())
+    _toc(t0)
 
-    # 2. Non-chaotic spirals at t = 16.
-    npts, dt = 80, 4 / 80
-    t0 = time.time()
-    _, _, _, U = _gl(dom, 16.0, u1, npts, dt)
-    _plot(U, dom)
-    _, _, _, U = _gl(dom, 16.0, u2, npts, dt)
-    _plot(U, dom)
-    print("time_in_seconds =")
-    print(f"   {time.time() - t0:.9f}", flush=True)
+    tspan = (0.0, 48.0)
+    S = spinop2(dom, tspan)
+    S.u0 = u1
+    t0 = time.perf_counter()
+    u = spin2(S, npts, dt)
+    _plot(u.real())
 
-    # 3. Beginnings of chaos at t = 48.
-    t0 = time.time()
-    _, _, _, U = _gl(dom, 48.0, u1, npts, dt)
-    _plot(U, dom)
-    _, _, _, U48 = _gl(dom, 48.0, u2, npts, dt)
-    _plot(U48, dom)
-    sym = (np.linalg.norm(np.asarray(U48).real
-                          - np.asarray(U48).real.T)
-           / np.linalg.norm(np.asarray(U48).real))
-    print("time_in_seconds =")
-    print(f"   {time.time() - t0:.9f}")
-    print(f"diagonal symmetry error at t=48: {sym:.2e}", flush=True)
+    S.u0 = u2
+    u = spin2(S, npts, dt)
+    _plot(u.real())
+    _toc(t0)
 
-    # 4. Chaos at t = 96.
-    t0 = time.time()
-    _, _, _, U = _gl(dom, 96.0, u1, npts, dt)
-    _plot(U, dom)
-    _, _, _, U = _gl(dom, 96.0, u2, 128, 4 / 128)
-    _plot(U, dom)
-    print("time_in_seconds =")
-    print(f"   {time.time() - t0:.9f}", flush=True)
+    tspan = (0.0, 96.0)
+    S = spinop2(dom, tspan)
+    S.u0 = u1
+    u = spin2(S, npts, dt)
+    _plot(u.real())
 
-    # 5. A bigger canvas: two spirals on [-100,100]^2, t = 30 and 60.
-    dom2 = (-100.0, 100.0, -100.0, 100.0)
+    npts = 128
+    dt = 4 / npts
+    t0 = time.perf_counter()
+    S.u0 = u2
+    u = spin2(S, npts, dt)
+    _plot(u.real())
+    _toc(t0)
 
-    def ub(x, y):
-        return ((1j * (x - 8) + (y - 2))
-                * np.exp(-.03 * ((x - 8)**2 + (y - 2)**2))
-                + ((x + 8) - (y + 2) + 0j)
-                * np.exp(-.03 * ((x + 8)**2 + (y + 2)**2)))
-
-    t0 = time.time()
-    npts, dt = 128, 8 / 128
-    _, _, _, U30 = _gl(dom2, 30.0, ub, npts, dt)
-    _plot(U30, dom2)
-    _, _, _, U60 = _gl(dom2, 30.0, lambda x, y: U30, npts, dt)
-    _plot(U60, dom2)
-    _plot(U60, dom2, phase=True)
-    print("time_in_seconds =")
-    print(f"   {time.time() - t0:.9f}")
+    dom = (-100.0, 100.0, -100.0, 100.0)
+    tspan = (0.0, 30.0, 60.0)
+    S = spinop2(dom, tspan)
+    x = cj.chebfun2(lambda x, y: x, domain=dom)
+    y = cj.chebfun2(lambda x, y: y, domain=dom)
+    u1 = ((1j * (x - 8) + (y - 2))
+          * cj.exp(-.03 * ((x - 8) ** 2 + (y - 2) ** 2))
+          + ((x + 8) - (y + 2)) * cj.exp(-.03 * ((x + 8) ** 2 + (y + 2) ** 2)))
+    S.u0 = u1
+    npts = 128
+    dt = 8 / npts
+    t0 = time.perf_counter()
+    u = spin2(S, npts, dt)
+    _plot(u[1].real())
+    _plot(u[2].real())
+    _plot_phase(u[2])
+    _toc(t0)
 
 
 if __name__ == "__main__":

@@ -53,7 +53,7 @@ accuracy = norm(N(u)-1)
 
 ```text
 accuracy =
-     1.697578982713647e-13
+     1.815537191070530e-13
 ```
 
 Running from a different initial guess gives a different solution:
@@ -71,7 +71,7 @@ accuracy = norm(N(u)-1)
 
 ```text
 accuracy =
-     5.637000431799776e-12
+     1.708015855409538e-12
 ```
 
 ![Carrier figure 02](../../images/ode-nonlin/Carrier_02.png)
@@ -97,7 +97,7 @@ accuracy = norm(N(u)-1)
 
 ```text
 accuracy =
-     8.919502395923242e-12
+     9.097829459844235e-12
 ```
 
 ![Carrier figure 03](../../images/ode-nonlin/Carrier_03.png)
