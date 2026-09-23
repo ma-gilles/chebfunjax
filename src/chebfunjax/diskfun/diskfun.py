@@ -3135,7 +3135,7 @@ class Diskfun(eqx.Module):
     lap = laplacian
 
     @staticmethod
-    def poisson(f, bc=None, m: int = 40) -> "Diskfun":
+    def poisson(f, bc=None, m: int = 40, n: int | None = None) -> "Diskfun":
         r"""Solve the Poisson equation :math:`\\nabla^2 u = f` on the disk.
 
         Homogeneous Dirichlet boundary condition ``u = 0`` on ``r = 1``.
@@ -3164,15 +3164,11 @@ class Diskfun(eqx.Module):
 
         Provenance
         ----------
-        MATLAB source : @diskfun/poisson.m (result-equivalent).
+        MATLAB source : @diskfun/poisson.m, @diskfun/helmholtz.m
         Chebfun commit: 7574c77
         """
-        if isinstance(f, Diskfun):
-            def fval(t, r):
-                return f(t, r)
-        else:
-            fval = f
-        return _diskfun_poisson(fval, int(m), 0.0, bc)
+        return _diskfun_helmholtz_ultras(f, 0.0, bc, int(m),
+                                         int(m) if n is None else int(n))
 
     @staticmethod
     def harmonic(L: int, m: int, bc: str = "dirichlet") -> "Diskfun":
@@ -3244,24 +3240,43 @@ class Diskfun(eqx.Module):
 
         Provenance
         ----------
-        MATLAB source : @diskfun/helmholtz.m (result-equivalent).
+        MATLAB source : @diskfun/helmholtz.m
         Chebfun commit: 7574c77
         """
-        if isinstance(f, Diskfun):
-            def fval(t, r):
-                return f(t, r)
-        else:
-            fval = f
-        # K may be complex (e.g. K = i*k for BDF timestepping of the
-        # heat equation: K^2 = -k^2 is a real screened-Poisson shift).
-        # Only K^2 enters the discretisation; keep it real when it is.
-        Kc = complex(K)
-        K2 = Kc * Kc
-        if abs(K2.imag) < 1e-14 * max(abs(K2.real), 1.0):
-            K_eff = np.sqrt(abs(K2.real)) * (1j if K2.real < 0 else 1.0)
-        else:
-            K_eff = Kc
-        return _diskfun_poisson(fval, int(m), K_eff, bc)
+        return _diskfun_helmholtz_ultras(f, K, bc, int(m),
+                                         int(m) if n is None else int(n))
+
+    def vscale(self) -> float:
+        """Vertical scale: max |f| on the doubled tensor grid resolving f
+        (at least 9 points per direction, at most 2000).
+
+        Provenance
+        ----------
+        MATLAB source : @separableApprox/vscale.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.tech.trigtech import trig_coeffs2vals
+        from chebfunjax.utils.transforms import coeffs2vals
+        X = np.asarray(self.coeffs2())
+        m = min(max(X.shape[0], 9), 2000)
+        n = min(max(X.shape[1], 9), 2000)
+        X = np.asarray(self.coeffs2(n, m))
+        V = np.asarray(coeffs2vals(jnp.asarray(X)))
+        V = np.asarray(trig_coeffs2vals(jnp.asarray(V.T))).T
+        return float(np.max(np.abs(V)))
+
+    def disp(self) -> str:
+        """MATLAB ``disp(F)`` text of a diskfun (without the ``F =`` line).
+
+        Provenance
+        ----------
+        MATLAB source : @diskfun/disp.m
+        Chebfun commit: 7574c77
+        """
+        vs = self.vscale()
+        return ("     diskfun object \n"
+                "       domain        rank    vertical scale\n"
+                "      unit disk   %6i          %3.2g" % (int(self.rank), float(vs)))
 
     def __repr__(self) -> str:
         """Compact display.
@@ -3562,81 +3577,84 @@ def _cheb_diff_matrix(n: int) -> tuple:
     return D, x
 
 
-def _diskfun_poisson(f, n: int, K: float = 0.0, bc=None) -> "Diskfun":
-    """Fast spectral Poisson/Helmholtz solver on the disk.
+def _diskfun_helmholtz_ultras(f, K, bc, m: int, n: int) -> "Diskfun":
+    """Port of MATLAB @diskfun/helmholtz.m: u'' + u'/r + u_tt/r^2 + K^2 u = f
+    on the unit disk with u(1, theta) = bc(theta), discretised with the
+    ultraspherical spectral method in r on the doubled domain [-1, 1]
+    (``2m+1`` Chebyshev modes) and ``n`` Fourier modes in theta.  Each
+    wavenumber decouples into even/odd Chebyshev parts; the boundary row
+    and the parity-reduced system are combined with MATLAB's rank-one
+    (Sherman-Morrison) correction.
 
-    See :meth:`Diskfun.poisson` / :meth:`Diskfun.helmholtz`.  Per
-    angular Fourier mode, solve the radial ODE by Chebyshev collocation
-    with u(1) = bc-mode and pole regularity.  (Poisson by Opus 4.8;
-    the K^2 term and non-homogeneous Dirichlet data added in the
-    Fable 5 audit.)
+    Provenance
+    ----------
+    MATLAB source : @diskfun/helmholtz.m, @diskfun/poisson.m
+    Chebfun commit: 7574c77
     """
-    D, x = _cheb_diff_matrix(n)
-    r = (x + 1.0) / 2.0            # map [-1,1] -> [0,1]
-    Dr = 2.0 * D
-    Drr = Dr @ Dr
-    nth = 2 * n + 8
-    th = np.linspace(0.0, 2.0 * np.pi, nth, endpoint=False)
-    TH, RR = np.meshgrid(th, r, indexing="ij")
-    F = np.asarray(f(jnp.asarray(TH.ravel()), jnp.asarray(RR.ravel()))
-                   ).reshape(TH.shape)
-    Fhat = np.fft.rfft(F, axis=0) / nth
-    mmax = Fhat.shape[0]
-    # Dirichlet boundary data, mode by mode
+    from chebfunjax.discretization import ultras
+    from chebfunjax.tech.trigtech import trig_vals2coeffs
+    from chebfunjax.utils.quadrature import trigpts
+    from chebfunjax.utils.transforms import vals2coeffs
+
+    m = 2 * int(m) + 1
+    n = int(n)
+    if n % 2 == 1:
+        raise ValueError("DISKFUN:HELMHOLTZ:N: The Fourier discretization "
+                         "size must be even.")
+    D1 = np.asarray(ultras.diffmat(m, 1))
+    D2 = np.asarray(ultras.diffmat(m, 2))
+    Mr = np.asarray(ultras.multmat(m, jnp.asarray([0.0, 1.0]), 1))
+    Mr2 = np.asarray(ultras.multmat(m, jnp.asarray([.5, 0.0, .5]), 2))
+    Mr2c = np.asarray(ultras.multmat(m, jnp.asarray([.5, 0.0, .5]), 0))
+    S1 = np.asarray(ultras.convertmat(m, 0, 1))
+    S12 = np.asarray(ultras.convertmat(m, 1, 1))
+    x0 = np.asarray(chebpts(m, kind=2))
+    th0 = np.pi * np.asarray(trigpts(n)[0])
+    if isinstance(f, Diskfun):
+        real_valued = True
+        F = np.asarray(f.coeffs2(n, m))              # (m Chebyshev, n Fourier)
+        F = (S1 @ Mr2c @ F).T
+    elif callable(f):
+        R, TH = np.meshgrid(x0, th0)                  # (n, m)
+        F = R ** 2 * np.asarray(f(jnp.asarray(TH), jnp.asarray(R)))
+        real_valued = not np.iscomplexobj(F) or not np.any(np.imag(F))
+        F = (S1 @ np.asarray(vals2coeffs(jnp.asarray(F.T)))).T
+        F = np.asarray(trig_vals2coeffs(jnp.asarray(F)))
+    else:                                             # Chebyshev coefficients
+        real_valued = False
+        F = (S1 @ Mr2c @ np.asarray(f)).T
+    d = int((-n // 2) * real_valued + n + real_valued)
+    K2 = complex(K) ** 2
+    if abs(K2.imag) < 1e-14 * max(abs(K2.real), 1.0):
+        K2 = K2.real
+    L = Mr2 @ D2 + S12 @ Mr @ D1 + K2 * (S1 @ Mr2c)
+    L = L[:-2, :]
     if bc is None:
-        bchat = np.zeros(mmax, dtype=complex)
+        bcvals = np.zeros(n)
     elif callable(bc):
-        bvals = np.asarray(bc(jnp.asarray(th)), dtype=float)
-        bchat = np.fft.rfft(bvals) / nth
+        bcvals = np.asarray(bc(jnp.asarray(th0)))
     else:
-        bchat = np.zeros(mmax, dtype=complex)
-        bchat[0] = float(bc)
-    Uhat = np.zeros_like(Fhat)
-    r_safe = r.copy()
-    r_safe[np.abs(r_safe) < 1e-14] = 1e-14
-    inv_r = np.diag(1.0 / r_safe)
-    inv_r2 = np.diag(1.0 / r_safe ** 2)
-    for mm in range(mmax):
-        L = Drr + inv_r @ Dr - mm * mm * inv_r2 \
-            + (K * K) * np.eye(len(r))
-        rhs = Fhat[mm].astype(complex).copy()
-        A = L.astype(complex).copy()
-        # u(1) = bc_m : r = 1 is x = 1 -> index 0 (x descending)
-        A[0, :] = 0.0
-        A[0, 0] = 1.0
-        rhs[0] = bchat[mm]
-        # regularity at r = 0 (index n): u=0 for m!=0, u'=0 for m=0
-        if mm == 0:
-            A[n, :] = Dr[n, :]
-            rhs[n] = 0.0
-        else:
-            A[n, :] = 0.0
-            A[n, n] = 1.0
-            rhs[n] = 0.0
-        Uhat[mm] = np.linalg.solve(A, rhs)
-
-    deg = n
-    vand = np.polynomial.chebyshev.chebvander(x, deg)
-    coefs = np.linalg.lstsq(vand, Uhat.T, rcond=None)[0]
-
-    def ev(theta, rr):
-        theta = np.asarray(theta)
-        rr = np.asarray(rr)
-        shape = np.broadcast(theta, rr).shape
-        s = (2.0 * rr - 1.0).ravel()
-        vd = np.polynomial.chebyshev.chebvander(s, deg)
-        modes = vd @ coefs
-        out = np.zeros(s.shape)
-        thf = np.broadcast_to(theta, shape).ravel()
-        for mm in range(mmax):
-            fac = 1.0 if mm == 0 else 2.0
-            out = out + fac * np.real(modes[:, mm] * np.exp(1j * mm * thf))
-        return jnp.asarray(out.reshape(shape), dtype=jnp.float64)
-
-    import warnings as _warnings
-    with _warnings.catch_warnings():
-        _warnings.simplefilter("ignore")
-        return Diskfun.from_function(lambda t, r: ev(t, r))
+        bcvals = np.full(n, float(bc))
+    bcc = np.asarray(trig_vals2coeffs(jnp.asarray(bcvals)))
+    S1 = S1[:-2, :]
+    W = np.concatenate(([1.0], np.zeros((m - 1) // 2)))
+    CFS = np.zeros((m, n), dtype=complex)
+    for k in range(1, d + 1):
+        j = -n // 2 + k - 1                           # wave number
+        a = j % 2 + 1                                 # 1 even, 2 odd
+        B = L - j ** 2 * S1
+        kB = np.vstack([np.zeros((1, (m - 1) // 2 + abs(j % 2 - 1))),
+                        B[a - 1::2, a - 1::2]]).astype(complex)
+        kB[0, 0] = 1.0
+        w = W[:len(W) - (a - 1)]
+        b = np.concatenate(([bcc[k - 1]], F[k - 1, a - 1:m - 2:2]))
+        inv_bb = np.linalg.solve(kB, b)
+        inv_bw = np.linalg.solve(kB, w)
+        CFS[a - 1::2, k - 1] = (inv_bb - np.sum(inv_bb[1:]) * inv_bw
+                                / (1 + np.sum(inv_bw[1:])))
+    if real_valued:
+        CFS[:, d:n] = np.fliplr(np.conj(CFS[:, 1:d - 1]))
+    return Diskfun.coeffs2diskfun(jnp.asarray(CFS))
 
 
 from chebfunjax.utils.misc import make_empty_aware  # noqa: E402
