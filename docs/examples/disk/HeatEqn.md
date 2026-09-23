@@ -79,7 +79,7 @@ norm(u-utrue)
 
 ```text
 ans =
-     5.393434227117192e-06
+     5.374982357237464e-06
 ```
 
 The Helmholtz solver used in Diskfun achieves optimal computational complexity (see [5]), but it also returns the solution as a diskfun at at an additional computational cost. In practice, this is unnecessary, and one can easily modify the solver and gain considerable efficiency by working directly with the 2D Chebyshev-Fourier coefficient matrices associated with the solution at each timestep [5].
@@ -103,7 +103,7 @@ axis('off'), colormap(jet), colorbar
 title('u0')
 ```
 
-*(Figure 06 of the original page is not reproduced yet.)*
+![HeatEqn figure 06](../../images/disk/HeatEqn_06.png)
 
 The function $u_0(\theta, 1, 0) = g(\theta)$ is the boundary condition that will be imposed on $u$ for all time. We represent $g$ as a periodic chebfun and plot it below. Note that the maximum of $g$ is attained at $\theta = \pi/2$.
 
@@ -113,7 +113,7 @@ plot(g), axis square
 title('g(\theta)')
 ```
 
-*(Figure 07 of the original page is not reproduced yet.)*
+![HeatEqn figure 07](../../images/disk/HeatEqn_07.png)
 
 We seek the solution $u$ for all $t \geq 0$. The discretization method described in (4) can be used to compute the time-dependent solution. In the code below, we find the numerical solution for $0 < t \leq 0.2$. As time increases, heat flows toward the hottest spot on the boundary of the disk.
 
@@ -146,13 +146,13 @@ for n = 2:nsteps
 end
 ```
 
-*(Figure 08 of the original page is not reproduced yet.)*
+![HeatEqn figure 08](../../images/disk/HeatEqn_08.png)
 
-*(Figure 09 of the original page is not reproduced yet.)*
+![HeatEqn figure 09](../../images/disk/HeatEqn_09.png)
 
-*(Figure 10 of the original page is not reproduced yet.)*
+![HeatEqn figure 10](../../images/disk/HeatEqn_10.png)
 
-*(Figure 11 of the original page is not reproduced yet.)*
+![HeatEqn figure 11](../../images/disk/HeatEqn_11.png)
 
 At steady-state, $u$ is no longer dependent on $t$ and satisfies Laplace's equation, $\nabla^2 u = 0$. To find the steady-state solution, we use Diskfun's fast Poisson solver.
 
@@ -162,7 +162,9 @@ u = diskfun.poisson(diskfun(@(x,y) 0*x), g, m,m)
 
 ```text
 u =
-Diskfun(rank=31, n_plus=16, n_minus=15)
+     diskfun object
+       domain        rank    vertical scale
+      unit disk       31           30
 ```
 
 The steady-state solution satisfies the maximum principle: once $u$ is constant in $t$, the maximum value of $u$ will occur on the boundary of the disk and therefore must agree with the maximum value of $g$. We plot the steady state solution and verify this fact below.
@@ -174,7 +176,7 @@ axis off, view([36, 34.4]), zlim([0, 35])
 title('solution u at steady state' )
 ```
 
-*(Figure 12 of the original page is not reproduced yet.)*
+![HeatEqn figure 12](../../images/disk/HeatEqn_12.png)
 
 ```matlab
 [maxu, locmaxu] = max2(u);
@@ -185,7 +187,7 @@ mxg = [maxg locmaxg ]                            %maximum of u0 on boundary
 
 ```text
 mxu =
-  30.036677407858765   1.570010535735969
+  30.036677407858555   1.570857463287601
 mxg =
   30.036677407858566   1.570857463287601
 ```
@@ -201,10 +203,11 @@ norm(mean(g)-u(0,0))
 ```
 
 ```text
-
+ans =
+     8.881784197001252e-16
 ```
 
-*(Figure 13 of the original page is not reproduced yet.)*
+![HeatEqn figure 13](../../images/disk/HeatEqn_13.png)
 
 ## 6. Extensions
 
