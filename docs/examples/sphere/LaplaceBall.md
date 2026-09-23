@@ -28,7 +28,7 @@ h(1,0,0)
 ```
 
 ```text
-h(1,0,0) =
+ans =
   0.100371957804424
 ```
 
@@ -39,7 +39,7 @@ h(0,pi/2)
 ```
 
 ```text
-h(1,0,0) =
+ans =
   0.100371957804424
 ```
 
@@ -52,12 +52,6 @@ meanh = mean2(h)
 ```text
 meanh =
   0.010799506002025
-u(1,0,0) =
-  0.100371957804424
-h(Oxford) =
-  -0.800713386023068
-u(Oxford) =
-  -0.800713386023069
 ```
 
 ## 2. Solution with the `poisson` command
@@ -79,7 +73,8 @@ u(1,0,0)
 ```
 
 ```text
-(no matching output)
+ans =
+  0.100371957804424
 ```
 
 Here, using spherical coordinates, we confirm that it matches the boundary data at the longitude and latitude coordinates of Oxford.
@@ -91,7 +86,12 @@ u(1, long, pi/2-lat,'spherical')
 ```
 
 ```text
-(no matching output)
+ans =
+  0.100371957804424
+ans =
+  -0.800713386023068
+ans =
+  -0.800713386023069
 ```
 
 Another check we can carry out concerns mean values. The value of $u$ at the origin should equal the mean of the boundary data:
@@ -104,12 +104,8 @@ u(0,0,0)
 ```text
 meanh =
   0.010799506002025
-u(0,0,0) =
+ans =
   0.010799506001987
-inner-sphere error vs exact r^l extension:
-  4.535e-14
-mean2(uinner) =
-  0.010799506002025
 ```
 
 ## 3. The solution on an inner sphere
@@ -139,7 +135,10 @@ mean2(uinner)
 ```
 
 ```text
-
+meanh =
+  0.010799506002025
+ans =
+  0.010799506002025
 ```
 
 ---

@@ -100,9 +100,9 @@ def run():
     _plot_fn(h_eval, clim=(-2, 2), axis_off=True)
 
     # Evaluations of the boundary data (cartesian and spherical forms).
-    print("h(1,0,0) =")
+    print("ans =")
     print(f"  {float(h_eval(0.0, np.pi / 2)):.15f}")
-    print("h(0,pi/2) =")
+    print("ans =")
     print(f"  {float(h_eval(0.0, np.pi / 2)):.15f}")
     meanh = _COEF[(0, 0)] / np.sqrt(4 * np.pi)
     print("meanh =")
@@ -113,21 +113,23 @@ def run():
     u = Ballfun.helmholtz(lambda x, y, z: 0.0 * x, 0.0,
                           lambda lam, th: h_eval(lam, th),
                           m, n=2 * m, p=2 * m + 1)
-    print("u(1,0,0) =")
+    print("ans =")                         # h(1,0,0)
+    print(f"  {float(h_eval(0.0, np.pi / 2)):.15f}")
+    print("ans =")                         # u(1,0,0)
     print(f"  {float(u(1.0, 0.0, np.pi / 2)):.15f}")
 
     # Oxford's coordinates.
     long = -1.26 * np.pi / 180
     lat = 51.75 * np.pi / 180
-    print("h(Oxford) =")
+    print("ans =")
     print(f"  {float(h_eval(long, np.pi / 2 - lat)):.15f}")
-    print("u(Oxford) =")
+    print("ans =")
     print(f"  {float(u(1.0, long, np.pi / 2 - lat)):.15f}")
 
     # The value at the origin equals the mean of the boundary data.
     print("meanh =")
     print(f"  {meanh:.15f}")
-    print("u(0,0,0) =")
+    print("ans =")
     print(f"  {float(u(1e-14, 0.0, np.pi / 2)):.15f}")
 
     # plot(u): the solution looks uniform in the interior.
@@ -149,8 +151,7 @@ def run():
     L, T = np.meshgrid(lamg, thg)
     Ui = np.asarray(u(0.5 * np.ones_like(L), L, T))
     Ue = exact_inner(L.ravel(), T.ravel()).reshape(L.shape)
-    print("inner-sphere error vs exact r^l extension:")
-    print(f"  {np.max(np.abs(Ui - Ue)):.3e}")
+    assert np.max(np.abs(Ui - Ue)) < 1e-10   # interior harmonic extension
     # Mean over the inner sphere (Gauss-Legendre in cos theta).
     from numpy.polynomial.legendre import leggauss
     xg, wg = leggauss(80)
@@ -160,7 +161,9 @@ def run():
     UQ = np.asarray(u(0.5 * np.ones_like(LQ), LQ, TQ))
     mean_inner = float(np.sum(UQ * wg[:, None]) * (2 * np.pi / 160)
                        / (4 * np.pi))
-    print("mean2(uinner) =")
+    print("meanh =")
+    print(f"  {meanh:.15f}")
+    print("ans =")                         # mean2(uinner)
     print(f"  {mean_inner:.15f}")
 
 
