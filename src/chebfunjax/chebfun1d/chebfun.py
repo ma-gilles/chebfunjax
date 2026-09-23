@@ -6423,10 +6423,31 @@ class Chebfun(eqx.Module):
         f = self  # capture for closure
         new_funs = []
         # Reversed piece intervals
+        from chebfunjax.fun.singfun import Singfun
+
+        def _flip_tech(t):
+            """@chebtech/flipud: T_k(-x) = (-1)^k T_k(x), exactly."""
+            if type(t) is Chebtech2:
+                c = t.coeffs
+                sgn = (-1.0) ** jnp.arange(c.shape[0], dtype=jnp.float64)
+                sgn = sgn.reshape((-1,) + (1,) * (c.ndim - 1))
+                return Chebtech2.from_coeffs(c * sgn)
+            if isinstance(t, Singfun):
+                sp = _flip_tech(t.smoothPart)
+                if sp is None:
+                    return None
+                return Singfun(sp, (t.exponents[1], t.exponents[0]))
+            return None
+
         for piece in reversed(self.funs):
             pa, pb = piece.interval
             new_a = mid - pb
             new_b = mid - pa
+            ft = (_flip_tech(piece.tech)
+                  if type(piece) is _Piece else None)
+            if ft is not None:
+                new_funs.append(_Piece(tech=ft, interval=(new_a, new_b)))
+                continue
             new_funs.append(
                 _Piece.from_function(
                     lambda x, _f=f, _m=mid: _f(_m - x),
