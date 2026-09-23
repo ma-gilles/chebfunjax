@@ -218,6 +218,10 @@ def render(root, cat: str, stem: str, ours: list[str] | None):
     walk(root)
     chunks = align_outputs(ref_blocks, ours)
     for idx, k in pending:
+        if ours is not None and not chunks[k] and ref_blocks[k] and \
+                ref_blocks[k][0].lstrip().startswith("Warning:"):
+            parts[idx] = None      # a MATLAB warning our run does not emit
+            continue
         if ours is None:
             parts[idx] = "```text\n(output not captured for this page yet)\n```"
         else:
@@ -226,19 +230,32 @@ def render(root, cat: str, stem: str, ours: list[str] | None):
     return [p for p in parts if p is not None], images
 
 
+def _key(line: str) -> str:
+    """Alignment key of an output line: timings match any timing, and
+    ``name = value`` lines match on ``name =``."""
+    s = line.strip()
+    if s.startswith("Elapsed time is"):
+        return "Elapsed time is"
+    if "=" in s and not s.startswith("="):
+        return s.split("=", 1)[0].rstrip() + " ="
+    return s
+
+
 def align_outputs(ref_blocks, ours):
     """Split our stdout lines into one chunk per reference output block."""
     if ours is None:
         return [[] for _ in ref_blocks]
     lines = [ln.rstrip() for ln in ours]
+    keys = [_key(ln) for ln in lines]
     starts = []
     cursor = 0
     for blk in ref_blocks:
         first = blk[0].rstrip() if blk else ""
         found = None
         if first:
+            kf = _key(first)
             for i in range(cursor, len(lines)):
-                if lines[i] == first:
+                if keys[i] == kf:
                     found = i
                     break
         starts.append(found)

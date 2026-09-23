@@ -87,9 +87,9 @@ norm( backToTheCoeffs - c_leg, inf )
 ```
 
 ```text
-Elapsed time is 0.640855 seconds.
 Elapsed time is 0.235776 seconds.
 ans =
+     2.082695137461048e-15
 ```
 
 The IDLT can be related to a (transposed) DLT by a discrete orthogonality relation. It has the same $O(N(\log N)^2/\log\log N)$ complexity.

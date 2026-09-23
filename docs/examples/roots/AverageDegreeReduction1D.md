@@ -53,7 +53,7 @@ subdivisionDiagram(f,1)
 ```
 
 ```text
-tau = 0.56435
+tau = 0.00318
 ```
 
 ![AverageDegreeReduction1D figure 02](../../images/roots/AverageDegreeReduction1D_02.png)
@@ -68,7 +68,7 @@ compute_tau(f, 2^3)
 ```
 
 ```text
-tau = 0.56435
+tau = 0.38020
 ```
 
 ## Analytic functions
@@ -82,7 +82,7 @@ subdivisionDiagram(f,3)
 ```
 
 ```text
-tau = 0.56435
+tau = 0.37424
 ```
 
 ![AverageDegreeReduction1D figure 03](../../images/roots/AverageDegreeReduction1D_03.png)
@@ -106,9 +106,6 @@ m =
         1450
         1017
         713
-tau = 0.39582
-Elapsed time is 5.073226 seconds.
-Elapsed time is 26.806098 seconds.
 ```
 
 The reason the numerical degrees found by Elliott's formula do not exactly match those found by Chebfun is that the Chebfun constructor has a varying tolerance, and the tail of the coefficients is not always truncated at the same level.
@@ -123,7 +120,7 @@ compute_tau(f, 2)
 ```
 
 ```text
-
+tau = 0.39582
 ```
 
 ## Conclusion
@@ -137,7 +134,7 @@ tic, roots(f); toc
 ```
 
 ```text
-
+Elapsed time is 5.073226 seconds.
 ```
 
 ```matlab
@@ -147,7 +144,7 @@ tic, roots(f); toc
 ```
 
 ```text
-
+Elapsed time is 26.806098 seconds.
 ```
 
 The reason is that the overhead of each subdivision (as implemented) is high, and many more levels of subdivision are required for $1/(x+c)$.

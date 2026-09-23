@@ -39,7 +39,7 @@ title(['minimum distance: ' num2str(mindist)]), toc
 ```
 
 ```text
-minimum distance = 1.364907913875188
+Elapsed time is 9.228925 seconds.
 ```
 
 ![Curves figure 03](../../images/geom/Curves_03.png)

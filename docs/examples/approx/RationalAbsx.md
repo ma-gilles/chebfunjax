@@ -26,6 +26,7 @@ title('error curve for type (80,80) approximation',FS,36)
 
 ```text
 Elapsed time is 2.429866 seconds.
+type (30,30) error: 2.173884e-07
 ```
 
 ![RationalAbsx figure 01](../../images/approx/RationalAbsx_01.png)

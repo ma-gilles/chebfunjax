@@ -186,9 +186,6 @@ sum(exp(r*T)*payoffPDF)
 ```text
 ans =
    1.000000000000001
-approx = 40.837802467832390
-exact  = 40.837802467836610
-approx = 40.837802467832390
 ```
 
 ## Comparison with the Black-Scholes formula
@@ -201,7 +198,7 @@ disp(['approx = ', num2str(approx,'%10.15f')])
 ```
 
 ```text
-
+approx = 40.837802467832390
 ```
 
 We indicate the location of the expected value with a blue line on the payoff's distribution.
@@ -235,7 +232,8 @@ disp(['approx = ', num2str(approx,'%10.15f')])
 ```
 
 ```text
-
+exact  = 40.837802467836610
+approx = 40.837802467832390
 ```
 
 ## Summary

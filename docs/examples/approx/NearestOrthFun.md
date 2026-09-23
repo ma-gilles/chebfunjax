@@ -70,11 +70,6 @@ Departure from orthogonality in the columns of Q = 2.4e-15
 Departure from orthogonality in the columns of Q2 = 1.1e-15
 The distance between A and Q2 = 2.43
 The distance between A and its closest orthonormal quasimatrix = 1.95
-Departure from orthogonality in the columns of A = 194.23
-Departure from orthogonality in the columns of Q = 2.7e-15
-Departure from orthogonality in the columns of Q2 = 2.8e-15
-The distance between A and Q2 = 13.44
-The distance between A and its closest orthonormal quasimatrix = 13.16
 ```
 
 ![NearestOrthFun figure 03](../../images/approx/NearestOrthFun_03.png)
@@ -87,7 +82,11 @@ A = [cheb.gallery('stegosaurus'), cheb.gallery('wiggly'), cheb.gallery('blasius'
 ```
 
 ```text
-
+Departure from orthogonality in the columns of A = 194.23
+Departure from orthogonality in the columns of Q = 2.7e-15
+Departure from orthogonality in the columns of Q2 = 2.8e-15
+The distance between A and Q2 = 13.44
+The distance between A and its closest orthonormal quasimatrix = 13.16
 ```
 
 ![NearestOrthFun figure 04](../../images/approx/NearestOrthFun_04.png)

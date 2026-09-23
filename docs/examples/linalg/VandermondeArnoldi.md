@@ -125,10 +125,6 @@ c = polyfit(x,f,80);
 y = polyval(c,x)
 ```
 
-```text
-(no matching output)
-```
-
 We'll plot the result in a moment. But here's a sign that it's not good: the maximum is much bigger than $1$:
 
 ```matlab

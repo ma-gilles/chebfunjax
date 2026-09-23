@@ -23,7 +23,6 @@ n = length(f)
 ```text
 n =
         3284
-Elapsed time is 0.404406 seconds.
 ```
 
 This function has 2001 roots linearly spaced from $-1$ to $1$:
@@ -46,7 +45,7 @@ toc
 ```
 
 ```text
-(no matching output)
+Elapsed time is 0.404406 seconds.
 ```
 
 Here is the maximum error:
@@ -58,10 +57,6 @@ norm(r-exact,inf)
 ```text
 ans =
      2.220446049250313e-16
-Elapsed time is 0.030086 seconds.
-Elapsed time is 0.149022 seconds.
-Elapsed time is 0.756629 seconds.
-Elapsed time is 3.162882 seconds.
 ```
 
 This number is $1.5$ times machine epsilon, which looks very good. (Admittedly, you couldn't ask for a better conditioned problem than this one, since the derivative of $f$ at each root is large.)
@@ -89,7 +84,10 @@ end
 ```
 
 ```text
-
+Elapsed time is 0.030086 seconds.
+Elapsed time is 0.149022 seconds.
+Elapsed time is 0.756629 seconds.
+Elapsed time is 3.162882 seconds.
 ```
 
 It is clear from this experiment that calling Matlab `roots` for a polynomial of degree as large as our chebfun `f` would be very slow.

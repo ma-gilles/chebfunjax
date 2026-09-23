@@ -66,7 +66,6 @@ trajectory_length = norm(diff(w{0,tfinal}),1)
 ```text
 trajectory_length =
   11.755625835003425
-Elapsed time is 0.184172 seconds.
 ```
 
 The total computer time for the computations up to this point is as follows:
@@ -76,7 +75,7 @@ toc
 ```
 
 ```text
-
+Elapsed time is 0.184172 seconds.
 ```
 
 Now let's plot the motion, using an anonymous function `ell2` which returns a chebfun of the position of ellipse 2 at time $t$. We plot the big ellipse together with a succession of small ellipses:

@@ -65,7 +65,8 @@ fprintf('Error of marginal = %1.3e\n',norm(px-exact'))
 ```
 
 ```text
-Integral of pdf 0.9999999999999982
+Error of marginal = 1.669e-15
+Error in conditional pdf is 1.75935e-16
 ```
 
 ## Conditional probability distributions
@@ -91,7 +92,7 @@ fprintf('Error in conditional pdf is %1.5e\n',norm(fy(x,:)-exact));
 ```
 
 ```text
-Integral of pdf 0.9999999999999982
+
 ```
 
 ## References

@@ -55,7 +55,6 @@ pos =
   -0.482150171265481
   0.482150171265481
   1.000000000000000
-Elapsed time is 1127.907309 seconds.
 ```
 
 Higher precision calculation suggests that they lie near $\pm 0.4804754$ and with an error of about $0.0763434$.
@@ -78,7 +77,7 @@ toc
 ```
 
 ```text
-
+Elapsed time is 1127.907309 seconds.
 ```
 
 ---

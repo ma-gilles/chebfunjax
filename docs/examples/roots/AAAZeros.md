@@ -35,7 +35,6 @@ plot(zer+1i*eps,'r.',MS,15)
 ```text
 max_diff =
      3.566924533515703e-12
-Elapsed time is 2.014592 seconds.
 ```
 
 ![AAAZeros figure 01](../../images/roots/AAAZeros_01.png)
@@ -56,7 +55,7 @@ end, toc
 ```
 
 ```text
-(no matching output)
+Elapsed time is 2.014592 seconds.
 ```
 
 Here is the maximum difference between roots for each iteration, and how the last random polynomial looks like together with its zeros:

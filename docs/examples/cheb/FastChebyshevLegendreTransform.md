@@ -73,8 +73,8 @@ axis([-1 1 1e-16 1e-12]), set(gca, FS, fs), hold off
 ```
 
 ```text
-Runge-type: N = 1182
-|x-.1|^(7/4): N = 4097
+No. of evaluation points = 31857
+Evaluation time = 4.28s
 ```
 
 ![FastChebyshevLegendreTransform figure 03](../../images/cheb/FastChebyshevLegendreTransform_03.png)
@@ -110,8 +110,6 @@ toc
 ```text
 N =
        31713
-Elapsed time is 1.312230 seconds.
-Elapsed time is 3.073024 seconds.
 ```
 
 We can now form a chebfun from solution using `leg2cheb`:
@@ -128,7 +126,8 @@ set(gca, FS, fs), xlabel('x', FS, fs), shg
 ```
 
 ```text
-(no matching output)
+Elapsed time is 1.312230 seconds.
+Elapsed time is 3.073024 seconds.
 ```
 
 ![FastChebyshevLegendreTransform figure 04](../../images/cheb/FastChebyshevLegendreTransform_04.png)

@@ -52,7 +52,7 @@ ylim([-1.3 1.3]), axis equal
 ```
 
 ```text
-Elapsed time is 1.433953 seconds.
+Elapsed time is 0.095856 seconds.
 ```
 
 ![ConformalMapping figure 02](../../images/complex/ConformalMapping_02.png)

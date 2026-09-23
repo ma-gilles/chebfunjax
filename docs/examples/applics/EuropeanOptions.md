@@ -59,7 +59,6 @@ probOOM = 1-lognCDF(K)
 ```text
 probOOM =
    0.078148029367943
-approx = 51.166911483849582
 ```
 
 As we have seen in our previous example, the contribution of the OOM region to the payoff PDF is a Dirac delta with weight equal to the probability of expiring OOM and located at zero (the constant OOM payoff).
@@ -95,7 +94,7 @@ disp(['approx = ', num2str(approx,'%10.15f')])
 ```
 
 ```text
-(no matching output)
+approx = 51.166911483849582
 ```
 
 ![EuropeanOptions figure 03](../../images/applics/EuropeanOptions_03.png)
@@ -113,8 +112,6 @@ disp(['approx = ', num2str(approx,'%10.15f')])
 
 ```text
 exact  = 51.166911483849546
-approx = 51.166911483849582
-approx = 0.440783414443269
 ```
 
 ## Digital Options
@@ -159,7 +156,8 @@ disp(['approx = ', num2str(approx,'%10.15f')])
 ```
 
 ```text
-(no matching output)
+approx = 51.166911483849582
+approx = 0.440783414443269
 ```
 
 ![EuropeanOptions figure 05](../../images/applics/EuropeanOptions_05.png)
@@ -177,10 +175,6 @@ disp(['approx = ', num2str(approx,'%10.15f')])
 
 ```text
 exact  = 0.440783414443270
-approx = 0.440783414443269
-approx = 1.078491451154440
-exact  = 1.078491451154440
-approx = 1.078491451154440
 ```
 
 ## Power Options
@@ -223,7 +217,8 @@ disp(['approx = ', num2str(approx,'%10.15f')])
 ```
 
 ```text
-
+approx = 0.440783414443269
+approx = 1.078491451154440
 ```
 
 ![EuropeanOptions figure 07](../../images/applics/EuropeanOptions_07.png)
@@ -240,7 +235,8 @@ disp(['approx = ', num2str(approx,'%10.15f')])
 ```
 
 ```text
-
+exact  = 1.078491451154440
+approx = 1.078491451154440
 ```
 
 ## References

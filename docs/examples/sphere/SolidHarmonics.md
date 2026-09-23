@@ -76,7 +76,6 @@ ans =
    1.000000000000000
 ans =
      1.12e-17
-Elapsed time is 0.237402 seconds.
 ```
 
 Here is a plot of the solid harmonics $R^m_l$, with $l=0,...,4$ and $0\leq m\leq l$.
@@ -139,7 +138,7 @@ toc
 ```
 
 ```text
-
+Elapsed time is 0.237402 seconds.
 ```
 
 ## References

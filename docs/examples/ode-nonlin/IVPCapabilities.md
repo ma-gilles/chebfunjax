@@ -76,7 +76,6 @@ u =
 [      44,      47]      242       1.4     -1.9
 [      47,      50]       23      -1.9     -1.3
 vertical scale =   2    Total length = 2059
-Elapsed time is 25.458930 seconds.
 ```
 
 For a phase portrait, we plot $u'$ against $u$, revealing the limit cycle of the oscillator. We also superimpose a chebop "quiver" vector field on the plot:
@@ -121,7 +120,7 @@ cheboppref.setDefaults('factory');
 ```
 
 ```text
-
+Elapsed time is 25.458930 seconds.
 ```
 
 ![IVPCapabilities figure 04](../../images/ode-nonlin/IVPCapabilities_04.png)

@@ -39,10 +39,7 @@ f
 ```
 
 ```text
-dataset: (529, 1024)
-mean2(f) =
-  16.367742646508908
-f(North pole) =
+
 ```
 
 Spherefun calculated the rank of $f$ as 185. Since the dataset is of size 529x1024, this shows that the low rank representation is achieving some useful compression of the original dataset, although the results are not as dramatic as one often sees for smooth functions (see [2] for more detailed discussions).
@@ -62,8 +59,7 @@ mean2( f )
 ```
 
 ```text
-dataset: (529, 1024)
-mean2(f) =
+
 ```
 
 What is the temperature at the North and South poles?
@@ -74,10 +70,7 @@ f( 0, 0, -1) % South pole
 ```
 
 ```text
-dataset: (529, 1024)
-mean2(f) =
-  16.367742646508908
-f(North pole) =
+
 ```
 
 This confirms that the atmospheric temperature data was taken during summer in the Northern hemisphere.

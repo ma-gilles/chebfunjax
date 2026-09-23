@@ -71,10 +71,6 @@ f = chebfun(@(x) 0.5*(1+sign(x)),dom,'trig')
 plot(f);
 ```
 
-```text
-(no matching output)
-```
-
 ![FourierBasedChebfuns figure 03](../../images/fourier/FourierBasedChebfuns_03.png)
 
 The length of $f$ is 65536, which is the maximum number of samples used in the construction process to try to resolve $f$. The famous Gibbs phenomenon can be seen near the discontinuity in the plot of $f$. Chebfun can be used to represent this function in non-periodic mode (i.e. using Chebyshev series) with the option of `splitting on`:

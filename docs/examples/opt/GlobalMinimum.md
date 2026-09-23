@@ -32,9 +32,6 @@ fprintf('Rank of function = %u\n', rank(g))
 
 ```text
 Rank of function = 4
-Computed global minimum = -3.3068686474752411
-Error in Chebfun2 minimum = 3.9968e-15
-Total time taken = 0.5755s
 ```
 
 For details about what we mean by the rank of a function see [3]. The minimum was found in [2] to 10,000 digits, and here are the first 16:
@@ -51,7 +48,8 @@ fprintf('Error in Chebfun2 minimum = %1.4e\n', abs(Y(1) -exact))
 ```
 
 ```text
-
+Computed global minimum = -3.3068686474752411
+Error in Chebfun2 minimum = 3.9968e-15
 ```
 
 Here is the full four-line code and how long it takes:
@@ -68,7 +66,7 @@ fprintf('Total time taken = %1.4fs\n',t)
 ```
 
 ```text
-
+Total time taken = 0.5755s
 ```
 
 Here is the plot of the minimum in a contour plot:

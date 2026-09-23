@@ -136,7 +136,6 @@ err
 ```text
 err =
    0.001789066754500
-Elapsed time is 5.436847 seconds.
 ```
 
 Spectacular agreement -- ten digits!
@@ -158,7 +157,7 @@ toc
 ```
 
 ```text
-
+Elapsed time is 5.436847 seconds.
 ```
 
 ## References

@@ -71,7 +71,6 @@ ans =
    2.872468147080940
    4.280542705507592
    5.347712926548818
-Elapsed time is 145.436624 seconds.
 ```
 
 Computations with `roots` in Chebfun2 are delicate, and the number of components does not always come out right, nor are the curves always accurate. Here we seem to be doing well, though. We repeat the computation with $k=16$:
@@ -103,7 +102,7 @@ toc
 ```
 
 ```text
-
+Elapsed time is 145.436624 seconds.
 ```
 
 ---

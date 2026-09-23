@@ -139,8 +139,6 @@ norm(E3 - E2{dom(1), dom(2)})
 ```text
 ans =
      3.690050171291331e-15
-Elapsed time is 0.244340 seconds.
-sum h = 0.999999999999999
 ```
 
 ## Exotic distributions
@@ -181,7 +179,8 @@ hold on, plot(h, 'k', LW, 1.6), hold off
 ```
 
 ```text
-
+Elapsed time is 0.244340 seconds.
+sum h = 0.999999999999999
 ```
 
 ![ProbabilityConvolution figure 05](../../images/stats/ProbabilityConvolution_05.png)

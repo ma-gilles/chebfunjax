@@ -39,7 +39,6 @@ ans =
    1.499999999999849
    1.699999999999751
    1.899999999999858
-Elapsed time is 82.138344 seconds.
 ```
 
 ![Eigenstates figure 01](../../images/ode-eig/Eigenstates_01.png)
@@ -180,7 +179,7 @@ toc
 ```
 
 ```text
-ans =
+Elapsed time is 82.138344 seconds.
 ```
 
 One can learn about the physics of these quantum mechanical problems in innumerable books and other sources. One reference we have consulted is the textbook by Robinett [1]. See also chapter 6 of [2].

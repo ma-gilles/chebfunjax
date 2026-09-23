@@ -82,7 +82,6 @@ fprintf(ss,[real(zeros_s) imag(zeros_s) ...
  0.4999999991 + 37.5861781589i    0.5000000000 + 32.9350615877i
  0.4999999992 + 40.9187190133i    0.5000000000 + 37.5861781588i
  0.4999999981 + 43.3270732793i    0.5000000000 + 40.9187190121i
-Elapsed time is 12.777713 seconds.
 ```
 
 Here is a plot of the real and imaginary parts along the critical line. The black dots at their intersections are the computed zeros.
@@ -107,7 +106,7 @@ toc
 ```
 
 ```text
-
+Elapsed time is 12.777713 seconds.
 ```
 
 Reference:

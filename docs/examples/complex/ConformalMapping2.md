@@ -34,9 +34,9 @@ rho
 ```
 
 ```text
-Elapsed time is 0.620762 seconds.
+Elapsed time is 3.447691 seconds.
 rho =
-   0.409705344072606
+   0.409705344001634
 ```
 
 ![ConformalMapping2 figure 02](../../images/complex/ConformalMapping2_02.png)
@@ -52,13 +52,6 @@ finv(f(z))
 ans =
   1.000000000000033 + 0.000000000000001i
   -0.000000000000004 + 1.000000000000002i
-Elapsed time is 0.203315 seconds.
-Elapsed time is 1.171481 seconds.
-rho =
-   0.515907564248333
-Elapsed time is 0.271928 seconds.
-rho =
-   0.506114112299069
 ```
 
 These rational representations are fantastically efficient. We can map a million points back and forth in 1 second.
@@ -69,7 +62,7 @@ tic, finv(f(z)); toc
 ```
 
 ```text
-
+Elapsed time is 0.203315 seconds.
 ```
 
 Here is a wigglier example.
@@ -83,7 +76,9 @@ rho
 ```
 
 ```text
-
+Elapsed time is 1.171481 seconds.
+rho =
+   0.515907564248333
 ```
 
 ![ConformalMapping2 figure 03](../../images/complex/ConformalMapping2_03.png)
@@ -98,7 +93,9 @@ rho
 ```
 
 ```text
-
+Elapsed time is 0.271928 seconds.
+rho =
+   0.506114112299069
 ```
 
 ![ConformalMapping2 figure 04](../../images/complex/ConformalMapping2_04.png)

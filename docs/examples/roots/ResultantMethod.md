@@ -85,7 +85,7 @@ axis([-1,1,-1,1]), axis equal, hold off
 ```
 
 ```text
-Elapsed time is 3.492090 seconds.
+Elapsed time is 4.204110 seconds.
 ```
 
 ![ResultantMethod figure 03](../../images/roots/ResultantMethod_03.png)
@@ -99,7 +99,6 @@ max( norm(f(r(:,1),r(:,2))), norm(g(r(:,1),r(:,2))))
 ```text
 ans =
      4.867772626288999e-15
-Elapsed time is 5.473028 seconds.
 ```
 
 For this example the exact solutions can be derived and the computed solutions checked to be very accurate.
@@ -121,7 +120,7 @@ axis(rect), axis equal, hold off
 ```
 
 ```text
-(no matching output)
+Elapsed time is 5.473028 seconds.
 ```
 
 ![ResultantMethod figure 04](../../images/roots/ResultantMethod_04.png)

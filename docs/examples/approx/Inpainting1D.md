@@ -28,10 +28,6 @@ p1 = polyfitL1(corrupted,n);
 plot(p1), grid on, title('L1 fit')
 ```
 
-```text
-(no matching output)
-```
-
 ![Inpainting1D figure 02](../../images/approx/Inpainting1D_02.png)
 
 The error is very small and would in principle be zero if we used a polynomial of the same degree as the function being recovered:
@@ -79,7 +75,6 @@ errinf = norm(pinf-smooth,inf)
 ```text
 errinf =
    0.629201401459400
-Elapsed time is 21.163293 seconds.
 ```
 
 ![Inpainting1D figure 05](../../images/approx/Inpainting1D_05.png)
@@ -93,7 +88,7 @@ toc
 ```
 
 ```text
-
+Elapsed time is 21.163293 seconds.
 ```
 
 (Virtually all the time was taken by `polyfitL1`; in comparison `polyfit` and `minimax` are almost instantaneous.) This is partly because $L^1$ fitting is challenging, but equally because Chebfun's `polyfitL1` command avoids the tool that could speed it up considerably, namely linear programming. This is because linear programming is not available in core Matlab.

@@ -59,7 +59,7 @@ compute_tau(f, 2)          % Expected to be approximately 1/sqrt(2) = 0.707
 ```
 
 ```text
-Tau = 0.52129
+Tau = 0.70711
 ```
 
 The average $\tau$ parameter can be explained since all the oscillations of $f$ occur along diagonals, i.e., $y=-x$ (rather than in the coordinate directions). Two subdivisions, one in the $x$ and one in the $y$ direction are required to halve the length of the diagonal lines and hence, $\tau^2 \approx 1/2$ and $\tau = 1/\sqrt{2}$.

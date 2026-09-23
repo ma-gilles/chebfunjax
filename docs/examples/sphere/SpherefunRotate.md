@@ -116,7 +116,6 @@ norm(h - g)
 ```text
 ans =
      2.112993924947252e-14
-NUFFT speed-up factor = 16.7
 ```
 
 ## An alternative rotate algorithm based on the 2D NUFFT
@@ -146,7 +145,7 @@ plot( h ), title('Rotated random function',FS,fs), axis off
 ```
 
 ```text
-(no matching output)
+NUFFT speed-up factor = 16.7
 ```
 
 ![SpherefunRotate figure 06](../../images/sphere/SpherefunRotate_06.png)

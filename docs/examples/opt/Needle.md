@@ -107,7 +107,9 @@ title(['min value on grid: ' num2str(min(min(yy)))],FS,14), toc
 ```
 
 ```text
-Elapsed time is 0.175286 seconds.
+Elapsed time is 0.040735 seconds.
+yval =
+   0.076897720345079
 ```
 
 ![Needle figure 04](../../images/opt/Needle_04.png)

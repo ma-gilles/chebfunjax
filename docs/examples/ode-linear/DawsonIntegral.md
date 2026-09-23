@@ -74,7 +74,6 @@ f =
 [      -5,       0]       87      -0.1 -6.6e-07
 [       0,       5]       87   6.6e-07      0.1
 vertical scale = 0.54    Total length = 174
-Elapsed time is 0.042971 seconds.
 ```
 
 ![DawsonIntegral figure 02](../../images/ode-linear/DawsonIntegral_02.png)
@@ -99,7 +98,7 @@ toc
 ```
 
 ```text
-
+Elapsed time is 0.042971 seconds.
 ```
 
 If you have the Symbolic Toolbox...

@@ -26,8 +26,6 @@ A =
        11      1     25    -10     -1      1   -200
       200      0      0   -150   -100     -1  -1000
         1      0      0      0      0      0     -1
-Maximum energy = 358147.98785177
-Elapsed time is 51.365562 seconds.
 ```
 
 Here (adapted from [linalg/NonnormalQuiz](NonnormalQuiz.md)) is a code to compute and plot $| e^{tA} |$ as a function of $t$:
@@ -37,10 +35,6 @@ e = chebfun(@(t) norm(expm(t*A)),[0 2.5],'vectorize','splitting','on');
 LW = 'linewidth'; FS = 'fontsize'; plot(e,'b',LW,2)
 xlabel('t',FS,14), ylabel('||e^{tA}||',FS,14)
 title('amplitude',FS,16)
-```
-
-```text
-
 ```
 
 ![TransientGrowth figure 01](../../images/linalg/TransientGrowth_01.png)
@@ -63,7 +57,7 @@ fprintf('Maximum energy = %15.8f\n',max(e2))
 ```
 
 ```text
-
+Maximum energy = 358147.98785177
 ```
 
 Here's the time for this Example:
@@ -73,7 +67,7 @@ toc
 ```
 
 ```text
-
+Elapsed time is 51.365562 seconds.
 ```
 
 ## References

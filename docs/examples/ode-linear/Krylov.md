@@ -58,10 +58,6 @@ norm( A - A' ,'fro')
 ```text
 ans =
      2.090942398256433e+07
-Elapsed time is 457.756860 seconds.
-Elapsed time is 188.483059 seconds.
-cg-vs-colloc =
-     5.228e-06
 ```
 
 As a consequence, CG cannot be employed to solve the resulting linear system and less efficient Krylov subspace methods such as GMRES must be employed instead. Alternatively, other spectral discretizations that are structure preserving could be used, such as the Legendre-Galerkin spectral method [1].
@@ -88,7 +84,10 @@ tic, u_cg = pcg(L, f); toc
 ```
 
 ```text
-(no matching output)
+Elapsed time is 457.756860 seconds.
+Elapsed time is 188.483059 seconds.
+cg-vs-colloc =
+     5.228e-06
 ```
 
 ## Operator CG for self-adjoint differential operators with +ve eigenvalues
@@ -228,10 +227,6 @@ f = chebfun( 1 );
 [u_minres, flag, relres, iter] = pcg(L, f, 1e-13, 1000)
 u_colloc = L \ f;
 error = norm( u_minres - u_colloc )
-```
-
-```text
-(no matching output)
 ```
 
 ## Piecewise smooth solutions

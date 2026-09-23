@@ -20,10 +20,6 @@ If you try to make a chebfun of `ff`, there is no convergence:
 f = chebfun(ff);
 ```
 
-```text
-(no matching output)
-```
-
 However, since we know the scale of the noise, it is easy enough to get the right effect by adjusting the Chebfun `eps` parameter:
 
 ```matlab

@@ -141,10 +141,6 @@ ezplot(@(x) abs(x)-r(x),[-1,1]), grid on
 ylim(5e-14*[-1 1]), xlabel(' ')
 ```
 
-```text
-(no matching output)
-```
-
 ![AAAApprox figure 06](../../images/approx/AAAApprox_06.png)
 
 ## 4. Approximation in the complex plane

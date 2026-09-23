@@ -63,10 +63,6 @@ end
 B = logm(PhiT)/T;
 ```
 
-```text
-(no matching output)
-```
-
 This warning reveals something genuine and interesting. Over on period, one or more eigenvalues of the fundamental matrix at the end of the period $\Phi(T)$ may become negative. Therefore, the matrix logarithm returns complex results. One could avoid the complex arithmetic by solving over two periods [2], which is not explored here.
 
 The Floquet exponents are given by the eigenvalues of the matrix B:

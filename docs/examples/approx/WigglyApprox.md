@@ -56,7 +56,8 @@ grid on, title('closeup',FS,fs), xlim([.995 1]), toc
 ```
 
 ```text
-Elapsed time is 2.564895 seconds.
+Elapsed time is 5.158438 seconds.
+err1 = 7.326695, err2 = 13.690370
 ```
 
 ![WigglyApprox figure 02](../../images/approx/WigglyApprox_02.png)

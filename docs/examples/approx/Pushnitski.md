@@ -63,12 +63,6 @@ end
 toc
 ```
 
-```text
-Elapsed time is 9.330206 seconds.
-Elapsed time is 4.141269 seconds.
-Elapsed time is 26.005137 seconds.
-```
-
 ![Pushnitski figure 04](../../images/approx/Pushnitski_04.png)
 
 What about CF (=AAK) approximation, which as it happens is the method used by Pushnitsky for his proofs? It gets in the ballpark:
@@ -84,7 +78,8 @@ toc
 ```
 
 ```text
-Elapsed time is 9.330206 seconds.
+Elapsed time is 4.141269 seconds.
+Elapsed time is 26.005137 seconds.
 ```
 
 ![Pushnitski figure 05](../../images/approx/Pushnitski_05.png)

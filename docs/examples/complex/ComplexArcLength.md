@@ -50,7 +50,6 @@ L = arcLength(z)
 ```text
 L =
    9.634012138198035
-Elapsed time is 53.411926 seconds.
 ```
 
 ## 2. Equidistributing points along a contour
@@ -72,7 +71,7 @@ L = arcLength(s)
 ```
 
 ```text
-
+(no matching output)
 ```
 
 Suppose, for example, that we want to equidistribute 64 points.
@@ -95,7 +94,7 @@ toc
 ```
 
 ```text
-
+Elapsed time is 53.411926 seconds.
 ```
 
 Now that we have the coordinates of the points, and let's mark them on the curve.

@@ -20,7 +20,6 @@ f =
        domain                 rank       corner values
 [  -5,   5] x [  -5,   5]        3     [ 1.1  1.1 -1.7 -1.7]
 vertical scale =   6
-Elapsed time is 41.323542 seconds.
 ```
 
 The `roots` command finds the elegant zero set.
@@ -34,7 +33,7 @@ toc
 ```
 
 ```text
-(no matching output)
+Elapsed time is 41.323542 seconds.
 ```
 
 ![Tucker figure 01](../../images/approx2/Tucker_01.png)
@@ -70,7 +69,6 @@ length(c)
 ```text
 ans =
         16133
-Elapsed time is 0.109241 seconds.
 ```
 
 Though Chebfun2 roots can sometimes get outstanding accuracy, that has not happened in this case. To get an idea of the accuracy, suppose we find the 79 points corresponding to these curves at the arbitrary sample point $s=0.5$ and then evaluate $f$ at these 79 points. In principle the result should be a vector of 79 numbers close to machine epsilon, give or take a few powers of 10 since $f$ has large derivatives, but in fact, many of the numbers are much bigger than that:
@@ -95,7 +93,7 @@ toc
 ```
 
 ```text
-
+Elapsed time is 0.109241 seconds.
 ```
 
 ![Tucker figure 03](../../images/approx2/Tucker_03.png)

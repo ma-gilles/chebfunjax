@@ -96,10 +96,6 @@ For working with noisy data, and also for computations in two and especially thr
 f = chebfun('exp(x) + 1e-8*cos(99999*x)')
 ```
 
-```text
-(no matching output)
-```
-
 With a looser tolerance it has no trouble:
 
 ```matlab

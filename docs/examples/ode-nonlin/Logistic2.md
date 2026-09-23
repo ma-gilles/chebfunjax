@@ -103,7 +103,6 @@ ans =
    0.874997263532759
 ans =
    0.826940706746708
-Elapsed time is 24.649926 seconds.
 ```
 
 Time for this example:
@@ -113,7 +112,7 @@ toc
 ```
 
 ```text
-
+Elapsed time is 24.649926 seconds.
 ```
 
 ## Reference
