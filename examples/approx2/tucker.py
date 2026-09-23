@@ -40,19 +40,8 @@ def run():
     warnings.filterwarnings("ignore")
 
     f = Chebfun2.from_function(ff, domain=(-5, 5, -5, 5))
-    xa, xb, ya, yb = f.domain
-    cv = [float(f(np.array([x]), np.array([y]))[0])
-          for (x, y) in [(xa, ya), (xb, ya), (xa, yb), (xb, yb)]]
-    g = np.linspace(-5, 5, 201)
-    X, Y = np.meshgrid(g, g)
-    vs = float(np.max(np.abs(np.asarray(f(X, Y)))))
     print("f =")
-    print("   chebfun2 object")
-    print("       domain                 rank       corner values")
-    print(f"[{xa:4.0f},{xb:4.0f}] x [{ya:4.0f},{yb:4.0f}]"
-          f"     {int(f.rank):4d}     "
-          f"[{cv[0]:.2g} {cv[1]:.2g} {cv[2]:.2g} {cv[3]:.2g}]")
-    print(f"vertical scale = {vs:.2g}")
+    print(f.disp())
 
     t0 = time.time()
     c = f.roots()

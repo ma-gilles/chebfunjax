@@ -1,6 +1,6 @@
 """Constrained optimization.
 
-Faithful replica of opt/ConstrainedOptimization.m by Alex Townsend
+Translation of opt/ConstrainedOptimization.m by Alex Townsend
 (March 2013): maximizing objectives subject to set constraints via
 indicator functions, and a 2D objective on a heart-shaped region via
 gradient critical points plus boundary maximization.
@@ -24,6 +24,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -32,14 +33,14 @@ _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'opt')
 FIG = [0]
 
 
-def _save(fig):
+def _save(fig, close=True):
     FIG[0] += 1
     fig.set_facecolor("white")
     fig.tight_layout()
-    fig.savefig(os.path.join(
-        _IMG, f"ConstrainedOptimization_repl_{FIG[0]:02d}.png"),
-        dpi=150, bbox_inches="tight")
-    plt.close(fig)
+    _savefig(fig, os.path.join(
+        _IMG, f"ConstrainedOptimization_{FIG[0]:02d}.png"))
+    if close:
+        plt.close(fig)
 
 
 def run():
@@ -117,12 +118,24 @@ def run():
     F = cj.chebfun2(lambda x, y: jnp.cos((x - 0.1) * y)**2
                     + x * jnp.sin(3 * x + y),
                     domain=(-3, 3, -3, 3))
+    xs = np.linspace(-3, 3, 200)
+    X, Y = np.meshgrid(xs, xs)
+    Z = np.asarray(F(jnp.asarray(X), jnp.asarray(Y)))
+    fig, ax = plt.subplots(figsize=(7.8, 7.0))
+    ax.contour(X, Y, Z, 10, linewidths=1.6)
+    ax.plot(cx, cy, 'k-', lw=1.6)
+    ax.set_aspect("equal")
+    ax.axis([-3, 3, -3, 3])
+    _save(fig, close=False)
+
+    # critical points (roots of the gradient) inside the heart
     Fx = F.diff(dim=2)
     Fy = F.diff(dim=1)
     r = np.atleast_2d(np.asarray(Fx.roots(Fy, method="ms")))
     path = Path(np.column_stack([cx, cy]))
     inside = path.contains_points(r)
     r = r[inside]
+    ax.plot(r[:, 0], r[:, 1], '.k', ms=14)
     vals_in = np.asarray(F(jnp.asarray(r[:, 0]),
                            jnp.asarray(r[:, 1])))
     max_inside = float(np.max(vals_in))
@@ -131,23 +144,13 @@ def run():
     max_overall = max(max_inside, max_boundary)
     print("max_overall =")
     print(f"   {max_overall:.15f}")
+    _save(fig, close=False)
 
-    xs = np.linspace(-3, 3, 200)
-    X, Y = np.meshgrid(xs, xs)
-    Z = np.asarray(F(jnp.asarray(X), jnp.asarray(Y)))
-    fig, ax = plt.subplots(figsize=(7.8, 7.0))
-    cs = ax.contour(X, Y, Z, 20)
-    fig.colorbar(cs, ax=ax)
-    ax.plot(cx, cy, 'k-', lw=1.6)
-    ax.plot(r[:, 0], r[:, 1], '.k', ms=10)
     k = int(np.argmax(vals_in))
-    ax.plot(r[k, 0], r[k, 1], 'r.', ms=20)
-    ax.set_aspect("equal")
-    ax.axis([-3, 3, -3, 3])
+    ax.plot(r[k, 0], r[k, 1], 'r.', ms=26)
     ax.set_title(f"Overall maximum = {max_overall:1.3f}",
                  fontsize=13)
     _save(fig)
-
 
 if __name__ == "__main__":
     run()

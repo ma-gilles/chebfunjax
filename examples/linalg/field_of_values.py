@@ -1,6 +1,6 @@
 """Field of values.
 
-Faithful replica of linalg/FieldOfValues.m by Nick Trefethen
+Translation of linalg/FieldOfValues.m by Nick Trefethen
 (November 2010): the field of values (numerical range) of a matrix as
 a chebfun of the boundary parametrized by angle, computed by
 Johnson's algorithm; the numerical abscissa; and the polygonal /
@@ -27,6 +27,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -54,14 +55,14 @@ def _fov_chebfun(A, splitting=False):
     return f.merge() if splitting else f
 
 
-def _save(fig):
+def _save(fig, close=True):
     FIG[0] += 1
     fig.set_facecolor("white")
     fig.tight_layout()
-    fig.savefig(os.path.join(
-        _IMG, f"FieldOfValues_repl_{FIG[0]:02d}.png"),
-        dpi=150, bbox_inches="tight")
-    plt.close(fig)
+    _savefig(fig, os.path.join(
+        _IMG, f"FieldOfValues_{FIG[0]:02d}.png"))
+    if close:
+        plt.close(fig)
 
 
 def _plot_fov(F, eigs, axis_lim=None):
@@ -71,11 +72,18 @@ def _plot_fov(F, eigs, axis_lim=None):
         t = np.linspace(a, b, 300)
         v = np.asarray(F(t))
         ax.plot(v.real, v.imag, 'b', lw=1.6)
+    # 'jumpline' {'b'}: join the one-sided values at each interior break
+    for bp in bps[1:-1]:
+        zl = complex(np.asarray(F(bp, 'left')))
+        zr = complex(np.asarray(F(bp, 'right')))
+        ax.plot([zl.real, zr.real], [zl.imag, zr.imag], 'b', lw=1.6)
     ax.plot(eigs.real, eigs.imag, '.k', ms=12)
     ax.set_aspect("equal")
     ax.grid(True)
     if axis_lim:
         ax.axis(axis_lim)
+    else:
+        ax.margins(0.1)  # axis(1.1*ax)
     return fig, ax
 
 
@@ -87,6 +95,7 @@ def run():
     FA = _fov_chebfun(A)
     eigsA = np.linalg.eigvals(A)
     fig, ax = _plot_fov(FA, eigsA)
+    _save(fig, close=False)
 
     reF = FA.real()
     maxtheta, alpha = reF.max()

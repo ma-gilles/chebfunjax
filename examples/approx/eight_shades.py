@@ -85,7 +85,7 @@ def run():
 
     cferr = float(np.max(np.abs(np.asarray(p3(jnp.asarray(XS))) - p4v)))
     print("CFerror =")
-    print(f"   {cferr:.4e}")
+    print(f"     {cferr:.15e}")
 
     # 2. Trigonometric approximations
     fig, axes = plt.subplots(2, 2, figsize=(9.6, 6.0))

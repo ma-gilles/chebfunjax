@@ -1,6 +1,6 @@
 """The resultant method for bivariate rootfinding.
 
-Faithful replica of roots/ResultantMethod.m by Alex Townsend
+Translation of roots/ResultantMethod.m by Alex Townsend
 (March 2013): common zeros of chebfun2 pairs via the hidden-variable
 Bezout resultant method of Nakatsukasa, Noferini & Townsend,
 including a degenerate case where marching squares fails and the
@@ -24,6 +24,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -56,9 +57,8 @@ def _plot_case(f, g, r, axis_lim=None, title=None):
         ax.set_title(title, fontsize=13)
     fig.set_facecolor("white")
     fig.tight_layout()
-    fig.savefig(os.path.join(
-        _IMG, f"ResultantMethod_repl_{FIG[0]:02d}.png"),
-        dpi=150, bbox_inches="tight")
+    _savefig(fig, os.path.join(
+        _IMG, f"ResultantMethod_{FIG[0]:02d}.png"))
     plt.close(fig)
 
 
@@ -67,15 +67,22 @@ def run():
 
     f = cj.chebfun2(lambda x, y: jnp.cos(7 * x**2 * y + y))
     g = cj.chebfun2(lambda x, y: jnp.cos(7 * x * y))
-    t0 = time.time()
     r = np.atleast_2d(np.asarray(f.roots(g, method="resultant")))
-    print(f"Elapsed time is {time.time()-t0:.6f} seconds.")
     _plot_case(f, g, r)
-    print(f"[{len(r)} common zeros]")
 
     w = 10
     f = cj.chebfun2(lambda x, y: jnp.sin(w * x - y / w) + y)
     g = cj.chebfun2(lambda x, y: jnp.cos(w * y - x / w) - x)
+    t0 = time.time()
+    r = np.atleast_2d(np.asarray(f.roots(g, method="resultant")))
+    print(f"Elapsed time is {time.time()-t0:.6f} seconds.")
+    _plot_case(f, g, r, axis_lim=[-1, 1, -1, 1])
+
+    # products of Chebyshev polynomials: many common zeros
+    f = cj.chebfun2(lambda x, y: jnp.cos(7 * jnp.arccos(x))
+                    * jnp.cos(7 * jnp.arccos(y)) * jnp.cos(x * y))
+    g = cj.chebfun2(lambda x, y: jnp.cos(10 * jnp.arccos(x))
+                    * jnp.cos(10 * jnp.arccos(y)) * jnp.cos(x**2 * y))
     t0 = time.time()
     r = np.atleast_2d(np.asarray(f.roots(g, method="resultant")))
     print(f"Elapsed time is {time.time()-t0:.6f} seconds.")
@@ -109,16 +116,13 @@ def run():
     else:
         r_ms = np.atleast_2d(r_ms)
         for row in r_ms:
-            print(f"   {row[0]:.6f} {row[1]:.6f}")
-    _plot_case(f, g, np.atleast_2d(r_ms) if r_ms.size else None,
-               axis_lim=list(d),
-               title="Nearly parallel curves (MATLAB's marching squares misses these)")
+            print(f"   {row[0]:.4f}   {row[1]:.4f}")
+    _plot_case(f, g, None, axis_lim=list(d),
+               title="Marching Squares misses a solution")
 
     r = np.atleast_2d(np.asarray(f.roots(g, method="resultant")))
     _plot_case(f, g, r, axis_lim=list(d),
-               title="Resultant method confirms both solutions")
-    print(f"[resultant finds {len(r)} solutions]")
-
+               title="Resultant method finds the solution")
 
 if __name__ == "__main__":
     run()

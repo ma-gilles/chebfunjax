@@ -1,6 +1,6 @@
 """The volume of a heart.
 
-Faithful replica of geom/VolumeOfHeart.m by Rodrigo Platte
+Translation of geom/VolumeOfHeart.m by Rodrigo Platte
 (February 2013): areas by Green's theorem, and volumes of surfaces
 of revolution (torus, heart) by the divergence theorem, with surface
 normals from chebfun2 partial derivatives.
@@ -23,6 +23,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -31,14 +32,14 @@ _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'geom')
 FIG = [0]
 
 
-def _save(fig):
+def _save(fig, close=True):
     FIG[0] += 1
     fig.set_facecolor("white")
     fig.tight_layout()
-    fig.savefig(os.path.join(
-        _IMG, f"VolumeOfHeart_repl_{FIG[0]:02d}.png"),
-        dpi=150, bbox_inches="tight")
-    plt.close(fig)
+    _savefig(fig, os.path.join(
+        _IMG, f"VolumeOfHeart_{FIG[0]:02d}.png"))
+    if close:
+        plt.close(fig)
 
 
 def _normal(x, y, z, sign=1.0):
@@ -50,6 +51,25 @@ def _normal(x, y, z, sign=1.0):
     ny = (zu * xv - xu * zv) * sign
     nz = (xu * yv - yu * xv) * sign
     return nx, ny, nz
+
+
+def _quiver3(ax, fx, fy, fz, fields, dom, color, numpts=20):
+    """MATLAB ``quiver3(x, y, z, F, 'numpts', n)`` for chebfun2 data.
+
+    Arrows based at the surface points ``(fx, fy, fz)`` sampled on an
+    ``numpts x numpts`` grid of the parameter domain, pointing along the
+    three chebfun2 components in *fields*, autoscaled to the grid spacing.
+    """
+    xs = np.linspace(dom[0], dom[1], numpts)
+    ys = np.linspace(dom[2], dom[3], numpts)
+    XX, YY = np.meshgrid(xs, ys)
+    P = [np.asarray(f(XX, YY)) for f in (fx, fy, fz)]
+    W = [np.asarray(f(XX, YY)) for f in fields]
+    span = max(float(np.ptp(c)) for c in P) / numpts
+    wmax = float(np.max(np.sqrt(W[0]**2 + W[1]**2 + W[2]**2)))
+    s = 0.9 * span / wmax if wmax > 0 else 1.0
+    ax.quiver(*P, *(s * w for w in W), color=color, linewidth=1.5,
+              arrow_length_ratio=0.3)
 
 
 def run():
@@ -108,7 +128,25 @@ def run():
     ax.set_box_aspect((4, 4, 1))
     _save(fig)
 
+    # normals v (black), F = [0, 0, z] (green), surface coloured by F'*v
     Fdotv = Z * nz
+    zero = 0 * Z
+    fig = plt.figure(figsize=(8.4, 6.2))
+    ax = fig.add_subplot(projection="3d")
+    _quiver3(ax, X, Y, Z, (nx, ny, nz), d2, 'k', numpts=10)
+    _quiver3(ax, X, Y, Z, (zero, zero, Z), d2, 'g', numpts=10)
+    C = np.asarray(Fdotv(U, V))
+    norm = matplotlib.colors.Normalize(C.min(), C.max())
+    ax.plot_surface(np.asarray(X(U, V)), np.asarray(Y(U, V)),
+                    np.asarray(Z(U, V)),
+                    facecolors=plt.cm.viridis(norm(C)),
+                    rstride=2, cstride=2, shade=False)
+    fig.colorbar(plt.cm.ScalarMappable(norm=norm, cmap="viridis"), ax=ax)
+    ax.view_init(elev=64, azim=-28)
+    ax.set_box_aspect((4, 4, 1))
+    ax.set_axis_off()
+    _save(fig)
+
     Vol = float(Fdotv.sum2())
     print("Vol =")
     print(f"  {Vol:.15f}")
@@ -138,6 +176,28 @@ def run():
     HY = cj.chebfun2(hy, domain=d3)
     HZ = cj.chebfun2(hz, domain=d3)
     nx, ny, nz = _normal(HX, HY, HZ, sign=-1.0)
+
+    # normals, F = [0, 0, z] and the flux integrand F'*v on the heart
+    zero = 0 * HZ
+    vv = np.linspace(0, 1, 80)
+    uu = np.linspace(0, 4 * np.pi, 160)
+    VV, UU = np.meshgrid(vv, uu)
+    fig = plt.figure(figsize=(8.0, 7.2))
+    ax = fig.add_subplot(projection="3d")
+    _quiver3(ax, HX, HY, HZ, (nx, ny, nz), d3, 'k', numpts=10)
+    _quiver3(ax, HX, HY, HZ, (zero, zero, HZ), d3, 'g', numpts=10)
+    C = np.asarray((HZ * nz)(VV, UU))
+    norm = matplotlib.colors.Normalize(C.min(), C.max())
+    ax.plot_surface(np.asarray(HX(VV, UU)), np.asarray(HY(VV, UU)),
+                    np.asarray(HZ(VV, UU)),
+                    facecolors=plt.cm.viridis(norm(C)),
+                    rstride=2, cstride=2, shade=False)
+    fig.colorbar(plt.cm.ScalarMappable(norm=norm, cmap="viridis"), ax=ax)
+    ax.view_init(elev=5, azim=-45)
+    ax.set_box_aspect((2, 1.4, 2.8))
+    ax.set_axis_off()
+    _save(fig)
+
     VolH = float((HZ * nz).sum2())
     print("Vol =")
     print(f"   {VolH:.15f}")
@@ -147,20 +207,6 @@ def run():
     VolBox = lx * ly * lz
     print("VolBox =")
     print(f"   {VolBox:.15f}")
-    print("ans =")
-    print(f"   {VolH / VolBox:.15f}")
-
-    vv = np.linspace(0, 1, 80)
-    uu = np.linspace(0, 4 * np.pi, 160)
-    VV, UU = np.meshgrid(vv, uu)
-    fig = plt.figure(figsize=(8.0, 7.2))
-    ax = fig.add_subplot(projection="3d")
-    ax.plot_surface(np.asarray(HX(VV, UU)), np.asarray(HY(VV, UU)),
-                    np.asarray(HZ(VV, UU)), color='r',
-                    rstride=2, cstride=2)
-    ax.view_init(elev=5, azim=-45)
-    ax.set_axis_off()
-    _save(fig)
 
     # a seashell surface
     d4 = (0.0, 6 * np.pi, 0.0, 2 * np.pi)
@@ -173,6 +219,25 @@ def run():
     SZ = cj.chebfun2(
         lambda u, v: 1 - jnp.exp(u / (3 * jnp.pi)) - jnp.sin(v)
         + jnp.exp(u / (6 * jnp.pi)) * jnp.sin(v), domain=d4)
+
+    uu2 = np.linspace(0, 6 * np.pi, 240)
+    vv2 = np.linspace(0, 2 * np.pi, 100)
+    UU2, VV2 = np.meshgrid(uu2, vv2)
+    fig = plt.figure(figsize=(8.4, 6.6))
+    ax = fig.add_subplot(projection="3d")
+    ax.plot_surface(np.asarray(SX(UU2, VV2)),
+                    np.asarray(SY(UU2, VV2)),
+                    np.asarray(SZ(UU2, VV2)), cmap="viridis",
+                    rstride=2, cstride=2)
+    ax.view_init(elev=10, azim=160)
+    ax.set_box_aspect((1, 1, 1))
+    _save(fig, close=False)
+
+    # hold on: F = [0, 0, z] is parallel to the open part of the shell
+    zero = 0 * SZ
+    _quiver3(ax, SX, SY, SZ, (zero, zero, SZ), d4, 'g')
+    _save(fig)
+
     nx, ny, nz = _normal(SX, SY, SZ, sign=-1.0)
     VolS = float((SZ * nz).sum2())
     print("Vol =")
@@ -188,19 +253,6 @@ def run():
     print(f"     {VolBoxS:.15e}")
     print("ans =")
     print(f"   {VolS / VolBoxS:.15f}")
-
-    uu2 = np.linspace(0, 6 * np.pi, 240)
-    vv2 = np.linspace(0, 2 * np.pi, 100)
-    UU2, VV2 = np.meshgrid(uu2, vv2)
-    fig = plt.figure(figsize=(8.4, 6.6))
-    ax = fig.add_subplot(projection="3d")
-    ax.plot_surface(np.asarray(SX(UU2, VV2)),
-                    np.asarray(SY(UU2, VV2)),
-                    np.asarray(SZ(UU2, VV2)), cmap="viridis",
-                    rstride=2, cstride=2)
-    ax.view_init(elev=10, azim=160)
-    ax.set_box_aspect((1, 1, 1))
-    _save(fig)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 """Phase portraits and trajectories.
 
-Faithful replica of veccalc/AutonomousSystems.m by Alex Townsend,
+Translation of veccalc/AutonomousSystems.m by Alex Townsend,
 March 2013: phase portraits of the simple harmonic oscillator, the
 nonlinear pendulum, and the Duffing oscillator; trajectories are
 integrated with RK45 (MATLAB ode45 defaults) over the chebfun2v field,
@@ -25,6 +25,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 from chebfunjax.chebfun2d.chebfun2 import Chebfun2
 from chebfunjax.chebfun2d.chebfun2v import Chebfun2v
 from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -73,8 +74,7 @@ def run():
     ax.set_title("The simple harmonic oscillator", fontsize=14)
     fig.set_facecolor("white")
     fig.tight_layout()
-    fig.savefig(os.path.join(_IMG, "AutonomousSystems_repl_01.png"),
-                dpi=150, bbox_inches="tight")
+    _savefig(fig, os.path.join(_IMG, "AutonomousSystems_01.png"))
     plt.close(fig)
 
     # -- Nonlinear pendulum ------------------------------------------
@@ -95,8 +95,7 @@ def run():
     ax.set_title("The eye of a nonlinear pendulum", fontsize=14)
     fig.set_facecolor("white")
     fig.tight_layout()
-    fig.savefig(os.path.join(_IMG, "AutonomousSystems_repl_02.png"),
-                dpi=150, bbox_inches="tight")
+    _savefig(fig, os.path.join(_IMG, "AutonomousSystems_02.png"))
     plt.close(fig)
 
     # -- Duffing oscillator ------------------------------------------
@@ -115,7 +114,11 @@ def run():
     _quiver(ax, F, dom)
     ax.set_aspect("equal")
     ax.set_title("The Duffing oscillator", fontsize=14)
+    fig.set_facecolor("white")
+    fig.tight_layout()
+    _savefig(fig, os.path.join(_IMG, "AutonomousSystems_03.png"))
 
+    # hold on: the critical points
     r = np.asarray(F.roots())
     order = np.argsort(r[:, 0])
     r = r[order]
@@ -123,11 +126,8 @@ def run():
     for row in r:
         print(f"  {row[0]: .15f}   {row[1]: 17.0f}"
               if row[1] == 0 else f"  {row[0]: .15f}   {row[1]: .15f}")
-    ax.plot(r[:, 0], r[:, 1], "k.", ms=14)
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    fig.savefig(os.path.join(_IMG, "AutonomousSystems_repl_03.png"),
-                dpi=150, bbox_inches="tight")
+    ax.plot(r[:, 0], r[:, 1], "k.", ms=18)
+    _savefig(fig, os.path.join(_IMG, "AutonomousSystems_04.png"))
     plt.close(fig)
     return True
 

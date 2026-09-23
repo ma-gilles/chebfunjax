@@ -2923,6 +2923,39 @@ class Chebfun2(eqx.Module):
     # Representation
     # ------------------------------------------------------------------
 
+    def disp(self) -> str:
+        """MATLAB ``disp(F)`` text of a chebfun2 (without the ``F =`` line).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun2/disp.m
+        Chebfun commit: 7574c77
+        """
+        import numpy as _np
+        xa, xb, ya, yb = (float(v) for v in self.domain)
+        tx, ty = tuple(getattr(self.approx, "techs", ("cheb", "cheb")))
+        if tx == "trig" and ty == "trig":
+            head = "   chebfun2 object  (trig)"
+        elif tx == "trig":
+            head = "   chebfun2 object  (trig in x)"
+        elif ty == "trig":
+            head = "   chebfun2 object  (trig in y)"
+        else:
+            head = "   chebfun2 object"
+        X = jnp.asarray([xa, xb, xa, xb])
+        Y = jnp.asarray([ya, ya, yb, yb])
+        vals = _np.asarray(self(X, Y)).ravel()
+        lines = [head, "       domain                 rank       corner values"]
+        if _np.iscomplexobj(vals) and _np.any(_np.imag(vals) != 0):
+            lines.append("[%4.2g,%4.2g] x [%4.2g,%4.2g]   %6i     [  complex values  ]"
+                         % (xa, xb, ya, yb, self.rank))
+        else:
+            v = _np.real(vals)
+            lines.append("[%4.2g,%4.2g] x [%4.2g,%4.2g]   %6i     [%4.2g %4.2g %4.2g %4.2g]"
+                         % (xa, xb, ya, yb, self.rank, v[0], v[1], v[2], v[3]))
+        lines.append("vertical scale = %3.2g " % float(self.vscale()))
+        return "\n".join(lines)
+
     def __repr__(self) -> str:
         """Compact display like MATLAB Chebfun2.
 

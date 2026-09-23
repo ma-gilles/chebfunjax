@@ -1,6 +1,6 @@
 """The analytic SVD.
 
-Faithful replica of linalg/AnalyticSVD.m by Yuji Nakatsukasa and
+Translation of linalg/AnalyticSVD.m by Yuji Nakatsukasa and
 Vanni Noferini (May 2016): the singular values of the matrix family
 A t + B(1-t) as functions of t.  Sorted singular values have kinks
 where branches cross; flipping signs across the crossings recovers
@@ -29,6 +29,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -42,9 +43,8 @@ def _save(fig):
     FIG[0] += 1
     fig.set_facecolor("white")
     fig.tight_layout()
-    fig.savefig(os.path.join(
-        _IMG, f"AnalyticSVD_repl_{FIG[0]:02d}.png"),
-        dpi=150, bbox_inches="tight")
+    _savefig(fig, os.path.join(
+        _IMG, f"AnalyticSVD_{FIG[0]:02d}.png"))
     plt.close(fig)
 
 
@@ -84,60 +84,112 @@ def run():
                  fontsize=12)
     _save(fig)
 
-    # analytic SVD via dense-grid continuation: track each branch
-    # smoothly through the crossings, flipping signs (the numpy
-    # realization of the example's chebfun sign-surgery)
-    m = 4001
-    ts = np.linspace(-1, 1, m)
-    S = np.empty((m, N))
-    U = np.empty((m, N))
-    V = np.empty((m, N))
-    prevU = None
-    prevV = None
-    for i, t in enumerate(ts):
-        Ui, si, Vti = np.linalg.svd(AA(t))
-        Vi = Vti.T
-        si = si.copy()
-        if prevU is not None:
-            # match branches to the previous step by maximal overlap
-            overlap = np.abs(prevU.T @ Ui)
-            perm = np.full(N, -1)
-            used = set()
-            for r in range(N):
-                order = np.argsort(-overlap[r])
-                for c in order:
-                    if c not in used:
-                        perm[r] = c
-                        used.add(c)
-                        break
-            Ui, Vi, si = Ui[:, perm], Vi[:, perm], si[perm]
-            # sign continuity: (u,v,s) -> (su*u, sv*v, su*sv*s)
-            # preserves A = sum s u v'
-            sgn_u = np.sign(np.sum(prevU * Ui, axis=0))
-            sgn_u[sgn_u == 0] = 1.0
-            sgn_v = np.sign(np.sum(prevV * Vi, axis=0))
-            sgn_v[sgn_v == 0] = 1.0
-            Ui = Ui * sgn_u
-            Vi = Vi * sgn_v
-            si = si * sgn_u * sgn_v
-        prevU, prevV = Ui, Vi
-        S[i] = si
-        U[i] = Ui[0]
-        V[i] = Vi[0]
-    fig, axes = plt.subplots(1, 3, figsize=(12.6, 4.4))
-    for k in range(N):
-        axes[0].plot(ts, S[:, k], lw=2)
-        axes[1].plot(ts, U[:, k], lw=2)
-        axes[2].plot(ts, V[:, k], lw=2)
-    axes[0].set_title("singular values")
-    axes[1].set_title("U")
-    axes[2].set_title("V")
+    def uvsvd(t, i, j, pos):
+        """(i, j) element of U (pos=1), S (pos=2) or V (pos=3) of AA(t)."""
+        tt = np.asarray(t, dtype=float)
+        ta = np.atleast_1d(tt).ravel()
+        Us, ss, Vts = np.linalg.svd(A[None] * ta[:, None, None]
+                                    + B[None] * (1 - ta)[:, None, None])
+        if pos == 1:
+            y = Us[:, i, j]
+        elif pos == 2:
+            y = ss[:, i]
+        else:
+            y = Vts[:, j, i]
+        return jnp.asarray(y.reshape(tt.shape))
+
+    def split(fun):
+        return cj.chebfun(fun, splitting=True)
+
+    def breaks(f):
+        return np.array([float(v) for v in f.domain.breakpoints][1:-1])
+
+    def flip(f, b):
+        return split(lambda t: f(t) * jnp.sign(b - t))
+
+    def plot_usv(sspos, uupos, vvpos):
+        fig, axes = plt.subplots(1, 3, figsize=(6.0, 2.7))
+        xs = np.linspace(-1, 1, 2001)
+        for pos in range(N):
+            for ax, f in zip(axes, (sspos[pos], uupos[pos], vvpos[pos])):
+                ax.plot(xs, np.asarray(f(xs)), lw=2)
+        for ax, ttl in zip(axes, ("singular values", "U", "V")):
+            ax.set_title(ttl)
+        axes[0].grid(True)
+        return fig, axes
+
+    # first entries of U and V and the singular values, as piecewise
+    # chebfuns: LAPACK's sign choices introduce jumps
+    uupos, sspos, vvpos = [], [], []
+    for pos in range(N):
+        uupos.append(split(lambda t, _p=pos: uvsvd(t, 0, _p, 1)))
+        sspos.append(split(lambda t, _p=pos: uvsvd(t, _p, _p, 2)))
+        vvpos.append(split(lambda t, _p=pos: uvsvd(t, 0, _p, 3)))
+    fig, _ = plot_usv(sspos, uupos, vvpos)
+    _save(fig)
+
+    # flip the sign of sigma past each kink, and with it U or V
+    for pos in range(N):
+        uu, vv, ss = uupos[pos], vvpos[pos], sspos[pos]
+        endsss = breaks(ss)
+        ssp = ss.diff()
+        sdisc = np.array([], dtype=int)
+        if endsss.size:
+            spleft = np.asarray(ssp(jnp.asarray(endsss), 'left'))
+            spright = np.asarray(ssp(jnp.asarray(endsss), 'right'))
+            sdisc = np.nonzero(np.abs(spleft - spright) > 1e-8)[0]
+        if sdisc.size:
+            uleft = np.asarray(uu(jnp.asarray(endsss[sdisc]), 'left'))
+            uright = np.asarray(uu(jnp.asarray(endsss[sdisc]), 'right'))
+            ujump = bool(np.all(np.abs(uleft - uright) > 1e-8))
+        for ii in sdisc:
+            ss = flip(ss, endsss[ii])
+            if ujump:
+                uu = flip(uu, endsss[ii])
+            else:
+                vv = flip(vv, endsss[ii])
+        uupos[pos], vvpos[pos], sspos[pos] = uu, vv, ss
+    fig, _ = plot_usv(sspos, uupos, vvpos)
+    _save(fig)
+
+    # remaining jumps in U and V are simultaneous sign flips of both
+    for pos in range(N):
+        uu, vv = uupos[pos], vvpos[pos]
+        endsuu = breaks(uu)
+        if endsuu.size:
+            uleft = np.asarray(uu(jnp.asarray(endsuu), 'left'))
+            uright = np.asarray(uu(jnp.asarray(endsuu), 'right'))
+            for ii in np.nonzero(np.abs(uleft - uright) > 1e-8)[0]:
+                uu = flip(uu, endsuu[ii])
+                vv = flip(vv, endsuu[ii])
+        uupos[pos], vvpos[pos] = uu, vv
+    fig, axes = plot_usv(sspos, uupos, vvpos)
     for ax in axes:
         ax.grid(True)
     _save(fig)
 
+    # the analytic SVD: every branch is a smooth global chebfun
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
+    eps = np.finfo(float).eps
+    for pos in (0, N - 1):
+        uu = cj.chebfun(lambda t, _f=uupos[pos]: _f(t))
+        ss = cj.chebfun(lambda t, _f=sspos[pos]: _f(t))
+        vv = cj.chebfun(lambda t, _f=vvpos[pos]: _f(t))
+        for f, c in ((uu, 'b'), (ss, 'k'), (vv, 'r')):
+            cf = np.abs(np.asarray(f.coeffs))
+            ax.semilogy(np.arange(len(cf)), cf, '.', color=c, ms=4)
+        ax.text(len(uu) + 5, eps * 10, f"$U_{{{pos + 1}1}}$", color='b',
+                fontsize=11)
+        ax.text(len(ss) + 5, eps / 10, rf"$\sigma_{pos + 1}$", color='k',
+                fontsize=11)
+        ax.text(len(vv) + 5, eps / 1e3, f"$V_{{{pos + 1}1}}$", color='r',
+                fontsize=11)
+    ax.set_xlabel("Degree of Chebyshev polynomial", fontsize=9)
+    ax.set_ylabel("Magnitude of coefficient", fontsize=9)
+    _save(fig)
+
     print("time_in_seconds =")
-    print(f"     {time.time() - t0:.9e}")
+    print(f"     {time.time() - t0:.15e}")
 
 
 if __name__ == "__main__":
