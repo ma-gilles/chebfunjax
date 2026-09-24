@@ -80,8 +80,6 @@ def run():
                 domain=(0, 1))
         for k in range(sol.y.shape[1])
     ]
-    print(f"integrated {len(tt)}/{len(t)} time steps")
-
     # Waterfall plot of the compaction front.
     xs = np.linspace(0, 1, 300)
     fig = plt.figure(figsize=(9.2, 6.4))
@@ -99,15 +97,6 @@ def run():
     _savefig(fig, os.path.join(_IMG, "CompactingColloids_01.png"), size=(600, 270))
     plt.close(fig)
 
-    # Conservation check: total particle mass is conserved.
-    m0 = float(uu[0].sum())
-    mend = float(uu[-1].sum())
-    print(f"mass at t=0:  {m0:.6f}")
-    print(f"mass at t=10: {mend:.6f}")
-    ufin = np.asarray(uu[-1](xs))
-    print(f"u(0, t=10) = {ufin[0]:.4f}  (this end of the cell empties)")
-    print(f"u(1, t=10) = {ufin[-1]:.4f}  (particles pack toward close "
-          f"packing {PHI_M})")
 
 
 if __name__ == "__main__":

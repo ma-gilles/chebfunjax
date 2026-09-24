@@ -58,7 +58,6 @@ def _pair(make, eps_pow, color, ylim=None):
         ax.grid(True)
         ax.set_title(f"Ep = {ep:5.1e}   Length ={len(u):4d}   "
                      f"Time ={el:6.3f}", fontsize=10)
-        print(f"ep={ep:.1e} len={len(u)} time={el:.1f}s", flush=True)
     _save(fig)
 
 
@@ -84,7 +83,6 @@ def run():
     t0 = time.time()
     u = N.solve(0.0)
     el = time.time() - t0
-    print(f"bessel len={len(u)} time={el:.1f}s", flush=True)
     fig, ax = plt.subplots(figsize=(9.2, 4.6))
     t = np.linspace(0, 600, 6000)
     ax.plot(t, np.asarray(u(t)), lw=1.0)

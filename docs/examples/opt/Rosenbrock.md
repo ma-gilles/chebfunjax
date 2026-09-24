@@ -56,17 +56,9 @@ format long
 
 ```text
 minf =
-    0.000000000000000e+00
+    0
 minx =
    1.000000000000000
-miny =
-   1.000000000000000
-Elapsed time is 12.895704 seconds.
-breakpoints =
-  -1.000000000000000
-  -0.635887593600216
-  0.210235767954138
-  1.000000000000000
 ```
 
 The variable `minx` represents the $x$-coordinate of the minimum. We can find the $y$ coordinate like this:
@@ -77,11 +69,9 @@ The variable `minx` represents the $x$-coordinate of the minimum. We can find th
 
 ```text
 minf =
-  -0.969232500643148
-minx =
-   0.395759633465399
+    0
 miny =
-   0.331573982967685
+   1.000000000000000
 ```
 
 Let's show the contour plot again, with the minimum point:
@@ -122,7 +112,7 @@ toc
 ```
 
 ```text
-
+Elapsed time is 7.944629 seconds.
 ```
 
 ![Rosenbrock figure 05](../../images/opt/Rosenbrock_05.png)
@@ -134,7 +124,11 @@ fminx.ends
 ```
 
 ```text
-
+ans =
+  Columns 1 through 3
+  -1.000000000000000  -0.635879980369327   0.210235767954138
+  Column 4
+   1.000000000000000
 ```
 
 We can now quickly compute the global minimum as before:
@@ -145,7 +139,14 @@ We can now quickly compute the global minimum as before:
 ```
 
 ```text
-
+minf =
+  -0.969232500643148
+minx =
+   0.395759633465399
+minf =
+  -0.969232500643147
+miny =
+   0.331573983161214
 ```
 
 And here's the plot:

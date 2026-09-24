@@ -104,9 +104,7 @@ u_mph = u/0.44704; % convert to mph for plotting
 ```
 
 ```text
-pieces = 1   len = 2048
-residual: [0,11) 4.56e+03   (11,50] 7.84e+04
-t1000 = 27.3585 s   (published figure: 27.4 s)
+
 ```
 
 Find where the solution is equal to 1000 mph.

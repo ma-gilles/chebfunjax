@@ -78,16 +78,7 @@ def run():
     N.init = chebfun(lambda t: t, domain=DOM)
     u = N.solve(0.0)
 
-    r = (cmass * u.diff() + dcmass * u - cthrust
-         + (175 / 289) * u**2 + surfacedrag)
-    xa = np.linspace(0, 10.9, 1500)
-    xb = np.linspace(11.1, 50, 1500)
-    print(f"pieces = {len(u.funs)}   len = {len(u)}")
-    print(f"residual: [0,11) {np.max(np.abs(np.asarray(r(xa)))):.2e}   "
-          f"(11,50] {np.max(np.abs(np.asarray(r(xb)))):.2e}")
-
     t1000 = float(np.asarray((u - 447.0).roots(), dtype=float)[0])
-    print(f"t1000 = {t1000:.4f} s   (published figure: 27.4 s)")
 
     tt = np.linspace(*DOM, 4000)
     u_mph = np.asarray(u(tt)) / 0.44704
@@ -110,7 +101,6 @@ def run():
     ax.set_ylabel("Distance in miles")
     ax.grid(True)
     _save(fig)
-    print(f"distance at t=50: {float(s(np.float64(50.0)))/1609:.3f} miles")
 
 
 if __name__ == "__main__":
