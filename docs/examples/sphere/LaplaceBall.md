@@ -29,7 +29,7 @@ h(1,0,0)
 
 ```text
 ans =
-  0.100371957804424
+   0.221205743932281
 ```
 
 Alternatively, you can call it with two arguments, which are interpreted as longitude and polar angles (the latter measured down from the north pole):
@@ -40,7 +40,7 @@ h(0,pi/2)
 
 ```text
 ans =
-  0.100371957804424
+   0.221205743932281
 ```
 
 The mean of $h$ is small but nonzero:
@@ -51,7 +51,7 @@ meanh = mean2(h)
 
 ```text
 meanh =
-  0.010799506002025
+   0.050760792614476
 ```
 
 ## 2. Solution with the `poisson` command
@@ -74,7 +74,9 @@ u(1,0,0)
 
 ```text
 ans =
-  0.100371957804424
+   0.221205743932281
+ans =
+   0.221205743932281
 ```
 
 Here, using spherical coordinates, we confirm that it matches the boundary data at the longitude and latitude coordinates of Oxford.
@@ -87,11 +89,9 @@ u(1, long, pi/2-lat,'spherical')
 
 ```text
 ans =
-  0.100371957804424
+   1.621293992830437
 ans =
-  -0.800713386023068
-ans =
-  -0.800713386023069
+   1.621293992830445
 ```
 
 Another check we can carry out concerns mean values. The value of $u$ at the origin should equal the mean of the boundary data:
@@ -103,9 +103,9 @@ u(0,0,0)
 
 ```text
 meanh =
-  0.010799506002025
+   0.050760792614476
 ans =
-  0.010799506001987
+   0.050760792614465
 ```
 
 ## 3. The solution on an inner sphere
@@ -136,9 +136,9 @@ mean2(uinner)
 
 ```text
 meanh =
-  0.010799506002025
+   0.050760792614476
 ans =
-  0.010799506002025
+   0.050760792614475
 ```
 
 ---

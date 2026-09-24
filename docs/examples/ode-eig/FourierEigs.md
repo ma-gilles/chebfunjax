@@ -68,6 +68,26 @@ ans =
        interval       length     endpoint values trig
 [       0,     6.3]        1       0.4      0.4
 vertical scale = 0.4
+ans =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values trig
+[       0,     6.3]        3     -0.12    -0.12
+vertical scale = 0.54
+ans =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values trig
+[       0,     6.3]        3     -0.35    -0.35
+vertical scale = 0.56
+ans =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values trig
+[       0,     6.3]        5      0.24     0.24
+vertical scale = 0.56
+ans =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values trig
+[       0,     6.3]        7      0.49     0.49
+vertical scale = 0.56
 ```
 
 and satisfy the differential equation to high precision:
@@ -78,10 +98,7 @@ norm(L*V - V*D, inf)
 
 ```text
 ans =
-   chebfun column (1 smooth piece)
-       interval       length     endpoint values trig
-[       0,     6.3]        3     -0.12    -0.12
-vertical scale = 0.54
+     1.338121766771588e-13
 ```
 
 If $p(x)=w(x)=1$, $q(x)=2q\cos(2x)$, we obtain the Mathieu equations
@@ -114,10 +131,7 @@ norm(diag(D) - Dwolfram, inf)
 
 ```text
 ans =
-   chebfun column (1 smooth piece)
-       interval       length     endpoint values trig
-[       0,     6.3]        3     -0.35    -0.35
-vertical scale = 0.56
+     1.429967255717202e-13
 ```
 
 Again, the eigenfunctions are periodic
@@ -127,29 +141,6 @@ V{1:end}
 ```
 
 ```text
-ans =
-   chebfun column (1 smooth piece)
-       interval       length     endpoint values trig
-[       0,     6.3]        5      0.24     0.24
-vertical scale = 0.56
-```
-
-and satisfy the differential equation to high precision:
-
-```matlab
-norm(L*V - V*D, inf)
-```
-
-```text
-ans =
-   chebfun column (1 smooth piece)
-       interval       length     endpoint values trig
-[       0,     6.3]        7      0.49     0.49
-vertical scale = 0.56
-ans =
-     1.338121766771588e-13
-ans =
-     1.429967255717202e-13
 ans =
    chebfun column (1 smooth piece)
        interval       length     endpoint values trig
@@ -175,6 +166,15 @@ ans =
        interval       length     endpoint values trig
 [       0,     6.3]       37      0.59     0.59
 vertical scale = 0.59
+```
+
+and satisfy the differential equation to high precision:
+
+```matlab
+norm(L*V - V*D, inf)
+```
+
+```text
 ans =
      8.351844726903935e-13
 ```

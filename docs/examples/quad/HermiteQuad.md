@@ -133,6 +133,8 @@ tic, [s,w]= hermpts(100000); toc
 ```text
 Elapsed time is 0.537443 seconds.
 Elapsed time is 136.055978 seconds.
+ratio =
+    0.9460
 ```
 
 This raises questions. Most of the points in these large-$n$ formulas correspond to values of $x$ where $\exp(-x^2)$ is very small. For example, with $n = 10000$, here is the fraction of quadrature nodes for which $\exp(-x^2)$ is smaller than machine precision:
@@ -146,8 +148,7 @@ ratio = length(tail_points)/n
 ```
 
 ```text
-ratio =
-    0.9460
+
 ```
 
 Perhaps there are applications where Hermite quadrature in such a regime makes sense, but we suspect they are rare. Indeed, when $n$ is large, Townsend et al. propose to throw away most of the quadrature points; they call this process "subsampling".

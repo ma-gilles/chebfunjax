@@ -62,6 +62,7 @@ ratio =
    1.688524590163935
 theoretical =
    1.570796326794897
+representation?
 ```
 
 Trying to construct a trigfun from a non-periodic or non-smooth function will typically result in a warning being issued and an "unhappy" trigfun, as illustrated for the unit step function below:
@@ -85,6 +86,12 @@ f =
        interval       length     endpoint values trig
 [    -3.1,     3.1]    65536         0        0
 vertical scale =   1
+f =
+   chebfun column (2 smooth pieces)
+       interval       length     endpoint values
+[    -3.1,2.2e-308]        1         0        0
+[2.2e-308,     3.1]        1         1        1
+vertical scale =   1    Total length = 2
 ```
 
 Splitting is not an option for trigfuns.
@@ -102,12 +109,6 @@ plot(f)
 ```
 
 ```text
-f =
-   chebfun column (2 smooth pieces)
-       interval       length     endpoint values
-[    -3.1,2.2e-308]        1         0        0
-[2.2e-308,     3.1]        1         1        1
-vertical scale =   1    Total length = 2
 f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values trig

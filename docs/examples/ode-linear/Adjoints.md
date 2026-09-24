@@ -98,6 +98,14 @@ L =
     left boundary condition(s):
       u  = 1
       u' = 0
+Ls =
+   Linear operator:
+      v |--> diff(v,2)+v
+   operating on chebfun objects defined on:
+      [-1,1]
+   with
+    right boundary condition(s):
+      [v;diff(v)] = 0
 ```
 
 If there's only one (more generally $k$) boundary condition in $L$, then the adjoint will have $2d-1=3$ (or $2d-k$) boundary conditions, where $d$ is the order of the differential operator (here 2).
@@ -108,14 +116,6 @@ Ls = adjoint(L)
 ```
 
 ```text
-Ls =
-   Linear operator:
-      v |--> diff(v,2)+v
-   operating on chebfun objects defined on:
-      [-1,1]
-   with
-    right boundary condition(s):
-      [v;diff(v)] = 0
 Ls =
    Linear operator:
       v |--> diff(v,2)+v

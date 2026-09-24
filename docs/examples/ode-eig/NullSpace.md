@@ -50,6 +50,11 @@ vertical scale = 1.3
        interval       length     endpoint values
 [      -1,       1]        3      0.57     0.84
 vertical scale = 0.84
+ans =
+   1.000000000000000   0.000000000000000
+   0.000000000000000   1.000000000000000
+ans =
+     1.683151518751667e-13
 ```
 
 ![NullSpace figure 01](../../images/ode-eig/NullSpace_01.png)
@@ -63,11 +68,6 @@ subspace(v, V)
 ```
 
 ```text
-ans =
-   1.000000000000000   0.000000000000000
-   0.000000000000000   1.000000000000000
-ans =
-     1.683151518751667e-13
 ans =
      2.494695367373348e-14
 ```
@@ -128,6 +128,10 @@ v =
        interval       length     endpoint values
 [    -3.1,     3.1]       41   1.4e-17      1.3
 vertical scale = 1.3
+ans =
+   1.000000000000000
+ans =
+     1.320931260704616e-10
 ```
 
 ![NullSpace figure 03](../../images/ode-eig/NullSpace_03.png)
@@ -139,10 +143,6 @@ v(-pi)
 ```
 
 ```text
-ans =
-   1.000000000000000
-ans =
-     1.320931260704616e-10
 ans =
      0
 ```
@@ -235,6 +235,9 @@ vertical scale = 1.3
        interval       length     endpoint values
 [      -1,       1]       32      0.28     -0.8
 vertical scale = 1.1
+ans =
+   1.000000000000001  -0.000000000000000
+  -0.000000000000000   1.000000000000000
 ```
 
 ![NullSpace figure 07](../../images/ode-eig/NullSpace_07.png)
@@ -245,9 +248,6 @@ norm(L(V), 1)
 ```
 
 ```text
-ans =
-   1.000000000000001  -0.000000000000000
-  -0.000000000000000   1.000000000000000
 ans =
    1.0e-12 *
   -0.079380946260699   0.124344978758018

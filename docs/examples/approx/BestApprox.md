@@ -56,7 +56,8 @@ axis([-1 1 -4e-5 4e-5])
 ```
 
 ```text
-
+Trial interpolant too far from optimal...
+Trying AAA-Lawson-based initialization...
 ```
 
 ![BestApprox figure 03](../../images/approx/BestApprox_03.png)

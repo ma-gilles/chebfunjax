@@ -94,6 +94,8 @@ max2(t), min2(t)
 ```text
 ans =
    1.316297664943330
+ans =
+  -0.155566549488913
 ```
 
 ## 3. A triangular island
@@ -110,7 +112,9 @@ contour(p2), axis([-.6 .6 -.6 .6]), axis square, colorbar
 
 ```text
 ans =
-  -0.155566549488913
+   1.294875501773878
+ans =
+  -0.228957699300768
 ```
 
 ![Gibbs2D figure 06](../../images/approx2/Gibbs2D_06.png)
@@ -128,7 +132,9 @@ length(t)
 
 ```text
 ans =
-   1.294875501773878
+     1
+ans =
+     1
 ```
 
 The triangle example, because of is diagonal edge, has a bigger rank:
@@ -139,7 +145,7 @@ length(p2)
 
 ```text
 ans =
-  -0.228957699300768
+    22
 ```
 
 Usually in Chebfun2, the rank one observes is a numerical rank due to approximation to 6 digits, but in this case of a chebfun2 constructed by interpolation of discrete data, the rank is identical to that of the underlying matrix:
@@ -149,12 +155,6 @@ rank(A2)
 ```
 
 ```text
-ans =
-     1
-ans =
-     1
-ans =
-    22
 ans =
     22
 ```

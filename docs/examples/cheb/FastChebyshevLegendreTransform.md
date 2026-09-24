@@ -110,6 +110,7 @@ toc
 ```text
 N =
        31713
+Elapsed time is 1.312230 seconds.
 ```
 
 We can now form a chebfun from solution using `leg2cheb`:
@@ -126,7 +127,6 @@ set(gca, FS, fs), xlabel('x', FS, fs), shg
 ```
 
 ```text
-Elapsed time is 1.312230 seconds.
 Elapsed time is 3.073024 seconds.
 ```
 

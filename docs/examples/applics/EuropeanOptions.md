@@ -112,6 +112,7 @@ disp(['approx = ', num2str(approx,'%10.15f')])
 
 ```text
 exact  = 51.166911483849546
+approx = 51.166911483849582
 ```
 
 ## Digital Options
@@ -156,7 +157,6 @@ disp(['approx = ', num2str(approx,'%10.15f')])
 ```
 
 ```text
-approx = 51.166911483849582
 approx = 0.440783414443269
 ```
 
@@ -175,6 +175,7 @@ disp(['approx = ', num2str(approx,'%10.15f')])
 
 ```text
 exact  = 0.440783414443270
+approx = 0.440783414443269
 ```
 
 ## Power Options
@@ -217,7 +218,6 @@ disp(['approx = ', num2str(approx,'%10.15f')])
 ```
 
 ```text
-approx = 0.440783414443269
 approx = 1.078491451154440
 ```
 

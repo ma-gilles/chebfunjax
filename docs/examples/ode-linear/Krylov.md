@@ -85,8 +85,8 @@ tic, u_cg = pcg(L, f); toc
 ```
 
 ```text
-Elapsed time is 453.751593 seconds.
-Elapsed time is 192.784355 seconds.
+Elapsed time is 562.324513 seconds.
+Elapsed time is 187.626905 seconds.
 ```
 
 ## Operator CG for self-adjoint differential operators with +ve eigenvalues

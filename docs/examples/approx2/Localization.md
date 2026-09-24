@@ -41,6 +41,8 @@ r =
     14
 m =
    666
+n =
+   640
 ```
 
 Let's make a plot. Each red circle shows a pivot value chosen by Chebfun2's approximation to Gaussian elimination with complete pivoting, in which at each step, a rank-1 cross is subtracted corresponding to the largest function value still remaining. For a full explanation, see [1].
@@ -59,8 +61,6 @@ axis([-1 1 -1 1]), axis square, hold off
 ```
 
 ```text
-n =
-   640
 n =
     14
 ```
@@ -97,6 +97,8 @@ r =
     17
 m =
    112
+n =
+   112
 ```
 
 Here is the analogous picture:
@@ -115,8 +117,6 @@ axis([-1 1 -1 1]), axis square, hold off
 ```
 
 ```text
-n =
-   112
 n =
     17
 ```

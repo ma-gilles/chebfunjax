@@ -23,6 +23,10 @@ A =
        0     0     0     0    -1     2    -1     0     0     0
        0     0     0     0     0    -1     2    -1     0     0
    ...
+rho_opt =
+   0.560387921218736
+omega_opt =
+   1.560387921218735
 ```
 
 We may split $A$ into its lower-triangular, diagonal, and upper-triangular parts:
@@ -58,10 +62,7 @@ Chebfun gives us the following optimal omega:
 ```
 
 ```text
-rho_opt =
-   0.560387921218736
-omega_opt =
-   1.560387921218735
+(no matching output)
 ```
 
 Here are the exact optimal values:

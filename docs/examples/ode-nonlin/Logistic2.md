@@ -68,6 +68,8 @@ x(0.5), x(0.8)
 ```text
 ans =
    0.495265168245476
+ans =
+   0.812427139446846
 ```
 
 Can you compute these analytically, or semi-analytically using Chebfun `roots`?
@@ -93,8 +95,6 @@ x(0.5), x(0.62), x(0.77), x(0.83)
 ```
 
 ```text
-ans =
-   0.812427139446846
 ans =
    0.500884210318972
 ans =

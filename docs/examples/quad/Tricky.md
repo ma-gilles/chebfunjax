@@ -27,6 +27,12 @@ plot(f)
 ```text
 Iexact =
    0.210802735500549
+f =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[       0,       1]    14160     0.071  4.5e-07
+vertical scale = 1.1
+Elapsed time is 8.968066 seconds.
 ```
 
 ![Tricky figure 01](../../images/quad/Tricky_01.png)
@@ -38,12 +44,6 @@ tic, f = chebfun(ff,[0 1],'splitting','on'), I = sum(f); toc
 ```
 
 ```text
-f =
-   chebfun column (1 smooth piece)
-       interval       length     endpoint values
-[       0,       1]    14160     0.071  4.5e-07
-vertical scale = 1.1
-Elapsed time is 8.968066 seconds.
 f =
    chebfun column (7 smooth pieces)
        interval       length     endpoint values
@@ -148,6 +148,14 @@ plot(f)
 ```text
 Iexact =
    0.378751605379087
+f =
+   chebfun column (1 smooth piece)
+       interval       length     endpoint values
+[       0,     Inf]      438      0.36 -1.4e-17
+vertical scale = 0.36
+I =
+   0.378751605379086
+Elapsed time is 1.953673 seconds.
 ```
 
 ![Tricky figure 04](../../images/quad/Tricky_04.png)
@@ -159,14 +167,6 @@ tic, f = chebfun(ff,[0 40]), I = sum(f), toc
 ```
 
 ```text
-f =
-   chebfun column (1 smooth piece)
-       interval       length     endpoint values
-[       0,     Inf]      438      0.36 -1.4e-17
-vertical scale = 0.36
-I =
-   0.378751605379086
-Elapsed time is 1.953673 seconds.
 f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
@@ -263,6 +263,9 @@ f =
        interval       length     endpoint values
 [       0,       3]   1240175      0.84     0.12
 vertical scale =   1
+I =
+   0.749974368527183
+Elapsed time is 8.753611 seconds.
 ```
 
 ![Tricky figure 08](../../images/quad/Tricky_08.png)
@@ -278,9 +281,6 @@ plot(f)
 ```
 
 ```text
-I =
-   0.749974368527183
-Elapsed time is 8.753611 seconds.
 I =
    0.749974368527192
 Elapsed time is 211.706808 seconds.

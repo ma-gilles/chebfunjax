@@ -36,6 +36,8 @@ tic, min3_f = min3(f), toc
 ```text
 min3_f =
   -3.328338345663263
+ans =
+    -43.1187
 ```
 
 Here we are interested in the Tucker representation of this function. As we see in the above display, $f$ has numerical trilinear rank (4, 3, 5) which means that we need 4 columns, 3 rows and 5 tubes to represent it roughly to machine epsilon (the default value of chebfun3eps). We first plot the four columns:
@@ -81,8 +83,6 @@ format short, f.tubes(-1, end), f.tubes(-0.2, end),
 ```
 
 ```text
-ans =
-    -43.1187
 ans =
    69.7391
 ```

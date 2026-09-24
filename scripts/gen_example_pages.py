@@ -260,7 +260,9 @@ def align_outputs(ref_blocks, ours):
                     break
         starts.append(found)
         if found is not None:
-            cursor = found + 1
+            # skip the reference block's own lines: a block may itself
+            # contain several "ans =" entries (Gibbs2D)
+            cursor = found + max(1, len([ln for ln in blk if ln.strip()]))
     chunks = []
     for k, blk in enumerate(ref_blocks):
         if starts[k] is None:

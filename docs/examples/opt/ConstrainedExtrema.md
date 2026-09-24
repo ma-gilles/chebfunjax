@@ -45,6 +45,12 @@ Y =
    1.000000000000000
   -1.000000000000000
    1.000000000000000
+X =
+                   0
+   1.570796326794899
+   3.141592653589793
+   4.712388980384690
+   6.283185307179586
 ```
 
 Here we use the the `local` flag to obtain all (local) extrema of $h$. The computed points `X` are points in the domain of definition of $h$. To obtain the points on the unit circle, where $g$ is defined, we map these with $f$:
@@ -54,12 +60,6 @@ X = f(X)
 ```
 
 ```text
-X =
-                   0
-   1.570796326794899
-   3.141592653589793
-   4.712388980384690
-   6.283185307179586
 X =
    1.000000000000000                   0
   -0.000000000000002   1.000000000000000

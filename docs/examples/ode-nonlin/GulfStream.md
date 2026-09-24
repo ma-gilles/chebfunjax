@@ -53,6 +53,10 @@ lbc_residuals =
    -3.108624468950438e-15  1.227379933799178e-10
 rbc_residual =
     3.319566843629218e-13
+I =
+   0.499999999866599
+I_error =
+     1.334009014364312e-10
 ```
 
 The Newton iteration has converged quadratically:
@@ -83,10 +87,7 @@ I_error = abs(I-1/2)
 ```
 
 ```text
-I =
-   0.499999999866599
-I_error =
-     1.334009014364312e-10
+(no matching output)
 ```
 
 We solved the problem for several values of $X$ and found that the minimal error in $I$ occurs with $X\approx 35$.

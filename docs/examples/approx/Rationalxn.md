@@ -64,6 +64,8 @@ err2 =
     0.0073
 err3 =
    7.9394e-04
+ratio =
+    9.2366
 ```
 
 Let's also crank up $k$ from $2$ and $3$ to $3$ and $4$. The approximation to $9.28903$ becomes closer:
@@ -74,8 +76,6 @@ ratio = err3/err4
 ```
 
 ```text
-ratio =
-    9.2366
 ratio =
     9.2805
 ```

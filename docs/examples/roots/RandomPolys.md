@@ -61,6 +61,8 @@ fraction of roots in [-1,1]: 0.557
 fraction of roots in [-1,1]: 0.542
 fraction of roots in [-1,1]: 0.566
 fraction of roots in [-1,1]: 0.58
+ans =
+   0.570200000000000
 ```
 
 The mean for the whole experiment is pretty close to $0.577$,
@@ -70,8 +72,7 @@ mean(data)
 ```
 
 ```text
-ans =
-   0.570200000000000
+
 ```
 
 One could vary these experiments in all kinds of ways, for example defining random polynomials via Chebyshev or more generally Jacobi expansions or by interpolation of random data in Chebyshev or other points. Such more general problems have been treated recently in [2].

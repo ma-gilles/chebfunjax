@@ -13,11 +13,6 @@ LW = 'linewidth'; FS = 'fontsize'; MS = 'markersize';
 splitting off
 ```
 
-```text
-missing =
-     2.449569436180354e-10
-```
-
 ## von Mises distribution
 
 The von Mises distribution is a periodic variant of the normal distribution. While the density is easily defined, it's otherwise not simple to work with analytically.
@@ -116,8 +111,33 @@ missing = 1 - ans(end)
 ```
 
 ```text
+ans =
+   0.500000000000001
+   0.984374999762699
+   0.999511718505283
+   0.999755859130164
+   0.999877929442604
+   0.999938964598824
+   0.999969482176934
+   0.999984740965989
+   0.999992370360516
+   0.999996185057780
+   0.999998092406412
+   0.999999046080728
+   0.999999522917886
+   0.999999761336465
+   0.999999880545754
+   0.999999940150399
+   0.999999969952722
+   0.999999984853883
+   0.999999992286355
+   0.999999996002591
+   0.999999999636961
+   0.999999999675318
+   0.999999999718828
+   0.999999999755044
 missing =
-     2.449569436180354e-10
+     2.449560554396157e-10
 ```
 
 Thus, a uniform variable that takes a value closer to 1 than this number won't be mapped accurately back to the logit-normal variable we want, unless we take further steps. Clearly, such events will be extremely rare.
