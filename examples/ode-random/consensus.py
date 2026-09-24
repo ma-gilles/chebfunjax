@@ -16,7 +16,6 @@ import matplotlib
 matplotlib.use("Agg")
 import os
 import sys
-import time
 import warnings
 
 import matplotlib.pyplot as plt
@@ -45,26 +44,24 @@ def _solve_and_plot(op, title):
     N.lbc = lambda u, v: [u - 1.0, v + 1.0]
     sol = N.solve(0.0)
     u, v = sol[0], sol[1]
-    fig, ax = plt.subplots(figsize=(8.8, 4.6))
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
     xx = np.linspace(*DOM, 4000)
-    ax.plot(xx, np.asarray(u(xx)), lw=2.5)
-    ax.plot(xx, np.asarray(v(xx)), lw=2.5)
+    ax.plot(xx, np.asarray(u(xx)), lw=1.0)
+    ax.plot(xx, np.asarray(v(xx)), lw=1.0)
     ax.grid(True)
-    ax.set_xlabel("t", fontsize=18)
-    ax.set_ylabel("u,v", fontsize=18)
-    ax.set_title(title, fontsize=16)
+    ax.set_xlabel("t", fontsize=10)
+    ax.set_ylabel("u,v", fontsize=10)
+    ax.set_title(title, fontsize=10)
     ax.set_xlim(*DOM)
     fig.set_facecolor("white")
     fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, f"Consensus_{FIG[0]:02d}.png"))
     plt.close(fig)
-    print(f"fig {FIG[0]} done", flush=True)
 
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
     warnings.filterwarnings("ignore")
-    t0 = time.time()
     lam = 0.2
     f = randnfun(lam, DOM, big=True, key=jax.random.PRNGKey(30))
     g = randnfun(lam, DOM, big=True, key=jax.random.PRNGKey(31))
@@ -80,9 +77,6 @@ def run():
                 u.diff() + f + _F * (u - v) * (-(u - v)**2).exp(),
                 v.diff() + g + _F * (v - u) * (-(v - u)**2).exp()],
             ttl)
-
-    print("total_time_in_seconds =")
-    print(f"  {time.time() - t0:.6f}")
 
 
 if __name__ == "__main__":

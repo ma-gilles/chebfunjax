@@ -30,13 +30,15 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'ode-nonlin')
 
 FIG = [0]
+_TALL = (600, 420)   # set(gcf, 'position', [0 0 600 420])
 
 
-def _save(fig):
+def _save(fig, size=(600, 270)):
     FIG[0] += 1
     fig.set_facecolor("white")
     fig.tight_layout()
-    _savefig(fig, os.path.join(_IMG, f"Logistic_{FIG[0]:02d}.png"))
+    _savefig(fig, os.path.join(_IMG, f"Logistic_{FIG[0]:02d}.png"),
+             size=size)
     plt.close(fig)
 
 
@@ -63,9 +65,8 @@ def run():
         fig, axes = plt.subplots(4, 1, figsize=(6.0, 4.2))
         for ax, n in zip(axes, block):
             _panel(ax, x, n, 0.2)
-            print(f"n={n:2d}  length(x) = {len(x)}")
             x = r * x * (1 - x)
-        _save(fig)
+        _save(fig, _TALL)
 
     # Zoom in on [3.5, 4] and continue: steps 12-15, then 16-18.
     r = r.restrict(3.5, 4)
@@ -73,20 +74,20 @@ def run():
     fig, axes = plt.subplots(4, 1, figsize=(6.0, 4.2))
     for ax, n in zip(axes, range(12, 16)):
         _panel(ax, x, n, 3.52)
-        print(f"n={n:2d}  length(x) = {len(x)}")
+        x15 = x
         x = r * x * (1 - x)
-    _save(fig)
+    _save(fig, _TALL)
 
     fig, axes = plt.subplots(4, 1, figsize=(6.0, 4.2))
     for ax, n in zip(axes[:3], range(16, 19)):
         _panel(ax, x, n, 3.52)
-        print(f"n={n:2d}  length(x) = {len(x)}")
         x = r * x * (1 - x)
-    axes[3].set_axis_off()
-    _save(fig)
+    # MATLAB reuses the figure, so subplot 4 still shows x(15).
+    _panel(axes[3], x15, 15, 3.52)
+    _save(fig, _TALL)
 
     # The final iterate on its own, then zoomed into a small interval.
-    fig, ax = plt.subplots(figsize=(9.0, 4.2))
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
     t = np.linspace(3.5, 4, 200000)
     ax.plot(t, np.asarray(x(t)), lw=0.4)
     ax.set_ylim(0, 1)
@@ -94,7 +95,7 @@ def run():
     ax.grid(True)
     _save(fig)
 
-    fig, ax = plt.subplots(figsize=(9.0, 4.2))
+    fig, ax = plt.subplots(figsize=(6.0, 2.7))
     t = np.linspace(3.902, 3.908, 20000)
     ax.plot(t, np.asarray(x(t)), lw=0.8)
     ax.set_ylim(0, 1)
