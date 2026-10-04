@@ -114,6 +114,44 @@ def _eval_chebfun_at(u, x0: float) -> float:
     return float(arr)
 
 
+def _piecewise_row_scaled_system(matrix, rhs):
+    """Apply MATLAB's floor-one row scaling to a dense JAX system.
+
+    Provenance
+    ----------
+    MATLAB source : @valsDiscretization/mldivide.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford and
+        The Chebfun Developers.
+
+    The source computes ``s = 1/max(1, max(abs(A),2))`` and scales both A
+    and the right hand side before pivoted LU. This helper is limited to the
+    direct piecewise linear collocation solve.
+    """
+    a = jnp.asarray(matrix)
+    b = jnp.asarray(rhs)
+    if a.ndim != 2 or a.shape[0] != a.shape[1]:
+        raise ValueError("piecewise matrix must be square")
+    if b.ndim not in (1, 2) or b.shape[0] != a.shape[0]:
+        raise ValueError("piecewise rhs must be a matching vector or matrix")
+
+    dtype = jnp.result_type(a.dtype, b.dtype)
+    if not jnp.issubdtype(dtype, jnp.inexact):
+        dtype = jnp.float64
+    a = a.astype(dtype)
+    b = b.astype(dtype)
+    row_max = jnp.max(jnp.abs(a), axis=1)
+    scale = 1.0 / jnp.maximum(jnp.ones_like(row_max), row_max)
+    rhs_scale = scale if b.ndim == 1 else scale[:, None]
+    return scale[:, None] * a, rhs_scale * b
+
+
+def _piecewise_row_scaled_solve(matrix, rhs):
+    """Solve a square JAX system with source floor-one row scaling."""
+    scaled_a, scaled_b = _piecewise_row_scaled_system(matrix, rhs)
+    return jnp.linalg.solve(scaled_a, scaled_b)
+
+
 def _physical_monomial_cheb_coeffs(k: int, a: float, b: float):
     """Chebyshev coefficients of ``x**k / k!`` on ``[a, b]``.
 
@@ -4197,7 +4235,10 @@ class Chebop:
                         self._pw_lin_cache = None
                 if ok:
                     try:
-                        U_lin = _np.linalg.solve(A_lin, -R0)
+                        U_lin = _piecewise_row_scaled_solve(A_lin, -R0)
+                        if not bool(jnp.all(jnp.isfinite(U_lin))):
+                            raise _np.linalg.LinAlgError(
+                                "piecewise JAX solve returned nonfinite values")
                         self._pw_linear_used = True
                         us = to_funs(U_lin)
                         return us[0] if m == 1 else SystemSolution(us)
