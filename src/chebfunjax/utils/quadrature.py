@@ -286,7 +286,9 @@ def _legpts_core(n: int, interval: tuple[float, float] | None = None,
     Chebfun commit: 7574c77
     Original authors: Nick Trefethen (GW), Nick Hale (REC/ASY),
         Ignace Bogaert (fast ASY).
-    Algorithm (this implementation): Golub-Welsch eigenvalue method [1].
+    Algorithm: source REC for ``n < 100`` and source ASY for ``n >= 100``.
+    The ASY implementation returns source angles directly for the optional
+    ``newtheta=True`` result; those angles are not reconstructed with acos.
 
     References
     ----------
@@ -319,7 +321,11 @@ def _legpts_core(n: int, interval: tuple[float, float] | None = None,
     # hangs for large n. Above a threshold, use an O(n)-memory
     # vectorized Newton iteration on the Legendre recurrence instead.
     # Added by Claude Opus 4.8 (task #10). The two agree to ~1e-13.
-    if n > _LEGPTS_NEWTON_THRESHOLD:
+    if n < 100:
+        from chebfunjax.utils.legendre_rec import _legpts_rec
+
+        x, w, _ = _legpts_rec(n)
+    elif n > _LEGPTS_NEWTON_THRESHOLD:
         x, w = _legpts_newton(n)
     else:
         x, w = _legpts_gw(n)
@@ -1354,14 +1360,49 @@ def paduapts(
     return xy, idx_jnp
 
 
-def legpts(n: int, interval: tuple[float, float] | None = None, *, bary: bool = False):
+def legpts(
+    n: int,
+    interval: tuple[float, float] | None = None,
+    *,
+    bary: bool = False,
+    newtheta: bool = False,
+):
     """See ``_legpts_core``.  With ``bary=True`` also returns the
-    normalized barycentric weights (MATLAB's third output)."""
-    out = _legpts_core(n, interval)
-    if not bary:
-        return out
-    x, w = out
-    return x, w, _bary_weights_gauss(x, flip=False)
+    normalized barycentric weights (MATLAB's third output). With
+    ``newtheta=True``, return MATLAB's four outputs ``(x, w, v, theta)``.
+
+    Provenance
+    ----------
+    MATLAB source : legpts.m
+    Chebfun commit: 7574c77
+    """
+    if n >= 100:
+        from chebfunjax.utils.legendre_fast import _legpts_asy_with_theta
+
+        x, w, v, theta = _legpts_asy_with_theta(n)
+        if interval is not None:
+            a, b = interval
+            dab = b - a
+            x = (x + 1.0) * dab / 2.0 + a
+            w = dab * w / 2.0
+    else:
+        x, w = _legpts_core(n, interval)
+        if bary or newtheta:
+            from chebfunjax.utils.legendre_rec import _legpts_rec
+
+            _x_ref, _w_ref, v = _legpts_rec(n)
+            if n == 0:
+                theta = jnp.empty((0,), dtype=jnp.float64)
+            elif n == 1:
+                theta = jnp.array([jnp.pi / 2.0], dtype=jnp.float64)
+            else:
+                theta = jnp.arccos(_x_ref)
+
+    if newtheta:
+        return x, w, v, theta
+    if bary:
+        return x, w, v
+    return x, w
 
 
 def jacpts(n: int, a: float, b: float, interval: tuple[float, float] | None = None, *, bary: bool = False):

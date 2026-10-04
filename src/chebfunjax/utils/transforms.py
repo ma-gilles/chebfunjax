@@ -384,17 +384,32 @@ def _idct1(v: jnp.ndarray) -> jnp.ndarray:
     if n <= 1:
         return v
 
-    # Mirror: [v_0, v_1, ..., v_{N}, v_{N-1}, ..., v_1]
-    tmp = jnp.concatenate([v, v[-2:0:-1]])
+    # Mirror along the coefficient axis. MATLAB's chebfun.idct supports
+    # column batches and complex inputs; preserve both contracts here.
+    vector_input = v.ndim == 1
+    values = v[:, None] if vector_input else v
+    tmp = jnp.concatenate([values, values[-2:0:-1]], axis=0)
 
-    c = jnp.real(jnp.fft.ifft(tmp))
+    # leg2cheb.m's local idct1 uses (2/(n-1))*chebfun.dct(v,1),
+    # then halves the two output endpoints. The mirrored IFFT already
+    # divides by 2*(n-1), so the source pre-endpoint factor is two.
+    c = 2.0 * jnp.fft.ifft(tmp, axis=0)
+    if not jnp.iscomplexobj(v):
+        c = jnp.real(c)
+    else:
+        # Source chebfun.dct(v,1) delegates to Chebtech2.coeffs2vals,
+        # preserving exact real/imaginary output for those global cases.
+        real_c = 2.0 * jnp.real(jnp.fft.ifft(jnp.real(tmp), axis=0))
+        imag_c = 2.0j * jnp.real(jnp.fft.ifft(jnp.imag(tmp), axis=0))
+        c = jnp.where(jnp.all(jnp.imag(v) == 0), real_c,
+                      jnp.where(jnp.all(jnp.real(v) == 0), imag_c, c))
     c = c[:n]
 
     # Scale endpoints by 1/2
-    c = c.at[0].multiply(0.5)
-    c = c.at[-1].multiply(0.5)
+    c = c.at[0, :].multiply(0.5)
+    c = c.at[-1, :].multiply(0.5)
 
-    return c
+    return c[:, 0] if vector_input else c
 
 
 def _cc_weights(n: int) -> jnp.ndarray:
@@ -428,7 +443,10 @@ def _cc_weights(n: int) -> jnp.ndarray:
     return w
 
 
-def leg2cheb(c_leg: jnp.ndarray, *, normalize: bool = False) -> jnp.ndarray:
+def leg2cheb(
+    c_leg: jnp.ndarray, *, normalize: bool = False, trans: bool = False,
+    max_rank: int = 128,
+) -> jnp.ndarray:
     """Convert Legendre coefficients to Chebyshev coefficients.
 
     C_CHEB = leg2cheb(C_LEG) converts the vector C_LEG of Legendre
@@ -443,6 +461,10 @@ def leg2cheb(c_leg: jnp.ndarray, *, normalize: bool = False) -> jnp.ndarray:
     normalize : bool, default False
         If True, the input uses Legendre polynomials normalized to be
         orthonormal (i.e., multiply by sqrt(k+1/2) to get standard).
+    trans : bool, default False
+        Apply the transpose of the Legendre-to-Chebyshev conversion operator.
+    max_rank : int, default 128
+        Static workspace bound for the source fast branch when ``n > 512``.
 
     Returns
     -------
@@ -451,10 +473,9 @@ def leg2cheb(c_leg: jnp.ndarray, *, normalize: bool = False) -> jnp.ndarray:
 
     Notes
     -----
-    Uses the direct O(n^2) method: evaluate the Legendre expansion at
-    Chebyshev points via the Legendre Vandermonde matrix, then convert to
-    Chebyshev coefficients via inverse DCT. For N > 512, the fast
-    O(n log^2 n) algorithm of [1] would be preferable.
+    Uses the direct source method through degree 511 and the source fast
+    Hankel-Toeplitz method above that size. The direct transpose follows
+    MATLAB's literal ``L.T @ idct1(c)`` branch.
 
     References
     ----------
@@ -472,19 +493,36 @@ def leg2cheb(c_leg: jnp.ndarray, *, normalize: bool = False) -> jnp.ndarray:
     --------
     cheb2leg, cheb2jac, jac2cheb
     """
+    c_leg = jnp.asarray(c_leg)
+    if c_leg.ndim not in (1, 2):
+        raise ValueError("c_leg must be a vector or a 2-D column matrix")
     n = c_leg.shape[0]
-    if n <= 1:
-        c = c_leg.copy()
-        if normalize and n == 1:
-            c = c * jnp.sqrt(0.5)
-        return c
-
-    # If normalized, undo the normalization: multiply by sqrt(k + 1/2)
     if normalize:
         norms = jnp.sqrt(jnp.arange(n, dtype=jnp.float64) + 0.5)
-        c_leg = c_leg * norms
+        c_leg = c_leg * (norms[:, None] if c_leg.ndim == 2 else norms)
+    if n <= 1:
+        return c_leg.copy()
 
-    return _leg2cheb_direct(c_leg)
+    if n <= 512:
+        if trans:
+            x = jnp.cos(jnp.pi * jnp.arange(n, dtype=jnp.float64) / (n - 1))
+            vandermonde = _legendre_vandermonde(n - 1, x)
+            return vandermonde.T @ _idct1(c_leg)
+        return _leg2cheb_direct(c_leg)
+
+    import equinox as eqx
+
+    from chebfunjax.utils.legendre_fast import _leg2cheb_fast
+
+    result, complete = _leg2cheb_fast(
+        c_leg, trans=trans, normalize=False, max_rank=max_rank
+    )
+    return eqx.error_if(
+        result,
+        ~complete,
+        "leg2cheb fast Cholesky approximation did not reach source tolerance; "
+        "increase max_rank",
+    )
 
 
 def _leg2cheb_direct(c_leg: jnp.ndarray) -> jnp.ndarray:
@@ -500,35 +538,35 @@ def _leg2cheb_direct(c_leg: jnp.ndarray) -> jnp.ndarray:
     # Vandermonde; jit/grad traceable.
     from jax import lax
 
+    vector_input = c_leg.ndim == 1
+    c = c_leg[:, None] if vector_input else c_leg
     p0 = jnp.ones_like(x)
     if N == 0:
-        v_desc = c_leg[0] * p0
+        v_desc = p0[:, None] * c[0, :][None, :]
     else:
         p1 = x
-        v_init = c_leg[0] * p0 + c_leg[1] * p1
+        v_init = c[0, :][None, :] * p0[:, None] + c[1, :][None, :] * p1[:, None]
 
         def _step(carry, j):
             pjm1, pj, v = carry
             pjp1 = ((2 * j + 1) * x * pj - j * pjm1) / (j + 1)
             jd = j.astype(jnp.int32)
-            v = v + c_leg[jd + 1] * pjp1
+            v = v + c[jd + 1, :][None, :] * pjp1[:, None]
             return (pj, pjp1, v), None
 
         if N >= 2:
             (_, _, v_desc), _ = lax.scan(
                 _step, (p0, p1, v_init.astype(
-                    jnp.result_type(c_leg, x))),
+                    jnp.result_type(c, x))),
                 jnp.arange(1, N, dtype=jnp.float64))
         else:
             v_desc = v_init
 
-    # Reverse to ascending order (x=-1 to x=1) for vals2coeffs
-    v_asc = v_desc[::-1]
+    # Literal source local idct1, using only JAX for eager and traced input.
+    # Its grid is descending; the public vals2coeffs uses ascending order.
+    c_cheb = _idct1(v_desc)
 
-    # Convert values to Chebyshev coefficients
-    c_cheb = vals2coeffs(v_asc)
-
-    return c_cheb
+    return c_cheb[:, 0] if vector_input else c_cheb
 
 
 def _legendre_vandermonde(N: int, x: jnp.ndarray) -> jnp.ndarray:
@@ -817,6 +855,22 @@ def chebcoeffs2legcoeffs(c_cheb: jnp.ndarray) -> jnp.ndarray:
     return cheb2leg(c_cheb)
 
 
+def chebcoeffs2legvals(c_cheb: jnp.ndarray) -> jnp.ndarray:
+    """Evaluate a Chebyshev series at the Gauss--Legendre points.
+
+    The output has the same leading length as the coefficient vector. For a
+    two-dimensional coefficient array, columns are transformed independently.
+
+    Provenance
+    ----------
+    MATLAB source : chebcoeffs2legvals.m, via @chebfun/ndct.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford and
+        the Chebfun Developers.
+    """
+    return _legendre_ndct(c_cheb)
+
+
 def legcoeffs2chebcoeffs(c_leg: jnp.ndarray) -> jnp.ndarray:
     """Convert Legendre coefficients to Chebyshev coefficients.
 
@@ -871,43 +925,14 @@ def chebvals2legcoeffs(
 # ===========================================================================
 
 def _legendre_dlt(c_leg: jnp.ndarray) -> jnp.ndarray:
-    """Discrete Legendre Transform (DLT): Legendre coefficients -> values at legpts.
+    """Delegate to source DLT, including matrix and large-transform branches.
 
-    Uses the Legendre-Vandermonde matrix via the 3-term recurrence and applies
-    it to ``c_leg``.  O(n^2); sufficient for moderate n.
-
-    This is the analogue of ``chebfun.dlt`` (MATLAB) for our pure-JAX implementation.
+    Provenance: ``legcoeffs2legvals.m`` delegates to ``@chebfun/dlt.m``,
+    Chebfun commit 7574c77. The local import avoids a module import cycle.
     """
-    n = c_leg.shape[0]
-    if n == 0:
-        return c_leg
-    if n == 1:
-        return c_leg
+    from chebfunjax.utils.fasttransforms import dlt
 
-    # Gauss-Legendre nodes (ascending order); rolling scan accumulation
-    # (the Vandermonde route was O(n^2) memory and, before the scan
-    # rewrite, O(n^3) traffic)
-    from jax import lax
-
-    from chebfunjax.utils.quadrature import legpts
-    x, _ = legpts(n)
-    x = jnp.asarray(x)
-    p0 = jnp.ones_like(x)
-    p1 = x
-    v0 = c_leg[0] * p0 + c_leg[1] * p1
-
-    def _step(carry, j):
-        pjm1, pj, v = carry
-        pjp1 = ((2 * j + 1) * x * pj - j * pjm1) / (j + 1)
-        v = v + c_leg[j.astype(jnp.int32) + 1] * pjp1
-        return (pj, pjp1, v), None
-
-    if n >= 3:
-        (_, _, v), _ = lax.scan(
-            _step, (p0, p1, v0.astype(jnp.result_type(c_leg, x))),
-            jnp.arange(1, n - 1, dtype=jnp.float64))
-        return v
-    return v0
+    return dlt(c_leg)
 
 
 def _legendre_idlt(v_leg: jnp.ndarray) -> jnp.ndarray:
@@ -918,59 +943,109 @@ def _legendre_idlt(v_leg: jnp.ndarray) -> jnp.ndarray:
 
     This is the analogue of ``chebfun.idlt`` (MATLAB).
     """
+    v_leg = jnp.asarray(v_leg)
+    if v_leg.ndim not in (1, 2):
+        raise ValueError("v_leg must be a vector or a 2-D column matrix")
     n = v_leg.shape[0]
     if n == 0:
         return v_leg
     if n == 1:
-        return v_leg
+        # Literal @chebfun/idlt.m idlt_direct special case: c = 1 + 0*c.
+        return jnp.ones_like(v_leg) + 0 * v_leg
 
     from chebfunjax.utils.quadrature import legpts
+
+    if n >= 5000:
+        from chebfunjax.utils.legendre_fast import _idlt_ndct_transpose_source
+
+        x, w, _v, theta = legpts(n, newtheta=True)
+        weighted = w[:, None] * v_leg if v_leg.ndim == 2 else w * v_leg
+        stage1 = _idlt_ndct_transpose_source(weighted, theta)
+        stage2 = leg2cheb(stage1, trans=True)
+        scale = jnp.arange(n, dtype=jnp.float64) + 0.5
+        return stage2 * (scale[:, None] if stage2.ndim == 2 else scale)
+
     x, w = legpts(n)
 
     # rolling scan projection: c_k = (2k+1)/2 * sum_j w_j P_k(x_j) v_j
     from jax import lax
 
     x = jnp.asarray(x)
-    wv = jnp.asarray(w) * v_leg
+    wv = (jnp.asarray(w)[:, None] * v_leg
+          if v_leg.ndim == 2 else jnp.asarray(w) * v_leg)
     p0 = jnp.ones_like(x)
     p1 = x
-    c0 = 0.5 * jnp.dot(wv, p0)
-    c1 = 1.5 * jnp.dot(wv, p1)
+    axis = 0
+    c0 = 0.5 * jnp.sum(wv * p0[:, None], axis=axis) if v_leg.ndim == 2 else 0.5 * jnp.dot(wv, p0)
+    c1 = 1.5 * jnp.sum(wv * p1[:, None], axis=axis) if v_leg.ndim == 2 else 1.5 * jnp.dot(wv, p1)
 
     def _step(carry, j):
         pjm1, pj = carry
         pjp1 = ((2 * j + 1) * x * pj - j * pjm1) / (j + 1)
-        contrib = (2 * (j + 1) + 1) / 2.0 * jnp.dot(wv, pjp1)
+        if v_leg.ndim == 2:
+            contrib = (2 * (j + 1) + 1) / 2.0 * jnp.sum(
+                wv * pjp1[:, None], axis=0
+            )
+        else:
+            contrib = (2 * (j + 1) + 1) / 2.0 * jnp.dot(wv, pjp1)
         return (pj, pjp1), contrib
 
     if n >= 3:
         _, rest = lax.scan(_step, (p0, p1),
                            jnp.arange(1, n - 1, dtype=jnp.float64))
+        if v_leg.ndim == 2:
+            return jnp.concatenate([jnp.stack([c0, c1]), rest], axis=0)
         return jnp.concatenate([jnp.stack([c0, c1]), rest])
+    if v_leg.ndim == 2:
+        return jnp.stack([c0, c1], axis=0)[:n, :]
     return jnp.stack([c0, c1])[:n]
 
 
-def _legendre_ndct(c_cheb: jnp.ndarray) -> jnp.ndarray:
-    """Non-uniform DCT: Chebyshev coefficients -> values at Gauss-Legendre points.
+def ndct(x: jnp.ndarray, coeffs: jnp.ndarray | None = None,
+         theta: jnp.ndarray | None = None) -> jnp.ndarray:
+    """Evaluate Chebyshev coefficient columns with MATLAB's K=16 fast NDCT.
 
-    The Gauss-Legendre points are NOT uniformly spaced in angle, so this
-    requires explicit Chebyshev evaluation at non-uniform points.
+    ``ndct(coeffs)`` uses Gauss-Legendre nodes. ``ndct(x, coeffs)`` uses
+    supplied nodes; ``ndct(x, coeffs, theta)`` uses the supplied angles
+    instead of computing acos(x). Node/angle matrices are flattened in
+    column order. Coefficient vectors produce vectors and coefficient
+    matrices produce matrices with one output row per evaluation point.
 
-    This is the analogue of ``chebfun.ndct`` (MATLAB).
+    The source returns the imaginary component as a real result when the
+    entire coefficient array is purely imaginary. That unusual numerical
+    behavior is preserved. Complex input retains a complex JAX output dtype,
+    since JIT output dtypes cannot depend on coefficient values.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/ndct.m
+    Chebfun commit: 7574c77
     """
-    n = c_cheb.shape[0]
-    if n <= 1:
-        return c_cheb
+    from chebfunjax.utils.ndct_fast import _ndct_fast
 
-    from chebfunjax.utils.quadrature import legpts
-    x, _ = legpts(n)
+    if coeffs is None:
+        coeffs = jnp.asarray(x)
+        from chebfunjax.utils.quadrature import legpts
+        x, _w, _v, source_theta = legpts(coeffs.shape[0], newtheta=True)
+        if theta is None:
+            theta = source_theta
+    else:
+        coeffs = jnp.asarray(coeffs)
+    if theta is None:
+        # MATLAB takes real(acos(x)), including complex/outside-interval x.
+        nodes = jnp.asarray(x).astype(jnp.complex128)
+        theta = jnp.real(jnp.arccos(nodes))
+    theta = jnp.real(jnp.asarray(theta)).reshape(-1, order="F")
+    values = _ndct_fast(coeffs, theta)
+    if jnp.issubdtype(coeffs.dtype, jnp.complexfloating):
+        values = jnp.where(jnp.all(jnp.real(coeffs) == 0),
+                           jnp.imag(values), values)
+    return values
 
-    # theta = arccos(x) for Legendre points
-    theta = jnp.arccos(jnp.clip(x, -1.0, 1.0))
-    k = jnp.arange(n, dtype=jnp.float64)
-    # T_k(x) = cos(k * theta)
-    T = jnp.cos(k[None, :] * theta[:, None])  # (n, n)
-    return T @ c_cheb
+
+def _legendre_ndct(c_cheb: jnp.ndarray) -> jnp.ndarray:
+    """Source backwards-compatible NDCT wrapper at Gauss-Legendre nodes."""
+    return ndct(c_cheb)
 
 
 def legvals2legcoeffs(v_leg: jnp.ndarray) -> jnp.ndarray:

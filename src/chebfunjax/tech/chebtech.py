@@ -5356,7 +5356,12 @@ def _unit_sign(d: jax.Array) -> jax.Array:
 
 
 def _tech_qr_builtin(f, want_e: bool, mode: str):
-    """Weighted (Gauss-Legendre) discrete QR — MATLAB's 'built-in' method."""
+    """Weighted Gauss-Legendre QR, including the source fast branch.
+
+    Provenance: ``@chebtech/qr.m``, Chebfun commit 7574c77.
+    The three-output adapter currently returns identity permutation; MATLAB's
+    built-in three-output QR pivots columns, which remains a parity gap.
+    """
     from chebfunjax.utils.interpolation import barymat
     from chebfunjax.utils.quadrature import legpts
 
@@ -5369,22 +5374,34 @@ def _tech_qr_builtin(f, want_e: bool, mode: str):
             [coeffs, jnp.zeros((m - n, m), dtype=coeffs.dtype)], axis=0)
         n = m
 
-    xc = chebpts(n, kind=kind)
-    vc = cls.barywts(n)
-    xl, wl, vl = legpts(n, bary=True)
-    sqrt_wl = jnp.sqrt(wl)
-    WP = sqrt_wl[:, None] * barymat(xl, xc, vc)
-    invWP = barymat(xc, xl, vl) * (1.0 / sqrt_wl)[None, :]
+    if n <= 4000:
+        xc = chebpts(n, kind=kind)
+        vc = cls.barywts(n)
+        xl, wl, vl = legpts(n, bary=True)
+        sqrt_wl = jnp.sqrt(wl)
+        WP = sqrt_wl[:, None] * barymat(xl, xc, vc)
+        invWP = barymat(xc, xl, vl) * (1.0 / sqrt_wl)[None, :]
+        values = cls.coeffs2vals(coeffs)
+        Qd, R = jnp.linalg.qr(WP @ values, mode="reduced")
+        s = _unit_sign(jnp.diagonal(R))
+        Q_coeffs = cls.vals2coeffs(invWP @ (Qd * s[None, :]))
+    else:
+        # The source avoids both n-by-n interpolation matrices above 4000.
+        # Accurate ASY angles are passed directly; acos(xl) loses endpoint
+        # precision required by the large-degree transform.
+        from chebfunjax.utils.transforms import _legendre_idlt, leg2cheb, ndct
 
-    values = cls.coeffs2vals(coeffs)
-    Qd, R = jnp.linalg.qr(WP @ values, mode="reduced")
+        xl, wl, _vl, theta = legpts(n, newtheta=True)
+        sqrt_wl = jnp.sqrt(wl)
+        converted = sqrt_wl[:, None] * ndct(xl, coeffs, theta)
+        Qd, R = jnp.linalg.qr(converted, mode="reduced")
+        s = _unit_sign(jnp.diagonal(R))
+        legendre_values = (Qd * s[None, :]) / sqrt_wl[:, None]
+        Q_coeffs = leg2cheb(_legendre_idlt(legendre_values))
 
-    # Enforce diag(R) >= 0 while preserving Q @ R exactly.
-    s = _unit_sign(jnp.diagonal(R))
-    Qd = invWP @ (Qd * s[None, :])
+    # Enforce a nonnegative real diagonal while preserving Q @ R.
     R = jnp.conj(s)[:, None] * R
-
-    Q = cls(coeffs=cls.vals2coeffs(Qd), ishappy=f.ishappy)
+    Q = cls(coeffs=Q_coeffs, ishappy=f.ishappy)
     if want_e:
         return Q, R, _tech_qr_perm(m, mode)
     return Q, R

@@ -6,19 +6,19 @@ assertions are ported directly at MATLAB's tolerances.  The MATLAB file loops
 ``{chebtech1, chebtech2} x {'householder', 'built-in'}``; we parametrize over
 the same four.
 
-Gaps vs MATLAB (honest skip):
-* Passes 21-22 build ``legpoly(4999:5000)`` and ``legpoly(10000:10005)`` to
-  exercise MATLAB's ``n > 4000`` fast-transform branch of ``qr_builtin``
-  (NDCT/IDLT).  chebfunjax implements only the dense barycentric-projection
-  branch, which would need a 10^4 x 10^4 matrix; those two are skipped.
+Remaining adaptations vs MATLAB:
+* Passes 21-22 construct the source method-3 Legendre coefficient blocks
+  directly as Tech objects, then exercise the ``n > 4000`` NDCT/IDLT branch.
+  MATLAB constructs a CHEBFUN and repeats the same two results across its
+  four class/method rows. Here both Tech kinds exercise each source block.
 * Pass 20 checks ``size(vscale(Q)) == [1 3]``.  chebfunjax's ``vscale`` is a
   scalar aggregate over all columns rather than a per-column row vector, so
   the assertion is ported as the equivalent column-count check.
 
-Neither MATLAB method pivots the columns for the two-output form, and
-chebfunjax's ``E`` is the identity in both output shapes, so the
-``test_one_qr_with_perm`` assertions reduce to the plain ones plus the
-``E1(:, E2) == eye(N)`` consistency check (pass 17).
+Neither MATLAB method pivots the columns for the two-output form. MATLAB's
+three-output built-in form does pivot; chebfunjax currently returns identity
+``E``. Reconstruction and pass-17 consistency checks do not qualify that
+remaining permutation-choice gap.
 
 Provenance
 ----------
@@ -163,10 +163,30 @@ class TestChebtechQr:
         assert np.isfinite(Q.vscale) and Q.vscale > 0
 
     @pytest.mark.parametrize("Tech", [Chebtech1, Chebtech2])
-    def test_large_legendre_blocks_not_supported(self, Tech):
-        # pass(:, 21:22): legpoly(4999:5000) and legpoly(10000:10005).
-        pytest.skip(
-            "MATLAB qr_builtin switches to a fast-transform (NDCT/IDLT) "
-            "branch for n > 4000; chebfunjax implements only the dense "
-            "barycentric-projection branch, which would need a 10^4 x 10^4 "
-            "projection matrix for these two passes")
+    @pytest.mark.parametrize("first_degree,ncols", [(4999, 2), (10000, 6)])
+    def test_large_legendre_blocks(self, Tech, first_degree, ncols):
+        # Source pass(:,21:22), legpoly.m method 3: a single unit-column
+        # Legendre coefficient matrix converted with leg2cheb. Coefficient
+        # lengths are 5001 and 10006, so both exercise fast IDLT (n>=5000).
+        from chebfunjax.utils.transforms import leg2cheb
+
+        degrees = jnp.arange(first_degree, first_degree + ncols)
+        n = first_degree + ncols
+        legendre_coeffs = jnp.zeros((n, ncols), dtype=jnp.float64)
+        legendre_coeffs = legendre_coeffs.at[
+            degrees, jnp.arange(ncols)
+        ].set(1.0)
+        L = Tech(coeffs=leg2cheb(legendre_coeffs))
+        Q, _R = L.qr(method="built-in")
+        error = (Q @ jnp.diag(jnp.sqrt(1.0 / (degrees + 0.5)))) - L
+
+        # L is a CHEBFUN in MATLAB, whose default norm is continuous L2
+        # Frobenius (@chebfun/norm.m), not numeric matrix spectral norm.
+        # Tech inner() computes the exact polynomial Gram matrix via
+        # prolonged Clenshaw-Curtis quadrature without an n-by-n matrix.
+        source_norm = jnp.sqrt(jnp.abs(jnp.trace(error.inner(error))))
+        # MATLAB retains the final loop's f=[x,x^2,x^3] for this bound.
+        f = Tech.from_function(
+            lambda x: jnp.stack([x, x**2, x**3], axis=-1)
+        )
+        assert float(source_norm) < 5e4 * f.vscale * EPS
