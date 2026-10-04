@@ -5,12 +5,8 @@ chebfunjax techs have a genuine empty representation (``Tech.empty()`` /
 pass(n, 1)-(4) port directly.  MATLAB's horizontal concatenation
 ``[f g]`` of techs maps to ``Tech.cell2mat([f, g])``.
 
-Remaining gap:
-* pass(n, 5) -- ``Chebtech.cell2mat`` (the horzcat analogue) does not
-  accept empty techs: it reads ``t.n``/``t.coeffs`` on every input, and
-  the empty object carries no coefficient field, so
-  ``cell2mat([Tech.empty(), Tech.empty()])`` raises ``AttributeError``
-  instead of returning the empty tech.
+All five source groups execute; horizontal concatenation discards empty
+arguments and returns the first object unchanged when all are empty.
 
 Provenance
 ----------
@@ -54,9 +50,8 @@ class TestChebtechIsempty:
 
     def test_horzcat_empty_is_empty(self, Tech):
         # pass(n,5): isempty([make(), make()])
-        pytest.skip(
-            "Chebtech.cell2mat (the MATLAB horzcat analogue) does not "
-            "accept empty techs: it reads t.n/t.coeffs, which the empty "
-            "object does not define, so cell2mat([empty, empty]) raises "
-            "AttributeError instead of returning the empty tech"
-        )
+        first = Tech.empty()
+        second = Tech.empty()
+        result = Tech.cell2mat([first, second])
+        assert result.isempty()
+        assert result is first

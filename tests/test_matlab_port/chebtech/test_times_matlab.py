@@ -8,12 +8,10 @@ parametrized over both classes.
 MATLAB ``isequal(g1, g2)`` -> chebfunjax has no ``isequal``; the substitution
 compares Chebyshev coefficients after zero-padding to a common length.
 
-Gaps vs MATLAB (honest xfail/skip), reported in the final summary:
-- Chebtech1 cannot represent complex-valued functions (vals2coeffs/coeffs2vals
-  drop the imaginary part); complex operands skip Chebtech1.
-- chebfunjax arithmetic (from_coeffs) always sets ishappy=True; happiness is
-  not propagated through times (the "unhappy result" checks xfail).
-- empty / dimension-error assertions have no scalar-tech analog.
+Sampling adaptation: this port uses a deterministic linspace instead of the
+source's seeded random grid. Error bounds and MATLAB norm definitions are
+retained. Empty, dimension-identifier, complex and unhappy checks execute for
+both Chebtech classes.
 
 Array-valued: Chebtech now supports (n, m) coefficient matrices and has a
 ``conj`` method, so the array-valued times cases (pass 4:5, 7, 12:14, 22) and
@@ -43,23 +41,18 @@ X = jnp.asarray(np.linspace(-1.0, 1.0, 100))
 ALPHA = -0.194758928283640 + 0.075474485412665j
 BETA = -0.526634844879922 - 0.685484380523668j
 
-_CT1_COMPLEX = (
-    "Chebtech1 drops the imaginary part in vals2coeffs/coeffs2vals; it cannot "
-    "represent complex-valued functions built via from_function"
-)
-_UNHAPPY = (
-    "chebfunjax Chebtech arithmetic builds results via from_coeffs, which "
-    "always sets ishappy=True; happiness is not propagated through times"
-)
-_EMPTY = "chebfunjax has no empty-tech / array-concat API for isempty checks"
-_DIMERR = "chebfunjax has no MATLAB dimension-mismatch error identifier"
-
-
 def _ninf(a):
     return float(jnp.max(jnp.abs(jnp.asarray(a))))
 
 
-def _coeff_diff(f, g):
+def _matlab_norm_inf(a):
+    a = jnp.asarray(a)
+    if a.ndim == 2:
+        return float(jnp.max(jnp.sum(jnp.abs(a), axis=1)))
+    return _ninf(a)
+
+
+def _coeff_diff(f, g, ord=None):
     """||coeffs(f) - coeffs(g)||_inf after zero-padding to a common length.
 
     Handles both scalar (n,) and array-valued (n, m) coefficient arrays.
@@ -70,7 +63,7 @@ def _coeff_diff(f, g):
     dt = jnp.result_type(a.dtype, b.dtype)
     ap = jnp.zeros((n,) + a.shape[1:], dt).at[: a.shape[0]].set(a)
     bp = jnp.zeros((n,) + b.shape[1:], dt).at[: b.shape[0]].set(b)
-    return _ninf(ap - bp)
+    return _ninf(ap - bp) if ord is None else float(jnp.linalg.norm(ap - bp, ord=ord))
 
 
 @pytest.mark.parametrize("Tech", [Chebtech1, Chebtech2])
@@ -111,7 +104,7 @@ class TestChebtechTimes:
         )
         g1 = f * ALPHA
         exact = jnp.stack([jnp.sin(X), jnp.cos(X)], axis=-1) * ALPHA
-        assert _ninf(g1(X) - exact) < 10 * g1.vscale * EPS
+        assert _matlab_norm_inf(g1(X) - exact) < 10 * g1.vscale * EPS
 
     # -- Multiplication by constant functions. pass(n, 6). --
     def test_mult_by_constant_function(self, Tech):
@@ -135,7 +128,7 @@ class TestChebtechTimes:
         )
         h = f * g
         exact = jnp.stack([jnp.sin(X) * ALPHA, jnp.cos(X) * BETA], axis=-1)
-        assert _ninf(h(X) - exact) < 1e4 * h.vscale * EPS
+        assert _matlab_norm_inf(h(X) - exact) < 1e4 * h.vscale * EPS
 
     # -- Spot-checks of two-chebtech products. pass(n, 8:11). --
     def test_mult_ones_by_ones(self, Tech):
@@ -175,7 +168,7 @@ class TestChebtechTimes:
             lambda x: jnp.stack([jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1)
         )
         g = Tech.from_function(lambda x: jnp.tanh(x))
-        assert _coeff_diff(f * g, g * f) < 10 * EPS
+        assert _coeff_diff(f * g, g * f, ord=2) < 10 * EPS
 
     def test_array_valued_mult_scalar_tech_exact(self, Tech):
         # pass(n, 13): feval([sin cos exp] .* tanh) == exact, tol 10*eps.
@@ -208,15 +201,15 @@ class TestChebtechTimes:
 
     def test_array_valued_dim_mismatch(self, Tech):
         # pass(n, 15): array-valued .* with mismatched columns raises.
-        # chebfunjax raises ValueError rather than carrying MATLAB's
-        # CHEBFUN:CHEBTECH:times:dim2 identifier.
         f = Tech.from_function(
             lambda x: jnp.stack(
                 [jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1))
         g = Tech.from_function(
             lambda x: jnp.stack([jnp.sinh(x), jnp.cosh(x)], axis=-1))
-        with pytest.raises((TypeError, ValueError)):
+        with pytest.raises(ValueError) as exc:
             f * g
+        assert exc.value.identifier == "CHEBFUN:CHEBTECH:times:dim2"
+        assert str(exc.value) == "Inner matrix dimensions must agree."
 
     # -- Specially handled cases (positivity adjustments). pass(n, 16:20). --
     def test_mult_complex_sinh_squared(self, Tech):

@@ -1369,8 +1369,10 @@ def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
 
 
 def _is_empty_tech(obj) -> bool:
-    """True if ``obj`` is a marker-empty tech (see ``Chebtech2.empty``)."""
-    return getattr(obj, "_is_empty_object", False)
+    """Source isempty.m, including zero-sized coefficient arrays."""
+    if getattr(obj, "_is_empty_object", False):
+        return True
+    return isinstance(obj, (Chebtech1, Chebtech2)) and obj.coeffs.size == 0
 
 
 def _poly_coeffs(coeffs: jax.Array) -> jax.Array:
@@ -1771,6 +1773,213 @@ def _adaptive_refine_construct(
     return tech_cls(coeffs=coeffs, ishappy=False)
 
 
+class _TechOperationError(ValueError):
+    """Source Chebtech diagnostic with separate identifier and message."""
+
+    def __init__(self, identifier, message):
+        super().__init__(message)
+        self.identifier = identifier
+
+
+def _numeric_array(value):
+    """Convert Python numeric literals as MATLAB doubles, preserving typed arrays."""
+    try:
+        if isinstance(value, (list, tuple, int, float, complex)) and not isinstance(value, bool):
+            return _as_fun_dtype(value)
+        return jnp.asarray(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _matlab_numeric_class(value, array):
+    """Source diagnostic names for explicit numeric dtypes and Python literals."""
+    if isinstance(value, str):
+        return "char"
+    if isinstance(value, dict):
+        return "struct"
+    if callable(value):
+        return "function_handle"
+    if array is not None:
+        if array.dtype == jnp.bool_:
+            return "logical"
+        if array.dtype == jnp.float32 or array.dtype == jnp.complex64:
+            return "single"
+        return str(array.dtype)
+    # An unsupported Python class has no MATLAB class counterpart.
+    return type(value).__name__
+
+
+def _mtimes_unknown(value, array):
+    name = _matlab_numeric_class(value, array)
+    raise _TechOperationError(
+        "CHEBFUN:CHEBTECH:mtimes:chebtechMtimesUnknown",
+        f"mtimes does not know how to multiply a CHEBTECH and a {name}.",
+    )
+
+
+def _tech_mtimes(tech, other):
+    """MATLAB @chebtech/mtimes.m right-operand source dispatch, JAX arithmetic.
+
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+    Python rank-one multipliers represent MATLAB column vectors. Python
+    literals represent MATLAB doubles; explicit array dtypes retain source
+    class diagnostics. Traced results keep their static coefficient length.
+    """
+    cls = type(tech)
+    if _is_empty_tech(tech) or _is_empty_tech(other):
+        return cls.empty()
+    if isinstance(other, (Chebtech1, Chebtech2)):
+        raise _TechOperationError(
+            "CHEBFUN:CHEBTECH:mtimes:chebtechMtimesChebtech",
+            "Use .* to multiply CHEBTECH objects.",
+        )
+    array = _numeric_array(other)
+    if array is not None and array.size == 0:
+        return cls.empty()
+    if array is None or array.dtype not in (jnp.float64, jnp.complex128):
+        _mtimes_unknown(other, array)
+    scalar_valued = tech.coeffs.ndim == 1
+    if array.size == 1:
+        out = tech.coeffs * array.reshape(-1)[0]
+    else:
+        if array.ndim not in (1, 2):
+            raise ValueError("matrix multiplier must be a scalar, vector or matrix")
+        coefficients = tech.coeffs if not scalar_valued else tech.coeffs[:, None]
+        if coefficients.shape[1] != array.shape[0]:
+            raise _TechOperationError(
+                "CHEBFUN:CHEBTECH:mtimes:size2",
+                "Inner matrix dimensions must agree.",
+            )
+        out = coefficients @ array
+        if scalar_valued and out.ndim == 2 and out.shape[1] == 1:
+            out = out[:, 0]
+    if not isinstance(out, jax.core.Tracer):
+        out = _collapse_if_zero(out)
+    return cls(coeffs=out, ishappy=tech.ishappy)
+
+
+
+def _tech_numeric_times(tech, other):
+    """Source numeric TIMES: scalar scaling, bsxfun rows, or column contraction.
+
+    MATLAB source: @chebtech/times.m, Chebfun commit: 7574c77.
+    Python one-dimensional arrays spell MATLAB row-vector column weights.
+    Traced output keeps its static coefficient count, as for MTIMES.
+    """
+    array = _numeric_array(other)
+    if array is not None and array.size == 0:
+        return type(tech).empty()
+    if array is None or array.dtype not in (jnp.float64, jnp.complex128):
+        raise _TechOperationError(
+            "CHEBFUN:CHEBTECH:times:typeMismatch",
+            "Incompatible operation between objects.\nMake sure functions are of the same type.",
+        )
+    if array.size == 1:
+        out = tech.coeffs * array.reshape(-1)[0]
+    else:
+        coefficients = _columns(tech.coeffs)
+        if array.ndim == 1:
+            out = coefficients * array[None, :]
+        elif array.ndim == 2 and array.shape[1] > 1:
+            out = coefficients * array
+        elif array.ndim == 2:
+            out = coefficients @ array
+            if tech.coeffs.ndim == 1:
+                out = out[:, 0]
+        else:
+            raise ValueError("pointwise multiplier must be a scalar, vector or matrix")
+    if not isinstance(out, jax.core.Tracer):
+        out = _collapse_if_zero(out)
+    return type(tech)(coeffs=out, ishappy=tech.ishappy)
+
+
+def _tech_rmtimes(tech, other):
+    """Source scalar-left mtimes dispatch, leaving pointwise * unchanged.
+
+    MATLAB source: @chebtech/mtimes.m, Chebfun commit: 7574c77.
+    """
+    if _is_empty_tech(tech) or _is_empty_tech(other):
+        return type(tech).empty()
+    array = _numeric_array(other)
+    if array is not None and array.size == 0:
+        return type(tech).empty()
+    if array is not None and array.size > 1:
+        raise _TechOperationError(
+            "CHEBFUN:CHEBTECH:mtimes:size",
+            "Inner matrix dimensions must agree.",
+        )
+    return _tech_mtimes(tech, other)
+
+
+def _tech_object_times(tech, other):
+    """Source constant recursion, dimension diagnostics and positive products.
+
+    MATLAB source: @chebtech/times.m, Chebfun commit: 7574c77.
+    Construction and simplify choose coefficient lengths outside JAX tracing.
+    """
+    if tech.n == 1:
+        return _tech_numeric_times(other, _columns(tech.coeffs))
+    if other.n == 1:
+        return _tech_numeric_times(tech, _columns(other.coeffs))
+    left_columns = 1 if tech.coeffs.ndim == 1 else tech.coeffs.shape[1]
+    right_columns = 1 if other.coeffs.ndim == 1 else other.coeffs.shape[1]
+    if left_columns != right_columns and left_columns != 1 and right_columns != 1:
+        raise _TechOperationError(
+            "CHEBFUN:CHEBTECH:times:dim2", "Inner matrix dimensions must agree.",
+        )
+    n = max(tech.n, other.n)
+    left = _columns(_prolong_coeffs(tech.coeffs, n))
+    right = _columns(_prolong_coeffs(other.coeffs, n))
+    # Source's real-square and conjugate-product branches have the same
+    # condition after prolongation and scalar-column broadcasting.
+    positive = bool(jnp.all(left == jnp.conj(right)))
+    coeffs = _coeff_multiply(tech.coeffs, other.coeffs)
+    result = type(tech).from_coeffs(
+        coeffs, ishappy=tech.ishappy and other.ishappy).simplify()
+    if positive:
+        values = jnp.abs(type(result).coeffs2vals(result.coeffs))
+        result = type(result).from_coeffs(
+            type(result).vals2coeffs(values), ishappy=result.ishappy)
+    return result
+
+
+def _tech_cell2mat(cls, techs):
+    """Source cell2mat concatenation, with horzcat empty-argument removal.
+
+    MATLAB source: @chebtech/{cell2mat,horzcat}.m, Chebfun commit: 7574c77.
+    Python's flat sequence spells the horizontal-concatenation input.
+    """
+    if isinstance(techs, (Chebtech1, Chebtech2)):
+        return techs
+    items = tuple(techs)
+    if not items:
+        return cls.empty()
+    kept = []
+    for item in items:
+        if _is_empty_tech(item):
+            continue
+        array = None if isinstance(item, (Chebtech1, Chebtech2)) else _numeric_array(item)
+        if array is not None and array.size == 0:
+            continue
+        if not isinstance(item, (Chebtech1, Chebtech2)):
+            raise _TechOperationError(
+                "CHEBFUN:CHEBTECH:horzcat:typeMismatch",
+                "Incompatible concatenation. Ensure discretizations are of the same type.",
+            )
+        kept.append(item)
+    if not kept:
+        return items[0] if isinstance(items[0], (Chebtech1, Chebtech2)) else cls.empty()
+    if len(kept) == 1:
+        return kept[0]
+    n = max(t.n for t in kept)
+    columns = []
+    for t in kept:
+        coefficients = t.prolong(n).coeffs
+        columns.append(coefficients if coefficients.ndim == 2 else coefficients[:, None])
+    return cls(coeffs=jnp.concatenate(columns, axis=1),
+               ishappy=all(t.ishappy for t in kept))
+
+
 class Chebtech2(eqx.Module):
     """Chebyshev interpolant on 2nd-kind points.
 
@@ -1828,7 +2037,7 @@ class Chebtech2(eqx.Module):
         MATLAB source : @chebtech/isempty.m
         Chebfun commit: 7574c77
         """
-        return getattr(self, "_is_empty_object", False)
+        return _is_empty_tech(self)
 
     # ------------------------------------------------------------------
     # Construction (class methods — NOT __init__)
@@ -2809,23 +3018,30 @@ class Chebtech2(eqx.Module):
             return NotImplemented
         if _is_empty_tech(self) or _is_empty_tech(other):
             return Chebtech2.empty()
-        if isinstance(other, Chebtech2):
-            hc = _coeff_multiply(self.coeffs, other.coeffs)
-            # MATLAB @chebtech/times.m simplifies the product (line 68).
-            # A product's coefficient tail is negligible far below the
-            # exact degree, so without this every length in the library
-            # grows as the exact product degree rather than the happy
-            # one -- ode-nonlin/Logistic prints length(x) at each step
-            # and ran 128, 256, 512 where MATLAB gives 108, 189, 339.
-            return Chebtech2.from_coeffs(
-                hc, ishappy=self.ishappy and other.ishappy).simplify()
+        if isinstance(other, (Chebtech1, Chebtech2)):
+            return _tech_object_times(self, other)
         else:
-            return Chebtech2.from_coeffs(
-                _collapse_if_zero(self.coeffs * _as_scalar(other)),
-                ishappy=self.ishappy)
+            return _tech_numeric_times(self, other)
 
     def __rmul__(self, other) -> "Chebtech2":
+        """Numeric-left pointwise TIMES (column scaling), not matrix MTIMES.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/times.m
+        Chebfun commit: 7574c77
+        """
         return self.__mul__(other)
+
+    def __rmatmul__(self, other):
+        """MATLAB numeric-left MTIMES; only a scalar multiplier is accepted.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/mtimes.m
+        Chebfun commit: 7574c77
+        """
+        return _tech_rmtimes(self, other)
 
     def __matmul__(self, other) -> "Chebtech2":
         """MATLAB mtimes ``f * A``: right-multiply an array-valued tech
@@ -2836,19 +3052,7 @@ class Chebtech2(eqx.Module):
         MATLAB source : @chebtech/mtimes.m
         Chebfun commit: 7574c77
         """
-        if _is_empty_tech(self):
-            return Chebtech2.empty()
-        A = jnp.asarray(other)
-        scalar_valued = self.coeffs.ndim == 1
-        c = self.coeffs if self.coeffs.ndim == 2 else self.coeffs[:, None]
-        out = c @ A
-        # A scalar-valued tech times a 1x1 matrix stays scalar-valued, so the
-        # result keeps 1-D coefficients rather than becoming a 1-column
-        # array-valued tech (which would broadcast wrongly in arithmetic).
-        # A 1-D ``A`` already contracts to 1-D, matching MATLAB f*[a;b].
-        if scalar_valued and out.ndim == 2 and out.shape[1] == 1:
-            out = out[:, 0]
-        return Chebtech2(coeffs=out, ishappy=self.ishappy)
+        return _tech_mtimes(self, other)
 
     def fliplr(self) -> "Chebtech2":
         """Reverse the column order of an array-valued tech (a no-op
@@ -3102,15 +3306,7 @@ class Chebtech2(eqx.Module):
         MATLAB source : @chebtech/cell2mat.m
         Chebfun commit: 7574c77
         """
-        n = max(t.n for t in techs)
-        cols = []
-        for t in techs:
-            c = t.prolong(n).coeffs
-            cols.append(c if c.ndim == 2 else c[:, None])
-        dt = jnp.result_type(*(c.dtype for c in cols))
-        return cls(coeffs=jnp.concatenate(
-                       [c.astype(dt) for c in cols], axis=1),
-                   ishappy=all(t.ishappy for t in techs))
+        return _tech_cell2mat(cls, techs)
 
     def assign_columns(self, cols, g) -> "Chebtech2":
         """Overwrite the columns ``cols`` (0-based) of an array-valued
@@ -3925,7 +4121,7 @@ class Chebtech1(eqx.Module):
         MATLAB source : @chebtech/isempty.m
         Chebfun commit: 7574c77
         """
-        return getattr(self, "_is_empty_object", False)
+        return _is_empty_tech(self)
 
     # ------------------------------------------------------------------
     # Construction (class methods)
@@ -4436,23 +4632,30 @@ class Chebtech1(eqx.Module):
             return NotImplemented
         if _is_empty_tech(self) or _is_empty_tech(other):
             return Chebtech1.empty()
-        if isinstance(other, Chebtech1):
-            hc = _coeff_multiply(self.coeffs, other.coeffs)
-            # MATLAB @chebtech/times.m simplifies the product (line 68).
-            # A product's coefficient tail is negligible far below the
-            # exact degree, so without this every length in the library
-            # grows as the exact product degree rather than the happy
-            # one -- ode-nonlin/Logistic prints length(x) at each step
-            # and ran 128, 256, 512 where MATLAB gives 108, 189, 339.
-            return Chebtech1.from_coeffs(
-                hc, ishappy=self.ishappy and other.ishappy).simplify()
+        if isinstance(other, (Chebtech1, Chebtech2)):
+            return _tech_object_times(self, other)
         else:
-            return Chebtech1.from_coeffs(
-                _collapse_if_zero(self.coeffs * _as_scalar(other)),
-                ishappy=self.ishappy)
+            return _tech_numeric_times(self, other)
 
     def __rmul__(self, other) -> "Chebtech1":
+        """Numeric-left pointwise TIMES (column scaling), not matrix MTIMES.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/times.m
+        Chebfun commit: 7574c77
+        """
         return self.__mul__(other)
+
+    def __rmatmul__(self, other):
+        """MATLAB numeric-left MTIMES; only a scalar multiplier is accepted.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/mtimes.m
+        Chebfun commit: 7574c77
+        """
+        return _tech_rmtimes(self, other)
 
     def __matmul__(self, other) -> "Chebtech1":
         """MATLAB mtimes ``f * A``: right-multiply an array-valued tech
@@ -4463,19 +4666,7 @@ class Chebtech1(eqx.Module):
         MATLAB source : @chebtech/mtimes.m
         Chebfun commit: 7574c77
         """
-        if _is_empty_tech(self):
-            return Chebtech1.empty()
-        A = jnp.asarray(other)
-        scalar_valued = self.coeffs.ndim == 1
-        c = self.coeffs if self.coeffs.ndim == 2 else self.coeffs[:, None]
-        out = c @ A
-        # A scalar-valued tech times a 1x1 matrix stays scalar-valued, so the
-        # result keeps 1-D coefficients rather than becoming a 1-column
-        # array-valued tech (which would broadcast wrongly in arithmetic).
-        # A 1-D ``A`` already contracts to 1-D, matching MATLAB f*[a;b].
-        if scalar_valued and out.ndim == 2 and out.shape[1] == 1:
-            out = out[:, 0]
-        return Chebtech1(coeffs=out, ishappy=self.ishappy)
+        return _tech_mtimes(self, other)
 
     def fliplr(self) -> "Chebtech1":
         """Reverse the column order of an array-valued tech (a no-op
@@ -4700,15 +4891,7 @@ class Chebtech1(eqx.Module):
         MATLAB source : @chebtech/cell2mat.m
         Chebfun commit: 7574c77
         """
-        n = max(t.n for t in techs)
-        cols = []
-        for t in techs:
-            c = t.prolong(n).coeffs
-            cols.append(c if c.ndim == 2 else c[:, None])
-        dt = jnp.result_type(*(c.dtype for c in cols))
-        return cls(coeffs=jnp.concatenate(
-                       [c.astype(dt) for c in cols], axis=1),
-                   ishappy=all(t.ishappy for t in techs))
+        return _tech_cell2mat(cls, techs)
 
     def __truediv__(self, other) -> "Chebtech1":
         """Division.
