@@ -20,6 +20,8 @@ import pytest
 from chebfunjax.tech.trigtech import Trigtech
 
 EPS = float(np.finfo(np.float64).eps)
+# MATLAB uses seedRNG(6178) and 100 random points. This deterministic linspace
+# is an explicit test adaptation, not a claim of seeded MATLAB-grid parity.
 X = jnp.asarray(np.linspace(-1.0, 1.0, 100, endpoint=False))
 
 
@@ -32,7 +34,8 @@ def _ninf(a):
 
 
 def _std(a):
-    return float(jnp.std(jnp.asarray(a)))
+    # MATLAB std uses the sample standard deviation (N-1 denominator).
+    return float(jnp.std(jnp.asarray(a), ddof=1))
 
 
 class TestTrigtechCumsum:
@@ -94,7 +97,7 @@ class TestTrigtechCumsum:
 
     def test_error_when_mean_not_zero(self):
         f = _tt(lambda x: jnp.exp(jnp.cos(jnp.pi * x)))
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="CHEBFUN:TRIGTECH:cumsum:meanNotZero"):
             f.cumsum()
 
     def test_array_valued_cumsum(self):
@@ -110,13 +113,13 @@ class TestTrigtechCumsum:
         # pass(6): all(max(abs(err)) < 100*tol)
         g = f.cumsum().diff()
         err = np.asarray(f(X) - g(X))
-        tol = 10 * g.vscale * EPS
+        tol = 10 * np.asarray(g.vscale_columns()) * EPS
         assert bool(np.all(np.max(np.abs(err), axis=0) < 100 * tol))
         # pass(7): all(std(err) < tol) && all(abs(feval(h, -1)) < tol)
         h = f.diff().cumsum()
         errh = np.asarray(f(X) - h(X))
-        tolh = 10 * h.vscale * EPS
-        assert bool(np.all(np.std(errh, axis=0) < tolh))
+        tolh = 10 * np.asarray(h.vscale_columns()) * EPS
+        assert bool(np.all(np.std(errh, axis=0, ddof=1) < tolh))
         assert bool(np.all(np.abs(np.asarray(h(jnp.array(-1.0)))) < tolh))
 
     def test_array_valued_mean_check(self):
@@ -130,5 +133,5 @@ class TestTrigtechCumsum:
                 axis=-1,
             )
         )
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="CHEBFUN:TRIGTECH:cumsum:meanNotZero"):
             f.cumsum()

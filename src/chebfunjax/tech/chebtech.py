@@ -1453,17 +1453,71 @@ def _chebT_to_chebU_coeffs(cT: jax.Array) -> jax.Array:
 
 
 def _boundary_end_values(c):
-    """|f(-1)| and |f(1)| from Chebyshev-T coeffs, as a numpy (2, m) array.
+    """Return ``|f(-1)|`` and ``|f(1)|`` as a JAX array of shape ``(2,m)``.
 
     Row 0 is x = -1 (``T_k(-1) = (-1)^k``); row 1 is x = +1 (``T_k(1) = 1``).
     """
-    import numpy as np
-
+    c = jnp.asarray(c)
     n = c.shape[0]
-    signs = ((-1.0) ** np.arange(n)).reshape((n,) + (1,) * (c.ndim - 1))
-    fm1 = np.sum(c * signs, axis=0)
-    fp1 = np.sum(c, axis=0)
-    return np.abs(np.stack([np.atleast_1d(fm1), np.atleast_1d(fp1)], axis=0))
+    ncols = 1 if c.ndim == 1 else c.shape[1]
+    cm = c.reshape((n, ncols))
+    signs = jnp.where(jnp.arange(n) % 2 == 0, 1.0, -1.0)
+    fm1 = jnp.sum(cm * signs[:, None], axis=0)
+    fp1 = jnp.sum(cm, axis=0)
+    return jnp.abs(jnp.stack((fm1, fp1), axis=0))
+
+
+def _boundary_root_tolerance(vscale, ncols: int) -> jax.Array:
+    scales = jnp.ravel(jnp.asarray(vscale, dtype=jnp.float64))
+    if scales.size == 1:
+        scales = jnp.broadcast_to(scales, (ncols,))
+    elif scales.size != ncols:
+        raise ValueError("vscale must be scalar or have one value per column")
+    return 1e3 * scales * _EPS
+
+
+def _has_no_boundary_roots(coeffs, vscale) -> jax.Array:
+    """Apply the source's initial endpoint/tolerance early-return test."""
+    c = jnp.asarray(coeffs)
+    if c.size == 0:
+        return jnp.asarray(True)
+    ncols = 1 if c.ndim == 1 else c.shape[1]
+    cm = c.reshape((c.shape[0], ncols))
+    tol = _boundary_root_tolerance(vscale, ncols)
+    return jnp.all(jnp.min(_boundary_end_values(cm), axis=0) > tol)
+
+
+def _peel_boundary_factor(c, active, sgn):
+    """Divide selected coefficient columns by ``1 + sgn*x``.
+
+    This is the upper-banded backward substitution from MATLAB's sparse
+    ``D\\c(2:end,:)``. The three nonzero diagonals are evaluated directly, so
+    no dense matrix or NumPy solve is needed.
+    """
+    from jax import lax
+
+    n, m = c.shape
+    size = n - 1
+    rhs = c[1:, :]
+    work = jnp.zeros((size + 2, m), dtype=c.dtype).at[:size].set(rhs)
+
+    def solve_row(k, solution):
+        i = size - 1 - k
+        diagonal = jnp.where(i == 0, 1.0, 0.5).astype(c.real.dtype)
+        value = (work[i] - sgn * solution[i + 1]
+                 - 0.5 * solution[i + 2]) / diagonal
+        return solution.at[i].set(value)
+
+    solution = lax.fori_loop(
+        0, size, solve_row, jnp.zeros_like(work)
+    )[:size]
+    divided = sgn * solution
+    updated = c.at[:-1, :].set(
+        jnp.where(active[None, :], divided, c[:-1, :])
+    )
+    return updated.at[-1, :].set(
+        jnp.where(active, jnp.zeros((), dtype=c.dtype), c[-1, :])
+    )
 
 
 def _extract_boundary_roots(coeffs, vscale, num_roots=None):
@@ -1481,87 +1535,113 @@ def _extract_boundary_roots(coeffs, vscale, num_roots=None):
     Original authors: Copyright 2017 by The University of Oxford
         and The Chebfun Developers.
     """
-    import numpy as np
+    from jax import lax
 
-    c0 = np.asarray(coeffs)
+    c0 = jnp.asarray(coeffs)
     scalar = c0.ndim == 1
-    c = c0.reshape(c0.shape[0], -1).astype(
-        np.complex128 if np.iscomplexobj(c0) else np.float64
-    )
-    m = c.shape[1]
-    rootsLeft = np.zeros(m)
-    rootsRight = np.zeros(m)
-    tol = 1e3 * float(vscale) * _EPS
+    if c0.ndim not in (1, 2):
+        raise ValueError("coeffs must be a vector or a 2-D column matrix")
+    if c0.shape[0] == 0:
+        m = 1 if scalar else c0.shape[1]
+        zeros = jnp.zeros((m,), dtype=jnp.int32)
+        return c0, zeros[0] if scalar else zeros, zeros[0] if scalar else zeros
+    m = 1 if scalar else c0.shape[1]
+    c = c0.reshape((c0.shape[0], m))
+    rootsLeft = jnp.zeros((m,), dtype=jnp.int32)
+    rootsRight = jnp.zeros((m,), dtype=jnp.int32)
+    tol = _boundary_root_tolerance(vscale, m)
 
-    nr = None if num_roots is None else np.array(num_roots, dtype=float).reshape(2, m)
+    nr = None if num_roots is None else jnp.reshape(
+        jnp.asarray(num_roots, dtype=jnp.float64), (2, m)
+    )
 
     endValues = _boundary_end_values(c)
-    if nr is None and np.all(np.min(endValues, axis=0) > tol):
-        l = int(rootsLeft[0]) if scalar else jnp.asarray(rootsLeft)
-        r = int(rootsRight[0]) if scalar else jnp.asarray(rootsRight)
-        return c0, l, r
+    no_roots = jnp.all(jnp.min(endValues, axis=0) > tol)
 
-    def _still_going():
+    def extract(_):
+        if c.shape[0] == 1:
+            # A nonzero singleton takes the source no-root return. The
+            # scalar-zero case is not source-qualified; this guard avoids a
+            # zero-length recurrence whose MATLAB behavior is unestablished.
+            return c, rootsLeft, rootsRight
+
         if nr is None:
-            return bool(np.any(np.min(endValues, axis=0) <= tol))
-        return bool(np.any(nr > 0))
+            def cond(state):
+                _c, _left, _right, ends, _tol = state
+                return jnp.any(jnp.min(ends, axis=0) <= _tol)
 
-    while _still_going():
-        if nr is None:
-            if np.any(endValues[0, :] <= tol):
-                sgn = 1.0
-                ind = np.where(endValues[0, :] <= tol)[0]
-                rootsLeft[ind] += 1
-            else:
-                sgn = -1.0
-                ind = np.where(endValues[1, :] <= tol)[0]
-                rootsRight[ind] += 1
-        else:
-            if np.any(nr[0, :] > 0):
-                ind_mask = endValues[0, :] <= tol
-                if np.array_equal(ind_mask, nr[0, :] > 0):
-                    sgn = 1.0
-                    ind = np.where(ind_mask)[0]
-                    nr[0, ind] -= 1
-                    rootsLeft += 1
-                else:
-                    nr[0, :] = 0
-                    continue
-            elif np.any(nr[1, :] > 0):
-                ind_mask = endValues[1, :] <= tol
-                if np.array_equal(ind_mask, nr[1, :] > 0):
-                    sgn = -1.0
-                    ind = np.where(ind_mask)[0]
-                    nr[1, ind] -= 1
-                    rootsRight += 1
-                else:
-                    nr[1, :] = 0
-                    continue
-            else:
-                break
+            def body(state):
+                coeff, left, right, ends, current_tol = state
+                do_left = jnp.any(ends[0] <= current_tol)
+                sgn = jnp.where(do_left, 1.0, -1.0)
+                active = jnp.where(
+                    do_left, ends[0] <= current_tol, ends[1] <= current_tol
+                )
+                coeff = _peel_boundary_factor(coeff, active, sgn)
+                left = left + (active & do_left).astype(left.dtype)
+                right = right + (active & ~do_left).astype(right.dtype)
+                return coeff, left, right, _boundary_end_values(coeff), current_tol * 1e2
 
-        # Recurrence matrix D (size (n-1)) for dividing out (1 +/- x):
-        n = c.shape[0]
-        sz = n - 1
-        D = np.zeros((sz, sz), dtype=np.float64)
-        np.fill_diagonal(D, 0.5)
-        if sz >= 2:
-            D[np.arange(sz - 1), np.arange(1, sz)] = sgn
-        if sz >= 3:
-            D[np.arange(sz - 2), np.arange(2, sz)] = 0.5
-        D[0, 0] = 1.0
+            coeff, left, right, _ends, _tol = lax.while_loop(
+                cond, body, (c, rootsLeft, rootsRight, endValues, tol)
+            )
+            return coeff, left, right
 
-        rhs = c[1:, ind]
-        sol = np.linalg.solve(D, rhs)
-        c[: n - 1, ind] = sgn * sol
-        c[n - 1, ind] = 0.0
+        def cond(state):
+            _c, _left, _right, _ends, _tol, requested = state
+            return jnp.any(requested > 0)
 
-        endValues = _boundary_end_values(c)
-        tol = 1e2 * tol
+        def body(state):
+            coeff, left, right, ends, current_tol, requested = state
+            do_left = jnp.any(requested[0] > 0)
+
+            def peel_side(data, side):
+                coeff, left, right, ends, current_tol, requested = data
+                sgn = jnp.where(side == 0, 1.0, -1.0)
+                active = ends[side] <= current_tol
+                requested_active = requested[side] > 0
+                matches = jnp.all(active == requested_active)
+
+                def matched(d):
+                    coeff, left, right, ends, current_tol, requested = d
+                    coeff = _peel_boundary_factor(coeff, active, sgn)
+                    # MATLAB increments the entire count row here, including
+                    # zero-request columns; retain this source quirk.
+                    left = left + (side == 0).astype(left.dtype)
+                    right = right + (side == 1).astype(right.dtype)
+                    requested = requested.at[side].set(
+                        requested[side] - requested_active.astype(requested.dtype)
+                    )
+                    ends = _boundary_end_values(coeff)
+                    return coeff, left, right, ends, current_tol * 1e2, requested
+
+                def mismatched(d):
+                    coeff, left, right, ends, current_tol, requested = d
+                    return (
+                        coeff, left, right, ends, current_tol,
+                        requested.at[side].set(jnp.zeros_like(requested[side])),
+                    )
+
+                return lax.cond(matches, matched, mismatched, data)
+
+            side = jnp.where(do_left, 0, 1)
+            return peel_side((coeff, left, right, ends, current_tol, requested), side)
+
+        coeff, left, right, _ends, _tol, _requested = lax.while_loop(
+            cond, body, (c, rootsLeft, rootsRight, endValues, tol, nr)
+        )
+        return coeff, left, right
+
+    c, rootsLeft, rootsRight = lax.cond(
+        no_roots,
+        lambda _: (c, rootsLeft, rootsRight),
+        extract,
+        operand=None,
+    )
 
     c_out = c[:, 0] if scalar else c
-    l = int(rootsLeft[0]) if scalar else jnp.asarray(rootsLeft)
-    r = int(rootsRight[0]) if scalar else jnp.asarray(rootsRight)
+    l = rootsLeft[0] if scalar else rootsLeft
+    r = rootsRight[0] if scalar else rootsRight
     return jnp.asarray(c_out), l, r
 
 
@@ -2518,6 +2598,31 @@ class Chebtech2(eqx.Module):
     def vscale(self) -> float:
         """Vertical scale: max absolute function value."""
         return float(jnp.max(jnp.abs(self.values)))
+
+    @property
+    def vscale_columns(self) -> jax.Array:
+        """Vertical scale per array-valued column, as a JAX vector.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/vscale.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford and
+            The Chebfun Developers.
+
+        For the no-field ``Tech.empty()`` sentinel this returns a length-zero
+        vector, matching its zero-column helper shape; MATLAB's public
+        ``vscale`` returns scalar zero for an empty tech.
+        """
+        if getattr(self, "_is_empty_object", False):
+            return jnp.empty((0,), dtype=jnp.float64)
+        if self.coeffs.size == 0:
+            ncols = 1 if self.coeffs.ndim == 1 else self.coeffs.shape[1]
+            return jnp.zeros((ncols,), dtype=jnp.float64)
+        values = self.values
+        if values.ndim == 1:
+            values = values[:, None]
+        return jnp.max(jnp.abs(values), axis=0)
 
     def normest(self):
         """Estimate the infinity norm from values on the representation grid.
@@ -3851,7 +3956,18 @@ class Chebtech2(eqx.Module):
         MATLAB source : @chebtech/extractBoundaryRoots.m
         Chebfun commit: 7574c77
         """
-        c, l, r = _extract_boundary_roots(self.coeffs, self.vscale, num_roots)
+        if getattr(self, "_is_empty_object", False):
+            counts = jnp.zeros((0,), dtype=jnp.int32)
+            return self, counts, counts
+        if bool(_has_no_boundary_roots(self.coeffs, self.vscale_columns)):
+            ncols = 1 if self.coeffs.ndim == 1 else self.coeffs.shape[1]
+            zeros = jnp.zeros((ncols,), dtype=jnp.int32)
+            if self.coeffs.ndim == 1:
+                return self, zeros[0], zeros[0]
+            return self, zeros, zeros
+        c, l, r = _extract_boundary_roots(
+            self.coeffs, self.vscale_columns, num_roots
+        )
         g = Chebtech2(coeffs=c, ishappy=self.ishappy).simplify()
         return g, l, r
 
@@ -4478,6 +4594,31 @@ class Chebtech1(eqx.Module):
     def vscale(self) -> float:
         """Vertical scale: max absolute function value."""
         return float(jnp.max(jnp.abs(self.values)))
+
+    @property
+    def vscale_columns(self) -> jax.Array:
+        """Vertical scale per array-valued column, as a JAX vector.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/vscale.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford and
+            The Chebfun Developers.
+
+        For the no-field ``Tech.empty()`` sentinel this returns a length-zero
+        vector, matching its zero-column helper shape; MATLAB's public
+        ``vscale`` returns scalar zero for an empty tech.
+        """
+        if getattr(self, "_is_empty_object", False):
+            return jnp.empty((0,), dtype=jnp.float64)
+        if self.coeffs.size == 0:
+            ncols = 1 if self.coeffs.ndim == 1 else self.coeffs.shape[1]
+            return jnp.zeros((ncols,), dtype=jnp.float64)
+        values = self.values
+        if values.ndim == 1:
+            values = values[:, None]
+        return jnp.max(jnp.abs(values), axis=0)
 
     def normest(self):
         """Estimate the infinity norm from values on the representation grid.
@@ -5319,7 +5460,18 @@ class Chebtech1(eqx.Module):
         MATLAB source : @chebtech/extractBoundaryRoots.m
         Chebfun commit: 7574c77
         """
-        c, l, r = _extract_boundary_roots(self.coeffs, self.vscale, num_roots)
+        if getattr(self, "_is_empty_object", False):
+            counts = jnp.zeros((0,), dtype=jnp.int32)
+            return self, counts, counts
+        if bool(_has_no_boundary_roots(self.coeffs, self.vscale_columns)):
+            ncols = 1 if self.coeffs.ndim == 1 else self.coeffs.shape[1]
+            zeros = jnp.zeros((ncols,), dtype=jnp.int32)
+            if self.coeffs.ndim == 1:
+                return self, zeros[0], zeros[0]
+            return self, zeros, zeros
+        c, l, r = _extract_boundary_roots(
+            self.coeffs, self.vscale_columns, num_roots
+        )
         g = Chebtech1(coeffs=c, ishappy=self.ishappy).simplify()
         return g, l, r
 

@@ -660,11 +660,11 @@ def _trig_diff_coeffs(coeffs: jax.Array, k: int) -> jax.Array:
 # ============================================================================
 
 
-def _trig_cumsum_coeffs(coeffs: jax.Array) -> jax.Array:
+def _trig_cumsum_coeffs(coeffs: jax.Array, m: int = 1) -> jax.Array:
     r"""Antiderivative of a trigonometric series (F(-1) = 0).
 
-    Given c_k, returns b_k = c_k / (i*pi*k) for k != 0.
-    b_0 is determined by the condition F(-1) = 0.
+    Given c_k, returns b_k = c_k * (-i/(pi*k))**m for k != 0.
+    The zero mode is determined by the source endpoint condition F(-1) = 0.
 
     The function must have zero mean (c_0 = 0) for the antiderivative to be
     periodic.
@@ -672,7 +672,10 @@ def _trig_cumsum_coeffs(coeffs: jax.Array) -> jax.Array:
     Parameters
     ----------
     coeffs : jax.Array, shape (N,) complex
-        Fourier coefficients in descending wavenumber order.
+        Fourier coefficients in increasing wavenumber order, from negative
+        modes through the constant mode to positive modes.
+    m : int, default 1
+        Static order of integration, as required by the JAX trace.
 
     Returns
     -------
@@ -680,7 +683,7 @@ def _trig_cumsum_coeffs(coeffs: jax.Array) -> jax.Array:
 
     Notes
     -----
-    JIT-safe: yes.
+    JIT-safe for a static Python integer ``m``.
 
     Provenance
     ----------
@@ -709,27 +712,29 @@ def _trig_cumsum_coeffs(coeffs: jax.Array) -> jax.Array:
     # Zero out the constant mode
     c_work = c_expanded.at[c0_idx].set(0.0 + 0j)
 
-    # Integration factor: 1/(i*pi*k) for k != 0
+    # Source integration factor: (-i/(pi*k))**m for k != 0.
     # (trailing singleton axes broadcast over array-valued columns)
     safe_wn = jnp.where(wavenumbers == 0, 1.0, wavenumbers)
     int_factor = jnp.where(
         wavenumbers == 0,
         0.0 + 0j,
-        1.0 / (1j * jnp.pi * safe_wn + 0j),
+        (-1j / safe_wn / jnp.pi) ** m,
     )
     int_factor = int_factor.reshape(
         (n_exp,) + (1,) * (c_work.ndim - 1))
     b = c_work * int_factor
 
-    # For even original N: zero out the ±N/2 modes (they're pure cos, don't integrate)
-    if is_even:
+    # MATLAB zeros the expanded Nyquist endpoints only for odd-order
+    # integration, where the corresponding sine mode vanishes on the grid.
+    if is_even and m % 2 == 1:
         b = b.at[0].set(0.0 + 0j)
         b = b.at[-1].set(0.0 + 0j)
 
     # Determine b_0 from F(-1) = 0:
     # F(-1) = sum_k b_k * exp(-i*pi*k) = sum_k b_k * (-1)^k = 0
     # => b_0 = -sum_{k != 0} b_k * (-1)^k
-    signs = (-1.0 + 0j) ** wavenumbers
+    integer_wavenumbers = wavenumbers.astype(jnp.int64)
+    signs = jnp.where(integer_wavenumbers % 2 == 0, 1.0, -1.0)
     b_no_const = b.at[c0_idx].set(0.0 + 0j)
     b = b.at[c0_idx].set(-jnp.tensordot(signs, b_no_const, axes=(0, 0)))
 
@@ -1072,6 +1077,76 @@ def _chop_cutoff_to_ncoeffs(chop_cutoff: int, n_full: int) -> int:
     # paired_idx modes (including constant) -> n_keep = 2*paired_idx - 1 (odd, centered)
     n_keep = max(1, 2 * paired_idx - 1)
     return min(n_keep, n_full)
+
+
+def _trig_source_pairs_for_chop(coeffs: jax.Array) -> jax.Array:
+    """Pair raw round-tripped coefficients as ``@trigtech/simplify.m`` does.
+
+    In contrast to the adaptive/multiplication helper above, source simplify
+    takes absolute values before the FFT round-trip, then sums opposite modes
+    without taking their individual magnitudes. ``standard_chop`` applies the
+    magnitude to each resulting pair.
+    """
+    n = len(coeffs)
+    if n % 2:
+        center = n // 2
+        pairs = coeffs[:center][::-1] + coeffs[center + 1:]
+        sequence = jnp.concatenate((coeffs[center:center + 1], pairs))
+    else:
+        half = n // 2
+        # After MATLAB's initial coefficient reversal, even-length storage
+        # has its center at half-1 and its unpaired mode at the final index.
+        # These are the literal @trigtech/simplify.m slices before flipud.
+        source_rows = jnp.concatenate(
+            (
+                coeffs[-1:],
+                coeffs[half:n - 1][::-1] + coeffs[:half - 1],
+                coeffs[half - 1:half],
+            )
+        )
+        sequence = source_rows[::-1]
+    if sequence.shape[0] > 1:
+        sequence = jnp.concatenate(
+            (sequence[:1], jnp.repeat(sequence[1:], 2))
+        )
+    return sequence
+
+
+def _trig_simplify_cutoff(
+    coeffs: jax.Array, tol: float | jax.Array | None,
+) -> tuple[int, int]:
+    """Source pipeline for ``@trigtech/simplify.m`` column cutoffs.
+
+    MATLAB reverses and takes absolute values of the prolonged coefficients
+    before its noisy FFT round-trip. This is distinct from the raw-coefficient
+    round-trip used by other callers of ``_trig_chop_cutoff``.
+    """
+    source_coeffs = jnp.abs(coeffs[::-1, ...])
+    noisy_coeffs = trig_vals2coeffs(trig_coeffs2vals(source_coeffs))
+    ncols = 1 if noisy_coeffs.ndim == 1 else noisy_coeffs.shape[1]
+
+    if tol is None:
+        tolerances = [None] * ncols
+    else:
+        tol_array = jnp.asarray(tol)
+        tol_values = jnp.ravel(tol_array)
+        if (tol_values.size != ncols
+                or (tol_array.ndim > 1 and tol_array.shape[-1] != ncols)):
+            tol_values = jnp.full((ncols,), jnp.max(tol_values))
+        tolerances = [float(tol_values[j]) for j in range(ncols)]
+
+    if noisy_coeffs.ndim == 1:
+        chop_input = _trig_source_pairs_for_chop(noisy_coeffs)
+        cutoff = standard_chop(chop_input, tolerances[0])
+        return cutoff, len(chop_input)
+
+    cutoff = 1
+    chop_length = 0
+    for column, column_tol in enumerate(tolerances):
+        chop_input = _trig_source_pairs_for_chop(noisy_coeffs[:, column])
+        cutoff = max(cutoff, standard_chop(chop_input, column_tol))
+        chop_length = len(chop_input)
+    return cutoff, chop_length
 
 
 def _trig_chop_cutoff(coeffs: jax.Array,
@@ -1755,7 +1830,7 @@ class Trigtech(eqx.Module):
         new_coeffs = _trig_prolong_coeffs(self.coeffs, n)
         return Trigtech(coeffs=new_coeffs, is_real=self.is_real, ishappy=self.ishappy)
 
-    def simplify(self, tol: float | None = None) -> "Trigtech":
+    def simplify(self, tol: float | jax.Array | None = None) -> "Trigtech":
         """Return a new Trigtech with small trailing Fourier coefficients removed.
 
         Uses ``standard_chop`` on the paired coefficient magnitudes to find
@@ -1783,14 +1858,10 @@ class Trigtech(eqx.Module):
         if nold == 0:
             # MATLAB @trigtech/simplify.m leaves an empty trigtech alone.
             return self
-        N = max(17, round(nold * 1.25 + 5))
+        N = max(17, int(jnp.floor(nold * 1.25 + 5 + 0.5)))
         prolonged = self.prolong(N)
 
-        # Round-trip to create slight noise on the plateau
-        v = trig_coeffs2vals(prolonged.coeffs)
-        c_noisy = trig_vals2coeffs(v)
-
-        cutoff, chop_len = _trig_chop_cutoff(c_noisy, tol)
+        cutoff, chop_len = _trig_simplify_cutoff(prolonged.coeffs, tol)
         cutoff = min(cutoff, chop_len)
 
         # MATLAB: cutoff = min(cutoff, nold); an even cutoff keeps
@@ -1850,10 +1921,13 @@ class Trigtech(eqx.Module):
         # Derivative of a real function is real-valued
         return Trigtech(coeffs=dc, is_real=self.is_real, ishappy=self.ishappy)
 
-    def cumsum(self) -> "Trigtech":
+    def cumsum(self, m: int | None = 1, dim: int = 1) -> "Trigtech":
         r"""Return the antiderivative with F(-1) = 0.
 
-        Requires zero mean (c_0 = 0).
+        ``m`` selects the order and ``dim`` selects the dimension. For
+        ``dim=1`` this follows MATLAB's continuous Fourier antiderivative;
+        for any other dimension it performs repeated cumulative sums over
+        coefficient columns.
 
         Returns
         -------
@@ -1869,21 +1943,58 @@ class Trigtech(eqx.Module):
         ----------
         MATLAB source : @trigtech/cumsum.m
         Chebfun commit: 7574c77
+
+        Notes
+        -----
+        The continuous branch ports MATLAB's direct order-``m`` integration
+        factor and its post-integration simplify/left-value adjustment. The
+        finite-dimensional branch applies the source column cumulative sum
+        ``m`` times. MATLAB updates both its cached values and coefficient
+        row after subtracting ``lval``; this Python representation recomputes
+        values from coefficients, so that two-storage detail remains a parity
+        qualification point. The Python method accepts scalar integer ``m``
+        and ``dim``.
         """
+        if self.n == 0:
+            return self
+        if m is None:
+            m = 1
+        m = int(m)
+        if m == 0:
+            return self
+        if dim != 1:
+            if self.coeffs.ndim == 1:
+                return self
+            coeffs = self.coeffs
+            for _ in range(max(m, 0)):
+                coeffs = jnp.cumsum(coeffs, axis=1)
+            return Trigtech(coeffs=coeffs, is_real=self.is_real,
+                            ishappy=self.ishappy)
+
         n = self.n
         c0_idx = n // 2
-        # max over columns for array-valued techs (every column must
-        # have zero mean)
-        c0_mag = float(jnp.max(jnp.abs(self.coeffs[c0_idx])))
-        vs = self.vscale if self.vscale > 0 else 1.0
-        if c0_mag > 10.0 * vs * _EPS:
+        # Check every array-valued column against its own mean tolerance.
+        c0_mag = jnp.abs(self.coeffs[c0_idx])
+        # MATLAB's vscale(f) is column-wise for array-valued trigtechs.
+        # A large neighboring column must not hide a nonzero mean in a
+        # smaller column, and a zero column keeps its exact zero tolerance.
+        vs = self.vscale_columns()
+        if bool(jnp.any(c0_mag > 10.0 * vs * _EPS)):
             raise ValueError(
-                f"Trigtech.cumsum: function does not have zero mean "
-                f"(|c_0| = {c0_mag:.3e}). The antiderivative of a non-zero-mean "
-                f"periodic function is not periodic."
+                "CHEBFUN:TRIGTECH:cumsum:meanNotZero: "
+                "Indefinite integrals are only possible for TRIGTECH objects "
+                "with zero mean."
             )
-        bc = _trig_cumsum_coeffs(self.coeffs)
-        return Trigtech(coeffs=bc, is_real=self.is_real, ishappy=self.ishappy)
+        bc = _trig_cumsum_coeffs(self.coeffs, m=m)
+        result = Trigtech(coeffs=bc, is_real=self.is_real, ishappy=self.ishappy)
+        result = result.simplify()
+        # MATLAB @trigtech/cumsum.m subtracts lval from coefficient row 1
+        # after simplify. Preserve this literal source operation; it is not
+        # rewritten as a central (constant-mode) correction here.
+        lval = result(jnp.asarray(-1.0))
+        corrected = result.coeffs.at[0].add(-lval)
+        return Trigtech(coeffs=corrected, is_real=result.is_real,
+                        ishappy=result.ishappy)
 
     def innerProduct(self, other: "Trigtech") -> jax.Array:
         r"""L^2 inner product <f, g> = \int_{-1}^{1} conj(f) g dx.
