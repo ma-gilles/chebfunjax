@@ -144,20 +144,54 @@ def _brent(f, y, a, b, max_iterations: int = 512):
     )
 
 
-def _bisection(f, y, a, b):
-    left, right = jnp.full_like(y, a), jnp.full_like(y, b)
-    increasing = float(f(jnp.asarray(a))) < float(f(jnp.asarray(b)))
-    xtol = _EPS * max(abs(a), abs(b), abs(b - a))
-    for _ in range(128):
-        mid = left + (right - left) / 2
-        value = f(mid)
-        move_left = value < y if increasing else value > y
-        exact = value == y
-        left = jnp.where(move_left | exact, mid, left)
-        right = jnp.where(~move_left | exact, mid, right)
-        if float(jnp.max(right - left)) <= xtol:
-            break
-    return left + (right - left) / 2
+@eqx.filter_jit
+def _bisection(f, y, a, b, max_iterations: int = 2048):
+    """Literal vectorized ``fInverseBisection`` iteration.
+
+    The source uses an absolute EPS interval width and an EPS-wide residual
+    dead band. ``max_iterations`` is an explicit Python safety cap; exhausting
+    it while any interval remains open raises instead of returning a partial
+    iterate.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/inv.m, local fInverseBisection
+    Chebfun commit: 7574c77, lines 270-293
+    """
+    y = jnp.asarray(y, dtype=jnp.float64)
+    left0 = jnp.full_like(y, a)
+    right0 = jnp.full_like(y, b)
+    # MATLAB carries scalar endpoints; broadcast the initial midpoint to the
+    # target shape so the JAX loop has invariant state shapes.
+    c0 = jnp.full_like(y, (a + b) / 2)
+    direction = jnp.sign(f(jnp.asarray(b)) - f(jnp.asarray(a)))
+    i0 = jnp.asarray(0, dtype=jnp.int32)
+
+    def condition(state):
+        i, left, right, _c = state
+        open_width = jnp.max(jnp.abs(right - left)) >= _EPS
+        return (i < max_iterations) & open_width
+
+    def step(state):
+        i, left, right, c = state
+        vals = direction * (f(c) - y)
+        # Preserve source classification and assignment order:
+        # I1=(vals<=-eps), I2=(vals>=eps), I3=the residual dead band.
+        move_right = vals <= -_EPS
+        move_left = vals >= _EPS
+        dead_band = ~(move_right | move_left)
+        left = (move_right * c + move_left * left + dead_band * c)
+        right = (move_right * right + move_left * c + dead_band * c)
+        c = (left + right) / 2
+        return i + 1, left, right, c
+
+    state = jax.lax.while_loop(condition, step,
+                               (i0, left0, right0, c0))
+    i, left, right, c = state
+    del i
+    exhausted = jnp.max(jnp.abs(right - left)) >= _EPS
+    return eqx.error_if(c, exhausted,
+                        "MATLAB-source bisection still open at safety cap")
 
 
 def _false_position(f, y, a, b, illinois):
@@ -208,30 +242,49 @@ def _roots(f, y, tol):
     return jnp.asarray(out).reshape(y.shape)
 
 
+@eqx.filter_jit
 def _newton(f, fp, y, a, b, tol):
-    # MATLAB uses the previous sample's solution as the next initial guess.
-    # A Brent safeguard handles derivative zeros and endpoint jumps.
-    flat = y.ravel()
-    previous = a if float(f(jnp.asarray(a))) < float(f(jnp.asarray(b))) else b
-    out = []
-    for target in flat:
-        point = previous
-        for _ in range(11):
-            residual = float(f(jnp.asarray(point)) - target)
-            if abs(residual) <= tol / 5:
-                break
-            derivative = float(fp(jnp.asarray(point)))
-            if derivative == 0:
-                break
-            candidate = point - residual / derivative
-            if not math.isfinite(candidate) or not a <= candidate <= b:
-                break
-            point = candidate
-        if abs(float(f(jnp.asarray(point)) - target)) > tol:
-            point = float(_brent(f, target, a, b))
-        out.append(point)
-        previous = point
-    return jnp.asarray(out).reshape(y.shape)
+    """Literal MATLAB Newton inverse iteration for a dense target vector.
+
+    Source begins at the left domain endpoint, carries each answer forward,
+    uses ``tol/5``, applies raw Newton divisions, and returns the iterate after
+    at most eleven updates. It has no interval guard or fallback solver.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/inv.m, local fInverseNewton
+    Chebfun commit: 7574c77, lines 231-268
+
+    Adapter note: Python preserves the target array shape because the public
+    constructor callback contract differs from MATLAB's column-vector output.
+    """
+    y = jnp.asarray(y, dtype=jnp.float64)
+    targets = y.reshape((-1,))
+    tolerance = jnp.asarray(tol, dtype=y.dtype) / 5.0
+    first = jnp.asarray(a, dtype=y.dtype)
+
+    def solve_one(previous, target):
+        residual0 = f(previous) - target
+        count0 = jnp.asarray(0, dtype=jnp.int32)
+
+        def condition(state):
+            count, _point, residual = state
+            return (jnp.abs(residual) > tolerance) & (count <= 10)
+
+        def update(state):
+            count, point, residual = state
+            # Deliberately retain IEEE behavior for zero/nonfinite derivative,
+            # as the MATLAB source performs this division without a guard.
+            point = point - residual / fp(point)
+            residual = f(point) - target
+            return count + 1, point, residual
+
+        _, point, _residual = jax.lax.while_loop(
+            condition, update, (count0, previous, residual0))
+        return point, point
+
+    _, result = jax.lax.scan(solve_one, first, targets)
+    return result.reshape(y.shape)
 
 
 def _inverse(f, pref=None, *, algorithm="brent", eps=None,
