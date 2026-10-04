@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from typing import Callable
 
+import jax
 import jax.numpy as jnp
 
 # ---------------------------------------------------------------------------
@@ -94,92 +95,51 @@ def standard_chop(coeffs: jnp.ndarray, tol: float | None = None) -> int:
     --------
     gridsample, abstract_qr
     """
-    # --- Default tolerance ---
-    if tol is None:
-        tol = float(_EPS)
-    else:
-        tol = float(tol)
-
-    # If tol >= 1, everything is within tolerance; keep only 1 coefficient.
+    tol = float(_EPS) if tol is None else float(tol)
     if tol >= 1:
         return 1
+    coeffs = jnp.ravel(jnp.atleast_1d(jnp.asarray(coeffs)))
+    if coeffs.size < 17:
+        return int(coeffs.size)
+    return int(_standard_chop_kernel(coeffs, jnp.asarray(tol, dtype=jnp.float64)))
 
-    # Ensure coeffs is a 1-D real array. The envelope is built from
-    # magnitudes anyway (MATLAB standardChop), so complex coefficients are
-    # reduced via abs() rather than a real-cast that drops imaginary parts.
-    # All array work is numpy: standard_chop is called *outside* JIT
-    # (adaptive construction is a Python loop) and eager jnp primitives
-    # compile one kernel per length -- a large compile tax across
-    # rootfinding and constructors.
-    import numpy as _np
 
-    coeffs = _np.atleast_1d(_np.asarray(coeffs))
-    if _np.iscomplexobj(coeffs):
-        coeffs = _np.abs(coeffs)
-    coeffs = coeffs.astype(_np.float64).ravel()
+@jax.jit
+def _standard_chop_kernel(coeffs: jnp.ndarray, tol: jnp.ndarray) -> jnp.ndarray:
+    """JAX implementation of standardChop's three source-indexed steps."""
+    n = coeffs.size
+    magnitudes = jnp.asarray(jnp.abs(coeffs), dtype=jnp.float64)
+    envelope = jax.lax.associative_scan(jnp.maximum, magnitudes, reverse=True)
+    scale = envelope[0]
+    envelope = envelope / jnp.where(scale == 0, 1.0, scale)
 
-    n = coeffs.shape[0]
-    cutoff = int(n)
+    # MATLAB uses half-away rounding. For positive source indices this exact
+    # integer expression is round(1.25*j + 5), including j=6,14,22,... ties.
+    j = jnp.arange(2, n + 1)
+    windows = (5 * j + 22) // 4
+    e1 = envelope[j - 1]
+    e2 = envelope[jnp.minimum(windows - 1, n - 1)]
+    r = 3.0 * (1.0 - jnp.log(e1) / jnp.log(tol))
+    plateau = (windows <= n) & ((e1 == 0) | (e2 / e1 > r))
+    first = jnp.min(jnp.where(plateau, j, n + 1))
+    found = first <= n
+    plateau_point = first - 1
+    window = jnp.minimum((5 * first + 22) // 4, n)
 
-    # Require at least 17 coefficients before attempting to chop.
-    if n < 17:
-        return cutoff
-
-    # ------------------------------------------------------------------
-    # Step 1: Build the envelope — a monotonically non-increasing sequence
-    #         normalised to begin at 1.
-    # ------------------------------------------------------------------
-    b = _np.abs(coeffs)
-
-    # Reverse cumulative maximum: m[j] = max(|c_j|, |c_{j+1}|, ..., |c_{n-1}|).
-    # Equivalent to MATLAB's cummax(..., 'reverse').
-    m = _np.flip(_np.maximum.accumulate(_np.flip(b)))
-
-    m0 = float(m[0])
-    if m0 == 0.0:
-        return 1
-
-    envelope_np = m / m0  # normalised, envelope[0] == 1
-
-    # ------------------------------------------------------------------
-    # Step 2: Scan for a plateau.
-    # ------------------------------------------------------------------
-    log_tol = _np.log(tol)
-    plateau_point = None
-
-    for j in range(2, n + 1):  # 1-based j matching the MATLAB code
-        j2 = int(round(1.25 * j + 5))
-        if j2 > n:
-            # No plateau found.
-            return cutoff
-
-        e1 = float(envelope_np[j - 1])
-        e2 = float(envelope_np[j2 - 1])
-        r = 3.0 * (1.0 - _np.log(e1) / log_tol) if e1 > 0 else 0.0
-        plateau = (e1 == 0.0) or (e2 / e1 > r)
-        if plateau:
-            plateau_point = j - 1  # 1-based index
-            break
-
-    if plateau_point is None:
-        return cutoff
-
-    # ------------------------------------------------------------------
-    # Step 3: Fine-tune the cutoff.
-    # ------------------------------------------------------------------
-    if envelope_np[plateau_point - 1] == 0.0:
-        cutoff = plateau_point
-    else:
-        j3 = int(_np.sum(envelope_np >= tol ** (7.0 / 6.0)))
-        if j3 < j2:
-            j2 = j3 + 1
-            envelope_np[j2 - 1] = tol ** (7.0 / 6.0)
-        cc = _np.log10(envelope_np[:j2])
-        cc = cc + _np.linspace(0.0, (-1.0 / 3.0) * _np.log10(tol), j2)
-        d = int(_np.argmin(cc))
-        cutoff = max(d, 1)  # d is 0-based index; cutoff is 1-based length
-
-    return cutoff
+    threshold = tol ** (7.0 / 6.0)
+    j3 = jnp.sum(envelope >= threshold)
+    shortened = j3 < window
+    window = jnp.where(shortened, j3 + 1, window)
+    envelope = envelope.at[window - 1].set(
+        jnp.where(shortened, threshold, envelope[window - 1])
+    )
+    indices = jnp.arange(n)
+    bias = indices * ((-1.0 / 3.0) * jnp.log10(tol)) / (window - 1)
+    cc = jnp.where(indices < window, jnp.log10(envelope) + bias, jnp.inf)
+    cutoff = jnp.maximum(jnp.argmin(cc), 1)
+    cutoff = jnp.where(envelope[jnp.minimum(plateau_point - 1, n - 1)] == 0,
+                       plateau_point, cutoff)
+    return jnp.where(scale == 0, 1, jnp.where(found, cutoff, n))
 
 
 def gridsample(
@@ -322,88 +282,67 @@ def abstract_qr(
     standard_chop, gridsample
     """
     if my_norm is None:
-        my_norm = lambda u: float(jnp.linalg.norm(u))  # noqa: E731
+        my_norm = jnp.linalg.norm
     if tol is None:
         tol = float(_EPS)
 
-    num_cols = A.shape[1]
-
-    # Work with mutable numpy arrays to match the MATLAB loop structure.
-    import numpy as _np
-
-    A_work = _np.array(A, dtype=_np.float64 if jnp.isrealobj(A) else _np.complex128)
-    E_work = _np.array(E, dtype=A_work.dtype)
-    R = _np.zeros((num_cols, num_cols), dtype=A_work.dtype)
-    V = _np.copy(A_work)  # Will store Householder vectors
+    a_in = jnp.asarray(A)
+    e_in = jnp.asarray(E)
+    dtype = jnp.result_type(a_in.dtype, e_in.dtype, jnp.float64)
+    a_work = jnp.asarray(a_in, dtype=dtype)
+    e_work = jnp.asarray(e_in, dtype=dtype)
+    num_cols = a_work.shape[1]
+    r_mat = jnp.zeros((num_cols, num_cols), dtype=dtype)
+    v_mat = a_work
 
     for k in range(num_cols):
-        # Scale for deciding if a column is numerically zero.
-        scl = max(my_norm(E_work[:, k]), my_norm(A_work[:, k]))
+        a_col = a_work[:, k]
+        e_col = e_work[:, k]
+        scale = jnp.maximum(my_norm(e_col), my_norm(a_col))
 
-        # Inner product of E(:,k) and A(:,k)
-        ex = inner_product(jnp.asarray(E_work[:, k]), jnp.asarray(A_work[:, k]))
-        ex = complex(ex) if jnp.iscomplexobj(jnp.asarray(ex)) else float(ex)
-        aex = abs(ex)
-
-        # Adjust sign of E(:,k)
-        if aex < tol * scl:
-            s = 1.0
+        ex = inner_product(e_col, a_col)
+        abs_ex = jnp.abs(ex)
+        if bool(abs_ex < tol * scale):
+            sign = jnp.asarray(1.0, dtype=dtype)
         else:
-            s = -ex / aex  # = -sign(ex/|ex|)
-        E_work[:, k] = E_work[:, k] * s
+            sign = -ex / abs_ex
+        e_work = e_work.at[:, k].set(e_col * sign)
+        e_col = e_work[:, k]
 
-        # Compute the norm of A(:,k) via the inner product
-        r_kk = _np.sqrt(
-            float(_np.real(inner_product(jnp.asarray(A_work[:, k]), jnp.asarray(A_work[:, k]))))
-        )
-        R[k, k] = r_kk
+        r_kk_sq = inner_product(a_col, a_col)
+        r_kk = jnp.sqrt(jnp.real(r_kk_sq))
+        r_mat = r_mat.at[k, k].set(r_kk)
 
-        # Compute the Householder reflection vector
-        v = r_kk * E_work[:, k] - A_work[:, k]
-
-        # Orthogonalise against previous basis vectors
+        v = r_kk * e_col - a_col
         for i in range(k):
-            ev = inner_product(jnp.asarray(E_work[:, i]), jnp.asarray(v))
-            ev = complex(ev) if jnp.iscomplexobj(jnp.asarray(ev)) else float(ev)
-            v = v - E_work[:, i] * ev
+            e_prev = e_work[:, i]
+            v = v - e_prev * inner_product(e_prev, v)
 
-        # Normalise
-        nv = _np.sqrt(
-            float(_np.real(inner_product(jnp.asarray(v), jnp.asarray(v))))
-        )
-        if nv < tol * scl:
-            v = E_work[:, k].copy()
+        v_norm_sq = inner_product(v, v)
+        v_norm = jnp.sqrt(jnp.real(v_norm_sq))
+        if bool(v_norm < tol * scale):
+            v = e_col
         else:
-            v = v / nv
+            v = v / v_norm
+        v_mat = v_mat.at[:, k].set(v)
 
-        # Store Householder vector
-        V[:, k] = v
-
-        # Apply Householder reflection to remaining columns
         for j in range(k + 1, num_cols):
-            av = inner_product(jnp.asarray(v), jnp.asarray(A_work[:, j]))
-            av = complex(av) if jnp.iscomplexobj(jnp.asarray(av)) else float(av)
-            A_work[:, j] = A_work[:, j] - 2.0 * v * av
+            a_j = a_work[:, j]
+            a_j = a_j - 2.0 * v * inner_product(v, a_j)
+            r_kj = inner_product(e_col, a_j)
+            r_mat = r_mat.at[k, j].set(r_kj)
+            a_work = a_work.at[:, j].set(a_j - e_col * r_kj)
 
-            rr = inner_product(jnp.asarray(E_work[:, k]), jnp.asarray(A_work[:, j]))
-            rr = complex(rr) if jnp.iscomplexobj(jnp.asarray(rr)) else float(rr)
-            R[k, j] = rr
-
-            A_work[:, j] = A_work[:, j] - E_work[:, k] * rr
-
-    # Form Q from V (backward accumulation of Householder reflections)
-    Q = _np.copy(E_work)
+    q_mat = e_work
     for k in range(num_cols - 1, -1, -1):
+        v = v_mat[:, k]
         for j in range(k, num_cols):
-            vq = inner_product(jnp.asarray(V[:, k]), jnp.asarray(Q[:, j]))
-            vq = complex(vq) if jnp.iscomplexobj(jnp.asarray(vq)) else float(vq)
-            Q[:, j] = Q[:, j] - 2.0 * V[:, k] * vq
+            q_j = q_mat[:, j]
+            q_mat = q_mat.at[:, j].set(
+                q_j - 2.0 * v * inner_product(v, q_j)
+            )
 
-    # Preserve complexness: a real ``A`` still yields float64 output, but a
-    # complex quasimatrix must not have its imaginary part discarded.
-    out_dtype = jnp.complex128 if _np.iscomplexobj(A_work) else jnp.float64
-    return jnp.asarray(Q, dtype=out_dtype), jnp.asarray(R, dtype=out_dtype)
-
+    return q_mat, r_mat
 
 def isSubset(A, B, tol: float = 0.0) -> bool:
     """True if hyper-rectangle A is contained in B up to tol
@@ -415,16 +354,18 @@ def isSubset(A, B, tol: float = 0.0) -> bool:
     MATLAB source : isSubset.m
     Chebfun commit: 7574c77
     """
-    import numpy as _np
-    A = _np.asarray(A, dtype=float).ravel()
-    B = _np.asarray(B, dtype=float).ravel()
-    if len(A) != len(B) or len(A) % 2 != 0:
-        raise ValueError("A and B must be matching length-2N vectors")
-    for i in range(0, len(A), 2):
-        if A[i] < B[i] - tol or A[i + 1] > B[i + 1] + tol:
+    a = jnp.ravel(jnp.asarray(A, dtype=jnp.float64))
+    b = jnp.ravel(jnp.asarray(B, dtype=jnp.float64))
+    if a.size == 0:
+        return True
+    if a.size != b.size:
+        raise ValueError("Domains must have the same number of entries.")
+    if a.size % 2:
+        raise ValueError("Domains must contain endpoint pairs.")
+    for i in range(0, a.size, 2):
+        if bool(a[i] < b[i] - tol) or bool(b[i + 1] + tol < a[i + 1]):
             return False
     return True
-
 
 def make_empty_aware(cls, names):
     """Wrap the named methods of cls so that calling them on the
