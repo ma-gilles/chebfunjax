@@ -317,7 +317,13 @@ def diffmat(n: int, p: int = 1,
         raise ValueError(
             f"Differentiation order p must be non-negative, got p={p}."
         )
-    if p == 0 or n == 1:
+    if n == 1:
+        # MATLAB @chebcolloc/baryDiffMat returns scalar zero for a
+        # singleton before its k==0 identity branch.  The public square
+        # Chebyshev diffmat path preserves that source ordering, including
+        # p=0; n>1, p=0 remains the identity below.
+        D = jnp.zeros((1, 1), dtype=jnp.float64)
+    elif p == 0:
         D = jnp.eye(n, dtype=jnp.float64)
     elif kind == 2:
         x = chebpts(n, kind=2)

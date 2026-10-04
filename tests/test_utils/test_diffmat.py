@@ -326,9 +326,9 @@ class TestEdgeCases:
     """Edge cases and error handling."""
 
     def test_diffmat_n1(self):
-        """Single-point matrix is identity."""
+        """MATLAB's singleton baryDiffMat is zero, including order zero."""
         D = diffmat(1)
-        npt.assert_allclose(np.array(D), np.eye(1), atol=1e-15)
+        npt.assert_allclose(np.array(D), np.zeros((1, 1)), atol=1e-15)
 
     def test_diffmat_n0(self):
         """Zero-size matrix."""
