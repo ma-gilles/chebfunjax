@@ -123,6 +123,7 @@ jobs:
               tests/test_matlab_port/cheb
               tests/test_matlab_port/domain
               tests/test_matlab_port/chebpref
+              tests/test_matlab_port/chebgui
               tests/test_matlab_port/adchebfun
               tests/test_matlab_port/treeVar
           - name: techs
