@@ -1,17 +1,11 @@
 """Port of MATLAB Chebfun tests/chebtech1/test_constructor.m (Fable 5).
 
-MATLAB's ``test_constructor`` exercises the non-user-facing ``populate()``.
-chebfunjax's equivalent entry point is ``Chebtech1.from_function``, a single
-adaptive constructor: the scalar and array-valued construction-accuracy
-checks, the NaN/Inf error, the fixed-length construction and the
-logical-valued construction all port at the MATLAB tolerances.  ``normest``
-is reproduced as ``max(vscale)`` (a faithful equivalent of
-@chebtech/normest.m, which is literally ``out = max(vscale(f))``).
-
-Gap: MATLAB's ``pref.refinementFunction = 'resampling'`` (pass 3 and 4) has
-no counterpart -- chebfunjax has a single adaptive refinement path,
-equivalent to MATLAB's default 'nested', so those two assertions would only
-re-run pass(1)/pass(2) against the same constructor.  They stay skipped.
+MATLAB's ``test_constructor`` exercises ``populate()``. The equivalent
+adaptive entry point is ``Chebtech1.from_function``, including nested and
+resampling strategies and minSamples/maxLength. ``normest`` is represented
+by max(vscale), as in @chebtech/normest.m. Raw populate sample outputs for
+passes3/4 are observed through the vectorized callback; the constructor's
+sample probes are excluded from that observation.
 
 Provenance
 ----------
@@ -32,7 +26,8 @@ EPS = float(np.finfo(np.float64).eps)
 
 
 def _ninf(a):
-    return float(jnp.max(jnp.abs(jnp.asarray(a))))
+    a = jnp.asarray(a)
+    return float(jnp.max(jnp.sum(jnp.abs(a), axis=1) if a.ndim == 2 else jnp.abs(a)))
 
 
 def _normest(g):
@@ -58,20 +53,35 @@ class TestChebtech1Constructor:
         assert _ninf(fop(x) - values) < 10 * _normest(g) * EPS
 
     def test_scalar_sin_resampling(self):
-        pytest.skip(
-            "pass(3): chebfunjax has a single adaptive refinement path "
-            "(equivalent to MATLAB's default pref.refinementFunction="
-            "'nested'); there is no 'resampling' variant, so this assertion "
-            "would only re-run test_scalar_sin_nested"
-        )
+        # pass(3): MATLAB compares the unchopped VALUES returned by populate.
+        sampled = []
+
+        def op(x):
+            values = jnp.sin(x)
+            if x.size > 2:
+                sampled.append(values)
+            return values
+
+        g = Chebtech1.from_function(op, refinement_function="resampling")
+        values = sampled[-1]
+        x = chebpts(values.shape[0], kind=1)
+        assert _ninf(jnp.sin(x) - values) < 10 * g.vscale * EPS
 
     def test_array_sin_cos_exp_resampling(self):
-        pytest.skip(
-            "pass(4): chebfunjax has a single adaptive refinement path "
-            "(equivalent to MATLAB's default pref.refinementFunction="
-            "'nested'); there is no 'resampling' variant, so this assertion "
-            "would only re-run test_array_sin_cos_exp_nested"
-        )
+        # pass(4): same populate-output assertion for three columns.
+        sampled = []
+
+        def op(x):
+            values = jnp.stack([jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1)
+            if x.size > 2:
+                sampled.append(values)
+            return values
+
+        g = Chebtech1.from_function(op, refinement_function="resampling")
+        values = sampled[-1]
+        x = chebpts(values.shape[0], kind=1)
+        exact = jnp.stack([jnp.sin(x), jnp.cos(x), jnp.exp(x)], axis=-1)
+        assert _ninf(exact - values) < 10 * _normest(g) * EPS
 
     def test_nan_raises(self):
         # pass(5): @(x) x + NaN must error with 'Too many NaNs/Infs to
@@ -87,21 +97,21 @@ class TestChebtech1Constructor:
             Chebtech1.from_function(lambda x: x + jnp.inf)
 
     def test_minsamples_equals_maxlength(self):
-        # pass(7): construction must not crash when pref.minSamples ==
-        # pref.maxLength == 8, i.e. when the adaptive loop is pinned to a
-        # single length.  chebfunjax spells that as the fixed-length option
-        # from_function(..., n=8).
-        g = Chebtech1.from_function(jnp.sin, n=8)
+        # pass(7): the real adaptive minSamples=maxLength=8 source options.
+        # standardChop cannot resolve fewer than17 coefficients, so source
+        # populate gives up; the original assertion only checks no crash.
+        with pytest.warns(UserWarning, match="did not converge"):
+            g = Chebtech1.from_function(jnp.sin, min_samples=8, max_length=8)
         assert g.coeffs.shape == (8,)
 
     def test_logical_true(self):
         # pass(8): chebtech1(@(x) x > -2) - chebtech1(1) has normest < eps.
-        f = Chebtech1.from_function(lambda x: (x > -2).astype(jnp.float64))
+        f = Chebtech1.from_function(lambda x: x > -2)
         g = Chebtech1.from_function(lambda x: jnp.ones_like(x))
         assert _normest(f - g) < EPS
 
     def test_logical_false(self):
         # pass(9): chebtech1(@(x) x < -2) - chebtech1(0) has normest < eps.
-        f = Chebtech1.from_function(lambda x: (x < -2).astype(jnp.float64))
+        f = Chebtech1.from_function(lambda x: x < -2)
         g = Chebtech1.from_function(lambda x: jnp.zeros_like(x))
         assert _normest(f - g) < EPS

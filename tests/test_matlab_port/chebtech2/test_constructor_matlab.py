@@ -1,19 +1,10 @@
 """Port of MATLAB Chebfun tests/chebtech2/test_constructor.m (Opus 4.8).
 
-MATLAB's ``test_constructor`` exercises the non-user-facing ``populate()``
-with ``pref.extrapolate`` (0/1), ``pref.refinementFunction``
-('nested' / 'resampling'), NaN/Inf error handling, an extrapolation
-endpoint-avoidance test, ``minSamples``/``maxLength`` prefs and
-logical-valued construction.  chebfunjax has none of that machinery:
-``from_function`` is a single adaptive constructor (extrapolate OFF, one
-refinement path) with no prefs.
-
-FIXED (Fable 5): ``from_function`` now accepts ``extrapolate=`` (MATLAB
-``pref.extrapolate``: evaluate interior points only, extrapolate the endpoints)
-and constructs array-valued techs, and its adaptive path resamples the whole
-grid each iteration (MATLAB ``refinementFunction='resampling'``), so passes
-3-15 hold.  ``pref.minSamples``/``pref.maxLength`` are still unsupported, so
-pass(16) stays skipped.
+MATLAB's ``test_constructor`` exercises ``populate()`` with nested and
+resampling strategies, extrapolate, NaN/Inf errors, minSamples/maxLength,
+and logical-valued construction. Every source assertion is executed using
+the corresponding adaptive options, without expected-failure markers.
+Matrix infinity norms are row-sum norms, as in MATLAB.
 
 Provenance
 ----------
@@ -35,7 +26,8 @@ TOL = 100 * EPS
 
 
 def _ninf(a):
-    return float(jnp.max(jnp.abs(jnp.asarray(a))))
+    a = jnp.asarray(a)
+    return float(jnp.max(jnp.sum(jnp.abs(a), axis=1) if a.ndim == 2 else jnp.abs(a)))
 
 
 class TestChebtech2Constructor:
@@ -67,28 +59,27 @@ class TestChebtech2Constructor:
         assert abs(g.vscale - float(np.sin(1.0))) < TOL
 
     def test_scalar_sin_resampling_extrap0_accuracy(self):
-        # MATLAB pass(5): the chebfunjax adaptive path resamples the whole grid
-        # each iteration (== refinementFunction='resampling').  FIXED (Fable 5).
-        g = Chebtech2.from_function(jnp.sin)
+        # MATLAB pass(5): explicitly select refinementFunction='resampling'.
+        g = Chebtech2.from_function(jnp.sin, refinement_function="resampling")
         x = chebpts(len(g.coeffs), kind=2)
         values = Chebtech2.coeffs2vals(g.coeffs)
         assert _ninf(jnp.sin(x) - values) < TOL
 
     def test_scalar_sin_resampling_extrap0_vscale(self):
         # MATLAB pass(6): endpoints sampled -> vscale == sin(1) to eps.
-        g = Chebtech2.from_function(jnp.sin)
+        g = Chebtech2.from_function(jnp.sin, refinement_function="resampling")
         assert abs(g.vscale - float(np.sin(1.0))) < EPS
 
     def test_scalar_sin_resampling_extrap1_accuracy(self):
         # MATLAB pass(7): resampling + extrapolate=1.  FIXED (Fable 5).
-        g = Chebtech2.from_function(jnp.sin, extrapolate=True)
+        g = Chebtech2.from_function(jnp.sin, extrapolate=True, refinement_function="resampling")
         x = chebpts(len(g.coeffs), kind=2)
         values = Chebtech2.coeffs2vals(g.coeffs)
         assert _ninf(jnp.sin(x) - values) < TOL
 
     def test_scalar_sin_resampling_extrap1_vscale(self):
         # MATLAB pass(8): resampling + extrapolate=1 -> vscale within tol.
-        g = Chebtech2.from_function(jnp.sin, extrapolate=True)
+        g = Chebtech2.from_function(jnp.sin, extrapolate=True, refinement_function="resampling")
         assert abs(g.vscale - float(np.sin(1.0))) < TOL
 
     @staticmethod
@@ -112,14 +103,14 @@ class TestChebtech2Constructor:
 
     def test_array_resampling_extrap0(self):
         # MATLAB pass(11): array-valued, resampling, extrapolate=0.
-        g = Chebtech2.from_function(self._array_op)
+        g = Chebtech2.from_function(self._array_op, refinement_function="resampling")
         x = chebpts(g.coeffs.shape[0], kind=2)
         values = Chebtech2.coeffs2vals(g.coeffs)
         assert _ninf(self._array_op(x) - values) < TOL
 
     def test_array_resampling_extrap1(self):
         # MATLAB pass(12): array-valued, resampling, extrapolate=1.
-        g = Chebtech2.from_function(self._array_op, extrapolate=True)
+        g = Chebtech2.from_function(self._array_op, extrapolate=True, refinement_function="resampling")
         x = chebpts(g.coeffs.shape[0], kind=2)
         values = Chebtech2.coeffs2vals(g.coeffs)
         assert _ninf(self._array_op(x) - values) < TOL
@@ -127,13 +118,15 @@ class TestChebtech2Constructor:
     def test_nan_raises(self):
         # MATLAB pass(13): x + NaN -> 'Too many NaNs/Infs to handle.'
         # FIXED (Fable 5): constructor extrapolation raises on all-NaN samples.
-        with pytest.raises(Exception):
-            Chebtech2.from_function(lambda x: x + jnp.nan, n=17)
+        with pytest.raises(ValueError, match="Too many NaNs/Infs to handle\\."):
+            Chebtech2.from_function(lambda x: x + jnp.nan, extrapolate=True,
+                                   refinement_function="resampling")
 
     def test_inf_raises(self):
         # MATLAB pass(14): x + Inf -> 'Too many NaNs/Infs to handle.'
-        with pytest.raises(Exception):
-            Chebtech2.from_function(lambda x: x + jnp.inf, n=17)
+        with pytest.raises(ValueError, match="Too many NaNs/Infs to handle\\."):
+            Chebtech2.from_function(lambda x: x + jnp.inf, extrapolate=True,
+                                   refinement_function="resampling")
 
     def test_extrapolate_avoids_endpoints(self):
         # MATLAB pass(15): extrapolate=1 must not evaluate f at |x| == 1.
@@ -149,18 +142,20 @@ class TestChebtech2Constructor:
         )
 
     def test_minsamples_equals_maxlength(self):
-        pytest.skip(
-            "chebfunjax has no pref.minSamples/pref.maxLength construction options"
-        )
+        # pass(16): real adaptive options; source only requires no crash.
+        with pytest.warns(UserWarning, match="did not converge"):
+            g = Chebtech2.from_function(jnp.sin, min_samples=8, max_length=8,
+                                       refinement_function="resampling")
+        assert g.coeffs.shape == (8,)
 
     def test_logical_true(self):
-        pytest.skip(
-            "chebfunjax has no logical-valued construction / normest(); "
-            "cannot port chebtech2(@(x) x > -2)"
-        )
+        # pass(17): normest(f-g) = max(vscale(f-g)), source normest.m.
+        f = Chebtech2.from_function(lambda x: x > -2)
+        g = Chebtech2.from_function(lambda x: jnp.ones_like(x))
+        assert float(jnp.max(jnp.asarray((f - g).vscale))) < EPS
 
     def test_logical_false(self):
-        pytest.skip(
-            "chebfunjax has no logical-valued construction / normest(); "
-            "cannot port chebtech2(@(x) x < -2)"
-        )
+        # pass(18): pass Boolean values directly to the constructor.
+        f = Chebtech2.from_function(lambda x: x < -2)
+        g = Chebtech2.from_function(lambda x: jnp.zeros_like(x))
+        assert float(jnp.max(jnp.asarray((f - g).vscale))) < EPS

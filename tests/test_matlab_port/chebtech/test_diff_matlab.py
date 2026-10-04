@@ -14,8 +14,7 @@ Every MATLAB assertion (pass 1-16) is ported on BOTH tech kinds:
 * Complex-valued construction works on Chebtech1 as well as Chebtech2, so the
   airy sub-test (pass 4) runs on both.
 
-The only remaining marker is a genuine float64 accuracy floor on Chebtech1's
-pass(n, 1); its measured margin is recorded in ``_DIFF_EXP_C1_FLOOR``.
+Both tech kinds execute the original assertions without expected-failure markers.
 
 Provenance
 ----------
@@ -40,29 +39,7 @@ X = jnp.asarray(np.linspace(-1.0, 1.0, 100))
 
 BOTH = [Chebtech1, Chebtech2]
 
-# pass(n, 1) diff spotcheck of exp(x)-x.  On Chebtech1 this sits on a float64
-# knife-edge: quadfix's sine-node construction (1c3fd5e, needed for 9 exactness
-# flips) shifted the nodes by ulps and tipped the error from 2.49e-14 (0.66x,
-# pre) to 3.93e-14 (1.04x, post) vs the 100*vscale*eps = 3.78e-14 bound.  The
-# @chebtech/diff.m coefficient recurrence is a bit-for-bit faithful port (no
-# round-trip, no simplify -- verified against the MATLAB source) and the nodes
-# match MATLAB, so the residual is the eps-level construction tail amplified by
-# the derivative -- a genuine float64 coin-flip, not an algorithm gap.
-_DIFF_EXP_C1_FLOOR = (
-    "Chebtech1 diff(exp(x)-x): err 3.9302e-14 vs 100*vscale(df)*eps=3.7775e-14 "
-    "-> ratio 1.040 (re-measured 2026-08-10). Faithful @chebtech/diff.m "
-    "recurrence + MATLAB-matched sine nodes; the residual is the eps-level "
-    "construction tail amplified by diff. quadfix's node change (1c3fd5e) "
-    "tipped it from 2.49e-14 (0.66x, pre-node). Genuine float64 coin-flip, NOT "
-    "an array-valued or algorithm gap; Chebtech2 passes at 0.838x."
-)
-EXP_TECHS = [
-    pytest.param(
-        Chebtech1,
-        marks=pytest.mark.xfail(reason=_DIFF_EXP_C1_FLOOR, strict=False),
-    ),
-    Chebtech2,
-]
+EXP_TECHS = BOTH
 
 
 def _ninf(a):

@@ -17,8 +17,7 @@ Every MATLAB assertion (pass 1-8) is ported on BOTH tech kinds:
 * Complex-valued construction works on Chebtech1 as well as Chebtech2, so the
   ``sinh(t*z)`` sub-test (pass 4) runs on both.
 
-The only remaining marker is a genuine accuracy floor on Chebtech1's
-pass(n, 3); its measured margin is recorded in the xfail reason below.
+Both tech kinds execute the original assertions without expected-failure markers.
 
 Provenance
 ----------
@@ -72,24 +71,8 @@ class TestChebtechCumsum:
         assert _std(F(X) - F_ex(X)) < tol
         assert _at_m1(F) < tol
 
-    # pass(n, 3): cos(1e4*x) — real but exceeds MATLAB's 5e4*vscale*eps bound.
-    @pytest.mark.parametrize("Tech", [
-        pytest.param(
-            Chebtech1,
-            marks=pytest.mark.xfail(
-                reason="Chebtech1 antiderivative of cos(1e4*x): "
-                "std(F - F_exact) = 2.5374e-15 vs 5e4*vscale(F)*eps = "
-                "1.4495e-15 -> ratio 1.751 (re-measured 2026-08-10). The "
-                "companion abs(F(-1)) check passes at 0.002x, and Chebtech2 "
-                "passes the std bound at 0.864x, so this is a genuine "
-                "float64 accuracy floor of the Chebtech1 (first-kind) "
-                "antiderivative on a very-high-frequency integrand, NOT an "
-                "array-valued or complex-data gap.",
-                strict=False,
-            ),
-        ),
-        Chebtech2,
-    ])
+    # pass(n, 3): original high-frequency bound, both source tech paths.
+    @pytest.mark.parametrize("Tech", BOTH)
     def test_antideriv_high_frequency(self, Tech):
         f = Tech.from_function(lambda x: jnp.cos(1e4 * x))
         F = f.cumsum()

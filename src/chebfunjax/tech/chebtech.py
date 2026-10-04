@@ -7,6 +7,7 @@ See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
+import math
 import warnings
 from functools import partial
 from typing import Callable
@@ -1562,6 +1563,214 @@ def _extract_boundary_roots(coeffs, vscale, num_roots=None):
     return jnp.asarray(c_out), l, r
 
 
+def _initial_resampling_n(min_samples: int = 17) -> int:
+    """MATLAB refineResampling initial point count."""
+    # MATLAB log2(0)=-Inf, so minSamples=1 yields a single point.
+    if min_samples == 1:
+        return 1
+    return 2 ** math.ceil(math.log2(min_samples - 1)) + 1
+
+
+def _next_resampling_n(previous_n: int) -> int:
+    """MATLAB's approximately sqrt(2)-spaced resampling length update."""
+    if previous_n == 1:
+        return 1
+    power = math.log2(previous_n - 1)
+    if power == math.floor(power) and power > 5:
+        proposed = math.floor(2 ** (math.floor(power) + 0.5) + 0.5) + 1
+        return proposed - proposed % 2 + 1
+    return 2 ** (math.floor(power) + 1) + 1
+
+
+def _refine_sample(op, x, *, extrapolate: bool):
+    """Sample Chebtech2, optionally retaining NaN endpoint sentinels."""
+    if not extrapolate:
+        return _as_fun_dtype(op(x))
+    values = _as_fun_dtype(op(x[1:-1]))
+    nan_rows = jnp.full(
+        (1,) + values.shape[1:], jnp.nan, dtype=values.dtype
+    )
+    return jnp.concatenate((nan_rows, values, nan_rows), axis=0)
+
+
+def _refine_chebtech2_resampling(
+    op, values=None, *, max_length=65537, min_samples=17, extrapolate=False
+):
+    """Refine Chebtech2 by resampling the complete grid at each length."""
+    if values is None or values.shape[0] == 0:
+        n = _initial_resampling_n(min_samples)
+        if n > max_length:
+            n = max_length
+    else:
+        n = _next_resampling_n(values.shape[0])
+        # Python robustness: source resampling remains at n=1 forever.
+        if n <= values.shape[0] or n > max_length:
+            return values, True
+    return _refine_sample(op, chebpts(n, kind=2), extrapolate=extrapolate), False
+
+
+def _refine_chebtech2_nested(
+    op, values=None, *, max_length=65537, min_samples=17, extrapolate=False
+):
+    """Refine Chebtech2 with nested points, reusing old values exactly."""
+    if values is None or values.shape[0] == 0:
+        return _refine_chebtech2_resampling(
+            op, None, max_length=max_length, min_samples=min_samples,
+            extrapolate=extrapolate,
+        )
+    old_n = values.shape[0]
+    n = 2 * old_n - 1
+    # Python robustness for the source's non-growing single-point grid.
+    if n <= old_n or n > max_length:
+        return values, True
+    # MATLAB x(2:2:end-1), translated from 1-based indexing.
+    new_values = _as_fun_dtype(op(chebpts(n, kind=2)[1:-1:2]))
+    out = jnp.empty((n,) + values.shape[1:], dtype=jnp.result_type(values, new_values))
+    out = out.at[::2].set(values)
+    out = out.at[1:-1:2].set(new_values)
+    return out, False
+
+
+def _refine_chebtech1_resampling(
+    op, values=None, *, max_length=65537, min_samples=17
+):
+    """Refine Chebtech1 by resampling the complete grid at each length."""
+    if values is None or values.shape[0] == 0:
+        n = _initial_resampling_n(min_samples)
+        if n > max_length:
+            n = max_length
+    else:
+        n = _next_resampling_n(values.shape[0])
+        # Python robustness: source resampling remains at n=1 forever.
+        if n <= values.shape[0] or n > max_length:
+            return values, True
+    return _as_fun_dtype(op(chebpts(n, kind=1))), False
+
+
+def _refine_chebtech1_nested(
+    op, values=None, *, max_length=65537, min_samples=17
+):
+    """Refine Chebtech1 on 17*3^q grids, reusing old samples between calls."""
+    if values is None or values.shape[0] == 0:
+        return _refine_chebtech1_resampling(
+            op, None, max_length=max_length, min_samples=min_samples
+        )
+    old_n = values.shape[0]
+    if old_n < max_length and 3 * old_n > max_length:
+        # MATLAB uses maxLength once more, with a full resampling.
+        return _as_fun_dtype(op(chebpts(max_length, kind=1))), False
+    if old_n < max_length:
+        n = 3 * old_n
+        x = chebpts(n, kind=1)
+        # Preserve MATLAB's exact callback order: x(1:3:end-2), then
+        # x(3:3:end), followed by placement of old values in x(2:3:end).
+        left_new = _as_fun_dtype(op(x[::3]))
+        right_new = _as_fun_dtype(op(x[2::3]))
+        out = jnp.empty(
+            (n,) + values.shape[1:], dtype=jnp.result_type(values, left_new, right_new)
+        )
+        out = out.at[::3].set(left_new)
+        out = out.at[2::3].set(right_new)
+        out = out.at[1::3].set(values)
+        return out, False
+    return values, True
+
+
+def _update_running_vscale(values, vscale):
+    """@chebtech/populate.m scale update, before replacing nonfinite rows."""
+    values = jnp.asarray(values)
+    sampled_finite = jnp.where(jnp.isfinite(values), values, 0.0)
+    return jnp.maximum(vscale, jnp.max(jnp.abs(sampled_finite), axis=0))
+
+
+def _adaptive_refine_construct(
+    tech_cls, kind, op, *, max_length, min_samples, refinement_function,
+    tol, check, vscale, sample_test, hscale, extrapolate=False,
+    use_turbo=False, fixed_length=None,
+):
+    """Populate from source nested/resampling batches, including sentinels.
+
+    MATLAB source: @chebtech/populate.m and @chebtech{1,2}/refine.m.
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+    """
+    if not isinstance(max_length, int) or max_length < 1:
+        raise ValueError("max_length must be a positive integer")
+    if not isinstance(min_samples, int) or min_samples < 1:
+        raise ValueError("min_samples must be a positive integer")
+    if isinstance(refinement_function, str):
+        strategy = refinement_function.lower()
+        refiners = {
+            (1, "nested"): _refine_chebtech1_nested,
+            (1, "resampling"): _refine_chebtech1_resampling,
+            (2, "nested"): _refine_chebtech2_nested,
+            (2, "resampling"): _refine_chebtech2_resampling,
+        }
+        if (kind, strategy) not in refiners:
+            raise ValueError("refinement_function must be nested or resampling")
+        refine = refiners[kind, strategy]
+    else:
+        # MATLAB passes a full techPref struct. Python uses a dict with its
+        # source field names, and None for the initial empty sample array.
+        if not callable(refinement_function):
+            raise TypeError("refinement_function must be a string or callable")
+        def refine(function, values, **prefs):
+            return refinement_function(function, values, {
+                "maxLength": prefs["max_length"],
+                "minSamples": prefs["min_samples"],
+                "extrapolate": prefs.get("extrapolate", False),
+                "chebfuneps": _EPS if tol is None else tol,
+                "fixedLength": math.nan if fixed_length is None else fixed_length,
+                "sampleTest": sample_test,
+                "refinementFunction": refinement_function,
+                "happinessCheck": check,
+                "useTurbo": use_turbo,
+            })
+    kwargs = {"max_length": max_length, "min_samples": min_samples}
+    if kind == 2:
+        kwargs["extrapolate"] = extrapolate
+    old_values = None
+    scales = jnp.asarray(vscale, dtype=jnp.float64)
+    coeffs = None
+    while True:
+        sampled, gave_up = refine(op, old_values, **kwargs)
+        if gave_up:
+            if coeffs is None:
+                # MATLAB leaves ishappy undefined for this invalid refiner.
+                # Give Python callers a controlled error before any samples.
+                raise ValueError("custom refiner gave up before sampling the function")
+            break
+        sampled = _as_fun_dtype(sampled)
+        scales = _update_running_vscale(sampled, scales)
+        # MATLAB extrapolate flags whole rows, even when only one column
+        # contains a nonfinite sample; populate restores every column there.
+        bad_nan = jnp.isnan(sampled)
+        bad_inf = jnp.isinf(sampled)
+        if sampled.ndim == 2:
+            bad_nan = jnp.any(bad_nan, axis=1, keepdims=True)
+            bad_inf = jnp.any(bad_inf, axis=1, keepdims=True)
+        values = sampled
+        n = values.shape[0]
+        if not bool(jnp.all(jnp.isfinite(values))):
+            values = _extrapolate_values(
+                values, chebpts(n, kind=kind), tech_cls.barywts(n))[0]
+        coeffs = tech_cls.vals2coeffs(values)
+        happy, cutoff = tech_cls.happiness_check(
+            coeffs, values, op=op, tol=tol, vscale=scales, check=check,
+            hscale=hscale, sample_test=sample_test)
+        if happy:
+            return tech_cls(coeffs=coeffs[:cutoff], ishappy=True)
+        # Source populate restores NaN/Inf flags after an unhappy check, so
+        # nested refinement reuses original bad samples, never extrapolations.
+        old_values = jnp.where(bad_nan, jnp.nan, values)
+        old_values = jnp.where(bad_inf, jnp.inf, old_values)
+    warnings.warn(
+        f"{tech_cls.__name__}.from_function: function did not converge with "
+        f"{coeffs.shape[0]} points. Returning unhappy representation.",
+        stacklevel=2,
+    )
+    return tech_cls(coeffs=coeffs, ishappy=False)
+
+
 class Chebtech2(eqx.Module):
     """Chebyshev interpolant on 2nd-kind points.
 
@@ -1689,6 +1898,9 @@ class Chebtech2(eqx.Module):
         vscale: float = 0.0,
         sample_test: bool = True,
         hscale: float = 1.0,
+        refinement_function: str | Callable = "nested",
+        max_length: int | None = None,
+        min_samples: int | None = None,
     ) -> "Chebtech2":
         """Construct a Chebtech2 from a callable.
 
@@ -1696,7 +1908,7 @@ class Chebtech2(eqx.Module):
         Chebyshev grid and forms the interpolant directly (non-adaptive).
 
         If ``n`` is ``None`` (the default), uses an adaptive algorithm that
-        doubles the number of points until the Chebyshev coefficients decay
+        refines a nested grid while reusing sampled values until the Chebyshev coefficients decay
         below the tolerance set by ``standard_chop``.
 
         Parameters
@@ -1709,6 +1921,15 @@ class Chebtech2(eqx.Module):
         maxpow2 : int, default 16
             Maximum power of 2 for adaptive grid size (grid will be
             ``2**maxpow2 + 1`` at most). Only used when ``n is None``.
+
+        refinement_function : str or callable, optional
+            "nested" reuses old samples; "resampling" evaluates a full grid.
+            A callable receives ``(f, old_values, preferences)``. Initially
+            ``old_values`` is None; preferences is a dict with MATLAB techPref
+            field names. Giving up before sampling raises ValueError.
+        max_length, min_samples : int or None, optional
+            Maximum grid length and minimum initial sample count. The default
+            limits are 65537 and 17; the initial count rounds up to 2**q+1.
 
         Returns
         -------
@@ -1755,7 +1976,10 @@ class Chebtech2(eqx.Module):
                                             check=check, vscale=vscale,
                                             extrapolate=extrapolate,
                                             start_pow2=start_pow2,
-                                            sample_test=sample_test, hscale=hscale)
+                                            sample_test=sample_test,
+                refinement_function=refinement_function, max_length=max_length,
+                min_samples=min_samples, hscale=hscale,
+                use_turbo=True, fixed_length=n)
             num = n if n is not None else 2 * len(plain)
             c = _turbo_coeffs(f, plain.coeffs, num)
             return cls(coeffs=c, ishappy=plain.ishappy)
@@ -1765,7 +1989,9 @@ class Chebtech2(eqx.Module):
                                        vscale=vscale,
                                        extrapolate=extrapolate,
                                        start_pow2=start_pow2,
-                                       sample_test=sample_test, hscale=hscale)
+                                       sample_test=sample_test,
+                refinement_function=refinement_function, max_length=max_length,
+                min_samples=min_samples, hscale=hscale)
 
     @classmethod
     def _fixed_construct(
@@ -1785,83 +2011,26 @@ class Chebtech2(eqx.Module):
 
     @classmethod
     def _adaptive_construct(
-        cls,
-        f: Callable[[jax.Array], jax.Array],
-        maxpow2: int = 16,
-        start_pow2: int = 4,
-        tol: float | None = None,
+        cls, f, maxpow2=16, start_pow2=4, tol=None, check="standard",
+        vscale=0.0, sample_test=True, hscale=1.0,
         extrapolate: bool = False,
-        check: str = "standard",
-        vscale: float = 0.0,
-        sample_test: bool = True,
-        hscale: float = 1.0,
+        refinement_function="nested", max_length=None, min_samples=None,
+        use_turbo=False, fixed_length=None,
     ) -> "Chebtech2":
-        """Adaptive construction — Python-level loop, NOT JIT-safe.
+        """Source-shaped nested/resampling adaptive population.
 
-        Evaluates f on grids of size 2^k + 1 for k = start_pow2, ..., maxpow2
-        and uses ``happiness_check`` (standard_chop + sample test) to detect
-        convergence. Returns a happy Chebtech2 if convergence is detected, or
-        an unhappy one at the maximum grid size otherwise.
-
-        Parameters
-        ----------
-        f : callable
-            Function mapping an array of points to an array of values.
-        maxpow2 : int, default 16
-            Maximum power of 2 for adaptive grid size.
-        start_pow2 : int, default 4
-            Starting power of 2 (minimum grid size is ``2**start_pow2 + 1``).
-            Used by ``compose`` to start from a larger grid.
-        tol : float, optional
-            Construction tolerance (``eps``).  If None, ``happiness_check``
-            uses machine epsilon.  Threaded from ``chebfun(..., eps=...)``.
-        extrapolate : bool, default False
-            When True (MATLAB ``pref.extrapolate``), evaluate ``f`` only at the
-            interior grid points and extrapolate the endpoint values, so ``f``
-            is never sampled at ``x = +/-1``.
-        check : {'standard', 'strict', 'classic'}, default 'standard'
-            MATLAB ``pref.happinessCheck``: which convergence test
-            ``happiness_check`` applies during adaptive construction.
-        """""
-        # MATLAB passes the running GLOBAL vscale of a piecewise
-        # construction into every piece (data.vscale), so a tiny piece is
-        # judged against the whole function's scale.
-        vscale = jnp.asarray(vscale, dtype=jnp.float64)
-        c = None
-        for k in range(start_pow2, maxpow2 + 1):
-            n = 2**k + 1
-            x = chebpts(n, kind=2)
-            values = _sample_extrapolate(f, x, extrapolate)
-            # Update vscale from the finite samples only, then extrapolate any
-            # NaN/Inf rows before transforming (MATLAB @chebtech/populate.m).
-            finite_mask = jnp.isfinite(values)
-            vscale = jnp.maximum(
-                vscale,
-                jnp.max(jnp.abs(jnp.where(finite_mask, values, 0.0)), axis=0),
-            )
-            if not bool(jnp.all(finite_mask)):
-                values = _extrapolate_values(values, x, cls.barywts(n))[0]
-            c = vals2coeffs(values)
-            ishappy, cutoff = cls.happiness_check(
-                c,
-                values,
-                op=f,
-                tol=tol,
-                vscale=vscale,
-                check=check,
-                hscale=hscale,
-                sample_test=sample_test,
-            )
-            if ishappy:
-                return cls(coeffs=c[:cutoff], ishappy=True)
-
-        # Did not converge — return unhappy at max length
-        warnings.warn(
-            f"Chebtech2.from_function: function did not converge with "
-            f"{2**maxpow2 + 1} points. Returning unhappy representation.",
-            stacklevel=2,
+        MATLAB source: @chebtech/populate.m, @chebtech2/refine.m.
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return _adaptive_refine_construct(
+            cls, 2, f,
+            max_length=2**maxpow2+1 if max_length is None else max_length,
+            min_samples=2**start_pow2+1 if min_samples is None else min_samples,
+            refinement_function=refinement_function,
+            tol=tol, check=check, vscale=vscale, sample_test=sample_test,
+            hscale=hscale, extrapolate=extrapolate,
+            use_turbo=use_turbo, fixed_length=fixed_length,
         )
-        return cls(coeffs=c, ishappy=False)
 
     # ------------------------------------------------------------------
     # Evaluation
@@ -3808,6 +3977,12 @@ class Chebtech1(eqx.Module):
         turbo: bool = False,
         check: str = "standard",
         sample_test: bool = True,
+        refinement_function: str | Callable = "nested",
+        max_length: int | None = None,
+        min_samples: int | None = None,
+        tol: float | None = None,
+        vscale: float = 0.0,
+        hscale: float = 1.0,
     ) -> "Chebtech1":
         """Construct a Chebtech1 from a callable.
 
@@ -3821,7 +3996,16 @@ class Chebtech1(eqx.Module):
         n : int or None, optional
             Fixed number of points.  If ``None``, adaptive.
         maxpow2 : int, default 16
-            Maximum power of 2 for adaptive grid.
+            Legacy grid cap is 2**maxpow2+1; max_length overrides it.
+
+        refinement_function : str or callable, optional
+            "nested" reuses old samples; "resampling" evaluates a full grid.
+            A callable receives ``(f, old_values, preferences)``. Initially
+            ``old_values`` is None; preferences is a dict with MATLAB techPref
+            field names. Giving up before sampling raises ValueError.
+        max_length, min_samples : int or None, optional
+            Maximum grid length and minimum initial sample count. The default
+            limits are 65537 and 17; the initial count rounds up to 2**q+1.
 
         Returns
         -------
@@ -3840,14 +4024,19 @@ class Chebtech1(eqx.Module):
             # construction is adaptive; only the number of computed
             # coefficients is fixed by ``n`` (fixedLength).
             plain = cls._adaptive_construct(
-                f, maxpow2, check=check, sample_test=sample_test)
+                f, maxpow2, check=check, sample_test=sample_test,
+                refinement_function=refinement_function, max_length=max_length,
+                min_samples=min_samples, tol=tol, vscale=vscale, hscale=hscale,
+                use_turbo=True, fixed_length=n)
             num = n if n is not None else 2 * len(plain)
             c = _turbo_coeffs(f, plain.coeffs, num)
             return cls(coeffs=c, ishappy=plain.ishappy)
         if n is not None:
             return cls._fixed_construct(f, n)
         return cls._adaptive_construct(
-            f, maxpow2, check=check, sample_test=sample_test)
+            f, maxpow2, check=check, sample_test=sample_test,
+                refinement_function=refinement_function, max_length=max_length,
+                min_samples=min_samples, tol=tol, vscale=vscale, hscale=hscale)
 
     @classmethod
     def _fixed_construct(
@@ -3866,53 +4055,24 @@ class Chebtech1(eqx.Module):
 
     @classmethod
     def _adaptive_construct(
-        cls,
-        f: Callable[[jax.Array], jax.Array],
-        maxpow2: int = 16,
-        start_pow2: int = 4,
-        check: str = "standard",
-        sample_test: bool = True,
+        cls, f, maxpow2=16, start_pow2=4, tol=None, check="standard",
+        vscale=0.0, sample_test=True, hscale=1.0,
+        refinement_function="nested", max_length=None, min_samples=None,
+        use_turbo=False, fixed_length=None,
     ) -> "Chebtech1":
-        """Adaptive construction — Python-level loop, NOT JIT-safe.
+        """Source-shaped nested/resampling adaptive population.
 
-        Evaluates f on grids of size 2^k for k = start_pow2, ..., maxpow2
-        (note: 1st-kind grids have exactly 2^k points, not 2^k+1).
-
-        check : {'standard', 'strict', 'classic'}, default 'standard'
-            MATLAB ``pref.happinessCheck``: which convergence test
-            ``happiness_check`` applies during adaptive construction.
-        """""
-        vscale = 0.0
-        c = None
-        for k in range(start_pow2, maxpow2 + 1):
-            n = 2**k
-            x = chebpts(n, kind=1)
-            values = _as_fun_dtype(f(x))
-            finite_mask = jnp.isfinite(values)
-            vscale = jnp.maximum(
-                vscale,
-                jnp.max(jnp.abs(jnp.where(finite_mask, values, 0.0)), axis=0),
-            )
-            if not bool(jnp.all(finite_mask)):
-                values = _extrapolate_values(values, x, cls.barywts(n))[0]
-            c = _chebtech1_vals2coeffs(values)
-            ishappy, cutoff = cls.happiness_check(
-                c,
-                values,
-                op=f,
-                vscale=vscale,
-                check=check,
-                sample_test=sample_test,
-            )
-            if ishappy:
-                return cls(coeffs=c[:cutoff], ishappy=True)
-
-        warnings.warn(
-            f"Chebtech1.from_function: function did not converge with "
-            f"{2**maxpow2} points. Returning unhappy representation.",
-            stacklevel=2,
+        MATLAB source: @chebtech/populate.m, @chebtech1/refine.m.
+        Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+        """
+        return _adaptive_refine_construct(
+            cls, 1, f,
+            max_length=2**maxpow2+1 if max_length is None else max_length,
+            min_samples=2**start_pow2+1 if min_samples is None else min_samples,
+            refinement_function=refinement_function,
+            tol=tol, check=check, vscale=vscale, sample_test=sample_test,
+            hscale=hscale, use_turbo=use_turbo, fixed_length=fixed_length,
         )
-        return cls(coeffs=c, ishappy=False)
 
     # ------------------------------------------------------------------
     # Evaluation
