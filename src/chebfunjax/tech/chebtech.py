@@ -156,15 +156,16 @@ def _clenshaw(coeffs: jax.Array, x: jax.Array) -> jax.Array:
 
     x2 = 2.0 * x
 
-    # Clenshaw recurrence from the top.
-    # We use lax.fori_loop for JIT friendliness.
-    # State: (bk1, bk2)  — one step behind and two steps behind.
+    # MATLAB clenshaw_scl/clenshaw_vec take two consecutive recurrence
+    # steps per loop, keeping the intermediate state inside the loop body.
+    # The degree and remainder are static, including under JIT/AD.
+    degree = n - 1
     def body(i, state):
         bk1, bk2 = state
-        # k = n - 1 - i  (we iterate i = 0..n-2)
-        k = n - 1 - i
-        bk = coeffs[k] + x2 * bk1 - bk2
-        return (bk, bk1)
+        k = degree - 2 * i
+        bk2 = coeffs[k] + x2 * bk1 - bk2
+        bk1 = coeffs[k - 1] + x2 * bk2 - bk1
+        return (bk1, bk2)
 
     # Carry dtype must match the series dtype (complex chebfuns give a
     # complex recurrence; a float64 carry breaks the lax scan/loop typing).
@@ -175,7 +176,9 @@ def _clenshaw(coeffs: jax.Array, x: jax.Array) -> jax.Array:
         jnp.zeros(carry_shape, dtype=out_dtype),
         jnp.zeros(carry_shape, dtype=out_dtype),
     )
-    bk1, bk2 = jax.lax.fori_loop(0, n - 1, body, init)
+    bk1, bk2 = jax.lax.fori_loop(0, degree // 2, body, init)
+    if degree % 2:
+        bk1, bk2 = coeffs[1] + x2 * bk1 - bk2, bk1
 
     # Final step: f(x) = c[0] + x*bk1 - bk2
     return coeffs[0] + x * bk1 - bk2
