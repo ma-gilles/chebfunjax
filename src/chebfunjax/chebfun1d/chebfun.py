@@ -1119,6 +1119,9 @@ class Chebfun(eqx.Module):
     # JIT/vmap pytree structure is unchanged when there are no deltas.
     # Added by Claude Opus 4.8 (task #9).
     deltas: tuple = eqx.field(static=True)
+    # Stored breakpoint values are numerical state, so they must survive
+    # passing a Chebfun through JAX transforms as a PyTree argument.
+    _point_values: jax.Array | None = None
 
     # ------------------------------------------------------------------
     # Internal constructor (use factory classmethod or chebfun() instead)
@@ -1144,6 +1147,7 @@ class Chebfun(eqx.Module):
         self.funs = funs
         self.domain = domain
         self.deltas = tuple(deltas)
+        self._point_values = None
 
     @classmethod
     def empty(cls) -> "Chebfun":
@@ -2104,7 +2108,8 @@ class Chebfun(eqx.Module):
         # MATLAB feval returns the stored pointValues AT the breakpoints
         # (definePoint / f(s) = v); away from them the pieces are used.
         _pv = getattr(self, "_point_values", None)
-        if _pv is not None and not isinstance(x, jax.core.Tracer):
+        if (_pv is not None and not isinstance(x, jax.core.Tracer)
+                and not isinstance(_pv, jax.core.Tracer)):
             import numpy as _np
             base = Chebfun(funs=self.funs, domain=self.domain,
                            deltas=self.deltas)
@@ -2128,6 +2133,7 @@ class Chebfun(eqx.Module):
         # below pays per-call dispatch (~0.5 ms) that dominates ODE-marcher
         # RHS evaluation of chebfun coefficients one scalar at a time.
         if not isinstance(x, jax.core.Tracer) and \
+                not isinstance(_pv, jax.core.Tracer) and \
                 not any(isinstance(p.tech.coeffs, jax.core.Tracer)
                         for p in self.funs):
             import numpy as _np
@@ -2186,6 +2192,7 @@ class Chebfun(eqx.Module):
                     # Unbndfun (or other) pieces own their map.
                     out_np[sel] = _np.asarray(p(jnp.asarray(xn[sel])))
             result = jnp.asarray(out_np)
+            result = self._apply_point_values(result, jnp.asarray(xn))
             if scalar_input:
                 result = result[0]
             return self._orient_values(result)
@@ -2205,6 +2212,7 @@ class Chebfun(eqx.Module):
         if len(self.funs) == 1:
             # Single piece — fully JIT-able.
             result = self.funs[0](x)
+            result = self._apply_point_values(result, x)
             if scalar_input:
                 result = result[0]
             return self._orient_values(result)
@@ -2240,9 +2248,47 @@ class Chebfun(eqx.Module):
             maskE = mask.reshape(mask.shape + (1,) * len(cols))
             out = jnp.where(maskE, vals, out)
 
+        out = self._apply_point_values(out, x)
         if scalar_input:
             out = out[0]
         return self._orient_values(out)
+
+    def _apply_point_values(self, values, x):
+        """Apply stored breakpoint values in a traced evaluation.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/feval.m (columnFeval pointValues override)
+        Chebfun commit: 7574c77
+        """
+        if self._point_values is None and len(self.funs) <= 1:
+            return values
+        point_values = self._breakpoint_values()
+        for index, breakpoint in enumerate(self.domain.breakpoints):
+            mask = x == breakpoint
+            mask = mask.reshape(mask.shape + (1,) * (values.ndim - x.ndim))
+            values = jnp.where(mask, point_values[index], values)
+        return values
+
+    def _breakpoint_values(self):
+        """JAX breakpoint values from stored data or neighboring FUN limits.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/getValuesAtBreakpoints.m
+        Chebfun commit: 7574c77
+        """
+        if self._point_values is not None:
+            return jnp.asarray(self._point_values)
+        if not self.funs:
+            return jnp.empty((0,), dtype=jnp.float64)
+        breaks = self.domain.breakpoints
+        values = [self.funs[0](jnp.asarray(breaks[0]))]
+        for index, breakpoint in enumerate(breaks[1:-1], 1):
+            values.append((self.funs[index - 1](jnp.asarray(breakpoint))
+                           + self.funs[index](jnp.asarray(breakpoint))) / 2)
+        values.append(self.funs[-1](jnp.asarray(breaks[-1])))
+        return jnp.stack(values)
 
     def _feval_side(self, x, side: str):
         """One-sided evaluation at ``x`` (see :meth:`__call__`).
@@ -3970,41 +4016,28 @@ class Chebfun(eqx.Module):
                           domain=Domain(bps))
         return out
 
-    def inv(self) -> "Chebfun":
-        """Compositional inverse of a monotonic chebfun (MATLAB inv):
-        g with g(f(x)) = x.
+    def inv(self, pref=None, *, algorithm="brent", eps=None,
+            splitting=None, monocheck=False, rangecheck=False) -> "Chebfun":
+        """Compositional inverse of a real monotonic chebfun.
+
+        ``algorithm`` selects ``'roots'``, ``'newton'``, ``'bisection'``,
+        ``'regulafalsi'``, ``'illinois'`` or the default ``'brent'``.
+        ``eps`` sets construction tolerance, ``splitting`` enables edge
+        detection, ``monocheck`` checks derivative roots, and ``rangecheck``
+        adjusts the inverse's range to this function's domain. Boolean
+        options also accept MATLAB's ``'on'`` and ``'off'`` strings.
+        An optional ChebfunPref supplies construction preferences.
 
         Provenance
         ----------
         MATLAB source : @chebfun/inv.m
         Chebfun commit: 7574c77
         """
-        import numpy as _np
-        a, b = float(self.domain.a), float(self.domain.b)
-        fa = float(self(jnp.asarray(a)))
-        fb = float(self(jnp.asarray(b)))
-        if fa == fb:
-            raise ValueError("inv: function must be monotonic")
-        lo, hi = (fa, fb) if fa < fb else (fb, fa)
+        from chebfunjax.chebfun1d.inverse import _inverse
 
-        def g(y):
-            yq = _np.asarray(y, dtype=float).ravel()
-            out = _np.empty_like(yq)
-            for i, yv in enumerate(yq):
-                x0, x1 = a, b
-                # bisection + Newton polish
-                for _ in range(80):
-                    xm = 0.5 * (x0 + x1)
-                    fv = float(self(jnp.asarray(xm))) - yv
-                    flo = float(self(jnp.asarray(x0))) - yv
-                    if fv * flo <= 0:
-                        x1 = xm
-                    else:
-                        x0 = xm
-                out[i] = 0.5 * (x0 + x1)
-            return jnp.asarray(out.reshape(_np.shape(y)))
-
-        return Chebfun.from_function(g, Domain((lo, hi)))
+        return _inverse(self, pref, algorithm=algorithm, eps=eps,
+                        splitting=splitting, monocheck=monocheck,
+                        rangecheck=rangecheck)
 
     # ------------------------------------------------------------------
     # Logical (indicator) chebfuns -- MATLAB ==, <, <=, ~, &, |
@@ -11914,4 +11947,3 @@ def quantumstates(
             f = -f
         out_funs.append(f)
     return jnp.asarray(lam, dtype=jnp.float64), out_funs
-
