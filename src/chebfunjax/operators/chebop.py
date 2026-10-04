@@ -114,6 +114,50 @@ def _eval_chebfun_at(u, x0: float) -> float:
     return float(arr)
 
 
+def _physical_monomial_cheb_coeffs(k: int, a: float, b: float):
+    """Chebyshev coefficients of ``x**k / k!`` on ``[a, b]``.
+
+    The coefficients are formed directly under ``x = c + h*t``. Multiplying
+    by ``t`` uses ``t*T0 = T1`` and ``t*Tj = (T[j-1] + T[j+1])/2`` for j>0.
+    This avoids recovering a known low-degree polynomial from sampled values,
+    which can leave FFT-sized high modes that are amplified by repeated
+    differentiation on narrow panels.
+
+    This is a source-compatible polynomial probe for coefficient extraction;
+    MATLAB ``@chebop/linearize.m`` obtains the same differential coefficients
+    through ADChebfun coefficient AD rather than sampled monomial fits.
+
+    Provenance
+    ----------
+    MATLAB source : @chebop/linearize.m (seeded coefficient differentiation)
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford and
+        The Chebfun Developers.
+
+    Adapter note: Python's piecewise linear collocation matrix extracts
+    differential coefficient functions by applying the user operator to
+    ``x**k/k!`` probes. This helper builds those same polynomials directly in
+    the panel's Chebyshev basis; it does not implement MATLAB's AD machinery.
+    """
+    if not isinstance(k, int) or k < 0:
+        raise ValueError("monomial degree must be a nonnegative static integer")
+
+    center = 0.5 * (float(a) + float(b))
+    halfwidth = 0.5 * (float(b) - float(a))
+    coeffs = jnp.ones((1,), dtype=jnp.float64)
+    for degree in range(k):
+        old_n = coeffs.shape[0]
+        nxt = jnp.zeros((old_n + 1,), dtype=coeffs.dtype)
+        nxt = nxt.at[:old_n].add(center * coeffs)
+        # The T0 contribution to t*p is T1; higher modes split equally.
+        nxt = nxt.at[1].add(halfwidth * coeffs[0])
+        if old_n > 1:
+            nxt = nxt.at[:old_n - 1].add(0.5 * halfwidth * coeffs[1:])
+            nxt = nxt.at[2:].add(0.5 * halfwidth * coeffs[1:])
+        coeffs = nxt / float(degree + 1)
+    return coeffs
+
+
 class _TrigX:
     """Array wrapper exposing chebfun-style elementwise methods.
 
@@ -3514,6 +3558,25 @@ class Chebop:
                                      dtype=_np.complex128))
                 return lambda x, _o=o: _np.asarray(_o(jnp.asarray(x)))
 
+            def _monomial_probe_funs(var, degree):
+                # MATLAB linearize seeds coefficient AD directions. This
+                # Python adapter uses the same x**degree/degree! polynomial
+                # probes, represented directly rather than via sampled
+                # values, independently on each physical panel.
+                from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+
+                probe_domain = Domain(tuple(bps))
+                us = []
+                for j in range(m):
+                    funs = []
+                    for aa, bb in ints:
+                        c = (_physical_monomial_cheb_coeffs(degree, aa, bb)
+                             if j == var else
+                             jnp.zeros((1,), dtype=jnp.float64))
+                        funs.append(_Piece.from_coeffs(c, aa, bb))
+                    us.append(Chebfun(funs=funs, domain=probe_domain))
+                return us
+
             out0 = apply_op(to_funs(_np.zeros(m * Pn)))
             op0_funs = [_as_fun(o) for o in out0]
             c_funs = [[None] * m for _ in range(m)]   # [eq][var] -> list_k
@@ -3521,13 +3584,9 @@ class Chebop:
                 kmax = orders[var] if orders else 0
                 outs = []
                 for k in range(kmax + 1):
-                    U_probe = _np.zeros(m * Pn)
-                    for p in range(P):
-                        U_probe[var * Pn + p * nn:
-                                var * Pn + (p + 1) * nn] = \
-                            pts[p] ** k / _math.factorial(k)
                     outs.append([_as_fun(o)
-                                 for o in apply_op(to_funs(U_probe))])
+                                 for o in apply_op(
+                                     _monomial_probe_funs(var, k))])
                 for eq in range(m):
                     ck_list = []
                     for k in range(kmax + 1):
