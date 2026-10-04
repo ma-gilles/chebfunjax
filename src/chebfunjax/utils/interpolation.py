@@ -589,7 +589,10 @@ def _trig_bary_core(x: jnp.ndarray,
 
 def barymat(y: jnp.ndarray,
             x: jnp.ndarray,
-            w: jnp.ndarray | None = None) -> jnp.ndarray:
+            w: jnp.ndarray | None = None,
+            s: jnp.ndarray | None = None,
+            r: jnp.ndarray | None = None,
+            do_flip: bool = False) -> jnp.ndarray:
     """Barycentric interpolation matrix.
 
     Constructs the ``(M, N)`` matrix ``B`` such that ``B @ f`` interpolates
@@ -605,6 +608,13 @@ def barymat(y: jnp.ndarray,
     w : jnp.ndarray, shape (N,), optional
         Barycentric weights. If ``None``, uses Chebyshev 2nd-kind weights
         (alternating +/-1 with halved endpoints).
+    s, r : jnp.ndarray, optional
+        Target and source Chebyshev angles. Supplying both evaluates node
+        differences with MATLAB's trigonometric formula.
+    do_flip : bool, default False
+        Apply MATLAB's flipping trick when angles are supplied. The legacy
+        three-argument path remains unchanged; flipping without angle arrays
+        is outside this optional angle-path adapter.
 
     Returns
     -------
@@ -621,6 +631,12 @@ def barymat(y: jnp.ndarray,
     internal ``_barymat_core``. Call with an explicit ``w`` argument inside
     JIT boundaries.
 
+    With both ``s`` and ``r`` supplied, the angle-aware path is also JIT- and
+    differentiation-compatible away from coincident nodes. ``y`` and ``x``
+    remain physical target/source nodes; the angles may be reference-grid
+    angles on an affine image of the canonical interval, as in collocation
+    reduction.
+
     Provenance
     ----------
     MATLAB source : barymat.m
@@ -632,12 +648,29 @@ def barymat(y: jnp.ndarray,
     --------
     bary, bary_weights, cheb_bary_weights
     """
+    if (s is None) != (r is None):
+        raise ValueError("barymat requires both target and source angles")
     if w is None:
         N = x.shape[0]
         w = jnp.ones(N, dtype=jnp.float64)
         w = w.at[1::2].set(-1.0)
         w = w.at[0].set(0.5 * w[0])
         w = w.at[-1].set(0.5 * w[-1])
+    if s is not None:
+        s = jnp.asarray(s)
+        r = jnp.asarray(r)
+        w = jnp.asarray(w)
+        if s.shape != y.shape or r.shape != x.shape:
+            raise ValueError("barymat angles must match their node vectors")
+        if w.shape != x.shape:
+            raise ValueError("barymat weights must match the source nodes")
+        B = _barymat_angles_core(s, r, w, do_flip)
+        # MATLAB checks physical node equality before using weights or angles.
+        # Select rather than Python-branch so this remains valid under jit.
+        if y.shape == x.shape:
+            same_grid = jnp.all(y == x)
+            B = jnp.where(same_grid, jnp.eye(x.shape[0], dtype=B.dtype), B)
+        return B
     return _barymat_core(y, x, w)
 
 
@@ -670,3 +703,41 @@ def _barymat_core(y: jnp.ndarray,
     B = jnp.where(has_match[:, None], identity_rows, B)
 
     return B
+
+
+@jax.jit
+def _barymat_angles_core(s: jnp.ndarray,
+                         r: jnp.ndarray,
+                         w: jnp.ndarray,
+                         do_flip: bool) -> jnp.ndarray:
+    """MATLAB angle-difference and flipping branch for ``barymat``.
+
+    Provenance
+    ----------
+    MATLAB source : barymat.m, @chebcolloc/reduce.m
+    Chebfun commit: 7574c77
+    Original authors: Copyright 2017 by The University of Oxford and
+        The Chebfun Developers.
+    """
+    differences = (
+        2.0 * jnp.sin((s[:, None] + r[None, :]) / 2.0)
+        * jnp.sin((r[None, :] - s[:, None]) / 2.0)
+    )
+    raw = w[None, :] / differences
+    row_sums = jnp.sum(raw, axis=1, keepdims=True)
+    matrix = raw / row_sums
+
+    # At coincident nodes the normalized barycentric expression has a NaN at
+    # its matching entry; the MATLAB source replaces those NaNs with one.
+    # Selecting the complete one-hot row is equivalent and JIT-safe.
+    matches = differences == 0.0
+    has_match = jnp.any(matches, axis=1)
+    matrix = jnp.where(has_match[:, None], matches, matrix)
+
+    m, n = matrix.shape
+    flip_mask = jnp.fliplr(
+        jnp.rot90(jnp.tril(jnp.ones((m, n), dtype=jnp.bool_)), 2)
+    )
+    flipped = jnp.rot90(matrix, 2)
+    return jnp.where(
+        flip_mask & jnp.asarray(do_flip, dtype=jnp.bool_), flipped, matrix)
