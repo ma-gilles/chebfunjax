@@ -6,15 +6,15 @@ tolerance MATLAB uses.  MATLAB ``f ./ alpha`` -> Python ``f / alpha``,
 loops ``for n = 1:2`` over ``{chebtech1(), chebtech2()}``; every method is
 parametrized over both classes.
 
-Gaps vs MATLAB (honest xfail/skip), reported in the final summary:
-- Chebtech1 cannot represent complex-valued functions (vals2coeffs/coeffs2vals
-  drop the imaginary part); complex operands / quotients skip Chebtech1.
-- cos(1e4 x)/exp is degree ~1e4; its quotient's Clenshaw evaluation floor
-  (~1e-11) marginally exceeds 1e4*vscale*eps on Chebtech2 -> xfail (see below).
-- MATLAB ``isnan(g)`` for ``f ./ 0`` checks the tech became NaN; chebfunjax
-  ``f / 0`` yields inf/NaN coefficients, checked with jnp.isnan/jnp.isinf.
-- size-error assertions (dividing by a column vector / mismatched row vector)
-  check a MATLAB error identifier that has no chebfunjax analog.
+Open source-parity items:
+- Source pass(10), ``cos(1e4*x)/exp(x)``, executes for both kinds under the
+  unchanged bound. The fixed linspace below remains a sampling adaptation;
+  exact source RNG inputs and a fresh MATLAB rerun are pending.
+- For division by zero, the source checks ``isnan(g)`` while this port checks
+  coefficient Inf/NaN propagation; exact predicate parity still needs
+  qualification.
+- Size-error checks match the source identifier embedded in the Python
+  ``ValueError`` text; Python has no separate MATLAB ``ME.identifier`` field.
 
 Array-valued: Chebtech now supports (n, m) coefficient matrices, so the
 array-valued rdivide-by-constant cases (pass 3:6) are ported.  These divide by
@@ -37,26 +37,22 @@ from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 
 EPS = float(np.finfo(np.float64).eps)
 X = jnp.asarray(np.linspace(-1.0, 1.0, 100))
+# MATLAB uses seedRNG(6178) for its random evaluation grid; this is an explicit
+# deterministic-grid adaptation, not a claim of seeded MATLAB parity.
 # arbitrary complex constants (match test_rdivide.m).
 ALPHA = -0.194758928283640 + 0.075474485412665j
 BETA = -0.526634844879922 - 0.685484380523668j
 
-_CT1_COMPLEX = (
-    "Chebtech1 drops the imaginary part in vals2coeffs/coeffs2vals; it cannot "
-    "represent complex-valued functions built via from_function"
-)
-_R10_FLOOR = (
-    "cos(1e4*x)/exp is degree ~1e4; its quotient reconstruction evaluated on "
-    "linspace(-1,1,100) has sup error ~6.5e-12, marginally over "
-    "1e4*vscale*eps (~6.0e-12) -- the Clenshaw evaluation-conditioning floor "
-    "for a degree-1e4 oscillatory series. MATLAB passes only via lucky "
-    "100-random-point sampling."
-)
-_SIZEERR = "chebfunjax has no MATLAB rdivide:size error identifier (scalar-valued)"
-
-
 def _ninf(a):
     return float(jnp.max(jnp.abs(jnp.asarray(a))))
+
+
+def _matlab_inf_norm(a):
+    """MATLAB norm(A, inf): maximum absolute row sum for matrices."""
+    arr = np.asarray(a)
+    if arr.ndim == 2:
+        return float(np.max(np.sum(np.abs(arr), axis=1)))
+    return float(np.max(np.abs(arr)))
 
 
 def _coeff_diff(f, g):
@@ -115,7 +111,8 @@ class TestChebtechRdivide:
         )
         g = f / jnp.asarray([ALPHA, BETA])
         exact = jnp.stack([jnp.sin(X) / ALPHA, jnp.cos(X) / BETA], axis=-1)
-        assert _ninf(g(X) - exact) < 10 * EPS
+        # Source pass(n,5) uses the matrix infinity norm (maximum row sum).
+        assert _matlab_inf_norm(g(X) - exact) < 10 * EPS
 
     # FIXED (Fable 5, Big-Three array-valued epic): [sin cos] ./ [alpha 0] -> per-column NaN.
     def test_div_by_scalar_row_with_zero(self, Tech):
@@ -154,8 +151,6 @@ class TestChebtechRdivide:
 
     def test_div_high_freq_by_exp(self, Tech):
         # pass(n, 10): cos(1e4 x) ./ e^x.
-        if Tech is Chebtech2:
-            pytest.xfail(_R10_FLOOR)
         g = Tech.from_function(lambda x: jnp.exp(x))
         f = Tech.from_function(lambda x: jnp.cos(1e4 * x))
         h = f / g

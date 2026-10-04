@@ -965,6 +965,31 @@ def _cumsum_coeffs(c: jax.Array) -> jax.Array:
     return b
 
 
+def _cumsum_lval(coeffs: jax.Array) -> jax.Array:
+    """Evaluate coefficient columns at x=-1, matching MATLAB ``lval``."""
+    c = jnp.asarray(coeffs)
+    signs = jnp.where(jnp.arange(c.shape[0]) % 2 == 0, 1.0, -1.0)
+    if c.ndim == 1:
+        return jnp.sum(c * signs)
+    return jnp.sum(c * signs[:, None], axis=0)
+
+
+@partial(jax.jit, static_argnames=("dim",))
+def _cumsum_coeffs_by_dim(
+    coeffs: jax.Array, *, dim: int = 1
+) -> jax.Array:
+    """JIT adapter for continuous integration or coefficient-column sums.
+
+    ``dim`` is static because it selects source branches with different
+    coefficient lengths and meanings.
+    """
+    if dim == 1:
+        return _cumsum_coeffs(coeffs)
+    if coeffs.ndim == 1:
+        return coeffs
+    return jnp.cumsum(coeffs, axis=1)
+
+
 # ============================================================================
 # Coefficient-level definite integral (JIT-safe)
 # ============================================================================
@@ -2855,6 +2880,9 @@ class Chebtech2(eqx.Module):
             composed_func,
             maxpow2=maxpow2,
             start_pow2=start_pow2,
+            # MATLAB @chebtech/compose.m sets sampleTest=false after raising
+            # minSamples to cover every operand.
+            sample_test=False,
         )
 
     # ------------------------------------------------------------------
@@ -3554,17 +3582,31 @@ class Chebtech2(eqx.Module):
         new_coeffs = _diff_coeffs(self.coeffs, k)
         return Chebtech2.from_coeffs(new_coeffs, ishappy=self.ishappy)
 
-    def cumsum(self) -> "Chebtech2":
+    def cumsum(self, dim: int = 1) -> "Chebtech2":
         """Indefinite integral (antiderivative with F(-1) = 0).
 
-        Uses the Chebyshev coefficient recurrence.
+        ``dim=1`` integrates the continuous variable. All other dimensions
+        cumulatively sum coefficient columns, matching MATLAB's branch.
 
-        JIT-safe: yes.
+        Parameters
+        ----------
+        dim : int, default 1
+            Static dimension selector. Values other than 1 select the source
+            coefficient-column cumulative sum.
 
         Returns
         -------
         Chebtech2
-            The antiderivative satisfying F(-1) = 0.
+            The antiderivative for ``dim=1`` or column-prefix tech for other
+            dimensions.
+
+        JIT and differentiation
+        -----------------------
+        ``dim`` is a static Python integer. ``_cumsum_coeffs_by_dim`` is a
+        JIT-safe fixed-shape coefficient adapter. The eager continuous path
+        also applies MATLAB's adaptive simplify and final lval correction;
+        under tracing, it uses the JIT-safe coefficient recurrence without
+        host-adaptive simplify.
 
         Provenance
         ----------
@@ -3579,8 +3621,24 @@ class Chebtech2(eqx.Module):
         --------
         diff, sum
         """
+        if self.isempty() or self.coeffs.size == 0:
+            return self
+        if dim != 1:
+            if self.coeffs.ndim == 1:
+                return self
+            new_coeffs = _cumsum_coeffs_by_dim(self.coeffs, dim=dim)
+            return Chebtech2(coeffs=new_coeffs, ishappy=self.ishappy)
+
         new_coeffs = _cumsum_coeffs(self.coeffs)
-        return Chebtech2.from_coeffs(new_coeffs, ishappy=self.ishappy)
+        if isinstance(self.coeffs, jax.core.Tracer):
+            return Chebtech2.from_coeffs(new_coeffs, ishappy=self.ishappy)
+        result = Chebtech2.from_coeffs(
+            new_coeffs, ishappy=self.ishappy
+        ).simplify()
+        if result.isempty() or result.coeffs.size == 0:
+            return result
+        corrected = result.coeffs.at[0].add(-_cumsum_lval(result.coeffs))
+        return eqx.tree_at(lambda tech: tech.coeffs, result, corrected)
 
     def sum(self, dim: int = 1) -> "jax.Array | Chebtech2":
         r"""Definite integral over [-1, 1].
@@ -5047,17 +5105,13 @@ class Chebtech1(eqx.Module):
         if isinstance(other, Chebtech1):
             # Adaptive re-construction so the quotient is fully resolved
             # (MATLAB: compose(f, @rdivide, g)).
-            return Chebtech1.from_function(
-                lambda x: _clenshaw(self.coeffs, x) / _clenshaw(other.coeffs, x)
-            )
+            return self.compose(lambda a, b: a / b, other)
         else:
             _check_rdivide_shape(self.coeffs, other)
             return Chebtech1.from_coeffs(self.coeffs / _as_scalar(other), ishappy=self.ishappy)
 
     def __rtruediv__(self, other) -> "Chebtech1":
-        return Chebtech1.from_function(
-            lambda x: _as_scalar(other) / _clenshaw(self.coeffs, x)
-        )
+        return self.compose(lambda y: _as_scalar(other) / y)
 
     def __pow__(self, exponent) -> "Chebtech1":
         """Raise to a power.
@@ -5113,8 +5167,23 @@ class Chebtech1(eqx.Module):
         new_coeffs = _diff_coeffs(self.coeffs, k)
         return Chebtech1.from_coeffs(new_coeffs, ishappy=self.ishappy)
 
-    def cumsum(self) -> "Chebtech1":
-        """Indefinite integral with F(-1) = 0.
+    def cumsum(self, dim: int = 1) -> "Chebtech1":
+        """Integrate continuously or cumulatively sum coefficient columns.
+
+        ``dim=1`` gives the antiderivative with F(-1)=0. All other dimensions
+        use a prefix sum over coefficient columns, matching MATLAB's branch.
+
+        Parameters
+        ----------
+        dim : int, default 1
+            Static dimension selector. Values other than 1 select the source
+            coefficient-column cumulative sum.
+
+        ``dim`` is a static Python integer under JIT. The pure coefficient
+        adapter ``_cumsum_coeffs_by_dim`` retains JIT and AD support; the eager
+        continuous path also applies source adaptive simplify and its final
+        lval correction. Under tracing, that path uses the unsimplified
+        coefficient recurrence because simplify is host-adaptive.
 
         Provenance
         ----------
@@ -5122,8 +5191,24 @@ class Chebtech1(eqx.Module):
         Chebfun commit: 7574c77
         Algorithm: Pages 32-33 of Mason & Handscomb, "Chebyshev Polynomials".
         """
+        if self.isempty() or self.coeffs.size == 0:
+            return self
+        if dim != 1:
+            if self.coeffs.ndim == 1:
+                return self
+            new_coeffs = _cumsum_coeffs_by_dim(self.coeffs, dim=dim)
+            return Chebtech1(coeffs=new_coeffs, ishappy=self.ishappy)
+
         new_coeffs = _cumsum_coeffs(self.coeffs)
-        return Chebtech1.from_coeffs(new_coeffs, ishappy=self.ishappy)
+        if isinstance(self.coeffs, jax.core.Tracer):
+            return Chebtech1.from_coeffs(new_coeffs, ishappy=self.ishappy)
+        result = Chebtech1.from_coeffs(
+            new_coeffs, ishappy=self.ishappy
+        ).simplify()
+        if result.isempty() or result.coeffs.size == 0:
+            return result
+        corrected = result.coeffs.at[0].add(-_cumsum_lval(result.coeffs))
+        return eqx.tree_at(lambda tech: tech.coeffs, result, corrected)
 
     def sum(self, dim: int = 1) -> "jax.Array | Chebtech1":
         r"""Definite integral over [-1, 1] (dim=2 sums the columns of an
@@ -5300,6 +5385,9 @@ class Chebtech1(eqx.Module):
             composed_func,
             maxpow2=maxpow2,
             start_pow2=start_pow2,
+            # MATLAB @chebtech1/compose.m uses complete-grid resampling.
+            refinement_function="resampling",
+            sample_test=False,
         )
 
     def restrict(self, a, b: float | None = None):

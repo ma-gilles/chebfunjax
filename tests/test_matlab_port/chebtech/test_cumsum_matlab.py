@@ -35,6 +35,9 @@ import pytest
 
 from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 
+# MATLAB source seedRNG(6178) draws 100 uniform points. Keep this established
+# deterministic linspace until the exact MATLAB RNG export is available; it is
+# a sampling adaptation, not a claim of matching MATLAB's stream.
 EPS = float(np.finfo(np.float64).eps)
 X = jnp.asarray(np.linspace(-1.0, 1.0, 100))
 
@@ -137,8 +140,9 @@ class TestChebtechCumsum:
                 axis=-1))
         F = f.cumsum()
         d = np.asarray(F(X)) - np.asarray(F_exact(X))
-        err = np.std(d, axis=0)
-        tol = 10 * F.vscale * EPS
+        err = np.std(d, axis=0, ddof=1)
+        tol = 10 * float(jnp.max(F.vscale_columns)) * EPS
+        # MATLAB norm(err,inf) is max(abs(err)) because err is a row vector.
         assert np.max(np.abs(err)) < tol
         at_m1 = np.asarray(F(jnp.asarray([-1.0])))
         assert np.max(np.abs(at_m1)) < tol
