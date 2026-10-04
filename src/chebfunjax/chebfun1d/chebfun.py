@@ -1170,6 +1170,31 @@ class Chebfun(eqx.Module):
         """
         return cls(funs=[], domain=Domain((-1.0, 1.0)))
 
+    @staticmethod
+    def tol_union(A, B, tol=None):
+        """Tolerance-aware union used when assembling inverse breakpoints.
+
+        This lazily imports the implementation to avoid a module cycle with
+        the inverse constructor.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/tolUnion.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford and
+            The Chebfun Developers.
+
+        JAX note
+        --------
+        The returned array has data-dependent length, so this helper is eager
+        only; its arithmetic and result are JAX arrays.
+        """
+        from chebfunjax.chebfun1d.inverse import tol_union
+
+        return tol_union(A, B, tol)
+
+    tolUnion = tol_union
+
     # ------------------------------------------------------------------
     # Orientation (row vs column chebfun) — the MATLAB isTransposed flag
     # ------------------------------------------------------------------
