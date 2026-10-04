@@ -35,7 +35,7 @@ GUIDE_BASE = "https://www.chebfun.org/docs/guide"
 LIVE_BASE = "https://ma-gilles.github.io/chebfunjax"
 
 PNG_RE = re.compile(r'<img[^>]+src="([^"]+\.png)"', re.IGNORECASE)
-HEADING_RE = re.compile(r"<h([1-3])[^>]*>(.*?)</h\\1>", re.IGNORECASE | re.DOTALL)
+HEADING_RE = re.compile(r"<h([1-3])[^>]*>(.*?)</h\1>", re.IGNORECASE | re.DOTALL)
 CHEBFUN_EXAMPLE_RE = re.compile(
     r"https?://(?:www\.)?chebfun\.org/examples/([\w-]+)/([\w-]+)\.html"
 )

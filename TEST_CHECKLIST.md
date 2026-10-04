@@ -1,12 +1,12 @@
 # chebfunjax — Full MATLAB Test Checklist
 
-One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (runs green in the suite), `[~]` ported with some cases skipped, `[ ]` skipped or missing (reason shown). GUI-only dirs (chebgui) and adchebfun are excluded by project policy.
+One line per MATLAB Chebfun test file (commit 7574c77). `[x]` means a Python file exists without a literal skip/xfail marker; `[ ]` means a file is missing or contains a skip/xfail marker. This static inventory does not run tests, check original assertion coverage or bounds, detect every dynamically assigned marker, or establish MATLAB parity. Runtime qualification requires gate evidence. All source suites, including chebgui and adchebfun, count toward the full-parity goal; existing policy skips remain open gaps.
 
 
-**Totals: 1102 MATLAB tests — 1069 ported+enabled, 0 partial, 26 skipped, 7 missing (97% enabled).**
+**Totals: 1102 MATLAB test files — 1042 present without literal masks, 30 with skip/xfail markers, 26 module-skipped, 4 missing.**
 
 
-## adchebfun  (0/26 enabled)
+## adchebfun  (26/26 Python files present)
 
 - [ ] `test_airy` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
 - [ ] `test_bessel` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
@@ -35,7 +35,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [ ] `test_trig4` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
 - [ ] `test_volt` — chebfunjax uses JAX automatic differentiation instead of the adchebfun operator-overloadin
 
-## ballfun  (49/49 enabled)
+## ballfun  (49/49 Python files present)
 
 - [x] `test_abs`
 - [x] `test_ballfun`
@@ -87,7 +87,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_vals2coeffs`
 - [x] `test_vscale`
 
-## ballfunv  (25/25 enabled)
+## ballfunv  (25/25 Python files present)
 
 - [x] `test_HelmholtzDecomposition`
 - [x] `test_PTdecomposition`
@@ -115,24 +115,24 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_uminus`
 - [x] `test_uplus`
 
-## bndfun  (14/14 enabled)
+## bndfun  (14/14 Python files present)
 
 - [x] `test_changeMap`
 - [x] `test_compose`
 - [x] `test_constructor`
 - [x] `test_createMap`
 - [x] `test_cumsum`
-- [x] `test_diff`
-- [x] `test_feval`
-- [x] `test_innerProduct`
+- [ ] `test_diff` — literal skip/skipif/xfail present; inspect runtime evidence
+- [ ] `test_feval` — literal skip/skipif/xfail present; inspect runtime evidence
+- [ ] `test_innerProduct` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_mldivide`
 - [x] `test_mrdivide`
 - [x] `test_poly`
 - [x] `test_qr`
 - [x] `test_restrict`
-- [x] `test_sum`
+- [ ] `test_sum` — literal skip/skipif/xfail present; inspect runtime evidence
 
-## cheb  (8/8 enabled)
+## cheb  (8/8 Python files present)
 
 - [x] `test_bernoulli`
 - [x] `test_bspline`
@@ -143,7 +143,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_normal2`
 - [x] `test_revolution`
 
-## chebfun  (166/166 enabled)
+## chebfun  (166/166 Python files present)
 
 - [x] `test_aaa`
 - [x] `test_aaatrig`
@@ -151,9 +151,9 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_addBreaks`
 - [x] `test_addBreaksAtRoots`
 - [x] `test_airy`
-- [x] `test_all`
+- [ ] `test_all` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_and`
-- [x] `test_any`
+- [ ] `test_any` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_arclength`
 - [x] `test_assignColumns`
 - [x] `test_atan2`
@@ -227,8 +227,8 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_inv`
 - [x] `test_isempty`
 - [x] `test_isequal`
-- [x] `test_isfinite`
-- [x] `test_isinf`
+- [ ] `test_isfinite` — literal skip/skipif/xfail present; inspect runtime evidence
+- [ ] `test_isinf` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_isnan`
 - [x] `test_iszero`
 - [x] `test_ivp`
@@ -280,7 +280,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_realpow`
 - [x] `test_realsqrt`
 - [x] `test_removeDeltas`
-- [x] `test_repmat`
+- [ ] `test_repmat` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_residue`
 - [x] `test_restrict`
 - [x] `test_roots`
@@ -312,7 +312,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_volt`
 - [x] `test_waterfall`
 
-## chebfun2  (75/75 enabled)
+## chebfun2  (75/75 Python files present)
 
 - [x] `test_CLA`
 - [x] `test_abs`
@@ -340,7 +340,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_emptyObjects`
 - [x] `test_end`
 - [x] `test_equiOption`
-- [x] `test_feval`
+- [ ] `test_feval` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_fevalm`
 - [x] `test_gradys_function1`
 - [x] `test_gradys_function2`
@@ -390,7 +390,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_vertcat`
 - [x] `test_zerofunction`
 
-## chebfun2v  (40/40 enabled)
+## chebfun2v  (40/40 Python files present)
 
 - [x] `test_arithmetic`
 - [x] `test_coeffs_vals`
@@ -433,7 +433,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_twocomponents`
 - [x] `test_vertcat`
 
-## chebfun3  (82/82 enabled)
+## chebfun3  (82/82 Python files present)
 
 - [x] `test_abs`
 - [x] `test_battery`
@@ -455,12 +455,12 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_diffx`
 - [x] `test_diffy`
 - [x] `test_diffz`
-- [x] `test_divide`
+- [ ] `test_divide` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_domainChck`
 - [x] `test_domainvolume`
 - [x] `test_emptyObjects`
 - [x] `test_equiFlag`
-- [x] `test_feval`
+- [ ] `test_feval` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_fevalt`
 - [x] `test_fold_unfold`
 - [x] `test_get`
@@ -507,7 +507,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_subsref`
 - [x] `test_sum`
 - [x] `test_sum2`
-- [x] `test_sum3`
+- [ ] `test_sum3` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_techs`
 - [x] `test_times`
 - [x] `test_trigs`
@@ -518,7 +518,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_vertcat`
 - [x] `test_zerofunction`
 
-## chebfun3t  (7/7 enabled)
+## chebfun3t  (7/7 Python files present)
 
 - [x] `test_battery`
 - [x] `test_compose`
@@ -528,7 +528,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_ndf`
 - [x] `test_sum3`
 
-## chebfun3v  (29/29 enabled)
+## chebfun3v  (29/29 Python files present)
 
 - [x] `test_arithmetic`
 - [x] `test_compose`
@@ -560,17 +560,17 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_twocomponents`
 - [x] `test_vertcat`
 
-## chebgui  (0/7 enabled)
+## chebgui  (3/7 Python files present)
 
-- [ ] `test_multipleOutputs` — no port file
-- [ ] `test_parSimp` — no port file
-- [ ] `test_stringParser` — no port file
+- [x] `test_multipleOutputs`
+- [x] `test_parSimp`
+- [x] `test_stringParser`
 - [ ] `test_toFileBVP` — no port file
 - [ ] `test_toFileEIG` — no port file
 - [ ] `test_toFileIVP` — no port file
 - [ ] `test_toFilePDE` — no port file
 
-## chebmatrix  (15/15 enabled)
+## chebmatrix  (15/15 Python files present)
 
 - [x] `test_cellfun`
 - [x] `test_changeTech`
@@ -588,20 +588,20 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_times`
 - [x] `test_waterfall`
 
-## chebop  (99/99 enabled)
+## chebop  (99/99 Python files present)
 
 - [x] `test_LorenzIVP`
 - [x] `test_adjoint`
 - [x] `test_autoVectorize`
 - [x] `test_basic_arithmetic`
-- [x] `test_bc`
+- [ ] `test_bc` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_bcVectorInput`
 - [x] `test_bcsyntax`
 - [x] `test_carrier_C1`
 - [x] `test_carrier_C2`
 - [x] `test_carrier_US`
 - [x] `test_cellOperator`
-- [x] `test_chap21`
+- [ ] `test_chap21` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_cumsum`
 - [x] `test_deflate_bratu`
 - [x] `test_deflate_herceg`
@@ -609,7 +609,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_determineDiscretization`
 - [x] `test_diff`
 - [x] `test_domain`
-- [x] `test_eigs_basic`
+- [ ] `test_eigs_basic` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_eigs_drum`
 - [x] `test_eigs_foxli`
 - [x] `test_eigs_orrsom`
@@ -685,12 +685,12 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_system3`
 - [x] `test_uminusOp`
 - [x] `test_undampedNewton`
-- [x] `test_vdpIVP`
+- [ ] `test_vdpIVP` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_vectorizeOp`
 - [x] `test_wronskian`
 - [x] `test_zerothOrder`
 
-## chebop2  (30/30 enabled)
+## chebop2  (30/30 Python files present)
 
 - [x] `test_BartelsStewart`
 - [x] `test_adaptivity`
@@ -715,7 +715,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_rhs2`
 - [x] `test_schrodinger`
 - [x] `test_separableFormat`
-- [x] `test_squarewaveequation`
+- [ ] `test_squarewaveequation` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_subsref`
 - [x] `test_transport`
 - [x] `test_univariate`
@@ -723,12 +723,12 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_weakcornersingularities`
 - [x] `test_withoutAD`
 
-## chebpref  (2/2 enabled)
+## chebpref  (2/2 Python files present)
 
 - [x] `test_chebfunpref`
 - [x] `test_cheboppref`
 
-## chebtech  (55/55 enabled)
+## chebtech  (55/55 Python files present)
 
 - [x] `test_abs`
 - [x] `test_alias`
@@ -771,7 +771,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_poly`
 - [x] `test_prolong`
 - [x] `test_qr`
-- [x] `test_quadpts`
+- [ ] `test_quadpts` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_rdivide`
 - [x] `test_real`
 - [x] `test_restrict`
@@ -786,7 +786,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_trigcoeffs`
 - [x] `test_turbo`
 
-## chebtech1  (6/6 enabled)
+## chebtech1  (6/6 Python files present)
 
 - [x] `test_alias`
 - [x] `test_chebpts`
@@ -795,7 +795,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_extrapolate`
 - [x] `test_vals2coeffs`
 
-## chebtech2  (6/6 enabled)
+## chebtech2  (6/6 Python files present)
 
 - [x] `test_alias`
 - [x] `test_chebpts`
@@ -804,22 +804,22 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_extrapolate`
 - [x] `test_vals2coeffs`
 
-## classicfun  (12/12 enabled)
+## classicfun  (12/12 Python files present)
 
 - [x] `test_isempty`
-- [x] `test_isequal`
+- [ ] `test_isequal` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_mat2cell`
 - [x] `test_max`
-- [x] `test_min`
-- [x] `test_minandmax`
+- [ ] `test_min` — literal skip/skipif/xfail present; inspect runtime evidence
+- [ ] `test_minandmax` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_minus`
-- [x] `test_mtimes`
+- [ ] `test_mtimes` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_plus`
-- [x] `test_rdivide`
-- [x] `test_roots`
+- [ ] `test_rdivide` — literal skip/skipif/xfail present; inspect runtime evidence
+- [ ] `test_roots` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_times`
 
-## deltafun  (19/19 enabled)
+## deltafun  (19/19 Python files present)
 
 - [x] `test_anyDelta`
 - [x] `test_chebcoeffs`
@@ -841,7 +841,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_times`
 - [x] `test_zeroDeltaFun`
 
-## diskfun  (47/47 enabled)
+## diskfun  (47/47 Python files present)
 
 - [x] `test_BMCsvd`
 - [x] `test_Poisson`
@@ -864,7 +864,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_get`
 - [x] `test_grad`
 - [x] `test_harmonic`
-- [x] `test_helmholtz`
+- [ ] `test_helmholtz` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_inherited`
 - [x] `test_integral`
 - [x] `test_integral2`
@@ -891,7 +891,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_times`
 - [x] `test_vertcat`
 
-## diskfunv  (24/24 enabled)
+## diskfunv  (24/24 Python files present)
 
 - [x] `test_arithmetic`
 - [x] `test_coeffs_vals`
@@ -918,21 +918,21 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_vertcat`
 - [x] `test_vscale`
 
-## domain  (3/3 enabled)
+## domain  (3/3 Python files present)
 
 - [x] `test_merge`
 - [x] `test_poly`
 - [x] `test_polyfit`
 
-## fun  (1/1 enabled)
+## fun  (1/1 Python files present)
 
 - [x] `test_detectEdge`
 
-## functionalBlock  (1/1 enabled)
+## functionalBlock  (1/1 Python files present)
 
 - [x] `test_isNotMultOrDiff`
 
-## linop  (27/27 enabled)
+## linop  (27/27 Python files present)
 
 - [x] `test_chebmatrix`
 - [x] `test_coeffs`
@@ -962,7 +962,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_systemapply`
 - [x] `test_times`
 
-## misc  (52/52 enabled)
+## misc  (52/52 Python files present)
 
 - [x] `test_bary`
 - [x] `test_besselroots`
@@ -977,7 +977,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_conformal`
 - [x] `test_conformal2`
 - [x] `test_cumsummat`
-- [x] `test_diffmat`
+- [ ] `test_diffmat` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_fov`
 - [x] `test_gpr`
 - [x] `test_hermpoly`
@@ -995,7 +995,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_legpoly`
 - [x] `test_legpts`
 - [x] `test_lobpts`
-- [x] `test_minimax`
+- [ ] `test_minimax` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_nufft`
 - [x] `test_nufft2`
 - [x] `test_padeapprox`
@@ -1017,16 +1017,16 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_ultrapoly`
 - [x] `test_ultrapts`
 
-## operatorBlock  (1/1 enabled)
+## operatorBlock  (1/1 Python files present)
 
 - [x] `test_isNotMultOrDiff`
 
-## singfun  (24/24 enabled)
+## singfun  (24/24 Python files present)
 
 - [x] `test_chebcoeffs`
 - [x] `test_compose`
 - [x] `test_conj`
-- [x] `test_cumsum`
+- [ ] `test_cumsum` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_diff`
 - [x] `test_feval`
 - [x] `test_flipud`
@@ -1038,7 +1038,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_isnan`
 - [x] `test_make`
 - [x] `test_minandmax`
-- [x] `test_plus`
+- [ ] `test_plus` — literal skip/skipif/xfail present; inspect runtime evidence
 - [x] `test_rdivide`
 - [x] `test_real`
 - [x] `test_restrict`
@@ -1048,7 +1048,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_times`
 - [x] `test_zeroSingFun`
 
-## spherefun  (41/41 enabled)
+## spherefun  (41/41 Python files present)
 
 - [x] `test_BMCsvd`
 - [x] `test_HelmholtzSolver`
@@ -1092,7 +1092,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_times`
 - [x] `test_vertcat`
 
-## spherefunv  (23/23 enabled)
+## spherefunv  (23/23 Python files present)
 
 - [x] `test_arithmetic`
 - [x] `test_coeffs_vals`
@@ -1118,48 +1118,48 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_vertcat`
 - [x] `test_vort`
 
-## spinop  (2/2 enabled)
+## spinop  (2/2 Python files present)
 
 - [x] `test_spin`
 - [x] `test_spinop`
 
-## spinop2  (2/2 enabled)
+## spinop2  (2/2 Python files present)
 
 - [x] `test_spin2`
 - [x] `test_spinop2`
 
-## spinop3  (2/2 enabled)
+## spinop3  (2/2 Python files present)
 
 - [x] `test_spin3`
 - [x] `test_spinop3`
 
-## spinopsphere  (2/2 enabled)
+## spinopsphere  (2/2 Python files present)
 
 - [x] `test_spinopsphere`
 - [x] `test_spinsphere`
 
-## spinpref  (1/1 enabled)
+## spinpref  (1/1 Python files present)
 
 - [x] `test_spinpref`
 
-## spinpref2  (1/1 enabled)
+## spinpref2  (1/1 Python files present)
 
 - [x] `test_spinpref2`
 
-## spinpref3  (1/1 enabled)
+## spinpref3  (1/1 Python files present)
 
 - [x] `test_spinpref3`
 
-## spinprefsphere  (1/1 enabled)
+## spinprefsphere  (1/1 Python files present)
 
 - [x] `test_spinprefsphere`
 
-## spinscheme  (2/2 enabled)
+## spinscheme  (2/2 Python files present)
 
 - [x] `test_phiFun`
 - [x] `test_startMultistep`
 
-## treeVar  (7/7 enabled)
+## treeVar  (7/7 Python files present)
 
 - [x] `test_bivariate`
 - [x] `test_diffArguments`
@@ -1169,11 +1169,11 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_toFirstOrder`
 - [x] `test_univariate`
 
-## trigspec  (1/1 enabled)
+## trigspec  (1/1 Python files present)
 
 - [x] `test_multmat`
 
-## trigtech  (53/53 enabled)
+## trigtech  (53/53 Python files present)
 
 - [x] `test_abs`
 - [x] `test_alias`
@@ -1229,7 +1229,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 - [x] `test_trigcoeffs`
 - [x] `test_vals2coeffs`
 
-## unbndfun  (11/11 enabled)
+## unbndfun  (11/11 Python files present)
 
 - [x] `test_changeMap`
 - [x] `test_compose`
@@ -1246,7 +1246,7 @@ One line per MATLAB Chebfun test file (commit 7574c77). `[x]` ported & enabled (
 
 # Examples (chebfun.org reproductions)
 
-All 21 categories ported; every numbered figure regenerated (see PARITY_MATRIX.md for the figure-level audit).
+Scripts listed below are present. File presence does not qualify prose, computations, printed output, figure pixels or reference sizes; see page/figure audit evidence for those gaps.
 
 
 ## examples/applics (9 scripts)
@@ -1725,7 +1725,7 @@ All 21 categories ported; every numbered figure regenerated (see PARITY_MATRIX.m
 
 # Guide (docs/guide)
 
-All 20 chapters translated with regenerated figures.
+20 chapter files are present. Figure counts below count Markdown image references and do not establish image parity.
 
 - [x] `guide01.md` (15 figures)
 - [x] `guide02.md` (14 figures)

@@ -10,11 +10,11 @@ Fejér-first-rule weights (sum = 2, exact for polynomials on the plain
 the MATLAB tolerance alongside kind=2 (Clenshaw-Curtis).
 
 One residual gap (xfailed): ``test_sum_equals_2`` at kind=1 uses n=10, where
-the correctly-rounded Fejér weights sum (via ``fsum``) to exactly 2, but the
-naive ``jnp.sum`` reduction accumulates a single ulp, giving
-``abs(sum-2) == 2*eps`` — failing the strict ``< 2*eps`` by one ulp of
-reduction rounding (not a weight error).  Kept xfail rather than widen the
-MATLAB tolerance.
+the current CPU ``jnp.sum`` gives ``abs(sum-2) == 2*eps`` and fails the
+original strict ``< 2*eps`` bound. A compensated Python sum returning 2 does
+not establish MATLAB's weight or reduction result. Raw MATLAB FFT weights
+and their source sum still need verification; no unavoidable rounding cause
+or weight-generation correctness is inferred from this expected failure.
 
 Provenance
 ----------
@@ -37,18 +37,16 @@ def _ninf(a):
     return float(jnp.max(jnp.abs(jnp.asarray(a))))
 
 
-_SUM_ULP = (
-    "kind=1 Fejér weights are correct (fsum(w) == 2 exactly), but the naive "
-    "jnp.sum(w) reduction for n=10 accumulates one ulp, so abs(sum-2) == 2*eps "
-    "fails the strict < 2*eps by a single reduction rounding ulp"
+_UNRESOLVED_SUM = (
+    "kind=1 Fejer-I n=10 CPU sum fails the original strict < 2*eps bound; "
+    "fresh MATLAB raw FFT weights and source sum remain unverified"
 )
 
 # Both kinds now integrate polynomials exactly (kind=1 = Fejér-1).
 KIND_EXACT = [1, 2]
-# test_sum_equals_2 uses n=10, where kind=1's raw jnp.sum(w) lands one ulp
-# over 2 (see module docstring); kept xfail rather than widen the tolerance.
+# Preserve the original unresolved strict bound and make no causal claim.
 KIND_SUM = [
-    pytest.param(1, marks=pytest.mark.xfail(reason=_SUM_ULP, strict=False)),
+    pytest.param(1, marks=pytest.mark.xfail(reason=_UNRESOLVED_SUM, strict=False)),
     2,
 ]
 # Assertions that hold for both kinds (symmetry, w.x=0, w.x^3=0, empties):
