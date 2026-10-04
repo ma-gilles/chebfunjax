@@ -1,16 +1,13 @@
 """Port of MATLAB Chebfun tests/trigtech/test_any.m (Fable 5).
 
-chebfunjax has no ``any()`` method, but MATLAB ``@trigtech/any.m`` is a plain
-reduction over the physical-space values:
+MATLAB ``@trigtech/any.m`` reduces physical-space values. The default branch
+calls MATLAB ``any(f.values)`` without a dimension, so its first-nonsingleton
+dimension rule also matters for one-row inputs. ``any(f, 2)`` samples at the
+source arbitrary point and returns a constant Trigtech indicating whether any
+column is nonzero there.
 
-- ``any(f)``    (dim 1, down columns): ``any(f.values)`` -- per-column, is any
-  value nonzero -> a 1 x m logical row.
-- ``any(f, 2)`` (dim 2, across rows): evaluate at one arbitrary point and take
-  ``any`` across the columns -> a scalar.
-
-These tests build genuine array-valued (n, m) trigtechs and assert those
-equivalents.  The empty-class case ``~any(trigtech())`` has no chebfunjax
-analogue (no empty tech) and stays xfail.
+These tests build genuine array-valued (n, m) trigtechs and assert the source
+results, including the no-argument empty constructor call.
 
 Provenance
 ----------
@@ -25,9 +22,6 @@ import numpy as np
 
 from chebfunjax.tech.trigtech import Trigtech
 
-# MATLAB's arbitrary evaluation point for any(f, 2).
-_ARB_POINT = 0.1273881594
-
 
 def _tt(f):
     return Trigtech.from_function(f)
@@ -35,26 +29,24 @@ def _tt(f):
 
 class TestTrigtechAny:
     def test_empty(self):
-        # pass(1): ~any(trigtech()) -- the empty tech has no nonzero data
-        assert Trigtech.empty().isempty()
+        # pass(1): ~any(testclass), where testclass is trigtech().
+        assert bool(Trigtech().any()) is False
 
     def test_columns(self):
         # pass(2): any(make(@(x) [sin(pi x) 0*x cos(pi x)])) == [1 0 1]
         # FIXED (Fable 5, Big-Three array-valued epic): any() over (n, m) values.
         f = _tt(lambda x: jnp.stack([jnp.sin(jnp.pi * x), 0 * x, jnp.cos(jnp.pi * x)], axis=-1))
-        a = jnp.any(f.values != 0, axis=0)
+        a = f.any()
         assert list(np.asarray(a).astype(int)) == [1, 0, 1]
 
     def test_rows(self):
         # pass(3): any(f, 2).coeffs == 1 for f = [sin(pi x) 0*x cos(pi x)]
         # FIXED (Fable 5, Big-Three array-valued epic).
         f = _tt(lambda x: jnp.stack([jnp.sin(jnp.pi * x), 0 * x, jnp.cos(jnp.pi * x)], axis=-1))
-        x0 = jnp.array([_ARB_POINT], dtype=jnp.float64)
-        assert int(jnp.any(f(x0)[0] != 0)) == 1
+        np.testing.assert_array_equal(np.asarray(f.any(dim=2).coeffs), np.array([[True]]))
 
     def test_rows_zero(self):
         # pass(4): any(make(@(x) [0*x 0*x]), 2).coeffs == 0
         # FIXED (Fable 5, Big-Three array-valued epic).
         f = _tt(lambda x: jnp.stack([0 * x, 0 * x], axis=-1))
-        x0 = jnp.array([_ARB_POINT], dtype=jnp.float64)
-        assert int(jnp.any(f(x0)[0] != 0)) == 0
+        np.testing.assert_array_equal(np.asarray(f.any(dim=2).coeffs), np.array([[False]]))

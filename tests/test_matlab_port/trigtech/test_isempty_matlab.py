@@ -1,7 +1,7 @@
-"""Port of MATLAB Chebfun tests/trigtech/test_isempty.m (Opus 4.8).
+"""Port of MATLAB Chebfun tests/trigtech/test_isempty.m.
 
-isempty(f) is true iff f has no coefficients.  chebfunjax models an empty
-trigtech as one whose coefficient array has length 0.
+The source predicate checks object cardinality and the stored values field;
+the no-argument constructor and empty concatenation are tested directly.
 
 Provenance
 ----------
@@ -20,31 +20,25 @@ def _tt(f):
     return Trigtech.from_function(f)
 
 
-def _isempty(f):
-    # Both empty forms: the field-less object-empty (Trigtech.empty())
-    # and a zero-length-coefficients tech.
-    return f.isempty() or f.n == 0
-
-
 class TestTrigtechIsempty:
     def test_empty(self):
-        f = Trigtech(coeffs=jnp.array([], dtype=jnp.complex128))
-        assert _isempty(f)
+        f = Trigtech()
+        assert f.isempty()
 
     def test_scalar_nonempty(self):
         f = _tt(lambda x: jnp.sin(200 * jnp.pi * x))
-        assert not _isempty(f)
+        assert not f.isempty()
 
     def test_array_nonempty(self):
         f = _tt(lambda x: jnp.stack(
             [jnp.sin(200 * jnp.pi * x), jnp.cos(200 * jnp.pi * x)], axis=-1))
-        assert not _isempty(f)
+        assert not f.isempty()
 
     def test_concatenated_nonempty(self):
         f = Trigtech.horzcat(_tt(lambda x: jnp.sin(200 * jnp.pi * x)),
                              _tt(lambda x: jnp.sin(200 * jnp.pi * x)))
-        assert not _isempty(f)
+        assert not f.isempty()
 
     def test_concatenated_empty(self):
-        f = Trigtech.horzcat(Trigtech.empty(), Trigtech.empty())
-        assert _isempty(f)
+        f = Trigtech.horzcat(Trigtech(), Trigtech())
+        assert f.isempty()

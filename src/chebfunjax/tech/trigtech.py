@@ -1399,7 +1399,9 @@ class Trigtech(eqx.Module):
     Chebtech2, Bndfun
     """
 
-    coeffs: jax.Array  # complex128, shape (N,)
+    coeffs: jax.Array = eqx.field(
+        default_factory=lambda: jnp.zeros((0, 0), dtype=jnp.complex128)
+    )  # complex128, shape (N,)
     is_real: bool = eqx.field(static=True, default=True)
     ishappy: bool = eqx.field(static=True, default=True)
 
@@ -1416,9 +1418,7 @@ class Trigtech(eqx.Module):
         MATLAB source : @trigtech/isempty.m
         Chebfun commit: 7574c77
         """
-        obj = object.__new__(cls)
-        object.__setattr__(obj, "_is_empty_object", True)
-        return obj
+        return cls()
 
     def isempty(self) -> bool:
         """True for the empty Trigtech (MATLAB ``isempty``).
@@ -1428,7 +1428,7 @@ class Trigtech(eqx.Module):
         MATLAB source : @trigtech/isempty.m
         Chebfun commit: 7574c77
         """
-        return getattr(self, "_is_empty_object", False)
+        return self.coeffs.size == 0
 
     # ------------------------------------------------------------------
     # Construction
@@ -1457,6 +1457,12 @@ class Trigtech(eqx.Module):
         Trigtech
         """
         coeffs = jnp.atleast_1d(jnp.asarray(coeffs, dtype=jnp.complex128))
+        if coeffs.size == 0:
+            return cls(
+                coeffs=coeffs,
+                is_real=True if is_real is None else bool(is_real),
+                ishappy=ishappy,
+            )
         if is_real is None:
             # A real-valued function has conjugate-symmetric Fourier
             # coefficients: c_{-k} = conj(c_k). The previous hardcoded
@@ -1787,6 +1793,9 @@ class Trigtech(eqx.Module):
     @property
     def values(self) -> jax.Array:
         """Function values at equispaced trigonometric points (float64 if real)."""
+        if self.isempty():
+            return jnp.empty(self.coeffs.shape, dtype=jnp.float64 if self.is_real
+                             else jnp.complex128)
         v = trig_coeffs2vals(self.coeffs)
         if self.is_real:
             return jnp.real(v).astype(jnp.float64)
@@ -1794,7 +1803,20 @@ class Trigtech(eqx.Module):
 
     @property
     def vscale(self) -> float:
-        """Vertical scale: max |f(x)| on the grid."""
+        """Aggregate vertical scale: max |f(x)| on the grid.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/vscale.m
+        Chebfun commit: 7574c77
+
+        The source empty case returns zero. For array-valued inputs this
+        property retains the existing aggregate adapter; the source's public
+        per-column result is a separate unresolved API gap.
+        """
+        if self.isempty():
+            # MATLAB @trigtech/vscale.m returns zero when coeffs are empty.
+            return 0.0
         return float(jnp.max(jnp.abs(self.values)))
 
     def __len__(self) -> int:
@@ -1851,6 +1873,8 @@ class Trigtech(eqx.Module):
         MATLAB source : @trigtech/simplify.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return self
         if not self.ishappy:
             return self
 
@@ -1955,7 +1979,7 @@ class Trigtech(eqx.Module):
         qualification point. The Python method accepts scalar integer ``m``
         and ``dim``.
         """
-        if self.n == 0:
+        if self.isempty():
             return self
         if m is None:
             m = 1
@@ -2687,6 +2711,12 @@ class Trigtech(eqx.Module):
         MATLAB source : @trigtech/cell2mat.m
         Chebfun commit: 7574c77
         """
+        techs = list(techs)
+        if len(techs) == 1:
+            # MATLAB @trigtech/cell2mat.m returns its singleton unchanged.
+            # In particular, horzcat dropping empty inputs must not turn a
+            # scalar coefficient vector into an array-valued representation.
+            return techs[0]
         n = max(t.n for t in techs)
         cols = []
         for t in techs:
@@ -2732,11 +2762,80 @@ class Trigtech(eqx.Module):
 
     def size(self, dim: int | None = None):
         """MATLAB ``size(f)``: (n_rows, n_cols); ``size(f, 2)`` is the
-        column count.  ``n_rows`` is the number of Fourier coefficients."""
-        shape = (self.n, self.num_columns)
+        column count. ``n_rows`` is the number of Fourier coefficients.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/size.m
+        Chebfun commit: 7574c77
+
+        Python scalar coefficient vectors represent MATLAB single columns.
+        """
+        # Recomputed values have the same shape as coefficient storage,
+        # including explicit empty matrices; size requires no FFT.
+        value_shape = self.coeffs.shape
+        if len(value_shape) < 2:
+            shape = (value_shape[0], 1) if value_shape else (1, 1)
+        else:
+            shape = (value_shape[0], value_shape[1])
         if dim is None:
             return shape
-        return shape[dim - 1]
+        if dim < 1:
+            raise ValueError("Dimension argument must be a positive integer.")
+        return shape[dim - 1] if dim <= len(shape) else 1
+
+    def any(self, dim: int | None = None):
+        """MATLAB ``@trigtech/any`` reduction.
+
+        With no dimension, and for ``dim=1``, follow the literal source
+        implementation's ``any(f.values)`` reduction along MATLAB's first
+        nonsingleton dimension (which collapses a 1-by-m row across columns).
+        ``dim=2`` returns a constant Trigtech whose value is the source's
+        sampled-any result at ``0.1273881594``.
+
+        Provenance
+        ----------
+        MATLAB source : @trigtech/any.m and @trigtech/feval.m
+        Chebfun commit: 7574c77
+        Original authors: Copyright 2017 by The University of Oxford and
+            The Chebfun Developers.
+        """
+        if dim is not None and dim not in (1, 2):
+            raise ValueError("TRIGTECH:any:dim: DIM input must be 1 or 2.")
+
+        if dim == 2:
+            # The MATLAB implementation samples at this fixed interior point
+            # and stores the result as a constant coefficient.
+            if self.isempty():
+                # MATLAB feval(empty, x) is [], and any([]) is scalar false.
+                return Trigtech(
+                    coeffs=jnp.asarray([[False]]),
+                    is_real=True,
+                    ishappy=self.ishappy,
+                )
+            sampled = jnp.asarray(self(jnp.asarray(0.1273881594)))
+            flags = (sampled != 0) & ~jnp.isnan(sampled)
+            flag = jnp.any(flags)
+            return Trigtech(
+                coeffs=jnp.asarray([[flag]], dtype=jnp.bool_),
+                is_real=True,
+                ishappy=self.ishappy,
+            )
+
+        values = self.values
+        if values.ndim == 0:
+            axis = None
+        elif values.shape == (0, 0):
+            # MathWorks documents any(0-by-0) as scalar logical false.
+            return jnp.asarray(False)
+        else:
+            axis = next((i for i, n in enumerate(values.shape) if n != 1), 0)
+
+        flags = (values != 0) & ~jnp.isnan(values)
+        result = jnp.any(flags, axis=axis)
+        if values.ndim > 1 and axis == 1:
+            result = jnp.squeeze(result)
+        return result
 
     def vscale_columns(self) -> jax.Array:
         """Per-column vertical scale (MATLAB ``vscale`` returns a 1xN row
@@ -2748,6 +2847,8 @@ class Trigtech(eqx.Module):
         MATLAB source : @trigtech/vscale.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return jnp.empty((0,), dtype=jnp.float64)
         v = jnp.abs(self.values)
         if v.ndim == 1:
             return jnp.max(v, keepdims=True)
