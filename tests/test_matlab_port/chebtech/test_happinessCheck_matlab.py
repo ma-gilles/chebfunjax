@@ -14,8 +14,8 @@ Array-valued happiness_check on (n, m) coeffs takes the max cutoff across the
 per-column standard_chop cutoffs (FIXED, Fable 5, Big-Three array-valued epic).
 FIXED (Fable 5): ``happiness_check(..., check='strict'/'classic')`` ports the
 MATLAB strictCheck/classicCheck variants (pass 7, 8).
-skip: the ``happinessCheck=@plateauCheck`` array case (pass 9) still needs the
-plateau construction path (no plateauCheck pref in chebfunjax).
+The plateauCheck array case (pass9) is restored with its source10eps bound.
+
 
 Provenance
 ----------
@@ -35,10 +35,7 @@ CASES = [(Chebtech1, 1), (Chebtech2, 2)]
 # pass(n, 5): expected tail differs between the two techs (15 vs 17).
 CASES5 = [(Chebtech1, 1, 15), (Chebtech2, 2, 17)]
 
-_NO_PREF = (
-    "chebfunjax happiness_check has no 'strict'/'classic' happinessCheck pref "
-    "variants (only the standard check)"
-)
+
 
 
 class TestChebtechHappinessCheck:
@@ -165,7 +162,15 @@ class TestChebtechHappinessCheck:
 
     @pytest.mark.parametrize("Tech,kind", CASES)
     def test_plateau_array(self, Tech, kind):
-        # pass(n, 9): plateauCheck with an array-valued input.
-        # Array-valuedness is now supported, but the blocker here is the missing
-        # happinessCheck=@plateauCheck pref (no plateauCheck in chebfunjax).
-        pytest.skip(_NO_PREF)
+        # pass(n,9): source array constructions use classic/plateau checks.
+        def operator(x):
+            return jnp.stack((jnp.sin(x), jnp.cos(x)), axis=-1)
+
+        classic = Tech.from_function(operator, check="classic")
+        plateau = Tech.from_function(operator, check="plateau")
+        # Original assertion uses normest on the difference's own grid.
+        assert float((classic-plateau).normest()) < 10*jnp.finfo(jnp.float64).eps
+        # Additional independent dense probes use the same source bound.
+        points = jnp.linspace(-1, 1, 1001)
+        error = float(jnp.max(jnp.abs(classic(points)-plateau(points))))
+        assert error < 10*jnp.finfo(jnp.float64).eps

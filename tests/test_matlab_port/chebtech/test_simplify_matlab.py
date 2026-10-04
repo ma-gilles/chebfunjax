@@ -128,7 +128,8 @@ class TestChebtechSimplify:
         g = f.simplify(SIMPTOL)
         assert bool(np.any(np.abs(np.asarray(g.coeffs)[0, :]) != 0))
         assert len(g) < len(f)
-        err = float(jnp.max(jnp.abs(f(X) - g(X))))
+        # Source norm(A, inf) on this array is the maximum absolute row sum.
+        err = float(jnp.max(jnp.sum(jnp.abs(f(X) - g(X)), axis=1)))
         assert err < 10 * SIMPTOL * f.vscale
 
     @pytest.mark.parametrize("Tech", BOTH)

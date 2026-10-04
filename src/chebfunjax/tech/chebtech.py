@@ -8,6 +8,7 @@ See https://www.chebfun.org/ for Chebfun information.
 from __future__ import annotations
 
 import warnings
+from functools import partial
 from typing import Callable
 
 import equinox as eqx
@@ -224,89 +225,111 @@ def _prolong_coeffs(coeffs: jax.Array, n: int) -> jax.Array:
     return jnp.concatenate([coeffs, pad])
 
 
-def _alias_chebtech2(coeffs: jax.Array, m: int) -> jax.Array:
-    """Alias 2nd-kind Chebyshev coefficients to length ``m``.
+def _as_matrix(coeffs):
+    original = jnp.asarray(coeffs)
+    if original.ndim not in (1, 2):
+        raise ValueError("alias expects a coefficient vector or matrix")
+    return original, original[:, None] if original.ndim == 1 else original
 
-    Direct port of ``@chebtech2/alias.m``.  If ``m`` exceeds the current
-    length the coefficients are zero-padded; otherwise the higher modes are
-    folded down onto the retained ones per eq. (4.4) of Trefethen, ATAP.
 
-    Not JIT-safe (Python-int branching + fancy-index accumulation); uses
-    numpy for the folding, mirroring the other coefficient-surgery helpers.
+def _restore_shape(result, original):
+    return result[:, 0] if original.ndim == 1 else result
+
+
+@partial(jax.jit, static_argnames=("m",))
+def _alias_chebtech2(coeffs, m: int):
+    """Alias Chebtech2 coefficients to *m* rows using pure JAX operations.
+
+    The large-fold case uses indexed scatter-add; the small-fold case uses a
+    compiled sequential loop to preserve MATLAB's increasing-j accumulation
+    order when multiple high modes fold onto one retained coefficient. ``m``
+    must be a static nonnegative integer when this function is JIT compiled.
+
+    Provenance
+    ----------
+    MATLAB source : ``@chebtech2/alias.m``, especially the distinct m==1,
+        vectorized-fold, and loop-fold branches
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
     """
-    import numpy as np
-
-    orig = jnp.asarray(coeffs)
-    twod = orig.ndim == 2
-    c = np.asarray(orig)
-    if not twod:
-        c = c.reshape(-1, 1)
-    else:
-        c = c.copy()
-    n = c.shape[0]
+    original, c = _as_matrix(coeffs)
+    if not isinstance(m, int) or m < 0:
+        raise ValueError("m must be a nonnegative static integer")
+    n, ncols = c.shape
     if m > n:
-        c = np.concatenate([c, np.zeros((m - n,) + c.shape[1:], dtype=c.dtype)], axis=0)
+        out = jnp.concatenate(
+            (c, jnp.zeros((m - n, ncols), dtype=c.dtype)), axis=0
+        )
+    elif m == 0:
+        out = c[:0]
     elif m == 1:
-        e = np.ones(int(np.ceil(n / 2)), dtype=c.dtype)
-        e[1::2] = -1
-        c = (e @ c[0::2, :]).reshape((1,) + c.shape[1:])
+        weights = jnp.where(jnp.arange((n + 1) // 2) % 2 == 0, 1, -1)
+        out = jnp.sum(c[::2] * weights[:, None], axis=0, keepdims=True)
+    elif m == n:
+        out = c
     else:
-        c = c.copy()
+        out = c[:m]
         if m > n / 2:
-            # Only single coefficients are aliased (k is unique), so the
-            # fancy-indexed accumulation matches MATLAB's vectorised assign.
-            j = np.arange(m + 1, n + 1)
-            k = np.abs(np.mod(j + m - 3, 2 * m - 2) - m + 2) + 1
-            c[k - 1, :] = c[k - 1, :] + c[j - 1, :]
+            # MATLAB vectorizes this branch because each source mode has a
+            # unique destination. Source j is 1-based; r=j-1 is its JAX row.
+            r = jnp.arange(m, n)
+            target = jnp.abs(jnp.mod(r + m - 2, 2 * m - 2) - m + 2)
+            out = out.at[target, :].add(c[m:, :], mode="drop")
         else:
-            for j in range(m + 1, n + 1):
-                k = abs((j + m - 3) % (2 * m - 2) - m + 2) + 1
-                c[k - 1, :] = c[k - 1, :] + c[j - 1, :]
-        c = c[:m, :]
-    out = jnp.asarray(c, dtype=orig.dtype)
-    return out if twod else out.reshape(-1)
+            def add_one(i, acc):
+                r = i + m
+                target = jnp.abs(jnp.mod(r + m - 2, 2 * m - 2) - m + 2)
+                return acc.at[target, :].add(c[r, :], mode="drop")
+
+            out = jax.lax.fori_loop(0, n - m, add_one, out)
+    return _restore_shape(out, original)
 
 
-def _alias_chebtech1(coeffs: jax.Array, m: int) -> jax.Array:
-    """Alias 1st-kind Chebyshev coefficients to length ``m``.
+@partial(jax.jit, static_argnames=("m",))
+def _alias_chebtech1(coeffs, m: int):
+    """Alias Chebtech1 coefficients to *m* rows using pure JAX operations.
 
-    Direct port of ``@chebtech1/alias.m``.  The folding formula differs from
-    the 2nd-kind grid even though the coefficients are for 1st-kind
-    Chebyshev polynomials in both cases.  Not JIT-safe (see
-    :func:`_alias_chebtech2`).
+    Chebtech1 differs from Chebtech2 in both its fold period and the sign
+    applied to modes that cross an even number of half-periods. As above, the
+    high-fold branch uses scatter-add and the low-fold branch is a compiled
+    source-order loop. ``m`` must be a static nonnegative integer under JIT.
+
+    Provenance
+    ----------
+    MATLAB source : ``@chebtech1/alias.m``, especially the distinct m==1,
+        vectorized-fold, and loop-fold branches
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
     """
-    import numpy as np
-
-    orig = jnp.asarray(coeffs)
-    twod = orig.ndim == 2
-    c = np.asarray(orig)
-    if not twod:
-        c = c.reshape(-1, 1)
-    else:
-        c = c.copy()
-    n = c.shape[0]
+    original, c = _as_matrix(coeffs)
+    if not isinstance(m, int) or m < 0:
+        raise ValueError("m must be a nonnegative static integer")
+    n, ncols = c.shape
     if m > n:
-        c = np.concatenate([c, np.zeros((m - n,) + c.shape[1:], dtype=c.dtype)], axis=0)
+        out = jnp.concatenate(
+            (c, jnp.zeros((m - n, ncols), dtype=c.dtype)), axis=0
+        )
+    elif m == 0:
+        out = c[:0]
     elif m == 1:
-        e = np.ones(int(np.ceil(n / 2)), dtype=c.dtype)
-        e[1::2] = -1
-        c = (e @ c[0::2, :]).reshape((1,) + c.shape[1:])
+        weights = jnp.where(jnp.arange((n + 1) // 2) % 2 == 0, 1, -1)
+        out = jnp.sum(c[::2] * weights[:, None], axis=0, keepdims=True)
+    elif m == n:
+        out = c
     else:
-        c = c.copy()
+        out = c[:m]
         if m > n / 2:
-            j = np.arange(m + 1, n + 1)
-            k = np.abs(np.mod(j + m - 2, 2 * m) - m + 1) + 1
-            p = np.floor((j - 1 + m) / (2 * m))
-            t = ((-1.0) ** p).astype(c.dtype)
-            c[k - 1, :] = c[k - 1, :] + t[:, None] * c[j - 1, :]
+            r = jnp.arange(m, n)
+            target = jnp.abs(jnp.mod(r + m - 1, 2 * m) - m + 1)
+            sign = jnp.where(jnp.floor((r + m) / (2 * m)) % 2 == 0, 1, -1)
+            out = out.at[target, :].add(sign[:, None] * c[m:, :], mode="drop")
         else:
-            for j in range(m + 1, n + 1):
-                k = abs((j + m - 2) % (2 * m) - m + 1) + 1
-                sgn = 1 - 2 * (int(np.floor((j - 1 + m) / (2 * m))) % 2)
-                c[k - 1, :] = c[k - 1, :] + sgn * c[j - 1, :]
-        c = c[:m, :]
-    out = jnp.asarray(c, dtype=orig.dtype)
-    return out if twod else out.reshape(-1)
+            def add_one(i, acc):
+                r = i + m
+                target = jnp.abs(jnp.mod(r + m - 1, 2 * m) - m + 1)
+                sign = jnp.where(jnp.floor((r + m) / (2 * m)) % 2 == 0, 1, -1)
+                return acc.at[target, :].add(sign * c[r, :], mode="drop")
+
+            out = jax.lax.fori_loop(0, n - m, add_one, out)
+    return _restore_shape(out, original)
 
 
 def _cheb_coeffs_turbo(op: Callable, rho: float, n: int) -> jax.Array:
@@ -385,199 +408,215 @@ def _trigcoeffs_from_tech(tech, N: int | None) -> jax.Array:
     return jnp.asarray(out)
 
 
-def _chop_columns(coeffs: jax.Array, tol: float | None) -> int:
+def _chop_columns(coeffs: jax.Array, tol: float | jax.Array | None) -> int:
     """standard_chop applied column-wise; the cutoff is the max across
     columns (MATLAB @chebtech/simplify.m and standardCheck.m loop over
-    the columns of an array-valued chebtech and keep the largest)."""
+    the columns of an array-valued chebtech and keep the largest).
+
+    A tolerance vector supplies one tolerance per column. MATLAB replaces a
+    vector of the wrong length with its maximum replicated across columns.
+    """
     if coeffs.ndim == 1:
-        return standard_chop(coeffs, tol)
-    return max(standard_chop(coeffs[:, j], tol)
-               for j in range(coeffs.shape[1]))
+        if tol is None:
+            return standard_chop(coeffs, None)
+        tol_values = jnp.ravel(jnp.asarray(tol))
+        scalar_tol = tol_values[0] if tol_values.size == 1 else jnp.max(tol_values)
+        return standard_chop(coeffs, float(scalar_tol))
+
+    ncols = coeffs.shape[1]
+    if tol is None:
+        tolerances = [None] * ncols
+    else:
+        tol_array = jnp.asarray(tol)
+        tol_values = jnp.ravel(tol_array)
+        if (tol_values.size != ncols
+                or (tol_array.ndim > 1 and tol_array.shape[-1] != ncols)):
+            tol_values = jnp.full((ncols,), jnp.max(tol_values))
+        tolerances = [float(tol_values[j]) for j in range(ncols)]
+    return max(standard_chop(coeffs[:, j], tolerances[j])
+               for j in range(ncols))
 
 
 def _round_half_away(x: float) -> int:
     """MATLAB ``round`` (round-half-away-from-zero), not Python banker's."""
-    import numpy as _np
-
-    return int(_np.floor(_np.abs(x) + 0.5) * _np.sign(x)) if x != 0 else 0
+    return int(jnp.floor(jnp.abs(x) + 0.5) * jnp.sign(x)) if x != 0 else 0
 
 
-def _strict_check(
-    coeffs: jax.Array,
-    vscale: float,
-    epslevel: float,
-) -> tuple[bool, int]:
-    """'strict' happiness variant (MATLAB @chebtech/strictCheck.m).
+class _HappinessError(ValueError):
+    """Source NaN diagnostic with MATLAB's identifier and message."""
 
-    The absolute coefficients (relative to ``vscale``) in the tail must all
-    lie below ``epslevel``; the tolerance is NOT relaxed by the length of the
-    representation or a gradient estimate the way ``classicCheck`` does.
+    def __init__(self, checker):
+        self.identifier = f"CHEBFUN:CHEBTECH:{checker}:nanEval"
+        super().__init__("Function returned NaN when evaluated.")
 
-    Parameters
-    ----------
-    coeffs : jax.Array, shape (n,) or (n, m)
-        Chebyshev coefficients (ascending order in the leading axis).
-    vscale : float
-        Vertical scale (``max(|values|)``).
-    epslevel : float
-        Target tolerance (``pref.chebfuneps``).
 
-    Returns
-    -------
-    ishappy : bool
-    cutoff : int
-        1-based number of coefficients to retain (MATLAB's CUTOFF).
+def _columns(values: jnp.ndarray) -> jnp.ndarray:
+    values = jnp.asarray(values)
+    return values[:, None] if values.ndim == 1 else values
+
+
+def _tol_columns(tol, ncols: int) -> jnp.ndarray:
+    result = jnp.ravel(jnp.asarray(tol, dtype=jnp.float64))
+    if result.size == 1:
+        return jnp.full((ncols,), result[0])
+    if result.size != ncols:
+        return jnp.full((ncols,), jnp.max(result))
+    return result
+
+
+def _scale_columns(vscale, ncols: int) -> jnp.ndarray:
+    result = jnp.ravel(jnp.asarray(vscale, dtype=jnp.float64))
+    if result.size == 1:
+        return jnp.full((ncols,), result[0])
+    if result.size != ncols:
+        return jnp.full((ncols,), jnp.max(result))
+    return result
+
+
+def _strict_check(coeffs, vscale, epslevel) -> tuple[bool, int | None]:
+    """Literal JAX translation of MATLAB ``strictCheck`` for numeric arrays.
+
+    Source cutoff uses ``find(max(f.coeffs,[],2)>0,'last')`` after zeroing the
+    accepted tail. For a real all-negative function this source expression
+    yields an empty cutoff. Return ``None`` for that source result: downstream
+    Python ``coeffs[:None]`` is the full coefficient array, matching MATLAB
+    ``prolong(f, [])``, which leaves the coefficients unchanged.
 
     Provenance
     ----------
-    MATLAB source : @chebtech/strictCheck.m
-    Chebfun commit: 7574c77
-    Original authors: Copyright 2017 by The University of Oxford
-        and The Chebfun Developers.
+    MATLAB source : ``@chebtech/strictCheck.m`` lines 31–88;
+        ``@chebtech/prolong.m`` lines 20–40
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
     """
-    import numpy as _np
-
-    c = _np.asarray(coeffs)
-    if c.ndim == 1:
-        c = c[:, None]
-    n = c.shape[0]
-
-    if n < 2:  # (Can't be simpler than a constant.)
+    c = _columns(jnp.asarray(coeffs))
+    n, m = c.shape
+    scales = _scale_columns(vscale, m)
+    tolerances = _tol_columns(epslevel, m)
+    if n < 2:
         return False, n
-    if vscale == 0:  # The zero function; we must be happy.
+    if bool(jnp.max(scales) == 0):
         return True, 1
-    if not _np.isfinite(vscale):  # Inf located. No cutoff.
+    if bool(jnp.any(jnp.isinf(scales))):
         return False, n
-    if _np.any(_np.isnan(c)):
-        raise ValueError("Function returned NaN when evaluated.")
+    if bool(jnp.any(jnp.isnan(c))):
+        raise _HappinessError("strictCheck")
 
     test_length = min(n, max(5, _round_half_away((n - 1) / 8)))
-    ac = _np.abs(c) / vscale
-    c = _np.where(ac <= epslevel, 0.0, c)
-    tail = c[n - test_length:, :]
-    if not _np.any(tail):
-        # Last row with any nonzero coefficient (MATLAB find(..., 'last')).
-        row_max = _np.max(_np.abs(c), axis=1)
-        nz = _np.nonzero(row_max > 0)[0]
-        cutoff = int(nz[-1]) + 1 if nz.size else 1
-        return True, cutoff
-    return False, n
+    ac = jnp.abs(c) / scales[None, :]
+    truncated = jnp.where(ac <= tolerances[None, :], 0.0, c)
+    tail = truncated[n - test_length :, :]
+    if bool(jnp.any(tail != 0)):
+        return False, n
+
+    # Source uses max(f.coeffs,[],2), not max(abs(f.coeffs),[],2).
+    # For complex data MATLAB breaks equal-magnitude ties by the larger phase
+    # angle; relational > 0 then compares the selected value's real part.
+    if jnp.iscomplexobj(truncated):
+        magnitude = jnp.abs(truncated)
+        tied = magnitude == jnp.max(magnitude, axis=1, keepdims=True)
+        phase = jnp.where(tied, jnp.angle(truncated), -jnp.inf)
+        winner = jnp.argmax(phase, axis=1)
+        row_max = jnp.take_along_axis(truncated, winner[:, None], axis=1)[:, 0]
+        positive = jnp.real(row_max) > 0
+    else:
+        positive = jnp.max(truncated, axis=1) > 0
+    rows = jnp.where(positive, jnp.arange(n, dtype=jnp.int32) + 1, 0)
+    last = int(jnp.max(rows))
+    return True, last if last > 0 else None
 
 
-def _classic_check(
-    coeffs: jax.Array,
-    values: jax.Array,
-    points: jax.Array,
-    vscale: float,
-    hscale: float,
-    epslevel: float,
-) -> tuple[bool, int]:
-    """'classic' happiness variant (MATLAB @chebtech/classicCheck.m).
+def _happiness_requirements(values, coeffs, points, vscale, hscale, epslevel):
+    """Port the ``classicCheck`` local happinessRequirements subfunction.
 
-    The Chebfun-v4 happiness test: the tail coefficients (relative to
-    ``vscale``) must fall below ``epslevel``, where ``epslevel`` is relaxed by
-    the tail length and a finite-difference condition-number estimate.  The
-    ``cutoff`` is refined by a "bang for buck" cost model.
-
-    Parameters
-    ----------
-    coeffs : jax.Array, shape (n,) or (n, m)
-        Chebyshev coefficients (ascending order).
-    values : jax.Array, shape (n,) or (n, m)
-        Sampled values (used for the gradient estimate).
-    points : jax.Array, shape (n,)
-        The Chebyshev points at which ``values`` were sampled.
-    vscale : float
-    hscale : float
-    epslevel : float
-        Target tolerance (``pref.chebfuneps``).
-
-    Returns
-    -------
-    ishappy : bool
-    cutoff : int
-        1-based number of coefficients to retain.
+    Returns ``(test_length, eps_per_column)``. The ``coeffs`` argument is kept
+    because MATLAB's nested helper receives it, but source ``%#ok<INUSL>``
+    confirms it is unused.
 
     Provenance
     ----------
-    MATLAB source : @chebtech/classicCheck.m
-    Chebfun commit: 7574c77
-    Original authors: Copyright 2017 by The University of Oxford
-        and The Chebfun Developers.
+    MATLAB source : ``@chebtech/classicCheck.m`` lines 162–191
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
     """
-    import numpy as _np
+    del coeffs
+    v = _columns(jnp.asarray(values))
+    x = jnp.ravel(jnp.asarray(points, dtype=jnp.float64))
+    n, m = v.shape
+    scales = _scale_columns(vscale, m)
+    eps_values = _tol_columns(epslevel, m)
+    test_length = min(n, max(5, _round_half_away((n - 1) / 8)))
+    tail_error = min(float(_EPS) * test_length, 1e-4)
 
-    c = _np.asarray(coeffs)
-    v = _np.asarray(values)
-    x = _np.asarray(points).reshape(-1)
-    if c.ndim == 1:
-        c = c[:, None]
-    if v.ndim == 1:
-        v = v[:, None]
-    n = c.shape[0]
-    m = c.shape[1]
-    eps_vec = _np.full(m, float(epslevel))
+    dy = jnp.diff(v, axis=0)
+    dx = jnp.diff(x)[:, None] * jnp.ones((1, m), dtype=jnp.float64)
+    grad_est = jnp.max(jnp.abs(dy / dx), axis=0)
+    spacing = jnp.spacing(jnp.abs(jnp.asarray(hscale, dtype=jnp.float64)))
+    cond_est = jnp.minimum(spacing / scales * grad_est, 1e-4)
+    eps_values = jnp.maximum(jnp.maximum(eps_values, cond_est), tail_error)
+    return test_length, eps_values
+
+
+def _classic_check(coeffs, values, points, vscale, hscale, epslevel) -> tuple[bool, int]:
+    """JAX translation of ``classicCheck`` and its local requirements routine.
+
+    Coefficient/value array columns are handled together with source per-column
+    scales and tolerances. Loops over the reversed tail use JAX immutable arrays;
+    only convergence decisions and final integer cutoff leave the device.
+
+    Provenance
+    ----------
+    MATLAB source : ``@chebtech/classicCheck.m`` lines 47–160 and local
+        ``happinessRequirements`` lines 162–191
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
+    """
+    c = _columns(jnp.asarray(coeffs))
+    v = _columns(jnp.asarray(values))
+    x = jnp.ravel(jnp.asarray(points, dtype=jnp.float64))
+    n, m = c.shape
+    scales = _scale_columns(vscale, m)
+    eps_values = _tol_columns(epslevel, m)
 
     if n < 2:
         return False, n
-    if _np.any(_np.isnan(c)):
-        raise ValueError("Function returned NaN when evaluated.")
-    if vscale == 0:
+    if bool(jnp.any(jnp.isnan(c))):
+        raise _HappinessError("classicCheck")
+    if bool(jnp.max(scales) == 0):
         return True, 1
-    if not _np.isfinite(vscale):
+    if bool(jnp.any(jnp.isinf(scales))):
         return False, n
-    vs = vscale if vscale != 0 else 1.0
 
-    ac = _np.abs(c) / vs
+    safe_scales = jnp.where(scales == 0, 1.0, scales)
+    ac = jnp.abs(c) / safe_scales[None, :]
+    test_length, eps_values = _happiness_requirements(
+        v, c, x, safe_scales, hscale, eps_values
+    )
 
-    # happinessRequirements: test length + relaxed epslevel.
-    min_prec = 1e-4
-    test_length = min(n, max(5, _round_half_away((n - 1) / 8)))
-    tail_err = min(_EPS * test_length, min_prec)
-    dy = _np.diff(v, axis=0)
-    dx = _np.diff(x)[:, None] * _np.ones((1, m))
-    grad_est = _np.max(_np.abs(dy / dx), axis=0)
-    # eps(hscale): spacing of floats at hscale.
-    cond_est = _np.spacing(hscale) / vs * grad_est
-    cond_est = _np.minimum(cond_est, min_prec)
-    eps_vec = _np.maximum(_np.maximum(eps_vec, cond_est), tail_err)
+    tail = ac[n - test_length :, :]
+    if not bool(jnp.all(jnp.max(tail, axis=0) < eps_values)):
+        return False, 0
 
-    tail_block = ac[n - test_length:, :]
-    if _np.all(_np.max(tail_block, axis=0) < eps_vec):
-        # Converged. Find last row with a coefficient at/above epslevel.
-        rows_large = _np.any(ac >= eps_vec[None, :], axis=1)
-        nz = _np.nonzero(rows_large)[0]
-        if nz.size == 0:
-            return True, 1
-        tloc = int(nz[-1]) + 1 + 1  # find(...) is 1-based, MATLAB adds +1
+    rows_large = jnp.any(ac >= eps_values[None, :], axis=1)
+    nonzero_rows = jnp.where(rows_large, jnp.arange(n, dtype=jnp.int32), -1)
+    last = int(jnp.max(nonzero_rows))
+    if last < 0:
+        return True, 1
+    tloc = last + 2  # MATLAB find index plus its explicit +1
 
-        # Cumulative max of eps/4 and the tail entries, from the end down to
-        # Tloc (MATLAB restricts ac to ac(end:-1:Tloc, :)).
-        t = 0.25 * _EPS * _np.ones(m)
-        acr = ac[::-1][: (n - tloc + 1), :].copy()
-        for k in range(acr.shape[0]):
-            below = acr[k, :] < t
-            acr[k, below] = t[below]
-            atleast = ~below
-            t[atleast] = acr[k, atleast]
+    reversed_tail = ac[::-1][: n - tloc + 1, :]
+    acr = jnp.maximum(
+        jax.lax.associative_scan(jnp.maximum, reversed_tail, axis=0),
+        0.25 * _EPS,
+    )
 
-        # "Bang for buck": accuracy gained vs. coefficients kept.
-        with _np.errstate(divide="ignore", invalid="ignore"):
-            bang = _np.log(1e3 * (eps_vec[None, :] / acr))
-        buck = _np.arange(n - 1, tloc - 2, -1).astype(float)[:, None]
-        tbpb = bang / buck
-
-        # max over rows 3..(n-Tloc+1) (1-based) => Python indices 2:(n-tloc+1).
-        sub = tbpb[2:(n - tloc + 1), :]
-        if sub.shape[0] == 0:
-            cutoff = n
-        else:
-            per_col_tchop = _np.argmax(sub, axis=0) + 1  # 1-based position
-            tchop = int(_np.min(per_col_tchop))
-            cutoff = n - tchop - 2
-        return True, int(cutoff)
-
-    return False, 0
+    bang = jnp.log(1e3 * eps_values[None, :] / acr)
+    buck = jnp.arange(n - 1, tloc - 2, -1, dtype=jnp.float64)[:, None]
+    tbpb = bang / buck
+    sub = tbpb[2 : n - tloc + 1, :]
+    if sub.shape[0] == 0:
+        return True, n
+    per_column = jnp.argmax(sub, axis=0) + 1
+    tchop = int(jnp.min(per_column))
+    cutoff = n - tchop - 2
+    return True, cutoff
 
 
 def _happiness_check_impl(
@@ -590,63 +629,96 @@ def _happiness_check_impl(
     vscale: float,
     hscale: float,
     check: str,
-) -> tuple[bool, int]:
+    sample_test: bool = True,
+) -> tuple[bool, int | None]:
     """Shared happiness-check dispatch for Chebtech1/Chebtech2.
 
     Dispatches to the requested happiness variant (``'standard'``,
     ``'strict'``, ``'classic'``) and then applies the common sample test
     (MATLAB ``@chebtech/happinessCheck.m``), reverting the cutoff to the full
-    length if the sample test fails.
+    length if the sample test fails. Strict may return None for the source
+    empty cutoff; retaining the full series then matches prolong(f,[]).
 
     Provenance
     ----------
     MATLAB source : @chebtech/happinessCheck.m, @chebtech/sampleTest.m
     Chebfun commit: 7574c77
     """
-    import numpy as _np
-
     if tol is None:
         tol = _EPS
 
     n = coeffs.shape[0]
-    vscale_local = float(jnp.max(jnp.abs(values)))
-    vscale = max(vscale, vscale_local)
+    # MATLAB standardCheck/sampleTest scale each column independently.
+    # Keep the sample axis when updating a running piecewise/global scale.
+    local_scales = jnp.max(jnp.abs(values), axis=0)
+    global_scales = jnp.maximum(jnp.asarray(vscale), local_scales)
+    column_count = 1 if coeffs.ndim == 1 else coeffs.shape[1]
+    tolerances = jnp.atleast_1d(jnp.asarray(tol))
+    if tolerances.size != column_count:
+        tolerances = jnp.full((column_count,), jnp.max(tolerances))
 
-    if check == "strict":
-        ishappy, cutoff = _strict_check(coeffs, vscale, tol)
-    elif check == "classic":
-        points = chebpts(n, kind)
-        ishappy, cutoff = _classic_check(
-            coeffs, values, points, vscale, hscale, tol
-        )
-    elif check == "standard":
-        # Scale tolerance by max(hscale, vscale / vscale_local)
-        # (see MATLAB standardCheck.m lines 60-62)
-        if vscale_local > 0:
-            scaled_tol = tol * max(hscale, vscale / vscale_local)
+    if check == "plateau":
+        from chebfunjax.utils.plateau import _plateau_check
+        ishappy, cutoff = _plateau_check(
+            coeffs, values, global_scales, float(jnp.max(tolerances)))
+    elif coeffs.ndim == 2 and check in {"strict", "classic"}:
+        scales = jnp.broadcast_to(global_scales, (column_count,))
+        if check == "strict":
+            ishappy, cutoff = _strict_check(coeffs, scales, tolerances)
         else:
-            scaled_tol = tol * hscale
-        cutoff = _chop_columns(coeffs, scaled_tol)
-        ishappy = cutoff < n
+            points = chebpts(n, kind)
+            ishappy, cutoff = _classic_check(
+                coeffs, values, points, scales, hscale, tolerances
+            )
+    elif coeffs.ndim == 2:
+        scales = jnp.broadcast_to(global_scales, (column_count,))
+        results = [
+            _happiness_check_impl(
+                tech_cls, kind, coeffs[:, column], values[:, column], None,
+                float(tolerances[column]), float(scales[column]), hscale,
+                check, sample_test=False,
+            )
+            for column in range(column_count)
+        ]
+        ishappy = all(result[0] for result in results)
+        cutoff = max(result[1] for result in results)
     else:
-        raise ValueError(
-            f"unknown happiness check {check!r} "
-            "(expected 'standard', 'strict', or 'classic')"
-        )
+        vscale_local = float(local_scales)
+        vscale = float(global_scales)
+        scalar_tol = float(tolerances[0])
+        if check == "strict":
+            ishappy, cutoff = _strict_check(coeffs, vscale, scalar_tol)
+        elif check == "classic":
+            points = chebpts(n, kind)
+            ishappy, cutoff = _classic_check(
+                coeffs, values, points, vscale, hscale, scalar_tol
+            )
+        elif check == "standard":
+            if vscale_local > 0:
+                scaled_tol = scalar_tol * max(hscale, vscale / vscale_local)
+            else:
+                scaled_tol = scalar_tol * hscale
+            cutoff = standard_chop(coeffs, scaled_tol)
+            ishappy = cutoff < n
+        else:
+            raise ValueError(
+                f"unknown happiness check {check!r} "
+                "(expected 'standard', 'strict', 'classic', or 'plateau')"
+            )
 
-    # Sample test: verify the interpolant matches the operator at two
-    # off-grid points (MATLAB sampleTest.m).  Runs for any happiness variant.
-    if ishappy and op is not None:
+    if ishappy and op is not None and sample_test:
         xeval = jnp.array(
             [-0.357998918959666, 0.036785641195074], dtype=jnp.float64
         )
-        keep = max(1, min(int(cutoff), n))
+        keep = n if cutoff is None else max(1, min(int(cutoff), n))
         f_test = tech_cls(coeffs=coeffs[:keep])
         v_fun = f_test(xeval)
         v_op = _as_fun_dtype(op(xeval))
-        err = float(jnp.max(jnp.abs(v_op - v_fun)))
-        sample_tol = _np.sqrt(max(_EPS, tol)) * max(hscale * vscale_local, vscale)
-        if err > sample_tol:
+        errors = jnp.max(jnp.abs(v_op - v_fun), axis=0)
+        sample_tolerances = jnp.sqrt(jnp.maximum(_EPS, tolerances)) * jnp.maximum(
+            hscale * local_scales, global_scales
+        )
+        if not bool(jnp.all(errors <= sample_tolerances)):
             ishappy = False
             cutoff = n
 
@@ -1615,6 +1687,8 @@ class Chebtech2(eqx.Module):
         start_pow2: int = 4,
         check: str = "standard",
         vscale: float = 0.0,
+        sample_test: bool = True,
+        hscale: float = 1.0,
     ) -> "Chebtech2":
         """Construct a Chebtech2 from a callable.
 
@@ -1680,7 +1754,8 @@ class Chebtech2(eqx.Module):
             plain = cls._adaptive_construct(f, maxpow2, tol=tol,
                                             check=check, vscale=vscale,
                                             extrapolate=extrapolate,
-                                            start_pow2=start_pow2)
+                                            start_pow2=start_pow2,
+                                            sample_test=sample_test, hscale=hscale)
             num = n if n is not None else 2 * len(plain)
             c = _turbo_coeffs(f, plain.coeffs, num)
             return cls(coeffs=c, ishappy=plain.ishappy)
@@ -1689,7 +1764,8 @@ class Chebtech2(eqx.Module):
         return cls._adaptive_construct(f, maxpow2, tol=tol, check=check,
                                        vscale=vscale,
                                        extrapolate=extrapolate,
-                                       start_pow2=start_pow2)
+                                       start_pow2=start_pow2,
+                                       sample_test=sample_test, hscale=hscale)
 
     @classmethod
     def _fixed_construct(
@@ -1717,6 +1793,8 @@ class Chebtech2(eqx.Module):
         extrapolate: bool = False,
         check: str = "standard",
         vscale: float = 0.0,
+        sample_test: bool = True,
+        hscale: float = 1.0,
     ) -> "Chebtech2":
         """Adaptive construction — Python-level loop, NOT JIT-safe.
 
@@ -1748,7 +1826,7 @@ class Chebtech2(eqx.Module):
         # MATLAB passes the running GLOBAL vscale of a piecewise
         # construction into every piece (data.vscale), so a tiny piece is
         # judged against the whole function's scale.
-        vscale = float(vscale)
+        vscale = jnp.asarray(vscale, dtype=jnp.float64)
         c = None
         for k in range(start_pow2, maxpow2 + 1):
             n = 2**k + 1
@@ -1757,9 +1835,9 @@ class Chebtech2(eqx.Module):
             # Update vscale from the finite samples only, then extrapolate any
             # NaN/Inf rows before transforming (MATLAB @chebtech/populate.m).
             finite_mask = jnp.isfinite(values)
-            vscale = max(
+            vscale = jnp.maximum(
                 vscale,
-                float(jnp.max(jnp.abs(jnp.where(finite_mask, values, 0.0)))),
+                jnp.max(jnp.abs(jnp.where(finite_mask, values, 0.0)), axis=0),
             )
             if not bool(jnp.all(finite_mask)):
                 values = _extrapolate_values(values, x, cls.barywts(n))[0]
@@ -1771,6 +1849,8 @@ class Chebtech2(eqx.Module):
                 tol=tol,
                 vscale=vscale,
                 check=check,
+                hscale=hscale,
+                sample_test=sample_test,
             )
             if ishappy:
                 return cls(coeffs=c[:cutoff], ishappy=True)
@@ -2061,6 +2141,17 @@ class Chebtech2(eqx.Module):
         """Vertical scale: max absolute function value."""
         return float(jnp.max(jnp.abs(self.values)))
 
+    def normest(self):
+        """Estimate the infinity norm from values on the representation grid.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/normest.m
+        Chebfun commit: 7574c77
+        JAX contract: JIT and differentiation preserve the scalar array.
+        """
+        return jnp.max(jnp.abs(self.values))
+
     def __len__(self) -> int:
         """Number of Chebyshev coefficients, same as ``self.n``."""
         return self.n
@@ -2121,7 +2212,7 @@ class Chebtech2(eqx.Module):
         n = max(n, 0)
         return Chebtech2(coeffs=self.coeffs[:n], ishappy=self.ishappy)
 
-    def simplify(self, tol: float | None = None) -> "Chebtech2":
+    def simplify(self, tol: float | jax.Array | None = None) -> "Chebtech2":
         """Return a new Chebtech2 with trailing coefficients chopped.
 
         Uses ``standard_chop`` to determine a suitable cutoff for the
@@ -2157,12 +2248,14 @@ class Chebtech2(eqx.Module):
         --------
         standard_chop
         """
+        if self.isempty() or self.n == 0:
+            return self
         if not self.ishappy:
             return self
 
         nold = self.n
         # Prolong to give standard_chop room for plateau detection
-        N = max(17, round(nold * 1.25 + 5))
+        N = max(17, _round_half_away(nold * 1.25 + 5))
         prolonged = self.prolong(N)
 
         # Round-trip through vals/coeffs to create a slightly noisy plateau
@@ -2388,7 +2481,8 @@ class Chebtech2(eqx.Module):
         vscale: float = 0.0,
         hscale: float = 1.0,
         check: str = "standard",
-    ) -> tuple[bool, int]:
+        sample_test: bool = True,
+    ) -> tuple[bool, int | None]:
         """Happiness check for adaptive construction.
 
         Tests whether a Chebyshev coefficient sequence has converged.  With
@@ -2424,7 +2518,7 @@ class Chebtech2(eqx.Module):
         -------
         ishappy : bool
             True if the representation has converged.
-        cutoff : int
+        cutoff : int or None
             Number of coefficients to retain (1-based length).
 
         Notes
@@ -2450,7 +2544,8 @@ class Chebtech2(eqx.Module):
         standard_chop
         """
         return _happiness_check_impl(
-            Chebtech2, 2, coeffs, values, op, tol, vscale, hscale, check
+            Chebtech2, 2, coeffs, values, op, tol, vscale, hscale, check,
+            sample_test,
         )
 
     # ------------------------------------------------------------------
@@ -3712,6 +3807,7 @@ class Chebtech1(eqx.Module):
         maxpow2: int = 16,
         turbo: bool = False,
         check: str = "standard",
+        sample_test: bool = True,
     ) -> "Chebtech1":
         """Construct a Chebtech1 from a callable.
 
@@ -3743,13 +3839,15 @@ class Chebtech1(eqx.Module):
             # "Turbo" construction (see Chebtech2.from_function): the plain
             # construction is adaptive; only the number of computed
             # coefficients is fixed by ``n`` (fixedLength).
-            plain = cls._adaptive_construct(f, maxpow2, check=check)
+            plain = cls._adaptive_construct(
+                f, maxpow2, check=check, sample_test=sample_test)
             num = n if n is not None else 2 * len(plain)
             c = _turbo_coeffs(f, plain.coeffs, num)
             return cls(coeffs=c, ishappy=plain.ishappy)
         if n is not None:
             return cls._fixed_construct(f, n)
-        return cls._adaptive_construct(f, maxpow2, check=check)
+        return cls._adaptive_construct(
+            f, maxpow2, check=check, sample_test=sample_test)
 
     @classmethod
     def _fixed_construct(
@@ -3773,6 +3871,7 @@ class Chebtech1(eqx.Module):
         maxpow2: int = 16,
         start_pow2: int = 4,
         check: str = "standard",
+        sample_test: bool = True,
     ) -> "Chebtech1":
         """Adaptive construction — Python-level loop, NOT JIT-safe.
 
@@ -3790,9 +3889,9 @@ class Chebtech1(eqx.Module):
             x = chebpts(n, kind=1)
             values = _as_fun_dtype(f(x))
             finite_mask = jnp.isfinite(values)
-            vscale = max(
+            vscale = jnp.maximum(
                 vscale,
-                float(jnp.max(jnp.abs(jnp.where(finite_mask, values, 0.0)))),
+                jnp.max(jnp.abs(jnp.where(finite_mask, values, 0.0)), axis=0),
             )
             if not bool(jnp.all(finite_mask)):
                 values = _extrapolate_values(values, x, cls.barywts(n))[0]
@@ -3803,6 +3902,7 @@ class Chebtech1(eqx.Module):
                 op=f,
                 vscale=vscale,
                 check=check,
+                sample_test=sample_test,
             )
             if ishappy:
                 return cls(coeffs=c[:cutoff], ishappy=True)
@@ -4023,6 +4123,17 @@ class Chebtech1(eqx.Module):
         """Vertical scale: max absolute function value."""
         return float(jnp.max(jnp.abs(self.values)))
 
+    def normest(self):
+        """Estimate the infinity norm from values on the representation grid.
+
+        Provenance
+        ----------
+        MATLAB source : @chebtech/normest.m
+        Chebfun commit: 7574c77
+        JAX contract: JIT and differentiation preserve the scalar array.
+        """
+        return jnp.max(jnp.abs(self.values))
+
     def __len__(self) -> int:
         return self.n
 
@@ -4054,7 +4165,7 @@ class Chebtech1(eqx.Module):
             return Chebtech1(coeffs=padded, ishappy=self.ishappy)
         return Chebtech1(coeffs=self.coeffs[:max(n, 0)], ishappy=self.ishappy)
 
-    def simplify(self, tol: float | None = None) -> "Chebtech1":
+    def simplify(self, tol: float | jax.Array | None = None) -> "Chebtech1":
         """Return a new Chebtech1 with trailing coefficients chopped.
 
         Provenance
@@ -4062,17 +4173,20 @@ class Chebtech1(eqx.Module):
         MATLAB source : @chebtech/simplify.m
         Chebfun commit: 7574c77
         """
+        if self.isempty() or self.n == 0:
+            return self
         if not self.ishappy:
             return self
         nold = self.n
-        N = max(17, round(nold * 1.25 + 5))
+        N = max(17, _round_half_away(nold * 1.25 + 5))
         prolonged_c = jnp.concatenate(
             [self.coeffs,
              jnp.zeros((N - nold,) + self.coeffs.shape[1:],
                        dtype=self.coeffs.dtype)]
         )
-        # Round-trip through values to create a plateau
-        c = _chebtech1_vals2coeffs(_chebtech1_coeffs2vals(prolonged_c))
+        # MATLAB @chebtech/simplify.m uses the Chebtech2 transforms for this
+        # plateau round-trip, including for Chebtech1 inputs.
+        c = vals2coeffs(coeffs2vals(prolonged_c))
         cutoff = _chop_columns(c, tol)
         cutoff = min(cutoff, nold)
         return Chebtech1(coeffs=self.coeffs[:cutoff], ishappy=self.ishappy)
@@ -4633,7 +4747,8 @@ class Chebtech1(eqx.Module):
         vscale: float = 0.0,
         hscale: float = 1.0,
         check: str = "standard",
-    ) -> tuple[bool, int]:
+        sample_test: bool = True,
+    ) -> tuple[bool, int | None]:
         """Happiness check for adaptive construction.
 
         Same logic as Chebtech2.happiness_check but sample-tests at
@@ -4647,7 +4762,8 @@ class Chebtech1(eqx.Module):
         Chebfun commit: 7574c77
         """
         return _happiness_check_impl(
-            Chebtech1, 1, coeffs, values, op, tol, vscale, hscale, check
+            Chebtech1, 1, coeffs, values, op, tol, vscale, hscale, check,
+            sample_test,
         )
 
     # ------------------------------------------------------------------
