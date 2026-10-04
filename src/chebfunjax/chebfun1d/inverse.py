@@ -302,8 +302,14 @@ def _inverse(f, pref=None, *, algorithm="brent", eps=None,
             result = _brent(f, y, a, b)
         return jnp.where(y == fa, a, jnp.where(y == fb, b, result))
 
+    # MATLAB parseInputs sets these on a local preference copy: every inverse
+    # disables the off-grid sample test and Newton uses resampling refinement.
+    # Other algorithms retain the caller's refinementFunction preference.
+    refinement = ("resampling" if algorithm == "newton"
+                  else pref.refinementFunction)
     inverse = chebfun(values, domain=tuple(domain), eps=tol, splitting=split,
-                     min_samples=len(f), max_length=pref.maxLength)
+                     min_samples=len(f), max_length=pref.maxLength,
+                     sample_test=False, refinement_function=refinement)
     if _onoff(rangecheck):
         (xmin, vmin), (xmax, vmax) = inverse.minandmax()
         x = Chebfun.identity(inverse.domain)

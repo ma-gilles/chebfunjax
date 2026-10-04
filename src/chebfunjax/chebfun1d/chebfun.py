@@ -119,6 +119,11 @@ class _Piece(eqx.Module):
         start_pow2: int = 4,
         extrapolate: bool = False,
         vscale: float = 0.0,
+        sample_test: bool = True,
+        refinement_function: str | Callable | None = None,
+        min_samples: int | None = None,
+        check: str = "standard",
+        hscale: float = 1.0,
     ) -> _Piece:
         """Build a piece from a callable on [a, b].
 
@@ -144,10 +149,14 @@ class _Piece(eqx.Module):
             x = 0.5 * (b - a) * t + 0.5 * (a + b)
             return f(x)
 
-        tech = Chebtech2.from_function(f_ref, n=n, maxpow2=maxpow2, tol=tol,
-                                       start_pow2=start_pow2,
-                                       turbo=turbo, extrapolate=extrapolate,
-                                       vscale=vscale)
+        tech_options = {}
+        if refinement_function is not None:
+            tech_options["refinement_function"] = refinement_function
+        tech = Chebtech2.from_function(
+            f_ref, n=n, maxpow2=maxpow2, tol=tol, start_pow2=start_pow2,
+            turbo=turbo, extrapolate=extrapolate, vscale=vscale,
+            sample_test=sample_test, min_samples=min_samples,
+            check=check, hscale=hscale, **tech_options)
         return cls(tech=tech, interval=(a, b))
 
     @classmethod
@@ -1860,6 +1869,9 @@ class Chebfun(eqx.Module):
         turbo: bool = False,
         extrapolate: bool = False,
         start_pow2: int = 4,
+        sample_test: bool = True,
+        refinement_function: str | Callable | None = None,
+        min_samples: int | None = None,
     ) -> Chebfun:
         """Construct a Chebfun from a callable on a given domain.
 
@@ -1877,6 +1889,12 @@ class Chebfun(eqx.Module):
             Domain (with possible breakpoints).
         n : int or None
             Fixed degree per piece (None = adaptive).
+        sample_test : bool, optional
+            Enable the Chebtech off-grid construction check.
+        refinement_function : str or callable, optional
+            Adaptive refinement method forwarded to each piece.
+        min_samples : int, optional
+            Minimum initial adaptive grid size.
 
         Returns
         -------
@@ -1897,7 +1915,10 @@ class Chebfun(eqx.Module):
                                          maxpow2=maxpow2, tol=tol,
                                          turbo=turbo,
                                          extrapolate=extrapolate,
-                                         start_pow2=start_pow2)
+                                         start_pow2=start_pow2,
+                                         sample_test=sample_test,
+                                         refinement_function=refinement_function,
+                                         min_samples=min_samples)
             funs.append(piece)
         return cls(funs=funs, domain=domain)
 
@@ -3753,7 +3774,10 @@ class Chebfun(eqx.Module):
         """
         return jnp.sqrt(self.var())
 
-    def merge(self, index=None, *, maxpow2: int | None = None) -> "Chebfun":
+    def merge(self, index=None, *, maxpow2: int | None = None,
+              tol: float | None = None, sample_test: bool = True,
+              min_samples: int | None = None,
+              refinement_function: str | Callable | None = None) -> "Chebfun":
         """Remove unnecessary interior breakpoints (MATLAB merge):
         re-approximate globally and keep the merged representation if
         it matches the piecewise one.
@@ -3763,6 +3787,10 @@ class Chebfun(eqx.Module):
         the breakpoints it introduced itself).  ``maxpow2`` caps the
         merged piece at ``2**maxpow2 + 1`` points (MATLAB caps at
         ``splitLength`` under splitting).
+
+        ``tol``, ``sample_test``, ``min_samples`` and
+        ``refinement_function`` control both the global fit and pairwise
+        merge trials.
 
         Provenance
         ----------
@@ -3779,7 +3807,7 @@ class Chebfun(eqx.Module):
         _allowed = None
         if index is not None:
             _allowed = [float(v) for v in index]
-        tol = 1e3 * float(_np.finfo(float).eps) * max(self.vscale, 1.0)
+        merge_tol = 1e3 * float(_np.finfo(float).eps) * max(self.vscale, 1.0)
         _all_interior = [float(v) for v in self.domain.breakpoints[1:-1]]
         # fast path: a single global piece (only when every interior
         # breakpoint is up for removal)
@@ -3790,11 +3818,13 @@ class Chebfun(eqx.Module):
                 _w.simplefilter("ignore")
                 cand = Chebfun.from_function(
                     lambda x: self(x), Domain((a, b)), maxpow2=_mp2,
-                    extrapolate=maxpow2 is not None)
+                    extrapolate=maxpow2 is not None, tol=tol,
+                    sample_test=sample_test, min_samples=min_samples,
+                    refinement_function=refinement_function)
             xs = jnp.asarray(_np.linspace(a + 1e-9 * (b - a),
                                           b - 1e-9 * (b - a), 201))
             err = float(jnp.max(jnp.abs(cand(xs) - self(xs))))
-            if err < tol and cand.funs[0].tech.ishappy:
+            if err < merge_tol and cand.funs[0].tech.ishappy:
                 return cand
         # MATLAB merge.m removes breakpoints ONE AT A TIME: each
         # interior breakpoint is dropped if the union of its two
@@ -3822,7 +3852,9 @@ class Chebfun(eqx.Module):
                     trial = _Piece.from_function(
                         lambda x: self(x), aa, bb,
                         maxpow2=min(10, _mp2) if maxpow2 is None else _mp2,
-                        extrapolate=maxpow2 is not None)
+                        extrapolate=maxpow2 is not None, tol=tol,
+                        sample_test=sample_test, min_samples=min_samples,
+                        refinement_function=refinement_function)
                 if not getattr(trial.tech, "ishappy", False):
                     continue
                 t = _np.linspace(aa + 1e-9 * (bb - aa),
@@ -3830,7 +3862,7 @@ class Chebfun(eqx.Module):
                 e = float(_np.max(_np.abs(
                     _np.asarray(trial(jnp.asarray(t)))
                     - _np.asarray(self(jnp.asarray(t))))))
-                if e < tol:
+                if e < merge_tol:
                     funs[k:k + 2] = [trial]
                     changed = True
                     break
@@ -9300,6 +9332,8 @@ def _chebfun_build(
     extrapolate: bool = False,
     split_max_length: int | None = None,
     resampling: bool = False,
+    sample_test: bool | None = None,
+    refinement_function: str | Callable | None = None,
 ) -> Chebfun:
     """Create a Chebfun from a callable, array of coefficients, or constant.
 
@@ -9406,6 +9440,18 @@ def _chebfun_build(
                 blowup = 1 if str(
                     _pref.blowupPrefs.defaultSingType).lower() == "pole" \
                     else 2
+    from chebfunjax.chebpref import ChebfunPref as _CP
+    _sample_test = (bool(_CP().sampleTest) if sample_test is None
+                    else bool(sample_test))
+    if resampling:
+        if (refinement_function is not None
+                and refinement_function != "resampling"):
+            raise ValueError(
+                "resampling=True conflicts with refinement_function="
+                f"{refinement_function!r}")
+        refinement_function = "resampling"
+    _adaptive_override = (sample_test is not None
+                         or refinement_function is not None)
     # --- MATLAB flag aliases ('periodic', 'tech', 'chebkind', strings,
     #     'vectorize', 'doubleLength'); see @chebfun/chebfun.m parseInputs.
     if tech is not None:
@@ -9439,6 +9485,10 @@ def _chebfun_build(
         f = [_string_op(t) for t in f]
     elif isinstance(f, (list, tuple)) and f and all(
             hasattr(t, "tech") and hasattr(t, "interval") for t in f):
+        if _adaptive_override:
+            raise ValueError(
+                "sample_test/refinement_function overrides do not apply "
+                "when assembling existing pieces")
         # MATLAB chebfun(f.funs): assemble a cell array of FUNs.
         _bps = [float(f[0].interval[0])] + [float(t.interval[1]) for t in f]
         return Chebfun(funs=list(f), domain=Domain(tuple(_bps)))
@@ -9478,8 +9528,14 @@ def _chebfun_build(
         _kw = dict(domain=domain, trig=trig, eps=eps,
                    max_length=max_length, exps=exps, blowup=blowup,
                    singType=singType, turbo=turbo, equi=equi,
-                   min_samples=min_samples, chebkind=chebkind)
+                   min_samples=min_samples, chebkind=chebkind,
+                   sample_test=sample_test,
+                   refinement_function=refinement_function)
         if coeffs:
+            if _adaptive_override:
+                raise ValueError(
+                    "sample_test/refinement_function overrides do not apply "
+                    "to coefficient input")
             _c = jnp.asarray(f)
             _pad = jnp.zeros((2 * int(_c.shape[0]) - 1,) + tuple(
                 _c.shape[1:]), dtype=_c.dtype)
@@ -9499,8 +9555,16 @@ def _chebfun_build(
             if callable(f):
                 _t = Chebtech1.from_function(
                     lambda y, _f=f, _a=_a, _b=_b:
-                        _f(_a + (_b - _a) * (y + 1.0) / 2.0), n=n)
+                        _f(_a + (_b - _a) * (y + 1.0) / 2.0), n=n,
+                    sample_test=_sample_test,
+                    min_samples=min_samples,
+                    **({} if refinement_function is None else {
+                        "refinement_function": refinement_function}))
             else:
+                if _adaptive_override:
+                    raise ValueError(
+                        "sample_test/refinement_function overrides do not "
+                        "apply to sampled Chebtech1 values")
                 _t = Chebtech1.from_values(
                     jnp.asarray(f, dtype=jnp.float64))
             _pieces.append(_Piece(tech=_t, interval=(_a, _b)))
@@ -9527,7 +9591,8 @@ def _chebfun_build(
                      splitting=splitting, split_length=split_length,
                      exps=exps, blowup=blowup, singType=singType,
                      turbo=turbo, equi=equi, coeffs=coeffs,
-                     min_samples=min_samples)
+                     min_samples=min_samples, sample_test=sample_test,
+                     refinement_function=refinement_function)
         return _g.truncate(int(trunc))
     if len(_dv) < 2 or len(set(_dv)) < len(_dv):
         raise ValueError(
@@ -9573,7 +9638,9 @@ def _chebfun_build(
                     split_length=split_length,
                     exps=(None if _pairs[_k] is None else _pairs[_k]),
                     blowup=blowup, singType=singType, turbo=turbo,
-                    equi=equi, coeffs=coeffs, min_samples=min_samples)
+                    equi=equi, coeffs=coeffs, min_samples=min_samples,
+                    sample_test=sample_test,
+                    refinement_function=refinement_function)
                 _funs.extend(_sub.funs)
             return Chebfun(funs=_funs, domain=Domain(tuple(_dv)))
 
@@ -9586,6 +9653,10 @@ def _chebfun_build(
     # 'coeffs'): construct from a COEFFICIENT vector (@chebfun/chebfun.m
     # parseInputs 'coeffs' flag).
     if coeffs:
+        if _adaptive_override:
+            raise ValueError(
+                "sample_test/refinement_function overrides do not apply "
+                "to coefficient input")
         if callable(f):
             raise ValueError("chebfun(..., coeffs=True) requires a "
                              "coefficient array, not a callable.")
@@ -9607,6 +9678,10 @@ def _chebfun_build(
     _tech_cls = _CT1 if chebkind == 1 else None
     if (exps is not None or blowup) and all(
             math.isfinite(v) for v in _dv):
+        if _adaptive_override:
+            raise ValueError(
+                "sample_test/refinement_function overrides are not yet "
+                "supported for exps/blowup construction")
         # (unbounded domains carry exps through the Unbndfun branch below)
         if trig or n is not None:
             raise ValueError(
@@ -9746,6 +9821,10 @@ def _chebfun_build(
     # resolved adaptively as a Chebfun (MATLAB @chebfun/chebfun.m
     # 'equi' -> chebfunpref.enableFunqui -> @smoothfun funqui).
     if equi:
+        if _adaptive_override:
+            raise ValueError(
+                "sample_test/refinement_function overrides do not apply "
+                "to equispaced data")
         if callable(f):
             raise ValueError(
                 "chebfun(..., equi=True): the 'equi' flag requires numeric "
@@ -9805,6 +9884,10 @@ def _chebfun_build(
         hasattr(f, "__float__") and not callable(f)
         and getattr(f, "ndim", 0) == 0
     ):
+        if _adaptive_override:
+            raise ValueError(
+                "sample_test/refinement_function overrides do not apply "
+                "to scalar constant input")
         # Scalar constant
         c = float(f)
         return Chebfun.from_function(lambda x: jnp.full_like(x, c), dom, n=n)
@@ -9812,23 +9895,36 @@ def _chebfun_build(
     # Try JAX scalar (0-d array)
     try:
         arr = jnp.asarray(f)
+    except Exception:
+        arr = None
+    if arr is not None:
         if arr.ndim == 0:
+            if _adaptive_override:
+                raise ValueError(
+                    "sample_test/refinement_function overrides do not apply "
+                    "to scalar constant input")
             c = float(arr)
             return Chebfun.from_function(lambda x: jnp.full_like(x, c), dom, n=n)
         if arr.ndim in (1, 2) and not callable(f) and not coeffs \
                 and not trig:
+            if _adaptive_override:
+                raise ValueError(
+                    "sample_test/refinement_function overrides do not apply "
+                    "to sampled values")
             # MATLAB chebfun(a) with a data VECTOR (or matrix: one column
             # per function): the polynomial interpolant through the values
             # at 2nd-kind Chebyshev points (approx2/Gibbs2D builds its
             # square wave this way).
             _dt = jnp.complex128 if jnp.iscomplexobj(arr) else jnp.float64
             return Chebfun.from_values(jnp.asarray(arr, dtype=_dt), dom)
-    except Exception:
-        pass
 
     _dom_arr = [float(v) for v in (domain if hasattr(domain, "__len__")
                                     else (domain,))]
     if any(not math.isfinite(v) for v in _dom_arr):
+        if _adaptive_override:
+            raise ValueError(
+                "sample_test/refinement_function overrides are not yet "
+                "supported for unbounded construction")
         from chebfunjax.fun.unbndfun import Unbndfun
 
         if trig:
@@ -9913,7 +10009,9 @@ def _chebfun_build(
                         f, float(_xa), float(_xb), _maxpow2, tol=_tol,
                         turbo=turbo, min_samples=min_samples,
                         split_length=split_length,
-                        split_max_length=split_max_length)
+                        split_max_length=split_max_length,
+                        sample_test=_sample_test,
+                        refinement_function=refinement_function)
                     _funs.extend(_sub.funs)
                     _bps.extend(float(v)
                                 for v in _sub.domain.breakpoints[1:])
@@ -9929,6 +10027,10 @@ def _chebfun_build(
         return Chebfun(funs=[fun_u], domain=dom_u)
 
     if trig:
+        if _adaptive_override:
+            raise ValueError(
+                "sample_test/refinement_function overrides are not yet "
+                "supported for trigonometric construction")
         from chebfunjax.tech.trigtech import Trigtech
 
         dom_arr = tuple(float(v) for v in domain)
@@ -9979,7 +10081,9 @@ def _chebfun_build(
                         f, float(_a), float(_b), _maxpow2, tol=_tol,
                         turbo=turbo, min_samples=min_samples,
                         split_length=split_length,
-                        split_max_length=split_max_length).funs)
+                        split_max_length=split_max_length,
+                        sample_test=_sample_test,
+                        refinement_function=refinement_function).funs)
                 _bps = [float(_funs[0].interval[0])] + [
                     float(pc.interval[1]) for pc in _funs]
                 return Chebfun(funs=_funs, domain=Domain(tuple(_bps)))
@@ -9988,7 +10092,9 @@ def _chebfun_build(
                                              _maxpow2, tol=_tol, turbo=turbo,
                                              min_samples=min_samples,
                                              split_length=split_length,
-                                             split_max_length=split_max_length)
+                                             split_max_length=split_max_length,
+                                             sample_test=_sample_test,
+                                             refinement_function=refinement_function)
         # MATLAB 'minSamples': the first adaptive grid has at least that
         # many points (a narrow spike missed by the 17-point grid is
         # caught by the 33-point one).
@@ -9998,7 +10104,10 @@ def _chebfun_build(
         return Chebfun.from_function(f, dom, n=n, maxpow2=_maxpow2,
                                      tol=_tol, turbo=turbo,
                                      extrapolate=extrapolate,
-                                     start_pow2=_sp2)
+                                     start_pow2=_sp2,
+                                     sample_test=_sample_test,
+                                     refinement_function=refinement_function,
+                                     min_samples=min_samples)
 
     raise TypeError(
         f"Cannot construct a Chebfun from f of type {type(f).__name__}. "
@@ -10795,7 +10904,12 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
                        split_pow2: int = 8,
                        tol=None, vscale: float = 0.0,
                        budget: "dict | None" = None,
-                       hscale: "float | None" = None) -> list:
+                       hscale: "float | None" = None,
+                       check: str = "standard",
+                       sample_test: bool = True,
+                       min_samples: int | None = None,
+                       refinement_function: str | Callable | None = None
+                       ) -> list:
     """Recursively find interior breakpoints for splitting-on (Opus 4.8).
 
     Detection is capped at 2^12 points: a piece containing a
@@ -10831,7 +10945,12 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
         # MATLAB constructorSplit sets pref.techPrefs.extrapolate = true:
         # the piece is built on [a, b] itself, never sampling the ends.
         p = _Piece.from_function(f, a, b, maxpow2=det, tol=tol,
-                                 vscale=vscale, extrapolate=True)
+                                 vscale=vscale, extrapolate=True,
+                                 check=check,
+                                 hscale=hscale / (b - a),
+                                 sample_test=sample_test,
+                                 min_samples=min_samples,
+                                 refinement_function=refinement_function)
     if budget is not None:
         # MATLAB constructor.m: splitting stops once the total length of
         # all current pieces (a sad piece counting splitLength) reaches
@@ -10875,10 +10994,14 @@ def _split_breakpoints(f, a: float, b: float, maxpow2: int,
     elif not (a < e < b):
         e = 0.5 * (a + b)
     return (_split_breakpoints(f, a, e, maxpow2, depth + 1, max_depth,
-                               min_w, split_pow2, tol, vscale, budget, hscale)
+                               min_w, split_pow2, tol, vscale, budget, hscale,
+                               check, sample_test, min_samples,
+                               refinement_function)
             + [e]
             + _split_breakpoints(f, e, b, maxpow2, depth + 1, max_depth,
-                                 min_w, split_pow2, tol, vscale, budget, hscale))
+                                 min_w, split_pow2, tol, vscale, budget, hscale,
+                                 check, sample_test, min_samples,
+                                 refinement_function))
 
 
 def _detect_edge_matlab(f, a: float, b: float,
@@ -11064,7 +11187,10 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                               tol=None, turbo: bool = False,
                               min_samples: "int | None" = None,
                               split_length: "int | None" = None,
-                              split_max_length: "int | None" = None):
+                              split_max_length: "int | None" = None,
+                              sample_test: bool = True,
+                              check: str = "standard",
+                              refinement_function: str | Callable | None = None):
     """Build a piecewise Chebfun, auto-detecting breakpoints (Opus 4.8, #12).
 
     Each piece is constructed on a slightly-shrunk interval so that at a
@@ -11078,7 +11204,9 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
         # coefficients on its own interval.
         plain = _construct_with_splitting(
             f, a, b, maxpow2, tol=tol, turbo=False,
-            min_samples=min_samples, split_length=split_length, split_max_length=split_max_length)
+            min_samples=min_samples, split_length=split_length,
+            split_max_length=split_max_length, sample_test=sample_test,
+            check=check, refinement_function=refinement_function)
         funs = []
         for pc in plain.funs:
             pa, pb = float(pc.interval[0]), float(pc.interval[1])
@@ -11086,7 +11214,13 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                 # extrapolate: like the plain pieces, never sample the
                 # ambiguous breakpoint value itself (sign(0) = 0).
                 funs.append(_Piece.from_function(f, pa, pb, turbo=True,
-                                                 extrapolate=True))
+                                                 extrapolate=True,
+                                                 sample_test=sample_test,
+                                                 min_samples=min_samples,
+                                                 check=check,
+                                                 hscale=max(abs(a), abs(b), 1.0)
+                                                 / (pb - pa),
+                                                 refinement_function=refinement_function))
             except Exception:
                 funs.append(pc)
         return Chebfun(funs=funs, domain=plain.domain)
@@ -11115,7 +11249,11 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                "max": (6000 if split_max_length is None
                        else int(split_max_length))}
     brks = _split_breakpoints(f, a, b, maxpow2, split_pow2=split_pow2,
-                              tol=tol, vscale=vscale_g, budget=_budget)
+                              tol=tol, vscale=vscale_g, budget=_budget,
+                              hscale=max(abs(a), abs(b), 1.0), check=check,
+                              sample_test=sample_test,
+                              min_samples=min_samples,
+                              refinement_function=refinement_function)
     # Always keep the true domain endpoints a and b; merge only INTERIOR
     # breakpoints, and drop any interior point that lands within the merge
     # tolerance of EITHER neighbour (previously a geometric peel breakpoint a
@@ -11173,7 +11311,14 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                                            start_pow2=_sp2,
                                            tol=tol, turbo=turbo,
                                            extrapolate=_xtrap,
-                                           vscale=vscale_g)
+                                           vscale=vscale_g,
+                                           check=check,
+                                           hscale=max(abs(a), abs(b), 1.0)
+                                           / (bi - ai),
+                                           sample_test=sample_test,
+                                           min_samples=min_samples,
+                                           **({} if refinement_function is None else {
+                                               "refinement_function": refinement_function}))
         funs.append(_Piece(tech=tech, interval=(float(ai), float(bi))))
 
     # MATLAB's constructor keeps splitting any still-sad piece (at a
@@ -11209,7 +11354,11 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
                 halves.append(_Piece.from_function(
                     f, aa, bb, maxpow2=piece_maxpow2, tol=tol,
                     turbo=turbo, start_pow2=_sp2, extrapolate=True,
-                    vscale=vscale_g))
+                    vscale=vscale_g, sample_test=sample_test,
+                    check=check,
+                    hscale=max(abs(a_k), abs(b_k), 1.0) / (bb - aa),
+                    min_samples=min_samples,
+                    refinement_function=refinement_function))
         funs[k:k + 1] = halves
     # A still-sad piece narrower than the edge locator's resolution is
     # an unresolvable-kink sliver; its adaptive coefficients can be
@@ -11252,7 +11401,10 @@ def _construct_with_splitting(f, a: float, b: float, maxpow2: int,
     if len(out.funs) > 1:
         with _warnings.catch_warnings():
             _warnings.simplefilter("ignore")
-            out = out.merge(index=bps2[1:-1], maxpow2=split_pow2)
+            out = out.merge(index=bps2[1:-1], maxpow2=split_pow2,
+                            tol=tol, sample_test=sample_test,
+                            min_samples=min_samples,
+                            refinement_function=refinement_function)
     return out
 
 
