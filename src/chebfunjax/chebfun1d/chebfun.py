@@ -2932,6 +2932,10 @@ class Chebfun(eqx.Module):
     def __pow__(self, exponent) -> Chebfun:
         """Raise each piece to a power.
 
+        Bounded positive integer powers above two compose adaptively, as in
+        MATLAB columnPower. That construction is eager; evaluation of the
+        constructed bounded result supports JAX tracing.
+
         Provenance
         ----------
         MATLAB source : @chebfun/power.m
@@ -2971,6 +2975,17 @@ class Chebfun(eqx.Module):
             exp_f = None
         if exp_f is not None and exp_f != int(exp_f):
             return self._root_power(exp_f, lambda v, _b=exp_f: v ** _b)
+        if exp_f is not None and exp_f >= 3 and exp_f == int(exp_f):
+            from chebfunjax.tech.chebtech import Chebtech1
+
+            if all(isinstance(piece.tech, (Chebtech1, Chebtech2))
+                   for piece in self.funs):
+                # Source columnPower retains TIMES for the square, but
+                # composes smooth positive integer powers above two.
+                integer_power = int(exp_f)
+                op = lambda values: values ** integer_power  # noqa: E731
+                result = self._apply_fun(op).set_point_values(op(self._breakpoint_values()))
+                return Chebfun._as_transposed(result, self.is_transposed)
         new_funs = [
             piece._apply_unary(piece.tech ** exponent)
             for piece in self.funs

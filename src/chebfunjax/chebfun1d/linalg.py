@@ -248,6 +248,65 @@ class Quasimatrix:
 
     __rmul__ = __mul__
 
+    def __pow__(self, exponent):
+        """Elementwise power of Quasimatrix columns.
+
+        Numeric scalar exponents map independently over columns. A Quasimatrix
+        exponent is paired columnwise; if either side has one column, that column
+        is reused for MATLAB's singleton-column expansion. The two existing
+        Quasimatrix containers must share the exact Python Domain supported by this
+        class.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/power.m (dimension dispatch / columnPower)
+        Chebfun commit: 7574c77
+        """
+        if isinstance(exponent, Quasimatrix):
+            if self.domain != exponent.domain:
+                raise ValueError(
+                    "Quasimatrix power requires the same shared Domain.")
+            n_left, n_right = len(self.cols), len(exponent.cols)
+            if n_left != n_right and n_left != 1 and n_right != 1:
+                raise ValueError(
+                    "Quasimatrix power column counts must agree or be singleton.")
+            n_out = max(n_left, n_right)
+            cols = [
+                self.cols[0 if n_left == 1 else i]
+                ** exponent.cols[0 if n_right == 1 else i]
+                for i in range(n_out)
+            ]
+            return Quasimatrix(cols, self.domain)
+
+        try:
+            scalar = jnp.asarray(exponent)
+        except (TypeError, ValueError):
+            return NotImplemented
+        if scalar.ndim != 0 or scalar.dtype.kind not in "biufc":
+            return NotImplemented
+        return self._map(lambda col: col ** exponent)
+
+    def __rpow__(self, base):
+        """Apply a concrete numeric scalar base independently to each column.
+
+        Each mapped Chebfun delegates to its own reverse-power composition path,
+        which retains that column's breakpoints and point values. Array bases are
+        left unsupported rather than given an implicit Python broadcasting rule.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/power.m (constant .^ CHEBFUN / columnPower),
+                        @chebtech/power.m
+        Chebfun commit: 7574c77
+        """
+        try:
+            scalar = jnp.asarray(base)
+        except (TypeError, ValueError):
+            return NotImplemented
+        if scalar.ndim != 0 or scalar.dtype.kind not in "biufc":
+            return NotImplemented
+        return self._map(lambda col: col.__rpow__(base))
+
     def __neg__(self):
         return self._map(lambda c: -c)
 
