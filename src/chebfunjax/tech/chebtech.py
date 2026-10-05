@@ -5131,6 +5131,9 @@ class Chebtech1(eqx.Module):
             for _ in range(exponent - 1):
                 result = result * self
             return result
+        elif isinstance(exponent, Chebtech1):
+            # @chebtech/power.m delegates tech-valued exponents to compose.
+            return self.compose(lambda a, b: a ** b, exponent)
         else:
             # Fractional power: adaptive re-construction (MATLAB compose)
             return Chebtech1.from_function(

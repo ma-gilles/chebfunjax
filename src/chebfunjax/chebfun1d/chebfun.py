@@ -2938,7 +2938,28 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         if isinstance(exponent, Chebfun):
-            return Chebfun._binary_op(self, exponent, lambda a, b: a ** b)
+            if self.isempty() or exponent.isempty():
+                return type(self).empty()
+            result = Chebfun._binary_op(self, exponent, lambda a, b: a ** b)
+            from chebfunjax.tech.chebtech import Chebtech1
+
+            if all(isinstance(piece.tech, (Chebtech1, Chebtech2))
+                   for operand in (self, exponent) for piece in operand.funs):
+                # Source binary compose maps both stored pointValues after
+                # overlap, with MATLAB's singleton-column broadcasting.
+                # Evaluate as columns: row orientation is output metadata.
+                base_column = self.T if self.is_transposed else self
+                exp_column = exponent.T if exponent.is_transposed else exponent
+                breaks = jnp.asarray(result.domain.breakpoints)
+                base_values = base_column(breaks)
+                exp_values = exp_column(breaks)
+                if base_values.ndim < exp_values.ndim:
+                    base_values = base_values[..., None]
+                elif exp_values.ndim < base_values.ndim:
+                    exp_values = exp_values[..., None]
+                result = result.set_point_values(jnp.power(base_values, exp_values))
+                result = Chebfun._as_transposed(result, self.is_transposed)
+            return result
         # A non-integer scalar power of a function with roots produces
         # branch-point singularities: route through the singularity-aware
         # path (MATLAB @chebfun/power.m columnPower general case) so e.g.
