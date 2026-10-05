@@ -363,8 +363,9 @@ class _Piece(eqx.Module):
     def _apply_fun(self, op) -> _Piece:
         """Compose this piece with a scalar function op.
 
-        Builds a new _Piece by adaptively approximating ``op(self(x))``
-        on the same physical interval [a, b].
+        Bounded Chebyshev pieces compose their canonical tech, preserving
+        its kind and MATLAB's minimum-sample / sampleTest=false policy.
+        The physical interval is retained.
 
         Parameters
         ----------
@@ -388,6 +389,13 @@ class _Piece(eqx.Module):
             tech = Trigtech.from_values(
                 jnp.asarray(vals)).simplify()
             return _Piece(tech=tech, interval=(a, b))
+        from chebfunjax.tech.chebtech import Chebtech1
+        if isinstance(self.tech, (Chebtech1, Chebtech2)):
+            # @bndfun/compose.m delegates to its onefun. @chebtech/compose.m
+            # covers the operand length and disables off-grid sampleTest.
+            # Reconstructing in physical coordinates loses that contract
+            # and the first-kind representation.
+            return self.with_tech(self.tech.compose(op))
         return _Piece.from_function(lambda x: op(self(x)), a, b)
 
     # ------------------------------------------------------------------
