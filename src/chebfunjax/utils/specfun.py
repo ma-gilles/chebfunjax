@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
-from scipy.special import gammaln
 
 # ===========================================================================
 # Bessel roots
@@ -192,12 +191,12 @@ def _clenshaw(t: float, C: np.ndarray) -> np.ndarray:
 # ===========================================================================
 
 
-def gammaratio(m: float, delta: float) -> float:
+def gammaratio(m: float, delta: float) -> jnp.ndarray:
     """Compute gamma(m + delta) / gamma(m) accurately.
 
     GAMMARATIO(M, D) accurately computes gamma(M+D)/gamma(M) using a
-    Stirling-based series when M is large.  For small M, falls back to
-    scipy.special.gammaln.
+    Stirling-based series when M is large. For small M, falls back to
+    JAX's log-gamma difference. Both scalar inputs may be traced under JIT.
 
     Parameters
     ----------
@@ -208,7 +207,7 @@ def gammaratio(m: float, delta: float) -> float:
 
     Returns
     -------
-    ratio : float
+    ratio : scalar jax.Array
         gamma(m + delta) / gamma(m).
 
     Notes
@@ -229,51 +228,6 @@ def gammaratio(m: float, delta: float) -> float:
     Original authors: Nick Hale, Alex Townsend.
         Copyright 2017 by The University of Oxford and The Chebfun Developers.
     """
-    m = float(m)
-    delta = float(delta)
+    from chebfunjax.utils.gamma_ratio import _gamma_ratio
 
-    if m <= 15 or m < delta:
-        # Fall back to log-gamma difference
-        return float(np.exp(gammaln(m + delta) - gammaln(m)))
-
-    if delta == 0.0:
-        return 1.0
-
-    # Ensure 0 < delta < 1 by stripping integer part
-    fd = int(np.floor(delta))
-    rd = delta - fd
-
-    if fd >= 1:
-        scl = 1.0
-        for k in range(fd):
-            scl *= (m + k + rd)
-        return scl * gammaratio(m, rd)
-
-    # Taylor/Stirling series for 0 < delta < 1
-    ds = 0.5 * delta ** 2 / (m - 1)
-    s = ds
-    j_iter = 1
-    while abs(ds / s) > np.finfo(float).eps / 100 and j_iter < 100:
-        j_iter += 1
-        ds = -delta * (j_iter - 1) / (j_iter + 1) / (m - 1) * ds
-        s += ds
-
-    p2 = np.exp(s) * np.sqrt(1 + delta / (m - 1)) * (m - 1) ** delta
-
-    # Stirling's series
-    g = np.array([1, 1 / 12, 1 / 288, -139 / 51840, -571 / 2488320,
-                  163879 / 209018880, 5246819 / 75246796800,
-                  -534703531 / 902961561600,
-                  -4483131259 / 86684309913600,
-                  432261921612371 / 514904800886784000])
-
-    def stirling(z):
-        acc = 0.0
-        z_k = 1.0
-        for gk in g:
-            acc += gk * z_k
-            z_k /= z
-        return acc
-
-    ratio = p2 * (stirling(m + delta - 1) / stirling(m - 1))
-    return float(ratio)
+    return _gamma_ratio(m, delta)

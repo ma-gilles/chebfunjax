@@ -7,6 +7,10 @@ See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
+import warnings
+from math import isinf
+
+import jax
 import jax.numpy as jnp
 
 
@@ -682,67 +686,40 @@ def _hermpts_gw(n: int) -> tuple[jnp.ndarray, jnp.ndarray]:
 
 
 def _lagpts_core(n: int, alpha: float = 0.0,
-           interval: tuple[float, float] | None = None,
-           ) -> tuple[jnp.ndarray, jnp.ndarray]:
-    """Gauss-Laguerre quadrature nodes and weights.
-
-    LAGPTS(N) returns N Laguerre points in (0, inf) and the
-    corresponding quadrature weights for the weight function exp(-x).
-
-    Parameters
-    ----------
-    n : int
-        Number of quadrature points (must be >= 0).
-    alpha : float
-        Generalised Laguerre parameter (>= 0). Weight is x^alpha * exp(-x).
-    interval : (float, float) or None
-        Semi-infinite domain [a, inf) or (-inf, b].  Default is [0, inf).
-
-    Returns
-    -------
-    x : jnp.ndarray, shape (n,)
-        Nodes in ascending order.
-    w : jnp.ndarray, shape (n,)
-        Quadrature weights (sum = Gamma(alpha+1)).
+                 interval: tuple[float, float] | None = None,
+                 method: str = 'gw') -> tuple[jnp.ndarray, jnp.ndarray]:
+    """Build a Gauss--Laguerre rule using source-supported REC or GW.
 
     Provenance
     ----------
-    MATLAB source : lagpts.m
-    Chebfun commit: 7574c77
-    Original authors: Nick Trefethen (GW), Peter Opsomer (RH/REC).
-    Algorithm (this implementation): Golub-Welsch eigenvalue method [1].
+    MATLAB source : ``lagpts.m`` (``lag_rec`` and ``gw``)
+    Chebfun commit: ``7574c77680d7e82b79626300bf255498271a72df``
 
-    References
-    ----------
-    [1] G. H. Golub and J. A. Welsch, "Calculation of Gauss quadrature
-        rules", Math. Comp. 23:221-230, 1969.
-
-    See Also
-    --------
-    hermpts, legpts
+    The other source methods (GLR, RH, EXP, and underflow-truncated RECW/RHW)
+    are deliberately not approximated here.
     """
     if n == 0:
-        return (jnp.array([], dtype=jnp.float64),
-                jnp.array([], dtype=jnp.float64))
+        empty = jnp.empty((0,), dtype=jnp.float64)
+        return empty, empty
 
-    x, w = _lagpts_gw(n, alpha)
+    if method == 'rec':
+        from chebfunjax.utils.laguerre_rec import _lag_rec
+        x, w = _lag_rec(n, alpha)
+    elif method == 'gw':
+        x, w = _lagpts_gw(n, alpha)
+    else:
+        raise ValueError(f"_lagpts_core: unsupported method {method!r}")
 
-    # Normalise so that sum(w) = Gamma(alpha+1)
     import jax.scipy.special as jsp
     w = (jnp.exp(jsp.gammaln(alpha + 1.0)) / jnp.sum(w)) * w
 
-    # Rescale to non-standard interval
     if interval is not None:
         a_int, b_int = interval
         if jnp.isinf(b_int):
-            x = x + a_int
-            w = w * jnp.exp(-a_int)
+            x, w = x + a_int, w * jnp.exp(-a_int)
         else:
-            x = -x + b_int
-            w = w * jnp.exp(b_int)
-
+            x, w = -x + b_int, w * jnp.exp(b_int)
     return x, w
-
 
 def _lagpts_gw(n: int, alpha: float) -> tuple[jnp.ndarray, jnp.ndarray]:
     """Golub-Welsch eigenvalue method for Gauss-Laguerre nodes and weights.
@@ -1487,7 +1464,8 @@ def hermpts(n: int, kind: str = 'phys', *options, method: str = 'default',
         w = jnp.full((1,), jnp.sqrt(jnp.pi), dtype=jnp.float64)
         v = jnp.ones((1,), dtype=jnp.float64)
     elif method == 'lag':
-        raise NotImplementedError("hermpts: LAG method is not yet supported for n>1")
+        from chebfunjax.utils.hermite_lag import _hermpts_lag
+        x, w, v = _hermpts_lag(n)
     elif method == 'rec' or (method == 'default' and 20 < n < 200):
         from chebfunjax.utils.hermite_rec import _hermpts_rec
         x, w, v = _hermpts_rec(n)
@@ -1508,15 +1486,67 @@ def hermpts(n: int, kind: str = 'phys', *options, method: str = 'default',
         x, w = x * jnp.sqrt(2.0), w * jnp.sqrt(2.0)
     return (x, w, v) if bary else (x, w)
 
-def lagpts(n: int, alpha: float = 0.0, interval: tuple[float, float] | None = None, *, bary: bool = False):
-    """See ``_lagpts_core``.  With ``bary=True`` also returns the
-    normalized barycentric weights (MATLAB's third output)."""
-    out = _lagpts_core(n, alpha, interval)
-    if not bary:
-        return out
-    x, w = out
-    return x, w, _bary_weights_gauss(x, flip=False)
+def lagpts(n: int, alpha: float = 0.0,
+           interval: tuple[float, float] | None = None, *,
+           bary: bool = False, method: str = 'default'):
+    """Gauss--Laguerre nodes, weights, and optional barycentric weights.
 
+    This implementation supports explicit REC/GW and defaults to REC for n<300,
+    GW for n>=300. MATLAB changes algorithms at n=1000 and n=3000; those
+    default branches and the explicit GLR/RH/EXP/RECW/RHW methods are not yet
+    supported. The Python API returns 1D vectors in place of MATLAB's
+    column-node/column-bary and row-weight convention.
+
+    Provenance
+    ----------
+    MATLAB source : ``lagpts.m`` (``lag_rec``, ``gw``, method dispatcher)
+    Chebfun commit: ``7574c77680d7e82b79626300bf255498271a72df``
+    """
+    if int(n) != n or n < 0:
+        raise ValueError("lagpts: n must be a nonnegative integer")
+    n = int(n)
+    # MATLAB returns [] at n=0 before examining optional arguments.
+    if n == 0:
+        empty = jnp.empty((0,), dtype=jnp.float64)
+        return (empty, empty, empty) if bary else (empty, empty)
+
+    if isinstance(alpha, str):
+        if method != 'default':
+            raise ValueError("lagpts: method specified twice")
+        method, alpha = alpha, 0.0
+    if not isinstance(method, str):
+        raise ValueError("lagpts: method must be a string")
+    method = method.lower()
+    if method == 'default':
+        method = 'rec' if n < 300 else 'gw'
+    if method not in ('rec', 'gw'):
+        if method in ('glr', 'rh', 'rhw', 'exp', 'expw', 'recw'):
+            raise NotImplementedError(f"lagpts: source method {method.upper()} is not yet supported")
+        raise ValueError(f"lagpts: unsupported method {method!r}")
+
+    if not jnp.isrealobj(alpha) or (
+        not isinstance(alpha, jax.core.Tracer) and alpha < -1
+    ):
+        raise ValueError("lagpts: alpha must be real and >= -1")
+    if interval is not None:
+        if len(interval) > 2:
+            warnings.warn("lagpts: piecewise intervals not supported and will be ignored",
+                          UserWarning, stacklevel=2)
+            interval = (interval[0], interval[-1])
+        if len(interval) != 2 or sum(isinf(v) for v in interval) != 1:
+            raise ValueError("lagpts: interval must be semi-infinite")
+
+    x, w = _lagpts_core(n, alpha, None, method)
+    if bary:
+        # MATLAB computes these before affine mapping of a semi-infinite domain.
+        v = jnp.where(jnp.arange(n) % 2 == 0, 1.0, -1.0) * jnp.sqrt(w * x)
+        v = v / jnp.max(jnp.abs(v))
+    if interval is not None:
+        if isinf(interval[1]):
+            x, w = x + interval[0], w * jnp.exp(-interval[0])
+        else:
+            x, w = -x + interval[1], w * jnp.exp(interval[1])
+    return (x, w, v) if bary else (x, w)
 
 def ultrapts(n: int, lam: float, interval: tuple[float, float] | None = None, *, bary: bool = False):
     """See ``_ultrapts_core``.  With ``bary=True`` also returns the

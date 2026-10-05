@@ -1,4 +1,4 @@
-"""Focused REC/GLR/ASY dispatch checks for the no-LAG overlay.
+"""Focused REC/GLR/ASY/LAG dispatch checks for the Hermite/Laguerre overlay.
 
 Provenance: MATLAB ``hermpts.m``, Chebfun commit
 7574c77680d7e82b79626300bf255498271a72df. Independent references use
@@ -31,7 +31,7 @@ def test_asy_against_independent_hermite_roots(n):
         npt.assert_array_equal(got, default)
 
 
-@pytest.mark.parametrize('method', ['GW', 'REC', 'GLR', 'ASY'])
+@pytest.mark.parametrize('method', ['GW', 'REC', 'GLR', 'ASY', 'LAG'])
 @pytest.mark.parametrize('n', [0, 1])
 def test_supported_methods_share_empty_and_singleton_source_dispatch(method, n):
     x, w, v = map(np.asarray, hermpts(n, method, bary=True))
@@ -45,12 +45,6 @@ def test_supported_methods_share_empty_and_singleton_source_dispatch(method, n):
 def test_n_zero_returns_before_option_validation():
     x, w, v = hermpts(0, 'bad-kind', 'bad-method', bary=True)
     assert np.asarray(x).shape == np.asarray(w).shape == np.asarray(v).shape == (0,)
-
-
-@pytest.mark.parametrize('n', [2, 21, 42, 128, 251])
-def test_explicit_lag_is_never_silently_replaced_by_gw(n):
-    with pytest.raises(NotImplementedError, match='LAG method is not yet supported'):
-        hermpts(n, 'LAG')
 
 
 def test_source_three_character_type_prefixes():
