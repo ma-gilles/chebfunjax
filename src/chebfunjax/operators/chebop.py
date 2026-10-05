@@ -152,6 +152,141 @@ def _piecewise_row_scaled_solve(matrix, rhs):
     return jnp.linalg.solve(scaled_a, scaled_b)
 
 
+def _piecewise_dimension_values(minimum, maximum):
+    """Source integer/half-integer power-of-two dimension schedule.
+
+    Provenance
+    ----------
+    MATLAB source : @valsDiscretization/valsDiscretization.m (dimensionValues)
+    Chebfun commit: 7574c77
+    """
+    import math
+
+    minimum, maximum = float(minimum), float(maximum)
+    if not (math.isfinite(minimum) and math.isfinite(maximum)
+            and 0 < minimum <= maximum):
+        raise ValueError("piecewise dimensions require 0 < minimum <= maximum")
+    low, high = math.log2(minimum), math.log2(maximum)
+    powers = []
+    if high <= 9:
+        p, step, stop = low, 1.0, high
+    elif low >= 9:
+        p, step, stop = low, 0.5, high
+    else:
+        p, step, stop = low, 1.0, 9.0
+    while p <= stop:
+        powers.append(p)
+        p += step
+    if low < 9 < high:
+        p = 9.5
+        while p <= high:
+            powers.append(p)
+            p += 0.5
+    return tuple(int(math.floor(2.0**p + 0.5)) for p in powers)
+
+
+def _solve_projected_scalar_dirichlet(
+    breakpoints, base_dimensions, coefficient_funs, affine_fun, rhs,
+    endpoint_values, *, return_coefficients=False,
+):
+    """Solve the projected scalar order-two Dirichlet collocation system.
+
+    Coefficient closures are sampled eagerly; their existing extraction
+    adapter is unchanged. Assembly, solve, projection and output transforms
+    use JAX arrays. Each panel may have a different base dimension.
+
+    Provenance
+    ----------
+    MATLAB source : @chebcolloc/reduce.m, @valsDiscretization/rhs.m,
+        @opDiscretization/matrix.m, @chebcolloc2/toFunctionOut.m
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+    from chebfunjax.operators.piecewise_linear import (
+        _build_scalar_projected_system,
+        _panel_projection,
+        _project_scalar_raw_solution,
+    )
+    from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
+    from chebfunjax.utils.diffmat import diffmat
+
+    domains = jnp.asarray(breakpoints)
+    dimensions = ((base_dimensions,) * (len(breakpoints) - 1)
+                  if isinstance(base_dimensions, int) else tuple(base_dimensions))
+    coefficients, derivatives, rhs_panels = [], [], []
+    for a, b, n in zip(breakpoints[:-1], breakpoints[1:], dimensions):
+        q = n + 2
+        _, equation_x, raw_x = _panel_projection(a, b, n, q)
+        coefficients.append(tuple(jnp.asarray(c(raw_x))
+                                  for c in coefficient_funs))
+        derivatives.append(tuple(diffmat(q, k) for k in range(3)))
+        values = rhs(equation_x) if callable(rhs) else rhs
+        rhs_panels.append(jnp.asarray(values) - jnp.asarray(affine_fun(equation_x)))
+    matrix, values = _build_scalar_projected_system(
+        domains, dimensions, coefficients, derivatives, rhs_panels,
+        endpoint_values=endpoint_values,
+    )
+    raw_solution = _piecewise_row_scaled_solve(matrix, values)
+    if not bool(jnp.all(jnp.isfinite(raw_solution))):
+        raise ArithmeticError("projected piecewise solve returned nonfinite values")
+    projected = _project_scalar_raw_solution(domains, dimensions, raw_solution)
+    first_kind_coefficients = tuple(Chebtech1.vals2coeffs(v) for v in projected)
+    # Literal source output conversion: first-kind coefficients -> second-kind
+    # values -> a Chebfun. Retain the original coefficients for final cutoffs.
+    pieces = [_Piece.from_values(Chebtech2.coeffs2vals(c), a, b)
+              for c, a, b in zip(first_kind_coefficients,
+                                 breakpoints[:-1], breakpoints[1:])]
+    solution = Chebfun(funs=pieces, domain=Domain(tuple(breakpoints)))
+    return ((solution, first_kind_coefficients) if return_coefficients
+            else solution)
+
+
+def _refine_projected_scalar_dirichlet(problem, initial_solution, initial_coefficients, initial_n):
+    """Refine only source-unhappy panels and apply their final cutoffs.
+
+    Provenance
+    ----------
+    MATLAB source : @linop/linsolve.m, @opDiscretization/testConvergence.m,
+        @chebcolloc2/toFunctionOut.m
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+    from chebfunjax.chebpref import ChebopPref
+    from chebfunjax.tech.chebtech import Chebtech2
+
+    prefs = ChebopPref()
+    schedule = _piecewise_dimension_values(prefs.minDimension, prefs.maxDimension)
+    bps, fields, affine, rhs, endpoints = problem
+    dimensions = (schedule[0],) * (len(bps) - 1)
+    solution, coefficients = initial_solution, initial_coefficients
+    running_scale = 0.0
+    for next_dimension in (*schedule[1:], None):
+        if dimensions != (initial_n,) * len(dimensions) or solution is None:
+            solution, coefficients = _solve_projected_scalar_dirichlet(
+                bps, dimensions, fields, affine, rhs, endpoints,
+                return_coefficients=True,
+            )
+        running_scale = max(running_scale, solution.vscale)
+        checks = [piece.tech.happiness_check(
+            piece.tech.coeffs, piece.tech.values,
+            tol=prefs.bvpTol, vscale=running_scale, hscale=1.0,
+            check=prefs.happinessCheck,
+        ) for piece in solution.funs]
+        done = [bool(happy) for happy, _ in checks]
+        if all(done) or next_dimension is None:
+            break
+        dimensions = tuple(n if happy else next_dimension
+                           for n, happy in zip(dimensions, done))
+        solution = None
+    if not all(done):
+        warnings.warn("Linear system solution may not have converged.",
+                      UserWarning, stacklevel=2)
+    pieces = [_Piece.from_values(
+        Chebtech2.coeffs2vals(c[:int(cutoff)]), a, b,
+    ) for c, (_, cutoff), a, b in zip(coefficients, checks, bps[:-1], bps[1:])]
+    return Chebfun(funs=pieces, domain=Domain(tuple(bps)))
+
+
 def _physical_monomial_cheb_coeffs(k: int, a: float, b: float):
     """Chebyshev coefficients of ``x**k / k!`` on ``[a, b]``.
 
@@ -3766,6 +3901,7 @@ class Chebop:
         # garbage collection must not resurrect a stale cache from a
         # previous op assignment.
         self._pw_lin_cache = None
+        self._pw_projected_problem = None
         if n is not None:
             return self._solve_piecewise_at(
                 f, n=n, max_iter=max_iter, extra_breaks=extra_breaks,
@@ -3792,6 +3928,11 @@ class Chebop:
                     f, n=nn, max_iter=max_iter,
                     extra_breaks=extra_breaks,
                     cont_breaks=cont_breaks)
+                if self._pw_projected_problem is not None:
+                    return _refine_projected_scalar_dirichlet(
+                        self._pw_projected_problem, sol,
+                        self._pw_projected_coefficients, nn,
+                    )
                 # Seed the next refinement level with this solution
                 # (grid-continuation; restarting Newton from the line
                 # guess at every level rediscovers the wrong basin on
@@ -4234,6 +4375,31 @@ class Chebop:
                     if not ok:
                         self._pw_lin_cache = None
                 if ok:
+                    if (m == 1 and orders == [2]
+                            and isinstance(self._lbc_raw, (int, float))
+                            and isinstance(self._rbc_raw, (int, float))
+                            and self._bc_general is None
+                            and not wrap_conds and not jump_break_ps):
+                        cache = self._pw_lin_cache
+                        rhs_scalar = (f[0] if isinstance(f, (list, tuple))
+                                      and f else f)
+                        try:
+                            projected_solution, original_coefficients = _solve_projected_scalar_dirichlet(
+                                bps, nn, cache["c_funs"][0][0],
+                                cache["op0_funs"][0], rhs_scalar,
+                                (self._lbc_raw, self._rbc_raw),
+                                return_coefficients=True,
+                            )
+                            self._pw_projected_problem = (
+                                bps, cache["c_funs"][0][0],
+                                cache["op0_funs"][0], rhs_scalar,
+                                (self._lbc_raw, self._rbc_raw),
+                            )
+                            self._pw_projected_coefficients = original_coefficients
+                            self._pw_linear_used = True
+                            return projected_solution
+                        except ArithmeticError:
+                            pass
                     try:
                         U_lin = _piecewise_row_scaled_solve(A_lin, -R0)
                         if not bool(jnp.all(jnp.isfinite(U_lin))):

@@ -230,19 +230,22 @@ class ChebopPref(ChebfunPref):
     _defaults: "ChebopPref | None" = None
 
     def __init__(self, src=None, **kwargs):
-        super().__init__(src, **kwargs)
+        # Install subclass fields before absorbing overrides, and start from
+        # session defaults as the source constructor does for a struct input.
+        super().__init__(src if isinstance(src, ChebfunPref) else None)
         top = self.__dict__["_top"]
         for k, v in (("discretization", "values"),
-                     ("bvpTol", 1e-10), ("ivpAbsTol", 1e5 * _EPS),
+                     ("bvpTol", 5e-13), ("minDimension", 32),
+                     ("maxDimension", 4096), ("ivpAbsTol", 1e5 * _EPS),
                      ("ivpRelTol", 100 * _EPS), ("damping", True),
                      ("maxIter", 25), ("plotting", "off"),
                      ("display", "off"),
                      ("ivpSolver", "ode113")):
             top.setdefault(k, v)
         if isinstance(src, dict):
-            for k in src:
-                if k in top and k not in _factory_top():
-                    top[k] = src[k]
+            self._absorb(src)
+        if kwargs:
+            self._absorb(kwargs)
 
 
 # ---------------------------------------------------------------------------
