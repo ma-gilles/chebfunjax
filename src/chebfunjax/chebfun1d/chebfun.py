@@ -365,7 +365,7 @@ class _Piece(eqx.Module):
         """
         return self.with_tech(tech_result)
 
-    def _apply_fun(self, op) -> _Piece:
+    def _apply_fun(self, op, *, extrapolate: bool = False) -> _Piece:
         """Compose this piece with a scalar function op.
 
         Bounded Chebyshev pieces compose their canonical tech, preserving
@@ -400,6 +400,12 @@ class _Piece(eqx.Module):
             # covers the operand length and disables off-grid sampleTest.
             # Reconstructing in physical coordinates loses that contract
             # and the first-kind representation.
+            if isinstance(self.tech, Chebtech2):
+                return self.with_tech(
+                    self.tech.compose(op, extrapolate=extrapolate))
+            # Chebtech1's source resampling grid omits both endpoints and its
+            # constructor has no extrapolate option. Preserve its exact
+            # default compose path for either flag value.
             return self.with_tech(self.tech.compose(op))
         return _Piece.from_function(lambda x: op(self(x)), a, b)
 
@@ -3461,6 +3467,80 @@ class Chebfun(eqx.Module):
             raise ValueError(
                 "CHEBFUN:CHEBTECH:extrapolate:nansInfs: "
                 "Too many NaNs/Infs to handle.")
+
+        # MATLAB @chebfun/power.m partitions noninteger complex powers at
+        # roots of imag(f), including crossings where real(f) is positive.
+        # Keep this bounded to smooth finite Chebtech pieces: Singfun,
+        # Unbndfun and other representation-specific powers retain their
+        # existing dispatch until their source paths are qualified.
+        from chebfunjax.tech.chebtech import Chebtech1
+        complex_smooth = (
+            bool(self.funs)
+            and
+            not self.isreal()
+            and b != int(b)
+            and all(isinstance(piece.tech, (Chebtech1, Chebtech2))
+                    and all(math.isfinite(float(end))
+                            for end in piece.interval)
+                    for piece in self.funs)
+        )
+        if complex_smooth:
+            domain_points = [float(value) for value in self.domain.breakpoints]
+            # This uses the current public roots() result. Its broader
+            # existing deduplication may already have merged very close
+            # roots, which this source-level filter cannot recover.
+            raw_roots = jnp.ravel(
+                self.imag().roots(nojump=True, nozerofun=True))
+            roots = sorted(
+                float(value) for value in raw_roots
+                if math.isfinite(float(value)))
+
+            # Literal getRootsForBreaks neighbor filter. The comparison is
+            # against the prior root in the sorted, finite, unfiltered list,
+            # matching MATLAB's simultaneous logical-index deletion.
+            hscale = max(abs(domain_points[0]), abs(domain_points[-1]))
+            root_tol = _EPS * hscale
+            separated_roots = [
+                value for index, value in enumerate(roots)
+                if index == 0 or value - roots[index - 1] >= root_tol
+            ]
+
+            # Literal addBreaks proximity rule on a finite domain. It uses
+            # the smallest existing panel width, floored at one.
+            min_width = min(
+                right - left
+                for left, right in zip(domain_points[:-1], domain_points[1:])
+            )
+            break_tol = 100 * _EPS * max(min_width, 1.0)
+            added_roots = [
+                value for value in separated_roots
+                if domain_points[0] < value < domain_points[-1]
+                and all(abs(value - point) >= break_tol
+                        for point in domain_points)
+            ]
+            fbr = (
+                self._with_breakpoints(tuple(sorted(set(domain_points + added_roots))))
+                if added_roots else self
+            )
+            op = lambda value: jnp.power(value, b)  # noqa: E731
+            new_funs = [
+                piece._apply_fun(op, extrapolate=True)
+                for piece in fbr.funs
+            ]
+            result = Chebfun(funs=new_funs, domain=fbr.domain)
+            result = Chebfun._as_transposed(result, self.is_transposed)
+            # MATLAB maps the stored value at every breakpoint through the
+            # principal complex power after composing the smooth pieces.
+            # Source restrict() derives new values from the restricted FUNs
+            # and then restores stored values at every old breakpoint.
+            point_values = fbr._breakpoint_values().astype(jnp.complex128)
+            old_values = self._breakpoint_values()
+            refined_points = [float(value) for value in fbr.domain.breakpoints]
+            for index, point in enumerate(domain_points):
+                point_values = point_values.at[refined_points.index(point)].set(
+                    old_values[index])
+            return result.set_point_values(jnp.power(point_values, b))
+
         # No roots anywhere -> smooth composition (fast path, matches the
         # positive-function tests exactly).
         r = _np.asarray(self.roots(nojump=True), dtype=float).ravel()

@@ -2788,6 +2788,7 @@ class Chebtech2(eqx.Module):
         g: "Chebtech2 | None" = None,
         *,
         maxpow2: int = 16,
+        extrapolate: bool = False,
     ) -> "Chebtech2":
         """Compose an operator with this Chebtech2.
 
@@ -2808,6 +2809,9 @@ class Chebtech2(eqx.Module):
             Second argument for binary operators ``op(self(x), g(x))``.
         maxpow2 : int, default 16
             Maximum power of 2 for the adaptive grid.
+        extrapolate : bool, default False
+            Apply MATLAB's extrapolation policy while populating samples.
+            The default preserves the existing compose behavior.
 
         Returns
         -------
@@ -2886,6 +2890,7 @@ class Chebtech2(eqx.Module):
             # MATLAB @chebtech/compose.m sets sampleTest=false after raising
             # minSamples to cover every operand.
             sample_test=False,
+            extrapolate=extrapolate,
         )
 
     # ------------------------------------------------------------------
