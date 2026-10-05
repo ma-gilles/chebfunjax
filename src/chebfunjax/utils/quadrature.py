@@ -688,15 +688,15 @@ def _hermpts_gw(n: int) -> tuple[jnp.ndarray, jnp.ndarray]:
 def _lagpts_core(n: int, alpha: float = 0.0,
                  interval: tuple[float, float] | None = None,
                  method: str = 'gw') -> tuple[jnp.ndarray, jnp.ndarray]:
-    """Build a Gauss--Laguerre rule using source-supported REC, GW or GLR.
+    """Build a Gauss--Laguerre rule using REC, GW, GLR or bounded RH.
 
     Provenance
     ----------
-    MATLAB source : ``lagpts.m`` (``lag_rec`` and ``gw``)
+    MATLAB source : ``lagpts.m`` (``lag_rec``, ``gw``, ``glr``, ``newton``)
     Chebfun commit: ``7574c77680d7e82b79626300bf255498271a72df``
 
-    GLR is supported only for alpha=0. RH, EXP, and underflow-truncated
-    RECW/RHW remain unsupported in this overlay.
+    GLR requires alpha=0. RH requires concrete alpha=0 and n>=3000.
+    Other RH variants, EXP, and underflow-truncated RECW/RHW are unported.
     """
     if n == 0:
         empty = jnp.empty((0,), dtype=jnp.float64)
@@ -712,6 +712,11 @@ def _lagpts_core(n: int, alpha: float = 0.0,
             raise ValueError("lagpts: GLR method not supported for nonzero alpha")
         from chebfunjax.utils.laguerre_glr import _laguerre_glr
         x, w = _laguerre_glr(n)
+    elif method == 'rh':
+        if n < 3000 or isinstance(alpha, jax.core.Tracer) or alpha != 0:
+            raise NotImplementedError("lagpts: this source RH variant is not yet supported")
+        from chebfunjax.utils.laguerre_rh import _laguerre_rh_alpha0
+        x, w = _laguerre_rh_alpha0(n)
     elif method == 'gw':
         x, w = _lagpts_gw(n, alpha)
     else:
@@ -1498,17 +1503,18 @@ def lagpts(n: int, alpha: float = 0.0,
            bary: bool = False, method: str = 'default'):
     """Gauss--Laguerre nodes, weights, and optional barycentric weights.
 
-    This implementation supports explicit REC/GW/GLR and defaults to REC
+    This implementation supports REC/GW/GLR and bounded alpha=0 RH, defaulting to REC
     for n<300, GW for 300<=n<1000, GLR for 1000<=n<3000 when alpha=0, and
-    GW otherwise. MATLAB uses RH from n=3000, which remains unsupported.
-    Dynamic alpha at the GLR default threshold retains the GW path because
+    RH for n>=3000 with concrete alpha=0, and GW otherwise. MATLAB uses RH
+    for all alpha from n=3000; general alpha and small explicit RH are unported.
+    Dynamic alpha at the GLR/RH default thresholds retains the GW path because
     source method selection is static in this Python/JAX API. Explicit GLR
     requires concrete alpha=0. The Python API returns 1D vectors in place of MATLAB's
     column-node/column-bary and row-weight convention.
 
     Provenance
     ----------
-    MATLAB source : ``lagpts.m`` (``lag_rec``, ``gw``, method dispatcher)
+    MATLAB source : ``lagpts.m`` (``lag_rec``, ``gw``, ``glr``, ``newton``, dispatcher)
     Chebfun commit: ``7574c77680d7e82b79626300bf255498271a72df``
     """
     if int(n) != n or n < 0:
@@ -1531,10 +1537,12 @@ def lagpts(n: int, alpha: float = 0.0,
             method = 'rec'
         elif 1000 <= n < 3000 and not isinstance(alpha, jax.core.Tracer) and alpha == 0:
             method = 'glr'
+        elif n >= 3000 and not isinstance(alpha, jax.core.Tracer) and alpha == 0:
+            method = 'rh'
         else:
             method = 'gw'
-    if method not in ('rec', 'gw', 'glr'):
-        if method in ('rh', 'rhw', 'exp', 'expw', 'recw'):
+    if method not in ('rec', 'gw', 'glr', 'rh'):
+        if method in ('rhw', 'exp', 'expw', 'recw'):
             raise NotImplementedError(f"lagpts: source method {method.upper()} is not yet supported")
         raise ValueError(f"lagpts: unsupported method {method!r}")
 
@@ -1590,4 +1598,3 @@ def lobpts(n: int, alp: float = 0.0, bet: float = 0.0, *, bary: bool = False):
         return out
     x, w = out
     return x, w, _bary_weights_gauss(x, flip=True)
-

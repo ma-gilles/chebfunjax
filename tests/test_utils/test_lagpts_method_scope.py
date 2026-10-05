@@ -1,8 +1,8 @@
-"""Source scope controls for Laguerre REC/GW/GLR integration.
+"""Source scope controls for Laguerre REC/GW/GLR and bounded RH integration.
 
 Provenance: MATLAB ``lagpts.m`` and ``hermpts.m``, Chebfun commit
 7574c77680d7e82b79626300bf255498271a72df. These tests distinguish the
-ported REC/GW/GLR algorithms from deliberately unsupported source methods.
+ported algorithms from deliberately unsupported variants (including small RH).
 """
 import numpy as np
 import numpy.testing as npt
