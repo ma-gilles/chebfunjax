@@ -719,8 +719,14 @@ class Singfun(eqx.Module):
         MATLAB source : @singfun/power.m
         Chebfun commit: 7574c77
         """
-        a, b = self.exponents
-        return Singfun(self.smoothPart ** p, (a * p, b * p))
+        normalized = self.extractBoundaryRoots()
+        a, b = normalized.exponents
+        # Empty-object propagation is a Python adapter; the pinned MATLAB
+        # power/compose path has no separately qualified empty-power fixture.
+        smooth = normalized.smoothPart
+        if smooth.isempty():
+            return Singfun(smooth, (a * p, b * p))
+        return Singfun(smooth ** p, (a * p, b * p)).simplifyExponents()
 
     # ------------------------------------------------------------------
     # Exponent canonicalisation
@@ -1543,13 +1549,12 @@ def _beta(a: float, b: float) -> float:
 
 
 def _extract_boundary_roots_coeffs(
-    tech: Chebtech2, num_left, num_right
-) -> tuple[Chebtech2, int, int]:
-    """Peel boundary roots off a Chebtech2, returning ``(g, rootsLeft, rootsRight)``.
+    tech: Chebtech1 | Chebtech2, num_left, num_right
+) -> tuple[Chebtech1 | Chebtech2, int, int]:
+    """Delegate scalar boundary-root extraction to the smooth part's tech.
 
-    Divides the smooth part by ``(1 + x)`` (left root) or ``(1 - x)`` (right
-    root) as many times as there is a vanishing endpoint value, using the
-    Chebyshev-coefficient deflation recurrence.  ``num_left``/``num_right`` are
+    Retains its coefficient dtype, tech kind, and source root tolerance.
+    ``num_left``/``num_right`` are
     target multiplicities; pass ``None`` for both to extract every boundary root
     automatically (MATLAB ``nargin == 1`` mode).
 
@@ -1558,73 +1563,16 @@ def _extract_boundary_roots_coeffs(
     MATLAB source : @chebtech/extractBoundaryRoots.m
     Chebfun commit: 7574c77
     """
-    c = [float(v) for v in tech.coeffs]
-    vscale = float(tech.vscale)
-    tol = 1e3 * vscale * _EPS
-    auto = num_left is None and num_right is None
-    nl = num_left
-    nr = num_right
-
-    def endvals(coeffs):
-        vm = sum(coeffs[k] * ((-1.0) ** k) for k in range(len(coeffs)))
-        vp = sum(coeffs)
-        return abs(vm), abs(vp)
-
-    rootsLeft = 0
-    rootsRight = 0
-    ev = endvals(c)
-    if auto and min(ev) > tol:
-        return tech, 0, 0
-
-    while True:
-        if auto:
-            if not (ev[0] <= tol or ev[1] <= tol):
-                break
-            if ev[0] <= tol:
-                sgn = 1
-                rootsLeft += 1
-            else:
-                sgn = -1
-                rootsRight += 1
-        else:
-            if not ((nl is not None and nl > 0) or (nr is not None and nr > 0)):
-                break
-            if nl is not None and nl > 0:
-                # Root wanted at the left: only extract if one is actually there
-                if ev[0] <= tol:
-                    sgn = 1
-                    nl -= 1
-                    rootsLeft += 1
-                else:
-                    nl = 0
-                    continue
-            else:
-                if ev[1] <= tol:
-                    sgn = -1
-                    nr -= 1
-                    rootsRight += 1
-                else:
-                    nr = 0
-                    continue
-
-        # Deflate one factor by solving the banded upper-triangular system
-        # D x = c[1:], then c[:-1] = sgn*x, c[-1] = 0.  D has 0.5 on the main
-        # diagonal (D[0,0] = 1), sgn on the first superdiagonal, and 0.5 on the
-        # second.
-        n = len(c)
-        rhs = c[1:n]
-        x = [0.0] * (n - 1)
-        for i in range(n - 2, -1, -1):
-            xi1 = x[i + 1] if i + 1 < n - 1 else 0.0
-            xi2 = x[i + 2] if i + 2 < n - 1 else 0.0
-            dii = 1.0 if i == 0 else 0.5
-            x[i] = (rhs[i] - sgn * xi1 - 0.5 * xi2) / dii
-        c = [sgn * xi for xi in x] + [0.0]
-        ev = endvals(c)
-        tol *= 1e2
-
-    new_tech = Chebtech2.from_coeffs(jnp.asarray(c, dtype=jnp.float64)).simplify()
-    return new_tech, rootsLeft, rootsRight
+    requested = None
+    if num_left is not None or num_right is not None:
+        requested = [[0.0 if num_left is None else num_left],
+                     [0.0 if num_right is None else num_right]]
+    new_tech, left, right = tech.extractBoundaryRoots(requested)
+    # An empty smooth-part sentinel has empty count vectors. Singfun stores
+    # one scalar exponent per endpoint, so its empty multiplicities are zero.
+    left_count = 0 if left.size == 0 else int(left.reshape(-1)[0])
+    right_count = 0 if right.size == 0 else int(right.reshape(-1)[0])
+    return new_tech, left_count, right_count
 
 
 # Blowup-detection preferences (MATLAB chebfunpref factory defaults).

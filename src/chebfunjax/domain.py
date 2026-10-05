@@ -19,6 +19,21 @@ import equinox as eqx
 import jax.numpy as jnp
 
 
+def _linear_inverse_map(x, a, b):
+    """Source bounded inverse map, preserving its floating operation order.
+
+    Arithmetic retains the input array backend; the existing concrete
+    Chebfun evaluation adapter supplies host arrays, while traced paths
+    supply JAX arrays. Construction and forward maps are separate.
+
+    Provenance
+    ----------
+    MATLAB source : @mapping/mapping.m (linear InvHandle)
+    Chebfun commit: 7574c77
+    """
+    return (x - a) / (b - a) - (b - x) / (b - a)
+
+
 class Domain(eqx.Module):
     """Ordered breakpoints defining a piecewise domain.
 
@@ -199,7 +214,7 @@ class Domain(eqx.Module):
     def inverse_map(self, x: jnp.ndarray) -> jnp.ndarray:
         """Map from [a, b] to the reference interval [-1, 1].
 
-        Computes ``(2 * x - (b + a)) / (b - a)``.
+        Computes ``(x - a)/(b - a) - (b - x)/(b - a)``.
 
         Only valid for single-interval domains. For piecewise domains,
         iterate over ``self.intervals`` and map each sub-interval.
@@ -221,7 +236,7 @@ class Domain(eqx.Module):
 
         Provenance
         ----------
-        MATLAB source : @domain/domain.m (mapping utilities)
+        MATLAB source : @mapping/mapping.m (linear InvHandle)
         Chebfun commit: 7574c77
         """
         if self.n_intervals != 1:
@@ -231,7 +246,7 @@ class Domain(eqx.Module):
                 f"Iterate over self.intervals instead."
             )
         a, b = self.a, self.b
-        return (2.0 * x - (a + b)) / (b - a)
+        return _linear_inverse_map(x, a, b)
 
     def map_derivative(self) -> float:
         """Derivative of the forward map: ``(b - a) / 2``.

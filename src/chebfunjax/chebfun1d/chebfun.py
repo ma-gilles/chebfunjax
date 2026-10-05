@@ -23,7 +23,7 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 
-from chebfunjax.domain import Domain
+from chebfunjax.domain import Domain, _linear_inverse_map
 from chebfunjax.tech.chebtech import Chebtech2
 
 # Machine epsilon for float64
@@ -189,7 +189,9 @@ class _Piece(eqx.Module):
     def __call__(self, x: jax.Array) -> jax.Array:
         """Evaluate piece at physical point(s) x in [a, b].
 
-        Maps x from [a, b] to [-1, 1] then uses Clenshaw evaluation.
+        Maps x from [a, b] to [-1, 1] with the source inverse map, then
+        evaluates the tech. MATLAB source: @bndfun/feval.m and
+        @mapping/mapping.m (linear), Chebfun commit 7574c77.
 
         Parameters
         ----------
@@ -209,7 +211,7 @@ class _Piece(eqx.Module):
         else:
             x = x.astype(jnp.float64)
         a, b = self.interval
-        t = (2.0 * x - (a + b)) / (b - a)
+        t = _linear_inverse_map(x, a, b)
         return self.tech(t)
 
     # ------------------------------------------------------------------
@@ -2208,7 +2210,7 @@ class Chebfun(eqx.Module):
                     # inline affine map — an Unbndfun piece owns its
                     # (nonlinear, infinite-interval) map.
                     result = jnp.asarray(
-                        p.tech((2.0 * xn - (a_ + b_)) / (b_ - a_)))
+                        p.tech(_linear_inverse_map(xn, a_, b_)))
                 else:
                     result = p(jnp.asarray(_np.atleast_1d(xn)))
                     if scalar_input:
@@ -2240,7 +2242,7 @@ class Chebfun(eqx.Module):
                 a_, b_ = p.interval
                 if type(p) is _Piece and _np.isfinite(a_) \
                         and _np.isfinite(b_):
-                    tn = (2.0 * xn[sel] - (a_ + b_)) / (b_ - a_)
+                    tn = _linear_inverse_map(xn[sel], a_, b_)
                     out_np[sel] = _np.asarray(p.tech(tn))
                 else:
                     # Unbndfun (or other) pieces own their map.
