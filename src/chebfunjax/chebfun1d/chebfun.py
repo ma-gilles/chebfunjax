@@ -2942,6 +2942,28 @@ class Chebfun(eqx.Module):
                     "Division by CHEBFUN with identically zero FUN.")
         return complete
 
+    def _check_rdivide_compatibility(self, other: Chebfun) -> None:
+        """Check division domains, then orientation, after denominator roots.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/rdivide.m, @chebfun/domainCheck.m,
+            @chebfun/hscale.m
+        Chebfun commit: 7574c77
+        """
+        hs = max(_hscale(self), _hscale(other))
+        ends = jnp.asarray([self.domain.a, self.domain.b])
+        other_ends = jnp.asarray([other.domain.a, other.domain.b])
+        err = ends - other_ends
+        if not bool(jnp.all((jnp.abs(err) < 1e-15 * hs) | jnp.isnan(err))):
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:rdivide:columnRdivide:domain: "
+                "Inconsistent domains.")
+        if self.is_transposed != other.is_transposed:
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:rdivide:columnRdivide:dim: "
+                "Matrix dimension do not agree (transposed)")
+
     def __truediv__(self, other) -> Chebfun:
         """Pointwise division: Chebfun / scalar or Chebfun / Chebfun.
 
@@ -2955,9 +2977,22 @@ class Chebfun(eqx.Module):
         if isinstance(other, Chebfun):
             other._check_zero_denominator_funs()
             poles = _real_simple_roots(other)
+            self._check_rdivide_compatibility(other)
+            f, g = self, other
+            if f.domain.breakpoints != g.domain.breakpoints:
+                f, g, _, _ = tweak_domain(f, g)
+                if poles.size and g.domain.breakpoints != other.domain.breakpoints:
+                    # Map changes move physical roots with their FUNs.
+                    poles = _real_simple_roots(g)
+            # Stored point values use breakpoint rows, irrespective of the
+            # output orientation. Evaluate the scalar/array columns as columns.
+            f = f.T if f.is_transposed else f
+            g = g.T if g.is_transposed else g
             if poles.size:
-                return _divide_with_poles(self, other, poles)
-            return Chebfun._binary_op(self, other, lambda a, b: a / b)
+                out = _divide_with_poles(f, g, poles)
+            else:
+                out = Chebfun._binary_op(f, g, lambda a, b: a / b)
+            return Chebfun._as_transposed(out, self.is_transposed)
         if not isinstance(other, (int, float, complex, jnp.ndarray,
                                   jax.Array)):
             # Defer to the other type's reflected operator (see __add__).
@@ -10968,6 +11003,8 @@ def tweak_domain(f: Chebfun, g=None, tol: float | None = None,
     ``tol`` (default ``2e-15 * hscale``) are replaced by their average
     (``side = 0``), by ``f``'s value (``side < 0``) or ``g``'s
     (``side > 0``), rounded to an integer when within ``tol`` of one.
+    Numerical breakpoint operations use JAX arrays; constructing static maps
+    and moved-index lists is eager. Stored point values retain their data.
     Breakpoints adjacent to intervals shorter than ``2*tol`` are left
     alone.  ``g`` may also be a domain (sequence of breakpoints).
 
@@ -10979,72 +11016,125 @@ def tweak_domain(f: Chebfun, g=None, tol: float | None = None,
     MATLAB source : @chebfun/tweakDomain.m
     Chebfun commit: 7574c77
     """
-    import numpy as _np
+
+    from chebfunjax.chebfun1d.chebfun import Chebfun, _Piece
+    from chebfunjax.domain import Domain
+    from chebfunjax.fun.unbndfun import Unbndfun
 
     if g is None:
         return f, g, [], []
-    dom_given = not isinstance(g, Chebfun)
-    if dom_given:
-        g_dom = _np.unique(_np.asarray(g, dtype=float))
-        if g_dom.size < 2:
+    if side is None:
+        side = 0
+    if f.isempty() or (isinstance(g, Chebfun) and g.isempty()):
+        return f, g, [], []
+
+    # Source treats numeric and DOMAIN inputs as the single-input/column
+    # compatibility case, with the supplied domain receiving side=+1.
+    domain_given = not isinstance(g, Chebfun)
+    if domain_given:
+        raw_g = jnp.asarray(g.breakpoints if isinstance(g, Domain) else g,
+                            dtype=jnp.float64).reshape(-1)
+        unique_g = jnp.unique(raw_g)
+        if unique_g.shape[0] < 2:
             return f, g, [], []
+        # MATLAB sets dom=unique(g) to test emptiness, then uses the original
+        # g as dom when it has at least two unique entries.
+        g_dom = raw_g
+        # Source calls the recursive form with SIDE=+1 for numeric/DOMAIN
+        # inputs, irrespective of a caller-supplied side argument.
+        side = 1
         if tol is None:
-            hsg = float(_np.max(_np.abs(g_dom[[0, -1]])))
-            if not _np.isfinite(hsg):
+            ends = jnp.max(jnp.abs(g_dom[jnp.asarray([0, -1])]))
+            hsg = float(jax.device_get(ends))
+            if not math.isfinite(hsg):
                 hsg = 1.0
             tol = 1e-15 * max(_hscale(f), hsg)
-        f_dom = _np.asarray(list(f.domain.breakpoints), dtype=float)
     else:
+        g_dom = jnp.asarray(g.domain.breakpoints, dtype=jnp.float64)
         if tol is None:
             tol = 2e-15 * max(_hscale(f), _hscale(g))
-        f_dom = _np.asarray(list(f.domain.breakpoints), dtype=float)
-        g_dom = _np.asarray(list(g.domain.breakpoints), dtype=float)
 
-    f_work, g_work = f_dom.copy(), g_dom.copy()
-    tiny_f = _np.diff(f_dom) < 2 * tol
-    f_work[_np.concatenate([tiny_f, [False]])
-           | _np.concatenate([[False], tiny_f])] = _np.nan
-    tiny_g = _np.diff(g_dom) < 2 * tol
-    g_work[_np.concatenate([tiny_g, [False]])
-           | _np.concatenate([[False], tiny_g])] = _np.nan
-    dd = _np.abs(f_work[:, None] - g_work[None, :])
-    idx = (dd > 0) & (dd < tol)
-    loc_f = _np.any(idx, axis=1)
-    loc_g = _np.any(idx, axis=0)
+    tol = float(tol)
+    f_dom = jnp.asarray(f.domain.breakpoints, dtype=jnp.float64)
+    if f_dom.shape[0] < 2 or g_dom.shape[0] < 2:
+        return f, g, [], []
+
+    # Source masks both ends of every interval strictly shorter than 2*tol,
+    # so neither breakpoint may participate in a match.
+    tiny_f = jnp.diff(f_dom) < 2.0 * tol
+    mask_f = jnp.concatenate((tiny_f, jnp.asarray([False]))) | jnp.concatenate(
+        (jnp.asarray([False]), tiny_f))
+    tiny_g = jnp.diff(g_dom) < 2.0 * tol
+    mask_g = jnp.concatenate((tiny_g, jnp.asarray([False]))) | jnp.concatenate(
+        (jnp.asarray([False]), tiny_g))
+    f_work = jnp.where(mask_f, jnp.nan, f_dom)
+    g_work = jnp.where(mask_g, jnp.nan, g_dom)
+    distances = jnp.abs(f_work[:, None] - g_work[None, :])
+    matched = (distances > 0.0) & (distances < tol)
+    loc_f = jnp.any(matched, axis=1)
+    loc_g = jnp.any(matched, axis=0)
+    if not bool(jax.device_get(jnp.any(loc_f))):
+        return f, g, [], []
+
     if side == 0:
         new_breaks = (f_dom[loc_f] + g_dom[loc_g]) / 2.0
     elif side < 0:
         new_breaks = f_dom[loc_f]
     else:
         new_breaks = g_dom[loc_g]
-    rnd = _np.abs(_np.round(new_breaks) - new_breaks) < tol
-    new_breaks[rnd] = _np.round(new_breaks[rnd])
-    f_new = f_dom.copy()
-    f_new[loc_f] = new_breaks
-    g_new = g_dom.copy()
-    g_new[loc_g] = new_breaks
 
-    def _rebuild(h: Chebfun, dom_new):
-        funs = [
-            _Piece(tech=p.tech, interval=(float(dom_new[k]),
-                                          float(dom_new[k + 1])))
-            if hasattr(p, "interval") else p
-            for k, p in enumerate(h.funs)
-        ]
-        out = Chebfun(funs=funs, domain=Domain(tuple(float(v)
-                                                     for v in dom_new)),
+    # MATLAB round() is half-away-from-zero (jnp.round is ties-to-even).
+    magnitude = jnp.abs(new_breaks)
+    whole = jnp.floor(magnitude)
+    rounded = jnp.sign(new_breaks) * (
+        whole + ((magnitude - whole) >= 0.5).astype(magnitude.dtype))
+    new_breaks = jnp.where(jnp.abs(rounded - new_breaks) < tol,
+                           rounded, new_breaks)
+    f_new = f_dom.at[loc_f].set(new_breaks)
+    g_new = g_dom.at[loc_g].set(new_breaks)
+
+    def rebuild(h, breaks):
+        breaks_host = [float(jax.device_get(x)) for x in breaks]
+        funs = []
+        for k, piece in enumerate(h.funs):
+            interval = (breaks_host[k], breaks_host[k + 1])
+            if isinstance(piece, _Piece):
+                # MATLAB bndfun/changeMap changes only the affine map/domain;
+                # the onefun coefficients remain on reference [-1,1].
+                funs.append(_Piece(tech=piece.tech, interval=interval))
+            elif isinstance(piece, Unbndfun):
+                # MATLAB unbndfun/changeMap rebuilds its nonlinear map for the
+                # new still-unbounded interval; from_chebtech mirrors that
+                # mapping update while retaining the same mapped onefun.
+                funs.append(Unbndfun.from_chebtech(
+                    piece.onefun, Domain(interval)))
+            else:
+                raise NotImplementedError(
+                    f"tweak_domain cannot remap {type(piece).__name__}")
+        out = Chebfun(funs=funs,
+                      domain=Domain(tuple(breaks_host)),
                       deltas=h.deltas)
         if h.is_transposed:
             object.__setattr__(out, "_is_transposed", True)
+        # MATLAB keeps explicit pointValues separate while remapping smooth
+        # FUNs. Preserve the exact JAX leaf and dtype, including complex data.
+        if h._point_values is not None:
+            object.__setattr__(out, "_point_values", h._point_values)
         return out
 
-    f_out = _rebuild(f, f_new) if _np.any(loc_f) else f
-    if dom_given:
-        g_out = g_new
+    f_out = rebuild(f, f_new)
+    if domain_given:
+        g_out = (Domain(tuple(float(jax.device_get(x)) for x in g_new))
+                 if isinstance(g, Domain) else g_new)
     else:
-        g_out = _rebuild(g, g_new) if _np.any(loc_g) else g
-    return (f_out, g_out, [int(i) for i in _np.flatnonzero(loc_f)],
-            [int(i) for i in _np.flatnonzero(loc_g)])
+        g_out = rebuild(g, g_new) if bool(jax.device_get(jnp.any(loc_g))) else g
+    return (
+        f_out,
+        g_out,
+        [int(i) for i in jax.device_get(jnp.flatnonzero(loc_f)).tolist()],
+        [int(i) for i in jax.device_get(jnp.flatnonzero(loc_g)).tolist()],
+    )
+
 
 
 def chebfun(f=None, *, domain=(-1.0, 1.0), **kwargs) -> Chebfun:
