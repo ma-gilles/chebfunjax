@@ -375,6 +375,24 @@ def _sample_as_trig_dtype(f, x):
     return raw.astype(jnp.complex128), is_real
 
 
+def _sample_callable_trig_grid(f, n):
+    """Apply source callable-grid endpoint averaging, preserving columns.
+
+    Provenance
+    ----------
+    MATLAB source : @trigtech/refine.m, refineResampling
+    Chebfun commit: 7574c77
+
+    Fixed-n construction is a Python size adapter using the same callable
+    endpoint convention. User-supplied values and off-grid probes do not
+    pass through this helper.
+    """
+    points = jnp.concatenate((trigpts(n), jnp.ones((1,), dtype=jnp.float64)))
+    values, is_real = _sample_as_trig_dtype(f, points)
+    values = values.at[0].set(0.5 * (values[0] + values[-1]))
+    return values[:-1], is_real
+
+
 def _trig_eval(coeffs: jax.Array, x: jax.Array, is_real: bool = True) -> jax.Array:
     r"""Evaluate a trigonometric series at points x.
 
@@ -1524,7 +1542,8 @@ class Trigtech(eqx.Module):
         """Construct a Trigtech from a callable.
 
         If ``n`` is given, evaluates the function on an ``n``-point equispaced
-        trigonometric grid (non-adaptive). If ``n`` is None, uses an adaptive
+        trigonometric grid (non-adaptive), averaging the endpoint samples
+        according to MATLAB callable construction. If ``n`` is None, uses an adaptive
         algorithm.
 
         Parameters
@@ -1568,8 +1587,7 @@ class Trigtech(eqx.Module):
         """Fixed-size construction."""
         if n <= 0:
             return cls(coeffs=jnp.array([], dtype=jnp.complex128), is_real=True)
-        x = trigpts(n)
-        values, is_real = _sample_as_trig_dtype(f, x)
+        values, is_real = _sample_callable_trig_grid(f, n)
         c = trig_vals2coeffs(values)
         return cls(coeffs=c, is_real=is_real, ishappy=True)
 
@@ -1591,7 +1609,7 @@ class Trigtech(eqx.Module):
         for k in range(start_pow2, maxpow2 + 1):
             n = 2**k
             x = trigpts(n)
-            values, is_real = _sample_as_trig_dtype(f, x)
+            values, is_real = _sample_callable_trig_grid(f, n)
             c = trig_vals2coeffs(values)
             vscale = max(vscale, float(jnp.max(jnp.abs(values))))
 
@@ -1632,7 +1650,7 @@ class Trigtech(eqx.Module):
             f"{2**maxpow2} points. Returning unhappy representation.",
             stacklevel=2,
         )
-        values, is_real = _sample_as_trig_dtype(f, trigpts(2**maxpow2))
+        values, is_real = _sample_callable_trig_grid(f, 2**maxpow2)
         c_final = trig_vals2coeffs(values)
         return cls(coeffs=c_final, is_real=is_real, ishappy=False)
 
