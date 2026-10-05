@@ -302,7 +302,8 @@ class Unbndfun(eqx.Module):
 
         Provenance
         ----------
-        MATLAB source : @unbndfun/unbndfun.m
+        MATLAB source : @unbndfun/unbndfun.m, @onefun/onefun.m,
+                        @chebtech/populate.m, @chebtech/extrapolate.m
         Chebfun commit: 7574c77
         """
         _validate_unbounded_domain(domain)
@@ -333,25 +334,20 @@ class Unbndfun(eqx.Module):
                 Singfun.from_function(raw_f, exponents=(sa, sb), n=n))
             return cls(onefun=onefun, domain=domain, mapping_type=mtype)
 
-        # Build the composed function: evaluate f at the forward-mapped points.
-        # At y=±1 the forward map sends points to ±∞, and f(±∞) may be NaN
-        # in floating-point (e.g. x*exp(-x²) = ∞*0 = NaN at x=∞).
-        # We sanitise the output with nan_to_num so that the Chebtech2
-        # constructor receives clean values (NaN → 0 = the physical limit).
-        if mtype == "right_inf":
-            mapped_f = lambda y: jnp.nan_to_num(  # noqa: E731
-                f(_forward_right(y, a)), nan=0.0, posinf=0.0, neginf=0.0
-            )
-        elif mtype == "left_inf":
-            mapped_f = lambda y: jnp.nan_to_num(  # noqa: E731
-                f(_forward_left(y, b)), nan=0.0, posinf=0.0, neginf=0.0
-            )
-        else:  # both_inf
-            mapped_f = lambda y: jnp.nan_to_num(  # noqa: E731
-                f(_forward_both(y)), nan=0.0, posinf=0.0, neginf=0.0
-            )
+        # @unbndfun/unbndfun.m enables blowup detection when the raw
+        # mapped callback is infinite at either endpoint. Python callbacks
+        # receive singleton arrays to retain their vectorised shape contract.
+        from chebfunjax.fun.singfun import Singfun, _demote_if_smooth
+        lval = raw_f(jnp.asarray([-1.0]))
+        rval = raw_f(jnp.asarray([1.0]))
+        if bool(jnp.any(jnp.isinf(lval))) or bool(jnp.any(jnp.isinf(rval))):
+            onefun = _demote_if_smooth(Singfun.from_function(raw_f, n=n))
+            return cls(onefun=onefun, domain=domain, mapping_type=mtype)
 
-        onefun = Chebtech2.from_function(mapped_f, n=n)
+        # Preserve raw NaNs: @chebtech/populate.m extrapolates nonfinite
+        # samples before forming coefficients. Replacing inf*0 with zero
+        # would change a finite nonzero limit, e.g. x*exp(-x)+3 at +inf.
+        onefun = Chebtech2.from_function(raw_f, n=n)
         if n is None and not onefun.ishappy:
             # The mapped function did not resolve as a smooth Chebtech —
             # the function may grow algebraically at an infinite endpoint
