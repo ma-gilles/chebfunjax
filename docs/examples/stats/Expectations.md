@@ -45,7 +45,7 @@ sum(f)
 
 ```text
 ans =
-   1.000000000000003
+   1.000000000000000
 ```
 
 The expectation of a continuous random variable is defined as the integral over of $xf(x)$.
@@ -68,7 +68,7 @@ sum(xf)
 
 ```text
 ans =
-   0.500000000000000
+   0.499999999999994
 ```
 
 b) For $E(X^2)$, the answer is again $1/2$ and we compute this in the same way as before.
@@ -88,7 +88,7 @@ sum(xxf)
 
 ```text
 ans =
-   0.500000000000270
+   0.500000000000316
 ```
 
 ## 2. Mean, median and mode of a probability distribution
