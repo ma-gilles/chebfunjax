@@ -2956,6 +2956,51 @@ class Chebfun(eqx.Module):
         ]
         return Chebfun(funs=new_funs, domain=self.domain)
 
+    def __rpow__(self, base) -> Chebfun:
+        """Compute a concrete numeric scalar base to this bounded Chebfun power.
+
+        MATLAB source @chebfun/power.m handles ``constant .^ CHEBFUN`` by
+        composing over the exponent Chebfun. Complex promotion for a negative
+        real scalar base gives MATLAB's principal complex power for real-valued
+        exponents; without it, real JAX power yields NaNs at fractional values.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/power.m (columnPower), @chebtech/power.m
+        Chebfun commit: 7574c77
+
+        Adaptive reconstruction is not JIT-safe. This method handles
+        finite Chebtech1/2 pieces only; arrays/quasimatrices and Singfun,
+        Unbndfun, and Trigtech composition are not claimed.
+        """
+        from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
+
+        if self.isempty():
+            return type(self).empty()
+
+        try:
+            base_array = jnp.asarray(base)
+        except (TypeError, ValueError):
+            return NotImplemented
+        if base_array.ndim != 0 or base_array.dtype.kind not in "biufc":
+            return NotImplemented
+
+        if not all(isinstance(piece.tech, (Chebtech1, Chebtech2))
+                   for piece in self.funs):
+            return NotImplemented
+
+        # MATLAB power uses the complex principal branch for negative real bases.
+        # This concrete host-side branch is acceptable because composition itself
+        # adaptively builds a Chebfun and is not JIT-safe.
+        if base_array.dtype.kind != "c" and bool(base_array < 0):
+            base_array = base_array.astype(jnp.complex128)
+
+        op = lambda exponent: jnp.power(base_array, exponent)  # noqa: E731
+        # Source compose maps the stored breakpoint values (including means
+        # at jumps), then keeps the exponent Chebfun's row/column orientation.
+        result = self._apply_fun(op).set_point_values(op(self._breakpoint_values()))
+        return Chebfun._as_transposed(result, self.is_transposed)
+
     def __abs__(self) -> Chebfun:
         """Absolute value — delegates to :meth:`abs`.
 

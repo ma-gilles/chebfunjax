@@ -59,3 +59,53 @@ class TestChebfunPower:
         )
         g3 = f ** 3
         assert g3(X).shape[-1] == 3 and _nrm(g3 - h3) < 10 * h3.vscale * EPS
+
+
+def _source_reverse_normest(f):
+    # @chebfun/normest.m sums @chebtech/normest.m max(vscale) by piece.
+    return sum(float(piece.tech.vscale) for piece in f.funs)
+
+
+class TestChebfunReversePower:
+    """Source operations 13/14/15/17 with independent public normest bounds.
+
+    The MATLAB test file shadows public normest with a seeded random-grid
+    local helper. These checks use the public piece-vscale estimator and the
+    same source bounds; they do not reproduce that local random-grid oracle.
+    """
+    def test_source_operation13_scalar_one(self):
+        f = cj.chebfun(jnp.sin)
+        g = 1.0 ** f
+        assert _source_reverse_normest(g - 1.0) < 10 * EPS
+
+    def test_source_operation14_scalar_complex(self):
+        f = cj.chebfun(jnp.sin)
+        g = (2.0j) ** f
+        h = cj.chebfun(lambda x: (2.0j) ** jnp.sin(x))
+        assert _source_reverse_normest(g - h) < 10 * EPS
+
+    def test_source_operation15_array_chebfun_base_one(self):
+        f = cj.chebfun(
+            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x), 1j * jnp.exp(x)], axis=-1)
+        )
+        g = 1.0 ** f
+        assert g(X).shape[-1] == 3
+        assert _source_reverse_normest(g - 1.0) < 10 * EPS
+
+    def test_source_operation17_array_chebfun_base_complex(self):
+        f = cj.chebfun(
+            lambda x: jnp.stack([jnp.sin(x), jnp.cos(x), 1j * jnp.exp(x)], axis=-1)
+        )
+        g = (2.0j) ** f
+        h = cj.chebfun(
+            lambda x: jnp.stack(
+                [
+                    (2.0j) ** jnp.sin(x),
+                    (2.0j) ** jnp.cos(x),
+                    (2.0j) ** (1j * jnp.exp(x)),
+                ],
+                axis=-1,
+            )
+        )
+        assert g(X).shape[-1] == 3
+        assert _source_reverse_normest(g - h) < 100 * EPS
