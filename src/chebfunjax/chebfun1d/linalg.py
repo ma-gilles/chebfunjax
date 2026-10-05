@@ -101,9 +101,9 @@ class Quasimatrix:
     inner products.
 
     This class is intentionally lightweight: it holds a Python list of
-    single-piece :class:`~chebfunjax.chebfun1d.chebfun.Chebfun` objects and
-    a shared :class:`~chebfunjax.domain.Domain`.  All columns must share the
-    same single-interval domain.
+    scalar :class:`~chebfunjax.chebfun1d.chebfun.Chebfun` columns and a shared
+    outer :class:`~chebfunjax.domain.Domain`. Columns may have different
+    interior breakpoints, but their domain endpoints must agree.
 
     Parameters
     ----------
@@ -131,16 +131,33 @@ class Quasimatrix:
     """
 
     def __init__(self, cols: list[Chebfun], domain: Domain) -> None:
+        """Keep scalar columns with a common outer domain, including their breaks.
+
+        Provenance
+        ----------
+        MATLAB source : quasimatrix.m, @chebfun/cell2quasi.m,
+            @chebfun/domainCheck.m, @chebfun/hscale.m
+        Chebfun commit: 7574c77
+        """
         if len(cols) == 0:
             raise ValueError(
                 "Quasimatrix must have at least one column."
             )
         for i, col in enumerate(cols):
-            if col.domain != domain:
+            if col.isempty() or col.n_columns != 1:
+                raise ValueError(
+                    f"Column {i} is not scalar-valued; quasimatrix columns "
+                    "must be scalar Chebfuns.")
+            hs = max(abs(col.domain.a), abs(col.domain.b))
+            if hs == float("inf"):
+                hs = 1.0
+            agrees = all(a == b or abs(a - b) < 1e-15 * hs
+                         for a, b in ((col.domain.a, domain.a),
+                                      (col.domain.b, domain.b)))
+            if not agrees:
                 raise ValueError(
                     f"Column {i} has domain {col.domain} which does not match "
-                    f"the quasimatrix domain {domain}."
-                )
+                    f"the quasimatrix outer domain {domain}.")
         self.cols = list(cols)
         self.domain = domain
 
@@ -171,22 +188,23 @@ class Quasimatrix:
     # ------------------------------------------------------------------
 
     def __call__(self, x) -> jnp.ndarray:
-        """Evaluate all columns at point(s) x.
+        """Evaluate each column at ``x``.
 
-        Parameters
+        Rank-one inputs retain the Python ``(npoints, n_cols)`` convention.
+        For matrices and higher-rank arrays, follow MATLAB ``feval`` and
+        concatenate each column's result along axis 1.
+
+        Provenance
         ----------
-        x : scalar or array_like, shape (m,)
-            Evaluation point(s) in the domain.
-
-        Returns
-        -------
-        jnp.ndarray, shape (m, n_cols) or (n_cols,) for scalar x
+        MATLAB source : @chebfun/feval.m, columnFeval
+        Chebfun commit: 7574c77
         """
-        import jax.numpy as jnp
-        results = [col(x) for col in self.cols]
-        # Each result is shape () or (m,)
-        out = jnp.stack(results, axis=-1)
-        return out
+        x_array = jnp.asarray(x)
+        results = [col(x_array) for col in self.cols]
+        if x_array.ndim < 2:
+            return jnp.stack(results, axis=-1)
+        # MATLAB cell2mat joins each scalar column's matrix along dimension2.
+        return jnp.concatenate(results, axis=1)
 
     # ------------------------------------------------------------------
     # Inner product (continuous L2)

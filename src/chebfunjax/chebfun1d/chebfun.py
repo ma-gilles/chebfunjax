@@ -17,7 +17,7 @@ See https://www.chebfun.org/ for Chebfun information.
 from __future__ import annotations
 
 import math
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 import equinox as eqx
 import jax
@@ -25,6 +25,9 @@ import jax.numpy as jnp
 
 from chebfunjax.domain import Domain, _linear_inverse_map
 from chebfunjax.tech.chebtech import Chebtech2
+
+if TYPE_CHECKING:
+    from chebfunjax.chebfun1d.linalg import Quasimatrix
 
 # Machine epsilon for float64
 _EPS = float(jnp.finfo(jnp.float64).eps)
@@ -433,7 +436,7 @@ class _Piece(eqx.Module):
 
         Provenance
         ----------
-        MATLAB source : @singfun/abs.m
+        MATLAB source : @singfun/abs.m, @chebtech/abs.m
         Chebfun commit: 7574c77
         """
         from chebfunjax.fun.singfun import Singfun
@@ -445,6 +448,18 @@ class _Piece(eqx.Module):
             return _Piece(tech=Singfun(tech.smoothPart * sgn,
                                        tech.exponents),
                           interval=self.interval)
+        from chebfunjax.tech.chebtech import Chebtech1
+        if isinstance(tech, (Chebtech1, Chebtech2)) and (
+                bool(jnp.all(jnp.imag(tech.coeffs) == 0))
+                or bool(jnp.all(jnp.real(tech.coeffs) == 0))):
+            # @chebtech/abs.m transforms the existing grid for real or pure
+            # imaginary data after roots have been introduced as breaks.
+            # Adaptive composition amplifies near-zero cancellation noise.
+            cls = type(tech)
+            values = cls.coeffs2vals(tech.coeffs)
+            result = cls(coeffs=cls.vals2coeffs(jnp.abs(values)),
+                         ishappy=tech.ishappy)
+            return self.with_tech(result)
         return self._apply_fun(jnp.abs)
 
     def sqrt(self) -> _Piece:
@@ -2931,8 +2946,13 @@ class Chebfun(eqx.Module):
         ]
         return Chebfun(funs=new_funs, domain=self.domain)
 
-    def __pow__(self, exponent) -> Chebfun:
-        """Raise each piece to a power.
+    def __pow__(self, exponent) -> Chebfun | Quasimatrix:
+        """Raise scalar or matched columns to numeric powers.
+
+        A numeric exponent vector expands a scalar-valued base. Smooth
+        columns combine into an array-valued Chebfun; columns with singular
+        representations remain a Quasimatrix. Matched multi-column powers
+        return a Quasimatrix, retaining each column's piece partition.
 
         Bounded positive integer powers above two compose adaptively, as in
         MATLAB columnPower. That construction is eager; evaluation of the
@@ -2943,6 +2963,55 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/power.m
         Chebfun commit: 7574c77
         """
+        if self.isempty():
+            return type(self).empty()
+        exp_array = None
+        if not isinstance(exponent, Chebfun):
+            try:
+                exp_array = jnp.asarray(exponent)
+            except (TypeError, ValueError):
+                pass
+        if exp_array is not None and exp_array.ndim > 0:
+            if exp_array.dtype.kind not in "biufc":
+                return NotImplemented
+            # Source b(k) uses MATLAB column-major linear indexing, including
+            # shaped row/column vectors and numeric exponent matrices.
+            exp_array = jnp.ravel(exp_array, order="F")
+            if exp_array.size == 0:
+                return type(self).empty()
+            if exp_array.size == 1:
+                return Chebfun._as_transposed(self ** exp_array[0], self.is_transposed)
+            elif self.n_columns == 1:
+                # MATLAB @chebfun/power.m then quasi2cheb: build each scalar
+                # power separately, and align/concatenate through assignColumns.
+                powered = [Chebfun._as_transposed(self ** exp_array[k], self.is_transposed)
+                           for k in range(exp_array.size)]
+                from chebfunjax.tech.chebtech import Chebtech1
+                from chebfunjax.tech.trigtech import Trigtech
+
+                # @chebfun/cat cannot collate singular funs into one array.
+                if not all(isinstance(p.tech, (Chebtech1, Chebtech2, Trigtech))
+                           for column in powered for p in column.funs):
+                    from chebfunjax.chebfun1d.linalg import Quasimatrix
+
+                    return Quasimatrix(powered, Domain((self.domain.a, self.domain.b)))
+                out = powered[0]
+                for k, column in enumerate(powered[1:], start=1):
+                    out = out.assign_columns(k, column)
+                return out
+            else:
+                if exp_array.size != self.n_columns:
+                    raise ValueError(
+                        "CHEBFUN:CHEBFUN:power:dim: "
+                        "Chebfun quasimatrix dimensions must agree.")
+                from chebfunjax.chebfun1d.linalg import Quasimatrix
+
+                columns = self.mat2cell()
+                return Quasimatrix(
+                    [columns[k] ** exp_array[k]
+                     for k in range(self.n_columns)],
+                    Domain((self.domain.a, self.domain.b)),
+                )
         if isinstance(exponent, Chebfun):
             if self.isempty() or exponent.isempty():
                 return type(self).empty()
@@ -3476,6 +3545,44 @@ class Chebfun(eqx.Module):
 
     def _abs_core(self) -> Chebfun:
         """Root-splitting ``|f|`` without pointValues propagation."""
+        # Bounded scalar real polynomials retain their representation through
+        # root partitioning. Other representations keep their existing path.
+        from chebfunjax.tech.chebtech import Chebtech1
+        if self.isempty():
+            return self
+        bounded_real = self.n_columns == 1 and all(
+            isinstance(p.tech, (Chebtech1, Chebtech2))
+            and all(math.isfinite(float(v)) for v in p.interval)
+            and bool(jnp.all(jnp.imag(p.tech.coeffs) == 0))
+            for p in self.funs)
+        if bounded_real:
+            # @chebfun/getRootsForBreaks.m uses exact-zero suppression;
+            # small nonzero polynomials must retain their roots and scale.
+            r = jnp.ravel(self.roots(nojump=True, nozerofun=True))
+            roots = sorted(float(v) for v in r if math.isfinite(float(v)))
+            old = [float(v) for v in self.domain.breakpoints]
+            root_tol = _EPS * max(abs(old[0]), abs(old[-1]))
+            # Source discards each original neighbor gap simultaneously.
+            roots = [v for i, v in enumerate(roots)
+                     if i == 0 or v - roots[i - 1] >= root_tol]
+            break_tol = 100 * _EPS * max(min(b - a for a, b in
+                                            zip(old[:-1], old[1:])), 1.0)
+            added = [v for v in roots if old[0] < v < old[-1]
+                     and all(abs(v - b) >= break_tol for b in old)]
+            bps = tuple(sorted(set(old + added)))
+            restricted = (self if bps == tuple(old)
+                          else self._with_breakpoints(bps))
+            out = Chebfun._as_transposed(Chebfun(
+                funs=[p.abs() for p in restricted.funs],
+                domain=restricted.domain).simplify(), self.is_transposed)
+            # Keep old pointValues and force exactly zero at newly inserted
+            # roots, as @chebfun/addBreaksAtRoots.m requires.
+            point_values = jnp.abs(self(jnp.asarray(bps)))
+            for i, v in enumerate(bps):
+                if v in added:
+                    point_values = point_values.at[i].set(0.0)
+            return out.set_point_values(point_values)
+
         # Find roots where the function changes sign and add them as
         # breakpoints, then apply |·| piecewise for smoothness.  Jump
         # roots are excluded: a sign flip through a jump or pole sits
@@ -4901,7 +5008,8 @@ class Chebfun(eqx.Module):
         p : float, default 2
             The exponent.
             - ``p=2``: L2 norm = sqrt(<f, f>).
-            - ``p=jnp.inf``: L-infinity norm (max over all pieces).
+            - ``p=jnp.inf``: scalar L-infinity norm, or for array-valued
+              Chebfuns ``max_x sum_j |f_j(x)|`` (MATLAB matrix infinity norm).
             - Other p: computed via ``|f|^p`` integration.
 
         Returns
@@ -4926,6 +5034,19 @@ class Chebfun(eqx.Module):
                                    + float(_np.sum(_np.abs(mags))))
             return jnp.asarray(_np.inf)
 
+        if self.isempty():
+            return jnp.asarray(0.0)
+        if (p == float("inf") or p == jnp.inf) and self.n_columns > 1:
+            # MATLAB @chebfun/norm.m uses max_x sum_j |f_j(x)| for
+            # array-valued functions. Build that scalar Chebfun by existing
+            # column extraction, abs/root splitting, and piecewise addition,
+            # then use the scalar continuous extremum path below.
+            oriented = self.T if self.is_transposed else self
+            columns = oriented.mat2cell()
+            row_one_norm = columns[0].abs()
+            for column in columns[1:]:
+                row_one_norm = row_one_norm + column.abs()
+            return row_one_norm.norm(p)
         if p == 2:
             return jnp.sqrt(jnp.abs(self.inner(self)))
         elif p == float("inf") or p == jnp.inf:
@@ -5056,17 +5177,14 @@ class Chebfun(eqx.Module):
             # length (MATLAB @chebfun/roots.m convention).
             m = max(p.tech.coeffs.shape[1] for p in self.funs
                     if p.tech.coeffs.ndim == 2)
-            zerotol_c = (max(float(self.vscale), 1.0)
-                         * float(_np.finfo(_np.float64).eps)) \
-                if nozerofun else -1.0
             cols = []
             for j in range(m):
                 rj = []
                 for piece in self.funs:
                     pc = _np.asarray(piece.tech.coeffs)
                     if pc.ndim == 2 and j < pc.shape[1]:
-                        if nozerofun and float(_np.max(
-                                _np.abs(pc[:, j]))) <= zerotol_c:
+                        if nozerofun and bool(jnp.all(
+                                jnp.asarray(pc[:, j]) == 0)):
                             # 'nozerofun': an identically-zero column
                             # sends the subdivision rootfinder into an
                             # every-point-is-a-root recursion (observed
@@ -5093,14 +5211,12 @@ class Chebfun(eqx.Module):
             return jnp.asarray(out)
 
         all_roots = []
-        zerotol = (max(float(self.vscale), 1.0)
-                   * float(_np.finfo(_np.float64).eps)) if nozerofun else 0.0
         for piece in self.funs:
             if nozerofun:
                 # @chebfun/roots.m 'nozerofun': a FUN that is identically
                 # zero contributes no midpoint root.
                 pc = _np.asarray(piece.tech.coeffs)
-                if pc.size and float(_np.max(_np.abs(pc))) <= zerotol:
+                if pc.size and bool(jnp.all(jnp.asarray(pc) == 0)):
                     continue
             r = piece.roots()
             if r.shape[0] > 0:
