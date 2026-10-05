@@ -8118,10 +8118,10 @@ class Chebfun(eqx.Module):
         return not self.isfinite()
 
     def isreal(self) -> bool:
-        """True if all coefficients are real-valued (no imaginary part).
+        """True if stored breakpoint values, pieces and impulses are real.
 
-        In jaxchebfun all Chebfuns use float64 storage, so this always
-        returns True for the standard scalar Chebfun.
+        Stored array dtypes determine realness, except for Fourier pieces,
+        whose realness flag describes the represented function.
 
         Returns
         -------
@@ -8129,9 +8129,13 @@ class Chebfun(eqx.Module):
 
         Provenance
         ----------
-        MATLAB source : @chebfun/isreal.m
+        MATLAB source : @chebfun/isreal.m, @deltafun/isreal.m
         Chebfun commit: 7574c77
         """
+        if self._point_values is not None and jnp.iscomplexobj(self._point_values):
+            return False
+        if any(jnp.iscomplexobj(row[1]) for row in self.deltas):
+            return False
         for piece in self.funs:
             # A real trigfun stores complex FOURIER coefficients; MATLAB
             # isreal checks the fun's realness, recorded in is_real.

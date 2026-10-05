@@ -3780,6 +3780,19 @@ def _draw_deltas(ax, f, deltaline, kw):
         ax.plot([loc], [mag], marker, **kw)
 
 
+def _source_complex_plot_coordinates(xs, ys):
+    """Convert joined samples to the complex plane, retaining NaN separators.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/plot.m, @chebfun/plotData.m
+    Chebfun commit: 7574c77
+    """
+    imaginary = ys.imag.copy()
+    imaginary[np.isnan(xs)] = np.nan
+    return ys.real, imaginary
+
+
 def matlab_plot(*args, ax=None, numpts: int = 2001, interval=None,
                 jumpline=None, deltaline=None, **kw):
     """MATLAB @chebfun/plot.m argument-stream plotting.
@@ -3844,8 +3857,9 @@ def matlab_plot(*args, ax=None, numpts: int = 2001, interval=None,
                 fmt = items[j]
                 j += 1
             if ycols is None:
+                object_is_complex = any(not f.isreal() for f in cols)
                 for f in cols:
-                    was_complex = False
+                    was_complex = object_is_complex
                     pieces = _sample_pieces(f, numpts, interval, _source_grid=True)
                     if pieces:
                         xs, ys = _join_plot_pieces(pieces)
@@ -3861,13 +3875,14 @@ def matlab_plot(*args, ax=None, numpts: int = 2001, interval=None,
                             and np.isfinite(piece.interval[1])
                             for piece in f.funs
                         )
-                        was_complex = np.iscomplexobj(ys)
-                        line_x, line_y = (ys.real, ys.imag) if was_complex else (xs, ys)
+                        line_x, line_y = (
+                            _source_complex_plot_coordinates(xs, ys)
+                            if was_complex else (xs, ys))
                         if source_markers:
                             if interval is None:
                                 px, py = _join_plot_pieces(_source_point_pieces(f))
                                 if was_complex:
-                                    px, py = py.real, py.imag
+                                    px, py = _source_complex_plot_coordinates(px, py)
                             else:
                                 px = py = None
                             _source_plot_line_and_points(
