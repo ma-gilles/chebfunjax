@@ -1,8 +1,8 @@
-"""Source scope controls for Laguerre REC/GW integration.
+"""Source scope controls for Laguerre REC/GW/GLR integration.
 
 Provenance: MATLAB ``lagpts.m`` and ``hermpts.m``, Chebfun commit
 7574c77680d7e82b79626300bf255498271a72df. These tests distinguish the
-ported REC/GW algorithms from deliberately unsupported source methods.
+ported REC/GW/GLR algorithms from deliberately unsupported source methods.
 """
 import numpy as np
 import numpy.testing as npt
@@ -22,7 +22,7 @@ def test_default_laguerre_uses_gw_above_rec_cutoff():
         npt.assert_array_equal(got, want)
 
 
-@pytest.mark.parametrize('method', ['GLR', 'RH', 'RHW', 'EXP', 'RECW'])
+@pytest.mark.parametrize('method', ['RH', 'RHW', 'EXP', 'RECW'])
 def test_unported_source_methods_fail_explicitly(method):
     with pytest.raises(NotImplementedError, match='not yet supported'):
         lagpts(42, method=method)
