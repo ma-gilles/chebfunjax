@@ -3499,7 +3499,8 @@ class Chebtech2(eqx.Module):
     def __pow__(self, exponent) -> "Chebtech2":
         """Raise to a power.
 
-        Integer powers via repeated multiplication.
+        Integer powers of at least three use adaptive composition.
+        Lower nonnegative integer powers use coefficient arithmetic.
         Non-integer powers via evaluation on a grid and re-interpolation.
 
         Provenance
@@ -3507,6 +3508,10 @@ class Chebtech2(eqx.Module):
         MATLAB source : @chebtech/power.m
         Chebfun commit: 7574c77
         """
+        if isinstance(exponent, int) and exponent >= 3:
+            # @chebtech/power.m composes the operator. Repeated TIMES
+            # accumulates avoidable error in singular-function cubes.
+            return self.compose(lambda y: y ** exponent)
         if isinstance(exponent, int) and exponent >= 0:
             if exponent == 0:
                 # ones with the same column count (array-valued f**0
@@ -5119,11 +5124,15 @@ class Chebtech1(eqx.Module):
     def __pow__(self, exponent) -> "Chebtech1":
         """Raise to a power.
 
+        Integer powers of at least three use source adaptive composition.
+
         Provenance
         ----------
         MATLAB source : @chebtech/power.m
         Chebfun commit: 7574c77
         """
+        if isinstance(exponent, int) and exponent >= 3:
+            return self.compose(lambda y: y ** exponent)
         if isinstance(exponent, int) and exponent >= 0:
             if exponent == 0:
                 return Chebtech1.from_coeffs(jnp.array([1.0], dtype=jnp.float64))

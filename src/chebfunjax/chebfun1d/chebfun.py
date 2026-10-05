@@ -9379,7 +9379,9 @@ def _find_blowup(op, a: float, b: float, vscale: float):
 
 def _build_exps_piece(op, a: float, b: float, el, er, stl, str_,
                       turbo: bool = False, maxpow2: int = 16,
-                      tech_cls=None) -> _Piece:
+                      tech_cls=None, tol: float | None = None,
+                      vscale: float = 0.0, hscale: float = 1.0,
+                      extrapolate: bool = False) -> _Piece:
     """Build one Chebfun piece on ``[a, b]`` honouring endpoint exponents.
 
     ``op`` is the physical function on ``[a, b]``.  Each exponent is either
@@ -9391,7 +9393,8 @@ def _build_exps_piece(op, a: float, b: float, el, er, stl, str_,
 
     Provenance
     ----------
-    MATLAB source : @classicfun/constructor.m -> @singfun/singfun.m
+    MATLAB source : @classicfun/classicfun.m (constructor),
+        @bndfun/bndfun.m, @mapping/mapping.m, @singfun/singfun.m
     Chebfun commit: 7574c77
     """
     import math as _m
@@ -9399,7 +9402,9 @@ def _build_exps_piece(op, a: float, b: float, el, er, stl, str_,
     from chebfunjax.fun.singfun import Singfun, _find_pole_order, _find_sing_order
 
     def _full(t):
-        x = a + (b - a) * (jnp.asarray(t) + 1.0) / 2.0
+        t = jnp.asarray(t)
+        # @bndfun/bndfun.m leaves a canonical-domain operator unmapped.
+        x = t if (a, b) == (-1.0, 1.0) else b*(t+1.0)/2.0+a*(1.0-t)/2.0
         return op(x)
 
     def _resolve(e, st, end):
@@ -9414,11 +9419,17 @@ def _build_exps_piece(op, a: float, b: float, el, er, stl, str_,
 
     el = _resolve(el, stl, "left")
     er = _resolve(er, str_, "right")
+    # @bndfun/bndfun.m rescales the whole-domain hscale on the reference
+    # interval before calling the underlying smooth-tech constructor.
+    hscale_ref = float(hscale) / (b - a)
     if abs(el) < 1e-14 and abs(er) < 1e-14:
-        return _Piece.from_function(op, a, b, turbo=turbo, maxpow2=maxpow2)
-    sf = Singfun.from_function(_full, exponents=(el, er), turbo=turbo,
-                               tech_cls=tech_cls,
-                               maxpow2=maxpow2)
+        return _Piece.from_function(
+            op, a, b, turbo=turbo, maxpow2=maxpow2, tol=tol,
+            vscale=vscale, hscale=hscale_ref, extrapolate=extrapolate)
+    sf = Singfun.from_function(
+        _full, exponents=(el, er), turbo=turbo, tech_cls=tech_cls,
+        maxpow2=maxpow2, tol=tol, vscale=vscale, hscale=hscale_ref,
+        extrapolate=extrapolate)
     return _Piece(tech=sf, interval=(float(a), float(b)))
 
 
@@ -9825,20 +9836,29 @@ def _chebfun_build(
         # under splitting), so the largest grid tried is 129 = 2^7 + 1.
         _mp2 = (16 if not splitting else
                 int(math.floor(math.log2(max((split_length or 160) - 1, 2)))))
-        funs = [
-            _build_exps_piece(f, dom_vals[j], dom_vals[j + 1],
-                              pairs[j][0], pairs[j][1],
-                              stypes[j][0], stypes[j][1], turbo=turbo,
-                              maxpow2=_mp2, tech_cls=_tech_cls)
-            for j in range(n_int)
-        ]
+        _hscale = max(abs(v) for v in dom_vals)
+        _tol = None if eps is None else float(eps)
+        _vscale = 0.0
+        funs = []
+        for j in range(n_int):
+            piece = _build_exps_piece(
+                f, dom_vals[j], dom_vals[j + 1],
+                pairs[j][0], pairs[j][1], stypes[j][0], stypes[j][1],
+                turbo=turbo, maxpow2=_mp2, tech_cls=_tech_cls,
+                tol=_tol, vscale=_vscale, hscale=_hscale,
+                extrapolate=bool(splitting))
+            funs.append(piece)
+            if _happy(piece):
+                _piece_vscale = float(piece.tech.vscale)
+                if math.isfinite(_piece_vscale):
+                    _vscale = max(_vscale, _piece_vscale)
         # With 'splitting' on, unhappy pieces are split at detected
         # interior blow-up points (poles located by function values),
         # mirroring the sad-interval loop of @chebfun/constructor.m with
         # singDetect: each new endpoint autodetects its exponent.
         if splitting:
-            import numpy as _np
-            SPLIT_MAX_LENGTH = 6000  # pref.splitPrefs.splitMaxLength
+            SPLIT_MAX_LENGTH = (6000 if split_max_length is None
+                                else int(split_max_length))
             unsplittable: set = set()
             while (any(not _happy(p) and id(p) not in unsplittable
                        for p in funs)
@@ -9847,7 +9867,7 @@ def _chebfun_build(
                 widths = [(p.interval[1] - p.interval[0]
                            if (not _happy(p) and id(p) not in unsplittable)
                            else 0.0) for p in funs]
-                k = int(_np.argmax(_np.asarray(widths)))
+                k = max(range(len(widths)), key=widths.__getitem__)
                 a_, b_ = funs[k].interval
                 # Compensate the operator for the piece's KNOWN endpoint
                 # exponents so boundary poles (already isolated at the
@@ -9864,19 +9884,19 @@ def _chebfun_build(
                                    * (_b - xx) ** _e[1]))
                 else:
                     comp = f
-                # A finite vscale estimate from interior samples:
-                xs = _np.linspace(a_, b_, 130)[1:-1]
-                with _np.errstate(all="ignore"):
-                    ys = _np.abs(_np.asarray(
-                        comp(jnp.asarray(xs)))).astype(float)
-                ys = ys[_np.isfinite(ys)]
-                vsc = float(_np.median(ys)) if ys.size else 1.0
+                # Preserve the existing local scale for the blow-up locator;
+                # the source derivative-growth test below receives the
+                # constructor's running global vscale.
+                xs = jnp.linspace(a_, b_, 130)[1:-1]
+                ys = jnp.abs(jnp.asarray(comp(xs)))
+                vsc = float(jnp.nanmedian(
+                    jnp.where(jnp.isfinite(ys), ys, jnp.nan)))
+                if not math.isfinite(vsc):
+                    vsc = 1.0
                 def _edge_ok(e, _a=a_, _b=b_):
                     return (e is not None and _a < e < _b
-                            and e - _a >= 4 * _np.spacing(max(abs(_a),
-                                                              1e-300))
-                            and _b - e >= 4 * _np.spacing(max(abs(_b),
-                                                              1e-300)))
+                            and e - _a >= 4 * math.ulp(max(abs(_a), 1e-300))
+                            and _b - e >= 4 * math.ulp(max(abs(_b), 1e-300)))
 
                 # Preference order: detected blow-up point, then a
                 # derivative edge, then plain bisection (MATLAB's
@@ -9887,8 +9907,7 @@ def _chebfun_build(
                 # finite endpoint is moved diff(dom)/100 inside it, so a
                 # known endpoint singularity is never stranded in a
                 # sliver-adjacent exponent-free piece.
-                _htol = 1e-14 * max(abs(float(dom_vals[0])),
-                                    abs(float(dom_vals[-1])), 1.0)
+                _htol = 1e-14 * _hscale
 
                 def _snap(e, _a=a_, _b=b_, _h=_htol):
                     if e is None:
@@ -9900,7 +9919,8 @@ def _chebfun_build(
                     return e
                 edge = _snap(_find_blowup(comp, a_, b_, max(vsc, 1e-300)))
                 if not _edge_ok(edge):
-                    edge = _snap(_split_edge_fd(comp, a_, b_))
+                    edge = _snap(_detect_edge_matlab(
+                        comp, a_, b_, vscale=_vscale, hscale=_hscale))
                 if not _edge_ok(edge):
                     edge = 0.5 * (a_ + b_)
                 if not _edge_ok(edge):
@@ -9910,12 +9930,18 @@ def _chebfun_build(
                 nan = float("nan")
                 mid_l, mid_r = (0.0, 0.0) if exps_given else (nan, nan)
                 stl, str_k = stypes[k]
-                left = _build_exps_piece(f, a_, edge, el, mid_l,
-                                         stl, str_k, turbo=turbo,
-                                         maxpow2=_mp2, tech_cls=_tech_cls)
-                right = _build_exps_piece(f, edge, b_, mid_r, er,
-                                          stl, str_k, turbo=turbo,
-                                          maxpow2=_mp2, tech_cls=_tech_cls)
+                left = _build_exps_piece(
+                    f, a_, edge, el, mid_l, stl, str_k, turbo=turbo,
+                    maxpow2=_mp2, tech_cls=_tech_cls, tol=_tol,
+                    vscale=_vscale, hscale=_hscale, extrapolate=True)
+                if _happy(left) and math.isfinite(float(left.tech.vscale)):
+                    _vscale = max(_vscale, float(left.tech.vscale))
+                right = _build_exps_piece(
+                    f, edge, b_, mid_r, er, stl, str_k, turbo=turbo,
+                    maxpow2=_mp2, tech_cls=_tech_cls, tol=_tol,
+                    vscale=_vscale, hscale=_hscale, extrapolate=True)
+                if _happy(right) and math.isfinite(float(right.tech.vscale)):
+                    _vscale = max(_vscale, float(right.tech.vscale))
                 funs[k:k + 1] = [left, right]
                 pairs[k:k + 1] = [(el, mid_l), (mid_r, er)]
                 stypes[k:k + 1] = [(stl, str_k), (stl, str_k)]

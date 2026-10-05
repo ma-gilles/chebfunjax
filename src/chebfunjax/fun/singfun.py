@@ -155,6 +155,10 @@ class Singfun(eqx.Module):
         turbo: bool = False,
         maxpow2: int = 16,
         tech_cls=None,
+        tol: float | None = None,
+        vscale: float = 0.0,
+        hscale: float = 1.0,
+        extrapolate: bool = False,
     ) -> "Singfun":
         """Construct a Singfun from a callable and (optionally) known exponents.
 
@@ -163,7 +167,8 @@ class Singfun(eqx.Module):
 
             s(x) = f(x) / ((1+x)^a * (1-x)^b)
 
-        and approximates it with a Chebtech2.
+        and approximates it with the requested Chebyshev technology
+        (Chebtech2 by default).
 
         Parameters
         ----------
@@ -178,6 +183,17 @@ class Singfun(eqx.Module):
         n : int or None, optional
             Fixed number of Chebyshev points.  ``None`` triggers adaptive
             construction.
+        tol : float or None, optional
+            Smooth-part construction tolerance. Nonzero endpoint exponents
+            impose the MATLAB constructor's minimum of ``1e-14``.
+        vscale : float, optional
+            Running global vertical scale for smooth-part construction.
+        hscale : float, optional
+            Horizontal scale on the reference interval. Bounded physical
+            constructors divide the global scale by the piece width.
+        extrapolate : bool, optional
+            Extrapolate endpoint values on a second-kind grid. Negative
+            exponents enable this automatically, as in MATLAB.
 
         Returns
         -------
@@ -186,13 +202,10 @@ class Singfun(eqx.Module):
 
         Notes
         -----
-        The Chebtech2 grid includes the exact endpoints x = ±1.  At these
-        points both ``f(x)`` and the weight ``(1±x)^exponent`` may vanish
-        simultaneously (e.g. ``f(x) = sqrt(1-x^2)`` at x = ±1), producing
-        a 0/0 indeterminate form.  This is resolved by perturbing the
-        evaluation slightly away from the endpoints when both the numerator
-        and denominator are near zero, capturing the limiting value of the
-        smooth factor accurately.
+        The Chebtech2 grid includes the exact endpoints x = ±1. Factoring
+        a singularity can give nonfinite values there. The technology
+        constructor extrapolates these rows from finite interior samples;
+        negative exponents additionally exclude endpoint evaluations.
 
         Examples
         --------
@@ -213,6 +226,10 @@ class Singfun(eqx.Module):
         if exponents is None:
             exponents = _find_sing_exponents(f)
         a, b = float(exponents[0]), float(exponents[1])
+        # MATLAB @singfun/singfun.m loosens the smooth-part tolerance only
+        # for a genuinely nonzero endpoint exponent.
+        if a != 0.0 or b != 0.0:
+            tol = max(1e-14, _EPS if tol is None else float(tol))
 
         def smooth_f(x: jax.Array) -> jax.Array:
             """Extract the smooth factor s(x) = f(x) / weight(x)."""
@@ -223,24 +240,15 @@ class Singfun(eqx.Module):
                 val = val / (1.0 - x) ** b
             return val
 
-        # Sample on FIRST-kind Chebyshev points, which exclude the
-        # endpoints, so the 0/0 form at x = +-1 never occurs (MATLAB's
-        # singfun uses endpoint extrapolation for the same reason). The
-        # previous endpoint-perturbation hack (x +- sqrt(eps)) injected
-        # O(1e-8) noise into the endpoint samples, and the adaptive
-        # constructor chopped the smooth factor at that noise plateau —
-        # e.g. the smooth part of sqrt(1+x)e^x (which is exactly e^x)
-        # stopped at 11 coefficients with 1e-10 evaluation error where
-        # MATLAB is exact. Chebtech1 and Chebtech2 share the same
-        # T-series coefficients, so the result transfers directly.
-        t1 = Chebtech1.from_function(smooth_f, n=n, turbo=turbo,
-                                     maxpow2=maxpow2)
-        # MATLAB pref.tech = @chebtech1 keeps the first-kind smooth part.
-        tech = t1 if tech_cls is Chebtech1 else Chebtech2.from_coeffs(t1.coeffs)
-        # from_coeffs defaults to happy; keep the adaptive verdict so
-        # unresolved singular pieces are visible to the splitting loop.
-        if not getattr(t1, "ishappy", True):
-            tech = Chebtech2(coeffs=tech.coeffs, ishappy=False)
+        # @singfun/singfun.m chooses pref.tech through constructSmoothPart
+        # and enables extrapolation whenever an exponent is negative.
+        smooth_cls = Chebtech1 if tech_cls is Chebtech1 else Chebtech2
+        tech_options = {}
+        if smooth_cls is Chebtech2:
+            tech_options["extrapolate"] = extrapolate or a < 0.0 or b < 0.0
+        tech = smooth_cls.from_function(
+            smooth_f, n=n, turbo=turbo, maxpow2=maxpow2, tol=tol,
+            vscale=vscale, hscale=hscale, **tech_options)
         return cls(tech, (a, b))
 
     @classmethod
