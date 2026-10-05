@@ -18,6 +18,8 @@ Original authors: Copyright 2017 by The University of Oxford
 from __future__ import annotations
 
 import copy
+import threading
+import warnings
 
 _EPS = 2.220446049250313e-16
 
@@ -252,22 +254,49 @@ class ChebopPref(ChebfunPref):
 # Deprecated global toggles (MATLAB splitting.m / blowup.m)
 # ---------------------------------------------------------------------------
 
+_SPLITTING_WARNING_LOCK = threading.Lock()
+_SPLITTING_WARNING_EMITTED = False
+_SPLITTING_WARNING_TEXT = (
+    "The syntax 'splitting on' is deprecated.\n"
+    "Please see CHEBFUNPREF documentation for further details."
+)
+
 def splitting(state=None) -> str:
-    """Query or set the session default ``splitting`` preference (MATLAB
-    ``splitting()`` / ``splitting('on'|'off')``).  Returns the state in
-    force BEFORE the call, ``'on'`` or ``'off'``.
+    """Query or set the global splitting preference.
+
+    A setter returns the state from before mutation, like MATLAB when an
+    output is requested. A no-argument Python call returns the current state;
+    Python cannot infer MATLAB's ``nargout`` to decide whether to print.
 
     Provenance
     ----------
     MATLAB source : splitting.m
     Chebfun commit: 7574c77
     """
+    global _SPLITTING_WARNING_EMITTED
     old = "on" if bool(ChebfunPref().splitting) else "off"
-    if state is not None:
-        key = str(state).lower()
-        if key not in ("on", "off"):
-            raise ValueError("splitting: state must be 'on' or 'off'.")
-        ChebfunPref.setDefaults("splitting", key == "on")
+    if state is None:
+        return old
+
+    # MATLAB emits warning ID CHEBFUN:splitting:deprecated and disables it
+    # before option validation. Python has no warning-ID field, so retain the
+    # exact message and process-wide one-time behavior.
+    with _SPLITTING_WARNING_LOCK:
+        if not _SPLITTING_WARNING_EMITTED:
+            warnings.warn(_SPLITTING_WARNING_TEXT, FutureWarning, stacklevel=2)
+            # Source warning('off', id) runs only if warning() returned. If
+            # Python promotes the warning to an exception, a retry warns again.
+            _SPLITTING_WARNING_EMITTED = True
+
+    # Keep the existing Python coercion for unsupported inputs; invalid
+    # values still follow the source UnknownOption error after the warning.
+    key = str(state).lower()
+    if key not in ("on", "off"):
+        raise ValueError(
+            "CHEBFUN:splitting:UnknownOption: Unknown splitting option: "
+            "only ON and OFF are valid options."
+        )
+    ChebfunPref.setDefaults("splitting", key == "on")
     return old
 
 
