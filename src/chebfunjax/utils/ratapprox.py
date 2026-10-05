@@ -9,6 +9,7 @@ See https://www.chebfun.org/ for Chebfun information.
 
 from __future__ import annotations
 
+import jax
 import jax.numpy as jnp
 import numpy as np
 
@@ -673,38 +674,24 @@ def _chebtech1_vals2coeffs_matrix_apply(V, N):
 
 
 def _qr_to_cheb_basis(a_hat, b_hat, R_qr, N1):
-    """Convert QR-basis coefficients a_hat, b_hat to Chebyshev basis.
+    """Convert orthogonal-basis coefficients without discarding complex data.
 
-    The QR decomposition gives C = Q * R where C is the Chebyshev Vandermonde.
-    Coefficients in QR basis satisfy C @ cheb_coeffs = Q @ hat_coeffs, i.e.
-    R @ cheb_coeffs = hat_coeffs (padded to N1).  Solve via back-substitution.
+    Padding with zero high modes makes the full upper triangular solve
+    equivalent to the source's leading R blocks. All arithmetic stays in JAX.
+
+    Provenance
+    ----------
+    MATLAB source : ratinterp.m / constructRatApproxArb (lines 570-596)
+    Chebfun commit: 7574c77
     """
-    na = len(a_hat)
-    nb = len(b_hat)
+    from jax.scipy.linalg import solve_triangular
 
-    # Pad to N1 and solve R @ a_cheb = a_hat_padded
-    a_pad = np.zeros(N1, dtype=complex)
-    a_pad[:na] = a_hat
-    b_pad = np.zeros(N1, dtype=complex)
-    b_pad[:nb] = b_hat
-
-    # Use triangular solve: R is upper triangular (N1 x N1)
-    a_cheb_full = np.linalg.solve(R_qr, a_pad)
-    b_cheb_full = np.linalg.solve(R_qr, b_pad)
-
-    # Return only the significant coefficients
-    # Keep the imaginary part when there is one: dropping it here made
-    # every complex-valued f come out with a real numerator.
-    a_cheb = a_cheb_full[:na]
-    b_cheb = b_cheb_full[:nb]
-    if not (np.iscomplexobj(a_hat) or np.iscomplexobj(b_hat)):
-        a_cheb = np.real(a_cheb)
-        b_cheb = np.real(b_cheb)
-    elif np.allclose(a_cheb.imag, 0, atol=1e-14) and np.allclose(
-            b_cheb.imag, 0, atol=1e-14):
-        a_cheb = np.real(a_cheb)
-        b_cheb = np.real(b_cheb)
-
+    a_hat, b_hat, R_qr = jnp.asarray(a_hat), jnp.asarray(b_hat), jnp.asarray(R_qr)
+    na, nb = len(a_hat), len(b_hat)
+    a_pad = jnp.zeros(N1, dtype=jnp.result_type(a_hat, R_qr)).at[:na].set(a_hat)
+    b_pad = jnp.zeros(N1, dtype=jnp.result_type(b_hat, R_qr)).at[:nb].set(b_hat)
+    a_cheb = solve_triangular(R_qr, a_pad, lower=False)[:na]
+    b_cheb = solve_triangular(R_qr, b_pad, lower=False)[:nb]
     return a_cheb, b_cheb
 
 
@@ -878,32 +865,48 @@ def _compute_numerator_coeffs(f, m, n, xi_type, Z, b, fEven, fOdd, N, N1,
 
 
 def _trim_coeffs(a, b, tol, ts):
-    """Trim trailing small coefficients from a and b."""
-    at = np.array(a, dtype=complex)
-    bt = np.array(b, dtype=complex)
+    """Apply MATLAB ``trimCoeffs`` thresholds without realifying coefficients.
+
+    The comparisons are literal source comparisons: trailing entries survive
+    only when ``abs(a) > ts`` / ``abs(b) > tol``; leading entries are stripped
+    only while both current magnitudes are ``< ts``. JAX evaluates masks and
+    comparisons; eager host scalar reads select the dynamic output slices.
+
+    The output shape depends on coefficient values, so callers must not trace
+    this adapter through ``jax.jit``. Retained arrays keep their original JAX
+    dtype and values.
+
+    Provenance
+    ----------
+    MATLAB source : ratinterp.m / trimCoeffs (lines 419-443)
+    Chebfun commit: 7574c77
+    """
+    at = jnp.asarray(a)
+    bt = jnp.asarray(b)
 
     if tol > 0:
-        nna = np.abs(at) > ts
-        nnb = np.abs(bt) > tol
+        def _trim_tail(values, threshold):
+            if values.size == 0:
+                return values
+            idx = jnp.arange(values.size)
+            last = jnp.max(jnp.where(jnp.abs(values) > threshold, idx, -1))
+            stop = int(jax.device_get(last)) + 1
+            return values[:stop]
 
-        last_a = int(np.where(nna)[0][-1]) if np.any(nna) else 0
-        last_b = int(np.where(nnb)[0][-1]) if np.any(nnb) else 0
+        at = _trim_tail(at, ts)
+        bt = _trim_tail(bt, tol)
 
-        at = at[:last_a + 1]
-        bt = bt[:last_b + 1]
-
-        # Remove small leading coefficients (both < threshold)
-        while len(at) > 0 and len(bt) > 0 and np.abs(at[0]) < ts and np.abs(bt[0]) < ts:
+        while at.size > 0 and bt.size > 0:
+            remove_first = (jnp.abs(at[0]) < ts) & (jnp.abs(bt[0]) < ts)
+            if not bool(jax.device_get(remove_first)):
+                break
             at = at[1:]
             bt = bt[1:]
 
-    if len(at) == 0:
-        at = np.array([0.0 + 0j])
-        bt = np.array([1.0 + 0j])
+    # MATLAB's zero-function special case applies even when tol == 0.
+    if at.size == 0:
+        return jnp.zeros((1,)), jnp.ones((1,))
 
-    if (np.allclose(np.imag(at), 0, atol=1e-14)
-            and np.allclose(np.imag(bt), 0, atol=1e-14)):
-        return np.real(at), np.real(bt)
     return at, bt
 
 
