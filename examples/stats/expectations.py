@@ -1,7 +1,6 @@
 """Mean, median, mode of probability distributions.
 
-Translation of stats/Expectations.m by Jie Gao and Nick
-Trefethen (June 2013): moments of an exponential density and the
+Translation of stats/Expectations.m by Mark Richardson (May 2011): moments of an exponential density and the
 mean, median and mode of a polynomial density, all as chebfun
 computations.
 
@@ -14,9 +13,9 @@ matplotlib.use("Agg")
 import os
 import sys
 
-import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.ticker import MultipleLocator, StrMethodFormatter
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
@@ -34,16 +33,23 @@ FIG = [0]
 def _plot(f, dom, ylim, ylab):
     FIG[0] += 1
     xs = np.linspace(*dom, 700)
-    fig, ax = plt.subplots(figsize=(9.0, 3.3))
+    fig, ax = plt.subplots(figsize=(5.2, 1.8), dpi=100)
     ax.plot(xs, np.asarray(f(xs)), lw=1.6)
     ax.grid(True)
     ax.set_ylim(*ylim)
-    ax.set_xlabel("x")
+    ax.xaxis.set_major_locator(MultipleLocator(5 if dom[1] == 40 else .5))
+    ax.set_xlabel("x", labelpad=0)
     ax.set_ylabel(ylab, rotation=0)
+    ax.yaxis.set_label_coords(-.06, .5)
+    ax.yaxis.set_major_locator(MultipleLocator(.5 if dom[1] == 40 and ylim[1] > 2 else .05 if ylim[1] <= .31 else .1 if ylim[1] <= .61 else .2))
     fig.set_facecolor("white")
-    fig.tight_layout()
+    fig.subplots_adjust(left=.13, bottom=.17, right=.905, top=.925)
+    ax.tick_params(labelsize=7.5, top=True, right=True)
+    ax.xaxis.set_major_formatter(StrMethodFormatter('{x:g}'))
+    ax.yaxis.set_major_formatter(StrMethodFormatter('{x:g}'))
+    ax.grid(True, alpha=.3, linewidth=.5)
     _savefig(fig, os.path.join(
-        _IMG, f"Expectations_{FIG[0]:02d}.png"))
+        _IMG, f"Expectations_{FIG[0]:02d}.png"), size=(520, 180))
     plt.close(fig)
     return fig
 
@@ -52,7 +58,7 @@ def run():
     os.makedirs(_IMG, exist_ok=True)
 
     x = cj.chebfun(lambda t: t, domain=(0.0, 40.0))
-    f = cj.chebfun(lambda t: 2 * jnp.exp(-2 * t), domain=(0.0, 40.0))
+    f = 2 * (-2 * x).exp()
     _plot(f, (0, 40), (-0.2, 2.2), "f(x)")
     print("ans =")
     print(f"   {float(f.sum()):.15f}")
@@ -63,19 +69,19 @@ def run():
     print(f"   {float(xf.sum()):.15f}")
 
     xxf = x**2 * f
-    _plot(xxf, (0, 40), (-0.03, 0.31), "x^2 f(x)")
+    _plot(xxf, (0, 40), (-0.03, 0.31), "$x^2$ f(x)")
     print("ans =")
     print(f"   {float(xxf.sum()):.15f}")
 
     x = cj.chebfun(lambda t: t, domain=(0.0, 3.0))
-    g = 4 * x * (9 - x**2) * (1 / 81)
+    g = 4 * x * (9 - x**2) / 81
     _plot(g, (0, 3), (-0.01, 0.61), "g(x)")
     mean = float((x * g).sum())
     print("mean =")
     print(f"   {mean:.15f}")
 
     G = g.cumsum()
-    _plot(G, (0, 3), (0, 1.05), "G(x)")
+    _plot(G, (0, 3), (0, 1), "G(x)")
     median = float(np.asarray((G - 0.5).roots())[0])
     print("median =")
     print(f"   {median:.15f}")
@@ -91,21 +97,28 @@ def run():
 
     FIG[0] += 1
     xs = np.linspace(0, 3, 500)
-    fig, ax = plt.subplots(figsize=(9.0, 3.6))
+    fig, ax = plt.subplots(figsize=(5.2, 1.8), dpi=100)
     ax.plot(xs, np.asarray(g(xs)), lw=1.6)
     ax.grid(True)
     for pos, col, lab, tx in ((mean, 'r', 'mean', 0.2),
                               (median, 'm', 'median', 1.2),
                               (mode, 'k', 'mode', 2.2)):
         ax.plot([pos, pos], [0, float(g(pos))], '-' + col, lw=1.6)
-        ax.text(tx, 0.55, f"{lab} = {pos:1.2f}", color=col)
+        ax.text(tx, 0.55, f"{lab} = {pos:1.2f}", color=col, fontsize=7.5)
     ax.set_ylim(-0.01, 0.61)
-    ax.set_xlabel("x")
+    ax.xaxis.set_major_locator(MultipleLocator(.5))
+    ax.set_xlabel("x", labelpad=0)
     ax.set_ylabel("g(x)", rotation=0)
+    ax.yaxis.set_label_coords(-.06, .5)
+    ax.yaxis.set_major_locator(MultipleLocator(.1))
     fig.set_facecolor("white")
-    fig.tight_layout()
+    fig.subplots_adjust(left=.13, bottom=.17, right=.905, top=.925)
+    ax.tick_params(labelsize=7.5, top=True, right=True)
+    ax.xaxis.set_major_formatter(StrMethodFormatter('{x:g}'))
+    ax.yaxis.set_major_formatter(StrMethodFormatter('{x:g}'))
+    ax.grid(True, alpha=.3, linewidth=.5)
     _savefig(fig, os.path.join(
-        _IMG, f"Expectations_{FIG[0]:02d}.png"))
+        _IMG, f"Expectations_{FIG[0]:02d}.png"), size=(520, 180))
     plt.close(fig)
 
 

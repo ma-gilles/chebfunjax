@@ -45,7 +45,7 @@ sum(f)
 
 ```text
 ans =
-   1.000000000000000
+   1.000000000000003
 ```
 
 The expectation of a continuous random variable is defined as the integral over of $xf(x)$.
@@ -68,7 +68,7 @@ sum(xf)
 
 ```text
 ans =
-   0.499999999999994
+   0.500000000000000
 ```
 
 b) For $E(X^2)$, the answer is again $1/2$ and we compute this in the same way as before.
@@ -88,7 +88,7 @@ sum(xxf)
 
 ```text
 ans =
-   0.500000000000335
+   0.500000000000270
 ```
 
 ## 2. Mean, median and mode of a probability distribution
@@ -121,7 +121,7 @@ mean = sum(x.*g)
 
 ```text
 mean =
-   1.599999999999999
+   1.600000000000000
 ```
 
 b) The median is the value $a$ for which $P(X\le a) = 1/2$. In order to solve this problem we need to work with the cumulative distribution function, which is simply the indefinite integral of the probability density. This can be computed with the chebfun command `cumsum`.
