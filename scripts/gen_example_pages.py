@@ -339,8 +339,8 @@ def generate(cat: str, stem: str, stdout_dir: Path | None, cache: Path, dry_run:
     if stdout_dir is not None and script:
         f = stdout_dir / (Path(script).relative_to("examples").with_suffix("").as_posix().replace("/", "_") + ".txt")
         if f.exists():
-            ours = [ln for ln in f.read_text(encoding="utf-8", errors="replace").split("\n")
-                    if not ln.startswith("Warn")]
+            # Warnings printed by an example are part of its captured output.
+            ours = f.read_text(encoding="utf-8", errors="replace").split("\n")
     parts, images = render(parser.root, cat, stem, ours)
     missing = [os.path.basename(s) for s in images if not (IMAGES / cat / os.path.basename(s)).exists()]
     body = "\n\n".join(parts)
