@@ -695,7 +695,7 @@ def _lagpts_core(n: int, alpha: float = 0.0,
     MATLAB source : ``lagpts.m`` (``lag_rec``, ``gw``, ``glr``, ``newton``)
     Chebfun commit: ``7574c77680d7e82b79626300bf255498271a72df``
 
-    GLR requires alpha=0. RH requires concrete alpha=0 and n>=3000.
+    GLR requires alpha=0. RH requires concrete alpha in {0,-1/2,+1/2} and n>=3000.
     Other RH variants, EXP, and underflow-truncated RECW/RHW are unported.
     """
     if n == 0:
@@ -713,10 +713,14 @@ def _lagpts_core(n: int, alpha: float = 0.0,
         from chebfunjax.utils.laguerre_glr import _laguerre_glr
         x, w = _laguerre_glr(n)
     elif method == 'rh':
-        if n < 3000 or isinstance(alpha, jax.core.Tracer) or alpha != 0:
+        if n < 3000 or isinstance(alpha, jax.core.Tracer) or alpha not in (0, -0.5, 0.5):
             raise NotImplementedError("lagpts: this source RH variant is not yet supported")
-        from chebfunjax.utils.laguerre_rh import _laguerre_rh_alpha0
-        x, w = _laguerre_rh_alpha0(n)
+        if alpha == 0:
+            from chebfunjax.utils.laguerre_rh import _laguerre_rh_alpha0
+            x, w = _laguerre_rh_alpha0(n)
+        else:
+            from chebfunjax.utils.laguerre_rh_half import _laguerre_rh_half
+            x, w = _laguerre_rh_half(n, alpha)
     elif method == 'gw':
         x, w = _lagpts_gw(n, alpha)
     else:
@@ -1503,10 +1507,10 @@ def lagpts(n: int, alpha: float = 0.0,
            bary: bool = False, method: str = 'default'):
     """Gauss--Laguerre nodes, weights, and optional barycentric weights.
 
-    This implementation supports REC/GW/GLR and bounded alpha=0 RH, defaulting to REC
+    This implementation supports REC/GW/GLR and bounded alpha=0,+/-1/2 RH, defaulting to REC
     for n<300, GW for 300<=n<1000, GLR for 1000<=n<3000 when alpha=0, and
-    RH for n>=3000 with concrete alpha=0, and GW otherwise. MATLAB uses RH
-    for all alpha from n=3000; general alpha and small explicit RH are unported.
+    RH for n>=3000 with concrete alpha in {0,-1/2,+1/2}, and GW otherwise. MATLAB uses RH
+    for all alpha from n=3000; other alpha and small explicit RH are unported.
     Dynamic alpha at the GLR/RH default thresholds retains the GW path because
     source method selection is static in this Python/JAX API. Explicit GLR
     requires concrete alpha=0. The Python API returns 1D vectors in place of MATLAB's
@@ -1537,7 +1541,7 @@ def lagpts(n: int, alpha: float = 0.0,
             method = 'rec'
         elif 1000 <= n < 3000 and not isinstance(alpha, jax.core.Tracer) and alpha == 0:
             method = 'glr'
-        elif n >= 3000 and not isinstance(alpha, jax.core.Tracer) and alpha == 0:
+        elif n >= 3000 and not isinstance(alpha, jax.core.Tracer) and alpha in (0, -0.5, 0.5):
             method = 'rh'
         else:
             method = 'gw'

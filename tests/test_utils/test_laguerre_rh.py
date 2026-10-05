@@ -73,7 +73,8 @@ def test_rh_interval_mapping_preserves_source_bary_order(rule3000, interval):
 
 def test_explicit_generalized_rh_stays_explicitly_unported():
     with pytest.raises(NotImplementedError, match='RH variant is not yet supported'):
-        lagpts(3000, .5, method='RH')
+        # Half parameters are ported; other alpha remain outside this bounded wrapper.
+        lagpts(3000, 1.5, method='RH')
 
 
 def test_n10000_rh_has_finite_ordered_nodes_and_gamma_moments():

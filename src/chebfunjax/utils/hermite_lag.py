@@ -82,7 +82,12 @@ def _hermpts_lag(n: int):
         w = jnp.concatenate((w_lag[::-1], w_lag)) / 2.0
 
     signs = jnp.where(jnp.arange(n) % 2 == 0, 1.0, -1.0)
-    v = signs * jnp.sqrt(w) / jnp.sqrt(jnp.max(w))
+    largest_weight = jnp.max(w)
+    v = signs * jnp.sqrt(w) / jnp.sqrt(largest_weight)
+    # MATLAB divides identical square roots to obtain exactly +/-1 at each
+    # maximum. XLA may lower division to reciprocal multiplication; preserve
+    # those source values explicitly without renormalizing the other entries.
+    v = jnp.where(w == largest_weight, signs, v)
     # The public wrapper applies source top-level normalization after v is
     # formed. Unlike REC/ASY, MATLAB's LAG branch does not normalize twice.
     return x, w, v
