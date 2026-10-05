@@ -3468,6 +3468,157 @@ def _plot_curve(ax, xs, ys, fmt, kw):
         ax.plot(xs, ys, **kw)
 
 
+def _source_point_pieces(f):
+    """Build source representation-grid coordinates/values per bounded piece.
+
+    This deliberately reads each tech's coefficients, not ``f(x)`` at its
+    breakpoints: MATLAB plotData uses tech values and side limits, while
+    stored ``pointValues`` are used by feval rather than this plot-data path.
+    Provenance: Chebfun source commit 7574c77, ``@chebfun/plotData.m`` and
+    ``@chebtech/plotData.m``.
+    """
+    from chebfunjax.tech.chebtech import Chebtech1
+
+    pieces = []
+    for piece in f.funs:
+        tech = piece.tech
+        kind = 1 if isinstance(tech, Chebtech1) else 2
+        n = int(tech.coeffs.shape[0])
+        nodes = chebpts(n, kind=kind)
+        a, b = map(float, piece.interval)
+        # Literal @mapping/mapping.m linear ForHandle arithmetic.
+        x = b * (nodes + 1) / 2 + a * (1 - nodes) / 2
+        y = tech.values
+        pieces.append((np.asarray(x), np.asarray(y)))
+    return pieces
+
+
+def _source_xy_columns(x, y):
+    """Yield corresponding coordinate vectors for one array per column.
+
+    Provenance: Chebfun source commit 7574c77, where array-valued plot data
+    is emitted as one plotted curve per function column.
+    """
+    y = np.asarray(y)
+    x = np.asarray(x)
+    if y.ndim == 1:
+        yield x, y
+        return
+    if x.ndim == 1:
+        for j in range(y.shape[1]):
+            yield x, y[:, j]
+    else:
+        for j in range(y.shape[1]):
+            yield x[:, j], y[:, j]
+
+
+def _marker_requested(fmt, kw):
+    """Whether linespec/name-value style asks for representation markers.
+
+    Provenance: Chebfun source commit 7574c77, ``@chebfun/parsePlotStyle.m``.
+    """
+    from matplotlib.axes._base import _process_plot_format
+    from matplotlib.cbook import normalize_kwargs
+    from matplotlib.lines import Line2D
+
+    _line_style, fmt_marker, _fmt_color = (
+        _process_plot_format(fmt) if fmt else ("-", "None", None)
+    )
+    props = normalize_kwargs(dict(kw), Line2D)
+    marker = props.get("marker", fmt_marker)
+    return marker not in (None, "", "none", "None")
+
+
+def _source_plot_line_and_points(
+    ax,
+    line_x,
+    line_y,
+    point_x,
+    point_y,
+    fmt,
+    kw,
+    *,
+    suppress_points=False,
+):
+    """Plot line and representation points as separately styled artists.
+
+    ``line_x/line_y`` and ``point_x/point_y`` are already NaN-joined across
+    pieces. The caller only uses this for source-eligible bounded Chebtech
+    pieces. It is called only if a marker was requested, so the no-marker
+    P56 path remains byte-for-byte unchanged.
+    Provenance: Chebfun source commit 7574c77, ``@chebfun/plot.m`` and the
+    scalar/array ``plotData.m`` methods.
+    """
+    from matplotlib.axes._base import _process_plot_format
+    from matplotlib.cbook import normalize_kwargs
+    from matplotlib.lines import Line2D
+
+    fmt_line, fmt_marker, fmt_color = (
+        _process_plot_format(fmt) if fmt else ("-", "None", None)
+    )
+    props = normalize_kwargs(dict(kw), Line2D)
+    line_style = props.pop("linestyle", fmt_line)
+    marker = props.pop("marker", fmt_marker)
+    color = props.pop("color", fmt_color)
+    label = props.pop("label", None)
+
+    # Matplotlib's parser returns (None, None, color) for color-only formats
+    # such as "red" and "C2". MATLAB retains the ordinary default line in
+    # these cases when a marker is a separate property. Marker-only formats
+    # return the string "None", which must remain disabled.
+    if line_style is None:
+        line_style = mpl.rcParams["lines.linestyle"]
+
+    marker_options = {
+        "markerfacecolor", "markeredgecolor", "markeredgewidth", "markersize",
+        "markevery", "fillstyle",
+    }
+    line_options = {"linewidth", "dash_capstyle", "dash_joinstyle"}
+    line_kw = {k: v for k, v in props.items() if k not in marker_options}
+    point_kw = {k: v for k, v in props.items() if k not in line_options}
+    if color is not None:
+        line_kw["color"] = color
+        point_kw["color"] = color
+
+    line_kw.update(linestyle=line_style, marker="None")
+    point_kw.update(linestyle="None", marker=marker)
+    line_visible = line_style not in (None, "", "none", "None")
+    marker_visible = marker not in (None, "", "none", "None")
+    draw_points = marker_visible and not suppress_points
+
+    if line_visible:
+        if label is not None:
+            line_kw["label"] = label
+        line_columns = list(_source_xy_columns(line_x, line_y))
+        line_artists = []
+        for j, (lx, ly) in enumerate(line_columns):
+            column_kw = dict(line_kw)
+            if label is not None and j > 0:
+                column_kw["label"] = "_nolegend_"
+            line_artists.extend(ax.plot(lx, ly, **column_kw))
+        if draw_points:
+            # Match each marker series to its line without advancing the color
+            # cycle a second time. Each line is drawn per array column, as
+            # MATLAB's lineData path emits one artist per function column.
+            point_columns = list(_source_xy_columns(point_x, point_y))
+            for j, (px, py) in enumerate(point_columns):
+                column_kw = dict(point_kw)
+                if j < len(line_artists):
+                    column_kw["color"] = line_artists[j].get_color()
+                if label is not None:
+                    column_kw["label"] = "_nolegend_"
+                ax.plot(px, py, **column_kw)
+    elif draw_points:
+        if label is not None:
+            point_kw["label"] = label
+        for j, (px, py) in enumerate(_source_xy_columns(point_x, point_y)):
+            column_kw = dict(point_kw)
+            if label is not None and j > 0:
+                column_kw["label"] = "_nolegend_"
+            ax.plot(px, py, **column_kw)
+
+
+
 def _sing_ylim(ys, exps):
     """MATLAB @singfun/plotData getYLimits: y-limits from the standard
     deviation of the values away from the singular endpoint(s).
@@ -3645,6 +3796,8 @@ def matlab_plot(*args, ax=None, numpts: int = 2001, interval=None,
     Chebyshev plotting grid; ``numpts`` is accepted and ignored there,
     matching MATLAB's deprecated option. Explicit windows, parametric
     plots and singular/unbounded sampling retain their existing adapters.
+    Bounded Chebtech markers use the original representation grid separately
+    from line samples; explicit intervals suppress those markers.
 
     Provenance
     ----------
@@ -3696,11 +3849,32 @@ def matlab_plot(*args, ax=None, numpts: int = 2001, interval=None,
                     pieces = _sample_pieces(f, numpts, interval, _source_grid=True)
                     if pieces:
                         xs, ys = _join_plot_pieces(pieces)
-                        if np.iscomplexobj(ys):
-                            was_complex = True
-                            _plot_curve(ax, ys.real, ys.imag, fmt, kw)
+                        from chebfunjax.chebfun1d.chebfun import _Piece
+                        from chebfunjax.fun.unbndfun import Unbndfun
+                        from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
+
+                        source_markers = _marker_requested(fmt, kw) and all(
+                            isinstance(piece, _Piece)
+                            and not isinstance(piece, Unbndfun)
+                            and isinstance(piece.tech, (Chebtech1, Chebtech2))
+                            and np.isfinite(piece.interval[0])
+                            and np.isfinite(piece.interval[1])
+                            for piece in f.funs
+                        )
+                        was_complex = np.iscomplexobj(ys)
+                        line_x, line_y = (ys.real, ys.imag) if was_complex else (xs, ys)
+                        if source_markers:
+                            if interval is None:
+                                px, py = _join_plot_pieces(_source_point_pieces(f))
+                                if was_complex:
+                                    px, py = py.real, py.imag
+                            else:
+                                px = py = None
+                            _source_plot_line_and_points(
+                                ax, line_x, line_y, px, py, fmt, kw,
+                                suppress_points=interval is not None)
                         else:
-                            _plot_curve(ax, xs, ys, fmt, kw)
+                            _plot_curve(ax, line_x, line_y, fmt, kw)
                     _draw_jumplines(ax, f, jumpline, kw)
                     _draw_deltas(ax, f, deltaline, kw)
                     if not was_complex:
