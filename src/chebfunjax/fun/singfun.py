@@ -734,7 +734,14 @@ class Singfun(eqx.Module):
         smooth = normalized.smoothPart
         if smooth.isempty():
             return Singfun(smooth, (a * p, b * p))
-        return Singfun(smooth ** p, (a * p, b * p)).simplifyExponents()
+        if isinstance(smooth, Chebtech2) and jnp.iscomplexobj(smooth.coeffs):
+            # @chebtech/power.m avoids complex branch-cut ambiguity at
+            # endpoints by composing with pref.extrapolate=true.
+            powered = smooth.compose(lambda value: jnp.power(value, p),
+                                     extrapolate=True)
+        else:
+            powered = smooth ** p
+        return Singfun(powered, (a * p, b * p)).simplifyExponents()
 
     # ------------------------------------------------------------------
     # Exponent canonicalisation

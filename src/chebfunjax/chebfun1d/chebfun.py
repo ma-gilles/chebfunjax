@@ -3443,7 +3443,8 @@ class Chebfun(eqx.Module):
 
         Provenance
         ----------
-        MATLAB source : @chebfun/power.m (columnPower), @singfun/power.m
+        MATLAB source : @chebfun/power.m (columnPower), @classicfun/power.m,
+                        @singfun/power.m
         Chebfun commit: 7574c77
         """
         import numpy as _np
@@ -3470,21 +3471,21 @@ class Chebfun(eqx.Module):
 
         # MATLAB @chebfun/power.m partitions noninteger complex powers at
         # roots of imag(f), including crossings where real(f) is positive.
-        # Keep this bounded to smooth finite Chebtech pieces: Singfun,
-        # Unbndfun and other representation-specific powers retain their
-        # existing dispatch until their source paths are qualified.
+        # Finite endpoint Singfuns retain their singular factors while their
+        # smooth parts are composed. Unbounded and periodic representations
+        # retain their existing dispatch until their source paths qualify.
         from chebfunjax.tech.chebtech import Chebtech1
-        complex_smooth = (
+        complex_bounded = (
             bool(self.funs)
             and
             not self.isreal()
             and b != int(b)
-            and all(isinstance(piece.tech, (Chebtech1, Chebtech2))
+            and all(isinstance(piece.tech, (Chebtech1, Chebtech2, Singfun))
                     and all(math.isfinite(float(end))
                             for end in piece.interval)
                     for piece in self.funs)
         )
-        if complex_smooth:
+        if complex_bounded:
             domain_points = [float(value) for value in self.domain.breakpoints]
             # This uses the current public roots() result. Its broader
             # existing deduplication may already have merged very close
@@ -3523,10 +3524,22 @@ class Chebfun(eqx.Module):
                 if added_roots else self
             )
             op = lambda value: jnp.power(value, b)  # noqa: E731
-            new_funs = [
-                piece._apply_fun(op, extrapolate=True)
-                for piece in fbr.funs
-            ]
+
+            def _piece_power(piece):
+                tech = piece.tech
+                # @classicfun/power.m casts endpoint zeros to SINGFUN
+                # before powering its onefun, so fractional roots retain
+                # their algebraic exponents instead of a smooth interpolant.
+                if isinstance(tech, (Chebtech1, Chebtech2)):
+                    root_tol = 1e3 * _EPS * tech.vscale
+                    if (bool(jnp.any(jnp.abs(tech(jnp.asarray(-1.0))) < root_tol))
+                            or bool(jnp.any(jnp.abs(tech(jnp.asarray(1.0))) < root_tol))):
+                        tech = Singfun(tech, (0.0, 0.0))
+                if isinstance(tech, Singfun):
+                    return piece.with_tech(tech ** b)
+                return piece._apply_fun(op, extrapolate=True)
+
+            new_funs = [_piece_power(piece) for piece in fbr.funs]
             result = Chebfun(funs=new_funs, domain=fbr.domain)
             result = Chebfun._as_transposed(result, self.is_transposed)
             # MATLAB maps the stored value at every breakpoint through the
@@ -3551,11 +3564,13 @@ class Chebfun(eqx.Module):
             # re-approximated smoothly.
             if any(isinstance(p.tech, Singfun) for p in self.funs):
                 new_funs = [
-                    _Piece(tech=p.tech ** b, interval=p.interval)
+                    p.with_tech(p.tech ** b)
                     if isinstance(p.tech, Singfun) else p._apply_fun(smooth_op)
                     for p in self.funs
                 ]
-                return Chebfun(funs=new_funs, domain=self.domain)
+                result = Chebfun(funs=new_funs, domain=self.domain)
+                result = Chebfun._as_transposed(result, self.is_transposed)
+                return result.set_point_values(jnp.power(self._breakpoint_values(), b))
             return self._apply_fun(smooth_op)
         # Split at interior roots so every remaining root sits on a breakpoint.
         fbr = self.addBreaksAtRoots()
@@ -8128,9 +8143,12 @@ class Chebfun(eqx.Module):
         MATLAB source : @chebfun/imag.m
         Chebfun commit: 7574c77
         """
+        from chebfunjax.fun.singfun import Singfun
+
         new_funs = [
             p.with_tech(
-                Chebtech2.from_coeffs(jnp.imag(p.tech.coeffs))
+                p.tech.imag() if isinstance(p.tech, Singfun)
+                else Chebtech2.from_coeffs(jnp.imag(p.tech.coeffs))
                 if isinstance(p.tech, Chebtech2)
                 # Fourier coefficients of a real function are
                 # conjugate-symmetric, not real — go through values.
@@ -8138,7 +8156,9 @@ class Chebfun(eqx.Module):
             )
             for p in self.funs
         ]
-        return Chebfun(funs=new_funs, domain=self.domain)
+        result = Chebfun(funs=new_funs, domain=self.domain)
+        result = Chebfun._as_transposed(result, self.is_transposed)
+        return result.set_point_values(jnp.imag(self._breakpoint_values()))
 
     def conj(self) -> Chebfun:
         """Complex conjugate of the Chebfun.
