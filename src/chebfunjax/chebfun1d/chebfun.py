@@ -2911,6 +2911,37 @@ class Chebfun(eqx.Module):
     def __rmul__(self, other) -> Chebfun:
         return self.__mul__(other)
 
+    def _check_zero_denominator_funs(self) -> bool:
+        """Reject exactly zero polynomial FUNs before division root finding.
+
+        Return whether every piece used the exact ordinary polynomial check.
+        Other representations and distributions retain their existing adapters.
+        This construction-stage check is eager, like adaptive division itself.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/rdivide.m, @classicfun/iszero.m,
+            @chebtech/iszero.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.tech.chebtech import Chebtech1
+
+        if self.deltas:
+            return False
+        complete = True
+        for piece in self.funs:
+            if not isinstance(piece, _Piece) or not isinstance(
+                    piece.tech, (Chebtech1, Chebtech2)):
+                complete = False
+                continue
+            # Equality is exact: tiny coefficients and NaNs are not zero.
+            # MATLAB's IF requires every column's ISZERO result to be true.
+            if bool(jnp.all(piece.tech.coeffs == 0)):
+                raise ValueError(
+                    "CHEBFUN:CHEBFUN:rdivide:columnRdivide:divisionByZeroChebfun: "
+                    "Division by CHEBFUN with identically zero FUN.")
+        return complete
+
     def __truediv__(self, other) -> Chebfun:
         """Pointwise division: Chebfun / scalar or Chebfun / Chebfun.
 
@@ -2922,6 +2953,7 @@ class Chebfun(eqx.Module):
         if self.isempty() or _is_empty_operand(other):
             return Chebfun.empty()
         if isinstance(other, Chebfun):
+            other._check_zero_denominator_funs()
             poles = _real_simple_roots(other)
             if poles.size:
                 return _divide_with_poles(self, other, poles)
@@ -2966,14 +2998,15 @@ class Chebfun(eqx.Module):
             raise ValueError(
                 "CHEBFUN:DELTAFUN:rdivide:rdivide: "
                 "Division by delta functions is not defined.")
-        try:
-            _is_zero = float(self.norm(jnp.inf)) == 0.0
-        except Exception:
-            _is_zero = False
-        if _is_zero:
-            raise ValueError(
-                "CHEBFUN:CHEBFUN:rdivide:columnRdivide:divisionByZeroChebfun: "
-                "Division by zero chebfun.")
+        if not self._check_zero_denominator_funs():
+            try:
+                _is_zero = float(self.norm(jnp.inf)) == 0.0
+            except Exception:
+                _is_zero = False
+            if _is_zero:
+                raise ValueError(
+                    "CHEBFUN:CHEBFUN:rdivide:columnRdivide:divisionByZeroChebfun: "
+                    "Division by CHEBFUN with identically zero FUN.")
         poles = _real_simple_roots(self)
         if poles.size:
             return _divide_with_poles(other, self, poles)
