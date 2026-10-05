@@ -1,7 +1,8 @@
 """JAX alpha=0 Laguerre RH method for source default orders n>=3000.
 
 The module transcribes alpha=0/1 bulk, Bessel, and Airy expansions plus source
-starting guesses and the source Newton/weight loop. Only alpha=0 outer
+starting guesses and the source Newton/weight loop. The Bessel phase uses
+the equivalent asin identity to avoid cancellation near the hard edge. Only alpha=0 outer
 rules at n>=3000 are supported; alpha=1 expansions supply the derivative.
 RHW prefix behavior, general alpha, and small explicit RH are unported.
 
@@ -173,7 +174,8 @@ def _asybulk_alpha1(np, y, T):
 def _asybessel_alpha0(np, y, T):
     alpha = 0.0
     z = y/4/np
-    npb = 2*np*(jnp.pi/2 + jnp.sqrt(z)*jnp.sqrt(1 - z) - jnp.acos(jnp.sqrt(z) ) )
+    # pi/2-acos(sqrt(z)) equals asin(sqrt(z)); avoid hard-edge cancellation.
+    npb = 2*np*(jnp.sqrt(z)*jnp.sqrt(1 - z) + jnp.asin(jnp.sqrt(z)))
     if  T == 1 :
         p = jnp.real( jnp.sqrt(2*jnp.pi)*(-1)**np*jnp.sqrt(npb)/z**(1/4)/(1 - z)**(1/4)* z**(-alpha/2)*(jnp.sin( (alpha + 1)/2*jnp.acos(2*z - 1) - jnp.pi*alpha/2)* _besselj01(alpha,npb) + jnp.cos( (alpha + 1)/2*jnp.acos(2*z - 1) -  jnp.pi*alpha/2)*(_besselj01(alpha-1,npb) - alpha/(npb)* _besselj01(alpha, npb) ) ) )
         return p
@@ -226,7 +228,8 @@ def _asybessel_alpha0(np, y, T):
 def _asybessel_alpha1(np, y, T):
     alpha = 1.0
     z = y/4/np
-    npb = 2*np*(jnp.pi/2 + jnp.sqrt(z)*jnp.sqrt(1 - z) - jnp.acos(jnp.sqrt(z) ) )
+    # pi/2-acos(sqrt(z)) equals asin(sqrt(z)); avoid hard-edge cancellation.
+    npb = 2*np*(jnp.sqrt(z)*jnp.sqrt(1 - z) + jnp.asin(jnp.sqrt(z)))
     if  T == 1 :
         p = jnp.real( jnp.sqrt(2*jnp.pi)*(-1)**np*jnp.sqrt(npb)/z**(1/4)/(1 - z)**(1/4)* z**(-alpha/2)*(jnp.sin( (alpha + 1)/2*jnp.acos(2*z - 1) - jnp.pi*alpha/2)* _besselj01(alpha,npb) + jnp.cos( (alpha + 1)/2*jnp.acos(2*z - 1) -  jnp.pi*alpha/2)*(_besselj01(alpha-1,npb) - alpha/(npb)* _besselj01(alpha, npb) ) ) )
         return p
