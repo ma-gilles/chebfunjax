@@ -1,5 +1,46 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## Latest shared checkout status (2026-10-05; takes precedence below)
+
+Full MATLAB7574c77 and322-page parity is still incomplete. The active owned,
+shared-ACL checkout is
+`/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout`.
+Read `CURRENT_GOAL_STATUS.md` in that checkout's parent for the current evidence,
+next gap and external blockers. The older evidence root is preserved read-only;
+the original home checkout and its unfinished edits are protected.
+
+Source checkpoint `f9a855bcb21d26e61b312a7bf5dbec3f7cef0c23` contains59 locally
+committed packages. P59 fixes stored breakpoint/delta realness, whole-object
+complex plot routing and both-coordinate NaN separators. Its25 new controls and
+49 regressions pass serially on pinned JAX0.11 CPU/x64 /Matplotlib3.10.8;
+no failures, errors, skips or expected failures. Actual25-case baseline12fail/
+13pass was frozen before repair; tests and bounds stayed unchanged. Every source/
+test byte, committed Git blob and all1,634 archive payloads were rechecked:
+`isreal_plot_p59_parent_committed_archive_review_20261005.json`. The full archive
+`goal_checkpoint_isreal_plot_f9a855bc_20261004.zip` has SHA256
+`7c083b5309fc16940561dad802ab746f922f891fbd40b5c6b0a20b41592c2b00`.
+Bundle `isreal_plot_f9a855bc.bundle` preserves the complete59-commit prefix.
+
+Ordinary push fails before connection/key selection: this execution context maps
+only UID230216; the system SSH include owner appears unmapped65534 and SSH rejects
+`/etc/ssh/ssh_config.d/20-hostbased.conf`. Correct executable and remote were
+verified. No remote publication or fresh green CI is claimed. Publication needs
+a supported normal execution context; use the parent
+`PUBLICATION_CONTEXT_HANDOFF_20261005.md`, inspect upstream and integrate without
+force-pushing in a separate shared checkout. Do not modify the active CPU tree.
+Fresh licensed MATLAB stage exports and reference image retrieval remain open.
+
+Next source gap: exact per-denominator-FUN zero division checks before roots,
+domain and orientation handling. No actual baseline for that repair has run.
+P59 does not fix legacy `plot_1d`/public plotting alias, complex delta rendering
+or constructor realification. Full function/assertion parity, known numerical
+bugs and performance matching, exact decisions for all twelve root scripts,
+322-page prose/output and figure parity remain unresolved. Cached Markdown audit:
+1,958 numeric deviations; figures445 missing references,63 size differences,
+797 same-sized pixel differences without an accepted threshold. These are cached
+inventories, not fresh qualification of every current example.
+
+
 This document takes over from the Claude session that ran the parity
 campaign from 2026-07 to 2026-09. `HANDOFF.md` (2026-07) is older and partly
 stale: where they disagree, this file wins.
