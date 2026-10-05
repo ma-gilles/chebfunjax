@@ -337,10 +337,12 @@ def ratinterp(
         Exact numerator degree.
     nu : int
         Exact denominator degree.
-    poles : np.ndarray
-        Real poles of the approximant (on ``domain``).
-    residues : np.ndarray
-        Residues at those poles.
+    poles : JAX array
+        All roots of the denominator on the domain-mapped complex plane.
+        Near-real complex roots are retained, matching ``roots(q, 'all')``.
+    residues : JAX array
+        Simple-pole residues computed as p(z)/q'(z). Repeated-pole partial
+        fractions remain unsupported.
 
     Notes
     -----
@@ -513,29 +515,35 @@ def ratinterp(
     # ------------------------------------------------------------------
     if nu > 0:
         # Poles: roots of denominator polynomial (in [-1,1] reference, then map)
-        b_poly = np.zeros(nu + 1, dtype=complex)
-        b_poly[:nu+1] = b_coeffs[:nu+1]
-        # b_coeffs in Chebyshev basis — find poles via eigenvalues.
-        # MATLAB uses roots(q, 'all'): EVERY root of the denominator,
-        # complex included.  A filter here kept only the real ones, so
-        # 1/(1 + 4x^2) came back with the correct type-(0,2) denominator
-        # and an EMPTY pole list (true poles +-0.5i) -- and every
-        # analyticity-structure example (ode-nonlin/LorenzAttractor's
-        # pole tables) returned nothing.
-        poles_ref = _chebyshev_roots(b_poly)
-        if np.all(np.abs(np.imag(poles_ref)) < 1e-10):
-            poles_ref = np.real(poles_ref)
+        b_poly = jnp.asarray(b_coeffs[:nu + 1], dtype=jnp.result_type(b_coeffs, 1j))
+        # TYPE0 coefficients are monomial coefficients; Chebyshev grids and
+        # arbitrary-node QR output use a Chebyshev basis.
+        if xi_type == "TYPE0":
+            poles_ref = jnp.roots(b_poly[::-1], strip_zeros=False)
+        else:
+            poles_ref = _chebyshev_roots(b_poly)
+        # MATLAB roots(q, 'all') retains small nonzero imaginary parts.
+        # Do not apply the rootsPref.all=False near-real cleanup here.
         poles = mid + hd * poles_ref
 
-        t = max(tol, 1e-7)
-        try:
-            residues = t * (r_handle(poles + t)
-                            - r_handle(poles - t)) / 2.0
-        except Exception:
-            residues = np.full(len(poles), np.nan, dtype=complex)
+        roots = poles_ref
+        # MATLAB delegates to residue(p, q); this derivative quotient covers
+        # simple poles. Repeated-pole partial fractions remain unsupported.
+        numerator = jnp.asarray(a_coeffs)
+        denominator = jnp.asarray(b_coeffs)
+        if xi_type == "TYPE0":
+            derivative = jnp.arange(1, denominator.shape[0]) * denominator[1:]
+            residues = hd * jnp.polyval(numerator[::-1], roots) / jnp.polyval(
+                derivative[::-1], roots
+            )
+        else:
+            from chebfunjax.tech.chebtech import _clenshaw, _diff_coeffs_once
+
+            derivative = _diff_coeffs_once(denominator)
+            residues = hd * _clenshaw(numerator, roots) / _clenshaw(derivative, roots)
     else:
-        poles = np.array([])
-        residues = np.array([])
+        poles = jnp.empty((0,), dtype=jnp.result_type(b_coeffs, 1j))
+        residues = jnp.empty((0,), dtype=jnp.result_type(a_coeffs, b_coeffs, 1j))
 
     return r_handle, a_coeffs, b_coeffs, mu, nu, poles, residues
 
@@ -588,14 +596,17 @@ def _assemble_matrices_rat(f, n, xi, xi_type, N1):
         else:  # 2nd-kind Chebyshev (TYPE2)
             D = _chebtech2_coeffs2vals_matrix(N1)
             Z = _chebtech2_vals2coeffs_matrix_apply(np.diag(f) @ D[:, : n + 1], N1)
-    else:  # ARBITRARY nodes — build Chebyshev Vandermonde, QR decompose
-        C = np.ones((N1, N1))
-        xi_real = np.real(xi)
-        C[:, 1] = xi_real
+    else:  # ARBITRARY nodes — complex Chebyshev Vandermonde and QR
+        xi = jnp.asarray(xi)
+        f = jnp.asarray(f)
+        dtype = jnp.result_type(xi, f, jnp.float64)
+        C = jnp.ones((N1, N1), dtype=dtype)
+        if N1 > 1:
+            C = C.at[:, 1].set(xi)
         for k in range(2, N1):
-            C[:, k] = 2 * xi_real * C[:, k - 1] - C[:, k - 2]
-        Q_qr, R_qr = np.linalg.qr(C)
-        Z = Q_qr.T @ np.diag(f) @ Q_qr[:, : n + 1]
+            C = C.at[:, k].set(2 * xi * C[:, k - 1] - C[:, k - 2])
+        Q_qr, R_qr = jnp.linalg.qr(C)
+        Z = Q_qr.conj().T @ jnp.diag(f) @ Q_qr[:, : n + 1]
 
     return Z, R_qr, Q_qr
 
@@ -643,19 +654,22 @@ def _chebtech1_coeffs2vals_matrix(N):
 
 
 def _chebtech1_vals2coeffs_matrix_apply(V, N):
-    """Apply chebtech1 vals2coeffs (DCT-II) column-by-column."""
-    _, ncols = V.shape
-    result = np.zeros((N, ncols))
-    k = np.arange(N)
-    j = np.arange(N)
-    # DCT-II: c_k = (2/N) * sum_j v_j * cos(k*(2j+1)*pi/(2N))
-    # with c_0 halved
-    T = np.cos(np.outer(k, (2 * j[::-1] + 1)) * np.pi / (2 * N))
+    """Apply the source Chebtech1 DCT-II matrix to every value column.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech1/vals2coeffs.m
+    Chebfun commit: 7574c77
+    """
+    V = jnp.asarray(V)
+    k = jnp.arange(N, dtype=jnp.float64)
+    j = jnp.arange(N, dtype=jnp.float64)
+    # DCT-II: c_k = (2/N) * sum_j v_j * cos(k*(2j+1)*pi/(2N)),
+    # with c_0 halved. Preserve the input's complex part.
+    T = jnp.cos(jnp.outer(k, 2 * j[::-1] + 1) * jnp.pi / (2 * N))
     T_scaled = (2.0 / N) * T
-    T_scaled[0, :] /= 2.0
-    for j_col in range(ncols):
-        result[:, j_col] = T_scaled @ np.real(V[:, j_col])
-    return result
+    T_scaled = T_scaled.at[0, :].multiply(0.5)
+    return T_scaled @ V
 
 
 def _qr_to_cheb_basis(a_hat, b_hat, R_qr, N1):
@@ -854,9 +868,11 @@ def _compute_numerator_coeffs(f, m, n, xi_type, Z, b, fEven, fOdd, N, N1,
         a = Z[: m + 1, :n_b] @ b
 
     if fEven:
-        a[1::2] = 0.0
+        # MATLAB zeroes alternate numerator modes. The Tech1 transform and
+        # arbitrary-node assembly return immutable JAX arrays.
+        a = jnp.asarray(a).at[1::2].set(0.0)
     elif fOdd:
-        a[0::2] = 0.0
+        a = jnp.asarray(a).at[0::2].set(0.0)
 
     return a
 
@@ -892,70 +908,80 @@ def _trim_coeffs(a, b, tol, ts):
 
 
 def _construct_rat_approx(xi_type, R_qr, a, b, mu, nu, a_dom, b_dom):
-    """Build the function handle for the rational approximant."""
+    """Build a JAX-evaluable function handle for the rational approximant.
+
+    Provenance
+    ----------
+    MATLAB source : ratinterp.m / constructRatApprox
+    Chebfun commit: 7574c77
+    """
     mid = 0.5 * (a_dom + b_dom)
-    hd = 2.0 / (b_dom - a_dom)  # maps x in [a,b] to t in [-1,1]: t = hd*(x-mid)
+    hd = 2.0 / (b_dom - a_dom)  # maps x in [a,b] to t in [-1,1]
+    a = jnp.asarray(a)
+    b = jnp.asarray(b)
 
     if xi_type.upper().startswith("TYPE"):
         ch = xi_type[4]
-        if ch == "0":  # Roots of unity — polynomial in z
+        if ch == "0":  # Roots of unity — monomial polynomial in reference x
             a_rev = a[: mu + 1][::-1]
             b_rev = b[: nu + 1][::-1]
+
             def r_fn(x):
-                x = np.asarray(x, dtype=float)
-                t = hd * (x - mid)
-                return np.polyval(a_rev, t) / np.polyval(b_rev, t)
+                t = hd * (jnp.asarray(x) - mid)
+                return jnp.polyval(a_rev, t) / jnp.polyval(b_rev, t)
         else:  # Chebyshev basis
+
             def r_fn(x):
-                x = np.asarray(x, dtype=float)
-                t = hd * (x - mid)
+                t = hd * (jnp.asarray(x) - mid)
                 return _eval_cheb_poly(a, t) / _eval_cheb_poly(b, t)
-    else:  # Arbitrary nodes — coefficients in orthogonal basis from QR
+    else:  # Arbitrary nodes — coefficients in the Chebyshev basis from QR
+
         def r_fn(x):
-            x = np.asarray(x, dtype=float)
-            t = hd * (x - mid)
+            t = hd * (jnp.asarray(x) - mid)
             return _eval_cheb_poly(a, t) / _eval_cheb_poly(b, t)
 
     return r_fn
 
 
 def _eval_cheb_poly(coeffs, x):
-    """Evaluate a Chebyshev expansion at x (numpy, scalar or array)."""
-    x = np.asarray(x, dtype=float)
-    n = len(coeffs)
-    if n == 0:
-        return np.zeros_like(x)
-    if n == 1:
-        # np.full_like inherits x's REAL dtype and silently drops the
-        # imaginary part of a complex constant -- every type-(0, nu)
-        # approximant to a complex function lost its numerator this way
-        # ((1+2i)/(x-1.2) came back as 1/(x-1.2), error 10).
-        return np.full(np.shape(x), coeffs[0])
-    bk2 = np.zeros_like(x)
-    bk1 = np.zeros_like(x)
-    for k in range(n - 1, 0, -1):
-        bk = coeffs[k] + 2.0 * x * bk1 - bk2
-        bk2 = bk1
-        bk1 = bk
-    return coeffs[0] + x * bk1 - bk2
+    """Evaluate a Chebyshev expansion at x with the shared JAX Clenshaw path.
+
+    Provenance
+    ----------
+    MATLAB source : ratinterp.m / constructRatApprox
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.tech.chebtech import _clenshaw
+
+    coeffs = jnp.asarray(coeffs)
+    x = jnp.asarray(x)
+    if coeffs.shape[0] == 0:
+        return jnp.zeros(x.shape, dtype=jnp.result_type(coeffs, x))
+    return _clenshaw(coeffs, x)
 
 
 def _chebyshev_roots(coeffs):
-    """Find roots of a Chebyshev expansion via colleague matrix."""
-    c = np.asarray(coeffs, dtype=complex)
-    n = len(c) - 1  # degree
+    """Find roots of a complex Chebyshev expansion via a JAX colleague matrix.
+
+    Provenance
+    ----------
+    MATLAB source : roots(q, 'all') from ratinterp.m
+    Chebfun commit: 7574c77
+    """
+    c_input = jnp.asarray(coeffs)
+    c = c_input.astype(jnp.result_type(c_input, 1j))
+    n = c.shape[0] - 1  # static polynomial degree
     if n == 0:
-        return np.array([])
+        return jnp.empty((0,), dtype=c.dtype)
     if n == 1:
-        return np.array([-c[0] / c[1]])
-    # Colleague matrix
-    oh = 0.5 * np.ones(n - 1)
-    A = np.diag(oh, 1) + np.diag(oh, -1)
-    A[-2, -1] = 1.0
+        return jnp.asarray([-c[0] / c[1]])
+    oh = jnp.full((n - 1,), 0.5, dtype=c.dtype)
+    A = jnp.diag(oh, 1) + jnp.diag(oh, -1)
+    A = A.at[-2, -1].set(1.0)
     c_adj = -0.5 * c[:-1] / c[-1]
-    c_adj[-2] += 0.5
-    A[:, 0] = np.real(c_adj[::-1])
-    return np.linalg.eigvals(A)
+    c_adj = c_adj.at[-2].add(0.5)
+    A = A.at[:, 0].set(c_adj[::-1])
+    return jnp.linalg.eigvals(A)
 
 
 # ===========================================================================
