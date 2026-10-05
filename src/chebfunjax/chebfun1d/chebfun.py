@@ -2704,7 +2704,13 @@ class Chebfun(eqx.Module):
         return tuple(sorted(out, key=lambda r: (r[0], _delta_row(r)[2])))
 
     def _attach_deltas(self, result: "Chebfun", deltas: tuple) -> "Chebfun":
-        """Return ``result`` carrying ``deltas`` (no-op when empty)."""
+        """Return ``result`` carrying ``deltas`` and its existing metadata.
+
+        Provenance
+        ----------
+        MATLAB source : @deltafun/times.m, @chebfun/times.m
+        Chebfun commit: 7574c77
+        """
         if not deltas:
             return result
         out = Chebfun(funs=result.funs, domain=result.domain,
@@ -2712,7 +2718,7 @@ class Chebfun(eqx.Module):
         pv = getattr(result, "_point_values", None)
         if pv is not None:
             object.__setattr__(out, "_point_values", pv)
-        return out
+        return Chebfun._as_transposed(out, result.is_transposed)
 
     def __add__(self, other) -> Chebfun:
         """Add two Chebfuns or a Chebfun and a scalar.
@@ -2926,6 +2932,15 @@ class Chebfun(eqx.Module):
             if not (hasattr(other, "dtype")
                     and getattr(other, "ndim", None) is not None):
                 return NotImplemented
+        if getattr(other, "ndim", 0) == 0:
+            # @chebfun/rdivide columnRdivide uses TIMES with the reciprocal,
+            # preserving orientation, stored point values and delta terms.
+            # A traced scalar cannot raise a value-dependent Python error.
+            if not isinstance(other, jax.core.Tracer) and bool(other == 0):
+                raise ValueError(
+                    "CHEBFUN:CHEBFUN:rdivide:columnRdivide:divisionByZero: "
+                    "Division by zero.")
+            return self * (1 / other)
         new_funs = [
             piece._apply_unary(piece.tech / other)
             for piece in self.funs
@@ -2934,7 +2949,23 @@ class Chebfun(eqx.Module):
 
     def __rtruediv__(self, other) -> Chebfun:
         """scalar / Chebfun (MATLAB rdivide: denominator roots become
-        poles represented by SingFun pieces with negative exponents)."""
+        poles represented by SingFun pieces with negative exponents).
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/rdivide.m, @deltafun/rdivide.m
+        Chebfun commit: 7574c77
+        """
+        if self.isempty() or _is_empty_operand(other):
+            return Chebfun.empty()
+        if (getattr(other, "ndim", 0) == 0
+                and not isinstance(other, jax.core.Tracer) and bool(other == 0)):
+            # The source zero-numerator shortcut precedes denominator checks.
+            return self * 0
+        if any(row[1] != 0 for row in self.deltas):
+            raise ValueError(
+                "CHEBFUN:DELTAFUN:rdivide:rdivide: "
+                "Division by delta functions is not defined.")
         try:
             _is_zero = float(self.norm(jnp.inf)) == 0.0
         except Exception:
@@ -2950,7 +2981,9 @@ class Chebfun(eqx.Module):
             piece._apply_unary(other / piece.tech)
             for piece in self.funs
         ]
-        return Chebfun(funs=new_funs, domain=self.domain)
+        out = Chebfun._as_transposed(
+            Chebfun(funs=new_funs, domain=self.domain), self.is_transposed)
+        return self._propagate_point_values(out, lambda v: other / v)
 
     def __pow__(self, exponent) -> Chebfun | Quasimatrix:
         """Raise scalar or matched columns to numeric powers.
