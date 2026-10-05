@@ -1415,15 +1415,98 @@ def jacpts(n: int, a: float, b: float, interval: tuple[float, float] | None = No
     return x, w, _bary_weights_gauss(x, flip=False)
 
 
-def hermpts(n: int, kind: str = 'phys', *, bary: bool = False):
-    """See ``_hermpts_core``.  With ``bary=True`` also returns the
-    normalized barycentric weights (MATLAB's third output)."""
-    out = _hermpts_core(n, kind)
-    if not bary:
-        return out
-    x, w = out
-    return x, w, _bary_weights_gauss(x, flip=False)
+def hermpts(n: int, kind: str = 'phys', *options, method: str = 'default',
+            bary: bool = False):
+    """Gauss--Hermite nodes, weights, and optional barycentric weights.
 
+    This wrapper accepts MATLAB's method and type flags in any order, with
+    repeated flags taking the last supplied value. Python also accepts
+    ``kind=`` for the existing type argument and ``method=``/``bary=`` as
+    keywords. Thus ``hermpts(42, 'REC', 'prob')`` and
+    ``hermpts(42, 'prob', 'REC')`` select the same rule.
+
+    The default follows MATLAB ``hermpts``: GW for n <= 20, REC for
+    21 <= n < 200, and ASY for n >= 200. Explicit GW, REC, GLR, and ASY
+    methods are supported. The Python result vectors are one-dimensional,
+    adapting MATLAB's column ``x`` and ``v`` and row ``w`` outputs to this
+    package's existing convention.
+
+    Explicit REC/ASY at n=2..20 remain unsupported because the pinned source's
+    initial-guess expansion has not been verified in that range. LAG is not
+    yet supported for n>1 and raises ``NotImplementedError`` if requested.
+
+    Provenance
+    ----------
+    MATLAB source : ``hermpts.m``
+    Chebfun commit: ``7574c77680d7e82b79626300bf255498271a72df``
+    Original authors: Nick Trefethen (GW), Nick Hale (REC/GLR),
+        Thomas Trogdon and Sheehan Olver (ASY).
+    """
+    if int(n) != n or n < 0:
+        raise ValueError("hermpts: n must be a nonnegative integer")
+    n = int(n)
+
+    # MATLAB returns immediately for n=0, before validating method/type flags.
+    if n == 0:
+        empty = jnp.empty((0,), dtype=jnp.float64)
+        return (empty, empty, empty) if bary else (empty, empty)
+
+    # MATLAB processes varargin in order; later method/type flags replace earlier
+    # ones. Keep kind as the Python compatibility argument but parse it first.
+    selected_method = 'default'
+    selected_kind = 'phys'
+    for flag in (kind, *options):
+        if not isinstance(flag, str):
+            raise ValueError("hermpts: options must be strings")
+        lowered = flag.lower()
+        if lowered in ('gw', 'glr', 'rec', 'lag', 'asy'):
+            selected_method = lowered
+        elif lowered.startswith('phy'):
+            selected_kind = 'phys'
+        elif lowered.startswith('pro'):
+            selected_kind = 'prob'
+        else:
+            raise ValueError(f"hermpts: unrecognised input string {flag!r}")
+
+    # A non-default Python keyword is an explicit final method override.
+    if not isinstance(method, str):
+        raise ValueError("hermpts: method must be a string")
+    if method.lower() != 'default':
+        method = method.lower()
+        if method not in ('gw', 'glr', 'rec', 'lag', 'asy'):
+            raise ValueError(f"hermpts: unsupported method {method!r}")
+        selected_method = method
+    method, kind = selected_method, selected_kind
+
+    if method not in ('default', 'gw', 'glr', 'rec', 'lag', 'asy'):
+        raise ValueError(f"hermpts: unsupported method {method!r}")
+
+    # Source's trivial singleton branch precedes algorithm selection, including LAG.
+    if n == 1:
+        x = jnp.zeros((1,), dtype=jnp.float64)
+        w = jnp.full((1,), jnp.sqrt(jnp.pi), dtype=jnp.float64)
+        v = jnp.ones((1,), dtype=jnp.float64)
+    elif method == 'lag':
+        raise NotImplementedError("hermpts: LAG method is not yet supported for n>1")
+    elif method == 'rec' or (method == 'default' and 20 < n < 200):
+        from chebfunjax.utils.hermite_rec import _hermpts_rec
+        x, w, v = _hermpts_rec(n)
+    elif method == 'asy' or (method == 'default' and n >= 200):
+        from chebfunjax.utils.hermite_asy import _hermpts_asy
+        x, w, v = _hermpts_asy(n)
+    elif method == 'glr':
+        from chebfunjax.utils.hermite_glr import _hermpts_glr
+        x, w, v = _hermpts_glr(n)
+    else:
+        # Explicit GW and the default n<=20 path preserve P's GW implementation.
+        x, w = _hermpts_core(n, 'phys')
+        v = jnp.sqrt(w / jnp.max(w)) * jnp.where(jnp.arange(n) % 2 == 0, 1.0, -1.0)
+
+    # MATLAB normalizes each method's weights, then applies the prob scaling.
+    w = (jnp.sqrt(jnp.pi) / jnp.sum(w)) * w
+    if kind == 'prob':
+        x, w = x * jnp.sqrt(2.0), w * jnp.sqrt(2.0)
+    return (x, w, v) if bary else (x, w)
 
 def lagpts(n: int, alpha: float = 0.0, interval: tuple[float, float] | None = None, *, bary: bool = False):
     """See ``_lagpts_core``.  With ``bary=True`` also returns the
