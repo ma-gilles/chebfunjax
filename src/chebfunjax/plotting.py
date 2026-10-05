@@ -3390,16 +3390,41 @@ def _cheb_cols(obj):
     return None
 
 
-def _sample_pieces(f, numpts: int = 2001, interval=None):
+def _sample_pieces(f, numpts: int = 2001, interval=None, *, _source_grid=False):
     """Sample a (possibly piecewise / unbounded / singular) Chebfun.
 
     Returns a list of (x, y) numpy arrays, one per smooth piece, with
     infinite endpoints clipped to a finite window and singular endpoints
     approached from the interior (MATLAB plots blow-ups the same way).
+
+    Ordinary bounded polynomial plots use the source per-tech Chebyshev
+    grid when ``_source_grid`` is enabled. Other callers retain their
+    existing window/singular/parametric sampling adapter.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech/plotData.m, @bndfun/plotData.m,
+        @mapping/mapping.m (linear ForHandle)
+    Chebfun commit: 7574c77
     """
+    from chebfunjax.fun.unbndfun import Unbndfun
+    from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
+
     out = []
     for p in f.funs:
         a, b = float(p.interval[0]), float(p.interval[1])
+        if (_source_grid and interval is None and np.isfinite(a) and np.isfinite(b)
+                and not isinstance(p, Unbndfun)
+                and isinstance(p.tech, (Chebtech1, Chebtech2))):
+            # @chebtech/techPref factory maxLength is 2**16 + 1. MATLAB's
+            # deprecated numpts option has no effect on this source grid.
+            count = min(max(501, int(np.floor(4 * np.pi * len(p.tech) + 0.5))), 65537)
+            kind = 1 if isinstance(p.tech, Chebtech1) else 2
+            nodes = chebpts(count, kind=kind)
+            x = b * (nodes + 1) / 2 + a * (1 - nodes) / 2
+            y = p.tech.prolong(count).values
+            out.append((np.asarray(x), np.asarray(y)))
+            continue
         if interval is not None:
             lo, hi = float(interval[0]), float(interval[1])
             a, b = max(a, lo), min(b, hi)
@@ -3416,6 +3441,23 @@ def _sample_pieces(f, numpts: int = 2001, interval=None):
             y = np.asarray(f(jnp.asarray(x)))
         out.append((x, y))
     return out
+
+
+def _join_plot_pieces(pieces):
+    """Join one function's smooth pieces with the source leading NaN rows.
+
+    Provenance
+    ----------
+    MATLAB source : @chebfun/plotData.m
+    Chebfun commit: 7574c77
+    """
+    xs, ys = [], []
+    for x, y in pieces:
+        xs.extend((np.array([np.nan]), x))
+        separator = np.full((1, *y.shape[1:]), np.nan,
+                            dtype=np.result_type(y.dtype, float))
+        ys.extend((separator, y))
+    return np.concatenate(xs), np.concatenate(ys, axis=0)
 
 
 def _plot_curve(ax, xs, ys, fmt, kw):
@@ -3599,6 +3641,11 @@ def matlab_plot(*args, ax=None, numpts: int = 2001, interval=None,
     ``numpts`` / ``interval`` / ``jumpline`` / ``deltaline`` options
     (passed as Python keywords).
 
+    Ordinary bounded polynomial curves use the source degree-based
+    Chebyshev plotting grid; ``numpts`` is accepted and ignored there,
+    matching MATLAB's deprecated option. Explicit windows, parametric
+    plots and singular/unbounded sampling retain their existing adapters.
+
     Provenance
     ----------
     MATLAB source : @chebfun/plot.m
@@ -3646,7 +3693,9 @@ def matlab_plot(*args, ax=None, numpts: int = 2001, interval=None,
             if ycols is None:
                 for f in cols:
                     was_complex = False
-                    for xs, ys in _sample_pieces(f, numpts, interval):
+                    pieces = _sample_pieces(f, numpts, interval, _source_grid=True)
+                    if pieces:
+                        xs, ys = _join_plot_pieces(pieces)
                         if np.iscomplexobj(ys):
                             was_complex = True
                             _plot_curve(ax, ys.real, ys.imag, fmt, kw)
