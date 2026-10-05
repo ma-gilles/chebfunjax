@@ -84,7 +84,7 @@ f = chebfun(@(x) 0.5*(1+sign(x)),dom,'splitting','on')
 f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values trig
-[    -3.1,     3.1]    65536         0        0
+[    -3.1,     3.1]    65536       0.5      0.5
 vertical scale =   1
 f =
    chebfun column (2 smooth pieces)
@@ -138,9 +138,9 @@ rootsf =
   -3.009212218006481
   -2.090420462897022
   -1.051172190692771
-  -0.132380435583313
+  -0.132380435583312
    0.779312428506054
-   2.362280225083739
+   2.362280225083740
 ```
 
 These can be visualized as
@@ -171,7 +171,7 @@ intf = sum(f)
 
 ```text
 intf =
-  -0.074010812957416
+  -0.074010812957415
 ```
 
 Complex-valued trigfuns are also possible. For example:
@@ -228,7 +228,7 @@ f = chebfun(func_vals,dom,'trig')
 f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values trig
-[    -3.1,     3.1]      201      0.55     0.55
+[    -3.1,     3.1]      201       1.1      1.1
 vertical scale = 2.8
 ```
 

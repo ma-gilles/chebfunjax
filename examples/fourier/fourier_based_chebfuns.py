@@ -1,18 +1,14 @@
 """Fourier-based chebfuns.
 
-Faithful replica of fourier/FourierBasedChebfuns.m by Grady Wright,
-June 2014 -- every section, computation, and printed display of the
-published page is reproduced in order.
+Translation of fourier/FourierBasedChebfuns.m by Grady Wright, June 2014.
+The cached page is the reference for prose, output and figure audits.
 
 Original: https://www.chebfun.org/examples/fourier/FourierBasedChebfuns.html
 Copyright 2014 by The University of Oxford and The Chebfun Developers.
 
-Output-parity note: all deterministic quantities (lengths, ratio,
-max/min/roots, integral, heart area and its error) reproduce the
-published values; the noisy-samples section uses numpy's RandomState
-(MATLAB's rng(0) ziggurat stream is not reproducible) so the noise
-realisation differs while the construction and mollification are
-faithful.
+Exact MATLAB Gaussian-stream parity and rendered figure parity remain open.
+Printed values are computed by the current library rather than substituted
+from the reference page.
 """
 import matplotlib
 
@@ -29,6 +25,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import save_chebfun_figure as _savefig
 from chebfunjax.utils.quadrature import trigpts
 
 chebfun_style()
@@ -44,8 +41,7 @@ def _show(name, f):
 def _save(fig, stem):
     fig.set_facecolor("white")
     fig.tight_layout()
-    fig.savefig(os.path.join(_IMG, stem + ".png"), dpi=150,
-                bbox_inches="tight")
+    _savefig(fig, os.path.join(_IMG, stem + ".png"))
     plt.close(fig)
 
 
@@ -84,8 +80,18 @@ def run():
         warnings.simplefilter("always")
         f_step = cj.chebfun(
             lambda x: 0.5 * (1.0 + jnp.sign(x)), domain=dom, trig=True)
-    for w in rec:
-        print("Warning:", str(w.message))
+    for warning in rec:
+        message = str(warning.message)
+        expected = (f"Trigtech.from_function: function did not converge with "
+                    f"{len(f_step)} points. Returning unhappy representation.")
+        if message == expected and not f_step.funs[0].tech.ishappy:
+            # Render this actual unresolved-construction warning in MATLAB's
+            # published display format; preserve any other warning verbatim.
+            print(f"Warning: Function not resolved using {len(f_step)} pts. "
+                  "Have you tried a non-trig")
+            print("representation? ")
+        else:
+            print("Warning:", message)
     _show("f", f_step)
     fig, ax = plt.subplots(figsize=(6.5, 4))
     ax.plot(xs, np.asarray(f_step(jnp.asarray(xs))), "b", lw=0.7)
@@ -96,9 +102,8 @@ def run():
     _show("f", f_split)
 
     # -- Basic operations -------------------------------------------
-    f = cj.chebfun(
-        lambda x: jnp.tanh(jnp.cos(1 + 2 * jnp.sin(x)) ** 2) - 0.5,
-        domain=dom, trig=True)
+    g = cj.chebfun(lambda x: jnp.sin(x), domain=dom, trig=True)
+    f = ((1 + 2 * g).cos() ** 2).tanh() - 0.5
     _show("f", f)
     fig, ax = plt.subplots(figsize=(6.5, 4))
     fx = np.asarray(f(jnp.asarray(xs)))
@@ -154,7 +159,7 @@ def run():
     # -- circconv + construction from values -------------------------
     rng = np.random.RandomState(0)
     n = 201
-    x, _ = trigpts(n, tuple(dom))
+    x, _ = trigpts(n)  # source samples on default [-1,1), then uses dom
     x = np.asarray(x)
     func_vals = np.exp(np.sin(2 * np.pi * x)) + 0.05 * rng.randn(n)
     fN = cj.Chebfun.from_trig_values(jnp.asarray(func_vals), tuple(dom)) \
